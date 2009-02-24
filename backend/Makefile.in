@@ -1490,6 +1490,35 @@ FIRMWARE_DIRS = artec_eplus48u gt68xx snapscan epjitsu
 
 # TODO: This really belongs together with the saned sources and
 # should be installed there as well.
+# TODO: Why are this distributed but not compiled?
+# TODO: Why are this distributed but not compiled?
+# TODO: Why are this distributed but not compiled?
+# TODO: Why are this distributed but not compiled?
+# TODO: These should be moved to ../docs/hp; don't belong here.
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed by not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
+# TODO: Why is this distributed but not installed?
 EXTRA_DIST = sane_strstatus.c stubs.c saned.conf.in abaton.conf.in \
 	agfafocus.conf.in apple.conf.in artec.conf.in \
 	artec_eplus48u.conf.in avision.conf.in bh.conf.in \
@@ -1556,7 +1585,8 @@ EXTRA_DIST = sane_strstatus.c stubs.c saned.conf.in abaton.conf.in \
 	umax-ug80.c umax-usb.c umax1220u.conf.in umax1220u-common.c \
 	umax_pp.conf.in v4l.conf.in dll.conf.in dll.aliases
 
-# Generate .conf files for all existing .conf.in files
+# Backends are not required to have a config file. Any backend
+# that wants to install a config file should list it here.
 BACKEND_CONFS = abaton.conf agfafocus.conf apple.conf artec.conf \
 	       artec_eplus48u.conf avision.conf bh.conf \
 	       canon630u.conf canon.conf canon_dr.conf \
@@ -1582,6 +1612,14 @@ CLEANFILES = dll-preload.h $(BACKEND_CONFS) $(be_convenience_libs)
 
 # Backends
 #
+# All possible backends should be listed here.  As a first step, we create
+# a convenience library containing all files needed to link a backend
+# directly into libsane.la.  Convenience library should have the
+# form of lib${backend}.la to match what configure will list to
+# build.
+# Occasionally, this approach will have name conflicts with external
+# libraries that need to be linked in.  See libgphoto2_i.la for 
+# example of working around that issue.
 be_convenience_libs = libabaton.la libagfafocus.la \
     libapple.la libartec.la libartec_eplus48u.la \
     libas6e.la libavision.la libbh.la \
@@ -1610,6 +1648,10 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libumax1220u.la libumax_pp.la libv4l.la \
     libxerox_mfp.la
 
+
+# Each stand alone backend thats possible to be built should be listed
+# here.  There are the libraries that are installed under $(libdir)/sane.
+# Format is libsane-${backend}.la.
 be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-apple.la libsane-artec.la libsane-artec_eplus48u.la \
     libsane-as6e.la libsane-avision.la libsane-bh.la \
@@ -1643,8 +1685,26 @@ lib_LTLIBRARIES = libsane.la
 sanelibdir = $(libdir)/sane
 sanelib_LTLIBRARIES = $(BACKEND_LIBS_ENABLED) libsane-dll.la
 COMMON_LIBS = ../lib/liblib.la
+
+# Each backend should define a convenience library that compiles
+# all related files within backend directory.  General guideline
+# is to have a ${backend}.c and ${backend}.h.  Some backends also
+# add a few support source files to convience library.
+# Note: automake doesn't really use header files listed here. 
+# They are indications that they need to be distributed only.
 libabaton_la_SOURCES = abaton.c abaton.h
 libabaton_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=abaton
+
+# Each backend should define a stand alone library that gets installed.
+# This will need to link in a special file ${backend}-s.c that allows
+# the backend to be stand alone and contain all SANE API functions.
+# Also, it will need to link in related convenience library as well as
+# any external libraries required to resolve symbols.
+#
+# All backends should include $(DIST_SANELIBS_LDFLAGS) so that 
+# library is correctly versioned.
+#
+# If a backend has a config file, it must be listed here to get distributed.
 nodist_libsane_abaton_la_SOURCES = abaton-s.c
 libsane_abaton_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=abaton
 libsane_abaton_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
@@ -4358,7 +4418,14 @@ becfg: $(BACKEND_CONFS)
 
 install-data-hook: install-becfg install-firmware-path $(INSTALL_LOCKPATH)
 
+# Custom install target to install config files.  Do not overwrite
+# files that have been previously installed so that user modifications
+# are not lost.
 install-becfg:
+	@# Libtool has a bug where it will sometimes symlink the last 
+	@# installed library in $(sanelibdir) to $(sanelibdir)/libsane.*.  
+	@# Having two libsane's can cause issues so get rid of it.
+	-rm -f $(DESTDIR)$(sanelibdir)/libsane.*
 	test -z "$(configdir)" || $(MKDIR_P) "$(DESTDIR)$(configdir)"
 	test -z "$(configdir)/dll.d" || $(MKDIR_P) "$(DESTDIR)$(configdir)/dll.d"
 	@list="$(BACKEND_CONFS_ENABLED) saned.conf dll.conf"; for cfg in $$list; do \

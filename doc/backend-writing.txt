@@ -42,14 +42,15 @@ GETTING STARTED
 CONFIGURATION AND BUILD SYSTEM
 ------------------------------
 
-Sane-backends uses the autoconf tools but not automake. The configure script is
-generated from configure.in and aclocal.m4 by running "autoconf". Simple checks
-(e.g. for headers) should be placed into configure.in while for more complex
-stuff acinclude.m4 is the right file. After changes in one of these files
-"autoheader" and "autoconf" should be called. Autoheader creates
-include/sane/config.h.in, while autoconf createts the "configure" script. In
-CVS, all these changes must be commited (configure.in, configure, acinclude.m4,
-include/sane/config.h.in). 
+Sane-backends uses the autoconf and automake tools. The configure script is
+generated from configure.in and aclocal.m4 by running "autoreconf". 
+Simple checks (e.g. for headers) should be placed into configure.in while 
+for more complex stuff acinclude.m4 is the right file. After changes in one 
+of these files, "autoreconf" should be called.  This will then call a
+chain of autotools, such as autoconf to generate configure, autoheader
+to generate include/sane/config.h.in, and automake to generate various
+Makefile.in's from Makefile.am's.  All changes made by "autoreconf" must
+be commited to CVS together.
 
 When running configure, the Makefiles in the main and sub-directories are
 created from their respective Makefile.in files. Also include/sane/config.h
@@ -57,17 +58,16 @@ which is included into to every c file is created from its .in file.
 
 Running "make" runs the respective targets in the sub directories recursively.
 
-The Makefile.in in each directory contains lists of files which are part of the
+The Makefile.am in each directory contains lists of files which are part of the
 distribution and which are therefore copied to the tar.gz archive, when a
-release is made. It's important that newly added files are also added to their
-respective DISTFILES variables in the Makefile.in.
+release is made. It's important that newly added files are also added to 
+a variable that will cause them to be distributed (EXTRA_DIST at a minimum).
 
 For creating binaries and libraries libtool is used. The ltmain.sh script
-contains special modifications for SANE. In addition to fixes for MacOS these
-modifications ensure that the soname of each SANE backend library is
-"libsane.so". Without this change, backend libraries (like "libsane-epson.so")
-could not used as on-the-fly replacement for the dll backend.
-
+contains special modifications for SANE. These modifications ensure that 
+the soname of each SANE backend library is "libsane.so". Without this 
+change, backend libraries (like "libsane-epson.so") could not used as 
+on-the-fly replacement for the dll backend.
 
 DIRECTORY OVERVIEW
 ------------------
@@ -76,20 +76,20 @@ This chapter explains some details about the files and directories used in the
 sane-backends distribution.
 
 sane-backends/
-  * acinclude.m4 aclocal.m4 config.guess config.sub configure configure.in
-    install-sh ltmain.sh Makefile.in mkinstalldirs:
-    Part of the build system as explained above.
+  * acinclude.m4 aclocal.m4 compile config.guess config.sub configure 
+    configure.in depcomp install-sh ltmain.sh Makefile.am Makefile.in missing 
+    mkinstalldirs: Part of the build system as explained above.
   * ChangeLog:
-    The ChangeLog contains all the changes made since the last stable release. If
-    anything is changed in CVS, it must be also mentioned in ChangeLog. It's not
-    enough to write just a CVS commit message, as users won't have access to
-    these messages. For more details on the format, see the SANE CVS page on the
-    website.
+    The ChangeLog contains all the changes made since the last stable release. 
+    If anything is changed in CVS, it must be also mentioned in ChangeLog. 
+    It's not enough to write just a CVS commit message, as users won't have 
+    access to these messages. For more details on the format, see the SANE 
+    CVS page on the website.
   * ChangeLog-1.0.0, ChangeLog-1.0.1 (...):
     These files contain the ChangeLogs of older releases. Once a new release has
     been made, the current ChangeLog renamed to ChangeLog-1.something.something
     and a new empty ChangeLog is created.
-  * AUTHORS COPYING LICENSE:
+  * AUTHORS COPYING INSTALL LICENSE:
     General documentation + license.
   * NEWS:
     This is some kind of executive summary of the ChangeLog. It will be created
@@ -120,24 +120,25 @@ sane-backends/backend/
   * newbackend.h:
     Header file, containing includes and so on.
   * newbackend.conf.in:
-    Configuration file for the backend, newbackend.conf will be created by running
-    "make" from this file. Some variables are substituted, e.g. for installation
-    directories. This is especially useful for firmware directories. See
-    Makefile.in for a list.
+    Configuration file for the backend, newbackend.conf will be created by 
+    running "make" from this file. Some variables are substituted, e.g. for 
+    installation directories. This is especially useful for firmware 
+    directories. See Makefile.am for a list.
   * newbackend-low.c:
     Contains low level code for the "newbackend" backend. Depending on the
     complexity of the backend, splitting it to several files can be appropriate,
     the total number of files shouldn't exceed approx. 10, however.
   Other files:
-  * Makefile.in:
-    Makefile.in contains rather complex rules for building the backends. For
+  * Makefile.am, Makefile.in:
+    Makefile.am contains rather complex rules for building the backends. For
     adding backends, special care should be taken concerning the FIRMWARE_DIRS
     (add your backend name here, if your scanner needs firmware files) and
-    DISTFILES variables (see build system description). If your backend uses
-    separate object files, the additional dependencies must be added to the
-    EXTRA_newbackend variable. Also each backend that uses code from sanei must add
-    a line for each sanei file used, for sanei_usb code:
-           libsane-newbackend.la: ../sanei/sanei_usb.lo
+    other variables (see build system description). There is some
+    documentation inside of Makefile.am on what needs to be added and where.
+    At a minimum, a convenience library of form lib${backend}.la and
+    a installed library libsane-${backend}.la must be defined.  Any
+    sanei objects referenced should be listed in a
+    libsane_${backend}_la_LIBADD line.
   * sane_strstatus.c:
     Contains the code for the sane_strstatus() function to avoid code
     duplication in every backend.
@@ -153,9 +154,9 @@ sane-backends/doc/
      files. 
    General files:
    * Makefile.in:
-     "sane-newbackend.5" must be added to variable SECT5 and
-      "sane-newbackend.man" to DISTFILES. A backend documentation directory (if
-      used) must be added to the BACKDIRS variable.
+     "sane-newbackend.5" must be added to variable BACKEND_5MANS and
+      "sane-newbackend.man" to EXTRA_DIST. A backend documentation directory 
+      (if used) must be added to the BEDOCS variable.
    * backend-writing.txt:
      This file.
    * descriptions.txt:
@@ -167,7 +168,8 @@ sane-backends/doc/
    * sane.tex, net.tex:
      Contains the LaTeX source of the SANE standard.
    * descriptions/ (directory)
-     Contains the .desc files for every backend that is included into sane-backends.
+     Contains the .desc files for every backend that is included into 
+     sane-backends.
    * descriptions-external/ (directory)
      Contains the .desc files for backend that are not included into
      sane-backends yet (external backends). These files should only be created
@@ -206,7 +208,8 @@ sane-backends/po/
 
 sane-backends/sanei/
      Sanei (SANE internal) code. Needed for code used in several backends
-     like USB access. For more details, see the documentaion on the SANE website.
+     like USB access. For more details, see the documentaion on the SANE 
+     website.
 
 sane-backends/testsuite/
      Testsuite for SANE. See README for details.
@@ -225,14 +228,15 @@ PROGRAMMING
 
 * To add the backend to the existing SANE code, the following must be done at
   least:
-    - add the backend name to BACKENDS in configure.in (and rerun autoconf)
-    - add any parts of SANE that are used in the backend in
-      backend/Makefile.in. E.g., for the backend "newbackend" that uses
-      sanei_usb code:
-           libsane-newbackend.la: ../sanei/sanei_usb.lo
-      See the lines near the end of Makefile.in for examples.
-    - Add the source code files to the backend/ directories. All file names must
-      start with the backend name (e.g. newbackend.c, newbackend.h and
+    - add the backend name to ALL_BACKENDS in configure.in (and run autoreconf)
+    - Add new backend to BACKEND_CONFS, be_convenience_libs, be_dlopen_libs,
+      and define _lib${backend}_la_SOURCES and 
+      nodist_libsane_${backend}_la_SOURCES; using an existing backend as
+      a template.  Any sanei reference code should be listed in
+      libsane_${backend}_la_LIBADD as well as any external libraries
+      required to resolve all symbols.
+    - Add the source code files to the backend/ directories. All file names 
+      must start with the backend name (e.g. newbackend.c, newbackend.h and
       newbackend-usb.c). 
 
 * Please follow the GNU coding standards.  It's clear that the style
@@ -407,10 +411,9 @@ TESTING
 	nm -g  backend/.libs/libsane-hp.a
 
   would list all global symbols in the HP backend. 
-  "./configure --disable-shared; make; make libcheck" in the sane-backends
-  root directory will name all backend libraries, that contain "illegal"
-  symbols.
 
+  "./configure; make; make libcheck" in the sane-backends root directory
+  will name all backend libraries, that contain "illegal" symbols.
 
 DOCUMENTATION
 -------------
@@ -468,7 +471,7 @@ In sane-backends/backend/
 * Add the backend name to dll.conf
 * Check that the SANE license is in the backend source files.
 * Add the source file names and the .conf file
-  to DISTFILES in Makefile.in
+  to BACKEND_CONFS in Makefile.am
 
 In sane-backends/doc/
 * Add an entry for the man page in sane.man

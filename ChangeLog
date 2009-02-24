@@ -1,3 +1,9 @@
+2009-02-23 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* backend/Makefile.am: Add back in deletion of $(sanelibdir)/libsane.*
+	for buggy libtools.  Add some minor documentation.
+	* doc/backend-writing.txt: Add minor document updates to reflect
+	conversions to automake.
+
 2009-02-23  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, backend/fujitsu.conf.in,
 	doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man: backend v90,

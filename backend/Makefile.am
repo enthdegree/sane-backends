@@ -75,7 +75,8 @@ dll-preload.h:
 # should be installed there as well.
 EXTRA_DIST += saned.conf.in
 
-# Generate .conf files for all existing .conf.in files
+# Backends are not required to have a config file. Any backend
+# that wants to install a config file should list it here.
 BACKEND_CONFS= abaton.conf agfafocus.conf apple.conf artec.conf \
 	       artec_eplus48u.conf avision.conf bh.conf \
 	       canon630u.conf canon.conf canon_dr.conf \
@@ -110,7 +111,14 @@ SUFFIXES = .conf.in .conf
 
 install-data-hook: install-becfg install-firmware-path $(INSTALL_LOCKPATH)
 
+# Custom install target to install config files.  Do not overwrite
+# files that have been previously installed so that user modifications
+# are not lost.
 install-becfg:
+	@# Libtool has a bug where it will sometimes symlink the last 
+	@# installed library in $(sanelibdir) to $(sanelibdir)/libsane.*.  
+	@# Having two libsane's can cause issues so get rid of it.
+	-rm -f $(DESTDIR)$(sanelibdir)/libsane.*
 	test -z "$(configdir)" || $(MKDIR_P) "$(DESTDIR)$(configdir)"
 	test -z "$(configdir)/dll.d" || $(MKDIR_P) "$(DESTDIR)$(configdir)/dll.d"
 	@list="$(BACKEND_CONFS_ENABLED) saned.conf dll.conf"; for cfg in $$list; do \
@@ -143,8 +151,17 @@ CLEANFILES = dll-preload.h $(BACKEND_CONFS) $(be_convenience_libs)
 clean-local:
 	find . -type l -name \*-s.c | xargs rm -f
 
+
 # Backends
 #
+# All possible backends should be listed here.  As a first step, we create
+# a convenience library containing all files needed to link a backend
+# directly into libsane.la.  Convenience library should have the
+# form of lib${backend}.la to match what configure will list to
+# build.
+# Occasionally, this approach will have name conflicts with external
+# libraries that need to be linked in.  See libgphoto2_i.la for 
+# example of working around that issue.
 be_convenience_libs = libabaton.la libagfafocus.la \
     libapple.la libartec.la libartec_eplus48u.la \
     libas6e.la libavision.la libbh.la \
@@ -173,6 +190,9 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libumax1220u.la libumax_pp.la libv4l.la \
     libxerox_mfp.la
 
+# Each stand alone backend thats possible to be built should be listed
+# here.  There are the libraries that are installed under $(libdir)/sane.
+# Format is libsane-${backend}.la.
 be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-apple.la libsane-artec.la libsane-artec_eplus48u.la \
     libsane-as6e.la libsane-avision.la libsane-bh.la \
@@ -210,9 +230,25 @@ sanelib_LTLIBRARIES = $(BACKEND_LIBS_ENABLED) libsane-dll.la
 
 COMMON_LIBS = ../lib/liblib.la
 
+# Each backend should define a convenience library that compiles
+# all related files within backend directory.  General guideline
+# is to have a ${backend}.c and ${backend}.h.  Some backends also
+# add a few support source files to convience library.
+# Note: automake doesn't really use header files listed here. 
+# They are indications that they need to be distributed only.
 libabaton_la_SOURCES = abaton.c abaton.h
 libabaton_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=abaton
 
+# Each backend should define a stand alone library that gets installed.
+# This will need to link in a special file ${backend}-s.c that allows
+# the backend to be stand alone and contain all SANE API functions.
+# Also, it will need to link in related convenience library as well as
+# any external libraries required to resolve symbols.
+#
+# All backends should include $(DIST_SANELIBS_LDFLAGS) so that 
+# library is correctly versioned.
+#
+# If a backend has a config file, it must be listed here to get distributed.
 nodist_libsane_abaton_la_SOURCES = abaton-s.c
 libsane_abaton_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=abaton
 libsane_abaton_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
@@ -289,6 +325,7 @@ libsane_canon_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon
 libsane_canon_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_canon_la_LIBADD = $(COMMON_LIBS) libcanon.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS)
 EXTRA_DIST += canon.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += canon-sane.c canon-scsi.c
 
 libcanon630u_la_SOURCES = canon630u.c
@@ -299,6 +336,7 @@ libsane_canon630u_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon630u
 libsane_canon630u_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_canon630u_la_LIBADD = $(COMMON_LIBS) libcanon630u.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo  $(MATH_LIB) $(USB_LIBS)
 EXTRA_DIST += canon630u.conf.in
+# TODO: Why are this distributed but not compiled?
 EXTRA_DIST += canon630u-common.c lm9830.h
 
 libcanon_dr_la_SOURCES = canon_dr.c canon_dr.h canon_dr-cmd.h
@@ -380,7 +418,6 @@ nodist_libsane_dc240_la_SOURCES = dc240-s.c
 libsane_dc240_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dc240
 libsane_dc240_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_dc240_la_LIBADD = $(COMMON_LIBS) libdc240.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @SANEI_SANEI_JPEG_LO@ $(JPEG_LIBS)
-
 EXTRA_DIST += dc240.conf.in
 
 libdell1600n_net_la_SOURCES = dell1600n_net.c
@@ -445,6 +482,7 @@ libsane_genesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 libsane_genesys_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS)
 EXTRA_DIST += genesys.conf.in
+# TODO: Why are this distributed but not compiled?
 EXTRA_DIST += genesys_conv.c genesys_conv_hlp.c genesys_devices.c
 
 libgphoto2_i_la_SOURCES = gphoto2.c gphoto2.h
@@ -464,6 +502,7 @@ libsane_gt68xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=gt68xx
 libsane_gt68xx_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_gt68xx_la_LIBADD = $(COMMON_LIBS) libgt68xx.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS)
 EXTRA_DIST += gt68xx.conf.in
+# TODO: Why are this distributed but not compiled?
 EXTRA_DIST += gt68xx_devices.c gt68xx_generic.c gt68xx_generic.h gt68xx_gt6801.c gt68xx_gt6801.h gt68xx_gt6816.c gt68xx_gt6816.h gt68xx_high.c gt68xx_high.h gt68xx_low.c gt68xx_low.h gt68xx_mid.c gt68xx_mid.h gt68xx_shm_channel.c gt68xx_shm_channel.h
 
 libhp_la_SOURCES = hp.c hp.h hp-accessor.c hp-accessor.h hp-device.c hp-device.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c hp-option.h hp-scl.c hp-scl.h hp-scsi.h
@@ -474,6 +513,7 @@ libsane_hp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp
 libsane_hp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hp_la_LIBADD = $(COMMON_LIBS) libhp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pio.lo ../sanei/sanei_thread.lo $(SCSI_LIBS) $(USB_LIBS)
 EXTRA_DIST += hp.conf.in
+# TODO: These should be moved to ../docs/hp; don't belong here.
 EXTRA_DIST += hp.README hp.TODO
 
 libhp3500_la_SOURCES = hp3500.c
@@ -492,6 +532,7 @@ libsane_hp3900_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp3900
 libsane_hp3900_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hp3900_la_LIBADD = $(COMMON_LIBS) libhp3900.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(TIFF_LIBS) $(USB_LIBS)
 EXTRA_DIST += hp3900.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += hp3900_config.c hp3900_debug.c hp3900_rts8822.c hp3900_sane.c hp3900_types.c hp3900_usb.c
 
 libhp4200_la_SOURCES = hp4200.c hp4200.h
@@ -502,6 +543,7 @@ libsane_hp4200_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp4200
 libsane_hp4200_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hp4200_la_LIBADD = $(COMMON_LIBS) libhp4200.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo  ../sanei/sanei_pv8630.lo $(MATH_LIB) $(USB_LIBS)
 EXTRA_DIST += hp4200.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += hp4200_lm9830.c hp4200_lm9830.h
 
 libhp5400_la_SOURCES = hp5400.c hp5400.h
@@ -512,6 +554,7 @@ libsane_hp5400_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp5400
 libsane_hp5400_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hp5400_la_LIBADD = $(COMMON_LIBS) libhp5400.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS)
 EXTRA_DIST += hp5400.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += hp5400_debug.c hp5400_debug.h hp5400_internal.c hp5400_internal.h hp5400_sane.c hp5400_sanei.c hp5400_sanei.h hp5400_xfer.h
 
 libhp5590_la_SOURCES = hp5590.c
@@ -521,6 +564,7 @@ nodist_libsane_hp5590_la_SOURCES = hp5590-s.c
 libsane_hp5590_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp5590
 libsane_hp5590_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hp5590_la_LIBADD = $(COMMON_LIBS) libhp5590.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS)
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += hp5590_cmds.c hp5590_cmds.h hp5590_low.c hp5590_low.h
 
 libhpljm1005_la_SOURCES = hpljm1005.c
@@ -548,6 +592,7 @@ libsane_hs2p_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hs2p
 libsane_hs2p_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hs2p_la_LIBADD = $(COMMON_LIBS) libhs2p.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo  sane_strstatus.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS)
 EXTRA_DIST += hs2p.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += hs2p-scsi.c hs2p-scsi.h
 
 libibm_la_SOURCES = ibm.c ibm.h
@@ -558,6 +603,7 @@ libsane_ibm_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ibm
 libsane_ibm_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_ibm_la_LIBADD = $(COMMON_LIBS) libibm.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS)
 EXTRA_DIST += ibm.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += ibm-scsi.c
 
 libleo_la_SOURCES = leo.c leo.h
@@ -577,6 +623,7 @@ libsane_lexmark_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=lexmark
 libsane_lexmark_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_lexmark_la_LIBADD = $(COMMON_LIBS) liblexmark.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS)
 EXTRA_DIST += lexmark.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += lexmark_models.c lexmark_sensors.c
 
 libma1509_la_SOURCES = ma1509.c ma1509.h
@@ -623,6 +670,7 @@ libsane_mustek_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek
 libsane_mustek_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_mustek_la_LIBADD = $(COMMON_LIBS) libmustek.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo  ../sanei/sanei_thread.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pa4s2.lo $(IEEE1284_LIBS) $(SCSI_LIBS)
 EXTRA_DIST += mustek.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += mustek_scsi_pp.c mustek_scsi_pp.h
 
 libmustek_pp_la_SOURCES = mustek_pp.c mustek_pp.h mustek_pp_decl.h mustek_pp_drivers.h
@@ -633,6 +681,7 @@ libsane_mustek_pp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_pp
 libsane_mustek_pp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_mustek_pp_la_LIBADD = $(COMMON_LIBS) libmustek_pp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_pa4s2.lo $(MATH_LIB) $(IEEE1284_LIBS)
 EXTRA_DIST += mustek_pp.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += mustek_pp_ccd300.c mustek_pp_ccd300.h mustek_pp_cis.c mustek_pp_cis.h mustek_pp_null.c 
 
 libmustek_usb_la_SOURCES = mustek_usb.c mustek_usb.h
@@ -643,6 +692,7 @@ libsane_mustek_usb_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb
 libsane_mustek_usb_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_mustek_usb_la_LIBADD = $(COMMON_LIBS) libmustek_usb.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS)
 EXTRA_DIST += mustek_usb.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += mustek_usb_high.c mustek_usb_high.h mustek_usb_low.c mustek_usb_low.h mustek_usb_mid.c mustek_usb_mid.h
 
 libmustek_usb2_la_SOURCES = mustek_usb2.c mustek_usb2.h
@@ -652,6 +702,7 @@ nodist_libsane_mustek_usb2_la_SOURCES = mustek_usb2-s.c
 libsane_mustek_usb2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb2
 libsane_mustek_usb2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_mustek_usb2_la_LIBADD = $(COMMON_LIBS) libmustek_usb2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(PTHREAD_LIBS) $(USB_LIBS)
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += mustek_usb2_asic.c mustek_usb2_asic.h mustek_usb2_high.c mustek_usb2_high.h mustek_usb2_reflective.c mustek_usb2_transparent.c
 
 libnec_la_SOURCES = nec.c nec.h
@@ -679,6 +730,7 @@ nodist_libsane_niash_la_SOURCES = niash-s.c
 libsane_niash_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=niash
 libsane_niash_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_niash_la_LIBADD = $(COMMON_LIBS) libniash.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS)
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += niash_core.c niash_core.h niash_xfer.c niash_xfer.h
 
 libpie_la_SOURCES = pie.c pie-scsidef.h
@@ -706,6 +758,7 @@ libsane_pixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
 libsane_pixma_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_pixma_la_LIBADD = $(COMMON_LIBS) libpixma.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(SOCKET_LIBS) $(USB_LIBS)
 EXTRA_DIST += pixma.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += pixma_sane_options.c pixma_sane_options.h
 
 libplustek_la_SOURCES = plustek.c plustek.h
@@ -726,6 +779,7 @@ libsane_plustek_pp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=plustek_pp
 libsane_plustek_pp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_plustek_pp_la_LIBADD = $(COMMON_LIBS) libplustek_pp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(IEEE1284_LIBS)
 EXTRA_DIST += plustek_pp.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += plustek-pp_dac.c plustek-pp_dbg.h plustek-pp_detect.c plustek-pp_genericio.c plustek-pp_hwdefs.h plustek-pp_image.c plustek-pp_io.c plustek-pp_map.c plustek-pp_misc.c plustek-pp_models.c plustek-pp_motor.c plustek-pp_p12.c plustek-pp_p12ccd.c plustek-pp_p48xx.c plustek-pp_p9636.c plustek-pp_procfs.c plustek-pp_procs.h plustek-pp_ptdrv.c plustek-pp_scale.c plustek-pp_scan.h plustek-pp_scandata.h plustek-pp_sysdep.h plustek-pp_tpa.c plustek-pp_types.h plustek-pp_wrapper.c
 
 libpnm_la_SOURCES = pnm.c
@@ -753,6 +807,7 @@ libsane_ricoh_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ricoh
 libsane_ricoh_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_ricoh_la_LIBADD = $(COMMON_LIBS) libricoh.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS)
 EXTRA_DIST += ricoh.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += ricoh-scsi.c
 
 librts8891_la_SOURCES = rts8891.c rts8891.h rts88xx_lib.c rts88xx_lib.h
@@ -763,6 +818,7 @@ libsane_rts8891_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=rts8891
 libsane_rts8891_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_rts8891_la_LIBADD = $(COMMON_LIBS) librts8891.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_scsi.lo  ../sanei/sanei_usb.lo $(SCSI_LIBS) $(USB_LIBS)
 EXTRA_DIST += rts8891.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += rts8891_devices.c rts8891_low.c rts8891_low.h
 
 libs9036_la_SOURCES = s9036.c s9036.h
@@ -799,6 +855,7 @@ nodist_libsane_sm3600_la_SOURCES = sm3600-s.c
 libsane_sm3600_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=sm3600
 libsane_sm3600_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_sm3600_la_LIBADD = $(COMMON_LIBS) libsm3600.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS)
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += sm3600-color.c sm3600-gray.c sm3600-homerun.c sm3600-scanmtek.c sm3600-scantool.h sm3600-scanusb.c sm3600-scanutil.c
 
 libsm3840_la_SOURCES = sm3840.c sm3840.h sm3840_params.h
@@ -809,6 +866,7 @@ libsane_sm3840_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=sm3840
 libsane_sm3840_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_sm3840_la_LIBADD = $(COMMON_LIBS) libsm3840.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS)
 EXTRA_DIST += sm3840.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += sm3840_lib.c sm3840_lib.h sm3840_scan.c
 
 libsnapscan_la_SOURCES = snapscan.c snapscan.h
@@ -819,6 +877,7 @@ libsane_snapscan_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=snapscan
 libsane_snapscan_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_snapscan_la_LIBADD = $(COMMON_LIBS) libsnapscan.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS)
 EXTRA_DIST += snapscan.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += snapscan-data.c snapscan-mutex.c snapscan-options.c snapscan-scsi.c snapscan-sources.c snapscan-sources.h snapscan-usb.c snapscan-usb.h
 
 libsp15c_la_SOURCES = sp15c.c sp15c.h sp15c-scsi.h
@@ -865,6 +924,7 @@ libsane_test_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=test
 libsane_test_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_test_la_LIBADD = $(COMMON_LIBS) libtest.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_thread.lo 
 EXTRA_DIST += test.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += test-picture.c
 
 libteco1_la_SOURCES = teco1.c teco1.h
@@ -902,6 +962,7 @@ libsane_u12_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=u12
 libsane_u12_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_u12_la_LIBADD = $(COMMON_LIBS) libu12.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(USB_LIBS)
 EXTRA_DIST += u12.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += u12-ccd.c u12-hw.c u12-hwdef.h u12-if.c u12-image.c u12-io.c u12-map.c u12-motor.c u12-scanner.h u12-shading.c u12-tpa.c
 
 libumax_la_SOURCES = umax.c umax.h
@@ -912,6 +973,7 @@ libsane_umax_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax
 libsane_umax_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_umax_la_LIBADD = $(COMMON_LIBS) libumax.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS)
 EXTRA_DIST += umax.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += umax-scanner.c umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c umax-uc1260.c umax-uc630.c umax-uc840.c umax-ug630.c umax-ug80.c umax-usb.c
 
 libumax1220u_la_SOURCES = umax1220u.c
@@ -922,6 +984,7 @@ libsane_umax1220u_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax1220u
 libsane_umax1220u_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_umax1220u_la_LIBADD = $(COMMON_LIBS) libumax1220u.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_pv8630.lo $(MATH_LIB) $(USB_LIBS)
 EXTRA_DIST += umax1220u.conf.in
+# TODO: Why are these distributed but not compiled?
 EXTRA_DIST += umax1220u-common.c
 
 libumax_pp_la_SOURCES = umax_pp.c umax_pp.h umax_pp_low.c umax_pp_low.h umax_pp_mid.c umax_pp_mid.h
@@ -957,7 +1020,9 @@ nodist_libsane_dll_la_SOURCES =  dll-s.c dll-preload.h
 libsane_dll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_dll_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_dll_la_LIBADD = $(COMMON_LIBS) libdll.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo $(DL_LIBS)
-EXTRA_DIST += dll.conf.in dll.aliases
+EXTRA_DIST += dll.conf.in
+# TODO: Why is this distributed but not installed?
+EXTRA_DIST += dll.aliases
 
 # libsane.la and libsane-dll.la are the same thing except for
 # the addition of backends listed by PRELOADABLE_BACKENDS that are 

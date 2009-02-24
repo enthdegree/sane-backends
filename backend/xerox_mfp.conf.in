@@ -1,0 +1,4 @@
+#xerox_mfp.conf
+
+#Dell MFP Laser Printer 1815dn
+usb 0x413c 0x5124

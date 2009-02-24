@@ -95,7 +95,7 @@ BACKEND_CONFS= abaton.conf agfafocus.conf apple.conf artec.conf \
 	       st400.conf stv680.conf tamarack.conf \
 	       teco1.conf teco2.conf teco3.conf test.conf \
 	       u12.conf umax1220u.conf umax.conf umax_pp.conf v4l.conf \
-	       dll.conf saned.conf
+	       xerox_mfp.conf dll.conf saned.conf
 becfg: $(BACKEND_CONFS)
 
 SUFFIXES = .conf.in .conf
@@ -1012,6 +1012,7 @@ nodist_libsane_xerox_mfp_la_SOURCES = xerox_mfp-s.c
 libsane_xerox_mfp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=xerox_mfp
 libsane_xerox_mfp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_xerox_mfp_la_LIBADD = $(COMMON_LIBS) libxerox_mfp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS)
+EXTRA_DIST += xerox_mfp.conf.in
 
 libdll_la_SOURCES =  dll.c
 libdll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
@@ -1040,7 +1041,7 @@ EXTRA_DIST += dll.aliases
 #
 # FIXME: This is linking in every possible external library because there
 # is the off chance user is using PRELOADABLE_BACKENDS that may need
-# them. Since stanard mode is to only have the dll backend, its a waste.
+# them. Since standard mode is to only have the dll backend, its a waste.
 # Need to update configure to build a list of only what needs to go into
 # LIBADD based on whats being preloaded.
 nodist_libsane_la_SOURCES =  dll-s.c dll-preload.h

@@ -1583,7 +1583,8 @@ EXTRA_DIST = sane_strstatus.c stubs.c saned.conf.in abaton.conf.in \
 	umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c \
 	umax-uc1260.c umax-uc630.c umax-uc840.c umax-ug630.c \
 	umax-ug80.c umax-usb.c umax1220u.conf.in umax1220u-common.c \
-	umax_pp.conf.in v4l.conf.in dll.conf.in dll.aliases
+	umax_pp.conf.in v4l.conf.in xerox_mfp.conf.in dll.conf.in \
+	dll.aliases
 
 # Backends are not required to have a config file. Any backend
 # that wants to install a config file should list it here.
@@ -1605,7 +1606,7 @@ BACKEND_CONFS = abaton.conf agfafocus.conf apple.conf artec.conf \
 	       st400.conf stv680.conf tamarack.conf \
 	       teco1.conf teco2.conf teco3.conf test.conf \
 	       u12.conf umax1220u.conf umax.conf umax_pp.conf v4l.conf \
-	       dll.conf saned.conf
+	       xerox_mfp.conf dll.conf saned.conf
 
 SUFFIXES = .conf.in .conf
 CLEANFILES = dll-preload.h $(BACKEND_CONFS) $(be_convenience_libs)
@@ -2206,7 +2207,7 @@ libsane_dll_la_LIBADD = $(COMMON_LIBS) libdll.la ../sanei/sanei_init_debug.lo ..
 #
 # FIXME: This is linking in every possible external library because there
 # is the off chance user is using PRELOADABLE_BACKENDS that may need
-# them. Since stanard mode is to only have the dll backend, its a waste.
+# them. Since standard mode is to only have the dll backend, its a waste.
 # Need to update configure to build a list of only what needs to go into
 # LIBADD based on whats being preloaded.
 nodist_libsane_la_SOURCES = dll-s.c dll-preload.h

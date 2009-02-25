@@ -17,7 +17,7 @@
 
 #define DEBUG_DECLARE_ONLY
 
-#include <sane/config.h>
+#include "../include/sane/config.h"
 
 #include <stdio.h>
 #include <string.h>

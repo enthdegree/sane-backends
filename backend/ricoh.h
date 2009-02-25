@@ -47,7 +47,7 @@
 
 #include <sys/types.h>
 
-#include <sane/config.h>
+#include "../include/sane/config.h"
 
 /* defines for scan_image_mode field */
 #define RICOH_BINARY_MONOCHROME   0

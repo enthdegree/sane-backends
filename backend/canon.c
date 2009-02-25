@@ -92,7 +92,7 @@
  - sane_exit() : terminate use of backend, free devicename and device-struture
 */
 
-#include <sane/config.h>
+#include "../include/sane/config.h"
 
 #include <limits.h>
 #include <stdlib.h>

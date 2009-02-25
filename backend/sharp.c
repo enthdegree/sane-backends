@@ -78,7 +78,7 @@
    - bi-level color scans now give useful (8 bit) output
    - separate thresholds for red, green, blue (bi-level color scan) added
 */
-#include <sane/config.h>
+#include "../include/sane/config.h"
 
 #include <limits.h>
 #include <stdlib.h>

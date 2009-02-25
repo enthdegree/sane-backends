@@ -41,7 +41,7 @@
  *		warnings
  */
 
-#include <sane/config.h>
+#include "../include/sane/config.h"
 
 #include "epson2.h"
 

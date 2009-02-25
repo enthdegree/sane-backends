@@ -20,7 +20,7 @@
 
 /* ========================================================================= */
 
-#include <sane/config.h>
+#include "../include/sane/config.h"
 
 #include <math.h>
 #include <stdio.h>

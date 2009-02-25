@@ -6,7 +6,7 @@
  * More info at http://www.sane-project.org/license.html
  */
 
-#include <sane/config.h>
+#include "../include/sane/config.h"
 #include "../include/lassert.h"
 #include <ctype.h>
 #include <stdlib.h>

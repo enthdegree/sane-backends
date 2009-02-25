@@ -45,7 +45,7 @@
 #define HS2P_H 1
 
 #include <sys/types.h>
-#include <sane/config.h>
+#include "../include/sane/config.h"
 
 #include "hs2p-scsi.h"
 #include "hs2p-saneopts.h"

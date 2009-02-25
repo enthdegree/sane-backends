@@ -1,4 +1,7 @@
 2009-02-24  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/*.[ch]: more consistent #include "../include/sane/config.h"
+
+2009-02-24  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/Makefile.am/in, backend/xerox_mfp.conf.in: should use conf.in
 
 2009-02-23 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>

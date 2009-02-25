@@ -61,3 +61,6 @@ After the release:
 * configure.in: add -cvs suffix
 * configure.in: set is_release=no
 * configure: regenerate with autoconf
+* on cvs.alioth.debian.org, cvs update, ./configure, make the cvs checkout in
+  /org/alioth.debian.org/chroot/home/groups/sane/sane-backends-lists-cvs/
+

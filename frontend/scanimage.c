@@ -117,11 +117,14 @@ static int output_format = OUTPUT_PNM;
 static int help;
 static int dont_scan = 0;
 static const char *prog_name;
-static SANE_Option_Descriptor window_option[2];
-static int window[4];
 static int resolution_optind = -1, resolution_value = 0;
-static SANE_Word window_val[2];
-static int window_val_user[2];	/* is width/height user-specified? */
+
+/* window (area) related options */
+static SANE_Option_Descriptor window_option[4]; /*updated descs for x,y,l,t*/
+static int window[4]; /*index into backend options for x,y,l,t*/
+static SANE_Word window_val[2]; /*the value for x,y options*/
+static int window_val_user[2];	/* is x,y user-specified? */
+
 static int accept_only_md5_auth = 0;
 static const char *icc_profile = NULL;
 
@@ -132,8 +135,6 @@ static SANE_Word tl_x = 0;
 static SANE_Word tl_y = 0;
 static SANE_Word br_x = 0;
 static SANE_Word br_y = 0;
-static SANE_Word w_x = 0;
-static SANE_Word h_y = 0;
 static SANE_Byte *buffer;
 static size_t buffer_size;
 
@@ -354,21 +355,51 @@ print_unit (SANE_Unit unit)
 }
 
 static void
-print_option (SANE_Device * device, int opt_num, char short_name)
+print_option (SANE_Device * device, int opt_num, const SANE_Option_Descriptor *opt)
 {
   const char *str, *last_break, *start;
-  const SANE_Option_Descriptor *opt;
   SANE_Bool not_first = SANE_FALSE;
   int i, column;
-  SANE_Word maxwindow = 0;
 
-  opt = sane_get_option_descriptor (device, opt_num);
+  if (opt->type == SANE_TYPE_GROUP){
+    printf ("  %s:\n", opt->title);
+    return;
+  }
 
-  if (short_name)
-    printf ("    -%c", short_name);
+  /* if both of these are set, option is invalid */
+  if(opt->cap & SANE_CAP_SOFT_SELECT && opt->cap & SANE_CAP_HARD_SELECT){
+    fprintf (stderr, "%s: invalid option caps, SS+HS\n", prog_name);
+    return;
+  }
+
+  /* invalid to select but not detect */
+  if(opt->cap & SANE_CAP_SOFT_SELECT && !(opt->cap & SANE_CAP_SOFT_DETECT)){
+    fprintf (stderr, "%s: invalid option caps, SS!SD\n", prog_name);
+    return;
+  }
+  /* standard allows this, though it makes little sense
+  if(opt->cap & SANE_CAP_HARD_SELECT && !(opt->cap & SANE_CAP_SOFT_DETECT)){
+    fprintf (stderr, "%s: invalid option caps, HS!SD\n", prog_name);
+    return;
+  }*/
+
+  /* if one of these three is not set, option is useless, skip it */
+  if(!(opt->cap & 
+   (SANE_CAP_SOFT_SELECT | SANE_CAP_HARD_SELECT | SANE_CAP_SOFT_DETECT)
+  )){
+    return;
+  }
+
+  /* print the option */
+  if ( !strcmp (opt->name, "x")
+    || !strcmp (opt->name, "y")
+    || !strcmp (opt->name, "t")
+    || !strcmp (opt->name, "l"))
+      printf ("    -%s", opt->name);
   else
     printf ("    --%s", opt->name);
 
+  /* print the option choices */
   if (opt->type == SANE_TYPE_BOOL)
     {
       fputs ("[=(", stdout);
@@ -401,26 +432,25 @@ print_option (SANE_Device * device, int opt_num, char short_name)
 	    default:
 	      break;
 	    }
-	  if (opt->type != SANE_TYPE_STRING && opt->size
-	      > (SANE_Int) sizeof (SANE_Word))
+	  if (opt->type != SANE_TYPE_STRING
+           && opt->size > (SANE_Int) sizeof (SANE_Word))
 	    fputs (",...", stdout);
 	  break;
 
 	case SANE_CONSTRAINT_RANGE:
 	  if (opt->type == SANE_TYPE_INT)
 	    {
-	      if (strcmp (opt->name, SANE_NAME_SCAN_BR_X) == 0)
+	      if (!strcmp (opt->name, "x"))
 		{
-
-		  maxwindow = (opt->constraint.range->max) - tl_x;
-
-		  printf ("%d..%d", opt->constraint.range->min, maxwindow);
+		  printf ("%d..%d",
+                          opt->constraint.range->min, 
+                          opt->constraint.range->max - tl_x);
 		}
-	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_Y) == 0)
+	      else if (!strcmp (opt->name, "y"))
 		{
-		  maxwindow = (opt->constraint.range->max) - tl_y;
-
-		  printf ("%d..%d", opt->constraint.range->min, maxwindow);
+		  printf ("%d..%d",
+                          opt->constraint.range->min,
+                          opt->constraint.range->max - tl_y);
 		}
 	      else
 		{
@@ -436,22 +466,17 @@ print_option (SANE_Device * device, int opt_num, char short_name)
 	    }
 	  else
 	    {
-	      if (strcmp (opt->name, SANE_NAME_SCAN_BR_X) == 0)
+	      if (!strcmp (opt->name, "x"))
 		{
-		  maxwindow = (opt->constraint.range->max) - tl_x;
-
 		  printf ("%g..%g",
 			  SANE_UNFIX (opt->constraint.range->min),
-			  SANE_UNFIX (maxwindow));
-
+			  SANE_UNFIX (opt->constraint.range->max - tl_x));
 		}
-	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_Y) == 0)
+	      else if (!strcmp (opt->name, "y"))
 		{
-		  maxwindow = (opt->constraint.range->max) - tl_y;
-
 		  printf ("%g..%g",
 			  SANE_UNFIX (opt->constraint.range->min),
-			  SANE_UNFIX (maxwindow));
+			  SANE_UNFIX (opt->constraint.range->max - tl_y));
 		}
 	      else
 		{
@@ -497,9 +522,10 @@ print_option (SANE_Device * device, int opt_num, char short_name)
 	  break;
 	}
     }
+
+  /* print current option value */
   if (opt->type == SANE_TYPE_STRING || opt->size == sizeof (SANE_Word))
     {
-      /* print current option value */
       if (SANE_OPTION_IS_ACTIVE (opt->cap))
 	{
 	  void *val = alloca (opt->size);
@@ -513,27 +539,25 @@ print_option (SANE_Device * device, int opt_num, char short_name)
 	      break;
 
 	    case SANE_TYPE_INT:
-	      if (strcmp (opt->name, SANE_NAME_SCAN_TL_X) == 0)
+	      if (strcmp (opt->name, "l") == 0)
 		{
 		  tl_x = (*(SANE_Fixed *) val);
 		  printf ("%d", tl_x);
 		}
-	      else if (strcmp (opt->name, SANE_NAME_SCAN_TL_Y) == 0)
+	      else if (strcmp (opt->name, "t") == 0)
 		{
 		  tl_y = (*(SANE_Fixed *) val);
 		  printf ("%d", tl_y);
 		}
-	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_X) == 0)
+	      else if (strcmp (opt->name, "x") == 0)
 		{
 		  br_x = (*(SANE_Fixed *) val);
-		  w_x = br_x - tl_x;
-		  printf ("%d", w_x);
+		  printf ("%d", br_x - tl_x);
 		}
-	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_Y) == 0)
+	      else if (strcmp (opt->name, "y") == 0)
 		{
 		  br_y = (*(SANE_Fixed *) val);
-		  h_y = br_y - tl_y;
-		  printf ("%d", h_y);
+		  printf ("%d", br_y - tl_y);
 		}
 	      else
 		printf ("%d", *(SANE_Int *) val);
@@ -541,27 +565,25 @@ print_option (SANE_Device * device, int opt_num, char short_name)
 
 	    case SANE_TYPE_FIXED:
 
-	      if (strcmp (opt->name, SANE_NAME_SCAN_TL_X) == 0)
+	      if (strcmp (opt->name, "l") == 0)
 		{
 		  tl_x = (*(SANE_Fixed *) val);
 		  printf ("%g", SANE_UNFIX (tl_x));
 		}
-	      else if (strcmp (opt->name, SANE_NAME_SCAN_TL_Y) == 0)
+	      else if (strcmp (opt->name, "t") == 0)
 		{
 		  tl_y = (*(SANE_Fixed *) val);
 		  printf ("%g", SANE_UNFIX (tl_y));
 		}
-	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_X) == 0)
+	      else if (strcmp (opt->name, "x") == 0)
 		{
 		  br_x = (*(SANE_Fixed *) val);
-		  w_x = br_x - tl_x;
-		  printf ("%g", SANE_UNFIX (w_x));
+		  printf ("%g", SANE_UNFIX (br_x - tl_x));
 		}
-	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_Y) == 0)
+	      else if (strcmp (opt->name, "y") == 0)
 		{
 		  br_y = (*(SANE_Fixed *) val);
-		  h_y = br_y - tl_y;
-		  printf ("%g", SANE_UNFIX (h_y));
+		  printf ("%g", SANE_UNFIX (br_y - tl_y));
 		}
 	      else
 		printf ("%g", SANE_UNFIX (*(SANE_Fixed *) val));
@@ -582,39 +604,37 @@ print_option (SANE_Device * device, int opt_num, char short_name)
   if (!SANE_OPTION_IS_ACTIVE (opt->cap))
     fputs (" [inactive]", stdout);
 
+  else if(opt->cap & SANE_CAP_HARD_SELECT)
+    fputs (" [hardware]", stdout);
+
+  else if(!(opt->cap & SANE_CAP_SOFT_SELECT) && opt->cap & SANE_CAP_SOFT_DETECT)
+    fputs (" [read-only]", stdout);
+
   fputs ("\n        ", stdout);
 
-  switch (short_name)
+  column = 8;
+  last_break = 0;
+  start = opt->desc;
+  for (str = opt->desc; *str; ++str)
     {
-    case 'x':
-      fputs ("Width of scan-area.", stdout);
-      break;
-
-    case 'y':
-      fputs ("Height of scan-area.", stdout);
-      break;
-
-    default:
-      column = 8;
-      last_break = 0;
-      start = opt->desc;
-      for (str = opt->desc; *str; ++str)
-	{
-	  ++column;
-	  if (*str == ' ')
-	    last_break = str;
-	  if (column >= 79 && last_break)
-	    {
-	      while (start < last_break)
-		fputc (*start++, stdout);
-	      start = last_break + 1;	/* skip blank */
-	      fputs ("\n        ", stdout);
-	      column = 8 + (str - start);
-	    }
-	}
-      while (*start)
-	fputc (*start++, stdout);
+      ++column;
+      if (*str == ' ')
+        last_break = str;
+      else if (*str == '\n'){
+        column=80;
+        last_break = str;
+      }
+      if (column >= 79 && last_break)
+        {
+          while (start < last_break)
+            fputc (*start++, stdout);
+          start = last_break + 1;	/* skip blank */
+          fputs ("\n        ", stdout);
+          column = 8 + (str - start);
+        }
     }
+  while (*start)
+    fputc (*start++, stdout);
   fputc ('\n', stdout);
 }
 
@@ -839,8 +859,6 @@ fetch_options (SANE_Device * device)
   int i, option_count;
   SANE_Status status;
 
-  /* and now build the full table of long options: */
-
   opt = sane_get_option_descriptor (device, 0);
   if (opt == NULL)
     {
@@ -848,20 +866,23 @@ fetch_options (SANE_Device * device)
       exit (1);
     }
 
-  status = sane_control_option (device, 0, SANE_ACTION_GET_VALUE, &num_dev_options, 0);
+  status = sane_control_option (device, 0, SANE_ACTION_GET_VALUE,
+                                &num_dev_options, 0);
   if (status != SANE_STATUS_GOOD)
     {
-      fprintf (stderr, "Could not get value for option 0: %s\n", sane_strstatus (status));
+      fprintf (stderr, "Could not get value for option 0: %s\n",
+               sane_strstatus (status));
       exit (1);
     }
 
+  /* build the full table of long options */
   option_count = 0;
   for (i = 1; i < num_dev_options; ++i)
     {
       opt = sane_get_option_descriptor (device, i);
       if (opt == NULL)
 	{
-	  fprintf (stderr, "Could not get option descriptor for option %d\n", i);
+	  fprintf (stderr, "Could not get option descriptor for option %d\n",i);
 	  exit (1);
 	}
 
@@ -895,27 +916,15 @@ fetch_options (SANE_Device * device)
 	  && opt->size == sizeof (SANE_Int)
 	  && (opt->unit == SANE_UNIT_MM || opt->unit == SANE_UNIT_PIXEL))
 	{
-	  if (strcmp (opt->name, SANE_NAME_SCAN_TL_X) == 0)
-	    {
-	      window[2] = i;
-	      all_options[option_count].val = 'l';
-	    }
-	  else if (strcmp (opt->name, SANE_NAME_SCAN_TL_Y) == 0)
-	    {
-	      window[3] = i;
-	      all_options[option_count].val = 't';
-	    }
-	  else if (strcmp (opt->name, SANE_NAME_SCAN_BR_X) == 0)
+	  if (strcmp (opt->name, SANE_NAME_SCAN_BR_X) == 0)
 	    {
 	      window[0] = i;
 	      all_options[option_count].name = "width";
 	      all_options[option_count].val = 'x';
 	      window_option[0] = *opt;
 	      window_option[0].title = "Scan width";
-	      window_option[0].desc = "Width of scanning area.";
-	      if (!window_val_user[0])
-		sane_control_option (device, i, SANE_ACTION_GET_VALUE,
-				     &window_val[0], 0);
+	      window_option[0].desc = "Width of scan-area.";
+	      window_option[0].name = "x";
 	    }
 	  else if (strcmp (opt->name, SANE_NAME_SCAN_BR_Y) == 0)
 	    {
@@ -924,10 +933,22 @@ fetch_options (SANE_Device * device)
 	      all_options[option_count].val = 'y';
 	      window_option[1] = *opt;
 	      window_option[1].title = "Scan height";
-	      window_option[1].desc = "Height of scanning area.";
-	      if (!window_val_user[1])
-		sane_control_option (device, i, SANE_ACTION_GET_VALUE,
-				     &window_val[1], 0);
+	      window_option[1].desc = "Height of scan-area.";
+	      window_option[1].name = "y";
+	    }
+	  else if (strcmp (opt->name, SANE_NAME_SCAN_TL_X) == 0)
+	    {
+	      window[2] = i;
+	      all_options[option_count].val = 'l';
+	      window_option[2] = *opt;
+	      window_option[2].name = "l";
+	    }
+	  else if (strcmp (opt->name, SANE_NAME_SCAN_TL_Y) == 0)
+	    {
+	      window[3] = i;
+	      all_options[option_count].val = 't';
+	      window_option[3] = *opt;
+	      window_option[3].name = "t";
 	    }
 	}
       ++option_count;
@@ -940,12 +961,16 @@ fetch_options (SANE_Device * device)
      values for top-left x/y and bottom-right x/y: */
   for (i = 0; i < 2; ++i)
     {
-      if (window[i] && window[i + 2] && !window_val_user[i])
+      if (window[i] && !window_val_user[i])
 	{
-	  SANE_Word pos;
-	  sane_control_option (device, window[i + 2],
+	  sane_control_option (device, window[i],
+                                SANE_ACTION_GET_VALUE, &window_val[i], 0);
+          if (window[i + 2]){
+	    SANE_Word pos;
+	    sane_control_option (device, window[i + 2],
 			       SANE_ACTION_GET_VALUE, &pos, 0);
-	  window_val[i] = window_val[i] - pos + 1;
+	    window_val[i] -= pos;
+          }
 	}
     }
 }
@@ -1836,10 +1861,10 @@ main (int argc, char **argv)
 	      }
 	    if (i == 0 && ch != 'f')
 	      printf ("\nNo scanners were identified. If you were expecting "
-		      "something different,\ncheck that the scanner is plugged "
-		      "in, turned on and detected by the\nsane-find-scanner tool "
-		      "(if appropriate). Please read the documentation\nwhich came "
-		      "with this software (README, FAQ, manpages).\n");
+                "something different,\ncheck that the scanner is plugged "
+		"in, turned on and detected by the\nsane-find-scanner tool "
+		"(if appropriate). Please read the documentation\nwhich came "
+		"with this software (README, FAQ, manpages).\n");
 
 	    if (defdevname)
 	      printf ("default device is `%s'\n", defdevname);
@@ -1862,7 +1887,7 @@ main (int argc, char **argv)
     {
       printf ("Usage: %s [OPTION]...\n\
 \n\
-Start image acquisition on a scanner device and write PNM image data to\n\
+Start image acquisition on a scanner device and write image data to\n\
 standard output.\n\
 \n\
 Parameters are separated by a blank from single-character options (e.g.\n\
@@ -1874,15 +1899,16 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 -L, --list-devices         show available scanner devices\n\
 -f, --formatted-device-list=FORMAT similar to -L, but the FORMAT of the output\n\
                            can be specified: %%d (device name), %%v (vendor),\n\
-                           %%m (model), %%t (type), and %%i (index number)\n\
+                           %%m (model), %%t (type), %%i (index number), and\n\
+                           %%n (newline)\n\
 -b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' or\n\
                            `out%%d.tif' by default depending on --format\n");
       printf ("\
     --batch-start=#        page number to start naming files with\n\
     --batch-count=#        how many pages to scan in batch mode\n\
-    --batch-increment=#    increase number in filename by an amount of #\n\
-    --batch-double         increment page number by two for 2sided originals\n\
-                           being scanned in a single sided scanner\n\
+    --batch-increment=#    increase page number in filename by #\n\
+    --batch-double         increment page number by two, same as\n\
+                           --batch-increment=2\n\
     --batch-prompt         ask for pressing a key before scanning a page\n\
     --accept-md5-only      only accept authorization requests using md5\n");
       printf ("\
@@ -1940,7 +1966,18 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 
   if (device)
     {
-      /* We got a device, find out how many options it has: */
+      const SANE_Option_Descriptor * desc_ptr;
+
+      /* Good form to always get the descriptor once before value */
+      desc_ptr = sane_get_option_descriptor(device, 0);
+      if (!desc_ptr)
+	{
+	  fprintf (stderr, "%s: unable to get option count descriptor\n",
+		   prog_name);
+	  exit (1);
+	}
+
+      /* We got a device, find out how many options it has */
       status = sane_control_option (device, 0, SANE_ACTION_GET_VALUE,
 				    &num_dev_options, 0);
       if (status != SANE_STATUS_GOOD)
@@ -1950,17 +1987,19 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 	  exit (1);
 	}
 
+      /* malloc global option lists */
       all_options_len = num_dev_options + NELEMS (basic_options) + 1;
       all_options = malloc (all_options_len * sizeof (all_options[0]));
       option_number_len = num_dev_options;
       option_number = malloc (option_number_len * sizeof (option_number[0]));
       if (!all_options || !option_number)
 	{
-	  fprintf (stderr, "%s: out of memory in fetch_options()\n",
+	  fprintf (stderr, "%s: out of memory in main()\n",
 		   prog_name);
 	  exit (1);
 	}
 
+      /* load global option lists */
       fetch_options (device);
 
       {
@@ -1998,8 +2037,10 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 	strcat (full_optstring, yarg);
       }
 
+      /* re-run argument processing with backend-specific options included
+       * this time, enable error printing and arg permutation */
       optind = 0;
-      opterr = 1;		/* re-enable error printing and arg permutation */
+      opterr = 1;
       while ((ch = getopt_long (argc, argv, full_optstring, all_options,
 				&index)) != EOF)
 	{
@@ -2051,54 +2092,49 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 	}
 
       free (full_optstring);
+
+      /* convert x/y to br_x/br_y */
       for (index = 0; index < 2; ++index)
 	if (window[index])
 	  {
-	    SANE_Word val, pos;
-	    pos = 0;
+            SANE_Word pos = 0;
+	    SANE_Word val = window_val[index];
 
-	    val = window_val[index] - 1;
 	    if (window[index + 2])
 	      {
 		sane_control_option (device, window[index + 2],
 				     SANE_ACTION_GET_VALUE, &pos, 0);
-		val = pos + window_val[index] - 1;
+		val += pos;
 	      }
 	    set_option (device, window[index], &val);
 	  }
+
+      /* output device-specific help */
       if (help)
 	{
 	  printf ("\nOptions specific to device `%s':\n", devname);
 
-	  for (i = 0; i < num_dev_options; ++i)
+	  for (i = 1; i < num_dev_options; ++i)
 	    {
-	      char short_name = '\0';
 	      int j;
-
 	      opt = 0;
+
+              /* scan area uses modified option struct */
 	      for (j = 0; j < 4; ++j)
 		if (i == window[j])
-		  {
-		    short_name = "xylt"[j];
-		    if (j < 2)
-		      opt = window_option + j;
-		  }
+		    opt = window_option + j;
+
 	      if (!opt)
 		opt = sane_get_option_descriptor (device, i);
 
-	      if (opt->type == SANE_TYPE_GROUP)
-		printf ("  %s:\n", opt->title);
-
-	      if (!SANE_OPTION_IS_SETTABLE (opt->cap))
-		continue;
-
-	      print_option (device, i, short_name);
+	      print_option (device, i, opt);
 	    }
 	  if (num_dev_options)
 	    fputc ('\n', stdout);
 	}
     }
 
+  /* output device list */
   if (help)
     {
       printf ("\

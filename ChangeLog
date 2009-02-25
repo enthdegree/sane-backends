@@ -1,4 +1,10 @@
 2009-02-24  m. allan noah <kitno455 a t gmail d o t com>
+	* frontend/scanimage.c: improved comments, simplified x/y option code,
+	removed buggy -1/+1 x/y code (#311172), expose non-settable options,
+	check for invalid caps on options, handle option descs with \n
+	* doc/releases.txt: add note about cvs checkout on alioth.
+
+2009-02-24  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/*.[ch]: more consistent #include "../include/sane/config.h"
 
 2009-02-24  m. allan noah <kitno455 a t gmail d o t com>

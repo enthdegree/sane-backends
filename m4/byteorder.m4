@@ -32,10 +32,11 @@ $4
 dnl Create a header file that defines extended byte swapping macros
 AC_DEFUN([AC_NEED_BYTEORDER_H],
 [
+ac_byteorder_h=`echo ifelse($1, , _byteorder.h, $1)`
 changequote(, )dnl
-ac_dir=`echo $1|sed 's%/[^/][^/]*$%%'`
+ac_dir=`echo $ac_byteorder_h|sed 's%/[^/][^/]*$%%'`
 changequote([, ])dnl
-if test "$ac_dir" != "$1" && test "$ac_dir" != .; then
+if test "$ac_dir" != "$ac_byteorder" && test "$ac_dir" != .; then
   # The file is in a subdirectory.
   test ! -d "$ac_dir" && mkdir "$ac_dir"
 fi
@@ -47,7 +48,8 @@ if test "x$effective_target" = xNONE -o "x$effective_target" = x ; then
 fi
 AC_SUBST(effective_target)
 
-cat > "$1" << EOF
+ac_byteorder=_byteorder.tmp
+cat > "$ac_byteorder" << EOF
 /* This file is generated automatically by configure */
 /* It is valid only for the system type ${effective_target} */
 
@@ -62,7 +64,7 @@ AC_C_BIGENDIAN
 dnl Look for NetBSD-style extended byte swapping macros
 AC_HAVE_SYMBOL(le32toh,machine/endian.h,
  [HAVE_LE32TOH=1
- cat >> "$1" << EOF
+ cat >> "$ac_byteorder" << EOF
 /* extended byte swapping macros are already available */
 #include <machine/endian.h>
 
@@ -72,14 +74,14 @@ EOF],
 
 dnl Look for standard byte swapping macros
 AC_HAVE_SYMBOL(ntohl,arpa/inet.h,
- [cat >> "$1" << EOF
+ [cat >> "$ac_byteorder" << EOF
 /* ntohl and relatives live here */
 #include <arpa/inet.h>
 
 EOF],
 
  [AC_HAVE_SYMBOL(ntohl,netinet/in.h,
-  [cat >> "$1" << EOF
+  [cat >> "$ac_byteorder" << EOF
 /* ntohl and relatives live here */
 #include <netinet/in.h>
 
@@ -90,7 +92,7 @@ dnl Look for generic byte swapping macros
 
 dnl OpenBSD
 AC_HAVE_SYMBOL(swap32,machine/endian.h,
- [cat >> "$1" << EOF
+ [cat >> "$ac_byteorder" << EOF
 /* swap32 and swap16 are defined in machine/endian.h */
 
 EOF],
@@ -98,7 +100,7 @@ EOF],
  [
 dnl Linux GLIBC
   AC_HAVE_SYMBOL(bswap_32,byteswap.h,
-   [cat >> "$1" << EOF
+   [cat >> "$ac_byteorder" << EOF
 /* Define generic byte swapping functions */
 #include <byteswap.h>
 #define swap16(x) bswap_16(x)
@@ -111,13 +113,13 @@ EOF],
 dnl NetBSD
   	AC_HAVE_SYMBOL(bswap32,machine/endian.h,
     dnl We're already including machine/endian.h if this test succeeds
-  	 [cat >> "$1" << EOF
+  	 [cat >> "$ac_byteorder" << EOF
 /* Define generic byte swapping functions */
 EOF
 	if test "$HAVE_LE32TOH" != "1"; then
-		echo '#include <machine/endian.h>'>> "$1"
+		echo '#include <machine/endian.h>'>> "$ac_byteorder"
 	fi
-cat >> "$1" << EOF
+cat >> "$ac_byteorder" << EOF
 #define swap16(x) bswap16(x)
 #define swap32(x) bswap32(x)
 #define swap64(x) bswap64(x)
@@ -127,7 +129,7 @@ EOF],
    [
 dnl FreeBSD
   	AC_HAVE_SYMBOL(__byte_swap_long,sys/types.h,
-  	 [cat >> "$1" << EOF
+  	 [cat >> "$ac_byteorder" << EOF
 /* Define generic byte swapping functions */
 #include <sys/types.h>
 #define swap16(x) __byte_swap_word(x)
@@ -147,7 +149,7 @@ EOF],
   	 [
 dnl OS X
   	AC_HAVE_SYMBOL(NXSwapLong,machine/byte_order.h,
-  	 [cat >> "$1" << EOF
+  	 [cat >> "$ac_byteorder" << EOF
 /* Define generic byte swapping functions */
 #include <machine/byte_order.h>
 #define swap16(x) NXSwapShort(x)
@@ -157,7 +159,7 @@ dnl OS X
 EOF],
          [
 	if test $ac_cv_c_bigendian = yes; then
-		cat >> "$1" << EOF
+		cat >> "$ac_byteorder" << EOF
 /* No other byte swapping functions are available on this big-endian system */
 #define swap16(x)	((uint16_t)(((x) << 8) | ((uint16_t)(x) >> 8)))
 #define swap32(x)	((uint32_t)(((uint32_t)(x) << 24) & 0xff000000UL | \\
@@ -175,7 +177,7 @@ EOF],
 
 EOF
 	else
- cat >> "$1" << EOF
+ cat >> "$ac_byteorder" << EOF
 /* Use these as generic byteswapping macros on this little endian system */
 #define swap16(x)		ntohs(x)
 #define swap32(x)		ntohl(x)
@@ -200,7 +202,7 @@ EOF
 
 [
 if test "$HAVE_LE32TOH" != "1"; then
- cat >> "$1" << EOF
+ cat >> "$ac_byteorder" << EOF
 /* The byte swapping macros have the form: */
 /*   EENN[a]toh or htoEENN[a] where EE is be (big endian) or */
 /* le (little-endian), NN is 16 or 32 (number of bits) and a, */
@@ -230,7 +232,7 @@ if test "$HAVE_LE32TOH" != "1"; then
 EOF
 
  if test $ac_cv_c_bigendian = yes; then
-  cat >> "$1" << EOF
+  cat >> "$ac_byteorder" << EOF
 /* Define our own extended byte swapping macros for big-endian machines */
 #define htole16(x)      swap16(x)
 #define htole32(x)      swap32(x)
@@ -250,7 +252,7 @@ EOF
 
 EOF
  else
-  cat >> "$1" << EOF
+  cat >> "$ac_byteorder" << EOF
 /* On little endian machines, these macros are null */
 #define htole16(x)      (x)
 #define htole32(x)      (x)
@@ -277,7 +279,7 @@ EOF
  fi
 fi
 
-cat >> "$1" << EOF
+cat >> "$ac_byteorder" << EOF
 /* Define the C99 standard length-specific integer types */
 #include <_stdint.h>
 
@@ -285,7 +287,7 @@ EOF
 
 case "${effective_target}" in
  i[3456]86-*)
-  cat >> "$1" << EOF
+  cat >> "$ac_byteorder" << EOF
 /* Here are some macros to create integers from a byte array */
 /* These are used to get and put integers from/into a uint8_t array */
 /* with a specific endianness.  This is the most portable way to generate */
@@ -312,7 +314,7 @@ EOF
   ;;
 
  *)
-  cat >> "$1" << EOF
+  cat >> "$ac_byteorder" << EOF
 /* Here are some macros to create integers from a byte array */
 /* These are used to get and put integers from/into a uint8_t array */
 /* with a specific endianness.  This is the most portable way to generate */
@@ -349,6 +351,14 @@ EOF
 esac
 ]
 
-cat >> "$1" << EOF
+cat >> "$ac_byteorder" << EOF
 #endif /*__BYTEORDER_H*/
-EOF])
+EOF
+
+if cmp -s $ac_byteorder_h $ac_byteorder 2>/dev/null; then
+  AC_MSG_NOTICE([$ac_byteorder_h is unchanged])
+else
+  rm -f $ac_byteorder_h
+  mv $ac_byteorder $ac_byteorder_h
+fi
+])

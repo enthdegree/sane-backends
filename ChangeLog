@@ -1,3 +1,10 @@
+2009-02-24 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* configure.in, m4/stdint.m4: Update to latest version to
+	get latest fixes and use logic to not recreate _stdint.h if
+	no changes (to prevent unneeded recompiles).
+	* m4/byteorder.m4: Added support to reuse existing byteorder.h if
+	no changes to prevent timestamp causing a recompile.
+
 2009-02-24  m. allan noah <kitno455 a t gmail d o t com>
 	* frontend/scanimage.c: improved comments, simplified x/y option code,
 	removed buggy -1/+1 x/y code (#311172), expose non-settable options,

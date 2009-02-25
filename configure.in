@@ -98,7 +98,7 @@ m4_ifndef([AC_USE_SYSTEM_EXTENSIONS],[AC_MINIX])
 AC_ISC_POSIX
 
 AC_NEED_BYTEORDER_H([include/byteorder.h])
-AX_NEED_STDINT_H([include/_stdint.h])
+AX_CREATE_STDINT_H([include/_stdint.h])
 
 dnl ***********************************************************************
 dnl Checks for libraries

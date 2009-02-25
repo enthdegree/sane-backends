@@ -1,94 +1,48 @@
-dnl AC_NEED_STDINT_H ( HEADER-TO-GENERATE )
-dnl Copyright 2001-2002 by Dan Fandrich <dan@coneharvesters.com>
-dnl This file may be copied and used freely without restrictions.  No warranty
-dnl is expressed or implied.
+dnl @synopsis AX_CREATE_STDINT_H [( HEADER-TO-GENERATE [, HEDERS-TO-CHECK])]
 dnl
-dnl Look for a header file that defines size-specific integer types like the
-dnl ones recommended to be in stdint.h in the C99 standard (e.g. uint32_t).
-dnl This is a dumbed-down version of the macro of the same name in the file
-dnl ac_need_stdint_h.m4 which is part of the ac-archive, available at
-dnl <URL:http://ac-archive.sourceforge.net/> (also, another macro
-dnl AC_CREATE_STDINT_H by the same author).  This version is not as smart,
-dnl but works on older autoconf versions and has a different license.
-
-dnl AX_CHECK_DEFINED_TYPE ( TYPE, FILE, ACTION-IF-FOUND, ACTION-IF-NOT-FOUND )
-dnl This is similar to _AC_CHECK_TYPE_NEW (a.k.a. new syntax version of
-dnl AC_CHECK_TYPE) in autoconf 2.50 but works on older versions
-AC_DEFUN([AX_CHECK_DEFINED_TYPE],
-[AC_MSG_CHECKING([for $1 in $2])
-AC_EGREP_CPP(changequote(<<,>>)dnl
-<<(^|[^a-zA-Z_0-9])$1[^a-zA-Z_0-9]>>dnl
-changequote([,]), [#include <$2>],
-ac_cv_type_$1=yes, ac_cv_type_$1=no)dnl
-AC_MSG_RESULT($ac_cv_type_$1)
-if test $ac_cv_type_$1 = yes; then
-  $3
-else
-  $4
-fi
-])
-
-dnl Look for a header file that defines size-specific integer types
-AC_DEFUN([AX_NEED_STDINT_H],
-[
-changequote(, )dnl
-ac_dir=`echo "$1"|sed 's%/[^/][^/]*$%%'`
-changequote([, ])dnl
-if test "$ac_dir" != "$1" && test "$ac_dir" != .; then
-  # The file is in a subdirectory.
-  test ! -d "$ac_dir" && mkdir "$ac_dir"
-fi
-
-AX_CHECK_DEFINED_TYPE(uint8_t,
-stdint.h,
-[
-cat > "$1" <<EOF
-/* This file is generated automatically by configure */
-#include <stdint.h>
-EOF],
-[AX_CHECK_DEFINED_TYPE(uint8_t,
-inttypes.h,
-[cat > "$1" <<EOF
-/* This file is generated automatically by configure */
-#include <inttypes.h>
-EOF],
-[AX_CHECK_DEFINED_TYPE(uint8_t,
-sys/types.h,
-[cat > "$1" <<EOF
-/* This file is generated automatically by configure */
-#include <sys/types.h>
-EOF],
-[AX_CHECK_DEFINED_TYPE(u_int8_t,
-sys/types.h,
-[cat > "$1" <<EOF
-/* This file is generated automatically by configure */
-#ifndef __STDINT_H
-#define __STDINT_H
-#include <sys/types.h>
-typedef u_int8_t uint8_t;
-typedef u_int16_t uint16_t;
-typedef u_int32_t uint32_t;
-EOF
-
-AX_CHECK_DEFINED_TYPE(u_int64_t,
-sys/types.h,
-[cat >> "$1" <<EOF
-typedef u_int64_t uint64_t;
-#endif /*!__STDINT_H*/
-EOF],
-[cat >> "$1" <<EOF
-/* 64-bit types are not available on this system */
-/* typedef u_int64_t uint64_t; */
-#endif /*!__STDINT_H*/
-EOF])
-
-],
-[AC_MSG_WARN([I can't find size-specific integer definitions on this system])
-if test -e "$1" ; then
-	rm -f "$1"
-fi
-])])])])dnl
-])
+dnl the "ISO C9X: 7.18 Integer types <stdint.h>" section requires the
+dnl existence of an include file <stdint.h> that defines a set of
+dnl typedefs, especially uint8_t,int32_t,uintptr_t. Many older
+dnl installations will not provide this file, but some will have the
+dnl very same definitions in <inttypes.h>. In other enviroments we can
+dnl use the inet-types in <sys/types.h> which would define the typedefs
+dnl int8_t and u_int8_t respectivly.
+dnl
+dnl This macros will create a local "_stdint.h" or the headerfile given
+dnl as an argument. In many cases that file will just "#include
+dnl <stdint.h>" or "#include <inttypes.h>", while in other environments
+dnl it will provide the set of basic 'stdint's definitions/typedefs:
+dnl
+dnl   int8_t,uint8_t,int16_t,uint16_t,int32_t,uint32_t,intptr_t,uintptr_t
+dnl   int_least32_t.. int_fast32_t.. intmax_t
+dnl
+dnl which may or may not rely on the definitions of other files, or
+dnl using the AC_CHECK_SIZEOF macro to determine the actual sizeof each
+dnl type.
+dnl
+dnl if your header files require the stdint-types you will want to
+dnl create an installable file mylib-int.h that all your other
+dnl installable header may include. So if you have a library package
+dnl named "mylib", just use
+dnl
+dnl      AX_CREATE_STDINT_H(mylib-int.h)
+dnl
+dnl in configure.ac and go to install that very header file in
+dnl Makefile.am along with the other headers (mylib.h) - and the
+dnl mylib-specific headers can simply use "#include <mylib-int.h>" to
+dnl obtain the stdint-types.
+dnl
+dnl Remember, if the system already had a valid <stdint.h>, the
+dnl generated file will include it directly. No need for fuzzy
+dnl HAVE_STDINT_H things... (oops, GCC 4.2.x has deliberatly disabled
+dnl its stdint.h for non-c99 compilation and the c99-mode is not the
+dnl default. Therefore this macro will not use the compiler's stdint.h
+dnl - please complain to the GCC developers).
+dnl
+dnl @category C
+dnl @author Guido U. Draheim <guidod@gmx.de>
+dnl @version 2006-10-13
+dnl @license GPLWithACException
 
 AC_DEFUN([AX_CHECK_DATA_MODEL],[
    AC_CHECK_SIZEOF(char)
@@ -132,7 +86,8 @@ AC_DEFUN([AX_CHECK_HEADER_STDINT_X],[
 AC_CACHE_CHECK([for stdint uintptr_t], [ac_cv_header_stdint_x],[
  ac_cv_header_stdint_x="" # the 1997 typedefs (inttypes.h)
   AC_MSG_RESULT([(..)])
-  for i in m4_ifval([$1],[$1],[stdint.h inttypes.h sys/inttypes.h]) ; do
+  for i in m4_ifval([$1],[$1],[stdint.h inttypes.h sys/inttypes.h sys/types.h])
+  do
    unset ac_cv_type_uintptr_t
    unset ac_cv_type_uint64_t
    AC_CHECK_TYPE(uintptr_t,[ac_cv_header_stdint_x=$i],continue,[#include <$i>])
@@ -147,7 +102,8 @@ AC_DEFUN([AX_CHECK_HEADER_STDINT_O],[
 AC_CACHE_CHECK([for stdint uint32_t], [ac_cv_header_stdint_o],[
  ac_cv_header_stdint_o="" # the 1995 typedefs (sys/inttypes.h)
   AC_MSG_RESULT([(..)])
-  for i in m4_ifval([$1],[$1],[inttypes.h sys/inttypes.h stdint.h]) ; do
+  for i in m4_ifval([$1],[$1],[inttypes.h sys/inttypes.h sys/types.h stdint.h])
+  do
    unset ac_cv_type_uint32_t
    unset ac_cv_type_uint64_t
    AC_CHECK_TYPE(uint32_t,[ac_cv_header_stdint_o=$i],continue,[#include <$i>])
@@ -189,6 +145,11 @@ AC_TRY_COMPILE([#include <stdint.h>],[int_least32_t v = 0;],
 [ac_cv_stdint_result="(assuming C99 compatible system)"
  ac_cv_header_stdint_t="stdint.h"; ],
 [ac_cv_header_stdint_t=""])
+if test "$GCC" = "yes" && test ".$ac_cv_header_stdint_t" = "."; then
+CFLAGS="-std=c99"
+AC_TRY_COMPILE([#include <stdint.h>],[int_least32_t v = 0;],
+[AC_MSG_WARN(your GCC compiler has a defunct stdint.h for its default-mode)])
+fi
 CXXFLAGS="$old_CXXFLAGS"
 CPPFLAGS="$old_CPPFLAGS"
 CFLAGS="$old_CFLAGS" ])
@@ -609,7 +570,7 @@ typedef unsigned long uintmax_t;
 #define __intptr_t_defined
 /* we encourage using "long" to store pointer values, never use "int" ! */
 #if   _STDINT_LONG_MODEL+0 == 242 || _STDINT_LONG_MODEL+0 == 484
-typedef  unsinged int   uintptr_t;
+typedef  unsigned int   uintptr_t;
 typedef           int    intptr_t;
 #elif _STDINT_LONG_MODEL+0 == 244 || _STDINT_LONG_MODEL+0 == 444
 typedef  unsigned long  uintptr_t;

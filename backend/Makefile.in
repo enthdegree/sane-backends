@@ -1490,7 +1490,7 @@ FIRMWARE_DIRS = artec_eplus48u gt68xx snapscan epjitsu
 
 # TODO: This really belongs together with the saned sources and
 # should be installed there as well.
-# TODO: Why are this distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
 # TODO: Why are this distributed but not compiled?
 # TODO: Why are this distributed but not compiled?
 # TODO: Why are this distributed but not compiled?
@@ -1502,7 +1502,7 @@ FIRMWARE_DIRS = artec_eplus48u gt68xx snapscan epjitsu
 # TODO: Why are these distributed but not compiled?
 # TODO: Why are these distributed but not compiled?
 # TODO: Why are these distributed but not compiled?
-# TODO: Why are these distributed by not compiled?
+# TODO: Why are these distributed but not compiled?
 # TODO: Why are these distributed but not compiled?
 # TODO: Why are these distributed but not compiled?
 # TODO: Why are these distributed but not compiled?

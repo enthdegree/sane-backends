@@ -68,6 +68,12 @@
 ;:usbid "0x04f9" ""
 :comment "No report yet."
 
+:model "DCP-330C"
+:status :untested
+:interface "USB"
+:usbid "0x04f9" "0x01a9"
+:comment "No report yet."
+
 :model "DCP-340CW"
 :status :untested
 :interface "USB"

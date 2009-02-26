@@ -390,13 +390,6 @@
 :status :unsupported
 :comment "Not supported. See link."
 
-:model "CanoScan DR2580C"
-:url "/unsupported/canon-dr2580c.html"
-:interface "USB"
-:usbid "0x04a9" "0x1608"
-:status :unsupported
-:comment "Not supported. See link."
-
 :model "CanoScan FB320U"
 :interface "USB"
 :usbid "0x04a9" "0x2201"

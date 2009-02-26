@@ -77,7 +77,7 @@
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1607"
 :status :good
-:comment "Please test!"
+:comment ""
 
 :model "DR-7080C"
 :interface "USB SCSI"

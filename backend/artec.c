@@ -68,6 +68,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "_stdint.h"
+
 #include "sane/sane.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
@@ -124,12 +126,12 @@ static const SANE_Range u8_range =
 };
 
 #define INQ_LEN	0x60
-static const u_int8_t inquiry[] =
+static const uint8_t inquiry[] =
 {
   0x12, 0x00, 0x00, 0x00, INQ_LEN, 0x00
 };
 
-static const u_int8_t test_unit_ready[] =
+static const uint8_t test_unit_ready[] =
 {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
@@ -648,7 +650,7 @@ static SANE_Status
 abort_scan (SANE_Handle handle)
 {
   ARTEC_Scanner *s = handle;
-  u_int8_t *data, comm[22];
+  uint8_t *data, comm[22];
 
   DBG (7, "abort_scan()\n");
   memset (comm, 0, sizeof (comm));
@@ -695,7 +697,7 @@ static SANE_Status
 artec_mode_select (SANE_Handle handle)
 {
   ARTEC_Scanner *s = handle;
-  u_int8_t *data, comm[22];
+  uint8_t *data, comm[22];
 
   DBG (7, "artec_mode_select()\n");
   memset (comm, 0, sizeof (comm));
@@ -1679,7 +1681,7 @@ end_scan (SANE_Handle handle)
 {
   ARTEC_Scanner *s = handle;
   /* DB
-     u_int8_t write_6[6] =
+     uint8_t write_6[6] =
      {0x1B, 0, 0, 0, 0, 0};
    */
 
@@ -2990,11 +2992,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	    if (strcmp (val, "Lineart") == 0)
 	      {
-	        /* Lineart mode */
-	        s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE; /* OFF */
-	        s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
+		/* Lineart mode */
+		s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE; /* OFF */
+		s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 
-	        if (s->hw->flags & ARTEC_FLAG_ENHANCE_LINE_EDGE)
+		if (s->hw->flags & ARTEC_FLAG_ENHANCE_LINE_EDGE)
 		  s->opt[OPT_EDGE_ENH].cap &= ~SANE_CAP_INACTIVE;
 	      }
 	    else if (strcmp (val, "Halftone") == 0)
@@ -3013,8 +3015,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      }
 	    else if (strcmp (val, "Color") == 0)
 	      {
-	        /* Color mode */
-	        s->opt[OPT_FILTER_TYPE].cap |= SANE_CAP_INACTIVE;
+		/* Color mode */
+		s->opt[OPT_FILTER_TYPE].cap |= SANE_CAP_INACTIVE;
 		s->opt[OPT_SOFTWARE_CAL].cap &= ~SANE_CAP_INACTIVE;
                 if (!(s->hw->flags & ARTEC_FLAG_MBPP_NEGATIVE))
                   {

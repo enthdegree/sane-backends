@@ -5186,7 +5186,7 @@ send_3x3_matrix (Avision_Scanner* s)
       b_f = a_f - (double) a_i;  /* float */
       m |= ((a_i & 0x3) << INT_PART);
       m |= (uint16_t) (b_f * 1024);
-      set_double (((u_int8_t*)(&cmd.matrix.v[i])), m);
+      set_double (((uint8_t*)(&cmd.matrix.v[i])), m);
     }
   
   cmd.scmd.opc = AVISION_SCSI_SEND;

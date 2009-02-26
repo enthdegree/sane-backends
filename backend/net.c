@@ -1869,7 +1869,7 @@ sane_start (SANE_Handle handle)
   SANE_Status status;
   int fd, need_auth;
   socklen_t len;
-  u_int16_t port;			/* Internet-specific */
+  uint16_t port;			/* Internet-specific */
 
 
   DBG (3, "sane_start\n");
@@ -2004,7 +2004,7 @@ sane_start (SANE_Handle handle)
   SANE_Status status;
   int fd, need_auth;
   socklen_t len;
-  u_int16_t port;			/* Internet-specific */
+  uint16_t port;			/* Internet-specific */
 
 
   DBG (3, "sane_start\n");

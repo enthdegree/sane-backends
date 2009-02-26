@@ -396,15 +396,6 @@
 /* Define to 1 if the system has the type `u_int'. */
 #undef HAVE_U_INT
 
-/* Define to 1 if the system has the type `u_int16_t'. */
-#undef HAVE_U_INT16_T
-
-/* Define to 1 if the system has the type `u_int32_t'. */
-#undef HAVE_U_INT32_T
-
-/* Define to 1 if the system has the type `u_int8_t'. */
-#undef HAVE_U_INT8_T
-
 /* Define to 1 if the system has the type `u_long'. */
 #undef HAVE_U_LONG
 
@@ -416,14 +407,6 @@
 
 /* Define to 1 if you have the `_portaccess' function. */
 #undef HAVE__PORTACCESS
-
-/* Do we need <sys/bitypes.h>? */
-#undef NEED_SYS_BITYPES_H
-
-/* Make sure that sys/bitypes.h is included on True64 */
-          #ifdef NEED_SYS_BITYPES_H
-          #include <sys/bitypes.h>
-          #endif
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #undef NO_MINUS_C_MINUS_O
@@ -572,18 +555,6 @@
 
 
 
-/* FIXME: Do not use these types in code anymore.  Use types defined
- * in C99 stdint.h and available in our cross-platform _stdint.h.
- */
-#ifndef HAVE_U_INT8_T
-#define u_int8_t unsigned char
-#endif
-#ifndef HAVE_U_INT16_T
-#define u_int16_t unsigned int
-#endif
-#ifndef HAVE_U_INT32_T
-#define u_int32_t unsigned long
-#endif
 #ifndef HAVE_U_CHAR
 #define u_char unsigned char
 #endif
@@ -593,7 +564,6 @@
 #ifndef HAVE_U_LONG
 #define u_long unsigned long
 #endif
-/* END of FIXME: Do not use above types */
 
 /* Prototype for getenv */
 #ifndef HAVE_GETENV

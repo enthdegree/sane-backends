@@ -68,29 +68,29 @@
 /* Structure describing bulk transfer size */
 struct bulk_size
 {
-  u_int16_t	size;
-  u_int8_t 	unused;
+  uint16_t	size;
+  uint8_t 	unused;
 } __attribute__ ((packed));
 
 /* Structure describing bulk URB */
 /* FIXME: Verify according to USB standard */
 struct usb_in_usb_bulk_setup
 {
-  u_int8_t	bRequestType;
-  u_int8_t	bRequest;
-  u_int8_t	bEndpoint;
-  u_int16_t	unknown;
-  u_int16_t	wLength;
-  u_int8_t 	pad;
+  uint8_t	bRequestType;
+  uint8_t	bRequest;
+  uint8_t	bEndpoint;
+  uint16_t	unknown;
+  uint16_t	wLength;
+  uint8_t 	pad;
 } __attribute__ ((packed));
 
 /* Structure describing control URB */
 struct usb_in_usb_ctrl_setup {
-  u_int8_t  bRequestType;
-  u_int8_t  bRequest;
-  u_int16_t wValue;
-  u_int16_t wIndex;
-  u_int16_t wLength;
+  uint8_t  bRequestType;
+  uint8_t  bRequest;
+  uint16_t wValue;
+  uint16_t wIndex;
+  uint16_t wLength;
 } __attribute__ ((packed));
 
 /* CORE status flag - ready or not */
@@ -131,7 +131,7 @@ struct bulk_read_state
 static SANE_Status
 hp5590_get_ack (SANE_Int dn)
 {
-  u_int8_t 	status;
+  uint8_t 	status;
   SANE_Status	ret;
 
   DBG (DBG_proc, "%s\n", __FUNCTION__);
@@ -173,7 +173,7 @@ hp5590_get_ack (SANE_Int dn)
 static SANE_Status
 hp5590_get_status (SANE_Int dn)
 {
-  u_int8_t status;
+  uint8_t status;
   SANE_Status ret;
 
   DBG (DBG_proc, "%s\n", __FUNCTION__);
@@ -228,8 +228,8 @@ hp5590_control_msg (SANE_Int dn,
   SANE_Status 			ret;
   unsigned int 			len;
   unsigned char 		*ptr;
-  u_int8_t 			ack;
-  u_int8_t 			response;
+  uint8_t 			ack;
+  uint8_t 			response;
   unsigned int 			needed_response;
 
   DBG (DBG_proc, "%s: USB-in-USB: core data: %s\n",
@@ -413,7 +413,7 @@ hp5590_control_msg (SANE_Int dn,
       /* Send bulk OUT flags is bulk OUT preparation is performed */
       if (core_flags & CORE_BULK_OUT)
 	{
-	  u_int8_t bulk_flags = 0x24;
+	  uint8_t bulk_flags = 0x24;
 	  DBG (DBG_usb, "%s: USB-in-USB: sending bulk flags\n",
 	       __FUNCTION__);
 
@@ -455,7 +455,7 @@ hp5590_control_msg (SANE_Int dn,
 static SANE_Status
 hp5590_verify_last_cmd (SANE_Int dn, unsigned int cmd)
 {
-  u_int16_t	verify_cmd;
+  uint16_t	verify_cmd;
   unsigned int	last_cmd;
   unsigned int	core_status;
   SANE_Status 	ret;
@@ -636,7 +636,7 @@ hp5590_bulk_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
   struct usb_in_usb_bulk_setup	ctrl;
   SANE_Status 			ret;
   unsigned int 			next_pages;
-  u_int8_t 			bulk_flags;
+  uint8_t 			bulk_flags;
   size_t 			next_portion;
   struct bulk_read_state	*bulk_read_state;
   unsigned int 			bytes_until_buffer_end;

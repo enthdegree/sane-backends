@@ -59,6 +59,8 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include "_stdint.h"
+
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
@@ -125,7 +127,7 @@
 #define REG07_DMASEL	0x02
 #define REG07_DMARDWR	0x01
 
-#define REG08_DECFLAG 	0x40
+#define REG08_DECFLAG	0x40
 #define REG08_GMMFFR	0x20
 #define REG08_GMMFFG	0x10
 #define REG08_GMMFFB	0x08
@@ -390,7 +392,7 @@ gl841_bulk_write_register (Genesys_Device * dev,
 {
   SANE_Status status = SANE_STATUS_GOOD;
   unsigned int i, c;
-  u_int8_t buffer[GENESYS_MAX_REGS * 2];
+  uint8_t buffer[GENESYS_MAX_REGS * 2];
 
   /* handle differently sized register sets, reg[0x00] is the last one */
   i = 0;
@@ -436,12 +438,12 @@ gl841_bulk_write_register (Genesys_Device * dev,
 
 /* Write bulk data (e.g. shading, gamma) */
 static SANE_Status
-gl841_bulk_write_data (Genesys_Device * dev, u_int8_t addr,
-			       u_int8_t * data, size_t len)
+gl841_bulk_write_data (Genesys_Device * dev, uint8_t addr,
+			       uint8_t * data, size_t len)
 {
   SANE_Status status;
   size_t size;
-  u_int8_t outdata[8];
+  uint8_t outdata[8];
 
   DBG (DBG_io, "gl841_bulk_write_data writing %lu bytes\n",
        (u_long) len);
@@ -528,12 +530,12 @@ printtime(char *p) {
 
 /* Read bulk data (e.g. scanned data) */
 static SANE_Status
-gl841_bulk_read_data (Genesys_Device * dev, u_int8_t addr,
-			      u_int8_t * data, size_t len)
+gl841_bulk_read_data (Genesys_Device * dev, uint8_t addr,
+			      uint8_t * data, size_t len)
 {
   SANE_Status status;
   size_t size;
-  u_int8_t outdata[8];
+  uint8_t outdata[8];
 
   DBG (DBG_io, "gl841_bulk_read_data: requesting %lu bytes\n",
        (u_long) len);
@@ -608,7 +610,7 @@ gl841_bulk_read_data (Genesys_Device * dev, u_int8_t addr,
 
 /* Set address for writing data */
 static SANE_Status
-gl841_set_buffer_address_gamma (Genesys_Device * dev, u_int32_t addr)
+gl841_set_buffer_address_gamma (Genesys_Device * dev, uint32_t addr)
 {
   SANE_Status status;
 
@@ -643,12 +645,12 @@ gl841_set_buffer_address_gamma (Genesys_Device * dev, u_int32_t addr)
 
 /* Write bulk data (e.g. gamma) */
 static SANE_Status
-gl841_bulk_write_data_gamma (Genesys_Device * dev, u_int8_t addr,
-			 u_int8_t * data, size_t len)
+gl841_bulk_write_data_gamma (Genesys_Device * dev, uint8_t addr,
+			 uint8_t * data, size_t len)
 {
   SANE_Status status;
   size_t size;
-  u_int8_t outdata[8];
+  uint8_t outdata[8];
 
   DBG (DBG_io, "gl841_bulk_write_data_gamma writing %lu bytes\n",
        (u_long) len);
@@ -1247,9 +1249,9 @@ static SANE_Status
 sanei_gl841_asic_test (Genesys_Device * dev)
 {
   SANE_Status status;
-  u_int8_t val;
-  u_int8_t *data;
-  u_int8_t *verify_data;
+  uint8_t val;
+  uint8_t *data;
+  uint8_t *verify_data;
   size_t size, verify_size;
   unsigned int i;
 
@@ -1309,14 +1311,14 @@ sanei_gl841_asic_test (Genesys_Device * dev)
      otherwise the read doesn't succeed the second time after the scanner has 
      been plugged in. Very strange. */
 
-  data = (u_int8_t *) malloc (size);
+  data = (uint8_t *) malloc (size);
   if (!data)
     {
       DBG (DBG_error, "sanei_gl841_asic_test: could not allocate memory\n");
       return SANE_STATUS_NO_MEM;
     }
 
-  verify_data = (u_int8_t *) malloc (verify_size);
+  verify_data = (uint8_t *) malloc (verify_size);
   if (!verify_data)
     {
       free (data);
@@ -1364,7 +1366,7 @@ sanei_gl841_asic_test (Genesys_Device * dev)
     }
 
   status =
-    gl841_bulk_read_data (dev, 0x45, (u_int8_t *) verify_data,
+    gl841_bulk_read_data (dev, 0x45, (uint8_t *) verify_data,
 				  verify_size);
   if (status != SANE_STATUS_GOOD)
     {
@@ -1545,12 +1547,12 @@ gl841_init_registers (Genesys_Device * dev)
  */
 static SANE_Status
 gl841_send_slope_table (Genesys_Device * dev, int table_nr,
-			      u_int16_t * slope_table, int steps)
+			      uint16_t * slope_table, int steps)
 {
   int dpihw;
   int start_address;
   SANE_Status status;
-  u_int8_t *table;
+  uint8_t *table;
 /*#ifdef WORDS_BIGENDIAN*/
   int i;
 /*#endif*/
@@ -1570,13 +1572,13 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
     return SANE_STATUS_INVAL;
 
 /*#ifdef WORDS_BIGENDIAN*/
-  table = (u_int8_t*)malloc(steps * 2);
+  table = (uint8_t*)malloc(steps * 2);
   for(i = 0; i < steps; i++) {
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
   }
 /*#else
-  table = (u_int8_t*)slope_table;
+  table = (uint8_t*)slope_table;
   #endif*/
 
   status =
@@ -1593,7 +1595,7 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
     }
 
   status =
-    gl841_bulk_write_data (dev, 0x3c, (u_int8_t *) table,
+    gl841_bulk_write_data (dev, 0x3c, (uint8_t *) table,
 				   steps * 2);
   if (status != SANE_STATUS_GOOD)
     {
@@ -1615,11 +1617,11 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
  
 /* Set values of analog frontend */
 static SANE_Status
-gl841_set_fe (Genesys_Device * dev, u_int8_t set)
+gl841_set_fe (Genesys_Device * dev, uint8_t set)
 {
   SANE_Status status;
   int i;
-  u_int8_t val;
+  uint8_t val;
 
   DBG (DBG_proc, "gl841_set_fe (%s)\n",
        set == 1 ? "init" : set == 2 ? "set" : set ==
@@ -1895,7 +1897,7 @@ gl841_init_motor_regs(Genesys_Device * dev,
     SANE_Status status;
     unsigned int fast_exposure;
     int use_fast_fed = 0;
-    u_int16_t fast_slope_table[256];
+    uint16_t fast_slope_table[256];
     unsigned int fast_slope_time;
     unsigned int fast_slope_steps = 0;
     unsigned int feedl;
@@ -2070,9 +2072,9 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
     int use_fast_fed = 0;
     unsigned int fast_time;
     unsigned int slow_time;
-    u_int16_t slow_slope_table[256];
-    u_int16_t fast_slope_table[256];
-    u_int16_t back_slope_table[256];
+    uint16_t slow_slope_table[256];
+    uint16_t fast_slope_table[256];
+    uint16_t back_slope_table[256];
     unsigned int slow_slope_time;
     unsigned int fast_slope_time;
     unsigned int back_slope_time;
@@ -2082,7 +2084,7 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
     unsigned int feedl;
     Genesys_Register_Set * r;
     unsigned int min_restep = 0x20;
-    u_int32_t z1, z2;
+    uint32_t z1, z2;
 
     DBG (DBG_proc, "gl841_init_motor_regs_scan : scan_exposure_time=%d, "
 	 "scan_yres=%g, scan_step_type=%d, scan_lines=%d, scan_dummy=%d, "
@@ -3141,7 +3143,7 @@ gl841_set_lamp_power (Genesys_Device * dev,
 /*for fast power saving methods only, like disabling certain amplifiers*/
 static SANE_Status
 gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
-    u_int8_t val;
+    uint8_t val;
     
     DBG(DBG_proc, "gl841_save_power: enable = %d\n", enable);
 
@@ -3267,7 +3269,7 @@ gl841_set_powersaving (Genesys_Device * dev,
 
   time = delay * 1000 * 60;	/* -> msec */
   exposure_time =
-    (u_int32_t) (time * 32000.0 /
+    (uint32_t) (time * 32000.0 /
 		 (24.0 * 64.0 * (local_reg[1].value & REG03_LAMPTIM) *
 		  1024.0) + 0.5);
   /* 32000 = system clock, 24 = clocks per pixel */
@@ -3325,7 +3327,7 @@ gl841_stop_action (Genesys_Device * dev)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
-  u_int8_t val40;
+  uint8_t val40;
   unsigned int loop;
 
   DBG (DBG_proc,
@@ -3405,7 +3407,7 @@ static SANE_Status
 gl841_get_paper_sensor(Genesys_Device * dev, SANE_Bool * paper_loaded)
 {
   SANE_Status status;
-  u_int8_t val;
+  uint8_t val;
   
   status = sanei_genesys_read_register(dev, 0x6d, &val);
   if (status != SANE_STATUS_GOOD)
@@ -3426,7 +3428,7 @@ gl841_eject_document (Genesys_Device * dev)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
-  u_int8_t val;
+  uint8_t val;
   SANE_Bool paper_loaded;
   unsigned int init_steps;
   float feed_mm;
@@ -3781,7 +3783,7 @@ gl841_feed (Genesys_Device * dev, int steps)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
-  u_int8_t val;
+  uint8_t val;
   int loop;
 
   DBG (DBG_proc, "gl841_feed (steps = %d)\n",
@@ -3866,7 +3868,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
-  u_int8_t val;
+  uint8_t val;
 
   DBG (DBG_proc, "gl841_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
@@ -3986,7 +3988,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
-  u_int8_t val = 0;
+  uint8_t val = 0;
   int loop;
   int i = 0;
 
@@ -4112,7 +4114,7 @@ gl841_search_start_position (Genesys_Device * dev)
 {
   int size;
   SANE_Status status;
-  u_int8_t *data;
+  uint8_t *data;
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   int steps;
 
@@ -4233,8 +4235,8 @@ static SANE_Status
 gl841_init_regs_for_coarse_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
-  u_int8_t channels;
-  u_int8_t cksel;
+  uint8_t channels;
+  uint8_t cksel;
 
   DBG (DBG_proc, "gl841_init_regs_for_coarse_calibration\n");
 
@@ -4301,7 +4303,7 @@ static SANE_Status
 gl841_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
-  u_int8_t channels;
+  uint8_t channels;
   
 
   DBG (DBG_proc, "gl841_init_regs_for_shading: lines = %d\n",
@@ -4461,7 +4463,7 @@ gl841_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
 {
   int size;
   int status;
-  u_int8_t *gamma;
+  uint8_t *gamma;
   int i;
 
   DBG (DBG_proc, "gl841_send_gamma_table\n");
@@ -4480,7 +4482,7 @@ gl841_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
   size = 256;
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
-  gamma = (u_int8_t *) malloc (size * 2 * 3);
+  gamma = (uint8_t *) malloc (size * 2 * 3);
   if (!gamma)
     return SANE_STATUS_NO_MEM;
 
@@ -4531,7 +4533,7 @@ gl841_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
 
   /* send data */
   status =
-    gl841_bulk_write_data_gamma (dev, 0x28, (u_int8_t *) gamma,
+    gl841_bulk_write_data_gamma (dev, 0x28, (uint8_t *) gamma,
 				   size * 2 * 3);
   if (status != SANE_STATUS_GOOD)
     {
@@ -4559,7 +4561,7 @@ gl841_led_calibration (Genesys_Device * dev)
   int num_pixels;
   int total_size;
   int used_res;
-  u_int8_t *line;
+  uint8_t *line;
   int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
   int val;
@@ -4567,7 +4569,7 @@ gl841_led_calibration (Genesys_Device * dev)
   int avg[3], avga, avge;
   int turn;
   char fn[20];
-  u_int16_t expr, expg, expb;
+  uint16_t expr, expg, expb;
   Genesys_Register_Set *r;
 
   SANE_Bool acceptable = SANE_FALSE;
@@ -4760,7 +4762,7 @@ gl841_offset_calibration (Genesys_Device * dev)
   int num_pixels;
   int total_size;
   int used_res;
-  u_int8_t *first_line, *second_line;
+  uint8_t *first_line, *second_line;
   int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
   int val;
@@ -5166,7 +5168,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   int num_pixels;
   int black_pixels;
   int total_size;
-  u_int8_t *line;
+  uint8_t *line;
   int i, j, channels;
   SANE_Status status = SANE_STATUS_GOOD;
   int max[3];
@@ -5419,9 +5421,9 @@ static SANE_Status
 gl841_init (Genesys_Device * dev)
 {
   SANE_Status status;
-  u_int8_t val;
+  uint8_t val;
   size_t size;
-  u_int8_t *line;
+  uint8_t *line;
 
   DBG_INIT ();
   DBG (DBG_proc, "gl841_init\n");
@@ -5490,7 +5492,7 @@ gl841_init (Genesys_Device * dev)
 
   if (dev->sensor.red_gamma_table == NULL)
     {
-      dev->sensor.red_gamma_table = (u_int16_t *) malloc (2 * size);
+      dev->sensor.red_gamma_table = (uint16_t *) malloc (2 * size);
       if (dev->sensor.red_gamma_table == NULL)
 	{
 	  DBG (DBG_error,
@@ -5503,7 +5505,7 @@ gl841_init (Genesys_Device * dev)
     }
   if (dev->sensor.green_gamma_table == NULL)
     {
-      dev->sensor.green_gamma_table = (u_int16_t *) malloc (2 * size);
+      dev->sensor.green_gamma_table = (uint16_t *) malloc (2 * size);
       if (dev->sensor.red_gamma_table == NULL)
 	{
 	  DBG (DBG_error,
@@ -5516,7 +5518,7 @@ gl841_init (Genesys_Device * dev)
     }
   if (dev->sensor.blue_gamma_table == NULL)
     {
-      dev->sensor.blue_gamma_table = (u_int16_t *) malloc (2 * size);
+      dev->sensor.blue_gamma_table = (uint16_t *) malloc (2 * size);
       if (dev->sensor.red_gamma_table == NULL)
 	{
 	  DBG (DBG_error,
@@ -5600,7 +5602,7 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
      any of them.
    */
   SANE_Status status = SANE_STATUS_GOOD;
-  u_int8_t val;
+  uint8_t val;
   
   if (s->dev->model->gpo_type == GPO_CANONLIDE35) 
     {

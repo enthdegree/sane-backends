@@ -98,9 +98,9 @@
 # include <stdint.h>		/* available in ISO C99 */
 #else
 # include <sys/types.h>
-typedef u_int8_t uint8_t;
-typedef u_int16_t uint16_t;
-typedef u_int32_t uint32_t;
+typedef uint8_t uint8_t;
+typedef uint16_t uint16_t;
+typedef uint32_t uint32_t;
 #endif /* HAVE_STDINT_H */
 
 /** \addtogroup API

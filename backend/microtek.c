@@ -63,8 +63,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-
 #include <math.h>
+
+#include "_stdint.h"
 
 #include "sane/sane.h"
 #include "sane/sanei.h"
@@ -211,11 +212,11 @@ static ring_buffer *
 ring_alloc (size_t initial_size, size_t bpl, size_t ppl)
 {
   ring_buffer *rb;
-  u_int8_t *buff;
+  uint8_t *buff;
 
   if ((rb = (ring_buffer *)malloc(sizeof(*rb))) == NULL)
     return NULL;
-  if ((buff = (u_int8_t *)malloc(initial_size * sizeof(*buff))) == NULL) {
+  if ((buff = (uint8_t *)malloc(initial_size * sizeof(*buff))) == NULL) {
     free(rb);
     return NULL;
   }
@@ -246,11 +247,11 @@ ring_alloc (size_t initial_size, size_t bpl, size_t ppl)
 static SANE_Status
 ring_expand (ring_buffer *rb, size_t amount)
 {
-  u_int8_t *buff;
+  uint8_t *buff;
   size_t oldsize;
 
   if (rb == NULL) return SANE_STATUS_INVAL;
-  buff = (u_int8_t *)realloc(rb->base, (rb->size + amount) * sizeof(*buff));
+  buff = (uint8_t *)realloc(rb->base, (rb->size + amount) * sizeof(*buff));
   if (buff == NULL) return SANE_STATUS_NO_MEM;
 
   rb->base = buff;
@@ -389,7 +390,7 @@ sense_handler (int scsi_fd, u_char *sense, void *arg)
 static SANE_Status
 wait_ready(Microtek_Scanner *ms)
 {
-  u_int8_t comm[6] = { 0, 0, 0, 0, 0, 0 };
+  uint8_t comm[6] = { 0, 0, 0, 0, 0, 0 };
   SANE_Status status;
   int retry = 0;
 
@@ -411,7 +412,7 @@ wait_ready(Microtek_Scanner *ms)
 static SANE_Status
 scanning_frame(Microtek_Scanner *ms)
 {
-  u_int8_t *data, comm[15] = { 0x04, 0, 0, 0, 0x09, 0 };
+  uint8_t *data, comm[15] = { 0x04, 0, 0, 0, 0x09, 0 };
   int x1, y1, x2, y2;
 
   DBG(23, ".scanning_frame...\n");
@@ -465,7 +466,7 @@ scanning_frame(Microtek_Scanner *ms)
 static SANE_Status
 mode_select(Microtek_Scanner *ms)
 {
-  u_int8_t *data, comm[19] = { 0x15, 0, 0, 0, 0, 0 };
+  uint8_t *data, comm[19] = { 0x15, 0, 0, 0, 0, 0 };
 
   DBG(23, ".mode_select %d...\n", ms->sfd);
   data = comm + 6; 
@@ -509,7 +510,7 @@ mode_select(Microtek_Scanner *ms)
 static SANE_Status
 mode_select_1(Microtek_Scanner *ms)
 {
-  u_int8_t *data, comm[16] = { 0x16, 0, 0, 0, 0x0A, 0,
+  uint8_t *data, comm[16] = { 0x16, 0, 0, 0, 0x0A, 0,
                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   DBG(23, ".mode_select_1 %d...\n", ms->sfd);
@@ -541,7 +542,7 @@ mode_select_1(Microtek_Scanner *ms)
 static SANE_Status
 save_mode_sense(Microtek_Scanner *ms)
 {
-  u_int8_t data[20], comm[6] = { 0x1A, 0, 0, 0, 0, 0};
+  uint8_t data[20], comm[6] = { 0x1A, 0, 0, 0, 0, 0};
   size_t lenp;
   SANE_Status status;
   int i;
@@ -577,7 +578,7 @@ save_mode_sense(Microtek_Scanner *ms)
 static SANE_Status
 compare_mode_sense(Microtek_Scanner *ms, int *match)
 {
-  u_int8_t data[20], comm[6] = { 0x1A, 0, 0, 0, 0, 0};
+  uint8_t data[20], comm[6] = { 0x1A, 0, 0, 0, 0, 0};
   size_t lenp;
   SANE_Status status;
   int i;
@@ -619,7 +620,7 @@ compare_mode_sense(Microtek_Scanner *ms, int *match)
 static SANE_Status
 mode_sense_1(Microtek_Scanner *ms)
 {
-  u_int8_t *data, comm[36] = { 0x19, 0, 0, 0, 0x1E, 0 };
+  uint8_t *data, comm[36] = { 0x19, 0, 0, 0, 0x1E, 0 };
 
   DBG(23, ".mode_sense_1...\n");
   data = comm + 6;
@@ -645,7 +646,7 @@ mode_sense_1(Microtek_Scanner *ms)
 static SANE_Status
 accessory(Microtek_Scanner *ms)
 {
-  u_int8_t comm[6] = { 0x10, 0, 0, 0, 0, 0 };
+  uint8_t comm[6] = { 0x10, 0, 0, 0, 0, 0 };
 
   DBG(23, ".accessory...\n");
   comm[4] = 
@@ -676,7 +677,7 @@ accessory(Microtek_Scanner *ms)
 static SANE_Status
 start_scan(Microtek_Scanner *ms)
 {
-  u_int8_t comm[6] = { 0x1B, 0, 0, 0, 0, 0 };
+  uint8_t comm[6] = { 0x1B, 0, 0, 0, 0, 0 };
 
   DBG(23, ".start_scan...\n");
   comm[4] = 
@@ -712,7 +713,7 @@ start_scan(Microtek_Scanner *ms)
 static SANE_Status
 stop_scan(Microtek_Scanner *ms)
 {
-  u_int8_t comm[6] = { 0x1B, 0, 0, 0, 0, 0 };
+  uint8_t comm[6] = { 0x1B, 0, 0, 0, 0, 0 };
 
   DBG(23, ".stop_scan...\n");
   if (DBG_LEVEL >= 192) {
@@ -740,7 +741,7 @@ get_scan_status(Microtek_Scanner *ms,
 		SANE_Int *bytes_per_line,
 		SANE_Int *lines)
 {
-  u_int8_t data[6], comm[6] = { 0x0F, 0, 0, 0, 0x06, 0 };
+  uint8_t data[6], comm[6] = { 0x0F, 0, 0, 0, 0x06, 0 };
   SANE_Status status;
   size_t lenp;
   int retry = 0;
@@ -783,10 +784,10 @@ get_scan_status(Microtek_Scanner *ms,
 static SANE_Status
 read_scan_data(Microtek_Scanner *ms,
 	       int lines,
-	       u_int8_t *buffer, 
+	       uint8_t *buffer, 
 	       size_t *bufsize)
 {
-  u_int8_t comm[6] = { 0x08, 0, 0, 0, 0, 0 };
+  uint8_t comm[6] = { 0x08, 0, 0, 0, 0, 0 };
 
   DBG(23, ".read_scan_data...\n");
   comm[2] = (lines >> 16) & 0xFF;
@@ -804,8 +805,8 @@ read_scan_data(Microtek_Scanner *ms,
 static SANE_Status
 download_gamma(Microtek_Scanner *ms)
 {
-  u_int8_t *data, *comm; /* commbytes[10] = { 0x55, 0, 0x27, 0, 0,
-			                        0, 0,    0, 0, 0 };*/
+  uint8_t *data, *comm; /* commbytes[10] = { 0x55, 0, 0x27, 0, 0,
+						0, 0,    0, 0, 0 };*/
   int i, pl;
   int commsize;
   int bit_depth = 8; /* hard-code for now, should match bpp XXXXXXX */
@@ -828,7 +829,7 @@ download_gamma(Microtek_Scanner *ms)
   DBG(23, ".download_gamma:  %d entries of %d bytes, max %d\n",
       ms->gamma_entries, ms->gamma_entry_size, max_entry);
   commsize = 10 + (ms->gamma_entries * ms->gamma_entry_size);
-  comm = calloc(commsize, sizeof(u_int8_t));
+  comm = calloc(commsize, sizeof(uint8_t));
   if (comm == NULL) {
     DBG(23, ".download_gamma:  couldn't allocate %d bytes for comm buffer!\n",
 	commsize);
@@ -859,7 +860,7 @@ download_gamma(Microtek_Scanner *ms)
 	int val = ms->gray_lut[i] >> table_shift;
 	switch (ms->gamma_entry_size) {
 	case 1:
-	  data[i] = (u_int8_t) val;
+	  data[i] = (uint8_t) val;
 	  break;
 	case 2:
 	  data[i*2] =  val & 0xFF;
@@ -886,7 +887,7 @@ download_gamma(Microtek_Scanner *ms)
 	  int val = pl_lut[i] >> table_shift;
 	  switch (ms->gamma_entry_size) {
 	  case 1:
-	    data[i] = (u_int8_t) val;
+	    data[i] = (uint8_t) val;
 	    break;
 	  case 2:
 	    data[i*2] =  val & 0xFF;
@@ -911,7 +912,7 @@ download_gamma(Microtek_Scanner *ms)
 			1.0 / gamma));
 	switch (ms->gamma_entry_size) {
 	case 1:
-	  data[i] = (u_int8_t) val;
+	  data[i] = (uint8_t) val;
 	  break;
 	case 2:
 	  data[i*2] = val & 0xFF;
@@ -936,7 +937,7 @@ download_gamma(Microtek_Scanner *ms)
 			  1.0 / gamma));
 	  switch (ms->gamma_entry_size) {
 	    case 1:
-	      data[i] = (u_int8_t) val;
+	      data[i] = (uint8_t) val;
 	      break;
 	  case 2:
 	    data[i*2] = val & 0xFF;
@@ -960,7 +961,7 @@ download_gamma(Microtek_Scanner *ms)
 	((double) ms->gamma_entries - 1.0);		   
       switch (ms->gamma_entry_size) {
       case 1:
-	data[i] = (u_int8_t) val;
+	data[i] = (uint8_t) val;
 	break;
       case 2:
 	data[i*2] = val & 0xFF;
@@ -981,7 +982,7 @@ download_gamma(Microtek_Scanner *ms)
 static SANE_Status
 start_calibration(Microtek_Scanner *ms)
 {
-  u_int8_t comm[8] = { 0x11, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x0a };
+  uint8_t comm[8] = { 0x11, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x0a };
 
   DBG(23, ".start_calibrate...\n");
   if (DBG_LEVEL >= 192) {
@@ -1004,8 +1005,8 @@ start_calibration(Microtek_Scanner *ms)
 /* magic command to download calibration values                     */
 /********************************************************************/  
 static SANE_Status
-download_calibration(Microtek_Scanner *ms, u_int8_t *comm,
-		     u_int8_t letter, int linewidth)
+download_calibration(Microtek_Scanner *ms, uint8_t *comm,
+		     uint8_t letter, int linewidth)
 {
   DBG(23, ".download_calibration... %c %d\n", letter, linewidth);
 
@@ -1983,7 +1984,7 @@ dump_suspect_inquiry(unsigned char *result)
 /* Determine if device is a Microtek Scanner (from INQUIRY info)    */
 /********************************************************************/
 static SANE_Status
-id_microtek(u_int8_t *result, char **model_string)
+id_microtek(uint8_t *result, char **model_string)
 {
   SANE_Byte device_type, response_data_format;
   int forcewarn = 0;
@@ -2132,7 +2133,7 @@ attach_scanner(const char *devicename, Microtek_Device **devp)
   unsigned char result[0x60];
   SANE_Status status;
   char *model_string;
-  u_int8_t inquiry[] = { 0x12, 0, 0, 0, 0x60, 0 };
+  uint8_t inquiry[] = { 0x12, 0, 0, 0, 0x60, 0 };
 
   DBG(15,"attach_scanner:  %s\n", devicename);
   /* check if device is already known... */
@@ -2265,7 +2266,7 @@ static int comparo(const void *a, const void *b)
 
 /* extract values from scanlines and sort */
 
-static void sort_values(int *result, u_int8_t *scanline[], int pix)
+static void sort_values(int *result, uint8_t *scanline[], int pix)
 {
   int i;
   for (i=0; i<STRIPS; i++) result[i] = (scanline[i])[pix];
@@ -2285,7 +2286,7 @@ static void sort_values(int *result, u_int8_t *scanline[], int pix)
 /********************************************************************/
 
 
-static void calc_calibration(u_int8_t *caldata, u_int8_t *scanline[], 
+static void calc_calibration(uint8_t *caldata, uint8_t *scanline[], 
 			     int pixels)
 {
   int i,j;
@@ -2339,8 +2340,8 @@ static SANE_Status do_real_calibrate(Microtek_Scanner *s)
   SANE_Status status, statusA;
   SANE_Int busy, linewidth, lines;
   size_t buffsize;
-  u_int8_t *input, *scanline[STRIPS], *combuff;
-  u_int8_t letter;
+  uint8_t *input, *scanline[STRIPS], *combuff;
+  uint8_t letter;
   int i, spot;
   int nmax, ntoget, nleft;
   
@@ -3730,7 +3731,7 @@ sane_get_parameters (SANE_Handle handle,
       SANE_Int widthpix;
       double dots_per_mm = s->resolution / MM_PER_INCH;
       double units_per_mm = 
-      	(s->unit_type == MS_UNIT_18INCH) ? 
+	(s->unit_type == MS_UNIT_18INCH) ? 
 	(8.0 / MM_PER_INCH) :                       /* 1/8 inches */
 	(s->dev->info.base_resolution / MM_PER_INCH);   /* pixels     */
       
@@ -3814,7 +3815,7 @@ sane_get_parameters (SANE_Handle handle,
       if (s->onepasscolor) { /* a single-pass color scan */
 	s->params.format = SANE_FRAME_RGB;
 	s->params.depth = s->bits_per_color;
-   	s->filter = MS_FILT_CLEAR;
+	s->filter = MS_FILT_CLEAR;
 	s->params.bytes_per_line = s->params.pixels_per_line * 3;
       } else { /* a three-pass color scan */
 	s->params.depth = s->bits_per_color;
@@ -4020,7 +4021,7 @@ sane_start_guts (SANE_Handle handle)
     return end_scan(s, SANE_STATUS_NO_MEM);
   }
   
-  s->scsi_buffer = (u_int8_t *) malloc(SCSI_BUFF_SIZE * sizeof(u_int8_t));
+  s->scsi_buffer = (uint8_t *) malloc(SCSI_BUFF_SIZE * sizeof(uint8_t));
   if (s->scsi_buffer == NULL) return SANE_STATUS_NO_MEM;
   
   /* what's a good initial size for this? */

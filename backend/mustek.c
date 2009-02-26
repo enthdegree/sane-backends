@@ -66,6 +66,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
+#include "_stdint.h"
+
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
@@ -235,7 +237,7 @@ static SANE_Bool
 little_endian (void)
 {
   SANE_Int testvalue = 255;
-  u_int8_t *firstbyte = (u_int8_t *) & testvalue;
+  uint8_t *firstbyte = (uint8_t *) & testvalue;
 
   if (*firstbyte == 255)
     return SANE_TRUE;
@@ -3070,11 +3072,11 @@ line_distance (Mustek_Scanner * s)
 	  if (s->hw->flags & MUSTEK_FLAG_N)
 	    {
 	      /* According to Andreas Czechanowski, the line-distance values
-	         returned for the AB306N scanners are garbage, so we have to
-	         fix things up manually.  Not good.
-	         This seems to be true only for firmware 2.00 which is
-	         extremely seldom.. AB306N scanners with firmware 1.01 don't
-	         need this fix. <henning@meier-geinitz.de> */
+		 returned for the AB306N scanners are garbage, so we have to
+		 fix things up manually.  Not good.
+		 This seems to be true only for firmware 2.00 which is
+		 extremely seldom.. AB306N scanners with firmware 1.01 don't
+		 need this fix. <henning@meier-geinitz.de> */
 	      if (peak_res == 600)
 		{
 		  if (res < 51)
@@ -4744,7 +4746,7 @@ output_data (Mustek_Scanner * s, FILE * fp,
 		  else		/* lineart */
 		    {
 		      /* need to invert image because of funny SANE 1-bit image
-		         polarity */
+			 polarity */
 		      if (*(data + x / 8 + y * bpl) & (1 << (7 - (x % 8))))
 			byte |= 1 << (7 - (enlarged_x % 8));
 
@@ -4770,7 +4772,7 @@ output_data (Mustek_Scanner * s, FILE * fp,
 	      || (s->mode & MUSTEK_MODE_HALFTONE))
 	    {
 	      /* need to invert image because of funny SANE 1-bit image
-	         polarity */
+		 polarity */
 	      ptr = data;
 	      ptr_end = ptr + lines_per_buffer * bpl;
 

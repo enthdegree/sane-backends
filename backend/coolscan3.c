@@ -30,6 +30,8 @@
 #include <unistd.h>
 #include <time.h>
 
+#include "_stdint.h"
+
 #include <sane/sane.h>
 #include <sane/sanei.h>
 #include <sane/saneopts.h>
@@ -171,7 +173,7 @@ typedef unsigned int cs3_pixel_t;
 
 struct SANE_Cookie
 {
-	u_int16_t version;
+	uint16_t version;
 	const char *vendor;
 	const char *model;
 	const char *revision;
@@ -181,7 +183,7 @@ struct SANE_Cookie
 typedef struct
 {
 	/* magic bits :( */
-	u_int32_t magic;
+	uint32_t magic;
 	struct SANE_Cookie *cookie_ptr;
 	struct SANE_Cookie cookie;
 
@@ -1479,8 +1481,8 @@ sane_read(SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	ssize_t xfer_len_in, xfer_len_line, xfer_len_out;
 	unsigned long index;
 	int color;
-	u_int8_t *s8 = NULL;
-	u_int16_t *s16 = NULL;
+	uint8_t *s8 = NULL;
+	uint16_t *s16 = NULL;
 	SANE_Byte *line_buf_new;
 
 	DBG(32, "%s, maxlen = %i.\n", __func__, maxlen);
@@ -1586,7 +1588,7 @@ sane_read(SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 					+ (color + 1) * s->odd_padding
 					+ index;
 
-				s8 = (u_int8_t *) & (s->line_buf[where]);
+				s8 = (uint8_t *) & (s->line_buf[where]);
 				*s8 = s->recv_buf[p8];
 			}
 				break;
@@ -1596,7 +1598,7 @@ sane_read(SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 					2 * (color * s->logical_width +
 					     index);
 
-				s16 = (u_int16_t *) & (s->line_buf[where]);
+				s16 = (uint16_t *) & (s->line_buf[where]);
 				*s16 = (s->recv_buf[p16] << 8)
 					+ s->recv_buf[p16 + 1];
 

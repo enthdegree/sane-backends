@@ -74,8 +74,8 @@
 
 #define RTS88XX_MAX_XFER_SIZE 0xFFC0
 
-#define LOBYTE(x)  ((u_int8_t)((x) & 0xFF))
-#define HIBYTE(x)  ((u_int8_t)((x) >> 8))
+#define LOBYTE(x)  ((uint8_t)((x) & 0xFF))
+#define HIBYTE(x)  ((uint8_t)((x) >> 8))
 
 /* this function init the rts88xx library */
 void sanei_rts88xx_lib_init (void);

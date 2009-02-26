@@ -227,7 +227,7 @@ typedef struct ring_buffer {
   size_t bpl;  /* bytes per line */
   size_t ppl;  /* pixels per line */
 
-  u_int8_t *base;  /* base address of buffer */
+  uint8_t *base;  /* base address of buffer */
 
   size_t size;         /* size (bytes) of ring buffer */
   size_t initial_size; /* initial size of ring buffer */
@@ -369,7 +369,7 @@ typedef struct Microtek_Scanner {
 #define MS_SENSE_IGNORE 1 
   int sense_flags;  /* flags passed to the sense handler */
 
-  u_int8_t *scsi_buffer;
+  uint8_t *scsi_buffer;
   ring_buffer *rb;
 
 } Microtek_Scanner;

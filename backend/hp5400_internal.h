@@ -90,11 +90,11 @@
 
 struct ScanRequest
 {
-  u_int8_t x1;			/* Set to 0x08 */
-  u_int16_t dpix, dpiy;		/* Set to 75, 150 or 300 in network order */
-  u_int16_t offx, offy;		/* Offset to scan, in 1/300th of dpi, in network order */
-  u_int16_t lenx, leny;		/* Size of scan, in 1/300th of dpi, in network order */
-  u_int16_t flags1, flags2, flags3;	/* Undetermined flag info */
+  uint8_t x1;			/* Set to 0x08 */
+  uint16_t dpix, dpiy;		/* Set to 75, 150 or 300 in network order */
+  uint16_t offx, offy;		/* Offset to scan, in 1/300th of dpi, in network order */
+  uint16_t lenx, leny;		/* Size of scan, in 1/300th of dpi, in network order */
+  uint16_t flags1, flags2, flags3;	/* Undetermined flag info */
   /* Known combinations are:
      1st calibration scan: 0x0000, 0x0010, 0x1820  =  24bpp
      2nd calibration scan: 0x0000, 0x0010, 0x3020  =  48bpp ???
@@ -105,9 +105,9 @@ struct ScanRequest
      6th & 7th like 2nd and 3rd
      True colour scan      0x0080, 0x0040, 0x18E8  =  24bpp
    */
-  u_int8_t zero;			/* Seems to always be zero */
-  u_int16_t gamma[3];		/* Set to 100 in network order. Gamma? */
-  u_int16_t pad[3];		/* Zero padding ot 32 bytes??? */
+  uint8_t zero;			/* Seems to always be zero */
+  uint16_t gamma[3];		/* Set to 100 in network order. Gamma? */
+  uint16_t pad[3];		/* Zero padding ot 32 bytes??? */
 }
 PACKED;
 
@@ -129,11 +129,11 @@ PACKED;
 
 struct ScanResponse
 {
-  u_int16_t x1;			/* Usually 0x0000 or 0x4000 */
-  u_int32_t transfersize;	/* Number of bytes to be transferred */
-  u_int32_t xsize;		/* Shape of returned bitmap */
-  u_int16_t ysize;		/*   Why does the X get more bytes? */
-  u_int16_t pad[2];		/* Zero padding to 16 bytes??? */
+  uint16_t x1;			/* Usually 0x0000 or 0x4000 */
+  uint32_t transfersize;	/* Number of bytes to be transferred */
+  uint32_t xsize;		/* Shape of returned bitmap */
+  uint16_t ysize;		/*   Why does the X get more bytes? */
+  uint16_t pad[2];		/* Zero padding to 16 bytes??? */
 }
 PACKED;
 

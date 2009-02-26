@@ -41,6 +41,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "_stdint.h"
+
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
@@ -59,7 +61,7 @@
 
 typedef struct
 {
-  u_int8_t *data;
+  uint8_t *data;
   int width;    /*WARNING: this is in bytes, get pixel width from param*/
   int height;
   int x;

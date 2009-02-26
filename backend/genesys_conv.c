@@ -49,7 +49,7 @@
 /*8 bit*/
 #define SINGLE_BYTE
 #define BYTES_PER_COMPONENT 1
-#define COMPONENT_TYPE u_int8_t
+#define COMPONENT_TYPE uint8_t
 
 #define FUNC_NAME(f) f ## _8
 
@@ -64,7 +64,7 @@
 /*16 bit*/
 #define DOUBLE_BYTE
 #define BYTES_PER_COMPONENT 2
-#define COMPONENT_TYPE u_int16_t
+#define COMPONENT_TYPE uint16_t
 
 #define FUNC_NAME(f) f ## _16
 
@@ -78,8 +78,8 @@
 
 static SANE_Status
 genesys_reverse_bits(
-    u_int8_t *src_data, 
-    u_int8_t *dst_data, 
+    uint8_t *src_data, 
+    uint8_t *dst_data, 
     size_t bytes) 
 {
     size_t i;
@@ -91,12 +91,12 @@ genesys_reverse_bits(
 
 static SANE_Status
 genesys_gray_lineart(
-    u_int8_t *src_data, 
-    u_int8_t *dst_data, 
+    uint8_t *src_data, 
+    uint8_t *dst_data, 
     size_t pixels,
     size_t channels,
     size_t lines,
-    u_int8_t threshold)
+    uint8_t threshold)
 {
     size_t x,y,c,b;
     for(y = 0; y < lines; y++) {
@@ -117,8 +117,8 @@ genesys_gray_lineart(
 
 static SANE_Status 
 genesys_shrink_lines_1 (
-    u_int8_t *src_data, 
-    u_int8_t *dst_data, 
+    uint8_t *src_data, 
+    uint8_t *dst_data, 
     unsigned int lines, 
     unsigned int src_pixels,
     unsigned int dst_pixels, 
@@ -127,8 +127,8 @@ genesys_shrink_lines_1 (
 /*in search for a correct implementation*/
     unsigned int dst_x, src_x, y, c, cnt;
     unsigned int avg[3];
-    u_int8_t *src = (u_int8_t *)src_data;
-    u_int8_t *dst = (u_int8_t *)dst_data;
+    uint8_t *src = (uint8_t *)src_data;
+    uint8_t *dst = (uint8_t *)dst_data;
 
     src_pixels /= 8;
     dst_pixels /= 8;

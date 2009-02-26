@@ -54,6 +54,8 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "_stdint.h"
+
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
@@ -84,8 +86,8 @@ region_type;
 #define HomeEdgePoint2 1258
 #define HomeTolerance 30
 
-#define LOBYTE(x)  ((u_int8_t)((x) & 0xFF))
-#define HIBYTE(x)  ((u_int8_t)((x) >> 8))
+#define LOBYTE(x)  ((uint8_t)((x) & 0xFF))
+#define HIBYTE(x)  ((uint8_t)((x) >> 8))
 
 /* Static low function proto-types */
 static SANE_Status low_usb_bulk_write (SANE_Int devnum,
@@ -135,7 +137,7 @@ static SANE_Bool read_buffer_is_empty (Read_Buffer * rb);
 
 
 /*
- *         RTS88XX 	START
+ *         RTS88XX	START
  *
  *         these rts88xx functions will be spin off in a separate lib
  *         so that they can be reused.
@@ -4701,8 +4703,8 @@ sanei_lexmark_low_offset_calibration (Lexmark_Device * dev)
 		  dev->offset.red = ro - ra;
 	  if (go > ga)
 	  {
-      	dev->offset.green = go - ga;
-      	dev->offset.gray = go - ga;
+	dev->offset.green = go - ga;
+	dev->offset.gray = go - ga;
 	  }
 	  if (bo > ba)
 		  dev->offset.blue = bo - ba;

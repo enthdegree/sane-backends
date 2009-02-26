@@ -85,6 +85,8 @@
 #include <sys/types.h>
 */
 
+#include "_stdint.h"
+
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
@@ -1461,8 +1463,8 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   ssize_t xfer_len_in, xfer_len_line, xfer_len_out;
   unsigned long index;
   int colour;
-  u_int8_t *s8 = NULL;
-  u_int16_t *s16 = NULL;
+  uint8_t *s8 = NULL;
+  uint16_t *s16 = NULL;
   SANE_Byte *line_buf_new;
 
   DBG (10, "sane_read() called, maxlen = %i.\n", maxlen);
@@ -1577,10 +1579,10 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	case 1:
 	  if ((s->infrared_stage == CS2_INFRARED_IN)
 	      && (colour == s->n_colour_out))
-	    s8 = (u_int8_t *) & (s->infrared_buf[s->infrared_index++]);
+	    s8 = (uint8_t *) & (s->infrared_buf[s->infrared_index++]);
 	  else
 	    s8 =
-	      (u_int8_t *) & (s->line_buf[s->n_colour_out * index + colour]);
+	      (uint8_t *) & (s->line_buf[s->n_colour_out * index + colour]);
 	  *s8 =
 	    s->recv_buf[colour * s->logical_width +
 			(colour + 1) * s->odd_padding + index];
@@ -1589,10 +1591,10 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	  if ((s->infrared_stage == CS2_INFRARED_IN)
 	      && (colour == s->n_colour_out))
 	    s16 =
-	      (u_int16_t *) & (s->infrared_buf[2 * (s->infrared_index++)]);
+	      (uint16_t *) & (s->infrared_buf[2 * (s->infrared_index++)]);
 	  else
 	    s16 =
-	      (u_int16_t *) & (s->
+	      (uint16_t *) & (s->
 			       line_buf[2 *
 					(s->n_colour_out * index + colour)]);
 	  *s16 =

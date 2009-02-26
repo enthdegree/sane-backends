@@ -47,14 +47,14 @@
 
 static SANE_Status 
 FUNC_NAME(genesys_reorder_components_cis) (
-    u_int8_t *src_data, 
-    u_int8_t *dst_data, 
+    uint8_t *src_data, 
+    uint8_t *dst_data, 
     unsigned int lines, 
     unsigned int pixels) 
 {
     unsigned int x, y;
-    u_int8_t *src[3];
-    u_int8_t *dst = dst_data;
+    uint8_t *src[3];
+    uint8_t *dst = dst_data;
     unsigned int rest = pixels * 2 * BYTES_PER_COMPONENT;
 
     src[0] = src_data + pixels * BYTES_PER_COMPONENT * 0;
@@ -99,14 +99,14 @@ FUNC_NAME(genesys_reorder_components_cis) (
 
 static SANE_Status 
 FUNC_NAME(genesys_reorder_components_cis_bgr) (
-    u_int8_t *src_data, 
-    u_int8_t *dst_data, 
+    uint8_t *src_data, 
+    uint8_t *dst_data, 
     unsigned int lines, 
     unsigned int pixels) 
 {
     unsigned int x, y;
-    u_int8_t *src[3];
-    u_int8_t *dst = dst_data;
+    uint8_t *src[3];
+    uint8_t *dst = dst_data;
     unsigned int rest = pixels * 2 * BYTES_PER_COMPONENT;
 
     src[0] = src_data + pixels * BYTES_PER_COMPONENT * 0;
@@ -150,14 +150,14 @@ FUNC_NAME(genesys_reorder_components_cis_bgr) (
 
 static SANE_Status 
 FUNC_NAME(genesys_reorder_components_bgr) (
-    u_int8_t *src_data, 
-    u_int8_t *dst_data, 
+    uint8_t *src_data, 
+    uint8_t *dst_data, 
     unsigned int lines, 
     unsigned int pixels) 
 {
     unsigned int c;
-    u_int8_t *src = src_data;
-    u_int8_t *dst = dst_data;
+    uint8_t *src = src_data;
+    uint8_t *dst = dst_data;
 
     for(c = 0; c < lines * pixels; c++) {
 
@@ -192,15 +192,15 @@ FUNC_NAME(genesys_reorder_components_bgr) (
 #if defined(DOUBLE_BYTE) && defined(WORDS_BIGENDIAN)
 static SANE_Status 
 FUNC_NAME(genesys_reorder_components_endian) (
-    u_int8_t *src_data, 
-    u_int8_t *dst_data, 
+    uint8_t *src_data, 
+    uint8_t *dst_data, 
     unsigned int lines, 
     unsigned int pixels,
     unsigned int channels) 
 {
     unsigned int c;
-    u_int8_t *src = src_data;
-    u_int8_t *dst = dst_data;
+    uint8_t *src = src_data;
+    uint8_t *dst = dst_data;
 
     for(c = 0; c < lines * pixels * channels; c++) {
 	*dst++ = src[1];
@@ -214,8 +214,8 @@ return SANE_STATUS_GOOD;
 
 static SANE_Status 
 FUNC_NAME(genesys_reverse_ccd) (
-    u_int8_t *src_data, 
-    u_int8_t *dst_data, 
+    uint8_t *src_data, 
+    uint8_t *dst_data, 
     unsigned int lines, 
     unsigned int components_per_line,
     unsigned int *ccd_shift,
@@ -283,8 +283,8 @@ FUNC_NAME(genesys_reverse_ccd) (
 
 static SANE_Status 
 FUNC_NAME(genesys_shrink_lines) (
-    u_int8_t *src_data, 
-    u_int8_t *dst_data, 
+    uint8_t *src_data, 
+    uint8_t *dst_data, 
     unsigned int lines, 
     unsigned int src_pixels,
     unsigned int dst_pixels, 

@@ -57,6 +57,8 @@
 #include <sys/time.h>
 #endif
 
+#include "_stdint.h"
+
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
@@ -266,17 +268,17 @@ enum
 };
 
 
-static SANE_Status gl646_set_fe (Genesys_Device * dev, u_int8_t set);
+static SANE_Status gl646_set_fe (Genesys_Device * dev, uint8_t set);
 static  SANE_Status
 gl646_setup_registers (Genesys_Device * dev,
 		       Genesys_Register_Set * regs,
-		       u_int16_t * slope_table1,
-		       u_int16_t * slope_table2,
+		       uint16_t * slope_table1,
+		       uint16_t * slope_table2,
 		       SANE_Int resolution,
-		       u_int32_t move,
-		       u_int32_t linecnt,
-		       u_int16_t startx,
-		       u_int16_t endx, SANE_Bool color, SANE_Int depth);
+		       uint32_t move,
+		       uint32_t linecnt,
+		       uint16_t startx,
+		       uint16_t endx, SANE_Bool color, SANE_Int depth);
 static  void gl646_init_regs (Genesys_Device * dev);
 
 /* Write to many registers */
@@ -285,8 +287,8 @@ gl646_bulk_write_register (Genesys_Device * dev,
 			   Genesys_Register_Set * reg, size_t elems)
 {
   SANE_Status status;
-  u_int8_t outdata[8];
-  u_int8_t buffer[GENESYS_MAX_REGS * 2];
+  uint8_t outdata[8];
+  uint8_t buffer[GENESYS_MAX_REGS * 2];
   size_t size;
   unsigned int i;
 
@@ -347,12 +349,12 @@ gl646_bulk_write_register (Genesys_Device * dev,
 
 /* Write bulk data (e.g. shading, gamma) */
 static SANE_Status
-gl646_bulk_write_data (Genesys_Device * dev, u_int8_t addr,
-		       u_int8_t * data, size_t len)
+gl646_bulk_write_data (Genesys_Device * dev, uint8_t addr,
+		       uint8_t * data, size_t len)
 {
   SANE_Status status;
   size_t size;
-  u_int8_t outdata[8];
+  uint8_t outdata[8];
 
   DBG (DBG_io, "gl646_bulk_write_data writing %lu bytes\n", (u_long) len);
 
@@ -421,7 +423,7 @@ gl646_bulk_write_data (Genesys_Device * dev, u_int8_t addr,
  * reads value from gpio endpoint
  */
 static SANE_Status
-gl646_gpio_read (SANE_Int dn, u_int8_t * value)
+gl646_gpio_read (SANE_Int dn, uint8_t * value)
 {
   return sanei_usb_control_msg (dn, REQUEST_TYPE_IN,
 				REQUEST_REGISTER, GPIO_READ, INDEX, 1, value);
@@ -431,7 +433,7 @@ gl646_gpio_read (SANE_Int dn, u_int8_t * value)
  * writes the given value to gpio endpoint
  */
 static SANE_Status
-gl646_gpio_write (SANE_Int dn, u_int8_t value)
+gl646_gpio_write (SANE_Int dn, uint8_t value)
 {
   DBG (DBG_proc, "gl646_gpio_write(0x%02x)\n", value);
   return sanei_usb_control_msg (dn, REQUEST_TYPE_OUT,
@@ -443,7 +445,7 @@ gl646_gpio_write (SANE_Int dn, u_int8_t value)
  * writes the given value to gpio output enable endpoint
  */
 static SANE_Status
-gl646_gpio_output_enable (SANE_Int dn, u_int8_t value)
+gl646_gpio_output_enable (SANE_Int dn, uint8_t value)
 {
   DBG (DBG_proc, "gl646_gpio_output_enable(0x%02x)\n", value);
   return sanei_usb_control_msg (dn, REQUEST_TYPE_OUT,
@@ -453,12 +455,12 @@ gl646_gpio_output_enable (SANE_Int dn, u_int8_t value)
 
 /* Read bulk data (e.g. scanned data) */
 static SANE_Status
-gl646_bulk_read_data (Genesys_Device * dev, u_int8_t addr,
-		      u_int8_t * data, size_t len)
+gl646_bulk_read_data (Genesys_Device * dev, uint8_t addr,
+		      uint8_t * data, size_t len)
 {
   SANE_Status status;
   size_t size;
-  u_int8_t outdata[8];
+  uint8_t outdata[8];
 
   DBG (DBG_io, "gl646_bulk_read_data: requesting %lu bytes\n", (u_long) len);
   DBG (DBG_io, "gl646_bulk_read_data: read bytes left %lu \n",
@@ -601,7 +603,7 @@ gl646_test_motor_flag_bit (SANE_Byte val)
 
 static void
 gl646_set_triple_reg (Genesys_Register_Set * regs, int regnum,
-		      u_int32_t value)
+		      uint32_t value)
 {
   Genesys_Register_Set *r = NULL;
 
@@ -615,7 +617,7 @@ gl646_set_triple_reg (Genesys_Register_Set * regs, int regnum,
 
 static void
 gl646_set_double_reg (Genesys_Register_Set * regs, int regnum,
-		      u_int16_t value)
+		      uint16_t value)
 {
   Genesys_Register_Set *r = NULL;
 
@@ -792,7 +794,7 @@ typedef struct
   SANE_Int dpiset;		/**< set sensor dpi */
   SANE_Int cksel;		/**< dpiset 'divisor' */
   SANE_Int dummy;		/**< dummy exposure time */
-  u_int8_t regs_0x10_0x15[6];	/**< per color exposure time for CIS scanners */
+  uint8_t regs_0x10_0x15[6];	/**< per color exposure time for CIS scanners */
   SANE_Bool half_ccd;           /**> true if manual CCD/2 clock programming */
 } Sensor_Master;
 
@@ -806,10 +808,10 @@ typedef struct
   SANE_Int cksel;
 
   /* values */
-  u_int8_t regs_0x08_0x0b[4];	/**< settings for normal CCD clock */
-  u_int8_t manual_0x08_0x0b[4];	/**< settings for manual CCD/2 clock */
-  u_int8_t regs_0x16_0x1d[8];
-  u_int8_t regs_0x52_0x5e[13];
+  uint8_t regs_0x08_0x0b[4];	/**< settings for normal CCD clock */
+  uint8_t manual_0x08_0x0b[4];	/**< settings for manual CCD/2 clock */
+  uint8_t regs_0x16_0x1d[8];
+  uint8_t regs_0x52_0x5e[13];
 } Sensor_Settings;
 
 
@@ -934,13 +936,13 @@ static Sensor_Settings sensor_settings[] = {
 static  SANE_Status
 gl646_setup_registers (Genesys_Device * dev,
 		       Genesys_Register_Set * regs,
-		       u_int16_t * slope_table1,
-		       u_int16_t * slope_table2,
+		       uint16_t * slope_table1,
+		       uint16_t * slope_table2,
 		       SANE_Int resolution,
-		       u_int32_t move,
-		       u_int32_t linecnt,
-		       u_int16_t startx,
-		       u_int16_t endx, SANE_Bool color, SANE_Int depth)
+		       uint32_t move,
+		       uint32_t linecnt,
+		       uint16_t startx,
+		       uint16_t endx, SANE_Bool color, SANE_Int depth)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int i, nb;
@@ -949,11 +951,11 @@ gl646_setup_registers (Genesys_Device * dev,
   Sensor_Settings *settings = NULL;
   Genesys_Register_Set *r;
   unsigned int used, vfinal;
-  u_int32_t z1, z2, addr = 0xdead;
+  uint32_t z1, z2, addr = 0xdead;
   int dummy, channels = 1, stagger, wpl, max_shift;
   size_t requested_buffer_size;
   size_t read_buffer_size;
-  u_int8_t control[4];
+  uint8_t control[4];
 
   DBG (DBG_proc, "gl646_setup_registers: start\n");
   DBG (DBG_info, "gl646_setup_registers: startx=%d, endx=%d, linecnt=%d\n",
@@ -1034,9 +1036,9 @@ gl646_setup_registers (Genesys_Device * dev,
     {
       r = sanei_genesys_get_address (regs, 0x08 + i);
       if(sensor->half_ccd==SANE_TRUE)
-      	r->value = settings->manual_0x08_0x0b[i];
+	r->value = settings->manual_0x08_0x0b[i];
       else
-      	r->value = settings->regs_0x08_0x0b[i];
+	r->value = settings->regs_0x08_0x0b[i];
     }
 
   for (i = 0; i < 8; i++)
@@ -1509,9 +1511,9 @@ static SANE_Status
 gl646_asic_test (Genesys_Device * dev)
 {
   SANE_Status status;
-  u_int8_t val;
-  u_int8_t *data;
-  u_int8_t *verify_data;
+  uint8_t val;
+  uint8_t *data;
+  uint8_t *verify_data;
   size_t size, verify_size;
   unsigned int i;
 
@@ -1567,14 +1569,14 @@ gl646_asic_test (Genesys_Device * dev)
      otherwise the read doesn't succeed the second time after the scanner has 
      been plugged in. Very strange. */
 
-  data = (u_int8_t *) malloc (size);
+  data = (uint8_t *) malloc (size);
   if (!data)
     {
       DBG (DBG_error, "gl646_asic_test: could not allocate memory\n");
       return SANE_STATUS_NO_MEM;
     }
 
-  verify_data = (u_int8_t *) malloc (verify_size);
+  verify_data = (uint8_t *) malloc (verify_size);
   if (!verify_data)
     {
       free (data);
@@ -1619,7 +1621,7 @@ gl646_asic_test (Genesys_Device * dev)
     }
 
   status =
-    gl646_bulk_read_data (dev, 0x45, (u_int8_t *) verify_data, verify_size);
+    gl646_bulk_read_data (dev, 0x45, (uint8_t *) verify_data, verify_size);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "gl646_asic_test: failed to bulk read data: %s\n",
@@ -1886,12 +1888,12 @@ gl646_init_regs (Genesys_Device * dev)
 */
 static SANE_Status
 gl646_send_slope_table (Genesys_Device * dev, int table_nr,
-			u_int16_t * slope_table, int steps)
+			uint16_t * slope_table, int steps)
 {
   int dpihw;
   int start_address;
   SANE_Status status;
-  u_int8_t *table;
+  uint8_t *table;
 #ifdef WORDS_BIGENDIAN
   int i;
 #endif
@@ -1911,14 +1913,14 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
     return SANE_STATUS_INVAL;
 
 #ifdef WORDS_BIGENDIAN
-  table = (u_int8_t *) malloc (steps * 2);
+  table = (uint8_t *) malloc (steps * 2);
   for (i = 0; i < steps; i++)
     {
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
     }
 #else
-  table = (u_int8_t *) slope_table;
+  table = (uint8_t *) slope_table;
 #endif
 
   status =
@@ -1934,7 +1936,7 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
       return status;
     }
 
-  status = gl646_bulk_write_data (dev, 0x3c, (u_int8_t *) table, steps * 2);
+  status = gl646_bulk_write_data (dev, 0x3c, (uint8_t *) table, steps * 2);
   if (status != SANE_STATUS_GOOD)
     {
 #ifdef WORDS_BIGENDIAN
@@ -1955,7 +1957,7 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
 
 /* Set values of Analog Device type frontend */
 static SANE_Status
-gl646_set_ad_fe (Genesys_Device * dev, u_int8_t set)
+gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
 {
   SANE_Status status = SANE_STATUS_GOOD;
 
@@ -1980,11 +1982,11 @@ gl646_set_ad_fe (Genesys_Device * dev, u_int8_t set)
 
 /* Set values of analog frontend */
 static SANE_Status
-gl646_set_fe (Genesys_Device * dev, u_int8_t set)
+gl646_set_fe (Genesys_Device * dev, uint8_t set)
 {
   SANE_Status status;
   int i;
-  u_int8_t val;
+  uint8_t val;
 
   DBG (DBG_proc, "gl646_set_fe (%s)\n",
        set == AFE_INIT ? "init" : set == AFE_SET ? "set" : set ==
@@ -2213,7 +2215,7 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
 
   time = delay * 1000 * 60;	/* -> msec */
   exposure_time =
-    (u_int32_t) (time * 32000.0 /
+    (uint32_t) (time * 32000.0 /
 		 (24.0 * 64.0 * (local_reg[1].value & REG03_LAMPTIM) *
 		  1024.0) + 0.5);
   /* 32000 = system clock, 24 = clocks per pixel */
@@ -2288,8 +2290,8 @@ gl646_load_document (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set regs[11];
   unsigned int used, vfinal, count;
-  u_int16_t slope_table[255];
-  u_int8_t val;
+  uint16_t slope_table[255];
+  uint8_t val;
 
   DBG (DBG_proc, "gl646_load_document: start\n");
   status = sanei_genesys_get_status (dev, &val);
@@ -2458,9 +2460,9 @@ static SANE_Status
 gl646_detect_document_end (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  u_int8_t val;
+  uint8_t val;
   int bytes_to_flush, lines;
-  u_int32_t flines, bpl, channels, depth;
+  uint32_t flines, bpl, channels, depth;
 
   DBG (DBG_proc, "gl646_detect_document_end: start\n");
 
@@ -2530,8 +2532,8 @@ gl646_eject_document (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set regs[7];
   unsigned int used, vfinal, count;
-  u_int16_t slope_table[255];
-  u_int8_t val;
+  uint16_t slope_table[255];
+  uint8_t val;
 
   DBG (DBG_proc, "gl646_eject_document: start\n");
 
@@ -2731,7 +2733,7 @@ gl646_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 {
   SANE_Status status;
   int i = 0;
-  u_int8_t val;
+  uint8_t val;
 
   DBG (DBG_proc, "gl646_end_scan (check_stop = %d)\n", check_stop);
 
@@ -2799,11 +2801,11 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg[GENESYS_GL646_MAX_REGS + 1];
   SANE_Status status;
-  u_int8_t val = 0;
-  u_int8_t prepare_steps;
-  u_int32_t steps;
-  u_int16_t slope_table0[256];
-  u_int16_t exposure_time;
+  uint8_t val = 0;
+  uint8_t prepare_steps;
+  uint32_t steps;
+  uint16_t slope_table0[256];
+  uint16_t exposure_time;
   int i, dpi;
 
   DBG (DBG_proc, "gl646_slow_back_home (wait_until_home = %d)\n",
@@ -3015,7 +3017,7 @@ gl646_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
 {
   Genesys_Register_Set local_reg[9];
   SANE_Status status;
-  u_int8_t val = 0;
+  uint8_t val = 0;
   int loop = 0;
   int i;
   int exposure_time;
@@ -3186,8 +3188,8 @@ gl646_search_start_position (Genesys_Device * dev)
 {
   int size;
   SANE_Status status;
-  u_int8_t *data;
-  u_int16_t slope_table0[256];
+  uint8_t *data;
+  uint16_t slope_table0[256];
   Genesys_Register_Set local_reg[GENESYS_GL646_MAX_REGS + 1];
   int i, steps;
   int exposure_time, half_ccd = 0;
@@ -3477,15 +3479,15 @@ static SANE_Status
 gl646_init_regs_for_coarse_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
-  u_int32_t bytes_per_line;
-  u_int32_t words_per_line;
-  u_int32_t steps_sum;
-  u_int32_t z1, z2;
-  u_int16_t slope_table[256];
-  u_int16_t strpixel;
-  u_int16_t endpixel;
-  u_int8_t channels;
-  u_int8_t cksel;
+  uint32_t bytes_per_line;
+  uint32_t words_per_line;
+  uint32_t steps_sum;
+  uint32_t z1, z2;
+  uint16_t slope_table[256];
+  uint16_t strpixel;
+  uint16_t endpixel;
+  uint8_t channels;
+  uint8_t cksel;
 
   DBG (DBG_proc, "gl646_init_regs_for_coarse_calibration\n");
 
@@ -3636,17 +3638,17 @@ static SANE_Status
 gl646_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
-  u_int32_t bytes_per_line;
-  u_int32_t num_pixels;
-  u_int32_t steps_sum;
+  uint32_t bytes_per_line;
+  uint32_t num_pixels;
+  uint32_t steps_sum;
   int move = 0;
   int exposure_time;
-  u_int32_t z1, z2;
-  u_int16_t slope_table[256];
-  u_int16_t steps;
-  u_int8_t step_parts;
-  u_int8_t channels;
-  u_int8_t dummy_lines = 3;
+  uint32_t z1, z2;
+  uint16_t slope_table[256];
+  uint16_t steps;
+  uint8_t step_parts;
+  uint8_t channels;
+  uint8_t dummy_lines = 3;
   int dpiset;
   SANE_Bool half_ccd;
   int workaround;
@@ -3743,12 +3745,12 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
     }
   else
     {
-      dev->calib_reg[reg_0x21].value = (u_int8_t) steps;
+      dev->calib_reg[reg_0x21].value = (uint8_t) steps;
       steps = 2 * step_parts;
       if (steps > 255)
 	steps = 255;
 
-      dev->calib_reg[reg_0x22].value = (u_int8_t) steps;
+      dev->calib_reg[reg_0x22].value = (uint8_t) steps;
     }
   dev->calib_reg[reg_0x23].value = dev->calib_reg[reg_0x22].value;
   dev->calib_reg[reg_0x24].value = dev->calib_reg[reg_0x21].value;
@@ -3974,7 +3976,7 @@ gl646_init_regs_for_scan_old (Genesys_Device * dev)
   int fast_dpi = 0;
   int fast_exposure = 0;
   int dummy;
-  u_int32_t steps_sum, z1, z2;
+  uint32_t steps_sum, z1, z2;
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   SANE_Status status;
   unsigned int stagger;
@@ -4527,7 +4529,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
   SANE_Status status;
   SANE_Bool color;
   int channels;
-  u_int16_t startx, endx;
+  uint16_t startx, endx;
   int move;
 
   /* these 2 models use the old way to setup registers */
@@ -4670,7 +4672,7 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
   int size;
   int address;
   int status;
-  u_int8_t *gamma;
+  uint8_t *gamma;
   int i;
 
   /* don't send anything if no specific gamma table defined */
@@ -4690,7 +4692,7 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
     size = 4096;
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
-  gamma = (u_int8_t *) malloc (size * 2 * 3);
+  gamma = (uint8_t *) malloc (size * 2 * 3);
   if (!gamma)
     return SANE_STATUS_NO_MEM;
   /* take care off generic/specific data */
@@ -4751,7 +4753,7 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
 
   /* send data */
   status =
-    gl646_bulk_write_data (dev, 0x3c, (u_int8_t *) gamma, size * 2 * 3);
+    gl646_bulk_write_data (dev, 0x3c, (uint8_t *) gamma, size * 2 * 3);
   if (status != SANE_STATUS_GOOD)
     {
       free (gamma);
@@ -4788,14 +4790,14 @@ gl646_offset_calibration (Genesys_Device * dev)
   int num_pixels;
   int total_size;
   int avg[3];
-  u_int8_t *first_line, *second_line;
+  uint8_t *first_line, *second_line;
   int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
   int average, val, count;
   int minimum, offset, dpi, channels;
   SANE_Bool half_ccd = 1;
   int steps = 0, lincnt = 1, start_pixel;
-  u_int16_t slope_table[256];
+  uint16_t slope_table[256];
 
   DBG (DBG_proc, "gl646_offset_calibration\n");
 
@@ -5229,7 +5231,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   int num_pixels;
   int black_pixels;
   int total_size;
-  u_int8_t *line;
+  uint8_t *line;
   int i, j, channels;
   SANE_Status status = SANE_STATUS_GOOD;
   float average[3];
@@ -5362,7 +5364,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   int startpixel, endpixel;
   int steps = 0;
   SANE_Status status = SANE_STATUS_GOOD;
-  u_int16_t slope_table[256];
+  uint16_t slope_table[256];
 
   DBG (DBG_proc, "gl646_warmup_lamp\n");
 
@@ -5546,7 +5548,7 @@ static SANE_Status
 gl646_repark_head (Genesys_Device * dev)
 {
   Genesys_Register_Set local_reg[GENESYS_GL646_MAX_REGS + 1];
-  u_int16_t slope_table[256];
+  uint16_t slope_table[256];
   unsigned int exposure_time;	/* todo : modify sanei_genesys_exposure_time() */
   SANE_Status status;
   unsigned int steps = 232;
@@ -5718,8 +5720,8 @@ gl646_init (Genesys_Device * dev)
 {
   SANE_Status status;
   struct timeval tv;
-  u_int8_t cold = 0, val = 0;
-  u_int32_t addr = 0xdead;
+  uint8_t cold = 0, val = 0;
+  uint32_t addr = 0xdead;
   int size;
 
   DBG_INIT ();
@@ -5823,7 +5825,7 @@ gl646_init (Genesys_Device * dev)
 
       if (dev->sensor.red_gamma_table == NULL)
 	{
-	  dev->sensor.red_gamma_table = (u_int16_t *) malloc (2 * size);
+	  dev->sensor.red_gamma_table = (uint16_t *) malloc (2 * size);
 	  if (dev->sensor.red_gamma_table == NULL)
 	    {
 	      DBG (DBG_error,
@@ -5836,7 +5838,7 @@ gl646_init (Genesys_Device * dev)
 	}
       if (dev->sensor.green_gamma_table == NULL)
 	{
-	  dev->sensor.green_gamma_table = (u_int16_t *) malloc (2 * size);
+	  dev->sensor.green_gamma_table = (uint16_t *) malloc (2 * size);
 	  if (dev->sensor.red_gamma_table == NULL)
 	    {
 	      DBG (DBG_error,
@@ -5850,7 +5852,7 @@ gl646_init (Genesys_Device * dev)
 	}
       if (dev->sensor.blue_gamma_table == NULL)
 	{
-	  dev->sensor.blue_gamma_table = (u_int16_t *) malloc (2 * size);
+	  dev->sensor.blue_gamma_table = (uint16_t *) malloc (2 * size);
 	  if (dev->sensor.red_gamma_table == NULL)
 	    {
 	      DBG (DBG_error,
@@ -6030,7 +6032,7 @@ static SANE_Status
 gl646_update_hardware_sensors (Genesys_Scanner *session)
 {
   Genesys_Device *dev=session->dev;
-  u_int8_t value;
+  uint8_t value;
   SANE_Status status;
 
   /* do what is needed to get a new set of events, but try to not lose

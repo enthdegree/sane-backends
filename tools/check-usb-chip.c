@@ -37,6 +37,8 @@
 
 #include <usb.h>
 
+#include "_stdint.h"
+
 static int verbose = 0;
 static SANE_Bool no_chipset_access;
 #define TIMEOUT 1000
@@ -3065,15 +3067,15 @@ check_rts8822 (struct usb_device *dev)
 static char *
 check_hp5590 (struct usb_device *dev)
 {
-  usb_dev_handle 	*handle;
-  int 			result;
-  u_int8_t 		status;
+  usb_dev_handle	*handle;
+  int			result;
+  uint8_t		status;
   struct usb_ctrl_setup ctrl;
-  u_int8_t 		data[0x32];
-  u_int8_t 		ack;
-  u_int8_t 		*ptr;
-  int 			next_packet_size;
-  unsigned int 		len;
+  uint8_t		data[0x32];
+  uint8_t		ack;
+  uint8_t		*ptr;
+  int			next_packet_size;
+  unsigned int		len;
 
   if (verbose > 2)
     printf ("    checking for HP5550/5590/7650 chipset ...\n");
@@ -3222,8 +3224,8 @@ check_hp5590 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf ("    Didn't get correct confirmation for USB-in-USB command "
-	        "(needed: 0x01, got: 0x%02x\n",
-	        status);
+		"(needed: 0x01, got: 0x%02x\n",
+		status);
       finish_interface (handle);
       return NULL;
     }
@@ -3296,8 +3298,8 @@ check_hp5590 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf ("    Didn't get correct confirmation for USB-in-USB command "
-	        "(needed: 0x01, got: 0x%02x\n",
-	        status);
+		"(needed: 0x01, got: 0x%02x\n",
+		status);
       finish_interface (handle);
       return NULL;
     }

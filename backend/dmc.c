@@ -53,6 +53,8 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include "_stdint.h"
+
 #include "sane/sane.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
@@ -122,7 +124,7 @@ static SANE_Status
 DMCRead(int fd, unsigned int typecode, unsigned int qualifier,
 	SANE_Byte *buf, size_t maxlen, size_t *len)
 {
-    u_int8_t readCmd[10];
+    uint8_t readCmd[10];
     SANE_Status status;
 
     readCmd[0] = 0x28;
@@ -161,7 +163,7 @@ static SANE_Status
 DMCWrite(int fd, unsigned int typecode, unsigned int qualifier,
 	SANE_Byte *buf, size_t maxlen)
 {
-    u_int8_t *writeCmd;
+    uint8_t *writeCmd;
     SANE_Status status;
 
     writeCmd = malloc(maxlen + 10);
@@ -209,16 +211,16 @@ DMCAttach(char const *devname, DMC_Device **devp)
     size_t size;
     char result[INQ_LEN];
 
-    u_int8_t exposureCalculationResults[16];
-    u_int8_t userInterfaceSettings[16];
+    uint8_t exposureCalculationResults[16];
+    uint8_t userInterfaceSettings[16];
 
-    static u_int8_t const inquiry[] =
+    static uint8_t const inquiry[] =
     { 0x12, 0x00, 0x00, 0x00, INQ_LEN, 0x00 };
 
-    static u_int8_t const test_unit_ready[] =
+    static uint8_t const test_unit_ready[] =
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-    static u_int8_t const no_viewfinder[] =
+    static uint8_t const no_viewfinder[] =
     { 0xC6, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
     /* If we're already attached, do nothing */
@@ -603,7 +605,7 @@ DMCCancel(DMC_Camera *c)
 static SANE_Status
 DMCSetASA(int fd, unsigned int asa)
 {
-    u_int8_t exposureCalculationResults[16];
+    uint8_t exposureCalculationResults[16];
     SANE_Status status;
     size_t len;
     int i;
@@ -620,7 +622,7 @@ DMCSetASA(int fd, unsigned int asa)
     if (status != SANE_STATUS_GOOD) return status;
     if (len < sizeof(exposureCalculationResults)) return SANE_STATUS_IO_ERROR;
 
-    exposureCalculationResults[13] = (u_int8_t) i - 1;
+    exposureCalculationResults[13] = (uint8_t) i - 1;
 
     return DMCWrite(fd, 0x87, 0x4, exposureCalculationResults,
 		    sizeof(exposureCalculationResults));
@@ -639,7 +641,7 @@ DMCSetASA(int fd, unsigned int asa)
 static SANE_Status
 DMCSetWhiteBalance(int fd, int mode)
 {
-    u_int8_t userInterfaceSettings[16];
+    uint8_t userInterfaceSettings[16];
     SANE_Status status;
     size_t len;
 
@@ -649,7 +651,7 @@ DMCSetWhiteBalance(int fd, int mode)
     if (status != SANE_STATUS_GOOD) return status;
     if (len < sizeof(userInterfaceSettings)) return SANE_STATUS_IO_ERROR;
 
-    userInterfaceSettings[5] = (u_int8_t) mode;
+    userInterfaceSettings[5] = (uint8_t) mode;
 
     return DMCWrite(fd, 0x82, 0x0, userInterfaceSettings,
 		    sizeof(userInterfaceSettings));
@@ -668,7 +670,7 @@ DMCSetWhiteBalance(int fd, int mode)
 static SANE_Status
 DMCSetShutterSpeed(int fd, unsigned int speed)
 {
-    u_int8_t exposureCalculationResults[16];
+    uint8_t exposureCalculationResults[16];
     SANE_Status status;
     size_t len;
 
@@ -1166,13 +1168,13 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
 SANE_Status
 sane_start(SANE_Handle handle)
 {
-    static u_int8_t const acquire[] =
+    static uint8_t const acquire[] =
     { 0xC1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-    static u_int8_t const viewfinder[] =
+    static uint8_t const viewfinder[] =
     { 0xCB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-    static u_int8_t const no_viewfinder[] =
+    static uint8_t const no_viewfinder[] =
     { 0xC6, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
     DMC_Camera *c = ValidateHandle(handle);

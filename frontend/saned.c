@@ -194,15 +194,15 @@ static AvahiEntryGroup *avahi_group = NULL;
 
 #ifdef ENABLE_IPV6
 # define SANE_IN6_IS_ADDR_LOOPBACK(a) \
-        (((const u_int32_t *) (a))[0] == 0                                   \
-         && ((const u_int32_t *) (a))[1] == 0                                \
-         && ((const u_int32_t *) (a))[2] == 0                                \
-         && ((const u_int32_t *) (a))[3] == htonl (1)) 
+        (((const uint32_t *) (a))[0] == 0                                   \
+         && ((const uint32_t *) (a))[1] == 0                                \
+         && ((const uint32_t *) (a))[2] == 0                                \
+         && ((const uint32_t *) (a))[3] == htonl (1)) 
 
 #define SANE_IN6_IS_ADDR_V4MAPPED(a) \
-((((const u_int32_t *) (a))[0] == 0)                                 \
- && (((const u_int32_t *) (a))[1] == 0)                              \
- && (((const u_int32_t *) (a))[2] == htonl (0xffff))) 
+((((const uint32_t *) (a))[0] == 0)                                 \
+ && (((const uint32_t *) (a))[1] == 0)                              \
+ && (((const uint32_t *) (a))[2] == htonl (0xffff))) 
 #endif /* ENABLE_IPV6 */
 
 #ifndef MAXHOSTNAMELEN
@@ -545,7 +545,7 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
   int cidr;
   int i, err;
   char *end;
-  u_int32_t mask; 
+  uint32_t mask; 
   struct sockaddr_in *base;
   struct addrinfo hints;
   struct addrinfo *res;
@@ -679,7 +679,7 @@ check_v4_in_range (struct in_addr *inaddr, struct in_addr *base, char *netmask)
   int cidr;
   int i;
   char *end;
-  u_int32_t mask; 
+  uint32_t mask; 
   SANE_Bool ret = SANE_FALSE;
 
   cidr = -1;

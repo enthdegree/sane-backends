@@ -61,6 +61,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include "_stdint.h"
+
 #include "sane/sane.h"
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
@@ -143,12 +145,12 @@ static const SANE_Range y_range =
 
 
 #define INQ_LEN	0x60
-static const u_int8_t inquiry[] =
+static const uint8_t inquiry[] =
 {
   INQUIRY, 0x00, 0x00, 0x00, INQ_LEN, 0x00
 };
 
-static const u_int8_t test_unit_ready[] =
+static const uint8_t test_unit_ready[] =
 {
   TEST_UNIT_READY, 0x00, 0x00, 0x00, 0x00, 0x00
 };
@@ -159,37 +161,37 @@ static const u_int8_t test_unit_ready[] =
 #define IS_ACTIVE(OPTION) (((s->opt[OPTION].cap) & SANE_CAP_INACTIVE) == 0)
 
 /* store an 8-bit-wide value at the location specified by ptr */
-#define STORE8(ptr, val) (*((u_int8_t *) ptr) = val)
+#define STORE8(ptr, val) (*((uint8_t *) ptr) = val)
 
 /* store a 16-bit-wide value in network (big-endian) byte order */
 #define STORE16(ptr, val)			\
   {						\
-  *((u_int8_t *) ptr)     = (val >> 8) & 0xff;	\
-  *((u_int8_t *) ptr+1)   = val & 0xff;		\
+  *((uint8_t *) ptr)     = (val >> 8) & 0xff;	\
+  *((uint8_t *) ptr+1)   = val & 0xff;		\
   }
 
 /* store a 24-bit-wide value in network (big-endian) byte order */
 #define STORE24(ptr, val)			\
   {						\
-  *((u_int8_t *) ptr)     = (val >> 16) & 0xff;	\
-  *((u_int8_t *) ptr+1)   = (val >> 8) & 0xff;	\
-  *((u_int8_t *) ptr+2)   = val & 0xff;		\
+  *((uint8_t *) ptr)     = (val >> 16) & 0xff;	\
+  *((uint8_t *) ptr+1)   = (val >> 8) & 0xff;	\
+  *((uint8_t *) ptr+2)   = val & 0xff;		\
   }
 
 /* store a 32-bit-wide value in network (big-endian) byte order */
 #define STORE32(ptr, val)			\
   {						\
-  *((u_int8_t *) ptr)     = (val >> 24) & 0xff;	\
-  *((u_int8_t *) ptr+1)   = (val >> 16) & 0xff;	\
-  *((u_int8_t *) ptr+2)   = (val >> 8) & 0xff;	\
-  *((u_int8_t *) ptr+3)   = val & 0xff;		\
+  *((uint8_t *) ptr)     = (val >> 24) & 0xff;	\
+  *((uint8_t *) ptr+1)   = (val >> 16) & 0xff;	\
+  *((uint8_t *) ptr+2)   = (val >> 8) & 0xff;	\
+  *((uint8_t *) ptr+3)   = val & 0xff;		\
   }
 
 /* retrieve a 24-bit-wide big-endian value at ptr */
 #define GET24(ptr) \
-  (*((u_int8_t *) ptr) << 16)  + \
-  (*((u_int8_t *) ptr+1) << 8) + \
-  (*((u_int8_t *) ptr+2))
+  (*((uint8_t *) ptr) << 16)  + \
+  (*((uint8_t *) ptr+1) << 8) + \
+  (*((uint8_t *) ptr+2))
 
 static SANE_Status
 wait_ready (int fd)
@@ -271,8 +273,8 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
 static SANE_Status
 request_sense (Abaton_Scanner * s)
 {
-  u_int8_t cmd[6];
-  u_int8_t result[22];
+  uint8_t cmd[6];
+  uint8_t result[22];
   size_t size = sizeof (result);
   SANE_Status status;
 
@@ -317,8 +319,8 @@ request_sense (Abaton_Scanner * s)
 static SANE_Status
 set_window (Abaton_Scanner * s)
 {
-  u_int8_t cmd[10 + 40];
-  u_int8_t *window = cmd + 10 + 8;
+  uint8_t cmd[10 + 40];
+  uint8_t *window = cmd + 10 + 8;
   int invert;
   
   memset (cmd, 0, sizeof (cmd));
@@ -391,7 +393,7 @@ static SANE_Status
 start_scan (Abaton_Scanner * s)
 {
   SANE_Status status;
-  u_int8_t start[7];
+  uint8_t start[7];
 
 
   memset (start, 0, sizeof (start));
@@ -1046,8 +1048,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	{
 	  /* word options: */
 	case OPT_NUM_OPTS:
- 	case OPT_X_RESOLUTION:
- 	case OPT_Y_RESOLUTION:
+	case OPT_X_RESOLUTION:
+	case OPT_Y_RESOLUTION:
 	case OPT_RESOLUTION_BIND:
 	case OPT_PREVIEW:
 	case OPT_TL_X:
@@ -1273,10 +1275,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   Abaton_Scanner *s = handle;
   SANE_Status status;
 
-  u_int8_t get_data_status[10];
-  u_int8_t read[10];
+  uint8_t get_data_status[10];
+  uint8_t read[10];
 
-  u_int8_t result[12];
+  uint8_t result[12];
   size_t size;
   SANE_Int data_av = 0;
   SANE_Int data_length = 0;

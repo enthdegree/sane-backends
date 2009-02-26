@@ -59,6 +59,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include "_stdint.h"
+
 #include "sane/sane.h"
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
@@ -213,12 +215,12 @@ static const SANE_Range u8_range =
 
 
 
-static const u_int8_t inquiry[] =
+static const uint8_t inquiry[] =
 {
   APPLE_SCSI_INQUIRY, 0x00, 0x00, 0x00, INQ_LEN, 0x00
 };
 
-static const u_int8_t test_unit_ready[] =
+static const uint8_t test_unit_ready[] =
 {
   APPLE_SCSI_TEST_UNIT_READY, 0x00, 0x00, 0x00, 0x00, 0x00
 };
@@ -364,8 +366,8 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
 static SANE_Status
 request_sense (Apple_Scanner * s)
 {
-  u_int8_t cmd[6];
-  u_int8_t result[22];
+  uint8_t cmd[6];
+  uint8_t result[22];
   size_t size = sizeof (result);
   SANE_Status status;
 
@@ -633,7 +635,7 @@ max_string_size (const SANE_String_Const strings[])
 static SANE_Status
 scan_area_and_windows (Apple_Scanner * s)
 {
-  u_int8_t cmd[10 + 8 + 42];
+  uint8_t cmd[10 + 8 + 42];
 #define CMD cmd + 0
 #define WH  cmd + 10
 #define WP  WH + 8
@@ -743,7 +745,7 @@ if (s->hw->ScannerModel != COLORONESCANNER)
 static SANE_Status
 mode_select (Apple_Scanner * s)
 {
-  u_int8_t cmd[6 + 12];
+  uint8_t cmd[6 + 12];
 #define CMD cmd + 0
 #define PP  cmd + 6
 
@@ -837,7 +839,7 @@ static SANE_Status
 start_scan (Apple_Scanner * s)
 {
   SANE_Status status;
-  u_int8_t start[7];
+  uint8_t start[7];
 
 
   memset (start, 0, sizeof (start));
@@ -1652,7 +1654,7 @@ init_options (Apple_Scanner * s)
   s->opt[OPT_MTF_CIRCUIT].name = "mtf";
   s->opt[OPT_MTF_CIRCUIT].title = "MTF Circuit";
   s->opt[OPT_MTF_CIRCUIT].desc ="Turns the MTF (Modulation Transfer Function) "
- 						"peaking circuit on or off.";
+						"peaking circuit on or off.";
   s->opt[OPT_MTF_CIRCUIT].type = SANE_TYPE_BOOL;
   if (s->hw->ScannerModel!=COLORONESCANNER)
     s->opt[OPT_MTF_CIRCUIT].cap |= SANE_CAP_INACTIVE;
@@ -1753,7 +1755,7 @@ init_options (Apple_Scanner * s)
   s->opt[OPT_CUSTOM_CCT].name = "custom-cct";
   s->opt[OPT_CUSTOM_CCT].title = "Use Custom CCT";
   s->opt[OPT_CUSTOM_CCT].desc ="Determines whether a builtin "
-  	"or a custom 3x3 Color Correction Table (CCT) should be used.";
+	"or a custom 3x3 Color Correction Table (CCT) should be used.";
   s->opt[OPT_CUSTOM_CCT].type = SANE_TYPE_BOOL;
   s->opt[OPT_CUSTOM_CCT].cap |= SANE_CAP_INACTIVE;
   if (s->hw->ScannerModel!=COLORONESCANNER)
@@ -2053,7 +2055,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  s->val[option].s : (char *) val);
 	break;
       case SANE_TYPE_FIXED:
-  	{
+	{
 	double v1, v2;
 	SANE_Fixed f;
 	v1 = SANE_UNFIX (s->val[option].w);
@@ -2288,8 +2290,8 @@ eliminated.
 	  /* TODO: fix {down/up}loads */
 	  return SANE_STATUS_UNSUPPORTED;
 
- 	case OPT_CUSTOM_CCT:
- 	  s->val[OPT_CUSTOM_CCT].w=*(SANE_Word *) val;
+	case OPT_CUSTOM_CCT:
+	  s->val[OPT_CUSTOM_CCT].w=*(SANE_Word *) val;
 	  if (s->val[OPT_CUSTOM_CCT].w)
 	    {
 		ENABLE(OPT_CCT);
@@ -2431,15 +2433,15 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   Apple_Scanner *s = handle;
   SANE_Status status;
 
-  u_int8_t get_data_status[10];
-  u_int8_t read[10];
+  uint8_t get_data_status[10];
+  uint8_t read[10];
 
 #ifdef RESERVE_RELEASE_HACK
-  u_int8_t reserve[6];
-  u_int8_t release[6];
+  uint8_t reserve[6];
+  uint8_t release[6];
 #endif  
 
-  u_int8_t result[12];
+  uint8_t result[12];
   size_t size;
   SANE_Int data_length = 0;
   SANE_Int data_av = 0;

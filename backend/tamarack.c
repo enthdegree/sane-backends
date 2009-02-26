@@ -50,6 +50,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+#include "_stdint.h"
+
 #include "sane/sane.h"
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
@@ -117,22 +119,22 @@ static const SANE_Range abs_percentage_range =
 
 
 #define INQ_LEN	0x60
-static const u_int8_t inquiry[] =
+static const uint8_t inquiry[] =
 {
   TAMARACK_SCSI_INQUIRY, 0x00, 0x00, 0x00, INQ_LEN, 0x00
 };
 
-static const u_int8_t test_unit_ready[] =
+static const uint8_t test_unit_ready[] =
 {
   TAMARACK_SCSI_TEST_UNIT_READY, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-static const u_int8_t stop[] =
+static const uint8_t stop[] =
 {
   TAMARACK_SCSI_START_STOP, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-static const u_int8_t get_status[] =
+static const uint8_t get_status[] =
 {
   TAMARACK_SCSI_GET_DATA_STATUS, 0x00, 0x00, 0x00, 0x00, 0x00, 
                                        0x00, 0x00, 0x0c, 0x00
@@ -489,7 +491,7 @@ do_cancel (Tamarack_Scanner *s)
 static SANE_Status
 get_image_status (Tamarack_Scanner *s)
 {
-  u_int8_t result[12];
+  uint8_t result[12];
   SANE_Status status;
   size_t len;
   int busy;

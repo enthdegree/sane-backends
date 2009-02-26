@@ -60,6 +60,8 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "_stdint.h"
+
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
@@ -183,7 +185,7 @@ genesys_init_cmd_set (Genesys_Device * dev)
 /* Write data to a pnm file (e.g. calibration). For debugging only */
 /* data is RGB or grey, with little endian byte order */
 SANE_Status
-sanei_genesys_write_pnm_file (char *filename, u_int8_t * data, int depth,
+sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
 			      int channels, int pixels_per_line, int lines)
 {
   FILE *out;
@@ -282,8 +284,8 @@ sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, SANE_Byte address,
 
 /* Write to one register */
 SANE_Status
-sanei_genesys_write_register (Genesys_Device * dev, u_int8_t reg,
-			      u_int8_t val)
+sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg,
+			      uint8_t val)
 {
   SANE_Status status;
 
@@ -318,8 +320,8 @@ sanei_genesys_write_register (Genesys_Device * dev, u_int8_t reg,
 
 /* Read from one register */
 SANE_Status
-sanei_genesys_read_register (Genesys_Device * dev, u_int8_t reg,
-			     u_int8_t * val)
+sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg,
+			     uint8_t * val)
 {
   SANE_Status status;
 
@@ -355,7 +357,7 @@ sanei_genesys_read_register (Genesys_Device * dev, u_int8_t reg,
 
 /* Set address for writing data */
 SANE_Status
-sanei_genesys_set_buffer_address (Genesys_Device * dev, u_int32_t addr)
+sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 {
   SANE_Status status;
 
@@ -415,8 +417,8 @@ sanei_genesys_init_fe (Genesys_Device * dev)
 
 /* Write data for analog frontend */
 SANE_Status
-sanei_genesys_fe_write_data (Genesys_Device * dev, u_int8_t addr,
-			     u_int16_t data)
+sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
+			     uint16_t data)
 {
   SANE_Status status;
   Genesys_Register_Set reg[3];
@@ -451,7 +453,7 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, u_int8_t addr,
 /** read the status register
  */
 SANE_Status
-sanei_genesys_get_status (Genesys_Device * dev, u_int8_t * status)
+sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status)
 {
   return sanei_genesys_read_register (dev, 0x41, status);
 }
@@ -497,7 +499,7 @@ SANE_Status
 sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
 {
   SANE_Status status;
-  u_int8_t value;
+  uint8_t value;
 
   DBG (DBG_proc, "sanei_genesys_read_valid_words\n");
 
@@ -550,10 +552,10 @@ sanei_genesys_get_address (Genesys_Register_Set * regs, SANE_Byte addr)
  *        done.
  */
 SANE_Int
-sanei_genesys_generate_slope_table (u_int16_t * slope_table,
+sanei_genesys_generate_slope_table (uint16_t * slope_table,
 				    unsigned int max_steps,
-				    unsigned int use_steps, u_int16_t stop_at,
-				    u_int16_t vstart, u_int16_t vend,
+				    unsigned int use_steps, uint16_t stop_at,
+				    uint16_t vstart, uint16_t vend,
 				    unsigned int steps, double g,
 				    unsigned int *used_steps,
 				    unsigned int *vfinal)
@@ -562,7 +564,7 @@ sanei_genesys_generate_slope_table (u_int16_t * slope_table,
   SANE_Int sum = 0;
   unsigned int i;
   unsigned int c = 0;
-  u_int16_t t2;
+  uint16_t t2;
   unsigned int dummy;
   unsigned int _vfinal;
   if (!used_steps)
@@ -654,7 +656,7 @@ sanei_genesys_generate_slope_table (u_int16_t * slope_table,
  */
 SANE_Int
 sanei_genesys_create_slope_table3 (Genesys_Device * dev,
-				   u_int16_t * slope_table, int max_step,
+				   uint16_t * slope_table, int max_step,
 				   unsigned int use_steps,
 				   int step_type, int exposure_time,
 				   double yres,
@@ -721,7 +723,7 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
  */
 static SANE_Int
 genesys_create_slope_table4 (Genesys_Device * dev,
-			     u_int16_t * slope_table, int steps,
+			     uint16_t * slope_table, int steps,
 			     int step_type, int exposure_time,
 			     SANE_Bool same_speed, double yres,
 			     int power_mode)
@@ -778,7 +780,7 @@ genesys_create_slope_table4 (Genesys_Device * dev,
 /* the hardcoded values (g and vstart) will go in a motor struct */
 static SANE_Int
 genesys_create_slope_table2 (Genesys_Device * dev,
-			     u_int16_t * slope_table, int steps,
+			     uint16_t * slope_table, int steps,
 			     int step_type, int exposure_time,
 			     SANE_Bool same_speed, double yres,
 			     int power_mode)
@@ -900,7 +902,7 @@ genesys_create_slope_table2 (Genesys_Device * dev,
 /* todo: check details */
 SANE_Int
 sanei_genesys_create_slope_table (Genesys_Device * dev,
-				  u_int16_t * slope_table, int steps,
+				  uint16_t * slope_table, int steps,
 				  int step_type, int exposure_time,
 				  SANE_Bool same_speed, double yres,
 				  int power_mode)
@@ -908,7 +910,7 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
   double t;
   double start_speed;
   double g;
-  u_int32_t time_period;
+  uint32_t time_period;
   int sum_time = 0;
   int i, divider;
   int same_step;
@@ -939,7 +941,7 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
   divider = 1 << step_type;
 
   time_period =
-    (u_int32_t) (yres * exposure_time /
+    (uint32_t) (yres * exposure_time /
 		 dev->motor.base_ydpi /*MOTOR_GEAR */ );
   if ((time_period < 2000) && (same_speed))
     same_speed = SANE_FALSE;
@@ -950,7 +952,7 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
     {
       for (i = 0; i < steps; i++)
 	{
-	  slope_table[i] = (u_int16_t) time_period;
+	  slope_table[i] = (uint16_t) time_period;
 	  sum_time += time_period;
 
 	  DBG (DBG_io, "slope_table[%d] = %d\n", i, time_period);
@@ -1025,7 +1027,7 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
   if (steps <= same_step)
     {
       time_period =
-	(u_int32_t) (yres * exposure_time /
+	(uint32_t) (yres * exposure_time /
 		     dev->motor.base_ydpi /*MOTOR_GEAR */ );
       time_period = time_period / divider;
 
@@ -1034,7 +1036,7 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
 
       for (i = 0; i < same_step; i++)
 	{
-	  slope_table[i] = (u_int16_t) time_period;
+	  slope_table[i] = (uint16_t) time_period;
 	  sum_time += time_period;
 
 	  DBG (DBG_io, "slope_table[%d] = %d\n", i, time_period);
@@ -1056,7 +1058,7 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
 	t = pow (j / (steps - same_step), g);
 
       time_period =		/* time required for full steps */
-	(u_int32_t) (yres * exposure_time /
+	(uint32_t) (yres * exposure_time /
 		     dev->motor.base_ydpi /*MOTOR_GEAR */  *
 		     (start_speed + (1 - start_speed) * t));
 
@@ -1064,7 +1066,7 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
       if (time_period > 65535)
 	time_period = 65535;
 
-      slope_table[i] = (u_int16_t) time_period;
+      slope_table[i] = (uint16_t) time_period;
       sum_time += time_period;
 
       DBG (DBG_io, "slope_table[%d] = %d\n", i, slope_table[i]);
@@ -1079,7 +1081,7 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
 
 /* computes gamma table */
 void
-sanei_genesys_create_gamma_table (u_int16_t * gamma_table, int size,
+sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
 				  float maximum, float gamma_max, float gamma)
 {
   int i;
@@ -1258,7 +1260,7 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
    The data needs to be of size "size", and in little endian byte order.
  */
 static SANE_Status
-genesys_send_offset_and_shading (Genesys_Device * dev, u_int8_t * data,
+genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
 				 int size)
 {
   int dpihw;
@@ -1311,7 +1313,7 @@ SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
 {
   SANE_Status status;
-  u_int8_t *shading_data, *shading_data_ptr;
+  uint8_t *shading_data, *shading_data_ptr;
   int channels;
   int i;
 
@@ -1359,7 +1361,7 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
 SANE_Status
 sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty)
 {
-  u_int8_t val = 0;
+  uint8_t val = 0;
   SANE_Status status;
 
   status = sanei_genesys_get_status (dev, &val);
@@ -1387,7 +1389,7 @@ sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty)
 
 /* Read data (e.g scanned image) from scan buffer */
 SANE_Status
-sanei_genesys_read_data_from_scanner (Genesys_Device * dev, u_int8_t * data,
+sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 				      size_t size)
 {
   SANE_Status status;
@@ -1447,13 +1449,13 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, u_int8_t * data,
    takes gray level 8 bits data and find
    first CCD usable pixel and top of scanning area */
 SANE_Status
-sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
+sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 				      int start_pixel, int dpi, int width,
 				      int height)
 {
   int x, y;
   int current, left, top = 0;
-  u_int8_t *image;
+  uint8_t *image;
   int size, count;
   int level = 80;		/* edge threshold level */
 
@@ -1635,7 +1637,7 @@ SANE_Status
 sanei_genesys_read_feed_steps (Genesys_Device * dev, unsigned int *steps)
 {
   SANE_Status status;
-  u_int8_t value;
+  uint8_t value;
 
   DBG (DBG_proc, "sanei_genesys_read_feed_steps\n");
 
@@ -1656,11 +1658,11 @@ sanei_genesys_read_feed_steps (Genesys_Device * dev, unsigned int *steps)
 
 void
 sanei_genesys_calculate_zmode2 (SANE_Bool two_table,
-				u_int32_t exposure_time,
-				u_int16_t * slope_table,
+				uint32_t exposure_time,
+				uint16_t * slope_table,
 				int reg21,
-				int move, int reg22, u_int32_t * z1,
-				u_int32_t * z2)
+				int move, int reg22, uint32_t * z1,
+				uint32_t * z2)
 {
   int i;
   int sum;
@@ -1691,23 +1693,23 @@ sanei_genesys_calculate_zmode2 (SANE_Bool two_table,
 /* huh? */
 /* todo: double check */
 /* Z1 and Z2 seem to be a time to synchronize with clock or a phase correction */
-/* steps_sum	is the result of create_slope_table 	*/
-/* last_speed	is the last entry of the slope_table 	*/
-/* feedl	is registers 3d,3e,3f 			 */
-/* fastfed	is register 02 bit 3		 	*/
-/* scanfed	is register 1f 				*/
-/* fwdstep	is register 22 				*/
-/* tgtime	is register 6c bit 6+7 >> 6 		*/
+/* steps_sum	is the result of create_slope_table	*/
+/* last_speed	is the last entry of the slope_table	*/
+/* feedl	is registers 3d,3e,3f			 */
+/* fastfed	is register 02 bit 3			*/
+/* scanfed	is register 1f				*/
+/* fwdstep	is register 22				*/
+/* tgtime	is register 6c bit 6+7 >> 6		*/
 
 void
-sanei_genesys_calculate_zmode (Genesys_Device * dev, u_int32_t exposure_time,
-			       u_int32_t steps_sum, u_int16_t last_speed,
-			       u_int32_t feedl, u_int8_t fastfed,
-			       u_int8_t scanfed, u_int8_t fwdstep,
-			       u_int8_t tgtime, u_int32_t * z1,
-			       u_int32_t * z2)
+sanei_genesys_calculate_zmode (Genesys_Device * dev, uint32_t exposure_time,
+			       uint32_t steps_sum, uint16_t last_speed,
+			       uint32_t feedl, uint8_t fastfed,
+			       uint8_t scanfed, uint8_t fwdstep,
+			       uint8_t tgtime, uint32_t * z1,
+			       uint32_t * z2)
 {
-  u_int8_t exposure_factor;
+  uint8_t exposure_factor;
 
   dev = dev;
 
@@ -1734,7 +1736,7 @@ sanei_genesys_calculate_zmode (Genesys_Device * dev, u_int32_t exposure_time,
 
 static void
 genesys_adjust_gain (Genesys_Device * dev, double *applied_multi,
-		     u_int8_t * new_gain, double multi, u_int8_t gain)
+		     uint8_t * new_gain, double multi, uint8_t gain)
 {
   double voltage, original_voltage;
 
@@ -1747,7 +1749,7 @@ genesys_adjust_gain (Genesys_Device * dev, double *applied_multi,
 
   voltage *= multi;
 
-  *new_gain = (u_int8_t) ((voltage - 0.5) * 4);
+  *new_gain = (uint8_t) ((voltage - 0.5) * 4);
   if (*new_gain > 0x0e)
     *new_gain = 0x0e;
 
@@ -1766,7 +1768,7 @@ genesys_adjust_gain (Genesys_Device * dev, double *applied_multi,
 /* todo: is return status necessary (unchecked?) */
 static SANE_Status
 genesys_average_white (Genesys_Device * dev, int channels, int channel,
-		       u_int8_t * data, int size, int *max_average)
+		       uint8_t * data, int size, int *max_average)
 {
   int gain_white_ref, sum, range;
   int average;
@@ -1820,7 +1822,7 @@ genesys_average_white (Genesys_Device * dev, int channels, int channel,
 /* todo: understand, values are too high */
 static int
 genesys_average_black (Genesys_Device * dev, int channel,
-		       u_int8_t * data, int pixels)
+		       uint8_t * data, int pixels)
 {
   int i;
   int sum;
@@ -1865,10 +1867,10 @@ genesys_coarse_calibration (Genesys_Device * dev)
   int white_average;
   int channels;
   SANE_Status status;
-  u_int8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
-  u_int16_t white[12], dark[12];
+  uint8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
+  uint16_t white[12], dark[12];
   int i, j;
-  u_int8_t *calibration_data, *all_data;
+  uint8_t *calibration_data, *all_data;
 
   DBG (DBG_info, "genesys_coarse_calibration (scan_mode = %d)\n",
        dev->settings.scan_mode);
@@ -1990,7 +1992,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	      y = x - x * (offset[i - 1] / 2) / 254 - dark[(i - 1) * 3 + j];
 	      rate = (x - DARK_VALUE - y) * 254 / x + 0.5;
 
-	      dev->frontend.offset[j] = (u_int8_t) (rate);
+	      dev->frontend.offset[j] = (uint8_t) (rate);
 
 	      if (dev->frontend.offset[j] > 0x7f)
 		dev->frontend.offset[j] = 0x7f;
@@ -2114,11 +2116,11 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	    {
 	      /* todo: huh? */
 	      dev->dark[0] =
-		(u_int16_t) (1.6925 * dark[i * 3 + 0] + 0.1895 * 256);
+		(uint16_t) (1.6925 * dark[i * 3 + 0] + 0.1895 * 256);
 	      dev->dark[1] =
-		(u_int16_t) (1.4013 * dark[i * 3 + 1] + 0.3147 * 256);
+		(uint16_t) (1.4013 * dark[i * 3 + 1] + 0.3147 * 256);
 	      dev->dark[2] =
-		(u_int16_t) (1.2931 * dark[i * 3 + 2] + 0.1558 * 256);
+		(uint16_t) (1.2931 * dark[i * 3 + 2] + 0.1558 * 256);
 	    }
 	  else			/* one color-component modes */
 	    {
@@ -2127,21 +2129,21 @@ genesys_coarse_calibration (Genesys_Device * dev)
 		case 0:
 		default:
 		  dev->dark[0] =
-		    (u_int16_t) (1.6925 * dark[i * 3 + 0] +
+		    (uint16_t) (1.6925 * dark[i * 3 + 0] +
 				 (1.1895 - 1.0) * 256);
 		  dev->dark[1] = dev->dark[2] = dev->dark[0];
 		  break;
 
 		case 1:
 		  dev->dark[1] =
-		    (u_int16_t) (1.4013 * dark[i * 3 + 1] +
+		    (uint16_t) (1.4013 * dark[i * 3 + 1] +
 				 (1.3147 - 1.0) * 256);
 		  dev->dark[0] = dev->dark[2] = dev->dark[1];
 		  break;
 
 		case 2:
 		  dev->dark[2] =
-		    (u_int16_t) (1.2931 * dark[i * 3 + 2] +
+		    (uint16_t) (1.2931 * dark[i * 3 + 2] +
 				 (1.1558 - 1.0) * 256);
 		  dev->dark[0] = dev->dark[1] = dev->dark[2];
 		  break;
@@ -2165,12 +2167,12 @@ genesys_coarse_calibration (Genesys_Device * dev)
    average_data and calibration_data are little endian 16 bit words.
  */
 static void
-genesys_average_data (u_int8_t * average_data,
-		      u_int8_t * calibration_data, u_int16_t lines,
-		      u_int16_t pixel_components_per_line)
+genesys_average_data (uint8_t * average_data,
+		      uint8_t * calibration_data, uint16_t lines,
+		      uint16_t pixel_components_per_line)
 {
   int x, y;
-  u_int32_t sum;
+  uint32_t sum;
 
   for (x = 0; x < pixel_components_per_line; x++)
     {
@@ -2193,9 +2195,9 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
   size_t size;
-  u_int16_t pixels_per_line;
-  u_int8_t channels;
-  u_int8_t *calibration_data;
+  uint16_t pixels_per_line;
+  uint8_t channels;
+  uint8_t *calibration_data;
 
   DBG (DBG_proc, "genesys_dark_shading_calibration\n");
   /* end pixel - start pixel */
@@ -2323,8 +2325,8 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 static SANE_Status
 genesys_dummy_dark_shading (Genesys_Device * dev)
 {
-  u_int16_t pixels_per_line;
-  u_int8_t channels;
+  uint16_t pixels_per_line;
+  uint8_t channels;
   int x, skip, xend;
   int dummy1, dummy2, dummy3;	/* dummy black average per channel */
 
@@ -2418,9 +2420,9 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
   size_t size;
-  u_int16_t pixels_per_line;
-  u_int8_t *calibration_data;
-  u_int8_t channels;
+  uint16_t pixels_per_line;
+  uint8_t *calibration_data;
+  uint8_t channels;
 
   DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
        dev->model->shading_lines);
@@ -2544,12 +2546,12 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
   size_t size;
-  u_int16_t pixels_per_line;
-  u_int8_t *calibration_data, *average_white, *average_dark;
-  u_int8_t channels;
+  uint16_t pixels_per_line;
+  uint8_t *calibration_data, *average_white, *average_dark;
+  uint8_t channels;
   unsigned int x;
   int y;
-  u_int32_t dark, white, dark_sum, white_sum, dark_count, white_count, col,
+  uint32_t dark, white, dark_sum, white_sum, dark_count, white_count, col,
     dif;
 
 
@@ -2735,9 +2737,9 @@ static SANE_Status
 genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
-  u_int16_t pixels_per_line;
-  u_int8_t *shading_data;	/*contains 16bit words in little endian */
-  u_int8_t channels;
+  uint16_t pixels_per_line;
+  uint8_t *shading_data;	/*contains 16bit words in little endian */
+  uint8_t channels;
   int x, j, o;
   unsigned int i;
   unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
@@ -3221,7 +3223,7 @@ static SANE_Status
 genesys_flatbed_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
-  u_int16_t pixels_per_line;
+  uint16_t pixels_per_line;
   int yres;
 
   DBG (DBG_info, "genesys_flatbed_calibration\n");
@@ -3446,7 +3448,7 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 static SANE_Status
 genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
 {
-  u_int8_t value;
+  uint8_t value;
   SANE_Status status;
 
   DBG (DBG_proc,
@@ -3490,7 +3492,7 @@ static SANE_Status
 genesys_warmup_lamp (Genesys_Device * dev)
 {
   Genesys_Register_Set local_reg[GENESYS_MAX_REGS];
-  u_int8_t *first_line, *second_line;
+  uint8_t *first_line, *second_line;
   int seconds = 0;
   int pixel;
   int channels, total_size;
@@ -3923,7 +3925,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
   size_t size;
   size_t space;
   SANE_Status status;
-  u_int8_t *work_buffer_dst;
+  uint8_t *work_buffer_dst;
 
   DBG (DBG_proc, "genesys_fill_read_buffer: start\n");
 
@@ -4009,8 +4011,8 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
   size_t bytes, extra;
   unsigned int channels, depth, src_pixels;
   unsigned int ccd_shift[12], shift_count;
-  u_int8_t *work_buffer_src;
-  u_int8_t *work_buffer_dst;
+  uint8_t *work_buffer_src;
+  uint8_t *work_buffer_dst;
   unsigned int dst_lines;
   unsigned int step_1_mode;
   unsigned int needs_reorder;
@@ -5512,7 +5514,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 {
   unsigned int i;
   SANE_Word *table;
-  u_int16_t *gamma;
+  uint16_t *gamma;
   SANE_Status status = SANE_STATUS_GOOD;
 
   switch (option)

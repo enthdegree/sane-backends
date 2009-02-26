@@ -63,10 +63,10 @@
 #define RTS8891_FLAG_UNTESTED               (1 << 0)	/* Print a warning for these scanners */
 #define RTS8891_FLAG_EMULATED_GRAY_MODE     (2 << 0)	/* gray scans are emulated using comor modes */
 
-#define LOWORD(x)  ((u_int16_t)(x & 0xffff))
-#define HIWORD(x)  ((u_int16_t)(x >> 16))
-#define LOBYTE(x)  ((u_int8_t)((x) & 0xFF))
-#define HIBYTE(x)  ((u_int8_t)((x) >> 8))
+#define LOWORD(x)  ((uint16_t)(x & 0xffff))
+#define HIWORD(x)  ((uint16_t)(x >> 16))
+#define LOBYTE(x)  ((uint8_t)((x) & 0xFF))
+#define HIBYTE(x)  ((uint8_t)((x) >> 8))
 
 #define MAX_SCANNERS    32
 #define MAX_RESOLUTIONS 16

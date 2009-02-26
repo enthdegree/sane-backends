@@ -59,6 +59,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "_stdint.h"
+
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
@@ -227,7 +229,7 @@ static SANE_Bool
 little_endian (void)
 {
   SANE_Int testvalue = 255;
-  u_int8_t *firstbyte = (u_int8_t *) & testvalue;
+  uint8_t *firstbyte = (uint8_t *) & testvalue;
 
   if (*firstbyte == 255)
     return SANE_TRUE;

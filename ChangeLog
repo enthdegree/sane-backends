@@ -1,3 +1,9 @@
+2009-02-25 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* acinclude.m4, backend/*.[ch], tools/*.[ch], frontend/*.[ch]:
+	Global replace of u_int??_t with C9x standard based uintxx_t
+	in order to remove some tricky and overlapping portability logic
+	from acinclude.m4 and leave it in only m4/stdint.m4.
+
 2009-02-24 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* configure.in, m4/stdint.m4: Update to latest version to
 	get latest fixes and use logic to not recreate _stdint.h if

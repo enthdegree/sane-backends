@@ -376,43 +376,13 @@ AC_DEFUN([SANE_LINKER_RPATH],
 dnl
 dnl   SANE_CHECK_U_TYPES
 dnl
-dnl Some of the following  types seem to be defined only in sys/bitypes.h on
-dnl some systems (e.g. Tru64 Unix). This is a problem for files that include
-dnl sys/bitypes.h indirectly (e.g. net.c). If this is true, we add
-dnl sys/bitypes.h to CPPFLAGS.
-dnl
-dnl FIXME: stdint.h is apart of C99 so we have datatypes that can be
-dnl used in place of these and we have a macro to create a replacement
-dnl stdint.h on platforms that do not support it.  The types below
-dnl are tricky to support; as the code below shows.
 AC_DEFUN([SANE_CHECK_U_TYPES],
 [
-if test "$ac_cv_header_sys_bitypes_h" = "yes" ; then
-  AC_MSG_CHECKING([for u_int8_t only in sys/bitypes.h])
-  AC_EGREP_CPP(u_int8_t,
-  [
-  #include "confdefs.h"
-  #include <sys/types.h>
-  #if STDC_HEADERS
-  #include <stdlib.h>
-  #include <stddef.h>
-  #endif
-  ],[AC_MSG_RESULT([no, also in standard headers])],
-    [AC_EGREP_HEADER(u_int8_t,netinet/in.h,
-       [AC_DEFINE(NEED_SYS_BITYPES_H, 1, [Do we need <sys/bitypes.h>?])
-	AH_VERBATIM([NEED_SYS_BITYPES_H_IF],
-         [/* Make sure that sys/bitypes.h is included on True64 */
-          #ifdef NEED_SYS_BITYPES_H
-          #include <sys/bitypes.h>
-          #endif])
-	AC_MSG_RESULT(yes)],
-       [AC_MSG_RESULT([no, not even included with netinet/in.h])])])
-fi
 dnl Use new style of check types that doesn't take default to use.
 dnl The old style would add an #undef of the type check on platforms
 dnl that defined that type... That is not portable to platform that
 dnl define it as a #define.
-AC_CHECK_TYPES([u_int8_t, u_int16_t, u_int32_t, u_char, u_int, u_long],,,)
+AC_CHECK_TYPES([u_char, u_int, u_long],,,)
 ])
 
 #
@@ -643,18 +613,6 @@ AC_DEFUN([SANE_PROTOTYPES],
 [
 AH_BOTTOM([
 
-/* FIXME: Do not use these types in code anymore.  Use types defined
- * in C99 stdint.h and available in our cross-platform _stdint.h.
- */
-#ifndef HAVE_U_INT8_T
-#define u_int8_t unsigned char
-#endif
-#ifndef HAVE_U_INT16_T
-#define u_int16_t unsigned int
-#endif
-#ifndef HAVE_U_INT32_T
-#define u_int32_t unsigned long
-#endif
 #ifndef HAVE_U_CHAR
 #define u_char unsigned char
 #endif
@@ -664,7 +622,6 @@ AH_BOTTOM([
 #ifndef HAVE_U_LONG
 #define u_long unsigned long
 #endif
-/* END of FIXME: Do not use above types */
 
 /* Prototype for getenv */
 #ifndef HAVE_GETENV

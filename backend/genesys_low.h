@@ -144,10 +144,10 @@
 #define AFE_SET        2
 #define AFE_POWER_SAVE 4
 
-#define LOWORD(x)  ((u_int16_t)(x & 0xffff))
-#define HIWORD(x)  ((u_int16_t)(x >> 16))
-#define LOBYTE(x)  ((u_int8_t)((x) & 0xFF))
-#define HIBYTE(x)  ((u_int8_t)((x) >> 8))
+#define LOWORD(x)  ((uint16_t)(x & 0xffff))
+#define HIWORD(x)  ((uint16_t)(x >> 16))
+#define LOBYTE(x)  ((uint8_t)((x) & 0xFF))
+#define HIBYTE(x)  ((uint8_t)((x) >> 8))
 
 /* Global constants */
 /* todo: check if those are the same for every scanner */
@@ -166,11 +166,11 @@ typedef struct
 
 typedef struct
 {
-  u_int8_t reg[4];
-  u_int8_t sign[3];
-  u_int8_t offset[3];
-  u_int8_t gain[3];
-  u_int8_t reg2[3];
+  uint8_t reg[4];
+  uint8_t sign[3];
+  uint8_t offset[3];
+  uint8_t gain[3];
+  uint8_t reg2[3];
 } Genesys_Frontend;
 
 typedef struct
@@ -182,21 +182,21 @@ typedef struct
   int sensor_pixels;		/* total pixels used by the sensor */
   int fau_gain_white_ref;	/* TA CCD target code (reference gain) */
   int gain_white_ref;		/* CCD target code (reference gain) */
-  u_int8_t regs_0x08_0x0b[4];
-  u_int8_t regs_0x10_0x1d[14];
-  u_int8_t regs_0x52_0x5e[13];
+  uint8_t regs_0x08_0x0b[4];
+  uint8_t regs_0x10_0x1d[14];
+  uint8_t regs_0x52_0x5e[13];
   float red_gamma;
   float green_gamma;
   float blue_gamma;
-  u_int16_t *red_gamma_table;
-  u_int16_t *green_gamma_table;
-  u_int16_t *blue_gamma_table;
+  uint16_t *red_gamma_table;
+  uint16_t *green_gamma_table;
+  uint16_t *blue_gamma_table;
 } Genesys_Sensor;
 
 typedef struct
 {
-  u_int8_t value[2];
-  u_int8_t enable[2];
+  uint8_t value[2];
+  uint8_t enable[2];
 } Genesys_Gpo;
 
 typedef struct
@@ -319,7 +319,7 @@ typedef struct Genesys_Command_Set
 
   int (*bulk_full_size) (void);
 
-    SANE_Status (*set_fe) (Genesys_Device * dev, u_int8_t set);
+    SANE_Status (*set_fe) (Genesys_Device * dev, uint8_t set);
     SANE_Status (*set_powersaving) (Genesys_Device * dev, int delay);
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
 
@@ -351,11 +351,11 @@ typedef struct Genesys_Command_Set
     SANE_Status (*bulk_write_register) (Genesys_Device * dev,
 					Genesys_Register_Set * reg, 
 					size_t elems);
-    SANE_Status (*bulk_write_data) (Genesys_Device * dev, u_int8_t addr, 
-				    u_int8_t * data, size_t len);
+    SANE_Status (*bulk_write_data) (Genesys_Device * dev, uint8_t addr, 
+				    uint8_t * data, size_t len);
 
-    SANE_Status (*bulk_read_data) (Genesys_Device * dev, u_int8_t addr,
-				   u_int8_t * data, size_t len);
+    SANE_Status (*bulk_read_data) (Genesys_Device * dev, uint8_t addr,
+				   uint8_t * data, size_t len);
 
   /* Updates hardware sensor information in Genesys_Scanner.val[].
      If possible, just get information for given option.
@@ -502,14 +502,14 @@ struct Genesys_Device
   Genesys_Sensor sensor;
   Genesys_Gpo gpo;
   Genesys_Motor motor;
-  u_int16_t slope_table0[256];
-  u_int16_t slope_table1[256];
-  u_int8_t  control[6];
+  uint16_t slope_table0[256];
+  uint16_t slope_table1[256];
+  uint8_t  control[6];
   time_t init_date;
 
-  u_int8_t *white_average_data;
-  u_int8_t *dark_average_data;
-  u_int16_t dark[3];
+  uint8_t *white_average_data;
+  uint8_t *dark_average_data;
+  uint16_t dark[3];
 
   SANE_Bool already_initialized;
   SANE_Int scanhead_position_in_steps;
@@ -558,15 +558,15 @@ sanei_genesys_set_reg_from_set (Genesys_Register_Set * regs,
 				SANE_Byte address, SANE_Byte value);
 
 extern SANE_Status
-sanei_genesys_read_register (Genesys_Device * dev, u_int8_t reg,
-			     u_int8_t * val);
+sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg,
+			     uint8_t * val);
 
 extern SANE_Status
-sanei_genesys_write_register (Genesys_Device * dev, u_int8_t reg,
-			      u_int8_t val);
+sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg,
+			      uint8_t val);
 
 extern SANE_Status
-sanei_genesys_get_status (Genesys_Device * dev, u_int8_t * status);
+sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status);
 
 extern void sanei_genesys_init_fe (Genesys_Device * dev);
 
@@ -583,27 +583,27 @@ extern SANE_Status sanei_genesys_read_feed_steps (Genesys_Device * dev,
 
 extern void
 sanei_genesys_calculate_zmode2 (SANE_Bool two_table,
-				u_int32_t exposure_time,
-				u_int16_t * slope_table,
+				uint32_t exposure_time,
+				uint16_t * slope_table,
 				int reg21,
-				int move, int reg22, u_int32_t * z1,
-				u_int32_t * z2);
+				int move, int reg22, uint32_t * z1,
+				uint32_t * z2);
 
 extern void
 sanei_genesys_calculate_zmode (Genesys_Device * dev,
-			       u_int32_t exposure_time,
-			       u_int32_t steps_sum,
-			       u_int16_t last_speed, u_int32_t feedl,
-			       u_int8_t fastfed, u_int8_t scanfed,
-			       u_int8_t fwdstep, u_int8_t tgtime,
-			       u_int32_t * z1, u_int32_t * z2);
+			       uint32_t exposure_time,
+			       uint32_t steps_sum,
+			       uint16_t last_speed, uint32_t feedl,
+			       uint8_t fastfed, uint8_t scanfed,
+			       uint8_t fwdstep, uint8_t tgtime,
+			       uint32_t * z1, uint32_t * z2);
 
 extern SANE_Status
-sanei_genesys_set_buffer_address (Genesys_Device * dev, u_int32_t addr);
+sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr);
 
 extern SANE_Status
-sanei_genesys_fe_write_data (Genesys_Device * dev, u_int8_t addr,
-			     u_int16_t data);
+sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
+			     uint16_t data);
 
 extern SANE_Int
 sanei_genesys_exposure_time2 (Genesys_Device * dev,
@@ -614,22 +614,22 @@ extern SANE_Int
 sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 			     int xdpi);
 extern SANE_Int
-sanei_genesys_generate_slope_table (u_int16_t * slope_table, unsigned int max_steps,
-			      unsigned int use_steps, u_int16_t stop_at,
-			      u_int16_t vstart, u_int16_t vend,
+sanei_genesys_generate_slope_table (uint16_t * slope_table, unsigned int max_steps,
+			      unsigned int use_steps, uint16_t stop_at,
+			      uint16_t vstart, uint16_t vend,
 			      unsigned int steps, double g,
 			      unsigned int *used_steps, unsigned int *vfinal);
 
 extern SANE_Int
 sanei_genesys_create_slope_table (Genesys_Device * dev,
-				  u_int16_t * slope_table, int steps,
+				  uint16_t * slope_table, int steps,
 				  int step_type, int exposure_time,
 				  SANE_Bool same_speed, double yres,
 				  int power_mode);
 
 SANE_Int
 sanei_genesys_create_slope_table3 (Genesys_Device * dev,
-				   u_int16_t * slope_table, int max_step,
+				   uint16_t * slope_table, int max_step,
 				   unsigned int use_steps,
 				   int step_type, int exposure_time,
 				   double yres,
@@ -638,7 +638,7 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 				   int power_mode);
 
 extern void
-sanei_genesys_create_gamma_table (u_int16_t * gamma_table, int size,
+sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
 				  float maximum, float gamma_max,
 				  float gamma);
 
@@ -647,19 +647,19 @@ extern SANE_Status sanei_genesys_start_motor (Genesys_Device * dev);
 extern SANE_Status sanei_genesys_stop_motor (Genesys_Device * dev);
 
 extern SANE_Status
-sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
+sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 				      int start_pixel, int dpi, int width,
 				      int height);
 
 extern SANE_Status
-sanei_genesys_write_pnm_file (char *filename, u_int8_t * data, int depth,
+sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
 			      int channels, int pixels_per_line, int lines);
 
 extern SANE_Status
 sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty);
 
 extern SANE_Status
-sanei_genesys_read_data_from_scanner (Genesys_Device * dev, u_int8_t * data,
+sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 				      size_t size);
 
 extern SANE_Status

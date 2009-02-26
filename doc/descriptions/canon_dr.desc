@@ -63,20 +63,20 @@
 
 :model "DR-4010C"
 :interface "USB"
-:usbid "0x1083" "0x1614"
+:usbid "0x04a9" "0x1614"
 :status :untested
 :comment "Please test!"
 
 :model "DR-5010C"
 :interface "USB"
-:usbid "0x1083" "0x1606"
+:usbid "0x04a9" "0x1606"
 :status :untested
 :comment "Please test!"
 
 :model "DR-6080"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1607"
-:status :untested
+:status :good
 :comment "Please test!"
 
 :model "DR-7080C"

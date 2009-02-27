@@ -58,7 +58,6 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-
 #include "_stdint.h"
 
 #include "../include/sane/sane.h"
@@ -127,7 +126,7 @@
 #define REG07_DMASEL	0x02
 #define REG07_DMARDWR	0x01
 
-#define REG08_DECFLAG	0x40
+#define REG08_DECFLAG 	0x40
 #define REG08_GMMFFR	0x20
 #define REG08_GMMFFG	0x10
 #define REG08_GMMFFB	0x08

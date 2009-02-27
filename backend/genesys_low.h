@@ -3,8 +3,8 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004, 2005 Stephane Voltz <stef.dev@free.fr>
-   Copyright (C) 2005 - 2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2004-2009 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Parts of the structs have been taken from the gt68xx backend by
    Sergey Vlasov <vsu@altlinux.ru> et al.
@@ -107,6 +107,7 @@
 #define GENESYS_HAS_PAGE_LOADED_SW   (1 << 4)       /* scanner has paper in detection */
 #define GENESYS_HAS_OCR_SW           (1 << 5)       /* scanner has OCR button */
 #define GENESYS_HAS_POWER_SW         (1 << 6)       /* scanner has power button */
+#define GENESYS_HAS_CALIBRATE        (1 << 7)       /* scanner has 'calibrate' software button to start calibration */
 
 /* USB control message values */
 #define REQUEST_TYPE_IN		(USB_TYPE_VENDOR | USB_DIR_IN)
@@ -166,6 +167,7 @@ typedef struct
 
 typedef struct
 {
+  uint8_t fe_id;	      /**> id of the frontend description */
   uint8_t reg[4];
   uint8_t sign[3];
   uint8_t offset[3];
@@ -175,6 +177,7 @@ typedef struct
 
 typedef struct
 {
+  uint8_t sensor_id;	      /**> id of the sensor description */
   int optical_res;
   int black_pixels;
   int dummy_pixel;              /* value of dummy register. */
@@ -195,6 +198,7 @@ typedef struct
 
 typedef struct
 {
+  uint8_t gpo_id;	/**> id of the gpo description */
   uint8_t value[2];
   uint8_t enable[2];
 } Genesys_Gpo;
@@ -213,6 +217,7 @@ typedef struct
 
 typedef struct
 {
+  uint8_t motor_id;	         /**> id of the motor description */
   SANE_Int base_ydpi;		 /* motor base steps. Unit: 1/" */
   SANE_Int optical_ydpi;	 /* maximum resolution in y-direction. Unit: 1/"  */
   SANE_Int max_step_type;        /* maximum step type. 0-2 */
@@ -247,6 +252,7 @@ Genesys_Color_Order;
 #define DAC_CANONLIDE35    6
 #define DAC_AD_XP200       7   /* Analog Device frontend */
 #define DAC_WOLFSON_XP300  8
+#define DAC_WOLFSON_HP3670 9
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -257,6 +263,7 @@ Genesys_Color_Order;
 #define CCD_CANONLIDE35  6
 #define CIS_XP200        7      /* CIS sensor for Strobe XP200 */
 #define CCD_XP300        8
+#define CCD_HP3670       9
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -267,6 +274,7 @@ Genesys_Color_Order;
 #define GPO_CANONLIDE35  6
 #define GPO_XP200        7
 #define GPO_XP300        8
+#define GPO_HP3670       9
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1
@@ -276,6 +284,8 @@ Genesys_Color_Order;
 #define MOTOR_CANONLIDE35 5
 #define MOTOR_XP200      6
 #define MOTOR_XP300      7
+#define MOTOR_HP3670     9
+
 
 /* Forward typedefs */
 typedef struct Genesys_Device Genesys_Device;
@@ -439,6 +449,14 @@ typedef struct Genesys_Model
   SANE_Int search_lines;	/* how many lines are used to search start position */
 } Genesys_Model;
 
+#define SCAN_METHOD_FLATBED      0     /**> normal scan method */
+#define SCAN_METHOD_TRANSPARENCY 2     /**> scan using transparency adaptor */
+#define SCAN_METHOD_NEGATIVE     0x88  /**> scan using negative adaptor */
+
+#define SCAN_MODE_LINEART        0 	/**> lineart scan mode */
+#define SCAN_MODE_HALFTONE       1 	/**> halftone scan mode */
+#define SCAN_MODE_GRAY           2 	/**> gray scan mode */
+#define SCAN_MODE_COLOR          4 	/**> color scan mode */
 
 typedef struct
 {

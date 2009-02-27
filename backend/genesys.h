@@ -103,13 +103,14 @@ enum Genesys_Option
   OPT_PAGE_LOADED_SW,
   OPT_OCR_SW,
   OPT_POWER_SW,
+  OPT_CALIBRATE,
 
   /* must come last: */
   NUM_OPTIONS
 };
 
 
-/** Scanner object.
+/** Scanner object. Should have better be called Session than Scanner
  */
 typedef struct Genesys_Scanner
 {

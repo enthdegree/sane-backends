@@ -2,7 +2,7 @@
 
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004, 2008 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2009 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
@@ -60,8 +60,6 @@
 #include <unistd.h>
 #include <math.h>
 
-#include "_stdint.h"
-
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
@@ -71,6 +69,7 @@
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_config.h"
+#include "_stdint.h"
 
 #include "genesys.h"
 #include "genesys_devices.c"
@@ -394,25 +393,63 @@ sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 void
 sanei_genesys_init_structs (Genesys_Device * dev)
 {
+  unsigned int i, sensor_ok = 0, gpo_ok = 0, motor_ok = 0;
 
   /* initialize the sensor data stuff */
-  memcpy (&dev->sensor, &Sensor[dev->model->ccd_type],
-	  sizeof (Genesys_Sensor));
+  for (i = 0; i < sizeof (Sensor) / sizeof (Genesys_Sensor); i++)
+    {
+      if (dev->model->ccd_type == Sensor[i].sensor_id)
+	{
+	  memcpy (&dev->sensor, &Sensor[i], sizeof (Genesys_Sensor));
+	  sensor_ok = 1;
+	}
+    }
 
   /* initialize the GPO data stuff */
-  memcpy (&dev->gpo, &Gpo[dev->model->gpo_type], sizeof (Genesys_Gpo));
+  for (i = 0; i < sizeof (Gpo) / sizeof (Genesys_Gpo); i++)
+    {
+      if (dev->model->gpo_type == Gpo[i].gpo_id)
+	{
+	  memcpy (&dev->gpo, &Gpo[i], sizeof (Genesys_Gpo));
+	  gpo_ok = 1;
+	}
+    }
 
   /* initialize the motor data stuff */
-  memcpy (&dev->motor, &Motor[dev->model->motor_type],
-	  sizeof (Genesys_Motor));
+  for (i = 0; i < sizeof (Motor) / sizeof (Genesys_Motor); i++)
+    {
+      if (dev->model->motor_type == Motor[i].motor_id)
+	{
+	  memcpy (&dev->motor, &Motor[i], sizeof (Genesys_Motor));
+	  motor_ok = 1;
+	}
+    }
+
+  if (sensor_ok == 0 || motor_ok == 0 || gpo_ok == 0)
+    {
+      DBG (DBG_error0,
+	   "sanei_genesys_init_structs: bad description(s) for ccd/gpo/motor=%d/%d/%d\n",
+	   dev->model->ccd_type, dev->model->gpo_type, dev->model->motor_type);
+    }
 }
 
 void
 sanei_genesys_init_fe (Genesys_Device * dev)
 {
+  unsigned int i;
 
-  memcpy (&dev->frontend, &Wolfson[dev->model->dac_type],
-	  sizeof (Genesys_Frontend));
+  for (i = 0; i < sizeof (Wolfson) / sizeof (Genesys_Frontend); i++)
+    {
+      if (dev->model->dac_type == Wolfson[i].fe_id)
+	{
+	  memcpy (&dev->frontend, &Wolfson[i], sizeof (Genesys_Frontend));
+	  return;
+	}
+    }
+  DBG (DBG_error0,
+       "sanei_genesys_init_fe: failed to find description for dac_type %d\n",
+       dev->model->dac_type);
+  DBG (DBG_info, "sanei_genesys_init_fe: dac_type %d set up\n", dev->model->dac_type);
 }
 
 /* Write data for analog frontend */
@@ -1693,13 +1730,13 @@ sanei_genesys_calculate_zmode2 (SANE_Bool two_table,
 /* huh? */
 /* todo: double check */
 /* Z1 and Z2 seem to be a time to synchronize with clock or a phase correction */
-/* steps_sum	is the result of create_slope_table	*/
-/* last_speed	is the last entry of the slope_table	*/
-/* feedl	is registers 3d,3e,3f			 */
-/* fastfed	is register 02 bit 3			*/
-/* scanfed	is register 1f				*/
-/* fwdstep	is register 22				*/
-/* tgtime	is register 6c bit 6+7 >> 6		*/
+/* steps_sum	is the result of create_slope_table 	*/
+/* last_speed	is the last entry of the slope_table 	*/
+/* feedl	is registers 3d,3e,3f 			 */
+/* fastfed	is register 02 bit 3		 	*/
+/* scanfed	is register 1f 				*/
+/* fwdstep	is register 22 				*/
+/* tgtime	is register 6c bit 6+7 >> 6 		*/
 
 void
 sanei_genesys_calculate_zmode (Genesys_Device * dev, uint32_t exposure_time,
@@ -1833,7 +1870,7 @@ genesys_average_black (Genesys_Device * dev, int channel,
 
   sum = 0;
 
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     {
       data += (channel * 2);
       pixel_step = 3 * 2;
@@ -1878,7 +1915,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
   black_pixels = dev->sensor.black_pixels
     * dev->settings.xres / dev->sensor.optical_res;
 
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
@@ -2085,7 +2122,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	       sane_strstatus (status));
 	  return status;
 	}
-      if (dev->settings.scan_mode == 4)	/* single pass color */
+      if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
 	{
 	  for (j = 0; j < 3; j++)
 	    {
@@ -2112,7 +2149,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 
       if (i == 3)
 	{
-	  if (dev->settings.scan_mode == 4)	/* single pass color */
+	  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
 	    {
 	      /* todo: huh? */
 	      dev->dark[0] =
@@ -2205,7 +2242,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
     (genesys_pixels_per_line (dev->calib_reg)
      * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
 
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
@@ -2336,7 +2373,7 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
     (genesys_pixels_per_line (dev->calib_reg)
      * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
 
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
@@ -2431,7 +2468,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
     (genesys_pixels_per_line (dev->calib_reg)
      * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
 
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
@@ -2447,7 +2484,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
       return SANE_STATUS_NO_MEM;
     }
 
-  size = channels * 2 * pixels_per_line * dev->model->shading_lines;
+  size = channels * 2 * pixels_per_line * (dev->model->shading_lines + 1);
 
   calibration_data = malloc (size);
   if (!calibration_data)
@@ -2477,7 +2514,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
     usleep (500 * 1000);	/* wait 500ms to make sure lamp is bright again */
 
-  status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_FALSE);
+  status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2562,7 +2599,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
     (genesys_pixels_per_line (dev->calib_reg)
      * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
 
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
@@ -2752,7 +2789,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     (genesys_pixels_per_line (dev->calib_reg)
      * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
 
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
@@ -3264,7 +3301,6 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	}
 
       /* since all the registers are set up correctly, just use them */
-
       status = dev->model->cmd_set->coarse_gain_calibration (dev, yres);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -3292,7 +3328,7 @@ genesys_flatbed_calibration (Genesys_Device * dev)
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "genesys_flatbed_calibration: failed to do static calibration: %s\n",
+	       "genesys_flatbed_calibration: failed to do coarse gain calibration: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -3491,7 +3527,6 @@ genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
 static SANE_Status
 genesys_warmup_lamp (Genesys_Device * dev)
 {
-  Genesys_Register_Set local_reg[GENESYS_MAX_REGS];
   uint8_t *first_line, *second_line;
   int seconds = 0;
   int pixel;
@@ -3499,12 +3534,12 @@ genesys_warmup_lamp (Genesys_Device * dev)
   double first_average = 0;
   double second_average = 0;
   int difference = 255;
-  int empty;
+  int empty, lines = 3;
   SANE_Status status = SANE_STATUS_IO_ERROR;
 
   DBG (DBG_proc, "genesys_warmup_lamp: start\n");
 
-  dev->model->cmd_set->init_regs_for_warmup (dev, local_reg, &channels,
+  dev->model->cmd_set->init_regs_for_warmup (dev, dev->reg, &channels,
 					     &total_size);
   first_line = malloc (total_size);
   if (!first_line)
@@ -3518,19 +3553,13 @@ genesys_warmup_lamp (Genesys_Device * dev)
     {
 
       DBG (DBG_info, "genesys_warmup_lamp: one more loop\n");
-      RIE (dev->model->cmd_set->begin_scan (dev, local_reg, SANE_TRUE));
+      RIE (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE));
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
 	}
       while (empty);
 
-      /* STEF: workaround 'hang' problem with gl646 : data reading hangs
-         depending on the amount of data read by the last scan done
-         before scanner reset. So we allow for one read failure, which
-         fixes the communication with scanner . Put usb timeout to a friendly
-         value first, so that 'recovery' doesn't take too long */
-      sanei_usb_set_timeout (2 * 1000);
       status =
 	sanei_genesys_read_data_from_scanner (dev, first_line, total_size);
       if (status != SANE_STATUS_GOOD)
@@ -3538,14 +3567,13 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	  RIE (sanei_genesys_read_data_from_scanner
 	       (dev, first_line, total_size));
 	}
-      /* back to normal time out */
-      sanei_usb_set_timeout (30 * 1000);
-      RIE (dev->model->cmd_set->end_scan (dev, local_reg, SANE_FALSE));
+
+      RIE (dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE));
 
       sleep (1);		/* sleep 1 s */
       seconds++;
 
-      RIE (dev->model->cmd_set->begin_scan (dev, local_reg, SANE_FALSE));
+      RIE (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE));
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
@@ -3553,14 +3581,12 @@ genesys_warmup_lamp (Genesys_Device * dev)
       while (empty);
       RIE (sanei_genesys_read_data_from_scanner
 	   (dev, second_line, total_size));
-      RIE (dev->model->cmd_set->end_scan (dev, local_reg, SANE_FALSE));
+      RIE (dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE));
 
-      sleep (1);		/* sleep 1 s */
-      seconds++;
-
+      /* compute difference between the two scans */
       for (pixel = 0; pixel < total_size; pixel++)
 	{
-	  if (dev->model->cmd_set->get_bitset_bit (local_reg))
+	  if (dev->model->cmd_set->get_bitset_bit (dev->reg))
 	    {
 	      first_average +=
 		(first_line[pixel] + first_line[pixel + 1] * 256);
@@ -3574,10 +3600,10 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	      second_average += second_line[pixel];
 	    }
 	}
-      if (dev->model->cmd_set->get_bitset_bit (local_reg))
+      if (dev->model->cmd_set->get_bitset_bit (dev->reg))
 	{
 	  DBG (DBG_info,
-	       "genesys_warmup_lamp: average = %.2f %%, diff = %.3f %%\n",
+	       "genesys_warmup_lamp: average = %.2f, diff = %.3f\n",
 	       100 * ((second_average) / (256 * 256)),
 	       100 * (difference / second_average));
 	  first_average /= pixel;
@@ -3595,9 +3621,13 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	  if (DBG_LEVEL >= DBG_data)
 	    {
 	      sanei_genesys_write_pnm_file ("warmup1.pnm", first_line, 8,
-					    channels, total_size / 2, 2);
+					    channels,
+					    total_size / (lines * channels),
+					    lines);
 	      sanei_genesys_write_pnm_file ("warmup2.pnm", second_line, 8,
-					    channels, total_size / 2, 2);
+					    channels,
+					    total_size / (lines * channels),
+					    lines);
 	    }
 	  DBG (DBG_info,
 	       "genesys_warmup_lamp: average 1 = %.2f %%, average 2 = %.2f %%\n",
@@ -3606,6 +3636,10 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	      && second_average > 120)
 	    break;
 	}
+
+      /* sleep another second before next loop */
+      sleep (1);
+      seconds++;
     }
   while (seconds < WARMUP_TIME);
 
@@ -3914,6 +3948,7 @@ sanei_genesys_buffer_consume (Genesys_Buffer * buf, size_t size)
 #include "genesys_conv.c"
 
 /*#undef SANE_DEBUG_LOG_RAW_DATA*/
+#define SANE_DEBUG_LOG_RAW_DATA 1
 
 #ifdef SANE_DEBUG_LOG_RAW_DATA
 static FILE *rawfile = NULL;
@@ -4620,19 +4655,19 @@ calc_parameters (Genesys_Scanner * s)
     s->params.bytes_per_line *= 3;
 
   if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
-    s->dev->settings.scan_mode = 4;
+    s->dev->settings.scan_mode = SCAN_MODE_COLOR;
   else if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
-    s->dev->settings.scan_mode = 2;
+    s->dev->settings.scan_mode = SCAN_MODE_GRAY;
   else if (strcmp (mode, SANE_TITLE_HALFTONE) == 0)
-    s->dev->settings.scan_mode = 1;
+    s->dev->settings.scan_mode = SCAN_MODE_HALFTONE;
   else				/* Lineart */
-    s->dev->settings.scan_mode = 0;
+    s->dev->settings.scan_mode = SCAN_MODE_LINEART;
 
   /* todo: change and check */
   if (strcmp (source, "Flatbed") == 0)
-    s->dev->settings.scan_method = 0;
+    s->dev->settings.scan_method = SCAN_METHOD_FLATBED;
   else				/* transparency */
-    s->dev->settings.scan_method = 2;
+    s->dev->settings.scan_method = SCAN_METHOD_TRANSPARENCY;
 
   s->dev->settings.lines = s->params.lines;
   s->dev->settings.pixels = s->params.pixels_per_line;
@@ -4987,7 +5022,8 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_FILE_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_FILE_SW].unit = SANE_UNIT_NONE;
   if (model->buttons & GENESYS_HAS_FILE_SW) 
-    s->opt[OPT_FILE_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    s->opt[OPT_FILE_SW].cap =
+      SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_FILE_SW].cap = SANE_CAP_INACTIVE;
   s->val[OPT_FILE_SW].b = 0;
@@ -4998,8 +5034,9 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_EMAIL_SW].desc = SANE_DESC_EMAIL;
   s->opt[OPT_EMAIL_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_EMAIL_SW].unit = SANE_UNIT_NONE;
-  if (model->buttons & GENESYS_HAS_EMAIL_SW) 
-    s->opt[OPT_EMAIL_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  if (model->buttons & GENESYS_HAS_EMAIL_SW)
+    s->opt[OPT_EMAIL_SW].cap =
+      SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_EMAIL_SW].cap = SANE_CAP_INACTIVE;
   s->val[OPT_EMAIL_SW].b = 0;
@@ -5010,8 +5047,9 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_COPY_SW].desc = SANE_DESC_COPY;
   s->opt[OPT_COPY_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_COPY_SW].unit = SANE_UNIT_NONE;
-  if (model->buttons & GENESYS_HAS_COPY_SW) 
-    s->opt[OPT_COPY_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  if (model->buttons & GENESYS_HAS_COPY_SW)
+    s->opt[OPT_COPY_SW].cap =
+      SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_COPY_SW].cap = SANE_CAP_INACTIVE;
   s->val[OPT_COPY_SW].b = 0;
@@ -5022,8 +5060,9 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_PAGE_LOADED_SW].desc = SANE_DESC_PAGE_LOADED;
   s->opt[OPT_PAGE_LOADED_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_PAGE_LOADED_SW].unit = SANE_UNIT_NONE;
-  if (model->buttons & GENESYS_HAS_PAGE_LOADED_SW) 
-    s->opt[OPT_PAGE_LOADED_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  if (model->buttons & GENESYS_HAS_PAGE_LOADED_SW)
+    s->opt[OPT_PAGE_LOADED_SW].cap =
+      SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_PAGE_LOADED_SW].cap = SANE_CAP_INACTIVE;
   s->val[OPT_PAGE_LOADED_SW].b = 0;
@@ -5035,8 +5074,9 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_OCR_SW].desc = "OCR button";
   s->opt[OPT_OCR_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_OCR_SW].unit = SANE_UNIT_NONE;
-  if (model->buttons & GENESYS_HAS_OCR_SW) 
-    s->opt[OPT_OCR_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  if (model->buttons & GENESYS_HAS_OCR_SW)
+    s->opt[OPT_OCR_SW].cap =
+      SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_OCR_SW].cap = SANE_CAP_INACTIVE;
   s->val[OPT_OCR_SW].b = 0;
@@ -5048,12 +5088,27 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_POWER_SW].desc = "Power button";
   s->opt[OPT_POWER_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_POWER_SW].unit = SANE_UNIT_NONE;
-  if (model->buttons & GENESYS_HAS_POWER_SW) 
-    s->opt[OPT_POWER_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  if (model->buttons & GENESYS_HAS_POWER_SW)
+    s->opt[OPT_POWER_SW].cap =
+      SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_POWER_SW].cap = SANE_CAP_INACTIVE;
   s->val[OPT_POWER_SW].b = 0;
   s->last_val[OPT_POWER_SW].b = 0;
+
+  /* calibrate button */
+  s->opt[OPT_CALIBRATE].name = "calibrate";
+  s->opt[OPT_CALIBRATE].title = "Calibrate button";
+  s->opt[OPT_CALIBRATE].desc = "Start calibration using special sheet";
+  s->opt[OPT_CALIBRATE].type = SANE_TYPE_BOOL;
+  s->opt[OPT_CALIBRATE].unit = SANE_UNIT_NONE;
+  if (model->buttons & GENESYS_HAS_CALIBRATE)
+    s->opt[OPT_CALIBRATE].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT
+      | SANE_CAP_ADVANCED | SANE_CAP_AUTOMATIC;
+  else
+    s->opt[OPT_CALIBRATE].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_CALIBRATE].b = 0;
+  s->last_val[OPT_CALIBRATE].b = 0;
 
   RIE (calc_parameters (s));
 
@@ -5589,7 +5644,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_PAGE_LOADED_SW:
     case OPT_OCR_SW:
     case OPT_POWER_SW:
-      RIE(s->dev->model->cmd_set->update_hardware_sensors(s));
+      RIE (s->dev->model->cmd_set->update_hardware_sensors (s));
       *(SANE_Bool *) val = s->val[option].b;
       s->last_val[option].b = *(SANE_Bool *) val;
       break;

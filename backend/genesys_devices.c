@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2007 Stephane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2009 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
    
@@ -53,69 +53,77 @@
 /** Setup table for various scanners using a Wolfson DAC
  */
 static Genesys_Frontend Wolfson[] = {
-  {{0x00, 0x03, 0x05, 0x11}
+  { DAC_WOLFSON_UMAX, {0x00, 0x03, 0x05, 0x11}
    , {0x00, 0x00, 0x00}
    , {0x80, 0x80, 0x80}
    , {0x02, 0x02, 0x02}
    , {0x00, 0x00, 0x00}
    }
   ,				/* 0: UMAX */
-  {{0x00, 0x03, 0x05, 0x03}
+  {DAC_WOLFSON_ST12, {0x00, 0x03, 0x05, 0x03}
    , {0x00, 0x00, 0x00}
    , {0xc8, 0xc8, 0xc8}
    , {0x04, 0x04, 0x04}
    , {0x00, 0x00, 0x00}
    }
   ,				/* 1: ST12 */
-  {{0x00, 0x03, 0x05, 0x21}
+  {DAC_WOLFSON_ST24,{0x00, 0x03, 0x05, 0x21}
    , {0x00, 0x00, 0x00}
    , {0xc8, 0xc8, 0xc8}
    , {0x06, 0x06, 0x06}
    , {0x00, 0x00, 0x00}
    }
   ,				/* 2: ST24 */
-  {{0x00, 0x03, 0x05, 0x12}
+  {DAC_WOLFSON_5345,{0x00, 0x03, 0x05, 0x12}
    , {0x00, 0x00, 0x00}
-   , {0xc8, 0xc8, 0xc8}
+   , {0xb8, 0xb8, 0xb8}	
    , {0x04, 0x04, 0x04}
    , {0x00, 0x00, 0x00}
    }
   ,				/* 3: MD6228/MD6471 */
-  {{0x00, 0x03, 0x05, 0x02}
+  {DAC_WOLFSON_HP2400,{0x00, 0x03, 0x05, 0x02}
    , {0x00, 0x00, 0x00}
    , {0xc0, 0xc0, 0xc0}
    , {0x07, 0x07, 0x07}
    , {0x00, 0x00, 0x00}
    }
   ,				/* 4: HP2400c */
-  {{0x00, 0x03, 0x04, 0x02}
+  {DAC_WOLFSON_HP2300,{0x00, 0x03, 0x04, 0x02}
    , {0x00, 0x00, 0x00}
-   , {0xb0, 0xb0, 0xb0}
+   , {0xbe, 0xbe, 0xbe}
    , {0x04, 0x04, 0x04}
    , {0x00, 0x00, 0x00}
    }
   ,				/* 5: HP2300c */
-  {{0x00, 0x3d, 0x08, 0x00}
+  {DAC_CANONLIDE35,{0x00, 0x3d, 0x08, 0x00}
    , {0x00, 0x00, 0x00}
    , {0xe1, 0xe1, 0xe1}
    , {0x93, 0x93, 0x93}
    , {0x00, 0x19, 0x06}
    }
   ,				/* 6: CANONLIDE35 */
-  {{0x58, 0x00, 0x00, 0x00}     /* TODO create an AnalogDevice struct */
+  {DAC_AD_XP200,{0x58, 0x00, 0x00, 0x00}     /* TODO create an AnalogDevice struct */
    , {0x00, 0x00, 0x00}
    , {0x06, 0x00, 0x00}
    , {0x0c, 0x00, 0x00}
    , {0x00, 0x00, 0x00}
    }
-  ,                             /* 7: XP200 */
-  {{0x00, 0x35, 0x20, 0x14}
+  ,                            
+  {DAC_WOLFSON_XP300,{0x00, 0x35, 0x20, 0x14}  /* 7: XP300 */
    , {0x00, 0x00, 0x00}
    , {0xe1, 0xe1, 0xe1}
    , {0x93, 0x93, 0x93}
    , {0x07, 0x00, 0x00}
    }
   ,				/* 8: XP300 */
+  {DAC_WOLFSON_HP3670,  /* uses one write for offset or gain like hp2300/2400 */
+     {0x00, 0x03, 0x04, 0x02}
+   , {0x00, 0x00, 0x00}
+   , {0xb4, 0xb4, 0xb4}
+   , {0x08, 0x08, 0x08}
+   , {0x00, 0x00, 0x00}
+   }
+  ,
 };
 
 
@@ -126,7 +134,7 @@ static Genesys_Frontend Wolfson[] = {
  */
 static Genesys_Sensor Sensor[] = {
   /* 0: UMAX */
-  {1200, 48, 64, 0, 10800, 210, 230,
+  {CCD_UMAX,1200, 48, 64, 0, 10800, 210, 230,
    {0x01, 0x03, 0x05, 0x07}
    ,
    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x05, 0x31, 0x2a, 0x00, 0x00,
@@ -139,7 +147,7 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   /* 1: Plustek OpticPro S12/ST12 */
-  {600, 48, 85, 152, 5416, 210, 230,
+  {CCD_ST12,600, 48, 85, 152, 5416, 210, 230,
    {0x02, 0x00, 0x06, 0x04}
    ,
    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2b, 0x08, 0x20, 0x2a, 0x00, 0x00,
@@ -152,7 +160,7 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   /* 2: Plustek OpticPro S24/ST24 */
-  {1200, 48, 64, 0, 10800, 210, 230,
+  {CCD_ST24,1200, 48, 64, 0, 10800, 210, 230,
    {0x0e, 0x0c, 0x00, 0x0c}
    ,
    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x08, 0x31, 0x2a, 0x00, 0x00,
@@ -165,10 +173,10 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   /* 3: MD6471 */
-  {1200,
+  {CCD_5345,1200,
    48,
    16, 0, 10872,
-   210, 200,
+   210, 240,
    {0x0d, 0x0f, 0x11, 0x13}
    ,
    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0b, 0x0a, 0x30, 0x2a, 0x00, 0x00,
@@ -181,7 +189,7 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   /* 4: HP2400c */
-  {1200,
+  {CCD_HP2400,1200,
    48,
    15, 0, 10872, 210, 200,
    {0x14, 0x15, 0x00, 0x00} /* registers 0x08-0x0b */
@@ -196,9 +204,9 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   /* 5: HP2300c */
-  {600,
+  {CCD_HP2300,600,
    48,
-   20, 0, 5454, 210, 200,
+   20, 0, 5454, 210, 240,
    {0x16, 0x00, 0x01, 0x03}
    ,
    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb7, 0x0a, 0x20, 0x2a, 0x6a, 0x8a,
@@ -211,7 +219,7 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   /* CANOLIDE35 */
-  {1200,
+  {CCD_CANONLIDE35, 1200,
 /*TODO: find a good reason for keeping all three following variables*/
    87,				/*(black) */
    87,				/* (dummy) */
@@ -234,7 +242,7 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   /* 7: Strobe XP200 */
-  {600,
+  {CIS_XP200, 600,
    48,
    38, 0, 5454, 210, 200,
    {0x16, 0x00, 0x01, 0x03}
@@ -246,10 +254,20 @@ static Genesys_Sensor Sensor[] = {
     0x16}
    ,
    2.1, 2.1, 2.1,
+   NULL, NULL, NULL},
+  /* HP3670 */
+  {CCD_HP3670,1200,
+   48,
+   16, 0, 10872,
+   210, 200,
+   {0x00, 0x0a, 0x0b, 0x0d} ,
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x07, 0x20, 0x2a, 0x00, 0x00, 0xc0, 0x43} ,
+   {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0x15, 0x05, 0x0a, 0x0f, 0x00},
+   2.38, 2.35, 2.34,
    NULL, NULL, NULL}
   ,
   /* 8: Strobe XP300 */
-  {600,
+  {CCD_XP300, 600,
 /*TODO: find a good reason for keeping all three following variables*/
    87,				/*(black) */
    87,				/* (dummy) */
@@ -279,7 +297,7 @@ static Genesys_Sensor Sensor[] = {
  */
 static Genesys_Gpo Gpo[] = {
   /* UMAX */
-  {
+  {GPO_UMAX,
    {0x11, 0x00}
    ,
    {0x51, 0x20}
@@ -287,7 +305,7 @@ static Genesys_Gpo Gpo[] = {
    }
   ,
   /* Plustek OpticPro S12/ST12 */
-  {
+  {GPO_ST12,
    {0x11, 0x00}
    ,
    {0x51, 0x20}
@@ -295,7 +313,7 @@ static Genesys_Gpo Gpo[] = {
    }
   ,
   /* Plustek OpticPro S24/ST24 */
-  {
+  {GPO_ST24,
    {0x00, 0x00}
    ,
    {0x51, 0x20}
@@ -303,7 +321,7 @@ static Genesys_Gpo Gpo[] = {
    }
   ,
   /* MD5345/MD6471 */
-  {
+  {GPO_5345,
    {0x30, 0x18}
    ,				/* bits 11-12 are for bipolar V-ref input voltage */
    {0xa0, 0x18}
@@ -311,7 +329,7 @@ static Genesys_Gpo Gpo[] = {
    }
   ,
   /* HP2400C */
-  {
+  {GPO_HP2400,
    {0x30, 0x00}
    ,
    {0x31, 0x00}
@@ -319,7 +337,7 @@ static Genesys_Gpo Gpo[] = {
    }
   ,
   /* HP2300C */
-  {
+  {GPO_HP2300,
    {0x00, 0x00}
    ,
    {0x00, 0x00}
@@ -327,7 +345,7 @@ static Genesys_Gpo Gpo[] = {
    }
   ,
   /* CANONLIDE35 */
-  {
+  {GPO_CANONLIDE35,
    {0x81, 0x80}
    ,
    {0xef, 0x80}
@@ -335,24 +353,29 @@ static Genesys_Gpo Gpo[] = {
    }
   ,
   /* 7: XP200 */
-  {
+  {GPO_XP200,
    {0x30, 0x00}
    ,
    {0xb0, 0x00}
    ,
-   }
+   },
+  /* HP2400C */
+  {GPO_HP3670,
+   {0x20, 0x00}
+   ,
+   {0x70, 0x00}
+  }
   ,
   /* 8: XP300 */
-  {
+  {GPO_XP300,
    {0x09, 0xc6},
    {0xbb, 0x00},
-   }
+  }
 };
 
-#define MOTOR_ST24       2
 static Genesys_Motor Motor[] = {
-  /* 0: UMAX */
-  {
+  /* UMAX */
+  {MOTOR_UMAX,
    1200,			/* motor base steps */
    2400,			/* maximum motor resolution */
    1,				/* maximum step mode */
@@ -370,7 +393,7 @@ static Genesys_Motor Motor[] = {
      1.0,
    },},},
   },
-  {				/* 1: MD5345/6228/6471 */
+  {MOTOR_5345,				/* MD5345/6228/6471 */
    1200,
    2400,
    1,
@@ -388,7 +411,7 @@ static Genesys_Motor Motor[] = {
      0.5,
     },},},
   },
-  {				/* 2: ST24 */
+  {MOTOR_ST24,			/* ST24 */
    2400,
    2400,
    1,
@@ -406,7 +429,7 @@ static Genesys_Motor Motor[] = {
      0.3,
     },},}, 
   },
-  {				/* 3: HP 2400c */
+  {MOTOR_HP3670,	/* HP 3670 */
    1200,
    2400,
    1,
@@ -424,7 +447,25 @@ static Genesys_Motor Motor[] = {
      0.5,
     },},},
   },
-  {				/* 4: HP 2300c */
+  {MOTOR_HP2400,		/* HP 2400c */
+   1200,
+   2400,
+   1,
+   1,
+   {{{
+     11000,	/* start speed */
+     3000,	/* max speed */
+     128,	/* min steps */
+     0.25,
+     },
+    {
+     11000,
+     3000,
+     128,
+     0.5,
+    },},},
+  },
+  {MOTOR_HP2300,		/* HP 2300c */
    600,
    1200,
    1,
@@ -442,7 +483,7 @@ static Genesys_Motor Motor[] = {
      0.5,
    },},},
   },
-  {				/* 5: Canon LiDE 35 */
+  {MOTOR_CANONLIDE35,		/* Canon LiDE 35 */
    1200,
    2400,
    1,
@@ -460,7 +501,7 @@ static Genesys_Motor Motor[] = {
      0.8,
     },},},
   },
-  {				/* 6: Strobe XP200 */
+  {MOTOR_XP200,			/* Strobe XP200 */
    600,
    600,
    1,
@@ -478,7 +519,7 @@ static Genesys_Motor Motor[] = {
      0.5,
     },},},
   },
-  {				/* 7: Visioneer Strobe XP300 */
+  {MOTOR_XP300,				/* 7: Visioneer Strobe XP300 */
    300,
    600,
    1,
@@ -669,8 +710,8 @@ static Genesys_Model hp2300c_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (-2.0),		/* Start of scan area in mm (x_offset) */
-  SANE_FIX (0.0),		/* Start of scan area in mm (y_offset) */
+  SANE_FIX (2.0),		/* Start of scan area in mm (x_offset) */
+  SANE_FIX (7.5),		/* Start of scan area in mm (y_offset) */
   SANE_FIX (215.9),		/* Size of scan area in mm (x) */
   SANE_FIX (295.0),		/* Size of scan area in mm (y) */
 
@@ -699,12 +740,12 @@ static Genesys_Model hp2300c_model = {
   DAC_WOLFSON_HP2300,
   GPO_HP2300,
   MOTOR_HP2300,
-  GENESYS_FLAG_REPARK
-    | GENESYS_FLAG_14BIT_GAMMA
+  GENESYS_FLAG_14BIT_GAMMA
+    /* | GENESYS_FLAG_NO_CALIBRATION */
     | GENESYS_FLAG_SEARCH_START
-    | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW,
   9,
@@ -755,9 +796,7 @@ Genesys_Model hp2400c_model = {
   GPO_HP2400,
   MOTOR_HP2400,
   GENESYS_FLAG_UNTESTED		/* not fully working yet */
-    | GENESYS_FLAG_REPARK
     | GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA
@@ -811,8 +850,7 @@ Genesys_Model visioneer_xp200_model = {
   DAC_AD_XP200,			/* Analog Device frontend */
   GPO_XP200,
   MOTOR_XP200,
-  GENESYS_FLAG_UNTESTED		/* not fully working yet */
-    | GENESYS_FLAG_14BIT_GAMMA
+      GENESYS_FLAG_14BIT_GAMMA
     | GENESYS_FLAG_CUSTOM_GAMMA
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_NO_CALIBRATION,
@@ -828,8 +866,8 @@ static Genesys_Model hp3670c_model = {
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 100, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 50, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -859,12 +897,15 @@ static Genesys_Model hp3670c_model = {
 
   SANE_FALSE,			/* Is this a CIS scanner? */
   SANE_FALSE,			/* Is this a sheetfed scanner? */
-  CCD_UMAX,
-  DAC_WOLFSON_UMAX,
-  GPO_UMAX,
-  MOTOR_UMAX,
-  GENESYS_FLAG_UNTESTED,	/* Which flags are needed for this scanner? */
-  /* untested, values set by mike p. according to vendor's datasheet. */
+  CCD_HP3670,
+  DAC_WOLFSON_HP3670,
+  GPO_HP3670,
+  MOTOR_HP3670,
+      GENESYS_FLAG_14BIT_GAMMA
+    | GENESYS_FLAG_SEARCH_START
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
   200
@@ -964,7 +1005,6 @@ static Genesys_Model plustek_st24_model = {
     | GENESYS_FLAG_14BIT_GAMMA
     | GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_USE_PARK
-    | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_SEARCH_START | GENESYS_FLAG_OFFSET_CALIBRATION,
   GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
@@ -978,13 +1018,13 @@ static Genesys_Model medion_md5345_model = {
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 300, 200, 150, 100, 75, 50, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 500, 400, 300, 250, 200, 150, 100, 50, 0},	/* possible y-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 500, 400, 300, 200, 150, 100, 75, 50, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (1.00),		/* Start of scan area in mm  (x) */
-  SANE_FIX (5.00),		/* 2.79 < Start of scan area in mm (y) */
+  SANE_FIX ( 0.00),		/* Start of scan area in mm  (x) */
+  SANE_FIX ( 0.00),		/* 2.79 < Start of scan area in mm (y) */
   SANE_FIX (215.9),		/* Size of scan area in mm (x) */
   SANE_FIX (296.4),		/* Size of scan area in mm (y) */
 
@@ -1016,11 +1056,11 @@ static Genesys_Model medion_md5345_model = {
   GENESYS_FLAG_14BIT_GAMMA
     | GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_USE_PARK
-    | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_SEARCH_START
-    | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_STAGGERED_LINE
+    | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
   32,

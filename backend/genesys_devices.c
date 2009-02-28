@@ -288,6 +288,29 @@ static Genesys_Sensor Sensor[] = {
    ,
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
+  ,
+  /* Syscan DP 665 */
+  {CCD_DP665, 600,
+/*TODO: find a good reason for keeping all three following variables*/
+   28,				/*(black) */
+   28,				/* (dummy) */
+   0,				/* (startxoffset) */
+   2496,			/*sensor_pixels */
+   210,
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x04, 0x50,
+    0x10, 0x00, 0x20, 0x02	
+    },
+   {0x04, 0x05,
+    0x00, 0x00, 0x00, 0x00,	/*[GB](HI|LOW) not needed for cis */
+    0x54, 0x03,
+    0x00,			/*TODO: bit7 */
+    0x00, 0x00, 0x00, 0x01	/*TODO (these do no harm, but may be neccessery for CCD) */
+    }
+   ,
+   1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
 };
 
 /** for General Purpose Output specific settings:
@@ -371,6 +394,13 @@ static Genesys_Gpo Gpo[] = {
    {0x09, 0xc6},
    {0xbb, 0x00},
   }
+  ,
+  /* Syscan DP 665 */
+  {
+    GPO_DP665,
+   {0x18, 0x00},/*0x19,0x00*/
+   {0xbb, 0x00},
+   }
 };
 
 static Genesys_Motor Motor[] = {
@@ -528,6 +558,24 @@ static Genesys_Motor Motor[] = {
      3700,
      3700,
      2,
+     0.8,
+     },
+    {
+     11000,
+     11000,
+     2,
+     0.8,
+     },},},
+  },
+  {MOTOR_DP665,				/* Syscan DP 665 */
+   750,
+   1500,
+   1,
+   1,
+   {{{
+     3000,
+     2500,
+     10,
      0.8,
      },
     {
@@ -1118,6 +1166,56 @@ static Genesys_Model visioneer_xp300_model = {
   400
 };
 
+static Genesys_Model syscan_docketport_665_model = {
+  "syscan-docketport-665",		/* Name */
+  "Syscan/Ambir",			/* Device vendor string */
+  "DocketPORT 665",			/* Device model name */
+  GENESYS_GL841,
+  NULL,
+
+  {600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (108.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (511),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (17.5),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_TRUE,			/* Is this a sheetfed scanner? */
+  CCD_DP665,
+  DAC_WOLFSON_XP300,
+  GPO_DP665,
+  MOTOR_DP665,
+  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_NO_CALIBRATION,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
+  300,
+  400
+};
+
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x0638, 0x0a10, &umax_astra_4500_model},
   {0x04a9, 0x2213, &canon_lide_50_model},
@@ -1130,5 +1228,6 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x0461, 0x0377, &medion_md5345_model},
   {0x04a7, 0x0426, &visioneer_xp200_model},
   {0x04a7, 0x0474, &visioneer_xp300_model},
+  {0x0a82, 0x4803, &syscan_docketport_665_model},
   {0, 0, NULL}
 };

@@ -3223,6 +3223,14 @@ gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
 	    dev->calib_reg[reg_0x6b].value |= REG6B_GPO18;
 
 	}
+	if (dev->model->gpo_type == GPO_DP665) 
+	  {
+	    sanei_genesys_read_register(dev, 0x6B, &val);
+	    sanei_genesys_write_register(dev, 0x6B, val | REG6B_GPO17);
+	    dev->reg[reg_0x6b].value |= REG6B_GPO17;
+	    dev->calib_reg[reg_0x6b].value |= REG6B_GPO17;
+	  }
+
     }
 
     return SANE_STATUS_GOOD;

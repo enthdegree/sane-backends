@@ -311,6 +311,29 @@ static Genesys_Sensor Sensor[] = {
    ,
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
+  ,
+  /* Visioneer Roadwarrior */
+  {CCD_ROADWARRIOR, 600,
+/*TODO: find a good reason for keeping all three following variables*/
+   28,				/*(black) */
+   28,				/* (dummy) */
+   0,				/* (startxoffset) */
+   5200,			/*sensor_pixels */
+   210,
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x04, 0x50,
+    0x10, 0x00, 0x20, 0x02	
+    },
+   {0x04, 0x05,
+    0x00, 0x00, 0x00, 0x00,	/*[GB](HI|LOW) not needed for cis */
+    0x54, 0x03,
+    0x00,			/*TODO: bit7 */
+    0x00, 0x00, 0x00, 0x01	/*TODO (these do no harm, but may be neccessery for CCD) */
+    }
+   ,
+   1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
 };
 
 /** for General Purpose Output specific settings:
@@ -575,6 +598,24 @@ static Genesys_Motor Motor[] = {
    {{{
      3000,
      2500,
+     10,
+     0.8,
+     },
+    {
+     11000,
+     11000,
+     2,
+     0.8,
+     },},},
+  },
+  {MOTOR_ROADWARRIOR,			/* Visioneer Roadwarrior */
+   750,
+   1500,
+   1,
+   1,
+   {{{
+     3000,
+     2600,
      10,
      0.8,
      },
@@ -1216,6 +1257,56 @@ static Genesys_Model syscan_docketport_665_model = {
   400
 };
 
+static Genesys_Model visioneer_roadwarrior_model = {
+  "visioneer-roadwarrior",		/* Name */
+  "Visioneer",				/* Device vendor string */
+  "Readwarrior",			/* Device model name */
+  GENESYS_GL841,
+  NULL,
+
+  {600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (220.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (511),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (16.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_TRUE,			/* Is this a sheetfed scanner? */
+  CCD_ROADWARRIOR,
+  DAC_WOLFSON_XP300,
+  GPO_DP665,
+  MOTOR_ROADWARRIOR,
+  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_NO_CALIBRATION,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
+  300,
+  400
+};
+
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x0638, 0x0a10, &umax_astra_4500_model},
   {0x04a9, 0x2213, &canon_lide_50_model},
@@ -1229,5 +1320,6 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a7, 0x0426, &visioneer_xp200_model},
   {0x04a7, 0x0474, &visioneer_xp300_model},
   {0x0a82, 0x4803, &syscan_docketport_665_model},
+  {0x04a7, 0x0494, &visioneer_roadwarrior_model},
   {0, 0, NULL}
 };

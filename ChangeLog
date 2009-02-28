@@ -2,6 +2,8 @@
 	* backend/genesys.conf.in, backend/genesys_devices.c,
 	backend/genesys_gl841.c, backend/genesys_low.h: Add support for 
 	Ambir/Syscan DocketPORT 665
+	* backend/genesys.conf.in, backend/genesys_devices.c,
+	backend/genesys_low.h: Add support for Visioneer Roadwarrior
 
 2009-02-25 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* acinclude.m4, backend/*.[ch], tools/*.[ch], frontend/*.[ch]:

@@ -265,6 +265,7 @@ Genesys_Color_Order;
 #define CCD_XP300        8
 #define CCD_HP3670       9
 #define CCD_DP665        10
+#define CCD_ROADWARRIOR  11
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -288,6 +289,7 @@ Genesys_Color_Order;
 #define MOTOR_XP300      7
 #define MOTOR_HP3670     9
 #define MOTOR_DP665      10
+#define MOTOR_ROADWARRIOR 11
 
 
 /* Forward typedefs */

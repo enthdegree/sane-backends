@@ -3060,7 +3060,7 @@ dummy \ scanned lines
    */
 
   dev->total_bytes_read = 0;
-  if (depth == 1 || dev->settings.scan_mode == 0)
+  if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
       dev->total_bytes_to_read =
 	  ((dev->settings.pixels * dev->settings.lines) / 8 +
 	   (((dev->settings.pixels * dev->settings.lines)%8)?1:0)
@@ -3676,7 +3676,7 @@ gl841_detect_document_end (Genesys_Device * dev)
 	  bytes_remain = dev->total_bytes_to_read - dev->total_bytes_read;
 
 	  /* remaining lines to read by frontend for the current scan */
-	  if (depth == 1 || dev->settings.scan_mode == 0)
+	  if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
 	    flines = bytes_remain * 8 
 	      / dev->settings.pixels / channels;
 	  else
@@ -3690,7 +3690,7 @@ gl841_detect_document_end (Genesys_Device * dev)
 	       * multiplied by bytes per line */
 	      sublines = flines - lines;
 
-	      if (depth == 1 || dev->settings.scan_mode == 0)
+	      if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
 		sub_bytes =
 		  ((dev->settings.pixels * sublines) / 8 +
 		   (((dev->settings.pixels * sublines)%8)?1:0)
@@ -3993,124 +3993,7 @@ static SANE_Status
 gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
 		       SANE_Bool wait_until_home)
 {
-  Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
-  SANE_Status status;
-  uint8_t val = 0;
-  int loop;
-  int i = 0;
-
-  DBG (DBG_proc, "gl841_park_head (wait_until_home = %d)\n",
-       wait_until_home);
-
-  memset (local_reg, 0, sizeof (local_reg));
-
-  /* read status */
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl841_park_head: failed to read home sensor: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  /* no need to park if already at home */
-  if (val & REG41_HOMESNR)
-    {
-      dev->scanhead_position_in_steps = 0;
-      return status;
-    }
-
-  status = gl841_stop_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl841_park_head: failed to stop motor: %s\n",
-	   sane_strstatus (status));
-      return SANE_STATUS_IO_ERROR;
-    }
-
-  memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
-
-  gl841_init_optical_regs_off(dev,local_reg);
-
-  gl841_init_motor_regs(dev,local_reg,
-			65536,MOTOR_ACTION_GO_HOME,0);
-
-  /* writes register */
-  status = gl841_bulk_write_register (dev, local_reg, i);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl841_park_head: failed to bulk write registers: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  /* start motor */
-  status = gl841_start_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "gl841_park_head: failed to start motor: %s\n",
-	   sane_strstatus (status));
-      gl841_stop_action (dev);
-      /* restore original registers */
-      gl841_bulk_write_register (dev, reg, GENESYS_GL841_MAX_REGS);
-      return status;
-    }
-
-  /* wait for head to park if needed */
-  if (wait_until_home)
-    {
-      loop = 0;
-      /* no more than 300 loops of 100 ms each -> 30 second time out */
-      while (loop < 300)
-	{
-	  status = sanei_genesys_get_status (dev, &val);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_error,
-		   "gl841_park_head: failed to read home sensor: %s\n",
-		   sane_strstatus (status));
-	      return status;
-	    }
-
-	  /* test home sensor */
-	  if (val & REG41_HOMESNR)
-	    {
-	      DBG (DBG_info,
-		   "gl841_park_head: reached home position\n");
-	      DBG (DBG_proc, "gl841_park_head: finished\n");
-	      dev->scanhead_position_in_steps = 0;
-	      return SANE_STATUS_GOOD;
-	    }
-	  /* hack around a bug ? */
-	  if (!(val & REG41_MOTORENB))
-	    {
-	      DBG (DBG_info, "gl841_park_head: restarting motor\n");
-	      status = gl841_start_action (dev);
-	      if (status != SANE_STATUS_GOOD)
-		{
-		  DBG (DBG_error,
-		       "gl841_park_head: failed to restart motor: %s\n",
-		       sane_strstatus (status));
-		}
-	    }
-	  usleep (100000);
-	  ++loop;
-	}
-    } else {
-	DBG (DBG_info,
-	     "gl841_park_head: exiting while moving home\n");
-	return SANE_STATUS_GOOD;
-    }
-
-  /* when we come here then the scanner needed too much time for this,
-     so we better stop the motor */
-  gl841_stop_action (dev);
-  DBG (DBG_error,
-       "gl841_park_head: timeout while waiting for scanhead to go home\n");
-  return SANE_STATUS_IO_ERROR;
+  return gl841_slow_back_home (dev, wait_until_home);
 }
 
 
@@ -4251,7 +4134,7 @@ gl841_init_regs_for_coarse_calibration (Genesys_Device * dev)
   cksel = (dev->calib_reg[reg_0x18].value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
   /* set line size */
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
@@ -4316,7 +4199,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
   DBG (DBG_proc, "gl841_init_regs_for_shading: lines = %d\n",
        dev->model->shading_lines);
 
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
@@ -4386,14 +4269,14 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
   gl841_slow_back_home(dev,1);
 
 /* channels */
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
 
 /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == 0)
+  if (dev->settings.scan_mode == SCAN_MODE_LINEART)
       depth = 1;
 
 
@@ -5413,7 +5296,7 @@ sanei_gl841_repark_head (Genesys_Device * dev)
     }
 
   /* toggle motor flag, put an huge step number and redo move backward */
-  status = gl841_park_head (dev, local_reg, 1);
+  status = gl841_slow_back_home (dev, 1);
   DBG (DBG_proc, "gl841_park_head: completed\n");
   return status;
 }

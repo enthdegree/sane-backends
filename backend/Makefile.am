@@ -52,7 +52,6 @@ EXTRA_DIST += stubs.c
 	rm -f $@
 	$(LN_S) $(srcdir)/stubs.c $@
 
-dll.c: dll-preload.h
 dll-preload.h:
 	rm -f $@
 	list="$(PRELOADABLE_BACKENDS)"; for be in $$list; do \
@@ -147,7 +146,7 @@ uninstall-hook:
 	  rmdir $(DESTDIR)$(datadir)/sane/$${dir} ; \
 	done
 
-CLEANFILES = dll-preload.h $(BACKEND_CONFS) $(be_convenience_libs)
+CLEANFILES = $(BACKEND_CONFS) $(be_convenience_libs)
 clean-local:
 	find . -type l -name \*-s.c | xargs rm -f
 
@@ -1015,9 +1014,11 @@ libsane_xerox_mfp_la_LIBADD = $(COMMON_LIBS) libxerox_mfp.la ../sanei/sanei_init
 EXTRA_DIST += xerox_mfp.conf.in
 
 libdll_la_SOURCES =  dll.c
+BUILT_SOURCES = dll-preload.h
+CLEANFILES += dll-preload.h
 libdll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 
-nodist_libsane_dll_la_SOURCES =  dll-s.c dll-preload.h
+nodist_libsane_dll_la_SOURCES =  dll-s.c
 libsane_dll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_dll_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_dll_la_LIBADD = $(COMMON_LIBS) libdll.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo $(DL_LIBS)
@@ -1044,7 +1045,7 @@ EXTRA_DIST += dll.aliases
 # them. Since standard mode is to only have the dll backend, its a waste.
 # Need to update configure to build a list of only what needs to go into
 # LIBADD based on whats being preloaded.
-nodist_libsane_la_SOURCES =  dll-s.c dll-preload.h
+nodist_libsane_la_SOURCES =  dll-s.c
 libsane_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_la_LDFLAGS = $(DIST_LIBS_LDFLAGS)
 libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo $(DL_LIBS) $(LIBV4L_LIBS) $(MATH_LIB) $(IEEE1284_LIBS) $(TIFF_LIBS) $(JPEG_LIBS) $(GPHOTO2_LIBS) $(SOCKET_LIBS) $(USB_LIBS) $(AVAHI_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS)

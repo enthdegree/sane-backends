@@ -59,7 +59,9 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libsanej_la_DEPENDENCIES = $(LIBSANE)
 am_libsanej_la_OBJECTS = Sane.lo
-libsanej_la_OBJECTS = $(am_libsanej_la_OBJECTS)
+nodist_libsanej_la_OBJECTS =
+libsanej_la_OBJECTS = $(am_libsanej_la_OBJECTS) \
+	$(nodist_libsanej_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include/sane
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -72,7 +74,7 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libsanej_la_SOURCES)
+SOURCES = $(libsanej_la_SOURCES) $(nodist_libsanej_la_SOURCES)
 DIST_SOURCES = $(libsanej_la_SOURCES)
 JAVAC = javac
 ETAGS = etags
@@ -258,9 +260,13 @@ dist_noinst_JAVA = $(JAVA_SRC)
 LIBSANE = ../backend/libsane.la
 EXTRA_DIST = Makefile.in README.JAVA 
 lib_LTLIBRARIES = libsanej.la
+BUILT_SOURCES = Sane.h
+CLEANFILES = Sane.h
+nodist_libsanej_la_SOURCES = Sane.h
 libsanej_la_SOURCES = Sane.c
 libsanej_la_LIBADD = $(LIBSANE)
-all: all-am
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .lo .o .obj
@@ -446,13 +452,15 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES) classdist_noinst.stamp
 installdirs:
 	for dir in "$(DESTDIR)$(libdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -469,6 +477,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -476,10 +485,11 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-dist_noinstJAVA clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-local mostlyclean-am
+	clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -539,7 +549,7 @@ uninstall-am: uninstall-libLTLIBRARIES
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean \
 	clean-dist_noinstJAVA clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-local ctags distclean distclean-compile \
+	clean-libtool ctags distclean distclean-compile \
 	distclean-generic distclean-libtool distclean-tags distdir dvi \
 	dvi-am html html-am info info-am install install-am \
 	install-data install-data-am install-dvi install-dvi-am \
@@ -553,15 +563,9 @@ uninstall-am: uninstall-libLTLIBRARIES
 	uninstall-am uninstall-libLTLIBRARIES
 
 
-# Make sure Sane.h gets created before compiling Sane.c
-Sane.c: Sane.h
-
 # Make sure that java classes get created before create Sane.h
 Sane.h: classdist_noinst.stamp
 	$(JAVAH) Sane
-
-clean-local:
-	rm -f Sane.h
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

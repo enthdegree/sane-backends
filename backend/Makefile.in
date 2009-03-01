@@ -1609,7 +1609,7 @@ BACKEND_CONFS = abaton.conf agfafocus.conf apple.conf artec.conf \
 	       xerox_mfp.conf dll.conf saned.conf
 
 SUFFIXES = .conf.in .conf
-CLEANFILES = dll-preload.h $(BACKEND_CONFS) $(be_convenience_libs)
+CLEANFILES = $(BACKEND_CONFS) $(be_convenience_libs) dll-preload.h
 
 # Backends
 #
@@ -2185,8 +2185,9 @@ libsane_xerox_mfp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=xerox_mfp
 libsane_xerox_mfp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_xerox_mfp_la_LIBADD = $(COMMON_LIBS) libxerox_mfp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS)
 libdll_la_SOURCES = dll.c
+BUILT_SOURCES = dll-preload.h
 libdll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
-nodist_libsane_dll_la_SOURCES = dll-s.c dll-preload.h
+nodist_libsane_dll_la_SOURCES = dll-s.c
 libsane_dll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_dll_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_dll_la_LIBADD = $(COMMON_LIBS) libdll.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo $(DL_LIBS)
@@ -2210,14 +2211,15 @@ libsane_dll_la_LIBADD = $(COMMON_LIBS) libdll.la ../sanei/sanei_init_debug.lo ..
 # them. Since standard mode is to only have the dll backend, its a waste.
 # Need to update configure to build a list of only what needs to go into
 # LIBADD based on whats being preloaded.
-nodist_libsane_la_SOURCES = dll-s.c dll-preload.h
+nodist_libsane_la_SOURCES = dll-s.c
 libsane_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_la_LDFLAGS = $(DIST_LIBS_LDFLAGS)
 libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo $(DL_LIBS) $(LIBV4L_LIBS) $(MATH_LIB) $(IEEE1284_LIBS) $(TIFF_LIBS) $(JPEG_LIBS) $(GPHOTO2_LIBS) $(SOCKET_LIBS) $(USB_LIBS) $(AVAHI_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS)
 
 # WARNING: Automake is getting this wrong so have to do it ourselves.
 libsane_la_DEPENDENCIES = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo @SANEI_SANEI_JPEG_LO@
-all: all-am
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .conf.in .conf .c .lo .o .obj
@@ -4267,13 +4269,15 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES)
 installdirs:
 	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(sanelibdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -4298,6 +4302,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-generic clean-libLTLIBRARIES clean-libtool clean-local \
@@ -4388,7 +4393,6 @@ all: becfg
 	rm -f $@
 	$(LN_S) $(srcdir)/stubs.c $@
 
-dll.c: dll-preload.h
 dll-preload.h:
 	rm -f $@
 	list="$(PRELOADABLE_BACKENDS)"; for be in $$list; do \

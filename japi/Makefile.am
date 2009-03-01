@@ -35,15 +35,13 @@ EXTRA_DIST = Makefile.in README.JAVA
 
 lib_LTLIBRARIES = libsanej.la
 
+BUILT_SOURCES = Sane.h
+CLEANFILES = Sane.h
+nodist_libsanej_la_SOURCES = Sane.h
 libsanej_la_SOURCES = Sane.c
 libsanej_la_LIBADD = $(LIBSANE)
-
-# Make sure Sane.h gets created before compiling Sane.c
-Sane.c: Sane.h
 
 # Make sure that java classes get created before create Sane.h
 Sane.h: classdist_noinst.stamp
 	$(JAVAH) Sane
 
-clean-local:
-	rm -f Sane.h

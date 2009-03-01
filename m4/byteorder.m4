@@ -357,6 +357,7 @@ EOF
 
 if cmp -s $ac_byteorder_h $ac_byteorder 2>/dev/null; then
   AC_MSG_NOTICE([$ac_byteorder_h is unchanged])
+  rm $ac_byteorder
 else
   rm -f $ac_byteorder_h
   mv $ac_byteorder $ac_byteorder_h

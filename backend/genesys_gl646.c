@@ -749,8 +749,7 @@ gl646_test_motor_flag_bit (SANE_Byte val)
 }
 
 static void
-gl646_set_triple_reg (Genesys_Register_Set * regs, int regnum,
-		      uint32_t value)
+gl646_set_triple_reg (Genesys_Register_Set * regs, int regnum, uint32_t value)
 {
   Genesys_Register_Set *r = NULL;
 
@@ -763,8 +762,7 @@ gl646_set_triple_reg (Genesys_Register_Set * regs, int regnum,
 }
 
 static void
-gl646_set_double_reg (Genesys_Register_Set * regs, int regnum,
-		      uint16_t value)
+gl646_set_double_reg (Genesys_Register_Set * regs, int regnum, uint16_t value)
 {
   Genesys_Register_Set *r = NULL;
 
@@ -946,9 +944,9 @@ static Sensor_Master sensor_master[] = {
   {CCD_5345  , 100, SANE_TRUE , 100, 11000, 200, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_TRUE , 0x28, 0x03},
   {CCD_5345  , 150, SANE_TRUE , 150, 11000, 300, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_TRUE , 0x28, 0x03},
   {CCD_5345  , 200, SANE_TRUE , 200, 11000, 400, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_TRUE , 0x28, 0x03},
-  {CCD_5345  , 300, SANE_TRUE,  300, 11000, 600, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_TRUE , 0x28, 0x03},
-  {CCD_5345  , 400, SANE_TRUE,  400, 11000, 800, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_TRUE , 0x28, 0x03},
-  {CCD_5345  , 600, SANE_TRUE,  600, 11000,1200, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_TRUE , 0x28, 0x03},
+  {CCD_5345  , 300, SANE_TRUE , 300, 11000, 600, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_TRUE , 0x28, 0x03},
+  {CCD_5345  , 400, SANE_TRUE , 400, 11000, 800, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_TRUE , 0x28, 0x03},
+  {CCD_5345  , 600, SANE_TRUE , 600, 11000,1200, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_TRUE , 0x28, 0x03},
   {CCD_5345  ,1200, SANE_TRUE ,1200, 11000,1200, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_FALSE, 0x30, 0x03},
   {CCD_5345  ,2400, SANE_TRUE ,1200, 11000,1200, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_FALSE, 0x30, 0x03},
   {CCD_5345  ,  50, SANE_FALSE,  50, 12000, 100, 1, 42, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, SANE_TRUE , 0x28, 0x03},
@@ -983,7 +981,7 @@ static Motor_Master motor_master[] = {
   {MOTOR_HP3670, 600, SANE_FALSE, 600, FULL_STEP, SANE_FALSE, SANE_TRUE , 0,   3, 10687, 5126, 200, 3399, 337, 0.3, 0.4, 96},
   {MOTOR_HP3670,1200, SANE_FALSE,1200, HALF_STEP, SANE_FALSE, SANE_TRUE , 0,   3, 12751,12751, 200, 3399, 337, 0.3, 0.4, 96},
 
-  /* HP2400/G2410 motor settings */
+  /* HP2400/G2410 motor settings base motor dpi = 600 */
   {MOTOR_HP2400,  50, SANE_TRUE,  50, HALF_STEP, SANE_FALSE, SANE_FALSE, 63,  4,  1382,   800,   2, 5400, 5400, 0.25, 0.5, 16},
   {MOTOR_HP2400, 300, SANE_TRUE, 300, HALF_STEP, SANE_FALSE, SANE_TRUE , 63, 32, 16703,  2188, 120, 4905,  337, 0.25, 0.5, 16},
   {MOTOR_HP2400, 600, SANE_TRUE, 600, FULL_STEP, SANE_FALSE, SANE_TRUE , 63,  3, 18761, 18761,  16, 4905,  627, 0.25, 0.5, 16},
@@ -1014,6 +1012,7 @@ static Motor_Master motor_master[] = {
   {MOTOR_HP2300,1200, SANE_FALSE,1200, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,   3, 26100, 17400, 120, 4905,  337, 0.3, 0.4, 16},
 
   /* MD5345/6471 motor settings */
+  /* vfinal=(exposure/(1200/dpi))/step_type */
   {MOTOR_5345,    50, SANE_TRUE ,  50, HALF_STEP  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   250, 255, 2000,  300, 0.3, 0.4, 64},
   {MOTOR_5345,    75, SANE_TRUE ,  75, HALF_STEP  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   343, 255, 2000,  300, 0.3, 0.4, 64},
   {MOTOR_5345,   100, SANE_TRUE , 100, HALF_STEP  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   458, 255, 2000,  300, 0.3, 0.4, 64},
@@ -1023,8 +1022,8 @@ static Motor_Master motor_master[] = {
   {MOTOR_5345,   400, SANE_TRUE,  400, HALF_STEP  , SANE_FALSE, SANE_TRUE , 0,  32,  2000,  1833, 255, 2000,  300, 0.3, 0.4, 32},
   {MOTOR_5345,   500, SANE_TRUE,  500, HALF_STEP  , SANE_FALSE, SANE_TRUE , 0,  32,  2291,  2291, 255, 2000,  300, 0.3, 0.4, 32},
   {MOTOR_5345,   600, SANE_TRUE,  600, HALF_STEP  , SANE_FALSE, SANE_TRUE , 0,  32,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 32},
-  {MOTOR_5345,  1200, SANE_TRUE ,1200, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  32,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 64},
-  {MOTOR_5345,  2400, SANE_TRUE ,2400, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  32,  2750,  5500, 255, 2000,  300, 0.3, 0.4, 64}, /* 5500 guessed */
+  {MOTOR_5345,  1200, SANE_TRUE ,1200, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  16,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 146},
+  {MOTOR_5345,  2400, SANE_TRUE ,2400, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  16,  5500,  5500, 255, 2000,  300, 0.3, 0.4, 146},
   {MOTOR_5345,    50, SANE_FALSE,  50, HALF_STEP  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   250, 255, 2000,  300, 0.3, 0.4, 64},
   {MOTOR_5345,    75, SANE_FALSE,  75, HALF_STEP  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   343, 255, 2000,  300, 0.3, 0.4, 64},
   {MOTOR_5345,   100, SANE_FALSE, 100, HALF_STEP  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   458, 255, 2000,  300, 0.3, 0.4, 64},
@@ -1034,8 +1033,8 @@ static Motor_Master motor_master[] = {
   {MOTOR_5345,   400, SANE_FALSE, 400, HALF_STEP  , SANE_FALSE, SANE_TRUE , 0,  32,  2000,  1833, 255, 2000,  300, 0.3, 0.4, 32},
   {MOTOR_5345,   500, SANE_FALSE, 500, HALF_STEP  , SANE_FALSE, SANE_TRUE , 0,  32,  2291,  2291, 255, 2000,  300, 0.3, 0.4, 32},
   {MOTOR_5345,   600, SANE_FALSE, 600, HALF_STEP  , SANE_FALSE, SANE_TRUE , 0,  32,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 32},
-  {MOTOR_5345,  1200, SANE_FALSE,1200, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  32,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 64},
-  {MOTOR_5345,  2400, SANE_FALSE,2400, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  32,  2750,  5500, 255, 2000,  300, 0.3, 0.4, 64}, /* 5500 guessed */
+  {MOTOR_5345,  1200, SANE_FALSE,1200, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  16,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 146},
+  {MOTOR_5345,  2400, SANE_FALSE,2400, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  16,  5500,  5500, 255, 2000,  300, 0.3, 0.4, 146}, /* 5500 guessed */
 };
 
 /**
@@ -1464,7 +1463,10 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * scan_settings.yres) / dev->motor.base_ydpi;
+    {
+      stagger = (4 * scan_settings.yres) / dev->motor.base_ydpi;
+      linecnt += stagger;
+    }
   else
     stagger = 0;
   DBG (DBG_info, "gl646_setup_registers :  max_shift=%d, stagger=%d lines\n",
@@ -1526,9 +1528,34 @@ gl646_setup_registers (Genesys_Device * dev,
     }
 
   /* we assume all scans are done with 2 tables */
+  /*
+     feedl = feed_steps - fast_slope_steps*2 - 
+     (slow_slope_steps >> scan_step_type); */
   if (move > 0)
     {
-      move = move - motor->steps1;
+      /* TODO clean up this when I'll fully understand
+       * for now, special casing each motor */
+      switch (dev->model->motor_type)
+	{
+	case MOTOR_5345:
+	  if (motor->steptype != QUATER_STEP)
+	    move = move - motor->steps1;
+	  else
+	    move = move + 90;
+	  break;
+	default:
+	  if (motor->fastfed)
+	    {
+	      move =
+		move - 2 * motor->steps2 - (motor->steps1 >> motor->steptype);
+	    }
+	  else
+	    {
+	      move = move - (motor->steps1 >> motor->steptype);
+	    }
+	  break;
+	}
+      /* security */
       if (move < 0)
 	move = 0;
     }
@@ -2390,8 +2417,8 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   time = delay * 1000 * 60;	/* -> msec */
   exposure_time =
     (uint32_t) (time * 32000.0 /
-		 (24.0 * 64.0 * (local_reg[1].value & REG03_LAMPTIM) *
-		  1024.0) + 0.5);
+		(24.0 * 64.0 * (local_reg[1].value & REG03_LAMPTIM) *
+		 1024.0) + 0.5);
   /* 32000 = system clock, 24 = clocks per pixel */
   rate = (exposure_time + 65536) / 65536;
   if (rate > 4)
@@ -3353,7 +3380,7 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool color;
   int channels;
-  uint16_t startx = 0, endx;
+  uint16_t startx = 0, endx, pixels;
   int move = 0;
 
   DBG (DBG_proc, "setup_for_scan: start\n");
@@ -3430,7 +3457,17 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
   /* add x coordinates : expressed in sensor max dpi */
   startx += (settings.tl_x * dev->sensor.optical_res) / MM_PER_INCH;
 
-  endx = startx + (settings.pixels * dev->sensor.optical_res) / settings.xres;
+  /* stagger works with odd start cordinates */
+  if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)
+  	startx |= 1;
+
+  pixels = (settings.pixels * dev->sensor.optical_res) / settings.xres;
+  /* special requirement for 400 dpi on 1200 dpi sensors */
+  if(settings.xres==400)
+  {
+  	pixels = (pixels/6)*6;
+  }
+  endx = startx + pixels;
 
   /* XXX STEF XXX TODO check for pixel width overflow */
 
@@ -3595,8 +3632,7 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
     }
 
   /* send data */
-  status =
-    gl646_bulk_write_data (dev, 0x3c, (uint8_t *) gamma, size * 2 * 3);
+  status = gl646_bulk_write_data (dev, 0x3c, (uint8_t *) gamma, size * 2 * 3);
   if (status != SANE_STATUS_GOOD)
     {
       free (gamma);

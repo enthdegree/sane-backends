@@ -1112,7 +1112,7 @@ static Genesys_Model medion_md5345_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX ( 0.00),		/* Start of scan area in mm  (x) */
+  SANE_FIX ( 4.00),		/* Start of scan area in mm  (x) */
   SANE_FIX ( 0.00),		/* 2.79 < Start of scan area in mm (y) */
   SANE_FIX (215.9),		/* Size of scan area in mm (x) */
   SANE_FIX (296.4),		/* Size of scan area in mm (y) */
@@ -1133,7 +1133,7 @@ static Genesys_Model medion_md5345_model = {
 				   after finishing scanning in mm */
 
   48, 24, 0,			/* RGB CCD Line-distance correction in pixel */
-
+/* 48, 24, 0, */
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */

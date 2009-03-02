@@ -1,3 +1,7 @@
+2009-03-02 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c, backend/genesys_gl646.c: fix 400, 1200
+	and 2400 dpi scan modes for MD5345/MD6471
+
 2009-03-02 Julien Blache <jb@jblache.org>
 	* frontend/saned.c: work around backends that can't keep their
 	dirty fingers off stdin/stdout/stderr when run through inetd,
@@ -16,6 +20,14 @@
 	* backend/genesys.conf.in, backend/genesys_devices.c,
 	backend/genesys_low.h: Add support for Visioneer Roadwarrior
 	* backend/genesys_gl841.c: Adjust gl841 part to recent changes
+
+2009-02-27  Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys.conf.in backend/genesys.h
+	backend/genesys_devices.c backend/genesys_gl646.c backend/genesys_gl841.c
+	backend/genesys_low.h: rewrite of gl646 internals to enable easy
+	scanner addition and better calibration process. Untested support for
+	hp3670. Use of id in genesys_devices structures to have more robust
+	descriptions.
 
 2009-02-25 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* acinclude.m4, backend/*.[ch], tools/*.[ch], frontend/*.[ch]:

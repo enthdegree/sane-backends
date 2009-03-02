@@ -3112,6 +3112,41 @@ static void
 run_inetd (int argc, char **argv)
 {
   int fd = 1;
+  int dave_null;
+
+  /* Some backends really can't keep their dirty fingers off
+   * stdin/stdout/stderr; we work around them here so they don't
+   * mess up the network dialog and crash the remote net backend.
+   */
+  do
+    {
+      fd = dup (fd);
+
+      if (fd == -1)
+	{
+	  DBG (DBG_ERR, "run_inetd: duplicating fd failed: %s", strerror (errno));
+	  return;
+	}
+    }
+  while (fd < 3);
+
+  /* Our good'ole friend Dave Null to the rescue */
+  dave_null = open ("/dev/null", O_RDWR);
+  if (dave_null < 0)
+    {
+      DBG (DBG_ERR, "run_inetd: could not open /dev/null: %s", strerror (errno));
+      return;
+    }
+
+  close (STDIN_FILENO);
+  close (STDOUT_FILENO);
+  close (STDERR_FILENO);
+
+  dup2 (dave_null, STDIN_FILENO);
+  dup2 (dave_null, STDOUT_FILENO);
+  dup2 (dave_null, STDERR_FILENO);
+
+  close (dave_null);
 
 #ifndef HAVE_OS2_H
   /* Unused in this function */

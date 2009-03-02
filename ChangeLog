@@ -1,3 +1,8 @@
+2009-03-02 Julien Blache <jb@jblache.org>
+	* frontend/saned.c: work around backends that can't keep their
+	dirty fingers off stdin/stdout/stderr when run through inetd,
+	breaking the network dialog and crashing the remote net backend.
+
 2009-02-28 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* m4/byteorder.m4: Delete temporary file in all cases.
 	* backend/Makefile.am, japi/Makefile.am: Use BUILT_SOURCES

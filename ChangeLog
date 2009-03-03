@@ -1,3 +1,9 @@
+2009-02-28 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* acinclude.m4, tools/sane-config.in: Add in missing libraries
+	to sane-config missed during fix to stop using LIBS to link everything.
+	Add back in code to move LDFLAGS out of $GPHOTO2_LIBS and into
+	GPHOTO2_LDFLAGS.
+
 2009-03-02 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c, backend/genesys_gl646.c: fix 400, 1200
 	and 2400 dpi scan modes for MD5345/MD6471

@@ -4,6 +4,7 @@ dnl   SANE_SET_CFLAGS(is_release)
 dnl   SANE_CHECK_MISSING_HEADERS
 dnl   SANE_SET_LDFLAGS
 dnl   SANE_CHECK_DLL_LIB
+dnl   SANE_EXTRACT_LDFLAGS(LIBS, LDFLAGS)
 dnl   SANE_CHECK_JPEG
 dnl   SANE_CHECK_IEEE1284
 dnl   SANE_CHECK_PTHREAD
@@ -168,6 +169,31 @@ AC_DEFUN([SANE_CHECK_DLL_LIB],
   AC_SUBST(DYNAMIC_FLAG)
 ])
 
+#
+# Separate LIBS from LDFLAGS to link correctly on HP/UX (and other
+# platforms who care about the order of params to ld.  It removes all
+# non '-l..'-params from passed in $1(LIBS), and appends them to $2(LDFLAGS).
+#
+# Use like this: SANE_EXTRACT_LDFLAGS(PKGNAME_LIBS, PKGNAME_LDFLAGS)
+ AC_DEFUN([SANE_EXTRACT_LDFLAGS],
+[
+    tmp_LIBS=""
+    for param in ${$1}; do
+        case "${param}" in
+	-l*)
+         tmp_LIBS="${tmp_LIBS} ${param}"
+	 ;;
+	 *)
+         $2="${$2} ${param}"
+	 ;;
+	 esac
+     done
+     $1="${tmp_LIBS}"
+     unset tmp_LIBS
+     unset param
+])
+
+#
 #
 # Checks for ieee1284 library, needed for canon_pp backend.
 AC_DEFUN([SANE_CHECK_IEEE1284],
@@ -389,48 +415,49 @@ AC_CHECK_TYPES([u_char, u_int, u_long],,,)
 # Checks for gphoto2 libs, needed by gphoto2 backend
 AC_DEFUN([SANE_CHECK_GPHOTO2],
 [
-	AC_ARG_WITH(gphoto2,
-	  AC_HELP_STRING([--with-gphoto2],
-                         [include the gphoto2 backend @<:@default=yes@:>@]),
-              [# If --with-gphoto2=no or --without-gphoto2, disable backend
+  AC_ARG_WITH(gphoto2,
+	      AC_HELP_STRING([--with-gphoto2],
+			     [include the gphoto2 backend @<:@default=yes@:>@]),
+	      [# If --with-gphoto2=no or --without-gphoto2, disable backend
                # as "$with_gphoto2" will be set to "no"])
 
-	# If --with-gphoto2=yes (or not supplied), first check if 
-	# pkg-config exists, then use it to check if libgphoto2 is
-	# present.  If all that works, then see if we can actually link
-        # a program.   And, if that works, then add the -l flags to 
-	# LIBS and any other flags to GPHOTO2_LDFLAGS to pass to 
-	# sane-config.
-	if test "$with_gphoto2" != "no" ; then 
-		AC_CHECK_TOOL(HAVE_GPHOTO2, pkg-config, false)
-	
+  # If --with-gphoto2=yes (or not supplied), first check if 
+  # pkg-config exists, then use it to check if libgphoto2 is
+  # present.  If all that works, then see if we can actually link
+  # a program.   And, if that works, then add the -l flags to 
+  # GPHOTO2_LIBS and any other flags to GPHOTO2_LDFLAGS to pass to 
+  # sane-config.
+  if test "$with_gphoto2" != "no" ; then 
+    AC_CHECK_TOOL(HAVE_GPHOTO2, pkg-config, false)
+
     if test ${HAVE_GPHOTO2} != "false" ; then
-			if pkg-config --exists libgphoto2 ; then
+      if pkg-config --exists libgphoto2 ; then
         with_gphoto2="`pkg-config --modversion libgphoto2`"
-        GPHOTO2_CPPFLAGS="`pkg-config --cflags libgphoto2`"
-				GPHOTO2_LIBS="`pkg-config --libs libgphoto2`"
+	GPHOTO2_CPPFLAGS="`pkg-config --cflags libgphoto2`"
+        GPHOTO2_LIBS="`pkg-config --libs libgphoto2`"
 
         saved_CPPFLAGS="${CPPFLAGS}"
         CPPFLAGS="${GPHOTO2_CPPFLAGS}"
-			 	saved_LIBS="${LIBS}"
-				LIBS="${LIBS} ${GPHOTO2_LIBS}"
-				# Make sure we an really use the library
-        AC_CHECK_FUNCS(gp_camera_init,
-                       HAVE_GPHOTO2=true, 
-                       HAVE_GPHOTO2=false)
-        CPPFLAGS="${saved_CPPFLAGS}"
+	saved_LIBS="${LIBS}"
+	LIBS="${LIBS} ${GPHOTO2_LIBS}"
+ 	# Make sure we an really use the library
+        AC_CHECK_FUNCS(gp_camera_init, HAVE_GPHOTO2=true, HAVE_GPHOTO2=false)
+	CPPFLAGS="${saved_CPPFLAGS}"
         LIBS="${saved_LIBS}"
-			else
-				HAVE_GPHOTO2=false
-			fi
+      else
+        HAVE_GPHOTO2=false
+      fi
       if test "${HAVE_GPHOTO2}" = "false"; then
         GPHOTO2_CPPFLAGS="" 
         GPHOTO2_LIBS="" 
-		fi
-	fi
+      else
+        SANE_EXTRACT_LDFLAGS(GPHOTO2_LIBS, GPHOTO2_LDFLAGS)
+      fi
+    fi
   fi
   AC_SUBST(GPHOTO2_CPPFLAGS)
   AC_SUBST(GPHOTO2_LIBS)
+  AC_SUBST(GPHOTO2_LDFLAGS)
 ])
 
 #

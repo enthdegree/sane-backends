@@ -674,7 +674,7 @@ gl841_bulk_write_data_gamma (Genesys_Device * dev, uint8_t addr,
 
       outdata[0] = BULK_OUT;
       outdata[1] = BULK_RAM;
-      outdata[2] = 0x00;
+      outdata[2] = 0x00;/* 0x82 works, too */
       outdata[3] = 0x00;
       outdata[4] = (size & 0xff);
       outdata[5] = ((size >> 8) & 0xff);
@@ -4354,7 +4354,7 @@ gl841_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
   int size;
   int status;
   uint8_t *gamma;
-  int i;
+  int i,gmmval;
 
   DBG (DBG_proc, "gl841_send_gamma_table\n");
 
@@ -4382,12 +4382,13 @@ gl841_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
       /* fill with default values */
       for (i = 0; i < size; i++)
 	{
-	  gamma[i*2 + size * 0 + 0] = i & 0xff;
-	  gamma[i*2 + size * 0 + 1] = (i >> 8) & 0xff;
-	  gamma[i*2 + size * 2 + 0] = i & 0xff;
-	  gamma[i*2 + size * 2 + 1] = (i >> 8) & 0xff;
-	  gamma[i*2 + size * 4 + 0] = i & 0xff;
-	  gamma[i*2 + size * 4 + 1] = (i >> 8) & 0xff;
+	  gmmval = i* 256;
+	  gamma[i*2 + size * 0 + 0] = gmmval & 0xff;
+	  gamma[i*2 + size * 0 + 1] = (gmmval >> 8) & 0xff;
+	  gamma[i*2 + size * 2 + 0] = gmmval & 0xff;
+	  gamma[i*2 + size * 2 + 1] = (gmmval >> 8) & 0xff;
+	  gamma[i*2 + size * 4 + 0] = gmmval & 0xff;
+	  gamma[i*2 + size * 4 + 1] = (gmmval >> 8) & 0xff;
 	}
     }
   else

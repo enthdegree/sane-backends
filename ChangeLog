@@ -1,3 +1,6 @@
+2009-03-03  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys_gl841.c: Fix the generated generic gamma table.
+
 2009-02-28 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* tools/sane-config.in: Add space mistakenly removed during
 	last update.

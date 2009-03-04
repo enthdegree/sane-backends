@@ -1,3 +1,7 @@
+2009-02-28 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* tools/sane-config.in: Add space mistakenly removed during
+	last update.
+
 2009-03-03 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc: add Epson RX-620 (0x04b8 0x0811),
 	reported by Heikki Kantola.

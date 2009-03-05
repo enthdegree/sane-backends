@@ -1,3 +1,6 @@
+2009-03-05  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/umax1220u.c: set initial scan area dimensions to maximum
+
 2009-03-05 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* configure.in: Allow user to disable latex support; original
 	patch from Johnson Earls.

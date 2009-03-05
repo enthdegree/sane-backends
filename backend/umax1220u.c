@@ -43,7 +43,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 1
+#define BUILD 2
 #define MM_IN_INCH 25.4
 
 #include "../include/sane/config.h"
@@ -376,7 +376,8 @@ optionTopLeftYCallback (SANE_Option * option, SANE_Handle handle,
 This option controls the bot-right-x corner of the scan
 */
 
-static SANE_Fixed optionBotRightXValue = 0;
+static SANE_Fixed optionBotRightXValue 
+  = SANE_FIX (UMAX_MAX_WIDTH * MM_IN_INCH / 600);
 
 static SANE_Option_Descriptor optionBotRightXDescriptor = {
   SANE_NAME_SCAN_BR_X,
@@ -418,7 +419,8 @@ optionBotRightXCallback (SANE_Option * option, SANE_Handle handle,
 This option controls the bot-right-y corner of the scan
 */
 
-static SANE_Fixed optionBotRightYValue = 0;
+static SANE_Fixed optionBotRightYValue
+  = SANE_FIX (UMAX_MAX_HEIGHT * MM_IN_INCH / 600);
 
 static SANE_Option_Descriptor optionBotRightYDescriptor = {
   SANE_NAME_SCAN_BR_Y,

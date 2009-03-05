@@ -14,7 +14,7 @@ canon_dr
 #canon_pp
 cardscan
 coolscan
-coolscan2
+#coolscan2
 coolscan3
 #dc25
 #dc210
@@ -22,7 +22,7 @@ coolscan3
 dell1600n_net
 dmc
 epjitsu
-epson
+#epson
 epson2
 fujitsu
 #gphoto2
@@ -79,11 +79,3 @@ umax
 umax1220u
 v4l
 xerox_mfp
-#
-# The following backends are not included in the sane-backends distribution
-# If you want to use them, download them from their webpages and read their
-# documentation 
-#
-# HP OfficeJet backend homepage: http://hpoj.sf.net/
-# Uncomment the following line if hpoj is installed:
-#hpoj

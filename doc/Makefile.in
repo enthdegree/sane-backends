@@ -263,13 +263,13 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 	sane-pixma.man sane-stv680.man sane-hp5590.man \
 	sane-hpljm1005.man sane-cardscan.man sane-hp3900.man \
 	sane-epjitsu.man sane-hs2p.man sane-canon_dr.man \
-	sane-xerox_mfp.man sane-rts8891.man sane.man saned.man \
-	descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
-	sane.png sane.tex net.tex html.sty $(DESC_FILES) \
-	$(DESC_EXT_FILES) figs/area.eps figs/area.fig figs/flow.eps \
-	figs/flow.fig figs/hierarchy.eps figs/hierarchy.fig \
-	figs/image-data.eps figs/image-data.fig figs/xfer.eps \
-	figs/xfer.fig icons/contents.gif icons/index.gif \
+	sane-xerox_mfp.man sane-rts8891.man sane-coolscan3.man \
+	sane.man saned.man descriptions.txt releases.txt \
+	sane-logo2.jpg sane-logo.png sane.png sane.tex net.tex \
+	html.sty $(DESC_FILES) $(DESC_EXT_FILES) figs/area.eps \
+	figs/area.fig figs/flow.eps figs/flow.fig figs/hierarchy.eps \
+	figs/hierarchy.fig figs/image-data.eps figs/image-data.fig \
+	figs/xfer.eps figs/xfer.fig icons/contents.gif icons/index.gif \
 	icons/next.gif icons/next_gr.gif icons/previous.gif \
 	icons/previous_gr.gif icons/references.gif \
 	icons/references_gr.gif icons/up.gif icons/up_gr.gif
@@ -292,7 +292,7 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-mustek_usb2.5 sane-hp3500.5 sane-pixma.5 sane-stv680.5 \
 	sane-hp5590.5 sane-hpljm1005.5 sane-cardscan.5 sane-hp3900.5 \
 	sane-epjitsu.5 sane-hs2p.5 sane-canon_dr.5 sane-xerox_mfp.5 \
-	sane-rts8891.5 
+	sane-rts8891.5 sane-coolscan3.5
 
 man7_MANS = sane.7
 man8_MANS = saned.8
@@ -348,6 +348,7 @@ DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/canon.desc descriptions/canon_dr.desc \
   descriptions/canon_pp.desc descriptions/cardscan.desc \
   descriptions/coolscan2.desc descriptions/coolscan.desc \
+  descriptions/coolscan3.desc \
   descriptions/dc210.desc descriptions/dc240.desc descriptions/dc25.desc \
   descriptions/dell1600n_net.desc descriptions/dll.desc descriptions/dmc.desc \
   descriptions/epjitsu.desc descriptions/epson2.desc descriptions/epson.desc \

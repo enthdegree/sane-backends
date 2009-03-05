@@ -1,3 +1,6 @@
+2009-03-05  m. allan noah <kitno455 a t gmail d o t com>
+	* doc/descriptions-external/epkowa.desc: update all broken urls
+
 2009-03-04  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/coolscan3.desc, doc/sane-coolscan3.man,
 	  doc/Makefile.in|am: add missing coolscan3 docs

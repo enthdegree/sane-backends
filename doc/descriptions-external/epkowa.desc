@@ -332,7 +332,7 @@
 :usbid     "0x04b8" "0x0133"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-1500<br>overseas version of the GT-D1000"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-2200"
 :interface "USB"
@@ -393,14 +393,14 @@
 :usbid     "0x04b8" "0x010f"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-7200<br>also supported by the plustek backend"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-7300U"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x011d"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-7300<br>also supported by the plustek backend"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-7400U"			; product spec (JP)
 :interface "USB"
@@ -482,7 +482,7 @@
 :usbid     "0x04b8" "0x0116"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-9400"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-9500"
 :interface "SCSI"
@@ -541,84 +541,84 @@
 :usbid     "0x04b8" "0x0133"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-1500"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-F500"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x0121"
 :status    :good
 :comment   "multi photo feeder not supported<br>requires DFSG non-free iscan-plugin-gt-f500<br>also supported by the snapscan backend"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-F520"
 :interface "USB"
 :usbid     "0x04b8" "0x0122"
 :status    :good
 :comment   "multi photo feeder not supported<br>requires DFSG non-free iscan-plugin-gt-f520<br>also supported by the snapscan backend"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-F550"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x0121"
 :status    :good
 :comment   "auto film loader not supported<br>requires DFSG non-free iscan-plugin-gt-f500<br>also supported by the snapscan backend"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-F570"
 :interface "USB"
 :usbid     "0x04b8" "0x0122"
 :status    :good
 :comment   "auto film loader not supported<br>requires DFSG non-free iscan-plugin-gt-f520<br>also supported by the snapscan backend"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-F600"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x0118"
 :status    :good
 :comment   "only scans up to 2400dpi<br>requires DFSG non-free iscan-plugin-gt-f600"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-F650"
 :interface "USB"
 :usbid     "0x04b8" "0x012d"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-s600<br>GT-S600 with TPU"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-F670"
 :interface "USB"
 :usbid     "0x04b8" "0x012e"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-f670"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-F700"
 :interface "USB"
 :usbid     "0x04b8" "0x012f"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-f700"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-F720"
 :interface "USB"
 :usbid     "0x04b8" "0x0131"
 :status    :good
 :comment   "requires DFSG non-free esci-interpreter-gt-f720<br>GT-S620 with TPU"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-S600"
 :interface "USB"
 :usbid     "0x04b8" "0x012d"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-s600"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-S620"
 :interface "USB"
 :usbid     "0x04b8" "0x0131"
 :status    :good
 :comment   "requires DFSG non-free esci-interpreter-gt-f720"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-X700"			; product spec (JP)
 :interface "USB"
@@ -631,14 +631,14 @@
 :usbid     "0x04b8" "0x0119"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-x750"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-X770"
 :interface "USB"
 :usbid     "0x04b8" "0x0130"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-x770"
-:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-X800"			; product spec (JP)
 :interface "USB"

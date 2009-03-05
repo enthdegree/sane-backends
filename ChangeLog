@@ -1,3 +1,7 @@
+2009-03-05 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* configure.in: Allow user to disable latex support; original
+	patch from Johnson Earls.
+
 2009-03-05  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions-external/epkowa.desc: update all broken urls
 

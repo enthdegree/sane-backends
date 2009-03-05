@@ -646,12 +646,21 @@ else
 fi  
 AM_CONDITIONAL(ENABLE_TRANSLATIONS, test x$enable_translations = xyes)
 
-if test "$LATEX" != "no" && test "$DVIPS" != "no" && test "$MAKEINDEX" != "no" ; then
-  USE_LATEX="yes"
+AC_ARG_ENABLE(latex,
+	      AC_HELP_STRING([--disable-latex],
+	      [disable use of latex, et.al., to generate documentation]),,
+	      enable_latex=yes)
+if test "x$enable_latex" = "xyes" ; then
+  if test "x$LATEX" = "xno" || test "x$DVIPS" = "xno" || test "x$MAKEINDEX" = "xno" ; then
+    enable_latex=no
+    echo "disabling latex (missing latex, dvips or makeindex)"
+  else
+    echo "enabling latex"
+  fi
 else
-  USE_LATEX="no"
-fi
-AM_CONDITIONAL(USE_LATEX, test x$USE_LATEX = xyes)
+  echo "disabling latex"
+fi  
+AM_CONDITIONAL(USE_LATEX, test x$enable_latex = xyes)
 
 dnl ***********************************************************************
 dnl Write output files

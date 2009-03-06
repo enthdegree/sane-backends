@@ -11,7 +11,7 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/" 
-:version "10"                    ; version of backend
+:version "13"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "New backend as of SANE release 1.1.0, testers needed, see manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -23,9 +23,63 @@
 :url "http://www.canon.com/"
 
 ;==================================================
+:model "CR-25"
+:interface "USB"
+:usbid "0x1083" "0x161a"
+:status :untested
+:comment "Please test!"
+
+:model "CR-55"
+:interface "USB"
+:usbid "0x1083" "0x160c"
+:status :untested
+:comment "Please test!"
+
+:model "CR-180"
+:interface "USB SCSI"
+:usbid "0x04a9" "0x1602"
+:status :untested
+:comment "Please test!"
+
+:model "DR-1210C"
+:interface "USB"
+:usbid "0x04a9" "0x2222"
+:status :untested
+:comment "Older version? Please test!"
+
+:model "DR-1210C"
+:interface "USB"
+:usbid "0x1083" "0x160f"
+:status :untested
+:comment "Later version? Please test!"
+
+:model "DR-2010C"
+:interface "USB"
+:usbid "0x1083" "0x161b"
+:status :untested
+:comment "Please test!"
+
+:model "DR-2050C"
+:interface "USB"
+:usbid "0x04a9" "0x160a"
+:status :untested
+:comment "Please test!"
+
+:model "DR-2050SP"
+:interface "USB"
+:usbid "0x04a9" "0x160a"
+:status :untested
+:comment "Same as DR-2050C? Please test!"
+
 :model "DR-2080C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1601"
+:status :untested
+:comment "Please test!"
+
+:model "DR-2510C"
+:interface "USB"
+:usbid "0x1083" "0x1617"
 :status :untested
 :comment "Please test!"
 
@@ -35,7 +89,13 @@
 :status :untested
 :comment "Please test!"
 
-:model "DR 3020"
+:model "DR-3010C"
+:interface "USB"
+:usbid "0x1083" "0x161d"
+:status :untested
+:comment "Please test!"
+
+:model "DR3020"
 :interface "SCSI"
 :status :untested
 :comment "Please test!"
@@ -63,13 +123,40 @@
 
 :model "DR-4010C"
 :interface "USB"
-:usbid "0x04a9" "0x1614"
+:usbid "0x1083" "0x1614"
+:status :good
+:comment ""
+
+:model "DR4080U"
+:interface "USB"
+;:usbid "0x1083" "0x1614"
+:status :untested
+:comment "Please test!"
+
+:model "DR-4580U"
+:interface "USB"
+;:usbid "0x1083" "0x1614"
 :status :untested
 :comment "Please test!"
 
 :model "DR-5010C"
 :interface "USB"
 :usbid "0x04a9" "0x1606"
+:status :untested
+:comment "Please test!"
+
+:model "DR-5020"
+:interface "SCSI"
+:status :untested
+:comment "Please test!"
+
+:model "DR-5060F"
+:interface "SCSI"
+:status :untested
+:comment "Please test!"
+
+:model "DR-5080C"
+:interface "SCSI"
 :status :untested
 :comment "Please test!"
 
@@ -82,6 +169,12 @@
 :model "DR-7080C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1604"
+:status :untested
+:comment "Please test!"
+
+:model "DR-7090C"
+:interface "USB SCSI"
+:usbid "0x1083" "0x1620"
 :status :untested
 :comment "Please test!"
 
@@ -99,6 +192,6 @@
 
 :model "DR-X10C"
 :interface "USB SCSI"
-:usbid "0x04a9" "0x1618"
+:usbid "0x1083" "0x1618"
 :status :untested
 :comment "Please test!"

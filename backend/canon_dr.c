@@ -123,6 +123,9 @@
          - stop button reqests cancel
       v12 2009-01-21, MAN
          - dont export private symbols
+      v13 2009-03-06, MAN
+         - new vendor ID for recent machines
+         - add usb ids for several new machines
 
    SANE FLOW DIAGRAM
 
@@ -183,7 +186,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 12
+#define BUILD 13
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -399,6 +402,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1601'\n");
       sanei_usb_attach_matching_devices("usb 0x04a9 0x1601", attach_one_usb);
 
+      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1602'\n");
+      sanei_usb_attach_matching_devices("usb 0x04a9 0x1602", attach_one_usb);
+
       DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1603'\n");
       sanei_usb_attach_matching_devices("usb 0x04a9 0x1603", attach_one_usb);
 
@@ -417,14 +423,41 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1609'\n");
       sanei_usb_attach_matching_devices("usb 0x04a9 0x1609", attach_one_usb);
 
+      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x160a'\n");
+      sanei_usb_attach_matching_devices("usb 0x04a9 0x160a", attach_one_usb);
+
       DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x160b'\n");
       sanei_usb_attach_matching_devices("usb 0x04a9 0x160b", attach_one_usb);
 
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1614'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x1614", attach_one_usb);
+      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x160c'\n");
+      sanei_usb_attach_matching_devices("usb 0x1083 0x160c", attach_one_usb);
 
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1618'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x1618", attach_one_usb);
+      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x160f'\n");
+      sanei_usb_attach_matching_devices("usb 0x1083 0x160f", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x2222'\n");
+      sanei_usb_attach_matching_devices("usb 0x04a9 0x2222", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x1614'\n");
+      sanei_usb_attach_matching_devices("usb 0x1083 0x1614", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x1617'\n");
+      sanei_usb_attach_matching_devices("usb 0x1083 0x1617", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x1618'\n");
+      sanei_usb_attach_matching_devices("usb 0x1083 0x1618", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x161a'\n");
+      sanei_usb_attach_matching_devices("usb 0x1083 0x161a", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x161b'\n");
+      sanei_usb_attach_matching_devices("usb 0x1083 0x161b", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x161d'\n");
+      sanei_usb_attach_matching_devices("usb 0x1083 0x161d", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x1620'\n");
+      sanei_usb_attach_matching_devices("usb 0x1083 0x1620", attach_one_usb);
   }
 
   /*delete missing scanners from list*/
@@ -733,7 +766,7 @@ init_inquire (struct scanner *s)
   }
 
   /*check for model name*/
-  if (strncmp ("DR", s->model_name, 2)) {
+  if (strncmp ("DR", s->model_name, 2) && strncmp ("CR", s->model_name, 2)) {
     DBG (5, "The device at '%s' is reported to be a '%s'\n", s->device_name, s->model_name);
     DBG (5, "This backend only supports Canon DR-series products.\n");
     return SANE_STATUS_INVAL;

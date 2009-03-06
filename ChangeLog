@@ -1,3 +1,10 @@
+2009-03-06  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.c, backend/canon_dr.conf.in, 
+	  doc/descriptions/canon_dr.desc: backend version 13
+	- new vendor ID for recent machines
+	- add usb ids for several new machines
+	- DR-4010C reported good
+
 2009-03-05  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/umax1220u.c: set initial scan area dimensions to maximum
 

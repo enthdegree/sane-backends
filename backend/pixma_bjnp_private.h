@@ -67,7 +67,7 @@
 #define MAX_SELECT_ATTEMPTS 5   /* max nr of retries on select (EINTR) */
 
 /* Do not yet use this, it does not work */
-#define PIXMA_BJNP_STATUS 1
+/* #define PIXMA_BJNP_STATUS 1 */
 
 /* loglevel definitions */
 

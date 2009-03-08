@@ -7,7 +7,8 @@
 # a value larger than 65536 (the default)
 option buffer-size 65536
 
-# To search for all CANON scsi devices, who's name starts with 'DR'
+# To search for any CANON scsi device, if name starts with 'CR' or 'DR'
+scsi CANON CR
 scsi CANON DR
 
 # To use a specific scsi device

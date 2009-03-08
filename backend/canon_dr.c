@@ -126,6 +126,9 @@
       v13 2009-03-06, MAN
          - new vendor ID for recent machines
          - add usb ids for several new machines
+      v14 2009-03-07, MAN
+         - remove HARD_SELECT from counter (Legitimate, but API violation)
+         - attach to CR-series scanners as well
 
    SANE FLOW DIAGRAM
 
@@ -186,7 +189,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 13
+#define BUILD 14
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -395,6 +398,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   else {
       DBG (5, "sane_get_devices: no config file '%s', using defaults\n", CANON_DR_CONFIG_FILE);
+
+      DBG (15, "sane_get_devices: looking for 'scsi CANON CR'\n");
+      sanei_config_attach_matching_devices ("scsi CANON CR", attach_one_scsi);
 
       DBG (15, "sane_get_devices: looking for 'scsi CANON DR'\n");
       sanei_config_attach_matching_devices ("scsi CANON DR", attach_one_scsi);
@@ -761,14 +767,14 @@ init_inquire (struct scanner *s)
   /*check for vendor name*/
   if (strcmp ("CANON", s->vendor_name)) {
     DBG (5, "The device at '%s' is reported to be made by '%s'\n", s->device_name, s->vendor_name);
-    DBG (5, "This backend only supports Canon DR-series products.\n");
+    DBG (5, "This backend only supports Canon products.\n");
     return SANE_STATUS_INVAL;
   }
 
   /*check for model name*/
   if (strncmp ("DR", s->model_name, 2) && strncmp ("CR", s->model_name, 2)) {
     DBG (5, "The device at '%s' is reported to be a '%s'\n", s->device_name, s->model_name);
-    DBG (5, "This backend only supports Canon DR-series products.\n");
+    DBG (5, "This backend only supports Canon CR & DR-series products.\n");
     return SANE_STATUS_INVAL;
   }
 
@@ -1879,7 +1885,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->counter_range.quant=1;
 
     if (s->has_counter)
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     else
       opt->cap = SANE_CAP_INACTIVE;
   }

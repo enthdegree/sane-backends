@@ -1,5 +1,10 @@
+2009-03-07  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.c, backend/canon_dr.conf.in: backend version 14
+	- remove HARD_SELECT from counter (Legitimate, but API violation)
+	- attach to CR-series scanners as well
+
 2009-03-06 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
-	* backend/pixma_bjnp_private.h disabled experimental/incomplete
+	* backend/pixma_bjnp_private.h: disabled experimental/incomplete
 	button handling for bjnp protocol as it seems to cause problems
 	with xsane preview
 

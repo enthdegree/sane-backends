@@ -1,3 +1,8 @@
+2009-03-09 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c:
+	1200 dpi scan fix and head positionning fixes
+
+
 2009-03-07  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.c, backend/canon_dr.conf.in: backend version 14
 	- remove HARD_SELECT from counter (Legitimate, but API violation)

@@ -222,7 +222,7 @@ sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
 	{
 	  if (depth == 8)
 	    {
-	      fputc (*(data++), out);
+	      fputc (*(data+count), out);
 	    }
 	  else
 	    {
@@ -1511,6 +1511,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
     }
 
   /* laplace filter to denoise picture */
+  memcpy (image, data, size); /* to initialize unprocessed part of the image buffer */
   for (y = 1; y < height - 1; y++)
     for (x = 1; x < width - 1; x++)
       {
@@ -2258,7 +2259,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
     }
 
   /* size is size in bytes for scanarea: bytes_per_line * lines */
-  size = channels * 2 * pixels_per_line * dev->model->shading_lines;
+  size = channels * 2 * pixels_per_line * (dev->model->shading_lines+1);
 
   calibration_data = malloc (size);
   if (!calibration_data)
@@ -3610,7 +3611,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	  second_average /= pixel;
 	  difference = abs (first_average - second_average);
 
-	  if (second_average > (110 * 256)
+	  if (second_average > (100 * 256)
 	      && (difference / second_average) < 0.002)
 	    break;
 	}
@@ -4182,6 +4183,14 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       ccd_shift[2] =
 	((dev->model->ld_shift_b * dev->settings.yres) /
 	 dev->motor.base_ydpi);
+
+      /* TODO find an explanation for this special case */
+      /*if(dev->model->motor_type == MOTOR_HP2300 && dev->settings.yres>dev->motor.base_ydpi)
+	{
+          ccd_shift[0] *= 2;
+          ccd_shift[1] *= 2;
+          ccd_shift[2] *= 2;
+	}*/
 
       ccd_shift[3] = ccd_shift[0] + dev->current_setup.stagger;
       ccd_shift[4] = ccd_shift[1] + dev->current_setup.stagger;

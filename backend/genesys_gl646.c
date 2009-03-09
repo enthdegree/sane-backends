@@ -1004,12 +1004,12 @@ static Motor_Master motor_master[] = {
   {MOTOR_HP2300, 150,  SANE_TRUE, 150, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,  67,  7903,   543, 120, 4905,  337, 0.3, 0.4, 16},
   {MOTOR_HP2300, 300,  SANE_TRUE, 300, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,  44,  5386,  2175, 120, 4905,  337, 0.3, 0.4, 16},
   {MOTOR_HP2300, 600,  SANE_TRUE, 600, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,   3,  8700,  4350, 120, 4905,  337, 0.3, 0.4, 16},
-  {MOTOR_HP2300,1200,  SANE_TRUE,1200, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,   3, 26100, 17400, 120, 4905,  337, 0.3, 0.4, 16},
+  {MOTOR_HP2300,1200,  SANE_TRUE,1200, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,   3, 17400,  8700, 120, 4905,  337, 0.3, 0.4, 16},
   {MOTOR_HP2300,  75, SANE_FALSE,  75, FULL_STEP, SANE_FALSE, SANE_TRUE , 63, 120,  8139,   560, 120, 4905,  337, 0.3, 0.4, 16},
   {MOTOR_HP2300, 150, SANE_FALSE, 150, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,  67,  7903,   543, 120, 4905,  337, 0.3, 0.4, 16},
   {MOTOR_HP2300, 300, SANE_FALSE, 300, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,  44,  5386,  2175, 120, 4905,  337, 0.3, 0.4, 16},
   {MOTOR_HP2300, 600, SANE_FALSE, 600, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,   3,  8700,  4350, 120, 4905,  337, 0.3, 0.4, 16},
-  {MOTOR_HP2300,1200, SANE_FALSE,1200, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,   3, 26100, 17400, 120, 4905,  337, 0.3, 0.4, 16},
+  {MOTOR_HP2300,1200, SANE_FALSE,1200, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,   3, 17400,  8700, 120, 4905,  337, 0.3, 0.4, 16},
 
   /* MD5345/6471 motor settings */
   /* vfinal=(exposure/(1200/dpi))/step_type */
@@ -1202,6 +1202,7 @@ gl646_setup_registers (Genesys_Device * dev,
   size_t read_buffer_size;
   SANE_Bool half_ccd = SANE_FALSE;
   SANE_Int xresolution;
+  int feedl;
 
   DBG (DBG_proc, "gl646_setup_registers: start\n");
   DBG (DBG_info, "gl646_setup_registers: startx=%d, endx=%d, linecnt=%d\n",
@@ -1280,6 +1281,12 @@ gl646_setup_registers (Genesys_Device * dev,
 	   sensor->sensor, sensor->cksel);
       return SANE_STATUS_INVAL;
     }
+
+  /* vfinal=(exposure/(1200/dpi))/step_type */
+  DBG (DBG_info, "XXX STEF XXX vfinal=%d, vend1=%d\n",
+       (sensor->exposure * sensor->xdpi) / ((1 << motor->steptype) *
+					    dev->sensor.optical_res),
+       motor->vend1);
 
   /* half_ccd if manual clock programming or dpi is half dpiset */
   half_ccd = sensor->half_ccd;
@@ -1443,7 +1450,7 @@ gl646_setup_registers (Genesys_Device * dev,
   /* we adjust linecnt according to real motor dpi */
   linecnt = (linecnt * motor->ydpi) / scan_settings.yres;
 
-  /* scanned area must be enlarged by max color shift needed */
+  /* scanned area height must be enlarged by max color shift needed */
   /* all values are assumed >= 0 */
   if (channels > 1)
     {
@@ -1518,12 +1525,13 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
-  if (stagger + max_shift > 0 && move > 0)
+  feedl = move;
+  if (stagger + max_shift > 0 && feedl != 0)
     {
-      if (move >
+      if (feedl >
 	  ((max_shift + stagger) * dev->motor.optical_ydpi) / motor->ydpi)
-	move =
-	  move -
+	feedl =
+	  feedl -
 	  ((max_shift + stagger) * dev->motor.optical_ydpi) / motor->ydpi;
     }
 
@@ -1531,7 +1539,8 @@ gl646_setup_registers (Genesys_Device * dev,
   /*
      feedl = feed_steps - fast_slope_steps*2 - 
      (slow_slope_steps >> scan_step_type); */
-  if (move > 0)
+  /* but head has moved due to shading calibration => y_position_in_steps */
+  if (feedl > 0)
     {
       /* TODO clean up this when I'll fully understand
        * for now, special casing each motor */
@@ -1539,25 +1548,47 @@ gl646_setup_registers (Genesys_Device * dev,
 	{
 	case MOTOR_5345:
 	  if (motor->steptype != QUATER_STEP)
-	    move = move - motor->steps1;
+	    feedl = feedl - motor->steps1;
 	  else
-	    move = move + 90;
+	    feedl = feedl + 110;	/* 90 < */
 	  break;
+	case MOTOR_HP2300:
+	  switch (motor->ydpi)
+	    {
+	    case 75:
+	      feedl -= 300;	/*440 > 280, 240 */
+	      break;
+	    case 150:
+	      feedl -= 134;
+	      break;
+	    case 300:
+	      feedl -= 156;	/* 200, 165 > 155, 150 */
+	      break;
+	    case 600:
+	      feedl -= 6;
+	      break;
+	    default:
+	      break;
+	    }
+	  break;
+
+	  /* theorical value */
 	default:
 	  if (motor->fastfed)
 	    {
-	      move =
-		move - 2 * motor->steps2 - (motor->steps1 >> motor->steptype);
+	      feedl =
+		feedl - 2 * motor->steps2 -
+		(motor->steps1 >> motor->steptype);
 	    }
 	  else
 	    {
-	      move = move - (motor->steps1 >> motor->steptype);
+	      feedl = feedl - (motor->steps1 >> motor->steptype);
 	    }
 	  break;
 	}
       /* security */
-      if (move < 0)
-	move = 0;
+      if (feedl < 0)
+	feedl = 0;
     }
 
   /* round move distance according to dummy lines */
@@ -1567,7 +1598,8 @@ gl646_setup_registers (Genesys_Device * dev,
    dummy = regs[reg_0x1e].value & 0x0f;
    move = ((move + dummy) / (dummy + 1)) * (dummy + 1);
    } */
-  gl646_set_triple_reg (regs, REG_FEEDL, move);
+  DBG (DBG_info, "gl646_setup_registers: final move=%d\n", feedl);
+  gl646_set_triple_reg (regs, REG_FEEDL, feedl);
 
   regs[reg_0x65].value = motor->mtrpwm;
 
@@ -2923,19 +2955,21 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int i = 0;
-  uint8_t val;
+  uint8_t val, scanfsh = 0;
   unsigned int value;
 
   DBG (DBG_proc, "end_scan (check_stop = %d, eject = %d)\n", check_stop,
        eject);
 
-  status = sanei_genesys_get_status (dev, &val);
-  DBG (DBG_info, "end_scan: current status =0x%02x\n", val);
-  if (DBG_LEVEL > DBG_io)
-    {
-      print_status (val);
-      read_triple_reg (dev, REG_SCANCNT, &value);
-    }
+  /*status = sanei_genesys_get_status (dev, &val);
+     if (val & REG41_SCANFSH)
+     scanfsh = 1;
+     DBG (DBG_info, "end_scan: current status =0x%02x\n", val);
+     if (DBG_LEVEL > DBG_io)
+     {
+     print_status (val);
+     read_triple_reg (dev, REG_SCANCNT, &value);
+     } */
 
   /* for sheetfed scanners, we have to eject document and read
    * left data in buffers */
@@ -2954,7 +2988,10 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   else				/* flat bed scanners */
     {
       /* ends scan */
-      status = sanei_genesys_write_register (dev, 0x01, 0x00);
+      val = sanei_genesys_read_reg_from_set (reg, 0x01);
+      val &= ~REG01_SCAN;
+      sanei_genesys_set_reg_from_set (reg, 0x01, val);
+      status = sanei_genesys_write_register (dev, 0x01, val);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -2968,10 +3005,6 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 	  for (i = 0; i < 300; i++)	/* do not wait longer than wait 30 seconds */
 	    {
 	      status = sanei_genesys_get_status (dev, &val);
-	      if (DBG_LEVEL > DBG_io)
-		{
-		  print_status (val);
-		}
 	      if (status != SANE_STATUS_GOOD)
 		{
 		  DBG (DBG_error,
@@ -2979,9 +3012,14 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		       sane_strstatus (status));
 		  return status;
 		}
+	      if (val & REG41_SCANFSH)
+		scanfsh = 1;
+	      if (DBG_LEVEL > DBG_io)
+		{
+		  print_status (val);
+		}
 
-	      if (!(val & REG41_MOTMFLG) && (val & REG41_FEEDFSH)
-		  && (val & REG41_SCANFSH))
+	      if (!(val & REG41_MOTMFLG) && (val & REG41_FEEDFSH) && scanfsh)
 		{
 		  DBG (DBG_proc, "end_scan: scanfeed finished\n");
 		  break;	/* leave while loop */
@@ -2993,7 +3031,7 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  break;	/* leave while loop */
 		}
 
-	      /* XXX STEF XXX usleep (10000UL);  sleep 100 ms */
+	      usleep (10000UL);	/* sleep 100 ms */
 	    }
 	}
     }
@@ -3034,6 +3072,10 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	   "gl646_slow_back_home: failed to read home sensor: %s\n",
 	   sane_strstatus (status));
       return status;
+    }
+  if (DBG_LEVEL > DBG_io)
+    {
+      print_status (val);
     }
 
   dev->scanhead_position_in_steps = 0;
@@ -3165,10 +3207,12 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
       /* when we come here then the scanner needed too much time for this, so we better stop the motor */
       gl646_stop_motor (dev);
+      end_scan (dev, dev->reg, SANE_TRUE, SANE_FALSE);
       DBG (DBG_error,
 	   "gl646_slow_back_home: timeout while waiting for scanhead to go home\n");
       return SANE_STATUS_IO_ERROR;
     }
+
 
   DBG (DBG_info, "gl646_slow_back_home: scanhead is still moving\n");
   DBG (DBG_proc, "gl646_slow_back_home: end\n");
@@ -3337,6 +3381,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   dev->reg[reg_0x01].value &= ~REG01_DVDSET;
   dev->reg[reg_0x02].value |= REG02_ACDCDIS;	/* ease backtracking */
   dev->reg[reg_0x02].value &= ~(REG02_FASTFED | REG02_AGOHOME);
+  dev->reg[reg_0x02].value &= ~REG02_MTRPWR;
 
   /* TODO another flag to setup regs ? */
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
@@ -3358,7 +3403,6 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 static SANE_Status
 gl646_init_regs_for_scan (Genesys_Device * dev)
 {
-  usleep (10000UL);
   return setup_for_scan (dev, dev->settings, SANE_FALSE, SANE_TRUE,
 			 SANE_TRUE);
 }
@@ -3459,14 +3503,14 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
 
   /* stagger works with odd start cordinates */
   if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)
-  	startx |= 1;
+    startx |= 1;
 
   pixels = (settings.pixels * dev->sensor.optical_res) / settings.xres;
   /* special requirement for 400 dpi on 1200 dpi sensors */
-  if(settings.xres==400)
-  {
-  	pixels = (pixels/6)*6;
-  }
+  if (settings.xres == 400)
+    {
+      pixels = (pixels / 6) * 6;
+    }
   endx = startx + pixels;
 
   /* XXX STEF XXX TODO check for pixel width overflow */
@@ -3768,6 +3812,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   bottomavg =
     dark_average (first_line, settings.pixels, settings.lines, channels,
 		  black_pixels);
+  free (first_line);
 
   /* now top value */
   top = 231;
@@ -3791,6 +3836,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   topavg =
     dark_average (second_line, settings.pixels, settings.lines, channels,
 		  black_pixels);
+  free (second_line);
 
   /* loop until acceptable level */
   while ((pass < 32) && (top - bottom > 1))
@@ -3823,6 +3869,7 @@ gl646_offset_calibration (Genesys_Device * dev)
 		      black_pixels);
       DBG (DBG_info, "gl646_offset_calibration: avg=%d offset=%d\n", avg,
 	   dev->frontend.offset[1]);
+      free (second_line);
 
       /* compute new boundaries */
       if (topavg == avg)
@@ -3850,11 +3897,9 @@ gl646_offset_calibration (Genesys_Device * dev)
       sanei_genesys_write_pnm_file ("offset-final.pnm", second_line, 8,
 				    channels, settings.pixels,
 				    settings.lines);
+      free (second_line);
     }
 
-  /* cleanup before return */
-  free (first_line);
-  free (second_line);
   DBG (DBG_info, "gl646_offset_calibration: offset=(%d,%d,%d)\n",
        dev->frontend.offset[0], dev->frontend.offset[1],
        dev->frontend.offset[2]);
@@ -3991,6 +4036,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	       "gl646_coarse_gain_calibration: channel %d, average = %.2f, gain = %d\n",
 	       k, average[k], dev->frontend.gain[k]);
 	}
+      free (line);
     }
 
   if (channels < 3)
@@ -3999,7 +4045,6 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       dev->frontend.gain[2] = dev->frontend.gain[0];
     }
 
-  free (line);
   DBG (DBG_info, "gl646_coarse_gain_calibration: gains=(%d,%d,%d)\n",
        dev->frontend.gain[0], dev->frontend.gain[1], dev->frontend.gain[2]);
   DBG (DBG_proc, "gl646_coarse_gain_calibration: end\n");
@@ -4058,8 +4103,8 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   dev->reg[reg_0x05].value &= ~REG05_GMMENB;
 
   /* copy reg to calib_reg */
-  memcpy (local_reg, dev->reg,
-	  GENESYS_GL646_MAX_REGS * sizeof (Genesys_Register_Set));
+  /* XXX STEF XXX memcpy (local_reg, dev->reg,
+     GENESYS_GL646_MAX_REGS * sizeof (Genesys_Register_Set)); */
 
   /* turn off motor during this scan */
   gl646_set_motor_power (local_reg, SANE_FALSE);

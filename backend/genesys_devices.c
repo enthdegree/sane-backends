@@ -519,7 +519,7 @@ static Genesys_Motor Motor[] = {
     },},},
   },
   {MOTOR_HP2300,		/* HP 2300c */
-   600,
+   600, /* 600/1200 */
    1200,
    1,
    1,

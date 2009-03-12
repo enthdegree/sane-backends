@@ -298,6 +298,7 @@ map_error (SANE_Status ss)
     case SANE_STATUS_NO_DOCS:
        return PIXMA_ENO_PAPER;
     case SANE_STATUS_EOF:
+       return PIXMA_EOF;
     case SANE_STATUS_HW_LOCKED:       /* unused by pixma */
     case SANE_STATUS_WARMING_UP:      /* unused by pixma */
       break;

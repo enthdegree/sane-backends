@@ -228,11 +228,13 @@ pixma_strerror (int error)
     case PIXMA_EPROTO:
       return "EPROTO";
     case PIXMA_EPAPER_JAMMED:
-      return "EPAPAR_JAMMED";
+      return "EPAPER_JAMMED";
     case PIXMA_ECOVER_OPEN:
       return "ECOVER_OPEN";
     case PIXMA_ENO_PAPER:
       return "ENO_PAPER";
+    case PIXMA_EOF:
+      return "EEOF";
     }
   snprintf (buf, sizeof (buf), "EUNKNOWN:%d", error);
   return buf;

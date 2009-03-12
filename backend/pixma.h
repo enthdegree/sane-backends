@@ -127,6 +127,7 @@ typedef uint32_t uint32_t;
 #define PIXMA_EPAPER_JAMMED     -11
 #define PIXMA_ECOVER_OPEN       -12
 #define PIXMA_ENO_PAPER         -13
+#define PIXMA_EOF               -14
 /**@}*/
 
 /** \name Capabilities for using with pixma_config_t::cap */

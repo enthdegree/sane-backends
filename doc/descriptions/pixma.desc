@@ -379,7 +379,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x26b4"
 :status :untested
-:comment "Same protocol as imageCLASS MF4270? Testers needed!"
+:comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF6500 series"
 :interface "USB"

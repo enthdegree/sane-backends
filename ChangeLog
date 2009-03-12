@@ -1,3 +1,11 @@
+2009-03-12  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
+	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
+	  Added ImageClass MF4010 support in pixma backend docs.
+	* backend/pixma_imageclass.c:
+	  Removed ADF capability to ImageClass models without ADF
+	* backend/pixma.h, backend/pixma_common.c, backend/pixma_io_sanei.c:
+	  Added a PIXMA_EOF error return code
+
 2009-03-09 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
 	  backend/genesys_gl646.c doc/descriptions/lexmark.desc: cleanups

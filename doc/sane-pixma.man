@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "3 Jan 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "28 Feb 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon PIXMA MP series
@@ -24,7 +24,7 @@ PIXMA MX300, MX310, MX700, MX850, MX7600
 .br
 MultiPASS MP700, PIXMA MP750 (no grayscale)
 .br
-ImageCLASS MF4120, MF4122, MF4140, MF4150, MF4270
+ImageCLASS MF4010, MF4120, MF4122, MF4140, MF4150, MF4270
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs

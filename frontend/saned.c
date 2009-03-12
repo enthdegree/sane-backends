@@ -865,8 +865,10 @@ check_host (int fd)
   hints.ai_family = PF_INET;
 #endif /* ENABLE_IPV6 */
 
+  res = NULL;
   err = getaddrinfo (hostname, NULL, &hints, &res);
-  if (err)
+  /* Proceed if no local name was found */
+  if (err && err != EAI_NONAME)
     {
       DBG (DBG_ERR, "check_host: getaddrinfo failed: %s\n",
 	   gai_strerror (err));
@@ -1166,16 +1168,19 @@ check_host (int fd)
 
   /* Get local address */
   he = gethostbyname (hostname);
-  if (!he)
+  /* Proceed if no local name was found */
+  if (!he && h_errno != HOST_NOT_FOUND)
     {
       DBG (DBG_ERR, "check_host: gethostbyname failed: %s\n",
 	   hstrerror (h_errno));
       return SANE_STATUS_INVAL;
     }
-  DBG (DBG_DBG, "check_host: local hostname (from DNS): %s\n",
-       he->h_name);
+
+  if (he)
+    DBG (DBG_DBG, "check_host: local hostname (from DNS): %s\n",
+	 he->h_name);
   
-  if ((he->h_length == 4) || he->h_addrtype == AF_INET)
+  if (he && ((he->h_length == 4) || he->h_addrtype == AF_INET))
     {
       if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
 		      sizeof (text_addr)))

@@ -1,3 +1,8 @@
+2009-03-12  Ilia Sotnikov <hostcc@gmail.com>
+	* frontend/saned.c:
+	* Use hstrerror (h_errno) instead of strerror(errno) on gethostbyname()
+	  errors
+
 2009-03-12  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
 	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
 	  Added ImageClass MF4010 support in pixma backend docs.

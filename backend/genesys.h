@@ -103,6 +103,7 @@ enum Genesys_Option
   OPT_PAGE_LOADED_SW,
   OPT_OCR_SW,
   OPT_POWER_SW,
+  OPT_BUTTON_GROUP,
   OPT_CALIBRATE,
 
   /* must come last: */

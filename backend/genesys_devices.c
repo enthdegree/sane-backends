@@ -943,7 +943,7 @@ Genesys_Model visioneer_xp200_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_NO_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   20,
   132
 };
@@ -1108,12 +1108,12 @@ static Genesys_Model medion_md5345_model = {
   NULL,
 
   {1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 500, 400, 300, 200, 150, 100, 75, 50, 0},	/* possible y-resolutions */
+  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX ( 4.00),		/* Start of scan area in mm  (x) */
-  SANE_FIX ( 0.00),		/* 2.79 < Start of scan area in mm (y) */
+  SANE_FIX ( 0.80),		/* 2.79 < Start of scan area in mm (y) */
   SANE_FIX (215.9),		/* Size of scan area in mm (x) */
   SANE_FIX (296.4),		/* Size of scan area in mm (y) */
 

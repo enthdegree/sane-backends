@@ -1436,9 +1436,6 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
   DBG (DBG_proc, "sanei_genesys_read_data_from_scanner (size = %lu bytes)\n",
        (u_long) size);
 
-/*for valgrind*/
-/*  memset(data,0,size);*/
-
   if (size & 1)
     DBG (DBG_info,
 	 "WARNING sanei_genesys_read_data_from_scanner: odd number of bytes\n");
@@ -2497,7 +2494,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 
   /* turn on motor and lamp power */
   dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
+  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_FALSE); /* XXX STEF */
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
@@ -2639,7 +2636,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   /* turn on motor and lamp power */
   dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
+  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_FALSE);
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
@@ -4184,14 +4181,6 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 	((dev->model->ld_shift_b * dev->settings.yres) /
 	 dev->motor.base_ydpi);
 
-      /* TODO find an explanation for this special case */
-      /*if(dev->model->motor_type == MOTOR_HP2300 && dev->settings.yres>dev->motor.base_ydpi)
-	{
-          ccd_shift[0] *= 2;
-          ccd_shift[1] *= 2;
-          ccd_shift[2] *= 2;
-	}*/
-
       ccd_shift[3] = ccd_shift[0] + dev->current_setup.stagger;
       ccd_shift[4] = ccd_shift[1] + dev->current_setup.stagger;
       ccd_shift[5] = ccd_shift[2] + dev->current_setup.stagger;
@@ -4804,8 +4793,6 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SOURCE].size = max_string_size (source_list);
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
   s->val[OPT_SOURCE].s = strdup ("Flatbed");
-  /*  status = gt68xx_device_get_ta_status (s->dev, &has_ta);
-     if (status != SANE_STATUS_GOOD || !has_ta) */
   DISABLE (OPT_SOURCE);
 
   /* preview */
@@ -5026,8 +5013,8 @@ init_options (Genesys_Scanner * s)
 
   /* SANE_NAME_FILE is not for buttons */
   s->opt[OPT_FILE_SW].name = "file";
-  s->opt[OPT_FILE_SW].title = "File button";
-  s->opt[OPT_FILE_SW].desc = "File button";
+  s->opt[OPT_FILE_SW].title = SANE_I18N("File button");
+  s->opt[OPT_FILE_SW].desc = SANE_I18N("File button");
   s->opt[OPT_FILE_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_FILE_SW].unit = SANE_UNIT_NONE;
   if (model->buttons & GENESYS_HAS_FILE_SW) 
@@ -5079,8 +5066,8 @@ init_options (Genesys_Scanner * s)
 
   /* OCR button */
   s->opt[OPT_OCR_SW].name = "ocr";
-  s->opt[OPT_OCR_SW].title = "OCR button";
-  s->opt[OPT_OCR_SW].desc = "OCR button";
+  s->opt[OPT_OCR_SW].title = SANE_I18N("OCR button");
+  s->opt[OPT_OCR_SW].desc = SANE_I18N("OCR button");
   s->opt[OPT_OCR_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_OCR_SW].unit = SANE_UNIT_NONE;
   if (model->buttons & GENESYS_HAS_OCR_SW)
@@ -5093,8 +5080,8 @@ init_options (Genesys_Scanner * s)
 
   /* power button */
   s->opt[OPT_POWER_SW].name = "power";
-  s->opt[OPT_POWER_SW].title = "Power button";
-  s->opt[OPT_POWER_SW].desc = "Power button";
+  s->opt[OPT_POWER_SW].title = SANE_I18N("Power button");
+  s->opt[OPT_POWER_SW].desc = SANE_I18N("Power button");
   s->opt[OPT_POWER_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_POWER_SW].unit = SANE_UNIT_NONE;
   if (model->buttons & GENESYS_HAS_POWER_SW)
@@ -5105,15 +5092,21 @@ init_options (Genesys_Scanner * s)
   s->val[OPT_POWER_SW].b = 0;
   s->last_val[OPT_POWER_SW].b = 0;
 
+  /* button group */
+  s->opt[OPT_BUTTON_GROUP].name = "Buttons";
+  s->opt[OPT_BUTTON_GROUP].title = SANE_I18N("Buttons");
+  s->opt[OPT_BUTTON_GROUP].desc = SANE_I18N("Buttons");
+  s->opt[OPT_BUTTON_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_BUTTON_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
   /* calibrate button */
   s->opt[OPT_CALIBRATE].name = "calibrate";
-  s->opt[OPT_CALIBRATE].title = "Calibrate button";
-  s->opt[OPT_CALIBRATE].desc = "Start calibration using special sheet";
-  s->opt[OPT_CALIBRATE].type = SANE_TYPE_BOOL;
+  s->opt[OPT_CALIBRATE].title = SANE_I18N("Calibrate");
+  s->opt[OPT_CALIBRATE].desc = SANE_I18N("Start calibration using special sheet");
+  s->opt[OPT_CALIBRATE].type = SANE_TYPE_BUTTON;
   s->opt[OPT_CALIBRATE].unit = SANE_UNIT_NONE;
   if (model->buttons & GENESYS_HAS_CALIBRATE)
-    s->opt[OPT_CALIBRATE].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT
-      | SANE_CAP_ADVANCED | SANE_CAP_AUTOMATIC;
+    s->opt[OPT_CALIBRATE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED | SANE_CAP_AUTOMATIC;
   else
     s->opt[OPT_CALIBRATE].cap = SANE_CAP_INACTIVE;
   s->val[OPT_CALIBRATE].b = 0;
@@ -5645,7 +5638,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 	  table[i] = s->dev->sensor.blue_gamma_table[i];
 	}
       break;
-      /* buttons */
+      /* sensors */
     case OPT_SCAN_SW:
     case OPT_FILE_SW:
     case OPT_EMAIL_SW:
@@ -5657,6 +5650,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       *(SANE_Bool *) val = s->val[option].b;
       s->last_val[option].b = *(SANE_Bool *) val;
       break;
+      /* button */
     default:
       DBG (DBG_warn, "get_option_value: can't get unknown option %d\n",
 	   option);
@@ -5853,6 +5847,9 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	{
 	  s->dev->sensor.blue_gamma_table[i] = table[i];
 	}
+      break;
+    case OPT_CALIBRATE:
+      /* TODO call for calibration using special sheet here */
       break;
 
     default:

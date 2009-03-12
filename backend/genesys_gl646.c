@@ -1283,10 +1283,10 @@ gl646_setup_registers (Genesys_Device * dev,
     }
 
   /* vfinal=(exposure/(1200/dpi))/step_type */
-  DBG (DBG_info, "XXX STEF XXX vfinal=%d, vend1=%d\n",
+  /* DBG (DBG_info, "XXX STEF XXX vfinal=%d, vend1=%d\n",
        (sensor->exposure * sensor->xdpi) / ((1 << motor->steptype) *
 					    dev->sensor.optical_res),
-       motor->vend1);
+       motor->vend1);*/
 
   /* half_ccd if manual clock programming or dpi is half dpiset */
   half_ccd = sensor->half_ccd;
@@ -1358,7 +1358,10 @@ gl646_setup_registers (Genesys_Device * dev,
     regs[reg_0x01].value &= ~REG01_FASTMOD;
 
   /* allow moving when buffer full by default */
-  dev->reg[reg_0x02].value &= ~REG02_ACDCDIS;
+  if (dev->model->is_sheetfed == SANE_FALSE)
+  	dev->reg[reg_0x02].value &= ~REG02_ACDCDIS;
+  else
+  	dev->reg[reg_0x02].value |= REG02_ACDCDIS;
 
   /* setup motor power */
   regs[reg_0x02].value |= REG02_MTRPWR;
@@ -1542,15 +1545,25 @@ gl646_setup_registers (Genesys_Device * dev,
   /* but head has moved due to shading calibration => y_position_in_steps */
   if (feedl > 0)
     {
-      /* TODO clean up this when I'll fully understand
+      /* TODO clean up this when I'll fully understand.
        * for now, special casing each motor */
       switch (dev->model->motor_type)
 	{
 	case MOTOR_5345:
-	  if (motor->steptype != QUATER_STEP)
-	    feedl = feedl - motor->steps1;
-	  else
-	    feedl = feedl + 110;	/* 90 < */
+	  switch (motor->ydpi)
+	    {
+	    case 400:		/* 32 steps at 1/2 */
+	      feedl += 255;	/* 255-32 < */
+	      break;
+	    case 600:
+	      break;
+	    case 1200:
+	      break;
+	    case 2400:
+	      break;
+	    default:		/* 255 steps at half steps */
+	      break;
+	    }
 	  break;
 	case MOTOR_HP2300:
 	  switch (motor->ydpi)
@@ -1591,13 +1604,6 @@ gl646_setup_registers (Genesys_Device * dev,
 	feedl = 0;
     }
 
-  /* round move distance according to dummy lines */
-  /* XXX STEF XXX if (dev->model->is_cis == SANE_FALSE)
-   * it is for backtracking
-   {
-   dummy = regs[reg_0x1e].value & 0x0f;
-   move = ((move + dummy) / (dummy + 1)) * (dummy + 1);
-   } */
   DBG (DBG_info, "gl646_setup_registers: final move=%d\n", feedl);
   gl646_set_triple_reg (regs, REG_FEEDL, feedl);
 
@@ -2691,6 +2697,8 @@ gl646_detect_document_end (Genesys_Device * dev)
   /* test for document presence */
   RIE (sanei_genesys_get_status (dev, &val));
   DBG (DBG_info, "gl646_detect_document_end: status=0x%02x\n", val);
+  status = gl646_gpio_read (dev->dn, &val);
+  DBG (DBG_info, "gl646_detect_document_end: GPIO=0x%02x\n", val);
 
   /* sheetfed scanner uses home sensor as paper present */
   if ((dev->document == SANE_TRUE) && (val & REG41_HOMESNR))
@@ -2736,7 +2744,6 @@ gl646_detect_document_end (Genesys_Device * dev)
 	      dev->read_bytes_left = bytes_to_flush;
 	    }
 	}
-      return SANE_STATUS_GOOD;
     }
   DBG (DBG_proc, "gl646_detect_document_end: end\n");
 
@@ -2746,7 +2753,7 @@ gl646_detect_document_end (Genesys_Device * dev)
 /**
  * eject document from the feeder
  * currently only used by XP200
- * TODO we currently rely on AGOHOME not being set for shetfed scanners,
+ * TODO we currently rely on AGOHOME not being set for sheetfed scanners,
  * maybe check this flag in eject to let the document being eject automaticaly
  */
 static SANE_Status
@@ -2892,6 +2899,7 @@ gl646_eject_document (Genesys_Device * dev)
   do
     {
       status = sanei_genesys_get_status (dev, &val);
+      print_status (val);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3381,7 +3389,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   dev->reg[reg_0x01].value &= ~REG01_DVDSET;
   dev->reg[reg_0x02].value |= REG02_ACDCDIS;	/* ease backtracking */
   dev->reg[reg_0x02].value &= ~(REG02_FASTFED | REG02_AGOHOME);
-  dev->reg[reg_0x02].value &= ~REG02_MTRPWR;
+  gl646_set_motor_power (dev->reg, SANE_FALSE);
 
   /* TODO another flag to setup regs ? */
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
@@ -4102,10 +4110,6 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   /* don't enable gamma correction for this scan */
   dev->reg[reg_0x05].value &= ~REG05_GMMENB;
 
-  /* copy reg to calib_reg */
-  /* XXX STEF XXX memcpy (local_reg, dev->reg,
-     GENESYS_GL646_MAX_REGS * sizeof (Genesys_Register_Set)); */
-
   /* turn off motor during this scan */
   gl646_set_motor_power (local_reg, SANE_FALSE);
 
@@ -4570,11 +4574,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   /* wait for buffers to be filled */
   do
     {
-      /* XXX STEF XXX  status = sanei_genesys_get_status (dev, &val);
-         read_triple_reg (dev, REG_SCANCNT, &lines);
-         print_status (val); */
       RIE (sanei_genesys_test_buffer_empty (dev, &empty));
-      /* XXX STEF XXX usleep (10000UL); */
     }
   while (empty);
 
@@ -4597,7 +4597,6 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	   "simple_scan: failed to end scan: %s\n", sane_strstatus (status));
       return status;
     }
-  /* XXX STEF XXX usleep (50000UL); */
 
   DBG (DBG_proc, "simple_scan: end\n");
   return status;

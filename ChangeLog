@@ -1,4 +1,11 @@
 2009-03-09 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
+	  backend/genesys_gl646.c doc/descriptions/lexmark.desc: cleanups
+	  for genesys backend. Change in document detection for gl646
+	  sheetfed scanners.
+	  - lexmark backend description update
+
+2009-03-09 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c:
 	1200 dpi scan fix and head positionning fixes
 

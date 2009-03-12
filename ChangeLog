@@ -1,5 +1,9 @@
 2009-03-12  Ilia Sotnikov <hostcc@gmail.com>
 	* frontend/saned.c:
+	* Allow host checking to proceed if no local name was found
+
+2009-03-12  Ilia Sotnikov <hostcc@gmail.com>
+	* frontend/saned.c:
 	* Use hstrerror (h_errno) instead of strerror(errno) on gethostbyname()
 	  errors
 

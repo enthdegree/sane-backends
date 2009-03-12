@@ -1169,7 +1169,7 @@ check_host (int fd)
   if (!he)
     {
       DBG (DBG_ERR, "check_host: gethostbyname failed: %s\n",
-	   strerror (errno));
+	   hstrerror (h_errno));
       return SANE_STATUS_INVAL;
     }
   DBG (DBG_DBG, "check_host: local hostname (from DNS): %s\n",
@@ -1275,7 +1275,7 @@ check_host (int fd)
 		    {
 		      DBG (DBG_DBG, 
 			   "check_host: gethostbyname for `%s' failed: %s\n",
-			   config_line, strerror (errno));
+			   config_line, hstrerror (h_errno));
 		      DBG (DBG_MSG, "check_host: entry isn't an IP address "
 			   "and can't be found in DNS\n");
 		      continue;

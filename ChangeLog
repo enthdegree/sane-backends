@@ -1,6 +1,7 @@
 2009-03-13 Julien Blache <jb@jblache.org>
 	* doc/descriptions-external/epkowa.desc: update for iScan 2.18.0,
 	from Olaf Meeuwissen.
+	* frontend/saned.c: rework Ilia's changes in check_host().
 
 2009-03-12  Ilia Sotnikov <hostcc@gmail.com>
 	* frontend/saned.c:

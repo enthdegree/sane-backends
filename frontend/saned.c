@@ -867,12 +867,14 @@ check_host (int fd)
 
   res = NULL;
   err = getaddrinfo (hostname, NULL, &hints, &res);
-  /* Proceed if no local name was found */
-  if (err && err != EAI_NONAME)
+  if (err)
     {
-      DBG (DBG_ERR, "check_host: getaddrinfo failed: %s\n",
+      DBG (DBG_ERR, "check_host: getaddrinfo for local hostname failed: %s\n",
 	   gai_strerror (err));
-      return SANE_STATUS_INVAL;
+
+      /* Proceed even if the local hostname does not resolve */
+      if (err != EAI_NONAME)
+	return SANE_STATUS_INVAL;
     }
   else
     {
@@ -1168,41 +1170,45 @@ check_host (int fd)
 
   /* Get local address */
   he = gethostbyname (hostname);
-  /* Proceed if no local name was found */
-  if (!he && h_errno != HOST_NOT_FOUND)
-    {
-      DBG (DBG_ERR, "check_host: gethostbyname failed: %s\n",
-	   hstrerror (h_errno));
-      return SANE_STATUS_INVAL;
-    }
 
-  if (he)
-    DBG (DBG_DBG, "check_host: local hostname (from DNS): %s\n",
-	 he->h_name);
-  
-  if (he && ((he->h_length == 4) || he->h_addrtype == AF_INET))
+  if (!he)
     {
-      if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
-		      sizeof (text_addr)))
-	strcpy (text_addr, "[error]");
-      DBG (DBG_DBG, "check_host: local host address (from DNS): %s\n",
-	   text_addr);
-      if (memcmp (he->h_addr_list[0], &remote_address.s_addr, 4) == 0)   
-	{
-	  DBG (DBG_MSG, 
-	       "check_host: remote host has same addr as local: "
-	       "access accepted\n");
-	  return SANE_STATUS_GOOD;
-	}
+      DBG (DBG_ERR, "check_host: gethostbyname for local hostname failed: %s\n",
+	   hstrerror (h_errno));
+
+      /* Proceed even if the local hostname doesn't resolve */
+      if (h_errno != HOST_NOT_FOUND)
+	return SANE_STATUS_INVAL;
     }
   else
     {
-      DBG (DBG_ERR, "check_host: can't get local address "
-	   "(only IPv4 is supported)\n");
-    }
+      DBG (DBG_DBG, "check_host: local hostname (from DNS): %s\n",
+	   he->h_name);
+  
+      if ((he->h_length == 4) || (he->h_addrtype == AF_INET))
+	{
+	  if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
+			  sizeof (text_addr)))
+	    strcpy (text_addr, "[error]");
+	  DBG (DBG_DBG, "check_host: local host address (from DNS): %s\n",
+	       text_addr);
+	  if (memcmp (he->h_addr_list[0], &remote_address.s_addr, 4) == 0)   
+	    {
+	      DBG (DBG_MSG, 
+		   "check_host: remote host has same addr as local: "
+		   "access accepted\n");
+	      return SANE_STATUS_GOOD;
+	    }
+	}
+      else
+	{
+	  DBG (DBG_ERR, "check_host: can't get local address "
+	       "(only IPv4 is supported)\n");
+	}
 
-  DBG (DBG_DBG, 
-       "check_host: remote host doesn't have same addr as local\n");
+      DBG (DBG_DBG,
+	   "check_host: remote host doesn't have same addr as local\n");
+    }
 
   /* must be a remote host: check contents of PATH_NET_CONFIG or
      /etc/hosts.equiv if former doesn't exist: */

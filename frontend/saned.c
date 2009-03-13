@@ -865,7 +865,6 @@ check_host (int fd)
   hints.ai_family = PF_INET;
 #endif /* ENABLE_IPV6 */
 
-  res = NULL;
   err = getaddrinfo (hostname, NULL, &hints, &res);
   if (err)
     {

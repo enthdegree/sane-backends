@@ -2674,18 +2674,95 @@ read_config (void)
 
 #ifdef SANED_USES_AF_INDEP
 static void
+do_bindings_family (int family, int *nfds, struct pollfd **fds, struct addrinfo *res)
+{
+  struct addrinfo *resp;
+  struct pollfd *fdp;
+  short sane_port;
+  int fd = -1;
+  int on = 1;
+  int i;
+
+  fdp = *fds;
+
+  for (resp = res, i = 0; resp != NULL; resp = resp->ai_next, i++)
+    {
+      /* We're not interested */
+      if (resp->ai_family != family)
+	continue;
+
+      if (resp->ai_family == AF_INET)
+	{
+	  sane_port = ntohs (((struct sockaddr_in *) resp->ai_addr)->sin_port);
+	}
+#ifdef ENABLE_IPV6
+      else if (resp->ai_family == AF_INET6)
+	{
+	  sane_port = ntohs (((struct sockaddr_in6 *) resp->ai_addr)->sin6_port);
+	}
+#endif /* ENABLE_IPV6 */
+      else
+	continue;
+
+      DBG (DBG_DBG, "do_bindings: [%d] socket () using IPv%d\n", i, (family == AF_INET) ? 4 : 6);
+      if ((fd = socket (resp->ai_family, SOCK_STREAM, 0)) < 0)
+	{
+	  DBG (DBG_ERR, "do_bindings: [%d] socket failed: %s\n", i, strerror (errno));
+
+	  continue;
+	}
+
+      DBG (DBG_DBG, "do_bindings: [%d] setsockopt ()\n", i);
+      if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)))
+	DBG (DBG_ERR, "do_bindings: [%d] failed to put socket in SO_REUSEADDR mode (%s)\n", i, strerror (errno));
+
+
+      DBG (DBG_DBG, "do_bindings: [%d] bind () to port %d\n", i, sane_port);
+      if (bind (fd, resp->ai_addr, resp->ai_addrlen) < 0)
+	{
+	  /*
+	   * Binding a socket may fail with EADDRINUSE if we already bound
+	   * to an IPv6 addr returned by getaddrinfo (usually the first ones)
+	   * and we're trying to bind to an IPv4 addr now.
+	   * It can also fail because we're trying to bind an IPv6 socket and IPv6
+	   * is not functional on this machine.
+	   * In any case, a bind() call returning an error is not necessarily fatal.
+	   */
+	  DBG (DBG_WARN, "do_bindings: [%d] bind failed: %s\n", i, strerror (errno));
+
+	  close (fd);
+
+	  continue;
+	}
+
+      DBG (DBG_DBG, "do_bindings: [%d] listen ()\n", i);
+      if (listen (fd, 1) < 0)
+	{
+	  DBG (DBG_ERR, "do_bindings: [%d] listen failed: %s\n", i, strerror (errno));
+
+	  close (fd);
+
+	  continue;
+	}
+
+      fdp->fd = fd;
+      fdp->events = POLLIN;
+
+      (*nfds)++;
+      fdp++;
+    }
+
+  *fds = fdp;
+}
+
+static void
 do_bindings (int *nfds, struct pollfd **fds)
 {
   struct addrinfo *res;
   struct addrinfo *resp;
   struct addrinfo hints;
-  struct pollfd *fdp = NULL;
+  struct pollfd *fdp;
   int err;
-  int i;
-  short sane_port;
-  int family;
-  int fd = -1;
-  int on = 1;
 
   DBG (DBG_DBG, "do_bindings: trying to get port for service \"%s\" (getaddrinfo)\n", SANED_SERVICE_NAME);
 
@@ -2721,77 +2798,14 @@ do_bindings (int *nfds, struct pollfd **fds)
       bail_out (1);
     }
 
-  for (resp = res, i = 0, fdp = *fds; resp != NULL; resp = resp->ai_next, i++, fdp++)
-    {
-      if (resp->ai_family == AF_INET)
-	{
-	  family = 4;
-	  sane_port = ntohs (((struct sockaddr_in *) resp->ai_addr)->sin_port);
-	}
+  fdp = *fds;
+  *nfds = 0;
+
+  /* bind IPv6 first, IPv4 second */
 #ifdef ENABLE_IPV6
-      else if (resp->ai_family == AF_INET6)
-	{
-	  family = 6;
-	  sane_port = ntohs (((struct sockaddr_in6 *) resp->ai_addr)->sin6_port);
-	}
-#endif /* ENABLE_IPV6 */
-      else
-	{
-	  fdp--;
-	  (*nfds)--;
-	  continue;
-	}
-
-      DBG (DBG_DBG, "do_bindings: [%d] socket () using IPv%d\n", i, family);
-      if ((fd = socket (resp->ai_family, SOCK_STREAM, 0)) < 0)
-	{
-	  DBG (DBG_ERR, "do_bindings: [%d] socket failed: %s\n", i, strerror (errno));
-
-	  fdp--;
-	  (*nfds)--;
-	  continue;
-	}
-
-      DBG (DBG_DBG, "do_bindings: [%d] setsockopt ()\n", i);
-      if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)))
-	DBG (DBG_ERR, "do_bindings: [%d] failed to put socket in SO_REUSEADDR mode (%s)\n", i, strerror (errno));
-
-
-      DBG (DBG_DBG, "do_bindings: [%d] bind () to port %d\n", i, sane_port);
-      if (bind (fd, resp->ai_addr, resp->ai_addrlen) < 0)
-	{
-	  /*
-	   * Binding a socket may fail with EADDRINUSE if we already bound
-	   * to an IPv6 addr returned by getaddrinfo (usually the first ones)
-	   * and we're trying to bind to an IPv4 addr now.
-	   * It can also fail because we're trying to bind an IPv6 socket and IPv6
-	   * is not functional on this machine.
-	   * In any case, a bind() call returning an error is not necessarily fatal.
-	   */
-	  DBG (DBG_WARN, "do_bindings: [%d] bind failed: %s\n", i, strerror (errno));
-
-	  close (fd);
-
-	  fdp--;
-	  (*nfds)--;
-	  continue;
-	}
-
-      DBG (DBG_DBG, "do_bindings: [%d] listen ()\n", i);
-      if (listen (fd, 1) < 0)
-	{
-	  DBG (DBG_ERR, "do_bindings: [%d] listen failed: %s\n", i, strerror (errno));
-
-	  close (fd);
-
-	  fdp--;
-	  (*nfds)--;
-	  continue;
-	}
-
-      fdp->fd = fd;
-      fdp->events = POLLIN;
-    }
+  do_bindings_family (AF_INET6, nfds, &fdp, res);
+#endif
+  do_bindings_family (AF_INET, nfds, &fdp, res);
 
   resp = NULL;
   freeaddrinfo (res);

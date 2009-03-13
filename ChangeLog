@@ -1,3 +1,8 @@
+2009-03-13  Ilia Sotnikov <hostcc@gmail.com>
+	* frontend/saned.c:
+	- Remove unnecessary 'res' variable assignment in check_host()
+	  (AF-indep version)
+
 2009-03-13 Julien Blache <jb@jblache.org>
 	* doc/descriptions-external/epkowa.desc: update for iScan 2.18.0,
 	from Olaf Meeuwissen.

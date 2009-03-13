@@ -1981,6 +1981,12 @@ clean_string (char *c)
   while (*c != '\0')
     {
 
+      /*limit to printable ASCII only*/
+      if(*c < 0x20 || *c > 0x7e){
+        c++;
+        continue;
+      }
+
       switch (*c)
 	{
 	case '<':
@@ -1988,12 +1994,6 @@ clean_string (char *c)
 	  break;
 	case '>':
 	  aux = strcat (aux, "&gt;");
-	  break;
-	case '¡':
-	  aux = strcat (aux, "!");
-	  break;
-	case '¿':
-	  aux = strcat (aux, "?");
 	  break;
 	case '\'':
 	  aux = strcat (aux, "&apos;");

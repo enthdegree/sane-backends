@@ -1,5 +1,5 @@
 ;;;  epkowa.desc			-*- emacs-lisp -*- (eh, sort of)
-;;;  Copyright (C) 2004--2008  Olaf Meeuwissen
+;;;  Copyright (C) 2004--2009  Olaf Meeuwissen
 ;;;
 ;;;  This file is part of the "Image Scan!" documentation.
 ;;;
@@ -22,8 +22,8 @@
 
 ;;;  This list of devices was compiled from the following sources:
 ;;;
-;;;  * iscan-2.14.0/NEWS
-;;;  * iscan-2.14.0/backend/usb
+;;;  * iscan-2.18.0/NEWS
+;;;  * iscan-2.18.0/backend/usb
 ;;;  * sane-backends/backend/epson_usb.c (CVS 1.18)
 ;;;  * sane-backends/doc/descriptions/epson.desc (CVS 1.26)
 ;;;  * http://www.freecolormanagement.com/sane/supported.html
@@ -38,7 +38,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "2.14.0"
+:version "2.18.0"
 :url     "http://www.avasys.jp/english/linux_e/"
 
 ;:comment "Based on the epson backend of sane-backends-1.0.15."
@@ -248,10 +248,10 @@
 :comment   "network interface not supported"
 
 :model     "ES-H7200"
-:interface "USB"
+:interface "USB Ethernet"
 :usbid     "0x04b8" "0x0138"
 :status    :good
-:comment   "network interface not supported"
+:comment   "network interface supported via DFSG non-free iscan-network package"
 
 :model     "Expression 636"
 :interface "SCSI"
@@ -526,10 +526,10 @@
 :comment   "IEEE1394 untested<br>overseas version of the ES-7000H"
 
 :model     "GT-20000"
-:interface "USB"
+:interface "USB Ethernet"
 :usbid     "0x04b8" "0x0138"
 :status    :good
-:comment   "network interface not supported<br>overseas version of the ES-H7200"
+:comment   "network interface supported via DFSG non-free iscan-network package<br>overseas version of the ES-H7200"
 
 :model     "GT-30000"			; command spec
 :interface "SCSI"
@@ -744,7 +744,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
 :status    :good
-:comment   "all-in-one"
+:comment   "all-in-one<br>overseas version of the PX-401A"
 
 :model     "ME Office 600F"
 :interface "USB"
@@ -842,11 +842,23 @@
 :status    :good
 :comment   "all-in-one<br>PM-A970 with network interface"
 
+:model     "PX-401A"
+:interface "USB"
+:usbid     "0x04b8" "0x0841"
+:status    :good
+:comment   "all-in-one"
+
 :model     "PX-501A"
 :interface "USB"
 :usbid     "0x04b8" "0x084a"
 :status    :good
 :comment   "network interface not supported<br>all-in-one"
+
+:model     "PX-601F"
+:interface "USB"
+:usbid     "0x04b8" "0x0847"
+:status    :good
+:comment   "network interface not supported"
 
 :model     "PX-A550"			; product spec (JP)
 :interface "USB"
@@ -1540,7 +1552,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0847"
 :status    :good
-:comment   "network interface not supported<br>all-in-one"
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-601F"
 
 :model     "Stylus Office TX300F"
 :interface "USB"
@@ -1552,7 +1564,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0847"
 :status    :good
-:comment   "network interface not supported<br>all-in-one"
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-601F"
 
 :model     "Stylus Photo PX700W"
 :interface "USB"
@@ -1714,7 +1726,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
 :status    :good
-:comment   "all-in-one"
+:comment   "all-in-one<br>overseas version of the PX-401A"
 
 :model     "Stylus NX200"
 :interface "USB"
@@ -1738,7 +1750,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
 :status    :good
-:comment   "all-in-one"
+:comment   "all-in-one<br>overseas version of the PX-401A"
 
 :model     "Stylus SX200"
 :interface "USB"
@@ -1768,7 +1780,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0847"
 :status    :good
-:comment   "network interface not supported<br>all-in-one"
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-601F"
 
 :model     "Stylus Scan 2000"
 :interface "USB"
@@ -1786,7 +1798,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
 :status    :good
-:comment   "all-in-one"
+:comment   "all-in-one<br>overseas version of the PX-401A"
 
 :model     "Stylus TX200"
 :interface "USB"
@@ -1822,4 +1834,4 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0847"
 :status    :good
-:comment   "network interface not supported<br>all-in-one"
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-601F"

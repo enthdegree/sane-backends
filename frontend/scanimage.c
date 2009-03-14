@@ -88,7 +88,7 @@ static struct option basic_options[] = {
   {"progress", no_argument, NULL, 'p'},
   {"test", no_argument, NULL, 'T'},
   {"version", no_argument, NULL, 'V'},
-  {"buffer_size", no_argument, NULL, 'B'},
+  {"buffer-size", optional_argument, NULL, 'B'},
   {"batch", optional_argument, NULL, 'b'},
   {"batch-count", required_argument, NULL, OPTION_BATCH_COUNT},
   {"batch-start", required_argument, NULL, OPTION_BATCH_START_AT},
@@ -105,7 +105,7 @@ static struct option basic_options[] = {
 #define OUTPUT_PNM      0
 #define OUTPUT_TIFF     1
 
-#define BASE_OPTSTRING	"d:hi:Lf:nvBVTbp"
+#define BASE_OPTSTRING	"d:hi:Lf:B::nvVTbp"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
 
 static struct option *all_options;
@@ -1718,7 +1718,10 @@ main (int argc, char **argv)
           progress = 1;
 	  break;
 	case 'B':
-	  buffer_size = (1024 * 1024);
+          if (optarg)
+	    buffer_size = 1024 * atoi(optarg);
+          else
+	    buffer_size = (1024 * 1024);
 	  break;
 	case 'T':
 	  test = 1;
@@ -1919,7 +1922,7 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 -T, --test                 test backend thoroughly\n\
 -h, --help                 display this help message and exit\n\
 -v, --verbose              give even more status messages\n\
--B, --buffer-size          change default input buffersize\n\
+-B, --buffer-size=#        change input buffer size (in kB, default 32)\n\
 -V, --version              print version information\n");
     }
 

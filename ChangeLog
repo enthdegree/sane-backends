@@ -1,4 +1,8 @@
 2009-03-13  m. allan noah <kitno455 a t gmail d o t com>
+	* frontend/scanimage.c, doc/scanimage.man: make -B (buffer-size) 
+	selectable, and make long name consistent. (#309672 by Johannes Berg)
+
+2009-03-13  m. allan noah <kitno455 a t gmail d o t com>
 	* tools/sane-desc.c: remove 8859-1 chars from string cleaner,
 	enforce only printable ASCII on output
 

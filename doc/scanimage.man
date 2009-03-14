@@ -28,7 +28,8 @@ scanimage \- scan an image
 .RB [ \-T | \-\-test ]
 .RB [ \-h | \-\-help ]
 .RB [ \-v | \-\-verbose ]
-.RB [ \-B | \-\-buffersize ]
+.RB [ \-B | \-\-buffer-size
+.RI [= size ]]
 .RB [ \-V | \-\-version ]
 .RI [ device\-specific\-options ]
 .SH DESCRIPTION
@@ -252,10 +253,8 @@ level.
 The
 .B \-B
 or
-.B \-\-buffersize
-option changes the input buffersize that
-.B scanimage
-uses from default 32*1024 to 1024*1024 kbytes.
+.B \-\-buffer-size
+changes the input buffer size from 32KB to the number kB specified or 1M.
 .PP
 The
 .B \-V

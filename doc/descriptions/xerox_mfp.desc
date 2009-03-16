@@ -15,6 +15,11 @@
 :url "http://www.office.xerox.com/multifunction-printer/multifunction-under-30ppm/phaser-3200mfp/spec-enus.html"
 :comment "All features of device I know of"
 
+:model "Phaser 6110MFP"
+:interface "USB"
+:usbid "0x0924" "0x3d5d"
+:status :good
+
 :mfg "Dell"
 :url "http://www.dell.com/"
 

@@ -1,3 +1,15 @@
+2009-03-06 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
+	* backend/pixma_bjnp.c backend/pixma_bjnp.h
+	backend/pixma_bjnp_private.h backend/pixma_io_sanei.c:
+	Make bjnp protocol more resilient against packet loss and corruption
+	Changed timeout for all responses to be at least 10 seconds
+	Send all broadcasts for scanner detection 5 times
+	Made sure scanners are added to device list only once
+	Changed device-id for bjnp so it uses scanner hostname/ip-address
+	instead of mac address as this is more human friendly.
+	To make room, use scanner model instead of USB-id (which is bogus
+	for network scanners
+
 2009-03-17  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/desc/gt68xx.desc, backend/gt68xx.conf.in: add NeatReceipts
 	Mobile Scanner (from Kelly Price)

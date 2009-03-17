@@ -65,6 +65,7 @@
 #define BJNP_NO_DEVICES 16	/* max number of open devices */
 #define SCAN_BUF_MAX 65536	/* size of scanner data intermediate buffer */
 #define MAX_SELECT_ATTEMPTS 5   /* max nr of retries on select (EINTR) */
+#define USLEEP_MS 1000          /* sleep for 1 msec */
 
 /* Do not yet use this, it does not work */
 /* #define PIXMA_BJNP_STATUS 1 */
@@ -85,6 +86,7 @@
 /* port numbers */
 typedef enum bjnp_port_e
 {
+  BJNP_PORT_BROADCAST_BASE = 8610,
   BJNP_PORT_PRINT = 8611,
   BJNP_PORT_SCAN = 8612,
   BJNP_PORT_3 = 8613,
@@ -123,7 +125,8 @@ struct BJNP_command
   char BJNP_id[4];		/* string: BJNP */
   uint8_t dev_type;		/* 1 = printer, 2 = scanner */
   uint8_t cmd_code;		/* command code/response code */
-  uint32_t seq_no;		/* sequence number */
+  int16_t unknown1;		/* unknown, always 0? */
+  int16_t seq_no;		/* sequence number */
   uint16_t session_id;		/* session id for printing */
   uint32_t payload_len;		/* length of command buffer */
 } __attribute__ ((__packed__));
@@ -199,6 +202,13 @@ typedef enum bjnp_paper_status_e
   BJNP_PAPER_OUT = 1
 } bjnp_paper_status_t;
 
+typedef enum
+{
+  BJNP_STATUS_GOOD,
+  BJNP_STATUS_INVAL,
+  BJNP_STATUS_ALREADY_ALLOCATED
+} BJNP_Status;
+
 /*
  * Device information for opened devices
  */
@@ -210,7 +220,7 @@ typedef struct device_s
   int fd;			/* file descriptor */
   struct sockaddr_in addr;
   int session_id;		/* session id used in bjnp protocol for TCP packets */
-  uint32_t serial;		/* sequence number of command */
+  int16_t serial;		/* sequence number of command */
   int bjnp_timeout_sec;		/* timeout (seconds) for next command */
   int bjnp_timeout_msec;	/* timeout (msec) for next command */
   size_t scanner_data_left;	/* TCP data left from last read request */

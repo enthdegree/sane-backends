@@ -164,7 +164,7 @@ attach_bjnp (SANE_String_Const devname,  SANE_String_Const makemodel,
   if ((cfg = lookup_scanner(makemodel, pixma_devices)) == (struct pixma_config_t *)NULL)
     return SANE_STATUS_INVAL;
   si->cfg = cfg;
-  sprintf(si->serial, "%04x%04x_%s", (unsigned int) cfg->vid, (unsigned int) cfg->pid, serial);
+  sprintf(si->serial, "%s_%s", cfg->model, serial);
   si -> interface = INT_BJNP;
   si->next = first_scanner;
   first_scanner = si;

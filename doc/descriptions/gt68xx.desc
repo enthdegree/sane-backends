@@ -296,6 +296,12 @@
 :usbid "0x07b3" "0x0412"
 :status :untested
 :comment "Similar to Plustek OpticSlim M12. Please tell us if this scanner works."
+
+:model "Mobile Scanner"
+:interface "USB"
+:usbid "0x07b3" "0x0462"
+:status :basic
+:comment "Similar to Plustek OpticSlim M12."
 ; -----------------------------------------------------------------------------
 
 

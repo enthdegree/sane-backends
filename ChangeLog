@@ -1,3 +1,7 @@
+2009-03-17  m. allan noah <kitno455 a t gmail d o t com>
+	* doc/desc/gt68xx.desc, backend/gt68xx.conf.in: add NeatReceipts
+	Mobile Scanner (from Kelly Price)
+
 2009-03-13  m. allan noah <kitno455 a t gmail d o t com>
 	* frontend/scanimage.c, doc/scanimage.man: make -B (buffer-size) 
 	selectable, and make long name consistent. (#309672 by Johannes Berg)

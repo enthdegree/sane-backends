@@ -189,6 +189,10 @@ usb 0x07b3 0x0412
 #model "Scanalizer Professional 2.5"
 
 ##############################################################################
+# Autodetect NeatReceipts Mobile Scanner
+usb 0x07b3 0x0462
+
+##############################################################################
 # Autodetect Plustek OpticSlim 1200
 usb 0x07b3 0x0413
 

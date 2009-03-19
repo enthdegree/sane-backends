@@ -1307,6 +1307,107 @@ static Genesys_Model visioneer_roadwarrior_model = {
   400
 };
 
+static Genesys_Model syscan_docketport_465_model = {
+  "syscan-docketport-465",		/* Name */
+  "Syscan",				/* Device vendor string */
+  "DocketPORT 465",			/* Device model name */
+  GENESYS_GL841,
+  NULL,
+
+  {600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (220.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (511),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (16.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_TRUE,			/* Is this a sheetfed scanner? */
+  CCD_ROADWARRIOR,
+  DAC_WOLFSON_XP300,
+  GPO_DP665,
+  MOTOR_ROADWARRIOR,
+  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_NO_CALIBRATION
+    | GENESYS_FLAG_UNTESTED,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
+  300,
+  400
+};
+
+static Genesys_Model visioneer_xp100_r3_model = {
+  "visioneer-xp100-revision3",		/* Name */
+  "Visioneer",				/* Device vendor string */
+  "XP100 Revision 3",			/* Device model name */
+  GENESYS_GL841,
+  NULL,
+
+  {600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (220.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (511),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (16.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_TRUE,			/* Is this a sheetfed scanner? */
+  CCD_ROADWARRIOR,
+  DAC_WOLFSON_XP300,
+  GPO_DP665,
+  MOTOR_ROADWARRIOR,
+  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_NO_CALIBRATION,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
+  300,
+  400
+};
+
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x0638, 0x0a10, &umax_astra_4500_model},
   {0x04a9, 0x2213, &canon_lide_50_model},
@@ -1321,5 +1422,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a7, 0x0474, &visioneer_xp300_model},
   {0x0a82, 0x4803, &syscan_docketport_665_model},
   {0x04a7, 0x0494, &visioneer_roadwarrior_model},
+  {0x0a82, 0x4802, &syscan_docketport_465_model},
+  {0x04a7, 0x049b, &visioneer_xp100_r3_model},
   {0, 0, NULL}
 };

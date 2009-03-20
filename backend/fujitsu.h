@@ -78,7 +78,6 @@ enum fujitsu_Option
   OPT_DUPLEX_OFFSET,
   OPT_GREEN_OFFSET,
   OPT_BLUE_OFFSET,
-  OPT_USE_SWAPFILE,
 
   OPT_ENDORSER_GROUP,
   OPT_ENDORSER,
@@ -510,7 +509,6 @@ struct fujitsu
   int bytes_tx[2];
 
   unsigned char * buffers[2];
-  int fds[2];
 
   /* --------------------------------------------------------------------- */
   /* values used by the compression functions, esp. jpeg with duplex       */

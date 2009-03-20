@@ -6,7 +6,7 @@
    Copyright (C) 2000 Randolph Bentson
    Copyright (C) 2001 Frederik Ramm
    Copyright (C) 2001-2004 Oliver Schirrmeister
-   Copyright (C) 2003-2008 m. allan noah
+   Copyright (C) 2003-2009 m. allan noah
 
    JPEG output support funded by Archivista GmbH, www.archivista.ch
    Endorser support funded by O A S Oilfield Accounting Service Ltd, www.oas.ca
@@ -417,10 +417,12 @@
          - deactivate double feed options if df-action == default
       v88 2009-01-21, MAN
          - dont export private symbols
-      v89 2009-03-20, MAN
+      v89 2009-02-20, MAN
          - fi-4750 returns random garbage to serial number queries
-      v90 2009-03-23, MAN
+      v90 2009-02-23, MAN
          - added ScanSnap S510M usb ids
+      v91 2009-03-20, MAN
+         - remove unused temp file code
 
    SANE FLOW DIAGRAM
 
@@ -481,7 +483,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 90
+#define BUILD 91
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -902,8 +904,6 @@ attach_one (const char *device_name, int connType)
   /* connect the fd */
   s->connection = connType;
   s->fd = -1;
-  s->fds[0] = -1;
-  s->fds[1] = -1;
   ret = connect_fd(s);
   if(ret != SANE_STATUS_GOOD){
     free (s);
@@ -3542,19 +3542,6 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
   
-  if(option==OPT_USE_SWAPFILE){
-    opt->name = "swapfile";
-    opt->title = "Swap file";
-    opt->desc = "Save memory by buffering data in a temp file";
-    opt->type = SANE_TYPE_BOOL;
-    opt->unit = SANE_UNIT_NONE;
-    opt->constraint_type = SANE_CONSTRAINT_NONE;
-    /*if(s->has_duplex)
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-    else*/
-      opt->cap = SANE_CAP_INACTIVE;
-  }
-
   /* "Endorser" group ------------------------------------------------------ */
   if(option==OPT_ENDORSER_GROUP){
     opt->name = "endorser-options";
@@ -4431,10 +4418,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->blue_offset;
           return SANE_STATUS_GOOD;
 
-        case OPT_USE_SWAPFILE:
-          *val_p = s->use_temp_file;
-          return SANE_STATUS_GOOD;
-
         /* Endorser Group */
         case OPT_ENDORSER:
           *val_p = s->u_endorser;
@@ -5026,10 +5009,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_BLUE_OFFSET:
           s->blue_offset = val_c;
-          return SANE_STATUS_GOOD;
-
-        case OPT_USE_SWAPFILE:
-          s->use_temp_file = val_c;
           return SANE_STATUS_GOOD;
 
         /* Endorser Group */
@@ -6184,15 +6163,7 @@ scanner_control_ric (struct fujitsu *s, int bytes, int side)
 }
 
 /*
- * Creates a temporary file, opens it, and stores file pointer for it.
- * OR, callocs a buffer to hold the scan data
- * 
- * Will only create a file that
- * doesn't exist already. The function will also unlink ("delete") the file
- * immediately after it is created. In any "sane" programming environment this
- * has the effect that the file can be used for reading and writing as normal
- * but vanishes as soon as it's closed - so no cleanup required if the 
- * process dies etc.
+ * callocs a buffer to hold the scan data
  */
 static SANE_Status
 setup_buffers (struct fujitsu *s)
@@ -6202,32 +6173,22 @@ setup_buffers (struct fujitsu *s)
 
   DBG (10, "setup_buffers: start\n");
 
-  /* cleanup existing first */
   for(side=0;side<2;side++){
 
-      /* close old file */
-      if (s->fds[side] != -1) {
-        DBG (15, "setup_buffers: closing old tempfile %d.\n",side);
-        if(close(s->fds[side])){
-          DBG (5, "setup_buffers: attempt to close tempfile %d returned %d.\n", side, errno);
-        }
-        s->fds[side] = -1;
-      }
-    
-      /* free old mem */
-      if (s->buffers[side]) {
-        DBG (15, "setup_buffers: free buffer %d.\n",side);
-        free(s->buffers[side]);
-        s->buffers[side] = NULL;
-      }
+    /* free old mem */
+    if (s->buffers[side]) {
+      DBG (15, "setup_buffers: free buffer %d.\n",side);
+      free(s->buffers[side]);
+      s->buffers[side] = NULL;
+    }
 
-      if(s->bytes_tot[side]){
-        s->buffers[side] = calloc (1,s->bytes_tot[side]);
-        if (!s->buffers[side]) {
-          DBG (5, "setup_buffers: Error, no buffer %d.\n",side);
-          return SANE_STATUS_NO_MEM;
-        }
+    if(s->bytes_tot[side]){
+      s->buffers[side] = calloc (1,s->bytes_tot[side]);
+      if (!s->buffers[side]) {
+        DBG (5, "setup_buffers: Error, no buffer %d.\n",side);
+        return SANE_STATUS_NO_MEM;
       }
+    }
   }
 
   DBG (10, "setup_buffers: finish\n");
@@ -7442,7 +7403,7 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
         memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
     }
   
-    /* not using jpeg, colors interlaced, pixels inverted */
+    /* not using jpeg, colors maybe interlaced, pixels maybe inverted */
     else {
 
         /* scanners interlace colors in many different ways */

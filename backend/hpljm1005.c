@@ -45,7 +45,7 @@
    Highly inspired from the epson backend
 */
 
-#define BUILD 0
+#define BUILD 1
 
 #include  "../include/sane/config.h"
 #include  <math.h>
@@ -181,6 +181,13 @@ static int devlist_count;	/* Number of element in the list */
  */
 static SANE_Device **devlist = NULL;
 
+/* round() is c99, so we provide our own, though this version wont return -0 */
+static double
+round2(double x)
+{
+    return (double)(x >= 0.0) ? (int)(x+0.5) : (int)(x-0.5);
+}
+
 static void
 update_img_size (struct device_s *dev)
 {
@@ -200,32 +207,32 @@ update_img_size (struct device_s *dev)
   switch (dev->optionw[RES_OFFSET])
     {
     case 75:
-      dev->width = round ((dx / ((double) MAX_X_S)) * 640);
-      dev->height = round ((dy / ((double) MAX_Y_S)) * 880);
+      dev->width = round2 ((dx / ((double) MAX_X_S)) * 640);
+      dev->height = round2 ((dy / ((double) MAX_Y_S)) * 880);
       break;
     case 100:
-      dev->width = round ((dx / ((double) MAX_X_S)) * 848);
-      dev->height = round ((dy / ((double) MAX_Y_S)) * 1180);
+      dev->width = round2 ((dx / ((double) MAX_X_S)) * 848);
+      dev->height = round2 ((dy / ((double) MAX_Y_S)) * 1180);
       break;
     case 150:
-      dev->width = round ((dx / ((double) MAX_X_S)) * 1264);
-      dev->height = round ((dy / ((double) MAX_Y_S)) * 1775);
+      dev->width = round2 ((dx / ((double) MAX_X_S)) * 1264);
+      dev->height = round2 ((dy / ((double) MAX_Y_S)) * 1775);
       break;
     case 200:
-      dev->width = round ((dx / ((double) MAX_X_S)) * 1696);
-      dev->height = round ((dy / ((double) MAX_Y_S)) * 2351);
+      dev->width = round2 ((dx / ((double) MAX_X_S)) * 1696);
+      dev->height = round2 ((dy / ((double) MAX_Y_S)) * 2351);
       break;
     case 300:
-      dev->width = round ((dx / ((double) MAX_X_S)) * 2528);
-      dev->height = round ((dy / ((double) MAX_Y_S)) * 3510);
+      dev->width = round2 ((dx / ((double) MAX_X_S)) * 2528);
+      dev->height = round2 ((dy / ((double) MAX_Y_S)) * 3510);
       break;
     case 600:
-      dev->width = round ((dx / ((double) MAX_X_S)) * 5088);
-      dev->height = round ((dy / ((double) MAX_Y_S)) * 7020);
+      dev->width = round2 ((dx / ((double) MAX_X_S)) * 5088);
+      dev->height = round2 ((dy / ((double) MAX_Y_S)) * 7020);
       break;
     case 1200:
-      dev->width = round ((dx / ((double) MAX_X_S)) * 10208);
-      dev->height = round ((dy / ((double) MAX_Y_S)) * 14025);
+      dev->width = round2 ((dx / ((double) MAX_X_S)) * 10208);
+      dev->height = round2 ((dy / ((double) MAX_Y_S)) * 14025);
       break;
     }
 	
@@ -606,13 +613,13 @@ setvalue (SANE_Handle h, SANE_Int option, void *value, SANE_Int * info)
     {
     case X1_OFFSET:
       dev->optionw[option] = *((SANE_Word *) value);
-      s_unit = (int) round ((dev->optionw[option] / ((double) MAX_X_S))
+      s_unit = (int) round2 ((dev->optionw[option] / ((double) MAX_X_S))
 			    * MAX_X_H);
-      s_unit_2 = (int) round ((dev->optionw[X2_OFFSET] / ((double) MAX_X_S))
+      s_unit_2 = (int) round2 ((dev->optionw[X2_OFFSET] / ((double) MAX_X_S))
 			      * MAX_X_H);
       if (abs (s_unit_2 - s_unit) < MIN_SCAN_ZONE)
 	s_unit = s_unit_2 - MIN_SCAN_ZONE;
-      dev->optionw[option] = round ((s_unit / ((double) MAX_X_H)) * MAX_X_S);
+      dev->optionw[option] = round2 ((s_unit / ((double) MAX_X_H)) * MAX_X_S);
       if (info)
 	*info |= SANE_INFO_INEXACT;
       break;
@@ -622,13 +629,13 @@ setvalue (SANE_Handle h, SANE_Int option, void *value, SANE_Int * info)
       /* convert into "scanner" unit, then back into mm */
       dev->optionw[option] = *((SANE_Word *) value);
 
-      s_unit = (int) round ((dev->optionw[option] / ((double) MAX_X_S))
+      s_unit = (int) round2 ((dev->optionw[option] / ((double) MAX_X_S))
 			    * MAX_X_H);
-      s_unit_2 = (int) round ((dev->optionw[X1_OFFSET] / ((double) MAX_X_S))
+      s_unit_2 = (int) round2 ((dev->optionw[X1_OFFSET] / ((double) MAX_X_S))
 			      * MAX_X_H);
       if (abs (s_unit_2 - s_unit) < MIN_SCAN_ZONE)
 	s_unit = s_unit_2 + MIN_SCAN_ZONE;
-      dev->optionw[option] = round ((s_unit / ((double) MAX_X_H)) * MAX_X_S);
+      dev->optionw[option] = round2 ((s_unit / ((double) MAX_X_H)) * MAX_X_S);
       if (info)
 	*info |= SANE_INFO_INEXACT;
       break;
@@ -636,15 +643,15 @@ setvalue (SANE_Handle h, SANE_Int option, void *value, SANE_Int * info)
       /* Y units */
       dev->optionw[option] = *((SANE_Word *) value);
 
-      s_unit = (int) round ((dev->optionw[option] / ((double) MAX_Y_S))
+      s_unit = (int) round2 ((dev->optionw[option] / ((double) MAX_Y_S))
 			    * MAX_Y_H);
 
-      s_unit_2 = (int) round ((dev->optionw[Y2_OFFSET] / ((double) MAX_Y_S))
+      s_unit_2 = (int) round2 ((dev->optionw[Y2_OFFSET] / ((double) MAX_Y_S))
 			      * MAX_Y_H);
       if (abs (s_unit_2 - s_unit) < MIN_SCAN_ZONE)
 	s_unit = s_unit_2 - MIN_SCAN_ZONE;
 
-      dev->optionw[option] = round ((s_unit / ((double) MAX_Y_H)) * MAX_Y_S);
+      dev->optionw[option] = round2 ((s_unit / ((double) MAX_Y_H)) * MAX_Y_S);
       if (info)
 	*info |= SANE_INFO_INEXACT;
       break;
@@ -652,15 +659,15 @@ setvalue (SANE_Handle h, SANE_Int option, void *value, SANE_Int * info)
       /* Y units */
       dev->optionw[option] = *((SANE_Word *) value);
 
-      s_unit = (int) round ((dev->optionw[option] / ((double) MAX_Y_S))
+      s_unit = (int) round2 ((dev->optionw[option] / ((double) MAX_Y_S))
 			    * MAX_Y_H);
 
-      s_unit_2 = (int) round ((dev->optionw[Y1_OFFSET] / ((double) MAX_Y_S))
+      s_unit_2 = (int) round2 ((dev->optionw[Y1_OFFSET] / ((double) MAX_Y_S))
 			      * MAX_Y_H);
       if (abs (s_unit_2 - s_unit) < MIN_SCAN_ZONE)
 	s_unit = s_unit_2 + MIN_SCAN_ZONE;
 
-      dev->optionw[option] = round ((s_unit / ((double) MAX_Y_H)) * MAX_Y_S);
+      dev->optionw[option] = round2 ((s_unit / ((double) MAX_Y_H)) * MAX_Y_S);
       if (info)
 	*info |= SANE_INFO_INEXACT;
       break;
@@ -768,10 +775,10 @@ send_conf (struct device_s *dev)
   int y1, y2, x1, x2;
   size_t size = 100;
   DBG(100,"Sending configuration packet on device %s\n",dev->devname);
-  y1 = (int) round ((dev->optionw[Y1_OFFSET] / ((double) MAX_Y_S)) * MAX_Y_H);
-  y2 = (int) round ((dev->optionw[Y2_OFFSET] / ((double) MAX_Y_S)) * MAX_Y_H);
-  x1 = (int) round ((dev->optionw[X1_OFFSET] / ((double) MAX_X_S)) * MAX_X_H);
-  x2 = (int) round ((dev->optionw[X2_OFFSET] / ((double) MAX_X_S)) * MAX_X_H);
+  y1 = (int) round2 ((dev->optionw[Y1_OFFSET] / ((double) MAX_Y_S)) * MAX_Y_H);
+  y2 = (int) round2 ((dev->optionw[Y2_OFFSET] / ((double) MAX_Y_S)) * MAX_Y_H);
+  x1 = (int) round2 ((dev->optionw[X1_OFFSET] / ((double) MAX_X_S)) * MAX_X_H);
+  x2 = (int) round2 ((dev->optionw[X2_OFFSET] / ((double) MAX_X_S)) * MAX_X_H);
 
   DBG(100,"\t x1: %d, x2: %d, y1: %d, y2: %d\n",x1, x2, y1, y2);
   DBG(100,"\t brightness: %d, contrast: %d\n", dev->optionw[BRIGH_OFFSET], dev->optionw[CONTR_OFFSET]);
@@ -919,7 +926,7 @@ get_data (struct device_s *dev)
 	  break;
 	case GRAY_LAYER:
 	  DBG(101,"Got gray layer data on device %s\n",dev->devname);
-	  if (dev->write_offset_r + size >= dev->bufs)
+	  if (dev->write_offset_r + (int)size >= dev->bufs)
 	    size = dev->bufs - dev->write_offset_r;
 	  memcpy (dev->buffer + dev->write_offset_r, buffer, size);
 	  dev->write_offset_r += size;

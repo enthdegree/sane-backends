@@ -1,3 +1,6 @@
+2009-03-20  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/hpljm1005.c: use private function instead of round() 
+
 2009-03-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_devices.c, backend/genesys.conf.in:
 	Add basic support for Visioneer XP100 rev 3 and USB IDs for

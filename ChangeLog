@@ -4,6 +4,8 @@
 	calibration
 	* backend/genesys_devices.c, backend/genesys_gl646.c,
 	backend/genesys_gl841.c, backend/genesys_low.h: Remove park_head
+	* backend/genesys_devices.c, backend/genesys_gl841.c: Calculate
+	shading coefficients using maximum input resolution available
 
 2009-03-21  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch]: backend v91

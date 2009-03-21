@@ -2776,7 +2776,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   uint8_t *shading_data;	/*contains 16bit words in little endian */
   uint8_t channels;
   int x, j, o;
-  unsigned int i;
+  unsigned int i, res;
   unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
   unsigned int target_dark, target_bright, br;
 
@@ -3003,33 +3003,61 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     off = (dark_average*bright_target - bright_average*dark_target)/(bright_target - dark_target)
     gain = (bright_target - dark_target)/(bright_average - dark_average)*coeff
  */
+      /* duplicate half-ccd logic */
+      res = dev->settings.xres;
+      if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE) &&
+	  dev->settings.xres <= dev->sensor.optical_res/2)
+	res *= 2;/* scanner is using half-ccd mode */
       /*this should be evenly dividable */
-      avgpixels = dev->sensor.optical_res / genesys_dpiset (dev->calib_reg);
+      avgpixels = dev->sensor.optical_res / res;
+
+/* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
+      if (avgpixels < 6)
+	avgpixels = avgpixels;
+      else if (avgpixels < 8)
+	avgpixels = 6;
+      else if (avgpixels < 10)
+	avgpixels = 8;
+      else if (avgpixels < 12)
+	avgpixels = 10;
+      else if (avgpixels < 15)
+	avgpixels = 12;
+      else
+	avgpixels = 15;
 
       DBG (DBG_info,
 	   "genesys_send_shading_coefficient: averaging over %d pixels\n",
 	   avgpixels);
 
-      for (x = 0; x < pixels_per_line - o; x++)
+      for (x = 0; x <= pixels_per_line - avgpixels; x += avgpixels)
 	{
 
-	  if ((x * avgpixels + o) * 2 * 2 + 3 > words_per_color)
+	  if ((x + o) * 2 * 2 + 3 > words_per_color)
 	    break;
 
 	  for (j = 0; j < channels; j++)
 	    {
 
-	      /* dark data */
-	      dk = dev->dark_average_data[(x + pixels_per_line * j) * 2] |
-		(dev->
-		 dark_average_data[(x + pixels_per_line * j) * 2 + 1] << 8);
-
-	      /* white data */
-	      br = (dev->white_average_data[(x + pixels_per_line * j) * 2]
-		    | (dev->
-		       white_average_data[(x + pixels_per_line * j) * 2 +
-					  1] << 8));
-
+	      dk = 0;
+	      br = 0;
+	      for (i = 0; i < avgpixels; i++)
+		{
+		  /* dark data */
+		  dk += (dev->dark_average_data[(x + i + pixels_per_line * j) * 2] 
+			 | (dev->
+			    dark_average_data[(x + i + pixels_per_line * j) * 2 + 
+					      1] << 8));
+		  
+		  /* white data */
+		  br += (dev->white_average_data[(x + i + pixels_per_line * j) * 2]
+			 | (dev->
+			    white_average_data[(x + i + pixels_per_line * j) * 2 +
+					       1] << 8));
+		}
+	      
+	      br /= avgpixels;
+	      dk /= avgpixels;
+	      
 	      if (br * target_dark > dk * target_bright)
 		val = 0;
 	      else if (dk * target_bright - br * target_dark >
@@ -3040,13 +3068,12 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 		  (dk * target_bright - br * target_dark) / (target_bright -
 							     target_dark);
 
-
-/*fill all pixels, even if only the first one is relevant*/
+/*fill all pixels, even if only the last one is relevant*/
 	      for (i = 0; i < avgpixels; i++)
 		{
-		  shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		  shading_data[(x + o + i) * 2 * 2 +
 			       words_per_color * j] = val & 0xff;
-		  shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		  shading_data[(x + o + i) * 2 * 2 +
 			       words_per_color * j + 1] = val >> 8;
 		}
 
@@ -3057,12 +3084,12 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	      else
 		val = 65535;
 
-/*fill all pixels, even if only the first one is relevant*/
+/*fill all pixels, even if only the last one is relevant*/
 	      for (i = 0; i < avgpixels; i++)
 		{
-		  shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		  shading_data[(x + o + i) * 2 * 2 +
 			       words_per_color * j + 2] = val & 0xff;
-		  shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		  shading_data[(x + o + i) * 2 * 2 +
 			       words_per_color * j + 3] = val >> 8;
 		}
 	    }
@@ -3072,21 +3099,21 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	    {
 	      for (i = 0; i < avgpixels; i++)
 		{
-		  shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		  shading_data[(x + o + i) * 2 * 2 +
 			       words_per_color * j] =
-		    shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		    shading_data[(x + o + i) * 2 * 2 +
 				 words_per_color * 0];
-		  shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		  shading_data[(x + o + i) * 2 * 2 +
 			       words_per_color * j + 1] =
-		    shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		    shading_data[(x + o + i) * 2 * 2 +
 				 words_per_color * 0 + 1];
-		  shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		  shading_data[(x + o + i) * 2 * 2 +
 			       words_per_color * j + 2] =
-		    shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		    shading_data[(x + o + i) * 2 * 2 +
 				 words_per_color * 0 + 2];
-		  shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		  shading_data[(x + o + i) * 2 * 2 +
 			       words_per_color * j + 3] =
-		    shading_data[(x * avgpixels + o + i) * 2 * 2 +
+		    shading_data[(x + o + i) * 2 * 2 +
 				 words_per_color * 0 + 3];
 		}
 	    }

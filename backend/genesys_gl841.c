@@ -4206,7 +4206,8 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_GAMMA |
 /* we don't handle differing shading areas very well */
 /*				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |*/
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
+				 SCAN_FLAG_USE_OPTICAL_RES
       );
 
   if (status != SANE_STATUS_GOOD)

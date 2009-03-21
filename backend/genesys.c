@@ -2636,7 +2636,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   /* turn on motor and lamp power */
   dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_FALSE);
+  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,

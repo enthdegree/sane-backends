@@ -1,4 +1,4 @@
-2009-03-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+2009-03-21  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_devices.c: Enable Motor again for combined
 	dark/bright calibration, fix calculation of pixel number used in
 	calibration

@@ -3396,8 +3396,8 @@ genesys_flatbed_calibration (Genesys_Device * dev)
     }
 
 
-/*y_size * xres? y_size hopefully in inches, then*/
-  pixels_per_line = dev->model->y_size * dev->settings.xres;
+  pixels_per_line = (SANE_UNFIX(dev->model->x_size) * dev->settings.xres) / 
+      MM_PER_INCH;
 
   /* send default shading data */
   status = sanei_genesys_init_shading_data (dev, pixels_per_line);

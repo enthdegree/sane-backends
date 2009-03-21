@@ -1,6 +1,7 @@
 2009-03-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_devices.c: Enable Motor again for combined
-	dark/bright calibration
+	dark/bright calibration, fix calculation of pixel number used in
+	calibration
 
 2009-03-21  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch]: backend v91

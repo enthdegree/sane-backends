@@ -75,8 +75,7 @@
 #define GENESYS_FLAG_UNTESTED     (1 << 0)	/* Print a warning for these scanners */
 #define GENESYS_FLAG_14BIT_GAMMA  (1 << 1)	/* use 14bit Gamma table instead of 12 */
 #define GENESYS_FLAG_LAZY_INIT    (1 << 2)	/* skip extensive ASIC test at init   */
-#define GENESYS_FLAG_USE_PARK     (1 << 3)	/* use genesys_park_head() instead of
-						   genesys_slow_back_home()           */
+/*#define GENESYS_FLAG_UNUSED     (1 << 3)	*/
 #define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/* skip genesys_warmup()              */
 #define GENESYS_FLAG_OFFSET_CALIBRATION   (1 << 5)	/* do offset calibration      */
 #define GENESYS_FLAG_SEARCH_START (1 << 6)	/* do start search beofre scanning    */
@@ -359,9 +358,6 @@ typedef struct Genesys_Command_Set
 
     SANE_Status (*slow_back_home) (Genesys_Device * dev,
 				   SANE_Bool wait_until_home);
-    SANE_Status (*park_head) (Genesys_Device * dev,
-			      Genesys_Register_Set * reg,
-			      SANE_Bool wait_until_home);
 
     SANE_Status (*bulk_write_register) (Genesys_Device * dev,
 					Genesys_Register_Set * reg, 

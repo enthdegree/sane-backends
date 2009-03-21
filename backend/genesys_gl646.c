@@ -305,12 +305,6 @@ gl646_setup_registers (Genesys_Device * dev,
 		       uint32_t linecnt,
 		       uint16_t startx,
 		       uint16_t endx, SANE_Bool color, SANE_Int depth);
-/**
- * this function moves head without scanning, forward, then backward
- * so that the head goes to park position.
- * as a by-product, also check for lock
- */
-static SANE_Status gl646_repark_head (Genesys_Device * dev);
 
 /**
  * Does a simple scan of the area given by the settings. Scanned data
@@ -3227,13 +3221,6 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-gl646_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
-		 SANE_Bool wait_until_home)
-{
-  return gl646_slow_back_home (dev, wait_until_home);
-}
-
 /**
  * Automatically set top-left edge of the scan area by scanning an
  * area at 300 dpi from very top of scanner
@@ -4830,7 +4817,6 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_led_calibration,
 
   gl646_slow_back_home,
-  gl646_park_head,
 
   gl646_bulk_write_register,
   gl646_bulk_write_data,

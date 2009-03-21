@@ -3984,19 +3984,6 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   return SANE_STATUS_GOOD;
 }
 
-/* Moves the slider to the home (top) postion */
-/* relies on the settings given for scan,
-   but disables scan, puts motor in reverse and
-   steps to go before area to 65535 so head will
-   go home */
-static SANE_Status
-gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
-		       SANE_Bool wait_until_home)
-{
-  return gl841_slow_back_home (dev, wait_until_home);
-}
-
-
 /* Automatically set top-left edge of the scan area by scanning a 200x200 pixels
    area at 600 dpi from very top of scanner */
 static SANE_Status
@@ -5561,7 +5548,6 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_led_calibration,
 
   gl841_slow_back_home,
-  gl841_park_head,
 
   gl841_bulk_write_register,
   gl841_bulk_write_data,

@@ -3701,10 +3701,7 @@ genesys_start_scan (Genesys_Device * dev)
 	      return status;
 	    }
 
-	  if (dev->model->flags & GENESYS_FLAG_USE_PARK)
-	    status = dev->model->cmd_set->park_head (dev, dev->reg, 1);
-	  else
-	    status = dev->model->cmd_set->slow_back_home (dev, 1);
+	  status = dev->model->cmd_set->slow_back_home (dev, 1);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
@@ -3719,10 +3716,7 @@ genesys_start_scan (Genesys_Device * dev)
 	  /* Go home */
 	  /* TODO: check we can drop this since we cannot have the
 	     scanner's head wandering here */
-	  if (dev->model->flags & GENESYS_FLAG_USE_PARK)
-	    status = dev->model->cmd_set->park_head (dev, dev->reg, 1);
-	  else
-	    status = dev->model->cmd_set->slow_back_home (dev, 1);
+	  status = dev->model->cmd_set->slow_back_home (dev, 1);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
@@ -6067,10 +6061,7 @@ sane_cancel (SANE_Handle handle)
   /* park head if flatbed scanner */
   if (s->dev->model->is_sheetfed == SANE_FALSE)
     {
-      if (s->dev->model->flags & GENESYS_FLAG_USE_PARK)
-	status = s->dev->model->cmd_set->park_head (s->dev, s->dev->reg, 1);
-      else
-	status = s->dev->model->cmd_set->slow_back_home (s->dev, 1);
+      status = s->dev->model->cmd_set->slow_back_home (s->dev, 1);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,

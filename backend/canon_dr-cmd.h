@@ -11,7 +11,7 @@
 
 #define USB_HEADER_LEN     12
 #define USB_COMMAND_LEN    12
-#define USB_STATUS_LEN     4
+#define USB_STATUS_LEN_MAX 32
 #define USB_STATUS_OFFSET  0
 #define USB_COMMAND_TIME   30000
 #define USB_DATA_TIME      30000
@@ -125,9 +125,9 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define IN_periph_devtype_unknown             0x1f
 #define get_IN_response_format(in)         getbitfield(in + 0x03, 0x07, 0)
 #define IN_recognized                         0x02
-#define get_IN_vendor(in, buf)             strncpy(buf, (char *)in + 0x08, 0x08)
-#define get_IN_product(in, buf)            strncpy(buf, (char *)in + 0x10, 0x010)
-#define get_IN_version(in, buf)            strncpy(buf, (char *)in + 0x20, 0x04)
+#define get_IN_vendor(in, buf)            strncpy(buf, (char *)in + 0x08, 0x08)
+#define get_IN_product(in, buf)           strncpy(buf, (char *)in + 0x10, 0x010)
+#define get_IN_version(in, buf)           strncpy(buf, (char *)in + 0x20, 0x04)
 
 /* the VPD response */
 #define get_IN_page_length(in)             in[0x04]
@@ -339,6 +339,16 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define CANCEL_len                6
 
 /* ==================================================================== */
+/* Coarse Calibration */
+#define COR_CAL_code                0xe1
+#define COR_CAL_len                 10
+
+#define set_CC_xferlen(sb, len)     putnbyte(sb + 0x06, len, 3)
+
+/* the payload */
+#define CC_pay_len                  0x20
+
+/* ==================================================================== */
 /* window descriptor macros for SET_WINDOW and GET_WINDOW */
 
 #define set_WPDB_wdblen(sb, len) putnbyte(sb + 0x06, len, 2)
@@ -358,7 +368,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_WD_Xres(sb, val) putnbyte(sb + 0x02, val, 2)
 #define get_WD_Xres(sb)	getnbyte(sb + 0x02, 2)
 
-  /* 0x04,0x05 - X resolution in dpi */
+  /* 0x04,0x05 - Y resolution in dpi */
 #define set_WD_Yres(sb, val) putnbyte(sb + 0x04, val, 2)
 #define get_WD_Yres(sb)	getnbyte(sb + 0x04, 2)
 
@@ -417,8 +427,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
   /* 0x1d - Reverse image, reserved area, padding type */
 #define set_WD_rif(sb, val)       setbitfield(sb + 0x1d, 1, 7, val)
 #define get_WD_rif(sb)	          getbitfield(sb + 0x1d, 1, 7)
-#define set_WD_reserved(sb, val)  setbitfield(sb + 0x1d, 1, 5, val)
-#define get_WD_reserved(sb)	  getbitfield(sb + 0x1d, 1, 5)
+#define set_WD_reserved(sb, val)  sb[0x1d] = val
+#define get_WD_reserved(sb)	  sb[0x1d]
 
   /* 0x1e,0x1f - Bit ordering */
 #define set_WD_bitorder(sb, val) putnbyte(sb + 0x1e, val, 2)
@@ -444,6 +454,9 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
   /* 0x28-0x2c - vendor unique */
   /* FIXME: more params here? */
+#define set_WD_reserved2(sb, val)  sb[0x2a] = val
+#define get_WD_reserved2(sb)	   sb[0x2a]
+  
 
 /* ==================================================================== */
 

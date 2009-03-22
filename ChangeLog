@@ -1,3 +1,21 @@
+2009-03-21  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v15 thru v18
+	- add byte-oriented duplex interlace code
+	- add RRGGBB color interlace code
+	- add basic support for DR-2580C, DR-2050C, DR-2080C, DR-2510C
+	- add more unknown setwindow bits
+	- add support for 16 byte status packets
+	- clean do_usb_cmd error handling (call reset more often)
+	- set status packet size from config file
+	- rewrite config file parsing to reset options after each scanner
+	- add config options for vendor, model, version
+	- dont call inquiry if those 3 options are set
+	- remove default config file from code
+	- add initial gray deinterlacing code for DR-2510C
+	- rename do_usb_reset to do_usb_clear
+	* doc/descriptions/canon_dr.desc: backend v18, update model status
+	* backend/canon_dr.conf.in: added better comments and new options
+
 2009-03-21  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_devices.c: Enable Motor again for combined
 	dark/bright calibration, fix calculation of pixel number used in

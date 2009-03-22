@@ -129,6 +129,24 @@
       v14 2009-03-07, MAN
          - remove HARD_SELECT from counter (Legitimate, but API violation)
          - attach to CR-series scanners as well
+      v15 2009-03-15, MAN
+         - add byte-oriented duplex interlace code
+         - add RRGGBB color interlace code
+         - add basic support for DR-2580C
+      v16 2009-03-20, MAN
+         - add more unknown setwindow bits
+         - add support for 16 byte status packets
+         - clean do_usb_cmd error handling (call reset more often)
+         - add basic support for DR-2050C, DR-2080C, DR-2510C
+      v17 2009-03-20, MAN
+         - set status packet size from config file
+      v18 2009-03-21, MAN
+         - rewrite config file parsing to reset options after each scanner
+         - add config options for vendor, model, version
+         - dont call inquiry if those 3 options are set
+         - remove default config file from code
+         - add initial gray deinterlacing code for DR-2510C
+         - rename do_usb_reset to do_usb_clear
 
    SANE FLOW DIAGRAM
 
@@ -189,7 +207,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 14
+#define BUILD 18
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -236,7 +254,13 @@ static const char string_Front[] = "Front";
 static const char string_Back[] = "Back";
 
 /* Also set via config file. */
-static int global_buffer_size = 64 * 1024;
+static int global_buffer_size;
+static int global_buffer_size_default = 64 * 1024;
+static int global_status_length;
+static int global_status_length_default = 4;
+static char global_vendor_name[9];
+static char global_model_name[17];
+static char global_version_name[5];
 
 /*
  * used by attach* and sane_get_devices
@@ -330,8 +354,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   sanei_usb_init();
 
-  /* set this to 64K before reading the file */
-  global_buffer_size = 64 * 1024;
+  /* reset globals before reading the file */
+  default_globals();
 
   fp = sanei_config_open (CANON_DR_CONFIG_FILE);
 
@@ -352,13 +376,13 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
           if (*lp == 0)
             continue;
     
-          if ((strncmp ("option", lp, 6) == 0) && isspace (lp[6])) {
+          if (!strncmp ("option", lp, 6) && isspace (lp[6])) {
     
               lp += 6;
               lp = sanei_config_skip_whitespace (lp);
     
-              /* we allow setting buffersize too big */
-              if ((strncmp (lp, "buffer-size", 11) == 0) && isspace (lp[11])) {
+              /* BUFFERSIZE: > 4K */
+              if (!strncmp (lp, "buffer-size", 11) && isspace (lp[11])) {
     
                   int buf;
                   lp += 11;
@@ -366,104 +390,113 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                   buf = atoi (lp);
     
                   if (buf < 4096) {
-                    DBG (5, "sane_get_devices: config option \"buffer-size\" (%d) is < 4096, ignoring!\n", buf);
+                    DBG (5, "sane_get_devices: config option \"buffer-size\" "
+                      "(%d) is < 4096, ignoring!\n", buf);
                     continue;
                   }
     
                   if (buf > 64*1024) {
-                    DBG (5, "sane_get_devices: config option \"buffer-size\" (%d) is > %d, warning!\n", buf, 64*1024);
+                    DBG (5, "sane_get_devices: config option \"buffer-size\" "
+                      "(%d) is > %d, warning!\n", buf, 64*1024);
                   }
     
-                  DBG (15, "sane_get_devices: setting \"buffer-size\" to %d\n", buf);
+                  DBG (15, "sane_get_devices: setting \"buffer-size\" to %d\n",
+                    buf);
+
                   global_buffer_size = buf;
               }
+
+              /* STATUS: we clamp from 1 to 32 */
+              else if (!strncmp (lp, "status-length", 13) && isspace (lp[13])) {
+    
+                  int buf;
+                  lp += 13;
+                  lp = sanei_config_skip_whitespace (lp);
+                  buf = atoi (lp);
+    
+                  if (buf < 1) {
+                    DBG (5, "sane_get_devices: config option \"status-length\" "
+                      "(%d) is < 1, ignoring!\n", buf);
+                    continue;
+                  }
+    
+                  if (buf > 32) {
+                    DBG (5, "sane_get_devices: config option \"status-length\" "
+                      "(%d) is > 32, ignoring!\n", buf);
+                  }
+    
+                  DBG (15, "sane_get_devices: setting \"status-length\" "
+                    "to %d\n", buf);
+
+                  global_status_length = buf;
+              }
+
+              /* VENDOR: we ingest up to 8 bytes */
+              else if (!strncmp (lp, "vendor-name", 11) && isspace (lp[11])) {
+
+                  lp += 11;
+                  lp = sanei_config_skip_whitespace (lp);
+                  strncpy(global_vendor_name, lp, 8);
+                  global_vendor_name[8] = 0;
+    
+                  DBG (15, "sane_get_devices: setting \"vendor-name\" to %s\n",
+                    global_vendor_name);
+              }
+
+              /* MODEL: we ingest up to 16 bytes */
+              else if (!strncmp (lp, "model-name", 10) && isspace (lp[10])) {
+
+                  lp += 10;
+                  lp = sanei_config_skip_whitespace (lp);
+                  strncpy(global_model_name, lp, 16);
+                  global_model_name[16] = 0;
+    
+                  DBG (15, "sane_get_devices: setting \"model-name\" to %s\n",
+                    global_model_name);
+              }
+
+              /* VERSION: we ingest up to 4 bytes */
+              else if (!strncmp (lp, "version-name", 12) && isspace (lp[12])) {
+
+                  lp += 12;
+                  lp = sanei_config_skip_whitespace (lp);
+                  strncpy(global_version_name, lp, 4);
+                  global_version_name[4] = 0;
+    
+                  DBG (15, "sane_get_devices: setting \"version-name\" to %s\n",
+                    global_version_name);
+              }
+
               else {
-                  DBG (5, "sane_get_devices: config option \"%s\" unrecognized - ignored.\n", lp);
+                  DBG (5, "sane_get_devices: config option \"%s\" unrecognized "
+                  "- ignored.\n", lp);
               }
           }
           else if ((strncmp ("usb", lp, 3) == 0) && isspace (lp[3])) {
               DBG (15, "sane_get_devices: looking for '%s'\n", lp);
               sanei_usb_attach_matching_devices(lp, attach_one_usb);
+
+              /* re-default these after reading the usb line */
+              default_globals();
           }
           else if ((strncmp ("scsi", lp, 4) == 0) && isspace (lp[4])) {
               DBG (15, "sane_get_devices: looking for '%s'\n", lp);
               sanei_config_attach_matching_devices (lp, attach_one_scsi);
+
+              /* re-default these after reading the scsi line */
+              default_globals();
           }
           else{
-              DBG (5, "sane_get_devices: config line \"%s\" unrecognized - ignored.\n", lp);
+              DBG (5, "sane_get_devices: config line \"%s\" unrecognized - "
+              "ignored.\n", lp);
           }
       }
       fclose (fp);
   }
 
   else {
-      DBG (5, "sane_get_devices: no config file '%s', using defaults\n", CANON_DR_CONFIG_FILE);
-
-      DBG (15, "sane_get_devices: looking for 'scsi CANON CR'\n");
-      sanei_config_attach_matching_devices ("scsi CANON CR", attach_one_scsi);
-
-      DBG (15, "sane_get_devices: looking for 'scsi CANON DR'\n");
-      sanei_config_attach_matching_devices ("scsi CANON DR", attach_one_scsi);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1601'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x1601", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1602'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x1602", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1603'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x1603", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1604'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x1604", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1606'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x1606", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1607'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x1607", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1608'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x1608", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x1609'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x1609", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x160a'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x160a", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x160b'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x160b", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x160c'\n");
-      sanei_usb_attach_matching_devices("usb 0x1083 0x160c", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x160f'\n");
-      sanei_usb_attach_matching_devices("usb 0x1083 0x160f", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04a9 0x2222'\n");
-      sanei_usb_attach_matching_devices("usb 0x04a9 0x2222", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x1614'\n");
-      sanei_usb_attach_matching_devices("usb 0x1083 0x1614", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x1617'\n");
-      sanei_usb_attach_matching_devices("usb 0x1083 0x1617", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x1618'\n");
-      sanei_usb_attach_matching_devices("usb 0x1083 0x1618", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x161a'\n");
-      sanei_usb_attach_matching_devices("usb 0x1083 0x161a", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x161b'\n");
-      sanei_usb_attach_matching_devices("usb 0x1083 0x161b", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x161d'\n");
-      sanei_usb_attach_matching_devices("usb 0x1083 0x161d", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x1083 0x1620'\n");
-      sanei_usb_attach_matching_devices("usb 0x1083 0x1620", attach_one_usb);
+      DBG (5, "sane_get_devices: missing required config file '%s'!\n",
+        CANON_DR_CONFIG_FILE);
   }
 
   /*delete missing scanners from list*/
@@ -559,8 +592,9 @@ attach_one (const char *device_name, int connType)
   if ((s = calloc (sizeof (*s), 1)) == NULL)
     return SANE_STATUS_NO_MEM;
 
-  /* scsi command/data buffer */
+  /* config file settings */
   s->buffer_size = global_buffer_size;
+  s->status_length = global_status_length;
 
   /* copy the device name */
   strcpy (s->device_name, device_name);
@@ -568,24 +602,37 @@ attach_one (const char *device_name, int connType)
   /* connect the fd */
   s->connection = connType;
   s->fd = -1;
-  s->fds[0] = -1;
-  s->fds[1] = -1;
   ret = connect_fd(s);
   if(ret != SANE_STATUS_GOOD){
     free (s);
     return ret;
   }
 
-  /* Now query the device to load its vendor/model/version */
-  ret = init_inquire (s);
-  if (ret != SANE_STATUS_GOOD) {
-    disconnect_fd(s);
-    free (s);
-    DBG (5, "attach_one: inquiry failed\n");
-    return ret;
+  /* query the device to load its vendor/model/version, */
+  /* if config file doesn't give all three */
+  if ( !strlen(global_vendor_name)
+    || !strlen(global_model_name)
+    || !strlen(global_version_name)
+  ){
+    ret = init_inquire (s);
+    if (ret != SANE_STATUS_GOOD) {
+      disconnect_fd(s);
+      free (s);
+      DBG (5, "attach_one: inquiry failed\n");
+      return ret;
+    }
   }
 
+  /* override any inquiry settings with those from config file */
+  if(strlen(global_vendor_name))
+    strcpy(s->vendor_name, global_vendor_name);
+  if(strlen(global_model_name))
+    strcpy(s->model_name, global_model_name);
+  if(strlen(global_version_name))
+    strcpy(s->version_name, global_version_name);
+
   /* load detailed specs/capabilities from the device */
+  /* if a model cannot support inquiry vpd, this function will die */
   ret = init_vpd (s);
   if (ret != SANE_STATUS_GOOD) {
     disconnect_fd(s);
@@ -595,7 +642,7 @@ attach_one (const char *device_name, int connType)
   }
 
   /* clean up the scanner struct based on model */
-  /* this is the only piece of model specific code */
+  /* this is the big piece of model specific code */
   ret = init_model (s);
   if (ret != SANE_STATUS_GOOD) {
     disconnect_fd(s);
@@ -692,6 +739,7 @@ connect_fd (struct scanner *s)
     /* first generation usb scanners can get flaky if not closed 
      * properly after last use. very first commands sent to device 
      * must be prepared to correct this- see wait_scanner() */
+    sleep(1);
     ret = wait_scanner(s);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "connect_fd: could not wait_scanner\n");
@@ -740,6 +788,7 @@ init_inquire (struct scanner *s)
   );
 
   if (ret != SANE_STATUS_GOOD){
+    DBG (10, "init_inquire: failed: %d\n", ret);
     return ret;
   }
 
@@ -766,14 +815,16 @@ init_inquire (struct scanner *s)
 
   /*check for vendor name*/
   if (strcmp ("CANON", s->vendor_name)) {
-    DBG (5, "The device at '%s' is reported to be made by '%s'\n", s->device_name, s->vendor_name);
+    DBG (5, "The device at '%s' is reported to be made by '%s'\n",
+      s->device_name, s->vendor_name);
     DBG (5, "This backend only supports Canon products.\n");
     return SANE_STATUS_INVAL;
   }
 
   /*check for model name*/
   if (strncmp ("DR", s->model_name, 2) && strncmp ("CR", s->model_name, 2)) {
-    DBG (5, "The device at '%s' is reported to be a '%s'\n", s->device_name, s->model_name);
+    DBG (5, "The device at '%s' is reported to be a '%s'\n",
+      s->device_name, s->model_name);
     DBG (5, "This backend only supports Canon CR & DR-series products.\n");
     return SANE_STATUS_INVAL;
   }
@@ -949,13 +1000,10 @@ init_model (struct scanner *s)
   s->reverse_by_mode[MODE_GRAYSCALE] = 0;
   s->reverse_by_mode[MODE_COLOR] = 0;
 
-  s->can_color = 1;
-  s->has_rif = 0;
+  s->has_counter = 1;
   s->has_adf = 1;
   s->has_duplex = 1;
   s->has_buffer = 1;
-  s->has_back = 0;
-  s->has_comp_JPEG = 0;
 
   s->brightness_steps = 255;
   s->contrast_steps = 255;
@@ -969,16 +1017,42 @@ init_model (struct scanner *s)
   s->max_x_fb = s->max_x;
   s->max_y_fb = s->max_y;
 
-  /* any settings missing from vpd */
+  /* generic settings missing from vpd */
+  if (strstr (s->model_name,"C")){
+    s->can_color = 1;
+  }
+  if (strstr (s->model_name,"DR-1")
+   || strstr (s->model_name,"DR-2")
+  ){
+    s->color_interlace = COLOR_INTERLACE_RRGGBB;
+    s->duplex_interlace = DUPLEX_INTERLACE_BYTE;
+    s->can_halftone = 0;
+    s->can_monochrome = 0;
+    s->has_counter = 0;
+  }
+
+  /* specific settings missing from vpd */
   if (strstr (s->model_name,"DR-9080")){
     s->has_comp_JPEG = 1;
+    s->unknown_byte = 0x20;
+  }
+
+  else if (strstr (s->model_name,"DR-7580")){
+    s->has_comp_JPEG = 1;
+    s->unknown_byte = 0x20;
+  }
+
+  else if (strstr (s->model_name,"DR-2580")){
+    s->invert_tly = 1;
+    s->unknown_byte = 0x10;
     s->has_counter = 1;
   }
 
-  if (strstr (s->model_name,"DR-7580")){
-    s->can_color = 0;
-    s->has_comp_JPEG = 1;
+  else if (strstr (s->model_name,"DR-2510")){
+    s->unknown_byte = 0x10;
+    s->unknown_byte2 = 0x80;
     s->has_counter = 1;
+    s->head_interlace = HEAD_INTERLACE_2510;
   }
 
   DBG (10, "init_model: finish\n");
@@ -2952,15 +3026,7 @@ sane_start (SANE_Handle handle)
 }
 
 /*
- * Creates a temporary file, opens it, and stores file pointer for it.
- * OR, callocs a buffer to hold the scan data
- * 
- * Will only create a file that
- * doesn't exist already. The function will also unlink ("delete") the file
- * immediately after it is created. In any "sane" programming environment this
- * has the effect that the file can be used for reading and writing as normal
- * but vanishes as soon as it's closed - so no cleanup required if the 
- * process dies etc.
+ * callocs a buffer to hold the scan data
  */
 static SANE_Status
 setup_buffers (struct scanner *s)
@@ -2970,32 +3036,22 @@ setup_buffers (struct scanner *s)
 
   DBG (10, "setup_buffers: start\n");
 
-  /* cleanup existing first */
   for(side=0;side<2;side++){
 
-      /* close old file */
-      if (s->fds[side] != -1) {
-        DBG (15, "setup_buffers: closing old tempfile %d.\n",side);
-        if(close(s->fds[side])){
-          DBG (5, "setup_buffers: attempt to close tempfile %d returned %d.\n", side, errno);
-        }
-        s->fds[side] = -1;
-      }
-    
-      /* free old mem */
-      if (s->buffers[side]) {
-        DBG (15, "setup_buffers: free buffer %d.\n",side);
-        free(s->buffers[side]);
-        s->buffers[side] = NULL;
-      }
+    /* free old mem */
+    if (s->buffers[side]) {
+      DBG (15, "setup_buffers: free buffer %d.\n",side);
+      free(s->buffers[side]);
+      s->buffers[side] = NULL;
+    }
 
-      if(s->bytes_tot[side]){
-        s->buffers[side] = calloc (1,s->bytes_tot[side]);
-        if (!s->buffers[side]) {
-          DBG (5, "setup_buffers: Error, no buffer %d.\n",side);
-          return SANE_STATUS_NO_MEM;
-        }
+    if(s->bytes_tot[side]){
+      s->buffers[side] = calloc (1,s->bytes_tot[side]);
+      if (!s->buffers[side]) {
+        DBG (5, "setup_buffers: Error, no buffer %d.\n",side);
+        return SANE_STATUS_NO_MEM;
       }
+    }
   }
 
   DBG (10, "setup_buffers: finish\n");
@@ -3047,8 +3103,13 @@ set_window (struct scanner *s)
 
   /* we have to center the window ourselves */
   set_WD_ULX (desc1, s->tl_x + (s->max_x - s->page_width) / 2);
-
   set_WD_ULY (desc1, s->tl_y);
+
+  /* some models require that the tly value be inverted? */
+  if(s->invert_tly){
+    set_WD_ULY (desc1, ~s->tl_y);
+  }
+
   set_WD_width (desc1, s->params.pixels_per_line * 1200/s->resolution_x);
   set_WD_length (desc1, s->params.lines * 1200/s->resolution_y);
 
@@ -3074,7 +3135,8 @@ set_window (struct scanner *s)
   set_WD_rif (desc1, s->rif);
 
   /*FIXME: what is this? */
-  set_WD_reserved(desc1, 1);
+  set_WD_reserved(desc1, s->unknown_byte);
+  set_WD_reserved2(desc1, s->unknown_byte2);
 
   set_WD_compress_type(desc1, COMP_NONE);
   set_WD_compress_arg(desc1, 0);
@@ -3270,6 +3332,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* alternating pnm interlacing */
   if(s->source == SOURCE_ADF_DUPLEX
+    && s->params.format != SANE_FRAME_JPEG
     && s->duplex_interlace == DUPLEX_INTERLACE_ALT){
 
       /* buffer front side */
@@ -3292,6 +3355,31 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   } /* end alt pnm */
 
+  /* byte-level pnm interlacing */
+  else if(s->source == SOURCE_ADF_DUPLEX
+    && s->params.format != SANE_FRAME_JPEG
+    && s->duplex_interlace == DUPLEX_INTERLACE_BYTE){
+
+      /* buffer both sides */
+      if ( s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
+        || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK]){
+          ret = read_from_scanner_duplex(s);
+          if(ret){
+            DBG(5,"sane_read: front returning %d\n",ret);
+            return ret;
+          }
+
+          /* we have finished reading, clean up */
+          /* grab a bit more so scanner will send eof */
+          if(s->connection == CONNECTION_USB 
+            && s->bytes_tot[SIDE_FRONT] == s->bytes_rx[SIDE_FRONT]
+            && s->bytes_tot[SIDE_BACK] == s->bytes_rx[SIDE_BACK]
+          ){
+            read_from_scanner_duplex(s);
+          }
+      }
+  }
+    
   /* simplex or non-alternating duplex */
   else{
 
@@ -3306,9 +3394,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       /* grab a bit more so scanner will send eof */
       if(s->connection == CONNECTION_USB 
         && s->bytes_rx[s->side] == s->bytes_tot[s->side]
-        && (s->compress != COMP_JPEG
-          || s->mode == MODE_HALFTONE
-          || s->mode == MODE_LINEART)
+        && s->params.format != SANE_FRAME_JPEG
       ){
         read_from_scanner(s, s->side);
       }
@@ -3411,9 +3497,7 @@ read_from_scanner(struct scanner *s, int side)
     }
   
     /* this is jpeg data, we need to fix the missing image size */
-    if(s->compress == COMP_JPEG
-      && (s->mode == MODE_GRAYSCALE || s->mode == MODE_COLOR)
-    ){
+    if(s->params.format == SANE_FRAME_JPEG){
 
       /* look for the SOF header near the beginning */
       if(s->jpeg_stage == JPEG_STAGE_NONE || s->jpeg_ff_offset < 0x0d){
@@ -3458,20 +3542,24 @@ read_from_scanner(struct scanner *s, int side)
             }
         }
       }
-    }
-    /* non-jpeg color, swap bgr to rgb, assumes full lines
-    else if (s->mode == MODE_COLOR){
-        unsigned char temp;
-        for (i=0; i < inLen/3; i++){
-            temp = in[i*3];
-            in[i*3] = in[i*3+2];
-            in[i*3+2] = temp;
-        }
-    }
-		*/
-
-    if(inLen && !extra){
+      if(inLen && !extra){
         copy_buffer (s, in, inLen, side);
+      }
+    }
+
+    /*non-jpeg, scrambled read-heads*/
+    /*FIXME: color and duplex untested */
+    else if(s->head_interlace == HEAD_INTERLACE_2510){
+      if(inLen && !extra){
+        copy_buffer_2510 (s, in, inLen, side);
+      }
+    }
+
+    /*normal data*/
+    else {
+      if(inLen && !extra){
+        copy_buffer (s, in, inLen, side);
+      }
     }
   
     free(in);
@@ -3482,6 +3570,134 @@ read_from_scanner(struct scanner *s, int side)
     }
 
     DBG (10, "read_from_scanner: finish\n");
+  
+    return ret;
+}
+
+/* cheaper scanners interlace duplex scans on a byte basis
+ * this code splits that data into the front/back buffers */
+static SANE_Status
+read_from_scanner_duplex(struct scanner *s)
+{
+    SANE_Status ret=SANE_STATUS_GOOD;
+
+    unsigned char cmd[READ_len];
+    size_t cmdLen = READ_len;
+
+    unsigned char * in;
+    size_t inLen = 0;
+
+    int bytes = s->buffer_size;
+    int remain = s->bytes_tot[SIDE_FRONT]+s->bytes_tot[SIDE_BACK]
+      - (s->bytes_rx[SIDE_FRONT]+s->bytes_rx[SIDE_BACK]);
+    int extra = 0;
+  
+    DBG (10, "read_from_scanner_duplex: start\n");
+  
+    /* figure out the max amount to transfer */
+    if(bytes > remain){
+        bytes = remain;
+    }
+  
+    /* all requests must end on WIDE line boundary */
+    bytes -= (bytes % (s->params.bytes_per_line*2));
+
+    /* these machines always send 1 extra line, and they need to send EOF too
+     * so we ask for 2 lines extra, and throw them away */
+    if(!bytes){
+        DBG(5, "read_from_scanner_duplex: no bytes, asking for two lines\n");
+        bytes = 4 * s->params.bytes_per_line;
+	extra = 1;
+    }
+  
+    DBG(15, "read_from_scanner_duplex: re:%d bu:%d pa:%d\n",
+      remain, s->buffer_size, bytes);
+  
+    inLen = bytes;
+    in = malloc(inLen);
+    if(!in){
+        DBG(5, "read_from_scanner_duplex: not enough mem for buffer: %d\n",(int)inLen);
+        return SANE_STATUS_NO_MEM;
+    }
+  
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, READ_code);
+    set_R_datatype_code (cmd, SR_datatype_image);
+  
+    set_R_xfer_length (cmd, inLen);
+  
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+  
+    if (ret == SANE_STATUS_GOOD) {
+        DBG(15, "read_from_scanner_duplex: got GOOD, returning GOOD\n");
+    }
+    else if (ret == SANE_STATUS_EOF) {
+        DBG(15, "read_from_scanner_duplex: got EOF, finishing\n");
+    }
+    else if (ret == SANE_STATUS_DEVICE_BUSY) {
+        DBG(5, "read_from_scanner_duplex: got BUSY, returning GOOD\n");
+        inLen = 0;
+        ret = SANE_STATUS_GOOD;
+    }
+    else {
+        DBG(5, "read_from_scanner_duplex: error reading data block status = %d\n",ret);
+        inLen = 0;
+    }
+  
+    /* split the data between two buffers
+     * assumes that first byte of buffer is frontside data
+     * and that the buffer starts/ends on a wide line boundary */
+    if(inLen && !extra){
+      size_t i;
+      int j;
+
+      /*frontside, just copy*/
+      for(i=0; i<inLen; i+=2*s->params.bytes_per_line){
+        for(j=0; j<2*s->params.bytes_per_line; j+=2){
+          s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = in[i+j];
+        }
+      }
+
+      /*backside color: channels are in RGB order, but each is mirrored*/
+      if(s->mode == MODE_COLOR){
+        for(i=0; i<inLen; i+=2*s->params.bytes_per_line){
+          for(j=s->params.pixels_per_line; j>0; j--){
+            s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = in[i+j*2-1];
+          }
+          for(j=s->params.pixels_per_line; j>0; j--){
+            s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++]
+              = in[i+2*s->params.pixels_per_line+j*2-1];
+          }
+          for(j=s->params.pixels_per_line; j>0; j--){
+            s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++]
+              = in[i+4*s->params.pixels_per_line+j*2-1];
+          }
+        }
+      }
+      /*backside gray: single mirrored channel*/
+      else{
+        for(i=0; i<inLen; i+=2*s->params.bytes_per_line){
+          for(j=2*s->params.bytes_per_line; j>0; j-=2){
+            s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = in[i+j-1];
+          }
+        }
+      }
+    }
+  
+    free(in);
+  
+    if(ret == SANE_STATUS_EOF){
+      s->bytes_tot[SIDE_FRONT] = s->bytes_rx[SIDE_FRONT];
+      s->bytes_tot[SIDE_BACK] = s->bytes_rx[SIDE_BACK];
+      ret = SANE_STATUS_GOOD;
+    }
+
+    DBG (10, "read_from_scanner_duplex: finish\n");
   
     return ret;
 }
@@ -3497,6 +3713,41 @@ copy_buffer(struct scanner *s, unsigned char * buf, int len, int side)
   s->bytes_rx[side] += len;
 
   DBG (10, "copy_buffer: finish\n");
+
+  return ret;
+}
+
+/* NOTE: this code assumes buffer is scanline aligned */
+static SANE_Status
+copy_buffer_2510(struct scanner *s, unsigned char * buf, int len, int side)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+  int i, j;
+  int bwidth = s->params.bytes_per_line;
+  int twidth = bwidth/3;
+  int qwidth = bwidth/4;
+
+  DBG (10, "copy_buffer_2510: start\n");
+
+  for(i=0; i<len; i+=bwidth){
+
+    /* first head in 'blue' channel, 1/3rd width, mirrored */
+    for(j=0; j<twidth; j++){
+      s->buffers[side][s->bytes_rx[side]++] = buf[i+(twidth-j)*3-1];
+    }
+
+    /* second head in 'red' channel, 1/4 width, mirrored, shifted left */
+    for(j=0;j<qwidth;j++){
+      s->buffers[side][s->bytes_rx[side]++] = buf[i+(qwidth-j)*3-3];
+    }
+
+    /* third head in 'green' channel, 1/3rd width, mirrored */
+    for(j=0;j<twidth;j++){
+      s->buffers[side][s->bytes_rx[side]++] = buf[i+(twidth-j)*3-2];
+    }
+  }
+ 
+  DBG (10, "copy_buffer_2510: finish\n");
 
   return ret;
 }
@@ -3527,12 +3778,60 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf,
         return SANE_STATUS_GOOD;
     }
   
-    memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-    
-    /* invert image if scanner needs it for this mode */
-    if (s->reverse_by_mode[s->mode]){
-        for ( i = 0; i < *len; i++ ) {
-            buf[i] ^= 0xff;
+    /* jpeg data does not use typical interlacing or inverting, just copy */
+    if(s->compress == COMP_JPEG &&
+      (s->mode == MODE_COLOR || s->mode == MODE_GRAYSCALE)){
+        memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
+    }
+
+    /* not using jpeg, colors maybe interlaced, pixels maybe inverted */
+    else {
+
+        /* scanners interlace colors in many different ways */
+        /* use separate code to convert to regular rgb */
+        if(s->mode == MODE_COLOR){
+            int byteOff, lineOff;
+
+            switch (s->color_interlace) {
+
+                /* scanner returns pixel data as bgrbgr... */
+                case COLOR_INTERLACE_BGR:
+                    for (i=0; i < bytes; i++){
+                        byteOff = s->bytes_tx[side] + i;
+                        buf[i] = s->buffers[side][ byteOff-((byteOff%3)-1)*2 ];
+                    }
+                    break;
+
+                /* one line has the following format:
+                 * rrr...rrrggg...gggbbb...bbb */
+                case COLOR_INTERLACE_RRGGBB:
+                    for (i=0; i < bytes; i++){
+                        byteOff = s->bytes_tx[side] + i;
+                        lineOff = byteOff % s->params.bytes_per_line;
+
+                        buf[i] = s->buffers[side][
+                          byteOff - lineOff                       /* line  */
+                          + (lineOff%3)*s->params.pixels_per_line /* color */
+                          + (lineOff/3)                           /* pixel */
+                        ];
+                    }
+                    break;
+
+                default:
+                    memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
+                    break;
+            }
+        }
+        /* gray/ht/binary */
+        else{
+            memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
+        }
+
+        /* invert image if scanner needs it for this mode */
+        if (s->reverse_by_mode[s->mode]){
+            for ( i = 0; i < *len; i++ ) {
+                buf[i] ^= 0xff;
+            }
         }
     }
   
@@ -3676,6 +3975,16 @@ sane_exit (void)
 /*
  * @@ Section 5 - misc helper functions
  */
+static void
+default_globals(void)
+{
+  global_buffer_size = global_buffer_size_default;
+  global_status_length = global_status_length_default;
+  global_vendor_name[0] = 0;
+  global_model_name[0] = 0;
+  global_version_name[0] = 0;
+}
+
 /*
  * Called by the SANE SCSI core and our usb code on device errors
  * parses the request sense return data buffer,
@@ -3947,7 +4256,7 @@ do_cmd(struct scanner *s, int runRS, int shortTime,
     return SANE_STATUS_INVAL;
 }
 
-SANE_Status
+static SANE_Status
 do_scsi_cmd(struct scanner *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
@@ -3997,7 +4306,7 @@ do_scsi_cmd(struct scanner *s, int runRS, int shortTime,
   return ret;
 }
 
-SANE_Status
+static SANE_Status
 do_usb_cmd(struct scanner *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
@@ -4008,13 +4317,13 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
      * so make some local copies */
     size_t usb_cmdLen = USB_HEADER_LEN + USB_COMMAND_LEN;
     size_t usb_outLen = USB_HEADER_LEN + outLen;
-    size_t usb_statLen = USB_STATUS_LEN;
+    size_t usb_statLen = s->status_length;
     size_t askLen = 0;
 
     /*copy the callers buffs into larger, padded ones*/
     unsigned char usb_cmdBuff[USB_HEADER_LEN + USB_COMMAND_LEN];
     unsigned char * usb_outBuff;
-    unsigned char usb_statBuff[USB_STATUS_LEN];
+    unsigned char usb_statBuff[USB_STATUS_LEN_MAX];
 
     int cmdTime = USB_COMMAND_TIME;
     int outTime = USB_DATA_TIME;
@@ -4044,7 +4353,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
     sanei_usb_set_timeout(cmdTime);
 
     /* write the command out */
-    DBG(25, "cmd: writing %lu bytes, timeout %d\n", (u_long)usb_cmdLen,
+    DBG(25, "cmd: writing %d bytes, timeout %d\n", (int)usb_cmdLen,
         cmdTime);
     hexdump(30, "cmd: >>", usb_cmdBuff, usb_cmdLen);
     ret = sanei_usb_write_bulk(s->fd, usb_cmdBuff, &usb_cmdLen);
@@ -4112,88 +4421,72 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
         /* change timeout */
         sanei_usb_set_timeout(inTime);
 
-        DBG(25, "in: reading %lu bytes, timeout %d\n",
-          (unsigned long)askLen, inTime);
+        DBG(25, "in: reading %d bytes, timeout %d\n", (int)askLen, inTime);
 
         ret = sanei_usb_read_bulk(s->fd, inBuff, inLen);
-        DBG(25, "in: retVal %d\n", ret);
+        DBG(25, "in: read %d bytes, retval %d\n", (int)*inLen, ret);
+        hexdump(30, "in: <<", inBuff, *inLen);
 
-        if(ret == SANE_STATUS_EOF){
-            DBG(5,"in: got EOF, clearing\n");
-	    return do_usb_reset(s,runRS);
+        if(!*inLen){
+            DBG(5,"in: got no data, clearing\n");
+	    return do_usb_clear(s,runRS);
         }
-
         if(ret != SANE_STATUS_GOOD){
             DBG(5,"in: return error '%s'\n",sane_strstatus(ret));
             return ret;
         }
-
-        DBG(25, "in: read %lu bytes\n", (unsigned long)*inLen);
-        if(*inLen){
-            hexdump(30, "in: <<", inBuff, *inLen);
-        }
-
-        if(*inLen && *inLen != askLen){
+        if(*inLen != askLen){
             ret = SANE_STATUS_EOF;
-            DBG(5,"in: short read, %lu/%lu\n",
-              (unsigned long)*inLen,(unsigned long)askLen);
+            DBG(5,"in: wrong size, %d/%d\n", (int)*inLen,(int)askLen);
         }
     }
 
     /*gather the scsi status byte. use ret2 instead of ret for status*/
-
-    memset(&usb_statBuff,0,USB_STATUS_LEN);
+    memset(&usb_statBuff,0,USB_STATUS_LEN_MAX);
 
     /* change timeout */
     sanei_usb_set_timeout(statTime);
 
-    DBG(25, "stat: reading %d bytes, timeout %d\n", USB_STATUS_LEN, statTime);
+    DBG(25, "stat: reading %d bytes, timeout %d\n", (int)usb_statLen, statTime);
     ret2 = sanei_usb_read_bulk(s->fd, usb_statBuff, &usb_statLen);
-    hexdump(30, "stat: <<", usb_statBuff, usb_statLen);
     DBG(25, "stat: read %d bytes, retVal %d\n", (int)usb_statLen, ret2);
+    hexdump(30, "stat: <<", usb_statBuff, usb_statLen);
 
-    if(ret2 == SANE_STATUS_EOF){
-        DBG(5,"in: got EOF, clearing\n");
-	return do_usb_reset(s,runRS);
+    if(!usb_statLen){
+        DBG(5,"stat: got no data, clearing\n");
+	return do_usb_clear(s,runRS);
     }
     if(ret2 != SANE_STATUS_GOOD){
         DBG(5,"stat: return error '%s'\n",sane_strstatus(ret2));
         return ret2;
     }
-    if(usb_statLen != USB_STATUS_LEN){
-        DBG(5,"stat: wrong size %d/%d\n", USB_STATUS_LEN, (int)usb_statLen);
+    if(usb_statLen != (size_t)s->status_length){
+        DBG(5,"stat: wrong size %d/%d\n", s->status_length, (int)usb_statLen);
         return SANE_STATUS_IO_ERROR;
     }
 
-    /* busy status
-    if(usb_statBuff[USB_STATUS_OFFSET] == 8){
-        DBG(25,"stat: busy\n");
-        return SANE_STATUS_DEVICE_BUSY;
-    }
-    */
-
-    /* if there is a non-busy status >0, try to figure out why */
-    if(usb_statBuff[USB_STATUS_OFFSET] > 0
-     || usb_statBuff[1] > 0
-     || usb_statBuff[2] > 0
-     || usb_statBuff[3] > 0){
+    /* FIXME: interpret the status fields
+    if(usb_statBuff[0] || usb_statBuff[1] || usb_statBuff[2] || usb_statBuff[3]){
       DBG(25,"stat: bad stat?\n");
       return SANE_STATUS_IO_ERROR;
     }
+     */
 
     DBG (10, "do_usb_cmd: finish\n");
 
     return ret;
 }
 
-SANE_Status
-do_usb_reset(struct scanner *s, int runRS)
+static SANE_Status
+do_usb_clear(struct scanner *s, int runRS)
 {
     SANE_Status ret, ret2;
 
+    DBG (10, "do_usb_clear: start\n");
+
     ret = sanei_usb_clear_halt(s->fd);
     if(ret != SANE_STATUS_GOOD){
-        DBG(5,"do_usb_reset: cant clear halt, returning %d\n", ret);
+        DBG(5,"do_usb_clear: cant clear halt, returning %d\n", ret);
         return ret;
     }
 
@@ -4231,21 +4524,13 @@ do_usb_reset(struct scanner *s, int runRS)
         /* parse the rs data */
         ret2 = sense_handler( 0, rs_in, (void *)s );
 
-        /* this was a short read, but the usb layer did not know
-        if(ret2 == SANE_STATUS_EOF && s->rs_info
-          && inBuff && inLen && inTime){
-            *inLen = askLen - s->rs_info;
-            s->rs_info = 0;
-            DBG(5,"do_usb_cmd: short read via rs, %lu/%lu\n",
-              (unsigned long)*inLen,(unsigned long)askLen);
-        }
-	 */
+        DBG (10, "do_usb_clear: finish after RS\n");
         return ret2;
     }
 
-    DBG (10, "do_usb_reset: finish\n");
+    DBG (10, "do_usb_clear: finish with io error\n");
 
-    return ret;
+    return SANE_STATUS_IO_ERROR;
 }
 
 static SANE_Status

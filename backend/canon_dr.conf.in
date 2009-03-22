@@ -1,11 +1,29 @@
-# NOTE: any 'option' lines only apply to
-# scanners discovered later in this file
+#######################################################################
+# NOTE: 'option' lines only apply to the devices found by
+# the NEXT 'usb' or 'scsi' line. You may repeat the option line if 
+# required for multiple scanners of different models/connections.
 
-# to set data buffer size, in bytes
-# the value ranges from 4096 - infinity
-# but you may have scanning problems with
-# a value larger than 65536 (the default)
-option buffer-size 65536
+#######################################################################
+# Some machines are incapable of providing basic inquiry info, and will
+# lock up if asked for it. The driver will not ask for this info if all
+# three of these options are provided. They should NOT be used unless
+# you know for sure that your machine requires it.
+# NOTE: the vendor and model must be correct. The version need not.
+#option vendor-name   CANON
+#option model-name    DR-2050C
+#option version-name  XXXX
+
+#######################################################################
+# Set data buffer size, in bytes. The value ranges from 4096 - infinity
+# but you may have scanning problems with a value larger than default (64k)
+#option buffer-size 65536
+
+#######################################################################
+# Most scanners use a 4 byte status, but some use 16
+#option status-length 4
+
+#######################################################################
+# SCSI scanners:
 
 # To search for any CANON scsi device, if name starts with 'CR' or 'DR'
 scsi CANON CR
@@ -13,6 +31,9 @@ scsi CANON DR
 
 # To use a specific scsi device
 #scsi /dev/sg1
+
+#######################################################################
+# USB scanners:
 
 # For Canon scanners connected via USB on a known device (kernel driver):
 #usb /dev/usb/scanner0
@@ -22,9 +43,13 @@ scsi CANON DR
 
 # NOTE: if you have to add your device here- please send the id and model
 # to the author via email, so it can be included in next version. kitno455 at
-# gmail dot com - with Fujitsu in the subject line
+# gmail dot com - with canon_dr in the subject line
 
-# DR-2080C
+# DR-2080C (uses weird protocol)
+option vendor-name   CANON
+option model-name    DR-2080C
+option version-name  XXXX
+option status-length 16
 usb 0x04a9 0x1601
 
 # CR-180
@@ -48,7 +73,11 @@ usb 0x04a9 0x1608
 # DR-3080CII
 usb 0x04a9 0x1609
 
-# DR-2050C/SP
+# DR-2050C/SP (uses weird protocol)
+option vendor-name   CANON
+option model-name    DR-2050C
+option version-name  XXXX
+option status-length 16
 usb 0x04a9 0x160a
 
 # DR-7580

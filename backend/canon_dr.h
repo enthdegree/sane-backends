@@ -112,6 +112,7 @@ struct scanner
   int max_x_basic;
   int max_y_basic;
 
+  /*FIXME: 4 more unknown values here*/
   int can_grayscale;
   int can_halftone;
   int can_monochrome;
@@ -143,8 +144,15 @@ struct scanner
   int has_comp_JPEG;
   int has_buffer;
 
+  int invert_tly;       /* weird bug in some smaller scanners */
+  int unknown_byte;     /* weird byte, required, meaning unknown */
+  int unknown_byte2;    /* weird byte, required, meaning unknown */
+  size_t status_length;    /* usually 4, sometimes 16 */
+
   int color_interlace;  /* different models interlace colors differently     */
   int duplex_interlace; /* different models interlace sides differently      */
+  int head_interlace;   /* different models interlace heads differently      */
+  int jpeg_interlace;   /* different models interlace jpeg sides differently */
 
   int reverse_by_mode[6]; /* mode specific */
 
@@ -264,7 +272,6 @@ struct scanner
   int bytes_tx[2];
 
   unsigned char * buffers[2];
-  int fds[2];
 
   /* --------------------------------------------------------------------- */
   /* values used by the command and data sending functions (scsi/usb)      */
@@ -321,16 +328,22 @@ enum {
 #define COLOR_WHITE 1
 #define COLOR_BLACK 2
 
-#define COLOR_INTERLACE_UNK 0
-#define COLOR_INTERLACE_RGB 1
-#define COLOR_INTERLACE_BGR 2
-#define COLOR_INTERLACE_RRGGBB 3
+#define HEAD_INTERLACE_NONE 0
+#define HEAD_INTERLACE_2510 1
 
-#define DUPLEX_INTERLACE_NONE 0 
-#define DUPLEX_INTERLACE_ALT 1 
+#define COLOR_INTERLACE_RGB 0
+#define COLOR_INTERLACE_BGR 1
+#define COLOR_INTERLACE_RRGGBB 2
 
-#define CROP_RELATIVE 0 
-#define CROP_ABSOLUTE 1 
+#define DUPLEX_INTERLACE_NONE 0
+#define DUPLEX_INTERLACE_ALT 1
+#define DUPLEX_INTERLACE_BYTE 2
+
+#define JPEG_INTERLACE_ALT 0 
+#define JPEG_INTERLACE_NONE 1 
+
+#define CROP_RELATIVE 0
+#define CROP_ABSOLUTE 1
 
 /* ------------------------------------------------------------------------- */
 
@@ -428,7 +441,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
  unsigned char * inBuff, size_t * inLen
 );
 
-static SANE_Status do_usb_reset(struct scanner *s, int runRS);
+static SANE_Status do_usb_clear(struct scanner *s, int runRS);
 
 static SANE_Status wait_scanner (struct scanner *s);
 
@@ -451,14 +464,17 @@ static SANE_Status start_scan (struct scanner *s);
 static SANE_Status cancel(struct scanner *s);
 
 static SANE_Status read_from_scanner(struct scanner *s, int side);
+static SANE_Status read_from_scanner_duplex(struct scanner *s);
 
 static SANE_Status copy_buffer(struct scanner *s, unsigned char * buf, int len, int side);
+static SANE_Status copy_buffer_2510(struct scanner *s, unsigned char * buf, int len, int side);
 
 static SANE_Status read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 
 static SANE_Status setup_buffers (struct scanner *s);
 
 static void hexdump (int level, char *comment, unsigned char *p, int l);
+static void default_globals (void);
 
 static size_t maxStringSize (const SANE_String_Const strings[]);
 

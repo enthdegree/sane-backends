@@ -11,7 +11,7 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/" 
-:version "13"                    ; version of backend
+:version "18"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "New backend as of SANE release 1.1.0, testers needed, see manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -62,8 +62,8 @@
 :model "DR-2050C"
 :interface "USB"
 :usbid "0x04a9" "0x160a"
-:status :untested
-:comment "Please test!"
+:status :basic
+:comment ""
 
 :model "DR-2050SP"
 :interface "USB"
@@ -74,20 +74,20 @@
 :model "DR-2080C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1601"
-:status :untested
-:comment "Please test!"
+:status :basic
+:comment ""
 
 :model "DR-2510C"
 :interface "USB"
 :usbid "0x1083" "0x1617"
-:status :untested
-:comment "Please test!"
+:status :basic
+:comment "Only simplex gray works, requires user to always scan full-width."
 
 :model "DR-2580C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1608"
-:status :untested
-:comment "Please test!"
+:status :basic
+:comment "Gray and color, simplex and duplex working. Poor calibration."
 
 :model "DR-3010C"
 :interface "USB"
@@ -125,7 +125,7 @@
 :interface "USB"
 :usbid "0x1083" "0x1614"
 :status :good
-:comment ""
+:comment "Multistream unsupported"
 
 :model "DR4080U"
 :interface "USB"

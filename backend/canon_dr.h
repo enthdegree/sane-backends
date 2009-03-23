@@ -147,7 +147,8 @@ struct scanner
   int invert_tly;       /* weird bug in some smaller scanners */
   int unknown_byte;     /* weird byte, required, meaning unknown */
   int unknown_byte2;    /* weird byte, required, meaning unknown */
-  size_t status_length;    /* usually 4, sometimes 16 */
+  size_t status_length; /* usually 4, sometimes 16 */
+  int fixed_width;      /* sometime machines always scan full width */
 
   int color_interlace;  /* different models interlace colors differently     */
   int duplex_interlace; /* different models interlace sides differently      */

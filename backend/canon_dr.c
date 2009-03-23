@@ -147,6 +147,9 @@
          - remove default config file from code
          - add initial gray deinterlacing code for DR-2510C
          - rename do_usb_reset to do_usb_clear
+      v19 2009-03-22, MAN
+         - pad gray deinterlacing area for DR-2510C
+         - override tl_x and br_x for fixed width scanners
 
    SANE FLOW DIAGRAM
 
@@ -207,7 +210,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 18
+#define BUILD 19
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1053,6 +1056,7 @@ init_model (struct scanner *s)
     s->unknown_byte2 = 0x80;
     s->has_counter = 1;
     s->head_interlace = HEAD_INTERLACE_2510;
+    s->fixed_width = 1;
   }
 
   DBG (10, "init_model: finish\n");
@@ -2792,8 +2796,16 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
         /* this backend only sends single frame images */
         params->last_frame = 1;
 
-        params->pixels_per_line
-	  = s->resolution_x * (s->br_x - s->tl_x) / 1200;
+        /* dumb scanner, always scans full width */
+        /*FIXME: move this elsewhere*/
+        if(s->fixed_width){
+          s->tl_x = 0;
+          params->pixels_per_line = s->max_x * s->resolution_x / 1200;
+        }
+        else{
+          params->pixels_per_line
+	    = (s->br_x - s->tl_x) * s->resolution_x / 1200;
+        }
   
         params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
 
@@ -3069,7 +3081,7 @@ set_window (struct scanner *s)
   SANE_Status ret = SANE_STATUS_GOOD;
 
   /* The command specifies the number of bytes in the data phase 
-   * the data phase has a header, followed by 1 or 2 window desc blocks 
+   * the data phase has a header, followed by 1 window desc block 
    * the header specifies the number of bytes in 1 window desc block
    */
 
@@ -3102,13 +3114,13 @@ set_window (struct scanner *s)
   set_WD_Yres (desc1, s->resolution_y);
 
   /* we have to center the window ourselves */
-  set_WD_ULX (desc1, s->tl_x + (s->max_x - s->page_width) / 2);
-  set_WD_ULY (desc1, s->tl_y);
+  set_WD_ULX (desc1, (s->max_x - s->page_width) / 2 + s->tl_x);
 
   /* some models require that the tly value be inverted? */
-  if(s->invert_tly){
+  if(s->invert_tly)
     set_WD_ULY (desc1, ~s->tl_y);
-  }
+  else
+    set_WD_ULY (desc1, s->tl_y);
 
   set_WD_width (desc1, s->params.pixels_per_line * 1200/s->resolution_x);
   set_WD_length (desc1, s->params.lines * 1200/s->resolution_y);
@@ -3744,6 +3756,11 @@ copy_buffer_2510(struct scanner *s, unsigned char * buf, int len, int side)
     /* third head in 'green' channel, 1/3rd width, mirrored */
     for(j=0;j<twidth;j++){
       s->buffers[side][s->bytes_rx[side]++] = buf[i+(twidth-j)*3-2];
+    }
+
+    /* pad remainder (1/12th) with black */
+    for(j=0;j<bwidth/12;j++){
+      s->buffers[side][s->bytes_rx[side]++] = 0;
     }
   }
  

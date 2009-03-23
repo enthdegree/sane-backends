@@ -1,3 +1,9 @@
+2009-03-22  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch]: backend v19
+	- pad gray deinterlacing area for DR-2510C
+	- override tl_x and br_x for fixed width scanners
+	* doc/descriptions/canon_dr.desc: backend v19, update comments
+
 2009-03-21  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v15 thru v18
 	- add byte-oriented duplex interlace code

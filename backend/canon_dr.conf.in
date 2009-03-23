@@ -19,8 +19,8 @@
 #option buffer-size 65536
 
 #######################################################################
-# Most scanners use a 4 byte status, but some use 16
-#option status-length 4
+# Most scanners dont pad their reads
+#option padded-read 0
 
 #######################################################################
 # SCSI scanners:
@@ -46,10 +46,10 @@ scsi CANON DR
 # gmail dot com - with canon_dr in the subject line
 
 # DR-2080C (uses weird protocol)
-option vendor-name   CANON
-option model-name    DR-2080C
-option version-name  XXXX
-option status-length 16
+option vendor-name  CANON
+option model-name   DR-2080C
+option version-name XXXX
+option padded-read  1
 usb 0x04a9 0x1601
 
 # CR-180
@@ -74,10 +74,10 @@ usb 0x04a9 0x1608
 usb 0x04a9 0x1609
 
 # DR-2050C/SP (uses weird protocol)
-option vendor-name   CANON
-option model-name    DR-2050C
-option version-name  XXXX
-option status-length 16
+option vendor-name  CANON
+option model-name   DR-2050C
+option version-name XXXX
+option padded-read  1
 usb 0x04a9 0x160a
 
 # DR-7580

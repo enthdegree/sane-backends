@@ -150,6 +150,12 @@
       v19 2009-03-22, MAN
          - pad gray deinterlacing area for DR-2510C
          - override tl_x and br_x for fixed width scanners
+      v20 2009-03-23, MAN
+         - improved macros for inquiry and set window
+         - shorten inquiry vpd length to match windows driver
+         - remove status-length config option
+         - add padded-read config option
+         - rewrite do_usb_cmd to pad reads and calloc/copy buffers
 
    SANE FLOW DIAGRAM
 
@@ -210,7 +216,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 19
+#define BUILD 20
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -259,8 +265,8 @@ static const char string_Back[] = "Back";
 /* Also set via config file. */
 static int global_buffer_size;
 static int global_buffer_size_default = 64 * 1024;
-static int global_status_length;
-static int global_status_length_default = 4;
+static int global_padded_read;
+static int global_padded_read_default = 0;
 static char global_vendor_name[9];
 static char global_model_name[17];
 static char global_version_name[5];
@@ -409,29 +415,29 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                   global_buffer_size = buf;
               }
 
-              /* STATUS: we clamp from 1 to 32 */
-              else if (!strncmp (lp, "status-length", 13) && isspace (lp[13])) {
+              /* PADDED READ: we clamp to 0 or 1 */
+              else if (!strncmp (lp, "padded-read", 11) && isspace (lp[11])) {
     
                   int buf;
-                  lp += 13;
+                  lp += 11;
                   lp = sanei_config_skip_whitespace (lp);
                   buf = atoi (lp);
     
-                  if (buf < 1) {
-                    DBG (5, "sane_get_devices: config option \"status-length\" "
-                      "(%d) is < 1, ignoring!\n", buf);
+                  if (buf < 0) {
+                    DBG (5, "sane_get_devices: config option \"padded-read\" "
+                      "(%d) is < 0, ignoring!\n", buf);
                     continue;
                   }
     
-                  if (buf > 32) {
-                    DBG (5, "sane_get_devices: config option \"status-length\" "
-                      "(%d) is > 32, ignoring!\n", buf);
+                  if (buf > 1) {
+                    DBG (5, "sane_get_devices: config option \"padded-read\" "
+                      "(%d) is > 1, ignoring!\n", buf);
                   }
     
-                  DBG (15, "sane_get_devices: setting \"status-length\" "
-                    "to %d\n", buf);
+                  DBG (15, "sane_get_devices: setting \"padded-read\" to %d\n",
+                    buf);
 
-                  global_status_length = buf;
+                  global_padded_read = buf;
               }
 
               /* VENDOR: we ingest up to 8 bytes */
@@ -597,7 +603,7 @@ attach_one (const char *device_name, int connType)
 
   /* config file settings */
   s->buffer_size = global_buffer_size;
-  s->status_length = global_status_length;
+  s->padded_read = global_padded_read;
 
   /* copy the device name */
   strcpy (s->device_name, device_name);
@@ -958,10 +964,10 @@ init_vpd (struct scanner *s)
       s->max_y_basic = get_IN_window_length(in);
       DBG(15, "  max length: %2.2f inches\n",(float)s->max_y_basic/s->basic_y_res);
 
-      DBG (15, "  unknown7: %d\n", get_IN_unknown7(in));
-      DBG (15, "  unknown6: %d\n", get_IN_unknown6(in));
-      DBG (15, "  unknown5: %d\n", get_IN_unknown5(in));
-      DBG (15, "  unknown4: %d\n", get_IN_unknown4(in));
+      DBG (15, "  AWD: %d\n", get_IN_awd(in));
+      DBG (15, "  CE Emphasis: %d\n", get_IN_ce_emphasis(in));
+      DBG (15, "  C Emphasis: %d\n", get_IN_c_emphasis(in));
+      DBG (15, "  High quality: %d\n", get_IN_high_quality(in));
 
       /* known modes */
       s->can_grayscale = get_IN_multilevel (in);
@@ -1035,24 +1041,20 @@ init_model (struct scanner *s)
   }
 
   /* specific settings missing from vpd */
-  if (strstr (s->model_name,"DR-9080")){
+  if (strstr (s->model_name,"DR-9080")
+    || strstr (s->model_name,"DR-7580")){
     s->has_comp_JPEG = 1;
-    s->unknown_byte = 0x20;
-  }
-
-  else if (strstr (s->model_name,"DR-7580")){
-    s->has_comp_JPEG = 1;
-    s->unknown_byte = 0x20;
+    s->rgb_format = 2;
   }
 
   else if (strstr (s->model_name,"DR-2580")){
     s->invert_tly = 1;
-    s->unknown_byte = 0x10;
+    s->rgb_format = 1;
     s->has_counter = 1;
   }
 
   else if (strstr (s->model_name,"DR-2510")){
-    s->unknown_byte = 0x10;
+    s->rgb_format = 1;
     s->unknown_byte2 = 0x80;
     s->has_counter = 1;
     s->head_interlace = HEAD_INTERLACE_2510;
@@ -3145,9 +3147,10 @@ set_window (struct scanner *s)
   }
 
   set_WD_rif (desc1, s->rif);
+  set_WD_rgb(desc1, s->rgb_format);
+  set_WD_padding(desc1, s->padding);
 
   /*FIXME: what is this? */
-  set_WD_reserved(desc1, s->unknown_byte);
   set_WD_reserved2(desc1, s->unknown_byte2);
 
   set_WD_compress_type(desc1, COMP_NONE);
@@ -3996,7 +3999,7 @@ static void
 default_globals(void)
 {
   global_buffer_size = global_buffer_size_default;
-  global_status_length = global_status_length_default;
+  global_padded_read = global_padded_read_default;
   global_vendor_name[0] = 0;
   global_model_name[0] = 0;
   global_version_name[0] = 0;
@@ -4330,164 +4333,216 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
  unsigned char * inBuff, size_t * inLen
 )
 {
-    /*sanei_usb overwrites the transfer size,
-     * so make some local copies */
-    size_t usb_cmdLen = USB_HEADER_LEN + USB_COMMAND_LEN;
-    size_t usb_outLen = USB_HEADER_LEN + outLen;
-    size_t usb_statLen = s->status_length;
-    size_t askLen = 0;
-
-    /*copy the callers buffs into larger, padded ones*/
-    unsigned char usb_cmdBuff[USB_HEADER_LEN + USB_COMMAND_LEN];
-    unsigned char * usb_outBuff;
-    unsigned char usb_statBuff[USB_STATUS_LEN_MAX];
-
-    int cmdTime = USB_COMMAND_TIME;
-    int outTime = USB_DATA_TIME;
-    int inTime = USB_DATA_TIME;
-    int statTime = USB_STATUS_TIME;
+    size_t offset;
+    size_t length;
+    size_t actual;
+    unsigned char * buffer;
+    int timeout;
 
     int ret = 0;
     int ret2 = 0;
 
     DBG (10, "do_usb_cmd: start\n");
 
-    if(shortTime){
-        cmdTime = USB_COMMAND_TIME/60;
-        outTime = USB_DATA_TIME/60;
-        inTime = USB_DATA_TIME/60;
-        statTime = USB_STATUS_TIME/60;
-    }
+    /****************************************************************/
+    /* the command stage */
+    {
+      offset = USB_HEADER_LEN;
+      length = offset+USB_COMMAND_LEN;
+      actual = length;
+      timeout = USB_COMMAND_TIME;
 
-    /* build a USB packet around the SCSI command */
-    memset(&usb_cmdBuff,0,usb_cmdLen);
-    usb_cmdBuff[3] = usb_cmdLen-4;
-    usb_cmdBuff[5] = 1;
-    usb_cmdBuff[6] = 0x90;
-    memcpy(usb_cmdBuff+USB_HEADER_LEN,cmdBuff,cmdLen);
+      /* change timeout */
+      if(shortTime)
+        timeout/=60;
+      sanei_usb_set_timeout(timeout);
 
-    /* change timeout */
-    sanei_usb_set_timeout(cmdTime);
-
-    /* write the command out */
-    DBG(25, "cmd: writing %d bytes, timeout %d\n", (int)usb_cmdLen,
-        cmdTime);
-    hexdump(30, "cmd: >>", usb_cmdBuff, usb_cmdLen);
-    ret = sanei_usb_write_bulk(s->fd, usb_cmdBuff, &usb_cmdLen);
-    DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)usb_cmdLen, ret);
-
-    if(ret == SANE_STATUS_EOF){
-        DBG(5,"cmd: got EOF, returning IO_ERROR\n");
+      /* build buffer */
+      buffer = calloc(length,1);
+      if(!buffer){
+        DBG(5,"cmd: no mem\n");
         return SANE_STATUS_IO_ERROR;
-    }
-    if(ret != SANE_STATUS_GOOD){
-        DBG(5,"cmd: return error '%s'\n",sane_strstatus(ret));
+      }
+  
+      /* build a USB packet around the SCSI command */
+      buffer[3] = length-4;
+      buffer[5] = 1;
+      buffer[6] = 0x90;
+      memcpy(buffer+offset,cmdBuff,cmdLen);
+  
+      /* write the command out */
+      DBG(25, "cmd: writing %d bytes, timeout %d\n", (int)length, timeout);
+      hexdump(30, "cmd: >>", buffer, length);
+      ret = sanei_usb_write_bulk(s->fd, buffer, &actual);
+      DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)actual, ret);
+  
+      if(length != actual){
+        DBG(5,"cmd: wrong size %d/%d\n", (int)length, (int)actual);
+        free(buffer);
+        return SANE_STATUS_IO_ERROR;
+      }
+      if(ret != SANE_STATUS_GOOD){
+        DBG(5,"cmd: write error '%s'\n",sane_strstatus(ret));
+        free(buffer);
         return ret;
+      }
+      free(buffer);
     }
-    if(usb_cmdLen != USB_HEADER_LEN + USB_COMMAND_LEN){
-        DBG(5,"cmd: wrong size %d/%d\n", USB_COMMAND_LEN, (int)usb_cmdLen);
+
+    /****************************************************************/
+    /* the output stage */
+    if(outBuff && outLen){
+
+      offset = USB_HEADER_LEN;
+      length = offset+outLen;
+      actual = length;
+      timeout = USB_DATA_TIME;
+
+      /* change timeout */
+      if(shortTime)
+        timeout/=60;
+      sanei_usb_set_timeout(timeout);
+
+      /* build buffer */
+      buffer = calloc(length,1);
+      if(!buffer){
+        DBG(5,"out: no mem\n");
         return SANE_STATUS_IO_ERROR;
+      }
+  
+      /* build a USB packet around the SCSI command */
+      buffer[3] = length-4;
+      buffer[5] = 2;
+      buffer[6] = 0xb0;
+      memcpy(buffer+offset,outBuff,outLen);
+  
+      /* write the command out */
+      DBG(25, "out: writing %d bytes, timeout %d\n", (int)length, timeout);
+      hexdump(30, "out: >>", buffer, length);
+      ret = sanei_usb_write_bulk(s->fd, buffer, &actual);
+      DBG(25, "out: wrote %d bytes, retVal %d\n", (int)actual, ret);
+  
+      if(length != actual){
+        DBG(5,"out: wrong size %d/%d\n", (int)length, (int)actual);
+        free(buffer);
+        return SANE_STATUS_IO_ERROR;
+      }
+      if(ret != SANE_STATUS_GOOD){
+        DBG(5,"out: write error '%s'\n",sane_strstatus(ret));
+        free(buffer);
+        return ret;
+      }
+      free(buffer);
     }
 
-    /* this command has a write component, and a place to get it */
-    if(outBuff && outLen && outTime){
+    /****************************************************************/
+    /* the input stage */
+    if(inBuff && inLen){
 
-        usb_outBuff = calloc(usb_outLen,1);
-        if(!usb_outBuff){
-            DBG(5,"out: no mem\n");
-            return SANE_STATUS_IO_ERROR;
-        }
+      offset = 0;
+      if(s->padded_read)
+        offset = USB_HEADER_LEN;
 
-        usb_outBuff[3] = usb_outLen-4;
-        usb_outBuff[5] = 2;
-        usb_outBuff[6] = 0xb0;
-        memcpy(usb_outBuff+USB_HEADER_LEN,outBuff,outLen);
+      length = offset+*inLen;
+      actual = length;
+      timeout = USB_DATA_TIME;
 
-        /* change timeout */
-        sanei_usb_set_timeout(outTime);
+      /* change timeout */
+      if(shortTime)
+        timeout/=60;
+      sanei_usb_set_timeout(timeout);
 
-        DBG(25, "out: writing %d bytes, timeout %d\n", (int)usb_outLen, outTime);
-        hexdump(30, "out: >>", usb_outBuff, usb_outLen);
-        ret = sanei_usb_write_bulk(s->fd, usb_outBuff, &usb_outLen);
-        DBG(25, "out: wrote %d bytes, retVal %d\n", (int)usb_outLen, ret);
+      /* build buffer */
+      buffer = calloc(length,1);
+      if(!buffer){
+        DBG(5,"in: no mem\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+  
+      DBG(25, "in: reading %d bytes, timeout %d\n", (int)length, timeout);
+      ret = sanei_usb_read_bulk(s->fd, buffer, &actual);
+      DBG(25, "in: read %d bytes, retval %d\n", (int)actual, ret);
+      hexdump(30, "in: <<", buffer, actual);
 
-        if(ret == SANE_STATUS_EOF){
-            DBG(5,"out: got EOF, returning IO_ERROR\n");
-            free(usb_outBuff);
-            return SANE_STATUS_IO_ERROR;
-        }
-        if(ret != SANE_STATUS_GOOD){
-            DBG(5,"out: return error '%s'\n",sane_strstatus(ret));
-            free(usb_outBuff);
-            return ret;
-        }
-        if(usb_outLen != outLen + USB_HEADER_LEN){
-            DBG(5,"out: wrong size %d/%d\n", (int)outLen, (int)usb_outLen);
-            free(usb_outBuff);
-            return SANE_STATUS_IO_ERROR;
-        }
-        free(usb_outBuff);
-    }
-
-    /* this command has a read component, and a place to put it */
-    if(inBuff && inLen && inTime){
-
-        askLen = *inLen;
-        memset(inBuff,0,askLen);
-
-        /* change timeout */
-        sanei_usb_set_timeout(inTime);
-
-        DBG(25, "in: reading %d bytes, timeout %d\n", (int)askLen, inTime);
-
-        ret = sanei_usb_read_bulk(s->fd, inBuff, inLen);
-        DBG(25, "in: read %d bytes, retval %d\n", (int)*inLen, ret);
-        hexdump(30, "in: <<", inBuff, *inLen);
-
-        if(!*inLen){
-            DBG(5,"in: got no data, clearing\n");
-	    return do_usb_clear(s,runRS);
-        }
-        if(ret != SANE_STATUS_GOOD){
-            DBG(5,"in: return error '%s'\n",sane_strstatus(ret));
-            return ret;
-        }
-        if(*inLen != askLen){
-            ret = SANE_STATUS_EOF;
-            DBG(5,"in: wrong size, %d/%d\n", (int)*inLen,(int)askLen);
-        }
-    }
-
-    /*gather the scsi status byte. use ret2 instead of ret for status*/
-    memset(&usb_statBuff,0,USB_STATUS_LEN_MAX);
-
-    /* change timeout */
-    sanei_usb_set_timeout(statTime);
-
-    DBG(25, "stat: reading %d bytes, timeout %d\n", (int)usb_statLen, statTime);
-    ret2 = sanei_usb_read_bulk(s->fd, usb_statBuff, &usb_statLen);
-    DBG(25, "stat: read %d bytes, retVal %d\n", (int)usb_statLen, ret2);
-    hexdump(30, "stat: <<", usb_statBuff, usb_statLen);
-
-    if(!usb_statLen){
-        DBG(5,"stat: got no data, clearing\n");
+      if(!actual){
+        *inLen = 0;
+        DBG(5,"in: got no data, clearing\n");
+        free(buffer);
 	return do_usb_clear(s,runRS);
-    }
-    if(ret2 != SANE_STATUS_GOOD){
-        DBG(5,"stat: return error '%s'\n",sane_strstatus(ret2));
-        return ret2;
-    }
-    if(usb_statLen != (size_t)s->status_length){
-        DBG(5,"stat: wrong size %d/%d\n", s->status_length, (int)usb_statLen);
+      }
+      if(actual < offset){
+        *inLen = 0;
+        DBG(5,"in: read shorter than offset\n");
+        free(buffer);
         return SANE_STATUS_IO_ERROR;
+      }
+      if(ret != SANE_STATUS_GOOD){
+        *inLen = 0;
+        DBG(5,"in: return error '%s'\n",sane_strstatus(ret));
+        free(buffer);
+        return ret;
+      }
+
+      if(length != actual){
+        ret = SANE_STATUS_EOF;
+        DBG(5,"in: short read, %d/%d\n", (int)length,(int)actual);
+      }
+
+      /* ignore the USB packet around the SCSI command */
+      *inLen = actual - offset;
+      memcpy(inBuff,buffer+offset,*inLen);
+
+      free(buffer);
     }
 
-    /* FIXME: interpret the status fields
-    if(usb_statBuff[0] || usb_statBuff[1] || usb_statBuff[2] || usb_statBuff[3]){
-      DBG(25,"stat: bad stat?\n");
-      return SANE_STATUS_IO_ERROR;
+    /****************************************************************/
+    /* the status stage */
+    {
+      offset = 0;
+      if(s->padded_read)
+        offset = USB_HEADER_LEN;
+
+      length = offset+USB_STATUS_LEN;
+      actual = length;
+      timeout = USB_STATUS_TIME;
+
+      /* change timeout */
+      if(shortTime)
+        timeout/=60;
+      sanei_usb_set_timeout(timeout);
+
+      /* build buffer */
+      buffer = calloc(length,1);
+      if(!buffer){
+        DBG(5,"stat: no mem\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+  
+      DBG(25, "stat: reading %d bytes, timeout %d\n", (int)length, timeout);
+      ret2 = sanei_usb_read_bulk(s->fd, buffer, &actual);
+      DBG(25, "stat: read %d bytes, retval %d\n", (int)actual, ret2);
+      hexdump(30, "stat: <<", buffer, actual);
+  
+      if(!actual){
+        DBG(5,"stat: got no data, clearing\n");
+        free(buffer);
+	return do_usb_clear(s,runRS);
+      }
+      if(ret2 != SANE_STATUS_GOOD){
+        DBG(5,"stat: return error '%s'\n",sane_strstatus(ret2));
+        free(buffer);
+        return ret2;
+      }
+      if(length != actual){
+        DBG(5,"stat: short read, %d/%d\n",(int)length,(int)actual);
+        free(buffer);
+        return SANE_STATUS_IO_ERROR;
+      }
+
+      /*FIXME: inspect the status response?*/
+
+      free(buffer);
     }
-     */
 
     DBG (10, "do_usb_cmd: finish\n");
 

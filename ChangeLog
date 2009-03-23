@@ -1,3 +1,12 @@
+2009-03-23  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v20
+	- improved macros for inquiry and set window
+	- shorten inquiry vpd length to match windows driver
+	- remove status-length config option
+	- add padded-read config option
+	- rewrite do_usb_cmd to pad reads and calloc/copy buffers
+	* backend/canon_dr.conf.in: s/status-length/padded-read/g
+
 2009-03-22  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch]: backend v19
 	- pad gray deinterlacing area for DR-2510C

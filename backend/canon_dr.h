@@ -143,12 +143,13 @@ struct scanner
   int has_back;         /* not all duplex scanners can do adf back side only */
   int has_comp_JPEG;
   int has_buffer;
+  int rgb_format;       /* meaning unknown */
+  int padding;          /* meaning unknown */
 
   int invert_tly;       /* weird bug in some smaller scanners */
-  int unknown_byte;     /* weird byte, required, meaning unknown */
   int unknown_byte2;    /* weird byte, required, meaning unknown */
-  size_t status_length; /* usually 4, sometimes 16 */
-  int fixed_width;      /* sometime machines always scan full width */
+  int padded_read;      /* some machines need extra 12 bytes on reads */
+  int fixed_width;      /* some machines always scan full width */
 
   int color_interlace;  /* different models interlace colors differently     */
   int duplex_interlace; /* different models interlace sides differently      */

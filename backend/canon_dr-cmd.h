@@ -11,8 +11,7 @@
 
 #define USB_HEADER_LEN     12
 #define USB_COMMAND_LEN    12
-#define USB_STATUS_LEN_MAX 32
-#define USB_STATUS_OFFSET  0
+#define USB_STATUS_LEN     4
 #define USB_COMMAND_TIME   30000
 #define USB_DATA_TIME      30000
 #define USB_STATUS_TIME    30000
@@ -110,12 +109,11 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define INQUIRY_len             6
 
 #define INQUIRY_std_len         0x30
-#define INQUIRY_vpd_len         0x28
+#define INQUIRY_vpd_len         0x1e
 
 #define set_IN_evpd(icb, val)              setbitfield(icb + 1, 1, 0, val)
 #define set_IN_page_code(icb, val)         icb[0x02]=val
 #define set_IN_return_size(icb,val)        icb[0x04]=val
-#define set_IN_length(out,n)               out[0x04]=n-5
 
 #define get_IN_periph_qual(in)             getbitfield(in, 0x07, 5)
 #define IN_periph_qual_lun                    0x00
@@ -157,10 +155,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_std_res_1200(in)            getbitfield(in+ 0x13, 1, 0)
 #define get_IN_window_width(in)            getnbyte(in + 0x14, 4)
 #define get_IN_window_length(in)           getnbyte(in + 0x18, 4)
-#define get_IN_unknown7(in)                getbitfield(in+0x1c, 1, 7)
-#define get_IN_unknown6(in)                getbitfield(in+0x1c, 1, 6)
-#define get_IN_unknown5(in)                getbitfield(in+0x1c, 1, 5)
-#define get_IN_unknown4(in)                getbitfield(in+0x1c, 1, 4)
+#define get_IN_awd(in)                     getbitfield(in+0x1c, 1, 7)
+#define get_IN_ce_emphasis(in)             getbitfield(in+0x1c, 1, 6)
+#define get_IN_c_emphasis(in)              getbitfield(in+0x1c, 1, 5)
+#define get_IN_high_quality(in)            getbitfield(in+0x1c, 1, 4)
 #define get_IN_multilevel(in)              getbitfield(in+0x1c, 1, 3)
 #define get_IN_half_tone(in)               getbitfield(in+0x1c, 1, 2)
 #define get_IN_monochrome(in)              getbitfield(in+0x1c, 1, 1)
@@ -427,8 +425,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
   /* 0x1d - Reverse image, reserved area, padding type */
 #define set_WD_rif(sb, val)       setbitfield(sb + 0x1d, 1, 7, val)
 #define get_WD_rif(sb)	          getbitfield(sb + 0x1d, 1, 7)
-#define set_WD_reserved(sb, val)  sb[0x1d] = val
-#define get_WD_reserved(sb)	  sb[0x1d]
+#define set_WD_rgb(sb, val)       setbitfield(sb + 0x1d, 7, 6, val)
+#define get_WD_rgb(sb)	          getbitfield(sb + 0x1d, 7, 6)
+#define set_WD_padding(sb, val)   setbitfield(sb + 0x1d, 7, 0, val)
+#define get_WD_padding(sb)	  getbitfield(sb + 0x1d, 7, 0)
 
   /* 0x1e,0x1f - Bit ordering */
 #define set_WD_bitorder(sb, val) putnbyte(sb + 0x1e, val, 2)

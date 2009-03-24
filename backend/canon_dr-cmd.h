@@ -3,8 +3,7 @@
 
 /* 
  * Part of SANE - Scanner Access Now Easy.
- * 
- * Please see to opening comments in canon_dr.c
+ * Please see opening comments in canon_dr.c
  */
 
 /****************************************************/
@@ -425,8 +424,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
   /* 0x1d - Reverse image, reserved area, padding type */
 #define set_WD_rif(sb, val)       setbitfield(sb + 0x1d, 1, 7, val)
 #define get_WD_rif(sb)	          getbitfield(sb + 0x1d, 1, 7)
-#define set_WD_rgb(sb, val)       setbitfield(sb + 0x1d, 7, 6, val)
-#define get_WD_rgb(sb)	          getbitfield(sb + 0x1d, 7, 6)
+#define set_WD_rgb(sb, val)       setbitfield(sb + 0x1d, 7, 4, val)
+#define get_WD_rgb(sb)	          getbitfield(sb + 0x1d, 7, 4)
 #define set_WD_padding(sb, val)   setbitfield(sb + 0x1d, 7, 0, val)
 #define get_WD_padding(sb)	  getbitfield(sb + 0x1d, 7, 0)
 

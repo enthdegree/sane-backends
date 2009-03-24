@@ -1,4 +1,10 @@
-2009-03-05 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+2009-03-24  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v21
+	- correct rgb padding macro
+	- skip send_panel and ssm_df commands for DR-20xx scanners
+	* doc/desciptions/microtek2.desc: add ScanMaker 6400XL
+
+2009-03-24 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* doc/Makefile.am: Don't include any template.desc. into
 	generated HTML files.
 

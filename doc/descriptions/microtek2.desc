@@ -76,6 +76,10 @@
 :interface "SCSI"
 :status :complete
 
+:model "ScanMaker 6400XL"
+:interface "SCSI"
+:status :complete
+
 :model "ScanMaker 9600XL"
 :interface "SCSI"
 :comment "only flatbed mode ?"

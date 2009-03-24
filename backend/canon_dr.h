@@ -3,7 +3,7 @@
 
 /* 
  * Part of SANE - Scanner Access Now Easy.
- * Please see opening comment in canon_dr.c
+ * Please see opening comments in canon_dr.c
  */
 
 /* ------------------------------------------------------------------------- 
@@ -143,6 +143,8 @@ struct scanner
   int has_back;         /* not all duplex scanners can do adf back side only */
   int has_comp_JPEG;
   int has_buffer;
+  int has_df;
+  int can_write_panel;
   int rgb_format;       /* meaning unknown */
   int padding;          /* meaning unknown */
 

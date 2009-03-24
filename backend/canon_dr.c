@@ -156,6 +156,9 @@
          - remove status-length config option
          - add padded-read config option
          - rewrite do_usb_cmd to pad reads and calloc/copy buffers
+      v21 2009-03-24, MAN
+         - correct rgb padding macro
+         - skip send_panel and ssm_df commands for DR-20xx scanners
 
    SANE FLOW DIAGRAM
 
@@ -216,7 +219,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 20
+#define BUILD 21
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1009,10 +1012,12 @@ init_model (struct scanner *s)
   s->reverse_by_mode[MODE_GRAYSCALE] = 0;
   s->reverse_by_mode[MODE_COLOR] = 0;
 
+  s->has_df = 1;
   s->has_counter = 1;
   s->has_adf = 1;
   s->has_duplex = 1;
   s->has_buffer = 1;
+  s->can_write_panel = 1;
 
   s->brightness_steps = 255;
   s->contrast_steps = 255;
@@ -1037,7 +1042,6 @@ init_model (struct scanner *s)
     s->duplex_interlace = DUPLEX_INTERLACE_BYTE;
     s->can_halftone = 0;
     s->can_monochrome = 0;
-    s->has_counter = 0;
   }
 
   /* specific settings missing from vpd */
@@ -1059,6 +1063,13 @@ init_model (struct scanner *s)
     s->has_counter = 1;
     s->head_interlace = HEAD_INTERLACE_2510;
     s->fixed_width = 1;
+  }
+
+  else if (strstr (s->model_name,"DR-2050")
+   || strstr (s->model_name,"DR-2080")
+  ){
+    s->can_write_panel = 0;
+    s->has_df = 0;
   }
 
   DBG (10, "init_model: finish\n");
@@ -2535,6 +2546,11 @@ ssm_df (struct scanner *s)
 
   DBG (10, "ssm_df: start\n");
 
+  if(!s->has_df){
+    DBG (10, "ssm_df: unsupported, finishing\n");
+    return ret;
+  }
+
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
   set_SSM_pf(cmd, 1);
@@ -2725,7 +2741,12 @@ send_panel(struct scanner *s)
     size_t outLen = S_PANEL_len;
 
     DBG (10, "send_panel: start\n");
-  
+
+    if(!s->can_write_panel){
+      DBG (10, "send_panel: unsupported, finishing\n");
+      return ret;
+    }
+
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, SEND_code);
     set_S_xfer_datatype (cmd, SR_datatype_panel);

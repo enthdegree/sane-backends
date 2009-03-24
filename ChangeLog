@@ -1,6 +1,6 @@
 2009-03-05 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
-	* doc/Makefile.am: Don't include doc/description/template.desc.
-	into generated HTML files.
+	* doc/Makefile.am: Don't include any template.desc. into
+	generated HTML files.
 
 2009-03-23  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v20

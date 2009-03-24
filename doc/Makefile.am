@@ -208,10 +208,9 @@ DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/primax.desc \
   descriptions-external/samsung.desc \
   descriptions-external/scanwit.desc \
-  descriptions-external/template.desc. \
   descriptions-external/v4l2.desc \
   descriptions-external/viceo.desc
-EXTRA_DIST += $(DESC_EXT_FILES)
+EXTRA_DIST += $(DESC_EXT_FILES) descriptions-external/template.desc.
 
 EXTRA_DIST += figs/area.eps figs/area.fig figs/flow.eps figs/flow.fig \
   figs/hierarchy.eps figs/hierarchy.fig figs/image-data.eps \

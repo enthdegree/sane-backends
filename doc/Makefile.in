@@ -266,10 +266,11 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 	sane-xerox_mfp.man sane-rts8891.man sane-coolscan3.man \
 	sane.man saned.man descriptions.txt releases.txt \
 	sane-logo2.jpg sane-logo.png sane.png sane.tex net.tex \
-	html.sty $(DESC_FILES) $(DESC_EXT_FILES) figs/area.eps \
-	figs/area.fig figs/flow.eps figs/flow.fig figs/hierarchy.eps \
-	figs/hierarchy.fig figs/image-data.eps figs/image-data.fig \
-	figs/xfer.eps figs/xfer.fig icons/contents.gif icons/index.gif \
+	html.sty $(DESC_FILES) descriptions/template.desc. \
+	$(DESC_EXT_FILES) figs/area.eps figs/area.fig figs/flow.eps \
+	figs/flow.fig figs/hierarchy.eps figs/hierarchy.fig \
+	figs/image-data.eps figs/image-data.fig figs/xfer.eps \
+	figs/xfer.fig icons/contents.gif icons/index.gif \
 	icons/next.gif icons/next_gr.gif icons/previous.gif \
 	icons/previous_gr.gif icons/references.gif \
 	icons/references_gr.gif icons/up.gif icons/up_gr.gif
@@ -370,7 +371,7 @@ DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/sm3840.desc descriptions/snapscan.desc descriptions/sp15c.desc \
   descriptions/st400.desc descriptions/stv680.desc descriptions/tamarack.desc \
   descriptions/teco1.desc descriptions/teco2.desc descriptions/teco3.desc \
-  descriptions/template.desc. descriptions/test.desc descriptions/u12.desc \
+  descriptions/test.desc descriptions/u12.desc \
   descriptions/umax1220u.desc descriptions/umax.desc \
   descriptions/umax_pp.desc  descriptions/unsupported.desc \
   descriptions/v4l.desc descriptions/xerox_mfp.desc

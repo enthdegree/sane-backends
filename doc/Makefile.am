@@ -185,11 +185,11 @@ DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/sm3840.desc descriptions/snapscan.desc descriptions/sp15c.desc \
   descriptions/st400.desc descriptions/stv680.desc descriptions/tamarack.desc \
   descriptions/teco1.desc descriptions/teco2.desc descriptions/teco3.desc \
-  descriptions/template.desc. descriptions/test.desc descriptions/u12.desc \
+  descriptions/test.desc descriptions/u12.desc \
   descriptions/umax1220u.desc descriptions/umax.desc \
   descriptions/umax_pp.desc  descriptions/unsupported.desc \
   descriptions/v4l.desc descriptions/xerox_mfp.desc
-EXTRA_DIST += $(DESC_FILES)
+EXTRA_DIST += $(DESC_FILES) descriptions/template.desc. 
 
 DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/brother.desc \

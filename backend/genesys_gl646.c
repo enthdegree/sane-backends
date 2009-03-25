@@ -4821,10 +4821,14 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_bulk_write_register,
   gl646_bulk_write_data,
   gl646_bulk_read_data,
+
   gl646_update_hardware_sensors,
+
   gl646_load_document,
   gl646_detect_document_end,
   gl646_eject_document,
+
+  NULL,/*is_compatible_calibration*/
 };
 
 SANE_Status

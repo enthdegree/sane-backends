@@ -294,6 +294,7 @@ Genesys_Color_Order;
 /* Forward typedefs */
 typedef struct Genesys_Device Genesys_Device;
 struct Genesys_Scanner;
+typedef struct Genesys_Calibration_Cache  Genesys_Calibration_Cache;
 
 /**
  * Scanner command set description.
@@ -392,6 +393,11 @@ typedef struct Genesys_Command_Set
      * eject document from scanner
      */
     SANE_Status (*eject_document) (Genesys_Device * dev);
+
+    SANE_Status (*is_compatible_calibration) (
+	Genesys_Device * dev,
+	Genesys_Calibration_Cache *cache,
+        SANE_Bool for_overwrite);
 } Genesys_Command_Set;
 
 typedef struct Genesys_Model
@@ -508,10 +514,27 @@ typedef struct Genesys_Buffer
   size_t avail;	/* data bytes currently in buffer */
 } Genesys_Buffer;
 
+struct Genesys_Calibration_Cache
+{
+  Genesys_Current_Setup used_setup;/* used to check if entry is compatible */
+  time_t last_calibration;
+
+  Genesys_Frontend frontend;
+  Genesys_Sensor sensor;
+
+  size_t calib_pixels;
+  size_t average_size;
+  uint8_t *white_average_data;
+  uint8_t *dark_average_data;
+
+  struct Genesys_Calibration_Cache *next;
+};
+
 struct Genesys_Device
 {
   SANE_Int dn;
   SANE_String file_name;
+  SANE_String calib_file;
   Genesys_Model *model;
 
   Genesys_Register_Set reg[GENESYS_MAX_REGS];
@@ -526,6 +549,8 @@ struct Genesys_Device
   uint8_t  control[6];
   time_t init_date;
 
+  size_t average_size;
+  size_t calib_pixels;
   uint8_t *white_average_data;
   uint8_t *dark_average_data;
   uint16_t dark[3];
@@ -550,6 +575,8 @@ struct Genesys_Device
   size_t wpl;			/* asic's word per line */
 
   Genesys_Current_Setup current_setup; /* contains the real used values */
+
+  Genesys_Calibration_Cache *calibration_cache;
 
   struct Genesys_Device *next;
 };

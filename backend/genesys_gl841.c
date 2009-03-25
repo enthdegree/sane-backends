@@ -3077,6 +3077,273 @@ dummy \ scanned lines
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Status
+gl841_calculate_current_setup (Genesys_Device * dev)
+{
+  int channels;
+  int depth;
+  int start;
+
+  float xres;/*dpi*/
+  float yres;/*dpi*/
+  float startx;/*optical_res, from dummy_pixel+1*/
+  float pixels;
+  float lines;
+  int color_filter;
+
+  int used_res;
+  int used_pixels;
+  unsigned int lincnt;
+  int exposure_time, exposure_time2, led_exposure;
+  int i;
+  int stagger;
+
+  int slope_dpi = 0;
+  int dummy = 0;
+  int scan_step_type = 1;
+  int scan_power_mode = 0;
+  int max_shift;
+
+  SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
+  int optical_res;
+
+  DBG (DBG_info,
+       "gl841_calculate_current_setup settings:\n"
+       "Resolution: %uDPI\n"
+       "Lines     : %u\n"
+       "PPL       : %u\n"
+       "Startpos  : %.3f/%.3f\n"
+       "Scan mode : %d\n\n",
+       dev->settings.yres, dev->settings.lines, dev->settings.pixels,
+       dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
+
+/* channels */
+  if (dev->settings.scan_mode == 4)	/* single pass color */
+    channels = 3;
+  else
+    channels = 1;
+
+/* depth */
+  depth = dev->settings.depth;
+  if (dev->settings.scan_mode == 0)
+      depth = 1;
+
+/* start */
+  start = SANE_UNFIX (dev->model->x_offset);
+
+  start += dev->settings.tl_x;
+
+  start = (start * dev->sensor.optical_res) / MM_PER_INCH;
+
+
+  xres = dev->settings.xres;/*dpi*/
+  yres = dev->settings.yres;/*dpi*/
+  startx = start;/*optical_res, from dummy_pixel+1*/
+  pixels = dev->settings.pixels;
+  lines = dev->settings.lines;
+  color_filter = dev->settings.color_filter;
+
+
+  DBG (DBG_info,
+       "gl841_calculate_current_setup settings:\n"
+       "Resolution    : %gDPI/%gDPI\n"
+       "Lines         : %g\n"
+       "PPL           : %g\n"
+       "Startpos      : %g\n"
+       "Depth/Channels: %u/%u\n\n",
+       xres, yres, lines, pixels,
+       startx,
+       depth, channels);
+
+/* half_ccd */
+  /* we have 2 domains for ccd: xres below or above half ccd max dpi */
+  if (dev->sensor.optical_res  < 2 * xres) {
+      half_ccd = SANE_FALSE;
+  } else {
+      half_ccd = SANE_TRUE;
+  }
+
+/* optical_res */
+
+  optical_res = dev->sensor.optical_res;
+  if (half_ccd)
+      optical_res /= 2;
+
+/* stagger */
+
+  if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
+    stagger = (4 * yres) / dev->motor.base_ydpi;
+  else
+    stagger = 0;
+  DBG (DBG_info, "gl841_calculate_current_setup: stagger=%d lines\n",
+       stagger);
+
+/* used_res */
+  i = optical_res / xres;
+
+/* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
+
+  if (i < 2) /* optical_res >= xres > optical_res/2 */
+      used_res = optical_res;
+  else if (i < 3)  /* optical_res/2 >= xres > optical_res/3 */
+      used_res = optical_res/2;  
+  else if (i < 4)  /* optical_res/3 >= xres > optical_res/4 */
+      used_res = optical_res/3;  
+  else if (i < 5)  /* optical_res/4 >= xres > optical_res/5 */
+      used_res = optical_res/4;  
+  else if (i < 6)  /* optical_res/5 >= xres > optical_res/6 */
+      used_res = optical_res/5;  
+  else if (i < 8)  /* optical_res/6 >= xres > optical_res/8 */
+      used_res = optical_res/6;  
+  else if (i < 10)  /* optical_res/8 >= xres > optical_res/10 */
+      used_res = optical_res/8;  
+  else if (i < 12)  /* optical_res/10 >= xres > optical_res/12 */
+      used_res = optical_res/10;  
+  else if (i < 15)  /* optical_res/12 >= xres > optical_res/15 */
+      used_res = optical_res/12;  
+  else
+      used_res = optical_res/15;
+
+  /* compute scan parameters values */
+  /* pixels are allways given at half or full CCD optical resolution */
+  /* use detected left margin  and fixed value */
+/* start */
+  /* add x coordinates */
+  start = 
+      ((dev->sensor.CCD_start_xoffset + startx) * used_res) /
+      dev->sensor.optical_res;
+
+/* needs to be aligned for used_res */
+  start = (start * optical_res) / used_res;
+
+  start += dev->sensor.dummy_pixel + 1;
+
+  if (stagger > 0)
+    start |= 1;
+
+  /* compute correct pixels number */
+/* pixels */
+  used_pixels =
+    (pixels * optical_res) / xres;
+
+  /* round up pixels number if needed */
+  if (used_pixels * xres < pixels * optical_res)
+      used_pixels++;
+
+/* dummy */
+  /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
+     dummy line. Maybe the dummy line adds correctness since the motor runs 
+     slower (higher dpi) 
+  */
+/* for cis this creates better aligned color lines:
+dummy \ scanned lines
+   0: R           G           B           R ...
+   1: R        G        B        -        R ...
+   2: R      G      B       -      -      R ...
+   3: R     G     B     -     -     -     R ...
+   4: R    G    B     -   -     -    -    R ...
+   5: R    G   B    -   -   -    -   -    R ...
+   6: R   G   B   -   -   -   -   -   -   R ...
+   7: R   G  B   -  -   -   -  -   -  -   R ...
+   8: R  G  B   -  -  -   -  -  -   -  -  R ...
+   9: R  G  B  -  -  -  -  -  -  -  -  -  R ...
+  10: R  G B  -  -  -  - -  -  -  -  - -  R ...
+  11: R  G B  - -  - -  -  - -  - -  - -  R ...
+  12: R G  B - -  - -  - -  - -  - - -  - R ...
+  13: R G B  - - - -  - - -  - - - -  - - R ...
+  14: R G B - - -  - - - - - -  - - - - - R ...
+  15: R G B - - - - - - - - - - - - - - - R ...
+ -- pierre
+ */
+  dummy = 0;
+
+/* slope_dpi */
+/* cis color scan is effectively a gray scan with 3 gray lines per color
+   line and a FILTER of 0 */
+  if (dev->model->is_cis) 
+      slope_dpi = yres*channels;
+  else
+      slope_dpi = yres;
+
+  slope_dpi = slope_dpi * (1 + dummy);
+
+/* scan_step_type */
+/* Try to do at least 4 steps per line. if that is impossible we will have to
+   live with that
+ */
+  if (yres*4 < dev->motor.base_ydpi
+      || dev->motor.max_step_type <= 0)
+      scan_step_type = 0;
+  else if (yres*4 < dev->motor.base_ydpi*2
+      || dev->motor.max_step_type <= 1)
+      scan_step_type = 1;
+  else
+      scan_step_type = 2;
+  
+  led_exposure = gl841_get_led_exposure(dev);
+
+/* exposure_time */
+  exposure_time = sanei_genesys_exposure_time2(
+      dev,
+      slope_dpi,
+      scan_step_type,
+      start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
+      led_exposure,
+      scan_power_mode);
+    
+  while(scan_power_mode + 1 < dev->motor.power_mode_count) {
+      exposure_time2 = sanei_genesys_exposure_time2(
+	  dev,
+	  slope_dpi,
+	  scan_step_type,
+	  start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
+	  led_exposure,
+	  scan_power_mode + 1);
+      if (exposure_time < exposure_time2)
+	  break;
+      exposure_time = exposure_time2;
+      scan_power_mode++;
+  }
+    
+  DBG (DBG_info, "gl841_calculate_current_setup : exposure_time=%d pixels\n",
+       exposure_time);
+
+/* max_shift */
+  /* scanned area must be enlarged by max color shift needed */
+  /* all values are assumed >= 0 */
+  if (channels > 1)
+    {
+      max_shift = dev->model->ld_shift_r;
+      if (dev->model->ld_shift_b > max_shift)
+	max_shift = dev->model->ld_shift_b;
+      if (dev->model->ld_shift_g > max_shift)
+	max_shift = dev->model->ld_shift_g;
+      max_shift =
+	(max_shift * yres) / dev->motor.base_ydpi;
+    }
+  else
+    {
+      max_shift = 0;
+    }
+
+/* lincnt */
+  lincnt = lines + max_shift + stagger;
+
+  dev->current_setup.pixels = (used_pixels * used_res)/optical_res;
+  dev->current_setup.lines = lincnt;
+  dev->current_setup.depth = depth;
+  dev->current_setup.channels = channels;
+  dev->current_setup.exposure_time = exposure_time;
+  dev->current_setup.xres = used_res;
+  dev->current_setup.yres = yres;
+  dev->current_setup.half_ccd = half_ccd;
+  dev->current_setup.stagger = stagger;
+  dev->current_setup.max_shift = max_shift + stagger;
+
+  DBG (DBG_proc, "gl841_calculate_current_setup: completed\n");
+  return SANE_STATUS_GOOD;
+}
+
 static void
 gl841_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
 {
@@ -5290,7 +5557,36 @@ sanei_gl841_repark_head (Genesys_Device * dev)
   return status;
 }
 
+static SANE_Status
+gl841_is_compatible_calibration (Genesys_Device * dev, 
+				 Genesys_Calibration_Cache *cache,
+				 int for_overwrite)
+{
+  SANE_Status status;
 
+  DBG (DBG_proc, "gl841_is_compatible_calibration\n");
+
+  status = gl841_calculate_current_setup (dev);
+
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_is_compatible_calibration: failed to calculate current setup: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  DBG (DBG_proc, "gl841_is_compatible_calibration: checking\n");
+
+  if (dev->current_setup.channels != cache->used_setup.channels)
+    return SANE_STATUS_UNSUPPORTED;
+  if (dev->current_setup.half_ccd != cache->used_setup.half_ccd)
+    return SANE_STATUS_UNSUPPORTED;
+
+  DBG (DBG_proc, "gl841_is_compatible_calibration: completed\n");
+  
+  return SANE_STATUS_GOOD;
+}
 
 /* 
  * initialize ASIC : registers, motor tables, and gamma tables
@@ -5560,6 +5856,7 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_detect_document_end,
   gl841_eject_document,
 
+  gl841_is_compatible_calibration,
 };
 
 SANE_Status

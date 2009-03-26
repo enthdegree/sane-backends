@@ -473,6 +473,9 @@ static SANE_Status read_from_scanner_duplex(struct scanner *s);
 static SANE_Status copy_buffer(struct scanner *s, unsigned char * buf, int len, int side);
 static SANE_Status copy_buffer_2510(struct scanner *s, unsigned char * buf, int len, int side);
 
+static SANE_Status copy_buffer_duplex(struct scanner *s, unsigned char * buf, int len);
+static SANE_Status copy_buffer_duplex_2510(struct scanner *s, unsigned char * buf, int len);
+
 static SANE_Status read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 
 static SANE_Status setup_buffers (struct scanner *s);

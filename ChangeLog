@@ -1,3 +1,7 @@
+2009-03-25  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch]: backend v22
+	- add deinterlacing code for DR-2510C in duplex and color 
+
 2009-03-25  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys.c, backend/genesys_gl646.c,
 	backend/genesys_gl841.c, backend/genesys_low.h: Add calibration cache

@@ -1,3 +1,11 @@
+2009-03-27  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v23
+	- rewrite all image data processing code
+	- handle more image interlacing formats
+	- re-enable binary mode on some scanners
+	- limit some machines to full-width scanning
+	* doc/desciptions/canon_dr.desc: v23, improved comments
+
 2009-03-25  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch]: backend v22
 	- add deinterlacing code for DR-2510C in duplex and color 

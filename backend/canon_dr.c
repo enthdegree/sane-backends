@@ -161,6 +161,11 @@
          - skip send_panel and ssm_df commands for DR-20xx scanners
       v22 2009-03-25, MAN
          - add deinterlacing code for DR-2510C in duplex and color 
+      v23 2009-03-27, MAN
+         - rewrite all image data processing code
+         - handle more image interlacing formats
+         - re-enable binary mode on some scanners
+         - limit some machines to full-width scanning
 
    SANE FLOW DIAGRAM
 
@@ -221,7 +226,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 22
+#define BUILD 23
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1037,14 +1042,6 @@ init_model (struct scanner *s)
   if (strstr (s->model_name,"C")){
     s->can_color = 1;
   }
-  if (strstr (s->model_name,"DR-1")
-   || strstr (s->model_name,"DR-2")
-  ){
-    s->color_interlace = COLOR_INTERLACE_RRGGBB;
-    s->duplex_interlace = DUPLEX_INTERLACE_BYTE;
-    s->can_halftone = 0;
-    s->can_monochrome = 0;
-  }
 
   /* specific settings missing from vpd */
   if (strstr (s->model_name,"DR-9080")
@@ -1056,16 +1053,20 @@ init_model (struct scanner *s)
   else if (strstr (s->model_name,"DR-2580")){
     s->invert_tly = 1;
     s->rgb_format = 1;
-    s->has_counter = 1;
+    s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
   }
 
   else if (strstr (s->model_name,"DR-2510")){
     s->rgb_format = 1;
     s->unknown_byte2 = 0x80;
-    s->has_counter = 1;
-    s->head_interlace = HEAD_INTERLACE_2510;
-    s->color_interlace = COLOR_INTERLACE_RGB;
     s->fixed_width = 1;
+    s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_2510;
+    s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_2510;
+    s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_2510;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_2510;
+    s->duplex_interlace = DUPLEX_INTERLACE_2510;
   }
 
   else if (strstr (s->model_name,"DR-2050")
@@ -1073,6 +1074,10 @@ init_model (struct scanner *s)
   ){
     s->can_write_panel = 0;
     s->has_df = 0;
+    s->fixed_width = 1;
+    s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
   }
 
   DBG (10, "init_model: finish\n");
@@ -1136,7 +1141,7 @@ init_user (struct scanner *s)
 
   /* page width US-Letter */
   s->page_width = 8.5 * 1200;
-  if(s->page_width > s->max_x){
+  if(s->page_width > s->max_x || s->fixed_width){
     s->page_width = s->max_x;
   }
 
@@ -2352,7 +2357,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           if (s->tl_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
-          s->tl_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          if(!s->fixed_width)
+            s->tl_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
@@ -2370,7 +2376,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           if (s->br_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
-          s->br_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          if(!s->fixed_width)
+            s->br_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
@@ -2388,7 +2395,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           if (s->page_width == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
-          s->page_width = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          if(!s->fixed_width)
+            s->page_width = FIXED_MM_TO_SCANNER_UNIT(val_c);
+
           *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
@@ -2822,16 +2831,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
         /* this backend only sends single frame images */
         params->last_frame = 1;
 
-        /* dumb scanner, always scans full width */
-        /*FIXME: move this elsewhere*/
-        if(s->fixed_width){
-          s->tl_x = 0;
-          params->pixels_per_line = s->max_x * s->resolution_x / 1200;
-        }
-        else{
-          params->pixels_per_line
-	    = (s->br_x - s->tl_x) * s->resolution_x / 1200;
-        }
+        params->pixels_per_line = (s->br_x - s->tl_x) * s->resolution_x / 1200;
   
         params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
 
@@ -3369,35 +3369,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       return SANE_STATUS_EOF;
   }
 
-  /* alternating pnm interlacing */
+  /* double width pnm interlacing */
   if(s->source == SOURCE_ADF_DUPLEX
     && s->params.format != SANE_FRAME_JPEG
-    && s->duplex_interlace == DUPLEX_INTERLACE_ALT){
-
-      /* buffer front side */
-      if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]){
-          ret = read_from_scanner(s, SIDE_FRONT);
-          if(ret){
-            DBG(5,"sane_read: front returning %d\n",ret);
-            return ret;
-          }
-      }
-    
-      /* buffer back side */
-      if(s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
-          ret = read_from_scanner(s, SIDE_BACK);
-          if(ret){
-            DBG(5,"sane_read: back returning %d\n",ret);
-            return ret;
-          }
-      }
-
-  } /* end alt pnm */
-
-  /* byte-level pnm interlacing */
-  else if(s->source == SOURCE_ADF_DUPLEX
-    && s->params.format != SANE_FRAME_JPEG
-    && s->duplex_interlace == DUPLEX_INTERLACE_BYTE){
+    && s->duplex_interlace != DUPLEX_INTERLACE_NONE
+  ){
 
       /* buffer both sides */
       if ( s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
@@ -3583,18 +3559,9 @@ read_from_scanner(struct scanner *s, int side)
     }
   }
 
+  /* we've got some data, descramble and store it */
   if(inLen && !extra){
-
-    /*non-jpeg, scrambled read-heads*/
-    if(s->params.format != SANE_FRAME_JPEG
-     && s->head_interlace == HEAD_INTERLACE_2510){
-      copy_buffer_2510 (s, in, inLen, side);
-    }
-
-    /*jpeg or normal data*/
-    else {
-      copy_buffer (s, in, inLen, side);
-    }
+    copy_simplex(s,in,inLen,side);
   }
 
   free(in);
@@ -3686,18 +3653,9 @@ read_from_scanner_duplex(struct scanner *s)
     inLen = 0;
   }
 
+  /* we've got some data, descramble and store it */
   if(inLen && !extra){
-
-    /*non-jpeg, scrambled read-heads*/
-    if(s->params.format != SANE_FRAME_JPEG
-     && s->head_interlace == HEAD_INTERLACE_2510){
-      copy_buffer_duplex_2510(s,in,inLen);
-    }
-
-    /*jpeg or normal data*/
-    else {
-      copy_buffer_duplex(s,in,inLen);
-    }
+    copy_duplex(s,in,inLen);
   }
 
   free(in);
@@ -3713,338 +3671,275 @@ read_from_scanner_duplex(struct scanner *s)
   return ret;
 }
 
+/* these functions copy image data from input buffer to scanner struct 
+ * descrambling it, and putting it in the right side buffer */
+/* NOTE: they assume buffer is scanline aligned */
 static SANE_Status
-copy_buffer(struct scanner *s, unsigned char * buf, int len, int side)
-{
-  SANE_Status ret=SANE_STATUS_GOOD;
-
-  DBG (10, "copy_buffer: start\n");
-
-  memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
-  s->bytes_rx[side] += len;
-
-  DBG (10, "copy_buffer: finish\n");
-
-  return ret;
-}
-
-/* NOTE: this code assumes buffer is scanline aligned */
-static SANE_Status
-copy_buffer_2510(struct scanner *s, unsigned char * buf, int len, int side)
+copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
   int i, j;
   int bwidth = s->params.bytes_per_line;
+  int pwidth = s->params.pixels_per_line;
   int t = bwidth/3;
   int f = bwidth/4;
   int tw = bwidth/12;
 
-  DBG (10, "copy_buffer_2510: start\n");
-
-  if(s->mode == MODE_COLOR){
-
-    for(i=0; i<len; i+=bwidth){
-
-      /* first read head (third byte of every three) */
-      for(j=t-1;j>=0;j-=3){
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+t+j];
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+2*t+j];
-      }
-      /* second read head (first byte of every three) */
-      for(j=f-3;j>=0;j-=3){
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+t+j];
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+2*t+j];
-      }
-      /* third read head (second byte of every three) */
-      for(j=t-2;j>=0;j-=3){
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+t+j];
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+2*t+j];
-      }
-      /* padding */
-      for(j=0;j<tw;j++){
-        s->buffers[side][s->bytes_rx[side]++] = 0;
-      }
+  /* invert image if scanner needs it for this mode */
+  /* jpeg data does not use inverting */
+  if(s->params.format != SANE_FRAME_JPEG && s->reverse_by_mode[s->mode]){
+    for(i=0; i<len; i++){
+      buf[i] ^= 0xff;
     }
   }
 
-  else {
+  if(s->params.format == SANE_FRAME_GRAY){
 
-    for(i=0; i<len; i+=bwidth){
+    switch (s->gray_interlace[side]) {
   
-      /* first read head (third byte of every three) */
-      for(j=bwidth-1;j>=0;j-=3){
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-      }
-      /* second read head (first byte of every three) */
-      for(j=bwidth*3/4-3;j>=0;j-=3){
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-      }
-      /* third read head (second byte of every three) */
-      for(j=bwidth-2;j>=0;j-=3){
-        s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-      }
-      /* padding */
-      for(j=0;j<tw;j++){
-        s->buffers[side][s->bytes_rx[side]++] = 0;
-      }
+      case GRAY_INTERLACE_2510:
+        DBG (10, "copy_simplex: gray, 2510\n");
+      
+        for(i=0; i<len; i+=bwidth){
+        
+          /* first read head (third byte of every three) */
+          for(j=bwidth-1;j>=0;j-=3){
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+          }
+          /* second read head (first byte of every three) */
+          for(j=bwidth*3/4-3;j>=0;j-=3){
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+          }
+          /* third read head (second byte of every three) */
+          for(j=bwidth-2;j>=0;j-=3){
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+          }
+          /* padding */
+          for(j=0;j<tw;j++){
+            s->buffers[side][s->bytes_rx[side]++] = 0;
+          }
+        }
+        break;
+  
+      default:
+        DBG (10, "copy_simplex: gray, default\n");
+        memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
+        s->bytes_rx[side] += len;
+        break;
     }
   }
- 
-  DBG (10, "copy_buffer_2510: finish\n");
+
+  else if (s->params.format == SANE_FRAME_RGB){
+
+    switch (s->color_interlace[side]) {
+  
+      /* scanner returns color data as bgrbgr... */
+      case COLOR_INTERLACE_BGR:
+        DBG (10, "copy_simplex: color, BGR\n");
+        for(i=0; i<len; i+=bwidth){
+          for (j=0; j<pwidth; j++){
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j*3+2];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j*3+1];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j*3];
+          }
+        }
+        break;
+  
+      /* one line has the following format: rrr...rrrggg...gggbbb...bbb */
+      case COLOR_INTERLACE_RRGGBB:
+        DBG (10, "copy_simplex: color, RRGGBB\n");
+        for(i=0; i<len; i+=bwidth){
+          for (j=0; j<pwidth; j++){
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+pwidth+j];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+2*pwidth+j];
+          }
+        }
+        break;
+  
+      /* one line has the following format: rrr...RRRggg...GGGbbb...BBB
+       * where the 'capital' letters are the beginning of the line */
+      case COLOR_INTERLACE_rRgGbB:
+        DBG (10, "copy_simplex: color, rRgGbB\n");
+        for(i=0; i<len; i+=bwidth){
+          for (j=pwidth-1; j>=0; j--){
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+pwidth+j];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+2*pwidth+j];
+          }
+        }
+        break;
+  
+      case COLOR_INTERLACE_2510:
+        DBG (10, "copy_simplex: color, 2510\n");
+      
+        for(i=0; i<len; i+=bwidth){
+      
+          /* first read head (third byte of every three) */
+          for(j=t-1;j>=0;j-=3){
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+t+j];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+2*t+j];
+          }
+          /* second read head (first byte of every three) */
+          for(j=f-3;j>=0;j-=3){
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+t+j];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+2*t+j];
+          }
+          /* third read head (second byte of every three) */
+          for(j=t-2;j>=0;j-=3){
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+t+j];
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+2*t+j];
+          }
+          /* padding */
+          for(j=0;j<tw;j++){
+            s->buffers[side][s->bytes_rx[side]++] = 0;
+          }
+        }
+        break;
+  
+      default:
+        DBG (10, "copy_simplex: color, default\n");
+        memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
+        s->bytes_rx[side] += len;
+        break;
+    }
+  }
+
+  /* only used by jpeg data? */
+  else{
+    DBG (10, "copy_simplex: default\n");
+    memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
+    s->bytes_rx[side] += len;
+  }
+
+  DBG (10, "copy_simplex: finished\n");
 
   return ret;
 }
 
-/* split the data between two buffers
- * assumes that first byte of buffer is frontside data
- * and that the buffer starts/ends on a wide line boundary */
+/* split the data between two buffers, hand them to copy_simplex()
+ * assumes that the buffer aligns to a double-wide line boundary */
 static SANE_Status
-copy_buffer_duplex(struct scanner *s, unsigned char * buf, int len)
+copy_duplex(struct scanner *s, unsigned char * buf, int len)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
   int i,j;
+  int bwidth = s->params.bytes_per_line;
+  int dbwidth = 2*bwidth;
+  unsigned char * front;
+  unsigned char * back;
+  int flen=0, blen=0;
 
-  DBG (10, "copy_buffer_duplex: start\n");
+  DBG (10, "copy_duplex: start\n");
 
-  /*frontside, just copy*/
-  for(i=0; i<len; i+=2*s->params.bytes_per_line){
-    for(j=0; j<2*s->params.bytes_per_line; j+=2){
-      s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+j];
+  /*split the input into two simplex output buffers*/
+  front = calloc(1,len/2);
+  if(!front){
+    DBG (5, "copy_duplex: no front mem\n");
+    return SANE_STATUS_NO_MEM;
+  }
+  back = calloc(1,len/2);
+  if(!back){
+    DBG (5, "copy_duplex: no back mem\n");
+    free(front);
+    return SANE_STATUS_NO_MEM;
+  }
+
+  if(s->duplex_interlace == DUPLEX_INTERLACE_2510){
+
+    DBG (10, "copy_duplex: 2510\n");
+
+    for(i=0; i<len; i+=dbwidth){
+  
+      for(j=0;j<dbwidth;j+=6){
+
+        /* we are actually only partially descrambling,
+         * copy_simplex() does the rest */
+
+        /* front */
+        /* 2nd head: 3rd byte -> 1st byte */
+        /* 3rd head: 0th byte -> 2nd byte */
+        /* 1st head: 1st byte -> 3rd byte */
+        front[flen++] = buf[j+3];
+        front[flen++] = buf[j];
+        front[flen++] = buf[j+1];
+  
+        /* back */
+        /* 2nd head: 2nd byte -> 1st byte */
+        /* 3rd head: 4th byte -> 2nd byte */
+        /* 1st head: 5th byte -> 3rd byte */
+        back[blen++] = buf[j+2];
+        back[blen++] = buf[j+4];
+        back[blen++] = buf[j+5];
+      }
     }
   }
 
-  /*backside color: channels are in RGB order, but each is mirrored*/
-  if(s->mode == MODE_COLOR){
-    for(i=0; i<len; i+=2*s->params.bytes_per_line){
-      for(j=s->params.pixels_per_line; j>0; j--){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+j*2-1];
-      }
-      for(j=s->params.pixels_per_line; j>0; j--){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++]
-          = buf[i+2*s->params.pixels_per_line+j*2-1];
-      }
-      for(j=s->params.pixels_per_line; j>0; j--){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++]
-          = buf[i+4*s->params.pixels_per_line+j*2-1];
-      }
-    }
-  }
-  /*backside gray: single mirrored channel*/
-  else{
-    for(i=0; i<len; i+=2*s->params.bytes_per_line){
-      for(j=2*s->params.bytes_per_line; j>0; j-=2){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+j-1];
-      }
+  /* no scanners use this? */
+  else if(s->duplex_interlace == DUPLEX_INTERLACE_FFBB){
+    for(i=0; i<len; i+=dbwidth){
+      memcpy(front+flen,buf+i,bwidth);
+      flen+=bwidth;
+      memcpy(back+blen,buf+i+bwidth,bwidth);
+      blen+=bwidth;
     }
   }
 
-  DBG (10, "copy_buffer_duplex: finish\n");
+  /*just alternating bytes, FBFBFB*/
+  else {
+    for(i=0; i<len; i+=2){
+      front[flen++] = buf[i];
+      back[blen++] = buf[i+1];
+    }
+  }
+
+  copy_simplex(s,front,flen,SIDE_FRONT);
+  copy_simplex(s,back,blen,SIDE_BACK);
+
+  free(front);
+  free(back);
+
+  DBG (10, "copy_duplex: finished\n");
 
   return ret;
 }
   
-/* NOTE: this code assumes buffer is scanline aligned */
 static SANE_Status
-copy_buffer_duplex_2510(struct scanner *s, unsigned char * buf, int len)
+read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len,
+  SANE_Int * len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
-  int i, j;
+  int bytes = max_len;
+  int remain = s->bytes_rx[side] - s->bytes_tx[side];
 
-  int bwidth = s->params.bytes_per_line;
-  int tq = bwidth*3/4;
-  int t = bwidth/3;
-  int f = bwidth/4;
-  int tf = bwidth/24;
+  DBG (10, "read_from_buffer: start\n");
 
-  DBG (10, "copy_buffer_duplex_2510: start\n");
-
-  if(s->mode == MODE_COLOR){
-
-    for(i=0; i<len; i+=bwidth){
-
-      /* first read head */
-      for(j=t-5;j>=0;j-=6){
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+j];
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+t+j];
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+2*t+j];
-      }
-      /* second read head */
-      for(j=f-3;j>=0;j-=6){
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+j];
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+t+j];
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+2*t+j];
-      }
-      /* third read head */
-      for(j=t-6;j>=0;j-=6){
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+j];
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+t+j];
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+2*t+j];
-      }
-      /* padding */
-      for(j=0;j<tf;j++){
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = 0;
-      }
-
-      /* first read head */
-      for(j=t-1;j>=0;j-=6){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+j];
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+t+j];
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+2*t+j];
-      }
-      /* second read head */
-      for(j=f-4;j>=0;j-=6){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+j];
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+t+j];
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+2*t+j];
-      }
-      /* third read head */
-      for(j=t-2;j>=0;j-=6){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+j];
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+t+j];
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+2*t+j];
-      }
-      /* padding */
-      for(j=0;j<tf;j++){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = 0;
-      }
-    }
+  /* figure out the max amount to transfer */
+  if(bytes > remain){
+    bytes = remain;
   }
 
-  else {
+  *len = bytes;
 
-    for(i=0; i<len; i+=bwidth){
-  
-      /* first read head */
-      for(j=bwidth-5;j>=0;j-=6){
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+j];
-      }
-      /* second read head */
-      for(j=tq-3;j>=0;j-=6){
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+j];
-      }
-      /* third read head */
-      for(j=bwidth-6;j>=0;j-=6){
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = buf[i+j];
-      }
-      /* padding */
-      for(j=0;j<tf;j++){
-        s->buffers[SIDE_FRONT][s->bytes_rx[SIDE_FRONT]++] = 0;
-      }
+  DBG(15, "read_from_buffer: si:%d to:%d tx:%d re:%d bu:%d pa:%d\n", side,
+    s->bytes_tot[side], s->bytes_tx[side], remain, max_len, bytes);
 
-      /* first read head */
-      for(j=bwidth-1;j>=0;j-=6){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+j];
-      }
-      /* second read head */
-      for(j=tq-4;j>=0;j-=6){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+j];
-      }
-      /* third read head */
-      for(j=bwidth-2;j>=0;j-=6){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = buf[i+j];
-      }
-      /* padding */
-      for(j=0;j<tf;j++){
-        s->buffers[SIDE_BACK][s->bytes_rx[SIDE_BACK]++] = 0;
-      }
-    }
+  /*FIXME this needs to timeout eventually */
+  if(!bytes){
+    DBG(5,"read_from_buffer: nothing to do\n");
+    return SANE_STATUS_GOOD;
   }
- 
-  DBG (10, "copy_buffer_duplex_2510: finish\n");
+
+  /* copy to caller */
+  memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
+  s->bytes_tx[side] += bytes;
+
+  DBG (10, "read_from_buffer: finish\n");
 
   return ret;
-}
-
-static SANE_Status
-read_from_buffer(struct scanner *s, SANE_Byte * buf,
-  SANE_Int max_len, SANE_Int * len, int side)
-{
-    SANE_Status ret=SANE_STATUS_GOOD;
-    int bytes = max_len, i=0;
-    int remain = s->bytes_rx[side] - s->bytes_tx[side];
-  
-    DBG (10, "read_from_buffer: start\n");
-  
-    /* figure out the max amount to transfer */
-    if(bytes > remain){
-        bytes = remain;
-    }
-  
-    *len = bytes;
-  
-    DBG(15, "read_from_buffer: si:%d to:%d tx:%d re:%d bu:%d pa:%d\n", side,
-      s->bytes_tot[side], s->bytes_tx[side], remain, max_len, bytes);
-  
-    /*FIXME this needs to timeout eventually */
-    if(!bytes){
-        DBG(5,"read_from_buffer: nothing to do\n");
-        return SANE_STATUS_GOOD;
-    }
-  
-    /* jpeg data does not use typical interlacing or inverting, just copy */
-    if(s->params.format == SANE_FRAME_JPEG){
-        memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-    }
-
-    /* not using jpeg, colors maybe interlaced, pixels maybe inverted */
-    else {
-
-        /* scanners interlace colors in many different ways */
-        /* use separate code to convert to regular rgb */
-        if(s->mode == MODE_COLOR){
-            int byteOff, lineOff;
-
-            switch (s->color_interlace) {
-
-                /* scanner returns pixel data as bgrbgr... */
-                case COLOR_INTERLACE_BGR:
-                    for (i=0; i < bytes; i++){
-                        byteOff = s->bytes_tx[side] + i;
-                        buf[i] = s->buffers[side][ byteOff-((byteOff%3)-1)*2 ];
-                    }
-                    break;
-
-                /* one line has the following format:
-                 * rrr...rrrggg...gggbbb...bbb */
-                case COLOR_INTERLACE_RRGGBB:
-                    for (i=0; i < bytes; i++){
-                        byteOff = s->bytes_tx[side] + i;
-                        lineOff = byteOff % s->params.bytes_per_line;
-
-                        buf[i] = s->buffers[side][
-                          byteOff - lineOff                       /* line  */
-                          + (lineOff%3)*s->params.pixels_per_line /* color */
-                          + (lineOff/3)                           /* pixel */
-                        ];
-                    }
-                    break;
-
-                default:
-                    memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-                    break;
-            }
-        }
-        /* gray/ht/binary */
-        else{
-            memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-        }
-
-        /* invert image if scanner needs it for this mode */
-        if (s->reverse_by_mode[s->mode]){
-            for ( i = 0; i < *len; i++ ) {
-                buf[i] ^= 0xff;
-            }
-        }
-    }
-  
-    s->bytes_tx[side] += *len;
-      
-    DBG (10, "read_from_buffer: finish\n");
-  
-    return ret;
 }
 
 

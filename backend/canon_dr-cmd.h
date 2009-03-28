@@ -93,7 +93,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_RS_ILI(b)                     getbitfield(b + 0x02, 1, 5)
 #define get_RS_sense_key(b)               getbitfield(b + 0x02, 0x0f, 0)
 #define get_RS_information(b)             getnbyte(b+0x03, 4)	/* normally 0 */
-#define get_RS_additional_length(b)       b[0x07]	/* always 10 */
+#define get_RS_additional_length(b)       b[0x07]	/* always 6? */
 #define get_RS_ASC(b)                     b[0x0c]
 #define get_RS_ASCQ(b)                    b[0x0d]
 #define get_RS_SKSV(b)                    getbitfield(b+0x0f,1,7) /* valid=0 */

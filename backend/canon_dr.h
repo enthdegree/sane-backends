@@ -153,9 +153,9 @@ struct scanner
   int padded_read;      /* some machines need extra 12 bytes on reads */
   int fixed_width;      /* some machines always scan full width */
 
-  int color_interlace;  /* different models interlace colors differently     */
+  int gray_interlace[2];  /* different models interlace heads differently    */
+  int color_interlace[2]; /* different models interlace colors differently   */
   int duplex_interlace; /* different models interlace sides differently      */
-  int head_interlace;   /* different models interlace heads differently      */
   int jpeg_interlace;   /* different models interlace jpeg sides differently */
 
   int reverse_by_mode[6]; /* mode specific */
@@ -332,16 +332,19 @@ enum {
 #define COLOR_WHITE 1
 #define COLOR_BLACK 2
 
-#define HEAD_INTERLACE_NONE 0
-#define HEAD_INTERLACE_2510 1
+#define GRAY_INTERLACE_NONE 0
+#define GRAY_INTERLACE_2510 1
 
 #define COLOR_INTERLACE_RGB 0
 #define COLOR_INTERLACE_BGR 1
 #define COLOR_INTERLACE_RRGGBB 2
+#define COLOR_INTERLACE_rRgGbB 3
+#define COLOR_INTERLACE_2510 4
 
 #define DUPLEX_INTERLACE_NONE 0
-#define DUPLEX_INTERLACE_ALT 1
-#define DUPLEX_INTERLACE_BYTE 2
+#define DUPLEX_INTERLACE_FFBB 1
+#define DUPLEX_INTERLACE_FBFB 2
+#define DUPLEX_INTERLACE_2510 3
 
 #define JPEG_INTERLACE_ALT 0 
 #define JPEG_INTERLACE_NONE 1 
@@ -470,11 +473,9 @@ static SANE_Status cancel(struct scanner *s);
 static SANE_Status read_from_scanner(struct scanner *s, int side);
 static SANE_Status read_from_scanner_duplex(struct scanner *s);
 
-static SANE_Status copy_buffer(struct scanner *s, unsigned char * buf, int len, int side);
-static SANE_Status copy_buffer_2510(struct scanner *s, unsigned char * buf, int len, int side);
+static SANE_Status copy_simplex(struct scanner *s, unsigned char * buf, int len, int side);
 
-static SANE_Status copy_buffer_duplex(struct scanner *s, unsigned char * buf, int len);
-static SANE_Status copy_buffer_duplex_2510(struct scanner *s, unsigned char * buf, int len);
+static SANE_Status copy_duplex(struct scanner *s, unsigned char * buf, int len);
 
 static SANE_Status read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 

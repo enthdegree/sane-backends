@@ -1,3 +1,7 @@
+2009-03-28 Julien Blache <jb@jblache.org>
+	* backend/avision.c: fix typos in error messages in
+	sense_handler().
+
 2009-03-27  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v23
 	- rewrite all image data processing code

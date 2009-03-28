@@ -1677,7 +1677,7 @@ sense_handler (int fd, u_char* sense, void* arg)
       text = "standard sense";
       break;
     case 0x7f:
-      text = "Avision specific sense";
+      text = "Avision-specific sense";
       break;
     default:
       text = "unknown sense";
@@ -1757,10 +1757,10 @@ sense_handler (int fd, u_char* sense, void* arg)
 	
 	ADDITIONAL_SENSE (0x1a,0x00, "parameter list lenght error");
 	
-	ADDITIONAL_SENSE (0x20,0x00, "Invaild command");
-	ADDITIONAL_SENSE (0x24,0x00, "Invaild field in CDB");
+	ADDITIONAL_SENSE (0x20,0x00, "Invalid command");
+	ADDITIONAL_SENSE (0x24,0x00, "Invalid field in CDB");
 	ADDITIONAL_SENSE (0x25,0x00, "Logical unit not supported");
-	ADDITIONAL_SENSE (0x26,0x00, "Invaild field in parameter list");
+	ADDITIONAL_SENSE (0x26,0x00, "Invalid field in parameter list");
 	ADDITIONAL_SENSE (0x26,0x01, "parameter not supported");
 	ADDITIONAL_SENSE (0x26,0x02, "parameter value invalid");
 	ADDITIONAL_SENSE (0x29,0x00, "Power-on, reset or bus device reset occurred");
@@ -1775,7 +1775,7 @@ sense_handler (int fd, u_char* sense, void* arg)
 	ADDITIONAL_SENSE (0x44,0x02, "ADF DRAM Error(OKI only)");
 	ADDITIONAL_SENSE (0x44,0x03, "Write NVRAM Error");
 	ADDITIONAL_SENSE (0x47,0x00, "SCSI paritx error");
-	ADDITIONAL_SENSE (0x49,0x00, "invaild message error");
+	ADDITIONAL_SENSE (0x49,0x00, "Invalid message error");
 	
 	ADDITIONAL_SENSE (0x60,0x00, "Lamp failure");
 	ADDITIONAL_SENSE (0x60,0x01, "Flatbed Lamp error (Oki only)");
@@ -1788,7 +1788,7 @@ sense_handler (int fd, u_char* sense, void* arg)
 	ADDITIONAL_SENSE (0x80,0x04, "ADF paper end"; status = SANE_STATUS_EOF);
 	ADDITIONAL_SENSE (0x80,0x05, "Multi-feed (AV220,Kodak)");
 	ADDITIONAL_SENSE (0x80,0x06, "ADF prefeeding (OKI only)");
-	ADDITIONAL_SENSE (0x80,0x07, "Fltabed cover open (OKI only)"; status = SANE_STATUS_COVER_OPEN);
+	ADDITIONAL_SENSE (0x80,0x07, "Flatbed cover open (OKI only)"; status = SANE_STATUS_COVER_OPEN);
 	ADDITIONAL_SENSE (0x80,0x08, "FW module doesn't match with scanner");
         ADDITIONAL_SENSE (0x80,0x09, "Papers fed from multiple trays (DM272)");
         ADDITIONAL_SENSE (0x80,0x0A, "ADF Paper Start");

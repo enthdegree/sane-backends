@@ -62,6 +62,7 @@
 :model "DR-2050C"
 :interface "USB"
 :usbid "0x04a9" "0x160a"
+:status :basic
 :comment "Gray/Color, Simplex/Duplex working. Poor calibration, only full-width scans."
 
 :model "DR-2050SP"
@@ -73,6 +74,7 @@
 :model "DR-2080C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1601"
+:status :basic
 :comment "Gray/Color, Simplex/Duplex working. Poor calibration, only full-width scans."
 
 :model "DR-2510C"

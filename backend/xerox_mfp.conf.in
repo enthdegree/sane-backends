@@ -2,3 +2,6 @@
 
 #Dell MFP Laser Printer 1815dn
 usb 0x413c 0x5124
+
+#Xerox Phaser 6110MFP
+usb 0x0924 0x3d5d

@@ -168,36 +168,37 @@ charTo2byte (char d[], char s[], int len)
   return copied;
 }
 
-static char *getusername(void)
+static char *
+getusername (void)
 {
   static char noname[] = "sane_pixma";
   struct passwd *pwdent;
- 
-#ifdef HAVE_PWD_H 
-  if (((pwdent = getpwuid(geteuid())) != NULL) &&
-      (pwdent->pw_name != NULL))
+
+#ifdef HAVE_PWD_H
+  if (((pwdent = getpwuid (geteuid ())) != NULL) && (pwdent->pw_name != NULL))
     return pwdent->pw_name;
 #endif
   return noname;
 }
 
 
-static char *truncate_hostname(char *hostname, char *short_hostname)
+static char *
+truncate_hostname (char *hostname, char *short_hostname)
 {
   char *dot;
 
   /* determine a short hostname (max HOSTNAME_SHORT_MAX chars */
- 
-  strncpy(short_hostname, hostname, SHORT_HOSTNAME_MAX);
-  short_hostname[SHORT_HOSTNAME_MAX -1] = '\0';
- 
-  if (strlen(hostname) > SHORT_HOSTNAME_MAX)
+
+  strncpy (short_hostname, hostname, SHORT_HOSTNAME_MAX);
+  short_hostname[SHORT_HOSTNAME_MAX - 1] = '\0';
+
+  if (strlen (hostname) > SHORT_HOSTNAME_MAX)
     {
-    /* this is a hostname, not an ip-address, so remove domain part of the name */
-    
-      if ((dot = index(short_hostname, '.')) != NULL )
-        *dot = '\0';
-    } 
+      /* this is a hostname, not an ip-address, so remove domain part of the name */
+
+      if ((dot = index (short_hostname, '.')) != NULL)
+	*dot = '\0';
+    }
   return short_hostname;
 }
 
@@ -209,8 +210,8 @@ bjnp_open_tcp (int devno)
 
   if ((sock = socket (PF_INET, SOCK_STREAM, 0)) < 0)
     {
-      PDBG(pixma_dbg (LOG_CRIT, "bjnp_open_tcp: Can not create socket: %s\n",
-		 strerror (errno)));
+      PDBG (pixma_dbg (LOG_CRIT, "bjnp_open_tcp: Can not create socket: %s\n",
+		       strerror (errno)));
       return -1;
     }
 
@@ -242,8 +243,9 @@ bjnp_open_tcp (int devno)
       (sock, (struct sockaddr *) &device[devno].addr,
        sizeof (device[devno].addr)) != 0)
     {
-      PDBG(pixma_dbg (LOG_CRIT, "bjnp_open_tcp: Can not connect to scanner: %s\n",
-		 strerror (errno)));
+      PDBG (pixma_dbg
+	    (LOG_CRIT, "bjnp_open_tcp: Can not connect to scanner: %s\n",
+	     strerror (errno)));
       return -1;
     }
   device[devno].fd = sock;
@@ -274,8 +276,8 @@ split_uri (const char *devname, char *method, char *hostname, int *port,
 
   if (((strncmp (start + i, "://", 3) != 0)) || (i > 255))
     {
-      PDBG(pixma_dbg (LOG_NOTICE, "Can not find method in %s (offset %d)\n",
-		 devname, i));
+      PDBG (pixma_dbg (LOG_NOTICE, "Can not find method in %s (offset %d)\n",
+		       devname, i));
       return -1;
     }
 
@@ -296,7 +298,7 @@ split_uri (const char *devname, char *method, char *hostname, int *port,
 
   if ((strlen (start) == 0) || (i > 255))
     {
-      PDBG(pixma_dbg (LOG_NOTICE, "Can not find hostname in %s\n", devname));
+      PDBG (pixma_dbg (LOG_NOTICE, "Can not find hostname in %s\n", devname));
       return -1;
     }
 
@@ -318,8 +320,8 @@ split_uri (const char *devname, char *method, char *hostname, int *port,
 	{
 	  if ((start[i] < '0') || (start[i] > '9') || (i > 5))
 	    {
-	      PDBG(pixma_dbg (LOG_NOTICE, "Can not find port number in %s\n",
-			 devname));
+	      PDBG (pixma_dbg (LOG_NOTICE, "Can not find port number in %s\n",
+			       devname));
 	      return -1;
 	    }
 
@@ -354,12 +356,12 @@ set_cmd (int devno, struct BJNP_command *cmd, char cmd_code, int payload_len)
   strncpy (cmd->BJNP_id, BJNP_STRING, sizeof (cmd->BJNP_id));
   cmd->dev_type = BJNP_CMD_SCAN;
   cmd->cmd_code = cmd_code;
-  cmd->unknown1 = htons(0);
+  cmd->unknown1 = htons (0);
   if (devno == -1)
     {
       /* device not opened, use 0 for serial and session) */
-      cmd->seq_no = htons(0);
-      cmd->session_id = htons(0);
+      cmd->seq_no = htons (0);
+      cmd->session_id = htons (0);
     }
   else
     {
@@ -395,7 +397,8 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
   if ((sockfd = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
       PDBG (pixma_dbg
-	    (LOG_CRIT, "udp_command: can not open socket - %s\n", strerror (errno)));
+	    (LOG_CRIT, "udp_command: can not open socket - %s\n",
+	     strerror (errno)));
       return -1;
     }
 
@@ -404,7 +407,8 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
        (socklen_t) sizeof (struct sockaddr_in)) != 0)
     {
       PDBG (pixma_dbg
-	    (LOG_CRIT, "udp_command: connect failed- %s\n", strerror (errno)));
+	    (LOG_CRIT, "udp_command: connect failed- %s\n",
+	     strerror (errno)));
       return -1;
     }
 
@@ -420,15 +424,16 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
 
       attempt = 0;
       do
-        {
-         /* wait for data to be received, ignore signals being received */
-          FD_ZERO (&fdset);
-          FD_SET (sockfd, &fdset);
-          timeout.tv_sec = device[dev_no].bjnp_timeout_sec;
-          timeout.tv_usec = device[dev_no].bjnp_timeout_msec;
-        }
-      while (((result = select (sockfd + 1, &fdset, NULL, NULL, &timeout)) <= 0) &&
-             (errno == EINTR) && (attempt++ < MAX_SELECT_ATTEMPTS));
+	{
+	  /* wait for data to be received, ignore signals being received */
+	  FD_ZERO (&fdset);
+	  FD_SET (sockfd, &fdset);
+	  timeout.tv_sec = device[dev_no].bjnp_timeout_sec;
+	  timeout.tv_usec = device[dev_no].bjnp_timeout_msec;
+	}
+      while (((result =
+	       select (sockfd + 1, &fdset, NULL, NULL, &timeout)) <= 0)
+	     && (errno == EINTR) && (attempt++ < MAX_SELECT_ATTEMPTS));
 
       if (result <= 0)
 	{
@@ -493,10 +498,10 @@ get_scanner_id (const int dev_no, char *model)
   id = (struct IDENTITY *) resp_buf;
 
   /* truncate string to be safe */
-  id->id[BJNP_IEEE1284_MAX -1] = '\0'; 
+  id->id[BJNP_IEEE1284_MAX - 1] = '\0';
   id_len = ntohs (id->id_len) - sizeof (id->id_len);
 
-  strcpy(scanner_id, id->id);
+  strcpy (scanner_id, id->id);
 
   PDBG (pixma_dbg (LOG_INFO, "Scanner identity string = %s\n", scanner_id));
 
@@ -574,8 +579,9 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
 }
 
 static int
-bjnp_send_broadcast (struct in_addr local_addr, int local_port, struct in_addr broadcast_addr,
-                     struct BJNP_command cmd, int size)
+bjnp_send_broadcast (struct in_addr local_addr, int local_port,
+		     struct in_addr broadcast_addr, struct BJNP_command cmd,
+		     int size)
 {
   /*
    * send command to interface and return open socket
@@ -589,7 +595,8 @@ bjnp_send_broadcast (struct in_addr local_addr, int local_port, struct in_addr b
   if ((sockfd = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
       PDBG (pixma_dbg
-	    (LOG_CRIT, "bjnp_send_broadcast: can not open socket - %s", strerror (errno)));
+	    (LOG_INFO, "bjnp_send_broadcast: can not open socket - %s",
+	     strerror (errno)));
       return -1;
     }
 
@@ -600,7 +607,8 @@ bjnp_send_broadcast (struct in_addr local_addr, int local_port, struct in_addr b
        sizeof (broadcast)) != 0)
     {
       PDBG (pixma_dbg
-	    (LOG_CRIT, "bjnp_send_broadcast: setting socket options failed - %s",
+	    (LOG_INFO,
+	     "bjnp_send_broadcast: setting socket options failed - %s",
 	     strerror (errno)));
       close (sockfd);
       return -1;
@@ -618,7 +626,9 @@ bjnp_send_broadcast (struct in_addr local_addr, int local_port, struct in_addr b
        (socklen_t) sizeof (sendaddr)) != 0)
     {
       PDBG (pixma_dbg
-	    (LOG_CRIT, "bjnp_send_broadcast: bind socket to local address failed - %s\n", strerror (errno)));
+	    (LOG_INFO,
+	     "bjnp_send_broadcast: bind socket to local address failed - %s\n",
+	     strerror (errno)));
       close (sockfd);
       return -1;
     }
@@ -637,8 +647,8 @@ bjnp_send_broadcast (struct in_addr local_addr, int local_port, struct in_addr b
 			  (struct sockaddr *) &sendaddr,
 			  sizeof (sendaddr))) != size)
     {
-      PDBG (pixma_dbg (LOG_CRIT,
-		       "bjnp_send_broadcasts: Sent only %x = %d bytes of packet, error = %s\n",
+      PDBG (pixma_dbg (LOG_INFO,
+		       "bjnp_send_broadcast: Sent only %x = %d bytes of packet, error = %s\n",
 		       numbytes, numbytes, strerror (errno)));
       /* not allowed, skip this interface */
 
@@ -661,11 +671,12 @@ bjnp_finish_job (int devno)
 
   set_cmd (devno, &cmd, CMD_UDP_CLOSE, 0);
 
-  PDBG(pixma_dbg (LOG_DEBUG2, "Finish scanjob\n"));
-  PDBG(pixma_hexdump (LOG_DEBUG2, (char *) &cmd, sizeof (struct BJNP_command)));
+  PDBG (pixma_dbg (LOG_DEBUG2, "Finish scanjob\n"));
+  PDBG (pixma_hexdump
+	(LOG_DEBUG2, (char *) &cmd, sizeof (struct BJNP_command)));
   resp_len =
-    udp_command (devno, (char *) &cmd, sizeof (struct BJNP_command),
-		 resp_buf, BJNP_RESP_MAX);
+    udp_command (devno, (char *) &cmd, sizeof (struct BJNP_command), resp_buf,
+		 BJNP_RESP_MAX);
 
   if (resp_len != sizeof (struct BJNP_command))
     {
@@ -675,8 +686,8 @@ bjnp_finish_job (int devno)
 	     resp_len, (int) sizeof (struct BJNP_command)));
       return;
     }
-  PDBG(pixma_dbg (LOG_DEBUG2, "Finish scanjob response\n"));
-  PDBG(pixma_hexdump (LOG_DEBUG2, resp_buf, resp_len));
+  PDBG (pixma_dbg (LOG_DEBUG2, "Finish scanjob response\n"));
+  PDBG (pixma_hexdump (LOG_DEBUG2, resp_buf, resp_len));
 
 }
 
@@ -747,17 +758,17 @@ bjnp_get_intr (int devno, char type, char *hostname, char *user,
   /* length (plen) determines how many bytes get sent, this skips
      date for type 0 and 1 */
 
-  PDBG(pixma_dbg (LOG_DEBUG2, "Interrupt status request\n"));
-  PDBG(pixma_hexdump (LOG_DEBUG2, (char *) &request,
-		 sizeof (struct BJNP_command) + plen));
+  PDBG (pixma_dbg (LOG_DEBUG2, "Interrupt status request\n"));
+  PDBG (pixma_hexdump (LOG_DEBUG2, (char *) &request,
+		       sizeof (struct BJNP_command) + plen));
 
   resp_len = udp_command (devno, (char *) &request,
 			  sizeof (struct BJNP_command) + plen, resp_buf,
 			  BJNP_RESP_MAX);
   if (resp_len > 0)
     {
-      PDBG(pixma_dbg (LOG_DEBUG2, "Interrupt status response:\n"));
-      PDBG(pixma_hexdump (LOG_DEBUG2, resp_buf, resp_len));
+      PDBG (pixma_dbg (LOG_DEBUG2, "Interrupt status response:\n"));
+      PDBG (pixma_hexdump (LOG_DEBUG2, resp_buf, resp_len));
     }
   if (resp_len != sizeof (struct INTR_STATUS_RESP))
     {
@@ -800,9 +811,9 @@ bjnp_send_job_details (int devno, char *hostname, char *user, char *title)
   charTo2byte (job->username, user, sizeof (job->username));
   charTo2byte (job->jobtitle, title, sizeof (job->jobtitle));
 
-  PDBG(pixma_dbg (LOG_DEBUG2, "Job details\n"));
-  PDBG(pixma_hexdump (LOG_DEBUG2, cmd_buf,
-		 (sizeof (struct BJNP_command) + sizeof (*job))));
+  PDBG (pixma_dbg (LOG_DEBUG2, "Job details\n"));
+  PDBG (pixma_hexdump (LOG_DEBUG2, cmd_buf,
+		       (sizeof (struct BJNP_command) + sizeof (*job))));
 
   resp_len = udp_command (devno, cmd_buf,
 			  sizeof (struct JOB_DETAILS), resp_buf,
@@ -810,8 +821,8 @@ bjnp_send_job_details (int devno, char *hostname, char *user, char *title)
 
   if (resp_len > 0)
     {
-      PDBG(pixma_dbg (LOG_DEBUG2, "Job details response:\n"));
-      PDBG(pixma_hexdump (LOG_DEBUG2, resp_buf, resp_len));
+      PDBG (pixma_dbg (LOG_DEBUG2, "Job details response:\n"));
+      PDBG (pixma_hexdump (LOG_DEBUG2, resp_buf, resp_len));
       resp = (struct BJNP_command *) resp_buf;
       device[devno].session_id = ntohs (resp->session_id);
     }
@@ -830,18 +841,19 @@ bjnp_write (int devno, const SANE_Byte * buf, size_t count)
   struct SCAN_BUF bjnp_buf;
 
   if (device[devno].scanner_data_left)
-    PDBG (pixma_dbg (LOG_CRIT, "bjnp_write: ERROR scanner data left = 0x%lx = %ld\n",
-		     (long) device[devno].scanner_data_left, 
-                     (long) device[devno].scanner_data_left));
+    PDBG (pixma_dbg
+	  (LOG_CRIT, "bjnp_write: ERROR scanner data left = 0x%lx = %ld\n",
+	   (long) device[devno].scanner_data_left,
+	   (long) device[devno].scanner_data_left));
 
   /* set BJNP command header */
 
   set_cmd (devno, (struct BJNP_command *) &bjnp_buf, CMD_TCP_SEND, count);
   memcpy (bjnp_buf.scan_data, buf, count);
-  PDBG (pixma_dbg (LOG_DEBUG, "bjnp_write: sending 0x%lx = %ld bytes\n", 
-                              (long) count, (long) count);
-  PDBG(	pixma_hexdump (LOG_DEBUG2, (char *) &bjnp_buf,
-		       sizeof (struct BJNP_command) + count)));
+  PDBG (pixma_dbg (LOG_DEBUG, "bjnp_write: sending 0x%lx = %ld bytes\n",
+		   (long) count, (long) count);
+	PDBG (pixma_hexdump (LOG_DEBUG2, (char *) &bjnp_buf,
+			     sizeof (struct BJNP_command) + count)));
 
   if ((sent_bytes =
        send (device[devno].fd, &bjnp_buf,
@@ -878,7 +890,8 @@ bjnp_send_read_request (int devno)
 
   if (device[devno].scanner_data_left)
     PDBG (pixma_dbg
-	  (LOG_CRIT, "bjnp_send_read_request: ERROR scanner data left = 0x%lx = %ld\n",
+	  (LOG_CRIT,
+	   "bjnp_send_read_request: ERROR scanner data left = 0x%lx = %ld\n",
 	   (long) device[devno].scanner_data_left,
 	   (long) device[devno].scanner_data_left));
 
@@ -887,8 +900,8 @@ bjnp_send_read_request (int devno)
   set_cmd (devno, (struct BJNP_command *) &bjnp_buf, CMD_TCP_REQ, 0);
 
   PDBG (pixma_dbg (LOG_DEBUG, "bjnp_send_read_req sending command\n"));
-  PDBG(pixma_hexdump (LOG_DEBUG2, (char *) &bjnp_buf,
-		 sizeof (struct BJNP_command)));
+  PDBG (pixma_hexdump (LOG_DEBUG2, (char *) &bjnp_buf,
+		       sizeof (struct BJNP_command)));
 
   if ((sent_bytes =
        send (device[devno].fd, &bjnp_buf, sizeof (struct BJNP_command),
@@ -929,12 +942,13 @@ bjnp_recv_header (int devno)
 
   if (device[devno].scanner_data_left)
     PDBG (pixma_dbg
-	  (LOG_CRIT, "bjnp_send_request: ERROR scanner data left = 0x%lx = %ld\n",
+	  (LOG_CRIT,
+	   "bjnp_send_request: ERROR scanner data left = 0x%lx = %ld\n",
 	   (long) device[devno].scanner_data_left,
 	   (long) device[devno].scanner_data_left));
 
   attempt = 0;
-  do 
+  do
     {
       /* wait for data to be received, ignore signals being received */
       FD_ZERO (&input);
@@ -944,7 +958,7 @@ bjnp_recv_header (int devno)
       timeout.tv_usec = device[devno].bjnp_timeout_msec;
     }
   while (((result = select (fd + 1, &input, NULL, NULL, &timeout)) == -1) &&
-          (errno == EINTR) && (attempt++ < MAX_SELECT_ATTEMPTS));
+	 (errno == EINTR) && (attempt++ < MAX_SELECT_ATTEMPTS));
 
   if (result < 0)
     {
@@ -957,12 +971,12 @@ bjnp_recv_header (int devno)
     }
   else if (result == 0)
     {
-    terrno = errno;
-     PDBG (pixma_dbg (LOG_CRIT,
-                       "bjnp_recv_header: could not read response header (select timed out): %s!\n",
-                       strerror (terrno)));
-     errno = terrno;
-     return SANE_STATUS_IO_ERROR;
+      terrno = errno;
+      PDBG (pixma_dbg (LOG_CRIT,
+		       "bjnp_recv_header: could not read response header (select timed out): %s!\n",
+		       strerror (terrno)));
+      errno = terrno;
+      return SANE_STATUS_IO_ERROR;
     }
 
   /* get response header */
@@ -992,12 +1006,12 @@ bjnp_recv_header (int devno)
       return SANE_STATUS_IO_ERROR;
     }
 
-  if (ntohs(resp_buf.seq_no) != (uint16_t) device[devno].serial)
+  if (ntohs (resp_buf.seq_no) != (uint16_t) device[devno].serial)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT,
 	     "bjnp_recv_header:ERROR, Received response has serial %d, expected %d\n",
-	     (int) ntohs(resp_buf.seq_no), (int)device[devno].serial));
+	     (int) ntohs (resp_buf.seq_no), (int) device[devno].serial));
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -1005,10 +1019,11 @@ bjnp_recv_header (int devno)
 
 
   device[devno].scanner_data_left = ntohl (resp_buf.payload_len);
-  PDBG(pixma_dbg (LOG_DEBUG2, "TCP response header(scanner data = %ld bytes):\n",
-	     (long) device[devno].scanner_data_left));
-  PDBG(pixma_hexdump (LOG_DEBUG2, (char *) &resp_buf,
-		 sizeof (struct BJNP_command)));
+  PDBG (pixma_dbg
+	(LOG_DEBUG2, "TCP response header(scanner data = %ld bytes):\n",
+	 (long) device[devno].scanner_data_left));
+  PDBG (pixma_hexdump
+	(LOG_DEBUG2, (char *) &resp_buf, sizeof (struct BJNP_command)));
   return SANE_STATUS_GOOD;
 }
 
@@ -1047,7 +1062,7 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t * len)
       timeout.tv_usec = device[devno].bjnp_timeout_msec;
     }
   while (((result = select (fd + 1, &input, NULL, NULL, &timeout)) == -1) &&
-         (errno == EINTR) && (attempt++ < MAX_SELECT_ATTEMPTS));
+	 (errno == EINTR) && (attempt++ < MAX_SELECT_ATTEMPTS));
 
   if (result < 0)
     {
@@ -1080,9 +1095,9 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t * len)
       *len = 0;
       return SANE_STATUS_IO_ERROR;
     }
-  PDBG(pixma_dbg (LOG_DEBUG2, "Received TCP response payload (%ld bytes):\n",
-	     (long) recv_bytes));
-  PDBG(pixma_hexdump (LOG_DEBUG2, buffer, recv_bytes));
+  PDBG (pixma_dbg (LOG_DEBUG2, "Received TCP response payload (%ld bytes):\n",
+		   (long) recv_bytes));
+  PDBG (pixma_hexdump (LOG_DEBUG2, buffer, recv_bytes));
 
   device[devno].scanner_data_left =
     device[devno].scanner_data_left - recv_bytes;
@@ -1092,7 +1107,8 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t * len)
 }
 
 static BJNP_Status
-bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn, char *res_hostname)
+bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
+		      char *res_hostname)
 {
   char method[256];
   char hostname[256];
@@ -1102,7 +1118,7 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn, char *res_hostna
   struct in_addr *addr_list;
   int i;
 
-  PDBG (pixma_dbg (LOG_DEBUG, "bjnp_allocate_device(%s)", devname ));
+  PDBG (pixma_dbg (LOG_DEBUG, "bjnp_allocate_device(%s)", devname));
 
   if (split_uri (devname, method, hostname, &port, args) != 0)
     {
@@ -1112,7 +1128,8 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn, char *res_hostna
   if (strlen (args) != 0)
     {
       PDBG (pixma_dbg
-	    (LOG_CRIT, "URI may not contain userid, password or aguments: %s\n",
+	    (LOG_CRIT,
+	     "URI may not contain userid, password or aguments: %s\n",
 	     devname));
 
       return BJNP_STATUS_INVAL;
@@ -1145,17 +1162,17 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn, char *res_hostna
       /* check address, AF_INET is assumed */
 
       if ((device[i].addr.sin_port == htons (port)) &&
-          (device[i].addr.sin_addr.s_addr == addr_list[0].s_addr))
-        {
-          *dn = i;
-          return BJNP_STATUS_ALREADY_ALLOCATED;
-        }
-    } 
+	  (device[i].addr.sin_addr.s_addr == addr_list[0].s_addr))
+	{
+	  *dn = i;
+	  return BJNP_STATUS_ALREADY_ALLOCATED;
+	}
+    }
 
   /* return hostname if required */
 
   if (res_hostname != NULL)
-    strcpy(res_hostname, hostname);
+    strcpy (res_hostname, hostname);
 
   /*
    * No existing device structure found, fill new device structure
@@ -1164,7 +1181,9 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn, char *res_hostna
   if (first_free_device == BJNP_NO_DEVICES)
     {
       PDBG (pixma_dbg
-	    (LOG_CRIT, "Too many devices, ran out of device structures, can not add %s\n", devname));
+	    (LOG_CRIT,
+	     "Too many devices, ran out of device structures, can not add %s\n",
+	     devname));
       return BJNP_STATUS_INVAL;
     }
   *dn = first_free_device++;
@@ -1188,7 +1207,7 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn, char *res_hostna
 
   /* we make a pessimistic guess on blocksize, will be corrected to max size
    * of received block when we read data  */
-  
+
   device[*dn].blocksize = 1024;
   device[*dn].short_read = 0;
 
@@ -1261,46 +1280,47 @@ sanei_bjnp_find_devices (const char **conf_devices,
   for (i = 0; conf_devices[i] != NULL; i++)
     {
       PDBG (pixma_dbg
-	    (LOG_DEBUG, "Adding configured scanner: %s\n",
-	     conf_devices[i]));
+	    (LOG_DEBUG, "Adding configured scanner: %s\n", conf_devices[i]));
 
       /* Allocate device structure for scanner and read its model */
-      switch (bjnp_allocate_device (conf_devices[i], &dev_no, hostname)) 
+      switch (bjnp_allocate_device (conf_devices[i], &dev_no, hostname))
 	{
-          case BJNP_STATUS_GOOD:
-	    if (get_scanner_id (dev_no, makemodel) != 0)
-	      {
-	        PDBG (pixma_dbg
-		      (LOG_CRIT,
-		       "Cannot read scanner make & model: %s\n", uri));
-	      }
-            else
-              {
-	        /*
- 	         * inform caller of found scanner
-	         */
+	case BJNP_STATUS_GOOD:
+	  if (get_scanner_id (dev_no, makemodel) != 0)
+	    {
+	      PDBG (pixma_dbg
+		    (LOG_CRIT,
+		     "Cannot read scanner make & model: %s\n", uri));
+	    }
+	  else
+	    {
+	      /*
+	       * inform caller of found scanner
+	       */
 
-                truncate_hostname(hostname, short_hostname);
-	        attach_bjnp (conf_devices[i], makemodel, 
-                             short_hostname, pixma_devices);
-              }
-            break;
-          case BJNP_STATUS_ALREADY_ALLOCATED:
-             PDBG (pixma_dbg
-                (LOG_NOTICE,
-                 "Scanner at %s defined in configuration file, but it was added before, good!\n",
-                 uri));
-            break;
+	      truncate_hostname (hostname, short_hostname);
+	      attach_bjnp (conf_devices[i], makemodel,
+			   short_hostname, pixma_devices);
+	    }
+	  break;
+	case BJNP_STATUS_ALREADY_ALLOCATED:
+	  PDBG (pixma_dbg
+		(LOG_NOTICE,
+		 "Scanner at %s defined in configuration file, but it was added before, good!\n",
+		 uri));
+	  break;
 
-          case BJNP_STATUS_INVAL:
-	    PDBG (pixma_dbg
-	  	(LOG_NOTICE,
+	case BJNP_STATUS_INVAL:
+	  PDBG (pixma_dbg
+		(LOG_NOTICE,
 		 "Scanner at %s defined in configuration file, but can not add it\n",
 		 uri));
-            break;
-        }
+	  break;
+	}
     }
-  PDBG (pixma_dbg (LOG_DEBUG, "Added all configured scanners, now do auto detection...\n"));
+  PDBG (pixma_dbg
+	(LOG_DEBUG,
+	 "Added all configured scanners, now do auto detection...\n"));
 
   /*
    * Send UDP broadcast to discover scanners and return the list of scanners found
@@ -1316,78 +1336,81 @@ sanei_bjnp_find_devices (const char **conf_devices,
 
   /* send MAX_SELECT_ATTEMPTS broadcasts on each suitable interface */
   for (attempt = 0; attempt < MAX_SELECT_ATTEMPTS; attempt++)
-  {
-  interface = interfaces;
-
-  while ((no_sockets < BJNP_SOCK_MAX) && (interface != NULL))
     {
-      /* send broadcast packet to each suitable  interface */
+      interface = interfaces;
 
-      if ( (interface->ifa_addr == NULL) || (interface->ifa_broadaddr == NULL) ||
-          (interface->ifa_addr->sa_family != AF_INET) ||
-	  (((struct sockaddr_in *) interface->ifa_addr)->sin_addr.s_addr ==
-	   htonl (INADDR_LOOPBACK)))
+      while ((no_sockets < BJNP_SOCK_MAX) && (interface != NULL))
 	{
-	  /* not an IPv4 address */
+	  /* send broadcast packet to each suitable  interface */
 
-	  PDBG (pixma_dbg
-		(LOG_DEBUG, "%s is not a valid IPv4 interface, skipping...\n",
-		 interface->ifa_name));
-
-	}
-      else
-	{
-	  PDBG (pixma_dbg
-		(LOG_INFO, "%s is IPv4 capable, sending broadcast..\n",
-		 interface->ifa_name));
-
-	  if ((socket_fd[no_sockets] =
-	       bjnp_send_broadcast (((struct sockaddr_in *) interface->
-				     ifa_addr)->sin_addr,
-                                    BJNP_PORT_BROADCAST_BASE  + attempt, 
-                                    ((struct sockaddr_in *) interface->
-                                     ifa_broadaddr)->sin_addr,
-                                    cmd, sizeof (cmd))) != -1)
+	  if ((interface->ifa_addr == NULL)
+	      || (interface->ifa_broadaddr == NULL)
+	      || (interface->ifa_addr->sa_family != AF_INET)
+	      || (((struct sockaddr_in *) interface->ifa_addr)->sin_addr.
+		  s_addr == htonl (INADDR_LOOPBACK)))
 	    {
-	      if (socket_fd[no_sockets] > last_socketfd)
-		{
-		  /* track highest used socket for use in select */
+	      /* not an IPv4 address */
 
-		  last_socketfd = socket_fd[no_sockets];
-		}
-	      FD_SET (socket_fd[no_sockets], &fdset);
-	      no_sockets++;
+	      PDBG (pixma_dbg
+		    (LOG_DEBUG,
+		     "%s is not a valid IPv4 interface, skipping...\n",
+		     interface->ifa_name));
+
 	    }
+	  else
+	    {
+	      PDBG (pixma_dbg
+		    (LOG_INFO, "%s is IPv4 capable, sending broadcast..\n",
+		     interface->ifa_name));
+
+	      if ((socket_fd[no_sockets] =
+		   bjnp_send_broadcast (((struct sockaddr_in *)
+					 interface->ifa_addr)->sin_addr,
+					BJNP_PORT_BROADCAST_BASE + attempt,
+					((struct sockaddr_in *)
+					 interface->ifa_broadaddr)->sin_addr,
+					cmd, sizeof (cmd))) != -1)
+		{
+		  if (socket_fd[no_sockets] > last_socketfd)
+		    {
+		      /* track highest used socket for use in select */
+
+		      last_socketfd = socket_fd[no_sockets];
+		    }
+		  FD_SET (socket_fd[no_sockets], &fdset);
+		  no_sockets++;
+		}
+	    }
+	  interface = interface->ifa_next;
 	}
-      interface = interface->ifa_next;
+      /* wait for some time between broadcast packets */
+      usleep (100 * USLEEP_MS);
     }
-  /* wait for some time between broadcast packets */
-  usleep (100 * USLEEP_MS); 
-  }
   freeifaddrs (interfaces);
 #else
   /* we have no easy way to find interfaces with their broadcast addresses, use global broadcast */
 
   no_sockets = 0;
-  broadcast.s_addr = htonl(INADDR_BROADCAST);
-  local.s_addr = htonl(INADDR_ANY);
+  broadcast.s_addr = htonl (INADDR_BROADCAST);
+  local.s_addr = htonl (INADDR_ANY);
 
   for (attempt = 0; attempt < MAX_SELECT_ATTEMPTS; attempt++)
     {
       if ((socket_fd[no_sockets] =
-           bjnp_send_broadcast (local, BJNP_PORT_BROADCAST_BASE  + attempt, broadcast, cmd, sizeof (cmd))) != -1)
-        {
-          if (socket_fd[no_sockets] > last_socketfd)
+	   bjnp_send_broadcast (local, BJNP_PORT_BROADCAST_BASE + attempt,
+				broadcast, cmd, sizeof (cmd))) != -1)
+	{
+	  if (socket_fd[no_sockets] > last_socketfd)
 	    {
 	      /* track highest used socket for use in select */
 
 	      last_socketfd = socket_fd[no_sockets];
 	    }
-          FD_SET (socket_fd[no_sockets], &fdset);
-          no_sockets++;
-        }
+	  FD_SET (socket_fd[no_sockets], &fdset);
+	  no_sockets++;
+	}
       /* wait for some time between broadcast packets */
-       usleep (100 * USLEEP_MS);
+      usleep (100 * USLEEP_MS);
     }
 #endif
 
@@ -1407,11 +1430,10 @@ sanei_bjnp_find_devices (const char **conf_devices,
 	  if (FD_ISSET (socket_fd[i], &active_fdset))
 	    {
 	      if ((numbytes =
-		   recv (socket_fd[i], resp_buf, sizeof (resp_buf),
-			 0)) == -1)
+		   recv (socket_fd[i], resp_buf, sizeof (resp_buf), 0)) == -1)
 		{
 		  PDBG (pixma_dbg
-			(LOG_CRIT, "bjnp_send_broadcasts: no data received"));
+			(LOG_INFO, "bjnp_send_broadcasts: no data received"));
 		  break;
 		}
 	      else
@@ -1437,41 +1459,42 @@ sanei_bjnp_find_devices (const char **conf_devices,
 
 	      /* Test scanner connection by attaching it and reading its IEEE1284 id */
 
-              switch (bjnp_allocate_device (uri, &dev_no, NULL))
-                {
-                  case BJNP_STATUS_GOOD: 
-		    if (get_scanner_id (dev_no, makemodel) != 0)
-		      {
-		        PDBG (pixma_dbg
-			      (LOG_CRIT,
-			       "Scanner not added: Cannot read scanner make & model: %s\n", uri));
-		      }
-                    else
-                      {
-		        /*
-		         * inform caller of found scanner
-		         */
+	      switch (bjnp_allocate_device (uri, &dev_no, NULL))
+		{
+		case BJNP_STATUS_GOOD:
+		  if (get_scanner_id (dev_no, makemodel) != 0)
+		    {
+		      PDBG (pixma_dbg
+			    (LOG_CRIT,
+			     "Scanner not added: Cannot read scanner make & model: %s\n",
+			     uri));
+		    }
+		  else
+		    {
+		      /*
+		       * inform caller of found scanner
+		       */
 
-                        truncate_hostname(hostname, short_hostname);
-		        attach_bjnp (uri, makemodel, short_hostname, 
-                                     pixma_devices);
-                      }
-                    break;
+		      truncate_hostname (hostname, short_hostname);
+		      attach_bjnp (uri, makemodel, short_hostname,
+				   pixma_devices);
+		    }
+		  break;
 
-                  case BJNP_STATUS_INVAL:
-		    PDBG (pixma_dbg
+		case BJNP_STATUS_INVAL:
+		  PDBG (pixma_dbg
 			(LOG_NOTICE,
 			 "Found scanner at %s, but can not open it\n", uri));
-                    break;
+		  break;
 
-                  case BJNP_STATUS_ALREADY_ALLOCATED:
-                    /* already allocated before, no action required  */
-                    PDBG (pixma_dbg
-                       (LOG_NOTICE,
-                        "Scanner at %s detected, but it was added before, good!\n",
-                        uri));
-                    break;
-                }
+		case BJNP_STATUS_ALREADY_ALLOCATED:
+		  /* already allocated before, no action required  */
+		  PDBG (pixma_dbg
+			(LOG_NOTICE,
+			 "Scanner at %s detected, but it was added before, good!\n",
+			 uri));
+		  break;
+		}
 	    }
 	}
       active_fdset = fdset;
@@ -1543,7 +1566,7 @@ sanei_bjnp_close (SANE_Int dn)
 {
   PDBG (pixma_dbg (LOG_INFO, "sanei_bjnp_close(%d):\n", dn));
   if (device[dn].active)
-    sanei_bjnp_deactivate(dn);
+    sanei_bjnp_deactivate (dn);
 
   device[dn].open = 0;
 }
@@ -1553,7 +1576,8 @@ sanei_bjnp_close (SANE_Int dn)
  * @param dn device number
  */
 
-SANE_Status sanei_bjnp_activate(SANE_Int dn)
+SANE_Status
+sanei_bjnp_activate (SANE_Int dn)
 {
   char hostname[256];
   char pid_str[64];
@@ -1563,7 +1587,7 @@ SANE_Status sanei_bjnp_activate(SANE_Int dn)
   hostname[255] = '\0';
   sprintf (pid_str, "Process ID = %d", getpid ());
 
-  bjnp_send_job_details (dn, hostname, getusername(), pid_str);
+  bjnp_send_job_details (dn, hostname, getusername (), pid_str);
 
   if (bjnp_open_tcp (dn) != 0)
     return SANE_STATUS_INVAL;
@@ -1576,11 +1600,12 @@ SANE_Status sanei_bjnp_activate(SANE_Int dn)
  * @paran dn device number
  */
 
-SANE_Status sanei_bjnp_deactivate(SANE_Int dn)
+SANE_Status
+sanei_bjnp_deactivate (SANE_Int dn)
 {
   PDBG (pixma_dbg (LOG_INFO, "sanei_bjnp_deactivate (%d)\n", dn));
   bjnp_finish_job (dn);
-  close(device[dn].fd);
+  close (device[dn].fd);
   device[dn].fd = -1;
 #ifdef PIXMA_BJNP_STATUS
   device[dn].polling = 0;
@@ -1599,10 +1624,10 @@ sanei_bjnp_set_timeout (SANE_Int devno, SANE_Int timeout)
 
   /* timeout must be at least 10 second */
 
-  if (my_timeout < 10000)
-    my_timeout = 10000;
-  PDBG (pixma_dbg (LOG_INFO, "bjnp_set_timeout(requested %d, set %d):\n", 
-        timeout, my_timeout));
+  if (my_timeout < 20000)
+    my_timeout = 20000;
+  PDBG (pixma_dbg (LOG_INFO, "bjnp_set_timeout(requested %d, set %d):\n",
+		   timeout, my_timeout));
 
   device[devno].bjnp_timeout_sec = my_timeout / 1000;
   device[devno].bjnp_timeout_msec = my_timeout % 1000;
@@ -1635,31 +1660,31 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   size_t left;
 
   PDBG (pixma_dbg
-	(LOG_DEBUG, "bjnp_read_bulk(%d, bufferptr, 0x%lx = %ld)\n", dn, 
-                   (long) *size, (long) size));
+	(LOG_DEBUG, "bjnp_read_bulk(%d, bufferptr, 0x%lx = %ld)\n", dn,
+	 (long) *size, (long) size));
 
   recvd = 0;
   left = *size;
 
   if ((device[dn].scanner_data_left == 0) && (device[dn].short_read != 0))
     {
-    /* new read, but we have no data queued from scanner, last read was short, */
-    /* so scanner needs first a high level read command. This is not an error */
+      /* new read, but we have no data queued from scanner, last read was short, */
+      /* so scanner needs first a high level read command. This is not an error */
 
-    PDBG (pixma_dbg
-        (LOG_DEBUG, "Scanner has no more data available, return immediately!\n"));
-    *size = 0;
-    return SANE_STATUS_EOF;
+      PDBG (pixma_dbg
+	    (LOG_DEBUG,
+	     "Scanner has no more data available, return immediately!\n"));
+      *size = 0;
+      return SANE_STATUS_EOF;
     }
 
   PDBG (pixma_dbg
 	(LOG_DEBUG, "bjnp_read_bulk: 0x%lx = %ld bytes available at start, "
-                    "Short block = %d blocksize = 0x%lx = %ld\n",
-	 (long) device[dn].scanner_data_left, 
-	 (long) device[dn].scanner_data_left, 
-         (int) device[dn].short_read, 
-         (long) device[dn].blocksize,
-         (long) device[dn].blocksize));
+	 "Short block = %d blocksize = 0x%lx = %ld\n",
+	 (long) device[dn].scanner_data_left,
+	 (long) device[dn].scanner_data_left,
+	 (int) device[dn].short_read,
+	 (long) device[dn].blocksize, (long) device[dn].blocksize));
 
   while ((recvd < *size)
 	 && (!device[dn].short_read || device[dn].scanner_data_left))
@@ -1677,29 +1702,30 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 	   */
 
 	  PDBG (pixma_dbg
-		(LOG_DEBUG, "No (more) scanner data available, requesting more\n"));
+		(LOG_DEBUG,
+		 "No (more) scanner data available, requesting more\n"));
 
 	  if ((error = bjnp_send_read_request (dn)) != SANE_STATUS_GOOD)
-            {
-              *size = recvd;
+	    {
+	      *size = recvd;
 	      return SANE_STATUS_IO_ERROR;
-            }
+	    }
 	  if ((error = bjnp_recv_header (dn)) != SANE_STATUS_GOOD)
 	    {
-              *size = recvd;
-              return SANE_STATUS_IO_ERROR;
-            }
+	      *size = recvd;
+	      return SANE_STATUS_IO_ERROR;
+	    }
 	  PDBG (pixma_dbg
-		(LOG_DEBUG, "Scanner reports 0x%lx = %ld bytes available\n", 
-                            (long) device[dn].scanner_data_left,
-                            (long) device[dn].scanner_data_left));
+		(LOG_DEBUG, "Scanner reports 0x%lx = %ld bytes available\n",
+		 (long) device[dn].scanner_data_left,
+		 (long) device[dn].scanner_data_left));
 
-          /* correct blocksize if more data is sent by scanner than current blocksize assumption */
+	  /* correct blocksize if more data is sent by scanner than current blocksize assumption */
 
-          if (device[dn].scanner_data_left > device[dn].blocksize)
-            device[dn].blocksize = device[dn].scanner_data_left;
+	  if (device[dn].scanner_data_left > device[dn].blocksize)
+	    device[dn].blocksize = device[dn].scanner_data_left;
 
-          /* decide if we reached end of data to be sent by scanner */
+	  /* decide if we reached end of data to be sent by scanner */
 
 	  device[dn].short_read =
 	    (device[dn].scanner_data_left < device[dn].blocksize);
@@ -1707,10 +1733,11 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
       more = left;
 
-      PDBG (pixma_dbg (LOG_DEBUG, "reading 0x%lx = %ld (of max 0x%lx = %ld) bytes more\n", 
-                        device[dn].scanner_data_left,
-                        device[dn].scanner_data_left,
-                        (long) more, (long) more ));
+      PDBG (pixma_dbg
+	    (LOG_DEBUG,
+	     "reading 0x%lx = %ld (of max 0x%lx = %ld) bytes more\n",
+	     device[dn].scanner_data_left, device[dn].scanner_data_left,
+	     (long) more, (long) more));
       result = bjnp_recv_data (dn, buffer, &more);
       if (result != SANE_STATUS_GOOD)
 	{
@@ -1749,15 +1776,16 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
   uint32_t buf;
 
   PDBG (pixma_dbg
-	(LOG_INFO, "bjnp_write_bulk(%d, bufferptr, 0x%lx = %ld)\n", dn,  
-		(long) *size, (long)*size));
+	(LOG_INFO, "bjnp_write_bulk(%d, bufferptr, 0x%lx = %ld)\n", dn,
+	 (long) *size, (long) *size));
   sent = bjnp_write (dn, buffer, *size);
   if (sent < 0)
     return SANE_STATUS_IO_ERROR;
   if (sent != (int) *size)
     {
-      PDBG(pixma_dbg (LOG_CRIT, "Sent only %ld bytes to scanner, expected %ld!!\n",
-		 (long) sent, (long) *size));
+      PDBG (pixma_dbg
+	    (LOG_CRIT, "Sent only %ld bytes to scanner, expected %ld!!\n",
+	     (long) sent, (long) *size));
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -1769,25 +1797,26 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
 
   if (device[dn].scanner_data_left != 4)
     {
-      PDBG(pixma_dbg (LOG_CRIT,
-		 "Scanner length of write confirmation = 0x%lx bytes = %ld, expected %d!!\n",
-		 (long) device[dn].scanner_data_left,
-		 (long) device[dn].scanner_data_left, 4));
+      PDBG (pixma_dbg (LOG_CRIT,
+		       "Scanner length of write confirmation = 0x%lx bytes = %ld, expected %d!!\n",
+		       (long) device[dn].scanner_data_left,
+		       (long) device[dn].scanner_data_left, 4));
       return SANE_STATUS_IO_ERROR;
     }
   recvd = 4;
   if ((bjnp_recv_data (dn, (unsigned char *) &buf, &recvd) !=
        SANE_STATUS_GOOD) || (recvd != 4))
     {
-      PDBG(pixma_dbg (LOG_CRIT,
-		 "Could not read length of data confirmed by device\n"));
+      PDBG (pixma_dbg (LOG_CRIT,
+		       "Could not read length of data confirmed by device\n"));
       return SANE_STATUS_IO_ERROR;
     }
   recvd = ntohl (buf);
   if (recvd != *size)
     {
-      PDBG(pixma_dbg (LOG_CRIT, "Scanner confirmed %ld bytes, expected %ld!!\n",
-		 (long) recvd, (long) *size));
+      PDBG (pixma_dbg
+	    (LOG_CRIT, "Scanner confirmed %ld bytes, expected %ld!!\n",
+	     (long) recvd, (long) *size));
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -1820,9 +1849,8 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 {
 #ifndef PIXMA_BJNP_STATUS
   PDBG (pixma_dbg
-	(LOG_INFO, "bjnp_read_int(%d, bufferptr, 0x%lx = %ld):\n", dn, 
-		(long) *size,
-		(long) *size));
+	(LOG_INFO, "bjnp_read_int(%d, bufferptr, 0x%lx = %ld):\n", dn,
+	 (long) *size, (long) *size));
   memset (buffer, 0, *size);
   sleep (1);
   return SANE_STATUS_IO_ERROR;
@@ -1832,58 +1860,56 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   int i;
 
   PDBG (pixma_dbg
-	(LOG_INFO, "bjnp_read_int(%d, bufferptr, %lx = %ld):\n", dn, 
-                   (long) *size, (long) *size));
+	(LOG_INFO, "bjnp_read_int(%d, bufferptr, %lx = %ld):\n", dn,
+	 (long) *size, (long) *size));
 
   gethostname (hostname, 32);
   hostname[32] = '\0';
 
 
   if (device[dn].polling == 0)
-    { 
+    {
       /* establish status/read_intr dialogue */
 
-      device[dn].dialogue++; 
+      device[dn].dialogue++;
 
       if ((bjnp_get_intr (dn, 0, hostname, getusername (), buffer,
-		      *size) != (ssize_t)*size)
-         || sleep(4)
-          || (bjnp_get_intr (dn, 1, hostname, getusername (), buffer,
-			 *size) != (ssize_t)*size))
-        {
-          PDBG (pixma_dbg
-	    (LOG_NOTICE,
-	     "Failed to setup read_intr dialogue with device!\n"));
-        }
-      device[dn].polling =1;
+			  *size) != (ssize_t) * size)
+	  || sleep (4)
+	  || (bjnp_get_intr (dn, 1, hostname, getusername (), buffer,
+			     *size) != (ssize_t) * size))
+	{
+	  PDBG (pixma_dbg
+		(LOG_NOTICE,
+		 "Failed to setup read_intr dialogue with device!\n"));
+	}
+      device[dn].polling = 1;
     }
 
   result = bjnp_get_intr (dn, 2, hostname, getusername (), buffer, *size);
-    if (result < (int) *size)
+  if (result < (int) *size)
+    {
+      *size = (result > 0) ? result : 0;
+      PDBG (pixma_dbg
+	    (LOG_CRIT,
+	     "Could not retrieve interrupt information from device!\n"));
+      return SANE_STATUS_IO_ERROR;
+    }
+  for (i = 0; i < result; i++)
+    {
+      if (buffer[i] != '\0')
 	{
-	  *size = (result > 0) ? result : 0;
-	  PDBG (pixma_dbg
-		(LOG_CRIT,
-		 "Could not retrieve interrupt information from device!\n"));
-	  return SANE_STATUS_IO_ERROR;
+	  PDBG (pixma_dbg (LOG_NOTICE, "Interrupt data received...\n"));
+	  PDBG (pixma_hexdump (LOG_NOTICE, buffer, result));
+	  return SANE_STATUS_GOOD;
 	}
-    for (i = 0; i < result; i++)
-	{
-	  if (buffer[i] != '\0')
-	    {
-	      PDBG (pixma_dbg (LOG_NOTICE, "Interrupt data received...\n"));
-	      PDBG (pixma_hexdump (LOG_NOTICE, buffer, result));
-	      return SANE_STATUS_GOOD;
-	    }
-	}
-      /* no interrupt received, we just sleep for the indicated mount of time
-       * and leave it to the caller to retry */
+    }
+  /* no interrupt received, we just sleep for the indicated mount of time
+   * and leave it to the caller to retry */
 
-     sleep(4);
- 
-  PDBG (pixma_dbg
-	(LOG_NOTICE,
-	 "sanei_bjnp_read_int: no data received\n"));
+  sleep (4);
+
+  PDBG (pixma_dbg (LOG_NOTICE, "sanei_bjnp_read_int: no data received\n"));
 
   return SANE_STATUS_IO_ERROR;
 #endif

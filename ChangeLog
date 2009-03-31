@@ -1,3 +1,9 @@
+2009-03-06 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
+	* backend/pixma_bjnp.c 
+	- silenced some debug statements during scanner detections
+	- increased timeouts to 20 seconds as 10 seconds is apparently
+	- not enough for the combination of a Mac and an MX850.
+	
 2009-03-21 Alex Belkin <abc@telekom.ru>
 	* backend/xerox_mfp.conf.in: add Xerox Phaser 6110MFP
 	* backend/xerox_mfp.c: compatibility with scanners w/o feeder.

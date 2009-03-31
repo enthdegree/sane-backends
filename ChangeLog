@@ -1,5 +1,6 @@
 2009-03-21 Alex Belkin <abc@telekom.ru>
 	* backend/xerox_mfp.conf.in: add Xerox Phaser 6110MFP
+	* backend/xerox_mfp.c: compatibility with scanners w/o feeder.
 
 2009-03-28 Julien Blache <jb@jblache.org>
 	* backend/avision.c: fix typos in error messages in

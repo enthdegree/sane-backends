@@ -716,7 +716,8 @@ dev_inquiry (struct device *dev)
     dev->res[0x3e] << 8 |
     dev->res[0x3f];
   dev->line_order = dev->res[0x31];
-  dev->doc_loaded = (dev->res[0x35] == 0x02);
+  dev->doc_loaded = (dev->res[0x35] == 0x02) &&
+    (dev->res[0x26] & 0x03);
 
   init_options(dev);
   reset_options(dev);

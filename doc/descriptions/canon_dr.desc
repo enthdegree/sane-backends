@@ -11,7 +11,7 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/" 
-:version "23"                    ; version of backend
+:version "24"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "New backend as of SANE release 1.1.0, testers needed, see manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -81,7 +81,7 @@
 :interface "USB"
 :usbid "0x1083" "0x1617"
 :status :basic
-:comment "Gray/Color, Simplex/Duplex working. Poor calibration, only full-width scans."
+:comment "Gray/Color, Simplex/Duplex, 300/600dpi working. Poor calibration, only full-width scans."
 
 :model "DR-2580C"
 :interface "USB SCSI"

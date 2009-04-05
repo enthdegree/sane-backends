@@ -3,7 +3,7 @@
    This file is part of the SANE package, and implements a SANE backend
    for various Canon DR-series scanners.
 
-   Copyright (C) 2008 m. allan noah
+   Copyright (C) 2008-2009 m. allan noah
 
    Development funded by Corcaribe Tecnología C.A. www.cc.com.ve
    and by EvriChart, Inc. www.evrichart.com
@@ -166,6 +166,16 @@
          - handle more image interlacing formats
          - re-enable binary mode on some scanners
          - limit some machines to full-width scanning
+      v24 2009-04-02, MAN
+         - fix DR-2510C duplex deinterlacing code
+         - rewrite sane_read helpers to read until EOF
+         - update sane_start for scanners that dont use object_position
+         - dont call sanei_usb_clear_halt() if device is not open
+         - increase default buffer size to 4 megs
+         - set buffermode on by default
+         - hide modes and resolutions that DR-2510C lies about
+         - read_panel() logs front-end access to sensors instead of timing
+         - rewrite do_usb_cmd() to use remainder from RS info
 
    SANE FLOW DIAGRAM
 
@@ -226,7 +236,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 23
+#define BUILD 24
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -274,7 +284,7 @@ static const char string_Back[] = "Back";
 
 /* Also set via config file. */
 static int global_buffer_size;
-static int global_buffer_size_default = 64 * 1024;
+static int global_buffer_size_default = 4 * 1024 * 1024;
 static int global_padded_read;
 static int global_padded_read_default = 0;
 static char global_vendor_name[9];
@@ -414,9 +424,10 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                     continue;
                   }
     
-                  if (buf > 64*1024) {
+                  if (buf > global_buffer_size_default) {
                     DBG (5, "sane_get_devices: config option \"buffer-size\" "
-                      "(%d) is > %d, warning!\n", buf, 64*1024);
+                      "(%d) is > %d, scanning problems may result\n", buf,
+                      global_buffer_size_default);
                   }
     
                   DBG (15, "sane_get_devices: setting \"buffer-size\" to %d\n",
@@ -742,13 +753,17 @@ connect_fd (struct scanner *s)
   else if (s->connection == CONNECTION_USB) {
     DBG (15, "connect_fd: opening USB device\n");
     ret = sanei_usb_open (s->device_name, &(s->fd));
-    ret = sanei_usb_clear_halt(s->fd);
+    if(!ret){
+      ret = sanei_usb_clear_halt(s->fd);
+    }
   }
   else {
     DBG (15, "connect_fd: opening SCSI device\n");
-    ret = sanei_scsi_open_extended (s->device_name, &(s->fd), sense_handler, s, &s->buffer_size);
-    if(ret == SANE_STATUS_GOOD && buffer_size != s->buffer_size){
-      DBG (5, "connect_fd: cannot get requested buffer size (%d/%d)\n", buffer_size, s->buffer_size);
+    ret = sanei_scsi_open_extended (s->device_name, &(s->fd), sense_handler, s,
+      &s->buffer_size);
+    if(!ret && buffer_size != s->buffer_size){
+      DBG (5, "connect_fd: cannot get requested buffer size (%d/%d)\n",
+        buffer_size, s->buffer_size);
       ret = SANE_STATUS_NO_MEM;
     }
   }
@@ -758,7 +773,6 @@ connect_fd (struct scanner *s)
     /* first generation usb scanners can get flaky if not closed 
      * properly after last use. very first commands sent to device 
      * must be prepared to correct this- see wait_scanner() */
-    sleep(1);
     ret = wait_scanner(s);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "connect_fd: could not wait_scanner\n");
@@ -1019,6 +1033,7 @@ init_model (struct scanner *s)
   s->reverse_by_mode[MODE_GRAYSCALE] = 0;
   s->reverse_by_mode[MODE_COLOR] = 0;
 
+  s->always_op = 1;
   s->has_df = 1;
   s->has_counter = 1;
   s->has_adf = 1;
@@ -1060,6 +1075,7 @@ init_model (struct scanner *s)
 
   else if (strstr (s->model_name,"DR-2510")){
     s->rgb_format = 1;
+    s->always_op = 0;
     s->unknown_byte2 = 0x80;
     s->fixed_width = 1;
     s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_2510;
@@ -1067,6 +1083,17 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_2510;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_2510;
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
+
+    /*only in Y direction, so we trash them*/
+    s->std_res_100=0;
+    s->std_res_150=0;
+    s->std_res_200=0;
+    s->std_res_240=0;
+    s->std_res_400=0;
+
+    /*lies*/
+    s->can_halftone=0;
+    s->can_monochrome=0;
   }
 
   else if (strstr (s->model_name,"DR-2050")
@@ -1095,7 +1122,7 @@ init_panel (struct scanner *s)
 
   DBG (10, "init_panel: start\n");
 
-  ret = read_panel(s);
+  ret = read_panel(s,OPT_COUNTER);
   s->panel_enable_led = 1;
   ret = send_panel(s);
 
@@ -1159,6 +1186,7 @@ init_user (struct scanner *s)
 
   s->threshold = 0x80;
   s->compress_arg = 50;
+  s->buffermode = 1;
 
   DBG (10, "init_user: finish\n");
 
@@ -2217,32 +2245,32 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         /* Sensor Group */
         case OPT_START:
-          read_panel(s);
+          read_panel(s,OPT_START);
           *val_p = s->panel_start;
           return SANE_STATUS_GOOD;
 
         case OPT_STOP:
-          read_panel(s);
+          read_panel(s,OPT_STOP);
           *val_p = s->panel_stop;
           return SANE_STATUS_GOOD;
 
         case OPT_NEWFILE:
-          read_panel(s);
+          read_panel(s,OPT_NEWFILE);
           *val_p = s->panel_new_file;
           return SANE_STATUS_GOOD;
 
         case OPT_COUNTONLY:
-          read_panel(s);
+          read_panel(s,OPT_COUNTONLY);
           *val_p = s->panel_count_only;
           return SANE_STATUS_GOOD;
 
         case OPT_BYPASSMODE:
-          read_panel(s);
+          read_panel(s,OPT_BYPASSMODE);
           *val_p = s->panel_bypass_mode;
           return SANE_STATUS_GOOD;
 
         case OPT_COUNTER:
-          read_panel(s);
+          read_panel(s,OPT_COUNTER);
           *val_p = s->panel_counter;
           return SANE_STATUS_GOOD;
 
@@ -2695,50 +2723,55 @@ ssm_do (struct scanner *s)
 }
 
 static SANE_Status
-read_panel(struct scanner *s)
+read_panel(struct scanner *s,SANE_Int option)
 {
-    SANE_Status ret=SANE_STATUS_GOOD;
+  SANE_Status ret=SANE_STATUS_GOOD;
 
-    unsigned char cmd[READ_len];
-    size_t cmdLen = READ_len;
+  unsigned char cmd[READ_len];
+  size_t cmdLen = READ_len;
 
-    unsigned char in[R_PANEL_len];
-    size_t inLen = R_PANEL_len;
+  unsigned char in[R_PANEL_len];
+  size_t inLen = R_PANEL_len;
 
-    DBG (10, "read_panel: start\n");
+  DBG (10, "read_panel: start\n");
  
-    /* only run this once every second */
-    if (s->last_panel < time(NULL)) {
+  /* only run this if frontend has read previous value */
+  if (!s->hw_read[option-OPT_START]) {
 
-        DBG (15, "read_panel: running\n");
-        memset(cmd,0,cmdLen);
-        set_SCSI_opcode(cmd, READ_code);
-        set_R_datatype_code (cmd, SR_datatype_panel);
-        set_R_xfer_length (cmd, inLen);
-      
-        ret = do_cmd (
-          s, 1, 0,
-          cmd, cmdLen,
-          NULL, 0,
-          in, &inLen
-        );
-      
-        if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
-            s->last_panel = time(NULL);
-            s->panel_start = get_R_PANEL_start(in);
-            s->panel_stop = get_R_PANEL_stop(in);
-            s->panel_new_file = get_R_PANEL_new_file(in);
-            s->panel_count_only = get_R_PANEL_count_only(in);
-            s->panel_bypass_mode = get_R_PANEL_bypass_mode(in);
-            s->panel_enable_led = get_R_PANEL_enable_led(in);
-            s->panel_counter = get_R_PANEL_counter(in);
-            ret = SANE_STATUS_GOOD;
-        }
+    DBG (15, "read_panel: running\n");
+
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, READ_code);
+    set_R_datatype_code (cmd, SR_datatype_panel);
+    set_R_xfer_length (cmd, inLen);
+    
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    
+    if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
+      /*blast the read flags*/
+      memset(s->hw_read,0,sizeof(s->hw_read));
+
+      s->panel_start = get_R_PANEL_start(in);
+      s->panel_stop = get_R_PANEL_stop(in);
+      s->panel_new_file = get_R_PANEL_new_file(in);
+      s->panel_count_only = get_R_PANEL_count_only(in);
+      s->panel_bypass_mode = get_R_PANEL_bypass_mode(in);
+      s->panel_enable_led = get_R_PANEL_enable_led(in);
+      s->panel_counter = get_R_PANEL_counter(in);
+      ret = SANE_STATUS_GOOD;
     }
+  }
   
-    DBG (10, "read_panel: finish\n");
+  s->hw_read[option-OPT_START] = 1;
+
+  DBG (10, "read_panel: finish\n");
   
-    return ret;
+  return ret;
 }
 
 static SANE_Status
@@ -2957,7 +2990,7 @@ sane_start (SANE_Handle handle)
 
       /* eject paper leftover*/
       if(object_position (s, SANE_FALSE)){
-        DBG (5, "sane_read: ERROR: cannot eject page\n");
+        DBG (5, "sane_start: ERROR: cannot eject page\n");
       }
 
       /* set window command */
@@ -2998,13 +3031,8 @@ sane_start (SANE_Handle handle)
   /* dont call object pos or scan on back side of duplex scan */
   if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK){
 
-      ret = object_position (s, SANE_TRUE);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot load page\n");
-        s->started=0;
-        return ret;
-      }
-
+      s->eof_rx[0]=0;
+      s->eof_rx[1]=0;
       s->bytes_rx[0]=0;
       s->bytes_rx[1]=0;
       s->lines_rx[0]=0;
@@ -3029,27 +3057,86 @@ sane_start (SANE_Handle handle)
         s->bytes_tot[SIDE_BACK] = 0;
       }
 
-      /* first page of batch: make large buffer to hold the images */
+      /* first page of batch */
       if(!s->started){
-          ret = setup_buffers(s);
-          if (ret != SANE_STATUS_GOOD) {
-              DBG (5, "sane_start: ERROR: cannot load buffers\n");
-              return ret;
-          }
-      }
-    
-      /* first page of batch or user wants unbuffered scans */
-      /* send scan command */
-      if(!s->started || !s->buffermode){
-          ret = start_scan (s);
-          if (ret != SANE_STATUS_GOOD) {
-              DBG (5, "sane_start: ERROR: cannot start_scan\n");
-              return ret;
-          }
+
+        /* make large buffers to hold the images */
+        ret = setup_buffers(s);
+        if (ret != SANE_STATUS_GOOD) {
+          DBG (5, "sane_start: ERROR: cannot load buffers\n");
+          return ret;
+        }
+
+        /* grab page count before first page */
+        ret = read_panel (s, OPT_COUNTER);
+        if (ret != SANE_STATUS_GOOD) {
+          DBG (5, "sane_start: ERROR: cannot load page\n");
+          return ret;
+        }
+        s->prev_page = s->panel_counter;
+
+        /* grab page */
+        ret = object_position (s, SANE_TRUE);
+        if (ret != SANE_STATUS_GOOD) {
+          DBG (5, "sane_start: ERROR: cannot load page\n");
+          return ret;
+        }
+
+        /* start scanning */
+        ret = start_scan (s);
+        if (ret != SANE_STATUS_GOOD) {
+          DBG (5, "sane_start: ERROR: cannot start_scan\n");
+          return ret;
+        }
+
+        /* set started flag */
+        s->started=1;
       }
 
-      /* set started flag */
-      s->started=1;
+      /* stuff done between subsequent pages */
+      else {
+
+        /* big scanners use OP to detect paper */
+        if(s->always_op){
+          ret = object_position (s, SANE_TRUE);
+          if (ret != SANE_STATUS_GOOD) {
+            DBG (5, "sane_start: ERROR: cannot load page\n");
+            return ret;
+          }
+        }
+  
+        /* user wants unbuffered scans */
+        /* send scan command */
+        if(!s->buffermode){
+          ret = start_scan (s);
+          if (ret != SANE_STATUS_GOOD) {
+            DBG (5, "sane_start: ERROR: cannot start_scan\n");
+            return ret;
+          }
+        }
+  
+        /* small scanners check for more pages by reading counter */
+        if(!s->always_op){
+          ret = read_panel (s, OPT_COUNTER);
+          if (ret != SANE_STATUS_GOOD) {
+            DBG (5, "sane_start: ERROR: cannot load page\n");
+            return ret;
+          }
+          if(s->prev_page == s->panel_counter){
+            DBG (5, "sane_start: same counter (%d) no paper?\n",s->prev_page);
+
+            /* eject paper leftover*/
+            if(object_position (s, SANE_FALSE)){
+              DBG (5, "sane_start: ERROR: cannot eject page\n");
+            }
+
+            return SANE_STATUS_NO_DOCS;
+          }
+          DBG (5, "sane_start: diff counter (%d/%d)\n",
+            s->prev_page,s->panel_counter);
+        }
+      }
+
   }
 
   /* reset jpeg params on each page */
@@ -3359,14 +3446,14 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* maybe cancelled? */
   if(!s->started){
-      DBG (5, "sane_read: not started, call sane_start\n");
-      return SANE_STATUS_CANCELLED;
+    DBG (5, "sane_read: not started, call sane_start\n");
+    return SANE_STATUS_CANCELLED;
   }
 
   /* sane_start required between sides */
   if(s->bytes_tx[s->side] == s->bytes_tot[s->side]){
-      DBG (15, "sane_read: returning eof\n");
-      return SANE_STATUS_EOF;
+    DBG (15, "sane_read: returning eof\n");
+    return SANE_STATUS_EOF;
   }
 
   /* double width pnm interlacing */
@@ -3375,43 +3462,23 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     && s->duplex_interlace != DUPLEX_INTERLACE_NONE
   ){
 
-      /* buffer both sides */
-      if ( s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
-        || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK]){
-          ret = read_from_scanner_duplex(s);
-          if(ret){
-            DBG(5,"sane_read: front returning %d\n",ret);
-            return ret;
-          }
-
-          /* we have finished reading, clean up */
-          /* grab a bit more so scanner will send eof */
-          if(s->connection == CONNECTION_USB 
-            && s->bytes_tot[SIDE_FRONT] == s->bytes_rx[SIDE_FRONT]
-            && s->bytes_tot[SIDE_BACK] == s->bytes_rx[SIDE_BACK]
-          ){
-            read_from_scanner_duplex(s);
-          }
+    /* buffer both sides */
+    if(!s->eof_rx[SIDE_FRONT] || !s->eof_rx[SIDE_BACK]){
+      ret = read_from_scanner_duplex(s);
+      if(ret){
+        DBG(5,"sane_read: front returning %d\n",ret);
+        return ret;
       }
+    }
   }
     
   /* simplex or non-alternating duplex */
   else{
-
-    if(s->bytes_tot[s->side] > s->bytes_rx[s->side] ){
+    if(!s->eof_rx[s->side]){
       ret = read_from_scanner(s, s->side);
       if(ret){
         DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
         return ret;
-      }
-
-      /* we have finished reading, clean up */
-      /* grab a bit more so scanner will send eof */
-      if(s->connection == CONNECTION_USB 
-        && s->bytes_rx[s->side] == s->bytes_tot[s->side]
-        && s->params.format != SANE_FRAME_JPEG
-      ){
-        read_from_scanner(s, s->side);
       }
     }
   }
@@ -3421,12 +3488,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* we've read everything, and user cancelled */
   /* tell scanner to stop */
-  if(s->bytes_rx[s->side] == s->bytes_tot[s->side]
-    && 
-    (s->cancelled || (!read_panel(s) && s->panel_stop))
+  if(s->eof_rx[s->side] && 
+    (s->cancelled || (!read_panel(s,OPT_STOP) && s->panel_stop))
   ){
-      DBG(5,"sane_read: user cancelled\n");
-      return cancel(s);
+    DBG(5,"sane_read: user cancelled\n");
+    return cancel(s);
   }
 
   DBG (10, "sane_read: finish %d\n", ret);
@@ -3445,16 +3511,9 @@ read_from_scanner(struct scanner *s, int side)
   size_t inLen = 0;
 
   int bytes = s->buffer_size;
-  int remain = s->bytes_tot[side] - s->bytes_rx[side];
-  int extra = 0;
-  size_t i;
+  size_t remain = s->bytes_tot[side] - s->bytes_rx[side];
 
   DBG (10, "read_from_scanner: start\n");
-
-  /* figure out the max amount to transfer */
-  if(bytes > remain){
-    bytes = remain;
-  }
 
   /* all requests must end on line boundary */
   bytes -= (bytes % s->params.bytes_per_line);
@@ -3462,14 +3521,6 @@ read_from_scanner(struct scanner *s, int side)
   /* some larger scanners require even bytes per block */
   if(bytes % 2){
     bytes -= s->params.bytes_per_line;
-  }
-
-  /* these machines always send 1 extra line, and they need to send EOF too
-   * so we ask for two full lines extra, and throw them away */
-  if(!bytes){
-    DBG(5, "read_from_scanner: no bytes, asking for two lines\n");
-    bytes = 2 * s->params.bytes_per_line;
-    extra = 1;
   }
 
   DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n", side,
@@ -3517,6 +3568,8 @@ read_from_scanner(struct scanner *s, int side)
     /* look for the SOF header near the beginning */
     if(s->jpeg_stage == JPEG_STAGE_NONE || s->jpeg_ff_offset < 0x0d){
 
+      size_t i;
+
       for(i=0;i<inLen;i++){
   
         /* about to change stage */
@@ -3559,8 +3612,13 @@ read_from_scanner(struct scanner *s, int side)
     }
   }
 
+  /*scanner may have sent more data than we asked for, chop it*/
+  if(inLen > remain){
+    inLen = remain;
+  }
+
   /* we've got some data, descramble and store it */
-  if(inLen && !extra){
+  if(inLen){
     copy_simplex(s,in,inLen,side);
   }
 
@@ -3568,6 +3626,8 @@ read_from_scanner(struct scanner *s, int side)
 
   if(ret == SANE_STATUS_EOF){
     s->bytes_tot[side] = s->bytes_rx[side];
+    s->eof_rx[side] = 1;
+    s->prev_page++;
     ret = SANE_STATUS_GOOD;
   }
 
@@ -3590,27 +3650,13 @@ read_from_scanner_duplex(struct scanner *s)
   size_t inLen = 0;
 
   int bytes = s->buffer_size;
-  int remain = s->bytes_tot[SIDE_FRONT]+s->bytes_tot[SIDE_BACK]
-    - (s->bytes_rx[SIDE_FRONT]+s->bytes_rx[SIDE_BACK]);
-  int extra = 0;
+  size_t remain = s->bytes_tot[SIDE_FRONT] + s->bytes_tot[SIDE_BACK]
+    - s->bytes_rx[SIDE_FRONT] - s->bytes_rx[SIDE_BACK];
 
   DBG (10, "read_from_scanner_duplex: start\n");
 
-  /* figure out the max amount to transfer */
-  if(bytes > remain){
-    bytes = remain;
-  }
-
   /* all requests must end on WIDE line boundary */
   bytes -= (bytes % (s->params.bytes_per_line*2));
-
-  /* these machines always send 1 extra line, and they need to send EOF too
-   * so we ask for 2 lines extra, and throw them away */
-  if(!bytes){
-    DBG(5, "read_from_scanner_duplex: no bytes, asking for two lines\n");
-    bytes = 4 * s->params.bytes_per_line;
-    extra = 1;
-  }
 
   DBG(15, "read_from_scanner_duplex: re:%d bu:%d pa:%d\n",
     remain, s->buffer_size, bytes);
@@ -3653,8 +3699,13 @@ read_from_scanner_duplex(struct scanner *s)
     inLen = 0;
   }
 
+  /*scanner may have sent more data than we asked for, chop it*/
+  if(inLen > remain){
+    inLen = remain;
+  }
+
   /* we've got some data, descramble and store it */
-  if(inLen && !extra){
+  if(inLen){
     copy_duplex(s,in,inLen);
   }
 
@@ -3663,6 +3714,9 @@ read_from_scanner_duplex(struct scanner *s)
   if(ret == SANE_STATUS_EOF){
     s->bytes_tot[SIDE_FRONT] = s->bytes_rx[SIDE_FRONT];
     s->bytes_tot[SIDE_BACK] = s->bytes_rx[SIDE_BACK];
+    s->eof_rx[SIDE_FRONT] = 1;
+    s->eof_rx[SIDE_BACK] = 1;
+    s->prev_page++;
     ret = SANE_STATUS_GOOD;
   }
 
@@ -3860,20 +3914,20 @@ copy_duplex(struct scanner *s, unsigned char * buf, int len)
          * copy_simplex() does the rest */
 
         /* front */
-        /* 2nd head: 3rd byte -> 1st byte */
-        /* 3rd head: 0th byte -> 2nd byte */
-        /* 1st head: 1st byte -> 3rd byte */
-        front[flen++] = buf[j+3];
-        front[flen++] = buf[j];
-        front[flen++] = buf[j+1];
-  
-        /* back */
         /* 2nd head: 2nd byte -> 1st byte */
         /* 3rd head: 4th byte -> 2nd byte */
         /* 1st head: 5th byte -> 3rd byte */
-        back[blen++] = buf[j+2];
-        back[blen++] = buf[j+4];
-        back[blen++] = buf[j+5];
+        front[flen++] = buf[i+j+2];
+        front[flen++] = buf[i+j+4];
+        front[flen++] = buf[i+j+5];
+
+        /* back */
+        /* 2nd head: 3rd byte -> 1st byte */
+        /* 3rd head: 0th byte -> 2nd byte */
+        /* 1st head: 1st byte -> 3rd byte */
+        back[blen++] = buf[i+j+3];
+        back[blen++] = buf[i+j];
+        back[blen++] = buf[i+j+1];
       }
     }
   }
@@ -4117,8 +4171,8 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
   switch (sense) {
     case 0:
       if (ili == 1) {
-        s->rs_info = get_RS_information (sensed_data);
-        DBG  (5, "No sense: EOM remainder:%lu\n",(unsigned long)s->rs_info);
+        s->rs_info = info;
+        DBG  (5, "No sense: EOM remainder:%d\n",info);
         return SANE_STATUS_EOF;
       }
       DBG  (5, "No sense: unknown asc/ascq\n");
@@ -4413,11 +4467,29 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
  unsigned char * inBuff, size_t * inLen
 )
 {
-    size_t offset;
-    size_t length;
-    size_t actual;
-    unsigned char * buffer;
-    int timeout;
+    size_t cmdOffset;
+    size_t cmdLength;
+    size_t cmdActual;
+    unsigned char * cmdBuffer;
+    int cmdTimeout;
+
+    size_t outOffset;
+    size_t outLength;
+    size_t outActual;
+    unsigned char * outBuffer;
+    int outTimeout;
+
+    size_t inOffset;
+    size_t inLength;
+    size_t inActual;
+    unsigned char * inBuffer;
+    int inTimeout;
+
+    size_t statOffset;
+    size_t statLength;
+    size_t statActual;
+    unsigned char * statBuffer;
+    int statTimeout;
 
     int ret = 0;
     int ret2 = 0;
@@ -4427,201 +4499,235 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
     /****************************************************************/
     /* the command stage */
     {
-      offset = USB_HEADER_LEN;
-      length = offset+USB_COMMAND_LEN;
-      actual = length;
-      timeout = USB_COMMAND_TIME;
+      cmdOffset = USB_HEADER_LEN;
+      cmdLength = cmdOffset+USB_COMMAND_LEN;
+      cmdActual = cmdLength;
+      cmdTimeout = USB_COMMAND_TIME;
 
       /* change timeout */
       if(shortTime)
-        timeout/=60;
-      sanei_usb_set_timeout(timeout);
+        cmdTimeout/=60;
+      sanei_usb_set_timeout(cmdTimeout);
 
       /* build buffer */
-      buffer = calloc(length,1);
-      if(!buffer){
+      cmdBuffer = calloc(cmdLength,1);
+      if(!cmdBuffer){
         DBG(5,"cmd: no mem\n");
-        return SANE_STATUS_IO_ERROR;
+        return SANE_STATUS_NO_MEM;
       }
   
       /* build a USB packet around the SCSI command */
-      buffer[3] = length-4;
-      buffer[5] = 1;
-      buffer[6] = 0x90;
-      memcpy(buffer+offset,cmdBuff,cmdLen);
+      cmdBuffer[3] = cmdLength-4;
+      cmdBuffer[5] = 1;
+      cmdBuffer[6] = 0x90;
+      memcpy(cmdBuffer+cmdOffset,cmdBuff,cmdLen);
   
       /* write the command out */
-      DBG(25, "cmd: writing %d bytes, timeout %d\n", (int)length, timeout);
-      hexdump(30, "cmd: >>", buffer, length);
-      ret = sanei_usb_write_bulk(s->fd, buffer, &actual);
-      DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)actual, ret);
+      DBG(25, "cmd: writing %d bytes, timeout %d\n", (int)cmdLength, cmdTimeout);
+      hexdump(30, "cmd: >>", cmdBuffer, cmdLength);
+      ret = sanei_usb_write_bulk(s->fd, cmdBuffer, &cmdActual);
+      DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)cmdActual, ret);
   
-      if(length != actual){
-        DBG(5,"cmd: wrong size %d/%d\n", (int)length, (int)actual);
-        free(buffer);
+      if(cmdLength != cmdActual){
+        DBG(5,"cmd: wrong size %d/%d\n", (int)cmdLength, (int)cmdActual);
+        free(cmdBuffer);
         return SANE_STATUS_IO_ERROR;
       }
       if(ret != SANE_STATUS_GOOD){
         DBG(5,"cmd: write error '%s'\n",sane_strstatus(ret));
-        free(buffer);
+        free(cmdBuffer);
         return ret;
       }
-      free(buffer);
+      free(cmdBuffer);
     }
 
     /****************************************************************/
     /* the output stage */
     if(outBuff && outLen){
 
-      offset = USB_HEADER_LEN;
-      length = offset+outLen;
-      actual = length;
-      timeout = USB_DATA_TIME;
+      outOffset = USB_HEADER_LEN;
+      outLength = outOffset+outLen;
+      outActual = outLength;
+      outTimeout = USB_DATA_TIME;
 
       /* change timeout */
       if(shortTime)
-        timeout/=60;
-      sanei_usb_set_timeout(timeout);
+        outTimeout/=60;
+      sanei_usb_set_timeout(outTimeout);
 
-      /* build buffer */
-      buffer = calloc(length,1);
-      if(!buffer){
+      /* build outBuffer */
+      outBuffer = calloc(outLength,1);
+      if(!outBuffer){
         DBG(5,"out: no mem\n");
-        return SANE_STATUS_IO_ERROR;
+        return SANE_STATUS_NO_MEM;
       }
   
       /* build a USB packet around the SCSI command */
-      buffer[3] = length-4;
-      buffer[5] = 2;
-      buffer[6] = 0xb0;
-      memcpy(buffer+offset,outBuff,outLen);
+      outBuffer[3] = outLength-4;
+      outBuffer[5] = 2;
+      outBuffer[6] = 0xb0;
+      memcpy(outBuffer+outOffset,outBuff,outLen);
   
       /* write the command out */
-      DBG(25, "out: writing %d bytes, timeout %d\n", (int)length, timeout);
-      hexdump(30, "out: >>", buffer, length);
-      ret = sanei_usb_write_bulk(s->fd, buffer, &actual);
-      DBG(25, "out: wrote %d bytes, retVal %d\n", (int)actual, ret);
+      DBG(25, "out: writing %d bytes, timeout %d\n", (int)outLength, outTimeout);
+      hexdump(30, "out: >>", outBuffer, outLength);
+      ret = sanei_usb_write_bulk(s->fd, outBuffer, &outActual);
+      DBG(25, "out: wrote %d bytes, retVal %d\n", (int)outActual, ret);
   
-      if(length != actual){
-        DBG(5,"out: wrong size %d/%d\n", (int)length, (int)actual);
-        free(buffer);
+      if(outLength != outActual){
+        DBG(5,"out: wrong size %d/%d\n", (int)outLength, (int)outActual);
+        free(outBuffer);
         return SANE_STATUS_IO_ERROR;
       }
       if(ret != SANE_STATUS_GOOD){
         DBG(5,"out: write error '%s'\n",sane_strstatus(ret));
-        free(buffer);
+        free(outBuffer);
         return ret;
       }
-      free(buffer);
+      free(outBuffer);
     }
 
     /****************************************************************/
     /* the input stage */
     if(inBuff && inLen){
 
-      offset = 0;
+      inOffset = 0;
       if(s->padded_read)
-        offset = USB_HEADER_LEN;
+        inOffset = USB_HEADER_LEN;
 
-      length = offset+*inLen;
-      actual = length;
-      timeout = USB_DATA_TIME;
+      inLength = inOffset+*inLen;
+      inActual = inLength;
+      inTimeout = USB_DATA_TIME;
 
       /* change timeout */
       if(shortTime)
-        timeout/=60;
-      sanei_usb_set_timeout(timeout);
+        inTimeout/=60;
+      sanei_usb_set_timeout(inTimeout);
 
-      /* build buffer */
-      buffer = calloc(length,1);
-      if(!buffer){
+      /* build inBuffer */
+      inBuffer = calloc(inLength,1);
+      if(!inBuffer){
         DBG(5,"in: no mem\n");
-        return SANE_STATUS_IO_ERROR;
+        return SANE_STATUS_NO_MEM;
       }
   
-      DBG(25, "in: reading %d bytes, timeout %d\n", (int)length, timeout);
-      ret = sanei_usb_read_bulk(s->fd, buffer, &actual);
-      DBG(25, "in: read %d bytes, retval %d\n", (int)actual, ret);
-      hexdump(30, "in: <<", buffer, actual);
+      DBG(25, "in: reading %d bytes, timeout %d\n", (int)inLength, inTimeout);
+      ret = sanei_usb_read_bulk(s->fd, inBuffer, &inActual);
+      DBG(25, "in: read %d bytes, retval %d\n", (int)inActual, ret);
+      hexdump(30, "in: <<", inBuffer, inActual);
 
-      if(!actual){
+      if(!inActual){
         *inLen = 0;
         DBG(5,"in: got no data, clearing\n");
-        free(buffer);
-	return do_usb_clear(s,runRS);
+        free(inBuffer);
+	return do_usb_clear(s,1,runRS);
       }
-      if(actual < offset){
+      if(inActual < inOffset){
         *inLen = 0;
-        DBG(5,"in: read shorter than offset\n");
-        free(buffer);
+        DBG(5,"in: read shorter than inOffset\n");
+        free(inBuffer);
         return SANE_STATUS_IO_ERROR;
       }
       if(ret != SANE_STATUS_GOOD){
         *inLen = 0;
         DBG(5,"in: return error '%s'\n",sane_strstatus(ret));
-        free(buffer);
+        free(inBuffer);
         return ret;
       }
 
-      if(length != actual){
-        ret = SANE_STATUS_EOF;
-        DBG(5,"in: short read, %d/%d\n", (int)length,(int)actual);
-      }
-
-      /* ignore the USB packet around the SCSI command */
-      *inLen = actual - offset;
-      memcpy(inBuff,buffer+offset,*inLen);
-
-      free(buffer);
+      /* note that inBuffer is not copied and freed here...*/
     }
 
     /****************************************************************/
     /* the status stage */
-    {
-      offset = 0;
-      if(s->padded_read)
-        offset = USB_HEADER_LEN;
+    statOffset = 0;
+    if(s->padded_read)
+      statOffset = USB_HEADER_LEN;
 
-      length = offset+USB_STATUS_LEN;
-      actual = length;
-      timeout = USB_STATUS_TIME;
+    statLength = statOffset+USB_STATUS_LEN;
+    statActual = statLength;
+    statTimeout = USB_STATUS_TIME;
 
-      /* change timeout */
-      if(shortTime)
-        timeout/=60;
-      sanei_usb_set_timeout(timeout);
+    /* change timeout */
+    if(shortTime)
+      statTimeout/=60;
+    sanei_usb_set_timeout(statTimeout);
 
-      /* build buffer */
-      buffer = calloc(length,1);
-      if(!buffer){
-        DBG(5,"stat: no mem\n");
-        return SANE_STATUS_IO_ERROR;
+    /* build statBuffer */
+    statBuffer = calloc(statLength,1);
+    if(!statBuffer){
+      DBG(5,"stat: no mem\n");
+      if(inBuffer) free(inBuffer);
+      return SANE_STATUS_NO_MEM;
+    }
+  
+    DBG(25, "stat: reading %d bytes, timeout %d\n", (int)statLength, statTimeout);
+    ret2 = sanei_usb_read_bulk(s->fd, statBuffer, &statActual);
+    DBG(25, "stat: read %d bytes, retval %d\n", (int)statActual, ret2);
+    hexdump(30, "stat: <<", statBuffer, statActual);
+  
+    if(!statActual){
+      DBG(5,"stat: got no data, clearing\n");
+      free(statBuffer);
+      if(inBuffer) free(inBuffer);
+      return do_usb_clear(s,1,runRS);
+    }
+    if(ret2 != SANE_STATUS_GOOD){
+      DBG(5,"stat: return error '%s'\n",sane_strstatus(ret2));
+      free(statBuffer);
+      if(inBuffer) free(inBuffer);
+      return ret2;
+    }
+    if(statLength != statActual){
+      DBG(5,"stat: short read, %d/%d\n",(int)statLength,(int)statActual);
+      free(statBuffer);
+      if(inBuffer) free(inBuffer);
+      return SANE_STATUS_IO_ERROR;
+    }
+
+    /*inspect the last byte of the status response*/
+    if(statBuffer[statLength-1]){
+      DBG(5,"stat: status %d\n",statBuffer[statLength-1]);
+      ret2 = do_usb_clear(s,0,runRS);
+    }
+    free(statBuffer);
+
+    /* if status said EOF, adjust input with remainder count */
+    if(ret2 == SANE_STATUS_EOF && inBuffer){
+
+      /* EOF is ok */
+      ret2 = SANE_STATUS_GOOD;
+
+      if(inActual < inLength - s->rs_info){
+        DBG(5,"in: shorter read than RS, ignoring: %d < %d-%d\n",
+          (int)inActual,(int)inLength,(int)s->rs_info);
+      }
+      else if(s->rs_info){
+        DBG(5,"in: longer read than RS, updating: %d to %d-%d\n",
+          (int)inActual,(int)inLength,(int)s->rs_info);
+        inActual = inLength - s->rs_info;
+      }
+    }
+
+    /* bail out on bad RS status */
+    if(ret2){
+      if(inBuffer) free(inBuffer);
+      DBG(5,"stat: bad RS status, %d\n", ret2);
+      return ret2;
+    }
+
+    /* now that we have read status, deal with input buffer */
+    if(inBuffer){
+      if(inLength != inActual){
+        ret = SANE_STATUS_EOF;
+        DBG(5,"in: short read, %d/%d\n", (int)inLength,(int)inActual);
       }
   
-      DBG(25, "stat: reading %d bytes, timeout %d\n", (int)length, timeout);
-      ret2 = sanei_usb_read_bulk(s->fd, buffer, &actual);
-      DBG(25, "stat: read %d bytes, retval %d\n", (int)actual, ret2);
-      hexdump(30, "stat: <<", buffer, actual);
+      /* ignore the USB packet around the SCSI command */
+      *inLen = inActual - inOffset;
+      memcpy(inBuff,inBuffer+inOffset,*inLen);
   
-      if(!actual){
-        DBG(5,"stat: got no data, clearing\n");
-        free(buffer);
-	return do_usb_clear(s,runRS);
-      }
-      if(ret2 != SANE_STATUS_GOOD){
-        DBG(5,"stat: return error '%s'\n",sane_strstatus(ret2));
-        free(buffer);
-        return ret2;
-      }
-      if(length != actual){
-        DBG(5,"stat: short read, %d/%d\n",(int)length,(int)actual);
-        free(buffer);
-        return SANE_STATUS_IO_ERROR;
-      }
-
-      /*FIXME: inspect the status response?*/
-
-      free(buffer);
+      free(inBuffer);
     }
 
     DBG (10, "do_usb_cmd: finish\n");
@@ -4630,16 +4736,18 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
 }
 
 static SANE_Status
-do_usb_clear(struct scanner *s, int runRS)
+do_usb_clear(struct scanner *s, int clear, int runRS)
 {
     SANE_Status ret, ret2;
 
     DBG (10, "do_usb_clear: start\n");
 
-    ret = sanei_usb_clear_halt(s->fd);
-    if(ret != SANE_STATUS_GOOD){
+    if(clear){
+      ret = sanei_usb_clear_halt(s->fd);
+      if(ret != SANE_STATUS_GOOD){
         DBG(5,"do_usb_clear: cant clear halt, returning %d\n", ret);
         return ret;
+      }
     }
 
     /* caller is interested in having RS run on errors */

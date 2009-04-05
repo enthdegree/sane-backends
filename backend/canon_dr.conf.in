@@ -15,8 +15,8 @@
 
 #######################################################################
 # Set data buffer size, in bytes. The value ranges from 4096 - infinity
-# but you may have scanning problems with a value larger than default (64k)
-#option buffer-size 65536
+# large values may cause timeouts, small causes slow scans. 4MB default
+#option buffer-size 4194304
 
 #######################################################################
 # Most scanners dont pad their reads

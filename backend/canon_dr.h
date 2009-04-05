@@ -148,6 +148,7 @@ struct scanner
   int rgb_format;       /* meaning unknown */
   int padding;          /* meaning unknown */
 
+  int always_op;        /* send object pos between pages */
   int invert_tly;       /* weird bug in some smaller scanners */
   int unknown_byte2;    /* weird byte, required, meaning unknown */
   int padded_read;      /* some machines need extra 12 bytes on reads */
@@ -262,8 +263,12 @@ struct scanner
   int reading;
   int cancelled;
   int side;
+  int prev_page;
   int jpeg_stage;
   int jpeg_ff_offset;
+
+  /* scanner done yet? */
+  int eof_rx[2];
 
   /* total to read/write */
   int bytes_tot[2];
@@ -285,7 +290,6 @@ struct scanner
   /* --------------------------------------------------------------------- */
   /* values used to hold hardware or control panel status                  */
 
-  time_t last_panel;
   int panel_start;
   int panel_stop;
   int panel_new_file;
@@ -293,6 +297,9 @@ struct scanner
   int panel_bypass_mode;
   int panel_enable_led;
   int panel_counter;
+
+  /* values which are used to track the frontend's access to sensors  */
+  char hw_read[NUM_OPTIONS-OPT_START];
 };
 
 #define CONNECTION_SCSI   0 /* SCSI interface */
@@ -448,7 +455,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
  unsigned char * inBuff, size_t * inLen
 );
 
-static SANE_Status do_usb_clear(struct scanner *s, int runRS);
+static SANE_Status do_usb_clear(struct scanner *s, int clear, int runRS);
 
 static SANE_Status wait_scanner (struct scanner *s);
 
@@ -463,7 +470,7 @@ static int get_page_height (struct scanner *s);
 
 static SANE_Status set_window (struct scanner *s);
 
-static SANE_Status read_panel(struct scanner *s);
+static SANE_Status read_panel(struct scanner *s, SANE_Int option);
 static SANE_Status send_panel(struct scanner *s);
 
 static SANE_Status start_scan (struct scanner *s);

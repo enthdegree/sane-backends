@@ -87,6 +87,9 @@ Besides "well-known" options (e.g. resolution, mode etc.) pixma backend also
 provides the following
 \#.B experimental
 options for button handling, i.e. the options might change in the future.
+.br
+Button scan is disabled on MAC OS X due to darwin libusb not handling
+timeouts in usb interrupt reads. 
 .TP
 .I button\-controlled
 This option can be used in combination with

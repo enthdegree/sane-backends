@@ -62,6 +62,13 @@
 # define UNUSED(v)
 #endif
 
+/* MAC OS X does not support timeouts in darwin/libusb interrupt reads
+ * This is a very basic turnaround for MAC OS X
+ * Button scan will not work with this wrapper */
+#ifdef __APPLE__
+# define sanei_usb_read_int sanei_usb_read_bulk
+#endif
+
 
 struct pixma_io_t
 {
@@ -539,8 +546,8 @@ pixma_wait_interrupt (pixma_io_t * io, void *buf, unsigned size, int timeout)
   /* FIXME: What is the meaning of "timeout" in sanei_usb? */
   if (timeout < 0)
     timeout = INT_MAX;
-  else if (timeout < 10)
-    timeout = 10;
+  else if (timeout < 100)
+    timeout = 100;
   if (io-> interface == INT_BJNP)
     {
       sanei_bjnp_set_timeout (io->dev, timeout);

@@ -1,3 +1,13 @@
+2009-04-05  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
+	* backend/pixma_io.h, backend/pixma_io_sanei.c, doc/sane-pixma.man:
+	  Increased timeouts for read bulk and write bulk operations to 10s
+	  Changed minimum timeout for interrupt read to 100ms
+	  For MAC OS X : added a wrapper to sanei_usb_read_int as darwin libusb
+	  does not handle timeouts in interrupt reads. This disables button scan
+	  for MAC OS X, updated man page with this info.
+	* backend/pixma_mp150.c: 
+	  Added 2 new Canon Pixma models but usb pid/vid yet unknown.
+
 2009-04-05  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/canon_dr.conf.in: backend v24
 	- fix DR-2510C duplex deinterlacing code

@@ -140,6 +140,9 @@
 #define MP260_PID 0x1733    /* Untested */
 #define MP190_PID 0x1734
 
+/* PIXMA 2008 vintage */
+#define MX330_PID UNKNOWN_PID    /* TBD, untested */
+#define MX860_PID UNKNOWN_PID    /* TBD, untested */
 
 
 enum mp150_state_t
@@ -1466,6 +1469,10 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MP240", "MP240", MP240_PID, 1200, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP260", "MP260", MP260_PID, 1200, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP190", "MP190", MP190_PID, 600, 638, 877, PIXMA_CAP_CIS),
+
+  /* PIXMA 2009 vintage */
+  DEVICE ("Canon PIXMA MX330", "MX330", MX330_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   END_OF_DEVICE_LIST
 };

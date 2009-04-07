@@ -22,8 +22,8 @@
 
 ;;;  This list of devices was compiled from the following sources:
 ;;;
-;;;  * iscan-2.18.0/NEWS
-;;;  * iscan-2.18.0/backend/usb
+;;;  * iscan-2.19.0/NEWS
+;;;  * iscan-2.19.0/backend/usb
 ;;;  * sane-backends/backend/epson_usb.c (CVS 1.18)
 ;;;  * sane-backends/doc/descriptions/epson.desc (CVS 1.26)
 ;;;  * http://www.freecolormanagement.com/sane/supported.html
@@ -38,7 +38,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "2.18.0"
+:version "2.19.0"
 :url     "http://www.avasys.jp/english/linux_e/"
 
 ;:comment "Based on the epson backend of sane-backends-1.0.15."
@@ -241,6 +241,13 @@
 :status    :good
 :comment   "network interface unsupported<br>IEEE1394 untested"
 
+:model     "ES-D400"
+:interface "USB"
+:usbid     "0x04b8" "0x0136"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-gt-s80"
+:url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+
 :model     "ES-H300"
 :interface "USB"
 :usbid     "0x04b8" "0x012b"
@@ -251,7 +258,7 @@
 :interface "USB Ethernet"
 :usbid     "0x04b8" "0x0138"
 :status    :good
-:comment   "network interface supported via DFSG non-free iscan-network package"
+:comment   "network interface supported via DFSG non-free iscan-network-nt package"
 
 :model     "Expression 636"
 :interface "SCSI"
@@ -529,7 +536,7 @@
 :interface "USB Ethernet"
 :usbid     "0x04b8" "0x0138"
 :status    :good
-:comment   "network interface supported via DFSG non-free iscan-network package<br>overseas version of the ES-H7200"
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>overseas version of the ES-H7200"
 
 :model     "GT-30000"			; command spec
 :interface "SCSI"
@@ -605,6 +612,20 @@
 :status    :good
 :comment   "requires DFSG non-free esci-interpreter-gt-f720<br>GT-S620 with TPU"
 :url       "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+
+:model     "GT-S50"
+:interface "USB"
+:usbid     "0x04b8" "0x0137"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-gt-s80"
+:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+
+:model     "GT-S80"
+:interface "USB"
+:usbid     "0x04b8" "0x0136"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-gt-s80<br>overseas version of the ES-D400"
+:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
 :model     "GT-S600"
 :interface "USB"
@@ -751,6 +772,12 @@
 :usbid     "0x04b8" "0x0848"
 :status    :good
 :comment   "all-in-one"
+
+:model     "ME Office 700FW"
+:interface "USB"
+:usbid     "0x04b8" "0x0847"
+:status    :good
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-601F"
 
 :model     "PM-A700"			; product spec (JP)
 :interface "USB"

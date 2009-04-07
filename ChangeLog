@@ -1,3 +1,7 @@
+2009-04-07 Julien Blache <jb@jblache.org>
+	* doc/descriptions-external/epkowa.desc: update for iScan 2.19.0,
+	from Olaf Meeuwissen.
+
 2009-04-05  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
 	* backend/pixma_io.h, backend/pixma_io_sanei.c, doc/sane-pixma.man:
 	  Increased timeouts for read bulk and write bulk operations to 10s

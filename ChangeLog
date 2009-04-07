@@ -1,3 +1,7 @@
+2009-04-07  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
+	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
+	  Updated documentation for i-SENSYS MF4018 support.
+	  
 2009-04-07 Julien Blache <jb@jblache.org>
 	* doc/descriptions-external/epkowa.desc: update for iScan 2.19.0,
 	from Olaf Meeuwissen.

@@ -381,6 +381,12 @@
 :status :untested
 :comment "All resolutions supported (up to 600DPI)"
 
+:model "imageCLASS MF4018"
+:interface "USB"
+:usbid "0x04a9" "0x26b4"
+:status :untested
+:comment "All resolutions supported (up to 600DPI)"
+
 :model "imageCLASS MF6500 series"
 :interface "USB"
 :usbid "0x04a9" "0x2686"

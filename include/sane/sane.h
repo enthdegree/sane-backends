@@ -243,4 +243,5 @@ extern SANE_String_Const sane_strstatus (SANE_Status status);
 }
 #endif 
 
+
 #endif /* sane_h */

@@ -1196,11 +1196,15 @@ scan_it (void)
     {
       if (!first_frame)
 	{
+#ifdef SANE_STATUS_WARMING_UP
           do
 	    {
 	      status = sane_start (device);
 	    }
 	  while(status == SANE_STATUS_WARMING_UP);
+#else
+	  status = sane_start (device);
+#endif
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      fprintf (stderr, "%s: sane_start: %s\n",
@@ -1525,11 +1529,16 @@ test_it (void)
   static const char *format_name[] =
     { "gray", "RGB", "red", "green", "blue" };
 
+#ifdef SANE_STATUS_WARMING_UP
   do
     {
       status = sane_start (device);
     }
   while(status == SANE_STATUS_WARMING_UP);
+#else
+  status = sane_start (device);
+#endif
+
   if (status != SANE_STATUS_GOOD)
     {
       fprintf (stderr, "%s: sane_start: %s\n",
@@ -2232,11 +2241,15 @@ List of available devices:", prog_name);
 	      fprintf (stderr, "Scanning page %d\n", n);
 	    }
 
+#ifdef SANE_STATUS_WARMING_UP
           do
 	    {
 	      status = sane_start (device);
 	    }
 	  while(status == SANE_STATUS_WARMING_UP);
+#else
+	  status = sane_start (device);
+#endif
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      fprintf (stderr, "%s: sane_start: %s\n",

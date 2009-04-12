@@ -176,6 +176,8 @@
          - hide modes and resolutions that DR-2510C lies about
          - read_panel() logs front-end access to sensors instead of timing
          - rewrite do_usb_cmd() to use remainder from RS info
+      v25 2009-04-12, MAN
+         - disable SANE_FRAME_JPEG
 
    SANE FLOW DIAGRAM
 
@@ -236,7 +238,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 24
+#define BUILD 25
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1061,7 +1063,9 @@ init_model (struct scanner *s)
   /* specific settings missing from vpd */
   if (strstr (s->model_name,"DR-9080")
     || strstr (s->model_name,"DR-7580")){
+#ifdef SANE_FRAME_JPEG
     s->has_comp_JPEG = 1;
+#endif
     s->rgb_format = 2;
   }
 
@@ -2875,12 +2879,14 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
             params->format = SANE_FRAME_RGB;
             params->depth = 8;
 
+#ifdef SANE_FRAME_JPEG
             /* jpeg requires 8x8 squares */
             if(s->compress == COMP_JPEG){
               params->format = SANE_FRAME_JPEG;
               params->pixels_per_line -= params->pixels_per_line % 8;
               params->lines -= params->lines % 8;
             }
+#endif
 
             params->bytes_per_line = params->pixels_per_line * 3;
         }
@@ -2888,12 +2894,14 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
             params->format = SANE_FRAME_GRAY;
             params->depth = 8;
 
+#ifdef SANE_FRAME_JPEG
             /* jpeg requires 8x8 squares */
             if(s->compress == COMP_JPEG){
               params->format = SANE_FRAME_JPEG;
               params->pixels_per_line -= params->pixels_per_line % 8;
               params->lines -= params->lines % 8;
             }
+#endif
 
             params->bytes_per_line = params->pixels_per_line;
         }
@@ -3266,11 +3274,14 @@ set_window (struct scanner *s)
 
   set_WD_compress_type(desc1, COMP_NONE);
   set_WD_compress_arg(desc1, 0);
+
+#ifdef SANE_FRAME_JPEG
   /* some scanners support jpeg image compression, for color/gs only */
   if(s->params.format == SANE_FRAME_JPEG){
       set_WD_compress_type(desc1, COMP_JPEG);
       set_WD_compress_arg(desc1, s->compress_arg);
   }
+#endif
 
   /*build the command*/
   memset(cmd,0,cmdLen);
@@ -3458,7 +3469,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* double width pnm interlacing */
   if(s->source == SOURCE_ADF_DUPLEX
-    && s->params.format != SANE_FRAME_JPEG
+    && s->params.format <= SANE_FRAME_RGB
     && s->duplex_interlace != DUPLEX_INTERLACE_NONE
   ){
 
@@ -3562,6 +3573,7 @@ read_from_scanner(struct scanner *s, int side)
     inLen = 0;
   }
 
+#ifdef SANE_FRAME_JPEG
   /* this is jpeg data, we need to fix the missing image size */
   if(s->params.format == SANE_FRAME_JPEG){
 
@@ -3611,6 +3623,7 @@ read_from_scanner(struct scanner *s, int side)
       }
     }
   }
+#endif
 
   /*scanner may have sent more data than we asked for, chop it*/
   if(inLen > remain){
@@ -3741,7 +3754,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
 
   /* invert image if scanner needs it for this mode */
   /* jpeg data does not use inverting */
-  if(s->params.format != SANE_FRAME_JPEG && s->reverse_by_mode[s->mode]){
+  if(s->params.format <= SANE_FRAME_RGB && s->reverse_by_mode[s->mode]){
     for(i=0; i<len; i++){
       buf[i] ^= 0xff;
     }

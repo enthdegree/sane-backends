@@ -423,6 +423,8 @@
          - added ScanSnap S510M usb ids
       v91 2009-03-20, MAN
          - remove unused temp file code
+      v92 2009-04-12, MAN
+	 - disable SANE_FRAME_JPEG support (again)
 
    SANE FLOW DIAGRAM
 
@@ -483,7 +485,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 91
+#define BUILD 92
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1536,6 +1538,10 @@ init_vpd (struct fujitsu *s)
 
           s->has_comp_JPG1 = get_IN_compression_JPG_BASE (in);
           DBG (15, "  compression JPG1: %d\n", s->has_comp_JPG1);
+#ifndef SANE_FRAME_JPEG
+          DBG (15, "  (Disabled)\n");
+          s->has_comp_JPG1 = 0;
+#endif
 
           s->has_comp_JPG2 = get_IN_compression_JPG_EXT (in);
           DBG (15, "  compression JPG2: %d\n", s->has_comp_JPG2);
@@ -5757,6 +5763,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
         if (s->mode == MODE_COLOR) {
             params->depth = 8;
 
+#ifdef SANE_FRAME_JPEG
             /* jpeg requires 8x8 squares */
             if(s->compress == COMP_JPEG){
               params->format = SANE_FRAME_JPEG;
@@ -5764,16 +5771,20 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
               params->lines -= params->lines % 8;
             }
             else{
+#endif
               params->format = SANE_FRAME_RGB;
               params->pixels_per_line 
                 -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+#ifdef SANE_FRAME_JPEG
             }
+#endif
 
             params->bytes_per_line = params->pixels_per_line * 3;
         }
         else if (s->mode == MODE_GRAYSCALE) {
             params->depth = 8;
 
+#ifdef SANE_FRAME_JPEG
             /* jpeg requires 8x8 squares */
             if(s->compress == COMP_JPEG){
               params->format = SANE_FRAME_JPEG;
@@ -5781,10 +5792,13 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
               params->lines -= params->lines % 8;
             }
             else{
+#endif
               params->format = SANE_FRAME_GRAY;
               params->pixels_per_line 
                 -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+#ifdef SANE_FRAME_JPEG
             }
+#endif
 
             params->bytes_per_line = params->pixels_per_line;
         }
@@ -6291,11 +6305,14 @@ set_window (struct fujitsu *s)
 
   set_WD_compress_type(desc1, COMP_NONE);
   set_WD_compress_arg(desc1, 0);
+
+#ifdef SANE_FRAME_JPEG
   /* some scanners support jpeg image compression, for color/gs only */
   if(s->params.format == SANE_FRAME_JPEG){
       set_WD_compress_type(desc1, COMP_JPEG);
       set_WD_compress_arg(desc1, s->compress_arg);
   }
+#endif
 
   /* the remainder of the block varies based on model and mode,
    * except for gamma and paper size, those are in the same place */
@@ -6742,6 +6759,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   } /* end 3091 */
 
+#ifdef SANE_FRAME_JPEG
   /* alternating jpeg duplex interlacing */
   else if(s->source == SOURCE_ADF_DUPLEX
     && s->params.format == SANE_FRAME_JPEG 
@@ -6759,10 +6777,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       }
 
   } /* end alt jpeg */
+#endif
 
-  /* alternating pnm interlacing */
+  /* alternating pnm duplex interlacing */
   else if(s->source == SOURCE_ADF_DUPLEX
-    && s->params.format != SANE_FRAME_JPEG 
+    && s->params.format <= SANE_FRAME_RGB
     && s->duplex_interlace == DUPLEX_INTERLACE_ALT){
 
       /* buffer front side */
@@ -7396,15 +7415,15 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
         return SANE_STATUS_GOOD;
     }
   
+#ifdef SANE_FRAME_JPEG
     /* jpeg data does not use typical interlacing or inverting, just copy */
-    if(s->compress == COMP_JPEG &&
-      (s->mode == MODE_COLOR || s->mode == MODE_GRAYSCALE)){
-
+    if(s->params.format == SANE_FRAME_JPEG){
         memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
     }
   
     /* not using jpeg, colors maybe interlaced, pixels maybe inverted */
     else {
+#endif
 
         /* scanners interlace colors in many different ways */
         /* use separate code to convert to regular rgb */
@@ -7453,7 +7472,9 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
                 buf[i] ^= 0xff;
             }
         }
+#ifdef SANE_FRAME_JPEG
     }
+#endif
   
     s->bytes_tx[side] += *len;
       

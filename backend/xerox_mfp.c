@@ -78,9 +78,17 @@ static int resolv_state(int state)
   if (state & STATE_INVALID_AREA)
     return SANE_STATUS_INVAL; /* sane_start: implies SANE_INFO_RELOAD_OPTIONS */
   if (state & STATE_WARMING)
+#ifdef SANE_STATUS_WARMING_UP
     return SANE_STATUS_WARMING_UP;
+#else
+    return SANE_STATUS_DEVICE_BUSY;
+#endif
   if (state & STATE_LOCKING)
+#ifdef SANE_STATUS_HW_LOCKED
     return SANE_STATUS_HW_LOCKED;
+#else
+    return SANE_STATUS_JAMMED;
+#endif
   if (state & ~STATE_NO_ERROR)
     return SANE_STATUS_DEVICE_BUSY;
   return 0;

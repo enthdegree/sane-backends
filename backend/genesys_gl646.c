@@ -4443,7 +4443,11 @@ gl646_init (Genesys_Device * dev)
 		  DBG (DBG_error0,
 		       "Your scanner is locked. Please move the lock switch "
 		       "to the unlocked position\n");
+#ifdef SANE_STATUS_HW_LOCKED
 		  return SANE_STATUS_HW_LOCKED;
+#else
+                  return SANE_STATUS_JAMMED;
+#endif
 		}
 	      else
 		DBG (DBG_error,

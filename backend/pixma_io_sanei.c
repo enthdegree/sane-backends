@@ -306,8 +306,12 @@ map_error (SANE_Status ss)
        return PIXMA_ENO_PAPER;
     case SANE_STATUS_EOF:
        return PIXMA_EOF;
+#ifdef SANE_STATUS_HW_LOCKED
     case SANE_STATUS_HW_LOCKED:       /* unused by pixma */
+#endif
+#ifdef SANE_STATUS_WARMING_UP
     case SANE_STATUS_WARMING_UP:      /* unused by pixma */
+#endif
       break;
     }
   PDBG (pixma_dbg (1, "BUG:Unmapped SANE Status code %d\n", ss));

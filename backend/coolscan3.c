@@ -1397,7 +1397,11 @@ sane_get_parameters(SANE_Handle h, SANE_Parameters * p)
 		s->n_colors * s->logical_width * s->bytes_per_pixel;
 
 	if (s->infrared) {
+#ifdef SANE_FRAME_RGBI
 		p->format = SANE_FRAME_RGBI;
+#else
+		p->format = SANE_FRAME_RGB;
+#endif
 	} else {
 		p->format = SANE_FRAME_RGB;	/* XXXXXXXX CCCCCCCCCC */
 	}

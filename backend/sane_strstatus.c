@@ -91,11 +91,15 @@ sane_strstatus (SANE_Status status)
     case SANE_STATUS_ACCESS_DENIED:
       return SANE_I18N("Access to resource has been denied");
 
+#ifdef SANE_STATUS_WARMING_UP
     case SANE_STATUS_WARMING_UP:
       return SANE_I18N("Lamp not ready, please retry");
+#endif
 
+#ifdef SANE_STATUS_HW_LOCKED
     case SANE_STATUS_HW_LOCKED:
       return SANE_I18N("Scanner mechanism locked for transport");
+#endif
 
     default:
       /* non-reentrant, but better than nothing */

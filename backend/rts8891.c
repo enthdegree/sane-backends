@@ -1114,11 +1114,17 @@ sane_start (SANE_Handle handle)
       gettimeofday (&current, NULL);
       if ((current.tv_sec - dev->start_time.tv_sec) < 15)
 	{
+#ifdef SANE_STATUS_WARMING_UP
 	  return SANE_STATUS_WARMING_UP;
+#else
+          DBG (DBG_info,
+	   "sane_start: waiting to let lamp get warm enough ...\n");
+          sleep(current.tv_sec - dev->start_time.tv_sec);
+#endif
 	}
 #else
       DBG (DBG_info,
-	   "sane_start: waiting 15s to let lamp getting warm enough ...\n");
+	   "sane_start: waiting 15s to let lamp get warm enough ...\n");
       sleep (15);
 #endif
     }

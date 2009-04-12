@@ -25,7 +25,7 @@ extern "C" {
  */
 
 #define SANE_CURRENT_MAJOR	1
-#define SANE_CURRENT_MINOR	1
+#define SANE_CURRENT_MINOR	0
 
 #define SANE_VERSION_CODE(major, minor, build)	\
   (  (((SANE_Word) (major) &   0xff) << 24)	\
@@ -66,10 +66,12 @@ typedef enum
     SANE_STATUS_COVER_OPEN,	/* scanner cover is open */
     SANE_STATUS_IO_ERROR,	/* error during device I/O */
     SANE_STATUS_NO_MEM,		/* out of memory */
-    SANE_STATUS_ACCESS_DENIED,	/* access to resource has been denied */
-    /* the following were added for sane 1.1.0, older frontends wont support */
+    SANE_STATUS_ACCESS_DENIED	/* access to resource has been denied */
+    /* following are for later sane version, older frontends wont support */
+#if 0
     SANE_STATUS_WARMING_UP,     /* lamp not ready, please retry */
     SANE_STATUS_HW_LOCKED       /* scanner mechanism locked for transport */
+#endif
   }
 SANE_Status;
 
@@ -172,12 +174,12 @@ typedef enum
     SANE_FRAME_RGB,	/* pixel-interleaved red/green/blue bands */
     SANE_FRAME_RED,	/* red band only */
     SANE_FRAME_GREEN,	/* green band only */
-    SANE_FRAME_BLUE,	/* blue band only */
+    SANE_FRAME_BLUE 	/* blue band only */
 
     /* push remaining types down to match existing backends */
-    /* these were first exposed in SANE 1.1.0 */
+    /* these are to be exposed in a later version of SANE */
     /* most front-ends will require updates to understand them */
-
+#if 0
     SANE_FRAME_TEXT = 0x0A,	/* backend specific textual data */
     SANE_FRAME_JPEG,		/* complete baseline JPEG file */
     SANE_FRAME_G31D,		/* CCITT Group 3 1-D Compressed (MH) */
@@ -188,7 +190,7 @@ typedef enum
     SANE_FRAME_RGBI,		/* red+green+blue+infrared */
     SANE_FRAME_GRAYI,		/* gray+infrared */
     SANE_FRAME_XML		/* undefined schema */
-
+#endif
   }
 SANE_Frame;
 

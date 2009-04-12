@@ -1,3 +1,14 @@
+2009-04-12  m. allan noah <kitno455 a t gmail d o t com>
+	* configure.in: change version to 1.0.20cvs
+	* configure: rebuild from configure.in
+	* include/sane/sane.h: hide API changes (minor, frame and status)
+	* backend/canon_dr.c, backend/fujitsu.c: SANE_FRAME_JPEG
+	* backend/coolscan3.c: SANE_FRAME_RGBI
+	* backend/genesys_gl646.c, backend/genesys_gl841.c: STATUS_HW_LOCKED
+	* backend/rts8891.c, frontend/scanimage.c: STATUS_WARMING_UP
+	* backend/pixma_io_sanei.c, backend/xerox_mfp.c,
+	  backend/sane_strstatus.c: STATUS_HW_LOCKED & STATUS_WARMING_UP
+	* doc/releases.txt: minor updates for new build system
 
 2009-04-07  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
 	* doc/sane-pixma.man, doc/descriptions/pixma.desc:

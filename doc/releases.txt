@@ -16,8 +16,8 @@ Before the release:
 
 * Make sure that config.guess and config.sub are up-to-date (get them from
   savannah.gnu.org/projects/config)
-* configure.in: increase version number (twice!)
-* configure.in: remove -cvs from textual version number
+* configure.in: increase version number
+* configure.in: remove 'cvs' from textual version number
 * configure.in: set is_release=yes
 * OPTIONAL: aclocal.m4: recreate by running aclocal
 * OPTIONAL: include/sane/config.h.in: recreate (autoheader in root of checkout)

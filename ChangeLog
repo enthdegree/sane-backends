@@ -1,4 +1,7 @@
 2009-04-12  m. allan noah <kitno455 a t gmail d o t com>
+	* doc/doxygen-sanei.conf.in: update to recent version of doxygen
+
+2009-04-12  m. allan noah <kitno455 a t gmail d o t com>
 	* configure.in: change version to 1.0.20cvs
 	* configure: rebuild from configure.in
 	* include/sane/sane.h: hide API changes (minor, frame and status)

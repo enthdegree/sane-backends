@@ -81,8 +81,10 @@ static SANE_Word status_ioerror = SANE_FALSE;
 static SANE_Word status_nomem = SANE_FALSE;
 static SANE_Word status_accessdenied = SANE_FALSE;
 static SANE_Word test_option = 0;
+#ifdef SANE_STATUS_WARMING_UP
 static SANE_Word warming_up = SANE_FALSE;
 static struct timeval start;
+#endif
 
 static SANE_Fixed bright = 0;
 static SANE_Word res = 75;
@@ -536,16 +538,20 @@ static const SANE_Device dev[] = {
    "Noname",
    "PNM file reader",
    "virtual device"},
+#ifdef SANE_STATUS_HW_LOCKED
   {
    "locked",
    "Noname",
    "Hardware locked",
    "virtual device"},
+#endif
+#ifdef SANE_STATUS_WARMING_UP
   {
    "warmup",
    "Noname",
    "Always warming up",
    "virtual device"},
+#endif
 };
 
 SANE_Status
@@ -591,14 +597,18 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       gamma[3][i] = i;
     }
 
+#ifdef SANE_STATUS_HW_LOCKED
   if(strncmp(devicename,"locked",6)==0)
     return SANE_STATUS_HW_LOCKED;
+#endif
 
+#ifdef SANE_STATUS_WARMING_UP
   if(strncmp(devicename,"warmup",6)==0)
     {
       warming_up = SANE_TRUE;
       start.tv_sec = 0;
     }
+#endif
 
   return SANE_STATUS_GOOD;
 }
@@ -1094,13 +1104,16 @@ sane_start (SANE_Handle handle)
 {
   char buf[1024];
   int nlines;
+#ifdef SANE_STATUS_WARMING_UP
   struct timeval current;
+#endif
 
   DBG (2, "sane_start\n");
   rgb_comp = 0;
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
 
+#ifdef SANE_STATUS_WARMING_UP
   if(warming_up == SANE_TRUE)
    {
       gettimeofday(&current,NULL);
@@ -1112,6 +1125,7 @@ sane_start (SANE_Handle handle)
       if(current.tv_sec-start.tv_sec<5)
 	return SANE_STATUS_WARMING_UP;
    }
+#endif
 
   if (infile != NULL)
     {

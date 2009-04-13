@@ -1,3 +1,7 @@
+2009-04-13  Stéphane Voltz <stef.dev@free.fr>
+	* backend/pnm.c: conditional handling of STATUS_HW_LOCKED
+	  and STATUS_WARMING_UP
+
 2009-04-12  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/doxygen-sanei.conf.in: update to recent version of doxygen
 

@@ -1,4 +1,7 @@
 2009-04-13  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c: minor version chnage to test commit scripts
+
+2009-04-13  Stéphane Voltz <stef.dev@free.fr>
 	* backend/pnm.c: conditional handling of STATUS_HW_LOCKED
 	  and STATUS_WARMING_UP
 

@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2007-2008 stef.dev@free.fr
+   Copyright (C) 2007-2009 stef.dev@free.fr
 
    This file is part of the SANE package.
 
@@ -118,7 +118,7 @@
 
 /* #define FAST_INIT 1 */
 
-#define BUILD 12
+#define BUILD 20
 
 #define MOVE_DPI 100
 

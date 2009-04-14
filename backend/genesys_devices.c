@@ -104,8 +104,8 @@ static Genesys_Frontend Wolfson[] = {
   ,				/* 6: CANONLIDE35 */
   {DAC_AD_XP200,{0x58, 0x00, 0x00, 0x00}     /* TODO create an AnalogDevice struct */
    , {0x00, 0x00, 0x00}
-   , {0x06, 0x00, 0x00}
-   , {0x0c, 0x00, 0x00}
+   , {0x0a, 0x00, 0x00} /* offset */
+   , {0x20, 0x00, 0x00} /* gain   */
    , {0x00, 0x00, 0x00}
    }
   ,                            
@@ -830,7 +830,7 @@ static Genesys_Model hp2300c_model = {
   GPO_HP2300,
   MOTOR_HP2300,
   GENESYS_FLAG_14BIT_GAMMA
-    /* | GENESYS_FLAG_NO_CALIBRATION */
+    | GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_SEARCH_START
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
@@ -885,6 +885,7 @@ Genesys_Model hp2400c_model = {
   GPO_HP2400,
   MOTOR_HP2400,
   GENESYS_FLAG_UNTESTED		/* not fully working yet */
+    | GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_14BIT_GAMMA
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
@@ -943,7 +944,7 @@ Genesys_Model visioneer_xp200_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_NO_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW, /* | GENESYS_HAS_CALIBRATE, */
   20,
   132
 };
@@ -992,6 +993,7 @@ static Genesys_Model hp3670c_model = {
   MOTOR_HP3670,
       GENESYS_FLAG_14BIT_GAMMA
     | GENESYS_FLAG_SEARCH_START
+    | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,

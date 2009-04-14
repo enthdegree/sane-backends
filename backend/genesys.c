@@ -52,7 +52,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 10
+#define BUILD 11
 
 #include <errno.h>
 #include <string.h>
@@ -188,6 +188,7 @@ sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
 			      int channels, int pixels_per_line, int lines)
 {
   FILE *out;
+  int count;
 
   DBG (DBG_info,
        "sanei_genesys_write_pnm_file: depth=%d, channels=%d, ppl=%d, lines=%d\n",
@@ -205,7 +206,6 @@ sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
 	   pixels_per_line, lines, (int) pow (2, depth) - 1);
   if (channels == 3)
     {
-      int count = 0;
       for (count = 0; count < (pixels_per_line * lines * 3); count++)
 	{
 	  if (depth == 16)
@@ -217,7 +217,6 @@ sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
     }
   else
     {
-      int count = 0;
       for (count = 0; count < (pixels_per_line * lines); count++)
 	{
 	  if (depth == 8)
@@ -1308,7 +1307,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
 
   dpihw = sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6;
 
-  if (dev->settings.scan_mode < 2 && dev->model->ccd_type != CCD_HP2300 && dev->model->ccd_type != CCD_HP2400 && dev->model->ccd_type != CCD_5345)	/* lineart, halftone */
+  if (dev->settings.scan_mode < 2 && dev->model->ccd_type != CCD_HP2300 && dev->model->ccd_type != CCD_HP2400 && dev->model->ccd_type != CCD_HP3670 && dev->model->ccd_type != CCD_5345)	/* lineart, halftone */
     {
       if (dpihw == 0)		/* 600 dpi */
 	start_address = 0x02a00;
@@ -2310,40 +2309,25 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
+      free (calibration_data);
       DBG (DBG_error,
 	   "genesys_dark_shading_calibration: Failed to end scan: %s\n",
 	   sane_strstatus (status));
       return status;
     }
 
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_FALSE);
-  dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-
-  status =
-    dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->cmd_set->
-					      bulk_full_size ());
-  if (status != SANE_STATUS_GOOD)
-    {
-      free (calibration_data);
-      DBG (DBG_error,
-	   "genesys_dark_shading_calibration: Failed to bulk write registers: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("black_shading.pnm", calibration_data, 16,
-				  channels, pixels_per_line,
-				  dev->model->shading_lines);
-
   genesys_average_data (dev->dark_average_data, calibration_data,
 			dev->model->shading_lines,
 			pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
+  {
+    sanei_genesys_write_pnm_file ("black_shading.pnm", calibration_data, 16,
+				  channels, pixels_per_line,
+				  dev->model->shading_lines);
     sanei_genesys_write_pnm_file ("black_average.pnm", dev->dark_average_data,
 				  16, channels, pixels_per_line, 1);
+  }
 
   free (calibration_data);
 
@@ -2468,6 +2452,8 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   pixels_per_line =
     (genesys_pixels_per_line (dev->calib_reg)
      * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
+  /* XXX STEF XXX */
+  pixels_per_line = dev->calib_pixels;
 
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
@@ -2497,7 +2483,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 
   /* turn on motor and lamp power */
   dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_FALSE); /* XXX STEF */
+  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
@@ -2595,7 +2581,6 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_black_white_shading_calibration (lines = %d)\n",
        dev->model->shading_lines);
-
   pixels_per_line =
     (genesys_pixels_per_line (dev->calib_reg)
      * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
@@ -2641,7 +2626,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   /* turn on motor and lamp power */
   dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
+  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_FALSE);
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
@@ -2772,6 +2757,163 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+static unsigned int
+compute_coefficient (unsigned int coeff,
+		     unsigned int target_code, unsigned int val)
+{
+  if (val <= 0)
+    return 65535;
+
+  val = (coeff * target_code) / val;
+
+  if (val > 65535)
+    val = 65535;
+  return val;
+}
+
+/**
+ * Computes shading coefficient using formula in data sheet. 16bit data values
+ * manipulated here are little endian.
+ * @param dev scanner's device
+ * @shading_data memory area where to store the computed shading coefficients
+ * @param pixels_per_line number of pixels per line
+ * @param channels number of color channels (actually 1 or 3)
+ * @param avgpixels number of pixels to average
+ * @param offset shading coefficients left offset
+ * @param coeff 4000h or 2000h depending on fast scan mode or not
+ */
+static void
+compute_coefficients (Genesys_Device * dev,
+		      uint8_t * shading_data,
+		      unsigned int pixels_per_line,
+		      unsigned int channels,
+		      unsigned int avgpixels,
+		      unsigned int offset,
+		      unsigned int coeff, unsigned int target_code)
+{
+  uint8_t *ptr;			/*contain 16bit words in little endian */
+  unsigned int x, j;
+  unsigned int val, dk;
+
+  for (x = 0; x < pixels_per_line - offset - avgpixels - 1; x += avgpixels)
+    {
+      /* dark data */
+      ptr = shading_data + (x + offset) * 2 * 2 * 3;
+      dk = 0;
+      for (j = 0; j < avgpixels; j++)
+	{
+	  dk += dev->dark_average_data[(x + j) * 2 * channels];
+	  dk += 256 * dev->dark_average_data[(x + j) * 2 * channels + 1];
+	}
+      dk /= j;
+      for (j = 0; j < avgpixels; j++)
+	{
+	  ptr[0 + j * 2 * 2 * 3] = dk & 255;
+	  ptr[1 + j * 2 * 2 * 3] = dk / 256;
+	}
+      if (channels > 1)
+	{
+	  dk = 0;
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      dk += dev->dark_average_data[(x + j) * 2 * channels + 2];
+	      dk += 256 * dev->dark_average_data[(x + j) * 2 * channels + 3];
+	    }
+	  dk /= j;
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      ptr[4 + j * 2 * 2 * 3] = dk & 255;
+	      ptr[5 + j * 2 * 2 * 3] = dk / 256;
+	    }
+	  dk = 0;
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      dk += dev->dark_average_data[(x + j) * 2 * channels + 4];
+	      dk += 256 * dev->dark_average_data[(x + j) * 2 * channels + 5];
+	    }
+	  dk /= j;
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      ptr[8 + j * 2 * 2 * 3] = dk & 255;
+	      ptr[9 + j * 2 * 2 * 3] = dk / 256;
+	    }
+	}
+      else
+	{
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      ptr[4 + j * 2 * 2 * 3] = ptr[0];
+	      ptr[5 + j * 2 * 2 * 3] = ptr[1];
+	      ptr[8 + j * 2 * 2 * 3] = ptr[0];
+	      ptr[9 + j * 2 * 2 * 3] = ptr[1];
+	    }
+	}
+
+      /* white data */
+      /* red channel */
+      val = 0;
+      for (j = 0; j < avgpixels; j++)
+	{
+	  val += 256 * dev->white_average_data[(x + j) * 2 * channels + 1];
+	  val += dev->white_average_data[(x + j) * 2 * channels];
+	}
+      val /= j;
+      val -= (256 * ptr[1] + ptr[0]);
+      val = compute_coefficient (coeff, target_code, val);
+      for (j = 0; j < avgpixels; j++)
+	{
+	  ptr[2 + j * 2 * 2 * 3] = val & 0xff;
+	  ptr[3 + j * 2 * 2 * 3] = val / 256;
+	}
+
+      if (channels > 1)
+	{
+	  /* green */
+	  val = 0;
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      val +=
+		256 * dev->white_average_data[(x + j) * 2 * channels + 3];
+	      val += dev->white_average_data[(x + j) * 2 * channels + 2];
+	    }
+	  val /= j;
+	  val -= (256 * ptr[5] + ptr[4]);
+	  val = compute_coefficient (coeff, target_code, val);
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      ptr[6 + j * 2 * 2 * 3] = val & 0xff;
+	      ptr[7 + j * 2 * 2 * 3] = val / 256;
+	    }
+
+	  /* blue */
+	  val = 0;
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      val +=
+		256 * dev->white_average_data[(x + j) * 2 * channels + 5];
+	      val += dev->white_average_data[(x + j) * 2 * channels + 4];
+	    }
+	  val /= j;
+	  val -= (256 * ptr[9] + ptr[8]);
+	  val = compute_coefficient (coeff, target_code, val);
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      ptr[10 + j * 2 * 2 * 3] = val & 255;
+	      ptr[11 + j * 2 * 2 * 3] = val / 256;
+	    }
+	}
+      else
+	{
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      ptr[6 + j * 2 * 2 * 3] = val & 255;
+	      ptr[7 + j * 2 * 2 * 3] = val / 256;
+	      ptr[10 + j * 2 * 2 * 3] = val & 255;
+	      ptr[11 + j * 2 * 2 * 3] = val / 256;
+	    }
+	}
+    }
+}
 
 static SANE_Status
 genesys_send_shading_coefficient (Genesys_Device * dev)
@@ -2780,7 +2922,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   uint16_t pixels_per_line;
   uint8_t *shading_data;	/*contains 16bit words in little endian */
   uint8_t channels;
-  int x, j, o;
+  unsigned int x, j, o;
   unsigned int i, res;
   unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
   unsigned int target_dark, target_bright, br;
@@ -2831,147 +2973,42 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     coeff = 0x4000;
   else
     coeff = 0x2000;
+
   switch (dev->model->ccd_type)
     {
     case CCD_5345:
-      /* from the logs, we can see that the first 2 coefficients are zeroed, 
-         which surely means that coeff depends in a way or another on the 2 previous
-         pixel columns */
-      /* depends upon R06 shading gain */
-
-      target_code = 0xFA00;
+      target_code = 0xfa00;
       memset (shading_data, 0x00, pixels_per_line * 4 * channels);
-
-      /* todo: if GAIN4, shading data is 'chunky', while it is 'line' when
-         GAIN4 is reset */
-      for (x = 2; x < pixels_per_line; x++)
-	{
-	  /* dark data */
-	  shading_data[x * 2 * 2 * 3] =
-	    dev->dark_average_data[x * 2 * channels];
-	  shading_data[x * 2 * 2 * 3 + 1] =
-	    dev->dark_average_data[x * 2 * channels + 1];
-	  if (channels > 1)
-	    {
-	      shading_data[x * 2 * 2 * 3 + 4] =
-		dev->dark_average_data[x * 2 * channels + 2];
-	      shading_data[x * 2 * 2 * 3 + 5] =
-		dev->dark_average_data[x * 2 * channels + 3];
-	      shading_data[x * 2 * 2 * 3 + 8] =
-		dev->dark_average_data[x * 2 * channels + 4];
-	      shading_data[x * 2 * 2 * 3 + 9] =
-		dev->dark_average_data[x * 2 * channels + 5];
-	    }
-	  else
-	    {
-	      shading_data[x * 2 * 2 * 3 + 4] =
-		dev->dark_average_data[x * 2 * channels];
-	      shading_data[x * 2 * 2 * 3 + 5] =
-		dev->dark_average_data[x * 2 * channels + 1];
-	      shading_data[x * 2 * 2 * 3 + 8] =
-		dev->dark_average_data[x * 2 * channels];
-	      shading_data[x * 2 * 2 * 3 + 9] =
-		dev->dark_average_data[x * 2 * channels + 1];
-	    }
-
-	  /* white data */
-	  /* red channel */
-	  val = 0;
-
-	  val +=
-	    256 * dev->white_average_data[(x - 2) * 2 * channels + 1] +
-	    dev->white_average_data[(x - 2) * 2 * channels];
-	  val -=
-	    (256 * dev->dark_average_data[(x - 2) * 2 * channels + 1] +
-	     dev->dark_average_data[(x - 2) * 2 * channels]);
-
-	  val +=
-	    256 * dev->white_average_data[(x - 1) * 2 * channels + 1] +
-	    dev->white_average_data[(x - 1) * 2 * channels];
-	  val -=
-	    (256 * dev->dark_average_data[(x - 1) * 2 * channels + 1] +
-	     dev->dark_average_data[(x - 1) * 2 * channels]);
-
-	  val +=
-	    256 * dev->white_average_data[(x) * 2 * channels + 1] +
-	    dev->white_average_data[(x) * 2 * channels];
-	  val -=
-	    (256 * dev->dark_average_data[(x) * 2 * channels + 1] +
-	     dev->dark_average_data[(x) * 2 * channels]);
-
-	  val /= 3;
-	  if ((65535 * val) / coeff > target_code)
-	    val = (coeff * target_code) / val;
-	  else
-	    val = 65535;
-	  shading_data[x * 2 * 2 * 3 + 2] = val & 0xff;
-	  shading_data[x * 2 * 2 * 3 + 3] = val >> 8;
-	  if (channels > 1)
-	    {
-	      /* green */
-	      val = 0;
-	      val +=
-		256 * dev->white_average_data[(x - 2) * 2 * channels + 3] +
-		dev->white_average_data[(x - 2) * 2 * channels + 2];
-	      val -=
-		(256 * dev->dark_average_data[(x - 2) * 2 * channels + 3] +
-		 dev->dark_average_data[(x - 2) * 2 * channels + 2]);
-	      val +=
-		256 * dev->white_average_data[(x - 1) * 2 * channels + 3] +
-		dev->white_average_data[(x - 1) * 2 * channels + 2];
-	      val -=
-		(256 * dev->dark_average_data[(x - 1) * 2 * channels + 3] +
-		 dev->dark_average_data[(x - 1) * 2 * channels + 2]);
-	      val +=
-		256 * dev->white_average_data[(x) * 2 * channels + 3] +
-		dev->white_average_data[(x) * 2 * channels + 2];
-	      val -=
-		(256 * dev->dark_average_data[(x) * 2 * channels + 3] +
-		 dev->dark_average_data[(x) * 2 * channels + 2]);
-	      val /= 3;
-	      if ((65535 * val) / coeff > target_code)
-		val = (coeff * target_code) / val;
-	      else
-		val = 65535;
-	      shading_data[x * 2 * 2 * 3 + 6] = val & 0xff;
-	      shading_data[x * 2 * 2 * 3 + 7] = val >> 8;
-
-	      /* blue */
-	      val = 0;
-	      val +=
-		256 * dev->white_average_data[(x) * 2 * channels + 5] +
-		dev->white_average_data[(x) * 2 * channels + 4];
-	      val -=
-		(256 * dev->dark_average_data[(x) * 2 * channels + 5] +
-		 dev->dark_average_data[(x) * 2 * channels + 4]);
-	      val +=
-		256 * dev->white_average_data[(x) * 2 * channels + 5] +
-		dev->white_average_data[(x) * 2 * channels + 4];
-	      val -=
-		(256 * dev->dark_average_data[(x) * 2 * channels + 5] +
-		 dev->dark_average_data[(x) * 2 * channels + 4]);
-	      val +=
-		256 * dev->white_average_data[(x) * 2 * channels + 5] +
-		dev->white_average_data[(x) * 2 * channels + 4];
-	      val -=
-		(256 * dev->dark_average_data[(x) * 2 * channels + 5] +
-		 dev->dark_average_data[(x) * 2 * channels + 4]);
-	      val /= 3;
-	      if ((65535 * val) / coeff > target_code)
-		val = (coeff * target_code) / val;
-	      else
-		val = 65535;
-	      shading_data[x * 2 * 2 * 3 + 10] = val & 0xff;
-	      shading_data[x * 2 * 2 * 3 + 11] = val >> 8;
-	    }
-	  else
-	    {
-	      shading_data[x * 2 * 2 * 3 + 6] = val & 0xff;
-	      shading_data[x * 2 * 2 * 3 + 7] = val >> 8;
-	      shading_data[x * 2 * 2 * 3 + 10] = val & 0xff;
-	      shading_data[x * 2 * 2 * 3 + 11] = val >> 8;
-	    }
-	}
+      o=2;
+      avgpixels = 1;
+      compute_coefficients(dev,
+			shading_data,
+		        pixels_per_line,
+		        channels,
+			avgpixels,
+			o,
+			coeff,
+			target_code);
+      break;
+    case CCD_HP2300:
+    case CCD_HP2400:
+    case CCD_HP3670:
+      target_code = 0xfa00;
+      memset (shading_data, 0x00, pixels_per_line * 4 * channels);
+      o = 2;			/* when ~AVEENB, o=3 if AVEENB ? */
+      if(dev->settings.xres<=150)
+      	avgpixels = 2;
+      else
+      	avgpixels = 1;
+      /* TODO: if FASTMODE, shading data is 'color component line by line' */
+      compute_coefficients(dev,
+			shading_data,
+		        pixels_per_line,
+		        channels,
+			avgpixels,
+			o,
+			coeff,
+			target_code);
       break;
     case CCD_CANONLIDE35:
       target_bright = 0xfa00;
@@ -3046,21 +3083,25 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	      for (i = 0; i < avgpixels; i++)
 		{
 		  /* dark data */
-		  dk += (dev->dark_average_data[(x + i + pixels_per_line * j) * 2] 
-			 | (dev->
-			    dark_average_data[(x + i + pixels_per_line * j) * 2 + 
-					      1] << 8));
-		  
+		  dk +=
+		    (dev->dark_average_data[(x + i +
+					     pixels_per_line * j) *
+					    2] |
+		     (dev->dark_average_data
+		      [(x + i + pixels_per_line * j) * 2 + 1] << 8));
+
 		  /* white data */
-		  br += (dev->white_average_data[(x + i + pixels_per_line * j) * 2]
-			 | (dev->
-			    white_average_data[(x + i + pixels_per_line * j) * 2 +
-					       1] << 8));
+		  br +=
+		    (dev->white_average_data[(x + i +
+					      pixels_per_line * j) *
+					     2] |
+		     (dev->white_average_data
+		      [(x + i + pixels_per_line * j) * 2 + 1] << 8));
 		}
-	      
+
 	      br /= avgpixels;
 	      dk /= avgpixels;
-	      
+
 	      if (br * target_dark > dk * target_bright)
 		val = 0;
 	      else if (dk * target_bright - br * target_dark >
@@ -3104,8 +3145,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 		{
 		  shading_data[(x + o + i) * 2 * 2 +
 			       words_per_color * j] =
-		    shading_data[(x + o + i) * 2 * 2 +
-				 words_per_color * 0];
+		    shading_data[(x + o + i) * 2 * 2 + words_per_color * 0];
 		  shading_data[(x + o + i) * 2 * 2 +
 			       words_per_color * j + 1] =
 		    shading_data[(x + o + i) * 2 * 2 +
@@ -3134,134 +3174,11 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       }
 */
       break;
-    case CCD_HP2300:
-    case CCD_HP2400:
     default:
-      target_code = 0xFA00;
-      for (x = 6; x < pixels_per_line; x++)
-	{
-	  /* dark data */
-	  val = 0;
-	  for (i = 0; i < 7; i++)
-	    {
-	      val += dev->dark_average_data[(x - i) * 2 * channels];
-	      val += 256 * dev->dark_average_data[(x - i) * 2 * channels + 1];
-	    }
-	  val /= i;
-	  shading_data[x * 2 * 2 * 3] = val & 0xff;
-	  shading_data[x * 2 * 2 * 3 + 1] = val >> 8;
-
-	  if (channels > 1)
-	    {
-	      val = 0;
-	      for (i = 0; i < 7; i++)
-		{
-		  val += dev->dark_average_data[(x - i) * 2 * channels + 2];
-		  val +=
-		    256 * dev->dark_average_data[(x - i) * 2 * channels + 3];
-		}
-	      val /= i;
-	      shading_data[x * 2 * 2 * 3 + 4] = val & 0xff;
-	      shading_data[x * 2 * 2 * 3 + 5] = val >> 8;
-
-	      val = 0;
-	      for (i = 0; i < 7; i++)
-		{
-		  val += dev->dark_average_data[(x - i) * 2 * channels + 4];
-		  val +=
-		    256 * dev->dark_average_data[(x - i) * 2 * channels + 5];
-		}
-	      val /= i;
-	      shading_data[x * 2 * 2 * 3 + 8] = val & 0xff;
-	      shading_data[x * 2 * 2 * 3 + 9] = val >> 8;
-	    }
-	  else
-	    {
-	      shading_data[x * 2 * 2 * 3 + 4] = shading_data[x * 2 * 2 * 3];
-	      shading_data[x * 2 * 2 * 3 + 5] =
-		shading_data[x * 2 * 2 * 3 + 1];
-	      shading_data[x * 2 * 2 * 3 + 8] = shading_data[x * 2 * 2 * 3];
-	      shading_data[x * 2 * 2 * 3 + 9] =
-		shading_data[x * 2 * 2 * 3 + 1];
-	    }
-
-	  /* white data */
-	  val = 0;
-
-	  /* average on 7 rows */
-	  for (i = 0; i < 7; i++)
-	    {
-	      val +=
-		256 * dev->white_average_data[(x - i) * 2 * channels + 1] +
-		dev->white_average_data[(x - i) * 2 * channels];
-	      val -=
-		(256 * dev->dark_average_data[(x - i) * 2 * channels + 1] +
-		 dev->dark_average_data[(x - i) * 2 * channels]);
-	    }
-	  val /= i;
-
-	  if ((65535 * val) / coeff > target_code)
-	    val = (coeff * target_code) / val;
-	  else
-	    val = 65535;
-	  shading_data[x * 2 * 2 * 3 + 2] = val & 0xff;
-	  shading_data[x * 2 * 2 * 3 + 3] = val >> 8;
-	  if (channels > 1)
-	    {
-	      /* green */
-	      /* average on 7 rows */
-	      val = 0;
-	      for (i = 0; i < 7; i++)
-		{
-		  val +=
-		    256 * dev->white_average_data[(x - i) * 2 * channels +
-						  3] +
-		    dev->white_average_data[(x - i) * 2 * channels + 2];
-		  val -=
-		    (256 *
-		     dev->dark_average_data[(x - i) * 2 * channels + 3] +
-		     dev->dark_average_data[(x - i) * 2 * channels + 2]);
-		}
-	      val /= i;
-
-	      if ((65535 * val) / coeff > target_code)
-		val = (coeff * target_code) / val;
-	      else
-		val = 65535;
-	      shading_data[x * 2 * 2 * 3 + 6] = val & 0xff;
-	      shading_data[x * 2 * 2 * 3 + 7] = val >> 8;
-
-	      /* blue */
-	      /* average on 7 rows */
-	      val = 0;
-	      for (i = 0; i < 7; i++)
-		{
-		  val +=
-		    256 * dev->white_average_data[(x - i) * 2 * channels +
-						  5] +
-		    dev->white_average_data[(x - i) * 2 * channels + 4];
-		  val -=
-		    (256 *
-		     dev->dark_average_data[(x - i) * 2 * channels + 5] +
-		     dev->dark_average_data[(x - i) * 2 * channels + 4]);
-		}
-	      val /= i;
-
-	      if ((65535 * val) / coeff > target_code)
-		val = (coeff * target_code) / val;
-	      else
-		val = 65535;
-	      shading_data[x * 2 * 2 * 3 + 10] = val & 0xff;
-	      shading_data[x * 2 * 2 * 3 + 11] = val >> 8;
-	    }
-	  else
-	    {
-	      shading_data[x * 2 * 2 * 3 + 6] = val & 0xff;
-	      shading_data[x * 2 * 2 * 3 + 7] = val >> 8;
-	      shading_data[x * 2 * 2 * 3 + 10] = val & 0xff;
-	      shading_data[x * 2 * 2 * 3 + 11] = val >> 8;
-	    }
-	}
+      DBG (DBG_error,
+	   "genesys_send_shading_coefficient: sensor %d not supported\n",
+	   dev->model->ccd_type);
+      return SANE_STATUS_UNSUPPORTED;
       break;
     }
 
@@ -3353,7 +3270,7 @@ genesys_restore_calibration (Genesys_Device * dev)
 static SANE_Status
 genesys_save_calibration (Genesys_Device * dev)
 {    
-  SANE_Status status;
+  SANE_Status status=SANE_STATUS_UNSUPPORTED;
   Genesys_Calibration_Cache *cache;
   uint8_t *tmp;
 
@@ -3362,22 +3279,17 @@ genesys_save_calibration (Genesys_Device * dev)
   if (!dev->model->cmd_set->is_compatible_calibration)
     return SANE_STATUS_UNSUPPORTED;
 
-  for(cache = dev->calibration_cache; cache; cache = cache->next) 
+  for(cache = dev->calibration_cache; cache && status==SANE_STATUS_UNSUPPORTED; cache = cache->next) 
     {
       status = dev->model->cmd_set->is_compatible_calibration(dev, cache, 
 							      SANE_TRUE);
-      if (status == SANE_STATUS_UNSUPPORTED) 
-	{
-	  continue;
-	}
-      else if (status != SANE_STATUS_GOOD) 
+      if (status != SANE_STATUS_GOOD) 
 	{
 	  DBG (DBG_error,
 	       "genesys_save_calibration: fail while checking compatibility: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
-       break;
     }
 
   if(cache)
@@ -3600,9 +3512,13 @@ genesys_flatbed_calibration (Genesys_Device * dev)
       return status;
     }
 
+  /* GL646 scanners set up calib_pixels in init_regs_for_shading */
+  if (dev->model->asic_type != GENESYS_GL646)
+  {
   dev->calib_pixels = 
     (genesys_pixels_per_line (dev->calib_reg)
      * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res; 
+  }
 
   if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION)
     {
@@ -3872,9 +3788,10 @@ genesys_start_scan (Genesys_Device * dev)
       RIE (genesys_warmup_lamp (dev));
     }
 
-  /* set top left x and y values if flatbed scanners */
+  /* set top left x and y values by scanning the internals if flatbed scanners */
   if (dev->model->is_sheetfed == SANE_FALSE)
     {
+      /* do the geometry detection only once */
       if ((dev->model->flags & GENESYS_FLAG_SEARCH_START)
 	  && (dev->model->y_offset_calib == 0))
 	{
@@ -5299,7 +5216,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_CALIBRATE].type = SANE_TYPE_BUTTON;
   s->opt[OPT_CALIBRATE].unit = SANE_UNIT_NONE;
   if (model->buttons & GENESYS_HAS_CALIBRATE)
-    s->opt[OPT_CALIBRATE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED | SANE_CAP_AUTOMATIC;
+    s->opt[OPT_CALIBRATE].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED | SANE_CAP_AUTOMATIC;
   else
     s->opt[OPT_CALIBRATE].cap = SANE_CAP_INACTIVE;
   s->val[OPT_CALIBRATE].b = 0;

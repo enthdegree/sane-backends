@@ -1278,9 +1278,9 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* vfinal=(exposure/(1200/dpi))/step_type */
   /* DBG (DBG_info, "XXX STEF XXX vfinal=%d, vend1=%d\n",
-       (sensor->exposure * sensor->xdpi) / ((1 << motor->steptype) *
-					    dev->sensor.optical_res),
-       motor->vend1);*/
+     (sensor->exposure * sensor->xdpi) / ((1 << motor->steptype) *
+     dev->sensor.optical_res),
+     motor->vend1); */
 
   /* half_ccd if manual clock programming or dpi is half dpiset */
   half_ccd = sensor->half_ccd;
@@ -1353,9 +1353,9 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* allow moving when buffer full by default */
   if (dev->model->is_sheetfed == SANE_FALSE)
-  	dev->reg[reg_0x02].value &= ~REG02_ACDCDIS;
+    dev->reg[reg_0x02].value &= ~REG02_ACDCDIS;
   else
-  	dev->reg[reg_0x02].value |= REG02_ACDCDIS;
+    dev->reg[reg_0x02].value |= REG02_ACDCDIS;
 
   /* setup motor power */
   regs[reg_0x02].value |= REG02_MTRPWR;
@@ -1392,6 +1392,10 @@ gl646_setup_registers (Genesys_Device * dev,
     {
       regs[reg_0x02].value |= REG02_AGOHOME;
     }
+
+  /* R03 */
+  regs[reg_0x03].value &= ~REG03_AVEENB;
+  /* regs[reg_0x03].value |= REG03_AVEENB; */
 
   /* R04 */
   if (depth > 8)
@@ -1619,8 +1623,15 @@ gl646_setup_registers (Genesys_Device * dev,
   gl646_set_double_reg (regs, REG_Z2MOD, z2);
   regs[reg_0x6b].value = motor->steps2;
   regs[reg_0x6c].value =
-    (regs[reg_0x6c].
-     value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16) & 0x07);
+    (regs[reg_0x6c].value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
+								   & 0x07);
+
+  /* the 3670 seems to behave differently regarding GPIO */
+  /* TODO to be added in the sensor setting struct ?? */
+  if (dev->model->ccd_type==CCD_HP3670)
+  {
+  	dev->reg[reg_0x66].value = 0;
+  }
 
   RIE (write_control (dev, xresolution));
 
@@ -1986,6 +1997,7 @@ gl646_init_regs (Genesys_Device * dev)
       dev->reg[reg_0x20].value = 0x20;
       break;
     case CCD_HP2400:
+    case CCD_HP3670:
       dev->reg[reg_0x1e].value = 0x80;
       dev->reg[reg_0x1f].value = 0x10;
       dev->reg[reg_0x20].value = 0x20;
@@ -2063,6 +2075,11 @@ gl646_init_regs (Genesys_Device * dev)
       dev->reg[reg_0x6a].value = 0x7f;	/* table two fast moving step type, PWM duty for table two */
       dev->reg[reg_0x6b].value = 0x08;	/* table two steps number for acc/dec */
       dev->reg[reg_0x6d].value = 0x01;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
+      break;
+    case MOTOR_HP3670:
+      dev->reg[reg_0x6a].value = 0x41;	/* table two steps number for acc/dec */
+      dev->reg[reg_0x6b].value = 0xc8;	/* table two steps number for acc/dec */
+      dev->reg[reg_0x6d].value = 0x7f;
       break;
     default:
       dev->reg[reg_0x6a].value = 0x40;	/* table two fast moving step type, PWM duty for table two */
@@ -2238,30 +2255,34 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set)
     {
       status = sanei_genesys_fe_write_data (dev, 0x01, 0x02);
       if (status != SANE_STATUS_GOOD)
-	DBG (DBG_error, "gl646_set_fe: writing data failed: %s\n",
-	     sane_strstatus (status));
+	{
+	  DBG (DBG_error, "gl646_set_fe: writing data failed: %s\n",
+	       sane_strstatus (status));
+	}
       return status;
     }
 
+  /* here starts AFE_SET */
   /* TODO :  base this test on cfg reg3 or a CCD family flag to be created */
-  /*if (dev->model->ccd_type != CCD_HP2300
-     && dev->model->ccd_type != CCD_HP2400) */
-  {
-    status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
-    if (status != SANE_STATUS_GOOD)
-      {
-	DBG (DBG_error, "gl646_set_fe: writing reg0 failed: %s\n",
-	     sane_strstatus (status));
-	return status;
-      }
-    status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.reg[2]);
-    if (status != SANE_STATUS_GOOD)
-      {
-	DBG (DBG_error, "gl646_set_fe: writing reg2 failed: %s\n",
-	     sane_strstatus (status));
-	return status;
-      }
-  }
+  /* if (dev->model->ccd_type != CCD_HP2300
+      && dev->model->ccd_type != CCD_HP3670
+      && dev->model->ccd_type != CCD_HP2400) */
+    {
+      status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_set_fe: writing reg0 failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.reg[2]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_set_fe: writing reg2 failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
 
   /* start with reg3 */
   status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.reg[3]);
@@ -2309,26 +2330,28 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set)
 	    }
 	}
       break;
-      /* STEF just can't have it to work, seems polarity is inversed 
-         case CCD_HP2300:
-         status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.gain[1]);
-         if (status != SANE_STATUS_GOOD)
-         {
-         DBG (DBG_error, "gl646_set_fe: writing gain[1] failed: %s\n",
-         sane_strstatus (status));
-         return status;
-         }
+    /* just can't have it to work ....
+    case CCD_HP2300:
+    case CCD_HP2400:
+    case CCD_HP3670:
 
-         status =
-         sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.offset[1]);
-         if (status != SANE_STATUS_GOOD)
-         {
-         DBG (DBG_error,
-         "gl646_set_fe: writing offset[1] failed: %s\n",
-         sane_strstatus (status));
-         return status;
-         }
-         break; */
+      status =
+	sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.offset[1]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl646_set_fe: writing offset[1] failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.gain[1]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_set_fe: writing gain[1] failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      break; */
     }
 
   /* end with reg1 */
@@ -2754,7 +2777,7 @@ static SANE_Status
 gl646_eject_document (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  Genesys_Register_Set regs[7];
+  Genesys_Register_Set regs[11];
   unsigned int used, vfinal, count;
   uint16_t slope_table[255];
   uint8_t val;
@@ -3346,7 +3369,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
   /* when shading all line, we must adapt to half_ccd case */
   if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE)
-      && (dev->settings.xres <= dev->sensor.optical_res / 2))
+      && (dev->settings.xres < dev->sensor.optical_res / 2))
     {
       /* we are going to use half the pixel number */
       half_ccd = 2;
@@ -3359,7 +3382,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   settings.yres = dev->sensor.optical_res / half_ccd;
   settings.tl_x = 0;
   settings.tl_y = 0;
-  settings.pixels = dev->sensor.sensor_pixels / half_ccd;
+  settings.pixels = dev->sensor.sensor_pixels/half_ccd;
   settings.lines = dev->model->shading_lines;
   settings.depth = 16;
   settings.color_filter = dev->settings.color_filter;
@@ -3371,11 +3394,15 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   /* we don't want top offset, but we need right margin to be the same
    * than the one for the final scan */
   status = setup_for_scan (dev, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
+ 
+  /* used when sending shading calibration data */
+  dev->calib_pixels = settings.pixels;
 
   /* no shading */
   dev->reg[reg_0x01].value &= ~REG01_DVDSET;
   dev->reg[reg_0x02].value |= REG02_ACDCDIS;	/* ease backtracking */
   dev->reg[reg_0x02].value &= ~(REG02_FASTFED | REG02_AGOHOME);
+  dev->reg[reg_0x05].value &= ~REG05_GMMENB;
   gl646_set_motor_power (dev->reg, SANE_FALSE);
 
   /* TODO another flag to setup regs ? */
@@ -3760,7 +3787,14 @@ gl646_offset_calibration (Genesys_Device * dev)
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
-  resolution = get_closest_resolution (dev->model->ccd_type, 150, SANE_TRUE);
+  if (dev->settings.xres > dev->sensor.optical_res)
+    {
+      resolution = get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res, SANE_TRUE);
+    }
+  else
+    {
+      resolution = get_closest_resolution (dev->model->ccd_type, dev->settings.xres, SANE_TRUE);
+    }
   channels = 3;
   black_pixels =
     (dev->sensor.black_pixels * resolution) / dev->sensor.optical_res;
@@ -3788,7 +3822,10 @@ gl646_offset_calibration (Genesys_Device * dev)
   dev->frontend.gain[2] = 0;
 
   /* scan with no move */
-  bottom = 90;
+  if (dev->model->ccd_type == CIS_XP200)
+  	bottom = 4;
+  else
+  	bottom = 90;
   dev->frontend.offset[0] = bottom;
   dev->frontend.offset[1] = bottom;
   dev->frontend.offset[2] = bottom;
@@ -3801,7 +3838,8 @@ gl646_offset_calibration (Genesys_Device * dev)
     }
   if (DBG_LEVEL >= DBG_data)
     {
-      sanei_genesys_write_pnm_file ("offset000.pnm", first_line, 8, channels,
+      sprintf (title, "offset%03d.pnm", bottom);
+      sanei_genesys_write_pnm_file (title, first_line, 8, channels,
 				    settings.pixels, settings.lines);
     }
   bottomavg =
@@ -3810,7 +3848,10 @@ gl646_offset_calibration (Genesys_Device * dev)
   free (first_line);
 
   /* now top value */
-  top = 231;
+  if (dev->model->ccd_type == CIS_XP200)
+	  top=0x80;
+  else
+  	top = 231;
   dev->frontend.offset[0] = top;
   dev->frontend.offset[1] = top;
   dev->frontend.offset[2] = top;
@@ -3922,7 +3963,17 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
   channels = 3;
-  resolution = get_closest_resolution (dev->model->ccd_type, 150, SANE_TRUE);
+  /* XXX STEF XXX resolution = get_closest_resolution (dev->model->ccd_type, 150, SANE_TRUE); */
+
+  /* we are searching a sensor resolution */
+  if (dev->settings.xres > dev->sensor.optical_res)
+    {
+      resolution = get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res, SANE_TRUE);
+    }
+  else
+    {
+      resolution = get_closest_resolution (dev->model->ccd_type, dev->settings.xres, SANE_TRUE);
+    }
 
   settings.scan_method = SCAN_METHOD_FLATBED;
   settings.scan_mode = SCAN_MODE_COLOR;
@@ -4061,7 +4112,6 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 
   DBG (DBG_proc, "gl646_init_regs_for_warmup: start\n");
 
-  /* we scan at sensor maximum resolution */
   resolution = get_closest_resolution (dev->model->ccd_type, 300, SANE_FALSE);
 
   /* set up for a half width 2 lines color scan without moving */
@@ -4285,9 +4335,8 @@ gl646_init (Genesys_Device * dev)
 		   "gl646_init: could not allocate memory for gamma table\n");
 	      return SANE_STATUS_NO_MEM;
 	    }
-	  sanei_genesys_create_gamma_table (dev->sensor.
-					    green_gamma_table, size,
-					    size - 1, size - 1,
+	  sanei_genesys_create_gamma_table (dev->sensor.green_gamma_table,
+					    size, size - 1, size - 1,
 					    dev->sensor.green_gamma);
 	}
       if (dev->sensor.blue_gamma_table == NULL)
@@ -4299,9 +4348,8 @@ gl646_init (Genesys_Device * dev)
 		   "gl646_init: could not allocate memory for gamma table\n");
 	      return SANE_STATUS_NO_MEM;
 	    }
-	  sanei_genesys_create_gamma_table (dev->sensor.
-					    blue_gamma_table, size,
-					    size - 1, size - 1,
+	  sanei_genesys_create_gamma_table (dev->sensor.blue_gamma_table,
+					    size, size - 1, size - 1,
 					    dev->sensor.blue_gamma);
 	}
 
@@ -4484,8 +4532,9 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	     unsigned char **data)
 {
   SANE_Status status;
-  unsigned int size, lines;
+  unsigned int size, lines, x, y, bpp, pixels;
   SANE_Bool empty;
+  unsigned char *buffer;
 
   DBG (DBG_proc, "simple_scan: starting\n");
   status = setup_for_scan (dev, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
@@ -4497,10 +4546,20 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
     }
 
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
-  lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) + 1;
+  if (dev->model->is_cis == SANE_TRUE)
+  {
+  	lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) / 3;
+  }
+  else
+  {
+  	lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) + 1;
+  }
   size = lines * settings.pixels;
   if (settings.depth == 16)
-    size *= 2;
+    bpp = 2;
+  else
+    bpp = 1;
+  size *= bpp;
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     size *= 3;
   *data = malloc (size);
@@ -4525,18 +4584,15 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   /* no shading correction and not wathc dog for simple scan */
   dev->reg[reg_0x01].value &= ~(REG01_DVDSET | REG01_DOGENB);
 
-  /* clear motor power flag if no move */
-  if (move == SANE_FALSE)
-    {
-      dev->reg[reg_0x02].value &= ~REG02_MTRPWR;
-    }
-
   /* one table movement for simple scan */
   dev->reg[reg_0x02].value &= ~REG02_FASTFED;
 
-  /* no automatic go home if no movement */
   if (move == SANE_FALSE)
     {
+      /* clear motor power flag if no move */
+      dev->reg[reg_0x02].value &= ~REG02_MTRPWR;
+
+      /* no automatic go home if no movement */
       dev->reg[reg_0x02].value &= ~REG02_AGOHOME;
     }
 
@@ -4577,6 +4633,61 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
       DBG (DBG_error,
 	   "simple_scan: failed to read data: %s\n", sane_strstatus (status));
       return status;
+    }
+
+  /* in case of CIS scanner, we must reorder data */
+  if (dev->model->is_cis == SANE_TRUE
+      && settings.scan_mode == SCAN_MODE_COLOR)
+    {
+      /* alloc one line sized working buffer */
+      size = size / settings.lines;
+      buffer = (unsigned char *) malloc (size);
+      if (buffer == NULL)
+	{
+	  DBG (DBG_error,
+	       "simple_scan: failed to allocate %d bytes of memory\n", size);
+	  return SANE_STATUS_NO_MEM;
+	}
+
+      /* reorder one line of data and put it back to buffer */
+      if (bpp == 1)
+	{
+	  for (y = 0; y < settings.lines; y++)
+	    {
+	      /* reorder line */
+	      for (x = 0; x < settings.pixels; x++)
+		{
+		  buffer[x * 3] = (*data)[y * size + x];
+		  buffer[x * 3 + 1] = (*data)[y * size + settings.pixels + x];
+		  buffer[x * 3 + 2] =
+		    (*data)[y * size + 2 * settings.pixels + x];
+		}
+	      /* copy line back */
+	      memcpy ((*data) + size * y, buffer, size);
+	    }
+	}
+      else
+	{
+	  for (y = 0; y < settings.lines; y++)
+	    {
+	      /* reorder line */
+	      for (x = 0; x < settings.pixels; x++)
+		{
+		  buffer[x * 6] = (*data)[y * size + x];
+		  buffer[x * 6 + 1] = (*data)[y * size + x + 1];
+		  buffer[x * 6 + 2] = (*data)[y * size + settings.pixels + x];
+		  buffer[x * 6 + 3] =
+		    (*data)[y * size + settings.pixels + x + 1];
+		  buffer[x * 6 + 4] =
+		    (*data)[y * size + 2 * settings.pixels + x];
+		  buffer[x * 6 + 5] =
+		    (*data)[y * size + 2 * settings.pixels + x + 1];
+		}
+	      /* copy line back */
+	      memcpy ((*data) + size * y, buffer, size);
+	    }
+	}
+      free (buffer);
     }
 
   /* end scan , waiting the motor to stop if needed (if moving), but without ejecting doc */
@@ -4757,11 +4868,11 @@ write_control (Genesys_Device * dev, int resolution)
       break;
     case MOTOR_5345:
     case MOTOR_HP3670:
+    default:
       control[0] = dev->control[2];
       control[1] = dev->control[3];
       control[2] = dev->control[4];
       control[3] = dev->control[5];
-    default:
       break;
     }
 

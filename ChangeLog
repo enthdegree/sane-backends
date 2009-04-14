@@ -1,3 +1,6 @@
+2009-04-13  m. allan noah <kitno455 a t gmail d o t com>
+	* tools/sane-desc.c: fix double summing of untested column
+
 2009-04-13  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: minor version chnage to test commit scripts
 

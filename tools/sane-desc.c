@@ -2291,8 +2291,7 @@ html_print_statistics_per_type (device_type dev_type)
   html_print_statistics_cell 
     (COLOR_UNKNOWN, 
      num[status_minimal] + num[status_basic] + num[status_good] +
-     num[status_complete] + num[status_untested] + num[status_untested] +
-     num[status_unsupported]);
+     num[status_complete] + num[status_untested] + num[status_unsupported]);
   if (dev_type == type_scanner || dev_type == type_stillcam
       || dev_type == type_vidcam)
     {

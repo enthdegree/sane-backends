@@ -11,9 +11,9 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "90"                    ; version of backend
+:version "93"                    ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
-:comment "Backend updated for SANE release 1.1.0, see sane-fujitsu manpage"
+:comment "Backend updated for SANE release 1.0.20, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
@@ -142,6 +142,18 @@
 :interface "USB"
 :status :complete
 :usbid "0x04c5" "0x1150"
+:comment "small, current"
+
+:model "ScanSnap S1500"
+:interface "USB"
+:status :untested
+;:usbid "0x04c5" "0x1155"
+:comment "small, current"
+
+:model "ScanSnap S1500M"
+:interface "USB"
+:status :untested
+;:usbid "0x04c5" "0x"
 :comment "small, current"
 
 ;==================================================

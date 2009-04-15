@@ -178,6 +178,9 @@
          - rewrite do_usb_cmd() to use remainder from RS info
       v25 2009-04-12, MAN
          - disable SANE_FRAME_JPEG
+      v26 2009-04-14, MAN (SANE 1.0.20)
+         - return cmd status for reads on sensors
+         - allow rs to adjust read length for all bad status responses
 
    SANE FLOW DIAGRAM
 
@@ -238,7 +241,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 25
+#define BUILD 26
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -2051,6 +2054,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 {
   struct scanner *s = (struct scanner *) handle;
   SANE_Int dummy = 0;
+  SANE_Status ret = SANE_STATUS_GOOD;
 
   /* Make sure that all those statements involving *info cannot break (better
    * than having to do "if (info) ..." everywhere!)
@@ -2249,34 +2253,34 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         /* Sensor Group */
         case OPT_START:
-          read_panel(s,OPT_START);
+          ret = read_panel(s,OPT_START);
           *val_p = s->panel_start;
-          return SANE_STATUS_GOOD;
+          return ret;
 
         case OPT_STOP:
-          read_panel(s,OPT_STOP);
+          ret = read_panel(s,OPT_STOP);
           *val_p = s->panel_stop;
-          return SANE_STATUS_GOOD;
+          return ret;
 
         case OPT_NEWFILE:
-          read_panel(s,OPT_NEWFILE);
+          ret = read_panel(s,OPT_NEWFILE);
           *val_p = s->panel_new_file;
-          return SANE_STATUS_GOOD;
+          return ret;
 
         case OPT_COUNTONLY:
-          read_panel(s,OPT_COUNTONLY);
+          ret = read_panel(s,OPT_COUNTONLY);
           *val_p = s->panel_count_only;
-          return SANE_STATUS_GOOD;
+          return ret;
 
         case OPT_BYPASSMODE:
-          read_panel(s,OPT_BYPASSMODE);
+          ret = read_panel(s,OPT_BYPASSMODE);
           *val_p = s->panel_bypass_mode;
-          return SANE_STATUS_GOOD;
+          return ret;
 
         case OPT_COUNTER:
-          read_panel(s,OPT_COUNTER);
+          ret = read_panel(s,OPT_COUNTER);
           *val_p = s->panel_counter;
-          return SANE_STATUS_GOOD;
+          return ret;
 
       }
   }
@@ -4610,6 +4614,10 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
 
       inLength = inOffset+*inLen;
       inActual = inLength;
+
+      /*blast caller's copy in case we error out*/
+      *inLen = 0;
+
       inTimeout = USB_DATA_TIME;
 
       /* change timeout */
@@ -4630,19 +4638,16 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       hexdump(30, "in: <<", inBuffer, inActual);
 
       if(!inActual){
-        *inLen = 0;
         DBG(5,"in: got no data, clearing\n");
         free(inBuffer);
 	return do_usb_clear(s,1,runRS);
       }
       if(inActual < inOffset){
-        *inLen = 0;
         DBG(5,"in: read shorter than inOffset\n");
         free(inBuffer);
         return SANE_STATUS_IO_ERROR;
       }
       if(ret != SANE_STATUS_GOOD){
-        *inLen = 0;
         DBG(5,"in: return error '%s'\n",sane_strstatus(ret));
         free(inBuffer);
         return ret;
@@ -4679,27 +4684,18 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
     DBG(25, "stat: read %d bytes, retval %d\n", (int)statActual, ret2);
     hexdump(30, "stat: <<", statBuffer, statActual);
   
-    if(!statActual){
-      DBG(5,"stat: got no data, clearing\n");
-      free(statBuffer);
-      if(inBuffer) free(inBuffer);
-      return do_usb_clear(s,1,runRS);
-    }
+    /*weird status*/
     if(ret2 != SANE_STATUS_GOOD){
-      DBG(5,"stat: return error '%s'\n",sane_strstatus(ret2));
-      free(statBuffer);
-      if(inBuffer) free(inBuffer);
-      return ret2;
+      DBG(5,"stat: clearing error '%s'\n",sane_strstatus(ret2));
+      ret2 = do_usb_clear(s,1,runRS);
     }
-    if(statLength != statActual){
-      DBG(5,"stat: short read, %d/%d\n",(int)statLength,(int)statActual);
-      free(statBuffer);
-      if(inBuffer) free(inBuffer);
-      return SANE_STATUS_IO_ERROR;
+    /*short read*/
+    else if(statLength != statActual){
+      DBG(5,"stat: clearing short %d/%d\n",(int)statLength,(int)statActual);
+      ret2 = do_usb_clear(s,1,runRS);
     }
-
     /*inspect the last byte of the status response*/
-    if(statBuffer[statLength-1]){
+    else if(statBuffer[statLength-1]){
       DBG(5,"stat: status %d\n",statBuffer[statLength-1]);
       ret2 = do_usb_clear(s,0,runRS);
     }

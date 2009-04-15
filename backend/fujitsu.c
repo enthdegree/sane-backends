@@ -425,6 +425,8 @@
          - remove unused temp file code
       v92 2009-04-12, MAN
 	 - disable SANE_FRAME_JPEG support (again)
+      v93 2009-04-14, MAN (SANE 1.0.20)
+         - return cmd status for reads on sensors
 
    SANE FLOW DIAGRAM
 
@@ -485,7 +487,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 92
+#define BUILD 93
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -4056,6 +4058,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 {
   struct fujitsu *s = (struct fujitsu *) handle;
   SANE_Int dummy = 0;
+  SANE_Status ret = SANE_STATUS_GOOD;
 
   /* Make sure that all those statements involving *info cannot break (better
    * than having to do "if (info) ..." everywhere!)
@@ -4497,104 +4500,104 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         /* Sensor Group */
         case OPT_TOP:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_top;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_A3:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_A3;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_B4:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_B4;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_A4:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_A4;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_B5:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_B5;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_HOPPER:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_hopper;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_OMR:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_omr;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_ADF_OPEN:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_adf_open;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_SLEEP:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_sleep;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_SEND_SW:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_send_sw;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_MANUAL_FEED:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_manual_feed;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_SCAN_SW:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_scan_sw;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_FUNCTION:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_function;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_INK_EMPTY:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_ink_empty;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_DOUBLE_FEED:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_double_feed;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_ERROR_CODE:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_error_code;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_SKEW_ANGLE:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_skew_angle;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_INK_REMAIN:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_ink_remain;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_DENSITY_SW:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_density_sw;
-          return SANE_STATUS_GOOD;
+          return ret;
           
         case OPT_DUPLEX_SW:
-          get_hardware_status(s,option);
+          ret = get_hardware_status(s,option);
           *val_p = s->hw_duplex_sw;
-          return SANE_STATUS_GOOD;
+          return ret;
           
       }
   }
@@ -5191,6 +5194,8 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
               if(inLen > 9){
                 s->hw_ink_remain = get_GHS_ink_remain(in);
               }
+
+              ret = SANE_STATUS_GOOD;
           }
       }
 
@@ -5216,8 +5221,8 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
           );
     
           /* parse the rs data */
-          if(ret == SANE_STATUS_GOOD && get_RS_sense_key(in)==0
-            && get_RS_ASC(in)==0x80){
+          if(ret == SANE_STATUS_GOOD){
+            if(get_RS_sense_key(in)==0 && get_RS_ASC(in)==0x80){
 
               s->hw_adf_open = get_RS_adf_open(in);
               s->hw_send_sw = get_RS_send_sw(in);
@@ -5227,9 +5232,10 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
               s->hw_hopper = get_RS_hopper(in);
               s->hw_function = get_RS_function(in);
               s->hw_density_sw = get_RS_density(in);
-          }
-          else{
-            return SANE_STATUS_GOOD;
+            }
+            else{
+              DBG (10, "get_hardware_status: unexpected RS values\n");
+            }
           }
       }
   }

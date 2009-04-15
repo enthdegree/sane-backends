@@ -1,3 +1,10 @@
+2009-04-15  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c, doc/descriptions/fujitsu.desc: backend v93
+	- return cmd status for reads of sensor options
+	* backend/canon_dr.c, doc/descriptions/canon_dr.desc: backend v26
+	- return cmd status for reads of sensor options
+	- allow rs to adjust read length for all bad status responses
+
 2009-04-14  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c:
 	  shading calibration rework for GL646 based scanners
@@ -6,7 +13,7 @@
 	* tools/sane-desc.c: fix double summing of untested column
 
 2009-04-13  Stéphane Voltz <stef.dev@free.fr>
-	* backend/rts8891.c: minor version chnage to test commit scripts
+	* backend/rts8891.c: minor version change to test commit scripts
 
 2009-04-13  Stéphane Voltz <stef.dev@free.fr>
 	* backend/pnm.c: conditional handling of STATUS_HW_LOCKED

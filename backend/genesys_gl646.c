@@ -1338,6 +1338,7 @@ gl646_setup_registers (Genesys_Device * dev,
   else
     channels = 1;
 
+  /* R01 */
   /* now setup other registers for final scan (ie with shading enabled) */
   /* watch dog + shading + scan enable */
   regs[reg_0x01].value |= REG01_DOGENB | REG01_DVDSET | REG01_SCAN;
@@ -1351,6 +1352,7 @@ gl646_setup_registers (Genesys_Device * dev,
   else
     regs[reg_0x01].value &= ~REG01_FASTMOD;
 
+  /* R02 */
   /* allow moving when buffer full by default */
   if (dev->model->is_sheetfed == SANE_FALSE)
     dev->reg[reg_0x02].value &= ~REG02_ACDCDIS;
@@ -1628,10 +1630,10 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* the 3670 seems to behave differently regarding GPIO */
   /* TODO to be added in the sensor setting struct ?? */
-  if (dev->model->ccd_type==CCD_HP3670)
-  {
-  	dev->reg[reg_0x66].value = 0;
-  }
+  if (dev->model->ccd_type == CCD_HP3670)
+    {
+      dev->reg[reg_0x66].value = 0;
+    }
 
   RIE (write_control (dev, xresolution));
 
@@ -2265,24 +2267,24 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set)
   /* here starts AFE_SET */
   /* TODO :  base this test on cfg reg3 or a CCD family flag to be created */
   /* if (dev->model->ccd_type != CCD_HP2300
-      && dev->model->ccd_type != CCD_HP3670
-      && dev->model->ccd_type != CCD_HP2400) */
-    {
-      status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "gl646_set_fe: writing reg0 failed: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-      status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.reg[2]);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "gl646_set_fe: writing reg2 failed: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-    }
+     && dev->model->ccd_type != CCD_HP3670
+     && dev->model->ccd_type != CCD_HP2400) */
+  {
+    status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+    if (status != SANE_STATUS_GOOD)
+      {
+	DBG (DBG_error, "gl646_set_fe: writing reg0 failed: %s\n",
+	     sane_strstatus (status));
+	return status;
+      }
+    status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.reg[2]);
+    if (status != SANE_STATUS_GOOD)
+      {
+	DBG (DBG_error, "gl646_set_fe: writing reg2 failed: %s\n",
+	     sane_strstatus (status));
+	return status;
+      }
+  }
 
   /* start with reg3 */
   status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.reg[3]);
@@ -2330,28 +2332,28 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set)
 	    }
 	}
       break;
-    /* just can't have it to work ....
-    case CCD_HP2300:
-    case CCD_HP2400:
-    case CCD_HP3670:
+      /* just can't have it to work ....
+         case CCD_HP2300:
+         case CCD_HP2400:
+         case CCD_HP3670:
 
-      status =
-	sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.offset[1]);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl646_set_fe: writing offset[1] failed: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-      status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.gain[1]);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "gl646_set_fe: writing gain[1] failed: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-      break; */
+         status =
+         sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.offset[1]);
+         if (status != SANE_STATUS_GOOD)
+         {
+         DBG (DBG_error,
+         "gl646_set_fe: writing offset[1] failed: %s\n",
+         sane_strstatus (status));
+         return status;
+         }
+         status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.gain[1]);
+         if (status != SANE_STATUS_GOOD)
+         {
+         DBG (DBG_error, "gl646_set_fe: writing gain[1] failed: %s\n",
+         sane_strstatus (status));
+         return status;
+         }
+         break; */
     }
 
   /* end with reg1 */
@@ -3382,7 +3384,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   settings.yres = dev->sensor.optical_res / half_ccd;
   settings.tl_x = 0;
   settings.tl_y = 0;
-  settings.pixels = dev->sensor.sensor_pixels/half_ccd;
+  settings.pixels = dev->sensor.sensor_pixels / half_ccd;
   settings.lines = dev->model->shading_lines;
   settings.depth = 16;
   settings.color_filter = dev->settings.color_filter;
@@ -3394,7 +3396,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   /* we don't want top offset, but we need right margin to be the same
    * than the one for the final scan */
   status = setup_for_scan (dev, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
- 
+
   /* used when sending shading calibration data */
   dev->calib_pixels = settings.pixels;
 
@@ -3412,6 +3414,13 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   /* copy reg to calib_reg */
   memcpy (dev->calib_reg, dev->reg,
 	  GENESYS_GL646_MAX_REGS * sizeof (Genesys_Register_Set));
+
+  /* this is an hack to make calibration cache working ....*/
+  /* if we don't do this, cache will be identified at the shading calibration
+   * dpi which is diferent from calibration one */
+  dev->current_setup.xres = dev->settings.xres;
+  DBG (DBG_info,
+       "gl646_init_register_for_shading:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n",dev->settings.xres,dev->settings.yres);
 
   DBG (DBG_proc, "gl646_init_register_for_shading: end\n");
   return status;
@@ -3789,11 +3798,15 @@ gl646_offset_calibration (Genesys_Device * dev)
   /* resolution is the one from the final scan          */
   if (dev->settings.xres > dev->sensor.optical_res)
     {
-      resolution = get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res, SANE_TRUE);
+      resolution =
+	get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res,
+				SANE_TRUE);
     }
   else
     {
-      resolution = get_closest_resolution (dev->model->ccd_type, dev->settings.xres, SANE_TRUE);
+      resolution =
+	get_closest_resolution (dev->model->ccd_type, dev->settings.xres,
+				SANE_TRUE);
     }
   channels = 3;
   black_pixels =
@@ -3823,9 +3836,9 @@ gl646_offset_calibration (Genesys_Device * dev)
 
   /* scan with no move */
   if (dev->model->ccd_type == CIS_XP200)
-  	bottom = 4;
+    bottom = 4;
   else
-  	bottom = 90;
+    bottom = 90;
   dev->frontend.offset[0] = bottom;
   dev->frontend.offset[1] = bottom;
   dev->frontend.offset[2] = bottom;
@@ -3849,9 +3862,9 @@ gl646_offset_calibration (Genesys_Device * dev)
 
   /* now top value */
   if (dev->model->ccd_type == CIS_XP200)
-	  top=0x80;
+    top = 0x80;
   else
-  	top = 231;
+    top = 231;
   dev->frontend.offset[0] = top;
   dev->frontend.offset[1] = top;
   dev->frontend.offset[2] = top;
@@ -3963,16 +3976,19 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
   channels = 3;
-  /* XXX STEF XXX resolution = get_closest_resolution (dev->model->ccd_type, 150, SANE_TRUE); */
 
   /* we are searching a sensor resolution */
   if (dev->settings.xres > dev->sensor.optical_res)
     {
-      resolution = get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res, SANE_TRUE);
+      resolution =
+	get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res,
+				SANE_TRUE);
     }
   else
     {
-      resolution = get_closest_resolution (dev->model->ccd_type, dev->settings.xres, SANE_TRUE);
+      resolution =
+	get_closest_resolution (dev->model->ccd_type, dev->settings.xres,
+				SANE_TRUE);
     }
 
   settings.scan_method = SCAN_METHOD_FLATBED;
@@ -4013,9 +4029,9 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   pass = 0;
 
   /* loop until each channel raises to acceptable level */
-  while ((average[0] < dev->sensor.gain_white_ref)
-	 || (average[1] < dev->sensor.gain_white_ref)
-	 || (average[2] < dev->sensor.gain_white_ref))
+  while (((average[0] < dev->sensor.gain_white_ref)
+	  || (average[1] < dev->sensor.gain_white_ref)
+	  || (average[2] < dev->sensor.gain_white_ref)) && (pass < 30))
     {
       /* scan with no move */
       status = simple_scan (dev, settings, SANE_FALSE, &line);
@@ -4034,6 +4050,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 					channels, settings.pixels,
 					settings.lines);
 	}
+      pass++;
 
       /* average high level for each channel and compute gain
          to reach the target code 
@@ -4494,7 +4511,7 @@ gl646_init (Genesys_Device * dev)
 #ifdef SANE_STATUS_HW_LOCKED
 		  return SANE_STATUS_HW_LOCKED;
 #else
-                  return SANE_STATUS_JAMMED;
+		  return SANE_STATUS_JAMMED;
 #endif
 		}
 	      else
@@ -4547,13 +4564,13 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
   if (dev->model->is_cis == SANE_TRUE)
-  {
-  	lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) / 3;
-  }
+    {
+      lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) / 3;
+    }
   else
-  {
-  	lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) + 1;
-  }
+    {
+      lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) + 1;
+    }
   size = lines * settings.pixels;
   if (settings.depth == 16)
     bpp = 2;
@@ -4894,6 +4911,57 @@ write_control (Genesys_Device * dev, int resolution)
   return status;
 }
 
+/**
+ * check if a stored calibration is compatible with requested scan.
+ * @return SANE_STATUS_GOOD if compatible, SANE_STATUS_UNSUPPORTED if not.
+ * Whenever an error is met, it is returned.
+ * @param dev scanner device
+ * @param cache cache entry to test
+ * @for_overwrite reserved for future use ...
+ */
+static SANE_Status
+gl646_is_compatible_calibration (Genesys_Device * dev,
+				 Genesys_Calibration_Cache * cache,
+				 int for_overwrite)
+{
+  SANE_Int channels;
+
+  DBG (DBG_proc, "gl646_is_compatible_calibration: start\n");
+
+  /* build minimal current_setup for calibration cache use only, it will be better
+   * computed when during setup for scan
+   */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)
+    {
+      dev->current_setup.channels = 3;
+    }
+  else
+    {
+      dev->current_setup.channels = 1;
+    }
+  dev->current_setup.xres = dev->settings.xres;
+
+  DBG (DBG_info,
+       "gl646_is_compatible_calibration:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n",dev->settings.xres,dev->settings.yres);
+  DBG (DBG_info,
+       "gl646_is_compatible_calibration:\n\tcache->used_setup.channels=%d\n\tcache->used_setup.xres=%f\n",
+       cache->used_setup.channels, cache->used_setup.xres);
+  DBG (DBG_info,
+       "gl646_is_compatible_calibration:\n\tdev->current_setup.channels=%d\n\tdev->current_setup.xres=%f\n",
+       dev->current_setup.channels, dev->current_setup.xres);
+  if ((dev->current_setup.channels != cache->used_setup.channels)
+      || (dev->current_setup.xres != cache->used_setup.xres))
+    {
+      DBG (DBG_proc,
+	   "gl646_is_compatible_calibration: completed, non compatible cache\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+
+  DBG (DBG_proc,
+       "gl646_is_compatible_calibration: completed, cache compatible\n");
+  return SANE_STATUS_GOOD;
+}
+
 /** the gl646 command set */
 static Genesys_Command_Set gl646_cmd_set = {
   "gl646-generic",		/* the name of this set */
@@ -4943,7 +5011,7 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_detect_document_end,
   gl646_eject_document,
 
-  NULL,/*is_compatible_calibration*/
+  gl646_is_compatible_calibration
 };
 
 SANE_Status

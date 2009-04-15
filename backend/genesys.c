@@ -2977,30 +2977,13 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   switch (dev->model->ccd_type)
     {
     case CCD_5345:
-      target_code = 0xfa00;
-      memset (shading_data, 0x00, pixels_per_line * 4 * channels);
-      o=2;
-      avgpixels = 1;
-      compute_coefficients(dev,
-			shading_data,
-		        pixels_per_line,
-		        channels,
-			avgpixels,
-			o,
-			coeff,
-			target_code);
-      break;
     case CCD_HP2300:
     case CCD_HP2400:
     case CCD_HP3670:
       target_code = 0xfa00;
       memset (shading_data, 0x00, pixels_per_line * 4 * channels);
-      o = 2;			/* when ~AVEENB, o=3 if AVEENB ? */
-      if(dev->settings.xres<=150)
-      	avgpixels = 2;
-      else
-      	avgpixels = 1;
-      /* TODO: if FASTMODE, shading data is 'color component line by line' */
+      o=2;
+      avgpixels = 1;
       compute_coefficients(dev,
 			shading_data,
 		        pixels_per_line,
@@ -3279,17 +3262,22 @@ genesys_save_calibration (Genesys_Device * dev)
   if (!dev->model->cmd_set->is_compatible_calibration)
     return SANE_STATUS_UNSUPPORTED;
 
-  for(cache = dev->calibration_cache; cache && status==SANE_STATUS_UNSUPPORTED; cache = cache->next) 
+  for(cache = dev->calibration_cache; cache; cache = cache->next) 
     {
       status = dev->model->cmd_set->is_compatible_calibration(dev, cache, 
 							      SANE_TRUE);
-      if (status != SANE_STATUS_GOOD) 
+      if (status == SANE_STATUS_UNSUPPORTED) 
+        { 	 
+           continue; 	 
+        }
+      else if (status != SANE_STATUS_GOOD) 
 	{
 	  DBG (DBG_error,
 	       "genesys_save_calibration: fail while checking compatibility: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
+      break;
     }
 
   if(cache)
@@ -3845,6 +3833,8 @@ genesys_start_scan (Genesys_Device * dev)
 	}
     }
 
+  /* TODO: STEF we should move gamma table handling out of calibration, when cache
+   * is active, custom gamma tables don't seem to be sent */
   status = genesys_restore_calibration (dev);
   if(status == SANE_STATUS_UNSUPPORTED) 
     {

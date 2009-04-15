@@ -1,3 +1,7 @@
+2009-04-15  Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_gl646.c: calibration cache
+	activation for gl646 based scanners
+
 2009-04-15  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, doc/descriptions/fujitsu.desc: backend v93
 	- return cmd status for reads of sensor options

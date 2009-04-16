@@ -1,6 +1,11 @@
+2009-04-16  Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.h backend/genesys.c backend/genesys_gl646.c
+	  backend/genesys_devices.c: y scan position fixes
+	 - added a 'clear calibration cache button'
+
 2009-04-15  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl646.c: calibration cache
-	activation for gl646 based scanners
+	 activation for gl646 based scanners
 
 2009-04-15  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, doc/descriptions/fujitsu.desc: backend v93

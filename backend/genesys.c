@@ -2224,6 +2224,12 @@ genesys_average_data (uint8_t * average_data,
     }
 }
 
+/**
+ * scans a white area with motor and lamp off to get the per CCD pixel offset
+ * that will be used to compute shading coefficient
+ * @param dev scanner's device
+ * @return SANE_STATUS_GOOD if OK, else an error
+ */
 static SANE_Status
 genesys_dark_shading_calibration (Genesys_Device * dev)
 {
@@ -2235,9 +2241,16 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_dark_shading_calibration\n");
   /* end pixel - start pixel */
+  if (dev->model->asic_type != GENESYS_GL646)
+  {
   pixels_per_line =
     (genesys_pixels_per_line (dev->calib_reg)
      * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
+  }
+  else
+  {
+  pixels_per_line = dev->calib_pixels;
+  }
 
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
@@ -2286,7 +2299,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
   usleep (200 * 1000);		/* wait 200 ms: lamp needs some time to get dark */
 
-  status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_TRUE);
+  status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2449,11 +2462,16 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
        dev->model->shading_lines);
 
+  if (dev->model->asic_type != GENESYS_GL646)
+  {
   pixels_per_line =
     (genesys_pixels_per_line (dev->calib_reg)
      * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
-  /* XXX STEF XXX */
-  pixels_per_line = dev->calib_pixels;
+  }
+  else
+  {
+    pixels_per_line = dev->calib_pixels;
+  }
 
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
@@ -3184,6 +3202,14 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+
+/**
+ * search calibration cache list for an entry matching required scan.
+ * If one is found, set device calibration with it
+ * @param dev scanner's device
+ * @return SANE_STATUS_UNSUPPORTED if no matching cache entry has been
+ * found, SANE_STATUS_GOOD if one has been found and used.
+ */
 static SANE_Status
 genesys_restore_calibration (Genesys_Device * dev)
 {
@@ -3192,25 +3218,21 @@ genesys_restore_calibration (Genesys_Device * dev)
   
   DBG (DBG_proc, "genesys_restore_calibration\n");
 
-  if (!dev->model->cmd_set->is_compatible_calibration)
+  /* if no cache or no function to evaluate cache entry ther can be no match */
+  if (!dev->model->cmd_set->is_compatible_calibration || dev->calibration_cache==NULL)
     return SANE_STATUS_UNSUPPORTED;
 
+  /* we walk the link list of calibration cache in search for a
+   * matching one */
   for(cache = dev->calibration_cache; cache; cache = cache->next) 
     {
       status = dev->model->cmd_set->is_compatible_calibration(dev, cache,
 							      SANE_FALSE);
-      if (status == SANE_STATUS_UNSUPPORTED) 
-	{
-	  continue;
-	}
-      else if (status != SANE_STATUS_GOOD) 
-	{
-	  DBG (DBG_error,
-	       "genesys_restore_calibration: fail while checking compatibility: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-      
+      /* SANE_STATUS_GOOD, a matching cache has been found 
+       * so we use it to populate calibration data
+       */
+    if(status==SANE_STATUS_GOOD)
+    {
       memcpy(&dev->frontend, &cache->frontend, sizeof(dev->frontend));
       /* don't restore the gamma fields */
       memcpy(&dev->sensor, &cache->sensor, 
@@ -3238,7 +3260,7 @@ genesys_restore_calibration (Genesys_Device * dev)
       if (status != SANE_STATUS_GOOD)
         {
 	  DBG (DBG_error,
-	       "genesys_send_shading_coefficient: failed to send shading data: %s\n",
+	       "genesys_restore_calibration: failed to send shading data: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -3246,15 +3268,27 @@ genesys_restore_calibration (Genesys_Device * dev)
       DBG (DBG_proc, "genesys_restore_calibration: restored\n");
       return SANE_STATUS_GOOD;
     }
+
+    /* here status is either SANE_STATUS_UNSUPPORTED which mean tested cache
+     * entry doesn't match, or an fatal error */
+      if (status != SANE_STATUS_UNSUPPORTED) 
+	{
+	  DBG (DBG_error,
+	       "genesys_restore_calibration: fail while checking compatibility: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
   DBG (DBG_proc, "genesys_restore_calibration: completed(nothing found)\n");
   return SANE_STATUS_UNSUPPORTED;
 }
 
+
 static SANE_Status
 genesys_save_calibration (Genesys_Device * dev)
-{    
-  SANE_Status status=SANE_STATUS_UNSUPPORTED;
-  Genesys_Calibration_Cache *cache;
+{
+  SANE_Status status = SANE_STATUS_UNSUPPORTED;
+  Genesys_Calibration_Cache *cache = NULL;
   uint8_t *tmp;
 
   DBG (DBG_proc, "genesys_save_calibration\n");
@@ -3262,38 +3296,41 @@ genesys_save_calibration (Genesys_Device * dev)
   if (!dev->model->cmd_set->is_compatible_calibration)
     return SANE_STATUS_UNSUPPORTED;
 
-  for(cache = dev->calibration_cache; cache; cache = cache->next) 
+  if (dev->calibration_cache != NULL)
     {
-      status = dev->model->cmd_set->is_compatible_calibration(dev, cache, 
-							      SANE_TRUE);
-      if (status == SANE_STATUS_UNSUPPORTED) 
-        { 	 
-           continue; 	 
-        }
-      else if (status != SANE_STATUS_GOOD) 
+      for (cache = dev->calibration_cache; cache; cache = cache->next)
 	{
-	  DBG (DBG_error,
-	       "genesys_save_calibration: fail while checking compatibility: %s\n",
-	       sane_strstatus (status));
-	  return status;
+	  status = dev->model->cmd_set->is_compatible_calibration (dev, cache,
+								   SANE_TRUE);
+	  if (status == SANE_STATUS_UNSUPPORTED)
+	    {
+	      continue;
+	    }
+	  else if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "genesys_save_calibration: fail while checking compatibility: %s\n",
+		   sane_strstatus (status));
+	      return status;
+	    }
+	  break;
 	}
-      break;
     }
 
-  if(cache)
+  if (cache)
     {
-      if(dev->average_size > cache->average_size) 
-        {
+      if (dev->average_size > cache->average_size)
+	{
 	  cache->average_size = dev->average_size;
-	  
-	  tmp = (uint8_t*)realloc(cache->dark_average_data, 
-				  cache->average_size);
+
+	  tmp = (uint8_t *) realloc (cache->dark_average_data,
+				     cache->average_size);
 	  if (!tmp)
 	    return SANE_STATUS_NO_MEM;
 	  cache->dark_average_data = tmp;
 
-	  tmp = (uint8_t*)realloc(cache->white_average_data, 
-				  cache->average_size);
+	  tmp = (uint8_t *) realloc (cache->white_average_data,
+				     cache->average_size);
 	  if (!tmp)
 	    return SANE_STATUS_NO_MEM;
 	  cache->white_average_data = tmp;
@@ -3301,36 +3338,36 @@ genesys_save_calibration (Genesys_Device * dev)
     }
   else
     {
-      cache = malloc(sizeof(*cache));
+      cache = malloc (sizeof (*cache));
       if (!cache)
 	return SANE_STATUS_NO_MEM;
 
-      memset(cache, 0, sizeof(*cache));
+      memset (cache, 0, sizeof (*cache));
 
       cache->next = dev->calibration_cache;
       dev->calibration_cache = cache;
 
       cache->average_size = dev->average_size;
-	  
-      cache->dark_average_data = (uint8_t*)malloc(cache->average_size);
+
+      cache->dark_average_data = (uint8_t *) malloc (cache->average_size);
       if (!cache->dark_average_data)
 	return SANE_STATUS_NO_MEM;
-      cache->white_average_data = (uint8_t*)malloc(cache->average_size);
+      cache->white_average_data = (uint8_t *) malloc (cache->average_size);
       if (!cache->white_average_data)
 	return SANE_STATUS_NO_MEM;
 
-      memcpy(&cache->used_setup, &dev->current_setup, 
-	     sizeof(cache->used_setup));
+      memcpy (&cache->used_setup, &dev->current_setup,
+	      sizeof (cache->used_setup));
     }
-  
-  memcpy(&cache->frontend, &dev->frontend, sizeof(cache->frontend));
-  memcpy(&cache->sensor, &dev->sensor, sizeof(cache->sensor));
+
+  memcpy (&cache->frontend, &dev->frontend, sizeof (cache->frontend));
+  memcpy (&cache->sensor, &dev->sensor, sizeof (cache->sensor));
 
   cache->calib_pixels = dev->calib_pixels;
-  memcpy(cache->dark_average_data, dev->dark_average_data, 
-	 cache->average_size);
-  memcpy(cache->white_average_data, dev->white_average_data, 
-	 cache->average_size);
+  memcpy (cache->dark_average_data, dev->dark_average_data,
+	  cache->average_size);
+  memcpy (cache->white_average_data, dev->white_average_data,
+	  cache->average_size);
 
   DBG (DBG_proc, "genesys_save_calibration: completed\n");
   return SANE_STATUS_GOOD;
@@ -5212,6 +5249,16 @@ init_options (Genesys_Scanner * s)
   s->val[OPT_CALIBRATE].b = 0;
   s->last_val[OPT_CALIBRATE].b = 0;
 
+  /* clear calibration cache button */
+  s->opt[OPT_CLEAR_CALIBRATION].name = "clear";
+  s->opt[OPT_CLEAR_CALIBRATION].title = SANE_I18N("Clear calibration");
+  s->opt[OPT_CLEAR_CALIBRATION].desc = SANE_I18N("Clear calibration cache");
+  s->opt[OPT_CLEAR_CALIBRATION].type = SANE_TYPE_BUTTON;
+  s->opt[OPT_CLEAR_CALIBRATION].unit = SANE_UNIT_NONE;
+  s->opt[OPT_CLEAR_CALIBRATION].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED | SANE_CAP_AUTOMATIC;
+  s->val[OPT_CLEAR_CALIBRATION].b = 0;
+  s->last_val[OPT_CLEAR_CALIBRATION].b = 0;
+
   RIE (calc_parameters (s));
 
   DBG (DBG_proc, "init_options: exit\n");
@@ -5967,6 +6014,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   SANE_Status status;
   SANE_Word *table;
   unsigned int i;
+  Genesys_Calibration_Cache *cache, *next_cache;
 
   switch (option)
     {
@@ -6057,8 +6105,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       if (*(SANE_Word *) val != s->val[option].w)
 	{
 	  s->val[option].w = *(SANE_Word *) val;
-	  RIE (s->dev->model->cmd_set->
-	       set_powersaving (s->dev, s->val[option].w));
+	  RIE (s->dev->model->
+	       cmd_set->set_powersaving (s->dev, s->val[option].w));
 	}
       break;
 
@@ -6095,26 +6143,38 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  sanei_genesys_create_gamma_table (s->dev->sensor.red_gamma_table,
 					    s->opt[OPT_GAMMA_VECTOR_R].size /
 					    sizeof (SANE_Word),
-					    s->opt[OPT_GAMMA_VECTOR_R].
-					    constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_R].
-					    constraint.range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_R].constraint.
+					    range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_R].constraint.
+					    range->max,
 					    s->dev->sensor.red_gamma);
 	  sanei_genesys_create_gamma_table (s->dev->sensor.green_gamma_table,
 					    s->opt[OPT_GAMMA_VECTOR_G].size /
 					    sizeof (SANE_Word),
-					    s->opt[OPT_GAMMA_VECTOR_G].
-					    constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_G].
-					    constraint.range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_G].constraint.
+					    range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_G].constraint.
+					    range->max,
 					    s->dev->sensor.red_gamma);
 	  sanei_genesys_create_gamma_table (s->dev->sensor.blue_gamma_table,
 					    s->opt[OPT_GAMMA_VECTOR_B].size /
 					    sizeof (SANE_Word),
-					    s->opt[OPT_GAMMA_VECTOR_B].
-					    constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_B].
-					    constraint.range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_B].constraint.
+					    range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_B].constraint.
+					    range->max,
 					    s->dev->sensor.red_gamma);
 	}
       break;
@@ -6151,6 +6211,22 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       break;
     case OPT_CALIBRATE:
       /* TODO call for calibration using special sheet here */
+      break;
+    case OPT_CLEAR_CALIBRATION:
+      /* clear calibration cache */
+      if(s->dev->calibration_cache!=NULL)
+      {
+      for (cache = s->dev->calibration_cache; cache; cache = next_cache)
+	{
+	  next_cache = cache->next;
+	  free (cache->dark_average_data);
+	  free (cache->white_average_data);
+	  free (cache);
+	}
+      }
+      s->dev->calibration_cache=NULL;
+      /* remove file */
+      unlink (s->dev->calib_file);
       break;
 
     default:

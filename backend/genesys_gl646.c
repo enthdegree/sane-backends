@@ -1359,8 +1359,9 @@ gl646_setup_registers (Genesys_Device * dev,
   else
     dev->reg[reg_0x02].value |= REG02_ACDCDIS;
 
-  /* setup motor power */
+  /* setup motor power and direction */
   regs[reg_0x02].value |= REG02_MTRPWR;
+  regs[reg_0x02].value &= ~REG02_MTRREV;
 
   /* fastfed enabled (2 motor slope tables) */
   if (motor->fastfed)
@@ -1542,9 +1543,15 @@ gl646_setup_registers (Genesys_Device * dev,
   /*
      feedl = feed_steps - fast_slope_steps*2 - 
      (slow_slope_steps >> scan_step_type); */
-  /* but head has moved due to shading calibration => y_position_in_steps */
+  /* but head has moved due to shading calibration => dev->scanhead_position_in_steps */
   if (feedl > 0)
     {
+      /* take into account the distance moved during calibration */
+      /* feedl -= dev->scanhead_position_in_steps; */
+      DBG (DBG_info, "gl646_setup_registers: initial move=%d\n", feedl);
+      DBG (DBG_info, "gl646_setup_registers: scanhead_position_in_steps=%d\n",
+	   dev->scanhead_position_in_steps);
+
       /* TODO clean up this when I'll fully understand.
        * for now, special casing each motor */
       switch (dev->model->motor_type)
@@ -1561,7 +1568,7 @@ gl646_setup_registers (Genesys_Device * dev,
 	      break;
 	    case 2400:
 	      break;
-	    default:		/* 255 steps at half steps */
+	    default:
 	      break;
 	    }
 	  break;
@@ -1569,16 +1576,19 @@ gl646_setup_registers (Genesys_Device * dev,
 	  switch (motor->ydpi)
 	    {
 	    case 75:
-	      feedl -= 300;	/*440 > 280, 240 */
+	      feedl -= 180;
 	      break;
 	    case 150:
-	      feedl -= 134;
+	      feedl += 0;
 	      break;
 	    case 300:
-	      feedl -= 156;	/* 200, 165 > 155, 150 */
+	      feedl += 30;
 	      break;
 	    case 600:
-	      feedl -= 6;
+	      feedl += 35;
+	      break;
+	    case 1200:
+	      feedl += 45;
 	      break;
 	    default:
 	      break;
@@ -3377,6 +3387,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
       half_ccd = 2;
     }
 
+
   /* fill settings for scan */
   settings.scan_method = SCAN_METHOD_FLATBED;
   settings.scan_mode = dev->settings.scan_mode;
@@ -3385,13 +3396,16 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   settings.tl_x = 0;
   settings.tl_y = 0;
   settings.pixels = dev->sensor.sensor_pixels / half_ccd;
-  settings.lines = dev->model->shading_lines;
+  settings.lines = dev->model->shading_lines * (3 - half_ccd);
   settings.depth = 16;
   settings.color_filter = dev->settings.color_filter;
 
   settings.disable_interpolation = dev->settings.disable_interpolation;
   settings.threshold = dev->settings.threshold;
   settings.exposure_time = dev->settings.exposure_time;
+
+  /* keep account of the movement for final scan move */
+  dev->scanhead_position_in_steps += settings.lines;
 
   /* we don't want top offset, but we need right margin to be the same
    * than the one for the final scan */
@@ -3415,12 +3429,13 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   memcpy (dev->calib_reg, dev->reg,
 	  GENESYS_GL646_MAX_REGS * sizeof (Genesys_Register_Set));
 
-  /* this is an hack to make calibration cache working ....*/
+  /* this is an hack to make calibration cache working .... */
   /* if we don't do this, cache will be identified at the shading calibration
    * dpi which is diferent from calibration one */
   dev->current_setup.xres = dev->settings.xres;
   DBG (DBG_info,
-       "gl646_init_register_for_shading:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n",dev->settings.xres,dev->settings.yres);
+       "gl646_init_register_for_shading:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n",
+       dev->settings.xres, dev->settings.yres);
 
   DBG (DBG_proc, "gl646_init_register_for_shading: end\n");
   return status;
@@ -3434,6 +3449,19 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 static SANE_Status
 gl646_init_regs_for_scan (Genesys_Device * dev)
 {
+SANE_Status status;
+
+  /* park head after calibration if needed */
+  if (dev->scanhead_position_in_steps > 0)
+    {
+      status = gl646_slow_back_home (dev, SANE_TRUE);
+	if (status != SANE_STATUS_GOOD)
+	{
+	  return status;
+
+	}
+      dev->scanhead_position_in_steps = 0;
+    }
   return setup_for_scan (dev, dev->settings, SANE_FALSE, SANE_TRUE,
 			 SANE_TRUE);
 }
@@ -3786,7 +3814,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   uint8_t *first_line, *second_line;
   unsigned int channels;
   char title[32];
-  int pass = 0, avg, direction;
+  int pass = 0, avg;
   SANE_Int resolution;
   Genesys_Settings settings;
   int topavg, bottomavg;
@@ -4924,9 +4952,10 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite)
 {
-  SANE_Int channels;
-
   DBG (DBG_proc, "gl646_is_compatible_calibration: start\n");
+
+  if (cache == NULL)
+    return SANE_STATUS_UNSUPPORTED;
 
   /* build minimal current_setup for calibration cache use only, it will be better
    * computed when during setup for scan
@@ -4941,14 +4970,8 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
     }
   dev->current_setup.xres = dev->settings.xres;
 
-  DBG (DBG_info,
-       "gl646_is_compatible_calibration:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n",dev->settings.xres,dev->settings.yres);
-  DBG (DBG_info,
-       "gl646_is_compatible_calibration:\n\tcache->used_setup.channels=%d\n\tcache->used_setup.xres=%f\n",
-       cache->used_setup.channels, cache->used_setup.xres);
-  DBG (DBG_info,
-       "gl646_is_compatible_calibration:\n\tdev->current_setup.channels=%d\n\tdev->current_setup.xres=%f\n",
-       dev->current_setup.channels, dev->current_setup.xres);
+  /* a calibration cache is compatible if color mode and x dpi match the user 
+   * requested scan */
   if ((dev->current_setup.channels != cache->used_setup.channels)
       || (dev->current_setup.xres != cache->used_setup.xres))
     {

@@ -837,7 +837,7 @@ static Genesys_Model hp2300c_model = {
     | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW,
-  9,
+  18,
   132
 };
 

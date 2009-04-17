@@ -4452,15 +4452,13 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
        dev->model->shading_lines);
 
   dev->calib_channels = 3;
-  dev->calib_pixels = (dev->sensor.sensor_pixels * dev->settings.xres) / dev->sensor.optical_res;
-
   status = gl841_init_scan_regs (dev,
 				 dev->calib_reg,
 				 dev->settings.xres,
 				 dev->motor.base_ydpi,
 				 0,
 				 0,
-				 dev->calib_pixels,
+				 (dev->sensor.sensor_pixels * dev->settings.xres) / dev->sensor.optical_res,
 				 dev->model->shading_lines,
 				 16,
 				 dev->calib_channels,
@@ -4472,6 +4470,8 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
 				 SCAN_FLAG_USE_OPTICAL_RES
       );
+
+  dev->calib_pixels = dev->current_setup.pixels;
 
   if (status != SANE_STATUS_GOOD)
     {

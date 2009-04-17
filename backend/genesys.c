@@ -5477,6 +5477,7 @@ read_calibration(Genesys_Device * dev)
       /* the gamma (and later) fields are not stored */
       BILT1(fread(&cache->sensor,offsetof(Genesys_Sensor,red_gamma),1,fp));
       BILT1(fread(&cache->calib_pixels,sizeof(cache->calib_pixels),1,fp));
+      BILT1(fread(&cache->calib_channels,sizeof(cache->calib_channels),1,fp));
       BILT1(fread(&cache->average_size,sizeof(cache->average_size),1,fp));
 
       /* Make sure we don't do bad things if someone feeds us a forged/
@@ -5555,6 +5556,7 @@ write_calibration(Genesys_Device * dev)
       /* the gamma (and later) fields are not stored */
       fwrite(&cache->sensor,offsetof(Genesys_Sensor,red_gamma),1,fp);
       fwrite(&cache->calib_pixels,sizeof(cache->calib_pixels),1,fp);
+      fwrite(&cache->calib_channels,sizeof(cache->calib_channels),1,fp);
       fwrite(&cache->average_size,sizeof(cache->average_size),1,fp);
       fwrite(cache->white_average_data,cache->average_size,1,fp);
       fwrite(cache->dark_average_data,cache->average_size,1,fp);

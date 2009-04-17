@@ -1,3 +1,7 @@
+2009-04-17  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
+	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
+	  Updated documentation for Pixma MP540, reported to work fine by Rogge.
+	  
 2009-04-17  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys.c, backend/genesys_gl646.c,
 	  backend/genesys_gl841.c, backend/genesys_low.h: Always do shading

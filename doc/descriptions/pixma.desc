@@ -264,8 +264,8 @@
 :model "PIXMA MP540"
 :interface "USB"
 :usbid "0x04a9" "0x1730"
-:status :untested
-:comment "Same protocol as Pixma Generation 3? Testers needed!"
+:status :good
+:comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP480"
 :interface "USB"

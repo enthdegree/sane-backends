@@ -2241,21 +2241,8 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_dark_shading_calibration\n");
   /* end pixel - start pixel */
-  if (dev->model->asic_type != GENESYS_GL646)
-  {
-  pixels_per_line =
-    (genesys_pixels_per_line (dev->calib_reg)
-     * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
-  }
-  else
-  {
   pixels_per_line = dev->calib_pixels;
-  }
-
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
-    channels = 3;
-  else
-    channels = 1;
+  channels = dev->calib_channels;
 
   FREE_IFNOT_NULL (dev->dark_average_data);
 
@@ -2462,21 +2449,8 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
        dev->model->shading_lines);
 
-  if (dev->model->asic_type != GENESYS_GL646)
-  {
-  pixels_per_line =
-    (genesys_pixels_per_line (dev->calib_reg)
-     * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
-  }
-  else
-  {
-    pixels_per_line = dev->calib_pixels;
-  }
-
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
-    channels = 3;
-  else
-    channels = 1;
+  pixels_per_line = dev->calib_pixels;
+  channels = dev->calib_channels;
 
   if (dev->white_average_data)
     free (dev->white_average_data);
@@ -2583,6 +2557,9 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+/* This calibration uses a scan over the calibration target, comprising a 
+ * black and a white stripe. (So the motor must be on.)
+ */
 static SANE_Status
 genesys_dark_white_shading_calibration (Genesys_Device * dev)
 {
@@ -2599,14 +2576,9 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_black_white_shading_calibration (lines = %d)\n",
        dev->model->shading_lines);
-  pixels_per_line =
-    (genesys_pixels_per_line (dev->calib_reg)
-     * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
 
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
-    channels = 3;
-  else
-    channels = 1;
+  pixels_per_line = dev->calib_pixels;
+  channels = dev->calib_channels;
 
   if (dev->white_average_data)
     free (dev->white_average_data);
@@ -2644,7 +2616,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   /* turn on motor and lamp power */
   dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_FALSE);
+  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
@@ -2949,11 +2921,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 
 
   pixels_per_line = dev->calib_pixels;
-
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
-    channels = 3;
-  else
-    channels = 1;
+  channels = dev->calib_channels;
 
   /* we always build data for three channels, even for gray */
   if (dev->model->is_cis)
@@ -3053,7 +3021,9 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       avgpixels = dev->sensor.optical_res / res;
 
 /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
-      if (avgpixels < 6)
+      if (avgpixels < 1)
+	avgpixels = 1;
+      else if (avgpixels < 6)
 	avgpixels = avgpixels;
       else if (avgpixels < 8)
 	avgpixels = 6;
@@ -3243,6 +3213,7 @@ genesys_restore_calibration (Genesys_Device * dev)
 
       dev->average_size = cache->average_size;
       dev->calib_pixels = cache->calib_pixels;
+      dev->calib_channels = cache->calib_channels;
 
       dev->dark_average_data = (uint8_t*)malloc(cache->average_size);
       dev->white_average_data = (uint8_t*)malloc(cache->average_size);
@@ -3364,6 +3335,7 @@ genesys_save_calibration (Genesys_Device * dev)
   memcpy (&cache->sensor, &dev->sensor, sizeof (cache->sensor));
 
   cache->calib_pixels = dev->calib_pixels;
+  cache->calib_channels = dev->calib_channels;
   memcpy (cache->dark_average_data, dev->dark_average_data,
 	  cache->average_size);
   memcpy (cache->white_average_data, dev->white_average_data,
@@ -3536,14 +3508,6 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	   "registers: %s\n", sane_strstatus (status));
       return status;
     }
-
-  /* GL646 scanners set up calib_pixels in init_regs_for_shading */
-  if (dev->model->asic_type != GENESYS_GL646)
-  {
-  dev->calib_pixels = 
-    (genesys_pixels_per_line (dev->calib_reg)
-     * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res; 
-  }
 
   if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION)
     {

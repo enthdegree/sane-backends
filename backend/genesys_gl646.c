@@ -3413,6 +3413,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
   /* used when sending shading calibration data */
   dev->calib_pixels = settings.pixels;
+  dev->calib_channels = dev->current_setup.channels;
 
   /* no shading */
   dev->reg[reg_0x01].value &= ~REG01_DVDSET;

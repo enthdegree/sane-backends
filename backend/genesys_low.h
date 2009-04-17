@@ -523,6 +523,7 @@ struct Genesys_Calibration_Cache
   Genesys_Sensor sensor;
 
   size_t calib_pixels;
+  size_t calib_channels;
   size_t average_size;
   uint8_t *white_average_data;
   uint8_t *dark_average_data;
@@ -551,6 +552,7 @@ struct Genesys_Device
 
   size_t average_size;
   size_t calib_pixels;
+  size_t calib_channels;
   uint8_t *white_average_data;
   uint8_t *dark_average_data;
   uint16_t dark[3];

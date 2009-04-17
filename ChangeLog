@@ -1,3 +1,8 @@
+2009-04-17  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys.c, backend/genesys_gl646.c,
+	  backend/genesys_gl841.c, backend/genesys_low.h: Always do shading
+	  calibration in color mode on gl841.
+
 2009-04-16  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.h backend/genesys.c backend/genesys_gl646.c
 	  backend/genesys_devices.c: y scan position fixes

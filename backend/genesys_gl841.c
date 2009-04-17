@@ -4447,16 +4447,12 @@ static SANE_Status
 gl841_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
-  uint8_t channels;
-  
 
   DBG (DBG_proc, "gl841_init_regs_for_shading: lines = %d\n",
        dev->model->shading_lines);
 
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
-    channels = 3;
-  else
-    channels = 1;
+  dev->calib_channels = 3;
+  dev->calib_pixels = (dev->sensor.sensor_pixels * dev->settings.xres) / dev->sensor.optical_res;
 
   status = gl841_init_scan_regs (dev,
 				 dev->calib_reg,
@@ -4464,10 +4460,10 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 dev->motor.base_ydpi,
 				 0,
 				 0,
-				 (dev->sensor.sensor_pixels * dev->settings.xres) / dev->sensor.optical_res,
+				 dev->calib_pixels,
 				 dev->model->shading_lines,
 				 16,
-				 channels,
+				 dev->calib_channels,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -5582,8 +5578,6 @@ gl841_is_compatible_calibration (Genesys_Device * dev,
 
   DBG (DBG_proc, "gl841_is_compatible_calibration: checking\n");
 
-  if (dev->current_setup.channels != cache->used_setup.channels)
-    return SANE_STATUS_UNSUPPORTED;
   if (dev->current_setup.half_ccd != cache->used_setup.half_ccd)
     return SANE_STATUS_UNSUPPORTED;
 

@@ -1,4 +1,4 @@
-.TH sane\-canon_dr 5 "09 Oct 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-canon_dr 5 "20 Apr 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-canon_dr
 
 .SH NAME
@@ -10,10 +10,10 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to some Canon DR-series scanners.
 
-This document describes backend version 8, slated to ship with SANE 1.1.0.
+This document describes backend version 26, which shipped with SANE 1.0.20.
 
 .SH SUPPORTED HARDWARE
-This version has only been tested with the DR\-9080C and DR\-7580. Please see 
+This version has only been tested with a few scanner models. Please see 
 http://www.sane\-project.org/sane\-supported\-devices.html for a more recent 
 list.
 
@@ -67,12 +67,11 @@ The configuration file "canon_dr.conf" is used to tell the backend how to look
 for scanners, and provide options controlling the operation of the backend.
 This file is read each time the frontend asks the backend for a list 
 of scanners, generally only when the frontend starts. If the configuration
-file is missing, the backend will use a set of compiled defaults, which
-are identical to the default configuration file shipped with SANE.
+file is missing, the backend will fail to run.
 .PP
 Scanners can be specified in the configuration file in 4 ways:
 .PP
-"scsi CANON"
+"scsi CANON DR"
 .RS
 Requests backend to search all scsi busses in the system for a device 
 which reports itself to be a scanner made by 'CANON', with a model name
@@ -98,19 +97,38 @@ to determine if it is a Canon scanner.
 Some systems use a kernel driver to access usb scanners. This method is untested.
 .RE
 .PP
-The only configuration option supported is "buffer\-size=xxx", allowing you
-to set the number of bytes in the data buffer to something other than the 
-compiled\-in default, 65536 (64K). Some users report that their scanner will
-"hang" mid\-page, or fail to transmit the image if the buffer is not large
-enough.
+Besides the 'scsi' and 'usb' lines, the configuration file supports the 
+following 'option' lines:
 .PP
-Note: This option may appear multiple times in the configuration file. It only
-applies to scanners discovered by 'scsi/usb' lines that follow this option.
+"option buffer-size [number of bytes]"
+.RS
+Set the number of bytes in the data buffer to something other than the 
+compiled\-in default of 4MB. Large values may cause timeouts or hangs, small
+values may cause slow scans.
 .PP
 Note: The backend does not place an upper bound on this value, as some users
 required it to be quite large. Values above the default are not recommended,
 and may crash your OS or lockup your scsi card driver. You have been
 warned.
+.RE
+.PP
+"option vendor-name [string of text]"
+.br
+"option model-name [string of text]"
+.br
+"option version-name [string of text]"
+.RS
+These options can be used collectively to override the values provided by the 
+scanner, or to provide the values when the scanner cannot.
+.RE
+.PP
+"option padded-read [0|1]"
+.RS
+Some scanners prepend all data transmitted to host with 12 bytes. Enable this option if the scanner fails to respond to commands.
+.RE
+.PP
+Note: 'option' lines may appear multiple times in the configuration file.
+They only apply to scanners discovered by the next 'scsi/usb' line.
 .PP
 
 .SH ENVIRONMENT
@@ -135,19 +153,20 @@ enables debugging output to stderr. Valid values are:
 
 .SH KNOWN ISSUES
 This backend was entirely reverse engineered from usb traces of the proprietary 
-driver. Various advanced features of the machines may not be enabled. No small 
-machines or flatbed models have been tested. Their protocol is unknown.
+driver. Various advanced features of the machines may not be enabled. Many
+machines have not been tested. Their protocol is unknown.
 
 .SH CREDITS
   
 The various authors of the sane\-fujitsu backend provided useful code
 Corcaribe Tecnología C.A. www.cc.com.ve provided significant funding
-EvriChart, Inc. www.evrichart.com provided funding and equipment
+EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
+Canon, USA. www.usa.canon.com loaned equipment
 
 .SH "SEE ALSO"
 sane(7),
 sane\-scsi(5),
-sane\-usb(5),
+sane\-usb(5)
 
 .SH AUTHOR
 m. allan noah: <kitno455 a t gmail d o t com>

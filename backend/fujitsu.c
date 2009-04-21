@@ -804,6 +804,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1178'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1178", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x11a2'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x11a2", attach_one_usb);
   }
 
   /*delete missing scanners from list*/

@@ -1,4 +1,4 @@
-.TH saned 8 "12 Dec 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH saned 8 "20 Apr 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
 saned \- SANE network daemon
@@ -194,18 +194,6 @@ sane\-port 6566/tcp # SANE network scanner daemon
 .PP
 The official IANA short name for port 6566 is "sane\-port". The older name "sane"
 is now deprecated.
-
-.SH "RESTRICTIONS"
-In addition to the control connection (port
-.B 6566
-)
-.B saned
-also uses a data
-connection. The port of this socket is selected by the operating system and
-can't be specified by the user currently. This may be a problem if the
-connection must go through a firewall (packet filter). If you must use a packet
-filter, make sure that all ports > 1024 are open on the server for connections
-from the client.
 
 .SH FILES
 .TP

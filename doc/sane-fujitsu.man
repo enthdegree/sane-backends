@@ -1,4 +1,4 @@
-.TH sane\-fujitsu 5 "18 Dec 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-fujitsu 5 "20 Apr 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-fujitsu
 
 .SH NAME
@@ -10,7 +10,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to most Fujitsu flatbed and ADF scanners.
 
-This document describes backend version 89, slated to ship with SANE 1.1.0.
+This document describes backend version 93, which shipped with SANE 1.0.20.
 
 .SH SUPPORTED HARDWARE
 This version supports every known model which speaks the Fujitsu SCSI and 
@@ -167,6 +167,11 @@ Any model that does not support VPD during inquiry will not function until
 an override is added to the backend.
 .PP
 CCITT Fax compression used by older scanners is not supported.
+.PP
+Automatic paper size detection (aka auto-cropping) is not supported.
+.PP
+JPEG output is supported by the backend, but not by the SANE protocol, so is
+disabled in this release. It can be enabled if you rebuild from source. 
 
 .SH CREDITS
 m3091 backend: Frederik Ramm <frederik a t remote d o t org>
@@ -197,6 +202,9 @@ Endorser support funded by:
   T2P 3G2 Canada
   1\-403\-263\-2600
   www.oas.ca
+
+Hardware donated by Fujitsu Computer Products of America, Inc.
+  http://us.fujitsu.com/fcpa
 
 .SH "SEE ALSO"
 sane(7),

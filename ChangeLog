@@ -1,3 +1,11 @@
+2009-04-20  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c, backend/fujitsu.conf.in,
+	  doc/descriptions/fujitsu.desc: add S1500 usb ids and status
+	* backend/canon_dr.c: update credits
+	* doc/sane-fujitsu.man doc/sane-canon_dr.man: update version numbers,
+	  dates, credits and known issues
+	* doc/saned.man: remove section about uncontrolled data port range
+
 2009-04-20  Alessandro Zummo <a.zummo@towertech.it>
 	* backend/coolscan3.c: temporarily disable infrared.
 

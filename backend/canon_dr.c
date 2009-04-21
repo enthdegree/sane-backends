@@ -5,8 +5,9 @@
 
    Copyright (C) 2008-2009 m. allan noah
 
-   Development funded by Corcaribe Tecnología C.A. www.cc.com.ve
-   and by EvriChart, Inc. www.evrichart.com
+   Corcaribe Tecnología C.A. www.cc.com.ve provided significant funding
+   EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
+   Canon, USA. www.usa.canon.com loaned equipment
 
    --------------------------------------------------------------------------
 

@@ -1,3 +1,6 @@
+2009-04-20  Alessandro Zummo <a.zummo@towertech.it>
+	* backend/coolscan3.c: temporarily disable infrared.
+
 2009-04-17  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
 	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
 	  Updated documentation for Pixma MP540, reported to work fine by Rogge.

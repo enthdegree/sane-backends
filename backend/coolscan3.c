@@ -451,7 +451,7 @@ sane_open(SANE_String_Const name, SANE_Handle * h)
 			/*o.cap |= SANE_CAP_INACTIVE; */
 			break;
 
-		case CS3_OPTION_INFRARED:
+/*		case CS3_OPTION_INFRARED:
 			o.name = "infrared";
 			o.title = "Read infrared channel";
 			o.desc = "Read infrared channel in addition to scan colors";
@@ -459,7 +459,7 @@ sane_open(SANE_String_Const name, SANE_Handle * h)
 			o.size = WSIZE;
 			o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 			break;
-
+*/
 		case CS3_OPTION_DEPTH:
 			o.name = "depth";
 			o.title = "Bit depth per channel";

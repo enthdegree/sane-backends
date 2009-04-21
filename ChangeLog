@@ -1,3 +1,8 @@
+2009-04-21  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
+	* doc/sane-pixma.man, doc/descriptions/pixma.desc,
+	  backand/pixma_mp150.c:
+	  Updated documentation for Pixma MP240, reported to work fine by Nik.
+	  
 2009-04-21  Alex Belkin <abc@telekom.ru>
 	* backend/xerox_mfp.c: update version number.
 

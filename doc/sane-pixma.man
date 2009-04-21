@@ -12,9 +12,13 @@ using Canon's BJNP protocol.
 Currently, the following models work with this backend:
 .PP
 .RS
-PIXMA MP140, MP150, MP160, MP170, MP180, MP190, MP210, MP220
+PIXMA MP140, MP150, MP160, MP170, MP180, MP190
 .br
-PIXMA MP450, MP460, MP470, MP480, MP500, MP510, MP520, MP530, MP540
+PIXMA MP210, MP220, MP240
+.br
+PIXMA MP450, MP460, MP470, MP480
+.br
+PIXMA MP500, MP510, MP520, MP530, MP540
 .br
 PIXMA MP600, MP600R, MP610, MP620, MP630, MP710
 .br
@@ -24,7 +28,9 @@ PIXMA MX300, MX310, MX700, MX850, MX7600
 .br
 MultiPASS MP700, PIXMA MP750 (no grayscale)
 .br
-ImageCLASS MF4010, MF4018, MF4120, MF4122, MF4140, MF4150, MF4270
+ImageCLASS MF4010, MF4018, MF4120, MF4122, MF4140, MF4150
+.br
+ImageCLASS MF4270
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs
@@ -44,7 +50,7 @@ Feedback in the Sane-dev mailing list welcome.
 .RS
 PIXMA MP740
 .br
-PIXMA MP240, MP260
+PIXMA MP260
 .br
 ImageCLASS MF3110, MF3240
 .br

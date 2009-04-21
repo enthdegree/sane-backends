@@ -136,7 +136,7 @@
 #define MP620_PID 0x172f
 #define MP540_PID 0x1730
 #define MP480_PID 0x1731
-#define MP240_PID 0x1732    /* Untested */
+#define MP240_PID 0x1732
 #define MP260_PID 0x1733    /* Untested */
 #define MP190_PID 0x1734
 

@@ -26,7 +26,7 @@
 #include <sane/sanei_backend.h>
 #include "xerox_mfp.h"
 
-#define BACKEND_BUILD 9
+#define BACKEND_BUILD 10
 #define XEROX_CONFIG_FILE "xerox_mfp.conf"
 
 static const SANE_Device **devlist = NULL;	/* sane_get_devices array */

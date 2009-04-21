@@ -1,3 +1,6 @@
+2009-04-21  Alex Belkin <abc@telekom.ru>
+	* backend/xerox_mfp.c: update version number.
+
 2009-04-20  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, backend/fujitsu.conf.in,
 	  doc/descriptions/fujitsu.desc: add S1500 usb ids and status

@@ -1,3 +1,6 @@
+2009-04-22  m. allan noah <kitno455 a t gmail d o t com>
+	* include/sane/sane.h: convert new frame and status to #define
+
 2009-04-21  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
 	* doc/sane-pixma.man, doc/descriptions/pixma.desc,
 	  backand/pixma_mp150.c:
@@ -10,7 +13,7 @@
 	* backend/fujitsu.c, backend/fujitsu.conf.in,
 	  doc/descriptions/fujitsu.desc: add S1500 usb ids and status
 	* backend/canon_dr.c: update credits
-	* doc/sane-fujitsu.man doc/sane-canon_dr.man: update version numbers,
+	* doc/sane-fujitsu.man, doc/sane-canon_dr.man: update version numbers,
 	  dates, credits and known issues
 	* doc/saned.man: remove section about uncontrolled data port range
 

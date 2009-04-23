@@ -67,13 +67,14 @@ typedef enum
     SANE_STATUS_IO_ERROR,	/* error during device I/O */
     SANE_STATUS_NO_MEM,		/* out of memory */
     SANE_STATUS_ACCESS_DENIED	/* access to resource has been denied */
-    /* following are for later sane version, older frontends wont support */
-#if 0
-    SANE_STATUS_WARMING_UP,     /* lamp not ready, please retry */
-    SANE_STATUS_HW_LOCKED       /* scanner mechanism locked for transport */
-#endif
   }
 SANE_Status;
+
+/* following are for later sane version, older frontends wont support */
+#if 0
+#define SANE_STATUS_WARMING_UP 12 /* lamp not ready, please retry */
+#define SANE_STATUS_HW_LOCKED  13 /* scanner mechanism locked for transport */
+#endif
 
 typedef enum
   {
@@ -175,24 +176,24 @@ typedef enum
     SANE_FRAME_RED,	/* red band only */
     SANE_FRAME_GREEN,	/* green band only */
     SANE_FRAME_BLUE 	/* blue band only */
-
-    /* push remaining types down to match existing backends */
-    /* these are to be exposed in a later version of SANE */
-    /* most front-ends will require updates to understand them */
-#if 0
-    SANE_FRAME_TEXT = 0x0A,	/* backend specific textual data */
-    SANE_FRAME_JPEG,		/* complete baseline JPEG file */
-    SANE_FRAME_G31D,		/* CCITT Group 3 1-D Compressed (MH) */
-    SANE_FRAME_G32D,		/* CCITT Group 3 2-D Compressed (MR) */
-    SANE_FRAME_G42D,		/* CCITT Group 4 2-D Compressed (MMR) */
-
-    SANE_FRAME_IR,		/* bare infrared channel */
-    SANE_FRAME_RGBI,		/* red+green+blue+infrared */
-    SANE_FRAME_GRAYI,		/* gray+infrared */
-    SANE_FRAME_XML		/* undefined schema */
-#endif
   }
 SANE_Frame;
+
+/* push remaining types down to match existing backends */
+/* these are to be exposed in a later version of SANE */
+/* most front-ends will require updates to understand them */
+#if 0
+#define SANE_FRAME_TEXT  0x0A  /* backend specific textual data */
+#define SANE_FRAME_JPEG  0x0B  /* complete baseline JPEG file */
+#define SANE_FRAME_G31D  0x0C  /* CCITT Group 3 1-D Compressed (MH) */
+#define SANE_FRAME_G32D  0x0D  /* CCITT Group 3 2-D Compressed (MR) */
+#define SANE_FRAME_G42D  0x0E  /* CCITT Group 4 2-D Compressed (MMR) */
+
+#define SANE_FRAME_IR    0x0F  /* bare infrared channel */
+#define SANE_FRAME_RGBI  0x10  /* red+green+blue+infrared */
+#define SANE_FRAME_GRAYI 0x11  /* gray+infrared */
+#define SANE_FRAME_XML   0x12  /* undefined schema */
+#endif
 
 typedef struct
   {

@@ -146,9 +146,9 @@
 
 :model "ScanSnap S1500"
 :interface "USB"
-:status :minimal
+:status :complete
 :usbid "0x04c5" "0x11a2"
-:comment "small, current, uses same protocol as bigger scanners, but image data is encoded in an unsupported format"
+:comment "small, current"
 
 :model "ScanSnap S1500M"
 :interface "USB"

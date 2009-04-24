@@ -1,3 +1,6 @@
+2009-04-23  m. allan noah <kitno455 a t gmail d o t com>
+	* doc/descriptions/fujitsu.desc: update S1500 status to complete
+
 2009-04-22  m. allan noah <kitno455 a t gmail d o t com>
 	* include/sane/sane.h: convert new frame and status to #define
 

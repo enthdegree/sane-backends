@@ -2963,6 +2963,19 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   switch (dev->model->ccd_type)
     {
     case CCD_5345:
+      target_code = 0xfa00;
+      memset (shading_data, 0x00, pixels_per_line * 4 * channels);
+      o = 4;
+      avgpixels = 1;
+      compute_coefficients(dev,
+			shading_data,
+		        pixels_per_line,
+		        channels,
+			avgpixels,
+			o,
+			coeff,
+			target_code);
+      break;
     case CCD_HP2300:
     case CCD_HP2400:
     case CCD_HP3670:
@@ -5484,7 +5497,7 @@ read_calibration(Genesys_Device * dev)
 	 sufficiently corrupted calibration file.
 	 gl843 can do up to 0x5800 pixels. add some slack for the
 	 dummy/blank pixel mess */
-      if (cache->average_size > 0xb000+0x100)
+      if (cache->average_size > 0x5800*2*3*2+0x100)
 	{
 	  DBG (DBG_error, "read_calibration: bad size of calibration data\n");
 	  free(cache);

@@ -649,6 +649,7 @@ gl646_bulk_read_data (Genesys_Device * dev, uint8_t addr,
   return status;
 }
 
+#if 0
 static SANE_Status
 read_triple_reg (Genesys_Device * dev, int index, unsigned int *words)
 {
@@ -670,6 +671,8 @@ read_triple_reg (Genesys_Device * dev, int index, unsigned int *words)
   DBG (DBG_proc, "read_triple_reg: value=%d\n", *words);
   return status;
 }
+#endif
+
 
 static SANE_Bool
 gl646_get_fast_feed_bit (Genesys_Register_Set * regs)
@@ -1559,14 +1562,23 @@ gl646_setup_registers (Genesys_Device * dev,
 	case MOTOR_5345:
 	  switch (motor->ydpi)
 	    {
-	    case 400:		/* 32 steps at 1/2 */
-	      feedl += 255;	/* 255-32 < */
+	    case 200:
+	      feedl -= 70;
+	      break;
+	    case 300:
+	      feedl -= 70;
+	      break;
+	    case 400:
+	      feedl += 130;
 	      break;
 	    case 600:
+	      feedl += 160;
 	      break;
 	    case 1200:
+	      feedl += 160;
 	      break;
 	    case 2400:
+	      feedl += 180;
 	      break;
 	    default:
 	      break;
@@ -2443,6 +2455,9 @@ gl646_save_power (Genesys_Device * dev, SANE_Bool enable)
       /* gl646_set_fe (dev, AFE_INIT); */
     }
 
+  /* to make compiler happy */
+  gl646_set_fe (dev, AFE_SET);
+
   DBG (DBG_proc, "gl646_save_power: end\n");
   return SANE_STATUS_GOOD;
 }
@@ -2993,7 +3008,6 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   SANE_Status status = SANE_STATUS_GOOD;
   int i = 0;
   uint8_t val, scanfsh = 0;
-  unsigned int value;
 
   DBG (DBG_proc, "end_scan (check_stop = %d, eject = %d)\n", check_stop,
        eject);
@@ -3348,14 +3362,21 @@ gl646_search_start_position (Genesys_Device * dev)
   return status;
 }
 
-/* 
+/**
+ * internally overriden during effective calibration
  * sets up register for coarse gain calibration
- * todo: check it for scanners using it */
+ */
 static SANE_Status
 gl646_init_regs_for_coarse_calibration (Genesys_Device * dev)
 {
   DBG (DBG_proc, "gl646_init_regs_for_coarse_calibration\n");
   DBG (DBG_proc, "gl646_init_register_for_coarse_calibration: end\n");
+
+  /* to make compilers happy ... */
+  if (!dev)
+    {
+      return SANE_STATUS_INVAL;
+    }
 
   return SANE_STATUS_GOOD;
 }
@@ -3381,7 +3402,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
   /* when shading all line, we must adapt to half_ccd case */
   if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE)
-      && (dev->settings.xres < dev->sensor.optical_res / 2))
+      && (dev->settings.xres <= dev->sensor.optical_res / 2))
     {
       /* we are going to use half the pixel number */
       half_ccd = 2;
@@ -3450,13 +3471,13 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 static SANE_Status
 gl646_init_regs_for_scan (Genesys_Device * dev)
 {
-SANE_Status status;
+  SANE_Status status;
 
   /* park head after calibration if needed */
   if (dev->scanhead_position_in_steps > 0)
     {
       status = gl646_slow_back_home (dev, SANE_TRUE);
-	if (status != SANE_STATUS_GOOD)
+      if (status != SANE_STATUS_GOOD)
 	{
 	  return status;
 
@@ -3993,7 +4014,7 @@ static SANE_Status
 gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 {
   uint8_t *line;
-  unsigned int i, j, k, channels, val, maximum;
+  unsigned int i, j, k, channels, val, maximum, idx;
   unsigned int size, count, resolution, pass;
   SANE_Status status = SANE_STATUS_GOOD;
   float average[3];
@@ -4007,7 +4028,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   channels = 3;
 
   /* we are searching a sensor resolution */
-  if (dev->settings.xres > dev->sensor.optical_res)
+  if (dpi > dev->sensor.optical_res)
     {
       resolution =
 	get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res,
@@ -4016,8 +4037,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   else
     {
       resolution =
-	get_closest_resolution (dev->model->ccd_type, dev->settings.xres,
-				SANE_TRUE);
+	get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
     }
 
   settings.scan_method = SCAN_METHOD_FLATBED;
@@ -4048,12 +4068,15 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       average[0] = 0;
       average[1] = 0;
       average[2] = 0;
+      idx = 0;
     }
   else
     {
-      average[0] = 0;
+      average[0] = 255;
       average[1] = 255;
       average[2] = 255;
+      idx = dev->settings.color_filter;
+      average[idx] = 0;
     }
   pass = 0;
 
@@ -4084,7 +4107,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       /* average high level for each channel and compute gain
          to reach the target code 
          we only use the central half of the CCD data         */
-      for (k = 0; k < channels; k++)
+      for (k = idx; k < idx + channels; k++)
 	{
 	  /* we find the maximum white value, so we can deduce a threshold
 	     to average white values */
@@ -4578,7 +4601,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	     unsigned char **data)
 {
   SANE_Status status;
-  unsigned int size, lines, x, y, bpp, pixels;
+  unsigned int size, lines, x, y, bpp;
   SANE_Bool empty;
   unsigned char *buffer;
 
@@ -4627,7 +4650,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
       return status;
     }
 
-  /* no shading correction and not wathc dog for simple scan */
+  /* no shading correction and not watch dog for simple scan */
   dev->reg[reg_0x01].value &= ~(REG01_DVDSET | REG01_DOGENB);
 
   /* one table movement for simple scan */
@@ -4953,7 +4976,9 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite)
 {
-  DBG (DBG_proc, "gl646_is_compatible_calibration: start\n");
+  DBG (DBG_proc,
+       "gl646_is_compatible_calibration: start (for_overwrite=%d)\n",
+       for_overwrite);
 
   if (cache == NULL)
     return SANE_STATUS_UNSUPPORTED;

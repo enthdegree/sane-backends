@@ -3856,36 +3856,6 @@ e2_start_ext_scan(Epson_Scanner * s)
 	return status;
 }
 
-/* Helper function to correct the error for warmup lamp
- * gotten from scanners with known buggy firmware.
- * Epson Perfection 4990 Photo
- */
-
-static SANE_Status
-fix_warmup_lamp(Epson_Scanner * s, SANE_Status status)
-{
-	/*
-	 * Check for Perfection 4990 photo/GT-X800 scanner.
-	 * Scanner sometimes report "Fatal error" in status in informationblock when
-	 * lamp warm up. Solution send FS G one more time.
-	 */
-	if (e2_model(s, "GT-X800")) {
-		SANE_Status status2;
-
-		DBG(1, "%s: Epson Perfection 4990 lamp warm up problem \n",
-		    __func__);
-		status2 = e2_wait_warm_up(s);
-		if (status2 == SANE_STATUS_GOOD) {
-			status = e2_start_ext_scan(s);
-			return status;
-		}
-	}
-
-	return status;
-}
-
-
-
 /*
  * This function is part of the SANE API and gets called from the front end to
  * start the scan process.
@@ -4020,20 +3990,29 @@ sane_start(SANE_Handle handle)
 	if (dev->extended_commands) {
 		status = e2_start_ext_scan(s);
 
-		/* this is a kind of read request */
-		if (dev->connection == SANE_EPSON_NET)
-			sanei_epson_net_write(s, 0x2000, NULL, 0,
-					      s->ext_block_len + 1, &status);
+		/* check if the scanner signaled a warming up */
+		if (status == SANE_STATUS_IO_ERROR && s->hw->use_extension) {
+		        status = e2_wait_warm_up(s);
+        		if (status == SANE_STATUS_GOOD)
+	        		status = e2_start_ext_scan(s);
+                }
+                                            
 	} else
 		status = e2_start_std_scan(s);
 
 	if (status != SANE_STATUS_GOOD) {
 		DBG(1, "%s: start failed: %s\n", __func__,
 		    sane_strstatus(status));
-		if (status == SANE_STATUS_IO_ERROR)
-			status = fix_warmup_lamp(s, status);
+
+		return status;
 	}
 
+	/* this is a kind of read request */
+	if (dev->connection == SANE_EPSON_NET) {
+		sanei_epson_net_write(s, 0x2000, NULL, 0,
+		      s->ext_block_len + 1, &status);
+        }
+        
 	return status;
 }
 

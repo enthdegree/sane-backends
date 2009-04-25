@@ -1,3 +1,6 @@
+2009-04-25  Alessandro Zummo <a.zummo@towertech.it>
+	* backend/epson2.c: fixed TPU warmup retry
+
 2009-04-23  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c:
 	y scan position and shading calibration fixes for MD5345/MD6471

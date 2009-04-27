@@ -158,7 +158,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.52-8"
+#define BACKEND_VERSION "0.52-9"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"

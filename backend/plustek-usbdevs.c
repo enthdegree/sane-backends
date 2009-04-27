@@ -7,7 +7,7 @@
  *  @brief Here we have our USB device definitions.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2009 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -71,6 +71,7 @@
  * - 0.52 - added Q-Scan USB001 settings
  *        - tweaked motor settings for Bearpaw 1200
  *        - added TravelScan 464 settings
+ *        - tweaked highspeed motor settings for Epson 1260
  *
  * <hr>
  * This file is part of the SANE package.
@@ -1840,7 +1841,7 @@ static HWDef Hw0x04B8_0x011D =
 {
 	0.9,    /* dMaxMotorSpeed                               */
 	0.8,    /* dMaxMoveSpeed                                */
-	4.1,    /* dHighSpeed                                   */
+	3.0,    /* dHighSpeed                                   */
 	12,     /* dIntegrationTimeLowLamp                      */
 	12,     /* dIntegrationTimeHighLamp                     */
 	600,    /* wMotorDpi (Full step DPI)                    */

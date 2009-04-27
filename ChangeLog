@@ -1,17 +1,21 @@
-2009-04-27  Stéphane Voltz <stef.dev@free.fr>
+2008-08-25  Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/plustek-usbdevs.c:
+	  Tweaked highspeed settings for Epson 1260
+
+2009-04-27  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891.h backend/rts8891_devices.c
 	  backend/rts8891_low.c backend/rts8891_low.h backend/rts88xx_lib.c
 	  backend/rts88xx_lib.h: turn off scanner sharing option to off by default
 	  to keep on the safe side, copyright and internal version updates.
 
-2009-04-27  Stéphane Voltz <stef.dev@free.fr>
+2009-04-27  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c:
 	shading calibration fixes for HP2300	
 
 2009-04-25  Alessandro Zummo <a.zummo@towertech.it>
 	* backend/epson2.c: fixed TPU warmup retry
 
-2009-04-23  Stéphane Voltz <stef.dev@free.fr>
+2009-04-23  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c:
 	y scan position and shading calibration fixes for MD5345/MD6471
 
@@ -50,12 +54,12 @@
 	  calibration in color mode on gl841.
 	* backend/genesys.c, backend/genesys_gl841.c: Fix bugs introduced above.
 
-2009-04-16  Stéphane Voltz <stef.dev@free.fr>
+2009-04-16  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.h backend/genesys.c backend/genesys_gl646.c
 	  backend/genesys_devices.c: y scan position fixes
 	 - added a 'clear calibration cache button'
 
-2009-04-15  Stéphane Voltz <stef.dev@free.fr>
+2009-04-15  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl646.c: calibration cache
 	 activation for gl646 based scanners
 
@@ -66,17 +70,17 @@
 	- return cmd status for reads of sensor options
 	- allow rs to adjust read length for all bad status responses
 
-2009-04-14  Stéphane Voltz <stef.dev@free.fr>
+2009-04-14  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c:
 	  shading calibration rework for GL646 based scanners
 
 2009-04-13  m. allan noah <kitno455 a t gmail d o t com>
 	* tools/sane-desc.c: fix double summing of untested column
 
-2009-04-13  Stéphane Voltz <stef.dev@free.fr>
+2009-04-13  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: minor version change to test commit scripts
 
-2009-04-13  Stéphane Voltz <stef.dev@free.fr>
+2009-04-13  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/pnm.c: conditional handling of STATUS_HW_LOCKED
 	  and STATUS_WARMING_UP
 
@@ -273,14 +277,14 @@
 	* backend/pixma.h, backend/pixma_common.c, backend/pixma_io_sanei.c:
 	  Added a PIXMA_EOF error return code
 
-2009-03-09 Stéphane Voltz <stef.dev@free.fr>
+2009-03-09 Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
 	  backend/genesys_gl646.c doc/descriptions/lexmark.desc: cleanups
 	  for genesys backend. Change in document detection for gl646
 	  sheetfed scanners.
 	  - lexmark backend description update
 
-2009-03-09 Stéphane Voltz <stef.dev@free.fr>
+2009-03-09 Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c:
 	1200 dpi scan fix and head positionning fixes
 
@@ -335,7 +339,7 @@
 	Add back in code to move LDFLAGS out of $GPHOTO2_LIBS and into
 	GPHOTO2_LDFLAGS.
 
-2009-03-02 Stéphane Voltz <stef.dev@free.fr>
+2009-03-02 Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c, backend/genesys_gl646.c: fix 400, 1200
 	and 2400 dpi scan modes for MD5345/MD6471
 
@@ -358,7 +362,7 @@
 	backend/genesys_low.h: Add support for Visioneer Roadwarrior
 	* backend/genesys_gl841.c: Adjust gl841 part to recent changes
 
-2009-02-27  Stéphane Voltz <stef.dev@free.fr>
+2009-02-27  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.conf.in backend/genesys.h
 	backend/genesys_devices.c backend/genesys_gl646.c backend/genesys_gl841.c
 	backend/genesys_low.h: rewrite of gl646 internals to enable easy
@@ -679,7 +683,7 @@
 	own compile rule simply to pass in -DSTUBS.  Since its always
 	required, just define it in stubs.c
 
-2009-01-22  Stéphane Voltz <stef.dev@free.fr>
+2009-01-22  Stï¿½phane Voltz <stef.dev@free.fr>
 	* doc/Makefile.in doc/descriptions/genesys.desc : added the rts8891
 	man page to the generation and install . added XP200 to the genesys
 	desc file.
@@ -701,7 +705,7 @@
 	Fixed select_source message length, and typo bug in last update.
 	Set MP4600 series for inverted checksumming. 
 
-2009-01-19  Stéphane Voltz <stef.dev@free.fr>
+2009-01-19  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.conf.in backend/genesys.h
 	backend/genesys_devices.c backend/genesys_gl646.c 
 	backend/genesys_gl841.c backend/genesys_low.h: add support for
@@ -855,7 +859,7 @@
 	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
 	Updated doc for pixma backend (ImageClass)
 
-2008-12-31  Stéphane Voltz <stef.dev@free.fr>
+2008-12-31  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: restored warming up broken by a previuos commit
 
 2008-12-28  Nicolas Martin <nicols-guest at users.alioth.debian.org>
@@ -905,7 +909,7 @@
 	config file and rework the comments.
 	* doc/saned.man: document the data_portrange option.
 
-2008-12-11  Stéphane Voltz <stef.dev@free.fr>
+2008-12-11  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c doc/sane-rts8891.man doc/descriptions/rts8891.desc:
 	  scan register setting fix, documentation update
 
@@ -955,7 +959,7 @@
 	  and if that fails, we try getenv("USER") and if that fails we use
 	  a default user string
 
-2008-12-03  Stéphane Voltz <stef.dev@free.fr>
+2008-12-03  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c: possible fix for
 	  failed scan at 300 and 1200 dpi for HP4400, sensor type 2.
 
@@ -1025,10 +1029,10 @@
 	in pixma.desc.
 	Fixed some typos in French translations.
 
-2008-11-20  Stéphane Voltz <stef.dev@free.fr>
+2008-11-20  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: fixes 'commit scan value' for HP4400.
 
-2008-11-20  Stéphane Voltz <stef.dev@free.fr>
+2008-11-20  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: calibration fixes for HP4400 sensor type 3.
 
 2008-11-18  Alessandro Zummo <a.zummo@towertech.it>
@@ -1040,7 +1044,7 @@
 	* doc/descriptions-external/epkowa.desc:
 	  iscan 2.14.0 updates on behalf of olaf.meeuwissen@avasys.jp
 
-2008-11-12  Stéphane Voltz <stef.dev@free.fr>
+2008-11-12  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: sensor detection fix. Lamp setting
 	  change for HP4400 sensor type 3.
 
@@ -1101,7 +1105,7 @@
 	   backend/pixma_bjnp.c backend/bjnp_private.h
 	   Marked local functions as static and removed them from ..private.h
 
-2008-10-31  Stéphane Voltz <stef.dev@free.fr>
+2008-10-31  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h:
 	  added 600 and 1200 dpi scan for HP4400 and HP4470 with 'xpa' 
 	  sensor.
@@ -1147,10 +1151,10 @@
 	check for ifaddrs.h  (necessary on different platforms BeOS, OS/2, ...)
 	Increment pixma backend version number.
 
-2008-10-15  Stéphane Voltz <stef.dev@free.fr>
+2008-10-15  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: added 300 dpi scan for HP4400
 
-2008-10-15  Stéphane Voltz <stef.dev@free.fr>
+2008-10-15  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: fixed HP4400 sensor detection, added 150
 	  dpi scan mode for HP4400
 
@@ -1174,7 +1178,7 @@
 	* backend/fujitsu.c: backend v80
 	- front-side endorser uses data ID 0x80
 
-2008-10-06  Stéphane Voltz <stef.dev@free.fr>
+2008-10-06  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891.h: fixed configuration option
 	  bug
 
@@ -1200,10 +1204,10 @@
 	- increase scan height ~1/2 inch due to head offset
 	- change page length autodetection condition
 
-2008-10-03  Stéphane Voltz <stef.dev@free.fr>
+2008-10-03  Stï¿½phane Voltz <stef.dev@free.fr>
 	* include/sane/sane.h: added a SANE_CURRENT_MINOR define 
 
-2008-10-02  Stéphane Voltz <stef.dev@free.fr>
+2008-10-02  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891.h backend/rts8891_low.h: 
 	add a 'sensornumber' option to override detected sensor model
 
@@ -1234,7 +1238,7 @@
 	* doc/descriptions/gt68xx.desc: Added entry for OpticSlim 2400plus
 	* backends/gt68xx.conf.in: Added entry for OpticSlim 2400plus
 
-2008-09-26  Stéphane Voltz <stef.dev@free.fr>
+2008-09-26  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891_low.c: fix HP4400 head parking
 
 2008-09-25  m. allan noah <kitno455 a t gmail d o t com>
@@ -1254,10 +1258,10 @@
 	* frontend/scanimage.c: fix broken unknown length (-1) binary scans,
 	  fix invalid tiff height with unknown length scans, fix compiler warn 
 
-2008-09-20  Stéphane Voltz <stef.dev@free.fr>
+2008-09-20  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: fix typo in HP4400 variant detection
 
-2008-09-20  Stéphane Voltz <stef.dev@free.fr>
+2008-09-20  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h: more
 	fix for HP4400 head parking, 75 dpi support for another HP4400 sensor
 	variant, better variant detector and initial setting
@@ -1267,7 +1271,7 @@
 	Changes in pixma backend for PIXMA MP970 at 4800 dpi (to be continued).
 	Declare MX7600 but yet untested.
 
-2008-09-11  Stéphane Voltz <stef.dev@free.fr>
+2008-09-11  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h: fix
 	parking for HP4400, tune dark calibration for HP4400
 
@@ -1279,7 +1283,7 @@
 	- Modified scan area adjustments to enhance frontend area selection fit
 	but to be confirmed that it does not bring backward compatibility issues.
 
-2008-09-03  Stéphane Voltz <stef.dev@free.fr>
+2008-09-03  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h
 	  backend/rts88xx_lib.c: minor changes for hp4400 support
 
@@ -1287,7 +1291,7 @@
 	* backend/pixma_mp150.c:
 	Some tweaks to have PIXMA MP810 supported by the pixma backend.
 
-2008-08-29  Stéphane Voltz <stef.dev@free.fr>
+2008-08-29  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c:
 	- move to configuration framework
 	- fix GL646 GPO value usage
@@ -1319,18 +1323,18 @@
 	* doc/descriptions/plustek.desc: Added entry for Strobe XP100
 	* doc/descriptions/unsupported.desc: Removed entry for Strobe XP100
 
-2008-08-21  Stéphane Voltz <stef.dev@free.fr>
+2008-08-21  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: calibration updating and 75 dpi scan for hp400
 
 2008-08-23  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/fujitsu.desc: set lots of scanners to complete :)
 
-2008-08-21  Stéphane Voltz <stef.dev@free.fr>
+2008-08-21  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_devices.c backend/rts8891_low.c
 	  backend/rts88xx_lib.c: add sensor type field and use it in geometry
 	  detection.
 
-2008-08-14  Stéphane Voltz <stef.dev@free.fr>
+2008-08-14  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts88xx_lib.c: fix for hp4400 init
 
 2008-08-13  m. allan noah <kitno455 a t gmail d o t com>
@@ -1352,7 +1356,7 @@
 	* frontend/scanimage.c: fetch_options(), actually get option
 	descriptor 0 before attempting to get the value of option 0.
 
-2008-08-04  Stéphane Voltz <stef.dev@free.fr>
+2008-08-04  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/umax_pp.c backend/umaxp_pp.h backend/umax_pp.conf.in: 
 	  use configuration framework
 
@@ -1415,19 +1419,19 @@
 	- fi-5330C and fi-5650C can't handle 10 bit LUT via USB
 	- fi-5900 has background color, though it reports otherwise
 
-2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+2008-07-10  Stï¿½phane Voltz <stef.dev@free.fr>
 	* sanei/sanei_config.c: handle cases where config or callback
 	  function is NULL 
 	* backend/rts8891.c: use new configuration parsing framework
 
-2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+2008-07-10  Stï¿½phane Voltz <stef.dev@free.fr>
 	* include/sane/sanei_config.h: doxygen fix for new function
 
-2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+2008-07-10  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/sanei_constrain_value.c: add support for SANE_Bool
 	  in sanei_check_value
 	* backend/Makefile.in: add sanei_constrain_value.lo to libsane
-2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+2008-07-10  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/sanei_constrain_value.c: add support for SANE_Bool
 	  in sanei_check_value
 	* backend/Makefile.in: add sanei_constrain_value.lo to libsane
@@ -1520,20 +1524,20 @@
 	Remove "experimental" in pixma buttons options and text.
 	Fix some French translation typos, and update man page.
 
-2008-06-10  Stéphane Voltz <stef.dev@free.fr>
+2008-06-10  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/sanei_constrain_value.c: add support for arrays of SANE_Word
 	  in sanei_constrain_value
 	* backend/umax_pp.c: remove now unneede 'hand made' constrain on
 	  gamma tables
 
-2008-06-09  Stéphane Voltz <stef.dev@free.fr>
+2008-06-09  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: fix for model with 'XPA' sensor
 
 2008-06-06  Julien Blache <jb@jblache.org>
 	* backend/net.c: lock the Avahi thread before stopping it and
 	tearing down the Avahi objects.
 
-2008-06-03  Stéphane Voltz <stef.dev@free.fr>
+2008-06-03  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c: fixed wrong offset for start
 	  of scanarea for MD6471 scanner.
 
@@ -1567,7 +1571,7 @@
 	  and device ID updates, including fixing uninitialized variables due
 	  former defect merge and exposure control for film / dia scanners
 
-2008-05-26  Stéphane Voltz <stef.dev@free.fr>
+2008-05-26  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/sane_strstatus.c: added new status and internationalization
 	  support
 	* frontend/scanimage.c, frontend/tstbackend.c: added handling of status
@@ -1575,13 +1579,13 @@
 	* backend/pnm.c: added 2 more virtual devices, one that is hardware
 	locked, and another that always do warming before scan.
 
-2008-05-26  Stéphane Voltz <stef.dev@free.fr>
+2008-05-26  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.[ch], backend/rts8891_low.[ch],
 	  backend/rts88xx_lib.[ch]: renamed per frontend struct, made use of
 	  new well-known option groups. Added warming-up handling in
 	  sane_start().
 
-2008-05-22  Stéphane Voltz <stef.dev@free.fr>
+2008-05-22  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c:
 	changed top of scan area detection for MD6228/MD6471 models
 
@@ -1595,7 +1599,7 @@
 	  backend/hp3900_usb.c: Fixed reference position detection for
 	  HP3800/HPG2710 scanners. Code clean up.
 
-2008-05-22  Stéphane Voltz <stef.dev@free.fr>
+2008-05-22  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c:
 	minor tweak for scanjet 4470cx
 
@@ -1622,7 +1626,7 @@
 	* backend/qcam.c, backend/v4l.c, frontend/tstbackend.c:
 	  remove undocumented and otherwise unused SANE_CAP_ALWAYS_SETTABLE
 
-2008-05-19  Stéphane Voltz <stef.dev@free.fr>
+2008-05-19  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c:
 	150/300 dpi shading calibration fixes for 'XPA' sensor HP4470 models
 
@@ -1659,7 +1663,7 @@
 	  include/sane/sanei_thread.h, sanei/sanei_thread.c:
 	Fix for bug #306751: sanei-thread with pthreads on 64 bit
 
-2008-05-12  Stéphane Voltz <stef.dev@free.fr>
+2008-05-12  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c 
 	150/300 dpi mode fixes for 'XPA' sensor HP4470 models
 
@@ -1686,7 +1690,7 @@
 	* doc/sane-sm3840.man: Add lineart and halftone options to page
 	* backend/sm3840*: Remove 64-bit compile warnings
 
-2008-04-05  Stéphane Voltz <stef.dev@free.fr>
+2008-04-05  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c
 	doc/descriptions/rts8891.desc:
 	150 dpi mode fix for 'XPA' sensor HP4470 models, description
@@ -1877,7 +1881,7 @@
 	sections (separate inetd configuration under the INETD
 	CONFIGURATION section).
 
-2008-04-05  Stéphane Voltz <stef.dev@free.fr>
+2008-04-05  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
 	  backend/genesys_gl646.c backend/genesys_low.h:
 	  Fixed double free problems, made OPT_COLOR_FILTER work for
@@ -1885,7 +1889,7 @@
 	  options, split sane_control_options to make it more readable,
 	  fixed 'reset stream' problem for MD6471.
 
-2008-04-05  Stéphane Voltz <stef.dev@free.fr>
+2008-04-05  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: 
 	  split sane_control_option() to make it more readable
 
@@ -1918,7 +1922,7 @@
 	* sanei/sanei_scsi.c: fix bug in sanei_scsi_find_devices() which
 	  caused early return if attach callback returned error.
 
-2008-03-22  Stéphane Voltz <stef.dev@free.fr>
+2008-03-22  Stï¿½phane Voltz <stef.dev@free.fr>
 	* AUTHORS configure configure.in backend/dll.conf.in
 	  backend/Makefile.in backend/rts8891.c backend/rts8891.conf.in
 	  backend/rts8891_devices.c backend/rts8891.h backend/rts8891_low.c
@@ -1943,7 +1947,7 @@
 2008-03-15  Julien Blache <jb@jblache.org>
 	* include/sane/sanei_usb.h: typo fix.
 
-2008-03-02  Stéphane Voltz <stef.dev@free.fr>
+2008-03-02  Stï¿½phane Voltz <stef.dev@free.fr>
 	* doc/descriptions/lexmark.desc: added X1195
 	* doc/descriptions/unsupported.desc: removed X11xx, X12xx and
 	  Dell A920 which are to be handled by the lexmark backend

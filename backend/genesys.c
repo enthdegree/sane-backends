@@ -2752,7 +2752,7 @@ compute_coefficient (unsigned int coeff,
 		     unsigned int target_code, unsigned int val)
 {
   if (val <= 0)
-    return 65535;
+    return 0;
 
   val = (coeff * target_code) / val;
 
@@ -2796,6 +2796,8 @@ compute_coefficients (Genesys_Device * dev,
 	  dk += 256 * dev->dark_average_data[(x + j) * 2 * channels + 1];
 	}
       dk /= j;
+      if (dk > 65535)
+	dk = 65535;
       for (j = 0; j < avgpixels; j++)
 	{
 	  ptr[0 + j * 2 * 2 * 3] = dk & 255;
@@ -2810,6 +2812,8 @@ compute_coefficients (Genesys_Device * dev,
 	      dk += 256 * dev->dark_average_data[(x + j) * 2 * channels + 3];
 	    }
 	  dk /= j;
+	  if (dk > 65535)
+	    dk = 65535;
 	  for (j = 0; j < avgpixels; j++)
 	    {
 	      ptr[4 + j * 2 * 2 * 3] = dk & 255;
@@ -2822,6 +2826,8 @@ compute_coefficients (Genesys_Device * dev,
 	      dk += 256 * dev->dark_average_data[(x + j) * 2 * channels + 5];
 	    }
 	  dk /= j;
+	  if (dk > 65535)
+	    dk = 65535;
 	  for (j = 0; j < avgpixels; j++)
 	    {
 	      ptr[8 + j * 2 * 2 * 3] = dk & 255;
@@ -2967,30 +2973,22 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       memset (shading_data, 0x00, pixels_per_line * 4 * channels);
       o = 4;
       avgpixels = 1;
-      compute_coefficients(dev,
-			shading_data,
-		        pixels_per_line,
-		        channels,
-			avgpixels,
-			o,
-			coeff,
-			target_code);
+      compute_coefficients (dev,
+			    shading_data,
+			    pixels_per_line,
+			    channels, avgpixels, o, coeff, target_code);
       break;
     case CCD_HP2300:
     case CCD_HP2400:
     case CCD_HP3670:
       target_code = 0xfa00;
       memset (shading_data, 0x00, pixels_per_line * 4 * channels);
-      o=2;
+      o = 2;
       avgpixels = 1;
-      compute_coefficients(dev,
-			shading_data,
-		        pixels_per_line,
-		        channels,
-			avgpixels,
-			o,
-			coeff,
-			target_code);
+      compute_coefficients (dev,
+			    shading_data,
+			    pixels_per_line,
+			    channels, avgpixels, o, coeff, target_code);
       break;
     case CCD_CANONLIDE35:
       target_bright = 0xfa00;
@@ -3028,8 +3026,8 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       /* duplicate half-ccd logic */
       res = dev->settings.xres;
       if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE) &&
-	  dev->settings.xres <= dev->sensor.optical_res/2)
-	res *= 2;/* scanner is using half-ccd mode */
+	  dev->settings.xres <= dev->sensor.optical_res / 2)
+	res *= 2;		/* scanner is using half-ccd mode */
       /*this should be evenly dividable */
       avgpixels = dev->sensor.optical_res / res;
 

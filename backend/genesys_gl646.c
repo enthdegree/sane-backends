@@ -1135,7 +1135,7 @@ get_closest_resolution (int sensor, int required, SANE_Bool color)
 	       required);
 	  return required;
 	}
-      /* computes distance and kepm ode is closest than previous */
+      /* computes distance and keep mode if it is closer than previous */
       if (sensor == sensor_master[i].sensor
 	  && sensor_master[i].color == color)
 	{
@@ -1150,6 +1150,38 @@ get_closest_resolution (int sensor, int required, SANE_Bool color)
   DBG (DBG_info, "get_closest_resolution: closest match for %d is %d\n",
        required, dpi);
   return dpi;
+}
+
+/**
+ * Computes if sensor will be set up for half ccd pixels for the given
+ * scan mode.
+ * @param sensor id of the sensor
+ * @param required required resolution
+ * @param color true is color mode
+ * @return SANE_TRUE if half ccd is used
+ */
+static SANE_Bool
+is_half_ccd (int sensor, int required, SANE_Bool color)
+{
+  int i, nb;
+
+  i = 0;
+  nb = sizeof (sensor_master) / sizeof (Sensor_Master);
+  while (sensor_master[i].sensor != -1 && i < nb)
+    {
+      /* exit on perfect match */
+      if (sensor == sensor_master[i].sensor
+	  && sensor_master[i].dpi == required
+	  && sensor_master[i].color == color)
+	{
+	  DBG (DBG_io, "is_half_ccd: match found for %d (half_ccd=%d)\n",
+	       required,sensor_master[i].half_ccd);
+	  return sensor_master[i].half_ccd;
+	}
+      i++;
+    }
+  DBG (DBG_info, "is_half_ccd: failed to find match for %d dpi\n", required);
+  return SANE_FALSE;
 }
 
 /**
@@ -3386,7 +3418,7 @@ gl646_init_regs_for_coarse_calibration (Genesys_Device * dev)
  * init registers for shading calibration
  * we assume that scanner's head is on an area suiting shading calibration.
  * We scan a full scan width area by the shading line number for the device
- * at eihter at full sensor's resolution or half depending upon half_ccd
+ * at either at full sensor's resolution or half depending upon half_ccd
  * @param dev scanner's device
  * @return SANE_STATUS_GOOD if success, else error code
  */
@@ -3400,14 +3432,15 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
   DBG (DBG_proc, "gl646_init_register_for_shading: start\n");
 
-  /* when shading all line, we must adapt to half_ccd case */
-  if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE)
-      && (dev->settings.xres <= dev->sensor.optical_res / 2))
+  /* when shading all (full width) line, we must adapt to half_ccd case */
+  if (dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE)
     {
-      /* we are going to use half the pixel number */
-      half_ccd = 2;
+      /* walk the master mode list to find if half_ccd */
+      if (is_half_ccd (dev->model->ccd_type, dev->settings.xres, SANE_TRUE) == SANE_TRUE)
+	{
+	  half_ccd = 2;
+	}
     }
-
 
   /* fill settings for scan */
   settings.scan_method = SCAN_METHOD_FLATBED;

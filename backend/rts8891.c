@@ -118,7 +118,7 @@
 
 /* #define FAST_INIT 1 */
 
-#define BUILD 20
+#define BUILD 30
 
 #define MOVE_DPI 100
 
@@ -1115,11 +1115,15 @@ sane_start (SANE_Handle handle)
       if ((current.tv_sec - dev->start_time.tv_sec) < 15)
 	{
 #ifdef SANE_STATUS_WARMING_UP
+	  if (dev->conf.allowsharing == SANE_TRUE)
+	    {
+	      sanei_usb_release_interface (dev->devnum, 0);
+	    }
 	  return SANE_STATUS_WARMING_UP;
 #else
           DBG (DBG_info,
 	   "sane_start: waiting to let lamp get warm enough ...\n");
-          sleep(current.tv_sec - dev->start_time.tv_sec);
+          sleep(15 - (current.tv_sec - dev->start_time.tv_sec));
 #endif
 	}
 #else
@@ -2254,8 +2258,8 @@ probe_rts8891_devices (void)
 
   DBG (DBG_proc, "probe_rts8891_devices: start\n");
 
-  /* sharing is on by default and no model option */
-  rtscfg.allowsharing = SANE_TRUE;
+  /* sharing is off by default and no model option */
+  rtscfg.allowsharing = SANE_FALSE;
   rtscfg.modelnumber = -1;
   rtscfg.sensornumber = -1;
 

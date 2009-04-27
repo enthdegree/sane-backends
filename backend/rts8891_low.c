@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2007-2008 stef.dev@free.fr
+   Copyright (C) 2007-2009 stef.dev@free.fr
    
    This file is part of the SANE package.
    
@@ -57,7 +57,7 @@
 #endif
 #include "rts8891_low.h"
 
-#define RTS8891_BUILD           12
+#define RTS8891_BUILD           30
 #define RTS8891_MAX_REGISTERS	244
 
 /* init rts8891 library */

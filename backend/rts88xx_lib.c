@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2007-2008 stef.dev@free.fr
+   Copyright (C) 2007-2009 stef.dev@free.fr
 
    This file is part of the SANE package.
 
@@ -57,7 +57,7 @@
 
 #include "_stdint.h"
 
-#define RTS88XX_LIB_BUILD 5
+#define RTS88XX_LIB_BUILD 30
 
 /* init rts88xx library */
 void

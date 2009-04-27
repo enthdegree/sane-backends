@@ -1,4 +1,10 @@
 2009-04-27  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts8891.h backend/rts8891_devices.c
+	  backend/rts8891_low.c backend/rts8891_low.h backend/rts88xx_lib.c
+	  backend/rts88xx_lib.h: turn off scanner sharing option to off by default
+	  to keep on the safe side, copyright and internal version updates.
+
+2009-04-27  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c:
 	shading calibration fixes for HP2300	
 

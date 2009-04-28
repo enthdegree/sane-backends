@@ -220,6 +220,10 @@
 # define USE STUBBED_INTERFACE
 #endif
 
+#if USE == LINUX_INTERFACE
+# include <dirent.h>
+#endif
+
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_scsi.h"
@@ -2681,13 +2685,13 @@ issue (struct req *req)
     return 0;
   }
 
-  void				/* calls 'attach' function pointer with sg device file name iff match */
-   
-    sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
-			     const char *findtype,
-			     int findbus, int findchannel, int findid,
-			     int findlun,
-			     SANE_Status (*attach) (const char *dev))
+/* Legacy /proc/scsi/scsi */
+static void /* calls 'attach' function pointer with sg device file name iff match */
+sanei_proc_scsi_find_devices (const char *findvendor, const char *findmodel,
+			      const char *findtype,
+			      int findbus, int findchannel, int findid,
+			      int findlun,
+			      SANE_Status (*attach) (const char *dev))
   {
 #define FOUND_VENDOR  1
 #define FOUND_MODEL   2
@@ -2698,6 +2702,8 @@ issue (struct req *req)
 #define FOUND_ID      64
 #define FOUND_LUN     128
 #define FOUND_ALL     255
+
+    char *me = "sanei_proc_scsi_find_devices";
 
     size_t findvendor_len = 0, findmodel_len = 0, findtype_len = 0;
     char vendor[32], model[32], type[32], revision[32];
@@ -2786,7 +2792,7 @@ issue (struct req *req)
     proc_fp = fopen (PROCFILE, "r");
     if (!proc_fp)
       {
-	DBG (1, "could not open %s for reading\n", PROCFILE);
+	DBG (1, "%s: could not open %s for reading\n", me, PROCFILE);
 	return;
       }
 
@@ -2875,9 +2881,10 @@ issue (struct req *req)
 	    && (findid == -1 || id == findid)
 	    && (findlun == -1 || lun == findlun))
 	  {
-	    DBG (2, "sanei_scsi_find_devices: vendor=%s model=%s type=%s\n\t"
-		 "bus=%d chan=%d id=%d lun=%d  num=%d\n", findvendor,
-		 findmodel, findtype, bus, channel, id, lun, number);
+	    DBG (2, "%s: found: vendor=%s model=%s type=%s\n\t"
+		 "bus=%d chan=%d id=%d lun=%d num=%d\n",
+		 me, findvendor, findmodel, findtype,
+		 bus, channel, id, lun, number);
 	    if (lx_chk_devicename (number, dev_name, sizeof (dev_name), bus,
 				   channel, id, lun)
 		&& ((*attach) (dev_name) != SANE_STATUS_GOOD))
@@ -2885,10 +2892,260 @@ issue (struct req *req)
 		DBG(1,"sanei_scsi_find_devices: bad attach\n");
 	      }
 	  }
+	else
+	  {
+	    DBG (2, "%s: no match\n", me);
+	  }
 	vendor[0] = model[0] = type[0] = 0;
 	bus = channel = id = lun = -1;
       }
     fclose (proc_fp);
+  }
+
+#define SYSFS_SCSI_DEVICES "/sys/bus/scsi/devices"
+
+/* From linux/drivers/scsi/scsi.c */
+static char *lnxscsi_device_types[] = {
+  "Direct-Access    ",
+  "Sequential-Access",
+  "Printer          ",
+  "Processor        ",
+  "WORM             ",
+  "CD-ROM           ",
+  "Scanner          ",
+  "Optical Device   ",
+  "Medium Changer   ",
+  "Communications   ",
+  "ASC IT8          ",
+  "ASC IT8          ",
+  "RAID             ",
+  "Enclosure        ",
+  "Direct-Access-RBC",
+  "Optical card     ",
+  "Bridge controller",
+  "Object storage   ",
+  "Automation/Drive "
+};
+
+void /* calls 'attach' function pointer with sg device file name iff match */
+sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
+			 const char *findtype,
+			 int findbus, int findchannel, int findid,
+			 int findlun,
+			 SANE_Status (*attach) (const char *dev))
+  {
+    char *me = "sanei_scsi_find_devices";
+    char path[PATH_MAX];
+    char dev_name[128];
+    struct dirent buf;
+    struct dirent *de;
+    DIR *scsidevs;
+    FILE *fp;
+    char *ptr;
+    char *end;
+    int bcil[4]; /* bus, channel, id, lun */
+    char vmt[3][33]; /* vendor, model, type */
+    int vmt_len[3];
+    char *vmtfiles[3] = { "vendor", "model", "type" };
+    int lastbus;
+    int number;
+    int i;
+    long val;
+    int ret;
+
+    DBG_INIT ();
+
+    DBG (2, "%s: looking for: v=%s m=%s t=%s b=%d c=%d i=%d l=%d\n",
+	 me, findvendor, findmodel, findtype,
+	 findbus, findchannel, findid, findlun);
+
+    scsidevs = opendir (SYSFS_SCSI_DEVICES);
+    if (!scsidevs)
+      {
+	DBG (1, "%s: could not open %s; falling back to /proc\n",
+	     me, SYSFS_SCSI_DEVICES);
+
+	sanei_proc_scsi_find_devices (findvendor, findmodel, findtype,
+				      findbus, findchannel, findid, findlun,
+				      attach);
+	return;
+      }
+
+    vmt_len[0] = (findvendor) ? strlen(findvendor) : 0;
+    vmt_len[1] = (findmodel) ? strlen(findmodel) : 0;
+    vmt_len[2] = (findtype) ? strlen(findtype) : 0;
+
+    lastbus = -1;
+    number = -1;
+    for (;;)
+      {
+	ret = readdir_r(scsidevs, &buf, &de);
+	if (ret != 0)
+	  {
+	    DBG (1, "%s: could not read directory %s: %s\n",
+		 me, SYSFS_SCSI_DEVICES, strerror(errno));
+
+	    break;
+	  }
+
+	if (de == NULL)
+	  break;
+
+	if (buf.d_name[0] == '.')
+	  continue;
+
+	/* Extract bus, channel, id, lun from directory name b:c:i:l */
+	ptr = buf.d_name;
+	for (i = 0; i < 4; i++)
+	  {
+	    errno = 0;
+	    val = strtol (ptr, &end, 10);
+	    if (((errno == ERANGE) && ((val == LONG_MAX) || (val == LONG_MIN)))
+		|| ((errno != 0) && (val == 0)))
+	      {
+		DBG (1, "%s: invalid integer in string (%s): %s\n",
+		     me, ptr, strerror(errno));
+
+		i = 12; /* Skip */
+		break;
+	      }
+
+	    if (end == ptr)
+	      {
+		DBG (1, "%s: no integer found in string: %s (%d)\n", me, ptr, i);
+
+		i = 12; /* Skip */
+		break;
+	      }
+
+	    if (*end && (*end != ':'))
+	      {
+		DBG (1, "%s: parse error on string %s (%d)\n", me, buf.d_name, i);
+
+		i = 12; /* Skip */
+		break;
+	      }
+
+	    if (val > INT_MAX)
+	      {
+		DBG (1, "%s: integer value too large (%s)\n", me, buf.d_name);
+
+		i = 12; /* Skip */
+		break;
+	      }
+
+	    bcil[i] = (int) val;
+	    ptr = end + 1;
+	  }
+
+	/* Skip this one */
+	if (i == 12)
+	  continue;
+
+	if (bcil[0] != lastbus)
+	  {
+	    lastbus = bcil[0];
+	    number++;
+	  }
+
+	for (i = 0; i < 3; i++)
+	  {
+	    ret = snprintf (path, PATH_MAX, "%s/%s/%s",
+			   SYSFS_SCSI_DEVICES, buf.d_name, vmtfiles[i]);
+	    if ((ret < 0) || (ret >= PATH_MAX))
+	      {
+		DBG (1, "%s: skipping %s/%s, PATH_MAX exceeded on %s\n",
+		     me, SYSFS_SCSI_DEVICES, buf.d_name, vmtfiles[i]);
+
+		i = 12; /* Skip */
+		break;
+	      }
+
+	    memset (vmt[i], 0, sizeof(vmt[i]));
+
+	    fp = fopen(path, "r");
+	    if (!fp)
+	      {
+		DBG (1, "%s: could not open %s: %s\n", me, path, strerror(errno));
+
+		i = 12; /* Skip */
+		break;
+	      }
+
+	    ret = fread (vmt[i], 1, sizeof(vmt[i]) - 1, fp);
+	    if (ret <= 0)
+	      {
+		if (ferror(fp))
+		  {
+		    DBG (1, "%s: error reading %s\n", me, path);
+
+		    i = 12; /* Skip */
+		    break;
+		  }
+	      }
+
+	    if (vmt[i][ret - 1] == '\n')
+	      vmt[i][ret - 1] = '\0';
+
+	    fclose (fp);
+	  }
+
+	/* Skip this one */
+	if (i == 12)
+	  continue;
+
+	/* Type is a numeric string and must be converted back to a well-known string */
+	errno = 0;
+	val = strtol (vmt[2], &end, 10);
+	if (((errno == ERANGE) && ((val == LONG_MAX) || (val == LONG_MIN)))
+	    || ((errno != 0) && (val == 0)))
+	  {
+	    DBG (1, "%s: invalid integer in type string (%s): %s\n",
+		 me, vmt[2], strerror(errno));
+	    continue;
+	  }
+
+	if (end == vmt[2])
+	  {
+	    DBG (1, "%s: no integer found in type string: %s\n", me, vmt[2]);
+	    continue;
+	  }
+
+	if ((val < 0) || (val >= (int)(sizeof(lnxscsi_device_types) / sizeof(lnxscsi_device_types[0]))))
+	  {
+	    DBG (1, "%s: invalid type %ld\n", me, val);
+	    continue;
+	  }
+
+	strncpy(vmt[2], lnxscsi_device_types[val], sizeof(vmt[2]) - 1);
+
+	if ((!findvendor || strncmp (vmt[0], findvendor, vmt_len[0]) == 0)
+	    && (!findmodel || strncmp (vmt[1], findmodel, vmt_len[1]) == 0)
+	    && (!findtype || strncmp (vmt[2], findtype, vmt_len[2]) == 0)
+	    && (findbus == -1 || bcil[0] == findbus)
+	    && (findchannel == -1 || bcil[1] == findchannel)
+	    && (findid == -1 || bcil[2] == findid)
+	    && (findlun == -1 || bcil[3] == findlun))
+	  {
+	    DBG (2, "%s: found: vendor=%s model=%s type=%s\n\t"
+		 "bus=%d chan=%d id=%d lun=%d num=%d\n",
+		 me, vmt[0], vmt[1], vmt[2],
+		 bcil[0], bcil[1], bcil[2], bcil[3], number);
+
+	    if (lx_chk_devicename (number, dev_name, sizeof (dev_name),
+				   bcil[0], bcil[1], bcil[2], bcil[3])
+		&& ((*attach) (dev_name) != SANE_STATUS_GOOD))
+	      {
+		DBG (1, "%s: bad attach\n", me);
+	      }
+	  }
+	else
+	  {
+	    DBG (2, "%s: no match\n", me);
+	  }
+      }
+
+    closedir(scsidevs);
   }
 
 #endif /* USE == LINUX_INTERFACE */

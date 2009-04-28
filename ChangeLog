@@ -1,3 +1,9 @@
+2009-04-28 Julien Blache <jb@jblache.org>
+	* sanei/sanei_scsi.c: /proc/scsi is being deprecated in the Linux
+	kernel; use sysfs for SCSI device enumeration in
+	sanei_scsi_find_devices() by default, keep
+	sanei_proc_scsi_find_devices() as a fallback option.
+
 2009-04-27  Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/plustek-usbdevs.c:
 	  Tweaked highspeed settings for Epson 1260

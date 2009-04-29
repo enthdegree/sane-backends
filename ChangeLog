@@ -1,3 +1,7 @@
+2009-04-29  Stéphane Voltz <stef.dev@free.fr>
+	* doc/sane-genesys.man doc/sane-rts8891.man: documentation updates and
+	  cleanups
+
 2009-04-28 Julien Blache <jb@jblache.org>
 	* sanei/sanei_scsi.c: /proc/scsi is being deprecated in the Linux
 	kernel; use sysfs for SCSI device enumeration in

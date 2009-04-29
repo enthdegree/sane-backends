@@ -15,6 +15,8 @@ Medion MD6228
 Medion MD6274
 .br 
 Hewlett-Packard HP2300C
+.br 
+Visioneer Strobe XP200
 .br
 Canon LiDE 35/40/50/60
 .RE
@@ -108,6 +110,11 @@ export SANE_DEBUG_GENESYS=255
 .br
 export SANE_DEBUG_GENESYS_GL646=255
 
+.SH CREDITS
+  
+Jack McGill for donating several sheetfed scanners, which made possible to add support
+for them in the genesys backend.
+
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-usb (5)
@@ -129,9 +136,10 @@ Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 .br
 
 .SH "LIMITATIONS"
-Support for buttons is missing.
-.br
+
 Powersaving isn't implemented for gl646 based scanner.
+.br
+Calibration for sheetfed scanners isn't implemented yet.
 .br
 
 .SH "BUGS"

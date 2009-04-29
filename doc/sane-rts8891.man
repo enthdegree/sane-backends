@@ -88,7 +88,7 @@ contains the usb device ids of supported scanners (eg usb 0x043d 0x007c) and sca
 Empty lines and lines starting with a hash mark (#) are
 ignored.
 .PP 
-The two options supported are
+The options supported are
 .B allowsharing
 ,
 .B modelnumber 
@@ -135,7 +135,7 @@ reduce verbosity.
 Scanners of the same model exist with different sensors, due to lack of data
 (ie USB logs) some sensors are better supported than others. At least 75 dpi
 mode is working for any model. Sharing the a scanner between several frontends
-at the same time may not work on some USB controllers.
+at the same time (allowsharing option) may not work on some USB controllers.
 .PP
 XPA is no (yet) supported.
 .SH "BUGS"

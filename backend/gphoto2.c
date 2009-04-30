@@ -728,13 +728,21 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 		}
 	      for (n = 0; n < entries; n++)
 		{
+#ifdef HAVE_GP_PORT_INFO_GET_PATH
+		  char *info_path = NULL;
+#endif
 		  result = gp_port_info_list_get_info (list, n, &info);
 		  if (result < 0)
 		    {
 		      gp_port_info_list_free (list);
 		      return SANE_STATUS_INVAL;
 		    }
+#ifdef HAVE_GP_PORT_INFO_GET_PATH
+		  gp_port_info_get_path (info, &info_path);
+		  if (strcmp (Cam_data.port, info_path) == 0)
+#else
 		  if (strcmp (Cam_data.port, info.path) == 0)
+#endif
 		    {
 		      break;
 		    }

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: sane-backends.nl\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-04-29 21:03-0400\n"
-"PO-Revision-Date: 2009-04-29 18:51+0200\n"
+"PO-Revision-Date: 2009-04-30 11:29+0200\n"
 "Last-Translator: Martin Kho <mkho@xs4all.nl>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -1232,20 +1232,18 @@ msgstr ""
 "De lamp wordt uitgeschakeld na de opgegeven tijd (in minuten). Een "
 "waarde van 0 betekent, dat de lamp niet wordt uitgeschakeld."
 
-#: .tmp/genesys.c:5128 .tmp/genesys.c:5129
-#, fuzzy, no-c-format
+#: .tmp/genesys.c:5128 .tmp/genesys.c:5129, no-c-format
 msgid "File button"
-msgstr "Wacht op een druk op de knop"
+msgstr "Bestand-knop"
 
 #: .tmp/genesys.c:5181 .tmp/genesys.c:5182
 #, no-c-format
 msgid "OCR button"
-msgstr ""
+msgstr "OCR-knop"
 
-#: .tmp/genesys.c:5195 .tmp/genesys.c:5196
-#, fuzzy, no-c-format
+#: .tmp/genesys.c:5195 .tmp/genesys.c:5196, no-c-format
 msgid "Power button"
-msgstr "Wacht op een druk op de knop"
+msgstr "Power-knop"
 
 #: .tmp/genesys.c:5209 .tmp/genesys.c:5210 .tmp/pixma_sane_options.c:210
 #: .tmp/plustek.c:1079
@@ -1259,20 +1257,17 @@ msgstr "Knoppen"
 msgid "Calibrate"
 msgstr "Kalibreren"
 
-#: .tmp/genesys.c:5217
-#, fuzzy, no-c-format
+#: .tmp/genesys.c:5217, no-c-format
 msgid "Start calibration using special sheet"
-msgstr "Begin het kalibreer proces"
+msgstr "Gebruik een speciale transparant voor het kalibreer proces"
 
-#: .tmp/genesys.c:5229
-#, fuzzy, no-c-format
+#: .tmp/genesys.c:5229, no-c-format
 msgid "Clear calibration"
-msgstr "Grof kalibreren"
+msgstr "Reset kalibratie"
 
-#: .tmp/genesys.c:5230
-#, fuzzy, no-c-format
+#: .tmp/genesys.c:5230, no-c-format
 msgid "Clear calibration cache"
-msgstr "Kalibratie gegevensbewaarplaats"
+msgstr "Reset kalibratiecache"
 
 #: .tmp/gt68xx.c:474
 #, no-c-format
@@ -1807,7 +1802,7 @@ msgstr ""
 #: .tmp/hp3900_sane.c:1515
 #, no-c-format
 msgid "Save debugging images"
-msgstr "Bewaar testbeelden"
+msgstr "Bewaar foutzoekbeelden"
 
 #: .tmp/hp3900_sane.c:1518
 #, no-c-format
@@ -2786,12 +2781,12 @@ msgstr "Schakel altijd de lamp uit tijdens donker kalibreren."
 #: .tmp/plustek.c:934
 #, no-c-format
 msgid "Calibration data cache"
-msgstr "Kalibratie gegevensbewaarplaats"
+msgstr "Kalibratie gegevenscache"
 
 #: .tmp/plustek.c:935
 #, no-c-format
 msgid "Enables or disables calibration data cache."
-msgstr "Schakelt kalibratie gegevensbewaarplaats in/uit"
+msgstr "Schakelt kalibratiecache in/uit"
 
 #: .tmp/plustek.c:941
 #, no-c-format
@@ -2801,12 +2796,11 @@ msgstr "Voert kalibratie uit"
 #: .tmp/plustek.c:958
 #, no-c-format
 msgid "Speedup sensor"
-msgstr "Sensor versnelling"
+msgstr "Snellere sensor beweging"
 
-#: .tmp/plustek.c:959
-#, fuzzy, no-c-format
+#: .tmp/plustek.c:959, no-c-format
 msgid "Enables or disables speeding up sensor movement."
-msgstr "Schakelt versnelde sensor beweging in/uit"
+msgstr "Schakelt snellere sensor beweging in/uit"
 
 #: .tmp/plustek.c:973
 #, no-c-format
@@ -2828,10 +2822,9 @@ msgstr "Lamp uit tijd"
 msgid "Lampoff-time in seconds."
 msgstr "Lamp uit tijd in seconden."
 
-#: .tmp/plustek.c:994
-#, fuzzy, no-c-format
+#: .tmp/plustek.c:994, no-c-format
 msgid "Analog frontend"
-msgstr "Analoge frontend"
+msgstr "Analoge \"frontend\""
 
 #: .tmp/plustek.c:1001
 #, no-c-format
@@ -2886,7 +2879,7 @@ msgstr "Rode lamp uit"
 #: .tmp/plustek.c:1049
 #, no-c-format
 msgid "Defines red lamp off parameter"
-msgstr "Definieert de rode lamp uit parameter"
+msgstr "Bepaalt de rode lamp uit parameter"
 
 #: .tmp/plustek.c:1056
 #, no-c-format
@@ -2896,7 +2889,7 @@ msgstr "Groene lamp uit"
 #: .tmp/plustek.c:1057
 #, no-c-format
 msgid "Defines green lamp off parameter"
-msgstr "Definieert de groene lamp uit parameter"
+msgstr "Bepaalt de groene lamp uit parameter"
 
 #: .tmp/plustek.c:1064
 #, no-c-format
@@ -2906,7 +2899,7 @@ msgstr "Blauwe lamp uit"
 #: .tmp/plustek.c:1065
 #, no-c-format
 msgid "Defines blue lamp off parameter"
-msgstr "Definieert de blauwe lamp uit parameter"
+msgstr "Bepaalt de blauwe lamp uit parameter"
 
 #: .tmp/plustek.c:1095
 #, no-c-format
@@ -3120,10 +3113,9 @@ msgstr ""
 "Dwing de \"backend\", na een aanroep van sane_read() het "
 "statusberichtSANE_STATUS_ACCESS_DENIED terug te geven."
 
-#: .tmp/rts8891.c:2744
-#, fuzzy, no-c-format
+#: .tmp/rts8891.c:2744, no-c-format
 msgid "This option reflects the status of a scanner button."
-msgstr "Deze optie geeft de status weer van de sannerknoppen."
+msgstr "Deze optie geeft de status weer van een scannerknop."
 
 #: .tmp/rts8891.c:2775 .tmp/umax.c:5796 .tmp/umax_pp.c:637
 #, no-c-format
@@ -3148,72 +3140,68 @@ msgstr "Schakelt de scannerlamp uit"
 #: .tmp/sane_strstatus.c:59
 #, no-c-format
 msgid "Success"
-msgstr ""
+msgstr "Succes"
 
-#: .tmp/sane_strstatus.c:62
-#, fuzzy, no-c-format
+#: .tmp/sane_strstatus.c:62, no-c-format
 msgid "Operation not supported"
-msgstr "Halftoon niet ondersteund"
+msgstr "Handeling niet ondersteund"
 
 #: .tmp/sane_strstatus.c:65
 #, no-c-format
 msgid "Operation was cancelled"
-msgstr ""
+msgstr "Handeling was geannuleerd"
 
 #: .tmp/sane_strstatus.c:68
 #, no-c-format
 msgid "Device busy"
-msgstr ""
+msgstr "Apparaat is bezet"
 
 #: .tmp/sane_strstatus.c:71
 #, no-c-format
 msgid "Invalid argument"
-msgstr ""
+msgstr "Ongeldige aanname"
 
 #: .tmp/sane_strstatus.c:74
 #, no-c-format
 msgid "End of file reached"
-msgstr ""
+msgstr "Eind van bestand bereikt"
 
-#: .tmp/sane_strstatus.c:77
-#, fuzzy, no-c-format
+#: .tmp/sane_strstatus.c:77, no-c-format
 msgid "Document feeder jammed"
-msgstr "Extra's van de documentendoorvoer"
+msgstr "Opstopping in documentendoorvoer"
 
-#: .tmp/sane_strstatus.c:80
-#, fuzzy, no-c-format
+#: .tmp/sane_strstatus.c:80, no-c-format
 msgid "Document feeder out of documents"
-msgstr "Extra's van de documentendoorvoer"
+msgstr "Documentendoorvoer leeg"
 
-#: .tmp/sane_strstatus.c:83
-#, fuzzy, no-c-format
+#: .tmp/sane_strstatus.c:83, no-c-format
 msgid "Scanner cover is open"
-msgstr "Deksel van ADF open"
+msgstr "Deksel van de scanner is open"
 
 #: .tmp/sane_strstatus.c:86
 #, no-c-format
 msgid "Error during device I/O"
-msgstr ""
+msgstr "Fout tijdens apparaat I/O"
 
 #: .tmp/sane_strstatus.c:89
 #, no-c-format
 msgid "Out of memory"
-msgstr ""
+msgstr "Geheugen vol"
 
 #: .tmp/sane_strstatus.c:92
 #, no-c-format
 msgid "Access to resource has been denied"
-msgstr ""
+msgstr "Toegang tot bron gewijgerd"
 
 #: .tmp/sane_strstatus.c:96
 #, no-c-format
 msgid "Lamp not ready, please retry"
-msgstr ""
+msgstr "Lamp niet klaar, probeer opnieuw"
 
 #: .tmp/sane_strstatus.c:101
 #, no-c-format
 msgid "Scanner mechanism locked for transport"
-msgstr ""
+msgstr "Scannerwagen geblokkeerd (in transportstand)"
 
 #: .tmp/saneopts.h:154
 #, no-c-format
@@ -3223,12 +3211,12 @@ msgstr "Aantal opties"
 #: .tmp/saneopts.h:156
 #, no-c-format
 msgid "Standard"
-msgstr ""
+msgstr "Standaard"
 
 #: .tmp/saneopts.h:160
 #, no-c-format
 msgid "Sensors"
-msgstr ""
+msgstr "Sensoren"
 
 #: .tmp/saneopts.h:162
 #, no-c-format
@@ -3293,12 +3281,11 @@ msgstr "Y-resolutie"
 #: .tmp/saneopts.h:176
 #, no-c-format
 msgid "Page width"
-msgstr ""
+msgstr "Pagina breedte"
 
-#: .tmp/saneopts.h:177
-#, fuzzy, no-c-format
+#: .tmp/saneopts.h:177, no-c-format
 msgid "Page height"
-msgstr "Contrast"
+msgstr "Pagina hoogte"
 
 #: .tmp/saneopts.h:178
 #, no-c-format
@@ -3563,30 +3550,27 @@ msgid ""
 msgstr ""
 "Alleen-lezen optie, die aangeeft hoeveel opties een apparaat ondersteund."
 
-#: .tmp/saneopts.h:248
-#, fuzzy, no-c-format
+#: .tmp/saneopts.h:248, no-c-format
 msgid "Source, mode and resolution options"
-msgstr "Korte oplossingenlijst"
+msgstr "Opties voor bron, modus en resolutie"
 
 #: .tmp/saneopts.h:249
 #, no-c-format
 msgid "Scan area and media size options"
-msgstr ""
+msgstr "Opties voor scanoppervlak en origineelgrootte"
 
-#: .tmp/saneopts.h:250
-#, fuzzy, no-c-format
+#: .tmp/saneopts.h:250, no-c-format
 msgid "Image modification options"
-msgstr "Aantal opties"
+msgstr "Opties voor beeldaanpassing"
 
-#: .tmp/saneopts.h:251
-#, fuzzy, no-c-format
+#: .tmp/saneopts.h:251, no-c-format
 msgid "Hardware specific options"
-msgstr "hardware resolutie"
+msgstr "Hardware-opties"
 
 #: .tmp/saneopts.h:252
 #, no-c-format
 msgid "Scanner sensors and buttons"
-msgstr ""
+msgstr "Scannersensoren en -knoppen"
 
 #: .tmp/saneopts.h:255
 #, no-c-format
@@ -3675,11 +3659,12 @@ msgid ""
 "Specifies the width of the media.  Required for automatic centering of "
 "sheet-fed scans."
 msgstr ""
+"Bepaalt de breedte van het origineel. Nodig om doorvoerscans automatisch "
+"te kunnen centreren."
 
-#: .tmp/saneopts.h:305
-#, fuzzy, no-c-format
+#: .tmp/saneopts.h:305, no-c-format
 msgid "Specifies the height of the media."
-msgstr "Stelt de resolutie in van het gescande beeld."
+msgstr "Bepaalt de hoogte van het origineel."
 
 #: .tmp/saneopts.h:308
 #, no-c-format
@@ -3972,45 +3957,40 @@ msgstr "Schakelt de keuze van de lichthoeveelheid in"
 msgid "Turn off lamp when program exits"
 msgstr "Schakel de lamp uit als het programma wordt verlaten"
 
-#: .tmp/saneopts.h:444
-#, fuzzy, no-c-format
+#: .tmp/saneopts.h:444, no-c-format
 msgid "Scan button"
-msgstr "Scanresolutie"
+msgstr "Scannerknop"
 
-#: .tmp/saneopts.h:445
-#, fuzzy, no-c-format
+#: .tmp/saneopts.h:445, no-c-format
 msgid "Email button"
-msgstr "Wacht op een druk op de knop"
+msgstr "E-mail-knop"
 
-#: .tmp/saneopts.h:446
-#, fuzzy, no-c-format
+#: .tmp/saneopts.h:446, no-c-format
 msgid "Fax button"
-msgstr "Wacht op een druk op de knop"
+msgstr "Fax-knop"
 
-#: .tmp/saneopts.h:447
-#, fuzzy, no-c-format
+#: .tmp/saneopts.h:447, no-c-format
 msgid "Copy button"
-msgstr "Wacht op een druk op de knop"
+msgstr "Kopieer-knop"
 
 #: .tmp/saneopts.h:448
 #, no-c-format
 msgid "PDF button"
-msgstr ""
+msgstr "PDF-knop"
 
 #: .tmp/saneopts.h:449
 #, no-c-format
 msgid "Cancel button"
-msgstr ""
+msgstr "Annuleer-knop"
 
 #: .tmp/saneopts.h:450
 #, no-c-format
 msgid "Page loaded"
-msgstr ""
+msgstr "Pagina geladen"
 
-#: .tmp/saneopts.h:451
-#, fuzzy, no-c-format
+#: .tmp/saneopts.h:451, no-c-format
 msgid "Cover open"
-msgstr "Deksel van ADF open"
+msgstr "Deksel open"
 
 #: .tmp/sm3840.c:758
 #, no-c-format
@@ -4834,3 +4814,4 @@ msgstr "Stelt het offset in van het groene kanaal"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Stelt het offset in van het blauwe kanaal"
+

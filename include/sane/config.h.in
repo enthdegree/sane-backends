@@ -100,6 +100,9 @@
 /* Define to 1 if you have the `gp_camera_init' function. */
 #undef HAVE_GP_CAMERA_INIT
 
+/* Define to 1 if you have the `gp_port_info_get_path' function. */
+#undef HAVE_GP_PORT_INFO_GET_PATH
+
 /* Define to 1 if you have the `i386_set_ioperm' function. */
 #undef HAVE_I386_SET_IOPERM
 

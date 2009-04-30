@@ -442,6 +442,9 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 	LIBS="${LIBS} ${GPHOTO2_LIBS}"
  	# Make sure we an really use the library
         AC_CHECK_FUNCS(gp_camera_init, HAVE_GPHOTO2=true, HAVE_GPHOTO2=false)
+	if test "${HAVE_GPHOTO2}" = "true"; then
+	  AC_CHECK_FUNCS(gp_port_info_get_path)
+	fi
 	CPPFLAGS="${saved_CPPFLAGS}"
         LIBS="${saved_LIBS}"
       else

@@ -1,4 +1,8 @@
 2009-04-30  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c: ignore errors in scanner_control(),
+	  M3091 has not worked since sane 1.0.19, due to this.
+
+2009-04-30  m. allan noah <kitno455 a t gmail d o t com>
 	* acinclude.m4, backend/gphoto2.c, configure, include/sane/config.h.in:
 	  deal with upcoming gphoto2 interface change (patch by Chris Bagwell)
 	* po/sane-backends.nl.po: updates from Martin Kho

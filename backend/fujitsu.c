@@ -427,6 +427,8 @@
 	 - disable SANE_FRAME_JPEG support (again)
       v93 2009-04-14, MAN (SANE 1.0.20)
          - return cmd status for reads on sensors
+         - ignore errors in scanner_control(),
+           M3091 has not worked since sane 1.0.19, due to this.
 
    SANE FLOW DIAGRAM
 
@@ -5892,15 +5894,13 @@ sane_start (SANE_Handle handle)
       if(s->source == SOURCE_FLATBED){
         ret = scanner_control(s, SC_function_fb);
         if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot control fb\n");
-          return ret;
+          DBG (5, "sane_start: ERROR: cannot control fb, ignoring\n");
         }
       }
       else{
         ret = scanner_control(s, SC_function_adf);
         if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot control adf\n");
-          return ret;
+          DBG (5, "sane_start: ERROR: cannot control adf, ignoring\n");
         }
       }
 
@@ -5928,8 +5928,7 @@ sane_start (SANE_Handle handle)
       /* turn lamp on */
       ret = scanner_control(s, SC_function_lamp_on);
       if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot start lamp\n");
-        return ret;
+        DBG (5, "sane_start: ERROR: cannot start lamp, ignoring\n");
       }
   }
   /* if already running, duplex needs to switch sides */
@@ -6106,7 +6105,7 @@ scanner_control (struct fujitsu *s, int function)
         NULL, NULL
       );
 
-      if(ret == SANE_STATUS_GOOD){
+      if(ret == SANE_STATUS_GOOD || function != SC_function_lamp_on){
         break;
       }
 

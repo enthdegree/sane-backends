@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-17 22:31+0100\n"
+"POT-Creation-Date: 2009-04-29 21:03-0400\n"
 "PO-Revision-Date: 2007-12-17 23:00+0100\n"
 "Last-Translator: Harri Järvi <harri.jarvi@tut.fi>\n"
 "Language-Team: Debian l10n Finnish <debian-l10n-finnish@lists.debian."
@@ -15,54 +15,53 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: .tmp/artec_eplus48u.c:154 .tmp/canon.c:140 .tmp/canon.c:151
-#: .tmp/canon.c:157 .tmp/canon-sane.c:703 .tmp/canon-sane.c:1060
+#: .tmp/artec_eplus48u.c:154 .tmp/canon-sane.c:703 .tmp/canon-sane.c:1060
 #: .tmp/canon-sane.c:1269 .tmp/canon-sane.c:1302 .tmp/canon-sane.c:1398
-#: .tmp/canon-sane.c:1623 .tmp/genesys.c:91 .tmp/hp3900_sane.c:383
-#: .tmp/hp3900_sane.c:1028 .tmp/hp-option.c:2926 .tmp/ma1509.c:101
-#: .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb2.c:109
-#: .tmp/mustek_usb.c:270 .tmp/saneopts.h:395 .tmp/sceptre.h:289
-#: .tmp/sm3840.c:82 .tmp/sm3840.c:339 .tmp/snapscan-options.c:79
-#: .tmp/umax.c:186 .tmp/umax_pp.c:137
+#: .tmp/canon-sane.c:1623 .tmp/canon.c:140 .tmp/canon.c:151
+#: .tmp/canon.c:157 .tmp/hp-option.c:2926 .tmp/hp3900_sane.c:381
+#: .tmp/hp3900_sane.c:1038 .tmp/ma1509.c:101 .tmp/mustek.c:129
+#: .tmp/mustek.c:134 .tmp/mustek_usb.c:270 .tmp/mustek_usb2.c:109
+#: .tmp/saneopts.h:456 .tmp/sceptre.h:289 .tmp/sm3840.c:82
+#: .tmp/sm3840.c:339 .tmp/snapscan-options.c:79 .tmp/umax.c:186
+#: .tmp/umax_pp.c:138
 #, no-c-format
 msgid "Lineart"
 msgstr "Viivapiirros"
 
 #: .tmp/artec_eplus48u.c:155 .tmp/hp-option.c:2928 .tmp/leo.h:261
-#: .tmp/teco1.h:292 .tmp/teco3.h:295 .tmp/umax_pp.c:137
+#: .tmp/teco1.h:292 .tmp/teco3.h:295 .tmp/umax_pp.c:138
 #, no-c-format
 msgid "Grayscale"
 msgstr "Harmaasävy"
 
-#: .tmp/artec_eplus48u.c:156 .tmp/canon.c:141 .tmp/canon.c:146
-#: .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon-sane.c:731
-#: .tmp/canon-sane.c:939 .tmp/canon-sane.c:1075 .tmp/canon-sane.c:1317
-#: .tmp/canon-sane.c:1635 .tmp/canon-sane.c:1740 .tmp/canon-sane.c:2057
-#: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:88
-#: .tmp/hp3900_sane.c:383 .tmp/hp3900_sane.c:1024 .tmp/hp5590.c:86
-#: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101
-#: .tmp/mustek.c:128 .tmp/mustek.c:132 .tmp/mustek_usb.c:268
-#: .tmp/pixma.c:623 .tmp/pixma_sane_options.c:70 .tmp/saneopts.h:393
-#: .tmp/sceptre.h:292 .tmp/sm3840.c:81 .tmp/snapscan-options.c:76
-#: .tmp/teco1.h:293 .tmp/teco3.h:296 .tmp/test.c:124 .tmp/umax.c:191
-#: .tmp/umax_pp.c:137
+#: .tmp/artec_eplus48u.c:156 .tmp/canon-sane.c:731 .tmp/canon-sane.c:939
+#: .tmp/canon-sane.c:1075 .tmp/canon-sane.c:1317 .tmp/canon-sane.c:1635
+#: .tmp/canon-sane.c:1740 .tmp/canon-sane.c:2057 .tmp/canon.c:141
+#: .tmp/canon.c:146 .tmp/canon.c:151 .tmp/canon.c:157 .tmp/epson.c:490
+#: .tmp/epson2.c:201 .tmp/hp-option.c:2929 .tmp/hp3900_sane.c:381
+#: .tmp/hp3900_sane.c:1034 .tmp/hp5590.c:87 .tmp/leo.h:262
+#: .tmp/ma1509.c:101 .tmp/mustek.c:130 .tmp/mustek.c:134
+#: .tmp/mustek_usb.c:268 .tmp/pixma.c:644 .tmp/pixma_sane_options.c:70
+#: .tmp/saneopts.h:454 .tmp/sceptre.h:292 .tmp/sm3840.c:81
+#: .tmp/snapscan-options.c:76 .tmp/teco1.h:293 .tmp/teco3.h:296
+#: .tmp/test.c:126 .tmp/umax.c:191 .tmp/umax_pp.c:138
 #, no-c-format
 msgid "Color"
 msgstr "Väri"
 
-#: .tmp/artec_eplus48u.c:2805 .tmp/canon.c:1482 .tmp/gt68xx.c:665
-#: .tmp/hp-option.c:2952 .tmp/leo.c:871 .tmp/ma1509.c:597
-#: .tmp/matsushita.c:1189 .tmp/microtek2.h:601 .tmp/mustek.c:4405
-#: .tmp/mustek_usb2.c:431 .tmp/mustek_usb.c:353 .tmp/niash.c:756
-#: .tmp/plustek.c:853 .tmp/plustek_pp.c:792 .tmp/sceptre.c:750
-#: .tmp/snapscan-options.c:561 .tmp/stv680.c:1067 .tmp/teco1.c:1143
-#: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/u12.c:592 .tmp/umax.c:5224
-#: .tmp/umax_pp.c:550
+#: .tmp/artec_eplus48u.c:2805 .tmp/canon.c:1482 .tmp/genesys.c:5002
+#: .tmp/gt68xx.c:667 .tmp/hp-option.c:2952 .tmp/leo.c:871
+#: .tmp/ma1509.c:597 .tmp/matsushita.c:1189 .tmp/microtek2.h:601
+#: .tmp/mustek.c:4407 .tmp/mustek_usb.c:353 .tmp/mustek_usb2.c:431
+#: .tmp/niash.c:756 .tmp/plustek.c:853 .tmp/plustek_pp.c:792
+#: .tmp/saneopts.h:158 .tmp/sceptre.c:750 .tmp/snapscan-options.c:561
+#: .tmp/stv680.c:1067 .tmp/teco1.c:1143 .tmp/teco2.c:1962 .tmp/teco3.c:968
+#: .tmp/u12.c:592 .tmp/umax.c:5227 .tmp/umax_pp.c:627
 #, no-c-format
 msgid "Enhancement"
 msgstr "Parannus"
 
-#: .tmp/artec_eplus48u.c:2874 .tmp/pnm.c:276
+#: .tmp/artec_eplus48u.c:2874 .tmp/pnm.c:282
 #, no-c-format
 msgid "Defaults"
 msgstr "Oletukset"
@@ -72,15 +71,15 @@ msgstr "Oletukset"
 msgid "Set default values for enhancement controls."
 msgstr "Aseta oletusasetukset parantimille."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2086 .tmp/epson.c:3288
-#: .tmp/genesys.c:4688 .tmp/gt68xx.c:696 .tmp/hp3500.c:976
-#: .tmp/hp3900_sane.c:1243 .tmp/hp-option.c:3296 .tmp/leo.c:823
-#: .tmp/lexmark.c:214 .tmp/ma1509.c:549 .tmp/matsushita.c:1135
-#: .tmp/microtek2.h:600 .tmp/mustek.c:4357 .tmp/mustek_usb2.c:465
-#: .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144 .tmp/plustek.c:807
-#: .tmp/plustek_pp.c:746 .tmp/sceptre.c:702 .tmp/snapscan-options.c:494
-#: .tmp/teco1.c:1095 .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:642
-#: .tmp/u12.c:546 .tmp/umax.c:5174 .tmp/umax_pp.c:501
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3288 .tmp/epson2.c:2149
+#: .tmp/genesys.c:4951 .tmp/gt68xx.c:698 .tmp/hp-option.c:3296
+#: .tmp/hp3500.c:976 .tmp/leo.c:823 .tmp/lexmark.c:214 .tmp/ma1509.c:549
+#: .tmp/matsushita.c:1135 .tmp/microtek2.h:600 .tmp/mustek.c:4359
+#: .tmp/mustek_usb.c:305 .tmp/mustek_usb2.c:465
+#: .tmp/pixma_sane_options.c:144 .tmp/plustek.c:807 .tmp/plustek_pp.c:746
+#: .tmp/saneopts.h:157 .tmp/sceptre.c:702 .tmp/snapscan-options.c:494
+#: .tmp/teco1.c:1095 .tmp/teco2.c:1914 .tmp/teco3.c:920 .tmp/test.c:646
+#: .tmp/u12.c:546 .tmp/umax.c:5177 .tmp/umax_pp.c:578
 #, no-c-format
 msgid "Geometry"
 msgstr "Geometria"
@@ -125,120 +124,79 @@ msgstr ""
 msgid "Button state"
 msgstr "Painikkeen tila"
 
-#: .tmp/avision.h:760
+#: .tmp/avision.h:766
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Luettavan kehyksen numero"
 
-#: .tmp/avision.h:761
+#: .tmp/avision.h:767
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Valitsee luettavan kehyksen numeron"
 
-#: .tmp/avision.h:764
+#: .tmp/avision.h:770
 #, fuzzy, no-c-format
 msgid "Duplex scan"
 msgstr "Kaksipuolinen"
 
-#: .tmp/avision.h:765
+#: .tmp/avision.h:771
 #, no-c-format
 msgid ""
 "Duplex scan provide a scan of the front and back side of the document"
 msgstr ""
 
-#: .tmp/canon630u.c:158
+#: .tmp/canon-sane.c:674 .tmp/canon.c:163
 #, no-c-format
-msgid "Calibrate Scanner"
-msgstr "Kalibroi kuvanlukija"
+msgid "Correction according to transparency ratio"
+msgstr ""
 
-#: .tmp/canon630u.c:159
+#: .tmp/canon-sane.c:680 .tmp/canon.c:162
 #, no-c-format
-msgid "Force scanner calibration before scan"
-msgstr "Pakottaa kalibroinnin ennen kuvanlukua."
+msgid "Correction according to film type"
+msgstr ""
 
-#: .tmp/canon630u.c:258 .tmp/umax1220u.c:208
-#, no-c-format
-msgid "Grayscale scan"
-msgstr "Harmaasävy"
-
-#: .tmp/canon630u.c:259 .tmp/umax1220u.c:209
-#, no-c-format
-msgid "Do a grayscale rather than color scan"
-msgstr "Lue harmaasävykuva värikuvan sijaan"
-
-#: .tmp/canon630u.c:305
-#, no-c-format
-msgid "Analog Gain"
-msgstr "Analoginen vahvistus"
-
-#: .tmp/canon630u.c:306
-#, no-c-format
-msgid "Increase or decrease the analog gain of the CCD array"
-msgstr "Kasvattaa tai vähentää analogista vahvistusta CCD-kennossa."
-
-#: .tmp/canon630u.c:346 .tmp/epson2.h:64 .tmp/epson.h:68
-#, no-c-format
-msgid "Gamma Correction"
-msgstr "Gamma-korjaus"
-
-#: .tmp/canon630u.c:347
-#, no-c-format
-msgid "Selects the gamma corrected transfer curve"
-msgstr "Valitsee gamma-korjauskäyrän"
-
-#: .tmp/canon.c:140 .tmp/canon-sane.c:704 .tmp/canon-sane.c:1061
-#: .tmp/canon-sane.c:1270 .tmp/canon-sane.c:1307 .tmp/hp-option.c:2927
-#: .tmp/mustek.c:127 .tmp/plustek_pp.c:182 .tmp/plustek_pp.c:191
+#: .tmp/canon-sane.c:704 .tmp/canon-sane.c:1061 .tmp/canon-sane.c:1270
+#: .tmp/canon-sane.c:1307 .tmp/canon.c:140 .tmp/hp-option.c:2927
+#: .tmp/mustek.c:129 .tmp/plustek_pp.c:182 .tmp/plustek_pp.c:191
 #: .tmp/sceptre.h:290 .tmp/sm3840.c:82 .tmp/sm3840.c:337
 #: .tmp/snapscan-options.c:77 .tmp/umax.c:187
 #, no-c-format
 msgid "Halftone"
 msgstr "Rasteri"
 
-#: .tmp/canon.c:140 .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon.c:566
+#: .tmp/canon-sane.c:732 .tmp/canon-sane.c:940 .tmp/canon-sane.c:1076
+#: .tmp/canon-sane.c:1318 .tmp/canon-sane.c:1487 .tmp/canon-sane.c:1636
+#: .tmp/canon.c:152
+#, no-c-format
+msgid "Fine color"
+msgstr ""
+
+#: .tmp/canon-sane.c:776 .tmp/canon.c:168
+#, fuzzy, no-c-format
+msgid "Negatives"
+msgstr "Negatiivi"
+
 #: .tmp/canon-sane.c:937 .tmp/canon-sane.c:1069 .tmp/canon-sane.c:1312
-#: .tmp/canon-sane.c:1633 .tmp/canon-sane.c:2070 .tmp/epson2.c:194
-#: .tmp/epson.c:489 .tmp/genesys.c:89 .tmp/hp3900_sane.c:383
-#: .tmp/hp3900_sane.c:1026 .tmp/ma1509.c:101 .tmp/mustek.c:127
-#: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/pixma.c:626
-#: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81
-#: .tmp/sm3840.c:335 .tmp/snapscan-options.c:78 .tmp/test.c:124
-#: .tmp/umax.c:188
+#: .tmp/canon-sane.c:1633 .tmp/canon-sane.c:2070 .tmp/canon.c:140
+#: .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon.c:566 .tmp/epson.c:489
+#: .tmp/epson2.c:200 .tmp/hp3900_sane.c:381 .tmp/hp3900_sane.c:1036
+#: .tmp/ma1509.c:101 .tmp/mustek.c:129 .tmp/mustek.c:134
+#: .tmp/mustek_usb.c:269 .tmp/pixma.c:647 .tmp/saneopts.h:455
+#: .tmp/sceptre.h:291 .tmp/sm3840.c:81 .tmp/sm3840.c:335
+#: .tmp/snapscan-options.c:78 .tmp/test.c:126 .tmp/umax.c:188
 #, no-c-format
 msgid "Gray"
 msgstr "Harmaasävy"
 
-#: .tmp/canon.c:146 .tmp/canon-sane.c:1323
+#: .tmp/canon-sane.c:1323 .tmp/canon.c:146
 #, no-c-format
 msgid "Raw"
-msgstr ""
-
-#: .tmp/canon.c:152 .tmp/canon-sane.c:732 .tmp/canon-sane.c:940
-#: .tmp/canon-sane.c:1076 .tmp/canon-sane.c:1318 .tmp/canon-sane.c:1487
-#: .tmp/canon-sane.c:1636
-#, no-c-format
-msgid "Fine color"
 msgstr ""
 
 #: .tmp/canon.c:161
 #, fuzzy, no-c-format
 msgid "No transparency correction"
 msgstr "Värikorjaus"
-
-#: .tmp/canon.c:162 .tmp/canon-sane.c:680
-#, no-c-format
-msgid "Correction according to film type"
-msgstr ""
-
-#: .tmp/canon.c:163 .tmp/canon-sane.c:674
-#, no-c-format
-msgid "Correction according to transparency ratio"
-msgstr ""
-
-#: .tmp/canon.c:168 .tmp/canon-sane.c:776
-#, fuzzy, no-c-format
-msgid "Negatives"
-msgstr "Negatiivi"
 
 #: .tmp/canon.c:168
 #, fuzzy, no-c-format
@@ -437,19 +395,19 @@ msgid "film scanner"
 msgstr "Tasokuvanlukija"
 
 #: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915
-#: .tmp/hp3900_sane.c:1694 .tmp/plustek.c:1334 .tmp/plustek_pp.c:1014
-#: .tmp/sceptre.c:593 .tmp/teco2.c:1825 .tmp/u12.c:851
+#: .tmp/hp3900_sane.c:1681 .tmp/plustek.c:1334 .tmp/plustek_pp.c:1014
+#: .tmp/sceptre.c:593 .tmp/teco2.c:1836 .tmp/u12.c:851
 #, no-c-format
 msgid "flatbed scanner"
 msgstr "Tasokuvanlukija"
 
 #: .tmp/canon.c:1133 .tmp/leo.c:781 .tmp/pixma_sane_options.c:40
-#: .tmp/saneopts.h:138
+#: .tmp/saneopts.h:165
 #, no-c-format
 msgid "Scan mode"
 msgstr "Lukutapa"
 
-#: .tmp/canon.c:1171 .tmp/epson2.c:2160 .tmp/epson.c:3376
+#: .tmp/canon.c:1171 .tmp/epson.c:3376 .tmp/epson2.c:2223
 #, no-c-format
 msgid "Film type"
 msgstr "Filmin tyyppi"
@@ -469,7 +427,7 @@ msgstr "Negatiivifilmi"
 msgid "Selects the negative film type"
 msgstr "Valitse koekuva"
 
-#: .tmp/canon.c:1209 .tmp/saneopts.h:146
+#: .tmp/canon.c:1209 .tmp/saneopts.h:173
 #, no-c-format
 msgid "Scan resolution"
 msgstr "Kuvanluvun tarkkuus"
@@ -529,7 +487,7 @@ msgstr ""
 msgid "Extra color adjustments"
 msgstr ""
 
-#: .tmp/canon.c:1522 .tmp/epson2.c:2040 .tmp/epson.c:3195
+#: .tmp/canon.c:1522 .tmp/epson.c:3195 .tmp/epson2.c:2103
 #, no-c-format
 msgid "Mirror image"
 msgstr "Peilikuva"
@@ -675,446 +633,240 @@ msgstr "Filmin tyyppi"
 msgid "Select the film type"
 msgstr "Valitsee rasterin"
 
-#: .tmp/epson2.c:193 .tmp/epson.c:488
+#: .tmp/canon630u.c:158
+#, no-c-format
+msgid "Calibrate Scanner"
+msgstr "Kalibroi kuvanlukija"
+
+#: .tmp/canon630u.c:159
+#, no-c-format
+msgid "Force scanner calibration before scan"
+msgstr "Pakottaa kalibroinnin ennen kuvanlukua."
+
+#: .tmp/canon630u.c:258 .tmp/umax1220u.c:208
+#, no-c-format
+msgid "Grayscale scan"
+msgstr "Harmaasävy"
+
+#: .tmp/canon630u.c:259 .tmp/umax1220u.c:209
+#, no-c-format
+msgid "Do a grayscale rather than color scan"
+msgstr "Lue harmaasävykuva värikuvan sijaan"
+
+#: .tmp/canon630u.c:305
+#, no-c-format
+msgid "Analog Gain"
+msgstr "Analoginen vahvistus"
+
+#: .tmp/canon630u.c:306
+#, no-c-format
+msgid "Increase or decrease the analog gain of the CCD array"
+msgstr "Kasvattaa tai vähentää analogista vahvistusta CCD-kennossa."
+
+#: .tmp/canon630u.c:346 .tmp/epson.h:68 .tmp/epson2.h:64
+#, no-c-format
+msgid "Gamma Correction"
+msgstr "Gamma-korjaus"
+
+#: .tmp/canon630u.c:347
+#, no-c-format
+msgid "Selects the gamma corrected transfer curve"
+msgstr "Valitsee gamma-korjauskäyrän"
+
+#: .tmp/epson.c:488 .tmp/epson2.c:199
 #, no-c-format
 msgid "Binary"
 msgstr "Binaari"
 
-#: .tmp/epson2.c:200 .tmp/epson.c:495
+#: .tmp/epson.c:495 .tmp/epson2.c:206
 #, no-c-format
 msgid "Simplex"
 msgstr "Yksipuolinen"
 
-#: .tmp/epson2.c:201 .tmp/epson.c:496 .tmp/matsushita.h:219
+#: .tmp/epson.c:496 .tmp/epson2.c:207 .tmp/matsushita.h:219
 #, no-c-format
 msgid "Duplex"
 msgstr "Kaksipuolinen"
 
-#: .tmp/epson2.c:207 .tmp/epson.c:505 .tmp/genesys.c:103 .tmp/gt68xx.c:144
-#: .tmp/hp3900_sane.c:420 .tmp/hp3900_sane.c:429 .tmp/hp3900_sane.c:1007
-#: .tmp/hp5590.c:80 .tmp/ma1509.c:106 .tmp/mustek.c:150 .tmp/mustek.c:154
-#: .tmp/mustek.c:158 .tmp/pixma.c:631 .tmp/pixma_sane_options.c:85
-#: .tmp/snapscan-options.c:82 .tmp/test.c:189 .tmp/umax.c:182
+#: .tmp/epson.c:505 .tmp/epson2.c:213 .tmp/genesys.c:106 .tmp/gt68xx.c:146
+#: .tmp/hp3900_sane.c:418 .tmp/hp3900_sane.c:427 .tmp/hp3900_sane.c:1017
+#: .tmp/hp5590.c:81 .tmp/ma1509.c:106 .tmp/mustek.c:152 .tmp/mustek.c:156
+#: .tmp/mustek.c:160 .tmp/pixma.c:652 .tmp/pixma_sane_options.c:85
+#: .tmp/snapscan-options.c:82 .tmp/test.c:191 .tmp/umax.c:182
 #, no-c-format
 msgid "Flatbed"
 msgstr "Taso"
 
-#: .tmp/epson2.c:208 .tmp/epson.c:506
+#: .tmp/epson.c:506 .tmp/epson2.c:214 .tmp/pixma.c:669
 #, no-c-format
 msgid "Transparency Unit"
 msgstr "Läpinäkyvyysyksikkö"
 
-#: .tmp/epson2.c:209 .tmp/epson.c:507 .tmp/mustek.c:154 .tmp/pixma.c:636
-#: .tmp/test.c:189 .tmp/umax.c:184
+#: .tmp/epson.c:507 .tmp/epson2.c:215 .tmp/mustek.c:156 .tmp/pixma.c:657
+#: .tmp/test.c:191 .tmp/umax.c:184
 #, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Automaattinen syöttö"
 
-#: .tmp/epson2.c:229 .tmp/epson.c:527
+#: .tmp/epson.c:527 .tmp/epson2.c:235
 #, no-c-format
 msgid "Positive Film"
 msgstr "Positiivifilmi"
 
-#: .tmp/epson2.c:230 .tmp/epson.c:528
+#: .tmp/epson.c:528 .tmp/epson2.c:236
 #, no-c-format
 msgid "Negative Film"
 msgstr "Negatiivifilmi"
 
-#: .tmp/epson2.c:231
-#, fuzzy, no-c-format
-msgid "Positive Slide"
-msgstr "Positiivifilmi"
-
-#: .tmp/epson2.c:232
-#, fuzzy, no-c-format
-msgid "Negative Slide"
-msgstr "Negatiivifilmi"
-
-#: .tmp/epson2.c:239 .tmp/epson.c:533
+#: .tmp/epson.c:533 .tmp/epson2.c:245
 #, no-c-format
 msgid "Focus on glass"
 msgstr "Kohdistus lasissa"
 
-#: .tmp/epson2.c:240 .tmp/epson.c:534
+#: .tmp/epson.c:534 .tmp/epson2.c:246
 #, no-c-format
 msgid "Focus 2.5mm above glass"
 msgstr "Kohdistus 2,5 mm lasin yläpuolella"
 
-#: .tmp/epson2.c:262 .tmp/epson2.c:270 .tmp/epson2.c:282 .tmp/epson2.c:304
 #: .tmp/epson.c:560 .tmp/epson.c:568 .tmp/epson.c:580 .tmp/epson.c:602
+#: .tmp/epson2.c:268 .tmp/epson2.c:276 .tmp/epson2.c:288 .tmp/epson2.c:310
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
 #: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:87
 #, no-c-format
 msgid "None"
 msgstr "Ei mikään"
 
-#: .tmp/epson2.c:263 .tmp/epson2.c:271 .tmp/epson2.c:283 .tmp/epson.c:561
-#: .tmp/epson.c:569 .tmp/epson.c:581
+#: .tmp/epson.c:561 .tmp/epson.c:569 .tmp/epson.c:581 .tmp/epson2.c:269
+#: .tmp/epson2.c:277 .tmp/epson2.c:289
 #, no-c-format
 msgid "Halftone A (Hard Tone)"
 msgstr "Rasteri A (Hard Tone)"
 
-#: .tmp/epson2.c:264 .tmp/epson2.c:272 .tmp/epson2.c:284 .tmp/epson.c:562
-#: .tmp/epson.c:570 .tmp/epson.c:582
+#: .tmp/epson.c:562 .tmp/epson.c:570 .tmp/epson.c:582 .tmp/epson2.c:270
+#: .tmp/epson2.c:278 .tmp/epson2.c:290
 #, no-c-format
 msgid "Halftone B (Soft Tone)"
 msgstr "Rasteri B (Soft Tone)"
 
-#: .tmp/epson2.c:265 .tmp/epson2.c:273 .tmp/epson2.c:285 .tmp/epson.c:563
-#: .tmp/epson.c:571 .tmp/epson.c:583
+#: .tmp/epson.c:563 .tmp/epson.c:571 .tmp/epson.c:583 .tmp/epson2.c:271
+#: .tmp/epson2.c:279 .tmp/epson2.c:291
 #, no-c-format
 msgid "Halftone C (Net Screen)"
 msgstr "Rasteri C (Net Screen)"
 
-#: .tmp/epson2.c:274 .tmp/epson2.c:286 .tmp/epson.c:572 .tmp/epson.c:584
+#: .tmp/epson.c:572 .tmp/epson.c:584 .tmp/epson2.c:280 .tmp/epson2.c:292
 #, no-c-format
 msgid "Dither A (4x4 Bayer)"
 msgstr "Rasteri A (4x4 Bayer)"
 
-#: .tmp/epson2.c:275 .tmp/epson2.c:287 .tmp/epson.c:573 .tmp/epson.c:585
+#: .tmp/epson.c:573 .tmp/epson.c:585 .tmp/epson2.c:281 .tmp/epson2.c:293
 #, no-c-format
 msgid "Dither B (4x4 Spiral)"
 msgstr "Rasteri B (4x4 Spiral)"
 
-#: .tmp/epson2.c:276 .tmp/epson2.c:288 .tmp/epson.c:574 .tmp/epson.c:586
+#: .tmp/epson.c:574 .tmp/epson.c:586 .tmp/epson2.c:282 .tmp/epson2.c:294
 #, no-c-format
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Rasteri C (4x4 Net Screen)"
 
-#: .tmp/epson2.c:277 .tmp/epson2.c:289 .tmp/epson.c:575 .tmp/epson.c:587
+#: .tmp/epson.c:575 .tmp/epson.c:587 .tmp/epson2.c:283 .tmp/epson2.c:295
 #, no-c-format
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Rasteri D (8x4 Net Screen)"
 
-#: .tmp/epson2.c:290 .tmp/epson.c:588
+#: .tmp/epson.c:588 .tmp/epson2.c:296
 #, no-c-format
 msgid "Text Enhanced Technology"
 msgstr "Tekstin parannusmenetelmä"
 
-#: .tmp/epson2.c:291 .tmp/epson.c:589
+#: .tmp/epson.c:589 .tmp/epson2.c:297
 #, no-c-format
 msgid "Download pattern A"
 msgstr "Ladattu kuvio A"
 
-#: .tmp/epson2.c:292 .tmp/epson.c:590
+#: .tmp/epson.c:590 .tmp/epson2.c:298
 #, no-c-format
 msgid "Download pattern B"
 msgstr "Ladattu kuvio B"
 
-#: .tmp/epson2.c:305 .tmp/epson2.c:1952 .tmp/epson.c:603 .tmp/epson.c:3086
-#: .tmp/genesys.c:96 .tmp/gt68xx_low.h:135 .tmp/hp-option.c:3092
+#: .tmp/epson.c:603 .tmp/epson.c:3086 .tmp/epson2.c:311 .tmp/epson2.c:2015
+#: .tmp/genesys.c:99 .tmp/gt68xx_low.h:135 .tmp/hp-option.c:3092
 #, no-c-format
 msgid "Red"
 msgstr "Punainen"
 
-#: .tmp/epson2.c:306 .tmp/epson2.c:1948 .tmp/epson.c:604 .tmp/epson.c:3082
-#: .tmp/genesys.c:97 .tmp/gt68xx_low.h:136 .tmp/hp-option.c:3093
+#: .tmp/epson.c:604 .tmp/epson.c:3082 .tmp/epson2.c:312 .tmp/epson2.c:2011
+#: .tmp/genesys.c:100 .tmp/gt68xx_low.h:136 .tmp/hp-option.c:3093
 #, no-c-format
 msgid "Green"
 msgstr "Vihreä"
 
-#: .tmp/epson2.c:307 .tmp/epson2.c:1956 .tmp/epson.c:605 .tmp/epson.c:3090
-#: .tmp/genesys.c:98 .tmp/gt68xx_low.h:137 .tmp/hp-option.c:3094
+#: .tmp/epson.c:605 .tmp/epson.c:3090 .tmp/epson2.c:313 .tmp/epson2.c:2019
+#: .tmp/genesys.c:101 .tmp/gt68xx_low.h:137 .tmp/hp-option.c:3094
 #, no-c-format
 msgid "Blue"
 msgstr "Sininen"
 
-#: .tmp/epson2.c:336 .tmp/epson.c:635
+#: .tmp/epson.c:635 .tmp/epson2.c:342
 #, no-c-format
 msgid "No Correction"
 msgstr "Ei korjausta"
 
-#: .tmp/epson2.c:337 .tmp/epson2.c:361 .tmp/epson.c:636 .tmp/epson.c:661
+#: .tmp/epson.c:636 .tmp/epson.c:661 .tmp/epson2.c:343 .tmp/epson2.c:367
 #, no-c-format
 msgid "User defined"
 msgstr "Käyttäjän määrittelemä"
 
-#: .tmp/epson2.c:338 .tmp/epson.c:637
+#: .tmp/epson.c:637 .tmp/epson2.c:344
 #, no-c-format
 msgid "Impact-dot printers"
 msgstr "Matriisikirjoittimet"
 
-#: .tmp/epson2.c:339 .tmp/epson.c:638
+#: .tmp/epson.c:638 .tmp/epson2.c:345
 #, no-c-format
 msgid "Thermal printers"
 msgstr "Lämpökirjoittimet"
 
-#: .tmp/epson2.c:340 .tmp/epson.c:639
+#: .tmp/epson.c:639 .tmp/epson2.c:346
 #, no-c-format
 msgid "Ink-jet printers"
 msgstr "Mustesuihkutulostimet"
 
-#: .tmp/epson2.c:341 .tmp/epson.c:640
+#: .tmp/epson.c:640 .tmp/epson2.c:347
 #, no-c-format
 msgid "CRT monitors"
 msgstr "Loisteputkinäytöt"
 
-#: .tmp/epson2.c:360 .tmp/epson.c:660 .tmp/hp-option.c:3225
-#: .tmp/test.c:140
+#: .tmp/epson.c:660 .tmp/epson2.c:366 .tmp/hp-option.c:3225
+#: .tmp/test.c:142
 #, no-c-format
 msgid "Default"
 msgstr "Oletus"
 
-#: .tmp/epson2.c:362 .tmp/epson.c:662
+#: .tmp/epson.c:662 .tmp/epson2.c:368
 #, no-c-format
 msgid "High density printing"
 msgstr "Korkeatarkkuuksinen tulostus"
 
-#: .tmp/epson2.c:363 .tmp/epson.c:663
+#: .tmp/epson.c:663 .tmp/epson2.c:369
 #, no-c-format
 msgid "Low density printing"
 msgstr "Matalatarkkuuksinen tulostus"
 
-#: .tmp/epson2.c:364 .tmp/epson.c:664
+#: .tmp/epson.c:664 .tmp/epson2.c:370
 #, no-c-format
 msgid "High contrast printing"
 msgstr "Suuri kontrastinen tulostus"
 
-#: .tmp/epson2.c:382 .tmp/epson.c:682
+#: .tmp/epson.c:682 .tmp/epson2.c:388
 #, no-c-format
 msgid "User defined (Gamma=1.0)"
 msgstr "Käyttäjän määrittelemä (Gamma=1.0)"
 
-#: .tmp/epson2.c:383 .tmp/epson.c:683
+#: .tmp/epson.c:683 .tmp/epson2.c:389
 #, no-c-format
 msgid "User defined (Gamma=1.8)"
 msgstr "Käyttäjän määrittelemä (Gamma=1.8)"
-
-#: .tmp/epson2.c:1670 .tmp/epson.c:2803 .tmp/genesys.c:4617
-#: .tmp/gt68xx.c:453 .tmp/hp-option.c:2913 .tmp/ma1509.c:499
-#: .tmp/matsushita.c:1084 .tmp/microtek2.h:599 .tmp/mustek.c:4199
-#: .tmp/mustek_usb2.c:344 .tmp/mustek_usb.c:260 .tmp/niash.c:736
-#: .tmp/plustek.c:720 .tmp/plustek_pp.c:657 .tmp/sceptre.c:673
-#: .tmp/snapscan-options.c:315 .tmp/stv680.c:1030 .tmp/teco2.c:1875
-#: .tmp/test.c:301 .tmp/u12.c:473 .tmp/umax.c:5052
-#, no-c-format
-msgid "Scan Mode"
-msgstr "Lukutapa"
-
-#: .tmp/epson2.c:1702 .tmp/epson.c:2835
-#, no-c-format
-msgid "Selects the halftone."
-msgstr "Valitsee rasterin"
-
-#: .tmp/epson2.c:1723 .tmp/epson.c:2857
-#, no-c-format
-msgid "Dropout"
-msgstr ""
-
-#: .tmp/epson2.c:1724 .tmp/epson.c:2858
-#, no-c-format
-msgid "Selects the dropout."
-msgstr ""
-
-#: .tmp/epson2.c:1736 .tmp/epson.c:2870
-#, no-c-format
-msgid "Selects the brightness."
-msgstr "Valitsee kirkkauden."
-
-#: .tmp/epson2.c:1750 .tmp/epson.c:2885
-#, no-c-format
-msgid "Sharpness"
-msgstr "Terävyys"
-
-#: .tmp/epson2.c:1886 .tmp/epson.c:3021
-#, no-c-format
-msgid "Color correction"
-msgstr "Värikorjaus"
-
-#: .tmp/epson2.c:1889 .tmp/epson.c:3024
-#, no-c-format
-msgid "Sets the color correction table for the selected output device."
-msgstr "Valitsee värikorjaustaulukon valitulle tuloslaitteelle."
-
-#: .tmp/epson2.c:1930 .tmp/epson.c:3065
-#, no-c-format
-msgid "Color correction coefficients"
-msgstr "Värikorjauskertoimet"
-
-#: .tmp/epson2.c:1932 .tmp/epson.c:3066
-#, no-c-format
-msgid "Matrix multiplication of RGB"
-msgstr "Matriisikerroin RGB:lle"
-
-#: .tmp/epson2.c:1949 .tmp/epson.c:3083
-#, no-c-format
-msgid "Shift green to red"
-msgstr "Vihreän siirtymä punaiseen"
-
-#: .tmp/epson2.c:1950 .tmp/epson.c:3084
-#, no-c-format
-msgid "Shift green to blue"
-msgstr "Vihreän siirtymä siniseen"
-
-#: .tmp/epson2.c:1951 .tmp/epson.c:3085
-#, no-c-format
-msgid "Shift red to green"
-msgstr "Punaisen siirtymä virheään"
-
-#: .tmp/epson2.c:1953 .tmp/epson.c:3087
-#, no-c-format
-msgid "Shift red to blue"
-msgstr "Punaisen siirtymä siniseen"
-
-#: .tmp/epson2.c:1954 .tmp/epson.c:3088
-#, no-c-format
-msgid "Shift blue to green"
-msgstr "Sinisen siirtymä vihreään"
-
-#: .tmp/epson2.c:1955 .tmp/epson.c:3089
-#, no-c-format
-msgid "Shift blue to red"
-msgstr "Sinisen siirtymä punaiseen"
-
-#: .tmp/epson2.c:1958 .tmp/epson.c:3092
-#, no-c-format
-msgid "Controls green level"
-msgstr "Määrää vihreän määrän"
-
-#: .tmp/epson2.c:1960 .tmp/epson.c:3093
-#, no-c-format
-msgid "Adds to red based on green level"
-msgstr "Lisää punaista vihreän määrän perusteella"
-
-#: .tmp/epson2.c:1962 .tmp/epson.c:3094
-#, no-c-format
-msgid "Adds to blue based on green level"
-msgstr "Lisää sinistä vihreän määrän perusteella"
-
-#: .tmp/epson2.c:1964 .tmp/epson.c:3095
-#, no-c-format
-msgid "Adds to green based on red level"
-msgstr "Lisää vihreää punaisen määrän perusteella"
-
-#: .tmp/epson2.c:1965 .tmp/epson.c:3096
-#, no-c-format
-msgid "Controls red level"
-msgstr "Määrää punaisen määrän"
-
-#: .tmp/epson2.c:1966 .tmp/epson.c:3097
-#, no-c-format
-msgid "Adds to blue based on red level"
-msgstr "Lisää sinistä punaisen määrän perusteella"
-
-#: .tmp/epson2.c:1968 .tmp/epson.c:3098
-#, no-c-format
-msgid "Adds to green based on blue level"
-msgstr "Lisää vihreää sinisen määrän perusteella"
-
-#: .tmp/epson2.c:1969 .tmp/epson.c:3099
-#, no-c-format
-msgid "Adds to red based on blue level"
-msgstr "Lisää punaista sinisen määrän perusteella"
-
-#: .tmp/epson2.c:1970 .tmp/epson.c:3100
-#, no-c-format
-msgid "Controls blue level"
-msgstr "Määrää sinisen määrän"
-
-#: .tmp/epson2.c:2033 .tmp/epson.c:3187 .tmp/snapscan-options.c:816
-#: .tmp/umax.c:5563
-#, no-c-format
-msgid "Advanced"
-msgstr "Lisäasetukset"
-
-#: .tmp/epson2.c:2041 .tmp/epson.c:3196
-#, no-c-format
-msgid "Mirror the image."
-msgstr "Peilaa kuvan."
-
-#: .tmp/epson2.c:2051 .tmp/epson.c:3235
-#, no-c-format
-msgid "Auto area segmentation"
-msgstr "Automaattinen osittelu"
-
-#: .tmp/epson2.c:2064 .tmp/epson.c:3248
-#, no-c-format
-msgid "Short resolution list"
-msgstr "Lyhyt tarkkuuslista"
-
-#: .tmp/epson2.c:2066
-#, fuzzy, no-c-format
-msgid "Display a shortened resolution list"
-msgstr "Näyttää lyhyen tarkkuuslistan"
-
-#: .tmp/epson2.c:2136 .tmp/epson.c:3350
-#, no-c-format
-msgid "Optional equipment"
-msgstr "Lisävaruste"
-
-#: .tmp/epson2.c:2190 .tmp/epson.c:3421
-#, no-c-format
-msgid "Eject"
-msgstr "Poista"
-
-#: .tmp/epson2.c:2191 .tmp/epson.c:3422
-#, no-c-format
-msgid "Eject the sheet in the ADF"
-msgstr "Poista kohde syöttölaitteesta"
-
-#: .tmp/epson2.c:2201 .tmp/epson.c:3434
-#, no-c-format
-msgid "Auto eject"
-msgstr "Automaattinen poisto"
-
-#: .tmp/epson2.c:2203 .tmp/epson.c:3435
-#, no-c-format
-msgid "Eject document after scanning"
-msgstr "Poista kohde kuvanluvun jälkeen"
-
-#: .tmp/epson2.c:2213 .tmp/epson.c:3447
-#, no-c-format
-msgid "ADF Mode"
-msgstr "Syötttapa"
-
-#: .tmp/epson2.c:2215 .tmp/epson.c:3449
-#, no-c-format
-msgid "Selects the ADF mode (simplex/duplex)"
-msgstr "Valitsee syöttötavan (yksi-/kaksipuolinen)"
-
-#: .tmp/epson2.c:2227 .tmp/epson.c:3463
-#, no-c-format
-msgid "Bay"
-msgstr "Taso"
-
-#: .tmp/epson2.c:2228 .tmp/epson.c:3464
-#, no-c-format
-msgid "Select bay to scan"
-msgstr "Valitsee kuvanluvun tasolta"
-
-#: .tmp/epson2.h:65 .tmp/epson.h:69
-#, no-c-format
-msgid ""
-"Selects the gamma correction value from a list of pre-defined devices or "
-"the user defined table, which can be downloaded to the scanner"
-msgstr ""
-"Valitsee gamma-korjauksen esiasetettujen laitteiden listalta tai "
-"käyttäjän määrämän taulukon, joka voidaan siirtää kuvanlukijaan"
-
-#: .tmp/epson2.h:68 .tmp/epson.h:72
-#, no-c-format
-msgid "Focus Position"
-msgstr "Kohdistuspiste"
-
-#: .tmp/epson2.h:69 .tmp/epson.h:73
-#, no-c-format
-msgid ""
-"Sets the focus position to either the glass or 2.5mm above the glass"
-msgstr "Asettaa kohdistuspisteen joko lasiin tai 2,5 mm sen yläpuolelle"
-
-#: .tmp/epson2.h:71 .tmp/epson.h:75
-#, no-c-format
-msgid "Wait for Button"
-msgstr "Odota painiketta"
-
-#: .tmp/epson2.h:72 .tmp/epson.h:76
-#, no-c-format
-msgid ""
-"After sending the scan command, wait until the button on the scanner is "
-"pressed to actually start the scan process."
-msgstr ""
-"Kuvanlukukomennon lähettämisen jälkeen, odota kunnes kuvanlukijan "
-"painiketta todella painetaan, ennen kuvanluvun aloittamista."
 
 #: .tmp/epson.c:761
 #, no-c-format
@@ -1146,10 +898,162 @@ msgstr "A4"
 msgid "Max"
 msgstr "Koko alue"
 
-#: .tmp/epson.c:3222 .tmp/mustek.c:4328
+#: .tmp/epson.c:2803 .tmp/epson2.c:1733 .tmp/genesys.c:4882
+#: .tmp/gt68xx.c:455 .tmp/hp-option.c:2913 .tmp/ma1509.c:499
+#: .tmp/matsushita.c:1084 .tmp/microtek2.h:599 .tmp/mustek.c:4201
+#: .tmp/mustek_usb.c:260 .tmp/mustek_usb2.c:344 .tmp/niash.c:736
+#: .tmp/plustek.c:720 .tmp/plustek_pp.c:657 .tmp/sceptre.c:673
+#: .tmp/snapscan-options.c:315 .tmp/stv680.c:1030 .tmp/teco2.c:1886
+#: .tmp/test.c:305 .tmp/u12.c:473 .tmp/umax.c:5055
+#, no-c-format
+msgid "Scan Mode"
+msgstr "Lukutapa"
+
+#: .tmp/epson.c:2835 .tmp/epson2.c:1765
+#, no-c-format
+msgid "Selects the halftone."
+msgstr "Valitsee rasterin"
+
+#: .tmp/epson.c:2857 .tmp/epson2.c:1786
+#, no-c-format
+msgid "Dropout"
+msgstr ""
+
+#: .tmp/epson.c:2858 .tmp/epson2.c:1787
+#, no-c-format
+msgid "Selects the dropout."
+msgstr ""
+
+#: .tmp/epson.c:2870 .tmp/epson2.c:1799
+#, no-c-format
+msgid "Selects the brightness."
+msgstr "Valitsee kirkkauden."
+
+#: .tmp/epson.c:2885 .tmp/epson2.c:1813
+#, no-c-format
+msgid "Sharpness"
+msgstr "Terävyys"
+
+#: .tmp/epson.c:3021 .tmp/epson2.c:1949
+#, no-c-format
+msgid "Color correction"
+msgstr "Värikorjaus"
+
+#: .tmp/epson.c:3024 .tmp/epson2.c:1952
+#, no-c-format
+msgid "Sets the color correction table for the selected output device."
+msgstr "Valitsee värikorjaustaulukon valitulle tuloslaitteelle."
+
+#: .tmp/epson.c:3065 .tmp/epson2.c:1993
+#, no-c-format
+msgid "Color correction coefficients"
+msgstr "Värikorjauskertoimet"
+
+#: .tmp/epson.c:3066 .tmp/epson2.c:1995
+#, no-c-format
+msgid "Matrix multiplication of RGB"
+msgstr "Matriisikerroin RGB:lle"
+
+#: .tmp/epson.c:3083 .tmp/epson2.c:2012
+#, no-c-format
+msgid "Shift green to red"
+msgstr "Vihreän siirtymä punaiseen"
+
+#: .tmp/epson.c:3084 .tmp/epson2.c:2013
+#, no-c-format
+msgid "Shift green to blue"
+msgstr "Vihreän siirtymä siniseen"
+
+#: .tmp/epson.c:3085 .tmp/epson2.c:2014
+#, no-c-format
+msgid "Shift red to green"
+msgstr "Punaisen siirtymä virheään"
+
+#: .tmp/epson.c:3087 .tmp/epson2.c:2016
+#, no-c-format
+msgid "Shift red to blue"
+msgstr "Punaisen siirtymä siniseen"
+
+#: .tmp/epson.c:3088 .tmp/epson2.c:2017
+#, no-c-format
+msgid "Shift blue to green"
+msgstr "Sinisen siirtymä vihreään"
+
+#: .tmp/epson.c:3089 .tmp/epson2.c:2018
+#, no-c-format
+msgid "Shift blue to red"
+msgstr "Sinisen siirtymä punaiseen"
+
+#: .tmp/epson.c:3092 .tmp/epson2.c:2021
+#, no-c-format
+msgid "Controls green level"
+msgstr "Määrää vihreän määrän"
+
+#: .tmp/epson.c:3093 .tmp/epson2.c:2023
+#, no-c-format
+msgid "Adds to red based on green level"
+msgstr "Lisää punaista vihreän määrän perusteella"
+
+#: .tmp/epson.c:3094 .tmp/epson2.c:2025
+#, no-c-format
+msgid "Adds to blue based on green level"
+msgstr "Lisää sinistä vihreän määrän perusteella"
+
+#: .tmp/epson.c:3095 .tmp/epson2.c:2027
+#, no-c-format
+msgid "Adds to green based on red level"
+msgstr "Lisää vihreää punaisen määrän perusteella"
+
+#: .tmp/epson.c:3096 .tmp/epson2.c:2028
+#, no-c-format
+msgid "Controls red level"
+msgstr "Määrää punaisen määrän"
+
+#: .tmp/epson.c:3097 .tmp/epson2.c:2029
+#, no-c-format
+msgid "Adds to blue based on red level"
+msgstr "Lisää sinistä punaisen määrän perusteella"
+
+#: .tmp/epson.c:3098 .tmp/epson2.c:2031
+#, no-c-format
+msgid "Adds to green based on blue level"
+msgstr "Lisää vihreää sinisen määrän perusteella"
+
+#: .tmp/epson.c:3099 .tmp/epson2.c:2032
+#, no-c-format
+msgid "Adds to red based on blue level"
+msgstr "Lisää punaista sinisen määrän perusteella"
+
+#: .tmp/epson.c:3100 .tmp/epson2.c:2033
+#, no-c-format
+msgid "Controls blue level"
+msgstr "Määrää sinisen määrän"
+
+#: .tmp/epson.c:3187 .tmp/epson2.c:2096 .tmp/rts8891.c:2766
+#: .tmp/saneopts.h:159 .tmp/snapscan-options.c:816 .tmp/umax.c:5566
+#, no-c-format
+msgid "Advanced"
+msgstr "Lisäasetukset"
+
+#: .tmp/epson.c:3196 .tmp/epson2.c:2104
+#, no-c-format
+msgid "Mirror the image."
+msgstr "Peilaa kuvan."
+
+#: .tmp/epson.c:3222 .tmp/mustek.c:4330
 #, no-c-format
 msgid "Fast preview"
 msgstr "Nopea esikatselu"
+
+#: .tmp/epson.c:3235 .tmp/epson2.c:2114
+#, no-c-format
+msgid "Auto area segmentation"
+msgstr "Automaattinen osittelu"
+
+#: .tmp/epson.c:3248 .tmp/epson2.c:2127
+#, no-c-format
+msgid "Short resolution list"
+msgstr "Lyhyt tarkkuuslista"
 
 #: .tmp/epson.c:3250
 #, no-c-format
@@ -1171,72 +1075,208 @@ msgstr "Määrää kuvanlukijan käyttämän zoom-kertoimen"
 msgid "Quick format"
 msgstr "Nopea formaatti"
 
-#: .tmp/genesys.c:104 .tmp/gt68xx.c:145 .tmp/ma1509.c:106
-#: .tmp/mustek.c:158 .tmp/snapscan-options.c:83 .tmp/umax.c:183
+#: .tmp/epson.c:3350 .tmp/epson2.c:2199
+#, no-c-format
+msgid "Optional equipment"
+msgstr "Lisävaruste"
+
+#: .tmp/epson.c:3421 .tmp/epson2.c:2253
+#, no-c-format
+msgid "Eject"
+msgstr "Poista"
+
+#: .tmp/epson.c:3422 .tmp/epson2.c:2254
+#, no-c-format
+msgid "Eject the sheet in the ADF"
+msgstr "Poista kohde syöttölaitteesta"
+
+#: .tmp/epson.c:3434 .tmp/epson2.c:2264
+#, no-c-format
+msgid "Auto eject"
+msgstr "Automaattinen poisto"
+
+#: .tmp/epson.c:3435 .tmp/epson2.c:2266
+#, no-c-format
+msgid "Eject document after scanning"
+msgstr "Poista kohde kuvanluvun jälkeen"
+
+#: .tmp/epson.c:3447 .tmp/epson2.c:2276
+#, no-c-format
+msgid "ADF Mode"
+msgstr "Syötttapa"
+
+#: .tmp/epson.c:3449 .tmp/epson2.c:2278
+#, no-c-format
+msgid "Selects the ADF mode (simplex/duplex)"
+msgstr "Valitsee syöttötavan (yksi-/kaksipuolinen)"
+
+#: .tmp/epson.c:3463 .tmp/epson2.c:2290
+#, no-c-format
+msgid "Bay"
+msgstr "Taso"
+
+#: .tmp/epson.c:3464 .tmp/epson2.c:2291
+#, no-c-format
+msgid "Select bay to scan"
+msgstr "Valitsee kuvanluvun tasolta"
+
+#: .tmp/epson.h:69 .tmp/epson2.h:65
+#, no-c-format
+msgid ""
+"Selects the gamma correction value from a list of pre-defined devices or "
+"the user defined table, which can be downloaded to the scanner"
+msgstr ""
+"Valitsee gamma-korjauksen esiasetettujen laitteiden listalta tai "
+"käyttäjän määrämän taulukon, joka voidaan siirtää kuvanlukijaan"
+
+#: .tmp/epson.h:72 .tmp/epson2.h:68
+#, no-c-format
+msgid "Focus Position"
+msgstr "Kohdistuspiste"
+
+#: .tmp/epson.h:73 .tmp/epson2.h:69
+#, no-c-format
+msgid ""
+"Sets the focus position to either the glass or 2.5mm above the glass"
+msgstr "Asettaa kohdistuspisteen joko lasiin tai 2,5 mm sen yläpuolelle"
+
+#: .tmp/epson.h:75 .tmp/epson2.h:71
+#, no-c-format
+msgid "Wait for Button"
+msgstr "Odota painiketta"
+
+#: .tmp/epson.h:76 .tmp/epson2.h:72
+#, no-c-format
+msgid ""
+"After sending the scan command, wait until the button on the scanner is "
+"pressed to actually start the scan process."
+msgstr ""
+"Kuvanlukukomennon lähettämisen jälkeen, odota kunnes kuvanlukijan "
+"painiketta todella painetaan, ennen kuvanluvun aloittamista."
+
+#: .tmp/epson2.c:237
+#, fuzzy, no-c-format
+msgid "Positive Slide"
+msgstr "Positiivifilmi"
+
+#: .tmp/epson2.c:238
+#, fuzzy, no-c-format
+msgid "Negative Slide"
+msgstr "Negatiivifilmi"
+
+#: .tmp/epson2.c:2129
+#, fuzzy, no-c-format
+msgid "Display a shortened resolution list"
+msgstr "Näyttää lyhyen tarkkuuslistan"
+
+#: .tmp/genesys.c:107 .tmp/gt68xx.c:147 .tmp/ma1509.c:106
+#: .tmp/mustek.c:160 .tmp/snapscan-options.c:83 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
 msgstr "Läpinäkyvyysyksikkö"
 
-#: .tmp/genesys.c:4739
+#: .tmp/genesys.c:5052
 #, fuzzy, no-c-format
 msgid "Extras"
 msgstr "Hyvin nopea"
 
-#: .tmp/genesys.c:4760
+#: .tmp/genesys.c:5073
 #, fuzzy, no-c-format
 msgid "Disable interpolation"
 msgstr "Poista peruutus."
 
-#: .tmp/genesys.c:4763
+#: .tmp/genesys.c:5076
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
 "than the vertical resolution this disables horizontal interpolation."
 msgstr ""
 
-#: .tmp/genesys.c:4772
+#: .tmp/genesys.c:5085
 #, fuzzy, no-c-format
 msgid "Color Filter"
 msgstr "Väriviivapiirros"
 
-#: .tmp/genesys.c:4775
+#: .tmp/genesys.c:5088
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 
-#: .tmp/genesys.c:4784
+#: .tmp/genesys.c:5097
 #, fuzzy, no-c-format
 msgid "Lamp off time"
 msgstr "Valo pois"
 
-#: .tmp/genesys.c:4787
+#: .tmp/genesys.c:5100
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
 "of 0 means, that the lamp won't be turned off."
 msgstr ""
 
-#: .tmp/gt68xx.c:472
+#: .tmp/genesys.c:5128 .tmp/genesys.c:5129
+#, fuzzy, no-c-format
+msgid "File button"
+msgstr "Odota painiketta"
+
+#: .tmp/genesys.c:5181 .tmp/genesys.c:5182
+#, no-c-format
+msgid "OCR button"
+msgstr ""
+
+#: .tmp/genesys.c:5195 .tmp/genesys.c:5196
+#, fuzzy, no-c-format
+msgid "Power button"
+msgstr "Odota painiketta"
+
+#: .tmp/genesys.c:5209 .tmp/genesys.c:5210 .tmp/pixma_sane_options.c:210
+#: .tmp/plustek.c:1079
+#, fuzzy, no-c-format
+msgid "Buttons"
+msgstr "Painikkeen tila"
+
+#: .tmp/genesys.c:5216 .tmp/hp-option.h:97 .tmp/hp5400_sane.c:392
+#: .tmp/niash.c:728 .tmp/plustek.c:940
+#, no-c-format
+msgid "Calibrate"
+msgstr "Kalibroi"
+
+#: .tmp/genesys.c:5217
+#, fuzzy, no-c-format
+msgid "Start calibration using special sheet"
+msgstr "Aloita kalibrointi."
+
+#: .tmp/genesys.c:5229
+#, fuzzy, no-c-format
+msgid "Clear calibration"
+msgstr "Raakakalibrointi"
+
+#: .tmp/genesys.c:5230
+#, fuzzy, no-c-format
+msgid "Clear calibration cache"
+msgstr "Kalibrointitila"
+
+#: .tmp/gt68xx.c:474
 #, no-c-format
 msgid "Gray mode color"
 msgstr ""
 
-#: .tmp/gt68xx.c:474
+#: .tmp/gt68xx.c:476
 #, no-c-format
 msgid "Selects which scan color is used gray mode (default: green)."
 msgstr ""
 
-#: .tmp/gt68xx.c:555 .tmp/hp3900_sane.c:1398 .tmp/mustek_usb2.c:410
+#: .tmp/gt68xx.c:557 .tmp/hp3900_sane.c:1391 .tmp/mustek_usb2.c:410
 #, no-c-format
 msgid "Debugging Options"
 msgstr "Debug-asetukset"
 
-#: .tmp/gt68xx.c:566 .tmp/mustek_usb2.c:419
+#: .tmp/gt68xx.c:568 .tmp/mustek_usb2.c:419
 #, no-c-format
 msgid "Automatic warmup"
 msgstr "Automaattinen lämmitys"
 
-#: .tmp/gt68xx.c:568
+#: .tmp/gt68xx.c:570
 #, no-c-format
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on "
@@ -1245,12 +1285,12 @@ msgstr ""
 "Lämmittää kunnes lampun kirkkaus tasaantuu. Muuten lämmitetään 60 "
 "sekuntia."
 
-#: .tmp/gt68xx.c:580
+#: .tmp/gt68xx.c:582
 #, no-c-format
 msgid "Full scan"
 msgstr "Koko alue"
 
-#: .tmp/gt68xx.c:582
+#: .tmp/gt68xx.c:584
 #, no-c-format
 msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
@@ -1259,12 +1299,12 @@ msgstr ""
 "Lukee koko alueen, mukaan lukien kalibrointinauha. Ole varovainen. Älä "
 "valitse täyttä korkeutta. Tämä asetus on vain testausta varten."
 
-#: .tmp/gt68xx.c:593
+#: .tmp/gt68xx.c:595
 #, no-c-format
 msgid "Coarse calibration"
 msgstr "Raakakalibrointi"
 
-#: .tmp/gt68xx.c:595
+#: .tmp/gt68xx.c:597
 #, no-c-format
 msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
@@ -1275,12 +1315,12 @@ msgstr ""
 "poissa, voit asettaa analogia-asetukset manuaalisesti. Asetus on "
 "oletuksena päällä. Tämä asetus on vain testausta varten."
 
-#: .tmp/gt68xx.c:614
+#: .tmp/gt68xx.c:616
 #, no-c-format
 msgid "Coarse calibration for first scan only"
 msgstr "Raakakalibrointi vain ensimmäisellä kuvanluvulla"
 
-#: .tmp/gt68xx.c:616
+#: .tmp/gt68xx.c:618
 #, no-c-format
 msgid ""
 "Coarse calibration is only done for the first scan. Works with most "
@@ -1292,12 +1332,12 @@ msgstr ""
 "kirkkaus on eri joka kerralla, poista tämä asetus. Tämä asetus on "
 "testausta varten."
 
-#: .tmp/gt68xx.c:647
+#: .tmp/gt68xx.c:649
 #, fuzzy, no-c-format
 msgid "Backtrack lines"
 msgstr "Käytä jäljitystä"
 
-#: .tmp/gt68xx.c:649
+#: .tmp/gt68xx.c:651
 #, no-c-format
 msgid ""
 "Number of lines the scan slider moves back when backtracking occurs. "
@@ -1306,287 +1346,15 @@ msgid ""
 "omitting lines."
 msgstr ""
 
-#: .tmp/gt68xx.c:674 .tmp/mustek_usb2.c:452
+#: .tmp/gt68xx.c:676 .tmp/mustek_usb2.c:452
 #, no-c-format
 msgid "Gamma value"
 msgstr "Gamma"
 
-#: .tmp/gt68xx.c:676 .tmp/mustek_usb2.c:454
+#: .tmp/gt68xx.c:678 .tmp/mustek_usb2.c:454
 #, no-c-format
 msgid "Sets the gamma value of all channels."
 msgstr "Asettaa gamma-arvon kaikille kanaville."
-
-#: .tmp/hp3500.c:977
-#, fuzzy, no-c-format
-msgid "Geometry Group"
-msgstr "Geometria"
-
-#: .tmp/hp3500.c:1033 .tmp/hp3500.c:1034
-#, fuzzy, no-c-format
-msgid "Scan Mode Group"
-msgstr "Lukutapa"
-
-#: .tmp/hp3900_sane.c:429 .tmp/hp3900_sane.c:1009 .tmp/hp-option.c:3173
-#, no-c-format
-msgid "Slide"
-msgstr "Dia"
-
-#: .tmp/hp3900_sane.c:430 .tmp/hp3900_sane.c:1011 .tmp/hp3900_sane.c:1427
-#: .tmp/hp-option.c:3234 .tmp/mustek_usb2.c:121 .tmp/plustek.c:235
-#: .tmp/plustek_pp.c:202 .tmp/saneopts.h:177 .tmp/u12.c:157
-#, no-c-format
-msgid "Negative"
-msgstr "Negatiivi"
-
-#: .tmp/hp3900_sane.c:1411
-#, fuzzy, no-c-format
-msgid "Scanner model"
-msgstr "Lukutapa"
-
-#: .tmp/hp3900_sane.c:1414
-#, no-c-format
-msgid "Allows to test device behaviour with other supported models"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1428
-#, no-c-format
-msgid "Image colours will be inverted"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1442
-#, fuzzy, no-c-format
-msgid "Disable gamma correction"
-msgstr "Analoginen gammakorjaus"
-
-#: .tmp/hp3900_sane.c:1443
-#, fuzzy, no-c-format
-msgid "Gamma correction will be disabled"
-msgstr "Gammakorjaus"
-
-#: .tmp/hp3900_sane.c:1457
-#, fuzzy, no-c-format
-msgid "Disable white shading correction"
-msgstr "Vain sävykorjaus"
-
-#: .tmp/hp3900_sane.c:1459
-#, no-c-format
-msgid "White shading correction will be disabled"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1473
-#, no-c-format
-msgid "Skip warmup process"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1474
-#, no-c-format
-msgid "Warmup process will be disabled"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1488
-#, no-c-format
-msgid "Force real depth"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1491
-#, no-c-format
-msgid ""
-"If gamma is enabled, scans are always made in 16 bits depth to improve "
-"image quality and then converted to the selected depth. This option "
-"avoids depth emulation."
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1505
-#, fuzzy, no-c-format
-msgid "Emulate Grayscale"
-msgstr "Harmaasävy"
-
-#: .tmp/hp3900_sane.c:1508
-#, no-c-format
-msgid ""
-"If enabled, image will be scanned in color mode and then converted to "
-"grayscale by software. This may improve image quality in some "
-"circumstances."
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1522
-#, no-c-format
-msgid "Save debugging images"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1525
-#, no-c-format
-msgid ""
-"If enabled, some images involved in scanner processing are saved to "
-"analyze them."
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1539
-#, fuzzy, no-c-format
-msgid "Reset chipset"
-msgstr "arkkisyöttöinen"
-
-#: .tmp/hp3900_sane.c:1540
-#, no-c-format
-msgid "Resets chipset data"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1553
-#, fuzzy, no-c-format
-msgid "Information"
-msgstr "Jätä kalibrointi huomiotta"
-
-#: .tmp/hp3900_sane.c:1566
-#, fuzzy, no-c-format
-msgid "Chipset name"
-msgstr "Tiedostonimi"
-
-#: .tmp/hp3900_sane.c:1567
-#, no-c-format
-msgid "Shows chipset name used in device."
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1573
-#, no-c-format
-msgid "Unknown"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1578
-#, no-c-format
-msgid "Chipset ID"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1579
-#, fuzzy, no-c-format
-msgid "Shows the chipset ID"
-msgstr "arkkisyöttöinen"
-
-#: .tmp/hp3900_sane.c:1591
-#, fuzzy, no-c-format
-msgid "Scan counter"
-msgstr "Lähde"
-
-#: .tmp/hp3900_sane.c:1593
-#, fuzzy, no-c-format
-msgid "Shows the number of scans made by scanner"
-msgstr "Valitsee luettavan kehyksen numeron"
-
-#: .tmp/hp3900_sane.c:1605
-#, fuzzy, no-c-format
-msgid "Update information"
-msgstr "Päivitä asetukset"
-
-#: .tmp/hp3900_sane.c:1606
-#, no-c-format
-msgid "Updates information about device"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1619 .tmp/pixma_sane_options.c:210
-#: .tmp/plustek.c:1079
-#, fuzzy, no-c-format
-msgid "Buttons"
-msgstr "Painikkeen tila"
-
-#: .tmp/hp3900_sane.c:1646
-#, no-c-format
-msgid "This option reflects a front panel scanner button"
-msgstr ""
-
-#: .tmp/hp5400_sane.c:313 .tmp/niash.c:683
-#, no-c-format
-msgid "Image"
-msgstr ""
-
-#: .tmp/hp5400_sane.c:352 .tmp/niash.c:711
-#, no-c-format
-msgid "Miscellaneous"
-msgstr ""
-
-#: .tmp/hp5400_sane.c:358
-#, fuzzy, no-c-format
-msgid "offset X"
-msgstr "Siirtymä"
-
-#: .tmp/hp5400_sane.c:359
-#, fuzzy, no-c-format
-msgid "Hardware internal X position of the scanning area."
-msgstr "Kuva-alueen vasemman yläkulman x-koordinaatti."
-
-#: .tmp/hp5400_sane.c:368
-#, fuzzy, no-c-format
-msgid "offset Y"
-msgstr "Siirtymä"
-
-#: .tmp/hp5400_sane.c:369
-#, fuzzy, no-c-format
-msgid "Hardware internal Y position of the scanning area."
-msgstr "Kuva-alueen vasemman yläkulman x-koordinaatti."
-
-#: .tmp/hp5400_sane.c:381 .tmp/niash.c:718
-#, no-c-format
-msgid "Lamp status"
-msgstr ""
-
-#: .tmp/hp5400_sane.c:382 .tmp/niash.c:719
-#, fuzzy, no-c-format
-msgid "Switches the lamp on or off."
-msgstr "Asettaa valon päälle/pois"
-
-#: .tmp/hp5400_sane.c:392 .tmp/hp-option.h:97 .tmp/niash.c:728
-#: .tmp/plustek.c:940
-#, no-c-format
-msgid "Calibrate"
-msgstr "Kalibroi"
-
-#: .tmp/hp5400_sane.c:393 .tmp/niash.c:729
-#, no-c-format
-msgid "Calibrates for black and white level."
-msgstr ""
-
-#: .tmp/hp5590.c:81 .tmp/hp-option.c:3252
-#, no-c-format
-msgid "ADF"
-msgstr "ADF"
-
-#: .tmp/hp5590.c:82 .tmp/pixma.c:643
-#, fuzzy, no-c-format
-msgid "ADF Duplex"
-msgstr "Kaksipuolinen"
-
-#: .tmp/hp5590.c:83
-#, fuzzy, no-c-format
-msgid "TMA Slides"
-msgstr "Dia"
-
-#: .tmp/hp5590.c:84
-#, fuzzy, no-c-format
-msgid "TMA Negatives"
-msgstr "Negatiivi"
-
-#: .tmp/hp5590.c:87
-#, fuzzy, no-c-format
-msgid "Color (48 bits)"
-msgstr "Väri 48"
-
-#: .tmp/hp5590.c:90
-#, fuzzy, no-c-format
-msgid "Extend lamp timeout"
-msgstr "Valo pois"
-
-#: .tmp/hp5590.c:91
-#, no-c-format
-msgid "Extends lamp timeout (from 15 minutes to 1 hour)"
-msgstr ""
-
-#: .tmp/hp5590.c:93
-#, no-c-format
-msgid "Wait for button"
-msgstr "Odota painiketta"
-
-#: .tmp/hp5590.c:94
-#, fuzzy, no-c-format
-msgid "Waits for button before scanning"
-msgstr "Lämmitä lamppu ennen kuvanlukua"
 
 #: .tmp/hp-option.c:2983
 #, fuzzy, no-c-format
@@ -1659,7 +1427,7 @@ msgid "Slow"
 msgstr "Hidas"
 
 #: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
-#: .tmp/mustek.c:143 .tmp/plustek.c:233 .tmp/plustek_pp.c:200
+#: .tmp/mustek.c:145 .tmp/plustek.c:233 .tmp/plustek_pp.c:200
 #: .tmp/u12.c:155
 #, no-c-format
 msgid "Normal"
@@ -1700,10 +1468,27 @@ msgstr "8 pikseliä"
 msgid "Print"
 msgstr "Tulosta"
 
+#: .tmp/hp-option.c:3173 .tmp/hp3900_sane.c:427 .tmp/hp3900_sane.c:1019
+#, no-c-format
+msgid "Slide"
+msgstr "Dia"
+
 #: .tmp/hp-option.c:3174
 #, no-c-format
 msgid "Film-strip"
 msgstr "Filmiliuska"
+
+#: .tmp/hp-option.c:3234 .tmp/hp3900_sane.c:428 .tmp/hp3900_sane.c:1021
+#: .tmp/hp3900_sane.c:1420 .tmp/mustek_usb2.c:121 .tmp/plustek.c:235
+#: .tmp/plustek_pp.c:202 .tmp/saneopts.h:206 .tmp/u12.c:157
+#, no-c-format
+msgid "Negative"
+msgstr "Negatiivi"
+
+#: .tmp/hp-option.c:3252 .tmp/hp5590.c:82
+#, no-c-format
+msgid "ADF"
+msgstr "ADF"
 
 #: .tmp/hp-option.c:3253
 #, no-c-format
@@ -1906,6 +1691,249 @@ msgstr "Sulje lamppu"
 msgid "Shut off scanner lamp."
 msgstr "Sulkee kuvanlukijan lampun."
 
+#: .tmp/hp3500.c:977
+#, fuzzy, no-c-format
+msgid "Geometry Group"
+msgstr "Geometria"
+
+#: .tmp/hp3500.c:1033 .tmp/hp3500.c:1034
+#, fuzzy, no-c-format
+msgid "Scan Mode Group"
+msgstr "Lukutapa"
+
+#: .tmp/hp3900_sane.c:1404
+#, fuzzy, no-c-format
+msgid "Scanner model"
+msgstr "Lukutapa"
+
+#: .tmp/hp3900_sane.c:1407
+#, no-c-format
+msgid "Allows to test device behaviour with other supported models"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1421
+#, no-c-format
+msgid "Image colours will be inverted"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1435
+#, fuzzy, no-c-format
+msgid "Disable gamma correction"
+msgstr "Analoginen gammakorjaus"
+
+#: .tmp/hp3900_sane.c:1436
+#, fuzzy, no-c-format
+msgid "Gamma correction will be disabled"
+msgstr "Gammakorjaus"
+
+#: .tmp/hp3900_sane.c:1450
+#, fuzzy, no-c-format
+msgid "Disable white shading correction"
+msgstr "Vain sävykorjaus"
+
+#: .tmp/hp3900_sane.c:1452
+#, no-c-format
+msgid "White shading correction will be disabled"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1466
+#, no-c-format
+msgid "Skip warmup process"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1467
+#, no-c-format
+msgid "Warmup process will be disabled"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1481
+#, no-c-format
+msgid "Force real depth"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1484
+#, no-c-format
+msgid ""
+"If gamma is enabled, scans are always made in 16 bits depth to improve "
+"image quality and then converted to the selected depth. This option "
+"avoids depth emulation."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1498
+#, fuzzy, no-c-format
+msgid "Emulate Grayscale"
+msgstr "Harmaasävy"
+
+#: .tmp/hp3900_sane.c:1501
+#, no-c-format
+msgid ""
+"If enabled, image will be scanned in color mode and then converted to "
+"grayscale by software. This may improve image quality in some "
+"circumstances."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1515
+#, no-c-format
+msgid "Save debugging images"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1518
+#, no-c-format
+msgid ""
+"If enabled, some images involved in scanner processing are saved to "
+"analyze them."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1532
+#, fuzzy, no-c-format
+msgid "Reset chipset"
+msgstr "arkkisyöttöinen"
+
+#: .tmp/hp3900_sane.c:1533
+#, no-c-format
+msgid "Resets chipset data"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1546
+#, fuzzy, no-c-format
+msgid "Information"
+msgstr "Jätä kalibrointi huomiotta"
+
+#: .tmp/hp3900_sane.c:1559
+#, fuzzy, no-c-format
+msgid "Chipset name"
+msgstr "Tiedostonimi"
+
+#: .tmp/hp3900_sane.c:1560
+#, no-c-format
+msgid "Shows chipset name used in device."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1564
+#, no-c-format
+msgid "Unknown"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1569
+#, no-c-format
+msgid "Chipset ID"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1570
+#, fuzzy, no-c-format
+msgid "Shows the chipset ID"
+msgstr "arkkisyöttöinen"
+
+#: .tmp/hp3900_sane.c:1580
+#, fuzzy, no-c-format
+msgid "Scan counter"
+msgstr "Lähde"
+
+#: .tmp/hp3900_sane.c:1582
+#, fuzzy, no-c-format
+msgid "Shows the number of scans made by scanner"
+msgstr "Valitsee luettavan kehyksen numeron"
+
+#: .tmp/hp3900_sane.c:1592
+#, fuzzy, no-c-format
+msgid "Update information"
+msgstr "Päivitä asetukset"
+
+#: .tmp/hp3900_sane.c:1593
+#, no-c-format
+msgid "Updates information about device"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1633
+#, no-c-format
+msgid "This option reflects a front panel scanner button"
+msgstr ""
+
+#: .tmp/hp5400_sane.c:313 .tmp/niash.c:683
+#, no-c-format
+msgid "Image"
+msgstr ""
+
+#: .tmp/hp5400_sane.c:352 .tmp/niash.c:711
+#, no-c-format
+msgid "Miscellaneous"
+msgstr ""
+
+#: .tmp/hp5400_sane.c:358
+#, fuzzy, no-c-format
+msgid "offset X"
+msgstr "Siirtymä"
+
+#: .tmp/hp5400_sane.c:359
+#, fuzzy, no-c-format
+msgid "Hardware internal X position of the scanning area."
+msgstr "Kuva-alueen vasemman yläkulman x-koordinaatti."
+
+#: .tmp/hp5400_sane.c:368
+#, fuzzy, no-c-format
+msgid "offset Y"
+msgstr "Siirtymä"
+
+#: .tmp/hp5400_sane.c:369
+#, fuzzy, no-c-format
+msgid "Hardware internal Y position of the scanning area."
+msgstr "Kuva-alueen vasemman yläkulman x-koordinaatti."
+
+#: .tmp/hp5400_sane.c:381 .tmp/niash.c:718
+#, no-c-format
+msgid "Lamp status"
+msgstr ""
+
+#: .tmp/hp5400_sane.c:382 .tmp/niash.c:719
+#, fuzzy, no-c-format
+msgid "Switches the lamp on or off."
+msgstr "Asettaa valon päälle/pois"
+
+#: .tmp/hp5400_sane.c:393 .tmp/niash.c:729
+#, no-c-format
+msgid "Calibrates for black and white level."
+msgstr ""
+
+#: .tmp/hp5590.c:83 .tmp/pixma.c:663
+#, fuzzy, no-c-format
+msgid "ADF Duplex"
+msgstr "Kaksipuolinen"
+
+#: .tmp/hp5590.c:84
+#, fuzzy, no-c-format
+msgid "TMA Slides"
+msgstr "Dia"
+
+#: .tmp/hp5590.c:85
+#, fuzzy, no-c-format
+msgid "TMA Negatives"
+msgstr "Negatiivi"
+
+#: .tmp/hp5590.c:88
+#, fuzzy, no-c-format
+msgid "Color (48 bits)"
+msgstr "Väri 48"
+
+#: .tmp/hp5590.c:91
+#, fuzzy, no-c-format
+msgid "Extend lamp timeout"
+msgstr "Valo pois"
+
+#: .tmp/hp5590.c:92
+#, no-c-format
+msgid "Extends lamp timeout (from 15 minutes to 1 hour)"
+msgstr ""
+
+#: .tmp/hp5590.c:94
+#, no-c-format
+msgid "Wait for button"
+msgstr "Odota painiketta"
+
+#: .tmp/hp5590.c:95
+#, fuzzy, no-c-format
+msgid "Waits for button before scanning"
+msgstr "Lämmitä lamppu ennen kuvanlukua"
+
 #: .tmp/leo.c:110
 #, no-c-format
 msgid "Diamond"
@@ -1936,52 +1964,52 @@ msgstr "8x8 pystyviiva"
 msgid "Black & White"
 msgstr "Mustavalko"
 
-#: .tmp/lexmark.c:288 .tmp/umax_pp.c:636
+#: .tmp/lexmark.c:288 .tmp/umax_pp.c:713
 #, no-c-format
 msgid "Gain"
 msgstr "Vahvistus"
 
-#: .tmp/lexmark.c:289 .tmp/umax_pp.c:637
+#: .tmp/lexmark.c:289 .tmp/umax_pp.c:714
 #, no-c-format
 msgid "Color channels gain settings"
 msgstr "Värikanavien vahvistus"
 
-#: .tmp/lexmark.c:298 .tmp/umax_pp.c:644
+#: .tmp/lexmark.c:298 .tmp/umax_pp.c:721
 #, no-c-format
 msgid "Gray gain"
 msgstr "Harmaan vahvistus"
 
-#: .tmp/lexmark.c:299 .tmp/umax_pp.c:645
+#: .tmp/lexmark.c:299 .tmp/umax_pp.c:722
 #, no-c-format
 msgid "Sets gray channel gain"
 msgstr "Asettaa harmaan kanavan vahvistusta"
 
-#: .tmp/lexmark.c:312 .tmp/plustek.c:1000 .tmp/umax_pp.c:656
+#: .tmp/lexmark.c:312 .tmp/plustek.c:1000 .tmp/umax_pp.c:733
 #, no-c-format
 msgid "Red gain"
 msgstr "Punaisen vahvistus"
 
-#: .tmp/lexmark.c:313 .tmp/umax_pp.c:657
+#: .tmp/lexmark.c:313 .tmp/umax_pp.c:734
 #, no-c-format
 msgid "Sets red channel gain"
 msgstr "Asettaa punaisen kanavan vahvistusta"
 
-#: .tmp/lexmark.c:326 .tmp/plustek.c:1016 .tmp/umax_pp.c:668
+#: .tmp/lexmark.c:326 .tmp/plustek.c:1016 .tmp/umax_pp.c:745
 #, no-c-format
 msgid "Green gain"
 msgstr "Vihreän vahvistus"
 
-#: .tmp/lexmark.c:327 .tmp/umax_pp.c:669
+#: .tmp/lexmark.c:327 .tmp/umax_pp.c:746
 #, no-c-format
 msgid "Sets green channel gain"
 msgstr "Asettaa vihreän kanavan vahvistusta"
 
-#: .tmp/lexmark.c:340 .tmp/plustek.c:1032 .tmp/umax_pp.c:680
+#: .tmp/lexmark.c:340 .tmp/plustek.c:1032 .tmp/umax_pp.c:757
 #, no-c-format
 msgid "Blue gain"
 msgstr "Sinisen vahvistus"
 
-#: .tmp/lexmark.c:341 .tmp/umax_pp.c:681
+#: .tmp/lexmark.c:341 .tmp/umax_pp.c:758
 #, no-c-format
 msgid "Sets blue channel gain"
 msgstr "Asettaa sinisen kanavan vahvistusta"
@@ -2396,127 +2424,127 @@ msgstr "Firmware-tasapaino"
 msgid "Sets the color balance values to the firmware provided values."
 msgstr "Asettaa väritasapainot Firmwaressa oleviin arvoihin."
 
-#: .tmp/mustek.c:143
+#: .tmp/mustek.c:145
 #, no-c-format
 msgid "Slowest"
 msgstr "Hitain"
 
-#: .tmp/mustek.c:143
+#: .tmp/mustek.c:145
 #, no-c-format
 msgid "Slower"
 msgstr "Hitaampi"
 
-#: .tmp/mustek.c:144
+#: .tmp/mustek.c:146
 #, no-c-format
 msgid "Faster"
 msgstr "Nopeampi"
 
-#: .tmp/mustek.c:144
+#: .tmp/mustek.c:146
 #, no-c-format
 msgid "Fastest"
 msgstr "Nopein"
 
-#: .tmp/mustek.c:171
+#: .tmp/mustek.c:173
 #, no-c-format
 msgid "8x8 coarse"
 msgstr "8x8 raaka"
 
-#: .tmp/mustek.c:171
+#: .tmp/mustek.c:173
 #, no-c-format
 msgid "8x8 normal"
 msgstr "8x8 normaali"
 
-#: .tmp/mustek.c:171
+#: .tmp/mustek.c:173
 #, no-c-format
 msgid "8x8 fine"
 msgstr "8x8 hieno"
 
-#: .tmp/mustek.c:172
+#: .tmp/mustek.c:174
 #, no-c-format
 msgid "8x8 very fine"
 msgstr "8x8 tosi hieno"
 
-#: .tmp/mustek.c:172
+#: .tmp/mustek.c:174
 #, no-c-format
 msgid "6x6 normal"
 msgstr "6x6 normaali"
 
-#: .tmp/mustek.c:173
+#: .tmp/mustek.c:175
 #, no-c-format
 msgid "5x5 coarse"
 msgstr "5x5 raaka"
 
-#: .tmp/mustek.c:173
+#: .tmp/mustek.c:175
 #, no-c-format
 msgid "5x5 fine"
 msgstr "5x5 hieno"
 
-#: .tmp/mustek.c:173
+#: .tmp/mustek.c:175
 #, no-c-format
 msgid "4x4 coarse"
 msgstr "4x4 raaka"
 
-#: .tmp/mustek.c:174
+#: .tmp/mustek.c:176
 #, no-c-format
 msgid "4x4 normal"
 msgstr "4x4 normaali"
 
-#: .tmp/mustek.c:174
+#: .tmp/mustek.c:176
 #, no-c-format
 msgid "4x4 fine"
 msgstr "4x4 hieno"
 
-#: .tmp/mustek.c:174
+#: .tmp/mustek.c:176
 #, no-c-format
 msgid "3x3 normal"
 msgstr "3x3 normaali"
 
-#: .tmp/mustek.c:175
+#: .tmp/mustek.c:177
 #, no-c-format
 msgid "2x2 normal"
 msgstr "2x2 normaali"
 
-#: .tmp/mustek.c:175
+#: .tmp/mustek.c:177
 #, no-c-format
 msgid "8x8 custom"
 msgstr "8x8 oma"
 
-#: .tmp/mustek.c:176
+#: .tmp/mustek.c:178
 #, no-c-format
 msgid "6x6 custom"
 msgstr "6x6 oma"
 
-#: .tmp/mustek.c:177
+#: .tmp/mustek.c:179
 #, no-c-format
 msgid "5x5 custom"
 msgstr "5x5 oma"
 
-#: .tmp/mustek.c:177
+#: .tmp/mustek.c:179
 #, no-c-format
 msgid "4x4 custom"
 msgstr "4x4 oma"
 
-#: .tmp/mustek.c:178
+#: .tmp/mustek.c:180
 #, no-c-format
 msgid "3x3 custom"
 msgstr "3x3 oma"
 
-#: .tmp/mustek.c:179
+#: .tmp/mustek.c:181
 #, no-c-format
 msgid "2x2 custom"
 msgstr "2x2 oma"
 
-#: .tmp/mustek.c:4231
+#: .tmp/mustek.c:4233
 #, no-c-format
 msgid "Fast gray mode"
 msgstr "Nopea harmaa"
 
-#: .tmp/mustek.c:4232
+#: .tmp/mustek.c:4234
 #, no-c-format
 msgid "Scan in fast gray mode (lower quality)."
 msgstr "Lue nopeassa harmaassa tilassa (huonompi laatu)."
 
-#: .tmp/mustek.c:4329
+#: .tmp/mustek.c:4331
 #, no-c-format
 msgid ""
 "Request that all previews are done in the fastest (low-quality) mode. "
@@ -2525,82 +2553,82 @@ msgstr ""
 "Kaikki esikatselut luetaan nopeimmalla tavalla (huonoimmalla laadulla). "
 "Tämä voi olla väritön matalatarkkuuksinen tila."
 
-#: .tmp/mustek.c:4337
+#: .tmp/mustek.c:4339
 #, fuzzy, no-c-format
 msgid "Lamp off time (minutes)"
 msgstr "Valo pois lopetettaessa"
 
-#: .tmp/mustek.c:4338
+#: .tmp/mustek.c:4340
 #, no-c-format
 msgid "Set the time (in minutes) after which the lamp is shut off."
 msgstr ""
 
-#: .tmp/mustek.c:4349
+#: .tmp/mustek.c:4351
 #, fuzzy, no-c-format
 msgid "Turn lamp off"
 msgstr "Asettaa valon päälle/pois"
 
-#: .tmp/mustek.c:4350
+#: .tmp/mustek.c:4352
 #, fuzzy, no-c-format
 msgid "Turns the lamp off immediately."
 msgstr "Asettaa kuvanlukijan valon päälle/pois"
 
-#: .tmp/mustek.c:4427
+#: .tmp/mustek.c:4429
 #, no-c-format
 msgid "Red brightness"
 msgstr "Punaisen kirkkaus"
 
-#: .tmp/mustek.c:4428
+#: .tmp/mustek.c:4430
 #, no-c-format
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr "Asettaa punaisen kanavan kirkkauden."
 
-#: .tmp/mustek.c:4440
+#: .tmp/mustek.c:4442
 #, no-c-format
 msgid "Green brightness"
 msgstr "Vihreän kirkkaus"
 
-#: .tmp/mustek.c:4441
+#: .tmp/mustek.c:4443
 #, no-c-format
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr "Asettaa vihreän kanavan kirkkauden."
 
-#: .tmp/mustek.c:4453
+#: .tmp/mustek.c:4455
 #, no-c-format
 msgid "Blue brightness"
 msgstr "Sinisen kirkkaus"
 
-#: .tmp/mustek.c:4454
+#: .tmp/mustek.c:4456
 #, no-c-format
 msgid "Controls the brightness of the blue channel of the acquired image."
 msgstr "Asettaa sinisen kanavan kirkkauden."
 
-#: .tmp/mustek.c:4479
+#: .tmp/mustek.c:4481
 #, no-c-format
 msgid "Contrast red channel"
 msgstr "Punaisen kontrasti"
 
-#: .tmp/mustek.c:4480
+#: .tmp/mustek.c:4482
 #, no-c-format
 msgid "Controls the contrast of the red channel of the acquired image."
 msgstr "Asettaa punaisen kanavan kontrastin."
 
-#: .tmp/mustek.c:4492
+#: .tmp/mustek.c:4494
 #, no-c-format
 msgid "Contrast green channel"
 msgstr "Vihreän kontrasti"
 
-#: .tmp/mustek.c:4493
+#: .tmp/mustek.c:4495
 #, no-c-format
 msgid "Controls the contrast of the green channel of the acquired image."
 msgstr "Asettaa vihreän kanavan kontrastin."
 
-#: .tmp/mustek.c:4505
+#: .tmp/mustek.c:4507
 #, no-c-format
 msgid "Contrast blue channel"
 msgstr "Sinisen kontrasti"
 
-#: .tmp/mustek.c:4506
+#: .tmp/mustek.c:4508
 #, no-c-format
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Asettaa sinisen kanavan kontrastin."
@@ -2757,7 +2785,7 @@ msgstr "Analoginen gamma (punainen)"
 msgid "Red gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1008 .tmp/umax_pp.c:713
+#: .tmp/plustek.c:1008 .tmp/umax_pp.c:790
 #, no-c-format
 msgid "Red offset"
 msgstr "Punaisen siirtymä"
@@ -2772,7 +2800,7 @@ msgstr ""
 msgid "Green gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1024 .tmp/umax_pp.c:725
+#: .tmp/plustek.c:1024 .tmp/umax_pp.c:802
 #, no-c-format
 msgid "Green offset"
 msgstr "Vihreän siirtymä"
@@ -2787,7 +2815,7 @@ msgstr ""
 msgid "Blue gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1040 .tmp/umax_pp.c:737
+#: .tmp/plustek.c:1040 .tmp/umax_pp.c:814
 #, no-c-format
 msgid "Blue offset"
 msgstr "Sinisen siirtymä"
@@ -2852,32 +2880,32 @@ msgstr "Rasteri 2"
 msgid "Randomize"
 msgstr "Satunnaista"
 
-#: .tmp/pnm.c:162
+#: .tmp/pnm.c:168
 #, no-c-format
 msgid "Source Selection"
 msgstr "Lähteen valinta"
 
-#: .tmp/pnm.c:199
+#: .tmp/pnm.c:205
 #, no-c-format
 msgid "Image Enhancement"
 msgstr "Kuvan parannus"
 
-#: .tmp/pnm.c:235
+#: .tmp/pnm.c:241
 #, no-c-format
 msgid "Grayify"
 msgstr "Harmaannuta"
 
-#: .tmp/pnm.c:236
+#: .tmp/pnm.c:242
 #, no-c-format
 msgid "Load the image as grayscale."
 msgstr "Lataa kuva harmaasävykuvana."
 
-#: .tmp/pnm.c:247
+#: .tmp/pnm.c:253
 #, no-c-format
 msgid "Three-Pass Simulation"
 msgstr "Kolmivaihesimulaatio"
 
-#: .tmp/pnm.c:249
+#: .tmp/pnm.c:255
 #, no-c-format
 msgid ""
 "Simulate a three-pass scanner by returning 3 separate frames.  For "
@@ -2886,12 +2914,12 @@ msgstr ""
 "Simuloi kolmivaiheskanneria palauttamalla kolme erillistä kehystä. Huvin "
 "vuoksi se palauttaa kehykset järjestyksessä: vihreä, sininen, punainen."
 
-#: .tmp/pnm.c:261
+#: .tmp/pnm.c:267
 #, no-c-format
 msgid "Hand-Scanner Simulation"
 msgstr "Käsikuvanlukijasimulaatio"
 
-#: .tmp/pnm.c:262
+#: .tmp/pnm.c:268
 #, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners often do not know the image "
@@ -2902,48 +2930,48 @@ msgstr ""
 "etukäteen. Sen sijaan, ne palauttavat kuvan korkeudeksi -1. Tällä "
 "asetuksella voidaan kokeilla, selviääkö käyttöliittymä tästä oikein."
 
-#: .tmp/pnm.c:277
+#: .tmp/pnm.c:283
 #, no-c-format
 msgid ""
 "Set default values for enhancement controls (brightness & contrast)."
 msgstr "Asettaa oletusarvot parantimille (kirkkaus ja kontrasti)"
 
-#: .tmp/pnm.c:289
+#: .tmp/pnm.c:295
 #, no-c-format
 msgid "Read only test-option"
 msgstr "Vain-luku kokeiluasetus"
 
-#: .tmp/pnm.c:290
+#: .tmp/pnm.c:296
 #, no-c-format
 msgid "Let's see whether frontends can treat this right"
 msgstr "Katsotaanko osaako käyttöliittymä käsitellä tämän oikein"
 
-#: .tmp/pnm.c:301
+#: .tmp/pnm.c:307
 #, no-c-format
 msgid "Gamma Tables"
 msgstr "Gammataulukot"
 
-#: .tmp/pnm.c:373
+#: .tmp/pnm.c:379
 #, no-c-format
 msgid "Status Code Simulation"
 msgstr "Paluuarvosimulaatio"
 
-#: .tmp/pnm.c:385
+#: .tmp/pnm.c:391
 #, no-c-format
 msgid "Do not force status code"
 msgstr "Ei pakoteta paluuarvoa"
 
-#: .tmp/pnm.c:386
+#: .tmp/pnm.c:392
 #, no-c-format
 msgid "Do not force the backend to return a status code."
 msgstr "Ei pakoteta ajuria palauttamaan statuskoodia."
 
-#: .tmp/pnm.c:397
+#: .tmp/pnm.c:403
 #, no-c-format
 msgid "Return SANE_STATUS_EOF"
 msgstr "Palauta SANE_STATUS_EOF"
 
-#: .tmp/pnm.c:398
+#: .tmp/pnm.c:404
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_EOF after "
@@ -2952,12 +2980,12 @@ msgstr ""
 "Pakota ajuri palauttamaan paluuarvo SANE_STATUS_EOF, kun sane_read() on "
 "kutsuttu."
 
-#: .tmp/pnm.c:410
+#: .tmp/pnm.c:416
 #, no-c-format
 msgid "Return SANE_STATUS_JAMMED"
 msgstr "Palauta SANE_STATUS_JAMMED"
 
-#: .tmp/pnm.c:412
+#: .tmp/pnm.c:418
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_JAMMED after "
@@ -2966,12 +2994,12 @@ msgstr ""
 "Pakota ajuri palauttamaan paluuarvo SANE_STATUS_JAMMED, kun sane_read() "
 "on kutsuttu."
 
-#: .tmp/pnm.c:424
+#: .tmp/pnm.c:430
 #, no-c-format
 msgid "Return SANE_STATUS_NO_DOCS"
 msgstr "Palauta SANE_STATUS_NO_DOCS"
 
-#: .tmp/pnm.c:425
+#: .tmp/pnm.c:431
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_DOCS after "
@@ -2980,12 +3008,12 @@ msgstr ""
 "Pakota ajuri palauttamaan paluuarvo SANE_STATUS_NO_DOCS, kun sane_read() "
 "on kutsuttu."
 
-#: .tmp/pnm.c:437
+#: .tmp/pnm.c:443
 #, no-c-format
 msgid "Return SANE_STATUS_COVER_OPEN"
 msgstr "Palauta SANE_STATUS_COVER_OPEN"
 
-#: .tmp/pnm.c:438
+#: .tmp/pnm.c:444
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
@@ -2994,12 +3022,12 @@ msgstr ""
 "Pakota ajuri palauttamaan paluuarvo SANE_STATUS_COVER_OPEN, kun sane_read"
 "() on kutsuttu."
 
-#: .tmp/pnm.c:450
+#: .tmp/pnm.c:456
 #, no-c-format
 msgid "Return SANE_STATUS_IO_ERROR"
 msgstr "Palauta SANE_STATUS_IO_ERROR"
 
-#: .tmp/pnm.c:451
+#: .tmp/pnm.c:457
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_IO_ERROR after "
@@ -3008,12 +3036,12 @@ msgstr ""
 "Pakota ajuri palauttamaan paluuarvo SANE_STATUS_IO_ERROR, kun sane_read"
 "() on kutsuttu."
 
-#: .tmp/pnm.c:463
+#: .tmp/pnm.c:469
 #, no-c-format
 msgid "Return SANE_STATUS_NO_MEM"
 msgstr "Palauta SANE_STATUS_NO_MEM"
 
-#: .tmp/pnm.c:465
+#: .tmp/pnm.c:471
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_MEM after "
@@ -3022,12 +3050,12 @@ msgstr ""
 "Pakota ajuri palauttamaan paluuarvo SANE_STATUS_NO_MEM, kun sane_read() "
 "on kutsuttu."
 
-#: .tmp/pnm.c:477
+#: .tmp/pnm.c:483
 #, no-c-format
 msgid "Return SANE_STATUS_ACCESS_DENIED"
 msgstr "Palauta SANE_STATUS_ACCESS_DENIED"
 
-#: .tmp/pnm.c:478
+#: .tmp/pnm.c:484
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
@@ -3036,339 +3064,479 @@ msgstr ""
 "Pakota ajuri palauttamaan paluuarvo SANE_STATUS_ACCESS_DENIED, kun "
 "sane_read() on kutsuttu."
 
-#: .tmp/saneopts.h:134
+#: .tmp/rts8891.c:2744
+#, no-c-format
+msgid "This option reflects the status of a scanner button."
+msgstr ""
+
+#: .tmp/rts8891.c:2775 .tmp/umax.c:5796 .tmp/umax_pp.c:637
+#, no-c-format
+msgid "Lamp on"
+msgstr "Valo päälle"
+
+#: .tmp/rts8891.c:2776 .tmp/umax.c:5797
+#, no-c-format
+msgid "Turn on scanner lamp"
+msgstr "Laittaa kuvanlukijan valon päälle"
+
+#: .tmp/rts8891.c:2786 .tmp/umax.c:5813 .tmp/umax1220u.c:248
+#, no-c-format
+msgid "Lamp off"
+msgstr "Valo pois"
+
+#: .tmp/rts8891.c:2787 .tmp/umax.c:5814 .tmp/umax1220u.c:249
+#, no-c-format
+msgid "Turn off scanner lamp"
+msgstr "Sammuttaa kuvanlukijan valon"
+
+#: .tmp/sane_strstatus.c:59
+#, no-c-format
+msgid "Success"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:62
+#, fuzzy, no-c-format
+msgid "Operation not supported"
+msgstr "Rasterointi ei ole tuettu"
+
+#: .tmp/sane_strstatus.c:65
+#, no-c-format
+msgid "Operation was cancelled"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:68
+#, no-c-format
+msgid "Device busy"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:71
+#, no-c-format
+msgid "Invalid argument"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:74
+#, no-c-format
+msgid "End of file reached"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:77
+#, fuzzy, no-c-format
+msgid "Document feeder jammed"
+msgstr "Asiakirjan syöttäjä"
+
+#: .tmp/sane_strstatus.c:80
+#, fuzzy, no-c-format
+msgid "Document feeder out of documents"
+msgstr "Asiakirjan syöttäjä"
+
+#: .tmp/sane_strstatus.c:83
+#, no-c-format
+msgid "Scanner cover is open"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:86
+#, no-c-format
+msgid "Error during device I/O"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:89
+#, no-c-format
+msgid "Out of memory"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:92
+#, no-c-format
+msgid "Access to resource has been denied"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:96
+#, no-c-format
+msgid "Lamp not ready, please retry"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:101
+#, no-c-format
+msgid "Scanner mechanism locked for transport"
+msgstr ""
+
+#: .tmp/saneopts.h:154
 #, no-c-format
 msgid "Number of options"
 msgstr "Asetusten määrä"
 
-#: .tmp/saneopts.h:135
+#: .tmp/saneopts.h:156
+#, no-c-format
+msgid "Standard"
+msgstr ""
+
+#: .tmp/saneopts.h:160
+#, no-c-format
+msgid "Sensors"
+msgstr ""
+
+#: .tmp/saneopts.h:162
 #, no-c-format
 msgid "Preview"
 msgstr "Esikatselu"
 
-#: .tmp/saneopts.h:136
+#: .tmp/saneopts.h:163
 #, no-c-format
 msgid "Force monochrome preview"
 msgstr "Pakota yksiväriset esikatselut"
 
-#: .tmp/saneopts.h:137
+#: .tmp/saneopts.h:164
 #, no-c-format
 msgid "Bit depth"
 msgstr "Bittisyvyys"
 
-#: .tmp/saneopts.h:139
+#: .tmp/saneopts.h:166
 #, no-c-format
 msgid "Scan speed"
 msgstr "Kuvanlukunopeus"
 
-#: .tmp/saneopts.h:140
+#: .tmp/saneopts.h:167
 #, no-c-format
 msgid "Scan source"
 msgstr "Lähde"
 
-#: .tmp/saneopts.h:141
+#: .tmp/saneopts.h:168
 #, no-c-format
 msgid "Force backtracking"
 msgstr "Käytä jäljitystä"
 
-#: .tmp/saneopts.h:142
+#: .tmp/saneopts.h:169
 #, no-c-format
 msgid "Top-left x"
 msgstr "Vasen yläkulma x"
 
-#: .tmp/saneopts.h:143
+#: .tmp/saneopts.h:170
 #, no-c-format
 msgid "Top-left y"
 msgstr "Vasen yläkulma y"
 
-#: .tmp/saneopts.h:144
+#: .tmp/saneopts.h:171
 #, no-c-format
 msgid "Bottom-right x"
 msgstr "Oikea alakulma x"
 
-#: .tmp/saneopts.h:145
+#: .tmp/saneopts.h:172
 #, no-c-format
 msgid "Bottom-right y"
 msgstr "Oikea alakulma y"
 
-#: .tmp/saneopts.h:147
+#: .tmp/saneopts.h:174
 #, no-c-format
 msgid "X-resolution"
 msgstr "X-tarkkuus"
 
-#: .tmp/saneopts.h:148
+#: .tmp/saneopts.h:175
 #, no-c-format
 msgid "Y-resolution"
 msgstr "Y-tarkkuus"
 
-#: .tmp/saneopts.h:149
+#: .tmp/saneopts.h:176
+#, no-c-format
+msgid "Page width"
+msgstr ""
+
+#: .tmp/saneopts.h:177
+#, fuzzy, no-c-format
+msgid "Page height"
+msgstr "Korostus"
+
+#: .tmp/saneopts.h:178
 #, no-c-format
 msgid "Use custom gamma table"
 msgstr "Käytä omaa gammataulukkoa"
 
-#: .tmp/saneopts.h:150
+#: .tmp/saneopts.h:179
 #, no-c-format
 msgid "Image intensity"
 msgstr "Kuvan voimakkuus"
 
-#: .tmp/saneopts.h:151
+#: .tmp/saneopts.h:180
 #, no-c-format
 msgid "Red intensity"
 msgstr "Punaisen voimakkuus"
 
-#: .tmp/saneopts.h:152
+#: .tmp/saneopts.h:181
 #, no-c-format
 msgid "Green intensity"
 msgstr "Vihreän voimakkuus"
 
-#: .tmp/saneopts.h:153
+#: .tmp/saneopts.h:182
 #, no-c-format
 msgid "Blue intensity"
 msgstr "Sinisen voimakkuus"
 
-#: .tmp/saneopts.h:154
+#: .tmp/saneopts.h:183
 #, no-c-format
 msgid "Brightness"
 msgstr "Kirkkaus"
 
-#: .tmp/saneopts.h:155
+#: .tmp/saneopts.h:184
 #, no-c-format
 msgid "Contrast"
 msgstr "Kontrasti"
 
-#: .tmp/saneopts.h:156
+#: .tmp/saneopts.h:185
 #, no-c-format
 msgid "Grain size"
 msgstr "Hiukkaskoko"
 
-#: .tmp/saneopts.h:157
+#: .tmp/saneopts.h:186
 #, no-c-format
 msgid "Halftoning"
 msgstr "Rasterointi"
 
-#: .tmp/saneopts.h:158
+#: .tmp/saneopts.h:187
 #, no-c-format
 msgid "Black level"
 msgstr "Mustataso"
 
-#: .tmp/saneopts.h:159
+#: .tmp/saneopts.h:188
 #, no-c-format
 msgid "White level"
 msgstr "Valkotaso"
 
-#: .tmp/saneopts.h:160
+#: .tmp/saneopts.h:189
 #, no-c-format
 msgid "White level for red"
 msgstr "Punaisen valkotaso"
 
-#: .tmp/saneopts.h:161
+#: .tmp/saneopts.h:190
 #, no-c-format
 msgid "White level for green"
 msgstr "Vihreän valkotaso"
 
-#: .tmp/saneopts.h:162
+#: .tmp/saneopts.h:191
 #, no-c-format
 msgid "White level for blue"
 msgstr "Sinisen valkotaso"
 
-#: .tmp/saneopts.h:163
+#: .tmp/saneopts.h:192
 #, no-c-format
 msgid "Shadow"
 msgstr "Varjo"
 
-#: .tmp/saneopts.h:164
+#: .tmp/saneopts.h:193
 #, no-c-format
 msgid "Shadow for red"
 msgstr "Punaisen varjo"
 
-#: .tmp/saneopts.h:165
+#: .tmp/saneopts.h:194
 #, no-c-format
 msgid "Shadow for green"
 msgstr "Vihreän varjo"
 
-#: .tmp/saneopts.h:166
+#: .tmp/saneopts.h:195
 #, no-c-format
 msgid "Shadow for blue"
 msgstr "Sinisen varjo"
 
-#: .tmp/saneopts.h:167
+#: .tmp/saneopts.h:196
 #, no-c-format
 msgid "Highlight"
 msgstr "Korostus"
 
-#: .tmp/saneopts.h:168
+#: .tmp/saneopts.h:197
 #, no-c-format
 msgid "Highlight for red"
 msgstr "Punaisen korostus"
 
-#: .tmp/saneopts.h:169
+#: .tmp/saneopts.h:198
 #, no-c-format
 msgid "Highlight for green"
 msgstr "Vihreän korostus"
 
-#: .tmp/saneopts.h:170
+#: .tmp/saneopts.h:199
 #, no-c-format
 msgid "Highlight for blue"
 msgstr "Sinisen korostus"
 
-#: .tmp/saneopts.h:171
+#: .tmp/saneopts.h:200
 #, no-c-format
 msgid "Hue"
 msgstr "Sävy"
 
-#: .tmp/saneopts.h:172
+#: .tmp/saneopts.h:201
 #, no-c-format
 msgid "Saturation"
 msgstr "Kylläisyys"
 
-#: .tmp/saneopts.h:173
+#: .tmp/saneopts.h:202
 #, no-c-format
 msgid "Filename"
 msgstr "Tiedostonimi"
 
-#: .tmp/saneopts.h:174
+#: .tmp/saneopts.h:203
 #, no-c-format
 msgid "Halftone pattern size"
 msgstr "Rasterikuvion koko"
 
-#: .tmp/saneopts.h:175
+#: .tmp/saneopts.h:204
 #, no-c-format
 msgid "Halftone pattern"
 msgstr "Rasterikuvio"
 
-#: .tmp/saneopts.h:176
+#: .tmp/saneopts.h:205
 #, no-c-format
 msgid "Bind X and Y resolution"
 msgstr "Sido X- ja Y-tarkkuus"
 
-#: .tmp/saneopts.h:178
+#: .tmp/saneopts.h:207
 #, no-c-format
 msgid "Quality calibration"
 msgstr "Laatukalibrointi"
 
-#: .tmp/saneopts.h:179
+#: .tmp/saneopts.h:208
 #, no-c-format
 msgid "Double Optical Resolution"
 msgstr "Kaksinkertainen optinen tarkkuus"
 
-#: .tmp/saneopts.h:180
+#: .tmp/saneopts.h:209
 #, no-c-format
 msgid "Bind RGB"
 msgstr "Sido RGB"
 
-#: .tmp/saneopts.h:181 .tmp/sm3840.c:768
+#: .tmp/saneopts.h:210 .tmp/sm3840.c:768
 #, no-c-format
 msgid "Threshold"
 msgstr "Kynnys"
 
-#: .tmp/saneopts.h:182
+#: .tmp/saneopts.h:211
 #, no-c-format
 msgid "Analog gamma correction"
 msgstr "Analoginen gammakorjaus"
 
-#: .tmp/saneopts.h:183
+#: .tmp/saneopts.h:212
 #, no-c-format
 msgid "Analog gamma red"
 msgstr "Analoginen gamma (punainen)"
 
-#: .tmp/saneopts.h:184
+#: .tmp/saneopts.h:213
 #, no-c-format
 msgid "Analog gamma green"
 msgstr "Analoginen gamma (vihreä)"
 
-#: .tmp/saneopts.h:185
+#: .tmp/saneopts.h:214
 #, no-c-format
 msgid "Analog gamma blue"
 msgstr "Analoginen gamma (sininen)"
 
-#: .tmp/saneopts.h:186
+#: .tmp/saneopts.h:215
 #, no-c-format
 msgid "Bind analog gamma"
 msgstr "Sido analoginen gamma"
 
-#: .tmp/saneopts.h:187
+#: .tmp/saneopts.h:216
 #, no-c-format
 msgid "Warmup lamp"
 msgstr "Lämmitä lamppu"
 
-#: .tmp/saneopts.h:188
+#: .tmp/saneopts.h:217
 #, no-c-format
 msgid "Cal. exposure-time"
 msgstr "Kal. valotusaika"
 
-#: .tmp/saneopts.h:189
+#: .tmp/saneopts.h:218
 #, no-c-format
 msgid "Cal. exposure-time for red"
 msgstr "Kal. valotusaika punaiselle"
 
-#: .tmp/saneopts.h:190
+#: .tmp/saneopts.h:219
 #, no-c-format
 msgid "Cal. exposure-time for green"
 msgstr "Kal. valotusaika vihreälle"
 
-#: .tmp/saneopts.h:192
+#: .tmp/saneopts.h:221
 #, no-c-format
 msgid "Cal. exposure-time for blue"
 msgstr "Kal. valotusaika siniselle"
 
-#: .tmp/saneopts.h:193
+#: .tmp/saneopts.h:222
 #, no-c-format
 msgid "Scan exposure-time"
 msgstr "Valotusaika"
 
-#: .tmp/saneopts.h:194
+#: .tmp/saneopts.h:223
 #, no-c-format
 msgid "Scan exposure-time for red"
 msgstr "Punaisen valotusaika"
 
-#: .tmp/saneopts.h:195
+#: .tmp/saneopts.h:224
 #, no-c-format
 msgid "Scan exposure-time for green"
 msgstr "Vihreän valotusaika"
 
-#: .tmp/saneopts.h:197
+#: .tmp/saneopts.h:226
 #, no-c-format
 msgid "Scan exposure-time for blue"
 msgstr "Sinisen valotusaika"
 
-#: .tmp/saneopts.h:198
+#: .tmp/saneopts.h:227
 #, no-c-format
 msgid "Set exposure-time"
 msgstr "Aseta valotusaika"
 
-#: .tmp/saneopts.h:199
+#: .tmp/saneopts.h:228
 #, no-c-format
 msgid "Cal. lamp density"
 msgstr "Kal. valomäärä"
 
-#: .tmp/saneopts.h:200
+#: .tmp/saneopts.h:229
 #, no-c-format
 msgid "Scan lamp density"
 msgstr "Lampun valomäärä"
 
-#: .tmp/saneopts.h:201
+#: .tmp/saneopts.h:230
 #, no-c-format
 msgid "Set lamp density"
 msgstr "Aseta lampun valomäärä"
 
-#: .tmp/saneopts.h:202 .tmp/umax.c:5827
+#: .tmp/saneopts.h:231 .tmp/umax.c:5830
 #, no-c-format
 msgid "Lamp off at exit"
 msgstr "Valo pois lopetettaessa"
 
-#: .tmp/saneopts.h:206
+#: .tmp/saneopts.h:245
 #, no-c-format
 msgid ""
 "Read-only option that specifies how many options a specific devices "
 "supports."
 msgstr "Asetus, joka määrää kuinka monta asetusta tietty laite tukee."
 
-#: .tmp/saneopts.h:210
+#: .tmp/saneopts.h:248
+#, fuzzy, no-c-format
+msgid "Source, mode and resolution options"
+msgstr "Lyhyt tarkkuuslista"
+
+#: .tmp/saneopts.h:249
+#, no-c-format
+msgid "Scan area and media size options"
+msgstr ""
+
+#: .tmp/saneopts.h:250
+#, fuzzy, no-c-format
+msgid "Image modification options"
+msgstr "Asetusten määrä"
+
+#: .tmp/saneopts.h:251
+#, fuzzy, no-c-format
+msgid "Hardware specific options"
+msgstr "Kuvanluvun tarkkuus"
+
+#: .tmp/saneopts.h:252
+#, no-c-format
+msgid "Scanner sensors and buttons"
+msgstr ""
+
+#: .tmp/saneopts.h:255
 #, no-c-format
 msgid "Request a preview-quality scan."
 msgstr "Pyydä laadukas esikatselukuva."
 
-#: .tmp/saneopts.h:213
+#: .tmp/saneopts.h:258
 #, no-c-format
 msgid ""
 "Request that all previews are done in monochrome mode.  On a three-pass "
@@ -3380,7 +3548,7 @@ msgstr ""
 "Yksivaihekuvanlukijalla, se vähentää muistinkulutusta ja esikatselun "
 "lukuaikaa."
 
-#: .tmp/saneopts.h:219
+#: .tmp/saneopts.h:264
 #, no-c-format
 msgid ""
 "Number of bits per sample, typical values are 1 for \"line-art\" and 8 "
@@ -3389,63 +3557,75 @@ msgstr ""
 "Bittien määrä näytettä kohden. Tyypillisiä arvoja ovat 1 "
 "viivapiirrokselle ja 8 monibittikuville."
 
-#: .tmp/saneopts.h:223
+#: .tmp/saneopts.h:268
 #, no-c-format
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
 msgstr ""
 "Valitsee kuvanlukutavan (esim. viivapiirros, mustavalkoinen tai väri)."
 
-#: .tmp/saneopts.h:226
+#: .tmp/saneopts.h:271
 #, no-c-format
 msgid "Determines the speed at which the scan proceeds."
 msgstr "Määrää kuvanlukunopeuden."
 
-#: .tmp/saneopts.h:229
+#: .tmp/saneopts.h:274
 #, no-c-format
 msgid "Selects the scan source (such as a document-feeder)."
 msgstr "Määrää kuvanlukulähteen (kuten dokumentin syöttäjän)."
 
-#: .tmp/saneopts.h:232
+#: .tmp/saneopts.h:277
 #, no-c-format
 msgid "Controls whether backtracking is forced."
 msgstr "Määrää käytetäänkö jäljitystä."
 
-#: .tmp/saneopts.h:235
+#: .tmp/saneopts.h:280
 #, no-c-format
 msgid "Top-left x position of scan area."
 msgstr "Kuva-alueen vasemman yläkulman x-koordinaatti."
 
-#: .tmp/saneopts.h:238
+#: .tmp/saneopts.h:283
 #, no-c-format
 msgid "Top-left y position of scan area."
 msgstr "Kuva-alueen vasemman yläkulman y-koordinaatti."
 
-#: .tmp/saneopts.h:241
+#: .tmp/saneopts.h:286
 #, no-c-format
 msgid "Bottom-right x position of scan area."
 msgstr "Kuva-alueen oikean alakulman x-koordinaatti."
 
-#: .tmp/saneopts.h:244
+#: .tmp/saneopts.h:289
 #, no-c-format
 msgid "Bottom-right y position of scan area."
 msgstr "Kuva-alueen oikean alakulman y-koordinaatti."
 
-#: .tmp/saneopts.h:247
+#: .tmp/saneopts.h:292
 #, no-c-format
 msgid "Sets the resolution of the scanned image."
 msgstr "Asettaa luettavan kuvan tarkkuus."
 
-#: .tmp/saneopts.h:250
+#: .tmp/saneopts.h:295
 #, no-c-format
 msgid "Sets the horizontal resolution of the scanned image."
 msgstr "Asettaa luettavan kuvan vaakatarkkuuden."
 
-#: .tmp/saneopts.h:253
+#: .tmp/saneopts.h:298
 #, no-c-format
 msgid "Sets the vertical resolution of the scanned image."
 msgstr "Asettaa luettavan kuvan pystytarkkuuden."
 
-#: .tmp/saneopts.h:256
+#: .tmp/saneopts.h:301
+#, no-c-format
+msgid ""
+"Specifies the width of the media.  Required for automatic centering of "
+"sheet-fed scans."
+msgstr ""
+
+#: .tmp/saneopts.h:305
+#, fuzzy, no-c-format
+msgid "Specifies the height of the media."
+msgstr "Asettaa luettavan kuvan tarkkuus."
+
+#: .tmp/saneopts.h:308
 #, no-c-format
 msgid ""
 "Determines whether a builtin or a custom gamma-table should be used."
@@ -3453,7 +3633,7 @@ msgstr ""
 "Päättää käytetäänkö sisäänrakennettua vai käyttäjän asettamaa "
 "gammataulukkoa."
 
-#: .tmp/saneopts.h:260
+#: .tmp/saneopts.h:312
 #, no-c-format
 msgid ""
 "Gamma-correction table.  In color mode this option equally affects the "
@@ -3464,32 +3644,32 @@ msgstr ""
 "punaiseen, vihreään ja siniseen kanavaan yhtä aikaa. Se on siis "
 "intensiteettigamma-taulukko."
 
-#: .tmp/saneopts.h:265
+#: .tmp/saneopts.h:317
 #, no-c-format
 msgid "Gamma-correction table for the red band."
 msgstr "Gamma-korjaustaulukko punaiselle kaistalle."
 
-#: .tmp/saneopts.h:268
+#: .tmp/saneopts.h:320
 #, no-c-format
 msgid "Gamma-correction table for the green band."
 msgstr "Gamma-korjaustaulukko vihreälle kaistalle."
 
-#: .tmp/saneopts.h:271
+#: .tmp/saneopts.h:323
 #, no-c-format
 msgid "Gamma-correction table for the blue band."
 msgstr "Gamma-korjaus taulukko siniselle kaistalle."
 
-#: .tmp/saneopts.h:274
+#: .tmp/saneopts.h:326
 #, no-c-format
 msgid "Controls the brightness of the acquired image."
 msgstr "Asettaa luettavan kuvan kirkkauden"
 
-#: .tmp/saneopts.h:277
+#: .tmp/saneopts.h:329
 #, no-c-format
 msgid "Controls the contrast of the acquired image."
 msgstr "Asettaa luettavan kuvan kontrastin."
 
-#: .tmp/saneopts.h:280
+#: .tmp/saneopts.h:332
 #, no-c-format
 msgid ""
 "Selects the \"graininess\" of the acquired image.  Smaller values result "
@@ -3498,77 +3678,77 @@ msgstr ""
 "Asettaa kuvien \"rakeisuuden\". Pienemmät arvot tuottavat terävämpiä "
 "kuvia."
 
-#: .tmp/saneopts.h:284
+#: .tmp/saneopts.h:336
 #, no-c-format
 msgid "Selects whether the acquired image should be halftoned (dithered)."
 msgstr "Määrää, rasteroidaanko kuva."
 
-#: .tmp/saneopts.h:287 .tmp/saneopts.h:302
+#: .tmp/saneopts.h:339 .tmp/saneopts.h:354
 #, no-c-format
 msgid "Selects what radiance level should be considered \"black\"."
 msgstr "Asettaa kirkkaustason, joka tulkitaan \"mustaksi\"."
 
-#: .tmp/saneopts.h:290 .tmp/saneopts.h:311
+#: .tmp/saneopts.h:342 .tmp/saneopts.h:363
 #, no-c-format
 msgid "Selects what radiance level should be considered \"white\"."
 msgstr "Asettaa kirkkaustason, joka tulkitaan \"valkoiseksi\"."
 
-#: .tmp/saneopts.h:293
+#: .tmp/saneopts.h:345
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"white\"."
 msgstr "Asettaa punaisen kirkkaustason, joka tulkitaan \"valkoiseksi\"."
 
-#: .tmp/saneopts.h:296
+#: .tmp/saneopts.h:348
 #, no-c-format
 msgid "Selects what green radiance level should be considered \"white\"."
 msgstr "Asettaa vihreän kirkkaustason, joka tulkitaan \"valkoiseksi\"."
 
-#: .tmp/saneopts.h:299
+#: .tmp/saneopts.h:351
 #, no-c-format
 msgid "Selects what blue radiance level should be considered \"white\"."
 msgstr "Asettaa sinisen kirkkaustason, joka tulkitaan \"valkoiseksi\"."
 
-#: .tmp/saneopts.h:304
+#: .tmp/saneopts.h:356
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"black\"."
 msgstr "Asettaa punaisen kirkkaustason, joka tulkitaan \"mustaksi\"."
 
-#: .tmp/saneopts.h:306
+#: .tmp/saneopts.h:358
 #, no-c-format
 msgid "Selects what green radiance level should be considered \"black\"."
 msgstr "Asettaa vihreän kirkkaustason, joka tulkitaan \"mustaksi\"."
 
-#: .tmp/saneopts.h:308
+#: .tmp/saneopts.h:360
 #, no-c-format
 msgid "Selects what blue radiance level should be considered \"black\"."
 msgstr "Asettaa sinisen kirkkaustason, joka tulkitaan \"mustaksi\"."
 
-#: .tmp/saneopts.h:313
+#: .tmp/saneopts.h:365
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"full red\"."
 msgstr ""
 "Asettaa punaisen kirkkaustason, joka tulkitaan \"täysin punaiseksi\"."
 
-#: .tmp/saneopts.h:315
+#: .tmp/saneopts.h:367
 #, no-c-format
 msgid ""
 "Selects what green radiance level should be considered \"full green\"."
 msgstr ""
 "Asettaa vihreän kirkkaustason, joka tulkitaan \"täysin vihreäksi\"."
 
-#: .tmp/saneopts.h:318
+#: .tmp/saneopts.h:370
 #, no-c-format
 msgid ""
 "Selects what blue radiance level should be considered \"full blue\"."
 msgstr ""
 "Asettaa sinisen kirkkaustason, joka tulkitaan \"täysin siniseksi\"."
 
-#: .tmp/saneopts.h:322
+#: .tmp/saneopts.h:374
 #, no-c-format
 msgid "Controls the \"hue\" (blue-level) of the acquired image."
 msgstr "Määrää kuvan \"sävyä\" (sinistasoa)."
 
-#: .tmp/saneopts.h:325
+#: .tmp/saneopts.h:377
 #, no-c-format
 msgid ""
 "The saturation level controls the amount of \"blooming\" that occurs "
@@ -3577,143 +3757,183 @@ msgstr ""
 "Kylläisyystaso vaikuttaa \"puhkipalamiseen\" kameralla kuvattaessa. "
 "Suuremmat arvot aiheuttavat enemmän puhkipalamista."
 
-#: .tmp/saneopts.h:330
+#: .tmp/saneopts.h:382
 #, no-c-format
 msgid "The filename of the image to be loaded."
 msgstr "Ladattavan kuvan tiedostonimi."
 
-#: .tmp/saneopts.h:333
+#: .tmp/saneopts.h:385
 #, no-c-format
 msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
 "halftoned images."
 msgstr "Asettaa rasterikuvion koon rasterikuvia luettaessa."
 
-#: .tmp/saneopts.h:337
+#: .tmp/saneopts.h:389
 #, no-c-format
 msgid ""
 "Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr "Asettaa rasterikuvion koon rasterikuvia luettaessa."
 
-#: .tmp/saneopts.h:341
+#: .tmp/saneopts.h:393
 #, no-c-format
 msgid "Use same values for X and Y resolution"
 msgstr "Käytä samoja arvoja X- ja Y-tarkkuudelle"
 
-#: .tmp/saneopts.h:343
+#: .tmp/saneopts.h:395
 #, no-c-format
 msgid "Swap black and white"
 msgstr "Vaihda musta ja valkoinen keskenään"
 
-#: .tmp/saneopts.h:345
+#: .tmp/saneopts.h:397
 #, no-c-format
 msgid "Do a quality white-calibration"
 msgstr "Tee tarkka valkokalibrointi"
 
-#: .tmp/saneopts.h:347
+#: .tmp/saneopts.h:399
 #, no-c-format
 msgid "Use lens that doubles optical resolution"
 msgstr "Käytä linssiä joka tuplaa optisen tarkkuuden"
 
-#: .tmp/saneopts.h:349 .tmp/saneopts.h:361
+#: .tmp/saneopts.h:401 .tmp/saneopts.h:413
 #, no-c-format
 msgid "In RGB-mode use same values for each color"
 msgstr "RGB-tilassa käytä samoja arvoja joka värille"
 
-#: .tmp/saneopts.h:351
+#: .tmp/saneopts.h:403
 #, no-c-format
 msgid "Select minimum-brightness to get a white point"
 msgstr "Valitse valkoisen pisteen pienin kirkkaus"
 
-#: .tmp/saneopts.h:353
+#: .tmp/saneopts.h:405
 #, no-c-format
 msgid "Analog gamma-correction"
 msgstr "Analoginen gamma-korjaus"
 
-#: .tmp/saneopts.h:355
+#: .tmp/saneopts.h:407
 #, no-c-format
 msgid "Analog gamma-correction for red"
 msgstr "Analgoinen gamma-korjaus punaiselle"
 
-#: .tmp/saneopts.h:357
+#: .tmp/saneopts.h:409
 #, no-c-format
 msgid "Analog gamma-correction for green"
 msgstr "Analoginen gamma-korjaus vihreälle"
 
-#: .tmp/saneopts.h:359
+#: .tmp/saneopts.h:411
 #, no-c-format
 msgid "Analog gamma-correction for blue"
 msgstr "Analoginen gamma-korjaus siniselle"
 
-#: .tmp/saneopts.h:363
+#: .tmp/saneopts.h:415
 #, no-c-format
 msgid "Warmup lamp before scanning"
 msgstr "Lämmitä lamppu ennen kuvanlukua"
 
-#: .tmp/saneopts.h:365
+#: .tmp/saneopts.h:417
 #, no-c-format
 msgid "Define exposure-time for calibration"
 msgstr "Aseta valotusaika kalibroinnille"
 
-#: .tmp/saneopts.h:367
+#: .tmp/saneopts.h:419
 #, no-c-format
 msgid "Define exposure-time for red calibration"
 msgstr "Aseta valotusaika punaisen kalibroinnille"
 
-#: .tmp/saneopts.h:369
+#: .tmp/saneopts.h:421
 #, no-c-format
 msgid "Define exposure-time for green calibration"
 msgstr "Aseta valotusaika vihreän kalibroinnille"
 
-#: .tmp/saneopts.h:371
+#: .tmp/saneopts.h:423
 #, no-c-format
 msgid "Define exposure-time for blue calibration"
 msgstr "Aseta valotusaika sinisen kalibroinnille"
 
-#: .tmp/saneopts.h:373
+#: .tmp/saneopts.h:425
 #, no-c-format
 msgid "Define exposure-time for scan"
 msgstr "Aseta valotusaika kuvanluvulle"
 
-#: .tmp/saneopts.h:375
+#: .tmp/saneopts.h:427
 #, no-c-format
 msgid "Define exposure-time for red scan"
 msgstr "Aseta valotusaika punaiselle kuvanluvulle"
 
-#: .tmp/saneopts.h:377
+#: .tmp/saneopts.h:429
 #, no-c-format
 msgid "Define exposure-time for green scan"
 msgstr "Aseta valotusaika vihreälle kuvanluvulle"
 
-#: .tmp/saneopts.h:379
+#: .tmp/saneopts.h:431
 #, no-c-format
 msgid "Define exposure-time for blue scan"
 msgstr "Aseta valotusaika siniselle kuvanluvulle"
 
-#: .tmp/saneopts.h:381
+#: .tmp/saneopts.h:433
 #, no-c-format
 msgid "Enable selection of exposure-time"
 msgstr "Valotusajan asettaminen"
 
-#: .tmp/saneopts.h:383
+#: .tmp/saneopts.h:435
 #, no-c-format
 msgid "Define lamp density for calibration"
 msgstr "Määritä valomäärä kalibrointia varten"
 
-#: .tmp/saneopts.h:385
+#: .tmp/saneopts.h:437
 #, no-c-format
 msgid "Define lamp density for scan"
 msgstr "Määritä valomäärä kuvanlukua varten"
 
-#: .tmp/saneopts.h:387
+#: .tmp/saneopts.h:439
 #, no-c-format
 msgid "Enable selection of lamp density"
 msgstr "Valomäärän valinta"
 
-#: .tmp/saneopts.h:389 .tmp/umax.c:5828
+#: .tmp/saneopts.h:441 .tmp/umax.c:5831
 #, no-c-format
 msgid "Turn off lamp when program exits"
 msgstr "Sammuttaa valon ohjelmasta poistuttaessa"
+
+#: .tmp/saneopts.h:444
+#, fuzzy, no-c-format
+msgid "Scan button"
+msgstr "Kuvanluvun tarkkuus"
+
+#: .tmp/saneopts.h:445
+#, fuzzy, no-c-format
+msgid "Email button"
+msgstr "Odota painiketta"
+
+#: .tmp/saneopts.h:446
+#, fuzzy, no-c-format
+msgid "Fax button"
+msgstr "Odota painiketta"
+
+#: .tmp/saneopts.h:447
+#, fuzzy, no-c-format
+msgid "Copy button"
+msgstr "Odota painiketta"
+
+#: .tmp/saneopts.h:448
+#, no-c-format
+msgid "PDF button"
+msgstr ""
+
+#: .tmp/saneopts.h:449
+#, no-c-format
+msgid "Cancel button"
+msgstr ""
+
+#: .tmp/saneopts.h:450
+#, no-c-format
+msgid "Page loaded"
+msgstr ""
+
+#: .tmp/saneopts.h:451
+#, fuzzy, no-c-format
+msgid "Cover open"
+msgstr "Värikuvio"
 
 #: .tmp/sm3840.c:758
 #, fuzzy, no-c-format
@@ -3838,43 +4058,43 @@ msgstr "Väri RGB"
 msgid "Color RGB TEXT"
 msgstr "Väri RGB TEKSTI"
 
-#: .tmp/teco1.c:1152 .tmp/teco1.c:1153 .tmp/teco2.c:1960 .tmp/teco2.c:1961
+#: .tmp/teco1.c:1152 .tmp/teco1.c:1153 .tmp/teco2.c:1971 .tmp/teco2.c:1972
 #: .tmp/teco3.c:977 .tmp/teco3.c:978
 #, no-c-format
 msgid "Dither"
 msgstr "Rasteri"
 
-#: .tmp/test.c:134
+#: .tmp/test.c:136
 #, no-c-format
 msgid "Solid black"
 msgstr "Täysi musta"
 
-#: .tmp/test.c:134
+#: .tmp/test.c:136
 #, no-c-format
 msgid "Solid white"
 msgstr "Täysi valkoinen"
 
-#: .tmp/test.c:135
+#: .tmp/test.c:137
 #, no-c-format
 msgid "Color pattern"
 msgstr "Värikuvio"
 
-#: .tmp/test.c:135
+#: .tmp/test.c:137
 #, no-c-format
 msgid "Grid"
 msgstr "Ruudukko"
 
-#: .tmp/test.c:160 .tmp/test.c:168
+#: .tmp/test.c:162 .tmp/test.c:170
 #, no-c-format
 msgid "First entry"
 msgstr "Ensimmäinen"
 
-#: .tmp/test.c:160 .tmp/test.c:168
+#: .tmp/test.c:162 .tmp/test.c:170
 #, no-c-format
 msgid "Second entry"
 msgstr "Toinen"
 
-#: .tmp/test.c:162
+#: .tmp/test.c:164
 #, no-c-format
 msgid ""
 "This is the very long third entry. Maybe the frontend has an idea how to "
@@ -3883,12 +4103,12 @@ msgstr ""
 "Tämä on erittäin pitkä kolmas rivi. Ehkä käyttöliittymä keksii miten se "
 "näytetään"
 
-#: .tmp/test.c:343
+#: .tmp/test.c:347
 #, no-c-format
 msgid "Hand-scanner simulation"
 msgstr "Käsikuvanlukijasimulaatio"
 
-#: .tmp/test.c:344
+#: .tmp/test.c:348
 #, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
@@ -3901,12 +4121,12 @@ msgstr ""
 "mahdollistaa osaako ohjelma käsitellä tätä tilannetta. Tämä asetus "
 "asettaa kuvan leveydeksi 11 cm."
 
-#: .tmp/test.c:361
+#: .tmp/test.c:365
 #, no-c-format
 msgid "Three-pass simulation"
 msgstr "Kolmivaihesimulaatio"
 
-#: .tmp/test.c:362
+#: .tmp/test.c:366
 #, no-c-format
 msgid ""
 "Simulate a three-pass scanner. In color mode, three frames are "
@@ -3914,34 +4134,34 @@ msgid ""
 msgstr ""
 "Simuloi kolmivaihekuvanlukijaa. Väritilassa, kolme kehystä lähetetään."
 
-#: .tmp/test.c:377
+#: .tmp/test.c:381
 #, no-c-format
 msgid "Set the order of frames"
 msgstr "Aseta kehysten järjestys"
 
-#: .tmp/test.c:378
+#: .tmp/test.c:382
 #, no-c-format
 msgid "Set the order of frames in three-pass color mode."
 msgstr "Asettaa kehysten järjestyksen kolmivaihetilassa."
 
-#: .tmp/test.c:411
+#: .tmp/test.c:415
 #, no-c-format
 msgid ""
 "If Automatic Document Feeder is selected, the feeder will be 'empty' "
 "after 10 scans."
 msgstr ""
 
-#: .tmp/test.c:426
+#: .tmp/test.c:430
 #, no-c-format
 msgid "Special Options"
 msgstr "Erikoisasetukset"
 
-#: .tmp/test.c:439
+#: .tmp/test.c:443
 #, no-c-format
 msgid "Select the test picture"
 msgstr "Valitse koekuva"
 
-#: .tmp/test.c:441
+#: .tmp/test.c:445
 #, no-c-format
 msgid ""
 "Select the kind of test picture. Available options:\n"
@@ -3957,12 +4177,12 @@ msgstr ""
 "Värikuvio: piirtää erilaisia värikuvioita tilasta riippuen.\n"
 "Ruudukko: piirtää mustavalkoruudukon 10 mm ruuduilla."
 
-#: .tmp/test.c:462
+#: .tmp/test.c:466
 #, no-c-format
 msgid "Invert endianness"
 msgstr "Käännä tavujärjestys"
 
-#: .tmp/test.c:463
+#: .tmp/test.c:467
 #, no-c-format
 msgid ""
 "Exchange upper and lower byte of image data in 16 bit modes. This option "
@@ -3973,55 +4193,55 @@ msgstr ""
 "toiminnolla voidaan kokeilla 16-bittisiä tiloja käyttöliittymissä, esim. "
 "käyttääkö käyttöliittymä oikeaa tavujärjestystä."
 
-#: .tmp/test.c:479
+#: .tmp/test.c:483
 #, no-c-format
 msgid "Read limit"
 msgstr "Lukuraja"
 
-#: .tmp/test.c:480
+#: .tmp/test.c:484
 #, no-c-format
 msgid "Limit the amount of data transferred with each call to sane_read()."
 msgstr ""
 "Rajoittaa tiedon määrää, joka voidaan lukea yhdellä sane_read()-kutsulla."
 
-#: .tmp/test.c:493
+#: .tmp/test.c:497
 #, no-c-format
 msgid "Size of read-limit"
 msgstr "Lukurajan koko"
 
-#: .tmp/test.c:494
+#: .tmp/test.c:498
 #, no-c-format
 msgid ""
 "The (maximum) amount of data transferred with each call to sane_read()."
 msgstr "Suurin tiedon määrä, joka välitetään yhdellä sane_read()-kutsulla."
 
-#: .tmp/test.c:509
+#: .tmp/test.c:513
 #, no-c-format
 msgid "Read delay"
 msgstr "Lukuviive"
 
-#: .tmp/test.c:510
+#: .tmp/test.c:514
 #, no-c-format
 msgid "Delay the transfer of data to the pipe."
 msgstr "Viivästää tiedon siirtoa."
 
-#: .tmp/test.c:522
+#: .tmp/test.c:526
 #, no-c-format
 msgid "Duration of read-delay"
 msgstr "Lukuviiveen kesto"
 
-#: .tmp/test.c:523
+#: .tmp/test.c:527
 #, no-c-format
 msgid ""
 "How long to wait after transferring each buffer of data through the pipe."
 msgstr "Kuinka kauan odotetaan jokaisen lähetetyn puskurin jälkeen."
 
-#: .tmp/test.c:538
+#: .tmp/test.c:542
 #, no-c-format
 msgid "Return-value of sane_read"
 msgstr "sane_read() paluuarvo"
 
-#: .tmp/test.c:540
+#: .tmp/test.c:544
 #, no-c-format
 msgid ""
 "Select the return-value of sane_read(). \"Default\" is the normal "
@@ -4032,22 +4252,22 @@ msgstr ""
 "kuvanluvun käsittely. Kaikki muut paluuarvot ovat käyttöliittymän "
 "testaamista varten."
 
-#: .tmp/test.c:557
+#: .tmp/test.c:561
 #, no-c-format
 msgid "Loss of pixels per line"
 msgstr "Kadonneita pikseleitä / rivi"
 
-#: .tmp/test.c:559
+#: .tmp/test.c:563
 #, no-c-format
 msgid "The number of pixels that are wasted at the end of each line."
 msgstr "Rivin lopusta puuttuvien pikselien määrä."
 
-#: .tmp/test.c:572
+#: .tmp/test.c:576
 #, no-c-format
 msgid "Fuzzy parameters"
 msgstr "Epämääräiset parametrit"
 
-#: .tmp/test.c:573
+#: .tmp/test.c:577
 #, no-c-format
 msgid ""
 "Return fuzzy lines and bytes per line when sane_parameters() is called "
@@ -4056,22 +4276,22 @@ msgstr ""
 "Palauttaa epämääräisiä rivejä ja tavuja, kun sane_parameters() kutsutaan "
 "ennen sane_start()."
 
-#: .tmp/test.c:586
+#: .tmp/test.c:590
 #, no-c-format
 msgid "Use non-blocking IO"
 msgstr "Käytä non-blocking IO"
 
-#: .tmp/test.c:587
+#: .tmp/test.c:591
 #, no-c-format
 msgid "Use non-blocking IO for sane_read() if supported by the frontend."
 msgstr "sane_read käyttää non-blocking IO:ta."
 
-#: .tmp/test.c:600
+#: .tmp/test.c:604
 #, no-c-format
 msgid "Offer select file descriptor"
 msgstr "Tarjoa select file descriptor"
 
-#: .tmp/test.c:601
+#: .tmp/test.c:605
 #, no-c-format
 msgid ""
 "Offer a select filedescriptor for detecting if sane_read() will return "
@@ -4080,12 +4300,12 @@ msgstr ""
 "Tarjoaa select file descriptorin, jolla voidaan tarkistaa palauttaisiko "
 "sane_read() dataa."
 
-#: .tmp/test.c:614
+#: .tmp/test.c:618
 #, no-c-format
 msgid "Enable test options"
 msgstr "Kokeiluasetukset päälle"
 
-#: .tmp/test.c:615
+#: .tmp/test.c:619
 #, no-c-format
 msgid ""
 "Enable various test options. This is for testing the ability of "
@@ -4094,27 +4314,27 @@ msgstr ""
 "Asettaa päälle useita kokeiluasetuksia. Asetuksilla voidaan tarkistaa "
 "käyttöliittymän kyky näyttää ja muokata kaikenlaisia SANE-asetuksia."
 
-#: .tmp/test.c:629
+#: .tmp/test.c:633
 #, no-c-format
 msgid "Print options"
 msgstr "Tulostusasetukset"
 
-#: .tmp/test.c:630
+#: .tmp/test.c:634
 #, no-c-format
 msgid "Print a list of all options."
 msgstr "Tulosta lista kaikista asetuksista"
 
-#: .tmp/test.c:707
+#: .tmp/test.c:711
 #, no-c-format
 msgid "Bool test options"
 msgstr "Boolen kokeiluasetukset"
 
-#: .tmp/test.c:720
+#: .tmp/test.c:724
 #, no-c-format
 msgid "(1/6) Bool soft select soft detect"
 msgstr "(1/6) Boolen pehmovalinta pehmotunnistus"
 
-#: .tmp/test.c:722
+#: .tmp/test.c:726
 #, no-c-format
 msgid ""
 "(1/6) Bool test option that has soft select and soft detect (and "
@@ -4123,12 +4343,12 @@ msgstr ""
 "(1/6) Boolen kokeiluasetus, jolla on pehmovalinta- ja pehmotunnistus- "
 "ominaisuuksia. Se on vain tavallinen boolen asetus."
 
-#: .tmp/test.c:738
+#: .tmp/test.c:742
 #, no-c-format
 msgid "(2/6) Bool hard select soft detect"
 msgstr "(2/6) Boolen kovavalinta pehmotunnistus"
 
-#: .tmp/test.c:740
+#: .tmp/test.c:744
 #, no-c-format
 msgid ""
 "(2/6) Bool test option that has hard select and soft detect (and "
@@ -4139,12 +4359,12 @@ msgstr ""
 "tarkoittaa, että käyttöliittymä ei voi itse muttaa asetusta, mutta "
 "käyttäjä voi (esim. painamalla painiketta laitteessa)."
 
-#: .tmp/test.c:757
+#: .tmp/test.c:761
 #, no-c-format
 msgid "(3/6) Bool hard select"
 msgstr "(3/6) Boolen kovavalinta"
 
-#: .tmp/test.c:758
+#: .tmp/test.c:762
 #, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
@@ -4156,12 +4376,12 @@ msgstr ""
 "painamalla painiketta laitteessa), eikä käyttöliittymä voi lukea "
 "asetusta."
 
-#: .tmp/test.c:776
+#: .tmp/test.c:780
 #, no-c-format
 msgid "(4/6) Bool soft detect"
 msgstr "(4/6) Boolen pehmotunnistus"
 
-#: .tmp/test.c:777
+#: .tmp/test.c:781
 #, no-c-format
 msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
@@ -4170,12 +4390,12 @@ msgstr ""
 "(4/6) Boolen kokeiluasetus, jolla on pehmotunnistus. Se tarkoittaa, että "
 "asetus voidaan vain lukea."
 
-#: .tmp/test.c:793
+#: .tmp/test.c:797
 #, no-c-format
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Boolen pehmovalinta ja pehmotunnistus emuloita"
 
-#: .tmp/test.c:794
+#: .tmp/test.c:798
 #, no-c-format
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated "
@@ -4184,12 +4404,12 @@ msgstr ""
 "(5/6) Boolen kokeiluasetus, jolla on pehmovalinta, pehmotunnistus ja "
 "emulointi."
 
-#: .tmp/test.c:810
+#: .tmp/test.c:814
 #, no-c-format
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr "(6/6) Boolen pehmovalinta pehmotunnistus auto"
 
-#: .tmp/test.c:811
+#: .tmp/test.c:815
 #, no-c-format
 msgid ""
 "(6/6) Bool test option that has soft select, soft detect, and automatic "
@@ -4199,27 +4419,27 @@ msgstr ""
 "(6/6) Boolen kokeiluasetus, jolla on pehmovalinta, pehmotunnitus ja "
 "automaattiominaisuudet. Ajuri voi säätää tätä asetusta automaattisesti."
 
-#: .tmp/test.c:828
+#: .tmp/test.c:832
 #, no-c-format
 msgid "Int test options"
 msgstr "Kokonaislukukokeiluasetukset"
 
-#: .tmp/test.c:841
+#: .tmp/test.c:845
 #, no-c-format
 msgid "(1/6) Int"
 msgstr "(1/6) Kokonaisluku"
 
-#: .tmp/test.c:842
+#: .tmp/test.c:846
 #, no-c-format
 msgid "(1/6) Int test option with no unit and no constraint set."
 msgstr "(1/6) Kokonaisluku ilman yksikköä ja rajoituksia."
 
-#: .tmp/test.c:857
+#: .tmp/test.c:861
 #, no-c-format
 msgid "(2/6) Int constraint range"
 msgstr "(2/6) Kokonaisluku aluerajoituksella"
 
-#: .tmp/test.c:858
+#: .tmp/test.c:862
 #, no-c-format
 msgid ""
 "(2/6) Int test option with unit pixel and constraint range set. Minimum "
@@ -4228,22 +4448,22 @@ msgstr ""
 "(2/6) Koknaisluku pikseli-yksiköllä ja aluerajoituksella. Minimi on 4, "
 "maksimi 192, ja askel on 2."
 
-#: .tmp/test.c:874
+#: .tmp/test.c:878
 #, no-c-format
 msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Kokonaisluku sanalistalla"
 
-#: .tmp/test.c:875
+#: .tmp/test.c:879
 #, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr "(3/6) Kokonaisluku bitti-yksiköllä ja sanalistarajoituksella."
 
-#: .tmp/test.c:890
+#: .tmp/test.c:894
 #, no-c-format
 msgid "(4/6) Int array"
 msgstr "(4/6) Kokonaislukutaulukko"
 
-#: .tmp/test.c:891
+#: .tmp/test.c:895
 #, no-c-format
 msgid ""
 "(4/6) Int test option with unit mm and using an array without "
@@ -4251,12 +4471,12 @@ msgid ""
 msgstr ""
 "(4/6) Kokonaisluku mm-yksiköllä käyttäen taulukkoa ilman rajoituksia."
 
-#: .tmp/test.c:906
+#: .tmp/test.c:910
 #, no-c-format
 msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Kokonaislukutaulukko aluerajoituksella"
 
-#: .tmp/test.c:907
+#: .tmp/test.c:911
 #, no-c-format
 msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
@@ -4265,12 +4485,12 @@ msgstr ""
 "(5/6) Kokonaisluku dpi-yksiköllä ja taulukolla aluerajoituksella. Minimi "
 "on 4, maksimi 192, ja askel on 2."
 
-#: .tmp/test.c:924
+#: .tmp/test.c:928
 #, no-c-format
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Kokonaislukutaulukko sanalistalla"
 
-#: .tmp/test.c:925
+#: .tmp/test.c:929
 #, no-c-format
 msgid ""
 "(6/6) Int test option with unit percent and using an array with a word "
@@ -4279,27 +4499,27 @@ msgstr ""
 "(6/6) Kokonaisluku prosenttiyksiköllä ja taulukolla "
 "sanalistarajoituksella."
 
-#: .tmp/test.c:941
+#: .tmp/test.c:945
 #, no-c-format
 msgid "Fixed test options"
 msgstr "Murtolukukokeiluasetukset"
 
-#: .tmp/test.c:954
+#: .tmp/test.c:958
 #, no-c-format
 msgid "(1/3) Fixed"
 msgstr "(1/3) Murtoluku"
 
-#: .tmp/test.c:955
+#: .tmp/test.c:959
 #, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
 msgstr "(1/3) Murtoluku kokeiluasetus ilman yksikköä ja rajoituksia."
 
-#: .tmp/test.c:970
+#: .tmp/test.c:974
 #, no-c-format
 msgid "(2/3) Fixed constraint range"
 msgstr "(2/3) Murtoluku aluerajoituksella"
 
-#: .tmp/test.c:971
+#: .tmp/test.c:975
 #, no-c-format
 msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
@@ -4308,66 +4528,66 @@ msgstr ""
 "(2/3) Murtoluku kokeiluasetus mikrosekunti-yksiköllä ja "
 "aluerajoituksella. Minimi on -42,17, maksimi 32767,9999, ja askel on 2,0."
 
-#: .tmp/test.c:987
+#: .tmp/test.c:991
 #, no-c-format
 msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Murtoluku rajoituksella ja sanalistalla"
 
-#: .tmp/test.c:988
+#: .tmp/test.c:992
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
 "(3/3) Murtolukukokeiluasetus ilman yksikköä, rajoituksella ja "
 "sanalistalla."
 
-#: .tmp/test.c:1003
+#: .tmp/test.c:1007
 #, no-c-format
 msgid "String test options"
 msgstr "Merkkijonokokeiluasetukset"
 
-#: .tmp/test.c:1016
+#: .tmp/test.c:1020
 #, no-c-format
 msgid "(1/3) String"
 msgstr "(1/3) Merkkijono"
 
-#: .tmp/test.c:1017
+#: .tmp/test.c:1021
 #, no-c-format
 msgid "(1/3) String test option without constraint."
 msgstr "(1/3) Merkkijono ilman rajoituksia."
 
-#: .tmp/test.c:1034
+#: .tmp/test.c:1038
 #, no-c-format
 msgid "(2/3) String constraint string list"
 msgstr "(2/3) Merkkijono sanalistalla"
 
-#: .tmp/test.c:1035
+#: .tmp/test.c:1039
 #, no-c-format
 msgid "(2/3) String test option with string list constraint."
 msgstr "(2/3) Merkkijono sanalistarajoituksella"
 
-#: .tmp/test.c:1054
+#: .tmp/test.c:1058
 #, no-c-format
 msgid "(3/3) String constraint long string list"
 msgstr "(3/3) Merkkijono pitkällä sanalistalla"
 
-#: .tmp/test.c:1055
+#: .tmp/test.c:1059
 #, no-c-format
 msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
 "entries..."
 msgstr "(3/3) Merkkijono sanalistalla. Sanalista sisältää enemmän sanoja."
 
-#: .tmp/test.c:1075
+#: .tmp/test.c:1079
 #, no-c-format
 msgid "Button test options"
 msgstr "Painikekokeiluasetukset"
 
-#: .tmp/test.c:1088
+#: .tmp/test.c:1092
 #, no-c-format
 msgid "(1/1) Button"
 msgstr "(1/1) Painike"
 
-#: .tmp/test.c:1089
+#: .tmp/test.c:1093
 #, no-c-format
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Painike. Tulostaa tekstiä."
@@ -4376,16 +4596,6 @@ msgstr "(1/1) Painike. Tulostaa tekstiä."
 #, no-c-format
 msgid "Color 36"
 msgstr "Väri 36"
-
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5810
-#, no-c-format
-msgid "Lamp off"
-msgstr "Valo pois"
-
-#: .tmp/umax1220u.c:249 .tmp/umax.c:5811
-#, no-c-format
-msgid "Turn off scanner lamp"
-msgstr "Sammuttaa kuvanlukijan valon"
 
 #: .tmp/umax.c:189
 #, no-c-format
@@ -4427,112 +4637,102 @@ msgstr "Monitaso RGB-väri (yksivaihe)"
 msgid "Ignore calibration"
 msgstr "Jätä kalibrointi huomiotta"
 
-#: .tmp/umax.c:5731
+#: .tmp/umax.c:5734
 #, no-c-format
 msgid "Disable pre focus"
 msgstr "Poista esitarkennus"
 
-#: .tmp/umax.c:5732
+#: .tmp/umax.c:5735
 #, no-c-format
 msgid "Do not calibrate focus"
 msgstr "Ei kalibroida tarkennusta"
 
-#: .tmp/umax.c:5743
+#: .tmp/umax.c:5746
 #, no-c-format
 msgid "Manual pre focus"
 msgstr "Manuaalinen esitarkennus"
 
-#: .tmp/umax.c:5755
+#: .tmp/umax.c:5758
 #, no-c-format
 msgid "Fix focus position"
 msgstr "Korjaa tarkennuspiste"
 
-#: .tmp/umax.c:5767
+#: .tmp/umax.c:5770
 #, no-c-format
 msgid "Lens calibration in doc position"
 msgstr "Linssin tarkennus kohteeseen"
 
-#: .tmp/umax.c:5768
+#: .tmp/umax.c:5771
 #, no-c-format
 msgid "Calibrate lens focus in document position"
 msgstr "Tarkentaa linssin tarkennuksen kohteeseen"
 
-#: .tmp/umax.c:5779
+#: .tmp/umax.c:5782
 #, no-c-format
 msgid "Holder focus position 0mm"
 msgstr "Pidikkeen tarkennuspiste 0mm"
 
-#: .tmp/umax.c:5780
+#: .tmp/umax.c:5783
 #, no-c-format
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Käytä 0mm pidikkeen tarkennuspisteenä 0,6mm sijaan"
 
-#: .tmp/umax.c:5793 .tmp/umax_pp.c:560
-#, no-c-format
-msgid "Lamp on"
-msgstr "Valo päälle"
-
-#: .tmp/umax.c:5794
-#, no-c-format
-msgid "Turn on scanner lamp"
-msgstr "Laittaa kuvanlukijan valon päälle"
-
-#: .tmp/umax.c:5883
+#: .tmp/umax.c:5886
 #, no-c-format
 msgid "Calibration mode"
 msgstr "Kalibrointitila"
 
-#: .tmp/umax.c:5884
+#: .tmp/umax.c:5887
 #, no-c-format
 msgid "Define calibration mode"
 msgstr "Määrää kalibraatiotavan"
 
-#: .tmp/umax_pp.c:561
+#: .tmp/umax_pp.c:638
 #, no-c-format
 msgid "Sets lamp on/off"
 msgstr "Asettaa valon päälle/pois"
 
-#: .tmp/umax_pp.c:570
+#: .tmp/umax_pp.c:647
 #, no-c-format
 msgid "UTA on"
 msgstr "UTA päällä"
 
-#: .tmp/umax_pp.c:571
+#: .tmp/umax_pp.c:648
 #, no-c-format
 msgid "Sets UTA on/off"
 msgstr "Asettaa UTAN päälle/pois"
 
-#: .tmp/umax_pp.c:692
+#: .tmp/umax_pp.c:769
 #, no-c-format
 msgid "Offset"
 msgstr "Siirtymä"
 
-#: .tmp/umax_pp.c:694
+#: .tmp/umax_pp.c:771
 #, no-c-format
 msgid "Color channels offset settings"
 msgstr "Värikanavien siirtymä"
 
-#: .tmp/umax_pp.c:701
+#: .tmp/umax_pp.c:778
 #, no-c-format
 msgid "Gray offset"
 msgstr "Harmaan siirtymä"
 
-#: .tmp/umax_pp.c:702
+#: .tmp/umax_pp.c:779
 #, no-c-format
 msgid "Sets gray channel offset"
 msgstr "Asettaa harmaan kanavan siirtymän"
 
-#: .tmp/umax_pp.c:714
+#: .tmp/umax_pp.c:791
 #, no-c-format
 msgid "Sets red channel offset"
 msgstr "Asettaa punaisen kanavan siirtymän"
 
-#: .tmp/umax_pp.c:726
+#: .tmp/umax_pp.c:803
 #, no-c-format
 msgid "Sets green channel offset"
 msgstr "Asettaa vihreän kanavan siirtymän"
 
-#: .tmp/umax_pp.c:738
+#: .tmp/umax_pp.c:815
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Asettaa sinisen kanavan siirtymän"

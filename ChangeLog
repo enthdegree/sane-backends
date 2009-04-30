@@ -1,3 +1,10 @@
+2009-04-29  m. allan noah <kitno455 a t gmail d o t com>
+	* po/sane-backends.nl.po: updates from Martin Kho
+	* po/sane-backends.de.po: updates from Burkhard Luck
+	* po/Makefile.am, po/Makefile.in, po/sane-backends.en_GB.po: new
+	  translation from Andrew Coles
+	* po/*.po: rebuilt with new strings
+
 2009-04-29  Stéphane Voltz <stef.dev@free.fr>
 	* doc/sane-genesys.man doc/sane-rts8891.man: documentation updates and
 	  cleanups

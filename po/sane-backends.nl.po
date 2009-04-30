@@ -1,69 +1,69 @@
 # translation of sane-backends.nl.po to Nederlands
 # Dutch translation for SANE backend options
 # Copyright (C) 2002 SANE Project.
-# Martin Kho <mkho@xs4all.nl>, 2003.
+# Martin Kho <mkho@xs4all.nl>, 2003, 2009.
 # Bertrik Sikken <bertrik@zonnet.nl>, 2003.
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends.nl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-17 22:31+0100\n"
-"PO-Revision-Date: 2007-12-17 23:01+0100\n"
+"POT-Creation-Date: 2009-04-29 21:03-0400\n"
+"PO-Revision-Date: 2009-04-29 18:51+0200\n"
 "Last-Translator: Martin Kho <mkho@xs4all.nl>\n"
-"Language-Team: Nederlands\n"
+"Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.0.2\n"
+"X-Generator: Lokalize 0.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .tmp/artec_eplus48u.c:154 .tmp/canon.c:140 .tmp/canon.c:151
-#: .tmp/canon.c:157 .tmp/canon-sane.c:703 .tmp/canon-sane.c:1060
+#: .tmp/artec_eplus48u.c:154 .tmp/canon-sane.c:703 .tmp/canon-sane.c:1060
 #: .tmp/canon-sane.c:1269 .tmp/canon-sane.c:1302 .tmp/canon-sane.c:1398
-#: .tmp/canon-sane.c:1623 .tmp/genesys.c:91 .tmp/hp3900_sane.c:383
-#: .tmp/hp3900_sane.c:1028 .tmp/hp-option.c:2926 .tmp/ma1509.c:101
-#: .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb2.c:109
-#: .tmp/mustek_usb.c:270 .tmp/saneopts.h:395 .tmp/sceptre.h:289
-#: .tmp/sm3840.c:82 .tmp/sm3840.c:339 .tmp/snapscan-options.c:79
-#: .tmp/umax.c:186 .tmp/umax_pp.c:137
+#: .tmp/canon-sane.c:1623 .tmp/canon.c:140 .tmp/canon.c:151
+#: .tmp/canon.c:157 .tmp/hp-option.c:2926 .tmp/hp3900_sane.c:381
+#: .tmp/hp3900_sane.c:1038 .tmp/ma1509.c:101 .tmp/mustek.c:129
+#: .tmp/mustek.c:134 .tmp/mustek_usb.c:270 .tmp/mustek_usb2.c:109
+#: .tmp/saneopts.h:456 .tmp/sceptre.h:289 .tmp/sm3840.c:82
+#: .tmp/sm3840.c:339 .tmp/snapscan-options.c:79 .tmp/umax.c:186
+#: .tmp/umax_pp.c:138
 #, no-c-format
 msgid "Lineart"
 msgstr "Lijntekening"
 
 #: .tmp/artec_eplus48u.c:155 .tmp/hp-option.c:2928 .tmp/leo.h:261
-#: .tmp/teco1.h:292 .tmp/teco3.h:295 .tmp/umax_pp.c:137
+#: .tmp/teco1.h:292 .tmp/teco3.h:295 .tmp/umax_pp.c:138
 #, no-c-format
 msgid "Grayscale"
 msgstr "Grijstrap"
 
-#: .tmp/artec_eplus48u.c:156 .tmp/canon.c:141 .tmp/canon.c:146
-#: .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon-sane.c:731
-#: .tmp/canon-sane.c:939 .tmp/canon-sane.c:1075 .tmp/canon-sane.c:1317
-#: .tmp/canon-sane.c:1635 .tmp/canon-sane.c:1740 .tmp/canon-sane.c:2057
-#: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:88
-#: .tmp/hp3900_sane.c:383 .tmp/hp3900_sane.c:1024 .tmp/hp5590.c:86
-#: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101
-#: .tmp/mustek.c:128 .tmp/mustek.c:132 .tmp/mustek_usb.c:268
-#: .tmp/pixma.c:623 .tmp/pixma_sane_options.c:70 .tmp/saneopts.h:393
-#: .tmp/sceptre.h:292 .tmp/sm3840.c:81 .tmp/snapscan-options.c:76
-#: .tmp/teco1.h:293 .tmp/teco3.h:296 .tmp/test.c:124 .tmp/umax.c:191
-#: .tmp/umax_pp.c:137
+#: .tmp/artec_eplus48u.c:156 .tmp/canon-sane.c:731 .tmp/canon-sane.c:939
+#: .tmp/canon-sane.c:1075 .tmp/canon-sane.c:1317 .tmp/canon-sane.c:1635
+#: .tmp/canon-sane.c:1740 .tmp/canon-sane.c:2057 .tmp/canon.c:141
+#: .tmp/canon.c:146 .tmp/canon.c:151 .tmp/canon.c:157 .tmp/epson.c:490
+#: .tmp/epson2.c:201 .tmp/hp-option.c:2929 .tmp/hp3900_sane.c:381
+#: .tmp/hp3900_sane.c:1034 .tmp/hp5590.c:87 .tmp/leo.h:262
+#: .tmp/ma1509.c:101 .tmp/mustek.c:130 .tmp/mustek.c:134
+#: .tmp/mustek_usb.c:268 .tmp/pixma.c:644 .tmp/pixma_sane_options.c:70
+#: .tmp/saneopts.h:454 .tmp/sceptre.h:292 .tmp/sm3840.c:81
+#: .tmp/snapscan-options.c:76 .tmp/teco1.h:293 .tmp/teco3.h:296
+#: .tmp/test.c:126 .tmp/umax.c:191 .tmp/umax_pp.c:138
 #, no-c-format
 msgid "Color"
 msgstr "Kleur"
 
-#: .tmp/artec_eplus48u.c:2805 .tmp/canon.c:1482 .tmp/gt68xx.c:665
-#: .tmp/hp-option.c:2952 .tmp/leo.c:871 .tmp/ma1509.c:597
-#: .tmp/matsushita.c:1189 .tmp/microtek2.h:601 .tmp/mustek.c:4405
-#: .tmp/mustek_usb2.c:431 .tmp/mustek_usb.c:353 .tmp/niash.c:756
-#: .tmp/plustek.c:853 .tmp/plustek_pp.c:792 .tmp/sceptre.c:750
-#: .tmp/snapscan-options.c:561 .tmp/stv680.c:1067 .tmp/teco1.c:1143
-#: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/u12.c:592 .tmp/umax.c:5224
-#: .tmp/umax_pp.c:550
+#: .tmp/artec_eplus48u.c:2805 .tmp/canon.c:1482 .tmp/genesys.c:5002
+#: .tmp/gt68xx.c:667 .tmp/hp-option.c:2952 .tmp/leo.c:871
+#: .tmp/ma1509.c:597 .tmp/matsushita.c:1189 .tmp/microtek2.h:601
+#: .tmp/mustek.c:4407 .tmp/mustek_usb.c:353 .tmp/mustek_usb2.c:431
+#: .tmp/niash.c:756 .tmp/plustek.c:853 .tmp/plustek_pp.c:792
+#: .tmp/saneopts.h:158 .tmp/sceptre.c:750 .tmp/snapscan-options.c:561
+#: .tmp/stv680.c:1067 .tmp/teco1.c:1143 .tmp/teco2.c:1962 .tmp/teco3.c:968
+#: .tmp/u12.c:592 .tmp/umax.c:5227 .tmp/umax_pp.c:627
 #, no-c-format
 msgid "Enhancement"
 msgstr "Kleurverbetering"
 
-#: .tmp/artec_eplus48u.c:2874 .tmp/pnm.c:276
+#: .tmp/artec_eplus48u.c:2874 .tmp/pnm.c:282
 #, no-c-format
 msgid "Defaults"
 msgstr "Standaardinstellingen"
@@ -73,15 +73,15 @@ msgstr "Standaardinstellingen"
 msgid "Set default values for enhancement controls."
 msgstr "Kies standaard waarden om verbeter opties te krijgen."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2086 .tmp/epson.c:3288
-#: .tmp/genesys.c:4688 .tmp/gt68xx.c:696 .tmp/hp3500.c:976
-#: .tmp/hp3900_sane.c:1243 .tmp/hp-option.c:3296 .tmp/leo.c:823
-#: .tmp/lexmark.c:214 .tmp/ma1509.c:549 .tmp/matsushita.c:1135
-#: .tmp/microtek2.h:600 .tmp/mustek.c:4357 .tmp/mustek_usb2.c:465
-#: .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144 .tmp/plustek.c:807
-#: .tmp/plustek_pp.c:746 .tmp/sceptre.c:702 .tmp/snapscan-options.c:494
-#: .tmp/teco1.c:1095 .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:642
-#: .tmp/u12.c:546 .tmp/umax.c:5174 .tmp/umax_pp.c:501
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3288 .tmp/epson2.c:2149
+#: .tmp/genesys.c:4951 .tmp/gt68xx.c:698 .tmp/hp-option.c:3296
+#: .tmp/hp3500.c:976 .tmp/leo.c:823 .tmp/lexmark.c:214 .tmp/ma1509.c:549
+#: .tmp/matsushita.c:1135 .tmp/microtek2.h:600 .tmp/mustek.c:4359
+#: .tmp/mustek_usb.c:305 .tmp/mustek_usb2.c:465
+#: .tmp/pixma_sane_options.c:144 .tmp/plustek.c:807 .tmp/plustek_pp.c:746
+#: .tmp/saneopts.h:157 .tmp/sceptre.c:702 .tmp/snapscan-options.c:494
+#: .tmp/teco1.c:1095 .tmp/teco2.c:1914 .tmp/teco3.c:920 .tmp/test.c:646
+#: .tmp/u12.c:546 .tmp/umax.c:5177 .tmp/umax_pp.c:578
 #, no-c-format
 msgid "Geometry"
 msgstr "Geometrie"
@@ -128,26 +128,520 @@ msgstr ""
 msgid "Button state"
 msgstr "Stand van de knop"
 
-#: .tmp/avision.h:760
+#: .tmp/avision.h:766
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Aantal te scannen beelden"
 
-#: .tmp/avision.h:761
+#: .tmp/avision.h:767
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Kiest het aantal te scannen beelden"
 
-#: .tmp/avision.h:764
-#, fuzzy, no-c-format
+#: .tmp/avision.h:770
+#, no-c-format
 msgid "Duplex scan"
-msgstr "Dubbelzijdig"
+msgstr "Dubbelzijdig scannen"
 
-#: .tmp/avision.h:765
+#: .tmp/avision.h:771
 #, no-c-format
 msgid ""
 "Duplex scan provide a scan of the front and back side of the document"
+msgstr "Dubbelzijdig scannen scant beide zijden van een document"
+
+#: .tmp/canon-sane.c:674 .tmp/canon.c:163
+#, no-c-format
+msgid "Correction according to transparency ratio"
+msgstr "Correctie op basis van de transparantieverhouding"
+
+#: .tmp/canon-sane.c:680 .tmp/canon.c:162
+#, no-c-format
+msgid "Correction according to film type"
+msgstr "Correctie volgens filmtype"
+
+#: .tmp/canon-sane.c:704 .tmp/canon-sane.c:1061 .tmp/canon-sane.c:1270
+#: .tmp/canon-sane.c:1307 .tmp/canon.c:140 .tmp/hp-option.c:2927
+#: .tmp/mustek.c:129 .tmp/plustek_pp.c:182 .tmp/plustek_pp.c:191
+#: .tmp/sceptre.h:290 .tmp/sm3840.c:82 .tmp/sm3840.c:337
+#: .tmp/snapscan-options.c:77 .tmp/umax.c:187
+#, no-c-format
+msgid "Halftone"
+msgstr "Halftoon"
+
+#: .tmp/canon-sane.c:732 .tmp/canon-sane.c:940 .tmp/canon-sane.c:1076
+#: .tmp/canon-sane.c:1318 .tmp/canon-sane.c:1487 .tmp/canon-sane.c:1636
+#: .tmp/canon.c:152
+#, no-c-format
+msgid "Fine color"
+msgstr "Prachtige kleuren"
+
+#: .tmp/canon-sane.c:776 .tmp/canon.c:168
+#, no-c-format
+msgid "Negatives"
+msgstr "Negatieven"
+
+#: .tmp/canon-sane.c:937 .tmp/canon-sane.c:1069 .tmp/canon-sane.c:1312
+#: .tmp/canon-sane.c:1633 .tmp/canon-sane.c:2070 .tmp/canon.c:140
+#: .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon.c:566 .tmp/epson.c:489
+#: .tmp/epson2.c:200 .tmp/hp3900_sane.c:381 .tmp/hp3900_sane.c:1036
+#: .tmp/ma1509.c:101 .tmp/mustek.c:129 .tmp/mustek.c:134
+#: .tmp/mustek_usb.c:269 .tmp/pixma.c:647 .tmp/saneopts.h:455
+#: .tmp/sceptre.h:291 .tmp/sm3840.c:81 .tmp/sm3840.c:335
+#: .tmp/snapscan-options.c:78 .tmp/test.c:126 .tmp/umax.c:188
+#, no-c-format
+msgid "Gray"
+msgstr "Grijs"
+
+#: .tmp/canon-sane.c:1323 .tmp/canon.c:146
+#, no-c-format
+msgid "Raw"
+msgstr "Ongecomprimeerd"
+
+#: .tmp/canon.c:161
+#, no-c-format
+msgid "No transparency correction"
+msgstr "Ongecorrigeerde transparantie"
+
+#: .tmp/canon.c:168
+#, no-c-format
+msgid "Slides"
+msgstr "Dia's"
+
+#: .tmp/canon.c:178 .tmp/matsushita.c:178
+#, no-c-format
+msgid "Automatic"
+msgstr "Automatisch"
+
+#: .tmp/canon.c:178
+#, no-c-format
+msgid "Normal speed"
+msgstr "Standaard snelheid"
+
+#: .tmp/canon.c:179
+#, no-c-format
+msgid "1/2 normal speed"
+msgstr "1/2 van de standaard snelheid"
+
+#: .tmp/canon.c:179
+#, no-c-format
+msgid "1/3 normal speed"
+msgstr "1/3 van de standaard snelheid"
+
+#: .tmp/canon.c:362
+#, no-c-format
+msgid "rounded parameter"
+msgstr "Afgronde parameter"
+
+#: .tmp/canon.c:365 .tmp/canon.c:381 .tmp/canon.c:416 .tmp/canon.c:466
+#: .tmp/canon.c:484 .tmp/canon.c:527
+#, no-c-format
+msgid "unknown"
+msgstr "onbekend"
+
+#: .tmp/canon.c:375
+#, no-c-format
+msgid "ADF jam"
+msgstr "Opstopping in ADF"
+
+#: .tmp/canon.c:378
+#, no-c-format
+msgid "ADF cover open"
+msgstr "Deksel van ADF open"
+
+#: .tmp/canon.c:391
+#, no-c-format
+msgid "lamp failure"
+msgstr "lampfalen"
+
+#: .tmp/canon.c:394
+#, no-c-format
+msgid "scan head positioning error"
+msgstr "fout in positionering van scannerkop"
+
+#: .tmp/canon.c:397
+#, no-c-format
+msgid "CPU check error"
+msgstr "fout in controle van processor"
+
+#: .tmp/canon.c:400
+#, no-c-format
+msgid "RAM check error"
+msgstr "fout in controle van het RAM geheugen"
+
+#: .tmp/canon.c:403
+#, no-c-format
+msgid "ROM check error"
+msgstr "fout in controle van het ROM geheugen"
+
+#: .tmp/canon.c:406
+#, no-c-format
+msgid "hardware check error"
+msgstr "fout in controle van de hardware"
+
+#: .tmp/canon.c:409
+#, no-c-format
+msgid "transparency unit lamp failure"
+msgstr "lampfalen van de transparenten eenheid"
+
+#: .tmp/canon.c:412
+#, no-c-format
+msgid "transparency unit scan head positioning failure"
 msgstr ""
+"fout in de positionering van de scannerkop van de transparanten eenheid"
+
+#: .tmp/canon.c:426
+#, no-c-format
+msgid "parameter list length error"
+msgstr "fout in de lengte van de parameterlijst"
+
+#: .tmp/canon.c:430
+#, no-c-format
+msgid "invalid command operation code"
+msgstr "ongeldige opdrachtcode"
+
+#: .tmp/canon.c:434
+#, no-c-format
+msgid "invalid field in CDB"
+msgstr "ongeldig veld in CDB"
+
+#: .tmp/canon.c:438
+#, no-c-format
+msgid "unsupported LUN"
+msgstr "niet ondersteunde LUN"
+
+#: .tmp/canon.c:442
+#, no-c-format
+msgid "invalid field in parameter list"
+msgstr "ongeldig veld in de parameterlijst"
+
+#: .tmp/canon.c:446
+#, no-c-format
+msgid "command sequence error"
+msgstr "fout in volgorde van de opdrachten"
+
+#: .tmp/canon.c:450
+#, no-c-format
+msgid "too many windows specified"
+msgstr "te veel vensters gespecificeerd"
+
+#: .tmp/canon.c:454
+#, no-c-format
+msgid "medium not present"
+msgstr "medium niet aanwezig"
+
+#: .tmp/canon.c:458
+#, no-c-format
+msgid "invalid bit IDENTIFY message"
+msgstr "ongeldig onderdeel in IDENTYFY boodschap"
+
+#: .tmp/canon.c:462
+#, no-c-format
+msgid "option not connect"
+msgstr "optie onjuist"
+
+#: .tmp/canon.c:476
+#, no-c-format
+msgid "power on reset / bus device reset"
+msgstr "scanner aan reset / scannerinterface reset"
+
+#: .tmp/canon.c:480
+#, no-c-format
+msgid "parameter changed by another initiator"
+msgstr "parameter gewijzigd door een andere initiator"
+
+#: .tmp/canon.c:494
+#, no-c-format
+msgid "no additional sense information"
+msgstr "geen zinvolle, aanvullende informatie"
+
+#: .tmp/canon.c:498
+#, no-c-format
+msgid "reselect failure"
+msgstr "opnieuw kiezen mislukt"
+
+#: .tmp/canon.c:502
+#, no-c-format
+msgid "SCSI parity error"
+msgstr "fout in SCSI pariteit"
+
+#: .tmp/canon.c:506
+#, no-c-format
+msgid "initiator detected error message received"
+msgstr "foutboodschap ontvangen: initiator gesignaleerd"
+
+#: .tmp/canon.c:511
+#, no-c-format
+msgid "invalid message error"
+msgstr "ongeldige boodschap"
+
+#: .tmp/canon.c:515
+#, no-c-format
+msgid "timeout error"
+msgstr "timeout"
+
+#: .tmp/canon.c:519
+#, no-c-format
+msgid "transparency unit shading error"
+msgstr "fout in de afscherming van de transparantie-eenheid "
+
+#: .tmp/canon.c:523
+#, no-c-format
+msgid "lamp not stabilized"
+msgstr "lamp niet gestabiliseerd"
+
+#: .tmp/canon.c:537
+#, no-c-format
+msgid "problem not analyzed (unknown SCSI class)"
+msgstr "probleem niet geanalyseerd (onbekende SCSI klasse)"
+
+#: .tmp/canon.c:855 .tmp/canon.c:870
+#, no-c-format
+msgid "film scanner"
+msgstr "Filmscanner"
+
+#: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915
+#: .tmp/hp3900_sane.c:1681 .tmp/plustek.c:1334 .tmp/plustek_pp.c:1014
+#: .tmp/sceptre.c:593 .tmp/teco2.c:1836 .tmp/u12.c:851
+#, no-c-format
+msgid "flatbed scanner"
+msgstr "Flatbedscanner"
+
+#: .tmp/canon.c:1133 .tmp/leo.c:781 .tmp/pixma_sane_options.c:40
+#: .tmp/saneopts.h:165
+#, no-c-format
+msgid "Scan mode"
+msgstr "Scanmodus"
+
+#: .tmp/canon.c:1171 .tmp/epson.c:3376 .tmp/epson2.c:2223
+#, no-c-format
+msgid "Film type"
+msgstr "Filmtype"
+
+#: .tmp/canon.c:1172
+#, no-c-format
+msgid "Selects the film type, i.e. negatives or slides"
+msgstr "Selecteert het filmtype, bijvoorbeeld negatieven of dia's"
+
+#: .tmp/canon.c:1184
+#, no-c-format
+msgid "Negative film type"
+msgstr "Negatief filmtype"
+
+#: .tmp/canon.c:1185
+#, no-c-format
+msgid "Selects the negative film type"
+msgstr "Selecteert het negatief filmtype"
+
+#: .tmp/canon.c:1209 .tmp/saneopts.h:173
+#, no-c-format
+msgid "Scan resolution"
+msgstr "Scanresolutie"
+
+#: .tmp/canon.c:1224
+#, no-c-format
+msgid "Hardware resolution"
+msgstr "hardware resolutie"
+
+#: .tmp/canon.c:1225
+#, no-c-format
+msgid "Use only hardware resolutions"
+msgstr "Gebruik alleen hardware resoluties"
+
+#: .tmp/canon.c:1306
+#, no-c-format
+msgid "Focus"
+msgstr "Focus"
+
+#: .tmp/canon.c:1316
+#, no-c-format
+msgid "Auto focus"
+msgstr "Autofocus"
+
+#: .tmp/canon.c:1317
+#, no-c-format
+msgid "Enable/disable auto focus"
+msgstr "Aan/uit schakelen van autofocus"
+
+#: .tmp/canon.c:1324
+#, no-c-format
+msgid "Auto focus only once"
+msgstr "Een keer autofocus"
+
+#: .tmp/canon.c:1325
+#, no-c-format
+msgid "Do auto focus only once between ejects"
+msgstr "Doe alleen autofocus tussen uitworpen"
+
+#: .tmp/canon.c:1333
+#, no-c-format
+msgid "Manual focus position"
+msgstr "Handmatige focuspositie"
+
+#: .tmp/canon.c:1334
+#, no-c-format
+msgid "Set the optical system's focus position by hand (default: 128)."
+msgstr ""
+"Stel de optische focus van de scanner handmatig in (standaard: 128)"
+
+#: .tmp/canon.c:1344
+#, no-c-format
+msgid "Scan margins"
+msgstr "Scan marges"
+
+#: .tmp/canon.c:1391
+#, no-c-format
+msgid "Extra color adjustments"
+msgstr "Extra kleuraanpassingen"
+
+#: .tmp/canon.c:1522 .tmp/epson.c:3195 .tmp/epson2.c:2103
+#, no-c-format
+msgid "Mirror image"
+msgstr "Spiegel het beeld"
+
+#: .tmp/canon.c:1523
+#, no-c-format
+msgid "Mirror the image horizontally"
+msgstr "Spiegel het beeld horizontaal"
+
+#: .tmp/canon.c:1592
+#, no-c-format
+msgid "Auto exposure"
+msgstr "Atomatische belichtingstijd"
+
+#: .tmp/canon.c:1593
+#, no-c-format
+msgid "Enable/disable the auto exposure feature"
+msgstr "Schakel de automatische belichtingstijd aan/uit"
+
+#: .tmp/canon.c:1609
+#, no-c-format
+msgid "Calibration now"
+msgstr "Kalibreer nu"
+
+#: .tmp/canon.c:1610
+#, no-c-format
+msgid "Execute calibration *now*"
+msgstr "Voer kalibratie *NU* uit"
+
+#: .tmp/canon.c:1620
+#, no-c-format
+msgid "Self diagnosis"
+msgstr "Zelftest"
+
+#: .tmp/canon.c:1621
+#, no-c-format
+msgid "Perform scanner self diagnosis"
+msgstr "Voer de zelftest van de scanner uit"
+
+#: .tmp/canon.c:1632
+#, no-c-format
+msgid "Reset scanner"
+msgstr "Reset scanner"
+
+#: .tmp/canon.c:1633
+#, no-c-format
+msgid "Reset the scanner"
+msgstr "Reset de scanner"
+
+#: .tmp/canon.c:1643
+#, no-c-format
+msgid "Medium handling"
+msgstr "Gemiddeld gebruik"
+
+#: .tmp/canon.c:1652
+#, no-c-format
+msgid "Eject film after each scan"
+msgstr "Werp de film uit na iedere scan"
+
+#: .tmp/canon.c:1653
+#, no-c-format
+msgid "Automatically eject the film from the device after each scan"
+msgstr "Werp de film automatisch uit de scanner na iedere scan"
+
+#: .tmp/canon.c:1662
+#, no-c-format
+msgid "Eject film before exit"
+msgstr "Werp de film uit voor het verlaten van het programma"
+
+#: .tmp/canon.c:1663
+#, no-c-format
+msgid ""
+"Automatically eject the film from the device before exiting the program"
+msgstr ""
+"Werp automatisch de film uit de scanner voor het verlaten van het "
+"programma"
+
+#: .tmp/canon.c:1672
+#, no-c-format
+msgid "Eject film now"
+msgstr "Werp de film nu uit"
+
+#: .tmp/canon.c:1673
+#, no-c-format
+msgid "Eject the film *now*"
+msgstr "Werp de film *NU* uit"
+
+#: .tmp/canon.c:1682
+#, no-c-format
+msgid "Document feeder extras"
+msgstr "Extra's van de documentendoorvoer"
+
+#: .tmp/canon.c:1689
+#, no-c-format
+msgid "Flatbed only"
+msgstr "Alleen flatbed"
+
+#: .tmp/canon.c:1690
+#, no-c-format
+msgid "Disable auto document feeder and use flatbed only"
+msgstr ""
+"Schakel automatische documentendoorvoor uit en gebruik alleen flatbed"
+
+#: .tmp/canon.c:1700 .tmp/canon.c:1710
+#, no-c-format
+msgid "Transparency unit"
+msgstr "Transparanten-eenheid"
+
+#: .tmp/canon.c:1711
+#, no-c-format
+msgid "Switch on/off the transparency unit (FAU, film adapter unit)"
+msgstr ""
+"Schakel de transparanten-eenheid aan/uit (FAU, film adapter eenheid)"
+
+#: .tmp/canon.c:1721
+#, no-c-format
+msgid "Negative film"
+msgstr "Negatief filmtype"
+
+#: .tmp/canon.c:1722
+#, no-c-format
+msgid "Positive or negative film"
+msgstr "Dia of negatief filmtype"
+
+#: .tmp/canon.c:1731
+#, no-c-format
+msgid "Density control"
+msgstr "Dichtheidscontrole"
+
+#: .tmp/canon.c:1732
+#, no-c-format
+msgid "Set density control mode"
+msgstr "Kies de dichtheidscontrole modus"
+
+#: .tmp/canon.c:1743
+#, no-c-format
+msgid "Transparency ratio"
+msgstr "Transparantieverhouding"
+
+#: .tmp/canon.c:1757
+#, no-c-format
+msgid "Select film type"
+msgstr "Selecteert filmtype"
+
+#: .tmp/canon.c:1758
+#, no-c-format
+msgid "Select the film type"
+msgstr "Selecteert het filmtype"
 
 #: .tmp/canon630u.c:158
 #, no-c-format
@@ -179,7 +673,7 @@ msgstr "Analoog bereik"
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Vergroot of verkleind het analoge bereik van de CCD-sensor"
 
-#: .tmp/canon630u.c:346 .tmp/epson2.h:64 .tmp/epson.h:68
+#: .tmp/canon630u.c:346 .tmp/epson.h:68 .tmp/epson2.h:64
 #, no-c-format
 msgid "Gamma Correction"
 msgstr "Gammacorrectie"
@@ -189,936 +683,200 @@ msgstr "Gammacorrectie"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Kiest de gamma gecorrigeerde overdrachtskromme"
 
-#: .tmp/canon.c:140 .tmp/canon-sane.c:704 .tmp/canon-sane.c:1061
-#: .tmp/canon-sane.c:1270 .tmp/canon-sane.c:1307 .tmp/hp-option.c:2927
-#: .tmp/mustek.c:127 .tmp/plustek_pp.c:182 .tmp/plustek_pp.c:191
-#: .tmp/sceptre.h:290 .tmp/sm3840.c:82 .tmp/sm3840.c:337
-#: .tmp/snapscan-options.c:77 .tmp/umax.c:187
-#, no-c-format
-msgid "Halftone"
-msgstr "Halftoon"
-
-#: .tmp/canon.c:140 .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon.c:566
-#: .tmp/canon-sane.c:937 .tmp/canon-sane.c:1069 .tmp/canon-sane.c:1312
-#: .tmp/canon-sane.c:1633 .tmp/canon-sane.c:2070 .tmp/epson2.c:194
-#: .tmp/epson.c:489 .tmp/genesys.c:89 .tmp/hp3900_sane.c:383
-#: .tmp/hp3900_sane.c:1026 .tmp/ma1509.c:101 .tmp/mustek.c:127
-#: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/pixma.c:626
-#: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81
-#: .tmp/sm3840.c:335 .tmp/snapscan-options.c:78 .tmp/test.c:124
-#: .tmp/umax.c:188
-#, no-c-format
-msgid "Gray"
-msgstr "Grijs"
-
-#: .tmp/canon.c:146 .tmp/canon-sane.c:1323
-#, no-c-format
-msgid "Raw"
-msgstr ""
-
-#: .tmp/canon.c:152 .tmp/canon-sane.c:732 .tmp/canon-sane.c:940
-#: .tmp/canon-sane.c:1076 .tmp/canon-sane.c:1318 .tmp/canon-sane.c:1487
-#: .tmp/canon-sane.c:1636
-#, no-c-format
-msgid "Fine color"
-msgstr ""
-
-#: .tmp/canon.c:161
-#, fuzzy, no-c-format
-msgid "No transparency correction"
-msgstr "Kleurcorrectie"
-
-#: .tmp/canon.c:162 .tmp/canon-sane.c:680
-#, no-c-format
-msgid "Correction according to film type"
-msgstr ""
-
-#: .tmp/canon.c:163 .tmp/canon-sane.c:674
-#, no-c-format
-msgid "Correction according to transparency ratio"
-msgstr ""
-
-#: .tmp/canon.c:168 .tmp/canon-sane.c:776
-#, fuzzy, no-c-format
-msgid "Negatives"
-msgstr "Negatief"
-
-#: .tmp/canon.c:168
-#, fuzzy, no-c-format
-msgid "Slides"
-msgstr "Dia"
-
-#: .tmp/canon.c:178 .tmp/matsushita.c:178
-#, no-c-format
-msgid "Automatic"
-msgstr "Automatisch"
-
-#: .tmp/canon.c:178
-#, fuzzy, no-c-format
-msgid "Normal speed"
-msgstr "Normaal"
-
-#: .tmp/canon.c:179
-#, fuzzy, no-c-format
-msgid "1/2 normal speed"
-msgstr "2x2 normaal"
-
-#: .tmp/canon.c:179
-#, fuzzy, no-c-format
-msgid "1/3 normal speed"
-msgstr "3x3 normaal"
-
-#: .tmp/canon.c:362
-#, fuzzy, no-c-format
-msgid "rounded parameter"
-msgstr "Verwarrende parameters"
-
-#: .tmp/canon.c:365 .tmp/canon.c:381 .tmp/canon.c:416 .tmp/canon.c:466
-#: .tmp/canon.c:484 .tmp/canon.c:527
-#, no-c-format
-msgid "unknown"
-msgstr ""
-
-#: .tmp/canon.c:375
-#, fuzzy, no-c-format
-msgid "ADF jam"
-msgstr "ADF"
-
-#: .tmp/canon.c:378
-#, no-c-format
-msgid "ADF cover open"
-msgstr ""
-
-#: .tmp/canon.c:391
-#, fuzzy, no-c-format
-msgid "lamp failure"
-msgstr "Gammawaarde"
-
-#: .tmp/canon.c:394
-#, no-c-format
-msgid "scan head positioning error"
-msgstr ""
-
-#: .tmp/canon.c:397
-#, no-c-format
-msgid "CPU check error"
-msgstr ""
-
-#: .tmp/canon.c:400
-#, no-c-format
-msgid "RAM check error"
-msgstr ""
-
-#: .tmp/canon.c:403
-#, no-c-format
-msgid "ROM check error"
-msgstr ""
-
-#: .tmp/canon.c:406
-#, no-c-format
-msgid "hardware check error"
-msgstr ""
-
-#: .tmp/canon.c:409
-#, fuzzy, no-c-format
-msgid "transparency unit lamp failure"
-msgstr "Filmeenheid"
-
-#: .tmp/canon.c:412
-#, no-c-format
-msgid "transparency unit scan head positioning failure"
-msgstr ""
-
-#: .tmp/canon.c:426
-#, no-c-format
-msgid "parameter list length error"
-msgstr ""
-
-#: .tmp/canon.c:430
-#, no-c-format
-msgid "invalid command operation code"
-msgstr ""
-
-#: .tmp/canon.c:434
-#, no-c-format
-msgid "invalid field in CDB"
-msgstr ""
-
-#: .tmp/canon.c:438
-#, no-c-format
-msgid "unsupported LUN"
-msgstr ""
-
-#: .tmp/canon.c:442
-#, no-c-format
-msgid "invalid field in parameter list"
-msgstr ""
-
-#: .tmp/canon.c:446
-#, no-c-format
-msgid "command sequence error"
-msgstr ""
-
-#: .tmp/canon.c:450
-#, no-c-format
-msgid "too many windows specified"
-msgstr ""
-
-#: .tmp/canon.c:454
-#, no-c-format
-msgid "medium not present"
-msgstr ""
-
-#: .tmp/canon.c:458
-#, no-c-format
-msgid "invalid bit IDENTIFY message"
-msgstr ""
-
-#: .tmp/canon.c:462
-#, no-c-format
-msgid "option not connect"
-msgstr ""
-
-#: .tmp/canon.c:476
-#, no-c-format
-msgid "power on reset / bus device reset"
-msgstr ""
-
-#: .tmp/canon.c:480
-#, no-c-format
-msgid "parameter changed by another initiator"
-msgstr ""
-
-#: .tmp/canon.c:494
-#, no-c-format
-msgid "no additional sense information"
-msgstr ""
-
-#: .tmp/canon.c:498
-#, no-c-format
-msgid "reselect failure"
-msgstr ""
-
-#: .tmp/canon.c:502
-#, no-c-format
-msgid "SCSI parity error"
-msgstr ""
-
-#: .tmp/canon.c:506
-#, no-c-format
-msgid "initiator detected error message received"
-msgstr ""
-
-#: .tmp/canon.c:511
-#, no-c-format
-msgid "invalid message error"
-msgstr ""
-
-#: .tmp/canon.c:515
-#, no-c-format
-msgid "timeout error"
-msgstr ""
-
-#: .tmp/canon.c:519
-#, fuzzy, no-c-format
-msgid "transparency unit shading error"
-msgstr "Filmeenheid"
-
-#: .tmp/canon.c:523
-#, no-c-format
-msgid "lamp not stabilized"
-msgstr ""
-
-#: .tmp/canon.c:537
-#, no-c-format
-msgid "problem not analyzed (unknown SCSI class)"
-msgstr ""
-
-#: .tmp/canon.c:855 .tmp/canon.c:870
-#, fuzzy, no-c-format
-msgid "film scanner"
-msgstr "Flatbed scanner"
-
-#: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915
-#: .tmp/hp3900_sane.c:1694 .tmp/plustek.c:1334 .tmp/plustek_pp.c:1014
-#: .tmp/sceptre.c:593 .tmp/teco2.c:1825 .tmp/u12.c:851
-#, no-c-format
-msgid "flatbed scanner"
-msgstr "Flatbed scanner"
-
-#: .tmp/canon.c:1133 .tmp/leo.c:781 .tmp/pixma_sane_options.c:40
-#: .tmp/saneopts.h:138
-#, no-c-format
-msgid "Scan mode"
-msgstr "Scanmodus"
-
-#: .tmp/canon.c:1171 .tmp/epson2.c:2160 .tmp/epson.c:3376
-#, no-c-format
-msgid "Film type"
-msgstr "Filmtype"
-
-#: .tmp/canon.c:1172
-#, no-c-format
-msgid "Selects the film type, i.e. negatives or slides"
-msgstr ""
-
-#: .tmp/canon.c:1184
-#, fuzzy, no-c-format
-msgid "Negative film type"
-msgstr "Negatief"
-
-#: .tmp/canon.c:1185
-#, fuzzy, no-c-format
-msgid "Selects the negative film type"
-msgstr "Kiest het testbeeld"
-
-#: .tmp/canon.c:1209 .tmp/saneopts.h:146
-#, no-c-format
-msgid "Scan resolution"
-msgstr "Scanresolutie"
-
-#: .tmp/canon.c:1224
-#, fuzzy, no-c-format
-msgid "Hardware resolution"
-msgstr "Scanresolutie"
-
-#: .tmp/canon.c:1225
-#, fuzzy, no-c-format
-msgid "Use only hardware resolutions"
-msgstr "Toon korte oplossingenlijst"
-
-#: .tmp/canon.c:1306
-#, no-c-format
-msgid "Focus"
-msgstr ""
-
-#: .tmp/canon.c:1316
-#, fuzzy, no-c-format
-msgid "Auto focus"
-msgstr "Automatische uitworp"
-
-#: .tmp/canon.c:1317
-#, fuzzy, no-c-format
-msgid "Enable/disable auto focus"
-msgstr "Voorfocusering uitschakelen"
-
-#: .tmp/canon.c:1324
-#, no-c-format
-msgid "Auto focus only once"
-msgstr ""
-
-#: .tmp/canon.c:1325
-#, no-c-format
-msgid "Do auto focus only once between ejects"
-msgstr ""
-
-#: .tmp/canon.c:1333
-#, fuzzy, no-c-format
-msgid "Manual focus position"
-msgstr "Vaste focuspositie"
-
-#: .tmp/canon.c:1334
-#, no-c-format
-msgid "Set the optical system's focus position by hand (default: 128)."
-msgstr ""
-
-#: .tmp/canon.c:1344
-#, no-c-format
-msgid "Scan margins"
-msgstr ""
-
-#: .tmp/canon.c:1391
-#, no-c-format
-msgid "Extra color adjustments"
-msgstr ""
-
-#: .tmp/canon.c:1522 .tmp/epson2.c:2040 .tmp/epson.c:3195
-#, no-c-format
-msgid "Mirror image"
-msgstr "Beeld spiegelen"
-
-#: .tmp/canon.c:1523
-#, fuzzy, no-c-format
-msgid "Mirror the image horizontally"
-msgstr "Beeld horizontaal spiegelen"
-
-#: .tmp/canon.c:1592
-#, fuzzy, no-c-format
-msgid "Auto exposure"
-msgstr "Bepaal belichtingstijd"
-
-#: .tmp/canon.c:1593
-#, fuzzy, no-c-format
-msgid "Enable/disable the auto exposure feature"
-msgstr "Schakelt de instelling van de belichtingstijd in"
-
-#: .tmp/canon.c:1609
-#, fuzzy, no-c-format
-msgid "Calibration now"
-msgstr "Kalibreren"
-
-#: .tmp/canon.c:1610
-#, fuzzy, no-c-format
-msgid "Execute calibration *now*"
-msgstr "Kalibreermodus definiëren"
-
-#: .tmp/canon.c:1620
-#, no-c-format
-msgid "Self diagnosis"
-msgstr ""
-
-#: .tmp/canon.c:1621
-#, no-c-format
-msgid "Perform scanner self diagnosis"
-msgstr ""
-
-#: .tmp/canon.c:1632
-#, fuzzy, no-c-format
-msgid "Reset scanner"
-msgstr "Doorvoerscanner"
-
-#: .tmp/canon.c:1633
-#, fuzzy, no-c-format
-msgid "Reset the scanner"
-msgstr "Doorvoerscanner"
-
-#: .tmp/canon.c:1643
-#, no-c-format
-msgid "Medium handling"
-msgstr ""
-
-#: .tmp/canon.c:1652
-#, fuzzy, no-c-format
-msgid "Eject film after each scan"
-msgstr "Werpt het document uit na het scannen"
-
-#: .tmp/canon.c:1653
-#, no-c-format
-msgid "Automatically eject the film from the device after each scan"
-msgstr ""
-
-#: .tmp/canon.c:1662
-#, no-c-format
-msgid "Eject film before exit"
-msgstr ""
-
-#: .tmp/canon.c:1663
-#, no-c-format
-msgid ""
-"Automatically eject the film from the device before exiting the program"
-msgstr ""
-
-#: .tmp/canon.c:1672
-#, no-c-format
-msgid "Eject film now"
-msgstr ""
-
-#: .tmp/canon.c:1673
-#, no-c-format
-msgid "Eject the film *now*"
-msgstr ""
-
-#: .tmp/canon.c:1682
-#, fuzzy, no-c-format
-msgid "Document feeder extras"
-msgstr "Automatische dokumentendoorvoer"
-
-#: .tmp/canon.c:1689
-#, fuzzy, no-c-format
-msgid "Flatbed only"
-msgstr "Flatbed"
-
-#: .tmp/canon.c:1690
-#, no-c-format
-msgid "Disable auto document feeder and use flatbed only"
-msgstr ""
-
-#: .tmp/canon.c:1700 .tmp/canon.c:1710
-#, fuzzy, no-c-format
-msgid "Transparency unit"
-msgstr "Filmeenheid"
-
-#: .tmp/canon.c:1711
-#, no-c-format
-msgid "Switch on/off the transparency unit (FAU, film adapter unit)"
-msgstr ""
-
-#: .tmp/canon.c:1721
-#, fuzzy, no-c-format
-msgid "Negative film"
-msgstr "Negatief"
-
-#: .tmp/canon.c:1722
-#, fuzzy, no-c-format
-msgid "Positive or negative film"
-msgstr "Dia"
-
-#: .tmp/canon.c:1731
-#, no-c-format
-msgid "Density control"
-msgstr ""
-
-#: .tmp/canon.c:1732
-#, no-c-format
-msgid "Set density control mode"
-msgstr ""
-
-#: .tmp/canon.c:1743
-#, fuzzy, no-c-format
-msgid "Transparency ratio"
-msgstr "Filmeenheid"
-
-#: .tmp/canon.c:1757
-#, fuzzy, no-c-format
-msgid "Select film type"
-msgstr "Filmtype"
-
-#: .tmp/canon.c:1758
-#, fuzzy, no-c-format
-msgid "Select the film type"
-msgstr "Kiest halftoon."
-
-#: .tmp/epson2.c:193 .tmp/epson.c:488
+#: .tmp/epson.c:488 .tmp/epson2.c:199
 #, no-c-format
 msgid "Binary"
 msgstr "Binair (zwart/wit)"
 
-#: .tmp/epson2.c:200 .tmp/epson.c:495
-#, fuzzy, no-c-format
+#: .tmp/epson.c:495 .tmp/epson2.c:206
+#, no-c-format
 msgid "Simplex"
-msgstr "Dubbelzijdig"
+msgstr "enkelzijdig"
 
-#: .tmp/epson2.c:201 .tmp/epson.c:496 .tmp/matsushita.h:219
+#: .tmp/epson.c:496 .tmp/epson2.c:207 .tmp/matsushita.h:219
 #, no-c-format
 msgid "Duplex"
 msgstr "Dubbelzijdig"
 
-#: .tmp/epson2.c:207 .tmp/epson.c:505 .tmp/genesys.c:103 .tmp/gt68xx.c:144
-#: .tmp/hp3900_sane.c:420 .tmp/hp3900_sane.c:429 .tmp/hp3900_sane.c:1007
-#: .tmp/hp5590.c:80 .tmp/ma1509.c:106 .tmp/mustek.c:150 .tmp/mustek.c:154
-#: .tmp/mustek.c:158 .tmp/pixma.c:631 .tmp/pixma_sane_options.c:85
-#: .tmp/snapscan-options.c:82 .tmp/test.c:189 .tmp/umax.c:182
+#: .tmp/epson.c:505 .tmp/epson2.c:213 .tmp/genesys.c:106 .tmp/gt68xx.c:146
+#: .tmp/hp3900_sane.c:418 .tmp/hp3900_sane.c:427 .tmp/hp3900_sane.c:1017
+#: .tmp/hp5590.c:81 .tmp/ma1509.c:106 .tmp/mustek.c:152 .tmp/mustek.c:156
+#: .tmp/mustek.c:160 .tmp/pixma.c:652 .tmp/pixma_sane_options.c:85
+#: .tmp/snapscan-options.c:82 .tmp/test.c:191 .tmp/umax.c:182
 #, no-c-format
 msgid "Flatbed"
 msgstr "Flatbed"
 
-#: .tmp/epson2.c:208 .tmp/epson.c:506
+#: .tmp/epson.c:506 .tmp/epson2.c:214 .tmp/pixma.c:669
 #, no-c-format
 msgid "Transparency Unit"
 msgstr "Filmeenheid"
 
-#: .tmp/epson2.c:209 .tmp/epson.c:507 .tmp/mustek.c:154 .tmp/pixma.c:636
-#: .tmp/test.c:189 .tmp/umax.c:184
+#: .tmp/epson.c:507 .tmp/epson2.c:215 .tmp/mustek.c:156 .tmp/pixma.c:657
+#: .tmp/test.c:191 .tmp/umax.c:184
 #, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Automatische documenten doorvoer"
 
-#: .tmp/epson2.c:229 .tmp/epson.c:527
+#: .tmp/epson.c:527 .tmp/epson2.c:235
 #, no-c-format
 msgid "Positive Film"
 msgstr "Dia"
 
-#: .tmp/epson2.c:230 .tmp/epson.c:528
+#: .tmp/epson.c:528 .tmp/epson2.c:236
 #, no-c-format
 msgid "Negative Film"
-msgstr "Negatief"
+msgstr "Transparant"
 
-#: .tmp/epson2.c:231
-#, fuzzy, no-c-format
-msgid "Positive Slide"
-msgstr "Dia"
-
-#: .tmp/epson2.c:232
-#, fuzzy, no-c-format
-msgid "Negative Slide"
-msgstr "Negatief"
-
-#: .tmp/epson2.c:239 .tmp/epson.c:533
+#: .tmp/epson.c:533 .tmp/epson2.c:245
 #, no-c-format
 msgid "Focus on glass"
 msgstr "Focus op het glas"
 
-#: .tmp/epson2.c:240 .tmp/epson.c:534
+#: .tmp/epson.c:534 .tmp/epson2.c:246
 #, no-c-format
 msgid "Focus 2.5mm above glass"
 msgstr "Focus 2.5mm boven het glas"
 
-#: .tmp/epson2.c:262 .tmp/epson2.c:270 .tmp/epson2.c:282 .tmp/epson2.c:304
 #: .tmp/epson.c:560 .tmp/epson.c:568 .tmp/epson.c:580 .tmp/epson.c:602
+#: .tmp/epson2.c:268 .tmp/epson2.c:276 .tmp/epson2.c:288 .tmp/epson2.c:310
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
 #: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:87
 #, no-c-format
 msgid "None"
 msgstr "Geen"
 
-#: .tmp/epson2.c:263 .tmp/epson2.c:271 .tmp/epson2.c:283 .tmp/epson.c:561
-#: .tmp/epson.c:569 .tmp/epson.c:581
+#: .tmp/epson.c:561 .tmp/epson.c:569 .tmp/epson.c:581 .tmp/epson2.c:269
+#: .tmp/epson2.c:277 .tmp/epson2.c:289
 #, no-c-format
 msgid "Halftone A (Hard Tone)"
 msgstr "Halftoon A (hard)"
 
-#: .tmp/epson2.c:264 .tmp/epson2.c:272 .tmp/epson2.c:284 .tmp/epson.c:562
-#: .tmp/epson.c:570 .tmp/epson.c:582
+#: .tmp/epson.c:562 .tmp/epson.c:570 .tmp/epson.c:582 .tmp/epson2.c:270
+#: .tmp/epson2.c:278 .tmp/epson2.c:290
 #, no-c-format
 msgid "Halftone B (Soft Tone)"
 msgstr "Halftoon B (zacht)"
 
-#: .tmp/epson2.c:265 .tmp/epson2.c:273 .tmp/epson2.c:285 .tmp/epson.c:563
-#: .tmp/epson.c:571 .tmp/epson.c:583
+#: .tmp/epson.c:563 .tmp/epson.c:571 .tmp/epson.c:583 .tmp/epson2.c:271
+#: .tmp/epson2.c:279 .tmp/epson2.c:291
 #, no-c-format
 msgid "Halftone C (Net Screen)"
 msgstr "Halftoon C"
 
-#: .tmp/epson2.c:274 .tmp/epson2.c:286 .tmp/epson.c:572 .tmp/epson.c:584
+#: .tmp/epson.c:572 .tmp/epson.c:584 .tmp/epson2.c:280 .tmp/epson2.c:292
 #, no-c-format
 msgid "Dither A (4x4 Bayer)"
 msgstr "Dither A (4x4 Bayer)"
 
-#: .tmp/epson2.c:275 .tmp/epson2.c:287 .tmp/epson.c:573 .tmp/epson.c:585
+#: .tmp/epson.c:573 .tmp/epson.c:585 .tmp/epson2.c:281 .tmp/epson2.c:293
 #, no-c-format
 msgid "Dither B (4x4 Spiral)"
 msgstr "Dither B (4x4 Spiraalvorm)"
 
-#: .tmp/epson2.c:276 .tmp/epson2.c:288 .tmp/epson.c:574 .tmp/epson.c:586
+#: .tmp/epson.c:574 .tmp/epson.c:586 .tmp/epson2.c:282 .tmp/epson2.c:294
 #, no-c-format
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Dither C (4x4 Net Screen)"
 
-#: .tmp/epson2.c:277 .tmp/epson2.c:289 .tmp/epson.c:575 .tmp/epson.c:587
+#: .tmp/epson.c:575 .tmp/epson.c:587 .tmp/epson2.c:283 .tmp/epson2.c:295
 #, no-c-format
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Dither D (8x4 Net Screen)"
 
-#: .tmp/epson2.c:290 .tmp/epson.c:588
+#: .tmp/epson.c:588 .tmp/epson2.c:296
 #, no-c-format
 msgid "Text Enhanced Technology"
 msgstr "Tekstverbeteringstechnologie"
 
-#: .tmp/epson2.c:291 .tmp/epson.c:589
+#: .tmp/epson.c:589 .tmp/epson2.c:297
 #, no-c-format
 msgid "Download pattern A"
 msgstr "Download patroon A"
 
-#: .tmp/epson2.c:292 .tmp/epson.c:590
+#: .tmp/epson.c:590 .tmp/epson2.c:298
 #, no-c-format
 msgid "Download pattern B"
 msgstr "Download patroon B"
 
-#: .tmp/epson2.c:305 .tmp/epson2.c:1952 .tmp/epson.c:603 .tmp/epson.c:3086
-#: .tmp/genesys.c:96 .tmp/gt68xx_low.h:135 .tmp/hp-option.c:3092
+#: .tmp/epson.c:603 .tmp/epson.c:3086 .tmp/epson2.c:311 .tmp/epson2.c:2015
+#: .tmp/genesys.c:99 .tmp/gt68xx_low.h:135 .tmp/hp-option.c:3092
 #, no-c-format
 msgid "Red"
 msgstr "Rood"
 
-#: .tmp/epson2.c:306 .tmp/epson2.c:1948 .tmp/epson.c:604 .tmp/epson.c:3082
-#: .tmp/genesys.c:97 .tmp/gt68xx_low.h:136 .tmp/hp-option.c:3093
+#: .tmp/epson.c:604 .tmp/epson.c:3082 .tmp/epson2.c:312 .tmp/epson2.c:2011
+#: .tmp/genesys.c:100 .tmp/gt68xx_low.h:136 .tmp/hp-option.c:3093
 #, no-c-format
 msgid "Green"
 msgstr "Groen"
 
-#: .tmp/epson2.c:307 .tmp/epson2.c:1956 .tmp/epson.c:605 .tmp/epson.c:3090
-#: .tmp/genesys.c:98 .tmp/gt68xx_low.h:137 .tmp/hp-option.c:3094
+#: .tmp/epson.c:605 .tmp/epson.c:3090 .tmp/epson2.c:313 .tmp/epson2.c:2019
+#: .tmp/genesys.c:101 .tmp/gt68xx_low.h:137 .tmp/hp-option.c:3094
 #, no-c-format
 msgid "Blue"
 msgstr "Blauw"
 
-#: .tmp/epson2.c:336 .tmp/epson.c:635
+#: .tmp/epson.c:635 .tmp/epson2.c:342
 #, no-c-format
 msgid "No Correction"
 msgstr "Geen correctie"
 
-#: .tmp/epson2.c:337 .tmp/epson2.c:361 .tmp/epson.c:636 .tmp/epson.c:661
+#: .tmp/epson.c:636 .tmp/epson.c:661 .tmp/epson2.c:343 .tmp/epson2.c:367
 #, no-c-format
 msgid "User defined"
 msgstr "Door gebruiker gedefinieerd"
 
-#: .tmp/epson2.c:338 .tmp/epson.c:637
+#: .tmp/epson.c:637 .tmp/epson2.c:344
 #, no-c-format
 msgid "Impact-dot printers"
 msgstr "Matrixprinters"
 
-#: .tmp/epson2.c:339 .tmp/epson.c:638
+#: .tmp/epson.c:638 .tmp/epson2.c:345
 #, no-c-format
 msgid "Thermal printers"
 msgstr "Thermische printers"
 
-#: .tmp/epson2.c:340 .tmp/epson.c:639
+#: .tmp/epson.c:639 .tmp/epson2.c:346
 #, no-c-format
 msgid "Ink-jet printers"
 msgstr "Inktjet printers"
 
-#: .tmp/epson2.c:341 .tmp/epson.c:640
+#: .tmp/epson.c:640 .tmp/epson2.c:347
 #, no-c-format
 msgid "CRT monitors"
 msgstr "CRT Monitoren"
 
-#: .tmp/epson2.c:360 .tmp/epson.c:660 .tmp/hp-option.c:3225
-#: .tmp/test.c:140
+#: .tmp/epson.c:660 .tmp/epson2.c:366 .tmp/hp-option.c:3225
+#: .tmp/test.c:142
 #, no-c-format
 msgid "Default"
 msgstr "Standaardinstelling"
 
-#: .tmp/epson2.c:362 .tmp/epson.c:662
+#: .tmp/epson.c:662 .tmp/epson2.c:368
 #, no-c-format
 msgid "High density printing"
 msgstr "Afdrukken op hoge kwaliteit"
 
-#: .tmp/epson2.c:363 .tmp/epson.c:663
+#: .tmp/epson.c:663 .tmp/epson2.c:369
 #, no-c-format
 msgid "Low density printing"
 msgstr "Afdrukken op lage kwaliteit"
 
-#: .tmp/epson2.c:364 .tmp/epson.c:664
+#: .tmp/epson.c:664 .tmp/epson2.c:370
 #, no-c-format
 msgid "High contrast printing"
 msgstr "Afdrukken met hoog contrast"
 
-#: .tmp/epson2.c:382 .tmp/epson.c:682
+#: .tmp/epson.c:682 .tmp/epson2.c:388
 #, no-c-format
 msgid "User defined (Gamma=1.0)"
 msgstr "Door gebruiker gedefinieerd (Gamma=1.0)"
 
-#: .tmp/epson2.c:383 .tmp/epson.c:683
+#: .tmp/epson.c:683 .tmp/epson2.c:389
 #, no-c-format
 msgid "User defined (Gamma=1.8)"
 msgstr "Door gebruiker gedefinieerd (Gamma=1.8)"
-
-#: .tmp/epson2.c:1670 .tmp/epson.c:2803 .tmp/genesys.c:4617
-#: .tmp/gt68xx.c:453 .tmp/hp-option.c:2913 .tmp/ma1509.c:499
-#: .tmp/matsushita.c:1084 .tmp/microtek2.h:599 .tmp/mustek.c:4199
-#: .tmp/mustek_usb2.c:344 .tmp/mustek_usb.c:260 .tmp/niash.c:736
-#: .tmp/plustek.c:720 .tmp/plustek_pp.c:657 .tmp/sceptre.c:673
-#: .tmp/snapscan-options.c:315 .tmp/stv680.c:1030 .tmp/teco2.c:1875
-#: .tmp/test.c:301 .tmp/u12.c:473 .tmp/umax.c:5052
-#, no-c-format
-msgid "Scan Mode"
-msgstr "Scanmodus"
-
-#: .tmp/epson2.c:1702 .tmp/epson.c:2835
-#, no-c-format
-msgid "Selects the halftone."
-msgstr "Kiest halftoon."
-
-#: .tmp/epson2.c:1723 .tmp/epson.c:2857
-#, no-c-format
-msgid "Dropout"
-msgstr "Kleuronderdrukken"
-
-#: .tmp/epson2.c:1724 .tmp/epson.c:2858
-#, no-c-format
-msgid "Selects the dropout."
-msgstr "Kiest kleuronderdrukken."
-
-#: .tmp/epson2.c:1736 .tmp/epson.c:2870
-#, no-c-format
-msgid "Selects the brightness."
-msgstr "Kiest helderheid."
-
-#: .tmp/epson2.c:1750 .tmp/epson.c:2885
-#, no-c-format
-msgid "Sharpness"
-msgstr "Scherpte"
-
-#: .tmp/epson2.c:1886 .tmp/epson.c:3021
-#, no-c-format
-msgid "Color correction"
-msgstr "Kleurcorrectie"
-
-#: .tmp/epson2.c:1889 .tmp/epson.c:3024
-#, no-c-format
-msgid "Sets the color correction table for the selected output device."
-msgstr "Stelt de kleurcorrectietabel in voor het gekozen uitvoerapparaat."
-
-#: .tmp/epson2.c:1930 .tmp/epson.c:3065
-#, no-c-format
-msgid "Color correction coefficients"
-msgstr "Kleurcorrectiecoëfficiënten"
-
-#: .tmp/epson2.c:1932 .tmp/epson.c:3066
-#, no-c-format
-msgid "Matrix multiplication of RGB"
-msgstr "Matrix vermenigvuldiging van RGB"
-
-#: .tmp/epson2.c:1949 .tmp/epson.c:3083
-#, no-c-format
-msgid "Shift green to red"
-msgstr "Verschuift groen naar rood"
-
-#: .tmp/epson2.c:1950 .tmp/epson.c:3084
-#, no-c-format
-msgid "Shift green to blue"
-msgstr "Verschuift groen naar blauw"
-
-#: .tmp/epson2.c:1951 .tmp/epson.c:3085
-#, no-c-format
-msgid "Shift red to green"
-msgstr "Verschuift rood naar groen"
-
-#: .tmp/epson2.c:1953 .tmp/epson.c:3087
-#, no-c-format
-msgid "Shift red to blue"
-msgstr "Verschuift rood naar blauw"
-
-#: .tmp/epson2.c:1954 .tmp/epson.c:3088
-#, no-c-format
-msgid "Shift blue to green"
-msgstr "Verschuift blauw naar groen"
-
-#: .tmp/epson2.c:1955 .tmp/epson.c:3089
-#, no-c-format
-msgid "Shift blue to red"
-msgstr "Verschuift blauw naar rood"
-
-#: .tmp/epson2.c:1958 .tmp/epson.c:3092
-#, no-c-format
-msgid "Controls green level"
-msgstr "Regelt de groeninstelling"
-
-#: .tmp/epson2.c:1960 .tmp/epson.c:3093
-#, no-c-format
-msgid "Adds to red based on green level"
-msgstr "Verhoogt rood op basis van het groenniveau"
-
-#: .tmp/epson2.c:1962 .tmp/epson.c:3094
-#, no-c-format
-msgid "Adds to blue based on green level"
-msgstr "Verhoogt blauw op basis van het groenniveau"
-
-#: .tmp/epson2.c:1964 .tmp/epson.c:3095
-#, no-c-format
-msgid "Adds to green based on red level"
-msgstr "Verhoogt groen op basis van het roodniveau"
-
-#: .tmp/epson2.c:1965 .tmp/epson.c:3096
-#, no-c-format
-msgid "Controls red level"
-msgstr "Regelt het roodniveau"
-
-#: .tmp/epson2.c:1966 .tmp/epson.c:3097
-#, no-c-format
-msgid "Adds to blue based on red level"
-msgstr "Verhoogt blauw op basis van het roodniveau"
-
-#: .tmp/epson2.c:1968 .tmp/epson.c:3098
-#, no-c-format
-msgid "Adds to green based on blue level"
-msgstr "Verhoogt groen op basis van het blauwniveau"
-
-#: .tmp/epson2.c:1969 .tmp/epson.c:3099
-#, no-c-format
-msgid "Adds to red based on blue level"
-msgstr "Verhoogt rood op basis van het blauwniveau"
-
-#: .tmp/epson2.c:1970 .tmp/epson.c:3100
-#, no-c-format
-msgid "Controls blue level"
-msgstr "Regelt het blauwniveau"
-
-#: .tmp/epson2.c:2033 .tmp/epson.c:3187 .tmp/snapscan-options.c:816
-#: .tmp/umax.c:5563
-#, no-c-format
-msgid "Advanced"
-msgstr "Gevorderd"
-
-#: .tmp/epson2.c:2041 .tmp/epson.c:3196
-#, no-c-format
-msgid "Mirror the image."
-msgstr "Het beeld spiegelen"
-
-#: .tmp/epson2.c:2051 .tmp/epson.c:3235
-#, no-c-format
-msgid "Auto area segmentation"
-msgstr "Automatische keuze van het scanbereik"
-
-#: .tmp/epson2.c:2064 .tmp/epson.c:3248
-#, no-c-format
-msgid "Short resolution list"
-msgstr "Korte oplossingenlijst"
-
-#: .tmp/epson2.c:2066
-#, fuzzy, no-c-format
-msgid "Display a shortened resolution list"
-msgstr "Toon korte oplossingenlijst"
-
-#: .tmp/epson2.c:2136 .tmp/epson.c:3350
-#, no-c-format
-msgid "Optional equipment"
-msgstr "Optioneel hulpstuk"
-
-#: .tmp/epson2.c:2190 .tmp/epson.c:3421
-#, no-c-format
-msgid "Eject"
-msgstr "Uitwerpen"
-
-#: .tmp/epson2.c:2191 .tmp/epson.c:3422
-#, no-c-format
-msgid "Eject the sheet in the ADF"
-msgstr "Werpt het papier in de ADF uit"
-
-#: .tmp/epson2.c:2201 .tmp/epson.c:3434
-#, no-c-format
-msgid "Auto eject"
-msgstr "Automatische uitworp"
-
-#: .tmp/epson2.c:2203 .tmp/epson.c:3435
-#, no-c-format
-msgid "Eject document after scanning"
-msgstr "Werpt het document uit na het scannen"
-
-#: .tmp/epson2.c:2213 .tmp/epson.c:3447
-#, no-c-format
-msgid "ADF Mode"
-msgstr ""
-
-#: .tmp/epson2.c:2215 .tmp/epson.c:3449
-#, no-c-format
-msgid "Selects the ADF mode (simplex/duplex)"
-msgstr ""
-
-#: .tmp/epson2.c:2227 .tmp/epson.c:3463
-#, no-c-format
-msgid "Bay"
-msgstr "Bak"
-
-#: .tmp/epson2.c:2228 .tmp/epson.c:3464
-#, no-c-format
-msgid "Select bay to scan"
-msgstr "Kies de bak om te scannen"
-
-#: .tmp/epson2.h:65 .tmp/epson.h:69
-#, no-c-format
-msgid ""
-"Selects the gamma correction value from a list of pre-defined devices or "
-"the user defined table, which can be downloaded to the scanner"
-msgstr ""
-"Kiest de gammacorrectiewaarde uit een lijst met voorgedefinieerde "
-"apparaten of de door de gebruiker gedefinieerde tabel die naar de "
-"scanner kan worden gestuurd"
-
-#: .tmp/epson2.h:68 .tmp/epson.h:72
-#, no-c-format
-msgid "Focus Position"
-msgstr "Focus positie"
-
-#: .tmp/epson2.h:69 .tmp/epson.h:73
-#, no-c-format
-msgid ""
-"Sets the focus position to either the glass or 2.5mm above the glass"
-msgstr "Stelt de focus in op het glas of 2.5mm daarboven"
-
-#: .tmp/epson2.h:71 .tmp/epson.h:75
-#, no-c-format
-msgid "Wait for Button"
-msgstr "Wacht op een druk op de knop"
-
-#: .tmp/epson2.h:72 .tmp/epson.h:76
-#, no-c-format
-msgid ""
-"After sending the scan command, wait until the button on the scanner is "
-"pressed to actually start the scan process."
-msgstr ""
-"Begin pas met scannen nadat eerst het scancommando is gestuurd en "
-"vervolgens op de knop van de scanner is gedrukt."
 
 #: .tmp/epson.c:761
 #, no-c-format
@@ -1150,15 +908,167 @@ msgstr "A4"
 msgid "Max"
 msgstr "Maximaal"
 
-#: .tmp/epson.c:3222 .tmp/mustek.c:4328
+#: .tmp/epson.c:2803 .tmp/epson2.c:1733 .tmp/genesys.c:4882
+#: .tmp/gt68xx.c:455 .tmp/hp-option.c:2913 .tmp/ma1509.c:499
+#: .tmp/matsushita.c:1084 .tmp/microtek2.h:599 .tmp/mustek.c:4201
+#: .tmp/mustek_usb.c:260 .tmp/mustek_usb2.c:344 .tmp/niash.c:736
+#: .tmp/plustek.c:720 .tmp/plustek_pp.c:657 .tmp/sceptre.c:673
+#: .tmp/snapscan-options.c:315 .tmp/stv680.c:1030 .tmp/teco2.c:1886
+#: .tmp/test.c:305 .tmp/u12.c:473 .tmp/umax.c:5055
+#, no-c-format
+msgid "Scan Mode"
+msgstr "Scanmodus"
+
+#: .tmp/epson.c:2835 .tmp/epson2.c:1765
+#, no-c-format
+msgid "Selects the halftone."
+msgstr "Kiest halftoon."
+
+#: .tmp/epson.c:2857 .tmp/epson2.c:1786
+#, no-c-format
+msgid "Dropout"
+msgstr "Kleuronderdrukken"
+
+#: .tmp/epson.c:2858 .tmp/epson2.c:1787
+#, no-c-format
+msgid "Selects the dropout."
+msgstr "Kiest kleuronderdrukken."
+
+#: .tmp/epson.c:2870 .tmp/epson2.c:1799
+#, no-c-format
+msgid "Selects the brightness."
+msgstr "Kiest helderheid."
+
+#: .tmp/epson.c:2885 .tmp/epson2.c:1813
+#, no-c-format
+msgid "Sharpness"
+msgstr "Scherpte"
+
+#: .tmp/epson.c:3021 .tmp/epson2.c:1949
+#, no-c-format
+msgid "Color correction"
+msgstr "Kleurcorrectie"
+
+#: .tmp/epson.c:3024 .tmp/epson2.c:1952
+#, no-c-format
+msgid "Sets the color correction table for the selected output device."
+msgstr "Stelt de kleurcorrectietabel in voor het gekozen uitvoerapparaat."
+
+#: .tmp/epson.c:3065 .tmp/epson2.c:1993
+#, no-c-format
+msgid "Color correction coefficients"
+msgstr "Kleurcorrectiecoëfficiënten"
+
+#: .tmp/epson.c:3066 .tmp/epson2.c:1995
+#, no-c-format
+msgid "Matrix multiplication of RGB"
+msgstr "Matrix vermenigvuldiging van RGB"
+
+#: .tmp/epson.c:3083 .tmp/epson2.c:2012
+#, no-c-format
+msgid "Shift green to red"
+msgstr "Verschuift groen naar rood"
+
+#: .tmp/epson.c:3084 .tmp/epson2.c:2013
+#, no-c-format
+msgid "Shift green to blue"
+msgstr "Verschuift groen naar blauw"
+
+#: .tmp/epson.c:3085 .tmp/epson2.c:2014
+#, no-c-format
+msgid "Shift red to green"
+msgstr "Verschuift rood naar groen"
+
+#: .tmp/epson.c:3087 .tmp/epson2.c:2016
+#, no-c-format
+msgid "Shift red to blue"
+msgstr "Verschuift rood naar blauw"
+
+#: .tmp/epson.c:3088 .tmp/epson2.c:2017
+#, no-c-format
+msgid "Shift blue to green"
+msgstr "Verschuift blauw naar groen"
+
+#: .tmp/epson.c:3089 .tmp/epson2.c:2018
+#, no-c-format
+msgid "Shift blue to red"
+msgstr "Verschuift blauw naar rood"
+
+#: .tmp/epson.c:3092 .tmp/epson2.c:2021
+#, no-c-format
+msgid "Controls green level"
+msgstr "Regelt de groeninstelling"
+
+#: .tmp/epson.c:3093 .tmp/epson2.c:2023
+#, no-c-format
+msgid "Adds to red based on green level"
+msgstr "Verhoogt rood op basis van het groenniveau"
+
+#: .tmp/epson.c:3094 .tmp/epson2.c:2025
+#, no-c-format
+msgid "Adds to blue based on green level"
+msgstr "Verhoogt blauw op basis van het groenniveau"
+
+#: .tmp/epson.c:3095 .tmp/epson2.c:2027
+#, no-c-format
+msgid "Adds to green based on red level"
+msgstr "Verhoogt groen op basis van het roodniveau"
+
+#: .tmp/epson.c:3096 .tmp/epson2.c:2028
+#, no-c-format
+msgid "Controls red level"
+msgstr "Regelt het roodniveau"
+
+#: .tmp/epson.c:3097 .tmp/epson2.c:2029
+#, no-c-format
+msgid "Adds to blue based on red level"
+msgstr "Verhoogt blauw op basis van het roodniveau"
+
+#: .tmp/epson.c:3098 .tmp/epson2.c:2031
+#, no-c-format
+msgid "Adds to green based on blue level"
+msgstr "Verhoogt groen op basis van het blauwniveau"
+
+#: .tmp/epson.c:3099 .tmp/epson2.c:2032
+#, no-c-format
+msgid "Adds to red based on blue level"
+msgstr "Verhoogt rood op basis van het blauwniveau"
+
+#: .tmp/epson.c:3100 .tmp/epson2.c:2033
+#, no-c-format
+msgid "Controls blue level"
+msgstr "Regelt het blauwniveau"
+
+#: .tmp/epson.c:3187 .tmp/epson2.c:2096 .tmp/rts8891.c:2766
+#: .tmp/saneopts.h:159 .tmp/snapscan-options.c:816 .tmp/umax.c:5566
+#, no-c-format
+msgid "Advanced"
+msgstr "Gevorderd"
+
+#: .tmp/epson.c:3196 .tmp/epson2.c:2104
+#, no-c-format
+msgid "Mirror the image."
+msgstr "Het beeld spiegelen"
+
+#: .tmp/epson.c:3222 .tmp/mustek.c:4330
 #, no-c-format
 msgid "Fast preview"
 msgstr "Snelle voorbeeldscan"
 
+#: .tmp/epson.c:3235 .tmp/epson2.c:2114
+#, no-c-format
+msgid "Auto area segmentation"
+msgstr "Automatische keuze van het scanbereik"
+
+#: .tmp/epson.c:3248 .tmp/epson2.c:2127
+#, no-c-format
+msgid "Short resolution list"
+msgstr "Korte oplossingenlijst"
+
 #: .tmp/epson.c:3250
 #, no-c-format
 msgid "Display short resolution list"
-msgstr "Toon korte oplossingenlijst"
+msgstr "Toon korte lijst met resoluties"
 
 #: .tmp/epson.c:3257
 #, no-c-format
@@ -1175,72 +1085,218 @@ msgstr "Definieert de vergrotingsfactor die de scanner zal gebruiken"
 msgid "Quick format"
 msgstr "Snelle opmaak"
 
-#: .tmp/genesys.c:104 .tmp/gt68xx.c:145 .tmp/ma1509.c:106
-#: .tmp/mustek.c:158 .tmp/snapscan-options.c:83 .tmp/umax.c:183
+#: .tmp/epson.c:3350 .tmp/epson2.c:2199
+#, no-c-format
+msgid "Optional equipment"
+msgstr "Optioneel hulpstuk"
+
+#: .tmp/epson.c:3421 .tmp/epson2.c:2253
+#, no-c-format
+msgid "Eject"
+msgstr "Uitwerpen"
+
+#: .tmp/epson.c:3422 .tmp/epson2.c:2254
+#, no-c-format
+msgid "Eject the sheet in the ADF"
+msgstr "Werpt het papier in de ADF uit"
+
+#: .tmp/epson.c:3434 .tmp/epson2.c:2264
+#, no-c-format
+msgid "Auto eject"
+msgstr "Automatische uitworp"
+
+#: .tmp/epson.c:3435 .tmp/epson2.c:2266
+#, no-c-format
+msgid "Eject document after scanning"
+msgstr "Werpt het document uit na het scannen"
+
+#: .tmp/epson.c:3447 .tmp/epson2.c:2276
+#, no-c-format
+msgid "ADF Mode"
+msgstr "ADF Mode"
+
+#: .tmp/epson.c:3449 .tmp/epson2.c:2278
+#, no-c-format
+msgid "Selects the ADF mode (simplex/duplex)"
+msgstr "Selecteert de ADF mode (enkelzijdig/dubbelzijdig)"
+
+#: .tmp/epson.c:3463 .tmp/epson2.c:2290
+#, no-c-format
+msgid "Bay"
+msgstr "Bak"
+
+#: .tmp/epson.c:3464 .tmp/epson2.c:2291
+#, no-c-format
+msgid "Select bay to scan"
+msgstr "Kies de bak om te scannen"
+
+#: .tmp/epson.h:69 .tmp/epson2.h:65
+#, no-c-format
+msgid ""
+"Selects the gamma correction value from a list of pre-defined devices or "
+"the user defined table, which can be downloaded to the scanner"
+msgstr ""
+"Selecteert de gammacorrectiewaarde uit een lijst met voorgedefinieerde "
+"apparaten of de door de gebruiker gedefinieerde tabel die naar de "
+"scanner kan worden gestuurd"
+
+#: .tmp/epson.h:72 .tmp/epson2.h:68
+#, no-c-format
+msgid "Focus Position"
+msgstr "Focus positie"
+
+#: .tmp/epson.h:73 .tmp/epson2.h:69
+#, no-c-format
+msgid ""
+"Sets the focus position to either the glass or 2.5mm above the glass"
+msgstr "Stelt de focus in op het glas of 2.5mm daarboven"
+
+#: .tmp/epson.h:75 .tmp/epson2.h:71
+#, no-c-format
+msgid "Wait for Button"
+msgstr "Wacht op een druk op de knop"
+
+#: .tmp/epson.h:76 .tmp/epson2.h:72
+#, no-c-format
+msgid ""
+"After sending the scan command, wait until the button on the scanner is "
+"pressed to actually start the scan process."
+msgstr ""
+"Begin pas met scannen nadat eerst het scancommando is gestuurd en "
+"vervolgens de knop van de scanner is ingedrukt."
+
+#: .tmp/epson2.c:237
+#, no-c-format
+msgid "Positive Slide"
+msgstr "Dia"
+
+#: .tmp/epson2.c:238
+#, no-c-format
+msgid "Negative Slide"
+msgstr "Negatief"
+
+#: .tmp/epson2.c:2129
+#, no-c-format
+msgid "Display a shortened resolution list"
+msgstr "Toon een verkorte lijst met oplossende vermogens"
+
+#: .tmp/genesys.c:107 .tmp/gt68xx.c:147 .tmp/ma1509.c:106
+#: .tmp/mustek.c:160 .tmp/snapscan-options.c:83 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
-msgstr "Dia-hulpstuk"
+msgstr "Transparanten-hulpstuk"
 
-#: .tmp/genesys.c:4739
-#, fuzzy, no-c-format
+#: .tmp/genesys.c:5052
+#, no-c-format
 msgid "Extras"
-msgstr "Extra snel"
+msgstr "Extra's"
 
-#: .tmp/genesys.c:4760
-#, fuzzy, no-c-format
+#: .tmp/genesys.c:5073
+#, no-c-format
 msgid "Disable interpolation"
-msgstr "Geen \"backtracking\""
+msgstr "Schakel interpolatie uit"
 
-#: .tmp/genesys.c:4763
+#: .tmp/genesys.c:5076
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
 "than the vertical resolution this disables horizontal interpolation."
 msgstr ""
+"Wanneer hoge resoluties worden gebruikt, waarbij de horizontale "
+"resolutie kleiner is dan de verticale resolutie, wordt de horizontale "
+"interpolatie uitgeschakeld."
 
-#: .tmp/genesys.c:4772
-#, fuzzy, no-c-format
+#: .tmp/genesys.c:5085
+#, no-c-format
 msgid "Color Filter"
-msgstr "Kleurenlijntekening"
+msgstr "Kleurenfilter"
 
-#: .tmp/genesys.c:4775
+#: .tmp/genesys.c:5088
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
+"Wanneer grijs of lijntekening wordt gebruikt, selecteert deze optie de "
+"huidige actieve kleur."
 
-#: .tmp/genesys.c:4784
-#, fuzzy, no-c-format
+#: .tmp/genesys.c:5097
+#, no-c-format
 msgid "Lamp off time"
-msgstr "Lamp uit"
+msgstr "Lamp uit tijd"
 
-#: .tmp/genesys.c:4787
+#: .tmp/genesys.c:5100
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
 "of 0 means, that the lamp won't be turned off."
 msgstr ""
+"De lamp wordt uitgeschakeld na de opgegeven tijd (in minuten). Een "
+"waarde van 0 betekent, dat de lamp niet wordt uitgeschakeld."
 
-#: .tmp/gt68xx.c:472
+#: .tmp/genesys.c:5128 .tmp/genesys.c:5129
+#, fuzzy, no-c-format
+msgid "File button"
+msgstr "Wacht op een druk op de knop"
+
+#: .tmp/genesys.c:5181 .tmp/genesys.c:5182
 #, no-c-format
-msgid "Gray mode color"
+msgid "OCR button"
 msgstr ""
+
+#: .tmp/genesys.c:5195 .tmp/genesys.c:5196
+#, fuzzy, no-c-format
+msgid "Power button"
+msgstr "Wacht op een druk op de knop"
+
+#: .tmp/genesys.c:5209 .tmp/genesys.c:5210 .tmp/pixma_sane_options.c:210
+#: .tmp/plustek.c:1079
+#, no-c-format
+msgid "Buttons"
+msgstr "Knoppen"
+
+#: .tmp/genesys.c:5216 .tmp/hp-option.h:97 .tmp/hp5400_sane.c:392
+#: .tmp/niash.c:728 .tmp/plustek.c:940
+#, no-c-format
+msgid "Calibrate"
+msgstr "Kalibreren"
+
+#: .tmp/genesys.c:5217
+#, fuzzy, no-c-format
+msgid "Start calibration using special sheet"
+msgstr "Begin het kalibreer proces"
+
+#: .tmp/genesys.c:5229
+#, fuzzy, no-c-format
+msgid "Clear calibration"
+msgstr "Grof kalibreren"
+
+#: .tmp/genesys.c:5230
+#, fuzzy, no-c-format
+msgid "Clear calibration cache"
+msgstr "Kalibratie gegevensbewaarplaats"
 
 #: .tmp/gt68xx.c:474
 #, no-c-format
+msgid "Gray mode color"
+msgstr "Kleur in grijsmodus"
+
+#: .tmp/gt68xx.c:476
+#, no-c-format
 msgid "Selects which scan color is used gray mode (default: green)."
 msgstr ""
+"Selecteert de scankleur die in de grijsmodus wordt gebruikt (Standaard: "
+"groen)"
 
-#: .tmp/gt68xx.c:555 .tmp/hp3900_sane.c:1398 .tmp/mustek_usb2.c:410
+#: .tmp/gt68xx.c:557 .tmp/hp3900_sane.c:1391 .tmp/mustek_usb2.c:410
 #, no-c-format
 msgid "Debugging Options"
 msgstr "Foutzoek opties"
 
-#: .tmp/gt68xx.c:566 .tmp/mustek_usb2.c:419
+#: .tmp/gt68xx.c:568 .tmp/mustek_usb2.c:419
 #, no-c-format
 msgid "Automatic warmup"
 msgstr "Automatisch opwarmen"
 
-#: .tmp/gt68xx.c:568
+#: .tmp/gt68xx.c:570
 #, no-c-format
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on "
@@ -1249,12 +1305,12 @@ msgstr ""
 "Wacht totdat de lamp constant brandt in plaats van de eis van 60 seconde "
 "opwarmtijd na te leven."
 
-#: .tmp/gt68xx.c:580
+#: .tmp/gt68xx.c:582
 #, no-c-format
 msgid "Full scan"
 msgstr "Volledige scan"
 
-#: .tmp/gt68xx.c:582
+#: .tmp/gt68xx.c:584
 #, no-c-format
 msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
@@ -1263,12 +1319,12 @@ msgstr ""
 "Scan het volledige scanbereik inclusief de kalibereerstrook. Pas op! "
 "Kies niet een te grote hoogte. Alleen voor testdoeleinden."
 
-#: .tmp/gt68xx.c:593
+#: .tmp/gt68xx.c:595
 #, no-c-format
 msgid "Coarse calibration"
 msgstr "Grof kalibreren"
 
-#: .tmp/gt68xx.c:595
+#: .tmp/gt68xx.c:597
 #, no-c-format
 msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
@@ -1280,12 +1336,12 @@ msgstr ""
 "worden ingesteld. Deze optie staat standaard aan. Alleen voor "
 "testdoeleinden."
 
-#: .tmp/gt68xx.c:614
+#: .tmp/gt68xx.c:616
 #, no-c-format
 msgid "Coarse calibration for first scan only"
 msgstr "Alleen voor de eerste scan grof kalibreren"
 
-#: .tmp/gt68xx.c:616
+#: .tmp/gt68xx.c:618
 #, no-c-format
 msgid ""
 "Coarse calibration is only done for the first scan. Works with most "
@@ -1297,12 +1353,12 @@ msgstr ""
 "van het beeld per scan verschilt, schakel deze optie dan uit. Alleen "
 "voor testdoeleinden."
 
-#: .tmp/gt68xx.c:647
-#, fuzzy, no-c-format
-msgid "Backtrack lines"
-msgstr "Dwing \"backtracking\""
-
 #: .tmp/gt68xx.c:649
+#, no-c-format
+msgid "Backtrack lines"
+msgstr "\"Backtrack\" lijnen"
+
+#: .tmp/gt68xx.c:651
 #, no-c-format
 msgid ""
 "Number of lines the scan slider moves back when backtracking occurs. "
@@ -1310,293 +1366,25 @@ msgid ""
 "the data. Low values cause faster scans but increase the risk of "
 "omitting lines."
 msgstr ""
+"Het aantal scanlijnen dat de scannerwagen teruggaat als \"backtracking\" "
+"optreedt Dit gebeurt als de scanner sneller scant dan de computer de "
+"data kan verwerken. Lage waarden zorgen voor snellere scans, maar "
+"vergroten het risico van gemiste scanlijnen."
 
-#: .tmp/gt68xx.c:674 .tmp/mustek_usb2.c:452
+#: .tmp/gt68xx.c:676 .tmp/mustek_usb2.c:452
 #, no-c-format
 msgid "Gamma value"
 msgstr "Gammawaarde"
 
-#: .tmp/gt68xx.c:676 .tmp/mustek_usb2.c:454
+#: .tmp/gt68xx.c:678 .tmp/mustek_usb2.c:454
 #, no-c-format
 msgid "Sets the gamma value of all channels."
 msgstr "Stelt de gammawaarde voor alle kanalen in."
 
-#: .tmp/hp3500.c:977
-#, fuzzy, no-c-format
-msgid "Geometry Group"
-msgstr "Geometrie"
-
-#: .tmp/hp3500.c:1033 .tmp/hp3500.c:1034
-#, fuzzy, no-c-format
-msgid "Scan Mode Group"
-msgstr "Scanmodus"
-
-#: .tmp/hp3900_sane.c:429 .tmp/hp3900_sane.c:1009 .tmp/hp-option.c:3173
-#, no-c-format
-msgid "Slide"
-msgstr "Dia"
-
-#: .tmp/hp3900_sane.c:430 .tmp/hp3900_sane.c:1011 .tmp/hp3900_sane.c:1427
-#: .tmp/hp-option.c:3234 .tmp/mustek_usb2.c:121 .tmp/plustek.c:235
-#: .tmp/plustek_pp.c:202 .tmp/saneopts.h:177 .tmp/u12.c:157
-#, no-c-format
-msgid "Negative"
-msgstr "Negatief"
-
-#: .tmp/hp3900_sane.c:1411
-#, fuzzy, no-c-format
-msgid "Scanner model"
-msgstr "Scanmodus"
-
-#: .tmp/hp3900_sane.c:1414
-#, no-c-format
-msgid "Allows to test device behaviour with other supported models"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1428
-#, no-c-format
-msgid "Image colours will be inverted"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1442
-#, fuzzy, no-c-format
-msgid "Disable gamma correction"
-msgstr "Analoge gammacorrectie"
-
-#: .tmp/hp3900_sane.c:1443
-#, fuzzy, no-c-format
-msgid "Gamma correction will be disabled"
-msgstr "Gammacorrectie"
-
-#: .tmp/hp3900_sane.c:1457
-#, fuzzy, no-c-format
-msgid "Disable white shading correction"
-msgstr "Voer alleen een schaduw correctie uit"
-
-#: .tmp/hp3900_sane.c:1459
-#, no-c-format
-msgid "White shading correction will be disabled"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1473
-#, no-c-format
-msgid "Skip warmup process"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1474
-#, no-c-format
-msgid "Warmup process will be disabled"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1488
-#, no-c-format
-msgid "Force real depth"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1491
-#, no-c-format
-msgid ""
-"If gamma is enabled, scans are always made in 16 bits depth to improve "
-"image quality and then converted to the selected depth. This option "
-"avoids depth emulation."
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1505
-#, fuzzy, no-c-format
-msgid "Emulate Grayscale"
-msgstr "Grijstrap"
-
-#: .tmp/hp3900_sane.c:1508
-#, no-c-format
-msgid ""
-"If enabled, image will be scanned in color mode and then converted to "
-"grayscale by software. This may improve image quality in some "
-"circumstances."
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1522
-#, no-c-format
-msgid "Save debugging images"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1525
-#, no-c-format
-msgid ""
-"If enabled, some images involved in scanner processing are saved to "
-"analyze them."
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1539
-#, fuzzy, no-c-format
-msgid "Reset chipset"
-msgstr "Doorvoerscanner"
-
-#: .tmp/hp3900_sane.c:1540
-#, no-c-format
-msgid "Resets chipset data"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1553
-#, fuzzy, no-c-format
-msgid "Information"
-msgstr "Negeer kalibrering"
-
-#: .tmp/hp3900_sane.c:1566
-#, fuzzy, no-c-format
-msgid "Chipset name"
-msgstr "Bestandsnaam"
-
-#: .tmp/hp3900_sane.c:1567
-#, no-c-format
-msgid "Shows chipset name used in device."
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1573
-#, no-c-format
-msgid "Unknown"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1578
-#, no-c-format
-msgid "Chipset ID"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1579
-#, fuzzy, no-c-format
-msgid "Shows the chipset ID"
-msgstr "Doorvoerscanner"
-
-#: .tmp/hp3900_sane.c:1591
-#, fuzzy, no-c-format
-msgid "Scan counter"
-msgstr "Scanbron"
-
-#: .tmp/hp3900_sane.c:1593
-#, fuzzy, no-c-format
-msgid "Shows the number of scans made by scanner"
-msgstr "Kiest het aantal te scannen beelden"
-
-#: .tmp/hp3900_sane.c:1605
-#, fuzzy, no-c-format
-msgid "Update information"
-msgstr "Opties bijwerken"
-
-#: .tmp/hp3900_sane.c:1606
-#, no-c-format
-msgid "Updates information about device"
-msgstr ""
-
-#: .tmp/hp3900_sane.c:1619 .tmp/pixma_sane_options.c:210
-#: .tmp/plustek.c:1079
-#, fuzzy, no-c-format
-msgid "Buttons"
-msgstr "Stand van de knop"
-
-#: .tmp/hp3900_sane.c:1646
-#, no-c-format
-msgid "This option reflects a front panel scanner button"
-msgstr ""
-
-#: .tmp/hp5400_sane.c:313 .tmp/niash.c:683
-#, no-c-format
-msgid "Image"
-msgstr ""
-
-#: .tmp/hp5400_sane.c:352 .tmp/niash.c:711
-#, no-c-format
-msgid "Miscellaneous"
-msgstr ""
-
-#: .tmp/hp5400_sane.c:358
-#, fuzzy, no-c-format
-msgid "offset X"
-msgstr "Offset"
-
-#: .tmp/hp5400_sane.c:359
-#, fuzzy, no-c-format
-msgid "Hardware internal X position of the scanning area."
-msgstr "Linkerkant van het scanoppervlak."
-
-#: .tmp/hp5400_sane.c:368
-#, fuzzy, no-c-format
-msgid "offset Y"
-msgstr "Offset"
-
-#: .tmp/hp5400_sane.c:369
-#, fuzzy, no-c-format
-msgid "Hardware internal Y position of the scanning area."
-msgstr "Linkerkant van het scanoppervlak."
-
-#: .tmp/hp5400_sane.c:381 .tmp/niash.c:718
-#, no-c-format
-msgid "Lamp status"
-msgstr ""
-
-#: .tmp/hp5400_sane.c:382 .tmp/niash.c:719
-#, no-c-format
-msgid "Switches the lamp on or off."
-msgstr "Schakelt de lamp aan/uit."
-
-#: .tmp/hp5400_sane.c:392 .tmp/hp-option.h:97 .tmp/niash.c:728
-#: .tmp/plustek.c:940
-#, no-c-format
-msgid "Calibrate"
-msgstr "Kalibreren"
-
-#: .tmp/hp5400_sane.c:393 .tmp/niash.c:729
-#, no-c-format
-msgid "Calibrates for black and white level."
-msgstr ""
-
-#: .tmp/hp5590.c:81 .tmp/hp-option.c:3252
-#, no-c-format
-msgid "ADF"
-msgstr "ADF"
-
-#: .tmp/hp5590.c:82 .tmp/pixma.c:643
-#, fuzzy, no-c-format
-msgid "ADF Duplex"
-msgstr "Dubbelzijdig"
-
-#: .tmp/hp5590.c:83
-#, fuzzy, no-c-format
-msgid "TMA Slides"
-msgstr "Dia"
-
-#: .tmp/hp5590.c:84
-#, fuzzy, no-c-format
-msgid "TMA Negatives"
-msgstr "Negatief"
-
-#: .tmp/hp5590.c:87
-#, fuzzy, no-c-format
-msgid "Color (48 bits)"
-msgstr "Kleur 48"
-
-#: .tmp/hp5590.c:90
-#, fuzzy, no-c-format
-msgid "Extend lamp timeout"
-msgstr "Lamp uit"
-
-#: .tmp/hp5590.c:91
-#, no-c-format
-msgid "Extends lamp timeout (from 15 minutes to 1 hour)"
-msgstr ""
-
-#: .tmp/hp5590.c:93
-#, no-c-format
-msgid "Wait for button"
-msgstr "Wacht op een druk op de knop"
-
-#: .tmp/hp5590.c:94
-#, fuzzy, no-c-format
-msgid "Waits for button before scanning"
-msgstr "Warm de lamp op alvorens te scannen"
-
 #: .tmp/hp-option.c:2983
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Advanced Options"
-msgstr "Opties bijwerken"
+msgstr "Geavanceerde opties"
 
 #: .tmp/hp-option.c:3040
 #, no-c-format
@@ -1616,7 +1404,7 @@ msgstr "Bayer"
 #: .tmp/hp-option.c:3043
 #, no-c-format
 msgid "Vertical"
-msgstr "Vertikaal"
+msgstr "Verticaal"
 
 #: .tmp/hp-option.c:3044
 #, no-c-format
@@ -1664,7 +1452,7 @@ msgid "Slow"
 msgstr "Langzaam"
 
 #: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
-#: .tmp/mustek.c:143 .tmp/plustek.c:233 .tmp/plustek_pp.c:200
+#: .tmp/mustek.c:145 .tmp/plustek.c:233 .tmp/plustek_pp.c:200
 #: .tmp/u12.c:155
 #, no-c-format
 msgid "Normal"
@@ -1705,10 +1493,27 @@ msgstr "8-beeldpunt"
 msgid "Print"
 msgstr "Afdruk"
 
+#: .tmp/hp-option.c:3173 .tmp/hp3900_sane.c:427 .tmp/hp3900_sane.c:1019
+#, no-c-format
+msgid "Slide"
+msgstr "Dia"
+
 #: .tmp/hp-option.c:3174
 #, no-c-format
 msgid "Film-strip"
 msgstr "Filmstrook"
+
+#: .tmp/hp-option.c:3234 .tmp/hp3900_sane.c:428 .tmp/hp3900_sane.c:1021
+#: .tmp/hp3900_sane.c:1420 .tmp/mustek_usb2.c:121 .tmp/plustek.c:235
+#: .tmp/plustek_pp.c:202 .tmp/saneopts.h:206 .tmp/u12.c:157
+#, no-c-format
+msgid "Negative"
+msgstr "Negatief"
+
+#: .tmp/hp-option.c:3252 .tmp/hp5590.c:82
+#, no-c-format
+msgid "ADF"
+msgstr "ADF"
 
 #: .tmp/hp-option.c:3253
 #, no-c-format
@@ -1726,9 +1531,9 @@ msgid "Conditional"
 msgstr "Voorwaardelijk"
 
 #: .tmp/hp-option.c:3413
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Experiment"
-msgstr "Belichtingstijd"
+msgstr "Experiment"
 
 #: .tmp/hp-option.h:60
 #, no-c-format
@@ -1770,15 +1575,15 @@ msgstr "Verwijder origineel na de scan"
 #: .tmp/hp-option.h:80
 #, no-c-format
 msgid "Unloads the media after a scan."
-msgstr "Verwijdert het orgineel na de scan."
+msgstr "Verwijdert het origineel na de scan."
 
 #: .tmp/hp-option.h:85
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Change document"
 msgstr "Wijzig origineel"
 
 #: .tmp/hp-option.h:86
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Change Document."
 msgstr "Wijzig Origineel"
 
@@ -1790,7 +1595,7 @@ msgstr "Verwijder"
 #: .tmp/hp-option.h:92
 #, no-c-format
 msgid "Unload Document."
-msgstr "Verwijder Orgineel"
+msgstr "Verwijder Origineel"
 
 #: .tmp/hp-option.h:98
 #, no-c-format
@@ -1798,14 +1603,14 @@ msgid "Start calibration process."
 msgstr "Begin het kalibreer proces"
 
 #: .tmp/hp-option.h:103
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Media"
 msgstr "Orgineel"
 
 #: .tmp/hp-option.h:104
 #, no-c-format
 msgid "Set type of media."
-msgstr "Stelt orgineel type in."
+msgstr "Stelt origineel type in."
 
 #: .tmp/hp-option.h:109
 #, no-c-format
@@ -1847,7 +1652,7 @@ msgstr "Mono Kleurpatroon"
 #: .tmp/hp-option.h:133
 #, no-c-format
 msgid "Custom color matrix for grayscale scans."
-msgstr "Door de gebruiker gedefineerd kleurpatroon voor grijstrap scans"
+msgstr "Door de gebruiker gedefinieerd kleurpatroon voor grijstint scans"
 
 #: .tmp/hp-option.h:138
 #, no-c-format
@@ -1862,12 +1667,12 @@ msgstr "Beeld horizontaal spiegelen"
 #: .tmp/hp-option.h:144
 #, no-c-format
 msgid "Mirror vertical"
-msgstr "Vertikaal spiegelen"
+msgstr "Verticaal spiegelen"
 
 #: .tmp/hp-option.h:145
 #, no-c-format
 msgid "Mirror image vertically."
-msgstr "Beeld vertikaal spiegelen"
+msgstr "Beeld verticaal spiegelen"
 
 #: .tmp/hp-option.h:150
 #, no-c-format
@@ -1890,14 +1695,14 @@ msgid "Use bit depth greater eight internally, but output only eight bits."
 msgstr "Gebruik intern meer dan acht bits, maar geef slechts acht bits."
 
 #: .tmp/hp-option.h:164
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Front button wait"
-msgstr "Wachtknop"
+msgstr "Knop op voorpaneel"
 
 #: .tmp/hp-option.h:165
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Wait to scan for front-panel button push."
-msgstr "Wacht eerst op een druk op de startknop."
+msgstr "Wacht met scannen totdat knop op voorpaneel is ingedrukt."
 
 #: .tmp/hp-option.h:172
 #, no-c-format
@@ -1908,6 +1713,260 @@ msgstr "Schakelt de lamp uit"
 #, no-c-format
 msgid "Shut off scanner lamp."
 msgstr "Schakelt de scannerlamp uit."
+
+#: .tmp/hp3500.c:977
+#, no-c-format
+msgid "Geometry Group"
+msgstr "Geometrie groep"
+
+#: .tmp/hp3500.c:1033 .tmp/hp3500.c:1034
+#, no-c-format
+msgid "Scan Mode Group"
+msgstr "Scanmodus groep"
+
+#: .tmp/hp3900_sane.c:1404
+#, no-c-format
+msgid "Scanner model"
+msgstr "Scanner model"
+
+#: .tmp/hp3900_sane.c:1407
+#, no-c-format
+msgid "Allows to test device behaviour with other supported models"
+msgstr ""
+"Staat het testen van de werking van het apparaat toe met andere "
+"ondersteunde modellen."
+
+#: .tmp/hp3900_sane.c:1421
+#, no-c-format
+msgid "Image colours will be inverted"
+msgstr "Kleuren van het beeld worden geinverteerd"
+
+#: .tmp/hp3900_sane.c:1435
+#, no-c-format
+msgid "Disable gamma correction"
+msgstr "Schakel gammacorrectie uit"
+
+#: .tmp/hp3900_sane.c:1436
+#, no-c-format
+msgid "Gamma correction will be disabled"
+msgstr "Gammacorrectie wordt uitgeschakeld"
+
+#: .tmp/hp3900_sane.c:1450
+#, no-c-format
+msgid "Disable white shading correction"
+msgstr "Schakel witte schaduw correctie uit"
+
+#: .tmp/hp3900_sane.c:1452
+#, no-c-format
+msgid "White shading correction will be disabled"
+msgstr "Witte schaduw correctie wordt uitgeschakeld"
+
+#: .tmp/hp3900_sane.c:1466
+#, no-c-format
+msgid "Skip warmup process"
+msgstr "Sla opwarmprocedure over"
+
+#: .tmp/hp3900_sane.c:1467
+#, no-c-format
+msgid "Warmup process will be disabled"
+msgstr "Opwarmprocedure wordt uitgeschakeld"
+
+#: .tmp/hp3900_sane.c:1481
+#, no-c-format
+msgid "Force real depth"
+msgstr "Forceer ware diepte"
+
+#: .tmp/hp3900_sane.c:1484
+#, no-c-format
+msgid ""
+"If gamma is enabled, scans are always made in 16 bits depth to improve "
+"image quality and then converted to the selected depth. This option "
+"avoids depth emulation."
+msgstr ""
+"Als gammacorrectie is ingeschakeld, worden scans altijd met 16 bit "
+"diepte gemaakt om de beeldkwaliteit te verbeteren en daarna "
+"geconverteerd naar de gekozen diepte. Deze optie schakelt diepte "
+"emulatie uit."
+
+#: .tmp/hp3900_sane.c:1498
+#, no-c-format
+msgid "Emulate Grayscale"
+msgstr "Emuleer grijstrap"
+
+#: .tmp/hp3900_sane.c:1501
+#, no-c-format
+msgid ""
+"If enabled, image will be scanned in color mode and then converted to "
+"grayscale by software. This may improve image quality in some "
+"circumstances."
+msgstr ""
+"Indien ingeschakeld, wordt het beeld in kleurmodus gescand en daarna "
+"door de software geconverteerd naar grijswaardes. Dit kan de "
+"beeldkwaliteit in sommige gevallen verbeteren."
+
+#: .tmp/hp3900_sane.c:1515
+#, no-c-format
+msgid "Save debugging images"
+msgstr "Bewaar testbeelden"
+
+#: .tmp/hp3900_sane.c:1518
+#, no-c-format
+msgid ""
+"If enabled, some images involved in scanner processing are saved to "
+"analyze them."
+msgstr ""
+"Indien ingeschakeld, worden enkele beelden die deel uitmaken van het "
+"scanproces bewaard, zodat ze kunnen worden geanalyseerd."
+
+#: .tmp/hp3900_sane.c:1532
+#, no-c-format
+msgid "Reset chipset"
+msgstr "Reset chipset"
+
+#: .tmp/hp3900_sane.c:1533
+#, no-c-format
+msgid "Resets chipset data"
+msgstr "Reset chipset gegevens"
+
+#: .tmp/hp3900_sane.c:1546
+#, no-c-format
+msgid "Information"
+msgstr "Informatie"
+
+#: .tmp/hp3900_sane.c:1559
+#, no-c-format
+msgid "Chipset name"
+msgstr "Naam van de chipset"
+
+#: .tmp/hp3900_sane.c:1560
+#, no-c-format
+msgid "Shows chipset name used in device."
+msgstr "Toont de naam van de chipset gebruikt in het apparaat."
+
+#: .tmp/hp3900_sane.c:1564
+#, no-c-format
+msgid "Unknown"
+msgstr "Onbekend"
+
+#: .tmp/hp3900_sane.c:1569
+#, no-c-format
+msgid "Chipset ID"
+msgstr "Chipset ID"
+
+#: .tmp/hp3900_sane.c:1570
+#, no-c-format
+msgid "Shows the chipset ID"
+msgstr "Toont de chipset ID"
+
+#: .tmp/hp3900_sane.c:1580
+#, no-c-format
+msgid "Scan counter"
+msgstr "Scannerteller"
+
+#: .tmp/hp3900_sane.c:1582
+#, no-c-format
+msgid "Shows the number of scans made by scanner"
+msgstr "Toont het aantal scans dat de scanner heeft gemaakt"
+
+#: .tmp/hp3900_sane.c:1592
+#, no-c-format
+msgid "Update information"
+msgstr "Werk de informatie bij"
+
+#: .tmp/hp3900_sane.c:1593
+#, no-c-format
+msgid "Updates information about device"
+msgstr "Werkt de informatie over het apparaat bij"
+
+#: .tmp/hp3900_sane.c:1633
+#, no-c-format
+msgid "This option reflects a front panel scanner button"
+msgstr "Deze optie geeft de scannerknoppen op het apparaat weer"
+
+#: .tmp/hp5400_sane.c:313 .tmp/niash.c:683
+#, no-c-format
+msgid "Image"
+msgstr "Beeld"
+
+#: .tmp/hp5400_sane.c:352 .tmp/niash.c:711
+#, no-c-format
+msgid "Miscellaneous"
+msgstr "Overig"
+
+#: .tmp/hp5400_sane.c:358
+#, no-c-format
+msgid "offset X"
+msgstr "Offset X"
+
+#: .tmp/hp5400_sane.c:359
+#, no-c-format
+msgid "Hardware internal X position of the scanning area."
+msgstr "X positie in de scanner van het scanoppervlak."
+
+#: .tmp/hp5400_sane.c:368
+#, no-c-format
+msgid "offset Y"
+msgstr "Offset Y"
+
+#: .tmp/hp5400_sane.c:369
+#, no-c-format
+msgid "Hardware internal Y position of the scanning area."
+msgstr "Y positie in de scanner van het scanoppervlak."
+
+#: .tmp/hp5400_sane.c:381 .tmp/niash.c:718
+#, no-c-format
+msgid "Lamp status"
+msgstr "Lamp status"
+
+#: .tmp/hp5400_sane.c:382 .tmp/niash.c:719
+#, no-c-format
+msgid "Switches the lamp on or off."
+msgstr "Schakelt de lamp aan of uit."
+
+#: .tmp/hp5400_sane.c:393 .tmp/niash.c:729
+#, no-c-format
+msgid "Calibrates for black and white level."
+msgstr "Kalibreert voor het zwart/wit niveau"
+
+#: .tmp/hp5590.c:83 .tmp/pixma.c:663
+#, no-c-format
+msgid "ADF Duplex"
+msgstr "Dubbelzijdige ADF"
+
+#: .tmp/hp5590.c:84
+#, no-c-format
+msgid "TMA Slides"
+msgstr "TMA dia's"
+
+#: .tmp/hp5590.c:85
+#, no-c-format
+msgid "TMA Negatives"
+msgstr "TMA Negatieven"
+
+#: .tmp/hp5590.c:88
+#, no-c-format
+msgid "Color (48 bits)"
+msgstr "Kleur (48 bits)"
+
+#: .tmp/hp5590.c:91
+#, no-c-format
+msgid "Extend lamp timeout"
+msgstr "Verleng lamp timeout"
+
+#: .tmp/hp5590.c:92
+#, no-c-format
+msgid "Extends lamp timeout (from 15 minutes to 1 hour)"
+msgstr "Verlengt de lamp timeout (van 15 minuten tot 1 uur)"
+
+#: .tmp/hp5590.c:94
+#, no-c-format
+msgid "Wait for button"
+msgstr "Wacht op een druk op de knop"
+
+#: .tmp/hp5590.c:95
+#, no-c-format
+msgid "Waits for button before scanning"
+msgstr "Wacht op een druk op de knop alvorens te scannen"
 
 #: .tmp/leo.c:110
 #, no-c-format
@@ -1932,59 +1991,59 @@ msgstr "8x8 Bayer"
 #: .tmp/leo.c:114
 #, no-c-format
 msgid "8x8 Vertical Line"
-msgstr "8x8 Vertikale lijn"
+msgstr "8x8 Verticale lijn"
 
 #: .tmp/leo.h:260 .tmp/matsushita.h:209 .tmp/teco1.h:291 .tmp/teco3.h:294
 #, no-c-format
 msgid "Black & White"
 msgstr "Zwart/wit"
 
-#: .tmp/lexmark.c:288 .tmp/umax_pp.c:636
+#: .tmp/lexmark.c:288 .tmp/umax_pp.c:713
 #, no-c-format
 msgid "Gain"
 msgstr "Bereik"
 
-#: .tmp/lexmark.c:289 .tmp/umax_pp.c:637
+#: .tmp/lexmark.c:289 .tmp/umax_pp.c:714
 #, no-c-format
 msgid "Color channels gain settings"
 msgstr "Bereikinstellingen van de kleurkanalen"
 
-#: .tmp/lexmark.c:298 .tmp/umax_pp.c:644
+#: .tmp/lexmark.c:298 .tmp/umax_pp.c:721
 #, no-c-format
 msgid "Gray gain"
 msgstr "Grijsbereik"
 
-#: .tmp/lexmark.c:299 .tmp/umax_pp.c:645
+#: .tmp/lexmark.c:299 .tmp/umax_pp.c:722
 #, no-c-format
 msgid "Sets gray channel gain"
-msgstr "Stelt het bereik in van het gijze kanaal"
+msgstr "Stelt het bereik in van het grijze kanaal"
 
-#: .tmp/lexmark.c:312 .tmp/plustek.c:1000 .tmp/umax_pp.c:656
+#: .tmp/lexmark.c:312 .tmp/plustek.c:1000 .tmp/umax_pp.c:733
 #, no-c-format
 msgid "Red gain"
 msgstr "Roodbereik"
 
-#: .tmp/lexmark.c:313 .tmp/umax_pp.c:657
+#: .tmp/lexmark.c:313 .tmp/umax_pp.c:734
 #, no-c-format
 msgid "Sets red channel gain"
 msgstr "Stelt het bereik in van het rode kanaal"
 
-#: .tmp/lexmark.c:326 .tmp/plustek.c:1016 .tmp/umax_pp.c:668
+#: .tmp/lexmark.c:326 .tmp/plustek.c:1016 .tmp/umax_pp.c:745
 #, no-c-format
 msgid "Green gain"
 msgstr "Groenbereik"
 
-#: .tmp/lexmark.c:327 .tmp/umax_pp.c:669
+#: .tmp/lexmark.c:327 .tmp/umax_pp.c:746
 #, no-c-format
 msgid "Sets green channel gain"
 msgstr "Stelt het bereik in van het groene kanaal"
 
-#: .tmp/lexmark.c:340 .tmp/plustek.c:1032 .tmp/umax_pp.c:680
+#: .tmp/lexmark.c:340 .tmp/plustek.c:1032 .tmp/umax_pp.c:757
 #, no-c-format
 msgid "Blue gain"
 msgstr "Blauwbereik"
 
-#: .tmp/lexmark.c:341 .tmp/umax_pp.c:681
+#: .tmp/lexmark.c:341 .tmp/umax_pp.c:758
 #, no-c-format
 msgid "Sets blue channel gain"
 msgstr "Stelt het bereik in van het blauwe kanaal"
@@ -2030,9 +2089,9 @@ msgid "Mode 3"
 msgstr "Mode 3"
 
 #: .tmp/matsushita.c:176
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "From white stick"
-msgstr "Vanaf een wit punt"
+msgstr "Vanaf witte punt"
 
 #: .tmp/matsushita.c:177
 #, no-c-format
@@ -2183,7 +2242,7 @@ msgstr "Geen \"backtracking\""
 #, no-c-format
 msgid "If checked the scanner does not perform backtracking"
 msgstr ""
-"Wanneer aangevinkt, gaat de scankop niet terug naar de beginpositie"
+"Wanneer aangevinkt, gaat de scannerkop niet terug naar de beginpositie"
 
 #: .tmp/microtek2.h:613
 #, no-c-format
@@ -2206,7 +2265,7 @@ msgid ""
 "If checked the color calibration before a scan is done by the backend"
 msgstr ""
 "Sommige scanners moeten softwarematig worden gekalibreerd, anders kunnen "
-"moiree strepen op het beeld ontstaan"
+"moiré strepen op het beeld ontstaan"
 
 #: .tmp/microtek2.h:622
 #, no-c-format
@@ -2407,129 +2466,129 @@ msgstr "Standaardbalans"
 msgid "Sets the color balance values to the firmware provided values."
 msgstr ""
 "Stelt de kleurbalanswaarden in op de waarden zoals opgegeven door de "
-"fabricant."
+"fabrikant."
 
-#: .tmp/mustek.c:143
+#: .tmp/mustek.c:145
 #, no-c-format
 msgid "Slowest"
 msgstr "Langzaamste"
 
-#: .tmp/mustek.c:143
+#: .tmp/mustek.c:145
 #, no-c-format
 msgid "Slower"
 msgstr "Langzaam"
 
-#: .tmp/mustek.c:144
+#: .tmp/mustek.c:146
 #, no-c-format
 msgid "Faster"
 msgstr "Snel"
 
-#: .tmp/mustek.c:144
+#: .tmp/mustek.c:146
 #, no-c-format
 msgid "Fastest"
 msgstr "Snelste"
 
-#: .tmp/mustek.c:171
+#: .tmp/mustek.c:173
 #, no-c-format
 msgid "8x8 coarse"
 msgstr "8x8 grof"
 
-#: .tmp/mustek.c:171
+#: .tmp/mustek.c:173
 #, no-c-format
 msgid "8x8 normal"
 msgstr "8x8 normaal"
 
-#: .tmp/mustek.c:171
+#: .tmp/mustek.c:173
 #, no-c-format
 msgid "8x8 fine"
 msgstr "8x8 fijn"
 
-#: .tmp/mustek.c:172
+#: .tmp/mustek.c:174
 #, no-c-format
 msgid "8x8 very fine"
 msgstr "8x8 zeer fijn"
 
-#: .tmp/mustek.c:172
+#: .tmp/mustek.c:174
 #, no-c-format
 msgid "6x6 normal"
 msgstr "6x6 normaal"
 
-#: .tmp/mustek.c:173
+#: .tmp/mustek.c:175
 #, no-c-format
 msgid "5x5 coarse"
 msgstr "5x5 grof"
 
-#: .tmp/mustek.c:173
+#: .tmp/mustek.c:175
 #, no-c-format
 msgid "5x5 fine"
 msgstr "5x5 fijn"
 
-#: .tmp/mustek.c:173
+#: .tmp/mustek.c:175
 #, no-c-format
 msgid "4x4 coarse"
 msgstr "4x4 grof"
 
-#: .tmp/mustek.c:174
+#: .tmp/mustek.c:176
 #, no-c-format
 msgid "4x4 normal"
 msgstr "4x4 normaal"
 
-#: .tmp/mustek.c:174
+#: .tmp/mustek.c:176
 #, no-c-format
 msgid "4x4 fine"
 msgstr "4x4 fijn"
 
-#: .tmp/mustek.c:174
+#: .tmp/mustek.c:176
 #, no-c-format
 msgid "3x3 normal"
 msgstr "3x3 normaal"
 
-#: .tmp/mustek.c:175
+#: .tmp/mustek.c:177
 #, no-c-format
 msgid "2x2 normal"
 msgstr "2x2 normaal"
 
-#: .tmp/mustek.c:175
+#: .tmp/mustek.c:177
 #, no-c-format
 msgid "8x8 custom"
 msgstr "8x8 door de gebruiker gedefinieerd"
 
-#: .tmp/mustek.c:176
+#: .tmp/mustek.c:178
 #, no-c-format
 msgid "6x6 custom"
 msgstr "6x6 door de gebruiker gedefinieerd"
 
-#: .tmp/mustek.c:177
+#: .tmp/mustek.c:179
 #, no-c-format
 msgid "5x5 custom"
 msgstr "5x5 door de gebruiker gedefinieerd"
 
-#: .tmp/mustek.c:177
+#: .tmp/mustek.c:179
 #, no-c-format
 msgid "4x4 custom"
 msgstr "4x4 door de gebruiker gedefinieerd"
 
-#: .tmp/mustek.c:178
+#: .tmp/mustek.c:180
 #, no-c-format
 msgid "3x3 custom"
 msgstr "3x3 door de gebruiker gedefinieerd"
 
-#: .tmp/mustek.c:179
+#: .tmp/mustek.c:181
 #, no-c-format
 msgid "2x2 custom"
 msgstr "2x2 door de gebruiker gedefinieerd"
 
-#: .tmp/mustek.c:4231
+#: .tmp/mustek.c:4233
 #, no-c-format
 msgid "Fast gray mode"
 msgstr "Snelle grijsmodus"
 
-#: .tmp/mustek.c:4232
+#: .tmp/mustek.c:4234
 #, no-c-format
 msgid "Scan in fast gray mode (lower quality)."
 msgstr "Scan in snelle grijsmodus (lage beeldkwaliteit)."
 
-#: .tmp/mustek.c:4329
+#: .tmp/mustek.c:4331
 #, no-c-format
 msgid ""
 "Request that all previews are done in the fastest (low-quality) mode. "
@@ -2538,87 +2597,87 @@ msgstr ""
 "Bepaalt dat alle voorbeeldscannen in de snelste (lage kwaliteit) modus "
 "worden uitgevoerd. Dit kan een niet-kleur of lage resolutie modus zijn."
 
-#: .tmp/mustek.c:4337
-#, fuzzy, no-c-format
+#: .tmp/mustek.c:4339
+#, no-c-format
 msgid "Lamp off time (minutes)"
-msgstr "Lamp opwarmen"
+msgstr "Lamp uit tijd (minuten)"
 
-#: .tmp/mustek.c:4338
+#: .tmp/mustek.c:4340
 #, no-c-format
 msgid "Set the time (in minutes) after which the lamp is shut off."
-msgstr ""
+msgstr "Stelt de tijd (in minuten) in waarna de lamp wordt uitgeschakeld."
 
-#: .tmp/mustek.c:4349
-#, fuzzy, no-c-format
+#: .tmp/mustek.c:4351
+#, no-c-format
 msgid "Turn lamp off"
-msgstr "Schakelt de lamp aan/uit"
+msgstr "Schakel de lamp uit"
 
-#: .tmp/mustek.c:4350
-#, fuzzy, no-c-format
+#: .tmp/mustek.c:4352
+#, no-c-format
 msgid "Turns the lamp off immediately."
-msgstr "Schakelt de lamp van de flatbedscanner aan/uit"
+msgstr "Schakelt de lamp direct uit"
 
-#: .tmp/mustek.c:4427
+#: .tmp/mustek.c:4429
 #, no-c-format
 msgid "Red brightness"
 msgstr "Rode helderheid"
 
-#: .tmp/mustek.c:4428
+#: .tmp/mustek.c:4430
 #, no-c-format
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr ""
 "Stelt de helderheid van de rode component in van het gescande beeld."
 
-#: .tmp/mustek.c:4440
+#: .tmp/mustek.c:4442
 #, no-c-format
 msgid "Green brightness"
 msgstr "Groene helderheid"
 
-#: .tmp/mustek.c:4441
+#: .tmp/mustek.c:4443
 #, no-c-format
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr ""
 "Stelt de helderheid van de groene component in van het gescande beeld."
 
-#: .tmp/mustek.c:4453
+#: .tmp/mustek.c:4455
 #, no-c-format
 msgid "Blue brightness"
 msgstr "Blauwe helderheid"
 
-#: .tmp/mustek.c:4454
+#: .tmp/mustek.c:4456
 #, no-c-format
 msgid "Controls the brightness of the blue channel of the acquired image."
 msgstr ""
 "Stelt de helderheid van de blauwe component in van het gescande beeld."
 
-#: .tmp/mustek.c:4479
+#: .tmp/mustek.c:4481
 #, no-c-format
 msgid "Contrast red channel"
 msgstr "Contrast van de rode component"
 
-#: .tmp/mustek.c:4480
+#: .tmp/mustek.c:4482
 #, no-c-format
 msgid "Controls the contrast of the red channel of the acquired image."
 msgstr ""
 "Stelt het contrast van de rode component in van het gescande beeld."
 
-#: .tmp/mustek.c:4492
+#: .tmp/mustek.c:4494
 #, no-c-format
 msgid "Contrast green channel"
 msgstr "Contrast van de groene component"
 
-#: .tmp/mustek.c:4493
+#: .tmp/mustek.c:4495
 #, no-c-format
 msgid "Controls the contrast of the green channel of the acquired image."
 msgstr ""
 "Stelt het contrast van de groene component in van het gescande beeld."
 
-#: .tmp/mustek.c:4505
+#: .tmp/mustek.c:4507
 #, no-c-format
 msgid "Contrast blue channel"
 msgstr "Contrast van de blauwe component"
 
-#: .tmp/mustek.c:4506
+#: .tmp/mustek.c:4508
 #, no-c-format
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr ""
@@ -2640,14 +2699,14 @@ msgid "Gray16"
 msgstr "Grijs 16"
 
 #: .tmp/mustek_usb2.c:108
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Gray8"
-msgstr "Grijs 8"
+msgstr "Grijs8"
 
 #: .tmp/mustek_usb2.c:119
 #, no-c-format
 msgid "Reflective"
-msgstr ""
+msgstr "Reflecterend"
 
 #: .tmp/mustek_usb2.c:120
 #, fuzzy, no-c-format
@@ -2666,7 +2725,7 @@ msgstr ""
 #: .tmp/pixma_sane_options.c:91
 #, no-c-format
 msgid "Button-controlled scan"
-msgstr ""
+msgstr "Knop-gestuurde scan"
 
 #: .tmp/pixma_sane_options.c:94
 #, no-c-format
@@ -2675,21 +2734,24 @@ msgid ""
 "\"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To "
 "cancel, press \"GRAY\" button."
 msgstr ""
+"Wanneer ingeschakeld, zal het scanproces niet direct starten. Om door te "
+"gaan, druk op de \"SCAN\" knop (voor MP150) of \"COLOR\" knop (voor "
+"andere modellen). Om te annuleren, druk op de \"GRAY\" knop."
 
 #: .tmp/pixma_sane_options.c:216
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Update button state"
-msgstr "Stand van de knop"
+msgstr "Werk stand van de knop bij"
 
 #: .tmp/pixma_sane_options.c:228
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Button 1"
-msgstr "Stand van de knop"
+msgstr "Knop 1"
 
 #: .tmp/pixma_sane_options.c:242
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Button 2"
-msgstr "Stand van de knop"
+msgstr "Knop 2"
 
 #: .tmp/plustek.c:234 .tmp/plustek_pp.c:201 .tmp/u12.c:156
 #, no-c-format
@@ -2699,84 +2761,84 @@ msgstr "Diapositief"
 #: .tmp/plustek.c:912
 #, no-c-format
 msgid "Device-Settings"
-msgstr ""
+msgstr "Apparaatinstellingen"
 
 #: .tmp/plustek.c:919
 #, no-c-format
 msgid "Lampswitch"
-msgstr ""
+msgstr "Lampschakelaar"
 
 #: .tmp/plustek.c:920
 #, no-c-format
 msgid "Manually switching the lamp(s)."
-msgstr ""
+msgstr "Schakel de lamp(en) handmatig aan/uit."
 
 #: .tmp/plustek.c:925
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp off during dark calibration"
-msgstr "Grof kalibreren"
+msgstr "Lamp uit tijdens donker kalibreren"
 
 #: .tmp/plustek.c:926
 #, no-c-format
 msgid "Always switches lamp off when doing dark calibration."
-msgstr ""
+msgstr "Schakel altijd de lamp uit tijdens donker kalibreren."
 
 #: .tmp/plustek.c:934
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Calibration data cache"
-msgstr "Kalibreermodus"
+msgstr "Kalibratie gegevensbewaarplaats"
 
 #: .tmp/plustek.c:935
 #, no-c-format
 msgid "Enables or disables calibration data cache."
-msgstr ""
+msgstr "Schakelt kalibratie gegevensbewaarplaats in/uit"
 
 #: .tmp/plustek.c:941
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Performs calibration"
-msgstr "Grof kalibreren"
+msgstr "Voert kalibratie uit"
 
 #: .tmp/plustek.c:958
 #, no-c-format
 msgid "Speedup sensor"
-msgstr ""
+msgstr "Sensor versnelling"
 
 #: .tmp/plustek.c:959
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Enables or disables speeding up sensor movement."
-msgstr ""
+msgstr "Schakelt versnelde sensor beweging in/uit"
 
 #: .tmp/plustek.c:973
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Warmup-time"
-msgstr "Lamp opwarmen"
+msgstr "Opwarmtijd"
 
 #: .tmp/plustek.c:974
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Warmup-time in seconds."
-msgstr "Lamp opwarmen"
+msgstr "Opwarmtijd in seconden."
 
 #: .tmp/plustek.c:986
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lampoff-time"
-msgstr "Lamp uit"
+msgstr "Lamp uit tijd"
 
 #: .tmp/plustek.c:987
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lampoff-time in seconds."
-msgstr "Lamp opwarmen"
+msgstr "Lamp uit tijd in seconden."
 
 #: .tmp/plustek.c:994
 #, fuzzy, no-c-format
 msgid "Analog frontend"
-msgstr "Analoge gammawaarde rood"
+msgstr "Analoge frontend"
 
 #: .tmp/plustek.c:1001
 #, no-c-format
 msgid "Red gain value of the AFE"
-msgstr ""
+msgstr "Roodbereik waarde van de AFE"
 
-#: .tmp/plustek.c:1008 .tmp/umax_pp.c:713
+#: .tmp/plustek.c:1008 .tmp/umax_pp.c:790
 #, no-c-format
 msgid "Red offset"
 msgstr "Roodoffset"
@@ -2784,14 +2846,14 @@ msgstr "Roodoffset"
 #: .tmp/plustek.c:1009
 #, no-c-format
 msgid "Red offset value of the AFE"
-msgstr ""
+msgstr "Roodoffset waarde van de AFE"
 
 #: .tmp/plustek.c:1017
 #, no-c-format
 msgid "Green gain value of the AFE"
-msgstr ""
+msgstr "Groenbereik waarde van de AFE"
 
-#: .tmp/plustek.c:1024 .tmp/umax_pp.c:725
+#: .tmp/plustek.c:1024 .tmp/umax_pp.c:802
 #, no-c-format
 msgid "Green offset"
 msgstr "Groenoffset"
@@ -2799,14 +2861,14 @@ msgstr "Groenoffset"
 #: .tmp/plustek.c:1025
 #, no-c-format
 msgid "Green offset value of the AFE"
-msgstr ""
+msgstr "Groenoffset waarde van de AFE"
 
 #: .tmp/plustek.c:1033
 #, no-c-format
 msgid "Blue gain value of the AFE"
-msgstr ""
+msgstr "Blauwbereik waarde van de AFE"
 
-#: .tmp/plustek.c:1040 .tmp/umax_pp.c:737
+#: .tmp/plustek.c:1040 .tmp/umax_pp.c:814
 #, no-c-format
 msgid "Blue offset"
 msgstr "Blauwoffset"
@@ -2814,42 +2876,42 @@ msgstr "Blauwoffset"
 #: .tmp/plustek.c:1041
 #, no-c-format
 msgid "Blue offset value of the AFE"
-msgstr ""
+msgstr "Blauwoffset waarde van de AFE"
 
 #: .tmp/plustek.c:1048
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Red lamp off"
-msgstr "Schakelt de lamp aan/uit"
+msgstr "Rode lamp uit"
 
 #: .tmp/plustek.c:1049
 #, no-c-format
 msgid "Defines red lamp off parameter"
-msgstr ""
+msgstr "Definieert de rode lamp uit parameter"
 
 #: .tmp/plustek.c:1056
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Green lamp off"
-msgstr "Schakelt de lamp aan/uit"
+msgstr "Groene lamp uit"
 
 #: .tmp/plustek.c:1057
 #, no-c-format
 msgid "Defines green lamp off parameter"
-msgstr ""
+msgstr "Definieert de groene lamp uit parameter"
 
 #: .tmp/plustek.c:1064
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Blue lamp off"
-msgstr "Schakelt de lamp aan/uit"
+msgstr "Blauwe lamp uit"
 
 #: .tmp/plustek.c:1065
 #, no-c-format
 msgid "Defines blue lamp off parameter"
-msgstr ""
+msgstr "Definieert de blauwe lamp uit parameter"
 
 #: .tmp/plustek.c:1095
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
-msgstr ""
+msgstr "Deze optie geeft de status weer van de sannerknoppen."
 
 #: .tmp/plustek_pp.c:194
 #, no-c-format
@@ -2871,32 +2933,32 @@ msgstr "Ditherpatroon 2"
 msgid "Randomize"
 msgstr "Toevalspatroon"
 
-#: .tmp/pnm.c:162
+#: .tmp/pnm.c:168
 #, no-c-format
 msgid "Source Selection"
 msgstr "Keuze van de bron"
 
-#: .tmp/pnm.c:199
+#: .tmp/pnm.c:205
 #, no-c-format
 msgid "Image Enhancement"
 msgstr "Beeldverbetering"
 
-#: .tmp/pnm.c:235
+#: .tmp/pnm.c:241
 #, no-c-format
 msgid "Grayify"
 msgstr "Grijs maken"
 
-#: .tmp/pnm.c:236
+#: .tmp/pnm.c:242
 #, no-c-format
 msgid "Load the image as grayscale."
 msgstr "Scan het beeld in grijstinten."
 
-#: .tmp/pnm.c:247
+#: .tmp/pnm.c:253
 #, no-c-format
 msgid "Three-Pass Simulation"
 msgstr "Three-Pass Simulation"
 
-#: .tmp/pnm.c:249
+#: .tmp/pnm.c:255
 #, no-c-format
 msgid ""
 "Simulate a three-pass scanner by returning 3 separate frames.  For "
@@ -2905,12 +2967,12 @@ msgstr ""
 "Simuleer een Three-Pass Scanner, waardoor de frames voor elke basiskleur "
 "na elkaar worden overgedragen. De volgorde is groen-blauw-rood."
 
-#: .tmp/pnm.c:261
+#: .tmp/pnm.c:267
 #, no-c-format
 msgid "Hand-Scanner Simulation"
 msgstr "Handscanner simulatie"
 
-#: .tmp/pnm.c:262
+#: .tmp/pnm.c:268
 #, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners often do not know the image "
@@ -2922,7 +2984,7 @@ msgstr ""
 "terug. Met deze optie kan worden vastgesteld, of een \"frontend\" "
 "hiermee juist kan omgaan."
 
-#: .tmp/pnm.c:277
+#: .tmp/pnm.c:283
 #, no-c-format
 msgid ""
 "Set default values for enhancement controls (brightness & contrast)."
@@ -2930,42 +2992,42 @@ msgstr ""
 "Stelt de kleurverbeteringsinstellingen (helderheid en contrast) in op "
 "standaardwaarden."
 
-#: .tmp/pnm.c:289
+#: .tmp/pnm.c:295
 #, no-c-format
 msgid "Read only test-option"
 msgstr "Alleen-lezen testoptie"
 
-#: .tmp/pnm.c:290
+#: .tmp/pnm.c:296
 #, no-c-format
 msgid "Let's see whether frontends can treat this right"
 msgstr "Eens kijken of \"frontends\" hiermee om kunnen gaan."
 
-#: .tmp/pnm.c:301
+#: .tmp/pnm.c:307
 #, no-c-format
 msgid "Gamma Tables"
 msgstr "Gammatabellen"
 
-#: .tmp/pnm.c:373
+#: .tmp/pnm.c:379
 #, no-c-format
 msgid "Status Code Simulation"
 msgstr "Statusbericht simulatie"
 
-#: .tmp/pnm.c:385
+#: .tmp/pnm.c:391
 #, no-c-format
 msgid "Do not force status code"
-msgstr "Statusbericht niet opdwingen"
+msgstr "Statusbericht niet opdringen"
 
-#: .tmp/pnm.c:386
+#: .tmp/pnm.c:392
 #, no-c-format
 msgid "Do not force the backend to return a status code."
 msgstr "Dwing de \"backend\" niet een statusbericht terug te geven."
 
-#: .tmp/pnm.c:397
+#: .tmp/pnm.c:403
 #, no-c-format
 msgid "Return SANE_STATUS_EOF"
 msgstr "Geef SANE_STATUS_EOF terug"
 
-#: .tmp/pnm.c:398
+#: .tmp/pnm.c:404
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_EOF after "
@@ -2974,12 +3036,12 @@ msgstr ""
 "Dwing de \"backend\", na een aanroep van sane_read() het statusbericht "
 "SANE_STATUS_EOF terug te geven."
 
-#: .tmp/pnm.c:410
+#: .tmp/pnm.c:416
 #, no-c-format
 msgid "Return SANE_STATUS_JAMMED"
 msgstr "Geef SANE_STATUS_JAMMED terug"
 
-#: .tmp/pnm.c:412
+#: .tmp/pnm.c:418
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_JAMMED after "
@@ -2988,12 +3050,12 @@ msgstr ""
 "Dwing de \"backend\", na een aanroep van sane_read() het statusbericht "
 "SANE_STATUS_JAMMED terug te geven."
 
-#: .tmp/pnm.c:424
+#: .tmp/pnm.c:430
 #, no-c-format
 msgid "Return SANE_STATUS_NO_DOCS"
 msgstr "Geef SANE_STATUS_NO_DOCS terug"
 
-#: .tmp/pnm.c:425
+#: .tmp/pnm.c:431
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_DOCS after "
@@ -3002,12 +3064,12 @@ msgstr ""
 "Dwing de \"backend\", na een aanroep van sane_read() het statusbericht "
 "SANE_STATUS_NO_DOCS terug te geven."
 
-#: .tmp/pnm.c:437
+#: .tmp/pnm.c:443
 #, no-c-format
 msgid "Return SANE_STATUS_COVER_OPEN"
 msgstr "Geef SANE_STATUS_COVER_OPEN terug"
 
-#: .tmp/pnm.c:438
+#: .tmp/pnm.c:444
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
@@ -3016,12 +3078,12 @@ msgstr ""
 "Dwing de \"backend\", na een aanroep van sane_read() het statusbericht "
 "SANE_STATUS_COVER_OPEN terug te geven."
 
-#: .tmp/pnm.c:450
+#: .tmp/pnm.c:456
 #, no-c-format
 msgid "Return SANE_STATUS_IO_ERROR"
 msgstr "Geef SANE_STATUS_IO_ERROR terug"
 
-#: .tmp/pnm.c:451
+#: .tmp/pnm.c:457
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_IO_ERROR after "
@@ -3030,12 +3092,12 @@ msgstr ""
 "Dwing de \"backend\", na een aanroep van sane_read() het statusbericht "
 "SANE_STATUS_IO_ERROR terug te geven."
 
-#: .tmp/pnm.c:463
+#: .tmp/pnm.c:469
 #, no-c-format
 msgid "Return SANE_STATUS_NO_MEM"
 msgstr "Geef SANE_STATUS_NO_MEM terug"
 
-#: .tmp/pnm.c:465
+#: .tmp/pnm.c:471
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_MEM after "
@@ -3044,12 +3106,12 @@ msgstr ""
 "Dwing de \"backend\", na een aanroep van sane_read() het "
 "statusberichtSANE_STATUS_NO_MEM terug te geven."
 
-#: .tmp/pnm.c:477
+#: .tmp/pnm.c:483
 #, no-c-format
 msgid "Return SANE_STATUS_ACCESS_DENIED"
 msgstr "Geef SANE_STATUS_ACCESS_DENIED terug"
 
-#: .tmp/pnm.c:478
+#: .tmp/pnm.c:484
 #, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
@@ -3058,327 +3120,442 @@ msgstr ""
 "Dwing de \"backend\", na een aanroep van sane_read() het "
 "statusberichtSANE_STATUS_ACCESS_DENIED terug te geven."
 
-#: .tmp/saneopts.h:134
+#: .tmp/rts8891.c:2744
+#, fuzzy, no-c-format
+msgid "This option reflects the status of a scanner button."
+msgstr "Deze optie geeft de status weer van de sannerknoppen."
+
+#: .tmp/rts8891.c:2775 .tmp/umax.c:5796 .tmp/umax_pp.c:637
+#, no-c-format
+msgid "Lamp on"
+msgstr "Lamp aan"
+
+#: .tmp/rts8891.c:2776 .tmp/umax.c:5797
+#, no-c-format
+msgid "Turn on scanner lamp"
+msgstr "Schakel scannerlamp aan"
+
+#: .tmp/rts8891.c:2786 .tmp/umax.c:5813 .tmp/umax1220u.c:248
+#, no-c-format
+msgid "Lamp off"
+msgstr "Lamp uit"
+
+#: .tmp/rts8891.c:2787 .tmp/umax.c:5814 .tmp/umax1220u.c:249
+#, no-c-format
+msgid "Turn off scanner lamp"
+msgstr "Schakelt de scannerlamp uit"
+
+#: .tmp/sane_strstatus.c:59
+#, no-c-format
+msgid "Success"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:62
+#, fuzzy, no-c-format
+msgid "Operation not supported"
+msgstr "Halftoon niet ondersteund"
+
+#: .tmp/sane_strstatus.c:65
+#, no-c-format
+msgid "Operation was cancelled"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:68
+#, no-c-format
+msgid "Device busy"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:71
+#, no-c-format
+msgid "Invalid argument"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:74
+#, no-c-format
+msgid "End of file reached"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:77
+#, fuzzy, no-c-format
+msgid "Document feeder jammed"
+msgstr "Extra's van de documentendoorvoer"
+
+#: .tmp/sane_strstatus.c:80
+#, fuzzy, no-c-format
+msgid "Document feeder out of documents"
+msgstr "Extra's van de documentendoorvoer"
+
+#: .tmp/sane_strstatus.c:83
+#, fuzzy, no-c-format
+msgid "Scanner cover is open"
+msgstr "Deksel van ADF open"
+
+#: .tmp/sane_strstatus.c:86
+#, no-c-format
+msgid "Error during device I/O"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:89
+#, no-c-format
+msgid "Out of memory"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:92
+#, no-c-format
+msgid "Access to resource has been denied"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:96
+#, no-c-format
+msgid "Lamp not ready, please retry"
+msgstr ""
+
+#: .tmp/sane_strstatus.c:101
+#, no-c-format
+msgid "Scanner mechanism locked for transport"
+msgstr ""
+
+#: .tmp/saneopts.h:154
 #, no-c-format
 msgid "Number of options"
 msgstr "Aantal opties"
 
-#: .tmp/saneopts.h:135
+#: .tmp/saneopts.h:156
+#, no-c-format
+msgid "Standard"
+msgstr ""
+
+#: .tmp/saneopts.h:160
+#, no-c-format
+msgid "Sensors"
+msgstr ""
+
+#: .tmp/saneopts.h:162
 #, no-c-format
 msgid "Preview"
 msgstr "Voorbeeldscan"
 
-#: .tmp/saneopts.h:136
+#: .tmp/saneopts.h:163
 #, no-c-format
 msgid "Force monochrome preview"
 msgstr "Voorbeeldscan in grijs"
 
-#: .tmp/saneopts.h:137
+#: .tmp/saneopts.h:164
 #, no-c-format
 msgid "Bit depth"
 msgstr "Bitdiepte"
 
-#: .tmp/saneopts.h:139
+#: .tmp/saneopts.h:166
 #, no-c-format
 msgid "Scan speed"
 msgstr "Scansnelheid"
 
-#: .tmp/saneopts.h:140
+#: .tmp/saneopts.h:167
 #, no-c-format
 msgid "Scan source"
 msgstr "Scanbron"
 
-#: .tmp/saneopts.h:141
+#: .tmp/saneopts.h:168
 #, no-c-format
 msgid "Force backtracking"
 msgstr "Dwing \"backtracking\""
 
-#: .tmp/saneopts.h:142
+#: .tmp/saneopts.h:169
 #, no-c-format
 msgid "Top-left x"
 msgstr "Links"
 
-#: .tmp/saneopts.h:143
+#: .tmp/saneopts.h:170
 #, no-c-format
 msgid "Top-left y"
 msgstr "Boven"
 
-#: .tmp/saneopts.h:144
+#: .tmp/saneopts.h:171
 #, no-c-format
 msgid "Bottom-right x"
 msgstr "Rechts"
 
-#: .tmp/saneopts.h:145
+#: .tmp/saneopts.h:172
 #, no-c-format
 msgid "Bottom-right y"
 msgstr "Onder"
 
-#: .tmp/saneopts.h:147
+#: .tmp/saneopts.h:174
 #, no-c-format
 msgid "X-resolution"
 msgstr "X-resolutie"
 
-#: .tmp/saneopts.h:148
+#: .tmp/saneopts.h:175
 #, no-c-format
 msgid "Y-resolution"
 msgstr "Y-resolutie"
 
-#: .tmp/saneopts.h:149
+#: .tmp/saneopts.h:176
+#, no-c-format
+msgid "Page width"
+msgstr ""
+
+#: .tmp/saneopts.h:177
+#, fuzzy, no-c-format
+msgid "Page height"
+msgstr "Contrast"
+
+#: .tmp/saneopts.h:178
 #, no-c-format
 msgid "Use custom gamma table"
 msgstr "Gebruik de interne gammatabel van de scanner"
 
-#: .tmp/saneopts.h:150
+#: .tmp/saneopts.h:179
 #, no-c-format
 msgid "Image intensity"
 msgstr "Beeldintensiteit"
 
-#: .tmp/saneopts.h:151
+#: .tmp/saneopts.h:180
 #, no-c-format
 msgid "Red intensity"
 msgstr "Rode intensiteit"
 
-#: .tmp/saneopts.h:152
+#: .tmp/saneopts.h:181
 #, no-c-format
 msgid "Green intensity"
 msgstr "Groene intensiteit"
 
-#: .tmp/saneopts.h:153
+#: .tmp/saneopts.h:182
 #, no-c-format
 msgid "Blue intensity"
 msgstr "Blauwe intensiteit"
 
-#: .tmp/saneopts.h:154
+#: .tmp/saneopts.h:183
 #, no-c-format
 msgid "Brightness"
 msgstr "Helderheid"
 
-#: .tmp/saneopts.h:155
+#: .tmp/saneopts.h:184
 #, no-c-format
 msgid "Contrast"
 msgstr "Contrast"
 
-#: .tmp/saneopts.h:156
+#: .tmp/saneopts.h:185
 #, no-c-format
 msgid "Grain size"
 msgstr "Korrelgrootte"
 
-#: .tmp/saneopts.h:157
+#: .tmp/saneopts.h:186
 #, no-c-format
 msgid "Halftoning"
 msgstr "Halftoonmodus"
 
-#: .tmp/saneopts.h:158
+#: .tmp/saneopts.h:187
 #, no-c-format
 msgid "Black level"
 msgstr "Waarde voor zwart"
 
-#: .tmp/saneopts.h:159
+#: .tmp/saneopts.h:188
 #, no-c-format
 msgid "White level"
 msgstr "Waarde voor wit"
 
-#: .tmp/saneopts.h:160
+#: .tmp/saneopts.h:189
 #, no-c-format
 msgid "White level for red"
 msgstr "Waarde voor wit voor rood"
 
-#: .tmp/saneopts.h:161
+#: .tmp/saneopts.h:190
 #, no-c-format
 msgid "White level for green"
 msgstr "Waarde voor wit voor groen"
 
-#: .tmp/saneopts.h:162
+#: .tmp/saneopts.h:191
 #, no-c-format
 msgid "White level for blue"
 msgstr "Waarde voor wit voor blauw"
 
-#: .tmp/saneopts.h:163
+#: .tmp/saneopts.h:192
 #, no-c-format
 msgid "Shadow"
 msgstr "Schaduw"
 
-#: .tmp/saneopts.h:164
+#: .tmp/saneopts.h:193
 #, no-c-format
 msgid "Shadow for red"
 msgstr "Schaduw voor rood"
 
-#: .tmp/saneopts.h:165
+#: .tmp/saneopts.h:194
 #, no-c-format
 msgid "Shadow for green"
 msgstr "Schaduw voor groen"
 
-#: .tmp/saneopts.h:166
+#: .tmp/saneopts.h:195
 #, no-c-format
 msgid "Shadow for blue"
 msgstr "Schaduw voor blauw"
 
-#: .tmp/saneopts.h:167
+#: .tmp/saneopts.h:196
 #, no-c-format
 msgid "Highlight"
 msgstr "Contrast"
 
-#: .tmp/saneopts.h:168
+#: .tmp/saneopts.h:197
 #, no-c-format
 msgid "Highlight for red"
 msgstr "Roodcontrast"
 
-#: .tmp/saneopts.h:169
+#: .tmp/saneopts.h:198
 #, no-c-format
 msgid "Highlight for green"
 msgstr "Groencontrast"
 
-#: .tmp/saneopts.h:170
+#: .tmp/saneopts.h:199
 #, no-c-format
 msgid "Highlight for blue"
 msgstr "Blauwcontrast"
 
-#: .tmp/saneopts.h:171
+#: .tmp/saneopts.h:200
 #, no-c-format
 msgid "Hue"
 msgstr "Kleurschakering"
 
-#: .tmp/saneopts.h:172
+#: .tmp/saneopts.h:201
 #, no-c-format
 msgid "Saturation"
 msgstr "Kleurverzadiging"
 
-#: .tmp/saneopts.h:173
+#: .tmp/saneopts.h:202
 #, no-c-format
 msgid "Filename"
 msgstr "Bestandsnaam"
 
-#: .tmp/saneopts.h:174
+#: .tmp/saneopts.h:203
 #, no-c-format
 msgid "Halftone pattern size"
 msgstr "Grootte van het halftoonpatroon"
 
-#: .tmp/saneopts.h:175
+#: .tmp/saneopts.h:204
 #, no-c-format
 msgid "Halftone pattern"
 msgstr "Halftoonpatroon"
 
-#: .tmp/saneopts.h:176
+#: .tmp/saneopts.h:205
 #, no-c-format
 msgid "Bind X and Y resolution"
 msgstr "Combineer X- en Y-resolutie"
 
-#: .tmp/saneopts.h:178
+#: .tmp/saneopts.h:207
 #, no-c-format
 msgid "Quality calibration"
 msgstr "Kwaliteit kalibreren"
 
-#: .tmp/saneopts.h:179
+#: .tmp/saneopts.h:208
 #, no-c-format
 msgid "Double Optical Resolution"
 msgstr "Dubbele optische resolutie"
 
-#: .tmp/saneopts.h:180
+#: .tmp/saneopts.h:209
 #, no-c-format
 msgid "Bind RGB"
 msgstr "Combineer RGB"
 
-#: .tmp/saneopts.h:181 .tmp/sm3840.c:768
+#: .tmp/saneopts.h:210 .tmp/sm3840.c:768
 #, no-c-format
 msgid "Threshold"
 msgstr "Drempelwaarde"
 
-#: .tmp/saneopts.h:182
+#: .tmp/saneopts.h:211
 #, no-c-format
 msgid "Analog gamma correction"
 msgstr "Analoge gammacorrectie"
 
-#: .tmp/saneopts.h:183
+#: .tmp/saneopts.h:212
 #, no-c-format
 msgid "Analog gamma red"
 msgstr "Analoge gammawaarde rood"
 
-#: .tmp/saneopts.h:184
+#: .tmp/saneopts.h:213
 #, no-c-format
 msgid "Analog gamma green"
 msgstr "Analoge gammawaarde groen"
 
-#: .tmp/saneopts.h:185
+#: .tmp/saneopts.h:214
 #, no-c-format
 msgid "Analog gamma blue"
 msgstr "Analoge gammawaarde blauw"
 
-#: .tmp/saneopts.h:186
+#: .tmp/saneopts.h:215
 #, no-c-format
 msgid "Bind analog gamma"
 msgstr "Combineer analoge gammawaarde"
 
-#: .tmp/saneopts.h:187
+#: .tmp/saneopts.h:216
 #, no-c-format
 msgid "Warmup lamp"
 msgstr "Lamp opwarmen"
 
-#: .tmp/saneopts.h:188
+#: .tmp/saneopts.h:217
 #, no-c-format
 msgid "Cal. exposure-time"
 msgstr "Belichtingstijd kalibreren"
 
-#: .tmp/saneopts.h:189
+#: .tmp/saneopts.h:218
 #, no-c-format
 msgid "Cal. exposure-time for red"
 msgstr "Belichtingstijd kalibreren voor rood"
 
-#: .tmp/saneopts.h:190
+#: .tmp/saneopts.h:219
 #, no-c-format
 msgid "Cal. exposure-time for green"
 msgstr "Belichtingstijd kalibreren voor groen"
 
-#: .tmp/saneopts.h:192
+#: .tmp/saneopts.h:221
 #, no-c-format
 msgid "Cal. exposure-time for blue"
 msgstr "Belichtingstijd kalibreren voor blauw"
 
-#: .tmp/saneopts.h:193
+#: .tmp/saneopts.h:222
 #, no-c-format
 msgid "Scan exposure-time"
 msgstr "Belichtingstijd voor het scannen"
 
-#: .tmp/saneopts.h:194
+#: .tmp/saneopts.h:223
 #, no-c-format
 msgid "Scan exposure-time for red"
 msgstr "Belichtingstijd voor het scannen van rood"
 
-#: .tmp/saneopts.h:195
+#: .tmp/saneopts.h:224
 #, no-c-format
 msgid "Scan exposure-time for green"
 msgstr "Belichtingstijd voor het scannen van groen"
 
-#: .tmp/saneopts.h:197
+#: .tmp/saneopts.h:226
 #, no-c-format
 msgid "Scan exposure-time for blue"
 msgstr "Belichtingstijd voor het scannen van blauw"
 
-#: .tmp/saneopts.h:198
+#: .tmp/saneopts.h:227
 #, no-c-format
 msgid "Set exposure-time"
 msgstr "Bepaal belichtingstijd"
 
-#: .tmp/saneopts.h:199
+#: .tmp/saneopts.h:228
 #, no-c-format
 msgid "Cal. lamp density"
 msgstr "Lichtwaarde kalibreren"
 
-#: .tmp/saneopts.h:200
+#: .tmp/saneopts.h:229
 #, no-c-format
 msgid "Scan lamp density"
 msgstr "Lichtwaarde bij het scannen"
 
-#: .tmp/saneopts.h:201
+#: .tmp/saneopts.h:230
 #, no-c-format
 msgid "Set lamp density"
 msgstr "Bepaal lichtwaarde"
 
-#: .tmp/saneopts.h:202 .tmp/umax.c:5827
+#: .tmp/saneopts.h:231 .tmp/umax.c:5830
 #, no-c-format
 msgid "Lamp off at exit"
 msgstr "Lamp aan het einde uitschakelen"
 
-#: .tmp/saneopts.h:206
+#: .tmp/saneopts.h:245
 #, no-c-format
 msgid ""
 "Read-only option that specifies how many options a specific devices "
@@ -3386,12 +3563,37 @@ msgid ""
 msgstr ""
 "Alleen-lezen optie, die aangeeft hoeveel opties een apparaat ondersteund."
 
-#: .tmp/saneopts.h:210
+#: .tmp/saneopts.h:248
+#, fuzzy, no-c-format
+msgid "Source, mode and resolution options"
+msgstr "Korte oplossingenlijst"
+
+#: .tmp/saneopts.h:249
+#, no-c-format
+msgid "Scan area and media size options"
+msgstr ""
+
+#: .tmp/saneopts.h:250
+#, fuzzy, no-c-format
+msgid "Image modification options"
+msgstr "Aantal opties"
+
+#: .tmp/saneopts.h:251
+#, fuzzy, no-c-format
+msgid "Hardware specific options"
+msgstr "hardware resolutie"
+
+#: .tmp/saneopts.h:252
+#, no-c-format
+msgid "Scanner sensors and buttons"
+msgstr ""
+
+#: .tmp/saneopts.h:255
 #, no-c-format
 msgid "Request a preview-quality scan."
 msgstr "Verzoek om een scan in voorbeeldkwaliteit."
 
-#: .tmp/saneopts.h:213
+#: .tmp/saneopts.h:258
 #, no-c-format
 msgid ""
 "Request that all previews are done in monochrome mode.  On a three-pass "
@@ -3403,7 +3605,7 @@ msgstr ""
 "nodig, bij een Single-Pass-Scanner wordt het geheugengebruik en de "
 "scantijd verminderd."
 
-#: .tmp/saneopts.h:219
+#: .tmp/saneopts.h:264
 #, no-c-format
 msgid ""
 "Number of bits per sample, typical values are 1 for \"line-art\" and 8 "
@@ -3412,62 +3614,74 @@ msgstr ""
 "Aantal bits per kleurwaarde, typische waarden zijn 1 voor zwart/wit en 8 "
 "voor multibit-scans."
 
-#: .tmp/saneopts.h:223
+#: .tmp/saneopts.h:268
 #, no-c-format
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
 msgstr "Kiest de scanmodus (b.v. zwart/wit, grijs of kleur)."
 
-#: .tmp/saneopts.h:226
+#: .tmp/saneopts.h:271
 #, no-c-format
 msgid "Determines the speed at which the scan proceeds."
 msgstr "Legt de scansnelheid vast."
 
-#: .tmp/saneopts.h:229
+#: .tmp/saneopts.h:274
 #, no-c-format
 msgid "Selects the scan source (such as a document-feeder)."
 msgstr "Selecteert de scanbron (zoals b.v. dokumentendoorvoer)."
 
-#: .tmp/saneopts.h:232
+#: .tmp/saneopts.h:277
 #, no-c-format
 msgid "Controls whether backtracking is forced."
 msgstr "Regelt dat \"backtracking\" wordt gebruikt."
 
-#: .tmp/saneopts.h:235
+#: .tmp/saneopts.h:280
 #, no-c-format
 msgid "Top-left x position of scan area."
 msgstr "Linkerkant van het scanoppervlak."
 
-#: .tmp/saneopts.h:238
+#: .tmp/saneopts.h:283
 #, no-c-format
 msgid "Top-left y position of scan area."
 msgstr "Bovenkant van het scanoppervlak."
 
-#: .tmp/saneopts.h:241
+#: .tmp/saneopts.h:286
 #, no-c-format
 msgid "Bottom-right x position of scan area."
 msgstr "Rechterkant van het scanoppervlak."
 
-#: .tmp/saneopts.h:244
+#: .tmp/saneopts.h:289
 #, no-c-format
 msgid "Bottom-right y position of scan area."
 msgstr "Onderkant van het scanoppervlak."
 
-#: .tmp/saneopts.h:247
+#: .tmp/saneopts.h:292
 #, no-c-format
 msgid "Sets the resolution of the scanned image."
 msgstr "Stelt de resolutie in van het gescande beeld."
 
-#: .tmp/saneopts.h:250
+#: .tmp/saneopts.h:295
 #, no-c-format
 msgid "Sets the horizontal resolution of the scanned image."
 msgstr "Stelt de horizontale resolutie in van het gescande beeld."
 
-#: .tmp/saneopts.h:253
+#: .tmp/saneopts.h:298
 #, no-c-format
 msgid "Sets the vertical resolution of the scanned image."
-msgstr "Stelt de vertikale resolutie in van het gescande beeld."
+msgstr "Stelt de verticale resolutie in van het gescande origineel."
 
-#: .tmp/saneopts.h:256
+#: .tmp/saneopts.h:301
+#, no-c-format
+msgid ""
+"Specifies the width of the media.  Required for automatic centering of "
+"sheet-fed scans."
+msgstr ""
+
+#: .tmp/saneopts.h:305
+#, fuzzy, no-c-format
+msgid "Specifies the height of the media."
+msgstr "Stelt de resolutie in van het gescande beeld."
+
+#: .tmp/saneopts.h:308
 #, no-c-format
 msgid ""
 "Determines whether a builtin or a custom gamma-table should be used."
@@ -3475,7 +3689,7 @@ msgstr ""
 "Bepaalt of de interne of de door de gebruiker gedefinieerde gammatabel "
 "wordt gebruikt."
 
-#: .tmp/saneopts.h:260
+#: .tmp/saneopts.h:312
 #, no-c-format
 msgid ""
 "Gamma-correction table.  In color mode this option equally affects the "
@@ -3486,32 +3700,32 @@ msgstr ""
 "de rode, groene en blauwe kleurcomponenten. Het is ook een helderheids-"
 "gammatabel."
 
-#: .tmp/saneopts.h:265
+#: .tmp/saneopts.h:317
 #, no-c-format
 msgid "Gamma-correction table for the red band."
 msgstr "Gammacorrectietabel voor de rode component."
 
-#: .tmp/saneopts.h:268
+#: .tmp/saneopts.h:320
 #, no-c-format
 msgid "Gamma-correction table for the green band."
 msgstr "Gammacorrectietabel voor de groene component."
 
-#: .tmp/saneopts.h:271
+#: .tmp/saneopts.h:323
 #, no-c-format
 msgid "Gamma-correction table for the blue band."
 msgstr "Gammacorrectietabel voor de blauwe component."
 
-#: .tmp/saneopts.h:274
+#: .tmp/saneopts.h:326
 #, no-c-format
 msgid "Controls the brightness of the acquired image."
 msgstr "Regelt de helderheid van het gescande beeld."
 
-#: .tmp/saneopts.h:277
+#: .tmp/saneopts.h:329
 #, no-c-format
 msgid "Controls the contrast of the acquired image."
 msgstr "Regelt het contrast van het gescande beeld."
 
-#: .tmp/saneopts.h:280
+#: .tmp/saneopts.h:332
 #, no-c-format
 msgid ""
 "Selects the \"graininess\" of the acquired image.  Smaller values result "
@@ -3520,72 +3734,72 @@ msgstr ""
 "Bepaalt de \"gekorreldheid\" van het gescande beeld. Kleine waarden "
 "leiden tot een scherper beeld."
 
-#: .tmp/saneopts.h:284
+#: .tmp/saneopts.h:336
 #, no-c-format
 msgid "Selects whether the acquired image should be halftoned (dithered)."
 msgstr "Bepaalt of het beeld in de halftoonmodus (dithered) wordt gescand."
 
-#: .tmp/saneopts.h:287 .tmp/saneopts.h:302
+#: .tmp/saneopts.h:339 .tmp/saneopts.h:354
 #, no-c-format
 msgid "Selects what radiance level should be considered \"black\"."
 msgstr ""
 "Bepaalt welke helderheidswaarde als \"zwart\" moet worden beschouwd."
 
-#: .tmp/saneopts.h:290 .tmp/saneopts.h:311
+#: .tmp/saneopts.h:342 .tmp/saneopts.h:363
 #, no-c-format
 msgid "Selects what radiance level should be considered \"white\"."
 msgstr "Bepaalt welke helderheidswaarde als \"wit\" moet worden beschouwd."
 
-#: .tmp/saneopts.h:293
+#: .tmp/saneopts.h:345
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"white\"."
 msgstr ""
 "Bepaalt welke helderheidswaarde van de rode component als \"wit\" moet "
 "worden beschouwd."
 
-#: .tmp/saneopts.h:296
+#: .tmp/saneopts.h:348
 #, no-c-format
 msgid "Selects what green radiance level should be considered \"white\"."
 msgstr ""
 "Bepaalt welke helderheidswaarde van de groene component als \"wit\" moet "
 "worden beschouwd."
 
-#: .tmp/saneopts.h:299
+#: .tmp/saneopts.h:351
 #, no-c-format
 msgid "Selects what blue radiance level should be considered \"white\"."
 msgstr ""
 "Bepaalt welke helderheidswaarde van de blauwe component als \"wit\" moet "
 "worden beschouwd."
 
-#: .tmp/saneopts.h:304
+#: .tmp/saneopts.h:356
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"black\"."
 msgstr ""
 "Bepaalt welke helderheidswaarde van de rode component als \"zwart\" moet "
 "worden beschouwd."
 
-#: .tmp/saneopts.h:306
+#: .tmp/saneopts.h:358
 #, no-c-format
 msgid "Selects what green radiance level should be considered \"black\"."
 msgstr ""
 "Bepaalt welke helderheidswaarde van de groene component als \"zwart\" "
 "moet worden beschouwd."
 
-#: .tmp/saneopts.h:308
+#: .tmp/saneopts.h:360
 #, no-c-format
 msgid "Selects what blue radiance level should be considered \"black\"."
 msgstr ""
 "Bepaalt welke helderheidswaarde van de blauwe component als \"zwart\" "
 "moet worden beschouwd."
 
-#: .tmp/saneopts.h:313
+#: .tmp/saneopts.h:365
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"full red\"."
 msgstr ""
 "Bepaalt welke helderheidswaarde van de rode component als \"verzadigd "
 "rood\" moet worden beschouwd."
 
-#: .tmp/saneopts.h:315
+#: .tmp/saneopts.h:367
 #, no-c-format
 msgid ""
 "Selects what green radiance level should be considered \"full green\"."
@@ -3593,7 +3807,7 @@ msgstr ""
 "Bepaalt welke helderheidswaarde van de groene component als \"verzadigd "
 "groen\" moet worden beschouwd."
 
-#: .tmp/saneopts.h:318
+#: .tmp/saneopts.h:370
 #, no-c-format
 msgid ""
 "Selects what blue radiance level should be considered \"full blue\"."
@@ -3601,26 +3815,26 @@ msgstr ""
 "Bepaalt welke helderheidswaarde van de blauwe component als \"verzadigd "
 "blauw\" moet worden beschouwd."
 
-#: .tmp/saneopts.h:322
+#: .tmp/saneopts.h:374
 #, no-c-format
 msgid "Controls the \"hue\" (blue-level) of the acquired image."
 msgstr "Regelt de kleurschakering (blauwniveau) van het gescande beeld."
 
-#: .tmp/saneopts.h:325
+#: .tmp/saneopts.h:377
 #, no-c-format
 msgid ""
 "The saturation level controls the amount of \"blooming\" that occurs "
 "when acquiring an image with a camera. Larger values cause more blooming."
 msgstr ""
-"De verzadigingsgraad stuurt de \"kleuring\" van een met een kamera "
+"De verzadigingsgraad stuurt de \"kleuring\" van een met een camera "
 "opgenomen beeld. Hogere waarden zorgen voor een sterkere kleuring."
 
-#: .tmp/saneopts.h:330
+#: .tmp/saneopts.h:382
 #, no-c-format
 msgid "The filename of the image to be loaded."
 msgstr "De bestandsnaam van het te scannen beeld."
 
-#: .tmp/saneopts.h:333
+#: .tmp/saneopts.h:385
 #, no-c-format
 msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
@@ -3629,149 +3843,189 @@ msgstr ""
 "Stelt de grootte van de \"dithering\" in die wordt gebruikt om halftoon "
 "beelden te scannen."
 
-#: .tmp/saneopts.h:337
+#: .tmp/saneopts.h:389
 #, no-c-format
 msgid ""
 "Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr "Definieert de dithering waarmee halftoon beelden worden gescand."
 
-#: .tmp/saneopts.h:341
+#: .tmp/saneopts.h:393
 #, no-c-format
 msgid "Use same values for X and Y resolution"
 msgstr "Gebruik dezelfde resoluties voor X en Y."
 
-#: .tmp/saneopts.h:343
+#: .tmp/saneopts.h:395
 #, no-c-format
 msgid "Swap black and white"
 msgstr "Wissel zwart en wit (inverteren)."
 
-#: .tmp/saneopts.h:345
+#: .tmp/saneopts.h:397
 #, no-c-format
 msgid "Do a quality white-calibration"
 msgstr "Kalibreer de wit-kwaliteit."
 
-#: .tmp/saneopts.h:347
+#: .tmp/saneopts.h:399
 #, no-c-format
 msgid "Use lens that doubles optical resolution"
 msgstr "Gebruik de lens waarmee de optische resolutie wordt verdubbeld."
 
-#: .tmp/saneopts.h:349 .tmp/saneopts.h:361
+#: .tmp/saneopts.h:401 .tmp/saneopts.h:413
 #, no-c-format
 msgid "In RGB-mode use same values for each color"
 msgstr "Gebruik in RGB-modus voor alle kleuren dezelfde waarden"
 
-#: .tmp/saneopts.h:351
+#: .tmp/saneopts.h:403
 #, no-c-format
 msgid "Select minimum-brightness to get a white point"
 msgstr "Kiest de minimale helderheid waarmee wit wordt verkregen"
 
-#: .tmp/saneopts.h:353
+#: .tmp/saneopts.h:405
 #, no-c-format
 msgid "Analog gamma-correction"
 msgstr "Analoge gammacorrectie"
 
-#: .tmp/saneopts.h:355
+#: .tmp/saneopts.h:407
 #, no-c-format
 msgid "Analog gamma-correction for red"
 msgstr "Analoge gammacorrectie voor rood"
 
-#: .tmp/saneopts.h:357
+#: .tmp/saneopts.h:409
 #, no-c-format
 msgid "Analog gamma-correction for green"
 msgstr "Analoge gammacorrectie voor groen"
 
-#: .tmp/saneopts.h:359
+#: .tmp/saneopts.h:411
 #, no-c-format
 msgid "Analog gamma-correction for blue"
 msgstr "Analoge gammacorrectie voor blauw"
 
-#: .tmp/saneopts.h:363
+#: .tmp/saneopts.h:415
 #, no-c-format
 msgid "Warmup lamp before scanning"
 msgstr "Warm de lamp op alvorens te scannen"
 
-#: .tmp/saneopts.h:365
+#: .tmp/saneopts.h:417
 #, no-c-format
 msgid "Define exposure-time for calibration"
 msgstr "Bepaalt de belichtingstijd voor de kalibrering"
 
-#: .tmp/saneopts.h:367
+#: .tmp/saneopts.h:419
 #, no-c-format
 msgid "Define exposure-time for red calibration"
 msgstr ""
 "Bepaalt de belichtingstijd voor de kalibrering van de rode component"
 
-#: .tmp/saneopts.h:369
+#: .tmp/saneopts.h:421
 #, no-c-format
 msgid "Define exposure-time for green calibration"
 msgstr ""
 "Bepaalt de belichtingstijd voor de kalibrering van de groen component"
 
-#: .tmp/saneopts.h:371
+#: .tmp/saneopts.h:423
 #, no-c-format
 msgid "Define exposure-time for blue calibration"
 msgstr ""
 "Bepaalt de belichtingstijd voor de kalibrering van de blauwe component"
 
-#: .tmp/saneopts.h:373
+#: .tmp/saneopts.h:425
 #, no-c-format
 msgid "Define exposure-time for scan"
 msgstr "Bepaalt de belichtingstijd voor de scan"
 
-#: .tmp/saneopts.h:375
+#: .tmp/saneopts.h:427
 #, no-c-format
 msgid "Define exposure-time for red scan"
 msgstr "Bepaalt de belichtingstijd voor de scan van de rode component"
 
-#: .tmp/saneopts.h:377
+#: .tmp/saneopts.h:429
 #, no-c-format
 msgid "Define exposure-time for green scan"
 msgstr "Bepaalt de belichtingstijd voor de scan van de groene component"
 
-#: .tmp/saneopts.h:379
+#: .tmp/saneopts.h:431
 #, no-c-format
 msgid "Define exposure-time for blue scan"
 msgstr "Bepaalt de belichtingstijd voor de scan van de blauwe component"
 
-#: .tmp/saneopts.h:381
+#: .tmp/saneopts.h:433
 #, no-c-format
 msgid "Enable selection of exposure-time"
 msgstr "Schakelt de instelling van de belichtingstijd in"
 
-#: .tmp/saneopts.h:383
+#: .tmp/saneopts.h:435
 #, no-c-format
 msgid "Define lamp density for calibration"
 msgstr "Definieer de lichthoeveelheid waarmee wordt gekalibreerd"
 
-#: .tmp/saneopts.h:385
+#: .tmp/saneopts.h:437
 #, no-c-format
 msgid "Define lamp density for scan"
 msgstr "Definieer de lichthoeveelheid waarmee wordt gescand"
 
-#: .tmp/saneopts.h:387
+#: .tmp/saneopts.h:439
 #, no-c-format
 msgid "Enable selection of lamp density"
 msgstr "Schakelt de keuze van de lichthoeveelheid in"
 
-#: .tmp/saneopts.h:389 .tmp/umax.c:5828
+#: .tmp/saneopts.h:441 .tmp/umax.c:5831
 #, no-c-format
 msgid "Turn off lamp when program exits"
 msgstr "Schakel de lamp uit als het programma wordt verlaten"
 
-#: .tmp/sm3840.c:758
+#: .tmp/saneopts.h:444
 #, fuzzy, no-c-format
+msgid "Scan button"
+msgstr "Scanresolutie"
+
+#: .tmp/saneopts.h:445
+#, fuzzy, no-c-format
+msgid "Email button"
+msgstr "Wacht op een druk op de knop"
+
+#: .tmp/saneopts.h:446
+#, fuzzy, no-c-format
+msgid "Fax button"
+msgstr "Wacht op een druk op de knop"
+
+#: .tmp/saneopts.h:447
+#, fuzzy, no-c-format
+msgid "Copy button"
+msgstr "Wacht op een druk op de knop"
+
+#: .tmp/saneopts.h:448
+#, no-c-format
+msgid "PDF button"
+msgstr ""
+
+#: .tmp/saneopts.h:449
+#, no-c-format
+msgid "Cancel button"
+msgstr ""
+
+#: .tmp/saneopts.h:450
+#, no-c-format
+msgid "Page loaded"
+msgstr ""
+
+#: .tmp/saneopts.h:451
+#, fuzzy, no-c-format
+msgid "Cover open"
+msgstr "Deksel van ADF open"
+
+#: .tmp/sm3840.c:758
+#, no-c-format
 msgid "Lamp timeout"
-msgstr "Lamp uit"
+msgstr "Lamp timeout"
 
 #: .tmp/sm3840.c:760
 #, no-c-format
 msgid "Minutes until lamp is turned off after scan"
-msgstr ""
+msgstr "Tijd (in minuten) totdat de lamp wordt uitgeschakeld na een scan"
 
 #: .tmp/sm3840.c:770
 #, no-c-format
 msgid "Threshold value for lineart mode"
-msgstr ""
+msgstr "Drempelwaarde voor lijntekening modus"
 
 #: .tmp/snapscan-options.c:84
 #, no-c-format
@@ -3864,7 +4118,7 @@ msgstr "Grijstraplijnen per leesopdracht"
 #: .tmp/stv680.c:974
 #, no-c-format
 msgid "webcam"
-msgstr ""
+msgstr "webcam"
 
 #: .tmp/stv680.h:115
 #, no-c-format
@@ -3881,43 +4135,43 @@ msgstr "Kleur RGB"
 msgid "Color RGB TEXT"
 msgstr "Kleur RGB TEKST"
 
-#: .tmp/teco1.c:1152 .tmp/teco1.c:1153 .tmp/teco2.c:1960 .tmp/teco2.c:1961
+#: .tmp/teco1.c:1152 .tmp/teco1.c:1153 .tmp/teco2.c:1971 .tmp/teco2.c:1972
 #: .tmp/teco3.c:977 .tmp/teco3.c:978
 #, no-c-format
 msgid "Dither"
 msgstr "Dither"
 
-#: .tmp/test.c:134
+#: .tmp/test.c:136
 #, no-c-format
 msgid "Solid black"
 msgstr "Diep zwart"
 
-#: .tmp/test.c:134
+#: .tmp/test.c:136
 #, no-c-format
 msgid "Solid white"
 msgstr "Diep wit"
 
-#: .tmp/test.c:135
+#: .tmp/test.c:137
 #, no-c-format
 msgid "Color pattern"
 msgstr "Kleurpatroon"
 
-#: .tmp/test.c:135
+#: .tmp/test.c:137
 #, no-c-format
 msgid "Grid"
 msgstr "Raster"
 
-#: .tmp/test.c:160 .tmp/test.c:168
+#: .tmp/test.c:162 .tmp/test.c:170
 #, no-c-format
 msgid "First entry"
 msgstr "Eerste ingang"
 
-#: .tmp/test.c:160 .tmp/test.c:168
+#: .tmp/test.c:162 .tmp/test.c:170
 #, no-c-format
 msgid "Second entry"
 msgstr "Tweede ingang"
 
-#: .tmp/test.c:162
+#: .tmp/test.c:164
 #, no-c-format
 msgid ""
 "This is the very long third entry. Maybe the frontend has an idea how to "
@@ -3926,12 +4180,12 @@ msgstr ""
 "Dit is de erg lange derde ingang. Misschien weet de \"frontend\" hoe "
 "deze kan worden getoond"
 
-#: .tmp/test.c:343
+#: .tmp/test.c:347
 #, no-c-format
 msgid "Hand-scanner simulation"
 msgstr "Handscanner-simulatie"
 
-#: .tmp/test.c:344
+#: .tmp/test.c:348
 #, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
@@ -3944,12 +4198,12 @@ msgstr ""
 "van -1 terug. Met dezeoptie is te testen of de \"frontend\" daarmee "
 "juist kan omgaan. Deze optie stelt ook een vaste breedte van 11 cm in."
 
-#: .tmp/test.c:361
+#: .tmp/test.c:365
 #, no-c-format
 msgid "Three-pass simulation"
 msgstr "Three-Pass simulatie"
 
-#: .tmp/test.c:362
+#: .tmp/test.c:366
 #, no-c-format
 msgid ""
 "Simulate a three-pass scanner. In color mode, three frames are "
@@ -3958,34 +4212,36 @@ msgstr ""
 "Simuleer een Three-Pass-Scanner. In kleurmodus worden drie \"frames\" "
 "overgedragen."
 
-#: .tmp/test.c:377
+#: .tmp/test.c:381
 #, no-c-format
 msgid "Set the order of frames"
 msgstr "Legt de volgorde van de \"frames\" vast"
 
-#: .tmp/test.c:378
+#: .tmp/test.c:382
 #, no-c-format
 msgid "Set the order of frames in three-pass color mode."
 msgstr "Legt de volgorde van de \"frames\" vast in Three-Pass-modus."
 
-#: .tmp/test.c:411
+#: .tmp/test.c:415
 #, no-c-format
 msgid ""
 "If Automatic Document Feeder is selected, the feeder will be 'empty' "
 "after 10 scans."
 msgstr ""
+"Als de automatische documentendoorvoer is geselecteerd, dan zal de "
+"doorvoer 'leeg' zijn na 10 scans."
 
-#: .tmp/test.c:426
+#: .tmp/test.c:430
 #, no-c-format
 msgid "Special Options"
 msgstr "Extra opties"
 
-#: .tmp/test.c:439
+#: .tmp/test.c:443
 #, no-c-format
 msgid "Select the test picture"
 msgstr "Kiest het testbeeld"
 
-#: .tmp/test.c:441
+#: .tmp/test.c:445
 #, no-c-format
 msgid ""
 "Select the kind of test picture. Available options:\n"
@@ -4002,12 +4258,12 @@ msgstr ""
 "modus.\n"
 "Raster: tekent een zwart/wit raster ter grootte van 10 mm²."
 
-#: .tmp/test.c:462
+#: .tmp/test.c:466
 #, no-c-format
 msgid "Invert endianness"
 msgstr "Inverteer \"endianness\""
 
-#: .tmp/test.c:463
+#: .tmp/test.c:467
 #, no-c-format
 msgid ""
 "Exchange upper and lower byte of image data in 16 bit modes. This option "
@@ -4018,24 +4274,24 @@ msgstr ""
 "Deze optie kan worden gebruikt om de 16-bit-modus van \"frontends\" te "
 "testen, bijvoorbeeldof de \"frontend\" de juiste \"endianness\" gebruikt."
 
-#: .tmp/test.c:479
+#: .tmp/test.c:483
 #, no-c-format
 msgid "Read limit"
 msgstr "Leesbegrenzing"
 
-#: .tmp/test.c:480
+#: .tmp/test.c:484
 #, no-c-format
 msgid "Limit the amount of data transferred with each call to sane_read()."
 msgstr ""
 "Begrenst de hoeveelheid gegevens die bij iedere aanroep van sane_read() "
 "wordt overgedragen."
 
-#: .tmp/test.c:493
+#: .tmp/test.c:497
 #, no-c-format
 msgid "Size of read-limit"
 msgstr "Grootte van de leesbegrenzing"
 
-#: .tmp/test.c:494
+#: .tmp/test.c:498
 #, no-c-format
 msgid ""
 "The (maximum) amount of data transferred with each call to sane_read()."
@@ -4043,22 +4299,22 @@ msgstr ""
 "De (maximale) hoeveelheid gegevens die bij iedere aanroep van sane_read"
 "() wordt overgedragen."
 
-#: .tmp/test.c:509
+#: .tmp/test.c:513
 #, no-c-format
 msgid "Read delay"
 msgstr "Leesvertraging"
 
-#: .tmp/test.c:510
+#: .tmp/test.c:514
 #, no-c-format
 msgid "Delay the transfer of data to the pipe."
 msgstr "Vertraag de gegevensoverdracht door de databus."
 
-#: .tmp/test.c:522
+#: .tmp/test.c:526
 #, no-c-format
 msgid "Duration of read-delay"
 msgstr "Duur van de leesvertraging"
 
-#: .tmp/test.c:523
+#: .tmp/test.c:527
 #, no-c-format
 msgid ""
 "How long to wait after transferring each buffer of data through the pipe."
@@ -4066,12 +4322,12 @@ msgstr ""
 "Legt vast, hoe lang wordt gewacht na de overdracht van de "
 "gegevensverzameling door de databus."
 
-#: .tmp/test.c:538
+#: .tmp/test.c:542
 #, no-c-format
 msgid "Return-value of sane_read"
 msgstr "Resultaat van sane_read"
 
-#: .tmp/test.c:540
+#: .tmp/test.c:544
 #, no-c-format
 msgid ""
 "Select the return-value of sane_read(). \"Default\" is the normal "
@@ -4082,22 +4338,22 @@ msgstr ""
 "instelling voor het scannen. Alle andere resultaten zijn bedoeld omvast "
 "te stellen hoe \"frontends\" hiermee omgaan."
 
-#: .tmp/test.c:557
+#: .tmp/test.c:561
 #, no-c-format
 msgid "Loss of pixels per line"
 msgstr "Verlies van pixels per lijn"
 
-#: .tmp/test.c:559
+#: .tmp/test.c:563
 #, no-c-format
 msgid "The number of pixels that are wasted at the end of each line."
 msgstr "Het aantal pixels dat aan het einde van elke lijn verloren gaat."
 
-#: .tmp/test.c:572
+#: .tmp/test.c:576
 #, no-c-format
 msgid "Fuzzy parameters"
 msgstr "Verwarrende parameters"
 
-#: .tmp/test.c:573
+#: .tmp/test.c:577
 #, no-c-format
 msgid ""
 "Return fuzzy lines and bytes per line when sane_parameters() is called "
@@ -4106,24 +4362,24 @@ msgstr ""
 "Geef verwarrende waarden voor het aantal lijnen en bytes per lijn terug "
 "als sane_parameters() voor sane_start() wordt aangeroepen."
 
-#: .tmp/test.c:586
+#: .tmp/test.c:590
 #, no-c-format
 msgid "Use non-blocking IO"
 msgstr "Gebruik niet-blokkerende IO"
 
-#: .tmp/test.c:587
+#: .tmp/test.c:591
 #, no-c-format
 msgid "Use non-blocking IO for sane_read() if supported by the frontend."
 msgstr ""
 "Gebruik niet blokkerende IO voor sane_read() als dat door de \"frontend"
 "\"wordt ondersteund."
 
-#: .tmp/test.c:600
+#: .tmp/test.c:604
 #, no-c-format
 msgid "Offer select file descriptor"
 msgstr "Biedt \"kies-bestandsbeschrijving\" aan"
 
-#: .tmp/test.c:601
+#: .tmp/test.c:605
 #, no-c-format
 msgid ""
 "Offer a select filedescriptor for detecting if sane_read() will return "
@@ -4132,12 +4388,12 @@ msgstr ""
 "Biedt een \"kies-bestandbeschrijving\" aan, om te kunnen detecteren of "
 "sane_read() gegevens zal teruggeven."
 
-#: .tmp/test.c:614
+#: .tmp/test.c:618
 #, no-c-format
 msgid "Enable test options"
 msgstr "Testopties inschakelen"
 
-#: .tmp/test.c:615
+#: .tmp/test.c:619
 #, no-c-format
 msgid ""
 "Enable various test options. This is for testing the ability of "
@@ -4147,27 +4403,27 @@ msgstr ""
 "hoeverre \"frontends\" de verschillende SANE-optietypes laten zien en "
 "kunnen veranderen."
 
-#: .tmp/test.c:629
+#: .tmp/test.c:633
 #, no-c-format
 msgid "Print options"
 msgstr "Druk opties af"
 
-#: .tmp/test.c:630
+#: .tmp/test.c:634
 #, no-c-format
 msgid "Print a list of all options."
 msgstr "Druk een lijst met alle opties af."
 
-#: .tmp/test.c:707
+#: .tmp/test.c:711
 #, no-c-format
 msgid "Bool test options"
 msgstr "Bool-testopties"
 
-#: .tmp/test.c:720
+#: .tmp/test.c:724
 #, no-c-format
 msgid "(1/6) Bool soft select soft detect"
 msgstr "(1/6) Bool soft select soft detect"
 
-#: .tmp/test.c:722
+#: .tmp/test.c:726
 #, no-c-format
 msgid ""
 "(1/6) Bool test option that has soft select and soft detect (and "
@@ -4177,12 +4433,12 @@ msgstr ""
 "\" (en \"advanced\") mogelijkheden. Dit is slechts een normale bool-"
 "optie."
 
-#: .tmp/test.c:738
+#: .tmp/test.c:742
 #, no-c-format
 msgid "(2/6) Bool hard select soft detect"
 msgstr "(2/6) Bool hard select soft detect"
 
-#: .tmp/test.c:740
+#: .tmp/test.c:744
 #, no-c-format
 msgid ""
 "(2/6) Bool test option that has hard select and soft detect (and "
@@ -4194,12 +4450,12 @@ msgstr ""
 "optie niet kan instellen, maar degebruiker dat moet doen (b.v. door op "
 "een knop van het apparaat te drukken)."
 
-#: .tmp/test.c:757
+#: .tmp/test.c:761
 #, no-c-format
 msgid "(3/6) Bool hard select"
 msgstr "(3/6) Bool hard select"
 
-#: .tmp/test.c:758
+#: .tmp/test.c:762
 #, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
@@ -4207,17 +4463,17 @@ msgid ""
 "by pressing a button at the device) and can't be read by the frontend."
 msgstr ""
 "(3/6) Dit is een bool-testoptie, met \"hard select\" (en \"advanced\") "
-"mogelijheden. Dit betekent dat de \"frontend\" de optie niet kan "
+"mogelijkheden. Dit betekent dat de \"frontend\" de optie niet kan "
 "instellen maar de gebruiker dat moet doen (b.v. door een knop van het "
 "apparaat in te drukken). Bovendien kan de \"frontend\" de instelling "
 "niet lezen."
 
-#: .tmp/test.c:776
+#: .tmp/test.c:780
 #, no-c-format
 msgid "(4/6) Bool soft detect"
 msgstr "(4/6) Bool soft detect"
 
-#: .tmp/test.c:777
+#: .tmp/test.c:781
 #, no-c-format
 msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
@@ -4226,12 +4482,12 @@ msgstr ""
 "(4/6) Dit is een bool-testoptie, met \"soft detect\" (en \"advanced\") "
 "mogelijkheden. Dit betekent dat het een alleen-lezen optie is."
 
-#: .tmp/test.c:793
+#: .tmp/test.c:797
 #, no-c-format
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Bool soft select soft detect emulated"
 
-#: .tmp/test.c:794
+#: .tmp/test.c:798
 #, no-c-format
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated "
@@ -4240,12 +4496,12 @@ msgstr ""
 "(5/6) Dit is een bool-testoptie, met \"soft select\", \"soft detect\", "
 "en \"emulated\" (en \"advanced\") mogelijkheden."
 
-#: .tmp/test.c:810
+#: .tmp/test.c:814
 #, no-c-format
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr "(6/6) Bool soft select soft detect auto"
 
-#: .tmp/test.c:811
+#: .tmp/test.c:815
 #, no-c-format
 msgid ""
 "(6/6) Bool test option that has soft select, soft detect, and automatic "
@@ -4256,53 +4512,53 @@ msgstr ""
 "en \"automatic\" (en \"advanced\") mogelijkheden. Deze optie kan de "
 "backend automatisch instellen."
 
-#: .tmp/test.c:828
+#: .tmp/test.c:832
 #, no-c-format
 msgid "Int test options"
 msgstr "Int-testopties"
 
-#: .tmp/test.c:841
+#: .tmp/test.c:845
 #, no-c-format
 msgid "(1/6) Int"
 msgstr "(1/6) Int"
 
-#: .tmp/test.c:842
+#: .tmp/test.c:846
 #, no-c-format
 msgid "(1/6) Int test option with no unit and no constraint set."
 msgstr "(1/6) Int-testoptie zonder eenheid en beperkingen."
 
-#: .tmp/test.c:857
+#: .tmp/test.c:861
 #, no-c-format
 msgid "(2/6) Int constraint range"
 msgstr "(2/6) Int bereikbeperking"
 
-#: .tmp/test.c:858
+#: .tmp/test.c:862
 #, no-c-format
 msgid ""
 "(2/6) Int test option with unit pixel and constraint range set. Minimum "
 "is 4, maximum 192, and quant is 2."
 msgstr ""
 "(2/6) Int-testoptie met de eenheid \"Pixel\" en een beperkt bereik. Het "
-"minimum is 4, het maximum 192, en de stapgrootte ist 2."
+"minimum is 4, het maximum 192, en de stapgrootte is 2."
 
-#: .tmp/test.c:874
+#: .tmp/test.c:878
 #, no-c-format
 msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Int beperkte woordenlijst"
 
-#: .tmp/test.c:875
+#: .tmp/test.c:879
 #, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
 "(3/6) Int-testoptie met de eenheid \"bits\" en een woordenlijst-"
 "beperking."
 
-#: .tmp/test.c:890
+#: .tmp/test.c:894
 #, no-c-format
 msgid "(4/6) Int array"
 msgstr "(4/6) Int rij"
 
-#: .tmp/test.c:891
+#: .tmp/test.c:895
 #, no-c-format
 msgid ""
 "(4/6) Int test option with unit mm and using an array without "
@@ -4310,12 +4566,12 @@ msgid ""
 msgstr ""
 "(4/6) Int-testoptie met de eenheid \"mm\" en een rij zonder beperkingen."
 
-#: .tmp/test.c:906
+#: .tmp/test.c:910
 #, no-c-format
 msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Int rij bereikbeperking"
 
-#: .tmp/test.c:907
+#: .tmp/test.c:911
 #, no-c-format
 msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
@@ -4325,12 +4581,12 @@ msgstr ""
 "bereikbeperking. Het minimum is 4, het maximum 192, en de stapgrootte is "
 "2."
 
-#: .tmp/test.c:924
+#: .tmp/test.c:928
 #, no-c-format
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Int rij beperkte woordenlijst"
 
-#: .tmp/test.c:925
+#: .tmp/test.c:929
 #, no-c-format
 msgid ""
 "(6/6) Int test option with unit percent and using an array with a word "
@@ -4339,27 +4595,27 @@ msgstr ""
 "(6/6) Int-testoptie met de eenheid \"procent\" en een rij met een "
 "woordenlijstbeperking."
 
-#: .tmp/test.c:941
+#: .tmp/test.c:945
 #, no-c-format
 msgid "Fixed test options"
 msgstr "Vaste testopties"
 
-#: .tmp/test.c:954
+#: .tmp/test.c:958
 #, no-c-format
 msgid "(1/3) Fixed"
 msgstr "(1/3) Vast"
 
-#: .tmp/test.c:955
+#: .tmp/test.c:959
 #, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
 msgstr "(1/3) Vaste testoptie zonder eenheid en zonder beperking."
 
-#: .tmp/test.c:970
+#: .tmp/test.c:974
 #, no-c-format
 msgid "(2/3) Fixed constraint range"
 msgstr "(2/3) Vaste bereikbeperking"
 
-#: .tmp/test.c:971
+#: .tmp/test.c:975
 #, no-c-format
 msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
@@ -4369,48 +4625,48 @@ msgstr ""
 "bereik. Het minimum is -42.17, het maximum 32767.9999 en de stapgrootte "
 "is 2.0."
 
-#: .tmp/test.c:987
+#: .tmp/test.c:991
 #, no-c-format
 msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Vaste beperkte woordenlijst"
 
-#: .tmp/test.c:988
+#: .tmp/test.c:992
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
 "(3/3) Vaste-testoptie zonder eenheid en met een beperkte woordenlijst."
 
-#: .tmp/test.c:1003
+#: .tmp/test.c:1007
 #, no-c-format
 msgid "String test options"
 msgstr "String-testopties"
 
-#: .tmp/test.c:1016
+#: .tmp/test.c:1020
 #, no-c-format
 msgid "(1/3) String"
 msgstr "(1/3) String"
 
-#: .tmp/test.c:1017
+#: .tmp/test.c:1021
 #, no-c-format
 msgid "(1/3) String test option without constraint."
 msgstr "(1/3) String-testoptie zonder beperkingen."
 
-#: .tmp/test.c:1034
+#: .tmp/test.c:1038
 #, no-c-format
 msgid "(2/3) String constraint string list"
 msgstr "(2/3) String beperkte \"string list\""
 
-#: .tmp/test.c:1035
+#: .tmp/test.c:1039
 #, no-c-format
 msgid "(2/3) String test option with string list constraint."
 msgstr "(2/3) String-testoptie met een beperkte \"string list\"."
 
-#: .tmp/test.c:1054
+#: .tmp/test.c:1058
 #, no-c-format
 msgid "(3/3) String constraint long string list"
 msgstr "(3/3) String beperkte lange \"string list\""
 
-#: .tmp/test.c:1055
+#: .tmp/test.c:1059
 #, no-c-format
 msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
@@ -4419,17 +4675,17 @@ msgstr ""
 "(3/3) String-testoptie met een beperkte \"string list\". Bevat enkele "
 "andere ingangen..."
 
-#: .tmp/test.c:1075
+#: .tmp/test.c:1079
 #, no-c-format
 msgid "Button test options"
 msgstr "Knoppen testoptie"
 
-#: .tmp/test.c:1088
+#: .tmp/test.c:1092
 #, no-c-format
 msgid "(1/1) Button"
 msgstr "(1/1) Knop"
 
-#: .tmp/test.c:1089
+#: .tmp/test.c:1093
 #, no-c-format
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Knoppen-testoptie. Levert enige tekst op..."
@@ -4438,16 +4694,6 @@ msgstr "(1/1) Knoppen-testoptie. Levert enige tekst op..."
 #, no-c-format
 msgid "Color 36"
 msgstr "Kleur 36"
-
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5810
-#, no-c-format
-msgid "Lamp off"
-msgstr "Lamp uit"
-
-#: .tmp/umax1220u.c:249 .tmp/umax.c:5811
-#, no-c-format
-msgid "Turn off scanner lamp"
-msgstr "Schakelt de scannerlamp uit"
 
 #: .tmp/umax.c:189
 #, no-c-format
@@ -4489,112 +4735,102 @@ msgstr "Multi-niveau RGB kleur (één-doorgang-kleur)"
 msgid "Ignore calibration"
 msgstr "Negeer kalibrering"
 
-#: .tmp/umax.c:5731
+#: .tmp/umax.c:5734
 #, no-c-format
 msgid "Disable pre focus"
 msgstr "Voorfocusering uitschakelen"
 
-#: .tmp/umax.c:5732
+#: .tmp/umax.c:5735
 #, no-c-format
 msgid "Do not calibrate focus"
 msgstr "Focusering niet kalibreren"
 
-#: .tmp/umax.c:5743
+#: .tmp/umax.c:5746
 #, no-c-format
 msgid "Manual pre focus"
 msgstr "Handmatige voorfocusering"
 
-#: .tmp/umax.c:5755
+#: .tmp/umax.c:5758
 #, no-c-format
 msgid "Fix focus position"
 msgstr "Vaste focuspositie"
 
-#: .tmp/umax.c:5767
+#: .tmp/umax.c:5770
 #, no-c-format
 msgid "Lens calibration in doc position"
-msgstr "Lens op het dokument kalibreren"
+msgstr "Lens op het document kalibreren"
 
-#: .tmp/umax.c:5768
+#: .tmp/umax.c:5771
 #, no-c-format
 msgid "Calibrate lens focus in document position"
-msgstr "Focus van de lens op het dokument kalibreren"
+msgstr "Focus van de lens op het document kalibreren"
 
-#: .tmp/umax.c:5779
+#: .tmp/umax.c:5782
 #, no-c-format
 msgid "Holder focus position 0mm"
 msgstr "Houder focus positie 0mm"
 
-#: .tmp/umax.c:5780
+#: .tmp/umax.c:5783
 #, no-c-format
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Gebruik 0mm houder focus positie in plaats van 0.6mm"
 
-#: .tmp/umax.c:5793 .tmp/umax_pp.c:560
-#, no-c-format
-msgid "Lamp on"
-msgstr "Lamp aan"
-
-#: .tmp/umax.c:5794
-#, no-c-format
-msgid "Turn on scanner lamp"
-msgstr "Schakel scannerlamp aan"
-
-#: .tmp/umax.c:5883
+#: .tmp/umax.c:5886
 #, no-c-format
 msgid "Calibration mode"
 msgstr "Kalibreermodus"
 
-#: .tmp/umax.c:5884
+#: .tmp/umax.c:5887
 #, no-c-format
 msgid "Define calibration mode"
 msgstr "Kalibreermodus definiëren"
 
-#: .tmp/umax_pp.c:561
+#: .tmp/umax_pp.c:638
 #, no-c-format
 msgid "Sets lamp on/off"
 msgstr "Schakelt de lamp aan/uit"
 
-#: .tmp/umax_pp.c:570
+#: .tmp/umax_pp.c:647
 #, no-c-format
 msgid "UTA on"
 msgstr "UTA aan"
 
-#: .tmp/umax_pp.c:571
+#: .tmp/umax_pp.c:648
 #, no-c-format
 msgid "Sets UTA on/off"
 msgstr "Schakelt UTA aan/uit"
 
-#: .tmp/umax_pp.c:692
+#: .tmp/umax_pp.c:769
 #, no-c-format
 msgid "Offset"
 msgstr "Offset"
 
-#: .tmp/umax_pp.c:694
+#: .tmp/umax_pp.c:771
 #, no-c-format
 msgid "Color channels offset settings"
 msgstr "Offsetinstellingen van de kleurkanalen"
 
-#: .tmp/umax_pp.c:701
+#: .tmp/umax_pp.c:778
 #, no-c-format
 msgid "Gray offset"
 msgstr "Grijsoffset"
 
-#: .tmp/umax_pp.c:702
+#: .tmp/umax_pp.c:779
 #, no-c-format
 msgid "Sets gray channel offset"
 msgstr "Stelt het offset in van het grijze kanaal"
 
-#: .tmp/umax_pp.c:714
+#: .tmp/umax_pp.c:791
 #, no-c-format
 msgid "Sets red channel offset"
 msgstr "Stelt het offset in van het rode kanaal"
 
-#: .tmp/umax_pp.c:726
+#: .tmp/umax_pp.c:803
 #, no-c-format
 msgid "Sets green channel offset"
 msgstr "Stelt het offset in van het groene kanaal"
 
-#: .tmp/umax_pp.c:738
+#: .tmp/umax_pp.c:815
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Stelt het offset in van het blauwe kanaal"

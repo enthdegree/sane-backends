@@ -1,3 +1,7 @@
+2009-05-01  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c: copy_buffer() needs to count lines, or M309[12]
+	  cannot scan in duplex
+
 2009-04-30  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c: ignore errors in scanner_control(),
 	  M3091 has not worked since sane 1.0.19, due to this.

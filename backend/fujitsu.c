@@ -429,6 +429,7 @@
          - return cmd status for reads on sensors
          - ignore errors in scanner_control(),
            M3091 has not worked since sane 1.0.19, due to this.
+         - copy_buffer needs to count lines, or M309[12] cannot duplex
 
    SANE FLOW DIAGRAM
 
@@ -7391,6 +7392,7 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
 
   memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
   s->bytes_rx[side] += len;
+  s->lines_rx[side] += len/s->params.bytes_per_line;
 
   DBG (10, "copy_buffer: finish\n");
 

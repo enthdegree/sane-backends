@@ -16,7 +16,8 @@ MATH_LIB = @MATH_LIB@
 IEEE1284_LIBS = @IEEE1284_LIBS@ 
 TIFF_LIBS = @TIFF_LIBS@ 
 JPEG_LIBS = @JPEG_LIBS@ 
-GPHOTO2_LIBS = @GPHOTO2_LIBS@ 
+GPHOTO2_LIBS = @GPHOTO2_LIBS@
+GPHOTO2_LDFLAGS = @GPHOTO2_LDFLAGS@
 SOCKET_LIBS = @SOCKET_LIBS@ 
 AVAHI_LIBS = @AVAHI_LIBS@
 USB_LIBS = @USB_LIBS@ 
@@ -490,7 +491,7 @@ libgphoto2_i_la_CPPFLAGS = $(AM_CPPFLAGS) @GPHOTO2_CPPFLAGS@ -DBACKEND_NAME=gpho
 nodist_libsane_gphoto2_la_SOURCES = gphoto2-s.c 
 libsane_gphoto2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=gphoto2
 libsane_gphoto2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_gphoto2_la_LIBADD = $(COMMON_LIBS) libgphoto2_i.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @SANEI_SANEI_JPEG_LO@ $(GPHOTO2_LIBS) $(JPEG_LIBS)
+libsane_gphoto2_la_LIBADD = $(GPHOTO2_LDFLAGS) $(COMMON_LIBS) libgphoto2_i.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @SANEI_SANEI_JPEG_LO@ $(GPHOTO2_LIBS) $(JPEG_LIBS)
 EXTRA_DIST += gphoto2.conf.in
 
 libgt68xx_la_SOURCES = gt68xx.c gt68xx.h

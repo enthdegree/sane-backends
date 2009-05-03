@@ -12,6 +12,7 @@ LINKER_RPATH="@LINKER_RPATH@"
 prefix="@prefix@"
 exec_prefix="@exec_prefix@"
 
+LDFLAGS="@LDFLAGS@ @GPHOTO2@"
 LIBS="@LIBS@ @DL_LIBS@ @LIBV4L_LIBS@ @MATH_LIB@ @TIFF_LIBS@ @JPEG_LIBS@ @GPHOTO2_LIBS@ @SOCKET_LIBS@ @AVAHI_LIBS@ @USB_LIBS@ @SCSI_LIBS@"
 pkgincludedir="@pkgincludedir@"
 pkglibdir="@pkglibdir@"
@@ -86,9 +87,9 @@ if test $# -gt 0; then
     --ldflags)
 
       if test -z "$LINKER_RPATH"; then
-        echo "-L${libdir}"
+        echo "-L${libdir} @LDFLAGS@" 
       else
-        echo "-L${libdir} ${LINKER_RPATH}${libdir}"
+        echo "-L${libdir} @LDFLAGS@ ${LINKER_RPATH}${libdir}"
       fi
       ;;
     --libs)

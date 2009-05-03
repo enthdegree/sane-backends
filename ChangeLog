@@ -1,3 +1,10 @@
+2009-05-03 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* Makefile.in, aclocal.m4, configure, */Makefile.in: Regenerated 
+	with newer automake.
+	* backend/Makefile.am, tools/sane-config.in: Add missing 
+	$GPHOTO2_LDFLAGS so library can be found.
+	* tools/Makefile.am: Add mising $SCSI_LIBS to sane-find-scanner.
+
 ******  Release of sane-backends 1.0.20. End of code freeze ******
 
 2009-05-03  m. allan noah <kitno455 a t gmail d o t com>

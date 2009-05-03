@@ -32,7 +32,7 @@ EXTRA_DIST = check-po.awk libtool-get-dll-ext mustek600iin-off.c \
 sane_find_scanner_SOURCES = sane-find-scanner.c check-usb-chip.c \
 			    ../backend/sane_strstatus.c
 sane_find_scanner_LDADD = ../sanei/libsanei.la ../lib/liblib.la \
-			  @USB_LIBS@ @IEEE1284_LIBS@
+			  @USB_LIBS@ @IEEE1284_LIBS@ @SCSI_LIBS@
 
 gamma4scanimage_SOURCES = gamma4scanimage.c
 gamma4scanimage_LDADD = @MATH_LIB@

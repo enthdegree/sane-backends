@@ -1,4 +1,24 @@
 -*-Mode: outline-*-
+New with 1.0.20, released 2009-05-03:
+
+* New backends: canon_dr (Canon DR-series), coolscan3 (Nikon LS & Coolscan),
+  rts8891 (Umax & HP 44xx), xerox_mfp (Samsung/Xerox/Dell MFPs) 
+* Many backends updated.
+* 75 more scanner models supported.
+* New build system (thanks Chris and Olaf).
+* Avahi support (thanks Julien).
+* More network scanners supported
+* Epson backend deprecated, use epson2
+* Coolscan2 backend deprecated, use coolscan3
+* Internal SCSI, USB, threading, TCP & UDP code updates.
+* Updated HAL and udev support.
+* Improved saned configuration.
+* Scanimage updates.
+* Updated translations.
+* Documentation updates.
+* Bugfixes.
+
+
 New with 1.0.19, released 2008-02-10:
 
 * New backends: cardscan (Corex Cardscan 800c), epjitsu (Epson-based Fujitsu), 

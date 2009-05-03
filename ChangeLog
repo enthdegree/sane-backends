@@ -1,3 +1,12 @@
+******  Release of sane-backends 1.0.20. End of code freeze ******
+
+2009-05-03  m. allan noah <kitno455 a t gmail d o t com>
+	* config.guess, config.sub: updated to latest versions
+	* NEWS, configure.in, configure: updated for 1.0.20
+	* sane-backends.lsm, doc/releases.txt: minor tweaks
+	* doc/descriptions/coolscan3.desc, doc/descriptions/rts8891.desc:
+	  add :new marker, correct manpage link
+
 2009-05-01  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c: copy_buffer() needs to count lines, or M309[12]
 	  cannot scan in duplex

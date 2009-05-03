@@ -12,8 +12,7 @@ Keywords:       scanner, camera, flatbed, automatic document feeder (ADF),
                 network server & client, Java API & client
 Author:         David.Mosberger@acm.org (David Mosberger-Tang)
                 (see AUTHORS for complete list)
-Maintained-by:  henning@meier-geinitz.de (Henning Meier-Geinitz)
-                kitno455@gmail.com (m. allan noah)
+Maintained-by:  kitno455@gmail.com (m. allan noah)
 Primary-site:   ftp.sane-project.org /pub/sane/sane-backends-_VERSION_
                 _T_S_ kB sane-backends-_VERSION_.tar.gz
                 _L_S_ kB sane-backends-_VERSION_.lsm

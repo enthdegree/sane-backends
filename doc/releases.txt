@@ -35,7 +35,7 @@ Making the release:
 * unpack tar.gz in temporary directory
 * make diff from last release by unpacking it also in temporary directory
   and running e.g. 
-  diff -uNr sane-backends-1.0.14 sane-backends-1.0.15  > sane-backends-1.0.14-1.0.15.diff'
+  diff -uNr sane-backends-1.0.14 sane-backends-1.0.15  > sane-backends-1.0.14-1.0.15.diff
 * check that the diff applies cleanly to the old version
 * install devel headers required to build optional backends (1284,gphoto,etc)
 * check that the new version .tar.gz can be compiled

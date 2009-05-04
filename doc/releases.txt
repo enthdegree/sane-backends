@@ -37,10 +37,12 @@ Making the release:
   and running e.g. 
   diff -uNr sane-backends-1.0.14 sane-backends-1.0.15  > sane-backends-1.0.14-1.0.15.diff
 * check that the diff applies cleanly to the old version
+* gzip the diff
 * install devel headers required to build optional backends (1284,gphoto,etc)
 * check that the new version .tar.gz can be compiled
-* upload these files together with the .diff to the FTP/HTTP servers
-  (at the moment: rpm.org and alioth.debian.org).
+* upload these files together with the .diff.gz to the FTP/HTTP servers
+  (at the moment: alioth.debian.org, ftp files are in
+  /srv/alioth.debian.org/chroot/ftproot/pub/sane/ )
 
 Announcing the release:
 
@@ -48,7 +50,8 @@ Announcing the release:
 * copy sane-backends.html to sane-backends-"old-version".html
 * update sane-supported-devices.html with link to above "old" file
 * rebuild sane-backends.html and sane-mfgs.html (see doc/Makefile)
-* rebuild html man pages (see doc/Makefile)
+* use man2htmlfrom http://hydra.nac.uci.edu/indiv/ehood/man2html.html
+  to rebuild html man pages (see doc/Makefile) (no other version works)
 * add md5 sum to sane-md5sum.txt
 * check and update platforms page (sane-support.html)
 * write announcements on sane-project.org and sane-devel, maybe others

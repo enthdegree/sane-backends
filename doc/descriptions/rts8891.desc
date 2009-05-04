@@ -14,7 +14,6 @@
 :manpage "sane-rts8891"        ; name of manpage (if it exists)
 :url "http://stef.dev.free.fr/sane/rts8891/index.html" 
 				  ; backend's web page
-:new :yes
 
 :comment "This backend supports Realtek RTS8891 ASIC bases scanners." 
                                   ; comment about the backend

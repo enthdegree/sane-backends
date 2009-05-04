@@ -12,7 +12,6 @@
 :backend "coolscan3"
 :version "1.0.0"
 :manpage "sane-coolscan3"
-:new :yes
 
 :devicetype :scanner
 :mfg "Nikon"

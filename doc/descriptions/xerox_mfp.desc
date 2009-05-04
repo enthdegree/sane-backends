@@ -3,7 +3,6 @@
 :manpage "sane-xerox_mfp"
 :comment "Could be compatible with other Samsung manufactured devices"
 :devicetype :scanner
-:new :yes
 
 :mfg "Xerox"
 :url "http://www.office.xerox.com/"

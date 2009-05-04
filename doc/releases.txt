@@ -60,10 +60,13 @@ Announcing the release:
 After the release:
 
 * move ChangeLog to ChangeLog-"version" and start a new ChangeLog
-* add ChangeLog-"version" to DISTFILES in Makefile.in
-* configure.in: add -cvs suffix
+* add ChangeLog-"version" to EXTRA_DIST in Makefile.in
+* configure.in: bump version and V_REV
+* configure.in: add cvs suffix to textual version
 * configure.in: set is_release=no
 * configure: regenerate with autoconf
+* remove the ':new' tag from any new backends .desc files
+* commit
 * on cvs.alioth.debian.org, cvs update, ./configure, make the cvs checkout in
   /org/alioth.debian.org/chroot/home/groups/sane/sane-backends-lists-cvs/
 

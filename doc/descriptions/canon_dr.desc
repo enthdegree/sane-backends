@@ -18,7 +18,6 @@
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
 
-:new :yes
 :mfg "Canon"                   ; name a manufacturer
 :url "http://www.canon.com/"
 

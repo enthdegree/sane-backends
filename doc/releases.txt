@@ -1,4 +1,4 @@
-2008-01-10
+2009-05-05
 
 This text summarizes some points to pay attention to when a new release
 of sane-backends is planned.
@@ -27,7 +27,7 @@ Before the release:
 * sane-backends.lsm: update
 * ChangeLog: set release marker
 * cvs commit
-* tag CVS with release tag; e.g.: 'cvs tag RELEASE_1_0_15'
+* tag git with release tag; e.g.: 'git tag -a RELEASE_1_0_15'
 
 Making the release:
 

@@ -226,18 +226,24 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
   *)
     use_pthread=no
   esac
+  have_pthread=no
 
   #
   # now that we have the systems preferences, we check
   # the user
-  AC_ARG_ENABLE( [fork-process],
-    AC_HELP_STRING([--enable-fork-process],
-                   [use fork instead of pthread (default=no for MacOS X, yes for everything else)]),
+
+  AC_ARG_ENABLE([pthread],
+    AC_HELP_STRING([--enable-pthread],
+                   [use pthread instead of fork (default=yes for MacOS X, no for everything else)]),
     [
-      if test $enableval != yes ; then
+      if test $enableval = yes ; then
         use_pthread=yes
+      else
+        use_pthread=no
       fi
     ])
+
+  if test $use_pthread = yes ; then
   AC_CHECK_HEADERS(pthread.h,
     [
        AC_CHECK_LIB(pthread, pthread_create, PTHREAD_LIBS="-lpthread")
@@ -246,17 +252,21 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
        LIBS="$LIBS $PTHREAD_LIBS"
        AC_CHECK_FUNCS([pthread_create pthread_kill pthread_join pthread_detach pthread_cancel pthread_testcancel],
 	,[ have_pthread=no; use_pthread=no ])
-        LIBS="$save_LIBS"
+       LIBS="$save_LIBS"
     ],)
-  AC_SUBST(PTHREAD_LIBS)
+  fi
  
   if test $use_pthread = yes ; then
     AC_DEFINE_UNQUOTED(USE_PTHREAD, "$use_pthread",
                    [Define if pthreads should be used instead of forked processes.])
+  else
+    dnl Reset library in case it was found but we are not going to use it.
+    PTHREAD_LIBS=""
   fi
   if test "$have_pthread" = "yes" ; then
     CPPFLAGS="${CPPFLAGS} -D_REENTRANT"
   fi
+  AC_SUBST(PTHREAD_LIBS)
   AC_MSG_CHECKING([whether to enable pthread support])
   AC_MSG_RESULT([$have_pthread])
   AC_MSG_CHECKING([whether to use pthread instead of fork])

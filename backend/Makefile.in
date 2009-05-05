@@ -268,7 +268,8 @@ libsane_agfafocus_la_DEPENDENCIES = $(COMMON_LIBS) libagfafocus.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	sane_strstatus.lo ../sanei/sanei_thread.lo \
-	../sanei/sanei_scsi.lo $(am__DEPENDENCIES_1)
+	../sanei/sanei_scsi.lo $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_agfafocus_la_OBJECTS =  \
 	libsane_agfafocus_la-agfafocus-s.lo
 libsane_agfafocus_la_OBJECTS = $(nodist_libsane_agfafocus_la_OBJECTS)
@@ -298,7 +299,7 @@ libsane_artec_eplus48u_la_DEPENDENCIES = $(COMMON_LIBS) \
 	../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo \
 	sane_strstatus.lo ../sanei/sanei_usb.lo \
 	../sanei/sanei_thread.lo $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_artec_eplus48u_la_OBJECTS =  \
 	libsane_artec_eplus48u_la-artec_eplus48u-s.lo
 libsane_artec_eplus48u_la_OBJECTS =  \
@@ -321,7 +322,7 @@ libsane_avision_la_DEPENDENCIES = $(COMMON_LIBS) libavision.la \
 	sane_strstatus.lo ../sanei/sanei_usb.lo \
 	../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_avision_la_OBJECTS = libsane_avision_la-avision-s.lo
 libsane_avision_la_OBJECTS = $(nodist_libsane_avision_la_OBJECTS)
 libsane_avision_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -394,7 +395,7 @@ libsane_coolscan_la_DEPENDENCIES = $(COMMON_LIBS) libcoolscan.la \
 	sane_strstatus.lo ../sanei/sanei_thread.lo \
 	../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_coolscan_la_OBJECTS =  \
 	libsane_coolscan_la-coolscan-s.lo
 libsane_coolscan_la_OBJECTS = $(nodist_libsane_coolscan_la_OBJECTS)
@@ -560,7 +561,8 @@ libsane_hp_la_DEPENDENCIES = $(COMMON_LIBS) libhp.la \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
 	../sanei/sanei_pio.lo ../sanei/sanei_thread.lo \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_hp_la_OBJECTS = libsane_hp_la-hp-s.lo
 libsane_hp_la_OBJECTS = $(nodist_libsane_hp_la_OBJECTS)
 libsane_hp_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -570,7 +572,7 @@ libsane_hp3500_la_DEPENDENCIES = $(COMMON_LIBS) libhp3500.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo sane_strstatus.lo \
 	../sanei/sanei_usb.lo ../sanei/sanei_thread.lo \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_hp3500_la_OBJECTS = libsane_hp3500_la-hp3500-s.lo
 libsane_hp3500_la_OBJECTS = $(nodist_libsane_hp3500_la_OBJECTS)
 libsane_hp3500_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -706,7 +708,7 @@ libsane_microtek2_la_DEPENDENCIES = $(COMMON_LIBS) libmicrotek2.la \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	sane_strstatus.lo ../sanei/sanei_scsi.lo \
 	../sanei/sanei_thread.lo $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_microtek2_la_OBJECTS =  \
 	libsane_microtek2_la-microtek2-s.lo
 libsane_microtek2_la_OBJECTS = $(nodist_libsane_microtek2_la_OBJECTS)
@@ -719,7 +721,7 @@ libsane_mustek_la_DEPENDENCIES = $(COMMON_LIBS) libmustek.la \
 	sane_strstatus.lo ../sanei/sanei_scsi.lo \
 	../sanei/sanei_thread.lo ../sanei/sanei_ab306.lo \
 	../sanei/sanei_pa4s2.lo $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_mustek_la_OBJECTS = libsane_mustek_la-mustek-s.lo
 libsane_mustek_la_OBJECTS = $(nodist_libsane_mustek_la_OBJECTS)
 libsane_mustek_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -752,7 +754,7 @@ libsane_mustek_usb2_la_DEPENDENCIES = $(COMMON_LIBS) libmustek_usb2.la \
 	../sanei/sanei_config.lo sane_strstatus.lo \
 	../sanei/sanei_usb.lo ../sanei/sanei_thread.lo \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_mustek_usb2_la_OBJECTS =  \
 	libsane_mustek_usb2_la-mustek_usb2-s.lo
 libsane_mustek_usb2_la_OBJECTS =  \
@@ -795,7 +797,8 @@ libsane_pie_la_DEPENDENCIES = $(COMMON_LIBS) libpie.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	sane_strstatus.lo ../sanei/sanei_scsi.lo \
-	../sanei/sanei_thread.lo $(am__DEPENDENCIES_1)
+	../sanei/sanei_thread.lo $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_pie_la_OBJECTS = libsane_pie_la-pie-s.lo
 libsane_pie_la_OBJECTS = $(nodist_libsane_pie_la_OBJECTS)
 libsane_pie_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -814,7 +817,7 @@ libsane_pixma_la_DEPENDENCIES = $(COMMON_LIBS) libpixma.la \
 	../sanei/sanei_config.lo sane_strstatus.lo \
 	../sanei/sanei_usb.lo ../sanei/sanei_thread.lo \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_pixma_la_OBJECTS = libsane_pixma_la-pixma-s.lo
 libsane_pixma_la_OBJECTS = $(nodist_libsane_pixma_la_OBJECTS)
 libsane_pixma_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -825,7 +828,8 @@ libsane_plustek_la_DEPENDENCIES = $(COMMON_LIBS) libplustek.la \
 	../sanei/sanei_config.lo sane_strstatus.lo \
 	../sanei/sanei_usb.lo ../sanei/sanei_thread.lo \
 	../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_plustek_la_OBJECTS = libsane_plustek_la-plustek-s.lo
 libsane_plustek_la_OBJECTS = $(nodist_libsane_plustek_la_OBJECTS)
 libsane_plustek_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -835,7 +839,8 @@ libsane_plustek_pp_la_DEPENDENCIES = $(COMMON_LIBS) libplustek_pp.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo sane_strstatus.lo \
 	../sanei/sanei_pp.lo ../sanei/sanei_thread.lo \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_plustek_pp_la_OBJECTS =  \
 	libsane_plustek_pp_la-plustek_pp-s.lo
 libsane_plustek_pp_la_OBJECTS =  \
@@ -931,7 +936,7 @@ libsane_snapscan_la_DEPENDENCIES = $(COMMON_LIBS) libsnapscan.la \
 	sane_strstatus.lo ../sanei/sanei_usb.lo \
 	../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_snapscan_la_OBJECTS =  \
 	libsane_snapscan_la-snapscan-s.lo
 libsane_snapscan_la_OBJECTS = $(nodist_libsane_snapscan_la_OBJECTS)
@@ -942,7 +947,8 @@ libsane_sp15c_la_DEPENDENCIES = $(COMMON_LIBS) libsp15c.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	sane_strstatus.lo ../sanei/sanei_thread.lo \
-	../sanei/sanei_scsi.lo $(am__DEPENDENCIES_1)
+	../sanei/sanei_scsi.lo $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_sp15c_la_OBJECTS = libsane_sp15c_la-sp15c-s.lo
 libsane_sp15c_la_OBJECTS = $(nodist_libsane_sp15c_la_OBJECTS)
 libsane_sp15c_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -970,7 +976,8 @@ libsane_tamarack_la_DEPENDENCIES = $(COMMON_LIBS) libtamarack.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	sane_strstatus.lo ../sanei/sanei_thread.lo \
-	../sanei/sanei_scsi.lo $(am__DEPENDENCIES_1)
+	../sanei/sanei_scsi.lo $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_tamarack_la_OBJECTS =  \
 	libsane_tamarack_la-tamarack-s.lo
 libsane_tamarack_la_OBJECTS = $(nodist_libsane_tamarack_la_OBJECTS)
@@ -1007,7 +1014,7 @@ libsane_teco3_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 libsane_test_la_DEPENDENCIES = $(COMMON_LIBS) libtest.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo sane_strstatus.lo \
-	../sanei/sanei_thread.lo
+	../sanei/sanei_thread.lo $(am__DEPENDENCIES_1)
 nodist_libsane_test_la_OBJECTS = libsane_test_la-test-s.lo
 libsane_test_la_OBJECTS = $(nodist_libsane_test_la_OBJECTS)
 libsane_test_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -1017,7 +1024,8 @@ libsane_u12_la_DEPENDENCIES = $(COMMON_LIBS) libu12.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo sane_strstatus.lo \
 	../sanei/sanei_usb.lo ../sanei/sanei_thread.lo \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_u12_la_OBJECTS = libsane_u12_la-u12-s.lo
 libsane_u12_la_OBJECTS = $(nodist_libsane_u12_la_OBJECTS)
 libsane_u12_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -1029,7 +1037,8 @@ libsane_umax_la_DEPENDENCIES = $(COMMON_LIBS) libumax.la \
 	sane_strstatus.lo ../sanei/sanei_usb.lo \
 	../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo \
 	../sanei/sanei_pv8630.lo $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_umax_la_OBJECTS = libsane_umax_la-umax-s.lo
 libsane_umax_la_OBJECTS = $(nodist_libsane_umax_la_OBJECTS)
 libsane_umax_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -1716,7 +1725,7 @@ libagfafocus_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=agfafocus
 nodist_libsane_agfafocus_la_SOURCES = agfafocus-s.c
 libsane_agfafocus_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=agfafocus 
 libsane_agfafocus_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_agfafocus_la_LIBADD = $(COMMON_LIBS) libagfafocus.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS)
+libsane_agfafocus_la_LIBADD = $(COMMON_LIBS) libagfafocus.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(PTHREAD_LIBS)
 libapple_la_SOURCES = apple.c apple.h
 libapple_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=apple
 nodist_libsane_apple_la_SOURCES = apple-s.c
@@ -1734,7 +1743,7 @@ libartec_eplus48u_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=artec_eplus48u
 nodist_libsane_artec_eplus48u_la_SOURCES = artec_eplus48u-s.c
 libsane_artec_eplus48u_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=artec_eplus48u
 libsane_artec_eplus48u_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_artec_eplus48u_la_LIBADD = $(COMMON_LIBS) libartec_eplus48u.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(USB_LIBS)
+libsane_artec_eplus48u_la_LIBADD = $(COMMON_LIBS) libartec_eplus48u.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
 libas6e_la_SOURCES = as6e.c as6e.h
 libas6e_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=as6e
 nodist_libsane_as6e_la_SOURCES = as6e-s.c
@@ -1746,7 +1755,7 @@ libavision_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=avision
 nodist_libsane_avision_la_SOURCES = avision-s.c 
 libsane_avision_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=avision
 libsane_avision_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_avision_la_LIBADD = $(COMMON_LIBS) libavision.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS)
+libsane_avision_la_LIBADD = $(COMMON_LIBS) libavision.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(PTHREAD_LIBS)
 libbh_la_SOURCES = bh.c bh.h
 libbh_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=bh
 nodist_libsane_bh_la_SOURCES = bh-s.c
@@ -1788,7 +1797,7 @@ libcoolscan_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=coolscan
 nodist_libsane_coolscan_la_SOURCES = coolscan-s.c
 libsane_coolscan_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=coolscan
 libsane_coolscan_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_coolscan_la_LIBADD = $(COMMON_LIBS) libcoolscan.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_thread.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS)
+libsane_coolscan_la_LIBADD = $(COMMON_LIBS) libcoolscan.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_thread.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(PTHREAD_LIBS)
 libcoolscan2_la_SOURCES = coolscan2.c
 libcoolscan2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=coolscan2
 nodist_libsane_coolscan2_la_SOURCES = coolscan2-s.c
@@ -1878,13 +1887,13 @@ libhp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp
 nodist_libsane_hp_la_SOURCES = hp-s.c
 libsane_hp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp
 libsane_hp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_hp_la_LIBADD = $(COMMON_LIBS) libhp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pio.lo ../sanei/sanei_thread.lo $(SCSI_LIBS) $(USB_LIBS)
+libsane_hp_la_LIBADD = $(COMMON_LIBS) libhp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pio.lo ../sanei/sanei_thread.lo $(SCSI_LIBS) $(USB_LIBS) $(PTHREAD_LIBS)
 libhp3500_la_SOURCES = hp3500.c
 libhp3500_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp3500
 nodist_libsane_hp3500_la_SOURCES = hp3500-s.c
 libsane_hp3500_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp3500
 libsane_hp3500_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_hp3500_la_LIBADD = $(COMMON_LIBS) libhp3500.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(USB_LIBS)
+libsane_hp3500_la_LIBADD = $(COMMON_LIBS) libhp3500.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(USB_LIBS) $(PTHREAD_LIBS)
 libhp3900_la_SOURCES = hp3900.c
 libhp3900_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp3900
 nodist_libsane_hp3900_la_SOURCES = hp3900-s.c
@@ -1968,13 +1977,13 @@ libmicrotek2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=microtek2
 nodist_libsane_microtek2_la_SOURCES = microtek2-s.c
 libsane_microtek2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=microtek2
 libsane_microtek2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_microtek2_la_LIBADD = $(COMMON_LIBS) libmicrotek2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo  sane_strstatus.lo ../sanei/sanei_scsi.lo  ../sanei/sanei_thread.lo $(MATH_LIB) $(SCSI_LIBS)
+libsane_microtek2_la_LIBADD = $(COMMON_LIBS) libmicrotek2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo  sane_strstatus.lo ../sanei/sanei_scsi.lo  ../sanei/sanei_thread.lo $(MATH_LIB) $(SCSI_LIBS) $(PTHREAD_LIBS)
 libmustek_la_SOURCES = mustek.c mustek.h
 libmustek_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek
 nodist_libsane_mustek_la_SOURCES = mustek-s.c
 libsane_mustek_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek
 libsane_mustek_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_mustek_la_LIBADD = $(COMMON_LIBS) libmustek.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo  ../sanei/sanei_thread.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pa4s2.lo $(IEEE1284_LIBS) $(SCSI_LIBS)
+libsane_mustek_la_LIBADD = $(COMMON_LIBS) libmustek.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo  ../sanei/sanei_thread.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pa4s2.lo $(IEEE1284_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS)
 libmustek_pp_la_SOURCES = mustek_pp.c mustek_pp.h mustek_pp_decl.h mustek_pp_drivers.h
 libmustek_pp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_pp
 nodist_libsane_mustek_pp_la_SOURCES = mustek_pp-s.c
@@ -1992,7 +2001,7 @@ libmustek_usb2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb2
 nodist_libsane_mustek_usb2_la_SOURCES = mustek_usb2-s.c
 libsane_mustek_usb2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb2
 libsane_mustek_usb2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_mustek_usb2_la_LIBADD = $(COMMON_LIBS) libmustek_usb2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(PTHREAD_LIBS) $(USB_LIBS)
+libsane_mustek_usb2_la_LIBADD = $(COMMON_LIBS) libmustek_usb2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(PTHREAD_LIBS) $(USB_LIBS) $(PTHREAD_LIBS)
 libnec_la_SOURCES = nec.c nec.h
 libnec_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=nec
 nodist_libsane_nec_la_SOURCES = nec-s.c
@@ -2016,7 +2025,7 @@ libpie_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pie
 nodist_libsane_pie_la_SOURCES = pie-s.c 
 libsane_pie_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pie
 libsane_pie_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_pie_la_LIBADD = $(COMMON_LIBS) libpie.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo ../sanei/sanei_thread.lo $(SCSI_LIBS)
+libsane_pie_la_LIBADD = $(COMMON_LIBS) libpie.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo ../sanei/sanei_thread.lo $(SCSI_LIBS) $(PTHREAD_LIBS)
 libpint_la_SOURCES = pint.c pint.h
 libpint_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pint
 nodist_libsane_pint_la_SOURCES = pint-s.c
@@ -2028,19 +2037,19 @@ libpixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
 nodist_libsane_pixma_la_SOURCES = pixma-s.c
 libsane_pixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
 libsane_pixma_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_pixma_la_LIBADD = $(COMMON_LIBS) libpixma.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(SOCKET_LIBS) $(USB_LIBS)
+libsane_pixma_la_LIBADD = $(COMMON_LIBS) libpixma.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(SOCKET_LIBS) $(USB_LIBS) $(PTHREAD_LIBS)
 libplustek_la_SOURCES = plustek.c plustek.h
 libplustek_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=plustek
 nodist_libsane_plustek_la_SOURCES = plustek-s.c
 libsane_plustek_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=plustek
 libsane_plustek_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_plustek_la_LIBADD = $(COMMON_LIBS) libplustek.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo $(MATH_LIB) $(USB_LIBS)
+libsane_plustek_la_LIBADD = $(COMMON_LIBS) libplustek.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
 libplustek_pp_la_SOURCES = plustek_pp.c plustek-pp.h
 libplustek_pp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=plustek_pp
 nodist_libsane_plustek_pp_la_SOURCES = plustek_pp-s.c
 libsane_plustek_pp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=plustek_pp
 libsane_plustek_pp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_plustek_pp_la_LIBADD = $(COMMON_LIBS) libplustek_pp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(IEEE1284_LIBS)
+libsane_plustek_pp_la_LIBADD = $(COMMON_LIBS) libplustek_pp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(IEEE1284_LIBS) $(PTHREAD_LIBS)
 libpnm_la_SOURCES = pnm.c
 libpnm_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pnm
 nodist_libsane_pnm_la_SOURCES = pnm-s.c 
@@ -2100,13 +2109,13 @@ libsnapscan_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=snapscan
 nodist_libsane_snapscan_la_SOURCES = snapscan-s.c
 libsane_snapscan_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=snapscan
 libsane_snapscan_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_snapscan_la_LIBADD = $(COMMON_LIBS) libsnapscan.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS)
+libsane_snapscan_la_LIBADD = $(COMMON_LIBS) libsnapscan.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(PTHREAD_LIBS)
 libsp15c_la_SOURCES = sp15c.c sp15c.h sp15c-scsi.h
 libsp15c_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=sp15c
 nodist_libsane_sp15c_la_SOURCES = sp15c-s.c
 libsane_sp15c_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=sp15c
 libsane_sp15c_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_sp15c_la_LIBADD = $(COMMON_LIBS) libsp15c.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS)
+libsane_sp15c_la_LIBADD = $(COMMON_LIBS) libsp15c.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(PTHREAD_LIBS)
 libst400_la_SOURCES = st400.c st400.h
 libst400_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=st400
 nodist_libsane_st400_la_SOURCES = st400-s.c ../sanei/sanei_scsi.lo 
@@ -2124,13 +2133,13 @@ libtamarack_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=tamarack
 nodist_libsane_tamarack_la_SOURCES = tamarack-s.c
 libsane_tamarack_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=tamarack
 libsane_tamarack_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_tamarack_la_LIBADD = $(COMMON_LIBS) libtamarack.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS)
+libsane_tamarack_la_LIBADD = $(COMMON_LIBS) libtamarack.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(PTHREAD_LIBS)
 libtest_la_SOURCES = test.c test.h
 libtest_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=test
 nodist_libsane_test_la_SOURCES = test-s.c
 libsane_test_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=test
 libsane_test_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_test_la_LIBADD = $(COMMON_LIBS) libtest.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_thread.lo 
+libsane_test_la_LIBADD = $(COMMON_LIBS) libtest.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_thread.lo  $(PTHREAD_LIBS)
 libteco1_la_SOURCES = teco1.c teco1.h
 libteco1_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=teco1
 nodist_libsane_teco1_la_SOURCES = teco1-s.c
@@ -2154,13 +2163,13 @@ libu12_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=u12
 nodist_libsane_u12_la_SOURCES = u12-s.c
 libsane_u12_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=u12
 libsane_u12_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_u12_la_LIBADD = $(COMMON_LIBS) libu12.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(USB_LIBS)
+libsane_u12_la_LIBADD = $(COMMON_LIBS) libu12.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
 libumax_la_SOURCES = umax.c umax.h
 libumax_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax
 nodist_libsane_umax_la_SOURCES = umax-s.c
 libsane_umax_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax
 libsane_umax_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_umax_la_LIBADD = $(COMMON_LIBS) libumax.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS)
+libsane_umax_la_LIBADD = $(COMMON_LIBS) libumax.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(PTHREAD_LIBS)
 libumax1220u_la_SOURCES = umax1220u.c
 libumax1220u_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax1220u
 nodist_libsane_umax1220u_la_SOURCES = umax1220u-s.c 

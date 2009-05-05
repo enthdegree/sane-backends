@@ -1,3 +1,10 @@
+2009-05-04 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* acinclude.m4: Rename --enable-fork-process to --enable-pthreads
+	to match internal usage. Stop linking in pthread when disabled.
+	* backend/Makefile.am: Add $PTHREAD_LIBS to all backends that
+	include sanei_thread.
+	* Makefile.am: Add new ChangeLog-1.0.20 to distribution list.
+
 2009-05-03 m. allan noah <kitno455 at gmail dot com>
 	* ChangeLog-1.0.20, Makefile.in: ChangeLog from 1.0.20 release
 	* configure, configure.in: version 1.0.21cvs

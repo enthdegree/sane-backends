@@ -3063,7 +3063,7 @@ check_rts8822 (struct usb_device *dev)
   return "RTS8822";
 }	/* end of RTS8822 detection */
 
-/* Check for Silitek chipset found in HP5550/5590/7650 scanners */
+/* Check for Silitek chipset found in HP ScanJet 4500C/4570C/5500C/5550C/5590/7650 scanners */
 static char *
 check_hp5590 (struct usb_device *dev)
 {
@@ -3076,36 +3076,37 @@ check_hp5590 (struct usb_device *dev)
   uint8_t		*ptr;
   int			next_packet_size;
   unsigned int		len;
+#define HP5590_NAMES	"HP4500C/4570C/5500C/5550C/5590/7650"
 
   if (verbose > 2)
-    printf ("    checking for HP5550/5590/7650 chipset ...\n");
+    printf ("    checking for " HP5590_NAMES " chipset ...\n");
 
   /* Check device descriptor */
   if (dev->descriptor.bDeviceClass != 0xff)
     {
       if (verbose > 2)
-	printf ("    this is not a HP5550/5590/7650 chipset (bDeviceClass = %d)\n",
+	printf ("    this is not a " HP5590_NAMES " chipset (bDeviceClass = %d)\n",
 		dev->descriptor.bDeviceClass);
       return 0;
     }
   if (dev->descriptor.bcdUSB != 0x200)
     {
       if (verbose > 2)
-	printf ("    this is not a HP5550/5590/7650 chipset (bcdUSB = 0x%x)\n",
+	printf ("    this is not a " HP5590_NAMES " chipset (bcdUSB = 0x%x)\n",
 		dev->descriptor.bcdUSB);
       return 0;
     }
   if (dev->descriptor.bDeviceSubClass != 0xff)
     {
       if (verbose > 2)
-	printf ("    this is not a HP5550/5590/7650 chipset (bDeviceSubClass = 0x%x)\n",
+	printf ("    this is not a " HP5590_NAMES " chipset (bDeviceSubClass = 0x%x)\n",
 		dev->descriptor.bDeviceSubClass);
       return 0;
     }
   if (dev->descriptor.bDeviceProtocol != 0xff)
     {
       if (verbose > 2)
-	printf ("    this is not a HP5550/5590/7650 chipset (bDeviceProtocol = 0x%x)\n",
+	printf ("    this is not a " HP5590_NAMES " chipset (bDeviceProtocol = 0x%x)\n",
 		dev->descriptor.bDeviceProtocol);
       return 0;
     }
@@ -3114,7 +3115,7 @@ check_hp5590 (struct usb_device *dev)
   if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
     {
       if (verbose > 2)
-	printf ("    this is not a HP5550/5590/7650 chipset (bNumEndpoints = %d)\n",
+	printf ("    this is not a " HP5590_NAMES " chipset (bNumEndpoints = %d)\n",
 		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
       return 0;
     }
@@ -3129,7 +3130,7 @@ check_hp5590 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    this is not a HP5550/5590/7650 chipset (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a " HP5590_NAMES " chipset (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].
 	   bEndpointAddress,
@@ -3151,7 +3152,7 @@ check_hp5590 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    this is not a HP5550/5590/7650 chipset (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a " HP5590_NAMES " chipset (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].
 	   bEndpointAddress,
@@ -3173,7 +3174,7 @@ check_hp5590 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    this is not a HP5550/5590/7650 chipset (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a " HP5590_NAMES " chipset (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[2].
 	   bEndpointAddress,
@@ -3314,7 +3315,7 @@ check_hp5590 (struct usb_device *dev)
     }
 
   finish_interface (handle);
-  return "HP5550/5590/7650";
+  return HP5590_NAMES;
 }
 
 char *

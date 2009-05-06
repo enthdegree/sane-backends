@@ -2338,7 +2338,7 @@ sig_int_term_handler (int signum)
 
 #ifdef WITH_AVAHI
 static void
-saned_avahi (void);
+saned_avahi (struct pollfd *fds, int nfds);
 
 static void
 saned_create_avahi_services (AvahiClient *c);
@@ -2351,8 +2351,9 @@ saned_avahi_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void
 
 
 static void
-saned_avahi (void)
+saned_avahi (struct pollfd *fds, int nfds)
 {
+  struct pollfd *fdp = NULL;
   int error;
 
   avahi_pid = fork ();
@@ -2370,6 +2371,12 @@ saned_avahi (void)
 
   signal (SIGINT, NULL);
   signal (SIGTERM, NULL);
+
+  /* Close network fds */
+  for (fdp = fds; nfds > 0; nfds--, fdp++)
+    close (fdp->fd);
+
+  free(fds);
 
   avahi_svc_name = avahi_strdup(SANED_NAME);
 
@@ -3055,7 +3062,7 @@ run_standalone (int argc, char **argv)
 
 #ifdef WITH_AVAHI
   DBG (DBG_INFO, "run_standalone: spawning Avahi process\n");
-  saned_avahi ();
+  saned_avahi (fds, nfds);
 #endif /* WITH_AVAHI */
 
   DBG (DBG_MSG, "run_standalone: waiting for control connection\n");

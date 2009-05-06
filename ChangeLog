@@ -1,3 +1,19 @@
+2009-05-06 Ilia Sotnikov <hostcc@gmail.com>
+
+	* doc/descriptions/unsupported.desc:
+	HP ScanJet 4500C/4570C/5500C is supported by the 'hp5590' backend.
+	* doc/descriptions/hp5590.desc:
+	Updated backend version, added HP ScanJet 4500C as completely supported,
+	added HP ScanJet 5500C as untested, HP ScanJet 4570C/5550C/5590/7650
+	marked as completely supported
+	* tools/check-usb-chip.c:
+	Updated HP ScanJet model names displayed during the check_hp5590().
+	* backend/hp5590.c, backend/hp5590_cmds.c, backend/hp5590_cmds.h, 
+	  backend/hp5590_low.c, backend/hp5590_low.h, doc/sane-hp5590.man:
+	Updated the list of supported devices (added HP 5500C which is similar
+	to 4570C, 5500C which is similar to 4500C) - only strings/comments, no
+	code was changed. Updated backend version. Updated man page.
+
 2009-05-06 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: unbreak udev rules, use ATTRS instead of ATTR
 	for USB devices.

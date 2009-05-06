@@ -38,7 +38,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file is part of a SANE backend for HP 4570/5550/5590/7650 Scanners
+   This file is part of a SANE backend for
+   HP ScanJet 4500C/4570C/5500C/5550C/5590/7650 Scanners
 */
 
 #include "sane/config.h"

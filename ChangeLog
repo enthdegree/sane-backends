@@ -1,3 +1,7 @@
+2009-05-06  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
+	* doc/descriptions/pixma.desc:
+	Updated descriptions in pixma backend for ImageClass MF4010 and MF4018.
+
 2009-05-06 Ilia Sotnikov <hostcc@gmail.com>
 
 	* doc/descriptions/unsupported.desc:

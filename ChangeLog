@@ -1,3 +1,7 @@
+2009-05-06 Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: unbreak udev rules, use ATTRS instead of ATTR
+	for USB devices.
+
 2009-05-05 Julien Blache <jb@jblache.org>
 	* doc/backend-writing.txt, doc/releases.txt: update for the switch
 	to git.

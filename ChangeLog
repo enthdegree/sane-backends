@@ -1,3 +1,18 @@
+2009-05-08 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr*: backend v27
+	- bug fix in read_panel()
+	- initialize vars in do_usb_cmd()
+	- set buffermode off by default
+	- clear page counter during init and sane_start()
+	- eject previous page during init and sane_start()
+	- improved SSM_BUFF macros
+	- moved set_window() to after ssm-*()
+	- add coarse calibration (AFE offset/gain & per-channel exposure)
+	- add fine calibration (per-cell offset/gain)
+	- free image and fine cal buffers in sane_close()
+	- compare page counter of small scanners only in non-buffered mode
+	- add back-side gray mirroring code for DR-2580C
+
 2009-05-06  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
 	* doc/descriptions/pixma.desc:
 	Updated descriptions in pixma backend for ImageClass MF4010 and MF4018.

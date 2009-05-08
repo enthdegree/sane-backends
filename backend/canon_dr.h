@@ -133,7 +133,8 @@ struct scanner
   int max_x_fb;
   int max_y_fb;
 
-  int can_color; /* actually might be in vpd, but which bit? */
+  int can_color;     /* actually might be in vpd, but which bit? */
+  int need_cal;      /* scanner needs software to help with calibration */
 
   int has_counter;
   int has_rif;
@@ -258,6 +259,21 @@ struct scanner
   SANE_Parameters params;
 
   /* --------------------------------------------------------------------- */
+  /* values which are set by calibration functions                         */
+  int c_res;
+  int c_mode;
+
+  int c_offset[2];
+  int c_gain[2];
+  int c_exposure[2][3];
+
+  int f_res;
+  int f_mode;
+
+  unsigned char * f_offset[2];
+  unsigned char * f_gain[2];
+
+  /* --------------------------------------------------------------------- */
   /* values which are set by scanning functions to keep track of pages, etc */
   int started;
   int reading;
@@ -308,6 +324,10 @@ struct scanner
 #define SIDE_FRONT 0
 #define SIDE_BACK 1
 
+#define CHAN_RED 0
+#define CHAN_GREEN 1
+#define CHAN_BLUE 2
+
 #define SOURCE_FLATBED 0
 #define SOURCE_ADF_FRONT 1
 #define SOURCE_ADF_BACK 2
@@ -341,6 +361,7 @@ enum {
 
 #define GRAY_INTERLACE_NONE 0
 #define GRAY_INTERLACE_2510 1
+#define GRAY_INTERLACE_gG 2
 
 #define COLOR_INTERLACE_RGB 0
 #define COLOR_INTERLACE_BGR 1
@@ -473,12 +494,12 @@ static SANE_Status set_window (struct scanner *s);
 static SANE_Status read_panel(struct scanner *s, SANE_Int option);
 static SANE_Status send_panel(struct scanner *s);
 
-static SANE_Status start_scan (struct scanner *s);
+static SANE_Status start_scan (struct scanner *s, int type);
 
 static SANE_Status cancel(struct scanner *s);
 
-static SANE_Status read_from_scanner(struct scanner *s, int side);
-static SANE_Status read_from_scanner_duplex(struct scanner *s);
+static SANE_Status read_from_scanner(struct scanner *s, int side, int exact);
+static SANE_Status read_from_scanner_duplex(struct scanner *s, int exact);
 
 static SANE_Status copy_simplex(struct scanner *s, unsigned char * buf, int len, int side);
 
@@ -486,7 +507,15 @@ static SANE_Status copy_duplex(struct scanner *s, unsigned char * buf, int len);
 
 static SANE_Status read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 
-static SANE_Status setup_buffers (struct scanner *s);
+static SANE_Status image_buffers (struct scanner *s, int setup);
+static SANE_Status offset_buffers (struct scanner *s, int setup);
+static SANE_Status gain_buffers (struct scanner *s, int setup);
+
+static SANE_Status calibrate_AFE(struct scanner *s);
+static SANE_Status calibrate_fine(struct scanner *s);
+
+static SANE_Status write_AFE (struct scanner *s);
+static SANE_Status calibration_scan (struct scanner *s, int);
 
 static void hexdump (int level, char *comment, unsigned char *p, int l);
 static void default_globals (void);

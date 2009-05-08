@@ -56,8 +56,9 @@
    Section 2 - sane_init, _get_devices, _open & friends
    Section 3 - sane_*_option functions
    Section 4 - sane_start, _get_param, _read & friends
-   Section 5 - sane_close functions
-   Section 6 - misc functions
+   Section 5 - calibration functions
+   Section 6 - sane_close functions
+   Section 7 - misc functions
 
    Changes:
       v1 2008-10-29, MAN
@@ -182,6 +183,19 @@
       v26 2009-04-14, MAN (SANE 1.0.20)
          - return cmd status for reads on sensors
          - allow rs to adjust read length for all bad status responses
+      v27 2009-05-08, MAN
+         - bug fix in read_panel()
+         - initialize vars in do_usb_cmd()
+         - set buffermode off by default
+         - clear page counter during init and sane_start()
+         - eject previous page during init and sane_start()
+         - improved SSM_BUFF macros
+         - moved set_window() to after ssm-*()
+         - add coarse calibration (AFE offset/gain & per-channel exposure)
+         - add fine calibration (per-cell offset/gain)
+         - free image and fine cal buffers in sane_close()
+         - compare page counter of small scanners only in non-buffered mode
+         - add back-side gray mirroring code for DR-2580C
 
    SANE FLOW DIAGRAM
 
@@ -242,7 +256,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 26
+#define BUILD 27
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -687,6 +701,11 @@ attach_one (const char *device_name, int connType)
     return ret;
   }
 
+  /* eject paper leftover*/
+  if(object_position (s, SANE_FALSE)){
+    DBG (5, "attach_one: ERROR: cannot eject page\n");
+  }
+
   /* enable/read the buttons */
   ret = init_panel (s);
   if (ret != SANE_STATUS_GOOD) {
@@ -1078,7 +1097,9 @@ init_model (struct scanner *s)
     s->rgb_format = 1;
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
+    s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+    s->need_cal = 1;
   }
 
   else if (strstr (s->model_name,"DR-2510")){
@@ -1091,6 +1112,8 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_2510;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_2510;
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
+    s->need_cal = 1;
+    s->invert_tly = 1;
 
     /*only in Y direction, so we trash them*/
     s->std_res_100=0;
@@ -1113,6 +1136,7 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+    s->need_cal = 1;
   }
 
   DBG (10, "init_model: finish\n");
@@ -1132,6 +1156,7 @@ init_panel (struct scanner *s)
 
   ret = read_panel(s,OPT_COUNTER);
   s->panel_enable_led = 1;
+  s->panel_counter = 0;
   ret = send_panel(s);
 
   DBG (10, "init_panel: finish\n");
@@ -1194,7 +1219,6 @@ init_user (struct scanner *s)
 
   s->threshold = 0x80;
   s->compress_arg = 50;
-  s->buffermode = 1;
 
   DBG (10, "init_user: finish\n");
 
@@ -2564,10 +2588,16 @@ ssm_buffer (struct scanner *s)
   set_SSM_page_len(out, SSM_PAGE_len);
 
   if(s->source == SOURCE_ADF_DUPLEX){
-    set_SSM_BUFF_duplex(out, 0x02);
+    set_SSM_BUFF_duplex(out, 1);
   }
   if(s->buffermode){
-    set_SSM_BUFF_async(out, 0x40);
+    set_SSM_BUFF_async(out, 1);
+  }
+  if(0){
+    set_SSM_BUFF_ald(out, 1);
+  }
+  if(0){
+    set_SSM_BUFF_unk(out,1);
   }
 
   ret = do_cmd (
@@ -2745,7 +2775,7 @@ read_panel(struct scanner *s,SANE_Int option)
   DBG (10, "read_panel: start\n");
  
   /* only run this if frontend has read previous value */
-  if (!s->hw_read[option-OPT_START]) {
+  if (s->hw_read[option-OPT_START]) {
 
     DBG (15, "read_panel: running\n");
 
@@ -2778,7 +2808,7 @@ read_panel(struct scanner *s,SANE_Int option)
   
   s->hw_read[option-OPT_START] = 1;
 
-  DBG (10, "read_panel: finish\n");
+  DBG (10, "read_panel: finish %d\n",s->panel_counter);
   
   return ret;
 }
@@ -2977,6 +3007,27 @@ sane_start (SANE_Handle handle)
         s->side = SIDE_FRONT;
       }
 
+      /* eject paper leftover*/
+      if(object_position (s, SANE_FALSE)){
+        DBG (5, "sane_start: ERROR: cannot eject page\n");
+      }
+
+      /* AFE cal */
+      if(calibrate_AFE(s)){
+        DBG (5, "sane_start: ERROR: cannot cal afe\n");
+      }
+
+      /* fine cal */
+      if(calibrate_fine(s)){
+        DBG (5, "sane_start: ERROR: cannot cal fine\n");
+      }
+
+      /* reset the page counter after calibration */
+      s->panel_counter = 0;
+      if(send_panel(s)){
+        DBG (5, "sane_start: ERROR: cannot send panel\n");
+      }
+
       /* load our own private copy of scan params */
       ret = sane_get_parameters ((SANE_Handle) s, &s->params);
       if (ret != SANE_STATUS_GOOD) {
@@ -3001,18 +3052,6 @@ sane_start (SANE_Handle handle)
       }
        * */
 
-      /* eject paper leftover*/
-      if(object_position (s, SANE_FALSE)){
-        DBG (5, "sane_start: ERROR: cannot eject page\n");
-      }
-
-      /* set window command */
-      ret = set_window(s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot set window\n");
-        return ret;
-      }
-    
       /* buffer command */
       ret = ssm_buffer(s);
       if (ret != SANE_STATUS_GOOD) {
@@ -3029,6 +3068,13 @@ sane_start (SANE_Handle handle)
       ret = ssm_df(s);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot ssm df\n");
+        return ret;
+      }
+
+      /* set window command */
+      ret = set_window(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot set window\n");
         return ret;
       }
   }
@@ -3074,16 +3120,34 @@ sane_start (SANE_Handle handle)
       if(!s->started){
 
         /* make large buffers to hold the images */
-        ret = setup_buffers(s);
+        ret = image_buffers(s,1);
         if (ret != SANE_STATUS_GOOD) {
           DBG (5, "sane_start: ERROR: cannot load buffers\n");
           return ret;
         }
 
+#if 0
+        /* put cal buffers in the image */
+        memcpy(
+          s->buffers[s->side],
+          s->f_offset[s->side],
+          s->params.bytes_per_line
+        );
+        s->bytes_rx[s->side] += s->params.bytes_per_line;
+
+        memcpy(
+          s->buffers[s->side]+s->bytes_rx[s->side],
+          s->f_gain[s->side],
+          s->params.bytes_per_line
+        );
+        s->bytes_rx[s->side] += s->params.bytes_per_line;
+#endif
+
         /* grab page count before first page */
         ret = read_panel (s, OPT_COUNTER);
+        ret = read_panel (s, OPT_COUNTER);
         if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot load page\n");
+          DBG (5, "sane_start: ERROR: cannot read panel\n");
           return ret;
         }
         s->prev_page = s->panel_counter;
@@ -3096,7 +3160,7 @@ sane_start (SANE_Handle handle)
         }
 
         /* start scanning */
-        ret = start_scan (s);
+        ret = start_scan (s,0);
         if (ret != SANE_STATUS_GOOD) {
           DBG (5, "sane_start: ERROR: cannot start_scan\n");
           return ret;
@@ -3109,27 +3173,27 @@ sane_start (SANE_Handle handle)
       /* stuff done between subsequent pages */
       else {
 
-        /* big scanners use OP to detect paper */
-        if(s->always_op){
+        /* big scanners and small ones in non-buff mode: OP to detect paper */
+        if(s->always_op || !s->buffermode){
           ret = object_position (s, SANE_TRUE);
           if (ret != SANE_STATUS_GOOD) {
             DBG (5, "sane_start: ERROR: cannot load page\n");
             return ret;
           }
-        }
-  
-        /* user wants unbuffered scans */
-        /* send scan command */
-        if(!s->buffermode){
-          ret = start_scan (s);
-          if (ret != SANE_STATUS_GOOD) {
-            DBG (5, "sane_start: ERROR: cannot start_scan\n");
-            return ret;
+
+          /* user wants unbuffered scans */
+          /* send scan command */
+          if(!s->buffermode){
+            ret = start_scan (s,0);
+            if (ret != SANE_STATUS_GOOD) {
+              DBG (5, "sane_start: ERROR: cannot start_scan\n");
+              return ret;
+            }
           }
         }
   
-        /* small scanners check for more pages by reading counter */
-        if(!s->always_op){
+        /* small, buffering scanners check for more pages by reading counter */
+        else{
           ret = read_panel (s, OPT_COUNTER);
           if (ret != SANE_STATUS_GOOD) {
             DBG (5, "sane_start: ERROR: cannot load page\n");
@@ -3138,10 +3202,11 @@ sane_start (SANE_Handle handle)
           if(s->prev_page == s->panel_counter){
             DBG (5, "sane_start: same counter (%d) no paper?\n",s->prev_page);
 
-            /* eject paper leftover*/
+            /* eject paper leftover
             if(object_position (s, SANE_FALSE)){
               DBG (5, "sane_start: ERROR: cannot eject page\n");
             }
+             * */
 
             return SANE_STATUS_NO_DOCS;
           }
@@ -3149,7 +3214,6 @@ sane_start (SANE_Handle handle)
             s->prev_page,s->panel_counter);
         }
       }
-
   }
 
   /* reset jpeg params on each page */
@@ -3164,35 +3228,36 @@ sane_start (SANE_Handle handle)
 }
 
 /*
- * callocs a buffer to hold the scan data
+ * frees/callocs buffers to hold the scan data
  */
 static SANE_Status
-setup_buffers (struct scanner *s)
+image_buffers (struct scanner *s, int setup)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
   int side;
 
-  DBG (10, "setup_buffers: start\n");
+  DBG (10, "image_buffers: start\n");
 
   for(side=0;side<2;side++){
 
-    /* free old mem */
+    /* free current buffer */
     if (s->buffers[side]) {
-      DBG (15, "setup_buffers: free buffer %d.\n",side);
+      DBG (15, "image_buffers: free buffer %d.\n",side);
       free(s->buffers[side]);
       s->buffers[side] = NULL;
     }
 
-    if(s->bytes_tot[side]){
+    /* build new buffer if asked */
+    if(s->bytes_tot[side] && setup){
       s->buffers[side] = calloc (1,s->bytes_tot[side]);
       if (!s->buffers[side]) {
-        DBG (5, "setup_buffers: Error, no buffer %d.\n",side);
+        DBG (5, "image_buffers: Error, no buffer %d.\n",side);
         return SANE_STATUS_NO_MEM;
       }
     }
   }
 
-  DBG (10, "setup_buffers: finish\n");
+  DBG (10, "image_buffers: finish\n");
 
   return ret;
 }
@@ -3368,7 +3433,7 @@ object_position (struct scanner *s, int i_load)
  * to start scanning.)
  */
 static SANE_Status
-start_scan (struct scanner *s)
+start_scan (struct scanner *s, int type)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
@@ -3379,6 +3444,12 @@ start_scan (struct scanner *s)
   size_t outLen = 2;
 
   DBG (10, "start_scan: start\n");
+
+  /* calibration scans use 0xff or 0xfe */
+  if(type){
+    out[0] = type;
+    out[1] = type;
+  }
 
   if (s->source != SOURCE_ADF_DUPLEX) {
     outLen--;
@@ -3480,10 +3551,15 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
     /* buffer both sides */
     if(!s->eof_rx[SIDE_FRONT] || !s->eof_rx[SIDE_BACK]){
-      ret = read_from_scanner_duplex(s);
+      ret = read_from_scanner_duplex(s, 0);
       if(ret){
         DBG(5,"sane_read: front returning %d\n",ret);
         return ret;
+      }
+      /*read last block, update counter*/
+      if(s->eof_rx[SIDE_FRONT] && s->eof_rx[SIDE_BACK]){
+        s->prev_page++;
+        DBG(15,"sane_read: duplex counter %d\n",s->prev_page);
       }
     }
   }
@@ -3491,10 +3567,15 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   /* simplex or non-alternating duplex */
   else{
     if(!s->eof_rx[s->side]){
-      ret = read_from_scanner(s, s->side);
+      ret = read_from_scanner(s, s->side, 0);
       if(ret){
         DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
         return ret;
+      }
+      /*read last block, update counter*/
+      if(s->eof_rx[s->side]){
+        s->prev_page++;
+        DBG(15,"sane_read: side %d counter %d\n",s->side,s->prev_page);
       }
     }
   }
@@ -3505,7 +3586,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   /* we've read everything, and user cancelled */
   /* tell scanner to stop */
   if(s->eof_rx[s->side] && 
-    (s->cancelled || (!read_panel(s,OPT_STOP) && s->panel_stop))
+    (s->cancelled /*|| (!read_panel(s,OPT_STOP) && s->panel_stop)*/)
   ){
     DBG(5,"sane_read: user cancelled\n");
     return cancel(s);
@@ -3516,7 +3597,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 }
 
 static SANE_Status
-read_from_scanner(struct scanner *s, int side)
+read_from_scanner(struct scanner *s, int side, int exact)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
 
@@ -3526,7 +3607,7 @@ read_from_scanner(struct scanner *s, int side)
   unsigned char * in;
   size_t inLen = 0;
 
-  int bytes = s->buffer_size;
+  size_t bytes = s->buffer_size;
   size_t remain = s->bytes_tot[side] - s->bytes_rx[side];
 
   DBG (10, "read_from_scanner: start\n");
@@ -3539,8 +3620,15 @@ read_from_scanner(struct scanner *s, int side)
     bytes -= s->params.bytes_per_line;
   }
 
-  DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n", side,
-    s->bytes_tot[side], s->bytes_rx[side], remain, s->buffer_size, bytes);
+  /* usually (image) we want to read too much data, and get RS */
+  /* sometimes (calib) we want to do an exact read */
+  if(exact && bytes > remain){
+    bytes = remain;
+  }
+
+  DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d ex:%d\n",
+    side, s->bytes_tot[side], s->bytes_rx[side],
+    remain, s->buffer_size, bytes, exact);
 
   inLen = bytes;
   in = malloc(inLen);
@@ -3563,10 +3651,10 @@ read_from_scanner(struct scanner *s, int side)
   );
 
   if (ret == SANE_STATUS_GOOD) {
-    DBG(15, "read_from_scanner: got GOOD, returning GOOD\n");
+    DBG(15, "read_from_scanner: got GOOD, returning GOOD %d\n",inLen);
   }
   else if (ret == SANE_STATUS_EOF) {
-    DBG(15, "read_from_scanner: got EOF, finishing\n");
+    DBG(15, "read_from_scanner: got EOF, finishing %d\n",inLen);
   }
   else if (ret == SANE_STATUS_DEVICE_BUSY) {
     DBG(5, "read_from_scanner: got BUSY, returning GOOD\n");
@@ -3642,10 +3730,19 @@ read_from_scanner(struct scanner *s, int side)
 
   free(in);
 
+  /* we've read all data, but not eof. clear and pretend */
+  if(exact && inLen == remain){
+    DBG (10, "read_from_scanner: exact read, clearing\n");
+    ret = object_position (s,SANE_FALSE);
+    if(ret){
+      return ret;
+    }
+    ret = SANE_STATUS_EOF;
+  }
+
   if(ret == SANE_STATUS_EOF){
     s->bytes_tot[side] = s->bytes_rx[side];
     s->eof_rx[side] = 1;
-    s->prev_page++;
     ret = SANE_STATUS_GOOD;
   }
 
@@ -3657,7 +3754,7 @@ read_from_scanner(struct scanner *s, int side)
 /* cheaper scanners interlace duplex scans on a byte basis
  * this code requests double width lines from scanner */
 static SANE_Status
-read_from_scanner_duplex(struct scanner *s)
+read_from_scanner_duplex(struct scanner *s,int exact)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
 
@@ -3667,7 +3764,7 @@ read_from_scanner_duplex(struct scanner *s)
   unsigned char * in;
   size_t inLen = 0;
 
-  int bytes = s->buffer_size;
+  size_t bytes = s->buffer_size;
   size_t remain = s->bytes_tot[SIDE_FRONT] + s->bytes_tot[SIDE_BACK]
     - s->bytes_rx[SIDE_FRONT] - s->bytes_rx[SIDE_BACK];
 
@@ -3676,8 +3773,14 @@ read_from_scanner_duplex(struct scanner *s)
   /* all requests must end on WIDE line boundary */
   bytes -= (bytes % (s->params.bytes_per_line*2));
 
-  DBG(15, "read_from_scanner_duplex: re:%d bu:%d pa:%d\n",
-    remain, s->buffer_size, bytes);
+  /* usually (image) we want to read too much data, and get RS */
+  /* sometimes (calib) we want to do an exact read */
+  if(exact && bytes > remain){
+    bytes = remain;
+  }
+
+  DBG(15, "read_from_scanner_duplex: re:%d bu:%d pa:%d ex:%d\n",
+    remain, s->buffer_size, bytes, exact);
 
   inLen = bytes;
   in = malloc(inLen);
@@ -3701,10 +3804,10 @@ read_from_scanner_duplex(struct scanner *s)
   );
 
   if (ret == SANE_STATUS_GOOD) {
-    DBG(15, "read_from_scanner_duplex: got GOOD, returning GOOD\n");
+    DBG(15, "read_from_scanner_duplex: got GOOD, returning GOOD %d\n",inLen);
   }
   else if (ret == SANE_STATUS_EOF) {
-    DBG(15, "read_from_scanner_duplex: got EOF, finishing\n");
+    DBG(15, "read_from_scanner_duplex: got EOF, finishing %d\n",inLen);
   }
   else if (ret == SANE_STATUS_DEVICE_BUSY) {
     DBG(5, "read_from_scanner_duplex: got BUSY, returning GOOD\n");
@@ -3729,12 +3832,21 @@ read_from_scanner_duplex(struct scanner *s)
 
   free(in);
 
+  /* we've read all data, but not eof. clear and pretend */
+  if(exact && inLen == remain){
+    DBG (10, "read_from_scanner_duplex: exact read, clearing\n");
+    ret = object_position (s,SANE_FALSE);
+    if(ret){
+      return ret;
+    }
+    ret = SANE_STATUS_EOF;
+  }
+
   if(ret == SANE_STATUS_EOF){
     s->bytes_tot[SIDE_FRONT] = s->bytes_rx[SIDE_FRONT];
     s->bytes_tot[SIDE_BACK] = s->bytes_rx[SIDE_BACK];
     s->eof_rx[SIDE_FRONT] = 1;
     s->eof_rx[SIDE_BACK] = 1;
-    s->prev_page++;
     ret = SANE_STATUS_GOOD;
   }
 
@@ -3756,6 +3868,8 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
   int t = bwidth/3;
   int f = bwidth/4;
   int tw = bwidth/12;
+  int start = s->bytes_rx[side];
+  int valid = bwidth;
 
   /* invert image if scanner needs it for this mode */
   /* jpeg data does not use inverting */
@@ -3768,10 +3882,24 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
   if(s->params.format == SANE_FRAME_GRAY){
 
     switch (s->gray_interlace[side]) {
+
+      /* one line has the following format: ggg...GGG
+       * where the 'capital' letters are the beginning of the line */
+      case GRAY_INTERLACE_gG:
+        DBG (10, "copy_simplex: gray, gG\n");
+        for(i=0; i<len; i+=bwidth){
+          for (j=bwidth-1; j>=0; j--){
+            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+          }
+        }
+        break;
   
       case GRAY_INTERLACE_2510:
         DBG (10, "copy_simplex: gray, 2510\n");
-      
+     
+        /* the last 1/12 of 2510's data is black garbage */
+        valid -= tw;
+
         for(i=0; i<len; i+=bwidth){
         
           /* first read head (third byte of every three) */
@@ -3845,6 +3973,9 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
       case COLOR_INTERLACE_2510:
         DBG (10, "copy_simplex: color, 2510\n");
       
+        /* the last 1/12 of 2510's data is black garbage */
+        valid -= tw;
+
         for(i=0; i<len; i+=bwidth){
       
           /* first read head (third byte of every three) */
@@ -3885,6 +4016,28 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
     DBG (10, "copy_simplex: default\n");
     memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
     s->bytes_rx[side] += len;
+  }
+
+  /* non-jpeg data may need calibration applied*/
+  if(s->params.format <= SANE_FRAME_RGB && s->f_offset[side]){
+    DBG (15, "copy_simplex: apply offset\n");
+    for(i=start;i<s->bytes_rx[side];i+=bwidth){
+      for(j=0;j<valid;j++){
+        int curr = s->buffers[side][i+j] - s->f_offset[side][j];
+        if(curr < 0) curr = 0;
+        s->buffers[side][i+j] = curr;
+      }
+    }
+  }
+  if(s->params.format <= SANE_FRAME_RGB && s->f_gain[side]){
+    DBG (15, "copy_simplex: apply gain\n");
+    for(i=start;i<s->bytes_rx[side];i+=bwidth){
+      for(j=0;j<valid;j++){
+        int curr = s->buffers[side][i+j] * 224/s->f_gain[side][j];
+        if(curr > 255) curr = 255;
+        s->buffers[side][i+j] = curr;
+      }
+    }
   }
 
   DBG (10, "copy_simplex: finished\n");
@@ -4014,9 +4167,542 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len,
   return ret;
 }
 
+/*
+ * @@ Section 5 - calibration functions
+ */
+
+#if 0
+static SANE_Status
+foo_AFE(struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[] = {
+    0x3b, 0x00, 0x10, 0x08, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00
+  };
+  size_t cmdLen = 12;
+
+  unsigned char in[4];
+  size_t inLen = 4;
+
+  DBG (10, "foo_AFE: start\n");
+
+  ret = do_cmd (
+    s, 1, 0,
+    cmd, cmdLen,
+    NULL, 0,
+    in, &inLen
+  );
+  if (ret != SANE_STATUS_GOOD)
+    return ret;
+
+  DBG (10, "foo_AFE: finish\n");
+
+  return ret;
+}
+#endif
 
 /*
- * @@ Section 4 - SANE cleanup functions
+ * makes several scans, adjusts coarse calibration
+ */
+static SANE_Status
+calibrate_AFE (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int i, j, k;
+  int min, max;
+  int lines = 8;
+  int valid = 0;
+
+  /* save the old values */
+  int mode = s->mode;
+  int source = s->source;
+
+  DBG (10, "calibrate_AFE: start\n");
+
+  if(!s->need_cal){
+    DBG (10, "calibrate_AFE: not required\n");
+    return ret;
+  }
+
+  if(s->c_res == s->resolution_x && s->c_mode == s->mode){
+    DBG (10, "calibrate_AFE: already done\n");
+    return ret;
+  }
+
+  /* always cal in duplex color */
+  s->mode = MODE_COLOR;
+  s->source = SOURCE_ADF_DUPLEX;
+
+  /* load our own private copy of scan params */
+  ret = sane_get_parameters ((SANE_Handle) s, &s->params);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot get params\n");
+    return ret;
+  }
+
+  /* only need a few lines of data */
+  s->params.lines = lines;
+
+  /* figure out how many valid bytes per line (2510 is padded) */
+  if(s->color_interlace[SIDE_FRONT] == COLOR_INTERLACE_2510)
+    valid = s->params.bytes_per_line*11/12;
+  else
+    valid = s->params.bytes_per_line;
+
+  /* store the number of front bytes */ 
+  s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
+
+  /* store the number of back bytes */ 
+  s->bytes_tot[SIDE_BACK] = s->params.bytes_per_line * s->params.lines;
+
+  /* make buffers to hold the images */
+  ret = image_buffers(s,1);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot load buffers\n");
+    return ret;
+  }
+
+  /*blast the existing fine cal data so reading code wont apply it*/
+  ret = offset_buffers(s,0);
+  ret = gain_buffers(s,0);
+
+  /* need to tell it we want duplex */
+  ret = ssm_buffer(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot ssm buffer\n");
+    return ret;
+  }
+
+  /* set window command */
+  ret = set_window(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot set window\n");
+    return ret;
+  }
+  
+  /* first pass (black offset), lamp off, no offset/gain/exposure */
+  DBG (15, "calibrate_AFE: offset\n");
+  for(i=0;i<2;i++){
+    s->c_gain[i]   = 1;
+    s->c_offset[i] = 1;
+    for(j=0;j<3;j++){
+      s->c_exposure[i][j] = 0;
+    }
+  }
+
+  ret = calibration_scan(s,0xff);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot make offset cal scan\n");
+    return ret;
+  }
+
+  for(i=0;i<2;i++){
+    min = 255;
+    for(j=0; j<valid; j++){
+      if(s->buffers[i][j] < min)
+        min = s->buffers[i][j];
+    }
+    s->c_offset[i] = min*3-2;
+    DBG (15, "calibrate_AFE: offset %d %d %02x\n", i, min, s->c_offset[i]);
+  }
+
+  /*handle second pass (per channel exposure), lamp on, overexposed*/
+  DBG (15, "calibrate_AFE: exposure\n");
+  for(i=0;i<2;i++){
+    for(j=0; j<3; j++){
+      s->c_exposure[i][j] = 0x320;
+    }
+  }
+
+  ret = calibration_scan(s,0xfe);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot make exposure cal scan\n");
+    return ret;
+  }
+
+  for(i=0;i<2;i++){ /*sides*/
+    for(j=0;j<3;j++){ /*channels*/
+      max = 0;
+      for(k=j; k<valid; k+=3){ /*bytes*/
+        if(s->buffers[i][k] > max)
+          max = s->buffers[i][k];
+      }
+
+      /*generally we reduce the exposure (smaller number) */
+      if(mode == MODE_COLOR)
+        s->c_exposure[i][j] = s->c_exposure[i][j] * 102/max;
+      else
+        s->c_exposure[i][j] = s->c_exposure[i][j] * 64/max;
+
+      DBG (15, "calibrate_AFE: exp %d %d %d %02x\n", i, j, max, s->c_exposure[i][j]);
+    }
+  }
+
+  /*handle third pass (gain), lamp on with current offset/exposure */
+  DBG (15, "calibrate_AFE: gain\n");
+  ret = calibration_scan(s,0xfe);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot make gain cal scan\n");
+    return ret;
+  }
+
+  for(i=0;i<2;i++){
+    max = 0;
+    for(j=0; j<valid; j++){
+      if(s->buffers[i][j] > max)
+        max = s->buffers[i][j];
+    }
+
+    if(mode == MODE_COLOR)
+      s->c_gain[i] = (250-max)*4/5;
+    else
+      s->c_gain[i] = (110-max)*4/5;
+
+    if(s->c_gain[i] < 1)
+      s->c_gain[i] = 1;
+
+    DBG (15, "calibrate_AFE: gain %d %d %02x\n", i, max, s->c_gain[i]);
+  }
+
+  /*handle fourth pass (offset again), lamp off*/
+#if 0
+  DBG (15, "calibrate_AFE: offset2\n");
+  ret = calibration_scan(s,0xff);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot make offset2 cal scan\n");
+    return ret;
+  }
+
+  for(i=0;i<2;i++){
+    min = 255;
+    for(j=0; j<valid; j++){
+      if(s->buffers[i][j] < min)
+        min = s->buffers[i][j];
+    }
+    /*s->c_offset[i] += min*3-2;*/
+    DBG (15, "calibrate_AFE: offset2 %d %d %02x\n", i, min, s->c_offset[i]);
+  }
+#endif
+
+  /* revert to previous settings */
+  s->mode = mode;
+  s->source = source;
+
+  /* log current cal type */
+  s->c_res = s->resolution_x;
+  s->c_mode = s->mode;
+
+  DBG (10, "calibrate_AFE: finish\n");
+  return ret;
+}
+
+/*
+ * makes several scans, adjusts fine calibration
+ */
+static SANE_Status
+calibrate_fine (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int i, j, k;
+  int min, max;
+  int lines = 8;
+  int valid = 0;
+
+  /* save the old values */
+  int source = s->source;
+
+  DBG (10, "calibrate_fine: start\n");
+
+  if(!s->need_cal){
+    DBG (10, "calibrate_fine: not required\n");
+    return ret;
+  }
+
+  if(s->f_res == s->resolution_x && s->f_mode == s->mode){
+    DBG (10, "calibrate_fine: already done\n");
+    return ret;
+  }
+
+  /* always cal in duplex */
+  s->source = SOURCE_ADF_DUPLEX;
+
+  /* load our own private copy of scan params */
+  ret = sane_get_parameters ((SANE_Handle) s, &s->params);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine: ERROR: cannot get params\n");
+    return ret;
+  }
+  
+  /* only need a few lines of data */
+  s->params.lines = lines;
+  
+  /* figure out how many valid bytes per line (2510 is padded) */
+  if(s->color_interlace[SIDE_FRONT] == COLOR_INTERLACE_2510)
+    valid = s->params.bytes_per_line*11/12;
+  else
+    valid = s->params.bytes_per_line;
+
+  /* store the number of front bytes */ 
+  s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
+  
+  /* store the number of back bytes */ 
+  s->bytes_tot[SIDE_BACK] = s->params.bytes_per_line * s->params.lines;
+  
+  /* make buffers to hold the images */
+  ret = image_buffers(s,1);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine: ERROR: cannot load buffers\n");
+    return ret;
+  }
+  
+  /*blast the existing fine cal data so reading code wont apply it*/
+  ret = offset_buffers(s,0);
+  ret = gain_buffers(s,0);
+
+  /* need to tell it we want duplex */
+  ret = ssm_buffer(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine: ERROR: cannot ssm buffer\n");
+    return ret;
+  }
+  
+  /* set window command */
+  ret = set_window(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine: ERROR: cannot set window\n");
+    return ret;
+  }
+  
+  /*handle fifth pass (fine offset), lamp off*/
+  DBG (15, "calibrate_fine: offset\n");
+  ret = calibration_scan(s,0xff);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine: ERROR: cannot make offset cal scan\n");
+    return ret;
+  }
+
+  ret = offset_buffers(s,1);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine: ERROR: cannot load offset buffers\n");
+    return ret;
+  }
+  
+  for(i=0;i<2;i++){
+    for(j=0; j<valid; j++){
+      min = 255;
+      for(k=j;k<lines*s->params.bytes_per_line;k+=s->params.bytes_per_line){
+        if(s->buffers[i][k] < min)
+          min = s->buffers[i][k];
+      }
+      s->f_offset[i][j] = min;
+    }
+    hexdump(15, "off:", s->f_offset[i], valid);
+  }
+
+  /*handle sixth pass (fine gain), lamp off*/
+  DBG (15, "calibrate_fine: gain\n");
+  ret = calibration_scan(s,0xfe);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine: ERROR: cannot make gain cal scan\n");
+    return ret;
+  }
+
+  ret = gain_buffers(s,1);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine: ERROR: cannot load gain buffers\n");
+    return ret;
+  }
+  
+  for(i=0;i<2;i++){
+    for(j=0; j<valid; j++){
+      max = 1;
+      for(k=j;k<lines*s->params.bytes_per_line;k+=s->params.bytes_per_line){
+        if(s->buffers[i][k] > max)
+          max = s->buffers[i][k];
+      }
+      s->f_gain[i][j] = max;
+    }
+    hexdump(15, "gain:", s->f_gain[i], valid);
+  }
+
+  /* revert to previous settings */
+  s->source = source;
+
+  /* log current cal type */
+  s->f_res = s->resolution_x;
+  s->f_mode = s->mode;
+
+  DBG (10, "calibrate_fine: finish\n");
+  return ret;
+}
+
+/*
+ * sends AFE params, and ingests entire duplex image into buffers
+ */
+static SANE_Status
+calibration_scan (struct scanner *s, int scan)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "calibration_scan: start\n");
+
+  s->eof_rx[0]=0;
+  s->eof_rx[1]=0;
+  s->bytes_rx[0]=0;
+  s->bytes_rx[1]=0;
+  s->lines_rx[0]=0;
+  s->lines_rx[1]=0;
+  
+  s->bytes_tx[0]=0;
+  s->bytes_tx[1]=0;
+
+  /* send calibration */
+  ret = write_AFE(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibration_scan: ERROR: cannot cal afe\n");
+    return ret;
+  }
+  
+  /* start scanning */
+  ret = start_scan (s,scan);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibration_scan: ERROR: cannot start_scan\n");
+    return ret;
+  }
+  
+  while(!s->eof_rx[SIDE_FRONT] && !s->eof_rx[SIDE_BACK]){
+    ret = read_from_scanner_duplex(s,1);
+  }
+
+  DBG (10, "calibration_scan: finished\n");
+
+  return ret;
+}
+
+/*
+ * sends AFE and exposure params
+ */
+static SANE_Status
+write_AFE(struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[COR_CAL_len];
+  size_t cmdLen = COR_CAL_len;
+
+  unsigned char pay[CC_pay_len];
+  size_t payLen = CC_pay_len;
+
+  DBG (10, "write_AFE: start\n");
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, COR_CAL_code);
+  set_CC_xferlen(cmd,payLen);
+
+  memset(pay,0,payLen);
+  set_CC_f_gain(pay,s->c_gain[SIDE_FRONT]);
+  set_CC_unk1(pay,1);
+  set_CC_f_offset(pay,s->c_offset[SIDE_FRONT]);
+  set_CC_unk2(pay,1);
+  set_CC_exp_f_r1(pay,s->c_exposure[SIDE_FRONT][CHAN_RED]);
+  set_CC_exp_f_g1(pay,s->c_exposure[SIDE_FRONT][CHAN_GREEN]);
+  set_CC_exp_f_b1(pay,s->c_exposure[SIDE_FRONT][CHAN_BLUE]);
+  set_CC_exp_f_r2(pay,s->c_exposure[SIDE_FRONT][CHAN_RED]);
+  set_CC_exp_f_g2(pay,s->c_exposure[SIDE_FRONT][CHAN_GREEN]);
+  set_CC_exp_f_b2(pay,s->c_exposure[SIDE_FRONT][CHAN_BLUE]);
+
+  set_CC_b_gain(pay,s->c_gain[SIDE_BACK]);
+  set_CC_b_offset(pay,s->c_offset[SIDE_BACK]);
+  set_CC_exp_b_r1(pay,s->c_exposure[SIDE_BACK][CHAN_RED]);
+  set_CC_exp_b_g1(pay,s->c_exposure[SIDE_BACK][CHAN_GREEN]);
+  set_CC_exp_b_b1(pay,s->c_exposure[SIDE_BACK][CHAN_BLUE]);
+  set_CC_exp_b_r2(pay,s->c_exposure[SIDE_BACK][CHAN_RED]);
+  set_CC_exp_b_g2(pay,s->c_exposure[SIDE_BACK][CHAN_GREEN]);
+  set_CC_exp_b_b2(pay,s->c_exposure[SIDE_BACK][CHAN_BLUE]);
+
+  ret = do_cmd (
+    s, 1, 0,
+    cmd, cmdLen,
+    pay, payLen,
+    NULL, NULL
+  );
+  if (ret != SANE_STATUS_GOOD)
+    return ret;
+
+  DBG (10, "write_AFE: finish\n");
+
+  return ret;
+}
+
+/*
+ * frees/callocs buffers to hold the fine cal offset data
+ */
+static SANE_Status
+offset_buffers (struct scanner *s, int setup)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int side;
+
+  DBG (10, "offset_buffers: start\n");
+
+  for(side=0;side<2;side++){
+
+    if (s->f_offset[side]) {
+      DBG (15, "offset_buffers: free f_offset %d.\n",side);
+      free(s->f_offset[side]);
+      s->f_offset[side] = NULL;
+    }
+
+    if(setup){
+      s->f_offset[side] = calloc (1,s->params.bytes_per_line);
+      if (!s->f_offset[side]) {
+        DBG (5, "offset_buffers: error, no f_offset %d.\n",side);
+        return SANE_STATUS_NO_MEM;
+      }
+    }
+  }
+
+  DBG (10, "offset_buffers: finish\n");
+
+  return ret;
+}
+
+/*
+ * frees/callocs buffers to hold the fine cal gain data
+ */
+static SANE_Status
+gain_buffers (struct scanner *s, int setup)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int side;
+
+  DBG (10, "gain_buffers: start\n");
+
+  for(side=0;side<2;side++){
+
+    if (s->f_gain[side]) {
+      DBG (15, "gain_buffers: free f_gain %d.\n",side);
+      free(s->f_gain[side]);
+      s->f_gain[side] = NULL;
+    }
+
+    if(setup){
+      s->f_gain[side] = calloc (1,s->params.bytes_per_line);
+      if (!s->f_gain[side]) {
+        DBG (5, "gain_buffers: error, no f_gain %d.\n",side);
+        return SANE_STATUS_NO_MEM;
+      }
+    }
+  }
+
+  DBG (10, "gain_buffers: finish\n");
+
+  return ret;
+}
+
+/*
+ * @@ Section 6 - SANE cleanup functions
  */
 /*
  * Cancels a scan. 
@@ -4080,8 +4766,10 @@ sane_close (SANE_Handle handle)
   struct scanner * s = (struct scanner *) handle;
 
   DBG (10, "sane_close: start\n");
-  /*clears any held scans*/
   disconnect_fd(s);
+  image_buffers(s,0);
+  offset_buffers(s,0);
+  gain_buffers(s,0);
   DBG (10, "sane_close: finish\n");
 }
 
@@ -4145,7 +4833,7 @@ sane_exit (void)
 
 
 /*
- * @@ Section 5 - misc helper functions
+ * @@ Section 7 - misc helper functions
  */
 static void
 default_globals(void)
@@ -4485,29 +5173,29 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
  unsigned char * inBuff, size_t * inLen
 )
 {
-    size_t cmdOffset;
-    size_t cmdLength;
-    size_t cmdActual;
-    unsigned char * cmdBuffer;
-    int cmdTimeout;
+    size_t cmdOffset = 0;
+    size_t cmdLength = 0;
+    size_t cmdActual = 0;
+    unsigned char * cmdBuffer = NULL;
+    int cmdTimeout = 0;
 
-    size_t outOffset;
-    size_t outLength;
-    size_t outActual;
-    unsigned char * outBuffer;
-    int outTimeout;
+    size_t outOffset = 0;
+    size_t outLength = 0;
+    size_t outActual = 0;
+    unsigned char * outBuffer = NULL;
+    int outTimeout = 0;
 
-    size_t inOffset;
-    size_t inLength;
-    size_t inActual;
-    unsigned char * inBuffer;
-    int inTimeout;
+    size_t inOffset = 0;
+    size_t inLength = 0;
+    size_t inActual = 0;
+    unsigned char * inBuffer = NULL;
+    int inTimeout = 0;
 
-    size_t statOffset;
-    size_t statLength;
-    size_t statActual;
-    unsigned char * statBuffer;
-    int statTimeout;
+    size_t statOffset = 0;
+    size_t statLength = 0;
+    size_t statActual = 0;
+    unsigned char * statBuffer = NULL;
+    int statTimeout = 0;
 
     int ret = 0;
     int ret2 = 0;

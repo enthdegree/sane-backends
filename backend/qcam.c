@@ -70,7 +70,7 @@
 # include "lalloca.h"		/* MUST come first for AIX! */
 #endif
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 #include "lalloca.h"
 
 #include <assert.h>
@@ -88,19 +88,19 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
 
 
 #define BACKEND_NAME qcam
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
 #endif
 
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_config.h"
 #define QCAM_CONFIG_FILE "qcam.conf"
 
 #include "qcam.h"

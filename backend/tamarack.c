@@ -37,7 +37,7 @@
  */
 
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -50,14 +50,14 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
-#include "sane/sanei_thread.h"
-#include "sane/sanei_config.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_thread.h"
+#include "../include/sane/sanei_config.h"
 
 /* For timeval... */
 #ifdef DEBUG
@@ -66,7 +66,7 @@
 
 
 #define BACKEND_NAME	tamarack
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "tamarack.h"
 

@@ -73,7 +73,7 @@
 
 /* ------------------------------------------------------------------------- */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -91,12 +91,12 @@
 # include <libc.h>		/* NeXTStep/OpenStep */
 #endif
 
-#include "sane/sane.h"
-#include "sane/sanei_usb.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_config.h"
-#include "sane/sanei_thread.h"
-#include "sane/sanei_backend.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_thread.h"
+#include "../include/sane/sanei_backend.h"
 
 #define RTCMD_GETREG		0x80
 #define	RTCMD_READSRAM		0x81

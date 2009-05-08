@@ -1,5 +1,5 @@
 #include <sys/types.h>
-#include <sane/sanei_usb.h>
+#include "../include/sane/sanei_usb.h"
 #include "epson_usb.h"
 
 

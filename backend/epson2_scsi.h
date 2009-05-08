@@ -2,7 +2,7 @@
 #define _EPSON2_SCSI_H_
 
 #include <sys/types.h>
-#include <sane/sane.h>
+#include "../include/sane/sane.h"
 
 #define TEST_UNIT_READY_COMMAND		(0x00)
 #define READ_6_COMMAND			(0x08)

@@ -40,7 +40,7 @@
 
    This file provides generic configuration support.  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -53,9 +53,9 @@
 #include <drivers/USB_scanner.h>
 #endif
 
-#include "sane/sanei.h"
-#include "sane/sanei_config.h"
-#include "sane/sanei_scsi.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_scsi.h"
 
 /* This logically belongs to sanei_config.c but not every backend that
    uses sanei_config() wants to depend on this function.  */

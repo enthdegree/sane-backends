@@ -41,7 +41,7 @@
    This file is part of a SANE backend for HP 4570/5550/5590/7650 Scanners
 */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -50,8 +50,8 @@
 # include <netinet/in.h>
 #endif /* HAVE_NETINET_IN_H */
 
-#include "sane/sanei_debug.h"
-#include "sane/sanei_usb.h"
+#include "../include/sane/sanei_debug.h"
+#include "../include/sane/sanei_usb.h"
 #include "hp5590_low.h"
 
 /* Debug levels */

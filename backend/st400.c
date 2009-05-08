@@ -71,25 +71,25 @@ vim: ts=4 sw=4 noexpandtab
 					  "$HOME/st400.dump" instead of "/tmp/st400.dump".
 */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_config.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
-#include "sane/sanei_debug.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_debug.h"
 #ifndef PATH_MAX
 #	define PATH_MAX	1024
 #endif
 
 #define BACKEND_NAME	st400
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "st400.h"
 

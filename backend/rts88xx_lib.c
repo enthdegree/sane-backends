@@ -55,7 +55,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
 #define RTS88XX_LIB_BUILD 30
 

@@ -50,7 +50,7 @@
 #ifndef qcam_h
 #define qcam_h
 
-#include <sane/sane.h>
+#include "../include/sane/sane.h"
 
 typedef enum
   {

@@ -77,7 +77,7 @@
 
  ***************************************************************************/
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -85,15 +85,15 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <limits.h>
-#include "sane/sanei_jpeg.h"
+#include "../include/sane/sanei_jpeg.h"
 #include <sys/ioctl.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
 
 #define BACKEND_NAME	gphoto2
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 /* PSF 1/12/02 - gphoto2.h does a #include of config.h.  We don't have
  * config.h by that name (we call it sane/config.h), so the #undef of 

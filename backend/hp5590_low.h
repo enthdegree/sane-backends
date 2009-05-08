@@ -44,7 +44,7 @@
 #ifndef HP5590_LOW_H
 #define HP5590_LOW_H
 
-#include "sane/sane.h"
+#include "../include/sane/sane.h"
 
 /* Flags for hp5590_cmd() */
 #define CMD_IN			1 << 0	/* Indicates IN direction, otherwise - OUT */

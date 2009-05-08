@@ -203,7 +203,7 @@ four times {
  * @@ Section 1 - Init
  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -222,10 +222,10 @@ four times {
 # include <libc.h>              /* NeXTStep/OpenStep */
 #endif
 
-#include "sane/sanei_backend.h"
-#include "sane/sanei_usb.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_config.h"
 
 #include "cardscan.h"
 

@@ -85,7 +85,7 @@
 #include <sys/types.h>
 */
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"

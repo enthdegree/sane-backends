@@ -46,27 +46,27 @@
 
 /* $Id$ */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <limits.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
-#include "sane/sane.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
 
 #define BACKEND_NAME	dmc
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
 #endif
 
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_config.h"
 #define DMC_CONFIG_FILE "dmc.conf"
 
 #include "dmc.h"

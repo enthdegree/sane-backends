@@ -42,7 +42,7 @@
    This file is part of a SANE backend for HP 4570/5550/5590/7650 Scanners
 */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
@@ -53,7 +53,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include "sane/sanei_debug.h"
+#include "../include/sane/sanei_debug.h"
 #include "hp5590_low.h"
 #include "hp5590_cmds.h"
 

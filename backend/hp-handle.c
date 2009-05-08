@@ -45,7 +45,7 @@
 /* #define STUBS
 extern int sanei_debug_hp; */
 #define DEBUG_DECLARE_ONLY
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
@@ -59,8 +59,8 @@ extern int sanei_debug_hp; */
 
 #include "hp-handle.h"
 
-#include "sane/sanei_backend.h"
-#include "sane/sanei_thread.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_thread.h"
 
 #include "hp-device.h"
 #include "hp-option.h"

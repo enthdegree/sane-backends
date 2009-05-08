@@ -68,7 +68,7 @@
 #define STUBS
 extern int sanei_debug_hp; */
 #define DEBUG_DECLARE_ONLY
-#include "sane/config.h"
+#include "../include/sane/config.h"
 #include "../include/lalloca.h"
 
 #include <stdio.h>
@@ -81,8 +81,8 @@ extern int sanei_debug_hp; */
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
-#include "sane/saneopts.h"
-#include "sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei.h"
 #include "hp.h"
 #include "hp-option.h"
 #include "hp-accessor.h"

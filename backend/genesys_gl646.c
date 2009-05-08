@@ -68,7 +68,7 @@
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_usb.h"
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 #include "genesys.h"
 
 /* Individual bits */

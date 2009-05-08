@@ -89,7 +89,7 @@
 
  ***************************************************************************/
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -98,12 +98,12 @@
 #include <fcntl.h>
 #include <limits.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
 
 #define BACKEND_NAME	dc25
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "dc25.h"
 

@@ -28,10 +28,10 @@
 #include "epson2.h"
 #include "epson2-io.h"
 
-#include <sane/sanei_scsi.h>
-#include <sane/sanei_usb.h>
-#include <sane/sanei_pio.h>
-#include <sane/sanei_tcp.h>
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_pio.h"
+#include "../include/sane/sanei_tcp.h"
 
 #include "epson2_scsi.h"
 #include "epson_usb.h"

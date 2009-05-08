@@ -232,17 +232,17 @@ static char *hp_backend_revision = "$Revision$";
 
 #define VERSIO                                8
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 #include "hp.h"
 
 #include <string.h>
 /* #include <sys/types.h> */
-/* #include <sane/sane.h> */
-#include "sane/sanei_config.h"
-#include "sane/sanei_backend.h"
-#include "sane/sanei_usb.h"
-#include "sane/sanei_thread.h"
-/* #include <sane/sanei_debug.h> */
+/* #include "../include/sane/sane.h" */
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_thread.h"
+/* #include "../include/sane/sanei_debug.h" */
 #include "hp-device.h"
 #include "hp-handle.h"
 

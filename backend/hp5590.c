@@ -42,17 +42,17 @@
    This file is part of a SANE backend for HP 4570/5550/5590/7650 Scanners
 */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "sane/sane.h"
+#include "../include/sane/sane.h"
 #define BACKEND_NAME hp5590
-#include "sane/sanei_backend.h"
-#include "sane/sanei_usb.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/saneopts.h"
 #include "hp5590_cmds.c"
 #include "hp5590_low.c"
 

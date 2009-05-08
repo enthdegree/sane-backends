@@ -46,12 +46,12 @@
 #define HP_H_INCLUDED
 #include <limits.h>
 #include <sys/types.h>
-#include "sane/sane.h"
+#include "../include/sane/sane.h"
 
 #undef BACKEND_NAME
 #define BACKEND_NAME	hp
 #define DEBUG_NOT_STATIC
-#include "sane/sanei_debug.h"
+#include "../include/sane/sanei_debug.h"
 
 #ifdef __GNUC__
 #define UNUSEDARG __attribute__ ((unused))

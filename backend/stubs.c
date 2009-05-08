@@ -1,6 +1,6 @@
 #define STUBS
 
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 /* Now define the wrappers (we could use aliases here, but go for
    robustness for now...: */

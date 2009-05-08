@@ -93,8 +93,8 @@ Updates (C) 2001 by Henning Meier-Geinitz.
 #include "../include/sane/saneopts.h"
 
 #define BACKEND_NAME artec_eplus48u
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
 
 #include "artec_eplus48u.h"
 

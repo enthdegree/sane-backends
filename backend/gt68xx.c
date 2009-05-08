@@ -95,7 +95,7 @@
 #include <math.h>
 #include <dirent.h>
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"

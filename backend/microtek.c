@@ -57,7 +57,7 @@
 #define MICROTEK_MINOR 13
 #define MICROTEK_PATCH 1
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -65,16 +65,16 @@
 #include <fcntl.h>
 #include <math.h>
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_config.h"
-#include "sane/sanei_scsi.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/saneopts.h"
 
 #define BACKEND_NAME microtek
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "microtek.h"
 

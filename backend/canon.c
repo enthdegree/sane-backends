@@ -106,19 +106,19 @@
 #include <unistd.h> /* for FB1200S */
 #include <errno.h> /* for FB1200S */
 
-#include <sane/sane.h>
-#include <sane/saneopts.h>
-#include <sane/sanei_scsi.h>
+#include "../include/sane/sane.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
 
 #define BACKEND_NAME canon
 
-#include <sane/sanei_backend.h>
+#include "../include/sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX	1024
 #endif
 
-#include <sane/sanei_config.h>
+#include "../include/sane/sanei_config.h"
 #define CANON_CONFIG_FILE "canon.conf"
 
 #include <canon.h>

@@ -37,7 +37,7 @@
 
 #include <usb.h>
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
 static int verbose = 0;
 static SANE_Bool no_chipset_access;

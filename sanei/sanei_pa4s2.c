@@ -53,10 +53,10 @@
    These debug levels can be set using the environment variable
    SANE_DEBUG_SANEI_PA4S2 */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #define BACKEND_NAME sanei_pa4s2
-#include "sane/sanei_backend.h"	/* pick up compatibility defs */
+#include "../include/sane/sanei_backend.h"	/* pick up compatibility defs */
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -109,9 +109,9 @@ inb (u_long port)
 
 #endif /* HAVE_LIBIEEE1284 */
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_pa4s2.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_pa4s2.h"
 
 
 #ifdef NDEBUG
@@ -161,7 +161,7 @@ static int sanei_pa4s2_dbg_init_called = SANE_FALSE;
 # include <sys/types.h>
 #endif
 
-#include "sane/saneopts.h"
+#include "../include/sane/saneopts.h"
 
 
 #if (defined (HAVE_IOPERM) || defined (HAVE_LIBIEEE1284)) && !defined (IO_SUPPORT_MISSING)
@@ -180,7 +180,7 @@ static int sanei_pa4s2_dbg_init_called = SANE_FALSE;
 # include <sys/types.h>
 #endif
 
-#include "sane/saneopts.h"
+#include "../include/sane/saneopts.h"
 
 #define PA4S2_MODE_NIB	0
 #define PA4S2_MODE_UNI	1

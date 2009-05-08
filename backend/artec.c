@@ -68,13 +68,13 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
-#include "sane/sane.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
 
 #include <artec.h>
 

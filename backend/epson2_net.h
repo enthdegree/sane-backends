@@ -2,7 +2,7 @@
 #define _EPSON2_NET_H_
 
 #include <sys/types.h>
-#include <sane/sane.h>
+#include "../include/sane/sane.h"
 
 extern int sanei_epson_net_read(struct Epson_Scanner *s, unsigned char *buf, size_t buf_size,
 				SANE_Status *status);

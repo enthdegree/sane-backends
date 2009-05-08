@@ -38,7 +38,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <ctype.h>
 #include <errno.h>

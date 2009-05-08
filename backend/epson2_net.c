@@ -16,18 +16,18 @@
 #undef BACKEND_NAME
 #define BACKEND_NAME epson2_net
 
-#include <sane/sane.h>
-#include <sane/saneopts.h>
-#include <sane/sanei_tcp.h>
-#include <sane/sanei_config.h>
-#include <sane/sanei_backend.h>
+#include "../include/sane/sane.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_tcp.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "epson2.h"
 #include "epson2_net.h"
 
 #include "byteorder.h"
 
-#include <sane/sanei_debug.h>
+#include "../include/sane/sanei_debug.h"
 
 #ifdef HAVE_STDDEF_H
 #include <stddef.h>

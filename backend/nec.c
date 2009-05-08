@@ -63,7 +63,7 @@
      MultiReder 600U/600S series    not available
      MultiReader PetiScan series    not available
 */
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -73,9 +73,9 @@
 #include <errno.h>
 #include <math.h>
 
-#include "sane/sane.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
 
 /* QUEUEDEBUG should be undefined unless you want to play
    with the sanei_scsi.c under Linux and/or with the Linux's SG driver,
@@ -122,7 +122,7 @@
 /* #define USE_RESOLUTION_LIST */ 
 
 #define BACKEND_NAME nec
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX	1024
@@ -133,7 +133,7 @@
 #define PIX_TO_MM(x, mud) ((x) * 25.4 / mud)
 #define MM_TO_PIX(x, mud) ((x) * mud / 25.4)
 
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_config.h"
 #define NEC_CONFIG_FILE "nec.conf"
 
 #include "nec.h"

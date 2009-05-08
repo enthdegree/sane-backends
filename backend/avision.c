@@ -136,14 +136,14 @@
 #define BACKEND_NAME avision
 #define BACKEND_BUILD 290 /* avision backend BUILD version */
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/saneopts.h>
-#include <sane/sanei_thread.h>
-#include <sane/sanei_scsi.h>
-#include <sane/sanei_usb.h>
-#include <sane/sanei_config.h>
-#include <sane/sanei_backend.h>
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_thread.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_backend.h"
 
 #include <avision.h>
 

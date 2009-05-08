@@ -7,7 +7,7 @@
 
 #ifdef HAVE_LIBJPEG
 
-#include "sane/sanei_jpeg.h"
+#include "../include/sane/sanei_jpeg.h"
 
 typedef struct
   {

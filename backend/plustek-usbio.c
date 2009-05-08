@@ -70,8 +70,8 @@
  * <hr>
  */
  
-#include "sane/sanei_usb.h"
-#include "sane/sanei_lm983x.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_lm983x.h"
 
 #define _UIO(func)                            \
     {                                         \

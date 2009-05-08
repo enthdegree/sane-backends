@@ -69,7 +69,7 @@
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_config.h"
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
 #include "genesys.h"
 #include "genesys_devices.c"

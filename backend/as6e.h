@@ -48,7 +48,7 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sane/sane.h>
+#include "../include/sane/sane.h"
 
 
 typedef enum

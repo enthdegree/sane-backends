@@ -30,18 +30,18 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/saneopts.h>
-#include <sane/sanei_scsi.h>
-#include <sane/sanei_usb.h>
-#include <sane/sanei_debug.h>
-#include <sane/sanei_config.h>
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_debug.h"
+#include "../include/sane/sanei_config.h"
 
 #define BACKEND_NAME coolscan3
-#include <sane/sanei_backend.h>	/* must be last */
+#include "../include/sane/sanei_backend.h"	/* must be last */
 
 #define CS3_VERSION_MAJOR 1
 #define CS3_VERSION_MINOR 0

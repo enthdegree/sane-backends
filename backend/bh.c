@@ -42,7 +42,7 @@
    If you do not wish that, delete this exception notice.
 
 */
-#include "sane/config.h"
+#include "../include/sane/config.h"
 #include <limits.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -52,13 +52,13 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "sane/sane.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
-#include "sane/sanei_config.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_config.h"
 
 #define BACKEND_NAME bh
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 #define BUILD 4
 
 #include "bh.h"

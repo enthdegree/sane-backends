@@ -68,7 +68,7 @@
 # include "lalloca.h"		/* MUST come first for AIX! */
 #endif
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 #include "lalloca.h"
 
 #include <errno.h>
@@ -83,16 +83,16 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
-#include "sane/sanei_debug.h"
-#include "sane/sanei_thread.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_debug.h"
+#include "../include/sane/sanei_thread.h"
 
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_config.h"
 #define COOLSCAN_CONFIG_FILE "coolscan.conf"
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "coolscan.h"
 #include "coolscan-scsidef.h"

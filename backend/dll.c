@@ -57,7 +57,7 @@
 #include <posix/dirent.h>
 #endif
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 #include "lalloca.h"
 
 #include <errno.h>
@@ -98,11 +98,11 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
 
 #define BACKEND_NAME dll
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX       1024
@@ -119,7 +119,7 @@
 #endif
 
 
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_config.h"
 #define DLL_CONFIG_FILE "dll.conf"
 #define DLL_ALIASES_FILE "dll.aliases"
 

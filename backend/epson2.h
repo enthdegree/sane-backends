@@ -25,9 +25,9 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 
-#include <sane/sane.h>
-#include <sane/sanei_backend.h>
-#include <sane/sanei_debug.h>
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_debug.h"
 
 #ifdef __GNUC__
 #define __func__ __FUNCTION__

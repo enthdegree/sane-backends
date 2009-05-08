@@ -2295,9 +2295,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
  *           backend/qcam.c backend/ricoh.c backend/s9036.c backend/snapscan.c
  *           backend/tamarack.c: Use sanei_config_read instead of fgets.
  *         * backend/dc210.c backend/microtek.c backend/pnm.c: Added
- *           #include <sane/config.h>.
+ *           #include "../include/sane/config.h".
  *         * backend/dc25.c backend/m3096.c  backend/sp15.c
- *            backend/st400.c: Moved #include <sane/config.h> to the beginning.
+ *            backend/st400.c: Moved #include "../include/sane/config.h" to the beginning.
  *         * AUTHORS: Changed agfa to agfafocus.
  *
  * Revision 1.1.1.1.2.3  2000/07/17 21:37:28  hmg

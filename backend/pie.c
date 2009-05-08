@@ -69,7 +69,7 @@
  * 27-9-2000 went public with build 4
  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -82,15 +82,15 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
-#include "sane/sanei_debug.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_debug.h"
 
 #define BACKEND_NAME	pie
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
 
 # include "../include/sane/sanei_thread.h"
 

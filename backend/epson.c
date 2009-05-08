@@ -305,7 +305,7 @@
 #define SANE_I18N(text) (text)
 #endif
 
-#include  "sane/config.h"
+#include "../include/sane/config.h"
 
 #include  <lalloca.h>
 
@@ -318,18 +318,18 @@
 #include  <unistd.h>
 #include  <errno.h>
 
-#include  "sane/sane.h"
-#include  "sane/saneopts.h"
-#include  "sane/sanei_scsi.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
 
-#include  "sane/sanei_usb.h"
+#include "../include/sane/sanei_usb.h"
 
-#include  <sane/sanei_pio.h>
+#include "../include/sane/sanei_pio.h"
 
 #define  BACKEND_NAME epson
-#include  <sane/sanei_backend.h>
+#include "../include/sane/sanei_backend.h"
 
-#include  <sane/sanei_config.h>
+#include "../include/sane/sanei_config.h"
 
 #include  "epson.h"
 #include  "epson_scsi.h"

@@ -21,7 +21,7 @@
 
    This file implements a SANE backend for AGFA Focus flatbed scanners.  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <signal.h>
 #include <errno.h>
@@ -31,15 +31,15 @@
 #include <string.h>
 #include <sys/types.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_config.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
-#include "sane/sanei_thread.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_thread.h"
 
 #define BACKEND_NAME	agfafocus
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "agfafocus.h"
 

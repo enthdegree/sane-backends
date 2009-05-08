@@ -4,8 +4,8 @@
 #undef BACKEND_NAME
 #define BACKEND_NAME epson_scsi
 #include "../include/sane/config.h"
-#include <sane/sanei_debug.h>
-#include <sane/sanei_scsi.h>
+#include "../include/sane/sanei_debug.h"
+#include "../include/sane/sanei_scsi.h"
 #include "epson_scsi.h"
 
 #include "../include/lalloca.h"

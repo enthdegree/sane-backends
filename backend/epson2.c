@@ -57,14 +57,14 @@
 
 #include <byteorder.h>
 
-#include <sane/saneopts.h>
-#include <sane/sanei_scsi.h>
-#include <sane/sanei_usb.h>
-#include <sane/sanei_pio.h>
-#include <sane/sanei_tcp.h>
-#include <sane/sanei_udp.h>
-#include <sane/sanei_backend.h>
-#include <sane/sanei_config.h>
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_pio.h"
+#include "../include/sane/sanei_tcp.h"
+#include "../include/sane/sanei_udp.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
 
 #include "epson2-io.h"
 #include "epson2-commands.h"

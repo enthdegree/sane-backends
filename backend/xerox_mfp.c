@@ -16,14 +16,14 @@
 #include <math.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/saneopts.h>
-#include <sane/sanei_thread.h>
-#include <sane/sanei_usb.h>
-#include <sane/sanei_config.h>
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_thread.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_config.h"
 #define BACKEND_NAME xerox_mfp
-#include <sane/sanei_backend.h>
+#include "../include/sane/sanei_backend.h"
 #include "xerox_mfp.h"
 
 #define BACKEND_BUILD 10

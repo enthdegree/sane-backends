@@ -72,7 +72,7 @@
 #include <errno.h>
 #include <math.h>
 
-#include "_stdint.h"
+#include "../include/_stdint.h"
 
 #ifdef HAVE_AUTHORIZATION
 #include <sys/stat.h>

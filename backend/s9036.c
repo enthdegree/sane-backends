@@ -20,7 +20,7 @@
 
    This file implements a SANE backend for Siemens 9036 flatbed scanners.  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -31,15 +31,15 @@
 # define PATH_MAX	1024
 #endif
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_config.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
 #include "s9036.h"
 
 #define BACKEND_NAME	s9036
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #define MM_PER_INCH	25.4
 

@@ -122,9 +122,9 @@ static const char RCSid[] = "$Header$";
  * 	  backend/qcam.c backend/ricoh.c backend/s9036.c backend/snapscan.c
  * 	  backend/tamarack.c: Use sanei_config_read instead of fgets.
  * 	* backend/dc210.c backend/microtek.c backend/pnm.c: Added
- * 	  #include <sane/config.h>.
+ * 	  #include "../include/sane/config.h".
  * 	* backend/dc25.c backend/m3096.c  backend/sp15.c
- *  	  backend/st400.c: Moved #include <sane/config.h> to the beginning.
+ *  	  backend/st400.c: Moved #include "../include/sane/config.h" to the beginning.
  * 	* AUTHORS: Changed agfa to agfafocus.
  *
  * Revision 1.1.2.3  2000/03/14 17:47:12  abel
@@ -207,7 +207,7 @@ static const char RCSid[] = "$Header$";
 
 /* ------------------------------------------------------------------------- */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -220,11 +220,11 @@ static const char RCSid[] = "$Header$";
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "sane/sanei_backend.h"
-#include "sane/sanei_scsi.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_config.h"
-#include "sane/sanei_thread.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_thread.h"
 
 #include "sp15c-scsi.h"
 #include "sp15c.h"

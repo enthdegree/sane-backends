@@ -88,9 +88,9 @@
 #include <errno.h>
 #include <math.h>
 
-#include <sane/sane.h>
-#include <sane/saneopts.h>
-#include <sane/sanei_scsi.h>
+#include "../include/sane/sane.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
 
 /* QUEUEDEBUG should be undefined unless you want to play
    with the sanei_scsi.c under Linux and/or with the Linux's SG driver,
@@ -148,7 +148,7 @@
 
 
 #define BACKEND_NAME sharp
-#include <sane/sanei_backend.h>
+#include "../include/sane/sanei_backend.h"
 
 #include <sharp.h>
 
@@ -164,7 +164,7 @@
 #define PIX_TO_MM(x, mud) ((x) * 25.4 / mud)
 #define MM_TO_PIX(x, mud) ((x) * mud / 25.4)
 
-#include <sane/sanei_config.h>
+#include "../include/sane/sanei_config.h"
 #define SHARP_CONFIG_FILE "sharp.conf"
 
 static int num_devices = 0;

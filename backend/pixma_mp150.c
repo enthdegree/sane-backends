@@ -387,41 +387,7 @@ select_source (pixma_t * s)
         data[1] = 2;
         break;
     }
-/*  if (s->cfg->pid == MP830_PID)
-    {
-      switch (s->param->source)
-        {
-        case PIXMA_SOURCE_ADF:
-          data[0] = 2;
-          data[5] = 1;
-          data[6] = 1;
-          break;
 
-        case PIXMA_SOURCE_ADFDUP:
-          data[0] = 2;
-          data[5] = 3;
-          data[6] = 3;
-          break;
-
-        case PIXMA_SOURCE_TPU:
-          PDBG (pixma_dbg (1, "BUG:select_source(): unsupported source %d\n",
-               s->param->source));
-
-        case PIXMA_SOURCE_FLATBED:
-          data[0] = 1;
-          data[1] = 1;
-          break;
-        }
-    }
-  else
-    {
-      data[0] = (s->param->source == PIXMA_SOURCE_ADF) ? 2 : 1;
-      data[1] = 1;
-      if (mp->generation == 2)
-        {
-          data[5] = 1;
-        }
-    } */
   return pixma_exec (s, &mp->cb);
 }
 
@@ -1001,8 +967,12 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
     n = s->param->xdpi / 600;
   else    /* FIXME: maybe need different values for CIS and CCD sensors */
     n = s->param->xdpi / 2400;
+    
+  /* Some exceptions to global rules here */
   if (s->cfg->pid == MP970_PID) 
     n = MIN (n, 4);
+  if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID) 
+    n = s->param->xdpi / 1200;
   
   m = (n > 0) ? s->param->w / n : 1;
   sptr = dptr = gptr = mp->imgbuf;

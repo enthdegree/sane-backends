@@ -1,3 +1,6 @@
+2009-05-09  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
+        Fixed Pixma MP600 and MP600R for 2400 dpi scan, updated their descriptions.
+
 2009-05-08 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr*: backend v27
 	- bug fix in read_panel()

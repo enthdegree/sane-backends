@@ -1,3 +1,6 @@
+2009-05-09 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* */*.c: standardize including local sane include files.
+
 2009-05-09  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc:
 	Fixed Pixma MP600 and MP600R for 2400 dpi scan, updated their descriptions.

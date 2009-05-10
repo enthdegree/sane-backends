@@ -1,7 +1,8 @@
 .TH sane\-hp5590 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-hp5590
 .SH NAME
-sane\-hp5590 \- SANE backend for Hewlett-Packard 5550/5590/7650 Workgroup/Document scanners
+sane\-hp5590 \- SANE backend for
+Hewlett-Packard 4500C/4570C/5500C/5550C/5590/7650 Workgroup/Document scanners
 .SH DESCRIPTION
 The
 .B sane\-hp5590
@@ -9,9 +10,13 @@ library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the following Hewlett-Packard Workgroup/Document scanners:
 .PP
 .RS
-ScanJet 4570
+ScanJet 4500C
 .br
-ScanJet 5550
+ScanJet 4570C
+.br
+ScanJet 5500C
+.br
+ScanJet 5550C
 .br
 ScanJet 5590
 .br

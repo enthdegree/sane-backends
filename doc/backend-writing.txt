@@ -50,7 +50,7 @@ of these files, "autoreconf" should be called.  This will then call a
 chain of autotools, such as autoconf to generate configure, autoheader
 to generate include/sane/config.h.in, and automake to generate various
 Makefile.in's from Makefile.am's.  All changes made by "autoreconf" must
-be commited to CVS together.
+be commited together.
 
 When running configure, the Makefiles in the main and sub-directories are
 created from their respective Makefile.in files. Also include/sane/config.h
@@ -81,10 +81,10 @@ sane-backends/
     mkinstalldirs: Part of the build system as explained above.
   * ChangeLog:
     The ChangeLog contains all the changes made since the last stable release. 
-    If anything is changed in CVS, it must be also mentioned in ChangeLog. 
-    It's not enough to write just a CVS commit message, as users won't have 
+    If anything is changed in git, it must be also mentioned in ChangeLog. 
+    It's not enough to write just a git commit message, as users won't have 
     access to these messages. For more details on the format, see the SANE 
-    CVS page on the website.
+    git page on the website.
   * ChangeLog-1.0.0, ChangeLog-1.0.1 (...):
     These files contain the ChangeLogs of older releases. Once a new release has
     been made, the current ChangeLog renamed to ChangeLog-1.something.something
@@ -423,7 +423,7 @@ DOCUMENTATION
   your backend, you should include an update to the .desc file which reflects
   the new state of the backend. The .desc files are used to create the HTML
   lists of supported devices. These lists are updated automatically when you
-  change a .desc file in CVS. See e.g.
+  change a .desc file in git. See e.g.
   http://www.sane-project.org/lists/sane-mfgs-cvs.html for the results.
 
 * The .desc files are located in the directories "doc/descriptions" and
@@ -483,14 +483,14 @@ In sane-backends/doc/
   description file.
 
 
-INCLUDING INTO CVS
+INCLUDING INTO git
 ------------------
 
-* If you want to include your backend into CVS use the latest CVS to make
-  patches. Check the mailing list and the bug-tracking system for information
-  about bugs to avoid.
+* If you want to include your backend into SANE's git tree use the latest git
+  to make patches. Check the mailing list and the bug-tracking system for
+  information about bugs to avoid.
 
-* If your backend isn't included yet in the SANE CVS tree, write an email to
+* If your backend isn't included yet in the SANE's git tree, write an email to
   the SANE mailing list (sane-devel) and ask for inclusion. Usually one
   of the developers will check the backend for common mistakes and test
-  compilation. If everything is ok the backend will be added to the CVS tree.
+  compilation. If everything is ok the backend will be added to the git tree.

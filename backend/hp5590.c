@@ -39,7 +39,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file is part of a SANE backend for HP 4570/5550/5590/7650 Scanners
+   This file is part of a SANE backend for
+   HP ScanJet 4500C/4570C/5500C/5550C/5590/7650 Scanners
 */
 
 #include "../include/sane/config.h"
@@ -72,7 +73,7 @@
 }
 
 /* #define HAS_WORKING_COLOR_48 */
-#define BUILD 		4
+#define BUILD 		5
 #define USB_TIMEOUT	30 * 1000
 
 static SANE_Word
@@ -318,7 +319,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
   
   DBG_INIT();
   
-  DBG (1, "SANE backed for HP 4570/5550/5590/7650 %u.%u.%u\n", SANE_CURRENT_MAJOR, V_MINOR, BUILD);
+  DBG (1, "SANE backed for HP ScanJet 4500C/4570C/5500C/5550C/5590/7650 %u.%u.%u\n",
+       SANE_CURRENT_MAJOR, V_MINOR, BUILD);
   DBG (1, "(c) Ilia Sotnikov <hostcc@gmail.com>\n");
 
   if (version_code)

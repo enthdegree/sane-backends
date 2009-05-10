@@ -438,7 +438,7 @@ all-mos: $(MO_FILES)
 	@echo "generating $@ from $^"
 	@$(MSGFMT) -o $@ $^
 
-install-translations:
+install-translations: $(ALL)
 	@for lang in $(ALL_LINGUAS) ; do \
 	  dir=$(localedir)/$${lang}/LC_MESSAGES ; \
 	  echo "installing sane-backends.$${lang}.mo to $${dir}/sane-backends.mo..." ; \

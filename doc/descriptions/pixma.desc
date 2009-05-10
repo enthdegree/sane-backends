@@ -103,14 +103,14 @@
 :model "PIXMA MP600"
 :interface "USB"
 :usbid "0x04a9" "0x1718"
-:status :basic
-:comment "2400DPI doesn't work."
+:status :good
+:comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP600R"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1719"
-:status :minimal
-:comment "2400DPI doesn't work."
+:status :good
+:comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP610"
 :interface "USB"
@@ -378,13 +378,13 @@
 :model "imageCLASS MF4010"
 :interface "USB"
 :usbid "0x04a9" "0x26b4"
-:status :untested
+:status :good
 :comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4018"
 :interface "USB"
 :usbid "0x04a9" "0x26b4"
-:status :untested
+:status :good
 :comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF6500 series"

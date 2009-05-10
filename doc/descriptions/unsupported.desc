@@ -833,20 +833,6 @@
 :usbid "0x03f0" "0x2505"
 :comment "While an external binary-only backend exists, it works only on Linux i386. Therefore the scanner is unsupported on other platforms."
 
-:model "ScanJet 4500C"
-:url "/unsupported/hp-scanjet-4500c.html"
-:interface "USB"
-:usbid "0x03f0" "0x1205"
-:comment "Probably unsupported, see link for details."
-:status :unsupported
-
-:model "ScanJet 4570C"
-:url "/unsupported/hp-scanjet-4570c.html"
-:interface "USB"
-:usbid "0x03f0" "0x1305"
-:comment "Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend "
-:status :unsupported
-
 :model "ScanJet 4600"
 :url "/unsupported/hp-scanjet-4600.html"
 :interface "USB"
@@ -873,13 +859,6 @@
 :interface "USB"
 :usbid "0x03f0" "0x1b05"
 :comment "GL843, maybe can be added to genesys backend "
-:status :unsupported
-
-:model "ScanJet 5500C"
-:url "/unsupported/hp-scanjet-5500c.html"
-:interface "USB"
-:usbid "0x03f0" "0x1305"
-:comment "Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend"
 :status :unsupported
 
 :model "ScanJet 5530C Photosmart"

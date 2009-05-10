@@ -307,18 +307,20 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SSM_PAGE_len                    0x0e
 #define set_SSM_page_len(sb, val)       sb[0x05] = val
 
-/* for DF page */
+/* for DF (0x30) page */
 #define set_SSM_DF_deskew_roll(sb, val) setbitfield(sb+7, 1, 5, val)
 #define set_SSM_DF_staple(sb, val)      setbitfield(sb+7, 1, 4, val)
 #define set_SSM_DF_thick(sb, val)       setbitfield(sb+7, 1, 2, val)
 #define set_SSM_DF_len(sb, val)         setbitfield(sb+7, 1, 0, val)
 #define set_SSM_DF_textdir(sb, val)     setbitfield(sb+9, 0xf, 0, val)
 
-/* for BUFFER page */
-#define set_SSM_BUFF_duplex(sb, val)    sb[0x06] = val
-#define set_SSM_BUFF_async(sb, val)     sb[0x0a] = val
+/* for BUFFER (0x32) page */
+#define set_SSM_BUFF_duplex(sb, val)    setbitfield(sb+6, 1, 1, val)
+#define set_SSM_BUFF_unk(sb, val)       sb[0x07] = val
+#define set_SSM_BUFF_async(sb, val)     setbitfield(sb+0x0a, 1, 6, val)
+#define set_SSM_BUFF_ald(sb, val)       setbitfield(sb+0x0a, 1, 5, val)
 
-/* for DO page */
+/* for DO (0x36) page */
 #define SSM_DO_none                     0
 #define SSM_DO_red                      1
 #define SSM_DO_green                    2
@@ -344,6 +346,28 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 /* the payload */
 #define CC_pay_len                  0x20
+
+#define set_CC_f_gain(sb, val)      sb[0] = val
+#define set_CC_unk1(sb, val)        sb[1] = val
+#define set_CC_f_offset(sb, val)    sb[2] = val
+#define set_CC_unk2(sb, val)        sb[3] = val
+
+#define set_CC_exp_f_r1(sb, val)    putnbyte(sb + 0x04, val, 2)
+#define set_CC_exp_f_g1(sb, val)    putnbyte(sb + 0x06, val, 2)
+#define set_CC_exp_f_b1(sb, val)    putnbyte(sb + 0x08, val, 2)
+#define set_CC_exp_f_r2(sb, val)    putnbyte(sb + 0x0a, val, 2)
+#define set_CC_exp_f_g2(sb, val)    putnbyte(sb + 0x0c, val, 2)
+#define set_CC_exp_f_b2(sb, val)    putnbyte(sb + 0x0e, val, 2)
+
+#define set_CC_b_gain(sb, val)      sb[0x10] = val
+#define set_CC_b_offset(sb, val)    sb[0x12] = val
+
+#define set_CC_exp_b_r1(sb, val)    putnbyte(sb + 0x14, val, 2)
+#define set_CC_exp_b_g1(sb, val)    putnbyte(sb + 0x16, val, 2)
+#define set_CC_exp_b_b1(sb, val)    putnbyte(sb + 0x18, val, 2)
+#define set_CC_exp_b_r2(sb, val)    putnbyte(sb + 0x1a, val, 2)
+#define set_CC_exp_b_g2(sb, val)    putnbyte(sb + 0x1c, val, 2)
+#define set_CC_exp_b_b2(sb, val)    putnbyte(sb + 0x1e, val, 2)
 
 /* ==================================================================== */
 /* window descriptor macros for SET_WINDOW and GET_WINDOW */

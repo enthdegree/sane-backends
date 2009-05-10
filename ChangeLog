@@ -1,3 +1,53 @@
+2009-05-09  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc:
+	Fixed Pixma MP600 and MP600R for 2400 dpi scan, updated their descriptions.
+
+2009-05-08 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr*: backend v27
+	- bug fix in read_panel()
+	- initialize vars in do_usb_cmd()
+	- set buffermode off by default
+	- clear page counter during init and sane_start()
+	- eject previous page during init and sane_start()
+	- improved SSM_BUFF macros
+	- moved set_window() to after ssm-*()
+	- add coarse calibration (AFE offset/gain & per-channel exposure)
+	- add fine calibration (per-cell offset/gain)
+	- free image and fine cal buffers in sane_close()
+	- compare page counter of small scanners only in non-buffered mode
+	- add back-side gray mirroring code for DR-2580C
+
+2009-05-06  Nicolas Martin <nicols-guest at users.alioth.debian.org> 
+	* doc/descriptions/pixma.desc:
+	Updated descriptions in pixma backend for ImageClass MF4010 and MF4018.
+
+2009-05-06 Ilia Sotnikov <hostcc@gmail.com>
+
+	* doc/descriptions/unsupported.desc:
+	HP ScanJet 4500C/4570C/5500C is supported by the 'hp5590' backend.
+	* doc/descriptions/hp5590.desc:
+	Updated backend version, added HP ScanJet 4500C as completely supported,
+	added HP ScanJet 5500C as untested, HP ScanJet 4570C/5550C/5590/7650
+	marked as completely supported
+	* tools/check-usb-chip.c:
+	Updated HP ScanJet model names displayed during the check_hp5590().
+	* backend/hp5590.c, backend/hp5590_cmds.c, backend/hp5590_cmds.h, 
+	  backend/hp5590_low.c, backend/hp5590_low.h, doc/sane-hp5590.man:
+	Updated the list of supported devices (added HP 5500C which is similar
+	to 4570C, 5500C which is similar to 4500C) - only strings/comments, no
+	code was changed. Updated backend version. Updated man page.
+
+2009-05-06 Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: unbreak udev rules, use ATTRS instead of ATTR
+	for USB devices.
+	* frontend/saned.c: pass the network fds to saned_avahi() so the
+	Avahi process can close them. Fixes a hang possible hang of the
+	net backend when saned is run in debug mode.
+
+2009-05-05 Julien Blache <jb@jblache.org>
+	* doc/backend-writing.txt, doc/releases.txt: update for the switch
+	to git.
+
 2009-05-04 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* acinclude.m4: Rename --enable-fork-process to --enable-pthreads
 	to match internal usage. Stop linking in pthread when disabled.

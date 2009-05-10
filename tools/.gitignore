@@ -3,4 +3,6 @@ sane-config
 sane-desc
 sane-find-scanner
 umax_pp
-
+udev
+hal
+.deps

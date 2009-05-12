@@ -841,17 +841,14 @@ wait_until_ready (pixma_t * s)
       WAIT_INTERRUPT (1000);
       if (mp->generation == 3)
         RET_IF_ERR (query_status_3 (s));
+      else if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID)
+        RET_IF_ERR (query_status (s));
       if (--tmo == 0)
         {
           PDBG (pixma_dbg (1, "WARNING:Timed out in wait_until_ready()\n"));
           PDBG (query_status (s));
           return PIXMA_ETIMEDOUT;
         }
-#if 0
-      /* If we use sanei_usb_*, we sometimes lose interrupts! So poll the
-       * status here. */
-      RET_IF_ERR (query_status (s));
-#endif
     }
   return 0;
 }

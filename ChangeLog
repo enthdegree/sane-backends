@@ -1,3 +1,8 @@
+2009-05-06  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys_gl646.c backend/genesys_gl646.h: created a
+	  genesys_gl646.h header file, moved all declarations from 
+	  genesys_gl646.c to this file.
+
 2009-05-13  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c:
 	Fixed Pixma MP600R for network scan. Changes apply to MP600R _and_ MP600,

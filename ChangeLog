@@ -1,3 +1,8 @@
+2009-05-13  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c:
+	Fixed Pixma MP600R for network scan. Changes apply to MP600R _and_ MP600,
+	to use now a strict clone of Canon's driver protocol.
+
 2009-05-09 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* */*.c: standardize including local sane include files.
 

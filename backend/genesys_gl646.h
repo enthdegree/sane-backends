@@ -43,6 +43,30 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice. 
 */
+#include "../include/sane/config.h"
+
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <math.h>
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+
+#undef BACKEND_NAME
+#define BACKEND_NAME genesys_gl646
+
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_usb.h"
+
+#include "../include/_stdint.h"
+#include "genesys.h"
 
 /*
  * SANE backend for Genesys Logic GL646/GL841 based scanners
@@ -161,8 +185,6 @@
 
 #include "genesys.h"
 
-/* we don't need a genesys_gl646.h yet, declarations aren't numerous enough */
-/* writable registers */
 enum
 {
   reg_0x01 = 0,

@@ -1,4 +1,7 @@
-2009-05-06  Stéphane Voltz <stef.dev at free.fr>
+2009-05-18  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys_gl646.h: fixed missing part of the include
+
+2009-05-13  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys_gl646.c backend/genesys_gl646.h: created a
 	  genesys_gl646.h header file, moved all declarations from 
 	  genesys_gl646.c to this file.

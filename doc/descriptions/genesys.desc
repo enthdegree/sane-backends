@@ -95,3 +95,37 @@
 :usbid  "0x0a17" "0x3210"
 :status :basic
 :comment "All resolution and mode supported, but uncorrected scans"
+
+; -----------------------------------------------------------------------------
+
+:mfg "DCT"
+:url "http://www.docucap.com/"
+:comment "Successor of Syscan in the USA"
+
+:model "DocketPort 487"
+:interface "USB"
+:usbid  "0x1dcc" "0x4810"
+:status :untested
+:comment "Untested, all resolution and mode should be supported, but uncorrected scans, front- and backside side-by-side, with backside mirrored horizontally."
+
+; -----------------------------------------------------------------------------
+
+:mfg "Syscan"
+
+:model "DocketPort 485"
+:interface "USB"
+:usbid  "0x0a82" "0x4810"
+:status :basic
+:comment "All resolution and mode supported, but uncorrected scans, front- and backside side-by-side, with backside mirrored horizontally."
+
+:model "DocketPort 465"
+:interface "USB"
+:usbid  "0x0a82" "0x4802"
+:status :basic
+:comment "All resolution and mode supported, but uncorrected scans"
+
+:model "DocketPort 665"
+:interface "USB"
+:usbid  "0x0a82" "0x4803"
+:status :basic
+:comment "All resolution and mode supported, but uncorrected scans"

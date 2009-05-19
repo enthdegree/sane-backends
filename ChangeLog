@@ -1,6 +1,6 @@
 2009-05-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_devices.c, backend/genesys_low.h: 
-	  Add Pentax DSmobile 600
+	  Add Pentax DSmobile 600, Syscan 485, DCT 487
 	
 2009-05-18  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys_gl646.h: fixed missing part of the include

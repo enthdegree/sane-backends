@@ -20,6 +20,9 @@ usb 0x03f0 0x1405
 # Syscan DocketPort 465
 #usb 0x0a82 0x4802
 
+# DCT DocketPort 487
+#usb 0x1dcc 0x4810
+
 #
 # supported scanners
 #

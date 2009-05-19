@@ -78,13 +78,20 @@
 :status :basic
 :comment "All resolution and mode supported, but uncorrected scans"
 
-; -----------------------------------------------------------------------------
-
-:mfg "Visioneer"
-:url "http://www.visioneer.com/"
-
 :model "Strobe XP 300"
 :interface "USB"
 :usbid  "0x04a7" "0x0474"
 :status :basic
 :comment "All resolution and mode supported, but uncorrected scans, front- and backside side-by-side, with backside mirrored horizontally."
+
+; -----------------------------------------------------------------------------
+
+:mfg "Pentax"
+:url "http://www.pentaxtech.com/"
+:url "http://mobilesolutions.brother-usa.com/"
+
+:model "DSmobile 600"
+:interface "USB"
+:usbid  "0x0a17" "0x3210"
+:status :basic
+:comment "All resolution and mode supported, but uncorrected scans"

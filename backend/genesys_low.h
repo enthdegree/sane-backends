@@ -252,6 +252,7 @@ Genesys_Color_Order;
 #define DAC_AD_XP200       7   /* Analog Device frontend */
 #define DAC_WOLFSON_XP300  8
 #define DAC_WOLFSON_HP3670 9
+#define DAC_WOLFSON_DSM600 10
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -265,6 +266,7 @@ Genesys_Color_Order;
 #define CCD_HP3670       9
 #define CCD_DP665        10
 #define CCD_ROADWARRIOR  11
+#define CCD_DSMOBILE600  12
 
 #define GPO_UMAX         0
 #define GPO_ST12         1

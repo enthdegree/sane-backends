@@ -18,8 +18,7 @@ enum scanner_Option
   OPT_STANDARD_GROUP,
   OPT_SOURCE, /*fb/adf/front/back/duplex*/
   OPT_MODE,   /*mono/gray/color*/
-  OPT_X_RES,  /*a range or a list*/
-  OPT_Y_RES,  /*a range or a list*/
+  OPT_RES,    /*a range or a list*/
 
   OPT_GEOMETRY_GROUP,
   OPT_TL_X,
@@ -50,6 +49,7 @@ enum scanner_Option
   OPT_SENSOR_GROUP,
   OPT_START,
   OPT_STOP,
+  OPT_BUTT3,
   OPT_NEWFILE,
   OPT_COUNTONLY,
   OPT_BYPASSMODE,
@@ -57,6 +57,42 @@ enum scanner_Option
 
   /* must come last: */
   NUM_OPTIONS
+};
+
+struct img_params
+{
+  int mode;           /*color,lineart,etc*/
+  int source;         /*fb,adf front,adf duplex,etc*/
+
+  int dpi_x;          /*these are in dpi */
+  int dpi_y;
+
+  int tl_x;           /*these are in 1200dpi units */
+  int tl_y;
+  int br_x;
+  int br_y;
+  int page_x;
+  int page_y;
+
+  int width;          /*these are in pixels*/
+  int height;
+
+  SANE_Frame format;  /*SANE_FRAME_**/
+  int bpp;            /* 1,8,24 */
+  int Bpl;            /* in bytes */
+
+  int valid_width;    /*some machines have black padding*/
+  int valid_Bpl;      
+
+  /* done yet? */
+  int eof[2];
+
+  /* how far we have read/written */
+  int bytes_sent[2];
+
+  /* total to read/write */
+  int bytes_tot[2];
+
 };
 
 struct scanner
@@ -91,26 +127,12 @@ struct scanner
   int min_x_res;
   int min_y_res;
 
-  int std_res_200;
-  int std_res_180;
-  int std_res_160;
-  int std_res_150;
-  int std_res_120;
-  int std_res_100;
-  int std_res_75;
-  int std_res_60;
-  int std_res_1200;
-  int std_res_800;
-  int std_res_600;
-  int std_res_480;
-  int std_res_400;
-  int std_res_320;
-  int std_res_300;
-  int std_res_240;
+  int std_res_x[16];
+  int std_res_y[16];
 
-  /* max scan size in pixels comes from scanner in basic res units */
-  int max_x_basic;
-  int max_y_basic;
+  /* max scan size in pixels converted to 1200dpi units */
+  int max_x;
+  int max_y;
 
   /*FIXME: 4 more unknown values here*/
   int can_grayscale;
@@ -126,10 +148,9 @@ struct scanner
   int contrast_steps;
 
   /* the scan size in 1/1200th inches, NOT basic_units or sane units */
-  int max_x;
-  int max_y;
   int min_x;
   int min_y;
+  int valid_x;
   int max_x_fb;
   int max_y_fb;
 
@@ -183,10 +204,8 @@ struct scanner
   SANE_String_Const mode_list[7];
   SANE_String_Const source_list[5];
 
-  SANE_Int x_res_list[17];
-  SANE_Int y_res_list[17];
-  SANE_Range x_res_range;
-  SANE_Range y_res_range;
+  SANE_Int res_list[17];
+  SANE_Range res_range;
 
   /*geometry group*/
   SANE_Range tl_x_range;
@@ -212,20 +231,9 @@ struct scanner
   /* --------------------------------------------------------------------- */
   /* changeable vars to hold user input. modified by SANE_Options above    */
 
-  /*mode group*/
-  int mode;           /*color,lineart,etc*/
-  int source;         /*fb,adf front,adf duplex,etc*/
-  int resolution_x;   /* X resolution in dpi                       */
-  int resolution_y;   /* Y resolution in dpi                       */
-
-  /*geometry group*/
-  /* The desired size of the scan, all in 1/1200 inch */
-  int tl_x;
-  int tl_y;
-  int br_x;
-  int br_y;
-  int page_width;
-  int page_height;
+  /* the user image params (for final image output) */
+  /* exposed in standard and geometry option groups */
+  struct img_params u;
 
   /*enhancement group*/
   int brightness;
@@ -248,15 +256,8 @@ struct scanner
   /* values which are derived from setting the options above */
   /* the user never directly modifies these */
 
-  /* this is defined in sane spec as a struct containing:
-	SANE_Frame format;
-	SANE_Bool last_frame;
-	SANE_Int lines;
-	SANE_Int depth; ( binary=1, gray=8, color=8 (!24) )
-	SANE_Int pixels_per_line;
-	SANE_Int bytes_per_line;
-  */
-  SANE_Parameters params;
+  /* the scanner image params (what we ask from scanner) */
+  struct img_params s;
 
   /* --------------------------------------------------------------------- */
   /* values which are set by calibration functions                         */
@@ -283,19 +284,6 @@ struct scanner
   int jpeg_stage;
   int jpeg_ff_offset;
 
-  /* scanner done yet? */
-  int eof_rx[2];
-
-  /* total to read/write */
-  int bytes_tot[2];
-
-  /* how far we have read */
-  int bytes_rx[2];
-  int lines_rx[2]; /*only used by 3091*/
-
-  /* how far we have written */
-  int bytes_tx[2];
-
   unsigned char * buffers[2];
 
   /* --------------------------------------------------------------------- */
@@ -308,6 +296,7 @@ struct scanner
 
   int panel_start;
   int panel_stop;
+  int panel_butt3;
   int panel_new_file;
   int panel_count_only;
   int panel_bypass_mode;
@@ -332,6 +321,28 @@ struct scanner
 #define SOURCE_ADF_FRONT 1
 #define SOURCE_ADF_BACK 2
 #define SOURCE_ADF_DUPLEX 3
+
+static const int dpi_list[] = {
+60,75,100,120,150,160,180,200,
+240,300,320,400,480,600,800,1200
+};
+
+#define DPI_60 0
+#define DPI_75 1
+#define DPI_100 2
+#define DPI_120 3
+#define DPI_150 4
+#define DPI_160 5
+#define DPI_180 6
+#define DPI_200 7
+#define DPI_240 8
+#define DPI_300 9
+#define DPI_320 10
+#define DPI_400 11
+#define DPI_480 12
+#define DPI_600 13
+#define DPI_800 14
+#define DPI_1200 15
 
 #define COMP_NONE WD_cmp_NONE
 #define COMP_JPEG WD_cmp_JPEG
@@ -490,6 +501,8 @@ static int get_page_width (struct scanner *s);
 static int get_page_height (struct scanner *s);
 
 static SANE_Status set_window (struct scanner *s);
+static SANE_Status update_params (struct scanner *s);
+static SANE_Status clean_params (struct scanner *s);
 
 static SANE_Status read_panel(struct scanner *s, SANE_Int option);
 static SANE_Status send_panel(struct scanner *s);

@@ -11,7 +11,7 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/" 
-:version "26"                    ; version of backend
+:version "28"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "New backend as of SANE release 1.0.20, testers needed, see manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -40,6 +40,12 @@
 :status :untested
 :comment "Please test!"
 
+:model "CR-180II"
+:interface "USB SCSI"
+:usbid "0x04a9" "0x1602"
+:status :untested
+:comment "Same as CR-180? Please test!"
+
 :model "DR-1210C"
 :interface "USB"
 :usbid "0x04a9" "0x2222"
@@ -55,14 +61,14 @@
 :model "DR-2010C"
 :interface "USB"
 :usbid "0x1083" "0x161b"
-:status :untested
-:comment "Please test!"
+:status :good
+:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width, 300/600dpi horizontal. Driver provides: Binary, Cropping, Calibration, other resolutions"
 
 :model "DR-2050C"
 :interface "USB"
 :usbid "0x04a9" "0x160a"
-:status :basic
-:comment "Gray/Color, Simplex/Duplex working. Poor calibration, only full-width scans."
+:status :good
+:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Cropping, Calibration"
 
 :model "DR-2050SP"
 :interface "USB"
@@ -73,20 +79,20 @@
 :model "DR-2080C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1601"
-:status :basic
-:comment "Gray/Color, Simplex/Duplex working. Poor calibration, only full-width scans."
+:status :good
+:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Cropping, Calibration"
 
 :model "DR-2510C"
 :interface "USB"
 :usbid "0x1083" "0x1617"
-:status :basic
-:comment "Gray/Color, Simplex/Duplex, 300/600dpi working. Poor calibration, only full-width scans."
+:status :good
+:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width, 300/600dpi horizontal. Driver provides: Binary, Cropping, Calibration, other resolutions"
 
 :model "DR-2580C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1608"
-:status :basic
-:comment "Gray/Color, Simplex/Duplex working. Poor calibration."
+:status :good
+:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Cropping, Calibration"
 
 :model "DR-3010C"
 :interface "USB"
@@ -159,6 +165,18 @@
 :status :untested
 :comment "Please test!"
 
+:model "DR-6010C"
+:interface "USB SCSI"
+:usbid "0x1083" "0x1626"
+:status :untested
+:comment "Please test!"
+
+:model "DR-6050C"
+:interface "USB SCSI"
+:usbid "0x1083" "0x1624"
+:status :untested
+:comment "Please test!"
+
 :model "DR-6080"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1607"
@@ -177,11 +195,23 @@
 :status :untested
 :comment "Please test!"
 
+:model "DR-7550C"
+:interface "USB SCSI"
+:usbid "0x1083" "0x1623"
+:status :untested
+:comment "Please test!"
+
 :model "DR-7580"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x160b"
 :status :good
 :comment "Simplex, duplex, all resolutions, binary/ht/gray, async mode, dropout-color, multifeed/staple detection, deskew, buttons and JPEG working. Imprinter, barcode, custom gamma and multistream unsupported"
+
+:model "DR-9050C"
+:interface "USB SCSI"
+:usbid "0x1083" "0x1622"
+:status :untested
+:comment "Please test!"
 
 :model "DR-9080C"
 :interface "USB SCSI"

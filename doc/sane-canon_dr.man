@@ -1,4 +1,4 @@
-.TH sane\-canon_dr 5 "20 Apr 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-canon_dr 5 "20 May 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-canon_dr
 
 .SH NAME
@@ -10,7 +10,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to some Canon DR-series scanners.
 
-This document describes backend version 26, which shipped with SANE 1.0.20.
+This document describes backend version 28, which shipped with SANE 1.0.20cvs.
 
 .SH SUPPORTED HARDWARE
 This version has only been tested with a few scanner models. Please see 
@@ -21,6 +21,13 @@ This backend may support other Canon scanners. The best
 way to determine level of support is to test the scanner directly,
 or to collect a trace of the windows driver in action.
 Please contact the author for help or with test results.
+
+In general, the larger machines (DR-4000 and up) which have been tested use
+a fairly complete protocol, with hardware support for many modes, resolutions 
+and features. The smaller machines have many limitations, like missing 
+horizontal resolutions, missing binary mode, always scanning full-width, etc.
+There is code in the backend to address these problems, but there seems to be
+no way to detect if they are required, so they must be hard-coded.
 
 .SH OPTIONS
 Effort has been made to expose most hardware options, including:
@@ -37,10 +44,9 @@ Selects the mode for the scan. Options
 may include "Lineart", "Halftone", "Gray", and "Color".
 .RE
 .PP
-resolution, y\-resolution
+resolution 
 .RS
-Controls scan resolution. Setting \-\-resolution also sets \-\-y\-resolution, 
-though this behavior is overridden by some frontends.
+Controls scan resolution.
 .RE
 .PP
 tl\-x, tl\-y, br\-x, br\-y
@@ -159,9 +165,14 @@ machines have not been tested. Their protocol is unknown.
 .SH CREDITS
   
 The various authors of the sane\-fujitsu backend provided useful code
+.br
 Corcaribe Tecnología C.A. www.cc.com.ve provided significant funding
+.br
 EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
+.br
 Canon, USA. www.usa.canon.com loaned equipment
+.br
+HPrint hprint.com.br provided funding and testing for DR-2xxx support
 
 .SH "SEE ALSO"
 sane(7),

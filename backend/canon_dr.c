@@ -8,6 +8,7 @@
    Corcaribe Tecnología C.A. www.cc.com.ve provided significant funding
    EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
    Canon, USA. www.usa.canon.com loaned equipment
+   HPrint hprint.com.br provided funding and testing for DR-2xxx support
 
    --------------------------------------------------------------------------
 
@@ -196,6 +197,22 @@
          - free image and fine cal buffers in sane_close()
          - compare page counter of small scanners only in non-buffered mode
          - add back-side gray mirroring code for DR-2580C
+      v28 2009-05-20, MAN
+         - use average instead of min/max for fine offset and gain
+         - rewrite supported resolution list as x and y arrays
+         - merge x and y resolution options into single option
+         - move scan params into two new structs, s->u and s->s
+         - sane_get_parameters() just returns values from s->u
+         - dont call wait_scanner() in object_position()
+         - dont call ssm_*() from option handler
+         - refactor sane_start()
+         - read_from_buffer() can workaround missing res, modes and cropping
+         - set most DR-2xxx machines to use the read_from_buffer workarounds
+         - set default threshold to 90
+         - add option for button #3 of some machines
+         - don't eject paper during init
+         - add DR-2010 quirks
+         - switch counter to HARD_SELECT, not SOFT
 
    SANE FLOW DIAGRAM
 
@@ -256,7 +273,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 27
+#define BUILD 28
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -701,11 +718,6 @@ attach_one (const char *device_name, int connType)
     return ret;
   }
 
-  /* eject paper leftover*/
-  if(object_position (s, SANE_FALSE)){
-    DBG (5, "attach_one: ERROR: cannot eject page\n");
-  }
-
   /* enable/read the buttons */
   ret = init_panel (s);
   if (ret != SANE_STATUS_GOOD) {
@@ -958,67 +970,83 @@ init_vpd (struct scanner *s)
       DBG (15, "  min y res: %d dpi\n", s->min_y_res);
 
       /* some scanners list B&W resolutions. */
-      s->std_res_60 = get_IN_std_res_60 (in);
-      DBG (15, "  60 dpi: %d\n", s->std_res_60);
+      s->std_res_x[DPI_60] = get_IN_std_res_60 (in);
+      s->std_res_y[DPI_60] = s->std_res_x[DPI_60];
+      DBG (15, "  60 dpi: %d\n", s->std_res_x[DPI_60]);
 
-      s->std_res_75 = get_IN_std_res_75 (in);
-      DBG (15, "  75 dpi: %d\n", s->std_res_75);
+      s->std_res_x[DPI_75] = get_IN_std_res_75 (in);
+      s->std_res_y[DPI_75] = s->std_res_x[DPI_75];
+      DBG (15, "  75 dpi: %d\n", s->std_res_x[DPI_75]);
 
-      s->std_res_100 = get_IN_std_res_100 (in);
-      DBG (15, "  100 dpi: %d\n", s->std_res_100);
+      s->std_res_x[DPI_100] = get_IN_std_res_100 (in);
+      s->std_res_y[DPI_100] = s->std_res_x[DPI_100];
+      DBG (15, "  100 dpi: %d\n", s->std_res_x[DPI_100]);
 
-      s->std_res_120 = get_IN_std_res_120 (in);
-      DBG (15, "  120 dpi: %d\n", s->std_res_120);
+      s->std_res_x[DPI_120] = get_IN_std_res_120 (in);
+      s->std_res_y[DPI_120] = s->std_res_x[DPI_120];
+      DBG (15, "  120 dpi: %d\n", s->std_res_x[DPI_120]);
 
-      s->std_res_150 = get_IN_std_res_150 (in);
-      DBG (15, "  150 dpi: %d\n", s->std_res_150);
+      s->std_res_x[DPI_150] = get_IN_std_res_150 (in);
+      s->std_res_y[DPI_150] = s->std_res_x[DPI_150];
+      DBG (15, "  150 dpi: %d\n", s->std_res_x[DPI_150]);
 
-      s->std_res_160 = get_IN_std_res_160 (in);
-      DBG (15, "  160 dpi: %d\n", s->std_res_160);
+      s->std_res_x[DPI_160] = get_IN_std_res_160 (in);
+      s->std_res_y[DPI_160] = s->std_res_x[DPI_160];
+      DBG (15, "  160 dpi: %d\n", s->std_res_x[DPI_160]);
 
-      s->std_res_180 = get_IN_std_res_180 (in);
-      DBG (15, "  180 dpi: %d\n", s->std_res_180);
+      s->std_res_x[DPI_180] = get_IN_std_res_180 (in);
+      s->std_res_y[DPI_180] = s->std_res_x[DPI_180];
+      DBG (15, "  180 dpi: %d\n", s->std_res_x[DPI_180]);
 
-      s->std_res_200 = get_IN_std_res_200 (in);
-      DBG (15, "  200 dpi: %d\n", s->std_res_200);
+      s->std_res_x[DPI_200] = get_IN_std_res_200 (in);
+      s->std_res_y[DPI_200] = s->std_res_x[DPI_200];
+      DBG (15, "  200 dpi: %d\n", s->std_res_x[DPI_200]);
 
-      s->std_res_240 = get_IN_std_res_240 (in);
-      DBG (15, "  240 dpi: %d\n", s->std_res_240);
+      s->std_res_x[DPI_240] = get_IN_std_res_240 (in);
+      s->std_res_y[DPI_240] = s->std_res_x[DPI_240];
+      DBG (15, "  240 dpi: %d\n", s->std_res_x[DPI_240]);
 
-      s->std_res_300 = get_IN_std_res_300 (in);
-      DBG (15, "  300 dpi: %d\n", s->std_res_300);
+      s->std_res_x[DPI_300] = get_IN_std_res_300 (in);
+      s->std_res_y[DPI_300] = s->std_res_x[DPI_300];
+      DBG (15, "  300 dpi: %d\n", s->std_res_x[DPI_300]);
 
-      s->std_res_320 = get_IN_std_res_320 (in);
-      DBG (15, "  320 dpi: %d\n", s->std_res_320);
+      s->std_res_x[DPI_320] = get_IN_std_res_320 (in);
+      s->std_res_y[DPI_320] = s->std_res_x[DPI_320];
+      DBG (15, "  320 dpi: %d\n", s->std_res_x[DPI_320]);
 
-      s->std_res_400 = get_IN_std_res_400 (in);
-      DBG (15, "  400 dpi: %d\n", s->std_res_400);
+      s->std_res_x[DPI_400] = get_IN_std_res_400 (in);
+      s->std_res_y[DPI_400] = s->std_res_x[DPI_400];
+      DBG (15, "  400 dpi: %d\n", s->std_res_x[DPI_400]);
 
-      s->std_res_480 = get_IN_std_res_480 (in);
-      DBG (15, "  480 dpi: %d\n", s->std_res_480);
+      s->std_res_x[DPI_480] = get_IN_std_res_480 (in);
+      s->std_res_y[DPI_480] = s->std_res_x[DPI_480];
+      DBG (15, "  480 dpi: %d\n", s->std_res_x[DPI_480]);
 
-      s->std_res_600 = get_IN_std_res_600 (in);
-      DBG (15, "  600 dpi: %d\n", s->std_res_600);
+      s->std_res_x[DPI_600] = get_IN_std_res_600 (in);
+      s->std_res_y[DPI_600] = s->std_res_x[DPI_600];
+      DBG (15, "  600 dpi: %d\n", s->std_res_x[DPI_600]);
 
-      s->std_res_800 = get_IN_std_res_800 (in);
-      DBG (15, "  800 dpi: %d\n", s->std_res_800);
+      s->std_res_x[DPI_800] = get_IN_std_res_800 (in);
+      s->std_res_y[DPI_800] = s->std_res_x[DPI_800];
+      DBG (15, "  800 dpi: %d\n", s->std_res_x[DPI_800]);
 
-      s->std_res_1200 = get_IN_std_res_1200 (in);
-      DBG (15, "  1200 dpi: %d\n", s->std_res_1200);
+      s->std_res_x[DPI_1200] = get_IN_std_res_1200 (in);
+      s->std_res_y[DPI_1200] = s->std_res_x[DPI_1200];
+      DBG (15, "  1200 dpi: %d\n", s->std_res_x[DPI_1200]);
 
       /* maximum window width and length are reported in basic units.*/
-      s->max_x_basic = get_IN_window_width(in);
-      DBG(15, "  max width: %2.2f inches\n",(float)s->max_x_basic/s->basic_x_res);
+      s->max_x = get_IN_window_width(in) * 1200 / s->basic_x_res;
+      DBG(15, "  max width: %2.2f inches\n",(float)s->max_x/1200);
 
-      s->max_y_basic = get_IN_window_length(in);
-      DBG(15, "  max length: %2.2f inches\n",(float)s->max_y_basic/s->basic_y_res);
+      s->max_y = get_IN_window_length(in) * 1200 / s->basic_y_res;
+      DBG(15, "  max length: %2.2f inches\n",(float)s->max_y/1200);
 
       DBG (15, "  AWD: %d\n", get_IN_awd(in));
       DBG (15, "  CE Emphasis: %d\n", get_IN_ce_emphasis(in));
       DBG (15, "  C Emphasis: %d\n", get_IN_c_emphasis(in));
       DBG (15, "  High quality: %d\n", get_IN_high_quality(in));
 
-      /* known modes */
+      /* known modes FIXME more here? */
       s->can_grayscale = get_IN_multilevel (in);
       DBG (15, "  grayscale: %d\n", s->can_grayscale);
 
@@ -1070,11 +1098,8 @@ init_model (struct scanner *s)
   s->contrast_steps = 255;
   s->threshold_steps = 255;
 
-  /* convert to 1200dpi units */
-  s->max_x = s->max_x_basic * 1200 / s->basic_x_res;
-  s->max_y = s->max_y_basic * 1200 / s->basic_y_res;
-
   /* assume these are same as adf, override below */
+  s->valid_x = s->max_x;
   s->max_x_fb = s->max_x;
   s->max_y_fb = s->max_y;
 
@@ -1100,27 +1125,34 @@ init_model (struct scanner *s)
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
     s->need_cal = 1;
+
+    /*lies*/
+    s->can_halftone=0;
+    s->can_monochrome=0;
   }
 
-  else if (strstr (s->model_name,"DR-2510")){
+  else if (strstr (s->model_name,"DR-2510")
+   || strstr (s->model_name,"DR-2010")
+  ){
     s->rgb_format = 1;
     s->always_op = 0;
     s->unknown_byte2 = 0x80;
     s->fixed_width = 1;
+    s->valid_x = 8.5 * 1200;
     s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_2510;
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_2510;
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_2510;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_2510;
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
     s->need_cal = 1;
-    s->invert_tly = 1;
+    /*s->invert_tly = 1;*/
 
-    /*only in Y direction, so we trash them*/
-    s->std_res_100=0;
-    s->std_res_150=0;
-    s->std_res_200=0;
-    s->std_res_240=0;
-    s->std_res_400=0;
+    /*only in Y direction, so we trash them in X*/
+    s->std_res_x[DPI_100]=0;
+    s->std_res_x[DPI_150]=0;
+    s->std_res_x[DPI_200]=0;
+    s->std_res_x[DPI_240]=0;
+    s->std_res_x[DPI_400]=0;
 
     /*lies*/
     s->can_halftone=0;
@@ -1128,15 +1160,17 @@ init_model (struct scanner *s)
   }
 
   else if (strstr (s->model_name,"DR-2050")
-   || strstr (s->model_name,"DR-2080")
-  ){
+   || strstr (s->model_name,"DR-2080")){
     s->can_write_panel = 0;
     s->has_df = 0;
     s->fixed_width = 1;
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
-    s->need_cal = 1;
+
+    /*lies*/
+    s->can_halftone=0;
+    s->can_monochrome=0;
   }
 
   DBG (10, "init_model: finish\n");
@@ -1176,48 +1210,43 @@ init_user (struct scanner *s)
 
   /* source */
   if(s->has_flatbed)
-    s->source = SOURCE_FLATBED;
+    s->u.source = SOURCE_FLATBED;
   else if(s->has_adf)
-    s->source = SOURCE_ADF_FRONT;
+    s->u.source = SOURCE_ADF_FRONT;
 
   /* scan mode */
   if(s->can_monochrome)
-    s->mode = MODE_LINEART;
+    s->u.mode=MODE_LINEART;
   else if(s->can_halftone)
-    s->mode=MODE_HALFTONE;
+    s->u.mode=MODE_HALFTONE;
   else if(s->can_grayscale)
-    s->mode=MODE_GRAYSCALE;
+    s->u.mode=MODE_GRAYSCALE;
   else if(s->can_color)
-    s->mode=MODE_COLOR;
+    s->u.mode=MODE_COLOR;
 
-  /*x res*/
-  s->resolution_x = s->basic_x_res;
-
-  /*y res*/
-  s->resolution_y = s->basic_y_res;
-  if(s->resolution_y > s->resolution_x){
-    s->resolution_y = s->resolution_x;
-  }
+  /*x and y res*/
+  s->u.dpi_x = s->basic_x_res;
+  s->u.dpi_y = s->basic_x_res;
 
   /* page width US-Letter */
-  s->page_width = 8.5 * 1200;
-  if(s->page_width > s->max_x || s->fixed_width){
-    s->page_width = s->max_x;
+  s->u.page_x = 8.5 * 1200;
+  if(s->u.page_x > s->valid_x){
+    s->u.page_x = s->valid_x;
   }
 
   /* page height US-Letter */
-  s->page_height = 11 * 1200;
-  if(s->page_height > s->max_y){
-    s->page_height = s->max_y;
+  s->u.page_y = 11 * 1200;
+  if(s->u.page_y > s->max_y){
+    s->u.page_y = s->max_y;
   }
 
   /* bottom-right x */
-  s->br_x = s->page_width;
+  s->u.br_x = s->u.page_x;
 
   /* bottom-right y */
-  s->br_y = s->page_height;
+  s->u.br_y = s->u.page_y;
 
-  s->threshold = 0x80;
+  s->threshold = 90;
   s->compress_arg = 50;
 
   DBG (10, "init_user: finish\n");
@@ -1392,13 +1421,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   /* scan mode */
   if(option==OPT_MODE){
     i=0;
-    if(s->can_monochrome){
+    if(s->can_monochrome || s->can_grayscale || s->can_color){
       s->mode_list[i++]=string_Lineart;
     }
     if(s->can_halftone){
       s->mode_list[i++]=string_Halftone;
     }
-    if(s->can_grayscale){
+    if(s->can_grayscale || s->can_color){
       s->mode_list[i++]=string_Grayscale;
     }
     if(s->can_color){
@@ -1416,60 +1445,62 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
   }
 
-  /* x resolution */
+  /* resolution */
   /* some scanners only support fixed res
    * build a list of possible choices */
-  if(option==OPT_X_RES){
+  /* we actually only look at the y resolution choices,
+   * and interpolate the image data as required for limited x resolutions */
+  if(option==OPT_RES){
     i=0;
-    if(s->std_res_60 && s->max_x_res >= 60 && s->min_x_res <= 60){
-      s->x_res_list[++i] = 60;
+    if(s->std_res_y[DPI_60] && s->max_y_res >= 60 && s->min_y_res <= 60){
+      s->res_list[++i] = 60;
     }
-    if(s->std_res_75 && s->max_x_res >= 75 && s->min_x_res <= 75){
-      s->x_res_list[++i] = 75;
+    if(s->std_res_y[DPI_75] && s->max_y_res >= 75 && s->min_y_res <= 75){
+      s->res_list[++i] = 75;
     }
-    if(s->std_res_100 && s->max_x_res >= 100 && s->min_x_res <= 100){
-      s->x_res_list[++i] = 100;
+    if(s->std_res_y[DPI_100] && s->max_y_res >= 100 && s->min_y_res <= 100){
+      s->res_list[++i] = 100;
     }
-    if(s->std_res_120 && s->max_x_res >= 120 && s->min_x_res <= 120){
-      s->x_res_list[++i] = 120;
+    if(s->std_res_y[DPI_120] && s->max_y_res >= 120 && s->min_y_res <= 120){
+      s->res_list[++i] = 120;
     }
-    if(s->std_res_150 && s->max_x_res >= 150 && s->min_x_res <= 150){
-      s->x_res_list[++i] = 150;
+    if(s->std_res_y[DPI_150] && s->max_y_res >= 150 && s->min_y_res <= 150){
+      s->res_list[++i] = 150;
     }
-    if(s->std_res_160 && s->max_x_res >= 160 && s->min_x_res <= 160){
-      s->x_res_list[++i] = 160;
+    if(s->std_res_y[DPI_160] && s->max_y_res >= 160 && s->min_y_res <= 160){
+      s->res_list[++i] = 160;
     }
-    if(s->std_res_180 && s->max_x_res >= 180 && s->min_x_res <= 180){
-      s->x_res_list[++i] = 180;
+    if(s->std_res_y[DPI_180] && s->max_y_res >= 180 && s->min_y_res <= 180){
+      s->res_list[++i] = 180;
     }
-    if(s->std_res_200 && s->max_x_res >= 200 && s->min_x_res <= 200){
-      s->x_res_list[++i] = 200;
+    if(s->std_res_y[DPI_200] && s->max_y_res >= 200 && s->min_y_res <= 200){
+      s->res_list[++i] = 200;
     }
-    if(s->std_res_240 && s->max_x_res >= 240 && s->min_x_res <= 240){
-      s->x_res_list[++i] = 240;
+    if(s->std_res_y[DPI_240] && s->max_y_res >= 240 && s->min_y_res <= 240){
+      s->res_list[++i] = 240;
     }
-    if(s->std_res_300 && s->max_x_res >= 300 && s->min_x_res <= 300){
-      s->x_res_list[++i] = 300;
+    if(s->std_res_y[DPI_300] && s->max_y_res >= 300 && s->min_y_res <= 300){
+      s->res_list[++i] = 300;
     }
-    if(s->std_res_320 && s->max_x_res >= 320 && s->min_x_res <= 320){
-      s->x_res_list[++i] = 320;
+    if(s->std_res_y[DPI_320] && s->max_y_res >= 320 && s->min_y_res <= 320){
+      s->res_list[++i] = 320;
     }
-    if(s->std_res_400 && s->max_x_res >= 400 && s->min_x_res <= 400){
-      s->x_res_list[++i] = 400;
+    if(s->std_res_y[DPI_400] && s->max_y_res >= 400 && s->min_y_res <= 400){
+      s->res_list[++i] = 400;
     }
-    if(s->std_res_480 && s->max_x_res >= 480 && s->min_x_res <= 480){
-      s->x_res_list[++i] = 480;
+    if(s->std_res_y[DPI_480] && s->max_y_res >= 480 && s->min_y_res <= 480){
+      s->res_list[++i] = 480;
     }
-    if(s->std_res_600 && s->max_x_res >= 600 && s->min_x_res <= 600){
-      s->x_res_list[++i] = 600;
+    if(s->std_res_y[DPI_600] && s->max_y_res >= 600 && s->min_y_res <= 600){
+      s->res_list[++i] = 600;
     }
-    if(s->std_res_800 && s->max_x_res >= 800 && s->min_x_res <= 800){
-      s->x_res_list[++i] = 800;
+    if(s->std_res_y[DPI_800] && s->max_y_res >= 800 && s->min_y_res <= 800){
+      s->res_list[++i] = 800;
     }
-    if(s->std_res_1200 && s->max_x_res >= 1200 && s->min_x_res <= 1200){
-      s->x_res_list[++i] = 1200;
+    if(s->std_res_y[DPI_1200] && s->max_y_res >= 1200 && s->min_y_res <= 1200){
+      s->res_list[++i] = 1200;
     }
-    s->x_res_list[0] = i;
+    s->res_list[0] = i;
   
     opt->name = SANE_NAME_SCAN_RESOLUTION;
     opt->title = SANE_TITLE_SCAN_X_RESOLUTION;
@@ -1478,89 +1509,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_DPI;
     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
   
-    if(s->step_x_res){
-      s->x_res_range.min = s->min_x_res;
-      s->x_res_range.max = s->max_x_res;
-      s->x_res_range.quant = s->step_x_res;
-      opt->constraint_type = SANE_CONSTRAINT_RANGE;
-      opt->constraint.range = &s->x_res_range;
-    }
-    else{
-      opt->constraint_type = SANE_CONSTRAINT_WORD_LIST;
-      opt->constraint.word_list = s->x_res_list;
-    }
-  }
-
-  /* y resolution */
-  if(option==OPT_Y_RES){
-    i=0;
-    if(s->std_res_60 && s->max_y_res >= 60 && s->min_y_res <= 60){
-      s->y_res_list[++i] = 60;
-    }
-    if(s->std_res_75 && s->max_y_res >= 75 && s->min_y_res <= 75){
-      s->y_res_list[++i] = 75;
-    }
-    if(s->std_res_100 && s->max_y_res >= 100 && s->min_y_res <= 100){
-      s->y_res_list[++i] = 100;
-    }
-    if(s->std_res_120 && s->max_y_res >= 120 && s->min_y_res <= 120){
-      s->y_res_list[++i] = 120;
-    }
-    if(s->std_res_150 && s->max_y_res >= 150 && s->min_y_res <= 150){
-      s->y_res_list[++i] = 150;
-    }
-    if(s->std_res_160 && s->max_y_res >= 160 && s->min_y_res <= 160){
-      s->y_res_list[++i] = 160;
-    }
-    if(s->std_res_180 && s->max_y_res >= 180 && s->min_y_res <= 180){
-      s->y_res_list[++i] = 180;
-    }
-    if(s->std_res_200 && s->max_y_res >= 200 && s->min_y_res <= 200){
-      s->y_res_list[++i] = 200;
-    }
-    if(s->std_res_240 && s->max_y_res >= 240 && s->min_y_res <= 240){
-      s->y_res_list[++i] = 240;
-    }
-    if(s->std_res_300 && s->max_y_res >= 300 && s->min_y_res <= 300){
-      s->y_res_list[++i] = 300;
-    }
-    if(s->std_res_320 && s->max_y_res >= 320 && s->min_y_res <= 320){
-      s->y_res_list[++i] = 320;
-    }
-    if(s->std_res_400 && s->max_y_res >= 400 && s->min_y_res <= 400){
-      s->y_res_list[++i] = 400;
-    }
-    if(s->std_res_480 && s->max_y_res >= 480 && s->min_y_res <= 480){
-      s->y_res_list[++i] = 480;
-    }
-    if(s->std_res_600 && s->max_y_res >= 600 && s->min_y_res <= 600){
-      s->y_res_list[++i] = 600;
-    }
-    if(s->std_res_800 && s->max_y_res >= 800 && s->min_y_res <= 800){
-      s->y_res_list[++i] = 800;
-    }
-    if(s->std_res_1200 && s->max_y_res >= 1200 && s->min_y_res <= 1200){
-      s->y_res_list[++i] = 1200;
-    }
-    s->y_res_list[0] = i;
-  
-    opt->name = SANE_NAME_SCAN_Y_RESOLUTION;
-    opt->title = SANE_TITLE_SCAN_Y_RESOLUTION;
-    opt->desc = SANE_DESC_SCAN_Y_RESOLUTION;
-    opt->type = SANE_TYPE_INT;
-    opt->unit = SANE_UNIT_DPI;
-    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-  
     if(s->step_y_res){
-      s->y_res_range.min = s->min_y_res;
-      s->y_res_range.max = s->max_y_res;
-      s->y_res_range.quant = s->step_y_res;
+      s->res_range.min = s->min_y_res;
+      s->res_range.max = s->max_y_res;
+      s->res_range.quant = s->step_y_res;
       opt->constraint_type = SANE_CONSTRAINT_RANGE;
-      opt->constraint.range = &s->y_res_range;
+      opt->constraint.range = &s->res_range;
     }
     else{
       opt->constraint_type = SANE_CONSTRAINT_WORD_LIST;
-      opt->constraint.word_list = s->y_res_list;
+      opt->constraint.word_list = s->res_list;
     }
   }
 
@@ -1650,7 +1608,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     /* values stored in 1200 dpi units */
     /* must be converted to MM for sane */
     s->paper_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
-    s->paper_x_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_x);
+    s->paper_x_range.max = SCANNER_UNIT_TO_FIXED_MM(s->valid_x);
     s->paper_x_range.quant = MM_PER_UNIT_FIX;
 
     opt->name = SANE_NAME_PAGE_WIDTH;
@@ -1663,7 +1621,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if(s->has_adf){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->source == SOURCE_FLATBED){
+      if(s->u.source == SOURCE_FLATBED){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -1690,7 +1648,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if(s->has_adf){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->source == SOURCE_FLATBED){
+      if(s->u.source == SOURCE_FLATBED){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -1769,7 +1727,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (s->threshold_steps){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->mode != MODE_LINEART){
+      if(s->u.mode != MODE_LINEART){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -1820,7 +1778,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (i > 1){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if (s->mode != MODE_COLOR && s->mode != MODE_GRAYSCALE){
+      if (s->u.mode != MODE_COLOR && s->u.mode != MODE_GRAYSCALE){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -1930,7 +1888,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (1){
       opt->cap = SANE_CAP_SOFT_SELECT|SANE_CAP_SOFT_DETECT|SANE_CAP_ADVANCED;
-      if(s->mode == MODE_COLOR)
+      if(s->u.mode == MODE_COLOR)
         opt->cap |= SANE_CAP_INACTIVE;
     }
     else
@@ -1958,7 +1916,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (1){
       opt->cap = SANE_CAP_SOFT_SELECT|SANE_CAP_SOFT_DETECT|SANE_CAP_ADVANCED;
-      if(s->mode == MODE_COLOR)
+      if(s->u.mode == MODE_COLOR)
         opt->cap |= SANE_CAP_INACTIVE;
     }
     else
@@ -1988,8 +1946,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   if(option==OPT_START){
     opt->name = "start";
-    opt->title = "Start button";
-    opt->desc = "Big green button";
+    opt->title = "Start/1 button";
+    opt->desc = "Big green or small 1 button";
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
@@ -1997,8 +1955,17 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   if(option==OPT_STOP){
     opt->name = "stop";
-    opt->title = "Stop button";
-    opt->desc = "Little orange button";
+    opt->title = "Stop/2 button";
+    opt->desc = "Small orange or small 2 button";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  }
+
+  if(option==OPT_BUTT3){
+    opt->name = "button-3";
+    opt->title = "3 button";
+    opt->desc = "Small 3 button";
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
@@ -2044,7 +2011,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->counter_range.quant=1;
 
     if (s->has_counter)
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+     opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2113,65 +2080,61 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_SOURCE:
-          if(s->source == SOURCE_FLATBED){
+          if(s->u.source == SOURCE_FLATBED){
             strcpy (val, string_Flatbed);
           }
-          else if(s->source == SOURCE_ADF_FRONT){
+          else if(s->u.source == SOURCE_ADF_FRONT){
             strcpy (val, string_ADFFront);
           }
-          else if(s->source == SOURCE_ADF_BACK){
+          else if(s->u.source == SOURCE_ADF_BACK){
             strcpy (val, string_ADFBack);
           }
-          else if(s->source == SOURCE_ADF_DUPLEX){
+          else if(s->u.source == SOURCE_ADF_DUPLEX){
             strcpy (val, string_ADFDuplex);
           }
           return SANE_STATUS_GOOD;
 
         case OPT_MODE:
-          if(s->mode == MODE_LINEART){
+          if(s->u.mode == MODE_LINEART){
             strcpy (val, string_Lineart);
           }
-          else if(s->mode == MODE_HALFTONE){
+          else if(s->u.mode == MODE_HALFTONE){
             strcpy (val, string_Halftone);
           }
-          else if(s->mode == MODE_GRAYSCALE){
+          else if(s->u.mode == MODE_GRAYSCALE){
             strcpy (val, string_Grayscale);
           }
-          else if(s->mode == MODE_COLOR){
+          else if(s->u.mode == MODE_COLOR){
             strcpy (val, string_Color);
           }
           return SANE_STATUS_GOOD;
 
-        case OPT_X_RES:
-          *val_p = s->resolution_x;
-          return SANE_STATUS_GOOD;
-
-        case OPT_Y_RES:
-          *val_p = s->resolution_y;
+        case OPT_RES:
+          *val_p = s->u.dpi_x;
           return SANE_STATUS_GOOD;
 
         case OPT_TL_X:
-          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->tl_x);
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->u.tl_x);
           return SANE_STATUS_GOOD;
 
         case OPT_TL_Y:
-          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->tl_y);
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->u.tl_y);
           return SANE_STATUS_GOOD;
 
         case OPT_BR_X:
-          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->br_x);
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->u.br_x);
           return SANE_STATUS_GOOD;
 
         case OPT_BR_Y:
-          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->br_y);
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->u.br_y);
           return SANE_STATUS_GOOD;
 
         case OPT_PAGE_WIDTH:
-          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->page_width);
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->u.page_x);
           return SANE_STATUS_GOOD;
 
         case OPT_PAGE_HEIGHT:
-          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->page_height);
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->u.page_y);
           return SANE_STATUS_GOOD;
 
         case OPT_BRIGHTNESS:
@@ -2287,6 +2250,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->panel_stop;
           return ret;
 
+        case OPT_BUTT3:
+          ret = read_panel(s,OPT_BUTT3);
+          *val_p = s->panel_butt3;
+          return ret;
+
         case OPT_NEWFILE:
           ret = read_panel(s,OPT_NEWFILE);
           *val_p = s->panel_new_file;
@@ -2359,12 +2327,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             tmp = SOURCE_FLATBED;
           }
 
-          if (s->source == tmp) 
+          if (s->u.source == tmp) 
               return SANE_STATUS_GOOD;
 
-          s->source = tmp;
+          s->u.source = tmp;
+
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-          return ssm_buffer(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_MODE:
           if (!strcmp (val, string_Lineart)) {
@@ -2380,93 +2349,77 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             tmp = MODE_COLOR;
           }
 
-          if (tmp == s->mode)
+          if (tmp == s->u.mode)
               return SANE_STATUS_GOOD;
 
-          s->mode = tmp;
-          *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-          return SANE_STATUS_GOOD;
-
-        case OPT_X_RES:
-
-          if (s->resolution_x == val_c) 
-              return SANE_STATUS_GOOD;
-
-          /* currently the same? move y too */
-          if (s->resolution_x == s->resolution_y){
-            s->resolution_y = val_c;
-            /*sanei_constrain_value (s->opt + OPT_Y_RES, (void *) &val_c, 0) == SANE_STATUS_GOOD*/
-          } 
-
-          s->resolution_x = val_c;
+          s->u.mode = tmp;
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
-        case OPT_Y_RES:
+        case OPT_RES:
 
-          if (s->resolution_y == val_c) 
+          if (s->u.dpi_x == val_c && s->u.dpi_y == val_c) 
               return SANE_STATUS_GOOD;
 
-          s->resolution_y = val_c;
+          s->u.dpi_x = val_c;
+          s->u.dpi_y = val_c;
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         /* Geometry Group */
         case OPT_TL_X:
-          if (s->tl_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
+          if (s->u.tl_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
-          if(!s->fixed_width)
-            s->tl_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          s->u.tl_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_TL_Y:
-          if (s->tl_y == FIXED_MM_TO_SCANNER_UNIT(val_c))
+          if (s->u.tl_y == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
-          s->tl_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          s->u.tl_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_BR_X:
-          if (s->br_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
+          if (s->u.br_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
-          if(!s->fixed_width)
-            s->br_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          s->u.br_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_BR_Y:
-          if (s->br_y == FIXED_MM_TO_SCANNER_UNIT(val_c))
+          if (s->u.br_y == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
-          s->br_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          s->u.br_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_PAGE_WIDTH:
-          if (s->page_width == FIXED_MM_TO_SCANNER_UNIT(val_c))
+          if (s->u.page_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
-          if(!s->fixed_width)
-            s->page_width = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          s->u.page_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
 
           *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_PAGE_HEIGHT:
-          if (s->page_height == FIXED_MM_TO_SCANNER_UNIT(val_c))
+          if (s->u.page_y == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
-          s->page_height = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          s->u.page_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
+
           *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
@@ -2503,19 +2456,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_DF_LENGTH:
           s->df_length = val_c;
-          return ssm_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_DF_THICKNESS:
           s->df_thickness = val_c;
-          return ssm_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_ROLLERDESKEW:
           s->rollerdeskew = val_c;
-          return ssm_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_STAPLEDETECT:
           s->stapledetect = val_c;
-          return ssm_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_DROPOUT_COLOR_F:
           if (!strcmp(val, string_None))
@@ -2532,7 +2485,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->dropout_color_f = COLOR_EN_GREEN;
           else if (!strcmp(val, string_En_Blue))
             s->dropout_color_f = COLOR_EN_BLUE;
-          return ssm_do(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_DROPOUT_COLOR_B:
           if (!strcmp(val, string_None))
@@ -2549,16 +2502,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->dropout_color_b = COLOR_EN_GREEN;
           else if (!strcmp(val, string_En_Blue))
             s->dropout_color_b = COLOR_EN_BLUE;
-          return ssm_do(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_BUFFERMODE:
           s->buffermode = val_c;
-          return ssm_buffer(s);
+          return SANE_STATUS_GOOD;
 
-        /* Sensor Group */
-        case OPT_COUNTER:
-          s->panel_counter = val_c;
-          return send_panel(s);
       }
   }                           /* else */
 
@@ -2587,7 +2536,7 @@ ssm_buffer (struct scanner *s)
   set_SSM_page_code(out, SM_pc_buffer);
   set_SSM_page_len(out, SSM_PAGE_len);
 
-  if(s->source == SOURCE_ADF_DUPLEX){
+  if(s->s.source == SOURCE_ADF_DUPLEX){
     set_SSM_BUFF_duplex(out, 1);
   }
   if(s->buffermode){
@@ -2797,6 +2746,7 @@ read_panel(struct scanner *s,SANE_Int option)
 
       s->panel_start = get_R_PANEL_start(in);
       s->panel_stop = get_R_PANEL_stop(in);
+      s->panel_butt3 = get_R_PANEL_butt3(in);
       s->panel_new_file = get_R_PANEL_new_file(in);
       s->panel_count_only = get_R_PANEL_count_only(in);
       s->panel_bypass_mode = get_R_PANEL_bypass_mode(in);
@@ -2884,80 +2834,33 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     struct scanner *s = (struct scanner *) handle;
   
     DBG (10, "sane_get_parameters: start\n");
-  
-    /* started? get param data from struct */
-    if(s->started){
-        DBG (15, "sane_get_parameters: started, copying to caller\n");
-        params->format = s->params.format;
-        params->last_frame = s->params.last_frame;
-        params->lines = s->params.lines;
-        params->depth = s->params.depth;
-        params->pixels_per_line = s->params.pixels_per_line;
-        params->bytes_per_line = s->params.bytes_per_line;
+
+    if(!s->started){
+      ret = update_params(s);
+      if(ret){
+        DBG (5, "sane_get_parameters: error, returning %d\n", ret);
+        return ret;
+      }
     }
 
-    /* not started? get param data from user settings */
-    else {
-        DBG (15, "sane_get_parameters: not started, updating\n");
+    /* this backend only sends single frame images */
+    params->last_frame = 1;
 
-        /* this backend only sends single frame images */
-        params->last_frame = 1;
-
-        params->pixels_per_line = (s->br_x - s->tl_x) * s->resolution_x / 1200;
-  
-        params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
-
-        /* round lines down to even number */
-        params->lines -= params->lines % 2;
-      
-        if (s->mode == MODE_COLOR) {
-            params->format = SANE_FRAME_RGB;
-            params->depth = 8;
-
-#ifdef SANE_FRAME_JPEG
-            /* jpeg requires 8x8 squares */
-            if(s->compress == COMP_JPEG){
-              params->format = SANE_FRAME_JPEG;
-              params->pixels_per_line -= params->pixels_per_line % 8;
-              params->lines -= params->lines % 8;
-            }
-#endif
-
-            params->bytes_per_line = params->pixels_per_line * 3;
-        }
-        else if (s->mode == MODE_GRAYSCALE) {
-            params->format = SANE_FRAME_GRAY;
-            params->depth = 8;
-
-#ifdef SANE_FRAME_JPEG
-            /* jpeg requires 8x8 squares */
-            if(s->compress == COMP_JPEG){
-              params->format = SANE_FRAME_JPEG;
-              params->pixels_per_line -= params->pixels_per_line % 8;
-              params->lines -= params->lines % 8;
-            }
-#endif
-
-            params->bytes_per_line = params->pixels_per_line;
-        }
-        else {
-            params->format = SANE_FRAME_GRAY;
-            params->depth = 1;
-
-            /* round down to byte boundary */
-            params->pixels_per_line -= params->pixels_per_line % 8;
-            params->bytes_per_line = params->pixels_per_line / 8;
-        }
-    }
+    params->format = s->u.format;
+    params->lines = s->u.height;
+    params->depth = s->u.bpp;
+    if(params->depth == 24) params->depth = 8;
+    params->pixels_per_line = s->u.width;
+    params->bytes_per_line = s->u.Bpl;
 
     DBG(15,"sane_get_parameters: x: max=%d, page=%d, gpw=%d, res=%d\n",
-      s->max_x, s->page_width, get_page_width(s), s->resolution_x);
+      s->valid_x, s->u.page_x, get_page_width(s), s->u.dpi_x);
 
     DBG(15,"sane_get_parameters: y: max=%d, page=%d, gph=%d, res=%d\n",
-      s->max_y, s->page_height, get_page_height(s), s->resolution_y);
+      s->max_y, s->u.page_y, get_page_height(s), s->u.dpi_y);
 
     DBG(15,"sane_get_parameters: area: tlx=%d, brx=%d, tly=%d, bry=%d\n",
-      s->tl_x, s->br_x, s->tl_y, s->br_y);
+      s->u.tl_x, s->u.br_x, s->u.tl_y, s->u.br_y);
 
     DBG (15, "sane_get_parameters: params: ppl=%d, Bpl=%d, lines=%d\n", 
       params->pixels_per_line, params->bytes_per_line, params->lines);
@@ -2967,6 +2870,136 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
     DBG (10, "sane_get_parameters: finish\n");
   
+    return ret;
+}
+
+SANE_Status
+update_params(struct scanner *s)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+  
+    DBG (10, "update_params: start\n");
+  
+    s->u.width = (s->u.br_x - s->u.tl_x) * s->u.dpi_x / 1200;
+    s->u.height = (s->u.br_y - s->u.tl_y) * s->u.dpi_y / 1200;
+
+    /* round lines down to even number */
+    s->u.height -= s->u.height % 2;
+  
+    if (s->u.mode == MODE_COLOR) {
+      s->u.format = SANE_FRAME_RGB;
+      s->u.bpp = 24;
+    }
+    else if (s->u.mode == MODE_GRAYSCALE) {
+      s->u.format = SANE_FRAME_GRAY;
+      s->u.bpp = 8;
+    }
+    else {
+      s->u.format = SANE_FRAME_GRAY;
+      s->u.bpp = 1;
+
+      /* round down to byte boundary */
+      s->u.width -= s->u.width % 8;
+    }
+
+#ifdef SANE_FRAME_JPEG
+    /* jpeg requires 8x8 squares */
+    if(s->compress == COMP_JPEG && s->u.mode >= MODE_GRAYSCALE){
+      s->u.format = SANE_FRAME_JPEG;
+      s->u.width -= s->u.width % 8;
+      s->u.height -= s->u.height % 8;
+    }
+#endif
+
+    s->u.Bpl = s->u.width * s->u.bpp / 8;
+    s->u.valid_Bpl = s->u.Bpl;
+    s->u.valid_width = s->u.width;
+
+    DBG (15, "update_params: user params: w:%d h:%d m:%d f:%d b:%d\n",
+      s->u.width, s->u.height, s->u.mode, s->u.format, s->u.bpp);
+    DBG (15, "update_params: user params: B:%d vB:%d vw:%d\n",
+      s->u.Bpl, s->u.valid_Bpl, s->u.valid_width);
+    DBG (15, "update_params: user params: x b:%d t:%d d:%d y b:%d t:%d d:%d\n",
+      s->u.br_x, s->u.tl_x, s->u.dpi_x, s->u.br_y, s->u.tl_y, s->u.dpi_y);
+
+    /* some scanners are limited in their valid scan params
+     * make a second version of the params struct, but 
+     * override the user's values with what the scanner can actually do */
+
+    memcpy(&s->s,&s->u,sizeof(struct img_params));
+
+    /*********** missing modes (move up to valid one) **************/
+    if(s->s.mode == MODE_LINEART && !s->can_monochrome){
+      s->s.mode = MODE_GRAYSCALE;
+      s->s.format = SANE_FRAME_GRAY;
+      s->s.bpp = 8;
+    }
+    if(s->s.mode == MODE_GRAYSCALE && !s->can_grayscale){
+      s->s.mode = MODE_COLOR;
+      s->s.format = SANE_FRAME_RGB;
+      s->s.bpp = 24;
+    }
+    if(s->s.mode == MODE_COLOR && !s->can_color){
+      DBG (5, "update_params: no valid mode\n");
+      return SANE_STATUS_INVAL;
+    }
+
+    /********** missing resolutions (move up to valid one) *********/
+    if(!s->step_x_res){
+      int i;
+      for(i=0;i<DPI_1200;i++){
+
+        /* this res is smaller or invalid, skip it */
+        if(s->s.dpi_x > dpi_list[i] || !s->std_res_x[i])
+          continue;
+
+        /* same & valid res, done */
+        if(s->s.dpi_x == dpi_list[i])
+          break;
+
+        /* different & valid res, switch */
+        s->s.dpi_x = dpi_list[i];
+        break;
+      }
+
+      if(i > DPI_1200){
+        DBG (5, "update_params: no dpi\n");
+        return SANE_STATUS_INVAL;
+      }
+    }
+
+    /*********** weird scan area (increase to valid one) *********/
+    if(s->fixed_width){
+      s->s.tl_x = 0;
+      s->s.br_x = s->max_x;
+      s->s.page_x = s->max_x;
+    }
+
+    /*recalculate new params*/
+    s->s.width = (s->s.br_x - s->s.tl_x) * s->s.dpi_x / 1200;
+    /* round down to byte boundary */
+    if(s->s.mode < MODE_GRAYSCALE){
+      s->s.width -= s->s.width % 8;
+    }
+
+    s->s.Bpl = s->s.width * s->s.bpp / 8;
+    s->s.valid_Bpl = s->s.Bpl;
+    s->s.valid_width = s->s.width;
+
+    /* figure out how many valid bytes per line (2510 is padded) */
+    if(s->color_interlace[SIDE_FRONT] == COLOR_INTERLACE_2510){
+      s->s.valid_Bpl = s->s.Bpl*11/12;
+      s->s.valid_width = s->s.width*11/12;
+    }
+
+    DBG (15, "update_params: scan params: w:%d h:%d m:%d f:%d b:%d\n",
+      s->s.width, s->s.height, s->s.mode, s->s.format, s->s.bpp);
+    DBG (15, "update_params: scan params: B:%d vB:%d vw:%d\n",
+      s->s.Bpl, s->s.valid_Bpl, s->s.valid_width);
+    DBG (15, "update_params: scan params: x b:%d t:%d d:%d y b:%d t:%d d:%d\n",
+      s->s.br_x, s->s.tl_x, s->s.dpi_x, s->s.br_y, s->s.tl_y, s->s.dpi_y);
+
+    DBG (10, "update_params: finish\n");
     return ret;
 }
 
@@ -2985,244 +3018,257 @@ sane_start (SANE_Handle handle)
   SANE_Status ret = SANE_STATUS_GOOD;
 
   DBG (10, "sane_start: start\n");
-  DBG (15, "started=%d, side=%d, source=%d\n", s->started, s->side, s->source);
+  DBG (15, "started=%d, side=%d, source=%d\n",
+    s->started, s->side, s->u.source);
 
   /* undo any prior sane_cancel calls */
   s->cancelled=0;
 
   /* not finished with current side, error */
-  if (s->started && s->bytes_tx[s->side] != s->bytes_tot[s->side]) {
-      DBG(5,"sane_start: previous transfer not finished?");
-      return SANE_STATUS_INVAL;
+  if (s->started && s->u.bytes_sent[s->side] != s->u.bytes_tot[s->side]) {
+    DBG(5,"sane_start: previous transfer not finished?");
+    return SANE_STATUS_INVAL;
   }
 
   /* batch start? inititalize struct and scanner */
   if(!s->started){
 
-      /* load side marker */
-      if(s->source == SOURCE_ADF_BACK){
-        s->side = SIDE_BACK;
-      }
-      else{
-        s->side = SIDE_FRONT;
-      }
+    /* eject paper leftover*/
+    if(object_position (s, SANE_FALSE)){
+      DBG (5, "sane_start: ERROR: cannot eject page\n");
+    }
 
-      /* eject paper leftover*/
-      if(object_position (s, SANE_FALSE)){
-        DBG (5, "sane_start: ERROR: cannot eject page\n");
-      }
+    /* wait for scanner to finish eject */
+    ret = wait_scanner (s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot wait scanner\n");
+      return ret;
+    }
 
-      /* AFE cal */
-      if(calibrate_AFE(s)){
-        DBG (5, "sane_start: ERROR: cannot cal afe\n");
-      }
+    /* grab next page */
+    ret = object_position (s, SANE_TRUE);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot load page\n");
+      return ret;
+    }
 
-      /* fine cal */
-      if(calibrate_fine(s)){
-        DBG (5, "sane_start: ERROR: cannot cal fine\n");
-      }
+    /* wait for scanner to finish load */
+    ret = wait_scanner (s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot wait scanner\n");
+      return ret;
+    }
 
-      /* reset the page counter after calibration */
-      s->panel_counter = 0;
-      if(send_panel(s)){
-        DBG (5, "sane_start: ERROR: cannot send panel\n");
-      }
+    /* AFE cal */
+    if(calibrate_AFE(s)){
+      DBG (5, "sane_start: ERROR: cannot cal afe\n");
+    }
 
-      /* load our own private copy of scan params */
-      ret = sane_get_parameters ((SANE_Handle) s, &s->params);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot get params\n");
-        return ret;
-      }
+    /* fine cal */
+    if(calibrate_fine(s)){
+      DBG (5, "sane_start: ERROR: cannot cal fine\n");
+    }
 
-      /* switch source
-      if(s->source == SOURCE_FLATBED){
-        ret = scanner_control(s, SC_function_fb);
-        if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot control fb\n");
-          return ret;
-        }
-      }
-      else{
-        ret = scanner_control(s, SC_function_adf);
-        if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot control adf\n");
-          return ret;
-        }
-      }
-       * */
+    /* reset the page counter after calibration */
+    s->panel_counter = 0;
+    s->prev_page = 0;
+    if(send_panel(s)){
+      DBG (5, "sane_start: ERROR: cannot send panel\n");
+    }
 
-      /* buffer command */
-      ret = ssm_buffer(s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot ssm buffer\n");
-        return ret;
-      }
+    /* load our own private copy of scan params */
+    ret = update_params(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot update_params\n");
+      return ret;
+    }
 
-      ret = ssm_do(s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot ssm do\n");
-        return ret;
-      }
+    /* buffer/duplex/ald command */
+    ret = ssm_buffer(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot ssm buffer\n");
+      return ret;
+    }
 
-      ret = ssm_df(s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot ssm df\n");
-        return ret;
-      }
+    /* dropout color command */
+    ret = ssm_do(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot ssm do\n");
+      return ret;
+    }
 
-      /* set window command */
-      ret = set_window(s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot set window\n");
-        return ret;
-      }
+    /* double feed detection command */
+    ret = ssm_df(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot ssm df\n");
+      return ret;
+    }
+
+    /* set window command */
+    ret = set_window(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot set window\n");
+      return ret;
+    }
+
+    /* load side marker */
+    if(s->u.source == SOURCE_ADF_BACK){
+      s->side = SIDE_BACK;
+    }
+    else{
+      s->side = SIDE_FRONT;
+    }
+
+    /* clean scan params for new scan */
+    ret = clean_params(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot clean_params\n");
+      return ret;
+    }
+
+    /* make large buffers to hold the images */
+    ret = image_buffers(s,1);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot load buffers\n");
+      return ret;
+    }
+
+    /* start scanning */
+    ret = start_scan (s,0);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot start_scan\n");
+      return ret;
+    }
+
+    s->started = 1;
   }
-  /* if already running, duplex needs to switch sides */
-  else if(s->source == SOURCE_ADF_DUPLEX){
+
+  /* stuff done between subsequent pages */
+  else{
+
+    /* duplex needs to switch sides */
+    if(s->s.source == SOURCE_ADF_DUPLEX){
       s->side = !s->side;
-  }
+    }
 
-  /* set clean defaults with new sheet of paper */
-  /* dont reset the transfer vars on backside of duplex page */
-  /* otherwise buffered back page will be lost */
-  /* ingest paper with adf (no-op for fb) */
-  /* dont call object pos or scan on back side of duplex scan */
-  if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK){
+    /* set clean defaults with new sheet of paper */
+    /* dont reset the transfer vars on backside of duplex page */
+    /* otherwise buffered back page will be lost */
+    /* ingest paper with adf (no-op for fb) */
+    /* dont call object pos or scan on back side of duplex scan */
+    if(s->side == SIDE_FRONT || s->s.source == SOURCE_ADF_BACK){
 
-      s->eof_rx[0]=0;
-      s->eof_rx[1]=0;
-      s->bytes_rx[0]=0;
-      s->bytes_rx[1]=0;
-      s->lines_rx[0]=0;
-      s->lines_rx[1]=0;
-
-      s->bytes_tx[0]=0;
-      s->bytes_tx[1]=0;
-
-      /* store the number of front bytes */ 
-      if ( s->source != SOURCE_ADF_BACK ){
-        s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
-      }
-      else{
-        s->bytes_tot[SIDE_FRONT] = 0;
+      /* clean scan params for new scan */
+      ret = clean_params(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot clean_params\n");
+        return ret;
       }
 
-      /* store the number of back bytes */ 
-      if ( s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK ){
-        s->bytes_tot[SIDE_BACK] = s->params.bytes_per_line * s->params.lines;
-      }
-      else{
-        s->bytes_tot[SIDE_BACK] = 0;
-      }
-
-      /* first page of batch */
-      if(!s->started){
-
-        /* make large buffers to hold the images */
-        ret = image_buffers(s,1);
-        if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot load buffers\n");
-          return ret;
-        }
-
-#if 0
-        /* put cal buffers in the image */
-        memcpy(
-          s->buffers[s->side],
-          s->f_offset[s->side],
-          s->params.bytes_per_line
-        );
-        s->bytes_rx[s->side] += s->params.bytes_per_line;
-
-        memcpy(
-          s->buffers[s->side]+s->bytes_rx[s->side],
-          s->f_gain[s->side],
-          s->params.bytes_per_line
-        );
-        s->bytes_rx[s->side] += s->params.bytes_per_line;
-#endif
-
-        /* grab page count before first page */
-        ret = read_panel (s, OPT_COUNTER);
-        ret = read_panel (s, OPT_COUNTER);
-        if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot read panel\n");
-          return ret;
-        }
-        s->prev_page = s->panel_counter;
-
-        /* grab page */
+      /* big scanners and small ones in non-buff mode: OP to detect paper */
+      if(s->always_op || !s->buffermode){
         ret = object_position (s, SANE_TRUE);
         if (ret != SANE_STATUS_GOOD) {
           DBG (5, "sane_start: ERROR: cannot load page\n");
           return ret;
         }
 
-        /* start scanning */
-        ret = start_scan (s,0);
+        /* user wants unbuffered scans */
+        /* send scan command */
+        if(!s->buffermode){
+          ret = start_scan (s,0);
+          if (ret != SANE_STATUS_GOOD) {
+            DBG (5, "sane_start: ERROR: cannot start_scan\n");
+            return ret;
+          }
+        }
+      }
+  
+      /* small, buffering scanners check for more pages by reading counter */
+      else{
+        ret = read_panel (s, OPT_COUNTER);
         if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot start_scan\n");
+          DBG (5, "sane_start: ERROR: cannot load page\n");
           return ret;
         }
-
-        /* set started flag */
-        s->started=1;
-      }
-
-      /* stuff done between subsequent pages */
-      else {
-
-        /* big scanners and small ones in non-buff mode: OP to detect paper */
-        if(s->always_op || !s->buffermode){
-          ret = object_position (s, SANE_TRUE);
-          if (ret != SANE_STATUS_GOOD) {
-            DBG (5, "sane_start: ERROR: cannot load page\n");
-            return ret;
-          }
-
-          /* user wants unbuffered scans */
-          /* send scan command */
-          if(!s->buffermode){
-            ret = start_scan (s,0);
-            if (ret != SANE_STATUS_GOOD) {
-              DBG (5, "sane_start: ERROR: cannot start_scan\n");
-              return ret;
-            }
-          }
+        if(s->prev_page == s->panel_counter){
+          DBG (5, "sane_start: same counter (%d) no paper?\n",s->prev_page);
+          return SANE_STATUS_NO_DOCS;
         }
-  
-        /* small, buffering scanners check for more pages by reading counter */
-        else{
-          ret = read_panel (s, OPT_COUNTER);
-          if (ret != SANE_STATUS_GOOD) {
-            DBG (5, "sane_start: ERROR: cannot load page\n");
-            return ret;
-          }
-          if(s->prev_page == s->panel_counter){
-            DBG (5, "sane_start: same counter (%d) no paper?\n",s->prev_page);
-
-            /* eject paper leftover
-            if(object_position (s, SANE_FALSE)){
-              DBG (5, "sane_start: ERROR: cannot eject page\n");
-            }
-             * */
-
-            return SANE_STATUS_NO_DOCS;
-          }
-          DBG (5, "sane_start: diff counter (%d/%d)\n",
-            s->prev_page,s->panel_counter);
-        }
+        DBG (5, "sane_start: diff counter (%d/%d)\n",
+          s->prev_page,s->panel_counter);
       }
+    }
   }
+
+#if 0
+  /* put cal buffers in the image */
+  memcpy(
+    s->buffers[s->side],
+    s->f_offset[s->side],
+    s->s.Bpl
+  );
+  s->s.bytes_sent[s->side] += s->s.Bpl;
+
+  memcpy(
+    s->buffers[s->side]+s->s.bytes_sent[s->side],
+    s->f_gain[s->side],
+    s->s.Bpl
+  );
+  s->s.bytes_sent[s->side] += s->s.Bpl;
+#endif
 
   /* reset jpeg params on each page */
   s->jpeg_stage=JPEG_STAGE_NONE;
   s->jpeg_ff_offset=0;
 
-  DBG (15, "started=%d, side=%d, source=%d\n", s->started, s->side, s->source);
+  DBG (15, "started=%d, side=%d, source=%d\n",
+    s->started, s->side, s->u.source);
 
   DBG (10, "sane_start: finish %d\n", ret);
+
+  return ret;
+}
+
+/*
+ * cleans params for new scan
+ */
+static SANE_Status
+clean_params (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "clean_params: start\n");
+
+  s->u.eof[0]=0;
+  s->u.eof[1]=0;
+  s->u.bytes_sent[0]=0;
+  s->u.bytes_sent[1]=0;
+  s->u.bytes_tot[0]=0;
+  s->u.bytes_tot[1]=0;
+
+  s->s.eof[0]=0;
+  s->s.eof[1]=0;
+  s->s.bytes_sent[0]=0;
+  s->s.bytes_sent[1]=0;
+  s->s.bytes_tot[0]=0;
+  s->s.bytes_tot[1]=0;
+
+  /* store the number of front bytes */ 
+  if ( s->u.source != SOURCE_ADF_BACK )
+    s->u.bytes_tot[SIDE_FRONT] = s->u.Bpl * s->u.height;
+
+  if ( s->s.source != SOURCE_ADF_BACK )
+    s->s.bytes_tot[SIDE_FRONT] = s->s.Bpl * s->s.height;
+
+  /* store the number of back bytes */ 
+  if ( s->u.source == SOURCE_ADF_DUPLEX || s->u.source == SOURCE_ADF_BACK )
+    s->u.bytes_tot[SIDE_BACK] = s->u.Bpl * s->u.height;
+
+  if ( s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_ADF_BACK )
+    s->s.bytes_tot[SIDE_BACK] = s->s.Bpl * s->s.height;
+
+  DBG (10, "clean_params: finish\n");
 
   return ret;
 }
@@ -3248,8 +3294,8 @@ image_buffers (struct scanner *s, int setup)
     }
 
     /* build new buffer if asked */
-    if(s->bytes_tot[side] && setup){
-      s->buffers[side] = calloc (1,s->bytes_tot[side]);
+    if(s->s.bytes_tot[side] && setup){
+      s->buffers[side] = calloc (1,s->s.bytes_tot[side]);
       if (!s->buffers[side]) {
         DBG (5, "image_buffers: Error, no buffer %d.\n",side);
         return SANE_STATUS_NO_MEM;
@@ -3264,7 +3310,7 @@ image_buffers (struct scanner *s, int setup)
 
 /*
  * This routine issues a SCSI SET WINDOW command to the scanner, using the
- * values currently in the scanner data structure.
+ * values currently in the s->s param structure.
  */
 static SANE_Status
 set_window (struct scanner *s)
@@ -3294,27 +3340,27 @@ set_window (struct scanner *s)
   set_WPDB_wdblen(header, SW_desc_len);
 
   /* init the window block */
-  if (s->source == SOURCE_ADF_BACK) {
+  if (s->s.source == SOURCE_ADF_BACK) {
     set_WD_wid (desc1, WD_wid_back);
   }
   else{
     set_WD_wid (desc1, WD_wid_front);
   }
 
-  set_WD_Xres (desc1, s->resolution_x);
-  set_WD_Yres (desc1, s->resolution_y);
+  set_WD_Xres (desc1, s->s.dpi_x);
+  set_WD_Yres (desc1, s->s.dpi_y);
 
   /* we have to center the window ourselves */
-  set_WD_ULX (desc1, (s->max_x - s->page_width) / 2 + s->tl_x);
+  set_WD_ULX (desc1, (s->max_x - s->s.page_x) / 2 + s->s.tl_x);
 
   /* some models require that the tly value be inverted? */
   if(s->invert_tly)
-    set_WD_ULY (desc1, ~s->tl_y);
+    set_WD_ULY (desc1, ~s->s.tl_y);
   else
-    set_WD_ULY (desc1, s->tl_y);
+    set_WD_ULY (desc1, s->s.tl_y);
 
-  set_WD_width (desc1, s->params.pixels_per_line * 1200/s->resolution_x);
-  set_WD_length (desc1, s->params.lines * 1200/s->resolution_y);
+  set_WD_width (desc1, s->s.width * 1200/s->s.dpi_x);
+  set_WD_length (desc1, s->s.height * 1200/s->s.dpi_y);
 
   /*convert our common -127 to +127 range into HW's range
    *FIXME: this code assumes hardware range of 0-255 */
@@ -3326,11 +3372,14 @@ set_window (struct scanner *s)
    *FIXME: this code assumes hardware range of 0-255 */
   set_WD_contrast (desc1, s->contrast+128);
 
-  set_WD_composition (desc1, s->mode);
+  set_WD_composition (desc1, s->s.mode);
 
-  set_WD_bitsperpixel (desc1, s->params.depth);
+  if(s->s.bpp == 24)
+    set_WD_bitsperpixel (desc1, 8);
+  else
+    set_WD_bitsperpixel (desc1, s->s.bpp);
 
-  if(s->mode == MODE_HALFTONE){
+  if(s->s.mode == MODE_HALFTONE){
     /*set_WD_ht_type(desc1, s->ht_type);
     set_WD_ht_pattern(desc1, s->ht_pattern);*/
   }
@@ -3347,9 +3396,9 @@ set_window (struct scanner *s)
 
 #ifdef SANE_FRAME_JPEG
   /* some scanners support jpeg image compression, for color/gs only */
-  if(s->params.format == SANE_FRAME_JPEG){
-      set_WD_compress_type(desc1, COMP_JPEG);
-      set_WD_compress_arg(desc1, s->compress_arg);
+  if(s->s.format == SANE_FRAME_JPEG){
+    set_WD_compress_type(desc1, COMP_JPEG);
+    set_WD_compress_arg(desc1, s->compress_arg);
   }
 #endif
 
@@ -3365,7 +3414,7 @@ set_window (struct scanner *s)
     NULL, NULL
   );
 
-  if (!ret && s->source == SOURCE_ADF_DUPLEX) {
+  if (!ret && s->s.source == SOURCE_ADF_DUPLEX) {
       set_WD_wid (desc1, WD_wid_back);
       ret = do_cmd (
         s, 1, 0,
@@ -3393,7 +3442,7 @@ object_position (struct scanner *s, int i_load)
 
   DBG (10, "object_position: start\n");
 
-  if (s->source == SOURCE_FLATBED) {
+  if (s->u.source == SOURCE_FLATBED) {
     DBG (10, "object_position: flatbed no-op\n");
     return SANE_STATUS_GOOD;
   }
@@ -3418,8 +3467,6 @@ object_position (struct scanner *s, int i_load)
   );
   if (ret != SANE_STATUS_GOOD)
     return ret;
-
-  wait_scanner (s);
 
   DBG (10, "object_position: finish\n");
 
@@ -3451,9 +3498,9 @@ start_scan (struct scanner *s, int type)
     out[1] = type;
   }
 
-  if (s->source != SOURCE_ADF_DUPLEX) {
+  if (s->s.source != SOURCE_ADF_DUPLEX) {
     outLen--;
-    if(s->source == SOURCE_ADF_BACK) {
+    if(s->s.source == SOURCE_ADF_BACK) {
       out[0] = WD_wid_back;
     }
   }
@@ -3538,26 +3585,26 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   }
 
   /* sane_start required between sides */
-  if(s->bytes_tx[s->side] == s->bytes_tot[s->side]){
+  if(s->u.bytes_sent[s->side] == s->u.bytes_tot[s->side]){
     DBG (15, "sane_read: returning eof\n");
     return SANE_STATUS_EOF;
   }
 
   /* double width pnm interlacing */
-  if(s->source == SOURCE_ADF_DUPLEX
-    && s->params.format <= SANE_FRAME_RGB
+  if(s->s.source == SOURCE_ADF_DUPLEX
+    && s->s.format <= SANE_FRAME_RGB
     && s->duplex_interlace != DUPLEX_INTERLACE_NONE
   ){
 
     /* buffer both sides */
-    if(!s->eof_rx[SIDE_FRONT] || !s->eof_rx[SIDE_BACK]){
+    if(!s->s.eof[SIDE_FRONT] || !s->s.eof[SIDE_BACK]){
       ret = read_from_scanner_duplex(s, 0);
       if(ret){
         DBG(5,"sane_read: front returning %d\n",ret);
         return ret;
       }
       /*read last block, update counter*/
-      if(s->eof_rx[SIDE_FRONT] && s->eof_rx[SIDE_BACK]){
+      if(s->s.eof[SIDE_FRONT] && s->s.eof[SIDE_BACK]){
         s->prev_page++;
         DBG(15,"sane_read: duplex counter %d\n",s->prev_page);
       }
@@ -3566,14 +3613,14 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     
   /* simplex or non-alternating duplex */
   else{
-    if(!s->eof_rx[s->side]){
+    if(!s->s.eof[s->side]){
       ret = read_from_scanner(s, s->side, 0);
       if(ret){
         DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
         return ret;
       }
       /*read last block, update counter*/
-      if(s->eof_rx[s->side]){
+      if(s->s.eof[s->side]){
         s->prev_page++;
         DBG(15,"sane_read: side %d counter %d\n",s->side,s->prev_page);
       }
@@ -3585,7 +3632,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* we've read everything, and user cancelled */
   /* tell scanner to stop */
-  if(s->eof_rx[s->side] && 
+  if(s->s.eof[s->side] && 
     (s->cancelled /*|| (!read_panel(s,OPT_STOP) && s->panel_stop)*/)
   ){
     DBG(5,"sane_read: user cancelled\n");
@@ -3608,16 +3655,16 @@ read_from_scanner(struct scanner *s, int side, int exact)
   size_t inLen = 0;
 
   size_t bytes = s->buffer_size;
-  size_t remain = s->bytes_tot[side] - s->bytes_rx[side];
+  size_t remain = s->s.bytes_tot[side] - s->s.bytes_sent[side];
 
   DBG (10, "read_from_scanner: start\n");
 
   /* all requests must end on line boundary */
-  bytes -= (bytes % s->params.bytes_per_line);
+  bytes -= (bytes % s->s.Bpl);
 
   /* some larger scanners require even bytes per block */
   if(bytes % 2){
-    bytes -= s->params.bytes_per_line;
+    bytes -= s->s.Bpl;
   }
 
   /* usually (image) we want to read too much data, and get RS */
@@ -3627,7 +3674,7 @@ read_from_scanner(struct scanner *s, int side, int exact)
   }
 
   DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d ex:%d\n",
-    side, s->bytes_tot[side], s->bytes_rx[side],
+    side, s->s.bytes_tot[side], s->s.bytes_sent[side],
     remain, s->buffer_size, bytes, exact);
 
   inLen = bytes;
@@ -3668,7 +3715,7 @@ read_from_scanner(struct scanner *s, int side, int exact)
 
 #ifdef SANE_FRAME_JPEG
   /* this is jpeg data, we need to fix the missing image size */
-  if(s->params.format == SANE_FRAME_JPEG){
+  if(s->s.format == SANE_FRAME_JPEG){
 
     /* look for the SOF header near the beginning */
     if(s->jpeg_stage == JPEG_STAGE_NONE || s->jpeg_ff_offset < 0x0d){
@@ -3695,21 +3742,21 @@ read_from_scanner(struct scanner *s, int side, int exact)
 
           /* lines in start of frame, overwrite it */
           if(s->jpeg_ff_offset == 5){
-            in[i] = (s->params.lines >> 8) & 0xff;
+            in[i] = (s->s.height >> 8) & 0xff;
             continue;
           }
           if(s->jpeg_ff_offset == 6){
-            in[i] = s->params.lines & 0xff;
+            in[i] = s->s.height & 0xff;
             continue;
           }
       
           /* width in start of frame, overwrite it */
           if(s->jpeg_ff_offset == 7){
-            in[i] = (s->params.pixels_per_line >> 8) & 0xff;
+            in[i] = (s->s.width >> 8) & 0xff;
             continue;
           }
           if(s->jpeg_ff_offset == 8){
-            in[i] = s->params.pixels_per_line & 0xff;
+            in[i] = s->s.width & 0xff;
             continue;
           }
         }
@@ -3741,10 +3788,23 @@ read_from_scanner(struct scanner *s, int side, int exact)
   }
 
   if(ret == SANE_STATUS_EOF){
-    s->bytes_tot[side] = s->bytes_rx[side];
-    s->eof_rx[side] = 1;
+    /*if this scan is direct pass-thru, update user image too*/
+    if(s->u.bytes_tot[side] == s->s.bytes_tot[side]){
+      s->u.bytes_tot[side] = s->s.bytes_sent[side];
+    }
+    /*if this scan is modified before user sees it, guess size of new image */
+    /*FIXME: what about non-scanline width buffers? */
+    else{
+      s->u.bytes_tot[side] = (s->s.bytes_sent[side]/s->s.Bpl) * s->u.Bpl;
+    }
+    s->s.bytes_tot[side] = s->s.bytes_sent[side];
+    s->s.eof[side] = 1;
     ret = SANE_STATUS_GOOD;
   }
+
+  DBG(15, "read_from_scanner: sto:%d srx:%d sef:%d uto:%d urx:%d uef:%d\n",
+    s->s.bytes_tot[side], s->s.bytes_sent[side], s->s.eof[side],
+    s->u.bytes_tot[side], s->u.bytes_sent[side], s->u.eof[side]);
 
   DBG (10, "read_from_scanner: finish\n");
 
@@ -3765,13 +3825,13 @@ read_from_scanner_duplex(struct scanner *s,int exact)
   size_t inLen = 0;
 
   size_t bytes = s->buffer_size;
-  size_t remain = s->bytes_tot[SIDE_FRONT] + s->bytes_tot[SIDE_BACK]
-    - s->bytes_rx[SIDE_FRONT] - s->bytes_rx[SIDE_BACK];
+  size_t remain = s->s.bytes_tot[SIDE_FRONT] + s->s.bytes_tot[SIDE_BACK]
+    - s->s.bytes_sent[SIDE_FRONT] - s->s.bytes_sent[SIDE_BACK];
 
   DBG (10, "read_from_scanner_duplex: start\n");
 
   /* all requests must end on WIDE line boundary */
-  bytes -= (bytes % (s->params.bytes_per_line*2));
+  bytes -= (bytes % (s->s.Bpl*2));
 
   /* usually (image) we want to read too much data, and get RS */
   /* sometimes (calib) we want to do an exact read */
@@ -3843,10 +3903,23 @@ read_from_scanner_duplex(struct scanner *s,int exact)
   }
 
   if(ret == SANE_STATUS_EOF){
-    s->bytes_tot[SIDE_FRONT] = s->bytes_rx[SIDE_FRONT];
-    s->bytes_tot[SIDE_BACK] = s->bytes_rx[SIDE_BACK];
-    s->eof_rx[SIDE_FRONT] = 1;
-    s->eof_rx[SIDE_BACK] = 1;
+    /*if this scan is direct pass-thru, update user image too*/
+    if(s->u.bytes_tot[SIDE_FRONT] == s->s.bytes_tot[SIDE_FRONT]){
+      s->u.bytes_tot[SIDE_FRONT] = s->s.bytes_sent[SIDE_FRONT];
+      s->u.bytes_tot[SIDE_BACK] = s->s.bytes_sent[SIDE_BACK];
+    }
+    /*if this scan is modified before user sees it, guess size of new image */
+    /*FIXME: what about non-scanline width buffers? */
+    else{
+      s->u.bytes_tot[SIDE_FRONT]
+        = (s->s.bytes_sent[SIDE_FRONT]/s->s.Bpl) * s->u.Bpl;
+      s->u.bytes_tot[SIDE_BACK]
+        = (s->s.bytes_sent[SIDE_BACK]/s->s.Bpl) * s->u.Bpl;
+    }
+    s->s.bytes_tot[SIDE_FRONT] = s->s.bytes_sent[SIDE_FRONT];
+    s->s.bytes_tot[SIDE_BACK] = s->s.bytes_sent[SIDE_BACK];
+    s->s.eof[SIDE_FRONT] = 1;
+    s->s.eof[SIDE_BACK] = 1;
     ret = SANE_STATUS_GOOD;
   }
 
@@ -3863,23 +3936,22 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
   int i, j;
-  int bwidth = s->params.bytes_per_line;
-  int pwidth = s->params.pixels_per_line;
+  int bwidth = s->s.Bpl;
+  int pwidth = s->s.width;
   int t = bwidth/3;
   int f = bwidth/4;
   int tw = bwidth/12;
-  int start = s->bytes_rx[side];
-  int valid = bwidth;
+  int start = s->s.bytes_sent[side];
 
   /* invert image if scanner needs it for this mode */
   /* jpeg data does not use inverting */
-  if(s->params.format <= SANE_FRAME_RGB && s->reverse_by_mode[s->mode]){
+  if(s->s.format <= SANE_FRAME_RGB && s->reverse_by_mode[s->s.mode]){
     for(i=0; i<len; i++){
       buf[i] ^= 0xff;
     }
   }
 
-  if(s->params.format == SANE_FRAME_GRAY){
+  if(s->s.format == SANE_FRAME_GRAY){
 
     switch (s->gray_interlace[side]) {
 
@@ -3889,7 +3961,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
         DBG (10, "copy_simplex: gray, gG\n");
         for(i=0; i<len; i+=bwidth){
           for (j=bwidth-1; j>=0; j--){
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j];
           }
         }
         break;
@@ -3897,39 +3969,36 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
       case GRAY_INTERLACE_2510:
         DBG (10, "copy_simplex: gray, 2510\n");
      
-        /* the last 1/12 of 2510's data is black garbage */
-        valid -= tw;
-
         for(i=0; i<len; i+=bwidth){
         
           /* first read head (third byte of every three) */
           for(j=bwidth-1;j>=0;j-=3){
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j];
           }
           /* second read head (first byte of every three) */
           for(j=bwidth*3/4-3;j>=0;j-=3){
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j];
           }
           /* third read head (second byte of every three) */
           for(j=bwidth-2;j>=0;j-=3){
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j];
           }
           /* padding */
           for(j=0;j<tw;j++){
-            s->buffers[side][s->bytes_rx[side]++] = 0;
+            s->buffers[side][s->s.bytes_sent[side]++] = 0;
           }
         }
         break;
   
       default:
         DBG (10, "copy_simplex: gray, default\n");
-        memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
-        s->bytes_rx[side] += len;
+        memcpy(s->buffers[side]+s->s.bytes_sent[side],buf,len);
+        s->s.bytes_sent[side] += len;
         break;
     }
   }
 
-  else if (s->params.format == SANE_FRAME_RGB){
+  else if (s->s.format == SANE_FRAME_RGB){
 
     switch (s->color_interlace[side]) {
   
@@ -3938,21 +4007,21 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
         DBG (10, "copy_simplex: color, BGR\n");
         for(i=0; i<len; i+=bwidth){
           for (j=0; j<pwidth; j++){
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j*3+2];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j*3+1];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j*3];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j*3+2];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j*3+1];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j*3];
           }
         }
         break;
   
-      /* one line has the following format: rrr...rrrggg...gggbbb...bbb */
+      /* one line has the following format: RRR...rrrGGG...gggBBB...bbb */
       case COLOR_INTERLACE_RRGGBB:
         DBG (10, "copy_simplex: color, RRGGBB\n");
         for(i=0; i<len; i+=bwidth){
           for (j=0; j<pwidth; j++){
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+pwidth+j];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+2*pwidth+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+pwidth+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+2*pwidth+j];
           }
         }
         break;
@@ -3963,9 +4032,9 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
         DBG (10, "copy_simplex: color, rRgGbB\n");
         for(i=0; i<len; i+=bwidth){
           for (j=pwidth-1; j>=0; j--){
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+pwidth+j];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+2*pwidth+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+pwidth+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+2*pwidth+j];
           }
         }
         break;
@@ -3973,40 +4042,37 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
       case COLOR_INTERLACE_2510:
         DBG (10, "copy_simplex: color, 2510\n");
       
-        /* the last 1/12 of 2510's data is black garbage */
-        valid -= tw;
-
         for(i=0; i<len; i+=bwidth){
       
           /* first read head (third byte of every three) */
           for(j=t-1;j>=0;j-=3){
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+t+j];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+2*t+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+t+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+2*t+j];
           }
           /* second read head (first byte of every three) */
           for(j=f-3;j>=0;j-=3){
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+t+j];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+2*t+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+t+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+2*t+j];
           }
           /* third read head (second byte of every three) */
           for(j=t-2;j>=0;j-=3){
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+j];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+t+j];
-            s->buffers[side][s->bytes_rx[side]++] = buf[i+2*t+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+t+j];
+            s->buffers[side][s->s.bytes_sent[side]++] = buf[i+2*t+j];
           }
           /* padding */
           for(j=0;j<tw;j++){
-            s->buffers[side][s->bytes_rx[side]++] = 0;
+            s->buffers[side][s->s.bytes_sent[side]++] = 0;
           }
         }
         break;
   
       default:
         DBG (10, "copy_simplex: color, default\n");
-        memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
-        s->bytes_rx[side] += len;
+        memcpy(s->buffers[side]+s->s.bytes_sent[side],buf,len);
+        s->s.bytes_sent[side] += len;
         break;
     }
   }
@@ -4014,31 +4080,33 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
   /* only used by jpeg data? */
   else{
     DBG (10, "copy_simplex: default\n");
-    memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
-    s->bytes_rx[side] += len;
+    memcpy(s->buffers[side]+s->s.bytes_sent[side],buf,len);
+    s->s.bytes_sent[side] += len;
   }
 
   /* non-jpeg data may need calibration applied*/
-  if(s->params.format <= SANE_FRAME_RGB && s->f_offset[side]){
+#if 1
+  if(s->s.format <= SANE_FRAME_RGB && s->f_offset[side]){
     DBG (15, "copy_simplex: apply offset\n");
-    for(i=start;i<s->bytes_rx[side];i+=bwidth){
-      for(j=0;j<valid;j++){
+    for(i=start;i<s->s.bytes_sent[side];i+=bwidth){
+      for(j=0;j<s->s.valid_Bpl;j++){
         int curr = s->buffers[side][i+j] - s->f_offset[side][j];
         if(curr < 0) curr = 0;
         s->buffers[side][i+j] = curr;
       }
     }
   }
-  if(s->params.format <= SANE_FRAME_RGB && s->f_gain[side]){
+  if(s->s.format <= SANE_FRAME_RGB && s->f_gain[side]){
     DBG (15, "copy_simplex: apply gain\n");
-    for(i=start;i<s->bytes_rx[side];i+=bwidth){
-      for(j=0;j<valid;j++){
+    for(i=start;i<s->s.bytes_sent[side];i+=bwidth){
+      for(j=0;j<s->s.valid_Bpl;j++){
         int curr = s->buffers[side][i+j] * 224/s->f_gain[side][j];
         if(curr > 255) curr = 255;
         s->buffers[side][i+j] = curr;
       }
     }
   }
+#endif
 
   DBG (10, "copy_simplex: finished\n");
 
@@ -4052,7 +4120,7 @@ copy_duplex(struct scanner *s, unsigned char * buf, int len)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
   int i,j;
-  int bwidth = s->params.bytes_per_line;
+  int bwidth = s->s.Bpl;
   int dbwidth = 2*bwidth;
   unsigned char * front;
   unsigned char * back;
@@ -4137,32 +4205,179 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len,
   SANE_Int * len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
-  int bytes = max_len;
-  int remain = s->bytes_rx[side] - s->bytes_tx[side];
+  unsigned char * line;
+  int i,j;
 
   DBG (10, "read_from_buffer: start\n");
 
-  /* figure out the max amount to transfer */
-  if(bytes > remain){
-    bytes = remain;
+  /* the 'standard' case: non-stupid scanner */
+  if(!s->fixed_width && s->s.dpi_x == s->u.dpi_x && s->s.mode == s->u.mode){
+
+    int bytes = max_len;
+    int remain = s->u.bytes_tot[side] - s->u.bytes_sent[side];
+
+    /* figure out the max amount to transfer */
+    if(bytes > remain)
+      bytes = remain;
+  
+    *len = bytes;
+  
+    /*FIXME this needs to timeout eventually */
+    if(!bytes){
+      DBG(5,"read_from_buffer: nothing to do\n");
+      return SANE_STATUS_GOOD;
+    }
+  
+    DBG(15, "read_from_buffer: si:%d to:%d tx:%d bu:%d pa:%d\n", side,
+      s->u.bytes_tot[side], s->u.bytes_sent[side], max_len, bytes);
+
+    /* copy to caller */
+    memcpy(buf,s->buffers[side]+s->u.bytes_sent[side],bytes);
+    s->u.bytes_sent[side] += bytes;
+
+    DBG (10, "read_from_buffer: finished smart\n");
+
+    return ret;
   }
 
-  *len = bytes;
+  /* the 'corner' case: stupid scanner */
+  *len = 0;
 
-  DBG(15, "read_from_buffer: si:%d to:%d tx:%d re:%d bu:%d pa:%d\n", side,
-    s->bytes_tot[side], s->bytes_tx[side], remain, max_len, bytes);
+  /*setup 24 bit color single line buffer*/
+  line = malloc(s->s.width*3);
+  if(!line) return SANE_STATUS_NO_MEM;
 
-  /*FIXME this needs to timeout eventually */
-  if(!bytes){
-    DBG(5,"read_from_buffer: nothing to do\n");
-    return SANE_STATUS_GOOD;
+  /* ingest input, move to output, 1 line at a time */
+  while(*len < max_len){
+
+    unsigned char * in_line = line;
+    int in_line_index = s->u.bytes_sent[side] / s->u.Bpl;
+    int in_line_offset = in_line_index * s->s.Bpl;
+    int in_line_bytes = s->s.Bpl;
+    int in_line_pixels = s->s.width;
+
+    int out_line_offset = s->u.bytes_sent[side] % s->u.Bpl;
+    int out_line_length = s->u.Bpl - out_line_offset;
+
+    int space = max_len - *len;
+
+    /* dont write past end of caller's buffer */
+    if(out_line_length > space)
+      out_line_length = space;
+  
+    /* dont read past end of what we've read from scanner so far*/
+    if(in_line_offset+in_line_bytes > s->s.bytes_sent[side])
+      break;
+  
+    /*load single line color buffer*/
+    switch (s->s.mode) {
+
+      case MODE_COLOR:
+        memcpy(in_line, s->buffers[side]+in_line_offset, in_line_bytes);
+        break;
+
+      case MODE_GRAYSCALE:
+        for(i=0;i<in_line_pixels;i++){
+          line[i*3] = line[i*3+1] = line[i*3+2]
+            = s->buffers[side][in_line_offset+i];
+        }
+        break;
+
+      default:
+        for(i=0;i<in_line_bytes;i++){
+          unsigned char curr = s->buffers[side][in_line_offset+i];
+
+          line[i*24+0] = line[i*24+1] = line[i*24+2]
+            = ((curr >> 7) & 1) ?0:255;
+          line[i*24+3] = line[i*24+4] = line[i*24+5]
+            = ((curr >> 6) & 1) ?0:255;
+          line[i*24+6] = line[i*24+7] = line[i*24+8]
+            = ((curr >> 5) & 1) ?0:255;
+          line[i*24+9] = line[i*24+10] = line[i*24+11]
+            = ((curr >> 4) & 1) ?0:255;
+          line[i*24+12] = line[i*24+13] = line[i*24+14]
+            = ((curr >> 3) & 1) ?0:255;
+          line[i*24+15] = line[i*24+16] = line[i*24+17]
+            = ((curr >> 2) & 1) ?0:255;
+          line[i*24+18] = line[i*24+19] = line[i*24+20]
+            = ((curr >> 1) & 1) ?0:255;
+          line[i*24+21] = line[i*24+22] = line[i*24+23]
+            = ((curr >> 0) & 1) ?0:255;
+        }
+        break;
+    }
+
+    /* scan is higher res than user wanted, scale it */
+    /*FIXME: interpolate instead */
+    if(s->u.dpi_x != s->s.dpi_x){
+      for(i=0;i<in_line_pixels;i++){
+        int source = i * s->s.dpi_x/s->u.dpi_x * 3;
+
+        if(source+2 >= s->s.width*3)
+          break;
+
+        line[i*3] = line[source];
+        line[i*3+1] = line[source+1];
+        line[i*3+2] = line[source+2];
+      }
+    }
+  
+    /* scan is wider than user wanted, skip some bytes on left side */
+    if(s->fixed_width){
+      in_line += ((s->valid_x-s->u.page_x) / 2 + s->u.tl_x) * s->u.dpi_x / 1200 * 3;
+    }
+
+    DBG(15, "read_from_buffer: si:%d to:%d tx:%d bu:%d pa:%d\n", side,
+      s->u.bytes_tot[side], s->u.bytes_sent[side], max_len, out_line_length);
+
+    /* now copy some or all of this line into output */
+    switch (s->u.mode) {
+  
+      case MODE_COLOR:
+        memcpy(buf+(*len),in_line+out_line_offset,out_line_length);
+        break;
+  
+      case MODE_GRAYSCALE:
+        for(i=0;i<out_line_length;i++){
+          int source = (out_line_offset+i)*3;
+          buf[*len+i]
+            = ((int)in_line[source] + in_line[source+1] + in_line[source+2])/3;
+        }
+        break;
+  
+      default:
+        /*loop over output bytes*/
+        for(i=0;i<out_line_length;i++){
+
+          unsigned char curr = 0;
+          int thresh = s->threshold*3;
+
+          /*loop over output bits*/
+          for(j=0;j<8;j++){
+            int source = (out_line_offset+i)*24 + j*3;
+            if(
+             (in_line[source] + in_line[source+1] + in_line[source+2]) < thresh
+            ){
+              curr |= 1 << (7-j); 
+            }
+          }
+
+          buf[*len+i] = curr;
+        }
+        break;
+    }
+
+    s->u.bytes_sent[side] += out_line_length;
+    *len += out_line_length;
+  
+    /* stop if we have sent everything*/
+    if(s->u.bytes_sent[side] == s->u.bytes_tot[side])
+      break;
   }
 
-  /* copy to caller */
-  memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-  s->bytes_tx[side] += bytes;
+  free(line);
 
-  DBG (10, "read_from_buffer: finish\n");
+  DBG (10, "read_from_buffer: finish stupid\n");
 
   return ret;
 }
@@ -4212,11 +4427,12 @@ calibrate_AFE (struct scanner *s)
   int i, j, k;
   int min, max;
   int lines = 8;
-  int valid = 0;
 
-  /* save the old values */
-  int mode = s->mode;
-  int source = s->source;
+  /*buffer these for later*/
+  int old_tl_y = s->u.tl_y;
+  int old_br_y = s->u.br_y;
+  int old_mode = s->u.mode;
+  int old_source = s->u.source;
 
   DBG (10, "calibrate_AFE: start\n");
 
@@ -4225,36 +4441,30 @@ calibrate_AFE (struct scanner *s)
     return ret;
   }
 
-  if(s->c_res == s->resolution_x && s->c_mode == s->mode){
+  /* always cal with a short scan in duplex color */
+  s->u.tl_y = 0;
+  s->u.br_y = lines * 1200 / s->u.dpi_y;
+  s->u.mode = MODE_COLOR;
+  s->u.source = SOURCE_ADF_DUPLEX;
+
+  /* load our own private copy of scan params */
+  ret = update_params(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot update_params\n");
+    return ret;
+  }
+
+  if(s->c_res == s->s.dpi_x && s->c_mode == s->s.mode){
     DBG (10, "calibrate_AFE: already done\n");
     return ret;
   }
 
-  /* always cal in duplex color */
-  s->mode = MODE_COLOR;
-  s->source = SOURCE_ADF_DUPLEX;
-
-  /* load our own private copy of scan params */
-  ret = sane_get_parameters ((SANE_Handle) s, &s->params);
+  /* clean scan params for new scan */
+  ret = clean_params(s);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_AFE: ERROR: cannot get params\n");
+    DBG (5, "calibration_scan: ERROR: cannot clean_params\n");
     return ret;
   }
-
-  /* only need a few lines of data */
-  s->params.lines = lines;
-
-  /* figure out how many valid bytes per line (2510 is padded) */
-  if(s->color_interlace[SIDE_FRONT] == COLOR_INTERLACE_2510)
-    valid = s->params.bytes_per_line*11/12;
-  else
-    valid = s->params.bytes_per_line;
-
-  /* store the number of front bytes */ 
-  s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
-
-  /* store the number of back bytes */ 
-  s->bytes_tot[SIDE_BACK] = s->params.bytes_per_line * s->params.lines;
 
   /* make buffers to hold the images */
   ret = image_buffers(s,1);
@@ -4299,7 +4509,7 @@ calibrate_AFE (struct scanner *s)
 
   for(i=0;i<2;i++){
     min = 255;
-    for(j=0; j<valid; j++){
+    for(j=0; j<s->s.valid_Bpl; j++){
       if(s->buffers[i][j] < min)
         min = s->buffers[i][j];
     }
@@ -4324,18 +4534,19 @@ calibrate_AFE (struct scanner *s)
   for(i=0;i<2;i++){ /*sides*/
     for(j=0;j<3;j++){ /*channels*/
       max = 0;
-      for(k=j; k<valid; k+=3){ /*bytes*/
+      for(k=j; k<s->s.valid_Bpl; k+=3){ /*bytes*/
         if(s->buffers[i][k] > max)
           max = s->buffers[i][k];
       }
 
       /*generally we reduce the exposure (smaller number) */
-      if(mode == MODE_COLOR)
+      if(old_mode == MODE_COLOR)
         s->c_exposure[i][j] = s->c_exposure[i][j] * 102/max;
       else
         s->c_exposure[i][j] = s->c_exposure[i][j] * 64/max;
 
-      DBG (15, "calibrate_AFE: exp %d %d %d %02x\n", i, j, max, s->c_exposure[i][j]);
+      DBG (15, "calibrate_AFE: exp %d %d %d %02x\n", i, j, max,
+        s->c_exposure[i][j]);
     }
   }
 
@@ -4349,15 +4560,15 @@ calibrate_AFE (struct scanner *s)
 
   for(i=0;i<2;i++){
     max = 0;
-    for(j=0; j<valid; j++){
+    for(j=0; j<s->s.valid_Bpl; j++){
       if(s->buffers[i][j] > max)
         max = s->buffers[i][j];
     }
 
-    if(mode == MODE_COLOR)
+    if(old_mode == MODE_COLOR)
       s->c_gain[i] = (250-max)*4/5;
     else
-      s->c_gain[i] = (110-max)*4/5;
+      s->c_gain[i] = (125-max)*4/5;
 
     if(s->c_gain[i] < 1)
       s->c_gain[i] = 1;
@@ -4376,7 +4587,7 @@ calibrate_AFE (struct scanner *s)
 
   for(i=0;i<2;i++){
     min = 255;
-    for(j=0; j<valid; j++){
+    for(j=0; j<s->s.valid_Bpl; j++){
       if(s->buffers[i][j] < min)
         min = s->buffers[i][j];
     }
@@ -4385,15 +4596,18 @@ calibrate_AFE (struct scanner *s)
   }
 #endif
 
-  /* revert to previous settings */
-  s->mode = mode;
-  s->source = source;
+  /* recover user settings */
+  s->u.tl_y = old_tl_y;
+  s->u.br_y = old_br_y;
+  s->u.mode = old_mode;
+  s->u.source = old_source;
 
   /* log current cal type */
-  s->c_res = s->resolution_x;
-  s->c_mode = s->mode;
+  s->c_res = s->s.dpi_x;
+  s->c_mode = s->s.mode;
 
   DBG (10, "calibrate_AFE: finish\n");
+
   return ret;
 }
 
@@ -4407,10 +4621,11 @@ calibrate_fine (struct scanner *s)
   int i, j, k;
   int min, max;
   int lines = 8;
-  int valid = 0;
 
-  /* save the old values */
-  int source = s->source;
+  /*buffer these for later*/
+  int old_tl_y = s->u.tl_y;
+  int old_br_y = s->u.br_y;
+  int old_source = s->u.source;
 
   DBG (10, "calibrate_fine: start\n");
 
@@ -4419,36 +4634,30 @@ calibrate_fine (struct scanner *s)
     return ret;
   }
 
-  if(s->f_res == s->resolution_x && s->f_mode == s->mode){
+  /* always cal with a short scan in duplex */
+  s->u.tl_y = 0;
+  s->u.br_y = lines * 1200 / s->u.dpi_y;
+  s->u.source = SOURCE_ADF_DUPLEX;
+
+  /* load our own private copy of scan params */
+  ret = update_params(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot update_params\n");
+    return ret;
+  }
+
+  if(s->f_res == s->s.dpi_x && s->f_mode == s->s.mode){
     DBG (10, "calibrate_fine: already done\n");
     return ret;
   }
 
-  /* always cal in duplex */
-  s->source = SOURCE_ADF_DUPLEX;
-
-  /* load our own private copy of scan params */
-  ret = sane_get_parameters ((SANE_Handle) s, &s->params);
+  /* clean scan params for new scan */
+  ret = clean_params(s);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine: ERROR: cannot get params\n");
+    DBG (5, "calibration_scan: ERROR: cannot clean_params\n");
     return ret;
   }
-  
-  /* only need a few lines of data */
-  s->params.lines = lines;
-  
-  /* figure out how many valid bytes per line (2510 is padded) */
-  if(s->color_interlace[SIDE_FRONT] == COLOR_INTERLACE_2510)
-    valid = s->params.bytes_per_line*11/12;
-  else
-    valid = s->params.bytes_per_line;
 
-  /* store the number of front bytes */ 
-  s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
-  
-  /* store the number of back bytes */ 
-  s->bytes_tot[SIDE_BACK] = s->params.bytes_per_line * s->params.lines;
-  
   /* make buffers to hold the images */
   ret = image_buffers(s,1);
   if (ret != SANE_STATUS_GOOD) {
@@ -4489,15 +4698,14 @@ calibrate_fine (struct scanner *s)
   }
   
   for(i=0;i<2;i++){
-    for(j=0; j<valid; j++){
-      min = 255;
-      for(k=j;k<lines*s->params.bytes_per_line;k+=s->params.bytes_per_line){
-        if(s->buffers[i][k] < min)
-          min = s->buffers[i][k];
+    for(j=0; j<s->s.valid_Bpl; j++){
+      min = 0;
+      for(k=j;k<lines*s->s.Bpl;k+=s->s.Bpl){
+        min += s->buffers[i][k];
       }
-      s->f_offset[i][j] = min;
+      s->f_offset[i][j] = min/lines;
     }
-    hexdump(15, "off:", s->f_offset[i], valid);
+    hexdump(15, "off:", s->f_offset[i], s->s.valid_Bpl);
   }
 
   /*handle sixth pass (fine gain), lamp off*/
@@ -4515,25 +4723,30 @@ calibrate_fine (struct scanner *s)
   }
   
   for(i=0;i<2;i++){
-    for(j=0; j<valid; j++){
-      max = 1;
-      for(k=j;k<lines*s->params.bytes_per_line;k+=s->params.bytes_per_line){
-        if(s->buffers[i][k] > max)
-          max = s->buffers[i][k];
+    for(j=0; j<s->s.valid_Bpl; j++){
+      max = 0;
+      for(k=j;k<lines*s->s.Bpl;k+=s->s.Bpl){
+        max += s->buffers[i][k];
       }
-      s->f_gain[i][j] = max;
+      s->f_gain[i][j] = max/lines;
+
+      if(s->f_gain[i][j] < 1)
+        s->f_gain[i][j] = 1;
     }
-    hexdump(15, "gain:", s->f_gain[i], valid);
+    hexdump(15, "gain:", s->f_gain[i], s->s.valid_Bpl);
   }
 
-  /* revert to previous settings */
-  s->source = source;
+  /* recover user settings */
+  s->u.tl_y = old_tl_y;
+  s->u.br_y = old_br_y;
+  s->u.source = old_source;
 
   /* log current cal type */
-  s->f_res = s->resolution_x;
-  s->f_mode = s->mode;
+  s->f_res = s->s.dpi_x;
+  s->f_mode = s->s.mode;
 
   DBG (10, "calibrate_fine: finish\n");
+
   return ret;
 }
 
@@ -4547,15 +4760,12 @@ calibration_scan (struct scanner *s, int scan)
 
   DBG (10, "calibration_scan: start\n");
 
-  s->eof_rx[0]=0;
-  s->eof_rx[1]=0;
-  s->bytes_rx[0]=0;
-  s->bytes_rx[1]=0;
-  s->lines_rx[0]=0;
-  s->lines_rx[1]=0;
-  
-  s->bytes_tx[0]=0;
-  s->bytes_tx[1]=0;
+  /* clean scan params for new scan */
+  ret = clean_params(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibration_scan: ERROR: cannot clean_params\n");
+    return ret;
+  }
 
   /* send calibration */
   ret = write_AFE(s);
@@ -4571,7 +4781,7 @@ calibration_scan (struct scanner *s, int scan)
     return ret;
   }
   
-  while(!s->eof_rx[SIDE_FRONT] && !s->eof_rx[SIDE_BACK]){
+  while(!s->s.eof[SIDE_FRONT] && !s->s.eof[SIDE_BACK]){
     ret = read_from_scanner_duplex(s,1);
   }
 
@@ -4655,7 +4865,7 @@ offset_buffers (struct scanner *s, int setup)
     }
 
     if(setup){
-      s->f_offset[side] = calloc (1,s->params.bytes_per_line);
+      s->f_offset[side] = calloc (1,s->s.Bpl);
       if (!s->f_offset[side]) {
         DBG (5, "offset_buffers: error, no f_offset %d.\n",side);
         return SANE_STATUS_NO_MEM;
@@ -4688,7 +4898,7 @@ gain_buffers (struct scanner *s, int setup)
     }
 
     if(setup){
-      s->f_gain[side] = calloc (1,s->params.bytes_per_line);
+      s->f_gain[side] = calloc (1,s->s.Bpl);
       if (!s->f_gain[side]) {
         DBG (5, "gain_buffers: error, no f_gain %d.\n",side);
         return SANE_STATUS_NO_MEM;
@@ -5441,6 +5651,7 @@ do_usb_clear(struct scanner *s, int clear, int runRS)
     DBG (10, "do_usb_clear: start\n");
 
     if(clear){
+      DBG (15, "do_usb_clear: clear halt\n");
       ret = sanei_usb_clear_halt(s->fd);
       if(ret != SANE_STATUS_GOOD){
         DBG(5,"do_usb_clear: cant clear halt, returning %d\n", ret);
@@ -5511,13 +5722,6 @@ wait_scanner(struct scanner *s)
     NULL, NULL
   );
   
-  ret = do_cmd (
-    s, 0, 1,
-    cmd, cmdLen,
-    NULL, 0,
-    NULL, NULL
-  );
-  
   if (ret != SANE_STATUS_GOOD) {
     DBG(5,"WARNING: Brain-dead scanner. Hitting with stick\n");
     ret = do_cmd (
@@ -5546,7 +5750,7 @@ wait_scanner(struct scanner *s)
   return ret;
 }
 
-/* s->page_width stores the user setting
+/* s->u.page_x stores the user setting
  * for the paper width in adf. sometimes,
  * we need a value that differs from this
  * due to using FB or overscan.
@@ -5554,23 +5758,23 @@ wait_scanner(struct scanner *s)
 static int
 get_page_width(struct scanner *s) 
 {
-  int width = s->page_width;
+  int width = s->u.page_x;
 
   /* scanner max for fb */
-  if(s->source == SOURCE_FLATBED){
+  if(s->u.source == SOURCE_FLATBED){
       return s->max_x_fb;
   }
 
   /* cant overscan larger than scanner max */
-  if(width > s->max_x){
-      return s->max_x;
+  if(width > s->valid_x){
+      return s->valid_x;
   }
 
   /* overscan adds a margin to both sides */
   return width;
 }
 
-/* s->page_height stores the user setting
+/* s->u.page_y stores the user setting
  * for the paper height in adf. sometimes,
  * we need a value that differs from this
  * due to using FB or overscan.
@@ -5578,10 +5782,10 @@ get_page_width(struct scanner *s)
 static int
 get_page_height(struct scanner *s) 
 {
-  int height = s->page_height;
+  int height = s->u.page_y;
 
   /* scanner max for fb */
-  if(s->source == SOURCE_FLATBED){
+  if(s->u.source == SOURCE_FLATBED){
       return s->max_y_fb;
   }
 

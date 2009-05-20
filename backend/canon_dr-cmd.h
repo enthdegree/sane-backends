@@ -223,6 +223,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define R_PANEL_len                     0x08
 #define get_R_PANEL_start(in)	        getbitfield(in, 1, 7)
 #define get_R_PANEL_stop(in)	        getbitfield(in, 1, 6)
+#define get_R_PANEL_butt3(in)	        getbitfield(in, 1, 2)
 #define get_R_PANEL_new_file(in)	getbitfield(in+1, 1, 0)
 #define get_R_PANEL_count_only(in)	getbitfield(in+1, 1, 1)
 #define get_R_PANEL_bypass_mode(in)	getbitfield(in+1, 1, 2)

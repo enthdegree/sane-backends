@@ -1319,7 +1319,8 @@ sane_start (SANE_Handle h)
     dev->reserved++;
   }
 
-  if (!dev_set_window(dev))
+  if (!dev_set_window(dev) ||
+      dev->state != SANE_STATUS_DEVICE_BUSY)
     return dev_stop(dev);
 
   if (!dev_cmd_wait(dev, CMD_OBJECT_POSITION))

@@ -69,6 +69,8 @@
 
 #define MF4200_PID 0x26b5
 #define MF4100_PID 0x26a3
+#define MF4600_PID 0x26b0
+#define MF4010_PID 0x26b4
 /* the following are all untested */
 #define MF5630_PID 0x264e
 #define MF5650_PID 0x264f
@@ -79,8 +81,7 @@
 #define MF3110_PID 0x2660
 #define MF3200_PID 0x2684
 #define MF6500_PID 0x2686
-#define MF4600_PID 0x26b0
-#define MF4010_PID 0x26b4
+
 
 enum iclass_state_t
 {

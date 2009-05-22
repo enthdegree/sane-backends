@@ -1,3 +1,7 @@
+2009-05-22  Alex Belkin <abc at telekom.ru>
+	* backend/xerox_mfp.c:
+	- additional error check to (stop scanadf) + fix of it.
+
 2009-05-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, backend/pixma_mp730.c, sanei/sanei_usb.c:
 	- pixma_imageclass.c: supported devices list cleanup.

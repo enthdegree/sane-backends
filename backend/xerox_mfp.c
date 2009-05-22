@@ -1320,14 +1320,14 @@ sane_start (SANE_Handle h)
   }
 
   if (!dev_set_window(dev) ||
-      dev->state != SANE_STATUS_DEVICE_BUSY)
+      (dev->state && dev->state != SANE_STATUS_DEVICE_BUSY))
     return dev_stop(dev);
 
   if (!dev_cmd_wait(dev, CMD_OBJECT_POSITION))
     return dev_stop(dev);
 
   if (!dev_cmd(dev, CMD_READ) ||
-      dev->state != SANE_STATUS_DEVICE_BUSY)
+      (dev->state && dev->state != SANE_STATUS_DEVICE_BUSY))
     return dev_stop(dev);
 
   dev->scanning = 1;

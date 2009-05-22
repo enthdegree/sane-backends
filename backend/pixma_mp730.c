@@ -411,6 +411,7 @@ mp730_close (pixma_t * s)
 
   mp730_finish_scan (s);
   free (mp->cb.buf);
+  free (mp->buf);
   free (mp);
   s->subdriver = NULL;
 }
@@ -433,6 +434,7 @@ mp730_check_param (pixma_t * s, pixma_scan_param_t * sp)
   UNUSED (s);
 
   sp->depth = 8;		/* FIXME: Does MP730 supports other depth? */
+  sp->w = calc_raw_width (sp);
   sp->line_size = calc_raw_width (sp) * sp->channels;
   return 0;
 }
@@ -496,12 +498,8 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	{
 	  if (s->cancel)
 	    return PIXMA_ECANCELED;
-	  if (mp->last_block)
-	    {
-	      /* end of image */
-	      mp->state = state_finished;
+	  if (mp->last_block)           /* end of image */
 	      return 0;
-	    }
 
 	  error = read_image_block (s, header, mp->imgbuf + mp->imgbuf_len);
 	  if (error < 0)
@@ -510,6 +508,10 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	  bytes_received = error;
 	  block_size = pixma_get_be16 (header + 4);
 	  mp->last_block = ((header[2] & 0x28) == 0x28);
+	  if (mp->last_block)
+	    {    /* end of image */
+	      mp->state = state_finished;
+	    }
 	  if ((header[2] & ~0x38) != 0)
 	    {
 	      PDBG (pixma_dbg (1, "WARNING: Unexpected result header\n"));
@@ -522,7 +524,7 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	      /* no image data at this moment. */
 	      /*pixma_sleep(100000); *//* FIXME: too short, too long? */
 	      handle_interrupt (s, 100);
-	     /*XXX*/}
+            }
 	}
       while (block_size == 0);
 
@@ -577,7 +579,6 @@ mp730_finish_scan (pixma_t * s)
       query_status (s);
       query_status (s);
       activate (s, 0);
-      free (mp->buf);
       mp->buf = mp->lbuf = mp->imgbuf = NULL;
       mp->state = state_idle;
       /* fall through */

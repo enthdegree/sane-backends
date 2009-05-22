@@ -1,3 +1,11 @@
+2009-05-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_imageclass.c, backend/pixma_mp730.c, sanei/sanei_usb.c:
+	- pixma_imageclass.c: supported devices list cleanup.
+	- pixma_mp730.c: fixed scan area width adjust and end of scan protocol for MP730.
+	- sanei/sanei_usb.c: in sanei_usb_open(), changed "endpoints seek loop" to 
+	  take into account only interfaces detected by sanei_usb_init()
+	  Fixes Pixma MP730 usb wrong endpoints selection. 
+
 2009-05-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_devices.c, backend/genesys_low.h: 
 	  Add Pentax DSmobile 600, Syscan 485, DCT 487

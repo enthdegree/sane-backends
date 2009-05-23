@@ -210,8 +210,8 @@
 :model "MultiPASS MP730"
 :interface "USB"
 :usbid "0x04a9" "0x262f"
-:status :minimal
-:comment "Do grayscale and ADF work? Same model as SmartBase MP730 Photo?"
+:status :good
+:comment "Flatbed color up to 1200DPI, grayscale up to 600DPI. ADF scan to be confirmed."
 
 :model "PIXMA MX300"
 :interface "USB"

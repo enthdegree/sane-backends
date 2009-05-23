@@ -1,3 +1,7 @@
+2009-05-23  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
+	Updated documentation for Pixma MultiPass MP730.
+
 2009-05-22  Alex Belkin <abc at telekom.ru>
 	* backend/xerox_mfp.c:
 	- additional error check to (stop scanadf) + fix of it.

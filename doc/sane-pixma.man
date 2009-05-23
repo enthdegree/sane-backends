@@ -26,7 +26,7 @@ PIXMA MP800, MP800R, MP810, MP830, MP960, MP970, MP980
 .br
 PIXMA MX300, MX310, MX700, MX850, MX7600
 .br
-MultiPASS MP700, PIXMA MP750 (no grayscale)
+MultiPASS MP700, MP730, PIXMA MP750 (no grayscale)
 .br
 ImageCLASS MF4010, MF4018, MF4120, MF4122, MF4140, MF4150
 .br
@@ -39,7 +39,7 @@ and must be switched off and on.
 .RS
 SmartBase MP360, MP370, MP390
 .br
-MultiPASS MP730, PIXMA MP760, PIXMA MP780
+MultiPASS PIXMA MP760, PIXMA MP780
 .RE
 .PP
 The following models may use the same Pixma protocol as those listed 

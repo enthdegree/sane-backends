@@ -1236,13 +1236,17 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	      /* Loop through all of the alternate settings */
 	      for (a = 0; a < dev->config[c].interface[i].num_altsetting; a++)
 		{
-                  /* Start by interfaces found in sanei_usb_init */
-                  if (c == 0 && i != devices[devcount].interface_nr)
-                    continue;
-
 		  DBG (5, "sanei_usb_open: configuration nr: %d\n", c);
 		  DBG (5, "sanei_usb_open:     interface nr: %d\n", i);
 		  DBG (5, "sanei_usb_open:   alt_setting nr: %d\n", a);
+
+                  /* Start by interfaces found in sanei_usb_init */
+                  if (c == 0 && i != devices[devcount].interface_nr)
+                    {
+                      DBG (5, "sanei_usb_open: interface %d not detected as "
+                        "a scanner by sanei_usb_init, ignoring.\n", i);
+                      continue;
+                     }
 
 		  interface = &dev->config[c].interface[i].altsetting[a];
 
@@ -1543,15 +1547,19 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	      /* Loop through all of the alternate settings */
 	      for (a = 0; a < config->interface[i].num_altsetting; a++)
 		{
-                  /* Start by interfaces found in sanei_usb_init */
-                  if (c == 0 && i != devices[devcount].interface_nr)
-                    continue;
-
 		  const struct libusb_interface_descriptor *interface;
 
 		  DBG (5, "sanei_usb_open: configuration nr: %d\n", c);
 		  DBG (5, "sanei_usb_open:     interface nr: %d\n", i);
 		  DBG (5, "sanei_usb_open:   alt_setting nr: %d\n", a);
+
+                  /* Start by interfaces found in sanei_usb_init */
+                  if (c == 0 && i != devices[devcount].interface_nr)
+                    {
+                      DBG (5, "sanei_usb_open: interface %d not detected as "
+                        "a scanner by sanei_usb_init, ignoring.\n", i);
+                      continue;
+                     }
 
 		  interface = &config->interface[i].altsetting[a];
 

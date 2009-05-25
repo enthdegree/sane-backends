@@ -1,3 +1,7 @@
+2009-05-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* sanei/sanei_usb.c:
+	Adds debug verbosity to last sanei_usb.c patch.
+
 2009-05-23  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
 	Updated documentation for Pixma MultiPass MP730.

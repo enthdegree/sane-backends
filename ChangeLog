@@ -1,3 +1,11 @@
+2009-05-25 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.[ch]: backend v94
+	- add side option to show which duplex image is being transferred
+	- convert front and simplex buffers to use much less ram
+	- add lowmemory option which makes duplex back buffer small too
+	- refactor image handling code to track eof's instead of lengths
+	- do color deinterlacing after reading from scanner, before buffering
+
 2009-05-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* sanei/sanei_usb.c:
 	Adds debug verbosity to last sanei_usb.c patch.

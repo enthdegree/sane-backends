@@ -23,7 +23,7 @@
 
 :model "800c"
 :interface "USB"
-:usbid "0x08f0" "0x2110"
+:usbid "0x08f0" "0x0005"
 :status :good
 :comment "4 inch wide 8bit Gray or 24bit Color simplex card/receipt scanner"
 

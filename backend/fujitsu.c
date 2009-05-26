@@ -496,7 +496,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 93
+#define BUILD 94
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5

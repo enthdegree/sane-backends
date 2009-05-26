@@ -222,8 +222,7 @@ enum {
 	OPT_BRIGHTNESS, OPT_SHARPNESS, OPT_GAMMA_CORRECTION, OPT_COLOR_CORRECTION,
 	OPT_RESOLUTION, OPT_THRESHOLD, OPT_ADVANCED_GROUP, OPT_MIRROR,
 	OPT_AAS, OPT_GAMMA_VECTOR_R, OPT_GAMMA_VECTOR_G, OPT_GAMMA_VECTOR_B,
-	OPT_WAIT_FOR_BUTTON, OPT_CCT_GROUP, OPT_CCT_1, OPT_CCT_2, OPT_CCT_3,
-	OPT_CCT_4, OPT_CCT_5, OPT_CCT_6, OPT_CCT_7, OPT_CCT_8, OPT_CCT_9,
+	OPT_WAIT_FOR_BUTTON, OPT_CCT_GROUP, OPT_CCT_MODE, OPT_CCT_PROFILE,
 	OPT_PREVIEW_GROUP, OPT_PREVIEW, OPT_GEOMETRY_GROUP,
 	OPT_TL_X, OPT_TL_Y, OPT_BR_X, OPT_BR_Y, OPT_EQU_GROUP,
 	OPT_SOURCE, OPT_AUTO_EJECT, OPT_FILM_TYPE, OPT_FOCUS, OPT_BAY,
@@ -239,6 +238,26 @@ typedef enum
 	SANE_EPSON_NET		/* network interface */
 } Epson_Connection_Type;
 
+struct epson_profile
+{
+	unsigned int	model;
+	double		cct[4][9];
+};
+
+enum {
+	CCTP_REFLECTIVE = 0, CCTP_COLORNEG,
+	CCTP_MONONEG, CCTP_COLORPOS
+};
+
+struct epson_profile_map
+{
+        char		*name;
+        unsigned int	id;
+};
+
+extern const struct epson_profile epson_cct_profiles[];
+extern const struct epson_profile_map epson_cct_models[];
+
 /* hardware description */
 
 struct Epson_Device
@@ -247,6 +266,8 @@ struct Epson_Device
 
 	char *name;
 	char *model;
+
+	unsigned int model_id;
 
 	SANE_Device sane;
 	SANE_Int level;
@@ -295,6 +316,7 @@ struct Epson_Device
 	SANE_Bool extended_commands;
 
 	struct EpsonCmd *cmd;
+	const struct epson_profile *cct_profile;
 };
 
 typedef struct Epson_Device Epson_Device;
@@ -317,6 +339,7 @@ struct Epson_Scanner
 	SANE_Byte *buf, *end, *ptr;
 	SANE_Bool canceling;
 	SANE_Word gamma_table[3][256];
+	SANE_Word cct_table[9];
 	SANE_Int retry_count;
 
 	/* buffer lines for color shuffling */

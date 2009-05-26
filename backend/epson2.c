@@ -197,6 +197,7 @@ static const SANE_String_Const dropout_list[] = {
 static const SANE_Bool color_userdefined[] = {
 	SANE_FALSE,
 	SANE_TRUE,
+	SANE_TRUE,
 	SANE_FALSE,
 	SANE_FALSE,
 	SANE_FALSE,
@@ -204,13 +205,29 @@ static const SANE_Bool color_userdefined[] = {
 };
 
 static const SANE_String_Const color_list[] = {
-	SANE_I18N("No Correction"),
+	SANE_I18N("None"),
+	SANE_I18N("Automatic"),
 	SANE_I18N("User defined"),
 	SANE_I18N("Impact-dot printers"),
 	SANE_I18N("Thermal printers"),
 	SANE_I18N("Ink-jet printers"),
 	SANE_I18N("CRT monitors"),
 	NULL
+};
+
+/* cct profile has precedence over normal color correction */
+static const SANE_String_Const cct_mode_list[] = {
+        "Automatic",
+        "Reflective",
+        "Colour negatives",
+        "Monochrome negatives",
+        "Colour positives",
+        NULL
+};
+
+enum {
+	CCT_AUTO, CCT_REFLECTIVE, CCT_COLORNEG, CCT_MONONEG,
+	CCT_COLORPOS
 };
 
 /*
@@ -282,6 +299,7 @@ static const SANE_String_Const bay_list[] = {
 /* minimum, maximum, quantization */
 static const SANE_Range u8_range = { 0, 255, 0 };
 static const SANE_Range s8_range = { -127, 127, 0 };
+static const SANE_Range fx_range = { SANE_FIX(-2.0), SANE_FIX(2.0), 0 };
 
 static const SANE_Range outline_emphasis_range = { -2, 2, 0 };
 
@@ -924,7 +942,7 @@ init_options(Epson_Scanner *s)
 {
 	int i;
 
-	for (i = 0; i < NUM_OPTIONS; ++i) {
+	for (i = 0; i < NUM_OPTIONS; i++) {
 		s->opt[i].size = sizeof(SANE_Word);
 		s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 	}
@@ -1134,16 +1152,14 @@ init_options(Epson_Scanner *s)
 	s->opt[OPT_COLOR_CORRECTION].name = "color-correction";
 	s->opt[OPT_COLOR_CORRECTION].title = SANE_I18N("Color correction");
 	s->opt[OPT_COLOR_CORRECTION].desc =
-		SANE_I18N
-		("Sets the color correction table for the selected output device.");
+		SANE_I18N("Sets the color correction table for the selected output device.");
 
 	s->opt[OPT_COLOR_CORRECTION].type = SANE_TYPE_STRING;
-	s->opt[OPT_COLOR_CORRECTION].size = 32;
+	s->opt[OPT_COLOR_CORRECTION].size = max_string_size(color_list);
 	s->opt[OPT_COLOR_CORRECTION].cap |= SANE_CAP_ADVANCED;
-	s->opt[OPT_COLOR_CORRECTION].constraint_type =
-		SANE_CONSTRAINT_STRING_LIST;
+	s->opt[OPT_COLOR_CORRECTION].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_COLOR_CORRECTION].constraint.string_list = color_list;
-	s->val[OPT_COLOR_CORRECTION].w = 5;	/* scanner default: CRT monitors */
+	s->val[OPT_COLOR_CORRECTION].w = 0;
 
 	if (!s->hw->cmd->set_color_correction)
 		s->opt[OPT_COLOR_CORRECTION].cap |= SANE_CAP_INACTIVE;
@@ -1173,25 +1189,7 @@ init_options(Epson_Scanner *s)
 	if (!s->hw->cmd->set_threshold)
 		s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
 
-	s->opt[OPT_CCT_GROUP].title =
-		SANE_I18N("Color correction coefficients");
-	s->opt[OPT_CCT_GROUP].desc =
-		SANE_I18N("Matrix multiplication of RGB");
-	s->opt[OPT_CCT_GROUP].type = SANE_TYPE_GROUP;
-	s->opt[OPT_CCT_GROUP].cap = SANE_CAP_ADVANCED;
-
-
-	/* color correction coefficients */
-	s->opt[OPT_CCT_1].name = "cct-1";
-	s->opt[OPT_CCT_2].name = "cct-2";
-	s->opt[OPT_CCT_3].name = "cct-3";
-	s->opt[OPT_CCT_4].name = "cct-4";
-	s->opt[OPT_CCT_5].name = "cct-5";
-	s->opt[OPT_CCT_6].name = "cct-6";
-	s->opt[OPT_CCT_7].name = "cct-7";
-	s->opt[OPT_CCT_8].name = "cct-8";
-	s->opt[OPT_CCT_9].name = "cct-9";
-
+/*
 	s->opt[OPT_CCT_1].title = SANE_I18N("Green");
 	s->opt[OPT_CCT_2].title = SANE_I18N("Shift green to red");
 	s->opt[OPT_CCT_3].title = SANE_I18N("Shift green to blue");
@@ -1215,72 +1213,44 @@ init_options(Epson_Scanner *s)
 		SANE_I18N("Adds to green based on blue level");
 	s->opt[OPT_CCT_8].desc = SANE_I18N("Adds to red based on blue level");
 	s->opt[OPT_CCT_9].desc = SANE_I18N("Controls blue level");
-
-	s->opt[OPT_CCT_1].type = SANE_TYPE_INT;
-	s->opt[OPT_CCT_2].type = SANE_TYPE_INT;
-	s->opt[OPT_CCT_3].type = SANE_TYPE_INT;
-	s->opt[OPT_CCT_4].type = SANE_TYPE_INT;
-	s->opt[OPT_CCT_5].type = SANE_TYPE_INT;
-	s->opt[OPT_CCT_6].type = SANE_TYPE_INT;
-	s->opt[OPT_CCT_7].type = SANE_TYPE_INT;
-	s->opt[OPT_CCT_8].type = SANE_TYPE_INT;
-	s->opt[OPT_CCT_9].type = SANE_TYPE_INT;
-
-	s->opt[OPT_CCT_1].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-	s->opt[OPT_CCT_2].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-	s->opt[OPT_CCT_3].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-	s->opt[OPT_CCT_4].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-	s->opt[OPT_CCT_5].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-	s->opt[OPT_CCT_6].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-	s->opt[OPT_CCT_7].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-	s->opt[OPT_CCT_8].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-	s->opt[OPT_CCT_9].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-
-	s->opt[OPT_CCT_1].unit = SANE_UNIT_NONE;
-	s->opt[OPT_CCT_2].unit = SANE_UNIT_NONE;
-	s->opt[OPT_CCT_3].unit = SANE_UNIT_NONE;
-	s->opt[OPT_CCT_4].unit = SANE_UNIT_NONE;
-	s->opt[OPT_CCT_5].unit = SANE_UNIT_NONE;
-	s->opt[OPT_CCT_6].unit = SANE_UNIT_NONE;
-	s->opt[OPT_CCT_7].unit = SANE_UNIT_NONE;
-	s->opt[OPT_CCT_8].unit = SANE_UNIT_NONE;
-	s->opt[OPT_CCT_9].unit = SANE_UNIT_NONE;
-
-	s->opt[OPT_CCT_1].constraint_type = SANE_CONSTRAINT_RANGE;
-	s->opt[OPT_CCT_2].constraint_type = SANE_CONSTRAINT_RANGE;
-	s->opt[OPT_CCT_3].constraint_type = SANE_CONSTRAINT_RANGE;
-	s->opt[OPT_CCT_4].constraint_type = SANE_CONSTRAINT_RANGE;
-	s->opt[OPT_CCT_5].constraint_type = SANE_CONSTRAINT_RANGE;
-	s->opt[OPT_CCT_6].constraint_type = SANE_CONSTRAINT_RANGE;
-	s->opt[OPT_CCT_7].constraint_type = SANE_CONSTRAINT_RANGE;
-	s->opt[OPT_CCT_8].constraint_type = SANE_CONSTRAINT_RANGE;
-	s->opt[OPT_CCT_9].constraint_type = SANE_CONSTRAINT_RANGE;
-
-	s->opt[OPT_CCT_1].constraint.range = &s8_range;
-	s->opt[OPT_CCT_2].constraint.range = &s8_range;
-	s->opt[OPT_CCT_3].constraint.range = &s8_range;
-	s->opt[OPT_CCT_4].constraint.range = &s8_range;
-	s->opt[OPT_CCT_5].constraint.range = &s8_range;
-	s->opt[OPT_CCT_6].constraint.range = &s8_range;
-	s->opt[OPT_CCT_7].constraint.range = &s8_range;
-	s->opt[OPT_CCT_8].constraint.range = &s8_range;
-	s->opt[OPT_CCT_9].constraint.range = &s8_range;
-
-	s->val[OPT_CCT_1].w = 32;
-	s->val[OPT_CCT_2].w = 0;
-	s->val[OPT_CCT_3].w = 0;
-	s->val[OPT_CCT_4].w = 0;
-	s->val[OPT_CCT_5].w = 32;
-	s->val[OPT_CCT_6].w = 0;
-	s->val[OPT_CCT_7].w = 0;
-	s->val[OPT_CCT_8].w = 0;
-	s->val[OPT_CCT_9].w = 32;
+*/
 
 	/* "Advanced" group: */
 	s->opt[OPT_ADVANCED_GROUP].title = SANE_I18N("Advanced");
 	s->opt[OPT_ADVANCED_GROUP].desc = "";
 	s->opt[OPT_ADVANCED_GROUP].type = SANE_TYPE_GROUP;
-	s->opt[OPT_ADVANCED_GROUP].cap = SANE_CAP_ADVANCED;
+	s->opt[OPT_ADVANCED_GROUP].cap |= SANE_CAP_ADVANCED;
+
+	/* "Color correction" group: */
+	s->opt[OPT_CCT_GROUP].title = SANE_I18N("Color correction");
+	s->opt[OPT_CCT_GROUP].desc = "";
+	s->opt[OPT_CCT_GROUP].type = SANE_TYPE_GROUP;
+	s->opt[OPT_CCT_GROUP].cap |= SANE_CAP_ADVANCED;
+
+	s->opt[OPT_CCT_MODE].name = "cct-mode";
+	s->opt[OPT_CCT_MODE].title = "CCT Mode";
+	s->opt[OPT_CCT_MODE].desc = "Color correction profile mode";
+	s->opt[OPT_CCT_MODE].type = SANE_TYPE_STRING;
+	s->opt[OPT_CCT_MODE].cap  |= SANE_CAP_ADVANCED;
+	s->opt[OPT_CCT_MODE].size = max_string_size(cct_mode_list);
+	s->opt[OPT_CCT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+	s->opt[OPT_CCT_MODE].constraint.string_list = cct_mode_list;
+	s->val[OPT_CCT_MODE].w = CCT_AUTO;
+
+	s->opt[OPT_CCT_PROFILE].name = "cct-profile";
+	s->opt[OPT_CCT_PROFILE].title = "CCT Profile";
+	s->opt[OPT_CCT_PROFILE].desc = "Color correction profile data";
+	s->opt[OPT_CCT_PROFILE].type = SANE_TYPE_FIXED;
+	s->opt[OPT_CCT_PROFILE].cap  |= SANE_CAP_ADVANCED;
+	s->opt[OPT_CCT_PROFILE].unit = SANE_UNIT_NONE;
+	s->opt[OPT_CCT_PROFILE].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_CCT_PROFILE].constraint.range = &fx_range;
+	s->opt[OPT_CCT_PROFILE].size = 9 * sizeof(SANE_Word);
+	s->val[OPT_CCT_PROFILE].wa = s->cct_table;
+
+/*	if (!s->hw->cmd->set_color_correction)
+		s->opt[OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;
+*/	
 
 	/* mirror */
 	s->opt[OPT_MIRROR].name = "mirror";
@@ -1663,6 +1633,7 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 	case OPT_GAMMA_VECTOR_R:
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
+	case OPT_CCT_PROFILE:
 		memcpy(value, sval->wa, sopt->size);
 		break;
 
@@ -1678,15 +1649,8 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 	case OPT_BRIGHTNESS:
 	case OPT_SHARPNESS:
 	case OPT_AUTO_EJECT:
-	case OPT_CCT_1:
-	case OPT_CCT_2:
-	case OPT_CCT_3:
-	case OPT_CCT_4:
-	case OPT_CCT_5:
-	case OPT_CCT_6:
-	case OPT_CCT_7:
-	case OPT_CCT_8:
-	case OPT_CCT_9:
+/*	case OPT_CCT_1:
+*/
 	case OPT_THRESHOLD:
 	case OPT_BIT_DEPTH:
 	case OPT_WAIT_FOR_BUTTON:
@@ -1694,6 +1658,7 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 		break;
 
 	case OPT_MODE:
+	case OPT_CCT_MODE:
 	case OPT_ADF_MODE:
 	case OPT_HALFTONE:
 	case OPT_DROPOUT:
@@ -1865,8 +1830,8 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 	Option_Value *sval = &(s->val[option]);
 
 	SANE_Status status;
-	const SANE_String_Const *optval;
-	int optindex;
+	const SANE_String_Const *optval = NULL;
+	int optindex = 0;
 	SANE_Bool reload = SANE_FALSE;
 
 	DBG(17, "%s: option = %d, value = %p\n", __func__, option, value);
@@ -1880,13 +1845,9 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 		DBG(17, "%s: constrained val = %d\n", __func__,
 		    *(SANE_Word *) value);
 
-	optval = NULL;
-	optindex = 0;
-
 	if (sopt->constraint_type == SANE_CONSTRAINT_STRING_LIST) {
 		optval = search_string_list(sopt->constraint.string_list,
 					    (char *) value);
-
 		if (optval == NULL)
 			return SANE_STATUS_INVAL;
 		optindex = optval - sopt->constraint.string_list;
@@ -1897,21 +1858,12 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 	case OPT_GAMMA_VECTOR_R:
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
+	case OPT_CCT_PROFILE:
 		memcpy(sval->wa, value, sopt->size);	/* Word arrays */
 		break;
 
-	case OPT_CCT_1:
-	case OPT_CCT_2:
-	case OPT_CCT_3:
-	case OPT_CCT_4:
-	case OPT_CCT_5:
-	case OPT_CCT_6:
-	case OPT_CCT_7:
-	case OPT_CCT_8:
-	case OPT_CCT_9:
-		sval->w = *((SANE_Word *) value);	/* Simple values */
-		break;
-
+	case OPT_CCT_MODE:
+	case OPT_ADF_MODE:
 	case OPT_DROPOUT:
 	case OPT_FILM_TYPE:
 	case OPT_BAY:
@@ -1954,16 +1906,19 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 	case OPT_MODE:
 	{
 		SANE_Bool isColor = mode_params[optindex].color;
-		SANE_Bool userDefined =
+/*		SANE_Bool userDefined =
 			color_userdefined[s->val[OPT_COLOR_CORRECTION].w];
+
+		SANE_Bool canCCT = isColor && userDefined; */
 
 		sval->w = optindex;
 
+		/* halftoning available only on bw scans */
 		if (s->hw->cmd->set_halftoning != 0)
-			setOptionState(s,
-				       mode_params[optindex].depth ==
-				       1, OPT_HALFTONE, &reload);
+			setOptionState(s, mode_params[optindex].depth == 1,
+				       OPT_HALFTONE, &reload);
 
+		/* disable dropout on non-color scans */
 		setOptionState(s, !isColor, OPT_DROPOUT, &reload);
 
 		if (s->hw->cmd->set_color_correction)
@@ -1971,24 +1926,9 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 				       OPT_COLOR_CORRECTION, &reload);
 
 		if (s->hw->cmd->set_color_correction_coefficients) {
-			setOptionState(s, isColor
+/*XXX			setOptionState(s, isColor
 				       && userDefined, OPT_CCT_1, &reload);
-			setOptionState(s, isColor
-				       && userDefined, OPT_CCT_2, &reload);
-			setOptionState(s, isColor
-				       && userDefined, OPT_CCT_3, &reload);
-			setOptionState(s, isColor
-				       && userDefined, OPT_CCT_4, &reload);
-			setOptionState(s, isColor
-				       && userDefined, OPT_CCT_5, &reload);
-			setOptionState(s, isColor
-				       && userDefined, OPT_CCT_6, &reload);
-			setOptionState(s, isColor
-				       && userDefined, OPT_CCT_7, &reload);
-			setOptionState(s, isColor
-				       && userDefined, OPT_CCT_8, &reload);
-			setOptionState(s, isColor
-				       && userDefined, OPT_CCT_9, &reload);
+*/
 		}
 
 		/* if binary, then disable the bit depth selection */
@@ -2012,10 +1952,6 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 		break;
 	}
 
-	case OPT_ADF_MODE:
-		sval->w = optindex;
-		break;
-
 	case OPT_BIT_DEPTH:
 		sval->w = *((SANE_Word *) value);
 		mode_params[s->val[OPT_MODE].w].depth = sval->w;
@@ -2029,18 +1965,10 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 
 	case OPT_COLOR_CORRECTION:
 	{
-		SANE_Bool f = color_userdefined[optindex];
+/*		SANE_Bool f = color_userdefined[optindex]; */
 
 		sval->w = optindex;
-		setOptionState(s, f, OPT_CCT_1, &reload);
-		setOptionState(s, f, OPT_CCT_2, &reload);
-		setOptionState(s, f, OPT_CCT_3, &reload);
-		setOptionState(s, f, OPT_CCT_4, &reload);
-		setOptionState(s, f, OPT_CCT_5, &reload);
-		setOptionState(s, f, OPT_CCT_6, &reload);
-		setOptionState(s, f, OPT_CCT_7, &reload);
-		setOptionState(s, f, OPT_CCT_8, &reload);
-		setOptionState(s, f, OPT_CCT_9, &reload);
+/*XXX		setOptionState(s, f, OPT_CCT_1, &reload); */
 
 		break;
 	}
@@ -2238,6 +2166,19 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
 	return SANE_STATUS_GOOD;
 }
 
+static void e2_load_cct_profile(struct Epson_Scanner *s, unsigned int index)
+{
+        s->cct_table[0] = SANE_FIX(s->hw->cct_profile->cct[index][0]);
+        s->cct_table[1] = SANE_FIX(s->hw->cct_profile->cct[index][1]);
+        s->cct_table[2] = SANE_FIX(s->hw->cct_profile->cct[index][2]);
+        s->cct_table[3] = SANE_FIX(s->hw->cct_profile->cct[index][3]);
+        s->cct_table[4] = SANE_FIX(s->hw->cct_profile->cct[index][4]);
+        s->cct_table[5] = SANE_FIX(s->hw->cct_profile->cct[index][5]);
+        s->cct_table[6] = SANE_FIX(s->hw->cct_profile->cct[index][6]);
+        s->cct_table[7] = SANE_FIX(s->hw->cct_profile->cct[index][7]);
+        s->cct_table[8] = SANE_FIX(s->hw->cct_profile->cct[index][8]);
+}
+
 /*
  * This function is part of the SANE API and gets called from the front end to
  * start the scan process.
@@ -2286,9 +2227,26 @@ sane_start(SANE_Handle handle)
 			return status;
 	}
 
+	
+	if (s->val[OPT_COLOR_CORRECTION].w == 1) { /* Automatic */
+
+		if (0) { /* XXX TPU */
+ 
+		        /* XXX check this */
+			if (s->val[OPT_FILM_TYPE].w == 0)
+				e2_load_cct_profile(s, CCTP_COLORPOS);
+			else
+				e2_load_cct_profile(s, CCTP_COLORNEG);
+
+		} else {
+			e2_load_cct_profile(s, CCTP_REFLECTIVE);
+		}
+	}
+                                                    
 	/* ESC m, user defined color correction */
-	if (s->val[OPT_COLOR_CORRECTION].w == 1) {
-		status = esci_set_color_correction_coefficients(s);
+	if (color_userdefined[s->val[OPT_COLOR_CORRECTION].w]) {
+		status = esci_set_color_correction_coefficients(s,
+                                                        s->cct_table);
 		if (status != SANE_STATUS_GOOD)
 			return status;
 	}
@@ -2300,7 +2258,6 @@ sane_start(SANE_Handle handle)
 	status = e2_check_adf(s);
 	if (status != SANE_STATUS_GOOD)
 		return status;
-
 
 /*
 	status = sane_get_parameters(handle, NULL);

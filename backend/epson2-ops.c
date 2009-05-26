@@ -128,16 +128,14 @@ static const int dropout_params[] = {
  * and one array to mark the user defined color correction (color_userdefined[]).
  */
 static const int color_params[] = {
-	0x00,
-	0x01,
+	0x00,	/* None */
+	0x01,	/* Auto */
+	0x01,	/* User defined */
 	0x10,
 	0x20,
 	0x40,
 	0x80
 };
-
-static const SANE_Range outline_emphasis_range = { -2, 2, 0 };
-
 
 void
 e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
@@ -145,6 +143,8 @@ e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 	dev->name = NULL;
 	dev->model = NULL;
 	dev->connection = conntype;
+
+	dev->model_id = 0;
 
 	dev->sane.name = devname;
 	dev->sane.model = NULL;
@@ -160,6 +160,8 @@ e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 	dev->need_color_reorder = SANE_FALSE;
 	dev->need_double_vertical = SANE_FALSE;
 
+	dev->cct_profile = &epson_cct_profiles[0]; /* default profile */
+	
 	dev->cmd = &epson_cmd[EPSON_LEVEL_DEFAULT];
 
 	/* Change default level when using a network connection */
@@ -176,6 +178,26 @@ e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 SANE_Status
 e2_dev_post_init(struct Epson_Device *dev)
 {
+	int i;
+	
+	/* find cct model id */
+	for (i = 0; epson_cct_models[i].name != NULL; i++) {
+		if (strcmp(epson_cct_models[i].name, dev->model) == 0) {
+			dev->model_id = epson_cct_models[i].id;
+			break;
+		}
+	}
+
+	/* find cct profile */
+	for (i = 0; epson_cct_profiles[i].model != 0xFF; i++) {
+		if (epson_cct_profiles[i].model == dev->model_id) {
+			dev->cct_profile = &epson_cct_profiles[i];
+			break;
+		}
+	}
+
+	DBG(1, "CCT model id is 0x%02x, profile offset %d\n", dev->model_id, i);
+
 	/* If we have been unable to obtain supported resolutions
 	 * due to the fact we are on the network transport,
 	 * add some convenient ones

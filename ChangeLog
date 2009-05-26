@@ -1,3 +1,6 @@
+2009-05-26 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon.c: clamp film type to allowed range (bug #311685)
+
 2009-05-25 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.[ch]: backend v94
 	- add side option to show which duplex image is being transferred

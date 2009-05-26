@@ -430,6 +430,12 @@
          - ignore errors in scanner_control(),
            M3091 has not worked since sane 1.0.19, due to this.
          - copy_buffer needs to count lines, or M309[12] cannot duplex
+      v94 2009-05-22, MAN
+         - add side option to show which duplex image is being transferred
+         - convert front and simplex buffers to use much less ram
+         - add lowmemory option which makes duplex back buffer small too
+         - refactor image handling code to track eof's instead of lengths
+         - do color deinterlacing after reading from scanner, before buffering
 
    SANE FLOW DIAGRAM
 
@@ -3556,6 +3562,33 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
   
+  if(option==OPT_LOW_MEM){
+    opt->name = "lowmemory";
+    opt->title = "Low Memory";
+    opt->desc = "Limit driver memory usage for use in embedded systems. Causes some duplex transfers to alternate sides on each call to sane_read. Value of option 'side' can be used to determine correct image. This option should only be used with custom front-end software.";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->size = sizeof(SANE_Word);
+
+    if (1)
+      opt->cap= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else 
+      opt->cap = SANE_CAP_INACTIVE;
+
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
+  if(option==OPT_SIDE){
+    opt->name = "side";
+    opt->title = "Duplex side";
+    opt->desc = "Tells which side (0=front, 1=back) of a duplex scan the next call to sane_read will return.";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->size = sizeof(SANE_Word);
+    opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
   /* "Endorser" group ------------------------------------------------------ */
   if(option==OPT_ENDORSER_GROUP){
     opt->name = "endorser-options";
@@ -4433,6 +4466,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->blue_offset;
           return SANE_STATUS_GOOD;
 
+        case OPT_LOW_MEM:
+          *val_p = s->low_mem;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SIDE:
+          *val_p = s->side;
+          return SANE_STATUS_GOOD;
+
         /* Endorser Group */
         case OPT_ENDORSER:
           *val_p = s->u_endorser;
@@ -5024,6 +5065,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_BLUE_OFFSET:
           s->blue_offset = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_LOW_MEM:
+          s->low_mem = val_c;
           return SANE_STATUS_GOOD;
 
         /* Endorser Group */
@@ -5868,9 +5913,16 @@ sane_start (SANE_Handle handle)
   s->reading=1;
 
   /* not finished with current side, error */
-  if (s->started && s->bytes_tx[s->side] != s->bytes_tot[s->side]) {
+  if (s->started && !s->eof_tx[s->side]) {
       DBG(5,"sane_start: previous transfer not finished?");
       return SANE_STATUS_INVAL;
+  }
+
+  /* low mem mode messes up the side marker, reset it */
+  if(s->source == SOURCE_ADF_DUPLEX && s->low_mem
+    && s->eof_tx[SIDE_FRONT] && s->eof_tx[SIDE_BACK]
+  ){
+    s->side = SIDE_BACK;
   }
 
   /* batch start? inititalize struct and scanner */
@@ -5948,9 +6000,18 @@ sane_start (SANE_Handle handle)
       s->bytes_rx[1]=0;
       s->lines_rx[0]=0;
       s->lines_rx[1]=0;
+      s->eof_rx[0]=0;
+      s->eof_rx[1]=0;
 
       s->bytes_tx[0]=0;
       s->bytes_tx[1]=0;
+      s->eof_tx[0]=0;
+      s->eof_tx[1]=0;
+
+      s->buff_rx[0]=0;
+      s->buff_rx[1]=0;
+      s->buff_tx[0]=0;
+      s->buff_tx[1]=0;
 
       /* reset jpeg just in case... */
       s->jpeg_stage = JPEG_STAGE_HEAD;
@@ -5961,17 +6022,32 @@ sane_start (SANE_Handle handle)
       /* store the number of front bytes */ 
       if ( s->source != SOURCE_ADF_BACK ){
         s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
+        s->buff_tot[SIDE_FRONT] = s->buffer_size;
+
+        /* the front buffer is normally very small, but some scanners or
+         * option combinations can't handle it, so we make a big one */
+        if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091)
+          s->buff_tot[SIDE_FRONT] = s->bytes_tot[SIDE_FRONT];
       }
       else{
         s->bytes_tot[SIDE_FRONT] = 0;
+        s->buff_tot[SIDE_FRONT] = 0;
       }
 
       /* store the number of back bytes */ 
       if ( s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK ){
         s->bytes_tot[SIDE_BACK] = s->params.bytes_per_line * s->params.lines;
+        s->buff_tot[SIDE_BACK] = s->bytes_tot[SIDE_BACK];
+
+        /* the back buffer is normally very large, but some scanners or
+         * option combinations dont need it, so we make a small one */
+        if(s->low_mem || s->source == SOURCE_ADF_BACK
+         || s->duplex_interlace == DUPLEX_INTERLACE_NONE)
+          s->buff_tot[SIDE_BACK] = s->buffer_size;
       }
       else{
         s->bytes_tot[SIDE_BACK] = 0;
+        s->buff_tot[SIDE_BACK] = 0;
       }
 
       /* first page of batch */
@@ -6205,8 +6281,9 @@ setup_buffers (struct fujitsu *s)
       s->buffers[side] = NULL;
     }
 
-    if(s->bytes_tot[side]){
-      s->buffers[side] = calloc (1,s->bytes_tot[side]);
+    if(s->buff_tot[side]){
+      s->buffers[side] = calloc (1,s->buff_tot[side]);
+
       if (!s->buffers[side]) {
         DBG (5, "setup_buffers: Error, no buffer %d.\n",side);
         return SANE_STATUS_NO_MEM;
@@ -6739,98 +6816,105 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* maybe cancelled? */
   if(!s->started){
-      DBG (5, "sane_read: not started, call sane_start\n");
-      return SANE_STATUS_CANCELLED;
+    DBG (5, "sane_read: not started, call sane_start\n");
+    return SANE_STATUS_CANCELLED;
   }
 
   /* sane_start required between sides */
-  if(s->bytes_tx[s->side] == s->bytes_tot[s->side]){
-      DBG (15, "sane_read: returning eof\n");
-      return SANE_STATUS_EOF;
+  if(s->eof_rx[s->side] && s->bytes_tx[s->side] == s->bytes_rx[s->side]){
+    DBG (15, "sane_read: returning eof\n");
+    s->eof_tx[s->side] = 1;
+
+    /* swap sides if user asked for low-mem mode, we are duplexing,
+     * and there is data waiting on the other side */
+    if(s->low_mem && s->source == SOURCE_ADF_DUPLEX
+      && (s->bytes_rx[!s->side] > s->bytes_tx[!s->side]
+        || (s->eof_rx[!s->side] && !s->eof_tx[!s->side])
+      )
+    ){
+      s->side = !s->side;
+    }
+
+    return SANE_STATUS_EOF;
   }
 
   /* protect this block from sane_cancel */
   s->reading = 1;
 
-  /* 3091/2 are on crack, get their own duplex reader function */
-  if(s->source == SOURCE_ADF_DUPLEX
-    && s->duplex_interlace == DUPLEX_INTERLACE_3091){
+  /* no bytes to send to caller, but no eof from scanner yet? get some */
+  if(s->buff_rx[s->side] == s->buff_tx[s->side]){
 
-      if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
-        || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK]
-      ){
-        ret = read_from_3091duplex(s);
-        if(ret){
-          DBG(5,"sane_read: 3091 returning %d\n",ret);
-          return ret;
-        }
+    /* 3091/2 are on crack, get their own duplex reader function */
+    if(s->source == SOURCE_ADF_DUPLEX
+      && s->duplex_interlace == DUPLEX_INTERLACE_3091
+    ){
+      ret = read_from_3091duplex(s);
+      if(ret){
+        DBG(5,"sane_read: 3091 returning %d\n",ret);
+        return ret;
       }
-
-  } /* end 3091 */
+    } /* end 3091 */
 
 #ifdef SANE_FRAME_JPEG
-  /* alternating jpeg duplex interlacing */
-  else if(s->source == SOURCE_ADF_DUPLEX
-    && s->params.format == SANE_FRAME_JPEG 
-    && s->jpeg_interlace == JPEG_INTERLACE_ALT){
-  
-      /* read from front side if either side has remaining */
-      if ( s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
-        || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK]
-      ){
-        ret = read_from_JPEGduplex(s);
-        if(ret){
-          DBG(5,"sane_read: jpeg duplex returning %d\n",ret);
-          return ret;
-        }
+    /* alternating jpeg duplex interlacing */
+    else if(s->source == SOURCE_ADF_DUPLEX
+      && s->params.format == SANE_FRAME_JPEG 
+      && s->jpeg_interlace == JPEG_INTERLACE_ALT
+    ){
+      ret = read_from_JPEGduplex(s);
+      if(ret){
+        DBG(5,"sane_read: jpeg duplex returning %d\n",ret);
+        return ret;
       }
-
-  } /* end alt jpeg */
+    } /* end alt jpeg */
 #endif
 
-  /* alternating pnm duplex interlacing */
-  else if(s->source == SOURCE_ADF_DUPLEX
-    && s->params.format <= SANE_FRAME_RGB
-    && s->duplex_interlace == DUPLEX_INTERLACE_ALT){
+    /* alternating pnm duplex interlacing */
+    else if(s->source == SOURCE_ADF_DUPLEX
+      && s->params.format <= SANE_FRAME_RGB
+      && s->duplex_interlace == DUPLEX_INTERLACE_ALT
+    ){
 
       /* buffer front side */
-      if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]){
-          ret = read_from_scanner(s, SIDE_FRONT);
-          if(ret){
-            DBG(5,"sane_read: front returning %d\n",ret);
-            return ret;
-          }
+      ret = read_from_scanner(s, SIDE_FRONT);
+      if(ret){
+        DBG(5,"sane_read: front returning %d\n",ret);
+        return ret;
       }
     
       /* buffer back side */
-      if(s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
-          ret = read_from_scanner(s, SIDE_BACK);
-          if(ret){
-            DBG(5,"sane_read: back returning %d\n",ret);
-            return ret;
-          }
+      ret = read_from_scanner(s, SIDE_BACK);
+      if(ret){
+        DBG(5,"sane_read: back returning %d\n",ret);
+        return ret;
       }
+    } /* end alt pnm */
 
-  } /* end alt pnm */
-
-  /* simplex or non-alternating duplex */
-  else{
-
-    if(s->bytes_tot[s->side] > s->bytes_rx[s->side] ){
+    /* simplex or non-alternating duplex */
+    else{
       ret = read_from_scanner(s, s->side);
       if(ret){
         DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
         return ret;
       }
-    }
-
-  }
+    } /*end simplex*/
+  } /*end get more from scanner*/
 
   /* copy a block from buffer to frontend */
   ret = read_from_buffer(s,buf,max_len,len,s->side);
 
   /* check if user cancelled during this read */
   ret = check_for_cancel(s);
+
+  /* swap sides if user asked for low-mem mode, we are duplexing,
+   * and there is data waiting on the other side */
+  if(s->low_mem && s->source == SOURCE_ADF_DUPLEX
+    && (s->bytes_rx[!s->side] > s->bytes_tx[!s->side]
+      || (s->eof_rx[!s->side] && !s->eof_tx[!s->side])
+    )
+  ){
+    s->side = !s->side;
+  }
 
   /* unprotect this block from sane_cancel */
   s->reading = 0;
@@ -7008,9 +7092,11 @@ read_from_JPEGduplex(struct fujitsu *s)
 
 	    /* clear what is already in the back */
             s->bytes_rx[SIDE_BACK]=0;
+            s->lines_rx[SIDE_BACK]=0;
+            s->buff_rx[SIDE_BACK]=0;
 
 	    /* and put the high-order width byte into front unchanged */
-            s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ] = s->jpeg_x_byte;
+            s->buffers[SIDE_FRONT][s->buff_rx[SIDE_FRONT]++] = s->jpeg_x_byte;
             s->bytes_rx[SIDE_FRONT]++;
 	  }
 
@@ -7020,13 +7106,11 @@ read_from_JPEGduplex(struct fujitsu *s)
 	      s->params.pixels_per_line,width);
 
 	    /* put the high-order width byte into front side, shifted down */
-            s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ]
-	      = width >> 9;
+            s->buffers[SIDE_FRONT][s->buff_rx[SIDE_FRONT]++] = width >> 9;
             s->bytes_rx[SIDE_FRONT]++;
 
 	    /* put the high-order width byte into back side, shifted down */
-            s->buffers[SIDE_BACK][ s->bytes_rx[SIDE_BACK] ]
-	      = width >> 9;
+            s->buffers[SIDE_BACK][s->buff_rx[SIDE_BACK]++] = width >> 9;
             s->bytes_rx[SIDE_BACK]++;
 
 	    /* shift down low order byte */
@@ -7043,10 +7127,10 @@ read_from_JPEGduplex(struct fujitsu *s)
         ){
             /* first byte after ff, send the ff first */
             if(s->jpeg_ff_offset == 1){
-              s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ] = 0xff;
+              s->buffers[SIDE_FRONT][s->buff_rx[SIDE_FRONT]++] = 0xff;
               s->bytes_rx[SIDE_FRONT]++;
             }
-            s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ] = in[i];
+            s->buffers[SIDE_FRONT][s->buff_rx[SIDE_FRONT]++] = in[i];
             s->bytes_rx[SIDE_FRONT]++;
         }
 
@@ -7061,10 +7145,10 @@ read_from_JPEGduplex(struct fujitsu *s)
         ){
             /* first byte after ff, send the ff first */
             if(s->jpeg_ff_offset == 1){
-              s->buffers[SIDE_BACK][ s->bytes_rx[SIDE_BACK] ] = 0xff;
+              s->buffers[SIDE_BACK][s->buff_rx[SIDE_BACK]++] = 0xff;
               s->bytes_rx[SIDE_BACK]++;
             }
-            s->buffers[SIDE_BACK][ s->bytes_rx[SIDE_BACK] ] = in[i];
+            s->buffers[SIDE_BACK][s->buff_rx[SIDE_BACK]++] = in[i];
             s->bytes_rx[SIDE_BACK]++;
         }
 
@@ -7075,8 +7159,8 @@ read_from_JPEGduplex(struct fujitsu *s)
 
         /* last byte of file, update totals, bail out */
         if(s->jpeg_stage == JPEG_STAGE_EOI){
-            s->bytes_tot[SIDE_FRONT] = s->bytes_rx[SIDE_FRONT];
-            s->bytes_tot[SIDE_BACK] = s->bytes_rx[SIDE_BACK];
+            s->eof_rx[SIDE_FRONT] = 1;
+            s->eof_rx[SIDE_BACK] = 1;
         }
     }
       
@@ -7155,7 +7239,6 @@ read_from_3091duplex(struct fujitsu *s)
 
   if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
     DBG(15, "read_from_3091duplex: got GOOD/EOF, returning GOOD\n");
-    ret = SANE_STATUS_GOOD;
   }
   else if (ret == SANE_STATUS_DEVICE_BUSY) {
     DBG(5, "read_from_3091duplex: got BUSY, returning GOOD\n");
@@ -7176,7 +7259,7 @@ read_from_3091duplex(struct fujitsu *s)
       }
 
       /* end is back */
-      else if(s->bytes_rx[SIDE_FRONT] == s->bytes_tot[SIDE_FRONT]){
+      else if(s->eof_rx[SIDE_FRONT]){
         side=SIDE_BACK;
       }
 
@@ -7196,6 +7279,12 @@ read_from_3091duplex(struct fujitsu *s)
       else{
         copy_buffer (s, in + i*s->params.bytes_per_line, s->params.bytes_per_line, side);
       }
+  }
+
+  if(ret == SANE_STATUS_EOF){
+    s->eof_rx[SIDE_FRONT] = 1;
+    s->eof_rx[SIDE_BACK] = 1;
+    ret = SANE_STATUS_GOOD;
   }
 
   free(in);
@@ -7240,8 +7329,14 @@ read_from_scanner(struct fujitsu *s, int side)
         ret = SANE_STATUS_INVAL;
     }
   
-    DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n", side,
-      s->bytes_tot[side], s->bytes_rx[side], remain, s->buffer_size, bytes);
+    DBG(15, "read_from_scanner: si:%d re:%d bs:%d by:%d\n",
+      side, remain, s->buffer_size, bytes);
+
+    DBG(15, "read_from_scanner: img to:%d rx:%d tx:%d\n",
+      s->bytes_tot[side], s->bytes_rx[side], s->bytes_tx[side]);
+
+    DBG(15, "read_from_scanner: buf to:%d rx:%d tx:%d\n",
+      s->buff_tot[side], s->buff_rx[side], s->buff_tx[side]);
   
     if(ret){
         return ret;
@@ -7312,7 +7407,7 @@ read_from_scanner(struct fujitsu *s, int side)
     free(in);
   
     if(ret == SANE_STATUS_EOF){
-      s->bytes_tot[side] = s->bytes_rx[side];
+      s->eof_rx[side] = 1;
       ret = SANE_STATUS_GOOD;
     }
 
@@ -7325,7 +7420,7 @@ static SANE_Status
 copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
-  int i, dest, boff, goff;
+  int i, j, dest, boff, goff;
 
   DBG (10, "copy_3091: start\n");
 
@@ -7341,30 +7436,33 @@ copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side)
   boff = (s->color_raster_offset+s->blue_offset) * s->resolution_y/300;
 
   /* loop thru all lines in read buffer */
-  for(i=0;i<len/s->params.bytes_per_line;i++){
+  for(i=0;i<len/s->params.bytes_per_line;i+=s->params.bytes_per_line){
 
       /* red at start of line */
       dest = s->lines_rx[side] * s->params.bytes_per_line;
+
       if(dest >= 0 && dest < s->bytes_tot[side]){
-        memcpy(s->buffers[side] + dest,
-               buf + i*s->params.bytes_per_line,
-               s->params.pixels_per_line);
+        for (j=0; j<s->params.pixels_per_line; j++){
+          s->buffers[side][dest+j*3] = buf[i+j];
+        }
       }
 
       /* green is in middle of line */
-      dest = (s->lines_rx[side] - goff) * s->params.bytes_per_line + s->params.pixels_per_line;
+      dest = (s->lines_rx[side] - goff) * s->params.bytes_per_line;
+
       if(dest >= 0 && dest < s->bytes_tot[side]){
-        memcpy(s->buffers[side] + dest,
-               buf + i*s->params.bytes_per_line + s->params.pixels_per_line,
-               s->params.pixels_per_line);
+        for (j=0; j<s->params.pixels_per_line; j++){
+          s->buffers[side][dest+j*3+1] = buf[i+s->params.pixels_per_line+j];
+        }
       }
 
       /* blue is at end of line */
-      dest = (s->lines_rx[side] - boff) * s->params.bytes_per_line + s->params.pixels_per_line*2;
+      dest = (s->lines_rx[side] - boff) * s->params.bytes_per_line;
+
       if(dest >= 0 && dest < s->bytes_tot[side]){
-        memcpy(s->buffers[side] + dest,
-               buf + i*s->params.bytes_per_line + s->params.pixels_per_line*2,
-               s->params.pixels_per_line);
+        for (j=0; j<s->params.pixels_per_line; j++){
+          s->buffers[side][dest+j*3+2] = buf[i+2*s->params.pixels_per_line+j];
+        }
       }
 
       s->lines_rx[side]++;
@@ -7377,6 +7475,11 @@ copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side)
     i = 0;
   } 
   s->bytes_rx[side] = i;
+  s->buff_rx[side] = i;
+
+  if(s->bytes_rx[side] == s->bytes_tot[side]){
+    s->eof_rx[side] = 1;
+  }
 
   DBG (10, "copy_3091: finish\n");
 
@@ -7387,12 +7490,66 @@ static SANE_Status
 copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
-
+  int i, j;
+  int bwidth = s->params.bytes_per_line;
+  int pwidth = s->params.pixels_per_line;
+ 
   DBG (10, "copy_buffer: start\n");
 
-  memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
+  /* invert image if scanner needs it for this mode */
+  /* jpeg data does not use inverting */
+  if(s->params.format <= SANE_FRAME_RGB && s->reverse_by_mode[s->mode]){
+    for(i=0; i<len; i++){
+      buf[i] ^= 0xff;
+    }
+  }
+
+  /* scanners interlace colors in many different ways */
+  if(s->params.format == SANE_FRAME_RGB){
+  
+    switch (s->color_interlace) {
+  
+      /* scanner returns pixel data as bgrbgr... */
+      case COLOR_INTERLACE_BGR:
+        for(i=0; i<len; i+=bwidth){
+          for (j=0; j<pwidth; j++){
+            s->buffers[side][s->buff_rx[side]++] = buf[i+j*3+2];
+            s->buffers[side][s->buff_rx[side]++] = buf[i+j*3+1];
+            s->buffers[side][s->buff_rx[side]++] = buf[i+j*3];
+          }
+        }
+        break;
+  
+      /* one line has the following format: rrr...rrrggg...gggbbb...bbb */
+      case COLOR_INTERLACE_RRGGBB:
+        for(i=0; i<len; i+=bwidth){
+          for (j=0; j<pwidth; j++){
+            s->buffers[side][s->buff_rx[side]++] = buf[i+j];
+            s->buffers[side][s->buff_rx[side]++] = buf[i+pwidth+j];
+            s->buffers[side][s->buff_rx[side]++] = buf[i+2*pwidth+j];
+          }
+        }
+        break;
+  
+      default:
+        memcpy(s->buffers[side]+s->buff_rx[side],buf,len);
+        s->buff_rx[side] += len;
+        break;
+    }
+  }
+
+  /* jpeg/gray/ht/binary */
+  else{
+    memcpy(s->buffers[side]+s->buff_rx[side],buf,len);
+    s->buff_rx[side] += len;
+  }
+  
   s->bytes_rx[side] += len;
   s->lines_rx[side] += len/s->params.bytes_per_line;
+
+  if(s->bytes_rx[side] == s->bytes_tot[side]){
+    s->eof_rx[side] = 1;
+  }
 
   DBG (10, "copy_buffer: finish\n");
 
@@ -7404,8 +7561,8 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
   SANE_Int max_len, SANE_Int * len, int side)
 {
     SANE_Status ret=SANE_STATUS_GOOD;
-    int bytes = max_len, i=0;
-    int remain = s->bytes_rx[side] - s->bytes_tx[side];
+    int bytes = max_len;
+    int remain = s->buff_rx[side] - s->buff_tx[side];
   
     DBG (10, "read_from_buffer: start\n");
   
@@ -7416,8 +7573,14 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
   
     *len = bytes;
   
-    DBG(15, "read_from_buffer: si:%d to:%d tx:%d re:%d bu:%d pa:%d\n", side,
-      s->bytes_tot[side], s->bytes_tx[side], remain, max_len, bytes);
+    DBG(15, "read_from_buffer: si:%d re:%d ml:%d by:%d\n",
+      side, remain, max_len, bytes);
+
+    DBG(15, "read_from_buffer: img to:%d rx:%d tx:%d\n",
+      s->bytes_tot[side], s->bytes_rx[side], s->bytes_tx[side]);
+
+    DBG(15, "read_from_buffer: buf to:%d rx:%d tx:%d\n",
+      s->buff_tot[side], s->buff_rx[side], s->buff_tx[side]);
   
     /*FIXME this needs to timeout eventually */
     if(!bytes){
@@ -7425,69 +7588,19 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
         return SANE_STATUS_GOOD;
     }
   
-#ifdef SANE_FRAME_JPEG
-    /* jpeg data does not use typical interlacing or inverting, just copy */
-    if(s->params.format == SANE_FRAME_JPEG){
-        memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-    }
-  
-    /* not using jpeg, colors maybe interlaced, pixels maybe inverted */
-    else {
-#endif
+    memcpy(buf,s->buffers[side]+s->buff_tx[side],bytes);
+    s->buff_tx[side] += bytes;
+    s->bytes_tx[side] += bytes;
 
-        /* scanners interlace colors in many different ways */
-        /* use separate code to convert to regular rgb */
-        if(s->mode == MODE_COLOR){
-            int byteOff, lineOff;
-        
-            switch (s->color_interlace) {
-        
-                /* scanner returns pixel data as bgrbgr... */
-                case COLOR_INTERLACE_BGR:
-                    for (i=0; i < bytes; i++){
-                        byteOff = s->bytes_tx[side] + i;
-                        buf[i] = s->buffers[side][ byteOff-((byteOff%3)-1)*2 ];
-                    }
-                    break;
-        
-                /* one line has the following format:
-                 * rrr...rrrggg...gggbbb...bbb */
-                case COLOR_INTERLACE_3091:
-                case COLOR_INTERLACE_RRGGBB:
-                    for (i=0; i < bytes; i++){
-                        byteOff = s->bytes_tx[side] + i;
-                        lineOff = byteOff % s->params.bytes_per_line;
-
-                        buf[i] = s->buffers[side][
-                          byteOff - lineOff                       /* line  */
-                          + (lineOff%3)*s->params.pixels_per_line /* color */
-                          + (lineOff/3)                           /* pixel */
-                        ];
-                    }
-                    break;
-        
-                default:
-                    memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-                    break;
-            }
-        }
-        /* gray/ht/binary */
-        else{
-            memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-        }
-      
-        /* invert image if scanner needs it for this mode */
-        if (s->reverse_by_mode[s->mode]){
-            for ( i = 0; i < *len; i++ ) {
-                buf[i] ^= 0xff;
-            }
-        }
-#ifdef SANE_FRAME_JPEG
+    /*finished sending small buffer, reset it*/
+    if(s->buff_tx[side] == s->buff_rx[side]
+      && s->buff_tot[side] < s->bytes_tot[side]
+    ){
+      DBG (15, "read_from_buffer: reset\n");
+      s->buff_rx[side] = 0;
+      s->buff_tx[side] = 0;
     }
-#endif
-  
-    s->bytes_tx[side] += *len;
-      
+
     DBG (10, "read_from_buffer: finish\n");
   
     return ret;

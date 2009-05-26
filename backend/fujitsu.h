@@ -78,6 +78,8 @@ enum fujitsu_Option
   OPT_DUPLEX_OFFSET,
   OPT_GREEN_OFFSET,
   OPT_BLUE_OFFSET,
+  OPT_LOW_MEM,
+  OPT_SIDE,
 
   OPT_ENDORSER_GROUP,
   OPT_ENDORSER,
@@ -464,7 +466,7 @@ struct fujitsu
   int duplex_offset;
   int green_offset;
   int blue_offset;
-  int use_temp_file;
+  int low_mem;
 
   /*endorser group*/
   int u_endorser;
@@ -504,9 +506,16 @@ struct fujitsu
   /* how far we have read */
   int bytes_rx[2];
   int lines_rx[2]; /*only used by 3091*/
+  int eof_rx[2];
 
   /* how far we have written */
   int bytes_tx[2];
+  int eof_tx[2];
+
+  /*size of buffers (can be smaller than above*/
+  int buff_tot[2];
+  int buff_rx[2];
+  int buff_tx[2];
 
   unsigned char * buffers[2];
 

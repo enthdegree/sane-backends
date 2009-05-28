@@ -558,7 +558,14 @@ SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
   static const SANE_Device *devlist[] = {
-    dev + 0, dev + 1, dev + 2, dev + 3, 0
+    dev + 0, dev + 1,
+#ifdef SANE_STATUS_HW_LOCKED
+    dev + 2,
+#endif
+#ifdef SANE_STATUS_WARMING_UP
+    dev + 3,
+#endif
+    0
   };
 
   DBG (2, "sane_get_devices: local_only = %d\n", local_only);

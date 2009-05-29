@@ -72,6 +72,12 @@
 :mfg "Visioneer"
 :url "http://www.visioneer.com/"
 
+:model "Strobe XP 100,r3"
+:interface "USB"
+:usbid  "0x04a7" "0x049b"
+:status :untested
+:comment "All resolution and mode should be supported, but severly distorted scans"
+
 :model "Strobe XP 200"
 :interface "USB"
 :usbid  "0x04a7" "0x0426"
@@ -83,6 +89,12 @@
 :usbid  "0x04a7" "0x0474"
 :status :basic
 :comment "All resolution and mode supported, but uncorrected scans, front- and backside side-by-side, with backside mirrored horizontally."
+
+:model "Roadwarrior"
+:interface "USB"
+:usbid  "0x04a7" "0x0494"
+:status :basic
+:comment "All resolution and mode supported, but uncorrected scans"
 
 ; -----------------------------------------------------------------------------
 
@@ -121,8 +133,8 @@
 :model "DocketPort 465"
 :interface "USB"
 :usbid  "0x0a82" "0x4802"
-:status :basic
-:comment "All resolution and mode supported, but uncorrected scans"
+:status :untested
+:comment "All resolution and mode should be supported, but uncorrected scans"
 
 :model "DocketPort 665"
 :interface "USB"

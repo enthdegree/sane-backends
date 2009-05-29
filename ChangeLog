@@ -1,3 +1,8 @@
+2009-05-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* doc/descriptions/genesys.desc: 
+	  Added description for Visioneer XP100r3, Visioneer Roadwarrior, 
+	  demoted DocketPort 465 to "untested"
+
 2009-05-28 m. allan noah <kitno455 at gmail dot com>
 	* backend/pnm.c: hide 'warming up' and 'hw locked' 'devices'
 

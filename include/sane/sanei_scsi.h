@@ -50,6 +50,7 @@
 #include <sys/types.h>
 
 #include <sane/sane.h>
+#include <sane/config.h>
 
 /** Sense handler
  *

@@ -23,7 +23,22 @@
 #define DEBUG_NOT_STATIC
 
 #include <sys/ioctl.h>
+
+#ifdef HAVE_STDDEF_H
+#include <stddef.h>
+#endif
+
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
+#ifdef NEED_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+
+#include <string.h>             /* for memset and memcpy */
+#include <stdio.h>
+
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_backend.h"
@@ -166,7 +181,7 @@
  * scanner with SANE get in touch with me and we can work something out - khk
  */
 
-#define	 EPSON_LEVEL_DEFAULT	EPSON_LEVEL_B3
+#define	 EPSON_LEVEL_DEFAULT EPSON_LEVEL_B3
 
 typedef struct
 {
@@ -275,7 +290,9 @@ struct Epson_Device
   SANE_Bool duplex;		/* does the ADF handle duplex scanning */
   SANE_Bool focusSupport;	/* does this scanner have support for "set focus position" ? */
   SANE_Bool color_shuffle;	/* does this scanner need color shuffling */
+
   SANE_Int maxDepth;		/* max. color depth */
+  SANE_Word *depth_list;
 
   SANE_Int optical_res;		/* optical resolution */
   SANE_Int max_line_distance;
@@ -333,5 +350,13 @@ struct Epson_Scanner
 };
 
 typedef struct Epson_Scanner Epson_Scanner;
+
+struct mode_param
+{
+	int color;
+	int flags;
+	int dropout_mask;
+	int depth;
+};
 
 #endif /* epson2_h */

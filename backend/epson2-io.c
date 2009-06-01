@@ -17,25 +17,23 @@
 
 #define DEBUG_DECLARE_ONLY
 
-#include "../include/sane/config.h"
+#include "sane/config.h"
 
-#include <string.h>
-#include <stdlib.h>
 #include <ctype.h>
-
-#include <byteorder.h>
 
 #include "epson2.h"
 #include "epson2-io.h"
 
-#include "../include/sane/sanei_scsi.h"
-#include "../include/sane/sanei_usb.h"
-#include "../include/sane/sanei_pio.h"
-#include "../include/sane/sanei_tcp.h"
+#include "sane/sanei_scsi.h"
+#include "sane/sanei_usb.h"
+#include "sane/sanei_pio.h"
+#include "sane/sanei_tcp.h"
 
 #include "epson2_scsi.h"
 #include "epson_usb.h"
 #include "epson2_net.h"
+
+#include "byteorder.h"
 
 /* flaming hack to get USB scanners
  * working without timeouts under linux

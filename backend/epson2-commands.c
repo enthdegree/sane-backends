@@ -17,11 +17,7 @@
 
 #define DEBUG_DECLARE_ONLY
 
-#include "../include/sane/config.h"
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "sane/config.h"
 
 #include <byteorder.h>
 
@@ -335,18 +331,18 @@ esci_request_extended_identity(SANE_Handle handle, unsigned char *buf)
 		return status;
 
 	DBG(1, " command level   : %c%c\n", buf[0], buf[1]);
-	DBG(1, " basic resolution: %lu\n", (u_long) le32atoh(&buf[4]));
-	DBG(1, " min resolution  : %lu\n", (u_long) le32atoh(&buf[8]));
-	DBG(1, " max resolution  : %lu\n", (u_long) le32atoh(&buf[12]));
-	DBG(1, " max pixel num   : %lu\n", (u_long) le32atoh(&buf[16]));
+	DBG(1, " basic resolution: %lu\n", (unsigned long) le32atoh(&buf[4]));
+	DBG(1, " min resolution  : %lu\n", (unsigned long) le32atoh(&buf[8]));
+	DBG(1, " max resolution  : %lu\n", (unsigned long) le32atoh(&buf[12]));
+	DBG(1, " max pixel num   : %lu\n", (unsigned long) le32atoh(&buf[16]));
 	DBG(1, " scan area       : %lux%lu\n",
-	    (u_long) le32atoh(&buf[20]), (u_long) le32atoh(&buf[24]));
+	    (unsigned long) le32atoh(&buf[20]), (unsigned long) le32atoh(&buf[24]));
 
 	DBG(1, " adf area        : %lux%lu\n",
-	    (u_long) le32atoh(&buf[28]), (u_long) le32atoh(&buf[32]));
+	    (unsigned long) le32atoh(&buf[28]), (unsigned long) le32atoh(&buf[32]));
 
 	DBG(1, " tpu area        : %lux%lu\n",
-	    (u_long) le32atoh(&buf[36]), (u_long) le32atoh(&buf[40]));
+	    (unsigned long) le32atoh(&buf[36]), (unsigned long) le32atoh(&buf[40]));
 
 	DBG(1, " main status     : 0x%02x\n", buf[44]);
 	DBG(1, " input depth     : %d\n", buf[66]);
@@ -507,12 +503,12 @@ esci_set_scanning_parameter(SANE_Handle handle, unsigned char *buf)
 	params[0] = FS;
 	params[1] = 'W';
 
-	DBG(10, "resolution of main scan     : %lu\n", (u_long) le32atoh(&buf[0]));
-	DBG(10, "resolution of sub scan      : %lu\n", (u_long) le32atoh(&buf[4]));
-	DBG(10, "offset length of main scan  : %lu\n", (u_long) le32atoh(&buf[8]));
-	DBG(10, "offset length of sub scan   : %lu\n", (u_long) le32atoh(&buf[12]));
-	DBG(10, "scanning length of main scan: %lu\n", (u_long) le32atoh(&buf[16]));
-	DBG(10, "scanning length of sub scan : %lu\n", (u_long) le32atoh(&buf[20]));
+	DBG(10, "resolution of main scan     : %lu\n", (unsigned long) le32atoh(&buf[0]));
+	DBG(10, "resolution of sub scan      : %lu\n", (unsigned long) le32atoh(&buf[4]));
+	DBG(10, "offset length of main scan  : %lu\n", (unsigned long) le32atoh(&buf[8]));
+	DBG(10, "offset length of sub scan   : %lu\n", (unsigned long) le32atoh(&buf[12]));
+	DBG(10, "scanning length of main scan: %lu\n", (unsigned long) le32atoh(&buf[16]));
+	DBG(10, "scanning length of sub scan : %lu\n", (unsigned long) le32atoh(&buf[20]));
 	DBG(10, "scanning color              : %d\n", buf[24]);
 	DBG(10, "data format                 : %d\n", buf[25]);
 	DBG(10, "option control              : %d\n", buf[26]);
@@ -804,7 +800,7 @@ esci_request_extended_status(SANE_Handle handle, unsigned char **data,
 		break;
 	default:
 		DBG(1, "%s: unknown reply length (%lu)\n", __func__,
-			(u_long) buf_len);
+			(unsigned long) buf_len);
 		break;
 	}
 

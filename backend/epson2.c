@@ -2438,8 +2438,10 @@ sane_start(SANE_Handle handle)
 	if (dev->extended_commands) {
 		status = e2_start_ext_scan(s);
 
-		/* check if the scanner signaled a warming up */
-		if (status == SANE_STATUS_IO_ERROR && s->hw->use_extension) {
+		/* sometimes the scanner gives an io error when
+		 * it's warming up.
+		 */
+		if (status == SANE_STATUS_IO_ERROR) {
 		        status = e2_wait_warm_up(s);
         		if (status == SANE_STATUS_GOOD)
 	        		status = e2_start_ext_scan(s);

@@ -4948,9 +4948,6 @@ gl841_offset_calibration (Genesys_Device * dev)
       return status;
     }
 
-  RIE (gl841_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
-
   used_res = dev->current_setup.xres;
   num_pixels = dev->current_setup.pixels;
 
@@ -4998,6 +4995,9 @@ gl841_offset_calibration (Genesys_Device * dev)
   turn = 0;
 
   do {
+
+      RIE (gl841_bulk_write_register
+	   (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
       for (j=0; j < channels; j++) {
 	  off[j] = (offh[j]+offl[j])/2;

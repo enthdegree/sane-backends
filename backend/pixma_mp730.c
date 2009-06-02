@@ -360,7 +360,7 @@ read_error_info (pixma_t * s, void *buf, unsigned size)
 static int
 step1 (pixma_t * s)
 {
-  int error;
+  int error, tmo;
 
   error = query_status (s);
   if (error < 0)
@@ -371,7 +371,18 @@ step1 (pixma_t * s)
     {
       /* MF5770: Wait 25 sec before starting */
       if (s->cfg->pid == MF5770_PID)
-        pixma_sleep (25000000);
+        {
+          tmo = 25;  /* like Windows driver, 25 sec CCD calibration ? */
+          while (--tmo >= 0)
+            {
+              error = handle_interrupt (s, 1000);		\
+              if (s->cancel)				\
+                return PIXMA_ECANCELED;			\
+              if (error != PIXMA_ECANCELED && error < 0)	\
+                return error;
+              PDBG (pixma_dbg (2, "CCD Calibration ends in %d sec.\n", tmo));
+            }
+        }
         
       activate (s, 0);
       error = calibrate (s);

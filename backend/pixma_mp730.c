@@ -71,6 +71,9 @@
 #define MP710_PID 0x264d
 #define MP730_PID 0x262f
 
+#define MF5770_PID 0x265f
+
+
 enum mp730_state_t
 {
   state_idle,
@@ -90,6 +93,7 @@ enum mp730_cmd_t
   cmd_abort_session = 0xef20,
   cmd_time          = 0xeb80,
   cmd_read_image    = 0xd420,
+  cmd_error_info    = 0xff20,
 
   cmd_activate      = 0xcf60,
   cmd_calibrate     = 0xe920
@@ -281,6 +285,7 @@ handle_interrupt (pixma_t * s, int timeout)
     case MP360_PID:
     case MP370_PID:
     case MP390_PID:
+    case MF5770_PID:
       if (len != 16)
 	{
 	  PDBG (pixma_dbg
@@ -324,8 +329,32 @@ handle_interrupt (pixma_t * s, int timeout)
 static int
 has_ccd_sensor (pixma_t * s)
 {
-  return (s->cfg->pid == MP360_PID || s->cfg->pid == MP370_PID
-	  || s->cfg->pid == MP390_PID);
+  return (s->cfg->pid == MP360_PID || 
+          s->cfg->pid == MP370_PID || 
+          s->cfg->pid == MP390_PID ||
+          s->cfg->pid == MF5770_PID);
+}
+
+static int
+read_error_info (pixma_t * s, void *buf, unsigned size)
+{
+  unsigned len = 16;
+  mp730_t *mp = (mp730_t *) s->subdriver;
+  uint8_t *data;
+  int error;
+
+  data = pixma_newcmd (&mp->cb, cmd_error_info, 0, len);
+  error = pixma_exec (s, &mp->cb);
+  if (error < 0)
+    return error;
+  if (buf && len < size)
+    {
+      size = len;
+      /* NOTE: I've absolutely no idea what the returned data mean. */
+      memcpy (buf, data, size);
+      error = len;
+    }
+  return error;
 }
 
 static int
@@ -340,8 +369,16 @@ step1 (pixma_t * s)
     return PIXMA_ENO_PAPER;
   if (has_ccd_sensor (s))
     {
+      /* MF5770: Wait 25 sec before starting */
+      if (s->cfg->pid == MF5770_PID)
+        pixma_sleep (25000000);
+        
       activate (s, 0);
       error = calibrate (s);
+      
+      /* MF5770: calibration returns PIXMA_STATUS_FAILED */
+      if (s->cfg->pid == MF5770_PID && error == PIXMA_ECANCELED)
+        error = read_error_info (s, NULL, 0);
     }
   if (error >= 0)
     error = activate (s, 0);
@@ -641,5 +678,8 @@ const pixma_config_t pixma_mp730_devices[] = {
   DEVICE ("Canon MultiPASS MP710", "MP710", MP710_PID, 1200, 637, 868, 0),
   DEVICE ("Canon MultiPASS MP730", "MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon MultiPASS MP740", "MP740", MP740_PID, 1200, 637, 868, PIXMA_CAP_ADF),
+  
+  DEVICE ("Canon imageCLASS MF5770", "MF5770", MF5770_PID, 600, 640, 877, PIXMA_CAP_ADF),
+
   DEVICE (NULL, NULL, 0, 0, 0, 0, 0)
 };

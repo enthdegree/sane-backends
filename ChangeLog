@@ -1,4 +1,8 @@
-2009-05-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+2009-06-04  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys_gl841.c: Make calibration steps always send 
+	  registers before trying to acquire a line.
+
+2009-05-29  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* doc/descriptions/genesys.desc: 
 	  Added description for Visioneer XP100r3, Visioneer Roadwarrior, 
 	  demoted DocketPort 465 to "untested"

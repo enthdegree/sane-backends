@@ -59,3 +59,4 @@ SANE_Status esci_feed(Epson_Scanner * s);
 SANE_Status esci_eject(Epson_Scanner * s);
 SANE_Status esci_request_extended_status(SANE_Handle handle, unsigned char **data,
 				    size_t * data_len);
+SANE_Status esci_enable_infrared(SANE_Handle handle);

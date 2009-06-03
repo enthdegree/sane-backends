@@ -1305,14 +1305,25 @@ e2_init_parameters(Epson_Scanner * s)
 
 	s->params.last_frame = SANE_TRUE;
 
-	if (mode_params[s->val[OPT_MODE].w].color) {
-		s->params.format = SANE_FRAME_RGB;
-		s->params.bytes_per_line =
-			3 * s->params.pixels_per_line * bytes_per_pixel;
-	} else {
+	switch (s->val[OPT_MODE].w) {
+	case MODE_BINARY:
+	case MODE_GRAY:
 		s->params.format = SANE_FRAME_GRAY;
 		s->params.bytes_per_line =
 			s->params.pixels_per_line * s->params.depth / 8;
+		break;
+	case MODE_COLOR:
+		s->params.format = SANE_FRAME_RGB;
+		s->params.bytes_per_line =
+			3 * s->params.pixels_per_line * bytes_per_pixel;
+		break;
+#ifdef SANE_FRAME_IR
+	case MODE_INFRARED:
+		s->params.format = SANE_FRAME_IR;
+		s->params.bytes_per_line =
+			s->params.pixels_per_line * s->params.depth / 8;
+		break;
+#endif
 	}
 
 	/*

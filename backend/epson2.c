@@ -85,13 +85,17 @@
 struct mode_param mode_params[] = {
 	{0, 0x00, 0x30, 1},
 	{0, 0x00, 0x30, 8},
-	{1, 0x02, 0x00, 8}
+	{1, 0x02, 0x00, 8},
+	{0, 0x00, 0x30, 1}
 };
 
-static const SANE_String_Const mode_list[] = {
+static SANE_String_Const mode_list[] = {
 	SANE_I18N("Binary"),
 	SANE_I18N("Gray"),
 	SANE_I18N("Color"),
+#ifdef SANE_FRAME_IR
+	SANE_I18N("Infrared"),
+#endif
 	NULL
 };
 
@@ -969,6 +973,10 @@ init_options(Epson_Scanner *s)
 	s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_MODE].constraint.string_list = mode_list;
 	s->val[OPT_MODE].w = 0;	/* Binary */
+
+	/* disable infrared on unsupported scanners */
+	if (!e2_model(s, "GT-X800") && !e2_model(s, "GT-X700"))
+		mode_list[MODE_INFRARED] = NULL;
 
 	/* bit depth */
 	s->opt[OPT_BIT_DEPTH].name = SANE_NAME_BIT_DEPTH;
@@ -2148,14 +2156,26 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
 
 	s->params.last_frame = SANE_TRUE;
 
-	if (mode_params[s->val[OPT_MODE].w].color) {
-		s->params.format = SANE_FRAME_RGB;
-		s->params.bytes_per_line =
-			3 * s->params.pixels_per_line * bytes_per_pixel;
-	} else {
+	switch (s->val[OPT_MODE].w) {
+	case MODE_BINARY:
+	case MODE_GRAY:
 		s->params.format = SANE_FRAME_GRAY;
 		s->params.bytes_per_line =
 			s->params.pixels_per_line * s->params.depth / 8;
+		break;
+
+	case MODE_COLOR:
+		s->params.format = SANE_FRAME_RGB;
+		s->params.bytes_per_line =
+			3 * s->params.pixels_per_line * bytes_per_pixel;
+		break;
+#ifdef SANE_FRAME_IR
+	case MODE_INFRARED:
+		s->params.format = SANE_FRAME_IR;
+		s->params.bytes_per_line =
+			s->params.pixels_per_line * s->params.depth / 8;
+		break;
+#endif
 	}
 
 	if (NULL != params)
@@ -2202,6 +2222,10 @@ sane_start(SANE_Handle handle)
 	status = e2_init_parameters(s);
 	if (status != SANE_STATUS_GOOD)
 		return status;
+
+	/* enable infrared */
+	if (s->val[OPT_MODE].w == MODE_INFRARED)
+		esci_enable_infrared(handle);
 
 	/* ESC , bay */
 	if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_BAY].cap)) {
@@ -2337,7 +2361,6 @@ sane_start(SANE_Handle handle)
 			if (status == SANE_STATUS_GOOD)
 				status = e2_start_ext_scan(s);
 		}
-
 	} else
 		status = e2_start_std_scan(s);
 

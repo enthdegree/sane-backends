@@ -666,6 +666,100 @@ esci_set_scanning_parameter(SANE_Handle handle, unsigned char *buf)
 	return SANE_STATUS_GOOD;
 }
 
+/* FS S */
+
+SANE_Status
+esci_get_scanning_parameter(SANE_Handle handle, unsigned char *buf)
+{
+	Epson_Scanner *s = (Epson_Scanner *) handle;
+	SANE_Status status;
+	unsigned char params[2];
+
+	DBG(8, "%s\n", __func__);
+
+	if (buf == NULL)
+		return SANE_STATUS_INVAL;
+
+	params[0] = FS;
+	params[1] = 'S';
+
+	status = e2_txrx(s, params, 2, buf, 64);
+	if (status != SANE_STATUS_GOOD)
+		return status;
+
+	DBG(10, "resolution of main scan     : %lu\n",
+	    (u_long) le32atoh(&buf[0]));
+	DBG(10, "resolution of sub scan      : %lu\n",
+	    (u_long) le32atoh(&buf[4]));
+	DBG(10, "offset length of main scan  : %lu\n",
+	    (u_long) le32atoh(&buf[8]));
+	DBG(10, "offset length of sub scan   : %lu\n",
+	    (u_long) le32atoh(&buf[12]));
+	DBG(10, "scanning length of main scan: %lu\n",
+	    (u_long) le32atoh(&buf[16]));
+	DBG(10, "scanning length of sub scan : %lu\n",
+	    (u_long) le32atoh(&buf[20]));
+	DBG(10, "scanning color              : %d\n", buf[24]);
+	DBG(10, "data format                 : %d\n", buf[25]);
+	DBG(10, "option control              : %d\n", buf[26]);
+	DBG(10, "scanning mode               : %d\n", buf[27]);
+	DBG(10, "block line number           : %d\n", buf[28]);
+	DBG(10, "gamma correction            : %d\n", buf[29]);
+	DBG(10, "brightness                  : %d\n", buf[30]);
+	DBG(10, "color correction            : %d\n", buf[31]);
+	DBG(10, "halftone processing         : %d\n", buf[32]);
+	DBG(10, "threshold                   : %d\n", buf[33]);
+	DBG(10, "auto area segmentation      : %d\n", buf[34]);
+	DBG(10, "sharpness control           : %d\n", buf[35]);
+	DBG(10, "mirroring                   : %d\n", buf[36]);
+	DBG(10, "film type                   : %d\n", buf[37]);
+	DBG(10, "main lamp lighting mode     : %d\n", buf[38]);
+
+	return SANE_STATUS_GOOD;
+}
+
+/* ESC # */
+
+SANE_Status
+esci_enable_infrared(SANE_Handle handle)
+{
+	Epson_Scanner *s = (Epson_Scanner *) handle;
+	SANE_Status status;
+	int i;
+	unsigned char params[2];
+	unsigned char buf[64];
+
+	unsigned char seq[32] = {
+		0xCA, 0xFB, 0x77, 0x71, 0x20, 0x16, 0xDA, 0x09,
+		0x5F, 0x57, 0x09, 0x12, 0x04, 0x83, 0x76, 0x77,
+		0x3C, 0x73, 0x9C, 0xBE, 0x7A, 0xE0, 0x52, 0xE2,
+		0x90, 0x0D, 0xFF, 0x9A, 0xEF, 0x4C, 0x2C, 0x81
+	};
+
+	DBG(8, "%s\n", __func__);
+
+	status = esci_get_scanning_parameter(handle, buf);
+	if (status != SANE_STATUS_GOOD)
+		return status;
+
+	for (i = 0; i < 32; i++) {
+		buf[i] = seq[i] ^ buf[i];
+	}
+
+	params[0] = ESC;
+	params[1] = '#';
+
+	status = e2_cmd_simple(s, params, 2);
+	if (status != SANE_STATUS_GOOD)
+		return status;
+
+	status = e2_cmd_simple(s, buf, 32);
+	if (status != SANE_STATUS_GOOD)
+		return status;
+
+	return SANE_STATUS_GOOD;
+}
+
 SANE_Status
 esci_request_command_parameter(SANE_Handle handle, unsigned char *buf)
 {

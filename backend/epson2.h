@@ -374,4 +374,8 @@ struct mode_param
 	int depth;
 };
 
+enum {
+	MODE_BINARY, MODE_GRAY, MODE_COLOR, MODE_INFRARED
+};
+
 #endif

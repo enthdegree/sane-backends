@@ -60,7 +60,7 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 
 	/* read from buffer, if available */
 	if (s->netptr != s->netbuf) {
-		DBG(15, "reading %lu from buffer at %p, %lu available\n",
+		DBG(23, "reading %lu from buffer at %p, %lu available\n",
 			(u_long) wanted, s->netptr, (u_long) s->netlen);
 
 		memcpy(buf, s->netptr, wanted);
@@ -69,7 +69,7 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 		s->netlen -= wanted;
 
 		if (s->netlen == 0) {
-			DBG(15, "%s: freeing %p\n", __func__, s->netbuf);
+			DBG(23, "%s: freeing %p\n", __func__, s->netbuf);
 			free(s->netbuf);
 			s->netbuf = s->netptr = NULL;
 			s->netlen = 0;
@@ -89,7 +89,7 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 
 	size = be32atoh(&header[6]);
 
-	DBG(15, "%s: wanted = %lu, available = %lu\n", __FUNCTION__,
+	DBG(23, "%s: wanted = %lu, available = %lu\n", __FUNCTION__,
 		(u_long) wanted, (u_long) size);
 
 	*status = SANE_STATUS_GOOD;
@@ -106,7 +106,7 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 		}
 		
 	} else if (wanted < size && s->netlen == size) {
-		DBG(15, "%s: partial read\n", __func__);
+		DBG(23, "%s: partial read\n", __func__);
 
 		sanei_tcp_read(s->fd, s->netbuf, size);
 
@@ -114,8 +114,8 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 		s->netptr += wanted;
 		read = wanted;
 
-		DBG(15, "0,4 %02x %02x\n", s->netbuf[0], s->netbuf[4]);
-		DBG(15, "storing %lu to buffer at %p, next read at %p, %lu bytes left\n",
+		DBG(23, "0,4 %02x %02x\n", s->netbuf[0], s->netbuf[4]);
+		DBG(23, "storing %lu to buffer at %p, next read at %p, %lu bytes left\n",
 			(u_long) size, s->netbuf, s->netptr, (u_long) s->netlen);
 
 		memcpy(buf, s->netbuf, wanted);

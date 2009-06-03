@@ -22,7 +22,7 @@
 extern int sanei_scsi_max_request_size;
 extern int *gamma_params;
 
-extern void e2_dev_init(Epson_Device *dev);
+extern void e2_dev_init(Epson_Device *dev, const char *devname, int conntype);
 extern SANE_Bool e2_model(Epson_Scanner *s, const char *model);
 extern void e2_set_cmd_level(SANE_Handle handle, unsigned char *level);
 extern SANE_Status e2_set_model(Epson_Scanner *s, unsigned char *model, size_t len);

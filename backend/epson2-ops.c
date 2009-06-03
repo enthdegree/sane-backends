@@ -189,12 +189,13 @@ static const SANE_Range outline_emphasis_range = { -2, 2, 0 };
 
 
 void
-e2_dev_init(Epson_Device *dev)
+e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 {
 	dev->name = NULL;
 	dev->model = NULL;
+	dev->connection = conntype;
 
-	dev->sane.name = NULL;
+	dev->sane.name = devname;
 	dev->sane.model = NULL;
 
 	dev->sane.type = "flatbed scanner";
@@ -586,7 +587,7 @@ e2_discover_capabilities(Epson_Scanner *s)
 
 		free(es);
 	}
-
+	
 	/* FS I, request extended identity */
 	if (dev->extended_commands && dev->cmd->request_extended_identity) {
 		unsigned char buf[80];
@@ -1146,13 +1147,21 @@ e2_set_scanning_parameters(Epson_Scanner * s)
 void
 e2_setup_block_mode(Epson_Scanner * s)
 {
-	s->block = SANE_TRUE;
-	s->lcount = sanei_scsi_max_request_size / s->params.bytes_per_line;
+	int maxreq;
 
-	/* XXX Check if we can do this with other scanners,
-	 * by bus type
-	 */
-	DBG(1, "max req size: %d\n", sanei_scsi_max_request_size);
+	if (s->hw->connection == SANE_EPSON_SCSI)
+		maxreq = sanei_scsi_max_request_size;
+	else if (s->hw->connection == SANE_EPSON_USB)
+		maxreq = 128 * 1024;
+	else if (s->hw->connection == SANE_EPSON_NET)
+		maxreq = 128 * 1024;
+	else
+		maxreq = 32 * 1024;
+
+	s->block = SANE_TRUE;
+	s->lcount = maxreq / s->params.bytes_per_line;
+
+	DBG(1, "max req size: %d\n", maxreq);
 
 	if (s->lcount < 3 && e2_model(s, "GT-X800")) {
 		s->lcount = 21;

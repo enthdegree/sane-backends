@@ -3619,9 +3619,11 @@ gl841_stop_action (Genesys_Device * dev)
       return status;
     }
 
-  /* stop motor if needed */
+  /* only stop action if needed */
   if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
     {
+      DBG (DBG_info,
+	   "%s: already stopped\n", __FUNCTION__);
       DBG (DBG_proc,
 	   "%s: completed\n", __FUNCTION__);
       return SANE_STATUS_GOOD;
@@ -3643,6 +3645,10 @@ gl841_stop_action (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
+
+  /* looks like writing the right registers to zero is enough to get the chip 
+     out of scan mode into command mode, actually triggering(writing to 
+     register 0x0f) seems to be unnecessary */
 
   loop = 10;
   while (loop > 0) 

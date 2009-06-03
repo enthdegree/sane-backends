@@ -213,10 +213,11 @@ static const SANE_String_Const color_list[] = {
 
 /*
  * Gamma correction:
- * The A and B level scanners work differently than the D level scanners, therefore
- * I define two different sets of arrays, plus one set of variables that get set to
- * the actally used params and list arrays at runtime.
+ * The A and B level scanners work differently than the D level scanners,
+ * therefore I define two different sets of arrays, plus one set of
+ * variables that get set to the actally used params and list arrays at runtime.
  */
+ 
 static int gamma_params_ab[] = {
 	0x01,
 	0x03,
@@ -287,7 +288,7 @@ static const SANE_Range outline_emphasis_range = { -2, 2, 0 };
  * List of pointers to devices - will be dynamically allocated depending
  * on the number of devices found.
  */
-static const SANE_Device **devlist = 0;
+static const SANE_Device **devlist;
 
 
 /* Some utility functions */
@@ -308,7 +309,7 @@ max_string_size(const SANE_String_Const strings[])
 
 static SANE_Status attach_one_usb(SANE_String_Const devname);
 static SANE_Status attach_one_net(SANE_String_Const devname);
-static void filter_resolution_list(Epson_Scanner * s);
+static void filter_resolution_list(Epson_Scanner *s);
 
 static void
 print_params(const SANE_Parameters params)
@@ -329,7 +330,7 @@ print_params(const SANE_Parameters params)
  */
 
 static void
-close_scanner(Epson_Scanner * s)
+close_scanner(Epson_Scanner *s)
 {
 	DBG(7, "%s: fd = %d\n", __func__, s->fd);
 
@@ -341,9 +342,8 @@ close_scanner(Epson_Scanner * s)
 		esci_request_status(s, NULL);
 
 	/* request extended status. This toggles w_cmd_count only */
-	if (w_cmd_count % 2) {
+	if (w_cmd_count % 2)
 		esci_request_extended_status(s, NULL, NULL);
-	}
 
 	if (s->hw->connection == SANE_EPSON_NET) {
 		sanei_epson_net_unlock(s);
@@ -372,7 +372,7 @@ e2_network_discovery(void)
 
 	struct timeval to;
 
-        long save_flags, flags;
+	long save_flags, flags;
 
 	status = sanei_udp_open_broadcast(&fd);
 	if (status != SANE_STATUS_GOOD)
@@ -388,9 +388,9 @@ e2_network_discovery(void)
 	FD_ZERO(&rfds);
 	FD_SET(fd, &rfds);
 
-        save_flags = flags = fcntl(fd, F_GETFL, 0L);
-        flags |= O_NONBLOCK;
-        fcntl(fd, F_SETFL, flags);
+	save_flags = flags = fcntl(fd, F_GETFL, 0L);
+	flags |= O_NONBLOCK;
+	fcntl(fd, F_SETFL, flags);
 	if (select(fd + 1, &rfds, NULL, NULL, &to) > 0) {
 		while ((len = sanei_udp_recvfrom(fd, buf, 76, &ip)) == 76) {
 			DBG(5, " response from %s\n", ip);
@@ -400,7 +400,7 @@ e2_network_discovery(void)
 				attach_one_net(ip);
 		}
 	}
-        fcntl(fd, F_SETFL, save_flags);
+	fcntl(fd, F_SETFL, save_flags);
 
 	DBG(5, "%s, end\n", __func__);
 
@@ -415,7 +415,7 @@ e2_network_discovery(void)
  */
 
 static SANE_Status
-open_scanner(Epson_Scanner * s)
+open_scanner(Epson_Scanner *s)
 {
 	SANE_Status status = 0;
 
@@ -451,7 +451,7 @@ open_scanner(Epson_Scanner * s)
 	else if (s->hw->connection == SANE_EPSON_USB)
 		status = sanei_usb_open(s->hw->sane.name, &s->fd);
 
-      end:
+end:
 
 	if (status != SANE_STATUS_GOOD)
 		DBG(1, "%s open failed: %s\n", s->hw->sane.name,
@@ -468,7 +468,7 @@ static Epson_Scanner *first_handle = NULL;
 /* attach device to backend */
 
 static SANE_Status
-attach(const char *name, Epson_Device * *devp, int type)
+attach(const char *name, Epson_Device **devp, int type)
 {
 	SANE_Status status;
 	Epson_Scanner *s;
@@ -652,9 +652,8 @@ attach(const char *name, Epson_Device * *devp, int type)
 
 		status = sanei_usb_open(name, &s->fd);
 
-		if (status != SANE_STATUS_GOOD) {
+		if (status != SANE_STATUS_GOOD)
 			goto free;
-		}
 
 		/* if the sanei_usb_get_vendor_product call is not supported,
 		   then we just ignore this and rely on the user to config
@@ -738,16 +737,16 @@ attach(const char *name, Epson_Device * *devp, int type)
 		int val = (dev->dpi_range.min < 150) ? 150 : dev->dpi_range.min;
 
 		DBG(1, "networked scanner, faking resolution list (%d-%d)\n",
-		        dev->dpi_range.min, dev->dpi_range.max);
+			dev->dpi_range.min, dev->dpi_range.max);
 
-                if (dev->dpi_range.min <= 50)
-        		e2_add_resolution(s, 50);
+		if (dev->dpi_range.min <= 50)
+			e2_add_resolution(s, 50);
 
-                if (dev->dpi_range.min <= 75)
-        		e2_add_resolution(s, 75);
+		if (dev->dpi_range.min <= 75)
+			e2_add_resolution(s, 75);
 
-                if (dev->dpi_range.min <= 100)
-        		e2_add_resolution(s, 100);
+		if (dev->dpi_range.min <= 100)
+			e2_add_resolution(s, 100);
 
 		while (val <= dev->dpi_range.max) {
 			e2_add_resolution(s, val);
@@ -832,7 +831,7 @@ attach_one_net(const char *dev)
 }
 
 SANE_Status
-sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize)
+sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 {
 	size_t len;
 	FILE *fp;
@@ -924,7 +923,7 @@ sane_exit(void)
 }
 
 SANE_Status
-sane_get_devices(const SANE_Device * **device_list, SANE_Bool local_only)
+sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
 {
 	Epson_Device *dev;
 	int i;
@@ -955,7 +954,7 @@ sane_get_devices(const SANE_Device * **device_list, SANE_Bool local_only)
 }
 
 static SANE_Status
-init_options(Epson_Scanner * s)
+init_options(Epson_Scanner *s)
 {
 	int i;
 
@@ -1020,9 +1019,8 @@ init_options(Epson_Scanner * s)
 
 	s->val[OPT_HALFTONE].w = 1;	/* Halftone A */
 
-	if (!s->hw->cmd->set_halftoning) {
+	if (!s->hw->cmd->set_halftoning)
 		s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
-	}
 
 	/* dropout */
 	s->opt[OPT_DROPOUT].name = "dropout";
@@ -1047,9 +1045,8 @@ init_options(Epson_Scanner * s)
 	s->opt[OPT_BRIGHTNESS].constraint.range = &s->hw->cmd->bright_range;
 	s->val[OPT_BRIGHTNESS].w = 0;	/* Normal */
 
-	if (!s->hw->cmd->set_bright) {
+	if (!s->hw->cmd->set_bright)
 		s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-	}
 
 	/* sharpness */
 	s->opt[OPT_SHARPNESS].name = "sharpness";
@@ -1098,10 +1095,8 @@ init_options(Epson_Scanner * s)
 		gamma_params = gamma_params_ab;
 	}
 
-	if (!s->hw->cmd->set_gamma) {
+	if (!s->hw->cmd->set_gamma)
 		s->opt[OPT_GAMMA_CORRECTION].cap |= SANE_CAP_INACTIVE;
-	}
-
 
 	/* gamma vector */
 
@@ -1202,9 +1197,8 @@ init_options(Epson_Scanner * s)
 	s->opt[OPT_COLOR_CORRECTION].constraint.string_list = color_list;
 	s->val[OPT_COLOR_CORRECTION].w = 5;	/* scanner default: CRT monitors */
 
-	if (!s->hw->cmd->set_color_correction) {
+	if (!s->hw->cmd->set_color_correction)
 		s->opt[OPT_COLOR_CORRECTION].cap |= SANE_CAP_INACTIVE;
-	}
 
 	/* resolution */
 	s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
@@ -1228,9 +1222,8 @@ init_options(Epson_Scanner * s)
 	s->opt[OPT_THRESHOLD].constraint.range = &u8_range;
 	s->val[OPT_THRESHOLD].w = 0x80;
 
-	if (!s->hw->cmd->set_threshold) {
+	if (!s->hw->cmd->set_threshold)
 		s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
-	}
 
 	s->opt[OPT_CCT_GROUP].title =
 		SANE_I18N("Color correction coefficients");
@@ -1483,13 +1476,12 @@ init_options(Epson_Scanner * s)
 	s->opt[OPT_FOCUS].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_FOCUS].constraint.string_list = focus_list;
 	s->val[OPT_FOCUS].w = 0;
-
 	s->opt[OPT_FOCUS].cap |= SANE_CAP_ADVANCED;
-	if (s->hw->focusSupport == SANE_TRUE) {
+
+	if (s->hw->focusSupport == SANE_TRUE)
 		s->opt[OPT_FOCUS].cap &= ~SANE_CAP_INACTIVE;
-	} else {
+	else
 		s->opt[OPT_FOCUS].cap |= SANE_CAP_INACTIVE;
-	}
 
 	/* forward feed / eject */
 	s->opt[OPT_EJECT].name = "eject";
@@ -1552,15 +1544,14 @@ init_options(Epson_Scanner * s)
 	s->opt[OPT_WAIT_FOR_BUTTON].constraint.range = NULL;
 	s->opt[OPT_WAIT_FOR_BUTTON].cap |= SANE_CAP_ADVANCED;
 
-	if (!s->hw->cmd->request_push_button_status) {
+	if (!s->hw->cmd->request_push_button_status)
 		s->opt[OPT_WAIT_FOR_BUTTON].cap |= SANE_CAP_INACTIVE;
-	}
 
 	return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sane_open(SANE_String_Const name, SANE_Handle * handle)
+sane_open(SANE_String_Const name, SANE_Handle *handle)
 {
 	SANE_Status status;
 	Epson_Device *dev;
@@ -1657,15 +1648,14 @@ sane_get_option_descriptor(SANE_Handle handle, SANE_Int option)
 	if (option < 0 || option >= NUM_OPTIONS)
 		return NULL;
 
-	return (s->opt + option);
+	return s->opt + option;
 }
 
 static const SANE_String_Const *
-search_string_list(const SANE_String_Const * list, SANE_String value)
+search_string_list(const SANE_String_Const *list, SANE_String value)
 {
-	while (*list != NULL && strcmp(value, *list) != 0) {
-		++list;
-	}
+	while (*list != NULL && strcmp(value, *list) != 0)
+		list++;
 
 	return ((*list == NULL) ? NULL : list);
 }
@@ -1678,7 +1668,7 @@ search_string_list(const SANE_String_Const * list, SANE_String value)
 */
 
 static void
-activateOption(Epson_Scanner * s, SANE_Int option, SANE_Bool * change)
+activateOption(Epson_Scanner *s, SANE_Int option, SANE_Bool *change)
 {
 	if (!SANE_OPTION_IS_ACTIVE(s->opt[option].cap)) {
 		s->opt[option].cap &= ~SANE_CAP_INACTIVE;
@@ -1687,7 +1677,7 @@ activateOption(Epson_Scanner * s, SANE_Int option, SANE_Bool * change)
 }
 
 static void
-deactivateOption(Epson_Scanner * s, SANE_Int option, SANE_Bool * change)
+deactivateOption(Epson_Scanner *s, SANE_Int option, SANE_Bool *change)
 {
 	if (SANE_OPTION_IS_ACTIVE(s->opt[option].cap)) {
 		s->opt[option].cap |= SANE_CAP_INACTIVE;
@@ -1696,8 +1686,8 @@ deactivateOption(Epson_Scanner * s, SANE_Int option, SANE_Bool * change)
 }
 
 static void
-setOptionState(Epson_Scanner * s, SANE_Bool state, SANE_Int option,
-	       SANE_Bool * change)
+setOptionState(Epson_Scanner *s, SANE_Bool state, SANE_Int option,
+	       SANE_Bool *change)
 {
 	if (state)
 		activateOption(s, option, change);
@@ -1782,7 +1772,7 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
  * Threshold is available when halftone is NONE, and depth is 1.
  */
 static void
-handle_depth_halftone(Epson_Scanner * s, SANE_Bool * reload)
+handle_depth_halftone(Epson_Scanner *s, SANE_Bool *reload)
 {
 	int hti = s->val[OPT_HALFTONE].w;
 	int mdi = s->val[OPT_MODE].w;
@@ -1812,7 +1802,7 @@ handle_depth_halftone(Epson_Scanner * s, SANE_Bool * reload)
  */
 
 static void
-change_source(Epson_Scanner * s, SANE_Int optindex, char *value)
+change_source(Epson_Scanner *s, SANE_Int optindex, char *value)
 {
 	int force_max = SANE_FALSE;
 	SANE_Bool dummy;
@@ -1914,7 +1904,7 @@ change_source(Epson_Scanner * s, SANE_Int optindex, char *value)
 }
 
 static SANE_Status
-setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int * info)
+setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 {
 	Epson_Scanner *s = (Epson_Scanner *) handle;
 	SANE_Option_Descriptor *sopt = &(s->opt[option]);
@@ -2151,7 +2141,7 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int * info)
 
 SANE_Status
 sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action action,
-		    void *value, SANE_Int * info)
+		    void *value, SANE_Int *info)
 {
 	if (option < 0 || option >= NUM_OPTIONS)
 		return SANE_STATUS_INVAL;
@@ -2174,7 +2164,7 @@ sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action action,
 }
 
 SANE_Status
-sane_get_parameters(SANE_Handle handle, SANE_Parameters * params)
+sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
 {
 	Epson_Scanner *s = (Epson_Scanner *) handle;
 	int dpi, max_x, max_y;
@@ -2235,11 +2225,10 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters * params)
 	 */
 	if (s->hw->color_shuffle) {
 		s->params.lines -= 4 * s->line_distance;
-		if (s->params.lines < 0) {
+		if (s->params.lines < 0)
 			s->params.lines = 0;
-		}
-		DBG(1,
-		    "adjusted params.lines for color_shuffle by %d to %d\n",
+
+		DBG(1, "adjusted params.lines for color_shuffle by %d to %d\n",
 		    4 * s->line_distance, s->params.lines);
 	}
 
@@ -2336,9 +2325,9 @@ sane_start(SANE_Handle handle)
 	}
 
 	/* set scanning parameters */
-	if (dev->extended_commands) {
+	if (dev->extended_commands)
 		status = e2_set_extended_scanning_parameters(s);
-	} else
+	else
 		status = e2_set_scanning_parameters(s);
 
 	if (status != SANE_STATUS_GOOD)
@@ -2442,11 +2431,11 @@ sane_start(SANE_Handle handle)
 		 * it's warming up.
 		 */
 		if (status == SANE_STATUS_IO_ERROR) {
-		        status = e2_wait_warm_up(s);
-        		if (status == SANE_STATUS_GOOD)
-	        		status = e2_start_ext_scan(s);
-                }
-                                            
+			status = e2_wait_warm_up(s);
+			if (status == SANE_STATUS_GOOD)
+				status = e2_start_ext_scan(s);
+		}
+
 	} else
 		status = e2_start_std_scan(s);
 
@@ -2461,8 +2450,8 @@ sane_start(SANE_Handle handle)
 	if (dev->connection == SANE_EPSON_NET) {
 		sanei_epson_net_write(s, 0x2000, NULL, 0,
 		      s->ext_block_len + 1, &status);
-        }
-        
+	}
+
 	return status;
 }
 
@@ -2484,8 +2473,8 @@ get_color(int status)
 /* this moves data from our buffers to SANE */
 
 SANE_Status
-sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
-	  SANE_Int * length)
+sane_read(SANE_Handle handle, SANE_Byte *data, SANE_Int max_length,
+	  SANE_Int *length)
 {
 	SANE_Status status;
 	Epson_Scanner *s = (Epson_Scanner *) handle;
@@ -2547,7 +2536,7 @@ sane_cancel(SANE_Handle handle)
 		       (status == SANE_STATUS_GOOD
 			|| status == SANE_STATUS_DEVICE_BUSY)) {
 			/* empty body, the while condition does the processing */
-                        /* XXX ? */
+			/* XXX ? */
 			status = sane_read(s, dummy,
 					   s->params.bytes_per_line,
 					   &len);
@@ -2558,10 +2547,10 @@ sane_cancel(SANE_Handle handle)
 }
 
 static void
-filter_resolution_list(Epson_Scanner * s)
+filter_resolution_list(Epson_Scanner *s)
 {
 	int i, new_size = 0;
-	
+
 	struct Epson_Device *dev = s->hw;
 	SANE_Bool is_correct_resolution = SANE_FALSE;
 
@@ -2573,17 +2562,17 @@ filter_resolution_list(Epson_Scanner * s)
 		       dev->res_list_size * sizeof(SANE_Word));
 
 		return;
-        }
+	}
 
 
-        /* shorten the list */
+	/* shorten the list */
 	/* filter out all values that are not 300 or 400 dpi based */
 	for (i = 0; i < dev->res_list_size; i++) {
 
 		SANE_Word res = dev->res_list[i];
 
 		if ((res < 100) || res == 150 || ((res % 300) == 0)
-		        || ((res % 400) == 0)) {
+			|| ((res % 400) == 0)) {
 			/* add the value */
 			new_size++;
 
@@ -2603,8 +2592,8 @@ filter_resolution_list(Epson_Scanner * s)
 	 */
 
 	if (is_correct_resolution == SANE_TRUE)
-	        return;
-	        
+		return;
+
 	for (i = 1; i <= new_size; i++) {
 		if (s->val[OPT_RESOLUTION].w < dev->resolution_list[i]) {
 			s->val[OPT_RESOLUTION].w = dev->resolution_list[i];
@@ -2621,7 +2610,7 @@ filter_resolution_list(Epson_Scanner * s)
 
 SANE_Status
 sane_set_io_mode(SANE_Handle __sane_unused__ handle,
-        SANE_Bool __sane_unused__ non_blocking)
+	SANE_Bool __sane_unused__ non_blocking)
 {
 	return SANE_STATUS_UNSUPPORTED;
 }
@@ -2634,7 +2623,7 @@ sane_set_io_mode(SANE_Handle __sane_unused__ handle,
 
 SANE_Status
 sane_get_select_fd(SANE_Handle __sane_unused__ handle,
-        SANE_Int __sane_unused__ * fd)
+	SANE_Int __sane_unused__ *fd)
 {
 	return SANE_STATUS_UNSUPPORTED;
 }

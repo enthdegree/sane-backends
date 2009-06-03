@@ -436,6 +436,8 @@
          - add lowmemory option which makes duplex back buffer small too
          - refactor image handling code to track eof's instead of lengths
          - do color deinterlacing after reading from scanner, before buffering
+      v95 2009-06-02, MAN
+         - scanner_control_ric should return a subset of the possible errors
 
    SANE FLOW DIAGRAM
 
@@ -496,7 +498,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 94
+#define BUILD 95
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -6250,8 +6252,15 @@ scanner_control_ric (struct fujitsu *s, int bytes, int side)
     if(ret == SANE_STATUS_GOOD){
       DBG (15, "scanner_control_ric: success, tries %d, ret %d\n",tries,ret);
     }
+    /* some errors pass thru unchanged */
+    else if(ret == SANE_STATUS_CANCELLED || ret == SANE_STATUS_JAMMED
+      || ret == SANE_STATUS_NO_DOCS || ret == SANE_STATUS_COVER_OPEN
+    ){
+      DBG (5, "scanner_control_ric: error, tries %d, ret %d\n",tries,ret);
+    }
+    /* other errors are ignored, since scanner may not support RIC */
     else{
-      DBG (5, "scanner_control_ric: error %d, ret %d\n",tries,ret);
+      DBG (5, "scanner_control_ric: ignoring, tries %d, ret %d\n",tries,ret);
       ret = SANE_STATUS_GOOD;
     }
   }

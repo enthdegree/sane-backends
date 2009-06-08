@@ -1,3 +1,7 @@
+2009-06-08  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp730.c, backend/pixma_imageclass.c:
+	Modifications to support Canon ImageClass MF5770
+
 2009-06-04  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_gl841.c: Make calibration steps always send 
 	  registers before trying to acquire a line.

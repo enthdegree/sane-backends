@@ -369,10 +369,10 @@ step1 (pixma_t * s)
     return PIXMA_ENO_PAPER;
   if (has_ccd_sensor (s))
     {
-      /* MF5770: Wait 25 sec before starting */
-      if (s->cfg->pid == MF5770_PID)
+      /* MF5770: Wait 10 sec before starting for 1st page only */
+      if (s->cfg->pid == MF5770_PID && s->param->adf_pageid == 0)
         {
-          tmo = 25;  /* like Windows driver, 25 sec CCD calibration ? */
+          tmo = 10;  /* like Windows driver, 10 sec CCD calibration ? */
           while (--tmo >= 0)
             {
               error = handle_interrupt (s, 1000);		\
@@ -582,7 +582,7 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       /* n = number of full lines (rows) we have in the buffer. */
       if (n != 0)
 	{
-	  if (s->param->channels != 1)
+	  if (s->param->channels != 1 && s->cfg->pid != MF5770_PID)
 	    {
 	      /* color */
 	      pack_rgb (mp->imgbuf, n, mp->raw_width, mp->lbuf);

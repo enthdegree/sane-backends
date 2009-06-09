@@ -1,3 +1,11 @@
+2009-06-08 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr.c: backend v29
+	- split coarse and fine cal to run independently
+	- add side option
+	- reset scan params to user request if calibration fails
+	- better handling of sane_cancel
+	- better handling of errors during sane_start and sane_read
+
 2009-06-08  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp730.c, backend/pixma_imageclass.c:
 	Modifications to support Canon ImageClass MF5770

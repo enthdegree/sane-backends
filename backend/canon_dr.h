@@ -44,6 +44,7 @@ enum scanner_Option
   OPT_DROPOUT_COLOR_F,
   OPT_DROPOUT_COLOR_B,
   OPT_BUFFERMODE,
+  OPT_SIDE,
 
   /*sensor group*/
   OPT_SENSOR_GROUP,
@@ -155,7 +156,8 @@ struct scanner
   int max_y_fb;
 
   int can_color;     /* actually might be in vpd, but which bit? */
-  int need_cal;      /* scanner needs software to help with calibration */
+  int need_ccal;     /* scanner needs software to help with afe calibration */
+  int need_fcal;     /* scanner needs software to help with fine calibration */
 
   int has_counter;
   int has_rif;
@@ -509,6 +511,7 @@ static SANE_Status send_panel(struct scanner *s);
 
 static SANE_Status start_scan (struct scanner *s, int type);
 
+static SANE_Status check_for_cancel(struct scanner *s);
 static SANE_Status cancel(struct scanner *s);
 
 static SANE_Status read_from_scanner(struct scanner *s, int side, int exact);

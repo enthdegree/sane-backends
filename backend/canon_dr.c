@@ -213,6 +213,12 @@
          - don't eject paper during init
          - add DR-2010 quirks
          - switch counter to HARD_SELECT, not SOFT
+      v29 2009-06-01, MAN
+         - split coarse and fine cal to run independently
+         - add side option
+         - reset scan params to user request if calibration fails
+         - better handling of sane_cancel
+         - better handling of errors during sane_start and sane_read
 
    SANE FLOW DIAGRAM
 
@@ -273,7 +279,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 28
+#define BUILD 29
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1124,7 +1130,8 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
-    s->need_cal = 1;
+    s->need_ccal = 1;
+    s->need_fcal = 1;
 
     /*lies*/
     s->can_halftone=0;
@@ -1144,7 +1151,8 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_2510;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_2510;
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
-    s->need_cal = 1;
+    s->need_ccal = 1;
+    s->need_fcal = 1;
     /*s->invert_tly = 1;*/
 
     /*only in Y direction, so we trash them in X*/
@@ -1935,6 +1943,17 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
      opt->cap = SANE_CAP_INACTIVE;
   }
 
+  if(option==OPT_SIDE){
+    opt->name = "side";
+    opt->title = "Duplex side";
+    opt->desc = "Tells which side (0=front, 1=back) of a duplex scan the next call to sane_read will return.";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->size = sizeof(SANE_Word);
+    opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
   /* "Sensor" group ------------------------------------------------------ */
   if(option==OPT_SENSOR_GROUP){
     opt->name = SANE_NAME_SENSORS;
@@ -2237,6 +2256,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_BUFFERMODE:
           *val_p = s->buffermode;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SIDE:
+          *val_p = s->side;
           return SANE_STATUS_GOOD;
 
         /* Sensor Group */
@@ -3024,6 +3047,9 @@ sane_start (SANE_Handle handle)
   /* undo any prior sane_cancel calls */
   s->cancelled=0;
 
+  /* protect this block from sane_cancel */
+  s->reading=1;
+
   /* not finished with current side, error */
   if (s->started && s->u.bytes_sent[s->side] != s->u.bytes_tot[s->side]) {
     DBG(5,"sane_start: previous transfer not finished?");
@@ -3032,6 +3058,14 @@ sane_start (SANE_Handle handle)
 
   /* batch start? inititalize struct and scanner */
   if(!s->started){
+
+    /* load side marker */
+    if(s->u.source == SOURCE_ADF_BACK){
+      s->side = SIDE_BACK;
+    }
+    else{
+      s->side = SIDE_FRONT;
+    }
 
     /* eject paper leftover*/
     if(object_position (s, SANE_FALSE)){
@@ -3042,21 +3076,7 @@ sane_start (SANE_Handle handle)
     ret = wait_scanner (s);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot wait scanner\n");
-      return ret;
-    }
-
-    /* grab next page */
-    ret = object_position (s, SANE_TRUE);
-    if (ret != SANE_STATUS_GOOD) {
-      DBG (5, "sane_start: ERROR: cannot load page\n");
-      return ret;
-    }
-
-    /* wait for scanner to finish load */
-    ret = wait_scanner (s);
-    if (ret != SANE_STATUS_GOOD) {
-      DBG (5, "sane_start: ERROR: cannot wait scanner\n");
-      return ret;
+      goto errors;
     }
 
     /* AFE cal */
@@ -3080,70 +3100,76 @@ sane_start (SANE_Handle handle)
     ret = update_params(s);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot update_params\n");
-      return ret;
-    }
-
-    /* buffer/duplex/ald command */
-    ret = ssm_buffer(s);
-    if (ret != SANE_STATUS_GOOD) {
-      DBG (5, "sane_start: ERROR: cannot ssm buffer\n");
-      return ret;
-    }
-
-    /* dropout color command */
-    ret = ssm_do(s);
-    if (ret != SANE_STATUS_GOOD) {
-      DBG (5, "sane_start: ERROR: cannot ssm do\n");
-      return ret;
-    }
-
-    /* double feed detection command */
-    ret = ssm_df(s);
-    if (ret != SANE_STATUS_GOOD) {
-      DBG (5, "sane_start: ERROR: cannot ssm df\n");
-      return ret;
+      goto errors;
     }
 
     /* set window command */
     ret = set_window(s);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot set window\n");
-      return ret;
+      goto errors;
     }
 
-    /* load side marker */
-    if(s->u.source == SOURCE_ADF_BACK){
-      s->side = SIDE_BACK;
+    /* buffer/duplex/ald command */
+    ret = ssm_buffer(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot ssm buffer\n");
+      goto errors;
     }
-    else{
-      s->side = SIDE_FRONT;
+
+    /* dropout color command */
+    ret = ssm_do(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot ssm do\n");
+      goto errors;
+    }
+
+    /* double feed detection command */
+    ret = ssm_df(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot ssm df\n");
+      goto errors;
     }
 
     /* clean scan params for new scan */
     ret = clean_params(s);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot clean_params\n");
-      return ret;
+      goto errors;
     }
 
     /* make large buffers to hold the images */
     ret = image_buffers(s,1);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot load buffers\n");
-      return ret;
+      goto errors;
+    }
+
+    /* grab next page */
+    ret = object_position (s, SANE_TRUE);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot load page\n");
+      goto errors;
+    }
+
+    /* wait for scanner to finish load */
+    ret = wait_scanner (s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot wait scanner\n");
+      goto errors;
     }
 
     /* start scanning */
     ret = start_scan (s,0);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot start_scan\n");
-      return ret;
+      goto errors;
     }
 
     s->started = 1;
   }
 
-  /* stuff done between subsequent pages */
+  /* stuff done for subsequent images */
   else{
 
     /* duplex needs to switch sides */
@@ -3162,7 +3188,7 @@ sane_start (SANE_Handle handle)
       ret = clean_params(s);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot clean_params\n");
-        return ret;
+        goto errors;
       }
 
       /* big scanners and small ones in non-buff mode: OP to detect paper */
@@ -3170,7 +3196,7 @@ sane_start (SANE_Handle handle)
         ret = object_position (s, SANE_TRUE);
         if (ret != SANE_STATUS_GOOD) {
           DBG (5, "sane_start: ERROR: cannot load page\n");
-          return ret;
+          goto errors;
         }
 
         /* user wants unbuffered scans */
@@ -3179,7 +3205,7 @@ sane_start (SANE_Handle handle)
           ret = start_scan (s,0);
           if (ret != SANE_STATUS_GOOD) {
             DBG (5, "sane_start: ERROR: cannot start_scan\n");
-            return ret;
+            goto errors;
           }
         }
       }
@@ -3189,34 +3215,18 @@ sane_start (SANE_Handle handle)
         ret = read_panel (s, OPT_COUNTER);
         if (ret != SANE_STATUS_GOOD) {
           DBG (5, "sane_start: ERROR: cannot load page\n");
-          return ret;
+          goto errors;
         }
         if(s->prev_page == s->panel_counter){
           DBG (5, "sane_start: same counter (%d) no paper?\n",s->prev_page);
-          return SANE_STATUS_NO_DOCS;
+          ret = SANE_STATUS_NO_DOCS;
+          goto errors;
         }
         DBG (5, "sane_start: diff counter (%d/%d)\n",
           s->prev_page,s->panel_counter);
       }
     }
   }
-
-#if 0
-  /* put cal buffers in the image */
-  memcpy(
-    s->buffers[s->side],
-    s->f_offset[s->side],
-    s->s.Bpl
-  );
-  s->s.bytes_sent[s->side] += s->s.Bpl;
-
-  memcpy(
-    s->buffers[s->side]+s->s.bytes_sent[s->side],
-    s->f_gain[s->side],
-    s->s.Bpl
-  );
-  s->s.bytes_sent[s->side] += s->s.Bpl;
-#endif
 
   /* reset jpeg params on each page */
   s->jpeg_stage=JPEG_STAGE_NONE;
@@ -3225,9 +3235,18 @@ sane_start (SANE_Handle handle)
   DBG (15, "started=%d, side=%d, source=%d\n",
     s->started, s->side, s->u.source);
 
-  DBG (10, "sane_start: finish %d\n", ret);
+  ret = check_for_cancel(s);
+  s->reading = 0;
 
+  DBG (10, "sane_start: finish %d\n", ret);
   return ret;
+
+  errors:
+    DBG (10, "sane_start: error %d\n", ret);
+    s->started = 0;
+    s->cancelled = 0;
+    s->reading = 0;
+    return ret;
 }
 
 /*
@@ -3521,39 +3540,6 @@ start_scan (struct scanner *s, int type)
   return ret;
 }
 
-/* sends cancel command to scanner, clears s->started. don't call
- * this function asyncronously, wait for scan to complete */
-static SANE_Status
-cancel(struct scanner *s)
-{
-  SANE_Status ret = SANE_STATUS_GOOD;
-
-  unsigned char cmd[CANCEL_len];
-  size_t cmdLen = CANCEL_len;
-
-  DBG (10, "cancel: start\n");
-
-  memset(cmd,0,cmdLen);
-  set_SCSI_opcode(cmd, CANCEL_code);
-
-  ret = do_cmd (
-      s, 1, 0,
-      cmd, cmdLen,
-      NULL, 0,
-      NULL, NULL
-  );
-
-  if(!object_position(s,SANE_FALSE)){
-    DBG (5, "cancel: ignoring bad eject\n");
-  }
-
-  s->started = 0;
-
-  DBG (10, "cancel: finish\n");
-
-  return SANE_STATUS_CANCELLED;
-}
-
 /*
  * Called by SANE to read data.
  * 
@@ -3590,6 +3576,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     return SANE_STATUS_EOF;
   }
 
+  s->reading = 1;
+
   /* double width pnm interlacing */
   if(s->s.source == SOURCE_ADF_DUPLEX
     && s->s.format <= SANE_FRAME_RGB
@@ -3601,7 +3589,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       ret = read_from_scanner_duplex(s, 0);
       if(ret){
         DBG(5,"sane_read: front returning %d\n",ret);
-        return ret;
+        goto errors;
       }
       /*read last block, update counter*/
       if(s->s.eof[SIDE_FRONT] && s->s.eof[SIDE_BACK]){
@@ -3617,7 +3605,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       ret = read_from_scanner(s, s->side, 0);
       if(ret){
         DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
-        return ret;
+        goto errors;
       }
       /*read last block, update counter*/
       if(s->s.eof[s->side]){
@@ -3629,18 +3617,21 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* copy a block from buffer to frontend */
   ret = read_from_buffer(s,buf,max_len,len,s->side);
-
-  /* we've read everything, and user cancelled */
-  /* tell scanner to stop */
-  if(s->s.eof[s->side] && 
-    (s->cancelled /*|| (!read_panel(s,OPT_STOP) && s->panel_stop)*/)
-  ){
-    DBG(5,"sane_read: user cancelled\n");
-    return cancel(s);
-  }
+  if(ret)
+    goto errors;
+  
+  ret = check_for_cancel(s);
+  s->reading = 0;
 
   DBG (10, "sane_read: finish %d\n", ret);
   return ret;
+
+  errors:
+    DBG (10, "sane_read: error %d\n", ret);
+    s->reading = 0;
+    s->cancelled = 0;
+    s->started = 0;
+    return ret;
 }
 
 static SANE_Status
@@ -4436,7 +4427,7 @@ calibrate_AFE (struct scanner *s)
 
   DBG (10, "calibrate_AFE: start\n");
 
-  if(!s->need_cal){
+  if(!s->need_ccal){
     DBG (10, "calibrate_AFE: not required\n");
     return ret;
   }
@@ -4456,6 +4447,11 @@ calibrate_AFE (struct scanner *s)
 
   if(s->c_res == s->s.dpi_x && s->c_mode == s->s.mode){
     DBG (10, "calibrate_AFE: already done\n");
+    /* recover user settings */
+    s->u.tl_y = old_tl_y;
+    s->u.br_y = old_br_y;
+    s->u.mode = old_mode;
+    s->u.source = old_source;
     return ret;
   }
 
@@ -4493,12 +4489,20 @@ calibrate_AFE (struct scanner *s)
   
   /* first pass (black offset), lamp off, no offset/gain/exposure */
   DBG (15, "calibrate_AFE: offset\n");
+
+  /* blast all the existing coarse cal data */
   for(i=0;i<2;i++){
     s->c_gain[i]   = 1;
     s->c_offset[i] = 1;
     for(j=0;j<3;j++){
       s->c_exposure[i][j] = 0;
     }
+  }
+
+  ret = write_AFE(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot write afe\n");
+    return ret;
   }
 
   ret = calibration_scan(s,0xff);
@@ -4523,6 +4527,12 @@ calibrate_AFE (struct scanner *s)
     for(j=0; j<3; j++){
       s->c_exposure[i][j] = 0x320;
     }
+  }
+
+  ret = write_AFE(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot write afe\n");
+    return ret;
   }
 
   ret = calibration_scan(s,0xfe);
@@ -4552,6 +4562,13 @@ calibrate_AFE (struct scanner *s)
 
   /*handle third pass (gain), lamp on with current offset/exposure */
   DBG (15, "calibrate_AFE: gain\n");
+
+  ret = write_AFE(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot write afe\n");
+    return ret;
+  }
+
   ret = calibration_scan(s,0xfe);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot make gain cal scan\n");
@@ -4579,6 +4596,13 @@ calibrate_AFE (struct scanner *s)
   /*handle fourth pass (offset again), lamp off*/
 #if 0
   DBG (15, "calibrate_AFE: offset2\n");
+
+  ret = write_AFE(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot write afe\n");
+    return ret;
+  }
+
   ret = calibration_scan(s,0xff);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot make offset2 cal scan\n");
@@ -4595,6 +4619,13 @@ calibrate_AFE (struct scanner *s)
     DBG (15, "calibrate_AFE: offset2 %d %d %02x\n", i, min, s->c_offset[i]);
   }
 #endif
+
+  /*send final afe params to scanner*/
+  ret = write_AFE(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_AFE: ERROR: cannot write afe\n");
+    return ret;
+  }
 
   /* recover user settings */
   s->u.tl_y = old_tl_y;
@@ -4629,7 +4660,7 @@ calibrate_fine (struct scanner *s)
 
   DBG (10, "calibrate_fine: start\n");
 
-  if(!s->need_cal){
+  if(!s->need_fcal){
     DBG (10, "calibrate_fine: not required\n");
     return ret;
   }
@@ -4648,6 +4679,10 @@ calibrate_fine (struct scanner *s)
 
   if(s->f_res == s->s.dpi_x && s->f_mode == s->s.mode){
     DBG (10, "calibrate_fine: already done\n");
+    /* recover user settings */
+    s->u.tl_y = old_tl_y;
+    s->u.br_y = old_br_y;
+    s->u.source = old_source;
     return ret;
   }
 
@@ -4708,7 +4743,7 @@ calibrate_fine (struct scanner *s)
     hexdump(15, "off:", s->f_offset[i], s->s.valid_Bpl);
   }
 
-  /*handle sixth pass (fine gain), lamp off*/
+  /*handle sixth pass (fine gain), lamp on*/
   DBG (15, "calibrate_fine: gain\n");
   ret = calibration_scan(s,0xfe);
   if (ret != SANE_STATUS_GOOD) {
@@ -4764,13 +4799,6 @@ calibration_scan (struct scanner *s, int scan)
   ret = clean_params(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibration_scan: ERROR: cannot clean_params\n");
-    return ret;
-  }
-
-  /* send calibration */
-  ret = write_AFE(s);
-  if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibration_scan: ERROR: cannot cal afe\n");
     return ret;
   }
   
@@ -4940,7 +4968,7 @@ gain_buffers (struct scanner *s, int setup)
  * cancel the currently pending operation of the device represented by
  * handle h.  This function can be called at any time (as long as
  * handle h is a valid handle) but usually affects long-running
- * operations only (such as image is acquisition). It is safe to call
+ * operations only (such as image acquisition). It is safe to call
  * this function asynchronously (e.g., from within a signal handler).
  * It is important to note that completion of this operaton does not
  * imply that the currently pending operation has been cancelled. It
@@ -4958,7 +4986,61 @@ sane_cancel (SANE_Handle handle)
 
   DBG (10, "sane_cancel: start\n");
   s->cancelled = 1;
+
+  /* if there is no other running function to check, we do it */
+  if(!s->reading)
+    check_for_cancel(s);
+
   DBG (10, "sane_cancel: finish\n");
+}
+
+/* checks started and cancelled flags in scanner struct,
+ * sends cancel command to scanner if required. don't call
+ * this function asyncronously, wait for pending operation */
+static SANE_Status
+check_for_cancel(struct scanner *s)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+
+  DBG (10, "check_for_cancel: start\n");
+
+  if(s->started && s->cancelled){
+    unsigned char cmd[CANCEL_len];
+    size_t cmdLen = CANCEL_len;
+  
+    DBG (15, "check_for_cancel: cancelling\n");
+  
+    /* cancel scan */
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, CANCEL_code);
+  
+    ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        NULL, 0,
+        NULL, NULL
+    );
+    if(!ret){
+      DBG (5, "check_for_cancel: ignoring bad cancel: %d\n",ret);
+    }
+  
+    ret = object_position(s,SANE_FALSE);
+    if(!ret){
+      DBG (5, "check_for_cancel: ignoring bad eject\n",ret);
+    }
+
+    s->started = 0;
+    s->cancelled = 0;
+    ret = SANE_STATUS_CANCELLED;
+  }
+  else if(s->cancelled){
+    DBG (15, "check_for_cancel: already cancelled\n");
+    s->cancelled = 0;
+    ret = SANE_STATUS_CANCELLED;
+  }
+
+  DBG (10, "check_for_cancel: finish %d\n",ret);
+  return ret;
 }
 
 /*

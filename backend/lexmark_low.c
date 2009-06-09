@@ -1,7 +1,7 @@
 /* lexmark-low.c: scanner-interface file for low Lexmark scanners.
 
    (C) 2005 Fred Odendaal
-   (C) 2006-2007 Stéphane Voltz	<stef.dev@free.fr>
+   (C) 2006-2009 Stéphane Voltz	<stef.dev@free.fr>
    
    This file is part of the SANE package.
 
@@ -46,24 +46,7 @@
 #undef BACKEND_NAME
 #define BACKEND_NAME lexmark_low
 
-#include "../include/sane/config.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <math.h>
-
-#include "../include/_stdint.h"
-
-#include "../include/sane/sane.h"
-#include "../include/sane/sanei.h"
-#include "../include/sane/saneopts.h"
-
-#include "../include/sane/sanei_usb.h"
-
 #include "lexmark.h"
-#include "../include/sane/sanei_backend.h"
 
 #include "lexmark_sensors.c"
 #include "lexmark_models.c"
@@ -1151,6 +1134,7 @@ sanei_lexmark_low_open_device (Lexmark_Device * dev)
   size = 4;
   low_usb_bulk_write (dev->devnum, command_block, &size);
   size = 0xFF;
+  memset(shadow_regs,0,sizeof(shadow_regs));
   low_usb_bulk_read (dev->devnum, shadow_regs, &size);
 #ifdef DEEP_DEBUG
   if (DBG_LEVEL > 2)
@@ -1194,12 +1178,12 @@ sanei_lexmark_low_open_device (Lexmark_Device * dev)
     }
 
   /* if find a case where default model given is inappropriate, reassign it
-   * since we have now the informations to get the real one. Such
+   * since we have now the informations to get the real one.
    * We could avoid this if attach() did open and read registers, not init */
   if (variant != 0)
     {
       DBG (3,
-	   "sanei_lexmark_low_open_device: reassign model/sensor for varaint 0x%02x\n",
+	   "sanei_lexmark_low_open_device: reassign model/sensor for variant 0x%02x\n",
 	   variant);
       sanei_lexmark_low_assign_model (dev, dev->sane.name,
 					dev->model.vendor_id,
@@ -1594,6 +1578,7 @@ sanei_lexmark_low_search_home_fwd (Lexmark_Device * dev)
     case X1100_B2_SENSOR:
       dev->shadow_regs[0x2c] = 0x0f;
       dev->shadow_regs[0x2d] = 0x51;
+      dev->shadow_regs[0x2f] = 0x21;
       dev->shadow_regs[0x34] = 0x04;
       dev->shadow_regs[0x35] = 0x04;
       dev->shadow_regs[0x36] = 0x08;
@@ -5098,15 +5083,17 @@ sanei_lexmark_low_assign_sensor (Lexmark_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-/* assign model description, based on USB id, and register B0 when
+/* assign model description, based on USB id, and register content when 
  * available */
 SANE_Status
-sanei_lexmark_low_assign_model (Lexmark_Device * dev, char *devname,
+sanei_lexmark_low_assign_model (Lexmark_Device * dev, SANE_String_Const devname,
 				  SANE_Int vendor, SANE_Int product,
 				  SANE_Byte mainboard)
 {
   int dn;
   SANE_Bool found = SANE_FALSE;
+
+  DBG_INIT();
 
   DBG (2, "sanei_lexmark_low_assign_model: start\n");
   DBG (3,

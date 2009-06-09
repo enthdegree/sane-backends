@@ -2,7 +2,7 @@
    lexmark.h - SANE library for Lexmark scanners.
    Copyright (C) 2003-2004 Lexmark International, Inc. (original source)
    Copyright (C) 2005 Fred Odendaal
-   Copyright (C) 2006-2007 Stéphane Voltz	<stef.dev@free.fr>
+   Copyright (C) 2006-2009 Stéphane Voltz	<stef.dev@free.fr>
 
    This file is part of the SANE package.
 
@@ -44,6 +44,31 @@
    **************************************************************************/
 #ifndef LEXMARK_H
 #define LEXMARK_H
+
+#define DEEP_DEBUG
+
+#include "../include/sane/config.h"
+
+#include <errno.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <ctype.h>
+#include <sys/time.h>
+
+#include "../include/_stdint.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_backend.h"
 
 typedef enum
 {
@@ -232,7 +257,7 @@ SANE_Status sanei_lexmark_low_start_scan (Lexmark_Device * dev);
 long sanei_lexmark_low_read_scan_data (SANE_Byte * data, SANE_Int size,
 					 Lexmark_Device * dev);
 SANE_Status sanei_lexmark_low_assign_model (Lexmark_Device * dev,
-					      char *devname, SANE_Int vendor,
+					      SANE_String_Const devname, SANE_Int vendor,
 					      SANE_Int product,
 					      SANE_Byte mainboard);
 

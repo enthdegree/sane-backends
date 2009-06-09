@@ -2,7 +2,7 @@
 
    (C) 2003-2004 Lexmark International, Inc. (Original Source code)
    (C) 2005 Fred Odendaal
-   (C) 2006-2007 Stéphane Voltz <stef.dev@free.fr>
+   (C) 2006-2009 Stéphane Voltz <stef.dev@free.fr>
    
    This file is part of the SANE package.
 
@@ -44,34 +44,10 @@
 
    **************************************************************************/
 
-#include "../include/sane/config.h"
-
-#include <errno.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <time.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <sys/time.h>
-
-
-#include "../include/sane/sane.h"
-#include "../include/sane/sanei.h"
-#include "../include/sane/saneopts.h"
-#include "../include/sane/sanei_config.h"
-#include "../include/sane/sanei_usb.h"
-
 #include "lexmark.h"
-#include "../include/sane/sanei_backend.h"
-
 
 #define LEXMARK_CONFIG_FILE "lexmark.conf"
-#define BUILD 19
+#define BUILD 21
 #define MAX_OPTION_STRING_SIZE 255
 
 static Lexmark_Device *first_lexmark_device = 0;
@@ -188,7 +164,6 @@ init_options (Lexmark_Device * dev)
       od->constraint.word_list = a920_dpi_list;
       break;
     case X1100_B2_SENSOR:
-      od->constraint.word_list = x1100_dpi_list;
       od->constraint.word_list = x1100_dpi_list;
       break;
     case X1200_SENSOR:
@@ -359,7 +334,7 @@ SANE_Status
 attachLexmark (SANE_String_Const devname)
 {
   Lexmark_Device *lexmark_device;
-  SANE_Int dn, vendor, product;
+  SANE_Int dn, vendor, product, variant;
   SANE_Status status;
 
   DBG (2, "attachLexmark: devname=%s\n", devname);
@@ -393,8 +368,10 @@ attachLexmark (SANE_String_Const devname)
   status = SANE_STATUS_GOOD;
   /* put the id of the model you want to fake here */
   vendor = 0x043d;
-  product = 0x007d;	/* X12xx */
+  product = 0x007c;	/* X11xx */
+  variant = 0xb2;
 #else
+  variant = 0;
   status = sanei_usb_get_vendor_product (dn, &vendor, &product);
 #endif
   if (status != SANE_STATUS_GOOD)
@@ -411,13 +388,13 @@ attachLexmark (SANE_String_Const devname)
   sanei_usb_close (dn);
 #endif
 
-  DBG (2, "attachLexmark: testing device `%s': 0x%04x:0x%04x, no variant\n",
-       devname, vendor, product);
+  DBG (2, "attachLexmark: testing device `%s': 0x%04x:0x%04x, variant=%d\n",
+       devname, vendor, product, variant);
   if (sanei_lexmark_low_assign_model (lexmark_device,
 			  		devname,
 					vendor,
 					product,
-					0) != SANE_STATUS_GOOD)
+					variant) != SANE_STATUS_GOOD)
     {
       DBG (2, "attachLexmark: unsupported device `%s': 0x%04x:0x%04x\n",
 	   devname, vendor, product);
@@ -466,7 +443,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG_INIT ();
 
-  DBG (1, "SANE Lexmark backend version %d.%d-rc2-%d\n", SANE_CURRENT_MAJOR, V_MINOR, BUILD);
+  DBG (1, "SANE Lexmark backend version %d.%d.%d-devel\n", SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   auth_callback = authorize;
 

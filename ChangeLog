@@ -1,3 +1,7 @@
+2009-06-09  Stéphane Voltz <stef.dev at free.fr>
+	* backend/lexmark.h backend/lexmark.c backend/lexmark_low.c:
+	  cleanups, better 'fake usb' and possible fix for bug #311862
+
 2009-06-08 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.c: backend v29
 	- split coarse and fine cal to run independently

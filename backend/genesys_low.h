@@ -394,6 +394,10 @@ typedef struct Genesys_Command_Set
      * eject document from scanner
      */
     SANE_Status (*eject_document) (Genesys_Device * dev);
+    /**
+     * search for an black or white area in forward or reverse 
+     * direction */
+    SANE_Status (*search_strip) (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black);
 
     SANE_Status (*is_compatible_calibration) (
 	Genesys_Device * dev,

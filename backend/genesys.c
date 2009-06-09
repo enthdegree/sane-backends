@@ -1576,7 +1576,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
   dev->sensor.CCD_start_xoffset =
     start_pixel + (left * dev->sensor.optical_res) / dpi;
 
-  /* find top edge by detecting black stripe */
+  /* find top edge by detecting black strip */
   /* apply Y direction sobel filter 
      -1 -2 -1
      0  0  0
@@ -3356,6 +3356,14 @@ genesys_save_calibration (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+/**
+ * does the calibration process for a flatbed scanner
+ * - offset calibration
+ * - gain calibration
+ * - shading calibration
+ * @param dev device to calibrate
+ * @return SANE_STATUS_GOOD if everything when all right, else the error code.
+ */
 static SANE_Status
 genesys_flatbed_calibration (Genesys_Device * dev)
 {
@@ -3368,25 +3376,6 @@ genesys_flatbed_calibration (Genesys_Device * dev)
   yres = dev->sensor.optical_res;
   if (dev->settings.yres <= dev->sensor.optical_res / 2)
     yres /= 2;
-
-  /* send custom or generic gamma tables depending on flag */
-  if (dev->model->flags & GENESYS_FLAG_CUSTOM_GAMMA)
-    {
-      /* use custom gamma table */
-      status = dev->model->cmd_set->send_gamma_table (dev, 0);
-    }
-  else
-    {
-      /* send default gamma table if no custom gamma */
-      status = dev->model->cmd_set->send_gamma_table (dev, 1);
-    }
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "genesys_flatbed_calibration: failed to init gamma table: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
 
   /* do offset calibration if needed */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
@@ -3437,7 +3426,7 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 
   if (dev->model->is_cis)
     {
-/*the afe now sends valid data for doing led calibration*/
+      /* the afe now sends valid data for doing led calibration*/
       status = dev->model->cmd_set->led_calibration (dev);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -3447,7 +3436,7 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	  return status;
 	}
 
-/*calibrate afe again to match new exposure*/
+      /* calibrate afe again to match new exposure*/
       if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
 	{
 	  status = dev->model->cmd_set->offset_calibration (dev);
@@ -3469,7 +3458,6 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 		   sane_strstatus (status));
 	      return status;
 	    }
-
 	}
       else
 	/* since we have 2 gain calibration proc, skip second if first one was
@@ -3493,13 +3481,11 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 		   sane_strstatus (status));
 	      return status;
 	    }
-
 	}
     }
 
-
-  pixels_per_line = (SANE_UNFIX(dev->model->x_size) * dev->settings.xres) / 
-      MM_PER_INCH;
+  pixels_per_line = (SANE_UNFIX (dev->model->x_size) * dev->settings.xres) /
+    MM_PER_INCH;
 
   /* send default shading data */
   status = sanei_genesys_init_shading_data (dev, pixels_per_line);
@@ -3564,19 +3550,83 @@ genesys_flatbed_calibration (Genesys_Device * dev)
       return status;
     }
 
-  /* send specific gamma tables if needed */
-  status = dev->model->cmd_set->send_gamma_table (dev, 0);
+  DBG (DBG_info, "genesys_flatbed_calibration: completed\n");
+
+  return SANE_STATUS_GOOD;
+}
+
+/**
+ * Does the calibration process for a sheetfed scanner
+ * - offset calibration
+ * - gain calibration
+ * - shading calibration
+ * During calibration a predefined calibration sheet with specific black and white
+ * areas is used.
+ * @param dev device to calibrate
+ * @return SANE_STATUS_GOOD if everything when all right, else the error code.
+ */
+static SANE_Status
+genesys_sheetfed_calibration (Genesys_Device * dev)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+
+  DBG (DBG_proc, "genesys_sheetfed_calibration: start\n");
+  if(dev->model->cmd_set->search_strip==NULL)
+  {
+      DBG (DBG_error,
+	   "genesys_sheetfed_calibration: no strip searching function available\n");
+      return SANE_STATUS_UNSUPPORTED;
+  }
+
+  /* first step, load document */
+  status = dev->model->cmd_set->load_document (dev);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "genesys_flatbed_calibration: failed to send specific gamma tables: %s\n",
+	   "genesys_sheetfed_calibration: failed to load document: %s\n",
 	   sane_strstatus (status));
       return status;
     }
 
-  DBG (DBG_info, "genesys_flatbed_calibration: completed\n");
+  /* we set up for shading calibration, start scan and then scan lines by lines until
+   * we find a black strip crossing the calibration sheet */
 
+  /* seek black/white reverse/forward */
+  status = dev->model->cmd_set->search_strip (dev, SANE_TRUE, SANE_TRUE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "genesys_sheetfed_calibration: failed to find black strip: %s\n",
+	   sane_strstatus (status));
+      dev->model->cmd_set->eject_document (dev);
+      return status;
+    }
+
+  /* and finally eject calibration sheet */
+  status = dev->model->cmd_set->eject_document (dev);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "genesys_sheetfed_calibration: failed to eject document: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  DBG (DBG_proc, "genesys_sheetfed_calibration: end\n");
   return SANE_STATUS_GOOD;
+}
+
+/**
+ * does the calibration process for a device
+ * @param dev device to calibrate
+ */
+static SANE_Status
+genesys_scanner_calibration (Genesys_Device * dev)
+{
+  if (dev->model->is_sheetfed == SANE_FALSE)
+    {
+      return genesys_flatbed_calibration (dev);
+    }
+  return genesys_sheetfed_calibration (dev);
 }
 
 /* unused function kept in case it may be usefull in the futur */
@@ -3845,46 +3895,38 @@ genesys_start_scan (Genesys_Device * dev)
 	}
     }
 
-  /* TODO: STEF we should move gamma table handling out of calibration, when cache
-   * is active, custom gamma tables don't seem to be sent */
+  /* send custom or generic gamma tables depending on flag */
+  if (dev->model->flags & GENESYS_FLAG_CUSTOM_GAMMA)
+    {
+      /* use custom gamma table */
+      status = dev->model->cmd_set->send_gamma_table (dev, 0);
+    }
+  else
+    {
+      /* send default gamma table if no custom gamma */
+      status = dev->model->cmd_set->send_gamma_table (dev, 1);
+    }
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "genesys_flatbed_calibration: failed to init gamma table: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  /* try to use cached calibration first */
   status = genesys_restore_calibration (dev);
   if(status == SANE_STATUS_UNSUPPORTED) 
     {
       /* calibration : sheetfed scanners can't calibrate before each scan */
       /* so we use a NO_CALIBRATION flags for those scanners              */
-      if (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
+      if (!dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
 	{
-	  /* TODO send predefined calibration values from default
-	   * values or built from a calibration scan */
-	  /* send custom or generic gamma tables depending on flag */
-	  if (dev->model->flags & GENESYS_FLAG_CUSTOM_GAMMA)
-	    {
-	      /* use custom gamma table */
-	      status = dev->model->cmd_set->send_gamma_table (dev, 0);
-	    }
-	  else
-	    {
-	      /* send default gamma table if no custom gamma */
-	      status = dev->model->cmd_set->send_gamma_table (dev, 1);
-	    }
+	  status = genesys_scanner_calibration (dev);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
-		   "genesys_start_scan: failed to init gamma table: %s\n",
-		   sane_strstatus (status));
-	      return status;
-	    }
-
-	  /* head hasn't moved */
-	  dev->scanhead_position_in_steps = 0;
-	}
-      else
-	{
-	  status = genesys_flatbed_calibration (dev);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_error,
-		   "genesys_start_scan: failed to do flatbed calibration: %s\n",
+		   "genesys_start_scan: failed to do scanner calibration: %s\n",
 		   sane_strstatus (status));
 	      return status;
 	    }
@@ -5988,7 +6030,7 @@ static SANE_Status
 set_option_value (Genesys_Scanner * s, int option, void *val,
 		  SANE_Int * myinfo)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *table;
   unsigned int i;
   Genesys_Calibration_Cache *cache, *next_cache;
@@ -6187,7 +6229,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	}
       break;
     case OPT_CALIBRATE:
-      /* TODO call for calibration using special sheet here */
+      status = genesys_scanner_calibration (s->dev);
       break;
     case OPT_CLEAR_CALIBRATION:
       /* clear calibration cache */
@@ -6210,7 +6252,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       DBG (DBG_warn, "set_option_value: can't set unknown option %d\n",
 	   option);
     }
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 

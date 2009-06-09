@@ -315,10 +315,11 @@ gl646_setup_registers (Genesys_Device * dev,
  * @param device   device to set up
  * @param settings settings of the scan
  * @param move     flag to enable scanhead to move
+ * @param forward  flag to tell movement direction
  * @param data     pointer that will point to the scanned data
  */
 static SANE_Status
-simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
+simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
 	     unsigned char **data);
 
 /**

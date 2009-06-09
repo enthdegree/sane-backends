@@ -5859,6 +5859,7 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_load_document,
   gl841_detect_document_end,
   gl841_eject_document,
+  NULL,
 
   gl841_is_compatible_calibration,
 };

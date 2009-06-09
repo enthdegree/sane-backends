@@ -154,7 +154,7 @@ gl646_bulk_write_register (Genesys_Device * dev,
 	{
 	  DBG (DBG_io2, "reg[0x%02x] = 0x%02x\n", buffer[i], buffer[i + 1]);
 	}
-      /* when full size, decode regfister content */
+      /* when full size, decode register content */
       if (elems > 60)
 	{
 	  DBG (DBG_io2, "DPISET   =%d\n",
@@ -591,7 +591,7 @@ is_half_ccd (int sensor, int required, SANE_Bool color)
 	  && sensor_master[i].color == color)
 	{
 	  DBG (DBG_io, "is_half_ccd: match found for %d (half_ccd=%d)\n",
-	       required,sensor_master[i].half_ccd);
+	       required, sensor_master[i].half_ccd);
 	  return sensor_master[i].half_ccd;
 	}
       i++;
@@ -934,11 +934,16 @@ gl646_setup_registers (Genesys_Device * dev,
   DBG (DBG_info, "gl646_setup_registers :  max_shift=%d, stagger=%d lines\n",
        max_shift, stagger);
 
+  /* big to get any doc out of the feeder */
+  /* XXX STEF XXX clashes with calibration process 
+     if (dev->model->is_sheetfed == SANE_TRUE)
+     {
+     linecnt = (1000 * motor->ydpi) / MM_PER_INCH;
+     } */
+
   /* CIS scanners read one line per color channel */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      /* big to get any doc out of the feeder */
-      linecnt = (1000 * motor->ydpi) / MM_PER_INCH;
       linecnt *= channels;
     }
   gl646_set_triple_reg (regs, REG_LINCNT, linecnt);
@@ -2460,21 +2465,31 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   DBG (DBG_proc, "end_scan (check_stop = %d, eject = %d)\n", check_stop,
        eject);
 
-  /*status = sanei_genesys_get_status (dev, &val);
-     if (val & REG41_SCANFSH)
-     scanfsh = 1;
-     DBG (DBG_info, "end_scan: current status =0x%02x\n", val);
+  /*
+     status = sanei_genesys_get_status (dev, &val);
      if (DBG_LEVEL > DBG_io)
      {
      print_status (val);
      read_triple_reg (dev, REG_SCANCNT, &value);
-     } */
-
-  /* for sheetfed scanners, we have to eject document and read
-   * left data in buffers */
-  if (dev->model->is_sheetfed == SANE_TRUE && dev->document == SANE_TRUE)
+     DBG (DBG_info, "end_scan: SCANCNT=%d\n", value);
+     }  */
+  /* ends scan */
+  val = sanei_genesys_read_reg_from_set (reg, 0x01);
+  val &= ~REG01_SCAN;
+  sanei_genesys_set_reg_from_set (reg, 0x01, val);
+  status = sanei_genesys_write_register (dev, 0x01, val);
+  if (status != SANE_STATUS_GOOD)
     {
-      if (eject == SANE_TRUE)
+      DBG (DBG_error,
+	   "end_scan: failed to write register 01: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  /* for sheetfed scanners, we may have to eject document */
+  if (dev->model->is_sheetfed == SANE_TRUE)
+    {
+      if (eject == SANE_TRUE && dev->document == SANE_TRUE)
 	{
 	  status = gl646_eject_document (dev);
 	  if (status != SANE_STATUS_GOOD)
@@ -2486,19 +2501,6 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     }
   else				/* flat bed scanners */
     {
-      /* ends scan */
-      val = sanei_genesys_read_reg_from_set (reg, 0x01);
-      val &= ~REG01_SCAN;
-      sanei_genesys_set_reg_from_set (reg, 0x01, val);
-      status = sanei_genesys_write_register (dev, 0x01, val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "end_scan: failed to write register 01: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-
       if (check_stop)
 	{
 	  for (i = 0; i < 300; i++)	/* do not wait longer than wait 30 seconds */
@@ -2754,7 +2756,7 @@ gl646_search_start_position (Genesys_Device * dev)
   settings.exposure_time = 0;
 
   /* scan the desired area */
-  status = simple_scan (dev, settings, SANE_TRUE, &data);
+  status = simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, &data);
 
   /* process data if scan is OK */
   if (status == SANE_STATUS_GOOD)
@@ -2852,7 +2854,8 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   if (dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE)
     {
       /* walk the master mode list to find if half_ccd */
-      if (is_half_ccd (dev->model->ccd_type, dev->settings.xres, SANE_TRUE) == SANE_TRUE)
+      if (is_half_ccd (dev->model->ccd_type, dev->settings.xres, SANE_TRUE) ==
+	  SANE_TRUE)
 	{
 	  half_ccd = 2;
 	}
@@ -3341,7 +3344,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = bottom;
   dev->frontend.offset[1] = bottom;
   dev->frontend.offset[2] = bottom;
-  status = simple_scan (dev, settings, SANE_FALSE, &first_line);
+  status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, &first_line);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3367,7 +3370,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = top;
   dev->frontend.offset[1] = top;
   dev->frontend.offset[2] = top;
-  status = simple_scan (dev, settings, SANE_FALSE, &second_line);
+  status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, &second_line);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3397,7 +3400,8 @@ gl646_offset_calibration (Genesys_Device * dev)
       dev->frontend.offset[2] = (top + bottom) / 2;
 
       /* scan with no move */
-      status = simple_scan (dev, settings, SANE_FALSE, &second_line);
+      status =
+	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, &second_line);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3435,7 +3439,8 @@ gl646_offset_calibration (Genesys_Device * dev)
   /* in case of debug do a final scan to get result */
   if (DBG_LEVEL >= DBG_data)
     {
-      status = simple_scan (dev, settings, SANE_FALSE, &second_line);
+      status =
+	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, &second_line);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3535,7 +3540,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	  || (average[2] < dev->sensor.gain_white_ref)) && (pass < 30))
     {
       /* scan with no move */
-      status = simple_scan (dev, settings, SANE_FALSE, &line);
+      status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, &line);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -4043,18 +4048,26 @@ gl646_init (Genesys_Device * dev)
  * @param dev device of the scanner
  * @param settings parameters of the scan
  * @param move SANE_TRUE if moving during scan
+ * @param move SANE_TRUE if moving forward during scan
  * @param data pointer for the data
  */
 static SANE_Status
 simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
-	     unsigned char **data)
+	     SANE_Bool forward, unsigned char **data)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_INVAL;
   unsigned int size, lines, x, y, bpp;
   SANE_Bool empty;
   unsigned char *buffer;
 
   DBG (DBG_proc, "simple_scan: starting\n");
+
+  /* round up to multiple of 3 in case of CIS scanner */
+  if (dev->model->is_cis == SANE_TRUE)
+    {
+      settings.lines = ((settings.lines + 2) / 3) * 3;
+    }
+
   status = setup_for_scan (dev, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
@@ -4112,6 +4125,14 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 
       /* no automatic go home if no movement */
       dev->reg[reg_0x02].value &= ~REG02_AGOHOME;
+    }
+  if (forward == SANE_FALSE)
+    {
+      dev->reg[reg_0x02].value |= REG02_MTRREV;
+    }
+  else
+    {
+      dev->reg[reg_0x02].value &= ~REG02_MTRREV;
     }
 
   /* write scan registers */
@@ -4460,6 +4481,125 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
+/**
+ * search for a full width black or white strip.
+ * @param dev scanner device
+ * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
+ * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
+ * @return SANE_STATUS_GOOD if a matching strip is found, SANE_STATUS_UNSUPPORTED if not
+ */
+static SANE_Status
+gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Bool half_ccd = SANE_FALSE;
+  Genesys_Settings settings;
+  int res = get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
+  unsigned char *data = NULL;
+  unsigned int pass, count, found, x, y;
+  char titre[80];
+
+  DBG (DBG_proc, "gl646_search_strip: start\n");
+  /* adapt to half_ccd case */
+  if (dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE)
+    {
+      /* walk the master mode list to find if half_ccd */
+      if (is_half_ccd (dev->model->ccd_type, res, SANE_TRUE) == SANE_TRUE)
+	{
+	  half_ccd = SANE_TRUE;
+	}
+    }
+
+  /* we set up for a lowest available resolution color grey scan, full width */
+  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_mode = SCAN_MODE_GRAY;
+  settings.xres = res;
+  settings.yres = res;
+  settings.tl_x = 0;
+  settings.tl_y = 0;
+  settings.pixels =
+    (dev->sensor.sensor_pixels * res) / dev->sensor.optical_res;
+  if (half_ccd == SANE_TRUE)
+    {
+      settings.pixels /= 2;
+    }
+  /* 15 mm at at time */
+  settings.lines = (15 * settings.yres) / MM_PER_INCH;	/* may become a parameter from genesys_devices.c */
+  settings.depth = 8;
+  settings.color_filter = 0;
+
+  settings.disable_interpolation = 0;
+  settings.threshold = 0;
+  settings.exposure_time = 0;
+
+  /* signals if a strip of the given color has been found */
+  found = 0;
+
+  /* detection pass done */
+  pass = 0;
+
+  /* loop until strip is found or maximum pass number done */
+  while (pass < 20 && !found)
+    {
+      /* scan a full width strip */
+      status = simple_scan (dev, settings, SANE_TRUE, forward, &data);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_search_strip: simple_scan failed\n");
+	  free (data);
+	  return status;
+	}
+      if (DBG_LEVEL >= DBG_data)
+	{
+	  sprintf (titre, "search_strip%02d.pnm", pass);
+	  sanei_genesys_write_pnm_file (titre, data, settings.depth, 1,
+					settings.pixels, settings.lines);
+	}
+
+      /* search data to find black strip */
+      for (y = 0; y < settings.lines && !found; y++)
+	{
+	  /* count of white/black pixels depending on the color searched */
+	  count = 0;
+	  for (x = 0; x < settings.pixels; x++)
+	    {
+	      /* when searching for black, detect white pixels */
+	      if (black && data[y * settings.pixels + x] > 60)
+		{
+		  count++;
+		}
+	      /* when searching for white, detect black pixels */
+	      if (!black && data[y * settings.pixels + x] < 60)
+		{
+		  count++;
+		}
+	    }
+	  /* at end of line, if count >0, line is not fully of the desired color
+	   * so we must go to next line of the buffer */
+	  if (count == 0)
+	    {
+	      found = 1;
+	      DBG (DBG_data,
+		   "gl646_search_strip: strip found during pass %d at line %d\n",
+		   pass, y);
+	    }
+	}
+      free (data);
+      pass++;
+    }
+  if (found)
+    {
+      status = SANE_STATUS_GOOD;
+      DBG (DBG_info, "gl646_search_strip: strip found\n");
+    }
+  else
+    {
+      status = SANE_STATUS_UNSUPPORTED;
+      DBG (DBG_info, "gl646_search_strip: strip not found\n");
+    }
+  return status;
+}
+
 /** the gl646 command set */
 static Genesys_Command_Set gl646_cmd_set = {
   "gl646-generic",		/* the name of this set */
@@ -4505,9 +4645,11 @@ static Genesys_Command_Set gl646_cmd_set = {
 
   gl646_update_hardware_sensors,
 
+  /* sheetfed related functions */
   gl646_load_document,
   gl646_detect_document_end,
   gl646_eject_document,
+  gl646_search_strip,
 
   gl646_is_compatible_calibration
 };

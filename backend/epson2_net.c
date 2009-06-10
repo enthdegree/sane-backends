@@ -97,8 +97,7 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 	if (size == wanted) {
 
 		DBG(15, "%s: full read\n", __func__);
-		/* read = sanei_tcp_read(s->fd, buf, size); */
-		read = recv(s->fd, buf, size, MSG_WAITALL); /* XXX temporary */
+		read = sanei_tcp_read(s->fd, buf, size);
 
 		if (s->netbuf) {
 			free(s->netbuf);

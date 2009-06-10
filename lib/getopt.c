@@ -61,11 +61,6 @@
 # endif
 #endif
 
-/* For Sane, always compile this */
-#if defined ELIDE_CODE
-#undef ELIDE_CODE
-#endif
-
 #ifndef ELIDE_CODE
 
 
@@ -118,7 +113,7 @@
    GNU application programs can use a third alternative mode in which
    they can distinguish the relative order of options and other arguments.  */
 
-#include "../include/getopt.h"
+#include "../include/lgetopt.h"
 
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,

@@ -106,5 +106,14 @@ sanei_tcp_write(int fd, const u_char * buf, int count)
 ssize_t
 sanei_tcp_read(int fd, u_char * buf, int count)
 {
-	return recv(fd, buf, count, 0);
+        ssize_t bytes_recv = 0, rc = 1;
+
+	while (bytes_recv < count && rc > 0)
+	{
+		rc = recv(fd, buf+bytes_recv, count-bytes_recv, 0);
+		if (rc > 0)
+		  bytes_recv += rc;
+
+	}
+	return bytes_recv;
 }

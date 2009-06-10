@@ -27,7 +27,7 @@
 #ifdef _LIBC
 # include <getopt.h>
 #else
-# include "getopt.h"
+# include "../include/lgetopt.h"
 #endif
 
 #if !defined __STDC__ || !__STDC__
@@ -54,11 +54,6 @@
 #if _GNU_GETOPT_INTERFACE_VERSION == GETOPT_INTERFACE_VERSION
 #define ELIDE_CODE
 #endif
-#endif
-
-/* Always compile for Sane */
-#if defined ELIDE_CODE
-#undef ELIDE_CODE
 #endif
 
 #ifndef ELIDE_CODE

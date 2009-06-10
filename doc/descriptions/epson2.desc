@@ -6,6 +6,8 @@
 ;
 ; This file is derived from epkowa.desc, Copyright (C) Olaf Meeuwissen,
 ; distributed with "Image Scan!" and released under GPL.
+;
+; DO NOT EDIT - It's automatically generated.
 
 :backend "epson2"
 :version "1.0.121"
@@ -16,7 +18,6 @@
 
 :mfg "Epson"
 :url "http://www.epson.com/"
-
 
 
 :model      "Actionscanner II"
@@ -35,7 +36,7 @@
 :interface  "USB Network"
 :usbid      "0x04b8" "0x0815"
 :status     :good
-:comment    "network interface probably supported<br>AcuLaser CX11 with network interface and fax"
+:comment    "network interface supported<br>AcuLaser CX11 with network interface and fax"
 
 :model      "AcuLaser CX21"
 :interface  "USB"
@@ -47,7 +48,7 @@
 :interface  "USB Network"
 :usbid      "0x04b8" "0x0846"
 :status     :good
-:comment    "network interface probably supported<br>all-in-one<br>overseas version of the EP-801A"
+:comment    "network interface supported<br>all-in-one<br>overseas version of the EP-801A"
 
 :model      "Artisan 800"
 :interface  "USB"
@@ -86,10 +87,10 @@
 :comment    "all-in-one"
 
 :model      "EP-801A"
-:interface  "USB"
+:interface  "USB Network"
 :usbid      "0x04b8" "0x0846"
 :status     :good
-:comment    "network interface probably supported<br>all-in-one"
+:comment    "network interface supported<br>all-in-one"
 
 :model      "EP-901A"
 :interface  "USB"
@@ -662,10 +663,10 @@
 :comment    "business all-in-one; scanner is a ES-9000H"
 
 :model      "LP-A500"
-:interface  "USB"
+:interface  "USB Network"
 :usbid      "0x04b8" "0x0815"
 :status     :good
-:comment    "network interface probably supported<br>business all-in-one"
+:comment    "network interface supported<br>business all-in-one"
 
 :model      "LP-M5000"
 :interface  "USB"
@@ -1538,7 +1539,7 @@
 :interface  "USB Network"
 :usbid      "0x04b8" "0x0846"
 :status     :good
-:comment    "network interface probably supported<br>all-in-one<br>overseas version of the EP-801A"
+:comment    "network interface supported<br>all-in-one<br>overseas version of the EP-801A"
 
 :model      "Stylus Photo PX800FW"
 :interface  "USB"

@@ -1,3 +1,7 @@
+2009-06-13  Alex Belkin <abc at telekom.ru>
+	* backend/xerox_mfp.conf.in, doc/descriptions/xerox_mfp.desc: usbids
+	for some Samsung devices.
+
 2009-06-09 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* sanei/sanie_tcp.c, backend/epson2_net.c: Update
 	sanei_tcp_read() to better simulate old behavior of

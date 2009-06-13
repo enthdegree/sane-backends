@@ -5,3 +5,16 @@ usb 0x413c 0x5124
 
 #Xerox Phaser 6110MFP
 usb 0x0924 0x3d5d
+
+#Samsung CLX-3170fn
+usb 0x04e8 0x342a
+
+#Samsung SCX-4200
+usb 0x04e8 0x341b
+
+#Samsung SCX4725-FN
+usb 0x04e8 0x341f
+
+#Samsung SCX-4500
+usb 0x04e8 0x3426
+

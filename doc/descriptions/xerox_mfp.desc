@@ -1,7 +1,6 @@
 :backend "xerox_mfp"
-:version "1.0-9"
+:version "1.0-10"
 :manpage "sane-xerox_mfp"
-:comment "Could be compatible with other Samsung manufactured devices"
 :devicetype :scanner
 
 :mfg "Xerox"
@@ -10,9 +9,8 @@
 :model "Phaser 3200MFP"
 :interface "USB"
 :usbid "0x0924" "0x3da4"
-:status :good
+:status :complete
 :url "http://www.office.xerox.com/multifunction-printer/multifunction-under-30ppm/phaser-3200mfp/spec-enus.html"
-:comment "All features of device I know of"
 
 :model "Phaser 6110MFP"
 :interface "USB"
@@ -25,5 +23,28 @@
 :model "Dell MFP Laser Printer 1815dn"
 :interface "USB"
 :usbid "0x413c" "0x5124"
+:status :good
+
+:mfg "Samsung"
+:url "http://www.samsung.com"
+
+:model "CLX-3170fn"
+:intrface "USB"
+:usbid "0x04e8" "0x342a"
+:status :good
+
+:model "SCX-4200"
+:intrface "USB"
+:usbid "0x04e8" "0x341b"
+:status :good
+
+:model "SCX4725-FN"
+:intrface "USB"
+:usbid "0x04e8" "0x341f"
+:status :good
+
+:model "SCX-4500"
+:intrface "USB"
+:usbid "0x04e8" "0x3426"
 :status :good
 

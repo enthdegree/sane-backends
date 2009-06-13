@@ -29,22 +29,22 @@
 :url "http://www.samsung.com"
 
 :model "CLX-3170fn"
-:intrface "USB"
+:interface "USB"
 :usbid "0x04e8" "0x342a"
 :status :good
 
 :model "SCX-4200"
-:intrface "USB"
+:interface "USB"
 :usbid "0x04e8" "0x341b"
 :status :good
 
 :model "SCX4725-FN"
-:intrface "USB"
+:interface "USB"
 :usbid "0x04e8" "0x341f"
 :status :good
 
 :model "SCX-4500"
-:intrface "USB"
+:interface "USB"
 :usbid "0x04e8" "0x3426"
 :status :good
 

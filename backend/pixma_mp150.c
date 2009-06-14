@@ -841,7 +841,9 @@ wait_until_ready (pixma_t * s)
       WAIT_INTERRUPT (1000);
       if (mp->generation == 3)
         RET_IF_ERR (query_status_3 (s));
-      else if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID)
+      else if (s->cfg->pid == MP600_PID || 
+               s->cfg->pid == MP600R_PID ||  
+               s->cfg->pid == MP800R_PID)
         RET_IF_ERR (query_status (s));
       if (--tmo == 0)
         {

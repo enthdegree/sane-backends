@@ -324,8 +324,8 @@
 :model "imageCLASS MF5770"
 :interface "USB"
 :usbid "0x04a9" "0x265f"
-:status :untested
-:comment "Testers needed!"
+:status :good
+:comment "All resolutions supported (up to 600DPI) in color. Grayscale not working yet in preview (75 dpi capable ?)."
 
 :model "imageCLASS MF3110"
 :interface "USB"

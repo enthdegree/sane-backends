@@ -1,3 +1,8 @@
+2009-06-14  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Thanks to Vladimir Andreev patch, fix network scan for MP800R.
+	Documentation updates for latest MF5770 changes.
+
 2009-06-13  Alex Belkin <abc at telekom.ru>
 	* backend/xerox_mfp.conf.in, doc/descriptions/xerox_mfp.desc: usbids
 	for some Samsung devices.

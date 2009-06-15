@@ -137,12 +137,6 @@ static EpsonCmdRec epson_cmd[] = {
 
 extern struct mode_param mode_params[];
 
-/* Define the different scan sources */
-
-#define FBF_STR	SANE_I18N("Flatbed")
-#define TPU_STR	SANE_I18N("Transparency Unit")
-#define ADF_STR	SANE_I18N("Automatic Document Feeder")
-
 /*
  * source list need one dummy entry (save device settings is crashing).
  * NOTE: no const - this list gets created while exploring the capabilities

@@ -88,23 +88,17 @@ struct mode_param mode_params[] = {
 };
 
 static const SANE_String_Const mode_list[] = {
-	SANE_I18N("Binary"),
-	SANE_I18N("Gray"),
-	SANE_I18N("Color"),
+	"Binary",
+	"Gray",
+	"Color",
 	NULL
 };
 
 static const SANE_String_Const adf_mode_list[] = {
-	SANE_I18N("Simplex"),
-	SANE_I18N("Duplex"),
+	"Simplex",
+	"Duplex",
 	NULL
 };
-
-/* Define the different scan sources */
-
-#define FBF_STR	SANE_I18N("Flatbed")
-#define TPU_STR	SANE_I18N("Transparency Unit")
-#define ADF_STR	SANE_I18N("Automatic Document Feeder")
 
 /*
  * source list need one dummy entry (save device settings is crashing).
@@ -120,16 +114,16 @@ SANE_String_Const source_list[] = {
 };
 
 static const SANE_String_Const film_list[] = {
-	SANE_I18N("Positive Film"),
-	SANE_I18N("Negative Film"),
-	SANE_I18N("Positive Slide"),
-	SANE_I18N("Negative Slide"),
+	"Positive Film",
+	"Negative Film",
+	"Positive Slide",
+	"Negative Slide",
 	NULL
 };
 
 static const SANE_String_Const focus_list[] = {
-	SANE_I18N("Focus on glass"),
-	SANE_I18N("Focus 2.5mm above glass"),
+	"Focus on glass",
+	"Focus 2.5mm above glass",
 	NULL
 };
 
@@ -151,45 +145,45 @@ const int halftone_params[] = {
 };
 
 static const SANE_String_Const halftone_list[] = {
-	SANE_I18N("None"),
-	SANE_I18N("Halftone A (Hard Tone)"),
-	SANE_I18N("Halftone B (Soft Tone)"),
-	SANE_I18N("Halftone C (Net Screen)"),
+	"None",
+	"Halftone A (Hard Tone)",
+	"Halftone B (Soft Tone)",
+	"Halftone C (Net Screen)",
 	NULL
 };
 
 static const SANE_String_Const halftone_list_4[] = {
-	SANE_I18N("None"),
-	SANE_I18N("Halftone A (Hard Tone)"),
-	SANE_I18N("Halftone B (Soft Tone)"),
-	SANE_I18N("Halftone C (Net Screen)"),
-	SANE_I18N("Dither A (4x4 Bayer)"),
-	SANE_I18N("Dither B (4x4 Spiral)"),
-	SANE_I18N("Dither C (4x4 Net Screen)"),
-	SANE_I18N("Dither D (8x4 Net Screen)"),
+	"None",
+	"Halftone A (Hard Tone)",
+	"Halftone B (Soft Tone)",
+	"Halftone C (Net Screen)",
+	"Dither A (4x4 Bayer)",
+	"Dither B (4x4 Spiral)",
+	"Dither C (4x4 Net Screen)",
+	"Dither D (8x4 Net Screen)",
 	NULL
 };
 
 static const SANE_String_Const halftone_list_7[] = {
-	SANE_I18N("None"),
-	SANE_I18N("Halftone A (Hard Tone)"),
-	SANE_I18N("Halftone B (Soft Tone)"),
-	SANE_I18N("Halftone C (Net Screen)"),
-	SANE_I18N("Dither A (4x4 Bayer)"),
-	SANE_I18N("Dither B (4x4 Spiral)"),
-	SANE_I18N("Dither C (4x4 Net Screen)"),
-	SANE_I18N("Dither D (8x4 Net Screen)"),
-	SANE_I18N("Text Enhanced Technology"),
-	SANE_I18N("Download pattern A"),
-	SANE_I18N("Download pattern B"),
+	"None",
+	"Halftone A (Hard Tone)",
+	"Halftone B (Soft Tone)",
+	"Halftone C (Net Screen)",
+	"Dither A (4x4 Bayer)",
+	"Dither B (4x4 Spiral)",
+	"Dither C (4x4 Net Screen)",
+	"Dither D (8x4 Net Screen)",
+	"Text Enhanced Technology",
+	"Download pattern A",
+	"Download pattern B",
 	NULL
 };
 
 static const SANE_String_Const dropout_list[] = {
-	SANE_I18N("None"),
-	SANE_I18N("Red"),
-	SANE_I18N("Green"),
-	SANE_I18N("Blue"),
+	"None",
+	"Red",
+	"Green",
+	"Blue",
 	NULL
 };
 
@@ -203,12 +197,12 @@ static const SANE_Bool color_userdefined[] = {
 };
 
 static const SANE_String_Const color_list[] = {
-	SANE_I18N("No Correction"),
-	SANE_I18N("User defined"),
-	SANE_I18N("Impact-dot printers"),
-	SANE_I18N("Thermal printers"),
-	SANE_I18N("Ink-jet printers"),
-	SANE_I18N("CRT monitors"),
+	"No Correction",
+	"User defined",
+	"Impact-dot printers",
+	"Thermal printers",
+	"Ink-jet printers",
+	"CRT monitors",
 	NULL
 };
 
@@ -228,11 +222,11 @@ static int gamma_params_ab[] = {
 };
 
 static const SANE_String_Const gamma_list_ab[] = {
-	SANE_I18N("Default"),
-	SANE_I18N("User defined"),
-	SANE_I18N("High density printing"),
-	SANE_I18N("Low density printing"),
-	SANE_I18N("High contrast printing"),
+	"Default",
+	"User defined",
+	"High density printing",
+	"Low density printing",
+	"High contrast printing",
 	NULL
 };
 
@@ -250,8 +244,8 @@ static int gamma_params_d[] = {
 };
 
 static const SANE_String_Const gamma_list_d[] = {
-	SANE_I18N("User defined (Gamma=1.0)"),
-	SANE_I18N("User defined (Gamma=1.8)"),
+	"User defined (Gamma=1.0)",
+	"User defined (Gamma=1.8)",
 	NULL
 };
 
@@ -982,7 +976,7 @@ init_options(Epson_Scanner *s)
 	/* halftone */
 	s->opt[OPT_HALFTONE].name = SANE_NAME_HALFTONE;
 	s->opt[OPT_HALFTONE].title = SANE_TITLE_HALFTONE;
-	s->opt[OPT_HALFTONE].desc = SANE_I18N("Selects the halftone.");
+	s->opt[OPT_HALFTONE].desc = SANE_I18N("Selects the halftone");
 
 	s->opt[OPT_HALFTONE].type = SANE_TYPE_STRING;
 	s->opt[OPT_HALFTONE].size = max_string_size(halftone_list_7);
@@ -1004,7 +998,7 @@ init_options(Epson_Scanner *s)
 	/* dropout */
 	s->opt[OPT_DROPOUT].name = "dropout";
 	s->opt[OPT_DROPOUT].title = SANE_I18N("Dropout");
-	s->opt[OPT_DROPOUT].desc = SANE_I18N("Selects the dropout.");
+	s->opt[OPT_DROPOUT].desc = SANE_I18N("Selects the dropout");
 
 	s->opt[OPT_DROPOUT].type = SANE_TYPE_STRING;
 	s->opt[OPT_DROPOUT].size = max_string_size(dropout_list);
@@ -1016,7 +1010,7 @@ init_options(Epson_Scanner *s)
 	/* brightness */
 	s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
 	s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
-	s->opt[OPT_BRIGHTNESS].desc = SANE_I18N("Selects the brightness.");
+	s->opt[OPT_BRIGHTNESS].desc = SANE_I18N("Selects the brightness");
 
 	s->opt[OPT_BRIGHTNESS].type = SANE_TYPE_INT;
 	s->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_NONE;
@@ -1042,9 +1036,9 @@ init_options(Epson_Scanner *s)
 		s->opt[OPT_SHARPNESS].cap |= SANE_CAP_INACTIVE;
 
 	/* gamma */
-	s->opt[OPT_GAMMA_CORRECTION].name = SANE_NAME_GAMMA_CORRECTION;
-	s->opt[OPT_GAMMA_CORRECTION].title = SANE_TITLE_GAMMA_CORRECTION;
-	s->opt[OPT_GAMMA_CORRECTION].desc = SANE_DESC_GAMMA_CORRECTION;
+	s->opt[OPT_GAMMA_CORRECTION].name = "gamma-correction";
+	s->opt[OPT_GAMMA_CORRECTION].title = SANE_I18N("Gamma Correction");
+	s->opt[OPT_GAMMA_CORRECTION].desc = SANE_I18N("Selects the gamma correction value from a list of pre-defined devices or the user defined table, which can be downloaded to the scanner");
 
 	s->opt[OPT_GAMMA_CORRECTION].type = SANE_TYPE_STRING;
 	s->opt[OPT_GAMMA_CORRECTION].constraint_type =
@@ -1166,7 +1160,7 @@ init_options(Epson_Scanner *s)
 	s->opt[OPT_COLOR_CORRECTION].title = SANE_I18N("Color correction");
 	s->opt[OPT_COLOR_CORRECTION].desc =
 		SANE_I18N
-		("Sets the color correction table for the selected output device.");
+		("Sets the color correction table for the selected output device");
 
 	s->opt[OPT_COLOR_CORRECTION].type = SANE_TYPE_STRING;
 	s->opt[OPT_COLOR_CORRECTION].size = 32;
@@ -1316,7 +1310,7 @@ init_options(Epson_Scanner *s)
 	/* mirror */
 	s->opt[OPT_MIRROR].name = "mirror";
 	s->opt[OPT_MIRROR].title = SANE_I18N("Mirror image");
-	s->opt[OPT_MIRROR].desc = SANE_I18N("Mirror the image.");
+	s->opt[OPT_MIRROR].desc = SANE_I18N("Mirror the image");
 
 	s->opt[OPT_MIRROR].type = SANE_TYPE_BOOL;
 	s->val[OPT_MIRROR].w = SANE_FALSE;
@@ -1447,9 +1441,9 @@ init_options(Epson_Scanner *s)
 		s->opt[OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;
 
 	/* focus position */
-	s->opt[OPT_FOCUS].name = SANE_EPSON_FOCUS_NAME;
-	s->opt[OPT_FOCUS].title = SANE_EPSON_FOCUS_TITLE;
-	s->opt[OPT_FOCUS].desc = SANE_EPSON_FOCUS_DESC;
+	s->opt[OPT_FOCUS].name = "focus-position";
+	s->opt[OPT_FOCUS].title = SANE_I18N("Focus Position");
+	s->opt[OPT_FOCUS].desc = SANE_I18N("Sets the focus position to either the glass or 2.5mm above the glass");
 	s->opt[OPT_FOCUS].type = SANE_TYPE_STRING;
 	s->opt[OPT_FOCUS].size = max_string_size(focus_list);
 	s->opt[OPT_FOCUS].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -1512,10 +1506,9 @@ init_options(Epson_Scanner *s)
 	if (!s->hw->cmd->set_bay)
 		s->opt[OPT_BAY].cap |= SANE_CAP_INACTIVE;
 
-
-	s->opt[OPT_WAIT_FOR_BUTTON].name = SANE_EPSON_WAIT_FOR_BUTTON_NAME;
-	s->opt[OPT_WAIT_FOR_BUTTON].title = SANE_EPSON_WAIT_FOR_BUTTON_TITLE;
-	s->opt[OPT_WAIT_FOR_BUTTON].desc = SANE_EPSON_WAIT_FOR_BUTTON_DESC;
+	s->opt[OPT_WAIT_FOR_BUTTON].name = "wait-for-button";
+	s->opt[OPT_WAIT_FOR_BUTTON].title = SANE_I18N("Wait for button");
+	s->opt[OPT_WAIT_FOR_BUTTON].desc = SANE_I18N("After sending the scan command, wait until the button on the scanner is pressed");
 
 	s->opt[OPT_WAIT_FOR_BUTTON].type = SANE_TYPE_BOOL;
 	s->opt[OPT_WAIT_FOR_BUTTON].unit = SANE_UNIT_NONE;

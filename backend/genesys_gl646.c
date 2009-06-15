@@ -941,10 +941,12 @@ gl646_setup_registers (Genesys_Device * dev,
      linecnt = (1000 * motor->ydpi) / MM_PER_INCH;
      } */
 
-  /* CIS scanners read one line per color channel */
+  /* CIS scanners read one line per color channel
+   * since gray mode use 'add' we also read 3 channels even not in
+   * color mode */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      linecnt *= channels;
+      linecnt *= 3;
     }
   gl646_set_triple_reg (regs, REG_LINCNT, linecnt);
 
@@ -2547,7 +2549,7 @@ static SANE_Status
 gl646_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop)
 {
-  return end_scan (dev, reg, check_stop, SANE_TRUE);
+  return end_scan (dev, reg, check_stop, SANE_FALSE);
 }
 
 /**
@@ -4228,6 +4230,10 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	}
       free (buffer);
     }
+ 
+  /* put back real line number in settings */
+  /* XXX STEF XXX */
+  settings.lines = lines;
 
   /* end scan , waiting the motor to stop if needed (if moving), but without ejecting doc */
   status = end_scan (dev, dev->reg, SANE_TRUE, SANE_FALSE);
@@ -4497,7 +4503,7 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   int res = get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
   unsigned char *data = NULL;
   unsigned int pass, count, found, x, y;
-  char titre[80];
+  char title[80];
 
   DBG (DBG_proc, "gl646_search_strip: start\n");
   /* adapt to half_ccd case */
@@ -4517,12 +4523,12 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   settings.yres = res;
   settings.tl_x = 0;
   settings.tl_y = 0;
-  settings.pixels =
-    (dev->sensor.sensor_pixels * res) / dev->sensor.optical_res;
+  settings.pixels = (SANE_UNFIX (dev->model->x_size) * res)  / MM_PER_INCH;
   if (half_ccd == SANE_TRUE)
     {
       settings.pixels /= 2;
     }
+
   /* 15 mm at at time */
   settings.lines = (15 * settings.yres) / MM_PER_INCH;	/* may become a parameter from genesys_devices.c */
   settings.depth = 8;
@@ -4551,8 +4557,8 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	}
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (titre, "search_strip%02d.pnm", pass);
-	  sanei_genesys_write_pnm_file (titre, data, settings.depth, 1,
+	  sprintf (title, "search_strip_%s%02d.pnm", forward ? "fwd" : "bwd", pass);
+	  sanei_genesys_write_pnm_file (title, data, settings.depth, 1,
 					settings.pixels, settings.lines);
 	}
 
@@ -4574,6 +4580,7 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 		  count++;
 		}
 	    }
+
 	  /* at end of line, if count >0, line is not fully of the desired color
 	   * so we must go to next line of the buffer */
 	  if (count == 0)

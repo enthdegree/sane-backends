@@ -312,7 +312,6 @@ struct Epson_Scanner
   SANE_Bool eof;
   SANE_Byte *buf, *end, *ptr;
   SANE_Bool canceling;
-  SANE_Bool invert_image;
   SANE_Bool focusOnGlass;
   SANE_Byte currentFocusPosition;
 /*	SANE_Word gamma_table [ 4] [ 256]; */

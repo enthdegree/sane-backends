@@ -171,14 +171,6 @@ static const int color_params[] = {
 	0x80
 };
 
-/* used for several boolean choices */
-static int switch_params[] = {
-	0,
-	1
-};
-
-#define mirror_params switch_params
-
 static const SANE_Range outline_emphasis_range = { -2, 2, 0 };
 
 
@@ -895,16 +887,11 @@ e2_set_extended_scanning_parameters(Epson_Scanner * s)
 
 	/* ESC K, set data order / mirroring */
 	if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_MIRROR].cap))
-		buf[36] = mirror_params[s->val[OPT_MIRROR].w];
-
-	s->invert_image = SANE_FALSE;	/* default: do no invert the image */
+		buf[36] = s->val[OPT_MIRROR].w;
 
 	/* ESC N, film type */
-	if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_FILM_TYPE].cap)) {
-		s->invert_image =
-			(s->val[OPT_FILM_TYPE].w == FILM_TYPE_NEGATIVE);
+	if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_FILM_TYPE].cap))
 		buf[37] = film_params[s->val[OPT_FILM_TYPE].w];
-	}
 
 	/* ESC M, color correction */
 	buf[31] = color_params[s->val[OPT_COLOR_CORRECTION].w];
@@ -1027,14 +1014,10 @@ e2_set_scanning_parameters(Epson_Scanner * s)
 			return status;
 	}
 
-	s->invert_image = SANE_FALSE;	/* default: to not inverting the image */
-
 	if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_FILM_TYPE].cap)) {
-		s->invert_image =
-			(s->val[OPT_FILM_TYPE].w == FILM_TYPE_NEGATIVE);
 		status = esci_set_film_type(s,
-					    film_params[s->val[OPT_FILM_TYPE].
-							w]);
+					film_params[s->val[OPT_FILM_TYPE].w]);
+
 		if (status != SANE_STATUS_GOOD)
 			return status;
 	}
@@ -1108,7 +1091,7 @@ e2_set_scanning_parameters(Epson_Scanner * s)
 
 	/* ESC K, set data order */
 	if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_MIRROR].cap)) {
-		status = esci_mirror_image(s, mirror_params[s->val[OPT_MIRROR].w]);
+		status = esci_mirror_image(s, s->val[OPT_MIRROR].w);
 		if (status != SANE_STATUS_GOOD)
 			return status;
 	}
@@ -1164,23 +1147,20 @@ e2_setup_block_mode(Epson_Scanner * s)
 		    __func__, s->lcount);
 	}
 
-	if (s->lcount >= 255) {
+	if (s->lcount >= 255)
 		s->lcount = 255;
-	}
 
 	/* XXX why this? */
-	if (s->hw->TPU && s->hw->use_extension && s->lcount > 32) {
+	if (s->hw->TPU && s->hw->use_extension && s->lcount > 32)
 		s->lcount = 32;
-	}
 
 	/*
 	 * The D1 series of scanners only allow an even line number
 	 * for bi-level scanning. If a bit depth of 1 is selected, then
 	 * make sure the next lower even number is selected.
 	 */
-	if (s->lcount > 3 && s->lcount % 2) {
+	if (s->lcount > 3 && s->lcount % 2)
 		s->lcount -= 1;
-	}
 
 	DBG(1, "line count is %d\n", s->lcount);
 }
@@ -1369,9 +1349,9 @@ e2_wait_button(Epson_Scanner * s)
 	while (s->hw->wait_for_button == SANE_TRUE) {
 		unsigned char button_status = 0;
 
-		if (s->canceling == SANE_TRUE) {
+		if (s->canceling == SANE_TRUE)
 			s->hw->wait_for_button = SANE_FALSE;
-		}
+
 		/* get the button status from the scanner */
 		else if (esci_request_push_button_status(s, &button_status) ==
 			 SANE_STATUS_GOOD) {
@@ -1585,7 +1565,7 @@ void
 e2_copy_image_data(Epson_Scanner * s, SANE_Byte * data, SANE_Int max_length,
 		   SANE_Int * length)
 {
-	if (!s->block && SANE_FRAME_RGB == s->params.format) {
+	if (!s->block && s->params.format == SANE_FRAME_RGB) {
 
 		max_length /= 3;
 
@@ -1594,56 +1574,24 @@ e2_copy_image_data(Epson_Scanner * s, SANE_Byte * data, SANE_Int max_length,
 
 		*length = 3 * max_length;
 
-		if (s->invert_image == SANE_TRUE) {
-			while (max_length-- != 0) {
-				/* invert the three values */
-				*data++ = (unsigned char) ~(s->ptr[0]);
-				*data++ =
-					(unsigned char) ~(s->
-							  ptr[s->params.
-							      pixels_per_line]);
-				*data++ =
-					(unsigned char) ~(s->
-							  ptr[2 *
-							      s->params.
-							      pixels_per_line]);
-				++s->ptr;
-			}
-		} else {
-			while (max_length-- != 0) {
-				*data++ = s->ptr[0];
-				*data++ = s->ptr[s->params.pixels_per_line];
-				*data++ =
-					s->ptr[2 * s->params.pixels_per_line];
-				++s->ptr;
-			}
+		while (max_length-- != 0) {
+			*data++ = s->ptr[0];
+			*data++ = s->ptr[s->params.pixels_per_line];
+			*data++ = s->ptr[2 * s->params.pixels_per_line];
+			++s->ptr;
 		}
+
 	} else {
 		if (max_length > s->end - s->ptr)
 			max_length = s->end - s->ptr;
 
 		*length = max_length;
 
-		if (1 == s->params.depth) {
-			if (s->invert_image == SANE_TRUE) {
-				while (max_length-- != 0)
-					*data++ = *s->ptr++;
-			} else {
-				while (max_length-- != 0)
-					*data++ = ~*s->ptr++;
-			}
+		if (s->params.depth == 1) {
+			while (max_length-- != 0)
+				*data++ = ~*s->ptr++;
 		} else {
-
-			if (s->invert_image == SANE_TRUE) {
-				int i;
-
-				for (i = 0; i < max_length; i++) {
-					data[i] =
-						(unsigned char) ~(s->ptr[i]);
-				}
-			} else {
-				memcpy(data, s->ptr, max_length);
-			}
+			memcpy(data, s->ptr, max_length);
 			s->ptr += max_length;
 		}
 	}

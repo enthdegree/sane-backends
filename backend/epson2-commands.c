@@ -208,25 +208,11 @@ esci_set_gamma_table(Epson_Scanner * s)
 		}
 	}
 
-	/*
-	 * When handling inverted images, we must also invert the user
-	 * supplied gamma function. This is *not* just 255-gamma -
-	 * this gives a negative image.
-	 */
-
 	for (table = 0; table < 3; table++) {
 		gamma[0] = gamma_cmds[table];
 
-		if (s->invert_image) {
-			for (n = 0; n < 256; ++n) {
-				gamma[n + 1] =
-					255 - s->gamma_table[table][255 - n];
-			}
-		} else {
-			for (n = 0; n < 256; ++n) {
-				gamma[n + 1] = s->gamma_table[table][n];
-			}
-		}
+		for (n = 0; n < 256; ++n)
+			gamma[n + 1] = s->gamma_table[table][n];
 
 		status = e2_cmd_simple(s, params, 2);
 		if (status != SANE_STATUS_GOOD)

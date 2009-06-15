@@ -17,7 +17,7 @@
 
 #define EPSON2_VERSION	1
 #define EPSON2_REVISION	0
-#define EPSON2_BUILD	121
+#define EPSON2_BUILD	122
 
 /* debugging levels:
  *

@@ -258,7 +258,12 @@ static in_port_t data_port_lo;
 static in_port_t data_port_hi;
 
 #ifdef SANED_USES_AF_INDEP
-static struct sockaddr_storage remote_address;
+static union {
+  struct sockaddr_storage ss;
+  struct sockaddr sa;
+  struct sockaddr_in sin;
+  struct sockaddr_in6 sin6;
+} remote_address;
 static int remote_address_len;
 #else
 static struct in_addr remote_address;
@@ -750,15 +755,15 @@ check_host (int fd)
   FILE *fp;
 
   /* Get address of remote host */
-  remote_address_len = sizeof (remote_address);
-  if (getpeername (fd, (struct sockaddr *) &remote_address, (socklen_t *) &remote_address_len) < 0)
+  remote_address_len = sizeof (remote_address.ss);
+  if (getpeername (fd, &remote_address.sa, (socklen_t *) &remote_address_len) < 0)
     {
       DBG (DBG_ERR, "check_host: getpeername failed: %s\n", strerror (errno));
       remote_ip = strdup ("[error]");
       return SANE_STATUS_INVAL;
     }
 
-  err = getnameinfo ((struct sockaddr *) &remote_address, remote_address_len,
+  err = getnameinfo (&remote_address.sa, remote_address_len,
 		     hostname, sizeof (hostname), NULL, 0, NI_NUMERICHOST);
   if (err)
     {
@@ -770,7 +775,7 @@ check_host (int fd)
     remote_ip = strdup (hostname);
 
 #ifdef ENABLE_IPV6
-  sin6 = (struct sockaddr_in6 *) &remote_address;
+  sin6 = &remote_address.sin6;
 
   if (SANE_IN6_IS_ADDR_V4MAPPED (sin6->sin6_addr.s6_addr))
     {
@@ -815,9 +820,9 @@ check_host (int fd)
     }
 #endif /* ENABLE_IPV6 */
 
-  sin = (struct sockaddr_in *) &remote_address;
+  sin = &remote_address.sin;
 
-  switch (SS_FAMILY(remote_address))
+  switch (SS_FAMILY(remote_address.ss))
     {
       case AF_INET:
 	if (IN_LOOPBACK (ntohl (sin->sin_addr.s_addr)))
@@ -995,7 +1000,7 @@ check_host (int fd)
 	    {
 	      if (strchr (config_line, ':') != NULL) /* is a v6 address */
 		{
-		  if (SS_FAMILY(remote_address) == AF_INET6)
+		  if (SS_FAMILY(remote_address.ss) == AF_INET6)
 		    {
 		      if (check_v6_in_range (sin6, config_line, netmask))
 			{
@@ -1021,7 +1026,7 @@ check_host (int fd)
 			sin = (struct sockaddr_in *)res->ai_addr;
 		    }
 
-		  if ((SS_FAMILY(remote_address) == AF_INET) ||
+		  if ((SS_FAMILY(remote_address.ss) == AF_INET) ||
 		      (IPv4map == SANE_TRUE))
 		    {
 		      
@@ -1034,7 +1039,7 @@ check_host (int fd)
 		      else
 			{
 			  /* restore the old sin pointer */
-			  sin = (struct sockaddr_in *)&remote_address;
+			  sin = &remote_address.sin;
 			}
 		      
 		      if (res != NULL)
@@ -1399,7 +1404,14 @@ init (Wire * w)
 static int
 start_scan (Wire * w, int h, SANE_Start_Reply * reply)
 {
-  struct sockaddr_storage ss;
+  union {
+    struct sockaddr_storage ss;
+    struct sockaddr sa;
+    struct sockaddr_in sin;
+#ifdef ENABLE_IPV6
+    struct sockaddr_in6 sin6;
+#endif /* ENABLE_IPV6 */
+  } data_addr;
   struct sockaddr_in *sin;
 #ifdef ENABLE_IPV6
   struct sockaddr_in6 *sin6;
@@ -1411,8 +1423,8 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
 
   be_handle = handle[h].handle;
 
-  len = sizeof (ss);
-  if (getsockname (w->io.fd, (struct sockaddr *) &ss, (socklen_t *) &len) < 0)
+  len = sizeof (data_addr.ss);
+  if (getsockname (w->io.fd, &data_addr.sa, (socklen_t *) &len) < 0)
     {
       DBG (DBG_ERR, "start_scan: failed to obtain socket address (%s)\n",
 	   strerror (errno));
@@ -1420,7 +1432,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
       return -1;
     }
 
-  fd = socket (SS_FAMILY(ss), SOCK_STREAM, 0);
+  fd = socket (SS_FAMILY(data_addr.ss), SOCK_STREAM, 0);
   if (fd < 0)
     {
       DBG (DBG_ERR, "start_scan: failed to obtain data socket (%s)\n",
@@ -1429,14 +1441,14 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
       return -1;
     }
 
-  switch (SS_FAMILY(ss))
+  switch (SS_FAMILY(data_addr.ss))
     {
       case AF_INET:
-	sin = (struct sockaddr_in *) &ss;
+	sin = &data_addr.sin;
 	break;
 #ifdef ENABLE_IPV6
       case AF_INET6:
-	sin6 = (struct sockaddr_in6 *) &ss;
+	sin6 = &data_addr.sin6;
 	break;
 #endif /* ENABLE_IPV6 */
       default:
@@ -1446,7 +1458,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
   /* Try to bind a port between data_port_lo and data_port_hi for the data connection */
   for (data_port = data_port_lo; data_port <= data_port_hi; data_port++)
     {
-      switch (SS_FAMILY(ss))
+      switch (SS_FAMILY(data_addr.ss))
         {
           case AF_INET:
             sin->sin_port = htons(data_port);
@@ -1462,7 +1474,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
 
       DBG (DBG_INFO, "start_scan: trying to bind data port %d\n", data_port);
 
-      ret = bind (fd, (struct sockaddr *) &ss, len);
+      ret = bind (fd, &data_addr.sa, len);
       if (ret == 0)
         break;
     }
@@ -1483,7 +1495,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
       return -1;
     }
 
-  if (getsockname (fd, (struct sockaddr *) &ss, (socklen_t *) &len) < 0)
+  if (getsockname (fd, &data_addr.sa, (socklen_t *) &len) < 0)
     {
       DBG (DBG_ERR, "start_scan: failed to obtain socket address (%s)\n",
 	   strerror (errno));
@@ -1491,15 +1503,15 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
       return -1;
     }
 
-  switch (SS_FAMILY(ss))
+  switch (SS_FAMILY(data_addr.ss))
     {
       case AF_INET:
-	sin = (struct sockaddr_in *) &ss;
+	sin = &data_addr.sin;
 	reply->port = ntohs (sin->sin_port);
 	break;
 #ifdef ENABLE_IPV6
       case AF_INET6:
-	sin6 = (struct sockaddr_in6 *) &ss;
+	sin6 = &data_addr.sin6;
 	reply->port = ntohs (sin6->sin6_port);
 	break;
 #endif /* ENABLE_IPV6 */

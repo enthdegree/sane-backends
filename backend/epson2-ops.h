@@ -19,14 +19,17 @@
 #define FILM_TYPE_NEGATIVE      (1L << 0)
 #define FILM_TYPE_SLIDE         (1L << 1)
 
+#define e2_model(s,m) e2_dev_model((s)->hw,(m))
+
 extern int sanei_scsi_max_request_size;
 extern int *gamma_params;
 
 extern void e2_dev_init(Epson_Device *dev, const char *devname, int conntype);
-extern SANE_Bool e2_model(Epson_Scanner *s, const char *model);
+extern SANE_Status e2_dev_post_init(struct Epson_Device *dev);
+extern SANE_Bool e2_dev_model(Epson_Device *dev, const char *model);
 extern void e2_set_cmd_level(SANE_Handle handle, unsigned char *level);
 extern SANE_Status e2_set_model(Epson_Scanner *s, unsigned char *model, size_t len);
-extern SANE_Status e2_add_resolution(Epson_Scanner *s, int r);
+extern SANE_Status e2_add_resolution(Epson_Device *dev, int r);
 extern void e2_set_fbf_area(Epson_Scanner *s, int x, int y, int unit);
 extern void e2_set_adf_area(struct Epson_Scanner *s, int x, int y, int unit);
 extern void e2_set_tpu_area(struct Epson_Scanner *s, int x, int y, int unit);

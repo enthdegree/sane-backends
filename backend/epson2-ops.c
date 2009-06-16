@@ -208,13 +208,78 @@ e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 	dev->res_list = NULL;
 }
 
-SANE_Bool
-e2_model(Epson_Scanner * s, const char *model)
+SANE_Status
+e2_dev_post_init(struct Epson_Device *dev)
 {
-	if (s->hw->model == NULL)
+	/* If we have been unable to obtain supported resolutions
+	 * due to the fact we are on the network transport,
+	 * add some convenient ones
+	 */
+
+	if (dev->res_list_size == 0 && dev->connection == SANE_EPSON_NET) {
+
+		int val = (dev->dpi_range.min < 150) ? 150 : dev->dpi_range.min;
+
+		DBG(1, "networked scanner, faking resolution list (%d-%d)\n",
+			dev->dpi_range.min, dev->dpi_range.max);
+
+		if (dev->dpi_range.min <= 50)
+			e2_add_resolution(dev, 50);
+
+		if (dev->dpi_range.min <= 75)
+			e2_add_resolution(dev, 75);
+
+		if (dev->dpi_range.min <= 100)
+			e2_add_resolution(dev, 100);
+
+		while (val <= dev->dpi_range.max) {
+			e2_add_resolution(dev, val);
+			val *= 2;
+		}
+	}
+
+	/*
+	 * Copy the resolution list to the resolution_list array so that the frontend can
+	 * display the correct values
+	 */
+
+	dev->resolution_list =
+		malloc((dev->res_list_size + 1) * sizeof(SANE_Word));
+
+	if (dev->resolution_list == NULL) {
+		return SANE_STATUS_NO_MEM;
+	}
+
+	*(dev->resolution_list) = dev->res_list_size;
+	memcpy(&(dev->resolution_list[1]), dev->res_list,
+	       dev->res_list_size * sizeof(SANE_Word));
+
+	/* establish defaults */
+	dev->need_reset_on_source_change = SANE_FALSE;
+
+	if (e2_dev_model(dev, "ES-9000H") || e2_dev_model(dev, "GT-30000")) {
+		dev->cmd->set_focus_position = 0;
+		dev->cmd->feed = 0x19;
+	}
+
+	if (e2_dev_model(dev, "GT-8200") || e2_dev_model(dev, "Perfection1650")
+	    || e2_dev_model(dev, "Perfection1640") || e2_dev_model(dev, "GT-8700")) {
+		dev->cmd->feed = 0;
+		dev->cmd->set_focus_position = 0;
+		dev->need_reset_on_source_change = SANE_TRUE;
+	}
+
+	return SANE_STATUS_GOOD;
+}
+
+
+SANE_Bool
+e2_dev_model(Epson_Device *dev, const char *model)
+{
+	if (dev->model == NULL)
 		return SANE_FALSE;
 
-	if (strncmp(s->hw->model, model, strlen(model)) == 0)
+	if (strncmp(dev->model, model, strlen(model)) == 0)
 		return SANE_TRUE;
 
 	return SANE_FALSE;
@@ -281,10 +346,8 @@ e2_set_model(Epson_Scanner * s, unsigned char *model, size_t len)
 }
 
 SANE_Status
-e2_add_resolution(Epson_Scanner * s, int r)
+e2_add_resolution(Epson_Device *dev, int r)
 {
-	struct Epson_Device *dev = s->hw;
-
 	dev->res_list_size++;
 	dev->res_list = (SANE_Int *) realloc(dev->res_list,
 					     dev->res_list_size *
@@ -391,10 +454,10 @@ e2_fix_up_dpi(Epson_Scanner * s)
 	 */
 
 	if (e2_model(s, "GT-X800") || e2_model(s, "GT-X700")) {
-		status = e2_add_resolution(s, 4800);
-		status = e2_add_resolution(s, 6400);
-		status = e2_add_resolution(s, 9600);
-		status = e2_add_resolution(s, 12800);
+		status = e2_add_resolution(s->hw, 4800);
+		status = e2_add_resolution(s->hw, 6400);
+		status = e2_add_resolution(s->hw, 9600);
+		status = e2_add_resolution(s->hw, 12800);
 	}
 }
 
@@ -451,7 +514,7 @@ e2_discover_capabilities(Epson_Scanner *s)
 			{
 				int val = area[2] << 8 | area[1];
 
-				status = e2_add_resolution(s, val);
+				status = e2_add_resolution(s->hw, val);
 				k = 3;
 				continue;
 			}

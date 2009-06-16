@@ -364,6 +364,7 @@ e2_network_discovery(void)
 
 	char *ip, *query = "EPSONP\x00\xff\x00\x00\x00\x00\x00\x00\x00";
 	unsigned char buf[76];
+	char name[18];
 
 	struct timeval to;
 
@@ -391,8 +392,11 @@ e2_network_discovery(void)
 			DBG(5, " response from %s\n", ip);
 
 			/* minimal check, protocol unknown */
-			if (strncmp((char *) buf, "EPSON", 5) == 0)
-				attach_one_net(ip);
+			if (strncmp((char *) buf, "EPSON", 5) == 0) {
+				strcpy(name, "net:");
+				strcat(name, ip);
+				attach_one_net(name);
+			}
 		}
 	}
 	fcntl(fd, F_SETFL, save_flags);
@@ -424,10 +428,8 @@ open_scanner(Epson_Scanner *s)
 	if (s->hw->connection == SANE_EPSON_NET) {
 		unsigned char buf[5];
 
-		/* Sleep a bit or the network scanner will not be ready */
-		sleep(2);
-
-		status = sanei_tcp_open(s->hw->sane.name, 1865, &s->fd);
+		/* device name has the form net:ipaddr */
+		status = sanei_tcp_open(&s->hw->sane.name[4], 1865, &s->fd);
 		if (status == SANE_STATUS_GOOD) {
 
 			ssize_t read;
@@ -460,13 +462,11 @@ open_scanner(Epson_Scanner *s)
 					 sanei_epson2_scsi_sense_handler,
 					 NULL);
 	else if (s->hw->connection == SANE_EPSON_PIO)
-		status = sanei_pio_open(s->hw->sane.name, &s->fd);
+		/* device name has the form pio:0xnnn */
+		status = sanei_pio_open(&s->hw->sane.name[4], &s->fd);
+
 	else if (s->hw->connection == SANE_EPSON_USB)
 		status = sanei_usb_open(s->hw->sane.name, &s->fd);
-
-	if (status != SANE_STATUS_GOOD)
-		DBG(1, "%s open failed: %s\n", s->hw->sane.name,
-		    sane_strstatus(status));
 
 	if (status == SANE_STATUS_ACCESS_DENIED) {
 		DBG(1, "please check that you have permissions on the device.\n");
@@ -474,7 +474,11 @@ open_scanner(Epson_Scanner *s)
 		DBG(1, "disable any conflicting driver (like usblp).\n");
 	}
 
-	DBG(5, "scanner opened\n");
+	if (status != SANE_STATUS_GOOD) 
+		DBG(1, "%s open failed: %s\n", s->hw->sane.name,
+			sane_strstatus(status));
+	else
+		DBG(5, "scanner opened\n");
 
 	return status;
 }
@@ -596,73 +600,71 @@ detect_usb(struct Epson_Scanner *s)
 	return SANE_STATUS_GOOD;	    
 }
 
-
-
 static int num_devices;		/* number of scanners attached to backend */
 static Epson_Device *first_dev;	/* first EPSON scanner in list */
 
-/* attach device to backend */
-
-static SANE_Status
-attach(const char *name, Epson_Device **devp, int type)
+static struct Epson_Scanner *
+scanner_create(struct Epson_Device *dev, SANE_Status *status)
 {
-	SANE_Status status;
-	Epson_Scanner *s;
-	struct Epson_Device *dev;
-	int port;
-
-	DBG(7, "%s: devname = %s, type = %d\n", __func__, name, type);
-
-	for (dev = first_dev; dev; dev = dev->next) {
-		if (strcmp(dev->sane.name, name) == 0) {
-			if (devp) {
-				*devp = dev;
-			}
-			return SANE_STATUS_GOOD;
-		}
-	}
-
-	/* alloc and clear our device structure */
-	dev = malloc(sizeof(*dev));
-	if (!dev) {
-		DBG(1, "out of memory (line %d)\n", __LINE__);
-		return SANE_STATUS_NO_MEM;
-	}
-	memset(dev, 0x00, sizeof(struct Epson_Device));
-
-	/* check for PIO devices */
-	/* can we convert the device name to an integer? This is only possible
-	   with PIO devices */
-	if (type != SANE_EPSON_NET) {
-		port = atoi(name);
-		if (port != 0)
-			type = SANE_EPSON_PIO;
-	}
-
-	if (strncmp
-	    (name, SANE_EPSON_CONFIG_PIO,
-	     strlen(SANE_EPSON_CONFIG_PIO)) == 0) {
-		/* we have a match for the PIO string and adjust the device name */
-		name += strlen(SANE_EPSON_CONFIG_PIO);
-		name = sanei_config_skip_whitespace(name);
-		type = SANE_EPSON_PIO;
-	}
+	struct Epson_Scanner *s;
 
 	s = malloc(sizeof(struct Epson_Scanner));
-	if (s == NULL)
-		return SANE_STATUS_NO_MEM;
+	if (s == NULL) {
+		*status = SANE_STATUS_NO_MEM;
+		return NULL;
+	}
 
 	memset(s, 0x00, sizeof(struct Epson_Scanner));
 
 	s->fd = -1;
 	s->hw = dev;
 
+	return s;
+}
+
+static struct Epson_Scanner *
+device_detect(const char *name, int type, SANE_Status *status)
+{
+	struct Epson_Scanner *s;
+	struct Epson_Device *dev;
+
+	/* try to find the device in our list */
+	for (dev = first_dev; dev; dev = dev->next) {
+		if (strcmp(dev->sane.name, name) == 0) {
+
+			/* the device might have been just probed,
+			 * sleep a bit.
+			 */
+			if (dev->connection == SANE_EPSON_NET)
+				sleep(1);
+
+			return scanner_create(dev, status);
+		}
+	}
+
+	if (type == SANE_EPSON_NODEV) {
+		*status = SANE_STATUS_INVAL;
+		return NULL;
+	}
+	
+	/* alloc and clear our device structure */
+	dev = malloc(sizeof(*dev));
+	if (!dev) {
+		*status = SANE_STATUS_NO_MEM;
+		return NULL;
+	}
+	memset(dev, 0x00, sizeof(struct Epson_Device));
+
+	s = scanner_create(dev, status);
+	if (s == NULL)
+		return NULL;
+
 	e2_dev_init(dev, name, type);
 
-	status = open_scanner(s);
-	if (status != SANE_STATUS_GOOD) {
+	*status = open_scanner(s);
+	if (*status != SANE_STATUS_GOOD) {
 		free(s);
-		return status;
+		return NULL;
 	}
 
 	/* from now on, close_scanner() must be called */
@@ -670,18 +672,15 @@ attach(const char *name, Epson_Device **devp, int type)
 	/* SCSI and USB requires special care */
 	if (dev->connection == SANE_EPSON_SCSI) {
 
-		status = detect_scsi(s);
+		*status = detect_scsi(s);
 
 	} else if (dev->connection == SANE_EPSON_USB) {
 
-		status = detect_usb(s);
+		*status = detect_usb(s);
 	}
 
-	if (status != SANE_STATUS_GOOD) {
-		close_scanner(s);
-		free(s);
-		return status;
-	}
+	if (*status != SANE_STATUS_GOOD)
+		goto close;
 
 	/* set name and model (if not already set) */
 	if (dev->model == NULL)
@@ -691,123 +690,86 @@ attach(const char *name, Epson_Device **devp, int type)
 	dev->sane.name = dev->name;
 
 	/* ESC @, reset */
-	status = esci_reset(s);
-	if (status != SANE_STATUS_GOOD)
-		goto free;
+	*status = esci_reset(s);
+	if (*status != SANE_STATUS_GOOD)
+		goto close;
 
-	status = e2_discover_capabilities(s);
-	if (status != SANE_STATUS_GOOD)
-		goto free;
+	*status = e2_discover_capabilities(s);
+	if (*status != SANE_STATUS_GOOD)
+		goto close;
 
 	if (source_list[0] == NULL || dev->dpi_range.min == 0) {
 		DBG(1, "something is wrong in the discovery process, aborting.\n");
-		status = SANE_STATUS_IO_ERROR;
-		goto free;
+		*status = SANE_STATUS_IO_ERROR;
+		goto close;
 	}
 
-	/* If we have been unable to obtain supported resolutions
-	 * due to the fact we are on the network transport,
-	 * add some convenient ones
-	 */
+	e2_dev_post_init(dev);
 
-	if (dev->res_list_size == 0 && dev->connection == SANE_EPSON_NET) {
-
-		int val = (dev->dpi_range.min < 150) ? 150 : dev->dpi_range.min;
-
-		DBG(1, "networked scanner, faking resolution list (%d-%d)\n",
-			dev->dpi_range.min, dev->dpi_range.max);
-
-		if (dev->dpi_range.min <= 50)
-			e2_add_resolution(s, 50);
-
-		if (dev->dpi_range.min <= 75)
-			e2_add_resolution(s, 75);
-
-		if (dev->dpi_range.min <= 100)
-			e2_add_resolution(s, 100);
-
-		while (val <= dev->dpi_range.max) {
-			e2_add_resolution(s, val);
-			val *= 2;
-		}
-	}
-
-	/*
-	 * Copy the resolution list to the resolution_list array so that the frontend can
-	 * display the correct values
-	 */
-
-	dev->resolution_list =
-		malloc((dev->res_list_size + 1) * sizeof(SANE_Word));
-
-	if (dev->resolution_list == NULL) {
-		status = SANE_STATUS_NO_MEM;
-		goto free;
-	}
-
-	*(dev->resolution_list) = dev->res_list_size;
-	memcpy(&(dev->resolution_list[1]), dev->res_list,
-	       dev->res_list_size * sizeof(SANE_Word));
-
-	status = esci_reset(s);
-	if (status != SANE_STATUS_GOOD)
-		goto free;
+	*status = esci_reset(s);
+	if (*status != SANE_STATUS_GOOD)
+		goto close;
 
 	DBG(1, "scanner model: %s\n", dev->model);
 
-	/* establish defaults */
-	dev->need_reset_on_source_change = SANE_FALSE;
-
-	if (e2_model(s, "ES-9000H") || e2_model(s, "GT-30000")) {
-		dev->cmd->set_focus_position = 0;
-		dev->cmd->feed = 0x19;
-	}
-
-	if (e2_model(s, "GT-8200") || e2_model(s, "Perfection1650")
-	    || e2_model(s, "Perfection1640") || e2_model(s, "GT-8700")) {
-		dev->cmd->feed = 0;
-		dev->cmd->set_focus_position = 0;
-		dev->need_reset_on_source_change = SANE_TRUE;
-	}
-
-	/* we are done with this one, prepare for the next scanner */
+	/* add this scanner to the device list */
 
 	num_devices++;
 	dev->next = first_dev;
 	first_dev = dev;
 
-	if (devp)
-		*devp = dev;
+	return s;
 
-free:
+close:
+      	close_scanner(s);
+	free(s);
+	return NULL;
+}
+
+
+static SANE_Status
+attach(const char *name, int type)
+{
+	SANE_Status status;
+	Epson_Scanner *s;
+
+	DBG(7, "%s: devname = %s, type = %d\n", __func__, name, type);
+
+	s = device_detect(name, type, &status);
+	if(s == NULL)
+		return status;
+
       	close_scanner(s);
 	free(s);
 	return status;
 }
 
-/*
- * Part of the SANE API: Attaches the scanner with the device name in *dev.
- */
-
 static SANE_Status
 attach_one_scsi(const char *dev)
 {
 	DBG(7, "%s: dev = %s\n", __func__, dev);
-	return attach(dev, 0, SANE_EPSON_SCSI);
+	return attach(dev, SANE_EPSON_SCSI);
 }
 
 SANE_Status
 attach_one_usb(const char *dev)
 {
 	DBG(7, "%s: dev = %s\n", __func__, dev);
-	return attach(dev, 0, SANE_EPSON_USB);
+	return attach(dev, SANE_EPSON_USB);
 }
 
 static SANE_Status
 attach_one_net(const char *dev)
 {
 	DBG(7, "%s: dev = %s\n", __func__, dev);
-	return attach(dev, 0, SANE_EPSON_NET);
+	return attach(dev, SANE_EPSON_NET);
+}
+
+static SANE_Status
+attach_one_pio(const char *dev)
+{
+	DBG(7, "%s: dev = %s\n", __func__, dev);
+	return attach(dev, SANE_EPSON_PIO);
 }
 
 static SANE_Status
@@ -851,6 +813,13 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 			e2_network_discovery();
 		else
 			attach_one_net(name);
+
+	} else if (strncmp(line, "pio", 3) == 0) {
+
+		/* remove the "pio" sub string */
+		const char *name = sanei_config_skip_whitespace(line + 3);
+
+		attach_one_pio(name);
 
 	} else {
 		sanei_config_attach_matching_devices(line, attach_one_scsi);
@@ -1545,51 +1514,81 @@ SANE_Status
 sane_open(SANE_String_Const name, SANE_Handle *handle)
 {
 	SANE_Status status;
-	Epson_Device *dev;
-	Epson_Scanner *s;
+	Epson_Scanner *s = NULL;
+
+	int l = strlen(name);
 
 	DBG(7, "%s: name = %s\n", __func__, name);
 
-	/* do a scan if the devices list is empty */
-	if (first_dev == NULL)
+	/* probe if empty device name provided */
+	if (l == 0) {
+
 		probe_devices();
 
-	/* search for device */
-	if (name[0]) {
-		for (dev = first_dev; dev; dev = dev->next)
-			if (strcmp(dev->sane.name, name) == 0)
-				break;
-	} else
-		dev = first_dev;
+		if (first_dev == NULL) {
+			DBG(1, "no device detected\n");
+			return SANE_STATUS_INVAL;
+		}
 
-	if (!dev) {
-		DBG(1, "error opening the device\n");
-		return SANE_STATUS_INVAL;
+		s = device_detect(first_dev->sane.name, first_dev->connection,
+					&status);
+		if (s == NULL) {
+			DBG(1, "cannot open a perfectly valid device (%s),"
+				" please report to the authors\n", name);
+			return SANE_STATUS_INVAL;
+		}
+
+	} else {
+
+		if (strncmp(name, "net:", 4) == 0) {
+			s = device_detect(name, SANE_EPSON_NET, &status);
+			if (s == NULL)
+				return status;
+		} else if (strncmp(name, "libusb:", 7) == 0) {
+			s = device_detect(name, SANE_EPSON_USB, &status);
+			if (s == NULL)
+				return status;
+		} else if (strncmp(name, "pio:", 4) == 0) {
+			s = device_detect(name, SANE_EPSON_PIO, &status);
+			if (s == NULL)
+				return status;
+		} else {
+		
+			/* as a last resort, check for a match
+			 * in the device list. This should handle SCSI
+			 * devices and platforms without libusb.
+			 */
+			
+			if (first_dev == NULL)
+				probe_devices();
+
+			s = device_detect(name, SANE_EPSON_NODEV, &status);
+			if (s == NULL) {
+				DBG(1, "invalid device name: %s\n", name);
+				return SANE_STATUS_INVAL;
+			}
+		}		
 	}
 
-	s = malloc(sizeof(Epson_Scanner));
-	if (!s) {
-		DBG(1, "out of memory (line %d)\n", __LINE__);
-		return SANE_STATUS_NO_MEM;
-	}
 
-	memset(s, 0x00, sizeof(struct Epson_Scanner));
+	/* s is always valid here */
 
-	s->fd = -1;
-	s->hw = dev;
+	DBG(1, "handle obtained\n");
 
 	init_options(s);
 
 	*handle = (SANE_Handle) s;
 
 	status = open_scanner(s);
-	if (status != SANE_STATUS_GOOD)
+	if (status != SANE_STATUS_GOOD) {
+		free(s);
 		return status;
+	}
 
 	status = esci_reset(s);
 	if (status != SANE_STATUS_GOOD)
-		return status;
-
+		close_scanner(s);
+	
 	return status;
 }
 

@@ -318,7 +318,7 @@ SANE_Status
 e2_set_model(Epson_Scanner * s, unsigned char *model, size_t len)
 {
 	unsigned char *buf;
-	char *p;
+	unsigned char *p;
 	struct Epson_Device *dev = s->hw;
 
 	buf = malloc(len + 1);
@@ -328,9 +328,12 @@ e2_set_model(Epson_Scanner * s, unsigned char *model, size_t len)
 	memcpy(buf, model, len);
 	buf[len] = '\0';
 
-	p = strchr((const char *) buf, ' ');
-	if (p != NULL)
+	p = &buf[len - 1];
+
+	while (*p == ' ') {
 		*p = '\0';
+		p--;
+	}
 
 	if (dev->model)
 		free(dev->model);

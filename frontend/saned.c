@@ -262,7 +262,9 @@ static union {
   struct sockaddr_storage ss;
   struct sockaddr sa;
   struct sockaddr_in sin;
+#ifdef ENABLE_IPV6
   struct sockaddr_in6 sin6;
+#endif
 } remote_address;
 static int remote_address_len;
 #else

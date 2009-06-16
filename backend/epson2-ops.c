@@ -1130,8 +1130,6 @@ e2_setup_block_mode(Epson_Scanner * s)
 		maxreq = sanei_scsi_max_request_size;
 	else if (s->hw->connection == SANE_EPSON_USB)
 		maxreq = 128 * 1024;
-	else if (s->hw->connection == SANE_EPSON_NET)
-		maxreq = 128 * 1024;
 	else
 		maxreq = 32 * 1024;
 

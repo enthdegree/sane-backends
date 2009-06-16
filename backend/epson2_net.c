@@ -55,7 +55,8 @@ int
 sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 		       SANE_Status * status)
 {
-	size_t size, read = 0;
+	size_t size;
+	ssize_t read = 0;
 	unsigned char header[12];
 
 	/* read from buffer, if available */
@@ -79,7 +80,11 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 	}
 
 	/* receive net header */
-	sanei_tcp_read(s->fd, header, 12);
+	size = sanei_tcp_read(s->fd, header, 12);
+	if (size != 12) {
+		*status = SANE_STATUS_IO_ERROR;
+		return 0;
+	}
 
 	if (header[0] != 'I' || header[1] != 'S') {
 		DBG(1, "header mismatch: %02X %02x\n", header[0], header[1]);
@@ -104,11 +109,20 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 			s->netbuf = NULL;
 			s->netlen = 0;
 		}
+
+		if (read < 0) {
+			*status = SANE_STATUS_IO_ERROR;
+			return 0;
+		}
 		
 	} else if (wanted < size && s->netlen == size) {
 		DBG(23, "%s: partial read\n", __func__);
 
-		sanei_tcp_read(s->fd, s->netbuf, size);
+		read = sanei_tcp_read(s->fd, s->netbuf, size);
+		if (read < 0) {
+			*status = SANE_STATUS_IO_ERROR;
+			return 0;
+		}
 
 		s->netlen = size - wanted;
 		s->netptr += wanted;

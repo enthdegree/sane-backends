@@ -23,6 +23,7 @@
  *
  *     127	e2_recv buffer
  *     125	e2_send buffer
+ *	32	more network progression
  *	24	network header
  *	23	network info
  *	20	usb cmd counters
@@ -429,13 +430,29 @@ open_scanner(Epson_Scanner *s)
 		status = sanei_tcp_open(s->hw->sane.name, 1865, &s->fd);
 		if (status == SANE_STATUS_GOOD) {
 
+			ssize_t read;
+			struct timeval tv;
+
+			tv.tv_sec = 5;
+			tv.tv_usec = 0;
+
+			setsockopt(s->fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,  sizeof(tv));
+
 			s->netlen = 0;
 
+			DBG(32, "awaiting welcome message\n");
+
 			/* the scanner sends a kind of welcome msg */
-			e2_recv(s, buf, 5, &status);
+			read = e2_recv(s, buf, 5, &status);
+			if (read != 5)
+				return SANE_STATUS_IO_ERROR;
+
+			DBG(32, "welcome message received, locking the scanner...\n");
 
 			/* lock the scanner for use by sane */
 			sanei_epson_net_lock(s);
+
+			DBG(32, "scanner locked\n");
 		}
 		
 	} else if (s->hw->connection == SANE_EPSON_SCSI)
@@ -456,6 +473,8 @@ open_scanner(Epson_Scanner *s)
 		DBG(1, "if this is a multi-function device with a printer,\n");
 		DBG(1, "disable any conflicting driver (like usblp).\n");
 	}
+
+	DBG(5, "scanner opened\n");
 
 	return status;
 }

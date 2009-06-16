@@ -537,6 +537,8 @@ e2_discover_capabilities(Epson_Scanner *s)
 		dev->dpi_range.max = dev->res_list[dev->res_list_size - 1];
 		dev->dpi_range.quant = 0;
 
+		*source_list_add++ = FBF_STR;
+
 		e2_set_fbf_area(s, x, y, dev->dpi_range.max);
 
 		free(buf);

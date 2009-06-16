@@ -519,8 +519,8 @@ sanei_lexmark_low_init (Lexmark_Device * dev)
       dev->shadow_regs[0xc9] = 0x3b;
       dev->shadow_regs[0xed] = 0xc2;
       dev->shadow_regs[0xee] = 0x02;
-      dev->shadow_regs[0xf3] = 0xf8;
-      dev->shadow_regs[0xf4] = 0x7f;
+      dev->shadow_regs[0xf5] = 0xf8;
+      dev->shadow_regs[0xf6] = 0x7f;
       status = SANE_STATUS_GOOD;
       break;
     case X1100_2C_SENSOR:
@@ -1124,8 +1124,8 @@ sanei_lexmark_low_open_device (Lexmark_Device * dev)
   shadow_regs[0xb0] = 0x2c;
   shadow_regs[0x10] = 0x97;
   shadow_regs[0x10] = 0x87;
-  shadow_regs[0xf3] = 0xf8;
-  shadow_regs[0xf4] = 0x7f;
+  shadow_regs[0xf4] = 0xf8;
+  shadow_regs[0xf5] = 0x7f;
 #else
   result = sanei_usb_open (dev->sane.name, &(dev->devnum));
 #endif
@@ -1316,6 +1316,7 @@ low_is_home_line (unsigned char *buffer)
   numero++;
 #endif
 
+  DBG (15, "low_is_home_line: start\n");
   /* Find the max and the min */
   for (i = 0; i < 2500; i++)
     {
@@ -1341,7 +1342,9 @@ low_is_home_line (unsigned char *buffer)
   transition_counter = 0;
 
   /* Go through the check region - bytes 5 to 2495 */
-  for (i = 5; i <= 2495; i++)
+  /* XXX STEF XXX shrink the area to where the dot should be
+   * +-100 around the 1250 expected location */
+  for (i = 1150; i <= 1350; i++)
     {
       /* Check for transition to black */
       if ((region == white) && (*(buffer + i) == 0))
@@ -1354,6 +1357,7 @@ low_is_home_line (unsigned char *buffer)
 	    }
 	  else
 	    {
+              DBG (15, "low_is_home_line: no transition to black \n");
 	      return SANE_FALSE;
 	    }
 	}
@@ -1368,6 +1372,7 @@ low_is_home_line (unsigned char *buffer)
 	    }
 	  else
 	    {
+              DBG (15, "low_is_home_line: no transition to white \n");
 	      return SANE_FALSE;
 	    }
 	}
@@ -1376,6 +1381,7 @@ low_is_home_line (unsigned char *buffer)
   /* Check that the number of transitions is 2 */
   if (transition_counter != 2)
     {
+     DBG (15, "low_is_home_line: transitions!=2 (%d)\n", transition_counter);
       return SANE_FALSE;
     }
 
@@ -1385,6 +1391,7 @@ low_is_home_line (unsigned char *buffer)
 
   if ((index1 < low_range) || (index1 > high_range))
     {
+     DBG (15, "low_is_home_line: index1=%d out of range\n", index1);
       return SANE_FALSE;
     }
 
@@ -1394,12 +1401,13 @@ low_is_home_line (unsigned char *buffer)
 
   if ((index2 < low_range) || (index2 > high_range))
     {
+     DBG (15, "low_is_home_line: index2=%d out of range\n", index2);
       return SANE_FALSE;
     }
 
   /* We made it this far, so its a good home line. Return True */
+  DBG (15, "low_is_home_line: success\n");
   return SANE_TRUE;
-
 }
 
 void

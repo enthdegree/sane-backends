@@ -50,7 +50,7 @@ Feedback in the Sane-dev mailing list welcome.
 .RS
 PIXMA MP740
 .br
-PIXMA MP260
+PIXMA MP260, MX320
 .br
 ImageCLASS MF3110, MF3240
 .br

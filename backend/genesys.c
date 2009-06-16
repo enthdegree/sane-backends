@@ -2974,7 +2974,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   switch (dev->model->ccd_type)
     {
     case CIS_XP200:
-      target_code = 0xfa00;
+      target_code = 0xf000;
       memset (shading_data, 0x00, pixels_per_line * 4 * channels);
       o = 0;
       avgpixels = 1;
@@ -3180,7 +3180,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     }
 
 
-  if (dev->model->is_cis)
+  if (dev->model->is_cis && dev->model->asic_type != GENESYS_GL646)
     status = genesys_send_offset_and_shading (dev, shading_data, 0x1fe00);
   else
     status =
@@ -3690,6 +3690,9 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
+
+  /* save the calibration data */
+  genesys_save_calibration (dev);
 
   /* and finally eject calibration sheet */
   status = dev->model->cmd_set->eject_document (dev);

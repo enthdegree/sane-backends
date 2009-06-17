@@ -73,23 +73,35 @@
 #define SANE_EPSON_CONFIG_PIO "pio"
 #define SANE_EPSON_CONFIG_NET "net"
 
-/* scan sources */
+/* string constants for GUI elements that are not defined SANE-wide */
 
-#define FBF_STR "Flatbed"
-#define TPU_STR "Transparency Unit"
-#define ADF_STR "Automatic Document Feeder"
+#define SANE_NAME_GAMMA_CORRECTION "gamma-correction"
+#define SANE_TITLE_GAMMA_CORRECTION SANE_I18N("Gamma Correction")
+#define SANE_DESC_GAMMA_CORRECTION SANE_I18N("Selects the gamma correction value from a list of pre-defined devices or the user defined table, which can be downloaded to the scanner")
 
-/* misc constants */
+#define SANE_EPSON_FOCUS_NAME "focus-position"
+#define SANE_EPSON_FOCUS_TITLE SANE_I18N("Focus Position")
+#define SANE_EPSON_FOCUS_DESC SANE_I18N("Sets the focus position to either the glass or 2.5mm above the glass")
+#define SANE_EPSON_WAIT_FOR_BUTTON_NAME "wait-for-button"
+#define SANE_EPSON_WAIT_FOR_BUTTON_TITLE SANE_I18N("Wait for Button")
+#define SANE_EPSON_WAIT_FOR_BUTTON_DESC SANE_I18N("After sending the scan command, wait until the button on the scanner is pressed to actually start the scan process.");
+
 
 #define LINES_SHUFFLE_MAX	17	/* 2 x 8 lines plus 1 */
+
 #define SANE_EPSON_MAX_RETRIES	120	/* how often do we retry during warmup ? */
+
+#ifndef MM_PER_INCH
 #define MM_PER_INCH             25.4
+#endif
 
 /* NOTE: you can find these codes with "man ascii". */
 #define STX	0x02
 #define ACK	0x06
 #define NAK	0x15
+#define CAN	0x18
 #define ESC	0x1B
+#define PF	0x19
 #define FS	0x1C
 
 #define	S_ACK	"\006"

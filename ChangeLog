@@ -1,3 +1,8 @@
+2009-06-17  Stéphane Voltz <stef.dev at free.fr>
+	* backend/lexmark_low.c: cleanups, better logging in is_home_line()
+	  and possible fix for bug #311862 by using f4 & f5 registers instead of
+	  f3 & f4
+
 2009-06-16  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	Declared Pixma MX320 in the pixma backend. Yet untested.

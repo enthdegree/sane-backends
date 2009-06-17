@@ -10,7 +10,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to most Fujitsu flatbed and ADF scanners.
 
-This document describes backend version 93, which shipped with SANE 1.0.20.
+This document describes backend version 95, which shipped with SANE 1.0.21cvs.
 
 .SH SUPPORTED HARDWARE
 This version supports every known model which speaks the Fujitsu SCSI and 

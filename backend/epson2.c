@@ -907,7 +907,7 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool __sane_unused__ loc
 
 	DBG(5, "%s - results:\n", __func__);
 
-	for (i = 0, dev = first_dev; i < num_devices; dev = dev->next, i++) {
+	for (i = 0, dev = first_dev; i < num_devices && dev; dev = dev->next, i++) {
 		DBG(1, " %d (%d): %s\n", i, dev->connection, dev->model);
 		devlist[i] = &dev->sane;
 	}

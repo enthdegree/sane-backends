@@ -206,6 +206,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SR_datatype_panel  		0x84
 #define SR_datatype_counters 		0x8c
 #define SR_datatype_endorser            0x90
+#define SR_datatype_fineoffset          0x90
+#define SR_datatype_finegain            0x91
 
 /* ==================================================================== */
 /* READ */
@@ -213,6 +215,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define READ_len                10
 
 #define set_R_datatype_code(sb, val)   sb[0x02] = val
+#define set_R_xfer_uid(sb, val)        sb[4] = val
+#define set_R_xfer_lid(sb, val)        sb[5] = val
 #define set_R_xfer_length(sb, val)     putnbyte(sb + 0x06, val, 3)
 
 /*image needs no macros?*/
@@ -235,6 +239,13 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_R_COUNTERS_scans(in)       getnbyte(in + 0x04, 4)
 
 /*endorser unread?*/
+
+/*fine gain*/
+#define R_FINE_uid_gray           0x07
+#define R_FINE_uid_red            0x0c
+#define R_FINE_uid_green          0x0a
+#define R_FINE_uid_blue           0x09
+#define R_FINE_uid_unknown        0x14
 
 /* ==================================================================== */
 /* SEND */

@@ -219,6 +219,13 @@
          - reset scan params to user request if calibration fails
          - better handling of sane_cancel
          - better handling of errors during sane_start and sane_read
+      v30 2009-06-17, MAN
+         - add fine cal support for machines with internal buffer (2050/2080)
+         - support fixed-width machines that require even bytes per scanline
+         - pad end of scan with gray if scanner stops prematurely
+         - better handling of errors during calibration
+         - cleanup canceling debug messages
+         - remove old cancel() prototype
 
    SANE FLOW DIAGRAM
 
@@ -279,7 +286,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 29
+#define BUILD 30
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1042,10 +1049,10 @@ init_vpd (struct scanner *s)
 
       /* maximum window width and length are reported in basic units.*/
       s->max_x = get_IN_window_width(in) * 1200 / s->basic_x_res;
-      DBG(15, "  max width: %2.2f inches\n",(float)s->max_x/1200);
+      DBG(15, "  max width: %d (%2.2f in)\n",s->max_x,(float)s->max_x/1200);
 
       s->max_y = get_IN_window_length(in) * 1200 / s->basic_y_res;
-      DBG(15, "  max length: %2.2f inches\n",(float)s->max_y/1200);
+      DBG(15, "  max length: %d (%2.2f in)\n",s->max_y,(float)s->max_y/1200);
 
       DBG (15, "  AWD: %d\n", get_IN_awd(in));
       DBG (15, "  CE Emphasis: %d\n", get_IN_ce_emphasis(in));
@@ -1172,9 +1179,11 @@ init_model (struct scanner *s)
     s->can_write_panel = 0;
     s->has_df = 0;
     s->fixed_width = 1;
+    s->even_Bpl = 1;
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+    s->need_fcal_buffer = 1;
 
     /*lies*/
     s->can_halftone=0;
@@ -3000,14 +3009,22 @@ update_params(struct scanner *s)
 
     /*recalculate new params*/
     s->s.width = (s->s.br_x - s->s.tl_x) * s->s.dpi_x / 1200;
+
     /* round down to byte boundary */
     if(s->s.mode < MODE_GRAYSCALE){
       s->s.width -= s->s.width % 8;
     }
 
-    s->s.Bpl = s->s.width * s->s.bpp / 8;
-    s->s.valid_Bpl = s->s.Bpl;
     s->s.valid_width = s->s.width;
+    s->s.valid_Bpl = s->s.valid_width * s->s.bpp / 8;
+
+    /* some machines (DR-2050) require even bytes per scanline */
+    /* increase width and Bpl, but not valid_width and valid_Bpl */
+    if(s->even_Bpl && (s->s.width % 2)){
+      s->s.width++;
+    }
+
+    s->s.Bpl = s->s.width * s->s.bpp / 8;
 
     /* figure out how many valid bytes per line (2510 is padded) */
     if(s->color_interlace[SIDE_FRONT] == COLOR_INTERLACE_2510){
@@ -3080,13 +3097,20 @@ sane_start (SANE_Handle handle)
     }
 
     /* AFE cal */
-    if(calibrate_AFE(s)){
+    if((ret = calibrate_AFE(s))){
       DBG (5, "sane_start: ERROR: cannot cal afe\n");
+      goto errors;
     }
 
     /* fine cal */
-    if(calibrate_fine(s)){
+    if((ret = calibrate_fine(s))){
       DBG (5, "sane_start: ERROR: cannot cal fine\n");
+      goto errors;
+    }
+
+    if((ret = calibrate_fine_buffer(s))){
+      DBG (5, "sane_start: ERROR: cannot cal fine from buffer\n");
+      goto errors;
     }
 
     /* reset the page counter after calibration */
@@ -3369,8 +3393,17 @@ set_window (struct scanner *s)
   set_WD_Xres (desc1, s->s.dpi_x);
   set_WD_Yres (desc1, s->s.dpi_y);
 
-  /* we have to center the window ourselves */
-  set_WD_ULX (desc1, (s->max_x - s->s.page_x) / 2 + s->s.tl_x);
+  /* some machines need max width */
+  if(s->fixed_width){
+    set_WD_ULX (desc1, 0);
+    set_WD_width (desc1, s->max_x);
+  }
+
+  /* or we have to center the window ourselves */
+  else{
+    set_WD_ULX (desc1, (s->max_x - s->s.page_x) / 2 + s->s.tl_x);
+    set_WD_width (desc1, s->s.width * 1200/s->s.dpi_x);
+  }
 
   /* some models require that the tly value be inverted? */
   if(s->invert_tly)
@@ -3378,7 +3411,6 @@ set_window (struct scanner *s)
   else
     set_WD_ULY (desc1, s->s.tl_y);
 
-  set_WD_width (desc1, s->s.width * 1200/s->s.dpi_x);
   set_WD_length (desc1, s->s.height * 1200/s->s.dpi_y);
 
   /*convert our common -127 to +127 range into HW's range
@@ -3779,16 +3811,27 @@ read_from_scanner(struct scanner *s, int side, int exact)
   }
 
   if(ret == SANE_STATUS_EOF){
-    /*if this scan is direct pass-thru, update user image too*/
-    if(s->u.bytes_tot[side] == s->s.bytes_tot[side]){
+
+#ifdef SANE_FRAME_JPEG
+    /* this is jpeg data, we need to change the total size */
+    if(s->s.format == SANE_FRAME_JPEG){
+      s->s.bytes_tot[side] = s->s.bytes_sent[side];
       s->u.bytes_tot[side] = s->s.bytes_sent[side];
     }
-    /*if this scan is modified before user sees it, guess size of new image */
-    /*FIXME: what about non-scanline width buffers? */
     else{
-      s->u.bytes_tot[side] = (s->s.bytes_sent[side]/s->s.Bpl) * s->u.Bpl;
+#endif
+
+      /* blast any remaining bytes in buffers */
+      memset(s->buffers[side]+s->s.bytes_sent[side],150,
+        s->s.bytes_tot[side]-s->s.bytes_sent[side]);
+  
+      /* non-jpeg data, we need to change the sent size */
+      s->s.bytes_sent[side] = s->s.bytes_tot[side];
+
+#ifdef SANE_FRAME_JPEG
     }
-    s->s.bytes_tot[side] = s->s.bytes_sent[side];
+#endif
+
     s->s.eof[side] = 1;
     ret = SANE_STATUS_GOOD;
   }
@@ -3894,21 +3937,33 @@ read_from_scanner_duplex(struct scanner *s,int exact)
   }
 
   if(ret == SANE_STATUS_EOF){
-    /*if this scan is direct pass-thru, update user image too*/
-    if(s->u.bytes_tot[SIDE_FRONT] == s->s.bytes_tot[SIDE_FRONT]){
+
+#ifdef SANE_FRAME_JPEG
+    /* this is jpeg data, we need to change the total size */
+    if(s->s.format == SANE_FRAME_JPEG){
+      s->s.bytes_tot[SIDE_FRONT] = s->s.bytes_sent[SIDE_FRONT];
+      s->s.bytes_tot[SIDE_BACK] = s->s.bytes_sent[SIDE_BACK];
       s->u.bytes_tot[SIDE_FRONT] = s->s.bytes_sent[SIDE_FRONT];
       s->u.bytes_tot[SIDE_BACK] = s->s.bytes_sent[SIDE_BACK];
     }
-    /*if this scan is modified before user sees it, guess size of new image */
-    /*FIXME: what about non-scanline width buffers? */
     else{
-      s->u.bytes_tot[SIDE_FRONT]
-        = (s->s.bytes_sent[SIDE_FRONT]/s->s.Bpl) * s->u.Bpl;
-      s->u.bytes_tot[SIDE_BACK]
-        = (s->s.bytes_sent[SIDE_BACK]/s->s.Bpl) * s->u.Bpl;
+#endif
+
+      /* blast any remaining bytes in buffers */
+      memset(s->buffers[SIDE_FRONT]+s->s.bytes_sent[SIDE_FRONT],150,
+        s->s.bytes_tot[SIDE_FRONT]-s->s.bytes_sent[SIDE_FRONT]);
+  
+      memset(s->buffers[SIDE_BACK]+s->s.bytes_sent[SIDE_BACK],150,
+        s->s.bytes_tot[SIDE_BACK]-s->s.bytes_sent[SIDE_BACK]);
+
+      /* non-jpeg data, we need to change the sent size */
+      s->s.bytes_sent[SIDE_FRONT] = s->s.bytes_tot[SIDE_FRONT];
+      s->s.bytes_sent[SIDE_BACK] = s->s.bytes_tot[SIDE_BACK];
+
+#ifdef SANE_FRAME_JPEG
     }
-    s->s.bytes_tot[SIDE_FRONT] = s->s.bytes_sent[SIDE_FRONT];
-    s->s.bytes_tot[SIDE_BACK] = s->s.bytes_sent[SIDE_BACK];
+#endif
+
     s->s.eof[SIDE_FRONT] = 1;
     s->s.eof[SIDE_BACK] = 1;
     ret = SANE_STATUS_GOOD;
@@ -4091,7 +4146,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
     DBG (15, "copy_simplex: apply gain\n");
     for(i=start;i<s->s.bytes_sent[side];i+=bwidth){
       for(j=0;j<s->s.valid_Bpl;j++){
-        int curr = s->buffers[side][i+j] * 224/s->f_gain[side][j];
+        int curr = s->buffers[side][i+j] * 240/s->f_gain[side][j];
         if(curr > 255) curr = 255;
         s->buffers[side][i+j] = curr;
       }
@@ -4201,11 +4256,13 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len,
 
   DBG (10, "read_from_buffer: start\n");
 
-  /* the 'standard' case: non-stupid scanner */
-  if(!s->fixed_width && s->s.dpi_x == s->u.dpi_x && s->s.mode == s->u.mode){
+  /* the 'standard' case: non-stupid scan */
+  if(s->s.width == s->u.width && s->s.height == s->u.height
+    && s->s.dpi_x == s->u.dpi_x && s->s.mode == s->u.mode
+  ){
 
     int bytes = max_len;
-    int remain = s->u.bytes_tot[side] - s->u.bytes_sent[side];
+    int remain = s->s.bytes_sent[side] - s->u.bytes_sent[side];
 
     /* figure out the max amount to transfer */
     if(bytes > remain)
@@ -4231,7 +4288,7 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len,
     return ret;
   }
 
-  /* the 'corner' case: stupid scanner */
+  /* the 'corner' case: stupid scan */
   *len = 0;
 
   /*setup 24 bit color single line buffer*/
@@ -4256,7 +4313,7 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len,
     if(out_line_length > space)
       out_line_length = space;
   
-    /* dont read past end of what we've read from scanner so far*/
+    /* dont read past end of what we've read from scanner so far */
     if(in_line_offset+in_line_bytes > s->s.bytes_sent[side])
       break;
   
@@ -4314,7 +4371,7 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len,
     }
   
     /* scan is wider than user wanted, skip some bytes on left side */
-    if(s->fixed_width){
+    if(s->u.width != s->s.width){
       in_line += ((s->valid_x-s->u.page_x) / 2 + s->u.tl_x) * s->u.dpi_x / 1200 * 3;
     }
 
@@ -4442,31 +4499,26 @@ calibrate_AFE (struct scanner *s)
   ret = update_params(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot update_params\n");
-    return ret;
+    goto cleanup;
   }
 
   if(s->c_res == s->s.dpi_x && s->c_mode == s->s.mode){
     DBG (10, "calibrate_AFE: already done\n");
-    /* recover user settings */
-    s->u.tl_y = old_tl_y;
-    s->u.br_y = old_br_y;
-    s->u.mode = old_mode;
-    s->u.source = old_source;
-    return ret;
+    goto cleanup;
   }
 
   /* clean scan params for new scan */
   ret = clean_params(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibration_scan: ERROR: cannot clean_params\n");
-    return ret;
+    goto cleanup;
   }
 
   /* make buffers to hold the images */
   ret = image_buffers(s,1);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot load buffers\n");
-    return ret;
+    goto cleanup;
   }
 
   /*blast the existing fine cal data so reading code wont apply it*/
@@ -4477,14 +4529,14 @@ calibrate_AFE (struct scanner *s)
   ret = ssm_buffer(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot ssm buffer\n");
-    return ret;
+    goto cleanup;
   }
 
   /* set window command */
   ret = set_window(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot set window\n");
-    return ret;
+    goto cleanup;
   }
   
   /* first pass (black offset), lamp off, no offset/gain/exposure */
@@ -4502,13 +4554,13 @@ calibrate_AFE (struct scanner *s)
   ret = write_AFE(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot write afe\n");
-    return ret;
+    goto cleanup;
   }
 
   ret = calibration_scan(s,0xff);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot make offset cal scan\n");
-    return ret;
+    goto cleanup;
   }
 
   for(i=0;i<2;i++){
@@ -4532,13 +4584,13 @@ calibrate_AFE (struct scanner *s)
   ret = write_AFE(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot write afe\n");
-    return ret;
+    goto cleanup;
   }
 
   ret = calibration_scan(s,0xfe);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot make exposure cal scan\n");
-    return ret;
+    goto cleanup;
   }
 
   for(i=0;i<2;i++){ /*sides*/
@@ -4566,13 +4618,13 @@ calibrate_AFE (struct scanner *s)
   ret = write_AFE(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot write afe\n");
-    return ret;
+    goto cleanup;
   }
 
   ret = calibration_scan(s,0xfe);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot make gain cal scan\n");
-    return ret;
+    goto cleanup;
   }
 
   for(i=0;i<2;i++){
@@ -4600,13 +4652,13 @@ calibrate_AFE (struct scanner *s)
   ret = write_AFE(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot write afe\n");
-    return ret;
+    goto cleanup;
   }
 
   ret = calibration_scan(s,0xff);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot make offset2 cal scan\n");
-    return ret;
+    goto cleanup;
   }
 
   for(i=0;i<2;i++){
@@ -4624,8 +4676,14 @@ calibrate_AFE (struct scanner *s)
   ret = write_AFE(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot write afe\n");
-    return ret;
+    goto cleanup;
   }
+
+  /* log current cal type */
+  s->c_res = s->s.dpi_x;
+  s->c_mode = s->s.mode;
+
+  cleanup:
 
   /* recover user settings */
   s->u.tl_y = old_tl_y;
@@ -4633,11 +4691,222 @@ calibrate_AFE (struct scanner *s)
   s->u.mode = old_mode;
   s->u.source = old_source;
 
-  /* log current cal type */
-  s->c_res = s->s.dpi_x;
-  s->c_mode = s->s.mode;
+  DBG (10, "calibrate_AFE: finish %d\n",ret);
 
-  DBG (10, "calibrate_AFE: finish\n");
+  return ret;
+}
+
+
+/* alternative version- extracts data from scanner memory */
+static SANE_Status
+calibrate_fine_buffer (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int i, j, k;
+
+  unsigned char cmd[READ_len];
+  size_t cmdLen = READ_len;
+
+  unsigned char * in;
+  size_t inLen = 0, reqLen = 0;
+
+  /*buffer these for later*/
+  int old_tl_y = s->u.tl_y;
+  int old_br_y = s->u.br_y;
+  int old_source = s->u.source;
+
+  DBG (10, "calibrate_fine_buffer: start\n");
+
+  if(!s->need_fcal_buffer){
+    DBG (10, "calibrate_fine_buffer: not required\n");
+    return ret;
+  }
+
+  /* pretend we are doing a 1 line scan in duplex */
+  s->u.tl_y = 0;
+  s->u.br_y = 1200 / s->u.dpi_y;
+  s->u.source = SOURCE_ADF_DUPLEX;
+
+  /* load our own private copy of scan params */
+  ret = update_params(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine_buffer: ERROR: cannot update_params\n");
+    goto cleanup;
+  }
+
+  if(s->f_res == s->s.dpi_x && s->f_mode == s->s.mode){
+    DBG (10, "calibrate_fine_buffer: already done\n");
+    goto cleanup;
+  }
+
+  /* clean scan params for new scan */
+  ret = clean_params(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibration_scan: ERROR: cannot clean_params\n");
+    goto cleanup;
+  }
+
+  /*calibration buffers in scanner are single color channel, but duplex*/
+  reqLen = s->s.width*2;
+
+  in = malloc(reqLen);
+  if (!in) {
+    DBG (5, "calibrate_fine_buffer: ERROR: cannot malloc in\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  /*fine offset*/
+  ret = offset_buffers(s,1);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine_buffer: ERROR: cannot load offset buffers\n");
+    goto cleanup;
+  }
+ 
+  DBG (5, "calibrate_fine_buffer: %d %x\n", s->s.dpi_x/10, s->s.dpi_x/10);
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, READ_code);
+  set_R_datatype_code (cmd, SR_datatype_fineoffset);
+  set_R_xfer_lid (cmd, s->s.dpi_x/10);
+  set_R_xfer_length (cmd, reqLen);
+
+  inLen = reqLen;
+
+  hexdump(15, "cmd:", cmd, cmdLen);
+
+  ret = do_cmd (
+    s, 1, 0,
+    cmd, cmdLen,
+    NULL, 0,
+    in, &inLen
+  );
+  if (ret != SANE_STATUS_GOOD)
+    goto cleanup;
+
+  for(i=0;i<2;i++){
+
+    /*color mode, expand offset across all three channels? */
+    if(s->s.format == SANE_FRAME_RGB){
+      for(j=0; j<s->s.valid_width; j++){
+        
+        /*red*/  
+        s->f_offset[i][j*3] = in[j*2+i];
+        if(s->f_offset[i][j*3] < 1)
+          s->f_offset[i][j*3] = 1;
+
+        /*green and blue, same as red*/  
+        s->f_offset[i][j*3+1] = s->f_offset[i][j*3+2] = s->f_offset[i][j*3];
+      }
+    }
+
+    /*gray mode, copy*/
+    else{
+      for(j=0; j<s->s.valid_width; j++){
+
+        s->f_offset[i][j] = in[j*2+i];
+        if(s->f_offset[i][j] < 1)
+          s->f_offset[i][j] = 1;
+      }
+    }
+
+    hexdump(15, "off:", s->f_offset[i], s->s.valid_Bpl);
+  }
+
+  /*fine gain*/
+  ret = gain_buffers(s,1);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "calibrate_fine_buffer: ERROR: cannot load gain buffers\n");
+    goto cleanup;
+  }
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, READ_code);
+  set_R_datatype_code (cmd, SR_datatype_finegain);
+  set_R_xfer_lid (cmd, s->s.dpi_x/10);
+  set_R_xfer_length (cmd, reqLen);
+
+  /*color gain split into three buffers, grab them and merge*/
+  if(s->s.format == SANE_FRAME_RGB){
+
+    int codes[] = {R_FINE_uid_red,R_FINE_uid_green,R_FINE_uid_blue};
+
+    for(k=0;k<3;k++){
+  
+      set_R_xfer_uid (cmd, codes[k]);
+      inLen = reqLen;
+    
+      hexdump(15, "cmd:", cmd, cmdLen);
+
+      ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        NULL, 0,
+        in, &inLen
+      );
+      if (ret != SANE_STATUS_GOOD)
+        goto cleanup;
+  
+      for(i=0;i<2;i++){
+        for(j=0; j<s->s.valid_width; j++){
+          
+          s->f_gain[i][j*3+k] = in[j*2+i]*3/4;
+    
+          if(s->f_gain[i][j*3+k] < 1)
+            s->f_gain[i][j*3+k] = 1;
+        }
+      }
+    }
+  }
+
+  /*gray gain, copy*/
+  else{
+
+    set_R_xfer_uid (cmd, R_FINE_uid_gray);
+    inLen = reqLen;
+    
+    hexdump(15, "cmd:", cmd, cmdLen);
+
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if (ret != SANE_STATUS_GOOD)
+      goto cleanup;
+  
+    for(i=0;i<2;i++){
+      for(j=0; j<s->s.valid_width; j++){
+        
+        s->f_gain[i][j] = in[j*2+i]*3/4;
+    
+        if(s->f_gain[i][j] < 1)
+          s->f_gain[i][j] = 1;
+      }
+    }
+  }
+
+  for(i=0;i<2;i++){
+    hexdump(15, "gain:", s->f_gain[i], s->s.valid_Bpl);
+  }
+
+  /* log current cal type */
+  s->f_res = s->s.dpi_x;
+  s->f_mode = s->s.mode;
+
+  cleanup:
+
+  if(in){
+    free(in);
+  }
+
+  /* recover user settings */
+  s->u.tl_y = old_tl_y;
+  s->u.br_y = old_br_y;
+  s->u.source = old_source;
+
+  DBG (10, "calibrate_fine_buffer: finish %d\n",ret);
 
   return ret;
 }
@@ -4674,30 +4943,26 @@ calibrate_fine (struct scanner *s)
   ret = update_params(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_AFE: ERROR: cannot update_params\n");
-    return ret;
+    goto cleanup;
   }
 
   if(s->f_res == s->s.dpi_x && s->f_mode == s->s.mode){
     DBG (10, "calibrate_fine: already done\n");
-    /* recover user settings */
-    s->u.tl_y = old_tl_y;
-    s->u.br_y = old_br_y;
-    s->u.source = old_source;
-    return ret;
+    goto cleanup;
   }
 
   /* clean scan params for new scan */
   ret = clean_params(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibration_scan: ERROR: cannot clean_params\n");
-    return ret;
+    goto cleanup;
   }
 
   /* make buffers to hold the images */
   ret = image_buffers(s,1);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_fine: ERROR: cannot load buffers\n");
-    return ret;
+    goto cleanup;
   }
   
   /*blast the existing fine cal data so reading code wont apply it*/
@@ -4708,14 +4973,14 @@ calibrate_fine (struct scanner *s)
   ret = ssm_buffer(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_fine: ERROR: cannot ssm buffer\n");
-    return ret;
+    goto cleanup;
   }
   
   /* set window command */
   ret = set_window(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_fine: ERROR: cannot set window\n");
-    return ret;
+    goto cleanup;
   }
   
   /*handle fifth pass (fine offset), lamp off*/
@@ -4723,13 +4988,13 @@ calibrate_fine (struct scanner *s)
   ret = calibration_scan(s,0xff);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_fine: ERROR: cannot make offset cal scan\n");
-    return ret;
+    goto cleanup;
   }
 
   ret = offset_buffers(s,1);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_fine: ERROR: cannot load offset buffers\n");
-    return ret;
+    goto cleanup;
   }
   
   for(i=0;i<2;i++){
@@ -4748,13 +5013,13 @@ calibrate_fine (struct scanner *s)
   ret = calibration_scan(s,0xfe);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_fine: ERROR: cannot make gain cal scan\n");
-    return ret;
+    goto cleanup;
   }
 
   ret = gain_buffers(s,1);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_fine: ERROR: cannot load gain buffers\n");
-    return ret;
+    goto cleanup;
   }
   
   for(i=0;i<2;i++){
@@ -4771,16 +5036,18 @@ calibrate_fine (struct scanner *s)
     hexdump(15, "gain:", s->f_gain[i], s->s.valid_Bpl);
   }
 
+  /* log current cal type */
+  s->f_res = s->s.dpi_x;
+  s->f_mode = s->s.mode;
+
+  cleanup:
+
   /* recover user settings */
   s->u.tl_y = old_tl_y;
   s->u.br_y = old_br_y;
   s->u.source = old_source;
 
-  /* log current cal type */
-  s->f_res = s->s.dpi_x;
-  s->f_mode = s->s.mode;
-
-  DBG (10, "calibrate_fine: finish\n");
+  DBG (10, "calibrate_fine: finish %d\n",ret);
 
   return ret;
 }
@@ -5020,13 +5287,13 @@ check_for_cancel(struct scanner *s)
         NULL, 0,
         NULL, NULL
     );
-    if(!ret){
+    if(ret){
       DBG (5, "check_for_cancel: ignoring bad cancel: %d\n",ret);
     }
   
     ret = object_position(s,SANE_FALSE);
-    if(!ret){
-      DBG (5, "check_for_cancel: ignoring bad eject\n",ret);
+    if(ret){
+      DBG (5, "check_for_cancel: ignoring bad eject: %d\n",ret);
     }
 
     s->started = 0;

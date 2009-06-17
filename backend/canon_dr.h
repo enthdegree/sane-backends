@@ -158,6 +158,7 @@ struct scanner
   int can_color;     /* actually might be in vpd, but which bit? */
   int need_ccal;     /* scanner needs software to help with afe calibration */
   int need_fcal;     /* scanner needs software to help with fine calibration */
+  int need_fcal_buffer; /* software to apply calibration stored in scanner*/
 
   int has_counter;
   int has_rif;
@@ -177,6 +178,7 @@ struct scanner
   int unknown_byte2;    /* weird byte, required, meaning unknown */
   int padded_read;      /* some machines need extra 12 bytes on reads */
   int fixed_width;      /* some machines always scan full width */
+  int even_Bpl;         /* some machines require even bytes per line */
 
   int gray_interlace[2];  /* different models interlace heads differently    */
   int color_interlace[2]; /* different models interlace colors differently   */
@@ -512,7 +514,6 @@ static SANE_Status send_panel(struct scanner *s);
 static SANE_Status start_scan (struct scanner *s, int type);
 
 static SANE_Status check_for_cancel(struct scanner *s);
-static SANE_Status cancel(struct scanner *s);
 
 static SANE_Status read_from_scanner(struct scanner *s, int side, int exact);
 static SANE_Status read_from_scanner_duplex(struct scanner *s, int exact);
@@ -529,6 +530,7 @@ static SANE_Status gain_buffers (struct scanner *s, int setup);
 
 static SANE_Status calibrate_AFE(struct scanner *s);
 static SANE_Status calibrate_fine(struct scanner *s);
+static SANE_Status calibrate_fine_buffer(struct scanner *s);
 
 static SANE_Status write_AFE (struct scanner *s);
 static SANE_Status calibration_scan (struct scanner *s, int);

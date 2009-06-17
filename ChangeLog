@@ -1,3 +1,12 @@
+2009-06-17 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v30
+	- add fine cal support for machines with internal buffer (2050/2080)
+	- support fixed-width machines that require even bytes per scanline
+	- pad end of scan with gray if scanner stops prematurely
+	- better handling of errors during calibration
+	- cleanup canceling debug messages
+	- remove old cancel() prototype
+
 2009-06-17  Stéphane Voltz <stef.dev at free.fr>
 	* backend/lexmark_low.c: cleanups, better logging in is_home_line()
 	  and possible fix for bug #311862 by using f4 & f5 registers instead of

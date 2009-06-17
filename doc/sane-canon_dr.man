@@ -10,7 +10,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to some Canon DR-series scanners.
 
-This document describes backend version 28, which shipped with SANE 1.0.20cvs.
+This document describes backend version 30, which shipped with SANE 1.0.21cvs.
 
 .SH SUPPORTED HARDWARE
 This version has only been tested with a few scanner models. Please see 

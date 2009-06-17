@@ -17,7 +17,7 @@
 
 #define EPSON2_VERSION	1
 #define EPSON2_REVISION	0
-#define EPSON2_BUILD	122
+#define EPSON2_BUILD	123
 
 /* debugging levels:
  *
@@ -311,7 +311,6 @@ max_string_size(const SANE_String_Const strings[])
 
 static SANE_Status attach_one_usb(SANE_String_Const devname);
 static SANE_Status attach_one_net(SANE_String_Const devname);
-static void filter_resolution_list(Epson_Scanner *s);
 
 static void
 print_params(const SANE_Parameters params)
@@ -1065,22 +1064,6 @@ init_options(Epson_Scanner *s)
 	if (!s->hw->cmd->set_gamma)
 		s->opt[OPT_GAMMA_CORRECTION].cap |= SANE_CAP_INACTIVE;
 
-	/* gamma vector */
-
-/*
-	s->opt[ OPT_GAMMA_VECTOR].name  = SANE_NAME_GAMMA_VECTOR;
-	s->opt[ OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
-	s->opt[ OPT_GAMMA_VECTOR].desc  = SANE_DESC_GAMMA_VECTOR;
-
-	s->opt[ OPT_GAMMA_VECTOR].type = SANE_TYPE_INT;
-	s->opt[ OPT_GAMMA_VECTOR].unit = SANE_UNIT_NONE;
-	s->opt[ OPT_GAMMA_VECTOR].size = 256 * sizeof (SANE_Word);
-	s->opt[ OPT_GAMMA_VECTOR].constraint_type = SANE_CONSTRAINT_RANGE;
-	s->opt[ OPT_GAMMA_VECTOR].constraint.range = &u8_range;
-	s->val[ OPT_GAMMA_VECTOR].wa = &s->gamma_table [ 0] [ 0];
-*/
-
-
 	/* red gamma vector */
 	s->opt[OPT_GAMMA_VECTOR_R].name = SANE_NAME_GAMMA_VECTOR_R;
 	s->opt[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
@@ -1122,13 +1105,11 @@ init_options(Epson_Scanner *s)
 	    && gamma_userdefined[s->val[OPT_GAMMA_CORRECTION].w] ==
 	    SANE_TRUE) {
 
-/*		s->opt[ OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE; */
 		s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 		s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
 		s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 	} else {
 
-/*		s->opt[ OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE; */
 		s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 		s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 		s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
@@ -1323,16 +1304,6 @@ init_options(Epson_Scanner *s)
 
 	if (!s->hw->cmd->control_auto_area_segmentation)
 		s->opt[OPT_AAS].cap |= SANE_CAP_INACTIVE;
-
-	/* limit resolution list */
-	s->opt[OPT_LIMIT_RESOLUTION].name = "short-resolution";
-	s->opt[OPT_LIMIT_RESOLUTION].title =
-		SANE_I18N("Short resolution list");
-	s->opt[OPT_LIMIT_RESOLUTION].desc =
-		SANE_I18N("Display a shortened resolution list");
-	s->opt[OPT_LIMIT_RESOLUTION].type = SANE_TYPE_BOOL;
-	s->val[OPT_LIMIT_RESOLUTION].w = SANE_FALSE;
-
 
 	/* "Preview settings" group: */
 	s->opt[OPT_PREVIEW_GROUP].title = SANE_TITLE_PREVIEW;
@@ -1689,7 +1660,6 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 
 	switch (option) {
 
-/* 	case OPT_GAMMA_VECTOR: */
 	case OPT_GAMMA_VECTOR_R:
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
@@ -1720,7 +1690,6 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 	case OPT_THRESHOLD:
 	case OPT_BIT_DEPTH:
 	case OPT_WAIT_FOR_BUTTON:
-	case OPT_LIMIT_RESOLUTION:
 		*((SANE_Word *) value) = sval->w;
 		break;
 
@@ -1928,7 +1897,6 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 
 	switch (option) {
 
-/* 	case OPT_GAMMA_VECTOR: */
 	case OPT_GAMMA_VECTOR_R:
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
@@ -2086,7 +2054,6 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 
 		sval->w = optindex;
 
-/*		setOptionState(s, f, OPT_GAMMA_VECTOR, &reload ); */
 		setOptionState(s, f, OPT_GAMMA_VECTOR_R, &reload);
 		setOptionState(s, f, OPT_GAMMA_VECTOR_G, &reload);
 		setOptionState(s, f, OPT_GAMMA_VECTOR_B, &reload);
@@ -2104,12 +2071,6 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 	case OPT_THRESHOLD:
 	case OPT_WAIT_FOR_BUTTON:
 		sval->w = *((SANE_Word *) value);
-		break;
-
-	case OPT_LIMIT_RESOLUTION:
-		sval->w = *((SANE_Word *) value);
-		filter_resolution_list(s);
-		reload = SANE_TRUE;
 		break;
 
 	default:
@@ -2530,62 +2491,6 @@ sane_cancel(SANE_Handle handle)
 		}
 
 		free(dummy);
-	}
-}
-
-static void
-filter_resolution_list(Epson_Scanner *s)
-{
-	int i, new_size = 0;
-
-	struct Epson_Device *dev = s->hw;
-	SANE_Bool is_correct_resolution = SANE_FALSE;
-
-	if (s->val[OPT_LIMIT_RESOLUTION].w == SANE_FALSE) {
-
-		/* copy the full list */
-		dev->resolution_list[0] = dev->res_list_size;
-		memcpy(&(dev->resolution_list[1]), dev->res_list,
-		       dev->res_list_size * sizeof(SANE_Word));
-
-		return;
-	}
-
-
-	/* shorten the list */
-	/* filter out all values that are not 300 or 400 dpi based */
-	for (i = 0; i < dev->res_list_size; i++) {
-
-		SANE_Word res = dev->res_list[i];
-
-		if ((res < 100) || res == 150 || ((res % 300) == 0)
-			|| ((res % 400) == 0)) {
-			/* add the value */
-			new_size++;
-
-			dev->resolution_list[new_size] =
-				dev->res_list[i];
-
-			/* check for a valid current resolution */
-			if (res == s->val[OPT_RESOLUTION].w)
-				is_correct_resolution = SANE_TRUE;
-		}
-	}
-
-	dev->resolution_list[0] = new_size;
-
-	/* if the current resolution is invalid, accordingly
-	 * to the filtered list, search for a suitable one
-	 */
-
-	if (is_correct_resolution == SANE_TRUE)
-		return;
-
-	for (i = 1; i <= new_size; i++) {
-		if (s->val[OPT_RESOLUTION].w < dev->resolution_list[i]) {
-			s->val[OPT_RESOLUTION].w = dev->resolution_list[i];
-			break;
-		}
 	}
 }
 

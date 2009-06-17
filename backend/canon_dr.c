@@ -226,6 +226,7 @@
          - better handling of errors during calibration
          - cleanup canceling debug messages
          - remove old cancel() prototype
+         - small sleep before clearing usb halt condition
 
    SANE FLOW DIAGRAM
 
@@ -5998,6 +5999,8 @@ do_usb_clear(struct scanner *s, int clear, int runRS)
     SANE_Status ret, ret2;
 
     DBG (10, "do_usb_clear: start\n");
+
+    usleep(100000);
 
     if(clear){
       DBG (15, "do_usb_clear: clear halt\n");

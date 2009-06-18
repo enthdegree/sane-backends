@@ -1880,11 +1880,8 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 		DBG(17, "%s: constrained val = %d\n", __func__,
 		    *(SANE_Word *) value);
 
-	s->option_has_changed = SANE_TRUE;
-
 	optval = NULL;
 	optindex = 0;
-
 
 	if (sopt->constraint_type == SANE_CONSTRAINT_STRING_LIST) {
 		optval = search_string_list(sopt->constraint.string_list,

@@ -1,3 +1,7 @@
+2009-06-18  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c:
+	Fixed typo in pixma backend for MX320 declaration.
+
 2009-06-17 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v30
 	- add fine cal support for machines with internal buffer (2050/2080)

@@ -135,7 +135,6 @@
 
 #include "apple.h"
 
-#define MM_PER_INCH	25.4
 
 static int num_devices;
 static Apple_Device *first_dev;

@@ -16,7 +16,6 @@
 
 #define UNCONST(ptr) ((void *)(long)(ptr))
 
-#define MM_PER_INCH	25.4
 #define PNT_PER_MM	(1200. / MM_PER_INCH)
 
 #define PADDING_SIZE	16

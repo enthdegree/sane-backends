@@ -46,7 +46,6 @@
 #ifndef test_h
 #define test_h
 
-#define MM_PER_INCH 25.4
 
 typedef enum
 {

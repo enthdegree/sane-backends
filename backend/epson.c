@@ -341,10 +341,6 @@
 #define  PATH_MAX       (1024)
 #endif
 
-#ifndef MM_PER_INCH
-#define MM_PER_INCH     25.4
-#endif
-
 #define  walloc(x)      (x *)malloc(sizeof(x))
 #define  walloca(x)     (x *)alloca(sizeof(x))
 

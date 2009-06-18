@@ -118,7 +118,6 @@ typedef struct AS6E_Scan
 #define READPIPE 0
 #define WRITEPIPE 1
 
-#define MM_PER_INCH 25.4
 
 #define SCAN_BUF_SIZE 32768
 

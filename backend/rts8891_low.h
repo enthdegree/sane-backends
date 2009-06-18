@@ -57,7 +57,6 @@
 #define DBG_io2         7	/* io functions that are called very often */
 #define DBG_data        8	/* log image data */
 
-#define MM_PER_INCH 25.4
 
 /* Flags */
 #define RTS8891_FLAG_UNTESTED               (1 << 0)	/* Print a warning for these scanners */

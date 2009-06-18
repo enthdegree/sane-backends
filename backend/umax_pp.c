@@ -182,7 +182,6 @@ static const SANE_String_Const astra_models[] =
 #define UMAX_PP_MODE_GRAYSCALE          1
 #define UMAX_PP_MODE_COLOR              2
 
-#define MM_PER_INCH                     25.4
 #define MM_TO_PIXEL(mm, res)    (SANE_UNFIX(mm) * (float )res / MM_PER_INCH)
 #define PIXEL_TO_MM(px, res)    (SANE_FIX((float )(px * MM_PER_INCH / (res / 10)) / 10.0))
 

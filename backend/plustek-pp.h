@@ -475,7 +475,6 @@ typedef struct {
 
 #ifndef __KERNEL__
 
-#define MM_PER_INCH         25.4
 
 #define PLUSTEK_CONFIG_FILE	"plustek_pp.conf"
 

@@ -119,7 +119,6 @@ typedef struct SM3840_Scan
 
 #define SM3840_CONFIG_FILE "sm3840.conf"
 
-#define MM_PER_INCH 25.4
 
 #define SCAN_BUF_SIZE 65536
 

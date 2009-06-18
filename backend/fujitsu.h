@@ -640,7 +640,6 @@ struct fujitsu
 
 /* ------------------------------------------------------------------------- */
 
-#define MM_PER_INCH    25.4
 #define MM_PER_UNIT_UNFIX SANE_UNFIX(SANE_FIX(MM_PER_INCH / 1200.0))
 #define MM_PER_UNIT_FIX SANE_FIX(SANE_UNFIX(SANE_FIX(MM_PER_INCH / 1200.0)))
 

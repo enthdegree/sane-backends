@@ -60,7 +60,6 @@
 #define RIE(function) do {status = function; if (status != SANE_STATUS_GOOD) \
 return status;} while (SANE_FALSE)
 
-#define MM_PER_INCH	25.4
 #define SCAN_BUFFER_SIZE (64 * 1024)
 #define MAX_RESOLUTIONS 12
 #define DEF_LINEARTTHRESHOLD 128

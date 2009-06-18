@@ -162,7 +162,6 @@ getbitfield (unsigned char *pageaddr, int mask, int shift)
 
 /*--------------------------------------------------------------------------*/
 
-#define MM_PER_INCH     25.4
 #define mmToIlu(mm) (((mm) * 1200) / MM_PER_INCH)
 #define iluToMm(ilu) (((ilu) * MM_PER_INCH) / 1200)
 

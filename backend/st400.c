@@ -103,7 +103,6 @@ static ST400_Model st400_models[] = {
 	{ 0, NULL, 0, NULL, 0, 0, 0, NULL, NULL, NULL, NULL }
 };
 
-#define MM_PER_INCH		25.4
 
 static ST400_Device *st400_devices = NULL;
 static unsigned int st400_num_devices = 0;

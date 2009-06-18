@@ -83,7 +83,6 @@
 
 #define LINES_SHUFFLE_MAX	17	/* 2 x 8 lines plus 1 */
 #define SANE_EPSON_MAX_RETRIES	14	/* warmup max retry */
-#define MM_PER_INCH             25.4
 #define CMD_SIZE_EXT_STATUS	42
 
 /* NOTE: you can find these codes with "man ascii". */

@@ -85,7 +85,6 @@
 #define ARTEC_SUB       16
 #define ARTEC_LAST_MOD  "05/26/2001 17:28 EST"
 
-#define MM_PER_INCH	25.4
 
 #ifndef PATH_MAX
 #define PATH_MAX	1024

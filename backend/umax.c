@@ -101,7 +101,6 @@ in ADF mode this is done often:
 
 #define BACKEND_NAME     umax
 #define UMAX_CONFIG_FILE "umax.conf"
-#define MM_PER_INCH	 25.4
 
 /* ------------------------------------------------------------ SANE INTERNATIONALISATION ------------------ */
 

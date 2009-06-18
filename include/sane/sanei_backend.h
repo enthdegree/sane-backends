@@ -56,6 +56,10 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#ifndef MM_PER_INCH
+#define MM_PER_INCH 25.4
+#endif
+
 #ifdef HAVE_SIGPROCMASK
 # define SIGACTION      sigaction
 #else

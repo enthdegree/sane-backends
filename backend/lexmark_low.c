@@ -519,8 +519,8 @@ sanei_lexmark_low_init (Lexmark_Device * dev)
       dev->shadow_regs[0xc9] = 0x3b;
       dev->shadow_regs[0xed] = 0xc2;
       dev->shadow_regs[0xee] = 0x02;
-      dev->shadow_regs[0xf5] = 0xf8;
-      dev->shadow_regs[0xf6] = 0x7f;
+      dev->shadow_regs[0xf3] = 0xf8;
+      dev->shadow_regs[0xf4] = 0x7f;
       status = SANE_STATUS_GOOD;
       break;
     case X1100_2C_SENSOR:
@@ -1124,8 +1124,8 @@ sanei_lexmark_low_open_device (Lexmark_Device * dev)
   shadow_regs[0xb0] = 0x2c;
   shadow_regs[0x10] = 0x97;
   shadow_regs[0x10] = 0x87;
-  shadow_regs[0xf4] = 0xf8;
-  shadow_regs[0xf5] = 0x7f;
+  shadow_regs[0xf3] = 0xf8;
+  shadow_regs[0xf4] = 0x7f;
 #else
   result = sanei_usb_open (dev->sane.name, &(dev->devnum));
 #endif

@@ -1,3 +1,7 @@
+2009-06-20  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Added Canon imageCLASS D480 support to the pixma backend.
+
 2009-06-17  Stéphane Voltz <stef.dev at free.fr>
 	* backend/lexmark_low.c: f3/f4 registers assignement cleanup
 

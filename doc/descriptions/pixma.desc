@@ -297,6 +297,12 @@
 :status :good
 :comment "All resolutions supported (up to 600DPI)"
 
+:model "imageCLASS D480"
+:interface "USB"
+:usbid "0x04a9" "0x26ed"
+:status :good
+:comment "All resolutions supported (up to 600DPI)"
+
 :model "imageCLASS MF5630"
 :interface "USB"
 :usbid "0x04a9" "0x264e"

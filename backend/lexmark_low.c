@@ -477,6 +477,9 @@ sanei_lexmark_low_init (Lexmark_Device * dev)
     }
 
   /* set up per model constant values */
+  dev->shadow_regs[0xf3] = 0xf8;
+  dev->shadow_regs[0xf4] = 0x7f;
+
   switch (dev->model.sensor_type)
     {
     case X1100_B2_SENSOR:
@@ -519,8 +522,6 @@ sanei_lexmark_low_init (Lexmark_Device * dev)
       dev->shadow_regs[0xc9] = 0x3b;
       dev->shadow_regs[0xed] = 0xc2;
       dev->shadow_regs[0xee] = 0x02;
-      dev->shadow_regs[0xf5] = 0xf8;
-      dev->shadow_regs[0xf6] = 0x7f;
       status = SANE_STATUS_GOOD;
       break;
     case X1100_2C_SENSOR:
@@ -604,8 +605,6 @@ sanei_lexmark_low_init (Lexmark_Device * dev)
       dev->shadow_regs[0xca] = 0x0a;
       dev->shadow_regs[0xe2] = 0xf8;
       dev->shadow_regs[0xe3] = 0x2a;
-      dev->shadow_regs[0xf3] = 0xf8;
-      dev->shadow_regs[0xf4] = 0x7f;
       status = SANE_STATUS_GOOD;
       break;
     case X1200_USB2_SENSOR:
@@ -652,8 +651,6 @@ sanei_lexmark_low_init (Lexmark_Device * dev)
       dev->shadow_regs[0xca] = 0x0a;
       dev->shadow_regs[0xe2] = 0xf8;
       dev->shadow_regs[0xe3] = 0x2a;
-      dev->shadow_regs[0xf3] = 0xf8;
-      dev->shadow_regs[0xf4] = 0x7f;
       status = SANE_STATUS_GOOD;
       break;
     case A920_SENSOR:
@@ -702,8 +699,6 @@ sanei_lexmark_low_init (Lexmark_Device * dev)
       dev->shadow_regs[0xc2] = 0x80;
       dev->shadow_regs[0xc4] = 0x20;
       dev->shadow_regs[0xc8] = 0x04;
-      dev->shadow_regs[0xf3] = 0xf8;
-      dev->shadow_regs[0xf4] = 0x7f;
       status = SANE_STATUS_GOOD;
       break;
     case X1200_SENSOR:
@@ -1124,8 +1119,8 @@ sanei_lexmark_low_open_device (Lexmark_Device * dev)
   shadow_regs[0xb0] = 0x2c;
   shadow_regs[0x10] = 0x97;
   shadow_regs[0x10] = 0x87;
-  shadow_regs[0xf4] = 0xf8;
-  shadow_regs[0xf5] = 0x7f;
+  shadow_regs[0xf3] = 0xf8;
+  shadow_regs[0xf4] = 0x7f;
 #else
   result = sanei_usb_open (dev->sane.name, &(dev->devnum));
 #endif
@@ -2341,8 +2336,6 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
       dev->shadow_regs[0x92] = 0x20;
       dev->shadow_regs[0xea] = 0x00;
       dev->shadow_regs[0xeb] = 0x00;
-      dev->shadow_regs[0xf3] = 0xf8;
-      dev->shadow_regs[0xf4] = 0x7f;
       break;
     case A920_SENSOR:
       dev->shadow_regs[0x2c] = 0x0d;

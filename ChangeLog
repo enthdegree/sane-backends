@@ -1,3 +1,6 @@
+2009-06-17  Stéphane Voltz <stef.dev at free.fr>
+	* backend/lexmark_low.c: f3/f4 registers assignement cleanup
+
 2009-06-18  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c:
 	Fixed typo in pixma backend for MX320 declaration.

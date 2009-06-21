@@ -1,5 +1,7 @@
 2009-06-20  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* po/sane-backends.sv.po: Updated Swedish translations.
+	* backend/hp5400_internal.h, backend/hp5590_cmds.c,
+	  backend/hp5590_low.c, backend/net.c: Add missing includes.
 
 2009-06-20  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:

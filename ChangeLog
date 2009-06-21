@@ -1,3 +1,6 @@
+2009-06-20  Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* po/sane-backends.sv.po: Updated Swedish translations.
+
 2009-06-20  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	Added Canon imageCLASS D480 support to the pixma backend.

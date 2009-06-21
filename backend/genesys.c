@@ -737,8 +737,7 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 						 dev->motor.slopes[power_mode]
 						 [step_type].minimum_steps <<
 						 step_type,
-						 dev->
-						 motor.slopes[power_mode]
+						 dev->motor.slopes[power_mode]
 						 [step_type].g, used_steps,
 						 &vfinal);
 
@@ -799,8 +798,7 @@ genesys_create_slope_table4 (Genesys_Device * dev,
 						 dev->motor.slopes[power_mode]
 						 [step_type].minimum_steps <<
 						 step_type,
-						 dev->
-						 motor.slopes[power_mode]
+						 dev->motor.slopes[power_mode]
 						 [step_type].g, NULL, NULL);
 
   DBG (DBG_proc,
@@ -2258,27 +2256,28 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   calibration_data = malloc (size);
   if (!calibration_data)
     {
-      DBG (DBG_error, "genesys_dark_shading_calibration: failed to allocate calibration data memory\n");
+      DBG (DBG_error,
+	   "genesys_dark_shading_calibration: failed to allocate calibration data memory\n");
       return SANE_STATUS_NO_MEM;
     }
 
   /* turn off motor and lamp power for flatbed scanners, but not for sheetfed scanners
    * because they have a calibration sheet with a sufficent black strip                */
-  if (dev->model->is_sheetfed==SANE_FALSE)
-   {
+  if (dev->model->is_sheetfed == SANE_FALSE)
+    {
       dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_FALSE);
       dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_FALSE);
-   }
+    }
   else
-   {
+    {
       dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
       dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
-   }
+    }
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->
-					      cmd_set->bulk_full_size ());
+					      dev->model->cmd_set->
+					      bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2484,8 +2483,8 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->
-					      cmd_set->bulk_full_size ());
+					      dev->model->cmd_set->
+					      bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2625,8 +2624,8 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->
-					      cmd_set->bulk_full_size ());
+					      dev->model->cmd_set->
+					      bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2916,6 +2915,75 @@ compute_coefficients (Genesys_Device * dev,
     }
 }
 
+
+/**
+ * Computes shading coefficient using formula in data sheet. 16bit data values
+ * manipulated here are little endian. Data is in planar form, ie grouped by
+ * lines of the same color component.
+ * @param dev scanner's device
+ * @shading_data memory area where to store the computed shading coefficients
+ * @param pixels_per_line number of pixels per line
+ * @param channels number of color channels (actually 1 or 3)
+ * @param avgpixels number of pixels to average
+ * @param offset shading coefficients left offset
+ * @param coeff 4000h or 2000h depending on fast scan mode or not
+ */
+static void
+compute_planar_coefficients (Genesys_Device * dev,
+			     uint8_t * shading_data,
+			     unsigned int pixels_per_line,
+			     unsigned int channels,
+			     unsigned int avgpixels,
+			     unsigned int offset,
+			     unsigned int coeff, unsigned int target_code)
+{
+  uint8_t *ptr;			/*contain 16bit words in little endian */
+  unsigned int x, j, c;
+  unsigned int val, dk;
+
+  for (c = 0; c < channels; c++)
+    {
+      for (x = 0; x < pixels_per_line - offset - avgpixels - 1;
+	   x += avgpixels)
+	{
+	  /* x2 because of 16 bit values, and x2 since one coeff for dark
+	   * and another for white */
+	  ptr = shading_data + pixels_per_line * c + (x + offset) * 2 * 2;
+
+	  /* dark data */
+	  dk = 0;
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      dk += 256 * dev->dark_average_data[(x + j) * 2 + 1];
+	      dk += dev->dark_average_data[(x + j) * 2];
+	    }
+	  dk /= j;
+	  if (dk > 65535)
+	    dk = 65535;
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      ptr[0 + j * 2] = dk & 255;
+	      ptr[1 + j * 2] = dk / 256;
+	    }
+	  /* white data */
+	  val = 0;
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      val += 256 * dev->white_average_data[(x + j) * 2 + 1];
+	      val += dev->white_average_data[(x + j) * 2];
+	    }
+	  val /= j;
+	  val -= (256 * ptr[1] + ptr[0]);
+	  val = compute_coefficient (coeff, target_code, val);
+	  for (j = 0; j < avgpixels; j++)
+	    {
+	      ptr[2 + j * 2] = val & 0xff;
+	      ptr[3 + j * 2] = val / 256;
+	    }
+	}
+    }
+}
+
 static SANE_Status
 genesys_send_shading_coefficient (Genesys_Device * dev)
 {
@@ -2970,7 +3038,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     coeff = 0x4000;
   else
     coeff = 0x2000;
- 
+
   /* for GL646, shading data is planar if REG01_FASTMOD is set and
    * chunky if not. For now we rely on the fact that we know that
    * each sensor is used only in one mode. Currently only the CIS_XP200
@@ -2981,13 +3049,15 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     {
     case CIS_XP200:
       target_code = 0xf000;
-      memset (shading_data, 0x00, pixels_per_line * 4 * channels);
+      memset (shading_data, 0x00, pixels_per_line * 4 * 3);
       o = 0;
+      /* XXX STEF XXX : TODO compute avgpixels on scan settings */
       avgpixels = 1;
-      compute_coefficients (dev,
-			    shading_data,
-			    pixels_per_line,
-			    channels, avgpixels, o, coeff, target_code);
+      compute_planar_coefficients (dev,
+				   shading_data,
+				   pixels_per_line,
+				   channels, avgpixels, o, coeff,
+				   target_code);
       break;
     case CCD_5345:
       target_code = 0xfa00;
@@ -3628,13 +3698,13 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
   /******************* shading calibration ***************************/
   /* send default shading data */
   /* XXX STEF XXX status = sanei_genesys_init_shading_data (dev, pixels_per_line);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "genesys_sheetfed_calibration: failed to init shading process: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }*/
+     if (status != SANE_STATUS_GOOD)
+     {
+     DBG (DBG_error,
+     "genesys_sheetfed_calibration: failed to init shading process: %s\n",
+     sane_strstatus (status));
+     return status;
+     } */
 
   /* we know we hare on a black area */
   if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
@@ -4051,8 +4121,8 @@ genesys_start_scan (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->reg,
-					      dev->model->
-					      cmd_set->bulk_full_size ());
+					      dev->model->cmd_set->
+					      bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -6247,8 +6317,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       if (*(SANE_Word *) val != s->val[option].w)
 	{
 	  s->val[option].w = *(SANE_Word *) val;
-	  RIE (s->dev->model->cmd_set->
-	       set_powersaving (s->dev, s->val[option].w));
+	  RIE (s->dev->model->
+	       cmd_set->set_powersaving (s->dev, s->val[option].w));
 	}
       break;
 
@@ -6286,26 +6356,36 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 					    s->opt[OPT_GAMMA_VECTOR_R].size /
 					    sizeof (SANE_Word),
 					    s->opt
-					    [OPT_GAMMA_VECTOR_R].
-					    constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_R].
-					    constraint.range->max,
+					    [OPT_GAMMA_VECTOR_R].constraint.
+					    range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_R].constraint.
+					    range->max,
 					    s->dev->sensor.red_gamma);
 	  sanei_genesys_create_gamma_table (s->dev->sensor.green_gamma_table,
 					    s->opt[OPT_GAMMA_VECTOR_G].size /
 					    sizeof (SANE_Word),
-					    s->opt[OPT_GAMMA_VECTOR_G].
-					    constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_G].
-					    constraint.range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_G].constraint.
+					    range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_G].constraint.
+					    range->max,
 					    s->dev->sensor.red_gamma);
 	  sanei_genesys_create_gamma_table (s->dev->sensor.blue_gamma_table,
 					    s->opt[OPT_GAMMA_VECTOR_B].size /
 					    sizeof (SANE_Word),
-					    s->opt[OPT_GAMMA_VECTOR_B].
-					    constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_B].
-					    constraint.range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_B].constraint.
+					    range->max,
+					    s->
+					    opt
+					    [OPT_GAMMA_VECTOR_B].constraint.
+					    range->max,
 					    s->dev->sensor.red_gamma);
 	}
       break;

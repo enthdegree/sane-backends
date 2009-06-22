@@ -2276,8 +2276,8 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->cmd_set->
-					      bulk_full_size ());
+					      dev->model->
+					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2483,8 +2483,8 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->cmd_set->
-					      bulk_full_size ());
+					      dev->model->
+					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2624,8 +2624,8 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->cmd_set->
-					      bulk_full_size ());
+					      dev->model->
+					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2989,9 +2989,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
   uint16_t pixels_per_line;
-  uint8_t *shading_data;	/*contains 16bit words in little endian */
+  uint8_t *shading_data;	/**> contains 16bit words in little endian */
   uint8_t channels;
   unsigned int x, j, o;
+  unsigned int length;	        /**> number of shading calibration data words */
   unsigned int i, res;
   unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
   unsigned int target_dark, target_bright, br;
@@ -3003,25 +3004,57 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   channels = dev->calib_channels;
 
   /* we always build data for three channels, even for gray */
-  if (dev->model->is_cis && dev->model->asic_type != GENESYS_GL646)
+  if (dev->model->is_cis)
     {
-      switch (sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6)
+      if (dev->model->asic_type != GENESYS_GL646)
 	{
-	case 0:
-	  words_per_color = 0x5500;
-	  break;
-	case 1:
-	  words_per_color = 0xaa00;
-	  break;
-	case 2:
-	  words_per_color = 0x15400;
-	  break;
+	  switch (sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6)
+	    {
+	    case 0:
+	      words_per_color = 0x5500;
+	      break;
+	    case 1:
+	      words_per_color = 0xaa00;
+	      break;
+	    case 2:
+	      words_per_color = 0x15400;
+	      break;
+	    }
+	  length=0x1fe00;
+	}
+      else			/* GL646 case */
+	{ /* DPIHW */
+	  /* we make the shading data such that each color channel data line is contiguous
+	   * to the next one, which allow to write thes 3 channels in 1 write 
+	   * during genesys_send_shading_coefficient, some values are words, other bytes
+	   * hence the x2 factor */
+	  switch (sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6)
+	    {
+	      /* 600 dpi */
+	    case 0:
+	      words_per_color = 0x2A00 * 2;
+	      length=0x2A00 * 3;
+	      break;
+	      /* 1200 dpi */
+	    case 1:
+	      words_per_color = 0x5500 * 2;
+	      length=0x5500 * 3;
+	      break;
+	      /* 2400 dpi */
+	    case 2:
+	      words_per_color = 0xA800 * 2;
+	      length=0xA800 * 3;
+	      break;
+	    }
 	}
       shading_data = malloc (words_per_color * 3);	/* 16 bit black, 16 bit white */
       memset (shading_data, 0, words_per_color * 3);
     }
   else
-    shading_data = malloc (pixels_per_line * 4 * 3);	/* 16 bit black, 16 bit white */
+    {
+      length=pixels_per_line * 2 * 3;
+      shading_data = malloc (length*2);	/* 16 bit black, 16 bit white */
+    }
   if (!shading_data)
     {
       DBG (DBG_error,
@@ -3255,14 +3288,8 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     }
 
-
-  if (dev->model->is_cis && dev->model->asic_type != GENESYS_GL646)
-    status = genesys_send_offset_and_shading (dev, shading_data, 0x1fe00);
-  else
-    status =
-      genesys_send_offset_and_shading (dev, shading_data,
-				       pixels_per_line * 4 * 3);
-
+  /* do the actual write of shading calibration data to the scanner */
+  status = genesys_send_offset_and_shading (dev, shading_data, length);
   if (status != SANE_STATUS_GOOD)
     DBG (DBG_error,
 	 "genesys_send_shading_coefficient: failed to send shading data: %s\n",
@@ -4121,8 +4148,8 @@ genesys_start_scan (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->reg,
-					      dev->model->cmd_set->
-					      bulk_full_size ());
+					      dev->model->
+					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -6317,8 +6344,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       if (*(SANE_Word *) val != s->val[option].w)
 	{
 	  s->val[option].w = *(SANE_Word *) val;
-	  RIE (s->dev->model->
-	       cmd_set->set_powersaving (s->dev, s->val[option].w));
+	  RIE (s->dev->model->cmd_set->
+	       set_powersaving (s->dev, s->val[option].w));
 	}
       break;
 
@@ -6356,36 +6383,26 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 					    s->opt[OPT_GAMMA_VECTOR_R].size /
 					    sizeof (SANE_Word),
 					    s->opt
-					    [OPT_GAMMA_VECTOR_R].constraint.
-					    range->max,
-					    s->
-					    opt
-					    [OPT_GAMMA_VECTOR_R].constraint.
-					    range->max,
+					    [OPT_GAMMA_VECTOR_R].
+					    constraint.range->max,
+					    s->opt[OPT_GAMMA_VECTOR_R].
+					    constraint.range->max,
 					    s->dev->sensor.red_gamma);
 	  sanei_genesys_create_gamma_table (s->dev->sensor.green_gamma_table,
 					    s->opt[OPT_GAMMA_VECTOR_G].size /
 					    sizeof (SANE_Word),
-					    s->
-					    opt
-					    [OPT_GAMMA_VECTOR_G].constraint.
-					    range->max,
-					    s->
-					    opt
-					    [OPT_GAMMA_VECTOR_G].constraint.
-					    range->max,
+					    s->opt[OPT_GAMMA_VECTOR_G].
+					    constraint.range->max,
+					    s->opt[OPT_GAMMA_VECTOR_G].
+					    constraint.range->max,
 					    s->dev->sensor.red_gamma);
 	  sanei_genesys_create_gamma_table (s->dev->sensor.blue_gamma_table,
 					    s->opt[OPT_GAMMA_VECTOR_B].size /
 					    sizeof (SANE_Word),
-					    s->
-					    opt
-					    [OPT_GAMMA_VECTOR_B].constraint.
-					    range->max,
-					    s->
-					    opt
-					    [OPT_GAMMA_VECTOR_B].constraint.
-					    range->max,
+					    s->opt[OPT_GAMMA_VECTOR_B].
+					    constraint.range->max,
+					    s->opt[OPT_GAMMA_VECTOR_B].
+					    constraint.range->max,
 					    s->dev->sensor.red_gamma);
 	}
       break;

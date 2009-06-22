@@ -62,17 +62,19 @@
 #define IMAGE_BLOCK_SIZE (0xc000)
 #define CMDBUF_SIZE 512
 
+#define MP730_PID 0x262f
+#define MP700_PID 0x2630
+
 #define MP360_PID 0x263c
 #define MP370_PID 0x263d
 #define MP390_PID 0x263e
-#define MP700_PID 0x2630
 
 #define MP740_PID 0x264c	/* Untested */
 #define MP710_PID 0x264d
-#define MP730_PID 0x262f
 
+#define MF5730_PID 0x265d	/* Untested */
+#define MF5750_PID 0x265e	/* Untested */
 #define MF5770_PID 0x265f
-
 
 enum mp730_state_t
 {
@@ -285,6 +287,8 @@ handle_interrupt (pixma_t * s, int timeout)
     case MP360_PID:
     case MP370_PID:
     case MP390_PID:
+    case MF5730_PID:
+    case MF5750_PID:
     case MF5770_PID:
       if (len != 16)
 	{
@@ -332,6 +336,8 @@ has_ccd_sensor (pixma_t * s)
   return (s->cfg->pid == MP360_PID || 
           s->cfg->pid == MP370_PID || 
           s->cfg->pid == MP390_PID ||
+          s->cfg->pid == MF5730_PID ||
+          s->cfg->pid == MF5750_PID ||
           s->cfg->pid == MF5770_PID);
 }
 
@@ -369,27 +375,47 @@ step1 (pixma_t * s)
     return PIXMA_ENO_PAPER;
   if (has_ccd_sensor (s))
     {
-      /* MF5770: Wait 10 sec before starting for 1st page only */
-      if (s->cfg->pid == MF5770_PID && s->param->adf_pageid == 0)
+      switch (s->cfg->pid)
         {
-          tmo = 10;  /* like Windows driver, 10 sec CCD calibration ? */
-          while (--tmo >= 0)
-            {
-              error = handle_interrupt (s, 1000);		\
-              if (s->cancel)				\
-                return PIXMA_ECANCELED;			\
-              if (error != PIXMA_ECANCELED && error < 0)	\
-                return error;
-              PDBG (pixma_dbg (2, "CCD Calibration ends in %d sec.\n", tmo));
-            }
+          case MF5730_PID:
+          case MF5750_PID:
+          case MF5770_PID:
+          /* MF57x0: Wait 10 sec before starting for 1st page only */
+            if (s->param->adf_pageid == 0)
+	      {
+                tmo = 10;  /* like Windows driver, 10 sec CCD calibration ? */
+                while (--tmo >= 0)
+                  {
+                    error = handle_interrupt (s, 1000);		\
+                    if (s->cancel)				\
+                      return PIXMA_ECANCELED;			\
+                    if (error != PIXMA_ECANCELED && error < 0)	\
+                      return error;
+                    PDBG (pixma_dbg (2, "CCD Calibration ends in %d sec.\n", tmo));
+                  }
+              }
+            break;
+
+          default:
+            break;
         }
         
       activate (s, 0);
       error = calibrate (s);
       
-      /* MF5770: calibration returns PIXMA_STATUS_FAILED */
-      if (s->cfg->pid == MF5770_PID && error == PIXMA_ECANCELED)
-        error = read_error_info (s, NULL, 0);
+      switch (s->cfg->pid)
+        {
+          case MF5730_PID:
+          case MF5750_PID:
+          case MF5770_PID:
+          /* MF57x0: calibration returns PIXMA_STATUS_FAILED */
+            if (error == PIXMA_ECANCELED)
+              error = read_error_info (s, NULL, 0);
+            break;
+
+          default:
+            break;
+        }
     }
   if (error >= 0)
     error = activate (s, 0);
@@ -582,14 +608,17 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       /* n = number of full lines (rows) we have in the buffer. */
       if (n != 0)
 	{
-	  if (s->param->channels != 1 && s->cfg->pid != MF5770_PID)
+	  if (s->param->channels != 1    &&
+	      s->cfg->pid != MF5730_PID  &&
+	      s->cfg->pid != MF5750_PID  &&
+	      s->cfg->pid != MF5770_PID)
 	    {
-	      /* color */
+	      /* color, and not an MF57x0 */
 	      pack_rgb (mp->imgbuf, n, mp->raw_width, mp->lbuf);
 	    }
 	  else
 	    {
-	      /* grayscale */
+	      /* grayscale or MF57x0 */
 	      memcpy (mp->lbuf, mp->imgbuf, n * s->param->line_size);
 	    }
 	  block_size = n * s->param->line_size;
@@ -690,7 +719,9 @@ const pixma_config_t pixma_mp730_devices[] = {
   DEVICE ("Canon MultiPASS MP730", "MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon MultiPASS MP740", "MP740", MP740_PID, 1200, 637, 868, PIXMA_CAP_ADF),
   
-  DEVICE ("Canon imageCLASS MF5770", "MF5770", MF5770_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEVICE ("Canon imageCLASS MF5730", "MF5730", MF5730_PID, 1200, 636, 868, PIXMA_CAP_ADF),
+  DEVICE ("Canon imageCLASS MF5750", "MF5750", MF5750_PID, 1200, 636, 868, PIXMA_CAP_ADF),
+  DEVICE ("Canon imageCLASS MF5770", "MF5770", MF5770_PID, 1200, 636, 868, PIXMA_CAP_ADF),
 
   DEVICE (NULL, NULL, 0, 0, 0, 0, 0)
 };

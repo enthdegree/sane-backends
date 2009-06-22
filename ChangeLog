@@ -1,3 +1,10 @@
+2009-06-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_imageclass.c, backend/pixma_mp730.c, doc/descriptions/pixma.desc:
+	- Added duplex ADF scan for Canon ImageCLASS D480.
+	- Fixed ImageCLASS MF5770 grayscale scanning.
+	- Moved ImageCLASS MF5730 and MF5750 to pixma_mp730.c (similarity with MF5770).
+	- Updated documentation.
+
 2009-06-20  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* po/sane-backends.sv.po: Updated Swedish translations.
 	* backend/hp5400_internal.h, backend/hp5590_cmds.c,

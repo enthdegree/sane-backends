@@ -241,7 +241,7 @@
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x172c"
 :status :good
-:comment "Works in flatbed and ADF simplex. ADF Duplex supported, but no report yet."
+:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MX7600"
 :interface "USB Ethernet"
@@ -301,7 +301,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x26ed"
 :status :good
-:comment "All resolutions supported (up to 600DPI)"
+:comment "All resolutions supported (up to 600DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "imageCLASS MF5630"
 :interface "USB"
@@ -337,7 +337,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x265f"
 :status :good
-:comment "All resolutions supported (up to 600DPI) in color. Grayscale not working yet in preview (75 dpi capable ?)."
+:comment "All resolutions supported (up to 600DPI)."
 
 :model "imageCLASS MF3110"
 :interface "USB"

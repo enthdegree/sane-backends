@@ -949,19 +949,6 @@
 :mfg "Kodak"
 :url "http://www.kodak.com"
 
-:model "i30"
-:url "/unsupported/kodak-i30.html"
-:interface "USB"
-:usbid "0x040a" "0x6001"
-:status :unsupported
-:comment "Probably unsupported. See link for details."
-
-:model "i260"
-:url "/unsupported/kodak-i200.html"
-:interface "IEEE-1394"
-:status :unsupported
-:comment "Probably unsupported. See link for details."
-
 :model "Snapshot Photo Scanner 1"
 :interface "Parport"
 :status :unsupported

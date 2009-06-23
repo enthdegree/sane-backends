@@ -85,8 +85,8 @@ BACKEND_CONFS= abaton.conf agfafocus.conf apple.conf artec.conf \
 	       dell1600n_net.conf dmc.conf epjitsu.conf epson2.conf \
 	       epson.conf fujitsu.conf genesys.conf gphoto2.conf \
 	       gt68xx.conf hp3900.conf hp4200.conf hp5400.conf \
-	       hp.conf hpsj5s.conf hs2p.conf ibm.conf leo.conf \
-	       lexmark.conf ma1509.conf matsushita.conf \
+	       hp.conf hpsj5s.conf hs2p.conf ibm.conf kodak.conf \
+	       leo.conf lexmark.conf ma1509.conf matsushita.conf \
 	       microtek2.conf microtek.conf mustek.conf \
 	       mustek_pp.conf mustek_usb.conf nec.conf net.conf \
 	       pie.conf pixma.conf plustek.conf plustek_pp.conf \
@@ -174,7 +174,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libgphoto2_i.la libgt68xx.la libhp.la \
     libhp3500.la libhp3900.la libhp4200.la \
     libhp5400.la libhp5590.la libhpljm1005.la \
-    libhpsj5s.la libhs2p.la libibm.la \
+    libhpsj5s.la libhs2p.la libibm.la libkodak.la \
     libleo.la liblexmark.la libma1509.la \
     libmatsushita.la libmicrotek.la libmicrotek2.la \
     libmustek.la libmustek_pp.la libmustek_usb.la \
@@ -205,7 +205,7 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-gphoto2.la libsane-gt68xx.la libsane-hp.la \
     libsane-hp3500.la libsane-hp3900.la libsane-hp4200.la \
     libsane-hp5400.la libsane-hp5590.la libsane-hpljm1005.la \
-    libsane-hpsj5s.la libsane-hs2p.la libsane-ibm.la \
+    libsane-hpsj5s.la libsane-hs2p.la libsane-ibm.la libsane-kodak.la \
     libsane-leo.la libsane-lexmark.la libsane-ma1509.la \
     libsane-matsushita.la libsane-microtek.la libsane-microtek2.la \
     libsane-mustek.la libsane-mustek_pp.la libsane-mustek_usb.la \
@@ -605,6 +605,15 @@ libsane_ibm_la_LIBADD = $(COMMON_LIBS) libibm.la ../sanei/sanei_init_debug.lo ..
 EXTRA_DIST += ibm.conf.in
 # TODO: Why are these distributed but not compiled?
 EXTRA_DIST += ibm-scsi.c
+
+libkodak_la_SOURCES = kodak.c kodak.h kodak-cmd.h
+libkodak_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kodak
+
+nodist_libsane_kodak_la_SOURCES = kodak-s.c
+libsane_kodak_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kodak
+libsane_kodak_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_kodak_la_LIBADD = $(COMMON_LIBS) libkodak.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS)
+EXTRA_DIST += kodak.conf.in
 
 libleo_la_SOURCES = leo.c leo.h
 libleo_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=leo

@@ -1594,10 +1594,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
             params->depth = 1;
             params->bytes_per_line = params->pixels_per_line / 8;
 
+#ifdef SANE_FRAME_G42D
 	    /*G4 fax compression*/
             if (s->i_compr) {
                 params->format = SANE_FRAME_G42D;
 	    }
+#endif
         }
         /* gray */
         else if (s->i_bpp == 8) {
@@ -1605,10 +1607,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
             params->depth = 8;
             params->bytes_per_line = params->pixels_per_line;
 
+#ifdef SANE_FRAME_JPEG
 	    /*jpeg compression*/
             if (s->i_compr) {
                 params->format = SANE_FRAME_JPEG;
 	    }
+#endif
         }
         /* color */
         else if (s->i_bpp == 24 || s->i_bpp == 96) {
@@ -1616,10 +1620,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
             params->depth = 8;
             params->bytes_per_line = params->pixels_per_line * 3;
 
+#ifdef SANE_FRAME_JPEG
 	    /*jpeg compression*/
             if (s->i_compr) {
                 params->format = SANE_FRAME_JPEG;
 	    }
+#endif
         }
         else{
 	    DBG(5,"sane_get_parameters: unsupported depth %d\n", s->i_bpp);

@@ -69,7 +69,6 @@
     if (status != SANE_STATUS_GOOD) return status;      \
   } while (SANE_FALSE)
 
-#define MM_PER_INCH 25.4
 
 /* Flags */
 #define GENESYS_FLAG_UNTESTED     (1 << 0)	/* Print a warning for these scanners */

@@ -53,6 +53,7 @@
 
 #include "../include/sane/sanei_debug.h"
 #include "../include/sane/sanei_usb.h"
+#include "../include/_stdint.h"
 #include "hp5590_low.h"
 
 /* Debug levels */

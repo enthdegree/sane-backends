@@ -63,7 +63,6 @@
 #endif
 
 #define MA1509_CONFIG_FILE "ma1509.conf"
-#define MM_PER_INCH 25.4
 
 /* Convenience macros */
 #if defined(MIN)

@@ -76,7 +76,6 @@
 #include "ibm.h"
 #include "ibm-scsi.c"
 
-#define MM_PER_INCH	25.4
 #define MAX(a,b)	((a) > (b) ? (a) : (b))
 
 static int num_devices = 0;

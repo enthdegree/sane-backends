@@ -56,7 +56,6 @@
 #define DISABLE(OPTION) s->opt[OPTION].cap |=  SANE_CAP_INACTIVE
 #define IS_ACTIVE(OPTION) (((s->opt[OPTION].cap) & SANE_CAP_INACTIVE) == 0)
 
-#define MM_PER_INCH	25.4
 #define MUSTEK_USB_CONFIG_FILE "mustek_usb.conf"
 #define SCAN_BUFFER_SIZE (64 * 1024)
 

@@ -47,7 +47,6 @@
 # define PATH_MAX	1024
 #endif
 
-#define MM_PER_INCH	25.4
 
 #undef Byte
 #define Byte SANE_Byte

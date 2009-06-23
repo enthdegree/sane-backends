@@ -55,7 +55,6 @@
 # define PATH_MAX 1024
 #endif
 #define MUSTEK_CONFIG_FILE "mustek.conf"
-#define MM_PER_INCH 25.4
 
 #define MAX_WAITING_TIME 60	/* How long to wait for scanner to become ready */
 #define MAX_LINE_DIST 40	/* Extra lines needed for LD correction */

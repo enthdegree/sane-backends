@@ -521,7 +521,6 @@ typedef struct mode_page_connect
 } MP_CXN;
 
 /* 1 inch = 6 picas = 72 points = 25.4 mm */
-#define MM_PER_INCH 25.4
 #define DEFAULT_MUD 1200	/* WHY ? */
 /* BASIC MEASUREMENT UNIT
  * 00H INCH

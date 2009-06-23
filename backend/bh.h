@@ -206,7 +206,6 @@ typedef enum
 } BH_Option;
 
 /* macros for accessing the value for an option within a scanning context */
-#define MM_PER_INCH 25.4
 #define _OPT_VAL_WORD(s, o) ((s)->val[(o)].w)
 #define _OPT_VAL_WORD_THOUSANDTHS(s, o) \
     (SANE_UNFIX(_OPT_VAL_WORD((s), (o))) * 1000.0 / MM_PER_INCH)

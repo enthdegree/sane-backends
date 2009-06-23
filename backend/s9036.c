@@ -41,7 +41,6 @@
 #define BACKEND_NAME	s9036
 #include "../include/sane/sanei_backend.h"
 
-#define MM_PER_INCH	25.4
 
 #undef Byte
 #define Byte SANE_Byte

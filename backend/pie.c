@@ -115,7 +115,6 @@
 #define BUILD 9
 
 #define PIE_CONFIG_FILE "pie.conf"
-#define MM_PER_INCH	 25.4
 
 #define LINEART_STR         "Lineart"
 #define HALFTONE_STR        "Halftone"

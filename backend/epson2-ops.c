@@ -19,12 +19,10 @@
 
 #include "sane/config.h"
 
-#include <stdlib.h>		/* malloc */
 #include <unistd.h>		/* sleep */
 
 #include <sys/select.h>
 
-#include <stdio.h>
 
 #include "byteorder.h"
 
@@ -34,106 +32,67 @@
 #include "epson2-io.h"
 #include "epson2-commands.h"
 
-static EpsonCmdRec epson_cmd[] = {
-
 /*
- *	      request identity
- *	      |   request identity2
- *	      |    |    request status
- *	      |    |    |    request command parameter
- *	      |    |    |    |    set color mode
- *	      |    |    |    |    |    start scanning
- *	      |    |    |    |    |    |    set data format
- *	      |    |    |    |    |    |    |    set resolution
- *	      |    |    |    |    |    |    |    |    set zoom
- *	      |    |    |    |    |    |    |    |    |    set scan area
- *	      |    |    |    |    |    |    |    |    |    |    set brightness
- *	      |    |    |    |    |    |    |    |    |    |    |		set gamma
- *	      |    |    |    |    |    |    |    |    |    |    |		|    set halftoning
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    set color correction
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    initialize scanner
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    set speed
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    set lcount
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    mirror image
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    set gamma table
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    set outline emphasis
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    set dither
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    set color correction coefficients
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    request extended status
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    control an extension
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    forward feed / eject
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     feed
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     request push button status
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    control auto area segmentation
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    set film type
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    |    set exposure time
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    |    |    set bay
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    |    |    |    set threshold
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    |    |    |    |    set focus position
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    |    |    |    |    |    request focus position
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    |    |    |    |    |    |    request extended identity
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    |    |    |    |    |    |    |    request scanner status
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    |    |    |    |    |    |    |    |
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    |    |    |    |    |    |    |    |
- *	      |    |    |    |    |    |    |    |    |    |    |		|    |    |    |    |    |    |    |    |    |    |    |    |    |     |     |    |    |    |    |    |    |    |    |    |
+ *       request identity
+ *       |   request identity2
+ *       |   |   request status
+ *       |   |   |   request condition
+ *       |   |   |   |   set color mode
+ *       |   |   |   |   |   start scanning
+ *       |   |   |   |   |   |   set data format
+ *       |   |   |   |   |   |   |   set resolution
+ *       |   |   |   |   |   |   |   |   set zoom
+ *       |   |   |   |   |   |   |   |   |   set scan area
+ *       |   |   |   |   |   |   |   |   |   |   set brightness
+ *       |   |   |   |   |   |   |   |   |   |   |              set gamma
+ *       |   |   |   |   |   |   |   |   |   |   |              |   set halftoning
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   set color correction
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   initialize scanner
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   set speed
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   set lcount
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   mirror image
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   set gamma table
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   set outline emphasis
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   set dither
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   set color correction coefficients
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   request extension status
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   control an extension
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    forward feed / eject
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   feed
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     request push button status
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   control auto area segmentation
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   set film type
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   set exposure time
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   set bay
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   set threshold
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   set focus position
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   request focus position 
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |   request extended identity
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |   |   request scanner status
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |   |   |
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |   |   |
  */
-	{"A1", 'I', 0x0, 'F', 'S', 0x0, 'G', 0x0, 'R', 0x0, 'A', 0x0,
-	 {-0, 0, 0}, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0, 0x0, 0x0, 0x0, 0x00, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0, 0x0, 0x0, 0x0, 0x0},
-	{"A2", 'I', 0x0, 'F', 'S', 0x0, 'G', 'D', 'R', 'H', 'A', 'L',
-	 {-3, 3, 0}, 'Z', 'B', 0x0, '@', 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0, 0x0, 0x00, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0},
-	{"B1", 'I', 0x0, 'F', 'S', 'C', 'G', 'D', 'R', 0x0, 'A', 0x0,
-	 {-0, 0, 0}, 0x0, 'B', 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0, 0x0, 0x00, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0},
-	{"B2", 'I', 0x0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L',
-	 {-3, 3, 0}, 'Z', 'B', 0x0, '@', 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0, 0x0, 0x00, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0},
-	{"B3", 'I', 0x0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L',
-	 {-3, 3, 0}, 'Z', 'B', 'M', '@', 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 'm',
-	 'f', 'e', 0x00, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0},
-	{"B4", 'I', 0x0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L',
-	 {-3, 3, 0}, 'Z', 'B', 'M', '@', 'g', 'd', 0x0, 'z', 'Q', 'b', 'm',
-	 'f', 'e', 0x00, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0},
-	{"B5", 'I', 0x0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L',
-	 {-3, 3, 0}, 'Z', 'B', 'M', '@', 'g', 'd', 'K', 'z', 'Q', 'b', 'm',
-	 'f', 'e', 0x00, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0},
-	{"B6", 'I', 0x0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L',
-	 {-3, 3, 0}, 'Z', 'B', 'M', '@', 'g', 'd', 'K', 'z', 'Q', 'b', 'm',
-	 'f', 'e', 0x00, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0},
-	{"B7", 'I', 0x0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L',
-	 {-4, 3, 0}, 'Z', 'B', 'M', '@', 'g', 'd', 'K', 'z', 'Q', 'b', 'm',
-	 'f', 'e', '\f', 0x00, '!', 's', 'N', 0x0, 0x0, 't', 0x0, 0x0, 'I',
-	 'F'},
-	{"B8", 'I', 0x0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L',
-	 {-4, 3, 0}, 'Z', 'B', 'M', '@', 'g', 'd', 'K', 'z', 'Q', 'b', 'm',
-	 'f', 'e', '\f', 0x19, '!', 's', 'N', 0x0, 0x0, 0x0, 'p', 'q', 'I',
-	 'F'},
-	{"F5", 'I', 0x0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L',
-	 {-3, 3, 0}, 'Z', 0x0, 'M', '@', 'g', 'd', 'K', 'z', 'Q', 0x0, 'm',
-	 0x0, 'e', '\f', 0x00, 0x0, 0x0, 'N', 'T', 'P', 0x0, 0x0, 0x0, 0x0,
-	 0x0},
-	{"D1", 'I', 'i', 'F', 0x0, 'C', 'G', 'D', 'R', 0x0, 'A', 0x0,
-	 {-0, 0, 0}, 'Z', 0x0, 0x0, '@', 'g', 'd', 0x0, 'z', 0x0, 0x0, 0x0,
-	 'f', 0x0, 0x00, 0x00, '!', 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0},
-	{"D7", 'I', 'i', 'F', 0x0, 'C', 'G', 'D', 'R', 0x0, 'A', 0x0,
-	 {-0, 0, 0}, 'Z', 0x0, 0x0, '@', 'g', 'd', 0x0, 'z', 0x0, 0x0, 0x0,
-	 'f', 0x0, 0x00, 0x00, '!', 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0},
-	{"D8", 'I', 'i', 'F', 0x0, 'C', 'G', 'D', 'R', 0x0, 'A', 0x0,
-	 {-0, 0, 0}, 'Z', 0x0, 0x0, '@', 'g', 'd', 0x0, 'z', 0x0, 0x0, 0x0,
-	 'f', 'e', 0x00, 0x00, '!', 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	 0x0},
+
+static struct EpsonCmd epson_cmd[] = {
+  {"A1",'I', 0 ,'F','S', 0 ,'G', 0 ,'R', 0 ,'A', 0 ,{ 0, 0, 0}, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0   , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"A2",'I', 0 ,'F','S', 0 ,'G','D','R','H','A','L',{-3, 3, 0},'Z','B', 0 ,'@', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0   , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B1",'I', 0 ,'F','S','C','G','D','R', 0 ,'A', 0 ,{ 0, 0, 0}, 0 ,'B', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0   , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B2",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3, 3, 0},'Z','B', 0 ,'@', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0   , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B3",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3, 3, 0},'Z','B','M','@', 0 , 0 , 0 , 0 , 0 , 0 ,'m','f','e',  0 , 0   , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B4",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3, 3, 0},'Z','B','M','@','g','d', 0 ,'z','Q','b','m','f','e',  0 , 0   , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3, 3, 0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 , 0   , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B6",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3, 3, 0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 , 0   , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B7",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4, 3, 0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f', 0   ,'!','s','N', 0 , 0 ,'t', 0 , 0 ,'I','F'},
+  {"B8",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4, 3, 0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f', 0x19,'!','s','N', 0 , 0 ,'t','p','q','I','F'},
+/* XXX 'f' probably not supported on F5 */
+  {"F5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3, 3, 0},'Z', 0 ,'M','@','g','d','K','z','Q', 0 ,'m','f','e','\f', 0   , 0 , 0 ,'N','T','P', 0 , 0 , 0 , 0 , 0 },
+  {"D1",'I','i','F', 0 ,'C','G','D','R', 0 ,'A', 0 ,{ 0, 0, 0},'Z', 0 , 0 ,'@','g','d', 0 ,'z', 0 , 0 ,'m','f', 0 ,  0 , 0   ,'!', 0 , 0 , 0 , 0 ,'t', 0 , 0 , 0 , 0 },
+  {"D2",'I','i','F', 0 ,'C','G','D','R', 0 ,'A', 0 ,{ 0, 0, 0},'Z', 0 , 0 ,'@','g','d', 0 ,'z', 0 , 0 ,'m','f','e',  0 , 0   ,'!', 0 ,'N', 0 , 0 ,'t', 0 , 0 , 0 , 0 },
+  {"D7",'I','i','F', 0 ,'C','G','D','R', 0 ,'A', 0 ,{ 0, 0, 0},'Z', 0 , 0 ,'@','g','d', 0 ,'z', 0 , 0 , 0 ,'f','e','\f', 0   ,'!', 0 ,'N', 0 , 0 ,'t', 0 , 0 , 0 , 0 },
+  {"D8",'I','i','F', 0 ,'C','G','D','R', 0 ,'A', 0 ,{ 0, 0, 0},'Z', 0 , 0 ,'@','g','d', 0 ,'z', 0 , 0 ,'0','f','e','\f', 0   ,'!', 0 ,'N', 0 , 0 ,'t', 0 , 0 , 0 , 0 },
 };
+
+
 
 extern struct mode_param mode_params[];
 
@@ -156,10 +115,10 @@ static int film_params[] = { 0, 1, 2, 3 };
 extern const int halftone_params[];
 
 static const int dropout_params[] = {
-	0x00,			/* none */
-	0x10,			/* red */
-	0x20,			/* green */
-	0x30			/* blue */
+	0x00,	/* none */
+	0x10,	/* red */
+	0x20,	/* green */
+	0x30	/* blue */
 };
 
 /*
@@ -169,16 +128,14 @@ static const int dropout_params[] = {
  * and one array to mark the user defined color correction (color_userdefined[]).
  */
 static const int color_params[] = {
-	0x00,
-	0x01,
+	0x00,	/* None */
+	0x01,	/* Auto */
+	0x01,	/* User defined */
 	0x10,
 	0x20,
 	0x40,
 	0x80
 };
-
-static const SANE_Range outline_emphasis_range = { -2, 2, 0 };
-
 
 void
 e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
@@ -186,6 +143,8 @@ e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 	dev->name = NULL;
 	dev->model = NULL;
 	dev->connection = conntype;
+
+	dev->model_id = 0;
 
 	dev->sane.name = devname;
 	dev->sane.model = NULL;
@@ -201,6 +160,8 @@ e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 	dev->need_color_reorder = SANE_FALSE;
 	dev->need_double_vertical = SANE_FALSE;
 
+	dev->cct_profile = &epson_cct_profiles[0]; /* default profile */
+	
 	dev->cmd = &epson_cmd[EPSON_LEVEL_DEFAULT];
 
 	/* Change default level when using a network connection */
@@ -217,6 +178,26 @@ e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 SANE_Status
 e2_dev_post_init(struct Epson_Device *dev)
 {
+	int i;
+	
+	/* find cct model id */
+	for (i = 0; epson_cct_models[i].name != NULL; i++) {
+		if (strcmp(epson_cct_models[i].name, dev->model) == 0) {
+			dev->model_id = epson_cct_models[i].id;
+			break;
+		}
+	}
+
+	/* find cct profile */
+	for (i = 0; epson_cct_profiles[i].model != 0xFF; i++) {
+		if (epson_cct_profiles[i].model == dev->model_id) {
+			dev->cct_profile = &epson_cct_profiles[i];
+			break;
+		}
+	}
+
+	DBG(1, "CCT model id is 0x%02x, profile offset %d\n", dev->model_id, i);
+
 	/* If we have been unable to obtain supported resolutions
 	 * due to the fact we are on the network transport,
 	 * add some convenient ones

@@ -71,15 +71,15 @@
 #define MF4100_PID 0x26a3
 #define MF4600_PID 0x26b0
 #define MF4010_PID 0x26b4
+#define D480_PID   0x26ed
 /* the following are all untested */
 #define MF5630_PID 0x264e
 #define MF5650_PID 0x264f
 #define MF8100_PID 0x2659
-#define MF5730_PID 0x265d
-#define MF5750_PID 0x265e
 #define MF3110_PID 0x2660
 #define MF3200_PID 0x2684
 #define MF6500_PID 0x2686
+
 
 
 enum iclass_state_t
@@ -178,6 +178,7 @@ activate (pixma_t * s, uint8_t x)
     {
     case MF4200_PID:
     case MF4600_PID:
+    case D480_PID:
       return iclass_exec (s, &mf->cb, 1);
       break;
     case MF4100_PID:
@@ -198,11 +199,14 @@ select_source (pixma_t * s)
 {
   iclass_t *mf = (iclass_t *) s->subdriver;
   uint8_t *data = pixma_newcmd (&mf->cb, cmd_select_source, 10, 0);
-  data[0] = (s->param->source == PIXMA_SOURCE_ADF) ? 2 : 1;
+  data[0] = (s->param->source == PIXMA_SOURCE_ADF ||
+             s->param->source == PIXMA_SOURCE_ADFDUP) ? 2 : 1;
+  data[5] = (s->param->source == PIXMA_SOURCE_ADFDUP) ? 3 : 0;
   switch (s->cfg->pid)
     {
     case MF4200_PID:
     case MF4600_PID:
+    case D480_PID:
       return iclass_exec (s, &mf->cb, 0);
       break;
     case MF4100_PID:
@@ -233,6 +237,7 @@ send_scan_param (pixma_t * s)
     {
     case MF4200_PID:
     case MF4600_PID:
+    case D480_PID:
       return iclass_exec (s, &mf->cb, 0);
       break;
     case MF4100_PID:
@@ -308,6 +313,7 @@ read_error_info (pixma_t * s, void *buf, unsigned size)
     {
     case MF4200_PID:
     case MF4600_PID:
+    case D480_PID:    
       error = iclass_exec (s, &mf->cb, 0);
       break;
     case MF4100_PID:
@@ -667,16 +673,15 @@ static const pixma_scan_ops_t pixma_iclass_ops = {
 const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF4270", "MF4270", MF4200_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4150", "MF4100", MF4100_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF4690", "MF4690", MF4600_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS D480", "D480", D480_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
 /* FIXME: the following capabilities all need updating/verifying */
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF8170c", "MF8170c", MF8100_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF5730", "MF5730", MF5730_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF5750", "MF5750", MF5750_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF3110", "MF3110", MF3110_PID, 600, 640, 877, 0),
   DEV ("Canon imageCLASS MF3240", "MF3240", MF3200_PID, 600, 640, 877, 0),
   DEV ("Canon imageClass MF6500", "MF6500", MF6500_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF4690", "MF4690", MF4600_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4010", "MF4010", MF4010_PID, 600, 640, 877, 0),
   DEV (NULL, NULL, 0, 0, 0, 0, 0)
 };

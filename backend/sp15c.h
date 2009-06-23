@@ -192,7 +192,6 @@ struct sp15c
 
 /* ------------------------------------------------------------------------- */
 
-#define MM_PER_INCH	25.4
 #define length_quant SANE_UNFIX(SANE_FIX(MM_PER_INCH / 1200.0))
 #define mmToIlu(mm) ((mm) / length_quant)
 #define iluToMm(ilu) ((ilu) * length_quant)

@@ -36,7 +36,6 @@ typedef SANE_Byte Artec48U_Packet[ARTEC48U_PACKET_SIZE];
 #define HIBYTE(w) ((SANE_Byte)(((SANE_Word)(w) >> 8) & 0xFF))
 #define LOBYTE(w) ((SANE_Byte)(w))
 
-#define MM_PER_INCH 25.4
 
 #define CHECK_DEV_NOT_NULL(dev, func_name)                              \
   do {                                                                  \

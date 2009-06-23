@@ -456,13 +456,13 @@ libsane_epson_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_epson_la_LIBADD = $(COMMON_LIBS) libepson.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo  ../sanei/sanei_pio.lo $(SCSI_LIBS) $(USB_LIBS)
 EXTRA_DIST += epson.conf.in
 
-libepson2_la_SOURCES = epson2.c epson2.h epson2_scsi.c epson2_scsi.h epson_usb.c epson2_net.c epson2_net.h epson2-io.c epson2-io.h epson2-commands.c epson2-commands.h epson2-ops.c epson2-ops.h
+libepson2_la_SOURCES = epson2.c epson2.h epson2_scsi.c epson2_scsi.h epson_usb.c epson2_net.c epson2_net.h epson2-io.c epson2-io.h epson2-commands.c epson2-commands.h epson2-ops.c epson2-ops.h epson2-cct.c
 libepson2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epson2
 
 nodist_libsane_epson2_la_SOURCES = epson2-s.c
 libsane_epson2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epson2
 libsane_epson2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_epson2_la_LIBADD = $(COMMON_LIBS) libepson2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo $(SCSI_LIBS) $(USB_LIBS) $(SOCKET_LIBS)
+libsane_epson2_la_LIBADD = $(COMMON_LIBS) libepson2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo $(SCSI_LIBS) $(USB_LIBS) $(SOCKET_LIBS) $(MATH_LIB)
 EXTRA_DIST += epson2.conf.in
 
 libfujitsu_la_SOURCES = fujitsu.c fujitsu.h fujitsu-scsi.h

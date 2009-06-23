@@ -47,6 +47,7 @@ extern int sanei_debug_hp; */
 #define DEBUG_DECLARE_ONLY
 
 #include "../include/sane/config.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "../include/lassert.h"
 #include <string.h>

@@ -85,7 +85,6 @@
 # define PATH_MAX	1024
 #endif
 
-#define MM_PER_INCH	25.4
 
 #define SCSI_BUFF_SIZE sanei_scsi_max_request_size
 

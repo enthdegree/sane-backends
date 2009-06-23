@@ -117,7 +117,6 @@
 typedef int (*rts8801_callback) (void *param, unsigned bytes, void *data);
 
 #define DEBUG 1
-#define MM_PER_INCH 25.4
 #define SCANNER_UNIT_TO_FIXED_MM(number) SANE_FIX(number * MM_PER_INCH / 1200)
 #define FIXED_MM_TO_SCANNER_UNIT(number) SANE_UNFIX(number) * 1200 / MM_PER_INCH
 

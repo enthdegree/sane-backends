@@ -70,7 +70,6 @@
 #define HIBYTE(w) ((SANE_Byte)(((SANE_Word)(w) >> 8) & 0xFF))
 #define LOBYTE(w) ((SANE_Byte)(w))
 
-#define MM_PER_INCH 25.4
 
 /* return if an error occured while the function was called */
 #ifdef MAX_DEBUG

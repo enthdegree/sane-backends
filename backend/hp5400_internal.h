@@ -52,6 +52,7 @@
    tables and stores the results of a scan. - 19/02/2003 Martijn
 */
 
+#include "../include/_stdint.h"
 
 #ifdef __GNUC__
 #define PACKED __attribute__ ((packed))

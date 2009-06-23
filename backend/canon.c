@@ -127,7 +127,6 @@
 #define SANE_I18N(text)	text
 #endif
 
-#define MM_PER_INCH	 25.4
 
 static SANE_Byte primaryHigh[256], primaryLow[256], secondaryHigh[256],
 		 secondaryLow[256];	/* modification for FB1200S */

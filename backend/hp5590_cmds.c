@@ -55,6 +55,7 @@
 #include <string.h>
 
 #include "../include/sane/sanei_debug.h"
+#include "../include/_stdint.h"
 #include "hp5590_low.h"
 #include "hp5590_cmds.h"
 

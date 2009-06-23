@@ -49,6 +49,7 @@
 
 #include "../include/sane/config.h"
 #include "../include/lalloca.h"
+#include "../include/_stdint.h"
 
 #include <errno.h>
 #include <fcntl.h>

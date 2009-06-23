@@ -115,11 +115,12 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 			return 0;
 		}
 		
-	} else if (wanted < size && s->netlen == size) {
+/*	} else if (wanted < size && s->netlen == size) { */
+	} else {
 		DBG(23, "%s: partial read\n", __func__);
 
 		read = sanei_tcp_read(s->fd, s->netbuf, size);
-		if (read < 0) {
+		if (read != size) {
 			*status = SANE_STATUS_IO_ERROR;
 			return 0;
 		}

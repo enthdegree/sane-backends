@@ -20,6 +20,7 @@
 #include "sane/config.h"
 
 #include <byteorder.h>
+#include <math.h>
 
 #include "epson2.h"
 #include "epson2-io.h"
@@ -125,17 +126,158 @@ esci_set_scan_area(Epson_Scanner * s, int x, int y, int width, int height)
 	return e2_cmd_simple(s, params, 8);
 }
 
+static int
+get_roundup_index(double frac[], int n)
+{
+	int i, index = -1;
+	double max_val = 0.0;
+
+	for (i = 0; i < n; i++) {
+
+		if (frac[i] < 0)
+			continue;
+
+		if (max_val < frac[i]) {
+			index = i;
+			max_val = frac[i];
+		}
+	}
+
+	return index;
+}
+
+static int
+get_rounddown_index(double frac[], int n)
+{
+	int i, index = -1;
+	double min_val = 1.0;
+
+	for (i = 0; i < n; i++) {
+
+		if (frac[i] > 0)
+			continue;
+
+		if (min_val > frac[i]) {
+			index = i;
+			min_val = frac[i];
+		}
+	}
+
+	return index;
+}
+
+static unsigned char
+int2cpt(int val)
+{
+	if (val >= 0) {
+
+		if (val > 127)
+			val = 127;
+
+		return (unsigned char) val;
+
+	} else {
+
+		val = -val;
+
+		if (val > 127)
+			val = 127;
+
+		return (unsigned char) (0x80 | val);
+	}
+}
+
+static void
+round_cct(double org_cct[], int rnd_cct[])
+{
+	int loop = 0;
+	int i, j, sum[3];
+	double mult_cct[9], frac[9];
+
+	for (i = 0; i < 9; i++) {
+  		mult_cct[i] = org_cct[i] * 32;
+		rnd_cct[i] = (int) floor(mult_cct[i] + 0.5);
+	}
+	
+	do {
+		for (i = 0; i < 3; i++) {
+
+			int k = i * 3;
+
+			if ((rnd_cct[k] == 11) &&
+				(rnd_cct[k] == rnd_cct[k + 1]) &&
+				(rnd_cct[k] == rnd_cct[k + 2])) {
+
+				rnd_cct[k + i]--;
+				mult_cct[k + i] = rnd_cct[k + i];
+			}
+		}
+
+		for (i = 0; i < 3; i++) {
+
+			int k = i * 3;
+
+			for (sum[i] = j = 0; j < 3; j++)
+				sum[i] += rnd_cct[k + j];
+		}
+
+		for (i = 0; i < 9; i++)
+			frac[i] = mult_cct[i] - rnd_cct[i];
+
+		for (i = 0; i < 3; i++) {
+
+			int k = i * 3;
+
+			if (sum[i] < 32) {
+
+				int index = get_roundup_index(&frac[k], 3);
+				if (index != -1) {
+					rnd_cct[k + index]++;
+					mult_cct[k + index] = rnd_cct[k + index];
+					sum[i]++;
+				}
+
+			} else if (sum[i] > 32) {
+
+				int index = get_rounddown_index(&frac[k], 3);
+				if (index != -1) {
+					rnd_cct[k + index]--;
+					mult_cct[k + index] = rnd_cct[k + index];
+					sum[i]--;
+				}
+			}
+		}
+	}
+
+	while ((++loop < 2)
+		&& ((sum[0] != 32) || (sum[1] != 32) || (sum[2] != 32)));
+}
+
+static void
+profile_to_colorcoeff(double *profile, unsigned char *color_coeff)
+{
+	int cc_idx[] = { 4, 1, 7, 3, 0, 6, 5, 2, 8 };
+	int i, color_table[9];
+
+  	round_cct(profile, color_table);
+
+  	for (i = 0; i < 9; i++)
+  		color_coeff[i] = int2cpt(color_table[cc_idx[i]]);
+}
+                                            
+                                            
 /*
  * Sends the "set color correction coefficients" command with the
  * currently selected parameters to the scanner.
  */
 
 SANE_Status
-esci_set_color_correction_coefficients(Epson_Scanner * s)
+esci_set_color_correction_coefficients(Epson_Scanner * s, SANE_Word *table)
 {
 	SANE_Status status;
 	unsigned char params[2];
-	signed char cct[9];
+	unsigned char data[9];
+	double cct[9];
 
 	DBG(8, "%s\n", __func__);
 	if (!s->hw->cmd->set_color_correction_coefficients) {
@@ -150,21 +292,23 @@ esci_set_color_correction_coefficients(Epson_Scanner * s)
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
-	cct[0] = s->val[OPT_CCT_1].w;
-	cct[1] = s->val[OPT_CCT_2].w;
-	cct[2] = s->val[OPT_CCT_3].w;
-	cct[3] = s->val[OPT_CCT_4].w;
-	cct[4] = s->val[OPT_CCT_5].w;
-	cct[5] = s->val[OPT_CCT_6].w;
-	cct[6] = s->val[OPT_CCT_7].w;
-	cct[7] = s->val[OPT_CCT_8].w;
-	cct[8] = s->val[OPT_CCT_9].w;
+	cct[0] = SANE_UNFIX(table[0]);
+	cct[1] = SANE_UNFIX(table[1]);
+	cct[2] = SANE_UNFIX(table[2]);
+	cct[3] = SANE_UNFIX(table[3]);
+	cct[4] = SANE_UNFIX(table[4]);
+	cct[5] = SANE_UNFIX(table[5]);
+	cct[6] = SANE_UNFIX(table[6]);
+	cct[7] = SANE_UNFIX(table[7]);
+	cct[8] = SANE_UNFIX(table[8]);
+
+	profile_to_colorcoeff(cct, data);
 
 	DBG(11, "%s: %d,%d,%d %d,%d,%d %d,%d,%d\n", __func__,
-	    cct[0], cct[1], cct[2], cct[3],
-	    cct[4], cct[5], cct[6], cct[7], cct[8]);
+	    data[0] , data[1], data[2], data[3],
+	    data[4], data[5], data[6], data[7], data[8]);
 
-	return e2_cmd_simple(s, params, 9);
+	return e2_cmd_simple(s, data, 9);
 }
 
 SANE_Status

@@ -1,3 +1,26 @@
+2009-06-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_imageclass.c, backend/pixma_mp730.c, doc/descriptions/pixma.desc:
+	- Added duplex ADF scan for Canon ImageCLASS D480.
+	- Fixed ImageCLASS MF5770 grayscale scanning.
+	- Moved ImageCLASS MF5730 and MF5750 to pixma_mp730.c (similarity with MF5770).
+	- Updated documentation.
+
+2009-06-20  Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* po/sane-backends.sv.po: Updated Swedish translations.
+	* backend/hp5400_internal.h, backend/hp5590_cmds.c,
+	  backend/hp5590_low.c, backend/net.c: Add missing includes.
+
+2009-06-20  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Added Canon imageCLASS D480 support to the pixma backend.
+
+2009-06-17  Stéphane Voltz <stef.dev at free.fr>
+	* backend/lexmark_low.c: f3/f4 registers assignement cleanup
+
+2009-06-18  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c:
+	Fixed typo in pixma backend for MX320 declaration.
+
 2009-06-17 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v30
 	- add fine cal support for machines with internal buffer (2050/2080)

@@ -39,7 +39,7 @@ SANE_Status esci_set_zoom(Epson_Scanner * s, unsigned char x, unsigned char y);
 SANE_Status esci_set_resolution(Epson_Scanner * s, int x, int y);
 SANE_Status esci_set_scan_area(Epson_Scanner * s, int x, int y, int width,
 			  int height);
-SANE_Status esci_set_color_correction_coefficients(Epson_Scanner * s);
+SANE_Status esci_set_color_correction_coefficients(Epson_Scanner * s, SANE_Word *table);
 SANE_Status esci_set_gamma_table(Epson_Scanner * s);
 
 SANE_Status esci_request_status(SANE_Handle handle, unsigned char *scanner_status);

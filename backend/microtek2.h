@@ -78,7 +78,6 @@
 
 #endif /* HAVE_AUTHORIZATION */
 
-#define MM_PER_INCH             25.4
 
 #define ENDIAN_TYPE(d)          { unsigned  i, test = 0; \
                                   for (i=0; i < sizeof(int); i++ ) \

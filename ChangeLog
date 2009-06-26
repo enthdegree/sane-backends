@@ -1,3 +1,9 @@
+2009-06-26 Julien Blache <jb@jblache.org>
+	* po/Makefile.am, po/Makefile.in, po/sane-backends.gl.po: added
+	new gl (galician/galego) translation.
+	* po/sane-backends.es.po: update es translation.
+	Both translations courtesy of Miguel Bouzada <mbouzada(at)gmail(dot)com>
+
 2009-06-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, backend/pixma_mp730.c, doc/descriptions/pixma.desc:
 	- Added duplex ADF scan for Canon ImageCLASS D480.

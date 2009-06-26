@@ -3,6 +3,7 @@
 	new gl (galician/galego) translation.
 	* po/sane-backends.es.po: update es translation.
 	Both translations courtesy of Miguel Bouzada <mbouzada(at)gmail(dot)com>
+	* po/README: update instructions for po file addition.
 
 2009-06-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, backend/pixma_mp730.c, doc/descriptions/pixma.desc:

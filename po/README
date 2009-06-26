@@ -28,7 +28,9 @@ Translators: I want to update existing translations
 Translators: I want to add a new language
 -----------------------------------------
 
-* Edit po/Makefile.in, add your language to ALL_LINGUAS.
+* Edit po/Makefile.am, add your language to ALL_LINGUAS, the po file to
+  PO_FILES and the generated mo file to MO_FILES.
+* Run automake -OR- update po/Makefile.in accordingly by hand.
 * ./configure
 * Go ahead with "I want to update existing translations".
 

@@ -451,15 +451,18 @@ sane_open(SANE_String_Const name, SANE_Handle * h)
 			/*o.cap |= SANE_CAP_INACTIVE; */
 			break;
 
-/*		case CS3_OPTION_INFRARED:
+		case CS3_OPTION_INFRARED:
 			o.name = "infrared";
 			o.title = "Read infrared channel";
 			o.desc = "Read infrared channel in addition to scan colors";
 			o.type = SANE_TYPE_BOOL;
 			o.size = WSIZE;
 			o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+#ifndef SANE_FRAME_RGBI
+                        o.cap |= SANE_CAP_INACTIVE;
+#endif
 			break;
-*/
+
 		case CS3_OPTION_DEPTH:
 			o.name = "depth";
 			o.title = "Bit depth per channel";
@@ -1396,15 +1399,16 @@ sane_get_parameters(SANE_Handle h, SANE_Parameters * p)
 	p->bytes_per_line =
 		s->n_colors * s->logical_width * s->bytes_per_pixel;
 
-	if (s->infrared) {
 #ifdef SANE_FRAME_RGBI
+	if (s->infrared) {
 		p->format = SANE_FRAME_RGBI;
-#else
-		p->format = SANE_FRAME_RGB;
-#endif
+
 	} else {
+#endif
 		p->format = SANE_FRAME_RGB;	/* XXXXXXXX CCCCCCCCCC */
+#ifdef SANE_FRAME_RGBI
 	}
+#endif
 
 	p->last_frame = SANE_TRUE;
 	p->lines = s->logical_height;

@@ -61,13 +61,13 @@
 :model "DR-2010C"
 :interface "USB"
 :usbid "0x1083" "0x161b"
-:status :good
+:status :complete
 :comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width, 300/600dpi horizontal. Driver provides: Binary, Cropping, Calibration, other resolutions"
 
 :model "DR-2050C"
 :interface "USB"
 :usbid "0x04a9" "0x160a"
-:status :good
+:status :complete
 :comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Cropping, Calibration"
 
 :model "DR-2050SP"
@@ -79,19 +79,19 @@
 :model "DR-2080C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1601"
-:status :good
+:status :complete
 :comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Cropping, Calibration"
 
 :model "DR-2510C"
 :interface "USB"
 :usbid "0x1083" "0x1617"
-:status :good
+:status :complete
 :comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width, 300/600dpi horizontal. Driver provides: Binary, Cropping, Calibration, other resolutions"
 
 :model "DR-2580C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1608"
-:status :good
+:status :complete
 :comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Cropping, Calibration"
 
 :model "DR-3010C"

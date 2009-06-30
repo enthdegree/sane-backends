@@ -227,6 +227,8 @@
          - cleanup canceling debug messages
          - remove old cancel() prototype
          - small sleep before clearing usb halt condition
+      v31 2009-06-29, MAN
+         - reduce default buffer size to 2 megs
 
    SANE FLOW DIAGRAM
 
@@ -335,7 +337,7 @@ static const char string_Back[] = "Back";
 
 /* Also set via config file. */
 static int global_buffer_size;
-static int global_buffer_size_default = 4 * 1024 * 1024;
+static int global_buffer_size_default = 2 * 1024 * 1024;
 static int global_padded_read;
 static int global_padded_read_default = 0;
 static char global_vendor_name[9];

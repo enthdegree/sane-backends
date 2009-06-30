@@ -1,0 +1,4141 @@
+# Copyright (C) 2009
+# This file is distributed under the same license as the sane-backends package.
+#
+# Yuri Chornoivan <yurchor@ukr.net>, 2009.
+msgid ""
+msgstr ""
+"Project-Id-Version: sane-backends\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-04-24 00:49+0200\n"
+"PO-Revision-Date: 2009-06-14 18:38+0300\n"
+"Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
+"Language-Team: Ukrainian <translation@linux.org.ua>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 0.3\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: .tmp/artec_eplus48u.c:154
+#: .tmp/canon.c:140
+#: .tmp/canon.c:151
+#: .tmp/canon.c:157
+#: .tmp/canon-sane.c:703
+#: .tmp/canon-sane.c:1060
+#: .tmp/canon-sane.c:1269
+#: .tmp/canon-sane.c:1302
+#: .tmp/canon-sane.c:1398
+#: .tmp/canon-sane.c:1623
+#: .tmp/hp3900_sane.c:381
+#: .tmp/hp3900_sane.c:1038
+#: .tmp/hp-option.c:2926
+#: .tmp/ma1509.c:101
+#: .tmp/mustek.c:129
+#: .tmp/mustek.c:134
+#: .tmp/mustek_usb2.c:109
+#: .tmp/mustek_usb.c:270
+#: .tmp/saneopts.h:456
+#: .tmp/sceptre.h:289
+#: .tmp/sm3840.c:82
+#: .tmp/sm3840.c:339
+#: .tmp/snapscan-options.c:79
+#: .tmp/umax.c:186
+#: .tmp/umax_pp.c:138
+#, no-c-format
+msgid "Lineart"
+msgstr "Штрихове"
+
+#: .tmp/artec_eplus48u.c:155
+#: .tmp/hp-option.c:2928
+#: .tmp/leo.h:261
+#: .tmp/teco1.h:292
+#: .tmp/teco3.h:295
+#: .tmp/umax_pp.c:138
+msgid "Grayscale"
+msgstr "Відтінки сірого"
+
+#: .tmp/artec_eplus48u.c:156
+#: .tmp/canon.c:141
+#: .tmp/canon.c:146
+#: .tmp/canon.c:151
+#: .tmp/canon.c:157
+#: .tmp/canon-sane.c:731
+#: .tmp/canon-sane.c:939
+#: .tmp/canon-sane.c:1075
+#: .tmp/canon-sane.c:1317
+#: .tmp/canon-sane.c:1635
+#: .tmp/canon-sane.c:1740
+#: .tmp/canon-sane.c:2057
+#: .tmp/epson2.c:201
+#: .tmp/epson.c:490
+#: .tmp/hp3900_sane.c:381
+#: .tmp/hp3900_sane.c:1034
+#: .tmp/hp5590.c:87
+#: .tmp/hp-option.c:2929
+#: .tmp/leo.h:262
+#: .tmp/ma1509.c:101
+#: .tmp/mustek.c:130
+#: .tmp/mustek.c:134
+#: .tmp/mustek_usb.c:268
+#: .tmp/pixma.c:644
+#: .tmp/pixma_sane_options.c:70
+#: .tmp/saneopts.h:454
+#: .tmp/sceptre.h:292
+#: .tmp/sm3840.c:81
+#: .tmp/snapscan-options.c:76
+#: .tmp/teco1.h:293
+#: .tmp/teco3.h:296
+#: .tmp/test.c:126
+#: .tmp/umax.c:191
+#: .tmp/umax_pp.c:138
+msgid "Color"
+msgstr "Кольорове"
+
+#: .tmp/artec_eplus48u.c:2805
+#: .tmp/canon.c:1482
+#: .tmp/genesys.c:4991
+#: .tmp/gt68xx.c:667
+#: .tmp/hp-option.c:2952
+#: .tmp/leo.c:871
+#: .tmp/ma1509.c:597
+#: .tmp/matsushita.c:1189
+#: .tmp/microtek2.h:601
+#: .tmp/mustek.c:4407
+#: .tmp/mustek_usb2.c:431
+#: .tmp/mustek_usb.c:353
+#: .tmp/niash.c:756
+#: .tmp/plustek.c:853
+#: .tmp/plustek_pp.c:792
+#: .tmp/saneopts.h:158
+#: .tmp/sceptre.c:750
+#: .tmp/snapscan-options.c:561
+#: .tmp/stv680.c:1067
+#: .tmp/teco1.c:1143
+#: .tmp/teco2.c:1962
+#: .tmp/teco3.c:968
+#: .tmp/u12.c:592
+#: .tmp/umax.c:5227
+#: .tmp/umax_pp.c:627
+#, no-c-format
+msgid "Enhancement"
+msgstr "Покращення"
+
+#: .tmp/artec_eplus48u.c:2874
+#: .tmp/pnm.c:282
+msgid "Defaults"
+msgstr "Типові"
+
+#: .tmp/artec_eplus48u.c:2876
+#, no-c-format
+msgid "Set default values for enhancement controls."
+msgstr "Встановити типові значення для регуляторів покращення."
+
+#: .tmp/artec_eplus48u.c:2884
+#: .tmp/epson2.c:2149
+#: .tmp/epson.c:3288
+#: .tmp/genesys.c:4940
+#: .tmp/gt68xx.c:698
+#: .tmp/hp3500.c:976
+#: .tmp/hp-option.c:3296
+#: .tmp/leo.c:823
+#: .tmp/lexmark.c:214
+#: .tmp/ma1509.c:549
+#: .tmp/matsushita.c:1135
+#: .tmp/microtek2.h:600
+#: .tmp/mustek.c:4359
+#: .tmp/mustek_usb2.c:465
+#: .tmp/mustek_usb.c:305
+#: .tmp/pixma_sane_options.c:144
+#: .tmp/plustek.c:807
+#: .tmp/plustek_pp.c:746
+#: .tmp/saneopts.h:157
+#: .tmp/sceptre.c:702
+#: .tmp/snapscan-options.c:494
+#: .tmp/teco1.c:1095
+#: .tmp/teco2.c:1914
+#: .tmp/teco3.c:920
+#: .tmp/test.c:646
+#: .tmp/u12.c:546
+#: .tmp/umax.c:5177
+#: .tmp/umax_pp.c:578
+msgid "Geometry"
+msgstr "Позиція і розміри"
+
+#: .tmp/artec_eplus48u.c:2932
+#: .tmp/canon.c:1600
+msgid "Calibration"
+msgstr "Калібрування"
+
+#: .tmp/artec_eplus48u.c:2941
+#, no-c-format
+msgid "Calibrate before next scan"
+msgstr "Калібрувати перед наступним скануванням"
+
+#: .tmp/artec_eplus48u.c:2943
+#, no-c-format
+msgid "If enabled, the device will be calibrated before the next scan. Otherwise, calibration is performed only before the first start."
+msgstr "Якщо позначити цей пункт, пристрій буде калібровано перед наступним скануванням. У іншому випадку калібрування виконуватиметься лише перед першим скануванням."
+
+#: .tmp/artec_eplus48u.c:2954
+#, no-c-format
+msgid "Only perform shading-correction"
+msgstr "Виконати лише коригування градації"
+
+#: .tmp/artec_eplus48u.c:2956
+msgid "If enabled, only the shading correction is performed during calibration. The default values for gain, offset and exposure time, either build-in or from the configuration file, are used."
+msgstr "Якщо позначено цей пункт, під час калібрування буде виконано лише виправлення градації. Використовуються типові (вбудовані або запозичені з файла налаштувань) значення для коефіцієнта підсилення, зміщення та часу експозиції."
+
+#: .tmp/artec_eplus48u.c:2967
+#, no-c-format
+msgid "Button state"
+msgstr "Стан кнопки"
+
+#: .tmp/avision.h:766
+#, no-c-format
+msgid "Number of the frame to scan"
+msgstr "Номер кадру для сканування"
+
+#: .tmp/avision.h:767
+#, no-c-format
+msgid "Selects the number of the frame to scan"
+msgstr "Визначає кількість кадрів для сканування"
+
+#: .tmp/avision.h:770
+msgid "Duplex scan"
+msgstr "Двобічне сканування"
+
+#: .tmp/avision.h:771
+#, no-c-format
+msgid "Duplex scan provide a scan of the front and back side of the document"
+msgstr "За використання двобічного сканування ви отримаєте одразу зображення лицьового та зворотного боків документа"
+
+#: .tmp/canon630u.c:158
+#, no-c-format
+msgid "Calibrate Scanner"
+msgstr "Калібрувати сканер"
+
+#: .tmp/canon630u.c:159
+#, no-c-format
+msgid "Force scanner calibration before scan"
+msgstr "Виконувати примусове калібрування перед скануванням"
+
+#: .tmp/canon630u.c:258
+#: .tmp/umax1220u.c:208
+#, no-c-format
+msgid "Grayscale scan"
+msgstr "Сканувати у відтінках сірого"
+
+#: .tmp/canon630u.c:259
+#: .tmp/umax1220u.c:209
+#, no-c-format
+msgid "Do a grayscale rather than color scan"
+msgstr "Виконувати чорно-біле сканування замість кольорового"
+
+#: .tmp/canon630u.c:305
+#, no-c-format
+msgid "Analog Gain"
+msgstr "Аналогове підсилення"
+
+#: .tmp/canon630u.c:306
+#, no-c-format
+msgid "Increase or decrease the analog gain of the CCD array"
+msgstr "Збільшити або зменшити аналогове підсилення матриці ПЗЗ"
+
+#: .tmp/canon630u.c:346
+#: .tmp/epson2.h:64
+#: .tmp/epson.h:68
+msgid "Gamma Correction"
+msgstr "Виправлення гами"
+
+#: .tmp/canon630u.c:347
+#, no-c-format
+msgid "Selects the gamma corrected transfer curve"
+msgstr "Визначити криву виправлення гами"
+
+#: .tmp/canon.c:140
+#: .tmp/canon-sane.c:704
+#: .tmp/canon-sane.c:1061
+#: .tmp/canon-sane.c:1270
+#: .tmp/canon-sane.c:1307
+#: .tmp/hp-option.c:2927
+#: .tmp/mustek.c:129
+#: .tmp/plustek_pp.c:182
+#: .tmp/plustek_pp.c:191
+#: .tmp/sceptre.h:290
+#: .tmp/sm3840.c:82
+#: .tmp/sm3840.c:337
+#: .tmp/snapscan-options.c:77
+#: .tmp/umax.c:187
+msgid "Halftone"
+msgstr "Півтони"
+
+#: .tmp/canon.c:140
+#: .tmp/canon.c:151
+#: .tmp/canon.c:157
+#: .tmp/canon.c:566
+#: .tmp/canon-sane.c:937
+#: .tmp/canon-sane.c:1069
+#: .tmp/canon-sane.c:1312
+#: .tmp/canon-sane.c:1633
+#: .tmp/canon-sane.c:2070
+#: .tmp/epson2.c:200
+#: .tmp/epson.c:489
+#: .tmp/hp3900_sane.c:381
+#: .tmp/hp3900_sane.c:1036
+#: .tmp/ma1509.c:101
+#: .tmp/mustek.c:129
+#: .tmp/mustek.c:134
+#: .tmp/mustek_usb.c:269
+#: .tmp/pixma.c:647
+#: .tmp/saneopts.h:455
+#: .tmp/sceptre.h:291
+#: .tmp/sm3840.c:81
+#: .tmp/sm3840.c:335
+#: .tmp/snapscan-options.c:78
+#: .tmp/test.c:126
+#: .tmp/umax.c:188
+msgid "Gray"
+msgstr "Сірий"
+
+#: .tmp/canon.c:146
+#: .tmp/canon-sane.c:1323
+msgid "Raw"
+msgstr "Без обробки"
+
+#: .tmp/canon.c:152
+#: .tmp/canon-sane.c:732
+#: .tmp/canon-sane.c:940
+#: .tmp/canon-sane.c:1076
+#: .tmp/canon-sane.c:1318
+#: .tmp/canon-sane.c:1487
+#: .tmp/canon-sane.c:1636
+msgid "Fine color"
+msgstr "Чистий колір"
+
+#: .tmp/canon.c:161
+msgid "No transparency correction"
+msgstr "Без виправлення прозорості"
+
+#: .tmp/canon.c:162
+#: .tmp/canon-sane.c:680
+msgid "Correction according to film type"
+msgstr "Виправлення відповідно до типу плівки"
+
+#: .tmp/canon.c:163
+#: .tmp/canon-sane.c:674
+msgid "Correction according to transparency ratio"
+msgstr "Виправлення відповідно до співвідношення прозорості"
+
+#: .tmp/canon.c:168
+#: .tmp/canon-sane.c:776
+msgid "Negatives"
+msgstr "Негативи"
+
+#: .tmp/canon.c:168
+msgid "Slides"
+msgstr "Слайди"
+
+#: .tmp/canon.c:178
+#: .tmp/matsushita.c:178
+msgid "Automatic"
+msgstr "Автоматично"
+
+#: .tmp/canon.c:178
+msgid "Normal speed"
+msgstr "Звичайна швидкість"
+
+#: .tmp/canon.c:179,
+#: no-c-format
+msgid "1/2 normal speed"
+msgstr "1/2 звичайної швидкості"
+
+#: .tmp/canon.c:179
+msgid "1/3 normal speed"
+msgstr "1/3 звичайної швидкості"
+
+#: .tmp/canon.c:362
+msgid "rounded parameter"
+msgstr "округлений параметр"
+
+#: .tmp/canon.c:365
+#: .tmp/canon.c:381
+#: .tmp/canon.c:416
+#: .tmp/canon.c:466
+#: .tmp/canon.c:484
+#: .tmp/canon.c:527
+msgid "unknown"
+msgstr "невідома"
+
+#: .tmp/canon.c:375
+msgid "ADF jam"
+msgstr "Заїдання у протяжному механізмі"
+
+#: .tmp/canon.c:378
+#, no-c-format
+msgid "ADF cover open"
+msgstr "Відкрито кришку протяжного механізму"
+
+#: .tmp/canon.c:391
+msgid "lamp failure"
+msgstr "Лампа не працює"
+
+#: .tmp/canon.c:394
+msgid "scan head positioning error"
+msgstr "помилка позиціонування голівки сканування"
+
+#: .tmp/canon.c:397
+msgid "CPU check error"
+msgstr "Помилка під час перевірки процесора"
+
+#: .tmp/canon.c:400
+msgid "RAM check error"
+msgstr "Помилка під час перевірки пам’яті"
+
+#: .tmp/canon.c:403
+msgid "ROM check error"
+msgstr "Помилка під час перевірки ROM"
+
+#: .tmp/canon.c:406
+msgid "hardware check error"
+msgstr "Помилка під час перевірки обладнання"
+
+#: .tmp/canon.c:409
+msgid "transparency unit lamp failure"
+msgstr "Не працює лампа модуля слайдів"
+
+#: .tmp/canon.c:412
+#, no-c-format
+msgid "transparency unit scan head positioning failure"
+msgstr "Помилка позиціонування голівки сканування модуля плівок"
+
+#: .tmp/canon.c:426
+#, no-c-format
+msgid "parameter list length error"
+msgstr "Помилка, пов’язана з довжиною списку параметрів"
+
+#: .tmp/canon.c:430
+#, no-c-format
+msgid "invalid command operation code"
+msgstr "Некоректний код команди дії"
+
+#: .tmp/canon.c:434
+msgid "invalid field in CDB"
+msgstr "Некоректне поле у CDB"
+
+#: .tmp/canon.c:438
+msgid "unsupported LUN"
+msgstr "Непідтримуване значення LUN"
+
+#: .tmp/canon.c:442
+msgid "invalid field in parameter list"
+msgstr "Некоректне поле у списку параметрів"
+
+#: .tmp/canon.c:446
+msgid "command sequence error"
+msgstr "Помилка під час виконання послідовності команд"
+
+#: .tmp/canon.c:450
+msgid "too many windows specified"
+msgstr "Вказано забагато вікон"
+
+#: .tmp/canon.c:454
+#, no-c-format
+msgid "medium not present"
+msgstr "Відсутній носій"
+
+#: .tmp/canon.c:458
+#, no-c-format
+msgid "invalid bit IDENTIFY message"
+msgstr "Повідомлення про некоректний біт IDENTIFY"
+
+#: .tmp/canon.c:462
+#, no-c-format
+msgid "option not connect"
+msgstr "Додаткову функціональність не з’єднано"
+
+#: .tmp/canon.c:476
+#, no-c-format
+msgid "power on reset / bus device reset"
+msgstr "скидання під час вмикання / з’єднання пристрою"
+
+#: .tmp/canon.c:480
+#, no-c-format
+msgid "parameter changed by another initiator"
+msgstr "Параметр змінено іншим інструментом ініціалізації"
+
+#: .tmp/canon.c:494
+#, no-c-format
+msgid "no additional sense information"
+msgstr "відсутні додаткові дані"
+
+#: .tmp/canon.c:498
+#, no-c-format
+msgid "reselect failure"
+msgstr "Помилка повторного вибору"
+
+#: .tmp/canon.c:502
+#, no-c-format
+msgid "SCSI parity error"
+msgstr "Помилка парності SCSI"
+
+#: .tmp/canon.c:506
+#, no-c-format
+msgid "initiator detected error message received"
+msgstr "Отримано повідомлення про помилку виявлення інструменту ініціалізації"
+
+#: .tmp/canon.c:511
+msgid "invalid message error"
+msgstr "Некоректне повідомлення"
+
+#: .tmp/canon.c:515
+msgid "timeout error"
+msgstr "Перевищення часу очікування"
+
+#: .tmp/canon.c:519
+msgid "transparency unit shading error"
+msgstr "Помилка під час градації у модулі слайдів"
+
+#: .tmp/canon.c:523
+msgid "lamp not stabilized"
+msgstr "Лампу не стабілізовано"
+
+#: .tmp/canon.c:537
+#, no-c-format
+msgid "problem not analyzed (unknown SCSI class)"
+msgstr "Проблема не піддається аналізу (невідомий клас SCSI)"
+
+#: .tmp/canon.c:855
+#: .tmp/canon.c:870
+msgid "film scanner"
+msgstr "плівковий сканер"
+
+#: .tmp/canon.c:885
+#: .tmp/canon.c:900
+#: .tmp/canon.c:915
+#: .tmp/hp3900_sane.c:1681
+#: .tmp/plustek.c:1334
+#: .tmp/plustek_pp.c:1014
+#: .tmp/sceptre.c:593
+#: .tmp/teco2.c:1836
+#: .tmp/u12.c:851
+msgid "flatbed scanner"
+msgstr "планшетний сканер"
+
+#: .tmp/canon.c:1133
+#: .tmp/leo.c:781
+#: .tmp/pixma_sane_options.c:40
+#: .tmp/saneopts.h:165
+msgid "Scan mode"
+msgstr "Режим сканування"
+
+#: .tmp/canon.c:1171
+#: .tmp/epson2.c:2223
+#: .tmp/epson.c:3376
+msgid "Film type"
+msgstr "Тип плівки"
+
+#: .tmp/canon.c:1172
+#, no-c-format
+msgid "Selects the film type, i.e. negatives or slides"
+msgstr "Визначає тип плівки, тобто негатив чи слайд"
+
+#: .tmp/canon.c:1184
+msgid "Negative film type"
+msgstr "Тип плівки негатива"
+
+#: .tmp/canon.c:1185
+msgid "Selects the negative film type"
+msgstr "Оберіть тестове зображення"
+
+#: .tmp/canon.c:1209
+#: .tmp/saneopts.h:173
+msgid "Scan resolution"
+msgstr "Роздільна здатність сканування"
+
+#: .tmp/canon.c:1224
+msgid "Hardware resolution"
+msgstr "Апаратна роздільна здатність"
+
+#: .tmp/canon.c:1225
+msgid "Use only hardware resolutions"
+msgstr "Використовувати лише апаратні значення"
+
+#: .tmp/canon.c:1306
+msgid "Focus"
+msgstr "Фокусування"
+
+#: .tmp/canon.c:1316
+msgid "Auto focus"
+msgstr "Автоматичне фокусування"
+
+#: .tmp/canon.c:1317
+msgid "Enable/disable auto focus"
+msgstr "Увімкнути/Вимкнути автоматичне фокусування"
+
+#: .tmp/canon.c:1324
+msgid "Auto focus only once"
+msgstr "Одноразове автофокусування"
+
+#: .tmp/canon.c:1325
+#, no-c-format
+msgid "Do auto focus only once between ejects"
+msgstr "Виконувати автоматичне фокусування лише раз між виштовхуваннями"
+
+#: .tmp/canon.c:1333
+#, no-c-format
+msgid "Manual focus position"
+msgstr "Визначення позиції фокуса вручну"
+
+#: .tmp/canon.c:1334
+#, no-c-format
+msgid "Set the optical system's focus position by hand (default: 128)."
+msgstr "Встановити позицію фокусування оптичної системи вручну (типове значення: 128)."
+
+#: .tmp/canon.c:1344
+#, no-c-format
+msgid "Scan margins"
+msgstr "Поля області сканування"
+
+#: .tmp/canon.c:1391
+#, no-c-format
+msgid "Extra color adjustments"
+msgstr "Додаткова корекція кольорів"
+
+#: .tmp/canon.c:1522
+#: .tmp/epson2.c:2103
+#: .tmp/epson.c:3195
+#, no-c-format
+msgid "Mirror image"
+msgstr "Віддзеркалити зображення"
+
+#: .tmp/canon.c:1523
+#, no-c-format
+msgid "Mirror the image horizontally"
+msgstr "Віддзеркалити зображення горизонтально."
+
+#: .tmp/canon.c:1592
+#, no-c-format
+msgid "Auto exposure"
+msgstr "Автоекспозиція"
+
+#: .tmp/canon.c:1593
+#, no-c-format
+msgid "Enable/disable the auto exposure feature"
+msgstr "Увімкнути/Вимкнути можливість автоекспонування"
+
+#: .tmp/canon.c:1609
+#, no-c-format
+msgid "Calibration now"
+msgstr "Калібрування"
+
+#: .tmp/canon.c:1610
+#, no-c-format
+msgid "Execute calibration *now*"
+msgstr "Виконати калібрування негайно"
+
+#: .tmp/canon.c:1620
+#, no-c-format
+msgid "Self diagnosis"
+msgstr "Самодіагностика"
+
+#: .tmp/canon.c:1621
+#, no-c-format
+msgid "Perform scanner self diagnosis"
+msgstr "Виконати самодіагностику сканера"
+
+#: .tmp/canon.c:1632
+#, no-c-format
+msgid "Reset scanner"
+msgstr "Скинути параметри сканера"
+
+#: .tmp/canon.c:1633
+#, no-c-format
+msgid "Reset the scanner"
+msgstr "Скинути параметри сканера"
+
+#: .tmp/canon.c:1643
+#, no-c-format
+msgid "Medium handling"
+msgstr "Обробка носіїв"
+
+#: .tmp/canon.c:1652
+#, no-c-format
+msgid "Eject film after each scan"
+msgstr "Виштовхувати плівку після кожного сканування"
+
+#: .tmp/canon.c:1653
+#, no-c-format
+msgid "Automatically eject the film from the device after each scan"
+msgstr "Автоматично виштовхувати плівку з пристрою після кожного сканування"
+
+#: .tmp/canon.c:1662
+#, no-c-format
+msgid "Eject film before exit"
+msgstr "Виштовхувати плівку перед завершенням роботи"
+
+#: .tmp/canon.c:1663
+#, no-c-format
+msgid "Automatically eject the film from the device before exiting the program"
+msgstr "Автоматично виштовхувати плівку з пристрою перед завершенням роботи програми"
+
+#: .tmp/canon.c:1672
+#, no-c-format
+msgid "Eject film now"
+msgstr "Виштовхнути плівку"
+
+#: .tmp/canon.c:1673
+#, no-c-format
+msgid "Eject the film *now*"
+msgstr "Виштовхнути плівку *негайно*"
+
+#: .tmp/canon.c:1682
+#, no-c-format
+msgid "Document feeder extras"
+msgstr "Додаткові інструменти подачі"
+
+#: .tmp/canon.c:1689
+#, no-c-format
+msgid "Flatbed only"
+msgstr "Лише планшетний"
+
+#: .tmp/canon.c:1690
+#, no-c-format
+msgid "Disable auto document feeder and use flatbed only"
+msgstr "Вимкнути автоматичну подачу, використовувати лише планшетний механізм"
+
+#: .tmp/canon.c:1700
+#: .tmp/canon.c:1710
+#, no-c-format
+msgid "Transparency unit"
+msgstr "Модуль для слайдів"
+
+#: .tmp/canon.c:1711
+#, no-c-format
+msgid "Switch on/off the transparency unit (FAU, film adapter unit)"
+msgstr "Увімкнути/Вимкнути модуль для слайдів (FAU, film adapter unit)"
+
+#: .tmp/canon.c:1721
+#, no-c-format
+msgid "Negative film"
+msgstr "Негатив"
+
+#: .tmp/canon.c:1722
+#, no-c-format
+msgid "Positive or negative film"
+msgstr "Позитивною чи негативною є плівка"
+
+#: .tmp/canon.c:1731
+#, no-c-format
+msgid "Density control"
+msgstr "Керування щільністю"
+
+#: .tmp/canon.c:1732
+#, no-c-format
+msgid "Set density control mode"
+msgstr "Встановити режим керування щільністю"
+
+#: .tmp/canon.c:1743
+msgid "Transparency ratio"
+msgstr "Співвідношення прозорості"
+
+#: .tmp/canon.c:1757
+msgid "Select film type"
+msgstr "Оберіть тип плівки"
+
+#: .tmp/canon.c:1758
+msgid "Select the film type"
+msgstr "Визначає тип плівки"
+
+#: .tmp/epson2.c:199
+#: .tmp/epson.c:488
+msgid "Binary"
+msgstr "Бінарна"
+
+#: .tmp/epson2.c:206
+#: .tmp/epson.c:495
+msgid "Simplex"
+msgstr "Однобічна"
+
+#: .tmp/epson2.c:207
+#: .tmp/epson.c:496
+#: .tmp/matsushita.h:219
+msgid "Duplex"
+msgstr "Двобічна"
+
+#: .tmp/epson2.c:213
+#: .tmp/epson.c:505
+#: .tmp/genesys.c:106
+#: .tmp/gt68xx.c:146
+#: .tmp/hp3900_sane.c:418
+#: .tmp/hp3900_sane.c:427
+#: .tmp/hp3900_sane.c:1017
+#: .tmp/hp5590.c:81
+#: .tmp/ma1509.c:106
+#: .tmp/mustek.c:152
+#: .tmp/mustek.c:156
+#: .tmp/mustek.c:160
+#: .tmp/pixma.c:652
+#: .tmp/pixma_sane_options.c:85
+#: .tmp/snapscan-options.c:82
+#: .tmp/test.c:191
+#: .tmp/umax.c:182, no-c-format
+msgid "Flatbed"
+msgstr "Планшетний"
+
+#: .tmp/epson2.c:214
+#: .tmp/epson.c:506
+#: .tmp/pixma.c:669
+#, no-c-format
+msgid "Transparency Unit"
+msgstr "Модуль для слайдів"
+
+#: .tmp/epson2.c:215
+#: .tmp/epson.c:507
+#: .tmp/mustek.c:156
+#: .tmp/pixma.c:657
+#: .tmp/test.c:191
+#: .tmp/umax.c:184
+#, no-c-format
+msgid "Automatic Document Feeder"
+msgstr "Автоматична подача документів"
+
+#: .tmp/epson2.c:235
+#: .tmp/epson.c:527
+#, no-c-format
+msgid "Positive Film"
+msgstr "Плівка-позитив"
+
+#: .tmp/epson2.c:236
+#: .tmp/epson.c:528
+#, no-c-format
+msgid "Negative Film"
+msgstr "Плівка-негатив"
+
+#: .tmp/epson2.c:237
+#, no-c-format
+msgid "Positive Slide"
+msgstr "Слайд-позитив"
+
+#: .tmp/epson2.c:238
+#, no-c-format
+msgid "Negative Slide"
+msgstr "Слайд-негатив"
+
+#: .tmp/epson2.c:245
+#: .tmp/epson.c:533
+#, no-c-format
+msgid "Focus on glass"
+msgstr "Фокус на склі"
+
+#: .tmp/epson2.c:246
+#: .tmp/epson.c:534
+#, no-c-format
+msgid "Focus 2.5mm above glass"
+msgstr "Фокус 2,5 мм над склом"
+
+#: .tmp/epson2.c:268
+#: .tmp/epson2.c:276
+#: .tmp/epson2.c:288
+#: .tmp/epson2.c:310
+#: .tmp/epson.c:560
+#: .tmp/epson.c:568
+#: .tmp/epson.c:580
+#: .tmp/epson.c:602
+#: .tmp/leo.c:109
+#: .tmp/matsushita.c:138
+#: .tmp/matsushita.c:159
+#: .tmp/matsushita.c:191
+#: .tmp/matsushita.c:213
+#: .tmp/snapscan-options.c:87
+#, no-c-format
+msgid "None"
+msgstr "Немає"
+
+#: .tmp/epson2.c:269
+#: .tmp/epson2.c:277
+#: .tmp/epson2.c:289
+#: .tmp/epson.c:561
+#: .tmp/epson.c:569
+#: .tmp/epson.c:581
+#, no-c-format
+msgid "Halftone A (Hard Tone)"
+msgstr "Півтони A (Різкі тони)"
+
+#: .tmp/epson2.c:270
+#: .tmp/epson2.c:278
+#: .tmp/epson2.c:290
+#: .tmp/epson.c:562
+#: .tmp/epson.c:570
+#: .tmp/epson.c:582
+#, no-c-format
+msgid "Halftone B (Soft Tone)"
+msgstr "Півтони B (М’які тони)"
+
+#: .tmp/epson2.c:271
+#: .tmp/epson2.c:279
+#: .tmp/epson2.c:291
+#: .tmp/epson.c:563
+#: .tmp/epson.c:571
+#: .tmp/epson.c:583
+msgid "Halftone C (Net Screen)"
+msgstr "Півтони C (Net Screen)"
+
+#: .tmp/epson2.c:280
+#: .tmp/epson2.c:292
+#: .tmp/epson.c:572
+#: .tmp/epson.c:584
+#, no-c-format
+msgid "Dither A (4x4 Bayer)"
+msgstr "Дизеринг A (секція 4x4)"
+
+#: .tmp/epson2.c:281
+#: .tmp/epson2.c:293
+#: .tmp/epson.c:573
+#: .tmp/epson.c:585
+#, no-c-format
+msgid "Dither B (4x4 Spiral)"
+msgstr "Дизеринг B (спіраль 4x4)"
+
+#: .tmp/epson2.c:282
+#: .tmp/epson2.c:294
+#: .tmp/epson.c:574
+#: .tmp/epson.c:586
+#, no-c-format
+msgid "Dither C (4x4 Net Screen)"
+msgstr "Дизеринг C (4x4 Net Screen)"
+
+#: .tmp/epson2.c:283
+#: .tmp/epson2.c:295
+#: .tmp/epson.c:575
+#: .tmp/epson.c:587
+#, no-c-format
+msgid "Dither D (8x4 Net Screen)"
+msgstr "Дизеринг D (8x4 Net Screen)"
+
+#: .tmp/epson2.c:296
+#: .tmp/epson.c:588
+msgid "Text Enhanced Technology"
+msgstr "Технологія покращення тексту"
+
+#: .tmp/epson2.c:297
+#: .tmp/epson.c:589
+msgid "Download pattern A"
+msgstr "Завантажити шаблон A"
+
+#: .tmp/epson2.c:298
+#: .tmp/epson.c:590
+msgid "Download pattern B"
+msgstr "Завантажити шаблон B"
+
+#: .tmp/epson2.c:311
+#: .tmp/epson2.c:2015
+#: .tmp/epson.c:603
+#: .tmp/epson.c:3086
+#: .tmp/genesys.c:99
+#: .tmp/gt68xx_low.h:135
+#: .tmp/hp-option.c:3092
+msgid "Red"
+msgstr "Червоний"
+
+#: .tmp/epson2.c:312
+#: .tmp/epson2.c:2011
+#: .tmp/epson.c:604
+#: .tmp/epson.c:3082
+#: .tmp/genesys.c:100
+#: .tmp/gt68xx_low.h:136
+#: .tmp/hp-option.c:3093
+msgid "Green"
+msgstr "Зелений"
+
+#: .tmp/epson2.c:313
+#: .tmp/epson2.c:2019
+#: .tmp/epson.c:605
+#: .tmp/epson.c:3090
+#: .tmp/genesys.c:101
+#: .tmp/gt68xx_low.h:137
+#: .tmp/hp-option.c:3094
+msgid "Blue"
+msgstr "Синій"
+
+#: .tmp/epson2.c:342
+#: .tmp/epson.c:635
+msgid "No Correction"
+msgstr "Без виправлення"
+
+#: .tmp/epson2.c:343
+#: .tmp/epson2.c:367
+#: .tmp/epson.c:636
+#: .tmp/epson.c:661
+msgid "User defined"
+msgstr "Визначене користувачем"
+
+#: .tmp/epson2.c:344
+#: .tmp/epson.c:637
+msgid "Impact-dot printers"
+msgstr "Матричні принтери"
+
+#: .tmp/epson2.c:345
+#: .tmp/epson.c:638
+msgid "Thermal printers"
+msgstr "Термічні принтери"
+
+#: .tmp/epson2.c:346
+#: .tmp/epson.c:639
+msgid "Ink-jet printers"
+msgstr "Струминні принтери"
+
+#: .tmp/epson2.c:347
+#: .tmp/epson.c:640
+msgid "CRT monitors"
+msgstr "Монітори з ЕПТ"
+
+#: .tmp/epson2.c:366
+#: .tmp/epson.c:660
+#: .tmp/hp-option.c:3225
+#: .tmp/test.c:142
+msgid "Default"
+msgstr "Типовий"
+
+#: .tmp/epson2.c:368
+#: .tmp/epson.c:662
+msgid "High density printing"
+msgstr "Друк з високою щільністю"
+
+#: .tmp/epson2.c:369
+#: .tmp/epson.c:663
+msgid "Low density printing"
+msgstr "Друк з низькою щільністю"
+
+#: .tmp/epson2.c:370
+#: .tmp/epson.c:664
+msgid "High contrast printing"
+msgstr "Друк з високою контрастністю"
+
+#: .tmp/epson2.c:388
+#: .tmp/epson.c:682
+msgid "User defined (Gamma=1.0)"
+msgstr "Визначене користувачем (Gamma=1.0)"
+
+#: .tmp/epson2.c:389
+#: .tmp/epson.c:683
+msgid "User defined (Gamma=1.8)"
+msgstr "Визначена користувачем (Gamma=1.8)"
+
+#: .tmp/epson2.c:1733
+#: .tmp/epson.c:2803
+#: .tmp/genesys.c:4871
+#: .tmp/gt68xx.c:455
+#: .tmp/hp-option.c:2913
+#: .tmp/ma1509.c:499
+#: .tmp/matsushita.c:1084
+#: .tmp/microtek2.h:599
+#: .tmp/mustek.c:4201
+#: .tmp/mustek_usb2.c:344
+#: .tmp/mustek_usb.c:260
+#: .tmp/niash.c:736
+#: .tmp/plustek.c:720
+#: .tmp/plustek_pp.c:657
+#: .tmp/sceptre.c:673
+#: .tmp/snapscan-options.c:315
+#: .tmp/stv680.c:1030
+#: .tmp/teco2.c:1886
+#: .tmp/test.c:305
+#: .tmp/u12.c:473
+#: .tmp/umax.c:5055
+msgid "Scan Mode"
+msgstr "Режим сканування"
+
+#: .tmp/epson2.c:1765
+#: .tmp/epson.c:2835
+msgid "Selects the halftone."
+msgstr "Визначає півтон."
+
+#: .tmp/epson2.c:1786
+#: .tmp/epson.c:2857
+#, no-c-format
+msgid "Dropout"
+msgstr "Маска"
+
+#: .tmp/epson2.c:1787
+#: .tmp/epson.c:2858
+#, no-c-format
+msgid "Selects the dropout."
+msgstr "Визначає маску."
+
+#: .tmp/epson2.c:1799
+#: .tmp/epson.c:2870
+msgid "Selects the brightness."
+msgstr "Визначає яскравість."
+
+#: .tmp/epson2.c:1813
+#: .tmp/epson.c:2885
+msgid "Sharpness"
+msgstr "Різкість"
+
+#: .tmp/epson2.c:1949
+#: .tmp/epson.c:3021
+msgid "Color correction"
+msgstr "Кольорова компенсація"
+
+#: .tmp/epson2.c:1952
+#: .tmp/epson.c:3024
+msgid "Sets the color correction table for the selected output device."
+msgstr "Визначає таблицю виправлення кольорів для вибраного пристрою виведення даних."
+
+#: .tmp/epson2.c:1993
+#: .tmp/epson.c:3065
+msgid "Color correction coefficients"
+msgstr "Коефіцієнти виправлення кольорів"
+
+#: .tmp/epson2.c:1995
+#: .tmp/epson.c:3066
+msgid "Matrix multiplication of RGB"
+msgstr "Матричний множник RGB"
+
+#: .tmp/epson2.c:2012
+#: .tmp/epson.c:3083
+msgid "Shift green to red"
+msgstr "Зсув зеленого до червоного"
+
+#: .tmp/epson2.c:2013
+#: .tmp/epson.c:3084
+msgid "Shift green to blue"
+msgstr "Зсув зеленого до синього"
+
+#: .tmp/epson2.c:2014
+#: .tmp/epson.c:3085
+msgid "Shift red to green"
+msgstr "Зсув червоного до зеленого"
+
+#: .tmp/epson2.c:2016
+#: .tmp/epson.c:3087
+msgid "Shift red to blue"
+msgstr "Зсув червоного до синього"
+
+#: .tmp/epson2.c:2017
+#: .tmp/epson.c:3088
+msgid "Shift blue to green"
+msgstr "Зсув синього до зеленого"
+
+#: .tmp/epson2.c:2018
+#: .tmp/epson.c:3089
+msgid "Shift blue to red"
+msgstr "Зсув синього до червоного"
+
+#: .tmp/epson2.c:2021
+#: .tmp/epson.c:3092
+msgid "Controls green level"
+msgstr "Керує рівнем зеленого"
+
+#: .tmp/epson2.c:2023
+#: .tmp/epson.c:3093
+msgid "Adds to red based on green level"
+msgstr "Додаток до червоного на основі рівня зеленого"
+
+#: .tmp/epson2.c:2025
+#: .tmp/epson.c:3094
+msgid "Adds to blue based on green level"
+msgstr "Додаток до синього на основі рівня зеленого"
+
+#: .tmp/epson2.c:2027
+#: .tmp/epson.c:3095
+msgid "Adds to green based on red level"
+msgstr "Додаток до зеленого на основі рівня червоного"
+
+#: .tmp/epson2.c:2028
+#: .tmp/epson.c:3096
+msgid "Controls red level"
+msgstr "Керує рівнем червоного"
+
+#: .tmp/epson2.c:2029
+#: .tmp/epson.c:3097
+msgid "Adds to blue based on red level"
+msgstr "Додаток до синього на основі рівня червоного"
+
+#: .tmp/epson2.c:2031
+#: .tmp/epson.c:3098
+msgid "Adds to green based on blue level"
+msgstr "Додаток до зеленого на основі рівня синього"
+
+#: .tmp/epson2.c:2032
+#: .tmp/epson.c:3099
+msgid "Adds to red based on blue level"
+msgstr "Додаток до червоного на основі рівня синього"
+
+#: .tmp/epson2.c:2033
+#: .tmp/epson.c:3100
+msgid "Controls blue level"
+msgstr "Визначає рівень синього"
+
+#: .tmp/epson2.c:2096
+#: .tmp/epson.c:3187
+#: .tmp/rts8891.c:2762
+#: .tmp/saneopts.h:159
+#: .tmp/snapscan-options.c:816
+#: .tmp/umax.c:5566
+msgid "Advanced"
+msgstr "Додатково"
+
+#: .tmp/epson2.c:2104
+#: .tmp/epson.c:3196
+msgid "Mirror the image."
+msgstr "Віддзеркалити зображення."
+
+#: .tmp/epson2.c:2114
+#: .tmp/epson.c:3235
+msgid "Auto area segmentation"
+msgstr "Автоматичний поділ на області"
+
+#: .tmp/epson2.c:2127
+#: .tmp/epson.c:3248
+msgid "Short resolution list"
+msgstr "Короткий список роздільних здатностей"
+
+#: .tmp/epson2.c:2129
+msgid "Display a shortened resolution list"
+msgstr "Показувати скорочений список роздільних здатностей"
+
+#: .tmp/epson2.c:2199
+#: .tmp/epson.c:3350
+msgid "Optional equipment"
+msgstr "Додаткове устаткування"
+
+#: .tmp/epson2.c:2253
+#: .tmp/epson.c:3421
+msgid "Eject"
+msgstr "Виштовхнути"
+
+#: .tmp/epson2.c:2254
+#: .tmp/epson.c:3422
+msgid "Eject the sheet in the ADF"
+msgstr "Виштовхнути аркуш з протяжного пристрою"
+
+#: .tmp/epson2.c:2264
+#: .tmp/epson.c:3434
+msgid "Auto eject"
+msgstr "Автовиштовхування"
+
+#: .tmp/epson2.c:2266
+#: .tmp/epson.c:3435
+msgid "Eject document after scanning"
+msgstr "Виштовхнути документ після сканування"
+
+#: .tmp/epson2.c:2276
+#: .tmp/epson.c:3447
+msgid "ADF Mode"
+msgstr "Режим автоподавання"
+
+#: .tmp/epson2.c:2278
+#: .tmp/epson.c:3449
+msgid "Selects the ADF mode (simplex/duplex)"
+msgstr "Визначає режим автоподавання (однобічний/двобічний)"
+
+#: .tmp/epson2.c:2290
+#: .tmp/epson.c:3463
+msgid "Bay"
+msgstr "Секція"
+
+#: .tmp/epson2.c:2291
+#: .tmp/epson.c:3464
+msgid "Select bay to scan"
+msgstr "Визначає секцію, яку буде скановано"
+
+#: .tmp/epson2.h:65
+#: .tmp/epson.h:69
+msgid "Selects the gamma correction value from a list of pre-defined devices or the user defined table, which can be downloaded to the scanner"
+msgstr "Визначає значення виправлення рівня контрастності (гами) зі списку попереднього визначених пристроїв або визначеної користувачем таблиці, яку можна завантажити у сканер"
+
+#: .tmp/epson2.h:68
+#: .tmp/epson.h:72
+msgid "Focus Position"
+msgstr "Позиція фокусування"
+
+#: .tmp/epson2.h:69
+#: .tmp/epson.h:73
+msgid "Sets the focus position to either the glass or 2.5mm above the glass"
+msgstr "Визначає позицію фокусування на рівень від поверхні скла до висоти 2,5 мм над склом"
+
+#: .tmp/epson2.h:71
+#: .tmp/epson.h:75
+msgid "Wait for Button"
+msgstr "Очікувати натискання кнопки"
+
+#: .tmp/epson2.h:72
+#: .tmp/epson.h:76
+msgid "After sending the scan command, wait until the button on the scanner is pressed to actually start the scan process."
+msgstr "Після надсилання команди сканування не розпочинати сканування до натискання кнопки на сканері."
+
+#: .tmp/epson.c:761
+msgid "CD"
+msgstr "КД"
+
+#: .tmp/epson.c:762
+msgid "A5 portrait"
+msgstr "A5 книжкова"
+
+#: .tmp/epson.c:763
+msgid "A5 landscape"
+msgstr "A5 альбомна"
+
+#: .tmp/epson.c:764
+msgid "Letter"
+msgstr "Letter"
+
+#: .tmp/epson.c:765
+msgid "A4"
+msgstr "A4"
+
+#: .tmp/epson.c:766
+msgid "Max"
+msgstr "Макс"
+
+#: .tmp/epson.c:3222
+#: .tmp/mustek.c:4330
+msgid "Fast preview"
+msgstr "Швидкий перегляд"
+
+#: .tmp/epson.c:3250
+msgid "Display short resolution list"
+msgstr "Показати короткий список роздільних здатностей"
+
+#: .tmp/epson.c:3257
+msgid "Zoom"
+msgstr "Масштаб"
+
+#: .tmp/epson.c:3259
+msgid "Defines the zoom factor the scanner will use"
+msgstr "Визначає масштаб, який буде використано сканером"
+
+#: .tmp/epson.c:3339
+msgid "Quick format"
+msgstr "Швидке форматування"
+
+#: .tmp/genesys.c:107
+#: .tmp/gt68xx.c:147
+#: .tmp/ma1509.c:106
+#: .tmp/mustek.c:160
+#: .tmp/snapscan-options.c:83
+#: .tmp/umax.c:183
+msgid "Transparency Adapter"
+msgstr "Адаптер плівок"
+
+#: .tmp/genesys.c:5041
+msgid "Extras"
+msgstr "Додаткові"
+
+#: .tmp/genesys.c:5062
+msgid "Disable interpolation"
+msgstr "Вимкнути інтерполяцію"
+
+#: .tmp/genesys.c:5065
+#, no-c-format
+msgid "When using high resolutions where the horizontal resolution is smaller than the vertical resolution this disables horizontal interpolation."
+msgstr "За використання високих роздільних здатностей, коли горизонтальна роздільна здатність менша за вертикальну, вимикає горизонтальну інтерполяцію."
+
+#: .tmp/genesys.c:5074
+msgid "Color Filter"
+msgstr "Фільтр кольорів"
+
+#: .tmp/genesys.c:5077
+#, no-c-format
+msgid "When using gray or lineart this option selects the used color."
+msgstr "За використання друку у півтонах або штрихового друку за допомогою цього пункту можна обрати колір друку."
+
+#: .tmp/genesys.c:5086
+msgid "Lamp off time"
+msgstr "Час вимикання лампи"
+
+#: .tmp/genesys.c:5089
+msgid "The lamp will be turned off after the given time (in minutes). A value of 0 means, that the lamp won't be turned off."
+msgstr "Лампу буде вимкнено, коли спливе вказаний час (у хвилинах). Значення рівне 0 означатиме, що лампа не вимикатиметься."
+
+#: .tmp/genesys.c:5117
+#: .tmp/genesys.c:5118
+msgid "File button"
+msgstr "Кнопка «File»"
+
+#: .tmp/genesys.c:5170
+#: .tmp/genesys.c:5171
+msgid "OCR button"
+msgstr "Кнопка «OCR»"
+
+#: .tmp/genesys.c:5184
+#: .tmp/genesys.c:5185
+msgid "Power button"
+msgstr "Кнопка «Power»"
+
+#: .tmp/genesys.c:5198
+#: .tmp/genesys.c:5199
+#: .tmp/pixma_sane_options.c:210
+#: .tmp/plustek.c:1079
+msgid "Buttons"
+msgstr "Кнопки"
+
+#: .tmp/genesys.c:5205
+#: .tmp/hp5400_sane.c:392
+#: .tmp/hp-option.h:97
+#: .tmp/niash.c:728
+#: .tmp/plustek.c:940
+msgid "Calibrate"
+msgstr "Відкалібрувати"
+
+#: .tmp/genesys.c:5206
+msgid "Start calibration using special sheet"
+msgstr "Почати калібрування за допомогою спеціального аркуша"
+
+#: .tmp/genesys.c:5218
+msgid "Clear calibration"
+msgstr "Спорожнити дані калібрування"
+
+#: .tmp/genesys.c:5219
+msgid "Clear calibration cache"
+msgstr "Спорожнити кеш калібрування"
+
+#: .tmp/gt68xx.c:474
+msgid "Gray mode color"
+msgstr "Режим відтінків сірого"
+
+#: .tmp/gt68xx.c:476
+msgid "Selects which scan color is used gray mode (default: green)."
+msgstr "Визначає, який колір сканування буде використано у режимі напівтонів сірого (типово — зелений)."
+
+#: .tmp/gt68xx.c:557
+#: .tmp/hp3900_sane.c:1391
+#: .tmp/mustek_usb2.c:410,
+#: no-c-format
+msgid "Debugging Options"
+msgstr "Параметри зневаджування"
+
+#: .tmp/gt68xx.c:568
+#: .tmp/mustek_usb2.c:419
+msgid "Automatic warmup"
+msgstr "Автоматичний розігрів"
+
+#: .tmp/gt68xx.c:570
+msgid "Warm-up until the lamp's brightness is constant instead of insisting on 60 seconds warm-up time."
+msgstr "Розігрівати, до сталої яскравості лампи, не наполягати на 60-ти секундному розігріві."
+
+#: .tmp/gt68xx.c:582
+msgid "Full scan"
+msgstr "Повне сканування"
+
+#: .tmp/gt68xx.c:584
+msgid "Scan the complete scanning area including calibration strip. Be careful. Don't select the full height. For testing only."
+msgstr "Сканувати всю область сканування, зокрема смугу калібрування. Будьте обережні. Не вказуйте повну висоту. Лише для перевірки."
+
+#: .tmp/gt68xx.c:595
+msgid "Coarse calibration"
+msgstr "Грубе калібрування"
+
+#: .tmp/gt68xx.c:597
+msgid "Setup gain and offset for scanning automatically. If this option is disabled, options for setting the analog frontend parameters manually are provided. This option is enabled by default. For testing only."
+msgstr "Визначає автоматичний режим підсилення і зміщення сканування. Якщо цей пункт не буде позначено, ви зможете вказати параметри аналогової оболонки вручну. Типово цей пункт позначено. Лише для перевірки."
+
+#: .tmp/gt68xx.c:616
+msgid "Coarse calibration for first scan only"
+msgstr "Грубе калібрування лише для початкового сканування"
+
+#: .tmp/gt68xx.c:618
+msgid "Coarse calibration is only done for the first scan. Works with most scanners and can save scanning time. If the image brightness is different with each scan, disable this option. For testing only."
+msgstr "Виконувати грубе калібрування лише для початкового сканування. Працює на більшості сканерів і надає змогу зекономити час на сканування. Якщо яскравість сканованих зображень значно змінюється, зніміть позначку з цього пункту. Лише для перевірки."
+
+#: .tmp/gt68xx.c:649
+msgid "Backtrack lines"
+msgstr "Ліній повернення"
+
+#: .tmp/gt68xx.c:651
+msgid "Number of lines the scan slider moves back when backtracking occurs. That happens when the scanner scans faster than the computer can receive the data. Low values cause faster scans but increase the risk of omitting lines."
+msgstr "Кількість ліній, на які повзунок сканування має відступити у разі потреби у поверненні. Подібне повернення може знадобитися, якщо сканування відбувається швидше за отримання комп’ютером даних. Менші значення пришвидшать сканування, але збільшать ймовірність пропуску ліній."
+
+#: .tmp/gt68xx.c:676
+#: .tmp/mustek_usb2.c:452,
+#: no-c-format
+msgid "Gamma value"
+msgstr "Значення коефіцієнта контрастності"
+
+#: .tmp/gt68xx.c:678
+#: .tmp/mustek_usb2.c:454
+msgid "Sets the gamma value of all channels."
+msgstr "Визначає значення коефіцієнта контрастності для всіх каналів."
+
+#: .tmp/hp3500.c:977
+msgid "Geometry Group"
+msgstr "Група розташування"
+
+#: .tmp/hp3500.c:1033
+#: .tmp/hp3500.c:1034
+msgid "Scan Mode Group"
+msgstr "Група режимів сканування"
+
+#: .tmp/hp3900_sane.c:427
+#: .tmp/hp3900_sane.c:1019
+#: .tmp/hp-option.c:3173
+msgid "Slide"
+msgstr "Слайд"
+
+#: .tmp/hp3900_sane.c:428
+#: .tmp/hp3900_sane.c:1021
+#: .tmp/hp3900_sane.c:1420
+#: .tmp/hp-option.c:3234
+#: .tmp/mustek_usb2.c:121
+#: .tmp/plustek.c:235
+#: .tmp/plustek_pp.c:202
+#: .tmp/saneopts.h:206
+#: .tmp/u12.c:157
+msgid "Negative"
+msgstr "Негатив"
+
+#: .tmp/hp3900_sane.c:1404
+msgid "Scanner model"
+msgstr "Модель сканера"
+
+#: .tmp/hp3900_sane.c:1407
+#, no-c-format
+msgid "Allows to test device behaviour with other supported models"
+msgstr "Надає змогу перевірити поведінку пристрою з використанням інших підтримуваних моделей"
+
+#: .tmp/hp3900_sane.c:1421
+msgid "Image colours will be inverted"
+msgstr "Кольори зображення буде інвертовано"
+
+#: .tmp/hp3900_sane.c:1435
+msgid "Disable gamma correction"
+msgstr "Вимкнути виправлення гами"
+
+#: .tmp/hp3900_sane.c:1436
+msgid "Gamma correction will be disabled"
+msgstr "Виправлення гами буде вимкнено"
+
+#: .tmp/hp3900_sane.c:1450
+msgid "Disable white shading correction"
+msgstr "Вимкнути виправлення відтінків білого"
+
+#: .tmp/hp3900_sane.c:1452
+#, no-c-format
+msgid "White shading correction will be disabled"
+msgstr "Виправлення градації білого буде вимкнено"
+
+#: .tmp/hp3900_sane.c:1466
+msgid "Skip warmup process"
+msgstr "Пропустити процедуру розігріву"
+
+#: .tmp/hp3900_sane.c:1467
+#, no-c-format
+msgid "Warmup process will be disabled"
+msgstr "Процес розігрівання буде вимкнено"
+
+#: .tmp/hp3900_sane.c:1481
+#, no-c-format
+msgid "Force real depth"
+msgstr "Вказати справжню глибину"
+
+#: .tmp/hp3900_sane.c:1484
+#, no-c-format
+msgid "If gamma is enabled, scans are always made in 16 bits depth to improve image quality and then converted to the selected depth. This option avoids depth emulation."
+msgstr "Якщо буде увімкнено гаму, сканування завжди виконуватиметься з глибиною кольорів у 16 бітів для покращення якості зображення, а вже потім перетворюватиметься до обраної глибини кольорів. За допомогою цього пункту можна уникнути такої емуляції."
+
+#: .tmp/hp3900_sane.c:1498
+msgid "Emulate Grayscale"
+msgstr "Імітація чорно-білого"
+
+#: .tmp/hp3900_sane.c:1501
+#, no-c-format
+msgid "If enabled, image will be scanned in color mode and then converted to grayscale by software. This may improve image quality in some circumstances."
+msgstr "Якщо буде позначено цей пункт, зображення буде заскановано у кольоровому режимі, а вже потім програмно перетворено на зображення у тонах сірого. Використання подібного підходу іноді може покращити якість зображення."
+
+#: .tmp/hp3900_sane.c:1515
+msgid "Save debugging images"
+msgstr "Зберегти зневаджувальні зображення"
+
+#: .tmp/hp3900_sane.c:1518
+#, no-c-format
+msgid "If enabled, some images involved in scanner processing are saved to analyze them."
+msgstr "Якщо буде позначено цей пункт, деякі з зображень з процесу сканування буде збережено для подальшого аналізу."
+
+#: .tmp/hp3900_sane.c:1532
+msgid "Reset chipset"
+msgstr "Відновити дані мікроконтролера"
+
+#: .tmp/hp3900_sane.c:1533
+msgid "Resets chipset data"
+msgstr "Відновити початкові дані мікроконтролера"
+
+#: .tmp/hp3900_sane.c:1546
+msgid "Information"
+msgstr "Інформація"
+
+#: .tmp/hp3900_sane.c:1559
+msgid "Chipset name"
+msgstr "Назва мікроконтролера"
+
+#: .tmp/hp3900_sane.c:1560
+msgid "Shows chipset name used in device."
+msgstr "Показує назву мікросхеми, використаної у пристрої."
+
+#: .tmp/hp3900_sane.c:1564
+msgid "Unknown"
+msgstr "Невідома"
+
+#: .tmp/hp3900_sane.c:1569
+msgid "Chipset ID"
+msgstr "Ідентифікатор мікросхеми"
+
+#: .tmp/hp3900_sane.c:1570
+msgid "Shows the chipset ID"
+msgstr "Показує ідентифікатор мікросхеми"
+
+#: .tmp/hp3900_sane.c:1580
+msgid "Scan counter"
+msgstr "Лічильник сканування"
+
+#: .tmp/hp3900_sane.c:1582
+msgid "Shows the number of scans made by scanner"
+msgstr "Показує кількість сканувань, виконаних за допомогою сканера"
+
+#: .tmp/hp3900_sane.c:1592
+msgid "Update information"
+msgstr "Оновити дані"
+
+#: .tmp/hp3900_sane.c:1593
+msgid "Updates information about device"
+msgstr "Оновлює дані щодо пристрою"
+
+#: .tmp/hp3900_sane.c:1633
+msgid "This option reflects a front panel scanner button"
+msgstr "Цей пункт відповідає кнопці передньої панелі сканера"
+
+#: .tmp/hp5400_sane.c:313
+#: .tmp/niash.c:683
+msgid "Image"
+msgstr "Зображення"
+
+#: .tmp/hp5400_sane.c:352
+#: .tmp/niash.c:711
+msgid "Miscellaneous"
+msgstr "Різне"
+
+#: .tmp/hp5400_sane.c:358
+msgid "offset X"
+msgstr "Зсув за X"
+
+#: .tmp/hp5400_sane.c:359
+msgid "Hardware internal X position of the scanning area."
+msgstr "Апаратна внутрішня позиція за X області сканування."
+
+#: .tmp/hp5400_sane.c:368
+msgid "offset Y"
+msgstr "Зсув за Y"
+
+#: .tmp/hp5400_sane.c:369
+msgid "Hardware internal Y position of the scanning area."
+msgstr "Апаратна внутрішня позиція за Y області сканування."
+
+#: .tmp/hp5400_sane.c:381
+#: .tmp/niash.c:718
+msgid "Lamp status"
+msgstr "Стан лампи"
+
+#: .tmp/hp5400_sane.c:382
+#: .tmp/niash.c:719
+msgid "Switches the lamp on or off."
+msgstr "Вмикає або вимикає лампу."
+
+#: .tmp/hp5400_sane.c:393
+#: .tmp/niash.c:729
+msgid "Calibrates for black and white level."
+msgstr "Калібрує для визначення рівня чорного и білого."
+
+#: .tmp/hp5590.c:82
+#: .tmp/hp-option.c:3252
+msgid "ADF"
+msgstr "АПД"
+
+#: .tmp/hp5590.c:83
+#: .tmp/pixma.c:663
+msgid "ADF Duplex"
+msgstr "Двобічна АПД"
+
+#: .tmp/hp5590.c:84
+msgid "TMA Slides"
+msgstr "Слайди TMA"
+
+#: .tmp/hp5590.c:85
+msgid "TMA Negatives"
+msgstr "Негативи TMA"
+
+#: .tmp/hp5590.c:88
+msgid "Color (48 bits)"
+msgstr "Кольоровий (48-бітовий)"
+
+#: .tmp/hp5590.c:91
+msgid "Extend lamp timeout"
+msgstr "Збільшений час очікування лампи"
+
+#: .tmp/hp5590.c:92
+#, no-c-format
+msgid "Extends lamp timeout (from 15 minutes to 1 hour)"
+msgstr "Збільшує час очікування лампи (з 15 хвилин до 1 години)"
+
+#: .tmp/hp5590.c:94
+msgid "Wait for button"
+msgstr "Очікувати натискання кнопки"
+
+#: .tmp/hp5590.c:95
+msgid "Waits for button before scanning"
+msgstr "Очікувати на натискання кнопки, перш ніж почати сканування"
+
+#: .tmp/hp-option.c:2983
+msgid "Advanced Options"
+msgstr "Додаткові параметри"
+
+#: .tmp/hp-option.c:3040
+msgid "Coarse"
+msgstr "Грубе"
+
+#: .tmp/hp-option.c:3041
+msgid "Fine"
+msgstr "Високої якості"
+
+#: .tmp/hp-option.c:3042
+#, no-c-format
+msgid "Bayer"
+msgstr "Секція"
+
+#: .tmp/hp-option.c:3043
+msgid "Vertical"
+msgstr "По вертикалі"
+
+#: .tmp/hp-option.c:3044
+msgid "Horizontal"
+msgstr "По горизонталі"
+
+#: .tmp/hp-option.c:3045
+#: .tmp/hp-option.c:3096
+msgid "Custom"
+msgstr "Нетипова"
+
+#: .tmp/hp-option.c:3086
+#: .tmp/hp-option.c:3142
+#: .tmp/hp-option.c:3157
+msgid "Auto"
+msgstr "Авто"
+
+#: .tmp/hp-option.c:3087
+msgid "NTSC RGB"
+msgstr "NTSC RGB"
+
+#: .tmp/hp-option.c:3088
+msgid "XPA RGB"
+msgstr "XPA RGB"
+
+#: .tmp/hp-option.c:3089, no-c-format
+msgid "Pass-through"
+msgstr "Пропускати"
+
+#: .tmp/hp-option.c:3090
+msgid "NTSC Gray"
+msgstr "Чорно-біле NTSC"
+
+#: .tmp/hp-option.c:3091
+msgid "XPA Gray"
+msgstr "Чорно-біле XPA"
+
+#: .tmp/hp-option.c:3143
+msgid "Slow"
+msgstr "Повільно"
+
+#: .tmp/hp-option.c:3144
+#: .tmp/hp-option.c:3251
+#: .tmp/matsushita.c:244
+#: .tmp/mustek.c:145
+#: .tmp/plustek.c:233
+#: .tmp/plustek_pp.c:200
+#: .tmp/u12.c:155
+msgid "Normal"
+msgstr "Звичайна"
+
+#: .tmp/hp-option.c:3145
+msgid "Fast"
+msgstr "Швидко"
+
+#: .tmp/hp-option.c:3146
+msgid "Extra Fast"
+msgstr "Дуже швидко"
+
+#: .tmp/hp-option.c:3158
+#: .tmp/hp-option.c:3325
+#: .tmp/hp-option.c:3338
+msgid "Off"
+msgstr "Вимкнути"
+
+#: .tmp/hp-option.c:3159
+msgid "2-pixel"
+msgstr "Двоточкове"
+
+#: .tmp/hp-option.c:3160
+msgid "4-pixel"
+msgstr "Чотириточкове"
+
+#: .tmp/hp-option.c:3161
+msgid "8-pixel"
+msgstr "Восьмиточкове"
+
+#: .tmp/hp-option.c:3172
+msgid "Print"
+msgstr "Друк"
+
+#: .tmp/hp-option.c:3174
+msgid "Film-strip"
+msgstr "Плівка"
+
+#: .tmp/hp-option.c:3253
+msgid "XPA"
+msgstr "XPA"
+
+#: .tmp/hp-option.c:3326
+#: .tmp/hp-option.c:3339
+msgid "On"
+msgstr "Увімкнути"
+
+#: .tmp/hp-option.c:3327
+#: .tmp/hp-option.c:3340, no-c-format
+msgid "Conditional"
+msgstr "Умовно"
+
+#: .tmp/hp-option.c:3413
+msgid "Experiment"
+msgstr "Експеримент"
+
+#: .tmp/hp-option.h:60
+msgid "Sharpening"
+msgstr "Збільшенні різкості"
+
+#: .tmp/hp-option.h:61
+msgid "Set sharpening value."
+msgstr "Визначає величину збільшення різкості."
+
+#: .tmp/hp-option.h:66
+msgid "Auto Threshold"
+msgstr "Автоматичне порогове значення"
+
+#: .tmp/hp-option.h:68
+msgid "Enable automatic determination of threshold for line-art scans."
+msgstr "Увімкнути автоматичне визначення порогового значення для сканування штрихових зображень."
+
+#: .tmp/hp-option.h:73
+msgid "Smoothing"
+msgstr "Згладжування"
+
+#: .tmp/hp-option.h:74
+msgid "Select smoothing filter."
+msgstr "Визначити фільтр згладжування."
+
+#: .tmp/hp-option.h:79
+msgid "Unload media after scan"
+msgstr "Вивантажувати носій після сканування"
+
+#: .tmp/hp-option.h:80
+msgid "Unloads the media after a scan."
+msgstr "Вивантажує носій після сканування."
+
+#: .tmp/hp-option.h:85
+msgid "Change document"
+msgstr "Змінити документ"
+
+#: .tmp/hp-option.h:86
+msgid "Change Document."
+msgstr "Змінити документ."
+
+#: .tmp/hp-option.h:91
+msgid "Unload"
+msgstr "Вивантажити"
+
+#: .tmp/hp-option.h:92
+msgid "Unload Document."
+msgstr "Вивантажити документ."
+
+#: .tmp/hp-option.h:98
+msgid "Start calibration process."
+msgstr "Почати процедуру калібрування."
+
+#: .tmp/hp-option.h:103
+msgid "Media"
+msgstr "Носій"
+
+#: .tmp/hp-option.h:104
+msgid "Set type of media."
+msgstr "Визначити тип носія."
+
+#: .tmp/hp-option.h:109
+msgid "Exposure time"
+msgstr "Час експозиції"
+
+#: .tmp/hp-option.h:111
+msgid "A longer exposure time lets the scanner collect more light. Suggested use is 175% for prints, 150% for normal slides and \"Negative\" for negative film. For dark (underexposed) images you can increase this value."
+msgstr "Триваліша витримка надасть змогу сканеру накопичити більше світла. Рекомендуємо вам скористатися значенням 175% для друкованих документів, 150% для звичайних слайдів та «Негатив» для негативів. Для темних (недоекспонованих) зображень ви можете збільшити це значення."
+
+#: .tmp/hp-option.h:119
+#: .tmp/hp-option.h:126
+msgid "Color Matrix"
+msgstr "Матриця кольорів"
+
+#: .tmp/hp-option.h:121
+msgid "Set the scanners color matrix."
+msgstr "Визначити матрицю кольорів сканера."
+
+#: .tmp/hp-option.h:127
+msgid "Custom color matrix."
+msgstr "Нетипова матриця кольорів."
+
+#: .tmp/hp-option.h:132
+msgid "Mono Color Matrix"
+msgstr "Чорно-біла матриця кольорів"
+
+#: .tmp/hp-option.h:133
+msgid "Custom color matrix for grayscale scans."
+msgstr "Нетипова матриця кольорів для чорно-білих зображень."
+
+#: .tmp/hp-option.h:138
+msgid "Mirror horizontal"
+msgstr "Віддзеркалити горизонтально"
+
+#: .tmp/hp-option.h:139
+msgid "Mirror image horizontally."
+msgstr "Віддзеркалити зображення по горизонталі."
+
+#: .tmp/hp-option.h:144
+msgid "Mirror vertical"
+msgstr "Віддзеркалити вертикально"
+
+#: .tmp/hp-option.h:145
+msgid "Mirror image vertically."
+msgstr "Віддзеркалити зображення по вертикалі."
+
+#: .tmp/hp-option.h:150
+msgid "Update options"
+msgstr "Оновити параметри"
+
+#: .tmp/hp-option.h:151
+msgid "Update options."
+msgstr "Оновити параметри."
+
+#: .tmp/hp-option.h:156
+msgid "8 bit output"
+msgstr "8-бітовий вивід"
+
+#: .tmp/hp-option.h:158
+msgid "Use bit depth greater eight internally, but output only eight bits."
+msgstr "Для внутрішньої обробки використовувати глибини кольорів, більші за 8-бітові, але виводити дані лише у 8-бітовому форматі."
+
+#: .tmp/hp-option.h:164
+msgid "Front button wait"
+msgstr "Очікувати натискання кнопки у передній частині"
+
+#: .tmp/hp-option.h:165
+msgid "Wait to scan for front-panel button push."
+msgstr "Не починати сканування до натискання кнопки на передній панелі сканера."
+
+#: .tmp/hp-option.h:172
+msgid "Shut off lamp"
+msgstr "Вимкнути лампу"
+
+#: .tmp/hp-option.h:173
+msgid "Shut off scanner lamp."
+msgstr "Вимкнути лампу сканера."
+
+#: .tmp/leo.c:110
+msgid "Diamond"
+msgstr "Діамант"
+
+#: .tmp/leo.c:111
+#, no-c-format
+msgid "8x8 Coarse Fatting"
+msgstr "8x8 Значна жирність"
+
+#: .tmp/leo.c:112
+#, no-c-format
+msgid "8x8 Fine Fatting"
+msgstr "8x8 Помірна жирність"
+
+#: .tmp/leo.c:113
+#, no-c-format
+msgid "8x8 Bayer"
+msgstr "Секція 8x8"
+
+#: .tmp/leo.c:114
+msgid "8x8 Vertical Line"
+msgstr "8x8 Вертикальна лінія"
+
+#: .tmp/leo.h:260
+#: .tmp/matsushita.h:209
+#: .tmp/teco1.h:291
+#: .tmp/teco3.h:294
+msgid "Black & White"
+msgstr "Чорно-білий"
+
+#: .tmp/lexmark.c:288
+#: .tmp/umax_pp.c:713
+msgid "Gain"
+msgstr "Підсилення"
+
+#: .tmp/lexmark.c:289
+#: .tmp/umax_pp.c:714
+msgid "Color channels gain settings"
+msgstr "Параметри підсилення каналів кольорів"
+
+#: .tmp/lexmark.c:298
+#: .tmp/umax_pp.c:721
+msgid "Gray gain"
+msgstr "Підсилення сірого"
+
+#: .tmp/lexmark.c:299
+#: .tmp/umax_pp.c:722
+msgid "Sets gray channel gain"
+msgstr "Визначає підсилення сірого каналу"
+
+#: .tmp/lexmark.c:312
+#: .tmp/plustek.c:1000
+#: .tmp/umax_pp.c:733
+msgid "Red gain"
+msgstr "Підсилення червоного"
+
+#: .tmp/lexmark.c:313
+#: .tmp/umax_pp.c:734
+msgid "Sets red channel gain"
+msgstr "Визначає підсилення каналу червоного"
+
+#: .tmp/lexmark.c:326
+#: .tmp/plustek.c:1016
+#: .tmp/umax_pp.c:745
+msgid "Green gain"
+msgstr "Підсилення зеленого"
+
+#: .tmp/lexmark.c:327
+#: .tmp/umax_pp.c:746
+msgid "Sets green channel gain"
+msgstr "Визначає підсилення каналу зеленого"
+
+#: .tmp/lexmark.c:340
+#: .tmp/plustek.c:1032
+#: .tmp/umax_pp.c:757
+msgid "Blue gain"
+msgstr "Підсилення синього"
+
+#: .tmp/lexmark.c:341
+#: .tmp/umax_pp.c:758
+msgid "Sets blue channel gain"
+msgstr "Визначає підсилення каналу синього"
+
+#: .tmp/matsushita.c:139
+#, no-c-format
+msgid "Bayer Dither 16"
+msgstr "Секційний дизеринг 16"
+
+#: .tmp/matsushita.c:140
+#, no-c-format
+msgid "Bayer Dither 64"
+msgstr "Секційний дизеринг 64"
+
+#: .tmp/matsushita.c:141
+msgid "Halftone Dot 32"
+msgstr "Напівтонова точка 32"
+
+#: .tmp/matsushita.c:142
+msgid "Halftone Dot 64"
+msgstr "Напівтонова точка 64"
+
+#: .tmp/matsushita.c:143, no-c-format
+msgid "Error Diffusion"
+msgstr "Поширення помилок"
+
+#: .tmp/matsushita.c:160
+msgid "Mode 1"
+msgstr "Режим 1"
+
+#: .tmp/matsushita.c:161
+msgid "Mode 2"
+msgstr "Режим 2"
+
+#: .tmp/matsushita.c:162
+msgid "Mode 3"
+msgstr "Режим 3"
+
+#: .tmp/matsushita.c:176
+msgid "From white stick"
+msgstr "Від білої палички"
+
+#: .tmp/matsushita.c:177
+msgid "From paper"
+msgstr "Від паперу"
+
+#: .tmp/matsushita.c:212
+msgid "Smooth"
+msgstr "Плавний"
+
+#: .tmp/matsushita.c:214
+#: .tmp/matsushita.c:229
+msgid "Low"
+msgstr "Низький"
+
+#: .tmp/matsushita.c:215
+#: .tmp/matsushita.c:230
+#: .tmp/matsushita.c:1296
+msgid "Medium"
+msgstr "Середній"
+
+#: .tmp/matsushita.c:216
+#: .tmp/matsushita.c:231
+msgid "High"
+msgstr "Високий"
+
+#: .tmp/matsushita.c:245
+msgid "CRT"
+msgstr "ЕПТ"
+
+#: .tmp/matsushita.c:257
+msgid "One page"
+msgstr "Одна сторінка"
+
+#: .tmp/matsushita.c:258
+msgid "All pages"
+msgstr "Всі сторінки"
+
+#: .tmp/matsushita.c:1034
+#: .tmp/plustek.c:1332
+msgid "sheetfed scanner"
+msgstr "сканер з подачею аркушів"
+
+#: .tmp/matsushita.c:1126
+msgid "Feeder mode"
+msgstr "Режим подачі"
+
+#: .tmp/matsushita.c:1127
+msgid "Sets the feeding mode"
+msgstr "Визначити режим подачі"
+
+#: .tmp/matsushita.c:1224
+msgid "Automatic threshold"
+msgstr "Автоматичне визначення"
+
+#: .tmp/matsushita.c:1227
+msgid "Automatically sets brightness, contrast, white level, gamma, noise reduction and image emphasis"
+msgstr "Встановлювати яскравість, контрастність, рівень білого, гаму, зменшення шумності і виразність зображення автоматично"
+
+#: .tmp/matsushita.c:1275
+msgid "Noise reduction"
+msgstr "Зменшення шумності"
+
+#: .tmp/matsushita.c:1277
+msgid "Reduce the isolated dot noise"
+msgstr "Зменшити шум від ізольованих точок"
+
+#: .tmp/matsushita.c:1288
+msgid "Image emphasis"
+msgstr "Виразність зображення"
+
+#: .tmp/matsushita.c:1289
+msgid "Sets the image emphasis"
+msgstr "Визначає виразність зображення"
+
+#: .tmp/matsushita.c:1300
+#: .tmp/matsushita.c:1301
+#: .tmp/pixma_sane_options.c:107
+msgid "Gamma"
+msgstr "Гама"
+
+#: .tmp/matsushita.h:210
+msgid "Grayscale 4 bits"
+msgstr "Відтінки сірого, 4-бітова"
+
+#: .tmp/matsushita.h:211
+msgid "Grayscale 8 bits"
+msgstr "Відтінки сірого, 8-бітова"
+
+#: .tmp/matsushita.h:220
+msgid "Paper size"
+msgstr "Розмір паперу"
+
+#: .tmp/matsushita.h:221
+#: .tmp/matsushita.h:228
+msgid "Automatic separation"
+msgstr "Автоматичне відокремлення"
+
+#: .tmp/matsushita.h:224
+msgid "Enable Duplex (Dual-Sided) Scanning"
+msgstr "Увімкнути двобічне сканування"
+
+#: .tmp/matsushita.h:226
+msgid "Physical size of the paper in the ADF"
+msgstr "Фізичний розмір паперу у пристрої автоматичної подачі"
+
+#: .tmp/microtek2.h:602
+msgid "Shadow, midtone, highlight, exposure time"
+msgstr "Затіненість, напівтон, підсвічування, час витримки"
+
+#: .tmp/microtek2.h:604
+msgid "Special options"
+msgstr "Спеціальні параметри"
+
+#: .tmp/microtek2.h:605
+msgid "Color balance"
+msgstr "Баланс кольорів"
+
+#: .tmp/microtek2.h:608
+msgid "Disable backtracking"
+msgstr "Вимкнути зворотне стеження"
+
+#: .tmp/microtek2.h:609
+msgid "If checked the scanner does not perform backtracking"
+msgstr "Якщо буде позначено цей пункт, сканер не виконуватиме повернення"
+
+#: .tmp/microtek2.h:613
+msgid "Toggle lamp of flatbed"
+msgstr "Перемкнути лампу планшетного сканера"
+
+#: .tmp/microtek2.h:614
+msgid "Toggles the lamp of the flatbed"
+msgstr "Перемикає лампу планшетного сканера"
+
+#: .tmp/microtek2.h:617
+msgid "Calibration by backend"
+msgstr "Калібрування програмою обробки"
+
+#: .tmp/microtek2.h:618
+msgid "If checked the color calibration before a scan is done by the backend"
+msgstr "Якщо позначено цей пункт, калібрування кольорів перед скануванням виконується програмою обробки"
+
+#: .tmp/microtek2.h:622
+msgid "Use the lightlid-35mm adapter"
+msgstr "Використовувати 35 мм адаптер lightlid"
+
+#: .tmp/microtek2.h:623
+msgid "This option turns off the lamp of the flatbed during a scan"
+msgstr "Якщо позначити цей пункт, лампу планшетного сканера на час сканування буде вимкнено"
+
+#: .tmp/microtek2.h:627
+#: .tmp/snapscan-options.c:375
+msgid "Quality scan"
+msgstr "Якісне сканування"
+
+#: .tmp/microtek2.h:628
+#: .tmp/snapscan-options.c:376
+msgid "Highest quality but lower speed"
+msgstr "Найкраща якість, але повільно"
+
+#: .tmp/microtek2.h:631
+msgid "Fast scan"
+msgstr "Швидке сканування"
+
+#: .tmp/microtek2.h:632
+msgid "Highest speed but lower quality"
+msgstr "Найшвидше, але низька якість"
+
+#: .tmp/microtek2.h:635
+msgid "Automatic adjustment of threshold"
+msgstr "Автоматичне визначення порогового значення"
+
+#: .tmp/microtek2.h:636
+msgid "If checked the backend automatically tries to determine an optimal value for the threshold."
+msgstr "Якщо буде позначено цей пункт, програма обробки спробує визначити оптимальне порогове значення у автоматичному режимі."
+
+#: .tmp/microtek2.h:641
+msgid "Gamma correction"
+msgstr "Виправлення гами"
+
+#: .tmp/microtek2.h:642
+msgid "Selects the gamma correction mode."
+msgstr "Визначає режим виправлення гами (ступеня контрастності)."
+
+#: .tmp/microtek2.h:645
+msgid "Bind gamma"
+msgstr "Пов’язана гама"
+
+#: .tmp/microtek2.h:646
+msgid "Use same gamma values for all colour channels."
+msgstr "Використовувати однакові значення гами для всіх каналів кольорів."
+
+#: .tmp/microtek2.h:650
+msgid "Scalar gamma"
+msgstr "Скалярна гама"
+
+#: .tmp/microtek2.h:651
+msgid "Selects a value for scalar gamma correction."
+msgstr "Визначає значення для скалярного виправлення гами."
+
+#: .tmp/microtek2.h:655
+msgid "Scalar gamma red"
+msgstr "Скалярна гама червоного"
+
+#: .tmp/microtek2.h:656
+msgid "Selects a value for scalar gamma correction (red channel)"
+msgstr "Визначає значення для скалярного виправлення гами (канал червоного)."
+
+#: .tmp/microtek2.h:660
+msgid "Scalar gamma green"
+msgstr "Скалярна гама зеленого"
+
+#: .tmp/microtek2.h:661
+msgid "Selects a value for scalar gamma correction (green channel)"
+msgstr "Визначає значення для скалярного виправлення гами (канал зеленого)."
+
+#: .tmp/microtek2.h:665
+msgid "Scalar gamma blue"
+msgstr "Скалярна гама синього"
+
+#: .tmp/microtek2.h:666
+msgid "Selects a value for scalar gamma correction (blue channel)"
+msgstr "Визначає значення для скалярного виправлення гами (канал синього)."
+
+#: .tmp/microtek2.h:670
+msgid "Channel"
+msgstr "Канал"
+
+#: .tmp/microtek2.h:671
+msgid "Selects the colour band, \"Master\" means that all colours are affected."
+msgstr "Визначає зв’язок кольорів. «Основний» визначає зв’язок всіх кольорів."
+
+#: .tmp/microtek2.h:675
+msgid "Midtone"
+msgstr "Напівтон"
+
+#: .tmp/microtek2.h:676
+msgid "Selects which radiance level should be considered \"50 % gray\"."
+msgstr "Визначає рівень світності, який вважатиметься «50 % сірим»."
+
+#: .tmp/microtek2.h:680
+msgid "Midtone for red"
+msgstr "Напівтон для червоного"
+
+#: .tmp/microtek2.h:681
+msgid "Selects which radiance level should be considered \"50 % red\"."
+msgstr "Визначає рівень світності, який є «50 % червоним»."
+
+#: .tmp/microtek2.h:685
+msgid "Midtone for green"
+msgstr "Напівтон для зеленого"
+
+#: .tmp/microtek2.h:686
+msgid "Selects which radiance level should be considered \"50 % green\"."
+msgstr "Визначає рівень світності, який є «50 % зеленим»."
+
+#: .tmp/microtek2.h:690
+msgid "Midtone for blue"
+msgstr "Напівтон для синього"
+
+#: .tmp/microtek2.h:691
+msgid "Selects which radiance level should be considered \"50 % blue\"."
+msgstr "Визначає рівень світності, який є «50 % синім»."
+
+#: .tmp/microtek2.h:695
+msgid "Red balance"
+msgstr "Баланс червоного"
+
+#: .tmp/microtek2.h:696
+msgid "Balance factor for red. A value of 100% means no correction."
+msgstr "Коефіцієнт балансу для червоного. Значення у 100% означає «без виправлення»."
+
+#: .tmp/microtek2.h:700
+msgid "Green balance"
+msgstr "Баланс зеленого"
+
+#: .tmp/microtek2.h:701
+msgid "Balance factor for green. A value of 100% means no correction."
+msgstr "Коефіцієнт балансу для зеленого. Значення у 100% означає «без виправлення»."
+
+#: .tmp/microtek2.h:705
+msgid "Blue balance"
+msgstr "Баланс синього"
+
+#: .tmp/microtek2.h:706
+msgid "Balance factor for blue. A value of 100% means no correction."
+msgstr "Коефіцієнт балансу для синього. Значення у 100% означає «без виправлення»."
+
+#: .tmp/microtek2.h:710
+msgid "Firmware balance"
+msgstr "Баланс мікрокоду"
+
+#: .tmp/microtek2.h:711
+msgid "Sets the color balance values to the firmware provided values."
+msgstr "Встановлює значення балансу кольорів на основі даних з мікрокоду."
+
+#: .tmp/mustek.c:145
+msgid "Slowest"
+msgstr "Найповільніша"
+
+#: .tmp/mustek.c:145
+msgid "Slower"
+msgstr "Повільна"
+
+#: .tmp/mustek.c:146
+msgid "Faster"
+msgstr "Швидша"
+
+#: .tmp/mustek.c:146
+msgid "Fastest"
+msgstr "Найшвидша"
+
+#: .tmp/mustek.c:173
+msgid "8x8 coarse"
+msgstr "8x8 грубе"
+
+#: .tmp/mustek.c:173
+msgid "8x8 normal"
+msgstr "8x8 звичайне"
+
+#: .tmp/mustek.c:173
+msgid "8x8 fine"
+msgstr "8x8 добре"
+
+#: .tmp/mustek.c:174
+msgid "8x8 very fine"
+msgstr "8x8 дуже добре"
+
+#: .tmp/mustek.c:174
+msgid "6x6 normal"
+msgstr "6x6 звичайне"
+
+#: .tmp/mustek.c:175
+msgid "5x5 coarse"
+msgstr "5x5 грубе"
+
+#: .tmp/mustek.c:175
+msgid "5x5 fine"
+msgstr "5x5 добре"
+
+#: .tmp/mustek.c:175
+msgid "4x4 coarse"
+msgstr "4x4 грубе"
+
+#: .tmp/mustek.c:176
+msgid "4x4 normal"
+msgstr "4x4 звичайне"
+
+#: .tmp/mustek.c:176
+msgid "4x4 fine"
+msgstr "4x4 добре"
+
+#: .tmp/mustek.c:176
+msgid "3x3 normal"
+msgstr "3x3 звичайне"
+
+#: .tmp/mustek.c:177
+msgid "2x2 normal"
+msgstr "2x2 звичайне"
+
+#: .tmp/mustek.c:177
+msgid "8x8 custom"
+msgstr "8x8 нетипове"
+
+#: .tmp/mustek.c:178
+msgid "6x6 custom"
+msgstr "6x6 нетипове"
+
+#: .tmp/mustek.c:179
+msgid "5x5 custom"
+msgstr "5x5 нетипове"
+
+#: .tmp/mustek.c:179
+msgid "4x4 custom"
+msgstr "4x4 нетипове"
+
+#: .tmp/mustek.c:180
+msgid "3x3 custom"
+msgstr "3x3 нетипове"
+
+#: .tmp/mustek.c:181
+msgid "2x2 custom"
+msgstr "2x2 нетипове"
+
+#: .tmp/mustek.c:4233
+msgid "Fast gray mode"
+msgstr "Швидкий чорно-білий режим"
+
+#: .tmp/mustek.c:4234
+msgid "Scan in fast gray mode (lower quality)."
+msgstr "Сканувати у швидкому чорно-білому режимі (погана якість)."
+
+#: .tmp/mustek.c:4331
+msgid "Request that all previews are done in the fastest (low-quality) mode. This may be a non-color mode or a low resolution mode."
+msgstr "Наказує програмі створювати всі попередні перегляди у найшвидшому (низькоякісному) режимі. Цим режимом може бути чорно-білий режим або режим з низькою роздільною здатністю."
+
+#: .tmp/mustek.c:4339
+msgid "Lamp off time (minutes)"
+msgstr "Час вимикання лампи (у хвилинах)"
+
+#: .tmp/mustek.c:4340
+msgid "Set the time (in minutes) after which the lamp is shut off."
+msgstr "Визначає час (у хвилинах), через який лампу буде вимкнено."
+
+#: .tmp/mustek.c:4351
+msgid "Turn lamp off"
+msgstr "Вимкнути лампу"
+
+#: .tmp/mustek.c:4352
+msgid "Turns the lamp off immediately."
+msgstr "Негайно вимикає лампу."
+
+#: .tmp/mustek.c:4429
+msgid "Red brightness"
+msgstr "Яскравість червоного"
+
+#: .tmp/mustek.c:4430
+msgid "Controls the brightness of the red channel of the acquired image."
+msgstr "Керує яскравістю каналу червоного у отриманому зображенні."
+
+#: .tmp/mustek.c:4442
+msgid "Green brightness"
+msgstr "Яскравість зеленого"
+
+#: .tmp/mustek.c:4443
+msgid "Controls the brightness of the green channel of the acquired image."
+msgstr "Керує яскравістю каналу зеленого у отриманому зображенні."
+
+#: .tmp/mustek.c:4455
+msgid "Blue brightness"
+msgstr "Яскравість синього"
+
+#: .tmp/mustek.c:4456
+msgid "Controls the brightness of the blue channel of the acquired image."
+msgstr "Керує яскравістю каналу синього у отриманому зображенні."
+
+#: .tmp/mustek.c:4481
+msgid "Contrast red channel"
+msgstr "Контрастність червоного каналу"
+
+#: .tmp/mustek.c:4482
+msgid "Controls the contrast of the red channel of the acquired image."
+msgstr "Керує контрастністю каналу червоного у отриманому зображенні."
+
+#: .tmp/mustek.c:4494
+msgid "Contrast green channel"
+msgstr "Контрастність зеленого каналу"
+
+#: .tmp/mustek.c:4495
+msgid "Controls the contrast of the green channel of the acquired image."
+msgstr "Керує контрастністю каналу зеленого у отриманому зображенні."
+
+#: .tmp/mustek.c:4507
+msgid "Contrast blue channel"
+msgstr "Контрастність синього каналу"
+
+#: .tmp/mustek.c:4508
+msgid "Controls the contrast of the blue channel of the acquired image."
+msgstr "Керує контрастністю каналу синього у отриманому зображенні."
+
+#: .tmp/mustek_usb2.c:105
+msgid "Color48"
+msgstr "Кольоровий 48"
+
+#: .tmp/mustek_usb2.c:106
+#: .tmp/mustek_usb2.c:114
+msgid "Color24"
+msgstr "Кольоровий 24"
+
+#: .tmp/mustek_usb2.c:107
+msgid "Gray16"
+msgstr "Чорно-білий 16"
+
+#: .tmp/mustek_usb2.c:108
+msgid "Gray8"
+msgstr "Чорно-білий 8"
+
+#: .tmp/mustek_usb2.c:119
+#, no-c-format
+msgid "Reflective"
+msgstr "Відбиток"
+
+#: .tmp/mustek_usb2.c:120
+msgid "Positive"
+msgstr "Позитив"
+
+#: .tmp/mustek_usb2.c:421
+msgid "Warm-up until the lamp's brightness is constant instead of insisting on 40 seconds warm-up time."
+msgstr "Розігрівати, до сталої яскравості лампи, не наполягати на 40-ти секундному розігріві."
+
+#: .tmp/pixma_sane_options.c:91
+msgid "Button-controlled scan"
+msgstr "Кероване кнопкою сканування"
+
+#: .tmp/pixma_sane_options.c:94
+#, no-c-format
+msgid "When enabled, scan process will not start immediately. To proceed, press \"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To cancel, press \"GRAY\" button."
+msgstr "Якщо буде позначено цей пункт, процес сканування не розпочинатиметься негайно. Для продовження, натисніть кнопку «SCAN» (MP150) або «COLOR» (для інших моделей). Для скасування натисніть кнопку «GRAY»."
+
+#: .tmp/pixma_sane_options.c:216
+msgid "Update button state"
+msgstr "Оновити стан кнопки"
+
+#: .tmp/pixma_sane_options.c:228
+msgid "Button 1"
+msgstr "Кнопка 1"
+
+#: .tmp/pixma_sane_options.c:242
+msgid "Button 2"
+msgstr "Кнопка 2"
+
+#: .tmp/plustek.c:234
+#: .tmp/plustek_pp.c:201
+#: .tmp/u12.c:156
+msgid "Transparency"
+msgstr "Прозорість"
+
+#: .tmp/plustek.c:912
+msgid "Device-Settings"
+msgstr "Параметри пристрою"
+
+#: .tmp/plustek.c:919
+msgid "Lampswitch"
+msgstr "Перемикач лампи"
+
+#: .tmp/plustek.c:920
+msgid "Manually switching the lamp(s)."
+msgstr "Перемикання ламп вручну."
+
+#: .tmp/plustek.c:925
+msgid "Lamp off during dark calibration"
+msgstr "Вимикання лампи під час калібрування темного"
+
+#: .tmp/plustek.c:926
+#, no-c-format
+msgid "Always switches lamp off when doing dark calibration."
+msgstr "Завжди вимикати лампу під час виконання калібрування темної зони"
+
+#: .tmp/plustek.c:934
+msgid "Calibration data cache"
+msgstr "Кешування даних калібрування"
+
+#: .tmp/plustek.c:935
+msgid "Enables or disables calibration data cache."
+msgstr "Вмикає або вимикає кешування даних калібрування."
+
+#: .tmp/plustek.c:941
+msgid "Performs calibration"
+msgstr "Виконує калібрування"
+
+#: .tmp/plustek.c:958
+msgid "Speedup sensor"
+msgstr "Пришвидшити датчик"
+
+#: .tmp/plustek.c:959
+#, no-c-format
+msgid "Enables or disables speeding up sensor movement."
+msgstr "Вмикає або вимикає пришвидшення руху датчика."
+
+#: .tmp/plustek.c:973
+msgid "Warmup-time"
+msgstr "Час розігріву"
+
+#: .tmp/plustek.c:974
+msgid "Warmup-time in seconds."
+msgstr "Час розігріву у секундах."
+
+#: .tmp/plustek.c:986
+msgid "Lampoff-time"
+msgstr "Час вимикання"
+
+#: .tmp/plustek.c:987
+msgid "Lampoff-time in seconds."
+msgstr "Час вимикання лампи у секундах."
+
+#: .tmp/plustek.c:994
+msgid "Analog frontend"
+msgstr "Аналогова оболонка"
+
+#: .tmp/plustek.c:1001
+#, no-c-format
+msgid "Red gain value of the AFE"
+msgstr "Значення підсилення червоного AFE"
+
+#: .tmp/plustek.c:1008
+#: .tmp/umax_pp.c:790
+msgid "Red offset"
+msgstr "Зміщення червоного"
+
+#: .tmp/plustek.c:1009
+#, no-c-format
+msgid "Red offset value of the AFE"
+msgstr "Значення зміщення червоного AFE"
+
+#: .tmp/plustek.c:1017
+#, no-c-format
+msgid "Green gain value of the AFE"
+msgstr "Значення підсилення зеленого AFE"
+
+#: .tmp/plustek.c:1024
+#: .tmp/umax_pp.c:802
+msgid "Green offset"
+msgstr "Зміщення зеленого"
+
+#: .tmp/plustek.c:1025
+#, no-c-format
+msgid "Green offset value of the AFE"
+msgstr "Значення зміщення зеленого AFE"
+
+#: .tmp/plustek.c:1033
+#, no-c-format
+msgid "Blue gain value of the AFE"
+msgstr "Значення підсилення синього AFE"
+
+#: .tmp/plustek.c:1040
+#: .tmp/umax_pp.c:814
+msgid "Blue offset"
+msgstr "Зміщення синього"
+
+#: .tmp/plustek.c:1041
+#, no-c-format
+msgid "Blue offset value of the AFE"
+msgstr "Значення зміщення синього AFE"
+
+#: .tmp/plustek.c:1048
+msgid "Red lamp off"
+msgstr "Вимикання лампи червоного"
+
+#: .tmp/plustek.c:1049
+msgid "Defines red lamp off parameter"
+msgstr "Визначає параметр вимикання лампи червоного"
+
+#: .tmp/plustek.c:1056
+msgid "Green lamp off"
+msgstr "Вимикання лампи зеленого"
+
+#: .tmp/plustek.c:1057
+msgid "Defines green lamp off parameter"
+msgstr "Визначає параметр вимикання лампи зеленого"
+
+#: .tmp/plustek.c:1064
+msgid "Blue lamp off"
+msgstr "Вимикання лампи синього"
+
+#: .tmp/plustek.c:1065
+msgid "Defines blue lamp off parameter"
+msgstr "Визначає параметр вимикання лампи синього"
+
+#: .tmp/plustek.c:1095
+msgid "This option reflects the status of the scanner buttons."
+msgstr "Цей параметр відповідає стану кнопок сканера."
+
+#: .tmp/plustek_pp.c:194
+msgid "Color36"
+msgstr "Кольоровий 36"
+
+#: .tmp/plustek_pp.c:208
+#, no-c-format
+msgid "Dithermap 1"
+msgstr "Карта дизерингу 1"
+
+#: .tmp/plustek_pp.c:209
+#, no-c-format
+msgid "Dithermap 2"
+msgstr "Карта дизерингу 2"
+
+#: .tmp/plustek_pp.c:210
+msgid "Randomize"
+msgstr "Випадково"
+
+#: .tmp/pnm.c:168
+msgid "Source Selection"
+msgstr "Вибір джерела"
+
+#: .tmp/pnm.c:205
+msgid "Image Enhancement"
+msgstr "Покращення зображення"
+
+#: .tmp/pnm.c:241
+msgid "Grayify"
+msgstr "Зробити чорно-білим"
+
+#: .tmp/pnm.c:242
+msgid "Load the image as grayscale."
+msgstr "Завантажити зображення як чорно-біле"
+
+#: .tmp/pnm.c:253
+msgid "Three-Pass Simulation"
+msgstr "Імітація режиму трьох проходів"
+
+#: .tmp/pnm.c:255
+msgid "Simulate a three-pass scanner by returning 3 separate frames.  For kicks, it returns green, then blue, then red."
+msgstr "Імітувати сканування у три проходи поверненням 3 окремих кадрів. Буде повернено кадри для зеленого, синього, а потім червоного кольору."
+
+#: .tmp/pnm.c:267
+msgid "Hand-Scanner Simulation"
+msgstr "Імітація ручного сканера"
+
+#: .tmp/pnm.c:268
+msgid "Simulate a hand-scanner.  Hand-scanners often do not know the image height a priori.  Instead, they return a height of -1.  Setting this option allows to test whether a frontend can handle this correctly."
+msgstr "Імітує ручний сканер. Ручні сканери часто попередньо не отримують даних щодо висоти зображення. Замість цього, вони повертають висоту рівну -1. Встановлення цього параметра надає змогу перевірити, чи може оболонка правильно обробити такі дані."
+
+#: .tmp/pnm.c:283
+msgid "Set default values for enhancement controls (brightness & contrast)."
+msgstr "Встановити типові значення керування покращенням (яскравістю і контрастністю)."
+
+#: .tmp/pnm.c:295
+msgid "Read only test-option"
+msgstr "Тестовий параметр лише для читання"
+
+#: .tmp/pnm.c:296
+msgid "Let's see whether frontends can treat this right"
+msgstr "Давайте переконаємося у правильності обробки даних оболонкою"
+
+#: .tmp/pnm.c:307
+msgid "Gamma Tables"
+msgstr "Таблиці гамми"
+
+#: .tmp/pnm.c:379
+msgid "Status Code Simulation"
+msgstr "Імітація коду стану"
+
+#: .tmp/pnm.c:391
+msgid "Do not force status code"
+msgstr "Не встановлювати код стану примусово"
+
+#: .tmp/pnm.c:392
+msgid "Do not force the backend to return a status code."
+msgstr "Не примушувати інструмент обробки повертати код стану."
+
+#: .tmp/pnm.c:403
+msgid "Return SANE_STATUS_EOF"
+msgstr "Повернути SANE_STATUS_EOF"
+
+#: .tmp/pnm.c:404
+#, no-c-format
+msgid "Force the backend to return the status code SANE_STATUS_EOF after sane_read() has been called."
+msgstr "Наказати серверу повертати код стану SANE_STATUS_EOF після виклику sane_read()."
+
+#: .tmp/pnm.c:416
+msgid "Return SANE_STATUS_JAMMED"
+msgstr "Повернути SANE_STATUS_JAMMED"
+
+#: .tmp/pnm.c:418
+#, no-c-format
+msgid "Force the backend to return the status code SANE_STATUS_JAMMED after sane_read() has been called."
+msgstr "Наказати серверу повертати код стану SANE_STATUS_JAMMED після виклику sane_read()."
+
+#: .tmp/pnm.c:430
+msgid "Return SANE_STATUS_NO_DOCS"
+msgstr "Повернути SANE_STATUS_NO_DOCS"
+
+#: .tmp/pnm.c:431
+#, no-c-format
+msgid "Force the backend to return the status code SANE_STATUS_NO_DOCS after sane_read() has been called."
+msgstr "Наказати серверу повертати код стану SANE_STATUS_NO_DOCS після виклику sane_read()."
+
+#: .tmp/pnm.c:443
+msgid "Return SANE_STATUS_COVER_OPEN"
+msgstr "Повернути SANE_STATUS_COVER_OPEN"
+
+#: .tmp/pnm.c:444
+#, no-c-format
+msgid "Force the backend to return the status code SANE_STATUS_COVER_OPEN after sane_read() has been called."
+msgstr "Наказати серверу повертати код стану SANE_STATUS_COVER_OPEN після виклику sane_read()."
+
+#: .tmp/pnm.c:456
+msgid "Return SANE_STATUS_IO_ERROR"
+msgstr "Повернути SANE_STATUS_IO_ERROR"
+
+#: .tmp/pnm.c:457
+#, no-c-format
+msgid "Force the backend to return the status code SANE_STATUS_IO_ERROR after sane_read() has been called."
+msgstr "Наказати серверу повертати код стану SANE_STATUS_IO_ERROR після виклику sane_read()."
+
+#: .tmp/pnm.c:469
+msgid "Return SANE_STATUS_NO_MEM"
+msgstr "Повернути SANE_STATUS_NO_MEM"
+
+#: .tmp/pnm.c:471
+#, no-c-format
+msgid "Force the backend to return the status code SANE_STATUS_NO_MEM after sane_read() has been called."
+msgstr "Наказати серверу повертати код стану SANE_STATUS_NO_MEM після виклику sane_read()."
+
+#: .tmp/pnm.c:483
+msgid "Return SANE_STATUS_ACCESS_DENIED"
+msgstr "Повернути SANE_STATUS_ACCESS_DENIED"
+
+#: .tmp/pnm.c:484
+#, no-c-format
+msgid "Force the backend to return the status code SANE_STATUS_ACCESS_DENIED after sane_read() has been called."
+msgstr "Наказати серверу повертати код стану SANE_STATUS_ACCESS_DENIED після виклику sane_read()."
+
+#: .tmp/rts8891.c:2740
+msgid "This option reflects the status of a scanner button."
+msgstr "Цей пункт відповідає стану кнопки сканування."
+
+#: .tmp/rts8891.c:2771
+#: .tmp/umax.c:5796
+#: .tmp/umax_pp.c:637
+msgid "Lamp on"
+msgstr "Увімкнути лампу"
+
+#: .tmp/rts8891.c:2772
+#: .tmp/umax.c:5797
+msgid "Turn on scanner lamp"
+msgstr "Увімкнути лампу сканера"
+
+#: .tmp/rts8891.c:2782
+#: .tmp/umax1220u.c:248
+#: .tmp/umax.c:5813
+msgid "Lamp off"
+msgstr "Вимкнути лампу"
+
+#: .tmp/rts8891.c:2783
+#: .tmp/umax1220u.c:249
+#: .tmp/umax.c:5814
+msgid "Turn off scanner lamp"
+msgstr "Вимкнути лампу сканера"
+
+#: .tmp/saneopts.h:154
+msgid "Number of options"
+msgstr "Кількість параметрів"
+
+#: .tmp/saneopts.h:156
+msgid "Standard"
+msgstr "Типово"
+
+#: .tmp/saneopts.h:160
+msgid "Sensors"
+msgstr "Датчики"
+
+#: .tmp/saneopts.h:162
+msgid "Preview"
+msgstr "Перегляд"
+
+#: .tmp/saneopts.h:163
+msgid "Force monochrome preview"
+msgstr "Примусовий чорно-білий перегляд"
+
+#: .tmp/saneopts.h:164
+msgid "Bit depth"
+msgstr "К-ть бітів на колір"
+
+#: .tmp/saneopts.h:166
+msgid "Scan speed"
+msgstr "Швидкість сканування"
+
+#: .tmp/saneopts.h:167
+msgid "Scan source"
+msgstr "Джерело сканування"
+
+#: .tmp/saneopts.h:168
+msgid "Force backtracking"
+msgstr "Примусове повернення"
+
+#: .tmp/saneopts.h:169
+msgid "Top-left x"
+msgstr "Верхня ліва координата за X"
+
+#: .tmp/saneopts.h:170
+msgid "Top-left y"
+msgstr "Верхня ліва координата за Y"
+
+#: .tmp/saneopts.h:171
+msgid "Bottom-right x"
+msgstr "Нижня права координата за X"
+
+#: .tmp/saneopts.h:172
+msgid "Bottom-right y"
+msgstr "Нижня права координата за Y"
+
+#: .tmp/saneopts.h:174
+msgid "X-resolution"
+msgstr "Роздільна здатність за X"
+
+#: .tmp/saneopts.h:175
+msgid "Y-resolution"
+msgstr "Роздільна здатність за Y"
+
+#: .tmp/saneopts.h:176
+msgid "Page width"
+msgstr "Ширина сторінки"
+
+#: .tmp/saneopts.h:177
+msgid "Page height"
+msgstr "Висота сторінки"
+
+#: .tmp/saneopts.h:178
+msgid "Use custom gamma table"
+msgstr "Використовувати нестандартну таблицю гами"
+
+#: .tmp/saneopts.h:179
+msgid "Image intensity"
+msgstr "Інтенсивність зображення"
+
+#: .tmp/saneopts.h:180
+msgid "Red intensity"
+msgstr "Інтенсивність червоного"
+
+#: .tmp/saneopts.h:181
+msgid "Green intensity"
+msgstr "Інтенсивність зеленого"
+
+#: .tmp/saneopts.h:182
+msgid "Blue intensity"
+msgstr "Інтенсивність синього"
+
+#: .tmp/saneopts.h:183
+msgid "Brightness"
+msgstr "Яскравість"
+
+#: .tmp/saneopts.h:184
+msgid "Contrast"
+msgstr "Контрастність"
+
+#: .tmp/saneopts.h:185
+msgid "Grain size"
+msgstr "Розмір зерна"
+
+#: .tmp/saneopts.h:186
+msgid "Halftoning"
+msgstr "Напівтони"
+
+#: .tmp/saneopts.h:187
+msgid "Black level"
+msgstr "Рівень чорного"
+
+#: .tmp/saneopts.h:188
+msgid "White level"
+msgstr "Рівень білого"
+
+#: .tmp/saneopts.h:189
+msgid "White level for red"
+msgstr "Рівень білого для червоного"
+
+#: .tmp/saneopts.h:190
+msgid "White level for green"
+msgstr "Рівень білого для зеленого"
+
+#: .tmp/saneopts.h:191
+msgid "White level for blue"
+msgstr "Рівень білого для синього"
+
+#: .tmp/saneopts.h:192
+msgid "Shadow"
+msgstr "Затіненість"
+
+#: .tmp/saneopts.h:193
+msgid "Shadow for red"
+msgstr "Затіненість для червоного"
+
+#: .tmp/saneopts.h:194
+msgid "Shadow for green"
+msgstr "Затіненість для зеленого"
+
+#: .tmp/saneopts.h:195
+msgid "Shadow for blue"
+msgstr "Затіненість для синього"
+
+#: .tmp/saneopts.h:196
+msgid "Highlight"
+msgstr "Підсвічування"
+
+#: .tmp/saneopts.h:197
+msgid "Highlight for red"
+msgstr "Підсвічування для червоного"
+
+#: .tmp/saneopts.h:198
+msgid "Highlight for green"
+msgstr "Підсвічування для зеленого"
+
+#: .tmp/saneopts.h:199
+msgid "Highlight for blue"
+msgstr "Підсвічування для синього"
+
+#: .tmp/saneopts.h:200
+msgid "Hue"
+msgstr "Відтінок"
+
+#: .tmp/saneopts.h:201
+msgid "Saturation"
+msgstr "Насиченість"
+
+#: .tmp/saneopts.h:202
+msgid "Filename"
+msgstr "Назва файла"
+
+#: .tmp/saneopts.h:203
+msgid "Halftone pattern size"
+msgstr "Розмір шаблону напівтонів"
+
+#: .tmp/saneopts.h:204
+msgid "Halftone pattern"
+msgstr "Шаблон напівтонів"
+
+#: .tmp/saneopts.h:205
+msgid "Bind X and Y resolution"
+msgstr "Пов’язати роздільні здатності за X і Y"
+
+#: .tmp/saneopts.h:207
+msgid "Quality calibration"
+msgstr "Якісне калібрування"
+
+#: .tmp/saneopts.h:208
+msgid "Double Optical Resolution"
+msgstr "Подвоїти оптичну роздільну здатність"
+
+#: .tmp/saneopts.h:209
+msgid "Bind RGB"
+msgstr "Пов’язаний RGB"
+
+#: .tmp/saneopts.h:210
+#: .tmp/sm3840.c:768
+msgid "Threshold"
+msgstr "Поріг"
+
+#: .tmp/saneopts.h:211
+msgid "Analog gamma correction"
+msgstr "Аналогове виправлення гами"
+
+#: .tmp/saneopts.h:212
+msgid "Analog gamma red"
+msgstr "Аналогова гама червоного"
+
+#: .tmp/saneopts.h:213
+msgid "Analog gamma green"
+msgstr "Аналогова гама зеленого"
+
+#: .tmp/saneopts.h:214
+msgid "Analog gamma blue"
+msgstr "Аналогова гама синього"
+
+#: .tmp/saneopts.h:215
+msgid "Bind analog gamma"
+msgstr "Пов’язана аналогова гама"
+
+#: .tmp/saneopts.h:216
+msgid "Warmup lamp"
+msgstr "Розігрів лампи"
+
+#: .tmp/saneopts.h:217
+msgid "Cal. exposure-time"
+msgstr "Калібрувати час витримки"
+
+#: .tmp/saneopts.h:218
+msgid "Cal. exposure-time for red"
+msgstr "Калібрувати час витримки для червоного"
+
+#: .tmp/saneopts.h:219
+msgid "Cal. exposure-time for green"
+msgstr "Калібрувати час витримки для зеленого"
+
+#: .tmp/saneopts.h:221
+msgid "Cal. exposure-time for blue"
+msgstr "Калібрувати час витримки для синього"
+
+#: .tmp/saneopts.h:222
+msgid "Scan exposure-time"
+msgstr "Час витримки сканування"
+
+#: .tmp/saneopts.h:223
+msgid "Scan exposure-time for red"
+msgstr "Час витримки сканування для червоного"
+
+#: .tmp/saneopts.h:224
+msgid "Scan exposure-time for green"
+msgstr "Час витримки сканування для зеленого"
+
+#: .tmp/saneopts.h:226
+msgid "Scan exposure-time for blue"
+msgstr "Час витримки сканування для синього"
+
+#: .tmp/saneopts.h:227
+msgid "Set exposure-time"
+msgstr "Встановити час витримки"
+
+#: .tmp/saneopts.h:228
+msgid "Cal. lamp density"
+msgstr "Калібрувати інтенсивність лампи"
+
+#: .tmp/saneopts.h:229
+msgid "Scan lamp density"
+msgstr "Інтенсивність лампи сканування"
+
+#: .tmp/saneopts.h:230
+msgid "Set lamp density"
+msgstr "Встановити інтенсивність лампи"
+
+#: .tmp/saneopts.h:231
+#: .tmp/umax.c:5830
+msgid "Lamp off at exit"
+msgstr "Вимикати лампу при виході"
+
+#: .tmp/saneopts.h:245
+msgid "Read-only option that specifies how many options a specific devices supports."
+msgstr "Параметр лише для читання, який визначає кількість параметрів, які підтримують певні пристрої."
+
+#: .tmp/saneopts.h:248
+msgid "Source, mode and resolution options"
+msgstr "Параметри джерела даних, режиму і роздільної здатності"
+
+#: .tmp/saneopts.h:249
+msgid "Scan area and media size options"
+msgstr "Параметри області сканування і розмірів носія даних"
+
+#: .tmp/saneopts.h:250
+msgid "Image modification options"
+msgstr "Параметри видозміни зображення"
+
+#: .tmp/saneopts.h:251
+msgid "Hardware specific options"
+msgstr "Параметри обладнання"
+
+#: .tmp/saneopts.h:252
+msgid "Scanner sensors and buttons"
+msgstr "Датчики і кнопки сканера"
+
+#: .tmp/saneopts.h:255
+msgid "Request a preview-quality scan."
+msgstr "Запитати сканування попереднього перегляду."
+
+#: .tmp/saneopts.h:258
+msgid "Request that all previews are done in monochrome mode.  On a three-pass scanner this cuts down the number of passes to one and on a one-pass scanner, it reduces the memory requirements and scan-time of the preview."
+msgstr "Наказати програмі виконувати всі сканування попередніх переглядів у чорно-білому режимі. У режимі з трьома проходами кількість проходів буде зменшено до одного, а на сканерах з одним проходом зменшує навантаження на пам’ять і час сканування зображення попереднього перегляду."
+
+#: .tmp/saneopts.h:264
+msgid "Number of bits per sample, typical values are 1 for \"line-art\" and 8 for multibit scans."
+msgstr "Кількість бітів на колір, типовими значеннями є 1 для штрихового і 8 для напівтонового сканування."
+
+#: .tmp/saneopts.h:268
+msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
+msgstr "Визначає режим сканування (наприклад, штриховий, чорно-білий або кольоровий)."
+
+#: .tmp/saneopts.h:271
+msgid "Determines the speed at which the scan proceeds."
+msgstr "Визначає швидкість, з якою виконується сканування."
+
+#: .tmp/saneopts.h:274
+msgid "Selects the scan source (such as a document-feeder)."
+msgstr "Визначає джерело сканування (зокрема пристрій подачі документів)"
+
+#: .tmp/saneopts.h:277
+msgid "Controls whether backtracking is forced."
+msgstr "Визначає, чи буде виконуватися примусове повернення."
+
+#: .tmp/saneopts.h:280
+msgid "Top-left x position of scan area."
+msgstr "Координата X правого верхнього лівого кута області сканування."
+
+#: .tmp/saneopts.h:283
+msgid "Top-left y position of scan area."
+msgstr "Координата Y правого верхнього лівого кута області сканування."
+
+#: .tmp/saneopts.h:286
+msgid "Bottom-right x position of scan area."
+msgstr "Координата X правого нижнього кута області сканування."
+
+#: .tmp/saneopts.h:289
+msgid "Bottom-right y position of scan area."
+msgstr "Координата Y правого нижнього кута області сканування."
+
+#: .tmp/saneopts.h:292
+msgid "Sets the resolution of the scanned image."
+msgstr "Визначає роздільну здатність сканованого зображення."
+
+#: .tmp/saneopts.h:295
+msgid "Sets the horizontal resolution of the scanned image."
+msgstr "Визначає горизонтальну роздільну здатність засканованого зображення."
+
+#: .tmp/saneopts.h:298
+msgid "Sets the vertical resolution of the scanned image."
+msgstr "Визначає вертикальну роздільну здатність засканованого зображення."
+
+#: .tmp/saneopts.h:301
+#, no-c-format
+msgid "Specifies the width of the media.  Required for automatic centering of sheet-fed scans."
+msgstr "Визначає ширину носія. Це значення потрібне для автоматичного центрування листкових друкованих джерел."
+
+#: .tmp/saneopts.h:305
+msgid "Specifies the height of the media."
+msgstr "Визначає висоту носія."
+
+#: .tmp/saneopts.h:308
+msgid "Determines whether a builtin or a custom gamma-table should be used."
+msgstr "Визначає буде використано вбудовану чи нетипову таблицю гами."
+
+#: .tmp/saneopts.h:312
+msgid "Gamma-correction table.  In color mode this option equally affects the red, green, and blue channels simultaneously (i.e., it is an intensity gamma table)."
+msgstr "Таблиця виправлення гами. В кольоровому режимі цей параметр одночасно змінює параметри червоного, зеленого та синього каналів (тобто є таблицею інтенсивності гами)."
+
+#: .tmp/saneopts.h:317
+msgid "Gamma-correction table for the red band."
+msgstr "Таблиця виправлення гами для червоної смуги."
+
+#: .tmp/saneopts.h:320
+msgid "Gamma-correction table for the green band."
+msgstr "Таблиця виправлення гами для зеленої смуги."
+
+#: .tmp/saneopts.h:323
+msgid "Gamma-correction table for the blue band."
+msgstr "Таблиця виправлення гами для синьої смуги."
+
+#: .tmp/saneopts.h:326
+msgid "Controls the brightness of the acquired image."
+msgstr "Керує яскравістю отриманого зображення."
+
+#: .tmp/saneopts.h:329
+msgid "Controls the contrast of the acquired image."
+msgstr "Керує контрастністю отриманого зображення."
+
+#: .tmp/saneopts.h:332
+#, no-c-format
+msgid "Selects the \"graininess\" of the acquired image.  Smaller values result in sharper images."
+msgstr "Визначає значення «зернистості» сканованого зображення. Менші значення призводитимуть до створення чіткіших зображень."
+
+#: .tmp/saneopts.h:336
+msgid "Selects whether the acquired image should be halftoned (dithered)."
+msgstr "Визначає, чи має бути отримане зображення напівтоновим (з дизерингом)."
+
+#: .tmp/saneopts.h:339
+#: .tmp/saneopts.h:354
+msgid "Selects what radiance level should be considered \"black\"."
+msgstr "Визначає рівень світності, який слід вважати «чорним»."
+
+#: .tmp/saneopts.h:342
+#: .tmp/saneopts.h:363
+msgid "Selects what radiance level should be considered \"white\"."
+msgstr "Визначає рівень світності, який слід вважати «білим»."
+
+#: .tmp/saneopts.h:345
+msgid "Selects what red radiance level should be considered \"white\"."
+msgstr "Визначає рівень світності червоного, який слід вважати «білим»."
+
+#: .tmp/saneopts.h:348
+msgid "Selects what green radiance level should be considered \"white\"."
+msgstr "Визначає рівень світності зеленого, який слід вважати «білим»."
+
+#: .tmp/saneopts.h:351
+msgid "Selects what blue radiance level should be considered \"white\"."
+msgstr "Визначає рівень світності синього, який слід вважати «білим»."
+
+#: .tmp/saneopts.h:356
+msgid "Selects what red radiance level should be considered \"black\"."
+msgstr "Визначає рівень світності червоного, який слід вважати «чорним»."
+
+#: .tmp/saneopts.h:358
+msgid "Selects what green radiance level should be considered \"black\"."
+msgstr "Визначає рівень світності зеленого, який слід вважати «чорним»."
+
+#: .tmp/saneopts.h:360
+msgid "Selects what blue radiance level should be considered \"black\"."
+msgstr "Визначає рівень світності синього, який слід вважати «чорним»."
+
+#: .tmp/saneopts.h:365
+msgid "Selects what red radiance level should be considered \"full red\"."
+msgstr "Визначає рівень світності червоного, який слід вважати «цілком червоним»."
+
+#: .tmp/saneopts.h:367
+msgid "Selects what green radiance level should be considered \"full green\"."
+msgstr "Визначає рівень світності зеленого, який слід вважати «цілком зеленим»."
+
+#: .tmp/saneopts.h:370
+msgid "Selects what blue radiance level should be considered \"full blue\"."
+msgstr "Визначає рівень світності синього, який слід вважати «цілком синім»."
+
+#: .tmp/saneopts.h:374
+msgid "Controls the \"hue\" (blue-level) of the acquired image."
+msgstr "Керує «відтінком» (рівнем синього) отриманого зображення."
+
+#: .tmp/saneopts.h:377
+msgid "The saturation level controls the amount of \"blooming\" that occurs when acquiring an image with a camera. Larger values cause more blooming."
+msgstr "Рівень насиченості керує значенням «вуалювання», яке додаватиметься під час отримання зображення з фотоапарата. Більші значення додаватимуть більше вуалювання."
+
+#: .tmp/saneopts.h:382
+msgid "The filename of the image to be loaded."
+msgstr "Назва файла зображення, яке буде завантажено."
+
+#: .tmp/saneopts.h:385
+msgid "Sets the size of the halftoning (dithering) pattern used when scanning halftoned images."
+msgstr "Визначає розмір напівтонового шаблону (дизерингу), що використовується під час сканування напівтонових зображень."
+
+#: .tmp/saneopts.h:389
+msgid "Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgstr "Визначає напівтонового шаблон (дизеринг) для сканування напівтонових зображень."
+
+#: .tmp/saneopts.h:393
+msgid "Use same values for X and Y resolution"
+msgstr "Використовувати однакові значення для роздільних здатностей за X та Y"
+
+#: .tmp/saneopts.h:395
+msgid "Swap black and white"
+msgstr "Обміняти місцями чорний і білий"
+
+#: .tmp/saneopts.h:397
+msgid "Do a quality white-calibration"
+msgstr "Виконати якісне калібрування білого"
+
+#: .tmp/saneopts.h:399
+msgid "Use lens that doubles optical resolution"
+msgstr "Використовувати лінзу, яка подвоює оптичну роздільність"
+
+#: .tmp/saneopts.h:401
+#: .tmp/saneopts.h:413
+msgid "In RGB-mode use same values for each color"
+msgstr "У режимі RGB використовувати однакові значення для кожного кольору"
+
+#: .tmp/saneopts.h:403
+msgid "Select minimum-brightness to get a white point"
+msgstr "Оберіть мінімальну яскравість для отримання точки білого"
+
+#: .tmp/saneopts.h:405
+msgid "Analog gamma-correction"
+msgstr "Аналогове виправлення гами"
+
+#: .tmp/saneopts.h:407
+msgid "Analog gamma-correction for red"
+msgstr "Аналогове виправлення гами для червоного"
+
+#: .tmp/saneopts.h:409
+msgid "Analog gamma-correction for green"
+msgstr "Аналогове виправлення гами для зеленого"
+
+#: .tmp/saneopts.h:411
+msgid "Analog gamma-correction for blue"
+msgstr "Аналогове виправлення гами для синього"
+
+#: .tmp/saneopts.h:415
+msgid "Warmup lamp before scanning"
+msgstr "Розігрівати лампу перед скануванням"
+
+#: .tmp/saneopts.h:417
+msgid "Define exposure-time for calibration"
+msgstr "Визначити час витримки для калібрування"
+
+#: .tmp/saneopts.h:419
+msgid "Define exposure-time for red calibration"
+msgstr "Визначити час витримки для калібрування червоного"
+
+#: .tmp/saneopts.h:421
+msgid "Define exposure-time for green calibration"
+msgstr "Визначити час витримки для калібрування для зеленого"
+
+#: .tmp/saneopts.h:423
+msgid "Define exposure-time for blue calibration"
+msgstr "Визначити час витримки для калібрування для синього"
+
+#: .tmp/saneopts.h:425
+msgid "Define exposure-time for scan"
+msgstr "Визначити час витримки для сканування"
+
+#: .tmp/saneopts.h:427
+msgid "Define exposure-time for red scan"
+msgstr "Визначити час витримки для сканування червоного"
+
+#: .tmp/saneopts.h:429
+msgid "Define exposure-time for green scan"
+msgstr "Визначити час витримки для сканування зеленого"
+
+#: .tmp/saneopts.h:431
+msgid "Define exposure-time for blue scan"
+msgstr "Визначити час витримки для сканування зеленого"
+
+#: .tmp/saneopts.h:433
+msgid "Enable selection of exposure-time"
+msgstr "Увімкнути вибір часу витримки"
+
+#: .tmp/saneopts.h:435
+msgid "Define lamp density for calibration"
+msgstr "Визначити інтенсивність для калібрування"
+
+#: .tmp/saneopts.h:437
+msgid "Define lamp density for scan"
+msgstr "Визначити інтенсивність лампи для сканування"
+
+#: .tmp/saneopts.h:439
+msgid "Enable selection of lamp density"
+msgstr "Увімкнути можливість вибору інтенсивності лампи"
+
+#: .tmp/saneopts.h:441
+#: .tmp/umax.c:5831
+msgid "Turn off lamp when program exits"
+msgstr "Вимкнути лампу під час виходу з програми"
+
+#: .tmp/saneopts.h:444
+msgid "Scan button"
+msgstr "Кнопка «Scan»"
+
+#: .tmp/saneopts.h:445
+msgid "Email button"
+msgstr "Кнопка «Email»"
+
+#: .tmp/saneopts.h:446
+msgid "Fax button"
+msgstr "Кнопка «Fax»"
+
+#: .tmp/saneopts.h:447
+msgid "Copy button"
+msgstr "Кнопка «Copy»"
+
+#: .tmp/saneopts.h:448
+msgid "PDF button"
+msgstr "Кнопка «PDF»"
+
+#: .tmp/saneopts.h:449
+msgid "Cancel button"
+msgstr "Кнопка «Cancel»"
+
+#: .tmp/saneopts.h:450
+msgid "Page loaded"
+msgstr "Сторінку завантажено"
+
+#: .tmp/saneopts.h:451
+msgid "Cover open"
+msgstr "Кришку відчинено"
+
+#: .tmp/sane_strstatus.c:59
+msgid "Success"
+msgstr "Успіх"
+
+#: .tmp/sane_strstatus.c:62
+msgid "Operation not supported"
+msgstr "Дія не підтримується"
+
+#: .tmp/sane_strstatus.c:65
+msgid "Operation was cancelled"
+msgstr "Дію було скасовано"
+
+#: .tmp/sane_strstatus.c:68
+msgid "Device busy"
+msgstr "Пристрій зайнято"
+
+#: .tmp/sane_strstatus.c:71
+msgid "Invalid argument"
+msgstr "Некоректний аргумент"
+
+#: .tmp/sane_strstatus.c:74
+msgid "End of file reached"
+msgstr "Досягнуто кінця файла"
+
+#: .tmp/sane_strstatus.c:77
+#, no-c-format
+msgid "Document feeder jammed"
+msgstr "Заїдання носія у пристрої подачі"
+
+#: .tmp/sane_strstatus.c:80
+#, no-c-format
+msgid "Document feeder out of documents"
+msgstr "У пристрої подачі немає носіїв"
+
+#: .tmp/sane_strstatus.c:83
+msgid "Scanner cover is open"
+msgstr "Відчинено кришку сканера"
+
+#: .tmp/sane_strstatus.c:86
+msgid "Error during device I/O"
+msgstr "Помилка під час виконання дій з вводу-виводу"
+
+#: .tmp/sane_strstatus.c:89
+msgid "Out of memory"
+msgstr "Не вистачає пам'яті"
+
+#: .tmp/sane_strstatus.c:92
+msgid "Access to resource has been denied"
+msgstr "Доступ до ресурсу заборонено"
+
+#: .tmp/sane_strstatus.c:96
+#, no-c-format
+msgid "Lamp not ready, please retry"
+msgstr "Лампа не готова, будь ласка, повторіть спробу"
+
+#: .tmp/sane_strstatus.c:101
+#, no-c-format
+msgid "Scanner mechanism locked for transport"
+msgstr "Механізм сканера заблоковано"
+
+#: .tmp/sm3840.c:758
+msgid "Lamp timeout"
+msgstr "Час очікування лампи"
+
+#: .tmp/sm3840.c:760
+msgid "Minutes until lamp is turned off after scan"
+msgstr "Кількість хвилин, за які лампу буде вимкнено після виконання сканування"
+
+#: .tmp/sm3840.c:770
+#, no-c-format
+msgid "Threshold value for lineart mode"
+msgstr "Порогове значення для штрихового режиму"
+
+#: .tmp/snapscan-options.c:84
+msgid "Document Feeder"
+msgstr "Подача документів"
+
+#: .tmp/snapscan-options.c:88
+msgid "6x4 (inch)"
+msgstr "6x4 (дюймів)"
+
+#: .tmp/snapscan-options.c:89
+msgid "8x10 (inch)"
+msgstr "8x10 (дюймів)"
+
+#: .tmp/snapscan-options.c:90
+msgid "8.5x11 (inch)"
+msgstr "8.5x11 (дюймів)"
+
+#: .tmp/snapscan-options.c:93
+msgid "Halftoning Unsupported"
+msgstr "Напівтонове сканування не підтримується"
+
+#: .tmp/snapscan-options.c:94
+msgid "DispersedDot8x8"
+msgstr "DispersedDot8x8"
+
+#: .tmp/snapscan-options.c:95
+msgid "DispersedDot16x16"
+msgstr "DispersedDot16x16"
+
+#: .tmp/snapscan-options.c:99
+msgid "Number of scan lines to request in a SCSI read. Changing this parameter allows you to tune the speed at which data is read from the scanner during scans. If this is set too low, the scanner will have to stop periodically in the middle of a scan; if it's set too high, X-based frontends may stop responding to X events and your system could bog down."
+msgstr "Кількість ліній сканування, на які слід надсилати запит під час читання зі SCSI. За допомогою цього параметра ви зможете налаштувати швидкість читання даних зі сканера під час сканування. Якщо встановити мале значення, під час сканування сканер зупинятиметься у процесі сканування. Якщо ж значення буде завеликим, засновані на сервері X оболонки не відповідатимуть на події X, а система значно уповільниться."
+
+#: .tmp/snapscan-options.c:436
+msgid "Preview mode"
+msgstr "Режим попереднього перегляду"
+
+#: .tmp/snapscan-options.c:438
+msgid "Select the mode for previews. Greyscale previews usually give the best combination of speed and detail."
+msgstr "Оберіть режим попереднього перегляду. Чорно-білий режим, зазвичай, дає найкращу комбінацію швидкості і деталізації."
+
+#: .tmp/snapscan-options.c:545
+msgid "Predefined settings"
+msgstr "Попередньо визначені параметри"
+
+#: .tmp/snapscan-options.c:547
+msgid "Provides standard scanning areas for photographs, printed pages and the like."
+msgstr "Визначає стандартні області сканування для фотографій, друкованих сторінок та подібних документів."
+
+#: .tmp/snapscan-options.c:823
+msgid "Colour lines per read"
+msgstr "Кольорових ліній на сеанс читання"
+
+#: .tmp/snapscan-options.c:835
+msgid "Greyscale lines per read"
+msgstr "Чорно-білих ліній на сеанс читання"
+
+#: .tmp/stv680.c:974
+msgid "webcam"
+msgstr "Веб-камера"
+
+#: .tmp/stv680.h:115
+msgid "Color RAW"
+msgstr "Кольоровий RAW"
+
+#: .tmp/stv680.h:116
+msgid "Color RGB"
+msgstr "Кольоровий RGB"
+
+#: .tmp/stv680.h:117
+msgid "Color RGB TEXT"
+msgstr "Кольоровий RGB TEXT"
+
+#: .tmp/teco1.c:1152
+#: .tmp/teco1.c:1153
+#: .tmp/teco2.c:1971
+#: .tmp/teco2.c:1972
+#: .tmp/teco3.c:977
+#: .tmp/teco3.c:978
+msgid "Dither"
+msgstr "Дизеринг"
+
+#: .tmp/test.c:136
+msgid "Solid black"
+msgstr "Суцільний чорний"
+
+#: .tmp/test.c:136
+msgid "Solid white"
+msgstr "Суцільний білий"
+
+#: .tmp/test.c:137
+msgid "Color pattern"
+msgstr "Кольоровий візерунок"
+
+#: .tmp/test.c:137
+msgid "Grid"
+msgstr "Ґратка"
+
+#: .tmp/test.c:162
+#: .tmp/test.c:170
+msgid "First entry"
+msgstr "Перший запис"
+
+#: .tmp/test.c:162
+#: .tmp/test.c:170
+msgid "Second entry"
+msgstr "Другий запис"
+
+#: .tmp/test.c:164
+msgid "This is the very long third entry. Maybe the frontend has an idea how to display it"
+msgstr "Третій запис є затримується. Можливо, оболонка не може його показати."
+
+#: .tmp/test.c:347
+msgid "Hand-scanner simulation"
+msgstr "Імітація ручного сканера"
+
+#: .tmp/test.c:348
+msgid "Simulate a hand-scanner.  Hand-scanners do not know the image height a priori.  Instead, they return a height of -1.  Setting this option allows to test whether a frontend can handle this correctly.  This option also enables a fixed width of 11 cm."
+msgstr "Імітує ручний сканер. Ручні сканери попередньо не отримують даних щодо висоти зображення. Замість цього, вони повертають висоту рівну -1. Встановлення цього параметра надає змогу перевірити, чи може оболонка правильно обробити такі дані. Позначення цього пункту також увімкне фіксовану ширину у 11 см."
+
+#: .tmp/test.c:365
+msgid "Three-pass simulation"
+msgstr "Імітація режиму трьох проходів"
+
+#: .tmp/test.c:366
+msgid "Simulate a three-pass scanner. In color mode, three frames are transmitted."
+msgstr "Імітувати сканування з трьома проходами. У кольоровому режимі буде повернуто три кадри."
+
+#: .tmp/test.c:381
+msgid "Set the order of frames"
+msgstr "Визначити порядок кадрів"
+
+#: .tmp/test.c:382
+msgid "Set the order of frames in three-pass color mode."
+msgstr "Визначити порядок кадрів у кольоровому режимі трьох проходів."
+
+#: .tmp/test.c:415
+#, no-c-format
+msgid "If Automatic Document Feeder is selected, the feeder will be 'empty' after 10 scans."
+msgstr "Якщо обрано режим автоматичної подачі документів, пристрій подачі буде «спорожнено» після 10 сканувань."
+
+#: .tmp/test.c:430
+msgid "Special Options"
+msgstr "Особливі параметри"
+
+#: .tmp/test.c:443
+msgid "Select the test picture"
+msgstr "Оберіть тестове зображення"
+
+#: .tmp/test.c:445
+msgid ""
+"Select the kind of test picture. Available options:\n"
+"Solid black: fills the whole scan with black.\n"
+"Solid white: fills the whole scan with white.\n"
+"Color pattern: draws various color test patterns depending on the mode.\n"
+"Grid: draws a black/white grid with a width and height of 10 mm per square."
+msgstr ""
+"Оберіть різновид тестового зображення. Можливі варіанти:\n"
+"Суцільний чорний: всю область сканування зафарбовано чорним.\n"
+"Суцільний білий: всю область сканування зафарбовано білим.\n"
+"Кольоровий візерунок: намалює різноманітні кольорові візерунки, залежно від режиму.\n"
+"Ґратка: намалює чорно-білу ґратку з шириною і висотою 10 мм на квадрат."
+
+#: .tmp/test.c:466
+msgid "Invert endianness"
+msgstr "Інвертувати порядок байтів"
+
+#: .tmp/test.c:467
+#, no-c-format
+msgid "Exchange upper and lower byte of image data in 16 bit modes. This option can be used to test the 16 bit modes of frontends, e.g. if the frontend uses the correct endianness."
+msgstr "Поміняти місцями старший і молодший байти даних зображення у 16-бітовий режимах. Цей пункт можна використовувати для перевірки 16-бітових режимів оболонок, наприклад, перевірки правильності порядку байтів у оболонці."
+
+#: .tmp/test.c:483
+msgid "Read limit"
+msgstr "Границя читання"
+
+#: .tmp/test.c:484
+msgid "Limit the amount of data transferred with each call to sane_read()."
+msgstr "Обмежити об’єм даних, що передаються під час кожного виклику sane_read()."
+
+#: .tmp/test.c:497
+msgid "Size of read-limit"
+msgstr "Розмір границі читання"
+
+#: .tmp/test.c:498
+msgid "The (maximum) amount of data transferred with each call to sane_read()."
+msgstr "Об’єм (максимальний) даних, які буде передано під час кожного з викликів sane_read()."
+
+#: .tmp/test.c:513
+msgid "Read delay"
+msgstr "Затримка читання"
+
+#: .tmp/test.c:514
+msgid "Delay the transfer of data to the pipe."
+msgstr "Затримка передавання даних до каналу."
+
+#: .tmp/test.c:526
+msgid "Duration of read-delay"
+msgstr "Тривалість затримки читання"
+
+#: .tmp/test.c:527
+msgid "How long to wait after transferring each buffer of data through the pipe."
+msgstr "Час очікування після передавання кожного з буферів даних каналом."
+
+#: .tmp/test.c:542
+msgid "Return-value of sane_read"
+msgstr "Повернуте значення sane_read"
+
+#: .tmp/test.c:544
+#, no-c-format
+msgid "Select the return-value of sane_read(). \"Default\" is the normal handling for scanning. All other status codes are for testing how the frontend handles them."
+msgstr "Вкажіть повернуте значення sane_read(). «Типове» означає звичайну обробку сканування. Всі інші коди стану призначено для перевірки способів їх обробки оболонкою."
+
+#: .tmp/test.c:561
+msgid "Loss of pixels per line"
+msgstr "Втрата точок на лінію"
+
+#: .tmp/test.c:563
+msgid "The number of pixels that are wasted at the end of each line."
+msgstr "Кількість точок, які було втрачено наприкінці кожної з ліній."
+
+#: .tmp/test.c:576
+msgid "Fuzzy parameters"
+msgstr "Параметри нечіткості"
+
+#: .tmp/test.c:577
+#, no-c-format
+msgid "Return fuzzy lines and bytes per line when sane_parameters() is called before sane_start()."
+msgstr "Кількість повернутих неточних рядків і байтів, якщо sane_parameters() викликається до sane_start()."
+
+#: .tmp/test.c:590
+msgid "Use non-blocking IO"
+msgstr "Використовувати ввід-вивід без блокування"
+
+#: .tmp/test.c:591
+msgid "Use non-blocking IO for sane_read() if supported by the frontend."
+msgstr "Використовувати режим вводу-виводу без блокування для sane_read(), якщо підтримується оболонкою."
+
+#: .tmp/test.c:604
+#, no-c-format
+msgid "Offer select file descriptor"
+msgstr "Пропонувати обрати дескриптор файла"
+
+#: .tmp/test.c:605
+#, no-c-format
+msgid "Offer a select filedescriptor for detecting if sane_read() will return data."
+msgstr "Пропонувати обрати дескриптор файла для визначення того, чи повертатиме sane_read() дані."
+
+#: .tmp/test.c:618
+msgid "Enable test options"
+msgstr "Увімкнути параметри перевірки"
+
+#: .tmp/test.c:619
+msgid "Enable various test options. This is for testing the ability of frontends to view and modify all the different SANE option types."
+msgstr "Увімкнути різноманітні параметри перевірки. Призначено для перевірки можливостей оболонки переглядати і змінювати всі параметри SANE."
+
+#: .tmp/test.c:633
+#, no-c-format
+msgid "Print options"
+msgstr "Параметри друку"
+
+#: .tmp/test.c:634
+msgid "Print a list of all options."
+msgstr "Надрукувати список всіх параметрів."
+
+#: .tmp/test.c:711
+msgid "Bool test options"
+msgstr "Двійкові параметри перевірки"
+
+#: .tmp/test.c:724
+#, no-c-format
+msgid "(1/6) Bool soft select soft detect"
+msgstr "(1/6) Булевий програмний вибір програмне визначення"
+
+#: .tmp/test.c:726
+#, no-c-format
+msgid "(1/6) Bool test option that has soft select and soft detect (and advanced) capabilities. That's just a normal bool option."
+msgstr "(1/6) Булевий параметр перевірки, який визначає наявність можливостей програмного вибору і програмного визначення (та додаткових). Це звичайний булевий параметр."
+
+#: .tmp/test.c:742
+#, no-c-format
+msgid "(2/6) Bool hard select soft detect"
+msgstr "(2/6) Булевий апаратний вибір програмне визначення"
+
+#: .tmp/test.c:744
+#, no-c-format
+msgid "(2/6) Bool test option that has hard select and soft detect (and advanced) capabilities. That means the option can't be set by the frontend but by the user (e.g. by pressing a button at the device)."
+msgstr "(2/6) Булевий параметр перевірки, який визначає наявність можливостей апаратного вибору і програмного визначення (та додаткових). Це означає, що параметр не може бути встановлено оболонкою, лише користувачем (наприклад, натисканням кнопки на пристрої)."
+
+#: .tmp/test.c:761
+#, no-c-format
+msgid "(3/6) Bool hard select"
+msgstr "(3/6) Булевий апаратний вибір"
+
+#: .tmp/test.c:762
+#, no-c-format
+msgid "(3/6) Bool test option that has hard select (and advanced) capabilities. That means the option can't be set by the frontend but by the user (e.g. by pressing a button at the device) and can't be read by the frontend."
+msgstr "(3/6) Булевий параметр перевірки, який визначає наявність можливостей апаратного вибору (та додаткових). Це означає, що параметр не може бути встановлено оболонкою, лише користувачем (наприклад, натисканням кнопки на пристрої), оболонка не може читати дані за такої конфігурації."
+
+#: .tmp/test.c:780
+#, no-c-format
+msgid "(4/6) Bool soft detect"
+msgstr "(4/6) М’яке булівське виявлення"
+
+#: .tmp/test.c:781
+#, no-c-format
+msgid "(4/6) Bool test option that has soft detect (and advanced) capabilities. That means the option is read-only."
+msgstr "(4/6) Булевий параметр перевірки, який визначає наявність можливостей програмного визначення (та додаткових). Це означає, що параметр призначено лише для читання."
+
+#: .tmp/test.c:797
+#, no-c-format
+msgid "(5/6) Bool soft select soft detect emulated"
+msgstr "(5/6) Булева емуляція програмного вибору і програмного визначення"
+
+#: .tmp/test.c:798
+#, no-c-format
+msgid "(5/6) Bool test option that has soft select, soft detect, and emulated (and advanced) capabilities."
+msgstr "(5/6) Булевий параметр перевірки, який визначає наявність можливостей програмного вибору, програмного визначення та емуляції (та додаткових)."
+
+#: .tmp/test.c:814
+#, no-c-format
+msgid "(6/6) Bool soft select soft detect auto"
+msgstr "(6/6) Булевий автоматичний програмний вибір, програмне визначення"
+
+#: .tmp/test.c:815
+#, no-c-format
+msgid "(6/6) Bool test option that has soft select, soft detect, and automatic (and advanced) capabilities. This option can be automatically set by the backend."
+msgstr "(6/6) Булевий параметр перевірки, який визначає наявність можливостей програмного вибору, програмного визначення і автоматичних (та додаткових) можливостей. Цей параметри може автоматично встановлюватися сервером."
+
+#: .tmp/test.c:832
+msgid "Int test options"
+msgstr "Цілочисельні параметри перевірки"
+
+#: .tmp/test.c:845, no-c-format
+msgid "(1/6) Int"
+msgstr "(1/6) Цілочисельний"
+
+#: .tmp/test.c:846
+#, no-c-format
+msgid "(1/6) Int test option with no unit and no constraint set."
+msgstr "(1/6) Цілочисельний параметр перевірки без одиниці виміру і набору обмежень."
+
+#: .tmp/test.c:861
+#, no-c-format
+msgid "(2/6) Int constraint range"
+msgstr "(2/6) Цілочисельний діапазон обмеження"
+
+#: .tmp/test.c:862
+#, no-c-format
+msgid "(2/6) Int test option with unit pixel and constraint range set. Minimum is 4, maximum 192, and quant is 2."
+msgstr "(2/6) Цілочисельний параметр з розмірністю у пікселях і набором обмежень. Мінімальним значенням може бути 4, максимальним — 192, крок — 2."
+
+#: .tmp/test.c:878
+#, no-c-format
+msgid "(3/6) Int constraint word list"
+msgstr "(3/6) Цілочисельний список обмежень слів"
+
+#: .tmp/test.c:879
+#, no-c-format
+msgid "(3/6) Int test option with unit bits and constraint word list set."
+msgstr "(3/6) Цілочисельний параметр перевірки з одиницею виміру біт і набором обмежень списку слів."
+
+#: .tmp/test.c:894
+#, no-c-format
+msgid "(4/6) Int array"
+msgstr "(4/6) Цілочисельний масив"
+
+#: .tmp/test.c:895
+#, no-c-format
+msgid "(4/6) Int test option with unit mm and using an array without constraints."
+msgstr "(4/6) Цілочисельний параметр перевірки з одиницею виміру міліметри і використанням масиву без обмежень."
+
+#: .tmp/test.c:910
+#, no-c-format
+msgid "(5/6) Int array constraint range"
+msgstr "(2/6) Цілочисельний масив з діапазоном обмеження"
+
+#: .tmp/test.c:911
+#, no-c-format
+msgid "(5/6) Int test option with unit dpi and using an array with a range constraint. Minimum is 4, maximum 192, and quant is 2."
+msgstr "(5/6) Цілочисельний параметр з розмірністю у точках на дюйм з використанням масиву обмежень діапазону. Мінімальним значенням може бути 4, максимальним — 192, крок — 2."
+
+#: .tmp/test.c:928
+#, no-c-format
+msgid "(6/6) Int array constraint word list"
+msgstr "(6/6) Цілочисельний масив зі списком обмежень слів"
+
+#: .tmp/test.c:929
+#, no-c-format
+msgid "(6/6) Int test option with unit percent and using an array with a word list constraint."
+msgstr "(6/6) Цілочисельний параметр з розмірністю у відсотках з використанням масиву обмежень списку слів."
+
+#: .tmp/test.c:945
+msgid "Fixed test options"
+msgstr "Дробовочислові параметри перевірки"
+
+#: .tmp/test.c:958, no-c-format
+msgid "(1/3) Fixed"
+msgstr "(1/3) Дробовочисловий"
+
+#: .tmp/test.c:959
+#, no-c-format
+msgid "(1/3) Fixed test option with no unit and no constraint set."
+msgstr "(1/3) Дробовочисловий параметр перевірки без одиниці виміру і без набору обмежень."
+
+#: .tmp/test.c:974
+#, no-c-format
+msgid "(2/3) Fixed constraint range"
+msgstr "(2/3) Фіксований обмежений діапазон"
+
+#: .tmp/test.c:975
+#, no-c-format
+msgid "(2/3) Fixed test option with unit microsecond and constraint range set. Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
+msgstr "(2/3) Дробовочисловий параметр з розмірністю у мілісекундах і набором обмежень. Мінімальним значенням може бути -42.17, максимальним — 32767.9999, крок — 2.0."
+
+#: .tmp/test.c:991
+#, no-c-format
+msgid "(3/3) Fixed constraint word list"
+msgstr "(3/3) Фіксований обмежений список слів"
+
+#: .tmp/test.c:992
+#, no-c-format
+msgid "(3/3) Fixed test option with no unit and constraint word list set."
+msgstr "(3/3) Дробовочисловий параметр перевірки без одиниці виміру і набором обмежень списку слів."
+
+#: .tmp/test.c:1007
+msgid "String test options"
+msgstr "Рядкові параметри перевірки"
+
+#: .tmp/test.c:1020
+msgid "(1/3) String"
+msgstr "(1/3) Рядок"
+
+#: .tmp/test.c:1021
+#, no-c-format
+msgid "(1/3) String test option without constraint."
+msgstr "(1/3) Варіант перевірки рядків без обмежень."
+
+#: .tmp/test.c:1038
+#, no-c-format
+msgid "(2/3) String constraint string list"
+msgstr "(2/3) Рядкова з обмеженим списком рядків"
+
+#: .tmp/test.c:1039
+#, no-c-format
+msgid "(2/3) String test option with string list constraint."
+msgstr "(2/3) Варіант перевірки рядків з обмеженням на список рядків."
+
+#: .tmp/test.c:1058
+#, no-c-format
+msgid "(3/3) String constraint long string list"
+msgstr "(3/3) Рядкова з обмеженим довгим списком рядків"
+
+#: .tmp/test.c:1059
+#, no-c-format
+msgid "(3/3) String test option with string list constraint. Contains some more entries..."
+msgstr "(3/3) Варіант перевірки рядків з обмеженням на список рядків. Містить дещо більше записів..."
+
+#: .tmp/test.c:1079
+msgid "Button test options"
+msgstr "Параметри перевірки кнопок"
+
+#: .tmp/test.c:1092
+msgid "(1/1) Button"
+msgstr "(1/1) Кнопка"
+
+#: .tmp/test.c:1093
+#, no-c-format
+msgid "(1/1) Button test option. Prints some text..."
+msgstr "(1/1) Варіант перевірки кнопок. Друкує текст..."
+
+#: .tmp/u12.c:149
+msgid "Color 36"
+msgstr "Кольоровий 36"
+
+#: .tmp/umax.c:189
+msgid "Color Lineart"
+msgstr "Кольоровий штриховий"
+
+#: .tmp/umax.c:190
+msgid "Color Halftone"
+msgstr "Кольоровий, напівтони"
+
+#: .tmp/umax.c:236
+msgid "Use Image Composition"
+msgstr "Використовувати компонування зображення"
+
+#: .tmp/umax.c:237
+msgid "Bi-level black and white (lineart mode)"
+msgstr "Дворівневий чорно-білий (штриховий режим)"
+
+#: .tmp/umax.c:238
+msgid "Dithered/halftone black & white (halftone mode)"
+msgstr "Дизеринг/Напівтони чорно-білого (напівтоновий режим)"
+
+#: .tmp/umax.c:239
+msgid "Multi-level black & white (grayscale mode)"
+msgstr "Багаторівневий чорно-білий (режим відтінків сірого)"
+
+#: .tmp/umax.c:240
+msgid "Multi-level RGB color (one pass color)"
+msgstr "Багаторівневий колір RGB (колір з одним проходом)"
+
+#: .tmp/umax.c:241
+msgid "Ignore calibration"
+msgstr "Ігнорувати калібрування"
+
+#: .tmp/umax.c:5734
+msgid "Disable pre focus"
+msgstr "Вимкнути попереднє фокусування"
+
+#: .tmp/umax.c:5735
+msgid "Do not calibrate focus"
+msgstr "Не калібрувати фокусування"
+
+#: .tmp/umax.c:5746
+msgid "Manual pre focus"
+msgstr "Попереднє фокусування вручну"
+
+#: .tmp/umax.c:5758
+msgid "Fix focus position"
+msgstr "Зафіксувати позицію фокусування"
+
+#: .tmp/umax.c:5770
+#, no-c-format
+msgid "Lens calibration in doc position"
+msgstr "Калібрування лінз у області документа"
+
+#: .tmp/umax.c:5771
+#, no-c-format
+msgid "Calibrate lens focus in document position"
+msgstr "Калібрувати фокусування лінз у області документа"
+
+#: .tmp/umax.c:5782
+msgid "Holder focus position 0mm"
+msgstr "Позиція фокусування держака 0 мм"
+
+#: .tmp/umax.c:5783
+msgid "Use 0mm holder focus position instead of 0.6mm"
+msgstr "Позиція фокусування держака 0 мм замість 0,6 мм"
+
+#: .tmp/umax.c:5886
+msgid "Calibration mode"
+msgstr "Режим калібрування"
+
+#: .tmp/umax.c:5887
+msgid "Define calibration mode"
+msgstr "Визначає режим калібрування"
+
+#: .tmp/umax_pp.c:638
+msgid "Sets lamp on/off"
+msgstr "Визначає стан вмикання/вимикання лампи"
+
+#: .tmp/umax_pp.c:647
+msgid "UTA on"
+msgstr "Увімкнути UTA"
+
+#: .tmp/umax_pp.c:648
+msgid "Sets UTA on/off"
+msgstr "Увімкнути/Вимкнути UTA"
+
+#: .tmp/umax_pp.c:769
+msgid "Offset"
+msgstr "Зсув"
+
+#: .tmp/umax_pp.c:771
+msgid "Color channels offset settings"
+msgstr "Параметри зсуву каналів кольорів"
+
+#: .tmp/umax_pp.c:778
+msgid "Gray offset"
+msgstr "Зсув сірого"
+
+#: .tmp/umax_pp.c:779
+msgid "Sets gray channel offset"
+msgstr "Визначає зсув каналу сірого"
+
+#: .tmp/umax_pp.c:791
+msgid "Sets red channel offset"
+msgstr "Визначає зсув каналу червоного"
+
+#: .tmp/umax_pp.c:803
+msgid "Sets green channel offset"
+msgstr "Визначає зсув каналу зеленого"
+
+#: .tmp/umax_pp.c:815
+msgid "Sets blue channel offset"
+msgstr "Визначає зсув каналу синього"
+

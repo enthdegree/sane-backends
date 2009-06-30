@@ -12,7 +12,7 @@ MSGMERGE = @MSGMERGE@ -w75
 
 TMP_FILE_DIR = .tmp
 
-ALL_LINGUAS = bg cs da de en_GB eo es fi fr gl it nl nb pl pt ru sv
+ALL_LINGUAS = bg cs da de en_GB eo es fi fr gl it nl nb pl pt ru sv uk
 
 EXTRA_DIST = README template.po
 
@@ -21,7 +21,8 @@ PO_FILES = sane-backends.bg.po sane-backends.cs.po sane-backends.da.po \
   sane-backends.eo.po sane-backends.es.po sane-backends.gl.po \
   sane-backends.fi.po sane-backends.fr.po sane-backends.it.po \
   sane-backends.nb.po sane-backends.nl.po sane-backends.pl.po \
-  sane-backends.pt.po sane-backends.ru.po sane-backends.sv.po
+  sane-backends.pt.po sane-backends.ru.po sane-backends.sv.po \
+  sane-backends.uk.po
 
 EXTRA_DIST += $(PO_FILES)
 
@@ -30,7 +31,8 @@ MO_FILES = sane-backends.bg.mo sane-backends.cs.mo sane-backends.da.mo \
   sane-backends.eo.mo sane-backends.es.mo sane-backends.gl.mo \
   sane-backends.fi.mo sane-backends.fr.mo sane-backends.it.mo \
   sane-backends.nb.mo sane-backends.nl.mo sane-backends.pl.mo \
-  sane-backends.pt.mo sane-backends.ru.mo sane-backends.sv.mo
+  sane-backends.pt.mo sane-backends.ru.mo sane-backends.sv.mo \
+  sane-backends.uk.mo
 
 if ENABLE_TRANSLATIONS
 INSTALL_TRANSLATIONS = install-translations

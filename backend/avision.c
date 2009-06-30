@@ -801,7 +801,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "FCPA", "ScanPartner 620C",
       0, 0,
       "Fujitsu", "ScanPartner 620C",
-      0},
+      AV_LIGHT_CHECK_BOGUS},
     /* status="good" */
     
     { "FCPA", "ScanPartner Jr",

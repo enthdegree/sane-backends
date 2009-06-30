@@ -376,6 +376,13 @@
 :status :unsupported
 :comment "Probably not supported. See D646."
 
+:model "CanoScan D1230U"
+:url "/unsupported/canon-d1230u.html"
+:interface "USB"
+:usbid "0x04a9" "0x2209"
+:status :unsupported
+:comment "Probably not supported. "
+
 :model "CanoScan D1250U2"
 :url "/unsupported/canon-d1250u2.html"
 :interface "USB"
@@ -411,11 +418,11 @@
 :comment "Not supported. However, a stand-alone program for FreeBSD is available."
 
 :model "CanoScan LiDE 70"
-:url "/unsupported/canon-lide-70.html"
+:url "http://www.juergen-ernst.de/info_sane.html"
 :interface "USB"
 :usbid "0x04a9" "0x2225"
 :status :unsupported
-:comment "Same chip as LiDE 600? See link for details"
+:comment "Philips chip. Backend started, see link"
 
 :model "CanoScan LiDE 80"
 :url "/unsupported/canon-lide-80.html"
@@ -452,27 +459,18 @@
 :comment "GL841 based, to be added to genesys backend"
 
 :model "CanoScan LiDE 600"
-:url "/unsupported/canon-lide-600.html"
 :interface "USB"
 :url "http://www.juergen-ernst.de/info_sane.html"
 :usbid "0x04a9" "0x2224"
 :status :unsupported
-:comment "Same as LiDE 600F? see link for details"
+:comment "Philips chip. Backend started, see link"
 
 :model "CanoScan LiDE 600F"
-:url "/unsupported/canon-lide-600.html"
 :interface "USB"
 :url "http://www.juergen-ernst.de/info_sane.html"
 :usbid "0x04a9" "0x2224"
 :status :unsupported
-:comment "Same as LiDE 600?, see link for details"
-
-:model "D1230U"
-:url "/unsupported/canon-d1230u.html"
-:interface "USB"
-:usbid "0x04a9" "0x2209"
-:status :unsupported
-:comment "Probably not supported. "
+:comment "Philips chip. Backend started, see link"
 
 :model "FS4000"
 :url "/unsupported/canon-fs4000.html"

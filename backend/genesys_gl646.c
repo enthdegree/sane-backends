@@ -159,6 +159,8 @@ gl646_bulk_write_register (Genesys_Device * dev,
 	{
 	  DBG (DBG_io2, "DPISET   =%d\n",
 	       gl646_get_double_reg (reg, REG_DPISET));
+	  DBG (DBG_io2, "DUMMY    =%d\n",
+  		sanei_genesys_get_address (reg, REG_DUMMY)->value);
 	  DBG (DBG_io2, "STRPIXEL =%d\n",
 	       gl646_get_double_reg (reg, REG_STRPIXEL));
 	  DBG (DBG_io2, "ENDPIXEL =%d\n",
@@ -886,9 +888,15 @@ gl646_setup_registers (Genesys_Device * dev,
   else
     regs[reg_0x05].value &= ~REG05_GMMENB;
 
-  /* true CIS gray */
+  /* true CIS gray if needed */
   if (dev->model->is_cis == SANE_TRUE && color == SANE_FALSE)
-    regs[reg_0x05].value |= REG05_LEDADD;
+    {
+      regs[reg_0x05].value |= REG05_LEDADD;
+    }
+  else
+    {
+      regs[reg_0x05].value &= ~REG05_LEDADD;
+    }
 
   /* cktoggle, ckdelay and cksel at once, cktdelay=2 => half_ccd for md5345 */
   regs[reg_0x18].value = sensor->reg_0x18;
@@ -1510,7 +1518,7 @@ gl646_init_regs (Genesys_Device * dev)
   dev->reg[reg_0x2e].value = 0x78;	/* set black&white threshold high level */
   dev->reg[reg_0x2f].value = 0x7f;	/* set black&white threshold low level */
 
-  dev->reg[reg_0x30].value = 0x00;	/* begin pixel positon (16) */
+  dev->reg[reg_0x30].value = 0x00;	/* begin pixel position (16) */
   dev->reg[reg_0x31].value = dev->sensor.dummy_pixel /*0x10 */ ;	/* TGW + 2*TG_SHLD + x  */
   dev->reg[reg_0x32].value = 0x2a /*0x15 */ ;	/* end pixel position (5390) */
   dev->reg[reg_0x33].value = 0xf8 /*0x0e */ ;	/* TGW + 2*TG_SHLD + y   */
@@ -2011,7 +2019,10 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
  * HOMESNR becomes 1 ->document left sensor
  * paper event -> document is out
  */
-static SANE_Status
+#ifndef UNIT_TESTING
+static 
+#endif
+SANE_Status
 gl646_load_document (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
@@ -2262,12 +2273,12 @@ gl646_eject_document (Genesys_Device * dev)
   Genesys_Register_Set regs[11];
   unsigned int used, vfinal, count;
   uint16_t slope_table[255];
-  uint8_t val;
+  uint8_t gpio, state;
 
   DBG (DBG_proc, "gl646_eject_document: start\n");
 
   /* first check for document event */
-  status = gl646_gpio_read (dev->dn, &val);
+  status = gl646_gpio_read (dev->dn, &gpio);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2275,19 +2286,10 @@ gl646_eject_document (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
-  DBG (DBG_info, "gl646_eject_document: GPIO=0x%02x\n", val);
-
-  /* no need for eject if document left during regular scan */
-  if (val != 0)
-    {
-      dev->document = SANE_FALSE;
-      DBG (DBG_info, "gl646_eject_document: no more document to eject\n");
-      DBG (DBG_proc, "gl646_eject_document: end\n");
-      return status;
-    }
+  DBG (DBG_info, "gl646_eject_document: GPIO=0x%02x\n", gpio);
 
   /* test status : paper event + HOMESNR -> no more doc ? */
-  status = sanei_genesys_get_status (dev, &val);
+  status = sanei_genesys_get_status (dev, &state);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2295,7 +2297,22 @@ gl646_eject_document (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
+  DBG (DBG_info, "gl646_eject_document: state=0x%02x\n", state);
+  if (DBG_LEVEL > DBG_info)
+    {
+      print_status (state);
+    }
 
+  /* HOMSNR=0 if no document inserted */
+  if ((state & REG41_HOMESNR) != 0)
+    {
+      dev->document = SANE_FALSE;
+      DBG (DBG_info, "gl646_eject_document: no more document to eject\n");
+      DBG (DBG_proc, "gl646_eject_document: end\n");
+      return status;
+    }
+
+  /* there is a document inserted, eject it */
   status = sanei_genesys_write_register (dev, 0x01, 0xb0);
   if (status != SANE_STATUS_GOOD)
     {
@@ -2309,7 +2326,7 @@ gl646_eject_document (Genesys_Device * dev)
   do
     {
       usleep (200000UL);
-      status = sanei_genesys_get_status (dev, &val);
+      status = sanei_genesys_get_status (dev, &state);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -2318,7 +2335,7 @@ gl646_eject_document (Genesys_Device * dev)
 	  return status;
 	}
     }
-  while (val & REG41_MOTMFLG);
+  while (state & REG41_MOTMFLG);
 
   /* set up to fast move before scan then move until document is detected */
   regs[0].address = 0x01;
@@ -2397,8 +2414,8 @@ gl646_eject_document (Genesys_Device * dev)
   count = 0;
   do
     {
-      status = sanei_genesys_get_status (dev, &val);
-      print_status (val);
+      status = sanei_genesys_get_status (dev, &state);
+      print_status (state);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -2409,7 +2426,18 @@ gl646_eject_document (Genesys_Device * dev)
       usleep (200000UL);	/* sleep 200 ms */
       count++;
     }
-  while (((val & REG41_HOMESNR) == 0) && (count < 150));
+  while (((state & REG41_HOMESNR) == 0) && (count < 150));
+
+  /* read GPIO on exit */
+  status = gl646_gpio_read (dev->dn, &gpio);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl646_eject_document: failed to read paper sensor %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  DBG (DBG_info, "gl646_eject_document: GPIO=0x%02x\n", gpio);
 
   DBG (DBG_proc, "gl646_eject_document: end\n");
   return status;
@@ -2758,7 +2786,7 @@ gl646_search_start_position (Genesys_Device * dev)
   settings.exposure_time = 0;
 
   /* scan the desired area */
-  status = simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, &data);
+  status = simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, &data);
 
   /* process data if scan is OK */
   if (status == SANE_STATUS_GOOD)
@@ -2899,7 +2927,15 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
   /* TODO another flag to setup regs ? */
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
-  gl646_set_triple_reg (dev->reg, REG_LINCNT, dev->model->shading_lines);
+  if (dev->model->is_cis == SANE_FALSE)
+    {
+      gl646_set_triple_reg (dev->reg, REG_LINCNT, dev->model->shading_lines);
+    }
+  else
+    {
+      gl646_set_triple_reg (dev->reg, REG_LINCNT,
+			    dev->model->shading_lines * 3);
+    }
 
   /* copy reg to calib_reg */
   memcpy (dev->calib_reg, dev->reg,
@@ -2938,6 +2974,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
 	}
       dev->scanhead_position_in_steps = 0;
     }
+
   return setup_for_scan (dev, dev->settings, SANE_FALSE, SANE_TRUE,
 			 SANE_TRUE);
 }
@@ -3346,7 +3383,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = bottom;
   dev->frontend.offset[1] = bottom;
   dev->frontend.offset[2] = bottom;
-  status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, &first_line);
+  status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &first_line);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3372,7 +3409,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = top;
   dev->frontend.offset[1] = top;
   dev->frontend.offset[2] = top;
-  status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, &second_line);
+  status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &second_line);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3403,7 +3440,7 @@ gl646_offset_calibration (Genesys_Device * dev)
 
       /* scan with no move */
       status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, &second_line);
+	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &second_line);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3442,7 +3479,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   if (DBG_LEVEL >= DBG_data)
     {
       status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, &second_line);
+	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &second_line);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3542,7 +3579,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	  || (average[2] < dev->sensor.gain_white_ref)) && (pass < 30))
     {
       /* scan with no move */
-      status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, &line);
+      status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE,&line);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -4053,9 +4090,12 @@ gl646_init (Genesys_Device * dev)
  * @param move SANE_TRUE if moving forward during scan
  * @param data pointer for the data
  */
-static SANE_Status
+#ifndef UNIT_TESTING
+static 
+#endif
+SANE_Status
 simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
-	     SANE_Bool forward, unsigned char **data)
+	     SANE_Bool forward, SANE_Bool shading, unsigned char **data)
 {
   SANE_Status status = SANE_STATUS_INVAL;
   unsigned int size, lines, x, y, bpp;
@@ -4093,7 +4133,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   else
     bpp = 1;
   size *= bpp;
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     size *= 3;
   *data = malloc (size);
   if (!*data)
@@ -4102,6 +4142,9 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	   "simple_scan: failed to allocate %d bytes of memory\n", size);
       return SANE_STATUS_NO_MEM;
     }
+
+  /* put back real line number in settings */
+  settings.lines = lines;
 
   /* initialize frontend */
   status = gl646_set_fe (dev, AFE_SET);
@@ -4116,6 +4159,10 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 
   /* no shading correction and not watch dog for simple scan */
   dev->reg[reg_0x01].value &= ~(REG01_DVDSET | REG01_DOGENB);
+  if(shading==SANE_TRUE)
+  {
+    dev->reg[reg_0x01].value |= REG01_DVDSET;
+  }
 
   /* one table movement for simple scan */
   dev->reg[reg_0x02].value &= ~REG02_FASTFED;
@@ -4181,59 +4228,50 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
       && settings.scan_mode == SCAN_MODE_COLOR)
     {
       /* alloc one line sized working buffer */
-      size = size / settings.lines;
-      buffer = (unsigned char *) malloc (size);
+      buffer = (unsigned char *) malloc (settings.pixels * 3 * bpp);
       if (buffer == NULL)
 	{
 	  DBG (DBG_error,
-	       "simple_scan: failed to allocate %d bytes of memory\n", size);
+	       "simple_scan: failed to allocate %d bytes of memory\n", settings.pixels * 3);
 	  return SANE_STATUS_NO_MEM;
 	}
 
       /* reorder one line of data and put it back to buffer */
       if (bpp == 1)
 	{
-	  for (y = 0; y < settings.lines; y++)
+	  for (y = 0; y < lines; y++)
 	    {
 	      /* reorder line */
 	      for (x = 0; x < settings.pixels; x++)
 		{
-		  buffer[x * 3] = (*data)[y * size + x];
-		  buffer[x * 3 + 1] = (*data)[y * size + settings.pixels + x];
-		  buffer[x * 3 + 2] =
-		    (*data)[y * size + 2 * settings.pixels + x];
+		  buffer[x * 3    ] = (*data)[y * settings.pixels * 3 +                       x];
+		  buffer[x * 3 + 1] = (*data)[y * settings.pixels * 3 +     settings.pixels + x];
+		  buffer[x * 3 + 2] = (*data)[y * settings.pixels * 3 + 2 * settings.pixels + x];
 		}
 	      /* copy line back */
-	      memcpy ((*data) + size * y, buffer, size);
+	      memcpy ((*data) + settings.pixels * 3 * y, buffer, settings.pixels * 3);
 	    }
 	}
       else
 	{
-	  for (y = 0; y < settings.lines; y++)
+	  for (y = 0; y < lines; y++)
 	    {
 	      /* reorder line */
 	      for (x = 0; x < settings.pixels; x++)
 		{
-		  buffer[x * 6] = (*data)[y * size + x];
-		  buffer[x * 6 + 1] = (*data)[y * size + x + 1];
-		  buffer[x * 6 + 2] = (*data)[y * size + settings.pixels + x];
-		  buffer[x * 6 + 3] =
-		    (*data)[y * size + settings.pixels + x + 1];
-		  buffer[x * 6 + 4] =
-		    (*data)[y * size + 2 * settings.pixels + x];
-		  buffer[x * 6 + 5] =
-		    (*data)[y * size + 2 * settings.pixels + x + 1];
+		  buffer[x * 6    ] = (*data)[y * settings.pixels * 6                       + x * 2    ];
+		  buffer[x * 6 + 1] = (*data)[y * settings.pixels * 6                       + x * 2 + 1];
+		  buffer[x * 6 + 2] = (*data)[y * settings.pixels * 6 + 2 * settings.pixels + x * 2    ];
+		  buffer[x * 6 + 3] = (*data)[y * settings.pixels * 6 + 2 * settings.pixels + x * 2 + 1];
+		  buffer[x * 6 + 4] = (*data)[y * settings.pixels * 6 + 4 * settings.pixels + x * 2    ];
+		  buffer[x * 6 + 5] = (*data)[y * settings.pixels * 6 + 4 * settings.pixels + x * 2 + 1];
 		}
 	      /* copy line back */
-	      memcpy ((*data) + size * y, buffer, size);
+	      memcpy ((*data) + settings.pixels * 6 * y, buffer, settings.pixels * 6);
 	    }
 	}
       free (buffer);
     }
- 
-  /* put back real line number in settings */
-  /* XXX STEF XXX */
-  settings.lines = lines;
 
   /* end scan , waiting the motor to stop if needed (if moving), but without ejecting doc */
   status = end_scan (dev, dev->reg, SANE_TRUE, SANE_FALSE);
@@ -4523,7 +4561,7 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   settings.yres = res;
   settings.tl_x = 0;
   settings.tl_y = 0;
-  settings.pixels = (SANE_UNFIX (dev->model->x_size) * res)  / MM_PER_INCH;
+  settings.pixels = (SANE_UNFIX (dev->model->x_size) * res) / MM_PER_INCH;
   if (half_ccd == SANE_TRUE)
     {
       settings.pixels /= 2;
@@ -4548,7 +4586,7 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   while (pass < 20 && !found)
     {
       /* scan a full width strip */
-      status = simple_scan (dev, settings, SANE_TRUE, forward, &data);
+      status = simple_scan (dev, settings, SANE_TRUE, forward, SANE_FALSE, &data);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_search_strip: simple_scan failed\n");
@@ -4557,7 +4595,8 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	}
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "search_strip_%s%02d.pnm", forward ? "fwd" : "bwd", pass);
+	  sprintf (title, "search_strip_%s%02d.pnm", forward ? "fwd" : "bwd",
+		   pass);
 	  sanei_genesys_write_pnm_file (title, data, settings.depth, 1,
 					settings.pixels, settings.lines);
 	}

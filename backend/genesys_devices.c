@@ -104,8 +104,8 @@ static Genesys_Frontend Wolfson[] = {
   ,				/* 6: CANONLIDE35 */
   {DAC_AD_XP200,{0x58, 0x00, 0x00, 0x00}     /* TODO create an AnalogDevice struct */
    , {0x00, 0x00, 0x00}
-   , {0x0a, 0x00, 0x00} /* offset */
-   , {0x20, 0x00, 0x00} /* gain   */
+   , {0x05, 0x00, 0x00} /* offset */	/* 0A */
+   , {0x0d, 0x00, 0x00} /* gain   */    /* 20 */
    , {0x00, 0x00, 0x00}
    }
   ,                            
@@ -251,7 +251,7 @@ static Genesys_Sensor Sensor[] = {
   /* 7: Strobe XP200 */
   {CIS_XP200, 600,
    48,
-   38, 0, 5454, 210, 200,
+   38, 0, 5200, 210, 200, /* 5125 */
    {0x16, 0x00, 0x01, 0x03}
    ,
    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb7, 0x0a, 0x20, 0x2a, 0x6a, 0x8a,
@@ -977,7 +977,7 @@ Genesys_Model visioneer_xp200_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_NO_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  20,
+  120,
   132
 };
 

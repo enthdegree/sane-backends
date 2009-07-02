@@ -173,6 +173,7 @@
 #define REG_DPISET      0x2c
 #define REG_STRPIXEL    0x30
 #define REG_ENDPIXEL    0x32
+#define REG_DUMMY       0x34
 #define REG_MAXWD       0x35
 #define REG_LPERIOD     0x38
 #define REG_FEEDL       0x3d
@@ -316,11 +317,15 @@ gl646_setup_registers (Genesys_Device * dev,
  * @param settings settings of the scan
  * @param move     flag to enable scanhead to move
  * @param forward  flag to tell movement direction
+ * @param shading  flag to tell if shading correction should be done
  * @param data     pointer that will point to the scanned data
  */
-static SANE_Status
+#ifndef UNIT_TESTING
+static 
+#endif
+SANE_Status
 simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
-	     unsigned char **data);
+	     SANE_Bool shading, unsigned char **data);
 
 /**
  * Send the stop scan command
@@ -338,6 +343,11 @@ static SANE_Status write_control (Genesys_Device * dev, int resolution);
  * initialize scanner's registers at SANE init time
  */
 static void gl646_init_regs (Genesys_Device * dev);
+
+#ifndef UNIT_TESTING
+static 
+#endif
+SANE_Status gl646_load_document (Genesys_Device * dev);
 
 
 #define FULL_STEP   0

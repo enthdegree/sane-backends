@@ -1290,7 +1290,10 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 
    The data needs to be of size "size", and in little endian byte order.
  */
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+  SANE_Status
 genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
 				 int size)
 {
@@ -2924,62 +2927,66 @@ compute_coefficients (Genesys_Device * dev,
  * @shading_data memory area where to store the computed shading coefficients
  * @param pixels_per_line number of pixels per line
  * @param channels number of color channels (actually 1 or 3)
- * @param avgpixels number of pixels to average
+ * @param cmat transcoding matrix for color channel order
  * @param offset shading coefficients left offset
  * @param coeff 4000h or 2000h depending on fast scan mode or not
+ * @param target white target value
  */
 static void
 compute_planar_coefficients (Genesys_Device * dev,
 			     uint8_t * shading_data,
 			     unsigned int pixels_per_line,
+			     unsigned int words_per_color,
 			     unsigned int channels,
-			     unsigned int avgpixels,
+			     int cmat[3],
 			     unsigned int offset,
-			     unsigned int coeff, unsigned int target_code)
+			     unsigned int coeff, unsigned int target)
 {
-  uint8_t *ptr;			/*contain 16bit words in little endian */
+  uint8_t *ptr;			/* contains 16bit words in little endian */
   unsigned int x, j, c;
-  unsigned int val, dk;
+  unsigned int val, dk, br;
 
+
+  DBG (DBG_io,
+       "compute_planar_coefficients: pixels_per_line=%d, words=%d, coeff=0x%04x\n",
+       pixels_per_line, words_per_color, coeff);
   for (c = 0; c < channels; c++)
     {
-      for (x = 0; x < pixels_per_line - offset - avgpixels - 1;
-	   x += avgpixels)
+      /* shading data is larger than pixels_per_line so offset can be neglected */
+      for (x = 0; x < pixels_per_line; x++)
 	{
 	  /* x2 because of 16 bit values, and x2 since one coeff for dark
 	   * and another for white */
-	  ptr = shading_data + pixels_per_line * c + (x + offset) * 2 * 2;
+	  ptr =
+	    shading_data + words_per_color * cmat[c] * 2 + (x + offset) * 4;
 
-	  /* dark data */
+	  /* we only handle deletion and not average */
 	  dk = 0;
-	  for (j = 0; j < avgpixels; j++)
+	  br = 0;
+	  dk +=
+	    256 * dev->dark_average_data[(x + pixels_per_line * c) * 2 + 1];
+	  dk += dev->dark_average_data[(x + pixels_per_line * c) * 2];
+	  br +=
+	    256 * dev->white_average_data[(x + pixels_per_line * c) * 2 + 1];
+	  br += dev->white_average_data[(x + pixels_per_line * c) * 2];
+
+	  if (br - dk > 0)
 	    {
-	      dk += 256 * dev->dark_average_data[(x + j) * 2 + 1];
-	      dk += dev->dark_average_data[(x + j) * 2];
+	      val = (coeff * target) / (br - dk);
+	      if (val >= 65535)
+		{
+		  val = 65535;
+		}
 	    }
-	  dk /= j;
-	  if (dk > 65535)
-	    dk = 65535;
-	  for (j = 0; j < avgpixels; j++)
+	  else
 	    {
-	      ptr[0 + j * 2] = dk & 255;
-	      ptr[1 + j * 2] = dk / 256;
+	      val = coeff;
 	    }
-	  /* white data */
-	  val = 0;
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      val += 256 * dev->white_average_data[(x + j) * 2 + 1];
-	      val += dev->white_average_data[(x + j) * 2];
-	    }
-	  val /= j;
-	  val -= (256 * ptr[1] + ptr[0]);
-	  val = compute_coefficient (coeff, target_code, val);
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      ptr[2 + j * 2] = val & 0xff;
-	      ptr[3 + j * 2] = val / 256;
-	    }
+
+	  ptr[0] = dk & 255;
+	  ptr[1] = dk / 256;
+	  ptr[2] = val & 0xff;
+	  ptr[3] = val / 256;
 	}
     }
 }
@@ -2992,8 +2999,9 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   uint8_t *shading_data;	/**> contains 16bit words in little endian */
   uint8_t channels;
   unsigned int x, j, o;
-  unsigned int length;	        /**> number of shading calibration data words */
+  unsigned int length;		/**> number of shading calibration data words */
   unsigned int i, res;
+  int cmat[3];			/**> matrix of color channels */
   unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
   unsigned int target_dark, target_bright, br;
 
@@ -3020,10 +3028,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	      words_per_color = 0x15400;
 	      break;
 	    }
-	  length=0x1fe00;
+	  length = 0x1fe00;
 	}
       else			/* GL646 case */
-	{ /* DPIHW */
+	{			/* DPIHW */
 	  /* we make the shading data such that each color channel data line is contiguous
 	   * to the next one, which allow to write thes 3 channels in 1 write 
 	   * during genesys_send_shading_coefficient, some values are words, other bytes
@@ -3032,35 +3040,37 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	    {
 	      /* 600 dpi */
 	    case 0:
-	      words_per_color = 0x2A00 * 2;
-	      length=0x2A00 * 3;
+	      /* 5376 * 2 max */
+	      words_per_color = 0x2a00;
 	      break;
 	      /* 1200 dpi */
 	    case 1:
-	      words_per_color = 0x5500 * 2;
-	      length=0x5500 * 3;
+	      words_per_color = 0x5500;
 	      break;
 	      /* 2400 dpi */
 	    case 2:
-	      words_per_color = 0xA800 * 2;
-	      length=0xA800 * 3;
+	      words_per_color = 0xa800;
 	      break;
 	    }
+	  /* 3 channels, 2 bytes a word */
+	  length = words_per_color * 3 * 2;
 	}
-      shading_data = malloc (words_per_color * 3);	/* 16 bit black, 16 bit white */
-      memset (shading_data, 0, words_per_color * 3);
+      shading_data = malloc (length);	/* 16 bit black, 16 bit white */
     }
-  else
+  else				/* chunky calibration data case */
     {
-      length=pixels_per_line * 2 * 3;
-      shading_data = malloc (length*2);	/* 16 bit black, 16 bit white */
+      length = pixels_per_line * 2 * 2 * 3;	/* 16 bit black, 16 bit white */
     }
+
+  /* allocate computed size */
+  shading_data = malloc (length);
   if (!shading_data)
     {
       DBG (DBG_error,
 	   "genesys_send_shading_coefficient: failed to allocate memory\n");
       return SANE_STATUS_NO_MEM;
     }
+  memset (shading_data, 0, length);
 
   /* TARGET/(Wn-Dn) = white gain -> ~1.xxx then it is multiplied by 0x2000
      or 0x4000 to give an integer 
@@ -3081,20 +3091,19 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   switch (dev->model->ccd_type)
     {
     case CIS_XP200:
-      target_code = 0xf000;
-      memset (shading_data, 0x00, pixels_per_line * 4 * 3);
-      o = 0;
-      /* XXX STEF XXX : TODO compute avgpixels on scan settings */
-      avgpixels = 1;
+      target_code = 0xdc00;
+      o = 2;
+      cmat[0] = 2;		/* red is last    */
+      cmat[1] = 0;		/* green is first */
+      cmat[2] = 1;		/* blue is second */
       compute_planar_coefficients (dev,
 				   shading_data,
 				   pixels_per_line,
-				   channels, avgpixels, o, coeff,
-				   target_code);
+				   words_per_color,
+				   channels, cmat, o, coeff, target_code);
       break;
     case CCD_5345:
       target_code = 0xfa00;
-      memset (shading_data, 0x00, pixels_per_line * 4 * channels);
       o = 4;
       avgpixels = 1;
       compute_coefficients (dev,
@@ -3106,7 +3115,6 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CCD_HP2400:
     case CCD_HP3670:
       target_code = 0xfa00;
-      memset (shading_data, 0x00, pixels_per_line * 4 * channels);
       o = 2;
       avgpixels = 1;
       compute_coefficients (dev,
@@ -3689,6 +3697,7 @@ static SANE_Status
 genesys_sheetfed_calibration (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Bool forward = SANE_TRUE;
 
   DBG (DBG_proc, "genesys_sheetfed_calibration: start\n");
   if (dev->model->cmd_set->search_strip == NULL)
@@ -3708,39 +3717,26 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
       return status;
     }
 
-  /* we set up for shading calibration, start scan and then scan lines by lines until
-   * we find a black strip crossing the calibration sheet */
-
-  /* seek black/white reverse/forward */
-  status = dev->model->cmd_set->search_strip (dev, SANE_TRUE, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "genesys_sheetfed_calibration: failed to find black strip: %s\n",
-	   sane_strstatus (status));
-      dev->model->cmd_set->eject_document (dev);
-      return status;
-    }
-
-  /******************* shading calibration ***************************/
-  /* send default shading data */
-  /* XXX STEF XXX status = sanei_genesys_init_shading_data (dev, pixels_per_line);
-     if (status != SANE_STATUS_GOOD)
-     {
-     DBG (DBG_error,
-     "genesys_sheetfed_calibration: failed to init shading process: %s\n",
-     sane_strstatus (status));
-     return status;
-     } */
-
-  /* we know we hare on a black area */
+  /* search for a full width black strip and then do a 16 bit scan to 
+   * gather black shading data */
   if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
     {
+      /* seek black/white reverse/forward */
+      status = dev->model->cmd_set->search_strip (dev, forward, SANE_TRUE);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "genesys_sheetfed_calibration: failed to find black strip: %s\n",
+	       sane_strstatus (status));
+	  dev->model->cmd_set->eject_document (dev);
+	  return status;
+	}
+
       status = dev->model->cmd_set->init_regs_for_shading (dev);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "genesys_sheetfed_calibration: failed to do wset up registers for shading calibration: %s\n",
+	       "genesys_sheetfed_calibration: failed to do set up registers for shading calibration: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -3753,14 +3749,16 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
 	       sane_strstatus (status));
 	  return status;
 	}
+      forward = SANE_FALSE;
     }
 
-  /* go back to a white area */
-  status = dev->model->cmd_set->search_strip (dev, SANE_FALSE, SANE_FALSE);
+
+  /* go to a white area */
+  status = dev->model->cmd_set->search_strip (dev, forward, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "genesys_sheetfed_calibration: failed to find black strip: %s\n",
+	   "genesys_sheetfed_calibration: failed to find white strip: %s\n",
 	   sane_strstatus (status));
       dev->model->cmd_set->eject_document (dev);
       return status;
@@ -3770,7 +3768,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "genesys_sheetfed_calibration: failed to do wset up registers for shading calibration: %s\n",
+	   "genesys_sheetfed_calibration: failed to do set up registers for shading calibration: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -3779,10 +3777,17 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
     {
       dev->model->cmd_set->eject_document (dev);
       DBG (DBG_error,
-	   "genesys_sheetfed_calibration: failed to do white shading calibration: %s\n",
+	   "genesys_sheetfed_calibration: failed eject target: %s\n",
 	   sane_strstatus (status));
       return status;
     }
+ 
+  /* in case we haven't black shading data, build it from black pixels
+   * of white calibration */
+  if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
+  {
+	  /* XXX STEF TODO XXX */
+  }
 
   /* send the shading coefficient */
   status = genesys_send_shading_coefficient (dev);

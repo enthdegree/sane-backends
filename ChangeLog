@@ -1,3 +1,8 @@
+2009-07-02  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma.h, backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	- Declared new models (yet untested) Pixma MX330 and MX860, updated docs.
+	- Bump backend minor version number. 
+
 2009-07-01 Alex Belkin <abc at telekom.ru>
 	* backend/xerox_mfp.conf.in: usbid for Samsung SCX-4500W
 

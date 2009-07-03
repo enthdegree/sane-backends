@@ -2552,17 +2552,14 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
 
 
 SANE_Status
-sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int offset,
+sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution, SANE_Int offset,
 				   SANE_Bool calibrated)
 {
-  SANE_Int yres;
   SANE_Bool isColourScan;
 
   DBG (2, "sanei_lexmark_low_set_scan_regs:\n");
-  /* resolution */
-  yres = dev->val[OPT_RESOLUTION].w;
 
-  DBG (7, "sanei_lexmark_low_set_scan_regs: yres=%d DPI\n", yres);
+  DBG (7, "sanei_lexmark_low_set_scan_regs: resolution=%d DPI\n", resolution);
 
   /* colour mode */
   if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
@@ -2595,14 +2592,14 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int offset,
       break;
     }
 
-  low_set_scan_area (yres,
+  low_set_scan_area (resolution,
 		       dev->val[OPT_TL_X].w,
 		       dev->val[OPT_TL_Y].w,
 		       dev->val[OPT_BR_X].w,
 		       dev->val[OPT_BR_Y].w,
 		       offset,
 		       dev->model.motor_type == A920_MOTOR && isColourScan
-		       && (yres == 600), dev->shadow_regs, dev);
+		       && (resolution == 600), dev->shadow_regs, dev);
 
   /* may be we could use a sensor descriptor that would held the max horiz dpi */
   if (dev->val[OPT_RESOLUTION].w < 600)
@@ -2611,7 +2608,7 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int offset,
     dev->shadow_regs[0x7a] = 1;
 
   /* 75dpi x 75dpi */
-  if (yres == 75)
+  if (resolution == 75)
     {
       DBG (5, "sanei_lexmark_low_set_scan_regs(): 75 DPI resolution\n");
 
@@ -2885,7 +2882,7 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int offset,
     }
 
   /* 150dpi x 150dpi */
-  if (yres == 150)
+  if (resolution == 150)
     {
       DBG (5, "sanei_lexmark_low_set_scan_regs(): 150 DPI resolution\n");
 
@@ -3180,7 +3177,7 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int offset,
     }
 
   /*300dpi x 300dpi */
-  if (yres == 300)
+  if (resolution == 300)
     {
       DBG (5, "sanei_lexmark_low_set_scan_regs(): 300 DPI resolution\n");
 
@@ -3434,7 +3431,7 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int offset,
     }
 
   /* 600dpi x 600dpi */
-  if (yres == 600)
+  if (resolution == 600)
     {
       DBG (5, "sanei_lexmark_low_set_scan_regs(): 600 DPI resolution\n");
 
@@ -3723,7 +3720,7 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int offset,
       dev->shadow_regs[0x79] = 0x40;
     }
   /*600dpi x 1200dpi */
-  if (yres == 1200)
+  if (resolution == 1200)
     {
       DBG (5, "sanei_lexmark_low_set_scan_regs(): 1200 DPI resolution\n");
 

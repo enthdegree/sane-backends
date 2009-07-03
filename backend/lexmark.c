@@ -1059,6 +1059,7 @@ sane_start (SANE_Handle handle)
   Lexmark_Device *lexmark_device;
   SANE_Int offset;
   SANE_Status status;
+  int resolution;
 
   DBG (2, "sane_start: handle=%p\n", (void *) handle);
 
@@ -1110,8 +1111,13 @@ sane_start (SANE_Handle handle)
       sanei_lexmark_low_search_home_bwd (lexmark_device);
     }
 
-  /* do calibration before offset detection */
-  sanei_lexmark_low_set_scan_regs (lexmark_device, 0, SANE_FALSE);
+  /* do calibration before offset detection , use sensor max dpi, not motor's one */
+  resolution = lexmark_device->val[OPT_RESOLUTION].w;
+  if(resolution > 600)
+  {
+	  resolution = 600;
+  }
+  sanei_lexmark_low_set_scan_regs (lexmark_device, resolution, 0, SANE_FALSE);
   status = sanei_lexmark_low_calibration (lexmark_device);
   if (status != SANE_STATUS_GOOD)
     {
@@ -1131,7 +1137,7 @@ sane_start (SANE_Handle handle)
   /* Set the shadow registers for scan with the options (resolution, mode, 
      size) set in the front end. Pass the offset so we can get the vert.
      start. */
-  sanei_lexmark_low_set_scan_regs (lexmark_device, offset, SANE_TRUE);
+  sanei_lexmark_low_set_scan_regs (lexmark_device, lexmark_device->val[OPT_RESOLUTION].w, offset, SANE_TRUE);
   
   if (sanei_lexmark_low_start_scan (lexmark_device) == SANE_STATUS_GOOD)
     {

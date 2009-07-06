@@ -1,3 +1,8 @@
+2009-07-06  Stéphane Voltz <stef.dev at free.fr>
+	* backend/lexmark.c backend/lexmark.h backend/lexmark_low.h: 
+	  do not use resolution higher than sensor resolution when doing
+	  calibation.
+
 2009-07-02  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma.h, backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	- Declared new models (yet untested) Pixma MX330 and MX860, updated docs.

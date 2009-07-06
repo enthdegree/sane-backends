@@ -251,6 +251,7 @@ void sanei_lexmark_low_move_fwd (SANE_Int distance, Lexmark_Device * dev,
 SANE_Bool sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev);
 SANE_Int sanei_lexmark_low_find_start_line (Lexmark_Device * dev);
 SANE_Status sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev,
+					       SANE_Int resolution,
 					       SANE_Int offset,
 					       SANE_Bool calibrated);
 SANE_Status sanei_lexmark_low_start_scan (Lexmark_Device * dev);

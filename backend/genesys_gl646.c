@@ -2891,9 +2891,9 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 	}
     }
 
-  /* fill settings for scan */
+  /* fill settings for scan : always a color scan */
   settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = dev->settings.scan_mode;
+  settings.scan_mode = SCAN_MODE_COLOR;
   settings.xres = dev->sensor.optical_res / half_ccd;
   settings.yres = dev->sensor.optical_res / half_ccd;
   settings.tl_x = 0;
@@ -3673,6 +3673,8 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   int resolution, lines;
 
   DBG (DBG_proc, "gl646_init_regs_for_warmup: start\n");
+  
+  sanei_genesys_init_fe (dev);
 
   resolution = get_closest_resolution (dev->model->ccd_type, 300, SANE_FALSE);
 

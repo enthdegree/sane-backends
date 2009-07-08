@@ -2898,7 +2898,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   settings.yres = dev->sensor.optical_res / half_ccd;
   settings.tl_x = 0;
   settings.tl_y = 0;
-  settings.pixels = dev->sensor.sensor_pixels / half_ccd;
+  settings.pixels = (dev->sensor.sensor_pixels * settings.xres) / dev->sensor.optical_res;
   settings.lines = dev->model->shading_lines * (3 - half_ccd);
   settings.depth = 16;
   settings.color_filter = dev->settings.color_filter;

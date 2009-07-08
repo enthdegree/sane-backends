@@ -2754,166 +2754,97 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+/* computes one coefficient given bright-dark value
+ * @param coeff factor giving 1.00 gain
+ * @param target desired target code
+ * @param value brght-dark value
+ * */
 static unsigned int
-compute_coefficient (unsigned int coeff,
-		     unsigned int target_code, unsigned int val)
+compute_coefficient (unsigned int coeff, unsigned int target, unsigned int value)
 {
-  if (val <= 0)
-    return 0;
+  int result;
 
-  val = (coeff * target_code) / val;
-
-  if (val > 65535)
-    val = 65535;
-  return val;
+  if (value > 0)
+    {
+      result = (coeff * target) / value;
+      if (result >= 65535)
+	{
+	  result = 65535;
+	}
+    }
+  else
+    {
+      result = coeff;
+    }
+  return result;
 }
 
 /**
  * Computes shading coefficient using formula in data sheet. 16bit data values
- * manipulated here are little endian.
+ * manipulated here are little endian. For now we assume deletion scanning type
+ * and that there is always 3 channels.
  * @param dev scanner's device
  * @shading_data memory area where to store the computed shading coefficients
  * @param pixels_per_line number of pixels per line
  * @param channels number of color channels (actually 1 or 3)
- * @param avgpixels number of pixels to average
  * @param offset shading coefficients left offset
  * @param coeff 4000h or 2000h depending on fast scan mode or not
+ * @param target value of the target code
  */
 static void
 compute_coefficients (Genesys_Device * dev,
 		      uint8_t * shading_data,
 		      unsigned int pixels_per_line,
 		      unsigned int channels,
-		      unsigned int avgpixels,
-		      unsigned int offset,
-		      unsigned int coeff, unsigned int target_code)
+		      int cmat[3],
+		      int offset,
+		      unsigned int coeff,
+		      unsigned int target)
 {
-  uint8_t *ptr;			/*contain 16bit words in little endian */
-  unsigned int x, j;
-  unsigned int val, dk;
+  uint8_t *ptr;			/* contain 16bit words in little endian */
+  unsigned int x, c;
+  unsigned int val, br, dk;
+  unsigned int start, end;
 
-  for (x = 0; x < pixels_per_line - offset - avgpixels - 1; x += avgpixels)
+  DBG (DBG_io,
+       "compute_coefficients: pixels_per_line=%d,  coeff=0x%04x\n", pixels_per_line, coeff);
+
+  /* compute start & end values depending of the offset */
+  if (offset < 0)
+   {
+      start = -1 * offset;
+      end = pixels_per_line;
+   }
+  else
+   {
+     start = 0;
+     end = pixels_per_line - offset;
+   }
+
+  for (c = 0; c < channels; c++)
     {
-      /* dark data */
-      ptr = shading_data + (x + offset) * 2 * 2 * 3;
-      dk = 0;
-      for (j = 0; j < avgpixels; j++)
+      for (x = start; x < end; x++)
 	{
-	  dk += dev->dark_average_data[(x + j) * 2 * channels];
-	  dk += 256 * dev->dark_average_data[(x + j) * 2 * channels + 1];
-	}
-      dk /= j;
-      if (dk > 65535)
-	dk = 65535;
-      for (j = 0; j < avgpixels; j++)
-	{
-	  ptr[0 + j * 2 * 2 * 3] = dk & 255;
-	  ptr[1 + j * 2 * 2 * 3] = dk / 256;
-	}
-      if (channels > 1)
-	{
-	  dk = 0;
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      dk += dev->dark_average_data[(x + j) * 2 * channels + 2];
-	      dk += 256 * dev->dark_average_data[(x + j) * 2 * channels + 3];
-	    }
-	  dk /= j;
-	  if (dk > 65535)
-	    dk = 65535;
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      ptr[4 + j * 2 * 2 * 3] = dk & 255;
-	      ptr[5 + j * 2 * 2 * 3] = dk / 256;
-	    }
-	  dk = 0;
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      dk += dev->dark_average_data[(x + j) * 2 * channels + 4];
-	      dk += 256 * dev->dark_average_data[(x + j) * 2 * channels + 5];
-	    }
-	  dk /= j;
-	  if (dk > 65535)
-	    dk = 65535;
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      ptr[8 + j * 2 * 2 * 3] = dk & 255;
-	      ptr[9 + j * 2 * 2 * 3] = dk / 256;
-	    }
-	}
-      else
-	{
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      ptr[4 + j * 2 * 2 * 3] = ptr[0];
-	      ptr[5 + j * 2 * 2 * 3] = ptr[1];
-	      ptr[8 + j * 2 * 2 * 3] = ptr[0];
-	      ptr[9 + j * 2 * 2 * 3] = ptr[1];
-	    }
-	}
+	  /* TODO if channels=1 , use filter to know the base addr */
+	  ptr = shading_data + 4 * ((x + offset) * channels + cmat[c]);
 
-      /* white data */
-      /* red channel */
-      val = 0;
-      for (j = 0; j < avgpixels; j++)
-	{
-	  val += 256 * dev->white_average_data[(x + j) * 2 * channels + 1];
-	  val += dev->white_average_data[(x + j) * 2 * channels];
-	}
-      val /= j;
-      val -= (256 * ptr[1] + ptr[0]);
-      val = compute_coefficient (coeff, target_code, val);
-      for (j = 0; j < avgpixels; j++)
-	{
-	  ptr[2 + j * 2 * 2 * 3] = val & 0xff;
-	  ptr[3 + j * 2 * 2 * 3] = val / 256;
-	}
+	  /* dark data */
+	  dk = dev->dark_average_data[x * 2 * channels + c * 2];
+	  dk += 256 * dev->dark_average_data[x * 2 * channels + c * 2 + 1];
 
-      if (channels > 1)
-	{
-	  /* green */
-	  val = 0;
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      val +=
-		256 * dev->white_average_data[(x + j) * 2 * channels + 3];
-	      val += dev->white_average_data[(x + j) * 2 * channels + 2];
-	    }
-	  val /= j;
-	  val -= (256 * ptr[5] + ptr[4]);
-	  val = compute_coefficient (coeff, target_code, val);
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      ptr[6 + j * 2 * 2 * 3] = val & 0xff;
-	      ptr[7 + j * 2 * 2 * 3] = val / 256;
-	    }
+	  /* white data */
+	  br = dev->white_average_data[x * 2 * channels + c * 2];
+	  br += 256 * dev->white_average_data[x * 2 * channels + c * 2 + 1];
 
-	  /* blue */
-	  val = 0;
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      val +=
-		256 * dev->white_average_data[(x + j) * 2 * channels + 5];
-	      val += dev->white_average_data[(x + j) * 2 * channels + 4];
-	    }
-	  val /= j;
-	  val -= (256 * ptr[9] + ptr[8]);
-	  val = compute_coefficient (coeff, target_code, val);
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      ptr[10 + j * 2 * 2 * 3] = val & 255;
-	      ptr[11 + j * 2 * 2 * 3] = val / 256;
-	    }
-	}
-      else
-	{
-	  for (j = 0; j < avgpixels; j++)
-	    {
-	      ptr[6 + j * 2 * 2 * 3] = val & 255;
-	      ptr[7 + j * 2 * 2 * 3] = val / 256;
-	      ptr[10 + j * 2 * 2 * 3] = val & 255;
-	      ptr[11 + j * 2 * 2 * 3] = val / 256;
-	    }
+	  /* compute coeff */
+	  val=compute_coefficient(coeff,target,br-dk);
+
+	  /* assign it */
+	  ptr[0] = dk & 255;
+	  ptr[1] = dk / 256;
+	  ptr[2] = val & 0xff;
+	  ptr[3] = val / 256;
+
 	}
     }
 }
@@ -2943,9 +2874,8 @@ compute_planar_coefficients (Genesys_Device * dev,
 			     unsigned int coeff, unsigned int target)
 {
   uint8_t *ptr;			/* contains 16bit words in little endian */
-  unsigned int x, j, c;
+  unsigned int x, c;
   unsigned int val, dk, br;
-
 
   DBG (DBG_io,
        "compute_planar_coefficients: pixels_per_line=%d, words=%d, coeff=0x%04x\n",
@@ -2998,7 +2928,8 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   uint16_t pixels_per_line;
   uint8_t *shading_data;	/**> contains 16bit words in little endian */
   uint8_t channels;
-  unsigned int x, j, o;
+  unsigned int x, j;
+  int o;
   unsigned int length;		/**> number of shading calibration data words */
   unsigned int i, res;
   int cmat[3];			/**> matrix of color channels */
@@ -3012,9 +2943,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   channels = dev->calib_channels;
 
   /* we always build data for three channels, even for gray */
-  if (dev->model->is_cis)
-    {
-      if (dev->model->asic_type != GENESYS_GL646)
+  if (dev->model->is_cis && dev->model->asic_type != GENESYS_GL646)
 	{
 	  switch (sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6)
 	    {
@@ -3055,12 +2984,6 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	  /* 3 channels, 2 bytes a word */
 	  length = words_per_color * 3 * 2;
 	}
-      shading_data = malloc (length);	/* 16 bit black, 16 bit white */
-    }
-  else				/* chunky calibration data case */
-    {
-      length = pixels_per_line * 2 * 2 * 3;	/* 16 bit black, 16 bit white */
-    }
 
   /* allocate computed size */
   shading_data = malloc (length);
@@ -3102,25 +3025,36 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 				   words_per_color,
 				   channels, cmat, o, coeff, target_code);
       break;
-    case CCD_5345:
-      target_code = 0xfa00;
-      o = 4;
-      avgpixels = 1;
+    case CCD_HP2300:
+      target_code = 0xdc00;
+      if(dev->settings.xres>300)
+       {
+      	  o = 2;
+       }
+      else
+       {
+      	  o = -8;
+       }
+      cmat[0] = 0;
+      cmat[1] = 1;
+      cmat[2] = 2;
       compute_coefficients (dev,
 			    shading_data,
 			    pixels_per_line,
-			    channels, avgpixels, o, coeff, target_code);
+			    3, cmat, o, coeff, target_code);
       break;
-    case CCD_HP2300:
+    case CCD_5345:
     case CCD_HP2400:
     case CCD_HP3670:
       target_code = 0xfa00;
-      o = 2;
-      avgpixels = 1;
+      o = 4;
+      cmat[0] = 0;
+      cmat[1] = 1;
+      cmat[2] = 2;	
       compute_coefficients (dev,
 			    shading_data,
 			    pixels_per_line,
-			    channels, avgpixels, o, coeff, target_code);
+			    3, cmat, o, coeff, target_code);
       break;
     case CCD_CANONLIDE35:
       target_bright = 0xfa00;
@@ -4109,7 +4043,7 @@ genesys_start_scan (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "genesys_flatbed_calibration: failed to init gamma table: %s\n",
+	   "genesys_start_scan: failed to init gamma table: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -4120,7 +4054,7 @@ genesys_start_scan (Genesys_Device * dev)
     {
       /* calibration : sheetfed scanners can't calibrate before each scan */
       /* so we use a NO_CALIBRATION flags for those scanners              */
-      if (!dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
+      if (!(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
 	{
 	  status = genesys_scanner_calibration (dev);
 	  if (status != SANE_STATUS_GOOD)
@@ -4132,6 +4066,10 @@ genesys_start_scan (Genesys_Device * dev)
 	    }
 
 	  genesys_save_calibration (dev);
+	}
+      else
+	{
+          DBG (DBG_warn, "genesys_start_scan: no calibration done\n");
 	}
     }
   else if (status != SANE_STATUS_GOOD)

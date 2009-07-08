@@ -213,7 +213,7 @@ static Genesys_Sensor Sensor[] = {
   /* 5: HP2300c */
   {CCD_HP2300,600,
    48,
-   20, 0, 5454, 180, 180,
+   20, 0, 5368, 180, 180,	/* 5376 */
    {0x16, 0x00, 0x01, 0x03}
    ,
    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb7, 0x0a, 0x20, 0x2a, 0x6a, 0x8a,
@@ -868,7 +868,7 @@ static Genesys_Model hp2300c_model = {
     | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW,
-  18,
+  40,
   132
 };
 

@@ -3335,6 +3335,9 @@ genesys_save_calibration (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_UNSUPPORTED;
   Genesys_Calibration_Cache *cache = NULL;
   uint8_t *tmp;
+#ifdef HAVE_SYS_TIME_H
+  struct timeval time;
+#endif
 
   DBG (DBG_proc, "genesys_save_calibration\n");
 
@@ -3414,6 +3417,10 @@ genesys_save_calibration (Genesys_Device * dev)
 	  cache->average_size);
   memcpy (cache->white_average_data, dev->white_average_data,
 	  cache->average_size);
+#ifdef HAVE_SYS_TIME_H
+  gettimeofday(&time,NULL);
+  cache->last_calibration = time.tv_sec;
+#endif
 
   DBG (DBG_proc, "genesys_save_calibration: completed\n");
   return SANE_STATUS_GOOD;

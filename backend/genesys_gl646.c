@@ -160,7 +160,7 @@ gl646_bulk_write_register (Genesys_Device * dev,
 	  DBG (DBG_io2, "DPISET   =%d\n",
 	       gl646_get_double_reg (reg, REG_DPISET));
 	  DBG (DBG_io2, "DUMMY    =%d\n",
-  		sanei_genesys_get_address (reg, REG_DUMMY)->value);
+	       sanei_genesys_get_address (reg, REG_DUMMY)->value);
 	  DBG (DBG_io2, "STRPIXEL =%d\n",
 	       gl646_get_double_reg (reg, REG_STRPIXEL));
 	  DBG (DBG_io2, "ENDPIXEL =%d\n",
@@ -2020,9 +2020,9 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
  * paper event -> document is out
  */
 #ifndef UNIT_TESTING
-static 
+static
 #endif
-SANE_Status
+  SANE_Status
 gl646_load_document (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
@@ -2786,7 +2786,8 @@ gl646_search_start_position (Genesys_Device * dev)
   settings.exposure_time = 0;
 
   /* scan the desired area */
-  status = simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, &data);
+  status =
+    simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, &data);
 
   /* process data if scan is OK */
   if (status == SANE_STATUS_GOOD)
@@ -2898,7 +2899,8 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   settings.yres = dev->sensor.optical_res / half_ccd;
   settings.tl_x = 0;
   settings.tl_y = 0;
-  settings.pixels = (dev->sensor.sensor_pixels * settings.xres) / dev->sensor.optical_res;
+  settings.pixels =
+    (dev->sensor.sensor_pixels * settings.xres) / dev->sensor.optical_res;
   settings.lines = dev->model->shading_lines * (3 - half_ccd);
   settings.depth = 16;
   settings.color_filter = dev->settings.color_filter;
@@ -3383,7 +3385,9 @@ gl646_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = bottom;
   dev->frontend.offset[1] = bottom;
   dev->frontend.offset[2] = bottom;
-  status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &first_line);
+  status =
+    simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE,
+		 &first_line);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3409,7 +3413,9 @@ gl646_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = top;
   dev->frontend.offset[1] = top;
   dev->frontend.offset[2] = top;
-  status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &second_line);
+  status =
+    simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE,
+		 &second_line);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3440,7 +3446,8 @@ gl646_offset_calibration (Genesys_Device * dev)
 
       /* scan with no move */
       status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &second_line);
+	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE,
+		     &second_line);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3479,7 +3486,8 @@ gl646_offset_calibration (Genesys_Device * dev)
   if (DBG_LEVEL >= DBG_data)
     {
       status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &second_line);
+	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE,
+		     &second_line);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3579,7 +3587,8 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	  || (average[2] < dev->sensor.gain_white_ref)) && (pass < 30))
     {
       /* scan with no move */
-      status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE,&line);
+      status =
+	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3673,7 +3682,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   int resolution, lines;
 
   DBG (DBG_proc, "gl646_init_regs_for_warmup: start\n");
-  
+
   sanei_genesys_init_fe (dev);
 
   resolution = get_closest_resolution (dev->model->ccd_type, 300, SANE_FALSE);
@@ -4093,9 +4102,9 @@ gl646_init (Genesys_Device * dev)
  * @param data pointer for the data
  */
 #ifndef UNIT_TESTING
-static 
+static
 #endif
-SANE_Status
+  SANE_Status
 simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	     SANE_Bool forward, SANE_Bool shading, unsigned char **data)
 {
@@ -4161,10 +4170,10 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 
   /* no shading correction and not watch dog for simple scan */
   dev->reg[reg_0x01].value &= ~(REG01_DVDSET | REG01_DOGENB);
-  if(shading==SANE_TRUE)
-  {
-    dev->reg[reg_0x01].value |= REG01_DVDSET;
-  }
+  if (shading == SANE_TRUE)
+    {
+      dev->reg[reg_0x01].value |= REG01_DVDSET;
+    }
 
   /* one table movement for simple scan */
   dev->reg[reg_0x02].value &= ~REG02_FASTFED;
@@ -4234,7 +4243,8 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
       if (buffer == NULL)
 	{
 	  DBG (DBG_error,
-	       "simple_scan: failed to allocate %d bytes of memory\n", settings.pixels * 3);
+	       "simple_scan: failed to allocate %d bytes of memory\n",
+	       settings.pixels * 3);
 	  return SANE_STATUS_NO_MEM;
 	}
 
@@ -4246,12 +4256,16 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	      /* reorder line */
 	      for (x = 0; x < settings.pixels; x++)
 		{
-		  buffer[x * 3    ] = (*data)[y * settings.pixels * 3 +                       x];
-		  buffer[x * 3 + 1] = (*data)[y * settings.pixels * 3 +     settings.pixels + x];
-		  buffer[x * 3 + 2] = (*data)[y * settings.pixels * 3 + 2 * settings.pixels + x];
+		  buffer[x * 3] = (*data)[y * settings.pixels * 3 + x];
+		  buffer[x * 3 + 1] =
+		    (*data)[y * settings.pixels * 3 + settings.pixels + x];
+		  buffer[x * 3 + 2] =
+		    (*data)[y * settings.pixels * 3 + 2 * settings.pixels +
+			    x];
 		}
 	      /* copy line back */
-	      memcpy ((*data) + settings.pixels * 3 * y, buffer, settings.pixels * 3);
+	      memcpy ((*data) + settings.pixels * 3 * y, buffer,
+		      settings.pixels * 3);
 	    }
 	}
       else
@@ -4261,15 +4275,25 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	      /* reorder line */
 	      for (x = 0; x < settings.pixels; x++)
 		{
-		  buffer[x * 6    ] = (*data)[y * settings.pixels * 6                       + x * 2    ];
-		  buffer[x * 6 + 1] = (*data)[y * settings.pixels * 6                       + x * 2 + 1];
-		  buffer[x * 6 + 2] = (*data)[y * settings.pixels * 6 + 2 * settings.pixels + x * 2    ];
-		  buffer[x * 6 + 3] = (*data)[y * settings.pixels * 6 + 2 * settings.pixels + x * 2 + 1];
-		  buffer[x * 6 + 4] = (*data)[y * settings.pixels * 6 + 4 * settings.pixels + x * 2    ];
-		  buffer[x * 6 + 5] = (*data)[y * settings.pixels * 6 + 4 * settings.pixels + x * 2 + 1];
+		  buffer[x * 6] = (*data)[y * settings.pixels * 6 + x * 2];
+		  buffer[x * 6 + 1] =
+		    (*data)[y * settings.pixels * 6 + x * 2 + 1];
+		  buffer[x * 6 + 2] =
+		    (*data)[y * settings.pixels * 6 + 2 * settings.pixels +
+			    x * 2];
+		  buffer[x * 6 + 3] =
+		    (*data)[y * settings.pixels * 6 + 2 * settings.pixels +
+			    x * 2 + 1];
+		  buffer[x * 6 + 4] =
+		    (*data)[y * settings.pixels * 6 + 4 * settings.pixels +
+			    x * 2];
+		  buffer[x * 6 + 5] =
+		    (*data)[y * settings.pixels * 6 + 4 * settings.pixels +
+			    x * 2 + 1];
 		}
 	      /* copy line back */
-	      memcpy ((*data) + settings.pixels * 6 * y, buffer, settings.pixels * 6);
+	      memcpy ((*data) + settings.pixels * 6 * y, buffer,
+		      settings.pixels * 6);
 	    }
 	}
       free (buffer);
@@ -4492,6 +4516,10 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite)
 {
+#ifdef HAVE_SYS_TIME_H
+  struct timeval time;
+#endif
+
   DBG (DBG_proc,
        "gl646_is_compatible_calibration: start (for_overwrite=%d)\n",
        for_overwrite);
@@ -4521,6 +4549,18 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
 	   "gl646_is_compatible_calibration: completed, non compatible cache\n");
       return SANE_STATUS_UNSUPPORTED;
     }
+
+  /* a cache entry expires after 10 minutes for non CIS scanners */
+#ifdef HAVE_SYS_TIME_H
+  gettimeofday (&time, NULL);
+  if ((time.tv_sec - cache->last_calibration > 10 * 60)
+      && (dev->model->is_cis == SANE_FALSE))
+    {
+      DBG (DBG_proc,
+	   "gl646_is_compatible_calibration: expired entry, non compatible cache\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+#endif
 
   DBG (DBG_proc,
        "gl646_is_compatible_calibration: completed, cache compatible\n");
@@ -4588,7 +4628,8 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   while (pass < 20 && !found)
     {
       /* scan a full width strip */
-      status = simple_scan (dev, settings, SANE_TRUE, forward, SANE_FALSE, &data);
+      status =
+	simple_scan (dev, settings, SANE_TRUE, forward, SANE_FALSE, &data);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_search_strip: simple_scan failed\n");

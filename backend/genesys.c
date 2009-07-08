@@ -436,6 +436,7 @@ sanei_genesys_init_fe (Genesys_Device * dev)
 {
   unsigned int i;
 
+  DBG (DBG_proc, "sanei_genesys_init_fe: start\n");
   for (i = 0; i < sizeof (Wolfson) / sizeof (Genesys_Frontend); i++)
     {
       if (dev->model->dac_type == Wolfson[i].fe_id)
@@ -449,6 +450,7 @@ sanei_genesys_init_fe (Genesys_Device * dev)
        dev->model->dac_type);
   DBG (DBG_info, "sanei_genesys_init_fe: dac_type %d set up\n",
        dev->model->dac_type);
+  DBG (DBG_proc, "sanei_genesys_init_fe: end\n");
 }
 
 /* Write data for analog frontend */

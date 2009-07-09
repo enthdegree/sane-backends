@@ -2032,6 +2032,15 @@ gl646_load_document (Genesys_Device * dev)
   uint8_t val;
 
   DBG (DBG_proc, "gl646_load_document: start\n");
+
+  /* no need to load document is flatbed scanner */
+  if (dev->model->is_sheetfed == SANE_FALSE)
+    {
+      DBG (DBG_proc, "gl646_load_document: nothing to load\n");
+      DBG (DBG_proc, "gl646_load_document: end\n");
+      return SANE_STATUS_GOOD;
+    }
+
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
     {
@@ -4551,6 +4560,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
     }
 
   /* a cache entry expires after 10 minutes for non CIS scanners */
+  /* TODO have depend on s->val[OPT_LAMP_OFF_TIME].w             */
 #ifdef HAVE_SYS_TIME_H
   gettimeofday (&time, NULL);
   if ((time.tv_sec - cache->last_calibration > 10 * 60)

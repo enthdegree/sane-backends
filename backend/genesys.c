@@ -2846,7 +2846,6 @@ compute_coefficients (Genesys_Device * dev,
 	  ptr[1] = dk / 256;
 	  ptr[2] = val & 0xff;
 	  ptr[3] = val / 256;
-
 	}
     }
 }
@@ -2964,7 +2963,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       else			/* GL646 case */
 	{			/* DPIHW */
 	  /* we make the shading data such that each color channel data line is contiguous
-	   * to the next one, which allow to write thes 3 channels in 1 write 
+	   * to the next one, which allow to write the 3 channels in 1 write 
 	   * during genesys_send_shading_coefficient, some values are words, other bytes
 	   * hence the x2 factor */
 	  switch (sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6)
@@ -3029,13 +3028,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CCD_HP2300:
       target_code = 0xdc00;
-      if(dev->settings.xres>300)
+      o = 2;
+      if(dev->settings.xres<=dev->sensor.optical_res/2)
        {
-      	  o = 2;
-       }
-      else
-       {
-      	  o = -8;
+      	  o = o - dev->sensor.dummy_pixel;
        }
       cmat[0] = 0;
       cmat[1] = 1;
@@ -3048,8 +3044,12 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CCD_5345:
     case CCD_HP2400:
     case CCD_HP3670:
-      target_code = 0xfa00;
+      target_code = 0xe000;
       o = 4;
+      if(dev->settings.xres<=dev->sensor.optical_res/2)
+       {
+      	  o = o - dev->sensor.dummy_pixel;
+       }
       cmat[0] = 0;
       cmat[1] = 1;
       cmat[2] = 2;	

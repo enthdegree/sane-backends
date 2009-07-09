@@ -52,6 +52,9 @@
 #define GENESYS_LOW_H
 
 #include <stddef.h>
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
 #include "../include/sane/sane.h"
 
 #define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */

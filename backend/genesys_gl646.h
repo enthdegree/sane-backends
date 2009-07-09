@@ -50,9 +50,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"

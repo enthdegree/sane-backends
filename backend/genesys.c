@@ -3557,7 +3557,6 @@ genesys_flatbed_calibration (Genesys_Device * dev)
   pixels_per_line = (SANE_UNFIX (dev->model->x_size) * dev->settings.xres) /
     MM_PER_INCH;
 
-  /* XXX STEF XXX ??? could this be the root of 2300 shading problems */
   /* send default shading data */
   status = sanei_genesys_init_shading_data (dev, pixels_per_line);
   if (status != SANE_STATUS_GOOD)

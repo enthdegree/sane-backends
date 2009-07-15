@@ -45,7 +45,7 @@
 #ifndef LEXMARK_H
 #define LEXMARK_H
 
-#define DEEP_DEBUG
+#undef DEEP_DEBUG
 
 #include "../include/sane/config.h"
 

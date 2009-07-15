@@ -1,3 +1,6 @@
+2009-07-15  Stéphane Voltz <stef.dev at free.fr>
+	* backend/lexmark.h: disable deep debugging 
+
 2009-07-10  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_gl646.c backend/genesys_low.h
 	  backend/genesys_gl646.h backend/genesys_gl841.c 

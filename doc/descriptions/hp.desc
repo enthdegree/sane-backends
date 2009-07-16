@@ -38,6 +38,7 @@
 :model "ScanJet IIcx"
 :interface "SCSI"
 :status :complete
+:scsi "HP" "C2500A" "processor"
 
 :model "ScanJet 3c"
 :interface "SCSI"

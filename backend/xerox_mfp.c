@@ -802,7 +802,7 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
   }
 
   DBG (4, "%s: %d, <%d> => %08x, %x\n", __FUNCTION__, opt, act,
-       *(SANE_Word *)val, info? *info : 0);
+       val? *(SANE_Word *)val : 0, info? *info : 0);
   return SANE_STATUS_GOOD;
 }
 

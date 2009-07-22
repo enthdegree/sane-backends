@@ -263,6 +263,12 @@ struct scanner
   /* the scanner image params (what we ask from scanner) */
   struct img_params s;
 
+  /* if one of the user options requires us to buffer the entire image */
+  int blocking_mode;
+
+  /* the intermediate image params (like user, but possible higher depth) */
+  struct img_params i;
+
   /* --------------------------------------------------------------------- */
   /* values which are set by calibration functions                         */
   int c_res;
@@ -504,7 +510,8 @@ static int get_page_width (struct scanner *s);
 static int get_page_height (struct scanner *s);
 
 static SANE_Status set_window (struct scanner *s);
-static SANE_Status update_params (struct scanner *s);
+static SANE_Status update_params (struct scanner *s, int calib);
+static SANE_Status update_i_params (struct scanner *s, int calib);
 static SANE_Status clean_params (struct scanner *s);
 
 static SANE_Status read_panel(struct scanner *s, SANE_Int option);
@@ -518,8 +525,8 @@ static SANE_Status read_from_scanner(struct scanner *s, int side, int exact);
 static SANE_Status read_from_scanner_duplex(struct scanner *s, int exact);
 
 static SANE_Status copy_simplex(struct scanner *s, unsigned char * buf, int len, int side);
-
 static SANE_Status copy_duplex(struct scanner *s, unsigned char * buf, int len);
+static SANE_Status copy_line(struct scanner *s, unsigned char * buf, int side);
 
 static SANE_Status read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 

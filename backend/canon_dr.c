@@ -60,6 +60,7 @@
    Section 5 - calibration functions
    Section 6 - sane_close functions
    Section 7 - misc functions
+   Section 8 - image processing functions
 
    Changes:
       v1 2008-10-29, MAN
@@ -235,6 +236,11 @@
          - correct some debug message
          - better handling of EOF
          - add intermediate param struct to existing user and scan versions
+      v33 2009-07-23, MAN
+         - add software brightness/contrast for dumb scanners
+         - add blocking mode to allow full-page manipulation options to run
+         - add swdespeck option and support code
+         - add swdeskew and swcrop options (disabled)
 
    SANE FLOW DIAGRAM
 
@@ -295,7 +301,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 30
+#define BUILD 33
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1169,6 +1175,7 @@ init_model (struct scanner *s)
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
     s->need_ccal = 1;
     s->need_fcal = 1;
+    s->sw_lut = 1;
     /*s->invert_tly = 1;*/
 
     /*only in Y direction, so we trash them in X*/
@@ -1193,6 +1200,7 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
     s->need_fcal_buffer = 1;
+    s->sw_lut = 1;
 
     /*lies*/
     s->can_halftone=0;
@@ -1881,6 +1889,51 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
      opt->cap = SANE_CAP_INACTIVE;
   }
 
+  /*deskew by software*/
+  if(option==OPT_SWDESKEW){
+    opt->name = "swdeskew";
+    opt->title = "Software deskew";
+    opt->desc = "Request driver to rotate skewed pages digitally";
+    opt->type = SANE_TYPE_BOOL;
+    if (1)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*software despeckle radius*/
+  if(option==OPT_SWDESPECK){
+
+    opt->name = "swdespeck";
+    opt->title = "Software despeckle diameter";
+    opt->desc = "Maximum diameter of lone dots to remove from scan";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->swdespeck_range;
+    s->swdespeck_range.quant=1;
+
+    if(1){
+      s->swdespeck_range.min=0;
+      s->swdespeck_range.max=9;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*crop by software*/
+  if(option==OPT_SWCROP){
+    opt->name = "swcrop";
+    opt->title = "Software crop";
+    opt->desc = "Request driver to remove border from pages digitally";
+    opt->type = SANE_TYPE_BOOL;
+    if (1)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /*staple detection*/
   if(option==OPT_STAPLEDETECT){
     opt->name = "stapledetect";
@@ -2216,6 +2269,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->rollerdeskew;
           return SANE_STATUS_GOOD;
 
+        case OPT_SWDESKEW:
+          *val_p = s->swdeskew;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWDESPECK:
+          *val_p = s->swdespeck;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWCROP:
+          *val_p = s->swcrop;
+          return SANE_STATUS_GOOD;
+
         case OPT_STAPLEDETECT:
           *val_p = s->stapledetect;
           return SANE_STATUS_GOOD;
@@ -2505,6 +2570,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_ROLLERDESKEW:
           s->rollerdeskew = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWDESKEW:
+          s->swdeskew = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWDESPECK:
+          s->swdespeck = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWCROP:
+          s->swcrop = val_c;
           return SANE_STATUS_GOOD;
 
         case OPT_STAPLEDETECT:
@@ -3118,6 +3195,12 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_INVAL;
   }
 
+  /* note if user has requested an option that will require us to 
+   * hold the entire image in memory before we send it to them */
+  s->blocking_mode = 0;
+  if(s->swdeskew || s->swdespeck || s->swcrop)
+    s->blocking_mode = 1;
+
   /* batch start? inititalize struct and scanner */
   if(!s->started){
 
@@ -3138,6 +3221,13 @@ sane_start (SANE_Handle handle)
     ret = wait_scanner (s);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot wait scanner\n");
+      goto errors;
+    }
+
+    /* load the brightness/contrast lut with linear slope for calibration */
+    ret = load_lut (s->lut, 8, 8, 0, 255, 0, 0);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot load lut\n");
       goto errors;
     }
 
@@ -3211,6 +3301,13 @@ sane_start (SANE_Handle handle)
     ret = image_buffers(s,1);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot load buffers\n");
+      goto errors;
+    }
+
+    /* load the brightness/contrast lut with user choices */
+    ret = load_lut (s->lut, 8, 8, 0, 255, s->contrast, s->brightness);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot load lut\n");
       goto errors;
     }
 
@@ -3304,14 +3401,11 @@ sane_start (SANE_Handle handle)
   DBG (15, "started=%d, side=%d, source=%d\n",
     s->started, s->side, s->u.source);
 
-#if 0
-  s->blocking_mode = 1;
-
   /* certain options require the entire image to 
    * be collected from the scanner before we can
    * tell the user the size of the image. the sane 
    * API has no way to inform the frontend of this,
-   * so we block. yuck */
+   * so we block and buffer. yuck */
   if(s->blocking_mode){
 
     /* get image */
@@ -3326,10 +3420,14 @@ sane_start (SANE_Handle handle)
       goto errors;
     }
 
-    /* finished buffering, adjust image as required */
     DBG (5, "sane_start: OK: done buffering\n");
+
+    /* finished buffering, adjust image as required */
+    if(s->swdespeck){
+      buffer_despeck(s,s->side);
+    }
+
   }
-#endif
 
   ret = check_for_cancel(s);
   s->reading = 0;
@@ -4256,6 +4354,14 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
       }
     }
   
+    /* apply brightness and contrast if hardware cannot do it */
+    if(s->sw_lut && (s->s.mode == MODE_COLOR || s->s.mode == MODE_GRAYSCALE)){
+      DBG (15, "copy_simplex: apply brightness/contrast\n");
+      for(j=0; j<s->s.valid_Bpl; j++){
+        line[j] = s->lut[line[j]];
+      }
+    }
+
     /*copy the line into the buffer*/
     ret = copy_line(s,line,side);
     if(ret){
@@ -6332,4 +6438,299 @@ sane_get_select_fd (SANE_Handle h, SANE_Int *fdp)
   DBG (10, "sane_get_select_fd\n");
   DBG (15, "%p %d\n", h, *fdp);
   return SANE_STATUS_UNSUPPORTED;
+}
+
+/*
+ * @@ Section 8 - Image processing functions
+ */
+
+static SANE_Status
+buffer_despeck(struct scanner *s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int i,j,k,l,n;
+  int w = s->i.Bpl;
+  int pw = s->i.width;
+  int h = s->i.height;
+  int t = w*h;
+  int d = s->swdespeck;
+
+  DBG (10, "buffer_despeck: start\n");
+
+  switch (s->i.mode){
+
+    case MODE_COLOR:
+      for(i=w; i<t-w-(w*d); i+=w){
+        for(j=1; j<pw-1-d; j++){
+
+          int thresh = 255*3;
+          int outer[] = {0,0,0};
+          int hits = 0;
+
+          /*loop over rows and columns in window */
+          for(k=0; k<d; k++){
+            for(l=0; l<d; l++){
+              int tmp = 0;
+
+              for(n=0; n<3; n++){
+                tmp += s->buffers[side][i + j*3 + k*w + l*3 + n];
+              }
+
+              if(tmp < thresh)
+                thresh = tmp;
+            }
+          }
+
+          thresh = (thresh + 255*3 + 255*3)/3;
+    
+          /*loop over rows and columns around window */
+          for(k=-1; k<d+1; k++){
+            for(l=-1; l<d+1; l++){
+
+              int tmp[3];
+  
+              /* dont count pixels in the window */
+              if(k != -1 && k != d && l != -1 && l != d)
+                continue;
+  
+              for(n=0; n<3; n++){
+                tmp[n] = s->buffers[side][i + j*3 + k*w + l*3 + n];
+                outer[n] += tmp[n];
+              }
+              if(tmp[0]+tmp[1]+tmp[2] < thresh){
+                hits++;
+                break;
+              }
+            }
+          }
+
+          for(n=0; n<3; n++){
+            outer[n] /= (4*d + 4);
+          }
+
+          /*no hits, overwrite with avg surrounding color*/
+          if(!hits){
+            for(k=0; k<d; k++){
+              for(l=0; l<d; l++){
+                for(n=0; n<3; n++){
+                  s->buffers[side][i + j*3 + k*w + l*3 + n] = outer[n];
+                }
+              }
+            }
+          }
+
+        }
+      }
+      break;
+
+    case MODE_GRAYSCALE:
+      for(i=w; i<t-w-(w*d); i+=w){
+        for(j=1; j<w-1-d; j++){
+
+          int thresh = 255;
+          int outer = 0;
+          int hits = 0;
+
+          for(k=0; k<d; k++){
+            for(l=0; l<d; l++){
+              if(s->buffers[side][i + j + k*w + l] < thresh)
+                thresh = s->buffers[side][i + j + k*w + l];
+            }
+          }
+
+          thresh = (thresh + 255 + 255)/3;
+    
+          /*loop over rows and columns around window */
+          for(k=-1; k<d+1; k++){
+            for(l=-1; l<d+1; l++){
+
+              int tmp = 0;
+
+              /* dont count pixels in the window */
+              if(k != -1 && k != d && l != -1 && l != d)
+                continue;
+  
+              tmp = s->buffers[side][i + j + k*w + l];
+
+              if(tmp < thresh){
+                hits++;
+                break;
+              }
+
+              outer += tmp;
+            }
+          }
+
+          outer /= (4*d + 4);
+
+          /*no hits, overwrite with avg surrounding color*/
+          if(!hits){
+            for(k=0; k<d; k++){
+              for(l=0; l<d; l++){
+                s->buffers[side][i + j + k*w + l] = outer;
+              }
+            }
+          }
+
+        }
+      }
+      break;
+
+    case MODE_LINEART:
+    case MODE_HALFTONE:
+      for(i=w; i<t-w-(w*d); i+=w){
+        for(j=1; j<pw-1-d; j++){
+          
+          int curr = 0;
+          int hits = 0;
+
+          for(k=0; k<d; k++){
+            for(l=0; l<d; l++){
+              curr += s->buffers[side][i + k*w + (j+l)/8] >> (7-(j+l)%8) & 1;
+            }
+          }
+
+          if(!curr)
+            continue;
+
+          /*loop over rows and columns around window */
+          for(k=-1; k<d+1; k++){
+            for(l=-1; l<d+1; l++){
+
+              /* dont count pixels in the window */
+              if(k != -1 && k != d && l != -1 && l != d)
+                continue;
+  
+              hits += s->buffers[side][i + k*w + (j+l)/8] >> (7-(j+l)%8) & 1;
+
+              if(hits)
+                break;
+            }
+          }
+
+          /*no hits, overwrite with white*/
+          if(!hits){
+            for(k=0; k<d; k++){
+              for(l=0; l<d; l++){
+                s->buffers[side][i + k*w + (j+l)/8] &= ~(1 << (7-(j+l)%8));
+              }
+            }
+          }
+
+        }
+      }
+      break;
+
+    default:
+      break;
+  }
+
+  DBG (10, "buffer_despeck: finish\n");
+  return ret;
+}
+
+static SANE_Status
+buffer_deskew(struct scanner *s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "buffer_deskew: start\n");
+
+  DBG (10, "buffer_deskew: finish\n");
+  return ret;
+}
+
+static SANE_Status
+buffer_crop(struct scanner *s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "buffer_crop: start\n");
+
+  DBG (10, "buffer_crop: finish\n");
+  return ret;
+}
+
+/* Function to build a lookup table (LUT), often
+   used by scanners to implement brightness/contrast/gamma
+   or by backends to speed binarization/thresholding
+
+   offset and slope inputs are -127 to +127 
+
+   slope rotates line around central input/output val,
+   0 makes horizontal line
+
+       pos           zero          neg
+       .       x     .             .  x
+       .      x      .             .   x
+   out .     x       .xxxxxxxxxxx  .    x
+       .    x        .             .     x
+       ....x.......  ............  .......x....
+            in            in            in
+
+   offset moves line vertically, and clamps to output range
+   0 keeps the line crossing the center of the table
+
+       pos            zero          neg 
+       .   xxxxxxxx   .        xx   .
+       . x            .      x      . 
+   out x              .    x        .          x
+       .              .  x          .        x
+       ............   xx..........  xxxxxxxx....
+            in             in
+
+   out_min/max provide bounds on output values,
+   useful when building thresholding lut.
+   0 and 255 are good defaults otherwise.
+  */
+static SANE_Status
+load_lut (unsigned char * lut,
+  int in_bits, int out_bits,
+  int out_min, int out_max,
+  int slope, int offset)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int i, j;
+  double shift, rise;
+  int max_in_val = (1 << in_bits) - 1;
+  int max_out_val = (1 << out_bits) - 1;
+  unsigned char * lut_p = lut;
+
+  DBG (10, "load_lut: start %d %d\n", slope, offset);
+
+  /* slope is converted to rise per unit run:
+   * first [-127,127] to [-.999,.999]
+   * then to [-PI/4,PI/4] then [0,PI/2]
+   * then take the tangent (T.O.A)
+   * then multiply by the normal linear slope 
+   * because the table may not be square, i.e. 1024x256*/
+  rise = tan((double)slope/128 * M_PI_4 + M_PI_4) * max_out_val / max_in_val;
+
+  /* line must stay vertically centered, so figure
+   * out vertical offset at central input value */
+  shift = (double)max_out_val/2 - (rise*max_in_val/2);
+
+  /* convert the user offset setting to scale of output
+   * first [-127,127] to [-1,1]
+   * then to [-max_out_val/2,max_out_val/2]*/
+  shift += (double)offset / 127 * max_out_val / 2;
+
+  for(i=0;i<=max_in_val;i++){
+    j = rise*i + shift;
+
+    if(j<out_min){
+      j=out_min;
+    }
+    else if(j>out_max){
+      j=out_max;
+    }
+
+    *lut_p=j;
+    lut_p++;
+  }
+
+  hexdump(5, "load_lut: ", lut, max_in_val+1);
+
+  DBG (10, "load_lut: finish\n");
+  return ret;
 }

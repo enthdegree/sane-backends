@@ -40,6 +40,9 @@ enum scanner_Option
   OPT_DF_THICKNESS,
   OPT_DF_LENGTH,
   OPT_ROLLERDESKEW,
+  OPT_SWDESKEW,
+  OPT_SWDESPECK,
+  OPT_SWCROP,
   OPT_STAPLEDETECT,
   OPT_DROPOUT_COLOR_F,
   OPT_DROPOUT_COLOR_B,
@@ -185,6 +188,8 @@ struct scanner
   int duplex_interlace; /* different models interlace sides differently      */
   int jpeg_interlace;   /* different models interlace jpeg sides differently */
 
+  int sw_lut;           /* no hardware brightness/contrast support */
+
   int reverse_by_mode[6]; /* mode specific */
 
   /* --------------------------------------------------------------------- */
@@ -227,6 +232,7 @@ struct scanner
   /*advanced group*/
   SANE_String_Const compress_list[3];
   SANE_Range compress_arg_range;
+  SANE_Range swdespeck_range;
   SANE_String_Const do_color_list[8];
 
   /*sensor group*/
@@ -235,7 +241,7 @@ struct scanner
   /* --------------------------------------------------------------------- */
   /* changeable vars to hold user input. modified by SANE_Options above    */
 
-  /* the user image params (for final image output) */
+  /* the user's requested image params */
   /* exposed in standard and geometry option groups */
   struct img_params u;
 
@@ -254,6 +260,9 @@ struct scanner
   int dropout_color_b;
   int buffermode;
   int rollerdeskew;
+  int swdeskew;
+  int swdespeck;
+  int swcrop;
   int stapledetect;
 
   /* --------------------------------------------------------------------- */
@@ -268,6 +277,9 @@ struct scanner
 
   /* the intermediate image params (like user, but possible higher depth) */
   struct img_params i;
+
+  /* the brightness/contrast LUT for dumb scanners */
+  unsigned char lut[256];
 
   /* --------------------------------------------------------------------- */
   /* values which are set by calibration functions                         */
@@ -527,6 +539,13 @@ static SANE_Status read_from_scanner_duplex(struct scanner *s, int exact);
 static SANE_Status copy_simplex(struct scanner *s, unsigned char * buf, int len, int side);
 static SANE_Status copy_duplex(struct scanner *s, unsigned char * buf, int len);
 static SANE_Status copy_line(struct scanner *s, unsigned char * buf, int side);
+
+static SANE_Status buffer_despeck(struct scanner *s, int side);
+static SANE_Status buffer_deskew(struct scanner *s, int side);
+static SANE_Status buffer_crop(struct scanner *s, int side);
+
+static SANE_Status load_lut (unsigned char * lut, int in_bits, int out_bits,
+  int out_min, int out_max, int slope, int offset);
 
 static SANE_Status read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 

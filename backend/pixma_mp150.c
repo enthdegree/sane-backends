@@ -1090,9 +1090,14 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   sp->line_size = sp->w * sp->channels * (sp->depth / 8);
   
   /* Some exceptions here for particular devices */
-  /* MX850 and MX7600 can scan up to 14" with ADF, but A4 11.7" in flatbed */
-  if ((s->cfg->pid == MX850_PID || s->cfg->pid == MX7600_PID)
-       && sp->source == PIXMA_SOURCE_FLATBED)
+  /* Those devices can scan up to 14" with ADF, but A4 11.7" in flatbed */
+  if (( s->cfg->pid == MX850_PID ||
+        s->cfg->pid == MX860_PID ||
+        s->cfg->pid == MX320_PID ||
+        s->cfg->pid == MX330_PID ||
+        s->cfg->pid == MX7600_PID )
+       &&
+        sp->source == PIXMA_SOURCE_FLATBED)
     sp->h = MIN (sp->h, 877 * sp->ydpi / 75);
     
   /* TPU mode: lowest res is 150 or 300 dpi */

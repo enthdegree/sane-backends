@@ -1,3 +1,8 @@
+2009-07-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	- Fix in declarations for Pixma MX320, MX330 and MX860, 
+	- Updated docs for MX860, confirmed to be supported.
+
 2009-07-17 Alex Belkin <abc at telekom.ru>
 	* backend/xerox_mfp.c: more sanity checking for debug mode.
 

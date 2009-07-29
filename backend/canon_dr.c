@@ -241,6 +241,15 @@
          - add blocking mode to allow full-page manipulation options to run
          - add swdespeck option and support code
          - add swdeskew and swcrop options (disabled)
+      v34 2009-07-28, MAN
+         - add simplified Hough transform based deskewing code
+         - add extremity detecting cropping code
+         - use per-model background color to fill corners after deskew
+         - request and chop extra scanlines instead of rounding down
+         - remove padding dumb scanners add to top of front side
+         - sane_get_params uses intermediate struct instead of user struct
+         - if scanner stops, clone the last line until the end of buffer
+         - reset some intermediate params between duplex sides
 
    SANE FLOW DIAGRAM
 
@@ -301,7 +310,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 33
+#define BUILD 34
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1126,6 +1135,8 @@ init_model (struct scanner *s)
   s->contrast_steps = 255;
   s->threshold_steps = 255;
 
+  s->bg_color = 0xee;
+
   /* assume these are same as adf, override below */
   s->valid_x = s->max_x;
   s->max_x_fb = s->max_x;
@@ -1173,6 +1184,7 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_2510;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_2510;
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
+    s->duplex_offset = 400;
     s->need_ccal = 1;
     s->need_fcal = 1;
     s->sw_lut = 1;
@@ -1200,6 +1212,8 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
     s->need_fcal_buffer = 1;
+    s->bg_color = 0x08;
+    s->duplex_offset = 840;
     s->sw_lut = 1;
 
     /*lies*/
@@ -2964,21 +2978,21 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     /* this backend only sends single frame images */
     params->last_frame = 1;
 
-    params->format = s->u.format;
-    params->lines = s->u.height;
-    params->depth = s->u.bpp;
+    params->format = s->i.format;
+    params->lines = s->i.height;
+    params->depth = s->i.bpp;
     if(params->depth == 24) params->depth = 8;
-    params->pixels_per_line = s->u.width;
-    params->bytes_per_line = s->u.Bpl;
+    params->pixels_per_line = s->i.width;
+    params->bytes_per_line = s->i.Bpl;
 
     DBG(15,"sane_get_parameters: x: max=%d, page=%d, gpw=%d, res=%d\n",
-      s->valid_x, s->u.page_x, get_page_width(s), s->u.dpi_x);
+      s->valid_x, s->i.page_x, get_page_width(s), s->i.dpi_x);
 
     DBG(15,"sane_get_parameters: y: max=%d, page=%d, gph=%d, res=%d\n",
-      s->max_y, s->u.page_y, get_page_height(s), s->u.dpi_y);
+      s->max_y, s->i.page_y, get_page_height(s), s->i.dpi_y);
 
     DBG(15,"sane_get_parameters: area: tlx=%d, brx=%d, tly=%d, bry=%d\n",
-      s->u.tl_x, s->u.br_x, s->u.tl_y, s->u.br_y);
+      s->i.tl_x, s->i.br_x, s->i.tl_y, s->i.br_y);
 
     DBG (15, "sane_get_parameters: params: ppl=%d, Bpl=%d, lines=%d\n", 
       params->pixels_per_line, params->bytes_per_line, params->lines);
@@ -3001,9 +3015,6 @@ update_params(struct scanner *s, int calib)
     s->u.width = (s->u.br_x - s->u.tl_x) * s->u.dpi_x / 1200;
     s->u.height = (s->u.br_y - s->u.tl_y) * s->u.dpi_y / 1200;
 
-    /* round lines down to even number */
-    s->u.height -= s->u.height % 2;
-  
     if (s->u.mode == MODE_COLOR) {
       s->u.format = SANE_FRAME_RGB;
       s->u.bpp = 24;
@@ -3118,6 +3129,13 @@ update_params(struct scanner *s, int calib)
       s->s.valid_width = s->s.width*11/12;
     }
 
+    /* some scanners need longer scans because front/back is offset */
+    if(s->u.source == SOURCE_ADF_DUPLEX && s->duplex_offset)
+      s->s.height = (s->u.br_y-s->u.tl_y+s->duplex_offset) * s->u.dpi_y / 1200;
+
+    /* round lines up to even number */
+    s->s.height += s->s.height % 2;
+  
     DBG (15, "update_params: scan params: w:%d h:%d m:%d f:%d b:%d\n",
       s->s.width, s->s.height, s->s.mode, s->s.format, s->s.bpp);
     DBG (15, "update_params: scan params: B:%d vB:%d vw:%d\n",
@@ -3125,42 +3143,44 @@ update_params(struct scanner *s, int calib)
     DBG (15, "update_params: scan params: x b:%d t:%d d:%d y b:%d t:%d d:%d\n",
       s->s.br_x, s->s.tl_x, s->s.dpi_x, s->s.br_y, s->s.tl_y, s->s.dpi_y);
 
-    /* also update the intermediate version */
-    ret = update_i_params(s,calib);
-    if(ret){
-      DBG (5, "update_params: uip error, returning %d\n", ret);
-      return ret;
+    /* make a third (intermediate) version of the params struct,
+     * currently identical to the user's params. this is what
+     * we actually will send back to the user (though buffer_xxx
+     * functions might change these values after this runs) */
+
+    /* calibration code needs the data just as it comes from the scanner */
+    if(calib)
+      memcpy(&s->i,&s->s,sizeof(struct img_params));
+    /* normal scans need the data cleaned for presentation to the user */
+    else{
+      memcpy(&s->i,&s->u,sizeof(struct img_params));
+      /*dumb scanners pad the top of front page in duplex*/
+      if(s->i.source == SOURCE_ADF_DUPLEX)
+        s->i.skip_lines[0] = s->duplex_offset * s->i.dpi_y / 1200;
     }
+
+    DBG (15, "update_params: i params: w:%d h:%d m:%d f:%d b:%d\n",
+      s->i.width, s->i.height, s->i.mode, s->i.format, s->i.bpp);
+    DBG (15, "update_params: i params: B:%d vB:%d vw:%d\n",
+      s->i.Bpl, s->i.valid_Bpl, s->i.valid_width);
+    DBG (15, "update_params: i params: x b:%d t:%d d:%d y b:%d t:%d d:%d\n",
+      s->i.br_x, s->i.tl_x, s->i.dpi_x, s->i.br_y, s->i.tl_y, s->i.dpi_y);
 
     DBG (10, "update_params: finish\n");
     return ret;
 }
 
-/* make a third (intermediate) version of the params struct,
- * currently identical to the user's params. this is what
- * we actually will send back to the user (thought autoXXX
- * functions might change these values after this runs) */
+/* reset image size parameters after buffer_xxx functions changed them */
 SANE_Status
-update_i_params(struct scanner *s, int calib)
+update_i_params(struct scanner *s)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
   
     DBG (10, "update_i_params: start\n");
+
+    s->i.width = s->u.width;
+    s->i.Bpl = s->u.Bpl;
  
-    /* calibration code needs the data just as it comes from the scanner */
-    if(calib)
-      memcpy(&s->i,&s->s,sizeof(struct img_params));
-    /* normal scans need the data cleaned for presentation to the user */
-    else
-      memcpy(&s->i,&s->u,sizeof(struct img_params));
-
-    DBG (15, "update_i_params: params: w:%d h:%d m:%d f:%d b:%d\n",
-      s->i.width, s->i.height, s->i.mode, s->i.format, s->i.bpp);
-    DBG (15, "update_i_params: params: B:%d vB:%d vw:%d\n",
-      s->i.Bpl, s->i.valid_Bpl, s->i.valid_width);
-    DBG (15, "update_i_params: params: x b:%d t:%d d:%d y b:%d t:%d d:%d\n",
-      s->i.br_x, s->i.tl_x, s->i.dpi_x, s->i.br_y, s->i.tl_y, s->i.dpi_y);
-
     DBG (10, "update_i_params: finish\n");
     return ret;
 }
@@ -3194,12 +3214,6 @@ sane_start (SANE_Handle handle)
     DBG(5,"sane_start: previous transfer not finished?");
     return SANE_STATUS_INVAL;
   }
-
-  /* note if user has requested an option that will require us to 
-   * hold the entire image in memory before we send it to them */
-  s->blocking_mode = 0;
-  if(s->swdeskew || s->swdespeck || s->swcrop)
-    s->blocking_mode = 1;
 
   /* batch start? inititalize struct and scanner */
   if(!s->started){
@@ -3343,6 +3357,13 @@ sane_start (SANE_Handle handle)
       s->side = !s->side;
     }
 
+    /* reset the intermediate params */
+    ret = update_i_params(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot update_i_params\n");
+      goto errors;
+    }
+
     /* set clean defaults with new sheet of paper */
     /* dont reset the transfer vars on backside of duplex page */
     /* otherwise buffered back page will be lost */
@@ -3406,7 +3427,11 @@ sane_start (SANE_Handle handle)
    * tell the user the size of the image. the sane 
    * API has no way to inform the frontend of this,
    * so we block and buffer. yuck */
-  if(s->blocking_mode){
+  if( (s->swdeskew || s->swdespeck || s->swcrop)
+#ifdef SANE_FRAME_JPEG
+    && s->s.format != SANE_FRAME_JPEG
+#endif
+  ){
 
     /* get image */
     while(!s->s.eof[s->side] && !ret){
@@ -3423,6 +3448,12 @@ sane_start (SANE_Handle handle)
     DBG (5, "sane_start: OK: done buffering\n");
 
     /* finished buffering, adjust image as required */
+    if(s->swdeskew){
+      buffer_deskew(s,s->side);
+    }
+    if(s->swcrop){
+      buffer_crop(s,s->side);
+    }
     if(s->swdespeck){
       buffer_despeck(s,s->side);
     }
@@ -3786,7 +3817,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   }
 
   /* sane_start required between sides */
-  if(s->u.bytes_sent[s->side] == s->u.bytes_tot[s->side]){
+  if(s->u.bytes_sent[s->side] == s->i.bytes_tot[s->side]){
     s->u.eof[s->side] = 1;
     DBG (15, "sane_read: returning eof\n");
     return SANE_STATUS_EOF;
@@ -4010,18 +4041,21 @@ read_from_scanner(struct scanner *s, int side, int exact)
       /* this is non-jpeg data, fill remainder, change rx'd size */
       default:
 
-        /* binary data, fill with white */
-        if(s->i.bpp == 1)
-          memset(s->buffers[side]+s->i.bytes_sent[side],0,
-            s->i.bytes_tot[side]-s->i.bytes_sent[side]);
+        DBG (15, "read_from_scanner: eof: %d %d\n", s->i.bytes_tot[side], s->i.bytes_sent[side]);
 
-        /* gray/color data, fill with gray */
-        else
-          memset(s->buffers[side]+s->i.bytes_sent[side],150,
-            s->i.bytes_tot[side]-s->i.bytes_sent[side]);
+        /* clone the last line repeatedly until the end */
+        while(s->i.bytes_tot[side] > s->i.bytes_sent[side]){
+          memcpy(
+            s->buffers[side]+s->i.bytes_sent[side]-s->i.Bpl,
+            s->buffers[side]+s->i.bytes_sent[side],
+            s->i.Bpl
+          );
+          s->i.bytes_sent[side] += s->i.Bpl;
+        }
+
+        DBG (15, "read_from_scanner: eof2: %d %d\n", s->i.bytes_tot[side], s->i.bytes_sent[side]);
 
         /* pretend we got all the data from scanner */
-        s->i.bytes_sent[side] = s->i.bytes_tot[side];
         s->s.bytes_sent[side] = s->s.bytes_tot[side];
         break;
     }
@@ -4150,27 +4184,39 @@ read_from_scanner_duplex(struct scanner *s,int exact)
       /* this is non-jpeg data, fill remainder, change rx'd size */
       default:
 
-        /* binary data, fill with white */
-        if(s->i.bpp == 1){
-          memset(s->buffers[SIDE_FRONT]+s->i.bytes_sent[SIDE_FRONT],0,
-            s->i.bytes_tot[SIDE_FRONT]-s->i.bytes_sent[SIDE_FRONT]);
-          memset(s->buffers[SIDE_BACK]+s->i.bytes_sent[SIDE_BACK],0,
-            s->i.bytes_tot[SIDE_BACK]-s->i.bytes_sent[SIDE_BACK]);
+        DBG (15, "read_from_scanner_duplex: eof: %d %d %d %d\n",
+          s->i.bytes_tot[SIDE_FRONT], s->i.bytes_sent[SIDE_FRONT],
+          s->i.bytes_tot[SIDE_BACK], s->i.bytes_sent[SIDE_BACK]
+        );
+
+        /* clone the last line repeatedly until the end */
+        while(s->i.bytes_tot[SIDE_FRONT] > s->i.bytes_sent[SIDE_FRONT]){
+          memcpy(
+            s->buffers[SIDE_FRONT]+s->i.bytes_sent[SIDE_FRONT]-s->i.Bpl,
+            s->buffers[SIDE_FRONT]+s->i.bytes_sent[SIDE_FRONT],
+            s->i.Bpl
+          );
+          s->i.bytes_sent[SIDE_FRONT] += s->i.Bpl;
         }
 
-        /* gray/color data, fill with gray */
-        else{
-          memset(s->buffers[SIDE_FRONT]+s->i.bytes_sent[SIDE_FRONT],150,
-            s->i.bytes_tot[SIDE_FRONT]-s->i.bytes_sent[SIDE_FRONT]);
-          memset(s->buffers[SIDE_BACK]+s->i.bytes_sent[SIDE_BACK],150,
-            s->i.bytes_tot[SIDE_BACK]-s->i.bytes_sent[SIDE_BACK]);
+        /* clone the last line repeatedly until the end */
+        while(s->i.bytes_tot[SIDE_BACK] > s->i.bytes_sent[SIDE_BACK]){
+          memcpy(
+            s->buffers[SIDE_BACK]+s->i.bytes_sent[SIDE_BACK]-s->i.Bpl,
+            s->buffers[SIDE_BACK]+s->i.bytes_sent[SIDE_BACK],
+            s->i.Bpl
+          );
+          s->i.bytes_sent[SIDE_BACK] += s->i.Bpl;
         }
+
+        DBG (15, "read_from_scanner_duplex: eof2: %d %d %d %d\n",
+          s->i.bytes_tot[SIDE_FRONT], s->i.bytes_sent[SIDE_FRONT],
+          s->i.bytes_tot[SIDE_BACK], s->i.bytes_sent[SIDE_BACK]
+        );
 
         /* pretend we got all the data from scanner */
         s->s.bytes_sent[SIDE_FRONT] = s->s.bytes_tot[SIDE_FRONT];
         s->s.bytes_sent[SIDE_BACK] = s->s.bytes_tot[SIDE_BACK];
-        s->i.bytes_sent[SIDE_FRONT] = s->i.bytes_tot[SIDE_FRONT];
-        s->i.bytes_sent[SIDE_BACK] = s->i.bytes_tot[SIDE_BACK];
         break;
     }
 
@@ -4212,14 +4258,28 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
     return ret;
   }
   
+  DBG (15, "copy_simplex: per-line copy\n");
+
   line = malloc(bwidth);
   if(!line) return SANE_STATUS_NO_MEM;
 
   /* ingest each line */
   for(i=0; i<len; i+=bwidth){
 
-    line_next = 0;
+    int lineNum = s->s.bytes_sent[side] / bwidth;
   
+    /*increment number of bytes rx'd from scanner*/
+    s->s.bytes_sent[side] += bwidth;
+
+    /*have some padding from scanner to drop*/
+    if ( lineNum < s->i.skip_lines[side]
+      || lineNum - s->i.skip_lines[side] >= s->i.height
+    ){
+      continue;
+    }
+
+    line_next = 0;
+
     if(s->s.format == SANE_FRAME_GRAY){
   
       switch (s->gray_interlace[side]) {
@@ -4227,14 +4287,14 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
         /* one line has the following format: ggg...GGG
          * where the 'capital' letters are the beginning of the line */
         case GRAY_INTERLACE_gG:
-          DBG (15, "copy_simplex: gray, gG\n");
+          DBG (17, "copy_simplex: gray, gG\n");
           for (j=bwidth-1; j>=0; j--){
             line[line_next++] = buf[i+j];
           }
           break;
     
         case GRAY_INTERLACE_2510:
-          DBG (15, "copy_simplex: gray, 2510\n");
+          DBG (17, "copy_simplex: gray, 2510\n");
        
           /* first read head (third byte of every three) */
           for(j=bwidth-1;j>=0;j-=3){
@@ -4262,7 +4322,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
     
         /* scanner returns color data as bgrbgr... */
         case COLOR_INTERLACE_BGR:
-          DBG (15, "copy_simplex: color, BGR\n");
+          DBG (17, "copy_simplex: color, BGR\n");
           for (j=0; j<pwidth; j++){
             line[line_next++] = buf[i+j*3+2];
             line[line_next++] = buf[i+j*3+1];
@@ -4272,7 +4332,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
     
         /* one line has the following format: RRR...rrrGGG...gggBBB...bbb */
         case COLOR_INTERLACE_RRGGBB:
-          DBG (15, "copy_simplex: color, RRGGBB\n");
+          DBG (17, "copy_simplex: color, RRGGBB\n");
           for (j=0; j<pwidth; j++){
             line[line_next++] = buf[i+j];
             line[line_next++] = buf[i+pwidth+j];
@@ -4283,7 +4343,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
         /* one line has the following format: rrr...RRRggg...GGGbbb...BBB
          * where the 'capital' letters are the beginning of the line */
         case COLOR_INTERLACE_rRgGbB:
-          DBG (15, "copy_simplex: color, rRgGbB\n");
+          DBG (17, "copy_simplex: color, rRgGbB\n");
           for (j=pwidth-1; j>=0; j--){
             line[line_next++] = buf[i+j];
             line[line_next++] = buf[i+pwidth+j];
@@ -4292,7 +4352,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
           break;
     
         case COLOR_INTERLACE_2510:
-          DBG (15, "copy_simplex: color, 2510\n");
+          DBG (17, "copy_simplex: color, 2510\n");
         
           /* first read head (third byte of every three) */
           for(j=t-1;j>=0;j-=3){
@@ -4323,7 +4383,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
     /* nothing sent above? just copy one line of the block */
     /* used by uninterlaced gray/color */
     if(!line_next){
-      DBG (15, "copy_simplex: default\n");
+      DBG (17, "copy_simplex: default\n");
       memcpy(line+line_next,buf+i,bwidth);
       line_next = bwidth;
     }
@@ -4337,7 +4397,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
   
     /* apply calibration if we have it */
     if(s->f_offset[side]){
-      DBG (15, "copy_simplex: apply offset\n");
+      DBG (17, "copy_simplex: apply offset\n");
       for(j=0; j<s->s.valid_Bpl; j++){
         int curr = line[j] - s->f_offset[side][j];
         if(curr < 0) curr = 0;
@@ -4346,7 +4406,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
     }
 
     if(s->f_gain[side]){
-      DBG (15, "copy_simplex: apply gain\n");
+      DBG (17, "copy_simplex: apply gain\n");
       for(j=0; j<s->s.valid_Bpl; j++){
         int curr = line[j] * 240/s->f_gain[side][j];
         if(curr > 255) curr = 255;
@@ -4356,7 +4416,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
   
     /* apply brightness and contrast if hardware cannot do it */
     if(s->sw_lut && (s->s.mode == MODE_COLOR || s->s.mode == MODE_GRAYSCALE)){
-      DBG (15, "copy_simplex: apply brightness/contrast\n");
+      DBG (17, "copy_simplex: apply brightness/contrast\n");
       for(j=0; j<s->s.valid_Bpl; j++){
         line[j] = s->lut[line[j]];
       }
@@ -4479,12 +4539,12 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
   DBG (20, "copy_line: start\n");
 
   /* the 'standard' case: non-stupid scan */
-  if(s->s.width == s->i.width && s->s.height == s->i.height
-    && s->s.dpi_x == s->i.dpi_x && s->s.mode == s->i.mode
+  if(s->s.width == s->i.width
+    && s->s.dpi_x == s->i.dpi_x
+    && s->s.mode == s->i.mode
   ){
 
     memcpy(s->buffers[side]+s->i.bytes_sent[side], buff, sbwidth);
-    s->s.bytes_sent[side] += sbwidth;
     s->i.bytes_sent[side] += sbwidth;
 
     DBG (20, "copy_line: finished smart\n");
@@ -4582,8 +4642,6 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
       break;
   }
 
-  s->s.bytes_sent[side] += sbwidth;
-  
   free(line);
 
   DBG (20, "copy_line: finish stupid\n");
@@ -4614,7 +4672,7 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len,
   }
   
   DBG(15, "read_from_buffer: si:%d to:%d tx:%d bu:%d pa:%d\n", side,
-    s->u.bytes_tot[side], s->u.bytes_sent[side], max_len, bytes);
+    s->i.bytes_tot[side], s->u.bytes_sent[side], max_len, bytes);
 
   /* copy to caller */
   memcpy(buf,s->buffers[side]+s->u.bytes_sent[side],bytes);
@@ -6444,6 +6502,296 @@ sane_get_select_fd (SANE_Handle h, SANE_Int *fdp)
  * @@ Section 8 - Image processing functions
  */
 
+/* Look in image for likely upper and left paper edges, then rotate
+ * image so that upper left corner of paper is upper left of image.
+ * FIXME: should we do this before we binarize instead of after? */
+static SANE_Status
+buffer_deskew(struct scanner *s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  int pwidth = s->i.width;
+  int width = s->i.Bpl;
+  int height = s->i.height;
+
+  double TSlope = 0;
+  int TXInter = 0;
+  int TYInter = 0;
+  double TSlopeHalf = 0;
+  int TOffsetHalf = 0;
+
+  double LSlope = 0;
+  int LXInter = 0;
+  int LYInter = 0;
+  double LSlopeHalf = 0;
+  int LOffsetHalf = 0;
+
+  int rotateX = 0;
+  int rotateY = 0;
+
+  int * topBuf = NULL, * botBuf = NULL;
+
+  DBG (10, "buffer_deskew: start\n");
+
+  /* get buffers for edge detection */
+  topBuf = getTransitionsY(s,side,1);
+  if(!topBuf){
+    DBG (5, "buffer_deskew: cant gTY\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  if(0){
+    int i;
+    for(i=0;i<width;i++){
+      if(topBuf[i] >=0 && topBuf[i] < height)
+        s->buffers[side][topBuf[i]*width+i] = 0;
+    }
+  }
+
+  botBuf = getTransitionsY(s,side,0);
+  if(!botBuf){
+    DBG (5, "buffer_deskew: cant gTY\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  /* find best top line */
+  ret = getEdgeIterate (pwidth, height, s->i.dpi_y, topBuf,
+    &TSlope, &TXInter, &TYInter);
+  if(ret){
+    DBG(5,"buffer_deskew: gEI error: %d",ret);
+    goto cleanup;
+  }
+  DBG(15,"top: %04.04f %d %d\n",TSlope,TXInter,TYInter);
+
+  /* slope is too shallow, don't want to divide by 0 */
+  if(fabs(TSlope) < 0.0001){
+    DBG(15,"buffer_deskew: slope too shallow: %0.08f\n",TSlope);
+    goto cleanup;
+  }
+
+  /* find best left line, perpendicular to top line */
+  LSlope = (double)-1/TSlope;
+  ret = getEdgeSlope (pwidth, height, topBuf, botBuf, LSlope,
+    &LXInter, &LYInter);
+  if(ret){
+    DBG(5,"buffer_deskew: gES error: %d",ret);
+    goto cleanup;
+  }
+  DBG(15,"buffer_deskew: left: %04.04f %d %d\n",LSlope,LXInter,LYInter);
+
+  /* find point about which to rotate */
+  TSlopeHalf = tan(atan(TSlope)/2);
+  TOffsetHalf = LYInter;
+  DBG(15,"buffer_deskew: top half: %04.04f %d\n",TSlopeHalf,TOffsetHalf);
+
+  LSlopeHalf = tan((atan(LSlope) + ((LSlope < 0)?-M_PI_2:M_PI_2))/2);
+  LOffsetHalf = - LSlopeHalf * TXInter;
+  DBG(15,"buffer_deskew: left half: %04.04f %d\n",LSlopeHalf,LOffsetHalf);
+
+  rotateX = (LOffsetHalf-TOffsetHalf) / (TSlopeHalf-LSlopeHalf);
+  rotateY = TSlopeHalf * rotateX + TOffsetHalf;
+  DBG(15,"buffer_deskew: rotate: %d %d\n",rotateX,rotateY);
+
+  ret = rotateOnCenter (s, side, rotateX, rotateY, TSlope);
+  if(ret){
+    DBG(5,"buffer_deskew: gES error: %d",ret);
+    goto cleanup;
+  }
+
+  cleanup:
+  if(topBuf)
+    free(topBuf);
+  if(botBuf)
+    free(botBuf);
+
+  DBG (10, "buffer_deskew: finish\n");
+  return ret;
+}
+
+/* Look in image for likely left/right/bottom paper edges, then crop
+ * image to match. Does not attempt to rotate the image.
+ * FIXME: should we do this before we binarize instead of after? */
+static SANE_Status
+buffer_crop(struct scanner *s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  int bwidth = s->i.Bpl;
+  int width = s->i.width;
+  int height = s->i.height;
+
+  int top = 0;
+  int bot = 0;
+  int left = width;
+  int right = 0;
+
+  int * topBuf = NULL, * botBuf = NULL;
+  int * leftBuf = NULL, * rightBuf = NULL;
+  int leftCount = 0, rightCount = 0, botCount = 0;
+  int i;
+
+  DBG (10, "buffer_crop: start\n");
+
+  /* get buffers to find sides and bottom */
+  topBuf = getTransitionsY(s,side,1);
+  if(!topBuf){
+    DBG (5, "buffer_crop: no topBuf\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  botBuf = getTransitionsY(s,side,0);
+  if(!botBuf){
+    DBG (5, "buffer_crop: no botBuf\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  leftBuf = getTransitionsX(s,side,1);
+  if(!leftBuf){
+    DBG (5, "buffer_crop: no leftBuf\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  rightBuf = getTransitionsX(s,side,0);
+  if(!rightBuf){
+    DBG (5, "buffer_crop: no rightBuf\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  /* loop thru top and bottom lists, look for l and r extremes */
+  for(i=0; i<width; i++){
+    if(botBuf[i] > topBuf[i]){
+      if(left > i){
+        left = i;
+      }
+
+      leftCount++;
+      if(leftCount > 3){
+        break;
+      }
+    }
+    else{
+      leftCount = 0;
+      left = width;
+    }
+  }
+
+  for(i=width-1; i>=0; i--){
+    if(botBuf[i] > topBuf[i]){
+      if(right < i){
+        right = i;
+      }
+
+      rightCount++;
+      if(rightCount > 3){
+        break;
+      }
+    }
+    else{
+      rightCount = 0;
+      right = -1;
+    }
+  }
+
+  /* loop thru left and right lists, look for bottom extreme */
+  for(i=height-1; i>=0; i--){
+    if(rightBuf[i] > leftBuf[i]){
+      if(bot < i){
+        bot = i;
+      }
+
+      botCount++;
+      if(botCount > 3){
+        break;
+      }
+    }
+    else{
+      botCount = 0;
+      bot = -1;
+    }
+  }
+
+  DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",top,bot,left,right);
+
+  /* now crop the image */
+  /*FIXME: crop duplex backside at same time?*/
+  if(left < right && top < bot){
+
+    int pixels = 0;
+    int bytes = 0;
+    unsigned char * line = NULL;
+
+    /*convert left and right to bytes, figure new byte and pixel width */
+    switch (s->i.mode) {
+
+      case MODE_COLOR:
+        pixels = right-left;
+        bytes = pixels * 3;
+        left *= 3;
+        right *= 3;
+        break;
+
+      case MODE_GRAYSCALE:
+        pixels = right-left;
+        bytes = right-left;
+        break;
+
+      case MODE_LINEART:
+      case MODE_HALFTONE:
+        left /= 8;
+        right = (right+7)/8;
+        bytes = right-left;
+        pixels = bytes * 8;
+        break;
+    }
+
+    DBG (15, "buffer_crop: l:%d r:%d p:%d b:%d\n",left,right,pixels,bytes);
+
+    line = malloc(bytes);
+    if(!line){
+      DBG (5, "buffer_crop: no line\n");
+      ret = SANE_STATUS_NO_MEM;
+      goto cleanup;
+    }
+
+    s->i.bytes_sent[side] = 0;
+
+    for(i=top; i<bot; i++){
+      memcpy(line, s->buffers[side] + i*bwidth + left, bytes);
+      memcpy(s->buffers[side] + s->i.bytes_sent[side], line, bytes);
+      s->i.bytes_sent[side] += bytes;
+    }
+
+    s->i.bytes_tot[side] = s->i.bytes_sent[side];
+    s->i.width = pixels;
+    s->i.height = bot-top;
+    s->i.Bpl = bytes;
+
+    free(line);
+  }
+
+  cleanup:
+  if(topBuf)
+    free(topBuf);
+  if(botBuf)
+    free(botBuf);
+  if(leftBuf)
+    free(leftBuf);
+  if(rightBuf)
+    free(rightBuf);
+
+  DBG (10, "buffer_crop: finish\n");
+  return ret;
+}
+
+/* Look in image for disconnected 'spots' of the requested size.
+ * Replace the spots with the average color of the surrounding pixels.
+ * FIXME: should we do this before we binarize instead of after? */
 static SANE_Status
 buffer_despeck(struct scanner *s, int side)
 {
@@ -6629,26 +6977,758 @@ buffer_despeck(struct scanner *s, int side)
   return ret;
 }
 
-static SANE_Status
-buffer_deskew(struct scanner *s, int side)
+/* Loop thru the image width and look for first color change in each column.
+ * Return a malloc'd array. Caller is responsible for freeing. */
+int * 
+getTransitionsY (struct scanner *s, int side, int top)
 {
-  SANE_Status ret = SANE_STATUS_GOOD;
+  int * buff;
 
-  DBG (10, "buffer_deskew: start\n");
+  int i, j, k;
+  int near, far;
+  int winLen = 9;
 
-  DBG (10, "buffer_deskew: finish\n");
+  int width = s->i.width;
+  int height = s->i.height;
+  int depth = 1;
+
+  /* defaults for bottom-up */
+  int firstLine = height-1;
+  int lastLine = -1;
+  int direction = -1;
+
+  DBG (10, "getTransitionsY: start\n");
+
+  buff = calloc(width,sizeof(int));
+  if(!buff){
+    DBG (5, "getTransitionsY: no buff\n");
+    return NULL;
+  }
+
+  /* override for top-down */
+  if(top){
+    firstLine = 0;
+    lastLine = height;
+    direction = 1;
+  }
+
+  /* load the buff array with y value for first color change from edge
+   * gray/color uses a different algo from binary/halftone */
+  switch (s->i.mode) {
+
+    case MODE_COLOR:
+      depth = 3;
+
+    case MODE_GRAYSCALE:
+
+      for(i=0; i<width; i++){
+        buff[i] = lastLine;
+  
+        /* load the near and far windows with repeated copy of first pixel */
+        near = 0;
+        for(k=0; k<depth; k++){
+          near += s->buffers[side][(firstLine*width+i) * depth + k];
+        }
+        near *= winLen;
+        far = near;
+  
+        /* move windows, check delta */
+        for(j=firstLine+direction; j!=lastLine; j+=direction){
+  
+          int farLine = j-winLen*2*direction;
+          int nearLine = j-winLen*direction;
+
+          if(farLine < 0 || farLine >= height){
+            farLine = firstLine;
+          }
+          if(nearLine < 0 || nearLine >= height){
+            nearLine = firstLine;
+          }
+
+          for(k=0; k<depth; k++){
+            far -= s->buffers[side][(farLine*width+i)*depth+k];
+            far += s->buffers[side][(nearLine*width+i)*depth+k];
+
+            near -= s->buffers[side][(nearLine*width+i)*depth+k];
+            near += s->buffers[side][(j*width+i)*depth+k];
+          }
+  
+          if(abs(near - far) > winLen*depth*9){
+            buff[i] = j;
+            break;
+          }
+        }
+      }
+      break;
+
+    case MODE_LINEART:
+    case MODE_HALFTONE:
+      for(i=0; i<width; i++){
+        buff[i] = lastLine;
+  
+        /* load the near window with first pixel */
+        near = s->buffers[side][(firstLine*width+i)/8] >> (7-(i%8)) & 1;
+  
+        /* move */
+        for(j=firstLine+direction; j!=lastLine; j+=direction){
+          if((s->buffers[side][(j*width+i)/8] >> (7-(i%8)) & 1) != near){
+            buff[i] = j;
+            break;
+          }
+        }
+      }
+      break;
+
+  }
+
+  /* blast any stragglers with no neighbors within .5 inch */
+  for(i=0;i<width-7;i++){
+    int sum = 0;
+    for(j=1;j<=7;j++){
+      if(abs(buff[i+j] - buff[i]) < s->i.dpi_y/2)
+        sum++;
+    }
+    if(sum < 2)
+      buff[i] = lastLine;
+  }
+
+  DBG (10, "getTransitionsY: finish\n");
+
+  return buff;
+}
+
+/* Loop thru the image height and look for first color change in each row.
+ * Return a malloc'd array. Caller is responsible for freeing. */
+int * 
+getTransitionsX (struct scanner *s, int side, int left)
+{
+  int * buff;
+
+  int i, j, k;
+  int near, far;
+  int winLen = 9;
+
+  int bwidth = s->i.Bpl;
+  int width = s->i.width;
+  int height = s->i.height;
+  int depth = 1;
+
+  /* defaults for right-first */
+  int firstCol = width-1;
+  int lastCol = -1;
+  int direction = -1;
+
+  DBG (10, "getTransitionsX: start\n");
+
+  buff = calloc(height,sizeof(int));
+  if(!buff){
+    DBG (5, "getTransitionsY: no buff\n");
+    return NULL;
+  }
+
+  /* override for left-first*/
+  if(left){
+    firstCol = 0;
+    lastCol = width;
+    direction = 1;
+  }
+
+  /* load the buff array with x value for first color change from edge
+   * gray/color uses a different algo from binary/halftone */
+  switch (s->i.mode) {
+
+    case MODE_COLOR:
+      depth = 3;
+
+    case MODE_GRAYSCALE:
+
+      for(i=0; i<height; i++){
+        buff[i] = lastCol;
+  
+        /* load the near and far windows with repeated copy of first pixel */
+        near = 0;
+        for(k=0; k<depth; k++){
+          near += s->buffers[side][i*bwidth + k];
+        }
+        near *= winLen;
+        far = near;
+  
+        /* move windows, check delta */
+        for(j=firstCol+direction; j!=lastCol; j+=direction){
+  
+          int farCol = j-winLen*2*direction;
+          int nearCol = j-winLen*direction;
+
+          if(farCol < 0 || farCol >= width){
+            farCol = firstCol;
+          }
+          if(nearCol < 0 || nearCol >= width){
+            nearCol = firstCol;
+          }
+
+          for(k=0; k<depth; k++){
+            far -= s->buffers[side][i*bwidth + farCol*depth + k];
+            far += s->buffers[side][i*bwidth + nearCol*depth + k];
+
+            near -= s->buffers[side][i*bwidth + nearCol*depth + k];
+            near += s->buffers[side][i*bwidth + j*depth + k];
+          }
+  
+          if(abs(near - far) > winLen*depth*9){
+            buff[i] = j;
+            break;
+          }
+        }
+      }
+      break;
+
+    case MODE_LINEART:
+    case MODE_HALFTONE:
+      for(i=0; i<height; i++){
+        buff[i] = lastCol;
+  
+        /* load the near window with first pixel */
+        near = s->buffers[side][i*bwidth + firstCol/8] >> (7-(firstCol%8)) & 1;
+  
+        /* move */
+        for(j=firstCol+direction; j!=lastCol; j+=direction){
+          if((s->buffers[side][i*bwidth + j/8] >> (7-(j%8)) & 1) != near){
+            buff[i] = j;
+            break;
+          }
+        }
+      }
+      break;
+
+  }
+
+  /* blast any stragglers with no neighbors within .5 inch */
+  for(i=0;i<height-7;i++){
+    int sum = 0;
+    for(j=1;j<=7;j++){
+      if(abs(buff[i+j] - buff[i]) < s->i.dpi_x/2)
+        sum++;
+    }
+    if(sum < 2)
+      buff[i] = lastCol;
+  }
+
+  DBG (10, "getTransitionsX: finish\n");
+
+  return buff;
+}
+
+/* Loop thru a getTransitions array, and use a simplified Hough transform
+ * to divide likely edges into a 2-d array of bins. Then weight each
+ * bin based on its angle and offset. Return the 'best' bin. */
+SANE_Status
+getLine (int height, int width, int * buff,
+ int slopes, double minSlope, double maxSlope,
+ int offsets, int minOffset, int maxOffset,
+ double * finSlope, int * finOffset, int * finDensity)
+{
+  SANE_Status ret = 0;
+
+  int ** lines = NULL;
+  int i, j;
+  int rise, run;
+  double slope;
+  int offset;
+  int sIndex, oIndex;
+  int hWidth = width/2;
+
+  double * slopeCenter = NULL;
+  int * slopeScale = NULL;
+  double * offsetCenter = NULL;
+  int * offsetScale = NULL;
+
+  int maxDensity = 1;
+  double absMaxSlope = fabs(maxSlope);
+  double absMinSlope = fabs(minSlope);
+  int absMaxOffset = abs(maxOffset);
+  int absMinOffset = abs(minOffset);
+
+  DBG(10,"getLine: start %+0.4f %+0.4f %d %d\n",
+    minSlope,maxSlope,minOffset,maxOffset);
+
+  /*silence compiler*/
+  height = height;
+
+  if(absMaxSlope < absMinSlope)
+    absMaxSlope = absMinSlope;
+
+  if(absMaxOffset < absMinOffset)
+    absMaxOffset = absMinOffset;
+
+  /* build an array of pretty-print values for slope */
+  slopeCenter = calloc(slopes,sizeof(double));
+  if(!slopeCenter){
+    DBG(5,"getLine: cant load slopeCenter\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  /* build an array of scaling factors for slope */
+  slopeScale = calloc(slopes,sizeof(int));
+  if(!slopeScale){
+    DBG(5,"getLine: cant load slopeScale\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  for(j=0;j<slopes;j++){
+
+    /* find central value of this 'bucket' */
+    slopeCenter[j] = (
+      (double)j*(maxSlope-minSlope)/slopes+minSlope 
+      + (double)(j+1)*(maxSlope-minSlope)/slopes+minSlope
+    )/2;
+
+    /* scale value from the requested range into an inverted 100-1 range
+     * input close to 0 makes output close to 100 */
+    slopeScale[j] = 101 - fabs(slopeCenter[j])*100/absMaxSlope;
+  }
+
+  /* build an array of pretty-print values for offset */
+  offsetCenter = calloc(offsets,sizeof(double));
+  if(!offsetCenter){
+    DBG(5,"getLine: cant load offsetCenter\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  /* build an array of scaling factors for offset */
+  offsetScale = calloc(offsets,sizeof(int));
+  if(!offsetScale){
+    DBG(5,"getLine: cant load offsetScale\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  for(j=0;j<offsets;j++){
+
+    /* find central value of this 'bucket'*/
+    offsetCenter[j] = (
+      (double)j/offsets*(maxOffset-minOffset)+minOffset
+      + (double)(j+1)/offsets*(maxOffset-minOffset)+minOffset
+    )/2;
+
+    /* scale value from the requested range into an inverted 100-1 range
+     * input close to 0 makes output close to 100 */
+    offsetScale[j] = 101 - fabs(offsetCenter[j])*100/absMaxOffset;
+  }
+
+  /* build 2-d array of 'density', divided into slope and offset ranges */
+  lines = calloc(slopes, sizeof(int *));
+  if(!lines){
+    DBG(5,"getLine: cant load lines\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  for(i=0;i<slopes;i++){
+    if(!(lines[i] = calloc(offsets, sizeof(int)))){
+      DBG(5,"getLine: cant load lines %d\n",i);
+      ret = SANE_STATUS_NO_MEM;
+      goto cleanup;
+    }
+  }
+
+  for(i=0;i<width;i++){
+    for(j=i+1;j<width && j<i+width/3;j++){
+
+      /*FIXME: check for invalid (min/max) values?*/
+      rise = buff[j] - buff[i];
+      run = j-i;
+
+      slope = (double)rise/run;
+      if(slope >= maxSlope || slope < minSlope)
+        continue;
+
+      /* offset in center of width, not y intercept! */
+      offset = slope * hWidth + buff[i] - slope * i;
+      if(offset >= maxOffset || offset < minOffset)
+        continue;
+
+      sIndex = (slope - minSlope) * slopes/(maxSlope-minSlope);
+      if(sIndex >= slopes)
+        continue;
+
+      oIndex = (offset - minOffset) * offsets/(maxOffset-minOffset);
+      if(oIndex >= offsets)
+        continue;
+
+      lines[sIndex][oIndex]++;
+    }
+  }
+
+  /* go thru array, and find most dense line (highest number) */
+  for(i=0;i<slopes;i++){
+    for(j=0;j<offsets;j++){
+      if(lines[i][j] > maxDensity)
+        maxDensity = lines[i][j];
+    }
+  }
+  
+  DBG(15,"getLine: maxDensity %d\n",maxDensity);
+
+  *finSlope = 0;
+  *finOffset = 0;
+  *finDensity = 0;
+
+  /* go thru array, and scale densities to % of maximum, plus adjust for
+   * prefered (smaller absolute value) slope and offset */
+  for(i=0;i<slopes;i++){
+    for(j=0;j<offsets;j++){
+      lines[i][j] = lines[i][j] * slopeScale[i] * offsetScale[j] / maxDensity;
+      if(lines[i][j] > *finDensity){
+        *finDensity = lines[i][j];
+        *finSlope = slopeCenter[i];
+        *finOffset = offsetCenter[j];
+      }
+    }
+  }
+  
+  if(0){
+    DBG(15,"offsetCenter:       ");
+    for(j=0;j<offsets;j++){
+      DBG(15," %+04.0f",offsetCenter[j]);
+    }
+    DBG(15,"\n");
+  
+    DBG(15,"offsetScale:        ");
+    for(j=0;j<offsets;j++){
+      DBG(15," %04d",offsetScale[j]);
+    }
+    DBG(15,"\n");
+  
+    for(i=0;i<slopes;i++){
+      DBG(15,"slope: %02d %+02.2f %03d:",i,slopeCenter[i],slopeScale[i]);
+      for(j=0;j<offsets;j++){
+        DBG(15,"% 5d",lines[i][j]/100);
+      }
+      DBG(15,"\n");
+    }
+  }
+
+  /* dont forget to cleanup */
+  cleanup:
+  for(i=0;i<10;i++){
+    if(lines[i])
+      free(lines[i]);
+  }
+  if(lines)
+    free(lines);
+  if(slopeCenter)
+    free(slopeCenter);
+  if(slopeScale)
+    free(slopeScale);
+  if(offsetCenter)
+    free(offsetCenter);
+  if(offsetScale)
+    free(offsetScale);
+
+  DBG(10,"getLine: finish\n");
+
   return ret;
 }
 
-static SANE_Status
-buffer_crop(struct scanner *s, int side)
+/* Repeatedly find the best range of slope and offset via Hough transform.
+ * Shift the ranges thru 4 different positions to avoid splitting data
+ * across multiple bins (false positive). Home-in on the most likely upper
+ * line of the paper inside the image. Return the 'best' line. */
+SANE_Status
+getEdgeIterate (int width, int height, int resolution,
+int * buff, double * finSlope, int * finXInter, int * finYInter)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  DBG (10, "buffer_crop: start\n");
+  int slopes = 11;
+  int offsets = 11;
+  double maxSlope = 1;
+  double minSlope = -1;
+  int maxOffset = resolution/6;
+  int minOffset = -resolution/6;
 
-  DBG (10, "buffer_crop: finish\n");
-  return ret;
+  double topSlope = 0;
+  int topOffset = 0;
+  int topDensity = 0;
+  
+  int i,j;
+  int pass = 0;
+
+  DBG(10,"getEdgeIterate: start\n");
+
+  while(pass++ < 7){
+    double sStep = (maxSlope-minSlope)/slopes;
+    int oStep = (maxOffset-minOffset)/offsets;
+
+    double slope = 0;
+    int offset = 0;
+    int density = 0;
+    int go = 0;
+
+    topSlope = 0;
+    topOffset = 0;
+    topDensity = 0;
+
+    /* find lines 4 times with slightly moved params,
+     * to bypass binning errors, highest density wins */
+    for(i=0;i<2;i++){
+      double sStep2 = sStep*i/2;
+      for(j=0;j<2;j++){
+        int oStep2 = oStep*j/2;
+        ret = getLine(height,width,buff,slopes,minSlope+sStep2,maxSlope+sStep2,offsets,minOffset+oStep2,maxOffset+oStep2,&slope,&offset,&density);
+        if(ret){
+          DBG(5,"getEdgeIterate: getLine error %d\n",ret);
+          return ret;
+        }
+        DBG(15,"getEdgeIterate: %d %d %+0.4f %d %d\n",i,j,slope,offset,density);
+
+        if(density > topDensity){
+          topSlope = slope;
+          topOffset = offset;
+          topDensity = density;
+        }
+      }
+    }
+
+    DBG(15,"getEdgeIterate: ok %+0.4f %d %d\n",topSlope,topOffset,topDensity);
+
+    /* did not find anything promising on first pass,
+     * give up instead of fixating on some small, pointless feature */
+    if(pass == 1 && topDensity < width/5){
+      DBG(5,"getEdgeIterate: density too small %d %d\n",topDensity,width);
+      topOffset = 0;
+      topSlope = 0;
+      break;
+    }
+
+    /* if slope can zoom in some more, do so. */
+    if(sStep >= 0.0001){
+      minSlope = topSlope - sStep;
+      maxSlope = topSlope + sStep;
+      go = 1;
+    }
+
+    /* if offset can zoom in some more, do so. */
+    if(oStep){
+      minOffset = topOffset - oStep;
+      maxOffset = topOffset + oStep;
+      go = 1;
+    }
+
+    /* cannot zoom in more, bail out */
+    if(!go){
+      break;
+    }
+
+    DBG(15,"getEdgeIterate: zoom: %+0.4f %+0.4f %d %d\n",
+      minSlope,maxSlope,minOffset,maxOffset);
+  }
+
+  /* topOffset is in the center of the image,
+   * convert to x and y intercept */
+  if(topSlope != 0){
+    *finYInter = topOffset - topSlope * width/2;
+    *finXInter = *finYInter / -topSlope;
+    *finSlope = topSlope;
+  }
+  else{
+    *finYInter = 0;
+    *finXInter = 0;
+    *finSlope = 0;
+  }
+
+  DBG(10,"getEdgeIterate: finish\n");
+
+  return 0;
+}
+
+/* find the left side of paper by moving a line 
+ * perpendicular to top slope across the image
+ * the 'left-most' point on the paper is the
+ * one with the smallest X intercept
+ * return x and y intercepts */
+SANE_Status 
+getEdgeSlope (int width, int height, int * top, int * bot,
+ double slope, int * finXInter, int * finYInter)
+{
+
+  int i;
+  int topXInter, topYInter;
+  int botXInter, botYInter;
+  int leftCount;
+
+  DBG(10,"getEdgeSlope: start\n");
+
+  topXInter = width;
+  topYInter = 0;
+  leftCount = 0;
+
+  for(i=0;i<width;i++){
+    
+    if(top[i] < height){
+      int tyi = top[i] - (slope * i);
+      int txi = tyi/-slope;
+
+      if(topXInter > txi){
+        topXInter = txi;
+        topYInter = tyi;
+      }
+
+      leftCount++;
+      if(leftCount > 5){
+        break;
+      }
+    }
+    else{
+      topXInter = width;
+      topYInter = 0;
+      leftCount = 0;
+    }
+  }
+
+  botXInter = width;
+  botYInter = 0;
+  leftCount = 0;
+
+  for(i=0;i<width;i++){
+    
+    if(bot[i] > -1){
+
+      int byi = bot[i] - (slope * i);
+      int bxi = byi/-slope;
+
+      if(botXInter > bxi){
+        botXInter = bxi;
+        botYInter = byi;
+      }
+
+      leftCount++;
+      if(leftCount > 5){
+        break;
+      }
+    }
+    else{
+      botXInter = width;
+      botYInter = 0;
+      leftCount = 0;
+    }
+  }
+
+  if(botXInter < topXInter){
+    *finXInter = botXInter;
+    *finYInter = botYInter;
+  }
+  else{
+    *finXInter = topXInter;
+    *finYInter = topYInter;
+  }
+
+  DBG(10,"getEdgeSlope: finish\n");
+
+  return 0;
+}
+
+/* function to do a simple rotation by a given slope, around
+ * a given point. The point can be outside of image to get
+ * proper edge alignment. Unused areas filled with bg color
+ * FIXME: Do in-place rotation to save memory */
+SANE_Status
+rotateOnCenter (struct scanner *s, int side,
+  int centerX, int centerY, double slope)
+{
+  double slopeRad = -atan(slope);
+  double slopeSin = sin(slopeRad);
+  double slopeCos = cos(slopeRad);
+
+  int bwidth = s->i.Bpl;
+  int pwidth = s->i.width;
+  int height = s->i.height;
+  int depth = 1;
+  int bg_color = s->lut[s->bg_color];
+
+  unsigned char * outbuf;
+  int i, j, k;
+
+  DBG(10,"rotateOnCenter: start: %d %d\n",centerX,centerY);
+
+  outbuf = malloc(s->i.bytes_tot[side]);
+  if(!outbuf){
+    DBG(15,"rotateOnCenter: no outbuf\n");
+    return SANE_STATUS_NO_MEM;
+  }
+
+  switch (s->i.mode){
+
+    case MODE_COLOR:
+      depth = 3;
+
+    case MODE_GRAYSCALE:
+      memset(outbuf,bg_color,s->i.bytes_tot[side]);
+
+      for (i=0; i<height; i++) {
+        int shiftY = centerY - i;
+    
+        for (j=0; j<pwidth; j++) {
+          int shiftX = centerX - j;
+          int sourceX, sourceY;
+    
+          sourceX = centerX - (int)(shiftX * slopeCos + shiftY * slopeSin);
+          if (sourceX < 0 || sourceX >= pwidth)
+            continue;
+    
+          sourceY = centerY + (int)(-shiftY * slopeCos + shiftX * slopeSin);
+          if (sourceY < 0 || sourceY >= height)
+            continue;
+    
+          for (k=0; k<depth; k++) {
+            outbuf[i*bwidth+j*depth+k]
+              = s->buffers[side][sourceY*bwidth+sourceX*depth+k];
+          }
+        }
+      }
+      break;
+
+    case MODE_LINEART:
+    case MODE_HALFTONE:
+      memset(outbuf,(bg_color<s->threshold)?0xff:0x00,s->i.bytes_tot[side]);
+
+      for (i=0; i<height; i++) {
+        int shiftY = centerY - i;
+    
+        for (j=0; j<pwidth; j++) {
+          int shiftX = centerX - j;
+          int sourceX, sourceY;
+    
+          sourceX = centerX - (int)(shiftX * slopeCos + shiftY * slopeSin);
+          if (sourceX < 0 || sourceX >= pwidth)
+            continue;
+    
+          sourceY = centerY + (int)(-shiftY * slopeCos + shiftX * slopeSin);
+          if (sourceY < 0 || sourceY >= height)
+            continue;
+
+          /* wipe out old bit */
+          outbuf[i*bwidth + j/8] &= ~(1 << (7-(j%8)));
+
+          /* fill in new bit */
+          outbuf[i*bwidth + j/8] |= 
+            ((s->buffers[side][sourceY*bwidth + sourceX/8]
+            >> (7-(sourceX%8))) & 1) << (7-(j%8));
+        }
+      }
+      break;
+  }
+
+  memcpy(s->buffers[side],outbuf,s->i.bytes_tot[side]);
+
+  free(outbuf);
+
+  DBG(10,"rotateOnCenter: finish\n");
+
+  return 0;
 }
 
 /* Function to build a lookup table (LUT), often
@@ -6734,3 +7814,4 @@ load_lut (unsigned char * lut,
   DBG (10, "load_lut: finish\n");
   return ret;
 }
+

@@ -97,6 +97,9 @@ struct img_params
   /* total to read/write */
   int bytes_tot[2];
 
+  /* dumb scanners send extra data */
+  int skip_lines[2];
+
 };
 
 struct scanner
@@ -187,8 +190,10 @@ struct scanner
   int color_interlace[2]; /* different models interlace colors differently   */
   int duplex_interlace; /* different models interlace sides differently      */
   int jpeg_interlace;   /* different models interlace jpeg sides differently */
+  int duplex_offset;    /* number of lines of padding added to front (1/1200)*/
 
   int sw_lut;           /* no hardware brightness/contrast support */
+  int bg_color;         /* needed to fill in after rotation */
 
   int reverse_by_mode[6]; /* mode specific */
 
@@ -271,9 +276,6 @@ struct scanner
 
   /* the scanner image params (what we ask from scanner) */
   struct img_params s;
-
-  /* if one of the user options requires us to buffer the entire image */
-  int blocking_mode;
 
   /* the intermediate image params (like user, but possible higher depth) */
   struct img_params i;
@@ -523,7 +525,7 @@ static int get_page_height (struct scanner *s);
 
 static SANE_Status set_window (struct scanner *s);
 static SANE_Status update_params (struct scanner *s, int calib);
-static SANE_Status update_i_params (struct scanner *s, int calib);
+static SANE_Status update_i_params (struct scanner *s);
 static SANE_Status clean_params (struct scanner *s);
 
 static SANE_Status read_panel(struct scanner *s, SANE_Int option);
@@ -543,6 +545,23 @@ static SANE_Status copy_line(struct scanner *s, unsigned char * buf, int side);
 static SANE_Status buffer_despeck(struct scanner *s, int side);
 static SANE_Status buffer_deskew(struct scanner *s, int side);
 static SANE_Status buffer_crop(struct scanner *s, int side);
+
+int * getTransitionsY (struct scanner *s, int side, int top);
+int * getTransitionsX (struct scanner *s, int side, int top);
+
+SANE_Status getEdgeIterate (int width, int height, int resolution,
+  int * buff, double * finSlope, int * finXInter, int * finYInter);
+
+SANE_Status getEdgeSlope (int width, int height, int * top, int * bot,
+  double slope, int * finXInter, int * finYInter);
+
+SANE_Status rotateOnCenter (struct scanner *s, int side,
+  int centerX, int centerY, double slope);
+
+SANE_Status getLine (int height, int width, int * buff,
+ int slopes, double minSlope, double maxSlope,
+ int offsets, int minOffset, int maxOffset,
+ double * finSlope, int * finOffset, int * finDensity);
 
 static SANE_Status load_lut (unsigned char * lut, int in_bits, int out_bits,
   int out_min, int out_max, int slope, int offset);

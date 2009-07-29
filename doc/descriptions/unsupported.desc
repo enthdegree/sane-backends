@@ -835,14 +835,13 @@
 :url "/unsupported/hp-scanjet-4600.html"
 :interface "USB"
 :usbid "0x03f0" "0x3005"
-:comment "Not supported. See link for details."
+:comment "Not supported. See link for details, or http://www.chmil.org/hp4600linux/ for code"
 :status :unsupported
 
 :model "ScanJet 4670"
-:url "/unsupported/hp-scanjet-4600.html"
 :interface "USB"
 :usbid "0x03f0" "0x3005"
-:comment "Not supported. See link for details."
+:comment "Not supported. See ScanJet 4600 entry."
 :status :unsupported
 
 :model "ScanJet 4850C"

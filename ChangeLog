@@ -1,3 +1,7 @@
+2009-07-30 Jonathan Bravo Lopez <jkdsoft at gmail dot com>
+	* backend/hp3900_config.c: 
+	- Fixed bug [#311856] possible for loop overflow
+
 2009-07-29 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.[ch]: Backend v34
 	- add simplified Hough transform based deskewing code

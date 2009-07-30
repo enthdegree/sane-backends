@@ -1,6 +1,6 @@
 /* HP Scanjet 3900 series - RTS8822 internal config
 
-   Copyright (C) 2005-2008 Jonathan Bravo Lopez <jkdsoft@gmail.com>
+   Copyright (C) 2005-2009 Jonathan Bravo Lopez <jkdsoft@gmail.com>
 
    This file is part of the SANE package.
 
@@ -196,6 +196,8 @@ static int hpg3110_calibtransparent(int option, int defvalue);
 
 /* ----- Implementation ----- */
 
+/* DEPRECATED enumerations */
+
 enum ConfigFiles
 {
 	FITCALIBRATE=0,
@@ -379,8 +381,9 @@ static SANE_Int cfg_device_get(SANE_Int product, SANE_Int vendor)
 
 	SANE_Int rst = -1; /* default */
 	SANE_Int a;
+	SANE_Int count = sizeof(myreg) / sizeof(struct st_myreg);
 
-	for (a = 0; a < DEVSCOUNT; a++)
+	for (a = 0; a < count; a++)
 	{
 		if ((vendor == myreg[a].vendor)&&(product == myreg[a].product))
 		{
@@ -417,8 +420,9 @@ static SANE_Int cfg_chipset_model_get(SANE_Int device)
 
 	SANE_Int rst = RTS8822L_01H; /* default */
 	SANE_Int a;
+	SANE_Int count = sizeof(myreg) / sizeof(struct st_myreg);
 
-	for (a = 0; a < DEVSCOUNT; a++)
+	for (a = 0; a < count; a++)
 	{
 		if (device == myreg[a].device)
 		{
@@ -499,8 +503,9 @@ static SANE_Int cfg_buttons_get(struct st_buttons *reg)
 		};
 
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_myreg);
 
-		for (a = 0; a < DEVSCOUNT; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (RTS_Debug->dev_model == myreg[a].device)
 			{
@@ -544,13 +549,14 @@ static SANE_Int cfg_sscg_get(SANE_Int *enable, SANE_Int *mode, SANE_Int *clock)
 		};
 
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_myreg);
 
 		/* default values */
 		*enable = 0;
 		*mode   = 0;
 		*clock  = 3;
 
-		for (a = 0; a < DEVSCOUNT; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (RTS_Debug->dev_model == myreg[a].device)
 			{
@@ -595,12 +601,13 @@ static SANE_Int cfg_motor_get(struct st_motorcfg *reg)
 		};
 
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_myreg);
 
 		/* default values */
 		memset(reg, 0, sizeof(struct st_motorcfg));
 		reg->type = -1;
 
-		for (a = 0; a < DEVSCOUNT; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (RTS_Debug->dev_model == myreg[a].device)
 			{
@@ -644,12 +651,13 @@ static SANE_Int cfg_sensor_get(struct st_sensorcfg *reg)
 		};
 
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_myreg);
 
 		/* default values */
 		memset(reg, 0, sizeof(struct st_sensorcfg));
 		reg->type = -1;
 
-		for (a = 0; a < DEVSCOUNT; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (RTS_Debug->dev_model == myreg[a].device)
 			{
@@ -686,10 +694,11 @@ static void hp3800_refvoltages(SANE_Int usb, SANE_Int sensor, SANE_Byte *vrts, S
 	if ((vrts != NULL)&&(vrms != NULL)&&(vrbs != NULL))
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_reg);
 
 		*vrts = *vrms = *vrbs = 0;
 
-		for (a = 0; a < 2; a++)
+		for (a = 0; a < count; a++)
 		{
 			if ((myreg[a].usb == usb)&&(myreg[a].sensor == sensor))
 			{
@@ -723,10 +732,11 @@ static void hp3970_refvoltages(SANE_Int usb, SANE_Int sensor, SANE_Byte *vrts, S
 	if ((vrts != NULL)&&(vrms != NULL)&&(vrbs != NULL))
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_reg);
 
 		*vrts = *vrms = *vrbs = 0;
 
-		for (a = 0; a < 4; a++)
+		for (a = 0; a < count; a++)
 		{
 			if ((myreg[a].usb == usb)&&(myreg[a].sensor == sensor))
 			{
@@ -787,8 +797,9 @@ static void hp3800_offset(SANE_Int resolution, SANE_Int scantype, SANE_Int *left
 	if ((left != NULL)&&(width != NULL))
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 5; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (myreg[a].resolution == resolution)
 			{
@@ -842,8 +853,9 @@ static void hp3970_offset(SANE_Int sensor, SANE_Int resolution, SANE_Int scantyp
 	if ((left != NULL)&&(width != NULL))
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 12; a++)
+		for (a = 0; a < count; a++)
 		{
 			if ((myreg[a].sensor == sensor)&&(myreg[a].resolution == resolution))
 			{
@@ -888,8 +900,9 @@ static void hp4370_offset(SANE_Int resolution, SANE_Int scantype, SANE_Int *left
 	if ((left != NULL)&&(width != NULL))
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 6; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (myreg[a].resolution == resolution)
 			{
@@ -934,8 +947,9 @@ static void ua4900_offset(SANE_Int resolution, SANE_Int scantype, SANE_Int *left
 	if ((left != NULL)&&(width != NULL))
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 12; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (myreg[a].resolution == resolution)
 			{
@@ -1006,8 +1020,9 @@ static SANE_Int cfg_constrains_get(struct st_constrains *constrain)
 	if (constrain != NULL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-		for (a = 0; a < DEVSCOUNT; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].device == RTS_Debug->dev_model)
 			{
@@ -1088,8 +1103,9 @@ static void cfg_autoref_get(struct st_autoref *reg)
 		};
 
 		SANE_Int a;
+		SANE_Int count = sizeof(myreg) / sizeof(struct st_reg);
 
-		for (a = 0; a < DEVSCOUNT; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (myreg[a].device == RTS_Debug->dev_model)
 			{
@@ -1120,9 +1136,10 @@ static SANE_Int hp3800_effectivepixel(SANE_Int resolution)
 	};
 
 	SANE_Int a;
+	SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 	SANE_Int rst = 230; /* default */
 
-	for (a = 0; a < 6; a++)
+	for (a = 0; a < count; a++)
 	{
 		if (reg[a].resolution == resolution)
 		{
@@ -1154,9 +1171,10 @@ static SANE_Int hp3970_effectivepixel(SANE_Int sensor, SANE_Int resolution)
 	};
 
 	SANE_Int a;
+	SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 	SANE_Int rst = 230; /* default */
 
-	for (a = 0; a < 6; a++)
+	for (a = 0; a < count; a++)
 	{
 		if (reg[a].resolution == resolution)
 		{
@@ -1188,9 +1206,10 @@ static SANE_Int hp4370_effectivepixel(SANE_Int resolution)
 	};
 
 	SANE_Int a;
+	SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 	SANE_Int rst = 230; /* default */
 
-	for (a = 0; a < 6; a++)
+	for (a = 0; a < count; a++)
 	{
 		if (reg[a].resolution == resolution)
 		{
@@ -1222,9 +1241,10 @@ static SANE_Int ua4900_effectivepixel(SANE_Int resolution)
 	};
 
 	SANE_Int a;
+	SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 	SANE_Int rst = 230; /* default */
 
-	for (a = 0; a < 6; a++)
+	for (a = 0; a < count; a++)
 	{
 		if (reg[a].resolution == resolution)
 		{
@@ -1287,8 +1307,9 @@ static SANE_Int bq5550_gainoffset(SANE_Int usb, struct st_gain_offset *myreg)
 	if (myreg != NULL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 2; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].usb == usb)
 			{
@@ -1322,8 +1343,9 @@ static SANE_Int hp3800_gainoffset(SANE_Int usb, struct st_gain_offset *myreg)
 	if (myreg != NULL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 2; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].usb == usb)
 			{
@@ -1361,8 +1383,9 @@ static SANE_Int hp3970_gainoffset(SANE_Int usb, SANE_Int sensor, struct st_gain_
 	if (myreg != NULL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 4; a++)
+		for (a = 0; count < 4; a++)
 		{
 			if ((reg[a].usb == usb)&&(reg[a].sensor == sensor))
 			{
@@ -1396,8 +1419,9 @@ static SANE_Int hp4370_gainoffset(SANE_Int usb, struct st_gain_offset *myreg)
 	if (myreg != NULL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 2; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].usb == usb)
 			{
@@ -1431,8 +1455,9 @@ static SANE_Int ua4900_gainoffset(SANE_Int usb, struct st_gain_offset *myreg)
 	if (myreg != NULL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 2; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].usb == usb)
 			{
@@ -1502,8 +1527,9 @@ static SANE_Int hp3800_checkstable(SANE_Int lamp, struct st_checkstable *check)
 	if (reg != NULL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 3; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].lamp == lamp)
 			{
@@ -1538,8 +1564,9 @@ static SANE_Int hp3970_checkstable(SANE_Int lamp, struct st_checkstable *check)
 	if (reg != NULL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 3; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].lamp == lamp)
 			{
@@ -1574,8 +1601,9 @@ static SANE_Int hp4370_checkstable(SANE_Int lamp, struct st_checkstable *check)
 	if (reg != NULL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 3; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].lamp == lamp)
 			{
@@ -1610,8 +1638,9 @@ static SANE_Int ua4900_checkstable(SANE_Int lamp, struct st_checkstable *check)
 	if (reg != NULL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-		for (a = 0; a < 3; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].lamp == lamp)
 			{
@@ -1672,8 +1701,9 @@ static SANE_Int hp3800_fixedpwm(SANE_Int scantype, SANE_Int usb)
 	};
 
 	SANE_Int a, rst = 0x16;
+	SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-	for (a = 0; a < 2; a++)
+	for (a = 0; a < count; a++)
 	{
 		if (reg[a].usb == usb)
 		{
@@ -1708,8 +1738,9 @@ static SANE_Int hp3970_fixedpwm(SANE_Int scantype, SANE_Int usb, SANE_Int sensor
 	};
 
 	SANE_Int a, rst = 0x16;
+	SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-	for (a = 0; a < 4; a++)
+	for (a = 0; a < count; a++)
 	{
 		if ((reg[a].usb == usb)&&(reg[a].sensor == sensor))
 		{
@@ -1740,8 +1771,9 @@ static SANE_Int hp4370_fixedpwm(SANE_Int scantype, SANE_Int usb)
 	};
 
 	SANE_Int a, rst = 0x16;
+	SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-	for (a = 0; a < 2; a++)
+	for (a = 0; a < count; a++)
 	{
 		if (reg[a].usb == usb)
 		{
@@ -1772,8 +1804,9 @@ static SANE_Int ua4900_fixedpwm(SANE_Int scantype, SANE_Int usb)
 	};
 
 	SANE_Int a, rst = 0x16;
+	SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
-	for (a = 0; a < 2; a++)
+	for (a = 0; a < count; a++)
 	{
 		if (reg[a].usb == usb)
 		{
@@ -1858,16 +1891,15 @@ static void hp3800_vrefs(SANE_Int res, SANE_Int *ser, SANE_Int *ler)
 		{ 2400, { 408,  808}}
 	};
 
-	SANE_Int total = 5;
-
 	if ((ser != NULL)&&(ler != NULL))
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
 		/* values by default */
 		*ser = *ler = 0;
 
-		for (a = 0; a < total; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].resolution == res)
 			{
@@ -1931,11 +1963,12 @@ static void hp3970_vrefs(SANE_Int usb, SANE_Int sensor, SANE_Int res, SANE_Int *
 	if ((ser != NULL)&&(ler != NULL))
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
 		/* values by default */
 		*ser = *ler = 0;
 
-		for (a = 0; a < 24; a++)
+		for (a = 0; a < count; a++)
 		{
 			if ((reg[a].usb == usb)&&(reg[a].sensor == sensor)&&(reg[a].resolution == res))
 			{
@@ -1969,11 +2002,12 @@ static void hp4370_vrefs(SANE_Int res, SANE_Int *ser, SANE_Int *ler)
 	if ((ser != NULL)&&(ler != NULL))
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(reg) / sizeof(struct st_reg);
 
 		/* values by default */
 		*ser = *ler = 0;
 
-		for (a = 0; a < 6; a++)
+		for (a = 0; a < count; a++)
 		{
 			if (reg[a].resolution == res)
 			{
@@ -2091,8 +2125,9 @@ static SANE_Int hp3970_motormove(SANE_Int usb, SANE_Int ccd, SANE_Int item, stru
 		if (item < 2)
 		{
 			SANE_Int a, count = 0;
+			SANE_Int total = sizeof(mv) / sizeof(struct st_mtmove);
 
-			for (a = 0; a < 8; a++)
+			for (a = 0; a < total; a++)
 			{
 				if ((mv[a].usbtype == usb)&&(mv[a].sensor == ccd))
 				{
@@ -2342,7 +2377,7 @@ static SANE_Int hp3970_scanmodes(SANE_Int usb, SANE_Int ccd, SANE_Int sm, struct
 	if (mymode != NULL)
 	{
 		SANE_Int a;
-		SANE_Int total = 156;
+		SANE_Int total = sizeof(reg) / sizeof(struct st_modes);
 		SANE_Int count = 0;
 		struct st_modes *md;
 
@@ -2472,7 +2507,7 @@ static SANE_Int hp4370_scanmodes(SANE_Int usb, SANE_Int sm, struct st_scanmode *
 	if (mymode != NULL)
 	{
 		SANE_Int a;
-		SANE_Int total = 72;
+		SANE_Int total = sizeof(reg) / sizeof(struct st_modes);
 		SANE_Int count = 0;
 		struct st_modes *md;
 
@@ -2590,7 +2625,7 @@ static SANE_Int hp3800_scanmodes(SANE_Int usb, SANE_Int sm, struct st_scanmode *
 	if (mymode != NULL)
 	{
 		SANE_Int a;
-		SANE_Int total = 60;
+		SANE_Int total = sizeof(reg) / sizeof(struct st_modes);
 		SANE_Int count = 0;
 		struct st_modes *md;
 
@@ -2690,7 +2725,7 @@ static SANE_Int bq5550_scanmodes(SANE_Int usb, SANE_Int sm, struct st_scanmode *
 	if (mymode != NULL)
 	{
 		SANE_Int a;
-		SANE_Int total = 45;
+		SANE_Int total = sizeof(reg) / sizeof(struct st_modes);
 		SANE_Int count = 0;
 		struct st_modes *md;
 
@@ -2766,7 +2801,7 @@ static SANE_Int ua4900_scanmodes(SANE_Int usb, SANE_Int sm, struct st_scanmode *
 	if (mymode != NULL)
 	{
 		SANE_Int a;
-		SANE_Int total = 30;
+		SANE_Int total = sizeof(reg) / sizeof(struct st_modes);
 		SANE_Int count = 0;
 		struct st_modes *md;
 
@@ -2886,8 +2921,9 @@ static void hp3970_wrefs(SANE_Int usb, SANE_Int ccd, SANE_Int depth, SANE_Int re
 	if (scantype != ST_NORMAL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(wrefs) / sizeof(struct st_wref);
 
-		for (a = 0; a < 48; a++)
+		for (a = 0; a < count; a++)
 		{
 			rf = &wrefs[a];
 			if ((rf->usb == usb)&&(rf->sensor == ccd)&&(rf->depth == depth)&&(rf->res == res))
@@ -2975,8 +3011,9 @@ static void ua4900_wrefs(SANE_Int usb, SANE_Int depth, SANE_Int res, SANE_Int sc
 	if (scantype != ST_NORMAL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(wrefs) / sizeof(struct st_wref);
 
-		for (a = 0; a < 20; a++)
+		for (a = 0; a < count; a++)
 		{
 			rf = &wrefs[a];
 			if ((rf->usb == usb)&&(rf->depth == depth)&&(rf->res == res))
@@ -3044,8 +3081,9 @@ static void hp3800_wrefs(SANE_Int res, SANE_Int scantype, SANE_Int *red, SANE_In
 	if (scantype != ST_NORMAL)
 	{
 		SANE_Int a;
+		SANE_Int count = sizeof(wrefs) / sizeof(struct st_wref);
 
-		for (a = 0; a < 20; a++)
+		for (a = 0; a < count; a++)
 		{
 			rf = &wrefs[a];
 			if (rf->res == res)
@@ -3118,7 +3156,9 @@ static void hp4370_wrefs(SANE_Int res, SANE_Int scantype, SANE_Int *red, SANE_In
 
 	if (scantype != ST_NORMAL)
 	{
-		for (a = 0; a < 6; a++)
+		SANE_Int count = sizeof(wrefs) / sizeof(struct st_wref);
+
+		for (a = 0; a < count; a++)
 		{
 			rf = &wrefs[a];
 			if (rf->res == res)
@@ -3199,6 +3239,7 @@ static void hp3800_shading_cut(SANE_Int res, SANE_Int scantype, SANE_Int *red, S
 	struct st_cut *ct;
 
 	SANE_Int a;
+	SANE_Int count = sizeof(cuts) / sizeof(struct st_cut);
 
 	*red = *green = *blue = 0;
 
@@ -3212,7 +3253,7 @@ static void hp3800_shading_cut(SANE_Int res, SANE_Int scantype, SANE_Int *red, S
 		res = 1200;
 	else res = 2400;
 
-	for (a = 0; a < 5; a++)
+	for (a = 0; a < count; a++)
 	{
 		ct = &cuts[a];
 		if (ct->res == res)
@@ -3319,6 +3360,7 @@ static void hp3970_shading_cut(SANE_Int usb, SANE_Int ccd, SANE_Int depth, SANE_
 	struct st_cut *ct;
 
 	SANE_Int a;
+	SANE_Int count = sizeof(cuts) / sizeof(struct st_cut);
 
 	*red = *green = *blue = 0;
 
@@ -3334,7 +3376,7 @@ static void hp3970_shading_cut(SANE_Int usb, SANE_Int ccd, SANE_Int depth, SANE_
 		res = 1200;
 	else res = 2400;
 
-	for (a = 0; a < 48; a++)
+	for (a = 0; a < count; a++)
 	{
 		ct = &cuts[a];
 		if ((ct->usb == usb)&&(ct->sensor == ccd)&&(ct->depth == depth)&&(ct->res == res))
@@ -3395,6 +3437,7 @@ static void hp4370_shading_cut(SANE_Int depth, SANE_Int res, SANE_Int scantype, 
 	struct st_cut *ct;
 
 	SANE_Int a;
+	SANE_Int count = sizeof(cuts) / sizeof(struct st_cut);
 
 	*red = *green = *blue = 0;
 
@@ -3410,7 +3453,7 @@ static void hp4370_shading_cut(SANE_Int depth, SANE_Int res, SANE_Int scantype, 
 		res = 2400;
 	else res = 4800;
 
-	for (a = 0; a < 12; a++)
+	for (a = 0; a < count; a++)
 	{
 		ct = &cuts[a];
 		if ((ct->depth == depth)&&(ct->res == res))
@@ -3482,6 +3525,7 @@ static void ua4900_shading_cut(SANE_Int usb, SANE_Int depth, SANE_Int res, SANE_
 	struct st_cut *ct;
 
 	SANE_Int a;
+	SANE_Int count = sizeof(cuts) / sizeof(struct st_cut);
 
 	*red = *green = *blue = 0;
 
@@ -3495,7 +3539,7 @@ static void ua4900_shading_cut(SANE_Int usb, SANE_Int depth, SANE_Int res, SANE_
 		res = 600;
 	else res = 1200;
 
-	for (a = 0; a < 20; a++)
+	for (a = 0; a < count; a++)
 	{
 		ct = &cuts[a];
 		if ((ct->usb == usb)&&(ct->depth == depth)&&(ct->res == res))
@@ -4181,6 +4225,8 @@ static SANE_Int *cfg_motorcurve_get()
 
 	return rst;
 }
+
+/* DEPRECATED functions */
 
 static int ua4900_calibreflective(int option, int defvalue)
 {

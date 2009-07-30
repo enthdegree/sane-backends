@@ -940,10 +940,10 @@ get_color_line_101x (Mustek_pp_Handle * dev, SANE_Byte * buf)
 	  wait_bank_change (dev, priv->bank_count, 1);
 	  reset_bank_count (dev);
 	  if (priv->ccd_line >= (priv->line_step >> SANE_FIXED_SCALE_SHIFT))
-	    priv->redline = ++priv->redline % priv->green_offs;
+	    priv->redline = (priv->redline + 1) % priv->green_offs;
 	  if (priv->ccd_line >=
 	      priv->blue_offs + (priv->line_step >> SANE_FIXED_SCALE_SHIFT))
-	    priv->blueline = ++priv->blueline % priv->blue_offs;
+	    priv->blueline = (priv->blueline + 1) % priv->blue_offs;
 	  continue;
 	}
 
@@ -979,7 +979,7 @@ get_color_line_101x (Mustek_pp_Handle * dev, SANE_Byte * buf)
 
 	}
 
-      priv->redline = ++priv->redline % priv->green_offs;
+      priv->redline = (priv->redline + 1) % priv->green_offs;
 
       if (priv->ccd_line >= priv->green_offs && gogreen)
 	{
@@ -1013,7 +1013,7 @@ get_color_line_101x (Mustek_pp_Handle * dev, SANE_Byte * buf)
 
       if (priv->ccd_line >=
 	  priv->blue_offs + (priv->line_step >> SANE_FIXED_SCALE_SHIFT))
-	priv->blueline = ++priv->blueline % priv->blue_offs;
+	priv->blueline = (priv->blueline + 1) % priv->blue_offs;
 
       if (gogreen)
 	{

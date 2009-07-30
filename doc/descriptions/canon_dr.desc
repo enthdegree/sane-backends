@@ -11,7 +11,7 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/" 
-:version "30"                    ; version of backend
+:version "34"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "New backend as of SANE release 1.0.20, testers needed, see manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -62,13 +62,13 @@
 :interface "USB"
 :usbid "0x1083" "0x161b"
 :status :complete
-:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width, 300/600dpi horizontal. Driver provides: Binary, Cropping, Calibration, other resolutions"
+:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width, 300/600dpi horizontal. Driver provides: Binary, Despeckle, Deskew, Cropping, Calibration, other resolutions."
 
 :model "DR-2050C"
 :interface "USB"
 :usbid "0x04a9" "0x160a"
 :status :complete
-:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Cropping, Calibration"
+:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Despeckle, Deskew, Cropping, Calibration."
 
 :model "DR-2050SP"
 :interface "USB"
@@ -80,19 +80,19 @@
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1601"
 :status :complete
-:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Cropping, Calibration"
+:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Despeckle, Deskew, Cropping, Calibration"
 
 :model "DR-2510C"
 :interface "USB"
 :usbid "0x1083" "0x1617"
 :status :complete
-:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width, 300/600dpi horizontal. Driver provides: Binary, Cropping, Calibration, other resolutions"
+:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width, 300/600dpi horizontal. Driver provides: Binary, Despeckle, Deskew, Cropping, Calibration, other resolutions"
 
 :model "DR-2580C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1608"
 :status :complete
-:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Cropping, Calibration"
+:comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width. Driver provides: Binary, Despeckle, Deskew, Cropping, Calibration"
 
 :model "DR-3010C"
 :interface "USB"

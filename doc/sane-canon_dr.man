@@ -1,4 +1,4 @@
-.TH sane\-canon_dr 5 "20 May 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-canon_dr 5 "30 Jul 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-canon_dr
 
 .SH NAME
@@ -10,11 +10,11 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to some Canon DR-series scanners.
 
-This document describes backend version 30, which shipped with SANE 1.0.21cvs.
+This document describes backend version 34, which shipped with SANE 1.0.21cvs.
 
 .SH SUPPORTED HARDWARE
 This version has only been tested with a few scanner models. Please see 
-http://www.sane\-project.org/sane\-supported\-devices.html for a more recent 
+http://www.sane\-project.org/sane\-supported\-devices.html for the most recent 
 list.
 
 This backend may support other Canon scanners. The best
@@ -63,6 +63,32 @@ coordinates when using ADF and to detect double feed errors.
 .PP
 Other options will be available based on the capabilities of the scanner:
 enhancement, compression, buttons and sensors, etc.
+.PP
+Additionally, several 'software' options are exposed by the backend. These
+are reimplementations of features provided natively by larger scanners, but
+running on the host computer. This enables smaller machines to have similar
+capabilites. Please note that these features are somewhat simplistic, and 
+may not perform as well as the native implementations. Note also that these 
+features all require that the driver cache the entire image in memory. This 
+will almost certainly result in a reduction of scanning speed.
+.PP
+swcrop 
+.RS
+Requests the driver to detect the extremities of the paper within the larger 
+image, and crop the empty edges. 
+.RE
+.PP
+swdeskew 
+.RS
+Requests the driver to detect the rotation of the paper within the larger 
+image, and counter the rotation.
+.RE
+.PP
+swdespeck X 
+.RS
+Requests the driver to find and remove dots of X diameter or smaller from the 
+image, and fill the space with the average surrounding color.
+.RE
 
 Use 'scanimage \-\-help' to get a list, but be aware that some options may 
 be settable only when another option has been set, and that advanced options 
@@ -172,7 +198,11 @@ EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
 .br
 Canon, USA. www.usa.canon.com loaned equipment
 .br
-HPrint hprint.com.br provided funding and testing for DR-2xxx support
+HPrint hprint.com.br provided funding and testing for DR-2510 support
+.br
+Stone-IT www.stone-it.com provided funding for DR-2010 and DR-2050 support
+.br
+Special thanks to: Alejandro Imass, Andre Shimakawa, Martijn van Brummelen, Thanos Diacakis and Junren Shi for testing and feedback.
 
 .SH "SEE ALSO"
 sane(7),

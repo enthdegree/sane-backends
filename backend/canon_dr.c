@@ -8,7 +8,8 @@
    Corcaribe Tecnología C.A. www.cc.com.ve provided significant funding
    EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
    Canon, USA. www.usa.canon.com loaned equipment
-   HPrint hprint.com.br provided funding and testing for DR-2xxx support
+   HPrint hprint.com.br provided funding and testing for DR-2510 support
+   Stone-IT www.stone-it.com provided funding for DR-2010 and DR-2050 support
 
    --------------------------------------------------------------------------
 

@@ -1725,8 +1725,12 @@ check_gl660_gl646 (struct usb_device *dev)
 
 /* the various incarnations could be distinguished by the 
  * bcdDevice entry:
- *   >= 0x400 --> GL843 ( >= 0x500 --> 845???)
- *   >= 0x306 --> GL842 (probably >= 0x303???)
+ *   > 0x700 --> GL848+?
+ *   >= 0x603 --> GL847
+ *   >= 0x600 --> GL846 
+ *   >= 0x500 --> GL845
+ *   >= 0x400 --> GL843 
+ *   >= 0x300 --> GL842 (perhaps only >= 0x303 ?)
  *   >= 0x200 --> GL841
  */
 static char *
@@ -1746,7 +1750,7 @@ check_gl841 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    this is not a GL841 (bDeviceClass = %d, bInterfaceClass = %d)\n",
+	  ("    this is not a GL84x (bDeviceClass = %d, bInterfaceClass = %d)\n",
 	   dev->descriptor.bDeviceClass,
 	   dev->config[0].interface[0].altsetting[0].bInterfaceClass);
       return 0;
@@ -1754,21 +1758,21 @@ check_gl841 (struct usb_device *dev)
   if (dev->descriptor.bcdUSB != 0x200)
     {
       if (verbose > 2)
-	printf ("    this is not a GL841 (bcdUSB = 0x%x)\n",
+	printf ("    this is not a GL84x (bcdUSB = 0x%x)\n",
 		dev->descriptor.bcdUSB);
       return 0;
     }
   if (dev->descriptor.bDeviceSubClass != 0xff)
     {
       if (verbose > 2)
-	printf ("    this is not a GL841 (bDeviceSubClass = 0x%x)\n",
+	printf ("    this is not a GL84x (bDeviceSubClass = 0x%x)\n",
 		dev->descriptor.bDeviceSubClass);
       return 0;
     }
   if (dev->descriptor.bDeviceProtocol != 0xff)
     {
       if (verbose > 2)
-	printf ("    this is not a GL841 (bDeviceProtocol = 0x%x)\n",
+	printf ("    this is not a GL84x (bDeviceProtocol = 0x%x)\n",
 		dev->descriptor.bDeviceProtocol);
       return 0;
     }
@@ -1777,7 +1781,7 @@ check_gl841 (struct usb_device *dev)
   if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
     {
       if (verbose > 2)
-	printf ("    this is not a GL841 (bNumEndpoints = %d)\n",
+	printf ("    this is not a GL84x (bNumEndpoints = %d)\n",
 		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
       return 0;
     }
@@ -1795,7 +1799,7 @@ check_gl841 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    this is not a GL841 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a GL84x (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].
 	   bEndpointAddress,
@@ -1819,7 +1823,7 @@ check_gl841 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    this is not a GL841 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a GL84x (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].
 	   bEndpointAddress,
@@ -1843,7 +1847,7 @@ check_gl841 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    this is not a GL841 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a GL84x (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[2].
 	   bEndpointAddress,
@@ -1856,10 +1860,18 @@ check_gl841 (struct usb_device *dev)
 
   result = prepare_interface (dev, &handle);
   if (!result) {
+    if (dev->descriptor.bcdDevice >= 0x700)
+	return "GL848+?";
+    if (dev->descriptor.bcdDevice >= 0x603)
+	return "GL847?";
+    if (dev->descriptor.bcdDevice >= 0x600)
+	return "GL846?";
+    if (dev->descriptor.bcdDevice >= 0x500)
+	return "GL845?";
     if (dev->descriptor.bcdDevice >= 0x400)
 	return "GL843?";
-    if (dev->descriptor.bcdDevice >= 0x306)
-	return "GL842";
+    if (dev->descriptor.bcdDevice >= 0x300)
+	return "GL842?";
     else
 	return "GL841?";
   }
@@ -1868,7 +1880,7 @@ check_gl841 (struct usb_device *dev)
   if (!result)
     {
       if (verbose > 2)
-	printf ("    this is not a GL841 (writing register failed)\n");
+	printf ("    this is not a GL84x (writing register failed)\n");
       finish_interface (handle);
       return 0;
     }
@@ -1877,7 +1889,7 @@ check_gl841 (struct usb_device *dev)
   if (!result)
     {
       if (verbose > 2)
-	printf ("    this is not a GL841 (reading register failed)\n");
+	printf ("    this is not a GL84x (reading register failed)\n");
       finish_interface (handle);
       return 0;
     }
@@ -1885,17 +1897,24 @@ check_gl841 (struct usb_device *dev)
   if (val != 0x15)
     {
       if (verbose > 2)
-	printf ("    this is not a GL841 (reg 0x38 != 0x15)\n");
+	printf ("    this is not a GL84x (reg 0x38 != 0x15)\n");
       finish_interface (handle);
       return 0;
     }
   finish_interface (handle);
+
+  if (dev->descriptor.bcdDevice >= 0x700)
+    return "GL848+";
+  if (dev->descriptor.bcdDevice >= 0x603)
+    return "GL847";
+  if (dev->descriptor.bcdDevice >= 0x600)
+    return "GL846";
+  if (dev->descriptor.bcdDevice >= 0x500)
+    return "GL845";
   if (dev->descriptor.bcdDevice >= 0x400)
     return "GL843";
-
-  if (dev->descriptor.bcdDevice >= 0x306)
+  if (dev->descriptor.bcdDevice >= 0x300)
     return "GL842";
-
   return "GL841";
 }
 

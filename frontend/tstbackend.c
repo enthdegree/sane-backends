@@ -1177,10 +1177,7 @@ static void test_scan(SANE_Handle device)
 		check(MSG, 0, "TEST: scan byte per byte - %s", display_scan_parameters(device));
 
 		test_parameters(device, &params);
-		do {
-			status = sane_start (device);
-		}
-		while (status == SANE_STATUS_WARMING_UP);
+		status = sane_start (device);
 		rc = check(ERR, (status == SANE_STATUS_GOOD),
 				   "cannot start the scan (%s)", sane_strstatus (status));
 		if (!rc) goto the_end;
@@ -1286,10 +1283,7 @@ static void test_scan(SANE_Handle device)
 	 */
 	check(MSG, 0, "TEST: partial scan - %s", display_scan_parameters(device));
 
-	do {
-		status = sane_start (device);
-	}
-	while (status == SANE_STATUS_WARMING_UP);
+	status = sane_start (device);
 	rc = check(ERR, (status == SANE_STATUS_GOOD),
 			   "cannot start the scan (%s)", sane_strstatus (status));
 	if (!rc) goto the_end;
@@ -1326,10 +1320,7 @@ static void test_scan(SANE_Handle device)
 	check(ERR, (status != SANE_STATUS_GOOD),
 		  "it is possible to sane_read outside a scan");
 
-	do {
-		status = sane_start (device);
-	}
-	while (status == SANE_STATUS_WARMING_UP);
+	status = sane_start (device);
 	rc = check(ERR, (status == SANE_STATUS_GOOD),
 			   "cannot start the scan (%s)", sane_strstatus (status));
 	if (!rc) goto the_end;
@@ -1413,10 +1404,7 @@ static void test_scan(SANE_Handle device)
 
 	test_parameters(device, &params);
 
-	do {
-		status = sane_start (device);
-	}
-	while (status == SANE_STATUS_WARMING_UP);
+	status = sane_start (device);
 	rc = check(ERR, (status == SANE_STATUS_GOOD),
 			   "cannot start the scan (%s)", sane_strstatus (status));
 	if (!rc) goto the_end;

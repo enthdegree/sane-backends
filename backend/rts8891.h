@@ -110,7 +110,7 @@ enum Rts8891_Option
 /**
  * enumeration of configuration options
  */
-enum Umax_PP_Configure_Option
+enum Rts8891_Configure_Option
 {
   CFG_MODEL_NUMBER = 0,		/* first option number must be zero */
   CFG_SENSOR_NUMBER,		

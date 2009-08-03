@@ -1,3 +1,7 @@
+2009-08-03  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	- pixma backend: few cosmetic documentation updates.
+
 2009-09-02  Stéphane Voltz <stef.dev at free.fr>
 	* frontend/tstbackend.c.h: remove WARMING_UP_STATUS usage
 

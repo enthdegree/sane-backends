@@ -1,9 +1,14 @@
+2009-08-04  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c: 
+	- fixed document end detection for gl646 cis scanners
+	- disable color filter fro gray mode for gl646 cis scanners
+
 2009-08-03  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	- pixma backend: few cosmetic documentation updates.
 
-2009-09-02  Stéphane Voltz <stef.dev at free.fr>
-	* frontend/tstbackend.c.h: remove WARMING_UP_STATUS usage
+2009-08-02  Stéphane Voltz <stef.dev at free.fr>
+	* frontend/tstbackend.c: remove WARMING_UP_STATUS usage
 
 2009-07-30 Jonathan Bravo Lopez <jkdsoft at gmail dot com>
 	* backend/hp3900_config.c: 

@@ -5280,6 +5280,12 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_COLOR_FILTER].constraint.string_list = color_filter_list;
   s->val[OPT_COLOR_FILTER].s = strdup ("Green");
 
+  /* for GL646 cis scanners we're using true gray so ther is no filter */ 
+  if (model->asic_type == GENESYS_GL646 && model->is_cis)
+   {
+      s->opt[OPT_COLOR_FILTER].cap = SANE_CAP_INACTIVE;
+   }
+
   /* Powersave time (turn lamp off) */
   s->opt[OPT_LAMP_OFF_TIME].name = "lamp-off-time";
   s->opt[OPT_LAMP_OFF_TIME].title = SANE_I18N ("Lamp off time");

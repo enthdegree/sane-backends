@@ -942,7 +942,7 @@ Genesys_Model visioneer_xp200_model = {
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (0.5),		/* Start of scan area in mm  (x) */
-  SANE_FIX (10.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (16.0),		/* Start of scan area in mm (y) */
   SANE_FIX (215.9),		/* Size of scan area in mm (x) */
   SANE_FIX (297.2),		/* Size of scan area in mm (y) */
 

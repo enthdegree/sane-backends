@@ -2207,62 +2207,69 @@ static SANE_Status
 gl646_detect_document_end (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  uint8_t val;
-  unsigned int bytes_to_flush, lines;
-  uint32_t flines, bpl, channels, depth;
+  uint8_t val, gpio;
+  unsigned int bytes_left, lines;
 
   DBG (DBG_proc, "gl646_detect_document_end: start\n");
 
   /* test for document presence */
   RIE (sanei_genesys_get_status (dev, &val));
-  DBG (DBG_info, "gl646_detect_document_end: status=0x%02x\n", val);
-  status = gl646_gpio_read (dev->dn, &val);
-  DBG (DBG_info, "gl646_detect_document_end: GPIO=0x%02x\n", val);
+  if (DBG_LEVEL > DBG_info)
+    {
+      print_status (val);
+    }
+  status = gl646_gpio_read (dev->dn, &gpio);
+  DBG (DBG_info, "gl646_detect_document_end: GPIO=0x%02x\n", gpio);
 
-  /* sheetfed scanner uses home sensor as paper present */
-  if ((dev->document == SANE_TRUE) && (val & REG41_HOMESNR))
+  /* detect document event. There one event when the document go in,
+   * then another when it leaves */
+  if ((dev->document == SANE_TRUE) && (gpio & 0x04)
+      && (dev->total_bytes_read > 0))
     {
       DBG (DBG_info, "gl646_detect_document_end: no more document\n");
       dev->document = SANE_FALSE;
 
-      channels = dev->current_setup.channels;
-      depth = dev->current_setup.depth;
+      /* adjust number of bytes to read: 
+       * total_bytes_to_read is the number of byte to send to frontend 
+       * total_bytes_read is the number of bytes sent to frontend
+       * read_bytes_left is the number of bytes to read from the scanner
+       */
+      DBG (DBG_io, "gl646_detect_document_end: total_bytes_to_read=%lu\n",
+	   (u_long) dev->total_bytes_to_read);
+      DBG (DBG_io, "gl646_detect_document_end: total_bytes_read   =%lu\n",
+	   (u_long) dev->total_bytes_read);
+      DBG (DBG_io, "gl646_detect_document_end: read_bytes_left    =%lu\n",
+	   (u_long) dev->read_bytes_left);
 
-      /* adjust number of bytes to read 
-       * we need to read the final bytes which are word per line * number of last lines
-       * to have doc leaving feeder (x3 for CIS) */
+      /* amount of data available from scanner is what to scan */
+      status = sanei_genesys_read_valid_words (dev, &bytes_left);
+
+      /* we add the number of lines needed to read the last part of the document in */
       lines =
 	(SANE_UNFIX (dev->model->y_offset) * dev->current_setup.yres) /
 	MM_PER_INCH;
       DBG (DBG_io, "gl646_detect_document_end: adding %d line to flush\n",
 	   lines);
-      if (dev->model->is_cis == SANE_TRUE)
-	lines *= channels;
-
-      /* number of bytes to read from scanner to get document out of it after
-       * end of document dectected by hardware sensor */
-      bytes_to_flush = lines * dev->wpl;
-
-      /* if we are already close to end of scan, flushing isn't needed */
-      if (bytes_to_flush < dev->read_bytes_left)
+      bytes_left += lines * dev->wpl;
+      if (dev->current_setup.depth > 8)
 	{
-	  /* bits per line */
-	  bpl = (dev->settings.pixels * channels * depth);
-	  /* remaining lines to read by frontend for the current scan */
-	  flines =
-	    ((dev->total_bytes_to_read - dev->total_bytes_read) * 8) / bpl;
-	  if (flines > lines)
-	    {
-	      /* change the value controlling communication with the frontend :
-	       * total bytes to read is current value plus the number of remaining lines 
-	       * multiplied by bytes per line */
-	      dev->total_bytes_to_read =
-		dev->total_bytes_read + (lines * bpl) / 8;
-
-	      /* then adjust the physical bytes to read */
-	      dev->read_bytes_left = bytes_to_flush;
-	    }
+	  bytes_left = 2 * bytes_left;
 	}
+      if (dev->current_setup.channels > 1)
+	{
+	  bytes_left = 3 * bytes_left;
+	}
+      if (bytes_left < dev->read_bytes_left)
+	{
+	  dev->total_bytes_to_read = dev->total_bytes_read + bytes_left;
+	  dev->read_bytes_left = bytes_left;
+	}
+      DBG (DBG_io, "gl646_detect_document_end: total_bytes_to_read=%lu\n",
+	   (u_long) dev->total_bytes_to_read);
+      DBG (DBG_io, "gl646_detect_document_end: total_bytes_read   =%lu\n",
+	   (u_long) dev->total_bytes_read);
+      DBG (DBG_io, "gl646_detect_document_end: read_bytes_left    =%lu\n",
+	   (u_long) dev->read_bytes_left);
     }
   DBG (DBG_proc, "gl646_detect_document_end: end\n");
 

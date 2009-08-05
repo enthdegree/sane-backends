@@ -3031,7 +3031,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       o = 2;
       if(dev->settings.xres<=dev->sensor.optical_res/2)
        {
-      	  o = o - dev->sensor.dummy_pixel;
+      	  o = o - dev->sensor.dummy_pixel / 2;
        }
       cmat[0] = 0;
       cmat[1] = 1;

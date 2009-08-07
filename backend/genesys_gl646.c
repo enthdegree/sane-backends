@@ -1484,10 +1484,15 @@ gl646_init_regs (Genesys_Device * dev)
       dev->reg[reg_0x20].value = 0x20;
       break;
     case CCD_HP2400:
-    case CCD_HP3670:
       dev->reg[reg_0x1e].value = 0x80;
       dev->reg[reg_0x1f].value = 0x10;
       dev->reg[reg_0x20].value = 0x20;
+      break;
+    case CCD_HP3670:
+      dev->reg[reg_0x19].value = 0x2a;
+      dev->reg[reg_0x1e].value = 0x80;
+      dev->reg[reg_0x1f].value = 0x01;
+      dev->reg[reg_0x20].value = 0x50;
       break;
       break;
     case CIS_XP200:

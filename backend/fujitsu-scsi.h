@@ -396,6 +396,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_MSEL_prepick(sb, val) setbitfield(sb + 0x02, 0x03, 6, val)
 
 /*more automatic stuff with this one...*/
+#define set_MSEL_awd(sb, val) setbitfield(sb + 0x02, 0x01, 7, val)
+#define set_MSEL_ald(sb, val) setbitfield(sb + 0x03, 0x01, 7, val)
 #define set_MSEL_overscan(sb, val) setbitfield(sb + 0x05, 0x03, 6, val)
 
 /*buffer, prepick, overscan use these*/

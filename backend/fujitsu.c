@@ -438,6 +438,10 @@
          - do color deinterlacing after reading from scanner, before buffering
       v95 2009-06-02, MAN
          - scanner_control_ric should return a subset of the possible errors
+      v96 2009-08-07, MAN
+         - split sane_get_parameters into two functions
+         - remove unused code from get_pixelsize
+         - support hardware based auto length detection
 
    SANE FLOW DIAGRAM
 
@@ -498,7 +502,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 95
+#define BUILD 96
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2166,9 +2170,9 @@ init_interlace (struct fujitsu *s)
   s->mode=MODE_COLOR;
 
   /* load our own private copy of scan params */
-  ret = sane_get_parameters ((SANE_Handle) s, &s->params);
+  ret = update_params(s);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "init_interlace: ERROR: cannot get params\n");
+    DBG (5, "init_interlace: ERROR: cannot update params\n");
     return ret;
   }
 
@@ -3226,6 +3230,23 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->desc = SANE_DESC_ADVANCED;
     opt->type = SANE_TYPE_GROUP;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
+  /*automatic length detection */
+  if(option==OPT_ALD){
+  
+    opt->name = "ald";
+    opt->title = "Auto length detection";
+    opt->desc = "Scanner detects paper lower edge. May confuse some frontends.";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+
+    if (s->has_MS_auto){
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    }
+    else
+     opt->cap = SANE_CAP_INACTIVE;
   }
 
   /*image compression*/
@@ -4323,6 +4344,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
+        case OPT_ALD:
+          *val_p = s->ald;
+          return SANE_STATUS_GOOD;
+
         case OPT_COMPRESS:
           if(s->compress == COMP_JPEG){
             strcpy (val, string_JPEG);
@@ -4944,6 +4969,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
+        case OPT_ALD:
+          s->ald = val_c;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
+          return mode_select_auto(s);
+
         case OPT_COMPRESS:
           if (!strcmp (val, string_JPEG)) {
             tmp = COMP_JPEG;
@@ -5046,12 +5076,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->overscan = MSEL_ON;
           else if (!strcmp(val, string_Off))
             s->overscan = MSEL_OFF;
-          if (s->has_MS_auto){
-            *info |= SANE_INFO_RELOAD_OPTIONS;
-            return mode_select_overscan(s);
-          }
-          else
-            return SANE_STATUS_GOOD;
+
+          *info |= SANE_INFO_RELOAD_OPTIONS;
+          return mode_select_auto(s);
 
         case OPT_SLEEP_TIME:
           s->sleep_time = val_c;
@@ -5727,7 +5754,7 @@ mode_select_prepick (struct fujitsu *s)
 }
 
 static SANE_Status
-mode_select_overscan (struct fujitsu *s)
+mode_select_auto (struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
@@ -5738,7 +5765,7 @@ mode_select_overscan (struct fujitsu *s)
   size_t outLen = MSEL_header_len + MSEL_data_min_len;
   unsigned char * page = out+MSEL_header_len;
 
-  DBG (10, "mode_select_overscan: start\n");
+  DBG (10, "mode_select_auto: start\n");
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
@@ -5750,6 +5777,7 @@ mode_select_overscan (struct fujitsu *s)
   set_MSEL_page_len(page, MSEL_data_min_len-2);
 
   set_MSEL_overscan(page, s->overscan);
+  set_MSEL_ald(page, s->ald);
   
   ret = do_cmd (
       s, 1, 0,
@@ -5758,7 +5786,7 @@ mode_select_overscan (struct fujitsu *s)
       NULL, NULL
   );
 
-  DBG (10, "mode_select_overscan: finish\n");
+  DBG (10, "mode_select_auto: finish\n");
 
   return ret;
 }
@@ -5788,106 +5816,120 @@ mode_select_overscan (struct fujitsu *s)
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
-    SANE_Status ret = SANE_STATUS_GOOD;
-    struct fujitsu *s = (struct fujitsu *) handle;
+  SANE_Status ret = SANE_STATUS_GOOD;
+  struct fujitsu *s = (struct fujitsu *) handle;
   
-    DBG (10, "sane_get_parameters: start\n");
+  DBG (10, "sane_get_parameters: start\n");
   
-    /* started? get param data from struct */
-    if(s->started){
-        DBG (15, "sane_get_parameters: started, copying to caller\n");
-        params->format = s->params.format;
-        params->last_frame = s->params.last_frame;
-        params->lines = s->params.lines;
-        params->depth = s->params.depth;
-        params->pixels_per_line = s->params.pixels_per_line;
-        params->bytes_per_line = s->params.bytes_per_line;
+  /* not started? update param data from user settings */
+  if(!s->started){
+    ret = update_params(s);
+    if(ret)
+      return ret;
+  }
+
+  params->format = s->params.format;
+  params->last_frame = s->params.last_frame;
+  params->lines = s->params.lines;
+  params->depth = s->params.depth;
+  params->pixels_per_line = s->params.pixels_per_line;
+  params->bytes_per_line = s->params.bytes_per_line;
+
+  if(s->ald){
+    params->lines = -1;
+  }
+
+  DBG (10, "sane_get_parameters: finish\n");
+  return ret;
+}
+
+/* get param data from user settings, store in private copy */
+SANE_Status
+update_params (struct fujitsu * s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  SANE_Parameters * params = &(s->params);
+
+  DBG (15, "update_params: start\n");
+
+  /* this backend only sends single frame images */
+  params->last_frame = 1;
+
+  /* initial ppl from user settings */
+  params->pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
+
+  /* some scanners require even number of bytes in each transfer block,
+   * so we round to even # of total lines, to ensure last block is even */
+  params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
+  params->lines -= params->lines % 2;
+
+  if (s->mode == MODE_COLOR) {
+    params->depth = 8;
+
+#ifdef SANE_FRAME_JPEG
+    /* jpeg requires 8x8 squares */
+    if(s->compress == COMP_JPEG){
+      params->format = SANE_FRAME_JPEG;
+      params->pixels_per_line -= params->pixels_per_line % 8;
+      params->lines -= params->lines % 8;
     }
-
-    /* not started? get param data from user settings */
-    else {
-        DBG (15, "sane_get_parameters: not started, updating\n");
-
-        /* this backend only sends single frame images */
-        params->last_frame = 1;
-
-        /* initial ppl from user settings */
-        params->pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
-
-        /* some scanners require even number of bytes in each transfer block,
-         * so we round to even # of total lines, to ensure last block is even */
-        params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
-        params->lines -= params->lines % 2;
-
-        if (s->mode == MODE_COLOR) {
-            params->depth = 8;
-
-#ifdef SANE_FRAME_JPEG
-            /* jpeg requires 8x8 squares */
-            if(s->compress == COMP_JPEG){
-              params->format = SANE_FRAME_JPEG;
-              params->pixels_per_line -= params->pixels_per_line % 8;
-              params->lines -= params->lines % 8;
-            }
-            else{
+    else{
 #endif
-              params->format = SANE_FRAME_RGB;
-              params->pixels_per_line 
-                -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+      params->format = SANE_FRAME_RGB;
+      params->pixels_per_line 
+        -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
 #ifdef SANE_FRAME_JPEG
-            }
-#endif
-
-            params->bytes_per_line = params->pixels_per_line * 3;
-        }
-        else if (s->mode == MODE_GRAYSCALE) {
-            params->depth = 8;
-
-#ifdef SANE_FRAME_JPEG
-            /* jpeg requires 8x8 squares */
-            if(s->compress == COMP_JPEG){
-              params->format = SANE_FRAME_JPEG;
-              params->pixels_per_line -= params->pixels_per_line % 8;
-              params->lines -= params->lines % 8;
-            }
-            else{
-#endif
-              params->format = SANE_FRAME_GRAY;
-              params->pixels_per_line 
-                -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
-#ifdef SANE_FRAME_JPEG
-            }
-#endif
-
-            params->bytes_per_line = params->pixels_per_line;
-        }
-        else {
-            params->depth = 1;
-            params->format = SANE_FRAME_GRAY;
-            params->pixels_per_line 
-              -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
-            params->bytes_per_line = params->pixels_per_line / 8;
-        }
     }
+#endif
 
-    DBG(15,"sane_get_parameters: x: max=%d, page=%d, gpw=%d, res=%d\n",
-      s->max_x, s->page_width, get_page_width(s), s->resolution_x);
+    params->bytes_per_line = params->pixels_per_line * 3;
+  }
+  else if (s->mode == MODE_GRAYSCALE) {
+    params->depth = 8;
 
-    DBG(15,"sane_get_parameters: y: max=%d, page=%d, gph=%d, res=%d\n",
-      s->max_y, s->page_height, get_page_height(s), s->resolution_y);
+#ifdef SANE_FRAME_JPEG
+    /* jpeg requires 8x8 squares */
+    if(s->compress == COMP_JPEG){
+      params->format = SANE_FRAME_JPEG;
+      params->pixels_per_line -= params->pixels_per_line % 8;
+      params->lines -= params->lines % 8;
+    }
+    else{
+#endif
+      params->format = SANE_FRAME_GRAY;
+      params->pixels_per_line 
+        -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+#ifdef SANE_FRAME_JPEG
+    }
+#endif
 
-    DBG(15,"sane_get_parameters: area: tlx=%d, brx=%d, tly=%d, bry=%d\n",
-      s->tl_x, s->br_x, s->tl_y, s->br_y);
+    params->bytes_per_line = params->pixels_per_line;
+  }
+  else {
+    params->depth = 1;
+    params->format = SANE_FRAME_GRAY;
+    params->pixels_per_line 
+      -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+    params->bytes_per_line = params->pixels_per_line / 8;
+  }
 
-    DBG (15, "sane_get_parameters: params: ppl=%d, Bpl=%d, lines=%d\n", 
-      params->pixels_per_line, params->bytes_per_line, params->lines);
+  DBG(15,"update_params: x: max=%d, page=%d, gpw=%d, res=%d\n",
+    s->max_x, s->page_width, get_page_width(s), s->resolution_x);
 
-    DBG (15, "sane_get_parameters: params: format=%d, depth=%d, last=%d\n", 
-      params->format, params->depth, params->last_frame);
+  DBG(15,"update_params: y: max=%d, page=%d, gph=%d, res=%d\n",
+    s->max_y, s->page_height, get_page_height(s), s->resolution_y);
 
-    DBG (10, "sane_get_parameters: finish\n");
-  
-    return ret;
+  DBG(15,"update_params: area: tlx=%d, brx=%d, tly=%d, bry=%d\n",
+    s->tl_x, s->br_x, s->tl_y, s->br_y);
+
+  DBG (15, "update_params: params: ppl=%d, Bpl=%d, lines=%d\n", 
+    params->pixels_per_line, params->bytes_per_line, params->lines);
+
+  DBG (15, "update_params: params: format=%d, depth=%d, last=%d\n", 
+    params->format, params->depth, params->last_frame);
+
+  DBG (10, "update_params: finish\n");
+  return ret;
 }
 
 /*
@@ -5939,9 +5981,9 @@ sane_start (SANE_Handle handle)
       }
 
       /* load our own private copy of scan params */
-      ret = sane_get_parameters ((SANE_Handle) s, &s->params);
+      ret = update_params(s);
       if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot get params\n");
+        DBG (5, "sane_start: ERROR: cannot update params\n");
         return ret;
       }
 
@@ -5957,6 +5999,13 @@ sane_start (SANE_Handle handle)
         if (ret != SANE_STATUS_GOOD) {
           DBG (5, "sane_start: ERROR: cannot control adf, ignoring\n");
         }
+      }
+
+      /* enable overscan/auto detection */
+      ret = mode_select_auto(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot mode_select_auto\n");
+        return ret;
       }
 
       /* set window command */
@@ -6599,7 +6648,7 @@ get_pixelsize(struct fujitsu *s)
 
       s->params.pixels_per_line = get_PSIZE_num_x(in);
       s->params.lines = get_PSIZE_num_y(in);
-  
+
       /* bytes per line differs by mode */
       if (s->mode == MODE_COLOR) {
         s->params.bytes_per_line = s->params.pixels_per_line * 3;
@@ -6615,61 +6664,6 @@ get_pixelsize(struct fujitsu *s)
         s->params.pixels_per_line, s->params.bytes_per_line, s->params.lines );
         
     }
-
-#if 0
-    /* if READ pixelsize fails, we attempt to guess */
-    else {
-        int dir = 1;
-
-        /* adjust x data in a loop */
-        while(1){
-
-            /* binary and jpeg must have width in multiple of 8 pixels */
-            /* plus, some larger scanners require even bytes per line */
-            /* so change the scan width and try again */
-            if(
-              ((params->depth == 1 || params->format == SANE_FRAME_JPEG)
-                && params->pixels_per_line % 8)
-              || (s->even_scan_line && params->bytes_per_line % 8)
-            ){
-                /* dont round up larger than current max width */
-                if(s->br_x >= pw){
-                    dir = -1;
-                }
-                s->br_x += dir;
-            }
-            else{
-                break;
-            }
-        }
-
-        DBG(15,"sane_get_parameters: adj: tlx=%d, brx=%d, pixx=%d\n",
-	  s->tl_x, s->br_x, (s->resolution_x * (s->br_x - s->tl_x) / 1200));
-
-        dir = 1;
-
-        /* adjust y data in a loop */
-        while(1){
-
-            /* jpeg must have length in multiple of 8 pixels */
-            /* so change the user's scan length and try again */
-            if( params->format == SANE_FRAME_JPEG && params->lines % 8 ){
-
-                /* dont round up larger than current max length */
-                if(s->br_y >= ph){
-                    dir = -1;
-                }
-                s->br_y += dir;
-            }
-            else{
-                break;
-            }
-        }
-
-        DBG(15,"sane_get_parameters: adj: tly=%d, bry=%d, pixy=%d\n",
-	  s->tl_y, s->br_y, (s->resolution_y * (s->br_y - s->tl_y) / 1200));
-    }
-#endif
 
     DBG (10, "get_pixelsize: finish\n");
 

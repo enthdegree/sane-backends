@@ -1,3 +1,10 @@
+2009-08-07 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: Backend v96
+	- split sane_get_parameters into two functions
+	- remove unused code from get_pixelsize
+	- support hardware based auto length detection
+	* doc/descriptions/fujitsu.desc: various status and comment updates
+
 2009-08-07  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys_gl646.c backend/genesys_devices.c: 
 	- small fixes for hp3670 support

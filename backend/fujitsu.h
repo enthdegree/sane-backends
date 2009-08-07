@@ -62,6 +62,7 @@ enum fujitsu_Option
   OPT_VARIANCE,
 
   OPT_ADVANCED_GROUP,
+  OPT_ALD,
   OPT_COMPRESS,
   OPT_COMPRESS_ARG,
   OPT_DF_ACTION,
@@ -449,6 +450,7 @@ struct fujitsu
   int variance;
 
   /*advanced group*/
+  int ald;
   int compress;
   int compress_arg;
   int df_action;
@@ -752,7 +754,7 @@ static SANE_Status mode_select_buff (struct fujitsu *s);
 
 static SANE_Status mode_select_prepick (struct fujitsu *s);
 
-static SANE_Status mode_select_overscan (struct fujitsu *s);
+static SANE_Status mode_select_auto (struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
 
@@ -765,6 +767,7 @@ static SANE_Status endorser (struct fujitsu *s);
 static SANE_Status set_window (struct fujitsu *s);
 static SANE_Status get_pixelsize(struct fujitsu *s);
 
+static SANE_Status update_params (struct fujitsu *s);
 static SANE_Status start_scan (struct fujitsu *s);
 
 static SANE_Status check_for_cancel(struct fujitsu *s);

@@ -1,3 +1,7 @@
+2009-08-07  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys_gl646.c backend/genesys_devices.c: 
+	- small fixes for hp3670 support
+
 2009-08-05  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c: 
 	- fixed shading calibration for hp2300 when dpi <= 300

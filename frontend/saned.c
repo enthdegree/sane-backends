@@ -3106,7 +3106,7 @@ run_standalone (int argc, char **argv)
       for (i = 0, fdp = fds; i < nfds; i++, fdp++)
 	{
 	  /* Error on an fd */
-	  if (! (fdp->revents & POLLIN))
+	  if (fdp->revents & (POLLERR | POLLHUP | POLLNVAL))
 	    {
 	      for (i = 0, fdp = fds; i < nfds; i++, fdp++)
 		close (fdp->fd);

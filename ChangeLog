@@ -1,3 +1,7 @@
+2009-08-08 Julien Blache <jb@jblache.org>
+	- frontend/saned.c: run_standalone(), explicitely check for errors
+	on fds.
+
 2009-08-07 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: Backend v96
 	- split sane_get_parameters into two functions

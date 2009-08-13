@@ -1523,6 +1523,12 @@ read_files (void)
 	      fclose (fp);
 	    }			/* if (strlen) */
 	}			/* while (direntry) */
+      if (closedir(dir) != 0)
+	{
+	  DBG_ERR ("cannot close directory `%s' (%s)\n", search_dir,
+		   strerror (errno));
+	  return SANE_FALSE;
+	}
       if (end)
 	search_dir = end + 1;
       else

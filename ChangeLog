@@ -1,5 +1,9 @@
+2009-08-13 m. allan noah <kitno455 at gmail dot com>
+	* tools/sane-desc.c: add closedir call to fix bug #311880, patch
+	  from Johannes Meixner
+
 2009-08-08 Julien Blache <jb@jblache.org>
-	- frontend/saned.c: run_standalone(), explicitely check for errors
+	* frontend/saned.c: run_standalone(), explicitely check for errors
 	on fds.
 
 2009-08-07 m. allan noah <kitno455 at gmail dot com>

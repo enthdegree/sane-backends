@@ -10,6 +10,7 @@
 
    JPEG output support funded by Archivista GmbH, www.archivista.ch
    Endorser support funded by O A S Oilfield Accounting Service Ltd, www.oas.ca
+   Automatic length detection support funded by Martin G. Miller
 
    --------------------------------------------------------------------------
 

@@ -203,6 +203,10 @@ Endorser support funded by:
   1\-403\-263\-2600
   www.oas.ca
 
+Automatic length detection support funded by:
+  Martin G. Miller
+  mgmiller at optonline.net
+
 Hardware donated by Fujitsu Computer Products of America, Inc.
   http://us.fujitsu.com/fcpa
 

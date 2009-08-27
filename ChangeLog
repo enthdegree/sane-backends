@@ -1,3 +1,7 @@
+2009-08-27  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/descriptions/pixma.desc, backend/pixma_mp150.c:
+	- pixma backend: Updated description for MP830 reported to be fully supported.
+
 2009-08-13 m. allan noah <kitno455 at gmail dot com>
 	* tools/sane-desc.c: add closedir call to fix bug #311880, patch
 	  from Johannes Meixner

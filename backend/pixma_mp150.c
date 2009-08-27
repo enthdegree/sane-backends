@@ -141,7 +141,7 @@
 #define MP190_PID 0x1734
 
 /* PIXMA 2009 vintage */
-#define MX860_PID 0x1735    /* untested */
+#define MX860_PID 0x1735
 #define MX320_PID 0x1736    /* untested */
 #define MX330_PID 0x1737    /* untested */
 

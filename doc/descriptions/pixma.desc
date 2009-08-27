@@ -157,8 +157,8 @@
 :model "PIXMA MP830"
 :interface "USB"
 :usbid "0x04a9" "0x1713"
-:status :basic
-:comment "Single-side ADF works, Duplex ADF to be tested."
+:status :good
+:comment "All resolutions supported up to 2400DPI. Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MP960"
 :interface "USB"

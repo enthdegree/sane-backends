@@ -76,7 +76,6 @@
 #define MF5630_PID 0x264e
 #define MF5650_PID 0x264f
 #define MF8100_PID 0x2659
-#define MF3110_PID 0x2660
 #define MF3200_PID 0x2684
 #define MF6500_PID 0x2686
 
@@ -679,7 +678,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF8170c", "MF8170c", MF8100_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF3110", "MF3110", MF3110_PID, 600, 640, 877, 0),
   DEV ("Canon imageCLASS MF3240", "MF3240", MF3200_PID, 600, 640, 877, 0),
   DEV ("Canon imageClass MF6500", "MF6500", MF6500_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4010", "MF4010", MF4010_PID, 600, 640, 877, 0),

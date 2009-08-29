@@ -75,6 +75,7 @@
 #define MF5730_PID 0x265d	/* Untested */
 #define MF5750_PID 0x265e	/* Untested */
 #define MF5770_PID 0x265f
+#define MF3110_PID 0x2660
 
 enum mp730_state_t
 {
@@ -722,6 +723,7 @@ const pixma_config_t pixma_mp730_devices[] = {
   DEVICE ("Canon imageCLASS MF5730", "MF5730", MF5730_PID, 1200, 636, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon imageCLASS MF5750", "MF5750", MF5750_PID, 1200, 636, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon imageCLASS MF5770", "MF5770", MF5770_PID, 1200, 636, 868, PIXMA_CAP_ADF),
+  DEVICE ("Canon imageCLASS MF3110", "MF3110", MF3110_PID, 600, 640, 877, 0),
 
   DEVICE (NULL, NULL, 0, 0, 0, 0, 0)
 };

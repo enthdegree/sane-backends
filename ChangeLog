@@ -1,3 +1,7 @@
+2009-08-29  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_imageclass.c, backend/pixma_mp730.c:
+	pixma backend: moved MF3110 declaration to mp730 part of backend.
+
 2009-08-27  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/descriptions/pixma.desc, backend/pixma_mp150.c:
 	- pixma backend: Updated description for MP830 reported to be fully supported.

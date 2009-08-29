@@ -257,18 +257,20 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
   pixma_set_be16 (cmd_read_image, mf->cb.buf);
   mf->cb.buf[8] = flag;
   mf->cb.buf[10] = 0x06;
-  mf->cb.reslen = pixma_cmd_transaction (s, mf->cb.buf, 11, mf->cb.buf, 512);
+  mf->cb.reslen = pixma_cmd_transaction (s, mf->cb.buf, 11, mf->cb.buf, 8);
   mf->cb.expected_reslen = 0;
-/*  error = pixma_check_result (&mf->cb); */
-  error = 0;
+  error = pixma_check_result (&mf->cb);
   if (error >= 0)
     {
-      if (mf->cb.reslen >= 8)
-        { 
+      if (mf->cb.reslen == 8)
+        {
           *info = mf->cb.buf[2];
-          *size = pixma_get_be16 (mf->cb.buf + 6);
-          /* could it be 32bit? */
-          /* *size = pixma_get_be32 (mf->cb.buf + 4); */
+          *size = pixma_get_be16 (mf->cb.buf + 6);    /* 16bit size */
+          if (s->cfg->pid == MF4600_PID)              /* 32bit size */
+            *size = pixma_get_be32 (mf->cb.buf + 4);
+ 
+ PDBG (pixma_dbg (3, "size = %u\n", *size));
+ 
         }
       else
         {

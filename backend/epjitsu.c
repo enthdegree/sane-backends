@@ -43,7 +43,8 @@
    This file implements a SANE backend for the Fujitsu fi-60F, the
    ScanSnap S300, and (hopefully) other Epson-based Fujitsu scanners. 
 
-   Copyright 2007-2008 by m. allan noah <kitno455 at gmail dot com>
+   Copyright 2007-2009 by m. allan noah <kitno455 at gmail dot com>
+   Copyright 2009 by Richard Goedeken <richard at fascinationsoftware dot com>
 
    Development funded by Microdea, Inc., TrueCheck, Inc. and Archivista, GmbH
 
@@ -120,6 +121,8 @@
         - change page length autodetection condition
       v18 2009-01-21, MAN
          - dont export private symbols
+      v19 2009-08-31, RG
+         - rewritten calibration routines
 
    SANE FLOW DIAGRAM
 
@@ -179,7 +182,11 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 18
+#define BUILD 19
+
+#ifndef MAX3
+  #define MAX3(a,b,c) ((a) > (b) ? ((a) > (c) ? a : c) : ((b) > (c) ? b : c))
+#endif
 
 unsigned char global_firmware_filename[PATH_MAX];
 
@@ -192,6 +199,13 @@ unsigned char global_firmware_filename[PATH_MAX];
  - usb cmd detail  30
  - useless noise   35
 */
+
+/* Calibration settings */
+#define COARSE_OFFSET_TARGET   15
+static int coarse_gain_min[3] = { 88, 88, 88 };    /* front, back, FI-60F 3rd plane */
+static int coarse_gain_max[3] = { 92, 92, 92 };
+static int fine_gain_target[3] = {185, 150, 170};  /* front, back, FI-60F is this ok? */
+static float white_factor[3] = {1.0, 0.93, 0.98};  /* Blue, Red, Green */
 
 /* ------------------------------------------------------------------------- */
 static const char string_Flatbed[] = "Flatbed";
@@ -1659,12 +1673,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 static void
 update_transfer_totals(struct transfer * t)
 {
-    t->total_pix = t->width_pix * t->height;
-    t->total_bytes = t->width_bytes * t->height;
-
+    if (t->image == NULL) return;
+    
+    t->total_bytes = t->line_stride * t->image->height;
     t->rx_bytes = 0;
-    t->tx_bytes = 0;
-
     t->done = 0;
 }
 
@@ -1681,14 +1693,16 @@ struct model_res {
   int max_y;
   int min_y;
 
-  int act_width;
-  int req_width;
+  int act_width;   /* total data width output, in pixels per side (always 3 sides) */
+  int req_width;   /* stride in pixels per side between color planes (always 3 sides) */
   int head_width;
   int pad_width;
 
   int block_height;
 
   int cal_width;
+  int cal_headwidth;
+  int cal_reqwidth;
 
   unsigned char * sw_coarsecal;
   unsigned char * sw_finecal;
@@ -1703,67 +1717,67 @@ struct model_res {
 static struct model_res settings[] = {
 
  /*S300 AC*/
-/* model       xres yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh calw */
- { MODEL_S300,  150, 150, 0, 1296, 32, 2662, 32, 4256, 1480, 1296, 184, 41, 8512,
+/* model       xres yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw  bh  calw  cal_hedw  cal_reqw */
+ { MODEL_S300,  150, 150, 0, 1296, 32, 2662, 32, 4256, 1480, 1296, 184, 41, 8512, 2592,    2960,
    setWindowCoarseCal_S300_150, setWindowFineCal_S300_150,
    setWindowSendCal_S300_150, sendCal1Header_S300_150,
    sendCal2Header_S300_150, setWindowScan_S300_150 },
 
- { MODEL_S300,  225, 200, 0, 1944, 32, 3993, 32, 6144, 2100, 1944, 156, 28, 8192,
+ { MODEL_S300,  225, 200, 0, 1944, 32, 3993, 32, 6144, 2100, 1944, 156, 28, 8192, 2592,    2800,
    setWindowCoarseCal_S300_225, setWindowFineCal_S300_225,
    setWindowSendCal_S300_225, sendCal1Header_S300_225,
    sendCal2Header_S300_225, setWindowScan_S300_225 },
 
- { MODEL_S300,  300, 300, 0, 2592, 32, 5324, 32, 8192, 2800, 2592, 208, 21, 8192,
+ { MODEL_S300,  300, 300, 0, 2592, 32, 5324, 32, 8192, 2800, 2592, 208, 21, 8192, 2592,    2800,
    setWindowCoarseCal_S300_300, setWindowFineCal_S300_300,
    setWindowSendCal_S300_300, sendCal1Header_S300_300,
    sendCal2Header_S300_300, setWindowScan_S300_300 },
 
- { MODEL_S300,  600, 600, 0, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064,
+ { MODEL_S300,  600, 600, 0, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064, 5184, 5440,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
  /*S300 USB*/
-/* model       xres yres  u  mxx   mnx mxy   mny actw   reqw  hedw  padw  bh    calw */
- { MODEL_S300,  150, 150, 1, 1296, 32, 2662, 32, 7216,  2960, 1296, 1664, 24, 14432,
+/* model       xres yres  u  mxx   mnx mxy   mny actw   reqw  hedw  padw  bh   calw  cal_hedw  cal_reqw */
+ { MODEL_S300,  150, 150, 1, 1296, 32, 2662, 32, 7216,  2960, 1296, 1664, 24, 14432, 2592,    5920,
    setWindowCoarseCal_S300_150_U, setWindowFineCal_S300_150_U,
    setWindowSendCal_S300_150_U, sendCal1Header_S300_150_U,
    sendCal2Header_S300_150_U, setWindowScan_S300_150_U },
 
- { MODEL_S300,  225, 200, 1, 1944, 32, 3993, 32, 10584, 4320, 1944, 2376, 16, 14112,
+ { MODEL_S300,  225, 200, 1, 1944, 32, 3993, 32, 10584, 4320, 1944, 2376, 16, 14112, 2592,    5760,
    setWindowCoarseCal_S300_225_U, setWindowFineCal_S300_225_U,
    setWindowSendCal_S300_225_U, sendCal1Header_S300_225_U,
    sendCal2Header_S300_225_U, setWindowScan_S300_225_U },
 
- { MODEL_S300,  300, 300, 1, 2592, 32, 5324, 32, 15872, 6640, 2592, 4048, 11, 15872,
+ { MODEL_S300,  300, 300, 1, 2592, 32, 5324, 32, 15872, 6640, 2592, 4048, 11, 15872, 2592,    6640,
    setWindowCoarseCal_S300_300_U, setWindowFineCal_S300_300_U,
    setWindowSendCal_S300_300_U, sendCal1Header_S300_300_U,
    sendCal2Header_S300_300_U, setWindowScan_S300_300_U },
 
- { MODEL_S300,  600, 600, 1, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064,
+ { MODEL_S300,  600, 600, 1, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064, 5184,    5440,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
  /*fi-60F*/
-/* model       xres  yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh calw */
- { MODEL_FI60F, 150, 150, 0,  600, 32,  875, 32, 1480, 1480,  216, 1114, 41, 1480,
+/* model       xres  yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw  bh  calw  cal_hedw  cal_reqw */
+ { MODEL_FI60F, 150, 150, 0,  648, 32,  875, 32, 1480,  632,  216,  416, 41, 1480,    216,  632,
    setWindowCoarseCal_FI60F_150, setWindowFineCal_FI60F_150,
    setWindowSendCal_FI60F_150, sendCal1Header_FI60F_150,
    sendCal2Header_FI60F_150, setWindowScan_FI60F_150 },
 
- { MODEL_FI60F, 300, 300, 0, 1296, 32, 1749, 32, 2400, 2400,  432,  526, 72, 2400,
+ { MODEL_FI60F, 300, 300, 0, 1296, 32, 1749, 32, 2400,  958,  432,  526, 72, 2400,    432,  958,
    setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
    setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
    sendCal2Header_FI60F_300, setWindowScan_FI60F_300 },
 
- { MODEL_FI60F, 600, 600, 0, 2592, 32, 3498, 32, 2848, 2848,  864,  114, 61, 2848,
+ { MODEL_FI60F, 600, 600, 0, 2592, 32, 3498, 32, 2848,  978,  864,  114, 61, 2848,    864,  978,
    setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
    setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
    sendCal2Header_FI60F_600, setWindowScan_FI60F_600 },
 
- { MODEL_NONE,    0, 0, 0, 0,  0,    0,  0,    0,    0,    0,    0,  0,    0,
+ { MODEL_NONE,    0, 0, 0, 0,  0,    0,  0,    0,    0,    0,    0,  0,    0, 0, 0,
    NULL, NULL, NULL, NULL, NULL, NULL },
 
 };
@@ -1776,6 +1790,7 @@ change_params(struct scanner *s)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
 
+    int img_heads, img_pages, width;
     int i=0;
 
     DBG (10, "change_params: start\n");
@@ -1794,17 +1809,11 @@ change_params(struct scanner *s)
           s->max_y = settings[i].max_y * 1200/s->resolution_y;
           s->min_y = settings[i].min_y * 1200/s->resolution_y;
 
+          s->page_width = s->max_x;
+          s->br_x = s->max_x;
+          s->br_y = s->max_y;
+
           /*current dpi*/
-          s->scan.width_pix = settings[i].act_width;
-          s->block.height = settings[i].block_height;
-
-          s->req_width = settings[i].req_width;
-          s->head_width = settings[i].head_width;
-          s->pad_width = settings[i].pad_width;
-
-          s->coarsecal.width_pix = settings[i].cal_width;
-          s->coarsecal.width_bytes = settings[i].cal_width*3;
-
           s->setWindowCoarseCal = settings[i].sw_coarsecal;
           s->setWindowCoarseCalLen = SET_WINDOW_LEN;
 
@@ -1827,56 +1836,82 @@ change_params(struct scanner *s)
       }
       i++;
     } while (settings[i].model);
-  
-    /*flatbed and adf in autodetect always ask for all*/
-    if(s->source == SOURCE_FLATBED || !s->page_height){
-      s->scan.height = s->max_y * s->resolution_y / 1200;
-    }
-    /* adf with specified paper size requires padding (~1/2in) */
-    else{
-      s->scan.height = (s->page_height+600) * s->resolution_y / 1200;
+
+    if (!settings[i].model)
+    {
+        return SANE_STATUS_INVAL;
     }
 
-    /* FIXME: make these vals dynamic? */
-    s->front.width_pix = s->max_x * s->resolution_x / 1200;
-    s->page_width = s->max_x;
-    s->br_x = s->max_x;
-    s->br_y = s->max_y;
-
-    /*FIXME: fi-60f gray or binary could scan in 8 bit gray*/
-    if (s->model == MODEL_FI60F && s->mode != MODE_COLOR){
-        s->scan.width_bytes = s->scan.width_pix*3;
+    if (s->model == MODEL_S300)
+    {
+        img_heads = 1; /* image width is the same as the plane width on the S300 */
+        img_pages = 2;
     }
-    else{
-        s->scan.width_bytes = s->scan.width_pix*3;
+    else /* (s->model == MODEL_FI60F) */
+    {
+        img_heads = 3; /* image width is 3* the plane width on the FI-60F */
+        img_pages = 1;
     }
-    update_transfer_totals(&s->scan);
+    
+    /* set up the transfer structs */
+    s->cal_image.plane_width = settings[i].cal_headwidth;
+    s->cal_image.plane_stride = settings[i].cal_reqwidth * 3;
+    s->cal_image.line_stride = settings[i].cal_width * 3;
+    s->cal_image.raw_data = NULL;
+    s->cal_image.image = NULL;
 
+    s->cal_data.plane_width = settings[i].cal_headwidth; /* width is the same, but there are 2 bytes per pixel component */
+    s->cal_data.plane_stride = settings[i].cal_reqwidth * 6;
+    s->cal_data.line_stride = settings[i].cal_width * 6;
+    s->cal_data.raw_data = NULL;
+    s->cal_data.image = &s->sendcal;
+
+    s->block_xfr.plane_width = settings[i].head_width;
+    s->block_xfr.plane_stride = settings[i].req_width * 3;
+    s->block_xfr.line_stride = settings[i].act_width * 3;
+    s->block_xfr.raw_data = NULL;
+    s->block_xfr.image = &s->block_img;
+
+    /* set up the block image used during scanning operation */
+    width = s->block_xfr.plane_width * img_heads;
+    s->block_img.width_pix = width;
+    s->block_img.width_bytes = width * 3;
+    s->block_img.height = settings[i].block_height;
+    s->block_img.pages = img_pages;
+    s->block_img.buffer = NULL;
+
+    /* set up the calibration image blocks */
+    width = s->cal_image.plane_width * img_heads;
+    s->coarsecal.width_pix = s->darkcal.width_pix = s->lightcal.width_pix = width;
+    s->coarsecal.width_bytes = s->darkcal.width_bytes = s->lightcal.width_bytes = width * 3;
     s->coarsecal.height = 1;
-    update_transfer_totals(&s->coarsecal);
+    s->darkcal.height = s->lightcal.height = 16;
+    s->coarsecal.pages = s->darkcal.pages = s->lightcal.pages = img_pages;
+    s->coarsecal.buffer = s->darkcal.buffer = s->lightcal.buffer = NULL;
 
-    s->darkcal.height = 16;
-    s->darkcal.width_pix = s->coarsecal.width_pix;
-    s->darkcal.width_bytes = s->coarsecal.width_bytes;
-    update_transfer_totals(&s->darkcal);
-
-    s->lightcal.height = 16;
-    s->lightcal.width_pix = s->coarsecal.width_pix;
-    s->lightcal.width_bytes = s->coarsecal.width_bytes;
-    update_transfer_totals(&s->lightcal);
-
-    /* 2 bytes per channel (gain&offset) */
+    /* set up the calibration data block */
+    width = s->cal_data.plane_width * img_heads;
+    s->sendcal.width_pix = width;
+    s->sendcal.width_bytes = width * 6;  /* 2 bytes of cal data per pixel component */
     s->sendcal.height = 1;
-    s->sendcal.width_pix = s->coarsecal.width_pix * 2;
-    s->sendcal.width_bytes = s->coarsecal.width_bytes * 2;
-    update_transfer_totals(&s->sendcal);
-     
-    /* fill in block settings */
-    s->block.width_bytes = s->scan.width_bytes;
-    s->block.width_pix = s->scan.width_pix;
-    update_transfer_totals(&s->block);
+    s->sendcal.pages = img_pages;
+    s->sendcal.buffer = NULL;
+    
+    /* set up the fullscan parameters */
+    s->fullscan.width_bytes = s->block_xfr.line_stride;
+    if(s->source == SOURCE_FLATBED || !s->page_height)
+    {
+      /* flatbed and adf in autodetect always ask for all*/
+      s->fullscan.height = s->max_y * s->resolution_y / 1200;
+    }
+    else
+    {
+      /* adf with specified paper size requires padding (~1/2in) */
+      s->fullscan.height = (s->page_height+600) * s->resolution_y / 1200;
+    }
 
     /* fill in front settings */
+    s->front.width_pix = s->block_img.width_pix;
     switch (s->mode) {
       case MODE_COLOR:
         s->front.width_bytes = s->front.width_pix*3;
@@ -1888,22 +1923,30 @@ change_params(struct scanner *s)
         s->front.width_bytes = s->front.width_pix/8;
         break;
     }
-
     /*output image might be taller than scan due to interpolation*/
-    s->front.height = s->scan.height * s->resolution_x / s->resolution_y;
-    update_transfer_totals(&s->front);
+    s->front.height = s->fullscan.height * s->resolution_x / s->resolution_y;
+    s->front.pages = 1;
+    s->front.buffer = NULL;
+
+    /* back settings always same as front settings */
+    s->back.width_pix = s->front.width_pix;
+    s->back.width_bytes = s->front.width_bytes;
+    s->back.height = s->front.height;
+    s->back.pages = 1;
+    s->back.buffer = NULL;
 
     /* dynamic threshold temp buffer, in gray */
     s->dt.width_pix = s->front.width_pix;
     s->dt.width_bytes = s->front.width_pix;
     s->dt.height = 1;
-    update_transfer_totals(&s->dt);
+    s->dt.pages = 1;
+    s->dt.buffer = NULL;
 
-    /* back settings always same as front settings */
-    s->back.height = s->front.height;
-    s->back.width_pix = s->front.width_pix;
-    s->back.width_bytes = s->front.width_bytes;
-    update_transfer_totals(&s->back);
+    /* set up the pointers to the page images in the page structs */
+    s->pages[SIDE_FRONT].image = &s->front;
+    s->pages[SIDE_BACK].image = &s->back;
+    s->pages[SIDE_FRONT].done = 0;
+    s->pages[SIDE_BACK].done = 0;
 
     DBG (10, "change_params: finish\n");
   
@@ -2064,6 +2107,7 @@ sane_start (SANE_Handle handle)
 {
     struct scanner *s = handle;
     SANE_Status ret;
+    int i;
   
     DBG (10, "sane_start: start\n");
   
@@ -2172,16 +2216,22 @@ sane_start (SANE_Handle handle)
         DBG(15,"sane_start: reset counters\n");
 
         /* reset scan */
-        update_transfer_totals(&s->scan);
+        s->fullscan.done = 0;
+        s->fullscan.rx_bytes = 0;
+        s->fullscan.total_bytes = s->fullscan.width_bytes * s->fullscan.height;
     
         /* reset block */
-        update_transfer_totals(&s->block);
+        update_transfer_totals(&s->block_xfr);
 
-        /* reset front */
-        update_transfer_totals(&s->front);
-
-        /* reset back */
-        update_transfer_totals(&s->back);
+        /* reset front and back page counters */
+        for (i = 0; i < 2; i++)
+        {
+            struct image *page_img = s->pages[i].image;
+            s->pages[i].bytes_total = page_img->width_bytes * page_img->height;
+            s->pages[i].bytes_scanned = 0;
+            s->pages[i].bytes_read = 0;
+            s->pages[i].done = 0;
+        }
 
         ret = scan(s);
         if (ret != SANE_STATUS_GOOD) {
@@ -2208,39 +2258,56 @@ setup_buffers(struct scanner *s)
     DBG (10, "setup_buffers: start\n");
 
     /* temporary cal data */
-    s->coarsecal.buffer = calloc (1,s->coarsecal.total_bytes+8);
+    s->coarsecal.buffer = calloc (1,s->coarsecal.width_bytes * s->coarsecal.height * s->coarsecal.pages);
     if(!s->coarsecal.buffer){
         DBG (5, "setup_buffers: ERROR: failed to setup coarse cal buffer\n");
         return SANE_STATUS_NO_MEM;
     }
 
-    s->darkcal.buffer = calloc (1,s->darkcal.total_bytes+8);
+    s->darkcal.buffer = calloc (1,s->darkcal.width_bytes * s->darkcal.height * s->darkcal.pages);
     if(!s->darkcal.buffer){
         DBG (5, "setup_buffers: ERROR: failed to setup fine cal buffer\n");
         return SANE_STATUS_NO_MEM;
     }
 
-    s->lightcal.buffer = calloc (1,s->lightcal.total_bytes+8);
+    s->lightcal.buffer = calloc (1,s->lightcal.width_bytes * s->lightcal.height * s->lightcal.pages);
     if(!s->lightcal.buffer){
         DBG (5, "setup_buffers: ERROR: failed to setup fine cal buffer\n");
         return SANE_STATUS_NO_MEM;
     }
 
-    s->sendcal.buffer = calloc (1,s->sendcal.total_bytes+8);
+    s->sendcal.buffer = calloc (1,s->sendcal.width_bytes * s->sendcal.height * s->sendcal.pages);
     if(!s->sendcal.buffer){
         DBG (5, "setup_buffers: ERROR: failed to setup send cal buffer\n");
         return SANE_STATUS_NO_MEM;
     }
 
+    s->cal_image.raw_data = calloc(1, s->cal_image.line_stride * 16 + 8); /* maximum 16 lines input for fine calibration */
+    if(!s->cal_image.raw_data){
+        DBG (5, "setup_buffers: ERROR: failed to setup calibration input raw data buffer\n");
+        return SANE_STATUS_NO_MEM;
+    }
+
+    s->cal_data.raw_data = calloc(1, s->cal_data.line_stride); /* only 1 line of data is sent */
+    if(!s->cal_data.raw_data){
+        DBG (5, "setup_buffers: ERROR: failed to setup calibration output raw data buffer\n");
+        return SANE_STATUS_NO_MEM;
+    }
+
     /* grab up to 512K at a time */
-    s->block.buffer = calloc (1,s->block.total_bytes+8);
-    if(!s->block.buffer){
-        DBG (5, "setup_buffers: ERROR: failed to setup block buffer\n");
+    s->block_img.buffer = calloc (1,s->block_img.width_bytes * s->block_img.height * s->block_img.pages);
+    if(!s->block_img.buffer){
+        DBG (5, "setup_buffers: ERROR: failed to setup block image buffer\n");
+        return SANE_STATUS_NO_MEM;
+    }
+    s->block_xfr.raw_data = calloc(1, s->block_xfr.line_stride * s->block_img.height + 8);
+    if(!s->block_xfr.raw_data){
+        DBG (5, "setup_buffers: ERROR: failed to setup block raw data buffer\n");
         return SANE_STATUS_NO_MEM;
     }
 
     /* one grayscale line for dynamic threshold */
-    s->dt.buffer = calloc (1,s->dt.total_bytes);
+    s->dt.buffer = calloc (1,s->dt.width_bytes * s->dt.height * s->dt.pages);
     if(!s->dt.buffer){
         DBG (5, "setup_buffers: ERROR: failed to setup dt buffer\n");
         return SANE_STATUS_NO_MEM;
@@ -2249,7 +2316,7 @@ setup_buffers(struct scanner *s)
     /* make image buffer to hold frontside data */
     if(s->source != SOURCE_ADF_BACK){
 
-        s->front.buffer = calloc (1,s->front.total_bytes+8);
+        s->front.buffer = calloc (1,s->front.width_bytes * s->front.height * s->front.pages);
         if(!s->front.buffer){
             DBG (5, "setup_buffers: ERROR: failed to setup front buffer\n");
             return SANE_STATUS_NO_MEM;
@@ -2259,7 +2326,7 @@ setup_buffers(struct scanner *s)
     /* make image buffer to hold backside data */
     if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK){
 
-        s->back.buffer = calloc (1,s->back.total_bytes+8);
+        s->back.buffer = calloc (1,s->back.width_bytes * s->back.height * s->back.pages);
         if(!s->back.buffer){
             DBG (5, "setup_buffers: ERROR: failed to setup back buffer\n");
             return SANE_STATUS_NO_MEM;
@@ -2297,8 +2364,9 @@ coarsecal(struct scanner *s)
     size_t payLen = 28;
     unsigned char pay[28];
 
-    /*size_t i;*/
-    int try = 0, direction = -1;
+    int try_count, cal_good[2], x, i, j;
+    int param[2], zcount[2], high_param[2], low_param[2], avg[2], maxval[2];
+    int rgb_avg[2][3], rgb_hicount[2][3];
 
     DBG (10, "coarsecal: start\n");
 
@@ -2323,7 +2391,28 @@ coarsecal(struct scanner *s)
         return ret;
     }
 
-    while(try++ < 1){
+    try_count = 8;
+    param[0] = 63;
+    param[1] = 63;
+    low_param[0] = low_param[1] = -64;  /* The S300 will accept coarse offsets from -128 to 127 */
+    high_param[0] = high_param[1] = 63; /* By our range is limited to converge faster */
+    cal_good[0] = cal_good[1] = 0;
+
+    while (try_count > 0){
+        try_count--;
+
+        /* update the coarsecal payload to use our new dark offset parameters */
+        if (s->model == MODEL_S300)
+        {
+            pay[5] = param[0];
+            pay[7] = param[1];
+        }
+        else /* (s->model == MODEL_FI60F) */
+        {
+            pay[5] = param[0];
+            pay[7] = param[0];
+            pay[9] = param[0];
+        }
 
         /* send coarse cal (c6) */
         cmd[0] = 0x1b;
@@ -2364,6 +2453,8 @@ coarsecal(struct scanner *s)
             DBG (5, "coarsecal: c6 payload bad status?\n");
             return SANE_STATUS_IO_ERROR;
         }
+        
+        DBG(15, "coarsecal offset: parameter front: %i back: %i\n", param[0], param[1]);
 
         /* send scan d2 command */
         cmd[0] = 0x1b;
@@ -2386,31 +2477,66 @@ coarsecal(struct scanner *s)
             return SANE_STATUS_IO_ERROR;
         }
 
-        s->coarsecal.rx_bytes = 0;
-        s->coarsecal.tx_bytes = 0;
+        s->cal_image.image = &s->coarsecal;
+        update_transfer_totals(&s->cal_image);
     
-        while(!s->coarsecal.done){
-            ret = read_from_scanner(s,&s->coarsecal);
+        while(!s->cal_image.done){
+            ret = read_from_scanner(s,&s->cal_image);
             if(ret){
                 DBG (5, "coarsecal: cant read from scanner\n");
                 return ret;
             }
         }
-        s->coarsecal.done = 0;
+        /* convert the raw data into normal packed pixel data */
+        descramble_raw(s, &s->cal_image);
 
-        /* FIXME inspect data, change coarse cal data */
-        if(s->model == MODEL_S300){
-            pay[5] += direction;
-            pay[7] += direction;
+        /* gather statistics: count the proportion of 0-valued pixels */
+        /* since the lamp is off, there's no point in looking at the green or blue data - they're all from the same sensor anyway */
+        zcount[0] = zcount[1] = 0;
+        avg[0] = avg[1] = 0;
+        maxval[0] = maxval[1] = 0;
+        for (j = 0; j < s->coarsecal.pages; j++)
+        {
+            int page_offset = j * s->coarsecal.width_bytes * s->coarsecal.height;
+            for (x = 0; x < s->coarsecal.width_bytes; x++)
+            {
+                int val = s->coarsecal.buffer[page_offset + x];
+                avg[j] += val;
+                if (val == 0)        zcount[j]++;
+                if (val > maxval[j]) maxval[j] = val;
+            }
         }
-        else{
-            pay[5] += direction;
-            pay[7] += direction;
-            pay[9] += direction;
+        /* convert the zero counts from a pixel count to a proportion in tenths of a percent */
+        for (j = 0; j < s->coarsecal.pages; j++)
+        {
+            avg[j] /= s->coarsecal.width_bytes;
+            zcount[j] = zcount[j] * 1000 / s->coarsecal.width_bytes;
         }
+        DBG(15, "coarsecal offset: average pixel values front: %i  back: %i\n", avg[0], avg[1]);
+        DBG(15, "coarsecal offset: maximum pixel values front: %i  back: %i\n", maxval[0], maxval[1]);
+        DBG(15, "coarsecal offset: 0-valued pixel count front: %f%% back: %f%%\n", zcount[0] / 10.0f, zcount[1] / 10.0f);
 
-        hexdump(15, "c6 payload: ", pay, payLen);
-    }
+        /* check the values, adjust parameters if they are not within the target range */
+        for (j = 0; j < s->coarsecal.pages; j++)
+        {
+            if (!cal_good[j])
+            {
+                if (avg[j] > COARSE_OFFSET_TARGET)
+                {
+                    high_param[j] = param[j];
+                    param[j] = (low_param[j] + high_param[j]) / 2;
+                }
+                else if (avg[j] < COARSE_OFFSET_TARGET)
+                {
+                    low_param[j] = param[j];
+                    param[j] = (low_param[j] + high_param[j]) / 2;
+                }
+                else cal_good[j] = 1;
+            }
+        }
+        if (cal_good[0] + cal_good[1] == s->coarsecal.pages) break;
+
+    } /* continue looping for up to 8 tries */
 
     /* light cal, lamp on */
     ret = lamp(s,1);
@@ -2419,10 +2545,15 @@ coarsecal(struct scanner *s)
         return ret;
     }
 
-    try = 0;
-    direction = -1;
+    try_count = 8; 
+    param[0] = pay[11];
+    param[1] = pay[13];
+    low_param[0] = low_param[1] = 0;
+    high_param[0] = high_param[1] = 63;
+    cal_good[0] = cal_good[1] = 0;
 
-    while(try++ < 1){
+    while (try_count > 0){
+        try_count--;
 
         /* send coarse cal (c6) */
         cmd[0] = 0x1b;
@@ -2464,6 +2595,8 @@ coarsecal(struct scanner *s)
             return SANE_STATUS_IO_ERROR;
         }
 
+        DBG(15, "coarsecal gain: parameter front: %i back: %i\n", param[0], param[1]);
+
         /* send scan d2 command */
         cmd[0] = 0x1b;
         cmd[1] = 0xd2;
@@ -2485,30 +2618,96 @@ coarsecal(struct scanner *s)
             return SANE_STATUS_IO_ERROR;
         }
 
-        s->coarsecal.rx_bytes = 0;
-        s->coarsecal.tx_bytes = 0;
+        s->cal_image.image = &s->coarsecal;
+        update_transfer_totals(&s->cal_image);
     
-        while(!s->coarsecal.done){
-            ret = read_from_scanner(s,&s->coarsecal);
+        while(!s->cal_image.done){
+            ret = read_from_scanner(s,&s->cal_image);
             if(ret){
                 DBG (5, "coarsecal: cant read from scanner\n");
                 return ret;
             }
         }
-        s->coarsecal.done = 0;
+        /* convert the raw data into normal packed pixel data */
+        descramble_raw(s, &s->cal_image);
 
-        /* FIXME inspect data, change coarse cal data */
-        if(s->model == MODEL_S300){
-            pay[11] += direction;
-            pay[13] += direction;
+        /* gather statistics: count the proportion of 255-valued pixels in each color channel */
+        /*                    count the average pixel value in each color channel */
+        for (i = 0; i < s->coarsecal.pages; i++)
+            for (j = 0; j < 3; j++)
+                rgb_avg[i][j] = rgb_hicount[i][j] = 0;
+        for (i = 0; i < s->coarsecal.pages; i++)
+        {
+            for (x = 0; x < s->coarsecal.width_pix; x++)
+            {
+                /* get color channel values and count of pixels pegged at 255 */
+                unsigned char *rgbpix = s->coarsecal.buffer + (i * s->coarsecal.width_bytes * s->coarsecal.height) + x * 3;
+                for (j = 0; j < 3; j++)
+                {
+                    rgb_avg[i][j] += rgbpix[j];
+                    if (rgbpix[j] == 255)
+                        rgb_hicount[i][j]++;
+                }
+            }
         }
-        else{
-            pay[11] += direction;
-            pay[13] += direction;
-            pay[15] += direction;
+        /* apply the color correction factors to the averages */
+        for (i = 0; i < s->coarsecal.pages; i++)
+            for (j = 0; j < 3; j++)
+                rgb_avg[i][j] *= white_factor[j];
+        /* set the gain so that none of the color channels are clipping, ie take the highest channel values */
+        for (i = 0; i < s->coarsecal.pages; i++)
+        {
+            avg[i] = MAX3(rgb_avg[i][0], rgb_avg[i][1], rgb_avg[i][2]) / s->coarsecal.width_pix;
+            for (j = 0; j < 3; j++)
+                rgb_avg[i][j] /= s->coarsecal.width_pix;
         }
+        /* convert the 255-counts from a pixel count to a proportion in tenths of a percent */
+        for (i = 0; i < s->coarsecal.pages; i++)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                rgb_hicount[i][j] = rgb_hicount[i][j] * 1000 / s->coarsecal.width_pix;
+            }
+            zcount[i] = MAX3(rgb_hicount[i][0], rgb_hicount[i][1], rgb_hicount[i][2]);
+        }
+        DBG(15, "coarsecal gain: average RGB values front: (%i,%i,%i)  back: (%i,%i,%i)\n",
+            rgb_avg[0][0], rgb_avg[0][1], rgb_avg[0][2], rgb_avg[1][0], rgb_avg[1][1], rgb_avg[1][2]);
+        DBG(15, "coarsecal gain: 255-valued pixel count front: (%g,%g,%g) back: (%g,%g,%g)\n",
+            rgb_hicount[0][0]/10.0f, rgb_hicount[0][1]/10.0f, rgb_hicount[0][2]/10.0f,
+            rgb_hicount[1][0]/10.0f, rgb_hicount[1][1]/10.0f, rgb_hicount[1][2]/10.0f);
 
-        hexdump(15, "c6 payload: ", pay, payLen);
+        /* check the values, adjust parameters if they are not within the target range */
+        for (x = 0; x < s->coarsecal.pages; x++)
+        {
+            if (!cal_good[x])
+            {
+                if (zcount[x] > 9 || avg[x] > coarse_gain_max[x])
+                {
+                    high_param[x] = param[x];
+                    param[x] = (low_param[x] + high_param[x]) / 2;
+                }
+                else if (avg[x] < coarse_gain_min[x])
+                {
+                    low_param[x] = param[x];
+                    param[x] = (low_param[x] + high_param[x]) / 2;
+                }
+                else cal_good[x] = 1;
+            }
+        }
+        if (cal_good[0] + cal_good[1] == s->coarsecal.pages) break;
+
+        /* update the coarsecal payload to use the new gain parameters */
+        if (s->model == MODEL_S300)
+        {
+            pay[11] = param[0];
+            pay[13] = param[1];
+        }
+        else /* (s->model == MODEL_FI60F) */
+        {
+            pay[11] = param[0];
+            pay[13] = param[0];
+            pay[15] = param[0];
+        }
     }
 
     DBG (10, "coarsecal: finish\n");
@@ -2516,7 +2715,7 @@ coarsecal(struct scanner *s)
 }
 
 static SANE_Status
-finecal(struct scanner *s)
+finecal_send_cal(struct scanner *s)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
 
@@ -2526,196 +2725,32 @@ finecal(struct scanner *s)
     size_t statLen = 1;
     unsigned char stat[2];
 
-    int i,j;
+    int i, j, k;
+    unsigned short *p_out, *p_in = (unsigned short *) s->sendcal.buffer;
+    int planes = (s->model == MODEL_S300) ? 2 : 3;
 
-    DBG (10, "finecal: start\n");
-
-    /* ask for 16 lines */
-    ret = set_window(s, WINDOW_FINECAL);
-    if(ret){
-        DBG (5, "finecal: error sending setwindowcal\n");
-        return ret;
-    }
-
-    /* dark cal, lamp off */
-    ret = lamp(s,0);
-    if(ret){
-        DBG (5, "finecal: error lamp off\n");
-        return ret;
-    }
-
-    /* send scan d2 command */
-    cmd[0] = 0x1b;
-    cmd[1] = 0xd2;
-    stat[0] = 0;
-    statLen = 1;
-
-    ret = do_cmd(
-      s, 0,
-      cmd, cmdLen,
-      NULL, 0,
-      stat, &statLen
-    );
-    if(ret){
-        DBG (5, "finecal: error sending d2 cmd\n");
-        return ret;
-    }
-    if(stat[0] != 6){
-        DBG (5, "finecal: cmd bad d2 status?\n");
-        return SANE_STATUS_IO_ERROR;
-    }
-
-    s->darkcal.rx_bytes = 0;
-    s->darkcal.tx_bytes = 0;
-
-    while(!s->darkcal.done){
-        ret = read_from_scanner(s,&s->darkcal);
-        if(ret){
-            DBG (5, "finecal: cant read from scanner\n");
-            return ret;
-        }
-    }
-    s->darkcal.done = 0;
-
-    /* grab rows with lamp on */
-    ret = lamp(s,1);
-    if(ret){
-        DBG (5, "finecal: error lamp on\n");
-        return ret;
-    }
-
-    /* send scan d2 command */
-    cmd[0] = 0x1b;
-    cmd[1] = 0xd2;
-    stat[0] = 0;
-    statLen = 1;
-
-    ret = do_cmd(
-      s, 0,
-      cmd, cmdLen,
-      NULL, 0,
-      stat, &statLen
-    );
-    if(ret){
-        DBG (5, "finecal: error sending d2 cmd\n");
-        return ret;
-    }
-    if(stat[0] != 6){
-        DBG (5, "finecal: cmd bad d2 status?\n");
-        return SANE_STATUS_IO_ERROR;
-    }
-
-    s->lightcal.rx_bytes = 0;
-    s->lightcal.tx_bytes = 0;
-
-    while(!s->lightcal.done){
-        ret = read_from_scanner(s,&s->lightcal);
-        if(ret){
-            DBG (5, "finecal: cant read from scanner\n");
-            return ret;
-        }
-    }
-    s->lightcal.done = 0;
-
-    /* sum up light and dark scans */
-    for(j=0; j<s->darkcal.width_bytes; j++){
-
-        int dtotal=0, ltotal=0, gain=0, offset=0;
-
-        /*s300 has two bytes of NULL out of every 6*/
-        if(s->model == MODEL_S300 && (j%3) == 2){
-          s->sendcal.buffer[j*2] = 0;
-          s->sendcal.buffer[j*2+1] = 0;
-          continue;
-        }
-
-        for(i=0; i<s->darkcal.height; i++){
-            dtotal += s->darkcal.buffer[i*s->darkcal.width_bytes+j];
-        }
-
-        for(i=0; i<s->lightcal.height; i++){
-            ltotal += s->lightcal.buffer[i*s->lightcal.width_bytes+j];
-        }
-
-        /* even bytes of payload (offset) */
-        /* larger numbers - greater dark offset? */
-
-        if(s->model == MODEL_S300){
-          /* S300 front side 150dpi color empirically determined*/
-          offset = dtotal - ltotal/93 - 0xa4;
-        }
-        else{
-          /* fi-60F 600dpi color empirically determined*/
-          offset = dtotal - ltotal/100 + 8;
-        }
-
-        if(offset < 1){
-          s->sendcal.buffer[j*2] = 0;
-	}
-        else if(offset > 0xfe){
-          s->sendcal.buffer[j*2] = 0xff;
-	}
-        else{
-          s->sendcal.buffer[j*2] = offset;
-	}
-
-        /* odd bytes of payload (gain) */
-        /* smaller numbers increase gain (contrast) */
-
-        if(s->model == MODEL_S300){
-          if(j%3 == 0){
-            /* S300 front side 150dpi color empirically determined */
-            gain = ltotal * 17/100 - dtotal/5 - 0x38;
-          }
-          else{
-            /* S300 back side 150dpi color empirically determined */
-            gain = ltotal * 21/100 - dtotal/5 - 0x4f;
-          }
-        }
-        else{
-          /* fi-60F 600dpi color empirically determined*/
-          /* FIXME: too much gain? */
-          gain = ltotal * 2/19 - dtotal/9 - 50;
-        }
-
-        if(gain < 1){
-          s->sendcal.buffer[j*2+1] = 0;
-	}
-        else if(gain > 0xfe){
-          s->sendcal.buffer[j*2+1] = 0xff;
-	}
-        else{
-          s->sendcal.buffer[j*2+1] = gain;
-	}
-
-    }
-
-    if(DBG_LEVEL >= 15){
-        FILE * foo = fopen("epjitsu_finecal.pnm","w");
-	fprintf(foo,"P5\n%d\n%d\n255\n",s->darkcal.width_bytes,s->darkcal.height*2+2);
-        fwrite(s->darkcal.buffer,s->darkcal.total_bytes-8,1,foo);
-        fwrite(s->lightcal.buffer,s->lightcal.total_bytes-8,1,foo);
-
-        /* write out even (offset) and odd (gain) bytes on separate lines */
-        for(i=0;i<s->sendcal.total_bytes;i+=2){
-	    fwrite(s->sendcal.buffer+i,1,1,foo);
-	}
-        for(i=1;i<s->sendcal.total_bytes;i+=2){
-	    fwrite(s->sendcal.buffer+i,1,1,foo);
-	}
-	fclose(foo);
-    }
+    /* scramble the raster buffer data into scanner raw format */
+    memset(s->cal_data.raw_data, 0, s->cal_data.line_stride);
+    for (i = 0; i < planes; i++)
+        for (j = 0; j < s->cal_data.plane_width; j++)
+            for (k = 0; k < 3; k++)
+            {
+                p_out = (unsigned short *) (s->cal_data.raw_data + k * s->cal_data.plane_stride + j * 6 + i * 2);
+                *p_out = *p_in++; /* dark offset, gain */
+            }
 
     ret = set_window(s, WINDOW_SENDCAL);
     if(ret){
-        DBG (5, "finecal: error sending setwindow\n");
+        DBG (5, "finecal_send_cal: error sending setwindow\n");
         return ret;
     }
 
     /*first unknown cal block*/
+    cmd[0] = 0x1b;
     cmd[1] = 0xc3;
+    stat[0] = 0;
     statLen = 1;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -2723,11 +2758,11 @@ finecal(struct scanner *s)
       stat, &statLen
     );
     if(ret){
-        DBG (5, "finecal: error sending c3 cmd\n");
+        DBG (5, "finecal_send_cal: error sending c3 cmd\n");
         return ret;
     }
     if(stat[0] != 6){
-        DBG (5, "finecal: cmd bad c3 status?\n");
+        DBG (5, "finecal_send_cal: cmd bad c3 status?\n");
         return SANE_STATUS_IO_ERROR;
     }
 
@@ -2738,16 +2773,16 @@ finecal(struct scanner *s)
     ret = do_cmd(
       s, 0,
       s->sendCal1Header, s->sendCal1HeaderLen,
-      s->sendcal.buffer, s->sendcal.total_bytes,
+      s->cal_data.raw_data, s->cal_data.line_stride,
       stat, &statLen
     );
 
     if(ret){
-        DBG (5, "finecal: error sending c3 payload\n");
+        DBG (5, "finecal_send_cal: error sending c3 payload\n");
         return ret;
     }
     if(stat[0] != 6){
-        DBG (5, "finecal: payload bad c3 status?\n");
+        DBG (5, "finecal_send_cal: payload bad c3 status?\n");
         return SANE_STATUS_IO_ERROR;
     }
 
@@ -2763,11 +2798,11 @@ finecal(struct scanner *s)
     );
 
     if(ret){
-        DBG (5, "finecal: error sending c4 cmd\n");
+        DBG (5, "finecal_send_cal: error sending c4 cmd\n");
         return ret;
     }
     if(stat[0] != 6){
-        DBG (5, "finecal: cmd bad c4 status?\n");
+        DBG (5, "finecal_send_cal: cmd bad c4 status?\n");
         return SANE_STATUS_IO_ERROR;
     }
 
@@ -2778,20 +2813,275 @@ finecal(struct scanner *s)
     ret = do_cmd(
       s, 0,
       s->sendCal2Header, s->sendCal2HeaderLen,
-      s->sendcal.buffer, s->sendcal.total_bytes,
+      s->cal_data.raw_data, s->cal_data.line_stride,
       stat, &statLen
     );
 
     if(ret){
-        DBG (5, "finecal: error sending c4 payload\n");
+        DBG (5, "finecal_send_cal: error sending c4 payload\n");
         return ret;
     }
     if(stat[0] != 6){
-        DBG (5, "finecal: payload bad c4 status?\n");
+        DBG (5, "finecal_send_cal: payload bad c4 status?\n");
         return SANE_STATUS_IO_ERROR;
     }
 
-    DBG (10, "cal: finish\n");
+    return ret;
+}
+
+static SANE_Status
+finecal_get_line(struct scanner *s, struct image *img)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+
+    size_t cmdLen = 2;
+    unsigned char cmd[2];
+
+    size_t statLen = 1;
+    unsigned char stat[2];
+
+    int round_offset = img->height / 2;
+    int i, j, k;
+
+    /* ask for 16 lines */
+    ret = set_window(s, WINDOW_FINECAL);
+    if(ret){
+        DBG (5, "finecal_get_line: error sending setwindowcal\n");
+        return ret;
+    }
+
+    /* send scan d2 command */
+    cmd[0] = 0x1b;
+    cmd[1] = 0xd2;
+    stat[0] = 0;
+    statLen = 1;
+
+    ret = do_cmd(
+      s, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      stat, &statLen
+    );
+    if(ret){
+        DBG (5, "finecal_get_line: error sending d2 cmd\n");
+        return ret;
+    }
+    if(stat[0] != 6){
+        DBG (5, "finecal_get_line: cmd bad d2 status?\n");
+        return SANE_STATUS_IO_ERROR;
+    }
+
+    s->cal_image.image = img;
+    update_transfer_totals(&s->cal_image);
+
+    while(!s->cal_image.done){
+        ret = read_from_scanner(s,&s->cal_image);
+        if(ret){
+            DBG (5, "finecal_get_line: cant read from scanner\n");
+            return ret;
+        }
+    }
+    /* convert the raw data into normal packed pixel data */
+    descramble_raw(s, &s->cal_image);
+
+    /* average the columns of pixels together and put the results in the top line(s) */
+    for (i = 0; i < img->pages; i++)
+    {
+        unsigned char *linepix = img->buffer + i * img->width_bytes * img->height;
+        unsigned char *avgpix = img->buffer + i * img->width_bytes;
+        for (j = 0; j < img->width_bytes; j++)
+        {
+            int total = 0;
+
+            for (k = 0; k < img->height; k++)
+                total += linepix[j + k * img->width_bytes];
+
+            avgpix[j] = (total + round_offset) / img->height;
+        }
+    }
+    return ret;
+}
+
+static SANE_Status
+finecal(struct scanner *s)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+
+    const int max_pages = (s->model == MODEL_S300 ? 2 : 1);
+    int gain_delta = 0xff - 0xbf;
+    float *gain_slope, *last_error;
+    int i, j, k, idx, try_count, cal_good;
+
+    DBG (10, "finecal: start\n");
+
+    /* set fine dark offset to 0 and fix all fine gains to lowest parameter (0xFF) */
+    for (i = 0; i < s->sendcal.width_bytes * s->sendcal.pages / 2; i++)
+    {
+        s->sendcal.buffer[i*2] = 0;
+        s->sendcal.buffer[i*2+1] = 0xff;
+    }
+    ret = finecal_send_cal(s);
+    if(ret) return ret;
+
+    /* grab rows with lamp on */
+    ret = lamp(s,1);
+    if(ret){
+        DBG (5, "finecal: error lamp on\n");
+        return ret;
+    }
+
+    /* read the low-gain average of 16 lines */
+    ret = finecal_get_line(s, &s->darkcal);
+    if(ret) return ret;
+
+    /* set fine dark offset to 0 and fine gain to a fixed higher-gain parameter (0xBF) */
+    for (i = 0; i < s->sendcal.width_bytes * s->sendcal.pages / 2; i++)
+    {
+        s->sendcal.buffer[i*2] = 0;
+        s->sendcal.buffer[i*2+1] = 0xbf;
+    }
+    ret = finecal_send_cal(s);
+    if(ret) return ret;
+
+    /* read the high-gain average of 16 lines */
+    ret = finecal_get_line(s, &s->lightcal);
+    if(ret) return ret;
+
+    /* calculate the per pixel slope of pixel value delta over gain delta */
+    gain_slope = malloc(s->lightcal.width_bytes * s->lightcal.pages * sizeof(float));
+    if (!gain_slope)
+        return SANE_STATUS_NO_MEM;
+    idx = 0;
+    for (i = 0; i < s->lightcal.pages; i++)
+    {
+        for (j = 0; j < s->lightcal.width_pix; j++)
+        {
+            for (k = 0; k < 3; k++)
+            {
+                int value_delta = s->lightcal.buffer[idx] - s->darkcal.buffer[idx];
+                /* limit this slope to 1 or less, to avoid overshoot if the lightcal ref input is clipped at 255 */
+                if (value_delta < gain_delta)
+                    gain_slope[idx] = -1.0;
+                else
+                    gain_slope[idx] = (float) -gain_delta / value_delta;
+                idx++;
+            }
+        }
+    }
+
+    /* keep track of the last iteration's pixel error.  If we overshoot, we can reduce the value of the gain slope */
+    last_error = malloc(s->lightcal.width_bytes * s->lightcal.pages * sizeof(float));
+    if (!last_error)
+    {
+        free(gain_slope);
+        return SANE_STATUS_NO_MEM;
+    }
+    for (i = 0; i < s->lightcal.width_bytes * s->lightcal.pages; i++)
+        last_error[i] = 0.0;
+
+    /* fine calibration feedback loop */
+    try_count = 8;
+    while (try_count > 0)
+    {
+        int min_value[2][3], max_value[2][3];
+        float avg_value[2][3], variance[2][3];
+        int high_pegs = 0, low_pegs = 0;
+        try_count--;
+
+        /* clear statistics arrays */
+        for (i = 0; i < max_pages; i++)
+        {
+            for (k = 0; k < 3; k++)
+            {
+                min_value[i][k]  = 0xff;
+                max_value[i][k]  = 0;
+                avg_value[i][k]  = 0;
+                variance[i][k]  = 0;
+            }
+        }
+
+        /* gather statistics and calculate new fine gain parameters based on observed error and the value/gain slope */
+        idx = 0;
+        for (i = 0; i < max_pages; i++)
+        {
+            for (j = 0; j < s->lightcal.width_pix; j++)
+            {
+                for (k = 0; k < 3; k++)
+                {
+                    int pixvalue = s->lightcal.buffer[idx];
+                    float pixerror = (fine_gain_target[i] * white_factor[k] - pixvalue);
+                    int oldgain = s->sendcal.buffer[idx * 2 + 1];
+                    int newgain;
+                    /* if we overshot the last correction, reduce the gain_slope */
+                    if (pixerror * last_error[idx] < 0.0)
+                        gain_slope[idx] *= 0.75;
+                    last_error[idx] = pixerror;
+                    /* set the new gain */
+                    newgain = oldgain + (int) roundf(pixerror * gain_slope[idx]);
+                    if (newgain < 0)
+                    {
+                        low_pegs++;
+                        s->sendcal.buffer[idx * 2 + 1] = 0;
+                    }
+                    else if (newgain > 0xff)
+                    {
+                        high_pegs++;
+                        s->sendcal.buffer[idx * 2 + 1] = 0xff;
+                    }
+                    else
+                        s->sendcal.buffer[idx * 2 + 1] = newgain;
+                    /* update statistics */
+                    if (pixvalue < min_value[i][k]) min_value[i][k] = pixvalue;
+                    if (pixvalue > max_value[i][k]) max_value[i][k] = pixvalue;
+                    avg_value[i][k] += pixerror;
+                    variance[i][k] += (pixerror * pixerror);
+                    idx++;
+                }
+            }
+        }
+        /* finish the statistics calculations */
+        cal_good = 1;
+        for (i = 0; i < max_pages; i++)
+        {
+            for (k = 0; k < 3; k++)
+            {
+                float sum = avg_value[i][k];
+                float sum2 = variance[i][k];
+                avg_value[i][k] = sum / s->lightcal.width_pix;
+                variance[i][k] = ((sum2 - (sum * sum / s->lightcal.width_pix)) / s->lightcal.width_pix);
+                /* if any color channel is too far out of whack, set cal_good to 0 so we'll iterate again */
+                if (fabs(avg_value[i][k]) > 1.0 || variance[i][k] > 3.0)
+                    cal_good = 0;
+            }
+        }
+
+        /* print debug info */
+        DBG (15, "finecal: -------------------- Gain\n");
+        DBG (15, "finecal: RGB Average Error - Front: (%.1f,%.1f,%.1f) - Back: (%.1f,%.1f,%.1f)\n",
+             avg_value[0][0], avg_value[0][1], avg_value[0][2], avg_value[1][0], avg_value[1][1], avg_value[1][2]);
+        DBG (15, "finecal: RGB Maximum - Front: (%i,%i,%i) - Back: (%i,%i,%i)\n",
+             max_value[0][0], max_value[0][1], max_value[0][2], max_value[1][0], max_value[1][1], max_value[1][2]);
+        DBG (15, "finecal: RGB Minimum - Front: (%i,%i,%i) - Back: (%i,%i,%i)\n",
+             min_value[0][0], min_value[0][1], min_value[0][2], min_value[1][0], min_value[1][1], min_value[1][2]);
+        DBG (15, "finecal: Variance - Front: (%.1f,%.1f,%.1f) - Back: (%.1f,%.1f,%.1f)\n",
+             variance[0][0], variance[0][1], variance[0][2], variance[1][0], variance[1][1], variance[1][2]);
+        DBG (15, "finecal: Pegged gain parameters - High (0xff): %i - Low (0): %i\n", high_pegs, low_pegs);
+
+        /* break out of the loop if our calibration is done */
+        if (cal_good) break;
+
+        /* send the new calibration and read a new line */
+        ret = finecal_send_cal(s);
+        if(ret) { free(gain_slope); free(last_error); return ret; }
+        ret = finecal_get_line(s, &s->lightcal);
+        if(ret) { free(gain_slope); free(last_error); return ret; }
+    }
+
+    /* release the memory for the reference slope data */
+    free(gain_slope);
+    free(last_error);
+
+    DBG (10, "finecal: finish\n");
     return ret;
 }
 
@@ -2879,7 +3169,7 @@ set_window(struct scanner *s, int window)
       case WINDOW_SCAN:
         payload = s->setWindowScan;
 	paylen  = s->setWindowScanLen;
-        set_SW_ypix(payload,s->scan.height);
+        set_SW_ypix(payload,s->fullscan.height);
 	break;
       default:
         DBG (5, "set_window: unknown window\n");
@@ -3221,7 +3511,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 {
     struct scanner *s = (struct scanner *) handle;
     SANE_Status ret=SANE_STATUS_GOOD;
-    struct transfer * tp;
+    struct page * page;
   
     DBG (10, "sane_read: start si:%d len:%d max:%d\n",s->side,*len,max_len);
 
@@ -3233,36 +3523,30 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         return SANE_STATUS_CANCELLED;
     }
   
-    if(s->side == SIDE_FRONT){
-        tp = &s->front;
-    }
-    else{
-        tp = &s->back;
-    }
+    page = &s->pages[s->side];
 
     /* have sent all of current buffer */
-    if(tp->done){
+    if(page->done){
         DBG (10, "sane_read: returning eof\n");
         return SANE_STATUS_EOF;
     } 
 
     /* scan not finished, get more into block buffer */
-    if(!s->scan.done){
-
+    if(!s->fullscan.done)
+    {
         /* block buffer currently empty, clean up */ 
-	if(!s->block.rx_bytes){
-
+        if(!s->block_xfr.rx_bytes)
+        {
             /* block buffer bigger than remainder of scan, shrink block */
-            int remainTotal = s->scan.total_bytes - s->scan.rx_bytes;
-	    if(remainTotal < s->block.total_bytes){
-                DBG (15, "sane_read: shrinking block to %lu\n",
-                  (unsigned long)remainTotal);
-	        s->block.total_bytes = remainTotal;
-	    }
-
+            int remainTotal = s->fullscan.total_bytes - s->fullscan.rx_bytes;
+            if(remainTotal < s->block_xfr.total_bytes)
+            {
+                DBG (15, "sane_read: shrinking block to %lu\n", (unsigned long)remainTotal);
+                s->block_xfr.total_bytes = remainTotal;
+            }
             /* send d3 cmd for S300 */
-            if(s->model == MODEL_S300){
-        
+            if(s->model == MODEL_S300)
+            {
                 unsigned char cmd[] = {0x1b, 0xd3};
                 size_t cmdLen = 2;
                 unsigned char stat[1];
@@ -3285,21 +3569,23 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                     return SANE_STATUS_IO_ERROR;
                 }
             }
-	}
+        }
 
-	/*while(!s->block.done){*/
-        ret = read_from_scanner(s, &s->block);
+        ret = read_from_scanner(s, &s->block_xfr);
         if(ret){
             DBG (5, "sane_read: cant read from scanner\n");
             return ret;
         }
 
         /* block filled, copy to front/back */
-	if(s->block.done){
-
+        if(s->block_xfr.done)
+        {
             DBG (15, "sane_read: block buffer full\n");
 
-            s->block.done = 0;
+            /* convert the raw data into normal packed pixel data */
+            descramble_raw(s, &s->block_xfr);
+
+            s->block_xfr.done = 0;
 
             /* get the 0x43 cmd for the S300 */
             if(s->model == MODEL_S300){
@@ -3323,107 +3609,113 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                 }
 
                 /*copy backside data into buffer*/
-                if( s->source == SOURCE_ADF_DUPLEX
-                 || s->source == SOURCE_ADF_BACK ){
-
-                  switch (s->mode) {
-                    case MODE_COLOR:
-                      ret = copy_S300_color(s,SIDE_BACK);
-                      break;
-  
-                    case MODE_GRAYSCALE:
-                      ret = copy_S300_gray(s,SIDE_BACK);
-                      break;
-  
-                    default:
-                      ret = copy_S300_binary(s,SIDE_BACK);
-                      break;
-                  }
-                }
+                if( s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK )
+                    ret = copy_block_to_page(s, SIDE_BACK);
 
                 /*copy frontside data into buffer*/
-                if( s->source != SOURCE_ADF_BACK ){
-
-                  switch (s->mode) {
-                    case MODE_COLOR:
-                      ret = copy_S300_color(s,SIDE_FRONT);
-                      break;
-  
-                    case MODE_GRAYSCALE:
-                      ret = copy_S300_gray(s,SIDE_FRONT);
-                      break;
-  
-                    default:
-                      ret = copy_S300_binary(s,SIDE_FRONT);
-                      break;
-                  }
-                }
+                if( s->source != SOURCE_ADF_BACK )
+                    ret = copy_block_to_page(s, SIDE_FRONT);
 
                 if(ret){
                     DBG (5, "sane_read: cant copy to front/back\n");
                     return ret;
                 }
 
-                s->scan.rx_bytes += s->block.rx_bytes;
+                s->fullscan.rx_bytes += s->block_xfr.rx_bytes;
 
                 /* autodetect mode, check for change length */
                 if( s->source != SOURCE_FLATBED && !s->page_height ){
                     int get = (in[6] << 8) | in[7];
 
                     /*always have to get full blocks*/
-                    if(get % s->block.height){
-                      get += s->block.height - (get % s->block.height);
+                    if(get % s->block_img.height){
+                      get += s->block_img.height - (get % s->block_img.height);
                     }
 
-                    if(get < s->scan.height){
+                    if(get < s->fullscan.height){
                       DBG (15, "sane_read: paper out? %d\n",get);
-                      s->scan.total_bytes = s->scan.width_bytes * get;
+                      s->fullscan.total_bytes = s->fullscan.width_bytes * get;
                     }
                 }
             }
 
             else { /*fi-60f*/
-                ret = fill_frontback_buffers_FI60F(s);
+                ret = copy_block_to_page(s, SIDE_FRONT);
                 if(ret){
                     DBG (5, "sane_read: cant copy to front/back\n");
                     return ret;
                 }
 
-                s->scan.rx_bytes += s->block.rx_bytes;
+                s->fullscan.rx_bytes += s->block_xfr.rx_bytes;
 	    }
 
             /* reset for next pass */
-            update_transfer_totals(&s->block);
+            update_transfer_totals(&s->block_xfr);
 
             /* scan now finished */
-            if(s->scan.rx_bytes == s->scan.total_bytes){
+            if(s->fullscan.rx_bytes == s->fullscan.total_bytes){
                 DBG (15, "sane_read: last block\n");
-                s->scan.done = 1;
+                s->fullscan.done = 1;
             }
 	}
     }
 
-    *len = tp->rx_bytes - tp->tx_bytes;
+    *len = page->bytes_scanned - page->bytes_read;
     if(*len > max_len){
         *len = max_len;
     }
 
     if(*len){
         DBG (10, "sane_read: copy rx:%d tx:%d tot:%d len:%d\n",
-          tp->rx_bytes,tp->tx_bytes,tp->total_bytes,*len);
+          page->bytes_scanned, page->bytes_read, page->bytes_total,*len);
     
-        memcpy(buf,tp->buffer+tp->tx_bytes,*len);
-        tp->tx_bytes += *len;
+        memcpy(buf, page->image->buffer + page->bytes_read, *len);
+        page->bytes_read += *len;
     
         /* sent it all, return eof on next read */
-        if(s->scan.done && tp->tx_bytes == tp->rx_bytes){
+        if(s->fullscan.done && page->bytes_read == page->bytes_scanned){
             DBG (10, "sane_read: side done\n");
-            tp->done=1;
+            page->done = 1;
         }
     }  
 
     DBG (10, "sane_read: finish si:%d len:%d max:%d\n",s->side,*len,max_len);
   
+    return ret;
+}
+
+/* de-scrambles the raw data from the scanner into the image buffer */
+static SANE_Status
+descramble_raw(struct scanner *s, struct transfer * tp)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+    unsigned char *p_in, *p_out = tp->image->buffer;
+    int height = tp->total_bytes / tp->line_stride;
+    int i, j, k, l;
+
+    if (s->model == MODEL_S300)
+    {
+        for (i = 0; i < 2; i++)                        /* page, front/back */
+            for (j = 0; j < height; j++)               /* row (y)*/
+                for (k = 0; k < tp->plane_width; k++)  /* column (x) */
+                    for (l = 0; l < 3; l++)            /* color component */
+                    {
+                        p_in = (unsigned char *) tp->raw_data + (j * tp->line_stride) + (l * tp->plane_stride) + k * 3 + i;
+                        *p_out++ = *p_in;
+                    }
+    }
+    else /* MODEL_FI60F */
+    {
+        for (i = 0; i < height; i++)                   /* row (y)*/
+            for (j = 0; j < 3; j++)                    /* read head */
+                for (k = 0; k < tp->plane_width; k++)  /* column within the read head */
+                    for (l = 0; l < 3; l++)            /* color component */
+                    {
+                        p_in = (unsigned char *) tp->raw_data + (i * tp->line_stride) + (l * tp->plane_stride) + k * 3 + j;
+                        *p_out++ = *p_in;
+                    }
+    }
+
     return ret;
 }
 
@@ -3440,6 +3732,12 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
         bytes = remainBlock;
     }
 
+    if (tp->image == NULL)
+    {
+        DBG(5, "internal error: read_from_scanner called with no destination image.\n");
+        return SANE_STATUS_INVAL;
+    }
+
     DBG (10, "read_from_scanner: start rB:%lu len:%lu\n",
       (unsigned long)remainBlock, (unsigned long)bytes);
 
@@ -3452,7 +3750,7 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
       s, 0,
       NULL, 0,
       NULL, 0,
-      tp->buffer+tp->rx_bytes, &bytes
+      tp->raw_data + tp->rx_bytes, &bytes
     );
   
     /* full read or short read */
@@ -3474,413 +3772,133 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
     }
   
     DBG (10, "read_from_scanner: finish rB:%lu len:%lu\n",
-      (unsigned long)(tp->total_bytes-tp->rx_bytes), (unsigned long)bytes);
+      (unsigned long)(tp->total_bytes - tp->rx_bytes), (unsigned long)bytes);
   
     return ret;
 }
 
-/* copies block buffer into front or back buffer */
-/* moves rx_bytes forward */
+/* copies block buffer into front or back image buffer */
+/* converts pixel data from RGB Color to the output format */
 static SANE_Status
-copy_S300_color(struct scanner *s,int side)
+copy_block_to_page(struct scanner *s,int side)
 {
-    SANE_Status ret=SANE_STATUS_GOOD;
-    struct transfer * tp;
+    SANE_Status ret = SANE_STATUS_GOOD;
+    struct transfer * block = &s->block_xfr;
+    struct page * page = &s->pages[side];
+    int height = block->total_bytes / block->line_stride;
+    int width = block->image->width_pix;
+    int block_page_stride = block->image->width_bytes * block->image->height;
+    int page_y_offset = page->bytes_scanned / page->image->width_bytes;
+    int line_reverse = (side == SIDE_BACK) || (s->model == MODEL_FI60F);
     int i,j;
 
-    DBG (10, "copy_S300_color: start\n");
+    DBG (10, "copy_block_to_page: start\n");
 
-    /*front side data*/
-    if(side == SIDE_FRONT){
-      tp = &s->front;
-
-      for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-
-        int lineStart = tp->rx_bytes;
-
-        for(j=0; j<tp->width_pix; j++){
-  
-          /*red*/
-          tp->buffer[tp->rx_bytes++]
-            = s->block.buffer[i + s->req_width*3 + j*3];
-  
-          /*green*/
-          tp->buffer[tp->rx_bytes++]
-            = s->block.buffer[i + s->req_width*6 + j*3];
-  
-          /*blue*/
-          tp->buffer[tp->rx_bytes++]
-            = s->block.buffer[i + j*3];
+    /* loop over all the lines in the block */
+    for (i = 0; i < height; i++)
+    {
+        unsigned char * p_in = block->image->buffer + (side * block_page_stride) + (i * block->image->width_bytes);
+        unsigned char * p_out = page->image->buffer + ((i + page_y_offset) * page->image->width_bytes);
+        unsigned char * lineStart = p_out;
+        /* reverse order for back side or FI-60F scanner */
+        if (line_reverse)
+            p_in += (width - 1) * 3;
+        /* convert all of the pixels in this row */
+        for (j = 0; j < width; j++)
+        {
+            unsigned char r, g, b, luma;
+            if (s->model == MODEL_S300)
+                { r = p_in[1]; g = p_in[2]; b = p_in[0]; }
+            else /* (s->model == MODEL_FI60F) */
+                { r = p_in[0]; g = p_in[1]; b = p_in[2]; }
+            if (s->mode == MODE_COLOR)
+            {
+                *p_out++ = r;
+                *p_out++ = g;
+                *p_out++ = b;
+            }
+            else if (s->mode == MODE_GRAYSCALE)
+            {
+                *p_out++ = (r + g + b) / 3;
+            }
+            else if (s->mode == MODE_LINEART)
+            {
+                s->dt.buffer[j] = (r + g + b) / 3;
+            }
+            if (line_reverse)
+                p_in -= 3;
+            else
+                p_in += 3;
         }
-
-        /*have filled last row of buffer, bail out*/
-        if(tp->rx_bytes == tp->total_bytes){
-          return ret;
-        }
-
+        /* for MODE_LINEART, binarize the gray line stored in the temp image buffer */
+        if (s->mode == MODE_LINEART)
+            binarize_line(s, lineStart, width);
         /*add a periodic row because of non-square pixels*/
         /*FIXME: only works with 225x200*/
-        if(s->resolution_x > s->resolution_y
-         && tp->rx_bytes/tp->width_bytes % 9 == 8
-        ){
-          memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
-          tp->rx_bytes+=tp->width_bytes;
+        if (s->resolution_x > s->resolution_y && (i + page_y_offset) % 9 == 8)
+        {
+            memcpy(lineStart + page->image->width_bytes, lineStart, page->image->width_bytes);
+            page_y_offset += 1;
+            page->bytes_scanned += page->image->width_bytes;
         }
-      }
     }
 
-    /*back side data*/
-    else{
-      tp = &s->back;
+    /* update the page counter of bytes scanned */
+    page->bytes_scanned += page->image->width_bytes * height;
 
-      for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-
-        int lineStart = tp->rx_bytes;
-
-        for(j=0; j<tp->width_pix; j++){
-  
-           /*red*/
-           tp->buffer[tp->rx_bytes++] =
-            s->block.buffer[i + s->req_width*3 + (tp->width_pix-1)*3 - j*3 + 1];
-  
-           /*green*/
-           tp->buffer[tp->rx_bytes++] =
-            s->block.buffer[i + s->req_width*6 + (tp->width_pix-1)*3 - j*3 + 1];
-  
-           /*blue*/
-           tp->buffer[tp->rx_bytes++] =
-            s->block.buffer[i + (tp->width_pix-1)*3 - j*3 + 1];
-        }
-
-        /*have filled last row of buffer, bail out*/
-        if(tp->rx_bytes == tp->total_bytes){
-          return ret;
-        }
-
-        /*add a periodic row because of non-square pixels*/
-        /*FIXME: only works with 225x200*/
-        if(s->resolution_x > s->resolution_y
-         && tp->rx_bytes/tp->width_bytes % 9 == 8
-        ){
-          memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
-          tp->rx_bytes+=tp->width_bytes;
-        }
-      }
-    }
-
-    DBG (10, "copy_S300_color: finish\n");
-
-    return ret;
-}
-
-static SANE_Status
-copy_S300_gray(struct scanner *s,int side)
-{
-    SANE_Status ret=SANE_STATUS_GOOD;
-    struct transfer * tp;
-    int i,j;
-
-    DBG (10, "copy_S300_gray: start\n");
-
-    /*front side data*/
-    if(side == SIDE_FRONT){
-      tp = &s->front;
-
-      for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-
-        int lineStart = tp->rx_bytes;
-
-        for(j=0; j<tp->width_pix; j++){
-  
-          tp->buffer[tp->rx_bytes++] =
-
-            /*red*/
-            ( s->block.buffer[i + s->req_width*3 + j*3]
-  
-            /*green*/
-            + s->block.buffer[i + s->req_width*6 + j*3]
-  
-            /*blue*/
-            + s->block.buffer[i + j*3]) / 3;
-        }
-
-        /*have filled last row of buffer, bail out*/
-        if(tp->rx_bytes == tp->total_bytes){
-          return ret;
-        }
-
-        /*add a periodic row because of non-square pixels*/
-        /*FIXME: only works with 225x200*/
-        if(s->resolution_x > s->resolution_y
-         && tp->rx_bytes/tp->width_bytes % 9 == 8
-        ){
-          memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
-          tp->rx_bytes+=tp->width_bytes;
-        }
-      }
-    }
-
-    /*back side data*/
-    else{
-      tp = &s->back;
-
-      for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-
-        int lineStart = tp->rx_bytes;
-
-        for(j=0; j<tp->width_pix; j++){
-  
-           tp->buffer[tp->rx_bytes++] =
-            /*red*/
-            (s->block.buffer[i + s->req_width*3 + (tp->width_pix-1)*3 - j*3 + 1]
-  
-            /*green*/
-            +s->block.buffer[i + s->req_width*6 + (tp->width_pix-1)*3 - j*3 + 1]
-  
-            /*blue*/
-            +s->block.buffer[i + (tp->width_pix-1)*3 - j*3 + 1]) / 3;
-        }
-
-        /*have filled last row of buffer, bail out*/
-        if(tp->rx_bytes == tp->total_bytes){
-          return ret;
-        }
-
-        /*add a periodic row because of non-square pixels*/
-        /*FIXME: only works with 225x200*/
-        if(s->resolution_x > s->resolution_y
-         && tp->rx_bytes/tp->width_bytes % 9 == 8
-        ){
-          memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
-          tp->rx_bytes+=tp->width_bytes;
-        }
-      }
-    }
-
-    DBG (10, "copy_S300_gray: finish\n");
+    DBG (10, "copy_block_to_page: finish\n");
 
     return ret;
 }
 
 /*uses the threshold/threshold_curve to control binarization*/
 static SANE_Status
-copy_S300_binary(struct scanner *s,int side)
+binarize_line(struct scanner *s, unsigned char *lineOut, int width)
 {
-    SANE_Status ret=SANE_STATUS_GOOD;
-    struct transfer * tp;
-    int i,j,windowX;
-
-    DBG (10, "copy_S300_binary: start\n");
+    SANE_Status ret = SANE_STATUS_GOOD;
+    int j, windowX, sum = 0;
 
     /* ~1mm works best, but the window needs to have odd # of pixels */
-    windowX = 6 * s->resolution_x/150;
-    if(!(windowX % 2)){
-      windowX++;
-    }
+    windowX = 6 * s->resolution_x / 150;
+    if (!(windowX % 2)) windowX++;
 
-    for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-
-      int sum = 0;
-      int lineStart = 0;
-
-      /*first, load a gray line into the dt buffer*/
-      if(side == SIDE_FRONT){
-        tp = &s->front;
-
-        for(j=0; j<tp->width_pix; j++){
-  
-          s->dt.buffer[j] =
-
-            /*red*/
-            ( s->block.buffer[i + s->req_width*3 + j*3]
-  
-            /*green*/
-            + s->block.buffer[i + s->req_width*6 + j*3]
-  
-            /*blue*/
-            + s->block.buffer[i + j*3]) / 3;
-        }
-      }
-      else{
-        tp = &s->back;
-
-        for(j=0; j<tp->width_pix; j++){
-  
-          s->dt.buffer[j] =
-
-            /*red*/
-            (s->block.buffer[i + s->req_width*3 + (tp->width_pix-1)*3 - j*3 + 1]
-  
-            /*green*/
-            +s->block.buffer[i + s->req_width*6 + (tp->width_pix-1)*3 - j*3 + 1]
-  
-            /*blue*/
-            +s->block.buffer[i + (tp->width_pix-1)*3 - j*3 + 1]) / 3;
-        }
-      }
-
-      /*second, prefill the sliding sum*/
-      for(j=0; j<windowX; j++){
+    /*second, prefill the sliding sum*/
+    for (j = 0; j < windowX; j++)
         sum += s->dt.buffer[j];
-      }
 
-      lineStart = tp->rx_bytes;
-
-      /* third, walk the dt buffer, update the sliding sum, */
-      /* determine threshold, output bits */
-      for(j=0; j<tp->width_pix; j++){
-
+    /* third, walk the dt buffer, update the sliding sum, */
+    /* determine threshold, output bits */
+    for (j = 0; j < width; j++)
+    {
         /*output image location*/
-        int offset = j%8;
+        int offset = j % 8;
         unsigned char mask = 0x80 >> offset;
         int thresh = s->threshold;
 
         /* move sum/update threshold only if there is a curve*/
-        if(s->threshold_curve){
-          int addCol  = j + windowX/2;
-          int dropCol = addCol - windowX;
+        if (s->threshold_curve)
+        {
+            int addCol  = j + windowX/2;
+            int dropCol = addCol - windowX;
   
-          if(dropCol >= 0 && addCol < tp->width_pix){
-            sum -= s->dt.buffer[dropCol];
-            sum += s->dt.buffer[addCol];
-          }
-
-          thresh = s->dt_lut[sum/windowX];
+            if (dropCol >= 0 && addCol < width)
+            {
+                sum -= s->dt.buffer[dropCol];
+                sum += s->dt.buffer[addCol];
+            }
+            thresh = s->dt_lut[sum/windowX];
         }
 
         /*use average to lookup threshold*/
-        /* white */
-        if(s->dt.buffer[j] > thresh){
-          tp->buffer[tp->rx_bytes] &= ~mask;
-        }
-        /* black */
-        else{
-          tp->buffer[tp->rx_bytes] |= mask;
-        }
+        if (s->dt.buffer[j] > thresh)
+          *lineOut &= ~mask;     /* white */
+        else
+          *lineOut |= mask;      /* black */
                   
-        if(offset == 7){
-          tp->rx_bytes++;
-        }
+        if (offset == 7)
+            lineOut++;
       }
 
-      /*have filled last row of buffer, bail out*/
-      if(tp->rx_bytes == tp->total_bytes){
-          return ret;
-      }
-
-      /*add a periodic row because of non-square pixels*/
-      /*FIXME: only works with 225x200*/
-      if(s->resolution_x > s->resolution_y
-       && tp->rx_bytes/tp->width_bytes % 9 == 8
-      ){
-        memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
-        tp->rx_bytes+=tp->width_bytes;
-      }
-    }
-
-    DBG (10, "copy_S300_binary: finish\n");
-
-    return ret;
-}
-
-/* copies block_buffer into front and back buffers */
-/* moves front/back rx_bytes forward */
-static SANE_Status
-fill_frontback_buffers_FI60F(struct scanner *s)
-{
-    SANE_Status ret=SANE_STATUS_GOOD;
-    int i,j,k;
-
-    DBG (10, "fill_frontback_buffers_FI60F: start\n");
-
-    switch (s->mode) {
-      case MODE_COLOR:
-
-        /* reorder the img data into the struct's buffer */
-        for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-    
-            DBG (15, "fill_frontback_buffers_FI60F: offset %d\n", i);
-
-            for(k=0; k<3; k++){
-
-                for(j=0; j<s->head_width; j++){
-
-                    /* red */
-                    s->front.buffer[s->front.rx_bytes++] = 
-                      s->block.buffer[i+(s->head_width-1-j)*3+2-k];
-    
-                    /* green */
-                    s->front.buffer[s->front.rx_bytes++] = 
-                      s->block.buffer[i+(s->head_width*2+s->pad_width-1-j)*3+2-k];
-    
-                    /* blue */
-                    s->front.buffer[s->front.rx_bytes++] = 
-                      s->block.buffer[i+(s->head_width*3+s->pad_width*2-1-j)*3+2-k];
-                }
-            }
-        }
-
-        break;
-
-      case MODE_GRAYSCALE:
-
-        /* reorder the img data into the struct's buffer */
-        for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-    
-            DBG (15, "fill_frontback_buffers_FI60F: offset %d\n", i);
-
-            for(k=0; k<3; k++){
-
-                for(j=0; j<s->head_width; j++){
-
-                    /* GS = red green blue / 3 */
-                    s->front.buffer[s->front.rx_bytes++] = 
-                      ( s->block.buffer[i+(s->head_width-1-j)*3+2-k]
-                      + s->block.buffer[i+(s->head_width*2+s->pad_width-1-j)*3+2-k]
-                      + s->block.buffer[i+(s->head_width*3+s->pad_width*2-1-j)*3+2-k]
-                      )/3;
-                }
-            }
-        }
-        break;
-
-      default: /* binary */
-
-        /* put binary data into buffer */
-        for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-
-            DBG (15, "fill_frontback_buffers_FI60F: offset %d\n", i);
-
-            for(k=0; k<3; k++){
-
-                for(j=0; j<s->head_width; j++){
-
-                    int offset = j%8;
-                    unsigned char mask = 0x80 >> offset;
-                    int curr = s->block.buffer[i+(s->head_width-1-j)*3+2-k]
-                      + s->block.buffer[i+(s->head_width*2+s->pad_width-1-j)*3+2-k]
-                      + s->block.buffer[i+(s->head_width*3+s->pad_width*2-1-j)*3+2-k];
-
-                    /* looks white */
-                    if(curr > s->threshold){
-                        s->front.buffer[s->front.rx_bytes] &= ~mask;
-                    }
-                    else{
-                        s->front.buffer[s->front.rx_bytes] |= mask;
-                    }
-                    
-                    if(offset == 7){
-                        s->front.rx_bytes++;
-                    }
-                }
-            }
-        }
-    
-        break;
-    }
-
-    DBG (10, "fill_frontback_buffers_FI60F: finish\n");
-  
     return ret;
 }
 
@@ -4006,10 +4024,24 @@ teardown_buffers(struct scanner *s)
 	s->sendcal.buffer = NULL;
     }
 
+    if(s->cal_image.raw_data){
+        free(s->cal_image.raw_data);
+	s->cal_image.raw_data = NULL;
+    }
+
+    if(s->cal_data.raw_data){
+        free(s->cal_data.raw_data);
+	s->cal_data.raw_data = NULL;
+    }
+
     /* image slice */
-    if(s->block.buffer){
-        free(s->block.buffer);
-	s->block.buffer = NULL;
+    if(s->block_img.buffer){
+        free(s->block_img.buffer);
+	s->block_img.buffer = NULL;
+    }
+    if(s->block_xfr.raw_data){
+        free(s->block_xfr.raw_data);
+	s->block_xfr.raw_data = NULL;
     }
 
     /* dynamic thresh slice */
@@ -4296,3 +4328,4 @@ get_page_height(struct scanner *s)
 
   return s->page_height;
 }
+

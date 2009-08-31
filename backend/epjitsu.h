@@ -51,21 +51,34 @@ enum scanner_Option
 #define MAX_IMG_PASS 0x10000
 #define MAX_IMG_BLOCK 0x80000
 
-struct transfer {
-  int height;
-  
+struct image {
   int width_pix;
   int width_bytes;
-
-  int total_pix;
-  int total_bytes;
-
-  int rx_bytes;
-  int tx_bytes;
-
-  int done;
+  int height;
+  int pages;
 
   unsigned char * buffer;
+};
+
+struct transfer {
+  int plane_width;   /* in RGB pixels */
+  int plane_stride;  /* in bytes */
+  int line_stride;   /* in bytes */
+
+  int total_bytes;
+  int rx_bytes;
+  int done;
+
+  unsigned char * raw_data;
+  struct image * image;
+};
+
+struct page {
+  int bytes_total;
+  int bytes_scanned;
+  int bytes_read;
+  int done;
+  struct image *image;
 };
 
 struct scanner
@@ -185,42 +198,46 @@ struct scanner
   int started;
   int side;
 
-  /* requested size params (almost no relation to actual data?) */
-  int req_width;   /* pixel width of first read-head? */
-  int head_width;
-  int pad_width;
-
-  /* holds temp buffer for getting 1 line of cal data */
-  struct transfer coarsecal;
-
-  /* holds temp buffer for getting 32 lines of cal data */
-  struct transfer darkcal;
-
-  /* holds temp buffer for getting 32 lines of cal data */
-  struct transfer lightcal;
+  /* holds temp buffers for getting 16 lines of cal data */
+  struct transfer cal_image;
+  struct image coarsecal;
+  struct image darkcal;
+  struct image lightcal;
 
   /* holds temp buffer for building calibration data */
-  struct transfer sendcal;
+  struct transfer cal_data;
+  struct image sendcal;
 
   /* scanner transmits more data per line than requested */
   /* due to padding and/or duplex interlacing */
-  /* the scan struct holds these larger numbers, but buffer is unused */
-  struct transfer scan;
+  /* the scan struct holds these larger numbers, but image buffer is unused */
+  struct {
+      int done;
+      int height;
+      int rx_bytes;
+      int width_bytes;
+      int total_bytes;
+  } fullscan;
+
+  /* The page structs contain data about the progress as the application reads */
+  /* data from the front/back image buffers via the sane_read() function */
+  struct page pages[2];
 
   /* scanner transmits data in blocks, up to 512k */
   /* but always ends on a scanline. */
   /* the block struct holds the most recent buffer */
-  struct transfer block;
+  struct transfer block_xfr;
+  struct image    block_img;
 
   /* temporary buffers used by dynamic threshold code */
-  struct transfer dt;
+  struct image  dt;
   unsigned char dt_lut[256];
 
   /* final-sized front image, always used */
-  struct transfer front;
+  struct image front;
 
   /* final-sized back image, only used during duplex/backside */
-  struct transfer back;
+  struct image back;
 
   /* --------------------------------------------------------------------- */
   /* values used by the command and data sending function                  */
@@ -354,10 +371,9 @@ static SANE_Status set_window(struct scanner *s, int window);
 static SANE_Status scan(struct scanner *s);
 
 static SANE_Status read_from_scanner(struct scanner *s, struct transfer *tp);
-static SANE_Status copy_S300_color(struct scanner *s, int side);
-static SANE_Status copy_S300_gray(struct scanner *s, int side);
-static SANE_Status copy_S300_binary(struct scanner *s, int side);
-static SANE_Status fill_frontback_buffers_FI60F(struct scanner *s);
+static SANE_Status descramble_raw(struct scanner *s, struct transfer * tp);
+static SANE_Status copy_block_to_page(struct scanner *s, int side);
+static SANE_Status binarize_line(struct scanner *s, unsigned char *lineOut, int width);
 
 static SANE_Status get_hardware_status (struct scanner *s);
 

@@ -62,7 +62,7 @@
 # define UNUSED(v)
 #endif
 
-#define IMAGE_BLOCK_SIZE (0xffff)
+#define IMAGE_BLOCK_SIZE (0x1ffff)
 #define MAX_CHUNK_SIZE   (0x1000)
 #define MIN_CHUNK_SIZE   (0x0200)
 #define CMDBUF_SIZE 512
@@ -248,34 +248,39 @@ send_scan_param (pixma_t * s)
 
 static int
 request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
-		     unsigned *size)
+		     unsigned * size, uint8_t * data, unsigned * datalen)
 {
   iclass_t *mf = (iclass_t *) s->subdriver;
   int error;
+  unsigned expected_len;
+  const int hlen = 2 + 6;
 
   memset (mf->cb.buf, 0, 11);
   pixma_set_be16 (cmd_read_image, mf->cb.buf);
   mf->cb.buf[8] = flag;
   mf->cb.buf[10] = 0x06;
-  mf->cb.reslen = pixma_cmd_transaction (s, mf->cb.buf, 11, mf->cb.buf, 8);
-  mf->cb.expected_reslen = 0;
-  error = pixma_check_result (&mf->cb);
-  if (error >= 0)
+  expected_len = (s->cfg->pid == MF4600_PID) ? 512 : hlen;
+  mf->cb.reslen = pixma_cmd_transaction (s, mf->cb.buf, 11, mf->cb.buf, expected_len);
+  if (mf->cb.reslen >= hlen)
     {
-      if (mf->cb.reslen == 8)
-        {
-          *info = mf->cb.buf[2];
-          *size = pixma_get_be16 (mf->cb.buf + 6);    /* 16bit size */
-          if (s->cfg->pid == MF4600_PID)              /* 32bit size */
-            *size = pixma_get_be32 (mf->cb.buf + 4);
- 
- PDBG (pixma_dbg (3, "size = %u\n", *size));
- 
+      *info = mf->cb.buf[2];
+      *size = pixma_get_be16 (mf->cb.buf + 6);    /* 16bit size */
+      error = 0;
+
+      if (s->cfg->pid == MF4600_PID)
+        {  
+          *datalen = mf->cb.reslen - hlen;
+          *size = (*datalen + hlen == 512) ?      /* 32bit size */
+                  pixma_get_be32 (mf->cb.buf + 4) - *datalen : 0;
+          memcpy (data, mf->cb.buf + hlen, *datalen);
+
+          PDBG (pixma_dbg (3, "remaining data count to be read = %u\n", *size));
+
         }
-      else
-        {
-          error = PIXMA_EPROTO;
-        }
+    }
+  else
+    {
+       error = PIXMA_EPROTO;
     }
   return error;
 }
@@ -284,11 +289,13 @@ static int
 read_image_block (pixma_t * s, uint8_t * data, unsigned size)
 {
   int error;
-  unsigned chunksize, count = 0;
+  unsigned maxchunksize, chunksize, count = 0;
+  
+  maxchunksize = MAX_CHUNK_SIZE * ((s->cfg->pid == MF4600_PID) ? 4 : 1);
   while (size)
     {
-      if (size >= MAX_CHUNK_SIZE)
-      	chunksize = MAX_CHUNK_SIZE;
+      if (size >= maxchunksize)
+      	chunksize = maxchunksize;
       else if (size < MIN_CHUNK_SIZE)
       	chunksize = size;
       else
@@ -496,7 +503,7 @@ iclass_scan (pixma_t * s)
   if (error >= 0)
     error = send_scan_param (s);
   if (error >= 0)
-    error = request_image_block (s, 0, &ignore, &ignore2);
+    error = request_image_block (s, 0, &ignore, &ignore2, &ignore, &ignore2);
   if (error < 0)
     {
       iclass_finish_scan (s);
@@ -512,7 +519,7 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 {
   int error, n;
   iclass_t *mf = (iclass_t *) s->subdriver;
-  unsigned block_size, lines_size;
+  unsigned block_size, lines_size, first_block_size;
   uint8_t info;
 
 /*
@@ -534,7 +541,11 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
               return 0;
             }
 
-          error = request_image_block (s, 4, &info, &block_size);
+          first_block_size = 0;
+          error = request_image_block (s, 4, &info, &block_size, 
+                          mf->blkptr + mf->blk_len, &first_block_size);
+          /* add current block to remainder of previous */
+          mf->blk_len += first_block_size;
           if (error < 0)
             {
               /* NOTE: seen in traffic logs but don't know the meaning. */
@@ -558,7 +569,7 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
               handle_interrupt (s, 100);
             }
         }
-      while (block_size == 0);
+      while (block_size == 0 && first_block_size == 0);
 
       error = read_image_block (s, mf->blkptr + mf->blk_len, block_size);
       block_size = error;
@@ -571,9 +582,10 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       n = mf->blk_len / s->param->line_size;
       if (n != 0)
         {
-          if (s->param->channels != 1)
+          if (s->param->channels != 1 &&
+	      s->cfg->pid != MF4600_PID)
             {
-              /* color */
+              /* color and not MF46xx */
               pack_rgb (mf->blkptr, n, mf->raw_width, mf->lineptr);
             }
           else

@@ -612,7 +612,8 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	  if (s->param->channels != 1    &&
 	      s->cfg->pid != MF5730_PID  &&
 	      s->cfg->pid != MF5750_PID  &&
-	      s->cfg->pid != MF5770_PID)
+	      s->cfg->pid != MF5770_PID  &&
+	      s->cfg->pid != MF3110_PID)
 	    {
 	      /* color, and not an MF57x0 */
 	      pack_rgb (mp->imgbuf, n, mp->raw_width, mp->lbuf);

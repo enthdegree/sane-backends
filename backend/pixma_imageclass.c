@@ -62,7 +62,7 @@
 # define UNUSED(v)
 #endif
 
-#define IMAGE_BLOCK_SIZE (0x1ffff)
+#define IMAGE_BLOCK_SIZE (0xffff)
 #define MAX_CHUNK_SIZE   (0x1000)
 #define MIN_CHUNK_SIZE   (0x0200)
 #define CMDBUF_SIZE 512
@@ -76,7 +76,6 @@
 #define MF5630_PID 0x264e
 #define MF5650_PID 0x264f
 #define MF8100_PID 0x2659
-#define MF3110_PID 0x2660
 #define MF3200_PID 0x2684
 #define MF6500_PID 0x2686
 
@@ -268,14 +267,10 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
       error = 0;
 
       if (s->cfg->pid == MF4600_PID)
-        {  
+        {                                         /* 32bit size */
           *datalen = mf->cb.reslen - hlen;
-          *size = (*datalen + hlen == 512) ?      /* 32bit size */
-                  pixma_get_be32 (mf->cb.buf + 4) - *datalen : 0;
+          *size = (*datalen + hlen == 512) ? pixma_get_be32 (mf->cb.buf + 4) - *datalen : 0;
           memcpy (data, mf->cb.buf + hlen, *datalen);
-
-          PDBG (pixma_dbg (3, "remaining data count to be read = %u\n", *size));
-
         }
     }
   else
@@ -595,8 +590,8 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
             }
           lines_size = n * s->param->line_size;
           /* cull remainder and shift left */
-          mf->blk_len -= block_size;
-          memcpy (mf->blkptr, mf->blkptr + block_size, mf->blk_len);
+          mf->blk_len -= lines_size;
+          memcpy (mf->blkptr, mf->blkptr + lines_size, mf->blk_len);
         }
     }
   while (n == 0);
@@ -694,7 +689,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF8170c", "MF8170c", MF8100_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF3110", "MF3110", MF3110_PID, 600, 640, 877, 0),
   DEV ("Canon imageCLASS MF3240", "MF3240", MF3200_PID, 600, 640, 877, 0),
   DEV ("Canon imageClass MF6500", "MF6500", MF6500_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4010", "MF4010", MF4010_PID, 600, 640, 877, 0),

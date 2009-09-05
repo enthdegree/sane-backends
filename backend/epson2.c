@@ -391,7 +391,6 @@ e2_network_discovery(void)
 
 	char *ip, *query = "EPSONP\x00\xff\x00\x00\x00\x00\x00\x00\x00";
 	unsigned char buf[76];
-	char name[18];
 
 	struct timeval to;
 
@@ -419,11 +418,8 @@ e2_network_discovery(void)
 			DBG(5, " response from %s\n", ip);
 
 			/* minimal check, protocol unknown */
-			if (strncmp((char *) buf, "EPSON", 5) == 0) {
-				strcpy(name, "net:");
-				strcat(name, ip);
-				attach_one_net(name);
-			}
+			if (strncmp((char *) buf, "EPSON", 5) == 0)
+				attach_one_net(ip);
 		}
 	}
 	fcntl(fd, F_SETFL, save_flags);
@@ -788,8 +784,13 @@ attach_one_usb(const char *dev)
 static SANE_Status
 attach_one_net(const char *dev)
 {
+        char name[18];
+
 	DBG(7, "%s: dev = %s\n", __func__, dev);
-	return attach(dev, SANE_EPSON_NET);
+
+	strcpy(name, "net:");
+	strcat(name, dev);
+	return attach(name, SANE_EPSON_NET);
 }
 
 static SANE_Status
@@ -2089,13 +2090,13 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
 
 	max_x = max_y = 0;
 
-	/* XXX check this */
-	s->params.pixels_per_line =
-		(SANE_UNFIX(s->val[OPT_BR_X].w -
-			    s->val[OPT_TL_X].w) / (MM_PER_INCH * dpi)) + 0.5;
+        s->params.pixels_per_line =
+                ((SANE_UNFIX(s->val[OPT_BR_X].w - s->val[OPT_TL_X].w)
+                / MM_PER_INCH) * dpi) + 0.5;
+  
 	s->params.lines =
-		(SANE_UNFIX(s->val[OPT_BR_Y].w -
-			    s->val[OPT_TL_Y].w) / (MM_PER_INCH * dpi)) + 0.5;
+		((SANE_UNFIX(s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w)
+                / MM_PER_INCH) * dpi) + 0.5;
 
 	/*
 	 * Make sure that the number of lines is correct for color shuffling:

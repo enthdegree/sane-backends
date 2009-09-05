@@ -291,6 +291,7 @@ handle_interrupt (pixma_t * s, int timeout)
     case MF5730_PID:
     case MF5750_PID:
     case MF5770_PID:
+    case MF3110_PID:
       if (len != 16)
 	{
 	  PDBG (pixma_dbg
@@ -299,9 +300,9 @@ handle_interrupt (pixma_t * s, int timeout)
 	}
       if (buf[12] & 0x40)
 	query_status (s);
-      /* FIXME: following is unverified! */
       if (buf[10] & 0x40)
 	send_time (s);
+      /* FIXME: following is unverified! */
       if (buf[15] & 1)
 	s->events = PIXMA_EV_BUTTON2;	/* b/w scan */
       if (buf[15] & 2)

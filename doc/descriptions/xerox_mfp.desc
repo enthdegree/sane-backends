@@ -6,16 +6,16 @@
 :mfg "Xerox"
 :url "http://www.office.xerox.com/"
 
+:model "Phaser 6110MFP"
+:interface "USB"
+:usbid "0x0924" "0x3d5d"
+:status :good
+
 :model "Phaser 3200MFP"
 :interface "USB"
 :usbid "0x0924" "0x3da4"
 :status :complete
 :url "http://www.office.xerox.com/multifunction-printer/multifunction-under-30ppm/phaser-3200mfp/spec-enus.html"
-
-:model "Phaser 6110MFP"
-:interface "USB"
-:usbid "0x0924" "0x3d5d"
-:status :good
 
 :mfg "Dell"
 :url "http://www.dell.com/"
@@ -27,11 +27,6 @@
 
 :mfg "Samsung"
 :url "http://www.samsung.com"
-
-:model "CLX-3170fn"
-:interface "USB"
-:usbid "0x04e8" "0x342a"
-:status :good
 
 :model "SCX-4200"
 :interface "USB"
@@ -46,6 +41,11 @@
 :model "SCX-4500"
 :interface "USB"
 :usbid "0x04e8" "0x3426"
+:status :good
+
+:model "CLX-3170fn"
+:interface "USB"
+:usbid "0x04e8" "0x342a"
 :status :good
 
 :model "SCX-4300"

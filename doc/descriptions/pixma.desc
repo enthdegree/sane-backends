@@ -265,7 +265,7 @@
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x172d"
 :status :good
-:comment "Reported to be working fine."
+:comment "Reported to be working fine at all resolutions."
 
 :model "PIXMA MP630"
 :interface "USB"
@@ -349,7 +349,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x265f"
 :status :good
-:comment "All resolutions supported (up to 600DPI)."
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
 
 :model "imageCLASS MF3110"
 :interface "USB"
@@ -397,7 +397,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x26b0"
 :status :untested
-:comment "Same protocol as imageCLASS MF4270? Testers needed!"
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4010"
 :interface "USB"

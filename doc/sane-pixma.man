@@ -30,7 +30,7 @@ MultiPASS MP700, MP730, PIXMA MP750 (no grayscale)
 .br
 ImageCLASS MF4010, MF4018, MF4120, MF4122, MF4140, MF4150
 .br
-ImageCLASS MF4270, MF5770, D480
+ImageCLASS MF4270, MF4660, MF4690, MF5770, D480
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs

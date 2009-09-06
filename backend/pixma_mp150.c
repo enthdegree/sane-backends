@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2007-2008 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
+   Copyright (C) 2007-2009 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
@@ -551,6 +551,16 @@ calc_shifting (pixma_t * s)
             mp->shift[2] = 2 * mp->shift[1];
             break;
 
+          case MP980_PID:
+            if (s->param->ydpi > 150)
+              {
+                mp->color_shift = s->param->ydpi / 75;
+                mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
+                mp->shift[0] = 0;
+                mp->shift[2] = 2 * mp->shift[1];
+               }
+            break;
+
           case MP800_PID:
           case MP800R_PID:
           case MP830_PID:
@@ -569,7 +579,7 @@ calc_shifting (pixma_t * s)
             mp->shift[0] = 2 * mp->shift[1];
             mp->shift[2] = 0;
             break;
-            
+
           default:
             break;
         }

@@ -1,5 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
+   Copyright (C) 2007-2009 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2008 Dennis Lou, dlou 99 at yahoo dot com
 
    This file is part of the SANE package.

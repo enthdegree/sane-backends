@@ -48,3 +48,7 @@
 :usbid "0x04e8" "0x3426"
 :status :good
 
+:model "SCX-4300"
+:interface "USB"
+:usbid "0x04e8" "0x342e"
+:status :good

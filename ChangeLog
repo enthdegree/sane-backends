@@ -1,10 +1,14 @@
-2009-09-03  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+2009-09-06  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp730.c, backend/pixma_imageclass.c, backend/pixma_mp150.c,
 	doc/descriptions/pixma.desc, doc/sane-pixma.man:
-	pixma backend: 
+	pixma backend:
 	- Fix usb interrupt messages handling for MF3110
 	- New support for ImageClass MF4660
 	- Documentation updates
+
+2009-09-03  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp730.c:
+	pixma backend: change for MF3110 image encoding.
 
 2009-08-29  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, backend/pixma_mp730.c:

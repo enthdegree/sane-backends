@@ -1,3 +1,7 @@
+2009-09-07  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp730.c:
+	pixma backend: added debug info for MF3110 and changed default params.
+
 2009-09-06  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp730.c, backend/pixma_imageclass.c, backend/pixma_mp150.c,
 	doc/descriptions/pixma.desc, doc/sane-pixma.man:

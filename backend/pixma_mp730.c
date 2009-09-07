@@ -616,12 +616,14 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	      s->cfg->pid != MF5770_PID  &&
 	      s->cfg->pid != MF3110_PID)
 	    {
-	      /* color, and not an MF57x0 */
+	      /* color, and not an MF57x0 nor MF3110 */
+PDBG (pixma_dbg (1, "DEBUG: Packing colors\n"));
 	      pack_rgb (mp->imgbuf, n, mp->raw_width, mp->lbuf);
 	    }
 	  else
 	    {
-	      /* grayscale or MF57x0 */
+	      /* grayscale or MF57x0 or MF3110 */
+PDBG (pixma_dbg (1, "DEBUG: not processing colors\n"));
 	      memcpy (mp->lbuf, mp->imgbuf, n * s->param->line_size);
 	    }
 	  block_size = n * s->param->line_size;
@@ -725,7 +727,7 @@ const pixma_config_t pixma_mp730_devices[] = {
   DEVICE ("Canon imageCLASS MF5730", "MF5730", MF5730_PID, 1200, 636, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon imageCLASS MF5750", "MF5750", MF5750_PID, 1200, 636, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon imageCLASS MF5770", "MF5770", MF5770_PID, 1200, 636, 868, PIXMA_CAP_ADF),
-  DEVICE ("Canon imageCLASS MF3110", "MF3110", MF3110_PID, 600, 640, 877, 0),
+  DEVICE ("Canon imageCLASS MF3110", "MF3110", MF3110_PID, 600, 636, 868, 0),
 
   DEVICE (NULL, NULL, 0, 0, 0, 0, 0)
 };

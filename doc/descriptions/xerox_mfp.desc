@@ -17,6 +17,11 @@
 :status :complete
 :url "http://www.office.xerox.com/multifunction-printer/multifunction-under-30ppm/phaser-3200mfp/spec-enus.html"
 
+:model "WorkCentre 3119 Series"
+:interface "USB"
+:usbid "0x0924" "0x4265"
+:status :good
+
 :mfg "Dell"
 :url "http://www.dell.com/"
 

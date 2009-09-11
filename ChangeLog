@@ -1,3 +1,8 @@
+2009-09-11  Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* tools/sane-find-scanner.c: Fix false warning about USB not
+	  supported when linking with libusb-1.0.
+	* po/sane-backends.sv.po: Updated Swedish translations.
+
 2009-09-07  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp730.c:
 	pixma backend: added debug info for MF3110 and changed default params.

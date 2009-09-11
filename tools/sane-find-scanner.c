@@ -2052,7 +2052,7 @@ main (int argc, char **argv)
 	   "make sure that\n  # you have loaded a kernel driver for your USB host "
 	   "controller and have setup\n  # the USB system correctly. "
 	   "See man sane-usb for details.\n");
-#ifndef HAVE_LIBUSB
+#if !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0)
       if (verbose > 0)
 	printf ("  # SANE has been built without libusb support. This may be a "
 		"reason\n  # for not detecting USB scanners. Read README for "

@@ -1,3 +1,8 @@
+2009-09-13  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, backend/pixma_mp730.c:
+	pixma backend: Declared new Pixma models MP250, MP490, MP560, MP640, 
+	and MP990, all yet untested, and modified some debug code.
+
 2009-09-11  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* tools/sane-find-scanner.c: Fix false warning about USB not
 	  supported when linking with libusb-1.0.

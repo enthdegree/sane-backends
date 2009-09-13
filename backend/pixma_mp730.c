@@ -617,13 +617,13 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	      s->cfg->pid != MF3110_PID)
 	    {
 	      /* color, and not an MF57x0 nor MF3110 */
-PDBG (pixma_dbg (1, "DEBUG: Packing colors\n"));
+PDBG (pixma_dbg (10, "DEBUG: Packing colors\n"));
 	      pack_rgb (mp->imgbuf, n, mp->raw_width, mp->lbuf);
 	    }
 	  else
 	    {
 	      /* grayscale or MF57x0 or MF3110 */
-PDBG (pixma_dbg (1, "DEBUG: not processing colors\n"));
+PDBG (pixma_dbg (10, "DEBUG: not processing colors\n"));
 	      memcpy (mp->lbuf, mp->imgbuf, n * s->param->line_size);
 	    }
 	  block_size = n * s->param->line_size;

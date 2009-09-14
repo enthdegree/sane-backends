@@ -337,6 +337,17 @@ store_device (device_list_type device)
        && devices[i].vendor == device.vendor
        && devices[i].product == device.product)
 	{
+          /* 
+          * Need to update the LibUSB device pointer, since it might
+          * have changed after the latest USB scan.
+          */
+#ifdef HAVE_LIBUSB
+          devices[i].libusb_device = device.libusb_device;
+#endif
+#ifdef HAVE_LIBUSB_1_0
+          devices[i].lu_device = device.lu_device;
+#endif
+
           devices[i].missing=0;
 	  DBG (3, "store_device: not storing device %s\n", device.devname);
 	  return;

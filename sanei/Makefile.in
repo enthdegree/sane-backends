@@ -56,7 +56,7 @@ am__libsanei_la_SOURCES_DIST = sanei_ab306.c sanei_constrain_value.c \
 	sanei_config.c sanei_config2.c sanei_pio.c sanei_pa4s2.c \
 	sanei_auth.c sanei_usb.c sanei_thread.c sanei_pv8630.c \
 	sanei_pp.c sanei_lm983x.c sanei_access.c sanei_tcp.c \
-	sanei_udp.c sanei_jpeg.c
+	sanei_udp.c sanei_magic.c sanei_jpeg.c
 @HAVE_JPEG_TRUE@am__objects_1 = sanei_jpeg.lo
 am_libsanei_la_OBJECTS = sanei_ab306.lo sanei_constrain_value.lo \
 	sanei_init_debug.lo sanei_net.lo sanei_wire.lo \
@@ -64,7 +64,7 @@ am_libsanei_la_OBJECTS = sanei_ab306.lo sanei_constrain_value.lo \
 	sanei_config.lo sanei_config2.lo sanei_pio.lo sanei_pa4s2.lo \
 	sanei_auth.lo sanei_usb.lo sanei_thread.lo sanei_pv8630.lo \
 	sanei_pp.lo sanei_lm983x.lo sanei_access.lo sanei_tcp.lo \
-	sanei_udp.lo $(am__objects_1)
+	sanei_udp.lo sanei_magic.lo $(am__objects_1)
 libsanei_la_OBJECTS = $(am_libsanei_la_OBJECTS)
 am_test_wire_OBJECTS = test_wire.$(OBJEXT)
 test_wire_OBJECTS = $(am_test_wire_OBJECTS)
@@ -262,7 +262,7 @@ libsanei_la_SOURCES = sanei_ab306.c sanei_constrain_value.c \
 	sanei_config.c sanei_config2.c sanei_pio.c sanei_pa4s2.c \
 	sanei_auth.c sanei_usb.c sanei_thread.c sanei_pv8630.c \
 	sanei_pp.c sanei_lm983x.c sanei_access.c sanei_tcp.c \
-	sanei_udp.c $(am__append_1)
+	sanei_udp.c sanei_magic.c $(am__append_1)
 EXTRA_DIST = linux_sg3_err.h os2_srb.h sanei_DomainOS.c sanei_DomainOS.h
 test_wire_SOURCES = test_wire.c
 test_wire_LDADD = libsanei.la
@@ -341,6 +341,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_init_debug.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_jpeg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_lm983x.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_magic.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_net.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_pa4s2.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_pio.Plo@am__quote@

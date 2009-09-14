@@ -81,6 +81,9 @@ enum fujitsu_Option
   OPT_BLUE_OFFSET,
   OPT_LOW_MEM,
   OPT_SIDE,
+  OPT_SWDESKEW,
+  OPT_SWDESPECK,
+  OPT_SWCROP,
 
   OPT_ENDORSER_GROUP,
   OPT_ENDORSER,
@@ -389,6 +392,7 @@ struct fujitsu
   SANE_Range duplex_offset_range;
   SANE_Range green_offset_range;
   SANE_Range blue_offset_range;
+  SANE_Range swdespeck_range;
 
   /*endorser group*/
   SANE_Range endorser_bits_range;
@@ -469,6 +473,9 @@ struct fujitsu
   int green_offset;
   int blue_offset;
   int low_mem;
+  int swdeskew;
+  int swdespeck;
+  int swcrop;
 
   /*endorser group*/
   int u_endorser;
@@ -772,7 +779,9 @@ static SANE_Status start_scan (struct fujitsu *s);
 
 static SANE_Status check_for_cancel(struct fujitsu *s);
 
+#ifdef SANE_FRAME_JPEG
 static SANE_Status read_from_JPEGduplex(struct fujitsu *s);
+#endif
 static SANE_Status read_from_3091duplex(struct fujitsu *s);
 static SANE_Status read_from_scanner(struct fujitsu *s, int side);
 
@@ -784,6 +793,10 @@ static SANE_Status read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int
 static SANE_Status setup_buffers (struct fujitsu *s);
 
 static SANE_Status get_hardware_status (struct fujitsu *s, SANE_Int option);
+
+static SANE_Status buffer_deskew(struct fujitsu *s, int side);
+static SANE_Status buffer_crop(struct fujitsu *s, int side);
+static SANE_Status buffer_despeck(struct fujitsu *s, int side);
 
 static void hexdump (int level, char *comment, unsigned char *p, int l);
 

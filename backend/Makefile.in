@@ -382,7 +382,8 @@ libsane_canon_dr_la_DEPENDENCIES = $(COMMON_LIBS) libcanon_dr.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_canon_dr_la_OBJECTS =  \
 	libsane_canon_dr_la-canon_dr-s.lo
 libsane_canon_dr_la_OBJECTS = $(nodist_libsane_canon_dr_la_OBJECTS)
@@ -541,8 +542,8 @@ libsane_fujitsu_la_DEPENDENCIES = $(COMMON_LIBS) libfujitsu.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	../sanei/sanei_magic.lo $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_fujitsu_la_OBJECTS = libsane_fujitsu_la-fujitsu-s.lo
 libsane_fujitsu_la_OBJECTS = $(nodist_libsane_fujitsu_la_OBJECTS)
 libsane_fujitsu_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -1896,7 +1897,7 @@ libfujitsu_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=fujitsu
 nodist_libsane_fujitsu_la_SOURCES = fujitsu-s.c
 libsane_fujitsu_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=fujitsu
 libsane_fujitsu_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_fujitsu_la_LIBADD = $(COMMON_LIBS) libfujitsu.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS)
+libsane_fujitsu_la_LIBADD = $(COMMON_LIBS) libfujitsu.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS)
 libgenesys_la_SOURCES = genesys.c genesys.h genesys_gl646.c genesys_gl841.c genesys_low.h
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 nodist_libsane_genesys_la_SOURCES = genesys-s.c
@@ -3164,11 +3165,11 @@ libepson2_la-epson2-ops.lo: epson2-ops.c
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libepson2_la-epson2-ops.lo `test -f 'epson2-ops.c' || echo '$(srcdir)/'`epson2-ops.c
 
 libepson2_la-epson2-cct.lo: epson2-cct.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libepson2_la-epson2-cct.lo -MD -MP -MF $(DEPDIR)/libepson2_la-epson2-cct.Tpo -c -o libepson2_la-epson2-cct.lo `test -f 'epson2-cct.c' || echo '$(srcdir)/'`epson2-cct.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libepson2_la-epson2-cct.Tpo $(DEPDIR)/libepson2_la-epson2-cct.Plo
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libepson2_la-epson2-cct.lo -MD -MP -MF $(DEPDIR)/libepson2_la-epson2-cct.Tpo -c -o libepson2_la-epson2-cct.lo `test -f 'epson2-cct.c' || echo '$(srcdir)/'`epson2-cct.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libepson2_la-epson2-cct.Tpo $(DEPDIR)/libepson2_la-epson2-cct.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='epson2-cct.c' object='libepson2_la-epson2-cct.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libepson2_la-epson2-cct.lo `test -f 'epson2-cct.c' || echo '$(srcdir)/'`epson2-cct.c
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libepson2_la-epson2-cct.lo `test -f 'epson2-cct.c' || echo '$(srcdir)/'`epson2-cct.c
 
 libfujitsu_la-fujitsu.lo: fujitsu.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libfujitsu_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libfujitsu_la-fujitsu.lo -MD -MP -MF $(DEPDIR)/libfujitsu_la-fujitsu.Tpo -c -o libfujitsu_la-fujitsu.lo `test -f 'fujitsu.c' || echo '$(srcdir)/'`fujitsu.c

@@ -55,12 +55,13 @@
    The source code is divided in sections which you can easily find by
    searching for the tag "@@".
 
-   Section 1 - Init & static stuff
-   Section 2 - sane_init, _get_devices, _open & friends
-   Section 3 - sane_*_option functions
-   Section 4 - sane_start, _get_param, _read & friends
-   Section 5 - sane_close functions
-   Section 6 - misc functions
+   Section 1 - Boilerplate: Init & static stuff
+   Section 2 - Init: sane_init, _get_devices, _open ...
+   Section 3 - Options: sane_*_option functions
+   Section 4 - Scanning: sane_start, _get_param, _read ...
+   Section 5 - Cleanup: sane_cancel, ...
+   Section 6 - Misc: sense_handler, hexdump, ...
+   Section 7 - Image processing: deskew, crop, despeck
 
    Changes:
       v1, 2002-05-05, OS
@@ -443,6 +444,8 @@
          - split sane_get_parameters into two functions
          - remove unused code from get_pixelsize
          - support hardware based auto length detection
+      v97 2009-09-14, MAN
+         - use sanei_magic to provide software deskew, autocrop and despeckle
 
    SANE FLOW DIAGRAM
 
@@ -471,7 +474,7 @@
 */
 
 /*
- * @@ Section 1 - Init
+ * @@ Section 1 - Boilerplate
  */
 
 #include "../include/sane/config.h"
@@ -498,12 +501,13 @@
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_magic.h"
 
 #include "fujitsu-scsi.h"
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 96
+#define BUILD 97
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -605,6 +609,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG (5, "sane_init: fujitsu backend %d.%d.%d, from %s\n",
     SANE_CURRENT_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
+
+  sanei_magic_init();
 
   DBG (10, "sane_init: finish\n");
 
@@ -3613,6 +3619,51 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
 
+  /*deskew by software*/
+  if(option==OPT_SWDESKEW){
+    opt->name = "swdeskew";
+    opt->title = "Software deskew";
+    opt->desc = "Request driver to rotate skewed pages digitally";
+    opt->type = SANE_TYPE_BOOL;
+    if (1)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*software despeckle radius*/
+  if(option==OPT_SWDESPECK){
+
+    opt->name = "swdespeck";
+    opt->title = "Software despeckle diameter";
+    opt->desc = "Maximum diameter of lone dots to remove from scan";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->swdespeck_range;
+    s->swdespeck_range.quant=1;
+
+    if(1){
+      s->swdespeck_range.min=0;
+      s->swdespeck_range.max=9;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*crop by software*/
+  if(option==OPT_SWCROP){
+    opt->name = "swcrop";
+    opt->title = "Software crop";
+    opt->desc = "Request driver to remove border from pages digitally";
+    opt->type = SANE_TYPE_BOOL;
+    if (1)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /* "Endorser" group ------------------------------------------------------ */
   if(option==OPT_ENDORSER_GROUP){
     opt->name = "endorser-options";
@@ -4502,6 +4553,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->side;
           return SANE_STATUS_GOOD;
 
+        case OPT_SWDESKEW:
+          *val_p = s->swdeskew;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWDESPECK:
+          *val_p = s->swdespeck;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWCROP:
+          *val_p = s->swcrop;
+          return SANE_STATUS_GOOD;
+
         /* Endorser Group */
         case OPT_ENDORSER:
           *val_p = s->u_endorser;
@@ -5099,6 +5162,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_LOW_MEM:
           s->low_mem = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWDESKEW:
+          s->swdeskew = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWDESPECK:
+          s->swdespeck = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWCROP:
+          s->swcrop = val_c;
           return SANE_STATUS_GOOD;
 
         /* Endorser Group */
@@ -6078,7 +6153,14 @@ sane_start (SANE_Handle handle)
 
         /* the front buffer is normally very small, but some scanners or
          * option combinations can't handle it, so we make a big one */
-        if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091)
+        if(
+         (s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091)
+         || (s->swcrop || s->swdeskew || s->swdespeck
+#ifdef SANE_FRAME_JPEG
+            && s->s.format != SANE_FRAME_JPEG
+#endif
+         )
+        )
           s->buff_tot[SIDE_FRONT] = s->bytes_tot[SIDE_FRONT];
       }
       else{
@@ -6132,6 +6214,44 @@ sane_start (SANE_Handle handle)
 
   DBG (15, "started=%d, side=%d, source=%d\n", s->started, s->side, s->source);
 
+  /* certain options require the entire image to 
+   * be collected from the scanner before we can
+   * tell the user the size of the image. the sane 
+   * API has no way to inform the frontend of this,
+   * so we block and buffer. yuck */
+  if( (s->swdeskew || s->swdespeck || s->swcrop)
+#ifdef SANE_FRAME_JPEG
+    && s->s.format != SANE_FRAME_JPEG
+#endif
+  ){
+
+    /* get image */
+    while(!s->eof_rx[s->side] && !ret){
+      SANE_Int len = 0;
+      ret = sane_read((SANE_Handle)s, NULL, 0, &len);
+    }
+
+    /* check for errors */
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot buffer image\n");
+      goto errors;
+    }
+
+    DBG (5, "sane_start: OK: done buffering\n");
+
+    /* finished buffering, adjust image as required */
+    if(s->swdeskew){
+      buffer_deskew(s,s->side);
+    }
+    if(s->swcrop){
+      buffer_crop(s,s->side);
+    }
+    if(s->swdespeck){
+      buffer_despeck(s,s->side);
+    }
+
+  }
+
   /* check if user cancelled during this start */
   ret = check_for_cancel(s);
 
@@ -6139,8 +6259,14 @@ sane_start (SANE_Handle handle)
   s->reading=0;
 
   DBG (10, "sane_start: finish %d\n", ret);
-
   return ret;
+
+  errors:
+    DBG (10, "sane_start: error %d\n", ret);
+    s->started = 0;
+    s->cancelled = 0;
+    s->reading = 0;
+    return ret;
 }
 
 static SANE_Status
@@ -6845,8 +6971,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   /* protect this block from sane_cancel */
   s->reading = 1;
 
-  /* no bytes to send to caller, but no eof from scanner yet? get some */
-  if(s->buff_rx[s->side] == s->buff_tx[s->side]){
+  /* no eof from scanner yet, try to get some bytes */
+  if(!s->eof_rx[s->side]){
 
     /* 3091/2 are on crack, get their own duplex reader function */
     if(s->source == SOURCE_ADF_DUPLEX
@@ -6927,6 +7053,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   return ret;
 }
 
+#ifdef SANE_FRAME_JPEG
 static SANE_Status
 read_from_JPEGduplex(struct fujitsu *s)
 {
@@ -7174,6 +7301,7 @@ read_from_JPEGduplex(struct fujitsu *s)
   
     return ret;
 }
+#endif
 
 static SANE_Status
 read_from_3091duplex(struct fujitsu *s)
@@ -7311,12 +7439,16 @@ read_from_scanner(struct fujitsu *s, int side)
 
     int bytes = s->buffer_size;
     int remain = s->bytes_tot[side] - s->bytes_rx[side];
+    int space = s->buff_tot[side] - s->buff_rx[side];
   
     DBG (10, "read_from_scanner: start\n");
   
     /* figure out the max amount to transfer */
     if(bytes > remain){
         bytes = remain;
+    }
+    if(bytes > space){
+        bytes = space;
     }
   
     /* all requests must end on line boundary */
@@ -7325,12 +7457,6 @@ read_from_scanner(struct fujitsu *s, int side)
     /* some larger scanners require even bytes per block */
     if(bytes % 2){
        bytes -= s->params.bytes_per_line;
-    }
-  
-    /* this should never happen */
-    if(bytes < 1){
-        DBG(5, "read_from_scanner: ERROR: no bytes this pass\n");
-        ret = SANE_STATUS_INVAL;
     }
   
     DBG(15, "read_from_scanner: si:%d re:%d bs:%d by:%d\n",
@@ -7342,8 +7468,10 @@ read_from_scanner(struct fujitsu *s, int side)
     DBG(15, "read_from_scanner: buf to:%d rx:%d tx:%d\n",
       s->buff_tot[side], s->buff_rx[side], s->buff_tx[side]);
   
-    if(ret){
-        return ret;
+    /* this will happen if buffer is not drained yet */
+    if(bytes < 1){
+      DBG(5, "read_from_scanner: no bytes this pass\n");
+      return ret;
     }
   
     /* fi-6770A gets mad if you 'read' too soon on usb, see if it is ready */
@@ -7612,7 +7740,7 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
 
 
 /*
- * @@ Section 4 - SANE cleanup functions
+ * @@ Section 5 - SANE cleanup functions
  */
 /*
  * Cancels a scan. 
@@ -7745,9 +7873,8 @@ sane_exit (void)
   DBG (10, "sane_exit: finish\n");
 }
 
-
 /*
- * @@ Section 5 - misc helper functions
+ * @@ Section 6 - misc helper functions
  */
 /*
  * Called by the SANE SCSI core and our usb code on device errors
@@ -8486,3 +8613,120 @@ sane_get_select_fd (SANE_Handle h, SANE_Int *fdp)
   DBG (15, "%p %d\n", h, *fdp);
   return SANE_STATUS_UNSUPPORTED;
 }
+
+/*
+ * @@ Section 7 - Image processing functions
+ */
+
+/* Look in image for likely upper and left paper edges, then rotate
+ * image so that upper left corner of paper is upper left of image.
+ * FIXME: should we do this before we binarize instead of after? */
+static SANE_Status
+buffer_deskew(struct fujitsu *s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  int x = 0, y = 0;
+  double slope = 0;
+  int bg_color = 0xdd;
+
+  DBG (10, "buffer_deskew: start\n");
+
+  ret = sanei_magic_findSkew(&s->params,s->buffers[side],
+    s->resolution_x,s->resolution_y,&x,&y,&slope);
+  if(ret){
+    DBG (5, "buffer_despeck: bad findSkew, bailing\n");
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
+  }
+
+  /* tweak the bg color based on scanner settings */
+  if(s->mode == MODE_HALFTONE || s->mode == MODE_GRAYSCALE){
+    if(s->bg_color == COLOR_BLACK)
+      bg_color = 0xff;
+    else
+      bg_color = 0;
+  }
+  else if(s->bg_color == COLOR_BLACK)
+    bg_color = 0;
+
+  ret = sanei_magic_rotate(&s->params,s->buffers[side], x, y, slope, bg_color);
+  if(ret){
+    DBG(5,"buffer_deskew: rotate error: %d",ret);
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
+  }
+
+  cleanup:
+  DBG (10, "buffer_deskew: finish\n");
+  return ret;
+}
+
+/* Look in image for likely left/right/bottom paper edges, then crop image.
+ * Does not attempt to rotate the image, that should be done first.
+ * FIXME: should we do this before we binarize instead of after? */
+static SANE_Status
+buffer_crop(struct fujitsu *s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  int top = 0;
+  int bot = 0;
+  int left = 0;
+  int right = 0;
+
+  DBG (10, "buffer_crop: start\n");
+
+  ret = sanei_magic_findEdges(&s->params,s->buffers[side],
+    s->resolution_x,s->resolution_y,&top,&bot,&left,&right);
+  if(ret){
+    DBG (5, "buffer_crop: bad edges, bailing\n");
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
+  }
+
+  DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",top,bot,left,right);
+
+  /* we dont listen to the 'top' value, since fujitsu does not pad the top */
+  top = 0;
+
+  /* now crop the image */
+  /*FIXME: crop duplex backside at same time?*/
+  ret = sanei_magic_crop(&s->params,s->buffers[side],top,bot,left,right);
+  if(ret){
+    DBG (5, "buffer_crop: bad crop, bailing\n");
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
+  }
+
+  /* update image size counter to new, smaller size */
+  s->bytes_rx[side] = s->params.lines * s->params.bytes_per_line;
+  s->buff_rx[side] = s->bytes_rx[side];
+ 
+  cleanup:
+  DBG (10, "buffer_crop: finish\n");
+  return ret;
+}
+
+/* Look in image for disconnected 'spots' of the requested size.
+ * Replace the spots with the average color of the surrounding pixels.
+ * FIXME: should we do this before we binarize instead of after? */
+static SANE_Status
+buffer_despeck(struct fujitsu *s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "buffer_despeck: start\n");
+
+  ret = sanei_magic_despeck(&s->params,s->buffers[side],s->swdespeck);
+  if(ret){
+    DBG (5, "buffer_despeck: bad despeck, bailing\n");
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
+  }
+
+  cleanup:
+  DBG (10, "buffer_despeck: finish\n");
+  return ret;
+}
+

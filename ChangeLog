@@ -1,3 +1,11 @@
+2009-09-14 m. allan noah <kitno455 at gmail dot com>
+	* sanei/sanei_usb.c: reset the libusb device handle after bus scan.
+	patch from Hans Petter Selasky
+	* backend/fujitsu.*, backend/Makefile.*: backend v97,
+	use sanei_magic to provide software deskew, autocrop and despeckle
+	* sanei/sanei_magic.c, include/sane/sanei_magic.h, Makefile.*:
+	new image processing lib for deskew, despeckle, autocrop.
+
 2009-09-13  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, backend/pixma_mp730.c:
 	pixma backend: Declared new Pixma models MP250, MP490, MP560, MP640, 

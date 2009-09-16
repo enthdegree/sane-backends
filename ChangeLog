@@ -1,3 +1,10 @@
+2009-09-16  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, 
+	doc/sane-pixma.man:
+	pixma backend: Updated documentation for:
+	- Pixma MP260 support
+	- descriptions for recently added new models
+
 2009-09-14 m. allan noah <kitno455 at gmail dot com>
 	* sanei/sanei_usb.c: reset the libusb device handle after bus scan.
 	patch from Hans Petter Selasky

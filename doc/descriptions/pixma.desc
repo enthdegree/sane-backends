@@ -267,6 +267,18 @@
 :status :good
 :comment "Reported to be working fine at all resolutions."
 
+:model "PIXMA MP990"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x1740"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
+:model "PIXMA MP640"
+:interface "USB"
+:usbid "0x04a9" "0x173f"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
 :model "PIXMA MP630"
 :interface "USB"
 :usbid "0x04a9" "0x172e"
@@ -279,17 +291,35 @@
 :status :good
 :comment "All resolutions supported (up to 2400DPI)"
 
+:model "PIXMA MP560"
+:interface "USB"
+:usbid "0x04a9" "0x173e"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
 :model "PIXMA MP540"
 :interface "USB"
 :usbid "0x04a9" "0x1730"
 :status :good
 :comment "All resolutions supported (up to 2400DPI)"
 
+:model "PIXMA MP490"
+:interface "USB"
+:usbid "0x04a9" "0x173c"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
 :model "PIXMA MP480"
 :interface "USB"
 :usbid "0x04a9" "0x1731"
 :status :good
 :comment "All resolutions supported (up to 2400DPI)"
+
+:model "PIXMA MP250"
+:interface "USB"
+:usbid "0x04a9" "0x173a"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
 
 :model "PIXMA MP240"
 :interface "USB"
@@ -300,8 +330,8 @@
 :model "PIXMA MP260"
 :interface "USB"
 :usbid "0x04a9" "0x1733"
-:status :untested
-:comment "Same protocol as Pixma Generation 3? Testers needed!"
+:status :good
+:comment "All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MP190"
 :interface "USB"
@@ -396,7 +426,7 @@
 :model "imageCLASS MF4690"
 :interface "USB"
 :usbid "0x04a9" "0x26b0"
-:status :untested
+:status :good
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4010"

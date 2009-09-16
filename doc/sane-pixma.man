@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "3 Aug 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "13 Sep 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon PIXMA MP series
@@ -14,7 +14,7 @@ Currently, the following models work with this backend:
 .RS
 PIXMA MP140, MP150, MP160, MP170, MP180, MP190
 .br
-PIXMA MP210, MP220, MP240
+PIXMA MP210, MP220, MP240, MP260
 .br
 PIXMA MP450, MP460, MP470, MP480
 .br
@@ -40,8 +40,6 @@ and must be switched off and on.
 SmartBase MP360, MP370, MP390
 .br
 MultiPASS PIXMA MP760, PIXMA MP780
-.br
-PIXMA MX320, MX330
 .RE
 .PP
 The following models may use the same Pixma protocol as those listed 
@@ -52,7 +50,7 @@ Feedback in the Sane-dev mailing list welcome.
 .RS
 PIXMA MP740
 .br
-PIXMA MP260, MX320
+PIXMA MX320, MX330, MP250, MP490, MP560, MP640, MP990
 .br
 ImageCLASS MF3110, MF3240
 .br

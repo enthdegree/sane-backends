@@ -106,11 +106,23 @@
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-801A"
 
+:model     "Artisan 710 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0852"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "Artisan 800"
 :interface "USB"
 :usbid     "0x04b8" "0x0844"
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-901A"
+
+:model     "Artisan 810 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0853"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "CC-500L"			; product spec (JP)
 :interface "USB"
@@ -1575,11 +1587,23 @@
 :status    :good
 :comment   "all-in-one"
 
+:model     "Stylus Office BX310FN Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0854"
+:status    :good
+:comment   "all-in-one"
+
 :model     "Stylus Office BX600FW"
 :interface "USB"
 :usbid     "0x04b8" "0x0847"
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-601F"
+
+:model     "Stylus Office BX610FW Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0855"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus Office TX300F"
 :interface "USB"
@@ -1593,17 +1617,41 @@
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-601F"
 
+:model     "Stylus Office TX610FW Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0855"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "Stylus Photo PX650 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0850"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "Stylus Photo PX700W"
 :interface "USB"
 :usbid     "0x04b8" "0x0846"
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-801A"
 
+:model     "Stylus Photo PX710W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0852"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "Stylus Photo PX800FW"
 :interface "USB"
 :usbid     "0x04b8" "0x0844"
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-901A"
+
+:model     "Stylus Photo PX810FW Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0853"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus Photo RX420"
 :interface "USB"
@@ -1755,9 +1803,21 @@
 :status    :good
 :comment   "all-in-one<br>overseas version of the PX-401A"
 
+:model     "Stylus NX110 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x084d"
+:status    :good
+:comment   "all-in-one"
+
 :model     "Stylus NX200"
 :interface "USB"
 :usbid     "0x04b8" "0x0849"
+:status    :good
+:comment   "all-in-one"
+
+:model     "Stylus NX210 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x084f"
 :status    :good
 :comment   "all-in-one"
 
@@ -1773,11 +1833,29 @@
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-501A"
 
+:model     "Stylus NX410 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0851"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
+
+:model     "Stylus NX510 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0856"
+:status    :good
+:comment   "all-in-one"
+
 :model     "Stylus SX100"
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
 :status    :good
 :comment   "all-in-one<br>overseas version of the PX-401A"
+
+:model     "Stylus SX110 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x084d"
+:status    :good
+:comment   "all-in-one"
 
 :model     "Stylus SX200"
 :interface "USB"
@@ -1788,6 +1866,12 @@
 :model     "Stylus SX205"
 :interface "USB"
 :usbid     "0x04b8" "0x0849"
+:status    :good
+:comment   "all-in-one"
+
+:model     "Stylus SX210 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x084f"
 :status    :good
 :comment   "all-in-one"
 
@@ -1803,11 +1887,29 @@
 :status    :good
 :comment   "all-in-one"
 
+:model     "Stylus SX410 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0851"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
+
+:model     "Stylus SX510W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0856"
+:status    :good
+:comment   "all-in-one"
+
 :model     "Stylus SX600FW"
 :interface "USB"
 :usbid     "0x04b8" "0x0847"
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-601F"
+
+:model     "Stylus SX610FW Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0855"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus Scan 2000"
 :interface "USB"
@@ -1827,6 +1929,12 @@
 :status    :good
 :comment   "all-in-one<br>overseas version of the PX-401A"
 
+:model     "Stylus TX110 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x084d"
+:status    :good
+:comment   "all-in-one"
+
 :model     "Stylus TX200"
 :interface "USB"
 :usbid     "0x04b8" "0x0849"
@@ -1845,11 +1953,35 @@
 :status    :good
 :comment   "all-in-one"
 
+:model     "Stylus TX210 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x084f"
+:status    :good
+:comment   "all-in-one"
+
 :model     "Stylus TX400"
 :interface "USB"
 :usbid     "0x04b8" "0x084a"
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-501A"
+
+:model     "Stylus TX410 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0851"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
+
+:model     "Stylus TX550W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0856"
+:status    :good
+:comment   "all-in-one"
+
+:model     "WorkForce 310 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0854"
+:status    :good
+:comment   "all-in-one"
 
 :model     "WorkForce 500"
 :interface "USB"
@@ -1862,3 +1994,9 @@
 :usbid     "0x04b8" "0x0847"
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-601F"
+
+:model     "WorkForce 610 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0855"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"

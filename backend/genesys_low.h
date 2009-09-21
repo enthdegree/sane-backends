@@ -293,6 +293,7 @@ Genesys_Color_Order;
 #define MOTOR_HP3670     9
 #define MOTOR_DP665      10
 #define MOTOR_ROADWARRIOR 11
+#define MOTOR_DSMOBILE_600 12
 
 
 /* Forward typedefs */

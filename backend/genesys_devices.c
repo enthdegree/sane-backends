@@ -657,6 +657,24 @@ static Genesys_Motor Motor[] = {
      0.8,
      },},},
   },
+  {MOTOR_DSMOBILE_600,			/* Pentax DSmobile 600 */
+   750,
+   1500,
+   1,
+   1,
+   {{{
+     6666,
+     3700,
+     8,
+     0.8,
+     },
+    {
+     11000,
+     11000,
+     2,
+     0.8,
+     },},},
+  },
 };
 
 /* here we have the various device settings...
@@ -1482,12 +1500,12 @@ static Genesys_Model pentax_dsmobile_600_model = {
   CCD_DSMOBILE600,
   DAC_WOLFSON_DSM600,
   GPO_DP665,
-  MOTOR_ROADWARRIOR,
+  MOTOR_DSMOBILE_600,
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_NO_CALIBRATION,
+    | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
-  300,
+  100,
   400
 };
 

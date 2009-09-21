@@ -3157,7 +3157,8 @@ gl841_calculate_current_setup (Genesys_Device * dev)
 
 /* half_ccd */
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (dev->sensor.optical_res  < 2 * xres) {
+  if ((dev->sensor.optical_res  < 2 * xres) ||
+     !(dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE)) {
       half_ccd = SANE_FALSE;
   } else {
       half_ccd = SANE_TRUE;

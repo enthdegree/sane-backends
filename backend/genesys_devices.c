@@ -1504,7 +1504,7 @@ static Genesys_Model pentax_dsmobile_600_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_DARK_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
   400
 };

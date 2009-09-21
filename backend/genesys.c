@@ -4061,8 +4061,9 @@ genesys_start_scan (Genesys_Device * dev)
   if (status == SANE_STATUS_UNSUPPORTED)
     {
       /* calibration : sheetfed scanners can't calibrate before each scan */
-      /* so we use a NO_CALIBRATION flags for those scanners              */
-      if (!(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
+       /* and also those who have the NO_CALIBRATION flag                  */
+       if (!(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
+           &&dev->model->is_sheetfed == SANE_FALSE)
 	{
 	  status = genesys_scanner_calibration (dev);
 	  if (status != SANE_STATUS_GOOD)

@@ -5811,6 +5811,274 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
   return status;
 }
 
+/**
+ * search for a full width black or white strip.
+ * @param dev scanner device
+ * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
+ * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
+ * @return SANE_STATUS_GOOD if a matching strip is found, SANE_STATUS_UNSUPPORTED if not
+ */
+static SANE_Status
+gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
+{
+  unsigned int pixels, lines, channels;
+  SANE_Status status;
+  Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS + 1];
+  size_t size;
+  uint8_t *data;
+  int steps, depth, dpi;
+  unsigned int pass, count, found, x, y;
+  char title[80];
+  Genesys_Register_Set * r;
+
+  DBG (DBG_proc, "gl841_search_strip %s %s\n",black ? "black":"white",forward ? "forward":"reverse");
+
+  gl841_save_power (dev, SANE_FALSE);
+  gl841_set_fe (dev, AFE_SET);
+      status = gl841_stop_action (dev);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl841_search_strip: Failed to stop: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+
+  /* set up for a gray scan at lowest dpi */
+  dpi = 9600;
+  for (x = 0; x < MAX_RESOLUTIONS; x++)
+    {
+      if (dev->model->xdpi_values[x] > 0 && dev->model->xdpi_values[x] < dpi)
+	dpi = dev->model->xdpi_values[x];
+    }
+  channels = 1;
+  /* 10 MM */
+  lines = (10 * dpi) / MM_PER_INCH;
+  /* shading calibation is done with dev->motor.base_ydpi */
+  lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
+  depth = 8;
+  pixels = (dev->sensor.sensor_pixels * dpi) / dev->sensor.optical_res;
+  size = pixels * channels * lines *(depth/8);
+  data = malloc (size);
+  if (!data)
+    {
+      DBG (DBG_error, "gl841_search_strip: failed to allocate memory\n");
+      return SANE_STATUS_NO_MEM;
+    }
+  dev->scanhead_position_in_steps = 0;
+
+  memcpy (local_reg, dev->reg,
+	  (GENESYS_GL841_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
+
+  status = gl841_init_scan_regs (dev,
+				 local_reg,
+				 dpi,
+				 dpi,
+				 0,
+				 0,
+				 pixels,
+				 lines,
+				 depth,
+				 channels,
+				 0,
+				 0);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_search_strip: Failed to setup for scan: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+     
+    /* set up for reverse or forward */
+    r = sanei_genesys_get_address (local_reg, 0x02);
+    if (forward)
+	r->value &= ~4;
+    else
+	r->value |= 4;
+
+
+  status = gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_search_strip: Failed to bulk write registers: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  status = gl841_begin_scan (dev, local_reg, SANE_TRUE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      free (data);
+      DBG (DBG_error,
+	   "gl841_search_strip: failed to begin scan: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  /* waits for valid data */
+  do
+    sanei_genesys_test_buffer_empty (dev, &steps);
+  while (steps);
+
+  /* now we're on target, we can read data */
+  status = sanei_genesys_read_data_from_scanner (dev, data, size);
+  if (status != SANE_STATUS_GOOD)
+    {
+      free (data);
+      DBG (DBG_error,
+	   "gl841_search_start_position: failed to read data: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  status = gl841_end_scan (dev, local_reg, SANE_TRUE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      free (data);
+      DBG (DBG_error,
+	   "gl841_search_strip: failed to end scan: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  status = gl841_stop_action (dev);
+  if (status != SANE_STATUS_GOOD)
+    {
+      free (data);
+      DBG (DBG_error, "gl841_search_strip: gl841_stop_action failed\n");
+      return status;
+    }
+
+  pass = 0;
+  if (DBG_LEVEL >= DBG_data)
+    {
+      sprintf (title, "search_strip_%s%02d.pnm",
+	       forward ? "fwd" : "bwd", pass);
+      sanei_genesys_write_pnm_file (title, data, depth, channels, pixels, lines);
+    }
+
+  /* loop until strip is found or maximum pass number done */
+  found = 0;
+  while (pass < 20 && !found)
+    {
+      status =
+	gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl841_search_strip: Failed to bulk write registers: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+
+      /* now start scan */
+      status = gl841_begin_scan (dev, local_reg, SANE_TRUE);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  free (data);
+	  DBG (DBG_error,
+	       "gl841_search_strip: failed to begin scan: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+
+      /* waits for valid data */
+      do
+	sanei_genesys_test_buffer_empty (dev, &steps);
+      while (steps);
+
+      /* now we're on target, we can read data */
+      status = sanei_genesys_read_data_from_scanner (dev, data, size);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  free (data);
+	  DBG (DBG_error,
+	       "gl841_search_start_position: failed to read data: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+
+      status = gl841_end_scan (dev, local_reg, SANE_TRUE);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  free (data);
+	  DBG (DBG_error,
+	       "gl841_search_strip: failed to end scan: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      status = gl841_stop_action (dev);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  free (data);
+	  DBG (DBG_error, "gl841_search_strip: gl841_stop_action failed\n");
+	  return status;
+	}
+
+      if (DBG_LEVEL >= DBG_data)
+	{
+	  sprintf (title, "search_strip_%s%02d.pnm",
+		   forward ? "fwd" : "bwd", pass);
+	  sanei_genesys_write_pnm_file (title, data, depth, channels,
+					pixels, lines);
+	}
+
+      /* search data to find black strip */
+      /* when searching forward, we only need one line of the searched color since we
+       * will scan forward. But when doing backward search, we need all the area of the
+       * same color */
+      count=0;
+      for (y = 0; y < lines && !found; y++)
+	{
+	  if(forward)
+	  {
+          	count = 0;
+	  }
+	  /* count of white/black pixels depending on the color searched */
+	  for (x = 0; x < pixels; x++)
+	    {
+	      /* when searching for black, detect white pixels */
+	      if (black && data[y * pixels + x] > 60)
+		{
+		  count++;
+		}
+	      /* when searching for white, detect black pixels */
+	      if (!black && data[y * pixels + x] < 60)
+		{
+		  count++;
+		}
+	    }
+
+	  /* at end of line, if count > 2%, line is not fully of the desired color
+	   * so we must go to next line of the buffer */
+	  /* count*100/pixels < 3 */
+	  if ((forward && ((count*100)/pixels)<3)||(!forward && ((count*100)/(pixels*lines)<3)))
+	    {
+	      found = 1;
+	      DBG (DBG_data,
+		   "gl841_search_strip: strip found during pass %d at line %d\n",
+		   pass, y);
+	    }
+	}
+      pass++;
+    }
+  free (data);
+  if (found)
+    {
+      status = SANE_STATUS_GOOD;
+      DBG (DBG_info, "gl841_search_strip: strip found\n");
+    }
+  else
+    {
+      status = SANE_STATUS_UNSUPPORTED;
+      DBG (DBG_info, "gl841_search_strip: strip not found\n");
+    }
+
+  DBG (DBG_proc, "gl841_search_strip: completed\n");
+  return status;
+}
+
 /** the gl841 command set */
 static Genesys_Command_Set gl841_cmd_set = {
   "gl841-generic",		/* the name of this set */
@@ -5860,7 +6128,7 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_load_document,
   gl841_detect_document_end,
   gl841_eject_document,
-  NULL,
+  gl841_search_strip,
 
   gl841_is_compatible_calibration,
 };

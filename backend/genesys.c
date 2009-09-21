@@ -1307,7 +1307,13 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
 
   dpihw = sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6;
 
-  if (dev->settings.scan_mode < 2 && dev->model->ccd_type != CCD_HP2300 && dev->model->ccd_type != CCD_HP2400 && dev->model->ccd_type != CCD_HP3670 && dev->model->ccd_type != CCD_5345)	/* lineart, halftone */
+  /* many scanners send coefficient for lineart/gray like in color mode */
+  if (dev->settings.scan_mode < 2
+      && dev->model->ccd_type != CCD_DSMOBILE600
+      && dev->model->ccd_type != CCD_HP2300
+      && dev->model->ccd_type != CCD_HP2400
+      && dev->model->ccd_type != CCD_HP3670
+      && dev->model->ccd_type != CCD_5345)	/* lineart, halftone */
     {
       if (dpihw == 0)		/* 600 dpi */
 	start_address = 0x02a00;

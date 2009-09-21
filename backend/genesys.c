@@ -2856,13 +2856,14 @@ compute_coefficients (Genesys_Device * dev,
     }
 }
 
-
 /**
  * Computes shading coefficient using formula in data sheet. 16bit data values
  * manipulated here are little endian. Data is in planar form, ie grouped by
  * lines of the same color component.
  * @param dev scanner's device
  * @shading_data memory area where to store the computed shading coefficients
+ * @factor averaging factor when the calibration scan is done at a higher resolution
+ * than the final scan
  * @param pixels_per_line number of pixels per line
  * @param channels number of color channels (actually 1 or 3)
  * @param cmat transcoding matrix for color channel order
@@ -2873,57 +2874,58 @@ compute_coefficients (Genesys_Device * dev,
 static void
 compute_planar_coefficients (Genesys_Device * dev,
 			     uint8_t * shading_data,
+			     unsigned int factor,
 			     unsigned int pixels_per_line,
 			     unsigned int words_per_color,
 			     unsigned int channels,
 			     int cmat[3],
 			     unsigned int offset,
-			     unsigned int coeff, unsigned int target)
+			     unsigned int coeff, 
+			     unsigned int target)
 {
   uint8_t *ptr;			/* contains 16bit words in little endian */
-  unsigned int x, c;
+  unsigned int x, c, i;
   unsigned int val, dk, br;
 
   DBG (DBG_io,
-       "compute_planar_coefficients: pixels_per_line=%d, words=%d, coeff=0x%04x\n",
+       "compute_planar_coefficients: factor=%d, pixels_per_line=%d, words=0x%X, coeff=0x%04x\n", factor,
        pixels_per_line, words_per_color, coeff);
   for (c = 0; c < channels; c++)
     {
       /* shading data is larger than pixels_per_line so offset can be neglected */
-      for (x = 0; x < pixels_per_line; x++)
+      for (x = 0; x < pixels_per_line; x+=factor)
 	{
 	  /* x2 because of 16 bit values, and x2 since one coeff for dark
 	   * and another for white */
 	  ptr =
 	    shading_data + words_per_color * cmat[c] * 2 + (x + offset) * 4;
 
-	  /* we only handle deletion and not average */
 	  dk = 0;
 	  br = 0;
+
+	  /* average case */
+	  for(i=0;i<factor;i++)
+	  {
 	  dk +=
-	    256 * dev->dark_average_data[(x + pixels_per_line * c) * 2 + 1];
-	  dk += dev->dark_average_data[(x + pixels_per_line * c) * 2];
+	    256 * dev->dark_average_data[((x+i) + pixels_per_line * c) * 2 + 1];
+	  dk += dev->dark_average_data[((x+i) + pixels_per_line * c) * 2];
 	  br +=
-	    256 * dev->white_average_data[(x + pixels_per_line * c) * 2 + 1];
-	  br += dev->white_average_data[(x + pixels_per_line * c) * 2];
+	    256 * dev->white_average_data[((x+i) + pixels_per_line * c) * 2 + 1];
+	  br += dev->white_average_data[((x+i) + pixels_per_line * c) * 2];
+	  }
+	  dk /= factor;
+	  br /= factor;
 
-	  if (br - dk > 0)
-	    {
-	      val = (coeff * target) / (br - dk);
-	      if (val >= 65535)
-		{
-		  val = 65535;
-		}
-	    }
-	  else
-	    {
-	      val = coeff;
-	    }
+	  val = compute_coefficient (coeff, target, br - dk);
 
-	  ptr[0] = dk & 255;
-	  ptr[1] = dk / 256;
-	  ptr[2] = val & 0xff;
-	  ptr[3] = val / 256;
+	  /* we duplicate the information to have calibration data at optical resolution */
+	  for (i = 0; i < factor; i++)
+	    {
+	      ptr[0 + 4 * i] = dk & 255;
+	      ptr[1 + 4 * i] = dk / 256;
+	      ptr[2 + 4 * i] = val & 0xff;
+	      ptr[3 + 4 * i] = val / 256;
+	    }
 	}
     }
 }
@@ -3020,6 +3022,24 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 
   switch (dev->model->ccd_type)
     {
+    case CCD_DSMOBILE600:
+      words_per_color = 0x2a00;
+      target_code = 0xdc00;
+      o = 4;
+      cmat[0] = 0;
+      cmat[1] = 1;
+      cmat[2] = 2;
+      compute_planar_coefficients (dev,
+				   shading_data,
+				   dev->sensor.optical_res/dev->settings.xres,
+				   pixels_per_line,
+				   words_per_color,
+				   channels,
+				   cmat,
+				   o,
+				   coeff,
+				   target_code);
+      break;
     case CIS_XP200:
       target_code = 0xdc00;
       o = 2;
@@ -3028,9 +3048,14 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       cmat[2] = 1;		/* blue is second */
       compute_planar_coefficients (dev,
 				   shading_data,
+				   1,
 				   pixels_per_line,
 				   words_per_color,
-				   channels, cmat, o, coeff, target_code);
+				   channels,
+				   cmat,
+				   o,
+				   coeff,
+				   target_code);
       break;
     case CCD_HP2300:
       target_code = 0xdc00;
@@ -3729,13 +3754,22 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
- 
+
   /* in case we haven't black shading data, build it from black pixels
    * of white calibration */
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
-  {
-	  /* XXX STEF TODO XXX */
-  }
+    {
+      FREE_IFNOT_NULL (dev->dark_average_data);
+      dev->dark_average_data = malloc (dev->average_size);
+      memset (dev->dark_average_data, 0x0f, dev->average_size);
+      /* XXX STEF XXX
+       * with black point in white shading, build an average black
+       * pixel and use it to fill the dark_average
+       * dev->calib_pixels
+       (dev->sensor.sensor_pixels * dev->settings.xres) / dev->sensor.optical_res,
+       dev->model->shading_lines,
+       */
+    }
 
   /* send the shading coefficient */
   status = genesys_send_shading_coefficient (dev);

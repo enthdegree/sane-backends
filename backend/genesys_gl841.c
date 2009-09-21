@@ -3732,7 +3732,7 @@ gl841_eject_document (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl841_slow_back_home: Failed to read status register: %s\n",
+	   "gl841_eject_document: Failed to read status register: %s\n",
 	   sane_strstatus (status));
       return status;
     }

@@ -1,3 +1,7 @@
+2009-09-26 Julien Blache <jb@jblache.org>
+	* backend/genesys.c: add missing check when logging raw data,
+	patch by Tollef Fog Heen <tfheen@err.no>.
+
 2009-09-16  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, 
 	doc/sane-pixma.man:

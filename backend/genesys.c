@@ -4434,8 +4434,11 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 	   "genesys_read_ordered_data: nothing more to scan: EOF\n");
       *len = 0;
 #ifdef SANE_DEBUG_LOG_RAW_DATA
-      fclose (rawfile);
-      rawfile = NULL;
+      if (rawfile != NULL)
+	{
+	  fclose (rawfile);
+	  rawfile = NULL;
+	}
 #endif
       return SANE_STATUS_EOF;
     }

@@ -843,15 +843,15 @@ bjnp_write (int devno, const SANE_Byte * buf, size_t count)
   if (device[devno].scanner_data_left)
     PDBG (pixma_dbg
 	  (LOG_CRIT, "bjnp_write: ERROR scanner data left = 0x%lx = %ld\n",
-	   (long) device[devno].scanner_data_left,
-	   (long) device[devno].scanner_data_left));
+	   (unsigned long) device[devno].scanner_data_left,
+	   (unsigned long) device[devno].scanner_data_left));
 
   /* set BJNP command header */
 
   set_cmd (devno, (struct BJNP_command *) &bjnp_buf, CMD_TCP_SEND, count);
   memcpy (bjnp_buf.scan_data, buf, count);
   PDBG (pixma_dbg (LOG_DEBUG, "bjnp_write: sending 0x%lx = %ld bytes\n",
-		   (long) count, (long) count);
+		   (unsigned long) count, (unsigned long) count);
 	PDBG (pixma_hexdump (LOG_DEBUG2, (char *) &bjnp_buf,
 			     sizeof (struct BJNP_command) + count)));
 
@@ -892,8 +892,8 @@ bjnp_send_read_request (int devno)
     PDBG (pixma_dbg
 	  (LOG_CRIT,
 	   "bjnp_send_read_request: ERROR scanner data left = 0x%lx = %ld\n",
-	   (long) device[devno].scanner_data_left,
-	   (long) device[devno].scanner_data_left));
+	   (unsigned long) device[devno].scanner_data_left,
+	   (unsigned long) device[devno].scanner_data_left));
 
   /* set BJNP command header */
 
@@ -944,8 +944,8 @@ bjnp_recv_header (int devno)
     PDBG (pixma_dbg
 	  (LOG_CRIT,
 	   "bjnp_send_request: ERROR scanner data left = 0x%lx = %ld\n",
-	   (long) device[devno].scanner_data_left,
-	   (long) device[devno].scanner_data_left));
+	   (unsigned long) device[devno].scanner_data_left,
+	   (unsigned long) device[devno].scanner_data_left));
 
   attempt = 0;
   do
@@ -1021,7 +1021,7 @@ bjnp_recv_header (int devno)
   device[devno].scanner_data_left = ntohl (resp_buf.payload_len);
   PDBG (pixma_dbg
 	(LOG_DEBUG2, "TCP response header(scanner data = %ld bytes):\n",
-	 (long) device[devno].scanner_data_left));
+	 (unsigned long) device[devno].scanner_data_left));
   PDBG (pixma_hexdump
 	(LOG_DEBUG2, (char *) &resp_buf, sizeof (struct BJNP_command)));
   return SANE_STATUS_GOOD;
@@ -1049,7 +1049,7 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t * len)
 
   PDBG (pixma_dbg
 	(LOG_DEBUG, "bjnp_recv_data: read response payload (%ld bytes max)\n",
-	 (long) *len));
+	 (unsigned long) *len));
 
   attempt = 0;
   do
@@ -1096,7 +1096,7 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t * len)
       return SANE_STATUS_IO_ERROR;
     }
   PDBG (pixma_dbg (LOG_DEBUG2, "Received TCP response payload (%ld bytes):\n",
-		   (long) recv_bytes));
+		   (unsigned long) recv_bytes));
   PDBG (pixma_hexdump (LOG_DEBUG2, buffer, recv_bytes));
 
   device[devno].scanner_data_left =
@@ -1661,7 +1661,7 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
   PDBG (pixma_dbg
 	(LOG_DEBUG, "bjnp_read_bulk(%d, bufferptr, 0x%lx = %ld)\n", dn,
-	 (long) *size, (long) size));
+	 (unsigned long) *size, (unsigned long) size));
 
   recvd = 0;
   left = *size;
@@ -1681,10 +1681,11 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   PDBG (pixma_dbg
 	(LOG_DEBUG, "bjnp_read_bulk: 0x%lx = %ld bytes available at start, "
 	 "Short block = %d blocksize = 0x%lx = %ld\n",
-	 (long) device[dn].scanner_data_left,
-	 (long) device[dn].scanner_data_left,
+	 (unsigned long) device[dn].scanner_data_left,
+	 (unsigned long) device[dn].scanner_data_left,
 	 (int) device[dn].short_read,
-	 (long) device[dn].blocksize, (long) device[dn].blocksize));
+	 (unsigned long) device[dn].blocksize, 
+	 (unsigned long) device[dn].blocksize));
 
   while ((recvd < *size)
 	 && (!device[dn].short_read || device[dn].scanner_data_left))
@@ -1692,7 +1693,8 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       PDBG (pixma_dbg
 	    (LOG_DEBUG,
 	     "So far received 0x%lx bytes = %ld, need 0x%lx = %ld\n",
-	     (long) recvd, (long) recvd, (long) *size, (long) *size));
+	     (unsigned long) recvd, (unsigned long) recvd, 
+	     (unsigned long) *size, (unsigned long) *size));
 
       if (device[dn].scanner_data_left == 0)
 	{
@@ -1717,8 +1719,8 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 	    }
 	  PDBG (pixma_dbg
 		(LOG_DEBUG, "Scanner reports 0x%lx = %ld bytes available\n",
-		 (long) device[dn].scanner_data_left,
-		 (long) device[dn].scanner_data_left));
+		 (unsigned long) device[dn].scanner_data_left,
+		 (unsigned long) device[dn].scanner_data_left));
 
 	  /* correct blocksize if more data is sent by scanner than current blocksize assumption */
 
@@ -1736,8 +1738,10 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       PDBG (pixma_dbg
 	    (LOG_DEBUG,
 	     "reading 0x%lx = %ld (of max 0x%lx = %ld) bytes more\n",
-	     device[dn].scanner_data_left, device[dn].scanner_data_left,
-	     (long) more, (long) more));
+	     (unsigned long) device[dn].scanner_data_left, 
+	     (unsigned long) device[dn].scanner_data_left,
+	     (unsigned long) more, 
+	     (unsigned long) more));
       result = bjnp_recv_data (dn, buffer, &more);
       if (result != SANE_STATUS_GOOD)
 	{
@@ -1777,7 +1781,7 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
 
   PDBG (pixma_dbg
 	(LOG_INFO, "bjnp_write_bulk(%d, bufferptr, 0x%lx = %ld)\n", dn,
-	 (long) *size, (long) *size));
+	 (unsigned long) *size, (unsigned long) *size));
   sent = bjnp_write (dn, buffer, *size);
   if (sent < 0)
     return SANE_STATUS_IO_ERROR;
@@ -1785,7 +1789,7 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "Sent only %ld bytes to scanner, expected %ld!!\n",
-	     (long) sent, (long) *size));
+	     (unsigned long) sent, (unsigned long) *size));
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -1799,8 +1803,8 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
     {
       PDBG (pixma_dbg (LOG_CRIT,
 		       "Scanner length of write confirmation = 0x%lx bytes = %ld, expected %d!!\n",
-		       (long) device[dn].scanner_data_left,
-		       (long) device[dn].scanner_data_left, 4));
+		       (unsigned long) device[dn].scanner_data_left,
+		       (unsigned long) device[dn].scanner_data_left, 4));
       return SANE_STATUS_IO_ERROR;
     }
   recvd = 4;
@@ -1816,7 +1820,7 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "Scanner confirmed %ld bytes, expected %ld!!\n",
-	     (long) recvd, (long) *size));
+	     (unsigned long) recvd, (unsigned long) *size));
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -1850,7 +1854,7 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 #ifndef PIXMA_BJNP_STATUS
   PDBG (pixma_dbg
 	(LOG_INFO, "bjnp_read_int(%d, bufferptr, 0x%lx = %ld):\n", dn,
-	 (long) *size, (long) *size));
+	 (unsigned long) *size, (unsigned long) *size));
   memset (buffer, 0, *size);
   sleep (1);
   return SANE_STATUS_IO_ERROR;
@@ -1861,7 +1865,7 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
   PDBG (pixma_dbg
 	(LOG_INFO, "bjnp_read_int(%d, bufferptr, %lx = %ld):\n", dn,
-	 (long) *size, (long) *size));
+	 (unsigned long) *size, (unsigned long) *size));
 
   gethostname (hostname, 32);
   hostname[32] = '\0';

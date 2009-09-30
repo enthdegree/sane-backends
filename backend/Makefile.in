@@ -890,7 +890,8 @@ libsane_pnm_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(libsane_pnm_la_LDFLAGS) $(LDFLAGS) -o $@
 libsane_qcam_la_DEPENDENCIES = $(COMMON_LIBS) libqcam.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
-	../sanei/sanei_config.lo sane_strstatus.lo
+	../sanei/sanei_config.lo sane_strstatus.lo \
+	../sanei/sanei_pio.lo
 nodist_libsane_qcam_la_OBJECTS = libsane_qcam_la-qcam-s.lo
 libsane_qcam_la_OBJECTS = $(nodist_libsane_qcam_la_OBJECTS)
 libsane_qcam_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -2101,7 +2102,7 @@ libqcam_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=qcam
 nodist_libsane_qcam_la_SOURCES = qcam-s.c
 libsane_qcam_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=qcam
 libsane_qcam_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_qcam_la_LIBADD = $(COMMON_LIBS) libqcam.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo 
+libsane_qcam_la_LIBADD = $(COMMON_LIBS) libqcam.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_pio.lo
 libricoh_la_SOURCES = ricoh.c ricoh.h
 libricoh_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ricoh
 nodist_libsane_ricoh_la_SOURCES = ricoh-s.c

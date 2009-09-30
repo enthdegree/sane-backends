@@ -805,7 +805,7 @@ libqcam_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=qcam
 nodist_libsane_qcam_la_SOURCES = qcam-s.c
 libsane_qcam_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=qcam
 libsane_qcam_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_qcam_la_LIBADD = $(COMMON_LIBS) libqcam.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo 
+libsane_qcam_la_LIBADD = $(COMMON_LIBS) libqcam.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_pio.lo
 EXTRA_DIST += qcam.conf.in
 
 libricoh_la_SOURCES = ricoh.c ricoh.h

@@ -1,3 +1,8 @@
+2009-09-29 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* backend/Makefile.am, backend/Makefile.in:
+	Add missing sanei_pio to qcam backend.  Fixes compile
+	error on embedded Linux boxes.
+
 2009-09-27  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_bjnp.c, backend/pixma_mp730.c:
 	Print size_t values as %lu with cast to unsigned long 

@@ -3,6 +3,10 @@
 	Add missing sanei_pio to qcam backend.  Fixes compile
 	error on embedded Linux boxes.  Added new genesys_gl646.h
 	to backend's SOURCES so its included in tar file.
+	* doc/Makefile.am, doc/Makefile.in:
+	Remove manual deletion of $docdir.  Modern automake cleans
+	up fine after itself and this fix is required for distcheck
+	target to pass on automake-1.11.
 
 2009-09-27  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_bjnp.c, backend/pixma_mp730.c:

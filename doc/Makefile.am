@@ -224,7 +224,6 @@ EXTRA_DIST += icons/contents.gif icons/index.gif icons/next.gif \
 install-data-local: install-beman5
 
 uninstall-local:
-	rm -rf $(DESTDIR)$(docdir)
 	rm -rf $(DESTDIR)$(beman5dir)/sane-*.5
 
 sane.ind: $(srcdir)/sane.tex

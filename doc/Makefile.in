@@ -814,7 +814,6 @@ install-beman5: $(BACKEND_5MANS)
 install-data-local: install-beman5
 
 uninstall-local:
-	rm -rf $(DESTDIR)$(docdir)
 	rm -rf $(DESTDIR)$(beman5dir)/sane-*.5
 
 sane.ind: $(srcdir)/sane.tex

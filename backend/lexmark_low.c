@@ -74,34 +74,33 @@ region_type;
 
 /* Static low function proto-types */
 static SANE_Status low_usb_bulk_write (SANE_Int devnum,
-					 SANE_Byte * cmd, size_t * size);
+				       SANE_Byte * cmd, size_t * size);
 static SANE_Status low_usb_bulk_read (SANE_Int devnum,
-					SANE_Byte * buf, size_t * size);
+				      SANE_Byte * buf, size_t * size);
 static SANE_Status low_write_all_regs (SANE_Int devnum, SANE_Byte * regs);
 static SANE_Bool low_is_home_line (unsigned char *buffer);
 static SANE_Status low_get_start_loc (SANE_Int resolution,
-					SANE_Int * vert_start,
-					SANE_Int * hor_start,
-					SANE_Int offset,
-					Lexmark_Device * dev);
+				      SANE_Int * vert_start,
+				      SANE_Int * hor_start,
+				      SANE_Int offset, Lexmark_Device * dev);
 static void low_rewind (Lexmark_Device * dev, SANE_Byte * regs);
 static SANE_Status low_start_mvmt (SANE_Int devnum);
 static SANE_Status low_stop_mvmt (SANE_Int devnum);
 static SANE_Status low_clr_c6 (SANE_Int devnum);
 static SANE_Status low_simple_scan (Lexmark_Device * dev,
-				      SANE_Byte * regs,
-				      int xoffset,
-				      int pixels,
-				      int yoffset,
-				      int lines, SANE_Byte ** data);
+				    SANE_Byte * regs,
+				    int xoffset,
+				    int pixels,
+				    int yoffset,
+				    int lines, SANE_Byte ** data);
 static void low_set_scan_area (SANE_Int res,
-				 SANE_Int tlx,
-				 SANE_Int tly,
-				 SANE_Int brx,
-				 SANE_Int bry,
-				 SANE_Int offset,
-				 SANE_Bool half_step,
-				 SANE_Byte * regs, Lexmark_Device * dev);
+			       SANE_Int tlx,
+			       SANE_Int tly,
+			       SANE_Int brx,
+			       SANE_Int bry,
+			       SANE_Int offset,
+			       SANE_Bool half_step,
+			       SANE_Byte * regs, Lexmark_Device * dev);
 
 /* Static Read Buffer Proto-types */
 static SANE_Status read_buffer_init (Lexmark_Device * dev, int bytesperline);
@@ -419,19 +418,21 @@ lexmark_low_wake_up (Lexmark_Device * dev)
  * 
  */
 #ifdef DEEP_DEBUG
-static void write_pnm_file(char *title, int pixels, int lines, int color, unsigned char *data)
+static void
+write_pnm_file (char *title, int pixels, int lines, int color,
+		unsigned char *data)
 {
-FILE * fdbg;
-int x,y;
+  FILE *fdbg;
+  int x, y;
 
- fdbg = fopen (title, "wb");
- if (fdbg == NULL)
-	 return;
+  fdbg = fopen (title, "wb");
+  if (fdbg == NULL)
+    return;
 
- if (color)
-   {
+  if (color)
+    {
       fprintf (fdbg, "P6\n%d %d\n255\n", pixels, lines);
-     for (y = 0; y < lines; y++)
+      for (y = 0; y < lines; y++)
 	{
 	  for (x = 0; x < pixels; x += 2)
 	    {
@@ -443,13 +444,13 @@ int x,y;
 	      fputc (data[y * pixels * 3 + x + pixels * 2], fdbg);
 	    }
 	}
-   }
- else
-   {
-     fprintf (fdbg, "P5\n%d %d\n255\n", pixels, lines);
-     fwrite (data, pixels, lines, fdbg);
-   }
- fclose (fdbg);
+    }
+  else
+    {
+      fprintf (fdbg, "P5\n%d %d\n255\n", pixels, lines);
+      fwrite (data, pixels, lines, fdbg);
+    }
+  fclose (fdbg);
 }
 #endif
 
@@ -465,7 +466,7 @@ sanei_lexmark_low_init (Lexmark_Device * dev)
   int i;
   SANE_Status status;
 
-  DBG_INIT();
+  DBG_INIT ();
 
   status = SANE_STATUS_UNSUPPORTED;
   DBG (2, "low_init: start\n");
@@ -810,7 +811,7 @@ low_usb_bulk_write (SANE_Int devnum, SANE_Byte * cmd, size_t * size)
     {
       DBG (5,
 	   "low_usb_bulk_write: returned %s (size = %lu, expected %lu)\n",
-	   sane_strstatus (status), (u_long) *size, (u_long) cmd_size);
+	   sane_strstatus (status), (u_long) * size, (u_long) cmd_size);
       /* F.O. should reset the pipe here... */
     }
   return status;
@@ -832,11 +833,11 @@ low_usb_bulk_read (SANE_Int devnum, SANE_Byte * buf, size_t * size)
     {
       DBG (5,
 	   "low_usb_bulk_read: returned %s (size = %lu, expected %lu)\n",
-	   sane_strstatus (status), (u_long) *size, (u_long) exp_size);
+	   sane_strstatus (status), (u_long) * size, (u_long) exp_size);
       /* F.O. should reset the pipe here... */
     }
   DBG (7, "low_usb_bulk_read: returned size = %lu (required %lu)\n",
-       (u_long) *size, (u_long) exp_size);
+       (u_long) * size, (u_long) exp_size);
   return status;
 }
 
@@ -877,8 +878,8 @@ low_clr_c6 (SANE_Int devnum)
 
   /* Clear register 0xC6 */
   /* cmd_size = 0x05;
-  return low_usb_bulk_write (devnum, clearC6_command_block, &cmd_size);*/
-  
+     return low_usb_bulk_write (devnum, clearC6_command_block, &cmd_size); */
+
   reg = 0x00;
   status = rts88xx_write_reg (devnum, 0xc6, &reg);
   return status;
@@ -920,8 +921,8 @@ low_start_scan (SANE_Int devnum, SANE_Byte * regs)
 
   /* Stop scanner - clear reg 0xb3: */
   /* status = low_stop_mvmt (devnum);
-  if (status != SANE_STATUS_GOOD)
-    return status; */
+     if (status != SANE_STATUS_GOOD)
+     return status; */
 
   /* then start */
   status = rts88xx_commit (devnum, regs[0x2c]);
@@ -982,7 +983,7 @@ low_poll_data (SANE_Int devnum)
  */
 static SANE_Status
 low_simple_scan (Lexmark_Device * dev, SANE_Byte * regs, int xoffset,
-		   int pixels, int yoffset, int lines, SANE_Byte ** data)
+		 int pixels, int yoffset, int lines, SANE_Byte ** data)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   static SANE_Byte reg;
@@ -1129,7 +1130,7 @@ sanei_lexmark_low_open_device (Lexmark_Device * dev)
   size = 4;
   low_usb_bulk_write (dev->devnum, command_block, &size);
   size = 0xFF;
-  memset(shadow_regs,0,sizeof(shadow_regs));
+  memset (shadow_regs, 0, sizeof (shadow_regs));
   low_usb_bulk_read (dev->devnum, shadow_regs, &size);
 #ifdef DEEP_DEBUG
   if (DBG_LEVEL > 2)
@@ -1181,8 +1182,8 @@ sanei_lexmark_low_open_device (Lexmark_Device * dev)
 	   "sanei_lexmark_low_open_device: reassign model/sensor for variant 0x%02x\n",
 	   variant);
       sanei_lexmark_low_assign_model (dev, dev->sane.name,
-					dev->model.vendor_id,
-					dev->model.product_id, variant);
+				      dev->model.vendor_id,
+				      dev->model.product_id, variant);
       /* since model has changed, run init again */
       sanei_lexmark_low_init (dev);
     }
@@ -1352,7 +1353,7 @@ low_is_home_line (unsigned char *buffer)
 	    }
 	  else
 	    {
-              DBG (15, "low_is_home_line: no transition to black \n");
+	      DBG (15, "low_is_home_line: no transition to black \n");
 	      return SANE_FALSE;
 	    }
 	}
@@ -1367,7 +1368,7 @@ low_is_home_line (unsigned char *buffer)
 	    }
 	  else
 	    {
-              DBG (15, "low_is_home_line: no transition to white \n");
+	      DBG (15, "low_is_home_line: no transition to white \n");
 	      return SANE_FALSE;
 	    }
 	}
@@ -1376,7 +1377,7 @@ low_is_home_line (unsigned char *buffer)
   /* Check that the number of transitions is 2 */
   if (transition_counter != 2)
     {
-     DBG (15, "low_is_home_line: transitions!=2 (%d)\n", transition_counter);
+      DBG (15, "low_is_home_line: transitions!=2 (%d)\n", transition_counter);
       return SANE_FALSE;
     }
 
@@ -1386,7 +1387,7 @@ low_is_home_line (unsigned char *buffer)
 
   if ((index1 < low_range) || (index1 > high_range))
     {
-     DBG (15, "low_is_home_line: index1=%d out of range\n", index1);
+      DBG (15, "low_is_home_line: index1=%d out of range\n", index1);
       return SANE_FALSE;
     }
 
@@ -1396,7 +1397,7 @@ low_is_home_line (unsigned char *buffer)
 
   if ((index2 < low_range) || (index2 > high_range))
     {
-     DBG (15, "low_is_home_line: index2=%d out of range\n", index2);
+      DBG (15, "low_is_home_line: index2=%d out of range\n", index2);
       return SANE_FALSE;
     }
 
@@ -1407,7 +1408,7 @@ low_is_home_line (unsigned char *buffer)
 
 void
 sanei_lexmark_low_move_fwd (SANE_Int distance, Lexmark_Device * dev,
-			      SANE_Byte * regs)
+			    SANE_Byte * regs)
 {
   /*
      This function moves the scan head forward with the highest vertical 
@@ -1781,6 +1782,10 @@ sanei_lexmark_low_search_home_fwd (Lexmark_Device * dev)
 
   /* create buffer for scan data */
   buffer = calloc (2500, sizeof (char));
+  if (buffer == NULL)
+    {
+      return SANE_FALSE;
+    }
 
   /* Tell the scanner to send the data */
   /* Write: 91 00 09 c4 */
@@ -1997,6 +2002,10 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
 
   /* create buffer to hold up to 10 lines of  scan data */
   buffer = calloc (10 * 2500, sizeof (char));
+  if (buffer == NULL)
+    {
+      return SANE_FALSE;
+    }
 
   home_line_count = 0;
   in_home_region = SANE_FALSE;
@@ -2128,8 +2137,8 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
 
 SANE_Status
 low_get_start_loc (SANE_Int resolution, SANE_Int * vert_start,
-		     SANE_Int * hor_start, SANE_Int offset,
-		     Lexmark_Device * dev)
+		   SANE_Int * hor_start, SANE_Int offset,
+		   Lexmark_Device * dev)
 {
   SANE_Int start_600;
 
@@ -2172,13 +2181,13 @@ low_get_start_loc (SANE_Int resolution, SANE_Int * vert_start,
 
 void
 low_set_scan_area (SANE_Int res,
-		     SANE_Int tlx,
-		     SANE_Int tly,
-		     SANE_Int brx,
-		     SANE_Int bry,
-		     SANE_Int offset,
-		     SANE_Bool half_step,
-		     SANE_Byte * regs, Lexmark_Device * dev)
+		   SANE_Int tlx,
+		   SANE_Int tly,
+		   SANE_Int brx,
+		   SANE_Int bry,
+		   SANE_Int offset,
+		   SANE_Bool half_step,
+		   SANE_Byte * regs, Lexmark_Device * dev)
 {
 
   SANE_Status status;
@@ -2468,6 +2477,10 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
 
   /* create buffer for scan data */
   buffer = calloc (5192, sizeof (char));
+  if (buffer == NULL)
+    {
+      return -1;
+    }
 
   /* Tell the scanner to send the data */
   /* Write: 91 00 14 48 */
@@ -2546,14 +2559,15 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
 	}
     }				/* end for buffer */
 
+  free (buffer);
   DBG (2, "sanei_lexmark_low_find_start_line: end.\n");
   return whiteLineCount;
 }
 
 
 SANE_Status
-sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution, SANE_Int offset,
-				   SANE_Bool calibrated)
+sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
+				 SANE_Int offset, SANE_Bool calibrated)
 {
   SANE_Bool isColourScan;
 
@@ -2593,13 +2607,13 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution, SANE
     }
 
   low_set_scan_area (resolution,
-		       dev->val[OPT_TL_X].w,
-		       dev->val[OPT_TL_Y].w,
-		       dev->val[OPT_BR_X].w,
-		       dev->val[OPT_BR_Y].w,
-		       offset,
-		       dev->model.motor_type == A920_MOTOR && isColourScan
-		       && (resolution == 600), dev->shadow_regs, dev);
+		     dev->val[OPT_TL_X].w,
+		     dev->val[OPT_TL_Y].w,
+		     dev->val[OPT_BR_X].w,
+		     dev->val[OPT_BR_Y].w,
+		     offset,
+		     dev->model.motor_type == A920_MOTOR && isColourScan
+		     && (resolution == 600), dev->shadow_regs, dev);
 
   /* may be we could use a sensor descriptor that would held the max horiz dpi */
   if (dev->val[OPT_RESOLUTION].w < 600)
@@ -2951,8 +2965,8 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution, SANE
 	      dev->shadow_regs[0x36] = 0x05;
 	      dev->shadow_regs[0x38] = 0x02;
 	      /* data compression
-	      dev->shadow_regs[0x40] = 0x90;
-	      dev->shadow_regs[0x50] = 0x20; */
+	         dev->shadow_regs[0x40] = 0x90;
+	         dev->shadow_regs[0x50] = 0x20; */
 	      /* no data compression */
 	      dev->shadow_regs[0x40] = 0x80;
 	      dev->shadow_regs[0x50] = 0x00;
@@ -2975,7 +2989,7 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution, SANE
 	      dev->shadow_regs[0x34] = 0x04;
 	      dev->shadow_regs[0x36] = 0x05;
 	      dev->shadow_regs[0x38] = 0x02;
-	      
+
 	      dev->shadow_regs[0x40] = 0x80;
 	      dev->shadow_regs[0x50] = 0x00;
 
@@ -3091,7 +3105,7 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution, SANE
 	      dev->shadow_regs[0x38] = 0x03;
 
 	      /* dev->shadow_regs[0x40] = 0x90;
-	      dev->shadow_regs[0x50] = 0x20;*/
+	         dev->shadow_regs[0x50] = 0x20; */
 	      /* no data compression */
 	      dev->shadow_regs[0x40] = 0x80;
 	      dev->shadow_regs[0x50] = 0x00;
@@ -3248,8 +3262,8 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution, SANE
 	      dev->shadow_regs[0x38] = 0x04;
 
 	      /* data compression 
-	      dev->shadow_regs[0x40] = 0x90;
-	      dev->shadow_regs[0x50] = 0x20; */
+	         dev->shadow_regs[0x40] = 0x90;
+	         dev->shadow_regs[0x50] = 0x20; */
 	      /* no data compression */
 	      dev->shadow_regs[0x40] = 0x80;
 	      dev->shadow_regs[0x50] = 0x00;
@@ -3504,8 +3518,8 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution, SANE
 	      dev->shadow_regs[0x38] = 0x04;
 
 	      /* data compression 
-	      dev->shadow_regs[0x40] = 0x90;
-	      dev->shadow_regs[0x50] = 0x20; */
+	         dev->shadow_regs[0x40] = 0x90;
+	         dev->shadow_regs[0x50] = 0x20; */
 
 	      /* no data compression */
 	      dev->shadow_regs[0x40] = 0x80;
@@ -3640,8 +3654,8 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution, SANE
 	      dev->shadow_regs[0x38] = 0x0b;
 
 	      /* data compression 
-	      dev->shadow_regs[0x40] = 0x90; 
-	      dev->shadow_regs[0x50] = 0x20; */
+	         dev->shadow_regs[0x40] = 0x90; 
+	         dev->shadow_regs[0x50] = 0x20; */
 	      /* no data compression */
 	      dev->shadow_regs[0x40] = 0x80;
 	      dev->shadow_regs[0x50] = 0x00;
@@ -3995,7 +4009,7 @@ sanei_lexmark_low_start_scan (Lexmark_Device * dev)
 
 long
 sanei_lexmark_low_read_scan_data (SANE_Byte * data, SANE_Int size,
-				    Lexmark_Device * dev)
+				  Lexmark_Device * dev)
 {
   SANE_Bool isColourScan, isGrayScan;
   static SANE_Byte command1_block[] = { 0x91, 0x00, 0xff, 0xc0 };
@@ -4032,13 +4046,14 @@ sanei_lexmark_low_read_scan_data (SANE_Byte * data, SANE_Int size,
 	  command1_block[2] = (SANE_Byte) (xfer_request >> 8);
 	  command1_block[3] = (SANE_Byte) (xfer_request & 0xFF);
 
-          /* wait for data */
-          status = low_poll_data (dev->devnum);
-          if (status != SANE_STATUS_GOOD)
-            {
-              DBG (1, "sanei_lexmark_low_read_scan_data: time-out while waiting for data.\n");
-              return status;
-            }
+	  /* wait for data */
+	  status = low_poll_data (dev->devnum);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (1,
+		   "sanei_lexmark_low_read_scan_data: time-out while waiting for data.\n");
+	      return status;
+	    }
 
 	  /* Create buffer to hold the amount we will request */
 	  dev->transfer_buffer = (SANE_Byte *) malloc (MAX_XFER_SIZE);
@@ -4579,7 +4594,7 @@ sanei_lexmark_low_offset_calibration (Lexmark_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
   int i, lines = 8, yoffset = 2;
   int pixels;
-  int failed=0;
+  int failed = 0;
   /* offsets */
   int ro = 0, go = 0, bo = 0;
   /* averages */
@@ -4639,7 +4654,7 @@ sanei_lexmark_low_offset_calibration (Lexmark_Device * dev)
 
       status =
 	low_simple_scan (dev, regs, dev->sensor->offset_startx, pixels,
-			   yoffset, lines, &data);
+			 yoffset, lines, &data);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (1,
@@ -4650,14 +4665,14 @@ sanei_lexmark_low_offset_calibration (Lexmark_Device * dev)
 	}
 #ifdef DEEP_DEBUG
       sprintf (title, "offset%02x.pnm", ro);
-      write_pnm_file(title,pixels,lines,rts88xx_is_color (regs),data);
+      write_pnm_file (title, pixels, lines, rts88xx_is_color (regs), data);
 #endif
       average = average_area (regs, data, pixels, lines, &ra, &ga, &ba);
     }
   if (i == 0)
     {
       DBG (2, "sanei_lexmark_low_offset_calibration: failed !\n");
-      failed=1;
+      failed = 1;
     }
 
   /* increase gain and scan again */
@@ -4665,7 +4680,7 @@ sanei_lexmark_low_offset_calibration (Lexmark_Device * dev)
   rts88xx_set_gain (regs, 6, 6, 6);
   status =
     low_simple_scan (dev, regs, dev->sensor->offset_startx, pixels, yoffset,
-		       lines, &data);
+		     lines, &data);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1,
@@ -4676,28 +4691,29 @@ sanei_lexmark_low_offset_calibration (Lexmark_Device * dev)
     }
   average = average_area (regs, data, pixels, lines, &ra, &ga, &ba);
 #ifdef DEEP_DEBUG
-  write_pnm_file("offset-final.pnm",pixels,lines,rts88xx_is_color (regs),data);
+  write_pnm_file ("offset-final.pnm", pixels, lines, rts88xx_is_color (regs),
+		  data);
 #endif
 
   /* this "law" is a guess, may (should?) be changed ... */
-  if(!failed)
-  {
-	  if (ro > ra)
-		  dev->offset.red = ro - ra;
-	  if (go > ga)
-	  {
-	dev->offset.green = go - ga;
-	dev->offset.gray = go - ga;
-	  }
-	  if (bo > ba)
-		  dev->offset.blue = bo - ba;
-  }
+  if (!failed)
+    {
+      if (ro > ra)
+	dev->offset.red = ro - ra;
+      if (go > ga)
+	{
+	  dev->offset.green = go - ga;
+	  dev->offset.gray = go - ga;
+	}
+      if (bo > ba)
+	dev->offset.blue = bo - ba;
+    }
   else
-  {
-	  dev->offset.red=dev->sensor->offset_fallback;
-	  dev->offset.green=dev->sensor->offset_fallback;
-	  dev->offset.blue=dev->sensor->offset_fallback;
-  }
+    {
+      dev->offset.red = dev->sensor->offset_fallback;
+      dev->offset.green = dev->sensor->offset_fallback;
+      dev->offset.blue = dev->sensor->offset_fallback;
+    }
   DBG (7,
        "sanei_lexmark_low_offset_calibration: offset=(0x%02x,0x%02x,0x%02x).\n",
        dev->offset.red, dev->offset.green, dev->offset.blue);
@@ -4763,8 +4779,7 @@ sanei_lexmark_low_gain_calibration (Lexmark_Device * dev)
 	  || (!rts88xx_is_color (regs)
 	      && (ga < dev->sensor->gray_gain_target))) && (i < 25))
     {
-      status =
-	low_simple_scan (dev, regs, sx, pixels, yoffset, lines, &data);
+      status = low_simple_scan (dev, regs, sx, pixels, yoffset, lines, &data);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (1,
@@ -4775,7 +4790,7 @@ sanei_lexmark_low_gain_calibration (Lexmark_Device * dev)
 	}
 #ifdef DEEP_DEBUG
       sprintf (title, "gain%02d.pnm", i);
-      write_pnm_file(title,pixels,lines,rts88xx_is_color (regs),data);
+      write_pnm_file (title, pixels, lines, rts88xx_is_color (regs), data);
 #endif
       average = average_area (regs, data, pixels, lines, &ra, &ga, &ba);
       free (data);
@@ -4918,7 +4933,8 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
   DBG (7, "sanei_lexmark_low_shading_calibration: yoffset=%d.\n", yoffset);
 
 #ifdef DEEP_DEBUG
-  write_pnm_file("shading.pnm",pixels,lines,rts88xx_is_color (regs),data);
+  write_pnm_file ("shading.pnm", pixels, lines, rts88xx_is_color (regs),
+		  data);
 #endif
 
   /* computes coefficients */
@@ -4985,7 +5001,8 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
     }
 
 #ifdef DEEP_DEBUG
-  write_pnm_file("shading_bwd.pnm",pixels,lines,rts88xx_is_color (regs),data);
+  write_pnm_file ("shading_bwd.pnm", pixels, lines, rts88xx_is_color (regs),
+		  data);
 #endif
   free (data);
 
@@ -5084,14 +5101,14 @@ sanei_lexmark_low_assign_sensor (Lexmark_Device * dev)
 /* assign model description, based on USB id, and register content when 
  * available */
 SANE_Status
-sanei_lexmark_low_assign_model (Lexmark_Device * dev, SANE_String_Const devname,
-				  SANE_Int vendor, SANE_Int product,
-				  SANE_Byte mainboard)
+sanei_lexmark_low_assign_model (Lexmark_Device * dev,
+				SANE_String_Const devname, SANE_Int vendor,
+				SANE_Int product, SANE_Byte mainboard)
 {
   int dn;
   SANE_Bool found = SANE_FALSE;
 
-  DBG_INIT();
+  DBG_INIT ();
 
   DBG (2, "sanei_lexmark_low_assign_model: start\n");
   DBG (3,
@@ -5133,8 +5150,7 @@ sanei_lexmark_low_assign_model (Lexmark_Device * dev, SANE_String_Const devname,
   dev->model = model_list[dn];
   dev->sane.type = "flatbed scanner";
 
-  DBG (3, "sanei_lexmark_low_assign_model: assigned %s\n",
-       dev->model.model);
+  DBG (3, "sanei_lexmark_low_assign_model: assigned %s\n", dev->model.model);
 
   /* init sensor data */
   return sanei_lexmark_low_assign_sensor (dev);

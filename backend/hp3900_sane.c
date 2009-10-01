@@ -1189,6 +1189,7 @@ options_init (TScanner * scanner)
       scanner->rng_vertical.quant = 1;
 
       /* allocate option lists */
+      bknd_info (scanner);
       bknd_colormodes (scanner, RTS_Debug->dev_model);
       bknd_depths (scanner, RTS_Debug->dev_model);
       bknd_models (scanner);
@@ -1562,6 +1563,7 @@ options_init (TScanner * scanner)
 	      pDesc->constraint_type = SANE_CONSTRAINT_NONE;
 	      pDesc->cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_DETECT;
 	      pVal->s = strdup (SANE_I18N ("Unknown"));
+	      pDesc->size = strlen(pVal->s) + 1;
 	      break;
 
 	    case opt_chipid:
@@ -1981,7 +1983,9 @@ option_get (TScanner * scanner, SANE_Int optid, void *result)
 	case opt_scantype:
 	case opt_model:
 	case opt_chipname:
-	  strcpy (result, scanner->aValues[optid].s);
+	  strncpy (result, scanner->aValues[optid].s, scanner->aOptions[optid].size);
+	  ((char*)result)[scanner->aOptions[optid].size-1] = '\0';
+
 	  break;
 
 	  /* scanner buttons */
@@ -2113,6 +2117,7 @@ option_set (TScanner * scanner, SANE_Int optid, void *value, SANE_Int * pInfo)
 		      Load_Config (device);
 
 		      /* update options according to selected device */
+		      bknd_info (scanner);
 		      bknd_colormodes (scanner, model);
 		      bknd_depths (scanner, model);
 		      bknd_resolutions (scanner, model);

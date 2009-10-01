@@ -1,4 +1,8 @@
-2009-10-10  Stéphane Voltz <stef.dev at free.fr>
+2009-10-01 Jonathan Bravo Lopez <jkdsoft at gmail dot com>
+	* backend/hp3900_sane.c:
+	fix bug 311991: "Bad option sizes let frontend (e.g. xsane) crash"
+
+2009-10-01  Stéphane Voltz <stef.dev at free.fr>
 	* backend/lexmark_low.c: fix a memleak in find_start_line(),
 	check success of memory allocation after calloc()
 

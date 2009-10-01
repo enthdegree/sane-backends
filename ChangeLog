@@ -1,3 +1,7 @@
+2009-10-10  Stéphane Voltz <stef.dev at free.fr>
+	* backend/lexmark_low.c: fix a memlean in find_start_line(),
+	check success of memory allocation after calloc()
+
 2009-09-29 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* backend/Makefile.am, backend/Makefile.in:
 	Add missing sanei_pio to qcam backend.  Fixes compile

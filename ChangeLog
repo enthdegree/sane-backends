@@ -1,4 +1,4 @@
-2009-10-01  Stéphane Voltz <stef.dev at free.fr>
+2009-10-02  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys_gl646.c: honor GENESYS_NO_CALIBRATION device
 	flag when setting registers for final scan
 

@@ -800,6 +800,12 @@ gl646_setup_registers (Genesys_Device * dev,
   else
     regs[reg_0x01].value &= ~REG01_CISSET;
 
+  /* if device has no calibration, don't enable shading correction */
+  if(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
+   {
+      regs[reg_0x01].value &= ~REG01_DVDSET;
+   }
+
   if (motor->fastmod)
     regs[reg_0x01].value |= REG01_FASTMOD;
   else

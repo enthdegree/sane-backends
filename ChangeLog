@@ -1,3 +1,7 @@
+2009-10-01  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys_gl646.c: honor GENESYS_NO_CALIBRATION device
+	flag when setting registers for final scan
+
 2009-10-01 Jonathan Bravo Lopez <jkdsoft at gmail dot com>
 	* backend/hp3900_sane.c:
 	fix bug 311991: "Bad option sizes let frontend (e.g. xsane) crash"

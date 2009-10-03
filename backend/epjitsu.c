@@ -2902,6 +2902,13 @@ finecal_get_line(struct scanner *s, struct image *img)
     return ret;
 }
 
+/* roundf() is c99, so we provide our own, though this version wont return -0 */
+static float
+round2(float x)
+{
+    return (float)(x >= 0.0) ? (int)(x+0.5) : (int)(x-0.5);
+}
+
 static SANE_Status
 finecal(struct scanner *s)
 {
@@ -3017,7 +3024,7 @@ finecal(struct scanner *s)
                         gain_slope[idx] *= 0.75;
                     last_error[idx] = pixerror;
                     /* set the new gain */
-                    newgain = oldgain + (int) roundf(pixerror * gain_slope[idx]);
+                    newgain = oldgain + (int) round2(pixerror * gain_slope[idx]);
                     if (newgain < 0)
                     {
                         low_pegs++;

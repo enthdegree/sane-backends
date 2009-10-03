@@ -1,3 +1,6 @@
+2009-10-03  Ilia Sotnikov <hostcc@gmail.com>
+	* backend/epjitsu.c: use own private function instead of roundf()
+
 2009-10-02  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys_gl646.c: honor GENESYS_NO_CALIBRATION device
 	flag when setting registers for final scan

@@ -1310,6 +1310,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
   /* many scanners send coefficient for lineart/gray like in color mode */
   if (dev->settings.scan_mode < 2
       && dev->model->ccd_type != CCD_DSMOBILE600
+      && dev->model->ccd_type != CCD_XP300
       && dev->model->ccd_type != CCD_HP2300
       && dev->model->ccd_type != CCD_HP2400
       && dev->model->ccd_type != CCD_HP3670
@@ -3020,10 +3021,30 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
    * sets REG01_FASTMOD.
    */
 
+  /* at some point me may thought of a setup struct in genesys_devices that
+   * will handle these settings instead of having this switch growing up */
   switch (dev->model->ccd_type)
     {
     case CCD_DSMOBILE600:
       words_per_color = 0x2a00;
+      target_code = 0xdc00;
+      o = 4;
+      cmat[0] = 0;
+      cmat[1] = 1;
+      cmat[2] = 2;
+      compute_planar_coefficients (dev,
+				   shading_data,
+				   dev->sensor.optical_res/dev->settings.xres,
+				   pixels_per_line,
+				   words_per_color,
+				   channels,
+				   cmat,
+				   o,
+				   coeff,
+				   target_code);
+      break;
+    case CCD_XP300:
+      words_per_color = 0x5500;
       target_code = 0xdc00;
       o = 4;
       cmat[0] = 0;

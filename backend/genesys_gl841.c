@@ -5820,8 +5820,10 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
   return status;
 }
 
-/**
- * search for a full width black or white strip.
+/** @brief search for a full width black or white strip.
+ * This function searches for a black or white stripe across the scanning area.
+ * When searching backward, the searched area must completely be of the desired 
+ * color since this area will be used for calibration which scans forward.
  * @param dev scanner device
  * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
@@ -5838,20 +5840,21 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   int steps, depth, dpi;
   unsigned int pass, count, found, x, y;
   char title[80];
-  Genesys_Register_Set * r;
+  Genesys_Register_Set *r;
 
-  DBG (DBG_proc, "gl841_search_strip %s %s\n",black ? "black":"white",forward ? "forward":"reverse");
+  DBG (DBG_proc, "gl841_search_strip %s %s\n", black ? "black" : "white",
+       forward ? "forward" : "reverse");
 
   gl841_save_power (dev, SANE_FALSE);
   gl841_set_fe (dev, AFE_SET);
-      status = gl841_stop_action (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl841_search_strip: Failed to stop: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
+  status = gl841_stop_action (dev);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_search_strip: Failed to stop: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
 
   /* set up for a gray scan at lowest dpi */
   dpi = 9600;
@@ -5867,7 +5870,7 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
   depth = 8;
   pixels = (dev->sensor.sensor_pixels * dpi) / dev->sensor.optical_res;
-  size = pixels * channels * lines *(depth/8);
+  size = pixels * channels * lines * (depth / 8);
   data = malloc (size);
   if (!data)
     {
@@ -5883,14 +5886,7 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 				 local_reg,
 				 dpi,
 				 dpi,
-				 0,
-				 0,
-				 pixels,
-				 lines,
-				 depth,
-				 channels,
-				 0,
-				 0);
+				 0, 0, pixels, lines, depth, channels, 0, 0);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -5898,13 +5894,13 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	   sane_strstatus (status));
       return status;
     }
-     
-    /* set up for reverse or forward */
-    r = sanei_genesys_get_address (local_reg, 0x02);
-    if (forward)
-	r->value &= ~4;
-    else
-	r->value |= 4;
+
+  /* set up for reverse or forward */
+  r = sanei_genesys_get_address (local_reg, 0x02);
+  if (forward)
+    r->value &= ~4;
+  else
+    r->value |= 4;
 
 
   status = gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
@@ -5964,7 +5960,8 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
     {
       sprintf (title, "search_strip_%s%02d.pnm",
 	       forward ? "fwd" : "bwd", pass);
-      sanei_genesys_write_pnm_file (title, data, depth, channels, pixels, lines);
+      sanei_genesys_write_pnm_file (title, data, depth, channels, pixels,
+				    lines);
     }
 
   /* loop until strip is found or maximum pass number done */
@@ -6037,37 +6034,77 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       /* when searching forward, we only need one line of the searched color since we
        * will scan forward. But when doing backward search, we need all the area of the
        * same color */
-      count=0;
-      for (y = 0; y < lines && !found; y++)
+      if (forward)
 	{
-	  if(forward)
-	  {
-          	count = 0;
-	  }
-	  /* count of white/black pixels depending on the color searched */
-	  for (x = 0; x < pixels; x++)
+	  for (y = 0; y < lines && !found; y++)
 	    {
-	      /* when searching for black, detect white pixels */
-	      if (black && data[y * pixels + x] > 60)
+	      count = 0;
+	      /* count of white/black pixels depending on the color searched */
+	      for (x = 0; x < pixels; x++)
 		{
-		  count++;
+		  /* when searching for black, detect white pixels */
+		  if (black && data[y * pixels + x] > 60)
+		    {
+		      count++;
+		    }
+		  /* when searching for white, detect black pixels */
+		  if (!black && data[y * pixels + x] < 60)
+		    {
+		      count++;
+		    }
 		}
-	      /* when searching for white, detect black pixels */
-	      if (!black && data[y * pixels + x] < 60)
+
+	      /* at end of line, if count >= 3%, line is not fully of the desired color
+	       * so we must go to next line of the buffer */
+	      /* count*100/pixels < 3 */
+	      if ((count * 100) / pixels < 3)
 		{
-		  count++;
+		  found = 1;
+		  DBG (DBG_data,
+		       "gl841_search_strip: strip found forward during pass %d at line %d\n",
+		       pass, y);
+		}
+	      else
+		{
+		  DBG (DBG_data, "gl841_search_strip: pixels=%d, count=%d\n",
+		       pixels, count);
+		}
+	    }
+	}
+      else /* since calibration scans are done forward, we need the whole area
+	      to be of the required color when searching backward */
+	{
+	  count = 0;
+	  for (y = 0; y < lines; y++)
+	    {
+	      /* count of white/black pixels depending on the color searched */
+	      for (x = 0; x < pixels; x++)
+		{
+		  /* when searching for black, detect white pixels */
+		  if (black && data[y * pixels + x] > 60)
+		    {
+		      count++;
+		    }
+		  /* when searching for white, detect black pixels */
+		  if (!black && data[y * pixels + x] < 60)
+		    {
+		      count++;
+		    }
 		}
 	    }
 
-	  /* at end of line, if count > 2%, line is not fully of the desired color
-	   * so we must go to next line of the buffer */
-	  /* count*100/pixels < 3 */
-	  if ((forward && ((count*100)/pixels)<3)||(!forward && ((count*100)/(pixels*lines)<3)))
+	  /* at end of area, if count >= 3%, area is not fully of the desired color
+	   * so we must go to next buffer */
+	  if ((count * 100) / (pixels * lines) < 3)
 	    {
 	      found = 1;
 	      DBG (DBG_data,
-		   "gl841_search_strip: strip found during pass %d at line %d\n",
-		   pass, y);
+		   "gl841_search_strip: strip found backward during pass %d \n", pass);
+	    }
+	  else
+	    {
+	      DBG (DBG_data, "gl841_search_strip: pixels=%d, count=%d\n",
+		   pixels, count);
 	    }
 	}
       pass++;

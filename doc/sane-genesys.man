@@ -1,4 +1,4 @@
-.TH "sane\-genesys" "5" "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-genesys" "5" "6 Oct 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-genesys
 .SH "NAME"
 sane\-genesys \- SANE backend for GL646 and GL841 based USB flatbed scanners
@@ -16,9 +16,11 @@ Medion MD6274
 .br 
 Hewlett-Packard HP2300C
 .br 
-Visioneer Strobe XP200
+Visioneer Strobe XP200/XP300
 .br
 Canon LiDE 35/40/50/60
+.br
+Pentax DSmobile 600
 .RE
 
 .PP 
@@ -37,6 +39,16 @@ slightly different from the models mentioned above, please let me know.
 If you own a scanner that isn't detected by the genesys backend but has a GL646
 or GL841 chipset, you can try to add it to the backend. 
 .PP 
+.SH "CALIBRATION"
+To give correct image quality, sheet fed scanners need to be calibrated using the
+calibration sheet sold with the scanner. To do calibration, you must insert this target
+in the feeder then start calibration either by passing the --calibrate option to scanimage
+or by clicking on the available 'calibrate' button in the 'advanced options' in graphical
+frontend. The result of the calibration is stored in a file in the home directory of the user doing it.
+If you plug the scanner in another machine or use it with another account, calibration
+will have to be redone.
+
+.PP
 .SH "SYSTEM ISSUES"
 This backend needs libusb-0.1.6 or later installed, and hasn't tested in other
 configuration than a linux kernel 2.6.9 or higher. However, it should work any
@@ -139,7 +151,7 @@ Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
 Powersaving isn't implemented for gl646 based scanner.
 .br
-Calibration for sheetfed scanners isn't implemented yet.
+Calibration for sheetfed scanners isn't implemented for all scanners.
 .br
 
 .SH "BUGS"

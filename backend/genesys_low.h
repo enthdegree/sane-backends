@@ -264,11 +264,12 @@ Genesys_Color_Order;
 #define CCD_HP2300       5
 #define CCD_CANONLIDE35  6
 #define CIS_XP200        7      /* CIS sensor for Strobe XP200 */
-#define CCD_XP300        8
+#define CCD_DOCKET485    8
 #define CCD_HP3670       9
 #define CCD_DP665        10
 #define CCD_ROADWARRIOR  11
 #define CCD_DSMOBILE600  12
+#define CCD_XP300        13
 
 #define GPO_UMAX         0
 #define GPO_ST12         1

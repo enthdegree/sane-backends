@@ -1473,10 +1473,19 @@ gl841_init_registers (Genesys_Device * dev)
 
   dev->reg[reg_0x06].value |= REG06_PWRBIT;
   dev->reg[reg_0x06].value |= REG06_GAIN4;
-  dev->reg[reg_0x06].value |= 0 << REG06S_SCANMOD;
-  
-  dev->reg[reg_0x09].value |= 1 << REG09S_CLKSET;
 
+  /* XP300 CCD needs different clock and clock/pixels values */
+  if (dev->model->ccd_type != CCD_XP300) 
+    {
+      dev->reg[reg_0x06].value |= 0 << REG06S_SCANMOD;
+      dev->reg[reg_0x09].value |= 1 << REG09S_CLKSET;
+    }
+  else
+    {
+      dev->reg[reg_0x06].value |= 0x05 << REG06S_SCANMOD; /* 15 clocks/pixel */
+      dev->reg[reg_0x09].value = 0; /* 24 MHz CLKSET */ 
+    }
+  
   dev->reg[reg_0x1e].value = 0xf0;	/* watch-dog time */
 
   dev->reg[reg_0x17].value |= 1 << REG17S_TGW;

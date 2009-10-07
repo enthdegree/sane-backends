@@ -442,6 +442,7 @@ static Sensor_Master sensor_master[] = {
 
   /* HP 2400 master settings */
   {CCD_HP2400,  50, SANE_TRUE,   50,   675,  200, 4, 42, {0, 0, 0, 0, 0, 0}, SANE_FALSE, 0x3f, 0x02},
+  {CCD_HP2400, 100, SANE_TRUE,  100,  7211,  400, 4, 42, {0, 0, 0, 0, 0, 0}, SANE_FALSE, 0x3f, 0x02},
   {CCD_HP2400, 300, SANE_TRUE,  300,  8751, 1200, 4, 42, {0, 0, 0, 0, 0, 0}, SANE_FALSE, 0x3f, 0x02},
   {CCD_HP2400, 600, SANE_TRUE, 1200, 18760, 1200, 2, 42, {0, 0, 0, 0, 0, 0}, SANE_FALSE, 0x3f, 0x02},
 
@@ -519,6 +520,7 @@ static Motor_Master motor_master[] = {
 
   /* HP2400/G2410 motor settings base motor dpi = 600 */
   {MOTOR_HP2400,  50, SANE_TRUE,  50, HALF_STEP, SANE_FALSE, SANE_FALSE, 63,  4,  1382,   800,   2, 5400, 5400, 0.25, 0.5, 16},
+  {MOTOR_HP2400, 100, SANE_TRUE, 100, FULL_STEP, SANE_FALSE, SANE_TRUE,  63, 120, 8736,   601, 120, 4905,  337, 0.30, 0.4, 192},
   {MOTOR_HP2400, 300, SANE_TRUE, 300, HALF_STEP, SANE_FALSE, SANE_TRUE , 63, 32, 16703,  2188, 120, 4905,  337, 0.25, 0.5, 16},
   {MOTOR_HP2400, 600, SANE_TRUE, 600, FULL_STEP, SANE_FALSE, SANE_TRUE , 63,  3, 18761, 18761,  16, 4905,  627, 0.25, 0.5, 16},
 

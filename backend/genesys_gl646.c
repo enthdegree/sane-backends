@@ -4673,37 +4673,85 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	}
 
       /* search data to find black strip */
-      for (y = 0; y < settings.lines && !found; y++)
+      /* when searching forward, we only need one line of the searched color since we
+       * will scan forward. But when doing backward search, we need all the area of the
+       * same color */
+      if (forward)
 	{
-	  /* count of white/black pixels depending on the color searched */
-	  count = 0;
-	  for (x = 0; x < settings.pixels; x++)
+	  for (y = 0; y < settings.lines && !found; y++)
 	    {
-	      /* when searching for black, detect white pixels */
-	      if (black && data[y * settings.pixels + x] > 60)
+	      count = 0;
+	      /* count of white/black pixels depending on the color searched */
+	      for (x = 0; x < settings.pixels; x++)
 		{
-		  count++;
+		  /* when searching for black, detect white pixels */
+		  if (black && data[y * settings.pixels + x] > 60)
+		    {
+		      count++;
+		    }
+		  /* when searching for white, detect black pixels */
+		  if (!black && data[y * settings.pixels + x] < 60)
+		    {
+		      count++;
+		    }
 		}
-	      /* when searching for white, detect black pixels */
-	      if (!black && data[y * settings.pixels + x] < 60)
+
+	      /* at end of line, if count >= 3%, line is not fully of the desired color
+	       * so we must go to next line of the buffer */
+	      /* count*100/pixels < 3 */
+	      if ((count * 100) / settings.pixels < 3)
 		{
-		  count++;
+		  found = 1;
+		  DBG (DBG_data,
+		       "gl841_search_strip: strip found forward during pass %d at line %d\n",
+		       pass, y);
+		}
+	      else
+		{
+		  DBG (DBG_data, "gl841_search_strip: pixels=%d, count=%d\n",
+		       settings.pixels, count);
+		}
+	    }
+	}
+      else /* since calibration scans are done forward, we need the whole area
+	      to be of the required color when searching backward */
+	{
+	  count = 0;
+	  for (y = 0; y < settings.lines; y++)
+	    {
+	      /* count of white/black pixels depending on the color searched */
+	      for (x = 0; x < settings.pixels; x++)
+		{
+		  /* when searching for black, detect white pixels */
+		  if (black && data[y * settings.pixels + x] > 60)
+		    {
+		      count++;
+		    }
+		  /* when searching for white, detect black pixels */
+		  if (!black && data[y * settings.pixels + x] < 60)
+		    {
+		      count++;
+		    }
 		}
 	    }
 
-	  /* at end of line, if count >0, line is not fully of the desired color
-	   * so we must go to next line of the buffer */
-	  if (count == 0)
+	  /* at end of area, if count >= 3%, area is not fully of the desired color
+	   * so we must go to next buffer */
+	  if ((count * 100) / (settings.pixels * settings.lines) < 3)
 	    {
 	      found = 1;
 	      DBG (DBG_data,
-		   "gl646_search_strip: strip found during pass %d at line %d\n",
-		   pass, y);
+		   "gl841_search_strip: strip found backward during pass %d \n", pass);
+	    }
+	  else
+	    {
+	      DBG (DBG_data, "gl841_search_strip: pixels=%d, count=%d\n",
+		   settings.pixels, count);
 	    }
 	}
-      free (data);
       pass++;
     }
+  free (data);
   if (found)
     {
       status = SANE_STATUS_GOOD;

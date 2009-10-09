@@ -299,14 +299,14 @@ static Genesys_Sensor Sensor[] = {
   /* Syscan DP 665 */
   {CCD_DP665, 600,
 /*TODO: find a good reason for keeping all three following variables*/
-   28,				/*(black) */
-   28,				/* (dummy) */
+   27,				/*(black) */
+   27,				/* (dummy) */
    0,				/* (startxoffset) */
    2496,			/*sensor_pixels */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
-   {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x04, 0x50,
+   {0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50,
     0x10, 0x00, 0x20, 0x02	
     },
    {0x04, 0x05,
@@ -322,14 +322,14 @@ static Genesys_Sensor Sensor[] = {
   /* Visioneer Roadwarrior */
   {CCD_ROADWARRIOR, 600,
 /*TODO: find a good reason for keeping all three following variables*/
-   28,				/*(black) */
-   28,				/* (dummy) */
+   27,				/*(black) */
+   27,				/* (dummy) */
    0,				/* (startxoffset) */
    5200,			/*sensor_pixels */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
-   {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x04, 0x50,
+   {0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50,
     0x10, 0x00, 0x20, 0x02	
     },
    {0x04, 0x05,
@@ -1326,9 +1326,10 @@ static Genesys_Model syscan_docketport_665_model = {
   MOTOR_DP665,
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_NO_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
-  300,
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
+  100,
   400
 };
 
@@ -1376,9 +1377,10 @@ static Genesys_Model visioneer_roadwarrior_model = {
   MOTOR_ROADWARRIOR,
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_NO_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
-  300,
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
+  100,
   400
 };
 

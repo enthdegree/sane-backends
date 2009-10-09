@@ -1311,6 +1311,8 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
   if (dev->settings.scan_mode < 2
       && dev->model->ccd_type != CCD_DSMOBILE600
       && dev->model->ccd_type != CCD_XP300
+      && dev->model->ccd_type != CCD_DP665
+      && dev->model->ccd_type != CCD_ROADWARRIOR
       && dev->model->ccd_type != CCD_HP2300
       && dev->model->ccd_type != CCD_HP2400
       && dev->model->ccd_type != CCD_HP3670
@@ -3043,6 +3045,8 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 				   target_code);
       break;
     case CCD_XP300:
+    case CCD_ROADWARRIOR:
+    case CCD_DP665:
       target_code = 0xdc00;
       o = 4;
       cmat[0] = 0;

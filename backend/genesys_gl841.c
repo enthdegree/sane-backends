@@ -5427,7 +5427,8 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
       gain[j] = 65535.0/max[j];
 
-      if (dev->model->dac_type == DAC_CANONLIDE35) {
+      if (dev->model->dac_type == DAC_CANONLIDE35 ||
+	  dev->model->dac_type == DAC_WOLFSON_XP300) {
 	  gain[j] *= 0.69;/*seems we don't get the real maximum. empirically derived*/
 	  if (283 - 208/gain[j] > 255) 
 	      dev->frontend.gain[j] = 255;

@@ -4734,15 +4734,19 @@ gl841_led_calibration (Genesys_Device * dev)
 
   DBG (DBG_proc, "gl841_led_calibration\n");
 
-  status = gl841_feed(dev, 280);/*feed to white strip. canon lide 35 only.*/
-  
-  if (status != SANE_STATUS_GOOD)
+
+  if (dev->model->gpo_type == GPO_CANONLIDE35)
     {
-      DBG (DBG_error,
-	   "gl841_coarse_gain_calibration: Failed to feed: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
+      status = gl841_feed(dev, 280);/*feed to white strip. canon lide 35 only.*/
+
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl841_led_calibration: Failed to feed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+  }
 
   /* offset calibration is always done in color mode */
   channels = 3;
@@ -5336,15 +5340,17 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   DBG (DBG_proc, "gl841_coarse_gain_calibration\n");
 
-
-  status = gl841_feed(dev, 280);/*feed to white strip. canon lide 35 only.*/
-  
-  if (status != SANE_STATUS_GOOD)
+  if (dev->model->gpo_type == GPO_CANONLIDE35)
     {
-      DBG (DBG_error,
-	   "gl841_coarse_gain_calibration: Failed to feed: %s\n",
-	   sane_strstatus (status));
-      return status;
+      status = gl841_feed(dev, 280);/*feed to white strip. canon lide 35 only.*/
+
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl841_coarse_gain_calibration: Failed to feed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
     }
 
   /* coarse gain calibration is allways done in color mode */

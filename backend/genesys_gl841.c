@@ -4893,7 +4893,7 @@ gl841_led_calibration (Genesys_Device * dev)
 	  
       }      
 
-      RIE (gl841_end_scan (dev, dev->calib_reg, SANE_TRUE));
+      RIE (gl841_stop_action (dev));
 
       turn++;
 
@@ -5098,10 +5098,9 @@ gl841_offset_calibration (Genesys_Device * dev)
 	  offl[2] = offl[1] = offl[0];
       }
 
-      RIE (gl841_end_scan (dev, dev->calib_reg, SANE_TRUE));
+      RIE (gl841_stop_action (dev));
 
       turn++;
-
   } while (!acceptable && turn < 100);
       
   DBG(DBG_info,"gl841_offset_calibration: acceptable offsets: %d,%d,%d\n",
@@ -5216,7 +5215,7 @@ gl841_offset_calibration (Genesys_Device * dev)
 	  offl[2] = offl[1] = offl[0];
       }
 
-      RIE (gl841_end_scan (dev, dev->calib_reg, SANE_TRUE));
+      RIE (gl841_stop_action (dev));
 
       turn++;
 
@@ -5482,7 +5481,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   
   free (line);
 
-  RIE (gl841_end_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE (gl841_stop_action (dev));
 
   gl841_slow_back_home(dev, SANE_TRUE);
 
@@ -5944,15 +5943,6 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       return status;
     }
 
-  status = gl841_end_scan (dev, local_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      free (data);
-      DBG (DBG_error,
-	   "gl841_search_strip: failed to end scan: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
   status = gl841_stop_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
@@ -6011,15 +6001,6 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	  return status;
 	}
 
-      status = gl841_end_scan (dev, local_reg, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  free (data);
-	  DBG (DBG_error,
-	       "gl841_search_strip: failed to end scan: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
       status = gl841_stop_action (dev);
       if (status != SANE_STATUS_GOOD)
 	{

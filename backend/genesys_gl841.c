@@ -4935,7 +4935,7 @@ gl841_offset_calibration (Genesys_Device * dev)
   int turn;
   char fn[20];
   SANE_Bool acceptable = SANE_FALSE;
-  int mintgt = 0x2000;
+  int mintgt = 0x400;
 
   DBG (DBG_proc, "gl841_offset_calibration\n");
 
@@ -4957,8 +4957,9 @@ gl841_offset_calibration (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES
-      );
+				 SCAN_FLAG_USE_OPTICAL_RES |
+				 SCAN_FLAG_DISABLE_LAMP
+				 );
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -4986,7 +4987,7 @@ gl841_offset_calibration (Genesys_Device * dev)
 
   /* scan first line of data with no offset nor gain */
 /*WM8199: gain=0.73; offset=-260mV*/
-/*okay. the sensor black level is now at -260V. we only get 0 from AFE...*/
+/*okay. the sensor black level is now at -260mV. we only get 0 from AFE...*/
 /* we should probably do real calibration here:
  * -detect acceptable offset with binary search
  * -calculate offset from this last version 
@@ -5123,7 +5124,7 @@ gl841_offset_calibration (Genesys_Device * dev)
 	      val =
 		  first_line[i * 2 * channels + 2 * j + 1] * 256 +
 		  first_line[i * 2 * channels + 2 * j];
-	  if (min1[j] > val)
+	  if (min1[j] > val && val >= 10)
 	      min1[j] = val;
       }
   }
@@ -5241,7 +5242,7 @@ gl841_offset_calibration (Genesys_Device * dev)
 	      val =
 		  second_line[i * 2 * channels + 2 * j + 1] * 256 +
 		  second_line[i * 2 * channels + 2 * j];
-	  if (min2[j] > val)
+	  if (min2[j] > val && val != 0)
 	      min2[j] = val;
       }
   }
@@ -5280,7 +5281,7 @@ gl841_offset_calibration (Genesys_Device * dev)
 	  else
 	      off[j] = 0xffff;
       } else
-	  off[j] = -(mintgt * (off1[j] - off2[j]) + min2[j] * off1[j] - min1[j] * off2[j])/(min2[j]-min1[j]);
+	  off[j] = (mintgt * (off1[j] - off2[j]) + min1[j] * off2[j] - min2[j] * off1[j])/(min1[j]-min2[j]);
       if (off[j] > 255)
 	  off[j] = 255;
       if (off[j] < 0)

@@ -3709,6 +3709,86 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
       return status;
     }
 
+  int yres;
+
+  DBG (DBG_info, "genesys_flatbed_calibration\n");
+
+  yres = dev->sensor.optical_res;
+  if (dev->settings.yres <= dev->sensor.optical_res / 2)
+    yres /= 2;
+
+  /* the afe needs to sends valid data even before calibration */
+
+  /* go to a white area */
+  status = dev->model->cmd_set->search_strip (dev, forward, SANE_FALSE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "genesys_sheetfed_calibration: failed to find white strip: %s\n",
+	   sane_strstatus (status));
+      dev->model->cmd_set->eject_document (dev);
+      return status;
+    }
+
+  if (dev->model->is_cis)
+    {
+      status = dev->model->cmd_set->led_calibration (dev);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "genesys_flatbed_calibration: led calibration failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
+
+  /* calibrate afe */
+  if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
+    {
+      status = dev->model->cmd_set->offset_calibration (dev);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "genesys_flatbed_calibration: offset calibration failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+
+      /* since all the registers are set up correctly, just use them */
+
+      status = dev->model->cmd_set->coarse_gain_calibration (dev, yres);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "genesys_flatbed_calibration: coarse gain calibration: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
+  else
+    /* since we have 2 gain calibration proc, skip second if first one was
+       used. */
+    {
+      status =
+	dev->model->cmd_set->init_regs_for_coarse_calibration (dev);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "genesys_flatbed_calibration: failed to send calibration registers: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+
+      status = genesys_coarse_calibration (dev);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "genesys_flatbed_calibration: failed to do static calibration: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
+
   /* search for a full width black strip and then do a 16 bit scan to 
    * gather black shading data */
   if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)

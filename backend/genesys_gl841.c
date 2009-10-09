@@ -5623,6 +5623,8 @@ gl841_init (Genesys_Device * dev)
   DBG_INIT ();
   DBG (DBG_proc, "gl841_init\n");
 
+  dev->scanhead_position_in_steps = 0;
+
   /* Check if the device has already been initialized and powered up */
   if (dev->already_initialized)
     {

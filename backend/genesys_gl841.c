@@ -5852,7 +5852,6 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   DBG (DBG_proc, "gl841_search_strip %s %s\n", black ? "black" : "white",
        forward ? "forward" : "reverse");
 
-  gl841_save_power (dev, SANE_FALSE);
   gl841_set_fe (dev, AFE_SET);
   status = gl841_stop_action (dev);
   if (status != SANE_STATUS_GOOD)

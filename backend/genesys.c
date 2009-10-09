@@ -6460,7 +6460,17 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	}
       break;
     case OPT_CALIBRATE:
-      status = genesys_scanner_calibration (s->dev);
+      status = s->dev->model->cmd_set->save_power (s->dev, SANE_FALSE);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "%s: failed to disable power saving mode: %s\n",
+	       __FUNCTION__, sane_strstatus (status));
+	}
+      else
+	status = genesys_scanner_calibration (s->dev);
+      /*not critical if this fails*/
+      s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
       break;
     case OPT_CLEAR_CALIBRATION:
       /* clear calibration cache */

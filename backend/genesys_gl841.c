@@ -5815,7 +5815,8 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
 	s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
     }
 
-  if (s->dev->model->gpo_type == GPO_XP300) 
+  if (s->dev->model->gpo_type == GPO_XP300 ||
+      s->dev->model->gpo_type == GPO_DP665)
     {
       RIE(sanei_genesys_read_register(s->dev, 0x6d, &val));
 

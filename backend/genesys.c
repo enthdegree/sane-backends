@@ -2958,16 +2958,15 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	  switch (sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6)
 	    {
 	    case 0:
-	      words_per_color = 0x5500;
+	      words_per_color = 0x2a00;
 	      break;
 	    case 1:
-	      words_per_color = 0xaa00;
+	      words_per_color = 0x5500;
 	      break;
 	    case 2:
-	      words_per_color = 0x15400;
+	      words_per_color = 0xa800;
 	      break;
 	    }
-	  length = 0x1fe00;
 	}
       else			/* GL646 case */
 	{			/* DPIHW */
@@ -2992,9 +2991,9 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	      break;
 	    }
 	  /* 3 channels, 2 bytes a word */
-	  length = words_per_color * 3 * 2;
 	}
 
+  length = words_per_color * 3 * 2;
   /* allocate computed size */
   shading_data = malloc (length);
   if (!shading_data)
@@ -3044,7 +3043,6 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 				   target_code);
       break;
     case CCD_XP300:
-      words_per_color = 0x5500;
       target_code = 0xdc00;
       o = 4;
       cmat[0] = 0;
@@ -3114,7 +3112,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       target_bright = 0xfa00;
       target_dark = 0xa00;
       o = 4;			/*first four pixels are ignored */
-      memset (shading_data, 0xff, words_per_color * 3);
+      memset (shading_data, 0xff, length);
 
 /* 
   strangely i can write 0x20000 bytes beginning at 0x00000 without overwriting
@@ -3174,7 +3172,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       for (x = 0; x <= pixels_per_line - avgpixels; x += avgpixels)
 	{
 
-	  if ((x + o) * 2 * 2 + 3 > words_per_color)
+	  if ((x + o) * 2 * 2 + 3 > words_per_color * 2)
 	    break;
 
 	  for (j = 0; j < channels; j++)
@@ -3218,9 +3216,9 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	      for (i = 0; i < avgpixels; i++)
 		{
 		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * j] = val & 0xff;
+			       words_per_color * 2 * j] = val & 0xff;
 		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * j + 1] = val >> 8;
+			       words_per_color * 2 * j + 1] = val >> 8;
 		}
 
 	      val = br - dk;
@@ -3234,9 +3232,9 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	      for (i = 0; i < avgpixels; i++)
 		{
 		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * j + 2] = val & 0xff;
+			       words_per_color * 2 * j + 2] = val & 0xff;
 		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * j + 3] = val >> 8;
+			       words_per_color * 2 * j + 3] = val >> 8;
 		}
 	    }
 
@@ -3246,20 +3244,20 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	      for (i = 0; i < avgpixels; i++)
 		{
 		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * j] =
+			       words_per_color * 2 * j] =
 		    shading_data[(x + o + i) * 2 * 2 + words_per_color * 0];
 		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * j + 1] =
+			       words_per_color * 2 * j + 1] =
 		    shading_data[(x + o + i) * 2 * 2 +
-				 words_per_color * 0 + 1];
+				 words_per_color * 2 * 0 + 1];
 		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * j + 2] =
+			       words_per_color * 2 * j + 2] =
 		    shading_data[(x + o + i) * 2 * 2 +
-				 words_per_color * 0 + 2];
+				 words_per_color * 2 * 0 + 2];
 		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * j + 3] =
+			       words_per_color * 2 * j + 3] =
 		    shading_data[(x + o + i) * 2 * 2 +
-				 words_per_color * 0 + 3];
+				 words_per_color * 2 * 0 + 3];
 		}
 	    }
 
@@ -3268,10 +3266,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 /* creates a black line in image
       for ( x = 65; x < 66; x++) {
 	  for ( j = 0; j < 3; j++) {
-	      shading_data[(x+o) * 2 * 2 + words_per_color * j + 0] = 0;
-	      shading_data[(x+o) * 2 * 2 + words_per_color * j + 1] = 0;
-	      shading_data[(x+o) * 2 * 2 + words_per_color * j + 2] = 0;
-	      shading_data[(x+o) * 2 * 2 + words_per_color * j + 3] = 0;
+	      shading_data[(x+o) * 2 * 2 + words_per_color * 2 * j + 0] = 0;
+	      shading_data[(x+o) * 2 * 2 + words_per_color * 2 * j + 1] = 0;
+	      shading_data[(x+o) * 2 * 2 + words_per_color * 2 * j + 2] = 0;
+	      shading_data[(x+o) * 2 * 2 + words_per_color * 2 * j + 3] = 0;
 	  }
       }
 */

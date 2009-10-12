@@ -742,7 +742,10 @@ gl646_setup_registers (Genesys_Device * dev,
   for (i = 0; i < 6; i++)
     {
       r = sanei_genesys_get_address (regs, 0x10 + i);
+      r->value = dev->sensor.regs_0x10_0x1d[i];
+      /* XXX STEF XXX
       r->value = sensor->regs_0x10_0x15[i];
+      */
     }
 
   for (i = 0; i < 4; i++)
@@ -3292,15 +3295,186 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
   return SANE_STATUS_GOOD;
 }
 
-/* this function does the led calibration.
-*/
+/** @brief this function does the led calibration.
+ * this function does the led calibration by scanning one line of the calibration
+ * area below scanner's top on white strip. The scope of this function is
+ * currently limited to the XP200
+ */
 static SANE_Status
 gl646_led_calibration (Genesys_Device * dev)
 {
-  DBG (DBG_error, "Implementation for led calibration missing\n");
-  if (dev || dev == NULL)
-    return SANE_STATUS_INVAL;
-  return SANE_STATUS_INVAL;
+  int total_size;
+  uint8_t *line;
+  unsigned int i, j;
+  SANE_Status status = SANE_STATUS_GOOD;
+  int val;
+  unsigned int channels;
+  int avg[3], avga, avge;
+  int turn;
+  char fn[20];
+  uint16_t expr, expg, expb;
+  Genesys_Settings settings;
+  SANE_Int resolution;
+
+  SANE_Bool acceptable = SANE_FALSE;
+
+  DBG (DBG_proc, "gl646_led_calibration\n");
+
+  /* get led calibration resolution */
+  if (dev->settings.xres > dev->sensor.optical_res)
+    {
+      resolution =
+	get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res,
+				SANE_TRUE);
+    }
+  else
+    {
+      resolution =
+	get_closest_resolution (dev->model->ccd_type, dev->settings.xres,
+				SANE_TRUE);
+    }
+
+  /* offset calibration is always done in color mode */
+  channels=3;
+  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.xres = resolution;
+  settings.yres = resolution;
+  settings.tl_x = 0;
+  settings.tl_y = 0;
+  settings.pixels = (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
+  settings.lines = 1;
+  settings.depth = 16;
+  settings.color_filter = 0;
+
+  settings.disable_interpolation = 0;
+  settings.threshold = 0;
+  settings.exposure_time = 0;
+
+  /* colors * bytes_per_color * scan lines */
+  total_size = settings.pixels * channels * 2 * 1;
+
+  line = malloc (total_size);
+  if (!line)
+  {
+      DBG (DBG_error, "gl646_led_calibration: Failed to allocate %d bytes\n",total_size);
+    return SANE_STATUS_NO_MEM;
+  }
+
+/*
+   we try to get equal bright leds here:
+
+   loop:
+     average per color
+     adjust exposure times
+
+  Sensor_Master uint8_t regs_0x10_0x15[6];
+ */
+
+  expr = (dev->sensor.regs_0x10_0x1d[0] << 8) | dev->sensor.regs_0x10_0x1d[1];
+  expg = (dev->sensor.regs_0x10_0x1d[2] << 8) | dev->sensor.regs_0x10_0x1d[3];
+  expb = (dev->sensor.regs_0x10_0x1d[4] << 8) | dev->sensor.regs_0x10_0x1d[5];
+
+  turn = 0;
+
+  do {
+
+      dev->sensor.regs_0x10_0x1d[0] = (expr >> 8) & 0xff;
+      dev->sensor.regs_0x10_0x1d[1] = expr & 0xff;
+      dev->sensor.regs_0x10_0x1d[2] = (expg >> 8) & 0xff;
+      dev->sensor.regs_0x10_0x1d[3] = expg & 0xff;
+      dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
+      dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
+
+      DBG (DBG_info,
+	   "gl646_led_calibration: starting first line reading\n");
+
+  status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl646_led_calibration: Failed to setup scan: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+      if (DBG_LEVEL >= DBG_data) {
+	  snprintf(fn,20,"led_%02d.pnm",turn);
+	  sanei_genesys_write_pnm_file (fn,
+					line,
+					16,
+					channels,
+					settings.pixels,
+					1);
+      }
+
+      acceptable = SANE_TRUE;
+
+      for (j = 0; j < channels; j++)
+      {
+	  avg[j] = 0;
+	  for (i = 0; i < settings.pixels; i++)
+	  {
+	      if (dev->model->is_cis)
+		  val =
+		      line[i * 2 + j * 2 * settings.pixels + 1] * 256 +
+		      line[i * 2 + j * 2 * settings.pixels];
+	      else
+		  val =
+		      line[i * 2 * channels + 2 * j + 1] * 256 +
+		      line[i * 2 * channels + 2 * j];
+	      avg[j] += val;
+	  }
+
+	  avg[j] /= settings.pixels;
+      }
+
+      DBG(DBG_info,"gl646_led_calibration: average: "
+	  "%d,%d,%d\n",
+	  avg[0],avg[1],avg[2]);
+
+      acceptable = SANE_TRUE;
+
+      /* each color component should be giving values close to the other */
+      if (avg[0] < avg[1] * 0.95 || avg[1] < avg[0] * 0.95 ||
+	  avg[0] < avg[2] * 0.95 || avg[2] < avg[0] * 0.95 ||
+	  avg[1] < avg[2] * 0.95 || avg[2] < avg[1] * 0.95)
+      {
+	  acceptable = SANE_FALSE;
+      }
+
+      if (!acceptable) {
+	  avga = (avg[0]+avg[1]+avg[2])/3;
+	  expr = (expr * avga) / avg[0];
+	  expg = (expg * avga) / avg[1];
+	  expb = (expb * avga) / avg[2];
+
+	  /* keep exposure time in a working window */
+	  avge = (expr + expg + expb) / 3;
+	  if (avge > 0x2000) {
+	      expr = (expr * 0x2000) / avge;
+	      expg = (expg * 0x2000) / avge;
+	      expb = (expb * 0x2000) / avge;
+	  }
+	  if (avge < 0x400) {
+	      expr = (expr * 0x400) / avge;
+	      expg = (expg * 0x400) / avge;
+	      expb = (expb * 0x400) / avge;
+	  }
+      }
+
+      turn++;
+
+  } while (!acceptable && turn < 100);
+
+  DBG(DBG_info,"gl646_led_calibration: acceptable exposure: %d,%d,%d\n",
+      expr,expg,expb);
+
+  /* cleanup before return */
+  free (line);
+
+  DBG (DBG_proc, "gl646_led_calibration: completed\n");
+  return status;
 }
 
 /**

@@ -742,10 +742,10 @@ gl646_setup_registers (Genesys_Device * dev,
   for (i = 0; i < 6; i++)
     {
       r = sanei_genesys_get_address (regs, 0x10 + i);
-      r->value = dev->sensor.regs_0x10_0x1d[i];
       /* XXX STEF XXX
+         r->value = dev->sensor.regs_0x10_0x1d[i];
+       */
       r->value = sensor->regs_0x10_0x15[i];
-      */
     }
 
   for (i = 0; i < 4; i++)
@@ -804,10 +804,10 @@ gl646_setup_registers (Genesys_Device * dev,
     regs[reg_0x01].value &= ~REG01_CISSET;
 
   /* if device has no calibration, don't enable shading correction */
-  if(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
-   {
+  if (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
+    {
       regs[reg_0x01].value &= ~REG01_DVDSET;
-   }
+    }
 
   if (motor->fastmod)
     regs[reg_0x01].value |= REG01_FASTMOD;
@@ -3319,30 +3319,26 @@ gl646_led_calibration (Genesys_Device * dev)
   SANE_Bool acceptable = SANE_FALSE;
 
   DBG (DBG_proc, "gl646_led_calibration\n");
+  if (!dev->model->is_cis)
+    {
+      DBG (DBG_proc,
+	   "gl646_led_calibration: not a cis scanner, nothing to do...\n");
+      return SANE_STATUS_GOOD;
+    }
 
   /* get led calibration resolution */
-  if (dev->settings.xres > dev->sensor.optical_res)
-    {
-      resolution =
-	get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res,
-				SANE_TRUE);
-    }
-  else
-    {
-      resolution =
-	get_closest_resolution (dev->model->ccd_type, dev->settings.xres,
-				SANE_TRUE);
-    }
+  resolution = get_closest_resolution (dev->model->ccd_type, 75, SANE_TRUE);
 
   /* offset calibration is always done in color mode */
-  channels=3;
+  channels = 3;
   settings.scan_method = SCAN_METHOD_FLATBED;
   settings.scan_mode = SCAN_MODE_COLOR;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-  settings.pixels = (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
+  settings.pixels =
+    (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
   settings.lines = 1;
   settings.depth = 16;
   settings.color_filter = 0;
@@ -3356,10 +3352,11 @@ gl646_led_calibration (Genesys_Device * dev)
 
   line = malloc (total_size);
   if (!line)
-  {
-      DBG (DBG_error, "gl646_led_calibration: Failed to allocate %d bytes\n",total_size);
-    return SANE_STATUS_NO_MEM;
-  }
+    {
+      DBG (DBG_error, "gl646_led_calibration: Failed to allocate %d bytes\n",
+	   total_size);
+      return SANE_STATUS_NO_MEM;
+    }
 
 /*
    we try to get equal bright leds here:
@@ -3377,7 +3374,8 @@ gl646_led_calibration (Genesys_Device * dev)
 
   turn = 0;
 
-  do {
+  do
+    {
 
       dev->sensor.regs_0x10_0x1d[0] = (expr >> 8) & 0xff;
       dev->sensor.regs_0x10_0x1d[1] = expr & 0xff;
@@ -3386,89 +3384,93 @@ gl646_led_calibration (Genesys_Device * dev)
       dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
       dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
 
-      DBG (DBG_info,
-	   "gl646_led_calibration: starting first line reading\n");
+      DBG (DBG_info, "gl646_led_calibration: starting first line reading\n");
 
-  status = simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl646_led_calibration: Failed to setup scan: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
+      status =
+	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl646_led_calibration: Failed to setup scan: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
 
-      if (DBG_LEVEL >= DBG_data) {
-	  snprintf(fn,20,"led_%02d.pnm",turn);
+      if (DBG_LEVEL >= DBG_data)
+	{
+	  snprintf (fn, 20, "led_%02d.pnm", turn);
 	  sanei_genesys_write_pnm_file (fn,
 					line,
-					16,
-					channels,
-					settings.pixels,
-					1);
-      }
+					16, channels, settings.pixels, 1);
+	}
 
       acceptable = SANE_TRUE;
 
       for (j = 0; j < channels; j++)
-      {
+	{
 	  avg[j] = 0;
 	  for (i = 0; i < settings.pixels; i++)
-	  {
+	    {
 	      if (dev->model->is_cis)
-		  val =
-		      line[i * 2 + j * 2 * settings.pixels + 1] * 256 +
-		      line[i * 2 + j * 2 * settings.pixels];
+		val =
+		  line[i * 2 + j * 2 * settings.pixels + 1] * 256 +
+		  line[i * 2 + j * 2 * settings.pixels];
 	      else
-		  val =
-		      line[i * 2 * channels + 2 * j + 1] * 256 +
-		      line[i * 2 * channels + 2 * j];
+		val =
+		  line[i * 2 * channels + 2 * j + 1] * 256 +
+		  line[i * 2 * channels + 2 * j];
 	      avg[j] += val;
-	  }
+	    }
 
 	  avg[j] /= settings.pixels;
-      }
+	}
 
-      DBG(DBG_info,"gl646_led_calibration: average: "
-	  "%d,%d,%d\n",
-	  avg[0],avg[1],avg[2]);
+      DBG (DBG_info, "gl646_led_calibration: average: "
+	   "%d,%d,%d\n", avg[0], avg[1], avg[2]);
 
       acceptable = SANE_TRUE;
 
       /* each color component should be giving values close to the other */
+      /* XXX STEF XXX
       if (avg[0] < avg[1] * 0.95 || avg[1] < avg[0] * 0.95 ||
 	  avg[0] < avg[2] * 0.95 || avg[2] < avg[0] * 0.95 ||
 	  avg[1] < avg[2] * 0.95 || avg[2] < avg[1] * 0.95)
-      {
+	{
 	  acceptable = SANE_FALSE;
-      }
+	}
+      */
 
-      if (!acceptable) {
-	  avga = (avg[0]+avg[1]+avg[2])/3;
+      if (!acceptable)
+	{
+	  avga = (avg[0] + avg[1] + avg[2]) / 3;
 	  expr = (expr * avga) / avg[0];
 	  expg = (expg * avga) / avg[1];
 	  expb = (expb * avga) / avg[2];
 
 	  /* keep exposure time in a working window */
 	  avge = (expr + expg + expb) / 3;
-	  if (avge > 0x2000) {
+	  if (avge > 0x2000)
+	    {
 	      expr = (expr * 0x2000) / avge;
 	      expg = (expg * 0x2000) / avge;
 	      expb = (expb * 0x2000) / avge;
-	  }
-	  if (avge < 0x400) {
+	    }
+	  if (avge < 0x400)
+	    {
 	      expr = (expr * 0x400) / avge;
 	      expg = (expg * 0x400) / avge;
 	      expb = (expb * 0x400) / avge;
-	  }
-      }
+	    }
+	}
 
       turn++;
 
-  } while (!acceptable && turn < 100);
+    }
+  while (!acceptable && turn < 100);
 
-  DBG(DBG_info,"gl646_led_calibration: acceptable exposure: %d,%d,%d\n",
-      expr,expg,expb);
+  DBG (DBG_info,
+       "gl646_led_calibration: acceptable exposure: 0x%04x,0x%04x,0x%04x\n",
+       expr, expg, expb);
 
   /* cleanup before return */
   free (line);
@@ -3514,12 +3516,30 @@ dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
   return average;
 }
 
+
+/** @brief calibration for AD frontend devices
+ * experiments show that modifying offset is of little (if no) influence
+ * so we just return
+ */
+static SANE_Status
+ad_fe_offset_calibration (Genesys_Device * dev)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+
+  DBG (DBG_proc, "ad_fe_offset_calibration: start\n");
+  DBG (DBG_info, "ad_fe_offset_calibration: offset=(%d,%d,%d)\n",
+       dev->frontend.offset[0], dev->frontend.offset[1],
+       dev->frontend.offset[2]);
+  DBG (DBG_proc, "ad_fe_offset_calibration: end\n");
+  return status;
+}
+
 #define DARK_TARGET 8
 /**
  * This function does the offset calibration by scanning one line of the calibration
  * area below scanner's top. There is a black margin and the remaining is white.
  * genesys_search_start() must have been called so that the offsets and margins
- * are allready known.
+ * are already known.
  * @param dev scanner's device
  * @return SANE_STATUS_GOOD if success, else error code is failure
 */
@@ -3536,6 +3556,11 @@ gl646_offset_calibration (Genesys_Device * dev)
   int topavg, bottomavg;
   int top, bottom, black_pixels;
 
+  /* Analog Device fronted have a different calibration */
+  if (dev->model->dac_type == DAC_AD_XP200)
+    {
+      return ad_fe_offset_calibration (dev);
+    }
   DBG (DBG_proc, "gl646_offset_calibration: start\n");
 
   /* setup for a RGB scan, one full sensor's width line */
@@ -3579,10 +3604,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   dev->frontend.gain[2] = 0;
 
   /* scan with no move */
-  if (dev->model->ccd_type == CIS_XP200)
-    bottom = 4;
-  else
-    bottom = 90;
+  bottom = 90;
   dev->frontend.offset[0] = bottom;
   dev->frontend.offset[1] = bottom;
   dev->frontend.offset[2] = bottom;
@@ -3607,10 +3629,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   free (first_line);
 
   /* now top value */
-  if (dev->model->ccd_type == CIS_XP200)
-    top = 0x80;
-  else
-    top = 231;
+  top = 231;
   dev->frontend.offset[0] = top;
   dev->frontend.offset[1] = top;
   dev->frontend.offset[2] = top;
@@ -3708,6 +3727,106 @@ gl646_offset_calibration (Genesys_Device * dev)
   return status;
 }
 
+/** @brief gain calibration for Analog Device frontends
+ * Alternative coarse gain calibration
+ */
+static SANE_Status
+ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
+{
+  uint8_t *line;
+  unsigned int i, channels, val;
+  unsigned int size, count, resolution, pass;
+  SANE_Status status = SANE_STATUS_GOOD;
+  float average;
+  Genesys_Settings settings;
+  char title[32];
+
+  DBG (DBG_proc, "ad_fe_coarse_gain_calibration: start\n");
+
+  /* setup for a RGB scan, one full sensor's width line */
+  /* resolution is the one from the final scan          */
+  channels = 3;
+
+  resolution = get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
+
+  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.xres = resolution;
+  settings.yres = resolution;
+  settings.tl_x = 0;
+  settings.tl_y = 0;
+  settings.pixels =
+    (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
+  settings.lines = CALIBRATION_LINES;
+  settings.depth = 8;
+  settings.color_filter = 0;
+
+  settings.disable_interpolation = 0;
+  settings.threshold = 0;
+  settings.exposure_time = 0;
+
+  size = channels * settings.pixels * settings.lines;
+
+  /* start gain value */
+  dev->frontend.gain[0] = 1;
+  dev->frontend.gain[1] = 1;
+  dev->frontend.gain[2] = 1;
+
+  average = 0;
+  pass = 0;
+
+  /* loop until each channel raises to acceptable level */
+  while ((average < dev->sensor.gain_white_ref) && (pass < 30))
+    {
+      /* scan with no move */
+      status =
+	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "ad_fe_coarse_gain_calibration: failed to scan first line\n");
+	  return status;
+	}
+
+      /* log scanning data */
+      if (DBG_LEVEL >= DBG_data)
+	{
+	  sprintf (title, "alternative_coarse%02d.pnm", pass);
+	  sanei_genesys_write_pnm_file (title, line, 8,
+					channels, settings.pixels,
+					settings.lines);
+	}
+      pass++;
+
+      /* computes white average */
+      average = 0;
+      count = 0;
+      for (i = 0; i < channels * settings.pixels * settings.lines; i++)
+	{
+	  val = line[i];
+	  average += val;
+	  count++;
+	}
+      average = average / count;
+
+      /* adjusts gain for the channel */
+      if (average < dev->sensor.gain_white_ref)
+	dev->frontend.gain[0]++;
+      dev->frontend.gain[1] = dev->frontend.gain[0];
+      dev->frontend.gain[2] = dev->frontend.gain[0];
+
+      DBG (DBG_proc,
+	   "ad_fe_coarse_gain_calibration: average = %.2f, gain = %d\n",
+	   average, dev->frontend.gain[0]);
+      free (line);
+    }
+
+  DBG (DBG_info, "ad_fe_coarse_gain_calibration: gains=(%d,%d,%d)\n",
+       dev->frontend.gain[0], dev->frontend.gain[1], dev->frontend.gain[2]);
+  DBG (DBG_proc, "ad_fe_coarse_gain_calibration: end\n");
+  return status;
+}
+
 /**
  * Alternative coarse gain calibration 
  * this on uses the settings from offset_calibration.
@@ -3723,6 +3842,10 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   Genesys_Settings settings;
   char title[32];
 
+  if (dev->model->ccd_type == CIS_XP200)
+    {
+      return ad_fe_coarse_gain_calibration (dev, 75);
+    }
   DBG (DBG_proc, "gl646_coarse_gain_calibration: start\n");
 
   /* setup for a RGB scan, one full sensor's width line */
@@ -3777,7 +3900,10 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       average[0] = 255;
       average[1] = 255;
       average[2] = 255;
-      idx = dev->settings.color_filter;
+      if (dev->model->ccd_type == CIS_XP200)
+	idx = 0;
+      else
+	idx = dev->settings.color_filter;
       average[idx] = 0;
     }
   pass = 0;
@@ -4887,8 +5013,8 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 		}
 	    }
 	}
-      else /* since calibration scans are done forward, we need the whole area
-	      to be of the required color when searching backward */
+      else			/* since calibration scans are done forward, we need the whole area
+				   to be of the required color when searching backward */
 	{
 	  count = 0;
 	  for (y = 0; y < settings.lines; y++)
@@ -4915,7 +5041,8 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	    {
 	      found = 1;
 	      DBG (DBG_data,
-		   "gl841_search_strip: strip found backward during pass %d \n", pass);
+		   "gl841_search_strip: strip found backward during pass %d \n",
+		   pass);
 	    }
 	  else
 	    {

@@ -2931,6 +2931,17 @@ compute_planar_coefficients (Genesys_Device * dev,
 	    }
 	}
     }
+  /* in case of gray level scan, we duplicate shading information on all
+   * three color channels */
+  if(channels==1)
+  {
+	  memcpy(shading_data+cmat[1]*2*words_per_color,
+	         shading_data+cmat[0]*2*words_per_color,
+		 words_per_color*2);
+	  memcpy(shading_data+cmat[2]*2*words_per_color,
+	         shading_data+cmat[0]*2*words_per_color,
+		 words_per_color*2);
+  }
 }
 
 static SANE_Status

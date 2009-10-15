@@ -2924,7 +2924,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
   /* fill settings for scan : always a color scan */
   settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_mode = dev->settings.scan_mode;
   settings.xres = dev->sensor.optical_res / half_ccd;
   settings.yres = dev->sensor.optical_res / half_ccd;
   settings.tl_x = 0;
@@ -3327,12 +3327,23 @@ gl646_led_calibration (Genesys_Device * dev)
     }
 
   /* get led calibration resolution */
-  resolution = get_closest_resolution (dev->model->ccd_type, 75, SANE_TRUE);
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)
+    {
+      resolution =
+	get_closest_resolution (dev->model->ccd_type, 75, SANE_TRUE);
+      settings.scan_mode = SCAN_MODE_COLOR;
+      channels = 3;
+    }
+  else
+    {
+      resolution =
+	get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
+      settings.scan_mode = SCAN_MODE_GRAY;
+      channels = 1;
+    }
 
   /* offset calibration is always done in color mode */
-  channels = 3;
   settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3432,13 +3443,13 @@ gl646_led_calibration (Genesys_Device * dev)
 
       /* each color component should be giving values close to the other */
       /* XXX STEF XXX
-      if (avg[0] < avg[1] * 0.95 || avg[1] < avg[0] * 0.95 ||
-	  avg[0] < avg[2] * 0.95 || avg[2] < avg[0] * 0.95 ||
-	  avg[1] < avg[2] * 0.95 || avg[2] < avg[1] * 0.95)
-	{
-	  acceptable = SANE_FALSE;
-	}
-      */
+         if (avg[0] < avg[1] * 0.95 || avg[1] < avg[0] * 0.95 ||
+         avg[0] < avg[2] * 0.95 || avg[2] < avg[0] * 0.95 ||
+         avg[1] < avg[2] * 0.95 || avg[2] < avg[1] * 0.95)
+         {
+         acceptable = SANE_FALSE;
+         }
+       */
 
       if (!acceptable)
 	{
@@ -3745,12 +3756,24 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
-  channels = 3;
 
-  resolution = get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)
+    {
+      resolution =
+	get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
+      channels = 3;
+      settings.scan_mode = SCAN_MODE_COLOR;
+    }
+  else
+    {
+      resolution =
+	get_closest_resolution (dev->model->ccd_type, dpi, SANE_FALSE);
+      channels = 1;
+      settings.scan_mode = SCAN_MODE_GRAY;
+    }
+
 
   settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3801,7 +3824,7 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       /* computes white average */
       average = 0;
       count = 0;
-      for (i = 0; i < channels * settings.pixels * settings.lines; i++)
+      for (i = 0; i < size; i++)
 	{
 	  val = line[i];
 	  average += val;

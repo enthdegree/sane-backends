@@ -144,11 +144,38 @@
 #define MX860_PID 0x1735
 #define MX320_PID 0x1736    /* untested */
 #define MX330_PID 0x1737    /* untested */
+
+/* Generation 4 */
 #define MP250_PID 0x173a    /* untested */
+#define MP270_PID 0x173b
 #define MP490_PID 0x173c    /* untested */
 #define MP560_PID 0x173e    /* untested */
-#define MP640_PID 0x173f    /* untested */
+#define MP640_PID 0x173f
 #define MP990_PID 0x1740    /* untested */
+
+#define XML_START_1   \
+"<?xml version=\"1.0\" encoding=\"utf-8\" ?>\
+<cmd xmlns:ivec=\"http://www.canon.com/ns/cmd/2008/07/common/\">\
+<ivec:contents><ivec:operation>StartJob</ivec:operation>\
+<ivec:param_set servicetype=\"scan\"><ivec:jobID>00000001</ivec:jobID>\
+<ivec:bidi>1</ivec:bidi></ivec:param_set></ivec:contents></cmd>"
+
+#define XML_START_2   \
+"<?xml version=\"1.0\" encoding=\"utf-8\" ?>\
+<cmd xmlns:ivec=\"http://www.canon.com/ns/cmd/2008/07/common/\" xmlns:vcn=\"http://www.canon.com/ns/cmd/2008/07/canon/\">\
+<ivec:contents><ivec:operation>VendorCmd</ivec:operation>\
+<ivec:param_set servicetype=\"scan\"><ivec:jobID>00000001</ivec:jobID>\
+<vcn:ijoperation>ModeShift</vcn:ijoperation><vcn:ijmode>1</vcn:ijmode>\
+</ivec:param_set></ivec:contents></cmd>"
+
+#define XML_END   \
+"<?xml version=\"1.0\" encoding=\"utf-8\" ?>\
+<cmd xmlns:ivec=\"http://www.canon.com/ns/cmd/2008/07/common/\">\
+<ivec:contents><ivec:operation>EndJob</ivec:operation>\
+<ivec:param_set servicetype=\"scan\"><ivec:jobID>00000001</ivec:jobID>\
+</ivec:param_set></ivec:contents></cmd>"
+
+#define XML_OK   "<ivec:response>OK</ivec:response>"
 
 enum mp150_state_t
 {
@@ -275,6 +302,25 @@ is_scanning_from_tpu (pixma_t * s)
   return (s->param->source == PIXMA_SOURCE_TPU);
 }
 
+static int
+send_xml_dialog (pixma_t * s, const char * xml_message)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  int datalen;
+
+  datalen = pixma_cmd_transaction (s, xml_message, strlen (xml_message),
+                                   mp->cb.buf, 1024);
+  if (datalen < 0)
+    return datalen;
+
+  mp->cb.buf[datalen] = 0;
+
+  PDBG (pixma_dbg (10, "XML message sent to scanner:\n%s\n", xml_message));
+  PDBG (pixma_dbg (10, "XML response back from scanner:\n%s\n", mp->cb.buf));
+
+  return (strcasestr ((const char *) mp->cb.buf, XML_OK) != NULL);
+}
+
 static void
 new_cmd_tpu_msg (pixma_t *s, pixma_cmdbuf_t * cb, uint16_t cmd)
 {
@@ -314,7 +360,7 @@ static int
 is_calibrated (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  if (mp->generation == 3)
+  if (mp->generation >= 3)
     {
       return ((mp->current_status[0] & 0x01) == 1);
     }
@@ -849,12 +895,12 @@ wait_until_ready (pixma_t * s)
   mp150_t *mp = (mp150_t *) s->subdriver;
   int error, tmo = 60;
 
-  RET_IF_ERR ((mp->generation == 3) ? query_status_3 (s) 
+  RET_IF_ERR ((mp->generation >= 3) ? query_status_3 (s)
                                     : query_status (s));
   while (!is_calibrated (s))
     {
       WAIT_INTERRUPT (1000);
-      if (mp->generation == 3)
+      if (mp->generation >= 3)
         RET_IF_ERR (query_status_3 (s));
       else if (s->cfg->pid == MP600_PID || 
                s->cfg->pid == MP600R_PID ||  
@@ -964,9 +1010,9 @@ pack_48_24_bpc (uint8_t * sptr, unsigned n)
 #endif
 
 /* This function deals both with PIXMA CCD sensors producing shifted color 
- * planes images, Grayscale CCD scan and Generation 3 high dpi images.
+ * planes images, Grayscale CCD scan and Generation >= 3 high dpi images.
  * Each complete line in mp->imgbuf is processed for shifting CCD sensor 
- * color planes, reordering pixels above 600 dpi for Generation 3, and
+ * color planes, reordering pixels above 600 dpi for Generation >= 3, and
  * converting to Grayscale for CCD sensors. */
 static unsigned
 post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
@@ -977,7 +1023,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
   c = ((is_ccd_grayscale (s)) ? 3 : s->param->channels) * s->param->depth / 8;
   
-  if (mp->generation == 3)
+  if (mp->generation >= 3)
     n = s->param->xdpi / 600;
   else    /* FIXME: maybe need different values for CIS and CCD sensors */
     n = s->param->xdpi / 2400;
@@ -1053,8 +1099,12 @@ mp150_open (pixma_t * s)
 
   /* General rules for setting Pixma protocol generation # */
   mp->generation = (s->cfg->pid >= MP160_PID) ? 2 : 1;
+
   if (s->cfg->pid >= MX7600_PID)
     mp->generation = 3;
+
+  if (s->cfg->pid >= MP250_PID)
+    mp->generation = 4;
 
   /* And exceptions to be added here */
   if (s->cfg->pid == MP140_PID)
@@ -1062,11 +1112,14 @@ mp150_open (pixma_t * s)
 
   /* TPU info data setup */
   mp->tpu_datalen = 0;
-  
-  query_status (s);
-  handle_interrupt (s, 200);
-  if (mp->generation == 3 && has_ccd_sensor (s)) 
-    send_cmd_start_calibrate_ccd_3 (s);
+
+  if (mp->generation < 4)
+    {
+      query_status (s);
+      handle_interrupt (s, 200);
+      if (mp->generation == 3 && has_ccd_sensor (s)) 
+        send_cmd_start_calibrate_ccd_3 (s);
+    }
   return 0;
 }
 
@@ -1142,6 +1195,15 @@ mp150_scan (pixma_t * s)
   if (mp->state != state_idle)
     return PIXMA_EBUSY;
 
+  /* Generation 4: send XML dialog */
+  if (mp->generation == 4 && s->param->adf_pageid == 0)
+    {
+      if ((error = send_xml_dialog (s, XML_START_1)) < 0)
+        return error;
+      if ((error = send_xml_dialog (s, XML_START_2)) < 0)
+        return error;
+    }
+
   /* clear interrupt packets buffer */
   while (handle_interrupt (s, 0) > 0)
     {
@@ -1216,25 +1278,26 @@ mp150_scan (pixma_t * s)
           pixma_sleep (500000);
           error = start_session (s);
         }
-      if ((error >= 0) || (mp->generation == 3))
+      if ((error >= 0) || (mp->generation >= 3))
         mp->state = state_warmup;
       if ((error >= 0) && (mp->generation <= 2))
         error = select_source (s);
-      if ((error >= 0) && (mp->generation == 3) && has_ccd_sensor (s))
+      if ((error >= 0) && (mp->generation >= 3) && has_ccd_sensor (s))
         error = init_ccd_lamp_3 (s);
       if ((error >= 0) && !is_scanning_from_tpu (s))
-        for (i = (mp->generation == 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
+        for (i = (mp->generation >= 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
           error = send_gamma_table (s);
       else if (error >= 0)  /* in TPU mode, for gen 1, 2, and 3 */
         error = send_set_tpu_info (s);
     }
-  else   /* ADF pageid != 0 and gen3 */
+  else   /* ADF pageid != 0 and gen3 or above */
     pixma_sleep (1000000);
-  if ((error >= 0) || (mp->generation == 3))
-    mp->state = state_warmup;    
+
+  if ((error >= 0) || (mp->generation >= 3))
+    mp->state = state_warmup;
   if (error >= 0)
     error = send_scan_param (s);
-  if ((error >= 0) && (mp->generation == 3))
+  if ((error >= 0) && (mp->generation >= 3))
     error = start_scan_3 (s);
   if (error < 0)
     {
@@ -1351,6 +1414,10 @@ mp150_finish_scan (pixma_t * s)
           if (error < 0)
             PDBG (pixma_dbg (1, "WARNING:abort_session() failed %d\n", error));
           mp->state = state_idle;
+
+          /* Generation 4: send XML end of scan dialog */
+          if (mp->generation == 4)
+              send_xml_dialog (s, XML_END);
         }
       /* fall through */
     case state_idle:
@@ -1448,7 +1515,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   /* Generation 3 CCD not managed as Generation 2 */
   DEVICE ("Canon Pixma MP970", "MP970", MP970_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
-  /* PIXMA 2008 vintage */
+  /* PIXMA 2008 vintage CCD and CIS */
   DEVICE ("Canon MP980 series", "MP980", MP980_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   DEVICE ("Canon PIXMA MP630", "MP630", MP630_PID, 4800, 638, 877, PIXMA_CAP_CIS),
@@ -1464,12 +1531,15 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MX330", "MX330", MX330_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
-  DEVICE ("Canon MP990 series", "MP990", MP990_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
-
+  /* Generation 4: CIS */
   DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP560", "MP560", MP560_PID, 2400, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP490", "MP490", MP490_PID, 1200, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP250", "MP250", MP250_PID, 600, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP270", "MP270", MP270_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+
+  /* Generation 4 CCD */
+  DEVICE ("Canon MP990 series", "MP990", MP990_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   END_OF_DEVICE_LIST
 };

@@ -2307,6 +2307,9 @@ gl646_eject_document (Genesys_Device * dev)
 
   DBG (DBG_proc, "gl646_eject_document: start\n");
 
+  /* at the end there will be noe more document */
+  dev->document = SANE_FALSE;
+
   /* first check for document event */
   status = gl646_gpio_read (dev->dn, &gpio);
   if (status != SANE_STATUS_GOOD)
@@ -2371,9 +2374,9 @@ gl646_eject_document (Genesys_Device * dev)
   regs[0].address = 0x01;
   regs[0].value = 0xb0;
 
-  /* AGOME, 2 slopes motor moving */
+  /* AGOME, 2 slopes motor moving , eject 'backward' */
   regs[1].address = 0x02;
-  regs[1].value = 0x5d;		/* motor reverse */
+  regs[1].value = 0x5d;
 
   /* motor feeding steps to 119880 */
   regs[2].address = 0x3d;
@@ -2731,6 +2734,13 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     DBG (DBG_error,
 	 "gl646_slow_back_home: failed to bulk write registers: %s\n",
 	 sane_strstatus (status));
+
+  /* registers are restored to an iddl state, give up if no head to park */
+  if(dev->model->is_sheetfed==SANE_TRUE)
+  {
+      DBG (DBG_proc, "gl646_slow_back_home: end \n");
+      return SANE_STATUS_GOOD;
+  }
 
   /* starts scan */
   status = gl646_begin_scan (dev, dev->reg, SANE_TRUE);

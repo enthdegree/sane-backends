@@ -273,29 +273,6 @@ static Genesys_Sensor Sensor[] = {
    2.38, 2.35, 2.34,
    NULL, NULL, NULL}
   ,
-  /* 8: Docket port 485 */
-  {CCD_DOCKET485, 600,
-/*TODO: find a good reason for keeping all three following variables*/
-   87,				/*(black) */
-   87,				/* (dummy) */
-   0,				/* (startxoffset) */
-   10240,			/*sensor_pixels */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x04, 0x50,
-    0x10, 0x00, 0x20, 0x02	
-    },
-   {0x04, 0x05,
-    0x00, 0x00, 0x00, 0x00,	/*[GB](HI|LOW) not needed for cis */
-    0x54, 0x03,
-    0x00,			/*TODO: bit7 */
-    0x00, 0x00, 0x00, 0x01	/*TODO (these do no harm, but may be neccessery for CCD) */
-    }
-   ,
-   1.0, 1.0, 1.0,
-   NULL, NULL, NULL}
-  ,
   /* Syscan DP 665 */
   {CCD_DP665, 600,
 /*TODO: find a good reason for keeping all three following variables*/
@@ -1575,7 +1552,7 @@ static Genesys_Model syscan_docketport_485_model = {
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   SANE_TRUE,			/* Is this a sheetfed scanner? */
-  CCD_DOCKET485,
+  CCD_XP300,
   DAC_WOLFSON_XP300,
   GPO_XP300,
   MOTOR_XP300,
@@ -1626,7 +1603,7 @@ static Genesys_Model dct_docketport_487_model = {
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   SANE_TRUE,			/* Is this a sheetfed scanner? */
-  CCD_DOCKET485,
+  CCD_XP300,
   DAC_WOLFSON_XP300,
   GPO_XP300,
   MOTOR_XP300,

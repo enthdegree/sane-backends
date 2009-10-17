@@ -1558,9 +1558,10 @@ static Genesys_Model syscan_docketport_485_model = {
   MOTOR_XP300,
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_NO_CALIBRATION,
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
-  300,
+  100,
   400
 };
 
@@ -1609,10 +1610,11 @@ static Genesys_Model dct_docketport_487_model = {
   MOTOR_XP300,
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_NO_CALIBRATION
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_UNTESTED,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
-  300,
+  100,
   400
 };
 

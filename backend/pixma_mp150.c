@@ -1198,10 +1198,10 @@ mp150_scan (pixma_t * s)
   /* Generation 4: send XML dialog */
   if (mp->generation == 4 && s->param->adf_pageid == 0)
     {
-      if ((error = send_xml_dialog (s, XML_START_1)) < 0)
-        return error;
-      if ((error = send_xml_dialog (s, XML_START_2)) < 0)
-        return error;
+      if (!send_xml_dialog (s, XML_START_1))
+        return PIXMA_EPROTO;
+      if (!send_xml_dialog (s, XML_START_2))
+        return PIXMA_EPROTO;
     }
 
   /* clear interrupt packets buffer */
@@ -1417,7 +1417,10 @@ mp150_finish_scan (pixma_t * s)
 
           /* Generation 4: send XML end of scan dialog */
           if (mp->generation == 4)
-              send_xml_dialog (s, XML_END);
+            {
+              if (!send_xml_dialog (s, XML_END))
+                PDBG (pixma_dbg (1, "WARNING:XML_END dialog failed \n"));
+            }
         }
       /* fall through */
     case state_idle:

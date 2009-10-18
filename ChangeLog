@@ -1,3 +1,11 @@
+2009-10-18  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, backend/pixma_imageclass.c, include/pixma.h, 
+	doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	pixma:
+	- bumped backend version to 0.16.1
+	- Some error condition fixes to Generation 4 (MP640, ...) XML code
+	- Added ImageClass MF4360dn-MF4390dn
+
 2009-10-18  Troy Rollo <trollo-guest at users.alioth.debian.org>
 	* backend/hp3500.c: Stop backed from calling exit(), which is not
 	helpful when using threads instead of processes.

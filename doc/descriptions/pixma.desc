@@ -321,6 +321,12 @@
 :status :untested
 :comment "Same protocol as Pixma Generation 3? Testers needed!"
 
+:model "PIXMA MP270"
+:interface "USB"
+:usbid "0x04a9" "0x173b"
+:status :good
+:comment "All resolutions supported (up to 1200DPI)"
+
 :model "PIXMA MP240"
 :interface "USB"
 :usbid "0x04a9" "0x1732"
@@ -384,8 +390,8 @@
 :model "imageCLASS MF3110"
 :interface "USB"
 :usbid "0x04a9" "0x2660"
-:status :untested
-:comment "Testers needed!"
+:status :good
+:comment "All resolutions supported (up to 600DPI)."
 
 :model "imageCLASS MF3240"
 :interface "USB"

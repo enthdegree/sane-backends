@@ -1,3 +1,7 @@
+2009-10-18  Troy Rollo <trollo-guest at users.alioth.debian.org>
+	* backend/hp3500.c: Stop backed from calling exit(), which is not
+	helpful when using threads instead of processes.
+
 2009-10-16  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	pixma: Changes to include new XML dialog for new 2009 PIXMA models,

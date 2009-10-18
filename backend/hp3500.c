@@ -3392,27 +3392,28 @@ reader_process (void *pv)
   sigset_t sigterm_set;
   struct SIGACTION act;
   struct hp3500_write_info winfo;
+  int status;
 
   if (sanei_thread_is_forked ())
     {
       close (scanner->pipe_r);
+
+      sigfillset (&ignore_set);
+      sigdelset (&ignore_set, SIGTERM);
+#if     defined (__APPLE__) && defined (__MACH__)
+      sigdelset (&ignore_set, SIGUSR2);
+#endif
+      sigprocmask (SIG_SETMASK, &ignore_set, 0);
+
+      sigemptyset (&sigterm_set);
+      sigaddset (&sigterm_set, SIGTERM);
+
+      memset (&act, 0, sizeof (act));
+#ifdef     _POSIX_SOURCE
+      act.sa_handler = sigtermHandler;
+#endif
+      sigaction (SIGTERM, &act, 0);
     }
-
-  sigfillset (&ignore_set);
-  sigdelset (&ignore_set, SIGTERM);
-#if defined (__APPLE__) && defined (__MACH__)
-  sigdelset (&ignore_set, SIGUSR2);
-#endif
-  sigprocmask (SIG_SETMASK, &ignore_set, 0);
-
-  sigemptyset (&sigterm_set);
-  sigaddset (&sigterm_set, SIGTERM);
-
-  memset (&act, 0, sizeof (act));
-#ifdef _POSIX_SOURCE
-  act.sa_handler = sigtermHandler;
-#endif
-  sigaction (SIGTERM, &act, 0);
 
 
   /* Warm up the lamp again if our last scan ended more than 5 minutes ago. */
@@ -3447,6 +3448,8 @@ reader_process (void *pv)
        scanner->actres_pixels.bottom - scanner->actres_pixels.top,
        scanner->resolution, scanner->mode, (rts8801_callback) writefunc,
        &winfo) >= 0)
-    exit (SANE_STATUS_GOOD);
-  exit (SANE_STATUS_IO_ERROR);
+    status = SANE_STATUS_GOOD;
+  status = SANE_STATUS_IO_ERROR;
+  close (scanner->pipe_w);
+  return status;
 }

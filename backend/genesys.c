@@ -6564,8 +6564,10 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	}
       else
 	status = genesys_scanner_calibration (s->dev);
-      /*not critical if this fails*/
+      /* not critical if this fails*/
       s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
+      /* signals that sensors will have to be read again */
+      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_CLEAR_CALIBRATION:
       /* clear calibration cache */
@@ -6582,6 +6584,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       s->dev->calibration_cache = NULL;
       /* remove file */
       unlink (s->dev->calib_file);
+      /* signals that sensors will have to be read again */
+      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
 
     default:

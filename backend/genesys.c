@@ -3044,9 +3044,17 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       cmat[0] = 0;
       cmat[1] = 1;
       cmat[2] = 2;
+      if(dev->settings.xres>dev->sensor.optical_res)
+        {
+	  res=1;
+        }
+      else
+        {
+          res=dev->sensor.optical_res/dev->settings.xres;
+        }
       compute_planar_coefficients (dev,
 				   shading_data,
-				   dev->sensor.optical_res/dev->settings.xres,
+				   res,
 				   pixels_per_line,
 				   words_per_color,
 				   channels,

@@ -2954,7 +2954,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   unsigned int x, j;
   int o;
   unsigned int length;		/**> number of shading calibration data words */
-  unsigned int i, res;
+  unsigned int i, res, factor;
   int cmat[3];			/**> matrix of color channels */
   unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
   unsigned int target_dark, target_bright, br;
@@ -2965,46 +2965,26 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  /* we always build data for three channels, even for gray */
-  if (dev->model->is_cis && dev->model->asic_type != GENESYS_GL646)
-	{
-	  switch (sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6)
-	    {
-	    case 0:
-	      words_per_color = 0x2a00;
-	      break;
-	    case 1:
-	      words_per_color = 0x5500;
-	      break;
-	    case 2:
-	      words_per_color = 0xa800;
-	      break;
-	    }
-	}
-      else			/* GL646 case */
-	{			/* DPIHW */
-	  /* we make the shading data such that each color channel data line is contiguous
-	   * to the next one, which allow to write the 3 channels in 1 write 
-	   * during genesys_send_shading_coefficient, some values are words, other bytes
-	   * hence the x2 factor */
-	  switch (sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6)
-	    {
-	      /* 600 dpi */
-	    case 0:
-	      /* 5376 * 2 max */
-	      words_per_color = 0x2a00;
-	      break;
-	      /* 1200 dpi */
-	    case 1:
-	      words_per_color = 0x5500;
-	      break;
-	      /* 2400 dpi */
-	    case 2:
-	      words_per_color = 0xa800;
-	      break;
-	    }
-	  /* 3 channels, 2 bytes a word */
-	}
+  /* we always build data for three channels, even for gray
+   * we make the shading data such that each color channel data line is contiguous
+   * to the next one, which allow to write the 3 channels in 1 write
+   * during genesys_send_shading_coefficient, some values are words, other bytes
+   * hence the x2 factor */
+  switch (sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6)
+    {
+      /* 600 dpi */
+    case 0:
+      words_per_color = 0x2a00;
+      break;
+      /* 1200 dpi */
+    case 1:
+      words_per_color = 0x5500;
+      break;
+      /* 2400 dpi */
+    case 2:
+      words_per_color = 0xa800;
+      break;
+    }
 
   length = words_per_color * 3 * 2;
   /* allocate computed size */
@@ -3027,6 +3007,16 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   else
     coeff = 0x2000;
 
+  /* compute avg factor */
+  if(dev->settings.xres>dev->sensor.optical_res)
+    {
+      factor=1;
+    }
+  else
+    {
+      factor=dev->sensor.optical_res/dev->settings.xres;
+    }
+
   /* for GL646, shading data is planar if REG01_FASTMOD is set and
    * chunky if not. For now we rely on the fact that we know that
    * each sensor is used only in one mode. Currently only the CIS_XP200
@@ -3037,35 +3027,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
    * will handle these settings instead of having this switch growing up */
   switch (dev->model->ccd_type)
     {
-    case CCD_DSMOBILE600:
-      words_per_color = 0x2a00;
-      target_code = 0xdc00;
-      o = 4;
-      cmat[0] = 0;
-      cmat[1] = 1;
-      cmat[2] = 2;
-      if(dev->settings.xres>dev->sensor.optical_res)
-        {
-	  res=1;
-        }
-      else
-        {
-          res=dev->sensor.optical_res/dev->settings.xres;
-        }
-      compute_planar_coefficients (dev,
-				   shading_data,
-				   res,
-				   pixels_per_line,
-				   words_per_color,
-				   channels,
-				   cmat,
-				   o,
-				   coeff,
-				   target_code);
-      break;
     case CCD_XP300:
     case CCD_ROADWARRIOR:
     case CCD_DP665:
+    case CCD_DSMOBILE600:
       target_code = 0xdc00;
       o = 4;
       cmat[0] = 0;
@@ -3073,7 +3038,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       cmat[2] = 2;
       compute_planar_coefficients (dev,
 				   shading_data,
-				   dev->sensor.optical_res/dev->settings.xres,
+				   factor,
 				   pixels_per_line,
 				   words_per_color,
 				   channels,

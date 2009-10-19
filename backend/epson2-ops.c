@@ -422,7 +422,7 @@ e2_set_tpu_area(struct Epson_Scanner *s, int x, int y, int unit)
 void
 e2_add_depth(Epson_Device * dev, SANE_Word depth)
 {
-	if (dev->maxDepth == 0)
+	if (depth > dev->maxDepth)
 		dev->maxDepth = depth;
 
 	dev->depth_list[0]++;
@@ -479,6 +479,9 @@ e2_discover_capabilities(Epson_Scanner *s)
 
 	DBG(5, "%s\n", __func__);
 
+	/* always add flatbed */
+	*source_list_add++ = FBF_STR;
+
 	/* ESC I, request identity
 	 * this must be the first command on the FilmScan 200
 	 */
@@ -527,8 +530,6 @@ e2_discover_capabilities(Epson_Scanner *s)
 		dev->dpi_range.max = dev->res_list[dev->res_list_size - 1];
 		dev->dpi_range.quant = 0;
 
-		*source_list_add++ = FBF_STR;
-
 		e2_set_fbf_area(s, x, y, dev->dpi_range.max);
 
 		free(buf);
@@ -549,13 +550,17 @@ e2_discover_capabilities(Epson_Scanner *s)
 	/*
 	 * Extended status flag request (ESC f).
 	 * this also requests the scanner device name from the the scanner.
-	 * It seems unsupported on the network transport (CX11NF/LP-A500),
-	 * so avoid it if the device support extended commands.
+	 * It seems unsupported on the network transport (CX11NF/LP-A500).
+	 * so avoid it if the device support request_extended_identity.
 	 */
 
-	if (!dev->extended_commands && dev->cmd->request_extended_status) {
+	if (dev->connection != SANE_EPSON_NET && dev->cmd->request_extended_status
+		&& !dev->cmd->request_extended_identity) {
+
 		unsigned char *es;
 		size_t es_len;
+
+		DBG(1, "detection with request_extended_status\n");
 
 		status = esci_request_extended_status(s, &es, &es_len);
 		if (status != SANE_STATUS_GOOD)
@@ -578,8 +583,6 @@ e2_discover_capabilities(Epson_Scanner *s)
 			dev->cmd->request_push_button_status = 0;
 
 		/* Flatbed */
-		*source_list_add++ = FBF_STR;
-
 		e2_set_fbf_area(s, es[13] << 8 | es[12], es[15] << 8 | es[14],
 				dev->dpi_range.max);
 
@@ -627,11 +630,14 @@ e2_discover_capabilities(Epson_Scanner *s)
 		}
 
 		free(es);
+
+		*source_list_add = NULL; /* add end marker to source list */
 	}
-	
-	/* FS I, request extended identity */
-	if (dev->extended_commands && dev->cmd->request_extended_identity) {
+	/* FS I, request extended identity (B7/B8) */
+	else if (dev->extended_commands && dev->cmd->request_extended_identity) {
 		unsigned char buf[80];
+
+		DBG(1, "detection with request_extended_identity\n");
 
 		status = esci_request_extended_identity(s, buf);
 		if (status != SANE_STATUS_GOOD)
@@ -653,8 +659,6 @@ e2_discover_capabilities(Epson_Scanner *s)
 		dev->dpi_range.max = le32atoh(&buf[12]);
 
 		/* Flatbed */
-		*source_list_add++ = FBF_STR;
-
 		e2_set_fbf_area(s, le32atoh(&buf[20]),
 				le32atoh(&buf[24]), dev->optical_res);
 
@@ -695,10 +699,12 @@ e2_discover_capabilities(Epson_Scanner *s)
 
 		/* fix problem with broken report of dpi */
 		e2_fix_up_dpi(s);
+
+		*source_list_add = NULL; /* add end marker to source list */
+
+	} else {
+		DBG(1, "no command available to detect capabilities\n");
 	}
-
-
-	*source_list_add = NULL;        /* add end marker to source list */
 
 	/*
 	 * request identity 2 (ESC i), if available will

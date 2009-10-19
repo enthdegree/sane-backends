@@ -5557,6 +5557,20 @@ init_options (Genesys_Scanner * s)
   s->val[OPT_POWER_SW].b = 0;
   s->last_val[OPT_POWER_SW].b = 0;
 
+  /* calibration needed */
+  s->opt[OPT_NEED_CALIBRATION_SW].name = "need-calibration";
+  s->opt[OPT_NEED_CALIBRATION_SW].title = SANE_I18N ("Need calibration");
+  s->opt[OPT_NEED_CALIBRATION_SW].desc = SANE_I18N ("The scanner needs calibration for the current settings");
+  s->opt[OPT_NEED_CALIBRATION_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_NEED_CALIBRATION_SW].unit = SANE_UNIT_NONE;
+  if (model->buttons & GENESYS_HAS_CALIBRATE)
+    s->opt[OPT_NEED_CALIBRATION_SW].cap =
+      SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_NEED_CALIBRATION_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_NEED_CALIBRATION_SW].b = 0;
+  s->last_val[OPT_NEED_CALIBRATION_SW].b = 0;
+
   /* button group */
   s->opt[OPT_BUTTON_GROUP].name = "Buttons";
   s->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
@@ -6275,6 +6289,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
   SANE_Word *table;
   uint16_t *gamma;
   SANE_Status status = SANE_STATUS_GOOD;
+  Genesys_Calibration_Cache *cache;
 
   switch (option)
     {
@@ -6352,7 +6367,21 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       *(SANE_Bool *) val = s->val[option].b;
       s->last_val[option].b = *(SANE_Bool *) val;
       break;
-      /* button */
+    case OPT_NEED_CALIBRATION_SW:
+      /* scanner needs calibration for current mode unless a matching
+       * calibration cache is found */
+      *(SANE_Bool *) val = SANE_TRUE;
+      for (cache = s->dev->calibration_cache; cache; cache = cache->next)
+	{
+	  if (s->dev->model->
+	      cmd_set->is_compatible_calibration (s->dev, cache,
+						  SANE_FALSE) ==
+	      SANE_STATUS_GOOD)
+	    {
+	      *(SANE_Bool *) val = SANE_FALSE;
+	    }
+	}
+      break;
     default:
       DBG (DBG_warn, "get_option_value: can't get unknown option %d\n",
 	   option);

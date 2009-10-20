@@ -122,8 +122,11 @@ static const struct pixma_config_t *lookup_scanner(const char *makemodel,
             { 
               /* possible match found, make sure it is not a partial match */
               /* MP600 and MP600R are different models! */
+              /* some models contain ranges, so check for a '-' too as valid and of if */
+
               if ((match[strlen(cfg->model)] == ' ') || 
-                  (match[strlen(cfg->model)] == '\0'))
+                  (match[strlen(cfg->model)] == '\0') ||
+                  (match[strlen(cfg->model)] == '-'))
                 {
                   pixma_dbg (13, "Scanner model found: Name %s(%s) matches %s\n", cfg->model, cfg->name, makemodel);
                   return cfg;

@@ -357,6 +357,11 @@ gl646_bulk_read_data (Genesys_Device * dev, uint8_t addr,
       data += size;
     }
 
+  if (dev->model->is_sheetfed == SANE_TRUE)
+    {
+      gl646_detect_document_end (dev);
+    }
+
   DBG (DBG_io, "gl646_bulk_read_data: end\n");
 
   return status;
@@ -2736,11 +2741,11 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	 sane_strstatus (status));
 
   /* registers are restored to an iddl state, give up if no head to park */
-  if(dev->model->is_sheetfed==SANE_TRUE)
-  {
+  if (dev->model->is_sheetfed == SANE_TRUE)
+    {
       DBG (DBG_proc, "gl646_slow_back_home: end \n");
       return SANE_STATUS_GOOD;
-  }
+    }
 
   /* starts scan */
   status = gl646_begin_scan (dev, dev->reg, SANE_TRUE);
@@ -4905,6 +4910,10 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
   if ((dev->current_setup.channels != cache->used_setup.channels)
       || (dev->current_setup.xres != cache->used_setup.xres))
     {
+      DBG (DBG_io,
+	   "gl646_is_compatible_calibration: requested=(%d,%f), tested=(%d,%f)\n",
+	   dev->current_setup.channels, dev->current_setup.xres,
+	   cache->used_setup.channels, cache->used_setup.xres);
       DBG (DBG_proc,
 	   "gl646_is_compatible_calibration: completed, non compatible cache\n");
       return SANE_STATUS_UNSUPPORTED;

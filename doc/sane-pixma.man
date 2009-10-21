@@ -33,13 +33,15 @@ ImageCLASS MF3110, MF4010, MF4018, MF4120, MF4122, MF4140
 ImageCLASS MF4150, MF4270, MF4380dn, MF4660, MF4690, MF5770
 .br
 ImageCLASS D480
+.br
+SmartBASE MP390
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs
 and must be switched off and on.
 .PP
 .RS
-SmartBase MP360, MP370, MP390
+SmartBase MP360, MP370
 .br
 MultiPASS PIXMA MP760, PIXMA MP780
 .RE
@@ -156,7 +158,7 @@ the verbosity.
 .TP
 .B PIXMA_EXPERIMENT
 Setting to a non-zero value will enable the support for experimental models.
-You should also set SANE_DEBUG_PIXMA to 10.
+You should also set SANE_DEBUG_PIXMA to 11.
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-dll (5),

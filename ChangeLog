@@ -1,3 +1,7 @@
+2009-10-21  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_imageclass.c, doc/sane-pixma.man:
+	pixma: added I-SENSYS MF4320d and updated doc, for this model and MP390.
+
 2009-10-20  Louis Lagendijk <louis@lagendijk.xs4all.nl>
 	* backend/pixma_io_sanei.c:
 	Allow for ranges in model returned from device (allow -)

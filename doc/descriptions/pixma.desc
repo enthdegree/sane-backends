@@ -169,7 +169,7 @@
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1726"
 :status :good
-:comment "All resolutions supported (up to 4800DPI). Full TPU support (negativa and slides) at 24 or 48 bits."
+:comment "All resolutions supported (up to 4800DPI). Full TPU support (negative and slides) at 24 or 48 bits."
 
 :model "SmartBase MP360"
 :interface "USB"
@@ -186,8 +186,8 @@
 :model "SmartBase MP390"
 :interface "USB"
 :usbid "0x04a9" "0x263e"
-:status :minimal
-:comment "The scanner locks up sometimes."
+:status :good
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "MultiPASS MP700"
 :interface "USB"

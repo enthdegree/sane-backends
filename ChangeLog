@@ -1,3 +1,7 @@
+2009-10-22  Louis Lagendijk <llagendijk at users.alioth.debian.org>
+	* doc/sane-pixma.man
+	Added networking details to doc/sane-pixma.man
+
 2009-10-21  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, doc/sane-pixma.man:
 	pixma: added I-SENSYS MF4320d and updated doc, for this model and MP390.

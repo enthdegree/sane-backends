@@ -4884,6 +4884,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
+  int compatible = 1;
 
   DBG (DBG_proc,
        "gl646_is_compatible_calibration: start (for_overwrite=%d)\n",
@@ -4905,15 +4906,27 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
     }
   dev->current_setup.xres = dev->settings.xres;
 
+  DBG (DBG_io,
+       "gl646_is_compatible_calibration: requested=(%d,%f), tested=(%d,%f)\n",
+       dev->current_setup.channels, dev->current_setup.xres,
+       cache->used_setup.channels, cache->used_setup.xres);
+
   /* a calibration cache is compatible if color mode and x dpi match the user 
-   * requested scan */
-  if ((dev->current_setup.channels != cache->used_setup.channels)
-      || (dev->current_setup.xres != cache->used_setup.xres))
+   * requested scan. In the case of CIS scanners, dpi isn't a criteria */
+  if (dev->model->is_cis == SANE_FALSE)
     {
-      DBG (DBG_io,
-	   "gl646_is_compatible_calibration: requested=(%d,%f), tested=(%d,%f)\n",
-	   dev->current_setup.channels, dev->current_setup.xres,
-	   cache->used_setup.channels, cache->used_setup.xres);
+      compatible =
+	((dev->current_setup.channels == cache->used_setup.channels)
+	 && (((int) dev->current_setup.xres) ==
+	     ((int) cache->used_setup.xres)));
+    }
+  else
+    {
+      compatible =
+	(dev->current_setup.channels == cache->used_setup.channels);
+    }
+  if (!compatible)
+    {
       DBG (DBG_proc,
 	   "gl646_is_compatible_calibration: completed, non compatible cache\n");
       return SANE_STATUS_UNSUPPORTED;

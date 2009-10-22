@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "18 Oct 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "20 Oct 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon PIXMA MP series
@@ -30,18 +30,18 @@ MultiPASS MP700, MP730, PIXMA MP750 (no grayscale)
 .br
 ImageCLASS MF3110, MF4010, MF4018, MF4120, MF4122, MF4140
 .br
-ImageCLASS MF4150, MF4270, MF4380dn, MF4660, MF4690, MF5770
+ImageCLASS MF4150, MF4270, MF4370dn, MF4380dn, MF4660, MF4690
 .br
-ImageCLASS D480
+ImageCLASS MF5770, D480
 .br
-SmartBASE MP390
+I-SENSYS MF4320d
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs
 and must be switched off and on.
 .PP
 .RS
-SmartBase MP360, MP370
+SmartBase MP360, MP370, MP390
 .br
 MultiPASS PIXMA MP760, PIXMA MP780
 .RE
@@ -56,9 +56,7 @@ PIXMA MP740
 .br
 PIXMA MX320, MX330, MP250, MP490, MP560, MP990
 .br
-ImageCLASS MF3240, MF4370dn
-.br
-ImageCLASS MF5630, MF5650, MF5730, MF5750, MF8170c
+ImageCLASS MF3240, MF5630, MF5650, MF5730, MF5750, MF8170c
 .RE
 .PP
 \#The following models may use partly the same Pixma protocol as MPs listed
@@ -82,9 +80,12 @@ The backend supports
 .br
 * Transparency Unit, 24 or 48 bits depth.
 .PP
-The device name is in the form pixma:xxxxyyyy_zzzzz
+The device name for USB devices is in the form pixma:xxxxyyyy_zzzzz
 where x, y and z are vendor ID, product ID and serial number respectively.
 Example: pixma:04A91709_123456 is a MP150.
+.PP
+Device names for BJNP devices is in the form pixma:aaaa_bbbbb
+where aaaa is the scanners model and bbbb is the hostname or ip-adress.
 .PP
 This backend, based on cloning original Canon drivers protocols, is in 
 a production stage. Designed has been carried out without any applicable
@@ -134,6 +135,53 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane\-pixma.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
+.TP
+.I @CONFIGDIR@/pixma.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below). The files contains an optional list of scanners. Normally only scanners
+that can not be auto-detected because they are on a different subnet shall be
+listed here. If your OS does not allow enumeration of interfaces (i.e. it does not
+support the getifaddrs() function) you may need to add your scanner here as well.
+Scanners shall be listed as:
+.PP
+.RS
+.I bjnp://<host>
+.RE
+.RS
+where host is the hostname or IP address of the scanner, e.g. bjnp://10.0.1.4 or
+bjnp://myscanner.mydomain.org. Define each scanner on a new line.
+.SH USB SUPPORT
+USB scanners will be auto-detected and require no configuration.
+.SH NETWORKING SUPPORT
+The pixma backend supports network scanners using the so called Canon BJNP protocol.
+Configuration is normally not required.
+The pixma backend will auto-detect your scanner if it is within
+the same subnet as your computer if your OS does support this.
+
+If your scanner can not be auto-detected, you can add it to the pixma configuration
+file (see above).
+.SH FIREWALLING FOR NETWORKED SCANNERS
+The sane pixma backend communicates with port 8612 on the scanner. So
+you will have to allow outgoing traffic TO port 8612 on the common subnet
+for scanning.
+
+Scanner detection is slightly more complicated. The pixma backend sends
+a broadcast on all direct connected subnets it can find (provided your OS allows for enumeration
+of all interfaces). The broadcast is sent FROM port
+8612 TO port 8612 on the broadcast address of each interface.
+The outgoing packets will be allowed by the rule described above.
+Responses from the scanner are sent back to the computer TO port 8612.
+Connection tracking however does not see a match as the response does not come
+from the broadcast address but from the scanners own address.
+You will therefore have to allow incoming packets TO port 8612 on your computer.
+
+So in short: open the firewall for all traffic from your computer to port 8612 AND
+to port 8612 to your computer.
+
+With the firewall rules above there is no need to add the scanner to the
+pixma.conf file, unless the scanner is on a network that is not directly
+connected to your computer.
 .SH ENVIRONMENT
 .TP
 .B SANE_DEBUG_PIXMA
@@ -150,20 +198,35 @@ the verbosity.
 .br
 3  print debug-level messages
 .br
-11 dump USB traffics
+11 dump USB/BJNP traffics
 .br
-21 full dump USB traffics
+21 full dump USB/BJNP traffic
 .br
 .RE
 .TP
 .B PIXMA_EXPERIMENT
 Setting to a non-zero value will enable the support for experimental models.
 You should also set SANE_DEBUG_PIXMA to 11.
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-dll (5),
 .I http://home.arcor.de/wittawat/pixma/,
 .I http://mp610.blogspot.com/
+
 .SH AUTHORS
 Wittawat Yamwong, Nicolas Martin, Dennis Lou, Louis Lagendijk
 .PP

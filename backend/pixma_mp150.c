@@ -615,11 +615,21 @@ calc_shifting (pixma_t * s)
           case MP800R_PID:
           case MP830_PID:
             mp->color_shift = s->param->ydpi / ((s->param->ydpi < 1200) ? 150 : 75);
+
             if (is_scanning_from_tpu (s)) 
               mp->color_shift = s->param->ydpi / 75;
+
             mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
-            mp->shift[0] = 2 * mp->shift[1];
-            mp->shift[2] = 0;
+            if (is_scanning_from_adf (s))
+              {  /* ADF */
+                mp->shift[0] = 0;
+                mp->shift[2] = 2 * mp->shift[1];
+              }
+            else
+              {  /* Flatbed or TPU */
+                mp->shift[0] = 2 * mp->shift[1];
+                mp->shift[2] = 0;
+              }
             break;
 
           case MP810_PID:

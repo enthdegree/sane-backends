@@ -423,6 +423,12 @@
 :status :good
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
+:model "imageCLASS MF4370dn"
+:interface "USB"
+:usbid "0x04a9" "0x26ec"
+:status :good
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
+
 :model "imageCLASS MF4380dn"
 :interface "USB"
 :usbid "0x04a9" "0x26ec"
@@ -440,6 +446,12 @@
 :usbid "0x04a9" "0x26b0"
 :status :good
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
+
+:model "I-SENSYS MF4320d"
+:interface "USB"
+:usbid "0x04a9" "0x26ee"
+:status :good
+:comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4010"
 :interface "USB"

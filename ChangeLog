@@ -1,9 +1,9 @@
-2009-10-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
-	* backend/pixma_mp150.c, doc/descriptions/pixma.desc:
-	pixma: fix MP830 ADF shifted lines, add support for I-SENSYS MF4320d to descriptions.
+2009-10-28  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	pixma: declared Pixma MP550 (yet untested), updated docs.
 
 2009-10-22  Louis Lagendijk <llagendijk at users.alioth.debian.org>
-	* doc/sane-pixma.man
+	* doc/sane-pixma.man:
 	Added networking details to doc/sane-pixma.man
 
 2009-10-21  Nicolas Martin <nicols-guest at users.alioth.debian.org>

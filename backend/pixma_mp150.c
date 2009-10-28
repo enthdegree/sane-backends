@@ -149,6 +149,7 @@
 #define MP250_PID 0x173a    /* untested */
 #define MP270_PID 0x173b
 #define MP490_PID 0x173c    /* untested */
+#define MP550_PID 0x173d    /* untested */
 #define MP560_PID 0x173e    /* untested */
 #define MP640_PID 0x173f
 #define MP990_PID 0x1740    /* untested */
@@ -1547,6 +1548,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   /* Generation 4: CIS */
   DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP560", "MP560", MP560_PID, 2400, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP550", "MP550", MP550_PID, 2400, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP490", "MP490", MP490_PID, 1200, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP250", "MP250", MP250_PID, 600, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP270", "MP270", MP270_PID, 1200, 638, 877, PIXMA_CAP_CIS),

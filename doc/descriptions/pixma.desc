@@ -297,6 +297,12 @@
 :status :untested
 :comment "Same protocol as Pixma Generation 3? Testers needed!"
 
+:model "PIXMA MP550"
+:interface "USB"
+:usbid "0x04a9" "0x173d"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
 :model "PIXMA MP540"
 :interface "USB"
 :usbid "0x04a9" "0x1730"

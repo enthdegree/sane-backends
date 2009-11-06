@@ -1,3 +1,11 @@
+2009-11-06  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
+	backend/genesys_gl646.c backend/genesys_gl646.h backend/genesys_gl841.c
+	backend/genesys_low.h doc/descriptions/genesys.desc
+	doc/sane-genesys.man:
+	sheetfed calibration work merge. All genesys supported sheetfed
+	scanners can now be calibrated with a special sheet.
+
 2009-10-28  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	pixma: declared Pixma MP550 (yet untested), updated docs.

@@ -113,6 +113,8 @@
 #define GT68XX_FLAG_USE_OPTICAL_X   (1 << 10)	/* Use optical xdpi for 50 dpi and below */
 #define GT68XX_FLAG_ALWAYS_LINEMODE (1 << 11)	/* Linemode must be used for any resolution */
 #define GT68XX_FLAG_SHEET_FED       (1 << 12)	/* we have a sheet fed scanner */
+#define GT68XX_FLAG_HAS_CALIBRATE   (1 << 13)	/* for sheet fed scanners that be calibrated with
+                                                   an calibration sheet */
 
 /* Forward typedefs */
 typedef struct GT68xx_USB_Device_Entry GT68xx_USB_Device_Entry;

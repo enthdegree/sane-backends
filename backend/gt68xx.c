@@ -638,7 +638,9 @@ init_options (GT68xx_Scanner * s)
   s->val[OPT_QUALITY_CAL].w = SANE_TRUE;
   if (!debug_options)
     DISABLE (OPT_QUALITY_CAL);
-  if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
+  /* we disable image correction for scanners that can't calibrate */
+  if ((s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
+    &&(!(s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE)))
     {
       s->val[OPT_QUALITY_CAL].w = SANE_FALSE;
       DISABLE (OPT_QUALITY_CAL);
@@ -1833,7 +1835,11 @@ sane_start (SANE_Handle handle)
   else
     scan_request.backtrack_lines = 0;
 
-  RIE (gt68xx_scanner_calibrate (s, &scan_request));
+  /* don't call calibration for scanners that use sheetfed_calibrate */
+  if(!(s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE))
+    {
+      RIE (gt68xx_scanner_calibrate (s, &scan_request));
+    }
   
 
   /* some sheetfed scanners need a special operation to move

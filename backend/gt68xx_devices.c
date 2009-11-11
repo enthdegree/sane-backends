@@ -1646,7 +1646,7 @@ static GT68xx_Model plustek_opticslim_m12_model = {
   SANE_FIX (2.0),			/* Default gamma value */
 
   SANE_TRUE,				/* Is this a CIS scanner? */
-  GT68XX_FLAG_NO_POWER_STATUS | GT68XX_FLAG_SHEET_FED
+  GT68XX_FLAG_NO_POWER_STATUS | GT68XX_FLAG_SHEET_FED | GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_HAS_CALIBRATE
 };
 
 static GT68xx_Model genius_sf600_model = {

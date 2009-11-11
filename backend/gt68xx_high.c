@@ -1929,6 +1929,148 @@ gt68xx_sheetfed_move_to_scan_area (GT68xx_Scanner * scanner,
   return gt68xx_scanner_wait_for_positioning (scanner);
 }
 
+/**< number of consecutive white line to detect a white area */
+#define WHITE_LINES 2
+
+/** @brief calibrate sheet fed scanner
+ * This function calibrates sheet fed scanner by scanning a calibration
+ * target (which may be a blank page). It first move to a white area then
+ * does afe and exposure calibration. Then it scans white lines to get data
+ * for shading correction.
+ * @param scanner structur describin the frontedn session and the device 
+ * @return SANE_STATUS_GOOD is everything goes right, SANE_STATUS_INVAL 
+ * otherwise.
+ */
+static SANE_Status
+gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
+{
+  SANE_Status status;
+  GT68xx_Scan_Request request;
+  GT68xx_Scan_Parameters params;
+  int count, i, x, y, white;
+  unsigned int *buffer_pointers[3];
+
+  DBG (3, "gt68xx_sheetfed_scanner_calibrate: start.\n");
+
+  /* find minimum resolution */
+  request.ydpi = 9600;
+  for (i = 0; scanner->dev->model->ydpi_values[i] != 0; i++)
+    {
+      if (scanner->dev->model->ydpi_values[i] < request.ydpi)
+	request.ydpi = scanner->dev->model->ydpi_values[i];
+    }
+  request.xdpi = 9600;
+  for (i = 0; scanner->dev->model->xdpi_values[i] != 0; i++)
+    {
+      if (scanner->dev->model->xdpi_values[i] < request.xdpi)
+	request.xdpi = scanner->dev->model->xdpi_values[i];
+    }
+
+  /* move to white area */
+  request.x0 = 0;
+  request.y0 = SANE_FIX (10.0);
+  request.xs = scanner->dev->model->x_size;
+  /* maximum vertical size to scan */
+  request.ys = SANE_FIX (500.0);
+  request.depth = 8;
+  request.color = SANE_FALSE;
+  request.mbs = SANE_TRUE;
+  request.mds = SANE_TRUE;
+  request.mas = SANE_FALSE;
+  request.lamp = SANE_TRUE;
+  request.calculate = SANE_FALSE;
+  request.use_ta = SANE_FALSE;
+  request.backtrack = SANE_FALSE;
+  request.backtrack_lines = 0;
+
+  status = gt68xx_device_lamp_control (scanner->dev, SANE_FALSE, SANE_TRUE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1,
+	   "gt68xx_sheetfed_scanner_calibrate: gt68xx_device_lamp_control returned %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  /* start scan */
+  status =
+    gt68xx_scanner_start_scan_extended (scanner, &request, SA_CALIBRATE,
+					&params);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1,
+	   "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_start_scan_extended returned %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  /* loop until we find WHITE_LINES consecutive white lines or we reach and of area */
+  white = 0;
+  y = 0;
+  do
+    {
+      status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (1,
+	       "gt68xx_sheetfed_scanner_calibrate: gt68xx_line_reader_read returned %s\n",
+	       sane_strstatus (status));
+	  gt68xx_scanner_stop_scan (scanner);
+	  return status;
+	}
+
+      /* check for white line */
+      count = 0;
+      for (x = 0; x < params.pixel_xs; x++)
+	{
+	  if (((buffer_pointers[0][x] >> 8) & 0xff) > 50)
+	    {
+	      count++;
+	    }
+	}
+
+      /* line is white if 93% is above black level */
+      if ((100 * count) / params.pixel_xs < 93)
+	{
+	  white = 0;
+	}
+      else
+	{
+	  white++;
+	}
+      y++;
+    }
+  while ((white < WHITE_LINES) && (y < params.pixel_ys));
+
+  /* end scan */
+  gt68xx_scanner_stop_scan (scanner);
+
+  /* check if we found a white area */
+  if (white != WHITE_LINES)
+    {
+      DBG (1,
+	   "gt68xx_sheetfed_scanner_calibrate: didn't find a white area\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  /* now do calibration */
+  /* TODO : done at find white dpi ? need to compute 'right' request ? 
+   * or shall we loop through available resolutions ? */
+  request.color = SANE_TRUE;
+  scanner->auto_afe = SANE_TRUE;
+  scanner->calib = SANE_TRUE;
+  status = gt68xx_scanner_calibrate (scanner, &request);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1,
+	   "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_calibrate returned %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  DBG (3, "gt68xx_sheetfed_scanner_calibrate: end.\n");
+  return SANE_STATUS_GOOD;
+}
 
 
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

@@ -747,6 +747,31 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_BR_Y].constraint.range = &y_range;
   s->val[OPT_BR_Y].w = y_range.max;
 
+  /* sensor group, mainly for sheet fed scanners calibration
+   * for now */
+  if (s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE)
+    {
+      /* sensor/button group */
+      s->opt[OPT_SENSOR_GROUP].name = SANE_NAME_SENSORS;
+      s->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
+      s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
+      s->opt[OPT_SENSOR_GROUP].type = SANE_TYPE_GROUP;
+      s->opt[OPT_SENSOR_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+      /* calibrate button */
+      s->opt[OPT_CALIBRATE].name = "calibrate";
+      s->opt[OPT_CALIBRATE].title = SANE_I18N ("Calibrate");
+      s->opt[OPT_CALIBRATE].desc =
+        SANE_I18N ("Start calibration using special sheet");
+      s->opt[OPT_CALIBRATE].type = SANE_TYPE_BUTTON;
+      s->opt[OPT_CALIBRATE].unit = SANE_UNIT_NONE;
+      s->opt[OPT_CALIBRATE].cap =
+          SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED |
+          SANE_CAP_AUTOMATIC;
+      s->val[OPT_CALIBRATE].b = 0;
+    }
+
+
   RIE (calc_parameters (s));
 
   DBG (5, "init_options: exit\n");
@@ -1506,7 +1531,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
                      SANE_Action action, void *val, SANE_Int * info)
 {
   GT68xx_Scanner *s = handle;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word cap;
   SANE_Int myinfo = 0;
 
@@ -1705,6 +1730,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           myinfo |= SANE_INFO_RELOAD_OPTIONS;
           break;
 
+        case OPT_CALIBRATE:
+          status = gt68xx_sheetfed_scanner_calibrate (s);
+          break;
+
         default:
           DBG (2, "sane_control_option: can't set unknown option %d\n",
                option);
@@ -1720,7 +1749,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     *info = myinfo;
 
   DBG (5, "sane_control_option: exit\n");
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 SANE_Status

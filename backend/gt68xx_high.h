@@ -213,6 +213,10 @@ enum GT68xx_Option
   OPT_BR_X,			/* bottom-right x */
   OPT_BR_Y,			/* bottom-right y */
 
+  OPT_SENSOR_GROUP,
+  OPT_CALIBRATE,                /* button option to trigger call
+                                   to sheetfed calibration */
+
   /* must come last: */
   NUM_OPTIONS
 };

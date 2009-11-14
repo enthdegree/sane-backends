@@ -1,3 +1,7 @@
+2009-11-14 Julien Blache <jb@jblache.org>
+	* doc/descriptions/epson.desc: add the Perfection636 SCSI scanner, from
+	Frédéric Brière <fbriere@fbriere.net>.
+
 2009-11-06  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
 	backend/genesys_gl646.c backend/genesys_gl646.h backend/genesys_gl841.c

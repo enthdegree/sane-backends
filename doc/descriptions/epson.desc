@@ -82,6 +82,11 @@
 :scsi "EPSON" "Perfection1200" "processor"
 :status :complete
 
+:model "Perfection 636"
+:interface "SCSI"
+:scsi "EPSON" "Perfection636" "processor"
+:status :complete
+
 :model "Perfection 636U"
 :interface "USB"
 :usbid "0x04b8" "0x0101"

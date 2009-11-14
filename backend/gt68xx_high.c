@@ -1901,6 +1901,15 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
   if (!red_done || !green_done || !blue_done)
     DBG (0, "gt68xx_afe_cis_auto: setting exposure reached limit\n");
 
+  /* store afe calibration when needed */
+  if(scanner->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE)
+    {
+      memcpy(&(scanner->afe_params), afe, sizeof(GT68xx_AFE_Parameters));
+      scanner->exposure_params.r_time=exposure->r_time;
+      scanner->exposure_params.g_time=exposure->g_time;
+      scanner->exposure_params.b_time=exposure->b_time;
+    }
+
   free (r_gbuffer);
   free (g_gbuffer);
   free (b_gbuffer);
@@ -1910,6 +1919,38 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
   DBG (4, "gt68xx_afe_cis_auto: total_count: %d\n", total_count);
 
   return SANE_STATUS_GOOD;
+}
+
+/** @brief create and copy calibrator
+ * Creates a calibrator of the given width and copy data from reference
+ * to initialize it
+ * @param calibator pointer to the calibrator to create
+ * @param reference calibrator with reference data to copy
+ * @param width the width in pixels of the calibrator
+ * @param offset offset in pixels when copying data from reference
+ * @return SANE_STATUS_GOOD and a filled calibrator if enough memory
+ */
+static SANE_Status
+gt68xx_calibrator_create_copy (GT68xx_Calibrator **calibrator, GT68xx_Calibrator *reference, int width, int offset)
+{
+  SANE_Status status;
+  size_t intsize=width*sizeof(unsigned int);
+  size_t doublesize=width*sizeof(double);
+  size_t intoffset=offset*sizeof(unsigned int);
+  size_t doubleoffset=offset*sizeof(double);
+
+  status = gt68xx_calibrator_new (width, 65535, calibrator);
+  if(status!=SANE_STATUS_GOOD)
+    {
+      DBG (1, "gt68xx_assign_calibration: failed to create calibrator: %s\n", sane_strstatus (status));
+      return status;
+    }
+  memcpy((*calibrator)->k_white, reference->k_white+intoffset, intsize);
+  memcpy((*calibrator)->k_black, reference->k_black+intoffset, intsize);
+  memcpy((*calibrator)->white_line, reference->white_line+doubleoffset, doublesize);
+  memcpy((*calibrator)->black_line, reference->black_line+doubleoffset, doublesize);
+
+  return status;
 }
  
 static SANE_Status
@@ -1937,7 +1978,7 @@ gt68xx_sheetfed_move_to_scan_area (GT68xx_Scanner * scanner,
  * target (which may be a blank page). It first move to a white area then
  * does afe and exposure calibration. Then it scans white lines to get data
  * for shading correction.
- * @param scanner structur describin the frontedn session and the device 
+ * @param scanner structure describing the frontend session and the device 
  * @return SANE_STATUS_GOOD is everything goes right, SANE_STATUS_INVAL 
  * otherwise.
  */
@@ -1952,18 +1993,15 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
 
   DBG (3, "gt68xx_sheetfed_scanner_calibrate: start.\n");
 
-  /* find minimum resolution */
-  request.ydpi = 9600;
-  for (i = 0; scanner->dev->model->ydpi_values[i] != 0; i++)
-    {
-      if (scanner->dev->model->ydpi_values[i] < request.ydpi)
-	request.ydpi = scanner->dev->model->ydpi_values[i];
-    }
+  /* find minimum horizontal resolution */
   request.xdpi = 9600;
   for (i = 0; scanner->dev->model->xdpi_values[i] != 0; i++)
     {
       if (scanner->dev->model->xdpi_values[i] < request.xdpi)
-	request.xdpi = scanner->dev->model->xdpi_values[i];
+        {
+	  request.xdpi = scanner->dev->model->xdpi_values[i];
+	  request.ydpi = scanner->dev->model->xdpi_values[i];
+        }
     }
 
   /* move to white area */
@@ -2054,22 +2092,155 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
     }
 
   /* now do calibration */
-  /* TODO : done at find white dpi ? need to compute 'right' request ? 
-   * or shall we loop through available resolutions ? */
-  request.color = SANE_TRUE;
   scanner->auto_afe = SANE_TRUE;
   scanner->calib = SANE_TRUE;
-  status = gt68xx_scanner_calibrate (scanner, &request);
-  if (status != SANE_STATUS_GOOD)
+
+  /* loop at each possible xdpi to create calibrators */
+  i=0;
+  while(scanner->dev->model->xdpi_values[i]>0)
     {
-      DBG (1,
-	   "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_calibrate returned %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
+      request.xdpi = scanner->dev->model->xdpi_values[i];
+      request.ydpi = scanner->dev->model->xdpi_values[i];
+
+      /* calibrate in color */
+      request.color = SANE_TRUE;
+      status = gt68xx_scanner_calibrate (scanner, &request);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (1, "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_calibrate returned %s\n", sane_strstatus (status));
+          return status;
+        }
+
+      /* allocate and save per dpi calibrators */
+      scanner->calibrations[i].dpi = request.xdpi;
+      status = gt68xx_calibrator_create_copy (&(scanner->calibrations[i].red), scanner->cal_r, params.pixel_xs, 0);
+      if(status!=SANE_STATUS_GOOD)
+        {
+          DBG (1, "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n", sane_strstatus (status));
+          return status;
+        }
+
+      status = gt68xx_calibrator_create_copy (&(scanner->calibrations[i].green), scanner->cal_g, params.pixel_xs, 0);
+      if(status!=SANE_STATUS_GOOD)
+        {
+          DBG (1, "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n", sane_strstatus (status));
+          return status;
+        }
+
+      status = gt68xx_calibrator_create_copy (&(scanner->calibrations[i].blue), scanner->cal_b, params.pixel_xs, 0);
+      if(status!=SANE_STATUS_GOOD)
+        {
+          DBG (1, "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n", sane_strstatus (status));
+          return status;
+        }
+
+      /* calibrate in gray */
+      request.color = SANE_FALSE;
+      status = gt68xx_scanner_calibrate (scanner, &request);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (1, "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_calibrate returned %s\n", sane_strstatus (status));
+          return status;
+        }
+
+      status = gt68xx_calibrator_create_copy (&(scanner->calibrations[i].gray), scanner->cal_gray, params.pixel_xs, 0);
+      if(status!=SANE_STATUS_GOOD)
+        {
+          DBG (1, "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n", sane_strstatus (status));
+          return status;
+        }
+
+      /* next resolution */
+      i++;
+  }
+
+  scanner->calibrated = SANE_TRUE;
 
   DBG (3, "gt68xx_sheetfed_scanner_calibrate: end.\n");
   return SANE_STATUS_GOOD;
+}
+
+/** @brief assign calibration for scan
+ * This function creates the calibrators and set up afe for the requested
+ * scan. It uses calibration data that has been created by 
+ * gt68xx_sheetfed_scanner_callibrate.
+ * @param scanner structure describing the frontend session and the device 
+ * @return SANE_STATUS_GOOD is everything goes right, SANE_STATUS_INVAL 
+ * otherwise.
+ */
+static SANE_Status
+gt68xx_assign_calibration (GT68xx_Scanner * scanner)
+{
+  int i,dpi, offset;
+  SANE_Status status=SANE_STATUS_GOOD;
+  GT68xx_Scan_Parameters params=scanner->reader->params;
+
+  DBG (3, "gt68xx_assign_calibration: start.\n");
+  if (scanner->val[OPT_RESOLUTION].w > scanner->dev->model->optical_xdpi)
+    dpi=scanner->dev->model->optical_xdpi;
+  else
+    dpi=scanner->val[OPT_RESOLUTION].w;
+
+  DBG (4, "gt68xx_assign_calibration: searching calibration for %d dpi\n",dpi);
+
+  /* search matching dpi */
+  i=0;
+  while(scanner->calibrations[i].dpi>0 && scanner->calibrations[i].dpi!=dpi)
+    {
+      i++;
+    }
+
+  /* check if found a match */
+  if(scanner->calibrations[i].dpi==0)
+    {
+      DBG (4, "gt68xx_assign_calibration: failed to find calibration for %d dpi\n",dpi);
+      return SANE_STATUS_INVAL;
+    }
+  DBG (4, "gt68xx_assign_calibration: using entry %d for %d dpi\n",i,dpi);
+
+  /* AFE/exposure data copy */
+  memcpy(scanner->dev->afe,&(scanner->afe_params), sizeof(GT68xx_AFE_Parameters));
+  scanner->dev->exposure->r_time=scanner->exposure_params.r_time;
+  scanner->dev->exposure->g_time=scanner->exposure_params.g_time;
+  scanner->dev->exposure->b_time=scanner->exposure_params.b_time;
+
+  /* free calibrators if needed */
+  gt68xx_scanner_free_calibrators (scanner);
+
+  /* TODO compute offset based on the x0 value from scan_request */
+  offset=0;
+
+  /* calibrator allocation and copy */
+  status = gt68xx_calibrator_create_copy (&(scanner->cal_r), scanner->calibrations[i].red, params.pixel_xs, offset);
+  if(status!=SANE_STATUS_GOOD)
+    {
+      DBG (1, "gt68xx_assign_calibration: failed to create calibrator: %s\n", sane_strstatus (status));
+      return status;
+    }
+  
+  status = gt68xx_calibrator_create_copy (&(scanner->cal_g), scanner->calibrations[i].green, params.pixel_xs, offset);
+  if(status!=SANE_STATUS_GOOD)
+    {
+      DBG (1, "gt68xx_assign_calibration: failed to create calibrator: %s\n", sane_strstatus (status));
+      return status;
+    }
+  
+  status = gt68xx_calibrator_create_copy (&(scanner->cal_b), scanner->calibrations[i].blue, params.pixel_xs, offset);
+  if(status!=SANE_STATUS_GOOD)
+    {
+      DBG (1, "gt68xx_assign_calibration: failed to create calibrator: %s\n", sane_strstatus (status));
+      return status;
+    }
+  
+  status = gt68xx_calibrator_create_copy (&(scanner->cal_gray), scanner->calibrations[i].gray, params.pixel_xs, offset);
+  if(status!=SANE_STATUS_GOOD)
+    {
+      DBG (1, "gt68xx_assign_calibration: failed to create calibrator: %s\n", sane_strstatus (status));
+      return status;
+    }
+
+  DBG (3, "gt68xx_assign_calibration: end.\n");
+  return status;
 }
 
 

@@ -1465,6 +1465,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   s->scanning = SANE_FALSE;
   s->first_scan = SANE_TRUE;
   s->gamma_table = 0;
+  s->calibrated = SANE_FALSE;
   RIE (init_options (s));
   dev->gray_mode_color = 0x02;
 
@@ -1839,7 +1840,20 @@ sane_start (SANE_Handle handle)
 #endif
     }
 
-  s->calib = s->val[OPT_QUALITY_CAL].w;
+  if(!(s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE))
+    {
+      s->calib = s->val[OPT_QUALITY_CAL].w;
+    }
+  else
+    { 
+      /* if there is calibration data, create calibrators from it */
+      if (s->calibrated == SANE_TRUE)
+        {
+          RIE (gt68xx_assign_calibration (s));
+        }
+      s->calib = s->calibrated;
+    }
+
   if (!(s->dev->model->flags & GT68XX_FLAG_NO_STOP))
     RIE (gt68xx_device_stop_scan (s->dev));
 
@@ -1868,6 +1882,17 @@ sane_start (SANE_Handle handle)
   if(!(s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE))
     {
       RIE (gt68xx_scanner_calibrate (s, &scan_request));
+    }
+  else
+    {
+      if(s->calibrated)
+        {
+          /* restore settings from calibration stored */
+          memcpy(s->dev->afe,&(s->afe_params), sizeof(GT68xx_AFE_Parameters));
+        }
+      else
+        {
+        }
     }
   
 

@@ -48,6 +48,7 @@
 #include "gt68xx_mid.h"
 
 typedef struct GT68xx_Calibrator GT68xx_Calibrator;
+typedef struct GT68xx_Calibration GT68xx_Calibration;
 typedef struct GT68xx_Scanner GT68xx_Scanner;
 
 /** Calibration data for one channel.
@@ -70,6 +71,20 @@ struct GT68xx_Calibrator
   SANE_Int min_clip_count;	 /**< Count of too low values */
   SANE_Int max_clip_count;	 /**< Count of too high values */
 #endif				/* TUNE_CALIBRATOR */
+};
+
+
+/** Calibration data for a given resolution
+ */
+struct GT68xx_Calibration
+{ 
+  SANE_Int dpi;                 /**< optical horizontal dpi used to
+                                  build the calibration data */
+  
+  GT68xx_Calibrator *gray;	    /**< Calibrator for grayscale data */
+  GT68xx_Calibrator *red;	    /**< Calibrator for the red channel */
+  GT68xx_Calibrator *green;	    /**< Calibrator for the green channel */
+  GT68xx_Calibrator *blue;	    /**< Calibrator for the blue channel */
 };
 
 /** Create a new calibrator for one (color or mono) channel.
@@ -255,6 +270,16 @@ struct GT68xx_Scanner
   SANE_Int max_white;
   SANE_Int min_black;
 #endif
+
+  /** SANE_TRUE when the scanner has been calibrated */
+  SANE_Bool calibrated;
+
+  /** per horizontal resolution calibration data */
+  GT68xx_Calibration calibrations[MAX_RESOLUTIONS];
+
+  /* AFE and exposure settings */
+  GT68xx_AFE_Parameters afe_params;
+  GT68xx_Exposure_Parameters exposure_params;
 };
 
 

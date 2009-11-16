@@ -3678,6 +3678,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool forward = SANE_TRUE;
+  int xres;
 
   DBG (DBG_proc, "genesys_sheetfed_calibration: start\n");
   if (dev->model->cmd_set->search_strip == NULL)
@@ -3697,13 +3698,17 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
       return status;
     }
 
-  int yres;
 
   DBG (DBG_info, "genesys_flatbed_calibration\n");
 
-  yres = dev->sensor.optical_res;
-  if (dev->settings.yres <= dev->sensor.optical_res / 2)
-    yres /= 2;
+  /* led, offset and gain calibration are influenced by scan
+   * settings. So we set it to sensor resolution */
+  xres = dev->sensor.optical_res;
+  dev->settings.xres = dev->sensor.optical_res;
+  /* XP200 needs to calibrate a full and half sensor's resolution */
+  if (dev->model->ccd_type == CIS_XP200 
+   && dev->settings.xres <= dev->sensor.optical_res / 2)
+    dev->settings.xres /= 2;
 
   /* the afe needs to sends valid data even before calibration */
 
@@ -3744,7 +3749,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
 
       /* since all the registers are set up correctly, just use them */
 
-      status = dev->model->cmd_set->coarse_gain_calibration (dev, yres);
+      status = dev->model->cmd_set->coarse_gain_calibration (dev, xres);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3880,6 +3885,9 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
+
+  /* resotre settings */
+  dev->settings.xres = xres;
   DBG (DBG_proc, "genesys_sheetfed_calibration: end\n");
   return SANE_STATUS_GOOD;
 }

@@ -5040,7 +5040,7 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	      for (x = 0; x < settings.pixels; x++)
 		{
 		  /* when searching for black, detect white pixels */
-		  if (black && data[y * settings.pixels + x] > 60)
+		  if (black && data[y * settings.pixels + x] > 90)
 		    {
 		      count++;
 		    }

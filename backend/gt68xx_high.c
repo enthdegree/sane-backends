@@ -1998,10 +1998,10 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
   for (i = 0; scanner->dev->model->xdpi_values[i] != 0; i++)
     {
       if (scanner->dev->model->xdpi_values[i] < request.xdpi)
-        {
+	{
 	  request.xdpi = scanner->dev->model->xdpi_values[i];
 	  request.ydpi = scanner->dev->model->xdpi_values[i];
-        }
+	}
     }
 
   /* move to white area */
@@ -2030,58 +2030,66 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
       return status;
     }
 
-  /* start scan */
-  status =
-    gt68xx_scanner_start_scan_extended (scanner, &request, SA_CALIBRATE,
-					&params);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1,
-	   "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_start_scan_extended returned %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  /* loop until we find WHITE_LINES consecutive white lines or we reach and of area */
-  white = 0;
-  y = 0;
+  /* loop until we find a white area to calibrate on */
+  i = 0;
   do
     {
-      status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
+      /* start scan */
+      status =
+	gt68xx_scanner_start_scan_extended (scanner, &request, SA_CALIBRATE,
+					    &params);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (1,
-	       "gt68xx_sheetfed_scanner_calibrate: gt68xx_line_reader_read returned %s\n",
+	       "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_start_scan_extended returned %s\n",
 	       sane_strstatus (status));
-	  gt68xx_scanner_stop_scan (scanner);
 	  return status;
 	}
 
-      /* check for white line */
-      count = 0;
-      for (x = 0; x < params.pixel_xs; x++)
+      /* loop until we find WHITE_LINES consecutive white lines or we reach and of area */
+      white = 0;
+      y = 0;
+      do
 	{
-	  if (((buffer_pointers[0][x] >> 8) & 0xff) > 50)
+	  status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
+	  if (status != SANE_STATUS_GOOD)
 	    {
-	      count++;
+	      DBG (1,
+		   "gt68xx_sheetfed_scanner_calibrate: gt68xx_line_reader_read returned %s\n",
+		   sane_strstatus (status));
+	      gt68xx_scanner_stop_scan (scanner);
+	      return status;
 	    }
-	}
 
-      /* line is white if 93% is above black level */
-      if ((100 * count) / params.pixel_xs < 93)
-	{
-	  white = 0;
+	  /* check for white line */
+	  count = 0;
+	  for (x = 0; x < params.pixel_xs; x++)
+	    {
+	      if (((buffer_pointers[0][x] >> 8) & 0xff) > 50)
+		{
+		  count++;
+		}
+	    }
+
+	  /* line is white if 93% is above black level */
+	  if ((100 * count) / params.pixel_xs < 93)
+	    {
+	      white = 0;
+	    }
+	  else
+	    {
+	      white++;
+	    }
+	  y++;
 	}
-      else
-	{
-	  white++;
-	}
-      y++;
+      while ((white < WHITE_LINES) && (y < params.pixel_ys));
+
+      /* end scan */
+      gt68xx_scanner_stop_scan (scanner);
+
+      i++;
     }
-  while ((white < WHITE_LINES) && (y < params.pixel_ys));
-
-  /* end scan */
-  gt68xx_scanner_stop_scan (scanner);
+  while (i < 20 && white < WHITE_LINES);
 
   /* check if we found a white area */
   if (white != WHITE_LINES)
@@ -2096,8 +2104,8 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
   scanner->calib = SANE_TRUE;
 
   /* loop at each possible xdpi to create calibrators */
-  i=0;
-  while(scanner->dev->model->xdpi_values[i]>0)
+  i = 0;
+  while (scanner->dev->model->xdpi_values[i] > 0)
     {
       request.xdpi = scanner->dev->model->xdpi_values[i];
       request.ydpi = scanner->dev->model->xdpi_values[i];
@@ -2106,53 +2114,77 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
       request.color = SANE_TRUE;
       status = gt68xx_scanner_calibrate (scanner, &request);
       if (status != SANE_STATUS_GOOD)
-        {
-          DBG (1, "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_calibrate returned %s\n", sane_strstatus (status));
-          return status;
-        }
+	{
+	  DBG (1,
+	       "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_calibrate returned %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
 
       /* allocate and save per dpi calibrators */
       scanner->calibrations[i].dpi = request.xdpi;
-      status = gt68xx_calibrator_create_copy (&(scanner->calibrations[i].red), scanner->cal_r, params.pixel_xs, 0);
-      if(status!=SANE_STATUS_GOOD)
-        {
-          DBG (1, "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n", sane_strstatus (status));
-          return status;
-        }
+      status =
+	gt68xx_calibrator_create_copy (&(scanner->calibrations[i].red),
+				       scanner->cal_r, params.pixel_xs, 0);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (1,
+	       "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
 
-      status = gt68xx_calibrator_create_copy (&(scanner->calibrations[i].green), scanner->cal_g, params.pixel_xs, 0);
-      if(status!=SANE_STATUS_GOOD)
-        {
-          DBG (1, "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n", sane_strstatus (status));
-          return status;
-        }
+      status =
+	gt68xx_calibrator_create_copy (&(scanner->calibrations[i].green),
+				       scanner->cal_g, params.pixel_xs, 0);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (1,
+	       "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
 
-      status = gt68xx_calibrator_create_copy (&(scanner->calibrations[i].blue), scanner->cal_b, params.pixel_xs, 0);
-      if(status!=SANE_STATUS_GOOD)
-        {
-          DBG (1, "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n", sane_strstatus (status));
-          return status;
-        }
+      status =
+	gt68xx_calibrator_create_copy (&(scanner->calibrations[i].blue),
+				       scanner->cal_b, params.pixel_xs, 0);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (1,
+	       "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
 
       /* calibrate in gray */
       request.color = SANE_FALSE;
       status = gt68xx_scanner_calibrate (scanner, &request);
       if (status != SANE_STATUS_GOOD)
-        {
-          DBG (1, "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_calibrate returned %s\n", sane_strstatus (status));
-          return status;
-        }
+	{
+	  DBG (1,
+	       "gt68xx_sheetfed_scanner_calibrate: gt68xx_scanner_calibrate returned %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
 
-      status = gt68xx_calibrator_create_copy (&(scanner->calibrations[i].gray), scanner->cal_gray, params.pixel_xs, 0);
-      if(status!=SANE_STATUS_GOOD)
-        {
-          DBG (1, "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n", sane_strstatus (status));
-          return status;
-        }
+      status =
+	gt68xx_calibrator_create_copy (&(scanner->calibrations[i].gray),
+				       scanner->cal_gray, params.pixel_xs, 0);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (1,
+	       "gt68xx_sheetfed_scanner_calibrate: failed to create calibrator: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
 
       /* next resolution */
       i++;
-  }
+
+      /* since auto afe is done at a fixed resolution, we don't need to
+       * do each each time, once is enough */
+      scanner->auto_afe = SANE_FALSE;
+    }
 
   scanner->calibrated = SANE_TRUE;
 

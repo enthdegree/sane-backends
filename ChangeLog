@@ -1,3 +1,10 @@
+2009-11-16  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c
+	backend/genesys_gl841.c: add needed flags for DP485/487 and XP100
+	scanners. Use different thresholds in strip detection function. Do
+	led, coarse and gain calibration at sensor's max resolution when doing
+	sheetfed calibration.
+
 2009-11-14 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc: add the Perfection636 SCSI scanner, from
 	Frédéric Brière <fbriere@fbriere.net>.

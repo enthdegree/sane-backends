@@ -1,4 +1,9 @@
 2009-11-16  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.conf.in backend/genesys_gl841.c 
+	doc/descriptions/genesys.desc : applied fixes and status update from
+	Jack McGill.
+
+2009-11-16  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl841.c: add needed flags for DP485/487 and XP100
 	scanners. Use different thresholds in strip detection function. Do

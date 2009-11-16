@@ -1348,18 +1348,31 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   if (devicename[0])
     {
-      for (dev = first_dev; dev; dev = dev->next)
-        if (strcmp (dev->file_name, devicename) == 0)
-          break;
-
-      if (!dev)
+      /* test for gt68xx short hand name */
+      if(strcmp(devicename,"gt68xx")!=0)
         {
-          DBG (5, "sane_open: couldn't find `%s' in devlist, trying attach\n",
-               devicename);
-          RIE (attach (devicename, &dev, SANE_TRUE));
+          for (dev = first_dev; dev; dev = dev->next)
+            if (strcmp (dev->file_name, devicename) == 0)
+              break;
+
+          if (!dev)
+            {
+              DBG (5, "sane_open: couldn't find `%s' in devlist, trying attach\n",
+                   devicename);
+              RIE (attach (devicename, &dev, SANE_TRUE));
+            }
+          else
+            DBG (5, "sane_open: found `%s' in devlist\n", dev->model->name);
         }
       else
-        DBG (5, "sane_open: found `%s' in devlist\n", dev->model->name);
+        {
+          dev = first_dev;
+          if (dev)
+            {
+              devicename = dev->file_name;
+              DBG (5, "sane_open: default empty devicename, using first device `%s'\n", devicename);
+            }
+        }
     }
   else
     {

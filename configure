@@ -34418,7 +34418,7 @@ for be in ${BACKENDS}; do
 
     mustek_pp)
     if test "${sane_cv_use_libieee1284}" != "yes" && test "${enable_parport_directio}" != "yes"; then
-      echo "*** $be backend requires libieee1284 and paraport-directio libraries - DISABLE_MSG"
+      echo "*** $be backend requires libieee1284 and paraport-directio libraries - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;

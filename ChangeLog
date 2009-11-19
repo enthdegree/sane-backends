@@ -1,3 +1,8 @@
+2009-11-19  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	pixma: updated Pixma MP250 status to supported. Changed desc status
+	from good to complete for well supported models.
+
 2009-11-16  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.conf.in backend/genesys_gl841.c 
 	doc/descriptions/genesys.desc : applied fixes and status update from

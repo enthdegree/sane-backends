@@ -27,7 +27,7 @@
 :model "PIXMA MP140"
 :interface "USB"
 :usbid "0x04a9" "0x172b"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600 DPI)"
 
 :model "PIXMA MP150"
@@ -53,13 +53,13 @@
 :model "PIXMA MP210"
 :interface "USB"
 :usbid "0x04a9" "0x1721"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
 :model "PIXMA MP220"
 :interface "USB"
 :usbid "0x04a9" "0x1722"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MP450"
@@ -76,7 +76,7 @@
 :model "PIXMA MP470"
 :interface "USB"
 :usbid "0x04a9" "0x1723"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP500"
@@ -92,7 +92,7 @@
 :model "PIXMA MP520"
 :interface "USB"
 :usbid "0x04a9" "0x1724"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP530"
@@ -103,19 +103,19 @@
 :model "PIXMA MP600"
 :interface "USB"
 :usbid "0x04a9" "0x1718"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP600R"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1719"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP610"
 :interface "USB"
 :usbid "0x04a9" "0x1725"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 4800DPI)"
 
 :model "PIXMA MP750"
@@ -157,7 +157,7 @@
 :model "PIXMA MP830"
 :interface "USB"
 :usbid "0x04a9" "0x1713"
-:status :good
+:status :complete
 :comment "All resolutions supported up to 2400DPI. Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MP960"
@@ -168,7 +168,7 @@
 :model "PIXMA MP970"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1726"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 4800DPI). Full TPU support (negative and slides) at 24 or 48 bits."
 
 :model "SmartBase MP360"
@@ -186,7 +186,7 @@
 :model "SmartBase MP390"
 :interface "USB"
 :usbid "0x04a9" "0x263e"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 1200DPI)."
 
 :model "MultiPASS MP700"
@@ -198,7 +198,7 @@
 :model "PIXMA MP710"
 :interface "USB"
 :usbid "0x04a9" "0x264d"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MP740"
@@ -216,13 +216,13 @@
 :model "PIXMA MX300"
 :interface "USB"
 :usbid "0x04a9" "0x1727"
-:status :good
+:status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)"
 
 :model "PIXMA MX310"
 :interface "USB"
 :usbid "0x04a9" "0x1728"
-:status :good
+:status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MX320"
@@ -240,31 +240,31 @@
 :model "PIXMA MX700"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1729"
-:status :good
+:status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MX850"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x172c"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MX860"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1735"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MX7600"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x171c"
-:status :good
+:status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 4800DPI)"
 
 :model "PIXMA MP980"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x172d"
-:status :good
+:status :complete
 :comment "Reported to be working fine at all resolutions."
 
 :model "PIXMA MP990"
@@ -276,19 +276,19 @@
 :model "PIXMA MP640"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x173f"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 4800DPI)"
 
 :model "PIXMA MP630"
 :interface "USB"
 :usbid "0x04a9" "0x172e"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 4800DPI)"
 
 :model "PIXMA MP620"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x172f"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP560"
@@ -306,7 +306,7 @@
 :model "PIXMA MP540"
 :interface "USB"
 :usbid "0x04a9" "0x1730"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP490"
@@ -318,43 +318,43 @@
 :model "PIXMA MP480"
 :interface "USB"
 :usbid "0x04a9" "0x1731"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP250"
 :interface "USB"
 :usbid "0x04a9" "0x173a"
-:status :untested
-:comment "Same protocol as Pixma Generation 3? Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 600DPI)"
 
 :model "PIXMA MP270"
 :interface "USB"
 :usbid "0x04a9" "0x173b"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MP240"
 :interface "USB"
 :usbid "0x04a9" "0x1732"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MP260"
 :interface "USB"
 :usbid "0x04a9" "0x1733"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MP190"
 :interface "USB"
 :usbid "0x04a9" "0x1734"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS D480"
 :interface "USB"
 :usbid "0x04a9" "0x26ed"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "imageCLASS MF5630"
@@ -390,13 +390,13 @@
 :model "imageCLASS MF5770"
 :interface "USB"
 :usbid "0x04a9" "0x265f"
-:status :good
+:status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
 
 :model "imageCLASS MF3110"
 :interface "USB"
 :usbid "0x04a9" "0x2660"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600DPI)."
 
 :model "imageCLASS MF3240"
@@ -408,67 +408,67 @@
 :model "imageCLASS MF4120"
 :interface "USB"
 :usbid "0x04a9" "0x26a3"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4122"
 :interface "USB"
 :usbid "0x04a9" "0x26a3"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4140"
 :interface "USB"
 :usbid "0x04a9" "0x26a3"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4150"
 :interface "USB"
 :usbid "0x04a9" "0x26a3"
-:status :good
+:status :complete
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4370dn"
 :interface "USB"
 :usbid "0x04a9" "0x26ec"
 :status :good
-:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI). Network not supported"
 
 :model "imageCLASS MF4380dn"
 :interface "USB"
 :usbid "0x04a9" "0x26ec"
 :status :good
-:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI). Network not supported"
 
 :model "imageCLASS MF4270"
 :interface "USB"
 :usbid "0x04a9" "0x26b5"
-:status :good
+:status :complete
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4690"
 :interface "USB"
 :usbid "0x04a9" "0x26b0"
-:status :good
+:status :complete
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "I-SENSYS MF4320d"
 :interface "USB"
 :usbid "0x04a9" "0x26ee"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4010"
 :interface "USB"
 :usbid "0x04a9" "0x26b4"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4018"
 :interface "USB"
 :usbid "0x04a9" "0x26b4"
-:status :good
+:status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF6500 series"

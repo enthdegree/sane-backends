@@ -1857,15 +1857,6 @@ sane_start (SANE_Handle handle)
     {
       s->calib = s->val[OPT_QUALITY_CAL].w;
     }
-  else
-    { 
-      /* if there is calibration data, create calibrators from it */
-      if (s->calibrated == SANE_TRUE)
-        {
-          RIE (gt68xx_assign_calibration (s));
-        }
-      s->calib = s->calibrated;
-    }
 
   if (!(s->dev->model->flags & GT68XX_FLAG_NO_STOP))
     RIE (gt68xx_device_stop_scan (s->dev));
@@ -1898,16 +1889,8 @@ sane_start (SANE_Handle handle)
     }
   else
     {
-      if(s->calibrated)
-        {
-          /* restore settings from calibration stored */
-          memcpy(s->dev->afe,&(s->afe_params), sizeof(GT68xx_AFE_Parameters));
-        }
-      else
-        {
-        }
+      s->calib = s->calibrated;
     }
-  
 
   /* some sheetfed scanners need a special operation to move
    * paper before starting real scan */
@@ -1916,7 +1899,18 @@ sane_start (SANE_Handle handle)
       RIE (gt68xx_sheetfed_move_to_scan_area (s, &scan_request));
     }
 
+  /* send scan request to the scanner */
   RIE (gt68xx_scanner_start_scan (s, &scan_request, &scan_params));
+
+  /* once scan request has been done, we can restore calibration */
+  if(  (s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE)
+     &&(s->calibrated == SANE_TRUE))
+    {
+      /* restore settings from calibration stored */
+      memcpy(s->dev->afe,&(s->afe_params), sizeof(GT68xx_AFE_Parameters));
+      RIE (gt68xx_assign_calibration (s, scan_params));
+    }
+
   for (i = 0; i < scan_params.overscan_lines; ++i)
     RIE (gt68xx_scanner_read_line (s, buffer_pointers));
   DBG (4, "sane_start: wanted: dpi=%d, x=%.1f, y=%.1f, width=%.1f, "

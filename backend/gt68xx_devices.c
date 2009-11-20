@@ -1642,7 +1642,7 @@ static GT68xx_Model plustek_opticslim_m12_model = {
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
   {0x24, 0x0a, 0x23, 0x0f, 0x23, 0x0b},	/* Default offset/gain */
-  {0x157, 0x157, 0x157},	/* Default exposure parameters */
+  {0x100, 0x100, 0x100},	/* Default exposure parameters */
   SANE_FIX (2.0),			/* Default gamma value */
 
   SANE_TRUE,				/* Is this a CIS scanner? */

@@ -1911,6 +1911,24 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
 
   return SANE_STATUS_GOOD;
 }
+ 
+static SANE_Status
+gt68xx_sheetfed_move_to_scan_area (GT68xx_Scanner * scanner,
+				  GT68xx_Scan_Request * request)
+{
+  SANE_Status status;
+
+  if (!(scanner->dev->model->flags & GT68XX_FLAG_SHEET_FED)
+      || scanner->dev->model->command_set->move_paper == NULL)
+    return SANE_STATUS_GOOD;
+
+  /* send move paper command */
+  RIE (scanner->dev->model->command_set->move_paper (scanner->dev, request));
+
+  /* wait until paper is set to the desired position */
+  return gt68xx_scanner_wait_for_positioning (scanner);
+}
+
 
 
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

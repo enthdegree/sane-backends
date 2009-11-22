@@ -1835,6 +1835,14 @@ sane_start (SANE_Handle handle)
 
   RIE (gt68xx_scanner_calibrate (s, &scan_request));
   
+
+  /* some sheetfed scanners need a special operation to move
+   * paper before starting real scan */
+  if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
+    {
+      RIE (gt68xx_sheetfed_move_to_scan_area (s, &scan_request));
+    }
+
   RIE (gt68xx_scanner_start_scan (s, &scan_request, &scan_params));
   for (i = 0; i < scan_params.overscan_lines; ++i)
     RIE (gt68xx_scanner_read_line (s, buffer_pointers));

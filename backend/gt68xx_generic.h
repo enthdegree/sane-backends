@@ -68,5 +68,8 @@ gt68xx_generic_setup_scan (GT68xx_Device * dev,
 			   GT68xx_Scan_Request * request,
 			   GT68xx_Scan_Action action,
 			   GT68xx_Scan_Parameters * params);
+static SANE_Status
+gt68xx_generic_move_paper (GT68xx_Device * dev,
+			   GT68xx_Scan_Request * request);
 
 #endif /* not GT68XX_GENERIC_H */

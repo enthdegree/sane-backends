@@ -639,3 +639,41 @@ gt68xx_generic_setup_scan (GT68xx_Device * dev,
   DBG (6, "gt68xx_generic_setup_scan: leave: ok\n");
   return SANE_STATUS_GOOD;
 }
+
+SANE_Status
+gt68xx_generic_move_paper (GT68xx_Device * dev,
+			   GT68xx_Scan_Request * request)
+{
+  GT68xx_Packet req;
+  SANE_Status status;
+  SANE_Int ydpi;
+  SANE_Int pixel_y0;
+  SANE_Int abs_y0, base_ydpi;
+  GT68xx_Model *model = dev->model;
+
+  /* TODO duplicated logic from setup scan */
+  ydpi = request->ydpi;
+  base_ydpi = model->base_ydpi;
+
+  /* Special fixes */
+  if (!model->constant_ydpi)
+    {
+      if (ydpi > model->base_ydpi)
+	base_ydpi = model->optical_ydpi;
+    }
+  pixel_y0 =
+    SANE_UNFIX ((request->y0 + model->y_offset)) * ydpi / MM_PER_INCH + 0.5;
+  abs_y0 = pixel_y0 * base_ydpi / ydpi;
+  DBG (6, "gt68xx_generic_move_paper: abs_y0=%d\n", abs_y0);
+
+  /* paper move request */
+  memset (req, 0, sizeof (req));
+  req[0] = 0x82;
+  req[1] = 0x01;
+  req[2] = LOBYTE (abs_y0);
+  req[3] = HIBYTE (abs_y0);
+  RIE (gt68xx_device_req (dev, req, req));
+
+  DBG (6, "gt68xx_generic_move_paper: leave: ok\n");
+  return SANE_STATUS_GOOD;
+}

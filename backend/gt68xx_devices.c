@@ -1548,6 +1548,55 @@ static GT68xx_Model genius_vivid1200xe_model = {
     /* Tested by hmg */
 };
 
+static GT68xx_Model iriscan_express_2_model = {
+  "iriscan-express-2",	/* Name */
+  "Iris",				/* Device vendor string */
+  "Iriscan Express 2",			/* Device model name */
+  "cism216.fw",				/* Name of the firmware file */
+  SANE_FALSE,				/* Dynamic allocation flag */
+
+  &mustek_gt6816_sheetfed_command_set,	/* Command set used by this scanner */
+
+  600,					/* maximum optical sensor resolution */
+  1200,					/* maximum motor resolution */
+  600,					/* base x-res used to calculate geometry */
+  600,					/* base y-res used to calculate geometry */
+  1200,   				/* if ydpi is equal or higher, disable backtracking */
+  SANE_FALSE,			/* Use base_ydpi for all resolutions */
+
+  {600, 300, 200, 150, 100, 0},	/* possible x-resolutions */
+  {600, 300, 200, 150, 100, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (1.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (10.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (21.72),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 0, 0,				/* RGB CCD Line-distance correction in pixel */
+  0,					/* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
+  {0x24, 0x0a, 0x23, 0x0f, 0x23, 0x0b},	/* Default offset/gain */
+  {0x100, 0x100, 0x100},	/* Default exposure parameters */
+  SANE_FIX (2.0),			/* Default gamma value */
+
+  SANE_TRUE,				/* Is this a CIS scanner? */
+  GT68XX_FLAG_NO_POWER_STATUS | GT68XX_FLAG_SHEET_FED
+};
+
+
 static GT68xx_Model plustek_opticslim_m12_model = {
   "plustek-opticslim-m12",	/* Name */
   "Plustek",				/* Device vendor string */
@@ -1874,6 +1923,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x07b3, 0x0412, &plustek_opticslim_m12_model},
   {0x07b3, 0x0413, &plustek_opticslim1200_model},
   {0x07b3, 0x0422, &plustek_opticslim2400_model},
+  {0x07b3, 0x045f, &iriscan_express_2_model},
   {0x0458, 0x2011, &genius_vivid3x_model},
   {0x0458, 0x2014, &genius_vivid4_model},
   {0x0458, 0x2017, &genius_vivid3xe_model},

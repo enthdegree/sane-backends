@@ -189,6 +189,10 @@ usb 0x07b3 0x0412
 #model "Scanalizer Professional 2.5"
 
 ##############################################################################
+# Iriscan Express 2
+usb 0x07b3 0x045f
+
+##############################################################################
 # Autodetect NeatReceipts Mobile Scanner
 usb 0x07b3 0x0462
 

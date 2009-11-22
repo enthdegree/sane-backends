@@ -1617,18 +1617,18 @@ static GT68xx_Model plustek_opticslim_m12_model = {
   1200,   				/* if ydpi is equal or higher, disable backtracking */
   SANE_FALSE,			/* Use base_ydpi for all resolutions */
 
-  {600, 300, 200, 150, 100, 0},	/* possible x-resolutions */
-  {600, 300, 200, 150, 100, 0},	/* possible y-resolutions */
+  {600, 300, 150, 100, 0},	/* possible x-resolutions */
+  {600, 300, 150, 100, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (1.0),		/* Start of scan area in mm  (x) */
-  SANE_FIX (9.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (1.5),		/* Start of scan area in mm (y) */
   SANE_FIX (218.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (10.0),		/* Start of white strip in mm (y) */
-  SANE_FIX (140.0),		/* Start of black mark in mm (x) */
+  SANE_FIX (21.72),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */

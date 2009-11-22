@@ -389,6 +389,14 @@ struct GT68xx_Command_Set
 
   /** Get the vendor, product and some more ids from the scanner */
     SANE_Status (*get_id) (GT68xx_Device * dev);
+
+  /** Move the paper by the amount of y offset needed to reach scan area
+   *
+   * @param dev Device object.
+   * @param request scan request used to compute move to reach scan area
+   */
+    SANE_Status (*move_paper) (GT68xx_Device * dev,
+			       GT68xx_Scan_Request * request);
   /*@} */
 };
 

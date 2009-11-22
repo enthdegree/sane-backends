@@ -85,7 +85,8 @@ static GT68xx_Command_Set mustek_gt6816_command_set = {
   gt68xx_generic_setup_scan,
   gt68xx_generic_set_afe,
   gt68xx_generic_set_exposure_time,
-  gt68xx_generic_get_id
+  gt68xx_generic_get_id,
+  /* gt68xx_generic_move_paper */ NULL
 };
 
 static GT68xx_Command_Set mustek_gt6816_sheetfed_command_set = {
@@ -124,7 +125,8 @@ static GT68xx_Command_Set mustek_gt6816_sheetfed_command_set = {
   gt68xx_generic_setup_scan,
   gt68xx_generic_set_afe,
   gt68xx_generic_set_exposure_time,
-  gt68xx_generic_get_id
+  gt68xx_generic_get_id,
+  gt68xx_generic_move_paper
 };
 
 static GT68xx_Command_Set mustek_gt6801_command_set = {
@@ -164,7 +166,8 @@ static GT68xx_Command_Set mustek_gt6801_command_set = {
   gt68xx_generic_setup_scan,
   gt68xx_generic_set_afe,
   gt68xx_generic_set_exposure_time,
-  gt68xx_generic_get_id
+  gt68xx_generic_get_id,
+  /* gt68xx_generic_move_paper */ NULL
 };
 
 static GT68xx_Command_Set plustek_gt6801_command_set = {
@@ -203,7 +206,8 @@ static GT68xx_Command_Set plustek_gt6801_command_set = {
   gt68xx_generic_setup_scan,
   gt68xx_generic_set_afe,
   /* set_exposure_time */ NULL,
-  gt68xx_generic_get_id
+  gt68xx_generic_get_id,
+  /* gt68xx_generic_move_paper */ NULL
 };
 
 static GT68xx_Model unknown_model = {

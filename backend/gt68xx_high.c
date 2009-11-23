@@ -324,6 +324,7 @@ SANE_Status
 gt68xx_scanner_new (GT68xx_Device * dev, GT68xx_Scanner ** scanner_return)
 {
   GT68xx_Scanner *scanner;
+  int i;
 
   *scanner_return = NULL;
 
@@ -340,6 +341,14 @@ gt68xx_scanner_new (GT68xx_Device * dev, GT68xx_Scanner ** scanner_return)
   scanner->cal_r = NULL;
   scanner->cal_g = NULL;
   scanner->cal_b = NULL;
+
+  for(i=0;i<MAX_RESOLUTIONS;i++)
+    {
+      scanner->calibrations[i].red = NULL;
+      scanner->calibrations[i].green = NULL;
+      scanner->calibrations[i].blue = NULL;
+      scanner->calibrations[i].gray = NULL;
+    }
 
   *scanner_return = scanner;
   return SANE_STATUS_GOOD;

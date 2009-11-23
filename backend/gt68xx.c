@@ -344,6 +344,7 @@ setup_scan_request (GT68xx_Scanner * s, GT68xx_Scan_Request * scan_request)
 
   scan_request->calculate = SANE_FALSE;
   scan_request->lamp = SANE_TRUE;
+  scan_request->mbs = SANE_FALSE;
 
   if (strcmp (s->val[OPT_SOURCE].s, "Transparency Adapter") == 0)
     scan_request->use_ta = SANE_TRUE;

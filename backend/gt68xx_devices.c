@@ -1568,8 +1568,9 @@ static GT68xx_Model iriscan_express_2_model = {
   1200,   				/* if ydpi is equal or higher, disable backtracking */
   SANE_FALSE,			/* Use base_ydpi for all resolutions */
 
-  {600, 300, 200, 150, 100, 0},	/* possible x-resolutions */
-  {600, 300, 200, 150, 100, 0},	/* possible y-resolutions */
+  /* values based on analyze of the firmware */
+  {600, 400, 300, 200, 150, 100, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 50, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

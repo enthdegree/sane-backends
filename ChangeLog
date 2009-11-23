@@ -1,3 +1,11 @@
+2009-11-23  Stéphane Voltz <stef.dev at free.fr>
+	* backend/gt68xx_generic.h backend/gt68xx_generic.c
+	backend/gt68xx.conf.in backend/gt68xx_low.h backend/gt68xx_high.c
+	backend/gt68xx_devices.c backend/gt68xx.c: fixed gt6816 based sheetfed
+	scanners positionning by implementing and using a move paper request.
+	Added Iriscan Express 2 model based on reports seen in sane-devel
+	list.
+
 2009-11-19  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	pixma: updated Pixma MP250 status to supported. Changed desc status

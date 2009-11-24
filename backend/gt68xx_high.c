@@ -385,6 +385,8 @@ gt68xx_scanner_free_calibrators (GT68xx_Scanner * scanner)
 SANE_Status
 gt68xx_scanner_free (GT68xx_Scanner * scanner)
 {
+  int i;
+
   if (!scanner)
     {
       DBG (5, "gt68xx_scanner_free: scanner==NULL\n");
@@ -398,6 +400,27 @@ gt68xx_scanner_free (GT68xx_Scanner * scanner)
     }
 
   gt68xx_scanner_free_calibrators (scanner);
+
+  /* free in memory calibration data */
+  for (i = 0; i < MAX_RESOLUTIONS; i++)
+    {
+      if (scanner->calibrations[i].red != NULL)
+	{
+	  gt68xx_calibrator_free (scanner->calibrations[i].red);
+	}
+      if (scanner->calibrations[i].green != NULL)
+	{
+	  gt68xx_calibrator_free (scanner->calibrations[i].green);
+	}
+      if (scanner->calibrations[i].blue != NULL)
+	{
+	  gt68xx_calibrator_free (scanner->calibrations[i].blue);
+	}
+      if (scanner->calibrations[i].gray != NULL)
+	{
+	  gt68xx_calibrator_free (scanner->calibrations[i].gray);
+	}
+    }
 
   free (scanner);
 
@@ -2018,6 +2041,29 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
 
   DBG (3, "gt68xx_sheetfed_scanner_calibrate: start.\n");
 
+  /* clear calibration if needed */
+  gt68xx_scanner_free_calibrators (scanner);
+  for (i = 0; i < MAX_RESOLUTIONS; i++)
+    {
+      if(scanner->calibrations[i].red!=NULL)
+        {
+          gt68xx_calibrator_free (scanner->calibrations[i].red);
+        }
+      if(scanner->calibrations[i].green!=NULL)
+        {
+          gt68xx_calibrator_free (scanner->calibrations[i].green);
+        }
+      if(scanner->calibrations[i].blue!=NULL)
+        {
+          gt68xx_calibrator_free (scanner->calibrations[i].blue);
+        }
+      if(scanner->calibrations[i].gray!=NULL)
+        {
+          gt68xx_calibrator_free (scanner->calibrations[i].gray);
+        }
+    }
+  scanner->calibrated = SANE_FALSE;
+
   /* find minimum horizontal resolution */
   request.xdpi = 9600;
   for (i = 0; scanner->dev->model->xdpi_values[i] != 0; i++)
@@ -2274,7 +2320,7 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
 /** @brief assign calibration for scan
  * This function creates the calibrators and set up afe for the requested
  * scan. It uses calibration data that has been created by 
- * gt68xx_sheetfed_scanner_callibrate.
+ * gt68xx_sheetfed_scanner_calibrate.
  * @param scanner structure describing the frontend session and the device 
  * @return SANE_STATUS_GOOD is everything goes right, SANE_STATUS_INVAL 
  * otherwise.

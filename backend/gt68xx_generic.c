@@ -635,6 +635,7 @@ gt68xx_generic_setup_scan (GT68xx_Device * dev,
   params->scan_bpl = scan_bpl;
   params->line_mode = line_mode;
   params->overscan_lines = overscan_lines;
+  params->pixel_x0 = pixel_x0;
 
   DBG (6, "gt68xx_generic_setup_scan: leave: ok\n");
   return SANE_STATUS_GOOD;

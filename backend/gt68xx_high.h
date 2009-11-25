@@ -80,6 +80,7 @@ struct GT68xx_Calibration
 { 
   SANE_Int dpi;                 /**< optical horizontal dpi used to
                                   build the calibration data */
+  SANE_Int pixel_x0;            /**< x start position used at calibration time */
   
   GT68xx_Calibrator *gray;	    /**< Calibrator for grayscale data */
   GT68xx_Calibrator *red;	    /**< Calibrator for the red channel */

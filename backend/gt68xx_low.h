@@ -576,6 +576,7 @@ struct GT68xx_Scan_Parameters
   SANE_Int ld_shift_b;
   SANE_Int ld_shift_double;
   SANE_Int double_column;
+  SANE_Int pixel_x0;		/**< x start postion */
 };
 
 

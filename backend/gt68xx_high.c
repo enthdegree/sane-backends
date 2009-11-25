@@ -1968,10 +1968,7 @@ gt68xx_calibrator_create_copy (GT68xx_Calibrator ** calibrator,
 			       int offset)
 {
   SANE_Status status;
-  size_t intsize = width * sizeof (unsigned int);
-  size_t doublesize = width * sizeof (double);
-  size_t intoffset = offset * sizeof (unsigned int);
-  size_t doubleoffset = offset * sizeof (double);
+  int i;
 
   if (reference == NULL)
     {
@@ -1979,6 +1976,13 @@ gt68xx_calibrator_create_copy (GT68xx_Calibrator ** calibrator,
       *calibrator = NULL;
       return SANE_STATUS_GOOD;
     }
+  /* check for reference overflow */
+  if(width+offset>reference->width)
+    {
+      DBG (1, "gt68xx_calibrator_create_copy: required with and offset exceed reference width\n");
+      return SANE_STATUS_INVAL;
+    }
+
   status = gt68xx_calibrator_new (width, 65535, calibrator);
   if (status != SANE_STATUS_GOOD)
     {
@@ -1987,12 +1991,14 @@ gt68xx_calibrator_create_copy (GT68xx_Calibrator ** calibrator,
 	   sane_strstatus (status));
       return status;
     }
-  memcpy ((*calibrator)->k_white, reference->k_white + intoffset, intsize);
-  memcpy ((*calibrator)->k_black, reference->k_black + intoffset, intsize);
-  memcpy ((*calibrator)->white_line, reference->white_line + doubleoffset,
-	  doublesize);
-  memcpy ((*calibrator)->black_line, reference->black_line + doubleoffset,
-	  doublesize);
+
+  for(i=0;i<width;i++)
+    {
+      (*calibrator)->k_white[i]=reference->k_white[i+offset];
+      (*calibrator)->k_black[i]=reference->k_black[i+offset];
+      (*calibrator)->white_line[i]=reference->white_line[i+offset];
+      (*calibrator)->black_line[i]=reference->black_line[i+offset];
+    }
 
   return status;
 }
@@ -2209,6 +2215,12 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
 
       /* allocate and save per dpi calibrators */
       scanner->calibrations[i].dpi = request.xdpi;
+
+      /* recompute params */
+      request.calculate = SANE_TRUE;
+      gt68xx_device_setup_scan (scanner->dev, &request, SA_SCAN, &params);
+
+      scanner->calibrations[i].pixel_x0 = params.pixel_x0;
       status =
 	gt68xx_calibrator_create_copy (&(scanner->calibrations[i].red),
 				       scanner->cal_r, scanner->cal_r->width,
@@ -2357,8 +2369,8 @@ gt68xx_assign_calibration (GT68xx_Scanner * scanner,
   DBG (4, "gt68xx_assign_calibration: using entry %d for %d dpi\n", i, dpi);
 
   DBG (5,
-       "gt68xx_assign_calibration: using scan_parameters: pixel_xs=%d, scan_xs=%d \n",
-       params.pixel_xs, params.scan_xs);
+       "gt68xx_assign_calibration: using scan_parameters: pixel_x0=%d, pixel_xs=%d \n",
+       params.pixel_x0, params.pixel_xs);
 
   /* AFE/exposure data copy */
   memcpy (scanner->dev->afe, &(scanner->afe_params),
@@ -2371,16 +2383,16 @@ gt68xx_assign_calibration (GT68xx_Scanner * scanner,
   gt68xx_scanner_free_calibrators (scanner);
 
   /* TODO compute offset based on the x0 value from scan_request */
-  offset = 0;
+  offset = params.pixel_x0 - scanner->calibrations[i].pixel_x0;
 
   /* calibrator allocation and copy */
-  if (scanner->calibrations[i].red)
+  if (scanner->calibrations[i].red!=NULL)
     {
       status =
 	gt68xx_calibrator_create_copy (&(scanner->cal_r),
 				       scanner->calibrations[i].red,
-				       scanner->calibrations[i].red->width -
-				       offset, offset);
+				       params.pixel_xs,
+                                       offset);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (1,
@@ -2390,13 +2402,13 @@ gt68xx_assign_calibration (GT68xx_Scanner * scanner,
 	}
     }
 
-  if (scanner->calibrations[i].green)
+  if (scanner->calibrations[i].green!=NULL)
     {
       status =
 	gt68xx_calibrator_create_copy (&(scanner->cal_g),
 				       scanner->calibrations[i].green,
-				       scanner->calibrations[i].green->width -
-				       offset, offset);
+				       params.pixel_xs,
+				       offset);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (1,
@@ -2406,13 +2418,13 @@ gt68xx_assign_calibration (GT68xx_Scanner * scanner,
 	}
     }
 
-  if (scanner->calibrations[i].blue)
+  if (scanner->calibrations[i].blue!=NULL)
     {
       status =
 	gt68xx_calibrator_create_copy (&(scanner->cal_b),
 				       scanner->calibrations[i].blue,
-				       scanner->calibrations[i].blue->width -
-				       offset, offset);
+				       params.pixel_xs,
+				       offset);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (1,
@@ -2422,13 +2434,13 @@ gt68xx_assign_calibration (GT68xx_Scanner * scanner,
 	}
     }
 
-  if (scanner->calibrations[i].gray)
+  if (scanner->calibrations[i].gray!=NULL)
     {
       status =
 	gt68xx_calibrator_create_copy (&(scanner->cal_gray),
 				       scanner->calibrations[i].gray,
-				       scanner->calibrations[i].gray->width -
-				       offset, offset);
+				       params.pixel_xs,
+				       offset);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (1,

@@ -3957,14 +3957,18 @@ gl841_detect_document_end (Genesys_Device * dev)
       if (bytes_to_flush < dev->read_bytes_left)
 	{
 	  bytes_remain = dev->total_bytes_to_read - dev->total_bytes_read;
+          DBG (DBG_io, "gl841_detect_document_end: bytes_remain=%d\n", bytes_remain);
 
 	  /* remaining lines to read by frontend for the current scan */
 	  if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
+	  {
 	    flines = bytes_remain * 8 
 	      / dev->settings.pixels / channels;
+	  }
 	  else
 	    flines = bytes_remain / (depth / 8) 
 	      / dev->settings.pixels / channels;
+          DBG (DBG_io, "gl841_detect_document_end: flines=%d\n", flines);
 
 	  if (flines > lines)
 	    {
@@ -3981,11 +3985,18 @@ gl841_detect_document_end (Genesys_Device * dev)
 	      else
 		sub_bytes =
 		  dev->settings.pixels * sublines * channels * (depth / 8);
+              DBG (DBG_io, "gl841_detect_document_end: sublines=%d\n", sublines);
+              DBG (DBG_io, "gl841_detect_document_end: subbytes=%d\n", sub_bytes);
+              DBG (DBG_io, "gl841_detect_document_end: total_bytes_to_read=%d\n", dev->total_bytes_to_read);
+              DBG (DBG_io, "gl841_detect_document_end: read_bytes_left=%d\n", dev->read_bytes_left);
 
 	      dev->total_bytes_to_read -= sub_bytes;
 
 	      /* then adjust the physical bytes to read */
-	      dev->read_bytes_left -= sub_bytes;
+	      if(dev->read_bytes_left>sub_bytes)
+	        {
+	          dev->read_bytes_left -= sub_bytes;
+		}
 	    }
 	}
     }

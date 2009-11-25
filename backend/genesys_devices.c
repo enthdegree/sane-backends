@@ -1514,6 +1514,57 @@ static Genesys_Model pentax_dsmobile_600_model = {
   400
 };
 
+static Genesys_Model syscan_docketport_467_model = {
+  "syscan-docketport-467",		/* Name */
+  "Syscan",				/* Device vendor string */
+  "DocketPORT 467",			/* Device model name */
+  GENESYS_GL841,
+  NULL,
+
+  {600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (220.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (511),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (16.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_TRUE,			/* Is this a sheetfed scanner? */
+  CCD_DSMOBILE600,
+  DAC_WOLFSON_DSM600,
+  GPO_DP665,
+  MOTOR_DSMOBILE_600,
+  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
+  100,
+  400
+};
+
 static Genesys_Model syscan_docketport_485_model = {
   "syscan-docketport-485",		/* Name */
   "Syscan/Ambir",			/* Device vendor string */
@@ -1634,6 +1685,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x0a82, 0x4803, &syscan_docketport_665_model},
   {0x04a7, 0x0494, &visioneer_roadwarrior_model},
   {0x0a82, 0x4802, &syscan_docketport_465_model},
+  {0x1dcc, 0x4812, &syscan_docketport_467_model},
   {0x04a7, 0x049b, &visioneer_xp100_r3_model},
   {0x0a17, 0x3210, &pentax_dsmobile_600_model},
   {0x0a82, 0x4800, &syscan_docketport_485_model},

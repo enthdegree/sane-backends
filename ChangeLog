@@ -1,3 +1,8 @@
+2009-11-25  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.conf.in backend/genesys_gl841.c
+	backend/genesys_devices.c: added docketport 467 model and add
+	debug traces in gl841_detect_document_end
+
 2009-11-23  Stéphane Voltz <stef.dev at free.fr>
 	* backend/gt68xx_generic.h backend/gt68xx_generic.c
 	backend/gt68xx.conf.in backend/gt68xx_low.h backend/gt68xx_high.c

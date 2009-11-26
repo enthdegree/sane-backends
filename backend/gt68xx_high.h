@@ -346,6 +346,24 @@ gt68xx_scanner_read_line (GT68xx_Scanner * scanner,
  */
 static SANE_Status gt68xx_scanner_stop_scan (GT68xx_Scanner * scanner);
 
+/** Save calibration data to file
+ *
+ * This function stores in memory calibration data created at calibration
+ * time into file
+ * @param scanner Scanner object.
+ * @return SANE_STATUS_GOOD when succesfull
+ */
+static SANE_Status gt68xx_write_calibration (GT68xx_Scanner * scanner);
+
+/** Read calibration data from file
+ *
+ * This function sets in memory calibration data from data saved into file.
+ *
+ * @param scanner Scanner object.
+ * @return SANE_STATUS_GOOD when succesfull
+ */
+static SANE_Status gt68xx_read_calibration (GT68xx_Scanner * scanner);
+
 #endif /* not GT68XX_HIGH_H */
 
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

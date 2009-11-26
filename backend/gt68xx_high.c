@@ -344,6 +344,7 @@ gt68xx_scanner_new (GT68xx_Device * dev, GT68xx_Scanner ** scanner_return)
 
   for(i=0;i<MAX_RESOLUTIONS;i++)
     {
+      scanner->calibrations[i].dpi = 0;
       scanner->calibrations[i].red = NULL;
       scanner->calibrations[i].green = NULL;
       scanner->calibrations[i].blue = NULL;
@@ -404,6 +405,7 @@ gt68xx_scanner_free (GT68xx_Scanner * scanner)
   /* free in memory calibration data */
   for (i = 0; i < MAX_RESOLUTIONS; i++)
     {
+      scanner->calibrations[i].dpi = 0;
       if (scanner->calibrations[i].red != NULL)
 	{
 	  gt68xx_calibrator_free (scanner->calibrations[i].red);
@@ -557,7 +559,7 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
     }
 
   if (scanner->dev->model->is_cis 
-      && !(scanner->dev->model->flags & GT68XX_FLAG_SHEET_FED))
+      && !(scanner->dev->model->flags & GT68XX_FLAG_SHEET_FED && scanner->calibrated == SANE_FALSE))
     {
       status =
 	gt68xx_device_set_exposure_time (scanner->dev,
@@ -2084,8 +2086,6 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
   /* move to white area SA_CALIBRATE uses its own y0/ys fixed values */
   request.x0 = 0;
   request.xs = scanner->dev->model->x_size;
-
-  /* TODO we must also loop over bpp */
   request.depth = 8;
 
   request.color = SANE_FALSE;
@@ -2325,6 +2325,9 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
   /* eject calibration target from feeder */
   gt68xx_device_paperfeed (scanner->dev);
 
+  /* save calibration to file */
+  gt68xx_write_calibration (scanner);
+
   DBG (3, "gt68xx_sheetfed_scanner_calibrate: end.\n");
   return SANE_STATUS_GOOD;
 }
@@ -2452,6 +2455,182 @@ gt68xx_assign_calibration (GT68xx_Scanner * scanner,
 
   DBG (3, "gt68xx_assign_calibration: end.\n");
   return status;
+}
+
+static char *gt68xx_calibration_file(GT68xx_Scanner * scanner)
+{
+  char *ptr=NULL;
+  char tmp_str[PATH_MAX];
+
+  ptr=getenv("HOME");
+  if(ptr!=NULL)
+    {
+      sprintf (tmp_str, "%s/.sane/gt68xx-%s.cal", ptr, scanner->dev->model->name);
+    }
+  else
+    {
+      ptr=getenv("TMPDIR");
+      if(ptr!=NULL)
+        {
+          sprintf (tmp_str, "%s/gt68xx-%s.cal", ptr, scanner->dev->model->name);
+        }
+      else
+        {
+          sprintf (tmp_str, "/tmp/gt68xx-%s.cal", scanner->dev->model->name);
+        }
+    }
+  DBG(5,"gt68xx_calibration_file: using >%s< for calibration file name\n",tmp_str);
+  return strdup(tmp_str);
+}
+
+static SANE_Status gt68xx_write_calibration (GT68xx_Scanner * scanner)
+{
+  char *fname;
+  FILE *fcal;
+  int i;
+  SANE_Int nullwidth=0;
+
+  if(scanner->calibrated == SANE_FALSE)
+    {
+      return SANE_STATUS_GOOD;
+    }
+
+  /* open file */
+  fname=gt68xx_calibration_file(scanner);
+  fcal=fopen(fname,"wb");
+  free(fname);
+  if(fcal==NULL)
+    {
+      DBG(1,"gt68xx_write_calibration: failed to open calibration file for writing %s\n",strerror(errno));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  /* TODO we save check endianness and word alignment in case of a home
+   * directory used trough different archs */
+  fwrite(&(scanner->afe_params), sizeof(GT68xx_AFE_Parameters), 1, fcal);
+  fwrite(&(scanner->exposure_params), sizeof(GT68xx_Exposure_Parameters), 1, fcal);
+  for(i=0;i<MAX_RESOLUTIONS && scanner->calibrations[i].dpi>0;i++)
+    {
+      DBG(1,"gt68xx_write_calibration: saving %d dpi calibration\n",scanner->calibrations[i].dpi);
+      fwrite(&(scanner->calibrations[i].dpi),sizeof(SANE_Int),1,fcal);
+      fwrite(&(scanner->calibrations[i].pixel_x0),sizeof(SANE_Int),1,fcal);
+
+      fwrite(&(scanner->calibrations[i].red->width),sizeof(SANE_Int),1,fcal);
+      fwrite(&(scanner->calibrations[i].red->white_level),sizeof(SANE_Int),1,fcal);
+      fwrite(scanner->calibrations[i].red->k_white,sizeof(unsigned int),scanner->calibrations[i].red->width,fcal);
+      fwrite(scanner->calibrations[i].red->k_black,sizeof(unsigned int),scanner->calibrations[i].red->width,fcal);
+      fwrite(scanner->calibrations[i].red->white_line,sizeof(double),scanner->calibrations[i].red->width,fcal);
+      fwrite(scanner->calibrations[i].red->black_line,sizeof(double),scanner->calibrations[i].red->width,fcal);
+
+      fwrite(&(scanner->calibrations[i].green->width),sizeof(SANE_Int),1,fcal);
+      fwrite(&(scanner->calibrations[i].green->white_level),sizeof(SANE_Int),1,fcal);
+      fwrite(scanner->calibrations[i].green->k_white,sizeof(unsigned int),scanner->calibrations[i].green->width,fcal);
+      fwrite(scanner->calibrations[i].green->k_black,sizeof(unsigned int),scanner->calibrations[i].green->width,fcal);
+      fwrite(scanner->calibrations[i].green->white_line,sizeof(double),scanner->calibrations[i].green->width,fcal);
+      fwrite(scanner->calibrations[i].green->black_line,sizeof(double),scanner->calibrations[i].green->width,fcal);
+
+      fwrite(&(scanner->calibrations[i].blue->width),sizeof(SANE_Int),1,fcal);
+      fwrite(&(scanner->calibrations[i].blue->white_level),sizeof(SANE_Int),1,fcal);
+      fwrite(scanner->calibrations[i].blue->k_white,sizeof(unsigned int),scanner->calibrations[i].blue->width,fcal);
+      fwrite(scanner->calibrations[i].blue->k_black,sizeof(unsigned int),scanner->calibrations[i].blue->width,fcal);
+      fwrite(scanner->calibrations[i].blue->white_line,sizeof(double),scanner->calibrations[i].blue->width,fcal);
+      fwrite(scanner->calibrations[i].blue->black_line,sizeof(double),scanner->calibrations[i].blue->width,fcal);
+
+      if(scanner->calibrations[i].gray!=NULL)
+        {
+          fwrite(&(scanner->calibrations[i].gray->width),sizeof(SANE_Int),1,fcal);
+          fwrite(&(scanner->calibrations[i].gray->white_level),sizeof(SANE_Int),1,fcal);
+          fwrite(scanner->calibrations[i].gray->k_white,sizeof(unsigned int),scanner->calibrations[i].gray->width,fcal);
+          fwrite(scanner->calibrations[i].gray->k_black,sizeof(unsigned int),scanner->calibrations[i].gray->width,fcal);
+          fwrite(scanner->calibrations[i].gray->white_line,sizeof(double),scanner->calibrations[i].gray->width,fcal);
+          fwrite(scanner->calibrations[i].gray->black_line,sizeof(double),scanner->calibrations[i].gray->width,fcal);
+        }
+      else
+        {
+          fwrite(&nullwidth,sizeof(SANE_Int),1,fcal);
+        }
+    }
+  DBG(5,"gt68xx_write_calibration: wrote %d calibrations\n",i);
+
+  fclose(fcal);
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status gt68xx_read_calibration (GT68xx_Scanner * scanner)
+{
+  char *fname;
+  FILE *fcal;
+  int i;
+  SANE_Int width,level;
+
+  scanner->calibrated = SANE_FALSE;
+  fname=gt68xx_calibration_file(scanner);
+  fcal=fopen(fname,"rb");
+  free(fname);
+  if(fcal==NULL)
+    {
+      DBG(1,"gt68xx_read_calibration: failed to open calibration file for reading %s\n",strerror(errno));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  /* TODO we should check endiannes and word alignment in case of a home
+   * directory used trough different archs */
+
+  /* TODO check for errors */
+  fread(&(scanner->afe_params), sizeof(GT68xx_AFE_Parameters), 1, fcal);
+  fread(&(scanner->exposure_params), sizeof(GT68xx_Exposure_Parameters), 1, fcal);
+
+  /* loop on calibrators */
+  i=0;
+  fread(&(scanner->calibrations[i].dpi),sizeof(SANE_Int),1,fcal);
+  while(!feof(fcal)&&scanner->calibrations[i].dpi>0)
+    {
+      fread(&(scanner->calibrations[i].pixel_x0),sizeof(SANE_Int),1,fcal);
+
+      fread(&width,sizeof(SANE_Int),1,fcal);
+      fread(&level,sizeof(SANE_Int),1,fcal);
+      gt68xx_calibrator_new (width, level, &(scanner->calibrations[i].red));
+      fread(scanner->calibrations[i].red->k_white,sizeof(unsigned int),width,fcal);
+      fread(scanner->calibrations[i].red->k_black,sizeof(unsigned int),width,fcal);
+      fread(scanner->calibrations[i].red->white_line,sizeof(double),width,fcal);
+      fread(scanner->calibrations[i].red->black_line,sizeof(double),width,fcal);
+
+      fread(&width,sizeof(SANE_Int),1,fcal);
+      fread(&level,sizeof(SANE_Int),1,fcal);
+      gt68xx_calibrator_new (width, level, &(scanner->calibrations[i].green));
+      fread(scanner->calibrations[i].green->k_white,sizeof(unsigned int),width,fcal);
+      fread(scanner->calibrations[i].green->k_black,sizeof(unsigned int),width,fcal);
+      fread(scanner->calibrations[i].green->white_line,sizeof(double),width,fcal);
+      fread(scanner->calibrations[i].green->black_line,sizeof(double),width,fcal);
+
+      fread(&width,sizeof(SANE_Int),1,fcal);
+      fread(&level,sizeof(SANE_Int),1,fcal);
+      gt68xx_calibrator_new (width, level, &(scanner->calibrations[i].blue));
+      fread(scanner->calibrations[i].blue->k_white,sizeof(unsigned int),width,fcal);
+      fread(scanner->calibrations[i].blue->k_black,sizeof(unsigned int),width,fcal);
+      fread(scanner->calibrations[i].blue->white_line,sizeof(double),width,fcal);
+      fread(scanner->calibrations[i].blue->black_line,sizeof(double),width,fcal);
+
+      fread(&width,sizeof(SANE_Int),1,fcal);
+      if(width>0)
+        {
+          fread(&level,sizeof(SANE_Int),1,fcal);
+          gt68xx_calibrator_new (width, level, &(scanner->calibrations[i].gray));
+          fread(scanner->calibrations[i].gray->k_white,sizeof(unsigned int),width,fcal);
+          fread(scanner->calibrations[i].gray->k_black,sizeof(unsigned int),width,fcal);
+          fread(scanner->calibrations[i].gray->white_line,sizeof(double),width,fcal);
+          fread(scanner->calibrations[i].gray->black_line,sizeof(double),width,fcal);
+        }
+      /* prepare for nex resolution */
+      i++;
+      fread(&(scanner->calibrations[i].dpi),sizeof(SANE_Int),1,fcal);
+    }
+
+  DBG(5,"gt68xx_read_calibration: read %d calibrations\n",i);
+  fclose(fcal);
+
+  scanner->calibrated = SANE_TRUE;
+  return SANE_STATUS_GOOD;
 }
 
 

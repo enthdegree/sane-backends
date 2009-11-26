@@ -1483,6 +1483,13 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   RIE (init_options (s));
   dev->gray_mode_color = 0x02;
 
+  /* try to restore calibration from file */
+  if((s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE))
+    {
+      /* error restoring calibration is non blocking */
+      gt68xx_read_calibration(s);
+    }
+
   DBG (5, "sane_open: exit\n");
 
   return SANE_STATUS_GOOD;

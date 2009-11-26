@@ -3997,8 +3997,17 @@ gl841_detect_document_end (Genesys_Device * dev)
 	        {
 	          dev->read_bytes_left -= sub_bytes;
 		}
+	      else
+		{
+		  dev->total_bytes_to_read =  dev->total_bytes_read;
+	          dev->read_bytes_left = 0;
+		}
 	    }
 	}
+      else
+        {
+          DBG (DBG_io, "gl841_detect_document_end: no flushing needed\n");
+        }
     }
 
   DBG (DBG_proc, "%s: finished\n", __FUNCTION__);

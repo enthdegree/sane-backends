@@ -559,7 +559,7 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
     }
 
   if (scanner->dev->model->is_cis 
-      && !(scanner->dev->model->flags & GT68XX_FLAG_SHEET_FED && scanner->calibrated == SANE_FALSE))
+      && !((scanner->dev->model->flags & GT68XX_FLAG_SHEET_FED) && scanner->calibrated == SANE_FALSE))
     {
       status =
 	gt68xx_device_set_exposure_time (scanner->dev,
@@ -2187,6 +2187,7 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
       request.xdpi = scanner->dev->model->xdpi_values[i];
       request.ydpi = scanner->dev->model->xdpi_values[i];
       request.x0 = 0;
+      request.y0 = 0;
       request.xs = scanner->dev->model->x_size;
       request.color = SANE_FALSE;
       request.mbs = SANE_FALSE;

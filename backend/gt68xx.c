@@ -1185,6 +1185,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
               if (i == 0)
                 DBG (5, "sane_init: can't set model name %s, set device "
                      "first\n", word);
+              free (word);
             }
           else
             {
@@ -1223,6 +1224,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
               if (i == 0)
                 DBG (5, "sane_init: can't override model to %s, set device "
                      "first\n", word);
+              free (word);
             }
           else
             {
@@ -1526,6 +1528,13 @@ sane_close (SANE_Handle handle)
     gt68xx_device_lamp_control (s->dev, SANE_FALSE, SANE_FALSE);
 
   dev = s->dev;
+  
+  free (s->val[OPT_MODE].s);
+  free (s->val[OPT_GRAY_MODE_COLOR].s);
+  free (s->val[OPT_SOURCE].s);
+  free (dev->file_name);
+  free (s->opt[OPT_RESOLUTION].constraint.word_list);
+
   gt68xx_scanner_free (s);
   
   gt68xx_device_fix_descriptor (dev);
@@ -1907,17 +1916,22 @@ sane_start (SANE_Handle handle)
       RIE (gt68xx_sheetfed_move_to_scan_area (s, &scan_request));
     }
 
-  /* send scan request to the scanner */
-  RIE (gt68xx_scanner_start_scan (s, &scan_request, &scan_params));
-
-  /* once scan request has been done, we can restore calibration */
+  /* restore calibration */
   if(  (s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE)
      &&(s->calibrated == SANE_TRUE))
     {
+      /* compute scan parameters */
+      scan_request.calculate = SANE_TRUE;
+      gt68xx_device_setup_scan (s->dev, &scan_request, SA_SCAN, &scan_params); 
+
       /* restore settings from calibration stored */
       memcpy(s->dev->afe,&(s->afe_params), sizeof(GT68xx_AFE_Parameters));
       RIE (gt68xx_assign_calibration (s, scan_params));
+      scan_request.calculate = SANE_FALSE;
     }
+ 
+  /* send scan request to the scanner */
+  RIE (gt68xx_scanner_start_scan (s, &scan_request, &scan_params));
 
   for (i = 0; i < scan_params.overscan_lines; ++i)
     RIE (gt68xx_scanner_read_line (s, buffer_pointers));

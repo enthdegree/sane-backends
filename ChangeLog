@@ -1,4 +1,8 @@
 2009-11-25  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys_gl841.c: use only signed vars in
+	gl841_detect_document_end with a few more debug traces
+
+2009-11-25  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.conf.in backend/genesys_gl841.c
 	backend/genesys_devices.c: added docketport 467 model and add
 	debug traces in gl841_detect_document_end

@@ -3927,8 +3927,8 @@ gl841_detect_document_end (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool paper_loaded;
-  unsigned int flines, channels, depth, bytes_remain, sublines,
-    bytes_to_flush, lines, sub_bytes;
+  int flines, channels, depth, bytes_remain, sublines,
+    bytes_to_flush, lines, sub_bytes, tmp, read_bytes_left;
   DBG (DBG_proc, "%s: begin\n", __FUNCTION__);
 
   RIE (gl841_get_paper_sensor (dev, &paper_loaded));
@@ -3941,6 +3941,8 @@ gl841_detect_document_end (Genesys_Device * dev)
 
       channels = dev->current_setup.channels;
       depth = dev->current_setup.depth;
+      read_bytes_left = (int) dev->read_bytes_left;
+      DBG (DBG_io, "gl841_detect_document_end: read_bytes_left=%d\n", read_bytes_left);
 
       /* adjust number of bytes to read 
        * we need to read the final bytes which are word per line * number of last lines
@@ -3954,9 +3956,14 @@ gl841_detect_document_end (Genesys_Device * dev)
       bytes_to_flush = lines * dev->wpl;
 
       /* if we are already close to end of scan, flushing isn't needed */
-      if (bytes_to_flush < dev->read_bytes_left)
+      if (bytes_to_flush < read_bytes_left)
 	{
-	  bytes_remain = dev->total_bytes_to_read - dev->total_bytes_read;
+	  /* we take all these step to work around an overflow on some plateforms */
+	  tmp=(int)dev->total_bytes_read;
+          DBG (DBG_io, "gl841_detect_document_end: tmp=%d\n", tmp);
+	  bytes_remain = (int)dev->total_bytes_to_read;
+          DBG (DBG_io, "gl841_detect_document_end: bytes_remain=%d\n", bytes_remain);
+	  bytes_remain = bytes_remain - tmp;
           DBG (DBG_io, "gl841_detect_document_end: bytes_remain=%d\n", bytes_remain);
 
 	  /* remaining lines to read by frontend for the current scan */
@@ -3988,12 +3995,12 @@ gl841_detect_document_end (Genesys_Device * dev)
               DBG (DBG_io, "gl841_detect_document_end: sublines=%d\n", sublines);
               DBG (DBG_io, "gl841_detect_document_end: subbytes=%d\n", sub_bytes);
               DBG (DBG_io, "gl841_detect_document_end: total_bytes_to_read=%d\n", dev->total_bytes_to_read);
-              DBG (DBG_io, "gl841_detect_document_end: read_bytes_left=%d\n", dev->read_bytes_left);
+              DBG (DBG_io, "gl841_detect_document_end: read_bytes_left=%d\n", read_bytes_left);
 
 	      dev->total_bytes_to_read -= sub_bytes;
 
 	      /* then adjust the physical bytes to read */
-	      if(dev->read_bytes_left>sub_bytes)
+	      if(read_bytes_left>sub_bytes)
 	        {
 	          dev->read_bytes_left -= sub_bytes;
 		}

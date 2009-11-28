@@ -2085,6 +2085,7 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
 
   /* move to white area SA_CALIBRATE uses its own y0/ys fixed values */
   request.x0 = 0;
+  request.y0 = scanner->dev->model->y_offset_calib;
   request.xs = scanner->dev->model->x_size;
   request.depth = 8;
 
@@ -2098,6 +2099,16 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
   request.backtrack = SANE_FALSE;
   request.backtrack_lines = 0;
 
+  /* skip start of calibration sheet */
+  status = gt68xx_sheetfed_move_to_scan_area (scanner, &request);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1,
+	   "gt68xx_sheetfed_scanner_calibrate: failed to skip start of calibration sheet %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
   status = gt68xx_device_lamp_control (scanner->dev, SANE_FALSE, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
@@ -2109,6 +2120,7 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
 
   /* loop until we find a white area to calibrate on */
   i = 0;
+  request.y0 = 0;
   do
     {
       /* start scan */

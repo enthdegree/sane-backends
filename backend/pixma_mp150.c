@@ -146,13 +146,13 @@
 #define MX330_PID 0x1737    /* untested */
 
 /* Generation 4 */
-#define MP250_PID 0x173a    /* untested */
+#define MP250_PID 0x173a
 #define MP270_PID 0x173b
 #define MP490_PID 0x173c    /* untested */
-#define MP550_PID 0x173d    /* untested */
+#define MP550_PID 0x173d
 #define MP560_PID 0x173e    /* untested */
 #define MP640_PID 0x173f
-#define MP990_PID 0x1740    /* untested */
+#define MP990_PID 0x1740
 
 #define XML_START_1   \
 "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\

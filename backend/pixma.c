@@ -852,7 +852,7 @@ terminate_reader_task (pixma_sane_t * ss, int *exit_code)
   else
     {
       ss->reader_stop = SANE_TRUE;
-      pixma_cancel (ss->s);
+/*      pixma_cancel (ss->s);   What is this for ? Makes end-of-scan buggy => removing */
     }
   result = sanei_thread_waitpid (pid, &status);
   ss->reader_taskid = -1;

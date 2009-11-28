@@ -1,3 +1,9 @@
+2009-11-28  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma.c, backend/pixma_mp1580.c, 
+	doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	pixma: fix pixma backend (end of scan), when compiled with USE_PTHREAD/-lpthread
+	       set support to complete for MP990 in documentation, as reported by Jean-Michel Poure.
+
 2009-11-28  Stéphane Voltz <stef.dev at free.fr>
 	* backend/gt68xx_generic.h backend/gt68xx_generic.c
 	backend/gt68xx_low.h backend/gt68xx_high.c backend/gt68xx_high.h

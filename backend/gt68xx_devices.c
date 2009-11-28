@@ -1628,7 +1628,7 @@ static GT68xx_Model plustek_opticslim_m12_model = {
   SANE_FIX (218.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (10.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (18.0),		/* Start of white strip in mm (y) */
   SANE_FIX (21.72),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */

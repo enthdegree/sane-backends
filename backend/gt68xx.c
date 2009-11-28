@@ -2,6 +2,8 @@
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
    Copyright (C) 2002 - 2007 Henning Geinitz <sane@geinitz.org>
+   Copyright (C) 2009 Stéphane Voltz <stef.dev@free.fr> for sheetfed
+                      calibration code.
 
    This file is part of the SANE package.
    

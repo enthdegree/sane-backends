@@ -652,19 +652,18 @@ gt68xx_generic_move_paper (GT68xx_Device * dev,
   SANE_Int abs_y0, base_ydpi;
   GT68xx_Model *model = dev->model;
 
-  /* TODO duplicated logic from setup scan */
   ydpi = request->ydpi;
   base_ydpi = model->base_ydpi;
 
-  /* Special fixes */
-  if (!model->constant_ydpi)
-    {
-      if (ydpi > model->base_ydpi)
-	base_ydpi = model->optical_ydpi;
-    }
+  if (ydpi > model->base_ydpi)
+    ydpi = base_ydpi;
+    
   pixel_y0 =
     SANE_UNFIX ((request->y0 + model->y_offset)) * ydpi / MM_PER_INCH + 0.5;
   abs_y0 = pixel_y0 * base_ydpi / ydpi;
+  
+  DBG (6, "gt68xx_generic_move_paper: base_ydpi=%d\n", base_ydpi);
+  DBG (6, "gt68xx_generic_move_paper: ydpi=%d\n", ydpi);
   DBG (6, "gt68xx_generic_move_paper: abs_y0=%d\n", abs_y0);
 
   /* paper move request */

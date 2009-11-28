@@ -2630,6 +2630,7 @@ static SANE_Status gt68xx_read_calibration (GT68xx_Scanner * scanner)
   DBG(5,"gt68xx_read_calibration: read %d calibrations\n",i);
   fclose(fcal);
 
+  scanner->val[OPT_QUALITY_CAL].w = SANE_TRUE;
   scanner->calibrated = SANE_TRUE;
   return SANE_STATUS_GOOD;
 }

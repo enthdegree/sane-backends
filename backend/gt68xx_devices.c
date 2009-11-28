@@ -1618,8 +1618,8 @@ static GT68xx_Model plustek_opticslim_m12_model = {
   1200,   				/* if ydpi is equal or higher, disable backtracking */
   SANE_FALSE,			/* Use base_ydpi for all resolutions */
 
-  {600, 300, 150, 100, 0},	/* possible x-resolutions */
-  {600, 300, 150, 100, 0},	/* possible y-resolutions */
+  {600, 400, 300, 200, 150, 100, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 50, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1643,7 +1643,7 @@ static GT68xx_Model plustek_opticslim_m12_model = {
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
   {0x24, 0x0a, 0x23, 0x0f, 0x23, 0x0b},	/* Default offset/gain */
-  {0x100, 0x100, 0x100},	/* Default exposure parameters */
+  {0x157, 0x157, 0x157},	/* Default exposure parameters */
   SANE_FIX (2.0),			/* Default gamma value */
 
   SANE_TRUE,				/* Is this a CIS scanner? */

@@ -406,11 +406,18 @@
 :status :good
 :comment "Same as OpticSlim 2400."
 
+:model "Iriscan Express 2"
+:interface "USB"
+:usbid "0x07b3" "0x045f"
+:status :complete
+:comment "Works up to 1200 dpi. Calibration with external calibration sheet supported"
+; -----------------------------------------------------------------------------
+
 :model "OpticSlim M12"
 :interface "USB"
 :usbid "0x07b3" "0x0412"
-:status :basic
-:comment "Scans, but no calibration is performed and the area selection is limited."
+:status :complete
+:comment "Works up to 1200 dpi. Calibration with external calibration sheet supported"
 ; -----------------------------------------------------------------------------
 
 :mfg "RevScan"

@@ -1,3 +1,9 @@
+2009-11-28  Stéphane Voltz <stef.dev at free.fr>
+	* backend/gt68xx_generic.h backend/gt68xx_generic.c
+	backend/gt68xx_low.h backend/gt68xx_high.c backend/gt68xx_high.h
+	backend/gt68xx_devices.c backend/gt68xx.c
+	doc/descriptions/gt68xx.desc: added sheetfed calibration
+
 2009-11-25  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys_gl841.c: use only signed vars in
 	gl841_detect_document_end with a few more debug traces

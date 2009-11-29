@@ -2529,6 +2529,7 @@ gt68xx_clear_calibration (GT68xx_Scanner * scanner)
   /* reset flags */
   scanner->calibrated = SANE_FALSE;
   scanner->val[OPT_QUALITY_CAL].w = SANE_FALSE;
+  scanner->val[OPT_NEED_CALIBRATION_SW].w = SANE_TRUE;
   DBG (5, "gt68xx_clear_calibration: done\n");
   return SANE_STATUS_GOOD;
 }
@@ -2734,6 +2735,7 @@ gt68xx_read_calibration (GT68xx_Scanner * scanner)
   fclose (fcal);
 
   scanner->val[OPT_QUALITY_CAL].w = SANE_TRUE;
+  scanner->val[OPT_NEED_CALIBRATION_SW].w = SANE_FALSE;
   scanner->calibrated = SANE_TRUE;
   return SANE_STATUS_GOOD;
 }

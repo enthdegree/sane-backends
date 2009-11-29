@@ -1658,6 +1658,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_SOURCE:
           strcpy (val, s->val[option].s);
           break;
+        case OPT_NEED_CALIBRATION_SW:
+          *(SANE_Bool *) val = !s->calibrated;
+          break;
         default:
           DBG (2, "sane_control_option: can't get unknown option %d\n",
                option);
@@ -1798,10 +1801,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     
         case OPT_CLEAR_CALIBRATION:
           gt68xx_clear_calibration (s);
-          break;
-
-        case OPT_NEED_CALIBRATION_SW:
-          *(SANE_Bool *) val = !s->calibrated;
+          myinfo |= SANE_INFO_RELOAD_OPTIONS;
           break;
 
         default:

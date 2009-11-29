@@ -1765,6 +1765,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_CALIBRATE:
           status = gt68xx_sheetfed_scanner_calibrate (s);
+          myinfo |= SANE_INFO_RELOAD_OPTIONS;
+          break;
+    
+        case OPT_CLEAR_CALIBRATION:
+          gt68xx_clear_calibration (s);
+          break;
+
+        case OPT_NEED_CALIBRATION_SW:
+          *(SANE_Bool *) val = s->calibrated;
           break;
 
         default:

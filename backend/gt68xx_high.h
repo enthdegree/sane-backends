@@ -230,8 +230,12 @@ enum GT68xx_Option
   OPT_BR_Y,			/* bottom-right y */
 
   OPT_SENSOR_GROUP,
+  OPT_NEED_CALIBRATION_SW,      /* signals calibration is needed */
+
+  OPT_BUTTON_GROUP,
   OPT_CALIBRATE,                /* button option to trigger call
                                    to sheetfed calibration */
+  OPT_CLEAR_CALIBRATION,        /* clear calibration */
 
   /* must come last: */
   NUM_OPTIONS

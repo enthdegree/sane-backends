@@ -754,12 +754,29 @@ init_options (GT68xx_Scanner * s)
    * for now */
   if (s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE)
     {
-      /* sensor/button group */
+      /* sensor group */
       s->opt[OPT_SENSOR_GROUP].name = SANE_NAME_SENSORS;
       s->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
       s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
       s->opt[OPT_SENSOR_GROUP].type = SANE_TYPE_GROUP;
       s->opt[OPT_SENSOR_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  
+      /* calibration needed */
+      s->opt[OPT_NEED_CALIBRATION_SW].name = "need-calibration";
+      s->opt[OPT_NEED_CALIBRATION_SW].title = SANE_I18N ("Need calibration");
+      s->opt[OPT_NEED_CALIBRATION_SW].desc = SANE_I18N ("The scanner needs calibration for the current settings");
+      s->opt[OPT_NEED_CALIBRATION_SW].type = SANE_TYPE_BOOL;
+      s->opt[OPT_NEED_CALIBRATION_SW].unit = SANE_UNIT_NONE;
+      s->opt[OPT_NEED_CALIBRATION_SW].cap =
+          SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      s->val[OPT_NEED_CALIBRATION_SW].b = 0;
+
+      /* button group */
+      s->opt[OPT_BUTTON_GROUP].name = "Buttons";
+      s->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
+      s->opt[OPT_BUTTON_GROUP].desc = SANE_I18N ("Buttons");
+      s->opt[OPT_BUTTON_GROUP].type = SANE_TYPE_GROUP;
+      s->opt[OPT_BUTTON_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
       /* calibrate button */
       s->opt[OPT_CALIBRATE].name = "calibrate";
@@ -772,6 +789,17 @@ init_options (GT68xx_Scanner * s)
           SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED |
           SANE_CAP_AUTOMATIC;
       s->val[OPT_CALIBRATE].b = 0;
+
+      /* clear calibration cache button */
+      s->opt[OPT_CLEAR_CALIBRATION].name = "clear";
+      s->opt[OPT_CLEAR_CALIBRATION].title = SANE_I18N ("Clear calibration");
+      s->opt[OPT_CLEAR_CALIBRATION].desc = SANE_I18N ("Clear calibration cache");
+      s->opt[OPT_CLEAR_CALIBRATION].type = SANE_TYPE_BUTTON;
+      s->opt[OPT_CLEAR_CALIBRATION].unit = SANE_UNIT_NONE;
+      s->opt[OPT_CLEAR_CALIBRATION].cap =
+        SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED |
+        SANE_CAP_AUTOMATIC;
+      s->val[OPT_CLEAR_CALIBRATION].b = 0;
     }
 
 
@@ -1773,7 +1801,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           break;
 
         case OPT_NEED_CALIBRATION_SW:
-          *(SANE_Bool *) val = s->calibrated;
+          *(SANE_Bool *) val = !s->calibrated;
           break;
 
         default:

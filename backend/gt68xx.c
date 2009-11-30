@@ -1874,6 +1874,7 @@ sane_start (SANE_Handle handle)
   SANE_Status status;
   SANE_Int i, gamma_size;
   unsigned int *buffer_pointers[3];
+  SANE_Bool document;
 
   DBG (5, "sane_start: start\n");
 
@@ -1965,6 +1966,28 @@ sane_start (SANE_Handle handle)
   else
     {
       s->calib = s->calibrated;
+    }
+
+  /* is possible, wait for document to be inserted before scanning */
+  /* wait for 5 secondes max */
+  if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED
+   && s->dev->model->command_set->document_present)
+    {
+      i=0;
+      do
+        {
+          RIE(s->dev->model->command_set->document_present(s->dev,&document));
+          if(document==SANE_FALSE)
+            {
+              i++;
+              sleep(1);
+            }
+        } while ((i<5) && (document==SANE_FALSE));
+      if(document==SANE_FALSE)
+        {
+          DBG (4, "sane_start: no doucment detected after %d s\n",i);
+          return SANE_STATUS_NO_DOCS;
+        }
     }
 
   /* some sheetfed scanners need a special operation to move

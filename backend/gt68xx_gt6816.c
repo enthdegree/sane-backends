@@ -236,3 +236,28 @@ gt6816_stop_scan (GT68xx_Device * dev)
 
   return gt68xx_device_small_req (dev, req, req);
 }
+
+SANE_Status
+gt6816_document_present (GT68xx_Device * dev, SANE_Bool * present)
+{
+  SANE_Status status;
+  GT68xx_Packet req;
+
+  memset (req, 0, sizeof (req));
+  req[0] = 0x59;
+  req[1] = 0x01;
+
+  RIE (gt68xx_device_req (dev, req, req));
+
+  if (req[0] == 0x00 && req[1] == 0x59)
+    {
+      if (req[2] == 0)
+	*present = SANE_FALSE;
+      else
+	*present = SANE_TRUE;
+    }
+  else
+    return SANE_STATUS_IO_ERROR;
+
+  return SANE_STATUS_GOOD;
+}

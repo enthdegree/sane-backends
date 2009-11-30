@@ -399,6 +399,14 @@ struct GT68xx_Command_Set
    */
     SANE_Status (*move_paper) (GT68xx_Device * dev,
 			       GT68xx_Scan_Request * request);
+
+  /** Detect if a document is inserted in the feeder
+   *
+   * @param dev Device object.
+   * @param present 
+   */
+    SANE_Status (*document_present) (GT68xx_Device * dev,
+			             SANE_Bool *present);
   /*@} */
 };
 

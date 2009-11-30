@@ -1,3 +1,10 @@
+2009-11-30  Stéphane Voltz <stef.dev at free.fr>
+	* backend/gt68xx.c backend/gt68xx_high.c backend/gt68xx_high.h
+	backend/gt68xx_low.h backend/gt68xx_gt6816.h backend/gt68xx_gt6816.c: 
+	implement request '0x59' which detects document presence for 6816. Add
+	a sensor option to reports document presence, and test for document
+	before scan for 6816 sheetfed scanners.
+
 2009-11-29  Stéphane Voltz <stef.dev at free.fr>
 	* backend/gt68xx.c backend/gt68xx_high.c backend/gt68xx_high.h:
 	added 'clear calibration' button option and 'need calibration' 

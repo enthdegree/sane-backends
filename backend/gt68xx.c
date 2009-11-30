@@ -750,57 +750,73 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_BR_Y].constraint.range = &y_range;
   s->val[OPT_BR_Y].w = y_range.max;
 
-  /* sensor group, mainly for sheet fed scanners calibration
-   * for now */
-  if (s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE)
-    {
-      /* sensor group */
-      s->opt[OPT_SENSOR_GROUP].name = SANE_NAME_SENSORS;
-      s->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
-      s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
-      s->opt[OPT_SENSOR_GROUP].type = SANE_TYPE_GROUP;
-      s->opt[OPT_SENSOR_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  /* sensor group */
+  s->opt[OPT_SENSOR_GROUP].name = SANE_NAME_SENSORS;
+  s->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
+  s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
+  s->opt[OPT_SENSOR_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_SENSOR_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
   
-      /* calibration needed */
-      s->opt[OPT_NEED_CALIBRATION_SW].name = "need-calibration";
-      s->opt[OPT_NEED_CALIBRATION_SW].title = SANE_I18N ("Need calibration");
-      s->opt[OPT_NEED_CALIBRATION_SW].desc = SANE_I18N ("The scanner needs calibration for the current settings");
-      s->opt[OPT_NEED_CALIBRATION_SW].type = SANE_TYPE_BOOL;
-      s->opt[OPT_NEED_CALIBRATION_SW].unit = SANE_UNIT_NONE;
-      s->opt[OPT_NEED_CALIBRATION_SW].cap =
-          SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-      s->val[OPT_NEED_CALIBRATION_SW].b = 0;
+  /* calibration needed */
+  s->opt[OPT_NEED_CALIBRATION_SW].name = "need-calibration";
+  s->opt[OPT_NEED_CALIBRATION_SW].title = SANE_I18N ("Need calibration");
+  s->opt[OPT_NEED_CALIBRATION_SW].desc = SANE_I18N ("The scanner needs calibration for the current settings");
+  s->opt[OPT_NEED_CALIBRATION_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_NEED_CALIBRATION_SW].unit = SANE_UNIT_NONE;
+  if (s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE)
+    s->opt[OPT_NEED_CALIBRATION_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_NEED_CALIBRATION_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_NEED_CALIBRATION_SW].b = 0;
 
-      /* button group */
-      s->opt[OPT_BUTTON_GROUP].name = "Buttons";
-      s->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
-      s->opt[OPT_BUTTON_GROUP].desc = SANE_I18N ("Buttons");
-      s->opt[OPT_BUTTON_GROUP].type = SANE_TYPE_GROUP;
-      s->opt[OPT_BUTTON_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  /* document present sensor */
+  s->opt[OPT_PAGE_LOADED_SW].name = SANE_NAME_PAGE_LOADED;
+  s->opt[OPT_PAGE_LOADED_SW].title = SANE_TITLE_PAGE_LOADED;
+  s->opt[OPT_PAGE_LOADED_SW].desc = SANE_DESC_PAGE_LOADED;
+  s->opt[OPT_PAGE_LOADED_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_PAGE_LOADED_SW].unit = SANE_UNIT_NONE;
+  if (s->dev->model->command_set->document_present)
+    s->opt[OPT_PAGE_LOADED_SW].cap =
+      SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_PAGE_LOADED_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_PAGE_LOADED_SW].b = 0;
 
-      /* calibrate button */
-      s->opt[OPT_CALIBRATE].name = "calibrate";
-      s->opt[OPT_CALIBRATE].title = SANE_I18N ("Calibrate");
-      s->opt[OPT_CALIBRATE].desc =
-        SANE_I18N ("Start calibration using special sheet");
-      s->opt[OPT_CALIBRATE].type = SANE_TYPE_BUTTON;
-      s->opt[OPT_CALIBRATE].unit = SANE_UNIT_NONE;
-      s->opt[OPT_CALIBRATE].cap =
-          SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED |
-          SANE_CAP_AUTOMATIC;
-      s->val[OPT_CALIBRATE].b = 0;
+  /* button group */
+  s->opt[OPT_BUTTON_GROUP].name = "Buttons";
+  s->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
+  s->opt[OPT_BUTTON_GROUP].desc = SANE_I18N ("Buttons");
+  s->opt[OPT_BUTTON_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_BUTTON_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-      /* clear calibration cache button */
-      s->opt[OPT_CLEAR_CALIBRATION].name = "clear";
-      s->opt[OPT_CLEAR_CALIBRATION].title = SANE_I18N ("Clear calibration");
-      s->opt[OPT_CLEAR_CALIBRATION].desc = SANE_I18N ("Clear calibration cache");
-      s->opt[OPT_CLEAR_CALIBRATION].type = SANE_TYPE_BUTTON;
-      s->opt[OPT_CLEAR_CALIBRATION].unit = SANE_UNIT_NONE;
-      s->opt[OPT_CLEAR_CALIBRATION].cap =
-        SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED |
-        SANE_CAP_AUTOMATIC;
-      s->val[OPT_CLEAR_CALIBRATION].b = 0;
-    }
+  /* calibrate button */
+  s->opt[OPT_CALIBRATE].name = "calibrate";
+  s->opt[OPT_CALIBRATE].title = SANE_I18N ("Calibrate");
+  s->opt[OPT_CALIBRATE].desc =
+    SANE_I18N ("Start calibration using special sheet");
+  s->opt[OPT_CALIBRATE].type = SANE_TYPE_BUTTON;
+  s->opt[OPT_CALIBRATE].unit = SANE_UNIT_NONE;
+  if (s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE)
+  s->opt[OPT_CALIBRATE].cap =
+      SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED |
+      SANE_CAP_AUTOMATIC;
+  else
+    s->opt[OPT_CALIBRATE].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_CALIBRATE].b = 0;
+
+  /* clear calibration cache button */
+  s->opt[OPT_CLEAR_CALIBRATION].name = "clear";
+  s->opt[OPT_CLEAR_CALIBRATION].title = SANE_I18N ("Clear calibration");
+  s->opt[OPT_CLEAR_CALIBRATION].desc = SANE_I18N ("Clear calibration cache");
+  s->opt[OPT_CLEAR_CALIBRATION].type = SANE_TYPE_BUTTON;
+  s->opt[OPT_CLEAR_CALIBRATION].unit = SANE_UNIT_NONE;
+  if (s->dev->model->flags & GT68XX_FLAG_HAS_CALIBRATE)
+  s->opt[OPT_CLEAR_CALIBRATION].cap =
+    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED |
+    SANE_CAP_AUTOMATIC;
+  else
+    s->opt[OPT_CLEAR_CALIBRATION].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_CLEAR_CALIBRATION].b = 0;
 
 
   RIE (calc_parameters (s));
@@ -1660,6 +1676,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           break;
         case OPT_NEED_CALIBRATION_SW:
           *(SANE_Bool *) val = !s->calibrated;
+          break;
+        case OPT_PAGE_LOADED_SW:
+          s->dev->model->command_set->document_present (s->dev, val);
           break;
         default:
           DBG (2, "sane_control_option: can't get unknown option %d\n",

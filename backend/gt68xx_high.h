@@ -231,6 +231,7 @@ enum GT68xx_Option
 
   OPT_SENSOR_GROUP,
   OPT_NEED_CALIBRATION_SW,      /* signals calibration is needed */
+  OPT_PAGE_LOADED_SW,           /* signals that a document is inserted in feeder */
 
   OPT_BUTTON_GROUP,
   OPT_CALIBRATE,                /* button option to trigger call

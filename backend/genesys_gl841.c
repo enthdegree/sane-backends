@@ -3927,6 +3927,7 @@ gl841_detect_document_end (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool paper_loaded;
+  unsigned int words = 0;
   int flines, channels, depth, bytes_remain, sublines,
     bytes_to_flush, lines, sub_bytes, tmp, read_bytes_left;
   DBG (DBG_proc, "%s: begin\n", __FUNCTION__);
@@ -3966,12 +3967,19 @@ gl841_detect_document_end (Genesys_Device * dev)
 	  bytes_remain = bytes_remain - tmp;
           DBG (DBG_io, "gl841_detect_document_end: bytes_remain=%d\n", bytes_remain);
 
+	  /* we substract the amount of data that is still in scanner's buffer */
+          status = sanei_genesys_read_valid_words (dev, &words);
+	  if (status == SANE_STATUS_GOOD)
+	    {
+	      bytes_remain -= words;
+	    }
+
 	  /* remaining lines to read by frontend for the current scan */
 	  if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
-	  {
+	    {
 	    flines = bytes_remain * 8 
 	      / dev->settings.pixels / channels;
-	  }
+	    }
 	  else
 	    flines = bytes_remain / (depth / 8) 
 	      / dev->settings.pixels / channels;
@@ -6204,3 +6212,5 @@ sanei_gl841_init_cmd_set (Genesys_Device * dev)
   dev->model->cmd_set = &gl841_cmd_set;
   return SANE_STATUS_GOOD;
 }
+
+/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

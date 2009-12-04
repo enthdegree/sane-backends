@@ -1424,7 +1424,6 @@ mp150_finish_scan (pixma_t * s)
           error = abort_session (s);  /* FIXME: it probably doesn't work in duplex mode! */
           if (error < 0)
             PDBG (pixma_dbg (1, "WARNING:abort_session() failed %d\n", error));
-          mp->state = state_idle;
 
           /* Generation 4: send XML end of scan dialog */
           if (mp->generation == 4)
@@ -1433,6 +1432,7 @@ mp150_finish_scan (pixma_t * s)
                 PDBG (pixma_dbg (1, "WARNING:XML_END dialog failed \n"));
             }
         }
+        mp->state = state_idle;
       /* fall through */
     case state_idle:
       break;

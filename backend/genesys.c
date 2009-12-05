@@ -6707,7 +6707,19 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
   RIE (calc_parameters (s));
   if (params)
-    *params = s->params;
+    {
+      *params = s->params;
+
+      /* in the case of a sheetfed scanner, when full height is specified
+       * we override the computed line number with -1 to signal that we
+       * don't know the real document height.
+       */
+      if (s->dev->model->is_sheetfed == SANE_TRUE
+	  && s->val[OPT_BR_Y].w == s->opt[OPT_BR_Y].constraint.range->max)
+	{
+	  params->lines = -1;
+	}
+    }
 
   DBG (DBG_proc, "sane_get_parameters: exit\n");
 
@@ -6880,3 +6892,5 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
     }
   return SANE_STATUS_UNSUPPORTED;
 }
+
+/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

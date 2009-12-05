@@ -1,6 +1,7 @@
 2009-12-05  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_gl841.c backend/genesys_devices.c
-	backend/genesys_low.h backend/genesys.conf.in : add full support for
+	backend/genesys_low.h backend/genesys.conf.in
+	document/descriptions/genesys.desc: add full support for
 	Ambir/Syscan DS685. Use maximum height to handle the case when document
 	height isn't known before scan for sheetfed scanners
 

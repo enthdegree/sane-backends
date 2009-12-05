@@ -270,6 +270,7 @@ Genesys_Color_Order;
 #define CCD_ROADWARRIOR  11
 #define CCD_DSMOBILE600  12
 #define CCD_XP300        13
+#define CCD_DP685        14
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -282,6 +283,7 @@ Genesys_Color_Order;
 #define GPO_XP300        8
 #define GPO_HP3670       9
 #define GPO_DP665        10
+#define GPO_DP685        11
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1

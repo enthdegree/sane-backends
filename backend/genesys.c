@@ -1312,6 +1312,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
       && dev->model->ccd_type != CCD_DSMOBILE600
       && dev->model->ccd_type != CCD_XP300
       && dev->model->ccd_type != CCD_DP665
+      && dev->model->ccd_type != CCD_DP685
       && dev->model->ccd_type != CCD_ROADWARRIOR
       && dev->model->ccd_type != CCD_HP2300
       && dev->model->ccd_type != CCD_HP2400
@@ -3030,6 +3031,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CCD_XP300:
     case CCD_ROADWARRIOR:
     case CCD_DP665:
+    case CCD_DP685:
     case CCD_DSMOBILE600:
       target_code = 0xdc00;
       o = 4;
@@ -3699,7 +3701,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
     }
 
 
-  DBG (DBG_info, "genesys_flatbed_calibration\n");
+  DBG (DBG_info, "genesys_sheetfed_calibration\n");
 
   /* led, offset and gain calibration are influenced by scan
    * settings. So we set it to sensor resolution */
@@ -3729,7 +3731,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "genesys_flatbed_calibration: led calibration failed: %s\n",
+	       "genesys_sheetfed_calibration: led calibration failed: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -3742,7 +3744,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "genesys_flatbed_calibration: offset calibration failed: %s\n",
+	       "genesys_sheetfed_calibration: offset calibration failed: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -3753,7 +3755,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "genesys_flatbed_calibration: coarse gain calibration: %s\n",
+	       "genesys_sheetfed_calibration: coarse gain calibration: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -3767,7 +3769,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "genesys_flatbed_calibration: failed to send calibration registers: %s\n",
+	       "genesys_sheetfed_calibration: failed to send calibration registers: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -3776,7 +3778,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "genesys_flatbed_calibration: failed to do static calibration: %s\n",
+	       "genesys_sheetfed_calibration: failed to do static calibration: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}

@@ -115,7 +115,7 @@ static Genesys_Frontend Wolfson[] = {
    , {0x93, 0x93, 0x93}
    , {0x07, 0x00, 0x00}
    }
-  ,				/* 8: XP300 */
+  ,				/* 8: HP3670 */
   {DAC_WOLFSON_HP3670,  /* uses one write for offset or gain like hp2300/2400 */
      {0x00, 0x03, 0x04, 0x02}
    , {0x00, 0x00, 0x00}
@@ -124,7 +124,7 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00, 0x00, 0x00}
    }
   ,
-  {DAC_WOLFSON_DSM600,{0x00, 0x35, 0x20, 0x14}  /* 7a: DSMOBILE600 */
+  {DAC_WOLFSON_DSM600,{0x00, 0x35, 0x20, 0x14}  /* 9: DSMOBILE600 */
    , {0x00, 0x00, 0x00}
    , {0x85, 0x85, 0x85}
    , {0xa0, 0xa0, 0xa0}
@@ -364,6 +364,28 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
+  /* 13: Strobe XP300 */
+  {CCD_DP685, 600,
+   27,				/*(black) */
+   27,				/* (dummy) */
+   0,				/* (startxoffset) */
+   5020,			/*sensor_pixels */
+   210,
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   {0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50,
+    0x10, 0x00, 0x20, 0x02	
+    },
+   {0x04, 0x05,
+    0x00, 0x00, 0x00, 0x00,	/*[GB](HI|LOW) not needed for cis */
+    0x54, 0x03,
+    0x00,			/*TODO: bit7 */
+    0x00, 0x00, 0x00, 0x01	/*TODO (these do no harm, but may be neccessery for CCD) */
+    }
+   ,
+   1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
+  ,
 
 };
 
@@ -454,7 +476,15 @@ static Genesys_Gpo Gpo[] = {
     GPO_DP665,
    {0x18, 0x00},/*0x19,0x00*/
    {0xbb, 0x00},
-   }
+  }
+  ,
+  /* Syscan DP 685 */
+  {
+    GPO_DP685,
+   {0x3f, 0x46}, /* 6c, 6d */
+   {0xfb, 0x00}, /* 6e, 6f */
+  }
+  ,
 };
 
 static Genesys_Motor Motor[] = {
@@ -1565,6 +1595,58 @@ static Genesys_Model syscan_docketport_467_model = {
   400
 };
 
+static Genesys_Model syscan_docketport_685_model = {
+  "syscan-docketport-685",		/* Name */
+  "Syscan/Ambir",			/* Device vendor string */
+  "DocketPORT 685",			/* Device model name */
+  GENESYS_GL841,
+  NULL,
+
+  {600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (1.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (212.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (500),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (26.5),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  /* this is larger than needed -- accounts for second sensor head, which is a 
+     calibration item */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_TRUE,			/* Is this a sheetfed scanner? */
+  CCD_DP685,
+  DAC_WOLFSON_DSM600,
+  GPO_DP685,
+  MOTOR_XP300,
+  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
+  100,
+  400
+};
+
 static Genesys_Model syscan_docketport_485_model = {
   "syscan-docketport-485",		/* Name */
   "Syscan/Ambir",			/* Device vendor string */
@@ -1689,6 +1771,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a7, 0x049b, &visioneer_xp100_r3_model},
   {0x0a17, 0x3210, &pentax_dsmobile_600_model},
   {0x0a82, 0x4800, &syscan_docketport_485_model},
+  {0x0a82, 0x480c, &syscan_docketport_685_model},
   {0x1dcc, 0x4810, &dct_docketport_487_model},
   {0, 0, NULL}
 };

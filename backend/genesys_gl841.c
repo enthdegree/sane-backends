@@ -1475,7 +1475,7 @@ gl841_init_registers (Genesys_Device * dev)
   dev->reg[reg_0x06].value |= REG06_GAIN4;
 
   /* XP300 CCD needs different clock and clock/pixels values */
-  if (dev->model->ccd_type != CCD_XP300) 
+  if (dev->model->ccd_type != CCD_XP300 && dev->model->ccd_type != CCD_DP685) 
     {
       dev->reg[reg_0x06].value |= 0 << REG06S_SCANMOD;
       dev->reg[reg_0x09].value |= 1 << REG09S_CLKSET;
@@ -1545,6 +1545,12 @@ gl841_init_registers (Genesys_Device * dev)
   if (dev->model->gpo_type == GPO_XP300) 
     {
       dev->reg[reg_0x6b].value |= REG6B_GPO17;
+    }
+
+  if (dev->model->gpo_type == GPO_DP685) 
+    {
+      /* REG6B_GPO18 lights on green led */
+      dev->reg[reg_0x6b].value |= REG6B_GPO17|REG6B_GPO18;
     }
 
   DBG (DBG_proc, "gl841_init_registers complete\n");
@@ -2180,7 +2186,7 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 	&fast_exposure,
 	scan_power_mode);
     
-    if (dev->model->gpo_type == GPO_XP300) 
+    if (dev->model->gpo_type == GPO_XP300 || dev->model->gpo_type == GPO_DP685) 
       {
 	/* quirk: looks like at least this scanner is unable to use 
 	   2-feed mode */
@@ -3455,6 +3461,13 @@ gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
 	    sanei_genesys_write_register(dev, 0x6D, val & ~0x80);
 
 	}
+	if (dev->model->gpo_type == GPO_DP685)
+	  {
+	    sanei_genesys_read_register(dev, 0x6B, &val);
+	    sanei_genesys_write_register(dev, 0x6B, val & ~REG6B_GPO17);
+	    dev->reg[reg_0x6b].value &= ~REG6B_GPO17;
+	    dev->calib_reg[reg_0x6b].value &= ~REG6B_GPO17;
+	  }
 
 	gl841_set_fe (dev, AFE_POWER_SAVE);
 
@@ -3500,7 +3513,8 @@ gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
 	    dev->calib_reg[reg_0x6b].value |= REG6B_GPO18;
 
 	}
-	if (dev->model->gpo_type == GPO_DP665) 
+	if (dev->model->gpo_type == GPO_DP665 
+            || dev->model->gpo_type == GPO_DP685)
 	  {
 	    sanei_genesys_read_register(dev, 0x6B, &val);
 	    sanei_genesys_write_register(dev, 0x6B, val | REG6B_GPO17);
@@ -5077,7 +5091,7 @@ gl841_offset_calibration (Genesys_Device * dev)
       RIE (sanei_genesys_read_data_from_scanner (dev, first_line, total_size));
     
       if (DBG_LEVEL >= DBG_data) {
-	  snprintf(fn,20,"offset1_%d.pnm",turn);
+	  snprintf(fn,20,"offset1_%02d.pnm",turn);
 	  sanei_genesys_write_pnm_file (fn,
 					first_line,
 					16,
@@ -5107,6 +5121,11 @@ gl841_offset_calibration (Genesys_Device * dev)
 	      if (val > 65525)
 		  cmax[j]++;
 	  }
+
+          /* TODO the DP685 has a black strip in the middle of the sensor
+           * should be handled in a more elegant way , could be a bug */
+          if (dev->model->ccd_type == CCD_DP685)
+              cmin[j] -= 20;
 
 	  if (cmin[j] > num_pixels/100) {
 	      acceptable = SANE_FALSE;
@@ -5853,7 +5872,8 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
     }
 
   if (s->dev->model->gpo_type == GPO_XP300 ||
-      s->dev->model->gpo_type == GPO_DP665)
+      s->dev->model->gpo_type == GPO_DP665 ||
+      s->dev->model->gpo_type == GPO_DP685)
     {
       RIE(sanei_genesys_read_register(s->dev, 0x6d, &val));
 

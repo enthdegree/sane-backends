@@ -62,3 +62,6 @@ usb 0x0a82 0x4800
 
 # DCT DocketPort 487
 usb 0x1dcc 0x4810
+
+# Syscan/Ambir DocketPort 685
+usb 0x0a82 0x480c

@@ -152,4 +152,10 @@
 :interface "USB"
 :usbid  "0x0a82" "0x4803"
 :status :basic
-:comment "All resolution and mode supported, but uncorrected scans"
+:comment "All resolution and mode supported, calibration is available"
+
+:model "DocketPort 685/ Ambir DS685"
+:interface "USB"
+:usbid  "0x0a82" "0x480c"
+:status :good
+:comment "All resolution and mode supported, calibration is available, front- and backside side-by-side, with backside mirrored horizontally."

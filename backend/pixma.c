@@ -1023,6 +1023,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG_INIT ();
   sanei_thread_init ();
   pixma_set_debug_level (DBG_LEVEL);
+  
+  PDBG(pixma_dbg(2, "pixma is compiled %s pthread support.\n",
+                   (sanei_thread_is_forked () ? "without" : "with")));
 
   for (i = 0; i < MAX_CONF_DEVICES; i++)
     conf_devices[i] = NULL;

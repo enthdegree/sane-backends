@@ -143,7 +143,7 @@
 /* PIXMA 2009 vintage */
 #define MX860_PID 0x1735
 #define MX320_PID 0x1736    /* untested */
-#define MX330_PID 0x1737    /* untested */
+#define MX330_PID 0x1737
 
 /* Generation 4 */
 #define MP250_PID 0x173a

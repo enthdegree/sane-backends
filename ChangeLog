@@ -1,3 +1,9 @@
+2009-12-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man, 
+	backend/pixma.h, backend/pixma.c, backend/pixma_mp150.c:
+	pixma: bumped minor, added compilation type debug message.
+	       updated doc and desc (support for MX330)
+
 2009-12-05  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_gl841.c backend/genesys_devices.c
 	backend/genesys_low.h backend/genesys.conf.in

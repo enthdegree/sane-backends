@@ -1,4 +1,4 @@
-2009-12-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+2009-12-06  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man, 
 	backend/pixma.h, backend/pixma.c, backend/pixma_mp150.c:
 	pixma: bumped version, added compilation type debug message.

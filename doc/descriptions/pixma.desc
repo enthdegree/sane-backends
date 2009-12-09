@@ -294,8 +294,8 @@
 :model "PIXMA MP560"
 :interface "USB"
 :usbid "0x04a9" "0x173e"
-:status :untested
-:comment "Same protocol as Pixma Generation 3? Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP550"
 :interface "USB"
@@ -458,6 +458,12 @@
 :usbid "0x04a9" "0x26ee"
 :status :complete
 :comment "All resolutions supported (up to 600DPI)"
+
+:model "I-SENSYS MF4330d"
+:interface "USB"
+:usbid "0x04a9" "0x26ee"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4010"
 :interface "USB"

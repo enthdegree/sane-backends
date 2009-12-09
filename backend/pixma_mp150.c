@@ -150,7 +150,7 @@
 #define MP270_PID 0x173b
 #define MP490_PID 0x173c    /* untested */
 #define MP550_PID 0x173d
-#define MP560_PID 0x173e    /* untested */
+#define MP560_PID 0x173e
 #define MP640_PID 0x173f
 #define MP990_PID 0x1740
 

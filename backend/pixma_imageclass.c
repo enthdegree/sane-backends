@@ -693,7 +693,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF4690", "MF4690", MF4600_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS D480", "D480", D480_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageCLASS MF4360", "MF4360", MF4360_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon imageCLASS MF4320", "MF4320", MF4320_PID, 600, 640, 877, 0),
+  DEV ("Canon imageCLASS MF4320", "MF4320", MF4320_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4010", "MF4010", MF4010_PID, 600, 640, 877, 0),
   /* FIXME: the following capabilities all need updating/verifying */
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),

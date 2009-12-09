@@ -1,3 +1,8 @@
+2009-12-09  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man, 
+	backend/pixma_imageclass.c, backend/pixma_mp150.c:
+	pixma: updated backend, docs and desc for support to MP560 and MF4330d/ADF
+
 2009-12-06  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man, 
 	backend/pixma.h, backend/pixma.c, backend/pixma_mp150.c:

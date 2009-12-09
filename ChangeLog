@@ -1,3 +1,8 @@
+2009-12-05  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.c backend/genesys_gl841.c backend/genesys_low.h:
+	fixed amount of bytes left to read at document end for gl841 based
+	sheetfed scanners
+
 2009-12-09  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man, 
 	backend/pixma_imageclass.c, backend/pixma_mp150.c:

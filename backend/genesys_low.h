@@ -638,6 +638,9 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line);
 extern SANE_Status sanei_genesys_read_valid_words (Genesys_Device * dev,
 						  unsigned int *steps);
 
+extern SANE_Status sanei_genesys_read_scancnt (Genesys_Device * dev,
+						  unsigned int *steps);
+
 extern SANE_Status sanei_genesys_read_feed_steps (Genesys_Device * dev,
 						  unsigned int *steps);
 

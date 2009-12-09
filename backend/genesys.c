@@ -52,7 +52,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 11
+#define BUILD 12
 
 #include <errno.h>
 #include <string.h>
@@ -552,6 +552,31 @@ sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
     *words += ((value & 0x0f) * 256 * 256);
 
   DBG (DBG_proc, "sanei_genesys_read_valid_words: %d words\n", *words);
+  return SANE_STATUS_GOOD;
+}
+
+/** read the number of lines scanned
+ * ie registers 4b-4c-4d
+ */
+SANE_Status
+sanei_genesys_read_scancnt (Genesys_Device * dev, unsigned int *words)
+{
+  SANE_Status status;
+  uint8_t value;
+
+  DBG (DBG_proc, "sanei_genesys_read_scancnt: start\n");
+
+  RIE (sanei_genesys_read_register (dev, 0x4d, &value));
+  *words = value;
+  RIE (sanei_genesys_read_register (dev, 0x4c, &value));
+  *words += (value * 256);
+  RIE (sanei_genesys_read_register (dev, 0x4b, &value));
+  if (dev->model->asic_type == GENESYS_GL646)
+    *words += ((value & 0x03) * 256 * 256);
+  else
+    *words += ((value & 0x0f) * 256 * 256);
+
+  DBG (DBG_proc, "sanei_genesys_read_scancnt: %d lines\n", *words);
   return SANE_STATUS_GOOD;
 }
 
@@ -6794,7 +6819,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       return SANE_STATUS_CANCELLED;
     }
 
-  DBG (DBG_proc, "sane_read: start\n");
+  DBG (DBG_proc, "sane_read: start, %d maximum bytes required\n", max_len);
 
   local_len = max_len;
   status = genesys_read_ordered_data (s->dev, buf, &local_len);

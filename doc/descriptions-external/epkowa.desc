@@ -816,6 +816,12 @@
 :status    :good
 :comment   "all-in-one"
 
+:model     "ME OFFICE 650FN Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0854"
+:status    :good
+:comment   "all-in-one"
+
 :model     "ME Office 700FW"
 :interface "USB"
 :usbid     "0x04b8" "0x0847"

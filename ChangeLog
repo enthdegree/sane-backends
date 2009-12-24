@@ -1,3 +1,6 @@
+2009-12-24  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: fix a bug in the standalone polling code.
+
 2009-12-05  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_gl841.c backend/genesys_low.h:
 	fixed amount of bytes left to read at document end for gl841 based

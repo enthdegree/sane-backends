@@ -3120,6 +3120,8 @@ run_standalone (int argc, char **argv)
 
 	      break;
 	    }
+	  else if (! (fdp->revents & POLLIN))
+	    continue;
 
 	  fd = accept (fdp->fd, 0, 0);
 	  if (fd < 0)

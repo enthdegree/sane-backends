@@ -1,3 +1,7 @@
+2009-12-26  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/sane-pixma.man, backend/pixma.c, backend/pixma_mp150.c:
+	pixma: some routine maintenance updates to backend and documentation.
+
 2009-12-24  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: fix a bug in the standalone polling code.
 

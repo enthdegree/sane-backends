@@ -1,7 +1,10 @@
-.TH "sane\-pixma" "5" "9 Dec 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "26 Dec 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
-sane\-pixma \- SANE backend for Canon PIXMA MP series
+.B sane\-pixma 
+\- SANE backend for Canon PIXMA Multi-Functions Printers
+.br 
+             MP, MX, ImageCLASS and I-SENSYS series
 .SH DESCRIPTION
 The
 .B sane\-pixma
@@ -63,22 +66,23 @@ ImageCLASS MF3240, MF5630, MF5650, MF5730, MF5750, MF8170c
 \#above, but may still need some work. They are declared in the backend as 
 \#experimental. Snoop logs are required to further investigate, please contact 
 \#the sane\-devel mailing list.
+\#.PP
+\#.RS
+\#PIXMA MX850
+\#.RE
+The backend supports:
 .PP
 .RS
-\#PIXMA MX850
-.RE
-.PP
-The backend supports
-.br
-* resolutions at 75,150,300,600,1200,2400 and 4800 DPI (some maybe buggy),
+* resolutions of 75, 150, 300, 600, 1200, 2400, and 4800 DPI (some maybe buggy),
 .br
 * color and grayscale mode,
 .br
 * a custom gamma table,
 .br
-* Automatic Document Feeder (Duplex for some models).
+* Automatic Document Feeder, Simplex and Duplex.
 .br
 * Transparency Unit, 24 or 48 bits depth.
+.RE
 .PP
 The device name for USB devices is in the form pixma:xxxxyyyy_zzzzz
 where x, y and z are vendor ID, product ID and serial number respectively.
@@ -226,6 +230,13 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .BR sane\-dll (5),
 .I http://home.arcor.de/wittawat/pixma/,
 .I http://mp610.blogspot.com/
+.PP
+In case of trouble with a recent Pixma model, try the latest code for 
+the pixma backend, available in the Sane git repository at:
+.br
+.I http://git.debian.org/?p=sane/sane-backends.git
+.PP
+You can also post into the Sane-devel mailing list for support.
 
 .SH AUTHORS
 Wittawat Yamwong, Nicolas Martin, Dennis Lou, Louis Lagendijk

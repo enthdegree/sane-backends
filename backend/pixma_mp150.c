@@ -154,6 +154,7 @@
 #define MP640_PID 0x173f
 #define MP990_PID 0x1740
 
+/* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
 "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\
 <cmd xmlns:ivec=\"http://www.canon.com/ns/cmd/2008/07/common/\">\

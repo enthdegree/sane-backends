@@ -185,6 +185,12 @@ getenv_atoi (const char *name, int def)
 #define CONST_CAST(t,x) (t)(x)
 
 static void
+free_block (const void * ptr)
+{
+  free (CONST_CAST (void *, ptr));
+}
+
+static void
 cleanup_device_list (void)
 {
   if (dev_list)
@@ -192,9 +198,9 @@ cleanup_device_list (void)
       int i;
       for (i = 0; dev_list[i]; i++)
         {
-          free (CONST_CAST (void *, dev_list[i]->name));
-          free (CONST_CAST (void *, dev_list[i]->model));
-          free (CONST_CAST (void *, dev_list[i]));
+          free_block ((const void *) dev_list[i]->name);
+          free_block ((const void *) dev_list[i]->model);
+          free_block ((const void *) dev_list[i]);
         }
     }
   free (dev_list);

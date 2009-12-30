@@ -1107,11 +1107,10 @@ sanei_lexmark_low_open_device (Lexmark_Device * dev)
   size_t size;
   SANE_Byte variant = 0;
   SANE_Byte shadow_regs[255];
-#ifdef DEEP_DEBUG
-  int i;
-#endif
   int sx, ex;
   int sy, ey;
+  int i;
+  char msg[2048];
 
 
 #ifdef FAKE_USB
@@ -1132,19 +1131,16 @@ sanei_lexmark_low_open_device (Lexmark_Device * dev)
   size = 0xFF;
   memset (shadow_regs, 0, sizeof (shadow_regs));
   low_usb_bulk_read (dev->devnum, shadow_regs, &size);
-#ifdef DEEP_DEBUG
+
   if (DBG_LEVEL > 2)
     {
-      fprintf (stderr,
-	       "sanei_lexmark_low_open_device: initial registers values\n");
-      fprintf (stderr, "read_all(0x00,255)=");
+      DBG (2, "sanei_lexmark_low_open_device: initial registers values\n");
       for (i = 0; i < 255; i++)
 	{
-	  fprintf (stderr, "0x%02x ", shadow_regs[i]);
+	  sprintf (msg+i*5, "0x%02x ", shadow_regs[i]);
 	}
-      fprintf (stderr, "\n");
+      DBG (3, "%s\n",msg);
     }
-#endif
 
   /* it seems that at first read after reset, registers hold information
    * about the scanner. Register 0x00 is overwritten with 0, so only first read

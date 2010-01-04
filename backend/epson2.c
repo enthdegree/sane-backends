@@ -1228,13 +1228,13 @@ init_options(Epson_Scanner *s)
 	s->opt[OPT_ADVANCED_GROUP].title = SANE_I18N("Advanced");
 	s->opt[OPT_ADVANCED_GROUP].desc = "";
 	s->opt[OPT_ADVANCED_GROUP].type = SANE_TYPE_GROUP;
-	s->opt[OPT_ADVANCED_GROUP].cap |= SANE_CAP_ADVANCED;
+	s->opt[OPT_ADVANCED_GROUP].cap = SANE_CAP_ADVANCED;
 
 	/* "Color correction" group: */
 	s->opt[OPT_CCT_GROUP].title = SANE_I18N("Color correction");
 	s->opt[OPT_CCT_GROUP].desc = "";
 	s->opt[OPT_CCT_GROUP].type = SANE_TYPE_GROUP;
-	s->opt[OPT_CCT_GROUP].cap |= SANE_CAP_ADVANCED;
+	s->opt[OPT_CCT_GROUP].cap = SANE_CAP_ADVANCED;
 
 	s->opt[OPT_CCT_MODE].name = "cct-mode";
 	s->opt[OPT_CCT_MODE].title = "CCT Mode";

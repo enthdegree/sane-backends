@@ -300,8 +300,8 @@
 :model "PIXMA MP550"
 :interface "USB"
 :usbid "0x04a9" "0x173d"
-:status :untested
-:comment "Same protocol as Pixma Generation 3? Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP540"
 :interface "USB"
@@ -312,8 +312,8 @@
 :model "PIXMA MP490"
 :interface "USB"
 :usbid "0x04a9" "0x173c"
-:status :untested
-:comment "Same protocol as Pixma Generation 3? Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MP480"
 :interface "USB"

@@ -1,3 +1,7 @@
+2010-01-08  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
+	pixma: updated documentation for MP490 and MP550 (supported models).
+
 2009-12-30  Stéphane Voltz <stef.dev at free.fr>
 	* backend/lexmark_low.c: improve init time debug messages
 

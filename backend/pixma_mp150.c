@@ -148,7 +148,7 @@
 /* Generation 4 */
 #define MP250_PID 0x173a
 #define MP270_PID 0x173b
-#define MP490_PID 0x173c    /* untested */
+#define MP490_PID 0x173c
 #define MP550_PID 0x173d
 #define MP560_PID 0x173e
 #define MP640_PID 0x173f

@@ -1432,6 +1432,24 @@ e2_wait_button(Epson_Scanner * s)
 	}
 }
 
+/*
+SANE_Status
+e2_check_extended_status(Epson_Scanner *s)
+{
+
+	SANE_Status status = esci_request_scanner_status(s, buf);
+	if (status != SANE_STATUS_GOOD)
+			return status;
+
+	if (buf[0] & FSF_STATUS_MAIN_WU)
+
+	main -> 0
+	fbf -> 3
+	adf -> 1, 10
+	tpu -> 2
+}
+*/
+
 SANE_Status
 e2_check_warm_up(Epson_Scanner * s, SANE_Bool * wup)
 {
@@ -1701,9 +1719,13 @@ e2_ext_read(struct Epson_Scanner *s)
 		if (read != buf_len + 1)
 			return SANE_STATUS_IO_ERROR;
 
-		/* XXX check error code in buf[buf_len]
-		   if (s->buf[buf_len] & ...
-		 */
+		if (s->buf[buf_len] & FSG_STATUS_CANCEL_REQ) {
+			DBG(0, "%s: cancel request received\n", __func__);
+			return SANE_STATUS_CANCELLED;
+		}
+
+		if (s->buf[buf_len] & (FSG_STATUS_FER | FSG_STATUS_NOT_READY))
+			return SANE_STATUS_IO_ERROR;
 
 		/* ack every block except the last one */
 		if (s->ext_counter < s->ext_blocks) {

@@ -155,6 +155,10 @@
 #define FSF_STATUS_MAIN2_PJ	0x04	/* paper jam */
 #define FSF_STATUS_MAIN2_OPN	0x02	/* cover open */
 
+#define FSG_STATUS_FER		0x80
+#define FSG_STATUS_NOT_READY	0x40	/* in use via other interface */
+#define FSG_STATUS_CANCEL_REQ	0x10	/* cancel request from scanner */
+
 #define EPSON_LEVEL_A1		 0
 #define EPSON_LEVEL_A2		 1
 #define EPSON_LEVEL_B1		 2

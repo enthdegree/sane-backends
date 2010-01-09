@@ -583,17 +583,15 @@ detect_usb(struct Epson_Scanner *s)
 
 	status = sanei_usb_get_vendor_product(s->fd, &vendor, &product);
 	if (status != SANE_STATUS_GOOD) {
-		DBG(1,
-		    "cannot use IOCTL interface to verify that device is a scanner - will continue\n");
+		DBG(1, "the device cannot be verified - will continue\n");
 	 	return SANE_STATUS_GOOD;
 	}
 	
 	/* check the vendor ID to see if we are dealing with an EPSON device */
 	if (vendor != SANE_EPSON_VENDOR_ID) {
 		/* this is not a supported vendor ID */
-		DBG(1,
-		    "the device at %s is not manufactured by EPSON (vendor id=0x%x)\n",
-		    s->hw->sane.name, vendor);
+		DBG(1, "not an Epson device at %s (vendor id=0x%x)\n",
+			s->hw->sane.name, vendor);
 		return SANE_STATUS_INVAL;
 	}
 
@@ -610,15 +608,13 @@ detect_usb(struct Epson_Scanner *s)
 	}
 
 	if (is_valid == SANE_FALSE) {
-		DBG(1,
-		    "the device at %s is not a supported EPSON scanner (product id=0x%x)\n",
-		    s->hw->sane.name, product);
+		DBG(1, "the device at %s is not a supported (product id=0x%x)\n",
+			s->hw->sane.name, product);
 		return SANE_STATUS_INVAL;
 	}
 	
-	DBG(1,
-	    "found valid EPSON scanner: 0x%x/0x%x (vendorID/productID)\n",
-	    vendor, product);
+	DBG(1, "found valid Epson scanner: 0x%x/0x%x (vendorID/productID)\n",
+		vendor, product);
 
 	return SANE_STATUS_GOOD;	    
 }
@@ -1594,9 +1590,9 @@ search_string_list(const SANE_String_Const *list, SANE_String value)
 }
 
 /*
-    Activate, deactivate an option.  Subroutines so we can add
-    debugging info if we want.  The change flag is set to TRUE
-    if we changed an option.  If we did not change an option,
+    Activate, deactivate an option. Subroutines so we can add
+    debugging info if we want. The change flag is set to TRUE
+    if we changed an option. If we did not change an option,
     then the value of the changed flag is not modified.
 */
 

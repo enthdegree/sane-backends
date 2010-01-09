@@ -1,7 +1,7 @@
 ;
 ; SANE Backend specification file for the epson2 backend
 ;
-; Copyright (C) 2009 Alessandro Zummo
+; Copyright (C) 2009-10 Alessandro Zummo
 ; Released under GPLv2
 ;
 ; This file is derived from epkowa.desc, Copyright (C) Olaf Meeuwissen,
@@ -10,7 +10,7 @@
 ; DO NOT EDIT - It's automatically generated.
 
 :backend "epson2"
-:version "1.0.121"
+:version "1.0.124"
 :new :no
 :manpage "sane-epson2"
 
@@ -18,7 +18,6 @@
 
 :mfg "Epson"
 :url "http://www.epson.com/"
-
 
 :model      "Actionscanner II"
 :interface  "parallel SCSI"
@@ -50,11 +49,23 @@
 :status     :good
 :comment    "network interface supported<br>all-in-one<br>overseas version of the EP-801A"
 
+:model      "Artisan 710 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0852"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
+
 :model      "Artisan 800"
 :interface  "USB"
 :usbid      "0x04b8" "0x0844"
 :status     :good
 :comment    "network interface probably supported<br>all-in-one<br>overseas version of the EP-901A"
+
+:model      "Artisan 810 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0853"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
 
 :model      "CC-500L"			; product spec (JP)
 :interface  "USB"
@@ -86,11 +97,23 @@
 :status     :unsupported
 :comment    "all-in-one"
 
+:model      "EP-702A"
+:interface  "USB"
+:usbid      "0x04b8" "0x0850"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
+
 :model      "EP-801A"
 :interface  "USB Network"
 :usbid      "0x04b8" "0x0846"
 :status     :good
 :comment    "network interface supported<br>all-in-one"
+
+:model      "EP-802A"
+:interface  "USB"
+:usbid      "0x04b8" "0x0852"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
 
 :model      "EP-901A"
 :interface  "USB"
@@ -103,6 +126,12 @@
 :usbid      "0x04b8" "0x0844"
 :status     :good
 :comment    "network interface probably supported<br>all-in-one"
+
+:model      "EP-902A"
+:interface  "USB"
+:usbid      "0x04b8" "0x0853"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
 
 :model      "ES-300C"
 :interface  "SCSI parallel"
@@ -610,6 +639,13 @@
 :status     :complete
 :comment    "film area guide mode not supported<br>IEEE1394 untested"
 
+:model      "GT-X820"
+:interface  "USB"
+:usbid      "0x04b8" "0x013a"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
+:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+
 :model      "GT-X900"
 :interface  "USB"
 :usbid      "0x04b8" "0x012c"
@@ -710,9 +746,21 @@
 :status     :good
 :comment    "all-in-one<br>overseas version of the PX-401A"
 
+:model      "ME OFFICE 510"
+:interface  "USB"
+:usbid      "0x04b8" "0x084f"
+:status     :good
+:comment    "all-in-one"
+
 :model      "ME Office 600F"
 :interface  "USB"
 :usbid      "0x04b8" "0x0848"
+:status     :good
+:comment    "all-in-one"
+
+:model      "ME OFFICE 650FN Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0854"
 :status     :good
 :comment    "all-in-one"
 
@@ -818,11 +866,23 @@
 :status     :good
 :comment    "all-in-one"
 
+:model      "PX-402A"
+:interface  "USB"
+:usbid      "0x04b8" "0x084d"
+:status     :good
+:comment    "all-in-one"
+
 :model      "PX-501A"
 :interface  "USB"
 :usbid      "0x04b8" "0x084a"
 :status     :good
 :comment    "network interface probably supported<br>all-in-one"
+
+:model      "PX-502A"
+:interface  "USB"
+:usbid      "0x04b8" "0x0856"
+:status     :good
+:comment    "all-in-one"
 
 :model      "PX-601F"
 :interface  "USB"
@@ -1138,6 +1198,13 @@
 :model      "Perfection V500 Photo"
 :interface  "USB"
 :usbid      "0x04b8" "0x0130"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
+:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+
+:model      "Perfection V600 Photo"
+:interface  "USB"
+:usbid      "0x04b8" "0x013a"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
 :url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
@@ -1517,15 +1584,33 @@
 :status     :good
 :comment    "all-in-one"
 
+:model      "Stylus Office BX310FN Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0854"
+:status     :good
+:comment    "all-in-one"
+
 :model      "Stylus Office BX600FW"
 :interface  "USB"
 :usbid      "0x04b8" "0x0847"
 :status     :good
 :comment    "network interface probably supported<br>all-in-one<br>overseas version of the PX-601F"
 
+:model      "Stylus Office BX610FW Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0855"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
+
 :model      "Stylus Office TX300F"
 :interface  "USB"
 :usbid      "0x04b8" "0x0848"
+:status     :good
+:comment    "all-in-one"
+
+:model      "Stylus Office TX510FN Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0854"
 :status     :good
 :comment    "all-in-one"
 
@@ -1535,17 +1620,41 @@
 :status     :good
 :comment    "network interface probably supported<br>all-in-one<br>overseas version of the PX-601F"
 
+:model      "Stylus Office TX610FW Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0855"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
+
+:model      "Stylus Photo PX650 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0850"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
+
 :model      "Stylus Photo PX700W"
 :interface  "USB Network"
 :usbid      "0x04b8" "0x0846"
 :status     :good
 :comment    "network interface supported<br>all-in-one<br>overseas version of the EP-801A"
 
+:model      "Stylus Photo PX710W Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0852"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
+
 :model      "Stylus Photo PX800FW"
 :interface  "USB"
 :usbid      "0x04b8" "0x0844"
 :status     :good
 :comment    "network interface probably supported<br>all-in-one<br>overseas version of the EP-901A"
+
+:model      "Stylus Photo PX810FW Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0853"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
 
 :model      "Stylus Photo RX420"
 :interface  "USB"
@@ -1679,11 +1788,23 @@
 :status     :good
 :comment    "all-in-one<br>overseas version of the PM-A900"
 
+:model      "Stylus Photo TX650 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0850"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
+
 :model      "Stylus Photo TX700W"
 :interface  "USB"
 :usbid      "0x04b8" "0x0846"
 :status     :good
 :comment    "network interface probably supported<br>all-in-one<br>overseas version of the EP-801A"
+
+:model      "Stylus Photo TX710W Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0852"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
 
 :model      "Stylus Photo TX800FW"
 :interface  "USB"
@@ -1697,9 +1818,21 @@
 :status     :good
 :comment    "all-in-one<br>overseas version of the PX-401A"
 
+:model      "Stylus NX110 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x084d"
+:status     :good
+:comment    "all-in-one<br>overseas version of the PX-402A"
+
 :model      "Stylus NX200"
 :interface  "USB"
 :usbid      "0x04b8" "0x0849"
+:status     :good
+:comment    "all-in-one"
+
+:model      "Stylus NX210 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x084f"
 :status     :good
 :comment    "all-in-one"
 
@@ -1715,11 +1848,29 @@
 :status     :good
 :comment    "network interface probably supported<br>all-in-one<br>overseas version of the PX-501A"
 
+:model      "Stylus NX410 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0851"
+:status     :good
+:comment    "network interface probably supported<br>all-in-one"
+
+:model      "Stylus NX510 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0856"
+:status     :good
+:comment    "all-in-one<br>overseas version of the PX-502A"
+
 :model      "Stylus SX100"
 :interface  "USB"
 :usbid      "0x04b8" "0x0841"
 :status     :good
 :comment    "all-in-one<br>overseas version of the PX-401A"
+
+:model      "Stylus SX110 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x084d"
+:status     :good
+:comment    "all-in-one<br>overseas version of the PX-402A"
 
 :model      "Stylus SX200"
 :interface  "USB"
@@ -1730,6 +1881,12 @@
 :model      "Stylus SX205"
 :interface  "USB"
 :usbid      "0x04b8" "0x0849"
+:status     :good
+:comment    "all-in-one"
+
+:model      "Stylus SX210 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x084f"
 :status     :good
 :comment    "all-in-one"
 
@@ -1745,11 +1902,29 @@
 :status     :good
 :comment    "all-in-one"
 
+:model      "Stylus SX410 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0851"
+:status     :good
+:comment    "network interface probably supported<br>all-in-one"
+
+:model      "Stylus SX510W Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0856"
+:status     :good
+:comment    "all-in-one<br>overseas version of the PX-502A"
+
 :model      "Stylus SX600FW"
 :interface  "USB"
 :usbid      "0x04b8" "0x0847"
 :status     :good
 :comment    "network interface probably supported<br>all-in-one<br>overseas version of the PX-601F"
+
+:model      "Stylus SX610FW Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0855"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
 
 :model      "Stylus Scan 2000"
 :interface  "USB"
@@ -1769,6 +1944,12 @@
 :status     :good
 :comment    "all-in-one<br>overseas version of the PX-401A"
 
+:model      "Stylus TX110 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x084d"
+:status     :good
+:comment    "all-in-one<br>overseas version of the PX-402A"
+
 :model      "Stylus TX200"
 :interface  "USB"
 :usbid      "0x04b8" "0x0849"
@@ -1787,11 +1968,35 @@
 :status     :good
 :comment    "all-in-one"
 
+:model      "Stylus TX210 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x084f"
+:status     :good
+:comment    "all-in-one"
+
 :model      "Stylus TX400"
 :interface  "USB"
 :usbid      "0x04b8" "0x084a"
 :status     :good
 :comment    "network interface probably supported<br>all-in-one<br>overseas version of the PX-501A"
+
+:model      "Stylus TX410 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0851"
+:status     :good
+:comment    "network interface probably supported<br>all-in-one"
+
+:model      "Stylus TX550W Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0856"
+:status     :good
+:comment    "all-in-one<br>overseas version of the PX-502A"
+
+:model      "WorkForce 310 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0854"
+:status     :good
+:comment    "all-in-one"
 
 :model      "WorkForce 500"
 :interface  "USB"
@@ -1804,4 +2009,10 @@
 :usbid      "0x04b8" "0x0847"
 :status     :good
 :comment    "network interface probably supported<br>all-in-one<br>overseas version of the PX-601F"
+
+:model      "WorkForce 610 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x0855"
+:status     :unsupported
+:comment    "supported by the epkowa backend plus non-free interpreter"
 

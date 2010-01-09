@@ -124,17 +124,13 @@ static const int dropout_params[] = {
 /*
  * Color correction:
  * One array for the actual parameters that get sent to the scanner (color_params[]),
- * one array for the strings that get displayed in the user interface (color_list[])
- * and one array to mark the user defined color correction (color_userdefined[]).
+ * one array for the strings that get displayed in the user interface (correction_list[])
+ * and one array to mark the user defined color correction (correction_userdefined[]).
  */
-static const int color_params[] = {
+static const int correction_params[] = {
 	0x00,	/* None */
 	0x01,	/* Auto */
 	0x01,	/* User defined */
-	0x10,
-	0x20,
-	0x40,
-	0x80
 };
 
 void
@@ -959,7 +955,7 @@ e2_set_extended_scanning_parameters(Epson_Scanner * s)
 		buf[37] = film_params[s->val[OPT_FILM_TYPE].w];
 
 	/* ESC M, color correction */
-	buf[31] = color_params[s->val[OPT_COLOR_CORRECTION].w];
+	buf[31] = correction_params[s->val[OPT_COLOR_CORRECTION].w];
 
 	/* ESC t, threshold */
 	buf[33] = s->val[OPT_THRESHOLD].w;
@@ -1128,11 +1124,10 @@ e2_set_scanning_parameters(Epson_Scanner * s)
 
 	/* ESC M, set color correction */
 	if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_COLOR_CORRECTION].cap)) {
+
 		status = esci_set_color_correction(s,
-						   color_params[s->
-								val
-								[OPT_COLOR_CORRECTION].
-								w]);
+			correction_params[s->val[OPT_COLOR_CORRECTION].w]);
+
 		if (status != SANE_STATUS_GOOD)
 			return status;
 	}

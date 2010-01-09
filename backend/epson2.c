@@ -5,7 +5,7 @@
  * Work on epson.[ch] file from the SANE package.
  * Please see those files for additional copyrights.
  *
- * Copyright (C) 2006-07 Tower Technologies
+ * Copyright (C) 2006-10 Tower Technologies
  * Author: Alessandro Zummo <a.zummo@towertech.it>
  *
  * This file is part of the SANE package.
@@ -17,7 +17,7 @@
 
 #define EPSON2_VERSION	1
 #define EPSON2_REVISION	0
-#define EPSON2_BUILD	123
+#define EPSON2_BUILD	124
 
 /* debugging levels:
  *
@@ -198,28 +198,23 @@ static const SANE_String_Const dropout_list[] = {
 	NULL
 };
 
-static const SANE_Bool color_userdefined[] = {
+static const SANE_Bool correction_userdefined[] = {
 	SANE_FALSE,
 	SANE_TRUE,
 	SANE_TRUE,
-	SANE_FALSE,
-	SANE_FALSE,
-	SANE_FALSE,
-	SANE_FALSE
 };
 
-static const SANE_String_Const color_list[] = {
+static const SANE_String_Const correction_list[] = {
 	SANE_I18N("None"),
-	SANE_I18N("Automatic"),
-	SANE_I18N("User defined"),
-	SANE_I18N("Impact-dot printers"),
-	SANE_I18N("Thermal printers"),
-	SANE_I18N("Ink-jet printers"),
-	SANE_I18N("CRT monitors"),
+	SANE_I18N("Built in CCT profile"),
+	SANE_I18N("User defined CCT profile"),
 	NULL
 };
 
-/* cct profile has precedence over normal color correction */
+enum {
+	CORR_NONE, CORR_AUTO, CORR_USER
+};
+
 static const SANE_String_Const cct_mode_list[] = {
         "Automatic",
         "Reflective",
@@ -1160,11 +1155,11 @@ init_options(Epson_Scanner *s)
 		SANE_I18N("Sets the color correction table for the selected output device.");
 
 	s->opt[OPT_COLOR_CORRECTION].type = SANE_TYPE_STRING;
-	s->opt[OPT_COLOR_CORRECTION].size = max_string_size(color_list);
+	s->opt[OPT_COLOR_CORRECTION].size = max_string_size(correction_list);
 	s->opt[OPT_COLOR_CORRECTION].cap |= SANE_CAP_ADVANCED;
 	s->opt[OPT_COLOR_CORRECTION].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-	s->opt[OPT_COLOR_CORRECTION].constraint.string_list = color_list;
-	s->val[OPT_COLOR_CORRECTION].w = 0;
+	s->opt[OPT_COLOR_CORRECTION].constraint.string_list = correction_list;
+	s->val[OPT_COLOR_CORRECTION].w = CORR_AUTO;
 
 	if (!s->hw->cmd->set_color_correction)
 		s->opt[OPT_COLOR_CORRECTION].cap |= SANE_CAP_INACTIVE;
@@ -1194,31 +1189,6 @@ init_options(Epson_Scanner *s)
 	if (!s->hw->cmd->set_threshold)
 		s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
 
-/*
-	s->opt[OPT_CCT_1].title = SANE_I18N("Green");
-	s->opt[OPT_CCT_2].title = SANE_I18N("Shift green to red");
-	s->opt[OPT_CCT_3].title = SANE_I18N("Shift green to blue");
-	s->opt[OPT_CCT_4].title = SANE_I18N("Shift red to green");
-	s->opt[OPT_CCT_5].title = SANE_I18N("Red");
-	s->opt[OPT_CCT_6].title = SANE_I18N("Shift red to blue");
-	s->opt[OPT_CCT_7].title = SANE_I18N("Shift blue to green");
-	s->opt[OPT_CCT_8].title = SANE_I18N("Shift blue to red");
-	s->opt[OPT_CCT_9].title = SANE_I18N("Blue");
-
-	s->opt[OPT_CCT_1].desc = SANE_I18N("Controls green level");
-	s->opt[OPT_CCT_2].desc =
-		SANE_I18N("Adds to red based on green level");
-	s->opt[OPT_CCT_3].desc =
-		SANE_I18N("Adds to blue based on green level");
-	s->opt[OPT_CCT_4].desc =
-		SANE_I18N("Adds to green based on red level");
-	s->opt[OPT_CCT_5].desc = SANE_I18N("Controls red level");
-	s->opt[OPT_CCT_6].desc = SANE_I18N("Adds to blue based on red level");
-	s->opt[OPT_CCT_7].desc =
-		SANE_I18N("Adds to green based on blue level");
-	s->opt[OPT_CCT_8].desc = SANE_I18N("Adds to red based on blue level");
-	s->opt[OPT_CCT_9].desc = SANE_I18N("Controls blue level");
-*/
 
 	/* "Advanced" group: */
 	s->opt[OPT_ADVANCED_GROUP].title = SANE_I18N("Advanced");
@@ -1232,11 +1202,12 @@ init_options(Epson_Scanner *s)
 	s->opt[OPT_CCT_GROUP].type = SANE_TYPE_GROUP;
 	s->opt[OPT_CCT_GROUP].cap = SANE_CAP_ADVANCED;
 
-	s->opt[OPT_CCT_MODE].name = "cct-mode";
-	s->opt[OPT_CCT_MODE].title = "CCT Mode";
-	s->opt[OPT_CCT_MODE].desc = "Color correction profile mode";
+	/* XXX disabled for now */
+	s->opt[OPT_CCT_MODE].name = "cct-type";
+	s->opt[OPT_CCT_MODE].title = "CCT Profile Type";
+	s->opt[OPT_CCT_MODE].desc = "Color correction profile type";
 	s->opt[OPT_CCT_MODE].type = SANE_TYPE_STRING;
-	s->opt[OPT_CCT_MODE].cap  |= SANE_CAP_ADVANCED;
+	s->opt[OPT_CCT_MODE].cap  |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
 	s->opt[OPT_CCT_MODE].size = max_string_size(cct_mode_list);
 	s->opt[OPT_CCT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_CCT_MODE].constraint.string_list = cct_mode_list;
@@ -1654,8 +1625,6 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 	case OPT_BRIGHTNESS:
 	case OPT_SHARPNESS:
 	case OPT_AUTO_EJECT:
-/*	case OPT_CCT_1:
-*/
 	case OPT_THRESHOLD:
 	case OPT_BIT_DEPTH:
 	case OPT_WAIT_FOR_BUTTON:
@@ -1911,10 +1880,6 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 	case OPT_MODE:
 	{
 		SANE_Bool isColor = mode_params[optindex].color;
-/*		SANE_Bool userDefined =
-			color_userdefined[s->val[OPT_COLOR_CORRECTION].w];
-
-		SANE_Bool canCCT = isColor && userDefined; */
 
 		sval->w = optindex;
 
@@ -1929,12 +1894,6 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 		if (s->hw->cmd->set_color_correction)
 			setOptionState(s, isColor,
 				       OPT_COLOR_CORRECTION, &reload);
-
-		if (s->hw->cmd->set_color_correction_coefficients) {
-/*XXX			setOptionState(s, isColor
-				       && userDefined, OPT_CCT_1, &reload);
-*/
-		}
 
 		/* if binary, then disable the bit depth selection */
 		if (optindex == 0) {
@@ -1970,11 +1929,7 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 
 	case OPT_COLOR_CORRECTION:
 	{
-/*		SANE_Bool f = color_userdefined[optindex]; */
-
 		sval->w = optindex;
-/*XXX		setOptionState(s, f, OPT_CCT_1, &reload); */
-
 		break;
 	}
 
@@ -2139,7 +2094,13 @@ sane_start(SANE_Handle handle)
 	}
 
 	
-	if (s->val[OPT_COLOR_CORRECTION].w == 1) { /* Automatic */
+	if (s->val[OPT_COLOR_CORRECTION].w == CORR_AUTO) { /* Automatic */
+
+		DBG(1, "using built in CCT profile\n");
+
+		if (dev->model_id == 0)
+			DBG(1, " specific profile not available, using default\n");
+
 
 		if (0) { /* XXX TPU */
  
@@ -2155,7 +2116,7 @@ sane_start(SANE_Handle handle)
 	}
                                                     
 	/* ESC m, user defined color correction */
-	if (color_userdefined[s->val[OPT_COLOR_CORRECTION].w]) {
+	if (correction_userdefined[s->val[OPT_COLOR_CORRECTION].w]) {
 		status = esci_set_color_correction_coefficients(s,
                                                         s->cct_table);
 		if (status != SANE_STATUS_GOOD)

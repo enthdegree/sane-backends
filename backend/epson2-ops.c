@@ -203,12 +203,15 @@ e2_dev_post_init(struct Epson_Device *dev)
 	 * add some convenient ones
 	 */
 
-	if (dev->res_list_size == 0 && dev->connection == SANE_EPSON_NET) {
+	if (dev->res_list_size == 0) {
 
 		int val = (dev->dpi_range.min < 150) ? 150 : dev->dpi_range.min;
 
-		DBG(1, "networked scanner, faking resolution list (%d-%d)\n",
+		DBG(1, "cannot obtain resolution list, faking (%d-%d)\n",
 			dev->dpi_range.min, dev->dpi_range.max);
+
+		if (dev->dpi_range.min <= 25)
+			e2_add_resolution(dev, 25);
 
 		if (dev->dpi_range.min <= 50)
 			e2_add_resolution(dev, 50);
@@ -224,6 +227,21 @@ e2_dev_post_init(struct Epson_Device *dev)
 			val *= 2;
 		}
 	}
+
+	/* the device is more capable, integrating resolution list */
+	if (dev->dpi_range.max > dev->res_list[dev->res_list_size - 1]) {
+
+		int val = dev->res_list[dev->res_list_size - 1] * 2;
+
+		DBG(1, "integrating resolution list (%d-%d)\n",
+			val, dev->dpi_range.max);
+
+		while (val <= dev->dpi_range.max) {
+			e2_add_resolution(dev, val);
+			val *= 2;
+		}
+	}
+
 
 	/*
 	 * Copy the resolution list to the resolution_list array so that the frontend can
@@ -429,28 +447,6 @@ e2_add_depth(Epson_Device * dev, SANE_Word depth)
 	dev->depth_list[dev->depth_list[0]] = depth;
 }
 
-/* Helper function to correct the dpi
- * gotten from scanners with known buggy firmware.
- * - Epson Perfection 4990 Photo / GT-X800
- * - Epson Perfection 4870 Photo / GT-X700 (untested)
- */
-static void
-e2_fix_up_dpi(Epson_Scanner * s)
-{
-	SANE_Status status;
-	/*
-	 * EPSON Programming guide for
-	 * EPSON Color Image Scanner Perfection 4870/4990
-	 */
-
-	if (e2_model(s, "GT-X800") || e2_model(s, "GT-X700")) {
-		status = e2_add_resolution(s->hw, 4800);
-		status = e2_add_resolution(s->hw, 6400);
-		status = e2_add_resolution(s->hw, 9600);
-		status = e2_add_resolution(s->hw, 12800);
-	}
-}
-
 /* A little helper function to correct the extended status reply
  * gotten from scanners with known buggy firmware.
  */
@@ -554,8 +550,7 @@ e2_discover_capabilities(Epson_Scanner *s)
 	 * so avoid it if the device support request_extended_identity.
 	 */
 
-	if (dev->connection != SANE_EPSON_NET && dev->cmd->request_extended_status
-		&& !dev->cmd->request_extended_identity) {
+	if (dev->cmd->request_extended_status && !dev->cmd->request_extended_identity) {
 
 		unsigned char *es;
 		size_t es_len;
@@ -633,8 +628,9 @@ e2_discover_capabilities(Epson_Scanner *s)
 
 		*source_list_add = NULL; /* add end marker to source list */
 	}
+
 	/* FS I, request extended identity (B7/B8) */
-	else if (dev->extended_commands && dev->cmd->request_extended_identity) {
+	if (dev->extended_commands && dev->cmd->request_extended_identity) {
 		unsigned char buf[80];
 
 		DBG(1, "detection with request_extended_identity\n");
@@ -674,7 +670,6 @@ e2_discover_capabilities(Epson_Scanner *s)
 		}
 
 		/* TPU */
-
 		if (e2_model(s, "GT-X800")) {
 			if (le32atoh(&buf[68]) > 0 && !dev->TPU) {
 				e2_set_tpu_area(s,
@@ -696,9 +691,6 @@ e2_discover_capabilities(Epson_Scanner *s)
 			*source_list_add++ = TPU_STR;
 			dev->TPU = SANE_TRUE;
 		}
-
-		/* fix problem with broken report of dpi */
-		e2_fix_up_dpi(s);
 
 		*source_list_add = NULL; /* add end marker to source list */
 

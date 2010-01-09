@@ -474,7 +474,8 @@ esci_request_extended_identity(SANE_Handle handle, unsigned char *buf)
 	DBG(1, " tpu area        : %lux%lu\n",
 	    (unsigned long) le32atoh(&buf[36]), (unsigned long) le32atoh(&buf[40]));
 
-	DBG(1, " main status     : 0x%02x\n", buf[44]);
+	DBG(1, " capabilities (1): 0x%02x\n", buf[44]);
+	DBG(1, " capabilities (2): 0x%02x\n", buf[45]);
 	DBG(1, " input depth     : %d\n", buf[66]);
 	DBG(1, " max output depth: %d\n", buf[67]);
 	DBG(1, " rom version     : %c%c%c%c\n",
@@ -492,31 +493,45 @@ esci_request_extended_identity(SANE_Handle handle, unsigned char *buf)
 	if (le32atoh(&buf[36]) > 0)
 		DBG(1, " TPU detected\n");
 
-	DBG(1, "status:\n");
+	if (buf[44])
+		DBG(1, "capabilities (1):\n");
 
-	if (buf[44] & EXT_IDTY_STATUS_DLF)
+	if (buf[44] & EXT_IDTY_CAP1_DLF)
 		DBG(1, " main lamp change is supported\n");
 
-	if (buf[44] & EXT_IDTY_STATUS_NOTFBF)
+	if (buf[44] & EXT_IDTY_CAP1_NOTFBF)
 		DBG(1, " the device is NOT flatbed\n");
 
-	if (buf[44] & EXT_IDTY_STATUS_ADFT)
+	if (buf[44] & EXT_IDTY_CAP1_ADFT)
 		DBG(1, " page type ADF is installed\n");
 
-	if (buf[44] & EXT_IDTY_STATUS_ADFS)
+	if (buf[44] & EXT_IDTY_CAP1_ADFS)
 		DBG(1, " ADF is duplex capable\n");
 
-	if (buf[44] & EXT_IDTY_STATUS_ADFO)
+	if (buf[44] & EXT_IDTY_CAP1_ADFO)
 		DBG(1, " page type ADF loads from the first sheet\n");
 
-	if (buf[44] & EXT_IDTY_STATUS_LID)
+	if (buf[44] & EXT_IDTY_CAP1_LID)
 		DBG(1, " lid type option is installed\n");
 
-	if (buf[44] & EXT_IDTY_STATUS_TPIR)
+	if (buf[44] & EXT_IDTY_CAP1_TPIR)
 		DBG(1, " infrared scanning is supported\n");
 
-	if (buf[44] & EXT_IDTY_STATUS_PB)
+	if (buf[44] & EXT_IDTY_CAP1_PB)
 		DBG(1, " push button is supported\n");
+
+
+	if (buf[45])
+		DBG(1, "capabilities (2):\n");
+
+	if (buf[45] & EXT_IDTY_CAP2_AFF)
+		DBG(1, " ADF has auto form feed\n");
+
+	if (buf[45] & EXT_IDTY_CAP2_DFD)
+		DBG(1, " ADF has double feed detection\n");
+
+	if (buf[45] & EXT_IDTY_CAP2_ADFAS)
+		DBG(1, " ADF has auto scan\n");
 
 	return SANE_STATUS_GOOD;
 }

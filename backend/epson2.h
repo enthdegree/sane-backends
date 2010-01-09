@@ -122,14 +122,19 @@
 #define EXT_STATUS_PJ		0x04	/* paper jam */
 #define EXT_STATUS_OPN		0x02	/* cover open */
 
-#define EXT_IDTY_STATUS_DLF	0x80
-#define EXT_IDTY_STATUS_NOTFBF	0x40
-#define EXT_IDTY_STATUS_ADFT	0x20
-#define EXT_IDTY_STATUS_ADFS	0x10
-#define EXT_IDTY_STATUS_ADFO	0x08
-#define EXT_IDTY_STATUS_LID	0x04
-#define EXT_IDTY_STATUS_TPIR	0x02
-#define EXT_IDTY_STATUS_PB	0x01
+#define EXT_IDTY_CAP1_DLF	0x80
+#define EXT_IDTY_CAP1_NOTFBF	0x40	/* not a flat bed scanner */
+#define EXT_IDTY_CAP1_ADFT	0x20	/* page type ADF ? */
+#define EXT_IDTY_CAP1_ADFS	0x10	/* ADF is duplex capable */
+#define EXT_IDTY_CAP1_ADFO	0x08	/* ADF loads from the first sheet (page type only) */
+#define EXT_IDTY_CAP1_LID	0x04	/* lid type option ? */
+#define EXT_IDTY_CAP1_TPIR	0x02	/* TPU with infrared */
+#define EXT_IDTY_CAP1_PB	0x01	/* scanner has a push button */
+
+#define EXT_IDTY_CAP2_AFF	0x04	/* auto form feed */
+#define EXT_IDTY_CAP2_DFD	0x08	/* double feed detection */
+#define EXT_IDTY_CAP2_ADFAS	0x10	/* ADF with auto scan support */
+
 
 #define FSF_STATUS_MAIN_FER	0x80	/* system error */
 #define FSF_STATUS_MAIN_NR	0x40	/* not ready */

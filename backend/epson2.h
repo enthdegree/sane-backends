@@ -135,10 +135,11 @@
 #define EXT_IDTY_CAP2_DFD	0x08	/* double feed detection */
 #define EXT_IDTY_CAP2_ADFAS	0x10	/* ADF with auto scan support */
 
-
 #define FSF_STATUS_MAIN_FER	0x80	/* system error */
 #define FSF_STATUS_MAIN_NR	0x40	/* not ready */
 #define FSF_STATUS_MAIN_WU	0x02	/* warming up */
+#define FSF_STATUS_MAIN_CWU	0x01	/* warm up can be cancelled (?) */
+
 #define FSF_STATUS_ADF_IST	0x80	/* installed */
 #define FSF_STATUS_ADF_EN	0x40	/* enabled */
 #define FSF_STATUS_ADF_ERR	0x20	/* system error */
@@ -146,10 +147,12 @@
 #define FSF_STATUS_ADF_PJ	0x04	/* paper jam */
 #define FSF_STATUS_ADF_OPN	0x02	/* cover open */
 #define FSF_STATUS_ADF_PAG	0x01	/* duplex */
+
 #define FSF_STATUS_TPU_IST	0x80	/* installed */
 #define FSF_STATUS_TPU_EN	0x40	/* enabled */
 #define FSF_STATUS_TPU_ERR	0x20	/* system error */
 #define FSF_STATUS_TPU_OPN	0x02	/* cover open */
+
 #define FSF_STATUS_MAIN2_ERR	0x20	/* system error */
 #define FSF_STATUS_MAIN2_PE	0x08	/* paper empty */
 #define FSF_STATUS_MAIN2_PJ	0x04	/* paper jam */

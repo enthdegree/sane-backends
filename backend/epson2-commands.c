@@ -570,6 +570,9 @@ esci_request_scanner_status(SANE_Handle handle, unsigned char *buf)
 	if (buf[0] & FSF_STATUS_MAIN_WU)
 		DBG(1, " scanner is warming up\n");
 
+	if (buf[0] & FSF_STATUS_MAIN_CWU)
+		DBG(1, " warmup can be cancelled\n");
+
 
 	DBG(1, "adf status      : 0x%02x\n", buf[1]);
 

@@ -48,5 +48,5 @@ extern SANE_Status e2_start_ext_scan(Epson_Scanner *s);
 extern void e2_scan_finish(Epson_Scanner *s);
 extern void e2_copy_image_data(Epson_Scanner *s, SANE_Byte *data, SANE_Int max_length,
 		   SANE_Int *length);
-extern SANE_Status e2_ext_sane_read(SANE_Handle handle);
-extern SANE_Status e2_block_sane_read(SANE_Handle handle);
+extern SANE_Status e2_ext_read(struct Epson_Scanner *s);
+extern SANE_Status e2_block_read(struct Epson_Scanner *s);

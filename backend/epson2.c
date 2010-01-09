@@ -2049,10 +2049,11 @@ SANE_Status
 sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
 {
 	Epson_Scanner *s = (Epson_Scanner *) handle;
-	int dpi, max_x, max_y;
-	int bytes_per_pixel;
 
 	DBG(5, "%s\n", __func__);
+
+	if (params == NULL)
+		DBG(1, "%s: params is NULL\n", __func__);
 
 	/*
 	 * If sane_start was already called, then just retrieve the parameters
@@ -2060,126 +2061,13 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
 	 */
 
 	if (!s->eof && s->ptr != NULL) {
-		DBG(5, "returning saved params structure\n");
-
-		if (params != NULL) {
-			DBG(1,
-			    "restoring parameters from saved parameters\n");
-			*params = s->params;
-		}
-
-		DBG(5, "resolution = %d, preview = %d\n",
-		    s->val[OPT_RESOLUTION].w, s->val[OPT_PREVIEW].w);
-
-		DBG(5, "get para tlx %f tly %f brx %f bry %f [mm]\n",
-		    SANE_UNFIX(s->val[OPT_TL_X].w),
-		    SANE_UNFIX(s->val[OPT_TL_Y].w),
-		    SANE_UNFIX(s->val[OPT_BR_X].w),
-		    SANE_UNFIX(s->val[OPT_BR_Y].w));
-
-		print_params(s->params);
-
-		return SANE_STATUS_GOOD;
+		DBG(5, "scan in progress, returning saved params structure\n");
+	} else {
+		/* otherwise initialize the params structure and gather the data */
+		e2_init_parameters(s);
 	}
 
-	/* otherwise initialize the params structure and gather the data */
-
-	memset(&s->params, 0, sizeof(SANE_Parameters));
-
-	dpi = s->val[OPT_RESOLUTION].w;
-
-	max_x = max_y = 0;
-
-        s->params.pixels_per_line =
-                ((SANE_UNFIX(s->val[OPT_BR_X].w - s->val[OPT_TL_X].w)
-                / MM_PER_INCH) * dpi) + 0.5;
-  
-	s->params.lines =
-		((SANE_UNFIX(s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w)
-                / MM_PER_INCH) * dpi) + 0.5;
-
-	/*
-	 * Make sure that the number of lines is correct for color shuffling:
-	 * The shuffling alghorithm produces 2xline_distance lines at the
-	 * beginning and the same amount at the end of the scan that are not
-	 * useable. If s->params.lines gets negative, 0 lines are reported
-	 * back to the frontend.
-	 */
-	if (s->hw->color_shuffle) {
-		s->params.lines -= 4 * s->line_distance;
-		if (s->params.lines < 0)
-			s->params.lines = 0;
-
-		DBG(1, "adjusted params.lines for color_shuffle by %d to %d\n",
-		    4 * s->line_distance, s->params.lines);
-	}
-
-	DBG(5, "resolution = %d, preview = %d\n",
-	    s->val[OPT_RESOLUTION].w, s->val[OPT_PREVIEW].w);
-
-	DBG(5, "get para %p %p tlx %f tly %f brx %f bry %f [mm]\n",
-	    (void *) s, (void *) s->val, SANE_UNFIX(s->val[OPT_TL_X].w),
-	    SANE_UNFIX(s->val[OPT_TL_Y].w), SANE_UNFIX(s->val[OPT_BR_X].w),
-	    SANE_UNFIX(s->val[OPT_BR_Y].w));
-
-
-	/*
-	 * Calculate bytes_per_pixel and bytes_per_line for
-	 * any color depths.
-	 *
-	 * The default color depth is stored in mode_params.depth:
-	 */
-
-	if (mode_params[s->val[OPT_MODE].w].depth == 1)
-		s->params.depth = 1;
-	else
-		s->params.depth = s->val[OPT_BIT_DEPTH].w;
-
-	if (s->params.depth > 8) {
-		s->params.depth = 16;	/*
-					 * The frontends can only handle 8 or 16 bits
-					 * for gray or color - so if it's more than 8,
-					 * it gets automatically set to 16. This works
-					 * as long as EPSON does not come out with a
-					 * scanner that can handle more than 16 bits
-					 * per color channel.
-					 */
-
-	}
-
-	bytes_per_pixel = s->params.depth / 8;	/* this works because it can only be set to 1, 8 or 16 */
-	if (s->params.depth % 8) {	/* just in case ... */
-		bytes_per_pixel++;
-	}
-
-	/* pixels_per_line is rounded to the next 8bit boundary */
-	s->params.pixels_per_line = s->params.pixels_per_line & ~7;
-
-	s->params.last_frame = SANE_TRUE;
-
-	switch (s->val[OPT_MODE].w) {
-	case MODE_BINARY:
-	case MODE_GRAY:
-		s->params.format = SANE_FRAME_GRAY;
-		s->params.bytes_per_line =
-			s->params.pixels_per_line * s->params.depth / 8;
-		break;
-
-	case MODE_COLOR:
-		s->params.format = SANE_FRAME_RGB;
-		s->params.bytes_per_line =
-			3 * s->params.pixels_per_line * bytes_per_pixel;
-		break;
-#ifdef SANE_FRAME_IR
-	case MODE_INFRARED:
-		s->params.format = SANE_FRAME_IR;
-		s->params.bytes_per_line =
-			s->params.pixels_per_line * s->params.depth / 8;
-		break;
-#endif
-	}
-
-	if (NULL != params)
+	if (params != NULL)
 		*params = s->params;
 
 	print_params(s->params);
@@ -2223,6 +2111,8 @@ sane_start(SANE_Handle handle)
 	status = e2_init_parameters(s);
 	if (status != SANE_STATUS_GOOD)
 		return status;
+
+	print_params(s->params);
 
 	/* enable infrared */
 	if (s->val[OPT_MODE].w == MODE_INFRARED)
@@ -2284,11 +2174,6 @@ sane_start(SANE_Handle handle)
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
-/*
-	status = sane_get_parameters(handle, NULL);
-	if (status != SANE_STATUS_GOOD)
-		return status;
-*/
 	/*
 	 * If WAIT_FOR_BUTTON is active, then do just that:
 	 * Wait until the button is pressed. If the button was already
@@ -2408,12 +2293,19 @@ sane_read(SANE_Handle handle, SANE_Byte *data, SANE_Int max_length,
 	*length = 0;
 
 	if (s->hw->extended_commands)
-		status = e2_ext_sane_read(handle);
+		status = e2_ext_read(s);
 	else
-		status = e2_block_sane_read(handle);
+		status = e2_block_read(s);
 
-	DBG(18, "moving data %d %p %p\n", max_length, s->ptr, s->end);
+	DBG(18, "moving data %p %p, %d (%d lines)\n",
+		s->ptr, s->end,
+		max_length, max_length / s->params.bytes_per_line);
+
 	e2_copy_image_data(s, data, max_length, length);
+
+	DBG(18, "%d lines read, eof: %d, status: %d\n",
+		*length / s->params.bytes_per_line,
+		s->eof, status);
 
 	/* continue reading if appropriate */
 	if (status == SANE_STATUS_GOOD)

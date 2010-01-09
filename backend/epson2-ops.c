@@ -140,6 +140,8 @@ static const int color_params[] = {
 void
 e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 {
+	DBG(5, "%s\n", __func__);
+
 	dev->name = NULL;
 	dev->model = NULL;
 	dev->connection = conntype;
@@ -179,7 +181,9 @@ SANE_Status
 e2_dev_post_init(struct Epson_Device *dev)
 {
 	int i;
-	
+
+	DBG(5, "%s\n", __func__);
+
 	/* find cct model id */
 	for (i = 0; epson_cct_models[i].name != NULL; i++) {
 		if (strcmp(epson_cct_models[i].name, dev->model) == 0) {
@@ -974,11 +978,11 @@ e2_set_scanning_parameters(Epson_Scanner * s)
 
 	/*
 	 *  There is some undocumented special behavior with the TPU enable/disable.
-	 *      TPU power       ESC e      status
-	 *      on            0        NAK
-	 *      on            1        ACK
-	 *      off          0         ACK
-	 *      off          1         NAK
+	 *      TPU power  ESC e      status
+	 *      on           0        NAK
+	 *      on           1        ACK
+	 *      off          0        ACK
+	 *      off          1        NAK
 	 *
 	 * It makes no sense to scan with TPU powered on and source flatbed, because
 	 * light will come from both sides.
@@ -1167,9 +1171,31 @@ e2_set_scanning_parameters(Epson_Scanner * s)
 	/* not implemented */
 
 	/* ESC A, set scanning area */
-	status = esci_set_scan_area(s, s->left, s->top,
+
+	/*
+	 * Modify the scan area: If the scanner requires color shuffling, then we try to
+	 * scan more lines to compensate for the lines that will be removed from the scan
+	 * due to the color shuffling algorithm.
+	 */
+
+	if (s->hw->color_shuffle == SANE_TRUE) {
+
+		unsigned int lines = s->params.lines + (2 * s->line_distance);
+		int top = s->top - (1 * s->line_distance);
+
+		if (top < 0)
+			top = 0;
+
+		status = esci_set_scan_area(s, s->left, top,
+				    s->params.pixels_per_line,
+				    lines);
+
+	} else {
+
+		status = esci_set_scan_area(s, s->left, s->top,
 				    s->params.pixels_per_line,
 				    s->params.lines);
+	}
 
 	if (status != SANE_STATUS_GOOD)
 		return status;
@@ -1186,6 +1212,8 @@ void
 e2_setup_block_mode(Epson_Scanner * s)
 {
 	int maxreq;
+
+	DBG(5, "%s\n", __func__);
 
 	if (s->hw->connection == SANE_EPSON_SCSI)
 		maxreq = sanei_scsi_max_request_size;
@@ -1218,6 +1246,7 @@ e2_setup_block_mode(Epson_Scanner * s)
 	 * for bi-level scanning. If a bit depth of 1 is selected, then
 	 * make sure the next lower even number is selected.
 	 */
+
 	if (s->lcount > 3 && s->lcount % 2)
 		s->lcount -= 1;
 
@@ -1227,12 +1256,13 @@ e2_setup_block_mode(Epson_Scanner * s)
 SANE_Status
 e2_init_parameters(Epson_Scanner * s)
 {
-	int dpi, max_y, max_x, bytes_per_pixel;
+	int dpi, bytes_per_pixel;
 	struct mode_param *mparam;
+
+	DBG(5, "%s\n", __func__);
 
 	memset(&s->params, 0, sizeof(SANE_Parameters));
 
-	max_x = max_y = 0;
 	dpi = s->val[OPT_RESOLUTION].w;
 
 	mparam = &mode_params[s->val[OPT_MODE].w];
@@ -1241,36 +1271,22 @@ e2_init_parameters(Epson_Scanner * s)
 		SANE_UNFIX(s->val[OPT_BR_X].w) == 0)
 		return SANE_STATUS_INVAL;
 
-	s->left = SANE_UNFIX(s->val[OPT_TL_X].w) / MM_PER_INCH *
-		s->val[OPT_RESOLUTION].w + 0.5;
+	s->left = ((SANE_UNFIX(s->val[OPT_TL_X].w) / MM_PER_INCH) *
+		s->val[OPT_RESOLUTION].w) + 0.5;
 
-	s->top = SANE_UNFIX(s->val[OPT_TL_Y].w) / MM_PER_INCH *
-		s->val[OPT_RESOLUTION].w + 0.5;
+	s->top = ((SANE_UNFIX(s->val[OPT_TL_Y].w) / MM_PER_INCH) *
+		s->val[OPT_RESOLUTION].w) + 0.5;
 
-	/* XXX check this */
 	s->params.pixels_per_line =
-		SANE_UNFIX(s->val[OPT_BR_X].w -
-			   s->val[OPT_TL_X].w) / MM_PER_INCH * dpi + 0.5;
+		((SANE_UNFIX(s->val[OPT_BR_X].w -
+			   s->val[OPT_TL_X].w) / MM_PER_INCH) * dpi) + 0.5;
 	s->params.lines =
-		SANE_UNFIX(s->val[OPT_BR_Y].w -
-			   s->val[OPT_TL_Y].w) / MM_PER_INCH * dpi + 0.5;
+		((SANE_UNFIX(s->val[OPT_BR_Y].w -
+			   s->val[OPT_TL_Y].w) / MM_PER_INCH) * dpi) + 0.5;
 
-	/*
-	 * Make sure that the number of lines is correct for color shuffling:
-	 * The shuffling alghorithm produces 2xline_distance lines at the
-	 * beginning and the same amount at the end of the scan that are not
-	 * useable. If s->params.lines gets negative, 0 lines are reported
-	 * back to the frontend.
-	 */
-	if (s->hw->color_shuffle) {
-		s->params.lines -= 4 * s->line_distance;
-		if (s->params.lines < 0) {
-			s->params.lines = 0;
-		}
-		DBG(1,
-		    "adjusted params.lines for color_shuffle by %d to %d\n",
-		    4 * s->line_distance, s->params.lines);
-	}
+
+	DBG(1, "%s: resolution = %d, preview = %d\n",
+		__func__, s->val[OPT_RESOLUTION].w, s->val[OPT_PREVIEW].w);
 
 	DBG(1, "%s: %p %p tlx %f tly %f brx %f bry %f [mm]\n",
 	    __func__, (void *) s, (void *) s->val,
@@ -1341,45 +1357,31 @@ e2_init_parameters(Epson_Scanner * s)
 	 */
 
 	s->hw->color_shuffle = SANE_FALSE;
-	s->current_output_line = 0;
+
 	s->lines_written = 0;
 	s->color_shuffle_line = 0;
+	s->current_output_line = 0;
 
 	if ((s->hw->optical_res != 0) && (mparam->depth == 8)
 	    && (mparam->flags != 0)) {
+
 		s->line_distance =
 			s->hw->max_line_distance * dpi / s->hw->optical_res;
+
 		if (s->line_distance != 0) {
+
 			s->hw->color_shuffle = SANE_TRUE;
-		} else
-			s->hw->color_shuffle = SANE_FALSE;
-	}
 
-	/*
-	 * Modify the scan area: If the scanner requires color shuffling, then we try to
-	 * scan more lines to compensate for the lines that will be removed from the scan
-	 * due to the color shuffling alghorithm.
-	 * At this time we add two times the line distance to the number of scan lines if
-	 * this is possible - if not, then we try to calculate the number of additional
-	 * lines according to the selected scan area.
-	 */
-
-	if (s->hw->color_shuffle == SANE_TRUE) {
-
-		/* start the scan 2 * line_distance earlier */
-		s->top -= 2 * s->line_distance;
-		if (s->top < 0) {
-			s->top = 0;
+			DBG(1, "%s: color shuffling required\n",  __func__);
 		}
-
-		/* scan 4*line_distance lines more */
-		s->params.lines += 4 * s->line_distance;
 	}
 
 	/*
 	 * If (s->top + s->params.lines) is larger than the max scan area, reset
 	 * the number of scan lines:
+	 * XXX: precalculate the maximum scanning area elsewhere (use dev max_y)
 	 */
+
 	if (SANE_UNFIX(s->val[OPT_BR_Y].w) / MM_PER_INCH * dpi <
 	    (s->params.lines + s->top)) {
 		s->params.lines =
@@ -1396,17 +1398,17 @@ e2_init_parameters(Epson_Scanner * s)
 	 * 'D' and not for the actual numeric level.
 	 */
 
-	if ((s->hw->cmd->level[0] == 'B') && (s->hw->level >= 5))
-		e2_setup_block_mode(s);
-	else if ((s->hw->cmd->level[0] == 'B') && (s->hw->level == 4)
-		 && (!mode_params[s->val[OPT_MODE].w].color))
-		e2_setup_block_mode(s);
-	else if (s->hw->cmd->level[0] == 'D')
+	if ((s->hw->cmd->level[0] == 'B') && (s->hw->level >= 5)) /* >= B5 */
 		e2_setup_block_mode(s);
 
-	/* XXX call print_params here */
+	else if ((s->hw->cmd->level[0] == 'B') && (s->hw->level == 4) /* B4 !color */
+		&& (!mode_params[s->val[OPT_MODE].w].color))
+		e2_setup_block_mode(s);
 
-	return SANE_STATUS_GOOD;
+	else if (s->hw->cmd->level[0] == 'D') /* Dx */
+		e2_setup_block_mode(s);
+
+	return (s->params.lines > 0) ? SANE_STATUS_GOOD : SANE_STATUS_INVAL;
 }
 
 void
@@ -1668,9 +1670,8 @@ e2_copy_image_data(Epson_Scanner * s, SANE_Byte * data, SANE_Int max_length,
 }
 
 SANE_Status
-e2_ext_sane_read(SANE_Handle handle)
+e2_ext_read(struct Epson_Scanner *s)
 {
-	Epson_Scanner *s = (Epson_Scanner *) handle;
 	SANE_Status status = SANE_STATUS_GOOD;
 	ssize_t buf_len = 0, read;
 
@@ -1978,9 +1979,8 @@ get_color(int status)
 
 
 SANE_Status
-e2_block_sane_read(SANE_Handle handle)
+e2_block_read(struct Epson_Scanner *s)
 {
-	Epson_Scanner *s = (Epson_Scanner *) handle;
 	SANE_Status status;
 	SANE_Bool reorder = SANE_FALSE;
 	SANE_Bool needStrangeReorder = SANE_FALSE;

@@ -1215,6 +1215,8 @@ e2_setup_block_mode(Epson_Scanner * s)
 
 	DBG(5, "%s\n", __func__);
 
+	s->block = SANE_TRUE;
+
 	if (s->hw->connection == SANE_EPSON_SCSI)
 		maxreq = sanei_scsi_max_request_size;
 	else if (s->hw->connection == SANE_EPSON_USB)
@@ -1222,11 +1224,15 @@ e2_setup_block_mode(Epson_Scanner * s)
 	else
 		maxreq = 32 * 1024;
 
-	s->block = SANE_TRUE;
+	/* XXX verify if this can b extended to other models */
+	if (s->hw->connection == SANE_EPSON_NET && e2_model(s, "LP-A500"))
+		maxreq = 64 * 1024;
+
 	s->lcount = maxreq / s->params.bytes_per_line;
 
-	DBG(1, "max req size: %d\n", maxreq);
+	DBG(1, "max req size: %d, line count: %d\n", maxreq, s->lcount);
 
+	/* XXX investigate this */
 	if (s->lcount < 3 && e2_model(s, "GT-X800")) {
 		s->lcount = 21;
 		DBG(17,
@@ -1247,10 +1253,11 @@ e2_setup_block_mode(Epson_Scanner * s)
 	 * make sure the next lower even number is selected.
 	 */
 
+	/* XXX check bith depth? */
 	if (s->lcount > 3 && s->lcount % 2)
 		s->lcount -= 1;
 
-	DBG(1, "line count is %d\n", s->lcount);
+	DBG(1, "final line count is %d\n", s->lcount);
 }
 
 SANE_Status

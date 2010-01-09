@@ -2247,12 +2247,20 @@ sane_read(SANE_Handle handle, SANE_Byte *data, SANE_Int max_length,
 	SANE_Status status;
 	Epson_Scanner *s = (Epson_Scanner *) handle;
 
+	if (s->buf == NULL || s->canceling)
+		return SANE_STATUS_CANCELLED;
+
 	*length = 0;
 
 	if (s->hw->extended_commands)
 		status = e2_ext_read(s);
 	else
 		status = e2_block_read(s);
+
+	if (status == SANE_STATUS_CANCELLED) {
+		e2_scan_finish(s);
+		return status;
+	}
 
 	DBG(18, "moving data %p %p, %d (%d lines)\n",
 		s->ptr, s->end,
@@ -2284,41 +2292,8 @@ void
 sane_cancel(SANE_Handle handle)
 {
 	Epson_Scanner *s = (Epson_Scanner *) handle;
-	SANE_Status status = SANE_STATUS_GOOD;
 
-	/*
-	 * If the s->ptr pointer is not NULL, then a scan operation
-	 * was started and if s->eof is FALSE, it was not finished.
-	 */
-
-	if (s->buf) {
-		unsigned char *dummy;
-		int len;
-
-		/* malloc one line */
-		dummy = malloc(s->params.bytes_per_line);
-		if (dummy == NULL) {
-			DBG(1, "Out of memory\n");
-			return;
-		}
-
-		/* there is still data to read from the scanner */
-		s->canceling = SANE_TRUE;
-
-		/* XXX check this condition, we used to check
-		 * for SANE_STATUS_CANCELLED  */
-		while (!s->eof &&
-		       (status == SANE_STATUS_GOOD
-			|| status == SANE_STATUS_DEVICE_BUSY)) {
-			/* empty body, the while condition does the processing */
-			/* XXX ? */
-			status = sane_read(s, dummy,
-					   s->params.bytes_per_line,
-					   &len);
-		}
-
-		free(dummy);
-	}
+	s->canceling = SANE_TRUE;
 }
 
 /*

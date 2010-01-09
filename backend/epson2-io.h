@@ -43,6 +43,7 @@ e2_cmd_info_block(SANE_Handle handle, unsigned char *params,
 
 SANE_Status e2_ack(Epson_Scanner * s);
 SANE_Status e2_ack_next(Epson_Scanner * s, size_t reply_len);
+SANE_Status e2_cancel(Epson_Scanner * s);
 
 SANE_Status
 e2_esc_cmd(Epson_Scanner * s, unsigned char cmd, unsigned char val);

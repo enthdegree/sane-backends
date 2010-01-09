@@ -1241,7 +1241,7 @@ e2_setup_block_mode(Epson_Scanner * s)
 	 */
 
 	/* XXX check bith depth? */
-	if (s->lcount > 3 && s->lcount % 2)
+	if (s->hw->cmd->level[0] == 'D' && s->lcount > 3 && s->lcount % 2)
 		s->lcount -= 1;
 
 	DBG(1, "final line count is %d\n", s->lcount);
@@ -1482,6 +1482,10 @@ e2_wait_warm_up(Epson_Scanner * s)
 	s->retry_count = 0;
 
 	while (1) {
+
+		if (s->canceling)
+			return SANE_STATUS_CANCELLED;
+
 		status = e2_check_warm_up(s, &wup);
 		if (status != SANE_STATUS_GOOD)
 			return status;
@@ -1601,7 +1605,7 @@ e2_start_ext_scan(Epson_Scanner * s)
 
 	if (s->ext_last_len) {
 		s->ext_blocks++;
-		DBG(1, "adj block count: %d\n", s->ext_blocks);
+		DBG(1, "adjusted block count: %d\n", s->ext_blocks);
 	}
 
 	/* adjust block len if we have only one block to read */
@@ -1685,8 +1689,9 @@ e2_ext_read(struct Epson_Scanner *s)
 		if (s->ext_counter == s->ext_blocks && s->ext_last_len)
 			buf_len = s->ext_last_len;
 
-		DBG(18, "%s: block %d, size %lu\n", __func__, s->ext_counter,
-		    (unsigned long) buf_len);
+		DBG(18, "%s: block %d/%d, size %lu\n", __func__,
+			s->ext_counter, s->ext_blocks,
+			(unsigned long) buf_len);
 
 		/* receive image data + error code */
 		read = e2_recv(s, s->buf, buf_len + 1, &status);
@@ -1706,6 +1711,11 @@ e2_ext_read(struct Epson_Scanner *s)
 
 			if (s->ext_counter == (s->ext_blocks - 1))
 				next_len = s->ext_last_len;
+
+			if (s->canceling) {
+				e2_cancel(s);
+				return SANE_STATUS_CANCELLED;
+			}
 
 			status = e2_ack_next(s, next_len + 1);
 		} else
@@ -2024,7 +2034,7 @@ e2_block_read(struct Epson_Scanner *s)
 			s->eof = SANE_TRUE;
 		} else {
 			if (s->canceling) {
-				status = e2_cmd_simple(s, S_CAN, 1);
+				e2_cancel(s);
 				return SANE_STATUS_CANCELLED;
 			} else {
 				status = e2_ack(s);

@@ -383,3 +383,10 @@ e2_ack_next(Epson_Scanner * s, size_t reply_len)
 	e2_send(s, S_ACK, 1, reply_len, &status);
 	return status;
 }
+
+SANE_Status
+e2_cancel(Epson_Scanner * s)
+{
+	DBG(1, "%s\n", __func__);
+	return e2_cmd_simple(s, S_CAN, 1);
+}

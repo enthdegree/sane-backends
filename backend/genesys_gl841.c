@@ -6000,7 +6000,14 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 				 local_reg,
 				 dpi,
 				 dpi,
-				 0, 0, pixels, lines, depth, channels, 0, 0);
+				 0,
+                                 0,
+                                 pixels,
+                                 lines,
+                                 depth,
+                                 channels,
+                                 0,
+                                 SCAN_FLAG_DISABLE_SHADING | SCAN_FLAG_DISABLE_GAMMA);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -6063,7 +6070,7 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   pass = 0;
   if (DBG_LEVEL >= DBG_data)
     {
-      sprintf (title, "search_strip_%s%02d.pnm",
+      sprintf (title, "search_strip_%s_%s%02d.pnm", black ? "black" : "white",
 	       forward ? "fwd" : "bwd", pass);
       sanei_genesys_write_pnm_file (title, data, depth, channels, pixels,
 				    lines);
@@ -6120,10 +6127,10 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "search_strip_%s%02d.pnm",
-		   forward ? "fwd" : "bwd", pass);
-	  sanei_genesys_write_pnm_file (title, data, depth, channels,
-					pixels, lines);
+	  sprintf (title, "search_strip_%s_%s%02d.pnm",
+		   black ? "black" : "white", forward ? "fwd" : "bwd", pass);
+	  sanei_genesys_write_pnm_file (title, data, depth, channels, pixels,
+					lines);
 	}
 
       /* search data to find black strip */
@@ -6162,13 +6169,14 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 		}
 	      else
 		{
-		  DBG (DBG_data, "gl841_search_strip: pixels=%d, count=%d\n",
-		       pixels, count);
+		  DBG (DBG_data,
+		       "gl841_search_strip: pixels=%d, count=%d (%d%%)\n",
+		       pixels, count, (100 * count) / pixels);
 		}
 	    }
 	}
-      else /* since calibration scans are done forward, we need the whole area
-	      to be of the required color when searching backward */
+      else			/* since calibration scans are done forward, we need the whole area
+				   to be of the required color when searching backward */
 	{
 	  count = 0;
 	  for (y = 0; y < lines; y++)
@@ -6195,12 +6203,14 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	    {
 	      found = 1;
 	      DBG (DBG_data,
-		   "gl841_search_strip: strip found backward during pass %d \n", pass);
+		   "gl841_search_strip: strip found backward during pass %d \n",
+		   pass);
 	    }
 	  else
 	    {
-	      DBG (DBG_data, "gl841_search_strip: pixels=%d, count=%d\n",
-		   pixels, count);
+	      DBG (DBG_data,
+		   "gl841_search_strip: pixels=%d, count=%d (%d%%)\n", pixels,
+		   count, (100 * count) / pixels);
 	    }
 	}
       pass++;
@@ -6209,12 +6219,14 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   if (found)
     {
       status = SANE_STATUS_GOOD;
-      DBG (DBG_info, "gl841_search_strip: strip found\n");
+      DBG (DBG_info, "gl841_search_strip: %s strip found\n",
+	   black ? "black" : "white");
     }
   else
     {
       status = SANE_STATUS_UNSUPPORTED;
-      DBG (DBG_info, "gl841_search_strip: strip not found\n");
+      DBG (DBG_info, "gl841_search_strip: %s strip not found\n",
+	   black ? "black" : "white");
     }
 
   DBG (DBG_proc, "gl841_search_strip: completed\n");

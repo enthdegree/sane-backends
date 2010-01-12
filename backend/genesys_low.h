@@ -481,21 +481,23 @@ typedef struct
 {
   int scan_method;		/* todo: change >=2: Transparency, 0x88: negative film */
   int scan_mode;		/* todo: change 0,1 = lineart, halftone; 2 = gray, 3 = 3pass color, 4=single pass color */
-  int xres;			/* dpi */
-  int yres;			/* dpi */
+  int xres;			/**> horizontal dpi */
+  int yres;			/**> vertical dpi */
 
   double tl_x;			/* x start on scan table in mm */
   double tl_y;			/* y start on scan table in mm */
 
-  unsigned int lines;		/* number of lines at scan resolution */
-  unsigned int pixels;		/* number of pixels at scan resolution */
+  unsigned int lines;		/**> number of lines at scan resolution */
+  unsigned int pixels;		/**> number of pixels at scan resolution */
 
   unsigned int depth;/* bit depth of the scan */
 
   /* todo : remove these fields ? */
   int exposure_time;
 
-  unsigned int color_filter;	/* todo: check, may be make it an advanced option */
+  unsigned int color_filter;
+
+  int true_gray;		/**> true if scan is true gray, false if monochrome scan */
 
   /* BW threshold */
   int threshold;

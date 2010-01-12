@@ -2578,8 +2578,6 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     }
     
     r->value &= ~(REG04_FILTER | REG04_AFEMOD);
-    /* we could make the color filter used an advanced option of the 
-       backend */
     if (channels == 1) {
 	switch (color_filter) {
 	    case 0:
@@ -4609,6 +4607,7 @@ static SANE_Status
 gl841_init_regs_for_scan (Genesys_Device * dev)
 {
   int channels;
+  int flags;
   int depth;
   float move;
   int move_dpi;
@@ -4678,6 +4677,17 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
 
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
 
+  flags=0;
+
+  /* we aneable true gray for cis scanners only, and just when doing 
+   * scan since color calibration is OK for this mode
+   */
+  flags = 0;
+  if(dev->model->is_cis && dev->settings.true_gray)
+    {
+      flags |= OPTICAL_FLAG_ENABLE_LEDADD;
+    }
+
   status = gl841_init_scan_regs (dev,
 				 dev->reg,
 				 dev->settings.xres,
@@ -4689,7 +4699,7 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
 				 depth,
 				 channels,
 				 dev->settings.color_filter,
-				 OPTICAL_FLAG_ENABLE_LEDADD);
+				 flags);
   
   if (status != SANE_STATUS_GOOD)
       return status;

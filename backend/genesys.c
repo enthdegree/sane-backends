@@ -102,6 +102,14 @@ static SANE_String_Const color_filter_list[] = {
   0
 };
 
+static SANE_String_Const cis_color_filter_list[] = {
+  SANE_I18N ("None"),
+  SANE_I18N ("Red"),
+  SANE_I18N ("Green"),
+  SANE_I18N ("Blue"),
+  0
+};
+
 static SANE_String_Const source_list[] = {
   SANE_I18N ("Flatbed"),
   SANE_I18N ("Transparency Adapter"),
@@ -5149,6 +5157,9 @@ calc_parameters (Genesys_Scanner * s)
   else
     s->dev->settings.color_filter = 1;
 
+  if (strcmp (color_filter, "None") == 0)
+    s->dev->settings.true_gray = 1;
+
   return status;
 }
 
@@ -5442,9 +5453,18 @@ init_options (Genesys_Scanner * s)
     ("When using gray or lineart this option selects the used color.");
   s->opt[OPT_COLOR_FILTER].type = SANE_TYPE_STRING;
   s->opt[OPT_COLOR_FILTER].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  s->opt[OPT_COLOR_FILTER].size = max_string_size (color_filter_list);
-  s->opt[OPT_COLOR_FILTER].constraint.string_list = color_filter_list;
-  s->val[OPT_COLOR_FILTER].s = strdup ("Green");
+  if(!model->is_cis)
+    {
+      s->opt[OPT_COLOR_FILTER].size = max_string_size (color_filter_list);
+      s->opt[OPT_COLOR_FILTER].constraint.string_list = color_filter_list;
+      s->val[OPT_COLOR_FILTER].s = strdup (s->opt[OPT_COLOR_FILTER].constraint.string_list[1]);
+    }
+  else
+    {
+      s->opt[OPT_COLOR_FILTER].size = max_string_size (cis_color_filter_list);
+      s->opt[OPT_COLOR_FILTER].constraint.string_list = cis_color_filter_list;
+      s->val[OPT_COLOR_FILTER].s = strdup (s->opt[OPT_COLOR_FILTER].constraint.string_list[0]);
+    }
 
   /* for GL646 cis scanners we're using true gray so ther is no filter */ 
   if (model->asic_type == GENESYS_GL646 && model->is_cis)

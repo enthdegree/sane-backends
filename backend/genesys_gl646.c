@@ -903,7 +903,7 @@ gl646_setup_registers (Genesys_Device * dev,
     regs[reg_0x05].value &= ~REG05_GMMENB;
 
   /* true CIS gray if needed */
-  if (dev->model->is_cis == SANE_TRUE && color == SANE_FALSE)
+  if (dev->model->is_cis == SANE_TRUE && dev->settings.true_gray)
     {
       regs[reg_0x05].value |= REG05_LEDADD;
     }
@@ -5058,12 +5058,12 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 		{
 		  found = 1;
 		  DBG (DBG_data,
-		       "gl841_search_strip: strip found forward during pass %d at line %d\n",
+		       "gl646_search_strip: strip found forward during pass %d at line %d\n",
 		       pass, y);
 		}
 	      else
 		{
-		  DBG (DBG_data, "gl841_search_strip: pixels=%d, count=%d\n",
+		  DBG (DBG_data, "gl646_search_strip: pixels=%d, count=%d\n",
 		       settings.pixels, count);
 		}
 	    }
@@ -5096,12 +5096,12 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	    {
 	      found = 1;
 	      DBG (DBG_data,
-		   "gl841_search_strip: strip found backward during pass %d \n",
+		   "gl646_search_strip: strip found backward during pass %d \n",
 		   pass);
 	    }
 	  else
 	    {
-	      DBG (DBG_data, "gl841_search_strip: pixels=%d, count=%d\n",
+	      DBG (DBG_data, "gl646_search_strip: pixels=%d, count=%d\n",
 		   settings.pixels, count);
 	    }
 	}

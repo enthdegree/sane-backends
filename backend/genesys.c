@@ -5159,6 +5159,8 @@ calc_parameters (Genesys_Scanner * s)
 
   if (strcmp (color_filter, "None") == 0)
     s->dev->settings.true_gray = 1;
+  else
+    s->dev->settings.true_gray = 0;
 
   return status;
 }
@@ -5465,12 +5467,6 @@ init_options (Genesys_Scanner * s)
       s->opt[OPT_COLOR_FILTER].constraint.string_list = cis_color_filter_list;
       s->val[OPT_COLOR_FILTER].s = strdup (s->opt[OPT_COLOR_FILTER].constraint.string_list[0]);
     }
-
-  /* for GL646 cis scanners we're using true gray so ther is no filter */ 
-  if (model->asic_type == GENESYS_GL646 && model->is_cis)
-   {
-      s->opt[OPT_COLOR_FILTER].cap = SANE_CAP_INACTIVE;
-   }
 
   /* Powersave time (turn lamp off) */
   s->opt[OPT_LAMP_OFF_TIME].name = "lamp-off-time";

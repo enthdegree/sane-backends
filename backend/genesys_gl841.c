@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004, 2005 Stephane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004, 2009 Stephane Voltz <stef.dev@free.fr>
    Copyright (C) 2005 Philipp Schmid <philipp8288@web.de>
    Copyright (C) 2005 - 2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
@@ -256,6 +256,7 @@
 #define REG6C_GPIOH	0xff
 #define REG6C_GPIOL	0xff
 
+#define REG87_LEDADD    0x04
 
 /* we don't need a genesys_sanei_gl841.h yet, declarations aren't numerous enough */
 			 /* writable registers *//*adapted to sanei_gl841 */
@@ -2426,9 +2427,10 @@ gl841_get_dpihw(Genesys_Device * dev)
   return 0;
 }
 
-#define OPTICAL_FLAG_DISABLE_GAMMA 1
+#define OPTICAL_FLAG_DISABLE_GAMMA   1
 #define OPTICAL_FLAG_DISABLE_SHADING 2
-#define OPTICAL_FLAG_DISABLE_LAMP 4
+#define OPTICAL_FLAG_DISABLE_LAMP    4
+#define OPTICAL_FLAG_ENABLE_LEDADD   8
 
 static SANE_Status
 gl841_init_optical_regs_off(Genesys_Device * dev,
@@ -2592,6 +2594,18 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 	}
     } else 
 	r->value |= 0x10;	/* color pixel by pixel */
+
+    /* CIS scanners can do true gray by setting LEDADD */
+    if (dev->model->is_cis == SANE_TRUE)
+      {
+        r = sanei_genesys_get_address (reg, 0x87);
+	r->value &= ~REG87_LEDADD;
+        /* we set up LEDADD only when asked */
+        if (channels==1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
+          {
+	    r->value |= REG87_LEDADD;
+          }
+      }
     
     /* enable gamma tables */
     r = sanei_genesys_get_address (reg, 0x05);
@@ -4675,8 +4689,7 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
 				 depth,
 				 channels,
 				 dev->settings.color_filter,
-				 0
-      );
+				 OPTICAL_FLAG_ENABLE_LEDADD);
   
   if (status != SANE_STATUS_GOOD)
       return status;

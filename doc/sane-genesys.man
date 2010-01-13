@@ -10,17 +10,17 @@ access to USB flatbed scanners based on the Genesys GL646 and GL841 chips.
 At present, the following scanners are known to work with this backend:
 .PP 
 .RS
-Medion MD6228
-.br 
-Medion MD6274
+Medion MD5345/MD6228/MD6274
 .br 
 Hewlett-Packard HP2300C
 .br 
-Visioneer Strobe XP200/XP300
+Visioneer Strobe XP100 (rev3)/XP200/XP300/Roadwarrior
 .br
 Canon LiDE 35/40/50/60
 .br
 Pentax DSmobile 600
+.br
+Syscan/Ambir DocketPORT 485/487/665/685
 .RE
 
 .PP 
@@ -43,10 +43,29 @@ or GL841 chipset, you can try to add it to the backend.
 To give correct image quality, sheet fed scanners need to be calibrated using the
 calibration sheet sold with the scanner. To do calibration, you must insert this target
 in the feeder then start calibration either by passing the --calibrate option to scanimage
-or by clicking on the available 'calibrate' button in the 'advanced options' in graphical
+or by clicking on the available 'calibrate' button in the 'advanced options' in a graphical
 frontend. The result of the calibration is stored in a file in the home directory of the user doing it.
 If you plug the scanner in another machine or use it with another account, calibration
 will have to be redone.
+
+.SH EXTRAS SCAN OPTIONS
+
+.B \-\-lamp\-off\-time number
+        The lamp will be turned off after the given time (in minutes). A value of 0 means that the lamp won't be turned off.
+
+.B \-\-threshold  percent
+	0..100% (in steps of 1). Select minimum brightness to get a white point. Pixels
+whith brightness below that value will be scanned as black.
+
+.B \-\-disable-interpolation yes|no
+        When using high resolutions where the horizontal resolution is smaller than vertical resolution,
+data is expanded by software to preserve picture geometry. This can be disbled by this option to get
+real scanned data.
+
+.B \-\-color-filter None|Red|Green|Blue
+        When using gray or lineart this option selects the used color. Using a color filter
+will give a monochrome scan. CIS based scanners can to true gray when no filter (None value) is
+selected.
 
 .PP
 .SH "SYSTEM ISSUES"
@@ -150,8 +169,6 @@ Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 .SH "LIMITATIONS"
 
 Powersaving isn't implemented for gl646 based scanner.
-.br
-Calibration for sheetfed scanners isn't implemented for all scanners.
 .br
 
 .SH "BUGS"

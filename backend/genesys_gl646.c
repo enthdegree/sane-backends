@@ -903,7 +903,7 @@ gl646_setup_registers (Genesys_Device * dev,
     regs[reg_0x05].value &= ~REG05_GMMENB;
 
   /* true CIS gray if needed */
-  if (dev->model->is_cis == SANE_TRUE && dev->settings.true_gray)
+  if (dev->model->is_cis == SANE_TRUE && color == SANE_TRUE && dev->settings.true_gray)
     {
       regs[reg_0x05].value |= REG05_LEDADD;
     }

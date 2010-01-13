@@ -1,3 +1,8 @@
+2010-01-13  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.c backend/genesys_low.c backend/genesys_gl646.c
+	backend/genesys_gl841.c doc/sane-genesys.man : add true gray scanning
+	for CIS based scanners
+
 2010-01-08  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
 	pixma: updated documentation for MP490 and MP550 (supported models).

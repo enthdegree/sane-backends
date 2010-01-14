@@ -5429,7 +5429,6 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
   s->opt[OPT_THRESHOLD].type = SANE_TYPE_FIXED;
   s->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
-  s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
   s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_THRESHOLD].constraint.range = &threshold_percentage_range;
   s->val[OPT_THRESHOLD].w = SANE_FIX (50);

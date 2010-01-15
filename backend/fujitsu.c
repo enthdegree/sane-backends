@@ -479,22 +479,10 @@
 
 #include "../include/sane/config.h"
 
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-/*#include <time.h>*/
-#include <math.h>
-
-#include <sys/types.h>
-#include <unistd.h>
-#ifdef HAVE_LIBC_H
-# include <libc.h>              /* NeXTStep/OpenStep */
-#endif
+#include <string.h> /*memcpy...*/
+#include <ctype.h> /*isspace*/
+#include <math.h> /*tan*/
+#include <unistd.h> /*usleep*/
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_scsi.h"

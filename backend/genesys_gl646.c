@@ -994,7 +994,7 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* wpl must be computed according to the scan's resolution */
   /* in fact, wpl _gives_ the actual scan resolution */
-  wpl = ((endx - startx) * sensor->xdpi) / dev->sensor.optical_res;
+  wpl = (((endx - startx) * sensor->xdpi) / dev->sensor.optical_res)*sensor->cksel;
   if (depth == 16)
     wpl *= 2;
   if (dev->model->is_cis == SANE_FALSE)

@@ -1,3 +1,7 @@
+2010-01-16  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.c backend/genesys_gl646.c: re-enable threshold
+	option, fix wpl computing for HP2400
+	
 2010-01-13  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_low.c backend/genesys_gl646.c
 	backend/genesys_gl841.c doc/sane-genesys.man : add true gray scanning

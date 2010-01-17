@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.18\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-01-17 10:07+0100\n"
-"PO-Revision-Date: 2010-01-17 10:01+0100\n"
+"PO-Revision-Date: 2010-01-17 10:25+0100\n"
 "Last-Translator: Mattias Ellert <mattias.ellert@tsl.uu.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -1265,7 +1265,7 @@ msgstr "Behöver kalibrering"
 #: .tmp/genesys.c:5586 .tmp/gt68xx.c:763
 #, no-c-format
 msgid "The scanner needs calibration for the current settings"
-msgstr "Bildläsaren behöver kalibrering för nuvarade inställningar"
+msgstr "Bildläsaren behöver kalibrering för nuvarande inställningar"
 
 #: .tmp/genesys.c:5599 .tmp/genesys.c:5600 .tmp/gt68xx.c:787
 #: .tmp/gt68xx.c:788 .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1079

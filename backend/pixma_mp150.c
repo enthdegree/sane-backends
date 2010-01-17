@@ -88,7 +88,7 @@
    4096 = size of gamma table. 24 = header + checksum */
 #define IMAGE_BLOCK_SIZE (512*1024)
 #define CMDBUF_SIZE (4096 + 24)
-#define DEFAULT_GAMMA 1.0
+#define DEFAULT_GAMMA 2.0	/***** Gamma different from 1.0 is potentially impacting color profile generation *****/
 #define UNKNOWN_PID 0xffff
 
 
@@ -440,7 +440,6 @@ select_source (pixma_t * s)
         data[1] = 2;
         break;
     }
-
   return pixma_exec (s, &mp->cb);
 }
 
@@ -527,15 +526,16 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
      other models, too? */
   if (mp->generation >= 2)
     {
-      raw_width = ALIGN_SUP (param->w, 32);
+      raw_width = ALIGN_SUP (param->w + param->xs, 32);					/******** Changed here *******/
+      PDBG (pixma_dbg (4, "*calc_raw_width***** width %i extended by %i and rounded to %i *****\n", param->w, param->xs, raw_width));
     }
   else if (param->channels == 1)
     {
-      raw_width = ALIGN_SUP (param->w, 12);
+      raw_width = ALIGN_SUP (param->w + param->xs, 12);					/******** Changed here *******/
     }
   else
     {
-      raw_width = ALIGN_SUP (param->w, 4);
+      raw_width = ALIGN_SUP (param->w + param->xs, 4);					/******** Changed here *******/
     }
   return raw_width;
 }
@@ -556,7 +556,7 @@ is_ccd_grayscale (pixma_t * s)
 static unsigned
 get_cis_ccd_line_size (pixma_t * s)
 {
-  return (s->param->line_size * ((is_ccd_grayscale (s)) ? 3 : 1));
+  return (s->param->wx ? s->param->line_size / s->param->w * s->param->wx : s->param->line_size) * ((is_ccd_grayscale (s)) ? 3 : 1);
 }
  
 static unsigned
@@ -695,7 +695,9 @@ send_scan_param (pixma_t * s)
       data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
       pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
       pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
-      pixma_set_be32 (s->param->x, data + 0x0c);
+      PDBG (pixma_dbg (4, "*send_scan_param***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n", 
+                           s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width));
+      pixma_set_be32 (s->param->x - s->param->xs, data + 0x0c);				/******** Changed here *******/
       pixma_set_be32 (s->param->y, data + 0x10);
       pixma_set_be32 (raw_width, data + 0x14);
       pixma_set_be32 (h, data + 0x18);
@@ -937,7 +939,6 @@ shift_colors (uint8_t * dptr, uint8_t * sptr,
   UNUSED(dpi);
   UNUSED(pid);
   sr = colshft[0]; sg = colshft[1]; sb = colshft[2];
-  
   for (i = 0; i < w; i++)
     {
       /* stripes shift for MP970 at 4800 dpi, MP800, MP800R, MP810 at 2400 dpi */
@@ -1030,10 +1031,12 @@ static unsigned
 post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned c, lines, i, line_size, n, m;
-  uint8_t *sptr, *dptr, *gptr;
+  unsigned c, lines, i, line_size, n, m, cw, cx;
+  uint8_t *sptr, *dptr, *gptr, *cptr;
 
   c = ((is_ccd_grayscale (s)) ? 3 : s->param->channels) * s->param->depth / 8;
+  cw = c * s->param->w;
+  cx = c * s->param->xs;
   
   if (mp->generation >= 3)
     n = s->param->xdpi / 600;
@@ -1046,38 +1049,48 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID) 
     n = s->param->xdpi / 1200;
   
-  m = (n > 0) ? s->param->w / n : 1;
-  sptr = dptr = gptr = mp->imgbuf;
+  m = (n > 0) ? s->param->wx / n : 1;							/******** Changed here *******/
+  sptr = dptr = gptr = cptr = mp->imgbuf;
   line_size = get_cis_ccd_line_size (s);
+  PDBG (pixma_dbg (4, "*post_process_image_data***** ----- Set n=%u, m=%u, line_size=%u ----- ***** \n", n, m, line_size));
 
   lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
+  PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i > 2 * mp->color_shift + mp->stripe_shift = %i ***** \n",
+	        lines, 2 * mp->color_shift + mp->stripe_shift));
   if (lines > 2 * mp->color_shift + mp->stripe_shift)
     {
       lines -= 2 * mp->color_shift + mp->stripe_shift;
       for (i = 0; i < lines; i++, sptr += line_size)
         {
           /* Color plane and stripes shift needed by e.g. CCD */
+          PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, w=%i, line_size=%u ***** \n",
+	        c, n, m, s->param->wx, line_size));
           if (c >= 3)
             dptr = shift_colors (dptr, sptr, 
-                                 s->param->w, s->param->xdpi, s->cfg->pid, c,
+                                 s->param->wx, s->param->xdpi, s->cfg->pid, c,		/******** Changed here *******/
                                  mp->shift, mp->stripe_shift);
                        
           /* special image format for *most* devices at high dpi. 
            * MP220 is a gen3 exception */
           if (s->cfg->pid != MP220_PID && n > 0)
-              reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->w, line_size);
+              reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);	/******** Changed here *******/
           
           /* MP970 specific reordering for 4800 dpi */
           if (s->cfg->pid == MP970_PID && s->param->xdpi == 4800)
-              mp970_reorder_pixels (mp->linebuf, sptr, c, s->param->w, line_size);
+              mp970_reorder_pixels (mp->linebuf, sptr, c, s->param->wx, line_size);	/******** Changed here *******/
 
+	  /* Crop line to selected borders */						/******** Added code here *******/
+	  memcpy(cptr, sptr + cx, cw);
+	  
           /* Color to Grayscale convert for CCD sensor */
           if (is_ccd_grayscale (s))
-              gptr = rgb_to_gray (gptr, sptr, s->param->w, c);
+              gptr = rgb_to_gray (gptr, cptr, s->param->w, c);				/******** Changed here *******/
+	  else
+	      cptr += cw;
         }
     }
   ib->rptr = mp->imgbuf;
-  ib->rend = (is_ccd_grayscale (s)) ? gptr : sptr;
+  ib->rend = (is_ccd_grayscale (s)) ? gptr : cptr;
   return mp->data_left_ofs - sptr;    /* # of non processed bytes */
 }
 
@@ -1162,12 +1175,16 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   if (mp->generation >= 2)
     {
       /* mod 32 and expansion of the X scan limits */
-      sp->w += (sp->x) % 32;
-      sp->x = ALIGN_INF (sp->x, 32);
+      PDBG (pixma_dbg (4, "*mp150_check_param***** ----- Initially: x=%i, y=%i, w=%i, h=%i *****\n", sp->x, sp->y, sp->w, sp->h));
+      sp->xs = (sp->x) % 32;								/******** Changed here *******/
     }
-  sp->w = calc_raw_width (mp, sp);
-  sp->line_size = sp->w * sp->channels * (sp->depth / 8);
-  
+  else
+      sp->xs = 0;
+  PDBG (pixma_dbg (4, "*mp150_check_param***** Selected origin, origin shift: %i, %i *****\n", sp->x, sp->xs));
+  sp->wx = calc_raw_width (mp, sp);							/******** Changed here *******/
+  sp->line_size = sp->w * sp->channels * (sp->depth / 8);		/* bytes per line per color after cropping */
+  PDBG (pixma_dbg (4, "*mp150_check_param***** Final scan width and line-size: %i, %i *****\n", sp->wx, sp->line_size));
+    
   /* Some exceptions here for particular devices */
   /* Those devices can scan up to 14" with ADF, but A4 11.7" in flatbed */
   if (( s->cfg->pid == MX850_PID ||
@@ -1187,9 +1204,9 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
         k = MAX (sp->xdpi, 300) / sp->xdpi;
       else
         k = MAX (sp->xdpi, 150) / sp->xdpi;
-      sp->x *= k;
+      sp->x *= k;	sp->xs *= k;							/******** Changed here *******/
       sp->y *= k;
-      sp->w *= k;
+      sp->w *= k;	sp->wx *= k;							/******** Changed here *******/
       sp->h *= k;
       sp->xdpi *= k;
       sp->ydpi = sp->xdpi;
@@ -1356,6 +1373,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
            mp->state = state_finished;
            return 0;
         }
+      PDBG (pixma_dbg (4, "*mp150_fill_buffer***** moving %u bytes into buffer *****\n", mp->data_left_len));
       memmove (mp->imgbuf, mp->data_left_ofs, mp->data_left_len);
       error = read_image_block (s, header, mp->imgbuf + mp->data_left_len);
       if (error < 0)
@@ -1369,6 +1387,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
         }
 
       bytes_received = error;
+      PDBG (pixma_dbg (4, "*mp150_fill_buffer***** %u bytes received by read_image_block *****\n", bytes_received));
       block_size = pixma_get_be32 (header + 12);
       mp->last_block = header[8] & 0x38;
       if ((header[8] & ~0x38) != 0)
@@ -1544,7 +1563,9 @@ const pixma_config_t pixma_mp150_devices[] = {
   /* PIXMA 2009 vintage */
   DEVICE ("Canon PIXMA MX320", "MX320", MX320_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX330", "MX330", MX330_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+/*  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  width and height adjusted to flatbed size 21.8 x 30.2 cm^2 respective */
+  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 880, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   /* Generation 4: CIS */
   DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 638, 877, PIXMA_CAP_CIS),

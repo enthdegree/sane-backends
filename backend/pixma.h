@@ -259,9 +259,12 @@ struct pixma_scan_param_t
 
   /*! \name Scan area in pixels
    * (0,0) = top left; positive x extends to the right; positive y to the
-   *  bottom; in pixels. */
+   *  bottom; in pixels.
+   * xs is the offset in x direction of the selected scan range relative
+   * to the range read from the scanner and wx the width in x direction
+   * of the scan line read from scanner. */
   /*@{ */
-  unsigned x, y, w, h;
+  unsigned x, y, w, h,   xs, wx;
   /*@} */
 
     /** Gamma table. 4096 entries, 12 bit => 8 bit. If \c NULL, default gamma

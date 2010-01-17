@@ -1508,9 +1508,8 @@ gl646_init_regs (Genesys_Device * dev)
     case CCD_HP3670:
       dev->reg[reg_0x19].value = 0x2a;
       dev->reg[reg_0x1e].value = 0x80;
-      dev->reg[reg_0x1f].value = 0x01;
+      dev->reg[reg_0x1f].value = 0x10;
       dev->reg[reg_0x20].value = 0x50;
-      break;
       break;
     case CIS_XP200:
       dev->reg[reg_0x1e].value = 0x10;
@@ -1522,8 +1521,11 @@ gl646_init_regs (Genesys_Device * dev)
       dev->reg[reg_0x20].value = 0x10;
       break;
     }
-  dev->reg[reg_0x1f].value = 0x01;	/* XXX STEF XXX */
-  dev->reg[reg_0x20].value = 0x50;	/* XXX STEF XXX */
+  if (dev->model->motor_type != MOTOR_HP3670)
+    {
+      dev->reg[reg_0x1f].value = 0x01;	/* XXX STEF XXX */
+      dev->reg[reg_0x20].value = 0x50;	/* XXX STEF XXX */
+    }
 
   dev->reg[reg_0x21].value = 0x08 /*0x20 */ ;	/* table one steps number for forward slope curve of the acc/dec */
   dev->reg[reg_0x22].value = 0x10 /*0x08 */ ;	/* steps number of the forward steps for start/stop */
@@ -1701,6 +1703,70 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
   return status;
 }
 
+/** set up analog frontend
+ * set up analog frontend
+ * @param dev device to set up
+ * @param set action from AFE_SET, AFE_INIT and AFE_POWERSAVE
+ * @return SANE_STATUS_GOOD if evrithing OK
+ */
+static SANE_Status
+gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  DBG (DBG_proc, "gl646_wm_hp3670: start \n");
+  switch (set)
+    {
+    case AFE_INIT:
+      sanei_genesys_init_fe (dev);
+      status = sanei_genesys_fe_write_data (dev, 0x01, 0x07);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      break;
+    case AFE_POWER_SAVE:
+      /* we currently do nothing */
+      DBG (DBG_proc, "gl646_wm_hp3670: AFE_POWERSAVE is currently a no op\n");
+      break;
+    default:			/* AFE_SET */
+      /* mode setup */
+      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.reg[3]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      /* offset */
+      status = sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.offset[0]);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error, "gl646_wm_hp3670: writing gain failed: %s\n", sane_strstatus (status));
+	      return status;
+	    }
+      /* gain */
+      status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.gain[0]);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error, "gl646_wm_hp3670: writing gain failed: %s\n", sane_strstatus (status));
+	      return status;
+	    }
+      /* mode setup */
+      status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      break;
+    }
+  DBG (DBG_proc, "gl646_wm_hp3670: success \n");
+  return status;
+}
+
 /* Set values of analog frontend */
 static SANE_Status
 gl646_set_fe (Genesys_Device * dev, uint8_t set)
@@ -1723,6 +1789,17 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set)
       DBG (DBG_proc, "gl646_set_fe(): unspported frontend type %d\n",
 	   dev->reg[reg_0x04].value & REG04_FESET);
       return SANE_STATUS_UNSUPPORTED;
+    }
+
+  /* per frontend function to keep code clean */
+  switch (dev->model->dac_type)
+    {
+    case DAC_WOLFSON_HP3670:
+      return gl646_wm_hp3670 (dev, set);
+      break;
+    default:
+      DBG (DBG_proc, "gl646_set_fe(): using old method\n");
+      break;
     }
 
   /* initialize analog frontend */
@@ -5192,3 +5269,5 @@ sanei_gl646_init_cmd_set (Genesys_Device * dev)
   dev->model->cmd_set = &gl646_cmd_set;
   return SANE_STATUS_GOOD;
 }
+
+/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

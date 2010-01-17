@@ -3112,7 +3112,11 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       compute_coefficients (dev,
 			    shading_data,
 			    pixels_per_line,
-			    3, cmat, o, coeff, target_code);
+			    3,
+                            cmat,
+                            o,
+                            coeff,
+                            target_code);
       break;
     case CCD_5345:
     case CCD_HP2400:
@@ -3129,7 +3133,11 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       compute_coefficients (dev,
 			    shading_data,
 			    pixels_per_line,
-			    3, cmat, o, coeff, target_code);
+			    3, 
+                            cmat, 
+                            o, 
+                            coeff, 
+                            target_code);
       break;
     case CCD_CANONLIDE35:
       target_bright = 0xfa00;

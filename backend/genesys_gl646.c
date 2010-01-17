@@ -903,7 +903,8 @@ gl646_setup_registers (Genesys_Device * dev,
     regs[reg_0x05].value &= ~REG05_GMMENB;
 
   /* true CIS gray if needed */
-  if (dev->model->is_cis == SANE_TRUE && color == SANE_TRUE && dev->settings.true_gray)
+  if (dev->model->is_cis == SANE_TRUE && color == SANE_TRUE
+      && dev->settings.true_gray)
     {
       regs[reg_0x05].value |= REG05_LEDADD;
     }
@@ -994,7 +995,9 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* wpl must be computed according to the scan's resolution */
   /* in fact, wpl _gives_ the actual scan resolution */
-  wpl = (((endx - startx) * sensor->xdpi) / dev->sensor.optical_res)*sensor->cksel;
+  wpl =
+    (((endx -
+       startx) * sensor->xdpi) / dev->sensor.optical_res) * sensor->cksel;
   if (depth == 16)
     wpl *= 2;
   if (dev->model->is_cis == SANE_FALSE)
@@ -2940,6 +2943,10 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   /* fill settings for scan : always a color scan */
   settings.scan_method = SCAN_METHOD_FLATBED;
   settings.scan_mode = dev->settings.scan_mode;
+  if (dev->model->is_cis == SANE_FALSE)
+    {
+      settings.scan_mode = SCAN_MODE_COLOR;
+    }
   settings.xres = dev->sensor.optical_res / half_ccd;
   settings.yres = dev->sensor.optical_res / half_ccd;
   settings.tl_x = 0;
@@ -2964,6 +2971,10 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   /* used when sending shading calibration data */
   dev->calib_pixels = settings.pixels;
   dev->calib_channels = dev->current_setup.channels;
+  if (dev->model->is_cis == SANE_FALSE)
+    {
+      dev->calib_channels = 3;
+    }
 
   /* no shading */
   dev->reg[reg_0x01].value &= ~REG01_DVDSET;

@@ -1521,11 +1521,8 @@ gl646_init_regs (Genesys_Device * dev)
       dev->reg[reg_0x20].value = 0x10;
       break;
     }
-  if (dev->model->motor_type != MOTOR_HP3670)
-    {
-      dev->reg[reg_0x1f].value = 0x01;	/* XXX STEF XXX */
-      dev->reg[reg_0x20].value = 0x50;	/* XXX STEF XXX */
-    }
+  dev->reg[reg_0x1f].value = 0x01;	/* XXX STEF XXX */
+  dev->reg[reg_0x20].value = 0x50;	/* XXX STEF XXX */
 
   dev->reg[reg_0x21].value = 0x08 /*0x20 */ ;	/* table one steps number for forward slope curve of the acc/dec */
   dev->reg[reg_0x22].value = 0x10 /*0x08 */ ;	/* steps number of the forward steps for start/stop */
@@ -1727,8 +1724,13 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	}
       break;
     case AFE_POWER_SAVE:
-      /* we currently do nothing */
-      DBG (DBG_proc, "gl646_wm_hp3670: AFE_POWERSAVE is currently a no op\n");
+      status = sanei_genesys_fe_write_data (dev, 0x01, 0x03);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
       break;
     default:			/* AFE_SET */
       /* mode setup */
@@ -1740,19 +1742,22 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	  return status;
 	}
       /* offset */
-      status = sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.offset[0]);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_error, "gl646_wm_hp3670: writing gain failed: %s\n", sane_strstatus (status));
-	      return status;
-	    }
+      status =
+	sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.offset[0]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: writing gain failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
       /* gain */
       status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.gain[0]);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_error, "gl646_wm_hp3670: writing gain failed: %s\n", sane_strstatus (status));
-	      return status;
-	    }
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: writing gain failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
       /* mode setup */
       status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
       if (status != SANE_STATUS_GOOD)
@@ -1760,6 +1765,21 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",
 	       sane_strstatus (status));
 	  return status;
+	}
+      status = gl646_gpio_output_enable (dev->dn, 0x07);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: failed to enable GPIO: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      /* writes 0 to GPIO */
+      status = gl646_gpio_write (dev->dn, 0);
+      status = gl646_gpio_write (dev->dn, 0);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: GPIO write failed ... %s\n",
+	       sane_strstatus (status));
 	}
       break;
     }
@@ -4461,48 +4481,89 @@ gl646_init (Genesys_Device * dev)
       sanei_genesys_write_register (dev, 0x66, 0x00);
       sanei_genesys_write_register (dev, 0x66, 0x10);
     }
+  if (dev->model->ccd_type == CCD_HP3670)
+    {
+      sanei_genesys_write_register (dev, 0x68, dev->gpo.enable[0]);
+      sanei_genesys_write_register (dev, 0x69, dev->gpo.enable[1]);
+
+      /* enable GPIO */
+      status = gl646_gpio_output_enable (dev->dn, 0x07);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_init: GPO enable failed ... %s\n",
+	       sane_strstatus (status));
+	}
+      val = 0;
+
+      /* writes 0 to GPIO */
+      status = gl646_gpio_write (dev->dn, 0);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_init: GPO write failed ... %s\n",
+	       sane_strstatus (status));
+	}
+
+      sanei_genesys_write_register (dev, 0x66, 0x20);
+      sanei_genesys_write_register (dev, 0x66, 0x00);
+      sanei_genesys_write_register (dev, 0x66, 0x20);
+    }
 
   /* MD6471/G2410 and XP200 read/write data from an undocumented memory area which
    * is after the second slope table */
-  switch (dev->sensor.optical_res)
+  if (dev->model->gpo_type != GPO_HP3670)
     {
-    case 600:
-      addr = 0x08200;
-      break;
-    case 1200:
-      addr = 0x10200;
-      break;
-    case 2400:
-      addr = 0x1fa00;
-      break;
-    }
-  status = sanei_genesys_set_buffer_address (dev, addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "gl646_init: failed to set up control address\n");
-      return SANE_STATUS_INVAL;
-    }
-  sanei_usb_set_timeout (2 * 1000);
-  len = 6;
-  status = gl646_bulk_read_data (dev, 0x45, dev->control, len);
-  /* for some reason, read fails here for MD6471, HP2300 and XP200
-   * one time out of 2 scanimage launches
-   */
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_warn, "gl646_init: failed to read control\n");
+      switch (dev->sensor.optical_res)
+	{
+	case 600:
+	  addr = 0x08200;
+	  break;
+	case 1200:
+	  addr = 0x10200;
+	  break;
+	case 2400:
+	  addr = 0x1fa00;
+	  break;
+	}
+      status = sanei_genesys_set_buffer_address (dev, addr);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_init: failed to set up control address\n");
+	  return SANE_STATUS_INVAL;
+	}
+      sanei_usb_set_timeout (2 * 1000);
+      len = 6;
       status = gl646_bulk_read_data (dev, 0x45, dev->control, len);
+      /* for some reason, read fails here for MD6471, HP2300 and XP200
+       * one time out of 2 scanimage launches
+       */
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_warn, "gl646_init: failed to read control\n");
+	  status = gl646_bulk_read_data (dev, 0x45, dev->control, len);
+	}
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_warn, "gl646_init: failed to read control\n");
+	  return SANE_STATUS_INVAL;
+	}
+      else
+	{
+	  DBG (DBG_info,
+	       "gl646_init: control read=0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
+	       dev->control[0], dev->control[1], dev->control[2],
+	       dev->control[3], dev->control[4], dev->control[5]);
+	}
+      sanei_usb_set_timeout (30 * 1000);
     }
-  if (status != SANE_STATUS_GOOD)
+  else
     {
-      DBG (DBG_warn, "gl646_init: failed to read control\n");
-      return SANE_STATUS_INVAL;
+      dev->control[0] = 0x00;
+      dev->control[1] = 0x00;
+      dev->control[2] = 0x01;
+      dev->control[3] = 0x00;
+      dev->control[4] = 0x00;
+      dev->control[5] = 0x00;
     }
-  DBG (DBG_info,
-       "gl646_init: control read=0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
-       dev->control[0], dev->control[1], dev->control[2],
-       dev->control[3], dev->control[4], dev->control[5]);
-  sanei_usb_set_timeout (30 * 1000);
 
   /* ensure head is correctly parked, and check lock */
   if (dev->model->is_sheetfed == SANE_FALSE)
@@ -4777,7 +4838,19 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
   uint8_t value;
   SANE_Status status;
 
-  /* do what is needed to get a new set of events, but try to not lose
+  if (dev->model->gpo_type == GPO_HP3670)
+    {
+      status = gl646_gpio_write (dev->dn, 0x03);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl646_update_hardware_sensors: failed to write GPIO %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
+
+  /* do what is needed to get a new set of events, but try to not loose
      any of them.
    */
   status = gl646_gpio_read (dev->dn, &value);
@@ -4789,6 +4862,18 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
       return status;
     }
   DBG (DBG_io, "gl646_update_hardware_sensors: GPIO=0x%02x\n", value);
+
+  if (dev->model->gpo_type == GPO_HP3670)
+    {
+      status = gl646_gpio_write (dev->dn, 0x01);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl646_update_hardware_sensors: failed to write GPIO %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
 
   /* scan button */
   if ((dev->model->buttons & GENESYS_HAS_SCAN_SW)
@@ -4805,6 +4890,9 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	case GPO_HP2300:
 	  session->val[OPT_SCAN_SW].b = (value == 0x6c);
 	  break;
+	case GPO_HP3670:
+	  session->val[OPT_SCAN_SW].b = ((value & 0x01) != 0);
+	  break;
 	default:
 	  return SANE_STATUS_UNSUPPORTED;
 	}
@@ -4818,6 +4906,9 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	{
 	case GPO_5345:
 	  session->val[OPT_EMAIL_SW].b = (value == 0x12);
+	  break;
+	case GPO_HP3670:
+	  session->val[OPT_EMAIL_SW].b = ((value & 0x02) != 0);
 	  break;
 	default:
 	  return SANE_STATUS_UNSUPPORTED;
@@ -4835,6 +4926,9 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	  break;
 	case GPO_HP2300:
 	  session->val[OPT_COPY_SW].b = (value == 0x5c);
+	  break;
+	case GPO_HP3670:
+	  session->val[OPT_COPY_SW].b = ((value & 0x02) != 0);
 	  break;
 	default:
 	  return SANE_STATUS_UNSUPPORTED;
@@ -4928,8 +5022,13 @@ write_control (Genesys_Device * dev, int resolution)
       control[2] = dev->control[4];
       control[3] = dev->control[5];
       break;
-    case MOTOR_5345:
     case MOTOR_HP3670:
+      control[0] = 1;
+      control[1] = 0;
+      control[2] = 0;
+      control[3] = 0;
+      break;
+    case MOTOR_5345:
     default:
       control[0] = dev->control[2];
       control[1] = dev->control[3];

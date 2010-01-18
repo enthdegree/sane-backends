@@ -1084,13 +1084,13 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 	  
           /* Color to Grayscale convert for CCD sensor */
           if (is_ccd_grayscale (s))
-              gptr = rgb_to_gray (gptr, cptr, s->param->w, c);				/******** Changed here *******/
+              cptr = gptr = rgb_to_gray (gptr, cptr, s->param->w, c);				/******** Changed here *******/
 	  else
 	      cptr += cw;
         }
     }
   ib->rptr = mp->imgbuf;
-  ib->rend = (is_ccd_grayscale (s)) ? gptr : cptr;
+  ib->rend = cptr;
   return mp->data_left_ofs - sptr;    /* # of non processed bytes */
 }
 

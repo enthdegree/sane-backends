@@ -1,3 +1,8 @@
+2010-01-19  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma.h, backend/pixma_mp150.c:
+	pixma: changes for cropped area enhancement, supplied by Christian Scholtz
+	       for generation 3+ devices.
+
 2010-01-19  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys.conf.in backend/genesys.h 
 	backend/genesys_conv.c backend/genesys_devices.c 

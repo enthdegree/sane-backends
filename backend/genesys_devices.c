@@ -6,7 +6,7 @@
    Copyright (C) 2004-2009 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
-   Copyright (C) 2009 Jack McGill <jmcgill85258@yahoo.com>
+   Copyright (C) 2010 Jack McGill <jmcgill85258@yahoo.com>
    
    This file is part of the SANE package.
    

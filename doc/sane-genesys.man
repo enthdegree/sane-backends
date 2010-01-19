@@ -12,6 +12,8 @@ At present, the following scanners are known to work with this backend:
 .RS
 Medion MD5345/MD6228/MD6274
 .br 
+Visioneer OneTouch 7100
+.br
 Hewlett-Packard HP2300C
 .br 
 Visioneer Strobe XP100 (rev3)/XP200/XP300/Roadwarrior

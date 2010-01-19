@@ -497,13 +497,18 @@ typedef struct
 
   unsigned int color_filter;
 
-  int true_gray;		/**> true if scan is true gray, false if monochrome scan */
+  /**> true if scan is true gray, false if monochrome scan */
+  int true_gray;	
 
-  /* BW threshold */
+  /**> lineart threshold */
   int threshold;
 
-  /* Disable interpolation for xres<yres*/
+  /**> Disable interpolation for xres<yres*/
   int disable_interpolation;
+
+  /**> true is lineart is generated from gray data by
+   * the dynamic rasterization algo */
+  int dynamic_lineart;
 } Genesys_Settings;
 
 typedef struct Genesys_Current_Setup

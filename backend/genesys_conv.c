@@ -99,6 +99,7 @@ genesys_gray_lineart(
     uint8_t threshold)
 {
     size_t x,y,c,b;
+    DBG ( DBG_io2, "genesys_gray_lineart: converting %d lines of %d pixels\n", lines, pixels);
     for(y = 0; y < lines; y++) {
  	for(x = 0; x < pixels; x+=8) {
 	    for(c = 0; c < channels; c++) 

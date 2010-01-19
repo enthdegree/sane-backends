@@ -5017,7 +5017,7 @@ Problems with the first approach:
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "genesys_read_ordered_data: failed to reverse bits(%s)\n",
+	       "genesys_read_ordered_data: failed to convert bits(%s)\n",
 	       sane_strstatus (status));
 	  return SANE_STATUS_IO_ERROR;
 	}
@@ -5099,7 +5099,6 @@ calc_parameters (Genesys_Scanner * s)
     s->params.depth = depth;
   s->dev->settings.depth = depth;
 
-
   /* interpolation */
   s->dev->settings.disable_interpolation =
     s->val[OPT_DISABLE_INTERPOLATION].w == SANE_TRUE;
@@ -5165,10 +5164,16 @@ calc_parameters (Genesys_Scanner * s)
   else
     s->dev->settings.color_filter = 1;
 
+  /* true gray */
   if (strcmp (color_filter, "None") == 0)
     s->dev->settings.true_gray = 1;
   else
     s->dev->settings.true_gray = 0;
+
+  /* dynamic lineart */
+  s->dev->settings.dynamic_lineart =
+    s->val[OPT_DYNAMIC_LINEART].w == SANE_TRUE;
+  DBG (DBG_io2, "dynamic_lineart=%d\n",s->dev->settings.dynamic_lineart);
 
   return status;
 }
@@ -5440,6 +5445,23 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_THRESHOLD].constraint.range = &threshold_percentage_range;
   s->val[OPT_THRESHOLD].w = SANE_FIX (50);
+  
+  /* dynamic linart */
+  s->opt[OPT_DYNAMIC_LINEART].name = "dynamic-lineart";
+  s->opt[OPT_DYNAMIC_LINEART].title = SANE_I18N ("Dynamic lineart");
+  s->opt[OPT_DYNAMIC_LINEART].desc =
+    SANE_I18N
+    ("Use a software adaptative algorithm to generate lineart instead of"
+     " relying on hardware lineart");
+  s->opt[OPT_DYNAMIC_LINEART].type = SANE_TYPE_BOOL;
+  s->opt[OPT_DYNAMIC_LINEART].unit = SANE_UNIT_NONE;
+  s->opt[OPT_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_DYNAMIC_LINEART].w = SANE_FALSE;
+  /* not working for GL646 scanners yet */
+  if (s->dev->model->asic_type == GENESYS_GL646)
+    {
+      s->opt[OPT_DYNAMIC_LINEART].cap |= SANE_CAP_INACTIVE;
+    }
 
   /* disable_interpolation */
   s->opt[OPT_DISABLE_INTERPOLATION].name = "disable-interpolation";
@@ -5626,7 +5648,7 @@ init_options (Genesys_Scanner * s)
   s->last_val[OPT_CALIBRATE].b = 0;
 
   /* clear calibration cache button */
-  s->opt[OPT_CLEAR_CALIBRATION].name = "clear";
+  s->opt[OPT_CLEAR_CALIBRATION].name = "clear-calibration";
   s->opt[OPT_CLEAR_CALIBRATION].title = SANE_I18N ("Clear calibration");
   s->opt[OPT_CLEAR_CALIBRATION].desc = SANE_I18N ("Clear calibration cache");
   s->opt[OPT_CLEAR_CALIBRATION].type = SANE_TYPE_BUTTON;
@@ -6334,6 +6356,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_BR_X:
     case OPT_BR_Y:
     case OPT_THRESHOLD:
+    case OPT_DYNAMIC_LINEART:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_LAMP_OFF_TIME:
     case OPT_CUSTOM_GAMMA:
@@ -6443,6 +6466,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_RESOLUTION:
     case OPT_BIT_DEPTH:
     case OPT_THRESHOLD:
+    case OPT_DYNAMIC_LINEART:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_PREVIEW:
       s->val[option].w = *(SANE_Word *) val;

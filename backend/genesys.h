@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
-   Copyright (C) 2005 Stephane Voltz <stef.dev@free.fr>
+   Copyright (C) 2005-2010 Stephane Voltz <stef.dev@free.fr>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Copyright (C) 2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    
@@ -92,6 +92,7 @@ enum Genesys_Option
   OPT_EXTRAS_GROUP,
   OPT_LAMP_OFF_TIME,
   OPT_THRESHOLD,
+  OPT_DYNAMIC_LINEART,
   OPT_DISABLE_INTERPOLATION,
   OPT_COLOR_FILTER,
 

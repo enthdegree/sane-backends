@@ -2691,6 +2691,7 @@ gl841_get_led_exposure(Genesys_Device * dev)
 #define SCAN_FLAG_IGNORE_LINE_DISTANCE     0x10
 #define SCAN_FLAG_USE_OPTICAL_RES          0x20
 #define SCAN_FLAG_DISABLE_LAMP             0x40
+#define SCAN_FLAG_DYNAMIC_LINEART          0x80
 
 /* set up registers for an actual scan
  *
@@ -2930,8 +2931,12 @@ dummy \ scanned lines
        exposure_time);
 
 /*** optical parameters ***/
-
-
+  /* in case of dynamic lineart, we use an internal 8 bit gray scan
+   * to generate 1 lineart data */
+  if(flags & SCAN_FLAG_DYNAMIC_LINEART)
+    {
+      depth=8;
+    }
   if (depth == 16)
       flags |= SCAN_FLAG_DISABLE_GAMMA;
 
@@ -4679,13 +4684,19 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
 
   flags=0;
 
-  /* we aneable true gray for cis scanners only, and just when doing 
+  /* we enable true gray for cis scanners only, and just when doing 
    * scan since color calibration is OK for this mode
    */
   flags = 0;
   if(dev->model->is_cis && dev->settings.true_gray)
     {
       flags |= OPTICAL_FLAG_ENABLE_LEDADD;
+    }
+  /* enable emulated lineart from gray data */
+  if(dev->settings.scan_mode == SCAN_MODE_LINEART 
+     && dev->settings.dynamic_lineart)
+    {
+      flags |= SCAN_FLAG_DYNAMIC_LINEART;
     }
 
   status = gl841_init_scan_regs (dev,

@@ -108,6 +108,12 @@
 :status :basic
 :comment "All resolution and mode supported, calibration is available"
 
+:model "VisioneerOneTouch 7100"
+:interface "USB"
+:usbid "0x04a7" "0x0229"
+:status :complete
+:comment "Same as MD5345"
+
 ; -----------------------------------------------------------------------------
 
 :mfg "Pentax"

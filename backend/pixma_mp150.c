@@ -48,7 +48,7 @@
    4. cancel using ctrl-c (must send abort command)
  */
 
-#define TPU_48         /* uncomment to activate TPU scan at 48 bits */
+#define TPU_48             /* uncomment to activate TPU scan at 48 bits */
 /*#define DEBUG_TPU_48*/   /* uncomment to debug 48 bits TPU on a non TPU device */
 /*#define DEBUG_TPU_24*/   /* uncomment to debug 24 bits TPU on a non TPU device */
 
@@ -1563,9 +1563,10 @@ const pixma_config_t pixma_mp150_devices[] = {
   /* PIXMA 2009 vintage */
   DEVICE ("Canon PIXMA MX320", "MX320", MX320_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX330", "MX330", MX330_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-/*  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  width and height adjusted to flatbed size 21.8 x 30.2 cm^2 respective */
-  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 880, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+/* width and height adjusted to flatbed size 21.8 x 30.2 cm^2 respective
+ * Not sure if anything's going wrong here, leaving as is
+  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 880, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),*/
 
   /* Generation 4: CIS */
   DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 638, 877, PIXMA_CAP_CIS),

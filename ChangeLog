@@ -1,6 +1,13 @@
+2010-01-19  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.c backend/genesys.conf.in backend/genesys.h 
+	backend/genesys_conv.c backend/genesys_devices.c 
+	backend/genesys_gl646.c backend/genesys_gl841.c backend/genesys_low.h
+	doc/descriptions/genesys.desc doc/sane-genesys.man: add Visioneer 
+	OneTouch 7100 (patch by Jack McGill). Add software lineart option.
+
 2010-01-17  Stéphane Voltz <stef.dev at free.fr>
-	* backend/genesys.c backend/genesys_gl646.c: shading calibration for
-	CCD GL646 based scanners.
+	* backend/genesys.c backend/genesys_gl646.c: gray shading calibration
+	fix for CCD GL646 based scanners.
 
 2010-01-17  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* po/sane-backends.sv.po: Updated Swedish translations.

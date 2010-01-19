@@ -6,6 +6,7 @@
    Copyright (C) 2004-2009 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
+   Copyright (C) 2009 Jack McGill <jmcgill85258@yahoo.com>
    
    This file is part of the SANE package.
    
@@ -1752,6 +1753,62 @@ static Genesys_Model dct_docketport_487_model = {
   400
 };
 
+static Genesys_Model visioneer_7100_model = {
+  "visioneer-7100-model",	/* Name */
+  "Visioneer",			/* Device vendor string */
+  "OneTouch 7100",	/* Device model name */
+  GENESYS_GL646,
+  NULL,
+
+  {1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX ( 4.00),		/* Start of scan area in mm  (x) */
+  SANE_FIX ( 0.80),		/* 2.79 < Start of scan area in mm (y) */
+  SANE_FIX (215.9),		/* Size of scan area in mm (x) */
+  SANE_FIX (296.4),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.00),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.00),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.00),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.00),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (0.00),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (0.00),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.00),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  48, 24, 0,			/* RGB CCD Line-distance correction in pixel */
+/* 48, 24, 0, */
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CCD_5345,
+  DAC_WOLFSON_5345,
+  GPO_5345,
+  MOTOR_5345,
+  GENESYS_FLAG_14BIT_GAMMA
+    | GENESYS_FLAG_LAZY_INIT
+    | GENESYS_FLAG_SEARCH_START
+    | GENESYS_FLAG_STAGGERED_LINE
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_HALF_CCD_MODE
+    | GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
+  40,
+  200
+};
+
+
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x0638, 0x0a10, &umax_astra_4500_model},
   {0x04a9, 0x2213, &canon_lide_50_model},
@@ -1762,6 +1819,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x07b3, 0x0600, &plustek_st12_model},
   {0x07b3, 0x0601, &plustek_st24_model},
   {0x0461, 0x0377, &medion_md5345_model},
+  {0x04a7, 0x0229, &visioneer_7100_model},
   {0x04a7, 0x0426, &visioneer_xp200_model},
   {0x04a7, 0x0474, &visioneer_xp300_model},
   {0x0a82, 0x4803, &syscan_docketport_665_model},

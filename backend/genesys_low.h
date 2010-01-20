@@ -503,6 +503,9 @@ typedef struct
   /**> lineart threshold */
   int threshold;
 
+  /**> lineart threshold curve for dynamic rasterization */
+  int threshold_curve;
+
   /**> Disable interpolation for xres<yres*/
   int disable_interpolation;
 
@@ -581,7 +584,7 @@ struct Genesys_Device
   SANE_Int lamp_off_time;
 
   SANE_Bool read_active;
-  SANE_Bool document;		/* for sheetfed scanner's, is TRUE when there
+  SANE_Bool document;		/**> for sheetfed scanner's, is TRUE when there
 				   is a document in the scanner */
 
   Genesys_Buffer read_buffer;
@@ -596,6 +599,9 @@ struct Genesys_Device
   size_t wpl;			/* asic's word per line */
 
   Genesys_Current_Setup current_setup; /* contains the real used values */
+ 
+  /**> look up table used in dynamic rasterization */
+  unsigned char lineart_lut[256];
 
   Genesys_Calibration_Cache *calibration_cache;
 

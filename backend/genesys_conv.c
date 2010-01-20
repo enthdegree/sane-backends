@@ -89,30 +89,89 @@ genesys_reverse_bits(
     return SANE_STATUS_GOOD;
 }
 
+/**
+ * uses the threshold/threshold_curve to control software binarization
+ * This code was taken from the epjistsu backend by m. allan noah <kitno455 at gmail dot com>
+ * @param dev device set up for the scan
+ * @param src pointer to raw data
+ * @param dst pointer where to store result
+ * @param width width of the processed line
+ * */
+static SANE_Status
+binarize_line(Genesys_Device * dev, uint8_t *src, uint8_t *dst, int width)
+{
+  int j, windowX, sum = 0;
+  int thresh;
+  int offset, addCol, dropCol;
+  unsigned char mask;
+
+  /* ~1mm works best, but the window needs to have odd # of pixels */
+  windowX = 6 * dev->settings.xres / 150;
+  if (!(windowX % 2))
+    windowX++;
+
+  /* second, prefill the sliding sum */
+  for (j = 0; j < windowX; j++)
+    sum += src[j];
+
+  /* third, walk the input buffer, update the sliding sum, */
+  /* determine threshold, output bits */
+  for (j = 0; j < width; j++)
+    {
+      /* output image location */
+      offset = j % 8;
+      mask = 0x80 >> offset;
+      thresh = dev->settings.threshold;
+
+      /* move sum/update threshold only if there is a curve */
+      if (dev->settings.threshold_curve)
+	{
+	  addCol = j + windowX / 2;
+	  dropCol = addCol - windowX;
+
+	  if (dropCol >= 0 && addCol < width)
+	    {
+	      sum -= src[dropCol];
+	      sum += src[addCol];
+	    }
+	  thresh = dev->lineart_lut[sum / windowX];
+	}
+
+      /* use average to lookup threshold */
+      if (src[j] > thresh)
+	*dst &= ~mask;		/* white */
+      else
+	*dst |= mask;		/* black */
+
+      if (offset == 7)
+	dst++;
+    }
+
+  return SANE_STATUS_GOOD;
+}
+
+/**
+ * software lineart using data from a 8 bit gray scan. We assume true gray
+ * or monochrome scan as input.
+ */
 static SANE_Status
 genesys_gray_lineart(
+    Genesys_Device *dev,
     uint8_t *src_data, 
     uint8_t *dst_data, 
     size_t pixels,
-    size_t channels,
     size_t lines,
     uint8_t threshold)
 {
-    size_t x,y,c,b;
+    size_t y;
+
     DBG ( DBG_io2, "genesys_gray_lineart: converting %d lines of %d pixels\n", lines, pixels);
-    for(y = 0; y < lines; y++) {
- 	for(x = 0; x < pixels; x+=8) {
-	    for(c = 0; c < channels; c++) 
-		*(dst_data + c) = 0;
-	    for(b = 0; b < 8 && x+b < pixels; b++) {
-		for(c = 0; c < channels; c++) {
-		    if (*src_data++ < threshold) 
-			*(dst_data + c) |= (0x80 >> b);
-		}
-	    }
-	    dst_data += channels;
-	}
-    }
+
+    for(y = 0; y < lines; y++)
+      {
+	binarize_line(dev, src_data+y*pixels, dst_data, pixels);
+	dst_data += pixels/8;
+      }
     return SANE_STATUS_GOOD;
 }
 

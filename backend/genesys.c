@@ -2,10 +2,13 @@
 
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2009 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2010 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
+
+   Dynamic rasterization code was taken from the epjistsu backend by
+   m. allan noah <kitno455 at gmail dot com>
 
    This file is part of the SANE package.
    
@@ -162,6 +165,12 @@ static const SANE_Range threshold_percentage_range = {
   SANE_FIX (0),			/* minimum */
   SANE_FIX (100),		/* maximum */
   SANE_FIX (1)			/* quantization */
+};
+
+static const SANE_Range threshold_curve_range = {
+  0,			/* minimum */
+  127,		        /* maximum */
+  1			/* quantization */
 };
 
 /* ------------------------------------------------------------------------ */
@@ -3986,6 +3995,89 @@ genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
 }
 #endif
 
+/* Function to build a lookup table (LUT), often
+   used by scanners to implement brightness/contrast/gamma
+   or by backends to speed binarization/thresholding
+
+   offset and slope inputs are -127 to +127 
+
+   slope rotates line around central input/output val,
+   0 makes horizontal line
+
+       pos           zero          neg
+       .       x     .             .  x
+       .      x      .             .   x
+   out .     x       .xxxxxxxxxxx  .    x
+       .    x        .             .     x
+       ....x.......  ............  .......x....
+            in            in            in
+
+   offset moves line vertically, and clamps to output range
+   0 keeps the line crossing the center of the table
+
+       high           low 
+       .   xxxxxxxx   .
+       . x            . 
+   out x              .          x
+       .              .        x
+       ............   xxxxxxxx....
+            in             in
+
+   out_min/max provide bounds on output values,
+   useful when building thresholding lut.
+   0 and 255 are good defaults otherwise.
+  */
+static SANE_Status
+load_lut (unsigned char * lut,
+  int in_bits, int out_bits,
+  int out_min, int out_max,
+  int slope, int offset)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int i, j;
+  double shift, rise;
+  int max_in_val = (1 << in_bits) - 1;
+  int max_out_val = (1 << out_bits) - 1;
+  unsigned char * lut_p = lut;
+
+  DBG (DBG_proc, "load_lut: start\n");
+
+  /* slope is converted to rise per unit run:
+   * first [-127,127] to [-1,1]
+   * then multiply by PI/2 to convert to radians
+   * then take the tangent (T.O.A)
+   * then multiply by the normal linear slope 
+   * because the table may not be square, i.e. 1024x256*/
+  rise = tan((double)slope/127 * M_PI/2) * max_out_val / max_in_val;
+
+  /* line must stay vertically centered, so figure
+   * out vertical offset at central input value */
+  shift = (double)max_out_val/2 - (rise*max_in_val/2);
+
+  /* convert the user offset setting to scale of output
+   * first [-127,127] to [-1,1]
+   * then to [-max_out_val/2,max_out_val/2]*/
+  shift += (double)offset / 127 * max_out_val / 2;
+
+  for(i=0;i<=max_in_val;i++){
+    j = rise*i + shift;
+
+    if(j<out_min){
+      j=out_min;
+    }
+    else if(j>out_max){
+      j=out_max;
+    }
+
+    *lut_p=j;
+    lut_p++;
+  }
+
+  DBG (DBG_proc, "load_lut: finish\n");
+  return ret;
+}
+
+
 /* ------------------------------------------------------------------------ */
 /*                  High level (exported) functions                         */
 /* ------------------------------------------------------------------------ */
@@ -4265,6 +4357,19 @@ genesys_start_scan (Genesys_Device * dev)
 	   "genesys_start_scan: failed to restore calibration: %s\n",
 	   sane_strstatus (status));
       return status;
+    }
+
+  /* build look up table for dynamic lineart */
+  if(dev->settings.dynamic_lineart==SANE_TRUE)
+    {
+      status = load_lut(dev->lineart_lut, 8, 8, 50, 205,
+                        dev->settings.threshold_curve,
+                        dev->settings.threshold-127);
+      if (status != SANE_STATUS_GOOD) 
+        {
+          DBG (DBG_error, "genesys_start_scan: failed to build lut\n");
+          return status;
+        }
     }
 
   status = dev->model->cmd_set->init_regs_for_scan (dev);
@@ -5010,10 +5115,12 @@ Problems with the first approach:
 
       bytes = dst_lines * dev->settings.pixels * channels;
 
-      status = genesys_gray_lineart (work_buffer_src, destination,
+      status = genesys_gray_lineart (dev,
+                                     work_buffer_src,
+                                     destination,
 				     dev->settings.pixels,
-				     channels,
-				     dst_lines, dev->settings.threshold);
+				     dst_lines,
+                                     dev->settings.threshold);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -5173,7 +5280,12 @@ calc_parameters (Genesys_Scanner * s)
   /* dynamic lineart */
   s->dev->settings.dynamic_lineart =
     s->val[OPT_DYNAMIC_LINEART].w == SANE_TRUE;
-  DBG (DBG_io2, "dynamic_lineart=%d\n",s->dev->settings.dynamic_lineart);
+ 
+  /* threshold curve for dynamic ratserization */
+  if(s->dev->settings.dynamic_lineart==SANE_TRUE)
+      s->dev->settings.threshold_curve=s->val[OPT_THRESHOLD_CURVE].w;
+  else
+      s->dev->settings.threshold_curve=0;
 
   return status;
 }
@@ -5445,6 +5557,16 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_THRESHOLD].constraint.range = &threshold_percentage_range;
   s->val[OPT_THRESHOLD].w = SANE_FIX (50);
+  
+  /* BW threshold curve */
+  s->opt[OPT_THRESHOLD_CURVE].name = "threshold-curve";
+  s->opt[OPT_THRESHOLD_CURVE].title = SANE_I18N ("Threshold curve");
+  s->opt[OPT_THRESHOLD_CURVE].desc = SANE_I18N ("Dynamic threshold curve, from light to dark, normally 50-65");
+  s->opt[OPT_THRESHOLD_CURVE].type = SANE_TYPE_INT;
+  s->opt[OPT_THRESHOLD_CURVE].unit = SANE_UNIT_NONE;
+  s->opt[OPT_THRESHOLD_CURVE].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_THRESHOLD_CURVE].constraint.range = &threshold_curve_range;
+  s->val[OPT_THRESHOLD_CURVE].w = 50;
   
   /* dynamic linart */
   s->opt[OPT_DYNAMIC_LINEART].name = "dynamic-lineart";
@@ -6356,6 +6478,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_BR_X:
     case OPT_BR_Y:
     case OPT_THRESHOLD:
+    case OPT_THRESHOLD_CURVE:
     case OPT_DYNAMIC_LINEART:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_LAMP_OFF_TIME:
@@ -6466,6 +6589,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_RESOLUTION:
     case OPT_BIT_DEPTH:
     case OPT_THRESHOLD:
+    case OPT_THRESHOLD_CURVE:
     case OPT_DYNAMIC_LINEART:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_PREVIEW:
@@ -6489,12 +6613,14 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	{
 	  ENABLE (OPT_THRESHOLD);
+	  ENABLE (OPT_THRESHOLD_CURVE);
 	  DISABLE (OPT_BIT_DEPTH);
 	  ENABLE (OPT_COLOR_FILTER);
 	}
       else
 	{
 	  DISABLE (OPT_THRESHOLD);
+	  DISABLE (OPT_THRESHOLD_CURVE);
 	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	    {
 	      ENABLE (OPT_COLOR_FILTER);

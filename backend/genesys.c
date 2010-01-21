@@ -5749,7 +5749,7 @@ init_options (Genesys_Scanner * s)
   /* button group */
   s->opt[OPT_BUTTON_GROUP].name = "Buttons";
   s->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
-  s->opt[OPT_BUTTON_GROUP].desc = SANE_I18N ("Buttons");
+  s->opt[OPT_BUTTON_GROUP].desc = "";
   s->opt[OPT_BUTTON_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_BUTTON_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
@@ -6616,11 +6616,13 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  ENABLE (OPT_THRESHOLD_CURVE);
 	  DISABLE (OPT_BIT_DEPTH);
 	  ENABLE (OPT_COLOR_FILTER);
+	  ENABLE (OPT_DYNAMIC_LINEART);
 	}
       else
 	{
 	  DISABLE (OPT_THRESHOLD);
 	  DISABLE (OPT_THRESHOLD_CURVE);
+	  DISABLE (OPT_DYNAMIC_LINEART);
 	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	    {
 	      ENABLE (OPT_COLOR_FILTER);

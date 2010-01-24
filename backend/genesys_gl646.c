@@ -1713,7 +1713,6 @@ static SANE_Status
 gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  int i;
 
   DBG (DBG_proc, "gl646_wm_hp3670: start \n");
   switch (set)
@@ -1734,6 +1733,14 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	       sane_strstatus (status));
 	  return status;
 	}
+      /* b2 INVOP : set positive polarity output */
+      status = sanei_genesys_fe_write_data (dev, 0x02, 0x04);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: writing reg2 failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
       break;
     case AFE_POWER_SAVE:
       /*
@@ -1748,7 +1755,8 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
       break;
     default:			/* AFE_SET */
       /* mode setup */
-      status = sanei_genesys_fe_write_data (dev, 0x03, 0x02);
+      /* bit 3:0 VSMP CLAMP */
+      status = sanei_genesys_fe_write_data (dev, 0x03, 0x0f);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing reg3 failed: %s\n",

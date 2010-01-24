@@ -1756,7 +1756,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
     default:			/* AFE_SET */
       /* mode setup */
       /* bit 3:0 VSMP CLAMP */
-      status = sanei_genesys_fe_write_data (dev, 0x03, 0x0f);
+      status = sanei_genesys_fe_write_data (dev, 0x03, 0x07);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing reg3 failed: %s\n",
@@ -1767,7 +1767,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
       status = sanei_genesys_fe_write_data (dev, 0x23, 0x08);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "gl646_wm_hp3670: writing gain failed: %s\n",
+	  DBG (DBG_error, "gl646_wm_hp3670: writing offset failed: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}

@@ -4388,7 +4388,7 @@ genesys_start_scan (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "genesys_start_scan: Failed to bulk write registers, status = %d\n",
+	   "genesys_start_scan: failed to bulk write registers, status = %d\n",
 	   status);
       return status;
     }

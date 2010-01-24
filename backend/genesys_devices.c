@@ -271,7 +271,7 @@ static Genesys_Sensor Sensor[] = {
    16, 0, 10872,
    210, 200,
    {0x00, 0x0a, 0x0b, 0x0d} ,
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x07, 0x20, 0x2a, 0x00, 0x00, 0xc0, 0x43} ,
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x07, 0x20, 0x2a, 0x00, 0x00, 0xc0, 0x43} ,
    {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0x15, 0x05, 0x0a, 0x0f, 0x00},
    2.38, 2.35, 2.34,
    NULL, NULL, NULL}
@@ -461,9 +461,9 @@ static Genesys_Gpo Gpo[] = {
    {0xb0, 0x00}
    ,
    },
-  /* HP2400C */
+  /* HP3670 */
   {GPO_HP3670,
-   {0x20, 0x00}
+   {0x00, 0x00} /* XXX STEF XXX 0x20 */
    ,
    {0x70, 0x00}
   }
@@ -1044,7 +1044,7 @@ static Genesys_Model hp3670c_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (3.5),		/* Start of scan area in mm  (x) */
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
   SANE_FIX (7.5),		/* Start of scan area in mm (y) */
   SANE_FIX (215.9),		/* Size of scan area in mm (x) */
   SANE_FIX (297.2),		/* Size of scan area in mm (y) */
@@ -1066,7 +1066,7 @@ static Genesys_Model hp3670c_model = {
 
   0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
 
-  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
   SANE_FALSE,			/* Is this a sheetfed scanner? */

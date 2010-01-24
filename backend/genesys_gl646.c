@@ -1719,10 +1719,11 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
   switch (set)
     {
     case AFE_INIT:
-      status = sanei_genesys_fe_write_data (dev, 0x01, 0x07);
+      sanei_genesys_init_fe (dev);
+      status = sanei_genesys_fe_write_data (dev, 0x04, 0x80);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",
+	  DBG (DBG_error, "gl646_wm_hp3670: reset failed: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -1735,6 +1736,14 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	}
       break;
     case AFE_POWER_SAVE:
+      /*
+      status = sanei_genesys_fe_write_data (dev, 0x01, 0x06);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}*/
       return status;
       break;
     default:			/* AFE_SET */

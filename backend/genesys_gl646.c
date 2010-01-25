@@ -1002,7 +1002,7 @@ gl646_setup_registers (Genesys_Device * dev,
   /* in fact, wpl _gives_ the actual scan resolution */
   wpl =
     (((endx -
-       startx) * sensor->xdpi) / dev->sensor.optical_res) * sensor->cksel;
+       startx) * sensor->xdpi * sensor->cksel) / dev->sensor.optical_res);
   if (depth == 16)
     wpl *= 2;
   if (dev->model->is_cis == SANE_FALSE)
@@ -1726,7 +1726,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	       sane_strstatus (status));
 	  return status;
 	}
-      status = sanei_genesys_fe_write_data (dev, 0x01, 0x03);
+      status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",
@@ -1734,7 +1734,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	  return status;
 	}
       /* b2 INVOP : set positive polarity output */
-      status = sanei_genesys_fe_write_data (dev, 0x02, 0x04);
+      status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.reg[2]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing reg2 failed: %s\n",
@@ -1755,8 +1755,8 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
       break;
     default:			/* AFE_SET */
       /* mode setup */
-      /* bit 3:0 RLCV ? */
-      status = sanei_genesys_fe_write_data (dev, 0x03, 0x02);
+      /* bit 3:0 RLCV */
+      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.reg[3]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing reg3 failed: %s\n",
@@ -1764,7 +1764,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	  return status;
 	}
       /* offset 30 ~ */
-      status = sanei_genesys_fe_write_data (dev, 0x23, 0x28);
+      status = sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.offset[0]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing offset failed: %s\n",
@@ -1772,7 +1772,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	  return status;
 	}
       /* gain */
-      status = sanei_genesys_fe_write_data (dev, 0x28, 0x08);
+      status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.gain[0]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing gain failed: %s\n",
@@ -1780,7 +1780,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	  return status;
 	}
       /* mode setup */
-      status = sanei_genesys_fe_write_data (dev, 0x01, 0x03);
+      status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",

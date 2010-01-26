@@ -814,10 +814,9 @@ gl646_setup_registers (Genesys_Device * dev,
       regs[reg_0x01].value &= ~REG01_DVDSET;
     }
 
+  regs[reg_0x01].value &= ~REG01_FASTMOD;
   if (motor->fastmod)
     regs[reg_0x01].value |= REG01_FASTMOD;
-  else
-    regs[reg_0x01].value &= ~REG01_FASTMOD;
 
   /* R02 */
   /* allow moving when buffer full by default */
@@ -902,10 +901,6 @@ gl646_setup_registers (Genesys_Device * dev,
     regs[reg_0x05].value |= REG05_GMMENB;
   else
     regs[reg_0x05].value &= ~REG05_GMMENB;
-  if (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
-    {
-      regs[reg_0x05].value &= ~REG05_GMMENB;
-    }
 
   /* true CIS gray if needed */
   if (dev->model->is_cis == SANE_TRUE && color == SANE_TRUE
@@ -1617,8 +1612,8 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
   int i;
 #endif
 
-  DBG (DBG_proc, "gl646_send_slope_table (table_nr = %d, steps = %d)\n",
-       table_nr, steps);
+  DBG (DBG_proc, "gl646_send_slope_table (table_nr = %d, steps = %d)=%d .. %d\n",
+       table_nr, steps, slope_table[0],slope_table[steps-1]);
 
   dpihw = dev->reg[reg_0x05].value >> 6;
 
@@ -4486,7 +4481,7 @@ gl646_init (Genesys_Device * dev)
       sanei_genesys_write_register (dev, 0x66, 0x00);
       sanei_genesys_write_register (dev, 0x66, 0x10);
     }
-  if (dev->model->ccd_type == CCD_HP3670)
+  if (dev->model->ccd_type == CCD_HP3670+12345) /* XXX STEF XXX */
     {
       sanei_genesys_write_register (dev, 0x68, dev->gpo.enable[0]);
       sanei_genesys_write_register (dev, 0x69, dev->gpo.enable[1]);

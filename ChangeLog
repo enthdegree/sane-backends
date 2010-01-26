@@ -1,3 +1,8 @@
+2010-01-26  Stéphane Voltz <stef.dev at free.fr>6
+	* backend/genesys.c backend/genesys.h backend/genesys_conv.c
+	backend/genesys_low.h: add dynamic lineart scanning based on epjitsu
+	code by m. allan noah.
+
 2010-01-19  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma.h, backend/pixma_mp150.c:
 	pixma: changes for cropped area enhancement, supplied by Christian Scholtz

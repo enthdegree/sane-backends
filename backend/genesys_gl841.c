@@ -1639,8 +1639,8 @@ gl841_set_fe (Genesys_Device * dev, uint8_t set)
   uint8_t val;
 
   DBG (DBG_proc, "gl841_set_fe (%s)\n",
-       set == 1 ? "init" : set == 2 ? "set" : set ==
-       3 ? "powersave" : "huh?");
+       set == AFE_INIT ? "init" : set == AFE_SET ? "set" : set ==
+       AFE_POWER_SAVE ? "powersave" : "huh?");
 
   if ((dev->reg[reg_0x04].value & REG04_FESET) != 0x00)
     {

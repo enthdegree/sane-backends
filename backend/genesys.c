@@ -6461,22 +6461,38 @@ static SANE_Status
 get_option_value (Genesys_Scanner * s, int option, void *val)
 {
   unsigned int i;
-  SANE_Word *table;
+  SANE_Word *table ,tmp;
   uint16_t *gamma;
   SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Calibration_Cache *cache;
 
   switch (option)
     {
+      /* geometry */
+    case OPT_TL_X:
+    case OPT_TL_Y:
+    case OPT_BR_X:
+    case OPT_BR_Y:
+      *(SANE_Word *) val = s->val[option].w;
+      /* switch coordinate tokeep them coherent */
+      if (s->val[OPT_TL_X].w >= s->val[OPT_BR_X].w)
+        {
+          tmp=s->val[OPT_BR_X].w;
+          s->val[OPT_BR_X].w=s->val[OPT_TL_X].w;
+          s->val[OPT_TL_X].w=tmp;
+        }
+      if (s->val[OPT_TL_Y].w >= s->val[OPT_BR_Y].w)
+        {
+          tmp=s->val[OPT_BR_Y].w;
+          s->val[OPT_BR_Y].w=s->val[OPT_TL_Y].w;
+          s->val[OPT_TL_Y].w=tmp;
+        }
+      break;
       /* word options: */
     case OPT_NUM_OPTS:
     case OPT_RESOLUTION:
     case OPT_BIT_DEPTH:
     case OPT_PREVIEW:
-    case OPT_TL_X:
-    case OPT_TL_Y:
-    case OPT_BR_X:
-    case OPT_BR_Y:
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
     case OPT_DYNAMIC_LINEART:

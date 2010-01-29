@@ -1,3 +1,9 @@
+2010-01-29  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_io.h, backend/pixma_imageclass.c, 
+	doc/sane-pixma.man, doc/descriptions/pixma.desc:
+	pixma: changed usb timeouts to 20 sec to support ImageClass MF3240.
+	       updated source code comments and documentation.
+
 2010-01-28  Oliver Schwartz <oliverschwartz at users.sourceforge.net>
 	* backend/snapscan-usb.c: Use hash of device string instead of parsing
 	it to create a semaphore id. The new code is less platform dependent

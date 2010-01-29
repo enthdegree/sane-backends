@@ -57,9 +57,9 @@
  */
 
 /** Timeout for pixma_read() in milliseconds */
-#define PIXMA_BULKIN_TIMEOUT  10000
+#define PIXMA_BULKIN_TIMEOUT  20000
 /** Timeout for pixma_write() in milliseconds */
-#define PIXMA_BULKOUT_TIMEOUT 10000
+#define PIXMA_BULKOUT_TIMEOUT 20000
 
 
 struct pixma_io_t;

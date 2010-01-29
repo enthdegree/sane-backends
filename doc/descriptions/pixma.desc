@@ -402,8 +402,8 @@
 :model "imageCLASS MF3240"
 :interface "USB"
 :usbid "0x04a9" "0x2684"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4120"
 :interface "USB"

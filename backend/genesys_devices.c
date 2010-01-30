@@ -3,10 +3,12 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2009 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2010 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
    Copyright (C) 2010 Jack McGill <jmcgill85258@yahoo.com>
+   Copyright (C) 2010 Andrey Loginov <avloginov@gmail.com>,
+   		xerox travelscan device entry
    
    This file is part of the SANE package.
    
@@ -1808,28 +1810,81 @@ static Genesys_Model visioneer_7100_model = {
   200
 };
 
+static Genesys_Model xerox_travelscanner_model = {
+  "xerox-travelscanner",		/* Name */
+  "Xerox",				/* Device vendor string */
+  "Travelscanner 100",			/* Device model name */
+  GENESYS_GL841,
+  NULL,
+
+  {600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (4.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (220.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (511),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (16.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_TRUE,			/* Is this a sheetfed scanner? */
+  CCD_ROADWARRIOR,
+  DAC_WOLFSON_XP300,
+  GPO_DP665,
+  MOTOR_ROADWARRIOR,
+  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
+  100,
+  400
+};
+
+
 
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
-  {0x0638, 0x0a10, &umax_astra_4500_model},
-  {0x04a9, 0x2213, &canon_lide_50_model},
-  {0x04a9, 0x221c, &canon_lide_60_model},
   {0x03f0, 0x0901, &hp2300c_model},
   {0x03f0, 0x0a01, &hp2400c_model},
   {0x03f0, 0x1405, &hp3670c_model},
-  {0x07b3, 0x0600, &plustek_st12_model},
-  {0x07b3, 0x0601, &plustek_st24_model},
   {0x0461, 0x0377, &medion_md5345_model},
   {0x04a7, 0x0229, &visioneer_7100_model},
   {0x04a7, 0x0426, &visioneer_xp200_model},
   {0x04a7, 0x0474, &visioneer_xp300_model},
-  {0x0a82, 0x4803, &syscan_docketport_665_model},
   {0x04a7, 0x0494, &visioneer_roadwarrior_model},
-  {0x0a82, 0x4802, &syscan_docketport_465_model},
-  {0x1dcc, 0x4812, &syscan_docketport_467_model},
   {0x04a7, 0x049b, &visioneer_xp100_r3_model},
+  {0x04a7, 0x04ac, &xerox_travelscanner_model},
+  {0x04a9, 0x2213, &canon_lide_50_model},
+  {0x04a9, 0x221c, &canon_lide_60_model},
+  {0x0638, 0x0a10, &umax_astra_4500_model},
+  {0x07b3, 0x0600, &plustek_st12_model},
+  {0x07b3, 0x0601, &plustek_st24_model},
   {0x0a17, 0x3210, &pentax_dsmobile_600_model},
   {0x0a82, 0x4800, &syscan_docketport_485_model},
+  {0x0a82, 0x4802, &syscan_docketport_465_model},
+  {0x0a82, 0x4803, &syscan_docketport_665_model},
   {0x0a82, 0x480c, &syscan_docketport_685_model},
   {0x1dcc, 0x4810, &dct_docketport_487_model},
+  {0x1dcc, 0x4812, &syscan_docketport_467_model},
   {0, 0, NULL}
 };

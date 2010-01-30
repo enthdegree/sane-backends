@@ -1,3 +1,8 @@
+2010-01-30  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.conf.in backend/genesys_devices.c 
+	doc/descriptions/genesys.desc doc/sane-genesys.man: add Xerox Travel
+	Scanner 100, work by Andrey Loginov <avloginov@gmail.com>
+
 2010-01-29  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_io.h, backend/pixma_imageclass.c, 
 	doc/sane-pixma.man, doc/descriptions/pixma.desc:

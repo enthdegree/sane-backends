@@ -165,3 +165,11 @@
 :usbid  "0x0a82" "0x480c"
 :status :good
 :comment "All resolution and mode supported, calibration is available, front- and backside side-by-side, with backside mirrored horizontally."
+
+:mfg "Xerox"
+
+:model "Travel Scanner 100"
+:interface "USB"
+:usbid  "0x04a7" "0x04ac"
+:status :good
+:comment "All resolution and mode supported, calibration is available"

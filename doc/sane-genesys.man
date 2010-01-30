@@ -23,6 +23,8 @@ Canon LiDE 35/40/50/60
 Pentax DSmobile 600
 .br
 Syscan/Ambir DocketPORT 485/487/665/685
+.br
+Xerox Travel Scanner 100
 .RE
 
 .PP 

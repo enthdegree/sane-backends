@@ -104,9 +104,31 @@ binarize_line(Genesys_Device * dev, uint8_t *src, uint8_t *dst, int width)
   int thresh;
   int offset, addCol, dropCol;
   unsigned char mask;
+  
+  size_t x;
+  uint8_t min, max;
+
+  /* normalize line */
+  min = 255;
+  max = 0;
+    for (x = 0; x < width; x++)
+      {
+	if (src[x] > max)
+	  {
+	    max = src[x];
+	  }
+	if (src[x] < min)
+	  {
+	    min = src[x];
+	  }
+      }
+    for (x = 0; x < width; x++)
+      {
+	src[x] = ((src[x] - min) * 255) / (max - min);
+      }
 
   /* ~1mm works best, but the window needs to have odd # of pixels */
-  windowX = 6 * dev->settings.xres / 150;
+  windowX = (6 * dev->settings.xres) / 150;
   if (!(windowX % 2))
     windowX++;
 
@@ -163,16 +185,17 @@ genesys_gray_lineart(
     size_t lines,
     uint8_t threshold)
 {
-    size_t y;
+  size_t y;
 
-    DBG ( DBG_io2, "genesys_gray_lineart: converting %d lines of %d pixels\n", lines, pixels);
+  DBG (DBG_io2, "genesys_gray_lineart: converting %d lines of %d pixels\n",
+       lines, pixels);
 
-    for(y = 0; y < lines; y++)
-      {
-	binarize_line(dev, src_data+y*pixels, dst_data, pixels);
-	dst_data += pixels/8;
-      }
-    return SANE_STATUS_GOOD;
+  for (y = 0; y < lines; y++)
+    {
+      binarize_line (dev, src_data + y * pixels, dst_data, pixels);
+      dst_data += pixels / 8;
+    }
+  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status 

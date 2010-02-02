@@ -429,6 +429,12 @@
 :status :complete
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
+:model "imageCLASS MF4350d"
+:interface "USB"
+:usbid "0x04a9" "0x26ee"
+:status :complete
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
+
 :model "imageCLASS MF4370dn"
 :interface "USB"
 :usbid "0x04a9" "0x26ec"

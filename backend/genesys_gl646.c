@@ -2021,8 +2021,10 @@ gl646_set_lamp_power (Genesys_Device * dev,
  * @param SANE_TRUE to enable power saving, SANE_FALSE to leave it
  * @return allways SANE_STATUS_GOOD 
  */
-static SANE_Status
-gl646_save_power (Genesys_Device * dev, SANE_Bool enable)
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status gl646_save_power (Genesys_Device * dev, SANE_Bool enable)
 {
 
   DBG (DBG_proc, "gl646_save_power: start\n");
@@ -2050,7 +2052,7 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg[6];
   int rate, exposure_time, tgtime, time;
-
+return SANE_STATUS_GOOD;
   DBG (DBG_proc, "gl646_set_powersaving (delay = %d)\n", delay);
 
   local_reg[0].address = 0x01;
@@ -2723,7 +2725,10 @@ gl646_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
  * @param dev scanner's device
  * @param wait_until_home true if the function waits until head parked
  */
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   SANE_Status status;
@@ -4424,7 +4429,7 @@ gl646_init (Genesys_Device * dev)
       RIE (gl646_bulk_write_register (dev, dev->reg, GENESYS_GL646_MAX_REGS));
 
       /* Test ASIC and RAM */
-      if (!dev->model->flags & GENESYS_FLAG_LAZY_INIT)
+      if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
 	{
 	  RIE (gl646_asic_test (dev));
 	}
@@ -4686,6 +4691,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 
   /* no shading correction and not watch dog for simple scan */
   dev->reg[reg_0x01].value &= ~(REG01_DVDSET | REG01_DOGENB);
+  dev->reg[reg_0x01].value |= REG01_DOGENB; /* XXX STEF XXX */
   if (shading == SANE_TRUE)
     {
       dev->reg[reg_0x01].value |= REG01_DVDSET;
@@ -4693,6 +4699,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 
   /* one table movement for simple scan */
   dev->reg[reg_0x02].value &= ~REG02_FASTFED;
+  dev->reg[reg_0x02].value |= REG02_FASTFED; /* XXX STEF XXX */
 
   if (move == SANE_FALSE)
     {

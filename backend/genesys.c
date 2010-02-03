@@ -4231,6 +4231,7 @@ genesys_start_scan (Genesys_Device * dev)
 {
   SANE_Status status;
   unsigned int steps, expected;
+  SANE_Bool empty;
 
   DBG (DBG_proc, "genesys_start_scan\n");
 
@@ -4425,6 +4426,13 @@ genesys_start_scan (Genesys_Device * dev)
 	}
     }
   while (steps < expected);
+  
+  /* wait for buffers to be filled */
+  do
+    {
+      RIE (sanei_genesys_test_buffer_empty (dev, &empty));
+    }
+  while (empty);
 
   /* when doing one or two-table movement, let the motor settle to scanning speed */
   /* and scanning start before reading data                                        */

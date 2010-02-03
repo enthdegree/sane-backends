@@ -122,6 +122,11 @@ binarize_line(Genesys_Device * dev, uint8_t *src, uint8_t *dst, int width)
 	    min = src[x];
 	  }
       }
+    /* safeguard againt dark of white areas */
+    if(min>80)
+	    min=0;
+    if(max<80)
+	    max=255;
     for (x = 0; x < width; x++)
       {
 	src[x] = ((src[x] - min) * 255) / (max - min);

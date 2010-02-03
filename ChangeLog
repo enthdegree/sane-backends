@@ -1,3 +1,6 @@
+2010-02-03  Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys_conv.c: add safeguards when doing gray normalization
+
 2010-02-02  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
 	pixma: updated docs for supported model ImageCLASS MF4350d.

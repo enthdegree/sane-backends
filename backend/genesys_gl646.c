@@ -649,6 +649,7 @@ gl646_setup_registers (Genesys_Device * dev,
   Genesys_Register_Set *r;
   unsigned int used1, used2, vfinal;
   uint32_t z1, z2;
+  uint16_t ex, sx;
   int channels = 1, stagger, wpl, max_shift;
   size_t requested_buffer_size;
   size_t read_buffer_size;
@@ -974,30 +975,20 @@ gl646_setup_registers (Genesys_Device * dev,
   gl646_set_triple_reg (regs, REG_LINCNT, linecnt);
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
-  startx = startx / sensor->cksel;
-  endx = endx / sensor->cksel;
+  sx = startx / sensor->cksel;
+  ex = endx / sensor->cksel;
   if (half_ccd == SANE_TRUE)
     {
-      gl646_set_double_reg (regs, REG_STRPIXEL, startx / 2);
-      gl646_set_double_reg (regs, REG_ENDPIXEL, endx / 2);
-      DBG (DBG_info,
-	   "gl646_setup_registers: startx=%d, endx=%d, half_ccd=%d\n",
-	   startx / 2, endx / 2, half_ccd);
+      sx/=2;
+      ex/=2;
     }
-  else
-    {
-      gl646_set_double_reg (regs, REG_STRPIXEL, startx);
-      gl646_set_double_reg (regs, REG_ENDPIXEL, endx);
-      DBG (DBG_info,
-	   "gl646_setup_registers: startx=%d, endx=%d, half_ccd=%d\n", startx,
-	   endx, half_ccd);
-    }
+  gl646_set_double_reg (regs, REG_STRPIXEL, sx);
+  gl646_set_double_reg (regs, REG_ENDPIXEL, ex);
+  DBG (DBG_info, "gl646_setup_registers: startx=%d, endx=%d, half_ccd=%d\n", sx, ex , half_ccd);
 
   /* wpl must be computed according to the scan's resolution */
   /* in fact, wpl _gives_ the actual scan resolution */
-  wpl =
-    (((endx -
-       startx) * sensor->xdpi * sensor->cksel) / dev->sensor.optical_res);
+  wpl = (((endx - startx) * sensor->xdpi ) / dev->sensor.optical_res);
   if (depth == 16)
     wpl *= 2;
   if (dev->model->is_cis == SANE_FALSE)

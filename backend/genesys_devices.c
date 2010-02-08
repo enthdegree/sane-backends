@@ -84,14 +84,16 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00, 0x00, 0x00}
    }
   ,				/* 3: MD6228/MD6471 */
-  {DAC_WOLFSON_HP2400,{0x00, 0x03, 0x05, 0x02}
+  {DAC_WOLFSON_HP2400,
+     {0x00, 0x03, 0x04, 0x02}
    , {0x00, 0x00, 0x00}
    , {0xc0, 0xc0, 0xc0}
    , {0x07, 0x07, 0x07}
    , {0x00, 0x00, 0x00}
    }
   ,				/* 4: HP2400c */
-  {DAC_WOLFSON_HP2300,{0x00, 0x03, 0x04, 0x02}
+  {DAC_WOLFSON_HP2300,
+     {0x00, 0x03, 0x04, 0x02}
    , {0x00, 0x00, 0x00}
    , {0xbe, 0xbe, 0xbe}
    , {0x04, 0x04, 0x04}
@@ -123,8 +125,8 @@ static Genesys_Frontend Wolfson[] = {
    /* reg0  reg1  reg2  reg3 */
      {0x00, 0x03, 0x04, 0x02}
    , {0x00, 0x00, 0x00} /* sign */
-   , {0x20, 0x20, 0x20} /* offset */
-   , {0x20, 0x20, 0x20} /* gain */
+   , {0xb0, 0xb0, 0xb0} /* offset */
+   , {0x07, 0x07, 0x07} /* gain */
    , {0x00, 0x00, 0x00}
    }
   ,
@@ -211,7 +213,7 @@ static Genesys_Sensor Sensor[] = {
    {0x0b, 0x0f, 0x13, 0x17, 0x03, 0x07, 0x63, 0x00, 0xc1, 0x00, 0x0e, 0x00,
     0x00}
    ,
-   1.0, 1.0, 1.0,
+   2.1, 2.1, 2.1,
    NULL, NULL, NULL}
   ,
   /* 5: HP2300c */
@@ -274,7 +276,7 @@ static Genesys_Sensor Sensor[] = {
    {0x00, 0x0a, 0x0b, 0x0d} ,
    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x07, 0x20, 0x2a, 0x00, 0x00, 0xc0, 0x43} ,
    {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0x15, 0x05, 0x0a, 0x0f, 0x00},
-   2.38, 2.35, 2.34,
+   2.10, 2.10, 2.10,
    NULL, NULL, NULL}
   ,
   /* Syscan DP 665 */
@@ -464,9 +466,9 @@ static Genesys_Gpo Gpo[] = {
    },
   /* HP3670 */
   {GPO_HP3670,
-   {0x00, 0x00} /* XXX STEF XXX 0x20 */
+   {0x00, 0x00}
    ,
-   {0x70, 0x00}
+   {0x00, 0x00}
   }
   ,
   /* 8: XP300 */
@@ -808,6 +810,7 @@ static Genesys_Model canon_lide_50_model = {
   GENESYS_FLAG_SKIP_WARMUP | 
   GENESYS_FLAG_OFFSET_CALIBRATION | 
   GENESYS_FLAG_DARK_WHITE_CALIBRATION |
+  GENESYS_FLAG_CUSTOM_GAMMA |
   GENESYS_FLAG_HALF_CCD_MODE,
   GENESYS_HAS_SCAN_SW |
   GENESYS_HAS_FILE_SW |
@@ -863,6 +866,7 @@ static Genesys_Model canon_lide_60_model = {
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_WHITE_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
     | GENESYS_FLAG_HALF_CCD_MODE,
 
   GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
@@ -957,7 +961,7 @@ Genesys_Model hp2400c_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+  32, 16, 0,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
 
@@ -1048,7 +1052,7 @@ static Genesys_Model hp3670c_model = {
   SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
   SANE_FIX (7.5),		/* Start of scan area in mm (y) */
   SANE_FIX (215.9),		/* Size of scan area in mm (x) */
-  SANE_FIX (297.2),		/* Size of scan area in mm (y) */
+  SANE_FIX (310.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (1.0),		/* Start of black mark in mm (x) */
@@ -1065,7 +1069,7 @@ static Genesys_Model hp3670c_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
+  0, 24, 48,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
@@ -1077,11 +1081,9 @@ static Genesys_Model hp3670c_model = {
   MOTOR_HP3670,
       GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_NO_CALIBRATION    /* until fully supported */
-    /* | GENESYS_FLAG_SEARCH_START
     | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_OFFSET_CALIBRATION until fully supported */
-    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_NO_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_NO_BUTTONS,
   20,
@@ -1181,7 +1183,9 @@ static Genesys_Model plustek_st24_model = {
   GENESYS_FLAG_UNTESTED
     | GENESYS_FLAG_14BIT_GAMMA
     | GENESYS_FLAG_LAZY_INIT
-    | GENESYS_FLAG_SEARCH_START | GENESYS_FLAG_OFFSET_CALIBRATION,
+    | GENESYS_FLAG_CUSTOM_GAMMA 
+    | GENESYS_FLAG_SEARCH_START
+    | GENESYS_FLAG_OFFSET_CALIBRATION,
   GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
   200
@@ -1288,7 +1292,8 @@ static Genesys_Model visioneer_xp300_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION,
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
   400
@@ -1339,7 +1344,8 @@ static Genesys_Model syscan_docketport_665_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION,
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
   400
@@ -1390,6 +1396,7 @@ static Genesys_Model visioneer_roadwarrior_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
@@ -1441,6 +1448,7 @@ static Genesys_Model syscan_docketport_465_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_NO_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
     | GENESYS_FLAG_UNTESTED,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
   300,
@@ -1492,6 +1500,7 @@ static Genesys_Model visioneer_xp100_r3_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
@@ -1543,6 +1552,7 @@ static Genesys_Model pentax_dsmobile_600_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
@@ -1594,6 +1604,7 @@ static Genesys_Model syscan_docketport_467_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
@@ -1646,6 +1657,7 @@ static Genesys_Model syscan_docketport_685_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
@@ -1698,6 +1710,7 @@ static Genesys_Model syscan_docketport_485_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
@@ -1751,6 +1764,7 @@ static Genesys_Model dct_docketport_487_model = {
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
     | GENESYS_FLAG_UNTESTED,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
@@ -1857,6 +1871,7 @@ static Genesys_Model xerox_travelscanner_model = {
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,

@@ -122,7 +122,8 @@ binarize_line(Genesys_Device * dev, uint8_t *src, uint8_t *dst, int width)
 	    min = src[x];
 	  }
       }
-    /* safeguard againt dark of white areas */
+
+    /* safeguard against dark or white areas */
     if(min>80)
 	    min=0;
     if(max<80)

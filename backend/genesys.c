@@ -470,6 +470,48 @@ sanei_genesys_init_fe (Genesys_Device * dev)
   DBG (DBG_proc, "sanei_genesys_init_fe: end\n");
 }
 
+/** read data for analog frontend
+ * @param dev device owning the AFE
+ * @param addr register address to read
+ * @param data placeholder for the result
+ * @return SANE_STATUS_GOOD is OK, else the error code
+ */
+SANE_Status
+sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
+			     uint16_t *data)
+{
+  SANE_Status status;
+  uint8_t value;
+  Genesys_Register_Set reg[1];
+
+
+  DBG (DBG_proc, "sanei_genesys_fe_read_data: start\n");
+
+  reg[0].address = 0x50;
+  reg[0].value = addr;
+
+  /* set up read address */
+  status = dev->model->cmd_set->bulk_write_register (dev, reg, 1);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "sanei_genesys_fe_read_data: failed while bulk writing registers: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  /* read data */
+  RIE (sanei_genesys_read_register (dev, 0x46, &value));
+  *data=256*value;
+  RIE (sanei_genesys_read_register (dev, 0x47, &value));
+  *data+=value;
+
+  DBG (DBG_io, "sanei_genesys_fe_read_data (0x%02x, 0x%04x)\n", addr, *data);
+  DBG (DBG_proc, "sanei_genesys_fe_read_data: completed\n");
+
+  return status;
+}
+
 /* Write data for analog frontend */
 SANE_Status
 sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
@@ -491,7 +533,7 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_genesys_fe_write_data: Failed while bulk writing registers: %s\n",
+	   "sanei_genesys_fe_write_data: failed while bulk writing registers: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -5287,7 +5329,7 @@ calc_parameters (Genesys_Scanner * s)
 
   /* dynamic lineart */
   s->dev->settings.dynamic_lineart =
-    s->val[OPT_DYNAMIC_LINEART].w == SANE_TRUE;
+    s->val[OPT_DISABLE_DYNAMIC_LINEART].w == SANE_FALSE;
  
   /* threshold curve for dynamic ratserization */
   if(s->dev->settings.dynamic_lineart==SANE_TRUE)
@@ -5341,8 +5383,8 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
 	}
     }
   else
-    {				/* GL841 case */
-      scanner->opt[option].size = 256 * sizeof (SANE_Word);
+    {				/* GL841 case 16 bits gamma table */
+      scanner->opt[option].size = 65536 * sizeof (SANE_Word);
       scanner->opt[option].constraint.range = &u16_range;
     }
   /* default value is NULL */
@@ -5577,20 +5619,20 @@ init_options (Genesys_Scanner * s)
   s->val[OPT_THRESHOLD_CURVE].w = 50;
   
   /* dynamic linart */
-  s->opt[OPT_DYNAMIC_LINEART].name = "dynamic-lineart";
-  s->opt[OPT_DYNAMIC_LINEART].title = SANE_I18N ("Dynamic lineart");
-  s->opt[OPT_DYNAMIC_LINEART].desc =
+  s->opt[OPT_DISABLE_DYNAMIC_LINEART].name = "disable-dynamic-lineart";
+  s->opt[OPT_DISABLE_DYNAMIC_LINEART].title = SANE_I18N ("Disable dynamic lineart");
+  s->opt[OPT_DISABLE_DYNAMIC_LINEART].desc =
     SANE_I18N
-    ("Use a software adaptative algorithm to generate lineart instead of"
+    ("Disabel use of a software adaptative algorithm to generate lineart instead of"
      " relying on hardware lineart");
-  s->opt[OPT_DYNAMIC_LINEART].type = SANE_TYPE_BOOL;
-  s->opt[OPT_DYNAMIC_LINEART].unit = SANE_UNIT_NONE;
-  s->opt[OPT_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_DYNAMIC_LINEART].w = SANE_FALSE;
+  s->opt[OPT_DISABLE_DYNAMIC_LINEART].type = SANE_TYPE_BOOL;
+  s->opt[OPT_DISABLE_DYNAMIC_LINEART].unit = SANE_UNIT_NONE;
+  s->opt[OPT_DISABLE_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_DISABLE_DYNAMIC_LINEART].w = SANE_FALSE;
   /* not working for GL646 scanners yet */
   if (s->dev->model->asic_type == GENESYS_GL646)
     {
-      s->opt[OPT_DYNAMIC_LINEART].cap |= SANE_CAP_INACTIVE;
+      s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap |= SANE_CAP_INACTIVE;
     }
 
   /* disable_interpolation */
@@ -6503,9 +6545,11 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_PREVIEW:
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
-    case OPT_DYNAMIC_LINEART:
+    case OPT_DISABLE_DYNAMIC_LINEART:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_LAMP_OFF_TIME:
+      *(SANE_Word *) val = s->val[option].w;
+      break;
     case OPT_CUSTOM_GAMMA:
       *(SANE_Word *) val = s->val[option].w;
       break;
@@ -6614,7 +6658,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_BIT_DEPTH:
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
-    case OPT_DYNAMIC_LINEART:
+    case OPT_DISABLE_DYNAMIC_LINEART:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_PREVIEW:
       s->val[option].w = *(SANE_Word *) val;
@@ -6640,13 +6684,13 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  ENABLE (OPT_THRESHOLD_CURVE);
 	  DISABLE (OPT_BIT_DEPTH);
 	  ENABLE (OPT_COLOR_FILTER);
-	  ENABLE (OPT_DYNAMIC_LINEART);
+	  ENABLE (OPT_DISABLE_DYNAMIC_LINEART);
 	}
       else
 	{
 	  DISABLE (OPT_THRESHOLD);
 	  DISABLE (OPT_THRESHOLD_CURVE);
-	  DISABLE (OPT_DYNAMIC_LINEART);
+	  DISABLE (OPT_DISABLE_DYNAMIC_LINEART);
 	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	    {
 	      ENABLE (OPT_COLOR_FILTER);

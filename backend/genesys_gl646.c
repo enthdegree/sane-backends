@@ -735,12 +735,6 @@ gl646_setup_registers (Genesys_Device * dev,
       return SANE_STATUS_INVAL;
     }
 
-  /* vfinal=(exposure/(1200/dpi))/step_type */
-  /* DBG (DBG_info, "XXX STEF XXX vfinal=%d, vend1=%d\n",
-     (sensor->exposure * sensor->xdpi) / ((1 << motor->steptype) *
-     dev->sensor.optical_res),
-     motor->vend1); */
-
   /* half_ccd if manual clock programming or dpi is half dpiset */
   half_ccd = sensor->half_ccd;
 
@@ -748,9 +742,6 @@ gl646_setup_registers (Genesys_Device * dev,
   for (i = 0; i < 6; i++)
     {
       r = sanei_genesys_get_address (regs, 0x10 + i);
-      /* XXX STEF XXX
-         r->value = dev->sensor.regs_0x10_0x1d[i];
-       */
       r->value = sensor->regs_0x10_0x15[i];
     }
 
@@ -1120,13 +1111,6 @@ gl646_setup_registers (Genesys_Device * dev,
   regs[reg_0x6c].value =
     (regs[reg_0x6c].value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
 								   & 0x07);
-
-  /* the 3670 seems to behave differently regarding GPIO */
-  /* TODO to be added in the sensor setting struct ?? */
-  if (dev->model->ccd_type == CCD_HP3670)
-    {
-      dev->reg[reg_0x66].value = 0;
-    }
 
   RIE (write_control (dev, xresolution));
 
@@ -1500,7 +1484,7 @@ gl646_init_regs (Genesys_Device * dev)
       dev->reg[reg_0x19].value = 0x2a;
       dev->reg[reg_0x1e].value = 0x80;
       dev->reg[reg_0x1f].value = 0x10;
-      dev->reg[reg_0x20].value = 0x50;
+      dev->reg[reg_0x20].value = 0x20;
       break;
     case CIS_XP200:
       dev->reg[reg_0x1e].value = 0x10;
@@ -1705,6 +1689,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
     {
     case AFE_INIT:
       sanei_genesys_init_fe (dev);
+      RIE(sanei_genesys_write_register (dev, 0x50, 0x00));
       status = sanei_genesys_fe_write_data (dev, 0x04, 0x80);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -1712,6 +1697,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	       sane_strstatus (status));
 	  return status;
 	}
+      usleep (200000UL);
       status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -1727,6 +1713,14 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	       sane_strstatus (status));
 	  return status;
 	}
+	  status = gl646_gpio_output_enable (dev->dn, 0x07);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "gl646_set_fe: failed to enable GPIO: %s\n",
+		   sane_strstatus (status));
+	      return status;
+	    }
       break;
     case AFE_POWER_SAVE:
       /*
@@ -1736,7 +1730,14 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",
 	       sane_strstatus (status));
 	  return status;
-	}*/
+	}
+      status = sanei_genesys_fe_write_data (dev, 0x06, 0x0f);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: writing reg6 failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	} */
       return status;
       break;
     default:			/* AFE_SET */
@@ -1749,16 +1750,16 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	       sane_strstatus (status));
 	  return status;
 	}
-      /* offset 30 ~ */
-      status = sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.offset[0]);
+      /* offset 0x23 */
+      status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.offset[0]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing offset failed: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
-      /* gain */
-      status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.gain[0]);
+      /* gain 0x28 */
+      status = sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.gain[0]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing gain failed: %s\n",
@@ -2043,7 +2044,7 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg[6];
   int rate, exposure_time, tgtime, time;
-return SANE_STATUS_GOOD;
+
   DBG (DBG_proc, "gl646_set_powersaving (delay = %d)\n", delay);
 
   local_reg[0].address = 0x01;
@@ -3170,7 +3171,7 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
 
   /* compute distance to move */
   move = 0;
-  /* XXX STEF XXX mD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
+  /* XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
   if (split == SANE_FALSE)
     {
       if (dev->model->is_sheetfed == SANE_FALSE)
@@ -4477,32 +4478,6 @@ gl646_init (Genesys_Device * dev)
       sanei_genesys_write_register (dev, 0x66, 0x00);
       sanei_genesys_write_register (dev, 0x66, 0x10);
     }
-  if (dev->model->ccd_type == CCD_HP3670+12345) /* XXX STEF XXX */
-    {
-      sanei_genesys_write_register (dev, 0x68, dev->gpo.enable[0]);
-      sanei_genesys_write_register (dev, 0x69, dev->gpo.enable[1]);
-
-      /* enable GPIO */
-      status = gl646_gpio_output_enable (dev->dn, 0x07);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "gl646_init: GPO enable failed ... %s\n",
-	       sane_strstatus (status));
-	}
-      val = 0;
-
-      /* writes 0 to GPIO */
-      status = gl646_gpio_write (dev->dn, 0);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "gl646_init: GPO write failed ... %s\n",
-	       sane_strstatus (status));
-	}
-
-      sanei_genesys_write_register (dev, 0x66, 0x20);
-      sanei_genesys_write_register (dev, 0x66, 0x00);
-      sanei_genesys_write_register (dev, 0x66, 0x20);
-    }
 
   /* MD6471/G2410 and XP200 read/write data from an undocumented memory area which
    * is after the second slope table */
@@ -4682,7 +4657,6 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 
   /* no shading correction and not watch dog for simple scan */
   dev->reg[reg_0x01].value &= ~(REG01_DVDSET | REG01_DOGENB);
-  dev->reg[reg_0x01].value |= REG01_DOGENB; /* XXX STEF XXX */
   if (shading == SANE_TRUE)
     {
       dev->reg[reg_0x01].value |= REG01_DVDSET;
@@ -4690,7 +4664,6 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 
   /* one table movement for simple scan */
   dev->reg[reg_0x02].value &= ~REG02_FASTFED;
-  dev->reg[reg_0x02].value |= REG02_FASTFED; /* XXX STEF XXX */
 
   if (move == SANE_FALSE)
     {
@@ -4838,24 +4811,6 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
   uint8_t value;
   SANE_Status status;
 
-  if (dev->model->gpo_type == GPO_HP3670)
-    {
-      status = gl646_gpio_output_enable (dev->dn, 0x03);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "gl646_init: GPO enable failed ... %s\n",
-	       sane_strstatus (status));
-	}
-      status = gl646_gpio_write (dev->dn, 0x03);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl646_update_hardware_sensors: failed to write GPIO %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-    }
-
   /* do what is needed to get a new set of events, but try to not loose
      any of them.
    */
@@ -4868,18 +4823,6 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
       return status;
     }
   DBG (DBG_io, "gl646_update_hardware_sensors: GPIO=0x%02x\n", value);
-
-  if (dev->model->gpo_type == GPO_HP3670)
-    {
-      status = gl646_gpio_write (dev->dn, 0x01);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl646_update_hardware_sensors: failed to write GPIO %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-    }
 
   /* scan button */
   if ((dev->model->buttons & GENESYS_HAS_SCAN_SW)
@@ -4983,18 +4926,7 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	  return SANE_STATUS_UNSUPPORTED;
 	}
     }
-
-  if (dev->model->gpo_type == GPO_HP3670)
-    {
-      status = gl646_gpio_output_enable (dev->dn, 0x07);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "gl646_init: GPO enable failed ... %s\n",
-	       sane_strstatus (status));
-	}
-    }
-
-
+  
   return status;
 }
 

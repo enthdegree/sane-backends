@@ -1,3 +1,10 @@
+2010-02-08  Stéphane Voltz <stef.dev ar free.fr>
+	* backend/genesys.c backend/genesys.h backend/genesys_conv.c
+	backend/genesys_devices.c backend/genesys_gl646.c
+	backend/genesys_gl646.h: working uncalibrated 150/300 dpi modes for
+	HP3670. Enable custom gamma for gl841 based scanners. Turned dynamic
+	line-art to be default.
+
 2010-02-03  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys_conv.c: add safeguards when doing gray normalization
 

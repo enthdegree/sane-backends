@@ -875,6 +875,7 @@ descriptions.db: $(DESC_FILES) ../tools/sane-desc
 	@../tools/sane-desc -m ascii -s ${srcdir}/descriptions \
 	  > descriptions.db
 
+
 descriptions-external.db: $(DESC_FILES) ../tools/sane-desc
 	@../tools/sane-desc -m ascii -s ${srcdir}/descriptions-external \
 	  > descriptions-external.db

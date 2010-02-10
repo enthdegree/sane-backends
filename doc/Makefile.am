@@ -281,6 +281,14 @@ sane-mfgs-external.html: $(DESC_EXT_FILES) ../tools/sane-desc
 	  -t "SANE: Devices Supported by External Backends" -d 0 \
 	  > sane-mfgs-external.html
 
+descriptions.db: $(DESC_FILES) ../tools/sane-desc
+	@../tools/sane-desc -m ascii -s ${srcdir}/descriptions \
+	  > descriptions.db
+
+descriptions-external.db: $(DESC_FILES) ../tools/sane-desc
+	@../tools/sane-desc -m ascii -s ${srcdir}/descriptions-external \
+	  > descriptions-external.db
+
 html-pages: $(HTML_PAGES)
 html: html-pages html-man sane-html
 

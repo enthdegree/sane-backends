@@ -68,7 +68,7 @@ is not intended to be exposed to the internet or other non-trusted
 networks. Make sure that access is limited by tcpwrappers and/or a firewall
 setup. Don't depend only on 
 .BR saned 's
-own authentification. Don't run
+own authentication. Don't run
 .B saned
 as root if it's not necessary. And do
 .B not

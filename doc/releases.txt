@@ -46,16 +46,24 @@ Making the release:
 
 Announcing the release:
 
-* checkout the html module and:
+* checkout the sane/website.git module and:
 * copy sane-backends.html to sane-backends-"old-version".html
 * update sane-supported-devices.html with link to above "old" file
 * rebuild sane-backends.html and sane-mfgs.html (see doc/Makefile)
-* use man2htmlfrom http://hydra.nac.uci.edu/indiv/ehood/man2html.html
+* use man2html from http://hydra.nac.uci.edu/indiv/ehood/man2html.html
   to rebuild html man pages (see doc/Makefile) (no other version works)
 * add md5 sum to sane-md5sum.txt
 * check and update platforms page (sane-support.html)
-* write announcements on sane-project.org and sane-devel, maybe others
-  (e.g. freshmeat), include the md5 hash
+* add announcement (with md5sum) to index.html
+* git commit -a && git push
+* ssh alioth.debian.org
+* cd /org/alioth.debian.org/chroot/home/groups/sane
+* ./bin/update-htdocs.sh
+* rebuild descriptions.db and descriptions-external.db (see doc/Makefile)
+* scp descriptions.db and descriptions-external.db to alioth
+  put them in /org/alioth.debian.org/chroot/home/groups/sane/search/release
+* write announcements sane-devel, maybe others (e.g. freshmeat),
+  include the md5 hash
 
 After the release:
 
@@ -67,6 +75,6 @@ After the release:
 * configure: regenerate with autoconf
 * remove the ':new' tag from any new backends .desc files
 * commit
-* on cvs.alioth.debian.org, cvs update, ./configure, make the cvs checkout in
-  /org/alioth.debian.org/chroot/home/groups/sane/sane-backends-lists-cvs/
+* on alioth.debian.org, git pull, ./configure, make the git checkout in
+  /org/alioth.debian.org/chroot/home/groups/sane/sane-backends-lists-git/
 

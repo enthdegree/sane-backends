@@ -46,6 +46,12 @@
 :status :untested
 :comment "1200x1200 dpi max"
 
+:model "ScanJet G2410"
+:interface "USB"
+:usbid "0x03f0" "0x0901"
+:status :untested
+:comment same as HP2400C
+
 :model "ScanJet 3670C"
 :interface "USB"
 :usbid "0x03f0" "0x1405"

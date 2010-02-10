@@ -1,3 +1,6 @@
+2010-02-10 m. allan noah <kitno455 at gmail dot com>
+	* backend/gt68xx_devices.c: add GT68XX_FLAG_NO_STOP to SF600
+
 2010-02-09 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.c, doc/descriptions/fujitsu.desc,
 	  backend/canon_dr.c, doc/descriptions/canon_dr.desc,

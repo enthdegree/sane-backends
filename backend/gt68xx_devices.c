@@ -1699,7 +1699,7 @@ static GT68xx_Model genius_sf600_model = {
   SANE_FIX (2.0),			/* Default gamma value */
 
   SANE_TRUE,				/* Is this a CIS scanner? */
-  GT68XX_FLAG_NO_POWER_STATUS | GT68XX_FLAG_UNTESTED | GT68XX_FLAG_SHEET_FED | GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_HAS_CALIBRATE
+  GT68XX_FLAG_NO_POWER_STATUS | GT68XX_FLAG_UNTESTED | GT68XX_FLAG_SHEET_FED | GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_HAS_CALIBRATE | GT68XX_FLAG_NO_STOP
 };
 
 /* Untested but should work according to Ryan Reading <ryanr23@gmail.com>. Based on Plustek M12 */

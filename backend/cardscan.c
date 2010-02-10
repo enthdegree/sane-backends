@@ -1,6 +1,9 @@
 /* sane - Scanner Access Now Easy.
 
-   This file is part of the SANE package.
+   This file is part of the SANE package, and implements a SANE backend
+   for various Corex Cardscan scanners.
+
+   Copyright (C) 2007-2010 m. allan noah
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -53,10 +56,15 @@
    Section 6 - misc functions
 
    Changes:
-      V 1.0.0, 2007-05-09, MAN (SANE v1.0.19)
+      v0, 2007-05-09, MAN (SANE v1.0.19)
         - initial release
-      V 1.0.1, 2008-02-14, MAN
-	 - sanei_config_read has already cleaned string (#310597)
+      v1, 2008-02-14, MAN
+	- sanei_config_read has already cleaned string (#310597)
+      v2, 2010-02-10, MAN
+	- add lines_per_block config option
+	- add has_cal_buffer config option
+	- basic support for 600c
+        - clean #include lines
 
 ##################################################
    DATA FROM TRACE OF WINDOWS DRIVER:
@@ -205,22 +213,8 @@ four times {
 
 #include "../include/sane/config.h"
 
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <time.h>
-#include <math.h>
-
-#include <sys/types.h>
-#include <unistd.h>
-#ifdef HAVE_LIBC_H
-# include <libc.h>              /* NeXTStep/OpenStep */
-#endif
+#include <string.h> /*memcpy...*/
+#include <ctype.h> /*isspace*/
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_usb.h"
@@ -230,7 +224,7 @@ four times {
 #include "cardscan.h"
 
 #define DEBUG 1
-#define BUILD 1 
+#define BUILD 2 
 
 /* values for SANE_DEBUG_CARDSCAN env var:
  - errors           5
@@ -241,6 +235,9 @@ four times {
  - usb cmd detail  30
  - useless noise   35
 */
+
+int global_has_cal_buffer = 1;
+int global_lines_per_block = 16;
 
 /* ------------------------------------------------------------------------- */
 static const char string_Grayscale[] = "Gray";
@@ -329,7 +326,10 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     local_only = local_only;        /* get rid of compiler warning */
   
     DBG (10, "sane_get_devices: start\n");
-  
+ 
+    global_has_cal_buffer = 1;
+    global_lines_per_block = 16;
+
     fp = sanei_config_open (CONFIG_FILE);
   
     if (fp) {
@@ -352,6 +352,44 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                 DBG (15, "sane_get_devices: looking for '%s'\n", lp);
                 sanei_usb_attach_matching_devices(lp, attach_one);
             }
+
+            else if (!strncmp(lp, "has_cal_buffer", 14) && isspace (lp[14])) {
+    
+                int buf;
+                lp += 14;
+                lp = sanei_config_skip_whitespace (lp);
+                buf = atoi (lp);
+    
+                if(buf){
+                  global_has_cal_buffer = 1;
+                }
+                else{
+                  global_has_cal_buffer = 0;
+                }
+    
+                DBG (15, "sane_get_devices: setting \"has_cal_buffer\" to %d\n",
+                  global_has_cal_buffer);
+            }
+
+            else if (!strncmp(lp, "lines_per_block", 15) && isspace (lp[15])) {
+    
+                int buf;
+                lp += 15;
+                lp = sanei_config_skip_whitespace (lp);
+                buf = atoi (lp);
+    
+                if(buf < 1 || buf > 32){
+                  DBG (15, 
+                    "sane_get_devices: \"lines_per_block\"=%d\n out of range",
+                    buf
+                  );
+                  continue;
+                }
+
+                DBG (15, "sane_get_devices: \"lines_per_block\" is %d\n", buf);
+                global_lines_per_block = buf;
+            }
+
             else{
                 DBG (5, "sane_get_devices: config line \"%s\" ignored.\n", lp);
             }
@@ -444,6 +482,9 @@ attach_one (const char *device_name)
         if(pid == 0x0005){
             s->product_name = "800c";
         }
+        else if(pid == 0x0002){
+            s->product_name = "600c";
+        }
         else{
             DBG (5, "Unknown product, using default settings\n");
             s->product_name = "Unknown";
@@ -457,16 +498,27 @@ attach_one (const char *device_name)
   
     DBG (15, "attach_one: Found %s scanner %s at %s\n",
       s->vendor_name, s->product_name, s->device_name);
-  
+ 
+    /*copy config file settings*/
+    s->has_cal_buffer = global_has_cal_buffer;
+    s->lines_per_block = global_lines_per_block;
+    s->color_block_size = s->lines_per_block * PIXELS_PER_LINE * 3;
+    s->gray_block_size = s->lines_per_block * PIXELS_PER_LINE;
+
     /* try to get calibration */
-    DBG (15, "attach_one: scanner calibration\n");
-  
-    ret = load_calibration(s);
-    if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot calibrate, incompatible?\n");
-        free (s->device_name);
-        free (s);
-        return ret;
+    if(s->has_cal_buffer){
+      DBG (15, "attach_one: scanner calibration\n");
+    
+      ret = load_calibration(s);
+      if (ret != SANE_STATUS_GOOD) {
+          DBG (5, "sane_start: ERROR: cannot calibrate, incompatible?\n");
+          free (s->device_name);
+          free (s);
+          return ret;
+      }
+    }
+    else{
+      DBG (15, "attach_one: skipping calibration\n");
     }
   
     /* set SANE option 'values' to good defaults */
@@ -1165,13 +1217,15 @@ read_from_scanner_gray(struct scanner *s)
     SANE_Status ret=SANE_STATUS_GOOD;
     /*cmd    len-le16    move  lines  ???   ???   ???   ???*/
     unsigned char cmd[] =
-      {0x12, 0x06, 0x00, 0x01, 0x10, 0x60, 0x00, 0x18, 0x05};
-    size_t bytes = HEADER_SIZE + GRAY_BLOCK_SIZE;
+      {0x12, 0x06, 0x00, 0x01, 0x01, 0x60, 0x00, 0x18, 0x05};
+    size_t bytes = HEADER_SIZE + s->gray_block_size;
     unsigned char * buf;
     int i,j;
   
     DBG (10, "read_from_scanner_gray: start\n");
-  
+ 
+    cmd[4] = s->lines_per_block;
+
     buf = malloc(bytes);
     if(!buf){
         DBG(5, "read_from_scanner_gray: not enough mem for buffer: %lu\n",
@@ -1191,15 +1245,15 @@ read_from_scanner_gray(struct scanner *s)
         DBG(15, "read_from_scanner_gray: got GOOD\n");
 
         if(!buf[1]){
-          s->paperless_lines += LINES_PER_PASS;
+          s->paperless_lines += s->lines_per_block;
         }
     
-        s->bytes_rx = GRAY_BLOCK_SIZE;
+        s->bytes_rx = s->gray_block_size;
     
-        /*memcpy(s->buffer,buf+HEADER_SIZE,GRAY_BLOCK_SIZE);*/
+        /*memcpy(s->buffer,buf+HEADER_SIZE,s->gray_block_size);*/
   
         /* reorder the gray data into the struct's buffer */
-        for(i=0;i<GRAY_BLOCK_SIZE;i+=PIXELS_PER_LINE){
+        for(i=0;i<s->gray_block_size;i+=PIXELS_PER_LINE){
             for(j=0;j<PIXELS_PER_LINE;j++){
       
                 unsigned char byte = buf[ HEADER_SIZE + i + j ];
@@ -1228,13 +1282,15 @@ read_from_scanner_color(struct scanner *s)
 {
     SANE_Status ret=SANE_STATUS_GOOD;
     unsigned char cmd[] =
-      {0x18, 0x07, 0x00, 0x01, 0x10, 0x60, 0x00, 0x18, 0x05, 0x07};
-    size_t bytes = HEADER_SIZE + COLOR_BLOCK_SIZE;
+     {0x18, 0x07, 0x00, 0x01, 0x01, 0x60, 0x00, 0x18, 0x05, 0x07};
+    size_t bytes = HEADER_SIZE + s->color_block_size;
     unsigned char * buf;
     int i,j,k;
   
     DBG (10, "read_from_scanner_color: start\n");
   
+    cmd[4] = s->lines_per_block;
+
     buf = malloc(bytes);
     if(!buf){
         DBG(5, "read_from_scanner_color: not enough mem for buffer: %lu\n",
@@ -1254,15 +1310,15 @@ read_from_scanner_color(struct scanner *s)
         DBG(15, "read_from_scanner_color: got GOOD\n");
 
         if(!buf[1]){
-          s->paperless_lines += LINES_PER_PASS;
+          s->paperless_lines += s->lines_per_block;
         }
     
-        s->bytes_rx = COLOR_BLOCK_SIZE;
+        s->bytes_rx = s->color_block_size;
     
-        /*memcpy(s->buffer,buf+HEADER_SIZE,COLOR_BLOCK_SIZE);*/
+        /*memcpy(s->buffer,buf+HEADER_SIZE,s->color_block_size);*/
   
         /* reorder the color data into the struct's buffer */
-        for(i=0;i<COLOR_BLOCK_SIZE;i+=PIXELS_PER_LINE*3){
+        for(i=0;i<s->color_block_size;i+=PIXELS_PER_LINE*3){
             for(j=0;j<PIXELS_PER_LINE;j++){
                 for(k=0;k<3;k++){
       

@@ -213,6 +213,11 @@ The canon630u backend supports the CanoScan 630u and 636u USB scanners.  See
 .BR sane\-canon630u (5)
 for details.
 .TP
+.B canon_dr
+The canon_dr backend supports the Canon DR-Series ADF SCSI and USB scanners. See
+.BR sane\-canon_dr (5)
+for details.
+.TP
 .B canon_pp
 The canon_pp backend supports the CanoScan FB330P, FB630P, N340P and N640P
 parallel port scanners.  See
@@ -220,7 +225,7 @@ parallel port scanners.  See
 for details.
 .TP
 .B cardscan
-This backend provides support for the Corex Cardscan 800c USB scanner. See 
+This backend provides support for Corex Cardscan USB scanners. See 
 .BR sane\-cardscan (5)
 for details.
 .TP
@@ -255,7 +260,7 @@ and adf scanners. See
 for details.
 .TP
 .B genesys
-The genesys backend provides support for scanners based on the Genesys Logic
+The genesys backend provides support for scanners based on the Genesys Logic 
 GL646 and GL841 chips like the Medion 6471 and Hewlett-Packard 2300c.
 Support for GL841 based scanners is far from being complete. See
 .BR sane\-genesys (5)
@@ -313,6 +318,11 @@ for details.
 .B ibm
 The SANE backend for some IBM and Ricoh SCSI scanners. See
 .BR sane\-ibm (5)
+for details.
+.TP
+.B kodak
+The SANE backend for some large Kodak scanners. See
+.BR sane\-kodak (5)
 for details.
 .TP
 .B leo
@@ -823,7 +833,9 @@ for details).
 .BR sane\-bh (5),
 .BR sane\-canon (5),
 .BR sane\-canon630u (5),
+.BR sane\-canon_dr (5),
 .BR sane\-canon_pp (5),
+.BR sane\-cardscan (5),
 .BR sane\-coolscan2 (5),
 .BR sane\-coolscan (5),
 .BR sane\-dc210 (5),
@@ -844,6 +856,7 @@ for details).
 .BR sane\-hp5400 (5),
 .BR sane\-hpljm1005 (5),
 .BR sane\-ibm (5),
+.BR sane\-kodak (5),
 .BR sane\-leo (5),
 .BR sane\-lexmark (5),
 .BR sane\-ma1509 (5),

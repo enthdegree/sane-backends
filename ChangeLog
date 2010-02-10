@@ -2,6 +2,15 @@
 	* doc/descriptions/genesys.desc: added G2410
 
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
+	* backend/cardscan.[ch], backend/cardscan.conf.in,
+	  doc/descriptions/cardscan.desc, doc/sane-cardscan.man:
+	- add lines_per_block config option
+	- add has_cal_buffer config option
+	- basic support for 600C
+	- clean #include lines
+	* doc/sane.man: add missing backends
+
+2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* backend/gt68xx_devices.c: add GT68XX_FLAG_NO_STOP to SF600
 	* doc/.gitignore, doc/Makefile.am, doc/Makefile.in:
 	- added new targets for scanner search engine db

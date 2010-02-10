@@ -31,9 +31,6 @@ enum scanner_Option
 #define CAL_GRAY_SIZE PIXELS_PER_LINE
 
 /* values for image data */
-#define LINES_PER_PASS 16
-#define COLOR_BLOCK_SIZE (LINES_PER_PASS * PIXELS_PER_LINE * 3)
-#define GRAY_BLOCK_SIZE (LINES_PER_PASS * PIXELS_PER_LINE)
 #define MAX_PAPERLESS_LINES 210
 
 struct scanner
@@ -48,6 +45,13 @@ struct scanner
   SANE_Device sane;
   char * vendor_name;
   char * product_name;
+
+  /* --------------------------------------------------------------------- */
+  /* immutable values which are set during reading of config file.         */
+  int has_cal_buffer; 
+  int lines_per_block; 
+  int color_block_size; 
+  int gray_block_size; 
 
   /* --------------------------------------------------------------------- */
   /* changeable SANE_Option structs provide our interface to frontend.     */
@@ -95,7 +99,7 @@ struct scanner
   int paperless_lines;
 
   /* buffer part of image */
-  unsigned char buffer[COLOR_BLOCK_SIZE];
+  unsigned char buffer[PIXELS_PER_LINE * 3 * 32];
 
   /* how far we have read from scanner into buffer */
   int bytes_rx;

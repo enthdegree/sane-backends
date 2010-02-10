@@ -10,3 +10,8 @@
 
 # Corex Cardscan 800c
 usb 0x08f0 0x0005
+
+# Corex Cardscan 600c
+has_cal_buffer 0
+lines_per_block 1
+usb 0x08f0 0x0002

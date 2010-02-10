@@ -11,9 +11,9 @@
 
 :backend "cardscan"              ; name of backend
 :url "http://www.thebility.com/cardscan/" 
-:version "1.0.1"                 ; version of backend
+:version "2"                 ; version of backend
 :manpage "sane-cardscan"         ; name of manpage (if it exists)
-:comment "New for sane 1.0.19"
+:comment "Backend updated for SANE release 1.0.21, see sane-cardscan manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
@@ -25,5 +25,11 @@
 :interface "USB"
 :usbid "0x08f0" "0x0005"
 :status :good
+:comment "4 inch wide 8bit Gray or 24bit Color simplex card/receipt scanner"
+
+:model "600c"
+:interface "USB"
+:usbid "0x08f0" "0x0002"
+:status :basic
 :comment "4 inch wide 8bit Gray or 24bit Color simplex card/receipt scanner"
 

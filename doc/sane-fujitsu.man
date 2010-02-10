@@ -1,4 +1,4 @@
-.TH sane\-fujitsu 5 "20 Apr 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-fujitsu 5 "09 Feb 2010" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-fujitsu
 
 .SH NAME
@@ -10,13 +10,13 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to most Fujitsu flatbed and ADF scanners.
 
-This document describes backend version 95, which shipped with SANE 1.0.21cvs.
+This document describes backend version 98, which shipped with SANE 1.0.21cvs.
 
 .SH SUPPORTED HARDWARE
 This version supports every known model which speaks the Fujitsu SCSI and 
 SCSI\-over\-USB protocols. Specifically, the SCSI M309x and M409x series, the 
-SCSI fi\-series, most of the USB fi\-series, and the USB ScanSnap S5xx scanners 
-are supported. Please see the list at 
+SCSI fi\-series, most of the USB fi\-series, and the USB ScanSnap S5xx/S15xx
+scanners are supported. Please see the list at 
 http://www.sane\-project.org/sane\-supported\-devices.html for details.
 
 This backend may support other Fujitsu scanners. The best
@@ -85,6 +85,14 @@ machines with IPC or DTC will have additional enhancement options, those
 with CMP will have compression options, those with a printer will have a
 group of endorser options.
 
+Additionally, several 'software' options are exposed by the backend. These
+are reimplementations of features provided natively by larger scanners, but
+running on the host computer. This enables smaller machines to have similar
+capabilites. Please note that these features are somewhat simplistic, and 
+may not perform as well as the native implementations. Note also that these 
+features all require that the driver cache the entire image in memory. This 
+will almost certainly result in a reduction of scanning speed.
+
 Use 'scanimage \-\-help' to get a list, but be aware that some options may 
 be settable only when another option has been set, and that advanced options 
 may be hidden by some frontend programs.
@@ -121,7 +129,8 @@ to determine if it is a Fujitsu scanner.
 .PP
 "usb /dev/usb/scanner0" (or other device file)
 .RS
-Some systems use a kernel driver to access usb scanners. This method is untested.
+Some systems use a kernel driver to access usb scanners. This method is
+untested.
 .RE
 .PP
 The only configuration option supported is "buffer\-size=xxx", allowing you
@@ -168,7 +177,7 @@ an override is added to the backend.
 .PP
 CCITT Fax compression used by older scanners is not supported.
 .PP
-Automatic paper size detection (aka auto-cropping) is not supported.
+Hardware automatic paper width detection (aka auto-cropping) is not supported.
 .PP
 JPEG output is supported by the backend, but not by the SANE protocol, so is
 disabled in this release. It can be enabled if you rebuild from source. 

@@ -11,9 +11,9 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/" 
-:version "34"                    ; version of backend
+:version "35"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
-:comment "New backend as of SANE release 1.0.20, testers needed, see manpage"
+:comment "Backend updated for SANE release 1.0.21, see sane-canon_dr manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
@@ -64,6 +64,16 @@
 :status :complete
 :comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width, 300/600dpi horizontal. Driver provides: Binary, Despeckle, Deskew, Cropping, Calibration, other resolutions."
 
+:model "DR-2010M"
+:interface "USB"
+:status :untested
+:comment "Mac version of DR-2010C? Please test!"
+
+:model "DR-2020U"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
 :model "DR-2050C"
 :interface "USB"
 :usbid "0x04a9" "0x160a"
@@ -87,6 +97,11 @@
 :usbid "0x1083" "0x1617"
 :status :complete
 :comment "Hardware provides: Gray/Color, Simplex/Duplex, Full-width, 300/600dpi horizontal. Driver provides: Binary, Despeckle, Deskew, Cropping, Calibration, other resolutions"
+
+:model "DR-2510M"
+:interface "USB"
+:status :untested
+:comment "Mac version of DR-2510C? Please test!"
 
 :model "DR-2580C"
 :interface "USB SCSI"
@@ -224,3 +239,4 @@
 :usbid "0x1083" "0x1618"
 :status :untested
 :comment "Please test!"
+

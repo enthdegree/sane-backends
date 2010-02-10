@@ -446,7 +446,7 @@
          - support hardware based auto length detection
       v97 2009-09-14, MAN
          - use sanei_magic to provide software deskew, autocrop and despeckle
-      v98 2010-02-08, MAN
+      v98 2010-02-09, MAN
          - clean up #include lines and copyright
 
    SANE FLOW DIAGRAM

@@ -3,7 +3,7 @@
    This file is part of the SANE package, and implements a SANE backend
    for various Canon DR-series scanners.
 
-   Copyright (C) 2008-2009 m. allan noah
+   Copyright (C) 2008-2010 m. allan noah
 
    Corcaribe Tecnología C.A. www.cc.com.ve provided significant funding
    EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
@@ -251,6 +251,8 @@
          - sane_get_params uses intermediate struct instead of user struct
          - if scanner stops, clone the last line until the end of buffer
          - reset some intermediate params between duplex sides
+      v35 2010-02-09, MAN
+         - cleanup #includes and copyright
 
    SANE FLOW DIAGRAM
 
@@ -284,22 +286,10 @@
 
 #include "../include/sane/config.h"
 
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <time.h>
-#include <math.h>
-
-#include <sys/types.h>
-#include <unistd.h>
-#ifdef HAVE_LIBC_H
-# include <libc.h>              /* NeXTStep/OpenStep */
-#endif
+#include <string.h> /*memcpy...*/
+#include <ctype.h> /*isspace*/
+#include <math.h> /*tan*/
+#include <unistd.h> /*usleep*/
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_scsi.h"
@@ -311,7 +301,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 34
+#define BUILD 35
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5

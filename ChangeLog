@@ -1,7 +1,10 @@
 2010-02-09 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.c, doc/descriptions/fujitsu.desc,
-	  backend/epjitsu.c, doc/descriptions/epjitsu.desc:
-	- cleanup #include lines, copyrights and current scanner list.
+	  backend/canon_dr.c, doc/descriptions/canon_dr.desc,
+	  backend/epjitsu.c, doc/descriptions/epjitsu.desc,
+	  doc/sane-fujitsu.man, doc/sane-canon_dr.man, doc/sane-epjitsu.man,
+	  backend/epjitsu.conf.in:
+	- cleanup #include lines, copyrights, manual, and supported scanners.
 
 2010-02-08  Stéphane Voltz <stef.dev ar free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_conv.c

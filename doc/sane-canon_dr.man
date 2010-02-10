@@ -1,4 +1,4 @@
-.TH sane\-canon_dr 5 "30 Jul 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-canon_dr 5 "09 Fev 2010" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-canon_dr
 
 .SH NAME
@@ -10,7 +10,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to some Canon DR-series scanners.
 
-This document describes backend version 34, which shipped with SANE 1.0.21cvs.
+This document describes backend version 35, which shipped with SANE 1.0.21cvs.
 
 .SH SUPPORTED HARDWARE
 This version has only been tested with a few scanner models. Please see 

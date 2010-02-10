@@ -6,7 +6,7 @@
    Copyright (C) 2000 Randolph Bentson
    Copyright (C) 2001 Frederik Ramm
    Copyright (C) 2001-2004 Oliver Schirrmeister
-   Copyright (C) 2003-2009 m. allan noah
+   Copyright (C) 2003-2010 m. allan noah
 
    JPEG output support funded by Archivista GmbH, www.archivista.ch
    Endorser support funded by O A S Oilfield Accounting Service Ltd, www.oas.ca
@@ -446,6 +446,8 @@
          - support hardware based auto length detection
       v97 2009-09-14, MAN
          - use sanei_magic to provide software deskew, autocrop and despeckle
+      v98 2010-02-08, MAN
+         - clean up #include lines and copyright
 
    SANE FLOW DIAGRAM
 
@@ -495,7 +497,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 97
+#define BUILD 98
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5

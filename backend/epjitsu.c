@@ -41,9 +41,9 @@
    --------------------------------------------------------------------------
 
    This file implements a SANE backend for the Fujitsu fi-60F, the
-   ScanSnap S300, and (hopefully) other Epson-based Fujitsu scanners. 
+   ScanSnap S300/S1300, and (hopefully) other Epson-based scanners. 
 
-   Copyright 2007-2009 by m. allan noah <kitno455 at gmail dot com>
+   Copyright 2007-2010 by m. allan noah <kitno455 at gmail dot com>
    Copyright 2009 by Richard Goedeken <richard at fascinationsoftware dot com>
 
    Development funded by Microdea, Inc., TrueCheck, Inc. and Archivista, GmbH
@@ -123,6 +123,9 @@
          - dont export private symbols
       v19 2009-08-31, RG
          - rewritten calibration routines
+      v20 2010-02-09, MAN
+         - cleanup #include lines & copyright
+         - add S1300
 
    SANE FLOW DIAGRAM
 
@@ -156,22 +159,11 @@
 
 #include "../include/sane/config.h"
 
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <time.h>
-#include <math.h>
-
-#include <sys/types.h>
-#include <unistd.h>
-#ifdef HAVE_LIBC_H
-# include <libc.h>              /* NeXTStep/OpenStep */
-#endif
+#include <string.h> /*memcpy...*/
+#include <ctype.h> /*isspace*/
+#include <math.h> /*tan*/
+#include <unistd.h> /*usleep*/
+#include <time.h> /*time*/
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_usb.h"
@@ -182,7 +174,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 19
+#define BUILD 20
 
 #ifndef MAX3
   #define MAX3(a,b,c) ((a) > (b) ? ((a) > (c) ? a : c) : ((b) > (c) ? b : c))
@@ -466,10 +458,10 @@ attach_one (const char *name)
     DBG (15, "attach_one: Found %s scanner %s at %s\n",
       s->sane.vendor, s->sane.model, s->sane.name);
   
-    if (strstr (s->sane.model, "S300")){
+    if (strstr (s->sane.model, "S300") || strstr (s->sane.model, "S1300")){
         unsigned char stat;
 
-        DBG (15, "attach_one: Found S300\n");
+        DBG (15, "attach_one: Found S300/S1300\n");
 
         stat = get_stat(s);
         if(stat & 0x01){
@@ -3813,7 +3805,7 @@ copy_block_to_page(struct scanner *s,int side)
         /* convert all of the pixels in this row */
         for (j = 0; j < width; j++)
         {
-            unsigned char r, g, b, luma;
+            unsigned char r, g, b;
             if (s->model == MODEL_S300)
                 { r = p_in[1]; g = p_in[2]; b = p_in[0]; }
             else /* (s->model == MODEL_FI60F) */

@@ -12,7 +12,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "97"                    ; version of backend
+:version "98"                    ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.21, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....

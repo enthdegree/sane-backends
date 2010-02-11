@@ -1,4 +1,4 @@
-.TH sane\-kodak 5 "22 Jun 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-kodak 5 "10 Feb 2010" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-kodak
 
 .SH NAME
@@ -10,7 +10,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to large Kodak flatbed and ADF scanners.
 
-This document describes backend version 6, which shipped with SANE 1.0.21cvs.
+This document describes backend version 7, which shipped with SANE 1.0.21.
 
 .SH SUPPORTED HARDWARE
 This version should support models which speak the Kodak SCSI and Firewire 
@@ -136,8 +136,7 @@ Kodak provided access to hardware, documentation and personnel.
   
 .SH "SEE ALSO"
 sane(7),
-sane\-scsi(5),
-sane\-avision(5)
+sane\-scsi(5)
 
 .SH AUTHOR
 m. allan noah: <kitno455 a t gmail d o t com>

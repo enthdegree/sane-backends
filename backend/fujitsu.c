@@ -448,6 +448,8 @@
          - use sanei_magic to provide software deskew, autocrop and despeckle
       v98 2010-02-09, MAN
          - clean up #include lines and copyright
+         - add SANE_I18N to static strings
+         - don't fail if scsi buffer is too small
 
    SANE FLOW DIAGRAM
 
@@ -1039,10 +1041,11 @@ connect_fd (struct fujitsu *s)
   }
   else {
     DBG (15, "connect_fd: opening SCSI device\n");
-    ret = sanei_scsi_open_extended (s->device_name, &(s->fd), sense_handler, s, &s->buffer_size);
-    if(ret == SANE_STATUS_GOOD && buffer_size != s->buffer_size){
-      DBG (5, "connect_fd: cannot get requested buffer size (%d/%d)\n", buffer_size, s->buffer_size);
-      ret = SANE_STATUS_NO_MEM;
+    ret = sanei_scsi_open_extended (s->device_name, &(s->fd), sense_handler, s, 
+      &s->buffer_size);
+    if(!ret && buffer_size != s->buffer_size){
+      DBG (5, "connect_fd: cannot get requested buffer size (%d/%d)\n",
+        buffer_size, s->buffer_size);
     }
   }
 

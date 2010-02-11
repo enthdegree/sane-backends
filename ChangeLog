@@ -2,6 +2,10 @@
 	* backend/canon_dr.c, backend/cardscan.c, backend/epjitsu.c,
 	  backend/fujitsu.c, backend/kodak.c, po/Makefile.*:
 	- enable translations of all static strings via SANE_I18N macro
+	- don't fail if sanei_scsi_open gives smaller buffer than asked for
+	* doc/descriptions/kodak.desc, doc/sane-canon_dr.man,
+	  doc/sane-fujitsu.man, doc/sane-kodak.man:
+	- minor version number and text updates
 
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* acinclude.m4, configure: missing $ in variable expansion

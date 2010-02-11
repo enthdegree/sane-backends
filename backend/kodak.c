@@ -58,6 +58,9 @@
       v6 2009-06-22, MAN
          - improved set_window() to build desciptor from scratch
          - initial release
+      v7 2010-02-10, MAN
+         - add SANE_I18N to static strings
+         - don't fail if scsi buffer is too small
 
    SANE FLOW DIAGRAM
 
@@ -116,7 +119,7 @@
 #include "kodak.h"
 
 #define DEBUG 1
-#define BUILD 6 
+#define BUILD 7 
 
 /* values for SANE_DEBUG_KODAK env var:
  - errors           5
@@ -440,9 +443,9 @@ connect_fd (struct scanner *s)
   else {
     ret = sanei_scsi_open_extended (s->device_name, &(s->fd), sense_handler,
       s, &s->buffer_size);
-    if(ret == SANE_STATUS_GOOD && buffer_size != s->buffer_size){
-      DBG (5, "connect_fd: cannot get requested buffer size (%d/%d)\n", buffer_size, s->buffer_size);
-      ret = SANE_STATUS_NO_MEM;
+    if(!ret && buffer_size != s->buffer_size){
+      DBG (5, "connect_fd: cannot get requested buffer size (%d/%d)\n",
+        buffer_size, s->buffer_size);
     }
     else{
       DBG (15, "connect_fd: opened SCSI device\n");

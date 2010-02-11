@@ -253,6 +253,8 @@
          - reset some intermediate params between duplex sides
       v35 2010-02-09, MAN
          - cleanup #includes and copyright
+         - add SANE_I18N to static strings
+         - don't fail if scsi buffer is too small
 
    SANE FLOW DIAGRAM
 
@@ -816,7 +818,6 @@ connect_fd (struct scanner *s)
     if(!ret && buffer_size != s->buffer_size){
       DBG (5, "connect_fd: cannot get requested buffer size (%d/%d)\n",
         buffer_size, s->buffer_size);
-      ret = SANE_STATUS_NO_MEM;
     }
   }
 

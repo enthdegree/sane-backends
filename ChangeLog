@@ -1,4 +1,7 @@
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
+	* doc/descriptions/hpaio.desc: updated from hplip v3.9.12
+
+2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.c, backend/cardscan.c, backend/epjitsu.c,
 	  backend/fujitsu.c, backend/kodak.c, po/Makefile.*:
 	- enable translations of all static strings via SANE_I18N macro

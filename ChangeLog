@@ -1,10 +1,16 @@
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr.c, backend/cardscan.c, backend/epjitsu.c,
+	  backend/fujitsu.c, backend/kodak.c, po/Makefile.*:
+	- enable translations of all static strings via SANE_I18N macro
+
+2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* acinclude.m4, configure: missing $ in variable expansion
 	* frontend/scanimage.c: exit with error if stdout isatty()
 	* doc/descriptions/unsupported.desc, doc/descriptions/lexmark.desc:
 	- add Dell A940 and correct manpage name
 	* backend/gt68xx_high.c: maximum exposure 245 not 248, see bug #312113
-	* po/Makefile.*, po/sane-backends.ja.po: New Japanese translation from Hiroshi Miura
+	* po/Makefile.*, po/sane-backends.ja.po:
+	- New Japanese translation from Hiroshi Miura
 
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* backend/cardscan.[ch], backend/cardscan.conf.in,

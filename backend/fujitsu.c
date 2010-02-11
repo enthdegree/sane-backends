@@ -510,53 +510,53 @@
 */
 
 /* ------------------------------------------------------------------------- */
-static const char string_Flatbed[] = "Flatbed";
-static const char string_ADFFront[] = "ADF Front";
-static const char string_ADFBack[] = "ADF Back";
-static const char string_ADFDuplex[] = "ADF Duplex";
+#define STRING_FLATBED SANE_I18N("Flatbed")
+#define STRING_ADFFRONT SANE_I18N("ADF Front")
+#define STRING_ADFBACK SANE_I18N("ADF Back")
+#define STRING_ADFDUPLEX SANE_I18N("ADF Duplex")
 
-static const char string_Lineart[] = "Lineart";
-static const char string_Halftone[] = "Halftone";
-static const char string_Grayscale[] = "Gray";
-static const char string_Color[] = "Color";
+#define STRING_LINEART SANE_I18N("Lineart")
+#define STRING_HALFTONE SANE_I18N("Halftone")
+#define STRING_GRAYSCALE SANE_I18N("Gray")
+#define STRING_COLOR SANE_I18N("Color")
 
-static const char string_Default[] = "Default";
-static const char string_On[] = "On";
-static const char string_Off[] = "Off";
+#define STRING_DEFAULT SANE_I18N("Default")
+#define STRING_ON SANE_I18N("On")
+#define STRING_OFF SANE_I18N("Off")
 
-static const char string_DTC[] = "DTC";
-static const char string_SDTC[] = "SDTC";
+#define STRING_DTC SANE_I18N("DTC")
+#define STRING_SDTC SANE_I18N("SDTC")
 
-static const char string_Dither[] = "Dither";
-static const char string_Diffusion[] = "Diffusion";
+#define STRING_DITHER SANE_I18N("Dither")
+#define STRING_DIFFUSION SANE_I18N("Diffusion")
 
-static const char string_Red[] = "Red";
-static const char string_Green[] = "Green";
-static const char string_Blue[] = "Blue";
-static const char string_White[] = "White";
-static const char string_Black[] = "Black";
+#define STRING_RED SANE_I18N("Red")
+#define STRING_GREEN SANE_I18N("Green")
+#define STRING_BLUE SANE_I18N("Blue")
+#define STRING_WHITE SANE_I18N("White")
+#define STRING_BLACK SANE_I18N("Black")
 
-static const char string_None[] = "None";
-static const char string_JPEG[] = "JPEG";
+#define STRING_NONE SANE_I18N("None")
+#define STRING_JPEG SANE_I18N("JPEG")
 
-static const char string_Continue[] = "Continue";
-static const char string_Stop[] = "Stop";
+#define STRING_CONTINUE SANE_I18N("Continue")
+#define STRING_STOP SANE_I18N("Stop")
 
-static const char string_10mm[] = "10mm";
-static const char string_15mm[] = "15mm";
-static const char string_20mm[] = "20mm";
+#define STRING_10MM SANE_I18N("10mm")
+#define STRING_15MM SANE_I18N("15mm")
+#define STRING_20MM SANE_I18N("20mm")
 
-static const char string_Horizontal[] = "Horizontal";
-static const char string_HorizontalBold[] = "Horizontal bold";
-static const char string_HorizontalNarrow[] = "Horizontal narrow";
-static const char string_Vertical[] = "Vertical";
-static const char string_VerticalBold[] = "Vertical bold";
+#define STRING_HORIZONTAL SANE_I18N("Horizontal")
+#define STRING_HORIZONTALBOLD SANE_I18N("Horizontal bold")
+#define STRING_HORIZONTALNARROW SANE_I18N("Horizontal narrow")
+#define STRING_VERTICAL SANE_I18N("Vertical")
+#define STRING_VERTICALBOLD SANE_I18N("Vertical bold")
 
-static const char string_TopToBottom[] = "Top to bottom";
-static const char string_BottomToTop[] = "Bottom to top";
+#define STRING_TOPTOBOTTOM SANE_I18N("Top to bottom")
+#define STRING_BOTTOMTOTOP SANE_I18N("Bottom to top")
 
-static const char string_Front[] = "Front";
-static const char string_Back[] = "Back";
+#define STRING_FRONT SANE_I18N("Front")
+#define STRING_BACK SANE_I18N("Back")
 
 /* Also set via config file. */
 static int global_buffer_size = 64 * 1024;
@@ -2384,16 +2384,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_SOURCE){
     i=0;
     if(s->has_flatbed){
-      s->source_list[i++]=string_Flatbed;
+      s->source_list[i++]=STRING_FLATBED;
     }
     if(s->has_adf){
-      s->source_list[i++]=string_ADFFront;
+      s->source_list[i++]=STRING_ADFFRONT;
   
       if(s->has_back){
-        s->source_list[i++]=string_ADFBack;
+        s->source_list[i++]=STRING_ADFBACK;
       }
       if(s->has_duplex){
-        s->source_list[i++]=string_ADFDuplex;
+        s->source_list[i++]=STRING_ADFDUPLEX;
       }
     }
     s->source_list[i]=NULL;
@@ -2412,16 +2412,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_MODE){
     i=0;
     if(s->can_monochrome){
-      s->mode_list[i++]=string_Lineart;
+      s->mode_list[i++]=STRING_LINEART;
     }
     if(s->can_halftone){
-      s->mode_list[i++]=string_Halftone;
+      s->mode_list[i++]=STRING_HALFTONE;
     }
     if(s->can_grayscale){
-      s->mode_list[i++]=string_Grayscale;
+      s->mode_list[i++]=STRING_GRAYSCALE;
     }
     if(s->can_color_grayscale){
-      s->mode_list[i++]=string_Color;
+      s->mode_list[i++]=STRING_COLOR;
     }
     s->mode_list[i]=NULL;
   
@@ -2838,9 +2838,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   if(option==OPT_HT_TYPE){
     i=0;
-    s->ht_type_list[i++]=string_Default;
-    s->ht_type_list[i++]=string_Dither;
-    s->ht_type_list[i++]=string_Diffusion;
+    s->ht_type_list[i++]=STRING_DEFAULT;
+    s->ht_type_list[i++]=STRING_DITHER;
+    s->ht_type_list[i++]=STRING_DIFFUSION;
     s->ht_type_list[i]=NULL;
   
     opt->name = "ht-type";
@@ -2943,9 +2943,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   if(option==OPT_WL_FOLLOW){
     i=0;
-    s->wl_follow_list[i++]=string_Default;
-    s->wl_follow_list[i++]=string_On;
-    s->wl_follow_list[i++]=string_Off;
+    s->wl_follow_list[i++]=STRING_DEFAULT;
+    s->wl_follow_list[i++]=STRING_ON;
+    s->wl_follow_list[i++]=STRING_OFF;
     s->wl_follow_list[i]=NULL;
   
     opt->name = "wl-follow";
@@ -2966,12 +2966,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   if(option==OPT_IPC_MODE){
     i=0;
-    s->ipc_mode_list[i++]=string_Default;
+    s->ipc_mode_list[i++]=STRING_DEFAULT;
     if(s->has_dtc){
-      s->ipc_mode_list[i++]=string_DTC;
+      s->ipc_mode_list[i++]=STRING_DTC;
     }
     if(s->has_sdtc){
-      s->ipc_mode_list[i++]=string_SDTC;
+      s->ipc_mode_list[i++]=STRING_SDTC;
     }
     s->ipc_mode_list[i]=NULL;
   
@@ -3249,10 +3249,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   /*image compression*/
   if(option==OPT_COMPRESS){
     i=0;
-    s->compress_list[i++]=string_None;
+    s->compress_list[i++]=STRING_NONE;
 
     if(s->has_comp_JPG1){
-      s->compress_list[i++]=string_JPEG;
+      s->compress_list[i++]=STRING_JPEG;
     }
 
     s->compress_list[i]=NULL;
@@ -3302,9 +3302,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*double feed detection*/
   if(option==OPT_DF_ACTION){
-    s->df_action_list[0] = string_Default;
-    s->df_action_list[1] = string_Continue;
-    s->df_action_list[2] = string_Stop;
+    s->df_action_list[0] = STRING_DEFAULT;
+    s->df_action_list[1] = STRING_CONTINUE;
+    s->df_action_list[2] = STRING_STOP;
     s->df_action_list[3] = NULL;
   
     opt->name = "df-action";
@@ -3380,10 +3380,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*double feed length difference*/
   if(option==OPT_DF_DIFF){
-    s->df_diff_list[0] = string_Default;
-    s->df_diff_list[1] = string_10mm;
-    s->df_diff_list[2] = string_15mm;
-    s->df_diff_list[3] = string_20mm;
+    s->df_diff_list[0] = STRING_DEFAULT;
+    s->df_diff_list[1] = STRING_10MM;
+    s->df_diff_list[2] = STRING_15MM;
+    s->df_diff_list[3] = STRING_20MM;
     s->df_diff_list[4] = NULL;
   
     opt->name = "df-diff";
@@ -3405,9 +3405,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*background color*/
   if(option==OPT_BG_COLOR){
-    s->bg_color_list[0] = string_Default;
-    s->bg_color_list[1] = string_White;
-    s->bg_color_list[2] = string_Black;
+    s->bg_color_list[0] = STRING_DEFAULT;
+    s->bg_color_list[1] = STRING_WHITE;
+    s->bg_color_list[2] = STRING_BLACK;
     s->bg_color_list[3] = NULL;
   
     opt->name = "bgcolor";
@@ -3425,10 +3425,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*dropout color*/
   if(option==OPT_DROPOUT_COLOR){
-    s->do_color_list[0] = string_Default;
-    s->do_color_list[1] = string_Red;
-    s->do_color_list[2] = string_Green;
-    s->do_color_list[3] = string_Blue;
+    s->do_color_list[0] = STRING_DEFAULT;
+    s->do_color_list[1] = STRING_RED;
+    s->do_color_list[2] = STRING_GREEN;
+    s->do_color_list[3] = STRING_BLUE;
     s->do_color_list[4] = NULL;
   
     opt->name = "dropoutcolor";
@@ -3450,9 +3450,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*buffer mode*/
   if(option==OPT_BUFF_MODE){
-    s->buff_mode_list[0] = string_Default;
-    s->buff_mode_list[1] = string_Off;
-    s->buff_mode_list[2] = string_On;
+    s->buff_mode_list[0] = STRING_DEFAULT;
+    s->buff_mode_list[1] = STRING_OFF;
+    s->buff_mode_list[2] = STRING_ON;
     s->buff_mode_list[3] = NULL;
   
     opt->name = "buffermode";
@@ -3470,9 +3470,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*prepick*/
   if(option==OPT_PREPICK){
-    s->prepick_list[0] = string_Default;
-    s->prepick_list[1] = string_Off;
-    s->prepick_list[2] = string_On;
+    s->prepick_list[0] = STRING_DEFAULT;
+    s->prepick_list[1] = STRING_OFF;
+    s->prepick_list[2] = STRING_ON;
     s->prepick_list[3] = NULL;
   
     opt->name = "prepick";
@@ -3490,9 +3490,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*overscan*/
   if(option==OPT_OVERSCAN){
-    s->overscan_list[0] = string_Default;
-    s->overscan_list[1] = string_Off;
-    s->overscan_list[2] = string_On;
+    s->overscan_list[0] = STRING_DEFAULT;
+    s->overscan_list[1] = STRING_OFF;
+    s->overscan_list[2] = STRING_ON;
     s->overscan_list[3] = NULL;
   
     opt->name = "overscan";
@@ -3803,11 +3803,11 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->endorser_font_list;
 
-    s->endorser_font_list[0] = string_Horizontal;
-    s->endorser_font_list[1] = string_HorizontalBold;
-    s->endorser_font_list[2] = string_HorizontalNarrow;
-    s->endorser_font_list[3] = string_Vertical;
-    s->endorser_font_list[4] = string_VerticalBold;
+    s->endorser_font_list[0] = STRING_HORIZONTAL;
+    s->endorser_font_list[1] = STRING_HORIZONTALBOLD;
+    s->endorser_font_list[2] = STRING_HORIZONTALNARROW;
+    s->endorser_font_list[3] = STRING_VERTICAL;
+    s->endorser_font_list[4] = STRING_VERTICALBOLD;
     s->endorser_font_list[5] = NULL;
 
     opt->size = maxStringSize (opt->constraint.string_list);
@@ -3831,8 +3831,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->endorser_dir_list;
 
-    s->endorser_dir_list[0] = string_TopToBottom;
-    s->endorser_dir_list[1] = string_BottomToTop;
+    s->endorser_dir_list[0] = STRING_TOPTOBOTTOM;
+    s->endorser_dir_list[1] = STRING_BOTTOMTOTOP;
     s->endorser_dir_list[2] = NULL;
 
     opt->size = maxStringSize (opt->constraint.string_list);
@@ -3857,8 +3857,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->endorser_side_list;
 
-    s->endorser_side_list[0] = string_Front;
-    s->endorser_side_list[1] = string_Back;
+    s->endorser_side_list[0] = STRING_FRONT;
+    s->endorser_side_list[1] = STRING_BACK;
     s->endorser_side_list[2] = NULL;
 
     opt->size = maxStringSize (opt->constraint.string_list);
@@ -4200,31 +4200,31 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_SOURCE:
           if(s->source == SOURCE_FLATBED){
-            strcpy (val, string_Flatbed);
+            strcpy (val, STRING_FLATBED);
           }
           else if(s->source == SOURCE_ADF_FRONT){
-            strcpy (val, string_ADFFront);
+            strcpy (val, STRING_ADFFRONT);
           }
           else if(s->source == SOURCE_ADF_BACK){
-            strcpy (val, string_ADFBack);
+            strcpy (val, STRING_ADFBACK);
           }
           else if(s->source == SOURCE_ADF_DUPLEX){
-            strcpy (val, string_ADFDuplex);
+            strcpy (val, STRING_ADFDUPLEX);
           }
           return SANE_STATUS_GOOD;
 
         case OPT_MODE:
           if(s->mode == MODE_LINEART){
-            strcpy (val, string_Lineart);
+            strcpy (val, STRING_LINEART);
           }
           else if(s->mode == MODE_HALFTONE){
-            strcpy (val, string_Halftone);
+            strcpy (val, STRING_HALFTONE);
           }
           else if(s->mode == MODE_GRAYSCALE){
-            strcpy (val, string_Grayscale);
+            strcpy (val, STRING_GRAYSCALE);
           }
           else if(s->mode == MODE_COLOR){
-            strcpy (val, string_Color);
+            strcpy (val, STRING_COLOR);
           }
           return SANE_STATUS_GOOD;
 
@@ -4284,13 +4284,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_HT_TYPE:
           switch (s->ht_type) {
             case WD_ht_type_DEFAULT:
-              strcpy (val, string_Default);
+              strcpy (val, STRING_DEFAULT);
               break;
             case WD_ht_type_DITHER:
-              strcpy (val, string_Dither);
+              strcpy (val, STRING_DITHER);
               break;
             case WD_ht_type_DIFFUSION:
-              strcpy (val, string_Diffusion);
+              strcpy (val, STRING_DIFFUSION);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4318,26 +4318,26 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_WL_FOLLOW:
           switch (s->wl_follow) {
             case WD_wl_follow_DEFAULT:
-              strcpy (val, string_Default);
+              strcpy (val, STRING_DEFAULT);
               break;
             case WD_wl_follow_ON:
-              strcpy (val, string_On);
+              strcpy (val, STRING_ON);
               break;
             case WD_wl_follow_OFF:
-              strcpy (val, string_Off);
+              strcpy (val, STRING_OFF);
               break;
           }
           return SANE_STATUS_GOOD;
 
         case OPT_IPC_MODE:
           if(s->ipc_mode == WD_ipc_DEFAULT){
-            strcpy (val, string_Default);
+            strcpy (val, STRING_DEFAULT);
           }
           else if(s->ipc_mode == WD_ipc_DTC){
-            strcpy (val, string_DTC);
+            strcpy (val, STRING_DTC);
           }
           else if(s->ipc_mode == WD_ipc_SDTC){
-            strcpy (val, string_SDTC);
+            strcpy (val, STRING_SDTC);
           }
           return SANE_STATUS_GOOD;
 
@@ -4392,10 +4392,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_COMPRESS:
           if(s->compress == COMP_JPEG){
-            strcpy (val, string_JPEG);
+            strcpy (val, STRING_JPEG);
           }
           else{
-            strcpy (val, string_None);
+            strcpy (val, STRING_NONE);
           }
           return SANE_STATUS_GOOD;
 
@@ -4406,13 +4406,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_DF_ACTION:
           switch (s->df_action) {
             case DF_DEFAULT:
-              strcpy (val, string_Default);
+              strcpy (val, STRING_DEFAULT);
               break;
             case DF_CONTINUE:
-              strcpy (val, string_Continue);
+              strcpy (val, STRING_CONTINUE);
               break;
             case DF_STOP:
-              strcpy (val, string_Stop);
+              strcpy (val, STRING_STOP);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4432,16 +4432,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_DF_DIFF:
           switch (s->df_diff) {
             case MSEL_df_diff_DEFAULT:
-              strcpy (val, string_Default);
+              strcpy (val, STRING_DEFAULT);
               break;
             case MSEL_df_diff_10MM:
-              strcpy (val, string_10mm);
+              strcpy (val, STRING_10MM);
               break;
             case MSEL_df_diff_15MM:
-              strcpy (val, string_15mm);
+              strcpy (val, STRING_15MM);
               break;
             case MSEL_df_diff_20MM:
-              strcpy (val, string_20mm);
+              strcpy (val, STRING_20MM);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4449,13 +4449,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_BG_COLOR:
           switch (s->bg_color) {
             case COLOR_DEFAULT:
-              strcpy (val, string_Default);
+              strcpy (val, STRING_DEFAULT);
               break;
             case COLOR_WHITE:
-              strcpy (val, string_White);
+              strcpy (val, STRING_WHITE);
               break;
             case COLOR_BLACK:
-              strcpy (val, string_Black);
+              strcpy (val, STRING_BLACK);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4463,16 +4463,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_DROPOUT_COLOR:
           switch (s->dropout_color) {
             case COLOR_DEFAULT:
-              strcpy (val, string_Default);
+              strcpy (val, STRING_DEFAULT);
               break;
             case COLOR_RED:
-              strcpy (val, string_Red);
+              strcpy (val, STRING_RED);
               break;
             case COLOR_GREEN:
-              strcpy (val, string_Green);
+              strcpy (val, STRING_GREEN);
               break;
             case COLOR_BLUE:
-              strcpy (val, string_Blue);
+              strcpy (val, STRING_BLUE);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4480,13 +4480,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_BUFF_MODE:
           switch (s->buff_mode) {
             case MSEL_DEFAULT:
-              strcpy (val, string_Default);
+              strcpy (val, STRING_DEFAULT);
               break;
             case MSEL_ON:
-              strcpy (val, string_On);
+              strcpy (val, STRING_ON);
               break;
             case MSEL_OFF:
-              strcpy (val, string_Off);
+              strcpy (val, STRING_OFF);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4494,13 +4494,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_PREPICK:
           switch (s->prepick) {
             case MSEL_DEFAULT:
-              strcpy (val, string_Default);
+              strcpy (val, STRING_DEFAULT);
               break;
             case MSEL_ON:
-              strcpy (val, string_On);
+              strcpy (val, STRING_ON);
               break;
             case MSEL_OFF:
-              strcpy (val, string_Off);
+              strcpy (val, STRING_OFF);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4508,13 +4508,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_OVERSCAN:
           switch (s->overscan) {
             case MSEL_DEFAULT:
-              strcpy (val, string_Default);
+              strcpy (val, STRING_DEFAULT);
               break;
             case MSEL_ON:
-              strcpy (val, string_On);
+              strcpy (val, STRING_ON);
               break;
             case MSEL_OFF:
-              strcpy (val, string_Off);
+              strcpy (val, STRING_OFF);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4579,19 +4579,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_ENDORSER_FONT:
           switch (s->u_endorser_font) {
             case FONT_H:
-              strcpy (val, string_Horizontal);
+              strcpy (val, STRING_HORIZONTAL);
               break;
             case FONT_HB:
-              strcpy (val, string_HorizontalBold);
+              strcpy (val, STRING_HORIZONTALBOLD);
               break;
             case FONT_HN:
-              strcpy (val, string_HorizontalNarrow);
+              strcpy (val, STRING_HORIZONTALNARROW);
               break;
             case FONT_V:
-              strcpy (val, string_Vertical);
+              strcpy (val, STRING_VERTICAL);
               break;
             case FONT_VB:
-              strcpy (val, string_VerticalBold);
+              strcpy (val, STRING_VERTICALBOLD);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4599,10 +4599,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_ENDORSER_DIR:
           switch (s->u_endorser_dir) {
             case DIR_TTB:
-              strcpy (val, string_TopToBottom);
+              strcpy (val, STRING_TOPTOBOTTOM);
               break;
             case DIR_BTT:
-              strcpy (val, string_BottomToTop);
+              strcpy (val, STRING_BOTTOMTOTOP);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4610,10 +4610,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_ENDORSER_SIDE:
           switch (s->u_endorser_side) {
             case ED_front:
-              strcpy (val, string_Front);
+              strcpy (val, STRING_FRONT);
               break;
             case ED_back:
-              strcpy (val, string_Back);
+              strcpy (val, STRING_BACK);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -4766,13 +4766,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
  
         /* Mode Group */
         case OPT_SOURCE:
-          if (!strcmp (val, string_ADFFront)) {
+          if (!strcmp (val, STRING_ADFFRONT)) {
             tmp = SOURCE_ADF_FRONT;
           }
-          else if (!strcmp (val, string_ADFBack)) {
+          else if (!strcmp (val, STRING_ADFBACK)) {
             tmp = SOURCE_ADF_BACK;
           }
-          else if (!strcmp (val, string_ADFDuplex)) {
+          else if (!strcmp (val, STRING_ADFDUPLEX)) {
             tmp = SOURCE_ADF_DUPLEX;
           }
           else{
@@ -4787,13 +4787,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_MODE:
-          if (!strcmp (val, string_Lineart)) {
+          if (!strcmp (val, STRING_LINEART)) {
             tmp = MODE_LINEART;
           }
-          else if (!strcmp (val, string_Halftone)) {
+          else if (!strcmp (val, STRING_HALFTONE)) {
             tmp = MODE_HALFTONE;
           }
-          else if (!strcmp (val, string_Grayscale)) {
+          else if (!strcmp (val, STRING_GRAYSCALE)) {
             tmp = MODE_GRAYSCALE;
           }
           else{
@@ -4921,11 +4921,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_HT_TYPE:
-          if (!strcmp(val, string_Default))
+          if (!strcmp(val, STRING_DEFAULT))
             s->ht_type = WD_ht_type_DEFAULT;
-          else if (!strcmp(val, string_Dither))
+          else if (!strcmp(val, STRING_DITHER))
             s->ht_type = WD_ht_type_DITHER;
-          else if (!strcmp(val, string_Diffusion))
+          else if (!strcmp(val, STRING_DIFFUSION))
             s->ht_type = WD_ht_type_DIFFUSION;
           return SANE_STATUS_GOOD;
 
@@ -4950,19 +4950,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_WL_FOLLOW:
-          if (!strcmp(val, string_Default))
+          if (!strcmp(val, STRING_DEFAULT))
             s->wl_follow = WD_wl_follow_DEFAULT;
-          else if (!strcmp(val, string_On))
+          else if (!strcmp(val, STRING_ON))
             s->wl_follow = WD_wl_follow_ON;
-          else if (!strcmp(val, string_Off))
+          else if (!strcmp(val, STRING_OFF))
             s->wl_follow = WD_wl_follow_OFF;
           return SANE_STATUS_GOOD;
 
         case OPT_IPC_MODE:
-          if (!strcmp (val, string_Default)) {
+          if (!strcmp (val, STRING_DEFAULT)) {
             tmp = WD_ipc_DEFAULT;
           }
-          else if (!strcmp (val, string_DTC)) {
+          else if (!strcmp (val, STRING_DTC)) {
             tmp = WD_ipc_DTC;
           }
           else {
@@ -5029,7 +5029,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return mode_select_auto(s);
 
         case OPT_COMPRESS:
-          if (!strcmp (val, string_JPEG)) {
+          if (!strcmp (val, STRING_JPEG)) {
             tmp = COMP_JPEG;
           }
           else{
@@ -5047,11 +5047,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_DF_ACTION:
-          if (!strcmp(val, string_Default))
+          if (!strcmp(val, STRING_DEFAULT))
             s->df_action = DF_DEFAULT;
-          else if (!strcmp(val, string_Continue))
+          else if (!strcmp(val, STRING_CONTINUE))
             s->df_action = DF_CONTINUE;
-          else if (!strcmp(val, string_Stop))
+          else if (!strcmp(val, STRING_STOP))
             s->df_action = DF_STOP;
           *info |= SANE_INFO_RELOAD_OPTIONS;
           return mode_select_df(s);
@@ -5069,33 +5069,33 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return mode_select_df(s);
 
         case OPT_DF_DIFF:
-          if (!strcmp(val, string_Default))
+          if (!strcmp(val, STRING_DEFAULT))
             s->df_diff = MSEL_df_diff_DEFAULT;
-          else if (!strcmp(val, string_10mm))
+          else if (!strcmp(val, STRING_10MM))
             s->df_diff = MSEL_df_diff_10MM;
-          else if (!strcmp(val, string_15mm))
+          else if (!strcmp(val, STRING_15MM))
             s->df_diff = MSEL_df_diff_15MM;
-          else if (!strcmp(val, string_20mm))
+          else if (!strcmp(val, STRING_20MM))
             s->df_diff = MSEL_df_diff_20MM;
           return mode_select_df(s);
 
         case OPT_BG_COLOR:
-          if (!strcmp(val, string_Default))
+          if (!strcmp(val, STRING_DEFAULT))
             s->bg_color = COLOR_DEFAULT;
-          else if (!strcmp(val, string_White))
+          else if (!strcmp(val, STRING_WHITE))
             s->bg_color = COLOR_WHITE;
-          else if (!strcmp(val, string_Black))
+          else if (!strcmp(val, STRING_BLACK))
             s->bg_color = COLOR_BLACK;
           return mode_select_bg(s);
 
         case OPT_DROPOUT_COLOR:
-          if (!strcmp(val, string_Default))
+          if (!strcmp(val, STRING_DEFAULT))
             s->dropout_color = COLOR_DEFAULT;
-          else if (!strcmp(val, string_Red))
+          else if (!strcmp(val, STRING_RED))
             s->dropout_color = COLOR_RED;
-          else if (!strcmp(val, string_Green))
+          else if (!strcmp(val, STRING_GREEN))
             s->dropout_color = COLOR_GREEN;
-          else if (!strcmp(val, string_Blue))
+          else if (!strcmp(val, STRING_BLUE))
             s->dropout_color = COLOR_BLUE;
           if (s->has_MS_dropout)
             return mode_select_dropout(s);
@@ -5103,20 +5103,20 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             return SANE_STATUS_GOOD;
 
         case OPT_BUFF_MODE:
-          if (!strcmp(val, string_Default))
+          if (!strcmp(val, STRING_DEFAULT))
             s->buff_mode = MSEL_DEFAULT;
-          else if (!strcmp(val, string_On))
+          else if (!strcmp(val, STRING_ON))
             s->buff_mode= MSEL_ON;
-          else if (!strcmp(val, string_Off))
+          else if (!strcmp(val, STRING_OFF))
             s->buff_mode= MSEL_OFF;
           return mode_select_buff(s);
 
         case OPT_PREPICK:
-          if (!strcmp(val, string_Default))
+          if (!strcmp(val, STRING_DEFAULT))
             s->prepick = MSEL_DEFAULT;
-          else if (!strcmp(val, string_On))
+          else if (!strcmp(val, STRING_ON))
             s->prepick = MSEL_ON;
-          else if (!strcmp(val, string_Off))
+          else if (!strcmp(val, STRING_OFF))
             s->prepick = MSEL_OFF;
           if (s->has_MS_prepick)
             return mode_select_prepick(s);
@@ -5124,11 +5124,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             return SANE_STATUS_GOOD;
 
         case OPT_OVERSCAN:
-          if (!strcmp(val, string_Default))
+          if (!strcmp(val, STRING_DEFAULT))
             s->overscan = MSEL_DEFAULT;
-          else if (!strcmp(val, string_On))
+          else if (!strcmp(val, STRING_ON))
             s->overscan = MSEL_ON;
-          else if (!strcmp(val, string_Off))
+          else if (!strcmp(val, STRING_OFF))
             s->overscan = MSEL_OFF;
 
           *info |= SANE_INFO_RELOAD_OPTIONS;
@@ -5191,38 +5191,38 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           
         case OPT_ENDORSER_FONT:
 
-          if (!strcmp (val, string_Horizontal)){
+          if (!strcmp (val, STRING_HORIZONTAL)){
             s->u_endorser_font = FONT_H;
           }
-          else if (!strcmp (val, string_HorizontalBold)){
+          else if (!strcmp (val, STRING_HORIZONTALBOLD)){
             s->u_endorser_font = FONT_HB;
           }
-          else if (!strcmp (val, string_HorizontalNarrow)){
+          else if (!strcmp (val, STRING_HORIZONTALNARROW)){
             s->u_endorser_font = FONT_HN;
           }
-          else if (!strcmp (val, string_Vertical)){
+          else if (!strcmp (val, STRING_VERTICAL)){
             s->u_endorser_font = FONT_V;
           }
-          else if (!strcmp (val, string_VerticalBold)){
+          else if (!strcmp (val, STRING_VERTICALBOLD)){
             s->u_endorser_font = FONT_VB;
           }
           return send_endorser(s);
           
         case OPT_ENDORSER_DIR:
-          if (!strcmp (val, string_TopToBottom)){
+          if (!strcmp (val, STRING_TOPTOBOTTOM)){
             s->u_endorser_dir = DIR_TTB;
           }
-          else if (!strcmp (val, string_BottomToTop)){
+          else if (!strcmp (val, STRING_BOTTOMTOTOP)){
             s->u_endorser_dir = DIR_BTT;
           }
           return send_endorser(s);
           
 	/*this val not used in send_endorser*/
         case OPT_ENDORSER_SIDE:
-          if (!strcmp (val, string_Front)){
+          if (!strcmp (val, STRING_FRONT)){
             s->u_endorser_side = ED_front;
           }
-          else if (!strcmp (val, string_Back)){
+          else if (!strcmp (val, STRING_BACK)){
             s->u_endorser_side = ED_back;
           }
           return SANE_STATUS_GOOD;

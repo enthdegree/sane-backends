@@ -84,6 +84,11 @@ distclean-local:
 SRC_FILES = ../include/sane/saneopts.h ../backend/sane_strstatus.c \
   ../backend/artec_eplus48u.c ../backend/avision.h \
   ../backend/canon630u.c ../backend/canon.c ../backend/canon-sane.c \
+  ../backend/canon_dr.c ../backend/canon_dr.h \
+  ../backend/cardscan.c ../backend/cardscan.h \
+  ../backend/epjitsu.c ../backend/epjitsu.h \
+  ../backend/fujitsu.c ../backend/fujitsu.h \
+  ../backend/kodak.c ../backend/kodak.h \
   ../backend/epson.c ../backend/epson.h \
   ../backend/epson2.c ../backend/epson2.h \
   ../backend/genesys.c \

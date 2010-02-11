@@ -240,8 +240,8 @@ int global_has_cal_buffer = 1;
 int global_lines_per_block = 16;
 
 /* ------------------------------------------------------------------------- */
-static const char string_Grayscale[] = "Gray";
-static const char string_Color[] = "Color";
+#define STRING_GRAYSCALE SANE_I18N("Gray")
+#define STRING_COLOR SANE_I18N("Color")
 
 /*
  * used by attach* and sane_get_devices
@@ -774,8 +774,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   /* scan mode */
   else if(option==OPT_MODE){
     i=0;
-    s->mode_list[i++]=string_Grayscale;
-    s->mode_list[i++]=string_Color;
+    s->mode_list[i++]=STRING_GRAYSCALE;
+    s->mode_list[i++]=STRING_COLOR;
     s->mode_list[i]=NULL;
   
     opt->name = SANE_NAME_SCAN_MODE;
@@ -852,10 +852,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_MODE:
           if(s->mode == MODE_GRAYSCALE){
-            strcpy (val, string_Grayscale);
+            strcpy (val, STRING_GRAYSCALE);
           }
           else if(s->mode == MODE_COLOR){
-            strcpy (val, string_Color);
+            strcpy (val, STRING_COLOR);
           }
           return SANE_STATUS_GOOD;
       }
@@ -897,7 +897,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
  
         /* Mode Group */
         case OPT_MODE:
-          if (!strcmp (val, string_Grayscale)) {
+          if (!strcmp (val, STRING_GRAYSCALE)) {
             tmp = MODE_GRAYSCALE;
           }
           else{

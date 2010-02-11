@@ -200,14 +200,14 @@ static int fine_gain_target[3] = {185, 150, 170};  /* front, back, FI-60F is thi
 static float white_factor[3] = {1.0, 0.93, 0.98};  /* Blue, Red, Green */
 
 /* ------------------------------------------------------------------------- */
-static const char string_Flatbed[] = "Flatbed";
-static const char string_ADFFront[] = "ADF Front";
-static const char string_ADFBack[] = "ADF Back";
-static const char string_ADFDuplex[] = "ADF Duplex";
+#define STRING_FLATBED SANE_I18N("Flatbed")
+#define STRING_ADFFRONT SANE_I18N("ADF Front")
+#define STRING_ADFBACK SANE_I18N("ADF Back")
+#define STRING_ADFDUPLEX SANE_I18N("ADF Duplex")
 
-static const char string_Lineart[] = "Lineart";
-static const char string_Grayscale[] = "Gray";
-static const char string_Color[] = "Color";
+#define STRING_LINEART SANE_I18N("Lineart")
+#define STRING_GRAYSCALE SANE_I18N("Gray")
+#define STRING_COLOR SANE_I18N("Color")
 
 /*
  * used by attach* and sane_get_devices
@@ -942,12 +942,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   else if(option==OPT_SOURCE){
     i=0;
     if(s->has_fb){
-      s->source_list[i++]=string_Flatbed;
+      s->source_list[i++]=STRING_FLATBED;
     }
     if(s->has_adf){
-      s->source_list[i++]=string_ADFFront;
-      s->source_list[i++]=string_ADFBack;
-      s->source_list[i++]=string_ADFDuplex;
+      s->source_list[i++]=STRING_ADFFRONT;
+      s->source_list[i++]=STRING_ADFBACK;
+      s->source_list[i++]=STRING_ADFDUPLEX;
     }
     s->source_list[i]=NULL;
 
@@ -966,9 +966,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   /* scan mode */
   else if(option==OPT_MODE){
     i=0;
-    s->mode_list[i++]=string_Lineart;
-    s->mode_list[i++]=string_Grayscale;
-    s->mode_list[i++]=string_Color;
+    s->mode_list[i++]=STRING_LINEART;
+    s->mode_list[i++]=STRING_GRAYSCALE;
+    s->mode_list[i++]=STRING_COLOR;
     s->mode_list[i]=NULL;
   
     opt->name = SANE_NAME_SCAN_MODE;
@@ -1393,16 +1393,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_SOURCE:
           if(s->source == SOURCE_FLATBED){
-            strcpy (val, string_Flatbed);
+            strcpy (val, STRING_FLATBED);
           }
           else if(s->source == SOURCE_ADF_FRONT){
-            strcpy (val, string_ADFFront);
+            strcpy (val, STRING_ADFFRONT);
           }
           else if(s->source == SOURCE_ADF_BACK){
-            strcpy (val, string_ADFBack);
+            strcpy (val, STRING_ADFBACK);
           }
           else if(s->source == SOURCE_ADF_DUPLEX){
-            strcpy (val, string_ADFDuplex);
+            strcpy (val, STRING_ADFDUPLEX);
           }
           else{
             DBG(5,"missing option val for source\n");
@@ -1411,13 +1411,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_MODE:
           if(s->mode == MODE_LINEART){
-            strcpy (val, string_Lineart);
+            strcpy (val, STRING_LINEART);
           }
           else if(s->mode == MODE_GRAYSCALE){
-            strcpy (val, string_Grayscale);
+            strcpy (val, STRING_GRAYSCALE);
           }
           else if(s->mode == MODE_COLOR){
-            strcpy (val, string_Color);
+            strcpy (val, STRING_COLOR);
           }
           return SANE_STATUS_GOOD;
 
@@ -1533,13 +1533,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
  
         /* Mode Group */
         case OPT_SOURCE:
-          if (!strcmp (val, string_ADFFront)) {
+          if (!strcmp (val, STRING_ADFFRONT)) {
             tmp = SOURCE_ADF_FRONT;
           }
-          else if (!strcmp (val, string_ADFBack)) {
+          else if (!strcmp (val, STRING_ADFBACK)) {
             tmp = SOURCE_ADF_BACK;
           }
-          else if (!strcmp (val, string_ADFDuplex)) {
+          else if (!strcmp (val, STRING_ADFDUPLEX)) {
             tmp = SOURCE_ADF_DUPLEX;
           }
           else{
@@ -1554,10 +1554,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_MODE:
-          if (!strcmp (val, string_Lineart)) {
+          if (!strcmp (val, STRING_LINEART)) {
             tmp = MODE_LINEART;
           }
-          else if (!strcmp (val, string_Grayscale)) {
+          else if (!strcmp (val, STRING_GRAYSCALE)) {
             tmp = MODE_GRAYSCALE;
           }
           else{

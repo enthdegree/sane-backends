@@ -314,38 +314,25 @@
 */
 
 /* ------------------------------------------------------------------------- */
-static const char string_Flatbed[] = "Flatbed";
-static const char string_ADFFront[] = "ADF Front";
-static const char string_ADFBack[] = "ADF Back";
-static const char string_ADFDuplex[] = "ADF Duplex";
+#define STRING_FLATBED SANE_I18N("Flatbed")
+#define STRING_ADFFRONT SANE_I18N("ADF Front")
+#define STRING_ADFBACK SANE_I18N("ADF Back")
+#define STRING_ADFDUPLEX SANE_I18N("ADF Duplex")
 
-static const char string_Lineart[] = "Lineart";
-static const char string_Halftone[] = "Halftone";
-static const char string_Grayscale[] = "Gray";
-static const char string_Color[] = "Color";
+#define STRING_LINEART SANE_I18N("Lineart")
+#define STRING_HALFTONE SANE_I18N("Halftone")
+#define STRING_GRAYSCALE SANE_I18N("Gray")
+#define STRING_COLOR SANE_I18N("Color")
 
-static const char string_Default[] = "Default";
-static const char string_On[] = "On";
-static const char string_Off[] = "Off";
+#define STRING_RED SANE_I18N("Red")
+#define STRING_GREEN SANE_I18N("Green")
+#define STRING_BLUE SANE_I18N("Blue")
+#define STRING_EN_RED SANE_I18N("Enhance Red")
+#define STRING_EN_GREEN SANE_I18N("Enhance Green")
+#define STRING_EN_BLUE SANE_I18N("Enhance Blue")
 
-static const char string_Dither[] = "Dither";
-static const char string_Diffusion[] = "Diffusion";
-
-static const char string_Red[] = "Red";
-static const char string_Green[] = "Green";
-static const char string_Blue[] = "Blue";
-static const char string_En_Red[] = "Enhance Red";
-static const char string_En_Green[] = "Enhance Green";
-static const char string_En_Blue[] = "Enhance Blue";
-
-static const char string_White[] = "White";
-static const char string_Black[] = "Black";
-
-static const char string_None[] = "None";
-static const char string_JPEG[] = "JPEG";
-
-static const char string_Front[] = "Front";
-static const char string_Back[] = "Back";
+#define STRING_NONE SANE_I18N("None")
+#define STRING_JPEG SANE_I18N("JPEG")
 
 /* Also set via config file. */
 static int global_buffer_size;
@@ -1433,16 +1420,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_SOURCE){
     i=0;
     if(s->has_flatbed){
-      s->source_list[i++]=string_Flatbed;
+      s->source_list[i++]=STRING_FLATBED;
     }
     if(s->has_adf){
-      s->source_list[i++]=string_ADFFront;
+      s->source_list[i++]=STRING_ADFFRONT;
   
       if(s->has_back){
-        s->source_list[i++]=string_ADFBack;
+        s->source_list[i++]=STRING_ADFBACK;
       }
       if(s->has_duplex){
-        s->source_list[i++]=string_ADFDuplex;
+        s->source_list[i++]=STRING_ADFDUPLEX;
       }
     }
     s->source_list[i]=NULL;
@@ -1461,16 +1448,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_MODE){
     i=0;
     if(s->can_monochrome || s->can_grayscale || s->can_color){
-      s->mode_list[i++]=string_Lineart;
+      s->mode_list[i++]=STRING_LINEART;
     }
     if(s->can_halftone){
-      s->mode_list[i++]=string_Halftone;
+      s->mode_list[i++]=STRING_HALFTONE;
     }
     if(s->can_grayscale || s->can_color){
-      s->mode_list[i++]=string_Grayscale;
+      s->mode_list[i++]=STRING_GRAYSCALE;
     }
     if(s->can_color){
-      s->mode_list[i++]=string_Color;
+      s->mode_list[i++]=STRING_COLOR;
     }
     s->mode_list[i]=NULL;
   
@@ -1799,10 +1786,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   /*image compression*/
   if(option==OPT_COMPRESS){
     i=0;
-    s->compress_list[i++]=string_None;
+    s->compress_list[i++]=STRING_NONE;
 
     if(s->has_comp_JPEG){
-      s->compress_list[i++]=string_JPEG;
+      s->compress_list[i++]=STRING_JPEG;
     }
 
     s->compress_list[i]=NULL;
@@ -1953,13 +1940,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*dropout color front*/
   if(option==OPT_DROPOUT_COLOR_F){
-    s->do_color_list[0] = string_None;
-    s->do_color_list[1] = string_Red;
-    s->do_color_list[2] = string_Green;
-    s->do_color_list[3] = string_Blue;
-    s->do_color_list[4] = string_En_Red;
-    s->do_color_list[5] = string_En_Green;
-    s->do_color_list[6] = string_En_Blue;
+    s->do_color_list[0] = STRING_NONE;
+    s->do_color_list[1] = STRING_RED;
+    s->do_color_list[2] = STRING_GREEN;
+    s->do_color_list[3] = STRING_BLUE;
+    s->do_color_list[4] = STRING_EN_RED;
+    s->do_color_list[5] = STRING_EN_GREEN;
+    s->do_color_list[6] = STRING_EN_BLUE;
     s->do_color_list[7] = NULL;
   
     opt->name = "dropout-front";
@@ -1981,13 +1968,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*dropout color back*/
   if(option==OPT_DROPOUT_COLOR_B){
-    s->do_color_list[0] = string_None;
-    s->do_color_list[1] = string_Red;
-    s->do_color_list[2] = string_Green;
-    s->do_color_list[3] = string_Blue;
-    s->do_color_list[4] = string_En_Red;
-    s->do_color_list[5] = string_En_Green;
-    s->do_color_list[6] = string_En_Blue;
+    s->do_color_list[0] = STRING_NONE;
+    s->do_color_list[1] = STRING_RED;
+    s->do_color_list[2] = STRING_GREEN;
+    s->do_color_list[3] = STRING_BLUE;
+    s->do_color_list[4] = STRING_EN_RED;
+    s->do_color_list[5] = STRING_EN_GREEN;
+    s->do_color_list[6] = STRING_EN_BLUE;
     s->do_color_list[7] = NULL;
   
     opt->name = "dropout-back";
@@ -2176,31 +2163,31 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_SOURCE:
           if(s->u.source == SOURCE_FLATBED){
-            strcpy (val, string_Flatbed);
+            strcpy (val, STRING_FLATBED);
           }
           else if(s->u.source == SOURCE_ADF_FRONT){
-            strcpy (val, string_ADFFront);
+            strcpy (val, STRING_ADFFRONT);
           }
           else if(s->u.source == SOURCE_ADF_BACK){
-            strcpy (val, string_ADFBack);
+            strcpy (val, STRING_ADFBACK);
           }
           else if(s->u.source == SOURCE_ADF_DUPLEX){
-            strcpy (val, string_ADFDuplex);
+            strcpy (val, STRING_ADFDUPLEX);
           }
           return SANE_STATUS_GOOD;
 
         case OPT_MODE:
           if(s->u.mode == MODE_LINEART){
-            strcpy (val, string_Lineart);
+            strcpy (val, STRING_LINEART);
           }
           else if(s->u.mode == MODE_HALFTONE){
-            strcpy (val, string_Halftone);
+            strcpy (val, STRING_HALFTONE);
           }
           else if(s->u.mode == MODE_GRAYSCALE){
-            strcpy (val, string_Grayscale);
+            strcpy (val, STRING_GRAYSCALE);
           }
           else if(s->u.mode == MODE_COLOR){
-            strcpy (val, string_Color);
+            strcpy (val, STRING_COLOR);
           }
           return SANE_STATUS_GOOD;
 
@@ -2251,10 +2238,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         /* Advanced Group */
         case OPT_COMPRESS:
           if(s->compress == COMP_JPEG){
-            strcpy (val, string_JPEG);
+            strcpy (val, STRING_JPEG);
           }
           else{
-            strcpy (val, string_None);
+            strcpy (val, STRING_NONE);
           }
           return SANE_STATUS_GOOD;
 
@@ -2293,25 +2280,25 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_DROPOUT_COLOR_F:
           switch (s->dropout_color_f) {
             case COLOR_NONE:
-              strcpy (val, string_None);
+              strcpy (val, STRING_NONE);
               break;
             case COLOR_RED:
-              strcpy (val, string_Red);
+              strcpy (val, STRING_RED);
               break;
             case COLOR_GREEN:
-              strcpy (val, string_Green);
+              strcpy (val, STRING_GREEN);
               break;
             case COLOR_BLUE:
-              strcpy (val, string_Blue);
+              strcpy (val, STRING_BLUE);
               break;
             case COLOR_EN_RED:
-              strcpy (val, string_En_Red);
+              strcpy (val, STRING_EN_RED);
               break;
             case COLOR_EN_GREEN:
-              strcpy (val, string_En_Green);
+              strcpy (val, STRING_EN_GREEN);
               break;
             case COLOR_EN_BLUE:
-              strcpy (val, string_En_Blue);
+              strcpy (val, STRING_EN_BLUE);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -2319,25 +2306,25 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_DROPOUT_COLOR_B:
           switch (s->dropout_color_b) {
             case COLOR_NONE:
-              strcpy (val, string_None);
+              strcpy (val, STRING_NONE);
               break;
             case COLOR_RED:
-              strcpy (val, string_Red);
+              strcpy (val, STRING_RED);
               break;
             case COLOR_GREEN:
-              strcpy (val, string_Green);
+              strcpy (val, STRING_GREEN);
               break;
             case COLOR_BLUE:
-              strcpy (val, string_Blue);
+              strcpy (val, STRING_BLUE);
               break;
             case COLOR_EN_RED:
-              strcpy (val, string_En_Red);
+              strcpy (val, STRING_EN_RED);
               break;
             case COLOR_EN_GREEN:
-              strcpy (val, string_En_Green);
+              strcpy (val, STRING_EN_GREEN);
               break;
             case COLOR_EN_BLUE:
-              strcpy (val, string_En_Blue);
+              strcpy (val, STRING_EN_BLUE);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -2425,13 +2412,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
  
         /* Mode Group */
         case OPT_SOURCE:
-          if (!strcmp (val, string_ADFFront)) {
+          if (!strcmp (val, STRING_ADFFRONT)) {
             tmp = SOURCE_ADF_FRONT;
           }
-          else if (!strcmp (val, string_ADFBack)) {
+          else if (!strcmp (val, STRING_ADFBACK)) {
             tmp = SOURCE_ADF_BACK;
           }
-          else if (!strcmp (val, string_ADFDuplex)) {
+          else if (!strcmp (val, STRING_ADFDUPLEX)) {
             tmp = SOURCE_ADF_DUPLEX;
           }
           else{
@@ -2447,13 +2434,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_MODE:
-          if (!strcmp (val, string_Lineart)) {
+          if (!strcmp (val, STRING_LINEART)) {
             tmp = MODE_LINEART;
           }
-          else if (!strcmp (val, string_Halftone)) {
+          else if (!strcmp (val, STRING_HALFTONE)) {
             tmp = MODE_HALFTONE;
           }
-          else if (!strcmp (val, string_Grayscale)) {
+          else if (!strcmp (val, STRING_GRAYSCALE)) {
             tmp = MODE_GRAYSCALE;
           }
           else{
@@ -2553,7 +2540,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         /* Advanced Group */
         case OPT_COMPRESS:
-          if (!strcmp (val, string_JPEG)) {
+          if (!strcmp (val, STRING_JPEG)) {
             s->compress = COMP_JPEG;
           }
           else{
@@ -2594,36 +2581,36 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_DROPOUT_COLOR_F:
-          if (!strcmp(val, string_None))
+          if (!strcmp(val, STRING_NONE))
             s->dropout_color_f = COLOR_NONE;
-          else if (!strcmp(val, string_Red))
+          else if (!strcmp(val, STRING_RED))
             s->dropout_color_f = COLOR_RED;
-          else if (!strcmp(val, string_Green))
+          else if (!strcmp(val, STRING_GREEN))
             s->dropout_color_f = COLOR_GREEN;
-          else if (!strcmp(val, string_Blue))
+          else if (!strcmp(val, STRING_BLUE))
             s->dropout_color_f = COLOR_BLUE;
-          else if (!strcmp(val, string_En_Red))
+          else if (!strcmp(val, STRING_EN_RED))
             s->dropout_color_f = COLOR_EN_RED;
-          else if (!strcmp(val, string_En_Green))
+          else if (!strcmp(val, STRING_EN_GREEN))
             s->dropout_color_f = COLOR_EN_GREEN;
-          else if (!strcmp(val, string_En_Blue))
+          else if (!strcmp(val, STRING_EN_BLUE))
             s->dropout_color_f = COLOR_EN_BLUE;
           return SANE_STATUS_GOOD;
 
         case OPT_DROPOUT_COLOR_B:
-          if (!strcmp(val, string_None))
+          if (!strcmp(val, STRING_NONE))
             s->dropout_color_b = COLOR_NONE;
-          else if (!strcmp(val, string_Red))
+          else if (!strcmp(val, STRING_RED))
             s->dropout_color_b = COLOR_RED;
-          else if (!strcmp(val, string_Green))
+          else if (!strcmp(val, STRING_GREEN))
             s->dropout_color_b = COLOR_GREEN;
-          else if (!strcmp(val, string_Blue))
+          else if (!strcmp(val, STRING_BLUE))
             s->dropout_color_b = COLOR_BLUE;
-          else if (!strcmp(val, string_En_Red))
+          else if (!strcmp(val, STRING_EN_RED))
             s->dropout_color_b = COLOR_EN_RED;
-          else if (!strcmp(val, string_En_Green))
+          else if (!strcmp(val, STRING_EN_GREEN))
             s->dropout_color_b = COLOR_EN_GREEN;
-          else if (!strcmp(val, string_En_Blue))
+          else if (!strcmp(val, STRING_EN_BLUE))
             s->dropout_color_b = COLOR_EN_BLUE;
           return SANE_STATUS_GOOD;
 

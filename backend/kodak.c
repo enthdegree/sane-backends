@@ -129,35 +129,14 @@
 */
 
 /* ------------------------------------------------------------------------- */
-static const char string_ADFFront[] = "ADF Front";
-static const char string_ADFBack[] = "ADF Back";
-static const char string_ADFDuplex[] = "ADF Duplex";
+#define STRING_ADFFRONT SANE_I18N("ADF Front")
+#define STRING_ADFBACK SANE_I18N("ADF Back")
+#define STRING_ADFDUPLEX SANE_I18N("ADF Duplex")
 
-static const char string_Lineart[] = "Lineart";
-static const char string_Halftone[] = "Halftone";
-static const char string_Grayscale[] = "Gray";
-static const char string_Color[] = "Color";
-
-static const char string_Default[] = "Default";
-static const char string_On[] = "On";
-static const char string_Off[] = "Off";
-
-static const char string_Red[] = "Red";
-static const char string_Green[] = "Green";
-static const char string_Blue[] = "Blue";
-static const char string_White[] = "White";
-static const char string_Black[] = "Black";
-
-static const char string_None[] = "None";
-static const char string_JPEG[] = "JPEG";
-
-static const char string_Thickness[] = "Thickness";
-static const char string_Length[] = "Length";
-static const char string_Both[] = "Both";
-
-static const char string_10mm[] = "10mm";
-static const char string_15mm[] = "15mm";
-static const char string_20mm[] = "20mm";
+#define STRING_LINEART SANE_I18N("Lineart")
+#define STRING_HALFTONE SANE_I18N("Halftone")
+#define STRING_GRAYSCALE SANE_I18N("Gray")
+#define STRING_COLOR SANE_I18N("Color")
 
 /* Also set via config file. */
 static int global_buffer_size = DEFAULT_BUFFER_SIZE;
@@ -980,9 +959,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   /* source */
   if(option==OPT_SOURCE){
     i=0;
-    s->o_source_list[i++]=string_ADFFront;
-    s->o_source_list[i++]=string_ADFBack;
-    s->o_source_list[i++]=string_ADFDuplex;
+    s->o_source_list[i++]=STRING_ADFFRONT;
+    s->o_source_list[i++]=STRING_ADFBACK;
+    s->o_source_list[i++]=STRING_ADFDUPLEX;
     s->o_source_list[i]=NULL;
 
     opt->name = SANE_NAME_SCAN_SOURCE;
@@ -999,16 +978,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_MODE){
     i=0;
     if(s->s_mode[MODE_LINEART]){
-      s->o_mode_list[i++]=string_Lineart;
+      s->o_mode_list[i++]=STRING_LINEART;
     }
     if(s->s_mode[MODE_HALFTONE]){
-      s->o_mode_list[i++]=string_Halftone;
+      s->o_mode_list[i++]=STRING_HALFTONE;
     }
     if(s->s_mode[MODE_GRAYSCALE]){
-      s->o_mode_list[i++]=string_Grayscale;
+      s->o_mode_list[i++]=STRING_GRAYSCALE;
     }
     if(s->s_mode[MODE_COLOR]){
-      s->o_mode_list[i++]=string_Color;
+      s->o_mode_list[i++]=STRING_COLOR;
     }
     s->o_mode_list[i]=NULL;
   
@@ -1308,13 +1287,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_SOURCE:
           if(s->u_source == SOURCE_ADF_FRONT){
-            strcpy (val, string_ADFFront);
+            strcpy (val, STRING_ADFFRONT);
           }
           else if(s->u_source == SOURCE_ADF_BACK){
-            strcpy (val, string_ADFBack);
+            strcpy (val, STRING_ADFBACK);
           }
           else if(s->u_source == SOURCE_ADF_DUPLEX){
-            strcpy (val, string_ADFDuplex);
+            strcpy (val, STRING_ADFDUPLEX);
           }
           else{
             DBG(5,"missing option val for source\n"); 
@@ -1323,16 +1302,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_MODE:
           if(s->u_mode == MODE_LINEART){
-            strcpy (val, string_Lineart);
+            strcpy (val, STRING_LINEART);
           }
           else if(s->u_mode == MODE_HALFTONE){
-            strcpy (val, string_Halftone);
+            strcpy (val, STRING_HALFTONE);
           }
           else if(s->u_mode == MODE_GRAYSCALE){
-            strcpy (val, string_Grayscale);
+            strcpy (val, STRING_GRAYSCALE);
           }
           else if(s->u_mode == MODE_COLOR){
-            strcpy (val, string_Color);
+            strcpy (val, STRING_COLOR);
           }
           return SANE_STATUS_GOOD;
 
@@ -1418,10 +1397,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
  
         /* Mode Group */
         case OPT_SOURCE:
-          if (!strcmp (val, string_ADFFront)) {
+          if (!strcmp (val, STRING_ADFFRONT)) {
             tmp = SOURCE_ADF_FRONT;
           }
-          else if (!strcmp (val, string_ADFBack)) {
+          else if (!strcmp (val, STRING_ADFBACK)) {
             tmp = SOURCE_ADF_BACK;
           }
           else{
@@ -1435,13 +1414,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_MODE:
-          if (!strcmp (val, string_Lineart)) {
+          if (!strcmp (val, STRING_LINEART)) {
             tmp = MODE_LINEART;
           }
-          else if (!strcmp (val, string_Halftone)) {
+          else if (!strcmp (val, STRING_HALFTONE)) {
             tmp = MODE_HALFTONE;
           }
-          else if (!strcmp (val, string_Grayscale)) {
+          else if (!strcmp (val, STRING_GRAYSCALE)) {
             tmp = MODE_GRAYSCALE;
           }
           else{

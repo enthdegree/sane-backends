@@ -1,4 +1,7 @@
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
+	* acinclude.m4, configure: missing $ in variable expansion
+
+2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* backend/cardscan.[ch], backend/cardscan.conf.in,
 	  doc/descriptions/cardscan.desc, doc/sane-cardscan.man:
 	- add lines_per_block config option

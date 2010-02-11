@@ -3,6 +3,7 @@
 	* frontend/scanimage.c: exit with error if stdout isatty()
 	* doc/descriptions/unsupported.desc, doc/descriptions/lexmark.desc:
 	- add Dell A940 and correct manpage name
+	* backend/gt68xx_high.c: maximum exposure 245 not 248, see bug #312113
 
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* backend/cardscan.[ch], backend/cardscan.conf.in,

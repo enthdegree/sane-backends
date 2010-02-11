@@ -1919,15 +1919,15 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
 				      r_gbuffer, g_gbuffer, b_gbuffer));
       if (!red_done)
 	red_done =
-	  gt68xx_afe_cis_adjust_exposure ("red", &values, r_gbuffer, 248,
+	  gt68xx_afe_cis_adjust_exposure ("red", &values, r_gbuffer, 245,
 					  &exposure->r_time);
       if (!green_done)
 	green_done =
-	  gt68xx_afe_cis_adjust_exposure ("green", &values, g_gbuffer, 248,
+	  gt68xx_afe_cis_adjust_exposure ("green", &values, g_gbuffer, 245,
 					  &exposure->g_time);
       if (!blue_done)
 	blue_done =
-	  gt68xx_afe_cis_adjust_exposure ("blue", &values, b_gbuffer, 248,
+	  gt68xx_afe_cis_adjust_exposure ("blue", &values, b_gbuffer, 245,
 					  &exposure->b_time);
       exposure_count++;
       total_count++;

@@ -221,10 +221,10 @@ attach (const char *devname, PINT_Device **devp)
   if (ioctl (fd, SCIOCSET, &scanio) >= 0) \
     mode_list[lastguess ++] = modename
 
-  CHECK_MODE(SIM_BINARY_MONOCHROME, "Lineart");
-  CHECK_MODE(SIM_DITHERED_MONOCHROME, "Halftone");
-  CHECK_MODE(SIM_GRAYSCALE, "Gray");
-  CHECK_MODE(SIM_COLOR, "Color");
+  CHECK_MODE(SIM_BINARY_MONOCHROME, SANE_VALUE_SCAN_MODE_LINEART);
+  CHECK_MODE(SIM_DITHERED_MONOCHROME, SANE_VALUE_SCAN_MODE_HALFTONE);
+  CHECK_MODE(SIM_GRAYSCALE, SANE_VALUE_SCAN_MODE_GRAY);
+  CHECK_MODE(SIM_COLOR, SANE_VALUE_SCAN_MODE_COLOR);
   CHECK_MODE(SIM_RED, "Red");
   CHECK_MODE(SIM_GREEN, "Green");
   CHECK_MODE(SIM_BLUE, "Blue");
@@ -859,17 +859,17 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 
       /* set the scan image mode */
       mode = s->val[OPT_MODE].s;
-      if (!strcmp (mode, "Lineart"))
+      if (!strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART))
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  scanio.scan_image_mode = SIM_BINARY_MONOCHROME;
 	}
-      else if (!strcmp (mode, "Halftone"))
+      else if (!strcmp (mode, SANE_VALUE_SCAN_MODE_HALFTONE))
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  scanio.scan_image_mode = SIM_DITHERED_MONOCHROME;
 	}
-      else if (!strcmp (mode, "Gray"))
+      else if (!strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY))
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  scanio.scan_image_mode = SIM_GRAYSCALE;

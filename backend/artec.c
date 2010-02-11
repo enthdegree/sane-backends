@@ -100,7 +100,10 @@ static ARTEC_Scanner *first_handle;
 
 static const SANE_String_Const mode_list[] =
 {
-  "Lineart", "Halftone", "Gray", "Color",
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_HALFTONE,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
   0
 };
 
@@ -1355,22 +1358,22 @@ artec_set_scan_window (SANE_Handle handle)
    * byte 33 is mode
    * byte 37 bit 7 is "negative" setting
    */
-  if (strcmp (s->mode, "Lineart") == 0)
+  if (strcmp (s->mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     {
       data[33] = ARTEC_COMP_LINEART;
       data[37] = (s->val[OPT_NEGATIVE].w == SANE_TRUE) ? 0x0 : 0x80;
     }
-  else if (strcmp (s->mode, "Halftone") == 0)
+  else if (strcmp (s->mode, SANE_VALUE_SCAN_MODE_HALFTONE) == 0)
     {
       data[33] = ARTEC_COMP_HALFTONE;
       data[37] = (s->val[OPT_NEGATIVE].w == SANE_TRUE) ? 0x0 : 0x80;
     }
-  else if (strcmp (s->mode, "Gray") == 0)
+  else if (strcmp (s->mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
     {
       data[33] = ARTEC_COMP_GRAY;
       data[37] = (s->val[OPT_NEGATIVE].w == SANE_TRUE) ? 0x80 : 0x0;
     }
-  else if (strcmp (s->mode, "Color") == 0)
+  else if (strcmp (s->mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
     {
       data[33] = ARTEC_COMP_COLOR;
       data[37] = (s->val[OPT_NEGATIVE].w == SANE_TRUE) ? 0x80 : 0x0;
@@ -2989,7 +2992,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    s->opt[OPT_FILTER_TYPE].cap &= ~SANE_CAP_INACTIVE;
             s->opt[OPT_NEGATIVE].cap &= ~SANE_CAP_INACTIVE;
 
-	    if (strcmp (val, "Lineart") == 0)
+	    if (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	      {
 		/* Lineart mode */
 		s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE; /* OFF */
@@ -2998,13 +3001,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		if (s->hw->flags & ARTEC_FLAG_ENHANCE_LINE_EDGE)
 		  s->opt[OPT_EDGE_ENH].cap &= ~SANE_CAP_INACTIVE;
 	      }
-	    else if (strcmp (val, "Halftone") == 0)
+	    else if (strcmp (val, SANE_VALUE_SCAN_MODE_HALFTONE) == 0)
 	      {
 		/* Halftone mode */
 		if (s->hw->flags & ARTEC_FLAG_HALFTONE_PATTERN)
 		  s->opt[OPT_HALFTONE_PATTERN].cap &= ~SANE_CAP_INACTIVE;
 	      }
-	    else if (strcmp (val, "Gray") == 0)
+	    else if (strcmp (val, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	      {
 		/* Grayscale mode */
                 if (!(s->hw->flags & ARTEC_FLAG_MBPP_NEGATIVE))
@@ -3012,7 +3015,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
                     s->opt[OPT_NEGATIVE].cap |= SANE_CAP_INACTIVE;
                   }
 	      }
-	    else if (strcmp (val, "Color") == 0)
+	    else if (strcmp (val, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 	      {
 		/* Color mode */
 		s->opt[OPT_FILTER_TYPE].cap |= SANE_CAP_INACTIVE;
@@ -3084,13 +3087,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      const char *mode = s->val[OPT_MODE].s;
 
-	      if ((strcmp (mode, "Lineart") == 0) ||
-		  (strcmp (mode, "Halftone") == 0) ||
-		  (strcmp (mode, "Gray") == 0))
+	      if ((strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0) ||
+		  (strcmp (mode, SANE_VALUE_SCAN_MODE_HALFTONE) == 0) ||
+		  (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0))
 		{
 		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 		}
-	      else if (strcmp (mode, "Color") == 0)
+	      else if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 		{
 		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 
@@ -3201,15 +3204,15 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       if ((s->val[OPT_PREVIEW].w == SANE_TRUE) &&
 	  (s->val[OPT_GRAY_PREVIEW].w == SANE_TRUE))
 	{
-	  s->mode = "Gray";
+	  s->mode = SANE_VALUE_SCAN_MODE_GRAY;
 	}
       else
 	{
 	  s->mode = s->val[OPT_MODE].s;
 	}
 
-      if ((strcmp (s->mode, "Lineart") == 0) ||
-	  (strcmp (s->mode, "Halftone") == 0))
+      if ((strcmp (s->mode, SANE_VALUE_SCAN_MODE_LINEART) == 0) ||
+	  (strcmp (s->mode, SANE_VALUE_SCAN_MODE_HALFTONE) == 0))
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = (s->params.pixels_per_line + 7) / 8;
@@ -3223,7 +3226,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  /* full, so this should not affect scans in a negative way */
 	  s->params.pixels_per_line = s->params.bytes_per_line * 8;
 	}
-      else if (strcmp (s->mode, "Gray") == 0)
+      else if (strcmp (s->mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line;
@@ -3320,11 +3323,11 @@ sane_start (SANE_Handle handle)
     return status;
 
   /* DAL: For 3 pass colour set the current pass parameters */
-  if ((strcmp (s->mode, "Color") == 0) && s->threepasscolor)
+  if ((strcmp (s->mode, SANE_VALUE_SCAN_MODE_COLOR) == 0) && s->threepasscolor)
     set_pass_parameters (s);
 
   /* DAL: For single pass scans and the first pass of a 3 pass scan */
-  if ((strcmp (s->mode, "Color") != 0) ||
+  if ((strcmp (s->mode, SANE_VALUE_SCAN_MODE_COLOR) != 0) ||
       (!s->threepasscolor) ||
       ((s->threepasscolor) &&
        (s->this_pass == 1)))
@@ -3365,7 +3368,7 @@ sane_start (SANE_Handle handle)
        s->x_resolution, s->y_resolution, (u_long) s->bytes_to_read);
 
   /* DAL: For single pass scans and the first pass of a 3 pass scan */
-  if ((strcmp (s->mode, "Color") != 0) || !s->threepasscolor ||
+  if ((strcmp (s->mode, SANE_VALUE_SCAN_MODE_COLOR) != 0) || !s->threepasscolor ||
       (s->threepasscolor && s->this_pass == 1))
     {
 
@@ -3418,7 +3421,7 @@ sane_start (SANE_Handle handle)
 
   /* now we can start the actual scan */
   /* DAL: For single pass scans and the first pass of a 3 pass scan */
-  if ((strcmp (s->mode, "Color") != 0) ||
+  if ((strcmp (s->mode, SANE_VALUE_SCAN_MODE_COLOR) != 0) ||
       (!s->threepasscolor) ||
       (s->this_pass == 1))
     {
@@ -3480,7 +3483,7 @@ artec_sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int
 
   if (s->bytes_to_read == 0)
     {
-      if ((strcmp (s->mode, "Color") != 0) || !s->threepasscolor ||
+      if ((strcmp (s->mode, SANE_VALUE_SCAN_MODE_COLOR) != 0) || !s->threepasscolor ||
 	  (s->threepasscolor && s->this_pass == 3))
 	{
 	  do_cancel (s);
@@ -3573,7 +3576,7 @@ artec_sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int
 	  write (debug_fd, temp_buf, nread);
 	}
 
-      if ((strcmp (s->mode, "Color") == 0) &&
+      if ((strcmp (s->mode, SANE_VALUE_SCAN_MODE_COLOR) == 0) &&
 	  (s->hw->flags & ARTEC_FLAG_RGB_LINE_OFFSET))
 	{
 	  for (line = 0; line < lread; line++)
@@ -3614,12 +3617,12 @@ artec_sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int
       else
 	{
 	  if ((s->hw->flags & ARTEC_FLAG_IMAGE_REV_LR) ||
-	      ((strcmp (s->mode, "Color") == 0) &&
+	      ((strcmp (s->mode, SANE_VALUE_SCAN_MODE_COLOR) == 0) &&
 	       (s->hw->flags & ARTEC_FLAG_RGB_CHAR_SHIFT)))
 	    {
 	      for (line = 0; line < lread; line++)
 		{
-		  if ((strcmp (s->mode, "Color") == 0) &&
+		  if ((strcmp (s->mode, SANE_VALUE_SCAN_MODE_COLOR) == 0) &&
 		      (s->hw->flags & ARTEC_FLAG_RGB_CHAR_SHIFT))
 		    {
 		      artec_line_rgb_to_byte_rgb (temp_buf +
@@ -3636,7 +3639,7 @@ artec_sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int
 
 	  /* do software calibration if necessary */
 	  if ((s->val[OPT_SOFTWARE_CAL].w) &&
-	      (strcmp (s->mode, "Color") == 0))
+	      (strcmp (s->mode, SANE_VALUE_SCAN_MODE_COLOR) == 0))
 	    {
 	      artec_software_rgb_calibrate (s, temp_buf, lread);
 	    }

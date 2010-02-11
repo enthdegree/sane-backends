@@ -240,8 +240,8 @@ int global_has_cal_buffer = 1;
 int global_lines_per_block = 16;
 
 /* ------------------------------------------------------------------------- */
-#define STRING_GRAYSCALE SANE_I18N("Gray")
-#define STRING_COLOR SANE_I18N("Color")
+#define STRING_GRAYSCALE SANE_VALUE_SCAN_MODE_GRAY
+#define STRING_COLOR SANE_VALUE_SCAN_MODE_COLOR
 
 /*
  * used by attach* and sane_get_devices

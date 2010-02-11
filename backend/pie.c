@@ -116,10 +116,10 @@
 
 #define PIE_CONFIG_FILE "pie.conf"
 
-#define LINEART_STR         "Lineart"
-#define HALFTONE_STR        "Halftone"
-#define GRAY_STR            "Gray"
-#define COLOR_STR           "Color"
+#define LINEART_STR         SANE_VALUE_SCAN_MODE_LINEART
+#define HALFTONE_STR        SANE_VALUE_SCAN_MODE_HALFTONE
+#define GRAY_STR            SANE_VALUE_SCAN_MODE_GRAY
+#define COLOR_STR           SANE_VALUE_SCAN_MODE_COLOR
 
 #define LINEART             1
 #define HALFTONE            2

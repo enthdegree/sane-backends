@@ -452,7 +452,10 @@ SANE_I18N("Turn off lamp when program exits")
 
 /* Typical values for stringlists (to keep the backends consistent) */
 #define SANE_VALUE_SCAN_MODE_COLOR		SANE_I18N("Color")
+#define SANE_VALUE_SCAN_MODE_COLOR_LINEART	SANE_I18N("Color Lineart")
+#define SANE_VALUE_SCAN_MODE_COLOR_HALFTONE     SANE_I18N("Color Halftone")
 #define SANE_VALUE_SCAN_MODE_GRAY		SANE_I18N("Gray")
+#define SANE_VALUE_SCAN_MODE_HALFTONE           SANE_I18N("Halftone")
 #define SANE_VALUE_SCAN_MODE_LINEART		SANE_I18N("Lineart")
 
 #endif /* saneopts_h */

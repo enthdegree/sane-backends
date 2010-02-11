@@ -205,9 +205,9 @@ static float white_factor[3] = {1.0, 0.93, 0.98};  /* Blue, Red, Green */
 #define STRING_ADFBACK SANE_I18N("ADF Back")
 #define STRING_ADFDUPLEX SANE_I18N("ADF Duplex")
 
-#define STRING_LINEART SANE_I18N("Lineart")
-#define STRING_GRAYSCALE SANE_I18N("Gray")
-#define STRING_COLOR SANE_I18N("Color")
+#define STRING_LINEART SANE_VALUE_SCAN_MODE_LINEART
+#define STRING_GRAYSCALE SANE_VALUE_SCAN_MODE_GRAY
+#define STRING_COLOR SANE_VALUE_SCAN_MODE_COLOR
 
 /*
  * used by attach* and sane_get_devices

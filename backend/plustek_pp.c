@@ -179,7 +179,7 @@ static ModeParam mode_9800x_params[] =
 static const SANE_String_Const mode_list[] =
 {
 	SANE_VALUE_SCAN_MODE_LINEART,
-	SANE_I18N("Halftone"),
+	SANE_VALUE_SCAN_MODE_HALFTONE,
 	SANE_VALUE_SCAN_MODE_GRAY,
 	SANE_VALUE_SCAN_MODE_COLOR,
 	NULL
@@ -188,7 +188,7 @@ static const SANE_String_Const mode_list[] =
 static const SANE_String_Const mode_9800x_list[] =
 {
 	SANE_VALUE_SCAN_MODE_LINEART,
-	SANE_I18N("Halftone"),
+	SANE_VALUE_SCAN_MODE_HALFTONE,
 	SANE_VALUE_SCAN_MODE_GRAY,
 	SANE_VALUE_SCAN_MODE_COLOR,
 	SANE_I18N("Color36"),

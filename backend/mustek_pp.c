@@ -118,7 +118,7 @@ static SANE_Device **devarray = NULL;
 /* currently active Handles */
 static Mustek_pp_Handle *first_hndl = NULL;
 
-static SANE_String_Const       mustek_pp_modes[4] = {"Lineart", "Grayscale", "Color", NULL};
+static SANE_String_Const       mustek_pp_modes[4] = {SANE_VALUE_SCAN_MODE_LINEART, SANE_VALUE_SCAN_MODE_GRAY, SANE_VALUE_SCAN_MODE_COLOR, NULL};
 static SANE_Word               mustek_pp_modes_size = 10;
  
 static SANE_String_Const       mustek_pp_speeds[6] = {"Slowest", "Slower", "Normal", "Faster", "Fastest", NULL};
@@ -1443,9 +1443,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      const char *mode = hndl->val[OPT_MODE].s;
 
-	      if (strcmp (mode, "Grayscale") == 0)
+	      if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 		hndl->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-	      else if (strcmp (mode, "Color") == 0)
+	      else if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 		{
 		  hndl->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 		  hndl->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
@@ -1488,20 +1488,20 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	    hndl->opt[OPT_DEPTH].cap |= SANE_CAP_INACTIVE;
 	    
-	    if ((hndl->dev->caps & CAP_DEPTH) && (strcmp(val, "Color") == 0))
+	    if ((hndl->dev->caps & CAP_DEPTH) && (strcmp(val, SANE_VALUE_SCAN_MODE_COLOR) == 0))
 		    hndl->opt[OPT_DEPTH].cap &= ~SANE_CAP_INACTIVE;
 
 	    if (!(hndl->dev->caps & CAP_GAMMA_CORRECT))
 		    return SANE_STATUS_GOOD;
 
-	    if (strcmp (val, "Lineart") != 0)
+	    if (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) != 0)
 	      hndl->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 
 	    if (hndl->val[OPT_CUSTOM_GAMMA].w == SANE_TRUE)
 	      {
-		if (strcmp (val, "Grayscale") == 0)
+		if (strcmp (val, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 		  hndl->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-		else if (strcmp (val, "Color") == 0)
+		else if (strcmp (val, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 		  {
 		    hndl->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 		    hndl->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
@@ -1610,9 +1610,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 		      
       mode = hndl->val[OPT_MODE].s;
 
-      if (strcmp (mode, "Lineart") == 0)
+      if (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	hndl->mode = MODE_BW;
-      else if (strcmp (mode, "Grayscale") == 0)
+      else if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	hndl->mode = MODE_GRAYSCALE;
       else
 	hndl->mode = MODE_COLOR;

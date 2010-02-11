@@ -128,8 +128,8 @@ static SANE_Range range_y = { 0, MAX_Y_S, 0 };
 static SANE_Range range_br_cont = { BR_CONT_MIN, BR_CONT_MAX, 0 };
 
 static const SANE_String_Const mode_list[] = {
-  "Gray",
-  "Color",
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
   NULL
 };
 

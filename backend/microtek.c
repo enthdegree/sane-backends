@@ -104,10 +104,10 @@ static SANE_Bool inhibit_real_calib = SANE_FALSE;
 
 #define M_GSS_WAIT 5 /* seconds */
 
-#define M_LINEART  "LineArt"
-#define M_HALFTONE "Halftone"
-#define M_GRAY     "Gray"
-#define M_COLOR    "Color"
+#define M_LINEART  SANE_VALUE_SCAN_MODE_LINEART
+#define M_HALFTONE SANE_VALUE_SCAN_MODE_HALFTONE
+#define M_GRAY     SANE_VALUE_SCAN_MODE_GRAY
+#define M_COLOR    SANE_VALUE_SCAN_MODE_COLOR
 
 #define M_OPAQUE   "Opaque/Normal"
 #define M_TRANS    "Transparency"

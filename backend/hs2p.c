@@ -2609,7 +2609,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  s->params.pixels_per_line = s->params.bytes_per_line * 8;
 	  s->params.depth = 1;
 	}
-      else			/* if (strcmp (mode, "Gray") == 0) */
+      else			/* if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0) */
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line;

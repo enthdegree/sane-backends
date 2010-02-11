@@ -287,9 +287,9 @@ struct scanners_supported
 
 /*--------------------------------------------------------------------------*/
 
-#define BLACK_WHITE_STR		SANE_I18N("Black & White")
-#define GRAY_STR			SANE_I18N("Grayscale")
-#define COLOR_STR			SANE_I18N("Color")
+#define BLACK_WHITE_STR		SANE_VALUE_SCAN_MODE_LINEART
+#define GRAY_STR		SANE_VALUE_SCAN_MODE_GRAY
+#define COLOR_STR		SANE_VALUE_SCAN_MODE_COLOR
 
 /*--------------------------------------------------------------------------*/
 

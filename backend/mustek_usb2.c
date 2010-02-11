@@ -106,7 +106,7 @@ static SANE_String_Const mode_list[] = {
   SANE_I18N ("Color24"),
   SANE_I18N ("Gray16"),
   SANE_I18N ("Gray8"),
-  SANE_I18N ("Lineart"),
+  SANE_VALUE_SCAN_MODE_LINEART,
   0
 };
 
@@ -234,7 +234,7 @@ calc_parameters (Mustek_Scanner * s)
       s->params.depth = 8;
       s->setpara.smScanMode = SM_GRAY;
     }
-  else if (strcmp (val, "Lineart") == 0)
+  else if (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     {
       s->params.format = SANE_FRAME_GRAY;
       s->params.depth = 1;
@@ -2280,7 +2280,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (s->val[option].s)
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
-	  if (strcmp (s->val[option].s, "Lineart") == 0)
+	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	    {
 	      ENABLE (OPT_THRESHOLD);
 	    }

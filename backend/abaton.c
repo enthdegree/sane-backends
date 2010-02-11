@@ -342,11 +342,11 @@ set_window (Abaton_Scanner * s)
 
   invert = s->val[OPT_NEGATIVE].w;
 
-  if (!strcmp (s->val[OPT_MODE].s, "Lineart"))
+  if (!strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
     {
       STORE8 (window + 17, 0);
     }
-  else if (!strcmp (s->val[OPT_MODE].s, "Halftone"))
+  else if (!strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_HALFTONE))
     {
       STORE8 (window + 17, 1);
     }
@@ -513,7 +513,7 @@ calc_parameters (Abaton_Scanner * s)
   
   DBG (FLOW_CONTROL, "Entering calc_parameters\n");
 
-  if (!strcmp (val, "Lineart") || !strcmp (val, "Halftone"))
+  if (!strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) || !strcmp (val, SANE_VALUE_SCAN_MODE_HALFTONE))
     {
       s->params.depth = 1;
       s->bpp = 1;
@@ -583,14 +583,14 @@ mode_update (SANE_Handle handle, char *val)
 {
   Abaton_Scanner *s = handle;
 
-  if (!strcmp (val, "Lineart"))
+  if (!strcmp (val, SANE_VALUE_SCAN_MODE_LINEART))
     {
       DISABLE (OPT_BRIGHTNESS);
       DISABLE (OPT_CONTRAST);
       ENABLE (OPT_THRESHOLD);
       DISABLE (OPT_HALFTONE_PATTERN);
     }
-  else if (!strcmp (val, "Halftone"))
+  else if (!strcmp (val, SANE_VALUE_SCAN_MODE_HALFTONE))
     {
       ENABLE (OPT_BRIGHTNESS);
       ENABLE (OPT_CONTRAST);
@@ -660,12 +660,12 @@ init_options (Abaton_Scanner * s)
   s->opt[OPT_MODE_GROUP].cap = 0;
   s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-  mode_list[0]="Lineart";
+  mode_list[0]=SANE_VALUE_SCAN_MODE_LINEART;
   
   switch (s->hw->ScannerModel)
     {
     case ABATON_300GS:
-      mode_list[1]="Halftone";
+      mode_list[1]=SANE_VALUE_SCAN_MODE_HALFTONE;
       mode_list[2]="Gray16";
       mode_list[3]="Gray256";
       mode_list[4]=NULL;

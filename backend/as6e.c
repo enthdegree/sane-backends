@@ -76,7 +76,9 @@ static SANE_Status attach (const char *devname, AS6E_Device ** devp);
 /* static SANE_Status attach_one (const char *dev);  */
 
 static const SANE_String_Const mode_list[] = {
-  "Lineart", "Gray", "Color",
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
   0
 };
 
@@ -314,11 +316,11 @@ sane_start (SANE_Handle handle)
     return (SANE_STATUS_IO_ERROR);
   DBG (1, "sending start_scan signal\n");
   scan_params[0] = s->as6e_params.resolution;
-  if (strcmp (s->value[OPT_MODE].s, "Color") == 0)
+  if (strcmp (s->value[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
     scan_params[1] = 0;
-  else if (strcmp (s->value[OPT_MODE].s, "Gray") == 0)
+  else if (strcmp (s->value[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
     scan_params[1] = 1;
-  else if (strcmp (s->value[OPT_MODE].s, "Lineart") == 0)
+  else if (strcmp (s->value[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     scan_params[1] = 2;
   else
     return (SANE_STATUS_JAMMED);	/*this should never happen */
@@ -376,15 +378,15 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	(s->as6e_params.stopline -
 	 s->as6e_params.startline) * s->as6e_params.resolution / 300;
       mode = s->value[OPT_MODE].s;
-/*      if ((strcmp (s->mode, "Lineart") == 0) ||
-	  (strcmp (s->mode, "Halftone") == 0))
+/*      if ((strcmp (s->mode, SANE_VALUE_SCAN_MODE_LINEART) == 0) ||
+	  (strcmp (s->mode, SANE_VALUE_SCAN_MODE_HALFTONE) == 0))
 	{
 	  s->sane_params.format = SANE_FRAME_GRAY;
 	  s->sane_params.bytes_per_line = (s->sane_params.pixels_per_line + 7) / 8;
 	  s->sane_params.depth = 1;
 	}  */
-/*else*/ if ((strcmp (mode, "Gray") == 0)
-	     || (strcmp (mode, "Lineart") == 0))
+/*else*/ if ((strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+	     || (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0))
 	{
 	  s->sane_params.format = SANE_FRAME_GRAY;
 	  s->sane_params.bytes_per_line = s->sane_params.pixels_per_line;

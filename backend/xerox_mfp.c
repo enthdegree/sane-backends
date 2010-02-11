@@ -385,7 +385,10 @@ static int doc_source_to_code[] = {
 };
 
 static SANE_String_Const scan_modes[] = {
-  "Lineart", "Halftone", "Gray", "Color", NULL
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
+  NULL
 };
 
 static int scan_mode_to_code[] = {
@@ -399,7 +402,7 @@ static SANE_Range threshold = {
 static void reset_options(struct device *dev)
 {
   dev->val[OPT_RESOLUTION].w = 150;
-  dev->val[OPT_MODE].s = string_match(scan_modes, "Color");
+  dev->val[OPT_MODE].s = string_match(scan_modes, SANE_VALUE_SCAN_MODE_COLOR);
 
   /* if docs loaded in adf use it as default source, flatbed oterwise */
   dev->val[OPT_SOURCE].s = UNCONST(doc_sources[(dev->doc_loaded)? 1 : 0]);

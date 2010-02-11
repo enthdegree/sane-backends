@@ -78,8 +78,10 @@ static SM3840_Scan *first_handle;
 static const SANE_Device **devlist = 0;
 
 static const SANE_String_Const mode_list[] = {
-  SANE_I18N ("Gray"), SANE_I18N ("Color"),
-  SANE_I18N ("Lineart"), SANE_I18N ("Halftone"),
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_HALFTONE,
   0
 };
 
@@ -332,11 +334,11 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       memset (&s->sane_params, 0, sizeof (s->sane_params));
       /* Copy from options to sm3840_params */
       s->sm3840_params.gray =
-	(!strcasecmp (s->value[OPT_MODE].s, SANE_I18N ("Gray"))) ? 1 : 0;
+	(!strcasecmp (s->value[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY)) ? 1 : 0;
       s->sm3840_params.halftone =
-	(!strcasecmp (s->value[OPT_MODE].s, SANE_I18N ("Halftone"))) ? 1 : 0;
+	(!strcasecmp (s->value[OPT_MODE].s, SANE_VALUE_SCAN_MODE_HALFTONE)) ? 1 : 0;
       s->sm3840_params.lineart =
-	(!strcasecmp (s->value[OPT_MODE].s, SANE_I18N ("Lineart"))) ? 1 : 0;
+	(!strcasecmp (s->value[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART)) ? 1 : 0;
 
       s->sm3840_params.dpi = s->value[OPT_RESOLUTION].w;
       s->sm3840_params.bpp = s->value[OPT_BIT_DEPTH].w;

@@ -248,11 +248,11 @@ static const SANE_Int x_res_list[] =
 static const SANE_Int y_res_list[] =
 {11, 0, 60, 75, 80, 100, 120, 150, 200, 240, 300, 600};
 
-static const char lineStr[] = "Lineart";
-static const char halfStr[] = "Halftone";
+static const char lineStr[] = SANE_VALUE_SCAN_MODE_LINEART;
+static const char halfStr[] = SANE_VALUE_SCAN_MODE_HALFTONE;
 static const char gray4Str[] = "4-bit Gray";
 static const char gray8Str[] = "8-bit Gray";
-static const char colorStr[] = "Color";
+static const char colorStr[] = SANE_VALUE_SCAN_MODE_COLOR;
 static SANE_String_Const scan_mode_list[] =
 {lineStr, halfStr, gray4Str, gray8Str, colorStr, NULL};
 

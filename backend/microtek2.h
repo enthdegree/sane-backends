@@ -941,10 +941,10 @@ typedef struct Microtek2_Device {
 
 
 #define MD_MODESTRING_NUMS             4
-#define MD_MODESTRING_COLOR            "Color"
-#define MD_MODESTRING_GRAY             "Gray"
-#define MD_MODESTRING_HALFTONE         "Halftone"
-#define MD_MODESTRING_LINEART          "LineArt"
+#define MD_MODESTRING_COLOR            SANE_VALUE_SCAN_MODE_COLOR
+#define MD_MODESTRING_GRAY             SANE_VALUE_SCAN_MODE_GRAY
+#define MD_MODESTRING_HALFTONE         SANE_VALUE_SCAN_MODE_HALFTONE
+#define MD_MODESTRING_LINEART          SANE_VALUE_SCAN_MODE_LINEART
     SANE_String_Const scanmode_list[MD_MODESTRING_NUMS + 1];
 
 #define MD_DEPTHVAL_NUMS               6

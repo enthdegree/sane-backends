@@ -98,7 +98,9 @@ static SANE_Int new_dev_len;
 static SANE_Int new_dev_alloced;
 
 static SANE_String_Const mode_list[] = {
-  SANE_I18N ("Lineart"), SANE_I18N ("Gray"), SANE_I18N ("Color"),
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
   0
 };
 
@@ -732,7 +734,7 @@ set_window (Ma1509_Scanner * s)
   height = (SANE_UNFIX (s->val[OPT_BR_Y].w) - SANE_UNFIX (s->val[OPT_TL_Y].w))
     * pixels_per_mm + 0.5 + offset;
 
-  if (strcmp (s->val[OPT_MODE].s, "Lineart") == 0)
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     {
       width /= 64;
       width *= 64;
@@ -772,7 +774,7 @@ set_window (Ma1509_Scanner * s)
 
   *cp++ = 0x00;			/* brightness, not impl.        */
   /* threshold */
-  if (strcmp (s->val[OPT_MODE].s, "Lineart") == 0)
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     *cp++ = (SANE_Byte) s->val[OPT_THRESHOLD].w;
   else
     *cp++ = 0x80;
@@ -781,12 +783,12 @@ set_window (Ma1509_Scanner * s)
 
   /* Note that 'image composition' has no meaning for the SE series     */
   /* Mode selection is accomplished solely by bits/pixel (1, 8, 24)     */
-  if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
     {
       *cp++ = 24;		/* 24 bits/pixel in color mode  */
       s->hw->bpl *= 3;
     }
-  else if (strcmp (s->val[OPT_MODE].s, "Gray") == 0)
+  else if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
     *cp++ = 8;			/* 8 bits/pixel in gray mode    */
   else
     {
@@ -796,7 +798,7 @@ set_window (Ma1509_Scanner * s)
 
   cp += 13;			/* skip reserved bytes          */
   *cp++ = 0x00;			/* lamp mode  */
-  if (strcmp (s->val[OPT_MODE].s, "Lineart") != 0)
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) != 0)
     *cp++ = 0x02;		/* ???  */
 
   status = ma1509_cmd (s, scsi_set_window, buffer, &size);
@@ -1048,7 +1050,7 @@ start_read_data (Ma1509_Scanner * s)
   SANE_Status status;
   SANE_Int total_size = s->hw->ppl * s->hw->lines;
 
-  if (strcmp (s->val[OPT_MODE].s, "Lineart") == 0)
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     total_size /= 8;
 
   memset (cmd, 0, 8);
@@ -1593,7 +1595,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
 	    s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
 
-	    if (strcmp (s->val[option].s, "Lineart") == 0)
+	    if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	      {
 		s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 	      }
@@ -1651,7 +1653,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 	  s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 
-	  if (w && strcmp (s->val[OPT_MODE].s, "Lineart") != 0)
+	  if (w && strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) != 0)
 	    {
 	      s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 	      s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
@@ -1698,13 +1700,13 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  s->params.lines = height * dots_per_mm;
 	}
       mode = s->val[OPT_MODE].s;
-      if (strcmp (mode, "Lineart") == 0)
+      if (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = (s->params.pixels_per_line + 7) / 8;
 	  s->params.depth = 1;
 	}
-      else if (strcmp (mode, "Gray") == 0)
+      else if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line;
@@ -1795,7 +1797,7 @@ sane_start (SANE_Handle handle)
       goto stop_scanner_and_return;
     }
 
-  if (strcmp (s->val[OPT_MODE].s, "Lineart") != 0)
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) != 0)
     {
       status = calibration (s);
       if (status != SANE_STATUS_GOOD)
@@ -1835,9 +1837,9 @@ sane_start (SANE_Handle handle)
 
   s->params.bytes_per_line = s->hw->bpl;
   s->params.pixels_per_line = s->params.bytes_per_line;
-  if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
     s->params.pixels_per_line /= 3;
-  else if (strcmp (s->val[OPT_MODE].s, "Lineart") == 0)
+  else if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     s->params.pixels_per_line *= 8;
 
   s->params.lines = s->hw->lines;
@@ -1935,7 +1937,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   s->read_bytes += (*len);
 
   /* invert for lineart mode */
-  if (strcmp (s->val[OPT_MODE].s, "Lineart") == 0)
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     {
       for (i = 0; i < *len; i++)
 	buf[i] = ~buf[i];

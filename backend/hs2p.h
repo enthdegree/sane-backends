@@ -299,11 +299,11 @@ static const SANE_Range u16_range = {
   0				/* quantization */
 };
 
-#define SM_LINEART        "Lineart B/W"
-#define SM_HALFTONE       "Halftone"
+#define SM_LINEART        SANE_VALUE_SCAN_MODE_LINEART
+#define SM_HALFTONE       SANE_VALUE_SCAN_MODE_HALFTONE
 #define SM_DITHER         "Dither"
 #define SM_ERRORDIFFUSION "Error Diffusion"
-#define SM_COLOR          "Color"
+#define SM_COLOR          SANE_VALUE_SCAN_MODE_COLOR
 #define SM_4BITGRAY       "4-Bit Gray"
 #define SM_6BITGRAY       "6-Bit Gray"
 #define SM_8BITGRAY       "8-Bit Gray"

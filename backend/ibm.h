@@ -80,7 +80,9 @@
 
 static const SANE_String_Const mode_list[] =
   {
-    "Lineart", "Halftone", "Gray",
+    SANE_VALUE_SCAN_MODE_LINEART,
+    SANE_VALUE_SCAN_MODE_HALFTONE,
+    SANE_VALUE_SCAN_MODE_GRAY,
     0
   };
 

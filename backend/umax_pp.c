@@ -135,7 +135,10 @@ static SANE_Char astra[128];
 
 
 static const SANE_String_Const mode_list[] = {
-  SANE_I18N ("Lineart"), SANE_I18N ("Grayscale"), SANE_I18N ("Color"), 0
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
+  0
 };
 
 static const SANE_Range u4_range = {
@@ -1479,7 +1482,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
                 *info |= SANE_INFO_INEXACT;
               DBG (16, "control_option: swapping Y coordinates\n");
             }
-          if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
+          if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
             {
               dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w));
               if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
@@ -1597,7 +1600,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               dev->val[OPT_BR_X].w = dev->val[OPT_BR_X].w & 0xFFFC;
             }
           /* corrects top y for offset */
-          if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
+          if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
             {
               if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
                 {
@@ -1624,10 +1627,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             {
               const char *mode = dev->val[OPT_MODE].s;
 
-              if ((strcmp (mode, "Grayscale") == 0)
-                  || (strcmp (mode, "Lineart") == 0))
+              if ((strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+                  || (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0))
                 dev->opt[OPT_GRAY_OFFSET].cap &= ~SANE_CAP_INACTIVE;
-              else if (strcmp (mode, "Color") == 0)
+              else if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
                 {
                   dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE;
                   dev->opt[OPT_RED_OFFSET].cap &= ~SANE_CAP_INACTIVE;
@@ -1661,10 +1664,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             {
               const char *mode = dev->val[OPT_MODE].s;
 
-              if ((strcmp (mode, "Grayscale") == 0)
-                  || (strcmp (mode, "Lineart") == 0))
+              if ((strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+                  || (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0))
                 dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
-              else if (strcmp (mode, "Color") == 0)
+              else if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
                 {
                   dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
                   dev->opt[OPT_RED_GAIN].cap &= ~SANE_CAP_INACTIVE;
@@ -1699,14 +1702,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             {
               const char *mode = dev->val[OPT_MODE].s;
 
-              if ((strcmp (mode, "Grayscale") == 0)
-                  || (strcmp (mode, "Lineart") == 0))
+              if ((strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+                  || (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0))
                 {
                   dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
                   sanei_umax_pp_gamma (NULL, dev->val[OPT_GAMMA_VECTOR].wa,
                                        NULL);
                 }
-              else if (strcmp (mode, "Color") == 0)
+              else if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
                 {
                   dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
                   dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
@@ -1746,7 +1749,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             dev->val[option].s = strdup (val);
 
             /* corrects top y for offset */
-            if (strcmp (val, "Color") == 0)
+            if (strcmp (val, SANE_VALUE_SCAN_MODE_COLOR) == 0)
               {
                 dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w));
                 if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
@@ -1768,14 +1771,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
             if (dev->val[OPT_CUSTOM_GAMMA].w == SANE_TRUE)
               {
-                if ((strcmp (val, "Grayscale") == 0)
-                    || (strcmp (val, "Lineart") == 0))
+                if ((strcmp (val, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+                    || (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0))
                   {
                     dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
                     sanei_umax_pp_gamma (NULL, dev->val[OPT_GAMMA_VECTOR].wa,
                                          NULL);
                   }
-                else if (strcmp (val, "Color") == 0)
+                else if (strcmp (val, SANE_VALUE_SCAN_MODE_COLOR) == 0)
                   {
                     dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
                     dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
@@ -1796,10 +1799,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
             if (dev->val[OPT_MANUAL_OFFSET].w == SANE_TRUE)
               {
-                if ((strcmp (val, "Grayscale") == 0)
-                    || (strcmp (val, "Lineart") == 0))
+                if ((strcmp (val, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+                    || (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0))
                   dev->opt[OPT_GRAY_OFFSET].cap &= ~SANE_CAP_INACTIVE;
-                else if (strcmp (val, "Color") == 0)
+                else if (strcmp (val, SANE_VALUE_SCAN_MODE_COLOR) == 0)
                   {
                     dev->opt[OPT_RED_OFFSET].cap &= ~SANE_CAP_INACTIVE;
                     dev->opt[OPT_GREEN_OFFSET].cap &= ~SANE_CAP_INACTIVE;
@@ -1816,10 +1819,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
             if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
               {
-                if ((strcmp (val, "Grayscale") == 0)
-                    || (strcmp (val, "Lineart") == 0))
+                if ((strcmp (val, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+                    || (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0))
                   dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
-                else if (strcmp (val, "Color") == 0)
+                else if (strcmp (val, SANE_VALUE_SCAN_MODE_COLOR) == 0)
                   {
                     dev->opt[OPT_RED_GAIN].cap &= ~SANE_CAP_INACTIVE;
                     dev->opt[OPT_GREEN_GAIN].cap &= ~SANE_CAP_INACTIVE;
@@ -1848,9 +1851,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   DBG (64, "sane_get_parameters\n");
 
   /* color/gray */
-  if (strcmp (dev->val[OPT_MODE].s, "Color") != 0)
+  if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) != 0)
     {
-      if (strcmp (dev->val[OPT_MODE].s, "Grayscale") != 0)
+      if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY) != 0)
         dev->color = UMAX_PP_MODE_LINEART;
       else
         dev->color = UMAX_PP_MODE_GRAYSCALE;

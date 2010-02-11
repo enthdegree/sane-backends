@@ -180,10 +180,10 @@ typedef enum
   }
 Modes;
 
-#define M_LINEART            "Lineart"
-#define M_GRAY               "Gray"
-#define M_LINEART_COLOR      "Lineart Color"
-#define M_COLOR              "Color"
+#define M_LINEART            SANE_VALUE_SCAN_MODE_LINEART
+#define M_GRAY               SANE_VALUE_SCAN_MODE_GRAY
+#define M_LINEART_COLOR      SANE_VALUE_SCAN_MODE_COLOR_LINEART
+#define M_COLOR              SANE_VALUE_SCAN_MODE_COLOR
 static const SANE_String_Const mode_list[] =
 {
   M_LINEART, M_GRAY, M_LINEART_COLOR, M_COLOR,

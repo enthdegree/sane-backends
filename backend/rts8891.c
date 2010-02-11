@@ -151,9 +151,9 @@ static const SANE_Device **devlist = 0;
 
 
 static SANE_String_Const mode_list[] = {
-  SANE_I18N (COLOR_MODE),
-  SANE_I18N (GRAY_MODE),
-  SANE_I18N (LINEART_MODE),
+  SANE_VALUE_SCAN_MODE_COLOR,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_LINEART,
   0
 };
 

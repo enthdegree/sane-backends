@@ -679,16 +679,16 @@ return SANE_STATUS_GOOD;
 
 /* The Mode */
 
-  if      (!strcmp (s->val[OPT_MODE].s, "Lineart"))
+  if      (!strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
     STORE8 (WP + 25, 0)
-  else if (!strcmp (s->val[OPT_MODE].s, "Halftone"))
+  else if (!strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_HALFTONE))
     STORE8 (WP + 25, 1)
-  else if (!strcmp (s->val[OPT_MODE].s, "Gray") ||
+  else if (!strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY) ||
 	   !strcmp (s->val[OPT_MODE].s, "Gray16"))
     STORE8 (WP + 25, 2)
   else if (!strcmp (s->val[OPT_MODE].s, "BiColor"))
     STORE8 (WP + 25, 3)
-  else if (!strcmp (s->val[OPT_MODE].s, "Color"))
+  else if (!strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR))
     STORE8 (WP + 25, 5)
   else
     {
@@ -880,14 +880,14 @@ calc_parameters (Apple_Scanner * s)
 
   DBG (FLOW_CONTROL, "Entering calc_parameters\n");
 
-  if (!strcmp (val, "Lineart"))
+  if (!strcmp (val, SANE_VALUE_SCAN_MODE_LINEART))
     {
       s->params.last_frame = SANE_TRUE;
       s->params.format = SANE_FRAME_GRAY;
       s->params.depth = 1;
       s->bpp = 1;
     }
-  else if (!strcmp (val, "Halftone"))
+  else if (!strcmp (val, SANE_VALUE_SCAN_MODE_HALFTONE))
     {
       s->params.last_frame = SANE_TRUE;
       s->params.format = SANE_FRAME_GRAY;
@@ -901,7 +901,7 @@ calc_parameters (Apple_Scanner * s)
       s->params.depth = 8;
       s->bpp = 4;
     }
-  else if (!strcmp (val, "Gray"))
+  else if (!strcmp (val, SANE_VALUE_SCAN_MODE_GRAY))
     {
       s->params.last_frame = SANE_TRUE;
       s->params.format = SANE_FRAME_GRAY;
@@ -915,7 +915,7 @@ calc_parameters (Apple_Scanner * s)
       s->params.depth = 24;
       s->bpp = 3;
     }
-  else if (!strcmp (val, "Color"))
+  else if (!strcmp (val, SANE_VALUE_SCAN_MODE_COLOR))
     {
       s->params.last_frame = SANE_FALSE;
       s->params.format = SANE_FRAME_RED;
@@ -1065,7 +1065,7 @@ Apple_Scanner *s = handle;
 
 if (s->hw->ScannerModel == COLORONESCANNER)
   {
-  if (	!strcmp(s->val[OPT_MODE].s,"Gray")	||
+  if (	!strcmp(s->val[OPT_MODE].s,SANE_VALUE_SCAN_MODE_GRAY)	||
 	!strcmp(s->val[OPT_MODE].s,"Gray16")	 )
     {
     ENABLE (OPT_CUSTOM_GAMMA);
@@ -1102,7 +1102,7 @@ if (s->hw->ScannerModel == COLORONESCANNER)
       goto discustom;
       }
     }
-  else if (!strcmp(s->val[OPT_MODE].s,"Color"))
+  else if (!strcmp(s->val[OPT_MODE].s,SANE_VALUE_SCAN_MODE_COLOR))
     {
     ENABLE (OPT_CUSTOM_GAMMA);
     if (s->val[OPT_CUSTOM_GAMMA].w)
@@ -1146,7 +1146,7 @@ mode_update (SANE_Handle handle, char *val)
 
   DISABLE(OPT_COLOR_SENSOR);
 
-  if (!strcmp (val, "Lineart"))
+  if (!strcmp (val, SANE_VALUE_SCAN_MODE_LINEART))
     {
       if (s->hw->ScannerModel == APPLESCANNER)
 	ENABLE (OPT_AUTOBACKGROUND);
@@ -1156,12 +1156,12 @@ mode_update (SANE_Handle handle, char *val)
 
       UseThreshold=SANE_TRUE;
     }
-  else if (!strcmp (val, "Halftone"))
+  else if (!strcmp (val, SANE_VALUE_SCAN_MODE_HALFTONE))
     {
       DISABLE (OPT_AUTOBACKGROUND);
       ENABLE (OPT_HALFTONE_PATTERN);
     }
-  else if (!strcmp (val, "Gray16") || !strcmp (val, "Gray"))
+  else if (!strcmp (val, "Gray16") || !strcmp (val, SANE_VALUE_SCAN_MODE_GRAY))
     {
       DISABLE (OPT_AUTOBACKGROUND);
       DISABLE (OPT_HALFTONE_PATTERN);
@@ -1175,7 +1175,7 @@ mode_update (SANE_Handle handle, char *val)
       DISABLE (OPT_HALFTONE_PATTERN);
       UseThreshold=SANE_TRUE;
     }
-  else if (!strcmp (val, "Color"))
+  else if (!strcmp (val, SANE_VALUE_SCAN_MODE_COLOR))
     {
       DISABLE (OPT_AUTOBACKGROUND);
       DISABLE (OPT_HALFTONE_PATTERN);
@@ -1329,27 +1329,27 @@ init_options (Apple_Scanner * s)
   switch (s->hw->ScannerModel)
     {
     case APPLESCANNER:
-      mode_list[0]="Lineart";
-      mode_list[1]="Halftone";
+      mode_list[0]=SANE_VALUE_SCAN_MODE_LINEART;
+      mode_list[1]=SANE_VALUE_SCAN_MODE_HALFTONE;
       mode_list[2]="Gray16";
       mode_list[3]=NULL;
       break;
     case ONESCANNER:
-      mode_list[0]="Lineart";
-      mode_list[1]="Halftone";
+      mode_list[0]=SANE_VALUE_SCAN_MODE_LINEART;
+      mode_list[1]=SANE_VALUE_SCAN_MODE_HALFTONE;
       mode_list[2]="Gray16";
-      mode_list[3]="Gray";
+      mode_list[3]=SANE_VALUE_SCAN_MODE_GRAY;
       mode_list[4]=NULL;
       halftone_pattern_list[3]="spiral8x8";
       halftone_pattern_list[4]="bayer8x8";
       halftone_pattern_list[5]=NULL;
       break;
     case COLORONESCANNER:
-      mode_list[0]="Lineart";
+      mode_list[0]=SANE_VALUE_SCAN_MODE_LINEART;
       mode_list[1]="Gray16";
-      mode_list[2]="Gray";
+      mode_list[2]=SANE_VALUE_SCAN_MODE_GRAY;
       mode_list[3]="BiColor";
-      mode_list[4]="Color";
+      mode_list[4]=SANE_VALUE_SCAN_MODE_COLOR;
       mode_list[5]=NULL;
       break;
     default:
@@ -1493,7 +1493,7 @@ init_options (Apple_Scanner * s)
   s->opt[OPT_AUTOBACKGROUND].title = "Use Auto Background Adjustment";
   s->opt[OPT_AUTOBACKGROUND].desc =
       "Enables/Disables the Auto Background Adjustment feature";
-  if (strcmp (s->val[OPT_MODE].s, "Lineart")
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART)
       || (s->hw->ScannerModel != APPLESCANNER))
     DISABLE (OPT_AUTOBACKGROUND);
   s->opt[OPT_AUTOBACKGROUND].type = SANE_TYPE_BOOL;
@@ -1682,7 +1682,7 @@ init_options (Apple_Scanner * s)
 
 /* Color Functions: Advanced */
 
-  s->opt[OPT_COLOR_GROUP].title = "Color";
+  s->opt[OPT_COLOR_GROUP].title = SANE_VALUE_SCAN_MODE_COLOR;
   s->opt[OPT_COLOR_GROUP].desc = "";
   s->opt[OPT_COLOR_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_COLOR_GROUP].cap = SANE_CAP_ADVANCED;

@@ -54,9 +54,9 @@
 #define SANE_I18N(text) text
 #endif /*  */
 
-#define COLOR_MODE              "Color"
-#define GRAY_MODE               "Gray"
-#define LINEART_MODE            "Lineart"
+#define COLOR_MODE              SANE_VALUE_SCAN_MODE_COLOR
+#define GRAY_MODE               SANE_VALUE_SCAN_MODE_GRAY
+#define LINEART_MODE            SANE_VALUE_SCAN_MODE_LINEART
 
 /* preferred number of bytes to keep in buffer */
 #define PREFERED_BUFFER_SIZE 2097152	/* all scanner memory */

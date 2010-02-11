@@ -1,4 +1,8 @@
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
+	* include/sane/saneopts.h: add three new SANE_VALUE macros
+	* backend/*.[ch]: use mode name macros from saneopts.h by Robert Ancell
+
+2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* doc/descriptions/hpaio.desc: updated from hplip v3.9.12
 	* po/sane-backends.nl.po: updates from Armijn Hemel
 

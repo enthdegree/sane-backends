@@ -139,21 +139,21 @@ calc_parameters (Mustek_Usb_Scanner * s)
 
   s->params.last_frame = SANE_TRUE;
 
-  if (!strcmp (val, "Lineart"))
+  if (!strcmp (val, SANE_VALUE_SCAN_MODE_LINEART))
     {
       s->params.format = SANE_FRAME_GRAY;
       s->params.depth = 1;
       s->bpp = 1;
       s->channels = 1;
     }
-  else if (!strcmp (val, "Gray"))
+  else if (!strcmp (val, SANE_VALUE_SCAN_MODE_GRAY))
     {
       s->params.format = SANE_FRAME_GRAY;
       s->params.depth = 8;
       s->bpp = 8;
       s->channels = 1;
     }
-  else if (!strcmp (val, "Color"))
+  else if (!strcmp (val, SANE_VALUE_SCAN_MODE_COLOR))
     {
       s->params.format = SANE_FRAME_RGB;
       s->params.depth = 8;
@@ -191,7 +191,7 @@ calc_parameters (Mustek_Usb_Scanner * s)
     s->width_dots = max_x;
   if (s->height_dots > max_y)
     s->height_dots = max_y;
-  if (!strcmp (val, "Lineart"))
+  if (!strcmp (val, SANE_VALUE_SCAN_MODE_LINEART))
     {
       s->width_dots = (s->width_dots / 8) * 8;
       if (s->width_dots == 0)
@@ -265,9 +265,9 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* scan mode */
-  mode_list[0] = SANE_I18N ("Color");
-  mode_list[1] = SANE_I18N ("Gray");
-  mode_list[2] = SANE_I18N ("Lineart");
+  mode_list[0] = SANE_VALUE_SCAN_MODE_COLOR;
+  mode_list[1] = SANE_VALUE_SCAN_MODE_GRAY;
+  mode_list[2] = SANE_VALUE_SCAN_MODE_LINEART;
   mode_list[3] = NULL;
 
   s->opt[OPT_MODE].name = SANE_NAME_SCAN_MODE;
@@ -1296,9 +1296,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->green_table = s->green_gamma_table;
 	      s->blue_table = s->blue_gamma_table;
 	      s->gray_table = s->gray_gamma_table;
-	      if (strcmp (s->val[OPT_MODE].s, "Gray") == 0)
+	      if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 		s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-	      else if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+	      else if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 		{
 		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
@@ -1332,7 +1332,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 	  s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 
-	  if (strcmp (val, "Lineart") == 0)
+	  if (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	    {
 	      s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 	    }
@@ -1415,9 +1415,9 @@ sane_start (SANE_Handle handle)
 
 
   val = s->val[OPT_MODE].s;
-  if (!strcmp (val, "Lineart"))
+  if (!strcmp (val, SANE_VALUE_SCAN_MODE_LINEART))
     color_mode = GRAY8;
-  else if (!strcmp (val, "Gray"))
+  else if (!strcmp (val, SANE_VALUE_SCAN_MODE_GRAY))
     color_mode = GRAY8;
   else				/* Color */
     color_mode = RGB24;

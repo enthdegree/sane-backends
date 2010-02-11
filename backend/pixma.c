@@ -647,10 +647,10 @@ init_option_descriptors (pixma_sane_t * ss)
    * because the whole pixma_sane_t was cleared during allocation. */
 
   /* setup available mode. */
-  ss->mode_list[0] = SANE_I18N ("Color");
+  ss->mode_list[0] = SANE_VALUE_SCAN_MODE_COLOR;
   if (cfg->cap & PIXMA_CAP_GRAY)
     {
-      ss->mode_list[1] = SANE_I18N ("Gray");
+      ss->mode_list[1] = SANE_VALUE_SCAN_MODE_GRAY;
     }
 
   /* setup paper source */

@@ -83,7 +83,10 @@ static Tamarack_Scanner *first_handle;
 
 static const SANE_String_Const mode_list[] =
   {
-    "Thresholded", "Dithered", "Gray", "Color",
+    SANE_VALUE_SCAN_MODE_LINEART,
+    SANE_VALUE_SCAN_MODE_HALFTONE,
+    SANE_VALUE_SCAN_MODE_GRAY,
+    SANE_VALUE_SCAN_MODE_COLOR,
     0
   };
 
@@ -1067,13 +1070,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 static int make_mode (char *mode)
 {
-    if (strcmp (mode, "Thresholded") == 0)
+    if (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
       return THRESHOLDED;
-    if (strcmp (mode, "Dithered") == 0)
+    if (strcmp (mode, SANE_VALUE_SCAN_MODE_HALFTONE) == 0)
       return DITHERED;
-    else if (strcmp (mode, "Gray") == 0)
+    else if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
       return GREYSCALE;
-    else if (strcmp (mode, "Color") == 0)
+    else if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
       return TRUECOLOR;
 
     return -1;
@@ -1229,7 +1232,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 #endif
 
 
-	  if (strcmp (val, "Thresholded") == 0) 
+	  if (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0) 
 	    s->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
 	  else {
 	    s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
@@ -1240,9 +1243,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 
 	  if (s->val[OPT_CUSTOM_GAMMA].w) {
-	    if (strcmp (val, "Gray") == 0)
+	    if (strcmp (val, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	      s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-	    else if (strcmp (val, "Color") == 0) {
+	    else if (strcmp (val, SANE_VALUE_SCAN_MODE_COLOR) == 0) {
 	      s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 	      s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 	      s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;

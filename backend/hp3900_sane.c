@@ -378,7 +378,7 @@ bknd_colormodes (TScanner * scanner, SANE_Int model)
 
       /* at this moment all devices use the same list */
       SANE_String_Const mycolormode[] =
-	{ SANE_I18N ("Color"), SANE_I18N ("Gray"), SANE_I18N ("Lineart"), 0 };
+	{ SANE_VALUE_SCAN_MODE_COLOR, SANE_VALUE_SCAN_MODE_GRAY, SANE_VALUE_SCAN_MODE_LINEART, 0 };
 
       /* silence gcc */
       model = model;
@@ -1031,11 +1031,11 @@ Get_Colormode (SANE_String colormode)
 {
   SANE_Int rst;
 
-  if (strcmp (colormode, SANE_I18N ("Color")) == 0)
+  if (strcmp (colormode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
     rst = CM_COLOR;
-  else if (strcmp (colormode, SANE_I18N ("Gray")) == 0)
+  else if (strcmp (colormode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
     rst = CM_GRAY;
-  else if (strcmp (colormode, SANE_I18N ("Lineart")) == 0)
+  else if (strcmp (colormode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     rst = CM_LINEART;
   else
     rst = CM_COLOR;		/* default */

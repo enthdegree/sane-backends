@@ -1890,8 +1890,8 @@ static SANE_String_Const type_list[] =
   0
 };
 
-static const char colorStr[] = "Color";
-static const char grayStr[] = "Gray";
+static const char colorStr[] = SANE_VALUE_SCAN_MODE_COLOR;
+static const char grayStr[] = SANE_VALUE_SCAN_MODE_GRAY;
 static const char rgbiStr[] = "RGBI";
 static const char iredStr[] = "Infrared";
 

@@ -2924,10 +2924,10 @@ static const struct hp_option_descriptor_s PREVIEW_MODE[1] = {{
 }};
 
 static const struct hp_choice_s _scanmode_choices[] = {
-    { HP_SCANMODE_LINEART, SANE_I18N("Lineart"), 0, 0, 0 },
-    { HP_SCANMODE_HALFTONE, SANE_I18N("Halftone"), 0, 0, 0 },
-    { HP_SCANMODE_GRAYSCALE, SANE_I18N("Grayscale"), 0, 0, 0 },
-    { HP_SCANMODE_COLOR, SANE_I18N("Color"), 0, 0, 0 },
+    { HP_SCANMODE_LINEART, SANE_VALUE_SCAN_MODE_LINEART, 0, 0, 0 },
+    { HP_SCANMODE_HALFTONE, SANE_VALUE_SCAN_MODE_HALFTONE, 0, 0, 0 },
+    { HP_SCANMODE_GRAYSCALE, SANE_VALUE_SCAN_MODE_GRAY, 0, 0, 0 },
+    { HP_SCANMODE_COLOR, SANE_VALUE_SCAN_MODE_COLOR, 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
 static const struct hp_option_descriptor_s SCAN_MODE[1] = {{

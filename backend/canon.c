@@ -136,24 +136,33 @@ static CANON_Device *first_dev = NULL;
 static CANON_Scanner *first_handle = NULL;
 
 static const SANE_String_Const mode_list[] = {
-  SANE_I18N(SANE_I18N("Lineart")), SANE_I18N("Halftone"), SANE_I18N("Gray"),
-  SANE_I18N("Color"), 0
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_HALFTONE,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
+  0     
 };
 
 /* modification for FS2710 */
 static const SANE_String_Const mode_list_fs2710[] = {
-  SANE_I18N("Color"), SANE_I18N("Raw"), 0
+  SANE_VALUE_SCAN_MODE_COLOR,
+  SANE_I18N("Raw"), 0
 };
 
 /* modification for FB620S */
 static const SANE_String_Const mode_list_fb620[] = {
-  SANE_I18N("Lineart"), SANE_I18N("Gray"), SANE_I18N("Color"),
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
   SANE_I18N("Fine color"), 0
 };
 
 /* modification for FB1200S */
 static const SANE_String_Const mode_list_fb1200[] = {
-  SANE_I18N("Lineart"), SANE_I18N("Gray"), SANE_I18N("Color"), 0
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
+  0
 };
 
 static const SANE_String_Const tpu_dc_mode_list[] = {
@@ -564,7 +573,7 @@ do_gamma (CANON_Scanner * s)
     strcmp (filmtype_list[1], s->val[OPT_NEGATIVE].s)
     : s->val[OPT_HNEGATIVE].w;
 
-  if (!strcmp (s->val[OPT_MODE].s, SANE_I18N("Gray")))
+  if (!strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
     {
       /* If scanning in gray mode, use the first curve for the
          scanner's monochrome gamma component                    */

@@ -4308,12 +4308,12 @@ additional_probe (Avision_Scanner* s)
   if (!dev->inquiry_no_gray_modes)
   {
     if (dev->inquiry_bits_per_channel > 0) {
-      add_color_mode (dev, AV_THRESHOLDED, "Lineart");
+      add_color_mode (dev, AV_THRESHOLDED, SANE_VALUE_SCAN_MODE_LINEART);
       add_color_mode (dev, AV_DITHERED, "Dithered");
     }
 
     if (dev->inquiry_bits_per_channel >= 8)
-      add_color_mode (dev, AV_GRAYSCALE, "Gray");
+      add_color_mode (dev, AV_GRAYSCALE, SANE_VALUE_SCAN_MODE_GRAY);
 
     if (dev->inquiry_bits_per_channel == 12)
       add_color_mode (dev, AV_GRAYSCALE12, "12bit Gray");
@@ -4323,7 +4323,7 @@ additional_probe (Avision_Scanner* s)
   }
 
   if (dev->inquiry_channels_per_pixel > 1) {
-    add_color_mode (dev, AV_TRUECOLOR, "Color");
+    add_color_mode (dev, AV_TRUECOLOR, SANE_VALUE_SCAN_MODE_COLOR);
 
     if (dev->inquiry_bits_per_channel == 12)
       add_color_mode (dev, AV_TRUECOLOR12, "12bit Color");

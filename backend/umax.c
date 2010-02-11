@@ -182,12 +182,12 @@ in ADF mode this is done often:
 #define UTA_STR			SANE_I18N("Transparency Adapter")
 #define ADF_STR 		SANE_I18N("Automatic Document Feeder")
 
-#define LINEART_STR		SANE_I18N("Lineart")
-#define HALFTONE_STR		SANE_I18N("Halftone")
-#define GRAY_STR		SANE_I18N("Gray")
-#define COLOR_LINEART_STR	SANE_I18N("Color Lineart")
-#define COLOR_HALFTONE_STR	SANE_I18N("Color Halftone")
-#define COLOR_STR		SANE_I18N("Color")
+#define LINEART_STR		SANE_VALUE_SCAN_MODE_LINEART
+#define HALFTONE_STR		SANE_VALUE_SCAN_MODE_HALFTONE
+#define GRAY_STR		SANE_VALUE_SCAN_MODE_GRAY
+#define COLOR_LINEART_STR	SANE_VALUE_SCAN_MODE_COLOR_LINEART
+#define COLOR_HALFTONE_STR	SANE_VALUE_SCAN_MODE_COLOR_HALFTONE
+#define COLOR_STR		SANE_VALUE_SCAN_MODE_COLOR
 
 /* ------------------------------------------------------------ DEFINITIONS -------------------------------- */
 

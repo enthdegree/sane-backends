@@ -123,7 +123,8 @@ static SANE_Range fixed_constraint_range = {
 };
 
 static SANE_String_Const mode_list[] = {
-  SANE_I18N ("Gray"), SANE_I18N ("Color"),
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
   0
 };
 
@@ -201,7 +202,7 @@ static SANE_Fixed init_tl_y = SANE_FIX (0.0);
 static SANE_Fixed init_br_x = SANE_FIX (80.0);
 static SANE_Fixed init_br_y = SANE_FIX (100.0);
 static SANE_Word init_resolution = 50;
-static SANE_String init_mode = "Gray";
+static SANE_String init_mode =SANE_VALUE_SCAN_MODE_GRAY;
 static SANE_Word init_depth = 8;
 static SANE_Bool init_hand_scanner = SANE_FALSE;
 static SANE_Bool init_three_pass = SANE_FALSE;
@@ -369,7 +370,7 @@ init_options (Test_Device * test_device)
   od->unit = SANE_UNIT_NONE;
   od->size = sizeof (SANE_Word);
   od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-  if (strcmp (init_mode, "Color") != 0)
+  if (strcmp (init_mode, SANE_VALUE_SCAN_MODE_COLOR) != 0)
     od->cap |= SANE_CAP_INACTIVE;
   od->constraint_type = SANE_CONSTRAINT_NONE;
   od->constraint.range = 0;
@@ -384,7 +385,7 @@ init_options (Test_Device * test_device)
   od->unit = SANE_UNIT_NONE;
   od->size = max_string_size (order_list);
   od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-  if (strcmp (init_mode, "Color") != 0)
+  if (strcmp (init_mode, SANE_VALUE_SCAN_MODE_COLOR) != 0)
     od->cap |= SANE_CAP_INACTIVE;
   if (!init_three_pass)
     od->cap |= SANE_CAP_INACTIVE;
@@ -2094,7 +2095,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  strcpy (test_device->val[option].s, (SANE_String) value);
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	  if (strcmp (test_device->val[option].s, "Color") == 0)
+	  if (strcmp (test_device->val[option].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 	    {
 	      test_device->opt[opt_three_pass].cap &= ~SANE_CAP_INACTIVE;
 	      if (test_device->val[opt_three_pass].w == SANE_TRUE)
@@ -2389,7 +2390,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	p->lines *= random_factor;
     }
 
-  if (strcmp (mode, "Gray") == 0)
+  if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
     {
       p->format = SANE_FRAME_GRAY;
       p->last_frame = SANE_TRUE;
@@ -2500,12 +2501,12 @@ sane_start (SANE_Handle handle)
     }
   if (test_device->scanning
       && (test_device->val[opt_three_pass].w == SANE_FALSE
-	  && strcmp (test_device->val[opt_mode].s, "Color") == 0))
+	  && strcmp (test_device->val[opt_mode].s, SANE_VALUE_SCAN_MODE_COLOR) == 0))
     {
       DBG (1, "sane_start: already scanning\n");
       return SANE_STATUS_INVAL;
     }
-  if (strcmp (test_device->val[opt_mode].s, "Color") == 0
+  if (strcmp (test_device->val[opt_mode].s, SANE_VALUE_SCAN_MODE_COLOR) == 0
       && test_device->val[opt_three_pass].w == SANE_TRUE
       && test_device->pass > 2)
     {
@@ -2690,7 +2691,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	  return status;
 	}
       test_device->eof = SANE_TRUE;
-      if (strcmp (test_device->val[opt_mode].s, "Color") == 0
+      if (strcmp (test_device->val[opt_mode].s, SANE_VALUE_SCAN_MODE_COLOR) == 0
 	  && test_device->val[opt_three_pass].w == SANE_TRUE)
 	{
 	  test_device->pass++;

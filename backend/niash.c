@@ -200,9 +200,9 @@ static const SANE_Range rangeXmm = { 0, 220, 1 };
 static const SANE_Range rangeYmm = { 0, 297, 1 };
 static const SANE_Int startUpGamma = SANE_FIX (1.6);
 
-static const char colorStr[] = { "Color" };
-static const char grayStr[] = { "Gray" };
-static const char lineartStr[] = { "Lineart" };
+static const char colorStr[] = { SANE_VALUE_SCAN_MODE_COLOR };
+static const char grayStr[] = { SANE_VALUE_SCAN_MODE_GRAY };
+static const char lineartStr[] = { SANE_VALUE_SCAN_MODE_LINEART };
 
 #define DEPTH_LINEART  1
 #define DEPTH_GRAY     8

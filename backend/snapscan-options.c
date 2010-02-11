@@ -73,10 +73,10 @@ static SANE_Int def_bpp = 8;
 static char md_auto[] = "Auto";
 
 /* predefined scan mode names */
-static char md_colour[] = SANE_I18N("Color");
-static char md_bilevelcolour[] = SANE_I18N("Halftone");
-static char md_greyscale[] = SANE_I18N("Gray");
-static char md_lineart[] = SANE_I18N("Lineart");
+static char md_colour[] = SANE_VALUE_SCAN_MODE_COLOR;
+static char md_bilevelcolour[] = SANE_VALUE_SCAN_MODE_HALFTONE;
+static char md_greyscale[] = SANE_VALUE_SCAN_MODE_GRAY;
+static char md_lineart[] = SANE_VALUE_SCAN_MODE_LINEART;
 
 /* predefined scan source names */
 static char src_flatbed[] = SANE_I18N("Flatbed");

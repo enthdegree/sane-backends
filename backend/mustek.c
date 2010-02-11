@@ -126,12 +126,16 @@ static const SANE_Int color_seq[] = {
 
 /* Which modes are supported? */
 static SANE_String_Const mode_list_paragon[] = {
-  SANE_I18N ("Lineart"), SANE_I18N ("Halftone"), SANE_I18N ("Gray"),
-  SANE_I18N ("Color"),
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_HALFTONE,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
   0
 };
 static SANE_String_Const mode_list_se[] = {
-  SANE_I18N ("Lineart"), SANE_I18N ("Gray"), SANE_I18N ("Color"),
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
   0
 };
 
@@ -5944,16 +5948,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      SANE_String_Const mode = s->val[OPT_MODE].s;
 
-	      if (strcmp (mode, "Gray") == 0)
+	      if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 		s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-	      else if (strcmp (mode, "Color") == 0)
+	      else if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 		{
 		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 		}
-	      else if ((strcmp (mode, "Lineart") == 0)
+	      else if ((strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 		       && (s->hw->flags & MUSTEK_FLAG_PRO))
 		{
 		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
@@ -6002,8 +6006,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    s->opt[OPT_HALFTONE_DIMENSION].cap |= SANE_CAP_INACTIVE;
 	    s->opt[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
 
-	    halftoning = strcmp (val, "Halftone") == 0;
-	    binary = (halftoning || strcmp (val, "Lineart") == 0);
+	    halftoning = strcmp (val, SANE_VALUE_SCAN_MODE_HALFTONE) == 0;
+	    binary = (halftoning || strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0);
 
 	    if (binary)
 	      {
@@ -6037,7 +6041,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	    if (s->hw->flags & MUSTEK_FLAG_THREE_PASS)
 	      {
-		if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+		if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 		  {
 		    s->opt[OPT_BRIGHTNESS_R].cap &= ~SANE_CAP_INACTIVE;
 		    s->opt[OPT_BRIGHTNESS_G].cap &= ~SANE_CAP_INACTIVE;
@@ -6054,18 +6058,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      }
 	    else if (s->hw->flags & MUSTEK_FLAG_PRO)
 	      {
-		if (strcmp (s->val[OPT_MODE].s, "Gray") == 0)
+		if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 		  s->opt[OPT_FAST_GRAY_MODE].cap &= ~SANE_CAP_INACTIVE;
 		else
 		  s->opt[OPT_FAST_GRAY_MODE].cap |= SANE_CAP_INACTIVE;
-		if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+		if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 		  s->opt[OPT_BIT_DEPTH].cap &= ~SANE_CAP_INACTIVE;
 		else
 		  s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
 	      }
 	    else if (s->hw->flags & MUSTEK_FLAG_SE_PLUS)
 	      {
-		if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+		if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 		  s->opt[OPT_BIT_DEPTH].cap &= ~SANE_CAP_INACTIVE;
 		else
 		  s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
@@ -6073,9 +6077,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	    if (s->val[OPT_CUSTOM_GAMMA].w)
 	      {
-		if (strcmp (val, "Gray") == 0)
+		if (strcmp (val, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-		else if (strcmp (val, "Color") == 0)
+		else if (strcmp (val, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 		  {
 		    s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 		    s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
@@ -6175,13 +6179,13 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	}
       encode_halftone (s);
       mode = s->val[OPT_MODE].s;
-      if (strcmp (mode, "Lineart") == 0 || strcmp (mode, "Halftone") == 0)
+      if (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0 || strcmp (mode, SANE_VALUE_SCAN_MODE_HALFTONE) == 0)
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = (s->params.pixels_per_line + 7) / 8;
 	  s->params.depth = 1;
 	}
-      else if (strcmp (mode, "Gray") == 0)
+      else if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line;
@@ -6282,13 +6286,13 @@ sane_start (SANE_Handle handle)
       s->start_time = start.tv_sec;
       /* translate options into s->mode for convenient access: */
       mode = s->val[OPT_MODE].s;
-      if (strcmp (mode, "Lineart") == 0)
+      if (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	s->mode = MUSTEK_MODE_LINEART;
-      else if (strcmp (mode, "Halftone") == 0)
+      else if (strcmp (mode, SANE_VALUE_SCAN_MODE_HALFTONE) == 0)
 	s->mode = MUSTEK_MODE_HALFTONE;
-      else if (strcmp (mode, "Gray") == 0)
+      else if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	s->mode = MUSTEK_MODE_GRAY;
-      else if (strcmp (mode, "Color") == 0)
+      else if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 	s->mode = MUSTEK_MODE_COLOR;
 
       /* scanner dependant specials */

@@ -90,9 +90,9 @@ struct mode_param mode_params[] = {
 };
 
 static SANE_String_Const mode_list[] = {
-	SANE_I18N("Binary"),
-	SANE_I18N("Gray"),
-	SANE_I18N("Color"),
+	SANE_VALUE_SCAN_MODE_LINEART,
+	SANE_VALUE_SCAN_MODE_GRAY,
+	SANE_VALUE_SCAN_MODE_COLOR,
 #ifdef SANE_FRAME_IR
 	SANE_I18N("Infrared"),
 #endif

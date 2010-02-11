@@ -205,7 +205,7 @@ enum Matsushita_Option
 
 /*--------------------------------------------------------------------------*/
 
-#define BLACK_WHITE_STR		SANE_I18N("Black & White")
+#define BLACK_WHITE_STR		SANE_VALUE_SCAN_MODE_LINEART
 #define GRAY4_STR			SANE_I18N("Grayscale 4 bits")
 #define GRAY8_STR			SANE_I18N("Grayscale 8 bits")
 

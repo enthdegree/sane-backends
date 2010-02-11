@@ -151,9 +151,9 @@ static SANE_Word recv_small_res_value = 0x2013;	/**< Receive small result - wVal
 static SANE_Word recv_small_res_index = 0x3f00;	/**< Receive small result - wIndex */
 
 static SANE_String_Const mode_list[] = {
-  SANE_I18N ("Lineart"),
-  SANE_I18N ("Grayscale"),
-  SANE_I18N ("Color"),
+  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_COLOR,
   NULL
 };
 

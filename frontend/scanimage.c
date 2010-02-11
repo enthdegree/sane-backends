@@ -2208,6 +2208,11 @@ List of available devices:", prog_name);
 		 "Scanning %d pages, incrementing by %d, numbering from %d\n",
 		 batch_count, batch_increment, batch_start_at);
 
+      else if(isatty(fileno(stdout))){
+	fprintf (stderr,"%s: output is not a file, exiting\n", prog_name);
+        exit (1);
+      }
+
       do
 	{
 	  char path[PATH_MAX];

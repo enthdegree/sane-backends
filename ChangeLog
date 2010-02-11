@@ -1,5 +1,6 @@
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* doc/descriptions/hpaio.desc: updated from hplip v3.9.12
+	* po/sane-backends.nl.po: updates from Armijn Hemel
 
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.c, backend/cardscan.c, backend/epjitsu.c,

@@ -608,6 +608,12 @@
 :mfg "Dell"
 :url "http://www.dell.com/"
 
+:model "A940"
+:interface "USB"
+:usbid "0x413c" "0x5106"
+:status :unsupported
+:comment "Probably rebadged Lexmark X5150. May work with sane-lexmark? See bug #312130"
+
 :model "A960"
 :url "/unsupported/dell-a960.html"
 :interface "USB"

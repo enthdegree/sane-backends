@@ -9,10 +9,10 @@
 ; All other information is optional (but what good is the file without it?).
 
 
-:backend "lexmark"               ; name of backend
-:version "1.0-0"                    ; version of backend (or "unmaintained")
-:manpage "lexmark"        ; name of manpage (if it exists)
-:url "http://ca.geocities.com/freshshelf@rogers.com/" 
+:backend "lexmark"                ; name of backend
+:version "1.0-0"                  ; version of backend (or "unmaintained")
+:manpage "sane-lexmark"           ; name of manpage (if it exists)
+:url "http://stef.dev.free.fr/sane/lexmark"
 				  ; backend's web page
 
 :comment "This backend supports lexmark x1100 series scanners." 

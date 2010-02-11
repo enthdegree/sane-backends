@@ -1,6 +1,8 @@
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* acinclude.m4, configure: missing $ in variable expansion
 	* frontend/scanimage.c: exit with error if stdout isatty()
+	* doc/descriptions/unsupported.desc, doc/descriptions/lexmark.desc:
+	- add Dell A940 and correct manpage name
 
 2010-02-10 m. allan noah <kitno455 at gmail dot com>
 	* backend/cardscan.[ch], backend/cardscan.conf.in,

@@ -85,10 +85,10 @@ static Genesys_Frontend Wolfson[] = {
    }
   ,				/* 3: MD6228/MD6471 */
   {DAC_WOLFSON_HP2400,
-     {0x00, 0x03, 0x04, 0x02}
+     {0x00, 0x03, 0x05, 0x02}
    , {0x00, 0x00, 0x00}
-   , {0xc0, 0xc0, 0xc0}
-   , {0x07, 0x07, 0x07}
+   , {0xb4, 0xb6, 0xbc}
+   , {0x06, 0x09, 0x08}
    , {0x00, 0x00, 0x00}
    }
   ,				/* 4: HP2400c */
@@ -121,12 +121,12 @@ static Genesys_Frontend Wolfson[] = {
    , {0x07, 0x00, 0x00}
    }
   ,				/* 8: HP3670 */
-  {DAC_WOLFSON_HP3670,  /* uses one write for offset or gain like hp2300/2400 */
+  {DAC_WOLFSON_HP3670,  
    /* reg0  reg1  reg2  reg3 */
-     {0x00, 0x03, 0x04, 0x02}
+     {0x00, 0x03, 0x05, 0x32}  /* reg3=0x32 for 100-300 dpi, 0x12 at 1200 */
    , {0x00, 0x00, 0x00} /* sign */
-   , {0xb0, 0xb0, 0xb0} /* offset */
-   , {0x07, 0x07, 0x07} /* gain */
+   , {0xba, 0xb8, 0xb8} /* offset */
+   , {0x06, 0x05, 0x04} /* gain 4,3,2 at 1200 ?*/
    , {0x00, 0x00, 0x00}
    }
   ,
@@ -976,9 +976,7 @@ Genesys_Model hp2400c_model = {
     | GENESYS_FLAG_14BIT_GAMMA
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_NO_CALIBRATION,
+    | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
   132
@@ -1044,15 +1042,16 @@ static Genesys_Model hp3670c_model = {
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 300, 150, 100, 50, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 50, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (8.5),		/* Start of scan area in mm  (x) */
+  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
+  /* SANE_FIX (14.0),		 Start of scan area in mm (y) */
   SANE_FIX (215.9),		/* Size of scan area in mm (x) */
-  SANE_FIX (310.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (300.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (1.0),		/* Start of black mark in mm (x) */
@@ -1083,6 +1082,7 @@ static Genesys_Model hp3670c_model = {
     | GENESYS_FLAG_14BIT_GAMMA
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_NO_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_NO_BUTTONS,
@@ -1224,7 +1224,6 @@ static Genesys_Model medion_md5345_model = {
 				   after finishing scanning in mm */
 
   48, 24, 0,			/* RGB CCD Line-distance correction in pixel */
-/* 48, 24, 0, */
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */

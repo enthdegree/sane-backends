@@ -1115,7 +1115,7 @@ gl646_setup_registers (Genesys_Device * dev,
   RIE (write_control (dev, xresolution));
 
   /* setup analog frontend */
-  RIE (gl646_set_fe (dev, AFE_SET));
+  RIE (gl646_set_fe (dev, AFE_SET, xresolution));
 
   /* now we're done with registers setup values used by data transfer */
   /* we setup values needed for the data transfer */
@@ -1677,19 +1677,19 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
  * set up analog frontend
  * @param dev device to set up
  * @param set action from AFE_SET, AFE_INIT and AFE_POWERSAVE
+ * @param dpi resolution of the scan since it affects settings
  * @return SANE_STATUS_GOOD if evrithing OK
  */
 static SANE_Status
-gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
+gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set, int dpi)
 {
   SANE_Status status = SANE_STATUS_GOOD;
+  int i;
 
   DBG (DBG_proc, "gl646_wm_hp3670: start \n");
   switch (set)
     {
     case AFE_INIT:
-      sanei_genesys_init_fe (dev);
-      RIE(sanei_genesys_write_register (dev, 0x50, 0x00));
       status = sanei_genesys_fe_write_data (dev, 0x04, 0x80);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -1698,6 +1698,8 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	  return status;
 	}
       usleep (200000UL);
+      RIE (sanei_genesys_write_register (dev, 0x50, 0x00));
+      sanei_genesys_init_fe (dev);
       status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -1705,7 +1707,6 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	       sane_strstatus (status));
 	  return status;
 	}
-      /* b2 INVOP : set positive polarity output */
       status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.reg[2]);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -1713,17 +1714,15 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	       sane_strstatus (status));
 	  return status;
 	}
-	  status = gl646_gpio_output_enable (dev->dn, 0x07);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_error,
-		   "gl646_set_fe: failed to enable GPIO: %s\n",
-		   sane_strstatus (status));
-	      return status;
-	    }
+      status = gl646_gpio_output_enable (dev->dn, 0x07);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl646_wm_hp3670: failed to enable GPIO: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
       break;
     case AFE_POWER_SAVE:
-      /*
       status = sanei_genesys_fe_write_data (dev, 0x01, 0x06);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -1737,42 +1736,57 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
 	  DBG (DBG_error, "gl646_wm_hp3670: writing reg6 failed: %s\n",
 	       sane_strstatus (status));
 	  return status;
-	} */
+	}
       return status;
       break;
     default:			/* AFE_SET */
       /* mode setup */
-      /* bit 3:0 RLCV */
-      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.reg[3]);
+      i = dev->frontend.reg[3];
+      if (dpi > dev->sensor.optical_res / 2)
+	{
+	  i = i & 0x1f;
+	}
+      status = sanei_genesys_fe_write_data (dev, 0x03, i);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "gl646_wm_hp3670: writing reg3 failed: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
-      /* offset 0x23 */
-      status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.offset[0]);
-      if (status != SANE_STATUS_GOOD)
+      /* offset and sign (or msb/lsb ?) */
+      for (i = 0; i < 3; i++)
 	{
-	  DBG (DBG_error, "gl646_wm_hp3670: writing offset failed: %s\n",
-	       sane_strstatus (status));
-	  return status;
+	  status =
+	    sanei_genesys_fe_write_data (dev, 0x20 + i,
+					 dev->frontend.offset[i]);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "gl646_wm_hp3670: writing offset%d failed: %s\n", i,
+		   sane_strstatus (status));
+	      return status;
+	    }
+	  status = sanei_genesys_fe_write_data (dev, 0x24 + i, dev->frontend.sign[i]);	/* MSB/LSB ? */
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error, "gl646_wm_hp3670: writing sign%d failed: %s\n",
+		   i, sane_strstatus (status));
+	      return status;
+	    }
 	}
-      /* gain 0x28 */
-      status = sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.gain[0]);
-      if (status != SANE_STATUS_GOOD)
+
+      /* gain */
+      for (i = 0; i < 3; i++)
 	{
-	  DBG (DBG_error, "gl646_wm_hp3670: writing gain failed: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-      /* mode setup */
-      status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "gl646_wm_hp3670: writing reg1 failed: %s\n",
-	       sane_strstatus (status));
-	  return status;
+	  status =
+	    sanei_genesys_fe_write_data (dev, 0x28 + i,
+					 dev->frontend.gain[i]);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error, "gl646_wm_hp3670: writing gain%d failed: %s\n",
+		   i, sane_strstatus (status));
+	      return status;
+	    }
 	}
     }
 
@@ -1780,17 +1794,24 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set)
   return status;
 }
 
-/* Set values of analog frontend */
+/** Set values of analog frontend
+ * @param dev device to set
+ * @param set action to execute
+ * @param dpi dpi to setup the AFE
+ * @return error or SANE_STATUS_GOOD */
+#ifndef UNIT_TESTING
+static
+#endif
 SANE_Status
-gl646_set_fe (Genesys_Device * dev, uint8_t set)
+gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi)
 {
   SANE_Status status;
   int i;
   uint8_t val;
 
-  DBG (DBG_proc, "gl646_set_fe (%s)\n",
+  DBG (DBG_proc, "gl646_set_fe (%s,%d)\n",
        set == AFE_INIT ? "init" : set == AFE_SET ? "set" : set ==
-       AFE_POWER_SAVE ? "powersave" : "huh?");
+       AFE_POWER_SAVE ? "powersave" : "huh?", dpi);
 
   /* Analog Device type frontend */
   if ((dev->reg[reg_0x04].value & REG04_FESET) == 0x02)
@@ -1809,7 +1830,7 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set)
     {
     case DAC_WOLFSON_HP3670:
     case DAC_WOLFSON_HP2400:
-      return gl646_wm_hp3670 (dev, set);
+      return gl646_wm_hp3670 (dev, set, dpi);
       break;
     default:
       DBG (DBG_proc, "gl646_set_fe(): using old method\n");
@@ -1967,6 +1988,18 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set)
   return SANE_STATUS_GOOD;
 }
 
+/** Set values of analog frontend 
+ * this this the public interface, the gl646 as to use one more 
+ * parameter to work effectively, hence the redirection
+ * @param dev device to set
+ * @param set action to execute
+ * @return error or SANE_STATUS_GOOD */
+SANE_Status
+gl646_public_set_fe (Genesys_Device * dev, uint8_t set)
+{
+  return gl646_set_fe(dev,set,dev->settings.yres);
+}
+
 static void
 gl646_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
 {
@@ -2009,6 +2042,7 @@ gl646_set_lamp_power (Genesys_Device * dev,
 
 /**
  * enters or leaves power saving mode
+ * limited to AFE for now.
  * @param dev scanner's device
  * @param SANE_TRUE to enable power saving, SANE_FALSE to leave it
  * @return allways SANE_STATUS_GOOD 
@@ -2028,11 +2062,8 @@ SANE_Status gl646_save_power (Genesys_Device * dev, SANE_Bool enable)
     }
   else
     {
-      /* gl646_set_fe (dev, AFE_INIT); */
+      gl646_set_fe (dev, AFE_INIT, 0);
     }
-
-  /* to make compiler happy */
-  gl646_set_fe (dev, AFE_SET);
 
   DBG (DBG_proc, "gl646_save_power: end\n");
   return SANE_STATUS_GOOD;
@@ -2798,8 +2829,8 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* setup for a backward scan of 65535 steps, with no actual data reading */
   settings.scan_method = SCAN_METHOD_FLATBED;
   settings.scan_mode = SCAN_MODE_COLOR;
-  settings.xres = 75;
-  settings.yres = 75;
+  settings.xres = get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
+  settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 0;
   settings.pixels = 600;
@@ -2819,7 +2850,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   gl646_set_triple_reg (dev->reg, REG_FEEDL, 65535);
 
   /* sets frontend */
-  status = gl646_set_fe (dev, AFE_SET);
+  status = gl646_set_fe (dev, AFE_SET, settings.xres);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3984,6 +4015,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   float average[3];
   Genesys_Settings settings;
   char title[32];
+  SANE_Bool half_ccd=dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE;
 
   if (dev->model->ccd_type == CIS_XP200)
     {
@@ -4000,12 +4032,12 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
     {
       resolution =
 	get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res,
-				SANE_TRUE);
+				half_ccd);
     }
   else
     {
       resolution =
-	get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
+	get_closest_resolution (dev->model->ccd_type, dpi, half_ccd);
     }
 
   settings.scan_method = SCAN_METHOD_FLATBED;
@@ -4069,7 +4101,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "alternative_coarse%02d.pnm", pass);
+	  sprintf (title, "coarse_gain%02d.pnm", pass);
 	  sanei_genesys_write_pnm_file (title, line, 8,
 					channels, settings.pixels,
 					settings.lines);
@@ -4199,7 +4231,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   *total_size = lines * settings.pixels;
 
   /* now registers are ok, write them to scanner */
-  RIE (gl646_set_fe (dev, AFE_SET));
+  RIE (gl646_set_fe (dev, AFE_SET, settings.xres));
   RIE (gl646_bulk_write_register (dev, local_reg, GENESYS_GL646_MAX_REGS));
 
   DBG (DBG_proc, "gl646_init_regs_for_warmup: end\n");
@@ -4223,8 +4255,8 @@ gl646_repark_head (Genesys_Device * dev)
 
   settings.scan_method = SCAN_METHOD_FLATBED;
   settings.scan_mode = SCAN_MODE_COLOR;
-  settings.xres = 75;
-  settings.yres = 75;
+  settings.xres = get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
+  settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 5;
   settings.pixels = 600;
@@ -4441,7 +4473,7 @@ gl646_init (Genesys_Device * dev)
     }				/* end if cold */
 
   /* Set analog frontend */
-  RIE (gl646_set_fe (dev, AFE_INIT));
+  RIE (gl646_set_fe (dev, AFE_INIT, 0));
 
   /* GPO enabling for XP200 */
   if (dev->model->ccd_type == CIS_XP200)
@@ -4645,7 +4677,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   settings.lines = lines;
 
   /* initialize frontend */
-  status = gl646_set_fe (dev, AFE_SET);
+  status = gl646_set_fe (dev, AFE_SET, settings.xres);
   if (status != SANE_STATUS_GOOD)
     {
       free (*data);
@@ -5272,7 +5304,7 @@ static Genesys_Command_Set gl646_cmd_set = {
 
   gl646_bulk_full_size,
 
-  gl646_set_fe,
+  gl646_public_set_fe,
   gl646_set_powersaving,
   gl646_save_power,
   gl646_set_motor_power,

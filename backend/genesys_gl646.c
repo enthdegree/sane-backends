@@ -4032,12 +4032,12 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
     {
       resolution =
 	get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res,
-				half_ccd);
+				SANE_TRUE);
     }
   else
     {
       resolution =
-	get_closest_resolution (dev->model->ccd_type, dpi, half_ccd);
+	get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
     }
 
   settings.scan_method = SCAN_METHOD_FLATBED;

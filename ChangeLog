@@ -1,4 +1,7 @@
 2010-02-12 Stéphane Voltz <stef.dev ar free.fr>
+	* backend/genesys_gl646.c: fixed MD5345 calibration
+
+2010-02-12 Stéphane Voltz <stef.dev ar free.fr>
 	* doc/descriptions/genesys.desc backend/genesys.c
 	backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl646.h: added support for hp3670, uncalibrated scans

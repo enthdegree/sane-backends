@@ -1048,8 +1048,7 @@ static Genesys_Model hp3670c_model = {
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (8.5),		/* Start of scan area in mm  (x) */
-  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
-  /* SANE_FIX (14.0),		 Start of scan area in mm (y) */
+  SANE_FIX (12.0),		/* Start of scan area in mm (y) */
   SANE_FIX (215.9),		/* Size of scan area in mm (x) */
   SANE_FIX (300.0),		/* Size of scan area in mm (y) */
 

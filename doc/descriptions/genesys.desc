@@ -55,8 +55,8 @@
 :model "ScanJet 3670C"
 :interface "USB"
 :usbid "0x03f0" "0x1405"
-:status :untested
-:comment "1200x1200 dpi max"
+:status :basic
+:comment "1200x1200 dpi max, all mode supported but uncalibrated"
 
 ; -----------------------------------------------------------------------------
 

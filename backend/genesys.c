@@ -3170,14 +3170,29 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                             target_code);
       break;
     case CCD_5345:
-    case CCD_HP2400:
-    case CCD_HP3670:
       target_code = 0xe000;
       o = 4;
       if(dev->settings.xres<=dev->sensor.optical_res/2)
        {
       	  o = o - dev->sensor.dummy_pixel;
        }
+      cmat[0] = 0;
+      cmat[1] = 1;
+      cmat[2] = 2;	
+      compute_coefficients (dev,
+			    shading_data,
+			    pixels_per_line,
+			    3, 
+                            cmat, 
+                            o, 
+                            coeff, 
+                            target_code);
+      break;
+    case CCD_HP3670:
+    case CCD_HP2400:
+      target_code = 0xe000;
+      /* 0, 20 KO, -20 ~OK ?*/
+      o = -20;
       cmat[0] = 0;
       cmat[1] = 1;
       cmat[2] = 2;	

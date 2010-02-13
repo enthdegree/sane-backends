@@ -1,3 +1,8 @@
+2010-02-13 m. allan noah <kitno455 at gmail dot com>
+	 * backend/avision.[ch]: updated settings for Visioneer 9450,
+	   based on code from Andyz Smith
+	 * doc/descriptions/avision.desc: added AV220-G and 6080E
+
 2010-02-12 m. allan noah <kitno455 at gmail dot com>
 	 * backend/kvs1025*: add new backend from Panasonic Russia, Ltd.
 	 * backend/Makefile.*, configure*, doc/Makefile.*, doc/sane.man:

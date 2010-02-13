@@ -196,6 +196,12 @@ typedef struct Avision_HWEntry {
     /* maybe more ...*/
   } feature_type;
       
+  /*second enum cause 32 bit int above is full*/
+  enum {
+    /* force no calibration */
+    AV_NO_TUNE_SCAN_LENGTH = (1<<0)
+  } feature_type2;
+
 } Avision_HWEntry;
 
 typedef enum {

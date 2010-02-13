@@ -89,7 +89,7 @@
 :comment "duplex! sheetfed scanner"
 :status :complete
 
-:model "AV220-G"
+:model "AV220G"
 :interface "USB"
 :usbid "0x0638" "0x0a94"
 :status :untested

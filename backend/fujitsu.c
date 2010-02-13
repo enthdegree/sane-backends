@@ -450,6 +450,7 @@
          - clean up #include lines and copyright
          - add SANE_I18N to static strings
          - don't fail if scsi buffer is too small
+         - disable bg_color for S1500
 
    SANE FLOW DIAGRAM
 
@@ -2029,6 +2030,11 @@ init_model (struct fujitsu *s)
     /* missing from vpd */
     s->max_x_fb = 10488;
     s->max_y_fb = 14173;
+  }
+
+  else if (strstr (s->model_name,"S1500")){
+    /*lies*/
+    s->has_MS_bg=0;
   }
 
   DBG (10, "init_model: finish\n");

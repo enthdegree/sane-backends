@@ -1,3 +1,6 @@
+2010-02-12 m. allan noah <kitno455 at gmail dot com>
+	 * backend/fujitsu.c: disable bg_color for S1500
+
 2010-02-12 Stéphane Voltz <stef.dev ar free.fr>
 	* backend/genesys_gl646.c: fixed MD5345 calibration
 

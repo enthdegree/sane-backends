@@ -1,4 +1,11 @@
 2010-02-12 m. allan noah <kitno455 at gmail dot com>
+	 * backend/kvs1025*: add new backend from Panasonic Russia, Ltd.
+	 * backend/Makefile.*, configure*, doc/Makefile.*, doc/sane.man:
+	   backend integration changes
+	 * doc/desciptions/kvs1025.desc, doc/sane-kvs1025.man: 
+	   the parts Panasonic forgot
+
+2010-02-12 m. allan noah <kitno455 at gmail dot com>
 	 * backend/fujitsu.c: disable bg_color for S1500
 
 2010-02-12 Stéphane Voltz <stef.dev ar free.fr>

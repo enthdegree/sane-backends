@@ -325,6 +325,11 @@ The SANE backend for some large Kodak scanners. See
 .BR sane\-kodak (5)
 for details.
 .TP
+.B kvs1025
+The SANE backend for Panasonic KV-S102xC scanners. See
+.BR sane\-kvs1025 (5)
+for details.
+.TP
 .B leo
 This backend supports the Leo S3 and the Across FS-1130, which is a re-badged
 LEO FS-1130 scanner. See

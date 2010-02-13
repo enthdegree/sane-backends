@@ -175,6 +175,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libhp3500.la libhp3900.la libhp4200.la \
     libhp5400.la libhp5590.la libhpljm1005.la \
     libhpsj5s.la libhs2p.la libibm.la libkodak.la \
+    libkvs1025.la \
     libleo.la liblexmark.la libma1509.la \
     libmatsushita.la libmicrotek.la libmicrotek2.la \
     libmustek.la libmustek_pp.la libmustek_usb.la \
@@ -206,6 +207,7 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-hp3500.la libsane-hp3900.la libsane-hp4200.la \
     libsane-hp5400.la libsane-hp5590.la libsane-hpljm1005.la \
     libsane-hpsj5s.la libsane-hs2p.la libsane-ibm.la libsane-kodak.la \
+    libsane-kvs1025.la \
     libsane-leo.la libsane-lexmark.la libsane-ma1509.la \
     libsane-matsushita.la libsane-microtek.la libsane-microtek2.la \
     libsane-mustek.la libsane-mustek_pp.la libsane-mustek_usb.la \
@@ -614,6 +616,15 @@ libsane_kodak_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kodak
 libsane_kodak_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_kodak_la_LIBADD = $(COMMON_LIBS) libkodak.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS)
 EXTRA_DIST += kodak.conf.in
+
+libkvs1025_la_SOURCES = kvs1025.c kvs1025_low.c kvs1025_opt.c kvs1025_usb.c \
+ kvs1025.h kvs1025_low.h kvs1025_usb.h kvs1025_cmds.h
+libkvs1025_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs1025
+
+nodist_libsane_kvs1025_la_SOURCES = kvs1025-s.c
+libsane_kvs1025_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs1025
+libsane_kvs1025_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_kvs1025_la_LIBADD = $(COMMON_LIBS) libkvs1025.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo  $(USB_LIBS)
 
 libleo_la_SOURCES = leo.c leo.h
 libleo_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=leo

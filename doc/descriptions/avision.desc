@@ -89,6 +89,11 @@
 :comment "duplex! sheetfed scanner"
 :status :complete
 
+:model "AV220-G"
+:interface "USB"
+:usbid "0x0638" "0x0a94"
+:status :untested
+
 :model "AV240SC"
 :interface "SCSI"
 :status :untested
@@ -248,6 +253,11 @@
 :comment "1 pass, 1200 dpi, A3 - duplex! - zero edge!"
 :status :complete
 
+:model "FB6080E"
+:interface "USB"
+:usbid "0x0638" "0x0a82"
+:status :complete
+
 :model "AV8000S"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi, A3 - regularly tested"
@@ -281,16 +291,6 @@
 :interface "SCSI"
 :comment "1 pass, 600 dpi, A3"
 :status :basic
-
-:model "6080E"
-:interface "USB"
-:usbid "0x0638" "0x0a82"
-:status :complete
-
-:model "AV220-G"
-:interface "USB"
-:usbid "0x0638" "0x0a94"
-:status :untested
 
 :mfg "Hewlett-Packard"
 :url "http://www.hp.com"

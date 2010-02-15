@@ -23,6 +23,7 @@ static P5_Model pagepartner_model = {
   SANE_FIX (300.0),
 };
 
+#ifdef HAVE_LINUX_PPDEV_H
 static char *
 addr_name (u_int16_t addr)
 {
@@ -47,6 +48,7 @@ addr_name (u_int16_t addr)
       return "*ERROR*";
     }
 }
+#endif
 
 /** @brief low level hardware access functions
  * @{
@@ -91,6 +93,8 @@ inb (int fd, u_int16_t addr)
     }
   return val;
 #else
+  if(fd && addr)
+    return 0;
   return 0;
 #endif
 }
@@ -138,6 +142,9 @@ outb (int fd, u_int16_t addr, u_int8_t value)
     {
       DBG (DBG_error, "ppdev ioctl returned <%s>\n", strerror (errno));
     }
+#else
+  if(fd && addr && value)
+    return;
 #endif /* HAVE_LINUX_PPDEV_H */
 }
 
@@ -242,23 +249,24 @@ write_reg2 (int fd, u_int8_t index, u_int16_t value)
 
 static int
 read_data (int fd, u_int8_t * data, int length)
-{
+{ 
+  if(fd && data && length)
+    return -1;
   return -1;
-}
-
-static void
-index_write_data (int fd, u_int8_t index, u_int8_t * data, int length)
-{
 }
 
 static void
 write_data (int fd, u_int8_t * data, int length)
 {
+  if(fd && data && length)
+    return;
 }
 
 static void
 write_reg2 (int fd, u_int8_t index, u_int16_t value)
 {
+  if(fd && index && value)
+    return;
 }
 #endif
 
@@ -567,14 +575,18 @@ close_pp (int fd)
 #else /*  HAVE_LINUX_PPDEV_H */
 
 static int
-open_pp (char *devicename)
+open_pp (const char *devicename)
 {
+  if(devicename)
+    return -1;
   return -1;
 }
 
 static void
 close_pp (int fd)
 {
+  if(fd)
+    return;
 }
 #endif /*  HAVE_LINUX_PPDEV_H */
 

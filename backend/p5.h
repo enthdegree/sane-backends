@@ -54,10 +54,10 @@
 #include "../include/sane/sanei_backend.h"
 
 /**< macro to enable an option */
-#define ENABLE(OPTION)  session->options[OPTION].cap &= ~SANE_CAP_INACTIVE
+#define ENABLE(OPTION)  session->options[OPTION].descriptor.cap &= ~SANE_CAP_INACTIVE
 
 /**< macro to disable an option */
-#define DISABLE(OPTION) session->options[OPTION].cap |=  SANE_CAP_INACTIVE
+#define DISABLE(OPTION) session->options[OPTION].descriptor.cap |=  SANE_CAP_INACTIVE
 
 /** macro to test is an option is active */
 #define IS_ACTIVE(OPTION) (((s->opt[OPTION].cap) & SANE_CAP_INACTIVE) == 0)
@@ -202,5 +202,7 @@ static SANE_Status config_attach (SANEI_Config * config, const char *devname);
 static SANE_Status attach_p5 (const char *name, SANEI_Config * config);
 static SANE_Status init_options (struct P5_Session *session);
 static SANE_Status compute_parameters (struct P5_Session *session);
+
+/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */
 
 #endif /* not P5_H */

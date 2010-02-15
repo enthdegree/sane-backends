@@ -232,7 +232,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   if (devlist)
     {
       for (i = 0; devlist[i] != NULL; i++)
-	free ((SANE_Device *) devlist[i]);
+	free ((void *)devlist[i]);
       free (devlist);
       devlist = NULL;
     }
@@ -1466,7 +1466,7 @@ sane_close (SANE_Handle handle)
 
   /* free per session data */
   free (session->options[OPT_MODE].value.s);
-  free (session->options[OPT_RESOLUTION].descriptor.constraint.word_list);
+  free ((void *)session->options[OPT_RESOLUTION].descriptor.constraint.word_list);
 
   free (session);
 
@@ -1643,6 +1643,10 @@ attach_p5 (const char *devicename, SANEI_Config * config)
   struct P5_Model *model;
 
   DBG (DBG_proc, "attach(%s): start\n", devicename);
+  if(config==NULL)
+    {
+      DBG (DBG_warn, "attach: config is NULL\n");
+    }
 
   /* search if we already have it attached */
   for (device = devices; device; device = device->next)

@@ -459,7 +459,7 @@ setadresses (int fd, u_int16_t start, u_int16_t end)
  * @return file descriptor in cas of successn -1 otherwise
  */
 static int
-open_pp (char *devicename)
+open_pp (const char *devicename)
 {
   int fd, rc, mode = 0;
   char *name;
@@ -468,11 +468,11 @@ open_pp (char *devicename)
   /* TODO improve auto device finding */
   if (strncmp (devicename, "auto", 4) == 0)
     {
-      name = "/dev/parport0";
+      name = strdup("/dev/parport0");
     }
   else
     {
-      name = devicename;
+      name = strdup(devicename);
     }
 
   /* open device */
@@ -501,6 +501,7 @@ open_pp (char *devicename)
 	}
       return -1;
     }
+  free(name);
 
   /* claim device and set it to EPP */
   rc = ioctl (fd, PPCLAIM);
@@ -707,10 +708,10 @@ static SANE_Status
 start_scan (P5_Device * dev, int mode, unsigned int dpi, unsigned int startx,
 	    unsigned int width)
 {
-  u_int8_t reg0;
-  u_int8_t reg2;
-  u_int8_t regF;
-  u_int16_t addr;
+  u_int8_t reg0=0;
+  u_int8_t reg2=0;
+  u_int8_t regF=0;
+  u_int16_t addr=0;
   u_int16_t start, end;
   unsigned int xdpi;
 
@@ -1208,6 +1209,7 @@ is_white_line (u_int8_t * buffer, unsigned int pixels, int mode)
 
 /* ------------------------------------------------------------------------- */
 /* writes gray data to a pnm file */
+/*
 static void
 write_gray_data (unsigned char *image, char *name, SANE_Int width,
 		 SANE_Int height)
@@ -1221,6 +1223,7 @@ write_gray_data (unsigned char *image, char *name, SANE_Int width,
   fwrite (image, width, height, fdbg);
   fclose (fdbg);
 }
+*/
 
 /* ------------------------------------------------------------------------- */
 /* writes rgb data to a pnm file */
@@ -1243,7 +1246,7 @@ write_rgb_data (char *name, unsigned char *image, SANE_Int width,
  * backend name and device
  */
 static char *
-calibration_file (char *devicename)
+calibration_file (const char *devicename)
 {
   char *ptr = NULL;
   char tmp_str[PATH_MAX];

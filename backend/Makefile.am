@@ -89,6 +89,7 @@ BACKEND_CONFS= abaton.conf agfafocus.conf apple.conf artec.conf \
 	       leo.conf lexmark.conf ma1509.conf matsushita.conf \
 	       microtek2.conf microtek.conf mustek.conf \
 	       mustek_pp.conf mustek_usb.conf nec.conf net.conf \
+	       p5.conf \
 	       pie.conf pixma.conf plustek.conf plustek_pp.conf \
 	       qcam.conf ricoh.conf rts8891.conf s9036.conf sceptre.conf \
 	       sharp.conf sm3840.conf snapscan.conf sp15c.conf \
@@ -180,7 +181,8 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libmatsushita.la libmicrotek.la libmicrotek2.la \
     libmustek.la libmustek_pp.la libmustek_usb.la \
     libmustek_usb2.la libnec.la libnet.la \
-    libniash.la libpie.la libpint.la libpixma.la \
+    libniash.la libp5.la \
+    libpie.la libpint.la libpixma.la \
     libplustek.la libplustek_pp.la libpnm.la \
     libqcam.la libricoh.la librts8891.la \
     libs9036.la libsceptre.la libsharp.la \
@@ -212,7 +214,8 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-matsushita.la libsane-microtek.la libsane-microtek2.la \
     libsane-mustek.la libsane-mustek_pp.la libsane-mustek_usb.la \
     libsane-mustek_usb2.la libsane-nec.la libsane-net.la \
-    libsane-niash.la libsane-pie.la libsane-pint.la libsane-pixma.la \
+    libsane-niash.la libsane-p5.la \
+    libsane-pie.la libsane-pint.la libsane-pixma.la \
     libsane-plustek.la libsane-plustek_pp.la libsane-pnm.la \
     libsane-qcam.la libsane-ricoh.la libsane-rts8891.la \
     libsane-s9036.la libsane-sceptre.la libsane-sharp.la \
@@ -761,6 +764,15 @@ libsane_pie_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pie
 libsane_pie_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_pie_la_LIBADD = $(COMMON_LIBS) libpie.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo ../sanei/sanei_thread.lo $(SCSI_LIBS) $(PTHREAD_LIBS)
 EXTRA_DIST += pie.conf.in
+
+libp5_la_SOURCES = p5.c p5.h p5_device.h
+libp5_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=p5
+
+nodist_libsane_p5_la_SOURCES = p5-s.c
+libsane_p5_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=p5
+libsane_p5_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_p5_la_LIBADD = $(COMMON_LIBS) libp5.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo
+EXTRA_DIST += p5.conf.in p5_device.c
 
 libpint_la_SOURCES = pint.c pint.h
 libpint_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pint

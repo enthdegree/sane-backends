@@ -68,6 +68,7 @@ Backends:
  nec:           Kazuya Fukuda (*)
  net:           Andreas Beck, David Mosberger, Julien Blache (*)
  niash:         Ullrich Sigwanz (*), Bertrik Sikken
+ p5:		Stéphane Voltz (*)
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
  pixma:         Wittawat Yamwong (*)

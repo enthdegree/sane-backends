@@ -399,6 +399,11 @@ The niash backend supports the Agfa Snapscan Touch and the HP ScanJet 3300c,
 .BR sane\-niash (5)
 for details.
 .TP
+.B p5
+The SANE backend for Primax PagePartner. See
+.BR sane\-p5 (5)
+for details.
+.TP
 .B pie
 The pie backend provides access to Pacific Image Electronics (PIE) and Devcom
 SCSI flatbed scanners. See

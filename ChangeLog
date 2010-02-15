@@ -1,3 +1,10 @@
+2010-02-15 Stéphane Voltz <stef.dev at free.fr>
+	 * backend/p5.c backend/p5.h backend/p5_device.c backend/p5_device.h
+	 backend/p5.conf.in doc/descriptions/p5.desc doc/sane-p5.man: add new p5 backend for 
+	 Primax PagePartner
+	 * backend/dll.conf.in backend/Makefile.* configure* doc/Makefile.*
+	 doc/sane.man: p5 backend integration changes
+
 2010-02-13 m. allan noah <kitno455 at gmail dot com>
 	 * backend/avision.[ch]: updated settings for Visioneer 9450,
 	   based on code from Andyz Smith
@@ -13,10 +20,10 @@
 2010-02-12 m. allan noah <kitno455 at gmail dot com>
 	 * backend/fujitsu.c: disable bg_color for S1500
 
-2010-02-12 Stéphane Voltz <stef.dev ar free.fr>
+2010-02-12 Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys_gl646.c: fixed MD5345 calibration
 
-2010-02-12 Stéphane Voltz <stef.dev ar free.fr>
+2010-02-12 Stéphane Voltz <stef.dev at free.fr>
 	* doc/descriptions/genesys.desc backend/genesys.c
 	backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl646.h: added support for hp3670, uncalibrated scans

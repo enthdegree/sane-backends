@@ -3191,7 +3191,6 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CCD_HP3670:
     case CCD_HP2400:
       target_code = 0xe000;
-      /* 0, 20 KO, -20 ~OK ?*/
       o = -20;
       cmat[0] = 0;
       cmat[1] = 1;

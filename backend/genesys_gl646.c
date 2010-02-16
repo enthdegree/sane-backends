@@ -1994,8 +1994,10 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi)
  * @param dev device to set
  * @param set action to execute
  * @return error or SANE_STATUS_GOOD */
-SANE_Status
-gl646_public_set_fe (Genesys_Device * dev, uint8_t set)
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status gl646_public_set_fe (Genesys_Device * dev, uint8_t set)
 {
   return gl646_set_fe(dev,set,dev->settings.yres);
 }
@@ -4015,7 +4017,6 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   float average[3];
   Genesys_Settings settings;
   char title[32];
-  SANE_Bool half_ccd=dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE;
 
   if (dev->model->ccd_type == CIS_XP200)
     {
@@ -4872,7 +4873,7 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	  session->val[OPT_SCAN_SW].b = (value == 0x6c);
 	  break;
 	case GPO_HP3670:
-	  session->val[OPT_SCAN_SW].b = ((value & 0x01) != 0);
+	  session->val[OPT_SCAN_SW].b = ((value & 0x20) == 0);
 	  break;
 	default:
 	  return SANE_STATUS_UNSUPPORTED;
@@ -4889,7 +4890,7 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	  session->val[OPT_EMAIL_SW].b = (value == 0x12);
 	  break;
 	case GPO_HP3670:
-	  session->val[OPT_EMAIL_SW].b = ((value & 0x02) != 0);
+	  session->val[OPT_EMAIL_SW].b = ((value & 0x08) == 0);
 	  break;
 	default:
 	  return SANE_STATUS_UNSUPPORTED;
@@ -4909,7 +4910,7 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	  session->val[OPT_COPY_SW].b = (value == 0x5c);
 	  break;
 	case GPO_HP3670:
-	  session->val[OPT_COPY_SW].b = ((value & 0x02) != 0);
+	  session->val[OPT_COPY_SW].b = ((value & 0x10) == 0);
 	  break;
 	default:
 	  return SANE_STATUS_UNSUPPORTED;

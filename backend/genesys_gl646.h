@@ -2,7 +2,7 @@
 
    Copyright (C) 2003-2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004-2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2009 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2010 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
    This file is part of the SANE package.
@@ -274,6 +274,9 @@ static
 #endif
 SANE_Status gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi);
 
+#ifndef UNIT_TESTING
+static
+#endif
 SANE_Status gl646_public_set_fe (Genesys_Device * dev, uint8_t set);
 
 /**

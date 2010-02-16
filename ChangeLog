@@ -1,3 +1,8 @@
+2010-02-16 Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c
+	backend/genesys_gl646.h backend/genesys_low.h: buttons and basic XPA
+	support for HP3670.
+
 2010-02-15 Stéphane Voltz <stef.dev at free.fr>
 	 * backend/p5.c backend/p5.h backend/p5_device.c backend/p5_device.h
 	 backend/p5.conf.in doc/descriptions/p5.desc doc/sane-p5.man: add new p5 backend for 

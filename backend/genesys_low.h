@@ -77,7 +77,7 @@
 #define GENESYS_FLAG_UNTESTED     (1 << 0)	/* Print a warning for these scanners */
 #define GENESYS_FLAG_14BIT_GAMMA  (1 << 1)	/* use 14bit Gamma table instead of 12 */
 #define GENESYS_FLAG_LAZY_INIT    (1 << 2)	/* skip extensive ASIC test at init   */
-/*#define GENESYS_FLAG_UNUSED     (1 << 3)	*/
+#define GENESYS_FLAG_XPA          (1 << 3)
 #define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/* skip genesys_warmup()              */
 #define GENESYS_FLAG_OFFSET_CALIBRATION   (1 << 5)	/* do offset calibration      */
 #define GENESYS_FLAG_SEARCH_START (1 << 6)	/* do start search beofre scanning    */

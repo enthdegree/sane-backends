@@ -859,6 +859,13 @@ gl646_setup_registers (Genesys_Device * dev,
   /* regs[reg_0x03].value |= REG03_AVEENB; */
   regs[reg_0x03].value &= ~REG03_LAMPDOG;
 
+  /* select XPA */
+  regs[reg_0x03].value &= ~REG03_XPASEL;
+  if(scan_settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+    {
+      regs[reg_0x03].value |= REG03_XPASEL;
+    }
+
   /* R04 */
   if (depth > 8)
     {
@@ -4954,6 +4961,29 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	{
 	case GPO_XP200:
 	  session->val[OPT_PAGE_LOADED_SW].b = ((value & 0x04) != 0);
+	  break;
+	default:
+	  return SANE_STATUS_UNSUPPORTED;
+	}
+    }
+
+  /* XPA detection */
+  if (dev->model->flags & GENESYS_FLAG_XPA)
+    {
+      switch (dev->model->gpo_type)
+	{
+	case GPO_HP3670:
+          /* test if XPA is plugged-in */
+          if((value & 0x40)==0)
+            {
+              DBG (DBG_io, "gl646_update_hardware_sensors: enabling XPA\n");
+              session->opt[OPT_SOURCE].cap &= ~SANE_CAP_INACTIVE;
+            }
+          else
+            {
+              DBG (DBG_io, "gl646_update_hardware_sensors: disabling XPA\n");
+              session->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
+            }
 	  break;
 	default:
 	  return SANE_STATUS_UNSUPPORTED;

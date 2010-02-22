@@ -22,8 +22,8 @@
 
 ;;;  This list of devices was compiled from the following sources:
 ;;;
-;;;  * iscan-2.19.0/NEWS
-;;;  * iscan-2.19.0/backend/usb
+;;;  * iscan-2.24.0/NEWS
+;;;  * iscan-2.24.0/backend/usb
 ;;;  * sane-backends/backend/epson_usb.c (CVS 1.18)
 ;;;  * sane-backends/doc/descriptions/epson.desc (CVS 1.26)
 ;;;  * http://www.freecolormanagement.com/sane/supported.html
@@ -38,7 +38,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "2.19.0"
+:version "2.24.0"
 :url     "http://www.avasys.jp/english/linux_e/"
 
 ;:comment "Based on the epson backend of sane-backends-1.0.15."
@@ -51,7 +51,7 @@
 :url        "http://www.epson.com/"
 :comment    ""
 
-; SEIKO EPSON Corporation's marketing division divides the world in
+; SEIKO EPSON CORPORATION's marketing division divides the world in
 ; Japan and several overseas regions.  The same scanner is marketed
 ; under different names in the various regions.  I have assumed the
 ; Japan-centric point of view that the scanner names for the models
@@ -948,6 +948,12 @@
 :status    :good
 :comment   "network interface not supported"
 
+:model     "PX-602F"
+:interface "USB"
+:usbid     "0x04b8" "0x0855"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "PX-A550"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x080e"
@@ -1243,7 +1249,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0131"
 :status    :good
-:comment   "requires DFSG non-free esci-interpreter-gt-f720<br>overseas version of the GT-F620"
+:comment   "requires DFSG non-free esci-interpreter-gt-f720<br>overseas version of the GT-F720"
 :url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
 :model     "Perfection V350 Photo"
@@ -1659,7 +1665,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0855"
 :status    :complete
-:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-602F"
 
 :model     "Stylus Office TX300F"
 :interface "USB"
@@ -1683,7 +1689,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0855"
 :status    :complete
-:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-602F"
 
 :model     "Stylus Photo PX650 Series"
 :interface "USB"
@@ -1983,7 +1989,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0855"
 :status    :complete
-:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-602F"
 
 :model     "Stylus Scan 2000"
 :interface "USB"
@@ -2073,4 +2079,4 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0855"
 :status    :complete
-:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-602F"

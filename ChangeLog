@@ -1,3 +1,6 @@
+2010-02-22 Julien Blache <jb@jblache.org>
+	* doc/descriptions-external/epkowa.desc: Updated for iscan 2.24.0.
+
 2010-02-16 Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl646.h backend/genesys_low.h: buttons and basic XPA

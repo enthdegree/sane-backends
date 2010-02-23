@@ -107,10 +107,11 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00, 0x19, 0x06}
    }
   ,				/* 6: CANONLIDE35 */
-  {DAC_AD_XP200,{0x58, 0x00, 0x00, 0x00}
+  {DAC_AD_XP200,
+     {0x58, 0x80, 0x00, 0x00}	/* reg1=0x80 ? */
    , {0x00, 0x00, 0x00}
-   , {0x05, 0x05, 0x05} /* offset */	/* 0A */
-   , {0x0d, 0x0d, 0x0d} /* gain   */    /* 20 */
+   , {0x09, 0x09, 0x09}
+   , {0x09, 0x09, 0x09} 
    , {0x00, 0x00, 0x00}
    }
   ,                            
@@ -256,8 +257,8 @@ static Genesys_Sensor Sensor[] = {
   ,
   /* 7: Strobe XP200 */
   {CIS_XP200, 600,
-   48,
-   38, 0, 5200, 160, 160, /* 5125 */
+   5,
+   38, 0, 5200, 200, 200, /* 5125 */
    {0x16, 0x00, 0x01, 0x03}
    ,
    {0x14, 0x50, 0x0c, 0x80, 0x0a, 0x28, 0xb7, 0x0a, 0x20, 0x2a, 0x6a, 0x8a,
@@ -550,8 +551,8 @@ static Genesys_Motor Motor[] = {
     },},}, 
   },
   {MOTOR_HP3670,	/* HP 3670 */
+   600,
    1200,
-   2400,
    1,
    1,
    {{{
@@ -569,7 +570,7 @@ static Genesys_Motor Motor[] = {
   },
   {MOTOR_HP2400,		/* HP 2400c */
    1200,
-   2400,
+   1200,
    1,
    1,
    {{{
@@ -961,7 +962,7 @@ Genesys_Model hp2400c_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  32, 16, 0,			/* RGB CCD Line-distance correction in pixel */
+  0, 12, 24,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
 
@@ -1026,6 +1027,7 @@ Genesys_Model visioneer_xp200_model = {
   GPO_XP200,
   MOTOR_XP200,
       GENESYS_FLAG_14BIT_GAMMA
+    | GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_CUSTOM_GAMMA
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_DARK_CALIBRATION
@@ -1067,7 +1069,7 @@ static Genesys_Model hp3670c_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  0, 24, 48,			/* RGB CCD Line-distance correction in pixel */
+  0, 12, 24,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 

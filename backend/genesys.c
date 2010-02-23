@@ -106,10 +106,10 @@ static SANE_String_Const color_filter_list[] = {
 };
 
 static SANE_String_Const cis_color_filter_list[] = {
-  SANE_I18N ("None"),
   SANE_I18N ("Red"),
   SANE_I18N ("Green"),
   SANE_I18N ("Blue"),
+  SANE_I18N ("None"),
   0
 };
 
@@ -2887,7 +2887,10 @@ compute_coefficient (unsigned int coeff, unsigned int target, unsigned int value
  * @param coeff 4000h or 2000h depending on fast scan mode or not
  * @param target value of the target code
  */
-static void
+#ifndef UNIT_TESTING
+static
+#endif
+void
 compute_coefficients (Genesys_Device * dev,
 		      uint8_t * shading_data,
 		      unsigned int pixels_per_line,
@@ -2959,7 +2962,10 @@ compute_coefficients (Genesys_Device * dev,
  * @param coeff 4000h or 2000h depending on fast scan mode or not
  * @param target white target value
  */
-static void
+#ifndef UNIT_TESTING
+static
+#endif
+void
 compute_planar_coefficients (Genesys_Device * dev,
 			     uint8_t * shading_data,
 			     unsigned int factor,
@@ -5330,10 +5336,12 @@ calc_parameters (Genesys_Scanner * s)
   /* color filter */
   if (strcmp (color_filter, "Red") == 0)
     s->dev->settings.color_filter = 0;
+  else if (strcmp (color_filter, "Green") == 0)
+    s->dev->settings.color_filter = 1;
   else if (strcmp (color_filter, "Blue") == 0)
     s->dev->settings.color_filter = 2;
   else
-    s->dev->settings.color_filter = 1;
+    s->dev->settings.color_filter = 3;
 
   /* true gray */
   if (strcmp (color_filter, "None") == 0)
@@ -5398,7 +5406,7 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
     }
   else
     {				/* GL841 case 16 bits gamma table */
-      scanner->opt[option].size = 65536 * sizeof (SANE_Word);
+      scanner->opt[option].size = 256 * sizeof (SANE_Word);
       scanner->opt[option].constraint.range = &u16_range;
     }
   /* default value is NULL */
@@ -5680,7 +5688,14 @@ init_options (Genesys_Scanner * s)
     {
       s->opt[OPT_COLOR_FILTER].size = max_string_size (cis_color_filter_list);
       s->opt[OPT_COLOR_FILTER].constraint.string_list = cis_color_filter_list;
-      s->val[OPT_COLOR_FILTER].s = strdup (s->opt[OPT_COLOR_FILTER].constraint.string_list[0]);
+      /* default to "None" ie true gray */
+      s->val[OPT_COLOR_FILTER].s = strdup (s->opt[OPT_COLOR_FILTER].constraint.string_list[3]);
+    }
+
+  /* no support for color filter for cis+gl646 scanners */
+  if (model->asic_type == GENESYS_GL646 && model->is_cis)
+    {
+      DISABLE (OPT_COLOR_FILTER);
     }
 
   /* Powersave time (turn lamp off) */
@@ -6697,7 +6712,10 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  ENABLE (OPT_THRESHOLD);
 	  ENABLE (OPT_THRESHOLD_CURVE);
 	  DISABLE (OPT_BIT_DEPTH);
-	  ENABLE (OPT_COLOR_FILTER);
+          if (s->dev->model->asic_type != GENESYS_GL646 || !s->dev->model->is_cis)
+            {
+	      ENABLE (OPT_COLOR_FILTER);
+            }
 	  ENABLE (OPT_DISABLE_DYNAMIC_LINEART);
 	}
       else
@@ -6707,7 +6725,10 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  DISABLE (OPT_DISABLE_DYNAMIC_LINEART);
 	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	    {
-	      ENABLE (OPT_COLOR_FILTER);
+              if (s->dev->model->asic_type != GENESYS_GL646 || !s->dev->model->is_cis)
+                {
+	          ENABLE (OPT_COLOR_FILTER);
+                }
 	      create_bpp_list (s, s->dev->model->bpp_gray_values);
 	    }
 	  else

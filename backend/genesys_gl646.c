@@ -979,9 +979,13 @@ gl646_setup_registers (Genesys_Device * dev,
    * color mode */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      linecnt *= 3;
+      gl646_set_triple_reg (regs, REG_LINCNT, linecnt * 3);
+      linecnt *= channels;
     }
-  gl646_set_triple_reg (regs, REG_LINCNT, linecnt);
+  else
+    {
+      gl646_set_triple_reg (regs, REG_LINCNT, linecnt);
+    }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
   sx = startx / sensor->cksel;

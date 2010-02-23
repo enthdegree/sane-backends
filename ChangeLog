@@ -1,3 +1,8 @@
+2010-02-23 Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c
+	backend/genesys_gl646.h: XP200 calibration rework. Some HP3670
+	improvements.
+
 2010-02-22 m. allan noah <kitno455 at gmail dot com>
 	 * backend/fujitsu.c: force enable flatbed for M3092, by Jochen Hepp
 	 * doc/Makefile.*, doc/descriptions-external/kodak-twain: new backend

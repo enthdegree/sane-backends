@@ -1,3 +1,6 @@
+2010-02-22 m. allan noah <kitno455 at gmail dot com>
+	 * backend/fujitsu.c: force enable flatbed for M3092, by Jochen Hepp
+
 2010-02-22 Julien Blache <jb@jblache.org>
 	* doc/descriptions-external/epkowa.desc: Updated for iscan 2.24.0.
 

@@ -451,6 +451,7 @@
          - add SANE_I18N to static strings
          - don't fail if scsi buffer is too small
          - disable bg_color for S1500
+         - enable flatbed for M3092
 
    SANE FLOW DIAGRAM
 
@@ -1914,6 +1915,8 @@ init_model (struct fujitsu *s)
     s->has_rif = 1;
     s->has_back = 0;
     s->adbits = 8;
+    if (strstr (s->model_name, "M3092"))
+      s->has_flatbed = 1;
 
     /* weirdness */
     s->has_vuid_3091 = 1;

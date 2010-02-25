@@ -3410,7 +3410,7 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
 
   /* select color filter based on settings */
   dev->reg[reg_0x04].value &= ~REG04_FILTER;
-  if(channels>1)
+  if(channels==1)
     {
       switch (settings.color_filter)
 	{

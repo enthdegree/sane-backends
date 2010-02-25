@@ -1,3 +1,7 @@
+2010-02-25 Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys_gl646.c: fix regression for gl646 CCD scanners due
+	to incorrect color filter setting.
+
 2010-02-23 Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl646.h: XP200 calibration rework. Some HP3670

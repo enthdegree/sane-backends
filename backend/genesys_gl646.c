@@ -989,13 +989,18 @@ gl646_setup_registers (Genesys_Device * dev,
     }
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
+  stagger = 0;
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
     {
-      stagger = (4 * scan_settings.yres) / dev->motor.base_ydpi;
-      linecnt += stagger;
+      /* for CCD_HP3670, stagger happens only at 1200 dpi */
+      if(dev->model->motor_type != MOTOR_HP3670
+      || scan_settings.yres >= dev->sensor.optical_res)
+        {
+          stagger = (4 * scan_settings.yres) / dev->motor.base_ydpi;
+        }
     }
-  else
-    stagger = 0;
+  linecnt += stagger;
+  
   DBG (DBG_info, "gl646_setup_registers :  max_shift=%d, stagger=%d lines\n",
        max_shift, stagger);
 

@@ -3197,7 +3197,19 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CCD_HP3670:
     case CCD_HP2400:
       target_code = 0xe000;
-      o = -20;
+      /* offset is cksel dependent, but we can't use this in common code */
+      if(dev->settings.xres<=300)
+        {
+          o = -10; /* OK for <=300 */
+        }
+      else if(dev->settings.xres<=600)
+        {
+          o = -6;  /* ok at 600 */
+        }
+      else
+        {
+          o = -2;
+        }
       cmat[0] = 0;
       cmat[1] = 1;
       cmat[2] = 2;	

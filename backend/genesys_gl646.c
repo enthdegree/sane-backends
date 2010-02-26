@@ -608,6 +608,38 @@ is_half_ccd (int sensor, int required, SANE_Bool color)
 }
 
 /**
+ * Returns the cksel values used by the required scan mode.
+ * @param sensor id of the sensor
+ * @param required required resolution
+ * @param color true is color mode
+ * @return cksel value for mode
+ */
+static int
+get_cksel (int sensor, int required, SANE_Bool color)
+{
+  int i, nb;
+
+  i = 0;
+  nb = sizeof (sensor_master) / sizeof (Sensor_Master);
+  while (sensor_master[i].sensor != -1 && i < nb)
+    {
+      /* exit on perfect match */
+      if (sensor == sensor_master[i].sensor
+	  && sensor_master[i].dpi == required
+	  && sensor_master[i].color == color)
+	{
+	  DBG (DBG_io, "get_cksel: match found for %d (cksel=%d)\n",
+	       required, sensor_master[i].cksel);
+	  return sensor_master[i].cksel;
+	}
+      i++;
+    }
+  DBG (DBG_error, "get_cksel: failed to find match for %d dpi\n", required);
+  /* fail safe fallback */
+  return 1;
+}
+
+/**
  * Setup register and motor tables for a scan at the
  * given resolution and color mode. TODO try to not use any filed from
  * the device.
@@ -966,13 +998,6 @@ gl646_setup_registers (Genesys_Device * dev,
     stagger = 0;
   DBG (DBG_info, "gl646_setup_registers :  max_shift=%d, stagger=%d lines\n",
        max_shift, stagger);
-
-  /* big to get any doc out of the feeder */
-  /* XXX STEF XXX clashes with calibration process 
-     if (dev->model->is_sheetfed == SANE_TRUE)
-     {
-     linecnt = (1000 * motor->ydpi) / MM_PER_INCH;
-     } */
 
   /* CIS scanners read one line per color channel
    * since gray mode use 'add' we also read 3 channels even not in
@@ -3169,6 +3194,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   Genesys_Settings settings;
   /* 1: no half_ccd, 2: use half number of pixels */
   int half_ccd = 1;
+  int cksel=1;
 
   DBG (DBG_proc, "gl646_init_register_for_shading: start\n");
 
@@ -3191,7 +3217,9 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
       settings.scan_mode = SCAN_MODE_COLOR;
     }
   settings.xres = dev->sensor.optical_res / half_ccd;
-  settings.yres = dev->sensor.optical_res / half_ccd;
+  cksel=get_cksel(dev->model->ccd_type, dev->settings.xres, SANE_TRUE);
+  settings.xres = settings.xres / cksel;
+  settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 0;
   settings.pixels =
@@ -4107,23 +4135,10 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
-  /* XXX STEF XXX
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)
-    { */
       resolution =
 	get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
       channels = 3;
       settings.scan_mode = SCAN_MODE_COLOR;
-  /* XXX STEF XXX
-    }
-  else
-    {
-      resolution =
-	get_closest_resolution (dev->model->ccd_type, dpi, SANE_FALSE);
-      channels = 1;
-      settings.scan_mode = SCAN_MODE_GRAY;
-    }
-    */
 
 
   settings.scan_method = SCAN_METHOD_FLATBED;
@@ -5280,7 +5295,8 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
        "gl646_is_compatible_calibration: start (for_overwrite=%d)\n",
        for_overwrite);
 
-  if (cache == NULL)
+  /* calibration caching not supported yet for HP3670 */
+  if (cache == NULL || dev->model->ccd_type == CCD_HP3670)
     return SANE_STATUS_UNSUPPORTED;
 
   /* build minimal current_setup for calibration cache use only, it will be better

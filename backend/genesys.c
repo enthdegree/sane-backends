@@ -3208,7 +3208,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
         }
       else
         {
-          o = -2;
+          o = +2;
         }
       cmat[0] = 0;
       cmat[1] = 1;

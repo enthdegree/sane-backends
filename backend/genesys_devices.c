@@ -552,7 +552,7 @@ static Genesys_Motor Motor[] = {
   },
   {MOTOR_HP3670,	/* HP 3670 */
    1200,
-   1200,
+   2400,
    1,
    1,
    {{{
@@ -1069,7 +1069,7 @@ static Genesys_Model hp3670c_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  0, 12, 24,			/* RGB CCD Line-distance correction in pixel */
+  0, 24, 48,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 

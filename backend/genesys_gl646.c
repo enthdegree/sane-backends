@@ -992,9 +992,8 @@ gl646_setup_registers (Genesys_Device * dev,
   stagger = 0;
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
     {
-      /* for CCD_HP3670, stagger happens only at 1200 dpi */
-      if(dev->model->motor_type != MOTOR_HP3670
-      || scan_settings.yres >= dev->sensor.optical_res)
+      /* for CCD_HP3670, stagger happens only at >=1200 dpi */
+      if(dev->model->motor_type != MOTOR_HP3670 || scan_settings.yres >= dev->sensor.optical_res)
         {
           stagger = (4 * scan_settings.yres) / dev->motor.base_ydpi;
         }
@@ -3419,7 +3418,7 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
     }
   endx = startx + pixels;
 
-  /* XXX STEF XXX TODO check for pixel width overflow */
+  /* TODO check for pixel width overflow */
 
   /* set up correct values for scan (gamma and shading enabled) */
   status = gl646_setup_registers (dev,

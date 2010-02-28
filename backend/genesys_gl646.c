@@ -992,8 +992,8 @@ gl646_setup_registers (Genesys_Device * dev,
   stagger = 0;
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
     {
-      /* for CCD_HP3670, stagger happens only at >=1200 dpi */
-      if(dev->model->motor_type != MOTOR_HP3670 || scan_settings.yres >= dev->sensor.optical_res)
+      /* for HP3670, stagger happens only at >=1200 dpi */
+      if((dev->model->motor_type != MOTOR_HP3670 && dev->model->motor_type != MOTOR_HP2400)|| scan_settings.yres >= dev->sensor.optical_res)
         {
           stagger = (4 * scan_settings.yres) / dev->motor.base_ydpi;
         }
@@ -5095,6 +5095,7 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	  session->val[OPT_SCAN_SW].b = (value == 0x6c);
 	  break;
 	case GPO_HP3670:
+	case GPO_HP2400:
 	  session->val[OPT_SCAN_SW].b = ((value & 0x20) == 0);
 	  break;
 	default:
@@ -5112,6 +5113,7 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	  session->val[OPT_EMAIL_SW].b = (value == 0x12);
 	  break;
 	case GPO_HP3670:
+	case GPO_HP2400:
 	  session->val[OPT_EMAIL_SW].b = ((value & 0x08) == 0);
 	  break;
 	default:
@@ -5132,6 +5134,7 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	  session->val[OPT_COPY_SW].b = (value == 0x5c);
 	  break;
 	case GPO_HP3670:
+	case GPO_HP2400:
 	  session->val[OPT_COPY_SW].b = ((value & 0x10) == 0);
 	  break;
 	default:
@@ -5188,6 +5191,7 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
       switch (dev->model->gpo_type)
 	{
 	case GPO_HP3670:
+	case GPO_HP2400:
 	  /* test if XPA is plugged-in */
 	  if ((value & 0x40) == 0)
 	    {
@@ -5300,7 +5304,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
        for_overwrite);
 
   /* calibration caching not supported yet for HP3670 */
-  if (cache == NULL || dev->model->ccd_type == CCD_HP3670)
+  if (cache == NULL || dev->model->ccd_type == CCD_HP3670 || dev->model->ccd_type == CCD_HP2400)
     return SANE_STATUS_UNSUPPORTED;
 
   /* build minimal current_setup for calibration cache use only, it will be better

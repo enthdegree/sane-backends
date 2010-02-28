@@ -570,7 +570,7 @@ static Genesys_Motor Motor[] = {
   },
   {MOTOR_HP2400,		/* HP 2400c */
    1200,
-   1200,
+   2400,
    1,
    1,
    {{{
@@ -962,7 +962,7 @@ Genesys_Model hp2400c_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  0, 12, 24,			/* RGB CCD Line-distance correction in pixel */
+  0, 24, 48,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
 
@@ -975,10 +975,12 @@ Genesys_Model hp2400c_model = {
   GENESYS_FLAG_UNTESTED		/* not fully working yet */
     | GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_14BIT_GAMMA
+    | GENESYS_FLAG_XPA
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_STAGGERED_LINE
     | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
   132
 };

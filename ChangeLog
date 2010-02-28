@@ -3,6 +3,7 @@
 	* po/*: standard gettext layout by Adi Roiban <adi at roiban dot ro>
 	* doc/descriptions/fujitsu.desc, backend/fujitsu.conf.in:
 	  add S1500M entry by Harald Weis
+	* tools/sane-desc.c: Condense warnings about half-baked .desc files
 
 2010-02-27 Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c

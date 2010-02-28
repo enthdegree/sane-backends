@@ -827,6 +827,8 @@ read_files (void)
 		{
 		  type_entry *current_type = current_backend->type;
 		  int no_usbids = 0;
+		  int no_interface = 0;
+		  int no_status = 0;
 		  
 		  while (current_type)
 		    {
@@ -844,19 +846,21 @@ read_files (void)
 				{
 				  if (current_model->status == status_unknown)
 				    {
-				      DBG_WARN
+				      DBG_INFO
 					("Backend `%s': `%s' `%s' does not have a status\n",
 					 current_backend->name,
 					 current_mfg->name,
 					 current_model->name);
+				      no_status++;
 				    }
 				  if (!current_model->interface)
 				    {
-				      DBG_WARN
+				      DBG_INFO
 					("Backend `%s': `%s' `%s' does not have an interface\n",
 					 current_backend->name,
 					 current_mfg->name,
 					 current_model->name);
+				      no_interface++;
 				    }
 				  else if (strstr (current_model->interface, "USB"))
 				    {
@@ -877,6 +881,16 @@ read_files (void)
 			    }
 			}
 		      current_type = current_type->next;
+		    }
+		  if (no_status)
+		    {
+		      DBG_WARN ("Backend `%s': %d devices without :status\n", 
+				current_backend->name, no_status);
+		    }
+		  if (no_interface)
+		    {
+		      DBG_WARN ("Backend `%s': %d devices without :interface\n", 
+				current_backend->name, no_interface);
 		    }
 		  if (no_usbids)
 		    {

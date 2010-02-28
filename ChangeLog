@@ -1,6 +1,6 @@
 2010-02-22 m. allan noah <kitno455 at gmail dot com>
 	* */Makefile.in: update with (unfortunately) slightly older automake
-	* po/*: standard automake layout by Adi Roiban <adi at roiban dot ro>
+	* po/*: standard gettext layout by Adi Roiban <adi at roiban dot ro>
 
 2010-02-27 Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c

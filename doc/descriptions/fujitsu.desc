@@ -158,9 +158,9 @@
 
 :model "ScanSnap S1500M"
 :interface "USB"
-:status :untested
-;:usbid "0x04c5" "0x11a3"
-:comment "small, current, same as S1500?"
+:status :complete
+:usbid "0x04c5" "0x11a2"
+:comment "small, current, same as S1500"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, MEDIUM

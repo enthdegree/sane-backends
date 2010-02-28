@@ -1,3 +1,7 @@
+2010-02-27 Chris Bagwell <chris at cnpbagwell dot com>
+	* Rerun autoconf/automake to align files to single version
+	of tools.
+
 2010-02-27 m. allan noah <kitno455 at gmail dot com>
 	* */Makefile.in: update with (unfortunately) slightly older automake
 	* po/*: standard gettext layout by Adi Roiban <adi at roiban dot ro>

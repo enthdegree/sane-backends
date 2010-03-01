@@ -1,3 +1,12 @@
+2010-03-01 Stéphane Voltz <stef.dev at free.fr>
+	* doc/sane-p5.man doc/sane-umax_pp.man doc/sane-rts8891.man
+	doc/sane-lexmark.man: fix author name accentuation and capitalization
+
+2010-03-01 Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.c backend/genesys_gl646.c
+	backend/genesys_devices.h: enable warming up and calibration cache
+	for HP3670
+
 2010-02-28 Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl646.h: tune HP2400/G2410 settings

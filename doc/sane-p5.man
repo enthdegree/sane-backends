@@ -129,7 +129,7 @@ level   debug output
 sane(7), sane\-net(5), saned(8)
 
 .SH "AUTHOR"
-St\['e]phane VOLTZ <stef.dev@free.fr>
+St\['e]phane Voltz <stef.dev@free.fr>
 
 .SH "CREDITS"
 Support for the Prima PagePartner has been made possible thank to an hardware donation

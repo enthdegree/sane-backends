@@ -149,7 +149,7 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 .SH "AUTHOR"
 .TP 
-This backend has been developped by Stéphane Voltz.
+This backend has been developped by St\['e]phane Voltz.
 .I http://stef.dev.free.fr/sane/rts8891
 .SH "CREDITS"
 .TP 

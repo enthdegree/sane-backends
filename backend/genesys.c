@@ -1733,7 +1733,9 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
   if ((dev->model->ccd_type == CCD_HP2300
        && dev->model->motor_type == MOTOR_HP2300)
       || (dev->model->ccd_type == CCD_HP2400
-	  && dev->model->motor_type == MOTOR_HP2400))
+	  && dev->model->motor_type == MOTOR_HP2400)
+      || (dev->model->ccd_type == CCD_HP3670
+	  && dev->model->motor_type == MOTOR_HP3670))
     {
       top = 0;
       count = 0;

@@ -4439,8 +4439,10 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   /* we are not going to move, so clear these bits */
   dev->reg[reg_0x02].value &= ~(REG02_FASTFED | REG02_AGOHOME);
 
-  /* don't enable gamma correction for this scan */
-  dev->reg[reg_0x05].value &= ~REG05_GMMENB;
+  /* don't enable any correction for this scan */
+  dev->reg[reg_0x01].value &= ~REG01_DVDSET;
+  /* XXX STEF XXX
+  dev->reg[reg_0x05].value &= ~REG05_GMMENB; */
 
   /* turn off motor during this scan */
   gl646_set_motor_power (local_reg, SANE_FALSE);
@@ -5304,7 +5306,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
        for_overwrite);
 
   /* calibration caching not supported yet for HP3670 */
-  if (cache == NULL || dev->model->ccd_type == CCD_HP3670 || dev->model->ccd_type == CCD_HP2400)
+  if (cache == NULL || dev->model->ccd_type == CCD_HP2400)
     return SANE_STATUS_UNSUPPORTED;
 
   /* build minimal current_setup for calibration cache use only, it will be better

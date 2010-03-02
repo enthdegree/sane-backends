@@ -55,7 +55,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 12
+#define BUILD 13
 
 #include <errno.h>
 #include <string.h>
@@ -114,21 +114,9 @@ static SANE_String_Const cis_color_filter_list[] = {
 };
 
 static SANE_String_Const source_list[] = {
-  SANE_I18N ("Flatbed"),
-  SANE_I18N ("Transparency Adapter"),
+  SANE_I18N (FLATBED),
+  SANE_I18N (TRANSPARENCY_ADAPTER),
   0
-};
-
-static SANE_Range x_range = {
-  SANE_FIX (0.0),		/* minimum */
-  SANE_FIX (216.0),		/* maximum */
-  SANE_FIX (0.0)		/* quantization */
-};
-
-static SANE_Range y_range = {
-  SANE_FIX (0.0),		/* minimum */
-  SANE_FIX (299.0),		/* maximum */
-  SANE_FIX (0.0)		/* quantization */
 };
 
 static SANE_Range time_range = {
@@ -5334,7 +5322,7 @@ calc_parameters (Genesys_Scanner * s)
     s->dev->settings.scan_mode = SCAN_MODE_LINEART;
 
   /* todo: change and check */
-  if (strcmp (source, "Flatbed") == 0)
+  if (strcmp (source, FLATBED) == 0)
     s->dev->settings.scan_method = SCAN_METHOD_FLATBED;
   else				/* transparency */
     s->dev->settings.scan_method = SCAN_METHOD_TRANSPARENCY;
@@ -5427,6 +5415,26 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
   scanner->val[option].wa = NULL;
 }
 
+/** 
+ * allocate a geometry range
+ * @param size maximum size of the range
+ * @return a poiter to a valid range or NULL
+ */
+static create_range(SANE_Fixed size)
+{
+SANE_Range *range=NULL;
+
+  range=(SANE_Range *)malloc(sizeof(SANE_Range));
+  if(range!=NULL)
+    {
+      range->min = SANE_FIX (0.0);
+      range->max = size;
+      range->quant = SANE_FIX (0.0);
+    }
+  return range;
+}
+
+
 static SANE_Status
 init_options (Genesys_Scanner * s)
 {
@@ -5435,6 +5443,7 @@ init_options (Genesys_Scanner * s)
   SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
   SANE_Bool has_ta;
+  SANE_Range *x_range, *y_range;
 
   DBG (DBG_proc, "init_options: start\n");
 
@@ -5482,7 +5491,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_SOURCE].size = max_string_size (source_list);
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
-  s->val[OPT_SOURCE].s = strdup ("Flatbed");
+  s->val[OPT_SOURCE].s = strdup (FLATBED);
   DISABLE (OPT_SOURCE);
 
   /* preview */
@@ -5533,8 +5542,17 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_GEOMETRY_GROUP].size = 0;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-  x_range.max = model->x_size;
-  y_range.max = model->y_size;
+  x_range=create_range(model->x_size);
+  if(x_range==NULL)
+    {
+      return SANE_STATUS_NO_MEM;
+    }
+
+  y_range=create_range(model->x_size);
+  if(y_range==NULL)
+    {
+      return SANE_STATUS_NO_MEM;
+    }
 
   /* top-left x */
   s->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
@@ -5543,7 +5561,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_TL_X].type = SANE_TYPE_FIXED;
   s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
   s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_TL_X].constraint.range = &x_range;
+  s->opt[OPT_TL_X].constraint.range = x_range;
   s->val[OPT_TL_X].w = 0;
 
   /* top-left y */
@@ -5553,7 +5571,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_TL_Y].type = SANE_TYPE_FIXED;
   s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_TL_Y].constraint.range = &y_range;
+  s->opt[OPT_TL_Y].constraint.range = y_range;
   s->val[OPT_TL_Y].w = 0;
 
   /* bottom-right x */
@@ -5563,8 +5581,8 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_BR_X].type = SANE_TYPE_FIXED;
   s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_BR_X].constraint.range = &x_range;
-  s->val[OPT_BR_X].w = x_range.max;
+  s->opt[OPT_BR_X].constraint.range = x_range;
+  s->val[OPT_BR_X].w = x_range->max;
 
   /* bottom-right y */
   s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
@@ -5573,8 +5591,8 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_BR_Y].type = SANE_TYPE_FIXED;
   s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_BR_Y].constraint.range = &y_range;
-  s->val[OPT_BR_Y].w = y_range.max;
+  s->opt[OPT_BR_Y].constraint.range = y_range;
+  s->val[OPT_BR_Y].w = y_range->max;
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
@@ -6523,6 +6541,8 @@ sane_close (SANE_Handle handle)
   free (s->val[OPT_SOURCE].s);
   free (s->val[OPT_MODE].s);
   free (s->val[OPT_COLOR_FILTER].s);
+  FREE_IFNOT_NULL (s->opt[OPT_TL_X].constraint.range);
+  FREE_IFNOT_NULL (s->opt[OPT_TL_Y].constraint.range);
 
   if (prev)
     prev->next = s->next;
@@ -6685,6 +6705,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *table;
   unsigned int i;
+  SANE_Range *x_range, *y_range;
   Genesys_Calibration_Cache *cache, *next_cache;
 
   switch (option)
@@ -6714,6 +6735,36 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  if (s->val[option].s)
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
+
+          /* change geometry constraint to the new source value */
+          if (strcmp (s->val[option].s, FLATBED) == 0)
+            {
+              x_range=create_range(s->dev->model->x_size);
+              y_range=create_range(s->dev->model->x_size);
+            }
+          else
+            {
+              x_range=create_range(s->dev->model->x_size_ta);
+              y_range=create_range(s->dev->model->x_size_ta);
+            }
+          if(x_range==NULL || y_range==NULL)
+            {
+              return SANE_STATUS_NO_MEM;
+            }
+
+          /* assign new values */
+          free(s->opt[OPT_TL_X].constraint.range);
+          free(s->opt[OPT_TL_Y].constraint.range);
+          s->opt[OPT_TL_X].constraint.range = x_range;
+          s->val[OPT_TL_X].w = 0;
+          s->opt[OPT_TL_Y].constraint.range = y_range;
+          s->val[OPT_TL_Y].w = 0;
+          s->opt[OPT_BR_X].constraint.range = x_range;
+          s->opt[OPT_BR_Y].constraint.range = y_range;
+          s->val[OPT_BR_Y].w = y_range->max;
+          s->val[OPT_BR_X].w = x_range->max;
+
+          /* signals reload */
 	  *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	}
       break;

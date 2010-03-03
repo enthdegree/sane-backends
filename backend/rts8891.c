@@ -1035,6 +1035,28 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 }
 
 /**
+ * returns the name of the sensor
+ * @param sensor sensor numnber
+ * @return string holding the name of the sensor
+ */
+static char *sensor_name (int sensor)
+{
+  switch (sensor)
+    {
+    case SENSOR_TYPE_BARE:
+      return "SENSOR_TYPE_BARE";
+    case SENSOR_TYPE_XPA:
+      return "SENSOR_TYPE_XPA";
+    case SENSOR_TYPE_4400:
+      return "SENSOR_TYPE_4400";
+    case SENSOR_TYPE_4400_BARE:
+      return "SENSOR_TYPE_4400_BARE";
+    default:
+      return "BOGUS";
+    }
+}
+
+/**
  * Called by SANE when a page acquisition operation is to be started.
  * @param handle opaque handle to a frontend session
  * @return SANE_STATUS_GOOD on success, SANE_STATUS_BUSY if the device is
@@ -1121,9 +1143,9 @@ sane_start (SANE_Handle handle)
 	    }
 	  return SANE_STATUS_WARMING_UP;
 #else
-          DBG (DBG_info,
-	   "sane_start: waiting to let lamp get warm enough ...\n");
-          sleep(15 - (current.tv_sec - dev->start_time.tv_sec));
+	  DBG (DBG_info,
+	       "sane_start: waiting to let lamp get warm enough ...\n");
+	  sleep (15 - (current.tv_sec - dev->start_time.tv_sec));
 #endif
 	}
 #else
@@ -1138,8 +1160,8 @@ sane_start (SANE_Handle handle)
   dev->regs[LAMP_BRIGHT_REG] = 0xA7;
   sanei_rts88xx_write_reg (dev->devnum, LAMP_BRIGHT_REG,
 			   dev->regs + LAMP_BRIGHT_REG);
-
-  DBG (DBG_info, "sane_start: sensor type is %d\n", dev->sensor);
+  DBG (DBG_info, "sane_start: sensor initial type is %s (%d)\n",
+       sensor_name (dev->sensor), dev->sensor);
 
   /* step 1: locate scan area by doing a scan, then goto calibration area */
   /* we also detect if the sensor type is inadequate and then change it   */
@@ -1164,20 +1186,23 @@ sane_start (SANE_Handle handle)
 	  switch (dev->sensor)
 	    {
 	    case SENSOR_TYPE_BARE:
-	      DBG (DBG_info, "sane_start: sensor changed to type 'xpa'!\n");
+	      DBG (DBG_info,
+		   "sane_start: sensor changed to type 'SENSOR_TYPE_XPA'!\n");
 	      dev->sensor = SENSOR_TYPE_XPA;
 	      break;
 	    case SENSOR_TYPE_XPA:
-	      DBG (DBG_info, "sane_start: sensor changed to type 'bare'!\n");
+	      DBG (DBG_info,
+		   "sane_start: sensor changed to type 'SENSOR_TYPE_BARE'!\n");
 	      dev->sensor = SENSOR_TYPE_BARE;
 	      break;
 	    case SENSOR_TYPE_4400:
 	      DBG (DBG_info,
-		   "sane_start: sensor changed to type '4400 bare'!\n");
+		   "sane_start: sensor changed to type '4400 SENSOR_TYPE_4400_BARE'!\n");
 	      dev->sensor = SENSOR_TYPE_4400_BARE;
 	      break;
 	    case SENSOR_TYPE_4400_BARE:
-	      DBG (DBG_info, "sane_start: sensor changed to type '4400'!\n");
+	      DBG (DBG_info,
+		   "sane_start: sensor changed to type 'SENSOR_TYPE_4400'!\n");
 	      dev->sensor = SENSOR_TYPE_4400;
 	      break;
 	    }
@@ -1206,7 +1231,8 @@ sane_start (SANE_Handle handle)
       mode = 0x20;
       break;
     }
-  DBG (DBG_info, "sane_start: sensor=%d\n", dev->sensor);
+  DBG (DBG_info, "sane_start: sensor final type is %s (%d)\n",
+       sensor_name (dev->sensor), dev->sensor);
   DBG (DBG_info, "sane_start: mode=0x%02x, light=0x%02x\n", mode, light);
 
   /* step 2: dark calibration */
@@ -3764,6 +3790,7 @@ init_device (struct Rts8891_Device *dev)
   else
     {
       DBG (DBG_info, "init_device: SENSOR_TYPE_4400_BARE detected\n");
+      dev->sensor = SENSOR_TYPE_4400_BARE;
     }
 
   /* initial set written to scanner
@@ -5382,6 +5409,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
   FILE *dbg = NULL;
 
   DBG (DBG_proc, "shading_calibration: start\n");
+  DBG (DBG_info, "shading_calibration: sensor type is %s (%d)\n",
+       sensor_name (dev->sensor), dev->sensor);
 
   width = dev->pixels;
   size = lines * dev->bytes_per_line;
@@ -5473,7 +5502,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
       dev->regs[0x8a] = 0x00;	/* 0x01 */
       dev->regs[0x8d] = 0x00;	/* 0x77 */
       /* c5,c6 ?? */
-      /* dev->regs[0xd3] = 0x02;	 0x0e */
+      /* dev->regs[0xd3] = 0x02;         0x0e */
       dev->regs[0xd4] = 0x04;	/* 0x10 */
       dev->regs[0xe2] = 0x02;	/* 0x05 */
       /* dev->regs[0xe5] = 0xbb;    
@@ -5504,6 +5533,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
       switch (dev->sensor)
 	{
 	case SENSOR_TYPE_XPA:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_XPA for 150 dpi\n");
 	  dev->regs[0x80] = 0x2b;
 	  dev->regs[0x81] = 0x02;	/* 22b=555 */
 	  dev->regs[0x82] = 0x2c;
@@ -5540,6 +5571,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 228);
 	  break;
 	case SENSOR_TYPE_BARE:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_BARE for 150 dpi\n");
 	  dev->regs[0x80] = 0x2e;
 	  dev->regs[0x81] = 0x01;	/* 12e=302 */
 	  dev->regs[0x82] = 0x2f;
@@ -5572,6 +5605,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 228);
 	  break;
 	case SENSOR_TYPE_4400:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_4400 for 150 dpi\n");
 	  dev->regs[0x80] = 0x2e;
 	  dev->regs[0x81] = 0x01;
 	  dev->regs[0x82] = 0x2f;
@@ -5607,6 +5642,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 457);
 	  break;
 	case SENSOR_TYPE_4400_BARE:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_4400_BARE for 150 dpi\n");
 	  dev->regs[0x13] = 0x39;	/* 0x20 */
 	  dev->regs[0x14] = 0xf0;	/* 0xf8 */
 	  dev->regs[0x15] = 0x29;	/* 0x28 */
@@ -5636,7 +5673,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xf7;	/* 0xea */
 	  dev->regs[0xd1] = 0xea;	/* 0xf3 */
 	  dev->regs[0xd2] = 0x0b;	/* 0x14 */
-	  /* dev->regs[0xd3] = 0x17;	 0x02 */
+	  /* dev->regs[0xd3] = 0x17;     0x02 */
 	  dev->regs[0xd4] = 0x01;	/* 0x04 */
 	  dev->regs[0xe2] = 0x02;	/* 0x05 */
 	  /* regs[0xe5] = 0x93;   regs[0xe6] = 0x03; */
@@ -5649,6 +5686,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
       switch (dev->sensor)
 	{
 	case SENSOR_TYPE_XPA:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_XPA for 300 dpi\n");
 	  dev->regs[0x80] = 0xb0;
 	  dev->regs[0x81] = 0x00;
 	  dev->regs[0x82] = 0xb1;
@@ -5686,6 +5725,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 457);
 	  break;
 	case SENSOR_TYPE_BARE:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_BARE for 300 dpi\n");
 	  dev->regs[0x80] = 0x2e;
 	  dev->regs[0x81] = 0x01;
 	  dev->regs[0x82] = 0x2f;
@@ -5723,6 +5764,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 457);
 	  break;
 	case SENSOR_TYPE_4400:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_4400 for 300 dpi\n");
 	  dev->regs[0x80] = 0x2b;
 	  dev->regs[0x81] = 0x02;
 	  dev->regs[0x82] = 0x2c;
@@ -5758,6 +5801,12 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  /* 0x0393 = 915 = 2*457+1 */
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 915);
 	  break;
+
+	case SENSOR_TYPE_4400_BARE:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_4400_BARE for 300 dpi\n");
+	  return SANE_STATUS_INVAL;
+	  break;
 	}
       break;
 
@@ -5765,6 +5814,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
       switch (dev->sensor)
 	{
 	case SENSOR_TYPE_BARE:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_BARE for 600 dpi\n");
 	  dev->regs[0x34] = 0x10;
 
 	  dev->regs[0x72] = 0x3a;
@@ -5811,6 +5862,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  break;
 
 	case SENSOR_TYPE_XPA:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_XPA for 600 dpi\n");
 	  dev->regs[0x33] = 0x86;
 	  dev->regs[0x34] = 0x10;
 	  dev->regs[0x50] = 0x18;
@@ -5856,6 +5909,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  break;
 
 	case SENSOR_TYPE_4400:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_4400 for 600 dpi\n");
 	  light = 0x23;
 
 	  dev->regs[0x13] = 0x39;
@@ -5901,7 +5956,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xf4;
 	  dev->regs[0xd1] = 0xe7;
 	  dev->regs[0xd2] = 0x08;
-	  /*dev->regs[0xd3] = 0x0e;*/
+	  /*dev->regs[0xd3] = 0x0e; */
 	  dev->regs[0xd4] = 0x10;
 	  dev->regs[0xd7] = 0x31;
 	  dev->regs[0xe2] = 0x02;
@@ -5910,6 +5965,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  break;
 
 	case SENSOR_TYPE_4400_BARE:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_4400_BARE for 600 dpi\n");
 	  return SANE_STATUS_INVAL;
 	  break;
 	}
@@ -5919,6 +5976,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
       switch (dev->sensor)
 	{
 	case SENSOR_TYPE_BARE:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_BARE for 1200 dpi\n");
 	  dev->regs[0x34] = 0xf0;
 	  dev->regs[0x40] = 0xa0;
 
@@ -5966,6 +6025,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 1832);
 	  break;
 	case SENSOR_TYPE_XPA:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_XPA for 1200 dpi\n");
 	  dev->regs[0x34] = 0xf0;
 	  dev->regs[0x40] = 0xa0;
 
@@ -6018,6 +6079,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  break;
 
 	case SENSOR_TYPE_4400:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_4400 for 1200 dpi\n");
 	  dev->regs[0x13] = 0x39;
 	  dev->regs[0x14] = 0xf0;
 	  dev->regs[0x15] = 0x29;
@@ -6069,6 +6132,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  break;
 
 	case SENSOR_TYPE_4400_BARE:
+	  DBG (DBG_io,
+	       "shading_calibration: setting up SENSOR_TYPE_4400_BARE for 1200 dpi\n");
 	  return SANE_STATUS_INVAL;
 	  break;
 	}
@@ -6368,7 +6433,7 @@ send_calibration_data (struct Rts8891_Session *session)
     }
 
   /* signals color format/divisor from hardware */
-  format=rts8891_data_format (dev->xdpi, dev->sensor);
+  format = rts8891_data_format (dev->xdpi, dev->sensor);
   status = sanei_rts88xx_write_reg (dev->devnum, 0xd3, &format);
 
   /* for some reason, we have to add 6 to the size for the first write */
@@ -6892,6 +6957,7 @@ write_scan_registers (struct Rts8891_Session *session)
       switch (dev->sensor)
 	{
 	case SENSOR_TYPE_XPA:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_XPA for 150 dpi\n");
 	  dev->regs[0xc0] = 0x00;
 	  dev->regs[0xc1] = 0x8e;
 	  dev->regs[0xc2] = 0xff;
@@ -6915,6 +6981,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  dev->regs[0xd4] = 0x0d;
 	  break;
 	case SENSOR_TYPE_BARE:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_BARE for 150 dpi\n");
 	  dev->regs[0xc0] = 0x80;
 	  dev->regs[0xc1] = 0x87;
 	  dev->regs[0xc2] = 0x7f;
@@ -6933,6 +7000,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  dev->regs[0xd4] = 0x10;
 	  break;
 	case SENSOR_TYPE_4400:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_4400 for 150 dpi\n");
 	  dev->regs[0x35] = 0x47;
 
 	  dev->regs[0x80] = 0x2e;
@@ -6988,6 +7056,7 @@ write_scan_registers (struct Rts8891_Session *session)
       switch (dev->sensor)
 	{
 	case SENSOR_TYPE_XPA:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_XPA for 300 dpi\n");
 	  dev->regs[0x35] = 0x0e;	/* fast ? */
 	  dev->regs[0x3a] = 0x0e;
 
@@ -7046,6 +7115,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  dev->regs[0xf2] = 0x00;
 	  break;
 	case SENSOR_TYPE_BARE:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_BARE for 300 dpi\n");
 	  dev->regs[0x35] = 0x0e;	/* fast ? */
 	  dev->regs[0x3a] = 0x0e;
 
@@ -7103,6 +7173,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 342);
 	  break;
 	case SENSOR_TYPE_4400:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_4400 for 300 dpi\n");
 	  dev->regs[0x11] = 0x22;
 	  dev->regs[0x35] = 0x0e;
 	  dev->regs[0x3a] = 0x0e;
@@ -7161,6 +7232,7 @@ write_scan_registers (struct Rts8891_Session *session)
       switch (dev->sensor)
 	{
 	case SENSOR_TYPE_BARE:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_BARE for 600 dpi\n");
 
 	  dev->regs[0x34] = 0xf0;
 	  dev->regs[0x35] = 0x1b;
@@ -7220,6 +7292,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  dev->regs[0xf2] = 0x00;
 	  break;
 	case SENSOR_TYPE_XPA:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_XPA for 600 dpi\n");
 	  status2 = 0x3f;
 
 	  dev->regs[0x33] = 0x86;
@@ -7290,6 +7363,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  break;
 
 	case SENSOR_TYPE_4400:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_4400 for 600 dpi\n");
 	  status1 = 0x10;
 	  status2 = 0x23;
 
@@ -7358,6 +7432,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  break;
 
 	case SENSOR_TYPE_4400_BARE:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_4400_BARE for 600 dpi\n");
 	  return SANE_STATUS_INVAL;
 	  break;
 	}
@@ -7367,6 +7442,7 @@ write_scan_registers (struct Rts8891_Session *session)
       switch (dev->sensor)
 	{
 	case SENSOR_TYPE_BARE:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_BARE for 1200 dpi\n");
 
 	  dev->regs[0x34] = 0xf0;
 	  dev->regs[0x35] = 0x1b;
@@ -7428,6 +7504,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  dev->regs[0xf2] = 0x00;
 	  break;
 	case SENSOR_TYPE_XPA:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_XPA for 1200 dpi\n");
 	  status2 = 0x3f;
 
 	  dev->regs[0x34] = 0xf0;
@@ -7493,6 +7570,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  break;
 
 	case SENSOR_TYPE_4400:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_4400 for 1200 dpi\n");
 	  dev->regs[0x13] = 0x39;
 	  dev->regs[0x14] = 0xf0;
 	  dev->regs[0x15] = 0x29;
@@ -7561,6 +7639,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  break;
 
 	case SENSOR_TYPE_4400_BARE:
+          DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_4400_BARE for 1200 dpi\n");
 	  return SANE_STATUS_INVAL;
 	  break;
 	}

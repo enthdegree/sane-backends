@@ -118,7 +118,7 @@
 
 /* #define FAST_INIT 1 */
 
-#define BUILD 30
+#define BUILD 31
 
 #define MOVE_DPI 100
 

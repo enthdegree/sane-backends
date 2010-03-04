@@ -1,3 +1,11 @@
+2010-03-04 Stéphane Voltz <stef.dev at free.fr>
+	* backend/rts8891.c backend/rts8891.h: add debug traces for sensor
+	type handling
+
+2010-03-04 Stéphane Voltz <stef.dev at free.fr>
+	* doc/desc/genesys.desc: fix HP2400/G2410 USB id, update HP3670
+	status
+
 2010-03-01 Stéphane Voltz <stef.dev at free.fr>
 	* doc/sane-p5.man doc/sane-umax_pp.man doc/sane-rts8891.man
 	doc/sane-lexmark.man: fix author name accentuation and capitalization

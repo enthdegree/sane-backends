@@ -42,21 +42,21 @@
 
 :model "ScanJet 2400C"
 :interface "USB"
-:usbid "0x03f0" "0x0901"
+:usbid "0x03f0" "0x0a01"
 :status :untested
 :comment "1200x1200 dpi max"
 
 :model "ScanJet G2410"
 :interface "USB"
-:usbid "0x03f0" "0x0901"
+:usbid "0x03f0" "0x0a01"
 :status :untested
 :comment same as HP2400C
 
 :model "ScanJet 3670C"
 :interface "USB"
 :usbid "0x03f0" "0x1405"
-:status :basic
-:comment "1200x1200 dpi max, all mode supported but uncalibrated"
+:status :complete
+:comment "1200x1200 dpi max, basic XPA support"
 
 ; -----------------------------------------------------------------------------
 

@@ -3783,14 +3783,17 @@ init_device (struct Rts8891_Device *dev)
   /* initial sensor guess */
   val = dev->regs[0x44] + 256 * dev->regs[0x45];
   DBG (DBG_io, "init_device: R44/45=0x%04x\n", val);
-  if (dev->sensor == SENSOR_TYPE_4400 && val != 0x00)
+  if (dev->sensor == SENSOR_TYPE_4400)
     {
-      DBG (DBG_info, "init_device: SENSOR_TYPE_4400 detected\n");
-    }
-  else
-    {
-      DBG (DBG_info, "init_device: SENSOR_TYPE_4400_BARE detected\n");
-      dev->sensor = SENSOR_TYPE_4400_BARE;
+      if(val != 0x00)
+        {
+          DBG (DBG_info, "init_device: SENSOR_TYPE_4400 detected\n");
+        }
+      else
+        {
+          DBG (DBG_info, "init_device: SENSOR_TYPE_4400_BARE detected\n");
+          dev->sensor = SENSOR_TYPE_4400_BARE;
+        }
     }
 
   /* initial set written to scanner
@@ -7829,3 +7832,5 @@ set_lamp_state (struct Rts8891_Session *session, int on)
     }
   return status;
 }
+
+/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

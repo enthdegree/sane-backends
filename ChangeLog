@@ -1,3 +1,6 @@
+2010-03-05 Stéphane Voltz <stef.dev at free.fr>
+	* backend/rts8891.c: fix HP4470 sensor detection
+
 2010-03-04 Stéphane Voltz <stef.dev at free.fr>
 	* backend/rts8891.c backend/rts8891.h: add debug traces for sensor
 	type handling

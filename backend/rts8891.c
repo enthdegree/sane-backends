@@ -5867,11 +5867,13 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	case SENSOR_TYPE_XPA:
 	  DBG (DBG_io,
 	       "shading_calibration: setting up SENSOR_TYPE_XPA for 600 dpi\n");
-	  dev->regs[0x33] = 0x86;
+	  dev->regs[0x33] = 0x83;       /* 0x86 */
 	  dev->regs[0x34] = 0x10;
-	  dev->regs[0x50] = 0x18;
-	  dev->regs[0x64] = 0x02;
-	  dev->regs[0x65] = 0x10;
+	  dev->regs[0x50] = 0x00;       /* 0x18 */
+	  dev->regs[0x64] = 0x01;       /* 0x02 */
+	  dev->regs[0x65] = 0x20;       /* 0x10 */
+	  dev->regs[0x66] = 0xa6;
+	  dev->regs[0x6c] = 0x92;
 	  dev->regs[0x72] = 0x3a;
 	  dev->regs[0x73] = 0x15;
 	  dev->regs[0x74] = 0x62;
@@ -5906,9 +5908,10 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xf4;
 	  dev->regs[0xd1] = 0xe7;
 	  dev->regs[0xd2] = 0x08;
-	  /* dev->regs[0xd3] = 0x0e; */
+	  dev->regs[0xd3] = 0x0e;
 	  dev->regs[0xd4] = 0x10;
 	  dev->regs[0xd7] = 0x31;
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 915); /* 0x393 */
 	  break;
 
 	case SENSOR_TYPE_4400:
@@ -5959,7 +5962,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xf4;
 	  dev->regs[0xd1] = 0xe7;
 	  dev->regs[0xd2] = 0x08;
-	  /*dev->regs[0xd3] = 0x0e; */
+	  dev->regs[0xd3] = 0x0e;
 	  dev->regs[0xd4] = 0x10;
 	  dev->regs[0xd7] = 0x31;
 	  dev->regs[0xe2] = 0x02;
@@ -7298,15 +7301,18 @@ write_scan_registers (struct Rts8891_Session *session)
           DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_XPA for 600 dpi\n");
 	  status2 = 0x3f;
 
-	  dev->regs[0x33] = 0x86;
+	  dev->regs[0x33] = 0x83; /* 0x86 */
 	  dev->regs[0x34] = 0xf0;
 	  dev->regs[0x35] = 0x1b;
 	  dev->regs[0x36] = 0x29;
 	  dev->regs[0x3a] = 0x1b;
 	  dev->regs[0x40] = 0x24;
-	  dev->regs[0x50] = 0x18;
-	  dev->regs[0x64] = 0x02;
-	  dev->regs[0x65] = 0x10;
+	  dev->regs[0x50] = 0x00; /* 0x18 */
+	  dev->regs[0x64] = 0x01; /* 0x02 */
+	  dev->regs[0x65] = 0x20; /* 0x10 */
+	  dev->regs[0x66] = 0xa6;
+	  dev->regs[0x6c] = 0x92; 
+	  dev->regs[0x6d] = 0x14;
 	  dev->regs[0x72] = 0x3a;
 	  dev->regs[0x73] = 0x15;
 	  dev->regs[0x74] = 0x62;
@@ -7324,8 +7330,8 @@ write_scan_registers (struct Rts8891_Session *session)
 	  dev->regs[0x89] = 0x27;	/* 427=1063 */
 	  dev->regs[0x8a] = 0x04;
 
-	  dev->regs[0x8d] = 0xbc;
-	  dev->regs[0x8e] = 0x63;	/* 25532 */
+	  dev->regs[0x8d] = 0xde;
+	  dev->regs[0x8e] = 0x61;	/* 25054 */
 
 	  dev->regs[0xc0] = 0xf8;
 	  dev->regs[0xc1] = 0x7f;
@@ -7346,7 +7352,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  dev->regs[0xd0] = 0xf4;
 	  dev->regs[0xd1] = 0xe7;
 	  dev->regs[0xd2] = 0x08;
-	  dev->regs[0xd3] = 0x0e;
+	  dev->regs[0xd3] = 0x02;
 	  dev->regs[0xd4] = 0x10;
 	  dev->regs[0xd7] = 0x31;
 	  dev->regs[0xe2] = 0x01;
@@ -7362,7 +7368,7 @@ write_scan_registers (struct Rts8891_Session *session)
 	  dev->regs[0xef] = 0x00;
 	  dev->regs[0xf0] = 0x00;
 	  dev->regs[0xf2] = 0x00;
-	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 2749);
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 2749); /* 0x0abd */
 	  break;
 
 	case SENSOR_TYPE_4400:

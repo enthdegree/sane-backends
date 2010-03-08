@@ -520,6 +520,7 @@ typedef struct Genesys_Current_Setup
     int lines;          /* line count expected from scanner */
     int depth;          /* depth expected from scanner */
     int channels;       /* channel count expected from scanner */
+    int scan_method;	/* scanning method: flatbed or XPA */
     int exposure_time;  /* used exposure time */
     float xres;         /* used xres */
     float yres;         /* used yres*/

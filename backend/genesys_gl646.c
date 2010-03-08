@@ -3214,7 +3214,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
     }
 
   /* fill settings for scan : always a color scan */
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = dev->settings.scan_method;
   settings.scan_mode = dev->settings.scan_mode;
   if (dev->model->is_cis == SANE_FALSE)
     {
@@ -3335,9 +3335,9 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
   DBG (DBG_proc, "setup_for_scan: start\n");
   DBG (DBG_info,
        "setup_for_scan settings:\nResolution: %ux%uDPI\n"
-       "Lines     : %u\nPixels    : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n",
-       settings.xres, settings.yres, settings.lines,
-       settings.pixels, settings.tl_x, settings.tl_y, settings.scan_mode);
+       "Lines     : %u\nPixels    : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\nScan method: %s\n\n",
+       settings.xres, settings.yres, settings.lines, settings.pixels, settings.tl_x, settings.tl_y, settings.scan_mode, 
+       settings.scan_method==SCAN_METHOD_FLATBED ? "flatbed":"XPA");
 
   if (settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     {
@@ -4236,6 +4236,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   float average[3];
   Genesys_Settings settings;
   char title[32];
+  SANE_Bool move=SANE_TRUE;
 
   if (dev->model->ccd_type == CIS_XP200)
     {
@@ -4260,14 +4261,23 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
     }
 
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = dev->settings.scan_method;
   settings.scan_mode = SCAN_MODE_COLOR;
   settings.xres = resolution;
   settings.yres = resolution;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-  settings.pixels =
-    (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
+  if(settings.scan_method==SCAN_METHOD_FLATBED)
+    {
+      settings.tl_x = 0;
+      settings.tl_y = 0;
+      settings.pixels =
+        (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
+    }
+  else
+    {
+      settings.tl_x = (dev->model->x_offset_ta * resolution) / dev->sensor.optical_res;
+      settings.tl_y = (dev->model->y_offset_calib_ta * resolution) / dev->sensor.optical_res;
+      settings.pixels = (dev->model->x_size_ta * resolution) / dev->sensor.optical_res;
+    }
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
   settings.color_filter = 0;
@@ -4308,15 +4318,19 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	  || (average[1] < dev->sensor.gain_white_ref)
 	  || (average[2] < dev->sensor.gain_white_ref)) && (pass < 30))
     {
-      /* scan with no move */
+      /* scan with no move but for first scan */
       status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
+	simple_scan (dev, settings, move, SANE_TRUE, SANE_FALSE, &line);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
 	       "gl646_coarse_gain_calibration: failed to scan first line\n");
 	  return status;
 	}
+
+      /* after first scan, we don't move anymore */
+      move = SANE_TRUE;
+      settings.tl_y = 0;
 
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
@@ -4939,6 +4953,12 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
       dev->reg[reg_0x02].value &= ~REG02_MTRREV;
     }
 
+  /* no automatic go home when using XPA */
+  if(settings.scan_method==SCAN_METHOD_TRANSPARENCY)
+    {
+      dev->reg[reg_0x02].value &= ~REG02_AGOHOME;
+    }
+
   /* write scan registers */
   status = gl646_bulk_write_register (dev, dev->reg,
 				      sizeof (dev->reg) /
@@ -5305,8 +5325,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
        "gl646_is_compatible_calibration: start (for_overwrite=%d)\n",
        for_overwrite);
 
-  /* calibration caching not supported yet for HP3670 */
-  if (cache == NULL || dev->model->ccd_type == CCD_HP2400)
+  if (cache == NULL)
     return SANE_STATUS_UNSUPPORTED;
 
   /* build minimal current_setup for calibration cache use only, it will be better
@@ -5321,6 +5340,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
       dev->current_setup.channels = 1;
     }
   dev->current_setup.xres = dev->settings.xres;
+  dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG (DBG_io,
        "gl646_is_compatible_calibration: requested=(%d,%f), tested=(%d,%f)\n",
@@ -5335,6 +5355,8 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
 	((dev->current_setup.channels == cache->used_setup.channels)
 	 && (((int) dev->current_setup.xres) ==
 	     ((int) cache->used_setup.xres)));
+      if(dev->current_setup.scan_method !=  cache->used_setup.scan_method)
+        compatible = SANE_STATUS_UNSUPPORTED;
     }
   else
     {

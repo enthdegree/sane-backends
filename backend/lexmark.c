@@ -167,6 +167,7 @@ init_options (Lexmark_Device * dev)
       od->constraint.word_list = x1100_dpi_list;
       break;
     case X1200_SENSOR:
+    case X1200_USB2_SENSOR:
       od->constraint.word_list = x1200_dpi_list;
       break;
     }

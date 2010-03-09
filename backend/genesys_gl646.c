@@ -4139,11 +4139,9 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
-      resolution =
-	get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
-      channels = 3;
-      settings.scan_mode = SCAN_MODE_COLOR;
-
+  resolution = get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
+  channels = 3;
+  settings.scan_mode = SCAN_MODE_COLOR;
 
   settings.scan_method = SCAN_METHOD_FLATBED;
   settings.xres = resolution;
@@ -4224,7 +4222,10 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
 /**
  * Alternative coarse gain calibration 
- * this on uses the settings from offset_calibration.
+ * this on uses the settings from offset_calibration. First scan moves so
+ * we can go to calibration area for XPA.
+ * @param dev device for scan
+ * @param dpi resolutnio to calibrate at
  */
 static SANE_Status
 gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
@@ -4258,7 +4259,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   else
     {
       resolution =
-	get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
+	get_closest_resolution (dev->model->ccd_type, dev->settings.xres, SANE_TRUE);
     }
 
   settings.scan_method = dev->settings.scan_method;
@@ -4305,10 +4306,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       average[0] = 255;
       average[1] = 255;
       average[2] = 255;
-      if (dev->model->ccd_type == CIS_XP200)
-	idx = 0;
-      else
-	idx = dev->settings.color_filter;
+      idx = dev->settings.color_filter;
       average[idx] = 0;
     }
   pass = 0;
@@ -4329,7 +4327,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	}
 
       /* after first scan, we don't move anymore */
-      move = SANE_TRUE;
+      move = SANE_FALSE;
       settings.tl_y = 0;
 
       /* log scanning data */
@@ -4870,6 +4868,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   unsigned char *buffer;
 
   DBG (DBG_proc, "simple_scan: starting\n");
+  DBG (DBG_io, "simple_scan: move=%d, forward=%d, shading=%d\n",move,forward,shading);
 
   /* round up to multiple of 3 in case of CIS scanner */
   if (dev->model->is_cis == SANE_TRUE)
@@ -4984,6 +4983,12 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   /* wait for buffers to be filled */
   do
     {
+      usleep (10000UL);
+      RIE (sanei_genesys_get_status (dev, &empty));
+      if (DBG_LEVEL > DBG_info)
+        {
+          print_status (empty);
+        }
       RIE (sanei_genesys_test_buffer_empty (dev, &empty));
     }
   while (empty);

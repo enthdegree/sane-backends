@@ -5548,7 +5548,7 @@ init_options (Genesys_Scanner * s)
       return SANE_STATUS_NO_MEM;
     }
 
-  y_range=create_range(model->x_size);
+  y_range=create_range(model->y_size);
   if(y_range==NULL)
     {
       return SANE_STATUS_NO_MEM;
@@ -6740,12 +6740,12 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
           if (strcmp (s->val[option].s, FLATBED) == 0)
             {
               x_range=create_range(s->dev->model->x_size);
-              y_range=create_range(s->dev->model->x_size);
+              y_range=create_range(s->dev->model->y_size);
             }
           else
             {
               x_range=create_range(s->dev->model->x_size_ta);
-              y_range=create_range(s->dev->model->x_size_ta);
+              y_range=create_range(s->dev->model->y_size_ta);
             }
           if(x_range==NULL || y_range==NULL)
             {
@@ -6760,8 +6760,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
           s->opt[OPT_TL_Y].constraint.range = y_range;
           s->val[OPT_TL_Y].w = 0;
           s->opt[OPT_BR_X].constraint.range = x_range;
-          s->opt[OPT_BR_Y].constraint.range = y_range;
           s->val[OPT_BR_Y].w = y_range->max;
+          s->opt[OPT_BR_Y].constraint.range = y_range;
           s->val[OPT_BR_X].w = x_range->max;
 
           /* signals reload */

@@ -1062,7 +1062,7 @@ static Genesys_Model hp3670c_model = {
 
   SANE_FIX (52.2),		/* Start of scan area in TA mode in mm (x) */
   SANE_FIX (55.6),		/* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (21.6),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (25.6),		/* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
 
   SANE_FIX (43.2),		/* Start of white strip in TA mode in mm (y) */

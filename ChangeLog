@@ -1,3 +1,9 @@
+2010-03-11 Stéphane Voltz <stef.dev at free.fr>
+	* backend/rts8891.c: further register tweaking for 600 dpi scans
+
+2010-03-11 Stéphane Voltz <stef.dev at free.fr>
+	* backend/lexmark.c: minor bugfix when assigning possible dpi list
+
 2010-03-07 Stéphane Voltz <stef.dev at free.fr>
 	* backend/rts8891.c: tweak register settings at 600 dpi for HP4470
 

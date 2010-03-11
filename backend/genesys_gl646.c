@@ -3297,7 +3297,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
   SANE_Status status;
 
   /* park head after calibration if needed */
-  if (dev->scanhead_position_in_steps > 0)
+  if (dev->scanhead_position_in_steps > 0 && settings.scan_method==SCAN_METHOD_FLATBED)
     {
       status = gl646_slow_back_home (dev, SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
@@ -4237,7 +4237,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   float average[3];
   Genesys_Settings settings;
   char title[32];
-  SANE_Bool move=SANE_TRUE;
+  SANE_Bool move=SANE_FALSE;
 
   if (dev->model->ccd_type == CIS_XP200)
     {
@@ -4272,12 +4272,14 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       settings.tl_y = 0;
       settings.pixels =
         (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
+      move=SANE_FALSE;
     }
   else
     {
-      settings.tl_x = (dev->model->x_offset_ta * resolution) / dev->sensor.optical_res;
-      settings.tl_y = (dev->model->y_offset_calib_ta * resolution) / dev->sensor.optical_res;
-      settings.pixels = (dev->model->x_size_ta * resolution) / dev->sensor.optical_res;
+      settings.tl_x = (SANE_UNFIX(dev->model->x_offset_ta) * resolution) / MM_PER_INCH;
+      settings.tl_y = (SANE_UNFIX(dev->model->y_offset_calib_ta) * resolution) / MM_PER_INCH;
+      settings.pixels = (SANE_UNFIX(dev->model->x_size_ta) * resolution) / MM_PER_INCH;
+      move=SANE_TRUE;
     }
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
@@ -4864,8 +4866,10 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 {
   SANE_Status status = SANE_STATUS_INVAL;
   unsigned int size, lines, x, y, bpp;
-  SANE_Bool empty;
+  SANE_Bool empty, split;
   unsigned char *buffer;
+  int count;
+  u_int8_t val;
 
   DBG (DBG_proc, "simple_scan: starting\n");
   DBG (DBG_io, "simple_scan: move=%d, forward=%d, shading=%d\n",move,forward,shading);
@@ -4876,7 +4880,16 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
       settings.lines = ((settings.lines + 2) / 3) * 3;
     }
 
-  status = setup_for_scan (dev, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
+  /* setup for move then scan */
+  if(move==SANE_TRUE && settings.tl_y >0)
+    {
+      split=SANE_FALSE;
+    }
+  else
+    {
+      split=SANE_TRUE;
+    }
+  status = setup_for_scan (dev, settings, split, SANE_FALSE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "simple_scan: setup_for_scan failed (%s)\n",
@@ -4981,17 +4994,26 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
     }
 
   /* wait for buffers to be filled */
+  count=0;
   do
     {
       usleep (10000UL);
-      RIE (sanei_genesys_get_status (dev, &empty));
+      RIE (sanei_genesys_get_status (dev, &val));
       if (DBG_LEVEL > DBG_info)
         {
-          print_status (empty);
+          print_status (val);
         }
       RIE (sanei_genesys_test_buffer_empty (dev, &empty));
+      count++;
     }
-  while (empty);
+  while (empty && count <1000);
+  if(count==1000)
+    {
+      free (*data);
+      DBG (DBG_error,
+	   "simple_scan: failed toread data\n"); 
+      return SANE_STATUS_IO_ERROR;
+    }
 
   /* now we're on target, we can read data */
   status = sanei_genesys_read_data_from_scanner (dev, *data, size);
@@ -5360,13 +5382,17 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
 	((dev->current_setup.channels == cache->used_setup.channels)
 	 && (((int) dev->current_setup.xres) ==
 	     ((int) cache->used_setup.xres)));
-      if(dev->current_setup.scan_method !=  cache->used_setup.scan_method)
-        compatible = SANE_STATUS_UNSUPPORTED;
     }
   else
     {
       compatible =
 	(dev->current_setup.channels == cache->used_setup.channels);
+    }
+  if(dev->current_setup.scan_method !=  cache->used_setup.scan_method)
+    {
+      DBG (DBG_io, "gl646_is_compatible_calibration: current method=%d, used=%d\n",
+      dev->current_setup.scan_method, cache->used_setup.scan_method);
+      compatible = SANE_STATUS_UNSUPPORTED;
     }
   if (!compatible)
     {

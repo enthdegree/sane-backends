@@ -604,6 +604,7 @@ calc_shifting (pixma_t * s)
             break;
 
           case MP980_PID:
+	  case MP990_PID:
             if (s->param->ydpi > 150)
               {
                 mp->color_shift = s->param->ydpi / 75;

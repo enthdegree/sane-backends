@@ -1,3 +1,8 @@
+2010-03-15  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc:
+	pixma: fix color shifts for MP990 up to 2400 dpi
+	       updated and reorderd descs for several models.
+
 2010-03-15 Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.[ch] backend/genesys_devices.c backend/genesys_low.h
 	backend/genesys_gl646.[ch] backend/genesys_gl841.c: full transparency 

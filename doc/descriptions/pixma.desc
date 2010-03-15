@@ -405,6 +405,18 @@
 :status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
+:model "imageCLASS MF4010"
+:interface "USB"
+:usbid "0x04a9" "0x26b4"
+:status :complete
+:comment "All resolutions supported (up to 600DPI)"
+
+:model "imageCLASS MF4018"
+:interface "USB"
+:usbid "0x04a9" "0x26b4"
+:status :complete
+:comment "All resolutions supported (up to 600DPI)"
+
 :model "imageCLASS MF4120"
 :interface "USB"
 :usbid "0x04a9" "0x26a3"
@@ -429,6 +441,24 @@
 :status :complete
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
+:model "imageCLASS MF4270"
+:interface "USB"
+:usbid "0x04a9" "0x26b5"
+:status :complete
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
+
+:model "I-SENSYS MF4320d"
+:interface "USB"
+:usbid "0x04a9" "0x26ee"
+:status :complete
+:comment "All resolutions supported (up to 600DPI)"
+
+:model "I-SENSYS MF4330d"
+:interface "USB"
+:usbid "0x04a9" "0x26ee"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)"
+
 :model "imageCLASS MF4350d"
 :interface "USB"
 :usbid "0x04a9" "0x26ee"
@@ -447,41 +477,11 @@
 :status :good
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI). Network not supported"
 
-:model "imageCLASS MF4270"
-:interface "USB"
-:usbid "0x04a9" "0x26b5"
-:status :complete
-:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
-
 :model "imageCLASS MF4690"
 :interface "USB"
 :usbid "0x04a9" "0x26b0"
 :status :complete
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
-
-:model "I-SENSYS MF4320d"
-:interface "USB"
-:usbid "0x04a9" "0x26ee"
-:status :complete
-:comment "All resolutions supported (up to 600DPI)"
-
-:model "I-SENSYS MF4330d"
-:interface "USB"
-:usbid "0x04a9" "0x26ee"
-:status :complete
-:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)"
-
-:model "imageCLASS MF4010"
-:interface "USB"
-:usbid "0x04a9" "0x26b4"
-:status :complete
-:comment "All resolutions supported (up to 600DPI)"
-
-:model "imageCLASS MF4018"
-:interface "USB"
-:usbid "0x04a9" "0x26b4"
-:status :complete
-:comment "All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF6500 series"
 :interface "USB"

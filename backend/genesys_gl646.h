@@ -313,6 +313,19 @@ gl646_setup_registers (Genesys_Device * dev,
 		       uint16_t endx, SANE_Bool color, SANE_Int depth);
 
 /**
+ * Does a simple move of the given distance by doing a scan at lowest resolution
+ * shading correction. Memory for data is allocated in this function
+ * and must be freed by caller.
+ * @param dev device of the scanner
+ * @param distance distance to move in MM
+ */
+#ifndef UNIT_TESTING
+static
+#endif
+  SANE_Status
+simple_move (Genesys_Device * dev, SANE_Int distance); 
+
+/**
  * Does a simple scan of the area given by the settings. Scanned data
  * it put in an allocated area which must be freed by the caller.
  * and slope tables, based on the parameter struct. There is no shading

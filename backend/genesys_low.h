@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2009 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2010 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Parts of the structs have been taken from the gt68xx backend by
@@ -410,6 +410,12 @@ typedef struct Genesys_Command_Set
 	Genesys_Device * dev,
 	Genesys_Calibration_Cache *cache,
         SANE_Bool for_overwrite);
+
+    /* functions for transparency adapter */
+    /**
+     * move scanning head to transparency adapter
+     */
+    SANE_Status (*move_to_ta) (Genesys_Device * dev);
 } Genesys_Command_Set;
 
 typedef struct Genesys_Model
@@ -520,6 +526,7 @@ typedef struct Genesys_Current_Setup
     int lines;          /* line count expected from scanner */
     int depth;          /* depth expected from scanner */
     int channels;       /* channel count expected from scanner */
+    int scan_method;	/* scanning method: flatbed or XPA */
     int exposure_time;  /* used exposure time */
     float xres;         /* used xres */
     float yres;         /* used yres*/

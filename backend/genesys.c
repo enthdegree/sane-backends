@@ -4309,8 +4309,10 @@ genesys_start_scan (Genesys_Device * dev)
       return status;
     }
 
-  /* wait for lamp warmup */
-  if (!(dev->model->flags & GENESYS_FLAG_SKIP_WARMUP))
+  /* wait for lamp warmup : until a warmup for TRANSPARENCY is designed, skip
+   * it when scanning from XPA */
+  if (!(dev->model->flags & GENESYS_FLAG_SKIP_WARMUP)
+    && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
     {
       RIE (genesys_warmup_lamp (dev));
     }
@@ -4355,6 +4357,20 @@ genesys_start_scan (Genesys_Device * dev)
 	      return status;
 	    }
 	  dev->scanhead_position_in_steps = 0;
+	}
+    }
+
+  /* move to calibration area for transparency adapter */
+  if ((dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+      && dev->model->cmd_set->move_to_ta != NULL)
+    {
+      status=dev->model->cmd_set->move_to_ta(dev);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "genesys_start_scan: failed to move to start of transparency adapter: %s\n",
+	       sane_strstatus (status));
+	  return status;
 	}
     }
 
@@ -4518,7 +4534,7 @@ genesys_start_scan (Genesys_Device * dev)
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
-		   "genesys_start_scan: Failed to read valid words: %s\n",
+		   "genesys_start_scan: failed to read valid words: %s\n",
 		   sane_strstatus (status));
 	      return status;
 	    }

@@ -56,7 +56,7 @@
 #define GENESYS_CONFIG_FILE "genesys.conf"
 
 /* Maximum time for lamp warm-up */
-#define WARMUP_TIME 45
+#define WARMUP_TIME 65
 
 #define FLATBED "Flatbed"
 #define TRANSPARENCY_ADAPTER "Transparency Adapter"

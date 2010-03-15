@@ -1,3 +1,8 @@
+2010-03-15 Stéphane Voltz <stef.dev at free.fr>
+	* backend/genesys.[ch] backend/genesys_devices.c backend/genesys_low.h
+	backend/genesys_gl646.[ch] backend/genesys_gl841.c: full transparency 
+	adaptor support for gl646 based scanners
+
 2010-03-11 Stéphane Voltz <stef.dev at free.fr>
 	* backend/rts8891.c: further register tweaking for 600 dpi scans
 

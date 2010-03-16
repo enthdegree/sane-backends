@@ -5867,6 +5867,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	case SENSOR_TYPE_XPA:
 	  DBG (DBG_io,
 	       "shading_calibration: setting up SENSOR_TYPE_XPA for 600 dpi\n");
+          light &= 0xfb;		/* clear bit 2 */
+          dev->regs[0x16] = 0x07;
 	  dev->regs[0x33] = 0x83;       /* 0x86 */
 	  dev->regs[0x34] = 0x10;
 	  dev->regs[0x50] = 0x00;       /* 0x18 */
@@ -7299,8 +7301,8 @@ write_scan_registers (struct Rts8891_Session *session)
 	  break;
 	case SENSOR_TYPE_XPA:
           DBG (DBG_io, "write_scan_registers: setting up SENSOR_TYPE_XPA for 600 dpi\n");
-	  status2 = 0x3f;
 
+          status2 = 0x3b;
 	  dev->regs[0x33] = 0x83; /* 0x86 */
 	  dev->regs[0x34] = 0xf0;
 	  dev->regs[0x35] = 0x1b;

@@ -1,3 +1,6 @@
+2010-03-16 Stéphane Voltz <stef.dev at free.fr>
+	* backend/rts8891.c: change register 0x11 settings for sensor type 1
+
 2010-03-15  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc:
 	pixma: fix color shifts for MP990 up to 2400 dpi

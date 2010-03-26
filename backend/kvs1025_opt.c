@@ -940,7 +940,7 @@ kv_control_option (PKV_DEV dev, SANE_Int option,
 	case OPT_LAMP:
 
 	  strcpy (val, dev->val[option].s);
-	  DBG (DBG_error, "opt value = %s\n", val);
+	  DBG (DBG_error, "opt value = %s\n", (char *) val);
 	  return SANE_STATUS_GOOD;
 
 	default:

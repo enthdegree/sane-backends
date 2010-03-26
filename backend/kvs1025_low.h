@@ -160,8 +160,8 @@ typedef struct kv_scanner_dev
 
   /* Bus info */
   KV_BUS_MODE bus_mode;
-  struct usb_device *usb_fd;
-  usb_dev_handle *usb_handle;
+  SANE_Int usb_fd;
+  char device_name[100];
   char *scsi_device_name;
   SCSI_FD scsi_fd;
 
@@ -224,9 +224,9 @@ void kv_set_window_data (PKV_DEV dev,
 
 /* Prototypes in kvs1025_low.c */
 
-SANE_Status kv_enum_devices ();
+SANE_Status kv_enum_devices (void);
 void kv_get_devices_list (const SANE_Device *** devices_list);
-void kv_exit ();
+void kv_exit (void);
 SANE_Status kv_open (PKV_DEV dev);
 SANE_Bool kv_already_open (PKV_DEV dev);
 SANE_Status kv_open_by_name (SANE_String_Const devicename,

@@ -510,14 +510,14 @@ ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
         coolscan coolscan2 coolscan3 dc25 dc210 dc240 \
         dell1600n_net dmc epjitsu epson epson2 fujitsu genesys \
         gphoto2 gt68xx hp hp3500 hp3900 hp4200 hp5400 \
-        hp5590 hpsj5s hpljm1005 hs2p ibm kodak leo lexmark ma1509 \
+        hp5590 hpsj5s hpljm1005 hs2p ibm kodak kvs1025 \
+        leo lexmark ma1509 \
         matsushita microtek microtek2 mustek mustek_pp \
         mustek_usb mustek_usb2 nec net niash pie pint \
         pixma plustek plustek_pp qcam ricoh rts8891 s9036 \
         sceptre sharp sm3600 sm3840 snapscan sp15c st400 \
         stv680 tamarack teco1 teco2 teco3 test u12 umax 
         umax_pp umax1220u v4l xerox_mfp p5"
-#        kvs1025 \
 
 # If user specifies backends manually then cause configure
 # to fail if its detected it can't be compiled.  If we

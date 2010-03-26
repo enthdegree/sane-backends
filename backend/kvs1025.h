@@ -16,7 +16,7 @@
 #define BACKEND_NAME          kvs1025
 
 /* Build version */
-#define V_BUILD            1
+#define V_BUILD            2
 
 /* Paper range supported -- MAX A4 */
 #define KV_MAX_X_RANGE     210
@@ -92,7 +92,7 @@ SANE_I18N("Automatic separation")
 SANE_Status sane_init (SANE_Int * version_code,
 		       SANE_Auth_Callback /* __sane_unused__ authorize */ );
 
-void sane_exit ();
+void sane_exit (void);
 
 SANE_Status sane_get_devices (const SANE_Device *** device_list,
 			      SANE_Bool /*__sane_unused__ local_only*/ );

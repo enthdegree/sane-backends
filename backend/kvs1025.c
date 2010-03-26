@@ -1,5 +1,6 @@
 /*
    Copyright (C) 2008, Panasonic Russia Ltd.
+   Copyright (C) 2010, m. allan noah
 */
 /* sane - Scanner Access Now Easy.
    Panasonic KV-S1020C / KV-S1025C USB scanners.
@@ -51,9 +52,8 @@ sane_init (SANE_Int * version_code,
   DBG (DBG_sane_init, "sane_init\n");
 
   DBG (DBG_error,
-       "This is panasonic KV-S1020C / KV-S1025C SCSI version %d.%d build %d\n",
+       "This is panasonic KV-S1020C / KV-S1025C version %d.%d build %d\n",
        V_MAJOR, V_MINOR, V_BUILD);
-  DBG (DBG_error, "(C) 2007 by Tao Zhang\n");
 
   if (version_code)
     {
@@ -402,11 +402,15 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle h, SANE_Bool m)
 {
+  h=h;
+  m=m;
   return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
 sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 {
+  h=h;
+  fd=fd;
   return SANE_STATUS_UNSUPPORTED;
 }

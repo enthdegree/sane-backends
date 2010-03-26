@@ -1,3 +1,8 @@
+2010-03-25 m. allan noah <kitno455 at gmail dot com>
+	* backend/kvs1025*: convert backend from libusb to sanei_usb
+	* doc/descriptions/kvs1025.desc, doc/sane-kvs1025.man: update docs
+	* backend/dll.conf.in, configure, configure.in: enable kvs1025 backend
+
 2010-03-16 Stéphane Voltz <stef.dev at free.fr>
 	* backend/rts8891.c: change register 0x11 settings for sensor type 1
 

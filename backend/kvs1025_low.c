@@ -225,13 +225,13 @@ kv_send_command (PKV_DEV dev,
   SANE_Status status = SANE_STATUS_UNSUPPORTED;
   if (dev->bus_mode == KV_USB_BUS)
     {
-      if (dev->usb_handle == NULL)
+      if (!kv_usb_already_open(dev))
 	{
 	  DBG (DBG_error, "kv_send_command error: device not open.\n");
 	  return SANE_STATUS_IO_ERROR;
 	}
 
-      status = kv_usb_send_command (dev->usb_handle, header, response);
+      status = kv_usb_send_command (dev, header, response);
     }
 
   return status;
@@ -953,12 +953,12 @@ ReadImageData (PKV_DEV dev, int page)
 
   if (IS_DUPLEX (dev))
     {
-      DBG (DBG_proc, "ReadImageData: Duplex\n", page);
+      DBG (DBG_proc, "ReadImageData: Duplex %d\n", page);
       status = ReadImageDataDuplex (dev, page);
     }
   else
     {
-      DBG (DBG_proc, "ReadImageData: Simplex\n", page);
+      DBG (DBG_proc, "ReadImageData: Simplex %d\n", page);
       status = ReadImageDataSimplex (dev, page);
     }
   dev->img_pt[0] = dev->img_buffers[0];

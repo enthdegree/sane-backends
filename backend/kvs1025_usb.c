@@ -21,11 +21,6 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
-#include <usb.h>
-#undef DIRECT_USB_IO
-#ifdef DIRECT_USB_IO
-#include <sys/time.h>
-#endif
 #include "../include/sane/sane.h"
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei.h"
@@ -44,18 +39,18 @@
 extern PKV_DEV g_devices;	/* Chain of devices */
 extern const SANE_Device **g_devlist;
 
-void usb_free_dev (struct usb_device *dev);	/* Defined in libusb 0.1.12 */
-void usb_free_bus (struct usb_bus *bus);
-
 /* static functions */
 
 /* Attach USB scanner */
 static SANE_Status
-attach_scanner_usb (struct usb_device *usb_fd)
+attach_scanner_usb (const char *device_name)
 {
   PKV_DEV dev;
+  SANE_Word vendor, product;
 
-  DBG (DBG_error, "attaching USB scanner %s\n", usb_fd->filename);
+  DBG (DBG_error, "attaching USB scanner %s\n", device_name);
+
+  sanei_usb_get_vendor_product_byname(device_name,&vendor,&product);
 
   dev = (PKV_DEV) malloc (sizeof (KV_DEV));
 
@@ -65,8 +60,9 @@ attach_scanner_usb (struct usb_device *usb_fd)
   memset (dev, 0, sizeof (KV_DEV));
 
   dev->bus_mode = KV_USB_BUS;
-  dev->usb_fd = usb_fd;
+  dev->usb_fd = -1;
   dev->scsi_fd = -1;
+  strcpy (dev->device_name, device_name);
 
   dev->buffer0 = (unsigned char *) malloc (SCSI_BUFFER_SIZE + 12);
   dev->buffer = dev->buffer0 + 12;
@@ -80,12 +76,12 @@ attach_scanner_usb (struct usb_device *usb_fd)
   dev->scsi_type = 6;
   strcpy (dev->scsi_type_str, "ADF Scanner");
   strcpy (dev->scsi_vendor, "Panasonic");
-  strcpy (dev->scsi_product, usb_fd->descriptor.idProduct
-	  == (int) KV_S1025C ? "KV-S1025C" : "KV-S1020C");
+  strcpy (dev->scsi_product,
+    product == (int) KV_S1025C ? "KV-S1025C" : "KV-S1020C");
   strcpy (dev->scsi_version, "1.00");
 
   /* Set SANE_Device */
-  dev->sane.name = dev->usb_fd->filename;
+  dev->sane.name = dev->device_name;
   dev->sane.vendor = dev->scsi_vendor;
   dev->sane.model = dev->scsi_product;
   dev->sane.type = dev->scsi_type_str;
@@ -97,53 +93,28 @@ attach_scanner_usb (struct usb_device *usb_fd)
   return SANE_STATUS_GOOD;
 }
 
-/* Get all supported scanners, and store into g_scanners_supported */
+/* Get all supported scanners, and store into g_devlist */
 SANE_Status
 kv_usb_enum_devices ()
 {
-  struct usb_bus *bus;
-  struct usb_device *dev;
-  SANE_Status status;
   int cnt = 0;
   int i;
   PKV_DEV pd;
+  char usb_str[18];
 
   DBG (DBG_proc, "kv_usb_enum_devices: enter\n");
 
-  /* Use libusb */
+  sanei_usb_init();
 
-  if (!usb_get_busses ())
-    {
-      usb_find_busses ();
-      usb_find_devices ();
-    }
+  sprintf(usb_str,"usb %04x %04x",VENDOR_ID,KV_S1025C);
+  sanei_usb_attach_matching_devices(usb_str, attach_scanner_usb);
 
-  for (bus = usb_get_busses (); bus; bus = bus->next)
-    {
-      for (dev = bus->devices; dev; dev = dev->next)
-	{
-	  if (dev->config && dev->descriptor.idVendor == VENDOR_ID)
-	    {
-	      if (dev->descriptor.idProduct ==
-		  (int) KV_S1025C
-		  || dev->descriptor.idProduct == (int) KV_S1020C)
-		{
-		  status = attach_scanner_usb (dev);
-		  if (status)
-		    {
-		      DBG (DBG_proc,
-			   "kv_usb_enum_devices: leave on error "
-			   " --out of memory\n");
-		      return status;
-		    }
-		  else
-		    {
-		      cnt++;
-		    }
-		}
-	    }
-	}
-    }
+  sprintf(usb_str,"usb %04x %04x",VENDOR_ID,KV_S1020C);
+  sanei_usb_attach_matching_devices(usb_str, attach_scanner_usb);
+
+  for (pd = g_devices; pd; pd=pd->next) {
+    cnt++;
+  }
 
   g_devlist =
     (const SANE_Device **) malloc (sizeof (SANE_Device *) * (cnt + 1));
@@ -153,6 +124,7 @@ kv_usb_enum_devices ()
 	   "kv_usb_enum_devices: leave on error " " --out of memory\n");
       return SANE_STATUS_NO_MEM;
     }
+
   pd = g_devices;
   for (i = 0; i < cnt; i++)
     {
@@ -170,38 +142,31 @@ kv_usb_enum_devices ()
 SANE_Bool
 kv_usb_already_open (PKV_DEV dev)
 {
-  return (dev->usb_handle != NULL);
+  return (dev->usb_fd > -1);
 }
 
 /* Open an USB device */
 SANE_Status
 kv_usb_open (PKV_DEV dev)
 {
+  SANE_Status ret;
+
   DBG (DBG_proc, "kv_usb_open: enter\n");
-  if (dev->usb_handle)
+  if (kv_usb_already_open(dev))
     {
       DBG (DBG_proc, "kv_usb_open: leave -- already open\n");
       return SANE_STATUS_GOOD;
     }
 
-  dev->usb_handle = usb_open (dev->usb_fd);
-  if (!dev->usb_handle)
+  ret = sanei_usb_open (dev->device_name, &(dev->usb_fd));
+  if (ret)
     {
       DBG (DBG_error, "kv_usb_open: leave -- cannot open device\n");
       return SANE_STATUS_IO_ERROR;
     }
 
-  /* Claim USB interface 0 */
-  if (usb_claim_interface (dev->usb_handle, 0) != 0)
-    {
-      DBG (DBG_error, "kv_usb_open: leave -- "
-	   "cannot claim interface '0', " "check permission please.\n");
-      usb_close (dev->usb_handle);
-      dev->usb_handle = NULL;
-      return SANE_STATUS_ACCESS_DENIED;
-    }
-  usb_clear_halt (dev->usb_handle, (int) KV_CMD_IN);
-  usb_clear_halt (dev->usb_handle, (int) KV_CMD_OUT);
+  sanei_usb_clear_halt (dev->usb_fd);
+
   DBG (DBG_proc, "kv_usb_open: leave\n");
   return SANE_STATUS_GOOD;
 }
@@ -211,11 +176,10 @@ void
 kv_usb_close (PKV_DEV dev)
 {
   DBG (DBG_proc, "kv_usb_close: enter\n");
-  if (dev->usb_handle)
+  if (kv_usb_already_open(dev))
     {
-      usb_release_interface (dev->usb_handle, 0);
-      usb_close (dev->usb_handle);
-      dev->usb_handle = NULL;
+      sanei_usb_close(dev->usb_fd);
+      dev->usb_fd = -1;
     }
   DBG (DBG_proc, "kv_usb_close: leave\n");
 }
@@ -224,48 +188,34 @@ kv_usb_close (PKV_DEV dev)
 void
 kv_usb_cleanup ()
 {
-  struct usb_bus *bus, *old_bus;
-  struct usb_device *dev, *old_dev;
-
-  bus = usb_get_busses ();
-
-  while (bus)
-    {
-      dev = bus->devices;
-      while (dev)
-	{
-	  old_dev = dev;
-	  dev = dev->next;
-	  usb_free_dev (old_dev);
-	}
-      old_bus = bus;
-      bus = bus->next;
-      usb_free_bus (old_bus);
-    }
 }
 
 /* Send command via USB, and get response data */
 SANE_Status
-kv_usb_escape (usb_dev_handle * usb_handle,
+kv_usb_escape (PKV_DEV dev,
 	       PKV_CMD_HEADER header, unsigned char *status_byte)
 {
   int got_response = 0;
+  size_t len;
   unsigned char cmd_buff[24];
   memset (cmd_buff, 0, 24);
   cmd_buff[3] = 0x18;		/* container length */
   cmd_buff[5] = 1;		/* container type: command block */
   cmd_buff[6] = 0x90;		/* code */
 
-  if (usb_handle == NULL)
+  if (!kv_usb_already_open(dev))
     {
       DBG (DBG_error, "kv_usb_escape: error, device not open.\n");
       return SANE_STATUS_IO_ERROR;
     }
   memcpy (cmd_buff + 12, header->cdb, header->cdb_size);
 
+  /* change timeout */
+  sanei_usb_set_timeout(KV_CMD_TIMEOUT);
+
   /* Send command */
-  if (usb_bulk_write (usb_handle, (int) KV_CMD_OUT, (char *) cmd_buff,
-		      24, KV_CMD_TIMEOUT) != 24)
+  len = 24;
+  if (!sanei_usb_write_bulk (dev->usb_fd, (SANE_Byte *) cmd_buff, &len))
     {
       DBG (DBG_error, "usb_bulk_write: Error writing command.\n");
       hexdump (DBG_error, "cmd block", cmd_buff, 24);
@@ -275,19 +225,24 @@ kv_usb_escape (usb_dev_handle * usb_handle,
   /* Send / Read data */
   if (header->direction == KV_CMD_IN)
     {
-      int size_read;
-      int size = header->data_size + 12;
+      size_t size = header->data_size + 12;
+      size_t size_read = size;
       unsigned char *data = ((unsigned char *) header->data) - 12;
-      size_read =
-	usb_bulk_read (usb_handle, (int) KV_CMD_IN,
-		       (char *) data, size, KV_CMD_TIMEOUT);
-      if (size_read <= 0)
-	{
-	  usb_clear_halt (usb_handle, (int) KV_CMD_IN);
-	  usb_clear_halt (usb_handle, (int) KV_CMD_OUT);
-	  DBG (DBG_error, "usb_bulk_read: Error reading data.\n");
-	  return SANE_STATUS_IO_ERROR;
-	}
+      SANE_Status ret;
+
+      ret  = sanei_usb_read_bulk (dev->usb_fd, (SANE_Byte *) data, &size_read);
+
+      /*empty read is ok?*/
+      if (ret == SANE_STATUS_EOF){
+	sanei_usb_clear_halt (dev->usb_fd);
+        ret = SANE_STATUS_GOOD;
+      }
+
+      if (ret) {
+	sanei_usb_clear_halt (dev->usb_fd);
+	DBG (DBG_error, "usb_bulk_read: Error reading data.\n");
+	return SANE_STATUS_IO_ERROR;
+      }
 
       if (size_read != size)
 	{
@@ -301,26 +256,29 @@ kv_usb_escape (usb_dev_handle * usb_handle,
 
   if (header->direction == KV_CMD_OUT)
     {
-      int size_written;
-      int size = header->data_size + 12;
+      size_t size = header->data_size + 12;
+      size_t size_written = size;
       unsigned char *data = ((unsigned char *) header->data) - 12;
+      SANE_Status ret;
+
       memset (data, 0, 12);
       Ito32 (size, data);
       data[5] = 0x02;		/* container type: data block */
       data[6] = 0xb0;		/* code */
 
-      size_written = usb_bulk_write (usb_handle, (int) KV_CMD_OUT,
-				     (char *) data, size, KV_CMD_TIMEOUT);
-      if (size_written <= 0)
-	{
-	  usb_clear_halt (usb_handle, (int) KV_CMD_IN);
-	  usb_clear_halt (usb_handle, (int) KV_CMD_OUT);
-	}
-      if (size_written < 0)
-	{
-	  DBG (DBG_error, "usb_bulk_write: Error writing data.\n");
-	  return SANE_STATUS_IO_ERROR;
-	}
+      ret = sanei_usb_write_bulk (dev->usb_fd, (SANE_Byte *) data, &size_written);
+
+      /*empty write is ok?*/
+      if (ret == SANE_STATUS_EOF){
+	sanei_usb_clear_halt (dev->usb_fd);
+        ret = SANE_STATUS_GOOD;
+      }
+
+      if (ret) {
+	sanei_usb_clear_halt (dev->usb_fd);
+	DBG (DBG_error, "usb_bulk_write: Error writing data.\n");
+	return SANE_STATUS_IO_ERROR;
+      }
 
       if (size_written != size)
 	{
@@ -335,14 +293,16 @@ kv_usb_escape (usb_dev_handle * usb_handle,
   /* Get response */
   if (!got_response)
     {
-      int r;
-      if ((r = usb_bulk_read (usb_handle, (int) KV_CMD_IN, (char *) cmd_buff,
-			      16, KV_CMD_TIMEOUT)) != 16)
+      SANE_Status ret;
+      size_t len = 16;
+
+      ret = sanei_usb_read_bulk (dev->usb_fd, (SANE_Byte *) cmd_buff, &len);
+      
+      if (ret || len != 16)
 	{
 	  DBG (DBG_error, "usb_bulk_read: Error reading response."
-	       " read %d bytes\n", r);
-	  usb_clear_halt (usb_handle, (int) KV_CMD_IN);
-	  usb_clear_halt (usb_handle, (int) KV_CMD_OUT);
+	       " read %d bytes\n", len);
+	  sanei_usb_clear_halt (dev->usb_fd);
 	  return SANE_STATUS_IO_ERROR;
 	}
     }
@@ -361,7 +321,7 @@ kv_usb_escape (usb_dev_handle * usb_handle,
 
 /* Send command via USB, and request sense on CHECK CONDITION status */
 SANE_Status
-kv_usb_send_command (usb_dev_handle * usb_handle,
+kv_usb_send_command (PKV_DEV dev,
 		     PKV_CMD_HEADER header, PKV_CMD_RESPONSE response)
 {
   unsigned char status = 0;
@@ -369,16 +329,13 @@ kv_usb_send_command (usb_dev_handle * usb_handle,
   memset (response, 0, sizeof (KV_CMD_RESPONSE));
   response->status = KV_FAILED;
 
-  s = kv_usb_escape (usb_handle, header, &status);
+  s = kv_usb_escape (dev, header, &status);
 
   if (s)
     {
-#ifndef DIRECT_USB_IO
       status = 0x02;
-#else
-      return s;
-#endif
     }
+
   if (status == 0x02)
     {				/* check condition */
       /* request sense */
@@ -391,7 +348,7 @@ kv_usb_send_command (usb_dev_handle * usb_handle,
       hdr.data_size = 0x12;
       hdr.data = &response->sense;
 
-      if (kv_usb_escape (usb_handle, &hdr, &status) != 0)
+      if (kv_usb_escape (dev, &hdr, &status) != 0)
 	return SANE_STATUS_IO_ERROR;
 
       hexdump (DBG_error, "sense data", (unsigned char *) &response->sense,

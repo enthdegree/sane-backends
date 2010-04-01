@@ -1,3 +1,6 @@
+2010-03-25 Stéphane Voltz <stef.dev at free.fr>
+	* backend/kvs1025.c: compile fix
+
 2010-03-25 m. allan noah <kitno455 at gmail dot com>
 	* backend/kvs1025*: convert backend from libusb to sanei_usb
 	* doc/descriptions/kvs1025.desc, doc/sane-kvs1025.man: update docs

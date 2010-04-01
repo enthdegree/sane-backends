@@ -61,7 +61,7 @@ sane_init (SANE_Int * version_code,
     }
 
   /* Initialize USB */
-  usb_init ();
+  sanei_usb_init ();
 
   status = kv_enum_devices ();
   if (status)

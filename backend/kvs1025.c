@@ -21,8 +21,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <usb.h>
-
 #include "../include/sane/sane.h"
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei.h"
@@ -73,7 +71,7 @@ sane_init (SANE_Int * version_code,
 
 /* Terminate the KV-S1025 SANE backend */
 void
-sane_exit ()
+sane_exit (void)
 {
   DBG (DBG_proc, "sane_exit: enter\n");
 

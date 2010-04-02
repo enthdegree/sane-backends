@@ -20,8 +20,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <usb.h>
-
 #include "../include/sane/sane.h"
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei.h"

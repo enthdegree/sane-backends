@@ -1,4 +1,9 @@
 2010-04-02 Chris Bagwell <chris at cnpbagwell dot com>
+	* backend/kvs1024*: Remove includes of usb.h
+	directly into backend.  Complete prototype
+	for sane_exit().
+
+2010-04-02 Chris Bagwell <chris at cnpbagwell dot com>
 	* po/Makefile.am: Remove unneeded distclean-local target.
 
 2010-03-25 Stéphane Voltz <stef.dev at free.fr>

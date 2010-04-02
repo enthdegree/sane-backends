@@ -337,7 +337,7 @@ clean-am: clean-generic clean-libtool clean-local mostlyclean-am
 
 distclean: distclean-am
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-local
+distclean-am: clean-am distclean-generic
 
 dvi: dvi-am
 
@@ -401,16 +401,15 @@ uninstall-am: uninstall-local
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	clean-local distclean distclean-generic distclean-libtool \
-	distclean-local distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am \
-	install-data-local install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-local
+	distdir dvi dvi-am html html-am info info-am install \
+	install-am install-data install-data-am install-data-local \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am uninstall uninstall-am uninstall-local
 
 
 all: $(ALL)
@@ -444,9 +443,6 @@ clean-local:
 	rm -f *.mo
 	rm -f *.old
 	rm -f *.pot
-
-distclean-local:
-	$(GETTEXT_PACKAGE).pot
 
 $(GETTEXT_PACKAGE).pot: $(SRC_FILES)
 	@echo "creating $@ from $^"

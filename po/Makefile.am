@@ -66,9 +66,6 @@ clean-local:
 	rm -f *.old
 	rm -f *.pot
 
-distclean-local:
-	$(GETTEXT_PACKAGE).pot
-
 $(GETTEXT_PACKAGE).pot: $(SRC_FILES)
 	@echo "creating $@ from $^"
 	@$(XGETTEXT) -d$(GETTEXT_PACKAGE) -kSANE_I18N --flag=SANE_I18N:1:no-c-format -f POTFILES

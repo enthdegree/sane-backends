@@ -1672,10 +1672,14 @@ handle_depth_halftone(Epson_Scanner *s, SANE_Bool *reload)
 	SANE_Bool aas = SANE_FALSE;
 	SANE_Bool thresh = SANE_FALSE;
 
+	/* this defaults to false */
+	setOptionState(s, thresh, OPT_THRESHOLD, reload);
+
 	if (!s->hw->cmd->control_auto_area_segmentation)
 		return;
 
 	if (mode_params[mdi].depth == 1) {
+
 		if (halftone_params[hti] != HALFTONE_TET)
 			aas = SANE_TRUE;
 

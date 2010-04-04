@@ -2120,7 +2120,9 @@ sane_start(SANE_Handle handle)
 	}
                                                     
 	/* ESC m, user defined color correction */
-	if (correction_userdefined[s->val[OPT_COLOR_CORRECTION].w]) {
+	if (s->hw->cmd->set_color_correction_coefficients
+		&& correction_userdefined[s->val[OPT_COLOR_CORRECTION].w]) {
+
 		status = esci_set_color_correction_coefficients(s,
                                                         s->cct_table);
 		if (status != SANE_STATUS_GOOD)

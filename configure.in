@@ -160,11 +160,11 @@ AC_CHECK_HEADER(resmgr.h,[
 		resmgr,
 		rsm_open_device,[
 			AC_DEFINE(HAVE_RESMGR,1,[define if you have the resmgr library])
-			LIBS="$LIBS -lresmgr"
+			RESMGR_LIBS="-lresmgr"
 		]
 	)
 ])
-
+AC_SUBST(RESMGR_LIBS)
 
 dnl ***********************************************************************
 dnl Checks for types and structures

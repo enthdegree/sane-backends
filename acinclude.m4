@@ -393,19 +393,29 @@ dnl
 
 AC_DEFUN([SANE_LINKER_RPATH],
 [dnl AC_REQUIRE([AC_SUBST])dnl This line resulted in an empty AC_SUBST() !!
-  AC_CACHE_CHECK([linker parameter to set runtime link path], my_cv_LINKER_RPATH,
-    [my_cv_LINKER_RPATH=
-    case "$host_os" in
-    linux* | freebsd* | netbsd* | openbsd* | irix*)
-      # I believe this only works with GNU ld [pere 2001-04-16]
-      my_cv_LINKER_RPATH="-Wl,-rpath,"
-      ;;
-    solaris*)
-      my_cv_LINKER_RPATH="-R "
-      ;;
-    esac
-    ])
-    LINKER_RPATH="$my_cv_LINKER_RPATH"
+  AC_MSG_CHECKING([whether runtime link path should be used])
+  AC_ARG_ENABLE([rpath],
+    [AS_HELP_STRING([--enable-rpath],
+      [use runtime library search path @<:@default=yes@:>@])])
+
+  LINKER_RPATH=
+  AS_IF([test "x$enable_rpath" != xno],
+  AC_MSG_RESULT([yes])
+    [AC_CACHE_CHECK([linker parameter to set runtime link path], my_cv_LINKER_RPATH,
+      [my_cv_LINKER_RPATH=
+      case "$host_os" in
+      linux* | freebsd* | netbsd* | openbsd* | irix*)
+        # I believe this only works with GNU ld [pere 2001-04-16]
+        my_cv_LINKER_RPATH="-Wl,-rpath,"
+        ;;
+      solaris*)
+        my_cv_LINKER_RPATH="-R "
+        ;;
+      esac
+      ])
+      LINKER_RPATH="$my_cv_LINKER_RPATH"],
+    [AC_MSG_RESULT([no])
+      LINKER_RPATH=])
   AC_SUBST(LINKER_RPATH)dnl
 ])
 

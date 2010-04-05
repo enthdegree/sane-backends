@@ -1,4 +1,8 @@
 2010-04-02 Chris Bagwell <chris at cnpbagwell dot com>
+	* acinclude.m4: Add --enable-rpath option to configure.
+	Ported from Fedora patches.
+
+2010-04-02 Chris Bagwell <chris at cnpbagwell dot com>
 	* backend/kvs1024*: Remove includes of usb.h
 	directly into backend.  Complete prototype
 	for sane_exit().

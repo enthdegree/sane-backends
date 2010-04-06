@@ -893,7 +893,7 @@ sane_start (SANE_Handle handle)
   dev->bottom = dev->bytes_per_line * 2 * dev->lds;
   /* computes buffer size, 66 color lines plus eventual amount needed for lds */
   dev->size = dev->pixels * 3 * 66 + dev->bottom;
-  dev->buffer = (u_int8_t *) malloc (dev->size);
+  dev->buffer = (uint8_t *) malloc (dev->size);
   if (dev->buffer == NULL)
     {
       DBG (DBG_error, "sane_start: failed to allocate %d bytes\n", dev->size);

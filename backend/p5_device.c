@@ -25,7 +25,7 @@ static P5_Model pagepartner_model = {
 
 #ifdef HAVE_LINUX_PPDEV_H
 static char *
-addr_name (u_int16_t addr)
+addr_name (uint16_t addr)
 {
   switch (addr)
     {
@@ -54,11 +54,11 @@ addr_name (u_int16_t addr)
  * @{
  */
 
-static u_int8_t
-inb (int fd, u_int16_t addr)
+static uint8_t
+inb (int fd, uint16_t addr)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  u_int8_t val = 0xff;
+  uint8_t val = 0xff;
   int rc, mode = 0xff;
 
   switch (addr)
@@ -100,7 +100,7 @@ inb (int fd, u_int16_t addr)
 }
 
 static void
-outb (int fd, u_int16_t addr, u_int8_t value)
+outb (int fd, uint16_t addr, uint8_t value)
 {
 #ifdef HAVE_LINUX_PPDEV_H
   int rc = 0, mode = 0xff;
@@ -149,9 +149,9 @@ outb (int fd, u_int16_t addr, u_int8_t value)
 }
 
 static void
-write_reg (int fd, u_int8_t index, u_int8_t value)
+write_reg (int fd, uint8_t index, uint8_t value)
 {
-  u_int8_t idx;
+  uint8_t idx;
 
   /* both nibbles hold the same value */
   idx = index & 0x0F;
@@ -161,10 +161,10 @@ write_reg (int fd, u_int8_t index, u_int8_t value)
   outb (fd, EPPDATA, value);
 }
 
-static u_int8_t
-read_reg (int fd, u_int8_t index)
+static uint8_t
+read_reg (int fd, uint8_t index)
 {
-  u_int8_t idx;
+  uint8_t idx;
 
   /* both nibbles hold the same value */
   idx = index & 0x0F;
@@ -175,7 +175,7 @@ read_reg (int fd, u_int8_t index)
 
 #ifdef HAVE_LINUX_PPDEV_H
 static int
-read_data (int fd, u_int8_t * data, int length)
+read_data (int fd, uint8_t * data, int length)
 {
   int mode, rc, nb;
   unsigned char bval;
@@ -212,7 +212,7 @@ read_data (int fd, u_int8_t * data, int length)
 }
 
 static void
-index_write_data (int fd, u_int8_t index, u_int8_t * data, int length)
+index_write_data (int fd, uint8_t index, uint8_t * data, int length)
 {
   int mode, rc;
   unsigned char bval;
@@ -231,15 +231,15 @@ index_write_data (int fd, u_int8_t index, u_int8_t * data, int length)
 }
 
 static void
-write_data (int fd, u_int8_t * data, int length)
+write_data (int fd, uint8_t * data, int length)
 {
   index_write_data (fd, REG8, data, length);
 }
 
 static void
-write_reg2 (int fd, u_int8_t index, u_int16_t value)
+write_reg2 (int fd, uint8_t index, uint16_t value)
 {
-  u_int8_t data2[2];
+  uint8_t data2[2];
 
   data2[0] = value & 0xff;
   data2[1] = value >> 8;
@@ -248,7 +248,7 @@ write_reg2 (int fd, u_int8_t index, u_int16_t value)
 #else
 
 static int
-read_data (int fd, u_int8_t * data, int length)
+read_data (int fd, uint8_t * data, int length)
 { 
   if(fd && data && length)
     return -1;
@@ -256,14 +256,14 @@ read_data (int fd, u_int8_t * data, int length)
 }
 
 static void
-write_data (int fd, u_int8_t * data, int length)
+write_data (int fd, uint8_t * data, int length)
 {
   if(fd && data && length)
     return;
 }
 
 static void
-write_reg2 (int fd, u_int8_t index, u_int16_t value)
+write_reg2 (int fd, uint8_t index, uint16_t value)
 {
   if(fd && index && value)
     return;
@@ -283,16 +283,16 @@ write_reg2 (int fd, u_int8_t index, u_int16_t value)
  * @return SANE_TRUE on succes, SANE_FALSE otherwise
  */
 static int
-memtest (int fd, u_int16_t addr)
+memtest (int fd, uint16_t addr)
 {
-  u_int8_t sent[256];
-  u_int8_t back[256];
+  uint8_t sent[256];
+  uint8_t back[256];
   int i;
 
   write_reg2 (fd, REG1, addr);
   for (i = 0; i < 256; i++)
     {
-      sent[i] = (u_int8_t) i;
+      sent[i] = (uint8_t) i;
       back[i] = 0;
     }
   write_data (fd, sent, 256);
@@ -321,7 +321,7 @@ memtest (int fd, u_int16_t addr)
 static int
 connect (int fd)
 {
-  u_int8_t val;
+  uint8_t val;
 
   inb (fd, CONTROL);
   outb (fd, CONTROL, 0x04);
@@ -390,7 +390,7 @@ connect (int fd)
 static int
 disconnect (int fd)
 {
-  u_int8_t val;
+  uint8_t val;
 
   outb (fd, CONTROL, 0x04);
   outb (fd, DATA, 0x00);
@@ -451,7 +451,7 @@ disconnect (int fd)
 }
 
 static void
-setadresses (int fd, u_int16_t start, u_int16_t end)
+setadresses (int fd, uint16_t start, uint16_t end)
 {
   write_reg (fd, REG3, start & 0xff);
   write_reg (fd, REG4, start >> 8);
@@ -666,7 +666,7 @@ build_correction (P5_Device * dev, unsigned int dpi, unsigned int mode,
 	   "build_correction: failed to allocate memory for gain!\n");
       return SANE_STATUS_NO_MEM;
     }
-  dev->offset = (u_int8_t *) malloc (width);
+  dev->offset = (uint8_t *) malloc (width);
   if (dev->offset == NULL)
     {
       DBG (DBG_error,
@@ -720,11 +720,11 @@ static SANE_Status
 start_scan (P5_Device * dev, int mode, unsigned int dpi, unsigned int startx,
 	    unsigned int width)
 {
-  u_int8_t reg0=0;
-  u_int8_t reg2=0;
-  u_int8_t regF=0;
-  u_int16_t addr=0;
-  u_int16_t start, end;
+  uint8_t reg0=0;
+  uint8_t reg2=0;
+  uint8_t regF=0;
+  uint16_t addr=0;
+  uint16_t start, end;
   unsigned int xdpi;
 
   DBG (DBG_proc, "start_scan: start \n");
@@ -864,11 +864,11 @@ start_scan (P5_Device * dev, int mode, unsigned int dpi, unsigned int startx,
  * @returns number of data lines read, -1 in case of error
  */
 static int
-read_line (P5_Device * dev, u_int8_t * data, size_t length, int ltr,
+read_line (P5_Device * dev, uint8_t * data, size_t length, int ltr,
 	   SANE_Bool retry, SANE_Bool x2, int mode, SANE_Bool correction)
 {
-  u_int8_t counter, read, cnt;
-  u_int8_t inbuffer[MAX_SENSOR_PIXELS * 2 * 3 + 2];
+  uint8_t counter, read, cnt;
+  uint8_t inbuffer[MAX_SENSOR_PIXELS * 2 * 3 + 2];
   unsigned int i, factor;
   float val;
 
@@ -999,10 +999,10 @@ eject (int fd)
  * @param fd file descriptor of the physical device
  */
 /* static int
-wait_document (int fd, u_int8_t detector)
+wait_document (int fd, uint8_t detector)
 {
   int count = 0;
-  u_int8_t val;
+  uint8_t val;
 
   write_reg (fd, REG1, 0x00);
   write_reg (fd, REG7, 0x00);
@@ -1130,7 +1130,7 @@ cleanup_calibration (P5_Device * dev)
  * @returns SANE_TRUE if it is considered as a white line
  */
 static SANE_Bool
-is_black_line (u_int8_t * buffer, unsigned int pixels, int mode)
+is_black_line (uint8_t * buffer, unsigned int pixels, int mode)
 {
   unsigned int i, start, end, count, width;
 
@@ -1179,7 +1179,7 @@ is_black_line (u_int8_t * buffer, unsigned int pixels, int mode)
  * @returns SANE_TRUE if it is considered as a white line
  */
 static SANE_Bool
-is_white_line (u_int8_t * buffer, unsigned int pixels, int mode)
+is_white_line (uint8_t * buffer, unsigned int pixels, int mode)
 {
   unsigned int i, start, end, count, width;
 
@@ -1414,9 +1414,9 @@ save_calibration (P5_Device * dev)
 static SANE_Status
 sheetfed_calibration (P5_Device * dev)
 {
-  u_int8_t buffer[MAX_SENSOR_PIXELS * 3];
-  u_int16_t white_data[MAX_SENSOR_PIXELS * 3];
-  u_int16_t black_data[MAX_SENSOR_PIXELS * 3];
+  uint8_t buffer[MAX_SENSOR_PIXELS * 3];
+  uint16_t white_data[MAX_SENSOR_PIXELS * 3];
+  uint16_t black_data[MAX_SENSOR_PIXELS * 3];
   unsigned int i, j, k, dpi, pixels, read, black, white;
   float coeff;
   unsigned int red, green, blue;

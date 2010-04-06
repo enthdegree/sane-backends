@@ -1,3 +1,7 @@
+2010-03-25 Stéphane Voltz <stef.dev at free.fr>
+	* backend/p5.c backend/p5_device.[ch] backend/genesys_gl646.c: 
+	replace u_int8_t and u_int16_t by uint8_t and uint16_t
+
 2010-04-06 Chris Bagwell <chris at cnpbagwell dot com>
 	* configure.in, tools/sane-backends.pc.in: Add stub for future
 	pkg-config support to configure.  This allows distributes

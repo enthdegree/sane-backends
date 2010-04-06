@@ -31,10 +31,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "../include/_stdint.h"
 
 #ifdef HAVE_LINUX_PPDEV_H
 #include <errno.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -79,8 +79,8 @@
 typedef struct P5_Calibration_Data
 {
   unsigned int dpi;
-  u_int8_t black_data[MAX_SENSOR_PIXELS * 3];
-  u_int8_t white_data[MAX_SENSOR_PIXELS * 3];
+  uint8_t black_data[MAX_SENSOR_PIXELS * 3];
+  uint8_t white_data[MAX_SENSOR_PIXELS * 3];
 } P5_Calibration_Data;
 
 /** 
@@ -236,7 +236,7 @@ typedef struct P5_Device
   /**
    * work buffer for scans
    */
-  u_int8_t *buffer;
+  uint8_t *buffer;
 
   /**
    * buffer size
@@ -267,7 +267,7 @@ typedef struct P5_Device
 
   /**> correction coefficient for the current scan */
   float *gain;
-  u_int8_t *offset;
+  uint8_t *offset;
 
 } P5_Device;
 

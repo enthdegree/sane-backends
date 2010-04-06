@@ -4929,7 +4929,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   SANE_Bool empty, split;
   unsigned char *buffer;
   int count;
-  u_int8_t val;
+  uint8_t val;
 
   DBG (DBG_proc, "simple_scan: starting\n");
   DBG (DBG_io, "simple_scan: move=%d, forward=%d, shading=%d\n", move,

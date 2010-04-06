@@ -39,7 +39,7 @@ bin_PROGRAMS = sane-find-scanner$(EXEEXT) gamma4scanimage$(EXEEXT)
 noinst_PROGRAMS = sane-desc$(EXEEXT) umax_pp$(EXEEXT)
 subdir = tools
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/sane-config.in
+	$(srcdir)/sane-backends.pc.in $(srcdir)/sane-config.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/byteorder.m4 \
@@ -48,7 +48,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/sane/config.h
-CONFIG_CLEAN_FILES = sane-config
+CONFIG_CLEAN_FILES = sane-config sane-backends.pc
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
@@ -339,6 +339,8 @@ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 sane-config: $(top_builddir)/config.status $(srcdir)/sane-config.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+sane-backends.pc: $(top_builddir)/config.status $(srcdir)/sane-backends.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)

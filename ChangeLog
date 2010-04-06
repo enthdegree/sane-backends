@@ -1,3 +1,11 @@
+2010-04-06 Chris Bagwell <chris at cnpbagwell dot com>
+	* configure.in, tools/sane-backends.pc.in: Add stub for future
+	pkg-config support to configure.  This allows distributes
+	that are patching in pkg-config support to not rerun
+	autoconf and wipe out our custom libtool.
+	* tools/sane-config.in: Fix LDFLAGS bug related to GPHOTO2
+	support.
+
 2010-04-02 Chris Bagwell <chris at cnpbagwell dot com>
 	* acinclude.m4: Add --enable-rpath option to configure.
 	Ported from Fedora patches.

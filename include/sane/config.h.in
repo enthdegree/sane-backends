@@ -402,6 +402,9 @@
 /* Define to 1 if the system has the type `u_long'. */
 #undef HAVE_U_LONG
 
+/* Define to 1 if the system has the type `u_short'. */
+#undef HAVE_U_SHORT
+
 /* Define to 1 if you have the `vsyslog' function. */
 #undef HAVE_VSYSLOG
 
@@ -558,8 +561,15 @@
 
 
 
+#if defined(__MINGW32__)
+#define _BSDTYPES_DEFINED
+#endif
+
 #ifndef HAVE_U_CHAR
 #define u_char unsigned char
+#endif
+#ifndef HAVE_U_SHORT
+#define u_short unsigned short
 #endif
 #ifndef HAVE_U_INT
 #define u_int unsigned int
@@ -639,7 +649,6 @@ unsigned int usleep (unsigned int useconds);
 
 /* Prototype for vsyslog */
 #ifndef HAVE_VSYSLOG
-#define vsyslog sanei_vsyslog
 #include <stdarg.h>
 void vsyslog(int priority, const char *format, va_list args);
 #endif

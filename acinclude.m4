@@ -41,10 +41,10 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
       -Wstrict-prototypes \
       -pedantic"
 
-  # OS/2 and others don't include some headers with -ansi enabled
+  # Some platforms are overly strict with -ansi enabled.  Exclude those.
   ANSI_FLAG=-ansi
   case "${host_os}" in  
-    solaris* | hpux* | os2* | darwin* )
+    solaris* | hpux* | os2* | darwin* | cygwin* | mingw*)
       ANSI_FLAG=
       ;;
   esac
@@ -220,7 +220,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
 [
 
   case "${host_os}" in
-  darwin*) # currently only enabled on MacOS X
+  darwin* | mingw*) # currently only enabled on MacOS X on MINGW
     use_pthread=yes
     ;;
   *)
@@ -234,7 +234,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
 
   AC_ARG_ENABLE([pthread],
     AC_HELP_STRING([--enable-pthread],
-                   [use pthread instead of fork (default=yes for MacOS X, no for everything else)]),
+                   [use pthread instead of fork (default=yes for MacOS X/MINGW, no for everything else)]),
     [
       if test $enableval = yes ; then
         use_pthread=yes
@@ -428,7 +428,7 @@ dnl Use new style of check types that doesn't take default to use.
 dnl The old style would add an #undef of the type check on platforms
 dnl that defined that type... That is not portable to platform that
 dnl define it as a #define.
-AC_CHECK_TYPES([u_char, u_int, u_long],,,)
+AC_CHECK_TYPES([u_char, u_short, u_int, u_long],,,)
 ])
 
 #
@@ -663,8 +663,15 @@ AC_DEFUN([SANE_PROTOTYPES],
 [
 AH_BOTTOM([
 
+#if defined(__MINGW32__)
+#define _BSDTYPES_DEFINED
+#endif
+
 #ifndef HAVE_U_CHAR
 #define u_char unsigned char
+#endif
+#ifndef HAVE_U_SHORT
+#define u_short unsigned short
 #endif
 #ifndef HAVE_U_INT
 #define u_int unsigned int
@@ -744,7 +751,6 @@ unsigned int usleep (unsigned int useconds);
 
 /* Prototype for vsyslog */
 #ifndef HAVE_VSYSLOG
-#define vsyslog sanei_vsyslog
 #include <stdarg.h>
 void vsyslog(int priority, const char *format, va_list args);
 #endif

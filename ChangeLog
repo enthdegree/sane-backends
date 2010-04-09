@@ -1,3 +1,8 @@
+2010-04-08 Chris Bagwell <chris at cnpbagwell dot com>
+	* backend/p5.c, backend/p5_device.c: Replace function
+	name "connect" with something that conflicts with
+	socket.h's connect().  Fixes compile fail on OSX 10.6.
+
 2010-04-07 Chris Bagwell <chris at cnpbagwell dot com>
 	* acinclude.m4: cygwin and mingw is now hiding M_PI_2
 	defines with -ansi flag.  Remove to fix cygwin compile.

@@ -319,7 +319,7 @@ memtest (int fd, uint16_t addr)
  * @return SANE_TRUE in case of success, SANE_FALSE otherwise
  */
 static int
-scanner_connect (int fd)
+connect (int fd)
 {
   uint8_t val;
 
@@ -388,7 +388,7 @@ scanner_connect (int fd)
 }
 
 static int
-scanner_disconnect (int fd)
+disconnect (int fd)
 {
   uint8_t val;
 

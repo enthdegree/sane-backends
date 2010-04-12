@@ -395,7 +395,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
 	}
 
       /* now try to connect to scanner */
-      if (scanner_connect (device->fd) != SANE_TRUE)
+      if (connect (device->fd) != SANE_TRUE)
 	{
 	  DBG (DBG_error, "sane_open: failed to connect!\n");
 	  close_pp (device->fd);
@@ -1443,7 +1443,7 @@ sane_close (SANE_Handle handle)
 	{
 	  save_calibration (session->dev);
 	}
-      scanner_disconnect (session->dev->fd);
+      disconnect (session->dev->fd);
       close_pp (session->dev->fd);
       session->dev->fd = -1;
       session->dev->initialized = SANE_FALSE;
@@ -2006,7 +2006,7 @@ probe (const char *devicename)
     }
 
   /* now try to connect to scanner */
-  if (scanner_connect (fd) != SANE_TRUE)
+  if (connect (fd) != SANE_TRUE)
     {
       DBG (DBG_error, "probe: failed to connect!\n");
       close_pp (fd);
@@ -2021,7 +2021,7 @@ probe (const char *devicename)
   write_reg (fd, REGF, 0x80);
   if (memtest (fd, 0x0100) != SANE_TRUE)
     {
-      scanner_disconnect (fd);
+      disconnect (fd);
       close_pp (fd);
       DBG (DBG_error, "probe: memory test failed!\n");
       return NULL;
@@ -2036,7 +2036,7 @@ probe (const char *devicename)
   test_document (fd);
 
   /* release device nd parport for next uses */
-  scanner_disconnect (fd);
+  disconnect (fd);
   close_pp (fd);
 
   /* for there is only one supported model, so we use hardcoded values */

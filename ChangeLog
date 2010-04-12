@@ -1,7 +1,9 @@
-2010-04-08 Chris Bagwell <chris at cnpbagwell dot com>
-	* backend/p5.c, backend/p5_device.c: Replace function
-	name "connect" with something that conflicts with
-	socket.h's connect().  Fixes compile fail on OSX 10.6.
+2010-04-12 Chris Bagwell <chris at cnpbagwell dot com>
+	* backend/p5.c, backend/p5_device.c, backend/p5.h: 
+	Remove references to libc.h in p5.h.  On OSX, it was including
+	socket.h and causing compile fail with conflicting connect()
+	functions.  Since backend doesn't support network
+	connects, should be fine to use name connect.
 
 2010-04-07 Chris Bagwell <chris at cnpbagwell dot com>
 	* acinclude.m4: cygwin and mingw is now hiding M_PI_2

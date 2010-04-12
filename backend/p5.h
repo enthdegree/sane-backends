@@ -44,9 +44,6 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#ifdef HAVE_LIBC_H
-# include <libc.h>
-#endif
 
 #include "../include/sane/sane.h"
 #include "../include/sane/saneopts.h"

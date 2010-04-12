@@ -248,7 +248,7 @@ read_serial_number (scanner_info_t * si)
   iSerialNumber = ddesc[16];
   if (iSerialNumber != 0)
     {
-      int iSerialNumber = ddesc[16];
+      /*int iSerialNumber = ddesc[16];*/
       /* Read the first language code. Assumed that there is at least one. */
       if (get_string_descriptor (usb, 0, 0, 4, unicode) != SANE_STATUS_GOOD)
         goto done;

@@ -488,3 +488,9 @@
 :usbid "0x04a9" "0x2686"
 :status :untested
 :comment "Testers needed!"
+
+:model "CanoScan 8800F"
+:interface "USB"
+:usbid "0x04a9" "0x1901"
+:status :complete
+:comment "Flatbed scan. TPU for negatives and slides. All resolutions supported (up to 4800DPI)."

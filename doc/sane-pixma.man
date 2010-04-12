@@ -38,6 +38,8 @@ ImageCLASS MF4140, MF4150, MF4270, MF4350d, MF4370dn, MF4380dn
 ImageCLASS MF4660, MF4690, MF5770, D480
 .br
 I-SENSYS MF4320d, MF4330d
+.br
+CanoScan 8800F
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs

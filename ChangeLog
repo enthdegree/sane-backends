@@ -1,9 +1,13 @@
+2010-04-16 m. allan noah <kitno455 at gmail dot com>
+	* backend/kvs1025*, kvs1025.desc, sane-kvs1025.man: backend v3
+	- invert usb status, add 0x to usbids, add missing KV-S1045 usbid
+
 2010-04-12  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, backend/pixma_io_sanei.c, 
 	doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	pixma: added changes from Gernot Hassenpflug to fully support
-	       Canoscan 8800F.
-	       debug code clean-up in pixma_mp150.c
+	Canoscan 8800F.
+	debug code clean-up in pixma_mp150.c
 
 2010-04-12 Chris Bagwell <chris at cnpbagwell dot com>
 	* backend/p5.c, backend/p5_device.c, backend/p5.h: 

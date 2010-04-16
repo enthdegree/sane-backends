@@ -106,10 +106,13 @@ kv_usb_enum_devices ()
 
   sanei_usb_init();
 
-  sprintf(usb_str,"usb %04x %04x",VENDOR_ID,KV_S1025C);
+  sprintf(usb_str,"usb %#04x %#04x",VENDOR_ID,KV_S1020C);
   sanei_usb_attach_matching_devices(usb_str, attach_scanner_usb);
 
-  sprintf(usb_str,"usb %04x %04x",VENDOR_ID,KV_S1020C);
+  sprintf(usb_str,"usb %#04x %#04x",VENDOR_ID,KV_S1025C);
+  sanei_usb_attach_matching_devices(usb_str, attach_scanner_usb);
+
+  sprintf(usb_str,"usb %#04x %#04x",VENDOR_ID,KV_S1045C);
   sanei_usb_attach_matching_devices(usb_str, attach_scanner_usb);
 
   for (pd = g_devices; pd; pd=pd->next) {
@@ -215,7 +218,7 @@ kv_usb_escape (PKV_DEV dev,
 
   /* Send command */
   len = 24;
-  if (!sanei_usb_write_bulk (dev->usb_fd, (SANE_Byte *) cmd_buff, &len))
+  if (sanei_usb_write_bulk (dev->usb_fd, (SANE_Byte *) cmd_buff, &len))
     {
       DBG (DBG_error, "usb_bulk_write: Error writing command.\n");
       hexdump (DBG_error, "cmd block", cmd_buff, 24);

@@ -15,7 +15,8 @@
 typedef enum
 {
   KV_S1020C = 0x1007,
-  KV_S1025C = 0x1006
+  KV_S1025C = 0x1006,
+  KV_S1045C = 0x1010
 } KV_MODEL_TYPE;
 
 /* Store an integer in 2, 3 or 4 byte in a big-endian array. */

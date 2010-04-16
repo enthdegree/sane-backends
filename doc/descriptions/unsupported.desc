@@ -2712,13 +2712,6 @@
 :status :unsupported
 :comment "Not supported. See link for details."
 
-:model "Strobe XP 300"
-:url "/unsupported/visioneer-strobe-xp-300.html"
-:interface "USB"
-:usbid  "0x04a7" "0x0474"
-:status :unsupported
-:comment "Not supported. See link for details."
-
 ;********************************************************************************************
 
 :mfg "Xerox"

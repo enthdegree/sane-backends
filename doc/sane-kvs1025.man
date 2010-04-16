@@ -21,6 +21,8 @@ The backend was written by Tao Zhang / Panasonic Russia Ltd.
 The backend was ported to sane-backends 1.0.21 and updated to use
 sanei_usb instead of libusb by m. allan noah.
 
+The backend was tested on KV-S1025C and 1045C by Tiago Zaniquelli.
+
 .SH "SEE ALSO"
 sane(7), sane\-usb(5)
 

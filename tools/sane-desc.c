@@ -3297,20 +3297,25 @@ print_usermap_header (void)
 {
   time_t current_time = time (0);
 
-  printf ("# This file was automatically created based on description files (*.desc)\n"
-	  "# by sane-desc %s from %s on %s",
-	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
   printf
-    ("#\n"
-     "# The entries below are used to detect a USB device when it's plugged in\n"
-     "# and then run the libusbscanner script to change the ownership and\n"
-     "# permissions on the \"device node\" used by libusb.\n"
+    ("# This file was automatically created based on description files (*.desc)\n"
+    "# by sane-desc %s from %s on %s"
+    "#\n"
+    ,
+    SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
+
+  printf
+     ("# The entries below are used to detect a USB device and change owner\n"
+     "# and permissions on the \"device node\" used by libusb.\n"
      "#\n"
      "# The 0x0003 match flag means the device is matched by its vendor and\n"
      "# product IDs.\n"
      "#\n"
      "# Sample entry (replace 0xVVVV and 0xPPPP with vendor ID and product ID\n"
-     "# respectively):\n");
+     "# respectively):\n"
+     "#\n"
+     );
+
   printf
     ("# libusbscanner 0x0003 0xVVVV 0xPPPP 0x0000 0x0000 0x00 0x00 0x00 0x00 "
      "0x00 0x00 0x00000000\n"
@@ -3318,10 +3323,20 @@ print_usermap_header (void)
      "bDeviceClass bDeviceSubClass bDeviceProtocol bInterfaceClass "
      "bInterfaceSubClass bInterfaceProtocol driver_info\n"
      "#\n"
-     "# The following list already contains a lot of scanners. If your scanner\n"
-     "# isn't mentioned there, add it as explained above and mail the entry to\n"
+     );
+
+  printf
+     ("# If your scanner isn't listed below, you can add it as explained above.\n"
+     "#\n"
+     "# If your scanner is supported by some external backend (brother, epkowa,\n"
+     "# hpaio, etc) please ask the author of the backend to provide proper\n"
+     "# device detection support for your OS\n"
+     "#\n"
+     "# If the scanner is supported by sane-backends, please mail the entry to\n"
      "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
-     "#\n");
+     "#\n"
+     );
+
 }
 
 static void
@@ -3373,13 +3388,21 @@ print_db_header (void)
      "#   product ID\n"
      "#   ownership (user:group)\n"
      "#   permissions\n"
-     "#   path of an optional script to run (it can be omitted)\n", DEVOWNER, DEVGROUP, DEVMODE);
+     "#   path of an optional script to run (it can be omitted)\n"
+     "#\n"
+     , DEVOWNER, DEVGROUP, DEVMODE);
+
   printf
-    ("#\n"
-     "# The following list already contains a lot of scanners. If your scanner\n"
-     "# isn't mentioned there, add it as explained above and mail the entry to\n"
+     ("# If your scanner isn't listed below, you can add it as explained above.\n"
+     "#\n"
+     "# If your scanner is supported by some external backend (brother, epkowa,\n"
+     "# hpaio, etc) please ask the author of the backend to provide proper\n"
+     "# device detection support for your OS\n"
+     "#\n"
+     "# If the scanner is supported by sane-backends, please mail the entry to\n"
      "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
-     "#\n");
+     "#\n"
+     );
 }
 
 static void
@@ -3430,13 +3453,20 @@ print_udev_header (void)
      "# LABEL=\"libsane_usb_rules_begin\" and LABEL=\"libsane_usb_rules_end\" lines.\n"
      "#\n"
      "# To run a script when your device is plugged in, add RUN+=\"/path/to/script\"\n"
-     "# to the appropriate rule.\n");
+     "# to the appropriate rule.\n"
+     "#\n"
+     );
   printf
-    ("#\n"
-     "# The following list already contains a lot of scanners. If your scanner\n"
-     "# isn't mentioned there, add it as explained above and mail the entry to\n"
+     ("# If your scanner isn't listed below, you can add it as explained above.\n"
+     "#\n"
+     "# If your scanner is supported by some external backend (brother, epkowa,\n"
+     "# hpaio, etc) please ask the author of the backend to provide proper\n"
+     "# device detection support for your OS\n"
+     "#\n"
+     "# If the scanner is supported by sane-backends, please mail the entry to\n"
      "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
-     "#\n\n");
+     "#\n"
+     );
 }
 
 static void

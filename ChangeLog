@@ -1,3 +1,6 @@
+2010-04-18 m. allan noah <kitno455 at gmail dot com>
+	* tools/sane-desc.c: Update the sane-devel contact suggestion
+
 2010-04-16 m. allan noah <kitno455 at gmail dot com>
 	* backend/kvs1025*, kvs1025.desc, sane-kvs1025.man: backend v3
 	- invert usb status, add 0x to usbids, add missing KV-S1045 usbid

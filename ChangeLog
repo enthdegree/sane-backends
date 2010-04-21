@@ -1,3 +1,7 @@
+2010-04-21 m. allan noah <kitno455 at gmail dot com>
+	* tools/.gitignore: add sane-backends.pc
+	* po/uk.po: updated translation from Yuri Chornoivan
+
 2010-04-20 Chris Bagwell <chris at cnpbagwell do com>
 	* doc/descriptions-external/epkowa.desc: Updated based
 	on values that will be in next release of iscan.

@@ -1,19 +1,19 @@
 # Copyright (C) 2009
 # This file is distributed under the same license as the sane-backends package.
 #
-# Yuri Chornoivan <yurchor@ukr.net>, 2009.
+# Yuri Chornoivan <yurchor@ukr.net>, 2009, 2010.
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-27 20:43-0500\n"
-"PO-Revision-Date: 2009-06-14 18:38+0300\n"
+"PO-Revision-Date: 2010-04-19 18:37+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation@linux.org.ua>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 0.3\n"
+"X-Generator: Lokalize 1.0\n"
 "Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
@@ -527,8 +527,7 @@ msgstr "Визначає роздільну здатність сканован�
 #: ../include/sane/saneopts.h:295
 #, no-c-format
 msgid "Sets the horizontal resolution of the scanned image."
-msgstr ""
-"Визначає горизонтальну роздільну здатність засканованого зображення."
+msgstr "Визначає горизонтальну роздільну здатність засканованого зображення."
 
 #: ../include/sane/saneopts.h:298
 #, no-c-format
@@ -551,8 +550,7 @@ msgstr "Визначає висоту носія."
 
 #: ../include/sane/saneopts.h:308
 #, no-c-format
-msgid ""
-"Determines whether a builtin or a custom gamma-table should be used."
+msgid "Determines whether a builtin or a custom gamma-table should be used."
 msgstr "Визначає буде використано вбудовану чи нетипову таблицю гами."
 
 #: ../include/sane/saneopts.h:312
@@ -661,10 +659,8 @@ msgstr ""
 
 #: ../include/sane/saneopts.h:370
 #, no-c-format
-msgid ""
-"Selects what blue radiance level should be considered \"full blue\"."
-msgstr ""
-"Визначає рівень світності синього, який слід вважати «цілком синім»."
+msgid "Selects what blue radiance level should be considered \"full blue\"."
+msgstr "Визначає рівень світності синього, який слід вважати «цілком синім»."
 
 #: ../include/sane/saneopts.h:374
 #, no-c-format
@@ -1033,8 +1029,7 @@ msgstr "Двобічне сканування"
 
 #: ../backend/avision.h:777
 #, no-c-format
-msgid ""
-"Duplex scan provide a scan of the front and back side of the document"
+msgid "Duplex scan provide a scan of the front and back side of the document"
 msgstr ""
 "За використання двобічного сканування ви отримаєте одразу зображення "
 "лицьового та зворотного боків документа"
@@ -1459,8 +1454,7 @@ msgstr "Виштовхувати плівку після кожного скан
 #: ../backend/canon.c:1663
 #, no-c-format
 msgid "Automatically eject the film from the device after each scan"
-msgstr ""
-"Автоматично виштовхувати плівку з пристрою після кожного сканування"
+msgstr "Автоматично виштовхувати плівку з пристрою після кожного сканування"
 
 #: ../backend/canon.c:1672
 #, no-c-format
@@ -1561,15 +1555,15 @@ msgstr "Планшетний"
 
 #: ../backend/canon_dr.c:320 ../backend/epjitsu.c:204
 #: ../backend/fujitsu.c:518 ../backend/kodak.c:135
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF Front"
-msgstr "Відкрито кришку протяжного механізму"
+msgstr "Перед протяжного механізму"
 
 #: ../backend/canon_dr.c:321 ../backend/epjitsu.c:205
 #: ../backend/fujitsu.c:519 ../backend/kodak.c:136
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF Back"
-msgstr "Заїдання у протяжному механізмі"
+msgstr "Зворот протяжного механізму"
 
 #: ../backend/canon_dr.c:322 ../backend/epjitsu.c:206
 #: ../backend/fujitsu.c:520 ../backend/kodak.c:137 ../backend/hp5590.c:84
@@ -1606,19 +1600,19 @@ msgid "Blue"
 msgstr "Синій"
 
 #: ../backend/canon_dr.c:332
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enhance Red"
-msgstr "Покращення"
+msgstr "Покращити червоний"
 
 #: ../backend/canon_dr.c:333
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enhance Green"
-msgstr "Покращення"
+msgstr "Покращити зелений"
 
 #: ../backend/canon_dr.c:334
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enhance Blue"
-msgstr "Покращення"
+msgstr "Покращити синій"
 
 #: ../backend/canon_dr.c:336 ../backend/epson.c:556 ../backend/epson.c:564
 #: ../backend/epson.c:576 ../backend/epson.c:598 ../backend/epson2.c:159
@@ -1635,7 +1629,7 @@ msgstr "Немає"
 #: ../backend/canon_dr.c:337 ../backend/fujitsu.c:544
 #, no-c-format
 msgid "JPEG"
-msgstr ""
+msgstr "JPEG"
 
 #: ../backend/epson.c:491 ../backend/epson2.c:103
 #, no-c-format
@@ -2066,8 +2060,7 @@ msgstr "Позиція фокусування"
 
 #: ../backend/epson.h:73 ../backend/epson2.h:77
 #, no-c-format
-msgid ""
-"Sets the focus position to either the glass or 2.5mm above the glass"
+msgid "Sets the focus position to either the glass or 2.5mm above the glass"
 msgstr ""
 "Визначає позицію фокусування на рівень від поверхні скла до висоти 2,5 "
 "мм над склом"
@@ -2089,7 +2082,7 @@ msgstr ""
 #: ../backend/epson2.c:97
 #, no-c-format
 msgid "Infrared"
-msgstr ""
+msgstr "Інфрачервоне"
 
 #: ../backend/epson2.c:130
 #, no-c-format
@@ -2104,12 +2097,12 @@ msgstr "Слайд-негатив"
 #: ../backend/epson2.c:209
 #, no-c-format
 msgid "Built in CCT profile"
-msgstr ""
+msgstr "Вбудований профіль CCT"
 
 #: ../backend/epson2.c:210
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "User defined CCT profile"
-msgstr "Визначене користувачем"
+msgstr "Визначений користувачем профіль CCT"
 
 #: ../backend/fujitsu.c:528 ../backend/hp-option.c:3327
 #: ../backend/hp-option.c:3340
@@ -2126,12 +2119,12 @@ msgstr "Вимкнути"
 #: ../backend/fujitsu.c:531
 #, no-c-format
 msgid "DTC"
-msgstr ""
+msgstr "DTC"
 
 #: ../backend/fujitsu.c:532
 #, no-c-format
 msgid "SDTC"
-msgstr ""
+msgstr "SDTC"
 
 #: ../backend/fujitsu.c:534 ../backend/teco1.c:1152
 #: ../backend/teco1.c:1153 ../backend/teco2.c:1971 ../backend/teco2.c:1972
@@ -2141,44 +2134,44 @@ msgid "Dither"
 msgstr "Дизеринг"
 
 #: ../backend/fujitsu.c:535
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Diffusion"
-msgstr "Поширення помилок"
+msgstr "Дифузія"
 
 #: ../backend/fujitsu.c:540
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "White"
-msgstr "Рівень білого"
+msgstr "Білий"
 
 #: ../backend/fujitsu.c:541
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Black"
-msgstr "Рівень чорного"
+msgstr "Чорний"
 
 #: ../backend/fujitsu.c:546
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Continue"
-msgstr "Умовно"
+msgstr "Продовжити"
 
 #: ../backend/fujitsu.c:547
 #, no-c-format
 msgid "Stop"
-msgstr ""
+msgstr "Зупинити"
 
 #: ../backend/fujitsu.c:549
 #, no-c-format
 msgid "10mm"
-msgstr ""
+msgstr "10мм"
 
 #: ../backend/fujitsu.c:550
 #, no-c-format
 msgid "15mm"
-msgstr ""
+msgstr "15мм"
 
 #: ../backend/fujitsu.c:551
 #, no-c-format
 msgid "20mm"
-msgstr ""
+msgstr "20мм"
 
 #: ../backend/fujitsu.c:553 ../backend/hp-option.c:3045
 #, no-c-format
@@ -2186,14 +2179,14 @@ msgid "Horizontal"
 msgstr "По горизонталі"
 
 #: ../backend/fujitsu.c:554
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Horizontal bold"
-msgstr "По горизонталі"
+msgstr "Жирний по горизонталі"
 
 #: ../backend/fujitsu.c:555
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Horizontal narrow"
-msgstr "По горизонталі"
+msgstr "Вузький по горизонталі"
 
 #: ../backend/fujitsu.c:556 ../backend/hp-option.c:3044
 #, no-c-format
@@ -2201,29 +2194,29 @@ msgid "Vertical"
 msgstr "По вертикалі"
 
 #: ../backend/fujitsu.c:557
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Vertical bold"
-msgstr "По вертикалі"
+msgstr "Жирний по вертикалі"
 
 #: ../backend/fujitsu.c:559
 #, no-c-format
 msgid "Top to bottom"
-msgstr ""
+msgstr "Згори вниз"
 
 #: ../backend/fujitsu.c:560
 #, no-c-format
 msgid "Bottom to top"
-msgstr ""
+msgstr "Знизу догори"
 
 #: ../backend/fujitsu.c:562
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Front"
-msgstr "Друк"
+msgstr "Перед"
 
 #: ../backend/fujitsu.c:563
 #, no-c-format
 msgid "Back"
-msgstr ""
+msgstr "Зворот"
 
 #: ../backend/genesys.c:118 ../backend/gt68xx.c:149
 #: ../backend/ma1509.c:108 ../backend/mustek.c:164
@@ -2238,19 +2231,21 @@ msgid "Extras"
 msgstr "Додаткові"
 
 #: ../backend/genesys.c:5647
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Threshold curve"
-msgstr "Поріг"
+msgstr "Порогова крива"
 
 #: ../backend/genesys.c:5648
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr ""
+"Крива динамічного порогового значення, від світлого до темного, типово "
+"50-65"
 
 #: ../backend/genesys.c:5657
 #, no-c-format
 msgid "Disable dynamic lineart"
-msgstr ""
+msgstr "Вимкнути динамічне штрихування"
 
 #: ../backend/genesys.c:5660
 #, no-c-format
@@ -2258,6 +2253,8 @@ msgid ""
 "Disabel use of a software adaptative algorithm to generate lineart "
 "instead of relying on hardware lineart"
 msgstr ""
+"Вимкнути використання адаптивного програмного алгоритму для створення "
+"штрихування замість апаратного алгоритму штрихування"
 
 #: ../backend/genesys.c:5675
 #, no-c-format
@@ -2316,14 +2313,14 @@ msgid "Power button"
 msgstr "Кнопка «Power»"
 
 #: ../backend/genesys.c:5828 ../backend/gt68xx.c:762
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Need calibration"
-msgstr "Спорожнити дані калібрування"
+msgstr "Потребує калібрування"
 
 #: ../backend/genesys.c:5829 ../backend/gt68xx.c:763
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "The scanner needs calibration for the current settings"
-msgstr "Виконувати примусове калібрування перед скануванням"
+msgstr "Для застосування поточних параметрів потрібне калібрування"
 
 #: ../backend/genesys.c:5842 ../backend/gt68xx.c:787
 #: ../backend/gt68xx.c:788 ../backend/pixma_sane_options.c:210
@@ -3315,8 +3312,7 @@ msgstr "Калібрування програмою обробки"
 
 #: ../backend/microtek2.h:617
 #, no-c-format
-msgid ""
-"If checked the color calibration before a scan is done by the backend"
+msgid "If checked the color calibration before a scan is done by the backend"
 msgstr ""
 "Якщо позначено цей пункт, калібрування кольорів перед скануванням "
 "виконується програмою обробки"
@@ -3405,8 +3401,7 @@ msgstr "Скалярна гама червоного"
 #: ../backend/microtek2.h:655
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (red channel)"
-msgstr ""
-"Визначає значення для скалярного виправлення гами (канал червоного)."
+msgstr "Визначає значення для скалярного виправлення гами (канал червоного)."
 
 #: ../backend/microtek2.h:659
 #, no-c-format
@@ -3416,8 +3411,7 @@ msgstr "Скалярна гама зеленого"
 #: ../backend/microtek2.h:660
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (green channel)"
-msgstr ""
-"Визначає значення для скалярного виправлення гами (канал зеленого)."
+msgstr "Визначає значення для скалярного виправлення гами (канал зеленого)."
 
 #: ../backend/microtek2.h:664
 #, no-c-format
@@ -4040,8 +4034,7 @@ msgstr ""
 
 #: ../backend/pnm.c:283
 #, no-c-format
-msgid ""
-"Set default values for enhancement controls (brightness & contrast)."
+msgid "Set default values for enhancement controls (brightness & contrast)."
 msgstr ""
 "Встановити типові значення керування покращенням (яскравістю і "
 "контрастністю)."

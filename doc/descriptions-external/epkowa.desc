@@ -299,6 +299,7 @@
 :interface "SCSI"
 :status    :complete
 :comment   "overseas version of the GT-9600"
+:scsi      "EPSON" "Expression800" "processor"
 
 :model     "Expression 836XL"		; command spec
 :interface "SCSI"
@@ -419,6 +420,7 @@
 :model     "GT-7000S"
 :interface "SCSI"
 :status    :complete
+:scsi      "EPSON" "SCANNER GT-7000" "processor"
 
 :model     "GT-7000U"
 :interface "USB"
@@ -1011,6 +1013,7 @@
 :interface "SCSI"
 :status    :complete
 :comment   "overseas version of the GT-7000S"
+:scsi      "EPSON" "Perfection636" "processor"
 
 :model     "Perfection 636U"		; command spec
 :interface "USB"
@@ -1034,6 +1037,7 @@
 :interface "SCSI"
 :status    :complete
 :comment   "overseas version of the GT-7600S"
+:scsi      "EPSON" "Perfection1200" "processor"
 
 :model     "Perfection 1200U"		; command spec
 :interface "USB"

@@ -1,3 +1,11 @@
+2010-04-20 Chris Bagwell <chris at cnpbagwell do com>
+	* doc/descriptions-external/epkowa.desc: Updated based
+	on values that will be in next release of iscan.
+	Updated 4 pre-existing SCSI models with commonly used
+	model names.  This allows wider range of Epson SCSI scanners
+	to be correctly detected using auto-generated hal and udev
+	files.  This benefits epkowa, epson2, and epson backends.
+
 2010-04-18 m. allan noah <kitno455 at gmail dot com>
 	* tools/sane-desc.c: Update the sane-devel contact suggestion
 

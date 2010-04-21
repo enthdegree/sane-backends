@@ -1,6 +1,7 @@
 2010-04-21 m. allan noah <kitno455 at gmail dot com>
 	* tools/.gitignore: add sane-backends.pc
 	* po/uk.po: updated translation from Yuri Chornoivan
+	* po/nl.po: updated translation from Martin Kho
 
 2010-04-20 Chris Bagwell <chris at cnpbagwell do com>
 	* doc/descriptions-external/epkowa.desc: Updated based

@@ -13,7 +13,7 @@ prefix="@prefix@"
 exec_prefix="@exec_prefix@"
 
 LDFLAGS="@LDFLAGS@ @GPHOTO2_LDFLAGS@"
-LIBS="@LIBS@ @DL_LIBS@ @LIBV4L_LIBS@ @MATH_LIB@ @TIFF_LIBS@ @JPEG_LIBS@ @GPHOTO2_LIBS@ @SOCKET_LIBS@ @AVAHI_LIBS@ @USB_LIBS@ @SCSI_LIBS@ @REGMGR_LIBS@"
+LIBS="@LIBS@ @DL_LIBS@ @LIBV4L_LIBS@ @MATH_LIB@ @TIFF_LIBS@ @JPEG_LIBS@ @GPHOTO2_LIBS@ @SOCKET_LIBS@ @AVAHI_LIBS@ @USB_LIBS@ @SCSI_LIBS@ @RESMGR_LIBS@"
 pkgincludedir="@pkgincludedir@"
 pkglibdir="@pkglibdir@"
 includedir="@includedir@"

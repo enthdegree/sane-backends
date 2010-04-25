@@ -1,3 +1,6 @@
+2010-04-25 Chris Bagwell <chris at cnpbagwell do com>
+	* tools/sane-config.in: Fix typo: REGMGR=RESMGR.
+
 2010-04-21 m. allan noah <kitno455 at gmail dot com>
 	* tools/.gitignore: add sane-backends.pc
 	* po/uk.po: updated translation from Yuri Chornoivan

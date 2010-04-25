@@ -6296,6 +6296,7 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_search_strip,
 
   gl841_is_compatible_calibration,
+  NULL,
   NULL
 };
 

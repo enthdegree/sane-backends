@@ -166,7 +166,7 @@ static const SANE_Range threshold_curve_range = {
 /* ------------------------------------------------------------------------ */
 
 /*
- * returns true if filter bit is on (monochrome scan)
+ * setup the hardware dependent functions
  */
 static SANE_Status
 genesys_init_cmd_set (Genesys_Device * dev)
@@ -177,6 +177,8 @@ genesys_init_cmd_set (Genesys_Device * dev)
       return sanei_gl646_init_cmd_set (dev);
     case GENESYS_GL841:
       return sanei_gl841_init_cmd_set (dev);
+    case GENESYS_GL847:
+      return sanei_gl847_init_cmd_set (dev);
     default:
       return SANE_STATUS_INVAL;
     }
@@ -284,12 +286,44 @@ sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, SANE_Byte address,
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
+/**
+ * Write to one GL847 ASIC register
+URB    10  control  0x40 0x04 0x83 0x00 len     2 wrote 0xa6 0x04 
+ */
+static SANE_Status
+sanei_genesys_write_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
+{
+  SANE_Status status;
+  uint8_t buffer[2];
 
-/* Write to one register */
+  buffer[0]=reg;
+  buffer[1]=val;
+  status =
+    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
+			   VALUE_SET_REGISTER, INDEX, 2, buffer);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "sanei_genesys_write_gl847_register (0x%02x, 0x%02x): failed : %s\n", reg, val, sane_strstatus (status));
+      return status;
+    }
+
+  DBG (DBG_io, "sanei_genesys_write_gl847_register (0x%02x, 0x%02x) completed\n",
+       reg, val);
+
+  return status;
+}
+
+/**
+ * Write to one ASIC register
+ */
 SANE_Status
 sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
 {
   SANE_Status status;
+
+  /* route to gl847 function if needed */
+  if(dev->model->asic_type==GENESYS_GL847)
+    return sanei_genesys_write_gl847_register(dev, reg, val);
 
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
@@ -319,12 +353,39 @@ sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
   return status;
 }
 
+/* read reg 0x41:
+ * URB   164  control  0xc0 0x04 0x8e 0x4122 len     2 read  0xfc 0x55
+ */
+static SANE_Status
+sanei_genesys_read_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t * val)
+{
+  SANE_Status status;
+  uint16_t value;
+
+  status =
+    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_BUFFER,
+			   VALUE_GET_REGISTER, 0x22+(reg<<8), 2, (SANE_Byte *)&value);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "sanei_genesys_read_gl847_register (0x%02x): failed while setting register: %s\n",
+	   reg, sane_strstatus (status));
+      return status;
+    }
+  *val=value & 0xff;
+  DBG( DBG_io2, "sanei_genesys_read_gl847_register(0x%02x)=0x%02x\n",reg,value & 0xff);
+  return status;
+}
 
 /* Read from one register */
 SANE_Status
 sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg, uint8_t * val)
 {
   SANE_Status status;
+
+  /* route to gl847 function if needed */
+  if(dev->model->asic_type==GENESYS_GL847)
+    return sanei_genesys_read_gl847_register(dev, reg, val);
 
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
@@ -361,6 +422,13 @@ SANE_Status
 sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 {
   SANE_Status status;
+  
+  if(dev->model->asic_type==GENESYS_GL847)
+    {
+      DBG (DBG_warn,
+	   "sanei_genesys_set_buffer_address: shouldn't be used for GL847 \n");
+      return SANE_STATUS_GOOD;
+    }
 
   DBG (DBG_io,
        "sanei_genesys_set_buffer_address: setting address to 0x%05x\n",
@@ -1377,8 +1445,20 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
 
   DBG (DBG_proc, "genesys_send_offset_and_shading (size = %d)\n", size);
 
+  /* ASIC higher than gl843 doesn't have register 2A/2B, so we route to
+   * a per ASIC shading data loading function if available */
+  if(dev->model->cmd_set->send_shading_data!=NULL)
+    {
+        status=dev->model->cmd_set->send_shading_data(dev, data, size);
+        DBG (DBG_proc, "genesys_send_offset_and_shading: completed\n");
+        return status;
+    }
+
+  /* gl646, gl84[123] case */
   dpihw = sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6;
 
+  /* TODO invert the test so only the 2 models behaving like that are 
+   * tested instead of adding all the others */
   /* many scanners send coefficient for lineart/gray like in color mode */
   if (dev->settings.scan_mode < 2
       && dev->model->ccd_type != CCD_DSMOBILE600
@@ -6055,7 +6135,10 @@ config_attach_genesys (SANEI_Config * config, const char *devname)
 }
 
 /* probes for scanner to attach to the backend */
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 probe_genesys_devices (void)
 {
   SANEI_Config config;

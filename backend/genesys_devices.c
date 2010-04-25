@@ -138,6 +138,14 @@ static Genesys_Frontend Wolfson[] = {
    , {0x07, 0x00, 0x00}
    }
   ,		
+  {DAC_CANONLIDE200,
+     {0x9d, 0x9a, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x32, 0x04, 0x00}  /* offset */
+   , {0x00, 0x3f, 0x00}  /* gain */
+   , {0x00, 0x00, 0x00}
+   }
+  ,				/* 6: CANONLIDE200 */
 };
 
 
@@ -393,6 +401,31 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
+  /* CANONLIDE200 */
+  {CIS_CANONLIDE200,
+   1200,	/* optical resolution */
+   87,		/* black pixels */
+   16,		/* dummy pixels */
+   0,		
+   10400,		
+   210,
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   /* reg 0x10 - 0x1d */
+   {0x02, 0x7d, 0x02, 0x7d, 0x02, 0x7d, /* EXPR/EXPG/EXPB */
+    0x10, 0x0c, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
+   /* reg 0x52 - 0x5e */
+   {0x03, 0x07,
+    0x00, 0x00, 0x00, 0x00,
+    0x2a, 0xe1,
+    0x55,		
+    0x00, 0x00, 0x00, 
+    0x41	
+    }
+   ,
+   1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
+  ,
 
 };
 
@@ -491,6 +524,14 @@ static Genesys_Gpo Gpo[] = {
    {0x3f, 0x46}, /* 6c, 6d */
    {0xfb, 0x00}, /* 6e, 6f */
   }
+  ,
+  /* CANONLIDE200 */
+  {GPO_CANONLIDE200,
+   {0xfb, 0x20}
+   ,
+   {0xff, 0x00}
+   ,
+   }
   ,
 };
 
@@ -712,6 +753,24 @@ static Genesys_Motor Motor[] = {
      0.8,
      },},},
   },
+  {MOTOR_CANONLIDE200,		/* Canon LiDE 200 */
+   1200,
+   2400,
+   1,
+   1,
+   {{{
+     3500,
+     1300,
+     60,
+     0.8,
+     },
+    {
+     3500,
+     1400,
+     60,
+     0.8,
+    },},},
+  },
 };
 
 /* here we have the various device settings...
@@ -820,6 +879,60 @@ static Genesys_Model canon_lide_50_model = {
   280,
   400
 };
+
+static Genesys_Model canon_lide_200_model = {
+  "canon-lide-200",		/* Name */
+  "Canon",			/* Device vendor string */
+  "LiDE 200",			/* Device model name */
+  GENESYS_GL847,
+  NULL,
+
+  {1200, 600, 300, 150, 75, 50, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 300, 150, 75, 50, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
+  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CIS_CANONLIDE200,
+  DAC_CANONLIDE200,
+  GPO_CANONLIDE200,
+  MOTOR_CANONLIDE200,
+  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_WHITE_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA 
+    | GENESYS_FLAG_HALF_CCD_MODE,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
+  300,
+  400
+};				/* this is completely untested -- hmg */
+
 
 static Genesys_Model canon_lide_60_model = {
   "canon-lide-60",		/* Name */
@@ -1896,6 +2009,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a7, 0x04ac, &xerox_travelscanner_model},
   {0x04a9, 0x2213, &canon_lide_50_model},
   {0x04a9, 0x221c, &canon_lide_60_model},
+  {0x04a9, 0x1905, &canon_lide_200_model},
   {0x0638, 0x0a10, &umax_astra_4500_model},
   {0x07b3, 0x0600, &plustek_st12_model},
   {0x07b3, 0x0601, &plustek_st24_model},

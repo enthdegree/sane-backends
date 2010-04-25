@@ -123,6 +123,8 @@
 #define GPIO_OUTPUT_ENABLE	0x89
 #define GPIO_READ		0x8a
 #define GPIO_WRITE		0x8b
+#define VALUE_BUF_ENDACCESS	0x8c
+#define VALUE_GET_REGISTER	0x8e
 #define INDEX			0x00
 
 /* todo: used?
@@ -146,8 +148,8 @@
 #define AFE_SET        2
 #define AFE_POWER_SAVE 4
 
-#define LOWORD(x)  ((uint16_t)(x & 0xffff))
-#define HIWORD(x)  ((uint16_t)(x >> 16))
+#define LOWORD(x)  ((uint16_t)((x) & 0xffff))
+#define HIWORD(x)  ((uint16_t)((x) >> 16))
 #define LOBYTE(x)  ((uint8_t)((x) & 0xFF))
 #define HIBYTE(x)  ((uint8_t)((x) >> 8))
 
@@ -240,6 +242,9 @@ Genesys_Color_Order;
 
 #define GENESYS_GL646	 646
 #define GENESYS_GL841	 841
+#define GENESYS_GL846	 846
+#define GENESYS_GL847	 847
+#define GENESYS_GL848	 848
 
 /*135 registers for gl841 + 1 null-reg*/
 #define GENESYS_MAX_REGS 136
@@ -255,6 +260,7 @@ Genesys_Color_Order;
 #define DAC_WOLFSON_XP300  8
 #define DAC_WOLFSON_HP3670 9
 #define DAC_WOLFSON_DSM600 10
+#define DAC_CANONLIDE200   11
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -271,6 +277,7 @@ Genesys_Color_Order;
 #define CCD_DSMOBILE600  12
 #define CCD_XP300        13
 #define CCD_DP685        14
+#define CIS_CANONLIDE200 15
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -284,6 +291,7 @@ Genesys_Color_Order;
 #define GPO_HP3670       9
 #define GPO_DP665        10
 #define GPO_DP685        11
+#define GPO_CANONLIDE200 12
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1
@@ -297,6 +305,7 @@ Genesys_Color_Order;
 #define MOTOR_DP665      10
 #define MOTOR_ROADWARRIOR 11
 #define MOTOR_DSMOBILE_600 12
+#define MOTOR_CANONLIDE200 13
 
 
 /* Forward typedefs */
@@ -416,6 +425,12 @@ typedef struct Genesys_Command_Set
      * move scanning head to transparency adapter
      */
     SANE_Status (*move_to_ta) (Genesys_Device * dev);
+
+    /**
+     * write shading data calibration to ASIC
+     */
+    SANE_Status (*send_shading_data) (Genesys_Device * dev, uint8_t * data, int size);
+
 } Genesys_Command_Set;
 
 typedef struct Genesys_Model
@@ -769,5 +784,6 @@ sanei_genesys_buffer_consume(Genesys_Buffer * buf, size_t size);
 /*---------------------------------------------------------------------------*/
 extern SANE_Status sanei_gl646_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl841_init_cmd_set (Genesys_Device * dev);
+extern SANE_Status sanei_gl847_init_cmd_set (Genesys_Device * dev);
 
 #endif /* not GENESYS_LOW_H */

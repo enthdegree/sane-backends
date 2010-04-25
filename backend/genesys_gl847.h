@@ -112,13 +112,12 @@
 #define REG07_DMASEL	0x02
 #define REG07_DMARDWR	0x01
 
-#define REG08_DECFLAG 	0x40
-#define REG08_GMMFFR	0x20
-#define REG08_GMMFFG	0x10
-#define REG08_GMMFFB	0x08
-#define REG08_GMMZR	0x04
-#define REG08_GMMZG	0x02
-#define REG08_GMMZB	0x01
+#define REG08_DRAM2X  	0x80
+#define REG08_MPENB     0x20
+#define REG08_CIS_LINE  0x10
+#define REG08_IR1ENB	0x08
+#define REG08_IR2ENB    0x04
+#define REG08_ENB24M    0x01
 
 #define REG09_MCNTSET	0xc0
 #define REG09_CLKSET	0x30

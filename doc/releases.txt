@@ -14,6 +14,7 @@ Day 35: Release
 
 Before the release:
 
+* set :new :yes on any new backend .desc files
 * Make sure that config.guess and config.sub are up-to-date (get them from
   savannah.gnu.org/projects/config)
 * configure.in: increase version number
@@ -54,14 +55,13 @@ Announcing the release:
   to rebuild html man pages (see doc/Makefile) (no other version works)
 * add md5 sum to sane-md5sum.txt
 * check and update platforms page (sane-support.html)
-* add announcement (with md5sum) to index.html
+* add announcement to index.html
 * git commit -a && git push
-* ssh alioth.debian.org
-* cd /org/alioth.debian.org/chroot/home/groups/sane
-* ./bin/update-htdocs.sh
-* rebuild descriptions.db and descriptions-external.db (see doc/Makefile)
-* scp descriptions.db and descriptions-external.db to alioth
-  put them in /org/alioth.debian.org/chroot/home/groups/sane/search/release
+* check that website was updated automatically. if not, see:
+  /org/alioth.debian.org/chroot/home/groups/sane/bin/update-htdocs.sh
+* rebuild descriptions.db (see doc/Makefile)
+* scp descriptions.db to alioth:
+  /org/alioth.debian.org/chroot/home/groups/sane/search/release
 * write announcements sane-devel, maybe others (e.g. freshmeat),
   include the md5 hash
 

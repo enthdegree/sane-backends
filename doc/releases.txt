@@ -26,7 +26,7 @@ Before the release:
 * NEWS: update and enter date of release
 * sane-backends.lsm: update
 * ChangeLog: set release marker
-* cvs commit
+* git commit -a
 * tag git with release tag; e.g.: 'git tag -a RELEASE_1_0_15'
 
 Making the release:

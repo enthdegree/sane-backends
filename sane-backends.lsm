@@ -10,7 +10,7 @@ Description:    SANE (Scanner Access Now Easy) is a universal scanner
 Keywords:       scanner, camera, flatbed, automatic document feeder (ADF),
 		slides, diapositive, negative, film, transparency, CIS, CCD, 
                 network server & client, Java API & client
-Author:         David.Mosberger@acm.org (David Mosberger-Tang)
+Author:         The SANE development team (sane-devel@lists.alioth.debian.org)
                 (see AUTHORS for complete list)
 Maintained-by:  kitno455@gmail.com (m. allan noah)
 Primary-site:   ftp.sane-project.org /pub/sane/sane-backends-_VERSION_

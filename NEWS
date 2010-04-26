@@ -1,4 +1,22 @@
 -*-Mode: outline-*-
+New with 1.0.21, released 2010-04-25:
+
+* New backends: kodak (Kodak i18xx), kvs1025 (Panasonic KV-S10xx),
+  p5 (Primax PagePartner)
+* 224 more scanner models supported.
+* Many backends updated.
+* Improved compilation on uncommon platforms.
+* More consistent option naming.
+* Scanimage no longer writes image to tty.
+* Modern translation infrastructure.
+* Improved saned network daemon.
+* Internal SCSI, USB, threading, TCP & UDP code updates.
+* Updated HAL and udev support.
+* New sanei_magic image processing library.
+* Documentation updates.
+* Bugfixes.
+
+
 New with 1.0.20, released 2009-05-03:
 
 * New backends: canon_dr (Canon DR-series), coolscan3 (Nikon LS & Coolscan),

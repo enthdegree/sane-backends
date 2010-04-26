@@ -2,9 +2,9 @@
 :url "http://www.thebility.com/kodak/" 
 :version "7"
 :manpage "sane-kodak"
-:comment "Backend update for SANE release 1.0.21, see sane-kodak manpage"
-:devicetype :scanner
+:comment "New backend for SANE release 1.0.21, see sane-kodak manpage"
 :new :yes
+:devicetype :scanner
 
 :mfg "Kodak"
 :url "http://www.kodak.com/"

@@ -1,3 +1,5 @@
+******  Release of sane-backends 1.0.21. End of code freeze ******
+
 2010-04-25 Chris Bagwell <chris at cnpbagwell do com>
 	* tools/sane-config.in: Fix typo: REGMGR=RESMGR.
 

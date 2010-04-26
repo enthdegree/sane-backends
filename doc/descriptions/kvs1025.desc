@@ -13,6 +13,7 @@
 :version "3"                     ; version of backend
 :manpage "sane-kvs1025"          ; name of manpage (if it exists)
 :comment "New backend for SANE release 1.0.21, see sane-kvs1025 manpage"
+:new :yes
 :devicetype :scanner             ; start of a list of devices....
 
 :mfg "Panasonic"                 ; name a manufacturer

@@ -1,3 +1,6 @@
+2010-04-25 Julien Blache <jb@jblache.org>
+	* tools/sane-backends.pc.in: syntax fixes.
+
 2010-04-25 m. allan noah <kitno455 at gmail dot com>
 	* ChangeLog-1.0.21, Makefile.in: ChangeLog for 1.0.21 release
 	* configure, configure.in: version 1.0.22git

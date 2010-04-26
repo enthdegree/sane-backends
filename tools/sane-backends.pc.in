@@ -9,6 +9,6 @@ Name: SANE Backends
 Description: Backends for SANE, the universal scanner interface
 Version: @VERSION@
 Requires:
-Libs: -L$(libdir) -lsane
-Libs.private: $(ldflags) $(libs)
-Cflags: -I$(includedir)
+Libs: -L${libdir} -lsane
+Libs.private: ${ldflags} ${libs}
+Cflags: -I${includedir}

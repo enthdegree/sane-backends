@@ -69,12 +69,9 @@ After the release:
 
 * move ChangeLog to ChangeLog-"version" and start a new ChangeLog
 * add ChangeLog-"version" to EXTRA_DIST in Makefile.in
-* configure.in: bump version and V_REV
-* configure.in: add cvs suffix to textual version
+* configure.in: bump textual version & add 'git' suffix
+* configure.in: bump V_REV
 * configure.in: set is_release=no
 * configure: regenerate with autoconf
 * remove the ':new' tag from any new backends .desc files
-* commit
-* on alioth.debian.org, git pull, ./configure, make the git checkout in
-  /org/alioth.debian.org/chroot/home/groups/sane/sane-backends-lists-git/
-
+* git add new files and commit

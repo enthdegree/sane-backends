@@ -29,6 +29,8 @@ Before the release:
 * ChangeLog: set release marker
 * git commit -a
 * tag git with release tag; e.g.: 'git tag -a RELEASE_1_0_15'
+* probably DONT want to git push here, cause alioth will rebuild it's local
+  checkout needlessly
 
 Making the release:
 
@@ -75,3 +77,4 @@ After the release:
 * configure: regenerate with autoconf
 * remove the ':new' tag from any new backends .desc files
 * git add new files and commit
+* git push --tags

@@ -1,3 +1,7 @@
+2010-04-27 m. allan noah <kitno455 at gmail dot com>
+	* po/Makefile.in: include POTFILES and LINGUAS in DIST
+	* doc/releases.txt: more git notes
+
 2010-04-25 Julien Blache <jb@jblache.org>
 	* tools/sane-backends.pc.in: syntax fixes.
 

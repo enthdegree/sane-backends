@@ -219,7 +219,7 @@ PO_LINGUAS = $(shell if test -r $(srcdir)/LINGUAS; then grep -v "^\#" $(srcdir)/
 SRC_FILES = $(shell if test -r $(srcdir)/POTFILES; then grep -v "^\#" $(srcdir)/POTFILES; else echo ""; fi)
 PO_FILES = $(shell LINGUAS="$(PO_LINGUAS)"; for lang in $$LINGUAS; do printf "$$lang.po "; done)
 MO_FILES = $(shell LINGUAS="$(PO_LINGUAS)"; for lang in $$LINGUAS; do printf "$$lang.mo "; done)
-EXTRA_DIST = README $(GETTEXT_PACKAGE).pot $(PO_FILES)
+EXTRA_DIST = README $(GETTEXT_PACKAGE).pot $(PO_FILES) LINGUAS POTFILES
 @ENABLE_TRANSLATIONS_FALSE@INSTALL_TRANSLATIONS = 
 @ENABLE_TRANSLATIONS_TRUE@INSTALL_TRANSLATIONS = install-translations
 @ENABLE_TRANSLATIONS_FALSE@UNINSTALL_TRANSLATIONS = 

@@ -65,8 +65,9 @@
 #define REG01_CISSET	0x80
 #define REG01_DOGENB	0x40
 #define REG01_DVDSET	0x20
-#define REG01_M16DRAM	0x08
-#define REG01_DRAMSEL	0x04
+#define REG01_STAGGER   0x10
+#define REG01_COMPENB	0x08
+#define REG01_TRUEGRAY  0x04
 #define REG01_SHDAREA	0x02
 #define REG01_SCAN	0x01
 
@@ -79,6 +80,7 @@
 #define REG02_HOMENEG	0x02
 #define REG02_LONGCURV	0x01
 
+#define REG03           0x03
 #define REG03_LAMPDOG	0x80
 #define REG03_AVEENB	0x40
 #define REG03_XPASEL	0x20
@@ -107,10 +109,7 @@
 #define REG06_GAIN4	0x08
 #define REG06_OPTEST	0x07
 
-#define	REG07_SRAMSEL	0x08
-#define REG07_FASTDMA	0x04
-#define REG07_DMASEL	0x02
-#define REG07_DMARDWR	0x01
+#define	REG07_LAMPSIM	0x80
 
 #define REG08_DRAM2X  	0x80
 #define REG08_MPENB     0x20
@@ -120,7 +119,8 @@
 #define REG08_ENB24M    0x01
 
 #define REG09_MCNTSET	0xc0
-#define REG09_CLKSET	0x30
+#define REG09_EVEN1ST   0x20
+#define REG09_BLINE1ST  0x10
 #define REG09_BACKSCAN	0x08
 #define REG09_ENHANCE	0x04
 #define REG09_SHORTTG	0x02
@@ -130,7 +130,7 @@
 #define REG09S_CLKSET   4
 
 
-#define REG0A_SRAMBUF	0x01
+#define REG0A_LPWMEN	0x10
 
 #define REG0B_DRAMSEL   0x07
 #define REG0B_ENBDRAM   0x08
@@ -167,6 +167,8 @@
 #define REG18_CKDELAY	0x0c
 #define REG18_CKSEL	0x03
 
+#define REG1A_SW2SET 	0x80
+#define REG1A_SW1SET 	0x40
 #define REG1A_MANUAL3	0x02
 #define REG1A_MANUAL1	0x01
 #define REG1A_CK4INV	0x08
@@ -222,24 +224,35 @@
 #define REG5E_STOPTIM   0x1f
 #define REG5ES_STOPTIM  0
 
-#define REG60_ZIMOD	0x1f
+#define REG60           0x60
+#define REG60_Z1MOD	0x1f
+#define REG61           0x61
 #define REG61_Z1MOD	0xff
+#define REG62           0x62
 #define REG62_Z1MOD	0xff
 
+#define REG63           0x63
 #define REG63_Z2MOD	0x1f
+#define REG64           0x64
 #define REG64_Z2MOD	0xff
+#define REG65           0x65
 #define REG65_Z2MOD	0xff
 
-#define REG67_STEPSEL	0xc0
-#define REG67_FULLSTEP	0x00
-#define REG67_HALFSTEP	0x40
-#define REG67_QUATERSTEP	0x80
+#define REG60S_STEPSEL      5
+#define REG60_FSTPSEL	 0xe0
+#define REG60_FULLSTEP	 0x00
+#define REG60_HALFSTEP	 0x20
+#define REG60_EIGHTHSTEP 0x60
+#define REG60_16THSTEP   0x80
+
+#define REG63_FSTPSEL	 0xe0
+#define REG63_FULLSTEP	 0x00
+#define REG63_HALFSTEP	 0x20
+#define REG63_EIGHTHSTEP 0x60
+#define REG63_16THSTEP   0x80
+
 #define REG67_MTRPWM	0x3f
 
-#define REG68_FSTPSEL	0xc0
-#define REG68_FULLSTEP	0x00
-#define REG68_HALFSTEP	0x40
-#define REG68_QUATERSTEP	0x80
 #define REG68_FASTPWM	0x3f
 
 #define REG6B_MULTFILM	0x80

@@ -887,8 +887,9 @@ static Genesys_Model canon_lide_200_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 300, 150, 75, 50, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75, 50, 0},	/* possible y-resolutions */
+  /* XXX STEF XXX add 75 dpi mode at least, look at 2400 for motor */
+  {1200, 600, 300, 150, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -923,6 +924,7 @@ static Genesys_Model canon_lide_200_model = {
   GPO_CANONLIDE200,
   MOTOR_CANONLIDE200,
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_NO_CALIBRATION
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_WHITE_CALIBRATION

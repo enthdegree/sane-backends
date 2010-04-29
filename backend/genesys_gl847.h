@@ -62,6 +62,7 @@
 #include "../include/_stdint.h"
 #include "genesys.h"
 
+#define REG01           0x01
 #define REG01_CISSET	0x80
 #define REG01_DOGENB	0x40
 #define REG01_DVDSET	0x20
@@ -71,6 +72,7 @@
 #define REG01_SHDAREA	0x02
 #define REG01_SCAN	0x01
 
+#define REG02        	0x02
 #define REG02_NOTHOME	0x80
 #define REG02_ACDCDIS	0x40
 #define REG02_AGOHOME	0x20
@@ -95,10 +97,12 @@
 
 #define REG04S_AFEMOD   4
 
+#define REG05 		0x05
 #define REG05_DPIHW	0xc0
 #define REG05_DPIHW_600	0x00
 #define REG05_DPIHW_1200	0x40
 #define REG05_DPIHW_2400	0x80
+#define REG05_DPIHW_4800	0xc0
 #define REG05_MTLLAMP	0x30
 #define REG05_GMMENB	0x08
 #define REG05_MTLBASE	0x03
@@ -142,6 +146,13 @@
 #define REG0B_40MHZ     0x40
 #define REG0B_48MHZ     0x60
 #define REG0B_60MHZ     0x80
+
+#define REG0D 		0x0d
+#define REG0D_FULLSTP   0x10
+#define REG0D_SEND      0x80
+#define REG0D_CLRMCNT   0x04
+#define REG0D_CLRDOCJM  0x02
+#define REG0D_CLRLCNT   0x01
 
 #define REG0D_CLRLNCNT	0x01
 

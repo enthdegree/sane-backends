@@ -759,8 +759,8 @@ static Genesys_Motor Motor[] = {
    1,
    1,
    {{{
-     3500,
-     1300,
+     2343, /* first value of a recorded motor slope */
+     534,  /* last value of recorded slope table */
      60,
      0.8,
      },

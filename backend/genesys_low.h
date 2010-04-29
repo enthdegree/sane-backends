@@ -246,8 +246,7 @@ Genesys_Color_Order;
 #define GENESYS_GL847	 847
 #define GENESYS_GL848	 848
 
-/*135 registers for gl841 + 1 null-reg*/
-#define GENESYS_MAX_REGS 136
+#define GENESYS_MAX_REGS 256
 
 #define DAC_WOLFSON_UMAX   0
 #define DAC_WOLFSON_ST12   1
@@ -582,8 +581,8 @@ struct Genesys_Device
   SANE_String calib_file;
   Genesys_Model *model;
 
-  Genesys_Register_Set reg[GENESYS_MAX_REGS];
-  Genesys_Register_Set calib_reg[GENESYS_MAX_REGS];
+  Genesys_Register_Set reg[256];
+  Genesys_Register_Set calib_reg[256];
   Genesys_Settings settings;
   Genesys_Frontend frontend;
   Genesys_Sensor sensor;

@@ -655,16 +655,29 @@ sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
   uint8_t value;
 
   DBG (DBG_proc, "sanei_genesys_read_valid_words\n");
-
-  RIE (sanei_genesys_read_register (dev, 0x44, &value));
-  *words = value;
-  RIE (sanei_genesys_read_register (dev, 0x43, &value));
-  *words += (value * 256);
-  RIE (sanei_genesys_read_register (dev, 0x42, &value));
-  if (dev->model->asic_type == GENESYS_GL646)
-    *words += ((value & 0x03) * 256 * 256);
+  if (dev->model->asic_type == GENESYS_GL847)
+    {
+      RIE (sanei_genesys_read_register (dev, 0x42, &value));
+      *words=(value & 0x03);
+      RIE (sanei_genesys_read_register (dev, 0x43, &value));
+      *words=*words*256+value;
+      RIE (sanei_genesys_read_register (dev, 0x44, &value));
+      *words=*words*256+value;
+      RIE (sanei_genesys_read_register (dev, 0x45, &value));
+      *words=*words*256+value;
+    }
   else
-    *words += ((value & 0x0f) * 256 * 256);
+    {
+      RIE (sanei_genesys_read_register (dev, 0x44, &value));
+      *words = value;
+      RIE (sanei_genesys_read_register (dev, 0x43, &value));
+      *words += (value * 256);
+      RIE (sanei_genesys_read_register (dev, 0x42, &value));
+      if (dev->model->asic_type == GENESYS_GL646)
+        *words += ((value & 0x03) * 256 * 256);
+      else
+        *words += ((value & 0x0f) * 256 * 256);
+    }
 
   DBG (DBG_proc, "sanei_genesys_read_valid_words: %d words\n", *words);
   return SANE_STATUS_GOOD;

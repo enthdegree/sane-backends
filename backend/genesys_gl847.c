@@ -178,7 +178,8 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 {
   SANE_Status status;
   size_t size;
-  uint8_t outdata[8];
+  uint8_t outdata[8],value;
+  uint32_t words;
 
   DBG (DBG_io, "gl847_bulk_read_data: requesting %lu bytes\n", (u_long) len);
 
@@ -208,10 +209,23 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
       return status;
     }
 
+  /* we don't read more data than valid words avertised */
+  RIE (sanei_genesys_read_register (dev, 0x42, &value));
+  words=(value & 0x03);
+  RIE (sanei_genesys_read_register (dev, 0x43, &value));
+  words=words*256+value;
+  RIE (sanei_genesys_read_register (dev, 0x44, &value));
+  words=words*256+value;
+  RIE (sanei_genesys_read_register (dev, 0x45, &value));
+  words=words*256+value;
+
+  if(len>2*words)
+    len=2*words;
+
   while (len)
     {
-      if (len > BULKIN_MAXSIZE)
-	size = BULKIN_MAXSIZE;
+      if (len > 0xeff0)
+	size = 0xeff0;
       else
 	size = len;
       /* XXX STEF XXX */
@@ -4524,6 +4538,14 @@ gl847_init_memory_layout (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
 
   DBG (DBG_proc, "gl847_init_memory_layout\n");
+
+  /* point ot per model meory layout */
+  if(dev->model-name,"canon-lide-100")
+    {
+    }
+  else
+    {
+    }
 
   /* setup base address for shading data. */
   /* values must be multiplied by 8192=0x4000 to give address on AHB */

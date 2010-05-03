@@ -72,8 +72,8 @@
 :model "CanoScan LiDE 40"
 :interface "USB"
 :usbid "0x04a9" "0x2213"
-:status :untested
-:comment "Same ids as LiDE 50. Please tell us if this scanner works."
+:status :good
+:comment "Same ids as LiDE 50."
 
 :model "CanoScan LiDE 50"
 :interface "USB"

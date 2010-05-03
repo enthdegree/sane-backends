@@ -386,6 +386,7 @@ static int doc_source_to_code[] = {
 
 static SANE_String_Const scan_modes[] = {
   SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_HALFTONE,
   SANE_VALUE_SCAN_MODE_GRAY,
   SANE_VALUE_SCAN_MODE_COLOR,
   NULL

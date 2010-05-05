@@ -89,6 +89,7 @@
 #define REG03_LAMPPWR	0x10
 #define REG03_LAMPTIM	0x0f
 
+#define REG04        	0x04
 #define REG04_LINEART	0x80
 #define REG04_BITSET	0x40
 #define REG04_AFEMOD	0x30
@@ -152,9 +153,9 @@
 #define REG0D_SEND      0x80
 #define REG0D_CLRMCNT   0x04
 #define REG0D_CLRDOCJM  0x02
-#define REG0D_CLRLCNT   0x01
-
 #define REG0D_CLRLNCNT	0x01
+
+#define REG0F 		0x0f
 
 #define REG16_CTRLHI	0x80
 #define REG16_TOSHIBA	0x40
@@ -256,15 +257,18 @@
 #define REG60_EIGHTHSTEP 0x60
 #define REG60_16THSTEP   0x80
 
+#define REG63S_STEPSEL      5
 #define REG63_FSTPSEL	 0xe0
 #define REG63_FULLSTEP	 0x00
 #define REG63_HALFSTEP	 0x20
 #define REG63_EIGHTHSTEP 0x60
 #define REG63_16THSTEP   0x80
 
-#define REG67_MTRPWM	0x3f
+#define REG67 		0x67
+#define REG67_MTRPWM	0x80
 
-#define REG68_FASTPWM	0x3f
+#define REG68 		0x68
+#define REG68_FASTPWM	0x80
 
 #define REG6B_MULTFILM	0x80
 #define REG6B_GPOM13	0x40
@@ -428,3 +432,31 @@ enum
 };
 
 #define SETREG(adr,val) {dev->reg[reg_##adr].address=adr;dev->reg[reg_##adr].value=val;}
+
+typedef struct
+{
+  uint8_t rd0;
+  uint8_t rd1;
+  uint8_t rd2;
+  uint8_t re0;
+  uint8_t re1;
+  uint8_t re2;
+  uint8_t re3;
+  uint8_t re4;
+  uint8_t re5;
+  uint8_t re6;
+  uint8_t re7;
+} Memory_layout;
+
+static Memory_layout layouts[]={
+	/* LIDE 100 */
+	{
+		0x0a, 0x15, 0x20,
+		0x00, 0xac, 0x02, 0x55, 0x02, 0x56, 0x03, 0xff
+	},
+	/* LIDE 200 */
+	{
+		0x0a, 0x1f, 0x34,
+		0x01, 0x24, 0x02, 0x91, 0x02, 0x92, 0x03, 0xff
+	}
+};

@@ -277,6 +277,7 @@ Genesys_Color_Order;
 #define CCD_XP300        13
 #define CCD_DP685        14
 #define CIS_CANONLIDE200 15
+#define CIS_CANONLIDE100 16
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -305,6 +306,7 @@ Genesys_Color_Order;
 #define MOTOR_ROADWARRIOR 11
 #define MOTOR_DSMOBILE_600 12
 #define MOTOR_CANONLIDE200 13
+#define MOTOR_CANONLIDE100 14
 
 
 /* Forward typedefs */

@@ -137,15 +137,15 @@ static Genesys_Frontend Wolfson[] = {
    , {0xa0, 0xa0, 0xa0}
    , {0x07, 0x00, 0x00}
    }
-  ,		
+  ,
   {DAC_CANONLIDE200,
-     {0x9d, 0x9a, 0x00, 0x00}
+     {0x9d, 0x91, 0x00, 0x00}
    , {0x00, 0x00, 0x00}
-   , {0x32, 0x04, 0x00}  /* offset */
-   , {0x00, 0x3f, 0x00}  /* gain */
+   , {0x00, 0x3f, 0x00} 
+   , {0x32, 0x04, 0x00}
    , {0x00, 0x00, 0x00}
    }
-  ,				/* 6: CANONLIDE200 */
+  ,			
 };
 
 
@@ -426,6 +426,31 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
+  /* CANONLIDE100 */
+  {CIS_CANONLIDE100,
+   1200,	/* optical resolution */
+   87,		/* black pixels */
+   16,		/* dummy pixels */
+   0,		
+   10592,		
+   210,
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   /* reg 0x10 - 0x1d */
+   {0x03, 0x48, 0x01, 0xff, 0x01, 0x8e, /* EXPR/EXPG/EXPB */
+    0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
+   /* reg 0x52 - 0x5e */
+   {0x03, 0x07,
+    0x00, 0x00, 0x00, 0x00,
+    0x2a, 0xe1,
+    0x55,		
+    0x00, 0x00, 0x00, 
+    0x41	
+    }
+   ,
+   1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
+  ,
 
 };
 
@@ -527,7 +552,7 @@ static Genesys_Gpo Gpo[] = {
   ,
   /* CANONLIDE200 */
   {GPO_CANONLIDE200,
-   {0xfb, 0x20}
+   {0xfb, 0x20}	/* 0xfb when idle , 0xf9/0xe9 (1200) when scanning */
    ,
    {0xff, 0x00}
    ,
@@ -755,21 +780,16 @@ static Genesys_Motor Motor[] = {
   },
   {MOTOR_CANONLIDE100,		/* Canon LiDE 100 */
    1200,
-   2400,
-   1,
-   1,
-   {{{
-     2343, /* first value of a recorded motor slope */
-     534,  /* last value of recorded slope table */
-     60,
-     0.8,
-     },
-    {
-     3500,
-     1400,
-     60,
-     0.8,
-    },},},
+   4800,
+   2,   /* maximum step type count */
+   1,   /* maximum power modes count */
+   { /* motor slopes */
+	   { /* power mode 0 */
+		   { 2343, 864, 32, 0.81},  /* full step */
+    		   { 2*1171, 2*648, 32, 0.82},  /* half step */
+    		   { 4*2034, 4*2034, 32, 0.84},  /* quarter step */
+	   },
+    },
   },
   {MOTOR_CANONLIDE200,		/* Canon LiDE 200 */
    1200,
@@ -906,15 +926,14 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_GL847,
   NULL,
 
-  /* XXX STEF XXX add 75 dpi mode at least, look at 2400 for motor */
   {1200, 600, 300, 150, 0},	/* possible x-resolutions */
   {1200, 600, 300, 150, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
+  SANE_FIX (6.42),		/* Start of scan area in mm  (x) cible=320 */
   SANE_FIX (7.9),		/* Start of scan area in mm (y) */
-  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (217.44),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (3.0),		/* Start of white strip in mm (y) */
@@ -938,17 +957,16 @@ static Genesys_Model canon_lide_100_model = {
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   SANE_FALSE,			/* Is this a sheetfed scanner? */
-  CIS_CANONLIDE200,
+  CIS_CANONLIDE100,
   DAC_CANONLIDE200,
   GPO_CANONLIDE200,
-  MOTOR_CANONLIDE200,
+  MOTOR_CANONLIDE100,
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_NO_CALIBRATION
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_WHITE_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA 
-    | GENESYS_FLAG_HALF_CCD_MODE,
+    | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   150,
   400

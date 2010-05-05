@@ -176,6 +176,7 @@
 :model "Expression 800"
 :interface "SCSI"
 :status :complete
+:scsi "EPSON" "Expression800" "processor"
 
 :model "Expression 1600"
 :interface "SCSI USB IEEE-1394"

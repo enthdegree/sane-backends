@@ -241,6 +241,7 @@
 :model      "Expression 800"		; command spec
 :interface  "SCSI"
 :status     :complete
+:scsi       "EPSON" "Expression800" "processor"
 :comment    "overseas version of the GT-9600"
 
 :model      "Expression 836XL"		; command spec

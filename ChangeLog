@@ -1,3 +1,8 @@
+2010-05-05 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.[ch]: backend v99
+	- add read_from_PNMduplex() to better handle alternating duplex logic
+	- call read_from_* even if front eof has been received
+
 2010-05-03 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* Change status of CanoScan LiDE 40 from untested to good
 

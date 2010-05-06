@@ -446,12 +446,15 @@
          - support hardware based auto length detection
       v97 2009-09-14, MAN
          - use sanei_magic to provide software deskew, autocrop and despeckle
-      v98 2010-02-09, MAN
+      v98 2010-02-09, MAN (SANE 1.0.21)
          - clean up #include lines and copyright
          - add SANE_I18N to static strings
          - don't fail if scsi buffer is too small
          - disable bg_color for S1500
          - enable flatbed for M3092
+      v99 2010-05-05, MAN
+         - add read_from_PNMduplex() to better handle alternating duplex logic
+	- call read_from_* even if front eof has been received
 
    SANE FLOW DIAGRAM
 
@@ -501,7 +504,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 98
+#define BUILD 99
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -6973,64 +6976,52 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   /* protect this block from sane_cancel */
   s->reading = 1;
 
-  /* no eof from scanner yet, try to get some bytes */
-  if(!s->eof_rx[s->side]){
-
-    /* 3091/2 are on crack, get their own duplex reader function */
-    if(s->source == SOURCE_ADF_DUPLEX
-      && s->duplex_interlace == DUPLEX_INTERLACE_3091
-    ){
-      ret = read_from_3091duplex(s);
-      if(ret){
-        DBG(5,"sane_read: 3091 returning %d\n",ret);
-        return ret;
-      }
-    } /* end 3091 */
+  /* 3091/2 are on crack, get their own duplex reader function */
+  if(s->source == SOURCE_ADF_DUPLEX
+    && s->duplex_interlace == DUPLEX_INTERLACE_3091
+  ){
+    ret = read_from_3091duplex(s);
+    if(ret){
+      DBG(5,"sane_read: 3091 returning %d\n",ret);
+      return ret;
+    }
+  } /* end 3091 */
 
 #ifdef SANE_FRAME_JPEG
-    /* alternating jpeg duplex interlacing */
-    else if(s->source == SOURCE_ADF_DUPLEX
-      && s->params.format == SANE_FRAME_JPEG 
-      && s->jpeg_interlace == JPEG_INTERLACE_ALT
-    ){
-      ret = read_from_JPEGduplex(s);
-      if(ret){
-        DBG(5,"sane_read: jpeg duplex returning %d\n",ret);
-        return ret;
-      }
-    } /* end alt jpeg */
+  /* alternating jpeg duplex interlacing */
+  else if(s->source == SOURCE_ADF_DUPLEX
+    && s->params.format == SANE_FRAME_JPEG 
+    && s->jpeg_interlace == JPEG_INTERLACE_ALT
+  ){
+    ret = read_from_JPEGduplex(s);
+    if(ret){
+      DBG(5,"sane_read: jpeg duplex returning %d\n",ret);
+      return ret;
+    }
+  } /* end alt jpeg */
 #endif
 
-    /* alternating pnm duplex interlacing */
-    else if(s->source == SOURCE_ADF_DUPLEX
-      && s->params.format <= SANE_FRAME_RGB
-      && s->duplex_interlace == DUPLEX_INTERLACE_ALT
-    ){
+  /* alternating pnm duplex interlacing */
+  else if(s->source == SOURCE_ADF_DUPLEX
+    && s->params.format <= SANE_FRAME_RGB
+    && s->duplex_interlace == DUPLEX_INTERLACE_ALT
+  ){
+    /* buffer both sides */
+    ret = read_from_PNMduplex(s);
+    if(ret){
+      DBG(5,"sane_read: duplex returning %d\n",ret);
+      return ret;
+    }
+  } /* end alt pnm */
 
-      /* buffer front side */
-      ret = read_from_scanner(s, SIDE_FRONT);
-      if(ret){
-        DBG(5,"sane_read: front returning %d\n",ret);
-        return ret;
-      }
-    
-      /* buffer back side */
-      ret = read_from_scanner(s, SIDE_BACK);
-      if(ret){
-        DBG(5,"sane_read: back returning %d\n",ret);
-        return ret;
-      }
-    } /* end alt pnm */
-
-    /* simplex or non-alternating duplex */
-    else{
-      ret = read_from_scanner(s, s->side);
-      if(ret){
-        DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
-        return ret;
-      }
-    } /*end simplex*/
-  } /*end get more from scanner*/
+  /* simplex or non-alternating duplex */
+  else{
+    ret = read_from_scanner(s, s->side);
+    if(ret){
+      DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
+      return ret;
+    }
+  } /*end simplex/serial duplex*/
 
   /* copy a block from buffer to frontend */
   ret = read_from_buffer(s,buf,max_len,len,s->side);
@@ -7074,6 +7065,11 @@ read_from_JPEGduplex(struct fujitsu *s)
   
     DBG (10, "read_from_JPEGduplex: start\n");
   
+    if(s->eof_rx[SIDE_FRONT] && s->eof_rx[SIDE_BACK]){
+      DBG (10, "read_from_JPEGduplex: have eofs\n");
+      return ret;
+    }
+
     /* figure out the max amount to transfer */
     if(bytes > remain){
         bytes = remain;
@@ -7325,6 +7321,11 @@ read_from_3091duplex(struct fujitsu *s)
 
   DBG (10, "read_from_3091duplex: start\n");
 
+  if(s->eof_rx[SIDE_FRONT] && s->eof_rx[SIDE_BACK]){
+    DBG (10, "read_from_3091duplex: have eofs\n");
+    return ret;
+  }
+
   /* figure out the max amount to transfer */
   if(bytes > remain){
     bytes = remain;
@@ -7428,6 +7429,52 @@ read_from_3091duplex(struct fujitsu *s)
   return ret;
 }
 
+
+/* wrapper around read_from_scanner
+ * only read from backside when reading from front
+ * this prevents confusing the scanner in ald mode */
+static SANE_Status
+read_from_PNMduplex(struct fujitsu *s)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+
+  int fspace = s->buff_tot[SIDE_FRONT] - s->buff_rx[SIDE_FRONT];
+  
+  int bspace = s->buff_tot[SIDE_BACK] - s->buff_rx[SIDE_BACK];
+
+  DBG (10, "read_from_PNMduplex: start\n");
+
+  /* all requests must end on line boundary */
+  /* some larger scanners require even bytes per block */
+  fspace -= (fspace % s->params.bytes_per_line);
+  if(fspace % 2)
+     fspace -= s->params.bytes_per_line;
+
+  bspace -= (bspace % s->params.bytes_per_line);
+  if(bspace % 2)
+     bspace -= s->params.bytes_per_line;
+
+  /* there is space for front data, get it */
+  if(fspace && !s->eof_rx[SIDE_FRONT]){
+    ret = read_from_scanner(s,SIDE_FRONT);
+    if(ret){
+      return ret;
+    }
+  }
+
+  /* we read front data (or done), keep back data in sync */
+  if((fspace || s->eof_rx[SIDE_FRONT]) && bspace && !s->eof_rx[SIDE_BACK]){
+    ret = read_from_scanner(s,SIDE_BACK);
+    if(ret){
+      return ret;
+    }
+  }
+
+  DBG (10, "read_from_PNMduplex: finish\n");
+
+  return ret;
+}
+
 static SANE_Status
 read_from_scanner(struct fujitsu *s, int side)
 {
@@ -7445,6 +7492,11 @@ read_from_scanner(struct fujitsu *s, int side)
   
     DBG (10, "read_from_scanner: start\n");
   
+    if(s->eof_rx[side]){
+      DBG (10, "read_from_scanner: have eof\n");
+      return ret;
+    }
+
     /* figure out the max amount to transfer */
     if(bytes > remain){
         bytes = remain;
@@ -7461,8 +7513,8 @@ read_from_scanner(struct fujitsu *s, int side)
        bytes -= s->params.bytes_per_line;
     }
   
-    DBG(15, "read_from_scanner: si:%d re:%d bs:%d by:%d\n",
-      side, remain, s->buffer_size, bytes);
+    DBG(15, "read_from_scanner: si:%d re:%d bs:%d by:%d bpl:%d\n",
+      side, remain, s->buffer_size, bytes, s->params.bytes_per_line);
 
     DBG(15, "read_from_scanner: img to:%d rx:%d tx:%d\n",
       s->bytes_tot[side], s->bytes_rx[side], s->bytes_tx[side]);

@@ -1859,8 +1859,10 @@ sanei_genesys_read_feed_steps (Genesys_Device * dev, unsigned int *steps)
   RIE (sanei_genesys_read_register (dev, 0x48, &value));
   if (dev->model->asic_type == GENESYS_GL646)
     *steps += ((value & 0x03) * 256 * 256);
-  else
+  else if (dev->model->asic_type == GENESYS_GL841)
     *steps += ((value & 0x0f) * 256 * 256);
+  else
+    *steps += ((value & 0x1f) * 256 * 256);
 
   DBG (DBG_proc, "sanei_genesys_read_feed_steps: %d steps\n", *steps);
   return SANE_STATUS_GOOD;

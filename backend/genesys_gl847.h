@@ -137,6 +137,7 @@
 
 #define REG0A_LPWMEN	0x10
 
+#define REG0B           0x0b
 #define REG0B_DRAMSEL   0x07
 #define REG0B_ENBDRAM   0x08
 #define REG0B_ENBDRAM   0x08
@@ -201,6 +202,8 @@
 #define REG1E_LINESEL	0x0f
 #define REG1ES_LINESEL  0
 
+#define REG40           0x40
+#define REG40_CHKVER    0x10
 #define REG40_HISPDFLG  0x04
 #define REG40_MOTMFLG   0x02
 #define REG40_DATAENB   0x01
@@ -270,6 +273,7 @@
 #define REG68 		0x68
 #define REG68_FASTPWM	0x80
 
+#define REG6B          	0x6b
 #define REG6B_MULTFILM	0x80
 #define REG6B_GPOM13	0x40
 #define REG6B_GPOM12	0x20
@@ -277,14 +281,36 @@
 #define REG6B_GPO18	0x02
 #define REG6B_GPO17	0x01
 
+#define REG6C           0x6c
+#define REG6C_GPIO16    0x80
+#define REG6C_GPIO15    0x40
+#define REG6C_GPIO14    0x20
+#define REG6C_GPIO13    0x10
+#define REG6C_GPIO12    0x08
+#define REG6C_GPIO11    0x04
+#define REG6C_GPIO10    0x02
+#define REG6C_GPIO9     0x01
 #define REG6C_GPIOH	0xff
 #define REG6C_GPIOL	0xff
 
+#define REG6D           0x6d
+#define REG6E           0x6e
+#define REG6F           0x6f
+
 #define REG87_LEDADD    0x04
 
+#define REGA6   	0xa6
+#define REGA7 		0xa7
+#define REGA9 		0xa9
 
-#define REG_GPIO17_21   0xa6
-#define REG_GPOE17_21   0xa7
+#define SCAN_FLAG_SINGLE_LINE              0x01
+#define SCAN_FLAG_DISABLE_SHADING          0x02
+#define SCAN_FLAG_DISABLE_GAMMA            0x04
+#define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE 0x08
+#define SCAN_FLAG_IGNORE_LINE_DISTANCE     0x10
+#define SCAN_FLAG_USE_OPTICAL_RES          0x20
+#define SCAN_FLAG_DISABLE_LAMP             0x40
+#define SCAN_FLAG_DYNAMIC_LINEART          0x80
 
 /**
  * writable scanner registers */

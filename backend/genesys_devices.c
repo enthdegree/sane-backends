@@ -432,7 +432,7 @@ static Genesys_Sensor Sensor[] = {
    87,		/* black pixels */
    16,		/* dummy pixels */
    0,		
-   10592,		
+   10592, /* 10272 (shading) , 16 (dummy) */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},

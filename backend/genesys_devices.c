@@ -432,12 +432,12 @@ static Genesys_Sensor Sensor[] = {
    87,		/* black pixels */
    16,		/* dummy pixels */
    0,		
-   10592, /* 10272 (shading) , 16 (dummy) */
+   10592, /* 10272 + 320 start */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
    /* reg 0x10 - 0x1d */
-   {0x03, 0x48, 0x01, 0xff, 0x01, 0x8e, /* EXPR/EXPG/EXPB */
+   {0x03, 0x48, 0x01, 0xff, 0x01, 0x7d, /* EXPR/EXPG/EXPB */
     0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
    /* reg 0x52 - 0x5e */
    {0x03, 0x07,
@@ -785,9 +785,9 @@ static Genesys_Motor Motor[] = {
    1,   /* maximum power modes count */
    { /* motor slopes */
 	   { /* power mode 0 */
-		   { 2343, 864, 32, 0.81},  /* full step */
-    		   { 2*1171, 2*648, 32, 0.82},  /* half step */
-    		   { 4*2034, 4*2034, 32, 0.84},  /* quarter step */
+		   {   2343,    864, 32, 0.80},  /* full step */
+    		   { 2*1171,  2*648, 32, 0.80},  /* half step */
+    		   { 4*2034, 4*2034, 32, 0.80},  /* quarter step */
 	   },
     },
   },
@@ -926,13 +926,13 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 300, 150, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (6.42),		/* Start of scan area in mm  (x) cible=320 */
-  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
+  SANE_FIX (6.42),		/* Start of scan area in mm  (x) */
+  SANE_FIX (10.0),		/* Start of scan area in mm (y) 7.9 */
   SANE_FIX (217.44),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
@@ -970,7 +970,7 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   150,
   400
-};				/* this is completely untested -- hmg */
+};
 
 static Genesys_Model canon_lide_200_model = {
   "canon-lide-200",		/* Name */
@@ -1025,7 +1025,7 @@ static Genesys_Model canon_lide_200_model = {
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   150,
   400
-};				/* this is completely untested -- hmg */
+};
 
 
 static Genesys_Model canon_lide_60_model = {

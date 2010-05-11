@@ -1789,31 +1789,6 @@ independent of our calculated values:
   if (used_pixels * xres < pixels * optical_res)
     used_pixels++;
 
-/* dummy */
-  /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
-     dummy line. Maybe the dummy line adds correctness since the motor runs 
-     slower (higher dpi) 
-   */
-/* for cis this creates better aligned color lines:
-dummy \ scanned lines
-   0: R           G           B           R ...
-   1: R        G        B        -        R ...
-   2: R      G      B       -      -      R ...
-   3: R     G     B     -     -     -     R ...
-   4: R    G    B     -   -     -    -    R ...
-   5: R    G   B    -   -   -    -   -    R ...
-   6: R   G   B   -   -   -   -   -   -   R ...
-   7: R   G  B   -  -   -   -  -   -  -   R ...
-   8: R  G  B   -  -  -   -  -  -   -  -  R ...
-   9: R  G  B  -  -  -  -  -  -  -  -  -  R ...
-  10: R  G B  -  -  -  - -  -  -  -  - -  R ...
-  11: R  G B  - -  - -  -  - -  - -  - -  R ...
-  12: R G  B - -  - -  - -  - -  - - -  - R ...
-  13: R G B  - - - -  - - -  - - - -  - - R ...
-  14: R G B - - -  - - - - - -  - - - - - R ...
-  15: R G B - - - - - - - - - - - - - - - R ...
- -- pierre
- */
   dummy = 0;
 
 /* slope_dpi */
@@ -1826,10 +1801,7 @@ dummy \ scanned lines
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-/* scan_step_type */
-/* Try to do at least 4 steps per line. if that is impossible we will have to
-   live with that
- */
+  /* scan_step_type */
   if (yres * 4 < dev->motor.base_ydpi || dev->motor.max_step_type <= 0)
     scan_step_type = 0;
   else if (yres * 4 < dev->motor.base_ydpi * 2
@@ -1862,8 +1834,8 @@ dummy \ scanned lines
       scan_power_mode++;
     }
 
-  DBG (DBG_info, "gl847_init_scan_regs : exposure_time=%d pixels\n",
-       exposure_time);
+  DBG (DBG_info, "gl847_init_scan_regs : exposure_time=%d pixels\n", exposure_time);
+  DBG (DBG_info, "gl847_init_scan_regs : scan_step_type=%d\n", scan_step_type);
 
 /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan

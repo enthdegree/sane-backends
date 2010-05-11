@@ -786,7 +786,7 @@ static Genesys_Motor Motor[] = {
    { /* motor slopes */
 	   { /* power mode 0 */
 		   {   2343,   1017, 32, 0.80}, /* full step */
-    		   {   3675,   2034, 32, 0.80}, /* half step */
+    		   {   4678,   2034, 16, 0.80}, /* half step */
     		   { 4*2034, 4*2034, 32, 0.80}, /* quarter step */
 		   /* extra values kept for documentation */
 		   {   2343,    864, 32, 0.80}, /* full step */
@@ -929,13 +929,13 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 400, 300, 200, 150, 75, 0},	/* possible x-resolutions */
-  {1200, 600, 400, 300, 200, 150, 75, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (6.42),		/* Start of scan area in mm  (x) */
-  SANE_FIX (10.0),		/* Start of scan area in mm (y) 7.9 */
+  SANE_FIX (6.42),		/* Start of scan area in mm (x) */
+  SANE_FIX (10.0),		/* Start of scan area in mm (y) */
   SANE_FIX (217.44),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 

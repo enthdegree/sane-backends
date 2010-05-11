@@ -1179,8 +1179,10 @@ gl847_init_motor_regs_scan (Genesys_Device * dev, Genesys_Register_Set * reg, un
 
       use_fast_fed = fast_time < slow_time;
     }
+  DBG (DBG_info, "gl847_init_motor_regs_scan: decided to use %s mode\n",
+       use_fast_fed ? "fast feed" : "slow feed");
 
-  /* XXX STEF XXX */
+  /* XXX STEF XXX  */
   use_fast_fed = 0;
 
   if (use_fast_fed)
@@ -1190,8 +1192,6 @@ gl847_init_motor_regs_scan (Genesys_Device * dev, Genesys_Register_Set * reg, un
     feedl = 0;
   else
     feedl = (feed_steps << scan_step_type) - slow_slope_steps;
-  DBG (DBG_info, "gl847_init_motor_regs_scan: decided to use %s mode\n",
-       use_fast_fed ? "fast feed" : "slow feed");
 
 /* all needed slopes available. we did even decide which mode to use. 
    what next?  */
@@ -1226,9 +1226,15 @@ gl847_init_motor_regs_scan (Genesys_Device * dev, Genesys_Register_Set * reg, un
 
   /* hi res motor speed */
   RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (scan_yres >= dev->sensor.optical_res / 2)
+
+  /* if quarter step, bipolar Vref2 */
+  if (scan_step_type > 1)
     {
       val = effective & ~REG6C_GPIO13;
+    }
+  else
+    {
+      val = effective;
     }
   RIE (sanei_genesys_write_register (dev, REG6C, val));
 
@@ -1633,7 +1639,9 @@ gl847_get_led_exposure (Genesys_Device * dev)
 static
 #endif
   SANE_Status
-gl847_init_scan_regs (Genesys_Device * dev, Genesys_Register_Set * reg, float xres,	/*dpi */
+gl847_init_scan_regs (Genesys_Device * dev,
+                      Genesys_Register_Set * reg,
+                      float xres,	/*dpi */
 		      float yres,	/*dpi */
 		      float startx,	/*optical_res, from dummy_pixel+1 */
 		      float starty,	/*base_ydpi, from home! */
@@ -4051,80 +4059,114 @@ gl847_init_memory_layout (Genesys_Device * dev)
   /* setup base address for shading data. */
   /* values must be multiplied by 8192=0x4000 to give address on AHB */
   /* R-Channel shading bank0 address setting for CIS */
-  SETREG (0xd0, layouts[idx].rd0);
+  sanei_genesys_write_register (dev, 0xd0, layouts[idx].rd0);
   /* G-Channel shading bank0 address setting for CIS */
-  SETREG (0xd1, layouts[idx].rd1);
+  sanei_genesys_write_register (dev, 0xd1, layouts[idx].rd1);
   /* B-Channel shading bank0 address setting for CIS */
-  SETREG (0xd2, layouts[idx].rd2);
+  sanei_genesys_write_register (dev, 0xd2, layouts[idx].rd2);
 
   /* setup base address for scanned data. */
   /* values must be multiplied by 1024*2=0x0800 to give address on AHB */
   /* R-Channel ODD image buffer 0x0124->0x92000 */
   /* size for each buffer is 0x16d*1k word */
-  SETREG (0xe0, layouts[idx].re0);
-  SETREG (0xe1, layouts[idx].re1);
+  sanei_genesys_write_register (dev, 0xe0, layouts[idx].re0);
+  sanei_genesys_write_register (dev, 0xe1, layouts[idx].re1);
 /* R-Channel ODD image buffer end-address 0x0291->0x148800 => size=0xB6800*/
-  SETREG (0xe2, layouts[idx].re2);
-  SETREG (0xe3, layouts[idx].re3);
+  sanei_genesys_write_register (dev, 0xe2, layouts[idx].re2);
+  sanei_genesys_write_register (dev, 0xe3, layouts[idx].re3);
 
   /* R-Channel EVEN image buffer 0x0292 */
-  SETREG (0xe4, layouts[idx].re4);
-  SETREG (0xe5, layouts[idx].re5);
+  sanei_genesys_write_register (dev, 0xe4, layouts[idx].re4);
+  sanei_genesys_write_register (dev, 0xe5, layouts[idx].re5);
 /* R-Channel EVEN image buffer end-address 0x03ff*/
-  SETREG (0xe6, layouts[idx].re6);
-  SETREG (0xe7, layouts[idx].re7);
+  sanei_genesys_write_register (dev, 0xe6, layouts[idx].re6);
+  sanei_genesys_write_register (dev, 0xe7, layouts[idx].re7);
 
 /* same for green, since CIS, same addresses */
-  SETREG (0xe8, layouts[idx].re0);
-  SETREG (0xe9, layouts[idx].re1);
-  SETREG (0xea, layouts[idx].re2);
-  SETREG (0xeb, layouts[idx].re3);
-  SETREG (0xec, layouts[idx].re4);
-  SETREG (0xed, layouts[idx].re5);
-  SETREG (0xee, layouts[idx].re6);
-  SETREG (0xef, layouts[idx].re7);
+  sanei_genesys_write_register (dev, 0xe8, layouts[idx].re0);
+  sanei_genesys_write_register (dev, 0xe9, layouts[idx].re1);
+  sanei_genesys_write_register (dev, 0xea, layouts[idx].re2);
+  sanei_genesys_write_register (dev, 0xeb, layouts[idx].re3);
+  sanei_genesys_write_register (dev, 0xec, layouts[idx].re4);
+  sanei_genesys_write_register (dev, 0xed, layouts[idx].re5);
+  sanei_genesys_write_register (dev, 0xee, layouts[idx].re6);
+  sanei_genesys_write_register (dev, 0xef, layouts[idx].re7);
 
 /* same for blue, since CIS, same addresses */
-  SETREG (0xf0, layouts[idx].re0);
-  SETREG (0xf1, layouts[idx].re1);
-  SETREG (0xf2, layouts[idx].re2);
-  SETREG (0xf3, layouts[idx].re3);
-  SETREG (0xf4, layouts[idx].re4);
-  SETREG (0xf5, layouts[idx].re5);
-  SETREG (0xf6, layouts[idx].re6);
-  SETREG (0xf7, layouts[idx].re7);
-
-  /* only write modified registers */
-  RIE (sanei_genesys_write_register (dev, 0xd0, dev->reg[reg_0xd0].value));
-  RIE (sanei_genesys_write_register (dev, 0xd1, dev->reg[reg_0xd1].value));
-  RIE (sanei_genesys_write_register (dev, 0xd2, dev->reg[reg_0xd2].value));
-  RIE (sanei_genesys_write_register (dev, 0xe0, dev->reg[reg_0xe0].value));
-  RIE (sanei_genesys_write_register (dev, 0xe1, dev->reg[reg_0xe1].value));
-  RIE (sanei_genesys_write_register (dev, 0xe2, dev->reg[reg_0xe2].value));
-  RIE (sanei_genesys_write_register (dev, 0xe3, dev->reg[reg_0xe3].value));
-  RIE (sanei_genesys_write_register (dev, 0xe4, dev->reg[reg_0xe4].value));
-  RIE (sanei_genesys_write_register (dev, 0xe5, dev->reg[reg_0xe5].value));
-  RIE (sanei_genesys_write_register (dev, 0xe6, dev->reg[reg_0xe6].value));
-  RIE (sanei_genesys_write_register (dev, 0xe7, dev->reg[reg_0xe7].value));
-  RIE (sanei_genesys_write_register (dev, 0xe8, dev->reg[reg_0xe8].value));
-  RIE (sanei_genesys_write_register (dev, 0xe9, dev->reg[reg_0xe9].value));
-  RIE (sanei_genesys_write_register (dev, 0xea, dev->reg[reg_0xea].value));
-  RIE (sanei_genesys_write_register (dev, 0xeb, dev->reg[reg_0xeb].value));
-  RIE (sanei_genesys_write_register (dev, 0xec, dev->reg[reg_0xec].value));
-  RIE (sanei_genesys_write_register (dev, 0xed, dev->reg[reg_0xed].value));
-  RIE (sanei_genesys_write_register (dev, 0xee, dev->reg[reg_0xee].value));
-  RIE (sanei_genesys_write_register (dev, 0xef, dev->reg[reg_0xef].value));
-  RIE (sanei_genesys_write_register (dev, 0xf0, dev->reg[reg_0xf0].value));
-  RIE (sanei_genesys_write_register (dev, 0xf1, dev->reg[reg_0xf1].value));
-  RIE (sanei_genesys_write_register (dev, 0xf2, dev->reg[reg_0xf2].value));
-  RIE (sanei_genesys_write_register (dev, 0xf3, dev->reg[reg_0xf3].value));
-  RIE (sanei_genesys_write_register (dev, 0xf4, dev->reg[reg_0xf4].value));
-  RIE (sanei_genesys_write_register (dev, 0xf5, dev->reg[reg_0xf5].value));
-  RIE (sanei_genesys_write_register (dev, 0xf6, dev->reg[reg_0xf6].value));
-  RIE (sanei_genesys_write_register (dev, 0xf7, dev->reg[reg_0xf7].value));
+  sanei_genesys_write_register (dev, 0xf0, layouts[idx].re0);
+  sanei_genesys_write_register (dev, 0xf1, layouts[idx].re1);
+  sanei_genesys_write_register (dev, 0xf2, layouts[idx].re2);
+  sanei_genesys_write_register (dev, 0xf3, layouts[idx].re3);
+  sanei_genesys_write_register (dev, 0xf4, layouts[idx].re4);
+  sanei_genesys_write_register (dev, 0xf5, layouts[idx].re5);
+  sanei_genesys_write_register (dev, 0xf6, layouts[idx].re6);
+  sanei_genesys_write_register (dev, 0xf7, layouts[idx].re7);
 
   DBG (DBG_proc, "gl847_init_memory_layout completed\n");
   return status;
+}
+
+/** @brief dummy sca nto reset scanner
+ *
+ * */
+static SANE_Status gl847_dummy_scan(Genesys_Device *dev)
+{
+  SANE_Status status;
+  size_t size;
+  uint8_t *line;
+  float pixels;
+
+  DBG (DBG_proc, "%s start\n", __FUNCTION__);
+
+  /* initial calibration reg values */
+  memcpy (dev->calib_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
+
+  pixels= (16 * 300) / dev->sensor.optical_res;
+  status = gl847_init_scan_regs (dev,
+				 dev->calib_reg,
+				 300,
+				 300,
+				 0,
+				 0,
+				 pixels,
+				 1,
+				 16,
+				 3,
+				 0,
+				 SCAN_FLAG_DISABLE_SHADING |
+				 SCAN_FLAG_DISABLE_GAMMA |
+				 SCAN_FLAG_SINGLE_LINE |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
+				 SCAN_FLAG_USE_OPTICAL_RES
+      );
+
+  RIE (gl847_bulk_write_register
+       (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
+
+  /* colors * bytes_per_color * scan lines */
+  size = ((int) pixels) * 3 * 2 * 1;
+
+  line = malloc (size);
+  if (!line)
+    return SANE_STATUS_NO_MEM;
+
+  DBG (DBG_info,
+       "gl847_init: starting dummy data reading\n");
+  RIE (gl847_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+
+  sanei_usb_set_timeout(1000);/* 1 second*/
+
+ /*ignore errors. next read will succeed*/
+  sanei_genesys_read_data_from_scanner (dev, line, size);
+
+  sanei_usb_set_timeout(30 * 1000);/* 30 seconds*/
+
+  RIE (gl847_end_scan (dev, dev->calib_reg, SANE_TRUE));
+
+  free(line);
+
+  DBG (DBG_proc, "%s completed\n", __FUNCTION__);
+  return SANE_STATUS_GOOD;
 }
 
 /* *
@@ -4222,11 +4264,10 @@ gl847_init (Genesys_Device * dev)
   SETREG (0x08, REG08_CIS_LINE);
   RIE (sanei_genesys_write_register (dev, 0x08, dev->reg[reg_0x08].value));
 
-  /* end access ?? */
-  /* URB   109  control  0x40 0x0c 0x8c 0x10 len     1 wrote 0x0b 
-     URB   110  control  0x40 0x0c 0x8c 0x13 len     1 wrote 0x0e */
+  /* set up end access */
   RIE (write_end_access (dev, 0x10, 0x0b));
   RIE (write_end_access (dev, 0x13, 0x0e));
+
   sanei_genesys_write_register (dev, REGA7, 0x04);
   sanei_genesys_write_register (dev, REGA9, 0x00);
 
@@ -4315,6 +4356,9 @@ gl847_init (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
+
+  /* to clear error condition on scan */
+  /* gl847_dummy_scan(dev); */
 
   memcpy (dev->calib_reg, dev->reg,
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));

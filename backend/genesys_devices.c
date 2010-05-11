@@ -785,9 +785,12 @@ static Genesys_Motor Motor[] = {
    1,   /* maximum power modes count */
    { /* motor slopes */
 	   { /* power mode 0 */
-		   {   2343,    864, 32, 0.80},  /* full step */
-    		   { 2*1171,  2*648, 32, 0.80},  /* half step */
-    		   { 4*2034, 4*2034, 32, 0.80},  /* quarter step */
+		   {   2343,   1017, 32, 0.80}, /* full step */
+    		   {   3675,   2034, 32, 0.80}, /* half step */
+    		   { 4*2034, 4*2034, 32, 0.80}, /* quarter step */
+		   /* extra values kept for documentation */
+		   {   2343,    864, 32, 0.80}, /* full step */
+    		   { 2*1171,  2*648, 32, 0.80}, /* half step */
 	   },
     },
   },
@@ -926,8 +929,8 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {1200, 600, 400, 300, 200, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 400, 300, 200, 150, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

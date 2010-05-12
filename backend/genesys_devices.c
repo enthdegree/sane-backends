@@ -437,7 +437,7 @@ static Genesys_Sensor Sensor[] = {
    200,
    {0x00, 0x00, 0x00, 0x00},
    /* reg 0x10 - 0x1d */
-   {0x03, 0x48, 0x01, 0xff, 0x01, 0x7d, /* EXPR/EXPG/EXPB */
+   {0x01, 0x80, 0x01, 0x80, 0x01, 0x80, /* EXPR/EXPG/EXPB */
     0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
    /* reg 0x52 - 0x5e */
    {0x03, 0x07,
@@ -787,10 +787,10 @@ static Genesys_Motor Motor[] = {
 	   { /* power mode 0 */
 		   {   2343,   1017, 32, 0.80}, /* full step */
     		   {   4678,   2034, 16, 0.80}, /* half step */
-    		   { 4*2034, 4*2034, 32, 0.80}, /* quarter step */
-		   /* extra values kept for documentation */
-		   {   2343,    864, 32, 0.80}, /* full step */
-    		   { 2*1171,  2*648, 32, 0.80}, /* half step */
+    		   { 4*2034, 4*2034, 16, 0.80}, /* quarter step */
+		   /* extra values kept for documentation   
+		   {   2343,    864, 32, 0.80},    full step   
+    		   { 2*1171,  2*648, 32, 0.80},    half step */
 	   },
     },
   },
@@ -935,7 +935,7 @@ static Genesys_Model canon_lide_100_model = {
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (6.42),		/* Start of scan area in mm (x) */
-  SANE_FIX (10.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
   SANE_FIX (217.44),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
@@ -965,7 +965,7 @@ static Genesys_Model canon_lide_100_model = {
   GPO_CANONLIDE200,
   MOTOR_CANONLIDE100,
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_NO_CALIBRATION
+    | GENESYS_FLAG_NO_CALIBRATION 
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_WHITE_CALIBRATION
@@ -982,9 +982,8 @@ static Genesys_Model canon_lide_200_model = {
   GENESYS_GL847,
   NULL,
 
-  /* XXX STEF XXX add 75 dpi mode at least, look at 2400 for motor */
-  {1200, 600, 300, 150, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

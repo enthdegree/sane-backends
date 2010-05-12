@@ -4087,8 +4087,9 @@ static SANE_Status gl847_dummy_scan(Genesys_Device *dev)
   size_t size;
   uint8_t *line;
   float pixels;
+  int dpi=300;
 
-  DBG (DBG_proc, "%s start\n", __FUNCTION__);
+  DBGSTART;
 
   /* initial calibration reg values */
   memcpy (dev->calib_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
@@ -4096,8 +4097,8 @@ static SANE_Status gl847_dummy_scan(Genesys_Device *dev)
   pixels= (16 * 300) / dev->sensor.optical_res;
   status = gl847_init_scan_regs (dev,
 				 dev->calib_reg,
-				 300,
-				 300,
+				 dpi,
+				 dpi,
 				 0,
 				 0,
 				 pixels,
@@ -4122,8 +4123,8 @@ static SANE_Status gl847_dummy_scan(Genesys_Device *dev)
   if (!line)
     return SANE_STATUS_NO_MEM;
 
-  DBG (DBG_info,
-       "gl847_init: starting dummy data reading\n");
+  DBG (DBG_info, "%s: starting dummy data reading\n", __FUNCTION__);
+
   RIE (gl847_begin_scan (dev, dev->calib_reg, SANE_TRUE));
 
   sanei_usb_set_timeout(1000);/* 1 second*/
@@ -4137,7 +4138,7 @@ static SANE_Status gl847_dummy_scan(Genesys_Device *dev)
 
   free(line);
 
-  DBG (DBG_proc, "%s completed\n", __FUNCTION__);
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -4330,7 +4331,7 @@ gl847_init (Genesys_Device * dev)
     }
 
   /* to clear error condition on scan */
-  /* gl847_dummy_scan(dev); */
+  gl847_dummy_scan(dev);
 
   memcpy (dev->calib_reg, dev->reg,
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));

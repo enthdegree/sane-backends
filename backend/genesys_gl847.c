@@ -555,6 +555,7 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x7b, 0x00);
   SETREG (0x7c, 0x55);
   SETREG (0x7d, 0x00);
+  /* NOTE: autoconf is a non working option */
   SETREG (0x87, 0x02);
   SETREG (0x9d, 0x06);
   SETREG (0x9d, 0x00); /* XXX STEF XXX 1x multiplier instead of 8x */
@@ -4099,7 +4100,6 @@ gl847_init_memory_layout (Genesys_Device * dev)
   return status;
 }
 
-#if 0
 /** @brief dummy scan to reset scanner
  *
  * */
@@ -4165,6 +4165,7 @@ gl847_dummy_scan (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+#if 0
 /**
  * reads a register from device and set up corresponding shadow register
  */
@@ -4497,6 +4498,9 @@ gl847_init (Genesys_Device * dev)
 					65535, 65535, dev->sensor.blue_gamma);
     }
   dev->already_initialized = SANE_TRUE;
+
+  /* dummy scan , don't care if it fails */
+  gl847_dummy_scan (dev);
 
   /* Move home */
   RIE (gl847_slow_back_home (dev, SANE_TRUE));

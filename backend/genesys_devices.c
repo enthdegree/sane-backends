@@ -437,7 +437,7 @@ static Genesys_Sensor Sensor[] = {
    200,
    {0x00, 0x00, 0x00, 0x00},
    /* reg 0x10 - 0x1d */
-   {0x01, 0x80, 0x01, 0x80, 0x01, 0x80, /* EXPR/EXPG/EXPB */
+   {0x03, 0x00, 0x02, 0x00, 0x01, 0x80, /* EXPR/EXPG/EXPB */
     0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
    /* reg 0x52 - 0x5e */
    {0x03, 0x07,
@@ -929,8 +929,8 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

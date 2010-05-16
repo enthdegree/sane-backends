@@ -1089,6 +1089,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev, Genesys_Register_Set * reg, un
   uint32_t z1, z2;
   uint8_t val, effective;
 
+  DBGSTART;
   DBG (DBG_proc, "gl847_init_motor_regs_scan : scan_exposure_time=%d, "
        "scan_yres=%g, scan_step_type=%d, scan_lines=%d, scan_dummy=%d, "
        "feed_steps=%d, scan_power_mode=%d, flags=%x\n",
@@ -1349,22 +1350,26 @@ gl847_init_motor_regs_scan (Genesys_Device * dev, Genesys_Register_Set * reg, un
 
   r = sanei_genesys_get_address (reg, 0x21);
   r->value = (slow_slope_steps >> 1) + (slow_slope_steps & 1);
+  r->value = slow_slope_steps; /* XXX STEF XXX */
 
   r = sanei_genesys_get_address (reg, 0x24);
   r->value = (back_slope_steps >> 1) + (back_slope_steps & 1);
+  r->value = back_slope_steps; /* XXX STEF XXX */
 
   r = sanei_genesys_get_address (reg, 0x69);
   r->value = (slow_slope_steps >> 1) + (slow_slope_steps & 1);
+  r->value = slow_slope_steps; /* XXX STEF XXX */
 
   r = sanei_genesys_get_address (reg, 0x6a);
   r->value = (fast_slope_steps >> 1) + (fast_slope_steps & 1);
+  r->value = fast_slope_steps; /* XXX STEF XXX */
 
   r = sanei_genesys_get_address (reg, 0x5f);
   r->value = (fast_slope_steps >> 1) + (fast_slope_steps & 1);
+  r->value = fast_slope_steps; /* XXX STEF XXX */
 
 
-  DBG (DBG_proc, "gl847_init_motor_regs_scan : completed. \n");
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 

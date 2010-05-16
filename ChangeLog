@@ -1,3 +1,12 @@
+2010-05-16 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.[ch] backend/genesys_devices.c
+	backend/genesys.conf.in backend/genesys_gl847.[ch]
+	backend/Makefile.in: start of LiDE 100 and LIDE 200 support
+
+2010-05-16 Stéphane Voltz <stef.dev@free.fr>
+	* sanei/sanei_usb.c include/sane/sanei_usb.h: add a sanei_usb_reset() 
+	function.
+
 2010-05-05 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.[ch]: backend v99
 	- add read_from_PNMduplex() to better handle alternating duplex logic

@@ -77,8 +77,6 @@
 #include "genesys.h"
 #include "genesys_devices.c"
 
-#define FREE_IFNOT_NULL(x)		if(x!=NULL) { free(x); x=NULL;}
-
 static SANE_Int num_devices = 0;
 static Genesys_Device *first_dev = 0;
 static Genesys_Scanner *first_handle = 0;
@@ -6665,6 +6663,10 @@ sane_close (SANE_Handle handle)
     first_handle = s->next;
 
   /* maybe todo: shut down scanner */
+
+  /* we need this to avoid ASIC getting stuck
+   * in bulk writes */
+  sanei_usb_reset (s->dev->dn);
 
   sanei_usb_close (s->dev->dn);
   free (s);

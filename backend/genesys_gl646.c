@@ -5752,7 +5752,8 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_search_strip,
 
   gl646_is_compatible_calibration,
-  gl646_move_to_ta
+  gl646_move_to_ta,
+  NULL
 };
 
 SANE_Status

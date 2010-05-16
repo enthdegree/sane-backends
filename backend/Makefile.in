@@ -156,7 +156,7 @@ am_libfujitsu_la_OBJECTS = libfujitsu_la-fujitsu.lo
 libfujitsu_la_OBJECTS = $(am_libfujitsu_la_OBJECTS)
 libgenesys_la_LIBADD =
 am_libgenesys_la_OBJECTS = libgenesys_la-genesys.lo \
-	libgenesys_la-genesys_gl646.lo libgenesys_la-genesys_gl841.lo
+	libgenesys_la-genesys_gl646.lo libgenesys_la-genesys_gl841.lo libgenesys_la-genesys_gl847.lo
 libgenesys_la_OBJECTS = $(am_libgenesys_la_OBJECTS)
 libgphoto2_i_la_LIBADD =
 am_libgphoto2_i_la_OBJECTS = libgphoto2_i_la-gphoto2.lo
@@ -1974,7 +1974,7 @@ nodist_libsane_fujitsu_la_SOURCES = fujitsu-s.c
 libsane_fujitsu_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=fujitsu
 libsane_fujitsu_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_fujitsu_la_LIBADD = $(COMMON_LIBS) libfujitsu.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
-libgenesys_la_SOURCES = genesys.c genesys.h genesys_gl646.c genesys_gl646.h genesys_gl841.c genesys_low.h
+libgenesys_la_SOURCES = genesys.c genesys.h genesys_gl646.c genesys_gl646.h genesys_gl841.c genesys_gl847.c genesys_gl847.h genesys_low.h
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 nodist_libsane_genesys_la_SOURCES = genesys-s.c
 libsane_genesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
@@ -2840,6 +2840,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgenesys_la-genesys.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgenesys_la-genesys_gl646.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgenesys_la-genesys_gl841.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgenesys_la-genesys_gl847.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgphoto2_i_la-gphoto2.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgt68xx_la-gt68xx.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhp3500_la-hp3500.Plo@am__quote@
@@ -3303,6 +3304,13 @@ libgenesys_la-genesys_gl841.lo: genesys_gl841.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='genesys_gl841.c' object='libgenesys_la-genesys_gl841.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgenesys_la-genesys_gl841.lo `test -f 'genesys_gl841.c' || echo '$(srcdir)/'`genesys_gl841.c
+
+libgenesys_la-genesys_gl847.lo: genesys_gl847.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgenesys_la-genesys_gl847.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl847.Tpo -c -o libgenesys_la-genesys_gl847.lo `test -f 'genesys_gl847.c' || echo '$(srcdir)/'`genesys_gl847.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl847.Tpo $(DEPDIR)/libgenesys_la-genesys_gl847.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='genesys_gl847.c' object='libgenesys_la-genesys_gl847.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgenesys_la-genesys_gl847.lo `test -f 'genesys_gl847.c' || echo '$(srcdir)/'`genesys_gl847.c
 
 libgphoto2_i_la-gphoto2.lo: gphoto2.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgphoto2_i_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgphoto2_i_la-gphoto2.lo -MD -MP -MF $(DEPDIR)/libgphoto2_i_la-gphoto2.Tpo -c -o libgphoto2_i_la-gphoto2.lo `test -f 'gphoto2.c' || echo '$(srcdir)/'`gphoto2.c

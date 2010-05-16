@@ -49,6 +49,8 @@
 
 #include "genesys_low.h"
 
+#define FREE_IFNOT_NULL(x)		if(x!=NULL) { free(x); x=NULL;}
+
 #define ENABLE(OPTION)  s->opt[OPTION].cap &= ~SANE_CAP_INACTIVE
 #define DISABLE(OPTION) s->opt[OPTION].cap |=  SANE_CAP_INACTIVE
 #define IS_ACTIVE(OPTION) (((s->opt[OPTION].cap) & SANE_CAP_INACTIVE) == 0)

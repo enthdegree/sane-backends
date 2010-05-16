@@ -278,6 +278,12 @@ extern SANE_Status sanei_usb_clear_halt (SANE_Int dn);
  */
 #define HAVE_SANEI_USB_CLEAR_HALT
 
+/** Reset device
+ * 
+ * @param dn device number
+ */
+extern SANE_Status sanei_usb_reset (SANE_Int dn);
+
 /** Initiate a bulk transfer read.
  *
  * Read up to size bytes from the device to buffer. After the read, size

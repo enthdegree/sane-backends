@@ -2015,6 +2015,34 @@ sanei_usb_clear_halt (SANE_Int dn)
 }
 
 SANE_Status
+sanei_usb_reset (SANE_Int dn)
+{
+#ifdef HAVE_LIBUSB
+  int ret;
+
+  ret = usb_reset (devices[dn].libusb_handle);
+  if (ret){
+    DBG (1, "sanei_usb_reset: ret=%d\n", ret);
+    return SANE_STATUS_INVAL;
+  }
+
+#elif defined(HAVE_LIBUSB_1_0)
+  int ret;
+
+  ret = libusb_reset_device (devices[dn].lu_handle);
+  if (ret){
+    DBG (1, "sanei_usb_reset: ret=%d\n", ret);
+    return SANE_STATUS_INVAL;
+  }
+  
+#else /* not HAVE_LIBUSB && not HAVE_LIBUSB_1_0 */
+  DBG (1, "sanei_usb_reset: libusb support missing\n");
+#endif /* HAVE_LIBUSB || HAVE_LIBUSB_1_0 */
+
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
 sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 {
   ssize_t read_size = 0;

@@ -7,10 +7,12 @@
 	* sanei/sanei_usb.c include/sane/sanei_usb.h: add a sanei_usb_reset() 
 	function.
 
-2010-05-05 m. allan noah <kitno455 at gmail dot com>
-	* backend/fujitsu.[ch]: backend v99
-	- add read_from_PNMduplex() to better handle alternating duplex logic
-	- call read_from_* even if front eof has been received
+2010-05-15 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.c: backend v99
+	- sense_handler(): collect rs_info for any ILI, not just EOM
+	- do_usb_cmd(): use rs_info whenever set, not just EOF
+	- read_from_*(): better handling of EOF from lower level functions
+	- sane_read(): improve duplexing logic
 
 2010-05-03 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* Change status of CanoScan LiDE 40 from untested to good

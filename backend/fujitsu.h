@@ -783,7 +783,6 @@ static SANE_Status check_for_cancel(struct fujitsu *s);
 static SANE_Status read_from_JPEGduplex(struct fujitsu *s);
 #endif
 static SANE_Status read_from_3091duplex(struct fujitsu *s);
-static SANE_Status read_from_PNMduplex(struct fujitsu *s);
 static SANE_Status read_from_scanner(struct fujitsu *s, int side);
 
 static SANE_Status copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side);

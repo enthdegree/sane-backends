@@ -439,7 +439,7 @@ static Genesys_Sensor Sensor[] = {
    /* reg 0x10 - 0x15 */
    {0x03, 0x00, 0x02, 0x00, 0x01, 0x80, /* EXPR/EXPG/EXPB */
    /* reg 0x16 - 0x1d */
-    0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
+    0x10, 0x08, 0x00, 0x50, 0x34, 0x00, 0x02, 0x04 },
    /* reg 0x52 - 0x5e */
    {0x03, 0x07,
     0x00, 0x00, 0x00, 0x00,
@@ -966,13 +966,12 @@ static Genesys_Model canon_lide_100_model = {
   GPO_CANONLIDE200,
   MOTOR_CANONLIDE100,
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
-    /* | GENESYS_FLAG_NO_CALIBRATION */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  150,
+  50,
   400
 };
 

@@ -1484,6 +1484,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 
   r = sanei_genesys_get_address (reg, 0x19);
   r->value = 0xff;
+  r->value = 0x50; /* XXX STEF XXX */
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, 0x2e);
@@ -2325,6 +2326,7 @@ gl847_set_lamp_power (Genesys_Device * dev,
 	}
       r = sanei_genesys_get_address (regs, 0x19);
       r->value = 0x50;
+      r->value = 0x50; /* XXX STEF XXX */
     }
   else
     {
@@ -2340,6 +2342,7 @@ gl847_set_lamp_power (Genesys_Device * dev,
 	}
       r = sanei_genesys_get_address (regs, 0x19);
       r->value = 0xff;
+      r->value = 0x50; /* XXX STEF XXX */
     }
 }
 
@@ -3653,18 +3656,6 @@ gl847_led_calibration (Genesys_Device * dev)
   SANE_Bool acceptable = SANE_FALSE;
 
   DBG (DBG_proc, "gl847_led_calibration\n");
-
-  /* move to white strip */
-  /* XXX STEF XXX
-  status = gl847_feed (dev, 280); */
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_led_calibration: failed to feed: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
 
   /* offset calibration is always done in color mode */
   channels = 3;

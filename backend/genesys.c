@@ -3307,6 +3307,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CCD_CANONLIDE35:
     case CIS_CANONLIDE100:
+    case CIS_CANONLIDE200:
       target_bright = 0xfa00;
       target_dark = 0xa00;
       o = 4;			/*first four pixels are ignored */

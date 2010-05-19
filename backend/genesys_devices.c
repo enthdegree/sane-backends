@@ -124,7 +124,7 @@ static Genesys_Frontend Wolfson[] = {
   ,				/* 8: HP3670 */
   {DAC_WOLFSON_HP3670,  
    /* reg0  reg1  reg2  reg3 */
-     {0x00, 0x03, 0x05, 0x32}  /* reg3=0x32 for 100-300 dpi, 0x12 at 1200 */
+     {0x00, 0x03, 0x05, 0x32} /* reg3=0x32 for 100-300 dpi, 0x12 at 1200 */
    , {0x00, 0x00, 0x00} /* sign */
    , {0xba, 0xb8, 0xb8} /* offset */
    , {0x06, 0x05, 0x04} /* gain 4,3,2 at 1200 ?*/
@@ -141,7 +141,7 @@ static Genesys_Frontend Wolfson[] = {
   {DAC_CANONLIDE200,
      {0x9d, 0x91, 0x00, 0x00}
    , {0x00, 0x00, 0x00}
-   , {0x00, 0x3f, 0x00} 
+   , {0x00, 0x3f, 0x00}  /* 0x00 0x3f 0x00 : offset/brigthness ? */
    , {0x32, 0x04, 0x00}
    , {0x00, 0x00, 0x00}
    }
@@ -432,12 +432,13 @@ static Genesys_Sensor Sensor[] = {
    87,		/* black pixels */
    16,		/* dummy pixels */
    0,		
-   10592, /* 10272 + 320 start */
+   10272, /* 10272 + 320 start ->10848=4*2712 max */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
-   /* reg 0x10 - 0x1d */
+   /* reg 0x10 - 0x15 */
    {0x03, 0x00, 0x02, 0x00, 0x01, 0x80, /* EXPR/EXPG/EXPB */
+   /* reg 0x16 - 0x1d */
     0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
    /* reg 0x52 - 0x5e */
    {0x03, 0x07,
@@ -929,8 +930,8 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 300, 150, 100, 75, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 100, 75, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 75, 50, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -965,10 +966,10 @@ static Genesys_Model canon_lide_100_model = {
   GPO_CANONLIDE200,
   MOTOR_CANONLIDE100,
   GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_NO_CALIBRATION 
+    /* | GENESYS_FLAG_NO_CALIBRATION */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_WHITE_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   150,

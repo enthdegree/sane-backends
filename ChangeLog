@@ -1,3 +1,8 @@
+2010-05-16 Chris Bagwell <chris at cnpbagwell dot com>
+	* README.freebsd: Add suggested hint that configure needs
+	to be told location of external libraries installed through
+	Ports.
+
 2010-05-16 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.[ch] backend/genesys_devices.c
 	backend/genesys.conf.in backend/genesys_gl847.[ch]

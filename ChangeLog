@@ -1,3 +1,7 @@
+2010-05-20 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c:
+	make led and shading calibration work for LiDE 100
+
 2010-05-16 Chris Bagwell <chris at cnpbagwell dot com>
 	* README.freebsd: Add suggested hint that configure needs
 	to be told location of external libraries installed through

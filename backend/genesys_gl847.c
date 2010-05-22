@@ -1428,7 +1428,14 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
        exposure_time,
        used_res, start, pixels, channels, depth, half_ccd, flags);
 
-  used_pixels = dev->sensor.sensor_pixels;
+  if(pixels<dev->sensor.sensor_pixels)
+    {
+      used_pixels = dev->sensor.sensor_pixels;
+    }
+  else
+    {
+      used_pixels = pixels;
+    }
   end = start + used_pixels;
 
   status = gl847_set_fe (dev, AFE_SET);
@@ -1451,7 +1458,9 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
       (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
     r->value &= ~REG01_DVDSET;
   else
-    r->value |= REG01_DVDSET;
+    {
+      r->value |= REG01_DVDSET | REG01_SHDAREA;
+    }
 
   /* average looks better than deletion, and we are already set up to 
      use one of the average enabled resolutions */
@@ -1561,11 +1570,12 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   dev->bpl = words_per_line;
   dev->cur=0;
   dev->len=pixels/2;
-  dev->dist=0;
+  dev->dist=used_pixels/2;
+  dev->dist=10272/2; /* XXX STEF XXX */
   dev->skip=0;
 
   RIE (sanei_genesys_buffer_free (&(dev->oe_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->oe_buffer), ((used_pixels*channels*10)/dev->bpl)*dev->bpl));
+  RIE (sanei_genesys_buffer_alloc (&(dev->oe_buffer), (dev->bpl)));
 
   words_per_line *= channels;
 
@@ -1760,13 +1770,13 @@ independent of our calculated values:
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
-/* start */
+  /* start */
   /* add x coordinates */
   start =
     ((dev->sensor.CCD_start_xoffset + startx) * used_res) /
     dev->sensor.optical_res;
 
-/* needs to be aligned for used_res */
+  /* needs to be aligned for used_res */
   start = (start * optical_res) / used_res;
 
   start += dev->sensor.dummy_pixel + 1;
@@ -1775,7 +1785,7 @@ independent of our calculated values:
     start |= 1;
 
   /* compute correct pixels number */
-/* pixels */
+  /* pixels */
   used_pixels = (pixels * optical_res) / xres;
 
   /* round up pixels number if needed */
@@ -3316,16 +3326,17 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
   memcpy (dev->calib_reg, dev->reg,
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
+  dev->calib_pixels = dev->sensor.sensor_pixels;
+
   status = gl847_init_scan_regs (dev,
 				 dev->calib_reg,
 				 dev->settings.xres,
 				 dev->motor.base_ydpi,
 				 0,
 				 0,
-				 (dev->sensor.sensor_pixels *
-				  dev->settings.xres) /
-				 dev->sensor.optical_res,
-				 dev->model->shading_lines, 16,
+				 dev->calib_pixels,
+				 dev->model->shading_lines,
+                                 16,
 				 dev->calib_channels,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
@@ -3335,7 +3346,6 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
 				 SCAN_FLAG_USE_OPTICAL_RES);
 
-  dev->calib_pixels = dev->current_setup.pixels;
 
   if (status != SANE_STATUS_GOOD)
     {

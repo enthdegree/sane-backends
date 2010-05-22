@@ -432,7 +432,7 @@ static Genesys_Sensor Sensor[] = {
    87,		/* black pixels */
    16,		/* dummy pixels */
    0,		
-   10272,
+   10272, /* 10272 */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
@@ -935,7 +935,7 @@ static Genesys_Model canon_lide_100_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (6.95),		/* Start of scan area in mm (x) */
+  SANE_FIX (6.0),		/* Start of scan area in mm (x) 6.95 */
   SANE_FIX (30.0),		/* Start of scan area in mm (y) */
   SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */

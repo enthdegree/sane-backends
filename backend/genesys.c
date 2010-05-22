@@ -3972,8 +3972,7 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	}
     }
 
-  pixels_per_line = (SANE_UNFIX (dev->model->x_size) * dev->settings.xres) /
-    MM_PER_INCH;
+  pixels_per_line = (SANE_UNFIX (dev->model->x_size) * dev->settings.xres) / MM_PER_INCH;
 
   /* send default shading data */
   status = sanei_genesys_init_shading_data (dev, pixels_per_line);
@@ -4983,7 +4982,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 #ifdef SANE_DEBUG_LOG_RAW_DATA
 	  if (rawfile != NULL)
 	    {
-	      fwrite (dev->oe_buffer.buffer, dev->oe_buffer.size, 1, rawfile);
+	      fwrite (dev->oe_buffer.buffer, dev->oe_buffer.avail, 1, rawfile);
 	    }
 #endif
 	}
@@ -5030,7 +5029,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 #ifdef SANE_DEBUG_LOG_RAW_DATA
 	      if (rawfile != NULL)
 		{
-		  fwrite (dev->oe_buffer.buffer, dev->oe_buffer.size, 1, rawfile);
+		  fwrite (dev->oe_buffer.buffer, dev->oe_buffer.avail, 1, rawfile);
 		}
 #endif
 	    }
@@ -5165,6 +5164,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       rawfile = fopen ("raw.pnm", "wb");
       if (rawfile != NULL)
 	{
+          if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
 	  fprintf (rawfile,
 		   "P%c\n%d %d\n%d\n",
 		   dev->current_setup.channels == 1 ?
@@ -5172,6 +5172,14 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 		   dev->current_setup.pixels,
 		   dev->current_setup.lines,
 		   (1 << dev->current_setup.depth) - 1);
+          else
+            {
+	  fprintf (rawfile,
+		   "P5\n%d %d\n%d\n",
+		   dev->sensor.sensor_pixels*3,
+		   dev->current_setup.lines,
+		   (1 << dev->current_setup.depth) - 1);
+            }
 	}
     }
 #endif

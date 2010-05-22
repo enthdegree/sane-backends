@@ -99,6 +99,7 @@
 #define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /* allow custom gamma tables */
 #define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /* allow scanners to use skip the calibration, needed for sheetfed scanners */
 #define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /* scanner has setting for half ccd mode */
+#define GENESYS_FLAG_ODD_EVEN_CIS     (1 << 16)       /* scan odd and even pixels come in separated lines */
 
 #define GENESYS_HAS_NO_BUTTONS       0              /* scanner has no supported button */
 #define GENESYS_HAS_SCAN_SW          (1 << 0)       /* scanner has SCAN button */
@@ -629,6 +630,13 @@ struct Genesys_Device
   Genesys_Calibration_Cache *calibration_cache;
 
   struct Genesys_Device *next;
+
+  size_t bpl;  /**> bytes per full scan widthline */
+  size_t skip; /**> bytes to skip from start of line to get first required pixel */
+  size_t dist; /**> bytes distance between an odd and an even pixel */
+  size_t len;  /**> number of even pixels */
+  size_t cur;  /**> current pixel position within sub window */
+  Genesys_Buffer oe_buffer; /**> buffer to handle even/odd data */
 };
 
 typedef struct Genesys_USB_Device_Entry

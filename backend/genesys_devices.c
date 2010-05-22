@@ -432,7 +432,7 @@ static Genesys_Sensor Sensor[] = {
    87,		/* black pixels */
    16,		/* dummy pixels */
    0,		
-   10272, /* 10272 + 320 start ->10848=4*2712 max */
+   10272,
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
@@ -930,14 +930,14 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 300, 150, 100, 75, 50, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 75, 50, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (6.42),		/* Start of scan area in mm (x) */
-  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
-  SANE_FIX (217.44),		/* Size of scan area in mm (x) */
+  SANE_FIX (6.95),		/* Start of scan area in mm (x) */
+  SANE_FIX (30.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (3.0),		/* Start of white strip in mm (y) */
@@ -964,9 +964,10 @@ static Genesys_Model canon_lide_100_model = {
   CIS_CANONLIDE100,
   DAC_CANONLIDE200,
   GPO_CANONLIDE200,
-  MOTOR_CANONLIDE100,
-  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
+  MOTOR_CANONLIDE100,	
+  /* Which flags are needed for this scanner? */
+      GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_ODD_EVEN_CIS
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
@@ -1017,13 +1018,11 @@ static Genesys_Model canon_lide_200_model = {
   DAC_CANONLIDE200,
   GPO_CANONLIDE200,
   MOTOR_CANONLIDE200,
-  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_NO_CALIBRATION
+      GENESYS_FLAG_ODD_EVEN_CIS 	/* Which flags are needed for this scanner? */
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_WHITE_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA 
-    | GENESYS_FLAG_HALF_CCD_MODE,
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   150,
   400

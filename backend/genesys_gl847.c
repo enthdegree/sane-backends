@@ -1416,7 +1416,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 			      SANE_Bool half_ccd, int color_filter, int flags)
 {
   unsigned int words_per_line;
-  unsigned int end;
+  unsigned int end, used_pixels;
   unsigned int dpiset;
   unsigned int i;
   Genesys_Register_Set *r;
@@ -1428,7 +1428,8 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
        exposure_time,
        used_res, start, pixels, channels, depth, half_ccd, flags);
 
-  end = start + pixels;
+  used_pixels = dev->sensor.sensor_pixels;
+  end = start + used_pixels;
 
   status = gl847_set_fe (dev, AFE_SET);
   if (status != SANE_STATUS_GOOD)
@@ -1441,18 +1442,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 
   /* adjust used_res for chosen dpihw */
   used_res = used_res * gl847_get_dpihw (dev) / dev->sensor.optical_res;
-
-/*
-  with half_ccd the optical resolution of the ccd is halved. We don't apply this
-  to dpihw, so we need to double dpiset.
-  
-  For the scanner only the ratio of dpiset and dpihw is of relevance to scale
-  down properly.
-*/
-  if (half_ccd)
-    dpiset = used_res * 2;
-  else
-    dpiset = used_res;
+  dpiset = used_res;
 
   /* enable shading */
   r = sanei_genesys_get_address (reg, REG01);
@@ -1566,7 +1556,16 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   r->value = LOBYTE (end);
 
 /* words(16bit) before gamma, conversion to 8 bit or lineart*/
-  words_per_line = (pixels * dpiset) / gl847_get_dpihw (dev);
+  words_per_line = (used_pixels * dpiset) / gl847_get_dpihw (dev);
+
+  dev->bpl = words_per_line;
+  dev->cur=0;
+  dev->len=pixels/2;
+  dev->dist=0;
+  dev->skip=0;
+
+  RIE (sanei_genesys_buffer_free (&(dev->oe_buffer)));
+  RIE (sanei_genesys_buffer_alloc (&(dev->oe_buffer), ((used_pixels*channels*10)/dev->bpl)*dev->bpl));
 
   words_per_line *= channels;
 
@@ -4092,6 +4091,7 @@ gl847_init_memory_layout (Genesys_Device * dev)
   return status;
 }
 
+#if 0
 /** @brief dummy scan to reset scanner
  *
  * */
@@ -4156,6 +4156,7 @@ gl847_dummy_scan (Genesys_Device * dev)
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
+#endif
 
 #if 0
 /**
@@ -4490,9 +4491,6 @@ gl847_init (Genesys_Device * dev)
 					65535, 65535, dev->sensor.blue_gamma);
     }
   dev->already_initialized = SANE_TRUE;
-
-  /* dummy scan , don't care if it fails */
-  gl847_dummy_scan (dev);
 
   /* Move home */
   RIE (gl847_slow_back_home (dev, SANE_TRUE));

@@ -4891,7 +4891,7 @@ static FILE *rawfile = NULL;
 static SANE_Status
 genesys_fill_read_buffer (Genesys_Device * dev)
 {
-  size_t size;
+  size_t size, count;
   size_t space;
   SANE_Status status;
   uint8_t *work_buffer_dst;
@@ -4914,47 +4914,128 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 
   size = space;
 
-/* never read an odd number. exception: last read 
-   the chip internal counter does not count half words. */
+  /* never read an odd number. exception: last read 
+     the chip internal counter does not count half words. */
   size &= ~1;
-/* Some setups need the reads to be multiples of 256 bytes */
+  /* Some setups need the reads to be multiples of 256 bytes */
   size &= ~0xff;
 
   if (dev->read_bytes_left < size)
     {
       size = dev->read_bytes_left;
-/*round up to a multiple of 256 bytes*/
+      /*round up to a multiple of 256 bytes */
       size += (size & 0xff) ? 0x100 : 0x00;
       size &= ~0xff;
     }
 
-/*early out if our remaining buffer capacity is too low*/
+  /* early out if our remaining buffer capacity is too lo w */
   if (size == 0)
     return SANE_STATUS_GOOD;
 
-  DBG (DBG_error, "genesys_fill_read_buffer: reading %lu bytes\n",
+  DBG (DBG_io, "genesys_fill_read_buffer: reading %lu bytes\n",
        (u_long) size);
 
-/* size is already maxed to our needs. for most models bulk_read_data
-   will read as much data as requested. */
-  status =
-    dev->model->cmd_set->bulk_read_data (dev, 0x45, work_buffer_dst, size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
-	   (u_long) size, sane_strstatus (status));
-      return SANE_STATUS_IO_ERROR;
-    }
+  /* we have main 2 cases, one for normal scan, and the one where must read 
+   * complete lines to reorder raw data from sensor (ie gl847 odd even lines
+   * and duplex scanners with back to back sensors) */
 
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-  if (rawfile != NULL)
+  /* size is already maxed to our needs. for most models bulk_read_data
+     will read as much data as requested. */
+  if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
     {
-/*TODO: convert big/little endian if depth == 16. 
-  note: xv got this wrong for P5/P6.*/
-      fwrite (work_buffer_dst, size, 1, rawfile);
-    }
+      status =
+	dev->model->cmd_set->bulk_read_data (dev, 0x45, work_buffer_dst,
+					     size);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
+	       (u_long) size, sane_strstatus (status));
+	  return SANE_STATUS_IO_ERROR;
+	}
+#ifdef SANE_DEBUG_LOG_RAW_DATA
+      if (rawfile != NULL)
+	{
+	  /*TODO: convert big/little endian if depth == 16. 
+	     note: xv got this wrong for P5/P6. */
+	  fwrite (work_buffer_dst, size, 1, rawfile);
+	}
 #endif
+    }
+  else	/* we scan full lines and crop data while reordering odd/even pixels */
+    {
+      /* fill buffer if needed */
+      if (dev->oe_buffer.avail == 0)
+	{
+	  status =
+	    dev->model->cmd_set->bulk_read_data (dev, 0x45,
+						 dev->oe_buffer.buffer,
+						 dev->oe_buffer.size);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
+		   (u_long) size, sane_strstatus (status));
+	      return SANE_STATUS_IO_ERROR;
+	    }
+	  dev->oe_buffer.avail = dev->oe_buffer.size;
+	  dev->oe_buffer.pos = 0;
+#ifdef SANE_DEBUG_LOG_RAW_DATA
+	  if (rawfile != NULL)
+	    {
+	      fwrite (dev->oe_buffer.buffer, dev->oe_buffer.size, 1, rawfile);
+	    }
+#endif
+	}
+
+      /* copy size bytes of data, copying from a subwindow of each line
+       * when last line of buffer is exhausted, read another one */
+      count = 0;
+      while (count < size)
+	{
+	  while (dev->cur < dev->len && count < size)
+	    {
+	      /* even pixel */
+	      work_buffer_dst[count] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+	      /* odd pixel */
+	      work_buffer_dst[count + 1] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist +
+			       dev->oe_buffer.pos];
+	      count += 2;
+	      dev->cur++;
+	    }
+	  /* go to next line if needed */
+	  if (dev->cur == dev->len)
+	    {
+	      dev->oe_buffer.pos += dev->bpl;
+	      dev->cur = 0;
+	    }
+	  /* read a new buffer if needed */
+	  if (dev->oe_buffer.pos >= dev->oe_buffer.avail)
+	    {
+	      status =
+		dev->model->cmd_set->bulk_read_data (dev, 0x45,
+						     dev->oe_buffer.buffer,
+						     dev->oe_buffer.size);
+	      if (status != SANE_STATUS_GOOD)
+		{
+		  DBG (DBG_error,
+		       "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
+		       (u_long) size, sane_strstatus (status));
+		  return SANE_STATUS_IO_ERROR;
+		}
+	      dev->oe_buffer.avail = dev->oe_buffer.size;
+	      dev->oe_buffer.pos = 0;
+#ifdef SANE_DEBUG_LOG_RAW_DATA
+	      if (rawfile != NULL)
+		{
+		  fwrite (dev->oe_buffer.buffer, dev->oe_buffer.size, 1, rawfile);
+		}
+#endif
+	    }
+	}
+    }
 
   if (size > dev->read_bytes_left)
     size = dev->read_bytes_left;

@@ -430,8 +430,8 @@ static Genesys_Sensor Sensor[] = {
   {CIS_CANONLIDE100,
    1200,	/* optical resolution */
    87,		/* black pixels */
-   16,		/* dummy pixels */
-   0,		
+   16,		/* dummy pixels 16 */
+   303,		
    10272, /* 10272 */
    210,
    200,
@@ -788,7 +788,8 @@ static Genesys_Motor Motor[] = {
 	   { /* power mode 0 */
 		   {   2343,   1017, 128, 0.80}, /* full step */
     		   {   4678,   2034, 64, 0.80}, /* half step */
-    		   { 4*2034, 4*2034, 32, 0.80}, /* quarter step */
+    		   { 4*2034, 4*2034, 32, 0.80}, /* quarter step 0.75*2712 */
+    		   /*{ 4*2034, 4*2034, 32, 0.80},  quarter step */
 		   /* extra values kept for documentation   
 		   {   2343,    864, 32, 0.80},    full step   
     		   { 2*1171,  2*648, 32, 0.80},    half step */
@@ -935,7 +936,7 @@ static Genesys_Model canon_lide_100_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (6.0),		/* Start of scan area in mm (x) 6.95 */
+  SANE_FIX (0.0),		/* Start of scan area in mm (x) 6.95 */
   SANE_FIX (30.0),		/* Start of scan area in mm (y) */
   SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
@@ -972,7 +973,7 @@ static Genesys_Model canon_lide_100_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  150,
+  50,
   400
 };
 

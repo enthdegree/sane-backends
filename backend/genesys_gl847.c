@@ -461,9 +461,9 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x14, 0x00);
   SETREG (0x15, 0x00);
   SETREG (0x16, 0x10);
-  SETREG (0x17, 0x0c);
+  SETREG (0x17, 0x08);
   SETREG (0x18, 0x00);
-  SETREG (0x19, 0xff);
+  SETREG (0x19, 0x50);
   SETREG (0x1a, 0x34);
   SETREG (0x1b, 0x00);
   SETREG (0x1c, 0x02);
@@ -1416,7 +1416,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 			      SANE_Bool half_ccd, int color_filter, int flags)
 {
   unsigned int words_per_line;
-  unsigned int end, used_pixels;
+  unsigned int startx,endx, used_pixels;
   unsigned int dpiset;
   unsigned int i;
   Genesys_Register_Set *r;
@@ -1428,6 +1428,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
        exposure_time,
        used_res, start, pixels, channels, depth, half_ccd, flags);
 
+  startx = dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset - 32;
   if(pixels<dev->sensor.sensor_pixels)
     {
       used_pixels = dev->sensor.sensor_pixels;
@@ -1436,7 +1437,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
     {
       used_pixels = pixels;
     }
-  end = start + used_pixels;
+  endx = startx + used_pixels;
 
   status = gl847_set_fe (dev, AFE_SET);
   if (status != SANE_STATUS_GOOD)
@@ -1456,11 +1457,14 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   r->value &= ~(REG01_SCAN | REG01_SHDAREA);
   if ((flags & OPTICAL_FLAG_DISABLE_SHADING) ||
       (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
-    r->value &= ~REG01_DVDSET;
+    {
+      r->value &= ~REG01_DVDSET;
+    }
   else
     {
-      r->value |= REG01_DVDSET | REG01_SHDAREA;
+      r->value |= REG01_DVDSET;
     }
+  r->value &= ~REG01_DVDSET; /* XXX STEF XXX */
 
   /* average looks better than deletion, and we are already set up to 
      use one of the average enabled resolutions */
@@ -1556,13 +1560,13 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset);
 
   r = sanei_genesys_get_address (reg, 0x30);
-  r->value = HIBYTE (start);
+  r->value = HIBYTE (startx);
   r = sanei_genesys_get_address (reg, 0x31);
-  r->value = LOBYTE (start);
+  r->value = LOBYTE (startx);
   r = sanei_genesys_get_address (reg, 0x32);
-  r->value = HIBYTE (end);
+  r->value = HIBYTE (endx);
   r = sanei_genesys_get_address (reg, 0x33);
-  r->value = LOBYTE (end);
+  r->value = LOBYTE (endx);
 
 /* words(16bit) before gamma, conversion to 8 bit or lineart*/
   words_per_line = (used_pixels * dpiset) / gl847_get_dpihw (dev);
@@ -1604,13 +1608,13 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   r = sanei_genesys_get_address (reg, 0x34);
   r->value = dev->sensor.dummy_pixel;
   
-  /* XXX STEF XXX */
+  /* XXX STEF XXX 
   r = sanei_genesys_get_address (reg, 0x1d);
   i = 2*r->value;
   r = sanei_genesys_get_address (reg, 0x17);
   i += r->value;
   r = sanei_genesys_get_address (reg, 0x34);
-  r->value = i;
+  r->value = i; */
 
   DBG (DBG_proc, "gl847_init_optical_regs_scan : completed. \n");
   return SANE_STATUS_GOOD;
@@ -1768,18 +1772,11 @@ independent of our calculated values:
     used_res = optical_res / 15;
 
   /* compute scan parameters values */
-  /* pixels are allways given at half or full CCD optical resolution */
-  /* use detected left margin  and fixed value */
+  /* pixels are allways given at full optical resolution */
+  /* use detected left margin and fixed value */
   /* start */
   /* add x coordinates */
-  start =
-    ((dev->sensor.CCD_start_xoffset + startx) * used_res) /
-    dev->sensor.optical_res;
-
-  /* needs to be aligned for used_res */
-  start = (start * optical_res) / used_res;
-
-  start += dev->sensor.dummy_pixel + 1;
+  start = startx;
 
   if (stagger > 0)
     start |= 1;
@@ -2063,22 +2060,20 @@ gl847_calculate_current_setup (Genesys_Device * dev)
        dev->settings.yres, dev->settings.lines, dev->settings.pixels,
        dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
 
-/* channels */
+  /* channels */
   if (dev->settings.scan_mode == 4)	/* single pass color */
     channels = 3;
   else
     channels = 1;
 
-/* depth */
+  /* depth */
   depth = dev->settings.depth;
   if (dev->settings.scan_mode == 0)
     depth = 1;
 
-/* start */
+  /* start */
   start = SANE_UNFIX (dev->model->x_offset);
-
   start += dev->settings.tl_x;
-
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
 
 
@@ -2155,19 +2150,6 @@ gl847_calculate_current_setup (Genesys_Device * dev)
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
-/* start */
-  /* add x coordinates */
-  start =
-    ((dev->sensor.CCD_start_xoffset + startx) * used_res) /
-    dev->sensor.optical_res;
-
-/* needs to be aligned for used_res */
-  start = (start * optical_res) / used_res;
-
-  start += dev->sensor.dummy_pixel + 1;
-
-  if (stagger > 0)
-    start |= 1;
 
   /* compute correct pixels number */
 /* pixels */
@@ -2924,7 +2906,7 @@ gl847_feed (Genesys_Device * dev, int steps)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl847_feed: Failed to stop action: %s\n",
+	   "gl847_feed: failed to stop action: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2942,7 +2924,7 @@ gl847_feed (Genesys_Device * dev, int steps)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl847_feed: Failed to bulk write registers: %s\n",
+	   "gl847_feed: failed to bulk write registers: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2951,7 +2933,7 @@ gl847_feed (Genesys_Device * dev, int steps)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl847_feed: Failed to start motor: %s\n",
+	   "gl847_feed: failed to start motor: %s\n",
 	   sane_strstatus (status));
       gl847_stop_action (dev);
       /* send original registers */
@@ -2966,7 +2948,7 @@ gl847_feed (Genesys_Device * dev, int steps)
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "gl847_feed: Failed to read home sensor: %s\n",
+	       "gl847_feed: failed to read home sensor: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -2985,7 +2967,7 @@ gl847_feed (Genesys_Device * dev, int steps)
   gl847_stop_action (dev);
 
   DBG (DBG_error,
-       "gl847_feed: timeout while waiting for scanhead to go home\n");
+       "gl847_feed: timeout while feeding\n");
   return SANE_STATUS_IO_ERROR;
 }
 
@@ -3341,8 +3323,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
-/* we don't handle differing shading areas very well */
-/*				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |*/
+  				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
 				 SCAN_FLAG_USE_OPTICAL_RES);
 
@@ -3655,7 +3636,7 @@ gl847_led_calibration (Genesys_Device * dev)
   int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
   int val;
-  int channels;
+  int channels, depth;
   int avg[3], avga, avge;
   int turn;
   char fn[20];
@@ -3668,6 +3649,7 @@ gl847_led_calibration (Genesys_Device * dev)
 
   /* offset calibration is always done in color mode */
   channels = 3;
+  depth=16;
   
   /* initial calibration reg values */
   memcpy (dev->calib_reg, dev->reg,
@@ -3683,7 +3665,7 @@ gl847_led_calibration (Genesys_Device * dev)
 				  dev->settings.xres) /
 				 dev->sensor.optical_res,
                                  1,
-                                 16,
+                                 depth,
                                  channels,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
@@ -3706,7 +3688,7 @@ gl847_led_calibration (Genesys_Device * dev)
   used_res = dev->current_setup.xres;
   num_pixels = dev->current_setup.pixels;
 
-  total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
+  total_size = num_pixels * channels * (depth/8) * 1;	/* colors * bytes_per_color * scan lines */
 
   line = malloc (total_size);
   if (!line)
@@ -3755,7 +3737,7 @@ gl847_led_calibration (Genesys_Device * dev)
 	{
 	  snprintf (fn, 20, "led_%d.pnm", turn);
 	  sanei_genesys_write_pnm_file (fn,
-					line, 16, channels, num_pixels, 1);
+					line, depth, channels, num_pixels, 1);
 	}
 
       acceptable = SANE_TRUE;

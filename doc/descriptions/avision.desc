@@ -457,6 +457,10 @@
 :usbid "0x04c5" "0x1033"
 :status :untested
 
+:model "fi-5015C"
+:interface "USB"
+:usbid "0x04c5" "0x10ef"
+:status :good
 
 :mfg "Kodak"
 :url "http://www.kodak.com"

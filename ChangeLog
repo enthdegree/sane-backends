@@ -1,3 +1,6 @@
+2010-05-24 m. allan noah <kitno455 at gmail dot com>
+	* backend/avision.c, doc/descriptions/avision.desc: add Fujitsu fi-5015C
+
 2010-05-20 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c:
 	make led and shading calibration work for LiDE 100

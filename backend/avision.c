@@ -823,6 +823,12 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="untested" */
 
     { NULL, NULL,
+      0x04c5, 0x10ef,
+      "Fujitsu", "fi-5015C",
+      0,0},
+    /* status="good" */
+
+    { NULL, NULL,
       0x040a, 0x6001,
       "Kodak", "i30",
       AV_INT_BUTTON,0},

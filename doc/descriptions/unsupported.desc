@@ -2698,13 +2698,6 @@
 :status :unsupported
 :comment "Most probably not supported. See link for details."
 
-:model "Primascan Colorado 2600u"
-:url "/unsupported/visioneer-onetouch4400.html"
-:interface "USB"
-:usbid "0x0461" "0x0347"
-:status :unsupported
-:comment "Not supported. See Visioneer Onetouch 4400."
-
 :model "Strobe Pro USB"
 :url "/unsupported/visioneer-strobe-pro-usb.html"
 :interface "USB"

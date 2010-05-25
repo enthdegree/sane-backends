@@ -464,6 +464,7 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x17, 0x08);
   SETREG (0x18, 0x00);
   SETREG (0x19, 0x50);
+  SETREG (0x19, 0x01); /* XXX STEF XXX */
   SETREG (0x1a, 0x34);
   SETREG (0x1b, 0x00);
   SETREG (0x1c, 0x02);
@@ -1173,9 +1174,12 @@ gl847_init_motor_regs_scan (Genesys_Device * dev, Genesys_Register_Set * reg, un
   else
     feedl = (feed_steps << scan_step_type) - slow_slope_steps;
 
+  /* XXX STEF XXX no 2 tables */
+  feedl=0;
+  use_fast_fed=0;
+
 /* all needed slopes available. we did even decide which mode to use. 
    what next?  */
-
   r = sanei_genesys_get_address (reg, 0x3d);
   r->value = (feedl >> 16) & 0xf;
   r = sanei_genesys_get_address (reg, 0x3e);
@@ -1428,7 +1432,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
        exposure_time,
        used_res, start, pixels, channels, depth, half_ccd, flags);
 
-  startx = dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset - 32;
+  startx = dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset;
   if(pixels<dev->sensor.sensor_pixels)
     {
       used_pixels = dev->sensor.sensor_pixels;
@@ -1454,7 +1458,8 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 
   /* enable shading */
   r = sanei_genesys_get_address (reg, REG01);
-  r->value &= ~(REG01_SCAN | REG01_SHDAREA);
+  r->value &= ~REG01_SCAN;
+  r->value |= REG01_SHDAREA;
   if ((flags & OPTICAL_FLAG_DISABLE_SHADING) ||
       (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
     {
@@ -1464,7 +1469,6 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
     {
       r->value |= REG01_DVDSET;
     }
-  r->value &= ~REG01_DVDSET; /* XXX STEF XXX */
 
   /* average looks better than deletion, and we are already set up to 
      use one of the average enabled resolutions */
@@ -1486,8 +1490,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
     }
 
   r = sanei_genesys_get_address (reg, 0x19);
-  r->value = 0xff;
-  r->value = 0x50; /* XXX STEF XXX */
+  r->value = 0x50;
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, 0x2e);
@@ -1574,8 +1577,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   dev->bpl = words_per_line;
   dev->cur=0;
   dev->len=pixels/2;
-  dev->dist=used_pixels/2;
-  dev->dist=10272/2; /* XXX STEF XXX */
+  dev->dist=dev->bpl/2;
   dev->skip=0;
 
   RIE (sanei_genesys_buffer_free (&(dev->oe_buffer)));
@@ -1608,14 +1610,6 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   r = sanei_genesys_get_address (reg, 0x34);
   r->value = dev->sensor.dummy_pixel;
   
-  /* XXX STEF XXX 
-  r = sanei_genesys_get_address (reg, 0x1d);
-  i = 2*r->value;
-  r = sanei_genesys_get_address (reg, 0x17);
-  i += r->value;
-  r = sanei_genesys_get_address (reg, 0x34);
-  r->value = i; */
-
   DBG (DBG_proc, "gl847_init_optical_regs_scan : completed. \n");
   return SANE_STATUS_GOOD;
 }
@@ -2317,6 +2311,7 @@ gl847_set_lamp_power (Genesys_Device * dev,
 	}
       r = sanei_genesys_get_address (regs, 0x19);
       r->value = 0x50;
+      r->value = 0xff;
       r->value = 0x50; /* XXX STEF XXX */
     }
   else
@@ -2333,7 +2328,6 @@ gl847_set_lamp_power (Genesys_Device * dev,
 	}
       r = sanei_genesys_get_address (regs, 0x19);
       r->value = 0xff;
-      r->value = 0x50; /* XXX STEF XXX */
     }
 }
 
@@ -3335,7 +3329,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
-
+  
   dev->scanhead_position_in_steps += dev->model->shading_lines;
 
   status =
@@ -3574,6 +3568,9 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   uint32_t addr, length;
   uint8_t val;
 
+  DBGSTART;
+  DBG( DBG_io2, "%s: writing %d bytes of shading data\n",__FUNCTION__,size);
+
   /* shading data is plit in 3 (up to 5 with IR) areas 
      write(0x10014000,0x00000dd8)
      URB 23429  bulk_out len  3544  wrote 0x33 0x10 0x....
@@ -3581,6 +3578,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
      write(0x10068000,0x00000dd8)
    */
   length = (uint32_t) (size / 3);
+  DBG( DBG_io2, "%s: using chunks of %d (0x%04x) bytes\n",__FUNCTION__,length,length);
 
   /* base addr of data has been written in reg D0-D4 in 4K word, so AHB address
    * is 8192*reg value */
@@ -3617,6 +3615,8 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 	   sane_strstatus (status));
       return status;
     }
+
+  DBGCOMPLETED;
 
   return status;
 }
@@ -4083,7 +4083,6 @@ gl847_init_memory_layout (Genesys_Device * dev)
   return status;
 }
 
-#if 0
 /** @brief dummy scan to reset scanner
  *
  * */
@@ -4148,7 +4147,6 @@ gl847_dummy_scan (Genesys_Device * dev)
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
-#endif
 
 #if 0
 /**
@@ -4483,6 +4481,8 @@ gl847_init (Genesys_Device * dev)
 					65535, 65535, dev->sensor.blue_gamma);
     }
   dev->already_initialized = SANE_TRUE;
+
+  gl847_dummy_scan(dev);
 
   /* Move home */
   RIE (gl847_slow_back_home (dev, SANE_TRUE));

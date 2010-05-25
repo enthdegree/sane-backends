@@ -2414,6 +2414,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   uint16_t pixels_per_line;
   uint8_t channels;
   uint8_t *calibration_data;
+  int i;
 
   DBG (DBG_proc, "genesys_dark_shading_calibration\n");
   /* end pixel - start pixel */
@@ -2458,8 +2459,8 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->
-					      cmd_set->bulk_full_size ());
+					      dev->model->cmd_set->
+					      bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2481,14 +2482,38 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
       return status;
     }
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
-  if (status != SANE_STATUS_GOOD)
+  if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
     {
-      free (calibration_data);
-      DBG (DBG_error,
-	   "genesys_dark_shading_calibration: Failed to read data: %s\n",
-	   sane_strstatus (status));
-      return status;
+      status =
+	sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  free (calibration_data);
+	  DBG (DBG_error,
+	       "genesys_dark_shading_calibration: Failed to read data: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
+  else
+    {
+      /* we need to read full line by full line */
+      size = channels * 2 * pixels_per_line;
+      for (i = 0; i < dev->model->shading_lines; i++)
+	{
+	  status =
+	    sanei_genesys_read_data_from_scanner (dev,
+						  calibration_data + i * size,
+						  size);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      free (calibration_data);
+	      DBG (DBG_error,
+		   "genesys_white_shading_calibration: failed to read data: %s\n",
+		   sane_strstatus (status));
+	      return status;
+	    }
+	}
     }
 
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
@@ -2631,6 +2656,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   uint16_t pixels_per_line;
   uint8_t *calibration_data;
   uint8_t channels;
+  int i;
 
   DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
        dev->model->shading_lines);
@@ -2665,8 +2691,8 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->
-					      cmd_set->bulk_full_size ());
+					      dev->model->cmd_set->
+					      bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2689,14 +2715,38 @@ genesys_white_shading_calibration (Genesys_Device * dev)
       return status;
     }
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
-  if (status != SANE_STATUS_GOOD)
+  if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
     {
-      free (calibration_data);
-      DBG (DBG_error,
-	   "genesys_white_shading_calibration: Failed to read data: %s\n",
-	   sane_strstatus (status));
-      return status;
+      status =
+	sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  free (calibration_data);
+	  DBG (DBG_error,
+	       "genesys_white_shading_calibration: failed to read data: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
+  else
+    {
+      /* we need to read full line by full line */
+      size = channels * 2 * pixels_per_line;
+      for (i = 0; i < dev->model->shading_lines; i++)
+	{
+	  status =
+	    sanei_genesys_read_data_from_scanner (dev,
+						  calibration_data + i * size,
+						  size);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      free (calibration_data);
+	      DBG (DBG_error,
+		   "genesys_white_shading_calibration: failed to read data: %s\n",
+		   sane_strstatus (status));
+	      return status;
+	    }
+	}
     }
 
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
@@ -2704,7 +2754,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_white_shading_calibration: Failed to end scan: %s\n",
+	   "genesys_white_shading_calibration: failed to end scan: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -3005,8 +3055,9 @@ compute_averaged_planar (Genesys_Device * dev,
 {
   unsigned int x, i, j, br, dk, res, avgpixels, val;
 
+  DBG (DBG_info, "%s: pixels=%d\n", __FUNCTION__, pixels_per_line);
   /* initialize result */
-  /* memset (shading_data, 0xff, words_per_color * 3 * 2); */
+  memset (shading_data, 0xff, words_per_color * 3 * 2);
 
   /* duplicate half-ccd logic */
   res = dev->settings.xres;
@@ -3036,8 +3087,7 @@ compute_averaged_planar (Genesys_Device * dev,
   else
     avgpixels = 15;
 
-  DBG (DBG_info, "compute_planar_averaged: averaging over %d pixels\n",
-       avgpixels);
+  DBG (DBG_info, "%s: averaging over %d pixels\n", __FUNCTION__, avgpixels);
 
   for (x = 0; x <= pixels_per_line - avgpixels; x += avgpixels)
     {
@@ -3466,12 +3516,15 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
+        /* we are using SHDAREA */
+        words_per_color=pixels_per_line*2;
+        length = words_per_color * 3 * 2;
     	compute_averaged_planar(dev,
 				shading_data,
 				pixels_per_line,
 				words_per_color,
-				channels,
-				4,
+				3,
+				0,
 				coeff,
 				0xfa00,
 				0x0a00);
@@ -4887,6 +4940,102 @@ sanei_genesys_buffer_consume (Genesys_Buffer * buf, size_t size)
 static FILE *rawfile = NULL;
 #endif
 
+static SANE_Status accurate_line_read(Genesys_Device * dev,
+                                      SANE_Byte *buffer,
+                                      size_t size)
+{
+  SANE_Status status;
+  status = dev->model->cmd_set->bulk_read_data (dev, 0x45, buffer, size);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "accurate_line_read: failed to read %lu bytes (%s)\n",
+	   (u_long) size, sane_strstatus (status));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  /* done reading */
+  dev->oe_buffer.avail = size;
+  dev->oe_buffer.pos = 0;
+#ifdef SANE_DEBUG_LOG_RAW_DATA
+  if (rawfile != NULL)
+    {
+      fwrite (dev->oe_buffer.buffer, dev->oe_buffer.avail, 1, rawfile);
+    }
+#endif
+  return status;
+}
+#if 0
+static SANE_Status accurate_line_read(Genesys_Device * dev,
+                                      SANE_Byte *buffer,
+                                      size_t size)
+{
+  SANE_Status status;
+  unsigned int words;
+  size_t done, count;
+
+  done = 0;
+  while (done < size)
+    {
+      /* wait for data */
+      words = 0;
+      count = 0;
+      while (words == 0)
+	{
+	  status = sanei_genesys_read_valid_words (dev, &words);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "accurate_line_read: failed to read words (%s)\n",
+		   sane_strstatus (status));
+	      return SANE_STATUS_IO_ERROR;
+	    }
+	  if (words == 0)
+	    {
+	      count++;
+	      /* couldn't read a line in 10s */
+	      if (count > 1000)
+		{
+		  DBG (DBG_error, "accurate_line_read: failed while waiting for data \n");
+		  return SANE_STATUS_IO_ERROR;
+		}
+	      usleep (10000);
+	    }
+	}
+
+      /* change to bytes */
+      words *= 2;
+
+      /* compute read size */
+      if(words>size-done)
+        words=size-done;
+      if(words>0xeff0)
+        words=0xeff0;
+      status = dev->model->cmd_set->bulk_read_data (dev, 0x45, buffer, words);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "accurate_line_read: failed to read %lu bytes (%s)\n",
+	       (u_long) size, sane_strstatus (status));
+	  return SANE_STATUS_IO_ERROR;
+	}
+      done += words;
+    }
+
+  /* done reading */
+  dev->oe_buffer.avail = dev->oe_buffer.size;
+  dev->oe_buffer.pos = 0;
+#ifdef SANE_DEBUG_LOG_RAW_DATA
+  if (rawfile != NULL)
+    {
+      fwrite (dev->oe_buffer.buffer, dev->oe_buffer.avail, 1, rawfile);
+    }
+#endif
+  return status;
+}
+#endif
+
+
 static SANE_Status
 genesys_fill_read_buffer (Genesys_Device * dev)
 {
@@ -4966,25 +5115,14 @@ genesys_fill_read_buffer (Genesys_Device * dev)
       /* fill buffer if needed */
       if (dev->oe_buffer.avail == 0)
 	{
-	  status =
-	    dev->model->cmd_set->bulk_read_data (dev, 0x45,
-						 dev->oe_buffer.buffer,
-						 dev->oe_buffer.size);
+	  status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
 		   "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
-		   (u_long) size, sane_strstatus (status));
+		   (u_long) dev->oe_buffer.size, sane_strstatus (status));
 	      return SANE_STATUS_IO_ERROR;
 	    }
-	  dev->oe_buffer.avail = dev->oe_buffer.size;
-	  dev->oe_buffer.pos = 0;
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-	  if (rawfile != NULL)
-	    {
-	      fwrite (dev->oe_buffer.buffer, dev->oe_buffer.avail, 1, rawfile);
-	    }
-#endif
 	}
 
       /* copy size bytes of data, copying from a subwindow of each line
@@ -5013,25 +5151,14 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 	  /* read a new buffer if needed */
 	  if (dev->oe_buffer.pos >= dev->oe_buffer.avail)
 	    {
-	      status =
-		dev->model->cmd_set->bulk_read_data (dev, 0x45,
-						     dev->oe_buffer.buffer,
-						     dev->oe_buffer.size);
-	      if (status != SANE_STATUS_GOOD)
-		{
-		  DBG (DBG_error,
-		       "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
-		       (u_long) size, sane_strstatus (status));
-		  return SANE_STATUS_IO_ERROR;
-		}
-	      dev->oe_buffer.avail = dev->oe_buffer.size;
-	      dev->oe_buffer.pos = 0;
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-	      if (rawfile != NULL)
-		{
-		  fwrite (dev->oe_buffer.buffer, dev->oe_buffer.avail, 1, rawfile);
-		}
-#endif
+              status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+              if (status != SANE_STATUS_GOOD)
+                {
+                  DBG (DBG_error,
+                       "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
+                       (u_long) dev->oe_buffer.size, sane_strstatus (status));
+                  return SANE_STATUS_IO_ERROR;
+                }
 	    }
 	}
     }

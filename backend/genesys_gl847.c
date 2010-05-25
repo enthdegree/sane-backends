@@ -192,7 +192,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 		      uint8_t * data, size_t len)
 {
   SANE_Status status;
-  size_t size, target, read;
+  size_t size, target, read, done;
   uint8_t outdata[8], value;
 
   DBG (DBG_io, "gl847_bulk_read_data: requesting %lu bytes\n", (u_long) len);
@@ -260,11 +260,12 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
       /* read less than 512 bytes remainder */
       if (read < size)
 	{
+          done=read;
 	  read = size - read;
 	  DBG (DBG_io2,
 	       "gl847_bulk_read_data: trying to read %lu bytes of data\n",
 	       (u_long) read);
-	  status = sanei_usb_read_bulk (dev->dn, data, &read);
+	  status = sanei_usb_read_bulk (dev->dn, data+done, &read);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
@@ -871,7 +872,7 @@ gl847_init_motor_regs (Genesys_Device * dev, Genesys_Register_Set * reg, unsigne
 						       fast_slope_table,
 						       256,
 						       fast_slope_steps,
-						       0,
+						       dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset+dev->sensor.sensor_pixels,
 						       fast_exposure,
 						       dev->motor.base_ydpi /
 						       4, &fast_slope_steps,
@@ -1123,7 +1124,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev, Genesys_Register_Set * reg, un
 						       fast_slope_table,
 						       256,
 						       fast_slope_steps,
-						       0,
+						       dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset+dev->sensor.sensor_pixels,
 						       fast_exposure,
 						       dev->motor.base_ydpi /
 						       4, &fast_slope_steps,
@@ -1173,10 +1174,6 @@ gl847_init_motor_regs_scan (Genesys_Device * dev, Genesys_Register_Set * reg, un
     feedl = 0;
   else
     feedl = (feed_steps << scan_step_type) - slow_slope_steps;
-
-  /* XXX STEF XXX no 2 tables */
-  feedl=0;
-  use_fast_fed=0;
 
 /* all needed slopes available. we did even decide which mode to use. 
    what next?  */

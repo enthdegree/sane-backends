@@ -5132,6 +5132,8 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 	{
 	  while (dev->cur < dev->len && count < size)
 	    {
+              if(dev->settings.depth==8)
+                {
 	      /* even pixel */
 	      work_buffer_dst[count] =
 		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
@@ -5141,6 +5143,24 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 			       dev->oe_buffer.pos];
 	      count += 2;
 	      dev->cur++;
+                }
+              else
+                {
+	      /* even pixel */
+	      work_buffer_dst[count] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+	      work_buffer_dst[count+1] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
+	      /* odd pixel */
+	      work_buffer_dst[count + 2] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist +
+			       dev->oe_buffer.pos];
+	      work_buffer_dst[count + 3] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist +
+			       dev->oe_buffer.pos+1];
+	      count += 5;
+	      dev->cur+=2;
+                }
 	    }
 	  /* go to next line if needed */
 	  if (dev->cur == dev->len)

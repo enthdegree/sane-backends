@@ -1571,14 +1571,21 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 /* words(16bit) before gamma, conversion to 8 bit or lineart*/
   words_per_line = (used_pixels * dpiset) / gl847_get_dpihw (dev);
 
-  dev->bpl = words_per_line;
+  dev->bpl = words_per_line*(depth/8);
   dev->cur=0;
   dev->len=pixels/2;
   dev->dist=dev->bpl/2;
-  dev->skip=0;
+  dev->skip=((start*dpiset)/gl847_get_dpihw (dev))/2;
+  if(dev->skip>=dev->dist)
+    {
+      dev->skip-=dev->dist;
+    }
+  DBG (DBG_io2, "%s: dev->len=%d\n", __FUNCTION__, dev->len);
+  DBG (DBG_io2, "%s: dev->dist=%d\n", __FUNCTION__, dev->dist);
+  DBG (DBG_io2, "%s: dev->skip=%d\n", __FUNCTION__, dev->skip);
 
   RIE (sanei_genesys_buffer_free (&(dev->oe_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->oe_buffer), (dev->bpl)));
+  RIE (sanei_genesys_buffer_alloc (&(dev->oe_buffer), dev->bpl*channels));
 
   words_per_line *= channels;
 

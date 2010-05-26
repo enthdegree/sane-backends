@@ -465,7 +465,6 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x17, 0x08);
   SETREG (0x18, 0x00);
   SETREG (0x19, 0x50);
-  SETREG (0x19, 0x01); /* XXX STEF XXX */
   SETREG (0x1a, 0x34);
   SETREG (0x1b, 0x00);
   SETREG (0x1c, 0x02);
@@ -528,7 +527,7 @@ gl847_init_registers (Genesys_Device * dev)
   /* NOTE: autoconf is a non working option */
   SETREG (0x87, 0x02);
   SETREG (0x9d, 0x06);
-  SETREG (0x9d, 0x00); /* XXX STEF XXX 1x multiplier instead of 8x */
+  SETREG (0x9d, 0x00); /* 1x multiplier instead of 8x */
   SETREG (0xa2, 0x0f);
   SETREG (0xa6, 0x04);
   SETREG (0xbd, 0x18);
@@ -1573,7 +1572,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 
   dev->bpl = words_per_line*(depth/8);
   dev->cur=0;
-  dev->len=pixels/2;
+  dev->len=((pixels*dpiset)/gl847_get_dpihw (dev))/2;
   dev->dist=dev->bpl/2;
   dev->skip=((start*dpiset)/gl847_get_dpihw (dev))/2;
   if(dev->skip>=dev->dist)
@@ -2316,7 +2315,6 @@ gl847_set_lamp_power (Genesys_Device * dev,
       r = sanei_genesys_get_address (regs, 0x19);
       r->value = 0x50;
       r->value = 0xff;
-      r->value = 0x50; /* XXX STEF XXX */
     }
   else
     {

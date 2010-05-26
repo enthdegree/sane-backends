@@ -3123,12 +3123,16 @@ compute_averaged_planar (Genesys_Device * dev,
 	    val = (dk * target_bright - br * target_dark) / (target_bright
 							     - target_dark);
 
+#if 0
 	  /*fill all pixels, even if only the last one is relevant */
 	  for (i = 0; i < avgpixels; i++)
 	    {
 	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
 	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
 	    }
+#endif
+	  shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
+	  shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
 
 	  val = br - dk;
 
@@ -3137,14 +3141,19 @@ compute_averaged_planar (Genesys_Device * dev,
 	  else
 	    val = 65535;
 
+#if 0
 	  /*fill all pixels, even if only the last one is relevant */
 	  for (i = 0; i < avgpixels; i++)
 	    {
 	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
 	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
 	    }
+#endif
+	      shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
+	      shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
 	}
 
+#if 0
       /*fill remaining channels */
       for (j = channels; j < 3; j++)
 	{
@@ -3163,6 +3172,7 @@ compute_averaged_planar (Genesys_Device * dev,
 			       * 2 * 0 + 3];
 	    }
 	}
+#endif
     }
 }
 

@@ -871,11 +871,12 @@ gl847_init_motor_regs (Genesys_Device * dev, Genesys_Register_Set * reg, unsigne
 						       fast_slope_table,
 						       256,
 						       fast_slope_steps,
-						       dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset+dev->sensor.sensor_pixels,
+						       0,
 						       fast_exposure,
-						       dev->motor.base_ydpi /
-						       4, &fast_slope_steps,
-						       &fast_exposure, 0);
+						       dev->motor.base_ydpi / 4,
+                                                       &fast_slope_steps,
+						       &fast_exposure,
+                                                       0);
 
   feedl = feed_steps - fast_slope_steps * 2;
   use_fast_fed = 1;
@@ -1567,7 +1568,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   r = sanei_genesys_get_address (reg, 0x33);
   r->value = LOBYTE (endx);
 
-/* words(16bit) before gamma, conversion to 8 bit or lineart*/
+  /* words(16bit) before gamma, conversion to 8 bit or lineart*/
   words_per_line = (used_pixels * dpiset) / gl847_get_dpihw (dev);
 
   dev->bpl = words_per_line*(depth/8);
@@ -1584,7 +1585,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: dev->skip=%d\n", __FUNCTION__, dev->skip);
 
   RIE (sanei_genesys_buffer_free (&(dev->oe_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->oe_buffer), dev->bpl*channels));
+  RIE (sanei_genesys_buffer_alloc (&(dev->oe_buffer), dev->bpl));
 
   words_per_line *= channels;
 
@@ -1646,7 +1647,9 @@ gl847_get_led_exposure (Genesys_Device * dev)
 static
 #endif
   SANE_Status
-gl847_init_scan_regs (Genesys_Device * dev, Genesys_Register_Set * reg, float xres,	/*dpi */
+gl847_init_scan_regs (Genesys_Device * dev,
+                      Genesys_Register_Set * reg,
+                      float xres,	/*dpi */
 		      float yres,	/*dpi */
 		      float startx,	/*optical_res, from dummy_pixel+1 */
 		      float starty,	/*base_ydpi, from home! */
@@ -1666,7 +1669,6 @@ gl847_init_scan_regs (Genesys_Device * dev, Genesys_Register_Set * reg, float xr
   int stagger;
 
   int slope_dpi = 0;
-  int move_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
   int scan_power_mode = 0;
@@ -1890,19 +1892,17 @@ independent of our calculated values:
 /* lincnt */
   lincnt = lines + max_shift + stagger;
 
-/* move */
-  move_dpi = dev->motor.base_ydpi;
-
   /* add tl_y to base movement */
   move = starty;
   DBG (DBG_info, "gl847_init_scan_regs: move=%d steps\n", move);
 
   /* subtract current head position */
+  /* XXX STEF XXX
   move -= dev->scanhead_position_in_steps;
   DBG (DBG_info, "gl847_init_scan_regs: move=%d steps\n", move);
 
   if (move < 0)
-    move = 0;
+    move = 0; */
 
   /* round it */
 /* the move is not affected by dummy -- pierre */
@@ -3371,13 +3371,13 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
 
   gl847_slow_back_home (dev, 1);
 
-/* channels */
+ /* channels */
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
 
-/* depth */
+  /* depth */
   depth = dev->settings.depth;
   if (dev->settings.scan_mode == SCAN_MODE_LINEART)
     depth = 1;
@@ -3404,19 +3404,17 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
 
   move_dpi = dev->motor.base_ydpi;
 
-  move = 0;
-  if (dev->model->flags & GENESYS_FLAG_SEARCH_START)
-    move += SANE_UNFIX (dev->model->y_offset_calib);
-
-  DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
-
-  move += SANE_UNFIX (dev->model->y_offset);
-  DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
-
+  move = SANE_UNFIX (dev->model->y_offset);
   move += dev->settings.tl_y;
+  move = (move * move_dpi) / MM_PER_INCH;
   DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
 
-  move = (move * move_dpi) / MM_PER_INCH;
+  status = gl847_feed (dev, move);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to move to scan area\n",__FUNCTION__);
+      return status;
+    }
 
 /* start */
   start = SANE_UNFIX (dev->model->x_offset);
@@ -3447,11 +3445,13 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
 				 dev->settings.xres,
 				 dev->settings.yres,
 				 start,
-				 move,
+				 0,
 				 dev->settings.pixels,
 				 dev->settings.lines,
 				 depth,
-				 channels, dev->settings.color_filter, flags);
+				 channels,
+                                 dev->settings.color_filter,
+                                 flags);
 
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -4085,6 +4085,7 @@ gl847_init_memory_layout (Genesys_Device * dev)
   return status;
 }
 
+#if 0
 /** @brief dummy scan to reset scanner
  *
  * */
@@ -4149,6 +4150,7 @@ gl847_dummy_scan (Genesys_Device * dev)
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
+#endif
 
 #if 0
 /**
@@ -4483,8 +4485,6 @@ gl847_init (Genesys_Device * dev)
 					65535, 65535, dev->sensor.blue_gamma);
     }
   dev->already_initialized = SANE_TRUE;
-
-  gl847_dummy_scan(dev);
 
   /* Move home */
   RIE (gl847_slow_back_home (dev, SANE_TRUE));

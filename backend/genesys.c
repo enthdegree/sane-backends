@@ -2459,8 +2459,8 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->cmd_set->
-					      bulk_full_size ());
+					      dev->model->
+					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2482,38 +2482,14 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
       return status;
     }
 
-  if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
+  status = sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+  if (status != SANE_STATUS_GOOD)
     {
-      status =
-	sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  free (calibration_data);
-	  DBG (DBG_error,
-	       "genesys_dark_shading_calibration: Failed to read data: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-    }
-  else
-    {
-      /* we need to read full line by full line */
-      size = channels * 2 * pixels_per_line;
-      for (i = 0; i < dev->model->shading_lines; i++)
-	{
-	  status =
-	    sanei_genesys_read_data_from_scanner (dev,
-						  calibration_data + i * size,
-						  size);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      free (calibration_data);
-	      DBG (DBG_error,
-		   "genesys_white_shading_calibration: failed to read data: %s\n",
-		   sane_strstatus (status));
-	      return status;
-	    }
-	}
+      free (calibration_data);
+      DBG (DBG_error,
+	   "genesys_dark_shading_calibration: failed to read data: %s\n",
+	   sane_strstatus (status));
+      return status;
     }
 
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
@@ -2521,7 +2497,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_dark_shading_calibration: Failed to end scan: %s\n",
+	   "genesys_dark_shading_calibration: failed to end scan: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2691,8 +2667,8 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->cmd_set->
-					      bulk_full_size ());
+					      dev->model->
+					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2715,38 +2691,14 @@ genesys_white_shading_calibration (Genesys_Device * dev)
       return status;
     }
 
-  if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
+  status = sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+  if (status != SANE_STATUS_GOOD)
     {
-      status =
-	sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  free (calibration_data);
-	  DBG (DBG_error,
-	       "genesys_white_shading_calibration: failed to read data: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-    }
-  else
-    {
-      /* we need to read full line by full line */
-      size = channels * 2 * pixels_per_line;
-      for (i = 0; i < dev->model->shading_lines; i++)
-	{
-	  status =
-	    sanei_genesys_read_data_from_scanner (dev,
-						  calibration_data + i * size,
-						  size);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      free (calibration_data);
-	      DBG (DBG_error,
-		   "genesys_white_shading_calibration: failed to read data: %s\n",
-		   sane_strstatus (status));
-	      return status;
-	    }
-	}
+      free (calibration_data);
+      DBG (DBG_error,
+	   "genesys_white_shading_calibration: failed to read data: %s\n",
+	   sane_strstatus (status));
+      return status;
     }
 
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
@@ -6210,7 +6162,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_DISABLE_DYNAMIC_LINEART].w = SANE_FALSE;
   /* not working for GL646 scanners yet */
-  if (s->dev->model->asic_type == GENESYS_GL646)
+  if (s->dev->model->asic_type == GENESYS_GL646 || s->dev->model->asic_type == GENESYS_GL847)
     {
       s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap |= SANE_CAP_INACTIVE;
     }

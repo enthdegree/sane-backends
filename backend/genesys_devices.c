@@ -931,8 +931,8 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 300, 150, 100, 80, 75, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 80, 75, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 100, 80, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 80, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

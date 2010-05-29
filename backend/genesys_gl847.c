@@ -1747,9 +1747,9 @@ independent of our calculated values:
     stagger = 0;
   DBG (DBG_info, "gl847_init_scan_regs : stagger=%d lines\n", stagger);
 
-/* used_res */
+  /* used_res */
   i = optical_res / xres;
-
+#if 0
 /* gl847 supports 1/2,1/3,1/4,1/5,1/6,1/8,1/10,1/12,1/15 */
 
   if (i < 2 || (flags & SCAN_FLAG_USE_OPTICAL_RES))	/* optical_res >= xres > optical_res/2 */
@@ -1772,6 +1772,16 @@ independent of our calculated values:
     used_res = optical_res / 12;
   else
     used_res = optical_res / 15;
+#endif
+  if (flags & SCAN_FLAG_USE_OPTICAL_RES)
+    {
+      used_res = optical_res;
+    }
+  else
+    {
+      /* resolution is choosen from a list */
+      used_res = xres;
+    }
 
   /* compute scan parameters values */
   /* pixels are allways given at full optical resolution */
@@ -2124,8 +2134,8 @@ gl847_calculate_current_setup (Genesys_Device * dev)
 /* used_res */
   i = optical_res / xres;
 
+#if 0
 /* gl847 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
-
   if (i < 2)			/* optical_res >= xres > optical_res/2 */
     used_res = optical_res;
   else if (i < 3)		/* optical_res/2 >= xres > optical_res/3 */
@@ -2146,18 +2156,16 @@ gl847_calculate_current_setup (Genesys_Device * dev)
     used_res = optical_res / 12;
   else
     used_res = optical_res / 15;
+#endif
+  /* resolution is choosen from a fixed list */
+  used_res = xres;
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
 
   /* compute correct pixels number */
-/* pixels */
-  used_pixels = (pixels * optical_res) / xres;
-
-  /* round up pixels number if needed */
-  if (used_pixels * xres < pixels * optical_res)
-    used_pixels++;
+  used_pixels = (pixels * optical_res) / used_res;
 
 /* dummy */
   /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1

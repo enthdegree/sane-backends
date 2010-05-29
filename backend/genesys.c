@@ -3020,10 +3020,12 @@ compute_averaged_planar (Genesys_Device * dev,
       res *= 2;
     }
 
-  /*this should be evenly dividable */
+  /* this should be evenly dividable */
   avgpixels = dev->sensor.optical_res / res;
 
+  /* due to resolution list is directly good to use */
   /* gl841 and gl847 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
+  /* XXX STEF XXX 
   if (avgpixels < 1)
     avgpixels = 1;
   else if (avgpixels < 6)
@@ -3037,7 +3039,7 @@ compute_averaged_planar (Genesys_Device * dev,
   else if (avgpixels < 15)
     avgpixels = 12;
   else
-    avgpixels = 15;
+    avgpixels = 15; */
 
   DBG (DBG_info, "%s: averaging over %d pixels\n", __FUNCTION__, avgpixels);
 
@@ -3074,7 +3076,6 @@ compute_averaged_planar (Genesys_Device * dev,
 	  else
 	    val = (dk * target_bright - br * target_dark) / (target_bright
 							     - target_dark);
-
 #if 0
 	  /*fill all pixels, even if only the last one is relevant */
 	  for (i = 0; i < avgpixels; i++)
@@ -3104,27 +3105,6 @@ compute_averaged_planar (Genesys_Device * dev,
 	      shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
 	      shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
 	}
-
-#if 0
-      /*fill remaining channels */
-      for (j = channels; j < 3; j++)
-	{
-	  for (i = 0; i < avgpixels; i++)
-	    {
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j]
-		= shading_data[(x + o + i) * 2 * 2 + words_per_color * 0];
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 1]
-		= shading_data[(x + o + i) * 2 * 2 + words_per_color
-			       * 2 * 0 + 1];
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 2]
-		= shading_data[(x + o + i) * 2 * 2 + words_per_color
-			       * 2 * 0 + 2];
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 3]
-		= shading_data[(x + o + i) * 2 * 2 + words_per_color
-			       * 2 * 0 + 3];
-	    }
-	}
-#endif
     }
 }
 
@@ -3987,7 +3967,15 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	}
     }
 
-  pixels_per_line = (SANE_UNFIX (dev->model->x_size) * dev->settings.xres) / MM_PER_INCH;
+  /* we always use sensor pixel number in case of odd/even sensors */
+  if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
+    {
+      pixels_per_line = (SANE_UNFIX (dev->model->x_size) * dev->settings.xres) / MM_PER_INCH;
+    }
+  else
+    {
+      pixels_per_line = dev->sensor.sensor_pixels;
+    }
 
   /* send default shading data */
   status = sanei_genesys_init_shading_data (dev, pixels_per_line);
@@ -4922,7 +4910,7 @@ static SANE_Status accurate_line_read(Genesys_Device * dev,
 #ifdef SANE_DEBUG_LOG_RAW_DATA
   if (rawfile != NULL)
     {
-      fwrite (dev->oe_buffer.buffer, dev->oe_buffer.avail, 1, rawfile);
+      fwrite (buffer, size, 1, rawfile);
     }
 #endif
   return status;
@@ -5120,7 +5108,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 	      work_buffer_dst[count + 3] =
 		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist +
 			       dev->oe_buffer.pos+1];
-	      count += 5;
+	      count += 4;
 	      dev->cur+=2;
                 }
 	    }
@@ -5285,7 +5273,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
             {
 	  fprintf (rawfile,
 		   "P5\n%d %d\n%d\n",
-		   dev->sensor.sensor_pixels*3,
+		   (dev->sensor.sensor_pixels*3*dev->settings.xres)/dev->sensor.optical_res,
 		   dev->current_setup.lines,
 		   (1 << dev->current_setup.depth) - 1);
             }
@@ -5772,6 +5760,11 @@ calc_parameters (Genesys_Scanner * s)
   s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
   s->params.pixels_per_line =
     ((br_x - tl_x) * s->dev->settings.xres) / MM_PER_INCH;
+  /* we need an even number of pixels for even/odd handling */
+  if (s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS)
+    {
+      s->params.pixels_per_line = (s->params.pixels_per_line/2)*2;
+    }
 
   s->params.bytes_per_line = s->params.pixels_per_line;
   if (s->params.depth > 8)
@@ -6155,16 +6148,16 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].title = SANE_I18N ("Disable dynamic lineart");
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].desc =
     SANE_I18N
-    ("Disabel use of a software adaptative algorithm to generate lineart instead of"
+    ("Disable use of a software adaptative algorithm to generate lineart instead of"
      " relying on hardware lineart");
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].type = SANE_TYPE_BOOL;
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].unit = SANE_UNIT_NONE;
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_DISABLE_DYNAMIC_LINEART].w = SANE_FALSE;
-  /* not working for GL646 scanners yet */
+  /* not working for GL646 scanners yet, and required for GL847 ones */
   if (s->dev->model->asic_type == GENESYS_GL646 || s->dev->model->asic_type == GENESYS_GL847)
     {
-      s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap |= SANE_CAP_INACTIVE;
+      s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
     }
 
   /* disable_interpolation */

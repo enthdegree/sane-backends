@@ -845,9 +845,11 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
  */
 SANE_Int
 sanei_genesys_create_slope_table3 (Genesys_Device * dev,
-				   uint16_t * slope_table, int max_step,
+				   uint16_t * slope_table,
+                                   int max_step,
 				   unsigned int use_steps,
-				   int step_type, int exposure_time,
+				   int step_type,
+                                   int exposure_time,
 				   double yres,
 				   unsigned int *used_steps,
 				   unsigned int *final_exposure,
@@ -860,8 +862,8 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
   unsigned int vfinal;
 
   DBG (DBG_proc,
-       "sanei_genesys_create_slope_table: step_type = %d, "
-       "exposure_time = %d, yres = %g, power_mode = %d\n", step_type,
+       "%s: step_type = %d, "
+       "exposure_time = %d, yres = %g, power_mode = %d\n", __FUNCTION__, step_type,
        exposure_time, yres, power_mode);
 
   /* final speed */

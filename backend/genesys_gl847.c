@@ -464,8 +464,7 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x16, 0x10);
   SETREG (0x17, 0x08);
   SETREG (0x18, 0x00);
-  /* SETREG (0x19, 0x50); XXX STEF XXX */
-  SETREG (0x19, 0xff);
+  SETREG (0x19, 0x50);
   SETREG (0x1a, 0x34);
   SETREG (0x1b, 0x00);
   SETREG (0x1c, 0x02);
@@ -838,7 +837,7 @@ gl847_init_motor_regs (Genesys_Device * dev, Genesys_Register_Set * reg, unsigne
   uint16_t fast_slope_table[256];
   uint8_t val;
   unsigned int fast_slope_time;
-  unsigned int fast_slope_steps = 0;
+  unsigned int fast_slope_steps = 32;
   unsigned int feedl;
   Genesys_Register_Set *r;
 /*number of scan lines to add in a scan_lines line*/
@@ -1057,7 +1056,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   unsigned int fast_slope_time;
   unsigned int back_slope_time;
   unsigned int slow_slope_steps = 0;
-  unsigned int fast_slope_steps = 0;
+  unsigned int fast_slope_steps = 32;
   unsigned int back_slope_steps = 0;
   unsigned int feedl;
   Genesys_Register_Set *r;
@@ -1116,9 +1115,12 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
       (slow_slope_steps >> scan_step_type))
     fast_slope_steps = 256;
   else
-/* we need to shorten fast_slope_steps here. */
-    fast_slope_steps = (feed_steps -
-			(slow_slope_steps >> scan_step_type)) / 2;
+    {
+      /* we need to shorten fast_slope_steps here. */
+      fast_slope_steps = (feed_steps - (slow_slope_steps >> scan_step_type)) / 2;
+    }
+  if(fast_slope_steps<16)
+    fast_slope_steps=16;
 
   DBG (DBG_info,
        "gl847_init_motor_regs_scan: Maximum allowed slope steps for fast slope: %d\n",
@@ -1128,10 +1130,10 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
 						       fast_slope_table,
 						       256,
 						       fast_slope_steps,
-						       dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset+dev->sensor.sensor_pixels,
+						       0,
 						       fast_exposure,
-						       dev->motor.base_ydpi /
-						       4, &fast_slope_steps,
+						       dev->motor.base_ydpi / 4,
+                                                       &fast_slope_steps,
 						       &fast_exposure,
 						       scan_power_mode);
 
@@ -1168,7 +1170,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
 
       use_fast_fed = fast_time < slow_time;
     }
-  use_fast_fed = 0; /* XXX STEF XXX */
+  
   DBG (DBG_info, "gl847_init_motor_regs_scan: decided to use %s mode\n",
        use_fast_fed ? "fast feed" : "slow feed");
 
@@ -1468,6 +1470,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
     {
       r->value |= REG01_DVDSET;
     }
+  r->value &= ~REG01_DVDSET; /* XXX STEF XXX */
 
   /* average looks better than deletion, and we are already set up to 
      use one of the average enabled resolutions */
@@ -1490,7 +1493,6 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 
   r = sanei_genesys_get_address (reg, 0x19);
   r->value = 0x50;
-  r->value = 0xff; /* XXX STEF XXX */
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, 0x2e);
@@ -1583,9 +1585,13 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
     {
       dev->skip-=dev->dist;
     }
-  DBG (DBG_io2, "%s: dev->len=%d\n", __FUNCTION__, dev->len);
-  DBG (DBG_io2, "%s: dev->dist=%d\n", __FUNCTION__, dev->dist);
-  DBG (DBG_io2, "%s: dev->skip=%d\n", __FUNCTION__, dev->skip);
+  DBG (DBG_io2, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
+  DBG (DBG_io2, "%s: pixels     =%d\n", __FUNCTION__, pixels);
+  DBG (DBG_io2, "%s: depth      =%d\n", __FUNCTION__, depth);
+  DBG (DBG_io2, "%s: dev->bpl   =%d\n", __FUNCTION__, dev->bpl);
+  DBG (DBG_io2, "%s: dev->len   =%d\n", __FUNCTION__, dev->len);
+  DBG (DBG_io2, "%s: dev->dist  =%d\n", __FUNCTION__, dev->dist);
+  DBG (DBG_io2, "%s: dev->skip  =%d\n", __FUNCTION__, dev->skip);
 
   RIE (sanei_genesys_buffer_free (&(dev->oe_buffer)));
   RIE (sanei_genesys_buffer_alloc (&(dev->oe_buffer), dev->bpl*channels));
@@ -1854,7 +1860,7 @@ independent of our calculated values:
 /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
-  if (flags & SCAN_FLAG_DYNAMIC_LINEART)
+  if ((flags & SCAN_FLAG_DYNAMIC_LINEART) && (dev->settings.scan_mode == SCAN_MODE_LINEART))
     {
       depth = 8;
     }
@@ -2325,7 +2331,6 @@ gl847_set_lamp_power (Genesys_Device * dev,
 	}
       r = sanei_genesys_get_address (regs, 0x19);
       r->value = 0x50;
-      r->value = 0xff; /* XXX STEF XXX */
     }
   else
     {
@@ -2340,7 +2345,7 @@ gl847_set_lamp_power (Genesys_Device * dev,
 	  r->value = 0x01;	/* 0x0101 is as off as possible */
 	}
       r = sanei_genesys_get_address (regs, 0x19);
-      r->value = 0xff;
+      r->value = 0x50;
     }
 }
 

@@ -845,9 +845,11 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
  */
 SANE_Int
 sanei_genesys_create_slope_table3 (Genesys_Device * dev,
-				   uint16_t * slope_table, int max_step,
+				   uint16_t * slope_table,
+                                   int max_step,
 				   unsigned int use_steps,
-				   int step_type, int exposure_time,
+				   int step_type,
+                                   int exposure_time,
 				   double yres,
 				   unsigned int *used_steps,
 				   unsigned int *final_exposure,
@@ -860,8 +862,8 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
   unsigned int vfinal;
 
   DBG (DBG_proc,
-       "sanei_genesys_create_slope_table: step_type = %d, "
-       "exposure_time = %d, yres = %g, power_mode = %d\n", step_type,
+       "%s: step_type = %d, "
+       "exposure_time = %d, yres = %g, power_mode = %d\n", __FUNCTION__, step_type,
        exposure_time, yres, power_mode);
 
   /* final speed */
@@ -2414,6 +2416,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   uint16_t pixels_per_line;
   uint8_t channels;
   uint8_t *calibration_data;
+  int i;
 
   DBG (DBG_proc, "genesys_dark_shading_calibration\n");
   /* end pixel - start pixel */
@@ -2486,7 +2489,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_dark_shading_calibration: Failed to read data: %s\n",
+	   "genesys_dark_shading_calibration: failed to read data: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2496,7 +2499,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_dark_shading_calibration: Failed to end scan: %s\n",
+	   "genesys_dark_shading_calibration: failed to end scan: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2631,6 +2634,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   uint16_t pixels_per_line;
   uint8_t *calibration_data;
   uint8_t channels;
+  int i;
 
   DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
        dev->model->shading_lines);
@@ -2694,7 +2698,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_white_shading_calibration: Failed to read data: %s\n",
+	   "genesys_white_shading_calibration: failed to read data: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2704,7 +2708,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_white_shading_calibration: Failed to end scan: %s\n",
+	   "genesys_white_shading_calibration: failed to end scan: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -3005,8 +3009,9 @@ compute_averaged_planar (Genesys_Device * dev,
 {
   unsigned int x, i, j, br, dk, res, avgpixels, val;
 
+  DBG (DBG_info, "%s: pixels=%d\n", __FUNCTION__, pixels_per_line);
   /* initialize result */
-  /* memset (shading_data, 0xff, words_per_color * 3 * 2); */
+  memset (shading_data, 0xff, words_per_color * 3 * 2);
 
   /* duplicate half-ccd logic */
   res = dev->settings.xres;
@@ -3017,10 +3022,12 @@ compute_averaged_planar (Genesys_Device * dev,
       res *= 2;
     }
 
-  /*this should be evenly dividable */
+  /* this should be evenly dividable */
   avgpixels = dev->sensor.optical_res / res;
 
+  /* due to resolution list is directly good to use */
   /* gl841 and gl847 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
+  /* XXX STEF XXX 
   if (avgpixels < 1)
     avgpixels = 1;
   else if (avgpixels < 6)
@@ -3034,10 +3041,9 @@ compute_averaged_planar (Genesys_Device * dev,
   else if (avgpixels < 15)
     avgpixels = 12;
   else
-    avgpixels = 15;
+    avgpixels = 15; */
 
-  DBG (DBG_info, "compute_planar_averaged: averaging over %d pixels\n",
-       avgpixels);
+  DBG (DBG_info, "%s: averaging over %d pixels\n", __FUNCTION__, avgpixels);
 
   for (x = 0; x <= pixels_per_line - avgpixels; x += avgpixels)
     {
@@ -3072,13 +3078,16 @@ compute_averaged_planar (Genesys_Device * dev,
 	  else
 	    val = (dk * target_bright - br * target_dark) / (target_bright
 							     - target_dark);
-
+#if 0
 	  /*fill all pixels, even if only the last one is relevant */
 	  for (i = 0; i < avgpixels; i++)
 	    {
 	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
 	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
 	    }
+#endif
+	  shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
+	  shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
 
 	  val = br - dk;
 
@@ -3087,31 +3096,16 @@ compute_averaged_planar (Genesys_Device * dev,
 	  else
 	    val = 65535;
 
+#if 0
 	  /*fill all pixels, even if only the last one is relevant */
 	  for (i = 0; i < avgpixels; i++)
 	    {
 	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
 	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
 	    }
-	}
-
-      /*fill remaining channels */
-      for (j = channels; j < 3; j++)
-	{
-	  for (i = 0; i < avgpixels; i++)
-	    {
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j]
-		= shading_data[(x + o + i) * 2 * 2 + words_per_color * 0];
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 1]
-		= shading_data[(x + o + i) * 2 * 2 + words_per_color
-			       * 2 * 0 + 1];
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 2]
-		= shading_data[(x + o + i) * 2 * 2 + words_per_color
-			       * 2 * 0 + 2];
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 3]
-		= shading_data[(x + o + i) * 2 * 2 + words_per_color
-			       * 2 * 0 + 3];
-	    }
+#endif
+	      shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
+	      shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
 	}
     }
 }
@@ -3466,12 +3460,15 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
+        /* we are using SHDAREA */
+        words_per_color=pixels_per_line*2;
+        length = words_per_color * 3 * 2;
     	compute_averaged_planar(dev,
 				shading_data,
 				pixels_per_line,
 				words_per_color,
-				channels,
-				4,
+				3,
+				0,
 				coeff,
 				0xfa00,
 				0x0a00);
@@ -3972,8 +3969,15 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	}
     }
 
-  pixels_per_line = (SANE_UNFIX (dev->model->x_size) * dev->settings.xres) /
-    MM_PER_INCH;
+  /* we always use sensor pixel number in case of odd/even sensors */
+  if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
+    {
+      pixels_per_line = (SANE_UNFIX (dev->model->x_size) * dev->settings.xres) / MM_PER_INCH;
+    }
+  else
+    {
+      pixels_per_line = dev->sensor.sensor_pixels;
+    }
 
   /* send default shading data */
   status = sanei_genesys_init_shading_data (dev, pixels_per_line);
@@ -4888,10 +4892,106 @@ sanei_genesys_buffer_consume (Genesys_Buffer * buf, size_t size)
 static FILE *rawfile = NULL;
 #endif
 
+static SANE_Status accurate_line_read(Genesys_Device * dev,
+                                      SANE_Byte *buffer,
+                                      size_t size)
+{
+  SANE_Status status;
+  status = dev->model->cmd_set->bulk_read_data (dev, 0x45, buffer, size);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "accurate_line_read: failed to read %lu bytes (%s)\n",
+	   (u_long) size, sane_strstatus (status));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  /* done reading */
+  dev->oe_buffer.avail = size;
+  dev->oe_buffer.pos = 0;
+#ifdef SANE_DEBUG_LOG_RAW_DATA
+  if (rawfile != NULL)
+    {
+      fwrite (buffer, size, 1, rawfile);
+    }
+#endif
+  return status;
+}
+#if 0
+static SANE_Status accurate_line_read(Genesys_Device * dev,
+                                      SANE_Byte *buffer,
+                                      size_t size)
+{
+  SANE_Status status;
+  unsigned int words;
+  size_t done, count;
+
+  done = 0;
+  while (done < size)
+    {
+      /* wait for data */
+      words = 0;
+      count = 0;
+      while (words == 0)
+	{
+	  status = sanei_genesys_read_valid_words (dev, &words);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "accurate_line_read: failed to read words (%s)\n",
+		   sane_strstatus (status));
+	      return SANE_STATUS_IO_ERROR;
+	    }
+	  if (words == 0)
+	    {
+	      count++;
+	      /* couldn't read a line in 10s */
+	      if (count > 1000)
+		{
+		  DBG (DBG_error, "accurate_line_read: failed while waiting for data \n");
+		  return SANE_STATUS_IO_ERROR;
+		}
+	      usleep (10000);
+	    }
+	}
+
+      /* change to bytes */
+      words *= 2;
+
+      /* compute read size */
+      if(words>size-done)
+        words=size-done;
+      if(words>0xeff0)
+        words=0xeff0;
+      status = dev->model->cmd_set->bulk_read_data (dev, 0x45, buffer, words);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "accurate_line_read: failed to read %lu bytes (%s)\n",
+	       (u_long) size, sane_strstatus (status));
+	  return SANE_STATUS_IO_ERROR;
+	}
+      done += words;
+    }
+
+  /* done reading */
+  dev->oe_buffer.avail = dev->oe_buffer.size;
+  dev->oe_buffer.pos = 0;
+#ifdef SANE_DEBUG_LOG_RAW_DATA
+  if (rawfile != NULL)
+    {
+      fwrite (dev->oe_buffer.buffer, dev->oe_buffer.avail, 1, rawfile);
+    }
+#endif
+  return status;
+}
+#endif
+
+
 static SANE_Status
 genesys_fill_read_buffer (Genesys_Device * dev)
 {
-  size_t size;
+  size_t size, count;
   size_t space;
   SANE_Status status;
   uint8_t *work_buffer_dst;
@@ -4914,47 +5014,126 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 
   size = space;
 
-/* never read an odd number. exception: last read 
-   the chip internal counter does not count half words. */
+  /* never read an odd number. exception: last read 
+     the chip internal counter does not count half words. */
   size &= ~1;
-/* Some setups need the reads to be multiples of 256 bytes */
+  /* Some setups need the reads to be multiples of 256 bytes */
   size &= ~0xff;
 
   if (dev->read_bytes_left < size)
     {
       size = dev->read_bytes_left;
-/*round up to a multiple of 256 bytes*/
+      /*round up to a multiple of 256 bytes */
       size += (size & 0xff) ? 0x100 : 0x00;
       size &= ~0xff;
     }
 
-/*early out if our remaining buffer capacity is too low*/
+  /* early out if our remaining buffer capacity is too lo w */
   if (size == 0)
     return SANE_STATUS_GOOD;
 
-  DBG (DBG_error, "genesys_fill_read_buffer: reading %lu bytes\n",
+  DBG (DBG_io, "genesys_fill_read_buffer: reading %lu bytes\n",
        (u_long) size);
 
-/* size is already maxed to our needs. for most models bulk_read_data
-   will read as much data as requested. */
-  status =
-    dev->model->cmd_set->bulk_read_data (dev, 0x45, work_buffer_dst, size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
-	   (u_long) size, sane_strstatus (status));
-      return SANE_STATUS_IO_ERROR;
-    }
+  /* we have main 2 cases, one for normal scan, and the one where must read 
+   * complete lines to reorder raw data from sensor (ie gl847 odd even lines
+   * and duplex scanners with back to back sensors) */
 
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-  if (rawfile != NULL)
+  /* size is already maxed to our needs. for most models bulk_read_data
+     will read as much data as requested. */
+  if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
     {
-/*TODO: convert big/little endian if depth == 16. 
-  note: xv got this wrong for P5/P6.*/
-      fwrite (work_buffer_dst, size, 1, rawfile);
-    }
+      status =
+	dev->model->cmd_set->bulk_read_data (dev, 0x45, work_buffer_dst,
+					     size);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
+	       (u_long) size, sane_strstatus (status));
+	  return SANE_STATUS_IO_ERROR;
+	}
+#ifdef SANE_DEBUG_LOG_RAW_DATA
+      if (rawfile != NULL)
+	{
+	  /*TODO: convert big/little endian if depth == 16. 
+	     note: xv got this wrong for P5/P6. */
+	  fwrite (work_buffer_dst, size, 1, rawfile);
+	}
 #endif
+    }
+  else	/* we scan full lines and crop data while reordering odd/even pixels */
+    {
+      /* fill buffer if needed */
+      if (dev->oe_buffer.avail == 0)
+	{
+	  status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
+		   (u_long) dev->oe_buffer.size, sane_strstatus (status));
+	      return SANE_STATUS_IO_ERROR;
+	    }
+	}
+
+      /* copy size bytes of data, copying from a subwindow of each line
+       * when last line of buffer is exhausted, read another one */
+      count = 0;
+      while (count < size)
+	{
+	  while (dev->cur < dev->len && count < size)
+	    {
+              if(dev->settings.depth==8)
+                {
+	      /* even pixel */
+	      work_buffer_dst[count] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+	      /* odd pixel */
+	      work_buffer_dst[count + 1] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist +
+			       dev->oe_buffer.pos];
+	      count += 2;
+	      dev->cur++;
+                }
+              else
+                {
+	      /* even pixel */
+	      work_buffer_dst[count] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+	      work_buffer_dst[count+1] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
+	      /* odd pixel */
+	      work_buffer_dst[count + 2] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist +
+			       dev->oe_buffer.pos];
+	      work_buffer_dst[count + 3] =
+		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist +
+			       dev->oe_buffer.pos+1];
+	      count += 4;
+	      dev->cur+=2;
+                }
+	    }
+	  /* go to next line if needed */
+	  if (dev->cur == dev->len)
+	    {
+	      dev->oe_buffer.pos += dev->bpl;
+	      dev->cur = 0;
+	    }
+	  /* read a new buffer if needed */
+	  if (dev->oe_buffer.pos >= dev->oe_buffer.avail)
+	    {
+              status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+              if (status != SANE_STATUS_GOOD)
+                {
+                  DBG (DBG_error,
+                       "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
+                       (u_long) dev->oe_buffer.size, sane_strstatus (status));
+                  return SANE_STATUS_IO_ERROR;
+                }
+	    }
+	}
+    }
 
   if (size > dev->read_bytes_left)
     size = dev->read_bytes_left;
@@ -5084,6 +5263,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       rawfile = fopen ("raw.pnm", "wb");
       if (rawfile != NULL)
 	{
+          if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
 	  fprintf (rawfile,
 		   "P%c\n%d %d\n%d\n",
 		   dev->current_setup.channels == 1 ?
@@ -5091,6 +5271,14 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 		   dev->current_setup.pixels,
 		   dev->current_setup.lines,
 		   (1 << dev->current_setup.depth) - 1);
+          else
+            {
+	  fprintf (rawfile,
+		   "P5\n%d %d\n%d\n",
+		   (dev->sensor.sensor_pixels*3*dev->settings.xres)/dev->sensor.optical_res,
+		   dev->current_setup.lines,
+		   (1 << dev->current_setup.depth) - 1);
+            }
 	}
     }
 #endif
@@ -5574,6 +5762,11 @@ calc_parameters (Genesys_Scanner * s)
   s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
   s->params.pixels_per_line =
     ((br_x - tl_x) * s->dev->settings.xres) / MM_PER_INCH;
+  /* we need an even number of pixels for even/odd handling */
+  if (s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS)
+    {
+      s->params.pixels_per_line = (s->params.pixels_per_line/2)*2;
+    }
 
   s->params.bytes_per_line = s->params.pixels_per_line;
   if (s->params.depth > 8)
@@ -5956,17 +6149,15 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].name = "disable-dynamic-lineart";
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].title = SANE_I18N ("Disable dynamic lineart");
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].desc =
-    SANE_I18N
-    ("Disabel use of a software adaptative algorithm to generate lineart instead of"
-     " relying on hardware lineart");
+    SANE_I18N ("Disable use of a software adaptive algorithm to generate lineart relying instead on hardware lineart.");
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].type = SANE_TYPE_BOOL;
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].unit = SANE_UNIT_NONE;
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_DISABLE_DYNAMIC_LINEART].w = SANE_FALSE;
-  /* not working for GL646 scanners yet */
-  if (s->dev->model->asic_type == GENESYS_GL646)
+  /* not working for GL646 scanners yet, and required for GL847 ones */
+  if (s->dev->model->asic_type == GENESYS_GL646 || s->dev->model->asic_type == GENESYS_GL847)
     {
-      s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap |= SANE_CAP_INACTIVE;
+      s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
     }
 
   /* disable_interpolation */

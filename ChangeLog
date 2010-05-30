@@ -1,3 +1,8 @@
+2010-05-30 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
+	backend/genesys_low.h: Canon LiDE 100 working without shading
+	calibration which is the final bit to fix
+
 2010-05-24 m. allan noah <kitno455 at gmail dot com>
 	* backend/avision.c, doc/descriptions/avision.desc: add Fujitsu fi-5015C
 

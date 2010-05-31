@@ -1470,12 +1470,9 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
     {
       r->value |= REG01_DVDSET;
     }
-  r->value &= ~REG01_DVDSET; /* XXX STEF XXX */
 
-  /* average looks better than deletion, and we are already set up to 
-     use one of the average enabled resolutions */
   r = sanei_genesys_get_address (reg, REG03);
-  r->value |= REG03_AVEENB;
+  r->value &= ~REG03_AVEENB;
   if (flags & OPTICAL_FLAG_DISABLE_LAMP)
     r->value &= ~REG03_LAMPPWR;
   else
@@ -1834,7 +1831,7 @@ independent of our calculated values:
   exposure_time = sanei_genesys_exposure_time2 (dev,
 						slope_dpi,
 						scan_step_type,
-						0,
+						dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset,
 						led_exposure,
 						scan_power_mode);
 
@@ -1843,7 +1840,7 @@ independent of our calculated values:
       exposure_time2 = sanei_genesys_exposure_time2 (dev,
 						     slope_dpi,
 						     scan_step_type,
-						     0,
+						     dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset,
 						     led_exposure,
 						     scan_power_mode + 1);
       if (exposure_time < exposure_time2)
@@ -2228,7 +2225,7 @@ dummy \ scanned lines
   exposure_time = sanei_genesys_exposure_time2 (dev,
 						slope_dpi,
 						scan_step_type,
-						0,
+						dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset,
 						led_exposure,
 						scan_power_mode);
 
@@ -2237,7 +2234,7 @@ dummy \ scanned lines
       exposure_time2 = sanei_genesys_exposure_time2 (dev,
 						     slope_dpi,
 						     scan_step_type,
-						     0,
+						     dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset,
 						     led_exposure,
 						     scan_power_mode + 1);
       if (exposure_time < exposure_time2)
@@ -2324,10 +2321,7 @@ gl847_set_lamp_power (Genesys_Device * dev,
       r = sanei_genesys_get_address (regs, 0x10);
       for (i = 0; i < 6; i++, r++)
 	{
-	  if (dev->sensor.regs_0x10_0x1d[i] == 0x00)
-	    r->value = 0x01;	/*0x00 will not be accepted */
-	  else
-	    r->value = dev->sensor.regs_0x10_0x1d[i];
+	   r->value = dev->sensor.regs_0x10_0x1d[i];
 	}
       r = sanei_genesys_get_address (regs, 0x19);
       r->value = 0x50;
@@ -2342,10 +2336,10 @@ gl847_set_lamp_power (Genesys_Device * dev,
       r = sanei_genesys_get_address (regs, 0x10);
       for (i = 0; i < 6; i++, r++)
 	{
-	  r->value = 0x01;	/* 0x0101 is as off as possible */
+	  r->value = 0x00;
 	}
       r = sanei_genesys_get_address (regs, 0x19);
-      r->value = 0x50;
+      r->value = 0xff;
     }
 }
 
@@ -3730,12 +3724,10 @@ gl847_led_calibration (Genesys_Device * dev)
       dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
       dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
 
-      r = &(dev->calib_reg[reg_0x10]);
       for (i = 0; i < 6; i++, r++)
 	{
+          r = sanei_genesys_get_address (dev->calib_reg, 0x10+i);
 	  r->value = dev->sensor.regs_0x10_0x1d[i];
-	  RIE (sanei_genesys_write_register
-	       (dev, 0x10 + i, dev->sensor.regs_0x10_0x1d[i]));
 	}
 
       RIE (gl847_bulk_write_register
@@ -3747,7 +3739,7 @@ gl847_led_calibration (Genesys_Device * dev)
 
       if (DBG_LEVEL >= DBG_data)
 	{
-	  snprintf (fn, 20, "led_%d.pnm", turn);
+	  snprintf (fn, 20, "led_%02d.pnm", turn);
 	  sanei_genesys_write_pnm_file (fn,
 					line, depth, channels, num_pixels, 1);
 	}
@@ -3799,7 +3791,7 @@ gl847_led_calibration (Genesys_Device * dev)
 	  avge = (expr + expg + expb) / 3;
 
           /* don't overflow max exposure */
-	  if (avge > 2712)
+	  if (avge > 3000)
 	    {
 	      expr = (expr * 2000) / avge;
 	      expg = (expg * 2000) / avge;

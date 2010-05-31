@@ -2992,6 +2992,8 @@ leading to
  * @param coeff 4000h or 2000h depending on fast scan mode or not (GAIN4 bit)
  * @param target_bright value of the white target code
  * @param target_dark value of the black target code
+ * @param deletion is true if scan is done with deletion set, else averaging
+ * is used
 */
 #ifndef UNIT_TESTING
 static
@@ -3005,9 +3007,10 @@ compute_averaged_planar (Genesys_Device * dev,
 			     unsigned int o,
 			     unsigned int coeff,
 			     unsigned int target_bright,
-			     unsigned int target_dark)
+			     unsigned int target_dark,
+                             SANE_Bool deletion)
 {
-  unsigned int x, i, j, br, dk, res, avgpixels, val;
+  unsigned int x, i, j, br, dk, res, avgpixels, val, loop;
 
   DBG (DBG_info, "%s: pixels=%d\n", __FUNCTION__, pixels_per_line);
   /* initialize result */
@@ -3024,24 +3027,14 @@ compute_averaged_planar (Genesys_Device * dev,
 
   /* this should be evenly dividable */
   avgpixels = dev->sensor.optical_res / res;
-
-  /* due to resolution list is directly good to use */
-  /* gl841 and gl847 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
-  /* XXX STEF XXX 
-  if (avgpixels < 1)
-    avgpixels = 1;
-  else if (avgpixels < 6)
-    avgpixels = avgpixels;
-  else if (avgpixels < 8)
-    avgpixels = 6;
-  else if (avgpixels < 10)
-    avgpixels = 8;
-  else if (avgpixels < 12)
-    avgpixels = 10;
-  else if (avgpixels < 15)
-    avgpixels = 12;
+  if(deletion==SANE_TRUE)
+    {
+      loop=1;
+    }
   else
-    avgpixels = 15; */
+    {
+      loop=avgpixels;
+    }
 
   DBG (DBG_info, "%s: averaging over %d pixels\n", __FUNCTION__, avgpixels);
 
@@ -3056,7 +3049,7 @@ compute_averaged_planar (Genesys_Device * dev,
 
 	  dk = 0;
 	  br = 0;
-	  for (i = 0; i < avgpixels; i++)
+	  for (i = 0; i < loop; i++)
 	    {
 	      /* dark data */
 	      dk += (dev->dark_average_data[(x + i + pixels_per_line * j) * 2]
@@ -3067,8 +3060,8 @@ compute_averaged_planar (Genesys_Device * dev,
                      | (dev-> white_average_data[(x + i + pixels_per_line * j) * 2 + 1] << 8));
 	    }
 
-	  br /= avgpixels;
-	  dk /= avgpixels;
+	  br /= i;
+	  dk /= i;
 
 	  if (br * target_dark > dk * target_bright)
 	    val = 0;
@@ -3078,14 +3071,6 @@ compute_averaged_planar (Genesys_Device * dev,
 	  else
 	    val = (dk * target_bright - br * target_dark) / (target_bright
 							     - target_dark);
-#if 0
-	  /*fill all pixels, even if only the last one is relevant */
-	  for (i = 0; i < avgpixels; i++)
-	    {
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
-	    }
-#endif
 	  shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
 	  shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
 
@@ -3096,14 +3081,6 @@ compute_averaged_planar (Genesys_Device * dev,
 	  else
 	    val = 65535;
 
-#if 0
-	  /*fill all pixels, even if only the last one is relevant */
-	  for (i = 0; i < avgpixels; i++)
-	    {
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
-	    }
-#endif
 	      shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
 	      shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
 	}
@@ -3460,7 +3437,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
-        /* we are using SHDAREA */
+        /* we are using SHDAREA, and AVEENB is disabled */
         words_per_color=pixels_per_line*2;
         length = words_per_color * 3 * 2;
     	compute_averaged_planar(dev,
@@ -3468,10 +3445,11 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 				pixels_per_line,
 				words_per_color,
 				3,
-				0,
+				4,
 				coeff,
-				0xfa00,
-				0x0a00);
+				0xea00,
+				0x0a00,
+                                SANE_TRUE);
       break;
     case CCD_CANONLIDE35:
       target_bright = 0xfa00;

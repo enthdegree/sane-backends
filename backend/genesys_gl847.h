@@ -257,13 +257,13 @@
 #define REG65_Z2MOD	0xff
 
 #define REG60S_STEPSEL      5
-#define REG60_FSTPSEL	 0xe0
+#define REG60_STEPSEL	 0xe0
 #define REG60_FULLSTEP	 0x00
 #define REG60_HALFSTEP	 0x20
 #define REG60_EIGHTHSTEP 0x60
 #define REG60_16THSTEP   0x80
 
-#define REG63S_STEPSEL      5
+#define REG63S_FSTPSEL      5
 #define REG63_FSTPSEL	 0xe0
 #define REG63_FULLSTEP	 0x00
 #define REG63_HALFSTEP	 0x20

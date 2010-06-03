@@ -126,6 +126,7 @@ write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * data)
 	{
           sprintf (msg, "%s 0x%02x", msg, outdata[i]);
 	}
+      DBG (DBG_io, "%s: write(0x%08x,0x%08x)\n", __FUNCTION__, addr,size);
       DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
     }
 
@@ -935,6 +936,9 @@ HOME_FREE: 3
   r->value &= ~REG02_AGOHOME;
   r->value &= ~REG02_ACDCDIS;
 
+  if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+    r->value |= REG02_ACDCDIS;
+
   r->value |= REG02_MTRPWR;
 
   if (action == MOTOR_ACTION_GO_HOME)
@@ -957,11 +961,11 @@ HOME_FREE: 3
   val |= REG6C_GPIO12;
   RIE (sanei_genesys_write_register (dev, REG6C, val));
 
+  status = gl847_send_slope_table (dev, 0, fast_slope_table, 256);
   status = gl847_send_slope_table (dev, 1, fast_slope_table, 256);
   status = gl847_send_slope_table (dev, 2, fast_slope_table, 256);
   status = gl847_send_slope_table (dev, 3, fast_slope_table, 256);
   status = gl847_send_slope_table (dev, 4, fast_slope_table, 256);
-  status = gl847_send_slope_table (dev, 5, fast_slope_table, 256);
 
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -992,7 +996,6 @@ HOME_FREE: 3
 
   r = sanei_genesys_get_address (reg, 0x5f);
   r->value = fast_slope_steps;
-
 
   DBG (DBG_proc, "gl847_init_motor_regs : completed. \n");
 
@@ -1213,7 +1216,6 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
 
   if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
     r->value |= REG02_ACDCDIS;
-  r->value &= ~REG02_ACDCDIS;
 
   /* hi res motor speed */
   RIE (sanei_genesys_read_register (dev, REG6C, &effective));
@@ -3433,6 +3435,11 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
       DBG (DBG_error, "%s: failed to move to scan area\n",__FUNCTION__);
       return status;
     }
+ 
+  /* XXX STEF XXX */
+  RIE (sanei_genesys_read_register (dev, REG6C, &val));
+  val = val & ~REG6C_GPIO13;
+  RIE (sanei_genesys_write_register (dev, REG6C, val));
 
   /* clear scancnt and fedcnt */
   val = REG0D_CLRLNCNT;
@@ -3464,7 +3471,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
 				 dev->settings.xres,
 				 dev->settings.yres,
 				 start,
-				 4,
+				 0,
 				 dev->settings.pixels,
 				 dev->settings.lines,
 				 depth,
@@ -3831,7 +3838,7 @@ gl847_led_calibration (Genesys_Device * dev)
 
   /* cleanup before return */
   free (line);
-
+ 
   gl847_slow_back_home (dev, SANE_TRUE);
 
   DBG (DBG_proc, "gl847_led_calibration: completed\n");

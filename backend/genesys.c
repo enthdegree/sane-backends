@@ -3071,11 +3071,11 @@ compute_averaged_planar (Genesys_Device * dev,
 	  else
 	    val = (dk * target_bright - br * target_dark) / (target_bright
 							     - target_dark);
+
 	  shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
 	  shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
 
 	  val = br - dk;
-
 	  if (65535 * val > (target_bright - target_dark) * coeff)
 	    val = (coeff * (target_bright - target_dark)) / val;
 	  else
@@ -3447,7 +3447,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 				3,
 				4,
 				coeff,
-				0xea00,
+				0xfa00,
 				0x0a00,
                                 SANE_TRUE);
       break;
@@ -6925,6 +6925,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     {
       sprintf (tmp_str, "%s/.sane/%s.cal", ptr, s->dev->model->name);
     }
+  FREE_IFNOT_NULL (s->dev->calib_file);
   s->dev->calib_file = strdup (tmp_str);
   DBG (DBG_info, "Calibration filename set to:\n");
   DBG (DBG_info, ">%s<\n", s->dev->calib_file);

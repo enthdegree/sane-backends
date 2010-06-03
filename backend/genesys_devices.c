@@ -786,7 +786,7 @@ static Genesys_Motor Motor[] = {
    1,   /* maximum power modes count */
    { /* motor slopes */
 	   { /* power mode 0 */
-		   {   2343,   1017, 64, 0.80}, /* full step */
+		   {   2034,   1017, 64, 0.10}, /* full step */
     		   {   4678,   2034, 64, 0.80}, /* half step */
     		   { 3*2712, 3*2712, 64, 0.80}, /* quarter step 0.75*2712 */
     		   /*{ 4*2034, 4*2034, 32, 0.80},  quarter step */

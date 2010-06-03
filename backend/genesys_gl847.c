@@ -770,7 +770,6 @@ HOME_FREE: 3
      * Z1
      * Z2
  */
-
   r = sanei_genesys_get_address (reg, 0x3d);
   r->value = (feedl >> 16) & 0xf;
   r = sanei_genesys_get_address (reg, 0x3e);
@@ -1121,9 +1120,6 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
       /* we need to shorten fast_slope_steps here. */
       fast_slope_steps = (feed_steps - (slow_slope_steps >> scan_step_type)) / 2;
     }
-
-  if(fast_slope_steps<64)
-    fast_slope_steps=64;
 
   DBG (DBG_info,
        "gl847_init_motor_regs_scan: Maximum allowed slope steps for fast slope: %d\n",
@@ -3436,11 +3432,6 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
       return status;
     }
  
-  /* XXX STEF XXX */
-  RIE (sanei_genesys_read_register (dev, REG6C, &val));
-  val = val & ~REG6C_GPIO13;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-
   /* clear scancnt and fedcnt */
   val = REG0D_CLRLNCNT;
   RIE (sanei_genesys_write_register (dev, REG0D, val));
@@ -4106,73 +4097,6 @@ gl847_init_memory_layout (Genesys_Device * dev)
   DBG (DBG_proc, "gl847_init_memory_layout completed\n");
   return status;
 }
-
-#if 0
-/** @brief dummy scan to reset scanner
- *
- * */
-static SANE_Status
-gl847_dummy_scan (Genesys_Device * dev)
-{
-  SANE_Status status;
-  size_t size;
-  uint8_t *line;
-  float pixels;
-  int dpi = 300;
-
-  DBGSTART;
-
-  /* initial calibration reg values */
-  memcpy (dev->calib_reg, dev->reg,
-	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
-
-  pixels = (16 * 300) / dev->sensor.optical_res;
-  status = gl847_init_scan_regs (dev,
-				 dev->calib_reg,
-				 dpi,
-				 dpi,
-				 0,
-				 0,
-				 pixels,
-				 1,
-				 16,
-				 3,
-				 0,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES);
-
-  RIE (gl847_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
-
-  /* colors * bytes_per_color * scan lines */
-  size = ((int) pixels) * 3 * 2 * 1;
-
-  line = malloc (size);
-  if (!line)
-    return SANE_STATUS_NO_MEM;
-
-  DBG (DBG_info, "%s: starting dummy data reading\n", __FUNCTION__);
-
-  RIE (gl847_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-
-  sanei_usb_set_timeout (1000);	/* 1 second */
-
-  /*ignore errors. next read will succeed */
-  sanei_genesys_read_data_from_scanner (dev, line, size);
-
-  sanei_usb_set_timeout (30 * 1000);	/* 30 seconds */
-
-  RIE (gl847_end_scan (dev, dev->calib_reg, SANE_TRUE));
-
-  free (line);
-
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
-}
-#endif
 
 #if 0
 /**

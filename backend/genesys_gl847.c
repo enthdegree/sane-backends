@@ -846,9 +846,9 @@ gl847_init_motor_regs (Genesys_Device * dev, Genesys_Register_Set * reg, unsigne
        "gl847_init_motor_regs : feed_steps=%d, action=%d, flags=%x\n",
        feed_steps, action, flags);
 
-  if (action == MOTOR_ACTION_FEED || action == MOTOR_ACTION_GO_HOME)
+  if (action == MOTOR_ACTION_FEED || action == MOTOR_ACTION_GO_HOME || action == MOTOR_ACTION_HOME_FREE)
     {
-/* FEED and GO_HOME can use fastest slopes available */
+      /* FEED and GO_HOME can use fastest slopes available */
       fast_slope_steps = 256;
       fast_exposure = sanei_genesys_exposure_time2 (dev,
                                                     dev->motor.base_ydpi / 4,
@@ -861,12 +861,14 @@ gl847_init_motor_regs (Genesys_Device * dev, Genesys_Register_Set * reg, unsigne
 	   fast_exposure);
     }
 
+/* HOME_FREE must be able to stop in one step, so do not try to get faster */
+  /* XXX STEF XXX
   if (action == MOTOR_ACTION_HOME_FREE)
     {
-/* HOME_FREE must be able to stop in one step, so do not try to get faster */
       fast_slope_steps = 256;
       fast_exposure = dev->motor.slopes[0][0].maximum_start_speed;
     }
+    */
 
   fast_slope_time = sanei_genesys_create_slope_table3 (dev,
 						       fast_slope_table,
@@ -931,7 +933,6 @@ HOME_FREE: 3
   r = sanei_genesys_get_address (reg, REG02);
   r->value &= ~REG02_LONGCURV;
   r->value &= ~REG02_HOMENEG;
-  r->value &= ~REG02_FASTFED;
   r->value &= ~REG02_AGOHOME;
   r->value &= ~REG02_ACDCDIS;
 
@@ -947,10 +948,11 @@ HOME_FREE: 3
 
   if (use_fast_fed)
     r->value |= REG02_FASTFED;
+  else
+    r->value &= ~REG02_FASTFED;
 
   if (flags & MOTOR_FLAG_AUTO_GO_HOME)
     r->value |= REG02_AGOHOME;
-
 
   /* reset gpio pin */
   RIE (sanei_genesys_read_register (dev, REG6C, &val));
@@ -1120,6 +1122,8 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
       /* we need to shorten fast_slope_steps here. */
       fast_slope_steps = (feed_steps - (slow_slope_steps >> scan_step_type)) / 2;
     }
+  if(fast_slope_steps>256)
+    fast_slope_steps=256;
 
   DBG (DBG_info,
        "gl847_init_motor_regs_scan: Maximum allowed slope steps for fast slope: %d\n",
@@ -1206,6 +1210,8 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
 
   if (use_fast_fed)
     r->value |= REG02_FASTFED;
+  else
+    r->value &= ~REG02_FASTFED;
 
   if (flags & MOTOR_FLAG_AUTO_GO_HOME)
     r->value |= REG02_AGOHOME;
@@ -1681,6 +1687,7 @@ gl847_init_scan_regs (Genesys_Device * dev,
   int stagger;
 
   int slope_dpi = 0;
+  int pixels_exposure;
   int dummy = 0;
   int scan_step_type = 1;
   int scan_power_mode = 0;
@@ -1834,10 +1841,14 @@ independent of our calculated values:
   /* exposure_time , CCD case not handled */
   led_exposure = gl847_get_led_exposure (dev);
 
+  pixels_exposure=224+dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset+dev->sensor.sensor_pixels;
+  pixels_exposure=(pixels*xres)/dev->sensor.optical_res;
+  pixels_exposure=0;
+
   exposure_time = sanei_genesys_exposure_time2 (dev,
 						slope_dpi,
 						scan_step_type,
-						dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset,
+						pixels_exposure,
 						led_exposure,
 						scan_power_mode);
 
@@ -1846,7 +1857,7 @@ independent of our calculated values:
       exposure_time2 = sanei_genesys_exposure_time2 (dev,
 						     slope_dpi,
 						     scan_step_type,
-						     dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset,
+						     pixels_exposure,
 						     led_exposure,
 						     scan_power_mode + 1);
       if (exposure_time < exposure_time2)
@@ -2065,6 +2076,7 @@ gl847_calculate_current_setup (Genesys_Device * dev)
   int scan_step_type = 1;
   int scan_power_mode = 0;
   int max_shift;
+  int pixels_exposure;
 
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
@@ -2227,11 +2239,15 @@ dummy \ scanned lines
 
   led_exposure = gl847_get_led_exposure (dev);
 
+  pixels_exposure=224+dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset+dev->sensor.sensor_pixels;
+  pixels_exposure=(pixels*xres)/dev->sensor.optical_res;
+  pixels_exposure=0;
+
 /* exposure_time */
   exposure_time = sanei_genesys_exposure_time2 (dev,
 						slope_dpi,
 						scan_step_type,
-						dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset,
+						pixels_exposure,
 						led_exposure,
 						scan_power_mode);
 
@@ -2240,7 +2256,7 @@ dummy \ scanned lines
       exposure_time2 = sanei_genesys_exposure_time2 (dev,
 						     slope_dpi,
 						     scan_step_type,
-						     dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset,
+						     pixels_exposure,
 						     led_exposure,
 						     scan_power_mode + 1);
       if (exposure_time < exposure_time2)
@@ -3425,11 +3441,16 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   move = (move * move_dpi) / MM_PER_INCH;
   DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
 
-  status = gl847_feed (dev, move);
-  if (status != SANE_STATUS_GOOD)
+  /* at high res we do fast move to scan area */
+  if(dev->settings.xres>=300)
     {
-      DBG (DBG_error, "%s: failed to move to scan area\n",__FUNCTION__);
-      return status;
+      status = gl847_feed (dev, move);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error, "%s: failed to move to scan area\n",__FUNCTION__);
+          return status;
+        }
+      move=0;
     }
  
   /* clear scancnt and fedcnt */
@@ -3462,7 +3483,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
 				 dev->settings.xres,
 				 dev->settings.yres,
 				 start,
-				 0,
+				 move,
 				 dev->settings.pixels,
 				 dev->settings.lines,
 				 depth,
@@ -3878,35 +3899,6 @@ gl847_init_regs_for_warmup (Genesys_Device * dev,
 {
   DBG (DBG_proc, "%s: not implemented \n", __FUNCTION__);
   return SANE_STATUS_GOOD;
-}
-
-
-/*
- * this function moves head without scanning, forward, then backward
- * so that the head goes to park position.
- * as a by-product, also check for lock
- */
-static SANE_Status
-sanei_gl847_repark_head (Genesys_Device * dev)
-{
-  SANE_Status status;
-
-  DBGSTART;
-
-  status = gl847_feed (dev, 232);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "gl847_repark_head: failed to feed: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  /* toggle motor flag, put an huge step number and redo move backward */
-  status = gl847_slow_back_home (dev, 1);
-
-  DBGCOMPLETED;
-  return status;
 }
 
 static SANE_Status
@@ -4434,7 +4426,7 @@ gl847_init (Genesys_Device * dev)
   dev->oe_buffer.buffer=NULL;
   dev->already_initialized = SANE_TRUE;
 
-  /* Move home */
+  /* Move home fi needed */
   RIE (gl847_slow_back_home (dev, SANE_TRUE));
   dev->scanhead_position_in_steps = 0;
 

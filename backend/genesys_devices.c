@@ -786,13 +786,9 @@ static Genesys_Motor Motor[] = {
    1,   /* maximum power modes count */
    { /* motor slopes */
 	   { /* power mode 0 */
-		   {   2034,   1017, 64, 0.10}, /* full step */
-    		   {   4678,   2034, 64, 0.80}, /* half step */
-    		   { 3*2712, 3*2712, 64, 0.80}, /* quarter step 0.75*2712 */
-    		   /*{ 4*2034, 4*2034, 32, 0.80},  quarter step */
-		   /* extra values kept for documentation   
-		   {   2343,    864, 32, 0.80},    full step   
-    		   { 2*1171,  2*648, 32, 0.80},    half step */
+		   {   2034,    800, 80, 0.50}, /* full step */
+    		   {   8136,   3200, 80, 0.50}, /* half step */
+    		   { 3*2712, 3*2712, 16, 0.80}, /* quarter step 0.75*2712 */
 	   },
     },
   },
@@ -973,7 +969,7 @@ static Genesys_Model canon_lide_100_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  100,
+  150,
   400
 };
 

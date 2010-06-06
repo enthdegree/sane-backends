@@ -55,7 +55,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 14
+#define BUILD 15
 
 #include <errno.h>
 #include <string.h>
@@ -4729,32 +4729,26 @@ genesys_start_scan (Genesys_Device * dev)
       return SANE_STATUS_IO_ERROR;
     }
 
-/*do we really need this? the valid data check should be sufficent -- pierre*/
+  /*do we really need this? the valid data check should be sufficent -- pierre*/
   /* waits for head to reach scanning position */
-  if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
+  expected = sanei_genesys_read_reg_from_set (dev->reg, 0x3d) * 65536
+           + sanei_genesys_read_reg_from_set (dev->reg, 0x3e) * 256 
+           + sanei_genesys_read_reg_from_set (dev->reg, 0x3f);
+  do
     {
-      expected =
-        sanei_genesys_read_reg_from_set (dev->reg,
-                                         0x3d) * 65536 +
-        sanei_genesys_read_reg_from_set (dev->reg,
-                                         0x3e) * 256 +
-        sanei_genesys_read_reg_from_set (dev->reg, 0x3f);
-      do
+      /* wait 1/10th of second between each test to avoid
+         overloading USB and CPU */
+      usleep (100 * 1000);
+      status = sanei_genesys_read_feed_steps (dev, &steps);
+      if (status != SANE_STATUS_GOOD)
         {
-          /* wait 1/10th of second between each test to avoid
-             overloading USB and CPU */
-          usleep (100 * 1000);
-          status = sanei_genesys_read_feed_steps (dev, &steps);
-          if (status != SANE_STATUS_GOOD)
-            {
-              DBG (DBG_error,
-                   "genesys_start_scan: Failed to read feed steps: %s\n",
-                   sane_strstatus (status));
-              return status;
-            }
+          DBG (DBG_error,
+               "genesys_start_scan: Failed to read feed steps: %s\n",
+               sane_strstatus (status));
+          return status;
         }
-      while (steps < expected);
     }
+  while (steps < expected);
   
   /* wait for buffers to be filled */
   do

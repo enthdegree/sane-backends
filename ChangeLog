@@ -1,3 +1,7 @@
+2010-06-07 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c:
+	LiDE 100 motor fine tuning
+
 2010-06-03 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
 	doc/descriptions/genesys.desc:

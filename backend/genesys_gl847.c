@@ -1830,9 +1830,9 @@ independent of our calculated values:
   slope_dpi = slope_dpi * (1 + dummy);
 
   /* scan_step_type */
-  if (yres * 4 < dev->motor.base_ydpi || dev->motor.max_step_type <= 0)
+  if (slope_dpi * 4 <= dev->motor.base_ydpi || dev->motor.max_step_type <= 0)
     scan_step_type = 0;
-  else if (yres * 4 < dev->motor.base_ydpi * 2
+  else if (slope_dpi * 4 <= dev->motor.base_ydpi * 2
 	   || dev->motor.max_step_type <= 1)
     scan_step_type = 1;
   else
@@ -3442,7 +3442,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
 
   /* at high res we do fast move to scan area */
-  if(dev->settings.xres>=300)
+  if(dev->settings.xres>200)
     {
       status = gl847_feed (dev, move);
       if (status != SANE_STATUS_GOOD)

@@ -180,6 +180,7 @@ activate (pixma_t * s, uint8_t x)
     {
     case MF4200_PID:
     case MF4600_PID:
+    case MF6500_PID:
     case D480_PID:
     case MF4360_PID:
       return iclass_exec (s, &mf->cb, 1);
@@ -209,6 +210,7 @@ select_source (pixma_t * s)
     {
     case MF4200_PID:
     case MF4600_PID:
+    case MF6500_PID:
     case D480_PID:
     case MF4360_PID:
       return iclass_exec (s, &mf->cb, 0);
@@ -241,6 +243,7 @@ send_scan_param (pixma_t * s)
     {
     case MF4200_PID:
     case MF4600_PID:
+    case MF6500_PID:
     case D480_PID:
     case MF4360_PID:
       return iclass_exec (s, &mf->cb, 0);
@@ -264,7 +267,7 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
   pixma_set_be16 (cmd_read_image, mf->cb.buf);
   mf->cb.buf[8] = flag;
   mf->cb.buf[10] = 0x06;
-  expected_len = (s->cfg->pid == MF4600_PID) ? 512 : hlen;
+  expected_len = (s->cfg->pid == MF4600_PID || s->cfg->pid == MF6500_PID) ? 512 : hlen;
   mf->cb.reslen = pixma_cmd_transaction (s, mf->cb.buf, 11, mf->cb.buf, expected_len);
   if (mf->cb.reslen >= hlen)
     {
@@ -272,7 +275,7 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
       *size = pixma_get_be16 (mf->cb.buf + 6);    /* 16bit size */
       error = 0;
 
-      if (s->cfg->pid == MF4600_PID)
+      if (s->cfg->pid == MF4600_PID || s->cfg->pid == MF6500_PID)
         {                                         /* 32bit size */
           *datalen = mf->cb.reslen - hlen;
           *size = (*datalen + hlen == 512) ? pixma_get_be32 (mf->cb.buf + 4) - *datalen : 0;
@@ -292,7 +295,7 @@ read_image_block (pixma_t * s, uint8_t * data, unsigned size)
   int error;
   unsigned maxchunksize, chunksize, count = 0;
   
-  maxchunksize = MAX_CHUNK_SIZE * ((s->cfg->pid == MF4600_PID) ? 4 : 1);
+  maxchunksize = MAX_CHUNK_SIZE * ((s->cfg->pid == MF4600_PID || s->cfg->pid == MF6500_PID) ? 4 : 1);
   while (size)
     {
       if (size >= maxchunksize)
@@ -324,6 +327,7 @@ read_error_info (pixma_t * s, void *buf, unsigned size)
     {
     case MF4200_PID:
     case MF4600_PID:
+    case MF6500_PID:
     case D480_PID:
     case MF4360_PID:
       error = iclass_exec (s, &mf->cb, 0);
@@ -585,9 +589,9 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       if (n != 0)
         {
           if (s->param->channels != 1 &&
-	      s->cfg->pid != MF4600_PID)
+	      s->cfg->pid != MF4600_PID && s->cfg->pid != MF6500_PID)
             {
-              /* color and not MF46xx */
+              /* color and not MF46xx or MF65xx */
               pack_rgb (mf->blkptr, n, mf->raw_width, mf->lineptr);
             }
           else

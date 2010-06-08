@@ -1,3 +1,7 @@
+2010-06-08  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_imageclass.c:
+	pixma: set #1 of modifiations for ImageClass MF65xx series.
+
 2010-06-07 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c:
 	LiDE 100 motor fine tuning

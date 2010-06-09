@@ -20,7 +20,7 @@ SRC_FILES=$(shell if test -r $(srcdir)/POTFILES; then grep -v "^\#" $(srcdir)/PO
 PO_FILES=$(shell LINGUAS="$(PO_LINGUAS)"; for lang in $$LINGUAS; do printf "$$lang.po "; done)
 MO_FILES=$(shell LINGUAS="$(PO_LINGUAS)"; for lang in $$LINGUAS; do printf "$$lang.mo "; done)
 
-EXTRA_DIST = README $(GETTEXT_PACKAGE).pot
+EXTRA_DIST = README $(GETTEXT_PACKAGE).pot LINGUAS POTFILES
 EXTRA_DIST += $(PO_FILES)
 
 

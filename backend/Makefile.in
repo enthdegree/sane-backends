@@ -156,7 +156,8 @@ am_libfujitsu_la_OBJECTS = libfujitsu_la-fujitsu.lo
 libfujitsu_la_OBJECTS = $(am_libfujitsu_la_OBJECTS)
 libgenesys_la_LIBADD =
 am_libgenesys_la_OBJECTS = libgenesys_la-genesys.lo \
-	libgenesys_la-genesys_gl646.lo libgenesys_la-genesys_gl841.lo libgenesys_la-genesys_gl847.lo
+	libgenesys_la-genesys_gl646.lo libgenesys_la-genesys_gl841.lo \
+	libgenesys_la-genesys_gl847.lo
 libgenesys_la_OBJECTS = $(am_libgenesys_la_OBJECTS)
 libgphoto2_i_la_LIBADD =
 am_libgphoto2_i_la_OBJECTS = libgphoto2_i_la-gphoto2.lo

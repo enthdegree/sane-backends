@@ -1,3 +1,8 @@
+2010-06-09 m. allan noah <kitno455 at gmail dot com>
+	* backend/Makefile.{am|in}: add genesys_gl847 files
+	* po/Makefile.{am|in}: add LINGUAS POTFILES to EXTRA_DIST
+	* Makefile.am: add Changelog-1.0.21 to EXTRA_DIST
+
 2010-06-08  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c:
 	pixma: set #1 of modifiations for ImageClass MF65xx series.

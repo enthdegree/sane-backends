@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2008-01-18"		; version of backend
+:version "2010-06-09"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1674,16 +1674,6 @@
 :interface "SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend. See http://code.google.com/p/kvss905c/ for a standalone scanning tool."
-
-:model "KV-S2026C"
-:interface "USB SCSI"
-:status :unsupported
-:comment "might be supported by matsushita backend."
-
-:model "KV-S2046C"
-:interface "USB SCSI"
-:status :unsupported
-:comment "might be supported by matsushita backend."
 
 :model "KV-S2055W"
 :interface "USB SCSI"

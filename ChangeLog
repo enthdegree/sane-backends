@@ -1,4 +1,11 @@
 2010-06-09 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.[ch]: backend v100:
+	- store more Request Sense data in scanner struct
+	- clear Request Sense data at start of every do_cmd() call
+	- track per-side ILI and global EOM flags
+	- set per-side EOF flag if ILI and EOM are set
+
+2010-06-09 m. allan noah <kitno455 at gmail dot com>
 	* backend/Makefile.{am|in}: add genesys_gl847 files
 	* po/Makefile.{am|in}: add LINGUAS POTFILES to EXTRA_DIST
 	* Makefile.am: add Changelog-1.0.21 to EXTRA_DIST

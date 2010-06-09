@@ -457,7 +457,11 @@
          - do_usb_cmd(): use rs_info whenever set, not just EOF
          - read_from_*(): better handling of EOF from lower level functions
          - sane_read(): improve duplexing logic
-
+      v100 2010-06-01, MAN
+         - store more Request Sense data in scanner struct
+         - clear Request Sense data at start of every do_cmd() call
+         - track per-side ILI and global EOM flags
+         - set per-side EOF flag if ILI and EOM are set
 
    SANE FLOW DIAGRAM
 
@@ -507,7 +511,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 99
+#define BUILD 100
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -6137,6 +6141,9 @@ sane_start (SANE_Handle handle)
       s->lines_rx[1]=0;
       s->eof_rx[0]=0;
       s->eof_rx[1]=0;
+      s->ili_rx[0]=0;
+      s->ili_rx[1]=0;
+      s->eom_rx=0;
 
       s->bytes_tx[0]=0;
       s->bytes_tx[1]=0;
@@ -7535,6 +7542,7 @@ read_from_scanner(struct fujitsu *s, int side)
   
     if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
         DBG(15, "read_from_scanner: got GOOD/EOF, returning GOOD\n");
+        ret = SANE_STATUS_GOOD;
     }
     else if (ret == SANE_STATUS_DEVICE_BUSY) {
         DBG(5, "read_from_scanner: got BUSY, returning GOOD\n");
@@ -7556,12 +7564,29 @@ read_from_scanner(struct fujitsu *s, int side)
     }
   
     free(in);
-  
-    if(ret == SANE_STATUS_EOF){
-      DBG(15, "read_from_scanner: got EOF, finishing both sides\n");
-      s->eof_rx[SIDE_FRONT] = 1;
-      s->eof_rx[SIDE_BACK] = 1;
-      ret = SANE_STATUS_GOOD;
+
+    /* if this was a short read or not, log it */
+    s->ili_rx[side] = s->rs_ili;
+    if(s->ili_rx[side]){
+      DBG(15, "read_from_scanner: got ILI\n");
+    }
+
+    /* if this was an end of medium, log it */
+    if(s->rs_eom){
+      DBG(15, "read_from_scanner: got EOM\n");
+      s->eom_rx = 1;
+    }
+
+    /* paper ran out. lets try to set the eof flag on both sides, 
+     * but only if that side had a short read last time */
+    if(s->eom_rx){
+      int i;
+      for(i=0;i<2;i++){
+        if(s->ili_rx[i]){
+          DBG(15, "read_from_scanner: finishing side %d\n",i);
+          s->eof_rx[i] = 1;
+        }
+      }
     }
 
     DBG (10, "read_from_scanner: finish\n");
@@ -7910,9 +7935,6 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
   unsigned int sense = get_RS_sense_key (sensed_data);
   unsigned int asc = get_RS_ASC (sensed_data);
   unsigned int ascq = get_RS_ASCQ (sensed_data);
-  unsigned int eom = get_RS_EOM (sensed_data);
-  unsigned int ili = get_RS_ILI (sensed_data);
-  unsigned int info = get_RS_information (sensed_data);
 
   DBG (5, "sense_handler: start\n");
 
@@ -7920,11 +7942,12 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
   fd = fd;
 
   /* copy the rs return data into the scanner struct
-     so that the caller can use it if he wants
-  memcpy(&s->rs_buffer,sensed_data,RS_return_size);
-  */
+     so that the caller can use it if he wants */
+  s->rs_info = get_RS_information (sensed_data);
+  s->rs_eom = get_RS_EOM (sensed_data);
+  s->rs_ili = get_RS_ILI (sensed_data);
 
-  DBG (5, "Sense=%#02x, ASC=%#02x, ASCQ=%#02x, EOM=%d, ILI=%d, info=%#08x\n", sense, asc, ascq, eom, ili, info);
+  DBG (5, "Sense=%#02x, ASC=%#02x, ASCQ=%#02x, EOM=%d, ILI=%d, info=%#08x\n", sense, asc, ascq, s->rs_eom, s->rs_ili, s->rs_info);
 
   switch (sense) {
     case 0x0:
@@ -7941,12 +7964,11 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
         return SANE_STATUS_IO_ERROR;
       }
       /* ready, but short read */
-      if (ili) {
-        s->rs_info = get_RS_information (sensed_data);
+      if (s->rs_ili) {
         DBG  (5, "No sense: ILI remainder:%lu\n",(unsigned long)s->rs_info);
       }
       /* ready, but end of paper */
-      if (eom) {
+      if (s->rs_eom) {
         DBG  (5, "No sense: EOM\n");
         return SANE_STATUS_EOF;
       }
@@ -8163,6 +8185,12 @@ do_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * inBuff, size_t * inLen
 )
 {
+
+    /* unset the request sense vars first */
+    s->rs_info = 0;
+    s->rs_ili = 0;
+    s->rs_eom = 0;
+
     if (s->connection == CONNECTION_SCSI) {
         return do_scsi_cmd(s, runRS, shortTime,
                  cmdBuff, cmdLen,
@@ -8417,13 +8445,11 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
         }
 
         /* parse the rs data */
-        s->rs_info = 0;
         ret2 = sense_handler( 0, rs_in, (void *)s );
 
         /* this was a short read, but the usb layer did not know */
-        if(s->rs_info && inBuff && inLen && inTime){
+        if(s->rs_ili && inBuff && inLen && inTime){
             *inLen = askLen - s->rs_info;
-            s->rs_info = 0;
             DBG(5,"do_usb_cmd: short read via rs, %lu/%lu\n",
               (unsigned long)*inLen,(unsigned long)askLen);
         }

@@ -516,6 +516,8 @@ struct fujitsu
   int bytes_rx[2];
   int lines_rx[2]; /*only used by 3091*/
   int eof_rx[2];
+  int ili_rx[2];
+  int eom_rx;
 
   /* how far we have written */
   int bytes_tx[2];
@@ -540,6 +542,8 @@ struct fujitsu
   /* values which used by the command and data sending functions (scsi/usb)*/
   int fd;                      /* The scanner device file descriptor.     */
   size_t rs_info;
+  int rs_eom;
+  int rs_ili;
 
   /* --------------------------------------------------------------------- */
   /* values which are used by the get hardware status command              */

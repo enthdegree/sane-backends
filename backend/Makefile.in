@@ -205,6 +205,10 @@ am_libkvs1025_la_OBJECTS = libkvs1025_la-kvs1025.lo \
 	libkvs1025_la-kvs1025_low.lo libkvs1025_la-kvs1025_opt.lo \
 	libkvs1025_la-kvs1025_usb.lo
 libkvs1025_la_OBJECTS = $(am_libkvs1025_la_OBJECTS)
+libkvs20xx_la_LIBADD =
+am_libkvs20xx_la_OBJECTS = libkvs20xx_la-kvs20xx.lo \
+	libkvs20xx_la-kvs20xx_cmd.lo libkvs20xx_la-kvs20xx_opt.lo
+libkvs20xx_la_OBJECTS = $(am_libkvs20xx_la_OBJECTS)
 libleo_la_LIBADD =
 am_libleo_la_OBJECTS = libleo_la-leo.lo
 libleo_la_OBJECTS = $(am_libleo_la_OBJECTS)
@@ -722,6 +726,17 @@ libsane_kvs1025_la_OBJECTS = $(nodist_libsane_kvs1025_la_OBJECTS)
 libsane_kvs1025_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libsane_kvs1025_la_LDFLAGS) $(LDFLAGS) -o $@
+libsane_kvs20xx_la_DEPENDENCIES = $(COMMON_LIBS) libkvs20xx.la \
+	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
+	../sanei/sanei_config.lo sane_strstatus.lo \
+	../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
+nodist_libsane_kvs20xx_la_OBJECTS = libsane_kvs20xx_la-kvs20xx-s.lo
+libsane_kvs20xx_la_OBJECTS = $(nodist_libsane_kvs20xx_la_OBJECTS)
+libsane_kvs20xx_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libsane_kvs20xx_la_LDFLAGS) $(LDFLAGS) -o $@
 libsane_leo_la_DEPENDENCIES = $(COMMON_LIBS) libleo.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
@@ -1278,14 +1293,15 @@ SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libhp5590_la_SOURCES) $(libhpljm1005_la_SOURCES) \
 	$(libhpsj5s_la_SOURCES) $(libhs2p_la_SOURCES) \
 	$(libibm_la_SOURCES) $(libkodak_la_SOURCES) \
-	$(libkvs1025_la_SOURCES) $(libleo_la_SOURCES) \
-	$(liblexmark_la_SOURCES) $(libma1509_la_SOURCES) \
-	$(libmatsushita_la_SOURCES) $(libmicrotek_la_SOURCES) \
-	$(libmicrotek2_la_SOURCES) $(libmustek_la_SOURCES) \
-	$(libmustek_pp_la_SOURCES) $(libmustek_usb_la_SOURCES) \
-	$(libmustek_usb2_la_SOURCES) $(libnec_la_SOURCES) \
-	$(libnet_la_SOURCES) $(libniash_la_SOURCES) \
-	$(libp5_la_SOURCES) $(libpie_la_SOURCES) $(libpint_la_SOURCES) \
+	$(libkvs1025_la_SOURCES) $(libkvs20xx_la_SOURCES) \
+	$(libleo_la_SOURCES) $(liblexmark_la_SOURCES) \
+	$(libma1509_la_SOURCES) $(libmatsushita_la_SOURCES) \
+	$(libmicrotek_la_SOURCES) $(libmicrotek2_la_SOURCES) \
+	$(libmustek_la_SOURCES) $(libmustek_pp_la_SOURCES) \
+	$(libmustek_usb_la_SOURCES) $(libmustek_usb2_la_SOURCES) \
+	$(libnec_la_SOURCES) $(libnet_la_SOURCES) \
+	$(libniash_la_SOURCES) $(libp5_la_SOURCES) \
+	$(libpie_la_SOURCES) $(libpint_la_SOURCES) \
 	$(libpixma_la_SOURCES) $(libplustek_la_SOURCES) \
 	$(libplustek_pp_la_SOURCES) $(libpnm_la_SOURCES) \
 	$(libqcam_la_SOURCES) $(libricoh_la_SOURCES) \
@@ -1331,6 +1347,7 @@ SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(nodist_libsane_ibm_la_SOURCES) \
 	$(nodist_libsane_kodak_la_SOURCES) \
 	$(nodist_libsane_kvs1025_la_SOURCES) \
+	$(nodist_libsane_kvs20xx_la_SOURCES) \
 	$(nodist_libsane_leo_la_SOURCES) \
 	$(nodist_libsane_lexmark_la_SOURCES) \
 	$(nodist_libsane_ma1509_la_SOURCES) \
@@ -1404,14 +1421,15 @@ DIST_SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libhp5590_la_SOURCES) $(libhpljm1005_la_SOURCES) \
 	$(libhpsj5s_la_SOURCES) $(libhs2p_la_SOURCES) \
 	$(libibm_la_SOURCES) $(libkodak_la_SOURCES) \
-	$(libkvs1025_la_SOURCES) $(libleo_la_SOURCES) \
-	$(liblexmark_la_SOURCES) $(libma1509_la_SOURCES) \
-	$(libmatsushita_la_SOURCES) $(libmicrotek_la_SOURCES) \
-	$(libmicrotek2_la_SOURCES) $(libmustek_la_SOURCES) \
-	$(libmustek_pp_la_SOURCES) $(libmustek_usb_la_SOURCES) \
-	$(libmustek_usb2_la_SOURCES) $(libnec_la_SOURCES) \
-	$(libnet_la_SOURCES) $(libniash_la_SOURCES) \
-	$(libp5_la_SOURCES) $(libpie_la_SOURCES) $(libpint_la_SOURCES) \
+	$(libkvs1025_la_SOURCES) $(libkvs20xx_la_SOURCES) \
+	$(libleo_la_SOURCES) $(liblexmark_la_SOURCES) \
+	$(libma1509_la_SOURCES) $(libmatsushita_la_SOURCES) \
+	$(libmicrotek_la_SOURCES) $(libmicrotek2_la_SOURCES) \
+	$(libmustek_la_SOURCES) $(libmustek_pp_la_SOURCES) \
+	$(libmustek_usb_la_SOURCES) $(libmustek_usb2_la_SOURCES) \
+	$(libnec_la_SOURCES) $(libnet_la_SOURCES) \
+	$(libniash_la_SOURCES) $(libp5_la_SOURCES) \
+	$(libpie_la_SOURCES) $(libpint_la_SOURCES) \
 	$(libpixma_la_SOURCES) $(libplustek_la_SOURCES) \
 	$(libplustek_pp_la_SOURCES) $(libpnm_la_SOURCES) \
 	$(libqcam_la_SOURCES) $(libricoh_la_SOURCES) \
@@ -1751,7 +1769,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libhp3500.la libhp3900.la libhp4200.la \
     libhp5400.la libhp5590.la libhpljm1005.la \
     libhpsj5s.la libhs2p.la libibm.la libkodak.la \
-    libkvs1025.la \
+    libkvs1025.la libkvs20xx.la \
     libleo.la liblexmark.la libma1509.la \
     libmatsushita.la libmicrotek.la libmicrotek2.la \
     libmustek.la libmustek_pp.la libmustek_usb.la \
@@ -1785,7 +1803,7 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-hp3500.la libsane-hp3900.la libsane-hp4200.la \
     libsane-hp5400.la libsane-hp5590.la libsane-hpljm1005.la \
     libsane-hpsj5s.la libsane-hs2p.la libsane-ibm.la libsane-kodak.la \
-    libsane-kvs1025.la \
+    libsane-kvs1025.la libsane-kvs20xx.la \
     libsane-leo.la libsane-lexmark.la libsane-ma1509.la \
     libsane-matsushita.la libsane-microtek.la libsane-microtek2.la \
     libsane-mustek.la libsane-mustek_pp.la libsane-mustek_usb.la \
@@ -2067,6 +2085,14 @@ nodist_libsane_kvs1025_la_SOURCES = kvs1025-s.c
 libsane_kvs1025_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs1025
 libsane_kvs1025_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_kvs1025_la_LIBADD = $(COMMON_LIBS) libkvs1025.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo  $(USB_LIBS) $(RESMGR_LIBS)
+libkvs20xx_la_SOURCES = kvs20xx.c kvs20xx_cmd.c kvs20xx_opt.c \
+ kvs20xx_cmd.h kvs20xx.h 
+
+libkvs20xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs20xx
+nodist_libsane_kvs20xx_la_SOURCES = kvs20xx-s.c
+libsane_kvs20xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs20xx
+libsane_kvs20xx_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_kvs20xx_la_LIBADD = $(COMMON_LIBS) libkvs20xx.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
 libleo_la_SOURCES = leo.c leo.h
 libleo_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=leo
 nodist_libsane_leo_la_SOURCES = leo-s.c
@@ -2538,6 +2564,8 @@ libkodak.la: $(libkodak_la_OBJECTS) $(libkodak_la_DEPENDENCIES)
 	$(LINK)  $(libkodak_la_OBJECTS) $(libkodak_la_LIBADD) $(LIBS)
 libkvs1025.la: $(libkvs1025_la_OBJECTS) $(libkvs1025_la_DEPENDENCIES) 
 	$(LINK)  $(libkvs1025_la_OBJECTS) $(libkvs1025_la_LIBADD) $(LIBS)
+libkvs20xx.la: $(libkvs20xx_la_OBJECTS) $(libkvs20xx_la_DEPENDENCIES) 
+	$(LINK)  $(libkvs20xx_la_OBJECTS) $(libkvs20xx_la_LIBADD) $(LIBS)
 libleo.la: $(libleo_la_OBJECTS) $(libleo_la_DEPENDENCIES) 
 	$(LINK)  $(libleo_la_OBJECTS) $(libleo_la_LIBADD) $(LIBS)
 liblexmark.la: $(liblexmark_la_OBJECTS) $(liblexmark_la_DEPENDENCIES) 
@@ -2668,6 +2696,8 @@ libsane-kodak.la: $(libsane_kodak_la_OBJECTS) $(libsane_kodak_la_DEPENDENCIES)
 	$(libsane_kodak_la_LINK)  $(libsane_kodak_la_OBJECTS) $(libsane_kodak_la_LIBADD) $(LIBS)
 libsane-kvs1025.la: $(libsane_kvs1025_la_OBJECTS) $(libsane_kvs1025_la_DEPENDENCIES) 
 	$(libsane_kvs1025_la_LINK)  $(libsane_kvs1025_la_OBJECTS) $(libsane_kvs1025_la_LIBADD) $(LIBS)
+libsane-kvs20xx.la: $(libsane_kvs20xx_la_OBJECTS) $(libsane_kvs20xx_la_DEPENDENCIES) 
+	$(libsane_kvs20xx_la_LINK)  $(libsane_kvs20xx_la_OBJECTS) $(libsane_kvs20xx_la_LIBADD) $(LIBS)
 libsane-leo.la: $(libsane_leo_la_OBJECTS) $(libsane_leo_la_DEPENDENCIES) 
 	$(libsane_leo_la_LINK)  $(libsane_leo_la_OBJECTS) $(libsane_leo_la_LIBADD) $(LIBS)
 libsane-lexmark.la: $(libsane_lexmark_la_OBJECTS) $(libsane_lexmark_la_DEPENDENCIES) 
@@ -2865,6 +2895,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkvs1025_la-kvs1025_low.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkvs1025_la-kvs1025_opt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkvs1025_la-kvs1025_usb.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkvs20xx_la-kvs20xx.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkvs20xx_la-kvs20xx_cmd.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkvs20xx_la-kvs20xx_opt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libleo_la-leo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblexmark_la-lexmark.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblexmark_la-lexmark_low.Plo@am__quote@
@@ -2939,6 +2972,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_ibm_la-ibm-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_kodak_la-kodak-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_kvs1025_la-kvs1025-s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_kvs20xx_la-kvs20xx-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_la-dll-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_leo_la-leo-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_lexmark_la-lexmark-s.Plo@am__quote@
@@ -3474,6 +3508,27 @@ libkvs1025_la-kvs1025_usb.lo: kvs1025_usb.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkvs1025_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libkvs1025_la-kvs1025_usb.lo `test -f 'kvs1025_usb.c' || echo '$(srcdir)/'`kvs1025_usb.c
 
+libkvs20xx_la-kvs20xx.lo: kvs20xx.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkvs20xx_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libkvs20xx_la-kvs20xx.lo -MD -MP -MF $(DEPDIR)/libkvs20xx_la-kvs20xx.Tpo -c -o libkvs20xx_la-kvs20xx.lo `test -f 'kvs20xx.c' || echo '$(srcdir)/'`kvs20xx.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkvs20xx_la-kvs20xx.Tpo $(DEPDIR)/libkvs20xx_la-kvs20xx.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='kvs20xx.c' object='libkvs20xx_la-kvs20xx.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkvs20xx_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libkvs20xx_la-kvs20xx.lo `test -f 'kvs20xx.c' || echo '$(srcdir)/'`kvs20xx.c
+
+libkvs20xx_la-kvs20xx_cmd.lo: kvs20xx_cmd.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkvs20xx_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libkvs20xx_la-kvs20xx_cmd.lo -MD -MP -MF $(DEPDIR)/libkvs20xx_la-kvs20xx_cmd.Tpo -c -o libkvs20xx_la-kvs20xx_cmd.lo `test -f 'kvs20xx_cmd.c' || echo '$(srcdir)/'`kvs20xx_cmd.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkvs20xx_la-kvs20xx_cmd.Tpo $(DEPDIR)/libkvs20xx_la-kvs20xx_cmd.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='kvs20xx_cmd.c' object='libkvs20xx_la-kvs20xx_cmd.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkvs20xx_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libkvs20xx_la-kvs20xx_cmd.lo `test -f 'kvs20xx_cmd.c' || echo '$(srcdir)/'`kvs20xx_cmd.c
+
+libkvs20xx_la-kvs20xx_opt.lo: kvs20xx_opt.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkvs20xx_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libkvs20xx_la-kvs20xx_opt.lo -MD -MP -MF $(DEPDIR)/libkvs20xx_la-kvs20xx_opt.Tpo -c -o libkvs20xx_la-kvs20xx_opt.lo `test -f 'kvs20xx_opt.c' || echo '$(srcdir)/'`kvs20xx_opt.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkvs20xx_la-kvs20xx_opt.Tpo $(DEPDIR)/libkvs20xx_la-kvs20xx_opt.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='kvs20xx_opt.c' object='libkvs20xx_la-kvs20xx_opt.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkvs20xx_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libkvs20xx_la-kvs20xx_opt.lo `test -f 'kvs20xx_opt.c' || echo '$(srcdir)/'`kvs20xx_opt.c
+
 libleo_la-leo.lo: leo.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libleo_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libleo_la-leo.lo -MD -MP -MF $(DEPDIR)/libleo_la-leo.Tpo -c -o libleo_la-leo.lo `test -f 'leo.c' || echo '$(srcdir)/'`leo.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libleo_la-leo.Tpo $(DEPDIR)/libleo_la-leo.Plo
@@ -3991,6 +4046,13 @@ libsane_kvs1025_la-kvs1025-s.lo: kvs1025-s.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='kvs1025-s.c' object='libsane_kvs1025_la-kvs1025-s.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_kvs1025_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsane_kvs1025_la-kvs1025-s.lo `test -f 'kvs1025-s.c' || echo '$(srcdir)/'`kvs1025-s.c
+
+libsane_kvs20xx_la-kvs20xx-s.lo: kvs20xx-s.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_kvs20xx_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsane_kvs20xx_la-kvs20xx-s.lo -MD -MP -MF $(DEPDIR)/libsane_kvs20xx_la-kvs20xx-s.Tpo -c -o libsane_kvs20xx_la-kvs20xx-s.lo `test -f 'kvs20xx-s.c' || echo '$(srcdir)/'`kvs20xx-s.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libsane_kvs20xx_la-kvs20xx-s.Tpo $(DEPDIR)/libsane_kvs20xx_la-kvs20xx-s.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='kvs20xx-s.c' object='libsane_kvs20xx_la-kvs20xx-s.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_kvs20xx_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsane_kvs20xx_la-kvs20xx-s.lo `test -f 'kvs20xx-s.c' || echo '$(srcdir)/'`kvs20xx-s.c
 
 libsane_leo_la-leo-s.lo: leo-s.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_leo_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsane_leo_la-leo-s.lo -MD -MP -MF $(DEPDIR)/libsane_leo_la-leo-s.Tpo -c -o libsane_leo_la-leo-s.lo `test -f 'leo-s.c' || echo '$(srcdir)/'`leo-s.c

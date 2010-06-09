@@ -1,4 +1,8 @@
 2010-06-09 m. allan noah <kitno455 at gmail dot com>
+	* backend/kvs20xx*, Makefiles, confs and docs:
+	- Add new kvs20xx backend from Panasonic, for KV-S202xC and KV-S204xC
+
+2010-06-09 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.[ch]: backend v100:
 	- store more Request Sense data in scanner struct
 	- clear Request Sense data at start of every do_cmd() call

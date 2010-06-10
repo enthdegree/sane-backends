@@ -6922,7 +6922,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     {
       sprintf (tmp_str, "%s/.sane/%s.cal", ptr, s->dev->model->name);
     }
-  FREE_IFNOT_NULL (s->dev->calib_file);
+  
   s->dev->calib_file = strdup (tmp_str);
   DBG (DBG_info, "Calibration filename set to:\n");
   DBG (DBG_info, ">%s<\n", s->dev->calib_file);
@@ -6980,6 +6980,7 @@ sane_close (SANE_Handle handle)
   sanei_genesys_buffer_free (&(s->dev->out_buffer));
   FREE_IFNOT_NULL (s->dev->white_average_data);
   FREE_IFNOT_NULL (s->dev->dark_average_data);
+  FREE_IFNOT_NULL (s->dev->calib_file);
 
   /* free allocated gamma tables */
   FREE_IFNOT_NULL (s->dev->sensor.red_gamma_table);

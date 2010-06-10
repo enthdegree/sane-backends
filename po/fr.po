@@ -10,11 +10,41 @@
 #      no Back-Cover.
 #      A copy of the license is included in the section entitled "GNU
 #      Free Documentation License".
+#
+# ####################################################
+# YEM-20100606 : Updates
+# ----------------------------------------------------
+# YEM-20080115 : Fixes from Stef and Patrick. Thanks!
+# ----------------------------------------------------
+# YEM-20080112 : Updates for sane-backends 1.0.19
+# 100% translated
+# ----------------------------------------------------
+# YEM-20030511 : Acknowledgements
+# Thanks to all that helped on this update : now
+# reaching 97.2% complete with no fuzzyness!
+# ----------------------------------------------------
+# YEM-20030504 : Updates for sane-backends 1.0.12
+# ----------------------------------------------------
+# YEM-20030225 : Acknowledgements
+# Thanks to all that helped on translations, those are:
+# Henning, Stef and Frank!
+# ----------------------------------------------------
+# YEM-20030216 : Notes on translations
+# In french, the word 'numériseur' that is the correct translation for
+# 'scanner' is less and less used, in favor of the english word. Therefore I
+# won't translate it.
+# On the other hand, the verb 'to scan' is correctly translated into
+# 'numériser', and I'll use that.
+# ----------------------------------------------------
+# Some words pertaining to methods (such as dithering) won't be translated
+# for the simple reason there is no single word, to my knowledge, that fit.
+# I'll keep the english there as well.
+# ####################################################
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.19\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-27 20:43-0500\n"
+"POT-Creation-Date: 2010-06-05 22:25+0200\n"
 "PO-Revision-Date: 2008-01-17 22:25+0100\n"
 "Last-Translator: Yann E. MORIN <yann dot morin dot 1998 at anciens dot "
 "enib dot fr>\n"
@@ -32,13 +62,13 @@ msgstr "Nombre d'options"
 #: ../include/sane/saneopts.h:156
 #, no-c-format
 msgid "Standard"
-msgstr ""
+msgstr "Général"
 
 #: ../include/sane/saneopts.h:157 ../backend/artec_eplus48u.c:2884
 #: ../backend/epson.c:3284 ../backend/epson2.c:1269
-#: ../backend/genesys.c:5527 ../backend/gt68xx.c:703
+#: ../backend/genesys.c:5992 ../backend/gt68xx.c:703
 #: ../backend/hp3500.c:975 ../backend/hp-option.c:3297
-#: ../backend/leo.c:823 ../backend/lexmark.c:189 ../backend/ma1509.c:551
+#: ../backend/leo.c:823 ../backend/lexmark.c:190 ../backend/ma1509.c:551
 #: ../backend/matsushita.c:1135 ../backend/microtek2.h:599
 #: ../backend/mustek.c:4363 ../backend/mustek_usb.c:305
 #: ../backend/mustek_usb2.c:465 ../backend/pixma_sane_options.c:144
@@ -52,7 +82,7 @@ msgid "Geometry"
 msgstr "Aire de numérisation"
 
 #: ../include/sane/saneopts.h:158 ../backend/artec_eplus48u.c:2805
-#: ../backend/canon.c:1492 ../backend/genesys.c:5578
+#: ../backend/canon.c:1492 ../backend/genesys.c:6052
 #: ../backend/gt68xx.c:672 ../backend/hp-option.c:2953
 #: ../backend/leo.c:871 ../backend/ma1509.c:599
 #: ../backend/matsushita.c:1189 ../backend/microtek2.h:600
@@ -68,7 +98,7 @@ msgid "Enhancement"
 msgstr "Réglages fins"
 
 #: ../include/sane/saneopts.h:159 ../backend/epson.c:3183
-#: ../backend/epson2.c:1194 ../backend/rts8891.c:2766
+#: ../backend/epson2.c:1194 ../backend/rts8891.c:2792
 #: ../backend/snapscan-options.c:816 ../backend/umax.c:5565
 #, no-c-format
 msgid "Advanced"
@@ -77,7 +107,7 @@ msgstr "Avancé"
 #: ../include/sane/saneopts.h:160
 #, no-c-format
 msgid "Sensors"
-msgstr ""
+msgstr "Capteurs"
 
 #: ../include/sane/saneopts.h:162
 #, no-c-format
@@ -153,12 +183,12 @@ msgstr "Echantillonnage Y"
 #: ../include/sane/saneopts.h:176
 #, no-c-format
 msgid "Page width"
-msgstr ""
+msgstr "Largeur de la page"
 
 #: ../include/sane/saneopts.h:177
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Page height"
-msgstr "Contraste"
+msgstr "Hauteur de la page"
 
 #: ../include/sane/saneopts.h:178
 #, no-c-format
@@ -434,29 +464,30 @@ msgstr ""
 "périphérique spécifique."
 
 #: ../include/sane/saneopts.h:248
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Source, mode and resolution options"
-msgstr "Liste réduite de résolutions"
+msgstr "Options pour la source, le mode et la résolution"
 
 #: ../include/sane/saneopts.h:249
 #, no-c-format
 msgid "Scan area and media size options"
 msgstr ""
+"Options de la zone de numérisation et la taille de l'image à numériser"
 
 #: ../include/sane/saneopts.h:250
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Image modification options"
-msgstr "Nombre d'options"
+msgstr "Options modifiant l'image"
 
 #: ../include/sane/saneopts.h:251
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Hardware specific options"
-msgstr "Echantillonnage matériel"
+msgstr "Options spécifiques au matériel"
 
 #: ../include/sane/saneopts.h:252
 #, no-c-format
 msgid "Scanner sensors and buttons"
-msgstr ""
+msgstr "Capteurs et boutons du scanner"
 
 #: ../include/sane/saneopts.h:255
 #, no-c-format
@@ -471,8 +502,8 @@ msgid ""
 "scanner, it reduces the memory requirements and scan-time of the preview."
 msgstr ""
 "Requière que toutes les prévisualisations soient faites en monochrome. "
-"Sur un numériseur à 3 passes, cela réduit le nombre de passes à 1. Sur "
-"un numériseur à 1 passe, cela réduit l'espace mémoire nécessaire et le "
+"Sur un scanner à 3 passes, cela réduit le nombre de passes à 1. Sur "
+"un scanner à 1 passe, cela réduit l'espace mémoire nécessaire et le "
 "temps de numérisation de la prévisualisation."
 
 #: ../include/sane/saneopts.h:264
@@ -549,18 +580,20 @@ msgid ""
 "Specifies the width of the media.  Required for automatic centering of "
 "sheet-fed scans."
 msgstr ""
+"Spécifie la largeur de la source. Requis pour le centrage automatique "
+"des numérisations effectuées à partir du chargeur automatique."
 
 #: ../include/sane/saneopts.h:305
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Specifies the height of the media."
-msgstr "Choisit la résolution de l'image à numériser"
+msgstr "Spécifie la hauteur de la source."
 
 #: ../include/sane/saneopts.h:308
 #, no-c-format
 msgid ""
 "Determines whether a builtin or a custom gamma-table should be used."
 msgstr ""
-"Détermine si une table gamma standard ou personnalisée doit etre "
+"Détermine si une table gamma standard ou personnalisée doit être "
 "utilisée."
 
 #: ../include/sane/saneopts.h:312
@@ -847,44 +880,44 @@ msgid "Turn off lamp when program exits"
 msgstr "Eteindre la lampe à la sortie du programme"
 
 #: ../include/sane/saneopts.h:444
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scan button"
-msgstr "Echantillonnage"
+msgstr "Bouton 'numérisation'"
 
 #: ../include/sane/saneopts.h:445
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Email button"
-msgstr "Attendre le bouton"
+msgstr "Bouton 'courier électronique'"
 
 #: ../include/sane/saneopts.h:446
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Fax button"
-msgstr "Attendre le bouton"
+msgstr "Bouton 'Fax'"
 
 #: ../include/sane/saneopts.h:447
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Copy button"
-msgstr "Attendre le bouton"
+msgstr "Bouton 'copie'"
 
 #: ../include/sane/saneopts.h:448
 #, no-c-format
 msgid "PDF button"
-msgstr ""
+msgstr "Bouton 'PDF'"
 
 #: ../include/sane/saneopts.h:449
 #, no-c-format
 msgid "Cancel button"
-msgstr ""
+msgstr "Bouton 'annuler'"
 
 #: ../include/sane/saneopts.h:450
 #, no-c-format
 msgid "Page loaded"
-msgstr ""
+msgstr "Page chargée"
 
 #: ../include/sane/saneopts.h:451
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Cover open"
-msgstr "Couvercle du chargeur automatique ouvert"
+msgstr "Couvercle ouvert"
 
 #: ../include/sane/saneopts.h:454
 #, no-c-format
@@ -911,33 +944,6 @@ msgstr "Gris"
 msgid "Halftone"
 msgstr "Demi-teinte"
 
-# ####################################################
-# YEM-20080115 : Fixes from Stef and Patrick. Thanks!
-# ----------------------------------------------------
-# YEM-20080112 : Updates for sane-backends 1.0.19
-# 100% translated
-# ----------------------------------------------------
-# YEM-20030511 : Acknowledgements
-# Thanks to all that helped on this update : now
-# reaching 97.2% complete with no fuzzyness!
-# ----------------------------------------------------
-# YEM-20030504 : Updates for sane-backends 1.0.12
-# ----------------------------------------------------
-# YEM-20030225 : Acknowledgements
-# Thanks to all that helped on translations, those are:
-# Henning, Stef and Frank!
-# ----------------------------------------------------
-# YEM-20030216 : Notes on translations
-# In french, the word 'numériseur' that is the correct translation for
-# 'scanner' is less and less used, in favor of the english word. Therefore I
-# won't translate it.
-# On the other hand, the verb 'to scan' is correctly translated into
-# 'numériser', and I'll use that.
-# ----------------------------------------------------
-# Some words pertaining to methods (such as dithering) won't be translated
-# for the simple reason there is no single word, to my knowledge, that fit.
-# I'll keep the english there as well.
-# ####################################################
 #: ../include/sane/saneopts.h:459
 #, no-c-format
 msgid "Lineart"
@@ -946,72 +952,73 @@ msgstr "Trait"
 #: ../backend/sane_strstatus.c:59
 #, no-c-format
 msgid "Success"
-msgstr ""
+msgstr "Succès"
 
 #: ../backend/sane_strstatus.c:62
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Operation not supported"
-msgstr "Demi-teinte non-supportée"
+msgstr "Opération non-supportée"
 
 #: ../backend/sane_strstatus.c:65
 #, no-c-format
 msgid "Operation was cancelled"
-msgstr ""
+msgstr "Opération annulée"
 
 #: ../backend/sane_strstatus.c:68
 #, no-c-format
 msgid "Device busy"
-msgstr ""
+msgstr "Périphérique occupé"
 
 #: ../backend/sane_strstatus.c:71
 #, no-c-format
 msgid "Invalid argument"
-msgstr ""
+msgstr "Argument incorrect"
 
 #: ../backend/sane_strstatus.c:74
 #, no-c-format
 msgid "End of file reached"
-msgstr ""
+msgstr "Fin de fichier atteinte"
 
 #: ../backend/sane_strstatus.c:77
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Document feeder jammed"
-msgstr "Chargeur automatique de document, options avancées"
+msgstr "Bourrage dans le chargeur automatique de documents"
 
 #: ../backend/sane_strstatus.c:80
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Document feeder out of documents"
-msgstr "Chargeur automatique de document, options avancées"
+msgstr "Chargeur automatique de documents vide"
 
 #: ../backend/sane_strstatus.c:83
-#, fuzzy, no-c-format
+#,  no-c-format
 msgid "Scanner cover is open"
-msgstr "Couvercle du chargeur automatique ouvert"
+msgstr "Couvercle du scanner ouvert"
 
 #: ../backend/sane_strstatus.c:86
 #, no-c-format
 msgid "Error during device I/O"
-msgstr ""
+msgstr "Erreur d'entrée-sortie"
 
 #: ../backend/sane_strstatus.c:89
 #, no-c-format
 msgid "Out of memory"
-msgstr ""
+msgstr "A court de mémoire"
 
 #: ../backend/sane_strstatus.c:92
 #, no-c-format
 msgid "Access to resource has been denied"
-msgstr ""
+msgstr "L'accés à la ressource a été refusé"
 
 #: ../backend/sane_strstatus.c:96
 #, no-c-format
 msgid "Lamp not ready, please retry"
-msgstr ""
+msgstr "La lampe n'est pas prète, veuillez ré-essayer"
 
 #: ../backend/sane_strstatus.c:101
 #, no-c-format
 msgid "Scanner mechanism locked for transport"
 msgstr ""
+"Le méchanisme de blocage pour le transport du scanner est vérouillé"
 
 #: ../backend/artec_eplus48u.c:2874 ../backend/pnm.c:282
 #, no-c-format
@@ -1592,12 +1599,11 @@ msgid "Select the film type"
 msgstr "Sélectionne le type de film"
 
 #: ../backend/canon_dr.c:319 ../backend/epjitsu.c:203
-#: ../backend/epson.c:501 ../backend/epson2.c:110 ../backend/fujitsu.c:517
-#: ../backend/genesys.c:117 ../backend/gt68xx.c:148
-#: ../backend/hp3900_sane.c:418 ../backend/hp3900_sane.c:427
-#: ../backend/hp3900_sane.c:1017 ../backend/hp5590.c:82
-#: ../backend/ma1509.c:108 ../backend/mustek.c:156 ../backend/mustek.c:160
-#: ../backend/mustek.c:164 ../backend/pixma.c:658
+#: ../backend/epson.c:501 ../backend/epson2.c:110 ../backend/fujitsu.c:523
+#: ../backend/gt68xx.c:148 ../backend/hp3900_sane.c:418
+#: ../backend/hp3900_sane.c:427 ../backend/hp3900_sane.c:1017
+#: ../backend/hp5590.c:82 ../backend/ma1509.c:108 ../backend/mustek.c:156
+#: ../backend/mustek.c:160 ../backend/mustek.c:164 ../backend/pixma.c:658
 #: ../backend/pixma_sane_options.c:85 ../backend/snapscan-options.c:82
 #: ../backend/test.c:192 ../backend/umax.c:181
 #, no-c-format
@@ -1605,28 +1611,28 @@ msgid "Flatbed"
 msgstr "A plat"
 
 #: ../backend/canon_dr.c:320 ../backend/epjitsu.c:204
-#: ../backend/fujitsu.c:518 ../backend/kodak.c:135
-#, fuzzy, no-c-format
+#: ../backend/fujitsu.c:524 ../backend/kodak.c:135
+#, no-c-format
 msgid "ADF Front"
-msgstr "Couvercle du chargeur automatique ouvert"
+msgstr "Chargeur automatique de documents, recto"
 
 #: ../backend/canon_dr.c:321 ../backend/epjitsu.c:205
-#: ../backend/fujitsu.c:519 ../backend/kodak.c:136
-#, fuzzy, no-c-format
+#: ../backend/fujitsu.c:525 ../backend/kodak.c:136
+#, no-c-format
 msgid "ADF Back"
-msgstr "Bourrage du chargeur automatique"
+msgstr "Chargeur automatique de documents, verso"
 
 #: ../backend/canon_dr.c:322 ../backend/epjitsu.c:206
-#: ../backend/fujitsu.c:520 ../backend/kodak.c:137 ../backend/hp5590.c:84
+#: ../backend/fujitsu.c:526 ../backend/kodak.c:137 ../backend/hp5590.c:84
 #: ../backend/pixma.c:669
 #, no-c-format
 msgid "ADF Duplex"
-msgstr "Chargeur automatique de documents recto-verso"
+msgstr "Chargeur automatique de documents, recto-verso"
 
 #: ../backend/canon_dr.c:329 ../backend/epson.c:599
 #: ../backend/epson.c:3082 ../backend/epson2.c:195
-#: ../backend/fujitsu.c:537 ../backend/genesys.c:102
-#: ../backend/genesys.c:109 ../backend/gt68xx_low.h:136
+#: ../backend/fujitsu.c:543 ../backend/genesys.c:100
+#: ../backend/genesys.c:107 ../backend/gt68xx_low.h:136
 #: ../backend/hp-option.c:3093
 #, no-c-format
 msgid "Red"
@@ -1634,8 +1640,8 @@ msgstr "Rouge"
 
 #: ../backend/canon_dr.c:330 ../backend/epson.c:600
 #: ../backend/epson.c:3078 ../backend/epson2.c:196
-#: ../backend/fujitsu.c:538 ../backend/genesys.c:103
-#: ../backend/genesys.c:110 ../backend/gt68xx_low.h:137
+#: ../backend/fujitsu.c:544 ../backend/genesys.c:101
+#: ../backend/genesys.c:108 ../backend/gt68xx_low.h:137
 #: ../backend/hp-option.c:3094
 #, no-c-format
 msgid "Green"
@@ -1643,33 +1649,33 @@ msgstr "Vert"
 
 #: ../backend/canon_dr.c:331 ../backend/epson.c:601
 #: ../backend/epson.c:3086 ../backend/epson2.c:197
-#: ../backend/fujitsu.c:539 ../backend/genesys.c:104
-#: ../backend/genesys.c:111 ../backend/gt68xx_low.h:138
+#: ../backend/fujitsu.c:545 ../backend/genesys.c:102
+#: ../backend/genesys.c:109 ../backend/gt68xx_low.h:138
 #: ../backend/hp-option.c:3095
 #, no-c-format
 msgid "Blue"
 msgstr "Bleu"
 
 #: ../backend/canon_dr.c:332
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enhance Red"
-msgstr "Réglages fins"
+msgstr "Augmente le rouge"
 
 #: ../backend/canon_dr.c:333
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enhance Green"
-msgstr "Réglages fins"
+msgstr "Augmente le vert"
 
 #: ../backend/canon_dr.c:334
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enhance Blue"
-msgstr "Réglages fins"
+msgstr "Augmente le bleu"
 
 #: ../backend/canon_dr.c:336 ../backend/epson.c:556 ../backend/epson.c:564
 #: ../backend/epson.c:576 ../backend/epson.c:598 ../backend/epson2.c:159
 #: ../backend/epson2.c:167 ../backend/epson2.c:179 ../backend/epson2.c:194
-#: ../backend/epson2.c:208 ../backend/fujitsu.c:543
-#: ../backend/genesys.c:112 ../backend/leo.c:109
+#: ../backend/epson2.c:208 ../backend/fujitsu.c:549
+#: ../backend/genesys.c:110 ../backend/leo.c:109
 #: ../backend/matsushita.c:138 ../backend/matsushita.c:159
 #: ../backend/matsushita.c:191 ../backend/matsushita.c:213
 #: ../backend/snapscan-options.c:87
@@ -1677,10 +1683,10 @@ msgstr "Réglages fins"
 msgid "None"
 msgstr "Aucun(e)"
 
-#: ../backend/canon_dr.c:337 ../backend/fujitsu.c:544
+#: ../backend/canon_dr.c:337 ../backend/fujitsu.c:550
 #, no-c-format
 msgid "JPEG"
-msgstr ""
+msgstr "JPEG"
 
 #: ../backend/epson.c:491 ../backend/epson2.c:103
 #, no-c-format
@@ -1811,7 +1817,7 @@ msgstr "Imprimantes à jet d'encre"
 msgid "CRT monitors"
 msgstr "Moniteurs à tube cathodique"
 
-#: ../backend/epson.c:656 ../backend/epson2.c:248 ../backend/fujitsu.c:527
+#: ../backend/epson.c:656 ../backend/epson2.c:248 ../backend/fujitsu.c:533
 #: ../backend/hp-option.c:3226 ../backend/test.c:143
 #, no-c-format
 msgid "Default"
@@ -1873,7 +1879,7 @@ msgid "Max"
 msgstr "Max"
 
 #: ../backend/epson.c:2799 ../backend/epson2.c:954
-#: ../backend/genesys.c:5458 ../backend/gt68xx.c:458
+#: ../backend/genesys.c:5923 ../backend/gt68xx.c:458
 #: ../backend/hp-option.c:2914 ../backend/ma1509.c:501
 #: ../backend/matsushita.c:1084 ../backend/microtek2.h:598
 #: ../backend/mustek.c:4205 ../backend/mustek_usb.c:260
@@ -2137,7 +2143,7 @@ msgstr ""
 #: ../backend/epson2.c:97
 #, no-c-format
 msgid "Infrared"
-msgstr ""
+msgstr "Infra-rouge"
 
 #: ../backend/epson2.c:130
 #, no-c-format
@@ -2152,167 +2158,162 @@ msgstr "Diapositive négative"
 #: ../backend/epson2.c:209
 #, no-c-format
 msgid "Built in CCT profile"
-msgstr ""
+msgstr "Profil de température de couleurs interne"
 
 #: ../backend/epson2.c:210
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "User defined CCT profile"
-msgstr "Spécifié par l'utilisateur"
+msgstr "Profil de température de couleurs utilsateur"
 
-#: ../backend/fujitsu.c:528 ../backend/hp-option.c:3327
+#: ../backend/fujitsu.c:534 ../backend/hp-option.c:3327
 #: ../backend/hp-option.c:3340
 #, no-c-format
 msgid "On"
 msgstr "Activé"
 
-#: ../backend/fujitsu.c:529 ../backend/hp-option.c:3159
+#: ../backend/fujitsu.c:535 ../backend/hp-option.c:3159
 #: ../backend/hp-option.c:3326 ../backend/hp-option.c:3339
 #, no-c-format
 msgid "Off"
 msgstr "Aucun"
 
-#: ../backend/fujitsu.c:531
+#: ../backend/fujitsu.c:537
 #, no-c-format
 msgid "DTC"
-msgstr ""
+msgstr "Seuil dynamique (DTC)"
 
-#: ../backend/fujitsu.c:532
+#: ../backend/fujitsu.c:538
 #, no-c-format
 msgid "SDTC"
-msgstr ""
+msgstr "Seuil dynamique simplifié (SDTC)"
 
-#: ../backend/fujitsu.c:534 ../backend/teco1.c:1152
+#: ../backend/fujitsu.c:540 ../backend/teco1.c:1152
 #: ../backend/teco1.c:1153 ../backend/teco2.c:1971 ../backend/teco2.c:1972
 #: ../backend/teco3.c:977 ../backend/teco3.c:978
 #, no-c-format
 msgid "Dither"
 msgstr "Tramage"
 
-#: ../backend/fujitsu.c:535
-#, fuzzy, no-c-format
+#: ../backend/fujitsu.c:541
+#, no-c-format
 msgid "Diffusion"
 msgstr "Diffusion d'erreur"
 
-#: ../backend/fujitsu.c:540
-#, fuzzy, no-c-format
-msgid "White"
-msgstr "Niveau blanc"
-
-#: ../backend/fujitsu.c:541
-#, fuzzy, no-c-format
-msgid "Black"
-msgstr "Niveau noir"
-
 #: ../backend/fujitsu.c:546
-#, fuzzy, no-c-format
-msgid "Continue"
-msgstr "Conditionnel"
+#, no-c-format
+msgid "White"
+msgstr "Blanc"
 
 #: ../backend/fujitsu.c:547
 #, no-c-format
-msgid "Stop"
-msgstr ""
+msgid "Black"
+msgstr "Noir"
 
-#: ../backend/fujitsu.c:549
+#: ../backend/fujitsu.c:552
+#, no-c-format
+msgid "Continue"
+msgstr "Continuer"
+
+#: ../backend/fujitsu.c:553
+#, no-c-format
+msgid "Stop"
+msgstr "Arréter"
+
+#: ../backend/fujitsu.c:555
 #, no-c-format
 msgid "10mm"
-msgstr ""
+msgstr "10mm"
 
-#: ../backend/fujitsu.c:550
+#: ../backend/fujitsu.c:556
 #, no-c-format
 msgid "15mm"
-msgstr ""
+msgstr "15mm"
 
-#: ../backend/fujitsu.c:551
+#: ../backend/fujitsu.c:557
 #, no-c-format
 msgid "20mm"
-msgstr ""
+msgstr "20mm"
 
-#: ../backend/fujitsu.c:553 ../backend/hp-option.c:3045
+#: ../backend/fujitsu.c:559 ../backend/hp-option.c:3045
 #, no-c-format
 msgid "Horizontal"
 msgstr "Horizontal"
 
-#: ../backend/fujitsu.c:554
-#, fuzzy, no-c-format
+#: ../backend/fujitsu.c:560
+#, no-c-format
 msgid "Horizontal bold"
-msgstr "Horizontal"
+msgstr "Horizontal large"
 
-#: ../backend/fujitsu.c:555
-#, fuzzy, no-c-format
+#: ../backend/fujitsu.c:561
+#, no-c-format
 msgid "Horizontal narrow"
-msgstr "Horizontal"
+msgstr "Horizontal étroit"
 
-#: ../backend/fujitsu.c:556 ../backend/hp-option.c:3044
+#: ../backend/fujitsu.c:562 ../backend/hp-option.c:3044
 #, no-c-format
 msgid "Vertical"
 msgstr "Vertical"
 
-#: ../backend/fujitsu.c:557
-#, fuzzy, no-c-format
-msgid "Vertical bold"
-msgstr "Vertical"
-
-#: ../backend/fujitsu.c:559
-#, no-c-format
-msgid "Top to bottom"
-msgstr ""
-
-#: ../backend/fujitsu.c:560
-#, no-c-format
-msgid "Bottom to top"
-msgstr ""
-
-#: ../backend/fujitsu.c:562
-#, fuzzy, no-c-format
-msgid "Front"
-msgstr "Imprimer"
-
 #: ../backend/fujitsu.c:563
 #, no-c-format
-msgid "Back"
-msgstr ""
+msgid "Vertical bold"
+msgstr "Vertical large"
 
-#: ../backend/genesys.c:118 ../backend/gt68xx.c:149
-#: ../backend/ma1509.c:108 ../backend/mustek.c:164
-#: ../backend/snapscan-options.c:83 ../backend/umax.c:182
+#: ../backend/fujitsu.c:565
 #, no-c-format
-msgid "Transparency Adapter"
-msgstr "Adaptateur pour transparents"
+msgid "Top to bottom"
+msgstr "De haut en bas"
 
-#: ../backend/genesys.c:5628
+#: ../backend/fujitsu.c:566
+#, no-c-format
+msgid "Bottom to top"
+msgstr "De bas en haut"
+
+#: ../backend/fujitsu.c:568
+#, no-c-format
+msgid "Front"
+msgstr "Avant"
+
+#: ../backend/fujitsu.c:569
+#, no-c-format
+msgid "Back"
+msgstr "Arrière"
+
+#: ../backend/genesys.c:6102
 #, no-c-format
 msgid "Extras"
 msgstr "Extras"
 
-#: ../backend/genesys.c:5647
-#, fuzzy, no-c-format
+#: ../backend/genesys.c:6121
+#, no-c-format
 msgid "Threshold curve"
-msgstr "Seuil"
+msgstr "Courbe du seuil"
 
-#: ../backend/genesys.c:5648
+#: ../backend/genesys.c:6122
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
-msgstr ""
+msgstr "Courbe dynamique de seuil, de clair à foncé, normallement entre 50-65"
 
-#: ../backend/genesys.c:5657
+#: ../backend/genesys.c:6131
 #, no-c-format
 msgid "Disable dynamic lineart"
-msgstr ""
+msgstr "Désactiver le mode Trait dynamique"
 
-#: ../backend/genesys.c:5660
+#: ../backend/genesys.c:6133
 #, no-c-format
 msgid ""
-"Disabel use of a software adaptative algorithm to generate lineart "
-"instead of relying on hardware lineart"
+"Disable use of a software adaptive algorithm to generate lineart relying "
+"instead on hardware lineart."
 msgstr ""
+"Utilise le mode Trait du matériel, au lieu d'utiliser un algorithme logiciel "
+"adaptatif."
 
-#: ../backend/genesys.c:5675
+#: ../backend/genesys.c:6147
 #, no-c-format
 msgid "Disable interpolation"
 msgstr "Désactiver l'interpolation"
 
-#: ../backend/genesys.c:5678
+#: ../backend/genesys.c:6150
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
@@ -2322,23 +2323,23 @@ msgstr ""
 "plus faible que la résolution verticale, ne pas faire d'interpolation "
 "horizontale."
 
-#: ../backend/genesys.c:5687
+#: ../backend/genesys.c:6159
 #, no-c-format
 msgid "Color Filter"
 msgstr "Filtre de couleur"
 
-#: ../backend/genesys.c:5690
+#: ../backend/genesys.c:6162
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 "En niveaux de gris ou en mode trait, sélectionne la couleur à utiliser."
 
-#: ../backend/genesys.c:5715
+#: ../backend/genesys.c:6187
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Temps avant extinction de la lampe"
 
-#: ../backend/genesys.c:5718
+#: ../backend/genesys.c:6190
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
@@ -2347,59 +2348,66 @@ msgstr ""
 "La lampe sera éteinte après ce laps de temps (en minutes). Entrer 0 pour "
 "ne pas éteindre la lampe automatiquement."
 
-#: ../backend/genesys.c:5747 ../backend/genesys.c:5748
-#, fuzzy, no-c-format
+#: ../backend/genesys.c:6219 ../backend/genesys.c:6220
+#, no-c-format
 msgid "File button"
-msgstr "Attendre le bouton"
+msgstr "Bouton 'fichier'"
 
-#: ../backend/genesys.c:5800 ../backend/genesys.c:5801
+#: ../backend/genesys.c:6272 ../backend/genesys.c:6273
 #, no-c-format
 msgid "OCR button"
-msgstr ""
+msgstr "Bouton 'reconnaissance de caractères (OCR)'"
 
-#: ../backend/genesys.c:5814 ../backend/genesys.c:5815
-#, fuzzy, no-c-format
+#: ../backend/genesys.c:6286 ../backend/genesys.c:6287
+#, no-c-format
 msgid "Power button"
-msgstr "Attendre le bouton"
+msgstr "Bouton 'marche'"
 
-#: ../backend/genesys.c:5828 ../backend/gt68xx.c:762
-#, fuzzy, no-c-format
+#: ../backend/genesys.c:6300 ../backend/gt68xx.c:762
+#, no-c-format
 msgid "Need calibration"
-msgstr "Calibration grossière"
+msgstr "Calibration requise"
 
-#: ../backend/genesys.c:5829 ../backend/gt68xx.c:763
-#, fuzzy, no-c-format
+#: ../backend/genesys.c:6301 ../backend/gt68xx.c:763
+#, no-c-format
 msgid "The scanner needs calibration for the current settings"
-msgstr "Forcer la calibration du scanner avant la numérisation"
+msgstr ""
+"Le scanner a besoin d'être calibré avec les paramètres actuels"
 
-#: ../backend/genesys.c:5842 ../backend/gt68xx.c:787
+#: ../backend/genesys.c:6314 ../backend/gt68xx.c:787
 #: ../backend/gt68xx.c:788 ../backend/pixma_sane_options.c:210
 #: ../backend/plustek.c:1079
 #, no-c-format
 msgid "Buttons"
 msgstr "Boutons"
 
-#: ../backend/genesys.c:5849 ../backend/gt68xx.c:794
+#: ../backend/genesys.c:6321 ../backend/gt68xx.c:794
 #: ../backend/hp5400_sane.c:392 ../backend/hp-option.h:97
 #: ../backend/niash.c:728 ../backend/plustek.c:940
 #, no-c-format
 msgid "Calibrate"
 msgstr "Calibration"
 
-#: ../backend/genesys.c:5851 ../backend/gt68xx.c:796
-#, fuzzy, no-c-format
+#: ../backend/genesys.c:6323 ../backend/gt68xx.c:796
+#, no-c-format
 msgid "Start calibration using special sheet"
-msgstr "Démarrer la calibration."
+msgstr "Démarrer la calibration avec la feuille spéciale"
 
-#: ../backend/genesys.c:5865 ../backend/gt68xx.c:809
-#, fuzzy, no-c-format
+#: ../backend/genesys.c:6337 ../backend/gt68xx.c:809
+#, no-c-format
 msgid "Clear calibration"
-msgstr "Calibration grossière"
+msgstr "Annuler la calibration"
 
-#: ../backend/genesys.c:5866 ../backend/gt68xx.c:810
-#, fuzzy, no-c-format
+#: ../backend/genesys.c:6338 ../backend/gt68xx.c:810
+#, no-c-format
 msgid "Clear calibration cache"
-msgstr "Cache des données de calibration"
+msgstr "Efface le cache des données de calibration"
+
+#: ../backend/gt68xx.c:149 ../backend/ma1509.c:108 ../backend/mustek.c:164
+#: ../backend/snapscan-options.c:83 ../backend/umax.c:182
+#, no-c-format
+msgid "Transparency Adapter"
+msgstr "Adaptateur pour transparents"
 
 #: ../backend/gt68xx.c:477
 #, no-c-format
@@ -3097,55 +3105,55 @@ msgstr "Bayer 8x8"
 msgid "8x8 Vertical Line"
 msgstr "Ligne verticale 8x8"
 
-#: ../backend/lexmark.c:263 ../backend/umax_pp.c:715
+#: ../backend/lexmark.c:264 ../backend/umax_pp.c:715
 #, no-c-format
 msgid "Gain"
 msgstr "Gain"
 
-#: ../backend/lexmark.c:264 ../backend/umax_pp.c:716
+#: ../backend/lexmark.c:265 ../backend/umax_pp.c:716
 #, no-c-format
 msgid "Color channels gain settings"
 msgstr "Réglages de gain des couleurs"
 
-#: ../backend/lexmark.c:273 ../backend/umax_pp.c:723
+#: ../backend/lexmark.c:274 ../backend/umax_pp.c:723
 #, no-c-format
 msgid "Gray gain"
 msgstr "Gain des gris"
 
-#: ../backend/lexmark.c:274 ../backend/umax_pp.c:724
+#: ../backend/lexmark.c:275 ../backend/umax_pp.c:724
 #, no-c-format
 msgid "Sets gray channel gain"
 msgstr "Fixe le gain pour le gris"
 
-#: ../backend/lexmark.c:287 ../backend/plustek.c:1000
+#: ../backend/lexmark.c:288 ../backend/plustek.c:1000
 #: ../backend/umax_pp.c:735
 #, no-c-format
 msgid "Red gain"
 msgstr "Gain des rouges"
 
-#: ../backend/lexmark.c:288 ../backend/umax_pp.c:736
+#: ../backend/lexmark.c:289 ../backend/umax_pp.c:736
 #, no-c-format
 msgid "Sets red channel gain"
 msgstr "Fixe le gain pour le rouge"
 
-#: ../backend/lexmark.c:301 ../backend/plustek.c:1016
+#: ../backend/lexmark.c:302 ../backend/plustek.c:1016
 #: ../backend/umax_pp.c:747
 #, no-c-format
 msgid "Green gain"
 msgstr "Gain des verts"
 
-#: ../backend/lexmark.c:302 ../backend/umax_pp.c:748
+#: ../backend/lexmark.c:303 ../backend/umax_pp.c:748
 #, no-c-format
 msgid "Sets green channel gain"
 msgstr "Fixe le gain pour le vert"
 
-#: ../backend/lexmark.c:315 ../backend/plustek.c:1032
+#: ../backend/lexmark.c:316 ../backend/plustek.c:1032
 #: ../backend/umax_pp.c:759
 #, no-c-format
 msgid "Blue gain"
 msgstr "Gain des bleus"
 
-#: ../backend/lexmark.c:316 ../backend/umax_pp.c:760
+#: ../backend/lexmark.c:317 ../backend/umax_pp.c:760
 #, no-c-format
 msgid "Sets blue channel gain"
 msgstr "Fixe le gain pour le bleu"
@@ -4218,29 +4226,29 @@ msgstr ""
 "Oblige le pilote à renvoyer le code SANE_STATUS_ACCESS_DENIED (acces "
 "refusé) après un appel à sane_read()."
 
-#: ../backend/rts8891.c:2744
-#, fuzzy, no-c-format
+#: ../backend/rts8891.c:2770
+#, no-c-format
 msgid "This option reflects the status of a scanner button."
-msgstr "Cette option affiche l'état des boutons du scanner."
+msgstr "Cette option affiche l'état d'un bouton du scanner."
 
-#: ../backend/rts8891.c:2775 ../backend/umax.c:5795
+#: ../backend/rts8891.c:2801 ../backend/umax.c:5795
 #: ../backend/umax_pp.c:639
 #, no-c-format
 msgid "Lamp on"
 msgstr "Lampe allumée"
 
-#: ../backend/rts8891.c:2776 ../backend/umax.c:5796
+#: ../backend/rts8891.c:2802 ../backend/umax.c:5796
 #, no-c-format
 msgid "Turn on scanner lamp"
 msgstr "Allume la lampe du scanner"
 
-#: ../backend/rts8891.c:2786 ../backend/umax1220u.c:248
+#: ../backend/rts8891.c:2812 ../backend/umax1220u.c:248
 #: ../backend/umax.c:5812
 #, no-c-format
 msgid "Lamp off"
 msgstr "Lampe éteinte"
 
-#: ../backend/rts8891.c:2787 ../backend/umax1220u.c:249
+#: ../backend/rts8891.c:2813 ../backend/umax1220u.c:249
 #: ../backend/umax.c:5813
 #, no-c-format
 msgid "Turn off scanner lamp"

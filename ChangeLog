@@ -1,3 +1,7 @@
+2010-06-10 m. allan noah <kitno455 at gmail dot com>
+	* backend/niash.c: patch for HP3300 from Yves Jeanrenaud
+	* po/fr.po: updates from Yann E. MORIN
+
 2010-06-10 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl847.c:
 	LiDE 100 motor settings rework

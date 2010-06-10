@@ -1817,7 +1817,7 @@ independent of our calculated values:
   if (used_pixels * xres < pixels * optical_res)
     used_pixels++;
 
-  dummy = 0;
+  dummy = 3-channels;
 
 /* slope_dpi */
 /* cis color scan is effectively a gray scan with 3 gray lines per color
@@ -1830,9 +1830,9 @@ independent of our calculated values:
   slope_dpi = slope_dpi * (1 + dummy);
 
   /* scan_step_type */
-  if (slope_dpi * 4 <= dev->motor.base_ydpi || dev->motor.max_step_type <= 0)
+  if (yres * 4 <= dev->motor.base_ydpi || dev->motor.max_step_type <= 0)
     scan_step_type = 0;
-  else if (slope_dpi * 4 <= dev->motor.base_ydpi * 2
+  else if (yres * 4 <= dev->motor.base_ydpi * 2
 	   || dev->motor.max_step_type <= 1)
     scan_step_type = 1;
   else
@@ -1841,9 +1841,12 @@ independent of our calculated values:
   /* exposure_time , CCD case not handled */
   led_exposure = gl847_get_led_exposure (dev);
 
-  pixels_exposure=224+dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset+dev->sensor.sensor_pixels;
-  pixels_exposure=(pixels*xres)/dev->sensor.optical_res;
-  pixels_exposure=0;
+  pixels_exposure=10848;
+  if(xres<dev->sensor.optical_res)
+    pixels_exposure=(pixels_exposure*xres)/dev->sensor.optical_res-32;
+  else
+    pixels_exposure=0;
+
 
   exposure_time = sanei_genesys_exposure_time2 (dev,
 						slope_dpi,
@@ -2213,7 +2216,7 @@ dummy \ scanned lines
   15: R G B - - - - - - - - - - - - - - - R ...
  -- pierre
  */
-  dummy = 0;
+  dummy = 3-channels;
 
 /* slope_dpi */
 /* cis color scan is effectively a gray scan with 3 gray lines per color
@@ -2239,9 +2242,11 @@ dummy \ scanned lines
 
   led_exposure = gl847_get_led_exposure (dev);
 
-  pixels_exposure=224+dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset+dev->sensor.sensor_pixels;
-  pixels_exposure=(pixels*xres)/dev->sensor.optical_res;
-  pixels_exposure=0;
+  pixels_exposure=10848;
+  if(xres<dev->sensor.optical_res)
+    pixels_exposure=(pixels_exposure*xres)/dev->sensor.optical_res-32;
+  else
+    pixels_exposure=0;
 
 /* exposure_time */
   exposure_time = sanei_genesys_exposure_time2 (dev,
@@ -3442,7 +3447,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
 
   /* at high res we do fast move to scan area */
-  if(dev->settings.xres>200)
+  if(dev->settings.xres>300)
     {
       status = gl847_feed (dev, move);
       if (status != SANE_STATUS_GOOD)
@@ -4322,6 +4327,60 @@ gl847_cold_boot (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+/** @brief dummy scan at 150 to warm scanner
+ *
+ * */
+static SANE_Status
+gl847_warm_scan (Genesys_Device * dev)
+{
+  SANE_Status status;
+  size_t size;
+  uint8_t *line;
+  float pixels;
+  int dpi = 300;
+
+  DBGSTART;
+
+  pixels = (dev->sensor.sensor_pixels * dpi) / dev->sensor.optical_res;
+  status = gl847_init_scan_regs (dev,
+				 dev->reg,
+				 dpi,
+				 dpi,
+				 0,
+				 200,
+				 pixels,
+				 1,
+				 16,
+				 3,
+				 0,
+				 SCAN_FLAG_DISABLE_SHADING |
+				 SCAN_FLAG_DISABLE_GAMMA |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
+				 SCAN_FLAG_USE_OPTICAL_RES);
+
+  RIE (gl847_bulk_write_register
+       (dev, dev->reg, GENESYS_GL847_MAX_REGS));
+
+  /* colors * bytes_per_color * scan lines */
+  size = ((int) pixels) * 3 * 2 * 1;
+
+  line = malloc (size);
+  if (!line)
+    return SANE_STATUS_NO_MEM;
+
+  DBG (DBG_info, "%s: starting dummy data reading\n", __FUNCTION__);
+
+  RIE (gl847_begin_scan (dev, dev->reg, SANE_TRUE));
+  sanei_genesys_read_data_from_scanner (dev, line, size);
+  RIE (gl847_end_scan (dev, dev->reg, SANE_TRUE));
+
+  free (line);
+  RIE (gl847_slow_back_home (dev, SANE_TRUE));
+
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
+
 /* *
  * initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
@@ -4426,8 +4485,9 @@ gl847_init (Genesys_Device * dev)
   dev->oe_buffer.buffer=NULL;
   dev->already_initialized = SANE_TRUE;
 
-  /* Move home fi needed */
+  /* Move home if needed */
   RIE (gl847_slow_back_home (dev, SANE_TRUE));
+  RIE (gl847_warm_scan (dev));
   dev->scanhead_position_in_steps = 0;
 
   /* Set powersaving (default = 15 minutes) */

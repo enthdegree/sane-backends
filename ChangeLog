@@ -1,4 +1,4 @@
-2010-06-07 Stéphane Voltz <stef.dev@free.fr>
+2010-06-10 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl847.c:
 	LiDE 100 motor settings rework
 

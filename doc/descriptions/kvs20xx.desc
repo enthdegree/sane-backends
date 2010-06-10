@@ -23,7 +23,7 @@
 :status :untested
 
 :model "KV-S2026C"
-:interface "USB"
+:interface "USB SCSI"
 :usbid "0x04da" "0x1000"
 :status :untested
 
@@ -37,7 +37,7 @@
 :status :untested
 
 :model "KV-S2046C"
-:interface "USB"
+:interface "USB SCSI"
 :usbid "0x04da" "0x1001"
 :status :untested
 

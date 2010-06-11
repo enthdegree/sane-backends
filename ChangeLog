@@ -1,3 +1,7 @@
+2010-06-10 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c:
+	calibration file name double free fix
+
 2010-06-10 m. allan noah <kitno455 at gmail dot com>
 	* backend/niash.c: patch for HP3300 from Yves Jeanrenaud
 	* po/fr.po: updates from Yann E. MORIN

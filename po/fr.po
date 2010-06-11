@@ -12,7 +12,7 @@
 #      Free Documentation License".
 #
 # ####################################################
-# YEM-20100606 : Updates
+# YEM-20100606 : Updates, with fixes from Nicolas.
 # ----------------------------------------------------
 # YEM-20080115 : Fixes from Stef and Patrick. Thanks!
 # ----------------------------------------------------
@@ -887,7 +887,7 @@ msgstr "Bouton 'numérisation'"
 #: ../include/sane/saneopts.h:445
 #, no-c-format
 msgid "Email button"
-msgstr "Bouton 'courier électronique'"
+msgstr "Bouton 'courrier électronique'"
 
 #: ../include/sane/saneopts.h:446
 #, no-c-format

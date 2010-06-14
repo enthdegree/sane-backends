@@ -1539,15 +1539,22 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
     r->value |= 0x10;		/* mono */
 
   /* CIS scanners can do true gray by setting LEDADD */
+  /* we set up LEDADD only when asked */
   if (dev->model->is_cis == SANE_TRUE)
     {
       r = sanei_genesys_get_address (reg, 0x87);
       r->value &= ~REG87_LEDADD;
-      /* we set up LEDADD only when asked */
       if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
 	{
 	  r->value |= REG87_LEDADD;
 	}
+      /* RGB wrighting 
+      r = sanei_genesys_get_address (reg, 0x01);
+      r->value &= ~REG01_TRUEGRAY;
+      if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
+	{
+	  r->value |= REG01_TRUEGRAY;
+	}*/
     }
 
   /* enable gamma tables */
@@ -1682,6 +1689,7 @@ gl847_init_scan_regs (Genesys_Device * dev,
   int bytes_per_line;
   int move;
   unsigned int lincnt;
+  unsigned int oflags; /**> optical flags */
   int exposure_time, exposure_time2, led_exposure;
   int i;
   int stagger;
@@ -1841,7 +1849,7 @@ independent of our calculated values:
   /* exposure_time , CCD case not handled */
   led_exposure = gl847_get_led_exposure (dev);
 
-  pixels_exposure=10848;
+  pixels_exposure=dev->sensor.sensor_pixels+572;
   if(xres<dev->sensor.optical_res)
     pixels_exposure=(pixels_exposure*xres)/dev->sensor.optical_res-32;
   else
@@ -1884,6 +1892,22 @@ independent of our calculated values:
   if (depth == 16)
     flags |= SCAN_FLAG_DISABLE_GAMMA;
 
+  /* we enable true gray for cis scanners only, and just when doing 
+   * scan since color calibration is OK for this mode
+   */
+  oflags = 0;
+  if(flags & SCAN_FLAG_DISABLE_SHADING)
+    oflags |= OPTICAL_FLAG_DISABLE_SHADING;
+  if(flags & SCAN_FLAG_DISABLE_GAMMA)
+    oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
+  if(flags & SCAN_FLAG_DISABLE_LAMP)
+    oflags |= OPTICAL_FLAG_DISABLE_LAMP;
+  
+  if (dev->model->is_cis && dev->settings.true_gray)
+    {
+      oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
+    }
+
   status = gl847_init_optical_regs_scan (dev,
 					 reg,
 					 exposure_time,
@@ -1894,14 +1918,7 @@ independent of our calculated values:
 					 depth,
 					 half_ccd,
 					 color_filter,
-					 ((flags &
-					   SCAN_FLAG_DISABLE_SHADING) ?
-					  OPTICAL_FLAG_DISABLE_SHADING : 0)
-					 |
-					 ((flags & SCAN_FLAG_DISABLE_GAMMA)
-					  ? OPTICAL_FLAG_DISABLE_GAMMA : 0)
-					 | ((flags & SCAN_FLAG_DISABLE_LAMP)
-					    ? OPTICAL_FLAG_DISABLE_LAMP : 0));
+                                         oflags);
 
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -2242,7 +2259,7 @@ dummy \ scanned lines
 
   led_exposure = gl847_get_led_exposure (dev);
 
-  pixels_exposure=10848;
+  pixels_exposure=dev->sensor.sensor_pixels+572;
   if(xres<dev->sensor.optical_res)
     pixels_exposure=(pixels_exposure*xres)/dev->sensor.optical_res-32;
   else
@@ -3471,16 +3488,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
 
   flags = 0;
 
-  /* we enable true gray for cis scanners only, and just when doing 
-   * scan since color calibration is OK for this mode
-   */
-  flags = 0;
-  if (dev->model->is_cis && dev->settings.true_gray)
-    {
-      flags |= OPTICAL_FLAG_ENABLE_LEDADD;
-    }
-
-  /* emulated lineart from gray data s required for now */
+  /* emulated lineart from gray data is required for now */
   flags |= SCAN_FLAG_DYNAMIC_LINEART;
 
   status = gl847_init_scan_regs (dev,
@@ -4347,7 +4355,7 @@ gl847_warm_scan (Genesys_Device * dev)
 				 dpi,
 				 dpi,
 				 0,
-				 200,
+				 90,
 				 pixels,
 				 1,
 				 16,

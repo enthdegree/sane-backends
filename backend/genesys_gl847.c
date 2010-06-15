@@ -2362,10 +2362,10 @@ gl847_set_lamp_power (Genesys_Device * dev,
 								       0x03)
 				      | REG03_LAMPPWR);
 
-      r = sanei_genesys_get_address (regs, 0x10);
-      for (i = 0; i < 6; i++, r++)
+      for (i = 0; i < 6; i++)
 	{
-	   r->value = dev->sensor.regs_0x10_0x1d[i];
+          r = sanei_genesys_get_address (dev->calib_reg, 0x10+i);
+	  r->value = dev->sensor.regs_0x10_0x1d[i];
 	}
       r = sanei_genesys_get_address (regs, 0x19);
       r->value = 0x50;
@@ -2377,9 +2377,9 @@ gl847_set_lamp_power (Genesys_Device * dev,
 								       0x03)
 				      & ~REG03_LAMPPWR);
 
-      r = sanei_genesys_get_address (regs, 0x10);
-      for (i = 0; i < 6; i++, r++)
+      for (i = 0; i < 6; i++)
 	{
+          r = sanei_genesys_get_address (dev->calib_reg, 0x10+i);
 	  r->value = 0x00;
 	}
       r = sanei_genesys_get_address (regs, 0x19);
@@ -3769,7 +3769,7 @@ gl847_led_calibration (Genesys_Device * dev)
       dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
       dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
 
-      for (i = 0; i < 6; i++, r++)
+      for (i = 0; i < 6; i++)
 	{
           r = sanei_genesys_get_address (dev->calib_reg, 0x10+i);
 	  r->value = dev->sensor.regs_0x10_0x1d[i];

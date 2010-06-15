@@ -406,14 +406,14 @@ static Genesys_Sensor Sensor[] = {
    1200,	/* optical resolution */
    87,		/* black pixels */
    16,		/* dummy pixels */
-   0,		
-   10400,		
+   303,		
+   10272,		
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
    /* reg 0x10 - 0x1d */
-   {0x02, 0x7d, 0x02, 0x7d, 0x02, 0x7d, /* EXPR/EXPG/EXPB */
-    0x10, 0x0c, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
+   {0x01, 0xc0, 0x01, 0xc0, 0x01, 0x40, /* EXPR/EXPG/EXPB */
+    0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
    /* reg 0x52 - 0x5e */
    {0x03, 0x07,
     0x00, 0x00, 0x00, 0x00,
@@ -794,21 +794,16 @@ static Genesys_Motor Motor[] = {
   },
   {MOTOR_CANONLIDE200,		/* Canon LiDE 200 */
    1200,
-   2400,
+   4800,
+   2,
    1,
-   1,
-   {{{
-     2343, /* first value of a recorded motor slope */
-     534,  /* last value of recorded slope table */
-     60,
-     0.8,
-     },
-    {
-     3500,
-     1400,
-     60,
-     0.8,
-    },},},
+   { /* motor slopes */
+	   { /* power mode 0 */
+		   {   3700,   1017, 127, 0.50}, /* full step */
+    		   {   3700,   1017, 127, 0.50}, /* half step */
+    		   { 3*2712, 3*2712, 16, 0.80}, /* quarter step 0.75*2712 */
+	   },
+    },
   },
 };
 
@@ -985,9 +980,9 @@ static Genesys_Model canon_lide_200_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
-  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (7.3),		/* Start of scan area in mm (y) */
+  SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (3.0),		/* Start of white strip in mm (y) */
@@ -1015,8 +1010,8 @@ static Genesys_Model canon_lide_200_model = {
   DAC_CANONLIDE200,
   GPO_CANONLIDE200,
   MOTOR_CANONLIDE200,
-      GENESYS_FLAG_ODD_EVEN_CIS 	/* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
+      GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_ODD_EVEN_CIS
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,

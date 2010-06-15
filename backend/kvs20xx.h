@@ -9,7 +9,7 @@
    Panasonic KV-S20xx USB-SCSI scanners.
 */
 
-# include <endian.h>
+#include <sys/param.h>
 
 #undef  BACKEND_NAME
 #define BACKEND_NAME kvs20xx

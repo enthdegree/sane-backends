@@ -1,3 +1,8 @@
+2010-06-10 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
+	backend/genesys_gl847.h:
+	Canon LiDE 200 support up to 1200 DPI
+
 2010-06-15 m. allan noah <kitno455 at gmail dot com>
 	* doc/descriptions/xerox_mfp.desc, backend/xerox_mfp.conf.in:
 	  Add Samsung SCX-4600 USB IDs

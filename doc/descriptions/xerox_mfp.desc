@@ -62,3 +62,9 @@
 :interface "USB"
 :usbid "0x04e8" "0x342e"
 :status :good
+
+:model "SCX-4600"
+:interface "USB"
+:usbid "0x04e8" "0x3433"
+:status :good
+

@@ -1,3 +1,8 @@
+2010-06-15 m. allan noah <kitno455 at gmail dot com>
+	* doc/descriptions/xerox_mfp.desc, backend/xerox_mfp.conf.in:
+	  Add Samsung SCX-4600 USB IDs
+	* backend/kvs20xx.h: use sys/param.h instead of endian.h
+
 2010-06-10 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c:
 	calibration file name double free fix

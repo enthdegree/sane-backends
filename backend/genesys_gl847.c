@@ -1838,13 +1838,20 @@ independent of our calculated values:
   slope_dpi = slope_dpi * (1 + dummy);
 
   /* scan_step_type */
-  if (yres * 4 <= dev->motor.base_ydpi || dev->motor.max_step_type <= 0)
-    scan_step_type = 0;
-  else if (yres * 4 <= dev->motor.base_ydpi * 2
-	   || dev->motor.max_step_type <= 1)
-    scan_step_type = 1;
-  else
-    scan_step_type = 2;
+  switch((int)yres)
+    {
+    case 75:
+    case 100:
+    case 150:
+      scan_step_type = 0;
+      break;
+    case 200:
+    case 300:
+      scan_step_type = 1;
+      break;
+    default:
+      scan_step_type = 2;
+    }
 
   /* exposure_time , CCD case not handled */
   led_exposure = gl847_get_led_exposure (dev);
@@ -1854,7 +1861,6 @@ independent of our calculated values:
     pixels_exposure=(pixels_exposure*xres)/dev->sensor.optical_res-32;
   else
     pixels_exposure=0;
-
 
   exposure_time = sanei_genesys_exposure_time2 (dev,
 						slope_dpi,
@@ -2245,17 +2251,21 @@ dummy \ scanned lines
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-/* scan_step_type */
-/* Try to do at least 4 steps per line. if that is impossible we will have to
-   live with that
- */
-  if (yres * 4 < dev->motor.base_ydpi || dev->motor.max_step_type <= 0)
-    scan_step_type = 0;
-  else if (yres * 4 < dev->motor.base_ydpi * 2
-	   || dev->motor.max_step_type <= 1)
-    scan_step_type = 1;
-  else
-    scan_step_type = 2;
+  /* scan_step_type */
+  switch((int)yres)
+    {
+    case 75:
+    case 100:
+    case 150:
+      scan_step_type = 0;
+      break;
+    case 200:
+    case 300:
+      scan_step_type = 1;
+      break;
+    default:
+      scan_step_type = 2;
+    }
 
   led_exposure = gl847_get_led_exposure (dev);
 
@@ -3464,7 +3474,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
 
   /* at high res we do fast move to scan area */
-  if(dev->settings.xres>300)
+  if(dev->settings.xres>150)
     {
       status = gl847_feed (dev, move);
       if (status != SANE_STATUS_GOOD)

@@ -1,12 +1,12 @@
-.TH "sane\-genesys" "5" "6 Oct 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-genesys" "5" "18 Jun 2010" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-genesys
 .SH "NAME"
-sane\-genesys \- SANE backend for GL646 and GL841 based USB flatbed scanners
+sane\-genesys \- SANE backend for GL646, GL841 and GL847 based USB flatbed scanners
 .SH "DESCRIPTION"
 The
 .B sane\-genesys
 library implements a SANE (Scanner Access Now Easy) backend that provides
-access to USB flatbed scanners based on the Genesys GL646 and GL841 chips.
+access to USB flatbed scanners based on the Genesys GL646, GL841 and GL847 chips.
 At present, the following scanners are known to work with this backend:
 .PP 
 .RS
@@ -14,15 +14,15 @@ Medion MD5345/MD6228/MD6274
 .br 
 Visioneer OneTouch 7100
 .br
-Hewlett-Packard HP2300C
+Hewlett-Packard HP2300C/HP3670
 .br 
 Visioneer Strobe XP100 (rev3)/XP200/XP300/Roadwarrior
 .br
-Canon LiDE 35/40/50/60
+Canon LiDE 35/40/50/60/100/200
 .br
 Pentax DSmobile 600
 .br
-Syscan/Ambir DocketPORT 485/487/665/685
+Syscan/Ambir DocketPORT 467/485/487/665/685
 .br
 Xerox Travel Scanner 100
 .RE
@@ -40,8 +40,8 @@ the USB vendor and device ids (e.g. from
 or syslog) to the sane\-devel mailing list. Even if the scanner's name is only
 slightly different from the models mentioned above, please let me know.
 .PP 
-If you own a scanner that isn't detected by the genesys backend but has a GL646
-or GL841 chipset, you can try to add it to the backend. 
+If you own a scanner that isn't detected by the genesys backend but has a GL646,
+GL847 or GL847 chipset, you can try to add it to the backend. 
 .PP 
 .SH "CALIBRATION"
 To give correct image quality, sheet fed scanners need to be calibrated using the
@@ -137,6 +137,10 @@ part.
 .B SANE_DEBUG_GENESYS_GL841
 This environment variable controls the debug level for the specific GL841 code
 part.
+.TP 
+.B SANE_DEBUG_GENESYS_GL847
+This environment variable controls the debug level for the specific GL841 code
+part.
 
 
 Example (full and highly verbose output for gl646): 
@@ -178,4 +182,3 @@ Powersaving isn't implemented for gl646 based scanner.
 .SH "BUGS"
 Currently no known bug.
 .PP 
-

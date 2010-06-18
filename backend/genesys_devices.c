@@ -786,8 +786,8 @@ static Genesys_Motor Motor[] = {
    1,   /* maximum power modes count */
    { /* motor slopes */
 	   { /* power mode 0 */
-		   {   3700,   1017, 127, 0.50}, /* full step */
-    		   {   3700,   1017, 127, 0.50}, /* half step */
+		   {   3000,   1000, 127, 0.50}, /* full step */
+    		   {   3000,   1500, 127, 0.50}, /* half step */
     		   { 3*2712, 3*2712, 16, 0.80}, /* quarter step 0.75*2712 */
 	   },
     },
@@ -799,8 +799,8 @@ static Genesys_Motor Motor[] = {
    1,
    { /* motor slopes */
 	   { /* power mode 0 */
-		   {   3700,   1017, 127, 0.50}, /* full step */
-    		   {   3700,   1017, 127, 0.50}, /* half step */
+		   {   3000,   1000, 127, 0.50}, /* full step */
+    		   {   3000,   1500, 127, 0.50}, /* half step */
     		   { 3*2712, 3*2712, 16, 0.80}, /* quarter step 0.75*2712 */
 	   },
     },
@@ -922,8 +922,8 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions 400 & 100 dpi are ok too */
-  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions 400 & 100 dpi are ok too */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -975,8 +975,8 @@ static Genesys_Model canon_lide_200_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1164,7 +1164,7 @@ Genesys_Model hp2400c_model = {
 
   0, 24, 48,			/* RGB CCD Line-distance correction in pixel */
 
-  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
   SANE_FALSE,			/* Is this a sheetfed scanner? */

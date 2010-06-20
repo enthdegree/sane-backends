@@ -1,9 +1,9 @@
 2010-06-18 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c:
 	add 400, 200 and 100 dpi resolution to LiDE 100 and LiDE 200 . Disable
-	true gray until it really work
+	true gray until it really works.
 
-2010-06-10 Stéphane Voltz <stef.dev@free.fr>
+2010-06-15 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
 	backend/genesys_gl847.h:
 	Canon LiDE 200 support up to 1200 DPI

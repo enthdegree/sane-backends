@@ -922,13 +922,13 @@ static Genesys_Model canon_lide_100_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions 400 & 100 dpi are ok too */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
   {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (0.0),		/* Start of scan area in mm (x) */
-  SANE_FIX (7.3),		/* Start of scan area in mm (y) */
+  SANE_FIX (8.3),		/* Start of scan area in mm (y) */
   SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
@@ -981,7 +981,7 @@ static Genesys_Model canon_lide_200_model = {
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.3),		/* Start of scan area in mm (y) */
+  SANE_FIX (8.3),		/* Start of scan area in mm (y) */
   SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 

@@ -532,6 +532,10 @@ typedef struct
   /**> Disable interpolation for xres<yres*/
   int disable_interpolation;
 
+  /**> Use double x resolution internally to provide better
+   * quality */
+  int double_xres;
+
   /**> true is lineart is generated from gray data by
    * the dynamic rasterization algo */
   int dynamic_lineart;

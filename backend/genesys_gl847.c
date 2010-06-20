@@ -1426,11 +1426,12 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 			      SANE_Bool half_ccd, int color_filter, int flags)
 {
   unsigned int words_per_line;
-  unsigned int startx,endx, used_pixels;
+  unsigned int startx,endx, used_pixels,max_pixels;
   unsigned int dpiset;
   unsigned int i,bytes;
   Genesys_Register_Set *r;
   SANE_Status status;
+  int double_xres;
 
   DBG (DBG_proc, "gl847_init_optical_regs_scan :  exposure_time=%d, "
        "used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
@@ -1438,10 +1439,28 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
        exposure_time,
        used_res, start, pixels, channels, depth, half_ccd, flags);
 
-  startx = dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset;
-  if(pixels<dev->sensor.sensor_pixels)
+  /* during calibration , we don't want double xres */
+  if(dev->settings.double_xres==SANE_TRUE&&used_res<dev->sensor.optical_res)
     {
-      used_pixels = dev->sensor.sensor_pixels;
+      double_xres=SANE_TRUE;
+    }
+  else
+    {
+      double_xres=SANE_FALSE;
+    }
+
+  startx = dev->sensor.dummy_pixel + 1 + dev->sensor.CCD_start_xoffset;
+  if(double_xres==SANE_TRUE)
+    {
+      max_pixels = dev->sensor.sensor_pixels/2;
+    }
+  else
+    {
+      max_pixels = dev->sensor.sensor_pixels;
+    }
+  if(pixels<max_pixels)
+    {
+      used_pixels = max_pixels;
     }
   else
     {
@@ -1460,6 +1479,10 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 
   /* adjust used_res for chosen dpihw */
   used_res = used_res * gl847_get_dpihw (dev) / dev->sensor.optical_res;
+  if(double_xres==SANE_TRUE)
+    {
+      used_res *=2;
+    }
   dpiset = used_res;
 
   /* enable shading */
@@ -1599,7 +1622,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   dev->len=((pixels*dpiset)/gl847_get_dpihw (dev))/2*bytes;
   dev->dist=dev->bpl/2;
   dev->skip=((start*dpiset)/gl847_get_dpihw (dev))/2*bytes;
-  if(dev->skip>=dev->dist)
+  if(dev->skip>=dev->dist && double_xres==SANE_FALSE)
     {
       dev->skip-=dev->dist;
     }

@@ -3024,6 +3024,11 @@ compute_averaged_planar (Genesys_Device * dev,
       /* scanner is using half-ccd mode */
       res *= 2;
     }
+  if (dev->settings.double_xres == SANE_TRUE)
+    {
+      /* scanner is using double x resolution */
+      res *= 2;
+    }
 
   /* this should be evenly dividable */
   avgpixels = dev->sensor.optical_res / res;
@@ -5057,44 +5062,50 @@ genesys_fill_read_buffer (Genesys_Device * dev)
       count = 0;
       while (count < size)
 	{
-	  while (dev->cur < dev->len && count < size)
-	    {
-              if(dev->settings.depth==8)
-                {
-	      /* even pixel */
-	      work_buffer_dst[count] =
-		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-	      /* odd pixel */
-	      work_buffer_dst[count + 1] =
-		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist +
-			       dev->oe_buffer.pos];
-	      count += 2;
-	      dev->cur++;
+          if(dev->settings.double_xres==SANE_TRUE)
+            {
+	      /* copy only even pixel */
+	      work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+              /* update counter and pointer */
+              count++;
+              dev->cur++;
+            }
+          else if(dev->settings.depth==8 && dev->settings.double_xres==SANE_FALSE)
+            {
+	      while (dev->cur < dev->len && count < size)
+	        {
+	          /* copy even pixel */
+	          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+	          /* copy odd pixel */
+	          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+                  /* update counter and pointer */
+	          count += 2;
+	          dev->cur++;
                 }
-              else
-                {
-	      /* even pixel */
-	      work_buffer_dst[count] =
-		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-	      work_buffer_dst[count+1] =
-		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
-	      /* odd pixel */
-	      work_buffer_dst[count + 2] =
-		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist +
-			       dev->oe_buffer.pos];
-	      work_buffer_dst[count + 3] =
-		dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist +
-			       dev->oe_buffer.pos+1];
-	      count += 4;
-	      dev->cur+=2;
+            }
+          else if(dev->settings.depth==16 && dev->settings.double_xres==SANE_FALSE)
+            {
+	      while (dev->cur < dev->len && count < size)
+	        {
+                  /* copy even pixel */
+                  work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+                  work_buffer_dst[count+1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
+                  /* copy odd pixel */
+                  work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+                  work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos+1];
+                  /* update counter and pointer */
+                  count += 4;
+                  dev->cur+=2;
                 }
-	    }
+            }
+
 	  /* go to next line if needed */
 	  if (dev->cur == dev->len)
 	    {
 	      dev->oe_buffer.pos += dev->bpl;
 	      dev->cur = 0;
 	    }
+
 	  /* read a new buffer if needed */
 	  if (dev->oe_buffer.pos >= dev->oe_buffer.avail)
 	    {
@@ -5725,7 +5736,7 @@ calc_parameters (Genesys_Scanner * s)
   s->dev->settings.disable_interpolation =
     s->val[OPT_DISABLE_INTERPOLATION].w == SANE_TRUE;
 
-  /* Hardware settings */
+  /* hardware settings */
   if (resolution > s->dev->sensor.optical_res &&
       s->dev->settings.disable_interpolation)
     s->dev->settings.xres = s->dev->sensor.optical_res;
@@ -5733,10 +5744,19 @@ calc_parameters (Genesys_Scanner * s)
     s->dev->settings.xres = resolution;
   s->dev->settings.yres = resolution;
 
+  /* double x resolution mode */
+  s->dev->settings.double_xres = SANE_FALSE;
+  if ((s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS)
+      && s->dev->settings.xres <= s->dev->sensor.optical_res / 2
+      &&  s->dev->settings.xres != 400)
+    {
+      s->dev->settings.double_xres = SANE_TRUE;
+    }
 
   s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
   s->params.pixels_per_line =
     ((br_x - tl_x) * s->dev->settings.xres) / MM_PER_INCH;
+
   /* we need an even number of pixels for even/odd handling */
   if (s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS)
     {

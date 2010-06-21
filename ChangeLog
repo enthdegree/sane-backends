@@ -1,7 +1,8 @@
-2010-06-20 Stéphane Voltz <stef.dev@free.fr>
+2010-06-21 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
 	backend/genesys_low.h: improve scan quality by using double x
-	resolution internally at low resolution
+	resolution internally at low resolution. Scan area geometry fine
+	tuning.
 
 2010-06-18 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c:

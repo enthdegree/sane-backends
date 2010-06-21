@@ -3538,7 +3538,7 @@ print_udev (void)
   printf ("SUBSYSTEMS!=\"scsi\", GOTO=\"libsane_scsi_rules_end\"\n\n");
   printf ("LABEL=\"libsane_scsi_rules_begin\"\n");
   printf ("# Generic: SCSI device type 6 indicates a scanner\n");
-  printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"6\", MODE=\"%s\", GROUP=\"%s\"\n", DEVMODE, DEVGROUP);
+  printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"6\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n", DEVMODE, DEVGROUP);
   printf ("# Some scanners advertise themselves as SCSI device type 3\n");
 
   while (scsiid)
@@ -3571,7 +3571,7 @@ print_udev (void)
 	    }
         }
       printf ("\n");
-      printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", MODE=\"%s\", GROUP=\"%s\"\n",
+      printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
 	      scsiid->scsi_vendor_id, scsiid->scsi_product_id, DEVMODE, DEVGROUP);
       scsiid = scsiid->next;
     }

@@ -1,3 +1,7 @@
+2010-06-21 Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: udev rules: set libsane_matched=yes for SCSI
+	devices too. Used by udev-acl later on.
+
 2010-06-21 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
 	backend/genesys_low.h: improve scan quality by using double x

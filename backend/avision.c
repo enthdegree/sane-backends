@@ -5985,6 +5985,28 @@ media_check (Avision_Scanner* s)
 }
 
 static SANE_Status
+flush_media (Avision_Scanner* s)
+{
+  Avision_Device* dev = s->hw;
+  SANE_Status status;
+  
+  if (s->source_mode_dim == AV_ADF_DIM && dev->inquiry_batch_scan)
+    {
+      DBG (1, "flush_media: flushing pages out of batch scanner\n");
+      do {
+	status = media_check (s);
+	if (status == SANE_STATUS_GOOD) {
+	  SANE_Status status2 = reserve_unit (s);
+	  DBG (1, "flush_media: reserve status: %d\n", status2);
+	  status2 = release_unit (s, 0);
+	  DBG (1, "flush_media: release status: %d\n", status2);
+	}
+      } while (status == SANE_STATUS_GOOD);
+    } 
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
 object_position (Avision_Scanner* s, uint8_t position)
 {
   SANE_Status status;

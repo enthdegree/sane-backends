@@ -4889,6 +4889,7 @@ gl646_init (Genesys_Device * dev)
 #ifndef UNIT_TESTING
 static
 #endif
+SANE_Status
 gl646_move_to_ta (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;

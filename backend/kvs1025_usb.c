@@ -250,9 +250,9 @@ kv_usb_escape (PKV_DEV dev,
       if (size_read != size)
 	{
 	  DBG (DBG_shortread, "usb_bulk_read: Warning - short read\n");
-	  DBG (DBG_shortread, "usb_bulk_read: bytes to read = %d\n", size);
+	  DBG (DBG_shortread, "usb_bulk_read: bytes to read = %lu\n", (unsigned long)size);
 	  DBG (DBG_shortread,
-	       "usb_bulk_read: bytes actual read = %d\n", size_read);
+	       "usb_bulk_read: bytes actual read = %lu\n", (unsigned long)size_read);
 	  /*hexdump (DBG_shortread, "data", data, size_read); */
 	}
     }
@@ -286,9 +286,9 @@ kv_usb_escape (PKV_DEV dev,
       if (size_written != size)
 	{
 	  DBG (DBG_shortread, "usb_bulk_write: Warning - short written\n");
-	  DBG (DBG_shortread, "usb_bulk_write: bytes to write = %d\n", size);
+	  DBG (DBG_shortread, "usb_bulk_write: bytes to write = %lu\n", (unsigned long)size);
 	  DBG (DBG_shortread,
-	       "usb_bulk_write: bytes actual written = %d\n", size_written);
+	       "usb_bulk_write: bytes actual written = %lu\n", (unsigned long)size_written);
 	  hexdump (DBG_shortread, "data", data, size_written);
 	}
     }
@@ -304,7 +304,7 @@ kv_usb_escape (PKV_DEV dev,
       if (ret || len != 16)
 	{
 	  DBG (DBG_error, "usb_bulk_read: Error reading response."
-	       " read %d bytes\n", len);
+	       " read %lu bytes\n", (unsigned long)len);
 	  sanei_usb_clear_halt (dev->usb_fd);
 	  return SANE_STATUS_IO_ERROR;
 	}

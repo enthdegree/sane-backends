@@ -488,7 +488,11 @@ const struct epson_profile epson_cct_profiles[] = {
     {1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000},
     {1.4431,-0.4193,-0.0238,-0.0915, 1.1507,-0.0592,-0.0226,-0.1978, 1.2204}}},
 
-  { 0xFF, { } } /* terminator */
+  {0xFF, /* terminator */
+   {{0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0}}}
 };
 
 /* cat hw-data.c | grep '{"' | cut -d ',' -f1,2 | awk '{ print $0 " },"}' */
@@ -605,5 +609,5 @@ const struct epson_profile_map epson_cct_models[] = {
   {"PID 0853", 0x9F },
   {"GT-X820", 0xA1 },
 
-  { } /* terminator */
+  {NULL, 0x00 } /* terminator */
 };

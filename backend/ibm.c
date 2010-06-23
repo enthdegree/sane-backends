@@ -539,7 +539,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   FILE *fp;
 
   DBG_INIT ();
-  DBG (11, ">> sane_init (authorize = %p)\n", (void *) authorize);
+  DBG (11, ">> sane_init (authorize %s null)\n", (authorize) ? "!=" : "==");
 
 #if defined PACKAGE && defined VERSION
   DBG (2, "sane_init: ibm backend version %d.%d-%d ("

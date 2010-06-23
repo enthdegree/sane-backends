@@ -331,18 +331,6 @@ static int getUserPtr(const pVoid useraddr, pVoid where, UInt size )
 		if (copy_from_user(where, useraddr, size))
 			return -EFAULT;
 #else
-	case sizeof(UChar):
-		*(pUChar)where = *(pUChar)useraddr;
-		break;
-
-	case sizeof(UShort):
-		*(pUShort)where = *(pUShort)useraddr;
-		break;
-
-	case sizeof(ULong):
-		*(pULong)where = *(pULong)useraddr;
-		break;
-
 	default:
 		memcpy( where, useraddr, size );
 #endif

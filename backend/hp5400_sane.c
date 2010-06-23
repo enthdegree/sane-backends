@@ -433,7 +433,6 @@ static int _ReportDevice(TScannerModel *pModel, const char *pszDeviceName)
    * pointer */
   pNew->devname = (char*)strdup(pszDeviceName);
   pNew->dev.name = pNew->devname;
-  (char*)strdup(pszDeviceName);
   pNew->dev.vendor = pModel->pszVendor;
   pNew->dev.model = pModel->pszName;
   pNew->dev.type = "flatbed scanner";

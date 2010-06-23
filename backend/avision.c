@@ -1691,7 +1691,7 @@ sense_handler (int fd, u_char* sense, void* arg)
   debug_print_raw (1, "sense_handler: data:\n", sense, 8 + additional_sense);
   
   /* request valid? */
-  if (! sense[0] & (1<<7)) {
+  if (! (sense[0] & (1<<7))) {
     DBG (1, "sense_handler: sense not vaild ...\n");
     return status;
   }
@@ -4035,7 +4035,7 @@ get_double ( &(result[48] ) ));
   if (dev->hw->feature_type & AV_12_BIT_MODE)
     dev->inquiry_bits_per_channel = 12;
 
-  if (!dev->hw->feature_type & AV_GRAY_MODES)
+  if (! (dev->hw->feature_type & AV_GRAY_MODES))
     dev->inquiry_no_gray_modes = BIT(result[93],5);
 
   DBG (1, "attach: max channels per pixel: %d, max bits per channel: %d\n",

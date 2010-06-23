@@ -818,7 +818,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
 
   /*loop until scanner is ready*/
   while(ret == SANE_STATUS_DEVICE_BUSY){
-    DBG (15, "sane_open: GX, try %d, sleep %d\n", try, s->rs_info);
+    DBG (15, "sane_open: GX, try %d, sleep %lu\n", try, (unsigned long)s->rs_info);
     try++;
     sleep(s->rs_info);
     ret = do_cmd (
@@ -2552,8 +2552,8 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
   /* save for later */
   s->rs_info = get_RS_information (sensed_data);
 
-  DBG (5, "SK=%#02x, ASC=%#02x, ASCQ=%#02x, ILI=%d, info=%#08x\n",
-    sk, asc, ascq, ili, s->rs_info);
+  DBG (5, "SK=%#02x, ASC=%#02x, ASCQ=%#02x, ILI=%d, info=%#08lx\n",
+       sk, asc, ascq, ili, (unsigned long)s->rs_info);
 
   switch (sk) {
 

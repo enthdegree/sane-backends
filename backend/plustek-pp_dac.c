@@ -1941,6 +1941,7 @@ static void dacP98003AdjustShadingWaveform( pScanData ps )
 
     DBG( DBG_LOW, "dacP98003AdjustShadingWaveForm()\n" );
 
+    memset( &cp, 0, sizeof(RBGPtrDef));
     memset( ps->Bufs.b2.pSumBuf, 0, (5400 * 3 * 2));
 
     /* SetAdjustShadingRegister () */

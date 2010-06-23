@@ -5984,6 +5984,7 @@ media_check (Avision_Scanner* s)
   return status;
 }
 
+#if 0 /* unused */
 static SANE_Status
 flush_media (Avision_Scanner* s)
 {
@@ -6005,6 +6006,7 @@ flush_media (Avision_Scanner* s)
     } 
   return SANE_STATUS_GOOD;
 }
+#endif /* 0 - unused */
 
 static SANE_Status
 object_position (Avision_Scanner* s, uint8_t position)

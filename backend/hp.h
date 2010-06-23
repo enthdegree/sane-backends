@@ -104,7 +104,7 @@
   *
   */
 
-typedef int 		hp_bool_t;
+typedef unsigned int	hp_bool_t;
 typedef unsigned char	hp_byte_t;
 
 typedef enum { HP_CONNECT_SCSI, HP_CONNECT_DEVICE,

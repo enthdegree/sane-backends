@@ -679,7 +679,7 @@ sane_init( SANE_Int *versionP, SANE_Auth_Callback authorize )
 	SANE_Status status;
 
 	DBG_INIT();
-	DBG(DCODE, "sane_init(%p, %p)\n", (void *) versionP, (void *) authorize);
+	DBG(DCODE, "sane_init: version %s null, authorize %s null\n", (versionP) ? "!=" : "==", (authorize) ? "!=" : "==");
 
 	if( versionP != NULL )
 		*versionP = SANE_VERSION_CODE(SANE_CURRENT_MAJOR, V_MINOR, 0);

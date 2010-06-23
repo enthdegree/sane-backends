@@ -4070,8 +4070,8 @@ gl841_detect_document_end (Genesys_Device * dev)
 	      DBG (DBG_io, "gl841_detect_document_end: subbytes=%d\n",
 		   sub_bytes);
 	      DBG (DBG_io,
-		   "gl841_detect_document_end: total_bytes_to_read=%d\n",
-		   dev->total_bytes_to_read);
+		   "gl841_detect_document_end: total_bytes_to_read=%lu\n",
+		   (unsigned long)dev->total_bytes_to_read);
 	      DBG (DBG_io, "gl841_detect_document_end: read_bytes_left=%d\n",
 		   read_bytes_left);
 	    }

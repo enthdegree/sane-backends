@@ -1629,10 +1629,10 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
   DBG (DBG_io2, "%s: pixels     =%d\n", __FUNCTION__, pixels);
   DBG (DBG_io2, "%s: depth      =%d\n", __FUNCTION__, depth);
-  DBG (DBG_io2, "%s: dev->bpl   =%d\n", __FUNCTION__, dev->bpl);
-  DBG (DBG_io2, "%s: dev->len   =%d\n", __FUNCTION__, dev->len);
-  DBG (DBG_io2, "%s: dev->dist  =%d\n", __FUNCTION__, dev->dist);
-  DBG (DBG_io2, "%s: dev->skip  =%d\n", __FUNCTION__, dev->skip);
+  DBG (DBG_io2, "%s: dev->bpl   =%lu\n", __FUNCTION__, (unsigned long)dev->bpl);
+  DBG (DBG_io2, "%s: dev->len   =%lu\n", __FUNCTION__, (unsigned long)dev->len);
+  DBG (DBG_io2, "%s: dev->dist  =%lu\n", __FUNCTION__, (unsigned long)dev->dist);
+  DBG (DBG_io2, "%s: dev->skip  =%lu\n", __FUNCTION__, (unsigned long)dev->skip);
   
   words_per_line *= channels;
   dev->wpl = words_per_line;
@@ -2880,8 +2880,8 @@ gl847_detect_document_end (Genesys_Device * dev)
 	      DBG (DBG_io, "gl847_detect_document_end: subbytes=%d\n",
 		   sub_bytes);
 	      DBG (DBG_io,
-		   "gl847_detect_document_end: total_bytes_to_read=%d\n",
-		   dev->total_bytes_to_read);
+		   "gl847_detect_document_end: total_bytes_to_read=%lu\n",
+		   (unsigned long)dev->total_bytes_to_read);
 	      DBG (DBG_io,
 		   "gl847_detect_document_end: read_bytes_left=%d\n",
 		   read_bytes_left);

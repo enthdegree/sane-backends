@@ -193,8 +193,8 @@ genesys_gray_lineart(
 {
   size_t y;
 
-  DBG (DBG_io2, "genesys_gray_lineart: converting %d lines of %d pixels\n",
-       lines, pixels);
+  DBG (DBG_io2, "genesys_gray_lineart: converting %lu lines of %lu pixels\n",
+       (unsigned long)lines, (unsigned long)pixels);
 
   for (y = 0; y < lines; y++)
     {

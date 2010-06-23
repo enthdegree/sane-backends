@@ -7947,7 +7947,7 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
   s->rs_eom = get_RS_EOM (sensed_data);
   s->rs_ili = get_RS_ILI (sensed_data);
 
-  DBG (5, "Sense=%#02x, ASC=%#02x, ASCQ=%#02x, EOM=%d, ILI=%d, info=%#08x\n", sense, asc, ascq, s->rs_eom, s->rs_ili, s->rs_info);
+  DBG (5, "Sense=%#02x, ASC=%#02x, ASCQ=%#02x, EOM=%d, ILI=%d, info=%#08lx\n", sense, asc, ascq, s->rs_eom, s->rs_ili, (unsigned long)s->rs_info);
 
   switch (sense) {
     case 0x0:

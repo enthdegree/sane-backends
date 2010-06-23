@@ -150,8 +150,8 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 	DBG_INIT();
 
 #if defined PACKAGE && defined VERSION
-	DBG(2, ">> sane_init(%p, %p): " PACKAGE " " VERSION "\n", 
-			(const void*)vc, (const void*)cb);
+	DBG(2, ">> sane_init (version %s null, authorize %s null): " PACKAGE " " VERSION "\n", 
+	    (vc) ? "!=" : "==", (cb) ? "!=" : "==");
 #endif
 
 	if(vc)

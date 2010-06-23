@@ -5674,7 +5674,6 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
 static SANE_Status
 sanei_gl841_repark_head (Genesys_Device * dev)
 {
-  Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS + 1];
   SANE_Status status;
 
   DBG (DBG_proc, "sanei_gl841_repark_head\n");

@@ -2416,7 +2416,6 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   uint16_t pixels_per_line;
   uint8_t channels;
   uint8_t *calibration_data;
-  int i;
 
   DBG (DBG_proc, "genesys_dark_shading_calibration\n");
   /* end pixel - start pixel */
@@ -2634,7 +2633,6 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   uint16_t pixels_per_line;
   uint8_t *calibration_data;
   uint8_t channels;
-  int i;
 
   DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
        dev->model->shading_lines);

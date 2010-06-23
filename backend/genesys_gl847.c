@@ -194,7 +194,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 {
   SANE_Status status;
   size_t size, target, read, done;
-  uint8_t outdata[8], value;
+  uint8_t outdata[8];
 
   DBG (DBG_io, "gl847_bulk_read_data: requesting %lu bytes\n", (u_long) len);
 

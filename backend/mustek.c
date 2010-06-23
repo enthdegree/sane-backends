@@ -1842,7 +1842,7 @@ encode_halftone (Mustek_Scanner * s)
   SANE_String selection = s->val[OPT_HALFTONE_DIMENSION].s;
   SANE_Int i = 0;
 
-  while ((halftone_list != 0) && (strcmp (selection, halftone_list[i]) != 0))
+  while ((halftone_list[i] != 0) && (strcmp (selection, halftone_list[i]) != 0))
     {
       i++;
     }

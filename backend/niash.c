@@ -986,7 +986,6 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
   TScanner *s;
   SANE_Bool fVal;
   static char szTable[100];
-  char szTemp[16];
   int *pi;
   int i;
   SANE_Int info;
@@ -1111,21 +1110,18 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
             {
               if ((SANE_GAMMA_SIZE / 16) && (i % (SANE_GAMMA_SIZE / 16)) == 0)
                 {
-                  strcat (szTable, "\n");
-                  DBG (DBG_MSG, szTable);
-                  strcpy (szTable, "");
+                  DBG (DBG_MSG, "%s\n", szTable);
+		  szTable[0] = '\0';
                 }
               /* test for number print */
               if ((SANE_GAMMA_SIZE / 64) && (i % (SANE_GAMMA_SIZE / 64)) == 0)
                 {
-                  sprintf (szTemp, " %04X", pi[i]);
-                  strcat (szTable, szTemp);
+                  sprintf (szTable + strlen(szTable), " %04X", pi[i]);
                 }
             }
           if (strlen (szTable))
             {
-              strcat (szTable, "\n");
-              DBG (DBG_MSG, szTable);
+              DBG (DBG_MSG, "%s\n", szTable);
             }
           break;
 

@@ -713,6 +713,10 @@ extern SANE_Status
 sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr);
 
 extern SANE_Status
+sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
+			    uint16_t *data);
+
+extern SANE_Status
 sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
 			     uint16_t data);
 

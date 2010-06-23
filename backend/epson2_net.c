@@ -52,10 +52,10 @@ sanei_epson_net_read_raw(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 }
 
 int
-sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
+sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, ssize_t wanted,
 		       SANE_Status * status)
 {
-	size_t size;
+	ssize_t size;
 	ssize_t read = 0;
 	unsigned char header[12];
 

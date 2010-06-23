@@ -1418,7 +1418,7 @@ static SANE_Status
 gl847_init_optical_regs_scan (Genesys_Device * dev,
 			      Genesys_Register_Set * reg,
 			      unsigned int exposure_time,
-			      unsigned int used_res,
+			      int used_res,
 			      unsigned int start,
 			      unsigned int pixels,
 			      int channels,

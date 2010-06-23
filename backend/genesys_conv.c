@@ -105,7 +105,7 @@ binarize_line(Genesys_Device * dev, uint8_t *src, uint8_t *dst, int width)
   int offset, addCol, dropCol;
   unsigned char mask;
   
-  size_t x;
+  int x;
   uint8_t min, max;
 
   /* normalize line */

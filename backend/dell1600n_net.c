@@ -551,7 +551,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
 
   /* set the handle */
-  *handle = (SANE_Handle) iHandle;
+  *handle = (SANE_Handle) (unsigned long)iHandle;
 
   return status;
 
@@ -570,9 +570,9 @@ void
 sane_close (SANE_Handle handle)
 {
 
-  DBG( 5, "sane_close: %x\n", (int)handle );
+  DBG( 5, "sane_close: %lx\n", (unsigned long)handle );
 
-  FreeScannerState ((int) handle);
+  FreeScannerState ((unsigned long) handle);
 
 } /* sane_close */
 
@@ -624,7 +624,7 @@ sane_control_option (SANE_Handle __sane_unused__ handle, SANE_Int option,
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
-  int iHandle = (int) handle;
+  int iHandle = (int) (unsigned long)handle;
   unsigned int width, height, imageSize;
   struct PageInfo pageInfo;
 
@@ -686,10 +686,11 @@ sane_start (SANE_Handle handle)
   fd_set readFds;
   struct timeval selTimeVal;
 
-  DBG( 5, "sane_start: %x\n", (int)handle );
+  iHandle = (int) (unsigned long)handle;
+
+  DBG( 5, "sane_start: %x\n", iHandle );
 
   /* fetch and check scanner index */
-  iHandle = (int) handle;
   if (!ValidScannerNumber (iHandle))
     return SANE_STATUS_INVAL;
 
@@ -792,11 +793,11 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	   SANE_Int max_length, SANE_Int * length)
 {
 
-  int iHandle = (int) handle;
+  int iHandle = (int) (unsigned long)handle;
   int dataSize;
   struct PageInfo pageInfo;
 
-  DBG( 5, "sane_read: %x (max_length=%d)\n", (int)handle, max_length );
+  DBG( 5, "sane_read: %x (max_length=%d)\n", iHandle, max_length );
 
   *length = 0;
 
@@ -864,7 +865,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 void
 sane_cancel (SANE_Handle handle)
 {
-  int iHandle = (int) handle;
+  int iHandle = (int) (unsigned long)handle;
 
   DBG( 5, "sane_cancel: %x\n", iHandle );
 
@@ -938,7 +939,7 @@ HexDump (int debugLevel, const unsigned char *buf, size_t bufSize)
     {
 
       if (!(i % 16))
-        sprintf (lineBuf, "%04x: ", (unsigned int) (buf + i));
+        sprintf (lineBuf, "%p: ", (buf + i));
 
       sprintf (itemBuf, "%02x ", (const unsigned int) buf[i]);
 

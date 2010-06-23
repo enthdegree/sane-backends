@@ -46,7 +46,7 @@ static const char RCSid[] = "$Header$";
 /*
  * $Log$
  * Revision 1.17  2008/11/26 21:21:30  kitno-guest
- * * backend/*.[ch]: nearly every backend used V_MAJOR
+ * * backend/ *.[ch]: nearly every backend used V_MAJOR
  * instead of SANE_CURRENT_MAJOR in sane_init()
  * * backend/snapscan.c: remove EXPECTED_VERSION check
  * since new SANE standard is forward compatible

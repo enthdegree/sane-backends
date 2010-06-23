@@ -1109,7 +1109,7 @@ attach (const char *devnam, NEC_Device ** devp)
   dev->sane.name = (SANE_String) strdup (devnam);
   dev->sane.vendor = "NEC";
   model_name = inquiry_data + 16;
-  dev->sane.model  = strndup ((char *)model_name, 10);
+  dev->sane.model  = strndup ((const char *)model_name, 10);
   dev->sane.type = "flatbed scanner";
   
   dev->sensedat.model = sensedat.model;

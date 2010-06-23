@@ -124,6 +124,7 @@ static SANE_Status u12shadingAdjustShadingWaveform( U12_Device *dev )
 
 	DBG( _DBG_INFO, "u12shading_AdjustShadingWaveForm()\n" );
 
+	memset( &cp, 0, sizeof(RBGPtrDef));
 	memset( dev->bufs.b2.pSumBuf, 0, (5400 * 3 * 2));
 
 	u12io_DataToRegister( dev, REG_MODECONTROL, _ModeIdle );

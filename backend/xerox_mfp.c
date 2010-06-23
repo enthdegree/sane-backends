@@ -941,8 +941,8 @@ SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback cb)
 {
   DBG_INIT ();
-  DBG (2, "sane_init: Xerox backend (build %d) %p, %p\n", BACKEND_BUILD,
-       (void *)version_code, (void *)cb);
+  DBG (2, "sane_init: Xerox backend (build %d), version %s null, authorize %s null\n", BACKEND_BUILD,
+       (version_code) ? "!=" : "==", (cb) ? "!=" : "==");
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BACKEND_BUILD);

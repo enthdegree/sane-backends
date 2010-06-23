@@ -5,6 +5,8 @@
 *  2 of the License, or (at your option) any later version.
 */
 
+/* For putenv */
+#define _XOPEN_SOURCE
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>

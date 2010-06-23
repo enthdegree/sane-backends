@@ -334,7 +334,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       return SANE_STATUS_IO_ERROR;
     }
   DBG (1, "sane_open: Device found.All are green.");
-  *handle = (SANE_Handle) scanner_d;
+  *handle = (SANE_Handle) (unsigned long)scanner_d;
 
   return SANE_STATUS_GOOD;
 }
@@ -344,7 +344,7 @@ sane_close (SANE_Handle handle)
 {
   DBG (2, "sane_close\n");
   /*We support only single device - so ignore handle (FIX IT LATER) */
-  if ((handle != (SANE_Handle) scanner_d) || (scanner_d == -1))
+  if ((handle != (SANE_Handle) (unsigned long)scanner_d) || (scanner_d == -1))
     return;			/* wrong device */
   StandByScanner ();
   CloseScanner (scanner_d);
@@ -355,7 +355,7 @@ const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
   DBG (2, "sane_get_option_descriptor: option = %d\n", option);
-  if ((handle != (SANE_Handle) scanner_d) || (scanner_d == -1))
+  if ((handle != (SANE_Handle) (unsigned long)scanner_d) || (scanner_d == -1))
     return NULL;		/* wrong device */
 
   if (option < 0 || option >= NELEMS (sod))	/*No real options supported */
@@ -368,7 +368,7 @@ SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
 		     SANE_Action action, void *value, SANE_Int * info)
 {
-  if ((handle != (SANE_Handle) scanner_d) || (scanner_d == -1))
+  if ((handle != (SANE_Handle) (unsigned long)scanner_d) || (scanner_d == -1))
     return SANE_STATUS_INVAL;	/* wrong device */
 
   if ((option >= NELEMS (sod)) || (option < 0))	/*Supported only this option */
@@ -421,7 +421,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   DBG (2, "sane_get_parameters\n");
 
-  if ((handle != (SANE_Handle) scanner_d) || (scanner_d == -1))
+  if ((handle != (SANE_Handle) (unsigned long)scanner_d) || (scanner_d == -1))
     return SANE_STATUS_INVAL;	/* wrong device */
 
   /*Ignore handle parameter for now. FIX it latter. */
@@ -442,7 +442,7 @@ sane_start (SANE_Handle handle)
   int i;
   DBG (2, "sane_start\n");
 
-  if ((handle != (SANE_Handle) scanner_d) || (scanner_d == -1))
+  if ((handle != (SANE_Handle) (unsigned long)scanner_d) || (scanner_d == -1))
     return SANE_STATUS_IO_ERROR;
 
   CallFunctionWithParameter (0x93, 2);
@@ -507,7 +507,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
       return SANE_STATUS_INVAL;
     }
 
-  if ((handle != (SANE_Handle) scanner_d) || (scanner_d == -1))
+  if ((handle != (SANE_Handle) (unsigned long)scanner_d) || (scanner_d == -1))
     {
       DBG (1, "sane_read: unknown handle\n");
       return SANE_STATUS_INVAL;

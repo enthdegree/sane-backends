@@ -46,6 +46,7 @@ SANE_Status esci_request_status(SANE_Handle handle, unsigned char *scanner_statu
 SANE_Status esci_request_extended_identity(SANE_Handle handle, unsigned char *buf);
 SANE_Status esci_request_scanner_status(SANE_Handle handle, unsigned char *buf);
 SANE_Status esci_set_scanning_parameter(SANE_Handle handle, unsigned char *buf);
+SANE_Status esci_get_scanning_parameter(SANE_Handle handle, unsigned char *buf);
 SANE_Status esci_request_command_parameter(SANE_Handle handle, unsigned char *buf);
 SANE_Status esci_request_focus_position(SANE_Handle handle,
 				   unsigned char *position);

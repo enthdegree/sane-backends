@@ -872,8 +872,8 @@ read_line (P5_Device * dev, uint8_t * data, size_t length, int ltr,
   unsigned int i, factor;
   float val;
 
-  DBG (DBG_proc, "read_line: trying to read %d lines of %d bytes\n", ltr,
-       length);
+  DBG (DBG_proc, "read_line: trying to read %d lines of %lu bytes\n", ltr,
+       (unsigned long)length);
 
   counter = read_reg (dev->fd, REG9);
   DBG (DBG_io, "read_line: %d bytes available\n", counter * 256);

@@ -896,7 +896,7 @@ sane_start (SANE_Handle handle)
   dev->buffer = (uint8_t *) malloc (dev->size);
   if (dev->buffer == NULL)
     {
-      DBG (DBG_error, "sane_start: failed to allocate %d bytes\n", dev->size);
+      DBG (DBG_error, "sane_start: failed to allocate %lu bytes\n", (unsigned long)dev->size);
       sane_cancel (handle);
       return SANE_STATUS_NO_MEM;
     }
@@ -906,10 +906,10 @@ sane_start (SANE_Handle handle)
   session->sent = 0;
 
   DBG (DBG_io, "sane_start: to_send=%d\n", session->to_send);
-  DBG (DBG_io, "sane_start: size=%d\n", dev->size);
-  DBG (DBG_io, "sane_start: top=%d\n", dev->top);
-  DBG (DBG_io, "sane_start: bottom=%d\n", dev->bottom);
-  DBG (DBG_io, "sane_start: position=%d\n", dev->position);
+  DBG (DBG_io, "sane_start: size=%lu\n", (unsigned long)dev->size);
+  DBG (DBG_io, "sane_start: top=%lu\n", (unsigned long)dev->top);
+  DBG (DBG_io, "sane_start: bottom=%lu\n", (unsigned long)dev->bottom);
+  DBG (DBG_io, "sane_start: position=%lu\n", (unsigned long)dev->position);
 
   DBG (DBG_proc, "sane_start: exit\n");
   return status;
@@ -1254,10 +1254,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 	{
 	  dev->position = dev->bottom;
 	}
-      DBG (DBG_io, "sane_read: size    =%d\n", dev->size);
-      DBG (DBG_io, "sane_read: bottom  =%d\n", dev->bottom);
-      DBG (DBG_io, "sane_read: position=%d\n", dev->position);
-      DBG (DBG_io, "sane_read: top     =%d\n", dev->top);
+      DBG (DBG_io, "sane_read: size    =%lu\n", (unsigned long)dev->size);
+      DBG (DBG_io, "sane_read: bottom  =%lu\n", (unsigned long)dev->bottom);
+      DBG (DBG_io, "sane_read: position=%lu\n", (unsigned long)dev->position);
+      DBG (DBG_io, "sane_read: top     =%lu\n", (unsigned long)dev->top);
     }				/* end of physical data reading */
 
   /* logical data reading */
@@ -1332,10 +1332,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
       dev->top = 0;
     }
 
-  DBG (DBG_io, "sane_read: size    =%d\n", dev->size);
-  DBG (DBG_io, "sane_read: bottom  =%d\n", dev->bottom);
-  DBG (DBG_io, "sane_read: position=%d\n", dev->position);
-  DBG (DBG_io, "sane_read: top     =%d\n", dev->top);
+  DBG (DBG_io, "sane_read: size    =%lu\n", (unsigned long)dev->size);
+  DBG (DBG_io, "sane_read: bottom  =%lu\n", (unsigned long)dev->bottom);
+  DBG (DBG_io, "sane_read: position=%lu\n", (unsigned long)dev->position);
+  DBG (DBG_io, "sane_read: top     =%lu\n", (unsigned long)dev->top);
 
   DBG (DBG_proc, "sane_read: exit\n");
   return status;

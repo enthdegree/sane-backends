@@ -508,7 +508,6 @@ sanei_magic_findSkew(SANE_Parameters * params, SANE_Byte * buffer,
   SANE_Status ret = SANE_STATUS_GOOD;
 
   int pwidth = params->pixels_per_line;
-  int width = params->bytes_per_line;
   int height = params->lines;
 
   double TSlope = 0;

@@ -868,7 +868,7 @@ attach (SANE_String_Const devname, GT68xx_Device ** devp, SANE_Bool may_wait)
 
   if (!gt68xx_device_is_configured (dev))
     {
-      GT68xx_Model *model;
+      GT68xx_Model *model = NULL;
       DBG (2, "attach: Warning: device `%s' is not listed in device table\n",
            devname);
       DBG (2,

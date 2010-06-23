@@ -6172,7 +6172,7 @@ sane_start (SANE_Handle handle)
          (s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091)
          || (s->swcrop || s->swdeskew || s->swdespeck
 #ifdef SANE_FRAME_JPEG
-            && s->s.format != SANE_FRAME_JPEG
+            && s->params.format != SANE_FRAME_JPEG
 #endif
          )
         )
@@ -6236,7 +6236,7 @@ sane_start (SANE_Handle handle)
    * so we block and buffer. yuck */
   if( (s->swdeskew || s->swdespeck || s->swcrop)
 #ifdef SANE_FRAME_JPEG
-    && s->s.format != SANE_FRAME_JPEG
+    && s->params.format != SANE_FRAME_JPEG
 #endif
   ){
 

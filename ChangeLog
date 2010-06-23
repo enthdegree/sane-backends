@@ -1,3 +1,9 @@
+2010-06-23 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.c: Fix compilation bug when jpeg support is enabled.
+
+2010-06-23 Julien Blache <jb@jblache.org>
+	* various: corrected initialization, printing, etc. in many backends 
+
 2010-06-21 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: udev rules: set libsane_matched=yes for SCSI
 	devices too. Used by udev-acl later on.

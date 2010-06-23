@@ -80,7 +80,7 @@ kv_free (KV_DEV ** pdev)
 
 /* Free all devices */
 static void
-kv_free_devices ()
+kv_free_devices (void)
 {
   PKV_DEV dev;
   while (g_devices)
@@ -98,7 +98,7 @@ kv_free_devices ()
 
 /* Get all supported scanners, and store into g_scanners_supported */
 SANE_Status
-kv_enum_devices ()
+kv_enum_devices (void)
 {
   SANE_Status status;
   kv_free_devices ();
@@ -120,7 +120,7 @@ kv_get_devices_list (const SANE_Device *** devices_list)
 
 /* Close all open handles and clean up global storage */
 void
-kv_exit ()
+kv_exit (void)
 {
   kv_free_devices ();		/* Free all devices */
   kv_usb_cleanup ();		/* Clean USB bus */

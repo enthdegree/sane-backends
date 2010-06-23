@@ -95,7 +95,7 @@ attach_scanner_usb (const char *device_name)
 
 /* Get all supported scanners, and store into g_devlist */
 SANE_Status
-kv_usb_enum_devices ()
+kv_usb_enum_devices (void)
 {
   int cnt = 0;
   int i;
@@ -189,7 +189,7 @@ kv_usb_close (PKV_DEV dev)
 
 /* Clean up the USB bus and release all resources allocated to devices */
 void
-kv_usb_cleanup ()
+kv_usb_cleanup (void)
 {
 }
 

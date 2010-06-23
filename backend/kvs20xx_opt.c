@@ -21,6 +21,8 @@
 #include "../include/lassert.h"
 
 #include "kvs20xx.h"
+#include "kvs20xx_cmd.h"
+
 
 static size_t
 max_string_size (SANE_String_Const strings[])

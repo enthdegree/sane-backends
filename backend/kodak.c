@@ -2787,54 +2787,6 @@ do_cmd(struct scanner *s, int runRS, int shortTime,
   return ret;
 }
 
-static SANE_Status
-wait_scanner(struct scanner *s) 
-{
-  int ret;
-
-  unsigned char cmd[TEST_UNIT_READY_len];
-  size_t cmdLen = TEST_UNIT_READY_len;
-
-  DBG (10, "wait_scanner: start\n");
-
-  memset(cmd,0,cmdLen);
-  set_SCSI_opcode(cmd,TEST_UNIT_READY_code);
-
-  ret = do_cmd (
-    s, 0, 1,
-    cmd, cmdLen,
-    NULL, 0,
-    NULL, NULL
-  );
-  
-  if (ret != SANE_STATUS_GOOD) {
-    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick\n");
-    ret = do_cmd (
-      s, 0, 1,
-      cmd, cmdLen,
-      NULL, 0,
-      NULL, NULL
-    );
-  }
-  if (ret != SANE_STATUS_GOOD) {
-    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick again\n");
-    ret = do_cmd (
-      s, 0, 1,
-      cmd, cmdLen,
-      NULL, 0,
-      NULL, NULL
-    );
-  }
-
-  if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "wait_scanner: error '%s'\n", sane_strstatus (ret));
-  }
-
-  DBG (10, "wait_scanner: finish\n");
-
-  return ret;
-}
-
 /**
  * Convenience method to determine longest string size in a list.
  */

@@ -83,7 +83,7 @@ static SANE_Device **devlist = NULL;
 static unsigned curr_scan_dev = 0;
 
 void
-sane_exit ()
+sane_exit (void)
 {
   if (devlist)
     {

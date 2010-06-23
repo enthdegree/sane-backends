@@ -1338,7 +1338,7 @@ static void debug_print_raw (int dbg_level, char* info, const uint8_t* data,
 {
   size_t i;
   
-  DBG (dbg_level, info);
+  DBG (dbg_level, "%s", info);
   for (i = 0; i < count; ++ i) {
     DBG (dbg_level, "  [%lu] %1d%1d%1d%1d%1d%1d%1d%1db %3oo %3dd %2xx\n",
 	 (u_long) i,
@@ -1354,7 +1354,7 @@ static void debug_print_hex_raw (int dbg_level, char* info, const uint8_t* data,
   int address = 0;
   char text [16*3+1];
 
-  DBG (dbg_level, info);
+  DBG (dbg_level, "%s", info);
   while (count) {
     char* t = text;
     int i = 0;

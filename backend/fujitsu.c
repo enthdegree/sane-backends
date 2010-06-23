@@ -462,6 +462,8 @@
          - clear Request Sense data at start of every do_cmd() call
          - track per-side ILI and global EOM flags
          - set per-side EOF flag if ILI and EOM are set
+      v101 2010-06-23, MAN
+         - fix compilation bug when jpeg is enabled
 
    SANE FLOW DIAGRAM
 
@@ -511,7 +513,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 100
+#define BUILD 101
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5

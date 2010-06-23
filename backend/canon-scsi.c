@@ -94,6 +94,7 @@ inquiry (int fd, int evpd, void *buf, size_t *buf_size)
   return (status);
 }
 
+#ifdef IMPLEMENT_ALL_SCANNER_SCSI_COMMANDS
 static SANE_Status
 mode_select (int fd)
 {
@@ -114,6 +115,7 @@ mode_select (int fd)
   DBG (31, "<< mode_select\n");
   return (status);
 }
+#endif
 
 static SANE_Status
 reserve_unit (int fd)

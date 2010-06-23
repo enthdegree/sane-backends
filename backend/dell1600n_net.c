@@ -645,8 +645,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
        height );
 
   DBG (5,
-       "sane_get_parameters: handle %x: bytes outstanding: %d, image size: %d\n",
-       iHandle, gOpenScanners[iHandle]->m_imageData.m_used, imageSize);
+       "sane_get_parameters: handle %x: bytes outstanding: %lu, image size: %d\n",
+       iHandle, (unsigned long)gOpenScanners[iHandle]->m_imageData.m_used, imageSize);
 
   /* check for enough data */
   /*
@@ -843,9 +843,9 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   } /* if */
 
   DBG (5,
-       "sane_read: sending %d bytes, image total %d, %d page bytes remaining, %d total remaining, image: %dx%d\n",
+       "sane_read: sending %d bytes, image total %d, %d page bytes remaining, %lu total remaining, image: %dx%d\n",
        dataSize, gOpenScanners[iHandle]->m_bytesRead, pageInfo.m_bytesRemaining ,
-       gOpenScanners[iHandle]->m_imageData.m_used - dataSize, 
+       (unsigned long)(gOpenScanners[iHandle]->m_imageData.m_used - dataSize), 
        pageInfo.m_width,
        pageInfo.m_height);
 
@@ -1187,8 +1187,8 @@ ProcessFindResponse (unsigned char *pData, size_t size)
   char *pModel, *pName;
 
 
-  DBG (10, "ProcessFindResponse: processing %d bytes, pData=%p\n", size,
-       pData);
+  DBG (10, "ProcessFindResponse: processing %lu bytes, pData=%p\n",
+       (unsigned long)size, pData);
 
   /* check we have a complete packet */
   if (!MessageIsComplete (pData, size))
@@ -1343,8 +1343,8 @@ ProcessUdpResponse (unsigned char *pData, size_t size,
 
   HexDump (15, pData, size);
 
-  DBG (10, "ProcessUdpResponse: processing %d bytes, pData=%p\n", size,
-       pData);
+  DBG (10, "ProcessUdpResponse: processing %lu bytes, pData=%p\n",
+       (unsigned long)size, pData);
 
   /* check we have a complete packet */
   if (!MessageIsComplete (pData, size))
@@ -1476,8 +1476,8 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
   int errorCheck = 0;
   int bProcessImage = 0;
 
-  DBG (10, "ProcessTcpResponse: processing %d bytes, pData=%p\n",
-       pTcpBuf->m_used, pData);
+  DBG (10, "ProcessTcpResponse: processing %lu bytes, pData=%p\n",
+       (unsigned long)pTcpBuf->m_used, pData);
   HexDump (15, pData, pTcpBuf->m_used);
 
   /* if message not complete then wait for more to arrive */
@@ -1722,8 +1722,8 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
 
           pItem += dataChunkSize;
 
-          DBG (10, "Accumulated %d bytes of scan data so far\n",
-               pState->m_buf.m_used);
+          DBG (10, "Accumulated %lu bytes of scan data so far\n",
+               (unsigned long)pState->m_buf.m_used);
         } /* if */
     } /* while */
 

@@ -111,24 +111,24 @@ struct scanner
 struct window
 {
   u8 reserved[6];
-  u8 window_descriptor_block_length[2];
+  u16 window_descriptor_block_length;
 
   u8 window_identifier;
   u8 reserved2;
-  u8 x_resolution[2];
-  u8 y_resolution[2];
-  u8 upper_left_x[4];
-  u8 upper_left_y[4];
-  u8 width[4];
-  u8 length[4];
+  u16 x_resolution;
+  u16 y_resolution;
+  u32 upper_left_x;
+  u32 upper_left_y;
+  u32 width;
+  u32 length;
   u8 brightness;
   u8 threshold;
   u8 contrast;
   u8 image_composition;
   u8 bit_per_pixel;
-  u8 halftone_pattern[2];
+  u16 halftone_pattern;
   u8 reserved3;
-  u8 bit_ordering[2];
+  u16 bit_ordering;
   u8 compression_type;
   u8 compression_argument;
   u8 reserved4[6];
@@ -141,8 +141,8 @@ struct window
   u8 mcd_lamp_dfeed_sens;
   u8 reserved5;
   u8 document_size;
-  u8 document_width[4];
-  u8 document_length[4];
+  u32 document_width;
+  u32 document_length;
   u8 ahead_deskew_dfeed_scan_area_fspeed_rshad;
   u8 continuous_scanning_pages;
   u8 automatic_threshold_mode;
@@ -151,7 +151,7 @@ struct window
   u8 b_wnr_noise_reduction;
   u8 mfeed_toppos_btmpos_dsepa_hsepa_dcont_rstkr;
   u8 stop_mode;
-};
+} __attribute__((__packed__));
 
 void init_options (struct scanner *);
 void init_window (struct scanner *s, struct window *wnd, int wnd_id);

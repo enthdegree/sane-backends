@@ -11576,6 +11576,7 @@ Calib_LoadConfig (struct st_device *dev,
   calibcfg->BShadingDefCutOff =
     get_value (section, BSHADINGDEFCUTOFF, 0, FITCALIBRATE);
 
+  refcfg.extern_boundary = 0;
   cfg_autoref_get (&refcfg);
   calibcfg->ExternBoundary = refcfg.extern_boundary * 0.01;
 

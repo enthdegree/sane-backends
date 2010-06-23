@@ -259,7 +259,9 @@ do_cmd(struct scanner *s, int runRS, int shortTime,
  unsigned char * inBuff, size_t * inLen
 );
 
+#if 0 /* unused */
 static SANE_Status wait_scanner (struct scanner *s);
+#endif
 
 static SANE_Status do_cancel (struct scanner *scanner);
 

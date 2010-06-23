@@ -2787,6 +2787,7 @@ do_cmd(struct scanner *s, int runRS, int shortTime,
   return ret;
 }
 
+#if 0 /* unused */
 static SANE_Status
 wait_scanner(struct scanner *s) 
 {
@@ -2834,6 +2835,7 @@ wait_scanner(struct scanner *s)
 
   return ret;
 }
+#endif /* 0 - unused */
 
 /**
  * Convenience method to determine longest string size in a list.

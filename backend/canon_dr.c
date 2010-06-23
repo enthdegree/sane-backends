@@ -3890,9 +3890,9 @@ read_from_scanner(struct scanner *s, int side, int exact)
     bytes = remain;
   }
 
-  DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d ex:%d\n",
-    side, s->s.bytes_tot[side], s->s.bytes_sent[side],
-    remain, s->buffer_size, bytes, exact);
+  DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%lu bu:%d pa:%lu ex:%d\n",
+      side, s->s.bytes_tot[side], s->s.bytes_sent[side],
+      (unsigned long)remain, s->buffer_size, (unsigned long)bytes, exact);
 
   inLen = bytes;
   in = malloc(inLen);
@@ -3915,10 +3915,10 @@ read_from_scanner(struct scanner *s, int side, int exact)
   );
 
   if (ret == SANE_STATUS_GOOD) {
-    DBG(15, "read_from_scanner: got GOOD, returning GOOD %d\n",inLen);
+    DBG(15, "read_from_scanner: got GOOD, returning GOOD %lu\n", (unsigned long)inLen);
   }
   else if (ret == SANE_STATUS_EOF) {
-    DBG(15, "read_from_scanner: got EOF, finishing %d\n",inLen);
+    DBG(15, "read_from_scanner: got EOF, finishing %lu\n", (unsigned long)inLen);
   }
   else if (ret == SANE_STATUS_DEVICE_BUSY) {
     DBG(5, "read_from_scanner: got BUSY, returning GOOD\n");
@@ -4081,8 +4081,8 @@ read_from_scanner_duplex(struct scanner *s,int exact)
     bytes = remain;
   }
 
-  DBG(15, "read_from_scanner_duplex: re:%d bu:%d pa:%d ex:%d\n",
-    remain, s->buffer_size, bytes, exact);
+  DBG(15, "read_from_scanner_duplex: re:%lu bu:%d pa:%lu ex:%d\n",
+      (unsigned long)remain, s->buffer_size, (unsigned long)bytes, exact);
 
   inLen = bytes;
   in = malloc(inLen);
@@ -4106,10 +4106,10 @@ read_from_scanner_duplex(struct scanner *s,int exact)
   );
 
   if (ret == SANE_STATUS_GOOD) {
-    DBG(15, "read_from_scanner_duplex: got GOOD, returning GOOD %d\n",inLen);
+    DBG(15, "read_from_scanner_duplex: got GOOD, returning GOOD %lu\n", (unsigned long)inLen);
   }
   else if (ret == SANE_STATUS_EOF) {
-    DBG(15, "read_from_scanner_duplex: got EOF, finishing %d\n",inLen);
+    DBG(15, "read_from_scanner_duplex: got EOF, finishing %lu\n", (unsigned long)inLen);
   }
   else if (ret == SANE_STATUS_DEVICE_BUSY) {
     DBG(5, "read_from_scanner_duplex: got BUSY, returning GOOD\n");

@@ -2602,7 +2602,7 @@ static SANE_Status pack_flat_data(Microtek_Scanner *s, size_t nlines)
   }
 
   if (s->doexpansion) {
-    unsigned int line, bit, i;
+    unsigned int line, bit;
     SANE_Byte *sb, *db, byte;
 
     size_t pos;
@@ -2613,6 +2613,7 @@ static SANE_Status pack_flat_data(Microtek_Scanner *s, size_t nlines)
 
     if (!(s->multibit)) {
       for (line=0; line<nlines; line++) {
+	size_t i;
 	double x1, x2, n1, n2;
 	for (i = 0, x1 = 0.0, x2 = s->exp_aspect, n1 = 0.0, n2 = floor(x2);
 	     i < rb->bpl; 
@@ -2639,6 +2640,7 @@ static SANE_Status pack_flat_data(Microtek_Scanner *s, size_t nlines)
     } else { /* multibit scan (8 is assumed!) */
       for (line=0; line<nlines; line++) { 
 	double x1, x2, n1, n2;
+	int i;
 	for (i = 0, x1 = 0.0, x2 = s->exp_aspect, n1 = 0.0, n2 = floor(x2);
 	     i < s->dest_ppl; 
 	     i++, x1 = x2, n1 = n2, x2 += s->exp_aspect, n2 = floor(x2)) {
@@ -2720,7 +2722,7 @@ pack_seqrgb_data (Microtek_Scanner *s, size_t nlines)
     }
 
     if (s->doexpansion) {
-      unsigned int i;
+      int i;
       double x1, x2, n1, n2;
       for (i = 0, x1 = 0.0, x2 = s->exp_aspect, n1 = 0.0, n2 = floor(x2);
 	   i < s->dest_ppl; 
@@ -2833,7 +2835,7 @@ pack_goofyrgb_data(Microtek_Scanner *s, size_t nlines)
     sb++; /* skip the other header byte */
 
     if (s->doexpansion) {
-      unsigned int i;
+      int i;
       double x1, x2, n1, n2;
       for (i = 0, x1 = 0.0, x2 = s->exp_aspect, n1 = 0.0, n2 = floor(x2);
 	   i < s->dest_ppl; 
@@ -2904,7 +2906,8 @@ pack_seq2r2g2b_data(Microtek_Scanner *s, size_t nlines)
     if (status != SANE_STATUS_GOOD) return status;
   }
   {
-    unsigned int line, p;
+    unsigned int line;
+    int p;
     size_t pos = start; 
     SANE_Byte *sb = s->scsi_buffer;
     SANE_Byte *db = rb->base;
@@ -3017,9 +3020,9 @@ pack_into_ring(Microtek_Scanner *s, int nlines)
 /* Pack processed image bytes into frontend destination buffer      */
 /********************************************************************/
 static SANE_Int
-pack_into_dest(SANE_Byte *dest_buffer, SANE_Int dest_length, ring_buffer *rb)
+pack_into_dest(SANE_Byte *dest_buffer, size_t dest_length, ring_buffer *rb)
 {
-  SANE_Int ret_length = MIN(rb->complete_count, dest_length);
+  size_t ret_length = MIN(rb->complete_count, dest_length);
 
   DBG(23, "pack_into_dest...\n");
   DBG(23, "pack_into_dest:  rl: %lu  sz: %lu  hc: %lu\n",

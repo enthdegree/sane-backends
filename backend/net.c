@@ -957,8 +957,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG_INIT ();
 
-  DBG (2, "sane_init: authorize = %p, version_code = %p\n", (void *) authorize,
-       (void *) version_code);
+  DBG (2, "sane_init: authorize %s null, version_code %s null\n", (authorize) ? "!=" : "==",
+       (version_code) ? "!=" : "==");
 
   devlist = NULL;
   first_device = NULL;

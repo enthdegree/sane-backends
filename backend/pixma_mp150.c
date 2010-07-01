@@ -148,6 +148,9 @@
 #define MX320_PID 0x1736    /* untested */
 #define MX330_PID 0x1737
 
+/* PIXMA 2010 vintage */
+#define MX340_PID 0x1741
+
 /* Generation 4 */
 #define MP250_PID 0x173a
 #define MP270_PID 0x173b
@@ -1214,6 +1217,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
         s->cfg->pid == MX860_PID ||
         s->cfg->pid == MX320_PID ||
         s->cfg->pid == MX330_PID ||
+        s->cfg->pid == MX340_PID ||
         s->cfg->pid == MX7600_PID )
        &&
         sp->source == PIXMA_SOURCE_FLATBED)
@@ -1604,6 +1608,9 @@ const pixma_config_t pixma_mp150_devices[] = {
 /* width and height adjusted to flatbed size 21.8 x 30.2 cm^2 respective
  * Not sure if anything's going wrong here, leaving as is
   DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 880, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),*/
+
+  /* PIXMA 2010 vintage */
+  DEVICE ("Canon PIXMA MX340", "MX340", MX340_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
 
   /* Generation 4: CIS */
   DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 638, 877, PIXMA_CAP_CIS),

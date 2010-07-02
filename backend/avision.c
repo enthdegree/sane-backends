@@ -203,7 +203,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { NULL, NULL,
       0x0638, 0x0A93,
       "Avision", "AV122 C2",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_REAR_OFFSET,0},
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_NOT_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_REAR_OFFSET,0},
     /* comment="sheetfed duplex scanner" */
     /* status="good" */
 

@@ -1,3 +1,6 @@
+2010-07-02 m. allan noah <kitno455 at gmail dot com>
+	* backend/avision.c: patch for AV122-C2 from Ori Koren
+
 2010-06-23 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.c: Fix compilation bug when jpeg support is enabled.
 

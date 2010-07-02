@@ -1,5 +1,13 @@
+2010-07-02  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	pixma: update doc to include ImageClass MF6550 support.
+
 2010-07-02 m. allan noah <kitno455 at gmail dot com>
 	* backend/avision.c: patch for AV122-C2 from Ori Koren
+
+2010-07-01  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	pixma: thanks to Dan McGee patch, add support for PIXMA MX340.
 
 2010-06-23 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.c: Fix compilation bug when jpeg support is enabled.

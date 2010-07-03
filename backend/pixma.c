@@ -1301,7 +1301,10 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 {
   DECL_CTX;
   int sum, n;
-  SANE_Byte temp[60];
+  /* Due to 32 pixels alignment, sizeof(temp) is to be greater than:
+   * max(nchannels) * max (sp.line_size - output_line_size)
+   * so currently: 3 * 32 = 96  for better end line cropping efficiency */
+  SANE_Byte temp[100];
   SANE_Status status;
 
   if (len)

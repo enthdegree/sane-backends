@@ -1,3 +1,8 @@
+2010-07-03  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/descriptions/pixma.desc, backend/pixma.c
+	pixma: fix ImageClass MF6550 description.
+	       fix end of line crop buffer size.
+
 2010-07-02  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	pixma: update doc to include ImageClass MF6550 support.

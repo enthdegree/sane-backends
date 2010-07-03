@@ -492,7 +492,7 @@
 :model "imageCLASS MF6500 series"
 :interface "USB"
 :usbid "0x04a9" "0x2686"
-:status :untested
+:status :complete
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "CanoScan 8800F"

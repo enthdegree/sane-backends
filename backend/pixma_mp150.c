@@ -148,10 +148,6 @@
 #define MX320_PID 0x1736    /* untested */
 #define MX330_PID 0x1737
 
-/* PIXMA 2010 vintage */
-#define MX340_PID 0x1741
-#define MX350_PID 0x1742
-
 /* Generation 4 */
 #define MP250_PID 0x173a
 #define MP270_PID 0x173b
@@ -160,6 +156,10 @@
 #define MP560_PID 0x173e
 #define MP640_PID 0x173f
 #define MP990_PID 0x1740
+
+/* PIXMA 2010 vintage */
+#define MX340_PID 0x1741
+#define MX350_PID 0x1742
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \

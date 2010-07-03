@@ -150,6 +150,7 @@
 
 /* PIXMA 2010 vintage */
 #define MX340_PID 0x1741
+#define MX350_PID 0x1742
 
 /* Generation 4 */
 #define MP250_PID 0x173a
@@ -1218,6 +1219,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
         s->cfg->pid == MX320_PID ||
         s->cfg->pid == MX330_PID ||
         s->cfg->pid == MX340_PID ||
+        s->cfg->pid == MX350_PID ||
         s->cfg->pid == MX7600_PID )
        &&
         sp->source == PIXMA_SOURCE_FLATBED)
@@ -1611,6 +1613,7 @@ const pixma_config_t pixma_mp150_devices[] = {
 
   /* PIXMA 2010 vintage */
   DEVICE ("Canon PIXMA MX340", "MX340", MX340_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX350", "MX350", MX350_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
 
   /* Generation 4: CIS */
   DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 638, 877, PIXMA_CAP_CIS),

@@ -243,6 +243,12 @@
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)"
 
+:model "PIXMA MX350"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x1742"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)"
+
 :model "PIXMA MX700"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1729"

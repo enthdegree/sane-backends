@@ -1,5 +1,9 @@
+2010-07-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	pixma: changes for PIXMA MX350 support, usb and ethernet.
+
 2010-07-03  Nicolas Martin <nicols-guest at users.alioth.debian.org>
-	* doc/descriptions/pixma.desc, backend/pixma.c
+	* doc/descriptions/pixma.desc, backend/pixma.c:
 	pixma: fix ImageClass MF6550 description.
 	       fix end of line crop buffer size.
 

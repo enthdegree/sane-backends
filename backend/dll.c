@@ -779,7 +779,7 @@ read_dlld (void)
   DBG (5, "sane_init/read_dlld: processing %s ...\n",
        STRINGIFY(PATH_SANE_CONFIG_DIR) "/dll.d");
 
-  /* Debian specific: read files under $sysconfdir/sane.d/dll.d */
+  /* Read files under $sysconfdir/sane.d/dll.d */
   dlld = opendir (STRINGIFY(PATH_SANE_CONFIG_DIR) "/dll.d");
 
   if (dlld == NULL)

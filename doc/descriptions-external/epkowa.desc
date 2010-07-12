@@ -806,17 +806,41 @@
 :status    :good
 :comment   "all-in-one<br>overseas version of the PX-401A"
 
+:model     "ME 320 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x085c"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "ME 330 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x085c"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "ME OFFICE 510"
 :interface "USB"
 :usbid     "0x04b8" "0x084f"
 :status    :good
 :comment   "all-in-one"
 
+:model     "ME OFFICE 520 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0865"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "ME OFFICE 560W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0864"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "ME Office 600F"
 :interface "USB"
 :usbid     "0x04b8" "0x0848"
 :status    :good
-:comment   "all-in-one"
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "ME OFFICE 650FN Series"
 :interface "USB"
@@ -1235,6 +1259,13 @@
 :comment   "requires DFSG non-free esci-interpreter-gt-f720<br>overseas version of the GT-S620"
 :url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
+:model     "Perfection V33"
+:interface "USB"
+:usbid     "0x04b8" "0x0142"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-perfection-v330"
+:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+
 :model     "Perfection V100 Photo"
 :interface "USB"
 :usbid     "0x04b8" "0x012d"
@@ -1254,6 +1285,13 @@
 :usbid     "0x04b8" "0x0131"
 :status    :good
 :comment   "requires DFSG non-free esci-interpreter-gt-f720<br>overseas version of the GT-F720"
+:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+
+:model     "Perfection V330 Photo"
+:interface "USB"
+:usbid     "0x04b8" "0x0142"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-perfection-v330"
 :url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
 :model     "Perfection V350 Photo"
@@ -1651,13 +1689,25 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0848"
 :status    :good
-:comment   "all-in-one"
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "Stylus Office BX305F"
+:interface "USB"
+:usbid     "0x04b8" "0x0863"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus Office BX310FN Series"
 :interface "USB"
 :usbid     "0x04b8" "0x0854"
 :status    :good
 :comment   "all-in-one"
+
+:model     "Stylus Office BX320FW Series"
+:interface "USB"
+:usbid     "0x04b8" "0x085f"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus Office BX600FW"
 :interface "USB"
@@ -1675,7 +1725,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0848"
 :status    :good
-:comment   "all-in-one"
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus Office TX510FN Series"
 :interface "USB"
@@ -1893,6 +1943,18 @@
 :status    :good
 :comment   "all-in-one<br>overseas version of the PX-402A"
 
+:model     "Stylus NX125"
+:interface "USB"
+:usbid     "0x04b8" "0x085c"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus NX127"
+:interface "USB"
+:usbid     "0x04b8" "0x085c"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "Stylus NX200"
 :interface "USB"
 :usbid     "0x04b8" "0x0849"
@@ -1905,11 +1967,11 @@
 :status    :good
 :comment   "all-in-one"
 
-:model     "Stylus NX300"
+:model     "Stylus NX300 Series"
 :interface "USB"
 :usbid     "0x04b8" "0x0848"
 :status    :good
-:comment   "all-in-one"
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus NX400"
 :interface "USB"
@@ -1922,6 +1984,12 @@
 :usbid     "0x04b8" "0x0851"
 :status    :good
 :comment   "network interface not supported<br>all-in-one"
+
+:model     "Stylus NX420 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0864"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus NX510 Series"
 :interface "USB"
@@ -1941,6 +2009,12 @@
 :status    :good
 :comment   "all-in-one<br>overseas version of the PX-402A"
 
+:model     "Stylus SX125"
+:interface "USB"
+:usbid     "0x04b8" "0x085c"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "Stylus SX200"
 :interface "USB"
 :usbid     "0x04b8" "0x0849"
@@ -1957,6 +2031,12 @@
 :interface "USB"
 :usbid     "0x04b8" "0x084f"
 :status    :good
+:comment   "all-in-one"
+
+:model     "Stylus SX218"
+:interface "USB"
+:usbid     "0x04b8" "0x0865"
+:status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus SX400"
@@ -1976,6 +2056,12 @@
 :usbid     "0x04b8" "0x0851"
 :status    :good
 :comment   "network interface not supported<br>all-in-one"
+
+:model     "Stylus SX420W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0864"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus SX510W Series"
 :interface "USB"
@@ -2019,6 +2105,12 @@
 :status    :good
 :comment   "all-in-one<br>overseas version of the PX-402A"
 
+:model     "Stylus TX120 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x085c"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "Stylus TX200"
 :interface "USB"
 :usbid     "0x04b8" "0x0849"
@@ -2043,6 +2135,12 @@
 :status    :good
 :comment   "all-in-one"
 
+:model     "Stylus TX220 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0865"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "Stylus TX400"
 :interface "USB"
 :usbid     "0x04b8" "0x084a"
@@ -2054,6 +2152,12 @@
 :usbid     "0x04b8" "0x0851"
 :status    :good
 :comment   "network interface not supported<br>all-in-one"
+
+:model     "Stylus TX420W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0864"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus TX550W Series"
 :interface "USB"
@@ -2072,6 +2176,12 @@
 :usbid     "0x04b8" "0x084c"
 :status    :good
 :comment   "all-in-one"
+
+:model     "WorkForce 520 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x085f"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "WorkForce 600"
 :interface "USB"

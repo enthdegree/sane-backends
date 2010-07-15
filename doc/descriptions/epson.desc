@@ -146,6 +146,7 @@
 :model "Perfection 2450"
 :interface "USB IEEE-1394"
 :usbid "0x04b8" "0x0112"
+:scsi "EPSON" "GT-9700" "processor"
 :status :complete
 
 :model "Perfection 3200"

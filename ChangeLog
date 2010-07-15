@@ -1,3 +1,8 @@
+2010-07-14 Julien Blache <jb@jblache.org>
+	* doc/descriptions/epson.desc, doc/descriptions/epson2.desc: add :scsi
+	keyword for the Perfection 2450 connected through FireWire. Courtesy
+	of Brian Denheyer <briand@aracnet.com>.
+
 2010-07-12 Julien Blache <jb@jblache.org>
 	* doc/descriptions-external/epkowa.desc: update for iScan 2.25.0,
 	from Alesh Slovak <alesh.slovak@avasys.jp>.

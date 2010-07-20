@@ -55,7 +55,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 18
+#define BUILD 30
 
 #include <errno.h>
 #include <string.h>
@@ -175,6 +175,8 @@ genesys_init_cmd_set (Genesys_Device * dev)
       return sanei_gl646_init_cmd_set (dev);
     case GENESYS_GL841:
       return sanei_gl841_init_cmd_set (dev);
+    case GENESYS_GL843:
+      return sanei_gl843_init_cmd_set (dev);
     case GENESYS_GL847:
       return sanei_gl847_init_cmd_set (dev);
     default:

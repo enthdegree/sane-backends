@@ -145,7 +145,14 @@ static Genesys_Frontend Wolfson[] = {
    , {0x32, 0x04, 0x00}
    , {0x00, 0x00, 0x00}
    }
-  ,			
+  ,				/* KVSS080 */
+  {DAC_KVSS080,{0x00, 0x03, 0x05, 0x12}
+   , {0x00, 0x00, 0x00}
+   , {0xb8, 0xb8, 0xb8}	
+   , {0x04, 0x04, 0x04}
+   , {0x00, 0x00, 0x00}
+   }
+  ,
 };
 
 
@@ -452,6 +459,23 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
+  {CCD_KVSS080,
+   600,
+   48,
+   85,
+   152,
+   5416,
+   210,
+   230,
+   {0x02, 0x00, 0x06, 0x04} ,
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2b, 0x08, 0x20, 0x2a, 0x00, 0x00,
+    0x0c, 0x03}
+   ,
+   {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x00, 0x00, 0x00,
+    0x00} ,
+   1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
+  ,
 
 };
 
@@ -557,6 +581,11 @@ static Genesys_Gpo Gpo[] = {
    ,
    {0xff, 0x00}
    ,
+   }
+  ,
+  {GPO_KVSS080,
+   {0x11, 0x00} ,
+   {0x51, 0x20} ,
    }
   ,
 };
@@ -805,6 +834,24 @@ static Genesys_Motor Motor[] = {
 	   },
     },
   },
+  {MOTOR_KVSS080,
+   1200,
+   2400,
+   1,
+   1,
+   {{{
+     3500,
+     1300,
+     60,
+     0.8,
+     },
+    {
+     3500,
+     1400,
+     60,
+     0.8,
+    },},},
+  },
 };
 
 /* here we have the various device settings...
@@ -910,6 +957,59 @@ static Genesys_Model canon_lide_50_model = {
   GENESYS_HAS_FILE_SW |
   GENESYS_HAS_EMAIL_SW |
   GENESYS_HAS_COPY_SW,
+  280,
+  400
+};
+
+static Genesys_Model panasonic_kvss080_model = {
+  "panasonic-kv-ss080",		/* Name */
+  "Panasonic",			/* Device vendor string */
+  "KS-SS080",			/* Device model name */
+  GENESYS_GL843,
+  NULL,
+
+  { 600, 300, 150, 75, 0},	/* possible x-resolutions */
+  { 1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
+  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CCD_KVSS080,
+  DAC_KVSS080,
+  GPO_KVSS080,
+  MOTOR_KVSS080,
+  GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_SKIP_WARMUP | 
+  GENESYS_FLAG_OFFSET_CALIBRATION | 
+  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
+  GENESYS_FLAG_CUSTOM_GAMMA |
+  GENESYS_FLAG_ODD_EVEN_CIS,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_COPY_SW,
   280,
   400
 };
@@ -2163,5 +2263,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a9, 0x1904, &canon_lide_100_model},
   {0x04a9, 0x1905, &canon_lide_200_model},
   {0x04a9, 0x1906, &canon_5600f_model},
+  /* GL843 devices */
+  {0x04da, 0x100f, &panasonic_kvss080_model},
   {0, 0, NULL}
 };

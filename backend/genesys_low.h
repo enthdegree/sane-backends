@@ -243,6 +243,7 @@ Genesys_Color_Order;
 
 #define GENESYS_GL646	 646
 #define GENESYS_GL841	 841
+#define GENESYS_GL843	 843
 #define GENESYS_GL846	 846
 #define GENESYS_GL847	 847
 #define GENESYS_GL848	 848
@@ -261,6 +262,7 @@ Genesys_Color_Order;
 #define DAC_WOLFSON_HP3670 9
 #define DAC_WOLFSON_DSM600 10
 #define DAC_CANONLIDE200   11
+#define DAC_KVSS080        12
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -279,6 +281,7 @@ Genesys_Color_Order;
 #define CCD_DP685        14
 #define CIS_CANONLIDE200 15
 #define CIS_CANONLIDE100 16
+#define CCD_KVSS080      17
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -293,6 +296,7 @@ Genesys_Color_Order;
 #define GPO_DP665        10
 #define GPO_DP685        11
 #define GPO_CANONLIDE200 12
+#define GPO_KVSS080      13
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1
@@ -308,6 +312,7 @@ Genesys_Color_Order;
 #define MOTOR_DSMOBILE_600 12
 #define MOTOR_CANONLIDE200 13
 #define MOTOR_CANONLIDE100 14
+#define MOTOR_KVSS080      15
 
 
 /* Forward typedefs */
@@ -801,6 +806,7 @@ sanei_genesys_buffer_consume(Genesys_Buffer * buf, size_t size);
 /*---------------------------------------------------------------------------*/
 extern SANE_Status sanei_gl646_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl841_init_cmd_set (Genesys_Device * dev);
+extern SANE_Status sanei_gl843_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl847_init_cmd_set (Genesys_Device * dev);
 
 #endif /* not GENESYS_LOW_H */

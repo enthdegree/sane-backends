@@ -160,6 +160,7 @@
 /* PIXMA 2010 vintage */
 #define MX340_PID 0x1741
 #define MX350_PID 0x1742
+#define MX870_PID 0x1743
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
@@ -1216,6 +1217,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   /* Those devices can scan up to 14" with ADF, but A4 11.7" in flatbed */
   if (( s->cfg->pid == MX850_PID ||
         s->cfg->pid == MX860_PID ||
+        s->cfg->pid == MX870_PID ||
         s->cfg->pid == MX320_PID ||
         s->cfg->pid == MX330_PID ||
         s->cfg->pid == MX340_PID ||
@@ -1252,6 +1254,24 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
       sp->xdpi *= k;
       sp->ydpi = sp->xdpi;
     }
+
+  if (sp->source == PIXMA_SOURCE_ADF || sp->source == PIXMA_SOURCE_ADFDUP)
+    {
+      uint8_t k = 1;
+
+  /* ADF/ADF duplex mode: max scan res is 600 dpi, at least for generation 4 */
+      if (mp->generation >= 4)
+        k = sp->xdpi / MIN (sp->xdpi, 600);
+      sp->x /= k;
+      sp->xs /= k;
+      sp->y /= k;
+      sp->w /= k;
+      sp->wx /= k;
+      sp->h /= k;
+      sp->xdpi /= k;
+      sp->ydpi = sp->xdpi;
+    }
+
   return 0;
 }
 
@@ -1614,6 +1634,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   /* PIXMA 2010 vintage */
   DEVICE ("Canon PIXMA MX340", "MX340", MX340_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX350", "MX350", MX350_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX870", "MX870", MX870_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   /* Generation 4: CIS */
   DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 638, 877, PIXMA_CAP_CIS),

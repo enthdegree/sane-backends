@@ -1,3 +1,9 @@
+2010-07-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, backend/pixma_imageclass.c, 
+	doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	pixma:  add support for PIXMA MX870.
+		declared PIXMA MF8030, but not yet working.
+
 2010-07-14 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc, doc/descriptions/epson2.desc: add :scsi
 	keyword for the Perfection 2450 connected through FireWire. Courtesy

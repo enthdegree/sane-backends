@@ -7025,7 +7025,8 @@ sane_close (SANE_Handle handle)
 
   /* we need this to avoid ASIC getting stuck
    * in bulk writes */
-  sanei_usb_reset (s->dev->dn);
+  if(s->dev->model->asic_type==GENESYS_GL847)
+    sanei_usb_reset (s->dev->dn);
 
   sanei_usb_close (s->dev->dn);
   free (s);

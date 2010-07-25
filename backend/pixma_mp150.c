@@ -539,11 +539,11 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
     }
   else if (param->channels == 1)
     {
-      raw_width = ALIGN_SUP (param->w + param->xs, 12);					/******** Changed here *******/
+      raw_width = ALIGN_SUP (param->w + param->xs, 12);
     }
   else
     {
-      raw_width = ALIGN_SUP (param->w + param->xs, 4);					/******** Changed here *******/
+      raw_width = ALIGN_SUP (param->w + param->xs, 4);
     }
   return raw_width;
 }
@@ -1097,14 +1097,14 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
               && s->param->xdpi == 4800)
                 mp970_reorder_pixels (mp->linebuf, sptr, c, s->param->wx, line_size);
 
-	  /* Crop line to selected borders */
-	  memcpy(cptr, sptr + cx, cw);
+          /* Crop line to selected borders */
+          memcpy(cptr, sptr + cx, cw);
 	  
           /* Color to Grayscale convert for CCD sensor */
           if (is_ccd_grayscale (s))
-              cptr = gptr = rgb_to_gray (gptr, cptr, s->param->w, c);				/******** Changed here *******/
-	  else
-	      cptr += cw;
+              cptr = gptr = rgb_to_gray (gptr, cptr, s->param->w, c);
+          else
+              cptr += cw;
         }
     }
   ib->rptr = mp->imgbuf;

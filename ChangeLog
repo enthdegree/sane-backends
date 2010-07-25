@@ -1,3 +1,9 @@
+2010-07-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma.c, backend/pixma.h, backend/pixma_common.c,
+	backend/pixma_imageclass.c:
+	pixma: changes for future Lineart scan mode support.
+	       some MF8030 settings, but device not yet supported.
+
 2010-07-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, backend/pixma_imageclass.c, 
 	doc/descriptions/pixma.desc, doc/sane-pixma.man:

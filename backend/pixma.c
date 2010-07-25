@@ -102,7 +102,7 @@ typedef struct pixma_sane_t
   option_descriptor_t opt[opt_last];
   SANE_Range xrange, yrange;
   SANE_Word dpi_list[9];	/* up to 9600 dpi */
-  SANE_String_Const mode_list[3];
+  SANE_String_Const mode_list[4];
   uint8_t gamma_table[4096];
   SANE_String_Const source_list[4];
   pixma_paper_source_t source_map[4];
@@ -574,6 +574,7 @@ calc_scan_param (pixma_sane_t * ss, pixma_scan_param_t * sp)
   memset (sp, 0, sizeof (*sp));
 
   sp->channels = (OVAL (opt_mode).w == 0) ? 3 : 1;
+  sp->depth = (OVAL (opt_mode).w == 2) ? 1 : 8;
   sp->xdpi = sp->ydpi = OVAL (opt_resolution).w;
 
 #define PIXEL(x,dpi) (int)((SANE_UNFIX(x) / 25.4 * (dpi)) + 0.5)
@@ -651,6 +652,11 @@ init_option_descriptors (pixma_sane_t * ss)
   if (cfg->cap & PIXMA_CAP_GRAY)
     {
       ss->mode_list[1] = SANE_VALUE_SCAN_MODE_GRAY;
+    }
+
+  if (cfg->cap & PIXMA_CAP_LINEART)
+    {
+      ss->mode_list[2] = SANE_VALUE_SCAN_MODE_LINEART;
     }
 
   /* setup paper source */

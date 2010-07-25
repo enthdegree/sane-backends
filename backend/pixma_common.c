@@ -821,7 +821,7 @@ pixma_check_scan_param (pixma_t * s, pixma_scan_param_t * sp)
 
   if (sp->depth == 0)
     sp->depth = 8;
-  if ((sp->depth % 8) != 0)
+  if ((sp->depth % 8) != 0 && sp->depth != 1)
     return PIXMA_EINVAL;
 
   sp->line_size = 0;

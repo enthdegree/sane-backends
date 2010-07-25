@@ -142,6 +142,7 @@ typedef uint32_t uint32_t;
 #define PIXMA_CAP_ADFDUP       ((1 << 7) | PIXMA_CAP_ADF)
 #define PIXMA_CAP_CIS          (0)
 #define PIXMA_CAP_CCD          (1 << 8)
+#define PIXMA_CAP_LINEART      (1 << 9)
 #define PIXMA_CAP_EXPERIMENT   (1 << 31)
 /**@}*/
 

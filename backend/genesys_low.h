@@ -263,6 +263,7 @@ Genesys_Color_Order;
 #define DAC_WOLFSON_DSM600 10
 #define DAC_CANONLIDE200   11
 #define DAC_KVSS080        12
+#define DAC_G4050          13
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -282,6 +283,7 @@ Genesys_Color_Order;
 #define CIS_CANONLIDE200 15
 #define CIS_CANONLIDE100 16
 #define CCD_KVSS080      17
+#define CCD_G4050        18
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -297,6 +299,7 @@ Genesys_Color_Order;
 #define GPO_DP685        11
 #define GPO_CANONLIDE200 12
 #define GPO_KVSS080      13
+#define GPO_G4050        14
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1
@@ -313,6 +316,7 @@ Genesys_Color_Order;
 #define MOTOR_CANONLIDE200 13
 #define MOTOR_CANONLIDE100 14
 #define MOTOR_KVSS080      15
+#define MOTOR_G4050        16
 
 
 /* Forward typedefs */
@@ -589,6 +593,7 @@ struct Genesys_Calibration_Cache
 struct Genesys_Device
 {
   SANE_Int dn;
+  SANE_Bool usb_mode;
   SANE_String file_name;
   SANE_String calib_file;
   Genesys_Model *model;

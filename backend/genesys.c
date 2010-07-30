@@ -717,6 +717,7 @@ sanei_genesys_get_address (Genesys_Register_Set * regs, SANE_Byte addr)
       if (regs[i].address == addr)
 	return &regs[i];
     }
+  DBG (DBG_error, "sanei_genesys_get_address: failed to find address for register %d, crash expected !\n",addr);
   return NULL;
 }
 
@@ -7025,7 +7026,8 @@ sane_close (SANE_Handle handle)
 
   /* we need this to avoid ASIC getting stuck
    * in bulk writes */
-  if(s->dev->model->asic_type==GENESYS_GL847)
+  if(s->dev->model->asic_type==GENESYS_GL847
+   ||s->dev->model->asic_type==GENESYS_GL843)
     sanei_usb_reset (s->dev->dn);
 
   sanei_usb_close (s->dev->dn);

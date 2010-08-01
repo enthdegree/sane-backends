@@ -94,6 +94,78 @@ write_end_access (Genesys_Device * dev, uint8_t index, uint8_t val)
   return status;
 }
 
+/* Write bulk data (e.g. gamma) */
+static SANE_Status
+gl843_bulk_write_data (Genesys_Device * dev, uint8_t addr,
+			 uint8_t * data, size_t len)
+{
+  SANE_Status status;
+  size_t size;
+  uint8_t outdata[8];
+
+  DBG (DBG_io, "gl843_bulk_write_data writing %lu bytes\n",
+       (u_long) len);
+
+  status =
+    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
+			   VALUE_SET_REGISTER, INDEX, 1, &addr);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl843_bulk_write_data failed while setting register: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  while (len)
+    {
+      if (len > BULKOUT_MAXSIZE)
+	size = BULKOUT_MAXSIZE;
+      else
+	size = len;
+
+      outdata[0] = BULK_OUT;
+      outdata[1] = BULK_RAM;
+      outdata[2] = 0x00;
+      outdata[3] = 0x00;
+      outdata[4] = (size & 0xff);
+      outdata[5] = ((size >> 8) & 0xff);
+      outdata[6] = ((size >> 16) & 0xff);
+      outdata[7] = ((size >> 24) & 0xff);
+
+      status =
+	sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
+			       VALUE_BUFFER, INDEX, sizeof (outdata),
+			       outdata);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl843_bulk_write_data failed while writing command: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+
+      status = sanei_usb_write_bulk (dev->dn, data, &size);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl843_bulk_write_data failed while writing bulk data: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+
+      DBG (DBG_io2,
+	   "gl843_bulk_write_data: gamma wrote %lu bytes, %lu remaining\n",
+	   (u_long) size, (u_long) (len - size));
+
+      len -= size;
+      data += size;
+    }
+
+  DBGCOMPLETED; 
+  return status;
+}
+
 /* Set address for writing data */
 static SANE_Status
 gl843_set_buffer_address (Genesys_Device * dev, uint32_t addr)
@@ -103,21 +175,20 @@ gl843_set_buffer_address (Genesys_Device * dev, uint32_t addr)
   DBG (DBG_io, "gl843_set_buffer_address: setting address to 0x%05x\n",
        addr & 0xffff);
 
+  status = sanei_genesys_write_register (dev, 0x5b, ((addr>>8) & 0xff));
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl843_set_buffer_address: failed while writing high byte: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
   status = sanei_genesys_write_register (dev, 0x5c, (addr & 0xff));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
 	   "gl843_set_buffer_address: failed while writing low byte: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  addr = addr >> 8;
-  status = sanei_genesys_write_register (dev, 0x5b, (addr & 0xff));
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl843_set_buffer_address: failed while writing high byte: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -137,7 +208,6 @@ gl843_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 static SANE_Status
 write_data (Genesys_Device * dev, uint32_t addr, uint32_t size, uint8_t * data)
 {
-  size_t written;
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
@@ -160,8 +230,7 @@ write_data (Genesys_Device * dev, uint32_t addr, uint32_t size, uint8_t * data)
     }
 
   /* write actual data */
-  written = size;
-  status = sanei_usb_write_bulk (dev->dn, data, &written);
+  status = gl843_bulk_write_data (dev, 0x3c, data, size);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "write_data: failed while writing bulk write data: %s\n",
@@ -169,6 +238,7 @@ write_data (Genesys_Device * dev, uint32_t addr, uint32_t size, uint8_t * data)
       return status;
     }
 
+  /* set back address to 0 */
   status = gl843_set_buffer_address (dev, 0);
   if (status != SANE_STATUS_GOOD)
     {
@@ -532,6 +602,7 @@ gl843_init_registers (Genesys_Device * dev)
         SETREG (0x78, 0x00);
         SETREG (0x79, 0x00);
         SETREG (0x7a, 0x00);
+        SETREG (0x7a, 0x00);
         SETREG (0x7f, 0x00);
         SETREG (0x80, 0x00);
         SETREG (0x81, 0x00);
@@ -550,6 +621,10 @@ gl843_init_registers (Genesys_Device * dev)
         /* G4050 values */
         if(strcmp(dev->model->name,"hewlett-packard-scanjet-g4050")==0)
           {
+            SETREG (0x03, 0x1d);
+            SETREG (0x05, 0x08);
+            SETREG (0x0a, 0x18);
+            SETREG (0x0b, 0x69);
           }
 
   /* fine tune upon device description */
@@ -953,7 +1028,7 @@ HOME_FREE: 3
 
   status = gl843_send_slope_table (dev, 0, fast_slope_table, 256);
   status = gl843_send_slope_table (dev, 1, fast_slope_table, 256);
-  /* XXX STEF XXX status = gl843_send_slope_table (dev, 2, fast_slope_table, 256); */
+  status = gl843_send_slope_table (dev, 2, fast_slope_table, 256);
   status = gl843_send_slope_table (dev, 3, fast_slope_table, 256);
   status = gl843_send_slope_table (dev, 4, fast_slope_table, 256);
 
@@ -1237,7 +1312,7 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  /* XXX STEF XXX status = gl843_send_slope_table (dev, 2, slow_slope_table, 256); */
+  status = gl843_send_slope_table (dev, 2, slow_slope_table, 256);
 
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -1555,6 +1630,8 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
     r->value &= ~REG05_GMMENB;
   else
     r->value |= REG05_GMMENB;
+  /* XXX STEF XXX */
+  r->value &= ~REG05_GMMENB;
 
   /* sensor parameters */
   gl843_setup_sensor (dev, dev->reg);
@@ -2909,7 +2986,6 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     }
 
   DBGCOMPLETED;
-
   return status;
 }
 
@@ -3520,79 +3596,6 @@ gl843_init_regs_for_scan (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-/* Write bulk data (e.g. gamma) */
-static SANE_Status
-gl843_bulk_write_data_gamma (Genesys_Device * dev, uint8_t addr,
-			 uint8_t * data, size_t len)
-{
-  SANE_Status status;
-  size_t size;
-  uint8_t outdata[8];
-
-  DBG (DBG_io, "gl843_bulk_write_data_gamma writing %lu bytes\n",
-       (u_long) len);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl843_bulk_write_data_gamma failed while setting register: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  while (len)
-    {
-      if (len > BULKOUT_MAXSIZE)
-	size = BULKOUT_MAXSIZE;
-      else
-	size = len;
-
-      outdata[0] = BULK_OUT;
-      outdata[1] = BULK_RAM;
-      outdata[2] = 0x00;/* 0x82 works, too */
-      outdata[3] = 0x00;
-      outdata[4] = (size & 0xff);
-      outdata[5] = ((size >> 8) & 0xff);
-      outdata[6] = ((size >> 16) & 0xff);
-      outdata[7] = ((size >> 24) & 0xff);
-
-      status =
-	sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			       VALUE_BUFFER, INDEX, sizeof (outdata),
-			       outdata);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl843_bulk_write_data_gamma failed while writing command: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-
-      status = sanei_usb_write_bulk (dev->dn, data, &size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl843_bulk_write_data_gamma failed while writing bulk data: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-
-      DBG (DBG_io2,
-	   "gl843_bulk_write_data:gamma wrote %lu bytes, %lu remaining\n",
-	   (u_long) size, (u_long) (len - size));
-
-      len -= size;
-      data += size;
-    }
-
-  DBG (DBG_io, "gl843_bulk_write_data_gamma: completed\n");
-
-  return status;
-}
-
 /*
  * this function sends generic gamma table (ie linear ones)
  * or the Sensor specific one if provided
@@ -3672,7 +3675,7 @@ gl843_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
     }
 
   /* send data */
-  status = gl843_bulk_write_data_gamma (dev, 0x28, (uint8_t *) gamma, size * 2 * 3);
+  status = gl843_bulk_write_data (dev, 0x28, (uint8_t *) gamma, size * 2 * 3);
   if (status != SANE_STATUS_GOOD)
     {
       free (gamma);
@@ -4118,9 +4121,8 @@ gl843_cold_boot (Genesys_Device * dev)
 
   DBGSTART;
 
-  /* XXX STEF XXX 
   RIE (sanei_genesys_write_register (dev, 0x0e, 0x01));
-  RIE (sanei_genesys_write_register (dev, 0x0e, 0x00)); */
+  RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
 
   /* test CHKVER */
   RIE (sanei_genesys_read_register (dev, REG40, &val));
@@ -4157,12 +4159,27 @@ gl843_cold_boot (Genesys_Device * dev)
   RIE (write_end_access (dev, 0x10, 0xb4));
 
   /* set up clock once for all */
-  RIE (sanei_genesys_write_register (dev, 0x77, 0x00));
-  RIE (sanei_genesys_write_register (dev, 0x78, 0x00));
-  RIE (sanei_genesys_write_register (dev, 0x79, 0x9f));
+  if(strcmp(dev->model->name,"hewlett-packard-scanjet-g4050")==0)
+    {
+      /* CK3MAP */
+      RIE (sanei_genesys_write_register (dev, 0x77, 0x03));
+      RIE (sanei_genesys_write_register (dev, 0x78, 0xff));
+      RIE (sanei_genesys_write_register (dev, 0x79, 0xff));
+    }
+  else
+    {
+      /* CK3MAP */
+      RIE (sanei_genesys_write_register (dev, 0x77, 0x00));
+      RIE (sanei_genesys_write_register (dev, 0x78, 0x07));
+      RIE (sanei_genesys_write_register (dev, 0x79, 0xfe));
+    }
+      /* CK4MAP */
+      RIE (sanei_genesys_write_register (dev, 0x7a, 0x03));
+      RIE (sanei_genesys_write_register (dev, 0x7b, 0xff));
+      RIE (sanei_genesys_write_register (dev, 0x7c, 0xff));
 
   /* CLKSET */
-  val = (dev->reg[reg_0x0b].value & ~REG0B_CLKSET) | REG0B_30MHZ;
+  val = (dev->reg[reg_0x0b].value & ~REG0B_CLKSET) | REG0B_48MHZ;
   RIE (sanei_genesys_write_register (dev, REG0B, val));
   dev->reg[reg_0x0b].value = val;
 
@@ -4673,7 +4690,7 @@ static Genesys_Command_Set gl843_cmd_set = {
   gl843_slow_back_home,
 
   gl843_bulk_write_register,
-  NULL,
+  gl843_bulk_write_data,
   gl843_bulk_read_data,
 
   gl843_update_hardware_sensors,

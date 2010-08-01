@@ -145,7 +145,7 @@ static Genesys_Frontend Wolfson[] = {
    , {0x32, 0x04, 0x00}
    , {0x00, 0x00, 0x00}
    }
-  ,				/* KVSS080 */
+  ,				/* KV-SS080 */
   {DAC_KVSS080,
      {0x00, 0x23, 0x24, 0x0f}
    , {0x00, 0x00, 0x00}
@@ -489,36 +489,35 @@ static Genesys_Sensor Sensor[] = {
    48,
    85,
    152,
-   5416,
+   5110,
    210,
    230,
-   {0x02, 0x00, 0x06, 0x04} ,
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2b, 0x08, 0x20, 0x2a, 0x00, 0x00,
-    0x0c, 0x03}
-   ,
-   {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x00, 0x00, 0x00,
-    0x00} ,
+   /* 08    09    0a    0b */
+   {0x00, 0x00, 0x00, 0x6a} ,
+   /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x1c, 0x01, 0x2a, 0x2c, 0x00, 0x20, 0x04} , /* 18=00 at 600 dpi */
+   /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
+   {0x0c, 0x0f, 0x00, 0x03, 0x06, 0x09, 0x6b, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x23} ,
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
   {CCD_G4050,
-   4800,
+   1200,	/* XXX STEF XXX 4800 */
    48,
-   85,
+   28,
    152,
-   5416,
+   10220,
    210,
    230,
-   {0x02, 0x00, 0x06, 0x04} ,
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2b, 0x08, 0x20, 0x2a, 0x00, 0x00,
-    0x0c, 0x03}
-   ,
-   {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x00, 0x00, 0x00,
-    0x00} ,
+   /* 08    09    0a    0b */
+   {0x00, 0x00, 0x18, 0x69} ,
+   /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0c, 0x01, 0x2a, 0x30, 0x00, 0x00, 0x08} ,
+   /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
+   {0x0e, 0x11, 0x02, 0x05, 0x08, 0x0b, 0x6b, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x6f} ,
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
-
 };
 
 /** for General Purpose Output specific settings:
@@ -626,14 +625,18 @@ static Genesys_Gpo Gpo[] = {
    }
   ,
   {GPO_KVSS080,
-   {0x11, 0x00} ,
-   {0x51, 0x20} ,
+   {0xe5, 0x20} ,
+   {0x7e, 0xa1} ,
    }
   ,
   {GPO_G4050,
-   {0x11, 0x00} ,
-   {0x51, 0x20} ,
+   {0x20, 0x00} ,
+   {0xfc, 0x00} ,
    }
+  /*
+  uint8_t value[2]; 6c/6d
+  uint8_t enable[2]; 6e/6f
+  */
   ,
 };
 
@@ -1074,8 +1077,8 @@ static Genesys_Model hpg4050_model = {
   GENESYS_GL843,
   NULL,
 
-  { 1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
-  { 1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  { 1200, 600, 300, 200, 150, 75, 0},	/* possible x-resolutions */
+  { 1200, 600, 300, 200, 150, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1099,7 +1102,7 @@ static Genesys_Model hpg4050_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+  0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 

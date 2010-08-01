@@ -717,7 +717,7 @@ sanei_genesys_get_address (Genesys_Register_Set * regs, SANE_Byte addr)
       if (regs[i].address == addr)
 	return &regs[i];
     }
-  DBG (DBG_error, "sanei_genesys_get_address: failed to find address for register %d, crash expected !\n",addr);
+  DBG (DBG_error, "sanei_genesys_get_address: failed to find address for register 0x%02x, crash expected !\n",addr);
   return NULL;
 }
 

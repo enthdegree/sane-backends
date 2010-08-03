@@ -207,6 +207,10 @@
 #define REG1E_LINESEL	0x0f
 #define REG1ES_LINESEL  0
 
+#define REG29           0x29
+#define REG2A           0x2a
+#define REG2B           0x2b
+
 #define REG40           0x40
 #define REG40_DOCSNR    0x80
 #define REG40_ADFSNR    0x40
@@ -480,3 +484,22 @@ enum
 };
 
 #define SETREG(adr,val) {dev->reg[reg_##adr].address=adr;dev->reg[reg_##adr].value=val;}
+
+typedef struct
+{
+  uint8_t ra6;
+  uint8_t ra7;
+  uint8_t ra8;
+  uint8_t ra9;
+} Gpio_layout;
+
+static Gpio_layout gpios[]={
+	/* G4050 */
+	{
+		0x08, 0x1e, 0x3e, 0x06
+	},
+	/* KV-SS080 */
+	{
+		0x06, 0x0f, 0x0c, 0x08
+	}
+};

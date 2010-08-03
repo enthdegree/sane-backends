@@ -157,26 +157,10 @@ static Genesys_Frontend Wolfson[] = {
   {DAC_G4050,
      {0x00, 0x23, 0x24, 0x1f}
    , {0x00, 0x00, 0x00}
-   , {0x45, 0x45, 0x45}	
-   , {0x4b, 0x4b, 0x4b}
+   , {0x3f, 0x38, 0x4d}	/* 0x20, 0x21, 0x22 */
+   , {0xb6, 0xb8, 0xd5} /* 0x28, 0x29, 0x2a */
    , {0x00,0x00,0x00}
    }
-  /*
-  uint8_t reg[4];
-  uint8_t sign[3];
-  uint8_t offset[3]; 0x28-0x2a
-  uint8_t gain[3]; 0x20-0x22
-  uint8_t reg2[3];
-genesys_fe_write_data(0x01,0x0023)
-genesys_fe_write_data(0x02,0x0024)
-genesys_fe_write_data(0x03,0x001f)
-genesys_fe_write_data(0x20,0x0045)
-genesys_fe_write_data(0x21,0x0045)
-genesys_fe_write_data(0x22,0x0045)
-genesys_fe_write_data(0x28,0x004b)
-genesys_fe_write_data(0x29,0x004b)
-genesys_fe_write_data(0x2a,0x004b)
- */
   ,
 };
 
@@ -502,11 +486,11 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   {CCD_G4050,
-   1200,	/* XXX STEF XXX 4800 */
+   600,	/* XXX STEF XXX 4800 */
    48,
    28,
    152,
-   10220,
+   5264,
    210,
    230,
    /* 08    09    0a    0b */
@@ -1077,8 +1061,8 @@ static Genesys_Model hpg4050_model = {
   GENESYS_GL843,
   NULL,
 
-  { 1200, 600, 300, 200, 150, 75, 0},	/* possible x-resolutions */
-  { 1200, 600, 300, 200, 150, 75, 0},	/* possible y-resolutions */
+  { 600, 300, 200, 150, 75, 0},	/* possible x-resolutions */
+  { 600, 300, 200, 150, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

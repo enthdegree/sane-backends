@@ -284,27 +284,17 @@ gl843_bulk_read_data (Genesys_Device * dev, uint8_t addr,
   size_t size;
   uint8_t outdata[8];
 
-  DBG (DBG_io, "gl843_bulk_read_data: requesting %lu bytes\n",
-       (u_long) len);
+  DBGSTART;
+  DBG (DBG_io, "gl843_bulk_read_data: requesting %lu bytes from 0x%02x addr\n",
+       (u_long) len,addr);
 
   if (len == 0) 
       return SANE_STATUS_GOOD;
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl843_bulk_read_data failed while setting register: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
+  
   outdata[0] = BULK_IN;
   outdata[1] = BULK_RAM;
-  outdata[2] = VALUE_BUFFER & 0xff;
-  outdata[3] = (VALUE_BUFFER >> 8) & 0xff;
+  outdata[2] = VALUE_BUFFER;
+  outdata[3] = addr;
   outdata[4] = (len & 0xff);
   outdata[5] = ((len >> 8) & 0xff);
   outdata[6] = ((len >> 16) & 0xff);
@@ -333,7 +323,6 @@ gl843_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 	   (u_long) size);
 
       status = sanei_usb_read_bulk (dev->dn, data, &size);
-
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -350,8 +339,7 @@ gl843_bulk_read_data (Genesys_Device * dev, uint8_t addr,
       data += size;
     }
 
-  DBG (DBG_io, "gl843_bulk_read_data: completed\n");
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -590,19 +578,11 @@ gl843_init_registers (Genesys_Device * dev)
         SETREG (0x6c, 0xe5);
         SETREG (0x6d, 0x20);
         SETREG (0x6e, 0x7e);
-        SETREG (0x6f, 0xA1);
+        SETREG (0x6f, 0xa1);
         SETREG (0x70, 0x08);
         SETREG (0x71, 0x0a);
         SETREG (0x72, 0x0b);
         SETREG (0x73, 0x0d);
-        SETREG (0x74, 0x00);
-        SETREG (0x75, 0x00);
-        SETREG (0x76, 0x00);
-        SETREG (0x77, 0x00);
-        SETREG (0x78, 0x00);
-        SETREG (0x79, 0x00);
-        SETREG (0x7a, 0x00);
-        SETREG (0x7a, 0x00);
         SETREG (0x7f, 0x00);
         SETREG (0x80, 0x00);
         SETREG (0x81, 0x00);
@@ -625,6 +605,29 @@ gl843_init_registers (Genesys_Device * dev)
             SETREG (0x05, 0x08);
             SETREG (0x0a, 0x18);
             SETREG (0x0b, 0x69);
+            SETREG (0x0c, 0x00);
+            /* initial GPIO */
+            SETREG (0x6c, 0x20);
+            SETREG (0x6d, 0x00);
+            SETREG (0x6e, 0xfc);
+            SETREG (0x6f, 0x00);
+            SETREG (0xa6, 0x08);
+            SETREG (0xa7, 0x1e);
+            SETREG (0xa8, 0x3e);
+            SETREG (0xa9, 0x06);
+            
+            SETREG (0x80, 0x50);
+            SETREG (0xab, 0x40);
+            SETREG (0x70, 0x00);
+            SETREG (0x71, 0x02);
+            SETREG (0x72, 0x00);
+            SETREG (0x73, 0x00);
+
+              /* XXX STEF XXX TODO move to set for scan */
+            SETREG (0x98, 0x03);
+            SETREG (0x99, 0x30);
+            SETREG (0x9a, 0x01);
+            SETREG (0x9b, 0x80);
           }
 
   /* fine tune upon device description */
@@ -644,7 +647,7 @@ gl843_init_registers (Genesys_Device * dev)
       dev->reg[reg_0x05].value |= REG05_DPIHW_4800;
       break;
     }
-
+  
   /* initalize calibration reg */
   memcpy (dev->calib_reg, dev->reg,
 	  GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
@@ -755,6 +758,8 @@ gl843_set_fe (Genesys_Device * dev, uint8_t set)
 	  }
       }
 
+  if (dev->model->ccd_type == CCD_KVSS080)
+    {
   for (i = 0; i < 3; i++)
       {
 	status =
@@ -767,6 +772,7 @@ gl843_set_fe (Genesys_Device * dev, uint8_t set)
 	    return status;
 	  }
       }
+    }
 
   for (i = 0; i < 3; i++)
       {
@@ -1270,7 +1276,8 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
   /* compute register 02 value */
   r = sanei_genesys_get_address (reg, REG02);
   r->value = 0x00;
-  r->value |= REG02_NOTHOME | REG02_MTRPWR;
+  /* r->value |= REG02_NOTHOME | REG02_MTRPWR; */
+  r->value |= REG02_MTRPWR;
 
   if (use_fast_fed)
     r->value |= REG02_FASTFED;
@@ -1630,8 +1637,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
     r->value &= ~REG05_GMMENB;
   else
     r->value |= REG05_GMMENB;
-  /* XXX STEF XXX */
-  r->value &= ~REG05_GMMENB;
 
   /* sensor parameters */
   gl843_setup_sensor (dev, dev->reg);
@@ -1692,11 +1697,11 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 
   /* MAXWD is expressed in 4 words unit */
   r = sanei_genesys_get_address (reg, 0x35);
-  r->value = LOBYTE (HIWORD (words_per_line >> 2));
+  r->value = LOBYTE (HIWORD (words_per_line >> 1));
   r = sanei_genesys_get_address (reg, 0x36);
-  r->value = HIBYTE (LOWORD (words_per_line >> 2));
+  r->value = HIBYTE (LOWORD (words_per_line >> 1));
   r = sanei_genesys_get_address (reg, 0x37);
-  r->value = LOBYTE (LOWORD (words_per_line >> 2));
+  r->value = LOBYTE (LOWORD (words_per_line >> 1));
   DBG (DBG_io2, "%s: words_per_line used=%d\n", __FUNCTION__, words_per_line);
 
   r = sanei_genesys_get_address (reg, 0x38);
@@ -1907,6 +1912,7 @@ independent of our calculated values:
   slope_dpi = slope_dpi * (1 + dummy);
 
   /* scan_step_type */
+  /* XXX STEF XXX */
   switch((int)yres)
     {
     case 75:
@@ -1925,11 +1931,13 @@ independent of our calculated values:
   /* exposure_time , CCD case not handled */
   led_exposure = gl843_get_led_exposure (dev);
 
+  /*
   pixels_exposure=dev->sensor.sensor_pixels+572;
   if(xres<dev->sensor.optical_res)
     pixels_exposure=(pixels_exposure*xres)/dev->sensor.optical_res-32;
   else
-    pixels_exposure=0;
+    pixels_exposure=0; */
+  pixels_exposure=start+used_pixels;
 
   exposure_time = sanei_genesys_exposure_time2 (dev,
 						slope_dpi,
@@ -4032,80 +4040,37 @@ gl843_is_compatible_calibration (Genesys_Device * dev,
 
 /** 
  * set up GPIO/GPOE for idle state
+WRITE GPIO[17-21]= GPIO19
+WRITE GPOE[17-21]= GPOE21 GPOE20 GPOE19 GPOE18
+genesys_write_register(0xa8,0x3e)
+GPIO(0xa8)=0x3e
  */
 static SANE_Status
 gl843_init_gpio (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  uint8_t val, effective;
+  int i;
 
-  DBG (DBG_proc, "gl843_init_gpio: start\n");
+  DBGSTART;
 
   RIE (sanei_genesys_write_register (dev, 0x6e, dev->gpo.enable[0]));
   RIE (sanei_genesys_write_register (dev, 0x6f, dev->gpo.enable[1]));
-  RIE (sanei_genesys_write_register (dev, 0xa7, 0x04));
-  RIE (sanei_genesys_write_register (dev, 0xa8, 0x00));
-  RIE (sanei_genesys_write_register (dev, 0xa9, 0x00));
-
-  /* toggle needed bits one after all */
-  /* TODO define a function for bit toggling */
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  val = effective | 0x80;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (effective != val)
+  RIE (sanei_genesys_write_register (dev, 0x6c, dev->gpo.value[0]));
+  RIE (sanei_genesys_write_register (dev, 0x6d, dev->gpo.value[1]));
+  if(strcmp(dev->model->name,"hewlett-packard-scanjet-g4050")==0)
     {
-      DBG (DBG_warn,
-	   "gl843_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-	   effective, val);
+      i=0;
     }
-
-  val = effective | 0x40;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (effective != val)
+  else
     {
-      DBG (DBG_warn,
-	   "gl843_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-	   effective, val);
+      i=1;
     }
+  RIE (sanei_genesys_write_register (dev, 0xa6, gpios[i].ra6));
+  RIE (sanei_genesys_write_register (dev, 0xa7, gpios[i].ra7));
+  RIE (sanei_genesys_write_register (dev, 0xa8, gpios[i].ra8));
+  RIE (sanei_genesys_write_register (dev, 0xa9, gpios[i].ra9));
 
-  val = effective | 0x20;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-
-  /* seems useless : memory or clock related ? */
-  RIE (sanei_genesys_read_register (dev, REG0B, &effective));
-  RIE (sanei_genesys_write_register (dev, REG0B, effective));
-
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (effective != val)
-    {
-      DBG (DBG_warn,
-	   "gl843_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-	   effective, val);
-    }
-
-  val = effective | 0x02;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (effective != val)
-    {
-      DBG (DBG_warn,
-	   "gl843_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-	   effective, val);
-    }
-
-  val = effective | 0x01;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (effective != val)
-    {
-      DBG (DBG_warn,
-	   "gl843_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-	   effective, val);
-    }
-
-  DBG (DBG_proc, "gl843_init_gpio: completed\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -4161,6 +4126,10 @@ gl843_cold_boot (Genesys_Device * dev)
   /* set up clock once for all */
   if(strcmp(dev->model->name,"hewlett-packard-scanjet-g4050")==0)
     {
+      /* CK1MAP */
+      RIE (sanei_genesys_write_register (dev, 0x74, 0x00));
+      RIE (sanei_genesys_write_register (dev, 0x75, 0x1c));
+      RIE (sanei_genesys_write_register (dev, 0x76, 0x7f));
       /* CK3MAP */
       RIE (sanei_genesys_write_register (dev, 0x77, 0x03));
       RIE (sanei_genesys_write_register (dev, 0x78, 0xff));
@@ -4189,6 +4158,11 @@ gl843_cold_boot (Genesys_Device * dev)
   /* set up end access */
   sanei_genesys_write_register (dev, REGA7, 0x04);
   sanei_genesys_write_register (dev, REGA9, 0x00);
+
+  /* set RAM read address */
+  RIE (sanei_genesys_write_register (dev, REG29, 0x00));
+  RIE (sanei_genesys_write_register (dev, REG2A, 0x00));
+  RIE (sanei_genesys_write_register (dev, REG2B, 0x00));
 
   /* setup gpio */
   RIE (gl843_init_gpio (dev));

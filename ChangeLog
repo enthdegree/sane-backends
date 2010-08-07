@@ -1,3 +1,7 @@
+2010-08-02 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c backend/genesys.conf.in: add a device
+	entry for the Canoscan 5600f.
+
 2010-07-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma.c, backend/pixma.h, backend/pixma_common.c,
 	backend/pixma_imageclass.c:

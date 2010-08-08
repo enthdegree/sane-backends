@@ -157,8 +157,8 @@ static Genesys_Frontend Wolfson[] = {
   {DAC_G4050,
      {0x00, 0x23, 0x24, 0x1f}
    , {0x00, 0x00, 0x00}
-   , {0x3f, 0x38, 0x4d}	/* 0x20, 0x21, 0x22 */
-   , {0xb6, 0xb8, 0xd5} /* 0x28, 0x29, 0x2a */
+   , {0x45, 0x45, 0x45}	/* 0x20, 0x21, 0x22 */
+   , {0x4b, 0x4b, 0x4b} /* 0x28, 0x29, 0x2a */
    , {0x00,0x00,0x00}
    }
   ,
@@ -486,11 +486,11 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   {CCD_G4050,
-   600,	/* XXX STEF XXX 4800 */
+   600, /* XXX STEF XXX 4800 */
    48,
    28,
    152,
-   5264,
+   2698*2, /* XXX STEF XXX 42574 */
    210,
    230,
    /* 08    09    0a    0b */
@@ -881,14 +881,14 @@ static Genesys_Motor Motor[] = {
    },
   },
   {MOTOR_G4050,
-   1200,
-   2400,
-   1,
+   1200, 4800,
+   2,
    1,
    { /* motor slopes */
 	   { /* power mode 0 */
-     		{ 3500, 1300, 60, 0.8 },
-     		{ 3500, 1400, 60, 0.8 },
+     		{ 3500, 1300, 60, 0.5 }, /* full step   */
+     		{ 3500, 1400, 60, 0.5 }, /* half step   */
+     		{ 3500, 1400, 60, 0.5 }, /* quarter step */
     	   },
    },
   },

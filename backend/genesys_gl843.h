@@ -111,6 +111,7 @@
 #define REG05_GMMENB	0x08
 #define REG05_MTLBASE	0x03
 
+#define REG06 		0x06
 #define REG06_SCANMOD	0xe0
 #define REG06S_SCANMOD	5
 #define REG06_PWRBIT	0x10
@@ -309,6 +310,9 @@
 #define REG6D           0x6d
 #define REG6E           0x6e
 #define REG6F           0x6f
+
+#define REG9D           0x9d
+#define REG9DS_STEPTIM  2
 
 #define REG87_LEDADD    0x04
 

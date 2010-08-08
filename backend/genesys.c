@@ -792,7 +792,7 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
 	  if (t2 < stop_at)
 	    break;
 	  *slope_table++ = t2;
-	  DBG (DBG_io, "slope_table[%3d] = %5d\n", c, t2);
+	  /* DBG (DBG_io, "slope_table[%3d] = %5d\n", c, t2); */
 	  sum += t2;
 	}
       if (t2 > stop_at)
@@ -812,7 +812,7 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
   for (i = 0; i < max_steps; i++, c++)
     {
       *slope_table++ = *vfinal;
-      DBG (DBG_io, "slope_table[%3d] = %5d\n", c, *vfinal);
+      /* DBG (DBG_io, "slope_table[%3d] = %5d\n", c, *vfinal); */
     }
 
   (*used_steps)++;

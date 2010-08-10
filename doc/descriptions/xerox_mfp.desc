@@ -68,3 +68,8 @@
 :usbid "0x04e8" "0x3433"
 :status :good
 
+:model "SCX-4623"
+:interface "USB"
+:usbid "0x04e8" "0x3434"
+:status :good
+

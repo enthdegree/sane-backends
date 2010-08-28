@@ -979,7 +979,8 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
     {
         dist += fast_steps*2;
     }
-  dist <<= scan_step_type;
+  /* dist <<= scan_step_type; */
+  DBG (DBG_io2, "%s: acceleration distance=%d\n", __FUNCTION__, dist);
 
   /* get sure when don't insane value */
   if(dist<feedl)
@@ -1119,7 +1120,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 	   sane_strstatus (status));
       return status;
     }
-
 
   /* enable shading */
   r = sanei_genesys_get_address (reg, REG01);

@@ -130,7 +130,6 @@
 
 /* todo: used?
 #define VALUE_READ_STATUS	0x86
-#define VALUE_BUF_ENDACCESS	0x8C
 */
 
 /* Read/write bulk data/registers */

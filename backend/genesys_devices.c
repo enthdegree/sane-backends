@@ -470,10 +470,10 @@ static Genesys_Sensor Sensor[] = {
   ,
   {CCD_KVSS080,
    600,
-   48,
-   85,
+   64, /* 48 */
+   36,
    152,
-   5110,
+   5100,
    210,
    230,
    /* 08    09    0a    0b */
@@ -602,25 +602,19 @@ static Genesys_Gpo Gpo[] = {
   ,
   /* CANONLIDE200 */
   {GPO_CANONLIDE200,
-   {0xfb, 0x20}	/* 0xfb when idle , 0xf9/0xe9 (1200) when scanning */
-   ,
-   {0xff, 0x00}
-   ,
-   }
+   {0xfb, 0x20},	/* 0xfb when idle , 0xf9/0xe9 (1200) when scanning */
+   {0xff, 0x00},
+  }
   ,
   {GPO_KVSS080,
-   {0xe5, 0x20} ,
-   {0x7e, 0xa1} ,
-   }
+   {0xf5, 0x20},
+   {0x7e, 0xa1},
+  }
   ,
   {GPO_G4050,
-   {0x20, 0x00} ,
-   {0xfc, 0x00} ,
-   }
-  /*
-  uint8_t value[2]; 6c/6d
-  uint8_t enable[2]; 6e/6f
-  */
+   {0x20, 0x00},
+   {0xfc, 0x00},
+  }
   ,
 };
 
@@ -870,25 +864,26 @@ static Genesys_Motor Motor[] = {
   },
   {MOTOR_KVSS080,
    1200,
-   2400,
-   1,
-   1,
-   { /* motor slopes */
-	   { /* power mode 0 */
-     		{ 3500, 1300, 60, 0.8 },
-     		{ 3500, 1400, 60, 0.8 },
-    	   },
-   },
-  },
-  {MOTOR_G4050,
-   1200, 4800,
+   1200,
    2,
    1,
    { /* motor slopes */
 	   { /* power mode 0 */
-     		{ 3500, 1300, 60, 0.5 }, /* full step   */
-     		{ 3500, 1400, 60, 0.5 }, /* half step   */
-     		{ 3500, 1400, 60, 0.5 }, /* quarter step */
+     		{ 22222, 500, 246, 0.5 }, /* max speed / dpi * base dpi => exposure */
+     		{ 22222, 500, 246, 0.5 },
+     		{ 22222, 500, 246, 0.5 },
+    	   },
+   },
+  },
+  {MOTOR_G4050,
+   1200, 2400,
+   2,
+   1,
+   { /* motor slopes */
+	   { /* power mode 0 */
+     		{ 3961, 240, 95, 0.8 }, /* full step   */
+     		{ 3961, 240, 95, 0.8 }, /* half step   */
+     		{ 3961, 240, 95, 0.8 }, /* quarter step */
     	   },
    },
   },
@@ -1008,23 +1003,23 @@ static Genesys_Model panasonic_kvss080_model = {
   GENESYS_GL843,
   NULL,
 
-  { 600, 300, 150, 75, 0},	/* possible x-resolutions */
-  { 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  { 600, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
+  { 600, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
-  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
-  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (7.6),		/* Start of scan area in mm  (x) */
+  SANE_FIX (12.6),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.5),		/* Size of scan area in mm (x) */
+  SANE_FIX (297.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+  SANE_FIX (0.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Size of scan area in TA mode in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
@@ -1043,13 +1038,12 @@ static Genesys_Model panasonic_kvss080_model = {
   DAC_KVSS080,
   GPO_KVSS080,
   MOTOR_KVSS080,
-  GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_LAZY_INIT |
+  GENESYS_FLAG_NO_CALIBRATION |
   GENESYS_FLAG_SKIP_WARMUP | 
-  GENESYS_FLAG_OFFSET_CALIBRATION | 
-  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA |
-  GENESYS_FLAG_ODD_EVEN_CIS,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_COPY_SW,
+  GENESYS_FLAG_OFFSET_CALIBRATION |
+  GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW ,
   280,
   400
 };
@@ -1086,7 +1080,7 @@ static Genesys_Model hpg4050_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
+  0, 32, 48,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 

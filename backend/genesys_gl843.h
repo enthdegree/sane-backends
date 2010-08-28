@@ -52,8 +52,10 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
+#ifndef HACK
 #undef BACKEND_NAME
 #define BACKEND_NAME genesys_gl843
+#endif
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -179,6 +181,7 @@
 #define REG17_TGW	0x3f
 #define REG17S_TGW      0
 
+#define REG18 		0x18
 #define REG18_CNSET	0x80
 #define REG18_DCKSEL	0x60
 #define REG18_CKTOGGLE	0x10
@@ -207,6 +210,8 @@
 #define REG1ES_WDTIME   4
 #define REG1E_LINESEL	0x0f
 #define REG1ES_LINESEL  0
+
+#define REG21           0x21
 
 #define REG29           0x29
 #define REG2A           0x2a
@@ -248,10 +253,13 @@
 #define REG5A_RLC       0x0f
 #define REG5AS_RLC      0
 
+#define REG5E 		0x5e
 #define REG5E_DECSEL    0xe0
 #define REG5ES_DECSEL   5
 #define REG5E_STOPTIM   0x1f
 #define REG5ES_STOPTIM  0
+
+#define REG5F 		0x5f
 
 #define REG60           0x60
 #define REG60_Z1MOD	0x1f
@@ -268,24 +276,25 @@
 #define REG65_Z2MOD	0xff
 
 #define REG67 		0x67
-#define REG67_MTRPWM	0x80
 
 #define REG68 		0x68
-#define REG68_FASTPWM	0x80
 
-#define REG67S_STEPSEL      5
-#define REG67_STEPSEL	 0xe0
+#define REG67S_STEPSEL      6
+#define REG67_STEPSEL	 0xc0
 #define REG67_FULLSTEP	 0x00
 #define REG67_HALFSTEP	 0x20
 #define REG67_EIGHTHSTEP 0x60
 #define REG67_16THSTEP   0x80
 
-#define REG68S_FSTPSEL      5
-#define REG68_FSTPSEL	 0xe0
+#define REG68S_FSTPSEL      6
+#define REG68_FSTPSEL	 0xc0
 #define REG68_FULLSTEP	 0x00
 #define REG68_HALFSTEP	 0x20
 #define REG68_EIGHTHSTEP 0x60
 #define REG68_16THSTEP   0x80
+
+#define REG69          	0x69
+#define REG6A          	0x6a
 
 #define REG6B          	0x6b
 #define REG6B_MULTFILM	0x80
@@ -320,14 +329,20 @@
 #define REGA7 		0xa7
 #define REGA9 		0xa9
 
-#define SCAN_FLAG_SINGLE_LINE              0x01
-#define SCAN_FLAG_DISABLE_SHADING          0x02
-#define SCAN_FLAG_DISABLE_GAMMA            0x04
-#define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE 0x08
-#define SCAN_FLAG_IGNORE_LINE_DISTANCE     0x10
-#define SCAN_FLAG_USE_OPTICAL_RES          0x20
-#define SCAN_FLAG_DISABLE_LAMP             0x40
-#define SCAN_FLAG_DYNAMIC_LINEART          0x80
+#define SCAN_TABLE 	0 	/* table 1 at 0x4000 */
+#define BACKTRACK_TABLE 1 	/* table 2 at 0x4800 */
+#define STOP_TABLE 	2 	/* table 3 at 0x5000 */
+#define FAST_TABLE 	3 	/* table 4 at 0x5800 */
+#define HOME_TABLE 	4 	/* table 5 at 0x6000 */
+
+#define SCAN_FLAG_SINGLE_LINE              0x001
+#define SCAN_FLAG_DISABLE_SHADING          0x002
+#define SCAN_FLAG_DISABLE_GAMMA            0x004
+#define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE 0x008
+#define SCAN_FLAG_IGNORE_LINE_DISTANCE     0x010
+#define SCAN_FLAG_USE_OPTICAL_RES          0x020
+#define SCAN_FLAG_DISABLE_LAMP             0x040
+#define SCAN_FLAG_DYNAMIC_LINEART          0x080
 
 /**
  * writable scanner registers */
@@ -344,8 +359,6 @@ enum
   reg_0x0a,
   reg_0x0b,
   reg_0x0c,
-  reg_0x0d,
-  reg_0x0e,
   reg_0x0f,
   reg_0x10,
   reg_0x11,
@@ -372,9 +385,6 @@ enum
   reg_0x26,
   reg_0x27,
   reg_0x28,
-  reg_0x29,
-  reg_0x2a,
-  reg_0x2b,
   reg_0x2c,
   reg_0x2d,
   reg_0x2e,
@@ -405,8 +415,6 @@ enum
   reg_0x58,
   reg_0x59,
   reg_0x5a,
-  reg_0x5b,
-  reg_0x5c,
   reg_0x5d,
   reg_0x5e,
   reg_0x5f,
@@ -421,10 +429,6 @@ enum
   reg_0x69,
   reg_0x6a,
   reg_0x6b,
-  reg_0x6c,
-  reg_0x6d,
-  reg_0x6e,
-  reg_0x6f,
   reg_0x70,
   reg_0x71,
   reg_0x72,
@@ -446,6 +450,8 @@ enum
   reg_0x82,
   reg_0x83,
   reg_0x84,
+  reg_0x85,
+  reg_0x86,
   reg_0x87,
   reg_0x88,
   reg_0x89,
@@ -475,10 +481,6 @@ enum
   reg_0xa3,
   reg_0xa4,
   reg_0xa5,
-  reg_0xa6,
-  reg_0xa7,
-  reg_0xa8,
-  reg_0xa9,
   reg_0xab,
   reg_0xac,
   reg_0xad,
@@ -504,6 +506,8 @@ static Gpio_layout gpios[]={
 	},
 	/* KV-SS080 */
 	{
-		0x06, 0x0f, 0x0c, 0x08
+		0x06, 0x0f, 0x00, 0x08
 	}
 };
+
+static uint16_t kvss080_profile[]={44444, 34188, 32520, 29630, 26666, 24242, 22222, 19048, 16666, 15686, 14814, 14034, 12402, 11110, 8888, 7618, 6666, 5926, 5228, 4678, 4172, 3682, 3336, 3074, 2866, 2702, 2566, 2450, 2352, 2266, 2188, 2118, 2056, 2002, 1950, 1904, 1860, 1820, 1784, 1748, 1716, 1684, 1656, 1628, 1600, 1576, 1552, 1528, 1506, 1486, 1466, 1446, 1428, 1410, 1394, 1376, 1360, 1346, 1330, 1316, 1302, 1288, 1276, 1264, 1250, 1238, 1228, 1216, 1206, 1194, 1184, 1174, 1164, 1154, 1146, 1136, 1128, 1120, 1110, 1102, 1094, 1088, 1080, 1072, 1064, 1058, 1050, 1044, 1038, 1030, 1024, 1018, 1012, 1006, 1000, 994, 988, 984, 978, 972, 968, 962, 958, 952, 948, 942, 938, 934, 928, 924, 920, 916, 912, 908, 904, 900, 896, 892, 888, 884, 882, 878, 874, 870, 868, 864, 860, 858, 854, 850, 848, 844, 842, 838, 836, 832, 830, 826, 824, 822, 820, 816, 814, 812, 808, 806, 804, 802, 800, 796, 794, 792, 790, 788, 786, 784, 782, 778, 776, 774, 772, 770, 768, 766, 764, 762, 760, 758, 756, 754, 752, 750, 750, 748, 746, 744, 742, 740, 738, 736, 734, 734, 732, 730, 728, 726, 724, 724, 722, 720, 718, 716, 716, 714, 712, 710, 710, 708, 706, 704, 704, 702, 700, 698, 698, 696, 694, 694, 692, 690, 690, 688, 686, 686, 684, 682, 682, 680, 678, 678, 676, 674, 674, 672, 672, 670, 668, 668, 666, 666, 664, 662, 662, 660, 660, 658, 656, 656, 654, 654, 652, 652, 650, 650, 648, 646, 646, 644, 644, 642, 642, 640, 640, 638, 638, 636, 636, 636, 634, 634, 632, 632, 630, 630, 628, 628, 626, 626, 624, 624, 624, 622, 622, 620, 620, 618, 618, 618, 616, 616, 614, 614, 612, 612, 612, 610, 610, 608, 608, 608, 606, 606, 606, 604, 604, 602, 602, 602, 600, 600, 600, 598, 598, 596, 596, 596, 594, 594, 594, 592, 592, 592, 590, 590, 590, 588, 588, 588, 586, 586, 586, 584, 584, 584, 582, 582, 582, 590, 590, 590, 588, 588, 588, 586, 586, 586, 584, 584, 584, 582, 582, 582, 580, 580, 580, 578, 578, 578, 576, 576, 576, 576, 574, 574, 574, 572, 572, 572, 570, 570, 570, 568, 568, 568, 568, 566, 566, 566, 564, 564, 564, 562, 562, 562, 562, 560, 560, 560, 558, 558, 558, 558, 556, 556, 556, 554, 554, 554, 552, 552, 552, 552, 550, 550, 550, 548, 548, 548, 548, 546, 546, 546, 546, 544, 544, 544, 542, 542, 542, 542, 540, 540, 540, 538, 538, 538, 538, 536, 536, 536, 536, 534, 534, 534, 534, 532, 532, 532, 530, 530, 530, 530, 528, 528, 528, 528, 526, 526, 526, 526, 524, 524, 524, 524, 522, 522, 522, 522, 520, 520, 520, 520, 518, 518, 518, 516, 516, 516, 516, 514, 514, 514, 514, 514, 512, 512, 512, 512, 510, 510, 510, 510, 508, 508, 508, 508, 506, 506, 506, 506, 504, 504, 504, 504, 502, 502, 502, 502, 500, 500, 500, 500};

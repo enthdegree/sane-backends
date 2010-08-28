@@ -746,9 +746,12 @@ sanei_genesys_get_address (Genesys_Register_Set * regs, SANE_Byte addr)
 SANE_Int
 sanei_genesys_generate_slope_table (uint16_t * slope_table,
 				    unsigned int max_steps,
-				    unsigned int use_steps, uint16_t stop_at,
-				    uint16_t vstart, uint16_t vend,
-				    unsigned int steps, double g,
+				    unsigned int use_steps,
+                                    uint16_t stop_at,
+				    uint16_t vstart,
+                                    uint16_t vend,
+				    unsigned int steps,
+                                    double g,
 				    unsigned int *used_steps,
 				    unsigned int *vfinal)
 {
@@ -887,21 +890,20 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
   if (vend > 65535)
     vend = 65535;
 
-  sum_time = sanei_genesys_generate_slope_table (slope_table, max_step,
+  sum_time = sanei_genesys_generate_slope_table (slope_table,
+                                                 max_step,
 						 use_steps,
 						 vtarget,
 						 vstart,
 						 vend,
-						 dev->motor.slopes[power_mode]
-						 [step_type].minimum_steps <<
-						 step_type,
-						 dev->motor.slopes[power_mode]
-						 [step_type].g, used_steps,
+						 dev->motor.slopes[power_mode][step_type].minimum_steps << step_type,
+						 dev->motor.slopes[power_mode][step_type].g,
+                                                 used_steps,
 						 &vfinal);
 
   if (final_exposure)
     *final_exposure = (vfinal * dev->motor.base_ydpi) / yres;
-
+  
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table: returns sum_time=%d, completed\n",
        sum_time);
@@ -1477,6 +1479,8 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
    * tested instead of adding all the others */
   /* many scanners send coefficient for lineart/gray like in color mode */
   if (dev->settings.scan_mode < 2
+      && dev->model->ccd_type != CCD_KVSS080
+      && dev->model->ccd_type != CCD_G4050
       && dev->model->ccd_type != CCD_DSMOBILE600
       && dev->model->ccd_type != CCD_XP300
       && dev->model->ccd_type != CCD_DP665
@@ -2577,6 +2581,11 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
       skip = 4;
       xend = 68;
     }
+  if(dev->model->ccd_type==CCD_KVSS080)
+    {
+      skip = 0;
+      xend = 40;
+    }
 
   /* average each channels on half left margin */
   dummy1 = 0;
@@ -3429,6 +3438,21 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
         {
           o = +2;
         }
+      cmat[0] = 0;
+      cmat[1] = 1;
+      cmat[2] = 2;	
+      compute_coefficients (dev,
+			    shading_data,
+			    pixels_per_line,
+			    3, 
+                            cmat, 
+                            o, 
+                            coeff, 
+                            target_code);
+      break;
+    case CCD_KVSS080:
+      target_code = 0xe000;
+      o = 4;
       cmat[0] = 0;
       cmat[1] = 1;
       cmat[2] = 2;	
@@ -4455,6 +4479,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
+          usleep (100 * 1000);
 	}
       while (empty);
       RIE (sanei_genesys_read_data_from_scanner
@@ -4480,13 +4505,13 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	}
       if (dev->model->cmd_set->get_bitset_bit (dev->reg))
 	{
+	  first_average /= pixel;
+	  second_average /= pixel;
+	  difference = abs (first_average - second_average);
 	  DBG (DBG_info,
 	       "genesys_warmup_lamp: average = %.2f, diff = %.3f\n",
 	       100 * ((second_average) / (256 * 256)),
 	       100 * (difference / second_average));
-	  first_average /= pixel;
-	  second_average /= pixel;
-	  difference = abs (first_average - second_average);
 
 	  if (second_average > (100 * 256)
 	      && (difference / second_average) < 0.002)
@@ -4511,7 +4536,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	       "genesys_warmup_lamp: average 1 = %.2f %%, average 2 = %.2f %%\n",
 	       first_average, second_average);
 	  if (abs (first_average - second_average) < 15
-	      && second_average > 120)
+	      && second_average > 55)
 	    break;
 	}
 
@@ -5759,7 +5784,8 @@ calc_parameters (Genesys_Scanner * s)
     ((br_x - tl_x) * s->dev->settings.xres) / MM_PER_INCH;
 
   /* we need an even number of pixels for even/odd handling */
-  if (s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS)
+  if (s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS
+      || s->dev->model->asic_type == GENESYS_GL843) 
     {
       s->params.pixels_per_line = (s->params.pixels_per_line/2)*2;
     }
@@ -6366,6 +6392,13 @@ init_options (Genesys_Scanner * s)
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Bool present;
+static SANE_Status
+check_present (SANE_String_Const devname)
+{
+  present=SANE_TRUE;
+}
+
 static SANE_Status
 attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 {
@@ -6418,6 +6451,21 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 	   "attach: couldn't get vendor and product ids of device `%s': %s\n",
 	   devname, sane_strstatus (status));
       return status;
+    }
+
+  /* KV-SS080 is an auxiliary device which requires a master device to be here */
+  if(vendor == 0x04da && product == 0x100f)
+    {
+      present=SANE_FALSE;
+      sanei_usb_find_devices (vendor, 0x1006, check_present);
+      sanei_usb_find_devices (vendor, 0x1007, check_present);
+      sanei_usb_find_devices (vendor, 0x1010, check_present);
+      sanei_usb_find_devices (vendor, 0x100f, check_present);
+      if(present==SANE_FALSE)
+        {
+          DBG (DBG_error,"attach: master device not present\n");
+          return SANE_STATUS_INVAL;
+        }
     }
 
   for (i = 0; i < MAX_SCANNERS && genesys_usb_device_list[i].model != 0; i++)

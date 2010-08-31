@@ -55,7 +55,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 18
+#define BUILD 30
 
 #include <errno.h>
 #include <string.h>
@@ -175,6 +175,8 @@ genesys_init_cmd_set (Genesys_Device * dev)
       return sanei_gl646_init_cmd_set (dev);
     case GENESYS_GL841:
       return sanei_gl841_init_cmd_set (dev);
+    case GENESYS_GL843:
+      return sanei_gl843_init_cmd_set (dev);
     case GENESYS_GL847:
       return sanei_gl847_init_cmd_set (dev);
     default:
@@ -715,6 +717,7 @@ sanei_genesys_get_address (Genesys_Register_Set * regs, SANE_Byte addr)
       if (regs[i].address == addr)
 	return &regs[i];
     }
+  DBG (DBG_error, "sanei_genesys_get_address: failed to find address for register 0x%02x, crash expected !\n",addr);
   return NULL;
 }
 
@@ -743,9 +746,12 @@ sanei_genesys_get_address (Genesys_Register_Set * regs, SANE_Byte addr)
 SANE_Int
 sanei_genesys_generate_slope_table (uint16_t * slope_table,
 				    unsigned int max_steps,
-				    unsigned int use_steps, uint16_t stop_at,
-				    uint16_t vstart, uint16_t vend,
-				    unsigned int steps, double g,
+				    unsigned int use_steps,
+                                    uint16_t stop_at,
+				    uint16_t vstart,
+                                    uint16_t vend,
+				    unsigned int steps,
+                                    double g,
 				    unsigned int *used_steps,
 				    unsigned int *vfinal)
 {
@@ -789,7 +795,7 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
 	  if (t2 < stop_at)
 	    break;
 	  *slope_table++ = t2;
-	  DBG (DBG_io, "slope_table[%3d] = %5d\n", c, t2);
+	  /* DBG (DBG_io, "slope_table[%3d] = %5d\n", c, t2); */
 	  sum += t2;
 	}
       if (t2 > stop_at)
@@ -809,7 +815,7 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
   for (i = 0; i < max_steps; i++, c++)
     {
       *slope_table++ = *vfinal;
-      DBG (DBG_io, "slope_table[%3d] = %5d\n", c, *vfinal);
+      /* DBG (DBG_io, "slope_table[%3d] = %5d\n", c, *vfinal); */
     }
 
   (*used_steps)++;
@@ -884,21 +890,20 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
   if (vend > 65535)
     vend = 65535;
 
-  sum_time = sanei_genesys_generate_slope_table (slope_table, max_step,
+  sum_time = sanei_genesys_generate_slope_table (slope_table,
+                                                 max_step,
 						 use_steps,
 						 vtarget,
 						 vstart,
 						 vend,
-						 dev->motor.slopes[power_mode]
-						 [step_type].minimum_steps <<
-						 step_type,
-						 dev->motor.slopes[power_mode]
-						 [step_type].g, used_steps,
+						 dev->motor.slopes[power_mode][step_type].minimum_steps << step_type,
+						 dev->motor.slopes[power_mode][step_type].g,
+                                                 used_steps,
 						 &vfinal);
 
   if (final_exposure)
     *final_exposure = (vfinal * dev->motor.base_ydpi) / yres;
-
+  
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table: returns sum_time=%d, completed\n",
        sum_time);
@@ -1474,6 +1479,8 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
    * tested instead of adding all the others */
   /* many scanners send coefficient for lineart/gray like in color mode */
   if (dev->settings.scan_mode < 2
+      && dev->model->ccd_type != CCD_KVSS080
+      && dev->model->ccd_type != CCD_G4050
       && dev->model->ccd_type != CCD_DSMOBILE600
       && dev->model->ccd_type != CCD_XP300
       && dev->model->ccd_type != CCD_DP665
@@ -1504,7 +1511,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
 	   sane_strstatus (status));
       return status;
     }
-
+  
   status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, data, size);
   if (status != SANE_STATUS_GOOD)
     {
@@ -2541,14 +2548,8 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_dummy_dark_shading \n");
 
-  pixels_per_line =
-    (genesys_pixels_per_line (dev->calib_reg)
-     * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
-
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
-    channels = 3;
-  else
-    channels = 1;
+  pixels_per_line = dev->calib_pixels;
+  channels = dev->calib_channels;
 
   FREE_IFNOT_NULL (dev->dark_average_data);
 
@@ -2573,6 +2574,11 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
     {
       skip = 4;
       xend = 68;
+    }
+  if(dev->model->ccd_type==CCD_KVSS080)
+    {
+      skip = 2;
+      xend = dev->sensor.black_pixels;
     }
 
   /* average each channels on half left margin */
@@ -3090,7 +3096,6 @@ compute_averaged_planar (Genesys_Device * dev,
     }
 }
 
-
 /**
  * Computes shading coefficient using formula in data sheet. 16bit data values
  * manipulated here are little endian. For now we assume deletion scanning type
@@ -3123,7 +3128,7 @@ compute_coefficients (Genesys_Device * dev,
 
   DBG (DBG_io,
        "compute_coefficients: pixels_per_line=%d,  coeff=0x%04x\n", pixels_per_line, coeff);
-
+  
   /* compute start & end values depending of the offset */
   if (offset < 0)
    {
@@ -3159,6 +3164,7 @@ compute_coefficients (Genesys_Device * dev,
 	  ptr[1] = dk / 256;
 	  ptr[2] = val & 0xff;
 	  ptr[3] = val / 256;
+
 	}
     }
 }
@@ -3256,9 +3262,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
   uint16_t pixels_per_line;
+  uint16_t *fixup,*shading;
   uint8_t *shading_data;	/**> contains 16bit words in little endian */
   uint8_t channels;
-  unsigned int x, j;
+  unsigned int x, j, src, dst;
   int o;
   unsigned int length;		/**> number of shading calibration data words */
   unsigned int i, res, factor;
@@ -3437,6 +3444,42 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                             o, 
                             coeff, 
                             target_code);
+      break;
+    case CCD_KVSS080:
+      target_code = 0xe000;
+      o = 4;
+      cmat[0] = 0;
+      cmat[1] = 1;
+      cmat[2] = 2;	
+      compute_coefficients (dev,
+			    shading_data,
+			    pixels_per_line,
+			    3,
+                            cmat, 
+                            o, 
+                            coeff, 
+                            target_code);
+      /* shading data fixup */
+      shading=(uint16_t *)shading_data;
+      fixup = malloc ((length*256)/252+512);
+      if (!shading_data)
+        {
+          DBG (DBG_error, "%s: failed to allocate memory for shading fixup\n",__FUNCTION__);
+          return SANE_STATUS_NO_MEM;
+        }
+      src=0;
+      dst=0;
+      while(src<length/2)
+        {
+          fixup[dst]=shading[src];
+          if((dst%256)==252)
+            dst+=4;
+          dst++;
+          src++;
+        }
+      free(shading_data);
+      shading_data=fixup;
+      length = ((length*256)/252+512);
       break;
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
@@ -4452,6 +4495,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
+          usleep (100 * 1000);
 	}
       while (empty);
       RIE (sanei_genesys_read_data_from_scanner
@@ -4477,13 +4521,13 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	}
       if (dev->model->cmd_set->get_bitset_bit (dev->reg))
 	{
+	  first_average /= pixel;
+	  second_average /= pixel;
+	  difference = abs (first_average - second_average);
 	  DBG (DBG_info,
 	       "genesys_warmup_lamp: average = %.2f, diff = %.3f\n",
 	       100 * ((second_average) / (256 * 256)),
 	       100 * (difference / second_average));
-	  first_average /= pixel;
-	  second_average /= pixel;
-	  difference = abs (first_average - second_average);
 
 	  if (second_average > (100 * 256)
 	      && (difference / second_average) < 0.002)
@@ -4508,7 +4552,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	       "genesys_warmup_lamp: average 1 = %.2f %%, average 2 = %.2f %%\n",
 	       first_average, second_average);
 	  if (abs (first_average - second_average) < 15
-	      && second_average > 120)
+	      && second_average > 55)
 	    break;
 	}
 
@@ -5756,7 +5800,8 @@ calc_parameters (Genesys_Scanner * s)
     ((br_x - tl_x) * s->dev->settings.xres) / MM_PER_INCH;
 
   /* we need an even number of pixels for even/odd handling */
-  if (s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS)
+  if (s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS
+      || s->dev->model->asic_type == GENESYS_GL843) 
     {
       s->params.pixels_per_line = (s->params.pixels_per_line/2)*2;
     }
@@ -6363,6 +6408,14 @@ init_options (Genesys_Scanner * s)
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Bool present;
+static SANE_Status
+check_present (SANE_String_Const devname)
+{
+  present=SANE_TRUE;
+  return SANE_STATUS_GOOD;
+}
+
 static SANE_Status
 attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 {
@@ -6415,6 +6468,20 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 	   "attach: couldn't get vendor and product ids of device `%s': %s\n",
 	   devname, sane_strstatus (status));
       return status;
+    }
+
+  /* KV-SS080 is an auxiliary device which requires a master device to be here */
+  if(vendor == 0x04da && product == 0x100f)
+    {
+      present=SANE_FALSE;
+      sanei_usb_find_devices (vendor, 0x1006, check_present);
+      sanei_usb_find_devices (vendor, 0x1007, check_present);
+      sanei_usb_find_devices (vendor, 0x1010, check_present);
+      if(present==SANE_FALSE)
+        {
+          DBG (DBG_error,"attach: master device not present\n");
+          return SANE_STATUS_INVAL;
+        }
     }
 
   for (i = 0; i < MAX_SCANNERS && genesys_usb_device_list[i].model != 0; i++)
@@ -7023,7 +7090,9 @@ sane_close (SANE_Handle handle)
 
   /* we need this to avoid ASIC getting stuck
    * in bulk writes */
-  sanei_usb_reset (s->dev->dn);
+  if(s->dev->model->asic_type==GENESYS_GL847
+   ||s->dev->model->asic_type==GENESYS_GL843)
+    sanei_usb_reset (s->dev->dn);
 
   sanei_usb_close (s->dev->dn);
   free (s);

@@ -50,13 +50,19 @@
 :interface "USB"
 :usbid "0x03f0" "0x0a01"
 :status :untested
-:comment same as HP2400C
+:comment "clone of the HP 2400C"
 
 :model "ScanJet 3670C"
 :interface "USB"
 :usbid "0x03f0" "0x1405"
 :status :complete
 :comment "1200x1200 dpi max, complete transparency adaptor support"
+
+:model "ScanJet G4050"
+:interface "USB"
+:usbid "0x03f0" "0x0a01"
+:status :untested
+:comment "1200x1200 dpi max"
 
 ; -----------------------------------------------------------------------------
 
@@ -188,5 +194,13 @@
 :model "Travel Scanner 100"
 :interface "USB"
 :usbid  "0x04a7" "0x04ac"
+:status :good
+:comment "All resolution and mode supported, calibration is available"
+
+:mfg "Panasonic"
+
+:model "KV-SS080"
+:interface "USB"
+:usbid  "0x04da" "0x100f"
 :status :good
 :comment "All resolution and mode supported, calibration is available"

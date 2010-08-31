@@ -148,6 +148,8 @@ gl843_bulk_write_data (Genesys_Device * dev, uint8_t addr,
 	  return status;
 	}
 
+      /* recreate data buffer to take care of memory layout */
+
       status = sanei_usb_write_bulk (dev->dn, data, &size);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -979,7 +981,6 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
     {
         dist += fast_steps*2;
     }
-  /* dist <<= scan_step_type; */
   DBG (DBG_io2, "%s: acceleration distance=%d\n", __FUNCTION__, dist);
 
   /* get sure when don't insane value */
@@ -1068,7 +1069,7 @@ gl843_get_dpihw (Genesys_Device * dev)
 /** @brief setup optical related registers
  * start and pixels are expressed in optical sensor resolution coordinate
  * space. To handle odd/even case we double the resolution and
- * use only first logival half the sensor whic maps to effectice CCD.
+ * use only first logival half the sensor whic maps to effective CCD.
  * @param start logical start pixel coordinate
  * @param pixels logical number of pixels to use
  * @return SANE_STATUS_GOOD if OK
@@ -1133,6 +1134,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
     {
       r->value |= REG01_DVDSET;
     }
+  r->value &= ~REG01_DVDSET;
 
   r = sanei_genesys_get_address (reg, REG03);
   r->value &= ~REG03_AVEENB;
@@ -2291,8 +2293,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
 			SCAN_FLAG_SINGLE_LINE |
-			SCAN_FLAG_IGNORE_LINE_DISTANCE |
-			SCAN_FLAG_USE_OPTICAL_RES);
+			SCAN_FLAG_IGNORE_LINE_DISTANCE);
   gl843_init_motor_regs_scan (dev,
                               local_reg,
                               8000,
@@ -2480,10 +2481,9 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
   SANE_Status status;
   uint8_t channels;
   uint8_t cksel;
+  Genesys_Register_Set *r;
 
-  DBG (DBG_proc, "gl843_init_regs_for_coarse_calibration\n");
-
-
+  DBGSTART;
   cksel = (dev->calib_reg[reg_0x18].value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
   /* set line size */
@@ -2510,10 +2510,12 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl843_init_register_for_coarse_calibration: Failed to setup scan: %s\n",
+	   "gl843_init_register_for_coarse_calibration: failed to setup scan: %s\n",
 	   sane_strstatus (status));
       return status;
     }
+  r = sanei_genesys_get_address (dev->calib_reg, REG02);
+  r->value &= ~REG02_MTRPWR;
 
   DBG (DBG_info,
        "gl843_init_register_for_coarse_calibration: optical sensor res: %d dpi, actual res: %d\n",
@@ -2524,17 +2526,12 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl843_init_register_for_coarse_calibration: Failed to bulk write registers: %s\n",
+	   "gl843_init_register_for_coarse_calibration: failed to bulk write registers: %s\n",
 	   sane_strstatus (status));
       return status;
     }
 
-  DBG (DBG_proc, "gl843_init_register_for_coarse_calibration: completed\n");
-
-/*  if (DBG_LEVEL >= DBG_info)
-    sanei_gl843_print_registers (dev->calib_reg);*/
-
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -2544,24 +2541,33 @@ static SANE_Status
 gl843_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
+  int move,resolution;
 
   DBG (DBG_proc, "gl843_init_regs_for_shading: lines = %d\n",
        dev->model->shading_lines);
-
-  dev->calib_channels = 3;
-
+  
   /* initial calibration reg values */
   memcpy (dev->calib_reg, dev->reg,
 	  GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
 
+  dev->calib_channels = 3;
+  /* follow CKSEL */
+  if(dev->settings.xres<dev->sensor.optical_res)
+    resolution=dev->sensor.optical_res/2;
+  else
+    resolution=dev->sensor.optical_res;
   dev->calib_pixels = dev->sensor.sensor_pixels;
+
+  /* distance to move to reach white target */
+  move = SANE_UNFIX (dev->model->y_offset_calib);
+  move = (move * dev->sensor.optical_res) / MM_PER_INCH;
 
   status = gl843_init_scan_regs (dev,
 				 dev->calib_reg,
+				 resolution,
 				 dev->sensor.optical_res,
-				 dev->motor.base_ydpi,
 				 0,
-				 0,
+				 move,
 				 dev->calib_pixels,
 				 dev->model->shading_lines,
 				 16,
@@ -2570,32 +2576,34 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES);
-
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
 
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl843_init_registers_for_shading: Failed to setup scan: %s\n",
+	   "gl843_init_registers_for_shading: failed to setup scan: %s\n",
 	   sane_strstatus (status));
       return status;
     }
 
-  dev->scanhead_position_in_steps += dev->model->shading_lines;
+  dev->scanhead_position_in_steps += dev->model->shading_lines + move;
 
   status =
     gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl843_init_registers_for_shading: Failed to bulk write registers: %s\n",
+	   "gl843_init_registers_for_shading: failed to bulk write registers: %s\n",
 	   sane_strstatus (status));
       return status;
     }
 
-  DBG (DBG_proc, "gl843_init_regs_for_shading: completed\n");
+  /* this is an hack to make calibration cache working .... */
+  /* if we don't do this, cache will be identified at the shading calibration
+   * dpi which is diferent from calibration one */
+  dev->current_setup.xres = resolution;
 
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -2619,8 +2627,11 @@ gl843_init_regs_for_scan (Genesys_Device * dev)
        dev->settings.yres, dev->settings.lines, dev->settings.pixels,
        dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
 
+  /* ensure head is parked in case of calibration */
+  gl843_slow_back_home (dev, SANE_TRUE);
+
   /* channels */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)
     channels = 3;
   else
     channels = 1;
@@ -2871,8 +2882,7 @@ gl843_led_calibration (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES);
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3017,19 +3027,198 @@ gl843_led_calibration (Genesys_Device * dev)
   return status;
 }
 
-/* this function does the offset calibration by scanning one line of the calibration
-   area below scanner's top. There is a black margin and the remaining is white.
-   sanei_genesys_search_start() must have been called so that the offsets and margins
-   are allready known.
 
-this function expects the slider to be where?
-*/
+/**
+ * average dark pixels of a 8 bits scan
+ */
+static int
+dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
+	      unsigned int channels, unsigned int black)
+{
+  unsigned int i, j, k, average, count;
+  unsigned int avg[3];
+  uint8_t val;
+
+  /* computes average value on black margin */
+  for (k = 0; k < channels; k++)
+    {
+      avg[k] = 0;
+      count = 0;
+      for (i = 0; i < lines; i++)
+	{
+	  for (j = 0; j < black; j++)
+	    {
+	      val = data[i * channels * pixels + j + k];
+	      avg[k] += val;
+	      count++;
+	    }
+	}
+      if (count)
+	avg[k] /= count;
+      DBG (DBG_info, "dark_average: avg[%d] = %d\n", k, avg[k]);
+    }
+  average = 0;
+  for (i = 0; i < channels; i++)
+    average += avg[i];
+  average /= channels;
+  DBG (DBG_info, "dark_average: average = %d\n", average);
+  return average;
+}
+
+
 static SANE_Status
 gl843_offset_calibration (Genesys_Device * dev)
 {
-  DBG (DBG_proc, "%s: not implemented \n", __FUNCTION__);
-  if (dev == NULL)
-    return SANE_STATUS_INVAL;
+  Genesys_Register_Set *r;
+  SANE_Status status = SANE_STATUS_GOOD;
+  uint8_t *first_line, *second_line;
+  unsigned int channels, bpp;
+  char title[32];
+  int pass = 0, avg, total_size;
+  int topavg, bottomavg, resolution, lines;
+  int top, bottom, black_pixels, pixels;
+
+  DBGSTART;
+
+  /* offset calibration is always done in color mode */
+  channels = 3;
+  /* follow CKSEL */
+  if(dev->settings.xres<dev->sensor.optical_res)
+    resolution=dev->sensor.optical_res/2;
+  else
+    resolution=dev->sensor.optical_res;
+  dev->calib_pixels = dev->sensor.sensor_pixels;
+  lines=1;
+  bpp=8;
+  pixels= (dev->sensor.sensor_pixels*resolution) / dev->sensor.optical_res;
+  black_pixels = (dev->sensor.black_pixels * resolution) / dev->sensor.optical_res;
+  DBG (DBG_io2, "gl843_offset_calibration: black_pixels=%d\n", black_pixels);
+
+  status = gl843_init_scan_regs (dev,
+				 dev->calib_reg,
+				 resolution,
+				 resolution,
+				 0,
+				 0,
+				 pixels,
+				 lines,
+				 bpp,
+				 channels,
+				 dev->settings.color_filter,
+				 SCAN_FLAG_DISABLE_SHADING |
+				 SCAN_FLAG_DISABLE_GAMMA |
+				 SCAN_FLAG_SINGLE_LINE |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl843_offset_calibration: failed to setup scan: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  r = sanei_genesys_get_address (dev->calib_reg, REG02);
+  r->value &= ~REG02_MTRPWR;
+
+  /* allocate memory for scans */
+  total_size = pixels * channels * lines * (bpp/8);	/* colors * bytes_per_color * scan lines */
+
+  first_line = malloc (total_size);
+  if (!first_line)
+    return SANE_STATUS_NO_MEM;
+
+  second_line = malloc (total_size);
+  if (!second_line)
+    {
+      free (first_line);
+      return SANE_STATUS_NO_MEM;
+    }
+
+  /* init gain */
+  dev->frontend.gain[0] = 0;
+  dev->frontend.gain[1] = 0;
+  dev->frontend.gain[2] = 0;
+
+  /* scan with no move */
+  bottom = 10;
+  dev->frontend.offset[0] = bottom;
+  dev->frontend.offset[1] = bottom;
+  dev->frontend.offset[2] = bottom;
+
+  RIE (gl843_set_fe(dev, AFE_SET));
+  RIE (gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
+  DBG (DBG_info, "gl843_offset_calibration: starting first line reading\n");
+  RIE (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE (sanei_genesys_read_data_from_scanner (dev, first_line, total_size));
+  if (DBG_LEVEL >= DBG_data)
+   {
+      snprintf(title,20,"offset%03d.pnm",bottom);
+      sanei_genesys_write_pnm_file (title, first_line, bpp, channels, pixels, lines);
+   }
+     
+  bottomavg = dark_average (first_line, pixels, lines, channels, black_pixels);
+  DBG (DBG_io2, "gl843_offset_calibration: bottom avg=%d\n", bottomavg);
+
+  /* now top value */
+  top = 255;
+  dev->frontend.offset[0] = top;
+  dev->frontend.offset[1] = top;
+  dev->frontend.offset[2] = top;
+  RIE (gl843_set_fe(dev, AFE_SET));
+  RIE (gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
+  DBG (DBG_info, "gl843_offset_calibration: starting second line reading\n");
+  RIE (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
+      
+  topavg = dark_average (second_line, pixels, lines, channels, black_pixels);
+  DBG (DBG_io2, "gl843_offset_calibration: top avg=%d\n", topavg);
+
+  /* loop until acceptable level */
+  while ((pass < 32) && (top - bottom > 1))
+    {
+      pass++;
+
+      /* settings for new scan */
+      dev->frontend.offset[0] = (top + bottom) / 2;
+      dev->frontend.offset[1] = (top + bottom) / 2;
+      dev->frontend.offset[2] = (top + bottom) / 2;
+
+      /* scan with no move */
+      RIE(gl843_set_fe(dev, AFE_SET));
+      RIE (gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
+      DBG (DBG_info, "gl843_offset_calibration: starting second line reading\n");
+      RIE (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+      RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
+
+      if (DBG_LEVEL >= DBG_data)
+	{
+	  sprintf (title, "offset%03d.pnm", dev->frontend.offset[1]);
+	  sanei_genesys_write_pnm_file (title, second_line, bpp, channels, pixels, lines);
+	}
+
+      avg = dark_average (second_line, pixels, lines, channels, black_pixels);
+      DBG (DBG_info, "gl843_offset_calibration: avg=%d offset=%d\n", avg,
+	   dev->frontend.offset[1]);
+
+      /* compute new boundaries */
+      if (topavg == avg)
+	{
+	  topavg = avg;
+	  top = dev->frontend.offset[1];
+	}
+      else
+	{
+	  bottomavg = avg;
+	  bottom = dev->frontend.offset[1];
+	}
+    }
+  DBG (DBG_info, "gl843_offset_calibration: offset=(%d,%d,%d)\n", dev->frontend.offset[0], dev->frontend.offset[1], dev->frontend.offset[2]);
+	  top = dev->frontend.offset[1];
+
+  /* cleanup before return */
+  free (first_line);
+  free (second_line);
+
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -3046,10 +3235,145 @@ gl843_offset_calibration (Genesys_Device * dev)
 static SANE_Status
 gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 {
+  int pixels;
+  int total_size;
+  uint8_t *line;
+  int i, j, channels;
+  SANE_Status status = SANE_STATUS_GOOD;
+  int max[3];
+  float gain[3],coeff;
+  int val, code, lines;
+  int resolution;
+  Genesys_Register_Set *r;
+  int bpp;
+
   DBG (DBG_proc, "gl843_coarse_gain_calibration: dpi = %d\n", dpi);
-  DBG (DBG_proc, "%s: not implemented \n", __FUNCTION__);
-  if (dev == NULL)
-    return SANE_STATUS_INVAL;
+
+  /* coarse gain calibration is always done in color mode */
+  channels = 3;
+  /* follow CKSEL */
+  if(dev->settings.xres<dev->sensor.optical_res)
+    {
+      coeff=0.9;
+      resolution=dev->sensor.optical_res/2;
+      resolution=dev->sensor.optical_res;
+    }
+  else
+    {
+      resolution=dev->sensor.optical_res;
+      coeff=1.0;
+    }
+  lines=10;
+  bpp=8;
+  pixels = (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res,
+
+  status = gl843_init_scan_regs (dev,
+				 dev->calib_reg,
+				 resolution,
+				 resolution,
+				 0,
+				 0,
+				 pixels,
+                                 lines,
+                                 bpp,
+                                 channels,
+				 dev->settings.color_filter,
+				 SCAN_FLAG_DISABLE_SHADING |
+				 SCAN_FLAG_DISABLE_GAMMA |
+				 SCAN_FLAG_SINGLE_LINE |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  r = sanei_genesys_get_address (dev->calib_reg, REG02);
+  r->value &= ~REG02_MTRPWR;
+
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl843_coarse_calibration: failed to setup scan: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  RIE (gl843_bulk_write_register
+       (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
+
+  total_size = pixels * channels * (16/bpp) * lines;
+
+  line = malloc (total_size);
+  if (!line)
+    return SANE_STATUS_NO_MEM;
+
+  RIE (gl843_set_fe(dev, AFE_SET));
+  RIE (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
+
+  if (DBG_LEVEL >= DBG_data)
+    sanei_genesys_write_pnm_file ("coarse.pnm", line, bpp, channels, pixels, lines);
+
+  /* average value on each channel */
+  for (j = 0; j < channels; j++)
+    {
+      max[j] = 0;
+      for (i = pixels/4; i < (pixels*3/4); i++)
+	{
+          if(bpp==16)
+            {
+	  if (dev->model->is_cis)
+	    val =
+	      line[i * 2 + j * 2 * pixels + 1] * 256 +
+	      line[i * 2 + j * 2 * pixels];
+	  else
+	    val =
+	      line[i * 2 * channels + 2 * j + 1] * 256 +
+	      line[i * 2 * channels + 2 * j];
+            }
+          else
+            {
+	  if (dev->model->is_cis)
+	    val = line[i + j * pixels];
+	  else
+	    val = line[i * channels + j];
+            }
+
+	    max[j] += val;
+	}
+      max[j] = max[j] / (pixels/2);
+
+      gain[j] = ((float) dev->sensor.gain_white_ref*coeff) / max[j];
+
+      /* turn logical gain value into gain code, checking for overflow */
+      code = 283 - 208 / gain[j];
+      if (code > 255)
+	code = 255;
+      else if (code < 0)
+	code = 0;
+      dev->frontend.gain[j] = code;
+
+      DBG (DBG_proc,
+	   "gl843_coarse_gain_calibration: channel %d, max=%d, gain = %f, setting:%d\n",
+	   j, max[j], gain[j], dev->frontend.gain[j]);
+    }
+
+  if (dev->model->is_cis)
+    {
+      if (dev->frontend.gain[0] > dev->frontend.gain[1])
+	dev->frontend.gain[0] = dev->frontend.gain[1];
+      if (dev->frontend.gain[0] > dev->frontend.gain[2])
+	dev->frontend.gain[0] = dev->frontend.gain[2];
+      dev->frontend.gain[2] = dev->frontend.gain[1] = dev->frontend.gain[0];
+    }
+
+  if (channels == 1)
+    {
+      dev->frontend.gain[0] = dev->frontend.gain[1];
+      dev->frontend.gain[2] = dev->frontend.gain[1];
+    }
+
+  free (line);
+
+  RIE (gl843_stop_action (dev));
+
+  gl843_slow_back_home (dev, SANE_TRUE);
+
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
@@ -3088,9 +3412,7 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES
-      );
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3117,12 +3439,18 @@ gl843_is_compatible_calibration (Genesys_Device * dev,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite)
 {
+#ifdef HAVE_SYS_TIME_H
+  struct timeval time;
+#endif
+  int compatible = 1, resolution;
   SANE_Status status;
 
-  DBG (DBG_proc, "gl843_is_compatible_calibration\n");
+  DBGSTART;
+  
+  if (cache == NULL || for_overwrite)
+    return SANE_STATUS_UNSUPPORTED;
 
   status = gl843_calculate_current_setup (dev);
-
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3130,14 +3458,51 @@ gl843_is_compatible_calibration (Genesys_Device * dev,
 	   sane_strstatus (status));
       return status;
     }
+  if(dev->settings.xres<dev->sensor.optical_res)
+    resolution=dev->sensor.optical_res/2;
+  else
+    resolution=dev->sensor.optical_res;
+  dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG (DBG_proc, "gl843_is_compatible_calibration: checking\n");
+  
+  /* a calibration cache is compatible if color mode and x dpi match the user 
+   * requested scan. In the case of CIS scanners, dpi isn't a criteria */
+  if (dev->model->is_cis == SANE_FALSE)
+    {
+      compatible = (resolution == ((int) cache->used_setup.xres));
+      compatible = 0;
+    }
+  else
+    {
+      compatible = (dev->current_setup.channels == cache->used_setup.channels);
+    }
+  if (dev->current_setup.scan_method != cache->used_setup.scan_method)
+    {
+      DBG (DBG_io,
+	   "gl843_is_compatible_calibration: current method=%d, used=%d\n",
+	   dev->current_setup.scan_method, cache->used_setup.scan_method);
+      compatible = 0;
+    }
+  if (!compatible)
+    {
+      DBG (DBG_proc,
+	   "gl843_is_compatible_calibration: completed, non compatible cache\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
 
-  if (dev->current_setup.half_ccd != cache->used_setup.half_ccd)
-    return SANE_STATUS_UNSUPPORTED;
-
-  if (for_overwrite)
-    return SANE_STATUS_UNSUPPORTED;
+  /* a cache entry expires after 30 minutes for non CIS scanners */
+#ifdef HAVE_SYS_TIME_H
+  gettimeofday (&time, NULL);
+  if ((time.tv_sec - cache->last_calibration > 30 * 60)
+      && (dev->model->is_cis == SANE_FALSE)
+      && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+    {
+      DBG (DBG_proc,
+	   "gl843_is_compatible_calibration: expired entry, non compatible cache\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+#endif
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -3579,7 +3944,7 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "gl843_search_strip: Failed to bulk write registers: %s\n",
+	       "gl843_search_strip: failed to bulk write registers: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}

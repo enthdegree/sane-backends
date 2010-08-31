@@ -1511,7 +1511,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
 	   sane_strstatus (status));
       return status;
     }
-
+  
   status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, data, size);
   if (status != SANE_STATUS_GOOD)
     {
@@ -2548,14 +2548,8 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_dummy_dark_shading \n");
 
-  pixels_per_line =
-    (genesys_pixels_per_line (dev->calib_reg)
-     * genesys_dpiset (dev->calib_reg)) / dev->sensor.optical_res;
-
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
-    channels = 3;
-  else
-    channels = 1;
+  pixels_per_line = dev->calib_pixels;
+  channels = dev->calib_channels;
 
   FREE_IFNOT_NULL (dev->dark_average_data);
 
@@ -2583,8 +2577,8 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
     }
   if(dev->model->ccd_type==CCD_KVSS080)
     {
-      skip = 0;
-      xend = 40;
+      skip = 2;
+      xend = dev->sensor.black_pixels;
     }
 
   /* average each channels on half left margin */
@@ -3102,7 +3096,6 @@ compute_averaged_planar (Genesys_Device * dev,
     }
 }
 
-
 /**
  * Computes shading coefficient using formula in data sheet. 16bit data values
  * manipulated here are little endian. For now we assume deletion scanning type
@@ -3135,7 +3128,7 @@ compute_coefficients (Genesys_Device * dev,
 
   DBG (DBG_io,
        "compute_coefficients: pixels_per_line=%d,  coeff=0x%04x\n", pixels_per_line, coeff);
-
+  
   /* compute start & end values depending of the offset */
   if (offset < 0)
    {
@@ -3171,6 +3164,7 @@ compute_coefficients (Genesys_Device * dev,
 	  ptr[1] = dk / 256;
 	  ptr[2] = val & 0xff;
 	  ptr[3] = val / 256;
+
 	}
     }
 }
@@ -3268,9 +3262,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
   uint16_t pixels_per_line;
+  uint16_t *fixup,*shading;
   uint8_t *shading_data;	/**> contains 16bit words in little endian */
   uint8_t channels;
-  unsigned int x, j;
+  unsigned int x, j, src, dst;
   int o;
   unsigned int length;		/**> number of shading calibration data words */
   unsigned int i, res, factor;
@@ -3459,11 +3454,32 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       compute_coefficients (dev,
 			    shading_data,
 			    pixels_per_line,
-			    3, 
+			    3,
                             cmat, 
                             o, 
                             coeff, 
                             target_code);
+      /* shading data fixup */
+      shading=(uint16_t *)shading_data;
+      fixup = malloc ((length*256)/252+512);
+      if (!shading_data)
+        {
+          DBG (DBG_error, "%s: failed to allocate memory for shading fixup\n",__FUNCTION__);
+          return SANE_STATUS_NO_MEM;
+        }
+      src=0;
+      dst=0;
+      while(src<length/2)
+        {
+          fixup[dst]=shading[src];
+          if((dst%256)==252)
+            dst+=4;
+          dst++;
+          src++;
+        }
+      free(shading_data);
+      shading_data=fixup;
+      length = ((length*256)/252+512);
       break;
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
@@ -6397,6 +6413,7 @@ static SANE_Status
 check_present (SANE_String_Const devname)
 {
   present=SANE_TRUE;
+  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -6460,7 +6477,6 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       sanei_usb_find_devices (vendor, 0x1006, check_present);
       sanei_usb_find_devices (vendor, 0x1007, check_present);
       sanei_usb_find_devices (vendor, 0x1010, check_present);
-      sanei_usb_find_devices (vendor, 0x100f, check_present);
       if(present==SANE_FALSE)
         {
           DBG (DBG_error,"attach: master device not present\n");

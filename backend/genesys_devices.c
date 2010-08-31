@@ -470,12 +470,12 @@ static Genesys_Sensor Sensor[] = {
   ,
   {CCD_KVSS080,
    600,
-   64, /* 48 */
-   36,
+   38, /* black pixels on left */
+   38, /* 36 dummy pixels */
    152,
-   5100,
-   210,
-   230,
+   5200, /* 5100 */
+   160, /* TAU white ref */
+   160, /* gain white ref */
    /* 08    09    0a    0b */
    {0x00, 0x00, 0x00, 0x6a} ,
    /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
@@ -1009,11 +1009,11 @@ static Genesys_Model panasonic_kvss080_model = {
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (7.6),		/* Start of scan area in mm  (x) */
-  SANE_FIX (12.6),		/* Start of scan area in mm (y) */
+  SANE_FIX (12.5),		/* Start of scan area in mm (y) */
   SANE_FIX (218.5),		/* Size of scan area in mm (x) */
   SANE_FIX (297.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (9.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -1039,12 +1039,14 @@ static Genesys_Model panasonic_kvss080_model = {
   GPO_KVSS080,
   MOTOR_KVSS080,
   GENESYS_FLAG_LAZY_INIT |
-  GENESYS_FLAG_NO_CALIBRATION |
+  GENESYS_FLAG_SKIP_WARMUP |
+  /* GENESYS_FLAG_NO_CALIBRATION | */
+  /* GENESYS_FLAG_DARK_CALIBRATION | */
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW ,
-  280,
-  400
+  100,
+  100
 };
 
 static Genesys_Model hpg4050_model = {

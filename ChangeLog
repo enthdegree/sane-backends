@@ -1,3 +1,9 @@
+2010-08-31 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c backend/genesys.conf.in backend/genesys.c
+	backend/genesys_gl843.[ch] backend/Makefile.am backend/Makefile.in: 
+	support for gl843 based scanners, starting with KV-SS080.
+	disable true gray for LIDE35/50 since it breaks scanning
+
 2010-08-02 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys.conf.in: add a device
 	entry for the Canoscan 5600f.

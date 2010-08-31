@@ -130,7 +130,6 @@
 
 /* todo: used?
 #define VALUE_READ_STATUS	0x86
-#define VALUE_BUF_ENDACCESS	0x8C
 */
 
 /* Read/write bulk data/registers */
@@ -243,6 +242,7 @@ Genesys_Color_Order;
 
 #define GENESYS_GL646	 646
 #define GENESYS_GL841	 841
+#define GENESYS_GL843	 843
 #define GENESYS_GL846	 846
 #define GENESYS_GL847	 847
 #define GENESYS_GL848	 848
@@ -261,6 +261,8 @@ Genesys_Color_Order;
 #define DAC_WOLFSON_HP3670 9
 #define DAC_WOLFSON_DSM600 10
 #define DAC_CANONLIDE200   11
+#define DAC_KVSS080        12
+#define DAC_G4050          13
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -279,6 +281,8 @@ Genesys_Color_Order;
 #define CCD_DP685        14
 #define CIS_CANONLIDE200 15
 #define CIS_CANONLIDE100 16
+#define CCD_KVSS080      17
+#define CCD_G4050        18
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -293,6 +297,8 @@ Genesys_Color_Order;
 #define GPO_DP665        10
 #define GPO_DP685        11
 #define GPO_CANONLIDE200 12
+#define GPO_KVSS080      13
+#define GPO_G4050        14
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1
@@ -308,6 +314,8 @@ Genesys_Color_Order;
 #define MOTOR_DSMOBILE_600 12
 #define MOTOR_CANONLIDE200 13
 #define MOTOR_CANONLIDE100 14
+#define MOTOR_KVSS080      15
+#define MOTOR_G4050        16
 
 
 /* Forward typedefs */
@@ -584,6 +592,7 @@ struct Genesys_Calibration_Cache
 struct Genesys_Device
 {
   SANE_Int dn;
+  SANE_Bool usb_mode;
   SANE_String file_name;
   SANE_String calib_file;
   Genesys_Model *model;
@@ -801,6 +810,7 @@ sanei_genesys_buffer_consume(Genesys_Buffer * buf, size_t size);
 /*---------------------------------------------------------------------------*/
 extern SANE_Status sanei_gl646_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl841_init_cmd_set (Genesys_Device * dev);
+extern SANE_Status sanei_gl843_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl847_init_cmd_set (Genesys_Device * dev);
 
 #endif /* not GENESYS_LOW_H */

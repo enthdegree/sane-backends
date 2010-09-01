@@ -1,3 +1,9 @@
+2010-09-01  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma.c, backend/pixma_mp730.c, backend/pixma_mp150.c
+	doc/descriptions/pixma.desc:
+	pixma: changes supplied by Gernot Hassenpflug for Lineart support
+	       to some Pixma devices, and desc updates.
+
 2010-08-31 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys.conf.in backend/genesys.c
 	backend/genesys_gl843.[ch] backend/Makefile.am backend/Makefile.in: 

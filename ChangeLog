@@ -1,3 +1,8 @@
+2010-09-01 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c backend/genesys.c backend/genesys_gl843.c:
+	support for scan button, faster move to scan area and calibration fine
+	tuning.
+
 2010-09-01  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma.c, backend/pixma_mp730.c, backend/pixma_mp150.c
 	doc/descriptions/pixma.desc:

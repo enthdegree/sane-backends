@@ -43,7 +43,8 @@
 :model "PIXMA MP170"
 :interface "USB"
 :usbid "0x04a9" "0x170a"
-:status :good
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MP180"
 :interface "USB"
@@ -60,24 +61,25 @@
 :interface "USB"
 :usbid "0x04a9" "0x1722"
 :status :complete
-:comment "All resolutions supported (up to 1200DPI)"
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MP450"
 :interface "USB"
 :usbid "0x04a9" "0x170b"
-:status :good
-:comment "Scanner makes loud noise at 600 DPI."
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MP460"
 :interface "USB"
 :usbid "0x04a9" "0x1716"
-:status :basic
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MP470"
 :interface "USB"
 :usbid "0x04a9" "0x1723"
 :status :complete
-:comment "All resolutions supported (up to 2400DPI)"
+:comment "All resolutions supported (up to 2400DPI)."
 
 :model "PIXMA MP500"
 :interface "USB"
@@ -87,7 +89,8 @@
 :model "PIXMA MP510"
 :interface "USB"
 :usbid "0x04a9" "0x1717"
-:status :basic
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MP520"
 :interface "USB"
@@ -174,14 +177,14 @@
 :model "SmartBase MP360"
 :interface "USB"
 :usbid "0x04a9" "0x263c"
-:status :minimal
-:comment "The scanner locks up sometimes."
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "SmartBase MP370"
 :interface "USB"
 :usbid "0x04a9" "0x263d"
-:status :minimal
-:comment "The scanner locks up sometimes."
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "SmartBase MP390"
 :interface "USB"

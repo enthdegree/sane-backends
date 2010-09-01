@@ -1258,7 +1258,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
   p->depth = sp->depth;
   p->pixels_per_line = sp->w;
   /* p->bytes_per_line = sp->line_size; NOTE: It should work this way, but it doesn't. No SANE frontend can cope with this. */
-  p->bytes_per_line = sp->w * sp->channels * (sp->depth / 8);
+  p->bytes_per_line = (sp->w * sp->channels * sp->depth) / 8;
   return SANE_STATUS_GOOD;
 }
 
@@ -1293,7 +1293,7 @@ sane_start (SANE_Handle h)
   error = start_reader_task (ss);
   if (error >= 0)
     {
-      ss->output_line_size = ss->sp.w * ss->sp.channels * (ss->sp.depth / 8);
+      ss->output_line_size = (ss->sp.w * ss->sp.channels * ss->sp.depth) / 8;
       ss->byte_pos_in_line = 0;
       ss->last_read_status = SANE_STATUS_GOOD;
       ss->scanning = SANE_TRUE;

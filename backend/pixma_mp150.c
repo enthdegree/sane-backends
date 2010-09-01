@@ -676,6 +676,8 @@ send_scan_param (pixma_t * s)
       pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
       pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x06);
       pixma_set_be32 (s->param->x, data + 0x08);
+      if (s->cfg->pid == MP510_PID)
+        pixma_set_be32 (s->param->x - s->param->xs, data + 0x08);
       pixma_set_be32 (s->param->y, data + 0x0c);
       pixma_set_be32 (raw_width, data + 0x10);
       pixma_set_be32 (h, data + 0x14);

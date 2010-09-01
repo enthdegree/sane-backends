@@ -196,11 +196,23 @@ send_scan_param (pixma_t * s)
   pixma_set_be32 (s->param->y, data + 0x0c);
   pixma_set_be32 (mp->raw_width, data + 0x10);
   pixma_set_be32 (s->param->h, data + 0x14);
-  data[0x18] = (s->param->channels == 1) ? 0x04 : 0x08;
-  data[0x19] = s->param->channels * s->param->depth;	/* bits per pixel */
-  data[0x1f] = 0x7f;
-  data[0x20] = 0xff;
+
+  if (s->param->channels == 1)
+    {
+      if (s->param->depth == 1)
+        data[0x18] = 0x01;
+      else
+        data[0x18] = 0x04;
+    }
+  else
+    data[0x18] = 0x08;
+
+  data[0x19] = s->param->channels * s->param->depth;  /* bits per pixel, for lineart should be 0x01 */
+  data[0x1e] = (s->param->depth == 1) ? 0x80 : 0x00;  /* modify for lineart: 0x80 NEW */
+  data[0x1f] = (s->param->depth == 1) ? 0x80 : 0x7f;  /* modify for lineart: 0x80 */
+  data[0x20] = (s->param->depth == 1) ? 0x01 : 0xff;  /* modify for lineart: 0x01 */
   data[0x23] = 0x81;
+
   return pixma_exec (s, &mp->cb);
 }
 
@@ -335,8 +347,8 @@ handle_interrupt (pixma_t * s, int timeout)
 static int
 has_ccd_sensor (pixma_t * s)
 {
-  return (s->cfg->pid == MP360_PID || 
-          s->cfg->pid == MP370_PID || 
+  return (s->cfg->pid == MP360_PID ||
+          s->cfg->pid == MP370_PID ||
           s->cfg->pid == MP390_PID ||
           s->cfg->pid == MF5730_PID ||
           s->cfg->pid == MF5750_PID ||
@@ -493,12 +505,25 @@ mp730_close (pixma_t * s)
 }
 
 static unsigned
-calc_raw_width (const pixma_scan_param_t * sp)
+calc_raw_width (pixma_t * s, const pixma_scan_param_t * sp)
 {
   unsigned raw_width;
   /* FIXME: Does MP730 need the alignment? */
   if (sp->channels == 1)
-    raw_width = ALIGN_SUP (sp->w, 12);
+    {
+      if (sp->depth == 8)   /* grayscale  */
+        {
+          if (s->cfg->pid == MP700_PID ||
+              s->cfg->pid == MP730_PID ||
+              s->cfg->pid == MP360_PID ||
+              s->cfg->pid == MP370_PID)
+            raw_width = ALIGN_SUP (sp->w, 4);
+          else
+            raw_width = ALIGN_SUP (sp->w, 12);
+        }
+      else   /* depth = 1 : LINEART */
+        raw_width = ALIGN_SUP (sp->w, 16);
+    }
   else
     raw_width = ALIGN_SUP (sp->w, 4);
   return raw_width;
@@ -507,11 +532,33 @@ calc_raw_width (const pixma_scan_param_t * sp)
 static int
 mp730_check_param (pixma_t * s, pixma_scan_param_t * sp)
 {
-  UNUSED (s);
+  uint8_t k = 1;
 
-  sp->depth = 8;		/* FIXME: Does MP730 supports other depth? */
-  sp->w = calc_raw_width (sp);
-  sp->line_size = calc_raw_width (sp) * sp->channels;
+  /* check if channels is 3, or if depth is 1 then channels also 1 else set depth to 8 */
+  if ((sp->channels==3) || !(sp->channels==1 && sp->depth==1))
+    {
+      sp->depth=8;
+    }
+  /* for MP360/370, MP700/730 in grayscale & lineart modes, max scan res is 600 dpi */
+  if (s->cfg->pid == MP700_PID ||
+      s->cfg->pid == MP730_PID ||
+      s->cfg->pid == MP360_PID ||
+      s->cfg->pid == MP370_PID)
+    {
+      if (sp->channels == 1)
+          k = sp->xdpi / MIN (sp->xdpi, 600);
+    }
+
+  sp->x /= k;
+  sp->y /= k;
+  sp->h /= k;
+  sp->xdpi /= k;
+  sp->ydpi = sp->xdpi;
+
+  sp->w = calc_raw_width (s, sp);
+  sp->w /= k;
+  sp->line_size = (calc_raw_width (s, sp) * sp->channels * sp->depth) / 8;
+
   return 0;
 }
 
@@ -530,7 +577,7 @@ mp730_scan (pixma_t * s)
     {
     }
 
-  mp->raw_width = calc_raw_width (s->param);
+  mp->raw_width = calc_raw_width (s, s->param);
   PDBG (pixma_dbg (3, "raw_width = %u\n", mp->raw_width));
 
   n = IMAGE_BLOCK_SIZE / s->param->line_size + 1;
@@ -620,10 +667,9 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	      pack_rgb (mp->imgbuf, n, mp->raw_width, mp->lbuf);
 	    }
 	  else
-	    {
-	      /* grayscale or MF57x0 or MF3110 */
-	      memcpy (mp->lbuf, mp->imgbuf, n * s->param->line_size);
-	    }
+             /* grayscale/lineart or MF57x0 or MF3110 */
+             memcpy (mp->lbuf, mp->imgbuf, n * s->param->line_size);
+
 	  block_size = n * s->param->line_size;
 	  mp->imgbuf_len -= block_size;
 	  memcpy (mp->imgbuf, mp->imgbuf + block_size, mp->imgbuf_len);
@@ -714,12 +760,12 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
 }
 const pixma_config_t pixma_mp730_devices[] = {
 /* TODO: check area limits */
-  DEVICE ("Canon SmartBase MP360", "MP360", MP360_PID, 1200, 636, 868, 0),
-  DEVICE ("Canon SmartBase MP370", "MP370", MP370_PID, 1200, 636, 868, 0),
+  DEVICE ("Canon SmartBase MP360", "MP360", MP360_PID, 1200, 636, 868, PIXMA_CAP_LINEART),
+  DEVICE ("Canon SmartBase MP370", "MP370", MP370_PID, 1200, 636, 868, PIXMA_CAP_LINEART),
   DEVICE ("Canon SmartBase MP390", "MP390", MP390_PID, 1200, 636, 868, 0),
-  DEVICE ("Canon MultiPASS MP700", "MP700", MP700_PID, 1200, 638, 877 /*1035 */ , 0),
+  DEVICE ("Canon MultiPASS MP700", "MP700", MP700_PID, 1200, 638, 877 /*1035 */ , PIXMA_CAP_LINEART),
   DEVICE ("Canon MultiPASS MP710", "MP710", MP710_PID, 1200, 637, 868, 0),
-  DEVICE ("Canon MultiPASS MP730", "MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF),
+  DEVICE ("Canon MultiPASS MP730", "MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF | PIXMA_CAP_LINEART),
   DEVICE ("Canon MultiPASS MP740", "MP740", MP740_PID, 1200, 637, 868, PIXMA_CAP_ADF),
   
   DEVICE ("Canon imageCLASS MF5730", "MF5730", MF5730_PID, 1200, 636, 868, PIXMA_CAP_ADF),

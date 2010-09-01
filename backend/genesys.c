@@ -55,7 +55,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 30
+#define BUILD 31
 
 #include <errno.h>
 #include <string.h>
@@ -1534,6 +1534,9 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
   uint8_t *shading_data, *shading_data_ptr;
   int channels;
   int i;
+
+  if(dev->model->ccd_type==CCD_KVSS080)
+    return SANE_STATUS_GOOD;
 
   DBG (DBG_proc, "sanei_genesys_init_shading_data (pixels_per_line = %d)\n",
        pixels_per_line);
@@ -3095,6 +3098,70 @@ compute_averaged_planar (Genesys_Device * dev,
 	}
     }
 }
+#ifndef UNIT_TESTING
+static
+#endif
+int
+compute_gl843_coefficients (Genesys_Device * dev,
+		            uint8_t ** shading_data,
+		            unsigned int pixels,
+		            unsigned int coeff,
+		            unsigned int target)
+{
+  uint16_t *buffer=(uint16_t *)*shading_data,*darkptr,*whiteptr;
+  int size;
+  int i, count;
+  uint16_t val;
+
+        darkptr=(uint16_t *)dev->dark_average_data;
+        whiteptr=(uint16_t *)dev->white_average_data;
+
+        size=pixels*2*3*256/252*2+512;
+	free(buffer);
+        buffer= (unsigned short *)malloc(size);
+	if (buffer == NULL) 	
+          return 0;
+
+        /* offset */
+	buffer=buffer+12;
+	count=12; 
+	for(i=0; i<pixels; i++)
+          {
+                /* red */
+		*buffer = darkptr[3*i];	
+		buffer++;
+                count++;
+	        val=compute_coefficient(coeff,target,whiteptr[3*i]-darkptr[3*i]);
+		*buffer = val;
+		buffer++;
+                count++;
+
+                /* green */
+		*buffer = darkptr[3*i+1];	
+		buffer++;
+                count++;
+	        val=compute_coefficient(coeff,target,whiteptr[3*i+1]-darkptr[3*i+1]);
+		*buffer = val;
+		buffer++;
+                count++;
+
+                /* blue */
+		*buffer = darkptr[3*i+2];	
+		buffer++;
+                count++;
+	        val=compute_coefficient(coeff,target,whiteptr[3*i+2]-darkptr[3*i+2]);
+		*buffer = val;
+		buffer++;
+                count++;
+
+		if ((count % 256) == 252) {
+			buffer += 4;
+			count += 4;
+		}
+	}
+
+  return size;
+}
 
 /**
  * Computes shading coefficient using formula in data sheet. 16bit data values
@@ -3446,40 +3513,14 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                             target_code);
       break;
     case CCD_KVSS080:
+      words_per_color=pixels_per_line * 2;
+      length = words_per_color * 3 * 2;
       target_code = 0xe000;
-      o = 4;
-      cmat[0] = 0;
-      cmat[1] = 1;
-      cmat[2] = 2;	
-      compute_coefficients (dev,
-			    shading_data,
-			    pixels_per_line,
-			    3,
-                            cmat, 
-                            o, 
-                            coeff, 
-                            target_code);
-      /* shading data fixup */
-      shading=(uint16_t *)shading_data;
-      fixup = malloc ((length*256)/252+512);
-      if (!shading_data)
-        {
-          DBG (DBG_error, "%s: failed to allocate memory for shading fixup\n",__FUNCTION__);
-          return SANE_STATUS_NO_MEM;
-        }
-      src=0;
-      dst=0;
-      while(src<length/2)
-        {
-          fixup[dst]=shading[src];
-          if((dst%256)==252)
-            dst+=4;
-          dst++;
-          src++;
-        }
-      free(shading_data);
-      shading_data=fixup;
-      length = ((length*256)/252+512);
+      length=compute_gl843_coefficients (dev,
+			                 &shading_data,
+			                 pixels_per_line,
+                                         coeff, 
+                                         target_code);
       break;
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:

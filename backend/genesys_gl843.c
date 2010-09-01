@@ -469,7 +469,6 @@ static int gl843_slope_table(uint16_t *slope,
 			     int       dpi,
 			     int       exposure,
 			     int       base_dpi,
-			     int       start,
 			     int       step_type,
 			     int       factor)
 {
@@ -483,7 +482,7 @@ uint16_t target, *profile;
         for(i=0;i<256*factor;i++)
           slope[i]=target;
 
-        /* choose profile to use, for now only one */
+        /* TODO choose profile to use per motor type, for now only one */
         profile=kvss080_profile;
 
 	/* use profile to build table */
@@ -582,7 +581,7 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x03, 0x1f);
   SETREG (0x04, 0x10);
   SETREG (0x05, 0x80);
-  SETREG (0x06, 0xd0);
+  SETREG (0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
   SETREG (0x08, 0x00);
   SETREG (0x09, 0x00);
   SETREG (0x0a, 0x00);
@@ -908,6 +907,8 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
   factor = gl843_get_step_multiplier (reg);
 
   use_fast_fed = 0;
+  if(scan_yres>=300 && feed_steps>300)
+    use_fast_fed=1;
   lincnt=scan_lines;
 
   r = sanei_genesys_get_address (reg, 0x25);
@@ -940,7 +941,6 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                               scan_yres,
                               scan_exposure_time,
                               dev->motor.base_ydpi,
-                              22222,
                               scan_step_type,
                               factor);
   RIE(gl843_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps));
@@ -958,7 +958,6 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                               100,
                               scan_exposure_time,
                               dev->motor.base_ydpi,
-                              22222,
                               scan_step_type,
                               factor);
   RIE(gl843_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps));
@@ -1134,7 +1133,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
     {
       r->value |= REG01_DVDSET;
     }
-  r->value &= ~REG01_DVDSET;
 
   r = sanei_genesys_get_address (reg, REG03);
   r->value &= ~REG03_AVEENB;
@@ -2217,7 +2215,7 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     return SANE_STATUS_INVAL;
 
   /* post scan gpio */
-  RIE(sanei_genesys_write_register(dev,0x7e,0x00)); 
+  RIE(sanei_genesys_write_register(dev,0x7e,0x00));
 
   if (dev->model->is_sheetfed == SANE_TRUE)
     {
@@ -2543,29 +2541,24 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
   SANE_Status status;
   int move,resolution;
 
-  DBG (DBG_proc, "gl843_init_regs_for_shading: lines = %d\n",
-       dev->model->shading_lines);
+  DBGSTART;
   
   /* initial calibration reg values */
   memcpy (dev->calib_reg, dev->reg,
 	  GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
 
   dev->calib_channels = 3;
-  /* follow CKSEL */
-  if(dev->settings.xres<dev->sensor.optical_res)
-    resolution=dev->sensor.optical_res/2;
-  else
-    resolution=dev->sensor.optical_res;
   dev->calib_pixels = dev->sensor.sensor_pixels;
+  resolution=dev->sensor.optical_res;
 
   /* distance to move to reach white target */
   move = SANE_UNFIX (dev->model->y_offset_calib);
-  move = (move * dev->sensor.optical_res) / MM_PER_INCH;
+  move = (move * resolution) / MM_PER_INCH;
 
   status = gl843_init_scan_regs (dev,
 				 dev->calib_reg,
 				 resolution,
-				 dev->sensor.optical_res,
+				 resolution,
 				 0,
 				 move,
 				 dev->calib_pixels,
@@ -2770,65 +2763,6 @@ gl843_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
   DBG (DBG_proc, "gl843_send_gamma_table: completed\n");
   free (gamma);
   return SANE_STATUS_GOOD;
-}
-
-/**
- * Send shading calibration data. The buffer is considered to always hold values
- * for all the channels.
- */
-static SANE_Status
-gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
-{
-  SANE_Status status = SANE_STATUS_GOOD;
-  uint32_t addr, length;
-  uint8_t val;
-
-  DBGSTART;
-  DBG (DBG_io2, "%s: writing %d bytes of shading data\n", __FUNCTION__, size);
-
-  length = (uint32_t) (size / 3);
-  DBG (DBG_io2, "%s: using chunks of %d (0x%04x) bytes\n", __FUNCTION__,
-       length, length);
-
-  /* base addr of data has been written in reg D0-D4 in 4K word, so AHB address
-   * is 8192*reg value */
-
-  /* write actual red data */
-  RIE (sanei_genesys_read_register (dev, 0xd0, &val));
-  addr = val * 8192 + 0x10000000;
-  status = write_data (dev, addr, length, data);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "gl843_send_shading_data; write to AHB failed (%s)\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  /* write actual green data */
-  RIE (sanei_genesys_read_register (dev, 0xd1, &val));
-  addr = val * 8192 + 0x10000000;
-  status = write_data (dev, addr, length, data + length);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "gl843_send_shading_data; write to AHB failed (%s)\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  /* write actual blue data */
-  RIE (sanei_genesys_read_register (dev, 0xd2, &val));
-  addr = val * 8192 + 0x10000000;
-  status = write_data (dev, addr, length, data + 2 * length);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "gl843_send_shading_data; write to AHB failed (%s)\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  DBGCOMPLETED;
-
-  return status;
 }
 
 /* this function does the led calibration by scanning one line of the calibration
@@ -3212,7 +3146,6 @@ gl843_offset_calibration (Genesys_Device * dev)
 	}
     }
   DBG (DBG_info, "gl843_offset_calibration: offset=(%d,%d,%d)\n", dev->frontend.offset[0], dev->frontend.offset[1], dev->frontend.offset[2]);
-	  top = dev->frontend.offset[1];
 
   /* cleanup before return */
   free (first_line);
@@ -3458,10 +3391,7 @@ gl843_is_compatible_calibration (Genesys_Device * dev,
 	   sane_strstatus (status));
       return status;
     }
-  if(dev->settings.xres<dev->sensor.optical_res)
-    resolution=dev->sensor.optical_res/2;
-  else
-    resolution=dev->sensor.optical_res;
+  resolution=dev->sensor.optical_res;
   dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG (DBG_proc, "gl843_is_compatible_calibration: checking\n");
@@ -3471,7 +3401,6 @@ gl843_is_compatible_calibration (Genesys_Device * dev,
   if (dev->model->is_cis == SANE_FALSE)
     {
       compatible = (resolution == ((int) cache->used_setup.xres));
-      compatible = 0;
     }
   else
     {
@@ -3781,14 +3710,22 @@ gl843_update_hardware_sensors (Genesys_Scanner * s)
 
   RIE (sanei_genesys_read_register (s->dev, REG6D, &val));
 
-  if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-    s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
-  if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
-    s->val[OPT_FILE_SW].b = (val & 0x02) == 0;
-  if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
-    s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
-  if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
-    s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
+  if (s->dev->model->gpo_type == GPO_KVSS080) 
+    {
+      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
+        s->val[OPT_SCAN_SW].b = (val & 0x04) == 0;
+    }
+  else
+    {
+      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
+        s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
+      if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
+        s->val[OPT_FILE_SW].b = (val & 0x02) == 0;
+      if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
+        s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
+      if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
+        s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
+    }
 
   return status;
 }

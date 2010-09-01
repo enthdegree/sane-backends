@@ -1028,7 +1028,7 @@ static Genesys_Model panasonic_kvss080_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  0, 4, 8,			/* RGB CCD Line-distance correction in pixel */
+  0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
@@ -1040,8 +1040,6 @@ static Genesys_Model panasonic_kvss080_model = {
   MOTOR_KVSS080,
   GENESYS_FLAG_LAZY_INIT |
   GENESYS_FLAG_SKIP_WARMUP |
-  /* GENESYS_FLAG_NO_CALIBRATION | */
-  /* GENESYS_FLAG_DARK_CALIBRATION | */
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW ,

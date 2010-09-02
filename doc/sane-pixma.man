@@ -19,6 +19,8 @@ PIXMA MP140, MP150, MP160, MP170, MP180, MP190
 .br
 PIXMA MP210, MP220, MP240, MP250, MP260, MP270
 .br
+Smartbase MP360, MP370, MP390
+.br
 PIXMA MP450, MP460, MP470, MP480, MP490
 .br
 PIXMA MP500, MP510, MP520, MP530, MP540, MP550, MP560
@@ -48,8 +50,6 @@ The following models are not well tested and/or the scanner sometimes hangs
 and must be switched off and on.
 .PP
 .RS
-SmartBase MP360, MP370, MP390
-.br
 MultiPASS PIXMA MP760, PIXMA MP780
 .RE
 .PP
@@ -79,7 +79,7 @@ The backend supports:
 .RS
 * resolutions of 75, 150, 300, 600, 1200, 2400, and 4800 DPI (some maybe buggy),
 .br
-* color and grayscale mode,
+* color and grayscale mode, as well as lineart on certain models,
 .br
 * a custom gamma table,
 .br

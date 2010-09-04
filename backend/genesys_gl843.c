@@ -907,7 +907,8 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
   factor = gl843_get_step_multiplier (reg);
 
   use_fast_fed = 0;
-  if(scan_yres>=300 && feed_steps>300)
+
+  if(scan_yres>=300 && feed_steps>900)
     use_fast_fed=1;
   lincnt=scan_lines;
 
@@ -1394,7 +1395,10 @@ independent of our calculated values:
   else
     {
       /* resolution is choosen from a fixed list and can be used directly */
-      used_res = xres;
+      if(xres>optical_res)
+        used_res=optical_res;
+      else
+        used_res = xres;
     }
 
   /* compute scan parameters values */
@@ -1410,6 +1414,7 @@ independent of our calculated values:
   /* compute correct pixels number */
   /* pixels */
   used_pixels = (pixels * optical_res) / xres;
+  DBG (DBG_info, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
 
   /* round up pixels number if needed */
   if (used_pixels * xres < pixels * optical_res)
@@ -1518,10 +1523,8 @@ independent of our calculated values:
 					 move,
 					 scan_power_mode,
 					 (flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE) ?  MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE : 0);
-
   if (status != SANE_STATUS_GOOD)
     return status;
-
 
   /*** prepares data reordering ***/
 
@@ -1563,6 +1566,7 @@ independent of our calculated values:
 
 
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
+  DBG (DBG_info, "%s: current_setup.pixels=%d\n", __FUNCTION__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
   dev->current_setup.depth = depth;
   dev->current_setup.channels = channels;
@@ -1608,7 +1612,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   int used_pixels;
   unsigned int lincnt;
   int exposure_time;
-  int i;
   int stagger;
 
   int slope_dpi = 0;
@@ -1622,11 +1625,12 @@ gl843_calculate_current_setup (Genesys_Device * dev)
 
   DBG (DBG_info,
        "gl843_calculate_current_setup settings:\n"
-       "Resolution: %uDPI\n"
+       "Resolution: %ux%uDPI\n"
        "Lines     : %u\n"
        "PPL       : %u\n"
        "Startpos  : %.3f/%.3f\n"
        "Scan mode : %d\n\n",
+       dev->settings.xres,
        dev->settings.yres, dev->settings.lines, dev->settings.pixels,
        dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
 
@@ -1647,9 +1651,9 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
 
 
-  xres = dev->settings.xres;	/*dpi */
-  yres = dev->settings.yres;	/*dpi */
-  startx = start;		/*optical_res, from dummy_pixel+1 */
+  xres = dev->settings.xres;
+  yres = dev->settings.yres;
+  startx = start;
   pixels = dev->settings.pixels;
   lines = dev->settings.lines;
   color_filter = dev->settings.color_filter;
@@ -1676,60 +1680,35 @@ gl843_calculate_current_setup (Genesys_Device * dev)
       half_ccd = SANE_TRUE;
     }
 
-/* optical_res */
 
+  /* optical_res */
   optical_res = dev->sensor.optical_res;
   if (half_ccd)
     optical_res /= 2;
 
-/* stagger */
-
+  /* stagger */
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
     stagger = (4 * yres) / dev->motor.base_ydpi;
   else
     stagger = 0;
-  DBG (DBG_info, "gl843_calculate_current_setup: stagger=%d lines\n",
-       stagger);
+  DBG (DBG_info, "%s: stagger=%d lines\n", __FUNCTION__, stagger);
 
-/* used_res */
-  i = optical_res / xres;
-
-#if 0
-/* gl843 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
-  if (i < 2)			/* optical_res >= xres > optical_res/2 */
-    used_res = optical_res;
-  else if (i < 3)		/* optical_res/2 >= xres > optical_res/3 */
-    used_res = optical_res / 2;
-  else if (i < 4)		/* optical_res/3 >= xres > optical_res/4 */
-    used_res = optical_res / 3;
-  else if (i < 5)		/* optical_res/4 >= xres > optical_res/5 */
-    used_res = optical_res / 4;
-  else if (i < 6)		/* optical_res/5 >= xres > optical_res/6 */
-    used_res = optical_res / 5;
-  else if (i < 8)		/* optical_res/6 >= xres > optical_res/8 */
-    used_res = optical_res / 6;
-  else if (i < 10)		/* optical_res/8 >= xres > optical_res/10 */
-    used_res = optical_res / 8;
-  else if (i < 12)		/* optical_res/10 >= xres > optical_res/12 */
-    used_res = optical_res / 10;
-  else if (i < 15)		/* optical_res/12 >= xres > optical_res/15 */
-    used_res = optical_res / 12;
+  if(xres<=optical_res)
+    used_res = xres;
   else
-    used_res = optical_res / 15;
-#endif
-  /* resolution is choosen from a fixed list */
-  used_res = xres;
+    used_res=optical_res;
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
 
   /* compute correct pixels number */
-  used_pixels = (pixels * optical_res) / used_res;
+  used_pixels = (pixels * optical_res) / xres;
+  DBG (DBG_info, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
   dummy = 0;
 
-/* slope_dpi */
-/* cis color scan is effectively a gray scan with 3 gray lines per color
+  /* slope_dpi */
+  /* cis color scan is effectively a gray scan with 3 gray lines per color
    line and a FILTER of 0 */
   if (dev->model->is_cis)
     slope_dpi = yres * channels;
@@ -1746,9 +1725,7 @@ gl843_calculate_current_setup (Genesys_Device * dev)
 						gl843_get_led_exposure (dev),
 						scan_power_mode);
 
-  DBG (DBG_info,
-       "gl843_calculate_current_setup : exposure_time=%d pixels\n",
-       exposure_time);
+  DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
 /* max_shift */
   /* scanned area must be enlarged by max color shift needed */
@@ -1767,10 +1744,11 @@ gl843_calculate_current_setup (Genesys_Device * dev)
       max_shift = 0;
     }
 
-/* lincnt */
+  /* lincnt */
   lincnt = lines + max_shift + stagger;
 
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
+  DBG (DBG_info, "%s: current_setup.pixels=%d\n", __FUNCTION__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
   dev->current_setup.depth = depth;
   dev->current_setup.channels = channels;
@@ -2591,11 +2569,6 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
       return status;
     }
 
-  /* this is an hack to make calibration cache working .... */
-  /* if we don't do this, cache will be identified at the shading calibration
-   * dpi which is diferent from calibration one */
-  dev->current_setup.xres = resolution;
-
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
@@ -2615,10 +2588,15 @@ gl843_init_regs_for_scan (Genesys_Device * dev)
   SANE_Status status;
 
   DBG (DBG_info,
-       "gl843_init_regs_for_scan settings:\nResolution: %uDPI\n"
-       "Lines     : %u\nPPL       : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n",
-       dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-       dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
+       "gl843_init_regs_for_scan settings:\nResolution: %ux%uDPI\n"
+       "Lines     : %u\npixels    : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n",
+       dev->settings.xres,
+       dev->settings.yres,
+       dev->settings.lines,
+       dev->settings.pixels,
+       dev->settings.tl_x,
+       dev->settings.tl_y,
+       dev->settings.scan_mode);
 
   /* ensure head is parked in case of calibration */
   gl843_slow_back_home (dev, SANE_TRUE);
@@ -2669,7 +2647,7 @@ gl843_init_regs_for_scan (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  DBG (DBG_proc, "gl843_init_register_for_scan: completed\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -3016,11 +2994,7 @@ gl843_offset_calibration (Genesys_Device * dev)
 
   /* offset calibration is always done in color mode */
   channels = 3;
-  /* follow CKSEL */
-  if(dev->settings.xres<dev->sensor.optical_res)
-    resolution=dev->sensor.optical_res/2;
-  else
-    resolution=dev->sensor.optical_res;
+  resolution=dev->sensor.optical_res;
   dev->calib_pixels = dev->sensor.sensor_pixels;
   lines=1;
   bpp=8;

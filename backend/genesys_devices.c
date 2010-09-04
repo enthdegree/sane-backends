@@ -1004,7 +1004,7 @@ static Genesys_Model panasonic_kvss080_model = {
   NULL,
 
   { 600, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
-  { 600, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
+  { 1200, 600, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

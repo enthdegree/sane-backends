@@ -202,5 +202,5 @@
 :model "KV-SS080"
 :interface "USB"
 :usbid  "0x04da" "0x100f"
-:status :good
+:status :complete
 :comment "All resolution and mode supported, calibration is available"

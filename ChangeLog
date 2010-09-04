@@ -1,3 +1,7 @@
+2010-09-04 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c backend/genesys.c backend/genesys_gl843.c:
+	1200 dpi resolution support for KV-SS080.
+
 2010-09-01 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys.c backend/genesys_gl843.c:
 	support for scan button, faster move to scan area and calibration fine

@@ -1,3 +1,7 @@
+2010-09-05 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl841.c: end of document detection rework for
+	sheetfed scanners.
+
 2010-09-04 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys.c backend/genesys_gl843.c:
 	1200 dpi resolution support for KV-SS080.

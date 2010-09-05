@@ -55,7 +55,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 31
+#define BUILD 32
 
 #include <errno.h>
 #include <string.h>
@@ -5838,7 +5838,7 @@ calc_parameters (Genesys_Scanner * s)
 
   s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
   s->params.pixels_per_line =
-    ((br_x - tl_x) * s->dev->settings.xres) / MM_PER_INCH;
+    ((br_x - tl_x) * resolution) / MM_PER_INCH;
 
   /* we need an even number of pixels for even/odd handling */
   if (s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS
@@ -5873,7 +5873,7 @@ calc_parameters (Genesys_Scanner * s)
   else				/* Lineart */
     s->dev->settings.scan_mode = SCAN_MODE_LINEART;
 
-  /* todo: change and check */
+  /* TODO: change and check */
   if (strcmp (source, FLATBED) == 0)
     s->dev->settings.scan_method = SCAN_METHOD_FLATBED;
   else				/* transparency */

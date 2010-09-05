@@ -3958,9 +3958,10 @@ gl841_detect_document_end (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool paper_loaded;
-  unsigned int scancnt = 0;
-  int flines, channels, depth, bytes_remain, sublines,
-    bytes_to_flush, lines, sub_bytes, tmp, read_bytes_left;
+  unsigned int scancnt = 0, lincnt, postcnt;
+  uint8_t val;
+  size_t total_bytes_to_read;
+
   DBG (DBG_proc, "%s: begin\n", __FUNCTION__);
 
   RIE (gl841_get_paper_sensor (dev, &paper_loaded));
@@ -3971,115 +3972,46 @@ gl841_detect_document_end (Genesys_Device * dev)
       DBG (DBG_info, "%s: no more document\n", __FUNCTION__);
       dev->document = SANE_FALSE;
 
-      channels = dev->current_setup.channels;
-      depth = dev->current_setup.depth;
-      read_bytes_left = (int) dev->read_bytes_left;
-      DBG (DBG_io, "gl841_detect_document_end: read_bytes_left=%d\n",
-	   read_bytes_left);
+      /* we can't rely on total_bytes_to_read since the frontend
+       * might have been slow to read data, so we re-evaluate the
+       * amount of data to scan form the hardware settings
+       */
+      status=sanei_genesys_read_scancnt(dev,&scancnt);
+      if(status!=SANE_STATUS_GOOD)
+        {
+          dev->total_bytes_to_read = dev->total_bytes_read;
+          dev->read_bytes_left = 0;
+          DBG (DBG_proc, "%s: finished\n", __FUNCTION__);
+          return SANE_STATUS_GOOD;
+        }
+      if (dev->settings.scan_mode == SCAN_MODE_COLOR && dev->model->is_cis)
+        {
+          scancnt/=3;
+        }
+      DBG (DBG_io, "%s: scancnt=%u lines\n",__FUNCTION__, scancnt);
 
-      /* read lins read */
-      status = sanei_genesys_read_scancnt (dev, &scancnt);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  flines = 0;
-	}
-      else
-	{
-	  /* compute number of line read */
-	  tmp = (int) dev->total_bytes_read;
-	  if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
-	    flines = tmp * 8 / dev->settings.pixels / channels;
-	  else
-	    flines = tmp / (depth / 8) / dev->settings.pixels / channels;
+      RIE(sanei_genesys_read_register(dev, 0x25, &val));
+      lincnt=65536*val;
+      RIE(sanei_genesys_read_register(dev, 0x26, &val));
+      lincnt+=256*val;
+      RIE(sanei_genesys_read_register(dev, 0x27, &val));
+      lincnt+=val;
+      DBG (DBG_io, "%s: lincnt=%u lines\n",__FUNCTION__, lincnt);
+      postcnt=(SANE_UNFIX(dev->model->post_scan)/MM_PER_INCH)*dev->settings.yres;
+      DBG (DBG_io, "%s: postcnt=%u lines\n",__FUNCTION__, postcnt);
 
-	  /* number of scanned lines, but no read yet */
-	  flines = scancnt - flines;
+      /* the current scancnt is also the final one, so we use it to
+       * compute total bytes to read. We also add the line count to eject document */
+      total_bytes_to_read=(scancnt+postcnt)*dev->wpl;
+      DBG (DBG_io, "%s: old total_bytes_to_read=%u\n",__FUNCTION__,dev->total_bytes_to_read);
+      DBG (DBG_io, "%s: new total_bytes_to_read=%u\n",__FUNCTION__,total_bytes_to_read);
 
-	  DBG (DBG_io,
-	       "gl841_detect_document_end: %d scanned but not read lines\n",
-	       flines);
-	}
-
-      /* adjust number of bytes to read 
-       * we need to read the final bytes which are word per line * number of last lines
-       * to have doc leaving feeder */
-      lines =
-	(SANE_UNFIX (dev->model->post_scan) * dev->current_setup.yres) /
-	MM_PER_INCH + flines;
-      DBG (DBG_io, "gl841_detect_document_end: adding %d line to flush\n",
-	   lines);
-
-      /* number of bytes to read from scanner to get document out of it after
-       * end of document dectected by hardware sensor */
-      bytes_to_flush = lines * dev->wpl;
-
-      /* if we are already close to end of scan, flushing isn't needed */
-      if (bytes_to_flush < read_bytes_left)
-	{
-	  /* we take all these step to work around an overflow on some plateforms */
-	  tmp = (int) dev->total_bytes_read;
-	  DBG (DBG_io, "gl841_detect_document_end: tmp=%d\n", tmp);
-	  bytes_remain = (int) dev->total_bytes_to_read;
-	  DBG (DBG_io, "gl841_detect_document_end: bytes_remain=%d\n",
-	       bytes_remain);
-	  bytes_remain = bytes_remain - tmp;
-	  DBG (DBG_io, "gl841_detect_document_end: bytes_remain=%d\n",
-	       bytes_remain);
-
-	  /* remaining lines to read by frontend for the current scan */
-	  if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
-	    {
-	      flines = bytes_remain * 8 / dev->settings.pixels / channels;
-	    }
-	  else
-	    flines = bytes_remain / (depth / 8)
-	      / dev->settings.pixels / channels;
-	  DBG (DBG_io, "gl841_detect_document_end: flines=%d\n", flines);
-
-	  if (flines > lines)
-	    {
-	      /* change the value controlling communication with the frontend :
-	       * total bytes to read is current value plus the number of remaining lines 
-	       * multiplied by bytes per line */
-	      sublines = flines - lines;
-
-	      if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
-		sub_bytes =
-		  ((dev->settings.pixels * sublines) / 8 +
-		   (((dev->settings.pixels * sublines) % 8) ? 1 : 0)) *
-		  channels;
-	      else
-		sub_bytes =
-		  dev->settings.pixels * sublines * channels * (depth / 8);
-
-	      dev->total_bytes_to_read -= sub_bytes;
-
-	      /* then adjust the physical bytes to read */
-	      if (read_bytes_left > sub_bytes)
-		{
-		  dev->read_bytes_left -= sub_bytes;
-		}
-	      else
-		{
-		  dev->total_bytes_to_read = dev->total_bytes_read;
-		  dev->read_bytes_left = 0;
-		}
-
-	      DBG (DBG_io, "gl841_detect_document_end: sublines=%d\n",
-		   sublines);
-	      DBG (DBG_io, "gl841_detect_document_end: subbytes=%d\n",
-		   sub_bytes);
-	      DBG (DBG_io,
-		   "gl841_detect_document_end: total_bytes_to_read=%lu\n",
-		   (unsigned long)dev->total_bytes_to_read);
-	      DBG (DBG_io, "gl841_detect_document_end: read_bytes_left=%d\n",
-		   read_bytes_left);
-	    }
-	}
-      else
-	{
-	  DBG (DBG_io, "gl841_detect_document_end: no flushing needed\n");
-	}
+      /* assign new end value */
+      if(dev->total_bytes_to_read>total_bytes_to_read)
+        {
+          DBG (DBG_io, "%s: scan shorten\n",__FUNCTION__);
+          dev->total_bytes_to_read=total_bytes_to_read;
+        }
     }
 
   DBG (DBG_proc, "%s: finished\n", __FUNCTION__);

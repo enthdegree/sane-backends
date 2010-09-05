@@ -1,3 +1,7 @@
+2010-09-05  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/sane-pixma.man:
+	pixma: man page update for devices as reported by Gernot Hassenpflug.
+
 2010-09-05 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl841.c: end of document detection rework for
 	sheetfed scanners.

@@ -117,6 +117,12 @@ static SANE_String_Const source_list[] = {
   0
 };
 
+static SANE_Range swdespeck_range = {
+  0,
+  9,
+  1
+};
+
 static SANE_Range time_range = {
   0,				/* minimum */
   60,				/* maximum */
@@ -611,6 +617,7 @@ sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status)
   return sanei_genesys_read_register (dev, 0x41, status);
 }
 
+#if 0
 /* returns pixels per line from register set */
 /*candidate for moving into chip specific files?*/
 static int
@@ -643,6 +650,7 @@ genesys_dpiset (Genesys_Register_Set * reg)
 
   return dpiset;
 }
+#endif
 
 /** read the number of valid words in scanner's RAM
  * ie registers 42-43-44
@@ -5913,6 +5921,16 @@ calc_parameters (Genesys_Scanner * s)
   else
       s->dev->settings.threshold_curve=0;
 
+  /* some digital processing requires the whole picture to be buffered */
+  if (s->val[OPT_SWDESPECK].b || s->val[OPT_SWCROP].b || s->val[OPT_SWDESKEW].b)
+    {
+      s->dev->buffer_image=SANE_TRUE;
+    }
+  else
+    {
+      s->dev->buffer_image=SANE_TRUE;
+    }
+
   return status;
 }
 
@@ -6195,6 +6213,45 @@ init_options (Genesys_Scanner * s)
       s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
       DBG (DBG_info, "init_options: custom gamma disabled\n");
     }
+
+  /* software base image enhancements, these are consuming as many 
+   * memory than used by the full scanned image and may fail at high
+   * resolution
+   */
+  /* software deskew */
+  s->opt[OPT_SWDESKEW].name = "swdeskew";
+  s->opt[OPT_SWDESKEW].title = "Software deskew";
+  s->opt[OPT_SWDESKEW].desc = "Request backend to rotate skewed pages digitally";
+  s->opt[OPT_SWDESKEW].type = SANE_TYPE_BOOL;
+  s->opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->val[OPT_SWDESKEW].b = SANE_FALSE;
+  
+  /* software deskew */
+  s->opt[OPT_SWDESPECK].name = "swdespeck";
+  s->opt[OPT_SWDESPECK].title = "Software despeck";
+  s->opt[OPT_SWDESPECK].desc = "Request backend to remove lone dots digitally";
+  s->opt[OPT_SWDESPECK].type = SANE_TYPE_BOOL;
+  s->opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->val[OPT_SWDESPECK].b = SANE_FALSE;
+
+  /* software despeckle radius */
+  s->opt[OPT_DESPECK].name = "despeck";
+  s->opt[OPT_DESPECK].title = "Software despeckle diameter";
+  s->opt[OPT_DESPECK].desc = "Maximum diameter of lone dots to remove from scan";
+  s->opt[OPT_DESPECK].type = SANE_TYPE_INT;
+  s->opt[OPT_DESPECK].unit = SANE_UNIT_NONE;
+  s->opt[OPT_DESPECK].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_DESPECK].constraint.range = &swdespeck_range;
+  s->opt[OPT_DESPECK].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->val[OPT_DESPECK].w= 1;
+
+  /* crop by software */
+  s->opt[OPT_SWCROP].name = "swcrop";
+  s->opt[OPT_SWCROP].title = "Software crop";
+  s->opt[OPT_SWCROP].desc = "Request backend to remove border from pages digitally";
+  s->opt[OPT_SWCROP].type = SANE_TYPE_BOOL;
+  s->opt[OPT_SWCROP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->val[OPT_SWCROP].b = SANE_FALSE;
 
   /* "Extras" group: */
   s->opt[OPT_EXTRAS_GROUP].title = SANE_I18N ("Extras");
@@ -7195,6 +7252,10 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_DISABLE_DYNAMIC_LINEART:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_LAMP_OFF_TIME:
+    case OPT_SWDESKEW:
+    case OPT_SWCROP:
+    case OPT_SWDESPECK:
+    case OPT_DESPECK:
       *(SANE_Word *) val = s->val[option].w;
       break;
     case OPT_CUSTOM_GAMMA:
@@ -7307,11 +7368,27 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
     case OPT_DISABLE_DYNAMIC_LINEART:
+    case OPT_SWCROP:
+    case OPT_SWDESKEW:
+    case OPT_DESPECK:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_PREVIEW:
       s->val[option].w = *(SANE_Word *) val;
       RIE (calc_parameters (s));
       *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_SWDESPECK:
+      s->val[option].w = *(SANE_Word *) val;
+      if (s->val[OPT_SWDESPECK].b == SANE_TRUE)
+	{
+          ENABLE(OPT_DESPECK);
+        }
+      else
+        {
+          DISABLE(OPT_DESPECK);
+        }
+      RIE (calc_parameters (s));
+      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_SOURCE:
       if (strcmp (s->val[option].s, val) != 0)
@@ -7706,6 +7783,15 @@ sane_start (SANE_Handle handle)
   RIE (genesys_start_scan (s->dev));
 
   s->scanning = SANE_TRUE;
+
+  /* if one of the software enhancement option is selsected,
+   * we do the scan internally, process picture then put it an internall
+   * buffer. Since cropping may change scan parameters, we recompute them
+   * at the end */
+  if (s->dev->buffer_image)
+    {
+      /* scan image to buffer */
+    }
 
   DBG (DBG_proc, "sane_start: exit\n");
   return SANE_STATUS_GOOD;

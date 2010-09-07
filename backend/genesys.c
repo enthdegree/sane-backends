@@ -6877,6 +6877,85 @@ write_calibration (Genesys_Device * dev)
   fclose (fp);
 }
 
+/** @brief buffer scanned picture
+ * In order to allow digital processing, we must be able to put all the
+ * scanned picture in a buffer.
+ */
+static SANE_Status
+genesys_buffer_image(Genesys_Scanner *s)
+{
+  SANE_Status status=SANE_STATUS_GOOD;
+  size_t maximum;     /**> maximum bytes size of the scan */
+  size_t len;         /**> length of scanned data read */
+  size_t total;       /**> total of butes read */
+  size_t size;        /**> size of image buffer */
+  size_t read_size;   /**> size of reads */
+  int lines;          /** number of lines of the scan */
+  Genesys_Device *dev=s->dev;
+
+      /* compute maximum number of lines for the scan */
+      if(s->params.lines>0)
+        {
+          lines=s->params.bytes_per_line * s->params.lines;
+        }
+      else
+        {
+          lines=(SANE_UNFIX(dev->model->y_size)*dev->settings.yres)/MM_PER_INCH;
+        }
+      DBG(DBG_info, "%s: buffering %d lines of %d bytes\n",__FUNCTION__, lines,s->params.bytes_per_line);
+
+      /* maximum bytes to read */
+      maximum=s->params.bytes_per_line * lines;
+
+      /* initial size of the read buffer */
+      size=((2048*2048)/s->params.bytes_per_line)*s->params.bytes_per_line;
+
+      /* read size */
+      read_size=size/2;
+
+      /* allocate memory */
+      dev->img_buffer=(SANE_Byte *)malloc(size);
+      if(dev->img_buffer==NULL)
+        {
+          DBG (DBG_error, "%s: digital processing requires too much memory.\nConsider disabling it\n",__FUNCTION__);
+          return SANE_STATUS_NO_MEM;
+        }
+
+      /* loop reading data until we reach maximu or EOF */
+      total=0;
+      while(total<maximum && status!=SANE_STATUS_EOF)
+        {
+          len=size-maximum;
+          if(len>read_size)
+            {
+              len=read_size;
+            }
+          status = genesys_read_ordered_data (dev, dev->img_buffer+total, &len);
+          if(status!=SANE_STATUS_EOF && status!=SANE_STATUS_GOOD)
+            {
+              free(s->dev->img_buffer);
+              DBG (DBG_error, "%s: %s buffering failed\n", __FUNCTION__, sane_strstatus (status));
+              return status;
+            }
+          total+=len;
+
+          /* do we need to enlarge read buffer ? */
+          if(total+read_size>size && status != SANE_STATUS_EOF)
+            {
+              size+=read_size;
+              dev->img_buffer=(SANE_Byte *)realloc(dev->img_buffer,size);
+              if(dev->img_buffer==NULL)
+                {
+                  DBG (DBG_error0, "%s: digital processing requires too much memory.\nConsider disabling it\n",__FUNCTION__);
+                  return SANE_STATUS_NO_MEM;
+                }
+            }
+        }
+      s->dev->total_bytes_to_read=total;
+      s->dev->total_bytes_read=0;
+      return SANE_STATUS_GOOD;
+}
+
 /* -------------------------- SANE API functions ------------------------- */
 
 SANE_Status
@@ -7067,6 +7146,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->white_average_data = NULL;
   s->dev->dark_average_data = NULL;
   s->dev->calibration_cache = NULL;
+  s->dev->img_buffer = NULL;
 
   /* insert newly opened handle into list of open handles: */
   s->next = first_handle;
@@ -7228,7 +7308,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_BR_X:
     case OPT_BR_Y:
       *(SANE_Word *) val = s->val[option].w;
-      /* switch coordinate tokeep them coherent */
+      /* switch coordinate to keep them coherent */
       if (s->val[OPT_TL_X].w >= s->val[OPT_BR_X].w)
         {
           tmp=s->val[OPT_BR_X].w;
@@ -7759,7 +7839,7 @@ SANE_Status
 sane_start (SANE_Handle handle)
 {
   Genesys_Scanner *s = handle;
-  SANE_Status status;
+  SANE_Status status=SANE_STATUS_GOOD;
 
   DBG (DBG_proc, "sane_start: start\n");
 
@@ -7784,17 +7864,17 @@ sane_start (SANE_Handle handle)
 
   s->scanning = SANE_TRUE;
 
-  /* if one of the software enhancement option is selsected,
-   * we do the scan internally, process picture then put it an internall
+  /* if one of the software enhancement option is selected,
+   * we do the scan internally, process picture then put it an internal
    * buffer. Since cropping may change scan parameters, we recompute them
    * at the end */
   if (s->dev->buffer_image)
     {
-      /* scan image to buffer */
+      status=genesys_buffer_image(s);
     }
 
   DBG (DBG_proc, "sane_start: exit\n");
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 SANE_Status
@@ -7802,7 +7882,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	   SANE_Int * len)
 {
   Genesys_Scanner *s = handle;
-  SANE_Status status;
+  Genesys_Device *dev=s->dev;
+  SANE_Status status=SANE_STATUS_GOOD;
   size_t local_len;
 
   if (!s)
@@ -7835,11 +7916,29 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   DBG (DBG_proc, "sane_read: start, %d maximum bytes required\n", max_len);
 
   local_len = max_len;
-  status = genesys_read_ordered_data (s->dev, buf, &local_len);
+
+  /* if image hasn't been buffered, read data from scanner */
+  if(!dev->buffer_image)
+    {
+      status = genesys_read_ordered_data (dev, buf, &local_len);
+    }
+  else /* read data from buffer */
+    {
+      if(dev->total_bytes_read+local_len>dev->total_bytes_to_read)
+        {
+          local_len=dev->total_bytes_to_read-dev->total_bytes_read;
+        }
+      memcpy(buf,dev->img_buffer+dev->total_bytes_read,local_len);
+      dev->total_bytes_read+=local_len;
+      if(dev->total_bytes_read>=dev->total_bytes_to_read)
+        {
+          status=SANE_STATUS_EOF;
+        }
+    }
 
   *len = local_len;
   return status;
-}
+} 
 
 void
 sane_cancel (SANE_Handle handle)
@@ -7851,11 +7950,16 @@ sane_cancel (SANE_Handle handle)
 
   s->scanning = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
+  if(s->dev->img_buffer!=NULL)
+    {
+      free(s->dev->img_buffer);
+      s->dev->img_buffer=NULL;
+    }
 
   status = s->dev->model->cmd_set->end_scan (s->dev, s->dev->reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "sane_cancel: Failed to end scan: %s\n",
+      DBG (DBG_error, "sane_cancel: failed to end scan: %s\n",
 	   sane_strstatus (status));
       return;
     }
@@ -7883,7 +7987,7 @@ sane_cancel (SANE_Handle handle)
 	}
     }
 
-  /*enable power saving mode */
+  /* enable power saving mode */
   status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {

@@ -1,3 +1,7 @@
+2010-09-07  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp750.c:
+	pixma: fix for 2400 dpi striping on MP760/770/780/790 by Gernot Hassenpflug.
+
 2010-09-05  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/sane-pixma.man:
 	pixma: man page update for devices as reported by Gernot Hassenpflug.

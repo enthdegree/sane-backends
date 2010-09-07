@@ -109,6 +109,7 @@ typedef struct mp750_t
   uint8_t *buf, *rawimg, *img;
   unsigned rawimg_left, imgbuf_len, last_block_size, imgbuf_ofs;
   int shifted_bytes;
+  int stripe_shift; /* for 2400dpi */
   unsigned last_block;
 
   unsigned monochrome:1;
@@ -408,13 +409,17 @@ step1 (pixma_t * s)
 
 static void
 shift_rgb (const uint8_t * src, unsigned pixels,
-	   int sr, int sg, int sb, uint8_t * dst)
+           int sr, int sg, int sb, int stripe_shift,
+           int line_size, uint8_t * dst)
 {
+  unsigned st;
+
   for (; pixels != 0; pixels--)
     {
-      *(dst++ + sr) = *src++;
-      *(dst++ + sg) = *src++;
-      *(dst++ + sb) = *src++;
+      st = (pixels % 2 == 0) ? -2 * stripe_shift * line_size : 0;
+      *(dst++ + sr + st) = *src++;
+      *(dst++ + sg + st) = *src++;
+      *(dst++ + sb + st) = *src++;
     }
 }
 
@@ -578,7 +583,12 @@ mp750_scan (pixma_t * s)
     mp->raw_width = ALIGN_SUP (s->param->w, 4);
 
   dpi = s->param->ydpi;
-  spare = 2 * calc_component_shifting (s);	/* FIXME: or maybe (2*... + 1)? */
+
+  /* add a stripe shift for 2400dpi */
+  mp->stripe_shift = (dpi == 2400) ? 4 : 0;
+
+  /* modify for stripe shift */
+  spare = 2 * calc_component_shifting (s) + 2 * mp->stripe_shift; /* FIXME: or maybe (2*... + 1)? */
   mp->raw_height = s->param->h + spare;
   PDBG (pixma_dbg (3, "raw_width=%u raw_height=%u dpi=%u\n",
 		   mp->raw_width, mp->raw_height, dpi));
@@ -746,7 +756,8 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       n = mp->rawimg_left / 3;
       /* n = number of pixels in the buffer */
       shift_rgb (mp->rawimg, n, shift[0], shift[1], shift[2],
-		 mp->img + mp->imgbuf_ofs);
+                 mp->stripe_shift, s->param->line_size,
+                 mp->img + mp->imgbuf_ofs);
       n *= 3;
       mp->shifted_bytes += n;
       mp->rawimg_left -= n;	/* rawimg_left = 0, 1 or 2 bytes left in the buffer. */

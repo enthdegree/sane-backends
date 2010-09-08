@@ -68,6 +68,7 @@
 #define MP360_PID 0x263c
 #define MP370_PID 0x263d
 #define MP390_PID 0x263e
+#define MP375R_PID 0x263f   /* untested */
 
 #define MP740_PID 0x264c	/* Untested */
 #define MP710_PID 0x264d
@@ -299,6 +300,7 @@ handle_interrupt (pixma_t * s, int timeout)
     {
     case MP360_PID:
     case MP370_PID:
+    case MP375R_PID:
     case MP390_PID:
     case MF5730_PID:
     case MF5750_PID:
@@ -349,6 +351,7 @@ has_ccd_sensor (pixma_t * s)
 {
   return (s->cfg->pid == MP360_PID ||
           s->cfg->pid == MP370_PID ||
+          s->cfg->pid == MP375R_PID ||
           s->cfg->pid == MP390_PID ||
           s->cfg->pid == MF5730_PID ||
           s->cfg->pid == MF5750_PID ||
@@ -509,6 +512,7 @@ calc_raw_width (pixma_t * s, const pixma_scan_param_t * sp)
 {
   unsigned raw_width;
   /* FIXME: Does MP730 need the alignment? */
+  /*  TODO test: MP710/740 */
   if (sp->channels == 1)
     {
       if (sp->depth == 8)   /* grayscale  */
@@ -516,7 +520,9 @@ calc_raw_width (pixma_t * s, const pixma_scan_param_t * sp)
           if (s->cfg->pid == MP700_PID ||
               s->cfg->pid == MP730_PID ||
               s->cfg->pid == MP360_PID ||
-              s->cfg->pid == MP370_PID)
+              s->cfg->pid == MP370_PID ||
+              s->cfg->pid == MP375R_PID ||
+              s->cfg->pid == MP390_PID)
             raw_width = ALIGN_SUP (sp->w, 4);
           else
             raw_width = ALIGN_SUP (sp->w, 12);
@@ -543,7 +549,9 @@ mp730_check_param (pixma_t * s, pixma_scan_param_t * sp)
   if (s->cfg->pid == MP700_PID ||
       s->cfg->pid == MP730_PID ||
       s->cfg->pid == MP360_PID ||
-      s->cfg->pid == MP370_PID)
+      s->cfg->pid == MP370_PID ||
+      s->cfg->pid == MP375R_PID ||
+      s->cfg->pid == MP390_PID)
     {
       if (sp->channels == 1)
           k = sp->xdpi / MIN (sp->xdpi, 600);
@@ -760,13 +768,14 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
 }
 const pixma_config_t pixma_mp730_devices[] = {
 /* TODO: check area limits */
-  DEVICE ("Canon SmartBase MP360", "MP360", MP360_PID, 1200, 636, 868, PIXMA_CAP_LINEART),
-  DEVICE ("Canon SmartBase MP370", "MP370", MP370_PID, 1200, 636, 868, PIXMA_CAP_LINEART),
-  DEVICE ("Canon SmartBase MP390", "MP390", MP390_PID, 1200, 636, 868, 0),
-  DEVICE ("Canon MultiPASS MP700", "MP700", MP700_PID, 1200, 638, 877 /*1035 */ , PIXMA_CAP_LINEART),
-  DEVICE ("Canon MultiPASS MP710", "MP710", MP710_PID, 1200, 637, 868, 0),
-  DEVICE ("Canon MultiPASS MP730", "MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF | PIXMA_CAP_LINEART),
-  DEVICE ("Canon MultiPASS MP740", "MP740", MP740_PID, 1200, 637, 868, PIXMA_CAP_ADF),
+  DEVICE ("PIXMA MP360", "MP360", MP360_PID, 1200, 636, 868, PIXMA_CAP_LINEART),
+  DEVICE ("PIXMA MP370", "MP370", MP370_PID, 1200, 636, 868, PIXMA_CAP_LINEART),
+  DEVICE ("PIXMA MP375R", "MP375R", MP375R_PID, 1200, 636, 868, PIXMA_CAP_LINEART),
+  DEVICE ("PIXMA MP390", "MP390", MP390_PID, 1200, 636, 868, PIXMA_CAP_LINEART),
+  DEVICE ("PIXMA MP700", "MP700", MP700_PID, 1200, 638, 877 /*1035 */ , PIXMA_CAP_LINEART),
+  DEVICE ("PIXMA MP710", "MP710", MP710_PID, 1200, 637, 868, PIXMA_CAP_LINEART),
+  DEVICE ("PIXMA MP730", "MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF | PIXMA_CAP_LINEART),
+  DEVICE ("PIXMA MP740", "MP740", MP740_PID, 1200, 637, 868, PIXMA_CAP_ADF | PIXMA_CAP_LINEART),
   
   DEVICE ("Canon imageCLASS MF5730", "MF5730", MF5730_PID, 1200, 636, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon imageCLASS MF5750", "MF5750", MF5750_PID, 1200, 636, 868, PIXMA_CAP_ADF),

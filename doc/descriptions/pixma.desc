@@ -174,29 +174,35 @@
 :status :complete
 :comment "All resolutions supported (up to 4800DPI). Full TPU support (negative and slides) at 24 or 48 bits."
 
-:model "SmartBase MP360"
+:model "PIXMA MP360"
 :interface "USB"
 :usbid "0x04a9" "0x263c"
 :status :complete
 :comment "All resolutions supported (up to 1200DPI)."
 
-:model "SmartBase MP370"
+:model "PIXMA MP370"
 :interface "USB"
 :usbid "0x04a9" "0x263d"
 :status :complete
 :comment "All resolutions supported (up to 1200DPI)."
 
-:model "SmartBase MP390"
+:model "PIXMA MP375R"
+:interface "USB"
+:usbid "0x04a9" "0x263f"
+:status :untested
+:comment "Same protocol as Pixma MP360/370/390? Testers needed!"
+
+:model "PIXMA MP390"
 :interface "USB"
 :usbid "0x04a9" "0x263e"
 :status :complete
 :comment "All resolutions supported (up to 1200DPI)."
 
-:model "MultiPASS MP700"
+:model "PIXMA MP700"
 :interface "USB"
 :usbid "0x04a9" "0x2630"
-:status :basic
-:comment "Same model as SmartBase MP700 Photo?"
+:status :complete
+:comment "All resolutions supported (flatbed color up to 1200DPI, grayscale up to 600DPI)."
 
 :model "PIXMA MP710"
 :interface "USB"
@@ -210,7 +216,7 @@
 :status :untested
 :comment "Same protocol as Pixma MP710? Testers needed!"
 
-:model "MultiPASS MP730"
+:model "PIXMA MP730"
 :interface "USB"
 :usbid "0x04a9" "0x262f"
 :status :good

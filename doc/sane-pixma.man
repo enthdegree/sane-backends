@@ -19,7 +19,7 @@ PIXMA MP140, MP150, MP160, MP170, MP180, MP190
 .br
 PIXMA MP210, MP220, MP240, MP250, MP260, MP270
 .br
-Smartbase MP360, MP370, MP390
+PIXMA MP360, MP370, MP390
 .br
 PIXMA MP450, MP460, MP470, MP480, MP490
 .br
@@ -33,7 +33,7 @@ PIXMA MX300, MX310, MX330, MX340, MX350
 .br
 PIXMA MX700, MX850, MX860, MX870, MX7600
 .br
-MultiPASS MP700, MP730, PIXMA MP750 (no grayscale)
+PIXMA MP700, MP730, PIXMA MP750 (no grayscale)
 .br
 ImageCLASS MF3110, MF3240, MF4010, MF4018, MF4120, MF4122
 .br
@@ -50,7 +50,7 @@ The following models are not well tested and/or the scanner sometimes hangs
 and must be switched off and on.
 .PP
 .RS
-MultiPASS PIXMA MP760, PIXMA MP780
+PIXMA PIXMA MP760, PIXMA MP780
 .RE
 .PP
 The following models may use the same Pixma protocol as those listed 
@@ -59,7 +59,7 @@ in the backend so that they get recognized and activated.
 Feedback in the Sane-dev mailing list welcome.
 .PP
 .RS
-PIXMA MP740
+PIXMA MP375R, MP740
 .br
 PIXMA MX320
 .br
@@ -72,7 +72,7 @@ ImageCLASS MF5630, MF5650, MF5730, MF5750, MF8170c
 \#the sane\-devel mailing list.
 \#.PP
 \#.RS
-\#PIXMA MX850
+\#PIXMA MP---
 \#.RE
 The backend supports:
 .PP

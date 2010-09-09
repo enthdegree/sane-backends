@@ -264,3 +264,64 @@ genesys_shrink_lines_1 (
     return SANE_STATUS_GOOD;
 }
 
+
+/** Look in image for likely left/right/bottom paper edges, then crop image.
+ * Since failing to crop isn't fatal, we always return SANE_STATUS_GOOD .
+ */
+static SANE_Status
+genesys_crop(Genesys_Scanner *s)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  Genesys_Device *dev = s->dev;
+  int top = 0;
+  int bottom = 0;
+  int left = 0;
+  int right = 0;
+
+  DBG (DBG_proc, "%s: start\n", __FUNCTION__);
+
+  /* first find edges if any */
+  status = sanei_magic_findEdges (&s->params,
+				  dev->img_buffer,
+				  dev->settings.xres,
+				  dev->settings.yres,
+				  &top,
+                                  &bottom,
+                                  &left,
+                                  &right);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_info, "%s: bad or no edges, bailing\n", __FUNCTION__);
+      goto cleanup;
+    }
+  DBG (DBG_io, "%s: t:%d b:%d l:%d r:%d\n", __FUNCTION__, top, bottom, left,
+       right);
+
+  /* now crop the image */
+  status =
+    sanei_magic_crop (&(s->params), dev->img_buffer, top, bottom, 0, right);
+  if (status)
+    {
+      DBG (DBG_warn, "%s: failed to crop\n", __FUNCTION__);
+      goto cleanup;
+    }
+  
+  if (DBG_LEVEL >= DBG_io2)
+    {
+      sanei_genesys_write_pnm_file ("cropped.pnm",
+				    dev->img_buffer,
+				    s->params.depth,
+				    s->params.format==SANE_FRAME_RGB ? 3:1,
+				    s->params.pixels_per_line,
+				    s->params.lines);
+    }
+
+  /* update counters to new image size */
+  dev->total_bytes_to_read = s->params.bytes_per_line * s->params.lines;
+
+cleanup:
+  DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+  return SANE_STATUS_GOOD;
+}
+
+/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

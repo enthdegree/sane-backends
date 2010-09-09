@@ -73,6 +73,7 @@
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/_stdint.h"
+#include "../include/sane/sanei_magic.h"
 
 #include "genesys.h"
 #include "genesys_devices.c"
@@ -3116,57 +3117,63 @@ compute_gl843_coefficients (Genesys_Device * dev,
 		            unsigned int coeff,
 		            unsigned int target)
 {
-  uint16_t *buffer=(uint16_t *)*shading_data,*darkptr,*whiteptr;
+  uint16_t *buffer = (uint16_t *) * shading_data, *darkptr, *whiteptr;
   int size;
-  int i, count;
+  unsigned int i, count;
   uint16_t val;
 
-        darkptr=(uint16_t *)dev->dark_average_data;
-        whiteptr=(uint16_t *)dev->white_average_data;
+  darkptr = (uint16_t *) dev->dark_average_data;
+  whiteptr = (uint16_t *) dev->white_average_data;
 
-        size=pixels*2*3*256/252*2+512;
-	free(buffer);
-        buffer= (unsigned short *)malloc(size);
-	if (buffer == NULL) 	
-          return 0;
+  size = pixels * 2 * 3 * 256 / 252 * 2 + 512;
+  free (buffer);
+  buffer = (unsigned short *) malloc (size);
+  if (buffer == NULL)
+    return 0;
 
-        /* offset */
-	buffer=buffer+12;
-	count=12; 
-	for(i=0; i<pixels; i++)
-          {
-                /* red */
-		*buffer = darkptr[3*i];	
-		buffer++;
-                count++;
-	        val=compute_coefficient(coeff,target,whiteptr[3*i]-darkptr[3*i]);
-		*buffer = val;
-		buffer++;
-                count++;
+  /* offset */
+  buffer = buffer + 12;
+  count = 12;
+  for (i = 0; i < pixels; i++)
+    {
+      /* red */
+      *buffer = darkptr[3 * i];
+      buffer++;
+      count++;
+      val =
+	compute_coefficient (coeff, target, whiteptr[3 * i] - darkptr[3 * i]);
+      *buffer = val;
+      buffer++;
+      count++;
 
-                /* green */
-		*buffer = darkptr[3*i+1];	
-		buffer++;
-                count++;
-	        val=compute_coefficient(coeff,target,whiteptr[3*i+1]-darkptr[3*i+1]);
-		*buffer = val;
-		buffer++;
-                count++;
+      /* green */
+      *buffer = darkptr[3 * i + 1];
+      buffer++;
+      count++;
+      val =
+	compute_coefficient (coeff, target,
+			     whiteptr[3 * i + 1] - darkptr[3 * i + 1]);
+      *buffer = val;
+      buffer++;
+      count++;
 
-                /* blue */
-		*buffer = darkptr[3*i+2];	
-		buffer++;
-                count++;
-	        val=compute_coefficient(coeff,target,whiteptr[3*i+2]-darkptr[3*i+2]);
-		*buffer = val;
-		buffer++;
-                count++;
+      /* blue */
+      *buffer = darkptr[3 * i + 2];
+      buffer++;
+      count++;
+      val =
+	compute_coefficient (coeff, target,
+			     whiteptr[3 * i + 2] - darkptr[3 * i + 2]);
+      *buffer = val;
+      buffer++;
+      count++;
 
-		if ((count % 256) == 252) {
-			buffer += 4;
-			count += 4;
-		}
+      if ((count % 256) == 252)
+	{
+	  buffer += 4;
+	  count += 4;
 	}
+    }
 
   return size;
 }
@@ -3337,13 +3344,11 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
   uint16_t pixels_per_line;
-  uint16_t *fixup,*shading;
   uint8_t *shading_data;	/**> contains 16bit words in little endian */
   uint8_t channels;
-  unsigned int x, j, src, dst;
   int o;
   unsigned int length;		/**> number of shading calibration data words */
-  unsigned int i, res, factor;
+  unsigned int x, j, i, res, factor;
   int cmat[3];			/**> matrix of color channels */
   unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
   unsigned int target_dark, target_bright, br;
@@ -5361,10 +5366,10 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 #endif
 
   DBG (DBG_info, "genesys_read_ordered_data: %lu lines left by output\n",
-       ((dev->total_bytes_to_read - dev->total_bytes_read) * 8) /
+       ((dev->total_bytes_to_read - dev->total_bytes_read) * 8UL) /
        (dev->settings.pixels * channels * depth));
   DBG (DBG_info, "genesys_read_ordered_data: %lu lines left by input\n",
-       ((dev->read_bytes_left + dev->read_buffer.avail) * 8) /
+       ((dev->read_bytes_left + dev->read_buffer.avail) * 8UL) /
        (src_pixels * channels * depth));
 
   if (channels == 1)
@@ -5928,7 +5933,7 @@ calc_parameters (Genesys_Scanner * s)
     }
   else
     {
-      s->dev->buffer_image=SANE_TRUE;
+      s->dev->buffer_image=SANE_FALSE;
     }
 
   return status;
@@ -6884,76 +6889,99 @@ write_calibration (Genesys_Device * dev)
 static SANE_Status
 genesys_buffer_image(Genesys_Scanner *s)
 {
-  SANE_Status status=SANE_STATUS_GOOD;
+  SANE_Status status = SANE_STATUS_GOOD;
   size_t maximum;     /**> maximum bytes size of the scan */
-  size_t len;         /**> length of scanned data read */
-  size_t total;       /**> total of butes read */
-  size_t size;        /**> size of image buffer */
+  size_t len;	      /**> length of scanned data read */
+  size_t total;	      /**> total of butes read */
+  size_t size;	      /**> size of image buffer */
   size_t read_size;   /**> size of reads */
-  int lines;          /** number of lines of the scan */
-  Genesys_Device *dev=s->dev;
+  int lines;	      /** number of lines of the scan */
+  Genesys_Device *dev = s->dev;
 
-      /* compute maximum number of lines for the scan */
-      if(s->params.lines>0)
-        {
-          lines=s->params.bytes_per_line * s->params.lines;
-        }
-      else
-        {
-          lines=(SANE_UNFIX(dev->model->y_size)*dev->settings.yres)/MM_PER_INCH;
-        }
-      DBG(DBG_info, "%s: buffering %d lines of %d bytes\n",__FUNCTION__, lines,s->params.bytes_per_line);
+  /* compute maximum number of lines for the scan */
+  if (s->params.lines > 0)
+    {
+      lines = s->params.lines;
+    }
+  else
+    {
+      lines =
+	(SANE_UNFIX (dev->model->y_size) * dev->settings.yres) / MM_PER_INCH;
+    }
+  DBG (DBG_info, "%s: buffering %d lines of %d bytes\n", __FUNCTION__, lines,
+       s->params.bytes_per_line);
 
-      /* maximum bytes to read */
-      maximum=s->params.bytes_per_line * lines;
+  /* maximum bytes to read */
+  maximum = s->params.bytes_per_line * lines;
 
-      /* initial size of the read buffer */
-      size=((2048*2048)/s->params.bytes_per_line)*s->params.bytes_per_line;
+  /* initial size of the read buffer */
+  size =
+    ((2048 * 2048) / s->params.bytes_per_line) * s->params.bytes_per_line;
 
-      /* read size */
-      read_size=size/2;
+  /* read size */
+  read_size = size / 2;
 
-      /* allocate memory */
-      dev->img_buffer=(SANE_Byte *)malloc(size);
-      if(dev->img_buffer==NULL)
-        {
-          DBG (DBG_error, "%s: digital processing requires too much memory.\nConsider disabling it\n",__FUNCTION__);
-          return SANE_STATUS_NO_MEM;
-        }
+  /* allocate memory */
+  dev->img_buffer = (SANE_Byte *) malloc (size);
+  if (dev->img_buffer == NULL)
+    {
+      DBG (DBG_error,
+	   "%s: digital processing requires too much memory.\nConsider disabling it\n",
+	   __FUNCTION__);
+      return SANE_STATUS_NO_MEM;
+    }
 
-      /* loop reading data until we reach maximu or EOF */
-      total=0;
-      while(total<maximum && status!=SANE_STATUS_EOF)
-        {
-          len=size-maximum;
-          if(len>read_size)
-            {
-              len=read_size;
-            }
-          status = genesys_read_ordered_data (dev, dev->img_buffer+total, &len);
-          if(status!=SANE_STATUS_EOF && status!=SANE_STATUS_GOOD)
-            {
-              free(s->dev->img_buffer);
-              DBG (DBG_error, "%s: %s buffering failed\n", __FUNCTION__, sane_strstatus (status));
-              return status;
-            }
-          total+=len;
+  /* loop reading data until we reach maximu or EOF */
+  total = 0;
+  while (total < maximum && status != SANE_STATUS_EOF)
+    {
+      len = size - maximum;
+      if (len > read_size)
+	{
+	  len = read_size;
+	}
+      status = genesys_read_ordered_data (dev, dev->img_buffer + total, &len);
+      if (status != SANE_STATUS_EOF && status != SANE_STATUS_GOOD)
+	{
+	  free (s->dev->img_buffer);
+	  DBG (DBG_error, "%s: %s buffering failed\n", __FUNCTION__,
+	       sane_strstatus (status));
+	  return status;
+	}
+      total += len;
 
-          /* do we need to enlarge read buffer ? */
-          if(total+read_size>size && status != SANE_STATUS_EOF)
-            {
-              size+=read_size;
-              dev->img_buffer=(SANE_Byte *)realloc(dev->img_buffer,size);
-              if(dev->img_buffer==NULL)
-                {
-                  DBG (DBG_error0, "%s: digital processing requires too much memory.\nConsider disabling it\n",__FUNCTION__);
-                  return SANE_STATUS_NO_MEM;
-                }
-            }
-        }
-      s->dev->total_bytes_to_read=total;
-      s->dev->total_bytes_read=0;
-      return SANE_STATUS_GOOD;
+      /* do we need to enlarge read buffer ? */
+      if (total + read_size > size && status != SANE_STATUS_EOF)
+	{
+	  size += read_size;
+	  dev->img_buffer = (SANE_Byte *) realloc (dev->img_buffer, size);
+	  if (dev->img_buffer == NULL)
+	    {
+	      DBG (DBG_error0,
+		   "%s: digital processing requires too much memory.\nConsider disabling it\n",
+		   __FUNCTION__);
+	      return SANE_STATUS_NO_MEM;
+	    }
+	}
+    }
+
+  /* update counters */
+  dev->total_bytes_to_read = total;
+  dev->total_bytes_read = 0;
+
+  /* update params */
+  s->params.lines = total / s->params.bytes_per_line;
+  if (DBG_LEVEL >= DBG_io2)
+    {
+      sanei_genesys_write_pnm_file ("unprocessed.pnm",
+				    dev->img_buffer,
+				    s->params.depth,
+				    s->params.format==SANE_FRAME_RGB ? 3:1,
+				    s->params.pixels_per_line,
+				    s->params.lines);
+    }
+
+  return SANE_STATUS_GOOD;
 }
 
 /* -------------------------- SANE API functions ------------------------- */
@@ -6974,6 +7002,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   /* init usb use */
   sanei_usb_init ();
+
+  /* init sanei_magic */
+  sanei_magic_init();
 
   DBG (DBG_info, "sane_init: %s endian machine\n",
 #ifdef WORDS_BIGENDIAN
@@ -7814,7 +7845,11 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
   DBG (DBG_proc, "sane_get_parameters: start\n");
 
-  RIE (calc_parameters (s));
+  /* don't recompute parameters once data reading is active, ie during scan */
+  if(s->dev->read_active == SANE_FALSE)
+    {
+      RIE (calc_parameters (s));
+    }
   if (params)
     {
       *params = s->params;
@@ -7824,6 +7859,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
        * don't know the real document height.
        */
       if (s->dev->model->is_sheetfed == SANE_TRUE
+          && s->dev->read_active == SANE_FALSE
 	  && s->val[OPT_BR_Y].w == s->opt[OPT_BR_Y].constraint.range->max)
 	{
 	  params->lines = -1;
@@ -7870,7 +7906,13 @@ sane_start (SANE_Handle handle)
    * at the end */
   if (s->dev->buffer_image)
     {
-      status=genesys_buffer_image(s);
+      RIE(genesys_buffer_image(s));
+   
+      /* crop image if required */
+      if(s->val[OPT_SWCROP].b == SANE_TRUE)
+        {
+          RIE(genesys_crop(s));
+        }
     }
 
   DBG (DBG_proc, "sane_start: exit\n");

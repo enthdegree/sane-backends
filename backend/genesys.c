@@ -119,7 +119,7 @@ static SANE_String_Const source_list[] = {
 };
 
 static SANE_Range swdespeck_range = {
-  0,
+  1,
   9,
   1
 };
@@ -5927,7 +5927,9 @@ calc_parameters (Genesys_Scanner * s)
       s->dev->settings.threshold_curve=0;
 
   /* some digital processing requires the whole picture to be buffered */
-  if (s->val[OPT_SWDESPECK].b || s->val[OPT_SWCROP].b || s->val[OPT_SWDESKEW].b)
+  /* no digital processing takes place when doing preview */
+  if ((s->val[OPT_SWDESPECK].b || s->val[OPT_SWCROP].b || s->val[OPT_SWDESKEW].b)
+      &&(!s->val[OPT_PREVIEW].b))
     {
       s->dev->buffer_image=SANE_TRUE;
     }
@@ -6248,7 +6250,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_DESPECK].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_DESPECK].constraint.range = &swdespeck_range;
   s->opt[OPT_DESPECK].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-  s->val[OPT_DESPECK].w= 1;
+  s->val[OPT_DESPECK].w = 1;
 
   /* crop by software */
   s->opt[OPT_SWCROP].name = "swcrop";
@@ -7907,6 +7909,18 @@ sane_start (SANE_Handle handle)
   if (s->dev->buffer_image)
     {
       RIE(genesys_buffer_image(s));
+   
+      /* deskew image if required */
+      if(s->val[OPT_SWDESKEW].b == SANE_TRUE)
+        {
+          RIE(genesys_deskew(s));
+        }
+   
+      /* despeck image if required */
+      if(s->val[OPT_SWDESPECK].b == SANE_TRUE)
+        {
+          RIE(genesys_despeck(s));
+        }
    
       /* crop image if required */
       if(s->val[OPT_SWCROP].b == SANE_TRUE)

@@ -10,6 +10,9 @@
    Dynamic rasterization code was taken from the epjistsu backend by
    m. allan noah <kitno455 at gmail dot com>
 
+   Software processing for deskew, crop and dspeckle are inspired by allan's
+   noah work in the fujitsu backend
+
    This file is part of the SANE package.
    
    This program is free software; you can redistribute it and/or
@@ -50,12 +53,12 @@
 */
 
 /*
- * SANE backend for Genesys Logic GL646/GL841 based scanners
+ * SANE backend for Genesys Logic GL646/GL841/GL843/GL847 based scanners
  */
 
 #include "../include/sane/config.h"
 
-#define BUILD 32
+#define BUILD 33
 
 #include <errno.h>
 #include <string.h>

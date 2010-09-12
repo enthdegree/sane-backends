@@ -264,3 +264,123 @@ genesys_shrink_lines_1 (
     return SANE_STATUS_GOOD;
 }
 
+
+/** Look in image for likely left/right/bottom paper edges, then crop image.
+ * Since failing to crop isn't fatal, we always return SANE_STATUS_GOOD .
+ */
+static SANE_Status
+genesys_crop(Genesys_Scanner *s)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  Genesys_Device *dev = s->dev;
+  int top = 0;
+  int bottom = 0;
+  int left = 0;
+  int right = 0;
+
+  DBG (DBG_proc, "%s: start\n", __FUNCTION__);
+
+  /* first find edges if any */
+  status = sanei_magic_findEdges (&s->params,
+				  dev->img_buffer,
+				  dev->settings.xres,
+				  dev->settings.yres,
+				  &top,
+                                  &bottom,
+                                  &left,
+                                  &right);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_info, "%s: bad or no edges, bailing\n", __FUNCTION__);
+      goto cleanup;
+    }
+  DBG (DBG_io, "%s: t:%d b:%d l:%d r:%d\n", __FUNCTION__, top, bottom, left,
+       right);
+
+  /* now crop the image */
+  status =
+    sanei_magic_crop (&(s->params), dev->img_buffer, top, bottom, left, right);
+  if (status)
+    {
+      DBG (DBG_warn, "%s: failed to crop\n", __FUNCTION__);
+      goto cleanup;
+    }
+
+  /* update counters to new image size */
+  dev->total_bytes_to_read = s->params.bytes_per_line * s->params.lines;
+
+cleanup:
+  DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+  return SANE_STATUS_GOOD;
+}
+
+/** Look in image for likely upper and left paper edges, then rotate
+ * image so that upper left corner of paper is upper left of image.
+ * @return since failure doens't prevent scanning, we always return
+ * SANE_STATUS_GOOD
+ */
+static SANE_Status
+genesys_deskew(Genesys_Scanner *s)
+{
+  SANE_Status status;
+  Genesys_Device *dev = s->dev;
+
+  int x = 0, y = 0, bg;
+  double slope = 0;
+
+  DBG (DBG_proc, "%s: start\n", __FUNCTION__);
+ 
+  bg=0;
+  if(s->params.format==SANE_FRAME_GRAY && s->params.depth == 1)
+    {
+      bg=0xff;
+    }
+  status = sanei_magic_findSkew (&s->params,
+				 dev->img_buffer,
+				 dev->sensor.optical_res,
+				 dev->sensor.optical_res,
+                                 &x,
+                                 &y,
+                                 &slope);
+  if (status!=SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: bad findSkew, bailing\n", __FUNCTION__);
+      return SANE_STATUS_GOOD;
+    }
+  DBG(DBG_info, "%s: slope=%f => %f\n",__FUNCTION__,slope, (slope/M_PI_2)*90);
+  /* rotate image slope is in [-PI/2,PI/2] 
+   * positive values rotate trigonometric direction wise */
+  status = sanei_magic_rotate (&s->params,
+			       dev->img_buffer,
+                               x,
+                               y,
+                               slope,
+                               bg);
+  if (status!=SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: rotate error: %s", __FUNCTION__, sane_strstatus(status));
+    }
+
+  DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+  return SANE_STATUS_GOOD;
+}
+
+/** remove lone dots
+ * @return since failure doens't prevent scanning, we always return
+ * SANE_STATUS_GOOD
+ */
+static SANE_Status
+genesys_despeck(Genesys_Scanner *s)
+{
+  if(sanei_magic_despeck(&s->params,
+                         s->dev->img_buffer,
+                         s->val[OPT_DESPECK].w)!=SANE_STATUS_GOOD)
+  {
+    DBG (DBG_error, "%s: bad despeck, bailing\n",__FUNCTION__);
+  }
+
+  return SANE_STATUS_GOOD;
+}
+
+
+/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

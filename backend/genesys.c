@@ -73,6 +73,7 @@
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/_stdint.h"
+#include "../include/sane/sanei_magic.h"
 
 #include "genesys.h"
 #include "genesys_devices.c"
@@ -115,6 +116,12 @@ static SANE_String_Const source_list[] = {
   SANE_I18N (FLATBED),
   SANE_I18N (TRANSPARENCY_ADAPTER),
   0
+};
+
+static SANE_Range swdespeck_range = {
+  1,
+  9,
+  1
 };
 
 static SANE_Range time_range = {
@@ -611,6 +618,7 @@ sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status)
   return sanei_genesys_read_register (dev, 0x41, status);
 }
 
+#if 0
 /* returns pixels per line from register set */
 /*candidate for moving into chip specific files?*/
 static int
@@ -643,6 +651,7 @@ genesys_dpiset (Genesys_Register_Set * reg)
 
   return dpiset;
 }
+#endif
 
 /** read the number of valid words in scanner's RAM
  * ie registers 42-43-44
@@ -3108,57 +3117,63 @@ compute_gl843_coefficients (Genesys_Device * dev,
 		            unsigned int coeff,
 		            unsigned int target)
 {
-  uint16_t *buffer=(uint16_t *)*shading_data,*darkptr,*whiteptr;
+  uint16_t *buffer = (uint16_t *) * shading_data, *darkptr, *whiteptr;
   int size;
-  int i, count;
+  unsigned int i, count;
   uint16_t val;
 
-        darkptr=(uint16_t *)dev->dark_average_data;
-        whiteptr=(uint16_t *)dev->white_average_data;
+  darkptr = (uint16_t *) dev->dark_average_data;
+  whiteptr = (uint16_t *) dev->white_average_data;
 
-        size=pixels*2*3*256/252*2+512;
-	free(buffer);
-        buffer= (unsigned short *)malloc(size);
-	if (buffer == NULL) 	
-          return 0;
+  size = pixels * 2 * 3 * 256 / 252 * 2 + 512;
+  free (buffer);
+  buffer = (unsigned short *) malloc (size);
+  if (buffer == NULL)
+    return 0;
 
-        /* offset */
-	buffer=buffer+12;
-	count=12; 
-	for(i=0; i<pixels; i++)
-          {
-                /* red */
-		*buffer = darkptr[3*i];	
-		buffer++;
-                count++;
-	        val=compute_coefficient(coeff,target,whiteptr[3*i]-darkptr[3*i]);
-		*buffer = val;
-		buffer++;
-                count++;
+  /* offset */
+  buffer = buffer + 12;
+  count = 12;
+  for (i = 0; i < pixels; i++)
+    {
+      /* red */
+      *buffer = darkptr[3 * i];
+      buffer++;
+      count++;
+      val =
+	compute_coefficient (coeff, target, whiteptr[3 * i] - darkptr[3 * i]);
+      *buffer = val;
+      buffer++;
+      count++;
 
-                /* green */
-		*buffer = darkptr[3*i+1];	
-		buffer++;
-                count++;
-	        val=compute_coefficient(coeff,target,whiteptr[3*i+1]-darkptr[3*i+1]);
-		*buffer = val;
-		buffer++;
-                count++;
+      /* green */
+      *buffer = darkptr[3 * i + 1];
+      buffer++;
+      count++;
+      val =
+	compute_coefficient (coeff, target,
+			     whiteptr[3 * i + 1] - darkptr[3 * i + 1]);
+      *buffer = val;
+      buffer++;
+      count++;
 
-                /* blue */
-		*buffer = darkptr[3*i+2];	
-		buffer++;
-                count++;
-	        val=compute_coefficient(coeff,target,whiteptr[3*i+2]-darkptr[3*i+2]);
-		*buffer = val;
-		buffer++;
-                count++;
+      /* blue */
+      *buffer = darkptr[3 * i + 2];
+      buffer++;
+      count++;
+      val =
+	compute_coefficient (coeff, target,
+			     whiteptr[3 * i + 2] - darkptr[3 * i + 2]);
+      *buffer = val;
+      buffer++;
+      count++;
 
-		if ((count % 256) == 252) {
-			buffer += 4;
-			count += 4;
-		}
+      if ((count % 256) == 252)
+	{
+	  buffer += 4;
+	  count += 4;
 	}
+    }
 
   return size;
 }
@@ -3329,13 +3344,11 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
   uint16_t pixels_per_line;
-  uint16_t *fixup,*shading;
   uint8_t *shading_data;	/**> contains 16bit words in little endian */
   uint8_t channels;
-  unsigned int x, j, src, dst;
   int o;
   unsigned int length;		/**> number of shading calibration data words */
-  unsigned int i, res, factor;
+  unsigned int x, j, i, res, factor;
   int cmat[3];			/**> matrix of color channels */
   unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
   unsigned int target_dark, target_bright, br;
@@ -5353,10 +5366,10 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 #endif
 
   DBG (DBG_info, "genesys_read_ordered_data: %lu lines left by output\n",
-       ((dev->total_bytes_to_read - dev->total_bytes_read) * 8) /
+       ((dev->total_bytes_to_read - dev->total_bytes_read) * 8UL) /
        (dev->settings.pixels * channels * depth));
   DBG (DBG_info, "genesys_read_ordered_data: %lu lines left by input\n",
-       ((dev->read_bytes_left + dev->read_buffer.avail) * 8) /
+       ((dev->read_bytes_left + dev->read_buffer.avail) * 8UL) /
        (src_pixels * channels * depth));
 
   if (channels == 1)
@@ -5913,6 +5926,18 @@ calc_parameters (Genesys_Scanner * s)
   else
       s->dev->settings.threshold_curve=0;
 
+  /* some digital processing requires the whole picture to be buffered */
+  /* no digital processing takes place when doing preview */
+  if ((s->val[OPT_SWDESPECK].b || s->val[OPT_SWCROP].b || s->val[OPT_SWDESKEW].b)
+      &&(!s->val[OPT_PREVIEW].b))
+    {
+      s->dev->buffer_image=SANE_TRUE;
+    }
+  else
+    {
+      s->dev->buffer_image=SANE_FALSE;
+    }
+
   return status;
 }
 
@@ -6195,6 +6220,45 @@ init_options (Genesys_Scanner * s)
       s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
       DBG (DBG_info, "init_options: custom gamma disabled\n");
     }
+
+  /* software base image enhancements, these are consuming as many 
+   * memory than used by the full scanned image and may fail at high
+   * resolution
+   */
+  /* software deskew */
+  s->opt[OPT_SWDESKEW].name = "swdeskew";
+  s->opt[OPT_SWDESKEW].title = "Software deskew";
+  s->opt[OPT_SWDESKEW].desc = "Request backend to rotate skewed pages digitally";
+  s->opt[OPT_SWDESKEW].type = SANE_TYPE_BOOL;
+  s->opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->val[OPT_SWDESKEW].b = SANE_FALSE;
+  
+  /* software deskew */
+  s->opt[OPT_SWDESPECK].name = "swdespeck";
+  s->opt[OPT_SWDESPECK].title = "Software despeck";
+  s->opt[OPT_SWDESPECK].desc = "Request backend to remove lone dots digitally";
+  s->opt[OPT_SWDESPECK].type = SANE_TYPE_BOOL;
+  s->opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->val[OPT_SWDESPECK].b = SANE_FALSE;
+
+  /* software despeckle radius */
+  s->opt[OPT_DESPECK].name = "despeck";
+  s->opt[OPT_DESPECK].title = "Software despeckle diameter";
+  s->opt[OPT_DESPECK].desc = "Maximum diameter of lone dots to remove from scan";
+  s->opt[OPT_DESPECK].type = SANE_TYPE_INT;
+  s->opt[OPT_DESPECK].unit = SANE_UNIT_NONE;
+  s->opt[OPT_DESPECK].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_DESPECK].constraint.range = &swdespeck_range;
+  s->opt[OPT_DESPECK].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->val[OPT_DESPECK].w = 1;
+
+  /* crop by software */
+  s->opt[OPT_SWCROP].name = "swcrop";
+  s->opt[OPT_SWCROP].title = "Software crop";
+  s->opt[OPT_SWCROP].desc = "Request backend to remove border from pages digitally";
+  s->opt[OPT_SWCROP].type = SANE_TYPE_BOOL;
+  s->opt[OPT_SWCROP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->val[OPT_SWCROP].b = SANE_FALSE;
 
   /* "Extras" group: */
   s->opt[OPT_EXTRAS_GROUP].title = SANE_I18N ("Extras");
@@ -6820,6 +6884,108 @@ write_calibration (Genesys_Device * dev)
   fclose (fp);
 }
 
+/** @brief buffer scanned picture
+ * In order to allow digital processing, we must be able to put all the
+ * scanned picture in a buffer.
+ */
+static SANE_Status
+genesys_buffer_image(Genesys_Scanner *s)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  size_t maximum;     /**> maximum bytes size of the scan */
+  size_t len;	      /**> length of scanned data read */
+  size_t total;	      /**> total of butes read */
+  size_t size;	      /**> size of image buffer */
+  size_t read_size;   /**> size of reads */
+  int lines;	      /** number of lines of the scan */
+  Genesys_Device *dev = s->dev;
+
+  /* compute maximum number of lines for the scan */
+  if (s->params.lines > 0)
+    {
+      lines = s->params.lines;
+    }
+  else
+    {
+      lines =
+	(SANE_UNFIX (dev->model->y_size) * dev->settings.yres) / MM_PER_INCH;
+    }
+  DBG (DBG_info, "%s: buffering %d lines of %d bytes\n", __FUNCTION__, lines,
+       s->params.bytes_per_line);
+
+  /* maximum bytes to read */
+  maximum = s->params.bytes_per_line * lines;
+
+  /* initial size of the read buffer */
+  size =
+    ((2048 * 2048) / s->params.bytes_per_line) * s->params.bytes_per_line;
+
+  /* read size */
+  read_size = size / 2;
+
+  /* allocate memory */
+  dev->img_buffer = (SANE_Byte *) malloc (size);
+  if (dev->img_buffer == NULL)
+    {
+      DBG (DBG_error,
+	   "%s: digital processing requires too much memory.\nConsider disabling it\n",
+	   __FUNCTION__);
+      return SANE_STATUS_NO_MEM;
+    }
+
+  /* loop reading data until we reach maximu or EOF */
+  total = 0;
+  while (total < maximum && status != SANE_STATUS_EOF)
+    {
+      len = size - maximum;
+      if (len > read_size)
+	{
+	  len = read_size;
+	}
+      status = genesys_read_ordered_data (dev, dev->img_buffer + total, &len);
+      if (status != SANE_STATUS_EOF && status != SANE_STATUS_GOOD)
+	{
+	  free (s->dev->img_buffer);
+	  DBG (DBG_error, "%s: %s buffering failed\n", __FUNCTION__,
+	       sane_strstatus (status));
+	  return status;
+	}
+      total += len;
+
+      /* do we need to enlarge read buffer ? */
+      if (total + read_size > size && status != SANE_STATUS_EOF)
+	{
+	  size += read_size;
+	  dev->img_buffer = (SANE_Byte *) realloc (dev->img_buffer, size);
+	  if (dev->img_buffer == NULL)
+	    {
+	      DBG (DBG_error0,
+		   "%s: digital processing requires too much memory.\nConsider disabling it\n",
+		   __FUNCTION__);
+	      return SANE_STATUS_NO_MEM;
+	    }
+	}
+    }
+
+  /* update counters */
+  dev->total_bytes_to_read = total;
+  dev->total_bytes_read = 0;
+
+  /* update params */
+  s->params.lines = total / s->params.bytes_per_line;
+  if (DBG_LEVEL >= DBG_io2)
+    {
+      sanei_genesys_write_pnm_file ("unprocessed.pnm",
+				    dev->img_buffer,
+				    s->params.depth,
+				    s->params.format==SANE_FRAME_RGB ? 3:1,
+				    s->params.pixels_per_line,
+				    s->params.lines);
+    }
+
+  return SANE_STATUS_GOOD;
+}
+
 /* -------------------------- SANE API functions ------------------------- */
 
 SANE_Status
@@ -6838,6 +7004,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   /* init usb use */
   sanei_usb_init ();
+
+  /* init sanei_magic */
+  sanei_magic_init();
 
   DBG (DBG_info, "sane_init: %s endian machine\n",
 #ifdef WORDS_BIGENDIAN
@@ -7010,6 +7179,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->white_average_data = NULL;
   s->dev->dark_average_data = NULL;
   s->dev->calibration_cache = NULL;
+  s->dev->img_buffer = NULL;
 
   /* insert newly opened handle into list of open handles: */
   s->next = first_handle;
@@ -7171,7 +7341,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_BR_X:
     case OPT_BR_Y:
       *(SANE_Word *) val = s->val[option].w;
-      /* switch coordinate tokeep them coherent */
+      /* switch coordinate to keep them coherent */
       if (s->val[OPT_TL_X].w >= s->val[OPT_BR_X].w)
         {
           tmp=s->val[OPT_BR_X].w;
@@ -7195,6 +7365,10 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_DISABLE_DYNAMIC_LINEART:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_LAMP_OFF_TIME:
+    case OPT_SWDESKEW:
+    case OPT_SWCROP:
+    case OPT_SWDESPECK:
+    case OPT_DESPECK:
       *(SANE_Word *) val = s->val[option].w;
       break;
     case OPT_CUSTOM_GAMMA:
@@ -7307,11 +7481,27 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
     case OPT_DISABLE_DYNAMIC_LINEART:
+    case OPT_SWCROP:
+    case OPT_SWDESKEW:
+    case OPT_DESPECK:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_PREVIEW:
       s->val[option].w = *(SANE_Word *) val;
       RIE (calc_parameters (s));
       *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_SWDESPECK:
+      s->val[option].w = *(SANE_Word *) val;
+      if (s->val[OPT_SWDESPECK].b == SANE_TRUE)
+	{
+          ENABLE(OPT_DESPECK);
+        }
+      else
+        {
+          DISABLE(OPT_DESPECK);
+        }
+      RIE (calc_parameters (s));
+      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_SOURCE:
       if (strcmp (s->val[option].s, val) != 0)
@@ -7657,7 +7847,11 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
   DBG (DBG_proc, "sane_get_parameters: start\n");
 
-  RIE (calc_parameters (s));
+  /* don't recompute parameters once data reading is active, ie during scan */
+  if(s->dev->read_active == SANE_FALSE)
+    {
+      RIE (calc_parameters (s));
+    }
   if (params)
     {
       *params = s->params;
@@ -7667,6 +7861,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
        * don't know the real document height.
        */
       if (s->dev->model->is_sheetfed == SANE_TRUE
+          && s->dev->read_active == SANE_FALSE
 	  && s->val[OPT_BR_Y].w == s->opt[OPT_BR_Y].constraint.range->max)
 	{
 	  params->lines = -1;
@@ -7682,7 +7877,7 @@ SANE_Status
 sane_start (SANE_Handle handle)
 {
   Genesys_Scanner *s = handle;
-  SANE_Status status;
+  SANE_Status status=SANE_STATUS_GOOD;
 
   DBG (DBG_proc, "sane_start: start\n");
 
@@ -7707,8 +7902,35 @@ sane_start (SANE_Handle handle)
 
   s->scanning = SANE_TRUE;
 
+  /* if one of the software enhancement option is selected,
+   * we do the scan internally, process picture then put it an internal
+   * buffer. Since cropping may change scan parameters, we recompute them
+   * at the end */
+  if (s->dev->buffer_image)
+    {
+      RIE(genesys_buffer_image(s));
+   
+      /* deskew image if required */
+      if(s->val[OPT_SWDESKEW].b == SANE_TRUE)
+        {
+          RIE(genesys_deskew(s));
+        }
+   
+      /* despeck image if required */
+      if(s->val[OPT_SWDESPECK].b == SANE_TRUE)
+        {
+          RIE(genesys_despeck(s));
+        }
+   
+      /* crop image if required */
+      if(s->val[OPT_SWCROP].b == SANE_TRUE)
+        {
+          RIE(genesys_crop(s));
+        }
+    }
+
   DBG (DBG_proc, "sane_start: exit\n");
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 SANE_Status
@@ -7716,7 +7938,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	   SANE_Int * len)
 {
   Genesys_Scanner *s = handle;
-  SANE_Status status;
+  Genesys_Device *dev=s->dev;
+  SANE_Status status=SANE_STATUS_GOOD;
   size_t local_len;
 
   if (!s)
@@ -7749,11 +7972,29 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   DBG (DBG_proc, "sane_read: start, %d maximum bytes required\n", max_len);
 
   local_len = max_len;
-  status = genesys_read_ordered_data (s->dev, buf, &local_len);
+
+  /* if image hasn't been buffered, read data from scanner */
+  if(!dev->buffer_image)
+    {
+      status = genesys_read_ordered_data (dev, buf, &local_len);
+    }
+  else /* read data from buffer */
+    {
+      if(dev->total_bytes_read+local_len>dev->total_bytes_to_read)
+        {
+          local_len=dev->total_bytes_to_read-dev->total_bytes_read;
+        }
+      memcpy(buf,dev->img_buffer+dev->total_bytes_read,local_len);
+      dev->total_bytes_read+=local_len;
+      if(dev->total_bytes_read>=dev->total_bytes_to_read)
+        {
+          status=SANE_STATUS_EOF;
+        }
+    }
 
   *len = local_len;
   return status;
-}
+} 
 
 void
 sane_cancel (SANE_Handle handle)
@@ -7765,11 +8006,16 @@ sane_cancel (SANE_Handle handle)
 
   s->scanning = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
+  if(s->dev->img_buffer!=NULL)
+    {
+      free(s->dev->img_buffer);
+      s->dev->img_buffer=NULL;
+    }
 
   status = s->dev->model->cmd_set->end_scan (s->dev, s->dev->reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "sane_cancel: Failed to end scan: %s\n",
+      DBG (DBG_error, "sane_cancel: failed to end scan: %s\n",
 	   sane_strstatus (status));
       return;
     }
@@ -7797,7 +8043,7 @@ sane_cancel (SANE_Handle handle)
 	}
     }
 
-  /*enable power saving mode */
+  /* enable power saving mode */
   status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {

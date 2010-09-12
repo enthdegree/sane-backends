@@ -723,8 +723,8 @@ getTopEdge(int width, int height, int resolution,
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  int slopes = 11;
-  int offsets = 11;
+  int slopes = 31;
+  int offsets = 31;
   double maxSlope = 1;
   double minSlope = -1;
   int maxOffset = resolution/6;
@@ -1340,7 +1340,7 @@ sanei_magic_getTransX (
           near += buffer[i*bwidth + j*depth + k];
         }
   
-        if(abs(near - far) > winLen*depth*9){
+        if(abs(near - far) > 50*winLen*depth - near*40/255){
           buff[i] = j;
           break;
         }

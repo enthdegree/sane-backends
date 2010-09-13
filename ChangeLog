@@ -1,4 +1,8 @@
 2010-09-13 Stéphane Voltz <stef.dev@free.fr>
+	* doc/descriptions/unsupported.desc: update status of scanners
+	now supported by the genesys backend.
+
+2010-09-13 Stéphane Voltz <stef.dev@free.fr>
 	* doc/sane-genesys.man doc/descriptions/genesys.desc
 	backend/genesys.con.in: update HP3690 status to supported
 

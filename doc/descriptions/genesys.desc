@@ -58,6 +58,12 @@
 :status :complete
 :comment "1200x1200 dpi max, complete transparency adaptor support"
 
+:model "ScanJet 3690C"
+:interface "USB"
+:usbid "0x03f0" "0x1405"
+:status :complete
+:comment "1200x1200 dpi max, same as HP3670C"
+
 :model "ScanJet G4050"
 :interface "USB"
 :usbid "0x03f0" "0x0a01"

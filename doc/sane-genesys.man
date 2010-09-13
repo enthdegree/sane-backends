@@ -14,7 +14,7 @@ Medion MD5345/MD6228/MD6274
 .br 
 Visioneer OneTouch 7100
 .br
-Hewlett-Packard HP2300C/HP3670
+Hewlett-Packard HP2300C/HP3670/HP3690
 .br 
 Visioneer Strobe XP100 (rev3)/XP200/XP300/Roadwarrior
 .br

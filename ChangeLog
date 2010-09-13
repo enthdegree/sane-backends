@@ -1,4 +1,8 @@
-2010-12-05 Stéphane Voltz <stef.dev@free.fr>
+2010-09-13 Stéphane Voltz <stef.dev@free.fr>
+	* doc/sane-genesys.man doc/descriptions/genesys.desc
+	backend/genesys.con.in: update HP3690 status to supported
+
+2010-09-12 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_conv.c backend/genesys.c doc/sane-genesys.man
 	sanei/sanei_magic.c backend/genesys.h backend/genesys_low.h
 	backend/Makefile.in backend/Makefile.am: add software deskep, crop

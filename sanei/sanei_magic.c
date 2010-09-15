@@ -1020,7 +1020,7 @@ getLine (int height, int width, int * buff,
 
   /* dont forget to cleanup */
   cleanup:
-  for(i=0;i<10;i++){
+  for(i=0;i<slopes;i++){
     if(lines[i])
       free(lines[i]);
   }

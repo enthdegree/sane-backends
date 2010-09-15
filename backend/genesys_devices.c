@@ -1009,7 +1009,7 @@ static Genesys_Model panasonic_kvss080_model = {
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (7.6),		/* Start of scan area in mm  (x) */
-  SANE_FIX (12.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (13.8),		/* Start of scan area in mm (y) */
   SANE_FIX (218.5),		/* Size of scan area in mm (x) */
   SANE_FIX (297.0),		/* Size of scan area in mm (y) */
 

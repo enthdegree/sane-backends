@@ -3128,15 +3128,19 @@ compute_gl843_coefficients (Genesys_Device * dev,
   darkptr = (uint16_t *) dev->dark_average_data;
   whiteptr = (uint16_t *) dev->white_average_data;
 
-  size = pixels * 2 * 3 * 256 / 252 * 2 + 512;
-  free (buffer);
-  buffer = (unsigned short *) malloc (size);
-  if (buffer == NULL)
+  size = (pixels * 2 * 3 * 256) / 252 * 2 + 512;
+  DBG (DBG_io, "%s: final shading size=%04x\n", __FUNCTION__, size);
+  *shading_data = (unsigned short *) malloc (size);
+  if (*shading_data == NULL)
     return 0;
 
+  memset(*shading_data,0,size);
+
   /* offset */
-  buffer = buffer + 12;
-  count = 12;
+  buffer = *shading_data;
+  count = 0;
+
+  /* loop over calibration data to build shading coefficients */
   for (i = 0; i < pixels; i++)
     {
       /* red */
@@ -3529,9 +3533,8 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                             target_code);
       break;
     case CCD_KVSS080:
-      words_per_color=pixels_per_line * 2;
-      length = words_per_color * 3 * 2;
       target_code = 0xe000;
+      free(shading_data);
       length=compute_gl843_coefficients (dev,
 			                 &shading_data,
 			                 pixels_per_line,

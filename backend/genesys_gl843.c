@@ -120,12 +120,10 @@ gl843_bulk_write_data (Genesys_Device * dev, uint8_t addr,
       return status;
     }
 
+  /* TODO check with G4050 that we shouldn't loop at all */
   while (len)
     {
-      if (len > BULKOUT_MAXSIZE)
-	size = BULKOUT_MAXSIZE;
-      else
-	size = len;
+      size = len;
 
       outdata[0] = BULK_OUT;
       outdata[1] = BULK_RAM;
@@ -147,8 +145,6 @@ gl843_bulk_write_data (Genesys_Device * dev, uint8_t addr,
 	       sane_strstatus (status));
 	  return status;
 	}
-
-      /* recreate data buffer to take care of memory layout */
 
       status = sanei_usb_write_bulk (dev->dn, data, &size);
       if (status != SANE_STATUS_GOOD)

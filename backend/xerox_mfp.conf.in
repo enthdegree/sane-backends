@@ -32,3 +32,6 @@ usb 0x0924 0x4265
 
 #Samsung SCX-4623
 usb 0x04e8 0x3434
+
+#Xerox WorkCentre 4118 Series
+usb 0x0924 0x420c

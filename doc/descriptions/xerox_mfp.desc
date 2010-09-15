@@ -22,6 +22,11 @@
 :usbid "0x0924" "0x4265"
 :status :good
 
+:model "WorkCentre 4118 Series"
+:interface "USB"
+:usbid "0x0924" "0x420c"
+:status :good
+
 :mfg "Dell"
 :url "http://www.dell.com/"
 
@@ -72,4 +77,3 @@
 :interface "USB"
 :usbid "0x04e8" "0x3434"
 :status :good
-

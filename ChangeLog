@@ -1,3 +1,7 @@
+2010-09-16 Julien Blache <jb@jblache.org>
+	* frontend/saned.c: exit Avahi process on error and when the poll
+	loop terminates.
+
 2010-09-13 Stéphane Voltz <stef.dev@free.fr>
 	* doc/descriptions/unsupported.desc: update status of scanners
 	now supported by the genesys backend.

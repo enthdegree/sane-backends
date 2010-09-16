@@ -2410,6 +2410,11 @@ saned_avahi (struct pollfd *fds, int nfds)
 
   avahi_simple_poll_loop (avahi_poll);
 
+  DBG (DBG_INFO, "saned_avahi: poll loop exited\n");
+
+  exit(EXIT_SUCCESS);
+
+  /* NOT REACHED */
   return;
 
  fail:
@@ -2420,6 +2425,8 @@ saned_avahi (struct pollfd *fds, int nfds)
     avahi_simple_poll_free (avahi_poll);
 
   avahi_free (avahi_svc_name);
+
+  exit(EXIT_FAILURE);
 }
 
 static void
@@ -3077,6 +3084,8 @@ run_standalone (int argc, char **argv)
 #ifdef WITH_AVAHI
   DBG (DBG_INFO, "run_standalone: spawning Avahi process\n");
   saned_avahi (fds, nfds);
+
+  /* NOT REACHED (Avahi process) */
 #endif /* WITH_AVAHI */
 
   DBG (DBG_MSG, "run_standalone: waiting for control connection\n");

@@ -486,11 +486,11 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   {CCD_G4050,
-   600, /* XXX STEF XXX 4800 */
+   1200, /* XXX STEF XXX 4800 */
    48,
    28,
    152,
-   2698*2, /* XXX STEF XXX 42574 */
+   10200, /* XXX STEF XXX 42574 */
    210,
    230,
    /* 08    09    0a    0b */
@@ -1054,8 +1054,8 @@ static Genesys_Model hpg4050_model = {
   GENESYS_GL843,
   NULL,
 
-  { 600, 300, 200, 150, 75, 0},	/* possible x-resolutions */
-  { 600, 300, 200, 150, 75, 0},	/* possible y-resolutions */
+  { 1200, 600, 300, 200, 150, 75, 0},	/* possible x-resolutions */
+  { 1200, 600, 300, 200, 150, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1089,9 +1089,10 @@ static Genesys_Model hpg4050_model = {
   DAC_G4050,
   GPO_G4050,
   MOTOR_G4050,
+  GENESYS_FLAG_NO_CALIBRATION |
   GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
   GENESYS_FLAG_SKIP_WARMUP | 
-  GENESYS_FLAG_NO_CALIBRATION |
+  GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   280,

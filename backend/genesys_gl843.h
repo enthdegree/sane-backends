@@ -327,6 +327,7 @@
 
 #define REGA6   	0xa6
 #define REGA7 		0xa7
+#define REGA8 		0xa8
 #define REGA9 		0xa9
 
 #define SCAN_TABLE 	0 	/* table 1 at 0x4000 */

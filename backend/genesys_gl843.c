@@ -524,18 +524,20 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 
   /* use x1 cksel when at higher resolutions */
   /* KV-SS080 sensor */
-  if(dpi>dev->sensor.optical_res/2)
+  if (dev->model->ccd_type == CCD_KVSS080)
     {
-      r = sanei_genesys_get_address (regs, 0x18);
-      r->value &= ~REG18_CKSEL;
+      if(dpi>dev->sensor.optical_res/2)
+        {
+          r = sanei_genesys_get_address (regs, 0x18);
+          r->value &= ~REG18_CKSEL;
 
-      sanei_genesys_write_register (dev, 0x78, 0x03);
+          sanei_genesys_write_register (dev, 0x78, 0x03);
+        }
+      else
+        {
+          sanei_genesys_write_register (dev, 0x78, 0x07);
+        }
     }
-  else
-    {
-      sanei_genesys_write_register (dev, 0x78, 0x07);
-    }
-
 
   for (i = 0; i < 9; i++)
     {
@@ -650,9 +652,6 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x71, 0x03);
   SETREG (0x72, 0x04);
   SETREG (0x73, 0x05);
-  SETREG (0x74, 0x00);
-  SETREG (0x75, 0x00);
-  SETREG (0x76, 0x00);
   SETREG (0x7d, 0x00);
   SETREG (0x7f, 0x00);
   SETREG (0x80, 0x00);
@@ -672,24 +671,29 @@ gl843_init_registers (Genesys_Device * dev)
     {
       SETREG (0x03, 0x1d);
       SETREG (0x05, 0x08);
+      SETREG (0x06, 0xd0); /* SCANMOD=110, PWRBIT and no GAIN4 */
       SETREG (0x0a, 0x18);
       SETREG (0x0b, 0x69);
       SETREG (0x5e, 0x6f);
+      SETREG (0x6b, 0xf4);
 
-      SETREG (0x80, 0x00);	/* XXX STEF XXX 5a/50 */
-      SETREG (0xab, 0x40);
       SETREG (0x70, 0x00);
       SETREG (0x71, 0x02);
       SETREG (0x72, 0x00);
       SETREG (0x73, 0x00);
       SETREG (0x7d, 0x90);
-      SETREG (0x7e, 0x01);
+      
+      SETREG (0x80, 0x50);
+      SETREG (0x9d, 0x08);
+      SETREG (0xab, 0x40);
 
       /* XXX STEF XXX TODO move to set for scan */
       SETREG (0x98, 0x03);
       SETREG (0x99, 0x30);
       SETREG (0x9a, 0x01);
       SETREG (0x9b, 0x80);
+      
+      SETREG (0xac, 0x00);
     }
 
   /* fine tune upon device description */
@@ -2147,10 +2151,23 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
   /* set up GPIO for scan */
   /* KV case */
-  RIE (sanei_genesys_write_register (dev, REGA9, 0x00));
-  RIE (sanei_genesys_write_register (dev, REGA6, 0xf6));
-  /* blinking led */
-  RIE(sanei_genesys_write_register(dev,0x7e,0x04)); 
+  if (dev->model->gpo_type == GPO_KVSS080)
+    {
+      RIE (sanei_genesys_write_register (dev, REGA9, 0x00));
+      RIE (sanei_genesys_write_register (dev, REGA6, 0xf6));
+      /* blinking led */
+      RIE(sanei_genesys_write_register(dev,0x7e,0x04)); 
+    }
+  if (dev->model->gpo_type == GPO_G4050)
+    {
+      RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
+      RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
+      RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
+      RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
+      /* blinking led */
+      RIE(sanei_genesys_write_register(dev,0x7e,0x01)); 
+    }
+
   
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
@@ -3498,6 +3515,10 @@ gl843_cold_boot (Genesys_Device * dev)
     }
   else
     {
+      /* CK1MAP */
+      RIE (sanei_genesys_write_register (dev, 0x74, 0x00));
+      RIE (sanei_genesys_write_register (dev, 0x75, 0x00));
+      RIE (sanei_genesys_write_register (dev, 0x76, 0x00));
       /* CK3MAP */
       RIE (sanei_genesys_write_register (dev, 0x77, 0x00));
       RIE (sanei_genesys_write_register (dev, 0x78, 0x07));

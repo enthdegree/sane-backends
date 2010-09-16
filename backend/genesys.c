@@ -1547,7 +1547,7 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
   int channels;
   int i;
 
-  if(dev->model->ccd_type==CCD_KVSS080)
+  if(dev->model->ccd_type==CCD_KVSS080 || dev->model->ccd_type==CCD_G4050)
     return SANE_STATUS_GOOD;
 
   DBG (DBG_proc, "sanei_genesys_init_shading_data (pixels_per_line = %d)\n",
@@ -2590,7 +2590,7 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
       skip = 4;
       xend = 68;
     }
-  if(dev->model->ccd_type==CCD_KVSS080)
+  if(dev->model->ccd_type==CCD_G4050 || dev->model->ccd_type==CCD_KVSS080)
     {
       skip = 2;
       xend = dev->sensor.black_pixels;
@@ -3533,6 +3533,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                             target_code);
       break;
     case CCD_KVSS080:
+    case CCD_G4050:
       target_code = 0xe000;
       free(shading_data);
       length=compute_gl843_coefficients (dev,

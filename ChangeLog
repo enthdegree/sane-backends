@@ -1,3 +1,7 @@
+2010-07-12 Julien Blache <jb@jblache.org>
+	* doc/descriptions-external/epkowa.desc: update for iScan 2.26.0,
+	from Alesh Slovak <alesh.slovak@avasys.jp>.
+
 2010-09-17 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_low.h sanei/sanei_magic.c
 	backend/genesys_devices.c backend/genesys_gl843.c: do asynchronous head

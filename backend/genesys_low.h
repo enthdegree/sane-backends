@@ -74,42 +74,38 @@
 
 
 /* Flags */
-#define GENESYS_FLAG_UNTESTED     (1 << 0)	/* Print a warning for these scanners */
-#define GENESYS_FLAG_14BIT_GAMMA  (1 << 1)	/* use 14bit Gamma table instead of 12 */
-#define GENESYS_FLAG_LAZY_INIT    (1 << 2)	/* skip extensive ASIC test at init   */
+#define GENESYS_FLAG_UNTESTED     (1 << 0)	/**> Print a warning for these scanners */
+#define GENESYS_FLAG_14BIT_GAMMA  (1 << 1)	/**> use 14bit Gamma table instead of 12 */
+#define GENESYS_FLAG_LAZY_INIT    (1 << 2)	/**> skip extensive ASIC test at init   */
 #define GENESYS_FLAG_XPA          (1 << 3)
-#define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/* skip genesys_warmup()              */
-#define GENESYS_FLAG_OFFSET_CALIBRATION   (1 << 5)	/* do offset calibration      */
-#define GENESYS_FLAG_SEARCH_START (1 << 6)	/* do start search beofre scanning    */
-#define GENESYS_FLAG_REPARK       (1 << 7)	/* repark head (and check for lock) by 
+#define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/**> skip genesys_warmup()              */
+#define GENESYS_FLAG_OFFSET_CALIBRATION   (1 << 5)	/**> do offset calibration      */
+#define GENESYS_FLAG_SEARCH_START (1 << 6)	/**> do start search before scanning    */
+#define GENESYS_FLAG_REPARK       (1 << 7)	/**> repark head (and check for lock) by 
 						   moving without scanning */
-#define GENESYS_FLAG_DARK_CALIBRATION (1 << 8)	/* do dark calibration */
-#define GENESYS_FLAG_STAGGERED_LINE   (1 << 9)	/* pixel columns are shifted vertically for hi-res modes */
+#define GENESYS_FLAG_DARK_CALIBRATION (1 << 8)	/**> do dark calibration */
+#define GENESYS_FLAG_STAGGERED_LINE   (1 << 9)	/**> pixel columns are shifted vertically for hi-res modes */
 
-#define GENESYS_FLAG_MUST_WAIT        (1 << 10)	/* tells wether the scanner 
-						   should wait 1 minute after 
-						   init before doing anything 
-						*/
+#define GENESYS_FLAG_MUST_WAIT        (1 << 10)	/**> tells wether the scanner must wait for the head when parking */
 
 
-#define GENESYS_FLAG_ALT_SLOPE_CREATE (1 << 11)	/* use alternative slope
-						   creation function */
+#define GENESYS_FLAG_ALT_SLOPE_CREATE (1 << 11)	/**> use alternative slope creation function */
 
-#define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /* yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
-#define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /* allow custom gamma tables */
-#define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /* allow scanners to use skip the calibration, needed for sheetfed scanners */
-#define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /* scanner has setting for half ccd mode */
-#define GENESYS_FLAG_ODD_EVEN_CIS     (1 << 16)       /* scan odd and even pixels come in separated lines */
+#define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /**> yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
+#define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /**> allow custom gamma tables */
+#define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /**> allow scanners to use skip the calibration, needed for sheetfed scanners */
+#define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /**> scanner has setting for half ccd mode */
+#define GENESYS_FLAG_ODD_EVEN_CIS     (1 << 16)       /**> scan odd and even pixels come in separated lines */
 
-#define GENESYS_HAS_NO_BUTTONS       0              /* scanner has no supported button */
-#define GENESYS_HAS_SCAN_SW          (1 << 0)       /* scanner has SCAN button */
-#define GENESYS_HAS_FILE_SW          (1 << 1)       /* scanner has FILE button */
-#define GENESYS_HAS_COPY_SW          (1 << 2)       /* scanner has COPY button */
-#define GENESYS_HAS_EMAIL_SW         (1 << 3)       /* scanner has EMAIL button */
-#define GENESYS_HAS_PAGE_LOADED_SW   (1 << 4)       /* scanner has paper in detection */
-#define GENESYS_HAS_OCR_SW           (1 << 5)       /* scanner has OCR button */
-#define GENESYS_HAS_POWER_SW         (1 << 6)       /* scanner has power button */
-#define GENESYS_HAS_CALIBRATE        (1 << 7)       /* scanner has 'calibrate' software button to start calibration */
+#define GENESYS_HAS_NO_BUTTONS       0              /**> scanner has no supported button */
+#define GENESYS_HAS_SCAN_SW          (1 << 0)       /**> scanner has SCAN button */
+#define GENESYS_HAS_FILE_SW          (1 << 1)       /**> scanner has FILE button */
+#define GENESYS_HAS_COPY_SW          (1 << 2)       /**> scanner has COPY button */
+#define GENESYS_HAS_EMAIL_SW         (1 << 3)       /**> scanner has EMAIL button */
+#define GENESYS_HAS_PAGE_LOADED_SW   (1 << 4)       /**> scanner has paper in detection */
+#define GENESYS_HAS_OCR_SW           (1 << 5)       /**> scanner has OCR button */
+#define GENESYS_HAS_POWER_SW         (1 << 6)       /**> scanner has power button */
+#define GENESYS_HAS_CALIBRATE        (1 << 7)       /**> scanner has 'calibrate' software button to start calibration */
 
 /* USB control message values */
 #define REQUEST_TYPE_IN		(USB_TYPE_VENDOR | USB_DIR_IN)

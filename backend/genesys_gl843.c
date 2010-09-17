@@ -460,13 +460,27 @@ gl843_test_motor_flag_bit (SANE_Byte val)
   return SANE_FALSE;
 }
 
+static uint16_t *get_motor_profile(int motor_type, int exposure)
+{
+  switch(motor_type)
+    {
+    case MOTOR_G4050:
+      return g4050_profile;
+    case MOTOR_KVSS080:
+      return kvss080_profile;
+    default:
+      return kvss080_profile;
+    }
+}
+
 static int gl843_slope_table(uint16_t *slope,
 		             int       *steps,
 			     int       dpi,
 			     int       exposure,
 			     int       base_dpi,
 			     int       step_type,
-			     int       factor)
+			     int       factor,
+                             int       motor_type)
 {
 int sum, i;
 uint16_t target, *profile;
@@ -479,7 +493,7 @@ uint16_t target, *profile;
           slope[i]=target;
 
         /* TODO choose profile to use per motor type, for now only one */
-        profile=kvss080_profile;
+        profile=get_motor_profile(motor_type,exposure);
 
 	/* use profile to build table */
 	sum=0;
@@ -943,7 +957,8 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                               scan_exposure_time,
                               dev->motor.base_ydpi,
                               scan_step_type,
-                              factor);
+                              factor,
+                              dev->model->motor_type);
   RIE(gl843_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps));
   RIE(gl843_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps));
 
@@ -960,7 +975,8 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                               scan_exposure_time,
                               dev->motor.base_ydpi,
                               scan_step_type,
-                              factor);
+                              factor,
+                              dev->model->motor_type);
   RIE(gl843_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps));
   RIE(gl843_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps));
 
@@ -1103,6 +1119,12 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 
   r = sanei_genesys_get_address (reg, REG18);
   cksel= (r->value & REG18_CKSEL)+1;
+
+  /* XXX STEF XXX visible colors are on the left side of the sensor */
+  if (dev->model->ccd_type == CCD_G4050)
+    {
+      cksel*=2;
+    }
 
   DBG (DBG_io2, "%s: cksel=%d\n", __FUNCTION__, cksel);
   dpiset = used_res * cksel;
@@ -2229,7 +2251,7 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 }
 
 
-/* Moves the slider to the home (top) postion slowly */
+/* Moves the slider to the home (top) position slowly */
 #ifndef UNIT_TESTING
 static
 #endif

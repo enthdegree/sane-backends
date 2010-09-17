@@ -1,3 +1,10 @@
+2010-09-17 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_low.h sanei/sanei_magic.c
+	backend/genesys_devices.c backend/genesys_gl843.c: do asynchronous head
+	parking for flatbed scanners to save scan time. Fix a couple of
+	memory overwrites detected by valgrind. Optimize shading data
+	writing and fine tune scaneara for gl843.
+
 2010-09-16 Julien Blache <jb@jblache.org>
 	* frontend/saned.c: exit Avahi process on error and when the poll
 	loop terminates.

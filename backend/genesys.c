@@ -4686,7 +4686,7 @@ genesys_start_scan (Genesys_Device * dev)
 	      return status;
 	    }
 
-	  status = dev->model->cmd_set->slow_back_home (dev, 1);
+	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
@@ -4701,7 +4701,7 @@ genesys_start_scan (Genesys_Device * dev)
 	  /* Go home */
 	  /* TODO: check we can drop this since we cannot have the
 	     scanner's head wandering here */
-	  status = dev->model->cmd_set->slow_back_home (dev, 1);
+	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
@@ -6973,6 +6973,15 @@ genesys_buffer_image(Genesys_Scanner *s)
 	}
     }
 
+  /* since digital processing is going to take place,
+   * issue head parking command so that the head move while
+   * computing so we can save time
+   */
+  if (dev->model->is_sheetfed == SANE_FALSE)
+    {
+      dev->model->cmd_set->slow_back_home (dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+    }
+
   /* update counters */
   dev->total_bytes_to_read = total;
   dev->total_bytes_read = 0;
@@ -7260,10 +7269,15 @@ sane_close (SANE_Handle handle)
       return;			/* oops, not a handle we know about */
     }
 
-  /* eject document for shhetfed scanners */
+  /* eject document for sheetfed scanners */
   if (s->dev->model->is_sheetfed == SANE_TRUE)
     {
       s->dev->model->cmd_set->eject_document (s->dev);
+    }
+  else
+    {
+      /* for flatbed scanners, get sure the head is parked before leaving */
+      s->dev->model->cmd_set->slow_back_home (s->dev, SANE_TRUE);
     }
 
   /* here is the place to store calibration cache */
@@ -8029,7 +8043,7 @@ sane_cancel (SANE_Handle handle)
   /* park head if flatbed scanner */
   if (s->dev->model->is_sheetfed == SANE_FALSE)
     {
-      status = s->dev->model->cmd_set->slow_back_home (s->dev, 1);
+      status = s->dev->model->cmd_set->slow_back_home (s->dev, s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,

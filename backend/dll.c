@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.12"
+#define DLL_VERSION "1.0.13"
 
 #ifdef _AIX
 # include "lalloca.h"		/* MUST come first for AIX! */
@@ -773,14 +773,37 @@ read_dlld (void)
   DIR *dlld;
   struct dirent *dllconf;
   struct stat st;
-  char conffile[PATH_MAX];
+  char conffile[PATH_MAX], dlldir[PATH_MAX];
   size_t len, plen;
+  const char *dir_list;
+  char *copy, *next, *dir;
 
-  DBG (5, "sane_init/read_dlld: processing %s ...\n",
-       STRINGIFY(PATH_SANE_CONFIG_DIR) "/dll.d");
+  dir_list = sanei_config_get_paths ();
+  if (!dir_list)
+    {
+      DBG(2, "sane_init/read_dlld: Unable to detect configuration directories\n");
+      return;
+    }
 
-  /* Read files under $sysconfdir/sane.d/dll.d */
-  dlld = opendir (STRINGIFY(PATH_SANE_CONFIG_DIR) "/dll.d");
+  copy = strdup (dir_list);
+
+  for (next = copy; (dir = strsep (&next, DIR_SEP)) != NULL;)
+    {
+      snprintf (dlldir, sizeof (dlldir), "%s%s", dir, "/dll.d");
+
+      DBG(4, "sane_init/read_dlld: attempting to open directory `%s'\n", dlldir);
+
+      dlld = opendir (dlldir);
+      if (dlld)
+	{
+	  /* length of path to parent dir of dll.d/ */
+	  plen = strlen (dir) + 1;
+
+	  DBG(3, "sane_init/read_dlld: using config directory `%s'\n", dlldir);
+	  break;
+	}
+    }
+  free (copy);
 
   if (dlld == NULL)
     {
@@ -788,8 +811,6 @@ read_dlld (void)
            strerror (errno));
       return;
     }
-
-  plen = strlen (STRINGIFY(PATH_SANE_CONFIG_DIR)) + 1;
 
   while ((dllconf = readdir (dlld)) != NULL)
     {
@@ -804,8 +825,7 @@ read_dlld (void)
           || (dllconf->d_name[len-1] == '#'))
         continue;
 
-      snprintf (conffile, PATH_MAX, "%s/dll.d/%s",
-                STRINGIFY (PATH_SANE_CONFIG_DIR), dllconf->d_name);
+      snprintf (conffile, PATH_MAX, "%s/%s", dlldir, dllconf->d_name);
 
       DBG (5, "sane_init/read_dlld: considering %s\n", conffile);
 

@@ -164,4 +164,12 @@ extern SANE_Status sanei_configure_attach (
   SANEI_Config *config,
   SANE_Status (*config_attach)(SANEI_Config *config, const char *devname)
 );
+
+/** Return the list of config directories, extracted from the SANE_CONFIG_DIR
+ * environment variable and the default paths.
+ * @return a string containing the configuration paths, separated by the
+ *         operating system's path separator
+ */
+extern const char *sanei_config_get_paths (void);
+
 #endif	/* sanei_config_h */

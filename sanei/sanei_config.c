@@ -76,21 +76,25 @@
 #include <FindDirectory.h>
 #endif
 
-static const char *dir_list;
+static char *dir_list;
 
-FILE *
-sanei_config_open (const char *filename)
+const char *
+sanei_config_get_paths ()
 {
-  char *copy, *next, *dir, result[PATH_MAX];
-  FILE *fp = 0;
+#ifdef __BEOS__
+  char result[PATH_MAX];
+#endif
+  void *mem;
+  char *dlist;
   size_t len;
-  void *mem = 0;
 
   if (!dir_list)
     {
       DBG_INIT();
 
-      dir_list = getenv ("SANE_CONFIG_DIR");
+      dlist = getenv ("SANE_CONFIG_DIR");
+      if (dlist)
+	dir_list = strdup (dlist);
 #ifdef __BEOS__
       /* ~/config/settings/SANE takes precedence over /etc/sane.d/ */
       if (!dir_list)
@@ -99,7 +103,7 @@ sanei_config_open (const char *filename)
 	    {
 	      strcat(result,"/SANE");
 	      strcat(result,DIR_SEP); /* do append the default ones */
-	      dir_list = result;
+	      dir_list = strdup (result);
 	    }
 	}
 #endif
@@ -110,20 +114,39 @@ sanei_config_open (const char *filename)
 	    {
 	      /* append default search directories: */
 	      mem = malloc (len + sizeof (DEFAULT_DIRS));
-
 	      memcpy (mem, dir_list, len);
 	      memcpy ((char *) mem + len, DEFAULT_DIRS, sizeof (DEFAULT_DIRS));
+	      free (dir_list);
 	      dir_list = mem;
 	    }
 	}
       else
-	dir_list = DEFAULT_DIRS;
+	{
+	  /* Create a copy, since we might call free on it */
+	  dir_list = strdup (DEFAULT_DIRS);
+	}
+    }
+  DBG (5, "sanei_config_get_paths: using config directories  %s\n", dir_list);
+
+  return dir_list;
+}
+
+FILE *
+sanei_config_open (const char *filename)
+{
+  char *next, *dir, result[PATH_MAX];
+  const char *cfg_dir_list;
+  FILE *fp;
+  char *copy;
+
+  cfg_dir_list = sanei_config_get_paths ();
+  if (!cfg_dir_list)
+    {
+      DBG(2, "sanei_config_open: could not find config file `%s'\n", filename);
+      return NULL;
     }
 
-  copy = strdup (dir_list);
-
-  if (mem)
-    free(mem);
+  copy = strdup (cfg_dir_list);
 
   for (next = copy; (dir = strsep (&next, DIR_SEP)) != 0; )
     {

@@ -1,3 +1,11 @@
+2010-09-18 Reinhold Kainhofer <reinhold@kainhofer.com>
+	* include/sane/sanei_config.h sanei/sanei_config.c: Add
+	function sanei_config_get_paths to obtain all configuration pathes
+	(from env var SANE_CONFIG_DIR and default paths); fix pointers to
+	invalid/freed strings when SANE_CONFIG_DIR is set.
+	* backend/dll.c: When searching for the dll.d/ directory,
+	also use the SANE_CONFIG_DIR env variable.
+
 2010-07-12 Julien Blache <jb@jblache.org>
 	* doc/descriptions-external/epkowa.desc: update for iScan 2.26.0,
 	from Alesh Slovak <alesh.slovak@avasys.jp>.

@@ -464,6 +464,8 @@
          - set per-side EOF flag if ILI and EOM are set
       v101 2010-06-23, MAN
          - fix compilation bug when jpeg is enabled
+      v102 2010-09-22, MAN
+         - fix infinite loop when scan is an odd number of lines
 
    SANE FLOW DIAGRAM
 
@@ -7468,9 +7470,8 @@ read_from_scanner(struct fujitsu *s, int side)
     unsigned char * in;
     size_t inLen = 0;
 
-    int bytes = s->buffer_size;
+    int bytes = s->buff_tot[side] - s->buff_rx[side];
     int remain = s->bytes_tot[side] - s->bytes_rx[side];
-    int space = s->buff_tot[side] - s->buff_rx[side];
   
     DBG (10, "read_from_scanner: start\n");
   
@@ -7478,15 +7479,14 @@ read_from_scanner(struct fujitsu *s, int side)
     if(bytes > remain){
         bytes = remain;
     }
-    if(bytes > space){
-        bytes = space;
-    }
   
     /* all requests must end on line boundary */
     bytes -= (bytes % s->params.bytes_per_line);
 
     /* some larger scanners require even bytes per block */
-    if(bytes % 2){
+    /* so we get even lines, but not on the last block */
+    /* cause odd number of lines would never finish */
+    if(bytes % 2 && bytes < remain){
        bytes -= s->params.bytes_per_line;
     }
   

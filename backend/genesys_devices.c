@@ -486,11 +486,11 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   {CCD_G4050,
-   1200, /* XXX STEF XXX 4800 */
+   600, /* 4800 */
    48,
    28,
    152,
-   10200, /* XXX STEF XXX 42574 */
+   2696*2, /* 2696*2=>600, *4=>2400 */
    210,
    230,
    /* 08    09    0a    0b */
@@ -876,14 +876,15 @@ static Genesys_Motor Motor[] = {
    },
   },
   {MOTOR_G4050,
-   1200, 2400,
+   2400,
+   4800,
    2,
    1,
    { /* motor slopes */
 	   { /* power mode 0 */
-     		{ 3961, 240, 95, 0.8 }, /* full step   */
-     		{ 3961, 240, 95, 0.8 }, /* half step   */
-     		{ 3961, 240, 95, 0.8 }, /* quarter step */
+     		{ 3961, 240, 246, 0.8 }, /* full step   */
+     		{ 3961, 240, 246, 0.8 }, /* half step   */
+     		{ 3961, 240, 246, 0.8 }, /* quarter step */
     	   },
    },
   },
@@ -1054,15 +1055,15 @@ static Genesys_Model hpg4050_model = {
   GENESYS_GL843,
   NULL,
 
-  { 1200, 600, 300, 200, 150, 75, 0},	/* possible x-resolutions */
-  { 1200, 600, 300, 200, 150, 75, 0},	/* possible y-resolutions */
+  { /* 4800, 2400, 1200, 800, 600, 400, */ 300, 200, 0},
+  { /* 4800, 2400, 1200, 800, 600, 400, */ 300, 200, 0},
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
-  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
-  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (6.55),		/* Start of scan area in mm  (x) */
+  SANE_FIX (15.00),		/* Start of scan area in mm (y) */
+  SANE_FIX (223.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (315.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (3.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */

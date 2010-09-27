@@ -460,17 +460,53 @@ gl843_test_motor_flag_bit (SANE_Byte val)
   return SANE_FALSE;
 }
 
-static uint16_t *get_motor_profile(int motor_type, int exposure)
+/** @get motor profile
+ * search for the database of motor profiles and get the best one. Each
+ * profile is at full step and at a reference exposure. Use KV-SS080 table
+ * by default.
+ * @param motor_type motor id
+ * @param exposure exposure time
+ * @return a pointer to a Motor_Profile struct
+ */
+static Motor_Profile *get_motor_profile(int motor_type, int exposure)
 {
-  switch(motor_type)
+  unsigned int i;
+  int idx;
+
+  i=0;
+  idx=-1;
+  while(i<sizeof(motors)/sizeof(Motor_Profile))
     {
-    case MOTOR_G4050:
-      return g4050_profile;
-    case MOTOR_KVSS080:
-      return kvss080_profile;
-    default:
-      return kvss080_profile;
+      /* exact match */
+      if(motors[i].motor_type==motor_type && motors[i].exposure==exposure)
+        {
+          return &(motors[i]);
+        }
+
+      /* closest match */
+      if(motors[i].motor_type==motor_type)
+        {
+          if(idx<0)
+            {
+              idx=i;
+            }
+          else
+            {
+              if(motors[i].exposure>=exposure 
+              && motors[i].exposure<motors[idx].exposure)
+                {
+                  idx=i;
+                }
+            }
+        }
+      i++;
     }
+
+  /* default fallback */
+  if(idx<0)
+    idx=0;
+
+  return &(motors[idx]);
 }
 
 static int gl843_slope_table(uint16_t *slope,
@@ -483,26 +519,30 @@ static int gl843_slope_table(uint16_t *slope,
                              int       motor_type)
 {
 int sum, i;
-uint16_t target, *profile;
+uint16_t target,current;
+Motor_Profile *profile;
 
 	/* required speed */
 	target=((exposure * dpi) / base_dpi)>>step_type;
+        DBG( DBG_io2, "XXX exposure=%d, dpi=%d, base_dpi=%d, step_type=%d, target=%d\n",exposure,dpi,base_dpi,step_type,target);
 	
 	/* fill result with target speed */
         for(i=0;i<256*factor;i++)
           slope[i]=target;
 
-        /* TODO choose profile to use per motor type, for now only one */
         profile=get_motor_profile(motor_type,exposure);
 
 	/* use profile to build table */
 	sum=0;
         i=0;
-        while(i<(256*factor) && (profile[i]>>step_type)>target)
+        current=((profile->table[0]*exposure)/profile->exposure)>>step_type;
+        while(i<(256*factor) && current>target)
           {
-            slope[i]=profile[i]>>step_type;
+            slope[i]=current;
             sum+=slope[i];
             i++;
+            current=((profile->table[i]*exposure)/profile->exposure)>>step_type;
+            DBG( DBG_io2, "current=%d, target=%d\n",current,target);
           }
 
         /* align size on step time factor */
@@ -527,7 +567,7 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   Genesys_Register_Set *r;
   int i;
 
-  DBG (DBG_proc, "gl843_setup_sensor\n");
+  DBGSTART;
 
   for (i = 0x06; i < 0x0e; i++)
     {
@@ -708,6 +748,7 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x9b, 0x80);
       
       SETREG (0xac, 0x00);
+      SETREG (0x18, 0x01); /* XXX STEF XXX CKSEL=1, CKTOGGLE=0 */
     }
 
   /* fine tune upon device description */
@@ -1103,7 +1144,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 {
   unsigned int words_per_line;
   unsigned int startx, endx, used_pixels;
-  unsigned int dpiset,cksel;
+  unsigned int dpiset, cksel;
   unsigned int i, bytes;
   Genesys_Register_Set *r;
   SANE_Status status;
@@ -1119,12 +1160,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 
   r = sanei_genesys_get_address (reg, REG18);
   cksel= (r->value & REG18_CKSEL)+1;
-
-  /* XXX STEF XXX visible colors are on the left side of the sensor */
-  if (dev->model->ccd_type == CCD_G4050)
-    {
-      cksel*=2;
-    }
 
   DBG (DBG_io2, "%s: cksel=%d\n", __FUNCTION__, cksel);
   dpiset = used_res * cksel;
@@ -1305,6 +1340,30 @@ gl843_get_led_exposure (Genesys_Device * dev)
   return m + d;
 }
 
+
+/**@ brief comput exposure to use
+ * compute the sensor exposure based on target resolution
+ */
+static int gl843_compute_exposure(Genesys_Device *dev, int xres)
+{
+  switch(dev->model->ccd_type)
+    {
+    case CCD_G4050:
+      if(xres<=300)
+        {
+          return 3840;
+        }
+      if(xres<=600)
+        {
+          return 8016;
+        }
+      return 21376;
+    case CCD_KVSS080:
+    default:
+      return 8000;
+    }
+}
+
 /* set up registers for an actual scan
  *
  * this function sets up the scanner to scan in normal or single line mode
@@ -1329,7 +1388,7 @@ gl843_init_scan_regs (Genesys_Device * dev, Genesys_Register_Set * reg, float xr
   int move;
   unsigned int lincnt;
   unsigned int oflags; /**> optical flags */
-  int exposure_time, led_exposure;
+  int exposure_time;
   int stagger;
 
   int slope_dpi = 0;
@@ -1457,16 +1516,8 @@ independent of our calculated values:
 
   /* scan_step_type */
   scan_step_type = 1;
-  exposure_time=8000;
-
-  led_exposure = gl843_get_led_exposure (dev);
-  /* TODO either fix exposure2 or build a new exposure computing function 
-  exposure_time = sanei_genesys_exposure_time2 (dev,
-						slope_dpi,
-						scan_step_type,
-						start + used_pixels + 258,
-						led_exposure,
-						scan_power_mode); */
+  scan_step_type = 0; /* XXX STEF XXX */
+  exposure_time=gl843_compute_exposure (dev, used_res);
 
   DBG (DBG_info, "gl843_init_scan_regs : exposure_time=%d pixels\n",
        exposure_time);
@@ -1739,6 +1790,7 @@ gl843_calculate_current_setup (Genesys_Device * dev)
 
   /* scan_step_type */
   scan_step_type = 1;
+  scan_step_type = 0; /* XXX STEF XXX */
 
   exposure_time = sanei_genesys_exposure_time2 (dev,
 						slope_dpi,
@@ -2307,7 +2359,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
   gl843_init_motor_regs_scan (dev,
                               local_reg,
-                              8000,
+                              gl843_compute_exposure (dev, 300),
 			      300,
 			      1,
 			      1,

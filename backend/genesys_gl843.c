@@ -524,7 +524,6 @@ Motor_Profile *profile;
 
 	/* required speed */
 	target=((exposure * dpi) / base_dpi)>>step_type;
-        DBG( DBG_io2, "XXX exposure=%d, dpi=%d, base_dpi=%d, step_type=%d, target=%d\n",exposure,dpi,base_dpi,step_type,target);
 	
 	/* fill result with target speed */
         for(i=0;i<256*factor;i++)
@@ -542,7 +541,6 @@ Motor_Profile *profile;
             sum+=slope[i];
             i++;
             current=((profile->table[i]*exposure)/profile->exposure)>>step_type;
-            DBG( DBG_io2, "current=%d, target=%d\n",current,target);
           }
 
         /* align size on step time factor */
@@ -1516,7 +1514,6 @@ independent of our calculated values:
 
   /* scan_step_type */
   scan_step_type = 1;
-  scan_step_type = 0; /* XXX STEF XXX */
   exposure_time=gl843_compute_exposure (dev, used_res);
 
   DBG (DBG_info, "gl843_init_scan_regs : exposure_time=%d pixels\n",
@@ -1790,7 +1787,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
 
   /* scan_step_type */
   scan_step_type = 1;
-  scan_step_type = 0; /* XXX STEF XXX */
 
   exposure_time = sanei_genesys_exposure_time2 (dev,
 						slope_dpi,

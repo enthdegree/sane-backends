@@ -1,3 +1,8 @@
+2010-09-28 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys.conf.in backend/genesys_devices.c
+	backend/genesys_gl843.c backend/genesys_gl843.h: add minimal support
+	(200 and 300 dpi) for HP G4050. Add a device entry for G4010.
+
 2010-09-18 Reinhold Kainhofer <reinhold@kainhofer.com>
 	* include/sane/sanei_config.h sanei/sanei_config.c: Add
 	function sanei_config_get_paths to obtain all configuration pathes

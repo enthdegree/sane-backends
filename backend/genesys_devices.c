@@ -486,11 +486,11 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   {CCD_G4050,
-   600, /* XXX STEF XXX 4800 */
+   600, /* 4800 */
    48,
    28,
    152,
-   2698*2, /* XXX STEF XXX 42574 */
+   2696*2, /* 2696*2=>600, *4=>2400 */
    210,
    230,
    /* 08    09    0a    0b */
@@ -876,14 +876,15 @@ static Genesys_Motor Motor[] = {
    },
   },
   {MOTOR_G4050,
-   1200, 2400,
+   2400,
+   4800,
    2,
    1,
    { /* motor slopes */
 	   { /* power mode 0 */
-     		{ 3961, 240, 95, 0.8 }, /* full step   */
-     		{ 3961, 240, 95, 0.8 }, /* half step   */
-     		{ 3961, 240, 95, 0.8 }, /* quarter step */
+     		{ 3961, 240, 246, 0.8 }, /* full step   */
+     		{ 3961, 240, 246, 0.8 }, /* half step   */
+     		{ 3961, 240, 246, 0.8 }, /* quarter step */
     	   },
    },
   },
@@ -1047,22 +1048,22 @@ static Genesys_Model panasonic_kvss080_model = {
   100
 };
 
-static Genesys_Model hpg4050_model = {
-  "hewlett-packard-scanjet-g4050",	/* Name */
+static Genesys_Model hpg4010_model = {
+  "hewlett-packard-scanjet-g4010",	/* Name */
   "Hewlett Packard",			/* Device vendor string */
-  "ScanJet G4050",			/* Device model name */
+  "ScanJet G4010",			/* Device model name */
   GENESYS_GL843,
   NULL,
 
-  { 600, 300, 200, 150, 75, 0},	/* possible x-resolutions */
-  { 600, 300, 200, 150, 75, 0},	/* possible y-resolutions */
+  { /* 4800, 2400, 1200, 800, 600, 400, */ 300, 200, 0},
+  { /* 4800, 2400, 1200, 800, 600, 400, */ 300, 200, 0},
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
-  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
-  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (6.55),		/* Start of scan area in mm  (x) */
+  SANE_FIX (15.00),		/* Start of scan area in mm (y) */
+  SANE_FIX (223.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (315.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (3.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
@@ -1089,9 +1090,62 @@ static Genesys_Model hpg4050_model = {
   DAC_G4050,
   GPO_G4050,
   MOTOR_G4050,
+  GENESYS_FLAG_NO_CALIBRATION |
   GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
   GENESYS_FLAG_SKIP_WARMUP | 
+  GENESYS_FLAG_OFFSET_CALIBRATION |
+  GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
+  280,
+  400
+};
+
+static Genesys_Model hpg4050_model = {
+  "hewlett-packard-scanjet-g4050",	/* Name */
+  "Hewlett Packard",			/* Device vendor string */
+  "ScanJet G4050",			/* Device model name */
+  GENESYS_GL843,
+  NULL,
+
+  { /* 4800, 2400, 1200, 800, 600, 400, */ 300, 200, 0},
+  { /* 4800, 2400, 1200, 800, 600, 400, */ 300, 200, 0},
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (6.55),		/* Start of scan area in mm  (x) */
+  SANE_FIX (15.00),		/* Start of scan area in mm (y) */
+  SANE_FIX (223.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (315.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 32, 48,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CCD_G4050,
+  DAC_G4050,
+  GPO_G4050,
+  MOTOR_G4050,
   GENESYS_FLAG_NO_CALIBRATION |
+  GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_SKIP_WARMUP | 
+  GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   280,
@@ -2349,6 +2403,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a9, 0x1906, &canon_5600f_model},
   /* GL843 devices */
   {0x04da, 0x100f, &panasonic_kvss080_model},
+  {0x03f0, 0x4505, &hpg4010_model},
   {0x03f0, 0x4605, &hpg4050_model},
   {0, 0, NULL}
 };

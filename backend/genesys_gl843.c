@@ -460,16 +460,67 @@ gl843_test_motor_flag_bit (SANE_Byte val)
   return SANE_FALSE;
 }
 
+/** @get motor profile
+ * search for the database of motor profiles and get the best one. Each
+ * profile is at full step and at a reference exposure. Use KV-SS080 table
+ * by default.
+ * @param motor_type motor id
+ * @param exposure exposure time
+ * @return a pointer to a Motor_Profile struct
+ */
+static Motor_Profile *get_motor_profile(int motor_type, int exposure)
+{
+  unsigned int i;
+  int idx;
+
+  i=0;
+  idx=-1;
+  while(i<sizeof(motors)/sizeof(Motor_Profile))
+    {
+      /* exact match */
+      if(motors[i].motor_type==motor_type && motors[i].exposure==exposure)
+        {
+          return &(motors[i]);
+        }
+
+      /* closest match */
+      if(motors[i].motor_type==motor_type)
+        {
+          if(idx<0)
+            {
+              idx=i;
+            }
+          else
+            {
+              if(motors[i].exposure>=exposure 
+              && motors[i].exposure<motors[idx].exposure)
+                {
+                  idx=i;
+                }
+            }
+        }
+      i++;
+    }
+
+  /* default fallback */
+  if(idx<0)
+    idx=0;
+
+  return &(motors[idx]);
+}
+
 static int gl843_slope_table(uint16_t *slope,
 		             int       *steps,
 			     int       dpi,
 			     int       exposure,
 			     int       base_dpi,
 			     int       step_type,
-			     int       factor)
+			     int       factor,
+                             int       motor_type)
 {
 int sum, i;
-uint16_t target, *profile;
+uint16_t target,current;
+Motor_Profile *profile;
 
 	/* required speed */
 	target=((exposure * dpi) / base_dpi)>>step_type;
@@ -478,17 +529,18 @@ uint16_t target, *profile;
         for(i=0;i<256*factor;i++)
           slope[i]=target;
 
-        /* TODO choose profile to use per motor type, for now only one */
-        profile=kvss080_profile;
+        profile=get_motor_profile(motor_type,exposure);
 
 	/* use profile to build table */
 	sum=0;
         i=0;
-        while(i<(256*factor) && (profile[i]>>step_type)>target)
+        current=((profile->table[0]*exposure)/profile->exposure)>>step_type;
+        while(i<(256*factor) && current>target)
           {
-            slope[i]=profile[i]>>step_type;
+            slope[i]=current;
             sum+=slope[i];
             i++;
+            current=((profile->table[i]*exposure)/profile->exposure)>>step_type;
           }
 
         /* align size on step time factor */
@@ -513,7 +565,7 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   Genesys_Register_Set *r;
   int i;
 
-  DBG (DBG_proc, "gl843_setup_sensor\n");
+  DBGSTART;
 
   for (i = 0x06; i < 0x0e; i++)
     {
@@ -524,18 +576,20 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 
   /* use x1 cksel when at higher resolutions */
   /* KV-SS080 sensor */
-  if(dpi>dev->sensor.optical_res/2)
+  if (dev->model->ccd_type == CCD_KVSS080)
     {
-      r = sanei_genesys_get_address (regs, 0x18);
-      r->value &= ~REG18_CKSEL;
+      if(dpi>dev->sensor.optical_res/2)
+        {
+          r = sanei_genesys_get_address (regs, 0x18);
+          r->value &= ~REG18_CKSEL;
 
-      sanei_genesys_write_register (dev, 0x78, 0x03);
+          sanei_genesys_write_register (dev, 0x78, 0x03);
+        }
+      else
+        {
+          sanei_genesys_write_register (dev, 0x78, 0x07);
+        }
     }
-  else
-    {
-      sanei_genesys_write_register (dev, 0x78, 0x07);
-    }
-
 
   for (i = 0; i < 9; i++)
     {
@@ -650,9 +704,6 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x71, 0x03);
   SETREG (0x72, 0x04);
   SETREG (0x73, 0x05);
-  SETREG (0x74, 0x00);
-  SETREG (0x75, 0x00);
-  SETREG (0x76, 0x00);
   SETREG (0x7d, 0x00);
   SETREG (0x7f, 0x00);
   SETREG (0x80, 0x00);
@@ -672,24 +723,30 @@ gl843_init_registers (Genesys_Device * dev)
     {
       SETREG (0x03, 0x1d);
       SETREG (0x05, 0x08);
+      SETREG (0x06, 0xd0); /* SCANMOD=110, PWRBIT and no GAIN4 */
       SETREG (0x0a, 0x18);
       SETREG (0x0b, 0x69);
       SETREG (0x5e, 0x6f);
+      SETREG (0x6b, 0xf4);
 
-      SETREG (0x80, 0x00);	/* XXX STEF XXX 5a/50 */
-      SETREG (0xab, 0x40);
       SETREG (0x70, 0x00);
       SETREG (0x71, 0x02);
       SETREG (0x72, 0x00);
       SETREG (0x73, 0x00);
       SETREG (0x7d, 0x90);
-      SETREG (0x7e, 0x01);
+      
+      SETREG (0x80, 0x50);
+      SETREG (0x9d, 0x08);
+      SETREG (0xab, 0x40);
 
       /* XXX STEF XXX TODO move to set for scan */
       SETREG (0x98, 0x03);
       SETREG (0x99, 0x30);
       SETREG (0x9a, 0x01);
       SETREG (0x9b, 0x80);
+      
+      SETREG (0xac, 0x00);
+      SETREG (0x18, 0x01); /* XXX STEF XXX CKSEL=1, CKTOGGLE=0 */
     }
 
   /* fine tune upon device description */
@@ -939,7 +996,8 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                               scan_exposure_time,
                               dev->motor.base_ydpi,
                               scan_step_type,
-                              factor);
+                              factor,
+                              dev->model->motor_type);
   RIE(gl843_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps));
   RIE(gl843_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps));
 
@@ -956,7 +1014,8 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                               scan_exposure_time,
                               dev->motor.base_ydpi,
                               scan_step_type,
-                              factor);
+                              factor,
+                              dev->model->motor_type);
   RIE(gl843_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps));
   RIE(gl843_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps));
 
@@ -1083,7 +1142,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 {
   unsigned int words_per_line;
   unsigned int startx, endx, used_pixels;
-  unsigned int dpiset,cksel;
+  unsigned int dpiset, cksel;
   unsigned int i, bytes;
   Genesys_Register_Set *r;
   SANE_Status status;
@@ -1279,6 +1338,30 @@ gl843_get_led_exposure (Genesys_Device * dev)
   return m + d;
 }
 
+
+/**@ brief comput exposure to use
+ * compute the sensor exposure based on target resolution
+ */
+static int gl843_compute_exposure(Genesys_Device *dev, int xres)
+{
+  switch(dev->model->ccd_type)
+    {
+    case CCD_G4050:
+      if(xres<=300)
+        {
+          return 3840;
+        }
+      if(xres<=600)
+        {
+          return 8016;
+        }
+      return 21376;
+    case CCD_KVSS080:
+    default:
+      return 8000;
+    }
+}
+
 /* set up registers for an actual scan
  *
  * this function sets up the scanner to scan in normal or single line mode
@@ -1303,7 +1386,7 @@ gl843_init_scan_regs (Genesys_Device * dev, Genesys_Register_Set * reg, float xr
   int move;
   unsigned int lincnt;
   unsigned int oflags; /**> optical flags */
-  int exposure_time, led_exposure;
+  int exposure_time;
   int stagger;
 
   int slope_dpi = 0;
@@ -1431,16 +1514,7 @@ independent of our calculated values:
 
   /* scan_step_type */
   scan_step_type = 1;
-  exposure_time=8000;
-
-  led_exposure = gl843_get_led_exposure (dev);
-  /* TODO either fix exposure2 or build a new exposure computing function 
-  exposure_time = sanei_genesys_exposure_time2 (dev,
-						slope_dpi,
-						scan_step_type,
-						start + used_pixels + 258,
-						led_exposure,
-						scan_power_mode); */
+  exposure_time=gl843_compute_exposure (dev, used_res);
 
   DBG (DBG_info, "gl843_init_scan_regs : exposure_time=%d pixels\n",
        exposure_time);
@@ -2147,10 +2221,23 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
   /* set up GPIO for scan */
   /* KV case */
-  RIE (sanei_genesys_write_register (dev, REGA9, 0x00));
-  RIE (sanei_genesys_write_register (dev, REGA6, 0xf6));
-  /* blinking led */
-  RIE(sanei_genesys_write_register(dev,0x7e,0x04)); 
+  if (dev->model->gpo_type == GPO_KVSS080)
+    {
+      RIE (sanei_genesys_write_register (dev, REGA9, 0x00));
+      RIE (sanei_genesys_write_register (dev, REGA6, 0xf6));
+      /* blinking led */
+      RIE(sanei_genesys_write_register(dev,0x7e,0x04)); 
+    }
+  if (dev->model->gpo_type == GPO_G4050)
+    {
+      RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
+      RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
+      RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
+      RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
+      /* blinking led */
+      RIE(sanei_genesys_write_register(dev,0x7e,0x01)); 
+    }
+
   
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
@@ -2212,7 +2299,7 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 }
 
 
-/* Moves the slider to the home (top) postion slowly */
+/* Moves the slider to the home (top) position slowly */
 #ifndef UNIT_TESTING
 static
 #endif
@@ -2268,7 +2355,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
   gl843_init_motor_regs_scan (dev,
                               local_reg,
-                              8000,
+                              gl843_compute_exposure (dev, 300),
 			      300,
 			      1,
 			      1,
@@ -3426,7 +3513,8 @@ gl843_init_gpio (Genesys_Device * dev)
   RIE (sanei_genesys_write_register (dev, REG6F, dev->gpo.enable[1]));
   RIE (sanei_genesys_write_register (dev, REG6C, dev->gpo.value[0]));
   RIE (sanei_genesys_write_register (dev, REG6D, dev->gpo.value[1]));
-  if (strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0)
+  if ((strcmp (dev->model->name, "hewlett-packard-scanjet-g4010") == 0)
+   || (strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0))
     {
       i = 0;
     }
@@ -3498,6 +3586,10 @@ gl843_cold_boot (Genesys_Device * dev)
     }
   else
     {
+      /* CK1MAP */
+      RIE (sanei_genesys_write_register (dev, 0x74, 0x00));
+      RIE (sanei_genesys_write_register (dev, 0x75, 0x00));
+      RIE (sanei_genesys_write_register (dev, 0x76, 0x00));
       /* CK3MAP */
       RIE (sanei_genesys_write_register (dev, 0x77, 0x00));
       RIE (sanei_genesys_write_register (dev, 0x78, 0x07));

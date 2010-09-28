@@ -3513,7 +3513,8 @@ gl843_init_gpio (Genesys_Device * dev)
   RIE (sanei_genesys_write_register (dev, REG6F, dev->gpo.enable[1]));
   RIE (sanei_genesys_write_register (dev, REG6C, dev->gpo.value[0]));
   RIE (sanei_genesys_write_register (dev, REG6D, dev->gpo.value[1]));
-  if (strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0)
+  if ((strcmp (dev->model->name, "hewlett-packard-scanjet-g4010") == 0)
+   || (strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0))
     {
       i = 0;
     }

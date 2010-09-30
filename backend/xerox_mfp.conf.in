@@ -1,5 +1,8 @@
 #xerox_mfp.conf
 
+#Xerox Phaser 3200MFP
+usb 0x0924 0x3da4
+
 #Dell MFP Laser Printer 1815dn
 usb 0x413c 0x5124
 
@@ -42,3 +45,7 @@ usb 0x0924 0x4293
 #Xerox WorkCentre 3220
 usb 0x0924 0x4294
 
+# Samsung SCX-4500W, network mode
+# tcp HOST_ADDR PORT
+#     Uncomment and configure:
+#tcp scx4500 9400

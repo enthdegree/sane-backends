@@ -2,9 +2,15 @@
  * SANE backend for Xerox Phaser 3200MFP
  * Copyright 2008 ABC <abc@telekom.ru>
  *
+ *	Network Scanners Support
+ *	Copyright 2010 Alexander Kuznetsov <acca(at)cpan.org>
+ *
  * This program is licensed under GPL + SANE exception.
  * More info at http://www.sane-project.org/license.html
  */
+
+#define DEBUG_NOT_STATIC
+#define BACKEND_NAME xerox_mfp
 
 #include "../include/sane/config.h"
 #include "../include/lassert.h"
@@ -22,50 +28,20 @@
 #include "../include/sane/sanei_thread.h"
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_config.h"
-#define BACKEND_NAME xerox_mfp
 #include "../include/sane/sanei_backend.h"
 #include "xerox_mfp.h"
 
-#define BACKEND_BUILD 11
+#define BACKEND_BUILD 12
 #define XEROX_CONFIG_FILE "xerox_mfp.conf"
 
 static const SANE_Device **devlist = NULL;	/* sane_get_devices array */
 static struct device *devices_head = NULL;	/* sane_get_devices list */
 
-static int
-dev_request (struct device *dev,
-	     SANE_Byte *cmd, size_t cmdlen,
-	     SANE_Byte *resp, size_t *resplen)
-{
-  SANE_Status status;
-  size_t len = cmdlen;
-
-  if (cmd && cmdlen) {
-    status = sanei_usb_write_bulk (dev->dn, cmd, &cmdlen);
-    if (status != SANE_STATUS_GOOD) {
-      DBG (1, "%s: sanei_usb_write_bulk: %s\n", __FUNCTION__,
-	   sane_strstatus (status));
-      return SANE_STATUS_IO_ERROR;
-    }
-
-    if (cmdlen != len) {
-      DBG (1, "%s: sanei_usb_write_bulk: wanted %lu bytes, wrote %lu bytes\n",
-	   __FUNCTION__, (u_long)len, (u_long)cmdlen);
-      return SANE_STATUS_IO_ERROR;
-    }
-  }
-
-  if (resp && resplen) {
-    status = sanei_usb_read_bulk (dev->dn, resp, resplen);
-    if (status != SANE_STATUS_GOOD) {
-      DBG (1, "%s: sanei_usb_read_bulk: %s\n", __FUNCTION__,
-	   sane_strstatus (status));
-      return SANE_STATUS_IO_ERROR;
-    }
-  }
-
-  return SANE_STATUS_GOOD;
-}
+transport available_transports[] = {
+    { "usb", usb_dev_request, usb_dev_open, usb_dev_close, usb_configure_device },
+    { "tcp", tcp_dev_request, tcp_dev_open, tcp_dev_close, tcp_configure_device },
+    { 0 }
+};
 
 static int resolv_state(int state)
 {
@@ -155,7 +131,7 @@ static int dev_command (struct device *dev, SANE_Byte * cmd, size_t reqlen)
   dev->state = 0;
   DBG (4, ":: dev_command(%s[%#x], %lu)\n", str_cmd(cmd[2]), cmd[2],
        (u_long)reqlen);
-  status = dev_request (dev, cmd, sendlen, res, &dev->reslen);
+  status = dev->io->dev_request(dev, cmd, sendlen, res, &dev->reslen);
   if (status != SANE_STATUS_GOOD) {
     DBG (1, "%s: dev_request: %s\n", __FUNCTION__, sane_strstatus (status));
     dev->state = SANE_STATUS_IO_ERROR;
@@ -251,7 +227,7 @@ static SANE_Status dev_stop(struct device *dev)
   return state;
 }
 
-static SANE_Status ret_cancel(struct device *dev, SANE_Status ret)
+SANE_Status ret_cancel(struct device *dev, SANE_Status ret)
 {
   dev_cmd(dev, CMD_ABORT);
   if (dev->scanning) {
@@ -810,46 +786,6 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-dev_open (struct device *dev)
-{
-  SANE_Status status;
-
-  DBG (3, "%s: open %p\n", __FUNCTION__, (void *)dev);
-  status = sanei_usb_open (dev->sane.name, &dev->dn);
-  if (status != SANE_STATUS_GOOD) {
-      DBG (1, "%s: sanei_usb_open(%s): %s\n", __FUNCTION__,
-	   dev->sane.name, sane_strstatus (status));
-      dev->dn = -1;
-      return status;
-    }
-  sanei_usb_clear_halt (dev->dn);
-  return SANE_STATUS_GOOD;
-}
-
-static void
-dev_close (struct device *dev)
-{
-  if (!dev)
-    return;
-  DBG (3, "%s: closing dev %p\n", __FUNCTION__, (void *)dev);
-
-  /* finish all operations */
-  if (dev->scanning) {
-    dev->cancel = 1;
-    /* flush READ_IMAGE data */
-    if (dev->reading)
-      sane_read(dev, NULL, 1, NULL);
-    /* send cancel if not sent before */
-    if (dev->state != SANE_STATUS_CANCELLED)
-      ret_cancel(dev, 0);
-  }
-
-  sanei_usb_clear_halt (dev->dn);	/* unstall for next users */
-  sanei_usb_close (dev->dn);
-  dev->dn = -1;
-}
-
 static void
 dev_free (struct device *dev)
 {
@@ -894,6 +830,7 @@ list_one_device (SANE_String_Const devname)
 {
   struct device *dev;
   SANE_Status status;
+  transport *tr;
 
   DBG (4, "%s: %s\n", __FUNCTION__, devname);
 
@@ -902,12 +839,20 @@ list_one_device (SANE_String_Const devname)
       return SANE_STATUS_GOOD;
   }
 
+  for (tr = available_transports; tr->ttype; tr++) {
+    if (!strncmp (devname, tr->ttype, strlen(tr->ttype)))
+      break;
+  }
+  if (!tr->ttype)
+    return SANE_STATUS_INVAL;
+
   dev = calloc (1, sizeof (struct device));
   if (dev == NULL)
     return SANE_STATUS_NO_MEM;
 
   dev->sane.name = strdup (devname);
-  status = dev_open (dev);
+  dev->io = tr;
+  status = tr->dev_open (dev);
   if (status != SANE_STATUS_GOOD) {
     dev_free (dev);
     return status;
@@ -915,7 +860,7 @@ list_one_device (SANE_String_Const devname)
 
 /*  status = dev_cmd (dev, CMD_ABORT);*/
   status = dev_inquiry (dev);
-  dev_close (dev);
+  tr->dev_close (dev);
   if (status != SANE_STATUS_GOOD) {
     DBG (1, "%s: dev_inquiry(%s): %s\n", __FUNCTION__,
 	 dev->sane.name, sane_strstatus (status));
@@ -933,8 +878,13 @@ list_one_device (SANE_String_Const devname)
 static SANE_Status
 list_conf_devices (UNUSED (SANEI_Config * config), const char *devname)
 {
-  sanei_usb_attach_matching_devices (devname, list_one_device);
-  return SANE_STATUS_GOOD;
+    transport *tr;
+
+    for (tr = available_transports; tr->ttype; tr++) {
+	if (!strncmp (devname, tr->ttype, strlen(tr->ttype)))
+	    return tr->configure_device(devname, list_one_device);
+    }
+    return	SANE_STATUS_INVAL;
 }
 
 SANE_Status
@@ -980,15 +930,11 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local)
   }
 
   free_devices ();
-  sanei_usb_set_timeout (1000);
 
   config.count = 0;
   config.descriptors = NULL;
   config.values = NULL;
   sanei_configure_attach (XEROX_CONFIG_FILE, &config, list_conf_devices);
-  sanei_usb_attach_matching_devices ("usb 0x0924 0x3da4", list_one_device);
-
-  sanei_usb_set_timeout (30000);
 
   for (dev_count = 0, dev = devices_head; dev; dev = dev->next)
     dev_count++;
@@ -1018,7 +964,7 @@ sane_close (SANE_Handle h)
     return;
 
   DBG (3, "%s: %p (%s)\n", __FUNCTION__, (void *)dev, dev->sane.name);
-  dev_close (dev);
+  dev->io->dev_close(dev);
 }
 
 SANE_Status
@@ -1043,7 +989,7 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
     for (dev = devices_head; dev; dev = dev->next) {
       if (strcmp(name, dev->sane.name) == 0) {
 	*h = dev;
-	return dev_open(dev);
+	return dev->io->dev_open(dev);
       }
     }
   }
@@ -1250,7 +1196,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * lenp)
 
       DBG (9, "<> request len: %lu, [%d, %d; %d]\n",
 	   (u_long)datalen, dev->dataoff, DATATAIL(dev), dev->datalen);
-      if ((status = dev_request (dev, NULL, 0, rbuf, &datalen)) !=
+      if ((status = dev->io->dev_request(dev, NULL, 0, rbuf, &datalen)) !=
 	  SANE_STATUS_GOOD)
 	return status;
       dev->datalen += datalen;

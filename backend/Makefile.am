@@ -1046,13 +1046,13 @@ libsane_v4l_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_v4l_la_LIBADD = $(COMMON_LIBS) libv4l.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo $(LIBV4L_LIBS)
 EXTRA_DIST += v4l.conf.in
 
-libxerox_mfp_la_SOURCES = xerox_mfp.c xerox_mfp.h
+libxerox_mfp_la_SOURCES = xerox_mfp.c xerox_mfp-usb.c xerox_mfp-tcp.c xerox_mfp.h
 libxerox_mfp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=xerox_mfp
 
 nodist_libsane_xerox_mfp_la_SOURCES = xerox_mfp-s.c
 libsane_xerox_mfp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=xerox_mfp
 libsane_xerox_mfp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_xerox_mfp_la_LIBADD = $(COMMON_LIBS) libxerox_mfp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
+libsane_xerox_mfp_la_LIBADD = $(COMMON_LIBS) libxerox_mfp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_tcp.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += xerox_mfp.conf.in
 
 libdll_la_SOURCES =  dll.c

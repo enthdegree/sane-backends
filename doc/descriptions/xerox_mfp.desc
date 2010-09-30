@@ -77,3 +77,7 @@
 :interface "USB"
 :usbid "0x04e8" "0x3434"
 :status :good
+
+:model "SCX-4500W"
+:interface "Ethernet"
+:status :basic

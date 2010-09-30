@@ -2,9 +2,15 @@
  * SANE backend for Xerox Phaser 3200MFP
  * Copyright 2008 ABC <abc@telekom.ru>
  *
+ *	Network scanners support
+ *	Copyright 2010 Alexander Kuznetsov <acca(at)cpan.org>
+ *
  * This program is licensed under GPL + SANE exception.
  * More info at http://www.sane-project.org/license.html
  */
+
+#ifndef xerox_mfp_h
+#define xerox_mfp_h
 
 #ifdef __GNUC__
 #define UNUSED(x) x __attribute__((unused))
@@ -36,6 +42,8 @@ enum options {
   OPT_SCAN_BR_Y,
   NUM_OPTIONS
 };
+
+typedef struct transport transport;
 
 struct device {
   struct device *next;
@@ -103,7 +111,35 @@ struct device {
   int total_img_size;		/* predicted image size */
   int total_out_size;		/* total we sent to user */
   int total_data_size;		/* total of what scanner sent us */
+
+  /* transport to use */
+  transport *io;
 };
+
+
+/*	Transport abstract layer	*/
+struct transport {
+    char* ttype;
+
+    int (*dev_request) (struct device *dev,
+		SANE_Byte *cmd, size_t cmdlen,
+		SANE_Byte *resp, size_t *resplen);
+    SANE_Status (*dev_open) (struct device *dev);
+    void (*dev_close) (struct device *dev);
+    SANE_Status (*configure_device) (const char *devname, SANE_Status (*cb)(SANE_String_Const devname));
+};
+
+/*	USB transport	*/
+int		usb_dev_request	(struct device *dev, SANE_Byte *cmd, size_t cmdlen, SANE_Byte *resp, size_t *resplen);
+SANE_Status	usb_dev_open	(struct device *dev);
+void		usb_dev_close	(struct device *dev);
+SANE_Status	usb_configure_device (const char *devname, SANE_Status (*cb)(SANE_String_Const devname));
+
+/*	TCP unicast	*/
+int		tcp_dev_request	(struct device *dev, SANE_Byte *cmd, size_t cmdlen, SANE_Byte *resp, size_t *resplen);
+SANE_Status	tcp_dev_open	(struct device *dev);
+void		tcp_dev_close	(struct device *dev);
+SANE_Status	tcp_configure_device (const char *devname, SANE_Status (*cb)(SANE_String_Const devname));
 
 /* device wants transfer buffer to be multiple of 512 */
 #define USB_BLOCK_SIZE 512
@@ -118,6 +154,9 @@ static inline int dataroom(struct device *dev) {
   } else
     return DATASIZE - tail;
 }
+
+/*	Functions from original xerox_mfp.c, used in -usb.c and -tcp.c	*/
+SANE_Status ret_cancel(struct device *dev, SANE_Status ret);
 
 /* a la SCSI commands. */ /* request len, response len, exception */
 #define CMD_ABORT		0x06	/*  4, 32 */
@@ -174,4 +213,4 @@ static inline int dataroom(struct device *dev) {
 #define DOC_FLATBED		0x40
 #define DOC_AUTO		0x80
 
-/* xerox_mfp.h */
+#endif	/* xerox_mfp_h	*/

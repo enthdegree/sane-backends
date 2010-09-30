@@ -1,3 +1,12 @@
+2010-09-30 Alex Belkin <abc@telekom.ru>
+	* Makefile.in backend/Makefile.am backend/Makefile.in backend/xerox_mfp-tcp.c
+	backend/xerox_mfp-usb.c backend/xerox_mfp.c backend/xerox_mfp.conf.in backend/xerox_mfp.h
+	doc/Makefile.in doc/descriptions/xerox_mfp.desc doc/sane-xerox_mfp.man frontend/Makefile.in
+	include/Makefile.in japi/Makefile.in lib/Makefile.in po/Makefile.in sanei/Makefile.in
+	testsuite/Makefile.in tools/Makefile.in: Added Samsung SCX-4500W scan over network support
+	for xerox_mfp backend (by Alexander Kuznetsov). autoconf and automake reconfigure
+	to support new files.
+
 2010-09-28 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.conf.in backend/genesys_devices.c
 	backend/genesys_gl843.c backend/genesys_gl843.h: add minimal support

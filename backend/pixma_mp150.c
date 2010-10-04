@@ -590,8 +590,12 @@ calc_shifting (pixma_t * s)
 
       case MP800_PID:
       case MP800R_PID:
-      case MP830_PID:
       case MP960_PID:
+        if (s->param->xdpi == 2400)
+          mp->stripe_shift = 6;
+        break;
+
+      case MP830_PID:
       case MP810_PID:
         if (s->param->xdpi == 2400) 
           mp->stripe_shift = 3;
@@ -615,7 +619,7 @@ calc_shifting (pixma_t * s)
             break;
 
           case MP980_PID:
-	  case MP990_PID:
+          case MP990_PID:
             if (s->param->ydpi > 150)
               {
                 mp->color_shift = s->param->ydpi / 75;

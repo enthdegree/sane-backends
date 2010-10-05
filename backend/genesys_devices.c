@@ -486,11 +486,11 @@ static Genesys_Sensor Sensor[] = {
    NULL, NULL, NULL}
   ,
   {CCD_G4050,
-   600, /* 4800 */
+   4800,
    48,
    28,
    152,
-   2696*2, /* 2696*2=>600, *4=>2400 */
+   20400, /* 20400 only half part of the sensor is used */
    210,
    230,
    /* 08    09    0a    0b */
@@ -1107,8 +1107,8 @@ static Genesys_Model hpg4050_model = {
   GENESYS_GL843,
   NULL,
 
-  { /* 4800, 2400, 1200, 800, 600, 400, */ 300, 200, 0},
-  { /* 4800, 2400, 1200, 800, 600, 400, */ 300, 200, 0},
+  { 4800, 2400, 1200, 600, 300, 200, 150, 100, 0},
+  { 4800, 2400, 1200, 600, 300, 200, 150, 100, 0},
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

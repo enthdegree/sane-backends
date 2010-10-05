@@ -509,6 +509,27 @@ static Motor_Profile *get_motor_profile(int motor_type, int exposure)
   return &(motors[idx]);
 }
 
+
+/** @brief returns the lowest possible ydpi for the device
+ * Parses device entry to find lowest motor dpi.
+ * @dev device description
+ * @return lowest motor resolution
+ */
+static int gl843_get_lowest_ydpi(Genesys_Device *dev)
+{
+  int min=9600;
+  int i=0;
+
+  while(dev->model->ydpi_values[i]!=0)
+    {
+      if(dev->model->ydpi_values[i]<min)
+        {
+          min=dev->model->ydpi_values[i];
+        }
+      i++;
+    }
+  return min;
+}
 static int gl843_slope_table(uint16_t *slope,
 		             int       *steps,
 			     int       dpi,
@@ -746,7 +767,6 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x9b, 0x80);
       
       SETREG (0xac, 0x00);
-      SETREG (0x18, 0x01); /* XXX STEF XXX CKSEL=1, CKTOGGLE=0 */
     }
 
   /* fine tune upon device description */
@@ -1010,7 +1030,7 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
   /* fast table */
   fast_time=gl843_slope_table(fast_table,
                               &fast_steps,
-                              100,
+                              gl843_get_lowest_ydpi(dev),
                               scan_exposure_time,
                               dev->motor.base_ydpi,
                               scan_step_type,
@@ -1116,6 +1136,33 @@ gl843_get_dpihw (Genesys_Device * dev)
   return 0;
 }
 
+/**@brief compute hardware sensor dpi exposure to use
+ * compute the sensor hardware dpi based on target resolution
+ */
+static int gl843_compute_dpihw(Genesys_Device *dev, int xres)
+{
+  switch(dev->model->ccd_type)
+    {
+    case CCD_G4050:
+      if(xres<=300)
+        {
+          return 600;
+        }
+      if(xres<=600)
+        {
+          return 1200;
+        }
+      if(xres<=1200)
+        {
+          return 2400;
+        }
+      return dev->sensor.optical_res;
+    case CCD_KVSS080:
+    default:
+      return dev->sensor.optical_res;
+    }
+}
+
 #define OPTICAL_FLAG_DISABLE_GAMMA   1
 #define OPTICAL_FLAG_DISABLE_SHADING 2
 #define OPTICAL_FLAG_DISABLE_LAMP    4
@@ -1142,7 +1189,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 {
   unsigned int words_per_line;
   unsigned int startx, endx, used_pixels;
-  unsigned int dpiset, cksel;
+  unsigned int dpiset, cksel,dpihw, factor;
   unsigned int i, bytes;
   Genesys_Register_Set *r;
   SANE_Status status;
@@ -1156,17 +1203,26 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   /* sensor parameters */
   gl843_setup_sensor (dev, reg, used_res);
 
+  /* to manage high resolution device while keeping good
+   * low resolution scanning speed, we make hardware dpi vary */
+  dpihw=gl843_compute_dpihw(dev, used_res);
+  factor=dev->sensor.optical_res/dpihw;
+  DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __FUNCTION__, dpihw, factor);
+
   r = sanei_genesys_get_address (reg, REG18);
   cksel= (r->value & REG18_CKSEL)+1;
 
   DBG (DBG_io2, "%s: cksel=%d\n", __FUNCTION__, cksel);
   dpiset = used_res * cksel;
 
-  /* start and end coordinate */
+  /* start and end coordinate in optical dpi coordinates */
   startx = start/cksel + dev->sensor.dummy_pixel;
-  
   used_pixels=pixels/cksel;
   endx = startx + used_pixels;
+
+  /* factor correction to used dpihw */
+  startx/=factor;
+  endx/=factor;
 
   status = gl843_set_fe (dev, AFE_SET);
   if (status != SANE_STATUS_GOOD)
@@ -1249,8 +1305,28 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   else
     r->value |= 0x10;		/* mono */
 
-  /* enable gamma tables */
+  /* register 05 */
   r = sanei_genesys_get_address (reg, REG05);
+
+  /* set up dpihw */
+  r->value &= ~REG05_DPIHW;
+  switch(dpihw)
+    {
+      case 600:
+        r->value |= REG05_DPIHW_600;
+        break;
+      case 1200:
+        r->value |= REG05_DPIHW_1200;
+        break;
+      case 2400:
+        r->value |= REG05_DPIHW_2400;
+        break;
+      case 4800:
+        r->value |= REG05_DPIHW_4800;
+        break;
+    }
+
+  /* enable gamma tables */
   if (flags & OPTICAL_FLAG_DISABLE_GAMMA)
     r->value &= ~REG05_GMMENB;
   else
@@ -1272,7 +1348,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   r->value = LOBYTE (endx);
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart */
-  words_per_line = (used_pixels * dpiset) / gl843_get_dpihw (dev);
+  words_per_line = (used_pixels * dpiset) / dpihw;
   bytes = depth / 8;
   if (depth == 1)
     {
@@ -1338,8 +1414,7 @@ gl843_get_led_exposure (Genesys_Device * dev)
   return m + d;
 }
 
-
-/**@ brief comput exposure to use
+/**@brief compute exposure to use
  * compute the sensor exposure based on target resolution
  */
 static int gl843_compute_exposure(Genesys_Device *dev, int xres)
@@ -1347,11 +1422,7 @@ static int gl843_compute_exposure(Genesys_Device *dev, int xres)
   switch(dev->model->ccd_type)
     {
     case CCD_G4050:
-      if(xres<=300)
-        {
-          return 3840;
-        }
-      if(xres<=600)
+      if(xres<=1200)
         {
           return 8016;
         }
@@ -1361,6 +1432,7 @@ static int gl843_compute_exposure(Genesys_Device *dev, int xres)
       return 8000;
     }
 }
+
 
 /* set up registers for an actual scan
  *

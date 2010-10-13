@@ -1004,8 +1004,8 @@ static Genesys_Model panasonic_kvss080_model = {
   GENESYS_GL843,
   NULL,
 
-  { 600, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
-  { 1200, 600, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
+  { 600, 500, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
+  { 1200, 600, 500, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1055,8 +1055,8 @@ static Genesys_Model hpg4010_model = {
   GENESYS_GL843,
   NULL,
 
-  { /* 4800, 2400, 1200, 800, 600, 400, */ 300, 200, 0},
-  { /* 4800, 2400, 1200, 800, 600, 400, */ 300, 200, 0},
+  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
+  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1107,8 +1107,8 @@ static Genesys_Model hpg4050_model = {
   GENESYS_GL843,
   NULL,
 
-  { 4800, 2400, 1200, 600, 300, 200, 150, 100, 0},
-  { 4800, 2400, 1200, 600, 300, 200, 150, 100, 0},
+  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
+  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

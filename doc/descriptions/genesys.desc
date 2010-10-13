@@ -64,11 +64,17 @@
 :status :complete
 :comment "1200x1200 dpi max, same as HP3670C"
 
+:model "ScanJet G4010"
+:interface "USB"
+:usbid "0x03f0" "0x4505"
+:status :basic
+:comment "resolution from 100 to 600 supported, 1200 and 2400 remain to be added"
+
 :model "ScanJet G4050"
 :interface "USB"
-:usbid "0x03f0" "0x0a01"
-:status :untested
-:comment "1200x1200 dpi max"
+:usbid "0x03f0" "0x4605"
+:status :basic
+:comment "resolution from 100 to 600 supported, 1200 and 2400 remain to be added"
 
 ; -----------------------------------------------------------------------------
 

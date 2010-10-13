@@ -509,6 +509,27 @@ static Motor_Profile *get_motor_profile(int motor_type, int exposure)
   return &(motors[idx]);
 }
 
+
+/** @brief returns the lowest possible ydpi for the device
+ * Parses device entry to find lowest motor dpi.
+ * @dev device description
+ * @return lowest motor resolution
+ */
+static int gl843_get_lowest_ydpi(Genesys_Device *dev)
+{
+  int min=9600;
+  int i=0;
+
+  while(dev->model->ydpi_values[i]!=0)
+    {
+      if(dev->model->ydpi_values[i]<min)
+        {
+          min=dev->model->ydpi_values[i];
+        }
+      i++;
+    }
+  return min;
+}
 static int gl843_slope_table(uint16_t *slope,
 		             int       *steps,
 			     int       dpi,
@@ -534,13 +555,13 @@ Motor_Profile *profile;
 	/* use profile to build table */
 	sum=0;
         i=0;
-        current=((profile->table[0]*exposure)/profile->exposure)>>step_type;
+        current=profile->table[0]>>step_type;
         while(i<(256*factor) && current>target)
           {
             slope[i]=current;
             sum+=slope[i];
             i++;
-            current=((profile->table[i]*exposure)/profile->exposure)>>step_type;
+            current=profile->table[i]>>step_type;
           }
 
         /* align size on step time factor */
@@ -574,6 +595,8 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 	r->value = dev->sensor.regs_0x10_0x1d[i];
     }
 
+  /* TODO we need to create another data struct
+   * for CKxMAP and CKSEL */
   /* use x1 cksel when at higher resolutions */
   /* KV-SS080 sensor */
   if (dev->model->ccd_type == CCD_KVSS080)
@@ -588,6 +611,28 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
       else
         {
           sanei_genesys_write_register (dev, 0x78, 0x07);
+        }
+    }
+  /* G4050/G4010 sensor */
+  if (dev->model->ccd_type == CCD_G4050)
+    {
+      if(dpi<=300)
+        {
+          sanei_genesys_write_register (dev, 0x74, 0x00);
+          sanei_genesys_write_register (dev, 0x75, 0x1c);
+          sanei_genesys_write_register (dev, 0x76, 0x7f);
+        }
+      else if(dpi<=600)
+        {
+          sanei_genesys_write_register (dev, 0x74, 0x00);
+          sanei_genesys_write_register (dev, 0x75, 0x01);
+          sanei_genesys_write_register (dev, 0x76, 0xff);
+        }
+      else /* 800 to 2400 case */
+        {
+          sanei_genesys_write_register (dev, 0x74, 0x00);
+          sanei_genesys_write_register (dev, 0x75, 0x3f);
+          sanei_genesys_write_register (dev, 0x76, 0xff);
         }
     }
 
@@ -719,7 +764,8 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0xab, 0x50);
 
   /* G4050 values */
-  if (strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0)
+  if ((strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0)
+   || (strcmp (dev->model->name, "hewlett-packard-scanjet-g4010") == 0))
     {
       SETREG (0x03, 0x1d);
       SETREG (0x05, 0x08);
@@ -746,7 +792,6 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x9b, 0x80);
       
       SETREG (0xac, 0x00);
-      SETREG (0x18, 0x01); /* XXX STEF XXX CKSEL=1, CKTOGGLE=0 */
     }
 
   /* fine tune upon device description */
@@ -1010,7 +1055,7 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
   /* fast table */
   fast_time=gl843_slope_table(fast_table,
                               &fast_steps,
-                              100,
+                              gl843_get_lowest_ydpi(dev),
                               scan_exposure_time,
                               dev->motor.base_ydpi,
                               scan_step_type,
@@ -1116,6 +1161,78 @@ gl843_get_dpihw (Genesys_Device * dev)
   return 0;
 }
 
+/**@brief compute hardware sensor dpi exposure to use
+ * compute the sensor hardware dpi based on target resolution
+ */
+static int gl843_compute_dpihw(Genesys_Device *dev, int xres)
+{
+  switch(dev->model->ccd_type)
+    {
+    case CCD_G4050:
+      if(xres<=300)
+        {
+          return 600;
+        }
+      if(xres<=600)
+        {
+          return 1200;
+        }
+      if(xres<=1200)
+        {
+          return 2400;
+        }
+      return dev->sensor.optical_res;
+    case CCD_KVSS080:
+    default:
+      return dev->sensor.optical_res;
+    }
+}
+
+/**@brief compute exposure to use
+ * compute the sensor exposure based on target resolution
+ */
+static int gl843_compute_exposure(Genesys_Device *dev, int xres)
+{
+  switch(dev->model->ccd_type)
+    {
+    case CCD_G4050:
+      if(xres<1200)
+        {
+          return 8016;
+        }
+      return 21376;
+    case CCD_KVSS080:
+    default:
+      return 8000;
+    }
+}
+
+/**@brief compute motor step type to use
+ * compute the step type (full, half, quarter, ...) to use based
+ * on target resolution
+ * @param dev device description
+ * @param yres motor resolution
+ * @return 0 for full step
+ *         1 for half step
+ *         2 for quarter step
+ *         3 for eighth step
+ */
+static int gl843_compute_step_type(Genesys_Device *dev, int yres)
+{
+  switch(dev->model->motor_type)
+    {
+    case MOTOR_G4050:
+      if(yres<=1200)
+        {
+          return 1;
+        }
+      return 2;
+    case MOTOR_KVSS080:
+    default:
+      return 1;
+    }
+}
+
 #define OPTICAL_FLAG_DISABLE_GAMMA   1
 #define OPTICAL_FLAG_DISABLE_SHADING 2
 #define OPTICAL_FLAG_DISABLE_LAMP    4
@@ -1142,7 +1259,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 {
   unsigned int words_per_line;
   unsigned int startx, endx, used_pixels;
-  unsigned int dpiset, cksel;
+  unsigned int dpiset, cksel,dpihw, factor;
   unsigned int i, bytes;
   Genesys_Register_Set *r;
   SANE_Status status;
@@ -1156,17 +1273,30 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   /* sensor parameters */
   gl843_setup_sensor (dev, reg, used_res);
 
+  /* to manage high resolution device while keeping good
+   * low resolution scanning speed, we make hardware dpi vary */
+  dpihw=gl843_compute_dpihw(dev, used_res);
+  factor=dev->sensor.optical_res/dpihw;
+  DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __FUNCTION__, dpihw, factor);
+
   r = sanei_genesys_get_address (reg, REG18);
   cksel= (r->value & REG18_CKSEL)+1;
 
   DBG (DBG_io2, "%s: cksel=%d\n", __FUNCTION__, cksel);
   dpiset = used_res * cksel;
 
-  /* start and end coordinate */
+  /* start and end coordinate in optical dpi coordinates */
   startx = start/cksel + dev->sensor.dummy_pixel;
-  
   used_pixels=pixels/cksel;
   endx = startx + used_pixels;
+
+  /* factor correction when used dpihw is not native one */
+  if(factor>1)
+    {
+      startx/=factor;
+      endx/=factor;
+      used_pixels=endx-startx;
+    }
 
   status = gl843_set_fe (dev, AFE_SET);
   if (status != SANE_STATUS_GOOD)
@@ -1249,8 +1379,28 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   else
     r->value |= 0x10;		/* mono */
 
-  /* enable gamma tables */
+  /* register 05 */
   r = sanei_genesys_get_address (reg, REG05);
+
+  /* set up dpihw */
+  r->value &= ~REG05_DPIHW;
+  switch(dpihw)
+    {
+      case 600:
+        r->value |= REG05_DPIHW_600;
+        break;
+      case 1200:
+        r->value |= REG05_DPIHW_1200;
+        break;
+      case 2400:
+        r->value |= REG05_DPIHW_2400;
+        break;
+      case 4800:
+        r->value |= REG05_DPIHW_4800;
+        break;
+    }
+
+  /* enable gamma tables */
   if (flags & OPTICAL_FLAG_DISABLE_GAMMA)
     r->value &= ~REG05_GMMENB;
   else
@@ -1272,7 +1422,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   r->value = LOBYTE (endx);
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart */
-  words_per_line = (used_pixels * dpiset) / gl843_get_dpihw (dev);
+  words_per_line = (used_pixels * dpiset) / dpihw;
   bytes = depth / 8;
   if (depth == 1)
     {
@@ -1338,29 +1488,6 @@ gl843_get_led_exposure (Genesys_Device * dev)
   return m + d;
 }
 
-
-/**@ brief comput exposure to use
- * compute the sensor exposure based on target resolution
- */
-static int gl843_compute_exposure(Genesys_Device *dev, int xres)
-{
-  switch(dev->model->ccd_type)
-    {
-    case CCD_G4050:
-      if(xres<=300)
-        {
-          return 3840;
-        }
-      if(xres<=600)
-        {
-          return 8016;
-        }
-      return 21376;
-    case CCD_KVSS080:
-    default:
-      return 8000;
-    }
-}
 
 /* set up registers for an actual scan
  *
@@ -1513,8 +1640,8 @@ independent of our calculated values:
     slope_dpi = yres;
 
   /* scan_step_type */
-  scan_step_type = 1;
-  exposure_time=gl843_compute_exposure (dev, used_res);
+  scan_step_type = gl843_compute_step_type(dev, slope_dpi);
+  exposure_time = gl843_compute_exposure (dev, used_res);
 
   DBG (DBG_info, "gl843_init_scan_regs : exposure_time=%d pixels\n",
        exposure_time);
@@ -1786,7 +1913,7 @@ gl843_calculate_current_setup (Genesys_Device * dev)
     slope_dpi = yres;
 
   /* scan_step_type */
-  scan_step_type = 1;
+  scan_step_type = gl843_compute_step_type(dev, yres);
 
   exposure_time = sanei_genesys_exposure_time2 (dev,
 						slope_dpi,
@@ -3572,8 +3699,8 @@ gl843_cold_boot (Genesys_Device * dev)
   /* URB    14  control  0x40 0x0c 0x8c 0x10 len     1 wrote 0xb4 */
   RIE (write_end_access (dev, 0x10, 0xb4));
 
-  /* set up clock once for all */
-  if (strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0)
+  /* set up clock once for all TODO use sensor type for these sensor realted registers */
+  if (strncmp (dev->model->name, "hewlett-packard-scanjet-g40", 27) == 0)
     {
       /* CK1MAP */
       RIE (sanei_genesys_write_register (dev, 0x74, 0x00));

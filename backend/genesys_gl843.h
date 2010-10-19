@@ -532,6 +532,7 @@ static Motor_Profile motors[]={
 	{MOTOR_KVSS080,  8000, kvss080},
 	{MOTOR_G4050,    8016, g4050},
 	{MOTOR_G4050,    21376, g4050},
+	{MOTOR_G4050,    56064, g4050},
 };
 /* *INDENT-ON* */
 

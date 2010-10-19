@@ -1055,8 +1055,8 @@ static Genesys_Model hpg4010_model = {
   GENESYS_GL843,
   NULL,
 
-  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
-  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1107,8 +1107,8 @@ static Genesys_Model hpg4050_model = {
   GENESYS_GL843,
   NULL,
 
-  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
-  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

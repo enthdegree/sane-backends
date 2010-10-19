@@ -7278,7 +7278,7 @@ sane_close (SANE_Handle handle)
   else
     {
       /* for flatbed scanners, get sure the head is parked before leaving */
-      s->dev->model->cmd_set->slow_back_home (s->dev, SANE_TRUE);
+      /* XXX STEF XXX s->dev->model->cmd_set->slow_back_home (s->dev, SANE_TRUE); */
     }
 
   /* here is the place to store calibration cache */

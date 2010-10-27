@@ -7384,6 +7384,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
     case OPT_DISABLE_DYNAMIC_LINEART:
+    case OPT_CLEAR_CALIBRATION:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_LAMP_OFF_TIME:
     case OPT_SWDESKEW:

@@ -53,12 +53,12 @@
 */
 
 /*
- * SANE backend for Genesys Logic GL646/GL841/GL843/GL847 based scanners
+ * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847 based scanners
  */
 
 #include "../include/sane/config.h"
 
-#define BUILD 33
+#define BUILD 41
 
 #include <errno.h>
 #include <string.h>
@@ -7275,12 +7275,7 @@ sane_close (SANE_Handle handle)
     {
       s->dev->model->cmd_set->eject_document (s->dev);
     }
-  else
-    {
-      /* for flatbed scanners, get sure the head is parked before leaving */
-      /* XXX STEF XXX s->dev->model->cmd_set->slow_back_home (s->dev, SANE_TRUE); */
-    }
-
+    
   /* here is the place to store calibration cache */
   write_calibration (s->dev);
 

@@ -63,6 +63,11 @@
 :usbid "0x04e8" "0x342a"
 :status :good
 
+:model "SCX-4824"
+:interface "USB"
+:usbid "0x04e8" "0x342c"
+:status :good
+
 :model "SCX-4300"
 :interface "USB"
 :usbid "0x04e8" "0x342e"
@@ -76,6 +81,11 @@
 :model "SCX-4623"
 :interface "USB"
 :usbid "0x04e8" "0x3434"
+:status :good
+
+:model "SCX-4825FN"
+:interface "USB"
+:usbid "0x04e8" "0x343c"
 :status :good
 
 :model "SCX-4500W"

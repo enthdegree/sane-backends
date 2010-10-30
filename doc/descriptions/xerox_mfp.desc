@@ -27,6 +27,16 @@
 :usbid "0x0924" "0x420c"
 :status :good
 
+:model "WorkCentre 3210"
+:interface "USB"
+:usbid "0x0924" "0x4293"
+:status :good
+
+:model "WorkCentre 3220"
+:interface "USB"
+:usbid "0x0924" "0x4294"
+:status :good
+
 :mfg "Dell"
 :url "http://www.dell.com/"
 
@@ -89,5 +99,6 @@
 :status :good
 
 :model "SCX-4500W"
-:interface "Ethernet"
+:interface "USB Ethernet"
+:usbid "0x04e8" "0x342b"
 :status :basic

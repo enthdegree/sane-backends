@@ -1,6 +1,7 @@
 2010-10-30 Julien Blache <jb@jblache.org>
 	* backend/xerox_mfp.conf.in, doc/descriptions/xerox_mfp.desc: add
-          Samsung SCX 4824 & 4825FN (Debian #601748).
+          Samsung SCX 4824 & 4825FN (Debian #601748). Resync desc file with
+	  config file.
 
 2010-10-13 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl843.c 

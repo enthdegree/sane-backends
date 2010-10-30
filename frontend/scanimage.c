@@ -2141,7 +2141,8 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 	      if (!opt)
 		opt = sane_get_option_descriptor (device, i);
 
-	      print_option (device, i, opt);
+      	      if (SANE_OPTION_IS_SETTABLE (opt->cap)||opt->type==SANE_TYPE_GROUP)
+	      	print_option (device, i, opt);
 	    }
 	  if (num_dev_options)
 	    fputc ('\n', stdout);

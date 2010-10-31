@@ -439,7 +439,7 @@ static Genesys_Sensor Sensor[] = {
     0x41	
     }
    ,
-   1.0, 1.0, 1.0,
+   1.7, 1.7, 1.7,
    NULL, NULL, NULL}
   ,
   /* CANONLIDE100 */
@@ -465,7 +465,7 @@ static Genesys_Sensor Sensor[] = {
     0x41	
     }
    ,
-   1.0, 1.0, 1.0,
+   1.7, 1.7, 1.7,
    NULL, NULL, NULL}
   ,
   {CCD_KVSS080,

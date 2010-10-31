@@ -597,22 +597,6 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 
   /* TODO we need to create another data struct
    * for CKxMAP and CKSEL */
-  /* use x1 cksel when at higher resolutions */
-  /* KV-SS080 sensor */
-  if (dev->model->ccd_type == CCD_KVSS080)
-    {
-      if(dpi>dev->sensor.optical_res/2)
-        {
-          r = sanei_genesys_get_address (regs, 0x18);
-          r->value &= ~REG18_CKSEL;
-
-          sanei_genesys_write_register (dev, 0x78, 0x03);
-        }
-      else
-        {
-          sanei_genesys_write_register (dev, 0x78, 0x07);
-        }
-    }
   /* G4050/G4010 sensor */
   if (dev->model->ccd_type == CCD_G4050)
     {
@@ -3713,7 +3697,7 @@ gl843_cold_boot (Genesys_Device * dev)
   /* URB    14  control  0x40 0x0c 0x8c 0x10 len     1 wrote 0xb4 */
   RIE (write_end_access (dev, 0x10, 0xb4));
 
-  /* set up clock once for all TODO use sensor type for these sensor realted registers */
+  /* set up clock once for all TODO use sensor type for these sensor related registers */
   if (strncmp (dev->model->name, "hewlett-packard-scanjet-g40", 27) == 0)
     {
       /* CK1MAP */
@@ -3732,9 +3716,9 @@ gl843_cold_boot (Genesys_Device * dev)
       RIE (sanei_genesys_write_register (dev, 0x75, 0x00));
       RIE (sanei_genesys_write_register (dev, 0x76, 0x00));
       /* CK3MAP */
-      RIE (sanei_genesys_write_register (dev, 0x77, 0x00));
-      RIE (sanei_genesys_write_register (dev, 0x78, 0x07));
-      RIE (sanei_genesys_write_register (dev, 0x79, 0xfe));
+      RIE (sanei_genesys_write_register (dev, 0x77, 0x03));
+      RIE (sanei_genesys_write_register (dev, 0x78, 0xff));
+      RIE (sanei_genesys_write_register (dev, 0x79, 0xff));
     }
   /* CK4MAP */
   RIE (sanei_genesys_write_register (dev, 0x7a, 0x03));

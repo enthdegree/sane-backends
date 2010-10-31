@@ -1,3 +1,6 @@
+2010-10-31 Julien Blache <jb@jblache.org>
+	* doc/descriptions/hp.desc: add SCSI IDs for ScanJet 4c.
+
 2010-10-30 Julien Blache <jb@jblache.org>
 	* backend/xerox_mfp.conf.in, doc/descriptions/xerox_mfp.desc: add
           Samsung SCX 4824 & 4825FN (Debian #601748). Resync desc file with

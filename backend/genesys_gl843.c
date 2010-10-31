@@ -3716,7 +3716,7 @@ gl843_cold_boot (Genesys_Device * dev)
       RIE (sanei_genesys_write_register (dev, 0x75, 0x00));
       RIE (sanei_genesys_write_register (dev, 0x76, 0x00));
       /* CK3MAP */
-      RIE (sanei_genesys_write_register (dev, 0x77, 0x03));
+      RIE (sanei_genesys_write_register (dev, 0x77, 0x00));
       RIE (sanei_genesys_write_register (dev, 0x78, 0xff));
       RIE (sanei_genesys_write_register (dev, 0x79, 0xff));
     }

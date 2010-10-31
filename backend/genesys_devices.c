@@ -473,7 +473,7 @@ static Genesys_Sensor Sensor[] = {
    38, /* black pixels on left */
    38, /* 36 dummy pixels */
    152,
-   5200, /* 5100 */
+   5376, /* 5100-> 5200 */
    160, /* TAU white ref */
    160, /* gain white ref */
    /* 08    09    0a    0b */
@@ -1004,15 +1004,15 @@ static Genesys_Model panasonic_kvss080_model = {
   GENESYS_GL843,
   NULL,
 
-  { 600, 500, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
-  { 1200, 600, 500, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
+  { 600, /* 500, 400,*/ 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
+  { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (7.6),		/* Start of scan area in mm  (x) */
-  SANE_FIX (13.8),		/* Start of scan area in mm (y) */
-  SANE_FIX (218.5),		/* Size of scan area in mm (x) */
-  SANE_FIX (297.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (7.2),		/* Start of scan area in mm  (x) */
+  SANE_FIX (14.7),		/* Start of scan area in mm (y) */
+  SANE_FIX (217.7),		/* Size of scan area in mm (x) */
+  SANE_FIX (300.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (9.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */

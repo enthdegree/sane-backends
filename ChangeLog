@@ -1,3 +1,16 @@
+2010-11-01 Stéphane Voltz <stef.dev@free.fr>
+	* frontend/scanimage.c: don't print readonly device options since
+	they can't be set on command line
+	
+2010-11-01 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl843.c 
+	backend/genesys_gl843.h backend/genesys_gl847.c: up build number to 41,
+	rework head parking,
+	fixed clear-calibration option reading, 
+	make calibration cache expire for non sheetfed gl847 scanners,
+	tuned KV-SS080 timings to improve image quality,
+	raised LiDE 100/200 defaukt gamma to 1.7
+	
 2010-10-31 Julien Blache <jb@jblache.org>
 	* doc/descriptions/hp.desc: add SCSI IDs for ScanJet 4c.
 

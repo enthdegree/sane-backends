@@ -2,6 +2,7 @@
    Copyright (C) 2001, 2002 Henning Meier-Geinitz
    Copyright (C) 2003, 2005 Rene Rebe (sanei_read_int,sanei_set_timeout)
    Copyright (C) 2008 m. allan noah (sanei_usb_clear_halt)
+   Copyright (C) 2011 Reinhold Kainhofer (sanei_usb_set_endpoint)
    This file is part of the SANE package.
 
    SANE is free software; you can redistribute it and/or modify it
@@ -251,6 +252,20 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
  * - SANE_STATUS_INVAL - on every other error
  */
 extern SANE_Status sanei_usb_open (SANE_String_Const devname, SANE_Int * dn);
+
+/** Set the endpoint for the USB communication
+ *
+ * Allows to switch to a different endpoint for the USB communication than
+ * the default (auto-detected) endpoint. This function can only be called
+ * after sanei_usb_open.
+ *
+ * @param dn device number
+ * @param ep_type type of endpoint to set (bitwise or of USB_DIR_IN/OUT and
+ *                USB_ENDPOINT_TYPE_BULK/CONTROL/INTERRUPT/ISOCHRONOUS
+ * @param ep endpoint to use for the given type
+ *
+ */
+extern void sanei_usb_set_endpoint (SANE_Int dn, SANE_Int ep_type, SANE_Int ep);
 
 /** Close a USB device.
  * 

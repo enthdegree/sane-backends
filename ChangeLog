@@ -1,3 +1,7 @@
+2011-01-15 Reinhold Kainhofer <reinhold@kainhofer.com>
+	* sanei/sanei_usb.c: Add function sanei_usb_set_endpoint to change the
+	endpoints for usb communications.
+
 2011-01-13 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl124.c backend/genesys_gl124.h
 	doc/descriptions/genesys.desc: add 2400 dpi mode for LiDE 110 and 210

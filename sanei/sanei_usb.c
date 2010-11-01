@@ -5,6 +5,7 @@
    Copyright (C) 2005 Paul Smedley <paul@smedley.info> (OS/2 usbcalls)
    Copyright (C) 2008 m. allan noah (bus rescan support, sanei_usb_clear_halt)
    Copyright (C) 2009 Julien BLACHE <jb@jblache.org> (libusb-1.0)
+   Copyright (C) 2011 Reinhold Kainhofer <reinhold@kainhofer.com> (sanei_usb_set_endpoint)
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -1102,6 +1103,39 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
       dn++;
     }
   return SANE_STATUS_GOOD;
+}
+
+void
+sanei_usb_set_endpoint (SANE_Int dn, SANE_Int ep_type, SANE_Int ep)
+{
+  DBG (5, "sanei_usb_set_endpoint: Setting endpoint of type 0x%02x to 0x%02x\n", ep_type, ep);
+  switch (ep_type)
+    {
+      case USB_DIR_IN|USB_ENDPOINT_TYPE_BULK:
+	    devices[dn].bulk_in_ep  = ep;
+	    break;
+      case USB_DIR_OUT|USB_ENDPOINT_TYPE_BULK:
+	    devices[dn].bulk_out_ep = ep;
+	    break;
+      case USB_DIR_IN|USB_ENDPOINT_TYPE_ISOCHRONOUS:
+	    devices[dn].iso_in_ep = ep;
+	    break;
+      case USB_DIR_OUT|USB_ENDPOINT_TYPE_ISOCHRONOUS:
+	    devices[dn].iso_out_ep = ep;
+	    break;
+      case USB_DIR_IN|USB_ENDPOINT_TYPE_INTERRUPT:
+	    devices[dn].int_in_ep = ep;
+	    break;
+      case USB_DIR_OUT|USB_ENDPOINT_TYPE_INTERRUPT:
+	    devices[dn].int_out_ep = ep;
+	    break;
+      case USB_DIR_IN|USB_ENDPOINT_TYPE_CONTROL:
+	    devices[dn].control_in_ep = ep;
+	    break;
+      case USB_DIR_OUT|USB_ENDPOINT_TYPE_CONTROL:
+	    devices[dn].control_out_ep = ep;
+	    break;
+    }
 }
 
 SANE_Status

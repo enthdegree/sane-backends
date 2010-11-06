@@ -1,3 +1,7 @@
+2010-11-06 Stéphane Voltz <stef.dev@free.fr>
+	* frontend/scanimage.c doc/scanimage.man: add -A/--all-options to list
+	all control options exposed by a backend.
+
 2010-11-01 Stéphane Voltz <stef.dev@free.fr>
 	* frontend/scanimage.c: don't print readonly device options since
 	they can't be set on command line

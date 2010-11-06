@@ -162,6 +162,14 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00,0x00,0x00}
    }
   ,
+  {DAC_CANONLIDE110,
+     {0x80, 0x8a, 0x23, 0x4c}
+   , {0x00, 0xca, 0x94}
+   , {0x00, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   }
+  ,
 };
 
 
@@ -502,6 +510,29 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
+  /* CANONLIDE110 */
+  {CIS_CANONLIDE110,
+   2400,	/* optical resolution */
+   87,		/* black pixels */
+   16,		/* dummy pixels 16 */
+   303,		/* 303 */
+   5168*4,       /* 10272*2 */
+   210,
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   /* reg 0x10 - 0x15 */
+   {0x00, 0x00, 0x00, 0x0f, 0x00, 0x80,
+   /* reg 0x16 - 0x1d */
+    0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01 },
+   /* reg 0x52 - 0x5e */
+   {
+    0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04,
+    0x1a, 0x00, 0xc0, 0x00, 0x00
+    }
+   ,
+   1.7, 1.7, 1.7,
+   NULL, NULL, NULL}
+  ,
 };
 
 /** for General Purpose Output specific settings:
@@ -614,6 +645,12 @@ static Genesys_Gpo Gpo[] = {
   {GPO_G4050,
    {0x20, 0x00},
    {0xfc, 0x00},
+  }
+  ,
+  /* CANONLIDE110 */
+  {GPO_CANONLIDE110,
+   {0xfb, 0x20},
+   {0xff, 0x00},
   }
   ,
 };
@@ -887,6 +924,17 @@ static Genesys_Motor Motor[] = {
      		{ 3961, 240, 246, 0.8 }, /* quarter step */
     	   },
    },
+  },
+  {MOTOR_CANONLIDE110,		/* Canon LiDE 110 */
+   4800,
+   9600,
+   1,   /* maximum step type count */
+   1,   /* maximum power modes count */
+   { /* motor slopes */
+	   { /* power mode 0 */
+		   {   3000,   1000, 256, 0.50}, /* full step */
+	   },
+    },
   },
 };
 
@@ -1203,6 +1251,57 @@ static Genesys_Model canon_lide_100_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   150,
+  400
+};
+
+static Genesys_Model canon_lide_110_model = {
+  "canon-lide-110",		/* Name */
+  "Canon",			/* Device vendor string */
+  "LiDE 110",			/* Device model name */
+  GENESYS_GL124,
+  NULL,
+
+  {1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (3.6),		/* Start of scan area in mm (x) */
+  SANE_FIX (8.2),		/* Start of scan area in mm (y) */
+  SANE_FIX (213.80),		/* Size of scan area in mm (x) */
+  SANE_FIX (297.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CIS_CANONLIDE110,
+  DAC_CANONLIDE110,
+  GPO_CANONLIDE110,
+  MOTOR_CANONLIDE110,	
+      GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
+  60,
   400
 };
 
@@ -2391,6 +2490,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x07b3, 0x0600, &plustek_st12_model},
   {0x07b3, 0x0601, &plustek_st24_model},
   {0x0a17, 0x3210, &pentax_dsmobile_600_model},
+  {0x04f9, 0x2038, &pentax_dsmobile_600_model},
   {0x0a82, 0x4800, &syscan_docketport_485_model},
   {0x0a82, 0x4802, &syscan_docketport_465_model},
   {0x0a82, 0x4803, &syscan_docketport_665_model},
@@ -2405,5 +2505,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04da, 0x100f, &panasonic_kvss080_model},
   {0x03f0, 0x4505, &hpg4010_model},
   {0x03f0, 0x4605, &hpg4050_model},
+  /* GL124 devices */
+  {0x04a9, 0x1909, &canon_lide_110_model},
   {0, 0, NULL}
 };

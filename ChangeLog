@@ -1,3 +1,7 @@
+2010-11-07 Marc Deslauriers <marc.deslauriers@ubuntu.com>
+	* backend/v4l.c: loop through the read buffers in the v4l backend so
+	  we don't get stale frames.
+
 2010-11-06 Stéphane Voltz <stef.dev@free.fr>
 	* frontend/scanimage.c doc/scanimage.man: add -A/--all-options to list
 	all control options exposed by a backend.

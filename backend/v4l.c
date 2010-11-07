@@ -949,7 +949,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 SANE_Status
 sane_start (SANE_Handle handle)
 {
-  int len;
+  int len, loop;
   V4L_Scanner *s;
 
   DBG (2, "sane_start\n");
@@ -1005,21 +1005,27 @@ sane_start (SANE_Handle handle)
       s->mmap.format = s->pict.palette;
       DBG (2, "sane_start: mmapped frame %d x %d with palette %d\n",
 	   s->mmap.width, s->mmap.height, s->mmap.format);
-      len = v4l1_ioctl (s->fd, VIDIOCMCAPTURE, &s->mmap);
-      if (len == -1)
-	{
-	  DBG (1, "sane_start: ioctl VIDIOCMCAPTURE failed: %s\n",
-	       strerror (errno));
-	  return SANE_STATUS_INVAL;
-	}
-      DBG (3, "sane_start: waiting for frame %x\n", s->mmap.frame);
-      len = v4l1_ioctl (s->fd, VIDIOCSYNC, &(s->mmap.frame));
-      if (-1 == len)
-	{
-	  DBG (1, "sane_start: call to ioctl(%d, VIDIOCSYNC, ..) failed\n",
-	       s->fd);
-	  return SANE_STATUS_INVAL;
-	}
+
+      /* We need to loop here to empty the read buffers, so we don't
+         get a stale image */
+      for (loop = 0; loop <= s->mbuf.frames; loop++)
+        {
+          len = v4l1_ioctl (s->fd, VIDIOCMCAPTURE, &s->mmap);
+          if (len == -1)
+	    {
+	      DBG (1, "sane_start: ioctl VIDIOCMCAPTURE failed: %s\n",
+	           strerror (errno));
+	      return SANE_STATUS_INVAL;
+	    }
+          DBG (3, "sane_start: waiting for frame %x, loop %d\n", s->mmap.frame, loop);
+          len = v4l1_ioctl (s->fd, VIDIOCSYNC, &(s->mmap.frame));
+          if (-1 == len)
+	    {
+	      DBG (1, "sane_start: call to ioctl(%d, VIDIOCSYNC, ..) failed\n",
+	           s->fd);
+	      return SANE_STATUS_INVAL;
+	    }
+        }
       DBG (3, "sane_start: frame %x done\n", s->mmap.frame);
     }
   DBG (3, "sane_start: done\n");

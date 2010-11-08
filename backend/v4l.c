@@ -951,6 +951,7 @@ sane_start (SANE_Handle handle)
 {
   int len, loop;
   V4L_Scanner *s;
+  char data;
 
   DBG (2, "sane_start\n");
   for (s = first_handle; s; s = s->next)
@@ -1028,6 +1029,19 @@ sane_start (SANE_Handle handle)
         }
       DBG (3, "sane_start: frame %x done\n", s->mmap.frame);
     }
+
+  /* v4l1 actually returns BGR when we ask for RGB, so convert it */
+  if (s->pict.palette == VIDEO_PALETTE_RGB24)
+    {
+      DBG (3, "sane_start: converting from BGR to RGB\n");
+      for (loop = 0; loop < (s->window.width * s->window.height * 3); loop += 3)
+        {
+          data = *(buffer + loop);
+          *(buffer + loop) = *(buffer + loop + 2);
+          *(buffer + loop + 2) = data;
+        }
+    }
+
   DBG (3, "sane_start: done\n");
   return SANE_STATUS_GOOD;
 }

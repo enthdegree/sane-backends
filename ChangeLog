@@ -1,3 +1,7 @@
+2010-11-17 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c: don't write scan data unless specified by debug 
+	level.
+
 2010-11-08 Marc Deslauriers <marc.deslauriers@ubuntu.com>
 	* backend/v4l.c: convert v4l1 BGR data to RGB; v4l1 always returns
 	  BGR for RGB due to a coding error way back.

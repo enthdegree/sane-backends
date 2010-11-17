@@ -5137,7 +5137,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 	  return SANE_STATUS_IO_ERROR;
 	}
 #ifdef SANE_DEBUG_LOG_RAW_DATA
-      if (rawfile != NULL)
+      if (rawfile != NULL && DBG_LEVEL >= DBG_data)
 	{
 	  /*TODO: convert big/little endian if depth == 16. 
 	     note: xv got this wrong for P5/P6. */
@@ -5347,7 +5347,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       return SANE_STATUS_EOF;
     }
 #ifdef SANE_DEBUG_LOG_RAW_DATA
-  if (rawfile == NULL)
+  if (rawfile == NULL && DBG_LEVEL >= DBG_data)
     {
       rawfile = fopen ("raw.pnm", "wb");
       if (rawfile != NULL)

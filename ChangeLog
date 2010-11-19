@@ -1,3 +1,7 @@
+2010-11-19 Julien Blache <jb@jblache.org>
+	* doc/descriptions-external/epkowa.desc: update for iScan 2.26.1,
+        from Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>.
+
 2010-11-17 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: don't write scan data unless specified by debug 
 	level.

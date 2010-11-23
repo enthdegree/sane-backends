@@ -1,4 +1,4 @@
-.TH sane\-fujitsu 5 "10 Feb 2010" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-fujitsu 5 "23 Nov 2010" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-fujitsu
 
 .SH NAME
@@ -10,7 +10,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to most Fujitsu flatbed and ADF scanners.
 
-This document describes backend version 98, which shipped with SANE 1.0.21.
+This document describes backend version 103, which shipped with SANE 1.0.22.
 
 .SH SUPPORTED HARDWARE
 This version supports every known model which speaks the Fujitsu SCSI and 
@@ -102,8 +102,7 @@ The configuration file "fujitsu.conf" is used to tell the backend how to look
 for scanners, and provide options controlling the operation of the backend.
 This file is read each time the frontend asks the backend for a list 
 of scanners, generally only when the frontend starts. If the configuration
-file is missing, the backend will use a set of compiled defaults, which
-are identical to the default configuration file shipped with SANE.
+file is missing, the backend will be unable to locate any scanners.
 .PP
 Scanners can be specified in the configuration file in 4 ways:
 .PP

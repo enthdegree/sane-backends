@@ -1,3 +1,53 @@
+2010-11-24 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.c, backend/fujitsu.conf.in, 
+	  doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man:
+	Fujitsu backend versions 103 and 104
+	- remove compiled-in default config file
+	- initial support for new fi-6xxx machines
+	- never request more than s->buffer_size from scanner
+	- silence noisy set_window() calls from init_interlace()
+
+2010-11-19 Julien Blache <jb@jblache.org>
+	* doc/descriptions-external/epkowa.desc: update for iScan 2.26.1,
+	from Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>.
+
+2010-11-17 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c: don't write scan data unless specified by debug 
+	level.
+
+2010-11-08 Marc Deslauriers <marc.deslauriers@ubuntu.com>
+	* backend/v4l.c: convert v4l1 BGR data to RGB; v4l1 always returns
+	  BGR for RGB due to a coding error way back.
+
+2010-11-07 Marc Deslauriers <marc.deslauriers@ubuntu.com>
+	* backend/v4l.c: loop through the read buffers in the v4l backend so
+	  we don't get stale frames.
+
+2010-11-06 Stéphane Voltz <stef.dev@free.fr>
+	* frontend/scanimage.c doc/scanimage.man: add -A/--all-options to list
+	all control options exposed by a backend.
+
+2010-11-01 Stéphane Voltz <stef.dev@free.fr>
+	* frontend/scanimage.c: don't print readonly device options since
+	they can't be set on command line
+	
+2010-11-01 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl843.c 
+	backend/genesys_gl843.h backend/genesys_gl847.c: up build number to 41,
+	rework head parking,
+	fixed clear-calibration option reading, 
+	make calibration cache expire for non sheetfed gl847 scanners,
+	tuned KV-SS080 timings to improve image quality,
+	raised LiDE 100/200 defaukt gamma to 1.7
+	
+2010-10-31 Julien Blache <jb@jblache.org>
+	* doc/descriptions/hp.desc: add SCSI IDs for ScanJet 4c.
+
+2010-10-30 Julien Blache <jb@jblache.org>
+	* backend/xerox_mfp.conf.in, doc/descriptions/xerox_mfp.desc: add
+	Samsung SCX 4824 & 4825FN (Debian #601748). Resync desc file with
+	  config file.
+
 2010-10-13 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl843.c 
 	backend/genesys_gl843.h: added 100, 150, 400 and 600 dpi modes for

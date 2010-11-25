@@ -87,6 +87,7 @@ static struct option basic_options[] = {
   {"verbose", no_argument, NULL, 'v'},
   {"progress", no_argument, NULL, 'p'},
   {"test", no_argument, NULL, 'T'},
+  {"all-options", no_argument, NULL, 'A'},
   {"version", no_argument, NULL, 'V'},
   {"buffer-size", optional_argument, NULL, 'B'},
   {"batch", optional_argument, NULL, 'b'},
@@ -105,7 +106,7 @@ static struct option basic_options[] = {
 #define OUTPUT_PNM      0
 #define OUTPUT_TIFF     1
 
-#define BASE_OPTSTRING	"d:hi:Lf:B::nvVTbp"
+#define BASE_OPTSTRING	"d:hi:Lf:B::nvVTAbp"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
 
 static struct option *all_options;
@@ -115,6 +116,7 @@ static SANE_Handle device;
 static int verbose;
 static int progress = 0;
 static int test;
+static int all;
 static int output_format = OUTPUT_PNM;
 static int help;
 static int dont_scan = 0;
@@ -1660,11 +1662,41 @@ scanimage_exit (void)
     fprintf (stderr, "scanimage: finished\n");
 }
 
+/** @brief print device options to stdout
+ *
+ * @param device struct of the opened device to describe
+ * @param num_dev_options number of device options
+ * @param ro SANE_TRUE to print read-only options
+ */
+static void print_options(SANE_Device * device, SANE_Int num_dev_options, SANE_Bool ro)
+{
+  int i, j;
+  const SANE_Option_Descriptor *opt;
+
+  for (i = 1; i < num_dev_options; ++i)
+    {
+      opt = 0;
+
+      /* scan area uses modified option struct */
+      for (j = 0; j < 4; ++j)
+	if (i == window[j])
+	  opt = window_option + j;
+
+      if (!opt)
+	opt = sane_get_option_descriptor (device, i);
+
+      if (ro || SANE_OPTION_IS_SETTABLE (opt->cap)
+	  || opt->type == SANE_TYPE_GROUP)
+	print_option (device, i, opt);
+    }
+  if (num_dev_options)
+    fputc ('\n', stdout);
+}
+
 int
 main (int argc, char **argv)
 {
   int ch, i, index, all_options_len;
-  const SANE_Option_Descriptor *opt;
   const SANE_Device **device_list;
   SANE_Int num_dev_options = 0;
   const char *devname = 0;
@@ -1734,6 +1766,9 @@ main (int argc, char **argv)
 	  break;
 	case 'T':
 	  test = 1;
+	  break;
+	case 'A':
+	  all = 1;
 	  break;
 	case 'n':
 	  dont_scan = 1;
@@ -1929,6 +1964,7 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 -p, --progress             print progress messages\n\
 -n, --dont-scan            only set options, don't actually scan\n\
 -T, --test                 test backend thoroughly\n\
+-A, --all-options          list all available backend options\n\
 -h, --help                 display this help message and exit\n\
 -v, --verbose              give even more status messages\n\
 -B, --buffer-size=#        change input buffer size (in kB, default 32)\n\
@@ -2127,24 +2163,15 @@ Parameters are separated by a blank from single-character options (e.g.\n\
       if (help)
 	{
 	  printf ("\nOptions specific to device `%s':\n", devname);
+	  print_options(device, num_dev_options, SANE_FALSE);
+	}
 
-	  for (i = 1; i < num_dev_options; ++i)
-	    {
-	      int j;
-	      opt = 0;
-
-              /* scan area uses modified option struct */
-	      for (j = 0; j < 4; ++j)
-		if (i == window[j])
-		    opt = window_option + j;
-
-	      if (!opt)
-		opt = sane_get_option_descriptor (device, i);
-
-	      print_option (device, i, opt);
-	    }
-	  if (num_dev_options)
-	    fputc ('\n', stdout);
+      /*  list all device-specific options */
+      if (all)
+	{
+	  printf ("\nAll options specific to device `%s':\n", devname);
+	  print_options(device, num_dev_options, SANE_TRUE);
+          exit (0);
 	}
     }
 

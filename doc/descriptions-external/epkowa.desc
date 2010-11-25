@@ -38,7 +38,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "iscan 2.26.0/iscan-data 1.3.0"
+:version "iscan 2.26.1/iscan-data 1.5.0"
 :url     "http://www.avasys.jp/english/linux_e/"
 
 ;:comment "Based on the epson backend of sane-backends-1.0.15."
@@ -99,6 +99,18 @@
 :usbid     "0x04b8" "0x0835"
 :status    :good
 :comment   "network interface not supported"
+
+:model     "AcuLaser MX20DN"
+:interface "USB"
+:usbid     "0x04b8" "0x0866"
+:status    :complete
+:comment   "network interface not supported<br>business all-in-one"
+
+:model     "AcuLaser MX20DNF"
+:interface "USB"
+:usbid     "0x04b8" "0x0866"
+:status    :complete
+:comment   "network interface not supported<br>business all-in-one"
 
 :model     "Artisan 700"
 :interface "USB"
@@ -903,6 +915,12 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0848"
 :status    :good
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "ME OFFICE 620F Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0863"
+:status    :complete
 :comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "ME OFFICE 650FN Series"
@@ -1856,11 +1874,23 @@
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-602F"
 
+:model     "Stylus Office TX620FWD Series"
+:interface "USB"
+:usbid     "0x04b8" "0x085d"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "Stylus Photo PX650 Series"
 :interface "USB"
 :usbid     "0x04b8" "0x0850"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-702A"
+
+:model     "Stylus Photo PX660 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0862"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-703A"
 
 :model     "Stylus Photo PX700W"
 :interface "USB"
@@ -2311,6 +2341,12 @@
 :usbid     "0x04b8" "0x0856"
 :status    :good
 :comment   "all-in-one<br>overseas version of the PX-502A"
+
+:model     "Stylus TX560WD Series"
+:interface "USB"
+:usbid     "0x04b8" "0x085e"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-503A"
 
 :model     "WorkForce 310 Series"
 :interface "USB"

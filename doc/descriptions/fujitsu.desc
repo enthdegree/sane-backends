@@ -12,9 +12,9 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "98"                    ; version of backend
+:version "103"                   ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
-:comment "Backend updated for SANE release 1.0.21, see sane-fujitsu manpage"
+:comment "Backend updated for SANE release 1.0.22, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
@@ -161,6 +161,48 @@
 :status :complete
 :usbid "0x04c5" "0x11a2"
 :comment "small, current, same as S1500"
+
+:model "fi-6125"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x11ee"
+:comment "small, unreleased"
+
+:model "fi-6225"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x11ef"
+:comment "small, unreleased"
+
+:model "fi-6145"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x11f1"
+:comment "small, unreleased"
+
+:model "fi-6245"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x11f2"
+:comment "small, unreleased"
+
+:model "fi-6135"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x11f3"
+:comment "small, unreleased"
+
+:model "fi-6235"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x11f4"
+:comment "small, unreleased"
+
+:model "fi-6110"
+:interface "USB"
+:status :good
+:usbid "0x04c5" "0x11fc"
+:comment "small, unreleased"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, MEDIUM
@@ -385,6 +427,24 @@
 
 :model "fi-6800"
 :interface "SCSI USB"
-;:usbid "0x04c5" "0x11xx"
 :status :untested
-:comment "big, current, similar to fi-5900?"
+:usbid "0x04c5" "0x119d"
+:comment "big, current"
+
+:model "fi-6800-CGA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x119e"
+:comment "big, current. VRS CGA board unsupported"
+
+:model "fi-6900"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x119f"
+:comment "big, unreleased, similar to fi-5900?"
+
+:model "fi-6900-CGA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x11a0"
+:comment "big, unreleased, similar to fi-5900? VRS CGA board unsupported"

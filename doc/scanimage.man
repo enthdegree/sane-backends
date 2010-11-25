@@ -26,6 +26,7 @@ scanimage \- scan an image
 .RB [ \-p | \-\-progress ]
 .RB [ \-n | \-\-dont\-scan ]
 .RB [ \-T | \-\-test ]
+.RB [ \-A | \-\-all-options ]
 .RB [ \-h | \-\-help ]
 .RB [ \-v | \-\-verbose ]
 .RB [ \-B | \-\-buffer-size
@@ -232,6 +233,15 @@ defined by the
 API (in particular the
 .B sane_read
 function is exercised by this test).
+.PP
+The
+.B \-A
+or
+.B \-\-all-options
+option requests that
+.B scanimage
+lists all available options exposed the backend, including button options.
+The information is printed on standard output and no scan will be done.
 .PP
 The
 .B \-h

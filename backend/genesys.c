@@ -53,12 +53,12 @@
 */
 
 /*
- * SANE backend for Genesys Logic GL646/GL841/GL843/GL847 based scanners
+ * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847 based scanners
  */
 
 #include "../include/sane/config.h"
 
-#define BUILD 33
+#define BUILD 41
 
 #include <errno.h>
 #include <string.h>
@@ -5137,7 +5137,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 	  return SANE_STATUS_IO_ERROR;
 	}
 #ifdef SANE_DEBUG_LOG_RAW_DATA
-      if (rawfile != NULL)
+      if (rawfile != NULL && DBG_LEVEL >= DBG_data)
 	{
 	  /*TODO: convert big/little endian if depth == 16. 
 	     note: xv got this wrong for P5/P6. */
@@ -5347,7 +5347,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       return SANE_STATUS_EOF;
     }
 #ifdef SANE_DEBUG_LOG_RAW_DATA
-  if (rawfile == NULL)
+  if (rawfile == NULL && DBG_LEVEL >= DBG_data)
     {
       rawfile = fopen ("raw.pnm", "wb");
       if (rawfile != NULL)
@@ -7275,12 +7275,7 @@ sane_close (SANE_Handle handle)
     {
       s->dev->model->cmd_set->eject_document (s->dev);
     }
-  else
-    {
-      /* for flatbed scanners, get sure the head is parked before leaving */
-      s->dev->model->cmd_set->slow_back_home (s->dev, SANE_TRUE);
-    }
-
+    
   /* here is the place to store calibration cache */
   write_calibration (s->dev);
 
@@ -7384,6 +7379,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
     case OPT_DISABLE_DYNAMIC_LINEART:
+    case OPT_CLEAR_CALIBRATION:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_LAMP_OFF_TIME:
     case OPT_SWDESKEW:

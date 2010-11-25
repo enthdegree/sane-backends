@@ -52,6 +52,7 @@
 :model "ScanJet 4c"
 :interface "SCSI"
 :status :complete
+:scsi "HP" "C2520A" "processor"
 
 :model "ScanJet 4p"
 :interface "SCSI"

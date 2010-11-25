@@ -439,7 +439,7 @@ static Genesys_Sensor Sensor[] = {
     0x41	
     }
    ,
-   1.0, 1.0, 1.0,
+   1.7, 1.7, 1.7,
    NULL, NULL, NULL}
   ,
   /* CANONLIDE100 */
@@ -465,7 +465,7 @@ static Genesys_Sensor Sensor[] = {
     0x41	
     }
    ,
-   1.0, 1.0, 1.0,
+   1.7, 1.7, 1.7,
    NULL, NULL, NULL}
   ,
   {CCD_KVSS080,
@@ -473,13 +473,13 @@ static Genesys_Sensor Sensor[] = {
    38, /* black pixels on left */
    38, /* 36 dummy pixels */
    152,
-   5200, /* 5100 */
+   5376, /* 5100-> 5200 */
    160, /* TAU white ref */
    160, /* gain white ref */
    /* 08    09    0a    0b */
    {0x00, 0x00, 0x00, 0x6a} ,
    /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x1c, 0x01, 0x2a, 0x2c, 0x00, 0x20, 0x04} , /* 18=00 at 600 dpi */
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x1c, 0x00, 0x2a, 0x2c, 0x00, 0x20, 0x04} , /* 18=00 at 600 dpi */
    /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
    {0x0c, 0x0f, 0x00, 0x03, 0x06, 0x09, 0x6b, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x23} ,
    1.0, 1.0, 1.0,
@@ -1004,15 +1004,15 @@ static Genesys_Model panasonic_kvss080_model = {
   GENESYS_GL843,
   NULL,
 
-  { 600, 500, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
-  { 1200, 600, 500, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
+  { 600, /* 500, 400,*/ 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
+  { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (7.6),		/* Start of scan area in mm  (x) */
-  SANE_FIX (13.8),		/* Start of scan area in mm (y) */
-  SANE_FIX (218.5),		/* Size of scan area in mm (x) */
-  SANE_FIX (297.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (7.2),		/* Start of scan area in mm  (x) */
+  SANE_FIX (14.7),		/* Start of scan area in mm (y) */
+  SANE_FIX (217.7),		/* Size of scan area in mm (x) */
+  SANE_FIX (300.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (9.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
@@ -1055,8 +1055,8 @@ static Genesys_Model hpg4010_model = {
   GENESYS_GL843,
   NULL,
 
-  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
-  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1107,8 +1107,8 @@ static Genesys_Model hpg4050_model = {
   GENESYS_GL843,
   NULL,
 
-  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
-  { /*2400, 1200, */600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

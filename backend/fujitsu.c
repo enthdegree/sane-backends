@@ -8,9 +8,14 @@
    Copyright (C) 2001-2004 Oliver Schirrmeister
    Copyright (C) 2003-2010 m. allan noah
 
-   JPEG output support funded by Archivista GmbH, www.archivista.ch
-   Endorser support funded by O A S Oilfield Accounting Service Ltd, www.oas.ca
-   Automatic length detection support funded by Martin G. Miller
+   JPEG output and low memory usage support funded by:
+     Archivista GmbH, www.archivista.ch
+   Endorser support funded by:
+     O A S Oilfield Accounting Service Ltd, www.oas.ca
+   Automatic length detection support funded by:
+     Martin G. Miller, mgmiller at optonline.net
+   Software image enhancement routines funded by:
+     Fujitsu Computer Products of America, Inc. www.fcpa.com
 
    --------------------------------------------------------------------------
 
@@ -466,6 +471,12 @@
          - fix compilation bug when jpeg is enabled
       v102 2010-09-22, MAN
          - fix infinite loop when scan is an odd number of lines
+      v103 2010-11-23, MAN
+         - remove compiled-in default config file
+         - initial support for new fi-6xxx machines
+      v104 2010-11-24, MAN
+         - never request more than s->buffer_size from scanner
+         - silence noisy set_window() calls from init_interlace()
 
    SANE FLOW DIAGRAM
 
@@ -515,7 +526,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 101
+#define BUILD 104
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -740,103 +751,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   }
 
   else {
-      DBG (5, "sane_get_devices: no config file '%s', using defaults\n", FUJITSU_CONFIG_FILE);
-
-      DBG (15, "sane_get_devices: looking for 'scsi FUJITSU'\n");
-      sanei_config_attach_matching_devices ("scsi FUJITSU", attach_one_scsi);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1041'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1041", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1042'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1042", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1078'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1078", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1095'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1095", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1096'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1096", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1097'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1097", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10ad'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10ad", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10ae'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10ae", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10af'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10af", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10cf'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10cf", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e0'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10e0", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e1'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10e1", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e2'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10e2", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e6'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10e6", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e7'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10e7", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10f2'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10f2", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10fe'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10fe", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1135'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1135", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114a'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x114a", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114d'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x114d", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114e'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x114e", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114f'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x114f", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1150\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1150", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1155'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1155", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x116f'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x116f", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1174'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1174", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1175'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1175", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1176'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1176", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1177'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1177", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1178'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x1178", attach_one_usb);
-
-      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x11a2'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x11a2", attach_one_usb);
+      DBG (5, "sane_get_devices: missing required config file '%s'!\n",
+        FUJITSU_CONFIG_FILE);
   }
 
   /*delete missing scanners from list*/
@@ -1644,7 +1560,7 @@ static SANE_Status
 init_ms(struct fujitsu *s) 
 {
   int ret;
-  int oldDbg;
+  int oldDbg=0;
 
   unsigned char cmd[MODE_SENSE_len];
   size_t cmdLen = MODE_SENSE_len;
@@ -1658,8 +1574,6 @@ init_ms(struct fujitsu *s)
     DBG (10, "init_ms: unsupported\n");
     return SANE_STATUS_GOOD;
   }
-
-  oldDbg=0;
 
   /* some of the following probes will produce errors */
   /* so we reduce the dbg level to reduce the noise */
@@ -2176,6 +2090,7 @@ init_interlace (struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
   int curr_mode = s->mode;
+  int oldDbg=0;
 
   DBG (10, "init_interlace: start\n");
 
@@ -2204,12 +2119,22 @@ init_interlace (struct fujitsu *s)
    s->color_interlace <= COLOR_INTERLACE_RRGGBB;
    s->color_interlace++){
 
+    /* some of the following probes will produce errors */
+    /* so we reduce the dbg level to reduce the noise */
+    /* however, if user builds with NDEBUG, we can't do that */
+    /* so we protect the code with the following macro */
+    IF_DBG( oldDbg=DBG_LEVEL; )
+    IF_DBG( if(DBG_LEVEL < 35){ DBG_LEVEL = 0; } )
+
     ret = set_window(s);
+
+    IF_DBG (DBG_LEVEL = oldDbg;)
+
     if (ret == SANE_STATUS_GOOD){
       break;
     }
     else{
-      DBG (5, "init_interlace: not %d\n", s->color_interlace);
+      DBG (15, "init_interlace: not %d\n", s->color_interlace);
     }
   }
 
@@ -7101,6 +7026,9 @@ read_from_JPEGduplex(struct fujitsu *s)
     if(bytes > remain){
         bytes = remain;
     }
+    if(bytes > s->buffer_size){
+        bytes = s->buffer_size;
+    }
   
     DBG(15, "read_from_JPEGduplex: fto:%d frx:%d bto:%d brx:%d re:%d pa:%d\n",
       s->bytes_tot[SIDE_FRONT], s->bytes_rx[SIDE_FRONT],
@@ -7359,6 +7287,9 @@ read_from_3091duplex(struct fujitsu *s)
   if(bytes > remain){
     bytes = remain;
   }
+  if(bytes > s->buffer_size){
+    bytes = s->buffer_size;
+  }
 
   /* all requests must end on line boundary */
   bytes -= (bytes % s->params.bytes_per_line);
@@ -7478,6 +7409,9 @@ read_from_scanner(struct fujitsu *s, int side)
     /* figure out the max amount to transfer */
     if(bytes > remain){
         bytes = remain;
+    }
+    if(bytes > s->buffer_size){
+        bytes = s->buffer_size;
     }
   
     /* all requests must end on line boundary */

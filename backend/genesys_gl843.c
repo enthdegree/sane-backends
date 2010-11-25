@@ -597,22 +597,6 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 
   /* TODO we need to create another data struct
    * for CKxMAP and CKSEL */
-  /* use x1 cksel when at higher resolutions */
-  /* KV-SS080 sensor */
-  if (dev->model->ccd_type == CCD_KVSS080)
-    {
-      if(dpi>dev->sensor.optical_res/2)
-        {
-          r = sanei_genesys_get_address (regs, 0x18);
-          r->value &= ~REG18_CKSEL;
-
-          sanei_genesys_write_register (dev, 0x78, 0x03);
-        }
-      else
-        {
-          sanei_genesys_write_register (dev, 0x78, 0x07);
-        }
-    }
   /* G4050/G4010 sensor */
   if (dev->model->ccd_type == CCD_G4050)
     {
@@ -630,9 +614,17 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
         }
       else /* 800 to 2400 case */
         {
-          sanei_genesys_write_register (dev, 0x74, 0x00);
-          sanei_genesys_write_register (dev, 0x75, 0x3f);
+          sanei_genesys_write_register (dev, 0x5a, 0x40);
+          sanei_genesys_write_register (dev, 0x74, 0x0f);
+          sanei_genesys_write_register (dev, 0x75, 0xff);
           sanei_genesys_write_register (dev, 0x76, 0xff);
+          sanei_genesys_write_register (dev, 0x77, 0x00);
+          sanei_genesys_write_register (dev, 0x78, 0x01);
+          sanei_genesys_write_register (dev, 0x7a, 0x00);
+          sanei_genesys_write_register (dev, 0x7b, 0x01);
+          sanei_genesys_write_register (dev, 0x7d, 0x90);
+          sanei_genesys_write_register (dev, 0x80, 0x05);
+          sanei_genesys_write_register (dev, 0x9e, 0xc0);
         }
     }
 
@@ -1161,7 +1153,7 @@ gl843_get_dpihw (Genesys_Device * dev)
   return 0;
 }
 
-/**@brief compute hardware sensor dpi exposure to use
+/**@brief compute hardware sensor dpi to use
  * compute the sensor hardware dpi based on target resolution
  */
 static int gl843_compute_dpihw(Genesys_Device *dev, int xres)
@@ -1196,11 +1188,11 @@ static int gl843_compute_exposure(Genesys_Device *dev, int xres)
   switch(dev->model->ccd_type)
     {
     case CCD_G4050:
-      if(xres<1200)
+      if(xres<=600)
         {
           return 8016;
         }
-      return 21376;
+      return 56064 /* 21376 */;
     case CCD_KVSS080:
     default:
       return 8000;
@@ -1497,7 +1489,9 @@ gl843_get_led_exposure (Genesys_Device * dev)
 static
 #endif
   SANE_Status
-gl843_init_scan_regs (Genesys_Device * dev, Genesys_Register_Set * reg, float xres,	/*dpi */
+gl843_init_scan_regs (Genesys_Device * dev,
+                      Genesys_Register_Set * reg,
+                      float xres,	/*dpi */
 		      float yres,	/*dpi */
 		      float startx,	/*optical_res, from dummy_pixel+1 */
 		      float starty,	/*base_ydpi, from home! */
@@ -2365,7 +2359,6 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
       RIE(sanei_genesys_write_register(dev,0x7e,0x01)); 
     }
 
-  
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
 
@@ -2426,7 +2419,8 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 }
 
 
-/* Moves the slider to the home (top) position slowly */
+/** @brief Moves the slider to the home (top) position slowly
+ * */
 #ifndef UNIT_TESTING
 static
 #endif
@@ -2437,6 +2431,8 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   SANE_Status status;
   Genesys_Register_Set *r;
   uint8_t val;
+  float resolution;
+  int loop = 0;
 
   DBG (DBG_proc, "gl843_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
@@ -2464,32 +2460,35 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   memcpy (local_reg, dev->reg,
 	  GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
+  resolution=gl843_get_lowest_ydpi(dev);
 
   gl843_init_scan_regs (dev,
 			local_reg,
-			300,
-			300,
-			dev->sensor.sensor_pixels/4,
-			0,
-			dev->sensor.sensor_pixels/2,
-			1,
+			resolution,
+			resolution,
+			100,
+			100,
+			100,
+			100,
 			8,
 			3,
 			dev->settings.color_filter,
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
-			SCAN_FLAG_SINGLE_LINE |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
   gl843_init_motor_regs_scan (dev,
                               local_reg,
-                              gl843_compute_exposure (dev, 300),
-			      300,
+                              gl843_compute_exposure (dev, resolution),
+			      resolution,
+			      gl843_compute_step_type(dev, resolution),
 			      1,
 			      1,
-			      1,
-			      30000,
+			      30000, /* feed steps */
 			      0,
                               0);
+
+  /* clear scan and feed count */
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
   
   /* set up for reverse and no scan */
   r = sanei_genesys_get_address (local_reg, REG02);
@@ -2497,7 +2496,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   r = sanei_genesys_get_address (local_reg, REG01);
   r->value &= ~REG01_SCAN;
 
-  RIE ( gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
+  RIE (gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
 
   status = gl843_start_action (dev);
   if (status != SANE_STATUS_GOOD)
@@ -2513,7 +2512,6 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   if (wait_until_home)
     {
-      int loop = 0;
 
       while (loop < 300)	/* do not wait longer then 30 seconds */
 	{
@@ -2737,7 +2735,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
 
   dev->calib_channels = 3;
   dev->calib_pixels = dev->sensor.sensor_pixels;
-  resolution=dev->sensor.optical_res;
+  resolution=gl843_compute_dpihw(dev,dev->settings.xres);
 
   /* distance to move to reach white target */
   move = SANE_UNFIX (dev->model->y_offset_calib);
@@ -3575,7 +3573,7 @@ gl843_is_compatible_calibration (Genesys_Device * dev,
 	   sane_strstatus (status));
       return status;
     }
-  resolution=dev->sensor.optical_res;
+  resolution=gl843_compute_dpihw(dev,dev->settings.xres);
   dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG (DBG_proc, "gl843_is_compatible_calibration: checking\n");
@@ -3699,7 +3697,7 @@ gl843_cold_boot (Genesys_Device * dev)
   /* URB    14  control  0x40 0x0c 0x8c 0x10 len     1 wrote 0xb4 */
   RIE (write_end_access (dev, 0x10, 0xb4));
 
-  /* set up clock once for all TODO use sensor type for these sensor realted registers */
+  /* set up clock once for all TODO use sensor type for these sensor related registers */
   if (strncmp (dev->model->name, "hewlett-packard-scanjet-g40", 27) == 0)
     {
       /* CK1MAP */
@@ -3719,8 +3717,8 @@ gl843_cold_boot (Genesys_Device * dev)
       RIE (sanei_genesys_write_register (dev, 0x76, 0x00));
       /* CK3MAP */
       RIE (sanei_genesys_write_register (dev, 0x77, 0x00));
-      RIE (sanei_genesys_write_register (dev, 0x78, 0x07));
-      RIE (sanei_genesys_write_register (dev, 0x79, 0xfe));
+      RIE (sanei_genesys_write_register (dev, 0x78, 0xff));
+      RIE (sanei_genesys_write_register (dev, 0x79, 0xff));
     }
   /* CK4MAP */
   RIE (sanei_genesys_write_register (dev, 0x7a, 0x03));

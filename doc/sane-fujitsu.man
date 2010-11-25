@@ -199,7 +199,7 @@ fi\-4220C and basic USB support: Ron Cemer <ron a t roncemer d o t com>
 fi\-4120, fi\-series color, backend re\-write, jpeg, current maintainer:
   m. allan noah: <kitno455 a t gmail d o t com>
 
-JPEG output support funded by:
+JPEG output and low memory usage support funded by:
   Archivista GmbH
   www.archivista.ch
 
@@ -215,8 +215,9 @@ Automatic length detection support funded by:
   Martin G. Miller
   mgmiller at optonline.net
 
-Hardware donated by Fujitsu Computer Products of America, Inc.
-  http://us.fujitsu.com/fcpa
+Software image enhancement routines funded and hardware donated by:
+  Fujitsu Computer Products of America, Inc.
+  www.fcpa.com
 
 .SH "SEE ALSO"
 sane(7),

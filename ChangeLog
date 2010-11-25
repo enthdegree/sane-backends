@@ -1,6 +1,15 @@
+2010-11-24 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.c, backend/fujitsu.conf.in, 
+	  doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man:
+	Fujitsu backend versions 103 and 104
+	- remove compiled-in default config file
+	- initial support for new fi-6xxx machines
+	- never request more than s->buffer_size from scanner
+	- silence noisy set_window() calls from init_interlace()
+
 2010-11-19 Julien Blache <jb@jblache.org>
 	* doc/descriptions-external/epkowa.desc: update for iScan 2.26.1,
-        from Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>.
+	from Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>.
 
 2010-11-17 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: don't write scan data unless specified by debug 
@@ -36,7 +45,7 @@
 
 2010-10-30 Julien Blache <jb@jblache.org>
 	* backend/xerox_mfp.conf.in, doc/descriptions/xerox_mfp.desc: add
-          Samsung SCX 4824 & 4825FN (Debian #601748). Resync desc file with
+	Samsung SCX 4824 & 4825FN (Debian #601748). Resync desc file with
 	  config file.
 
 2010-10-13 Stéphane Voltz <stef.dev@free.fr>

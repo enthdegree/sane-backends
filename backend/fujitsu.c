@@ -8,9 +8,14 @@
    Copyright (C) 2001-2004 Oliver Schirrmeister
    Copyright (C) 2003-2010 m. allan noah
 
-   JPEG output support funded by Archivista GmbH, www.archivista.ch
-   Endorser support funded by O A S Oilfield Accounting Service Ltd, www.oas.ca
-   Automatic length detection support funded by Martin G. Miller
+   JPEG output and low memory usage support funded by:
+     Archivista GmbH, www.archivista.ch
+   Endorser support funded by:
+     O A S Oilfield Accounting Service Ltd, www.oas.ca
+   Automatic length detection support funded by:
+     Martin G. Miller, mgmiller at optonline.net
+   Software image enhancement routines funded by:
+     Fujitsu Computer Products of America, Inc. www.fcpa.com
 
    --------------------------------------------------------------------------
 
@@ -469,6 +474,9 @@
       v103 2010-11-23, MAN
          - remove compiled-in default config file
          - initial support for new fi-6xxx machines
+      v104 2010-11-24, MAN
+         - never request more than s->buffer_size from scanner
+         - silence noisy set_window() calls from init_interlace()
 
    SANE FLOW DIAGRAM
 
@@ -518,7 +526,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 103
+#define BUILD 104
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1552,7 +1560,7 @@ static SANE_Status
 init_ms(struct fujitsu *s) 
 {
   int ret;
-  int oldDbg;
+  int oldDbg=0;
 
   unsigned char cmd[MODE_SENSE_len];
   size_t cmdLen = MODE_SENSE_len;
@@ -1566,8 +1574,6 @@ init_ms(struct fujitsu *s)
     DBG (10, "init_ms: unsupported\n");
     return SANE_STATUS_GOOD;
   }
-
-  oldDbg=0;
 
   /* some of the following probes will produce errors */
   /* so we reduce the dbg level to reduce the noise */
@@ -2084,6 +2090,7 @@ init_interlace (struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
   int curr_mode = s->mode;
+  int oldDbg=0;
 
   DBG (10, "init_interlace: start\n");
 
@@ -2112,12 +2119,22 @@ init_interlace (struct fujitsu *s)
    s->color_interlace <= COLOR_INTERLACE_RRGGBB;
    s->color_interlace++){
 
+    /* some of the following probes will produce errors */
+    /* so we reduce the dbg level to reduce the noise */
+    /* however, if user builds with NDEBUG, we can't do that */
+    /* so we protect the code with the following macro */
+    IF_DBG( oldDbg=DBG_LEVEL; )
+    IF_DBG( if(DBG_LEVEL < 35){ DBG_LEVEL = 0; } )
+
     ret = set_window(s);
+
+    IF_DBG (DBG_LEVEL = oldDbg;)
+
     if (ret == SANE_STATUS_GOOD){
       break;
     }
     else{
-      DBG (5, "init_interlace: not %d\n", s->color_interlace);
+      DBG (15, "init_interlace: not %d\n", s->color_interlace);
     }
   }
 
@@ -7009,6 +7026,9 @@ read_from_JPEGduplex(struct fujitsu *s)
     if(bytes > remain){
         bytes = remain;
     }
+    if(bytes > s->buffer_size){
+        bytes = s->buffer_size;
+    }
   
     DBG(15, "read_from_JPEGduplex: fto:%d frx:%d bto:%d brx:%d re:%d pa:%d\n",
       s->bytes_tot[SIDE_FRONT], s->bytes_rx[SIDE_FRONT],
@@ -7267,6 +7287,9 @@ read_from_3091duplex(struct fujitsu *s)
   if(bytes > remain){
     bytes = remain;
   }
+  if(bytes > s->buffer_size){
+    bytes = s->buffer_size;
+  }
 
   /* all requests must end on line boundary */
   bytes -= (bytes % s->params.bytes_per_line);
@@ -7386,6 +7409,9 @@ read_from_scanner(struct fujitsu *s, int side)
     /* figure out the max amount to transfer */
     if(bytes > remain){
         bytes = remain;
+    }
+    if(bytes > s->buffer_size){
+        bytes = s->buffer_size;
     }
   
     /* all requests must end on line boundary */

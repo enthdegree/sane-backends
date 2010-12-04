@@ -502,6 +502,9 @@ struct fujitsu
   */
   SANE_Parameters params;
 
+  /* also keep a backup copy, in case the software enhancement code overwrites*/
+  SANE_Parameters params_bk;
+
   /* --------------------------------------------------------------------- */
   /* values which are set by scanning functions to keep track of pages, etc */
   int started;
@@ -529,6 +532,15 @@ struct fujitsu
   int buff_tx[2];
 
   unsigned char * buffers[2];
+
+  /* --------------------------------------------------------------------- */
+  /* values used by the software enhancment code (deskew, crop, etc)       */
+  SANE_Status deskew_stat;
+  int deskew_vals[2];
+  double deskew_slope;
+
+  SANE_Status crop_stat;
+  int crop_vals[4];
 
   /* --------------------------------------------------------------------- */
   /* values used by the compression functions, esp. jpeg with duplex       */
@@ -779,6 +791,8 @@ static SANE_Status set_window (struct fujitsu *s);
 static SANE_Status get_pixelsize(struct fujitsu *s);
 
 static SANE_Status update_params (struct fujitsu *s);
+static SANE_Status backup_params (struct fujitsu *s);
+static SANE_Status restore_params (struct fujitsu *s);
 static SANE_Status start_scan (struct fujitsu *s);
 
 static SANE_Status check_for_cancel(struct fujitsu *s);

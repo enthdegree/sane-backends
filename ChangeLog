@@ -1,3 +1,14 @@
+2010-12-02 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: 
+	Fujitsu backend version 105
+	- backup and restore image params around image processing code
+	- cache software crop/deskew parameters for use on backside of duplex
+	- fi-6110 does not support bgcolor or prepick
+
+2010-11-29 Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
+	* backend/epson2-ops.c: fix list of supported commands for levels D1
+	  and D2.
+
 2010-11-24 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.c, backend/fujitsu.conf.in, 
 	  doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man:

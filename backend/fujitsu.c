@@ -477,6 +477,10 @@
       v104 2010-11-24, MAN
          - never request more than s->buffer_size from scanner
          - silence noisy set_window() calls from init_interlace()
+      v105 2010-12-02, MAN
+         - backup and restore image params around image processing code
+         - cache software crop/deskew parameters for use on backside of duplex
+         - fi-6110 does not support bgcolor or prepick
 
    SANE FLOW DIAGRAM
 
@@ -526,7 +530,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 104
+#define BUILD 105
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1078,9 +1082,10 @@ init_inquire (struct fujitsu *s)
   DBG (15, "  long color scan: %d\n",get_IN_long_color(in));
 
   DBG (15, "  emulation mode: %d\n",get_IN_emulation(in));
-  DBG (15, "  VRS CGA: %d\n",get_IN_vrs_cga(in));
+  DBG (15, "  CMP/CGA: %d\n",get_IN_cmp_cga(in));
   DBG (15, "  background back: %d\n",get_IN_bg_back(in));
   DBG (15, "  background front: %d\n",get_IN_bg_front(in));
+  DBG (15, "  background fb: %d\n",get_IN_bg_fb(in));
   DBG (15, "  back only scan: %d\n",get_IN_has_back(in));
 
   s->duplex_raster_offset = get_IN_duplex_offset(in);
@@ -1963,9 +1968,11 @@ init_model (struct fujitsu *s)
     s->max_y_fb = 14173;
   }
 
-  else if (strstr (s->model_name,"S1500")){
+  else if (strstr (s->model_name,"S1500")
+   || strstr (s->model_name,"fi-6110")){
     /*lies*/
     s->has_MS_bg=0;
+    s->has_MS_prepick=0;
   }
 
   DBG (10, "init_model: finish\n");
@@ -5949,6 +5956,48 @@ update_params (struct fujitsu * s)
   return ret;
 }
 
+/* make backup of param data, in case original is overwritten */
+SANE_Status
+backup_params (struct fujitsu * s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  SANE_Parameters * params = &(s->params);
+  SANE_Parameters * params_bk = &(s->params_bk);
+
+  DBG (15, "backup_params: start\n");
+
+  params_bk->format = params->format;
+  params_bk->last_frame = params->last_frame;
+  params_bk->bytes_per_line = params->bytes_per_line;
+  params_bk->pixels_per_line = params->pixels_per_line;
+  params_bk->lines = params->lines;
+  params_bk->depth = params->depth;
+
+  DBG (10, "backup_params: finish\n");
+  return ret;
+}
+
+/* restore backup of param data, in case original was overwritten */
+SANE_Status
+restore_params (struct fujitsu * s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  SANE_Parameters * params = &(s->params);
+  SANE_Parameters * params_bk = &(s->params_bk);
+
+  DBG (15, "restore_params: start\n");
+
+  params->format = params_bk->format;
+  params->last_frame = params_bk->last_frame;
+  params->bytes_per_line = params_bk->bytes_per_line;
+  params->pixels_per_line = params_bk->pixels_per_line;
+  params->lines = params_bk->lines;
+  params->depth = params_bk->depth;
+
+  DBG (10, "restore_params: finish\n");
+  return ret;
+}
+
 /*
  * Called by SANE when a page acquisition operation is to be started.
  * commands: scanner control (lampon), send (lut), send (dither),
@@ -6039,6 +6088,13 @@ sane_start (SANE_Handle handle)
         return ret;
       }
 
+      /* make backup copy of params because later functions overwrite */
+      ret = backup_params(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot backup params\n");
+        return ret;
+      }
+
       /* start/stop endorser */
       ret = endorser(s);
       if (ret != SANE_STATUS_GOOD) {
@@ -6055,6 +6111,13 @@ sane_start (SANE_Handle handle)
   /* if already running, duplex needs to switch sides */
   else if(s->source == SOURCE_ADF_DUPLEX){
       s->side = !s->side;
+  }
+
+  /* restore backup copy of params at the start of each image */
+  ret = restore_params(s);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "sane_start: ERROR: cannot restore params\n");
+    return ret;
   }
 
   /* set clean defaults with new sheet of paper */
@@ -8614,18 +8677,26 @@ buffer_deskew(struct fujitsu *s, int side)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  int x = 0, y = 0;
-  double slope = 0;
-  int bg_color = 0xdd;
+  int bg_color = 0xd6;
 
   DBG (10, "buffer_deskew: start\n");
 
-  ret = sanei_magic_findSkew(&s->params,s->buffers[side],
-    s->resolution_x,s->resolution_y,&x,&y,&slope);
-  if(ret){
-    DBG (5, "buffer_despeck: bad findSkew, bailing\n");
-    ret = SANE_STATUS_GOOD;
-    goto cleanup;
+  /*only find skew on first image from a page, or if first image had error */
+  if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK || s->deskew_stat){
+
+    s->deskew_stat = sanei_magic_findSkew(
+      &s->params,s->buffers[side],s->resolution_x,s->resolution_y,
+      &s->deskew_vals[0],&s->deskew_vals[1],&s->deskew_slope);
+  
+    if(s->deskew_stat){
+      DBG (5, "buffer_despeck: bad findSkew, bailing\n");
+      goto cleanup;
+    }
+  }
+  /* backside images can use a 'flipped' version of frontside data */
+  else{
+    s->deskew_slope *= -1;
+    s->deskew_vals[0] = s->params.pixels_per_line - s->deskew_vals[0];
   }
 
   /* tweak the bg color based on scanner settings */
@@ -8638,7 +8709,9 @@ buffer_deskew(struct fujitsu *s, int side)
   else if(s->bg_color == COLOR_BLACK)
     bg_color = 0;
 
-  ret = sanei_magic_rotate(&s->params,s->buffers[side], x, y, slope, bg_color);
+  ret = sanei_magic_rotate(&s->params,s->buffers[side],
+    s->deskew_vals[0],s->deskew_vals[1],s->deskew_slope,bg_color);
+
   if(ret){
     DBG(5,"buffer_deskew: rotate error: %d",ret);
     ret = SANE_STATUS_GOOD;
@@ -8658,29 +8731,39 @@ buffer_crop(struct fujitsu *s, int side)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  int top = 0;
-  int bot = 0;
-  int left = 0;
-  int right = 0;
-
   DBG (10, "buffer_crop: start\n");
 
-  ret = sanei_magic_findEdges(&s->params,s->buffers[side],
-    s->resolution_x,s->resolution_y,&top,&bot,&left,&right);
-  if(ret){
-    DBG (5, "buffer_crop: bad edges, bailing\n");
-    ret = SANE_STATUS_GOOD;
-    goto cleanup;
+  /*only find edges on first image from a page, or if first image had error */
+  if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK || s->crop_stat){
+
+    s->crop_stat = sanei_magic_findEdges(
+      &s->params,s->buffers[side],s->resolution_x,s->resolution_y,
+      &s->crop_vals[0],&s->crop_vals[1],&s->crop_vals[2],&s->crop_vals[3]);
+
+    if(s->crop_stat){
+      DBG (5, "buffer_crop: bad edges, bailing\n");
+      goto cleanup;
+    }
+  
+    DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",
+      s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
+
+    /* we dont listen to the 'top' value, since fujitsu does not pad the top */
+    s->crop_vals[0] = 0;
+  }
+  /* backside images can use a 'flipped' version of frontside data */
+  else{
+    int left  = s->crop_vals[2];
+    int right = s->crop_vals[3];
+
+    s->crop_vals[2] = s->params.pixels_per_line - right;
+    s->crop_vals[3] = s->params.pixels_per_line - left;
   }
 
-  DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",top,bot,left,right);
-
-  /* we dont listen to the 'top' value, since fujitsu does not pad the top */
-  top = 0;
-
   /* now crop the image */
-  /*FIXME: crop duplex backside at same time?*/
-  ret = sanei_magic_crop(&s->params,s->buffers[side],top,bot,left,right);
+  ret = sanei_magic_crop(&s->params,s->buffers[side],
+      s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
+
   if(ret){
     DBG (5, "buffer_crop: bad crop, bailing\n");
     ret = SANE_STATUS_GOOD;

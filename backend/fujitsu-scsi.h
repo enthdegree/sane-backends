@@ -150,9 +150,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_long_color(in)              getbitfield(in+0x2C, 1, 0)
 
 #define get_IN_emulation(in)               getbitfield(in+0x2D, 1, 6)
-#define get_IN_vrs_cga(in)                 getbitfield(in+0x2D, 1, 5)
+#define get_IN_cmp_cga(in)                 getbitfield(in+0x2D, 1, 5)
 #define get_IN_bg_back(in)                 getbitfield(in+0x2D, 1, 3)
 #define get_IN_bg_front(in)                getbitfield(in+0x2D, 1, 2)
+#define get_IN_bg_fb(in)                   getbitfield(in+0x2D, 1, 1)
 #define get_IN_has_back(in)                getbitfield(in+0x2D, 1, 0)
 
 #define get_IN_duplex_offset(in)           getnbyte (in+0x2E, 2)

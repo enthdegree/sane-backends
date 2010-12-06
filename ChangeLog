@@ -1,3 +1,9 @@
+2010-12-06 Julien Blache <jb@jblache.org>
+	* doc/descriptions/espon.desc, doc/descriptions/epson2.desc: add SCSI IDs
+	  for the Perfection 3200 (GT-9800) connected through FireWire. Report
+	  from Colin Kincaid Williams <discord@uw.edu>. Update Perfection 2450
+	  interface list.
+
 2010-12-02 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: 
 	Fujitsu backend version 105

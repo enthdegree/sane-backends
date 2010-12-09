@@ -331,7 +331,7 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="untested" */
     
     { NULL, "AV610",
-      0x0638, 0x0a18,
+      0x0638, 0x0a19,
       "Avision", "AV610",
       AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN | AV_INT_STATUS | AV_INT_BUTTON,0},
     /* status="good" */
@@ -597,7 +597,7 @@ static Avision_HWEntry Avision_Device_List [] =
       0x0638, 0x0A45,
       "Avision", "@V5100",
       0,0},
-    /* comment="" */
+    /* comment="1 pass, 1200 dpi, A3 - duplex!, LCD screen, paper sensors" */
     /* status="good" */
 
     { "AVISION", "AVA3",

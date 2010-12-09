@@ -159,5 +159,7 @@ sane(7), sane\-scsi(5), sane\-usb(5)
 .br
 http://www.exactcode.de/oss/avision/
 
+.SH MAINTAINER
+Mike Kelly
 .SH AUTHOR
 Ren\['e] Rebe and Meino Christian Cramer

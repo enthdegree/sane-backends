@@ -58,6 +58,9 @@
    Copyright 2003, 2004, 2005, 2006, 2007 by
                 "René Rebe" <rene@exactcode.de>
    
+   Copyright 2010 by
+                "Mike Kelly" <mike@piratehaven.org>
+
    Additional Contributers:
                 "Gunter Wagner"
                   (some fixes and the transparency option)
@@ -134,7 +137,7 @@
 #include <math.h>
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 290 /* avision backend BUILD version */
+#define BACKEND_BUILD 292 /* avision backend BUILD version */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -3629,7 +3632,7 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   if (!found) {
     DBG (0, "attach: \"%s\" - \"%s\" not yet in whitelist!\n", mfg, model);
     DBG (0, "attach: You might want to report this output.\n");
-    DBG (0, "attach: To: rene@exactcode.de (the Avision backend author)\n");
+    DBG (0, "attach: To: mike@piratehaven.org (the Avision backend maintainer)\n");
     
     status = SANE_STATUS_INVAL;
     goto close_scanner_and_return;

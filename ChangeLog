@@ -1,3 +1,18 @@
+2010-12-08 Mike Kelly <mike@piratehaven.org>
+	* doc/descriptions/avision.desc:
+	- (Re)generated from avision.c.
+	* doc/sane-avision.man:
+	- Added myself as maintainer.
+	* backends/avision.desc:
+	- Removed this obsolete file (again).
+	* backends/avision.c:
+	- Bumped version to 292.
+	- Added myself as maintainer.
+	- Added support for DocuMate262i.
+	- Added support entries for HP 8300 series.
+	* backends/avision.conf.in:
+	- Added myself as maintainer.
+
 2010-12-06 Julien Blache <jb@jblache.org>
 	* doc/descriptions/espon.desc, doc/descriptions/epson2.desc: add SCSI IDs
 	  for the Perfection 3200 (GT-9800) connected through FireWire. Report

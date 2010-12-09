@@ -751,6 +751,11 @@
 :usbid "0x04a7" "0x048d"
 :status :good
 
+:model "DocuMate262i"
+:interface "USB"
+:usbid "0x04a7" "0x04a7"
+:status :good
+
 :model "DocuMate272"
 :interface "USB"
 :usbid "0x04a7" "0x0475"

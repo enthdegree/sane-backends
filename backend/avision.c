@@ -680,11 +680,27 @@ static Avision_HWEntry Avision_Device_List [] =
 #endif 
     { "HP", "C9930A",
       0x03f0, 0x3805,
+      "Hewlett-Packard", "ScanJet 8300",
+      0,0},
+    /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
+    /* status="good" */
+
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
+    { "HP", "C9930A",
+      0x03f0, 0x3805,
+      "Hewlett-Packard", "ScanJet 8350",
+      0,0},
+    /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
+    /* status="good" */
+
+    { "HP", "C9930A",
+      0x03f0, 0x3805,
       "Hewlett-Packard", "ScanJet 8390",
       0,0},
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
+#endif 
     { "Minolta", "#2882",
       0, 0,
       "Minolta", "Dimage Scan Dual I",

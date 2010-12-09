@@ -433,6 +433,18 @@
 :comment "1 pass, 4800 (?) dpi - USB 2.0 and SCSI - only SCSI tested so far"
 :status :good
 
+:model "ScanJet 8300"
+:interface "USB"
+:usbid "0x03f0" "0x3805"
+:comment "1 pass, 4800 (?) dpi - USB 2.0"
+:status :good
+
+:model "ScanJet 8350"
+:interface "USB"
+:usbid "0x03f0" "0x3805"
+:comment "1 pass, 4800 (?) dpi - USB 2.0"
+:status :good
+
 :model "ScanJet 8390"
 :interface "USB"
 :usbid "0x03f0" "0x3805"

@@ -970,8 +970,7 @@ sane_open(SANE_String_Const name, SANE_Handle * h)
 			o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 			break;
 		default:
-			DBG(1, "BUG: sane_open(): Unknown option number.\n");
-			return SANE_STATUS_INVAL;
+			DBG(1, "BUG: sane_open(): Unknown option number: %d\n", i_option);
 			break;
 		}
 		s->option_list[i_option] = o;

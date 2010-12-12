@@ -2,7 +2,7 @@
 #include "../include/sane/sanei_usb.h"
 #include "epson_usb.h"
 
-// generated with epson2usb.pl doc/descriptions/epson2.desc
+/* generated with epson2usb.pl doc/descriptions/epson2.desc */
 
 SANE_Word sanei_epson_usb_product_ids[] = {
   0x101, /* GT-7000U, Perfection 636U */

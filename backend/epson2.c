@@ -775,7 +775,7 @@ attach_one_usb(const char *dev)
 static SANE_Status
 attach_one_net(const char *dev)
 {
-        char name[18];
+        char name[39+4]; 
 
 	DBG(7, "%s: dev = %s\n", __func__, dev);
 

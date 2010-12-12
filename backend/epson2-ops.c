@@ -1722,6 +1722,7 @@ e2_ext_read(struct Epson_Scanner *s)
 
 		if (s->buf[buf_len] & FSG_STATUS_CANCEL_REQ) {
 			DBG(0, "%s: cancel request received\n", __func__);
+			e2_cancel(s);
 			return SANE_STATUS_CANCELLED;
 		}
 

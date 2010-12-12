@@ -1646,7 +1646,8 @@ e2_scan_finish(Epson_Scanner * s)
 			esci_eject(s);
 
 	/* XXX required? */
-	esci_reset(s);
+	if (s->hw->connection != SANE_EPSON_NET)
+		esci_reset(s);
 }
 
 void

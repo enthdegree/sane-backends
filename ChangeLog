@@ -1,3 +1,8 @@
+2010-11-17 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys*.[ch] backend/genesys.conf.in backend/Makefile.am
+	backend/Makefile.in tools/check-usb-chip.c doc/desc/genesys.desc:
+	LiDE 110 support (GL124 based)
+
 2010-12-08 Mike Kelly <mike@piratehaven.org>
 	* doc/descriptions/avision.desc:
 	- (Re)generated from avision.c.

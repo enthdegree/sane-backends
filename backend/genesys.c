@@ -58,7 +58,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 50
+#define BUILD 60
 
 #include <errno.h>
 #include <string.h>

@@ -5939,6 +5939,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].unit = SANE_UNIT_NONE;
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_DISABLE_DYNAMIC_LINEART].w = SANE_FALSE;
+
   /* not working for GL646 scanners yet, and required for GL847 ones */
   if (s->dev->model->asic_type == GENESYS_GL646 || s->dev->model->asic_type == GENESYS_GL847)
     {
@@ -7120,6 +7121,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *table;
   unsigned int i;
+  int min, count;
+  SANE_Word *dpi_list;
   SANE_Range *x_range, *y_range;
   Genesys_Calibration_Cache *cache, *next_cache;
 
@@ -7203,6 +7206,28 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       if (s->val[option].s)
 	free (s->val[option].s);
       s->val[option].s = strdup (val);
+
+      /* due to low resolution emulation ,we can't mix lineart
+       * with dpi lower than 300 for GL124 */
+        if(s->dev->model->asic_type == GENESYS_GL124)
+          {
+            free(s->opt[OPT_RESOLUTION].constraint.word_list);
+            if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
+              min=300;
+            else
+              min=0;
+            for (count = 0; s->dev->model->ydpi_values[count] != 0 && s->dev->model->ydpi_values[count]>=min; count++);
+            dpi_list = malloc ((count + 1) * sizeof (SANE_Word));
+            if (!dpi_list)
+              return SANE_STATUS_NO_MEM;
+            dpi_list[0] = count;
+            for (count = 0; s->dev->model->ydpi_values[count] != 0 && s->dev->model->ydpi_values[count]>=min; count++)
+                dpi_list[count + 1] = s->dev->model->ydpi_values[count];
+            s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
+            if(s->val[OPT_RESOLUTION].w<min)
+              s->val[OPT_RESOLUTION].w=min;
+          }
+
       if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	{
 	  ENABLE (OPT_THRESHOLD);

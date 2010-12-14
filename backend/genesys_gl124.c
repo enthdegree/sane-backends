@@ -2841,19 +2841,6 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
               ptr[1+pixels*s]=src[1+segcnt*s];
               ptr[2+pixels*s]=src[2+segcnt*s];
               ptr[3+pixels*s]=src[3+segcnt*s];
-
-              /* XXX STEF XXX
-              if(src+3+segcnt*s>=data+size)
-              {
-            	  DBG (DBG_error, "gl124_send_shading_data: overflow 1\n");
-            	  return SANE_STATUS_NO_MEM;
-              }
-              if(ptr+3+pixels*s>=buffer+2*pixels)
-              {
-            	  DBG (DBG_error, "gl124_send_shading_data: overflow 2\n");
-            	  return SANE_STATUS_NO_MEM;
-              }
-              */
             }
 
           /* next shading coefficients */

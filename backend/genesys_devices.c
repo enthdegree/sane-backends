@@ -1305,6 +1305,58 @@ static Genesys_Model canon_lide_110_model = {
   400
 };
 
+
+static Genesys_Model canon_lide_210_model = {
+  "canon-lide-210",		/* Name */
+  "Canon",			/* Device vendor string */
+  "LiDE 210",			/* Device model name */
+  GENESYS_GL124,
+  NULL,
+
+  {1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (3.6),		/* Start of scan area in mm (x) */
+  SANE_FIX (8.2),		/* Start of scan area in mm (y) */
+  SANE_FIX (213.80),		/* Size of scan area in mm (x) */
+  SANE_FIX (297.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CIS_CANONLIDE110,
+  DAC_CANONLIDE110,
+  GPO_CANONLIDE110,
+  MOTOR_CANONLIDE110,	
+      GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
+  60,
+  400
+};
+
 static Genesys_Model canon_5600f_model = {
   "canon-5600f",		/* Name */
   "Canon",			/* Device vendor string */
@@ -2507,5 +2559,6 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x03f0, 0x4605, &hpg4050_model},
   /* GL124 devices */
   {0x04a9, 0x1909, &canon_lide_110_model},
+  {0x04a9, 0x190a, &canon_lide_210_model},
   {0, 0, NULL}
 };

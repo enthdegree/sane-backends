@@ -116,7 +116,7 @@
 :model "CanoScan LiDE 210"
 :interface "USB"
 :usbid "0x04a9" "0x190a"
-:status :untested
+:status :complete
 
 :model "CanoScan LiDE 200"
 :interface "USB"

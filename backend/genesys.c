@@ -5945,6 +5945,10 @@ init_options (Genesys_Scanner * s)
     {
       s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
     }
+  if (s->dev->model->asic_type == GENESYS_GL124)
+    {
+      s->val[OPT_DISABLE_DYNAMIC_LINEART].w = SANE_TRUE;
+    }
 
   /* disable_interpolation */
   s->opt[OPT_DISABLE_INTERPOLATION].name = "disable-interpolation";

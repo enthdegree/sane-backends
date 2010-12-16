@@ -1,4 +1,9 @@
-2010-11-17 Stéphane Voltz <stef.dev@free.fr>
+2010-12-16 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys.conf.in backend/genesys_devices.c
+	backend/genesys_gl124.h:
+	LiDE 210 support (GL124 based)
+
+2010-12-14 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys*.[ch] backend/genesys.conf.in backend/Makefile.am
 	backend/Makefile.in tools/check-usb-chip.c doc/desc/genesys.desc:
 	LiDE 110 support (GL124 based)

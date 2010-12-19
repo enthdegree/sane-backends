@@ -1,3 +1,6 @@
+2010-12-19 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl124.h: LiDE 210 GPIO fix
+
 2010-12-16 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.conf.in backend/genesys_devices.c
 	backend/genesys_gl124.h:

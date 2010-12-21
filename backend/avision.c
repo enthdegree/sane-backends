@@ -7830,7 +7830,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
   Avision_Scanner* s = handle;
   
-  DBG (3, "sane_get_option_descriptor:\n");
+  DBG (3, "sane_get_option_descriptor: %d\n", option);
 
   if ((unsigned) option >= NUM_OPTIONS)
     return 0;

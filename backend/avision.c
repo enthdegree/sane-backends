@@ -239,13 +239,6 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="complete" */
 
     { NULL, NULL,
-      0x0638, 0x0A3A,
-      "Avision", "AV210C2",
-      AV_INT_BUTTON | AV_GRAY_MODES,0},
-    /* comment="sheetfed scanner" */
-    /* status="complete" */
-
-    { NULL, NULL,
       0x0638, 0x0A23,
       "Avision", "AV220",
       AV_INT_BUTTON,0},

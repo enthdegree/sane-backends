@@ -89,12 +89,6 @@
 :comment "sheetfed scanner"
 :status :complete
 
-:model "AV210C2"
-:interface "USB"
-:usbid "0x0638" "0x0a3a"
-:comment "sheetfed scanner"
-:status :complete
-
 :model "AV220"
 :interface "USB"
 :usbid "0x0638" "0x0a23"

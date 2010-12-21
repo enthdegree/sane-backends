@@ -5692,7 +5692,7 @@ set_window (Avision_Scanner* s)
     if (dev->hw->feature_type & AV_FASTER_WITH_FILTER)
       cmd.window.avision.bitset1 |= AVISION_FILTER_GREEN;
     else
-     cmd.window.avision.bitset1 |= AVISION_FILTER_NONE;
+      cmd.window.avision.bitset1 |= AVISION_FILTER_NONE;
   }
   
   debug_print_window_descriptor (5, "set_window", &(cmd.window));

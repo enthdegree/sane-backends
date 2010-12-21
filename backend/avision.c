@@ -5686,13 +5686,13 @@ set_window (Avision_Scanner* s)
     }
 
   if (color_mode_is_color (s->c_mode)) {
-    cmd.window.avision.bitset1 |= AVISION_FILTER_RGB << 3;
+    cmd.window.avision.bitset1 |= AVISION_FILTER_RGB;
   }
   else {
     if (dev->hw->feature_type & AV_FASTER_WITH_FILTER)
-      cmd.window.avision.bitset1 |= AVISION_FILTER_GREEN << 3;
+      cmd.window.avision.bitset1 |= AVISION_FILTER_GREEN;
     else
-     cmd.window.avision.bitset1 |= AVISION_FILTER_NONE << 3;
+     cmd.window.avision.bitset1 |= AVISION_FILTER_NONE;
   }
   
   debug_print_window_descriptor (5, "set_window", &(cmd.window));

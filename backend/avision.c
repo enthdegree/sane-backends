@@ -3634,12 +3634,12 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
     }
     
     /* we need 2 matches (mfg, model) for SCSI entries, or the ones available
-       for "we know what we are locking for" USB entries */
+       for "we know what we are looking for" USB entries */
     if ((attaching_hw == &(Avision_Device_List [model_num]) &&
          matches == match_count) ||
 	matches == 2)
     {
-      DBG (1, "attach: Scanner matched entry: %d: \"%s\", \"%s\", 0x%x, 0x%x\n",
+      DBG (1, "attach: Scanner matched entry: %d: \"%s\", \"%s\", 0x%.4x, 0x%.4x\n",
            model_num,
 	   Avision_Device_List[model_num].scsi_mfg,
 	   Avision_Device_List[model_num].scsi_model,
@@ -7535,7 +7535,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
       
 	if (attaching_hw->usb_vendor != 0 && attaching_hw->usb_product != 0 )
 	{
-	  DBG (1, "sane_init: Trying to find USB device %x %x ...\n",
+	  DBG (1, "sane_init: Trying to find USB device %.4x %.4x ...\n",
 	       attaching_hw->usb_vendor,
 	       attaching_hw->usb_product);
 	  

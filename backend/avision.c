@@ -858,11 +858,13 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_INT_BUTTON,0},
     /* status="untested" */
     
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x040a, 0x6003,
       "Kodak", "i55",
       AV_INT_BUTTON,0},
     /* status="untested" */
+#endif
     
     { NULL, NULL,
       0x040a, 0x6004,
@@ -870,11 +872,13 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_INT_BUTTON,0},
     /* status="untested" */
     
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x040a, 0x6004,
       "Kodak", "i65",
       AV_INT_BUTTON,0},
     /* status="untested" */
+#endif
     
     { NULL, NULL,
       0x040a, 0x6005,
@@ -979,12 +983,14 @@ static Avision_HWEntry Avision_Device_List [] =
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x04a7, 0x048F,
       "Visioneer", "Patriot 470",
       AV_INT_BUTTON,0},
       /* comment="sheetfed scanner" */
       /* status="complete" */
+#endif
 
     { NULL, NULL,
       0x04a7, 0x0498,
@@ -1102,11 +1108,13 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_INT_BUTTON,0},
     /* status="untested" */
 
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x04a7, 0x0498,
       "Xerox", "DocuMate632",
       AV_INT_BUTTON,0},
     /* status="untested" */
+#endif
 
     { NULL, NULL,
       0x04a7, 0x0478,
@@ -1120,12 +1128,14 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_INT_BUTTON,0},
     /* status="untested" */
 
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x0638, 0x0a16,
       "OKI", "S700 Scancopier",
       0,0},
     /* comment="1 pass, 600 dpi, A4" */
     /* status="good" */
+#endif
 
     { "B+H", "2000F",
       0, 0,

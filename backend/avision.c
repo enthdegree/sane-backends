@@ -5549,40 +5549,29 @@ set_window (Avision_Scanner* s)
   /* ADF scan? */
   DBG (3, "set_window: source mode %d source mode dim %d\n",
        s->source_mode, s->source_mode_dim);
-  {
-    int adf_mode = 0;  /* offset by 1 to save a is_adf bool */
-    switch (s->source_mode) {
-    case AV_ADF:
-      adf_mode = 1;
-      break;
-    case AV_ADF_REAR:
-      adf_mode = 2;
-      break;
-    case AV_ADF_DUPLEX:
-      adf_mode = 3;
-      break;
-    default:
-      ; /* silence GCC */
-    }
-    if (adf_mode) {
-      DBG (3, "set_window: filling ADF bits\n");
-      SET_BIT (cmd.window.avision.bitset1, 7);
-      adf_mode--;
 
-      /* normal, interlaced duplex scanners */
-      if (dev->inquiry_duplex_interlaced) {
-        DBG (3, "set_window: interlaced duplex type\n");
-        cmd.window.avision.type.normal.bitset3 |= (adf_mode << 3);
+  if (s->source_mode == AV_ADF ||
+      s->source_mode == AV_ADF_REAR ||
+      s->source_mode == AV_ADF_DUPLEX) {
+    DBG (3, "set_window: filling ADF bits\n");
+    SET_BIT (cmd.window.avision.bitset1, 7);
+
+    /* normal, interlaced duplex scanners */
+    if (dev->inquiry_duplex_interlaced) {
+      DBG (3, "set_window: interlaced duplex type\n");
+      if (s->source_mode == AV_ADF_REAR) {
+        SET_BIT(cmd.window.avision.type.normal.bitset3, 3); /* 0x08 */
       }
-      else /* HP 2-pass duplex */
-      {
-	if (adf_mode) /* if duplex */
-	{
-          DBG (3, "set_window: non-interlaced duplex type (HP)\n");
-          /* MIRR 0x04 | FLIP 0x02 | DPLX 0x01 ... */
-	  cmd.window.avision.type.normal.bitset3 |= 7;
-	}
+      if (s->source_mode == AV_ADF_DUPLEX) {
+        SET_BIT(cmd.window.avision.type.normal.bitset3, 4); /* 0x10 */
       }
+    }
+    else if (s->source_mode == AV_ADF_DUPLEX) /* HP 2-pass duplex */
+    {
+      DBG (3, "set_window: non-interlaced duplex type (HP)\n");
+      SET_BIT(cmd.window.avision.type.normal.bitset3, 0); /* DPLX 0x01 */
+      SET_BIT(cmd.window.avision.type.normal.bitset3, 1); /* FLIP 0x02 */
+      SET_BIT(cmd.window.avision.type.normal.bitset3, 2); /* MIRR 0x04 */
     }
   }
   

@@ -1,3 +1,20 @@
+2010-12-23 Mike Kelly <mike@piratehaven.org>
+	* backends/avision.[ch]:
+	- Bumped build number to 293.
+	- Removed "regularly tested" from various scanners.
+	- Fixed USB id for Avision FB2080E.
+	- Added support for the Avision AV210D2+ scanner.
+	- Moved device init code to sane_get_devices().
+	- Rewrote indirect "adf_mode" code to be more direct.
+	- Fixed indentation.
+	- Changed AVISION_FILTER_* defines to use final values.
+	- Wrap duplicate USB id entries with ifdefs.
+	- Removed a duplicate entry for Avision AV210C2.
+	- Print out USB ids as four digit hex numbers.
+	- Enhanced sane_get_option_descriptor() debug message.
+	* doc/descriptions/avision.desc:
+	- (Re)generated from avision.c.
+
 2010-12-19 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl124.h: LiDE 210 GPIO fix
 

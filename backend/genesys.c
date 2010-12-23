@@ -1052,7 +1052,7 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
 
   /* these models don't need to init shading data due to the use of specific send shading data
      function */
-  if(dev->model->ccd_type==CCD_KVSS080 || dev->model->ccd_type==CCD_G4050 || dev->model->asic_type == GENESYS_GL124)
+  if(dev->model->ccd_type==CCD_KVSS080 || dev->model->ccd_type==CCD_G4050 || dev->model->cmd_set->send_shading_data!=NULL)
     return SANE_STATUS_GOOD;
 
   DBG (DBG_proc, "sanei_genesys_init_shading_data (pixels_per_line = %d)\n",
@@ -3220,7 +3220,7 @@ genesys_restore_calibration (Genesys_Device * dev)
 		  cache->white_average_data, dev->average_size);
 
 
-        if(dev->model->asic_type != GENESYS_GL124)
+        if(dev->model->cmd_set->send_shading_data!=NULL)
           {
             status = genesys_send_shading_coefficient (dev);
             if (status != SANE_STATUS_GOOD)
@@ -3540,7 +3540,7 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	}
     }
 
-  if(dev->model->asic_type != GENESYS_GL124)
+  if(dev->model->cmd_set->send_shading_data!=NULL)
     {
       status = genesys_send_shading_coefficient (dev);
       if (status != SANE_STATUS_GOOD)
@@ -3759,7 +3759,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
 
   /* send the shading coefficient when doing whole line shading
    * but not when using SHDAREA like GL124 */
-  if(dev->model->asic_type != GENESYS_GL124)
+  if(dev->model->cmd_set->send_shading_data!=NULL)
     {
       status = genesys_send_shading_coefficient (dev);
       if (status != SANE_STATUS_GOOD)
@@ -4247,7 +4247,7 @@ genesys_start_scan (Genesys_Device * dev)
   
   /* GL124 is using SHDAREA, so we have to wait for scan to be set up before
    * sending shading data */
-  if(dev->model->asic_type == GENESYS_GL124)
+  if(dev->model->cmd_set->send_shading_data!=NULL)
     {
       status = genesys_send_shading_coefficient (dev);
       if (status != SANE_STATUS_GOOD)

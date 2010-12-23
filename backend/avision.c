@@ -380,7 +380,7 @@ static Avision_HWEntry Avision_Device_List [] =
       0, 0,
       "Avision", "AV630CS",
       0,0},
-    /* comment="1 pass, 1200 dpi - regularly tested" */
+    /* comment="1 pass, 1200 dpi" */
     /* status="complete" */
     
     { "AVISION", "AV630CSL",
@@ -555,7 +555,7 @@ static Avision_HWEntry Avision_Device_List [] =
       0, 0,
       "Avision", "AV8000S",
       AV_DOES_NOT_KEEP_WINDOW,0},
-    /* comment="1 pass, 1200 dpi, A3 - regularly tested" */
+    /* comment="1 pass, 1200 dpi, A3" */
     /* status="complete" */
 
     { NULL, NULL,
@@ -613,7 +613,7 @@ static Avision_HWEntry Avision_Device_List [] =
       0x03f0, 0x0701,
       "Hewlett-Packard", "ScanJet 5300C",
       AV_INT_STATUS,0},
-    /* comment="1 pass, 2400 dpi - regularly tested - some FW revisions have x-axis image scaling problems over 1200 dpi" */
+    /* comment="1 pass, 2400 dpi - some FW revisions have x-axis image scaling problems over 1200 dpi" */
     /* status="complete" */
 
     { "HP",      "ScanJet 5370C",
@@ -635,7 +635,7 @@ static Avision_HWEntry Avision_Device_List [] =
       0x03f0, 0x0801,
       "Hewlett-Packard", "ScanJet 7450c",
       AV_NO_64BYTE_ALIGN | AV_INT_STATUS,0},
-    /* comment="1 pass, 2400 dpi - dual USB/SCSI interface - regularly tested" */
+    /* comment="1 pass, 2400 dpi - dual USB/SCSI interface" */
     /* status="good" */
     
     { "hp",      "scanjet 7490c",

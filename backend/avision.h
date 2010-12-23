@@ -199,7 +199,10 @@ typedef struct Avision_HWEntry {
   /*second enum cause 32 bit int above is full*/
   enum {
     /* force no calibration */
-    AV_NO_TUNE_SCAN_LENGTH = (1<<0)
+    AV_NO_TUNE_SCAN_LENGTH = (1<<0),
+
+    /* for gray scans, set grey filter */
+    AV_USE_GRAY_FILTER = (1<<1)
   } feature_type2;
 
 } Avision_HWEntry;

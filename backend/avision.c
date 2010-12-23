@@ -239,6 +239,13 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="complete" */
 
     { NULL, NULL,
+      0x0638, 0x1A35,
+      "Avision", "AV210D2+",
+      AV_INT_BUTTON, AV_USE_GRAY_FILTER},
+    /* comment="sheetfed scanner" */
+    /* status="complete" */
+
+    { NULL, NULL,
       0x0638, 0x0A23,
       "Avision", "AV220",
       AV_INT_BUTTON,0},
@@ -3172,6 +3179,7 @@ string_for_button (Avision_Scanner* s, int button)
     }
   
   if (strcmp (dev->sane.model, "AV210C2") == 0 ||
+      strcmp (dev->sane.model, "AV210D2+") == 0 ||
       strcmp (dev->sane.model, "AV220C2") == 0 ||
       strcmp (dev->sane.model, "AV610C2") == 0
       )
@@ -5680,6 +5688,8 @@ set_window (Avision_Scanner* s)
   else {
     if (dev->hw->feature_type & AV_FASTER_WITH_FILTER)
       cmd.window.avision.bitset1 |= AVISION_FILTER_GREEN;
+    else if (dev->hw->feature_type2 & AV_USE_GRAY_FILTER)
+      cmd.window.avision.bitset1 |= AVISION_FILTER_GRAY;
     else
       cmd.window.avision.bitset1 |= AVISION_FILTER_NONE;
   }

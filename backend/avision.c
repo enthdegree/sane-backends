@@ -7359,14 +7359,6 @@ attach_one_usb (const char* dev)
 SANE_Status
 sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 {
-  FILE* fp;
-  
-  char line[PATH_MAX];
-  const char* cp = 0;
-  char* word;
-  int linenumber = 0;
-  int model_num = 0;  
-
   authorize = authorize; /* silence gcc */
   
   DBG_INIT();
@@ -7379,16 +7371,30 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
        SANE_CURRENT_MAJOR, V_MINOR, BACKEND_BUILD);
   
   /* must come first */
-  sanei_usb_init ();
   sanei_thread_init ();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BACKEND_BUILD);
+
+  return SANE_STATUS_GOOD;
+}
   
+static SANE_Status
+sane_reload_devices (void)
+{
+  FILE* fp;
+  
+  char line[PATH_MAX];
+  const char* cp = 0;
+  char* word;
+  int linenumber = 0;
+  int model_num = 0;  
+
+  sanei_usb_init ();
   fp = sanei_config_open (AVISION_CONFIG_FILE);
   if (fp <= (FILE*)0)
     {
-      DBG (1, "sane_init: No config file present!\n");
+      DBG (1, "sane_reload_devices: No config file present!\n");
     }
   else
     {
@@ -7400,13 +7406,13 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  word = NULL;
 	  ++ linenumber;
       
-	  DBG (5, "sane_init: parsing config line \"%s\"\n",
+	  DBG (5, "sane_reload_devices: parsing config line \"%s\"\n",
 	       line);
       
 	  cp = sanei_config_get_string (line, &word);
 	  
 	  if (!word || cp == line) {
-	    DBG (5, "sane_init: config file line %d: ignoring empty line\n",
+	    DBG (5, "sane_reload_devices: config file line %d: ignoring empty line\n",
 		 linenumber);
 	    if (word) {
 	      free (word);
@@ -7416,13 +7422,13 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  }
 	  
 	  if (!word) {
-	    DBG (1, "sane_init: config file line %d: could not be parsed\n",
+	    DBG (1, "sane_reload_devices: config file line %d: could not be parsed\n",
 		 linenumber);
 	    continue;
 	  }
 	  
 	  if (word[0] == '#') {
-	    DBG (5, "sane_init: config file line %d: ignoring comment line\n",
+	    DBG (5, "sane_reload_devices: config file line %d: ignoring comment line\n",
 		 linenumber);
 	    free (word);
 	    word = NULL;
@@ -7436,57 +7442,57 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	      cp = sanei_config_get_string (cp, &word);
 	  
 	      if (strcmp (word, "disable-gamma-table") == 0) {
-		DBG (3, "sane_init: config file line %d: disable-gamma-table\n",
+		DBG (3, "sane_reload_devices: config file line %d: disable-gamma-table\n",
 		     linenumber);
 		disable_gamma_table = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "disable-calibration") == 0) {
-		DBG (3, "sane_init: config file line %d: disable-calibration\n",
+		DBG (3, "sane_reload_devices: config file line %d: disable-calibration\n",
 		     linenumber);
 		disable_calibration = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "force-calibration") == 0) {
-		DBG (3, "sane_init: config file line %d: force-calibration\n",
+		DBG (3, "sane_reload_devices: config file line %d: force-calibration\n",
 		     linenumber);
 		force_calibration = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "force-a4") == 0) {
-		DBG (3, "sane_init: config file line %d: enabling force-a4\n",
+		DBG (3, "sane_reload_devices: config file line %d: enabling force-a4\n",
 		     linenumber);
 		force_a4 = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "force-a3") == 0) {
-		DBG (3, "sane_init: config file line %d: enabling force-a3\n",
+		DBG (3, "sane_reload_devices: config file line %d: enabling force-a3\n",
 		     linenumber);
 		force_a3 = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "static-red-calib") == 0) {
-		DBG (3, "sane_init: config file line %d: static red calibration\n",
+		DBG (3, "sane_reload_devices: config file line %d: static red calibration\n",
 		     linenumber);
 		static_calib_list [0] = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "static-green-calib") == 0) {
-		DBG (3, "sane_init: config file line %d: static green calibration\n",
+		DBG (3, "sane_reload_devices: config file line %d: static green calibration\n",
 		    linenumber);
 		static_calib_list [1] = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "static-blue-calib") == 0) {
-		DBG (3, "sane_init: config file line %d: static blue calibration\n",
+		DBG (3, "sane_reload_devices: config file line %d: static blue calibration\n",
 		    linenumber);
 		static_calib_list [2] = SANE_TRUE; 
 	      }
 	      else
-		DBG (1, "sane_init: config file line %d: options unknown!\n",
+		DBG (1, "sane_reload_devices: config file line %d: options unknown!\n",
 		    linenumber);
 	    }
 	  else if (strcmp (word, "usb") == 0) {
-	    DBG (2, "sane_init: config file line %d: trying to attach USB:`%s'\n",
+	    DBG (2, "sane_reload_devices: config file line %d: trying to attach USB:`%s'\n",
 		 linenumber, line);
 	    /* try to attach USB device */
 	    sanei_usb_attach_matching_devices (line, attach_one_usb);
 	  }
 	  else if (strcmp (word, "scsi") == 0) {
-	    DBG (2, "sane_init: config file line %d: trying to attach SCSI: %s'\n",
+	    DBG (2, "sane_reload_devices: config file line %d: trying to attach SCSI: %s'\n",
 		 linenumber, line);
 	    
 	    /* the last time I verified (2003-03-18) this function
@@ -7494,9 +7500,9 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	    sanei_config_attach_matching_devices (line, attach_one_scsi);
 	  }
 	  else {
-	    DBG (1, "sane_init: config file line %d: OBSOLETE !! use the scsi keyword!\n",
+	    DBG (1, "sane_reload_devices: config file line %d: OBSOLETE !! use the scsi keyword!\n",
 		linenumber);
-	    DBG (1, "sane_init:   (see man sane-avision for details): trying to attach SCSI: %s'\n",
+	    DBG (1, "sane_reload_devices:   (see man sane-avision for details): trying to attach SCSI: %s'\n",
 		line);
 	  
 	    /* the last time I verified (2003-03-18) this function
@@ -7527,7 +7533,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
       
 	if (attaching_hw->usb_vendor != 0 && attaching_hw->usb_product != 0 )
 	{
-	  DBG (1, "sane_init: Trying to find USB device %.4x %.4x ...\n",
+	  DBG (1, "sane_reload_devices: Trying to find USB device %.4x %.4x ...\n",
 	       attaching_hw->usb_vendor,
 	       attaching_hw->usb_product);
 	  
@@ -7535,7 +7541,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  if (sanei_usb_find_devices (attaching_hw->usb_vendor,
 				      attaching_hw->usb_product,
 				      attach_one_usb) != SANE_STATUS_GOOD) {
-	    DBG (1, "sane_init: error during USB device detection!\n");
+	    DBG (1, "sane_reload_devices: error during USB device detection!\n");
 	  }
 	}
       ++ model_num;
@@ -7575,6 +7581,8 @@ sane_get_devices (const SANE_Device*** device_list, SANE_Bool local_only)
   local_only = local_only; /* silence gcc */
 
   DBG (3, "sane_get_devices:\n");
+
+  sane_reload_devices ();
 
   if (devlist)
     free (devlist);

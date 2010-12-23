@@ -6653,6 +6653,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG_INIT ();
   DBG (DBG_init, "SANE Genesys backend version %d.%d build %d from %s\n",
        SANE_CURRENT_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
+#ifdef HAVE_LIBUSB_1_0
+  DBG (DBG_init, "SANE Genesys backend built with libusb-1.0\n");
+#endif
+#ifdef HAVE_LIBUSB
+  DBG (DBG_init, "SANE Genesys backend built with libusb\n");
+#endif
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);

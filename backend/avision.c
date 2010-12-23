@@ -545,7 +545,7 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="complete" */
 
     { NULL, NULL,
-      0x0638, 0xa84,
+      0x0638, 0x0a84,
       "Avision", "FB2080E",
       0,0},
     /* comment="1 pass, 600 dpi, zero-edge" ASIC 7 */

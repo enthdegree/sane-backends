@@ -326,7 +326,7 @@
 
 :model "FB2080E"
 :interface "USB"
-:usbid "0x0638" "0xa84"
+:usbid "0x0638" "0x0a84"
 :comment "1 pass, 600 dpi, zero-edge" ASIC 7
 :status :basic
 

@@ -2,7 +2,8 @@
 
    (C) 2003-2004 Lexmark International, Inc. (Original Source code)
    (C) 2005 Fred Odendaal
-   (C) 2006-2009 Stéphane Voltz <stef.dev@free.fr>
+   (C) 2006-2010 Stéphane Voltz <stef.dev@free.fr>
+   (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
    
    This file is part of the SANE package.
 
@@ -47,7 +48,7 @@
 #include "lexmark.h"
 
 #define LEXMARK_CONFIG_FILE "lexmark.conf"
-#define BUILD 21
+#define BUILD 30
 #define MAX_OPTION_STRING_SIZE 255
 
 static Lexmark_Device *first_lexmark_device = 0;
@@ -78,6 +79,10 @@ static SANE_Int x1200_dpi_list[] = {
   4, 75, 150, 300, 600
 };
 
+static SANE_Int x74_dpi_list[] = {
+  75, 150, 300, 600
+};
+
 static SANE_Range threshold_range = {
   SANE_FIX (0.0),		/* minimum */
   SANE_FIX (100.0),		/* maximum */
@@ -103,6 +108,7 @@ static SANE_Range x_range = {
 static SANE_Range y_range = {
   0,				/* minimum */
   6848,				/* maximum */
+  /* 7032, for X74 */
   8				/* quantization */
 };
 
@@ -169,6 +175,9 @@ init_options (Lexmark_Device * dev)
     case X1200_SENSOR:
     case X1200_USB2_SENSOR:
       od->constraint.word_list = x1200_dpi_list;
+      break;
+    case X74_SENSOR:
+      od->constraint.word_list = x74_dpi_list;
       break;
     }
   dev->val[OPT_RESOLUTION].w = 75;
@@ -369,7 +378,7 @@ attachLexmark (SANE_String_Const devname)
   status = SANE_STATUS_GOOD;
   /* put the id of the model you want to fake here */
   vendor = 0x043d;
-  product = 0x007c;	/* X11xx */
+  product = 0x007c;		/* X11xx */
   variant = 0xb2;
 #else
   variant = 0;
@@ -392,10 +401,9 @@ attachLexmark (SANE_String_Const devname)
   DBG (2, "attachLexmark: testing device `%s': 0x%04x:0x%04x, variant=%d\n",
        devname, vendor, product, variant);
   if (sanei_lexmark_low_assign_model (lexmark_device,
-			  		devname,
-					vendor,
-					product,
-					variant) != SANE_STATUS_GOOD)
+				      devname,
+				      vendor,
+				      product, variant) != SANE_STATUS_GOOD)
     {
       DBG (2, "attachLexmark: unsupported device `%s': 0x%04x:0x%04x\n",
 	   devname, vendor, product);
@@ -444,7 +452,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG_INIT ();
 
-  DBG (1, "SANE Lexmark backend version %d.%d.%d-devel\n", SANE_CURRENT_MAJOR, V_MINOR, BUILD);
+  DBG (1, "SANE Lexmark backend version %d.%d.%d-devel\n", SANE_CURRENT_MAJOR,
+       V_MINOR, BUILD);
 
   auth_callback = authorize;
 
@@ -1106,18 +1115,19 @@ sane_start (SANE_Handle handle)
       /* We may have been rewound too far, so move forward the distance from
          the edge to the home position */
       sanei_lexmark_low_move_fwd (0x01a8, lexmark_device,
-				    lexmark_device->shadow_regs);
+				  lexmark_device->shadow_regs);
 
       /* Scan backwards until we find home */
       sanei_lexmark_low_search_home_bwd (lexmark_device);
     }
-
   /* do calibration before offset detection , use sensor max dpi, not motor's one */
   resolution = lexmark_device->val[OPT_RESOLUTION].w;
-  if(resolution > 600)
-  {
-	  resolution = 600;
-  }
+  if (resolution > 600)
+    {
+      resolution = 600;
+    }
+
+
   sanei_lexmark_low_set_scan_regs (lexmark_device, resolution, 0, SANE_FALSE);
   status = sanei_lexmark_low_calibration (lexmark_device);
   if (status != SANE_STATUS_GOOD)
@@ -1138,8 +1148,10 @@ sane_start (SANE_Handle handle)
   /* Set the shadow registers for scan with the options (resolution, mode, 
      size) set in the front end. Pass the offset so we can get the vert.
      start. */
-  sanei_lexmark_low_set_scan_regs (lexmark_device, lexmark_device->val[OPT_RESOLUTION].w, offset, SANE_TRUE);
-  
+  sanei_lexmark_low_set_scan_regs (lexmark_device,
+				   lexmark_device->val[OPT_RESOLUTION].w,
+				   offset, SANE_TRUE);
+
   if (sanei_lexmark_low_start_scan (lexmark_device) == SANE_STATUS_GOOD)
     {
       DBG (2, "sane_start: scan started\n");
@@ -1202,7 +1214,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
     return SANE_STATUS_INVAL;
 
   bytes_read = sanei_lexmark_low_read_scan_data (data, max_length,
-						   lexmark_device);
+						 lexmark_device);
   if (bytes_read < 0)
     return SANE_STATUS_IO_ERROR;
   else if (bytes_read == 0)

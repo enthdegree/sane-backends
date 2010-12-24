@@ -2593,9 +2593,14 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
   resolution=gl124_compute_dpihw(dev,dev->settings.xres);
   dev->calib_pixels = (dev->sensor.sensor_pixels*resolution)/dev->sensor.optical_res;
 
-  /* distance to move to reach white target */
-  move = SANE_UNFIX (dev->model->y_offset_calib);
-  move = (move * resolution) / MM_PER_INCH;
+  /* distance to move to reach white target at high resolution */
+  move=0;
+  if(3*dev->settings.yres>=1200)
+    {
+      move = SANE_UNFIX (dev->model->y_offset_calib);
+      move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
+    }
+  DBG (DBG_io, "%s: move=%d steps\n", __FUNCTION__, move);
 
   status = gl124_init_scan_regs (dev,
 				 dev->calib_reg,
@@ -2722,7 +2727,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
   move = SANE_UNFIX (dev->model->y_offset);
   move += dev->settings.tl_y;
   move = (move * move_dpi) / MM_PER_INCH;
-  DBG (DBG_info, "gl124_init_regs_for_scan: move=%f steps\n", move);
+  DBG (DBG_info, "%s: move=%f steps\n", __FUNCTION__, move);
 
   if(channels*dev->settings.yres>=1200 && move>3000)
     {

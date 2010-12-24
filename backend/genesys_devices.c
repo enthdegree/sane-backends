@@ -1271,7 +1271,7 @@ static Genesys_Model canon_lide_110_model = {
   SANE_FIX (213.80),		/* Size of scan area in mm (x) */
   SANE_FIX (297.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (1.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -1301,7 +1301,7 @@ static Genesys_Model canon_lide_110_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  60,
+  50,
   400
 };
 
@@ -1353,7 +1353,7 @@ static Genesys_Model canon_lide_210_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  60,
+  50,
   400
 };
 

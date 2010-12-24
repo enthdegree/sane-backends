@@ -113,15 +113,27 @@
 :usbid "0x04a9" "0x1909"
 :status :complete
 
+:model "CanoScan LiDE 200"
+:interface "USB"
+:usbid "0x04a9" "0x1905"
+:status :complete
+
 :model "CanoScan LiDE 210"
 :interface "USB"
 :usbid "0x04a9" "0x190a"
 :status :complete
 
-:model "CanoScan LiDE 200"
+:model "CanoScan 5600F"
 :interface "USB"
-:usbid "0x04a9" "0x1905"
-:status :complete
+:usbid "0x04a9" "0x1906"
+:status :unsupported
+:comment "GL847 based, to be added to the genesys backend"
+
+:model "CanoScan 700F"
+:interface "USB"
+:usbid "0x04a9" "0x1907"
+:status :unsupported
+:comment "GL847 based, to be added to the genesys backend"
 
 ; -----------------------------------------------------------------------------
 

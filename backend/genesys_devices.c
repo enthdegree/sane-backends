@@ -9,6 +9,8 @@
    Copyright (C) 2010 Jack McGill <jmcgill85258@yahoo.com>
    Copyright (C) 2010 Andrey Loginov <avloginov@gmail.com>,
    		xerox travelscan device entry
+   Copyright (C) 2010 Chris Berry <s0457957@sms.ed.ac.uk> and Michael Rickmann <mrickma@gwdg.de>
+                 for Plustek Opticbook 3600 support
    
    This file is part of the SANE package.
    

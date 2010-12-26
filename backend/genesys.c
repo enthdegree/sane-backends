@@ -6,6 +6,8 @@
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
+   Copyright (C) 2010 Chris Berry <s0457957@sms.ed.ac.uk> and Michael Rickmann <mrickma@gwdg.de>
+                 for Plustek Opticbook 3600 support
 
    Dynamic rasterization code was taken from the epjistsu backend by
    m. allan noah <kitno455 at gmail dot com>

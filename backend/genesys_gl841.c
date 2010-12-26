@@ -3,10 +3,12 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004, 2009 Stephane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2010 Stephane Voltz <stef.dev@free.fr>
    Copyright (C) 2005 Philipp Schmid <philipp8288@web.de>
-   Copyright (C) 2005 - 2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
+   Copyright (C) 2010 Chris Berry <s0457957@sms.ed.ac.uk> and Michael Rickmann <mrickma@gwdg.de>
+                 for Plustek Opticbook 3600 support
    
     
    This file is part of the SANE package.

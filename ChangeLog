@@ -1,3 +1,8 @@
+2010-12-26 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c backend/genesys_gl124.c
+	doc/descriptions/genesys.desc doc/sane-genesys.man: enable 16 bit 
+	gamma for gl124 scanners, models and credits update.
+
 2010-12-24 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl124.c backend/genesys.c
 	doc/descriptions/genesys.desc: GL847 shading area size fix, GL124

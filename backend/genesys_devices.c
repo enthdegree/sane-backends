@@ -1048,7 +1048,7 @@ static Genesys_Model canon_lide_50_model = {
 static Genesys_Model panasonic_kvss080_model = {
   "panasonic-kv-ss080",		/* Name */
   "Panasonic",			/* Device vendor string */
-  "KS-SS080",			/* Device model name */
+  "KV-SS080",			/* Device model name */
   GENESYS_GL843,
   NULL,
 

@@ -170,6 +170,14 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00, 0x00, 0x00}
    }
   ,
+  {DAC_PLUSTEK_3600,
+     {0x70, 0x80, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x3f, 0x3d, 0x3d}
+   , {0x00, 0x00, 0x00}
+   }
+  ,
 };
 
 
@@ -533,6 +541,28 @@ static Genesys_Sensor Sensor[] = {
    1.7, 1.7, 1.7,
    NULL, NULL, NULL}
   ,
+  {CCD_PLUSTEK_3600, 1200,
+   /*TODO: find a good reason for keeping all three following variables*/
+   87,				/*(black) */
+   87,				/* (dummy) */
+   0,				/* (startxoffset) */
+   10100,			/*sensor_pixels */
+   210,
+   230,
+   {0x00, 0x00, 0x00, 0x00},
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0b, 0x11, 0x2a,
+    0x00, 0x00, 0x00, 0xc4	/* TODO(these do no harm, but may be neccessery for CCD) */
+   },
+   {0x07, 0x0a,
+    0x0c, 0x00, 0x02, 0x06,	/*[GB](HI|LOW) not needed for cis */
+    0x22, 0x69,
+    0x40,			/*TODO: bit7 */
+    0x00, 0x00, 0x00, 0x02	/*TODO (these do no harm, but may be neccessery for CCD) */
+   }
+   ,
+   1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
+  ,
 };
 
 /** for General Purpose Output specific settings:
@@ -653,6 +683,11 @@ static Genesys_Gpo Gpo[] = {
    {0xff, 0x00},
   }
   ,
+  /* Plustek 3600 */
+  {GPO_PLUSTEK_3600,
+   {0x02, 0x00},
+   {0x1e, 0x80},
+  }
 };
 
 static Genesys_Motor Motor[] = {
@@ -936,6 +971,17 @@ static Genesys_Motor Motor[] = {
 	   },
     },
   },
+  {MOTOR_PLUSTEK_3600,		/* PLUSTEK 3600 */
+   1200,
+   2400,
+   1,
+   1,
+   {
+     {
+       { 3500, 1300, 60, 0.8 },
+       { 3500, 3250, 60, 0.8 },
+     },
+   },},
 };
 
 /* here we have the various device settings...
@@ -2523,26 +2569,83 @@ static Genesys_Model xerox_travelscanner_model = {
   400
 };
 
+static Genesys_Model plustek_3600_model = {
+  "plustek-opticbook-3600",	/* Name */
+  "PLUSTEK",			/* Device vendor string */
+  "OpticBook 3600",		/* Device model name */
+  GENESYS_GL841,
+  NULL,
+  {/*1200,*/ 600, 400, 300, 200, 150, 100, 75, 0},		/* possible x-resolutions */
+  {/*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.42),/*SANE_FIX (0.42),		 Start of scan area in mm  (x) */
+  SANE_FIX (6.75),/*SANE_FIX (7.9),		 Start of scan area in mm (y) */
+  SANE_FIX (216.0),/*SANE_FIX (216.0),		 Size of scan area in mm (x) */
+  SANE_FIX (297.0),/*SANE_FIX (297.0),		 Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (0.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document
+				   after finishing scanning in mm */
+ 
+  0, 24, 48,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CCD_PLUSTEK_3600,
+  DAC_PLUSTEK_3600,
+  GPO_PLUSTEK_3600,
+  MOTOR_PLUSTEK_3600,
+  GENESYS_FLAG_UNTESTED		/* not fully working yet */
+	  | GENESYS_FLAG_CUSTOM_GAMMA
+	  | GENESYS_FLAG_SKIP_WARMUP
+	  | GENESYS_FLAG_DARK_CALIBRATION
+	  | GENESYS_FLAG_OFFSET_CALIBRATION
+  	  | GENESYS_FLAG_LAZY_INIT
+  	  | GENESYS_FLAG_HALF_CCD_MODE,/*
+      | GENESYS_FLAG_NO_CALIBRATION,*/
+  GENESYS_HAS_NO_BUTTONS,
+  7,
+  200
+};
+ 
 
 
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
+  /* GL646 devices */
   {0x03f0, 0x0901, &hp2300c_model},
   {0x03f0, 0x0a01, &hp2400c_model},
   {0x03f0, 0x1405, &hp3670c_model},
   {0x0461, 0x0377, &medion_md5345_model},
   {0x04a7, 0x0229, &visioneer_7100_model},
   {0x04a7, 0x0426, &visioneer_xp200_model},
+  {0x0638, 0x0a10, &umax_astra_4500_model},
+  {0x07b3, 0x0600, &plustek_st12_model},
+  {0x07b3, 0x0601, &plustek_st24_model},
+  /* GL841 devices */
   {0x04a7, 0x0474, &visioneer_xp300_model},
   {0x04a7, 0x0494, &visioneer_roadwarrior_model},
   {0x04a7, 0x049b, &visioneer_xp100_r3_model},
   {0x04a7, 0x04ac, &xerox_travelscanner_model},
   {0x04a9, 0x2213, &canon_lide_50_model},
   {0x04a9, 0x221c, &canon_lide_60_model},
-  {0x0638, 0x0a10, &umax_astra_4500_model},
-  {0x07b3, 0x0600, &plustek_st12_model},
-  {0x07b3, 0x0601, &plustek_st24_model},
+  {0x07b3, 0x0900, &plustek_3600_model},
   {0x0a17, 0x3210, &pentax_dsmobile_600_model},
-  {0x04f9, 0x2038, &pentax_dsmobile_600_model},
+  {0x04f9, 0x2038, &pentax_dsmobile_600_model}, /* clone, only usb id is different */
   {0x0a82, 0x4800, &syscan_docketport_485_model},
   {0x0a82, 0x4802, &syscan_docketport_465_model},
   {0x0a82, 0x4803, &syscan_docketport_665_model},

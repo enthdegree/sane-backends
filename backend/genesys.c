@@ -2746,6 +2746,100 @@ compute_planar_coefficients (Genesys_Device * dev,
   }
 }
 
+#ifndef UNIT_TESTING
+static
+#endif
+void
+compute_shifted_coefficients (Genesys_Device * dev,
+			      uint8_t * shading_data,
+			      unsigned int pixels_per_line,
+			      unsigned int channels,
+			      int cmat[3],
+			      int offset,
+			      unsigned int coeff,
+			      unsigned int target_dark,
+			      unsigned int target_bright,
+			      unsigned int patch_size)		/* contigous extent */
+{
+  unsigned int x, avgpixels, i, j, val1, val2;
+  unsigned int br_tmp [3], dk_tmp [3];
+  uint8_t *ptr = shading_data + offset * 3 * 4;                 /* contain 16bit words in little endian */
+  unsigned int patch_cnt = offset * 3;                          /* at start, offset of first patch */
+
+  x = dev->settings.xres;
+  if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE) &&
+      (dev->settings.xres <= dev->sensor.optical_res / 2))
+    x *= 2;							/* scanner is using half-ccd mode */
+  avgpixels = dev->sensor.optical_res / x;			/*this should be evenly dividable */
+
+      /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
+      if (avgpixels < 1)
+        avgpixels = 1;
+      else if (avgpixels < 6)
+        avgpixels = avgpixels;
+      else if (avgpixels < 8)
+        avgpixels = 6;
+      else if (avgpixels < 10)
+        avgpixels = 8;
+      else if (avgpixels < 12)
+        avgpixels = 10;
+      else if (avgpixels < 15)
+        avgpixels = 12;
+      else
+        avgpixels = 15;
+  DBG (DBG_info, "compute_shifted_coefficients: pixels_per_line=%d,  coeff=0x%04x,  averaging over %d pixels\n", pixels_per_line, coeff, avgpixels);
+
+  for (x = 0; x <= pixels_per_line - avgpixels; x += avgpixels) {
+    memset (&br_tmp, 0, sizeof(br_tmp));
+    memset (&dk_tmp, 0, sizeof(dk_tmp));
+
+    for (i = 0; i < avgpixels; i++) {
+      for (j = 0; j < channels; j++) {
+        br_tmp[j]  += (dev->white_average_data[((x + i) * channels + j) * 2] | 
+                      (dev->white_average_data[((x + i) * channels + j) * 2 + 1] << 8));
+        dk_tmp[i] += (dev->dark_average_data[((x + i) * channels + j) * 2] | 
+                     (dev->dark_average_data[((x + i) * channels + j) * 2 + 1] << 8));
+      }
+    }
+    for (j = 0; j < channels; j++) {
+      br_tmp[j] /= avgpixels;
+      dk_tmp[j] /= avgpixels;
+
+      if (br_tmp[j] * target_dark > dk_tmp[j] * target_bright)
+        val1 = 0;
+      else if (dk_tmp[j] * target_bright - br_tmp[j] * target_dark > 65535 * (target_bright - target_dark))
+        val1 = 65535;
+      else
+        val1 = (dk_tmp[j] * target_bright - br_tmp[j] * target_dark) / (target_bright - target_dark);
+
+      val2 = br_tmp[j] - dk_tmp[j];
+      if (65535 * val2 > (target_bright - target_dark) * coeff)
+        val2 = (coeff * (target_bright - target_dark)) / val2;
+      else
+        val2 = 65535;
+
+      br_tmp[j] = val1;
+      dk_tmp[j] = val2;
+    }
+    for (i = 0; i < avgpixels; i++) {
+      for (j = 0; j < channels; j++) {
+        * ptr++ = br_tmp[ cmat[j] ] & 0xff;
+        * ptr++ = br_tmp[ cmat[j] ] >> 8;
+        * ptr++ = dk_tmp[ cmat[j] ] & 0xff;
+        * ptr++ = dk_tmp[ cmat[j] ] >> 8;
+        patch_cnt++;
+        if (patch_cnt == patch_size) {
+          patch_cnt = 0;
+          val1 = cmat[2];
+          cmat[2] = cmat[1];
+          cmat[1] = cmat[0];
+          cmat[0] = val1;
+        }
+      }
+    }
+  }
+}
+
 static SANE_Status
 genesys_send_shading_coefficient (Genesys_Device * dev)
 {
@@ -3142,6 +3236,18 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	  }
       }
 */
+      break;
+    case CCD_PLUSTEK_3600:
+      compute_shifted_coefficients (dev,
+			            shading_data,
+			            pixels_per_line,
+			            channels,
+			            cmat,
+			            12,         /* offset */
+			            coeff,
+ 			            0x0001,      /* target_dark */
+			            0xf900,      /* target_bright */
+			            256);        /* patch_size: contigous extent */
       break;
     default:
       DBG (DBG_error,

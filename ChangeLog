@@ -1,4 +1,11 @@
 2010-12-27 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys.conf.in backend/genesys_devices.c
+	backend/genesys_gl841.c backend/genesys_low.h
+	doc/descriptions/genesys.desc doc/descriptions/unsupported.desc
+	doc/sane-genesys.man: add Plustek OpticBook 3600 support 
+	by Chris Berry <s0457957@sms.ed.ac.uk> and Michael Rickmann <mrickma@gwdg.de>
+
+2010-12-27 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl124.c backend/genesys.c
 	doc/descriptions/genesys.desc doc/sane-genesys.man: enable 16 bit gamma
 	for gl124 scanners, models and credits update.

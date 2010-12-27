@@ -895,7 +895,7 @@ static Genesys_Motor Motor[] = {
   {MOTOR_DSMOBILE_600,			/* Pentax DSmobile 600 */
    750,
    1500,
-   1,
+   2,
    1,
    {{{
      6666,
@@ -904,9 +904,9 @@ static Genesys_Motor Motor[] = {
      0.8,
      },
     {
-     11000,
-     11000,
-     2,
+     6666,
+     3700,
+     8,
      0.8,
      },},},
   },

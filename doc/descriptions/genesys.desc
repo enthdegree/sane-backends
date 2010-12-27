@@ -1,9 +1,21 @@
 :backend "genesys"
-:version "1.0-8"
+:version "1.0-62"
 :manpage "sane-genesys"
 :comment "Only the USB scanners mentioned below are currently supported."
 :url "http://www.meier-geinitz.de/sane/genesys-backend/"
 :devicetype :scanner
+
+; -----------------------------------------------------------------------------
+
+:mfg "Plustek"
+:url "http://www.plustek.de/"
+:url "http://www.plustek.com/"
+
+:model "OpticBook 3600"
+:interface "USB"
+:usbid "0x07b3" "0x0900"
+:status :basic
+:comment "Has a Primax USB ID"
 
 ; -----------------------------------------------------------------------------
 
@@ -229,6 +241,8 @@
 :usbid  "0x04a7" "0x04ac"
 :status :good
 :comment "All resolution and mode supported, calibration is available"
+
+; -----------------------------------------------------------------------------
 
 :mfg "Panasonic"
 

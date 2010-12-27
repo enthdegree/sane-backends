@@ -18,6 +18,8 @@ Medion MD5345/MD6228/MD6274
 .br 
 Panasonic KV-SS080
 .br
+Plustek OpticBook 3600
+.br
 Pentax DSmobile 600
 .br
 Syscan/Ambir DocketPORT 467/485/487/665/685

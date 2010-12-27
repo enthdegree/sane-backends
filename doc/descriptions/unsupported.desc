@@ -1759,13 +1759,6 @@
 :url "http://www.plustek.de/"
 :url "http://www.plustek.com/"
 
-:model "OpticBook 3600"
-:url "/unsupported/plustek-opticbook-3600.html"
-:interface "USB"
-:usbid "0x07b3" "0x0900"
-:status :unsupported
-:comment "GL842 based (similar to GL841?), maybe to be added to genesys backend. Bookscanner."
-
 :model "OpticFilm 7200"
 :url "/unsupported/plustek-opticfilm-7200.html"
 :interface "USB"

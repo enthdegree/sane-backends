@@ -96,3 +96,6 @@ usb 0x03f0 0x4505
 
 # Hewlett Packard ScanJet G4050
 usb 0x03f0 0x4605
+
+# Plustek OpticBook 3600
+usb 0x07b3 0x0900

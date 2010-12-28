@@ -1447,7 +1447,8 @@ static Genesys_Model canon_5600f_model = {
   DAC_CANONLIDE200,
   GPO_CANONLIDE200,
   MOTOR_CANONLIDE200,
-      GENESYS_FLAG_SKIP_WARMUP
+  GENESYS_FLAG_UNTESTED		/* not working yet */
+    | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_ODD_EVEN_CIS
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
@@ -1456,6 +1457,60 @@ static Genesys_Model canon_5600f_model = {
   60,
   400
 };
+
+static Genesys_Model canon_lide_700f_model = {
+  "canon-lide-700f",		/* Name */
+  "Canon",			/* Device vendor string */
+  "LiDE 700F",			/* Device model name */
+  GENESYS_GL847,
+  NULL,
+
+  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (1.1),		/* Start of scan area in mm  (x) */
+  SANE_FIX (8.3),		/* Start of scan area in mm (y) */
+  SANE_FIX (216.07),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CIS_CANONLIDE200,
+  DAC_CANONLIDE200,
+  GPO_CANONLIDE200,
+  MOTOR_CANONLIDE200,
+  GENESYS_FLAG_UNTESTED		/* not working yet */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_ODD_EVEN_CIS
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
+  60,
+  400
+};
+
 
 
 static Genesys_Model canon_lide_200_model = {
@@ -1608,6 +1663,7 @@ static Genesys_Model hp2300c_model = {
   GPO_HP2300,
   MOTOR_HP2300,
   GENESYS_FLAG_14BIT_GAMMA
+    | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_SEARCH_START
     | GENESYS_FLAG_DARK_CALIBRATION
@@ -2658,6 +2714,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a9, 0x1904, &canon_lide_100_model},
   {0x04a9, 0x1905, &canon_lide_200_model},
   {0x04a9, 0x1906, &canon_5600f_model},
+  {0x04a9, 0x1907, &canon_lide_700f_model},
   /* GL843 devices */
   {0x04da, 0x100f, &panasonic_kvss080_model},
   {0x03f0, 0x4505, &hpg4010_model},

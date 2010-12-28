@@ -1,3 +1,9 @@
+2010-12-28 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.conf.in backend/genesys_devices.c backend/genesys_gl646.c
+	backend/genesys_gl847.c backend/genesys_gl847.h:
+	fix HP2300 warming up problem, add LiDE 700F and 5600F to gl847
+	devices, smooth DSmobile 600 moves.
+
 2010-12-27 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.conf.in backend/genesys_devices.c
 	backend/genesys_gl841.c backend/genesys_low.h

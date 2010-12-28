@@ -3975,14 +3975,23 @@ gl847_init_memory_layout (Genesys_Device * dev)
 
   DBG (DBG_proc, "gl847_init_memory_layout\n");
 
-  /* point ot per model meory layout */
+  /* point to per model memory layout */
+  idx = 0;
   if (strcmp (dev->model->name, "canon-lide-100") == 0)
     {
       idx = 0;
     }
-  else
-    {				/* canon LiDE 200 case */
+  if (strcmp (dev->model->name, "canon-lide-200") == 0)
+    {
       idx = 1;
+    }
+  if (strcmp (dev->model->name, "canon-5600f") == 0)
+    {
+      idx = 2;
+    }
+  if (strcmp (dev->model->name, "canon-lide-700f") == 0)
+    {
+      idx = 3;
     }
 
   /* setup base address for shading data. */

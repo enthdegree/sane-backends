@@ -5481,9 +5481,13 @@ Problems with the first approach:
 	  DBG (DBG_error, "Cannot convert from 16bit to lineart\n");
 	  return SANE_STATUS_INVAL;
 	}
-/*lines in input*/
+      /* lines in input to process */
       dst_lines = bytes / (dev->settings.pixels * channels);
-
+      if(dst_lines==0)
+        {
+          /* padd to at least line length */
+          dst_lines=1;
+        }
       bytes = dst_lines * dev->settings.pixels * channels;
 
       status = genesys_gray_lineart (dev,
@@ -6052,10 +6056,6 @@ init_options (Genesys_Scanner * s)
   if (s->dev->model->asic_type == GENESYS_GL646 || s->dev->model->asic_type == GENESYS_GL847)
     {
       s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
-    }
-  if (s->dev->model->asic_type == GENESYS_GL124)
-    {
-      s->val[OPT_DISABLE_DYNAMIC_LINEART].w = SANE_TRUE;
     }
 
   /* disable_interpolation */

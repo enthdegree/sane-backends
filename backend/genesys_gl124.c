@@ -1071,11 +1071,12 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   /* STEPNO */
   sanei_genesys_set_double(reg,REG_STEPNO,scan_steps);
 
-  /* FASTNO */
-  sanei_genesys_set_double(reg,REG_FASTNO,scan_steps);
-
   /* fast table */
   fast_dpi=yres;
+  if (scan_mode != SCAN_MODE_COLOR)
+    {
+      fast_dpi*=3;
+    }
   fast_time=gl124_slope_table(fast_table,
                               &fast_steps,
                               fast_dpi,
@@ -1086,6 +1087,9 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
                               dev->model->motor_type);
   RIE(gl124_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps));
   RIE(gl124_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps));
+
+  /* FASTNO */
+  sanei_genesys_set_double(reg,REG_FASTNO,fast_steps);
 
   /* FSHDEC */
   sanei_genesys_set_double(reg,REG_FSHDEC,fast_steps);
@@ -1611,9 +1615,6 @@ gl124_init_scan_regs (Genesys_Device * dev,
     {
       depth = 8;
     }
-  /* XXX STEF XXX
-  if (depth == 16)
-    flags |= SCAN_FLAG_DISABLE_GAMMA; */
 
   /* we enable true gray for cis scanners only, and just when doing 
    * scan since color calibration is OK for this mode
@@ -2732,7 +2733,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
 
   if(channels*dev->settings.yres>=1200 && move>3000)
     {
-      move-=190;
+      move -= 180;
       status = gl124_feed (dev, move);
       if (status != SANE_STATUS_GOOD)
         {
@@ -2745,7 +2746,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
     {
       if(channels==1)
         {
-          move-=25;
+          move-=0;
         }
     }
   DBG (DBG_info, "gl124_init_regs_for_scan: move=%f steps\n", move);

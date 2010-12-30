@@ -9,6 +9,8 @@
    Copyright (C) 2010 Jack McGill <jmcgill85258@yahoo.com>
    Copyright (C) 2010 Andrey Loginov <avloginov@gmail.com>,
    		xerox travelscan device entry
+   Copyright (C) 2010 Chris Berry <s0457957@sms.ed.ac.uk> and Michael Rickmann <mrickma@gwdg.de>
+                 for Plustek Opticbook 3600 support
    
    This file is part of the SANE package.
    
@@ -160,6 +162,22 @@ static Genesys_Frontend Wolfson[] = {
    , {0x45, 0x45, 0x45}	/* 0x20, 0x21, 0x22 */
    , {0x4b, 0x4b, 0x4b} /* 0x28, 0x29, 0x2a */
    , {0x00,0x00,0x00}
+   }
+  ,
+  {DAC_CANONLIDE110,
+     {0x80, 0x8a, 0x23, 0x4c}
+   , {0x00, 0xca, 0x94}
+   , {0x00, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   }
+  ,
+  {DAC_PLUSTEK_3600,
+     {0x70, 0x80, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x3f, 0x3d, 0x3d}
+   , {0x00, 0x00, 0x00}
    }
   ,
 };
@@ -502,6 +520,51 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
+  /* CANONLIDE110 */
+  {CIS_CANONLIDE110,
+   2400,	/* optical resolution */
+   87,		/* black pixels */
+   16,		/* dummy pixels 16 */
+   303,		/* 303 */
+   5168*4,       /* 10272*2 */
+   210,
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   /* reg 0x10 - 0x15 */
+   {0x00, 0x00, 0x00, 0x0f, 0x00, 0x80,
+   /* reg 0x16 - 0x1d */
+    0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01 },
+   /* reg 0x52 - 0x5e */
+   {
+    0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04,
+    0x1a, 0x00, 0xc0, 0x00, 0x00
+    }
+   ,
+   1.7, 1.7, 1.7,
+   NULL, NULL, NULL}
+  ,
+  {CCD_PLUSTEK_3600, 1200,
+   /*TODO: find a good reason for keeping all three following variables*/
+   87,				/*(black) */
+   87,				/* (dummy) */
+   0,				/* (startxoffset) */
+   10100,			/*sensor_pixels */
+   210,
+   230,
+   {0x00, 0x00, 0x00, 0x00},
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0b, 0x11, 0x2a,
+    0x00, 0x00, 0x00, 0xc4	/* TODO(these do no harm, but may be neccessery for CCD) */
+   },
+   {0x07, 0x0a,
+    0x0c, 0x00, 0x02, 0x06,	/*[GB](HI|LOW) not needed for cis */
+    0x22, 0x69,
+    0x40,			/*TODO: bit7 */
+    0x00, 0x00, 0x00, 0x02	/*TODO (these do no harm, but may be neccessery for CCD) */
+   }
+   ,
+   1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
+  ,
 };
 
 /** for General Purpose Output specific settings:
@@ -616,6 +679,17 @@ static Genesys_Gpo Gpo[] = {
    {0xfc, 0x00},
   }
   ,
+  /* CANONLIDE110 */
+  {GPO_CANONLIDE110,
+   {0xfb, 0x20},
+   {0xff, 0x00},
+  }
+  ,
+  /* Plustek 3600 */
+  {GPO_PLUSTEK_3600,
+   {0x02, 0x00},
+   {0x1e, 0x80},
+  }
 };
 
 static Genesys_Motor Motor[] = {
@@ -821,7 +895,7 @@ static Genesys_Motor Motor[] = {
   {MOTOR_DSMOBILE_600,			/* Pentax DSmobile 600 */
    750,
    1500,
-   1,
+   2,
    1,
    {{{
      6666,
@@ -830,9 +904,9 @@ static Genesys_Motor Motor[] = {
      0.8,
      },
     {
-     11000,
-     11000,
-     2,
+     6666,
+     3700,
+     8,
      0.8,
      },},},
   },
@@ -888,6 +962,28 @@ static Genesys_Motor Motor[] = {
     	   },
    },
   },
+  {MOTOR_CANONLIDE110,		/* Canon LiDE 110 */
+   4800,
+   9600,
+   1,   /* maximum step type count */
+   1,   /* maximum power modes count */
+   { /* motor slopes */
+	   { /* power mode 0 */
+		   {   3000,   1000, 256, 0.50}, /* full step */
+	   },
+    },
+  },
+  {MOTOR_PLUSTEK_3600,		/* PLUSTEK 3600 */
+   1200,
+   2400,
+   1,
+   1,
+   {
+     {
+       { 3500, 1300, 60, 0.8 },
+       { 3500, 3250, 60, 0.8 },
+     },
+   },},
 };
 
 /* here we have the various device settings...
@@ -1000,7 +1096,7 @@ static Genesys_Model canon_lide_50_model = {
 static Genesys_Model panasonic_kvss080_model = {
   "panasonic-kv-ss080",		/* Name */
   "Panasonic",			/* Device vendor string */
-  "KS-SS080",			/* Device model name */
+  "KV-SS080",			/* Device model name */
   GENESYS_GL843,
   NULL,
 
@@ -1202,7 +1298,110 @@ static Genesys_Model canon_lide_100_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  150,
+  60,
+  400
+};
+
+static Genesys_Model canon_lide_110_model = {
+  "canon-lide-110",		/* Name */
+  "Canon",			/* Device vendor string */
+  "LiDE 110",			/* Device model name */
+  GENESYS_GL124,
+  NULL,
+
+  {1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (3.6),		/* Start of scan area in mm (x) */
+  SANE_FIX (8.2),		/* Start of scan area in mm (y) */
+  SANE_FIX (213.80),		/* Size of scan area in mm (x) */
+  SANE_FIX (297.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (1.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CIS_CANONLIDE110,
+  DAC_CANONLIDE110,
+  GPO_CANONLIDE110,
+  MOTOR_CANONLIDE110,	
+      GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
+  50,
+  400
+};
+
+
+static Genesys_Model canon_lide_210_model = {
+  "canon-lide-210",		/* Name */
+  "Canon",			/* Device vendor string */
+  "LiDE 210",			/* Device model name */
+  GENESYS_GL124,
+  NULL,
+
+  {1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (3.6),		/* Start of scan area in mm (x) */
+  SANE_FIX (8.2),		/* Start of scan area in mm (y) */
+  SANE_FIX (213.80),		/* Size of scan area in mm (x) */
+  SANE_FIX (297.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CIS_CANONLIDE110,
+  DAC_CANONLIDE110,
+  GPO_CANONLIDE110,
+  MOTOR_CANONLIDE110,	
+      GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
+  50,
   400
 };
 
@@ -1248,15 +1447,70 @@ static Genesys_Model canon_5600f_model = {
   DAC_CANONLIDE200,
   GPO_CANONLIDE200,
   MOTOR_CANONLIDE200,
-      GENESYS_FLAG_SKIP_WARMUP
+  GENESYS_FLAG_UNTESTED		/* not working yet */
+    | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_ODD_EVEN_CIS
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  150,
+  60,
   400
 };
+
+static Genesys_Model canon_lide_700f_model = {
+  "canon-lide-700f",		/* Name */
+  "Canon",			/* Device vendor string */
+  "LiDE 700F",			/* Device model name */
+  GENESYS_GL847,
+  NULL,
+
+  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (1.1),		/* Start of scan area in mm  (x) */
+  SANE_FIX (8.3),		/* Start of scan area in mm (y) */
+  SANE_FIX (216.07),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CIS_CANONLIDE200,
+  DAC_CANONLIDE200,
+  GPO_CANONLIDE200,
+  MOTOR_CANONLIDE200,
+  GENESYS_FLAG_UNTESTED		/* not working yet */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_ODD_EVEN_CIS
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
+  60,
+  400
+};
+
 
 
 static Genesys_Model canon_lide_200_model = {
@@ -1307,7 +1561,7 @@ static Genesys_Model canon_lide_200_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  150,
+  60,
   400
 };
 
@@ -1409,6 +1663,7 @@ static Genesys_Model hp2300c_model = {
   GPO_HP2300,
   MOTOR_HP2300,
   GENESYS_FLAG_14BIT_GAMMA
+    | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_SEARCH_START
     | GENESYS_FLAG_DARK_CALIBRATION
@@ -2372,25 +2627,83 @@ static Genesys_Model xerox_travelscanner_model = {
   400
 };
 
+static Genesys_Model plustek_3600_model = {
+  "plustek-opticbook-3600",	/* Name */
+  "PLUSTEK",			/* Device vendor string */
+  "OpticBook 3600",		/* Device model name */
+  GENESYS_GL841,
+  NULL,
+  {/*1200,*/ 600, 400, 300, 200, 150, 100, 75, 0},		/* possible x-resolutions */
+  {/*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.42),/*SANE_FIX (0.42),		 Start of scan area in mm  (x) */
+  SANE_FIX (6.75),/*SANE_FIX (7.9),		 Start of scan area in mm (y) */
+  SANE_FIX (216.0),/*SANE_FIX (216.0),		 Size of scan area in mm (x) */
+  SANE_FIX (297.0),/*SANE_FIX (297.0),		 Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (0.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document
+				   after finishing scanning in mm */
+ 
+  0, 24, 48,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CCD_PLUSTEK_3600,
+  DAC_PLUSTEK_3600,
+  GPO_PLUSTEK_3600,
+  MOTOR_PLUSTEK_3600,
+  GENESYS_FLAG_UNTESTED		/* not fully working yet */
+	  | GENESYS_FLAG_CUSTOM_GAMMA
+	  | GENESYS_FLAG_SKIP_WARMUP
+	  | GENESYS_FLAG_DARK_CALIBRATION
+	  | GENESYS_FLAG_OFFSET_CALIBRATION
+  	  | GENESYS_FLAG_LAZY_INIT
+  	  | GENESYS_FLAG_HALF_CCD_MODE,/*
+      | GENESYS_FLAG_NO_CALIBRATION,*/
+  GENESYS_HAS_NO_BUTTONS,
+  7,
+  200
+};
+ 
 
 
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
+  /* GL646 devices */
   {0x03f0, 0x0901, &hp2300c_model},
   {0x03f0, 0x0a01, &hp2400c_model},
   {0x03f0, 0x1405, &hp3670c_model},
   {0x0461, 0x0377, &medion_md5345_model},
   {0x04a7, 0x0229, &visioneer_7100_model},
   {0x04a7, 0x0426, &visioneer_xp200_model},
+  {0x0638, 0x0a10, &umax_astra_4500_model},
+  {0x07b3, 0x0600, &plustek_st12_model},
+  {0x07b3, 0x0601, &plustek_st24_model},
+  /* GL841 devices */
   {0x04a7, 0x0474, &visioneer_xp300_model},
   {0x04a7, 0x0494, &visioneer_roadwarrior_model},
   {0x04a7, 0x049b, &visioneer_xp100_r3_model},
   {0x04a7, 0x04ac, &xerox_travelscanner_model},
   {0x04a9, 0x2213, &canon_lide_50_model},
   {0x04a9, 0x221c, &canon_lide_60_model},
-  {0x0638, 0x0a10, &umax_astra_4500_model},
-  {0x07b3, 0x0600, &plustek_st12_model},
-  {0x07b3, 0x0601, &plustek_st24_model},
+  {0x07b3, 0x0900, &plustek_3600_model},
   {0x0a17, 0x3210, &pentax_dsmobile_600_model},
+  {0x04f9, 0x2038, &pentax_dsmobile_600_model}, /* clone, only usb id is different */
   {0x0a82, 0x4800, &syscan_docketport_485_model},
   {0x0a82, 0x4802, &syscan_docketport_465_model},
   {0x0a82, 0x4803, &syscan_docketport_665_model},
@@ -2401,9 +2714,13 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a9, 0x1904, &canon_lide_100_model},
   {0x04a9, 0x1905, &canon_lide_200_model},
   {0x04a9, 0x1906, &canon_5600f_model},
+  {0x04a9, 0x1907, &canon_lide_700f_model},
   /* GL843 devices */
   {0x04da, 0x100f, &panasonic_kvss080_model},
   {0x03f0, 0x4505, &hpg4010_model},
   {0x03f0, 0x4605, &hpg4050_model},
+  /* GL124 devices */
+  {0x04a9, 0x1909, &canon_lide_110_model},
+  {0x04a9, 0x190a, &canon_lide_210_model},
   {0, 0, NULL}
 };

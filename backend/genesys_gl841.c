@@ -3,10 +3,12 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004, 2009 Stephane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2010 Stephane Voltz <stef.dev@free.fr>
    Copyright (C) 2005 Philipp Schmid <philipp8288@web.de>
-   Copyright (C) 2005 - 2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
+   Copyright (C) 2010 Chris Berry <s0457957@sms.ed.ac.uk> and Michael Rickmann <mrickma@gwdg.de>
+                 for Plustek Opticbook 3600 support
    
     
    This file is part of the SANE package.
@@ -1444,9 +1446,16 @@ gl841_init_registers (Genesys_Device * dev)
 
 
   dev->reg[reg_0x01].value = 0x20;	/* (enable shading), CCD, color, 1M */
-  dev->reg[reg_0x01].value |= REG01_CISSET;
+  if (dev->model->is_cis == SANE_TRUE)
+    {
+      dev->reg[reg_0x01].value |= REG01_CISSET;
+    }
+  else
+    {
+      dev->reg[reg_0x01].value &= ~REG01_CISSET;
+    }
   
- dev->reg[reg_0x02].value = 0x30 /*0x38 */ ;	/* auto home, one-table-move, full step */
+  dev->reg[reg_0x02].value = 0x30 /*0x38 */ ;	/* auto home, one-table-move, full step */
   dev->reg[reg_0x02].value |= REG02_AGOHOME;
   dev->reg[reg_0x02].value |= REG02_MTRPWR;
   dev->reg[reg_0x02].value |= REG02_FASTFED;
@@ -1454,7 +1463,14 @@ gl841_init_registers (Genesys_Device * dev)
   dev->reg[reg_0x03].value = 0x1f /*0x17 */ ;	/* lamp on */
   dev->reg[reg_0x03].value |= REG03_AVEENB;
 
-  dev->reg[reg_0x04].value |= 1 << REG04S_AFEMOD;
+  if (dev->model->ccd_type == CCD_PLUSTEK_3600)  /* AD front end */
+    {
+      dev->reg[reg_0x04].value  = (2 << REG04S_AFEMOD) | 0x02;
+    }
+  else /* Wolfson front end */
+    {
+      dev->reg[reg_0x04].value |= 1 << REG04S_AFEMOD;
+    }
 
   dev->reg[reg_0x05].value = 0x00;	/* disable gamma, 24 clocks/pixel */
   if (dev->sensor.sensor_pixels < 0x1500)
@@ -1476,7 +1492,8 @@ gl841_init_registers (Genesys_Device * dev)
   dev->reg[reg_0x06].value |= REG06_GAIN4;
 
   /* XP300 CCD needs different clock and clock/pixels values */
-  if (dev->model->ccd_type != CCD_XP300 && dev->model->ccd_type != CCD_DP685) 
+  if (dev->model->ccd_type != CCD_XP300 && dev->model->ccd_type != CCD_DP685
+                                        && dev->model->ccd_type != CCD_PLUSTEK_3600)
     {
       dev->reg[reg_0x06].value |= 0 << REG06S_SCANMOD;
       dev->reg[reg_0x09].value |= 1 << REG09S_CLKSET;
@@ -1630,6 +1647,132 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
   return status;
 }
  
+/* Set values of Analog Device type frontend */
+static SANE_Status
+gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  int i;
+  DBG (DBG_proc, "gl841_set_ad_fe(): start\n");
+  if (set == AFE_INIT)
+    {
+      DBG (DBG_proc, "gl841_set_ad_fe(): setting DAC %u\n",
+	   dev->model->dac_type);
+
+      /* sets to default values */
+      sanei_genesys_init_fe (dev);
+
+      /* write them to analog frontend */
+      status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+      if (status != SANE_STATUS_GOOD)
+            {
+      	DBG (DBG_error, "gl841_set_ad_fe: writing reg 0x00 failed: %s\n",
+      	     sane_strstatus (status));
+      	return status;
+            }
+
+      status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
+      if (status != SANE_STATUS_GOOD)
+            {
+    	DBG (DBG_error, "gl841_set_ad_fe: writing reg 0x01 failed: %s\n",
+            sane_strstatus (status));
+        return status;
+            }
+
+      for (i = 0; i < 6; i++)
+        {
+    	status =
+    	  sanei_genesys_fe_write_data (dev, 0x02 + i, 0x00);
+    	if (status != SANE_STATUS_GOOD)
+    	  {
+    	    DBG (DBG_error,
+    		 "gl841_set_ad_fe: writing sign[%d] failed: %s\n", 0x02 + i,
+    		 sane_strstatus (status));
+    	    return status;
+    	  }
+        }
+    }
+  if (set == AFE_SET)
+    {
+      /* write them to analog frontend */
+      status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+      if (status != SANE_STATUS_GOOD)
+            {
+      	DBG (DBG_error, "gl841_set_ad_fe: writing reg 0x00 failed: %s\n",
+      	     sane_strstatus (status));
+      	return status;
+            }
+
+      status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
+      if (status != SANE_STATUS_GOOD)
+            {
+    	DBG (DBG_error, "gl841_set_ad_fe: writing reg 0x01 failed: %s\n",
+            sane_strstatus (status));
+        return status;
+            }
+
+      /* Write fe 0x02 (red gain)*/
+      status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.gain[0]);
+      if (status != SANE_STATUS_GOOD)
+            {
+    	DBG (DBG_error, "gl841_set_ad_fe: writing fe 0x02 (gain r) fail: %s\n",
+            sane_strstatus (status));
+        return status;
+            }
+
+      /* Write fe 0x03 (green gain)*/
+      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.gain[1]);
+      if (status != SANE_STATUS_GOOD)
+            {
+        DBG (DBG_error, "gl841_set_ad_fe: writing fe 0x03 (gain g) fail: %s\n",
+            sane_strstatus (status));
+        return status;
+            }
+
+      /* Write fe 0x04 (blue gain)*/
+      status = sanei_genesys_fe_write_data (dev, 0x04, dev->frontend.gain[2]);
+      if (status != SANE_STATUS_GOOD)
+            {
+        DBG (DBG_error, "gl841_set_ad_fe: writing fe 0x04 (gain b) fail: %s\n",
+            sane_strstatus (status));
+        return status;
+            }
+
+      /* Write fe 0x05 (red offset)*/
+      status =
+    	  sanei_genesys_fe_write_data (dev, 0x05, dev->frontend.offset[0]);
+      if (status != SANE_STATUS_GOOD)
+            {
+        DBG (DBG_error, "gl841_set_ad_fe: write fe 0x05 (offset r) fail: %s\n",
+            sane_strstatus (status));
+        return status;
+            }
+
+      /* Write fe 0x06 (green offset)*/
+      status =
+    	  sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.offset[1]);
+      if (status != SANE_STATUS_GOOD)
+            {
+        DBG (DBG_error, "gl841_set_ad_fe: write fe 0x06 (offset g) fail: %s\n",
+            sane_strstatus (status));
+        return status;
+            }
+
+      /* Write fe 0x07 (blue offset)*/
+      status =
+    	  sanei_genesys_fe_write_data (dev, 0x07, dev->frontend.offset[2]);
+      if (status != SANE_STATUS_GOOD)
+            {
+        DBG (DBG_error, "gl841_set_ad_fe: write fe 0x07 (offset b) fail: %s\n",
+            sane_strstatus (status));
+        return status;
+            }
+          }
+  DBG (DBG_proc, "gl841_set_ad_fe(): end\n");
+
+  return status;
+}
+
 /* Set values of analog frontend */
 static SANE_Status
 gl841_set_fe (Genesys_Device * dev, uint8_t set)
@@ -1641,6 +1784,12 @@ gl841_set_fe (Genesys_Device * dev, uint8_t set)
   DBG (DBG_proc, "gl841_set_fe (%s)\n",
        set == AFE_INIT ? "init" : set == AFE_SET ? "set" : set ==
        AFE_POWER_SAVE ? "powersave" : "huh?");
+
+  /* Analog Device type frontend */
+  if ((dev->reg[reg_0x04].value & REG04_FESET) == 0x02)
+    {
+      return gl841_set_ad_fe (dev, set);
+    }
 
   if ((dev->reg[reg_0x04].value & REG04_FESET) != 0x00)
     {
@@ -2517,7 +2666,6 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
       }
 
     /* enable shading */
-/*  dev->reg[reg_0x01].value |= REG01_DVDSET | REG01_SCAN;*/
     r = sanei_genesys_get_address (reg, 0x01);
     r->value |= REG01_SCAN;
     if ((flags & OPTICAL_FLAG_DISABLE_SHADING) ||
@@ -2542,10 +2690,12 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 	if (flags & OPTICAL_FLAG_DISABLE_LAMP)
 	    r->value = 0x01;/* 0x0101 is as off as possible */
 	else
+          { /* EXP[R,G,B] only matter for CIS scanners */
 	    if (dev->sensor.regs_0x10_0x1d[i] == 0x00)
-		r->value = 0x01;/*0x00 will not be accepted*/
+		r->value = 0x01; /*0x00 will not be accepted*/
 	    else
 		r->value = dev->sensor.regs_0x10_0x1d[i];
+          }
     }
 
     r = sanei_genesys_get_address (reg, 0x19);
@@ -2578,8 +2728,10 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     }
     
     r->value &= ~(REG04_FILTER | REG04_AFEMOD);
-    if (channels == 1) {
-	switch (color_filter) {
+    if (channels == 1) 
+      {
+	switch (color_filter)
+          {
 	    case 0:
 		r->value |= 0x14;	/* red filter */
 		break;
@@ -2590,8 +2742,18 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 		r->value |= 0x18;	/* green filter */
 		break;
 	}
-    } else 
-	r->value |= 0x10;	/* color pixel by pixel */
+   }
+   else
+     {
+        if (dev->model->ccd_type == CCD_PLUSTEK_3600)
+          {
+            r->value |= 0x22;	/* slow color pixel by pixel */
+          }
+    	else
+          {
+	    r->value |= 0x10;	/* color pixel by pixel */
+          }
+    }
 
     /* CIS scanners can do true gray by setting LEDADD */
     if (dev->model->is_cis == SANE_TRUE)
@@ -4030,7 +4192,14 @@ gl841_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   DBG (DBG_proc, "gl841_begin_scan\n");
 
   local_reg[0].address = 0x03;
-  local_reg[0].value = sanei_genesys_read_reg_from_set (reg, 0x03) | REG03_LAMPPWR;
+  if (dev->model->ccd_type != CCD_PLUSTEK_3600)
+    {
+      local_reg[0].value = sanei_genesys_read_reg_from_set (reg, 0x03) | REG03_LAMPPWR;
+    }
+  else
+    {
+      local_reg[0].value = sanei_genesys_read_reg_from_set (reg, 0x03); /* TODO PLUSTEK_3600: why ?? */
+    }
 
   local_reg[1].address = 0x01;
   local_reg[1].value = sanei_genesys_read_reg_from_set (reg, 0x01) | REG01_SCAN;	/* set scan bit */
@@ -4487,15 +4656,22 @@ static SANE_Status
 gl841_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
+  SANE_Int ydpi;
 
   DBG (DBG_proc, "gl841_init_regs_for_shading: lines = %d\n",
        dev->model->shading_lines);
+
+  ydpi = dev->motor.base_ydpi;
+  if (dev->motor.motor_id == MOTOR_PLUSTEK_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
+    {
+      ydpi = 600;
+    }
 
   dev->calib_channels = 3;
   status = gl841_init_scan_regs (dev,
 				 dev->calib_reg,
 				 dev->settings.xres,
-				 dev->motor.base_ydpi,
+				 ydpi,
 				 0,
 				 0,
 				 (dev->sensor.sensor_pixels * dev->settings.xres) / dev->sensor.optical_res,
@@ -4954,6 +5130,29 @@ gl841_led_calibration (Genesys_Device * dev)
   return status;
 }
 
+/** @brief calibration for AD frontend devices
+ * experiments show that modifying offset is of little (if no) influence
+ * so we just return
+ * CHRIS: This was added from gl646.c as again offset seems to make no
+ * difference
+ *
+ * TODO PLUSTEK_3600 Michael Rickmann:
+ * offset calibration makes a lot of a difference but currently
+ * makes everything to dark
+ */
+static SANE_Status
+ad_fe_offset_calibration (Genesys_Device * dev)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+
+  DBG (DBG_proc, "ad_fe_offset_calibration: start\n");
+  DBG (DBG_info, "ad_fe_offset_calibration: offset=(%d,%d,%d)\n",
+       dev->frontend.offset[0], dev->frontend.offset[1],
+       dev->frontend.offset[2]);
+  DBG (DBG_proc, "ad_fe_offset_calibration: end\n");
+  return status;
+}
+
 /* this function does the offset calibration by scanning one line of the calibration
    area below scanner's top. There is a black margin and the remaining is white.
    sanei_genesys_search_start() must have been called so that the offsets and margins
@@ -4979,6 +5178,12 @@ gl841_offset_calibration (Genesys_Device * dev)
   char fn[20];
   SANE_Bool acceptable = SANE_FALSE;
   int mintgt = 0x400;
+
+  /* Analog Device fronted have a different calibration */
+  if (dev->model->dac_type == DAC_PLUSTEK_3600)
+    {
+      return ad_fe_offset_calibration (dev);
+    }
 
   DBG (DBG_proc, "gl841_offset_calibration\n");
 
@@ -5636,6 +5841,12 @@ gl841_is_compatible_calibration (Genesys_Device * dev,
   SANE_Status status;
 
   DBG (DBG_proc, "gl841_is_compatible_calibration\n");
+
+  /* calibration cache not working yet for this model */
+  if (dev->model->ccd_type == CCD_PLUSTEK_3600)
+    {
+      return SANE_STATUS_UNSUPPORTED;
+    }
 
   status = gl841_calculate_current_setup (dev);
 

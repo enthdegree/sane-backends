@@ -2,6 +2,7 @@
 #include "../include/sane/sanei_usb.h"
 #include "epson_usb.h"
 
+/* generated with epson2usb.pl doc/descriptions/epson2.desc */
 
 SANE_Word sanei_epson_usb_product_ids[] = {
   0x101, /* GT-7000U, Perfection 636U */
@@ -75,6 +76,11 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x849, /* Stylus NX200, Stylus SX200, Stylus SX205, Stylus TX200, Stylus TX203, Stylus TX209 */
   0x84a, /* PX-501A, Stylus NX400, Stylus SX400, Stylus SX405, Stylus TX400 */
   0x84c, /* WorkForce 500 */
+  0x84d, /* PX-402A, Stylus NX110 Series, Stylus SX110 Series, Stylus TX110 Series */
+  0x84f, /* ME OFFICE 510, Stylus NX210 Series, Stylus SX210 Series, Stylus TX210 Series */
+  0x851, /* Stylus NX410 Series, Stylus SX410 Series, Stylus TX410 Series */
+  0x854, /* ME OFFICE 650FN Series, Stylus Office BX310FN Series, Stylus Office TX510FN Series, WorkForce 310 Series */
+  0x856, /* PX-502A, Stylus NX510 Series, Stylus SX510W Series, Stylus TX550W Series */
   0				/* last entry - this is used for devices that are specified 
 				   in the config file as "usb <vendor> <product>" */
 };

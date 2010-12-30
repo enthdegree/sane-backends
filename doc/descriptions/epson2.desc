@@ -1076,7 +1076,7 @@
 :comment    "overseas version of the GT-9300UF"
 
 :model      "Perfection 2450 PHOTO"	; command spec
-:interface  "USB"
+:interface  "USB IEEE-1394"
 :usbid      "0x04b8" "0x0112"
 :scsi       "EPSON" "GT-9700" "processor"
 :status     :complete
@@ -1104,10 +1104,11 @@
 :url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
 :model      "Perfection 3200 PHOTO"	; command spec
-:interface  "USB"
+:interface  "USB IEEE-1394"
 :usbid      "0x04b8" "0x011c"
+:scsi       "EPSON" "GT-9800" "processor"
 :status     :complete
-:comment    "IEEE1394 untested<br>overseas version of the GT-9800F"
+:comment    "overseas version of the GT-9800F"
 
 :model      "Perfection 3490 PHOTO"
 :interface  "USB"

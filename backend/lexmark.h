@@ -1,8 +1,9 @@
-/**************************************************************************
+/************************************************************************
    lexmark.h - SANE library for Lexmark scanners.
    Copyright (C) 2003-2004 Lexmark International, Inc. (original source)
    Copyright (C) 2005 Fred Odendaal
-   Copyright (C) 2006-2009 Stéphane Voltz	<stef.dev@free.fr>
+   Copyright (C) 2006-2010 Stéphane Voltz	<stef.dev@free.fr>
+   Copyright (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
 
    This file is part of the SANE package.
 
@@ -109,6 +110,8 @@ typedef struct Lexmark_Model
   SANE_String_Const model;
   SANE_Int motor_type;
   SANE_Int sensor_type;
+  SANE_Int HomeEdgePoint1;
+  SANE_Int HomeEdgePoint2;
 } Lexmark_Model;
 
 /*
@@ -118,7 +121,7 @@ typedef struct Lexmark_Sensor
 {
   SANE_Int id;
   SANE_Int offset_startx;	/* starting x for offset calibration */
-  SANE_Int offset_endx;	        /* end x for offset calibration */
+  SANE_Int offset_endx;		/* end x for offset calibration */
   SANE_Int offset_threshold;	/* target threshold for offset calibration */
   SANE_Int xoffset;		/* number of unusable pixels on the start of the sensor */
   SANE_Int default_gain;	/* value of the default gain for a scan */
@@ -130,8 +133,8 @@ typedef struct Lexmark_Sensor
   SANE_Int green_shading_target;
   SANE_Int blue_shading_target;
   SANE_Int gray_shading_target;
-  SANE_Int offset_fallback;		/* offset to use in case offset calibration fails */
-  SANE_Int gain_fallback;		/* gain to use in case offset calibration fails */
+  SANE_Int offset_fallback;	/* offset to use in case offset calibration fails */
+  SANE_Int gain_fallback;	/* gain to use in case offset calibration fails */
 } Lexmark_Sensor;
 
 typedef enum
@@ -233,12 +236,14 @@ Lexmark_Device;
 /* motors and sensors type defines */
 #define X1100_MOTOR	1
 #define A920_MOTOR	2
+#define X74_MOTOR	3
 
-#define X1100_B2_SENSOR 3
-#define A920_SENSOR     4
-#define X1100_2C_SENSOR 5
-#define X1200_SENSOR    6 	/* X1200 on USB 1.0 */
-#define X1200_USB2_SENSOR 7 	/* X1200 on USB 2.0 */
+#define X1100_B2_SENSOR 4
+#define A920_SENSOR     5
+#define X1100_2C_SENSOR 6
+#define X1200_SENSOR    7	/* X1200 on USB 1.0 */
+#define X1200_USB2_SENSOR 8	/* X1200 on USB 2.0 */
+#define X74_SENSOR	9
 
 /* Non-static Function Proto-types (called by lexmark.c) */
 SANE_Status sanei_lexmark_low_init (Lexmark_Device * dev);
@@ -247,20 +252,22 @@ SANE_Status sanei_lexmark_low_open_device (Lexmark_Device * dev);
 void sanei_lexmark_low_close_device (Lexmark_Device * dev);
 SANE_Bool sanei_lexmark_low_search_home_fwd (Lexmark_Device * dev);
 void sanei_lexmark_low_move_fwd (SANE_Int distance, Lexmark_Device * dev,
-				   SANE_Byte * regs);
+				 SANE_Byte * regs);
+SANE_Bool sanei_lexmark_low_X74_search_home (Lexmark_Device * dev,
+					     SANE_Byte * regs);
 SANE_Bool sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev);
 SANE_Int sanei_lexmark_low_find_start_line (Lexmark_Device * dev);
 SANE_Status sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev,
-					       SANE_Int resolution,
-					       SANE_Int offset,
-					       SANE_Bool calibrated);
+					     SANE_Int resolution,
+					     SANE_Int offset,
+					     SANE_Bool calibrated);
 SANE_Status sanei_lexmark_low_start_scan (Lexmark_Device * dev);
 long sanei_lexmark_low_read_scan_data (SANE_Byte * data, SANE_Int size,
-					 Lexmark_Device * dev);
+				       Lexmark_Device * dev);
 SANE_Status sanei_lexmark_low_assign_model (Lexmark_Device * dev,
-					      SANE_String_Const devname, SANE_Int vendor,
-					      SANE_Int product,
-					      SANE_Byte mainboard);
+					    SANE_String_Const devname,
+					    SANE_Int vendor, SANE_Int product,
+					    SANE_Byte mainboard);
 
 /*
  * scanner calibration functions

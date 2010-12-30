@@ -1,9 +1,21 @@
 :backend "genesys"
-:version "1.0-8"
+:version "1.0-62"
 :manpage "sane-genesys"
 :comment "Only the USB scanners mentioned below are currently supported."
 :url "http://www.meier-geinitz.de/sane/genesys-backend/"
 :devicetype :scanner
+
+; -----------------------------------------------------------------------------
+
+:mfg "Plustek"
+:url "http://www.plustek.de/"
+:url "http://www.plustek.com/"
+
+:model "OpticBook 3600"
+:interface "USB"
+:usbid "0x07b3" "0x0900"
+:status :basic
+:comment "Has a Primax USB ID"
 
 ; -----------------------------------------------------------------------------
 
@@ -108,11 +120,32 @@
 :usbid "0x04a9" "0x1904"
 :status :complete
 
+:model "CanoScan LiDE 110"
+:interface "USB"
+:usbid "0x04a9" "0x1909"
+:status :complete
+
 :model "CanoScan LiDE 200"
 :interface "USB"
 :usbid "0x04a9" "0x1905"
 :status :complete
-:comment "only 2400 dpi resolution is missing but is being worked on"
+
+:model "CanoScan LiDE 210"
+:interface "USB"
+:usbid "0x04a9" "0x190a"
+:status :complete
+
+:model "CanoScan 5600F"
+:interface "USB"
+:usbid "0x04a9" "0x1906"
+:status :unsupported
+:comment "GL847 based, to be added to the genesys backend"
+
+:model "CanoScan 700F"
+:interface "USB"
+:usbid "0x04a9" "0x1907"
+:status :unsupported
+:comment "GL847 based, to be added to the genesys backend"
 
 ; -----------------------------------------------------------------------------
 
@@ -209,10 +242,12 @@
 :status :good
 :comment "All resolution and mode supported, calibration is available"
 
+; -----------------------------------------------------------------------------
+
 :mfg "Panasonic"
 
 :model "KV-SS080"
 :interface "USB"
 :usbid  "0x04da" "0x100f"
 :status :complete
-:comment "All resolution and mode supported, calibration is available"
+:comment "All resolution and mode supported, calibration is available. Support sponsored by cncsolutions (http://www.cncsolutions.com.br)"

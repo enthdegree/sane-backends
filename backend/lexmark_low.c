@@ -1,7 +1,8 @@
 /* lexmark-low.c: scanner-interface file for low Lexmark scanners.
 
    (C) 2005 Fred Odendaal
-   (C) 2006-2009 Stéphane Voltz	<stef.dev@free.fr>
+   (C) 2006-2010 Stéphane Voltz	<stef.dev@free.fr>
+   (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
    
    This file is part of the SANE package.
 
@@ -61,13 +62,8 @@ typedef enum
 }
 region_type;
 
-/*
- * all these defines may be move in device specific constant in per model
- * struct if we need it
- */
-#define HomeEdgePoint1 1235
-#define HomeEdgePoint2 1258
 #define HomeTolerance 30
+
 
 #define LOBYTE(x)  ((uint8_t)((x) & 0xFF))
 #define HIBYTE(x)  ((uint8_t)((x) >> 8))
@@ -78,11 +74,12 @@ static SANE_Status low_usb_bulk_write (SANE_Int devnum,
 static SANE_Status low_usb_bulk_read (SANE_Int devnum,
 				      SANE_Byte * buf, size_t * size);
 static SANE_Status low_write_all_regs (SANE_Int devnum, SANE_Byte * regs);
-static SANE_Bool low_is_home_line (unsigned char *buffer);
+static SANE_Bool low_is_home_line (Lexmark_Device * dev,
+				   unsigned char *buffer);
 static SANE_Status low_get_start_loc (SANE_Int resolution,
 				      SANE_Int * vert_start,
-				      SANE_Int * hor_start,
-				      SANE_Int offset, Lexmark_Device * dev);
+				      SANE_Int * hor_start, SANE_Int offset,
+				      Lexmark_Device * dev);
 static void low_rewind (Lexmark_Device * dev, SANE_Byte * regs);
 static SANE_Status low_start_mvmt (SANE_Int devnum);
 static SANE_Status low_stop_mvmt (SANE_Int devnum);
@@ -483,6 +480,61 @@ sanei_lexmark_low_init (Lexmark_Device * dev)
 
   switch (dev->model.sensor_type)
     {
+    case X74_SENSOR:
+      dev->shadow_regs[0x00] = 0x04;
+      dev->shadow_regs[0x01] = 0x43;
+      dev->shadow_regs[0x0b] = 0x70;
+      dev->shadow_regs[0x12] = 0x0f;
+      dev->shadow_regs[0x16] = 0x07;
+      dev->shadow_regs[0x1d] = 0x20;
+      dev->shadow_regs[0x28] = 0xe0;
+      dev->shadow_regs[0x29] = 0xe3;
+      dev->shadow_regs[0x2a] = 0xeb;
+      dev->shadow_regs[0x2b] = 0x0d;
+      dev->shadow_regs[0x2e] = 0x40;
+      dev->shadow_regs[0x2e] = 0x86;
+      dev->shadow_regs[0x2f] = 0x01;
+      dev->shadow_regs[0x30] = 0x48;
+      dev->shadow_regs[0x31] = 0x06;
+      dev->shadow_regs[0x33] = 0x01;
+      dev->shadow_regs[0x34] = 0x50;
+      dev->shadow_regs[0x35] = 0x01;
+      dev->shadow_regs[0x36] = 0x50;
+      dev->shadow_regs[0x37] = 0x01;
+      dev->shadow_regs[0x38] = 0x50;
+      dev->shadow_regs[0x3a] = 0x20;
+      dev->shadow_regs[0x3c] = 0x88;
+      dev->shadow_regs[0x3d] = 0x08;
+      dev->shadow_regs[0x65] = 0x80;
+      dev->shadow_regs[0x66] = 0x64;
+      dev->shadow_regs[0x6c] = 0xc8;
+      dev->shadow_regs[0x72] = 0x1a;
+      dev->shadow_regs[0x74] = 0x23;
+      dev->shadow_regs[0x75] = 0x03;
+      dev->shadow_regs[0x79] = 0x40;
+      dev->shadow_regs[0x7A] = 0x01;
+      dev->shadow_regs[0x8d] = 0x01;
+      dev->shadow_regs[0x8e] = 0x60;
+      dev->shadow_regs[0x8f] = 0x80;
+      dev->shadow_regs[0x93] = 0x02;
+      dev->shadow_regs[0x94] = 0x0e;
+      dev->shadow_regs[0xa3] = 0xcc;
+      dev->shadow_regs[0xa4] = 0x27;
+      dev->shadow_regs[0xa5] = 0x24;
+      dev->shadow_regs[0xc2] = 0x80;
+      dev->shadow_regs[0xc3] = 0x01;
+      dev->shadow_regs[0xc4] = 0x20;
+      dev->shadow_regs[0xc5] = 0x0a;
+      dev->shadow_regs[0xc8] = 0x04;
+      dev->shadow_regs[0xc9] = 0x39;
+      dev->shadow_regs[0xca] = 0x0a;
+      dev->shadow_regs[0xe2] = 0x70;
+      dev->shadow_regs[0xe3] = 0x17;
+      dev->shadow_regs[0xf3] = 0xe0;
+      dev->shadow_regs[0xf4] = 0xff;
+      dev->shadow_regs[0xf5] = 0x01;
+      status = SANE_STATUS_GOOD;
+      break;
     case X1100_B2_SENSOR:
       dev->shadow_regs[0x01] = 0x43;
       dev->shadow_regs[0x0b] = 0x70;
@@ -998,7 +1050,8 @@ low_simple_scan (Lexmark_Device * dev, SANE_Byte * regs, int xoffset,
   regs[0x60] = LOBYTE (yoffset);
   regs[0x61] = HIBYTE (yoffset);
   yend = yoffset + lines;
-  if (dev->model.motor_type == A920_MOTOR && rts88xx_is_color (regs)
+  if ((dev->model.motor_type == A920_MOTOR
+       || dev->model.motor_type == X74_MOTOR) && rts88xx_is_color (regs)
       && dev->val[OPT_RESOLUTION].w == 600)
     yend *= 2;
   regs[0x62] = LOBYTE (yend);
@@ -1137,9 +1190,9 @@ sanei_lexmark_low_open_device (Lexmark_Device * dev)
       DBG (2, "sanei_lexmark_low_open_device: initial registers values\n");
       for (i = 0; i < 255; i++)
 	{
-	  sprintf (msg+i*5, "0x%02x ", shadow_regs[i]);
+	  sprintf (msg + i * 5, "0x%02x ", shadow_regs[i]);
 	}
-      DBG (3, "%s\n",msg);
+      DBG (3, "%s\n", msg);
     }
 
   /* it seems that at first read after reset, registers hold information
@@ -1250,7 +1303,7 @@ low_write_all_regs (SANE_Int devnum, SANE_Byte * regs)
 
 
 SANE_Bool
-low_is_home_line (unsigned char *buffer)
+low_is_home_line (Lexmark_Device * dev, unsigned char *buffer)
 {
   /*
      This function assumes the buffer has a size of 2500 bytes.It is 
@@ -1286,7 +1339,8 @@ low_is_home_line (unsigned char *buffer)
   unsigned char min_byte = 0xFF;
   unsigned char average;
   int i;
-
+  int home_point1;
+  int home_point2;
   region_type region;
   int transition_counter;
   int index1 = 0;
@@ -1377,9 +1431,13 @@ low_is_home_line (unsigned char *buffer)
       return SANE_FALSE;
     }
 
+
+
+
   /* Check that the 1st index is in range */
-  low_range = HomeEdgePoint1 - HomeTolerance;
-  high_range = HomeEdgePoint1 + HomeTolerance;
+  home_point1 = dev->model.HomeEdgePoint1;
+  low_range = home_point1 - HomeTolerance;
+  high_range = home_point1 + HomeTolerance;
 
   if ((index1 < low_range) || (index1 > high_range))
     {
@@ -1387,13 +1445,15 @@ low_is_home_line (unsigned char *buffer)
       return SANE_FALSE;
     }
 
+
   /* Check that the 2nd index is in range */
-  low_range = HomeEdgePoint2 - HomeTolerance;
-  high_range = HomeEdgePoint2 + HomeTolerance;
+  home_point2 = dev->model.HomeEdgePoint2;
+  low_range = home_point2 - HomeTolerance;
+  high_range = home_point2 + HomeTolerance;
 
   if ((index2 < low_range) || (index2 > high_range))
     {
-      DBG (15, "low_is_home_line: index2=%d out of range\n", index2);
+      DBG (15, "low_is_home_line: index2=%d out of range.\n", index2);
       return SANE_FALSE;
     }
 
@@ -1434,6 +1494,10 @@ sanei_lexmark_low_move_fwd (SANE_Int distance, Lexmark_Device * dev,
   regs[0x65] = 0x80;
   switch (dev->model.sensor_type)
     {
+    case X74_SENSOR:
+      rts88xx_set_scan_frequency (regs, 0);
+      regs[0x93] = 0x06;
+      break;
     case X1100_B2_SENSOR:
       regs[0x8b] = 0x00;
       regs[0x8c] = 0x00;
@@ -1488,31 +1552,59 @@ sanei_lexmark_low_move_fwd (SANE_Int distance, Lexmark_Device * dev,
   regs[0xb2] = 0x04;
   /* Motor enable & Coordinate space denominator */
   regs[0xc3] = 0x81;
+  /* Movement direction & step size */
+  regs[0xc6] = 0x09;
   /* ? */
   regs[0x80] = 0x00;
   regs[0x81] = 0x00;
   regs[0x82] = 0x00;
   regs[0xc5] = 0x0a;
-  /* Movement direction & step size */
-  regs[0xc6] = 0x09;
-  /* step size range2 */
-  regs[0xc9] = 0x3b;
-  /* ? */
-  regs[0xca] = 0x0a;
-  /* motor curve stuff */
-  regs[0xe0] = 0x00;
-  regs[0xe1] = 0x00;
-  regs[0xe4] = 0x00;
-  regs[0xe5] = 0x00;
-  regs[0xe7] = 0x00;
-  regs[0xe8] = 0x00;
 
-  regs[0xe2] = 0x09;
-  regs[0xe3] = 0x1a;
-  regs[0xe6] = 0xdc;
-  regs[0xe9] = 0x1b;
-  regs[0xec] = 0x07;
-  regs[0xef] = 0x03;
+
+  switch (dev->model.motor_type)
+    {
+    case X1100_MOTOR:
+    case A920_MOTOR:
+      /* step size range2 */
+      regs[0xc9] = 0x3b;
+      /* ? */
+      regs[0xca] = 0x0a;
+      /* motor curve stuff */
+      regs[0xe0] = 0x00;
+      regs[0xe1] = 0x00;
+      regs[0xe4] = 0x00;
+      regs[0xe5] = 0x00;
+      regs[0xe7] = 0x00;
+      regs[0xe8] = 0x00;
+      regs[0xe2] = 0x09;
+      regs[0xe3] = 0x1a;
+      regs[0xe6] = 0xdc;
+      regs[0xe9] = 0x1b;
+      regs[0xec] = 0x07;
+      regs[0xef] = 0x03;
+      break;
+    case X74_MOTOR:
+      regs[0xc5] = 0x41;
+      /* step size range2 */
+      regs[0xc9] = 0x39;
+      /* ? */
+      regs[0xca] = 0x40;
+      /* motor curve stuff */
+      regs[0xe0] = 0x00;
+      regs[0xe1] = 0x00;
+      regs[0xe2] = 0x09;
+      regs[0xe3] = 0x1a;
+      regs[0xe4] = 0x00;
+      regs[0xe5] = 0x00;
+      regs[0xe6] = 0x64;
+      regs[0xe7] = 0x00;
+      regs[0xe8] = 0x00;
+      regs[0xe9] = 0x32;
+      regs[0xec] = 0x0c;
+      regs[0xef] = 0x08;
+      break;
+    }
+
 
   /* prepare for register write */
   low_clr_c6 (devnum);
@@ -1546,6 +1638,11 @@ sanei_lexmark_low_move_fwd (SANE_Int distance, Lexmark_Device * dev,
 	}
 #endif
     }
+
+  /* this is needed to find the start line properly */
+  if (dev->model.sensor_type == X74_SENSOR)
+    low_stop_mvmt (devnum);
+
   DBG (2, "sanei_lexmark_low_move_fwd: end.\n");
 }
 
@@ -1575,6 +1672,22 @@ sanei_lexmark_low_search_home_fwd (Lexmark_Device * dev)
   /* set up registers according to the sensor type */
   switch (dev->model.sensor_type)
     {
+    case X74_SENSOR:
+      dev->shadow_regs[0x2c] = 0x03;
+      dev->shadow_regs[0x2d] = 0x45;
+      dev->shadow_regs[0x2f] = 0x21;
+      dev->shadow_regs[0x30] = 0x48;
+      dev->shadow_regs[0x31] = 0x06;
+      dev->shadow_regs[0x34] = 0x05;
+      dev->shadow_regs[0x35] = 0x05;
+      dev->shadow_regs[0x36] = 0x09;
+      dev->shadow_regs[0x37] = 0x09;
+      dev->shadow_regs[0x38] = 0x0d;
+      dev->shadow_regs[0x40] = 0x80;
+      dev->shadow_regs[0x75] = 0x00;
+      dev->shadow_regs[0x8b] = 0xff;
+      dev->shadow_regs[0x93] = 0x06;
+      break;
     case X1100_B2_SENSOR:
       dev->shadow_regs[0x2c] = 0x0f;
       dev->shadow_regs[0x2d] = 0x51;
@@ -1585,7 +1698,6 @@ sanei_lexmark_low_search_home_fwd (Lexmark_Device * dev)
       dev->shadow_regs[0x37] = 0x08;
       dev->shadow_regs[0x38] = 0x0b;
       dev->shadow_regs[0x93] = 0x06;
-
       break;
     case X1100_2C_SENSOR:
       dev->shadow_regs[0x2c] = 0x0d;
@@ -1655,7 +1767,6 @@ sanei_lexmark_low_search_home_fwd (Lexmark_Device * dev)
       dev->shadow_regs[0x0b] = 0x70;
       dev->shadow_regs[0x0c] = 0x28;
       dev->shadow_regs[0x0d] = 0xa4;
-
       dev->shadow_regs[0x2c] = 0x0d;
       dev->shadow_regs[0x2d] = 0x4f;
       dev->shadow_regs[0x2f] = 0x21;
@@ -1676,25 +1787,20 @@ sanei_lexmark_low_search_home_fwd (Lexmark_Device * dev)
       dev->shadow_regs[0x4c] = 0x05;
       dev->shadow_regs[0x4d] = 0x3f;
       dev->shadow_regs[0x75] = 0x00;
-
       dev->shadow_regs[0x85] = 0x03;
       dev->shadow_regs[0x86] = 0x33;
       dev->shadow_regs[0x87] = 0x8f;
       dev->shadow_regs[0x88] = 0x34;
-
       dev->shadow_regs[0x8b] = 0xff;
       dev->shadow_regs[0x8e] = 0x60;
       dev->shadow_regs[0x8f] = 0x80;
-
       dev->shadow_regs[0x91] = 0x59;
       dev->shadow_regs[0x92] = 0x10;
       dev->shadow_regs[0x93] = 0x06;
-
       dev->shadow_regs[0xa3] = 0x0d;
       dev->shadow_regs[0xa4] = 0x5e;
       dev->shadow_regs[0xa5] = 0x23;
       dev->shadow_regs[0xb1] = 0x07;
-
       dev->shadow_regs[0xc2] = 0x80;
       dev->shadow_regs[0xc5] = 0x00;
       dev->shadow_regs[0xca] = 0x00;
@@ -1735,18 +1841,44 @@ sanei_lexmark_low_search_home_fwd (Lexmark_Device * dev)
   /* set horizontal resolution */
   dev->shadow_regs[0x79] = 0x40;
   dev->shadow_regs[0x7a] = 0x02;
-  /* Movement direction & step size */
-  dev->shadow_regs[0xc6] = 0x01;
-  /* step size range2 */
-  dev->shadow_regs[0xc9] = 0x3b;
-  /* step size range0 */
-  dev->shadow_regs[0xe2] = 0x01;
-  /* ? */
-  dev->shadow_regs[0xe3] = 0x03;
-
   /* Motor disable & Coordinate space denominator */
   dev->shadow_regs[0xc3] = 0x01;
+  /* Movement direction & step size */
+  dev->shadow_regs[0xc6] = 0x01;
 
+  switch (dev->model.motor_type)
+    {
+    case A920_MOTOR:
+    case X1100_MOTOR:
+      /* step size range2 */
+      dev->shadow_regs[0xc9] = 0x3b;
+      /* step size range0 */
+      dev->shadow_regs[0xe2] = 0x01;
+      /* ? */
+      dev->shadow_regs[0xe3] = 0x03;
+      break;
+    case X74_MOTOR:
+      dev->shadow_regs[0xc4] = 0x20;
+      dev->shadow_regs[0xc5] = 0x00;
+      dev->shadow_regs[0xc8] = 0x04;
+      /* step size range2 */
+      dev->shadow_regs[0xc9] = 0x39;
+      dev->shadow_regs[0xca] = 0x00;
+      /* motor curve stuff */
+      dev->shadow_regs[0xe0] = 0x29;
+      dev->shadow_regs[0xe1] = 0x17;
+      dev->shadow_regs[0xe2] = 0x8f;
+      dev->shadow_regs[0xe3] = 0x06;
+      dev->shadow_regs[0xe4] = 0x61;
+      dev->shadow_regs[0xe5] = 0x16;
+      dev->shadow_regs[0xe6] = 0x64;
+      dev->shadow_regs[0xe7] = 0xb5;
+      dev->shadow_regs[0xe8] = 0x08;
+      dev->shadow_regs[0xe9] = 0x32;
+      dev->shadow_regs[0xec] = 0x0c;
+      dev->shadow_regs[0xef] = 0x08;
+      break;
+    }
 
   /* Stop the scanner */
   low_stop_mvmt (devnum);
@@ -1800,7 +1932,7 @@ sanei_lexmark_low_search_home_fwd (Lexmark_Device * dev)
     }
 
   /* check for home position */
-  ret_val = low_is_home_line (buffer);
+  ret_val = low_is_home_line (dev, buffer);
 
   if (ret_val)
     DBG (2, "sanei_lexmark_low_search_home_fwd: !!!HOME POSITION!!!\n");
@@ -1811,8 +1943,6 @@ sanei_lexmark_low_search_home_fwd (Lexmark_Device * dev)
 
   return ret_val;
 }
-
-
 
 SANE_Bool
 sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
@@ -1855,6 +1985,7 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
   SANE_Int size_returned;
   SANE_Int no_of_buffers;
   SANE_Int buffer_limit = 0xF3C;
+
   SANE_Int high_byte, mid_byte, low_byte;
   SANE_Int home_line_count;
   SANE_Bool in_home_region;
@@ -1876,6 +2007,21 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
   /* set up registers */
   switch (dev->model.sensor_type)
     {
+    case X74_SENSOR:
+      dev->shadow_regs[0x2c] = 0x03;
+      dev->shadow_regs[0x2d] = 0x45;
+      dev->shadow_regs[0x34] = 0x09;
+      dev->shadow_regs[0x35] = 0x09;
+      dev->shadow_regs[0x36] = 0x11;
+      dev->shadow_regs[0x37] = 0x11;
+      dev->shadow_regs[0x38] = 0x19;
+      dev->shadow_regs[0x85] = 0x00;
+      dev->shadow_regs[0x93] = 0x06;
+      dev->shadow_regs[0x40] = 0x80;
+      /* important for detection of b/w transitions */
+      dev->shadow_regs[0x75] = 0x00;
+      dev->shadow_regs[0x8b] = 0xff;
+      break;
     case X1100_B2_SENSOR:
       dev->shadow_regs[0x2c] = 0x0f;
       dev->shadow_regs[0x2d] = 0x51;
@@ -1918,6 +2064,7 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
       dev->shadow_regs[0x37] = 0x0f;
       dev->shadow_regs[0x38] = 0x15;
       break;
+
     case X1200_USB2_SENSOR:
       dev->shadow_regs[0x2c] = 0x0d;
       dev->shadow_regs[0x2d] = 0x4f;
@@ -1960,29 +2107,58 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
   /* set horizontal resolution */
   dev->shadow_regs[0x79] = 0x40;
   dev->shadow_regs[0x7a] = 0x02;
-  /* Motor enable & Coordinate space denominator */
-  dev->shadow_regs[0xc3] = 0x81;
-  /* ? */
-  dev->shadow_regs[0xc5] = 0x19;
+
   /* Movement direction & step size */
   dev->shadow_regs[0xc6] = 0x01;
-  /* step size range2 */
-  dev->shadow_regs[0xc9] = 0x3a;
-  /* ? */
-  dev->shadow_regs[0xca] = 0x08;
-  /* motor curve stuff */
-  dev->shadow_regs[0xe0] = 0xe3;
-  dev->shadow_regs[0xe1] = 0x18;
-  dev->shadow_regs[0xe2] = 0x03;
-  dev->shadow_regs[0xe3] = 0x06;
-  dev->shadow_regs[0xe4] = 0x2b;
-  dev->shadow_regs[0xe5] = 0x17;
-  dev->shadow_regs[0xe6] = 0xdc;
-  dev->shadow_regs[0xe7] = 0xb3;
-  dev->shadow_regs[0xe8] = 0x07;
-  dev->shadow_regs[0xe9] = 0x1b;
-  dev->shadow_regs[0xec] = 0x07;
-  dev->shadow_regs[0xef] = 0x03;
+  /* Motor enable & Coordinate space denominator */
+  dev->shadow_regs[0xc3] = 0x81;
+
+  switch (dev->model.motor_type)
+    {
+    case X74_MOTOR:
+      dev->shadow_regs[0xc4] = 0x20;
+      dev->shadow_regs[0xc5] = 0x00;
+      dev->shadow_regs[0xc8] = 0x04;
+      /* step size range2 */
+      dev->shadow_regs[0xc9] = 0x39;
+      dev->shadow_regs[0xca] = 0x00;
+      /* motor curve stuff */
+      dev->shadow_regs[0xe0] = 0x29;
+      dev->shadow_regs[0xe1] = 0x17;
+      dev->shadow_regs[0xe2] = 0x8f;
+      dev->shadow_regs[0xe3] = 0x06;
+      dev->shadow_regs[0xe4] = 0x61;
+      dev->shadow_regs[0xe5] = 0x16;
+      dev->shadow_regs[0xe6] = 0x64;
+      dev->shadow_regs[0xe7] = 0xb5;
+      dev->shadow_regs[0xe8] = 0x08;
+      dev->shadow_regs[0xe9] = 0x32;
+      dev->shadow_regs[0xec] = 0x0c;
+      dev->shadow_regs[0xef] = 0x08;
+      break;
+    case A920_MOTOR:
+    case X1100_MOTOR:
+      /* ? */
+      dev->shadow_regs[0xc5] = 0x19;
+      /* step size range2 */
+      dev->shadow_regs[0xc9] = 0x3a;
+      /* ? */
+      dev->shadow_regs[0xca] = 0x08;
+      /* motor curve stuff */
+      dev->shadow_regs[0xe0] = 0xe3;
+      dev->shadow_regs[0xe1] = 0x18;
+      dev->shadow_regs[0xe2] = 0x03;
+      dev->shadow_regs[0xe3] = 0x06;
+      dev->shadow_regs[0xe4] = 0x2b;
+      dev->shadow_regs[0xe5] = 0x17;
+      dev->shadow_regs[0xe6] = 0xdc;
+      dev->shadow_regs[0xe7] = 0xb3;
+      dev->shadow_regs[0xe8] = 0x07;
+      dev->shadow_regs[0xe9] = 0x1b;
+      dev->shadow_regs[0xec] = 0x07;
+      dev->shadow_regs[0xef] = 0x03;
+      break;
+    }
 
   /* Stop the scanner */
   low_stop_mvmt (devnum);
@@ -2059,6 +2235,7 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
       else if (no_of_buffers > 10)
 	no_of_buffers = 10;
       buffer_count = buffer_count + no_of_buffers;
+
       size_requested = no_of_buffers * 2500;
 
       /* Tell the scanner to send the data */
@@ -2089,7 +2266,7 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
 #ifdef DEEP_DEBUG
 	  fwrite (buffer + (i * 2500), 2500, 1, img);
 #endif
-	  if (low_is_home_line (buffer_start))
+	  if (low_is_home_line (dev, buffer_start))
 	    {
 	      home_line_count++;
 	      if (home_line_count > 7)
@@ -2138,39 +2315,83 @@ low_get_start_loc (SANE_Int resolution, SANE_Int * vert_start,
 {
   SANE_Int start_600;
 
+  switch (dev->model.sensor_type)
+    {
+    case X1100_2C_SENSOR:
+    case X1200_USB2_SENSOR:
+    case A920_SENSOR:
+    case X1200_SENSOR:
+      start_600 = 195 - offset;
+      *hor_start = 0x68;
+      break;
+    case X1100_B2_SENSOR:
+      start_600 = 195 - offset;
+      switch (resolution)
+	{
+	case 75:
+	  *hor_start = 0x68;
+	  break;
+	case 150:
+	  *hor_start = 0x68;
+	  break;
+	case 300:
+	  *hor_start = 0x6a;
+	  break;
+	case 600:
+	  *hor_start = 0x6b;
+	  break;
+	case 1200:
+	  *hor_start = 0x6b;
+	  break;
+	default:
+	  /* If we're here we have an invalid resolution */
+	  return SANE_STATUS_INVAL;
+	}
+      break;
+    case X74_SENSOR:
+      start_600 = 268 - offset;
+      switch (resolution)
+	{
+	case 75:
+	  *hor_start = 0x48;
+	  break;
+	case 150:
+	  *hor_start = 0x48;
+	  break;
+	case 300:
+	  *hor_start = 0x4a;
+	  break;
+	case 600:
+	  *hor_start = 0x4b;
+	  break;
+	default:
+	  /* If we're here we have an invalid resolution */
+	  return SANE_STATUS_INVAL;
+	}
+      break;
+    }
   /* Calculate vertical start distance at 600dpi */
-  start_600 = 195 - offset;
-
   switch (resolution)
     {
     case 75:
       *vert_start = start_600 / 8;
-      *hor_start = 0x68;
       break;
     case 150:
       *vert_start = start_600 / 4;
-      *hor_start = 0x68;
       break;
     case 300:
       *vert_start = start_600 / 2;
-      *hor_start = 0x6a;
       break;
     case 600:
       *vert_start = start_600;
-      *hor_start = 0x6b;
       break;
     case 1200:
       *vert_start = start_600 * 2;
-      *hor_start = 0x6b;
       break;
     default:
       /* If we're here we have an invalid resolution */
       return SANE_STATUS_INVAL;
     }
-
-  /* maybe left margin could be autodetected */
-  if (dev->model.sensor_type != X1100_B2_SENSOR)
-    *hor_start = 0x68;
 
   return SANE_STATUS_GOOD;
 }
@@ -2214,10 +2435,10 @@ low_set_scan_area (SANE_Int res,
   regs[0x63] = HIBYTE (vert_end);
 
   /* convert pixel width to horizontal location coordinates */
-  hor_end = hor_start + brx;
 
-  /* set horizontal start position registers */
+  hor_end = hor_start + brx;
   hor_start += tlx;
+
   regs[0x66] = LOBYTE (hor_start);
   regs[0x67] = HIBYTE (hor_start);
   /* set horizontal end position registers */
@@ -2300,9 +2521,21 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
 
   DBG (2, "sanei_lexmark_low_find_start_line:\n");
 
+
   /* set up registers */
   switch (dev->model.sensor_type)
     {
+    case X74_SENSOR:
+      dev->shadow_regs[0x2c] = 0x04;
+      dev->shadow_regs[0x2d] = 0x46;
+      dev->shadow_regs[0x34] = 0x05;
+      dev->shadow_regs[0x35] = 0x05;
+      dev->shadow_regs[0x36] = 0x0b;
+      dev->shadow_regs[0x37] = 0x0b;
+      dev->shadow_regs[0x38] = 0x11;
+      dev->shadow_regs[0x40] = 0x40;
+      rts88xx_set_gain (dev->shadow_regs, 6, 6, 6);
+      break;
     case X1100_B2_SENSOR:
       dev->shadow_regs[0x2c] = 0x0f;
       dev->shadow_regs[0x2d] = 0x51;
@@ -2416,28 +2649,79 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
   /* set for ? */
   /* Motor enable & Coordinate space denominator */
   dev->shadow_regs[0xc3] = 0x81;
-  /* set for ? */
-  dev->shadow_regs[0xc5] = 0x22;
-  /* Movement direction & step size */
-  dev->shadow_regs[0xc6] = 0x09;
-  /* step size range2 */
-  dev->shadow_regs[0xc9] = 0x3b;
-  /* set for ? */
-  dev->shadow_regs[0xca] = 0x1f;
-  dev->shadow_regs[0xe0] = 0xf7;
-  dev->shadow_regs[0xe1] = 0x16;
-  /* step size range0 */
-  dev->shadow_regs[0xe2] = 0x87;
-  /* ? */
-  dev->shadow_regs[0xe3] = 0x13;
-  dev->shadow_regs[0xe4] = 0x1b;
-  dev->shadow_regs[0xe5] = 0x16;
-  dev->shadow_regs[0xe6] = 0xdc;
-  dev->shadow_regs[0xe7] = 0x00;
-  dev->shadow_regs[0xe8] = 0x00;
-  dev->shadow_regs[0xe9] = 0x1b;
-  dev->shadow_regs[0xec] = 0x07;
-  dev->shadow_regs[0xef] = 0x03;
+
+
+
+
+
+  switch (dev->model.motor_type)
+    {
+    case X1100_MOTOR:
+    case A920_MOTOR:
+      /* set for ? */
+      dev->shadow_regs[0xc5] = 0x22;
+      /* Movement direction & step size */
+      dev->shadow_regs[0xc6] = 0x09;
+      /* step size range2 */
+      dev->shadow_regs[0xc9] = 0x3b;
+      /* set for ? */
+      dev->shadow_regs[0xca] = 0x1f;
+      dev->shadow_regs[0xe0] = 0xf7;
+      dev->shadow_regs[0xe1] = 0x16;
+      /* step size range0 */
+      dev->shadow_regs[0xe2] = 0x87;
+      /* ? */
+      dev->shadow_regs[0xe3] = 0x13;
+      dev->shadow_regs[0xe4] = 0x1b;
+      dev->shadow_regs[0xe5] = 0x16;
+      dev->shadow_regs[0xe6] = 0xdc;
+      dev->shadow_regs[0xe7] = 0x00;
+      dev->shadow_regs[0xe8] = 0x00;
+      dev->shadow_regs[0xe9] = 0x1b;
+      dev->shadow_regs[0xec] = 0x07;
+      dev->shadow_regs[0xef] = 0x03;
+      break;
+    case X74_MOTOR:
+      dev->shadow_regs[0xc4] = 0x20;
+      dev->shadow_regs[0xc5] = 0x22;
+      /* Movement direction & step size */
+      dev->shadow_regs[0xc6] = 0x0b;
+
+      dev->shadow_regs[0xc8] = 0x04;
+      dev->shadow_regs[0xc9] = 0x39;
+      dev->shadow_regs[0xca] = 0x1f;
+
+      /* bounds of movement range0 */
+      dev->shadow_regs[0xe0] = 0x2f;
+      dev->shadow_regs[0xe1] = 0x11;
+      /* step size range0 */
+      dev->shadow_regs[0xe2] = 0x9f;
+      /* ? */
+      dev->shadow_regs[0xe3] = 0x0f;
+      /* bounds of movement range1 */
+      dev->shadow_regs[0xe4] = 0xcb;
+
+      dev->shadow_regs[0xe5] = 0x10;
+      /* step size range1 */
+      dev->shadow_regs[0xe6] = 0x64;
+      /* bounds of movement range2 */
+      dev->shadow_regs[0xe7] = 0x00;
+      dev->shadow_regs[0xe8] = 0x00;
+      /* step size range2 */
+      dev->shadow_regs[0xe9] = 0x32;
+      /* bounds of movement range3 */
+      dev->shadow_regs[0xea] = 0x00;
+      dev->shadow_regs[0xeb] = 0x00;
+      /* step size range3 */
+      dev->shadow_regs[0xec] = 0x0c;
+      /* bounds of movement range4 -only for 75dpi grayscale */
+      dev->shadow_regs[0xed] = 0x00;
+      dev->shadow_regs[0xee] = 0x00;
+      /* step size range4 */
+      dev->shadow_regs[0xef] = 0x08;
+      break;
+    }
+
 
   /* Stop the scanner */
   low_stop_mvmt (dev->devnum);
@@ -2528,6 +2812,16 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
 	*(buffer + i) = 0x00;
     }
 
+#ifdef DEEP_DEBUG
+  fdbg = fopen ("find_start_after.pnm", "wb");
+  if (fdbg != NULL)
+    {
+      fprintf (fdbg, "P5\n%d %d\n255\n", 88, 59);
+      fwrite (buffer, 5192, 1, fdbg);
+      fclose (fdbg);
+    }
+#endif
+
   /* Go through 59 lines */
   for (j = 0; j < 59; j++)
     {
@@ -2556,6 +2850,11 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
     }				/* end for buffer */
 
   free (buffer);
+  /* Stop the scanner. 
+     This is needed to get the right distance to the scanning area */
+  if (dev->model.sensor_type == X74_SENSOR)
+    low_stop_mvmt (dev->devnum);
+
   DBG (2, "sanei_lexmark_low_find_start_line: end.\n");
   return whiteLineCount;
 }
@@ -2580,6 +2879,10 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
   /* set up registers */
   switch (dev->model.sensor_type)
     {
+    case X74_SENSOR:
+      dev->shadow_regs[0x2c] = 0x03;
+      dev->shadow_regs[0x2d] = 0x45;
+      break;
     case X1100_B2_SENSOR:
       dev->shadow_regs[0x2c] = 0x0f;
       dev->shadow_regs[0x2d] = 0x51;
@@ -2608,7 +2911,8 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 		     dev->val[OPT_BR_X].w,
 		     dev->val[OPT_BR_Y].w,
 		     offset,
-		     dev->model.motor_type == A920_MOTOR && isColourScan
+		     (dev->model.motor_type == A920_MOTOR
+		      || dev->model.motor_type == X74_MOTOR) && isColourScan
 		     && (resolution == 600), dev->shadow_regs, dev);
 
   /* may be we could use a sensor descriptor that would held the max horiz dpi */
@@ -2624,11 +2928,31 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 
       if (isColourScan)
 	{
-	  /* set colour scan */
-	  dev->shadow_regs[0x2f] = 0x11;
-
 	  switch (dev->model.sensor_type)
 	    {
+	    case X74_SENSOR:
+
+	      dev->shadow_regs[0x34] = 0x04;
+	      dev->shadow_regs[0x36] = 0x03;
+	      dev->shadow_regs[0x38] = 0x03;
+
+	      dev->shadow_regs[0x79] = 0x08;
+
+	      dev->shadow_regs[0x80] = 0x0d;
+	      dev->shadow_regs[0x81] = 0x0e;
+	      dev->shadow_regs[0x82] = 0x02;
+
+	      dev->shadow_regs[0x85] = 0x00;
+	      dev->shadow_regs[0x86] = 0x00;
+	      dev->shadow_regs[0x87] = 0x00;
+	      dev->shadow_regs[0x88] = 0x00;
+
+	      dev->shadow_regs[0x91] = 0x00;
+	      dev->shadow_regs[0x92] = 0x00;
+	      dev->shadow_regs[0x93] = 0x06;;
+
+	      break;
+
 	    case X1100_B2_SENSOR:
 	      dev->shadow_regs[0x34] = 0x05;
 	      dev->shadow_regs[0x36] = 0x05;
@@ -2718,44 +3042,120 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      break;
 	    }
 
+	  switch (dev->model.motor_type)
+	    {
+	    case X74_MOTOR:
+	      dev->shadow_regs[0xc2] = 0x80;
+	      /*  ? */
+	      dev->shadow_regs[0xc4] = 0x20;
+	      dev->shadow_regs[0xc5] = 0x0c;
+	      dev->shadow_regs[0xc6] = 0x0b;
+
+	      dev->shadow_regs[0xc8] = 0x04;
+	      dev->shadow_regs[0xc9] = 0x39;
+	      dev->shadow_regs[0xca] = 0x01;
+
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x1b;
+	      dev->shadow_regs[0xe1] = 0x0a;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0x4f;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x01;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0xb3;
+
+	      dev->shadow_regs[0xe5] = 0x09;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x0d;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0xe5;
+	      dev->shadow_regs[0xe8] = 0x02;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x05;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0xa0;
+	      dev->shadow_regs[0xeb] = 0x01;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x01;
+	      /* bounds of movement range4 */
+	      dev->shadow_regs[0xed] = 0x00;
+	      dev->shadow_regs[0xee] = 0x00;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x01;
+	      break;
+	    case A920_MOTOR:
+	    case X1100_MOTOR:
+	      /*  ? */
+	      dev->shadow_regs[0xc5] = 0x0a;
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x2b;
+	      dev->shadow_regs[0xe1] = 0x0a;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0x7f;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x01;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0xbb;
+	      dev->shadow_regs[0xe5] = 0x09;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x0e;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0x2b;
+	      dev->shadow_regs[0xe8] = 0x03;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x05;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0xa0;
+	      dev->shadow_regs[0xeb] = 0x01;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x01;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x01;
+	      break;
+	    }
+
+	  /* set colour scan */
+	  dev->shadow_regs[0x2f] = 0x11;
+
 	  dev->shadow_regs[0x35] = 0x01;
 	  dev->shadow_regs[0x37] = 0x01;
-
 	  /* Motor enable & Coordinate space denominator */
 	  dev->shadow_regs[0xc3] = 0x83;
-	  /*  ? */
-	  dev->shadow_regs[0xc5] = 0x0a;
-	  /* bounds of movement range0 */
-	  dev->shadow_regs[0xe0] = 0x2b;
-	  dev->shadow_regs[0xe1] = 0x0a;
-	  /* step size range0 */
-	  dev->shadow_regs[0xe2] = 0x7f;
-	  /* ? */
-	  dev->shadow_regs[0xe3] = 0x01;
-	  /* bounds of movement range1 */
-	  dev->shadow_regs[0xe4] = 0xbb;
-	  dev->shadow_regs[0xe5] = 0x09;
-	  /* step size range1 */
-	  dev->shadow_regs[0xe6] = 0x0e;
-	  /* bounds of movement range2 */
-	  dev->shadow_regs[0xe7] = 0x2b;
-	  dev->shadow_regs[0xe8] = 0x03;
-	  /* step size range2 */
-	  dev->shadow_regs[0xe9] = 0x05;
-	  /* bounds of movement range3 */
-	  dev->shadow_regs[0xea] = 0xa0;
-	  dev->shadow_regs[0xeb] = 0x01;
-	  /* step size range3 */
-	  dev->shadow_regs[0xec] = 0x01;
-	  /* step size range4 */
-	  dev->shadow_regs[0xef] = 0x01;
 	}
-      else
+      else			/* 75 dpi gray */
 	{
-	  /* set grayscale  scan  */
-	  dev->shadow_regs[0x2f] = 0x21;
 	  switch (dev->model.sensor_type)
 	    {
+	    case X74_SENSOR:
+
+	      dev->shadow_regs[0x34] = 0x01;
+	      dev->shadow_regs[0x35] = 0x01;
+	      dev->shadow_regs[0x36] = 0x02;
+	      dev->shadow_regs[0x37] = 0x02;
+	      dev->shadow_regs[0x38] = 0x03;
+	      dev->shadow_regs[0x39] = 0x0f;
+
+	      dev->shadow_regs[0x40] = 0x80;
+
+	      dev->shadow_regs[0x79] = 0x08;
+
+	      dev->shadow_regs[0x85] = 0x00;
+	      dev->shadow_regs[0x86] = 0x00;
+	      dev->shadow_regs[0x87] = 0x00;
+	      dev->shadow_regs[0x88] = 0x00;
+
+	      dev->shadow_regs[0x8c] = 0x02;
+	      dev->shadow_regs[0x8d] = 0x01;
+	      dev->shadow_regs[0x8e] = 0x60;
+	      dev->shadow_regs[0x8f] = 0x80;
+
+	      dev->shadow_regs[0x91] = 0x00;
+	      dev->shadow_regs[0x92] = 0x00;
+	      dev->shadow_regs[0x93] = 0x06;
+
+	      break;
+
 	    case X1100_B2_SENSOR:
 	      dev->shadow_regs[0x34] = 0x02;
 	      dev->shadow_regs[0x35] = 0x02;
@@ -2838,6 +3238,87 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0x92] = 0x00;
 	      break;
 	    }
+	  switch (dev->model.motor_type)
+	    {
+	    case X74_MOTOR:
+	      /*  ? */
+	      dev->shadow_regs[0xc4] = 0x20;
+	      dev->shadow_regs[0xc5] = 0x0a;
+	      dev->shadow_regs[0xc6] = 0x0b;
+
+	      dev->shadow_regs[0xc8] = 0x04;
+	      dev->shadow_regs[0xc9] = 0x39;
+	      dev->shadow_regs[0xca] = 0x01;
+
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x07;
+	      dev->shadow_regs[0xe1] = 0x18;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0xe7;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x03;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0xe7;
+	      dev->shadow_regs[0xe5] = 0x14;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x64;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0xcb;
+	      dev->shadow_regs[0xe8] = 0x08;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x32;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0xe3;
+	      dev->shadow_regs[0xeb] = 0x04;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x0c;
+	      /* bounds of movement range4 */
+	      dev->shadow_regs[0xed] = 0x00;
+	      dev->shadow_regs[0xee] = 0x00;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x08;
+	      break;
+	    case A920_MOTOR:
+	    case X1100_MOTOR:
+	      /*  ? */
+	      dev->shadow_regs[0xc5] = 0x10;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x09;
+
+	      dev->shadow_regs[0xc9] = 0x3b;
+	      dev->shadow_regs[0xca] = 0x01;
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x4d;
+	      dev->shadow_regs[0xe1] = 0x1c;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0x71;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x02;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x6d;
+	      dev->shadow_regs[0xe5] = 0x15;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0xdc;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0xad;
+	      dev->shadow_regs[0xe8] = 0x07;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x1b;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0xe1;
+	      dev->shadow_regs[0xeb] = 0x03;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x07;
+	      /* bounds of movement range4 -only for 75dpi grayscale */
+	      dev->shadow_regs[0xed] = 0xc2;
+	      dev->shadow_regs[0xee] = 0x02;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x03;
+	      break;
+	    }
+
+	  /* set grayscale  scan  */
+	  dev->shadow_regs[0x2f] = 0x21;
 
 	  /* set ? only for colour? */
 	  dev->shadow_regs[0x80] = 0x00;
@@ -2845,50 +3326,19 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	  dev->shadow_regs[0x82] = 0x00;
 	  /* Motor enable & Coordinate space denominator */
 	  dev->shadow_regs[0xc3] = 0x81;
-	  /*  ? */
-	  dev->shadow_regs[0xc5] = 0x10;
-	  /* bounds of movement range0 */
-	  dev->shadow_regs[0xe0] = 0x4d;
-	  dev->shadow_regs[0xe1] = 0x1c;
-	  /* step size range0 */
-	  dev->shadow_regs[0xe2] = 0x71;
-	  /* ? */
-	  dev->shadow_regs[0xe3] = 0x02;
-	  /* bounds of movement range1 */
-	  dev->shadow_regs[0xe4] = 0x6d;
-	  dev->shadow_regs[0xe5] = 0x15;
-	  /* step size range1 */
-	  dev->shadow_regs[0xe6] = 0xdc;
-	  /* bounds of movement range2 */
-	  dev->shadow_regs[0xe7] = 0xad;
-	  dev->shadow_regs[0xe8] = 0x07;
-	  /* step size range2 */
-	  dev->shadow_regs[0xe9] = 0x1b;
-	  /* bounds of movement range3 */
-	  dev->shadow_regs[0xea] = 0xe1;
-	  dev->shadow_regs[0xeb] = 0x03;
-	  /* step size range3 */
-	  dev->shadow_regs[0xec] = 0x07;
-	  /* bounds of movement range4 -only for 75dpi grayscale */
-	  dev->shadow_regs[0xed] = 0xc2;
-	  dev->shadow_regs[0xee] = 0x02;
-	  /* step size range4 */
-	  dev->shadow_regs[0xef] = 0x03;
+
 	}
 
       /* set motor resolution divisor */
       dev->shadow_regs[0x39] = 0x0f;
-      /* Movement direction & step size */
-      dev->shadow_regs[0xc6] = 0x09;
-
-      dev->shadow_regs[0xc9] = 0x3b;
-      dev->shadow_regs[0xca] = 0x01;
 
       /* set # of head moves per CIS read */
       rts88xx_set_scan_frequency (dev->shadow_regs, 1);
+
       /* set horizontal resolution */
       if (dev->model.sensor_type != X1200_SENSOR)
 	dev->shadow_regs[0x79] = 0x08;
+
     }
 
   /* 150dpi x 150dpi */
@@ -2898,10 +3348,31 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 
       if (isColourScan)
 	{
-	  /* set colour scan */
-	  dev->shadow_regs[0x2f] = 0x11;
+
 	  switch (dev->model.sensor_type)
 	    {
+	    case X74_SENSOR:
+	      dev->shadow_regs[0x34] = 0x08;
+	      dev->shadow_regs[0x36] = 0x06;
+	      dev->shadow_regs[0x38] = 0x05;
+	      dev->shadow_regs[0x39] = 0x07;
+
+	      /* resolution divisor */
+	      dev->shadow_regs[0x79] = 0x08;
+
+	      dev->shadow_regs[0x80] = 0x0a;
+	      dev->shadow_regs[0x81] = 0x0c;
+	      dev->shadow_regs[0x82] = 0x04;
+
+	      dev->shadow_regs[0x85] = 0x00;
+	      dev->shadow_regs[0x86] = 0x00;
+	      dev->shadow_regs[0x87] = 0x00;
+	      dev->shadow_regs[0x88] = 0x00;
+
+	      dev->shadow_regs[0x91] = 0x00;
+	      dev->shadow_regs[0x92] = 0x00;
+	      dev->shadow_regs[0x93] = 0x06;
+	      break;
 	    case X1100_B2_SENSOR:
 	      dev->shadow_regs[0x34] = 0x0b;
 	      dev->shadow_regs[0x36] = 0x0b;
@@ -3002,55 +3473,127 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 
 	      dev->shadow_regs[0x92] = 0x92;
 	      break;
+	    }			/* switch */
+	  switch (dev->model.motor_type)
+	    {
+	    case X74_MOTOR:
+	      dev->shadow_regs[0xc2] = 0x80;
+	      /*  ? */
+	      dev->shadow_regs[0xc4] = 0x20;
+
+	      dev->shadow_regs[0xc5] = 0x0e;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x0b;
+	      dev->shadow_regs[0xc7] = 0x00;
+	      dev->shadow_regs[0xc8] = 0x04;
+	      dev->shadow_regs[0xc9] = 0x39;
+	      dev->shadow_regs[0xca] = 0x03;
+
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x41;
+	      dev->shadow_regs[0xe1] = 0x09;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0x89;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x02;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x0d;
+
+	      dev->shadow_regs[0xe5] = 0x09;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x0d;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0xe8;
+	      dev->shadow_regs[0xe8] = 0x02;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x05;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0x00;
+	      dev->shadow_regs[0xeb] = 0x00;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x01;
+	      /* bounds of movement range4 */
+	      dev->shadow_regs[0xed] = 0x00;
+	      dev->shadow_regs[0xee] = 0x00;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x01;
+	      break;
+	    case X1100_MOTOR:
+	    case A920_MOTOR:
+	      /*  ? */
+	      dev->shadow_regs[0xc5] = 0x0e;
+	      /*  ? */
+	      dev->shadow_regs[0xc9] = 0x3a;
+	      dev->shadow_regs[0xca] = 0x03;
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x61;
+	      dev->shadow_regs[0xe1] = 0x0a;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0xed;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x02;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x29;
+	      dev->shadow_regs[0xe5] = 0x0a;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x0e;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0x29;
+	      dev->shadow_regs[0xe8] = 0x03;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x05;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0x00;
+	      dev->shadow_regs[0xeb] = 0x00;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x01;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x01;
+	      break;
 	    }
-	  /* set ? */
+	  /* set colour scan */
+	  dev->shadow_regs[0x2f] = 0x11;
+
 	  dev->shadow_regs[0x35] = 0x01;
 	  dev->shadow_regs[0x37] = 0x01;
 	  /* Motor enable & Coordinate space denominator */
 	  dev->shadow_regs[0xc3] = 0x83;
-	  /*  ? */
-	  dev->shadow_regs[0xc5] = 0x0e;
-	  /*  ? */
-	  dev->shadow_regs[0xc9] = 0x3a;
-	  dev->shadow_regs[0xca] = 0x03;
-	  /* bounds of movement range0 */
-	  dev->shadow_regs[0xe0] = 0x61;
-	  dev->shadow_regs[0xe1] = 0x0a;
-	  /* step size range0 */
-	  dev->shadow_regs[0xe2] = 0xed;
-	  /* ? */
-	  dev->shadow_regs[0xe3] = 0x02;
-	  /* bounds of movement range1 */
-	  dev->shadow_regs[0xe4] = 0x29;
-	  dev->shadow_regs[0xe5] = 0x0a;
-	  /* step size range1 */
-	  dev->shadow_regs[0xe6] = 0x0e;
-	  /* bounds of movement range2 */
-	  dev->shadow_regs[0xe7] = 0x29;
-	  dev->shadow_regs[0xe8] = 0x03;
-	  /* step size range2 */
-	  dev->shadow_regs[0xe9] = 0x05;
-	  /* bounds of movement range3 */
-	  dev->shadow_regs[0xea] = 0x00;
-	  dev->shadow_regs[0xeb] = 0x00;
-	  /* step size range3 */
-	  dev->shadow_regs[0xec] = 0x01;
-	  /* step size range4 */
-	  dev->shadow_regs[0xef] = 0x01;
 
-	}
+	}			/* if (isColourScan) */
       else
 	{
-	  /* set grayscale  scan */
-	  dev->shadow_regs[0x2f] = 0x21;
 	  switch (dev->model.sensor_type)
 	    {
+	    case X74_SENSOR:
+
+	      dev->shadow_regs[0x34] = 0x02;
+	      dev->shadow_regs[0x35] = 0x02;
+	      dev->shadow_regs[0x36] = 0x04;
+	      dev->shadow_regs[0x37] = 0x04;
+	      dev->shadow_regs[0x38] = 0x06;
+	      dev->shadow_regs[0x39] = 0x07;
+	      /* Motor enable & Coordinate space denominator */
+	      dev->shadow_regs[0x40] = 0x40;
+
+	      /* resolution divisor */
+	      dev->shadow_regs[0x79] = 0x08;
+
+	      dev->shadow_regs[0x85] = 0x00;
+	      dev->shadow_regs[0x86] = 0x00;
+	      dev->shadow_regs[0x87] = 0x00;
+	      dev->shadow_regs[0x88] = 0x00;
+
+	      dev->shadow_regs[0x91] = 0x00;
+	      dev->shadow_regs[0x92] = 0x00;
+	      dev->shadow_regs[0x93] = 0x06;
+	      break;
 	    case X1100_B2_SENSOR:
 	      dev->shadow_regs[0x34] = 0x04;
 	      dev->shadow_regs[0x35] = 0x04;
 	      dev->shadow_regs[0x36] = 0x07;
 	      dev->shadow_regs[0x37] = 0x07;
 	      dev->shadow_regs[0x38] = 0x0a;
+
 
 	      dev->shadow_regs[0x85] = 0x00;
 	      dev->shadow_regs[0x86] = 0x00;
@@ -3134,56 +3677,108 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 
 	      dev->shadow_regs[0x92] = 0x92;
 	      break;
+	    }			/* switch */
+	  switch (dev->model.motor_type)
+	    {
+	    case X74_MOTOR:
+	      /*  ? */
+	      dev->shadow_regs[0xc4] = 0x20;
+	      dev->shadow_regs[0xc5] = 0x14;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x0b;
+
+	      dev->shadow_regs[0xc8] = 0x04;
+	      dev->shadow_regs[0xc9] = 0x39;
+	      dev->shadow_regs[0xca] = 0x01;
+
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x09;
+	      dev->shadow_regs[0xe1] = 0x18;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0xe9;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x03;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x79;
+
+	      dev->shadow_regs[0xe5] = 0x16;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x64;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0xcd;
+	      dev->shadow_regs[0xe8] = 0x08;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x32;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0xe5;
+	      dev->shadow_regs[0xeb] = 0x04;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x0c;
+	      /* bounds of movement range4 */
+	      dev->shadow_regs[0xed] = 0x00;
+	      dev->shadow_regs[0xee] = 0x00;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x08;
+	      break;
+	    case X1100_MOTOR:
+	    case A920_MOTOR:
+	      /*  ? */
+	      dev->shadow_regs[0xc5] = 0x16;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x09;
+	      /*  ? */
+	      dev->shadow_regs[0xc9] = 0x3b;
+	      dev->shadow_regs[0xca] = 0x01;
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0xdd;
+	      dev->shadow_regs[0xe1] = 0x18;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0x01;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x03;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x6d;
+	      dev->shadow_regs[0xe5] = 0x15;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0xdc;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0xad;
+	      dev->shadow_regs[0xe8] = 0x07;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x1b;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0xe1;
+	      dev->shadow_regs[0xeb] = 0x03;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x07;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x03;
+	      break;
 	    }
 
+	  /* set grayscale  scan */
+	  dev->shadow_regs[0x2f] = 0x21;
+	  /* set motor resolution divisor */
+	  dev->shadow_regs[0x39] = 0x07;
 	  /* set ? only for colour? */
 	  dev->shadow_regs[0x80] = 0x00;
 	  dev->shadow_regs[0x81] = 0x00;
 	  dev->shadow_regs[0x82] = 0x00;
+
 	  /* Motor enable & Coordinate space denominator */
 	  dev->shadow_regs[0xc3] = 0x81;
-	  /*  ? */
-	  dev->shadow_regs[0xc5] = 0x16;
-	  /*  ? */
-	  dev->shadow_regs[0xc9] = 0x3b;
-	  dev->shadow_regs[0xca] = 0x01;
-	  /* bounds of movement range0 */
-	  dev->shadow_regs[0xe0] = 0xdd;
-	  dev->shadow_regs[0xe1] = 0x18;
-	  /* step size range0 */
-	  dev->shadow_regs[0xe2] = 0x01;
-	  /* ? */
-	  dev->shadow_regs[0xe3] = 0x03;
-	  /* bounds of movement range1 */
-	  dev->shadow_regs[0xe4] = 0x6d;
-	  dev->shadow_regs[0xe5] = 0x15;
-	  /* step size range1 */
-	  dev->shadow_regs[0xe6] = 0xdc;
-	  /* bounds of movement range2 */
-	  dev->shadow_regs[0xe7] = 0xad;
-	  dev->shadow_regs[0xe8] = 0x07;
-	  /* step size range2 */
-	  dev->shadow_regs[0xe9] = 0x1b;
-	  /* bounds of movement range3 */
-	  dev->shadow_regs[0xea] = 0xe1;
-	  dev->shadow_regs[0xeb] = 0x03;
-	  /* step size range3 */
-	  dev->shadow_regs[0xec] = 0x07;
-	  /* step size range4 */
-	  dev->shadow_regs[0xef] = 0x03;
-	}
+	}			/* else (greyscale) */
 
-      /* set motor resolution divisor */
-      dev->shadow_regs[0x39] = 0x07;
-      /* Movement direction & step size */
-      dev->shadow_regs[0xc6] = 0x09;
+
+
 
       /* set # of head moves per CIS read */
       rts88xx_set_scan_frequency (dev->shadow_regs, 1);
 
       /* hum, horizontal resolution different for X1200 ? */
-      if (dev->model.sensor_type != X1200_SENSOR)
-	dev->shadow_regs[0x79] = 0x20;
+      /* if (dev->model.sensor_type != X1200_SENSOR)
+         dev->shadow_regs[0x79] = 0x20; */
+
     }
 
   /*300dpi x 300dpi */
@@ -3193,15 +3788,34 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 
       if (isColourScan)
 	{
-	  /* set colour scan */
-	  dev->shadow_regs[0x2f] = 0x11;
 
 	  switch (dev->model.sensor_type)
 	    {
+	    case X74_SENSOR:
+	      dev->shadow_regs[0x34] = 0x08;
+	      dev->shadow_regs[0x36] = 0x06;
+	      dev->shadow_regs[0x38] = 0x05;
+	      dev->shadow_regs[0x39] = 0x07;
+
+	      dev->shadow_regs[0x80] = 0x08;
+	      dev->shadow_regs[0x81] = 0x0a;
+	      dev->shadow_regs[0x82] = 0x03;
+
+	      dev->shadow_regs[0x85] = 0x00;
+	      dev->shadow_regs[0x86] = 0x00;
+	      dev->shadow_regs[0x87] = 0x00;
+	      dev->shadow_regs[0x88] = 0x00;
+
+	      dev->shadow_regs[0x91] = 0x00;
+	      dev->shadow_regs[0x92] = 0x00;
+	      dev->shadow_regs[0x93] = 0x06;
+	      break;
 	    case X1100_B2_SENSOR:
 	      dev->shadow_regs[0x34] = 0x15;
 	      dev->shadow_regs[0x36] = 0x15;
 	      dev->shadow_regs[0x38] = 0x14;
+	      /* set motor resolution divisor */
+	      dev->shadow_regs[0x39] = 0x03;
 
 	      dev->shadow_regs[0x80] = 0x0a;
 	      dev->shadow_regs[0x81] = 0x0a;
@@ -3220,6 +3834,8 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0x34] = 0x08;
 	      dev->shadow_regs[0x36] = 0x0d;
 	      dev->shadow_regs[0x38] = 0x09;
+	      /* set motor resolution divisor */
+	      dev->shadow_regs[0x39] = 0x03;
 
 	      dev->shadow_regs[0x80] = 0x0e;
 	      dev->shadow_regs[0x81] = 0x04;
@@ -3238,6 +3854,8 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0x34] = 0x06;
 	      dev->shadow_regs[0x36] = 0x10;
 	      dev->shadow_regs[0x38] = 0x09;
+	      /* set motor resolution divisor */
+	      dev->shadow_regs[0x39] = 0x03;
 
 	      dev->shadow_regs[0x80] = 0x0c;
 	      dev->shadow_regs[0x81] = 0x02;
@@ -3256,6 +3874,8 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0x34] = 0x07;
 	      dev->shadow_regs[0x36] = 0x09;
 	      dev->shadow_regs[0x38] = 0x04;
+	      /* set motor resolution divisor */
+	      dev->shadow_regs[0x39] = 0x03;
 
 	      /* data compression 
 	         dev->shadow_regs[0x40] = 0x90;
@@ -3272,6 +3892,8 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0x34] = 0x07;
 	      dev->shadow_regs[0x36] = 0x09;
 	      dev->shadow_regs[0x38] = 0x04;
+	      /* set motor resolution divisor */
+	      dev->shadow_regs[0x39] = 0x03;
 
 	      dev->shadow_regs[0x40] = 0x80;
 	      dev->shadow_regs[0x50] = 0x00;
@@ -3281,54 +3903,114 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0x82] = 0x06;
 	      break;
 	    }
+	  switch (dev->model.motor_type)
+	    {
+	    case X74_MOTOR:
+	      /*  ? */
+	      dev->shadow_regs[0xc4] = 0x20;
+	      dev->shadow_regs[0xc5] = 0x12;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x09;
 
-	  /* set ? */
+	      dev->shadow_regs[0xc8] = 0x04;
+	      dev->shadow_regs[0xc9] = 0x39;
+	      dev->shadow_regs[0xca] = 0x0f;
+
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x5d;
+	      dev->shadow_regs[0xe1] = 0x05;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0xed;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x02;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x29;
+	      dev->shadow_regs[0xe5] = 0x05;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x0d;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0x00;
+	      dev->shadow_regs[0xe8] = 0x00;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x05;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0x00;
+	      dev->shadow_regs[0xeb] = 0x00;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x01;
+	      /* bounds of movement range4 -only for 75dpi grayscale */
+	      dev->shadow_regs[0xed] = 0x00;
+	      dev->shadow_regs[0xee] = 0x00;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x01;
+	      break;
+	    case A920_MOTOR:
+	    case X1100_MOTOR:
+	      /*  ? */
+	      dev->shadow_regs[0xc5] = 0x17;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x09;
+	      /*  ? */
+	      dev->shadow_regs[0xc9] = 0x3a;
+	      dev->shadow_regs[0xca] = 0x0a;
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x75;
+	      dev->shadow_regs[0xe1] = 0x0a;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0xdd;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x05;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x59;
+	      dev->shadow_regs[0xe5] = 0x0a;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x0e;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0x00;
+	      dev->shadow_regs[0xe8] = 0x00;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x05;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0x00;
+	      dev->shadow_regs[0xeb] = 0x00;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x01;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x01;
+	      break;
+	    }
+
 	  dev->shadow_regs[0x35] = 0x01;
 	  dev->shadow_regs[0x37] = 0x01;
-	  /* set motor resolution divisor */
-	  dev->shadow_regs[0x39] = 0x03;
-	  /* set ? */
+
+	  /* set colour scan */
+	  dev->shadow_regs[0x2f] = 0x11;
+
 	  /* Motor enable & Coordinate space denominator */
 	  dev->shadow_regs[0xc3] = 0x83;
-	  /*  ? */
-	  dev->shadow_regs[0xc5] = 0x17;
-	  /* Movement direction & step size */
-	  dev->shadow_regs[0xc6] = 0x09;
-	  /*  ? */
-	  dev->shadow_regs[0xc9] = 0x3a;
-	  dev->shadow_regs[0xca] = 0x0a;
-	  /* bounds of movement range0 */
-	  dev->shadow_regs[0xe0] = 0x75;
-	  dev->shadow_regs[0xe1] = 0x0a;
-	  /* step size range0 */
-	  dev->shadow_regs[0xe2] = 0xdd;
-	  /* ? */
-	  dev->shadow_regs[0xe3] = 0x05;
-	  /* bounds of movement range1 */
-	  dev->shadow_regs[0xe4] = 0x59;
-	  dev->shadow_regs[0xe5] = 0x0a;
-	  /* step size range1 */
-	  dev->shadow_regs[0xe6] = 0x0e;
-	  /* bounds of movement range2 */
-	  dev->shadow_regs[0xe7] = 0x00;
-	  dev->shadow_regs[0xe8] = 0x00;
-	  /* step size range2 */
-	  dev->shadow_regs[0xe9] = 0x05;
-	  /* bounds of movement range3 */
-	  dev->shadow_regs[0xea] = 0x00;
-	  dev->shadow_regs[0xeb] = 0x00;
-	  /* step size range3 */
-	  dev->shadow_regs[0xec] = 0x01;
-	  /* step size range4 */
-	  dev->shadow_regs[0xef] = 0x01;
+
 	}
-      else
+      else			/* greyscale */
 	{
-	  /* set grayscale  scan */
-	  dev->shadow_regs[0x2f] = 0x21;
-	  /* set ? */
+
 	  switch (dev->model.sensor_type)
 	    {
+	    case X74_SENSOR:
+	      dev->shadow_regs[0x34] = 0x04;
+	      dev->shadow_regs[0x35] = 0x04;
+	      dev->shadow_regs[0x36] = 0x08;
+	      dev->shadow_regs[0x37] = 0x08;
+	      dev->shadow_regs[0x38] = 0x0c;
+
+	      dev->shadow_regs[0x85] = 0x00;
+	      dev->shadow_regs[0x86] = 0x00;
+	      dev->shadow_regs[0x87] = 0x00;
+	      dev->shadow_regs[0x88] = 0x00;
+
+	      dev->shadow_regs[0x91] = 0x00;
+	      dev->shadow_regs[0x92] = 0x00;
+	      dev->shadow_regs[0x93] = 0x06;
+	      break;
 	    case X1100_B2_SENSOR:
 	      dev->shadow_regs[0x34] = 0x08;
 	      dev->shadow_regs[0x35] = 0x08;
@@ -3392,47 +4074,97 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0x38] = 0x06;
 	      break;
 	    }
+	  switch (dev->model.motor_type)
+	    {
+	    case X74_MOTOR:
+	      /*  ? */
+	      dev->shadow_regs[0xc4] = 0x20;
+	      dev->shadow_regs[0xc5] = 0x1c;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x0b;
 
+	      dev->shadow_regs[0xc8] = 0x04;
+	      dev->shadow_regs[0xc9] = 0x39;
+	      dev->shadow_regs[0xca] = 0x05;
+
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x29;
+	      dev->shadow_regs[0xe1] = 0x17;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0x8f;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x06;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x61;
+
+	      dev->shadow_regs[0xe5] = 0x16;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x64;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0xb5;
+	      dev->shadow_regs[0xe8] = 0x08;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x32;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0x00;
+	      dev->shadow_regs[0xeb] = 0x00;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x0c;
+	      /* bounds of movement range4 -only for 75dpi grayscale */
+	      dev->shadow_regs[0xed] = 0x00;
+	      dev->shadow_regs[0xee] = 0x00;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x08;
+	      break;
+	    case A920_MOTOR:
+	    case X1100_MOTOR:
+	      /*  ? */
+	      dev->shadow_regs[0xc5] = 0x19;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x09;
+	      /*  ? */
+	      dev->shadow_regs[0xc9] = 0x3a;
+	      dev->shadow_regs[0xca] = 0x08;
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0xe3;
+	      dev->shadow_regs[0xe1] = 0x18;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0x03;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x06;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x2b;
+	      dev->shadow_regs[0xe5] = 0x17;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0xdc;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0xb3;
+	      dev->shadow_regs[0xe8] = 0x07;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x1b;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0x00;
+	      dev->shadow_regs[0xeb] = 0x00;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x07;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x03;
+	      break;
+	    }			/* switch motortype */
+	  /* set grayscale  scan */
+	  dev->shadow_regs[0x2f] = 0x21;
 	  /* set motor resolution divisor */
 	  dev->shadow_regs[0x39] = 0x03;
+
 	  /* set ? only for colour? */
 	  dev->shadow_regs[0x80] = 0x00;
 	  dev->shadow_regs[0x81] = 0x00;
 	  dev->shadow_regs[0x82] = 0x00;
 	  /* Motor enable & Coordinate space denominator */
 	  dev->shadow_regs[0xc3] = 0x81;
-	  /*  ? */
-	  dev->shadow_regs[0xc5] = 0x19;
-	  /* Movement direction & step size */
-	  dev->shadow_regs[0xc6] = 0x09;
-	  /*  ? */
-	  dev->shadow_regs[0xc9] = 0x3a;
-	  dev->shadow_regs[0xca] = 0x08;
-	  /* bounds of movement range0 */
-	  dev->shadow_regs[0xe0] = 0xe3;
-	  dev->shadow_regs[0xe1] = 0x18;
-	  /* step size range0 */
-	  dev->shadow_regs[0xe2] = 0x03;
-	  /* ? */
-	  dev->shadow_regs[0xe3] = 0x06;
-	  /* bounds of movement range1 */
-	  dev->shadow_regs[0xe4] = 0x2b;
-	  dev->shadow_regs[0xe5] = 0x17;
-	  /* step size range1 */
-	  dev->shadow_regs[0xe6] = 0xdc;
-	  /* bounds of movement range2 */
-	  dev->shadow_regs[0xe7] = 0xb3;
-	  dev->shadow_regs[0xe8] = 0x07;
-	  /* step size range2 */
-	  dev->shadow_regs[0xe9] = 0x1b;
-	  /* bounds of movement range3 */
-	  dev->shadow_regs[0xea] = 0x00;
-	  dev->shadow_regs[0xeb] = 0x00;
-	  /* step size range3 */
-	  dev->shadow_regs[0xec] = 0x07;
-	  /* step size range4 */
-	  dev->shadow_regs[0xef] = 0x03;
-	}
+
+
+	}			/* else (gray) */
 
       /* set # of head moves per CIS read */
       rts88xx_set_scan_frequency (dev->shadow_regs, 1);
@@ -3445,13 +4177,62 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
     {
       DBG (5, "sanei_lexmark_low_set_scan_regs(): 600 DPI resolution\n");
 
+
+
       if (isColourScan)
 	{
-	  /* set colour scan */
-	  dev->shadow_regs[0x2f] = 0x11;
-	  /* set ? */
+	  /* 600 dpi color doesn't work for X74 yet */
+	  if (dev->model.sensor_type == X74_SENSOR)
+	    return SANE_STATUS_INVAL;
+
 	  switch (dev->model.sensor_type)
 	    {
+	    case X74_SENSOR:
+	      dev->shadow_regs[0x34] = 0x10;
+	      dev->shadow_regs[0x35] = 0x01;
+	      dev->shadow_regs[0x36] = 0x0c;
+	      dev->shadow_regs[0x37] = 0x01;
+	      dev->shadow_regs[0x38] = 0x09;
+
+	      dev->shadow_regs[0x80] = 0x02;
+	      dev->shadow_regs[0x81] = 0x08;
+	      dev->shadow_regs[0x82] = 0x08;
+
+
+	      dev->shadow_regs[0x85] = 0x00;
+	      dev->shadow_regs[0x86] = 0x00;
+	      dev->shadow_regs[0x87] = 0x00;
+	      dev->shadow_regs[0x88] = 0x00;
+
+	      dev->shadow_regs[0x91] = 0x00;
+	      dev->shadow_regs[0x92] = 0x00;
+	      dev->shadow_regs[0x93] = 0x06;
+	      break;
+
+	      /*dev->shadow_regs[0x34] = 0x08;
+	         dev->shadow_regs[0x35] = 0x01;
+	         dev->shadow_regs[0x36] = 0x06;
+	         dev->shadow_regs[0x37] = 0x01;
+	         dev->shadow_regs[0x38] = 0x05;
+
+
+	         dev->shadow_regs[0x80] = 0x09;
+	         dev->shadow_regs[0x81] = 0x0c;
+	         dev->shadow_regs[0x82] = 0x04;
+
+
+	         dev->shadow_regs[0x85] = 0x00;
+	         dev->shadow_regs[0x86] = 0x00;
+	         dev->shadow_regs[0x87] = 0x00;
+	         dev->shadow_regs[0x88] = 0x00;
+
+	         dev->shadow_regs[0x91] = 0x00;
+	         dev->shadow_regs[0x92] = 0x00;
+	         dev->shadow_regs[0x93] = 0x06;
+	         break; */
+
+
+
 	    case X1100_B2_SENSOR:
 	      dev->shadow_regs[0x34] = 0x15;
 	      dev->shadow_regs[0x36] = 0x15;
@@ -3547,6 +4328,87 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0xca] = 0x0a;
 	      break;
 	    }
+	  switch (dev->model.motor_type)
+	    {
+	    case X74_MOTOR:
+	      /* Motor enable & Coordinate space denominator */
+	      dev->shadow_regs[0xc3] = 0x81;
+	      /*  ? */
+	      dev->shadow_regs[0xc4] = 0x20;
+	      dev->shadow_regs[0xc5] = 0x21;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x09;
+	      dev->shadow_regs[0xc8] = 0x04;
+	      dev->shadow_regs[0xc9] = 0x39;
+	      dev->shadow_regs[0xca] = 0x20;
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x00;
+	      dev->shadow_regs[0xe1] = 0x00;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0xbf;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x05;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x00;
+	      dev->shadow_regs[0xe5] = 0x00;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x0d;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0x00;
+	      dev->shadow_regs[0xe8] = 0x00;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x05;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0x00;
+	      dev->shadow_regs[0xeb] = 0x00;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x01;
+	      /* bounds of movement range4 -only for 75dpi grayscale */
+	      dev->shadow_regs[0xed] = 0x00;
+	      dev->shadow_regs[0xee] = 0x00;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x01;
+	      break;
+	    case A920_MOTOR:
+	    case X1100_MOTOR:
+	      /* Motor enable & Coordinate space denominator */
+	      dev->shadow_regs[0xc3] = 0x86;
+	      /*  ? */
+	      dev->shadow_regs[0xc5] = 0x27;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x0c;
+	      /*  ? */
+	      dev->shadow_regs[0xc9] = 0x3a;
+	      dev->shadow_regs[0xca] = 0x1a;
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x57;
+	      dev->shadow_regs[0xe1] = 0x0a;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0xbf;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x05;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x3b;
+	      dev->shadow_regs[0xe5] = 0x0a;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x0e;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0x00;
+	      dev->shadow_regs[0xe8] = 0x00;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x05;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0x00;
+	      dev->shadow_regs[0xeb] = 0x00;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x01;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x01;
+	      break;
+	    }
+	  /* set colour scan */
+	  dev->shadow_regs[0x2f] = 0x11;
+
 	  dev->shadow_regs[0x35] = 0x01;
 	  dev->shadow_regs[0x37] = 0x01;
 
@@ -3554,46 +4416,32 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	  dev->shadow_regs[0x39] = 0x03;
 	  /* set # of head moves per CIS read */
 	  rts88xx_set_scan_frequency (dev->shadow_regs, 2);
-	  /* Motor enable & Coordinate space denominator */
-	  dev->shadow_regs[0xc3] = 0x86;
-	  /*  ? */
-	  dev->shadow_regs[0xc5] = 0x27;
-	  /* Movement direction & step size */
-	  dev->shadow_regs[0xc6] = 0x0c;
-	  /*  ? */
-	  dev->shadow_regs[0xc9] = 0x3a;
-	  dev->shadow_regs[0xca] = 0x1a;
-	  /* bounds of movement range0 */
-	  dev->shadow_regs[0xe0] = 0x57;
-	  dev->shadow_regs[0xe1] = 0x0a;
-	  /* step size range0 */
-	  dev->shadow_regs[0xe2] = 0xbf;
-	  /* ? */
-	  dev->shadow_regs[0xe3] = 0x05;
-	  /* bounds of movement range1 */
-	  dev->shadow_regs[0xe4] = 0x3b;
-	  dev->shadow_regs[0xe5] = 0x0a;
-	  /* step size range1 */
-	  dev->shadow_regs[0xe6] = 0x0e;
-	  /* bounds of movement range2 */
-	  dev->shadow_regs[0xe7] = 0x00;
-	  dev->shadow_regs[0xe8] = 0x00;
-	  /* step size range2 */
-	  dev->shadow_regs[0xe9] = 0x05;
-	  /* bounds of movement range3 */
-	  dev->shadow_regs[0xea] = 0x00;
-	  dev->shadow_regs[0xeb] = 0x00;
-	  /* step size range3 */
-	  dev->shadow_regs[0xec] = 0x01;
-	  /* step size range4 */
-	  dev->shadow_regs[0xef] = 0x01;
+
+
 	}
       else
 	{
-	  /* set grayscale  scan */
-	  dev->shadow_regs[0x2f] = 0x21;
 	  switch (dev->model.sensor_type)
 	    {
+	    case X74_SENSOR:
+	      dev->shadow_regs[0x2c] = 0x04;
+	      dev->shadow_regs[0x2d] = 0x46;
+	      dev->shadow_regs[0x34] = 0x05;
+	      dev->shadow_regs[0x35] = 0x05;
+	      dev->shadow_regs[0x36] = 0x0b;
+	      dev->shadow_regs[0x37] = 0x0b;
+	      dev->shadow_regs[0x38] = 0x11;
+	      dev->shadow_regs[0x40] = 0x40;
+
+	      dev->shadow_regs[0x85] = 0x00;
+	      dev->shadow_regs[0x86] = 0x00;
+	      dev->shadow_regs[0x87] = 0x00;
+	      dev->shadow_regs[0x88] = 0x00;
+
+	      dev->shadow_regs[0x91] = 0x00;
+	      dev->shadow_regs[0x92] = 0x00;
+	      dev->shadow_regs[0x93] = 0x06;
+	      break;
 	    case X1100_B2_SENSOR:
 	      dev->shadow_regs[0x34] = 0x11;
 	      dev->shadow_regs[0x35] = 0x11;
@@ -3682,57 +4530,115 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0x92] = 0x00;
 	      break;
 	    }
+	  switch (dev->model.motor_type)
+	    {
+	    case X74_MOTOR:
+	      /* set # of head moves per CIS read */
+	      rts88xx_set_scan_frequency (dev->shadow_regs, 1);
+	      /*  ? */
+	      dev->shadow_regs[0xc4] = 0x20;
+	      dev->shadow_regs[0xc5] = 0x22;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x0b;
+
+	      dev->shadow_regs[0xc8] = 0x04;
+	      dev->shadow_regs[0xc9] = 0x39;
+	      dev->shadow_regs[0xca] = 0x1f;
+
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0x2f;
+	      dev->shadow_regs[0xe1] = 0x11;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0x9f;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x0f;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0xcb;
+
+	      dev->shadow_regs[0xe5] = 0x10;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0x64;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0x00;
+	      dev->shadow_regs[0xe8] = 0x00;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x32;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0x00;
+	      dev->shadow_regs[0xeb] = 0x00;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x0c;
+	      /* bounds of movement range4 -only for 75dpi grayscale */
+	      dev->shadow_regs[0xed] = 0x00;
+	      dev->shadow_regs[0xee] = 0x00;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x08;
+	      break;
+	    case X1100_MOTOR:
+	    case A920_MOTOR:
+	      /* set ? only for colour? */
+	      dev->shadow_regs[0x80] = 0x00;
+	      dev->shadow_regs[0x81] = 0x00;
+	      dev->shadow_regs[0x82] = 0x00;
+	      /*  ? */
+	      dev->shadow_regs[0xc5] = 0x22;
+	      /* Movement direction & step size */
+	      dev->shadow_regs[0xc6] = 0x09;
+	      /*  ? */
+	      dev->shadow_regs[0xc9] = 0x3b;
+	      dev->shadow_regs[0xca] = 0x1f;
+	      /* bounds of movement range0 */
+	      dev->shadow_regs[0xe0] = 0xf7;
+	      dev->shadow_regs[0xe1] = 0x16;
+	      /* step size range0 */
+	      dev->shadow_regs[0xe2] = 0x87;
+	      /* ? */
+	      dev->shadow_regs[0xe3] = 0x13;
+	      /* bounds of movement range1 */
+	      dev->shadow_regs[0xe4] = 0x1b;
+	      dev->shadow_regs[0xe5] = 0x16;
+	      /* step size range1 */
+	      dev->shadow_regs[0xe6] = 0xdc;
+	      /* bounds of movement range2 */
+	      dev->shadow_regs[0xe7] = 0x00;
+	      dev->shadow_regs[0xe8] = 0x00;
+	      /* step size range2 */
+	      dev->shadow_regs[0xe9] = 0x1b;
+	      /* bounds of movement range3 */
+	      dev->shadow_regs[0xea] = 0x00;
+	      dev->shadow_regs[0xeb] = 0x00;
+	      /* step size range3 */
+	      dev->shadow_regs[0xec] = 0x07;
+	      /* step size range4 */
+	      dev->shadow_regs[0xef] = 0x03;
+	      break;
+	    }
+
+	  /* set grayscale  scan */
+	  dev->shadow_regs[0x2f] = 0x21;
+
 	  /* set motor resolution divisor */
 	  dev->shadow_regs[0x39] = 0x01;
+
 	  /* set # of head moves per CIS read */
 	  rts88xx_set_scan_frequency (dev->shadow_regs, 1);
 
-	  /* set ? only for colour? */
-	  dev->shadow_regs[0x80] = 0x00;
-	  dev->shadow_regs[0x81] = 0x00;
-	  dev->shadow_regs[0x82] = 0x00;
 	  /* Motor enable & Coordinate space denominator */
 	  dev->shadow_regs[0xc3] = 0x81;
-	  /*  ? */
-	  dev->shadow_regs[0xc5] = 0x22;
-	  /* Movement direction & step size */
-	  dev->shadow_regs[0xc6] = 0x09;
-	  /*  ? */
-	  dev->shadow_regs[0xc9] = 0x3b;
-	  dev->shadow_regs[0xca] = 0x1f;
-	  /* bounds of movement range0 */
-	  dev->shadow_regs[0xe0] = 0xf7;
-	  dev->shadow_regs[0xe1] = 0x16;
-	  /* step size range0 */
-	  dev->shadow_regs[0xe2] = 0x87;
-	  /* ? */
-	  dev->shadow_regs[0xe3] = 0x13;
-	  /* bounds of movement range1 */
-	  dev->shadow_regs[0xe4] = 0x1b;
-	  dev->shadow_regs[0xe5] = 0x16;
-	  /* step size range1 */
-	  dev->shadow_regs[0xe6] = 0xdc;
-	  /* bounds of movement range2 */
-	  dev->shadow_regs[0xe7] = 0x00;
-	  dev->shadow_regs[0xe8] = 0x00;
-	  /* step size range2 */
-	  dev->shadow_regs[0xe9] = 0x1b;
-	  /* bounds of movement range3 */
-	  dev->shadow_regs[0xea] = 0x00;
-	  dev->shadow_regs[0xeb] = 0x00;
-	  /* step size range3 */
-	  dev->shadow_regs[0xec] = 0x07;
-	  /* step size range4 */
-	  dev->shadow_regs[0xef] = 0x03;
-	}
+	}			/* else (grayscale) */
 
       /* set horizontal resolution */
       dev->shadow_regs[0x79] = 0x40;
+
     }
   /*600dpi x 1200dpi */
   if (resolution == 1200)
     {
       DBG (5, "sanei_lexmark_low_set_scan_regs(): 1200 DPI resolution\n");
+
+      /* 1200 dpi doesn't work for X74 yet */
+      if (dev->model.sensor_type == X74_SENSOR)
+	return SANE_STATUS_INVAL;
 
       if (isColourScan)
 	{
@@ -4213,6 +5119,10 @@ low_rewind (Lexmark_Device * dev, SANE_Byte * regs)
   else
     new_location += 420;
 
+  if (dev->model.sensor_type == X74_SENSOR)
+    new_location += 150;
+
+
   location = new_location - 1;
   DBG (2, "low_rewind: %d=>new_location=%d\n", dev->val[OPT_BR_Y].w,
        new_location);
@@ -4234,24 +5144,50 @@ low_rewind (Lexmark_Device * dev, SANE_Byte * regs)
   regs[0x62] = LOBYTE (new_location);
   regs[0x63] = HIBYTE (new_location);
 
-/* set regs for rewind */
-  regs[0x79] = 0x40;
-  regs[0xb2] = 0x04;
-  regs[0xc3] = 0x81;
-  regs[0xc6] = 0x01;
-  regs[0xc9] = 0x3b;
-  regs[0xe0] = 0x2b;
-  regs[0xe1] = 0x17;
-  regs[0xe2] = 0xe7;
-  regs[0xe3] = 0x03;
-  regs[0xe6] = 0xdc;
-  regs[0xe7] = 0xb3;
-  regs[0xe8] = 0x07;
-  regs[0xe9] = 0x1b;
-  regs[0xea] = 0x00;
-  regs[0xeb] = 0x00;
-  regs[0xec] = 0x07;
-  regs[0xef] = 0x03;
+  switch (dev->model.motor_type)
+    {
+    case X74_MOTOR:
+      regs[0xc3] = 0x81;
+      regs[0xc6] = 0x03;
+      regs[0xc9] = 0x39;
+      regs[0xe0] = 0x81;
+      regs[0xe1] = 0x16;
+      regs[0xe2] = 0xe1;
+      regs[0xe3] = 0x04;
+      regs[0xe4] = 0xe7;
+      regs[0xe5] = 0x14;
+      regs[0xe6] = 0x64;
+      regs[0xe7] = 0xd5;
+      regs[0xe8] = 0x08;
+      regs[0xe9] = 0x32;
+      regs[0xea] = 0xed;
+      regs[0xeb] = 0x04;
+      regs[0xec] = 0x0c;
+      regs[0xef] = 0x08;
+      break;
+    case X1100_MOTOR:
+    case A920_MOTOR:
+      /* set regs for rewind */
+      regs[0x79] = 0x40;
+      regs[0xb2] = 0x04;
+      regs[0xc3] = 0x81;
+      regs[0xc6] = 0x01;
+      regs[0xc9] = 0x3b;
+      regs[0xe0] = 0x2b;
+      regs[0xe1] = 0x17;
+      regs[0xe2] = 0xe7;
+      regs[0xe3] = 0x03;
+      regs[0xe6] = 0xdc;
+      regs[0xe7] = 0xb3;
+      regs[0xe8] = 0x07;
+      regs[0xe9] = 0x1b;
+      regs[0xea] = 0x00;
+      regs[0xeb] = 0x00;
+      regs[0xec] = 0x07;
+      regs[0xef] = 0x03;
+      break;
+    }
+
 
   /* starts scan */
   low_start_scan (dev->devnum, regs);
@@ -4751,6 +5687,7 @@ sanei_lexmark_low_gain_calibration (Lexmark_Device * dev)
   ex = regs[0x6d] * 256 + regs[0x6c];
   pixels = (ex - sx) / regs[0x7a];
 
+
   /* set up inital gains */
   red = 6;
   green = 6;
@@ -4830,7 +5767,9 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
   /* enough 75 dpi lines to "go off" home position dot,
      and include shading area */
   int lines = 4 + 4;
-  int yoffset = 1;
+  int lineoffset = 1;
+  int linetotal = lines + lineoffset;
+  int yoffset;
   int x, y;
   float rtarget, btarget, gtarget;
 
@@ -4842,8 +5781,11 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
   /* allocate memory for scan */
   sx = regs[0x67] * 256 + regs[0x66];
   ex = regs[0x6d] * 256 + regs[0x6c];
+
+
   DBG (7, "startx=%d, endx=%d, coef=%d, r2f=0x%02x\n",
        sx, ex, regs[0x7a], regs[0x2f]);
+
   pixels = (ex - sx) / regs[0x7a];
   if (rts88xx_is_color (regs))
     bpl = 3 * pixels;
@@ -4852,6 +5794,8 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
 
   /* adjust the target area to the scanning resolution */
   lines = (8 * lines) / regs[0x7a];
+  lineoffset = (8 * lineoffset) / regs[0x7a];
+  linetotal = (8 * linetotal) / regs[0x7a];
 
   data = (SANE_Byte *) malloc (bpl * lines);
   DBG (7, "pixels=%d, lines=%d, size=%d\n", pixels, lines, bpl * lines);
@@ -4878,7 +5822,7 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
   regs[0xc3] = regs[0xc3] | 0x80;
 
   /* execute scan */
-  status = low_simple_scan (dev, regs, sx, pixels, yoffset, lines, &data);
+  status = low_simple_scan (dev, regs, sx, pixels, lineoffset, lines, &data);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1,
@@ -4986,6 +5930,9 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
   /* do the scan backward to go back to start position */
   regs[0xc6] &= 0xF7;
   lines = (8 * 8) / regs[0x7a];
+  /* it shoud use linetotal to account for the lineoffset */
+  if (dev->model.sensor_type == X74_SENSOR)
+    lines = linetotal;
 
   /* execute scan */
   status = low_simple_scan (dev, regs, sx, pixels, 1, lines, &data);
@@ -5010,6 +5957,8 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
 SANE_Status
 sanei_lexmark_low_calibration (Lexmark_Device * dev)
 {
+  DBG (2, "sanei_lexmark_low_calibration: start.\n");
+
   SANE_Status status;
 
   status = sanei_lexmark_low_offset_calibration (dev);
@@ -5063,6 +6012,7 @@ sanei_lexmark_low_calibration (Lexmark_Device * dev)
     }
 
   status = sanei_lexmark_low_shading_calibration (dev);
+
   if (status != SANE_STATUS_GOOD)
     return status;
 

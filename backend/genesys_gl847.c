@@ -74,90 +74,13 @@ print_status (uint8_t val)
 /* ------------------------------------------------------------------------ */
 
 /**
- *
- */
-static SANE_Status
-write_end_access (Genesys_Device * dev, uint8_t index, uint8_t val)
-{
-  SANE_Status status;
-
-  DBG (DBG_io, "write_end_access: 0x%02x,0x%02x\n", index, val);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_BUF_ENDACCESS, index, 1, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "write_end_access: failed %s\n", sane_strstatus (status));
-    }
-  return status;
-}
-
-
-/**
- * writes a block of data to AHB
- * @param dn USB device index
- * @param addr AHB address to write to
- * @param size size of the chunk of data
- * @param data pointer to the data to write
- */
-static SANE_Status
-write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * data)
-{
-  uint8_t outdata[8];
-  size_t written;
-  SANE_Status status = SANE_STATUS_GOOD;
-  int i;
-  char msg[60]="AHB=";
-
-  outdata[0] = addr & 0xff;
-  outdata[1] = ((addr >> 8) & 0xff);
-  outdata[2] = ((addr >> 16) & 0xff);
-  outdata[3] = ((addr >> 24) & 0xff);
-  outdata[4] = (size & 0xff);
-  outdata[5] = ((size >> 8) & 0xff);
-  outdata[6] = ((size >> 16) & 0xff);
-  outdata[7] = ((size >> 24) & 0xff);
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-      for (i = 0; i < 8; i++)
-	{
-          sprintf (msg, "%s 0x%02x", msg, outdata[i]);
-	}
-      DBG (DBG_io, "%s: write(0x%08x,0x%08x)\n", __FUNCTION__, addr,size);
-      DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
-    }
-
-  /* write addr and size for AHB */
-  status =
-    sanei_usb_control_msg (dn, REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER,
-			   0x01, 8, outdata);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "write_ahb: failed while setting addr and size: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  /* write actual data */
-  written = size;
-  status = sanei_usb_write_bulk (dn, data, &written);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "write_ahb: failed while writing bulk data: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  return status;
-}
-
-/**
  * Write to many GL847 registers at once
- * Note: There is no known bulk register write, 
-   this function is sending single registers instead */
+ * Note: sequential call to write register, no effective
+ * bulk write implemented.
+ * @param dev device to write to
+ * @param reg pointer to an array of registers
+ * @param elems size of the array
+ */
 #ifndef UNIT_TESTING
 static
 #endif
@@ -185,8 +108,11 @@ gl847_bulk_write_register (Genesys_Device * dev,
 /** @brief read scanned data
  * Read in 0xeff0 maximum sized blocks. This read is done in 2
  * parts if not multple of 512. First read is rounded to a multiple of 512 bytes, last read fetches the 
- * remainder.
- * addr is always 0x10000000 with the memory layout setup
+ * remainder. Read addr is always 0x10000000 with the memory layout setup.
+ * @param dev device to read data from
+ * @param addr address within ASIC emory space
+ * @param data pointer where to store the read data
+ * @param len size to read
  */
 static SANE_Status
 gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
@@ -229,7 +155,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 
       status =
 	sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			       VALUE_BUFFER, INDEX, sizeof (outdata),
+			       VALUE_BUFFER, 0x00, sizeof (outdata),
 			       outdata);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -283,7 +209,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
       data += size;
     }
 
-  DBG (DBG_io, "gl847_bulk_read_data: completed\n");
+  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }
@@ -364,37 +290,7 @@ gl847_test_motor_flag_bit (SANE_Byte val)
 }
 
 
-/** copy sensor specific settings */
-/* *dev  : device infos
-   *regs : registers to be set
-   half_ccd: set up for half ccd resolution
-   all registers 08-0B, 10-1D, 52-59 are set up. They shouldn't
-   appear anywhere else but in register_ini
-
-Responsible for signals to CCD/CIS:
-  CCD_CK1X (CK1INV(0x16),CKDIS(0x16),CKTOGGLE(0x18),CKDELAY(0x18),MANUAL1(0x1A),CK1MTGL(0x1C),CK1LOW(0x1D),CK1MAP(0x74,0x75,0x76),CK1NEG(0x7D))
-  CCD_CK2X (CK2INV(0x16),CKDIS(0x16),CKTOGGLE(0x18),CKDELAY(0x18),MANUAL1(0x1A),CK1LOW(0x1D),CK1NEG(0x7D))
-  CCD_CK3X (MANUAL3(0x1A),CK3INV(0x1A),CK3MTGL(0x1C),CK3LOW(0x1D),CK3MAP(0x77,0x78,0x79),CK3NEG(0x7D))
-  CCD_CK4X (MANUAL3(0x1A),CK4INV(0x1A),CK4MTGL(0x1C),CK4LOW(0x1D),CK4MAP(0x7A,0x7B,0x7C),CK4NEG(0x7D))
-  CCD_CPX  (CTRLHI(0x16),CTRLINV(0x16),CTRLDIS(0x16),CPH(0x72),CPL(0x73),CPNEG(0x7D))
-  CCD_RSX  (CTRLHI(0x16),CTRLINV(0x16),CTRLDIS(0x16),RSH(0x70),RSL(0x71),RSNEG(0x7D))
-  CCD_TGX  (TGINV(0x16),TGMODE(0x17),TGW(0x17),EXPR(0x10,0x11),TGSHLD(0x1D))
-  CCD_TGG  (TGINV(0x16),TGMODE(0x17),TGW(0x17),EXPG(0x12,0x13),TGSHLD(0x1D))
-  CCD_TGB  (TGINV(0x16),TGMODE(0x17),TGW(0x17),EXPB(0x14,0x15),TGSHLD(0x1D))
-  LAMP_SW  (EXPR(0x10,0x11),XPA_SEL(0x03),LAMP_PWR(0x03),LAMPTIM(0x03),MTLLAMP(0x04),LAMPPWM(0x29))
-  XPA_SW   (EXPG(0x12,0x13),XPA_SEL(0x03),LAMP_PWR(0x03),LAMPTIM(0x03),MTLLAMP(0x04),LAMPPWM(0x29))
-  LAMP_B   (EXPB(0x14,0x15),LAMP_PWR(0x03))
-
-other registers:
-  CISSET(0x01),CNSET(0x18),DCKSEL(0x18),SCANMOD(0x18),EXPDMY(0x19),LINECLP(0x1A),CKAREA(0x1C),TGTIME(0x1C),LINESEL(0x1E),DUMMY(0x34)
-
-Responsible for signals to AFE:
-  VSMP  (VSMP(0x58),VSMPW(0x58))
-  BSMP  (BSMP(0x59),BSMPW(0x59))
-
-other register settings depending on this:
-  RHI(0x52),RLOW(0x53),GHI(0x54),GLOW(0x55),BHI(0x56),BLOW(0x57),
-
+/** @brief sensor specific settings
 */
 static void
 gl847_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs)
@@ -402,7 +298,7 @@ gl847_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs)
   Genesys_Register_Set *r;
   int i;
 
-  DBG (DBG_proc, "gl847_setup_sensor\n");
+  DBGSTART;
 
   for (i = 0x06; i < 0x0e; i++)
     {
@@ -418,7 +314,7 @@ gl847_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs)
 	r->value = dev->sensor.regs_0x52_0x5e[i];
     }
 
-  DBG (DBG_proc, "gl847_setup_sensor: completed \n");
+  DBGCOMPLETED;
 }
 
 
@@ -568,8 +464,13 @@ gl847_init_registers (Genesys_Device * dev)
   DBGCOMPLETED;
 }
 
-/* Send slope table for motor movement 
-   slope_table in machine byte order
+/**@brief send slope table for motor movement 
+ * Send slope_table in machine byte order
+ * @param dev device to send slope table
+ * @param table_nr index of the slope table in ASIC memory
+ * Must be in the [0-4] range.
+ * @param slope_table pointer to 16 bit values array of the slope table
+ * @param steps number of elemnts in the slope table
  */
 static SANE_Status
 gl847_send_slope_table (Genesys_Device * dev, int table_nr,
@@ -582,6 +483,13 @@ gl847_send_slope_table (Genesys_Device * dev, int table_nr,
 
   DBG (DBG_proc, "%s (table_nr = %d, steps = %d)\n", __FUNCTION__,
        table_nr, steps);
+
+  /* sanity check */
+  if(table_nr<0 || table_nr>4)
+    {
+      DBG (DBG_error, "%s: invalid table number %d!\n", __FUNCTION__, table_nr);
+      return SANE_STATUS_INVAL;
+    }
 
   table = (uint8_t *) malloc (steps * 2);
   for (i = 0; i < steps; i++)
@@ -602,7 +510,7 @@ gl847_send_slope_table (Genesys_Device * dev, int table_nr,
 
   /* slope table addresses are fixed */
   status =
-    write_ahb (dev->dn, 0x10000000 + 0x4000 * table_nr, steps * 2, table);
+    sanei_genesys_write_ahb (dev->dn, 0x10000000 + 0x4000 * table_nr, steps * 2, table);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -611,7 +519,7 @@ gl847_send_slope_table (Genesys_Device * dev, int table_nr,
     }
 
   free (table);
-  DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+  DBGCOMPLETED;
   return status;
 }
 
@@ -715,7 +623,7 @@ gl847_set_fe (Genesys_Device * dev, uint8_t set)
   DBG (DBG_proc, "gl847_set_fe(): unsupported frontend type %d\n",
        dev->reg[reg_0x04].value & REG04_FESET);
 
-  DBG (DBG_proc, "gl847_set_fe: completed\n");
+  DBGCOMPLETED;
   return SANE_STATUS_UNSUPPORTED;
 }
 
@@ -821,8 +729,7 @@ HOME_FREE: 3
   r->value = 1;
 
 
-  DBG (DBG_proc, "gl847_init_motor_regs_off : completed. \n");
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -998,8 +905,7 @@ HOME_FREE: 3
   r = sanei_genesys_get_address (reg, 0x5f);
   r->value = fast_slope_steps;
 
-  DBG (DBG_proc, "gl847_init_motor_regs : completed. \n");
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -1392,7 +1298,7 @@ gl847_init_optical_regs_off (Genesys_Device * dev, Genesys_Register_Set * reg)
   r = sanei_genesys_get_address (reg, REG01);
   r->value &= ~REG01_SCAN;
 
-  DBG (DBG_proc, "gl847_init_optical_regs_off : completed. \n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -1440,7 +1346,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
        used_res, start, pixels, channels, depth, half_ccd, flags);
 
   /* during calibration , we don't want double xres */
-  if(dev->settings.double_xres==SANE_TRUE&&used_res<dev->sensor.optical_res)
+  if(dev->settings.double_xres==SANE_TRUE && used_res<dev->sensor.optical_res)
     {
       double_xres=SANE_TRUE;
     }
@@ -1626,6 +1532,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
     {
       dev->skip-=dev->dist;
     }
+
   DBG (DBG_io2, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
   DBG (DBG_io2, "%s: pixels     =%d\n", __FUNCTION__, pixels);
   DBG (DBG_io2, "%s: depth      =%d\n", __FUNCTION__, depth);
@@ -1662,7 +1569,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   r = sanei_genesys_get_address (reg, 0x34);
   r->value = dev->sensor.dummy_pixel;
   
-  DBG (DBG_proc, "gl847_init_optical_regs_scan : completed. \n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -1796,30 +1703,6 @@ independent of our calculated values:
 
   /* used_res */
   i = optical_res / xres;
-#if 0
-/* gl847 supports 1/2,1/3,1/4,1/5,1/6,1/8,1/10,1/12,1/15 */
-
-  if (i < 2 || (flags & SCAN_FLAG_USE_OPTICAL_RES))	/* optical_res >= xres > optical_res/2 */
-    used_res = optical_res;
-  else if (i < 3)		/* optical_res/2 >= xres > optical_res/3 */
-    used_res = optical_res / 2;
-  else if (i < 4)		/* optical_res/3 >= xres > optical_res/4 */
-    used_res = optical_res / 3;
-  else if (i < 5)		/* optical_res/4 >= xres > optical_res/5 */
-    used_res = optical_res / 4;
-  else if (i < 6)		/* optical_res/5 >= xres > optical_res/6 */
-    used_res = optical_res / 5;
-  else if (i < 8)		/* optical_res/6 >= xres > optical_res/8 */
-    used_res = optical_res / 6;
-  else if (i < 10)		/* optical_res/8 >= xres > optical_res/10 */
-    used_res = optical_res / 8;
-  else if (i < 12)		/* optical_res/10 >= xres > optical_res/12 */
-    used_res = optical_res / 10;
-  else if (i < 15)		/* optical_res/12 >= xres > optical_res/15 */
-    used_res = optical_res / 12;
-  else
-    used_res = optical_res / 15;
-#endif
   if (flags & SCAN_FLAG_USE_OPTICAL_RES)
     {
       used_res = optical_res;
@@ -2095,7 +1978,7 @@ independent of our calculated values:
        (u_long) dev->total_bytes_to_read);
 /* END TODO */
 
-  DBG (DBG_proc, "gl847_init_scan_regs: completed\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -2355,7 +2238,7 @@ dummy \ scanned lines
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
-  DBG (DBG_proc, "gl847_calculate_current_setup: completed\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -2425,19 +2308,22 @@ static SANE_Status
 gl847_save_power (Genesys_Device * dev, SANE_Bool enable)
 {
   DBG (DBG_proc, "gl847_save_power: enable = %d\n", enable);
-  DBG (DBG_proc, "gl847_save_power: completed \n");
+  if (dev == NULL)
+    return SANE_STATUS_INVAL;
 
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
 gl847_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
 {
-  SANE_Status status = SANE_STATUS_GOOD;
-
   DBG (DBG_proc, "gl847_set_powersaving (delay = %d)\n", delay);
-  DBG (DBG_proc, "gl847_set_powersaving: completed\n");
-  return status;
+  if (dev == NULL)
+    return SANE_STATUS_INVAL;
+
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -2469,7 +2355,7 @@ gl847_stop_action (Genesys_Device * dev)
       DBG (DBG_error,
 	   "%s: failed to read home sensor: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
-      DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+      DBGCOMPLETED;
       return status;
     }
 
@@ -2477,7 +2363,7 @@ gl847_stop_action (Genesys_Device * dev)
   if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
     {
       DBG (DBG_info, "%s: already stopped\n", __FUNCTION__);
-      DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+      DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
 
@@ -2516,7 +2402,7 @@ gl847_stop_action (Genesys_Device * dev)
 	  DBG (DBG_error,
 	       "%s: failed to read home sensor: %s\n", __FUNCTION__,
 	       sane_strstatus (status));
-	  DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+          DBGCOMPLETED;
 	  return status;
 	}
 
@@ -2524,7 +2410,7 @@ gl847_stop_action (Genesys_Device * dev)
       if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG)
 	  && !(val & REG41_MOTORENB))
 	{
-	  DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+          DBGCOMPLETED;
 	  return SANE_STATUS_GOOD;
 	}
 
@@ -2532,8 +2418,7 @@ gl847_stop_action (Genesys_Device * dev)
       loop--;
     }
 
-  DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
-
+  DBGCOMPLETED;
   return SANE_STATUS_IO_ERROR;
 }
 
@@ -2951,6 +2836,8 @@ gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   SANE_Status status;
 
   DBG (DBG_proc, "gl847_end_scan (check_stop = %d)\n", check_stop);
+  if (reg == NULL)
+    return SANE_STATUS_INVAL;
 
   if (dev->model->is_sheetfed == SANE_TRUE)
     {
@@ -2968,8 +2855,7 @@ gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 	}
     }
 
-  DBG (DBG_proc, "gl847_end_scan: completed\n");
-
+  DBGCOMPLETED;
   return status;
 }
 
@@ -3114,6 +3000,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       DBG (DBG_info, "gl847_slow_back_home: already at home, completed\n");
       dev->scanhead_position_in_steps = 0;
+      DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
 
@@ -3365,12 +3252,7 @@ gl847_init_regs_for_coarse_calibration (Genesys_Device * dev)
       return status;
     }
 
-  DBG (DBG_proc, "gl847_init_register_for_coarse_calibration: completed\n");
-
-/*  if (DBG_LEVEL >= DBG_info)
-    sanei_gl847_print_registers (dev->calib_reg);*/
-
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -3430,8 +3312,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
       return status;
     }
 
-  DBG (DBG_proc, "gl847_init_regs_for_shading: completed\n");
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -3540,14 +3421,17 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  DBG (DBG_proc, "gl847_init_register_for_scan: completed\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
 
-/**
- * This function sends generic gamma table (ie linear ones)
- * or the Sensor specific one if provided
+/** @brief send gmma table to scanner
+ * This function sends generic gamma table (ie ones built with
+ * provided gamma) or the user defined one if provided by 
+ * fontend.
+ * @param dev device to write to
+ * @param generic flag for using generic gamma tables
  */
 static SANE_Status
 gl847_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
@@ -3628,7 +3512,7 @@ gl847_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
       RIE (sanei_genesys_write_register (dev, 0xc6+2*i, 0x00));
 
       status =
-	write_ahb (dev->dn, 0x01000000 + 0x200 * i, size * 2,
+	sanei_genesys_write_ahb (dev->dn, 0x01000000 + 0x200 * i, size * 2,
 		   gamma + i * size * 2);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -3639,7 +3523,7 @@ gl847_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
     }
 
   free (gamma);
-  DBG (DBG_proc, "gl847_send_gamma_table: completed\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -3672,7 +3556,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   /* write actual red data */
   RIE (sanei_genesys_read_register (dev, 0xd0, &val));
   addr = val * 8192 + 0x10000000;
-  status = write_ahb (dev->dn, addr, length, data);
+  status = sanei_genesys_write_ahb (dev->dn, addr, length, data);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "gl847_send_shading_data; write to AHB failed (%s)\n",
@@ -3683,7 +3567,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   /* write actual green data */
   RIE (sanei_genesys_read_register (dev, 0xd1, &val));
   addr = val * 8192 + 0x10000000;
-  status = write_ahb (dev->dn, addr, length, data + length);
+  status = sanei_genesys_write_ahb (dev->dn, addr, length, data + length);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "gl847_send_shading_data; write to AHB failed (%s)\n",
@@ -3694,7 +3578,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   /* write actual blue data */
   RIE (sanei_genesys_read_register (dev, 0xd2, &val));
   addr = val * 8192 + 0x10000000;
-  status = write_ahb (dev->dn, addr, length, data + 2 * length);
+  status = sanei_genesys_write_ahb (dev->dn, addr, length, data + 2 * length);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "gl847_send_shading_data; write to AHB failed (%s)\n",
@@ -3899,7 +3783,7 @@ gl847_led_calibration (Genesys_Device * dev)
  
   gl847_slow_back_home (dev, SANE_TRUE);
 
-  DBG (DBG_proc, "gl847_led_calibration: completed\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -3987,8 +3871,7 @@ gl847_is_compatible_calibration (Genesys_Device * dev,
     }
 #endif
 
-  DBG (DBG_proc, "gl847_is_compatible_calibration: completed\n");
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -4077,7 +3960,7 @@ gl847_init_gpio (Genesys_Device * dev)
 	   effective, val);
     }
 
-  DBG (DBG_proc, "gl847_init_gpio: completed\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -4092,14 +3975,23 @@ gl847_init_memory_layout (Genesys_Device * dev)
 
   DBG (DBG_proc, "gl847_init_memory_layout\n");
 
-  /* point ot per model meory layout */
+  /* point to per model memory layout */
+  idx = 0;
   if (strcmp (dev->model->name, "canon-lide-100") == 0)
     {
       idx = 0;
     }
-  else
-    {				/* canon LiDE 200 case */
+  if (strcmp (dev->model->name, "canon-lide-200") == 0)
+    {
       idx = 1;
+    }
+  if (strcmp (dev->model->name, "canon-5600f") == 0)
+    {
+      idx = 2;
+    }
+  if (strcmp (dev->model->name, "canon-lide-700f") == 0)
+    {
+      idx = 3;
     }
 
   /* setup base address for shading data. */
@@ -4148,151 +4040,9 @@ gl847_init_memory_layout (Genesys_Device * dev)
   sanei_genesys_write_register (dev, 0xf6, layouts[idx].re6);
   sanei_genesys_write_register (dev, 0xf7, layouts[idx].re7);
 
-  DBG (DBG_proc, "gl847_init_memory_layout completed\n");
-  return status;
-}
-
-#if 0
-/**
- * reads a register from device and set up corresponding shadow register
- */
-static SANE_Status
-gl847_bulk_read_register (Genesys_Device * dev,
-			   Genesys_Register_Set * reg, size_t elems)
-{
-  SANE_Status status = SANE_STATUS_GOOD;
-  size_t i;
-
-  for (i = 0; i < elems && status == SANE_STATUS_GOOD; i++)
-    {
-      if (reg[i].address != 0)
-	{
-	  status =
-	    sanei_genesys_read_register (dev, reg[i].address, &(reg[i].value));
-	}
-    }
-
-  return status;
-}
-
-/* *
- * initialize registers from hardware since it is warm
- */
-static SANE_Status
-gl847_warm_boot (Genesys_Device * dev)
-{
-  SANE_Status status;
-
-  DBGSTART;
-  memset (dev->reg, 0,
-	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
-
-  SETREG (0x01, 0x00);
-  SETREG (0x02, 0x00);
-  SETREG (0x03, 0x00);
-  SETREG (0x04, 0x00);
-  SETREG (0x05, 0x00);
-  SETREG (0x06, 0x00);
-  SETREG (0x08, 0x00);
-  SETREG (0x09, 0x00);
-  SETREG (0x0a, 0x00);
-  SETREG (0x0c, 0x00);
-  SETREG (0x0d, 0x00);
-  SETREG (0x10, 0x00);
-  SETREG (0x11, 0x00);
-  SETREG (0x12, 0x00);
-  SETREG (0x13, 0x00);
-  SETREG (0x14, 0x00);
-  SETREG (0x15, 0x00);
-  SETREG (0x16, 0x00);
-  SETREG (0x17, 0x00);
-  SETREG (0x18, 0x00);
-  SETREG (0x19, 0x00);
-  SETREG (0x1a, 0x00);
-  SETREG (0x1b, 0x00);
-  SETREG (0x1c, 0x00);
-  SETREG (0x1d, 0x00);
-  SETREG (0x1e, 0x00);
-  SETREG (0x1f, 0x00);
-  SETREG (0x20, 0x00);
-  SETREG (0x21, 0x00);
-  SETREG (0x22, 0x00);
-  SETREG (0x23, 0x00);
-  SETREG (0x24, 0x00);
-  SETREG (0x25, 0x00);
-  SETREG (0x26, 0x00);
-  SETREG (0x27, 0x00);
-  SETREG (0x2c, 0x00);
-  SETREG (0x2d, 0x00);
-  SETREG (0x2e, 0x00);
-  SETREG (0x2f, 0x00);
-  SETREG (0x30, 0x00);
-  SETREG (0x31, 0x00);
-  SETREG (0x32, 0x00);
-  SETREG (0x33, 0x00);
-  SETREG (0x34, 0x00);
-  SETREG (0x35, 0x00);
-  SETREG (0x36, 0x00);
-  SETREG (0x37, 0x00);
-  SETREG (0x38, 0x00);
-  SETREG (0x39, 0x00);
-  SETREG (0x3d, 0x00);
-  SETREG (0x3e, 0x00);
-  SETREG (0x3f, 0x00);
-  SETREG (0x52, 0x00);
-  SETREG (0x53, 0x00);
-  SETREG (0x54, 0x00);
-  SETREG (0x55, 0x00);
-  SETREG (0x56, 0x00);
-  SETREG (0x57, 0x00);
-  SETREG (0x58, 0x00);
-  SETREG (0x59, 0x00);
-  SETREG (0x5a, 0x00);
-  SETREG (0x5e, 0x00);
-  SETREG (0x5f, 0x00);
-  SETREG (0x60, 0x00);
-  SETREG (0x61, 0x00);
-  SETREG (0x62, 0x00);
-  SETREG (0x63, 0x00);
-  SETREG (0x64, 0x00);
-  SETREG (0x65, 0x00);
-  SETREG (0x67, 0x00);
-  SETREG (0x68, 0x00);
-  SETREG (0x69, 0x00);
-  SETREG (0x6a, 0x00);
-  SETREG (0x74, 0x00);
-  SETREG (0x75, 0x00);
-  SETREG (0x76, 0x00);
-  SETREG (0x7a, 0x00);
-  SETREG (0x7b, 0x00);
-  SETREG (0x7c, 0x00);
-  SETREG (0x7d, 0x00);
-  SETREG (0x87, 0x00);
-  SETREG (0x9d, 0x00);
-  SETREG (0xa2, 0x00);
-  SETREG (0xa6, 0x00);
-  SETREG (0xbd, 0x00);
-  SETREG (0xbe, 0x00);
-  SETREG (0xc5, 0x00);
-  SETREG (0xc6, 0x00);
-  SETREG (0xc7, 0x00);
-  SETREG (0xc8, 0x00);
-  SETREG (0xc9, 0x00);
-  SETREG (0xca, 0x00);
-  SETREG (0xf8, 0x00);
-  SETREG (0xfe, 0x00);
-
-  /* fill registers from ASIC */
-  RIE(gl847_bulk_read_register(dev, dev->reg, GENESYS_GL847_MAX_REGS));
-
-  /* initalize calibration reg */
-  memcpy (dev->calib_reg, dev->reg,
-	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
-
   DBGCOMPLETED;
   return status;
 }
-#endif
 
 /* *
  * initialize ASIC from power on condition
@@ -4365,8 +4115,8 @@ gl847_cold_boot (Genesys_Device * dev)
   RIE (sanei_genesys_write_register (dev, 0x08, dev->reg[reg_0x08].value));
 
   /* set up end access */
-  RIE (write_end_access (dev, 0x10, 0x0b));
-  RIE (write_end_access (dev, 0x13, 0x0e));
+  RIE (sanei_genesys_write_0x8c (dev, 0x10, 0x0b));
+  RIE (sanei_genesys_write_0x8c (dev, 0x13, 0x0e));
 
   sanei_genesys_write_register (dev, REGA7, 0x04);
   sanei_genesys_write_register (dev, REGA9, 0x00);
@@ -4872,7 +4622,7 @@ gl847_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	   black ? "black" : "white");
     }
 
-  DBG (DBG_proc, "gl847_search_strip: completed\n");
+  DBGCOMPLETED;
   return status;
 }
 

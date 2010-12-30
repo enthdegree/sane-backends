@@ -150,13 +150,18 @@
 #define HIBYTE(x)  ((uint8_t)((x) >> 8))
 
 /* Global constants */
-/* todo: check if those are the same for every scanner */
-#define SYSTEM_CLOCK		32	/* todo: ? */
+/* TODO: emove this leftover of early backend days */
 #define MOTOR_SPEED_MAX		350
-													      /*#define MOTOR_GEAR    *//*600 1200 * todo: base y res? --> model */
-#define PIXEL_TIME		((double) 24 / SYSTEM_CLOCK)
 #define DARK_VALUE		0
 
+#define PWRBIT	        0x80
+#define BUFEMPTY	0x40
+#define FEEDFSH	        0x20
+#define SCANFSH	        0x10
+#define HOMESNR	        0x08
+#define LAMPSTS	        0x04
+#define FEBUSY	        0x02
+#define MOTORENB	0x01
 
 typedef struct
 {
@@ -232,7 +237,7 @@ typedef enum Genesys_Color_Order
 Genesys_Color_Order;
 
 
-#define MAX_SCANNERS 30
+#define MAX_SCANNERS 50
 #define MAX_RESOLUTIONS 13
 #define MAX_DPI 4
 
@@ -242,6 +247,7 @@ Genesys_Color_Order;
 #define GENESYS_GL846	 846
 #define GENESYS_GL847	 847
 #define GENESYS_GL848	 848
+#define GENESYS_GL124	 124
 
 #define GENESYS_MAX_REGS 256
 
@@ -259,6 +265,8 @@ Genesys_Color_Order;
 #define DAC_CANONLIDE200   11
 #define DAC_KVSS080        12
 #define DAC_G4050          13
+#define DAC_CANONLIDE110   14
+#define DAC_PLUSTEK_3600   15
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -279,6 +287,8 @@ Genesys_Color_Order;
 #define CIS_CANONLIDE100 16
 #define CCD_KVSS080      17
 #define CCD_G4050        18
+#define CIS_CANONLIDE110 19
+#define CCD_PLUSTEK_3600 20
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -295,6 +305,8 @@ Genesys_Color_Order;
 #define GPO_CANONLIDE200 12
 #define GPO_KVSS080      13
 #define GPO_G4050        14
+#define GPO_CANONLIDE110 15
+#define GPO_PLUSTEK_3600 16
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1
@@ -312,6 +324,8 @@ Genesys_Color_Order;
 #define MOTOR_CANONLIDE100 14
 #define MOTOR_KVSS080      15
 #define MOTOR_G4050        16
+#define MOTOR_CANONLIDE110 17
+#define MOTOR_PLUSTEK_3600 18
 
 
 /* Forward typedefs */
@@ -640,15 +654,18 @@ struct Genesys_Device
 
   struct Genesys_Device *next;
 
-  size_t bpl;  /**> bytes per full scan widthline */
-  size_t skip; /**> bytes to skip from start of line to get first required pixel */
-  size_t dist; /**> bytes distance between an odd and an even pixel */
-  size_t len;  /**> number of even pixels */
-  size_t cur;  /**> current pixel position within sub window */
+  int segnb;       /**> number of segments composing the sensor */
+  int line_interp; /**> number of lines used in line interpolation */
+  int line_count;  /**> number of scan lines used during scan */
+  size_t bpl;      /**> bytes per full scan widthline */
+  size_t skip;     /**> bytes to skip from start of line to get first required pixel */
+  size_t dist;     /**> bytes distance between an odd and an even pixel */
+  size_t len;      /**> number of even pixels */
+  size_t cur;      /**> current pixel position within sub window */
   Genesys_Buffer oe_buffer; /**> buffer to handle even/odd data */
 
   SANE_Bool buffer_image; /**> when true the scanned picture is first buffered
-			   * to a software image enhancements */
+			   * to allow software image enhancements */
   SANE_Byte *img_buffer; /**> image buffer where the scanned picture is stored */
 };
 
@@ -674,6 +691,8 @@ extern void
 sanei_genesys_set_reg_from_set (Genesys_Register_Set * regs,
 				SANE_Byte address, SANE_Byte value);
 
+extern SANE_Status sanei_genesys_init_cmd_set (Genesys_Device * dev);
+
 extern SANE_Status
 sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg,
 			     uint8_t * val);
@@ -683,7 +702,21 @@ sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg,
 			      uint8_t val);
 
 extern SANE_Status
-sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status);
+sanei_genesys_read_hregister (Genesys_Device * dev, uint8_t reg,
+			     uint8_t * val);
+
+extern SANE_Status
+sanei_genesys_write_hregister (Genesys_Device * dev, uint8_t reg,
+			      uint8_t val);
+
+extern SANE_Status sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val);
+
+extern SANE_Status sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status);
+
+extern void sanei_genesys_print_status (uint8_t val);
+
+extern SANE_Status
+sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * data);
 
 extern void sanei_genesys_init_fe (Genesys_Device * dev);
 
@@ -804,6 +837,17 @@ sanei_genesys_buffer_produce(Genesys_Buffer * buf, size_t size);
 extern SANE_Status
 sanei_genesys_buffer_consume(Genesys_Buffer * buf, size_t size);
 
+extern SANE_Status
+sanei_genesys_set_double(Genesys_Register_Set *regs, SANE_Byte addr, uint16_t value);
+
+extern SANE_Status
+sanei_genesys_set_triple(Genesys_Register_Set *regs, SANE_Byte addr, uint32_t value);
+
+extern SANE_Status
+sanei_genesys_get_double(Genesys_Register_Set *regs, SANE_Byte addr, uint16_t *value);
+
+extern SANE_Status
+sanei_genesys_get_triple(Genesys_Register_Set *regs, SANE_Byte addr, uint32_t *value);
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
@@ -812,5 +856,6 @@ extern SANE_Status sanei_gl646_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl841_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl843_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl847_init_cmd_set (Genesys_Device * dev);
+extern SANE_Status sanei_gl124_init_cmd_set (Genesys_Device * dev);
 
 #endif /* not GENESYS_LOW_H */

@@ -151,8 +151,9 @@
 
 :model "Perfection 3200"
 :comment "US version of the GT-9800"
-:interface "USB"
+:interface "USB IEEE-1394"
 :usbid "0x04b8" "0x011c"
+:scsi "EPSON" "GT-9800" "processor"
 :status :complete
 
 :model "Perfection 4870"

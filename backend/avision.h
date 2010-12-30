@@ -199,7 +199,10 @@ typedef struct Avision_HWEntry {
   /*second enum cause 32 bit int above is full*/
   enum {
     /* force no calibration */
-    AV_NO_TUNE_SCAN_LENGTH = (1<<0)
+    AV_NO_TUNE_SCAN_LENGTH = (1<<0),
+
+    /* for gray scans, set grey filter */
+    AV_USE_GRAY_FILTER = (1<<1)
   } feature_type2;
 
 } Avision_HWEntry;
@@ -491,13 +494,14 @@ typedef struct Avision_Scanner
 #define AVISION_SCSI_OP_TRANS_CALIB_GRAY    0x04
 #define AVISION_SCSI_OP_TRANS_CALIB_COLOR   0x05
 
-#define AVISION_FILTER_NONE	0
-#define AVISION_FILTER_RED	1
-#define AVISION_FILTER_GREEN	2
-#define AVISION_FILTER_BLUE	3
-#define AVISION_FILTER_RGB	4
-#define AVISION_FILTER_CMYK	5
-#define AVISION_FILTER_GRAY	6
+/* These apply to bitset1.  The values are 0 to 6, shifted 3 bits to the left */
+#define AVISION_FILTER_NONE	0x00
+#define AVISION_FILTER_RED	0x08
+#define AVISION_FILTER_GREEN	0x10
+#define AVISION_FILTER_BLUE	0x18
+#define AVISION_FILTER_RGB	0x20
+#define AVISION_FILTER_CMYK	0x28
+#define AVISION_FILTER_GRAY	0x30
 
 /* The SCSI structures that we have to send to an avision to get it to
    do various stuff... */

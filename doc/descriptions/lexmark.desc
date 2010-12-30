@@ -69,6 +69,12 @@
 :usbid "0x043d" "0x007c"
 :status :untested
 
+:model "X74"
+:interface "USB"
+:usbid "0x043d" "0x0060"
+:status :good
+:comment "Supports 75, 150, 300, 600 dpi"
+
 :model "X12xx"
 :interface "USB"
 :usbid "0x043d" "0x007d"

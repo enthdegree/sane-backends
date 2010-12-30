@@ -459,13 +459,6 @@
 :status :unsupported
 :comment "Philips chip. Backend started, see link"
 
-:model "CanoScan LiDE 700F"
-:interface "USB"
-:url "http://lists.alioth.debian.org/pipermail/sane-devel/2009-June/024971.html"
-:usbid "0x04a9" "0x221f"
-:status :unsupported
-:comment "Actually GL847 based? to be added to genesys backend"
-
 :model "FS4000"
 :url "/unsupported/canon-fs4000.html"
 :interface "USB SCSI"
@@ -1765,13 +1758,6 @@
 :mfg "Plustek"
 :url "http://www.plustek.de/"
 :url "http://www.plustek.com/"
-
-:model "OpticBook 3600"
-:url "/unsupported/plustek-opticbook-3600.html"
-:interface "USB"
-:usbid "0x07b3" "0x0900"
-:status :unsupported
-:comment "GL842 based (similar to GL841?), maybe to be added to genesys backend. Bookscanner."
 
 :model "OpticFilm 7200"
 :url "/unsupported/plustek-opticfilm-7200.html"

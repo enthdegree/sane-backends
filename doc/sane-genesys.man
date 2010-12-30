@@ -1,7 +1,7 @@
-.TH "sane\-genesys" "5" "18 Jun 2010" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-genesys" "5" "26 Dec 2010" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-genesys
 .SH "NAME"
-sane\-genesys \- SANE backend for GL646, GL841, GL843 and GL847 based USB flatbed scanners
+sane\-genesys \- SANE backend for GL646, GL841, GL843, GL847 and GL124 based USB flatbed scanners
 .SH "DESCRIPTION"
 The
 .B sane\-genesys
@@ -10,19 +10,21 @@ access to USB flatbed scanners based on the Genesys GL646, GL841 and GL847 chips
 At present, the following scanners are known to work with this backend:
 .PP 
 .RS
-Medion MD5345/MD6228/MD6274
-.br 
-Visioneer OneTouch 7100
+Canon LiDE 35/40/50/60/100/110/200/210
 .br
 Hewlett-Packard HP2300C/HP3670/HP3690
-.br 
-Visioneer Strobe XP100 (rev3)/XP200/XP300/Roadwarrior
 .br
-Canon LiDE 35/40/50/60/100/200
+Medion MD5345/MD6228/MD6274
+.br 
+Panasonic KV-SS080
+.br
+Plustek OpticBook 3600
 .br
 Pentax DSmobile 600
 .br
 Syscan/Ambir DocketPORT 467/485/487/665/685
+.br
+Visioneer OneTouch 7100/Strobe XP100 (rev3)/XP200/XP300/Roadwarrior
 .br
 Xerox Travel Scanner 100
 .RE
@@ -163,6 +165,10 @@ variable controls the debug level for this backend.  Higher debug levels
 increase the verbosity of the output. If the debug level is set to 1 or higher,
 some debug options become available that are normally hidden. Handle them with
 care. This will print messages related to core genesys functions.
+.TP
+.B SANE_DEBUG_GENESYS_LOW
+This environment variable controls the debug level for low level functions
+common to all genesys ASICs.
 .TP 
 .B SANE_DEBUG_GENESYS_GL646
 This environment variable controls the debug level for the specific GL646 code
@@ -179,18 +185,40 @@ part.
 .B SANE_DEBUG_GENESYS_GL847
 This environment variable controls the debug level for the specific GL847 code
 part.
+.TP 
+.B SANE_DEBUG_GENESYS_GL124
+This environment variable controls the debug level for the specific GL124 code
+part.
 
 
 Example (full and highly verbose output for gl646): 
 .br
 export SANE_DEBUG_GENESYS=255
 .br
+export SANE_DEBUG_GENESYS_LOW=255
+.br
 export SANE_DEBUG_GENESYS_GL646=255
 
 .SH CREDITS
   
-Jack McGill for donating several sheetfed scanners, which made possible to add support
-for them in the genesys backend.
+Jack McGill for donating several sheetfed and flatbed scanners, which made possible to add support
+for them in the genesys backend:
+.RS
+Hewlett-Packard HP3670
+.br 
+Visioneer Strobe XP100 (rev3)/XP200/XP300/Roadwarrior
+.br
+Canon LiDE 200
+.br
+Pentax DSmobile 600
+.br
+Syscan/Ambir DocketPORT 467/485/487/665/685
+.br
+Xerox Travel Scanner 100
+.RE
+.TP
+cncsolutions (http://www.cncsolutions.com.br) sponsored and supported the work on the Panasonic KV-SS080.
+.br
 
 .SH "SEE ALSO"
 .BR sane (7),
@@ -215,6 +243,9 @@ Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 .SH "LIMITATIONS"
 
 Powersaving isn't implemented for gl646 based scanner.
+.br
+.TP
+This backend will be much slower if not using libusb-1.0. So be sure that sane-backends is built with the --enable-libusb_1_0 option.
 .br
 
 .SH "BUGS"

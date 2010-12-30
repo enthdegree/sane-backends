@@ -1725,6 +1725,7 @@ check_gl660_gl646 (struct usb_device *dev)
 
 /* the various incarnations could be distinguished by the 
  * bcdDevice entry:
+ *     0x701 --> GL124
  *   > 0x700 --> GL848+?
  *   >= 0x603 --> GL847
  *   >= 0x600 --> GL846 
@@ -1860,6 +1861,8 @@ check_gl841 (struct usb_device *dev)
 
   result = prepare_interface (dev, &handle);
   if (!result) {
+    if (dev->descriptor.bcdDevice == 0x701)
+        return "GL124?";
     if (dev->descriptor.bcdDevice >= 0x700)
 	return "GL848+?";
     if (dev->descriptor.bcdDevice >= 0x603)
@@ -1903,6 +1906,8 @@ check_gl841 (struct usb_device *dev)
     }
   finish_interface (handle);
 
+  if (dev->descriptor.bcdDevice == 0x701)
+    return "GL124";
   if (dev->descriptor.bcdDevice >= 0x700)
     return "GL848+";
   if (dev->descriptor.bcdDevice >= 0x603)

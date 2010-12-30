@@ -1646,7 +1646,8 @@ e2_scan_finish(Epson_Scanner * s)
 			esci_eject(s);
 
 	/* XXX required? */
-	esci_reset(s);
+	if (s->hw->connection != SANE_EPSON_NET)
+		esci_reset(s);
 }
 
 void
@@ -1721,6 +1722,7 @@ e2_ext_read(struct Epson_Scanner *s)
 
 		if (s->buf[buf_len] & FSG_STATUS_CANCEL_REQ) {
 			DBG(0, "%s: cancel request received\n", __func__);
+			e2_cancel(s);
 			return SANE_STATUS_CANCELLED;
 		}
 

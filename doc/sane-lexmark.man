@@ -18,6 +18,7 @@ The scanners that should work with this backend are:
 .nf 
    Vendor Model           status
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-  \-\-\-\-\-\-\-\-\-\-\-
+  Lexmark X74             good
   Lexmark X1110           untested
   Lexmark X1140           untested
   Lexmark X1150           good
@@ -140,6 +141,8 @@ The backend was originaly written by Fred Odendaal.
 .TP 
 The new version is currently developped by St\['e]phane Voltz.
 .I http://stef.dev.free.fr/sane/lexmark
+.TP
+X74 support was written by Torsten Houwaart (<ToHo@gmx.de>)
 .SH "CREDITS"
 .TP 
 Many thanks go to:

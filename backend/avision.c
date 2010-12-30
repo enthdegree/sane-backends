@@ -58,6 +58,9 @@
    Copyright 2003, 2004, 2005, 2006, 2007 by
                 "René Rebe" <rene@exactcode.de>
    
+   Copyright 2010 by
+                "Mike Kelly" <mike@piratehaven.org>
+
    Additional Contributers:
                 "Gunter Wagner"
                   (some fixes and the transparency option)
@@ -134,7 +137,7 @@
 #include <math.h>
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 290 /* avision backend BUILD version */
+#define BACKEND_BUILD 293 /* avision backend BUILD version */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -236,9 +239,9 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="complete" */
 
     { NULL, NULL,
-      0x0638, 0x0A3A,
-      "Avision", "AV210C2",
-      AV_INT_BUTTON | AV_GRAY_MODES,0},
+      0x0638, 0x1A35,
+      "Avision", "AV210D2+",
+      AV_INT_BUTTON, AV_USE_GRAY_FILTER},
     /* comment="sheetfed scanner" */
     /* status="complete" */
 
@@ -328,7 +331,7 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="untested" */
     
     { NULL, "AV610",
-      0x0638, 0x0a18,
+      0x0638, 0x0a19,
       "Avision", "AV610",
       AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN | AV_INT_STATUS | AV_INT_BUTTON,0},
     /* status="good" */
@@ -377,7 +380,7 @@ static Avision_HWEntry Avision_Device_List [] =
       0, 0,
       "Avision", "AV630CS",
       0,0},
-    /* comment="1 pass, 1200 dpi - regularly tested" */
+    /* comment="1 pass, 1200 dpi" */
     /* status="complete" */
     
     { "AVISION", "AV630CSL",
@@ -542,7 +545,7 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="complete" */
 
     { NULL, NULL,
-      0x0638, 0xa84,
+      0x0638, 0x0a84,
       "Avision", "FB2080E",
       0,0},
     /* comment="1 pass, 600 dpi, zero-edge" ASIC 7 */
@@ -552,7 +555,7 @@ static Avision_HWEntry Avision_Device_List [] =
       0, 0,
       "Avision", "AV8000S",
       AV_DOES_NOT_KEEP_WINDOW,0},
-    /* comment="1 pass, 1200 dpi, A3 - regularly tested" */
+    /* comment="1 pass, 1200 dpi, A3" */
     /* status="complete" */
 
     { NULL, NULL,
@@ -594,7 +597,7 @@ static Avision_HWEntry Avision_Device_List [] =
       0x0638, 0x0A45,
       "Avision", "@V5100",
       0,0},
-    /* comment="" */
+    /* comment="1 pass, 1200 dpi, A3 - duplex!, LCD screen, paper sensors" */
     /* status="good" */
 
     { "AVISION", "AVA3",
@@ -610,7 +613,7 @@ static Avision_HWEntry Avision_Device_List [] =
       0x03f0, 0x0701,
       "Hewlett-Packard", "ScanJet 5300C",
       AV_INT_STATUS,0},
-    /* comment="1 pass, 2400 dpi - regularly tested - some FW revisions have x-axis image scaling problems over 1200 dpi" */
+    /* comment="1 pass, 2400 dpi - some FW revisions have x-axis image scaling problems over 1200 dpi" */
     /* status="complete" */
 
     { "HP",      "ScanJet 5370C",
@@ -632,7 +635,7 @@ static Avision_HWEntry Avision_Device_List [] =
       0x03f0, 0x0801,
       "Hewlett-Packard", "ScanJet 7450c",
       AV_NO_64BYTE_ALIGN | AV_INT_STATUS,0},
-    /* comment="1 pass, 2400 dpi - dual USB/SCSI interface - regularly tested" */
+    /* comment="1 pass, 2400 dpi - dual USB/SCSI interface" */
     /* status="good" */
     
     { "hp",      "scanjet 7490c",
@@ -677,11 +680,27 @@ static Avision_HWEntry Avision_Device_List [] =
 #endif 
     { "HP", "C9930A",
       0x03f0, 0x3805,
+      "Hewlett-Packard", "ScanJet 8300",
+      0,0},
+    /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
+    /* status="good" */
+
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
+    { "HP", "C9930A",
+      0x03f0, 0x3805,
+      "Hewlett-Packard", "ScanJet 8350",
+      0,0},
+    /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
+    /* status="good" */
+
+    { "HP", "C9930A",
+      0x03f0, 0x3805,
       "Hewlett-Packard", "ScanJet 8390",
       0,0},
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
+#endif 
     { "Minolta", "#2882",
       0, 0,
       "Minolta", "Dimage Scan Dual I",
@@ -846,11 +865,13 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_INT_BUTTON,0},
     /* status="untested" */
     
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x040a, 0x6003,
       "Kodak", "i55",
       AV_INT_BUTTON,0},
     /* status="untested" */
+#endif
     
     { NULL, NULL,
       0x040a, 0x6004,
@@ -858,11 +879,13 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_INT_BUTTON,0},
     /* status="untested" */
     
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x040a, 0x6004,
       "Kodak", "i65",
       AV_INT_BUTTON,0},
     /* status="untested" */
+#endif
     
     { NULL, NULL,
       0x040a, 0x6005,
@@ -967,12 +990,14 @@ static Avision_HWEntry Avision_Device_List [] =
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x04a7, 0x048F,
       "Visioneer", "Patriot 470",
       AV_INT_BUTTON,0},
       /* comment="sheetfed scanner" */
       /* status="complete" */
+#endif
 
     { NULL, NULL,
       0x04a7, 0x0498,
@@ -1043,6 +1068,12 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="good" */
     
     { NULL, NULL,
+      0x04a7, 0x04a7,
+      "Xerox", "DocuMate262i",
+      AV_INT_BUTTON,0},
+    /* status="good" */
+
+    { NULL, NULL,
       0x04a7, 0x0475,
       "Xerox", "DocuMate272",
       AV_INT_BUTTON,0},
@@ -1084,11 +1115,13 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_INT_BUTTON,0},
     /* status="untested" */
 
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x04a7, 0x0498,
       "Xerox", "DocuMate632",
       AV_INT_BUTTON,0},
     /* status="untested" */
+#endif
 
     { NULL, NULL,
       0x04a7, 0x0478,
@@ -1102,12 +1135,14 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_INT_BUTTON,0},
     /* status="untested" */
 
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x0638, 0x0a16,
       "OKI", "S700 Scancopier",
       0,0},
     /* comment="1 pass, 600 dpi, A4" */
     /* status="good" */
+#endif
 
     { "B+H", "2000F",
       0, 0,
@@ -3144,6 +3179,7 @@ string_for_button (Avision_Scanner* s, int button)
     }
   
   if (strcmp (dev->sane.model, "AV210C2") == 0 ||
+      strcmp (dev->sane.model, "AV210D2+") == 0 ||
       strcmp (dev->sane.model, "AV220C2") == 0 ||
       strcmp (dev->sane.model, "AV610C2") == 0
       )
@@ -3609,12 +3645,12 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
     }
     
     /* we need 2 matches (mfg, model) for SCSI entries, or the ones available
-       for "we know what we are locking for" USB entries */
+       for "we know what we are looking for" USB entries */
     if ((attaching_hw == &(Avision_Device_List [model_num]) &&
          matches == match_count) ||
 	matches == 2)
     {
-      DBG (1, "attach: Scanner matched entry: %d: \"%s\", \"%s\", 0x%x, 0x%x\n",
+      DBG (1, "attach: Scanner matched entry: %d: \"%s\", \"%s\", 0x%.4x, 0x%.4x\n",
            model_num,
 	   Avision_Device_List[model_num].scsi_mfg,
 	   Avision_Device_List[model_num].scsi_model,
@@ -3629,7 +3665,7 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   if (!found) {
     DBG (0, "attach: \"%s\" - \"%s\" not yet in whitelist!\n", mfg, model);
     DBG (0, "attach: You might want to report this output.\n");
-    DBG (0, "attach: To: rene@exactcode.de (the Avision backend author)\n");
+    DBG (0, "attach: To: mike@piratehaven.org (the Avision backend maintainer)\n");
     
     status = SANE_STATUS_INVAL;
     goto close_scanner_and_return;
@@ -5521,40 +5557,29 @@ set_window (Avision_Scanner* s)
   /* ADF scan? */
   DBG (3, "set_window: source mode %d source mode dim %d\n",
        s->source_mode, s->source_mode_dim);
-  {
-    int adf_mode = 0;  /* offset by 1 to save a is_adf bool */
-    switch (s->source_mode) {
-    case AV_ADF:
-      adf_mode = 1;
-      break;
-    case AV_ADF_REAR:
-      adf_mode = 2;
-      break;
-    case AV_ADF_DUPLEX:
-      adf_mode = 3;
-      break;
-    default:
-      ; /* silence GCC */
-    }
-    if (adf_mode) {
-      DBG (3, "set_window: filling ADF bits\n");
-      SET_BIT (cmd.window.avision.bitset1, 7);
-      adf_mode--;
 
-      /* normal, interlaced duplex scanners */
-      if (dev->inquiry_duplex_interlaced) {
-        DBG (3, "set_window: interlaced duplex type\n");
-        cmd.window.avision.type.normal.bitset3 |= (adf_mode << 3);
+  if (s->source_mode == AV_ADF ||
+      s->source_mode == AV_ADF_REAR ||
+      s->source_mode == AV_ADF_DUPLEX) {
+    DBG (3, "set_window: filling ADF bits\n");
+    SET_BIT (cmd.window.avision.bitset1, 7);
+
+    /* normal, interlaced duplex scanners */
+    if (dev->inquiry_duplex_interlaced) {
+      DBG (3, "set_window: interlaced duplex type\n");
+      if (s->source_mode == AV_ADF_REAR) {
+        SET_BIT(cmd.window.avision.type.normal.bitset3, 3); /* 0x08 */
       }
-      else /* HP 2-pass duplex */
-      {
-	if (adf_mode) /* if duplex */
-	{
-          DBG (3, "set_window: non-interlaced duplex type (HP)\n");
-          /* MIRR 0x04 | FLIP 0x02 | DPLX 0x01 ... */
-	  cmd.window.avision.type.normal.bitset3 |= 7;
-	}
+      if (s->source_mode == AV_ADF_DUPLEX) {
+        SET_BIT(cmd.window.avision.type.normal.bitset3, 4); /* 0x10 */
       }
+    }
+    else if (s->source_mode == AV_ADF_DUPLEX) /* HP 2-pass duplex */
+    {
+      DBG (3, "set_window: non-interlaced duplex type (HP)\n");
+      SET_BIT(cmd.window.avision.type.normal.bitset3, 0); /* DPLX 0x01 */
+      SET_BIT(cmd.window.avision.type.normal.bitset3, 1); /* FLIP 0x02 */
+      SET_BIT(cmd.window.avision.type.normal.bitset3, 2); /* MIRR 0x04 */
     }
   }
   
@@ -5658,13 +5683,15 @@ set_window (Avision_Scanner* s)
     }
 
   if (color_mode_is_color (s->c_mode)) {
-    cmd.window.avision.bitset1 |= AVISION_FILTER_RGB << 3;
+    cmd.window.avision.bitset1 |= AVISION_FILTER_RGB;
   }
   else {
     if (dev->hw->feature_type & AV_FASTER_WITH_FILTER)
-      cmd.window.avision.bitset1 |= AVISION_FILTER_GREEN << 3;
+      cmd.window.avision.bitset1 |= AVISION_FILTER_GREEN;
+    else if (dev->hw->feature_type2 & AV_USE_GRAY_FILTER)
+      cmd.window.avision.bitset1 |= AVISION_FILTER_GRAY;
     else
-     cmd.window.avision.bitset1 |= AVISION_FILTER_NONE << 3;
+      cmd.window.avision.bitset1 |= AVISION_FILTER_NONE;
   }
   
   debug_print_window_descriptor (5, "set_window", &(cmd.window));
@@ -7342,14 +7369,6 @@ attach_one_usb (const char* dev)
 SANE_Status
 sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 {
-  FILE* fp;
-  
-  char line[PATH_MAX];
-  const char* cp = 0;
-  char* word;
-  int linenumber = 0;
-  int model_num = 0;  
-
   authorize = authorize; /* silence gcc */
   
   DBG_INIT();
@@ -7362,16 +7381,30 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
        SANE_CURRENT_MAJOR, V_MINOR, BACKEND_BUILD);
   
   /* must come first */
-  sanei_usb_init ();
   sanei_thread_init ();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BACKEND_BUILD);
+
+  return SANE_STATUS_GOOD;
+}
   
+static SANE_Status
+sane_reload_devices (void)
+{
+  FILE* fp;
+  
+  char line[PATH_MAX];
+  const char* cp = 0;
+  char* word;
+  int linenumber = 0;
+  int model_num = 0;  
+
+  sanei_usb_init ();
   fp = sanei_config_open (AVISION_CONFIG_FILE);
   if (fp <= (FILE*)0)
     {
-      DBG (1, "sane_init: No config file present!\n");
+      DBG (1, "sane_reload_devices: No config file present!\n");
     }
   else
     {
@@ -7383,13 +7416,13 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  word = NULL;
 	  ++ linenumber;
       
-	  DBG (5, "sane_init: parsing config line \"%s\"\n",
+	  DBG (5, "sane_reload_devices: parsing config line \"%s\"\n",
 	       line);
       
 	  cp = sanei_config_get_string (line, &word);
 	  
 	  if (!word || cp == line) {
-	    DBG (5, "sane_init: config file line %d: ignoring empty line\n",
+	    DBG (5, "sane_reload_devices: config file line %d: ignoring empty line\n",
 		 linenumber);
 	    if (word) {
 	      free (word);
@@ -7399,13 +7432,13 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  }
 	  
 	  if (!word) {
-	    DBG (1, "sane_init: config file line %d: could not be parsed\n",
+	    DBG (1, "sane_reload_devices: config file line %d: could not be parsed\n",
 		 linenumber);
 	    continue;
 	  }
 	  
 	  if (word[0] == '#') {
-	    DBG (5, "sane_init: config file line %d: ignoring comment line\n",
+	    DBG (5, "sane_reload_devices: config file line %d: ignoring comment line\n",
 		 linenumber);
 	    free (word);
 	    word = NULL;
@@ -7419,57 +7452,57 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	      cp = sanei_config_get_string (cp, &word);
 	  
 	      if (strcmp (word, "disable-gamma-table") == 0) {
-		DBG (3, "sane_init: config file line %d: disable-gamma-table\n",
+		DBG (3, "sane_reload_devices: config file line %d: disable-gamma-table\n",
 		     linenumber);
 		disable_gamma_table = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "disable-calibration") == 0) {
-		DBG (3, "sane_init: config file line %d: disable-calibration\n",
+		DBG (3, "sane_reload_devices: config file line %d: disable-calibration\n",
 		     linenumber);
 		disable_calibration = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "force-calibration") == 0) {
-		DBG (3, "sane_init: config file line %d: force-calibration\n",
+		DBG (3, "sane_reload_devices: config file line %d: force-calibration\n",
 		     linenumber);
 		force_calibration = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "force-a4") == 0) {
-		DBG (3, "sane_init: config file line %d: enabling force-a4\n",
+		DBG (3, "sane_reload_devices: config file line %d: enabling force-a4\n",
 		     linenumber);
 		force_a4 = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "force-a3") == 0) {
-		DBG (3, "sane_init: config file line %d: enabling force-a3\n",
+		DBG (3, "sane_reload_devices: config file line %d: enabling force-a3\n",
 		     linenumber);
 		force_a3 = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "static-red-calib") == 0) {
-		DBG (3, "sane_init: config file line %d: static red calibration\n",
+		DBG (3, "sane_reload_devices: config file line %d: static red calibration\n",
 		     linenumber);
 		static_calib_list [0] = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "static-green-calib") == 0) {
-		DBG (3, "sane_init: config file line %d: static green calibration\n",
+		DBG (3, "sane_reload_devices: config file line %d: static green calibration\n",
 		    linenumber);
 		static_calib_list [1] = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "static-blue-calib") == 0) {
-		DBG (3, "sane_init: config file line %d: static blue calibration\n",
+		DBG (3, "sane_reload_devices: config file line %d: static blue calibration\n",
 		    linenumber);
 		static_calib_list [2] = SANE_TRUE; 
 	      }
 	      else
-		DBG (1, "sane_init: config file line %d: options unknown!\n",
+		DBG (1, "sane_reload_devices: config file line %d: options unknown!\n",
 		    linenumber);
 	    }
 	  else if (strcmp (word, "usb") == 0) {
-	    DBG (2, "sane_init: config file line %d: trying to attach USB:`%s'\n",
+	    DBG (2, "sane_reload_devices: config file line %d: trying to attach USB:`%s'\n",
 		 linenumber, line);
 	    /* try to attach USB device */
 	    sanei_usb_attach_matching_devices (line, attach_one_usb);
 	  }
 	  else if (strcmp (word, "scsi") == 0) {
-	    DBG (2, "sane_init: config file line %d: trying to attach SCSI: %s'\n",
+	    DBG (2, "sane_reload_devices: config file line %d: trying to attach SCSI: %s'\n",
 		 linenumber, line);
 	    
 	    /* the last time I verified (2003-03-18) this function
@@ -7477,9 +7510,9 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	    sanei_config_attach_matching_devices (line, attach_one_scsi);
 	  }
 	  else {
-	    DBG (1, "sane_init: config file line %d: OBSOLETE !! use the scsi keyword!\n",
+	    DBG (1, "sane_reload_devices: config file line %d: OBSOLETE !! use the scsi keyword!\n",
 		linenumber);
-	    DBG (1, "sane_init:   (see man sane-avision for details): trying to attach SCSI: %s'\n",
+	    DBG (1, "sane_reload_devices:   (see man sane-avision for details): trying to attach SCSI: %s'\n",
 		line);
 	  
 	    /* the last time I verified (2003-03-18) this function
@@ -7510,7 +7543,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
       
 	if (attaching_hw->usb_vendor != 0 && attaching_hw->usb_product != 0 )
 	{
-	  DBG (1, "sane_init: Trying to find USB device %x %x ...\n",
+	  DBG (1, "sane_reload_devices: Trying to find USB device %.4x %.4x ...\n",
 	       attaching_hw->usb_vendor,
 	       attaching_hw->usb_product);
 	  
@@ -7518,7 +7551,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  if (sanei_usb_find_devices (attaching_hw->usb_vendor,
 				      attaching_hw->usb_product,
 				      attach_one_usb) != SANE_STATUS_GOOD) {
-	    DBG (1, "sane_init: error during USB device detection!\n");
+	    DBG (1, "sane_reload_devices: error during USB device detection!\n");
 	  }
 	}
       ++ model_num;
@@ -7558,6 +7591,8 @@ sane_get_devices (const SANE_Device*** device_list, SANE_Bool local_only)
   local_only = local_only; /* silence gcc */
 
   DBG (3, "sane_get_devices:\n");
+
+  sane_reload_devices ();
 
   if (devlist)
     free (devlist);
@@ -7805,7 +7840,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
   Avision_Scanner* s = handle;
   
-  DBG (3, "sane_get_option_descriptor:\n");
+  DBG (3, "sane_get_option_descriptor: %d\n", option);
 
   if ((unsigned) option >= NUM_OPTIONS)
     return 0;

@@ -1,3 +1,10 @@
+2011-01-01 Chris Bagwell <chris@cnpbagwell.com>
+	* */Makefile.in, configure, aclocal.m4: Generate from latest
+	autoconf (2.63 to 2.66).
+	* m4/*: Added new libtool helper files.
+	* ltmain.sh: updated to latest libtool and added back special
+	sane soname work around.
+
 2010-12-28 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.conf.in backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl847.c backend/genesys_gl847.h:

@@ -1,3 +1,7 @@
+2011-01-03 Stéphane Voltz <stef.dev@free.fr>
+	* backends/lexmark_low.c: fix compilation issue due to incorrect
+	place for a DBG statement.
+
 2011-01-03 Chris Bagwell <chris at cnpbagwell.com>
 	* backends/Makefile.am: Add SOCKET_LIBS to xerox_mfp
 	for platforms such as solaris since it uses sanei_tcp.k

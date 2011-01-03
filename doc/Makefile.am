@@ -93,10 +93,10 @@ doc_DATA += $(STANDARD)
 EXTRA_DIST += descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
   sane.png
 
-LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS @LATEX@
+LATEX	= TEXINPUTS="$(srcdir):$$TEXINPUTS" @LATEX@
 DVIPS   = @DVIPS@
 MAKEINDEX = @MAKEINDEX@
-DLH	= TEXINPUTS=$(srcdir):$$TEXINPUTS dlh
+DLH	= TEXINPUTS="$(srcdir):$$TEXINPUTS" dlh
 MAN2HTML= nroff -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
           -cgiurl '$$title.$$section.html'|\

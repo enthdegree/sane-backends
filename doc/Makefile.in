@@ -139,7 +139,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JPEG_LIBS = @JPEG_LIBS@
-LATEX = TEXINPUTS=$(srcdir):$$TEXINPUTS @LATEX@
+LATEX = TEXINPUTS="$(srcdir):$$TEXINPUTS" @LATEX@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
@@ -327,7 +327,7 @@ doc_DATA = $(HTML_PAGES) $(STANDARD)
 @USE_LATEX_TRUE@STANDARD = sane.ps
 dist_doc_DATA = backend-writing.txt
 nobase_dist_doc_DATA = $(BEDOCS)
-DLH = TEXINPUTS=$(srcdir):$$TEXINPUTS dlh
+DLH = TEXINPUTS="$(srcdir):$$TEXINPUTS" dlh
 MAN2HTML = nroff -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
           -cgiurl '$$title.$$section.html'|\

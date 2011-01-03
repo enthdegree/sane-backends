@@ -1,6 +1,9 @@
 \documentclass[11pt,DVIps]{report}
 
-\usepackage{times,epsfig,changebar,html}
+\usepackage{times,epsfig,html}
+% Not Currently using changebar package so comment out to reduce
+% external dependencies.
+%\usepackage{changebar}
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{1.5ex plus 0.5ex minus 0.5ex}
@@ -25,9 +28,10 @@
 \newcommand{\var}[1]{{\it #1}}
 \newcommand{\defn}[1]{#1\index{#1}}
 
-\begin{latexonly}
-  \setcounter{changebargrey}{0}   % black change bars
-\end{latexonly}
+% Uncomment if adding changebars to text
+%\begin{latexonly}
+%  \setcounter{changebargrey}{0}   % black change bars
+%\end{latexonly}
 
 \maketitle
 \tableofcontents

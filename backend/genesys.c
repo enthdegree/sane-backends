@@ -4790,6 +4790,13 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
 {
   size_t count;
   SANE_Status status;
+  uint8_t odd,even,mask;
+  uint16_t merged;
+  int depth,i;
+  
+  depth = dev->settings.depth;
+  if (dev->settings.scan_mode == SCAN_MODE_LINEART)
+    depth = 1;
 
       /* fill buffer if needed */
       if (dev->oe_buffer.avail == 0)
@@ -4817,32 +4824,86 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
               count++;
               dev->cur++;
             }
-          else if(dev->settings.depth==8 && dev->settings.double_xres==SANE_FALSE)
+          else 
             {
-	      while (dev->cur < dev->len && count < size)
-	        {
-	          /* copy even pixel */
-	          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-	          /* copy odd pixel */
-	          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
-                  /* update counter and pointer */
-	          count += 2;
-	          dev->cur++;
+              /* here we must handle the segments to copy data */
+              if(dev->segnb==2)
+                {
+                  if(depth==8)
+                    {
+                      while (dev->cur < dev->len && count < size)
+                        {
+                          /* copy even pixel */
+                          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+                          /* copy odd pixel */
+                          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+                          /* update counter and pointer */
+                          count += 2;
+                          dev->cur++;
+                        }
+                    }
+                  else if(depth==16)
+                    {
+                      while (dev->cur < dev->len && count < size)
+                        {
+                          /* copy even pixel */
+                          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+                          work_buffer_dst[count+1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
+                          /* copy odd pixel */
+                          work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos+1];
+                          /* update counter and pointer */
+                          count += 4;
+                          dev->cur+=2;
+                        }
+                    } else { /* lineart case */
+                      while (dev->cur < dev->len && count < size)
+                        {
+                          /* get values to merge */
+                          odd = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+                          even = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+
+                          /* interleave bits .... */
+                          merged=0;
+                          for(i=7;i>=0;i--)
+                            {
+                              mask=1<<i;
+                              if(odd & mask)
+                                {
+                                  merged |= 1;
+                                }
+                              merged<<=1;
+                              if(even & mask)
+                                {
+                                  merged |= 1;
+                                }
+
+                              /* don't shift on last bit */
+                              if(i>0)
+                                {
+                                  merged<<=1;
+                                }
+                            }
+                         
+                          /* store result */
+                          work_buffer_dst[count] = merged >> 8;
+                          work_buffer_dst[count+1] = merged & 255;
+
+                          /* update counter and pointer */
+                          count += 2;
+                          dev->cur++;
+                        }
+                    }
                 }
-            }
-          else if(dev->settings.depth==16 && dev->settings.double_xres==SANE_FALSE)
-            {
-	      while (dev->cur < dev->len && count < size)
-	        {
-                  /* copy even pixel */
-                  work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-                  work_buffer_dst[count+1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
-                  /* copy odd pixel */
-                  work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
-                  work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos+1];
-                  /* update counter and pointer */
-                  count += 4;
-                  dev->cur+=2;
+              else if(dev->segnb==4)
+                {
+                  DBG (DBG_error, "%s: %d is an unimplemented segment number ....\n",__FUNCTION__,dev->segnb);
+                  return SANE_STATUS_INVAL;
+                }
+              else
+                {
+                  DBG (DBG_error, "%s: %d is an unimplemented segment number ....\n",__FUNCTION__,dev->segnb);
+                  return SANE_STATUS_INVAL;
                 }
             }
 

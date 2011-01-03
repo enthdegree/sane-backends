@@ -24,7 +24,7 @@ endif
 EXTRA_DIST = linux_sg3_err.h os2_srb.h sanei_DomainOS.c sanei_DomainOS.h
 
 test_wire_SOURCES = test_wire.c
-test_wire_LDADD = libsanei.la
+test_wire_LDADD = libsanei.la ../lib/liblib.la
 
 clean-local:
 	rm -f test_wire.out

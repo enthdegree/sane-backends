@@ -4,6 +4,9 @@
 	* m4/*: Added new libtool helper files.
 	* ltmain.sh: updated to latest libtool and added back special
 	sane soname work around.
+	* po/Makefile.am: Allow "make dist" to work when translations
+	disabled.
+	* sanei/Makefile.am: allow "make check" to work on cygwin.
 
 2010-12-28 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.conf.in backend/genesys_devices.c backend/genesys_gl646.c

@@ -1,4 +1,8 @@
-2011-01-01 Chris Bagwell <chris@cnpbagwell.com>
+2011-01-03 Chris Bagwell <chris at cnpbagwell.com>
+	* backends/Makefile.am: Add SOCKET_LIBS to xerox_mfp
+	for platforms such as solaris since it uses sanei_tcp.k
+
+2011-01-01 Chris Bagwell <chris at cnpbagwell.com>
 	* */Makefile.in, configure, aclocal.m4: Generate from latest
 	autoconf (2.63 to 2.66).
 	* m4/*: Added new libtool helper files.

@@ -7291,18 +7291,18 @@ EOF
 	# is "libsane" not "libsane-backendname". So linking to each
 	# backend is possible. Also the following test was moved to this
 	# location.
-	 If -module or -export-dynamic was specified, set the dlname
-	 if test "$module" = yes || test "$export_dynamic" = yes; then
-	   # On all known operating systems, these are identical.
-	   dlname="$soname"
-	 fi
-	 case $host in
-	   *aix*)
-	     ;;
-	   *)
-	     soname=`echo $soname | sed -e "s/libsane-[A-Za-z_0-9]*/libsane/g"`
-	 esac
-	 #End of local change
+	# If -module or -export-dynamic was specified, set the dlname
+	if test "$module" = yes || test "$export_dynamic" = yes; then
+	  # On all known operating systems, these are identical.
+	  dlname="$soname"
+	fi
+	case $host in
+	  *aix*)
+	    ;;
+	  *)
+	    soname=`echo $soname | sed -e "s/libsane-[A-Za-z_0-9]*/libsane/g"`
+	esac
+	# End of local change
 
 	lib="$output_objdir/$realname"
 	linknames=

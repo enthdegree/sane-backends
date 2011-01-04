@@ -145,31 +145,31 @@ gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 
       /* blocks must be multiple of 512 but not last block */
       read = size;
-      if (read >= 512)
-	{
-	  read /= 512;
-	  read *= 512;
-	}
-     
-      DBG (DBG_io2,
-	   "gl124_bulk_read_data: trying to read %lu bytes of data\n",
-	   (u_long) read);
-      status = sanei_usb_read_bulk (dev->dn, data, &read);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl124_bulk_read_data failed while reading bulk data: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
+      read /= 512;
+      read *= 512;
+    
+      if(read>0)
+        {
+          DBG (DBG_io2,
+               "gl124_bulk_read_data: trying to read %lu bytes of data\n",
+               (u_long) read);
+          status = sanei_usb_read_bulk (dev->dn, data, &read);
+          if (status != SANE_STATUS_GOOD)
+            {
+              DBG (DBG_error,
+                   "gl124_bulk_read_data failed while reading bulk data: %s\n",
+                   sane_strstatus (status));
+              return status;
+            }
+        }
 
       /* read less than 512 bytes remainder */
       if (read < size)
 	{
-          done=read;
+          done = read;
 	  read = size - read;
 	  DBG (DBG_io2,
-	       "gl124_bulk_read_data: trying to read %lu bytes of data\n",
+	       "gl124_bulk_read_data: trying to read remaining %lu bytes of data\n",
 	       (u_long) read);
 	  status = sanei_usb_read_bulk (dev->dn, data+done, &read);
 	  if (status != SANE_STATUS_GOOD)

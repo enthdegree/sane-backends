@@ -1,3 +1,8 @@
+2011-01-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, backend/pixma.c, backend/pixma.h
+	backend/pixma_common.c, backend/pixma_common.h:
+	pixma: several updates for MP830, MP990, memmove bug fix, and 64 bits image size.
+
 2011-01-04 Stéphane Voltz <stef.dev@free.fr>
 	*  backend/genesys.c backend/genesys_devices.c
 	backend/genesys_gl124.c: fix 1200 dpi lineart issues for gl124,

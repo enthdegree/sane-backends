@@ -108,7 +108,7 @@ typedef struct pixma_sane_t
   pixma_paper_source_t source_map[4];
 
   unsigned byte_pos_in_line, output_line_size;
-  unsigned image_bytes_read;
+  uint64_t image_bytes_read;
   unsigned page_count;		/* valid for ADF */
 
   SANE_Pid reader_taskid;
@@ -556,7 +556,7 @@ static void
 print_scan_param (int level, const pixma_scan_param_t * sp)
 {
   pixma_dbg (level, "Scan parameters\n");
-  pixma_dbg (level, "  line_size=%u image_size=%u channels=%u depth=%u\n",
+  pixma_dbg (level, "  line_size=%u image_size=%"PRIu64" channels=%u depth=%u\n",
 	     sp->line_size, sp->image_size, sp->channels, sp->depth);
   pixma_dbg (level, "  dpi=%ux%u offset=(%u,%u) dimension=%ux%u\n",
 	     sp->xdpi, sp->ydpi, sp->x, sp->y, sp->w, sp->h);
@@ -994,8 +994,8 @@ read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
     }
   else if (count == 0)
     {
-      PDBG (pixma_dbg (3, "read_image():reader task closed the pipe:"
-		       "%u bytes received, %u bytes expected\n",
+      PDBG (pixma_dbg (3, "read_image():reader task closed the pipe:%"
+		       PRIu64" bytes received, %"PRIu64" bytes expected\n",
 		       ss->image_bytes_read, ss->sp.image_size));
       close (ss->rpipe);
       ss->rpipe = -1;

@@ -680,7 +680,7 @@ send_scan_param (pixma_t * s)
       pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
       pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x06);
       pixma_set_be32 (s->param->x, data + 0x08);
-      if (s->cfg->pid == MP460_PID || s->cfg->pid == MP510_PID)
+      if (mp->generation == 2)
         pixma_set_be32 (s->param->x - s->param->xs, data + 0x08);
       pixma_set_be32 (s->param->y, data + 0x0c);
       pixma_set_be32 (raw_width, data + 0x10);
@@ -1104,7 +1104,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
                 mp970_reorder_pixels (mp->linebuf, sptr, c, s->param->wx, line_size);
 
           /* Crop line to selected borders */
-          memcpy(cptr, sptr + cx, cw);
+          memmove(cptr, sptr + cx, cw);
 	  
           /* Color to Grayscale convert for CCD sensor */
           if (is_ccd_grayscale (s))

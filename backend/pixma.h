@@ -103,6 +103,10 @@ typedef uint16_t uint16_t;
 typedef uint32_t uint32_t;
 #endif /* HAVE_STDINT_H */
 
+#ifdef HAVE_INTTYPES_H 
+# include <inttypes.h>          /* available in ISO C99 */
+#endif /* HAVE_INTTYPES_H */
+
 /** \addtogroup API
  *  @{ */
 /** \name Version of the driver */
@@ -245,7 +249,7 @@ struct pixma_scan_param_t
     /** Size in bytes of the whole image.
      *  image_size = line_size * h <br>
      *  This field will be set by pixma_check_scan_param(). */
-  unsigned image_size;
+  uint64_t image_size;
 
     /** Channels per pixel. 1 = grayscale, 3 = color */
   unsigned channels;

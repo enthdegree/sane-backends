@@ -119,7 +119,7 @@ struct pixma_t
   void *subdriver;		/* can be used by model driver. */
 
   /* private */
-  unsigned cur_image_size;
+  uint64_t cur_image_size;
   pixma_imagebuf_t imagebuf;
   unsigned scanning:1;
   unsigned underrun:1;

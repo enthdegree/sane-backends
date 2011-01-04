@@ -567,7 +567,7 @@ pixma_scan (pixma_t * s, pixma_scan_param_t * sp)
 #ifndef NDEBUG
   pixma_dbg (3, "\n");
   pixma_dbg (3, "pixma_scan(): start\n");
-  pixma_dbg (3, "  line_size=%u image_size=%u channels=%u depth=%u\n",
+  pixma_dbg (3, "  line_size=%u image_size=%"PRIu64" channels=%u depth=%u\n",
 	     sp->line_size, sp->image_size, sp->channels, sp->depth);
   pixma_dbg (3, "  dpi=%ux%u offset=(%u,%u) dimension=%ux%u\n",
 	     sp->xdpi, sp->ydpi, sp->x, sp->y, sp->w, sp->h);
@@ -659,10 +659,10 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
                 {
                   pixma_dbg (1, "WARNING:image size mismatches\n");
                   pixma_dbg (1,
-                       "    %u expected (%d lines) but %u received (%d lines)\n",
+                       "    %"PRIu64" expected (%d lines) but %"PRIu64" received (%d lines)\n",
                        s->param->image_size, s->param->h,
                        s->cur_image_size,
-                       s->cur_image_size / s->param->line_size);
+                       (int) s->cur_image_size / s->param->line_size);
                   if ((s->cur_image_size % s->param->line_size) != 0)
                     {
                       pixma_dbg (1,

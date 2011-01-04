@@ -145,31 +145,31 @@ gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 
       /* blocks must be multiple of 512 but not last block */
       read = size;
-      if (read >= 512)
-	{
-	  read /= 512;
-	  read *= 512;
-	}
-     
-      DBG (DBG_io2,
-	   "gl124_bulk_read_data: trying to read %lu bytes of data\n",
-	   (u_long) read);
-      status = sanei_usb_read_bulk (dev->dn, data, &read);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl124_bulk_read_data failed while reading bulk data: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
+      read /= 512;
+      read *= 512;
+    
+      if(read>0)
+        {
+          DBG (DBG_io2,
+               "gl124_bulk_read_data: trying to read %lu bytes of data\n",
+               (u_long) read);
+          status = sanei_usb_read_bulk (dev->dn, data, &read);
+          if (status != SANE_STATUS_GOOD)
+            {
+              DBG (DBG_error,
+                   "gl124_bulk_read_data failed while reading bulk data: %s\n",
+                   sane_strstatus (status));
+              return status;
+            }
+        }
 
       /* read less than 512 bytes remainder */
       if (read < size)
 	{
-          done=read;
+          done = read;
 	  read = size - read;
 	  DBG (DBG_io2,
-	       "gl124_bulk_read_data: trying to read %lu bytes of data\n",
+	       "gl124_bulk_read_data: trying to read remaining %lu bytes of data\n",
 	       (u_long) read);
 	  status = sanei_usb_read_bulk (dev->dn, data+done, &read);
 	  if (status != SANE_STATUS_GOOD)
@@ -1071,11 +1071,12 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   /* STEPNO */
   sanei_genesys_set_double(reg,REG_STEPNO,scan_steps);
 
-  /* FASTNO */
-  sanei_genesys_set_double(reg,REG_FASTNO,scan_steps);
-
   /* fast table */
   fast_dpi=yres;
+  if (scan_mode != SCAN_MODE_COLOR)
+    {
+      fast_dpi*=3;
+    }
   fast_time=gl124_slope_table(fast_table,
                               &fast_steps,
                               fast_dpi,
@@ -1086,6 +1087,9 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
                               dev->model->motor_type);
   RIE(gl124_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps));
   RIE(gl124_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps));
+
+  /* FASTNO */
+  sanei_genesys_set_double(reg,REG_FASTNO,fast_steps);
 
   /* FSHDEC */
   sanei_genesys_set_double(reg,REG_FSHDEC,fast_steps);
@@ -1611,9 +1615,6 @@ gl124_init_scan_regs (Genesys_Device * dev,
     {
       depth = 8;
     }
-  /* XXX STEF XXX
-  if (depth == 16)
-    flags |= SCAN_FLAG_DISABLE_GAMMA; */
 
   /* we enable true gray for cis scanners only, and just when doing 
    * scan since color calibration is OK for this mode
@@ -2732,7 +2733,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
 
   if(channels*dev->settings.yres>=1200 && move>3000)
     {
-      move-=190;
+      move -= 180;
       status = gl124_feed (dev, move);
       if (status != SANE_STATUS_GOOD)
         {
@@ -2745,7 +2746,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
     {
       if(channels==1)
         {
-          move-=25;
+          move-=0;
         }
     }
   DBG (DBG_info, "gl124_init_regs_for_scan: move=%f steps\n", move);

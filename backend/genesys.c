@@ -4790,6 +4790,13 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
 {
   size_t count;
   SANE_Status status;
+  uint8_t odd,even,mask;
+  uint16_t merged;
+  int depth,i;
+  
+  depth = dev->settings.depth;
+  if (dev->settings.scan_mode == SCAN_MODE_LINEART)
+    depth = 1;
 
       /* fill buffer if needed */
       if (dev->oe_buffer.avail == 0)
@@ -4817,32 +4824,86 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
               count++;
               dev->cur++;
             }
-          else if(dev->settings.depth==8 && dev->settings.double_xres==SANE_FALSE)
+          else 
             {
-	      while (dev->cur < dev->len && count < size)
-	        {
-	          /* copy even pixel */
-	          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-	          /* copy odd pixel */
-	          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
-                  /* update counter and pointer */
-	          count += 2;
-	          dev->cur++;
+              /* here we must handle the segments to copy data */
+              if(dev->segnb==2)
+                {
+                  if(depth==8)
+                    {
+                      while (dev->cur < dev->len && count < size)
+                        {
+                          /* copy even pixel */
+                          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+                          /* copy odd pixel */
+                          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+                          /* update counter and pointer */
+                          count += 2;
+                          dev->cur++;
+                        }
+                    }
+                  else if(depth==16)
+                    {
+                      while (dev->cur < dev->len && count < size)
+                        {
+                          /* copy even pixel */
+                          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+                          work_buffer_dst[count+1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
+                          /* copy odd pixel */
+                          work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos+1];
+                          /* update counter and pointer */
+                          count += 4;
+                          dev->cur+=2;
+                        }
+                    } else { /* lineart case */
+                      while (dev->cur < dev->len && count < size)
+                        {
+                          /* get values to merge */
+                          odd = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+                          even = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+
+                          /* interleave bits .... */
+                          merged=0;
+                          for(i=7;i>=0;i--)
+                            {
+                              mask=1<<i;
+                              if(odd & mask)
+                                {
+                                  merged |= 1;
+                                }
+                              merged<<=1;
+                              if(even & mask)
+                                {
+                                  merged |= 1;
+                                }
+
+                              /* don't shift on last bit */
+                              if(i>0)
+                                {
+                                  merged<<=1;
+                                }
+                            }
+                         
+                          /* store result */
+                          work_buffer_dst[count] = merged >> 8;
+                          work_buffer_dst[count+1] = merged & 255;
+
+                          /* update counter and pointer */
+                          count += 2;
+                          dev->cur++;
+                        }
+                    }
                 }
-            }
-          else if(dev->settings.depth==16 && dev->settings.double_xres==SANE_FALSE)
-            {
-	      while (dev->cur < dev->len && count < size)
-	        {
-                  /* copy even pixel */
-                  work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-                  work_buffer_dst[count+1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
-                  /* copy odd pixel */
-                  work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
-                  work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos+1];
-                  /* update counter and pointer */
-                  count += 4;
-                  dev->cur+=2;
+              else if(dev->segnb==4)
+                {
+                  DBG (DBG_error, "%s: %d is an unimplemented segment number ....\n",__FUNCTION__,dev->segnb);
+                  return SANE_STATUS_INVAL;
+                }
+              else
+                {
+                  DBG (DBG_error, "%s: %d is an unimplemented segment number ....\n",__FUNCTION__,dev->segnb);
+                  return SANE_STATUS_INVAL;
                 }
             }
 
@@ -4911,7 +4972,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
       size &= ~0xff;
     }
 
-  /* early out if our remaining buffer capacity is too lo w */
+  /* early out if our remaining buffer capacity is too low */
   if (size == 0)
     return SANE_STATUS_GOOD;
 
@@ -4949,13 +5010,6 @@ genesys_fill_read_buffer (Genesys_Device * dev)
   else /* regular case with no extra copy */
     {
       status = dev->model->cmd_set->bulk_read_data (dev, 0x45, work_buffer_dst, size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
-	       (u_long) size, sane_strstatus (status));
-	  return SANE_STATUS_IO_ERROR;
-	}
 #ifdef SANE_DEBUG_LOG_RAW_DATA
       if (rawfile != NULL && DBG_LEVEL >= DBG_data)
 	{
@@ -4964,6 +5018,13 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 	  fwrite (work_buffer_dst, size, 1, rawfile);
 	}
 #endif
+    }
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+           "genesys_fill_read_buffer: failed to read %lu bytes (%s)\n",
+           (u_long) size, sane_strstatus (status));
+      return SANE_STATUS_IO_ERROR;
     }
 
   if (size > dev->read_bytes_left)
@@ -5481,9 +5542,13 @@ Problems with the first approach:
 	  DBG (DBG_error, "Cannot convert from 16bit to lineart\n");
 	  return SANE_STATUS_INVAL;
 	}
-/*lines in input*/
+      /* lines in input to process */
       dst_lines = bytes / (dev->settings.pixels * channels);
-
+      if(dst_lines==0)
+        {
+          /* padd to at least line length */
+          dst_lines=1;
+        }
       bytes = dst_lines * dev->settings.pixels * channels;
 
       status = genesys_gray_lineart (dev,
@@ -5593,7 +5658,7 @@ calc_parameters (Genesys_Scanner * s)
   s->dev->settings.double_xres = SANE_FALSE;
   if ((s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS)
       && s->dev->settings.xres <= s->dev->sensor.optical_res / 2
-      &&  s->dev->settings.xres != 400)
+      && s->dev->settings.xres != 400)
     {
       s->dev->settings.double_xres = SANE_TRUE;
     }
@@ -5608,6 +5673,13 @@ calc_parameters (Genesys_Scanner * s)
       || s->dev->model->asic_type == GENESYS_GL843) 
     {
       s->params.pixels_per_line = (s->params.pixels_per_line/4)*4;
+    }
+
+  /* corner case for true lineart for sensor with several segments */
+  if (s->dev->settings.xres >= 1200
+      && s->dev->model->asic_type == GENESYS_GL124  )
+    {
+      s->params.pixels_per_line = (s->params.pixels_per_line/16)*16;
     }
 
   s->params.bytes_per_line = s->params.pixels_per_line;
@@ -6052,10 +6124,6 @@ init_options (Genesys_Scanner * s)
   if (s->dev->model->asic_type == GENESYS_GL646 || s->dev->model->asic_type == GENESYS_GL847)
     {
       s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
-    }
-  if (s->dev->model->asic_type == GENESYS_GL124)
-    {
-      s->val[OPT_DISABLE_DYNAMIC_LINEART].w = SANE_TRUE;
     }
 
   /* disable_interpolation */
@@ -7239,8 +7307,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *table;
   unsigned int i;
-  int min, count;
-  SANE_Word *dpi_list;
   SANE_Range *x_range, *y_range;
   Genesys_Calibration_Cache *cache, *next_cache;
 
@@ -7327,6 +7393,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 
       /* due to low resolution emulation ,we can't mix lineart
        * with dpi lower than 300 for GL124 */
+      /* XXX STEF XXX
         if(s->dev->model->asic_type == GENESYS_GL124)
           {
             free(s->opt[OPT_RESOLUTION].constraint.word_list);
@@ -7344,7 +7411,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
             s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
             if(s->val[OPT_RESOLUTION].w<min)
               s->val[OPT_RESOLUTION].w=min;
-          }
+          } */
 
       if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	{

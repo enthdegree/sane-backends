@@ -1,3 +1,26 @@
+2011-01-03 Stéphane Voltz <stef.dev@free.fr>
+	* backends/lexmark_low.c: fix compilation issue due to incorrect
+	place for a DBG statement.
+
+2011-01-03 Chris Bagwell <chris at cnpbagwell.com>
+	* backends/Makefile.am: Add SOCKET_LIBS to xerox_mfp
+	for platforms such as solaris since it uses sanei_tcp.k
+	* doc/sane.tex: removed reference to changelog package
+	since its not used and not installed by Macports (#312596)
+	* doc/Makefile.am: put quotes around TEXINPUTS in case
+	paths have spaces in name.  This is so latex can find
+	html.sty package that is referenced by sane.tex.
+
+2011-01-01 Chris Bagwell <chris at cnpbagwell.com>
+	* */Makefile.in, configure, aclocal.m4: Generate from latest
+	autoconf (2.63 to 2.66).
+	* m4/*: Added new libtool helper files.
+	* ltmain.sh: updated to latest libtool and added back special
+	sane soname work around.
+	* po/Makefile.am: Allow "make dist" to work when translations
+	disabled.
+	* sanei/Makefile.am: allow "make check" to work on cygwin.
+
 2010-12-28 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.conf.in backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl847.c backend/genesys_gl847.h:

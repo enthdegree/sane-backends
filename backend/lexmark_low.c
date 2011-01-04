@@ -5957,10 +5957,9 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
 SANE_Status
 sanei_lexmark_low_calibration (Lexmark_Device * dev)
 {
-  DBG (2, "sanei_lexmark_low_calibration: start.\n");
-
   SANE_Status status;
 
+  DBG (2, "sanei_lexmark_low_calibration: start.\n");
   status = sanei_lexmark_low_offset_calibration (dev);
   if (status != SANE_STATUS_GOOD)
     return status;

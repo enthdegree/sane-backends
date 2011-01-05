@@ -2011,6 +2011,12 @@ sanei_usb_clear_halt (SANE_Int dn)
 #ifdef HAVE_LIBUSB
   int ret;
 
+  if (dn >= device_number || dn < 0)
+    {
+      DBG (1, "sanei_usb_clear_halt: dn >= device number || dn < 0\n");
+      return SANE_STATUS_INVAL;
+    }
+
   ret = usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
   if (ret){
     DBG (1, "sanei_usb_clear_halt: BULK_IN ret=%d\n", ret);
@@ -2029,6 +2035,12 @@ sanei_usb_clear_halt (SANE_Int dn)
   */
 #elif defined(HAVE_LIBUSB_1_0)
   int ret;
+
+  if (dn >= device_number || dn < 0)
+    {
+      DBG (1, "sanei_usb_clear_halt: dn >= device number || dn < 0\n");
+      return SANE_STATUS_INVAL;
+    }
 
   ret = libusb_clear_halt (devices[dn].lu_handle, devices[dn].bulk_in_ep);
   if (ret){
@@ -2324,7 +2336,8 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
       if (devices[dn].bulk_out_ep){
         rc = UsbBulkWrite (dh, devices[dn].bulk_out_ep, devices[dn].interface_nr,
                                ulToWrite, (char*) buffer, usbcalls_timeout);
-        DBG (1, "sanei_usb_write_bulk: rc = %d\n",rc);}
+        DBG (1, "sanei_usb_write_bulk: rc = %d\n",rc);
+      }
       else
       {
           DBG (1, "sanei_usb_write_bulk: can't read without a bulk-out endpoint\n");

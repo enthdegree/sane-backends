@@ -1,3 +1,7 @@
+2011-01-05  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp730.c:
+	pixma: Added patch proposed by Klaus Stengel for Canon imageRunner 1020/1024/1025 support.
+
 2011-01-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, backend/pixma.c, backend/pixma.h
 	backend/pixma_common.c, backend/pixma_common.h:

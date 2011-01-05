@@ -78,6 +78,8 @@
 #define MF5770_PID 0x265f
 #define MF3110_PID 0x2660
 
+#define IR1020_PID 0x26e6
+
 enum mp730_state_t
 {
   state_idle,
@@ -180,7 +182,21 @@ select_source (pixma_t * s)
 {
   mp730_t *mp = (mp730_t *) s->subdriver;
   uint8_t *data = pixma_newcmd (&mp->cb, cmd_select_source, 10, 0);
-  data[0] = (s->param->source == PIXMA_SOURCE_ADF) ? 2 : 1;
+  switch (s->param->source)
+    {
+    case PIXMA_SOURCE_ADF:
+      data[0] = 2;
+      break;
+
+    case PIXMA_SOURCE_ADFDUP:
+      data[0] = 2;
+      data[5] = 3;
+      break;
+
+    default:
+      data[0] = 1;
+      break;
+    }
   return pixma_exec (s, &mp->cb);
 }
 
@@ -306,6 +322,7 @@ handle_interrupt (pixma_t * s, int timeout)
     case MF5750_PID:
     case MF5770_PID:
     case MF3110_PID:
+    case IR1020_PID:
       if (len != 16)
 	{
 	  PDBG (pixma_dbg
@@ -388,7 +405,9 @@ step1 (pixma_t * s)
   error = query_status (s);
   if (error < 0)
     return error;
-  if (s->param->source == PIXMA_SOURCE_ADF && !has_paper (s))
+  if ((s->param->source == PIXMA_SOURCE_ADF
+       || s->param->source == PIXMA_SOURCE_ADFDUP)
+      && !has_paper (s))
     return PIXMA_ENO_PAPER;
   if (has_ccd_sensor (s))
     {
@@ -522,7 +541,8 @@ calc_raw_width (pixma_t * s, const pixma_scan_param_t * sp)
               s->cfg->pid == MP360_PID ||
               s->cfg->pid == MP370_PID ||
               s->cfg->pid == MP375R_PID ||
-              s->cfg->pid == MP390_PID)
+              s->cfg->pid == MP390_PID ||
+	      s->cfg->pid == IR1020_PID)
             raw_width = ALIGN_SUP (sp->w, 4);
           else
             raw_width = ALIGN_SUP (sp->w, 12);
@@ -669,7 +689,8 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	      s->cfg->pid != MF5730_PID  &&
 	      s->cfg->pid != MF5750_PID  &&
 	      s->cfg->pid != MF5770_PID  &&
-	      s->cfg->pid != MF3110_PID)
+	      s->cfg->pid != MF3110_PID  &&
+	      s->cfg->pid != IR1020_PID)
 	    {
 	      /* color, and not an MF57x0 nor MF3110 */
 	      pack_rgb (mp->imgbuf, n, mp->raw_width, mp->lbuf);
@@ -693,7 +714,7 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 static void
 mp730_finish_scan (pixma_t * s)
 {
-  int error;
+  int error, aborted = 0;
   mp730_t *mp = (mp730_t *) s->subdriver;
 
   switch (mp->state)
@@ -703,6 +724,7 @@ mp730_finish_scan (pixma_t * s)
       /* fall through */
     case state_scanning:
     case state_warmup:
+      aborted = 1;
       error = abort_session (s);
       if (error < 0)
 	PDBG (pixma_dbg
@@ -713,6 +735,20 @@ mp730_finish_scan (pixma_t * s)
       query_status (s);
       query_status (s);
       activate (s, 0);
+
+      if (! aborted && s->cfg->pid == IR1020_PID)
+	{
+	  error = abort_session (s);
+	  if (error < 0)
+	    {
+	      PDBG (pixma_dbg
+		    (1, "WARNING:abort_session() failed %s\n",
+		     pixma_strerror (error)));
+	      query_status (s);
+	      query_status (s);
+	      activate (s, 0);
+	    }
+	}
       mp->buf = mp->lbuf = mp->imgbuf = NULL;
       mp->state = state_idle;
       /* fall through */
@@ -781,6 +817,8 @@ const pixma_config_t pixma_mp730_devices[] = {
   DEVICE ("Canon imageCLASS MF5750", "MF5750", MF5750_PID, 1200, 636, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon imageCLASS MF5770", "MF5770", MF5770_PID, 1200, 636, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon imageCLASS MF3110", "MF3110", MF3110_PID, 600, 636, 868, 0),
+
+  DEVICE ("Canon iR 1020/1024/1025", "iR1020", IR1020_PID, 600, 636, 868, PIXMA_CAP_ADFDUP),
 
   DEVICE (NULL, NULL, 0, 0, 0, 0, 0)
 };

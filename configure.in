@@ -141,6 +141,51 @@ fi
 dnl check sane to make sure we don't have two installations
 AC_CHECK_LIB(sane, sane_init, LIBSANE_EXISTS="yes")
 
+
+dnl **************************************************************
+dnl SNMP CHECKS
+dnl **************************************************************
+
+AC_ARG_WITH(snmp,
+	AC_HELP_STRING([--without-snmp], [disable SNMP support]))
+
+if test "$with_snmp" = "no"; then
+	echo "Not including SNMP support"
+else
+	AC_PATH_PROG(SNMP_CONFIG_PATH, net-snmp-config, "no")
+	AC_CHECK_LIB([netsnmp], [snmp_timeout], LIBSNMP_EXISTS="yes")
+	AC_MSG_CHECKING(for proper SNMP version)
+	if test "$SNMP_CONFIG_PATH" != "no" ; then
+		snmp_version=`$SNMP_CONFIG_PATH --version 2>/dev/null`
+		vers=`echo $snmp_version | awk 'BEGIN { FS = "."; } { printf "%d", ($1 * 1000 + $2);}'`
+		if test -n "$vers" && test "$vers" -ge 5005; then
+			SNMP_LIBS=`$SNMP_CONFIG_PATH --libs`
+			SNMP_CFLAGS=`$SNMP_CONFIG_PATH --cflags`
+			AC_MSG_RESULT(yes)
+			with_snmp="yes"
+		else
+			AC_MSG_RESULT(no)
+			AC_MSG_WARN([You need at least net-snmp 5.5, your version is $snmp_version])
+			with_snmp="no"
+		fi
+	else
+		with_snmp="no"
+		AC_MSG_RESULT(no)
+	fi
+fi
+
+if test "$with_snmp" = "yes"; then
+	LIBS="$LIBS $SNMP_LIBS"
+	CFLAGS="$CFLAGS $SNMP_CFLAGS"
+	AC_DEFINE([HAVE_LIBSNMP], [1], [net-snmp library is available])
+else
+	AC_MSG_WARN([*** Warning: net-snmp library disabled, autodetecting network scanners will not be supported.])
+fi
+
+
+
+
+
 dnl ***********************************************************************
 dnl Checks for header files.
 dnl ***********************************************************************
@@ -511,7 +556,7 @@ ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
         dell1600n_net dmc epjitsu epson epson2 fujitsu genesys \
         gphoto2 gt68xx hp hp3500 hp3900 hp4200 hp5400 \
         hp5590 hpsj5s hpljm1005 hs2p ibm kodak kvs1025 kvs20xx \
-        leo lexmark ma1509 \
+        leo lexmark ma1509 magicolor \
         matsushita microtek microtek2 mustek mustek_pp \
         mustek_usb mustek_usb2 nec net niash pie pint \
         pixma plustek plustek_pp qcam ricoh rts8891 s9036 \
@@ -705,6 +750,7 @@ else
 fi
 echo "IPv6 support:  `eval eval echo ${ipv6}`"
 echo "Avahi support: `eval eval echo ${enable_avahi}`"
+echo "SNMP support:  `eval eval echo ${with_snmp}`"
 echo "-> The following backends will be built:"
 for backend in ${BACKENDS} ; do
   echo $ECHO_N "${backend} " 

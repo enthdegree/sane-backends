@@ -346,6 +346,11 @@ The ma1509 backend supports the Mustek BearPaw 1200F USB flatbed scanner. See
 .BR sane\-ma1509 (5)
 for details.
 .TP
+.B magicolor
+The magicolor backend supports the KONICA MINOLTA magicolor 1690MF multi-function printer/scanner/fax. See
+.BR sane\-magicolor (5)
+for details.
+.TP
 .B matsushita
 This backend supports some Panasonic KVSS high speed scanners. See
 .BR sane\-matsushita (5)

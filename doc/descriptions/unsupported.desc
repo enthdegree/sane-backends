@@ -1434,6 +1434,11 @@
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
+:model      "magicolor 2480MF"
+:interface  "USB Network"
+:status     :unsupported
+:comment    "Uses a different scanning protocol than the magicolor 1690MF"
+
 ;********************************************************************************************
 
 :mfg "Mustek"			; name a manufacturer

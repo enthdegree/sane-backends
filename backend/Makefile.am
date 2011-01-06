@@ -86,8 +86,8 @@ BACKEND_CONFS= abaton.conf agfafocus.conf apple.conf artec.conf \
 	       epson.conf fujitsu.conf genesys.conf gphoto2.conf \
 	       gt68xx.conf hp3900.conf hp4200.conf hp5400.conf \
 	       hp.conf hpsj5s.conf hs2p.conf ibm.conf kodak.conf \
-	       leo.conf lexmark.conf ma1509.conf matsushita.conf \
-	       microtek2.conf microtek.conf mustek.conf \
+	       leo.conf lexmark.conf ma1509.conf magicolor.conf \
+	       matsushita.conf microtek2.conf microtek.conf mustek.conf \
 	       mustek_pp.conf mustek_usb.conf nec.conf net.conf \
 	       p5.conf \
 	       pie.conf pixma.conf plustek.conf plustek_pp.conf \
@@ -177,7 +177,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libhp5400.la libhp5590.la libhpljm1005.la \
     libhpsj5s.la libhs2p.la libibm.la libkodak.la \
     libkvs1025.la libkvs20xx.la \
-    libleo.la liblexmark.la libma1509.la \
+    libleo.la liblexmark.la libma1509.la libmagicolor.la \
     libmatsushita.la libmicrotek.la libmicrotek2.la \
     libmustek.la libmustek_pp.la libmustek_usb.la \
     libmustek_usb2.la libnec.la libnet.la \
@@ -209,8 +209,8 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-hp3500.la libsane-hp3900.la libsane-hp4200.la \
     libsane-hp5400.la libsane-hp5590.la libsane-hpljm1005.la \
     libsane-hpsj5s.la libsane-hs2p.la libsane-ibm.la libsane-kodak.la \
-    libsane-kvs1025.la libsane-kvs20xx.la \
-    libsane-leo.la libsane-lexmark.la libsane-ma1509.la \
+    libsane-kvs1025.la libsane-kvs20xx.la libsane-leo.la \
+    libsane-lexmark.la libsane-ma1509.la libsane-magicolor.la \
     libsane-matsushita.la libsane-microtek.la libsane-microtek2.la \
     libsane-mustek.la libsane-mustek_pp.la libsane-mustek_usb.la \
     libsane-mustek_usb2.la libsane-nec.la libsane-net.la \
@@ -666,6 +666,15 @@ libsane_ma1509_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ma1509
 libsane_ma1509_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_ma1509_la_LIBADD = $(COMMON_LIBS) libma1509.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += ma1509.conf.in
+
+libmagicolor_la_SOURCES = magicolor.c magicolor.h
+libmagicolor_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=magicolor
+
+nodist_libsane_magicolor_la_SOURCES = magicolor-s.c
+libsane_magicolor_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=magicolor
+libsane_magicolor_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_magicolor_la_LIBADD = $(COMMON_LIBS) libmagicolor.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo  ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo  $(USB_LIBS) $(SOCKET_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
+EXTRA_DIST += magicolor.conf.in
 
 libmatsushita_la_SOURCES = matsushita.c matsushita.h
 libmatsushita_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=matsushita

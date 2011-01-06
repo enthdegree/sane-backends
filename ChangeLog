@@ -1,6 +1,8 @@
 2011-01-15 Reinhold Kainhofer <reinhold@kainhofer.com>
 	* sanei/sanei_usb.c: Add function sanei_usb_set_endpoint to change the
 	endpoints for usb communications.
+	* backend/magicolor.c: Add new "magicolor" backend for KONICA MINOLTA
+	magicolor 1690MF devices
 
 2011-01-13 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl124.c backend/genesys_gl124.h

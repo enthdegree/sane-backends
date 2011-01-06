@@ -57,6 +57,7 @@ Backends:
  leo:           Frank Zago (*)
  lexmark:       Fred Odendaal, Stéphane Voltz (*)
  ma1509:        Henning Geinitz (*)
+ magicolor:     Reinhold Kainhofer (based on epson2 backend)
  matsushita:    Frank Zago (*)
  microtek:      Matthew Marjanovic (*)
  microtek2:     Bernd Schroeder, Karsten Festag
@@ -223,6 +224,7 @@ Peter Kirchgessner <peter@kirchgessner.net>
 Petter Reinholdtsen <pere@hungry.com>
 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 Randolph Bentson <bentson@grieg.holmsjoen.com>
+Reinhold Kainhofer <reinhold@kainhofer.com>
 Rene Rebe <rene@exactcode.de>
 Roger Wolff <R.E.Wolff@BitWizard.nl>
 Roy Zhou <Roy@mail.mustek-hz.com.cn>

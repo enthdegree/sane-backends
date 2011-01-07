@@ -1801,8 +1801,6 @@ independent of our calculated values:
     {
       depth = 8;
     }
-  if (depth == 16)
-    flags |= SCAN_FLAG_DISABLE_GAMMA;
 
   /* we enable true gray for cis scanners only, and just when doing 
    * scan since color calibration is OK for this mode

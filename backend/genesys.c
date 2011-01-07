@@ -3328,7 +3328,7 @@ genesys_restore_calibration (Genesys_Device * dev)
 		  cache->white_average_data, dev->average_size);
 
 
-        if(dev->model->cmd_set->send_shading_data!=NULL)
+        if(dev->model->cmd_set->send_shading_data==NULL)
           {
             status = genesys_send_shading_coefficient (dev);
             if (status != SANE_STATUS_GOOD)
@@ -3648,7 +3648,7 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	}
     }
 
-  if(dev->model->cmd_set->send_shading_data!=NULL)
+  if(dev->model->cmd_set->send_shading_data==NULL)
     {
       status = genesys_send_shading_coefficient (dev);
       if (status != SANE_STATUS_GOOD)
@@ -3867,7 +3867,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
 
   /* send the shading coefficient when doing whole line shading
    * but not when using SHDAREA like GL124 */
-  if(dev->model->cmd_set->send_shading_data!=NULL)
+  if(dev->model->cmd_set->send_shading_data==NULL)
     {
       status = genesys_send_shading_coefficient (dev);
       if (status != SANE_STATUS_GOOD)

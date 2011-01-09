@@ -5675,9 +5675,13 @@ calc_parameters (Genesys_Scanner * s)
       s->params.pixels_per_line = (s->params.pixels_per_line/4)*4;
     }
 
-  /* corner case for true lineart for sensor with several segments */
+  /* corner case for true lineart for sensor with several segments
+   * or when xres is doubled to mathc yres */
   if (s->dev->settings.xres >= 1200
-      && s->dev->model->asic_type == GENESYS_GL124  )
+      && ( s->dev->model->asic_type == GENESYS_GL124
+        || s->dev->current_setup.xres < s->dev->current_setup.yres
+         )
+     )
     {
       s->params.pixels_per_line = (s->params.pixels_per_line/16)*16;
     }
@@ -7080,6 +7084,9 @@ sane_close (SANE_Handle handle)
 {
   Genesys_Scanner *prev, *s;
   Genesys_Calibration_Cache *cache, *next_cache;
+  SANE_Status status;
+  uint8_t val;
+  int loop;
 
   DBG (DBG_proc, "sane_close: start\n");
 
@@ -7101,6 +7108,27 @@ sane_close (SANE_Handle handle)
   if (s->dev->model->is_sheetfed == SANE_TRUE)
     {
       s->dev->model->cmd_set->eject_document (s->dev);
+    }
+  else
+    {
+      /* if no MUST_WAIT flag, the head may be parking asynchronously
+       * so we wait it to head at home */
+      if(!(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT))
+        {
+          loop=0;
+          do
+            {
+              usleep (100000);	/* sleep 100 ms */
+              status = sanei_genesys_get_status (s->dev, &val);
+              if (status != SANE_STATUS_GOOD)
+                {
+                  DBG (DBG_error,
+                       "sane_close: failed to read home sensor: %s\n",
+                       sane_strstatus (status));
+                }
+              ++loop;
+            } while(loop<300 && !(val & HOMESNR) && status==SANE_STATUS_GOOD);
+         }
     }
     
   /* here is the place to store calibration cache */
@@ -7390,28 +7418,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       if (s->val[option].s)
 	free (s->val[option].s);
       s->val[option].s = strdup (val);
-
-      /* due to low resolution emulation ,we can't mix lineart
-       * with dpi lower than 300 for GL124 */
-      /* XXX STEF XXX
-        if(s->dev->model->asic_type == GENESYS_GL124)
-          {
-            free(s->opt[OPT_RESOLUTION].constraint.word_list);
-            if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
-              min=300;
-            else
-              min=0;
-            for (count = 0; s->dev->model->ydpi_values[count] != 0 && s->dev->model->ydpi_values[count]>=min; count++);
-            dpi_list = malloc ((count + 1) * sizeof (SANE_Word));
-            if (!dpi_list)
-              return SANE_STATUS_NO_MEM;
-            dpi_list[0] = count;
-            for (count = 0; s->dev->model->ydpi_values[count] != 0 && s->dev->model->ydpi_values[count]>=min; count++)
-                dpi_list[count + 1] = s->dev->model->ydpi_values[count];
-            s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
-            if(s->val[OPT_RESOLUTION].w<min)
-              s->val[OPT_RESOLUTION].w=min;
-          } */
 
       if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	{

@@ -1,3 +1,9 @@
+2011-01-04 Stéphane Voltz <stef.dev@free.fr>
+	*  backend/genesys.c backend/genesys_devices.c
+	backend/genesys_gl847.c: fix lineart issue when yres is higher than
+	xres and dynamic lineart is enabled, make gl847 wait for head to 
+	park between scans, wait for head ot park in sane_close()
+
 2011-01-05  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp730.c:
 	pixma: Added patch proposed by Klaus Stengel for Canon imageRunner 1020/1024/1025 support.

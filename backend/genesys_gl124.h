@@ -672,7 +672,7 @@ static Motor_Profile motors[]={
 	{MOTOR_CANONLIDE110,  5359, 0, lide110_alt},
 	{MOTOR_CANONLIDE110,  5360, 1, lide110_alt},
 	{MOTOR_CANONLIDE110, 10528, 1, lide110_slow},
-	{MOTOR_CANONLIDE110, 20864, 1, lide110_max},
+	{MOTOR_CANONLIDE110, 20864, 3, lide110_max},
 };
 /* *INDENT-ON* */
 

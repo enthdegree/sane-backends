@@ -1243,7 +1243,7 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 /** @brief setup optical related registers
  * start and pixels are expressed in optical sensor resolution coordinate
  * space. To handle odd/even case we double the resolution and
- * use only first logival half the sensor whic maps to effective CCD.
+ * use only first logical half the sensor which maps to effective CCD.
  * @param start logical start pixel coordinate
  * @param pixels logical number of pixels to use
  * @return SANE_STATUS_GOOD if OK
@@ -2794,7 +2794,7 @@ SANE_Status
 gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  uint32_t addr, length, strpixel ,endpixel, x, factor,segcnt,pixels, i, s;
+  uint32_t addr, length, strpixel ,endpixel, x, factor, segcnt, pixels, i;
   uint16_t dpiset,dpihw;
   uint8_t val,*buffer,*ptr,*src;
 
@@ -3024,6 +3024,7 @@ gl124_led_calibration (Genesys_Device * dev)
   char fn[20];
   uint32_t expr, expg, expb;
   Sensor_Profile *sensor;
+  Genesys_Register_Set *r;
 
   SANE_Bool acceptable = SANE_FALSE;
 
@@ -3044,7 +3045,7 @@ gl124_led_calibration (Genesys_Device * dev)
   status = gl124_init_scan_regs (dev,
 				 dev->calib_reg,
 				 used_res,
-				 dev->motor.base_ydpi,
+				 used_res,
 				 0,
 				 0,
 				 num_pixels,
@@ -3091,6 +3092,9 @@ gl124_led_calibration (Genesys_Device * dev)
   
   turn = 0;
 
+  /* no move during led calibration */
+  r = sanei_genesys_get_address (dev->calib_reg, REG02);
+  r->value &= ~REG02_MTRPWR;
   do
     {
       sanei_genesys_set_triple(dev->calib_reg,REG_EXPR,expr);
@@ -3118,25 +3122,20 @@ gl124_led_calibration (Genesys_Device * dev)
 	  avg[j] = 0;
 	  for (i = 0; i < num_pixels; i++)
 	    {
-	      if (dev->model->is_cis)
-		val =
-		  line[i * 2 + j * 2 * num_pixels + 1] * 256 +
+	      val = line[i * 2 + j * 2 * num_pixels + 1] * 256 +
 		  line[i * 2 + j * 2 * num_pixels];
-	      else
-		val =
-		  line[i * 2 * channels + 2 * j + 1] * 256 +
-		  line[i * 2 * channels + 2 * j];
 	      avg[j] += val;
 	    }
-
 	  avg[j] /= num_pixels;
 	}
+      avga = (avg[0] + avg[1] + avg[2]) / 3;
 
       DBG (DBG_info, "gl124_led_calibration: average: "
 	   "%d,%d,%d\n", avg[0], avg[1], avg[2]);
 
       acceptable = SANE_TRUE;
 
+      /* averages must be in a %5 range from each other */
       if (avg[0] < avg[1] * 0.95 || avg[1] < avg[0] * 0.95 ||
 	  avg[0] < avg[2] * 0.95 || avg[2] < avg[0] * 0.95 ||
 	  avg[1] < avg[2] * 0.95 || avg[2] < avg[1] * 0.95)
@@ -3144,7 +3143,6 @@ gl124_led_calibration (Genesys_Device * dev)
 
       if (!acceptable)
 	{
-	  avga = (avg[0] + avg[1] + avg[2]) / 3;
 	  expr = (expr * avga) / avg[0];
 	  expg = (expg * avga) / avg[1];
 	  expb = (expb * avga) / avg[2];
@@ -3158,17 +3156,17 @@ gl124_led_calibration (Genesys_Device * dev)
 	  avge = (expr + expg + expb) / 3;
 
 	  /* XXX STEF XXX check limits: don't overflow max exposure */
-	  if (avge > 30000)
+	  if (avge > 40000)
 	    {
-	      expr = (expr * 30000) / avge;
-	      expg = (expg * 30000) / avge;
-	      expb = (expb * 30000) / avge;
+	      expr = (expr * 40000) / avge;
+	      expg = (expg * 40000) / avge;
+	      expb = (expb * 40000) / avge;
 	    }
-	  if (avge < sensor->expdummy+1)
+	  if (avge < 200)
 	    {
-	      expr = (expr * (sensor->expdummy+1)) / avge;
-	      expg = (expg * (sensor->expdummy+1)) / avge;
-	      expb = (expb * (sensor->expdummy+1)) / avge;
+	      expr = (expr * 200) / avge;
+	      expg = (expg * 200) / avge;
+	      expb = (expb * 200) / avge;
 	    }
 
 	}

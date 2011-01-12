@@ -64,9 +64,6 @@
 #include "../include/_stdint.h"
 #include "genesys.h"
 
-#define DBGSTART DBG (DBG_proc, "%s start\n", __FUNCTION__);
-#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __FUNCTION__);
-
 #define REG01           0x01
 #define REG01_CISSET	0x80
 #define REG01_DOGENB	0x40

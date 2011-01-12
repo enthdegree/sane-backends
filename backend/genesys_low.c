@@ -1042,4 +1042,60 @@ sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * da
   return status;
 }
 
+/**
+ * Wait for the scanning head to park 
+ */
+SANE_Status
+sanei_genesys_wait_for_home (Genesys_Device * dev)
+{
+  SANE_Status status;
+  uint8_t val;
+  int loop;
+
+  DBGSTART;
+
+  /* read initial status, if head isn't at home and motor is on
+   * we are parking, so we wait.
+   * gl847/gl124 need 2 reads for reliable results */
+  status = sanei_genesys_get_status (dev, &val);
+  usleep (10000);
+  status = sanei_genesys_get_status (dev, &val);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "%s: failed to read home sensor: %s\n", __FUNCTION__,
+	   sane_strstatus (status));
+      return status;
+    }
+
+  /* if at home, return */
+  if(val & HOMESNR)
+    {
+	  DBG (DBG_info,
+	       "%s: already at home\n", __FUNCTION__);
+	  return status;
+    }
+
+  /* loop for 30 s max, polling home sensor */
+  loop = 0;
+  do
+    {
+      /* wait 100 ms */
+      usleep (100000);
+      status = sanei_genesys_get_status (dev, &val);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "%s: failed to read home sensor: %s\n", __FUNCTION__,
+	       sane_strstatus (status));
+	  return status;
+	}
+      ++loop;
+    }
+  while (loop < 300 && !(val & HOMESNR) && status == SANE_STATUS_GOOD);
+
+  DBGCOMPLETED;
+  return status;
+}
+
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

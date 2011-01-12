@@ -4190,7 +4190,21 @@ genesys_start_scan (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_start_scan\n");
 
-/* disable power saving*/
+  /* since not all scanners are set ot wait for head to park
+   * we check we are not still parking before starting a new scan */
+  if (dev->model->is_sheetfed == SANE_FALSE && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT))
+    {
+      status = sanei_genesys_wait_for_home (dev);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error,
+               "genesys_start_scan: failed to wait for head to park: %s\n",
+               sane_strstatus (status));
+          return status;
+        }
+    }
+  
+  /* disable power saving*/
   status = dev->model->cmd_set->save_power (dev, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {

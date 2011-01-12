@@ -72,6 +72,8 @@
     if (status != SANE_STATUS_GOOD) return status;      \
   } while (SANE_FALSE)
 
+#define DBGSTART DBG (DBG_proc, "%s start\n", __FUNCTION__);
+#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __FUNCTION__);
 
 /* Flags */
 #define GENESYS_FLAG_UNTESTED     (1 << 0)	/**> Print a warning for these scanners */
@@ -848,6 +850,9 @@ sanei_genesys_get_double(Genesys_Register_Set *regs, SANE_Byte addr, uint16_t *v
 
 extern SANE_Status
 sanei_genesys_get_triple(Genesys_Register_Set *regs, SANE_Byte addr, uint32_t *value);
+
+extern SANE_Status
+sanei_genesys_wait_for_home(Genesys_Device *dev);
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */

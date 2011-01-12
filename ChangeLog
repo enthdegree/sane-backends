@@ -1,4 +1,10 @@
-2011-01-04 Stéphane Voltz <stef.dev@free.fr>
+2011-01-12 Stéphane Voltz <stef.dev@free.fr>
+	*  backend/genesys.c backend/genesys_devices.c backend/genesys_gl124.c
+	backend/genesys_gl124.h backend/genesys_low.c backend/genesys_low.h  :
+	prepare 2400 dpi modes for LiDE 210/110, add a wait for head to park
+	function and use it in sane_start().
+
+2011-01-06 Stéphane Voltz <stef.dev@free.fr>
 	*  backend/genesys.c backend/genesys_devices.c
 	backend/genesys_gl847.c: fix lineart issue when yres is higher than
 	xres and dynamic lineart is enabled, make gl847 wait for head to 

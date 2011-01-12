@@ -1310,8 +1310,8 @@ static Genesys_Model canon_lide_110_model = {
   GENESYS_GL124,
   NULL,
 
-  {2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {/*2400,*/ 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {/*2400,*/ 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1362,8 +1362,8 @@ static Genesys_Model canon_lide_210_model = {
   GENESYS_GL124,
   NULL,
 
-  {2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {/*2400, */ 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {/*2400, */ 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

@@ -526,12 +526,12 @@ static Genesys_Sensor Sensor[] = {
    87,		/* black pixels */
    16,		/* dummy pixels 16 */
    303,		/* 303 */
-   5168*4,       /* 10272*2 */
+   5168*4,
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
-   /* reg 0x10 - 0x15 */
-   {0x00, 0x00, 0x00, 0x0f, 0x00, 0x80,
+   /* reg 0x10 - 0x15 : EXPR, EXPG and EXPB */
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
    /* reg 0x16 - 0x1d */
     0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01 },
    /* reg 0x52 - 0x5e */
@@ -1310,8 +1310,8 @@ static Genesys_Model canon_lide_110_model = {
   GENESYS_GL124,
   NULL,
 
-  {/*2400,*/ 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
-  {/*2400,*/ 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

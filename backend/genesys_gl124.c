@@ -1050,7 +1050,8 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   if (flags & MOTOR_FLAG_AUTO_GO_HOME)
     r->value |= REG02_AGOHOME;
 
-  if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+  if ((flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+    ||(yres>=dev->sensor.optical_res))
     r->value |= REG02_ACDCDIS;
 
   /* SCANFED */
@@ -1209,20 +1210,20 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   sanei_genesys_set_double(regs,REG_EXPDMY,sensor->expdummy);
 
   /* if no calibration has been done, set default values for exposures */
-  sanei_genesys_get_triple(dev->reg,REG_EXPR,&exp);
+  sanei_genesys_get_triple(regs,REG_EXPR,&exp);
   if(exp==0)
     {
-      sanei_genesys_set_triple(dev->reg,REG_EXPR,sensor->expr);
+      sanei_genesys_set_triple(regs,REG_EXPR,sensor->expr);
     }
-  sanei_genesys_get_triple(dev->reg,REG_EXPG,&exp);
+  sanei_genesys_get_triple(regs,REG_EXPG,&exp);
   if(exp==0)
     {
-      sanei_genesys_set_triple(dev->reg,REG_EXPG,sensor->expg);
+      sanei_genesys_set_triple(regs,REG_EXPG,sensor->expg);
     }
-  sanei_genesys_get_triple(dev->reg,REG_EXPB,&exp);
+  sanei_genesys_get_triple(regs,REG_EXPB,&exp);
   if(exp==0)
     {
-      sanei_genesys_set_triple(dev->reg,REG_EXPB,sensor->expb);
+      sanei_genesys_set_triple(regs,REG_EXPB,sensor->expb);
     }
 
   sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
@@ -1317,6 +1318,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
     {
       r->value |= REG01_DVDSET;
     }
+  r->value &= ~REG01_SCAN;
 
   r = sanei_genesys_get_address (reg, REG03);
   r->value &= ~REG03_AVEENB;
@@ -2811,7 +2813,7 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
       endpixel=segcnt;
     }
   DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d, SEGCNT=%d\n",__FUNCTION__,strpixel,endpixel,endpixel-strpixel,segcnt);
-  
+ 
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */
   endpixel*=2*2;

@@ -625,7 +625,7 @@ static Sensor_Profile sensors[]={
 	{CIS_CANONLIDE110,  300,  5359, 0x1e, 0x9f, 0x55, 5168, 154,  101,  388,  574,  393, 0x00, 0x0a, 0x20, 0x21},
 	{CIS_CANONLIDE110,  600,  5360, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, 0x00, 0x0a, 0x20, 0x21},
 	{CIS_CANONLIDE110, 1200, 10528, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, 0x00, 0x08, 0x20, 0x22},
-	{CIS_CANONLIDE110, 2400, 20864, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, 0x00, 0x06, 0x20, 0x24},
+	{CIS_CANONLIDE110, 2400, 20864, 0x1e, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, 0x00, 0x06, 0x20, 0x24},
 	/* {CIS_CANONLIDE110,  200,  2304, 0x1e, 0x9f, 0x55, 5168, 154,  101,  388,  574,  393, 0x00, 0x0a, 0x20, 0x21}, */
 };
 
@@ -669,7 +669,7 @@ static Motor_Profile motors[]={
 	{MOTOR_CANONLIDE110,  5359, 0, lide110_alt},
 	{MOTOR_CANONLIDE110,  5360, 1, lide110_alt},
 	{MOTOR_CANONLIDE110, 10528, 1, lide110_slow},
-	{MOTOR_CANONLIDE110, 20864, 3, lide110_max},
+	{MOTOR_CANONLIDE110, 20864, 2, lide110_max},
 };
 /* *INDENT-ON* */
 

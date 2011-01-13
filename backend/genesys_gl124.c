@@ -1166,7 +1166,8 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 
   DBGSTART;
 
-  for (i = 0x01; i < 0x0e; i++)
+  /* we start at 6, 0-5 is a 16 bits cache for exposure */
+  for (i = 0x06; i < 0x0e; i++)
     {
       r = sanei_genesys_get_address (regs, 0x10 + i);
       if (r)
@@ -1210,21 +1211,26 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   sanei_genesys_set_double(regs,REG_EXPDMY,sensor->expdummy);
 
   /* if no calibration has been done, set default values for exposures */
-  sanei_genesys_get_triple(regs,REG_EXPR,&exp);
+  exp=dev->sensor.regs_0x10_0x1d[0]*256+dev->sensor.regs_0x10_0x1d[1];
   if(exp==0)
     {
-      sanei_genesys_set_triple(regs,REG_EXPR,sensor->expr);
+      exp=sensor->expr;
     }
-  sanei_genesys_get_triple(regs,REG_EXPG,&exp);
+  sanei_genesys_set_triple(regs,REG_EXPR,exp);
+
+  exp=dev->sensor.regs_0x10_0x1d[2]*256+dev->sensor.regs_0x10_0x1d[3];
   if(exp==0)
     {
-      sanei_genesys_set_triple(regs,REG_EXPG,sensor->expg);
+      exp=sensor->expg;
     }
-  sanei_genesys_get_triple(regs,REG_EXPB,&exp);
+  sanei_genesys_set_triple(regs,REG_EXPG,exp);
+
+  exp=dev->sensor.regs_0x10_0x1d[4]*256+dev->sensor.regs_0x10_0x1d[5];
   if(exp==0)
     {
-      sanei_genesys_set_triple(regs,REG_EXPB,sensor->expb);
+      exp=sensor->expb;
     }
+  sanei_genesys_set_triple(regs,REG_EXPB,exp);
 
   sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
   sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
@@ -3187,6 +3193,15 @@ gl124_led_calibration (Genesys_Device * dev)
   sanei_genesys_set_triple(dev->reg,REG_EXPR,expr);
   sanei_genesys_set_triple(dev->reg,REG_EXPG,expg);
   sanei_genesys_set_triple(dev->reg,REG_EXPB,expb);
+
+  /* we're hoping that the values are 16bits so we can have them
+   * persist in cache */
+  dev->sensor.regs_0x10_0x1d[0] = (expr >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[1] = expr & 0xff;
+  dev->sensor.regs_0x10_0x1d[2] = (expg >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[3] = expg & 0xff;
+  dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
 
   /* cleanup before return */
   free (line);

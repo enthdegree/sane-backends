@@ -196,6 +196,12 @@
 :status :good
 :comment "All resolution and mode supported, calibration is available"
 
+:model "DSmobile 600"
+:interface "USB"
+:usbid  "0x04f9" "0x2038"
+:status :good
+:comment "All resolution and mode supported, calibration is available"
+
 ; -----------------------------------------------------------------------------
 
 :mfg "DCT"

@@ -1,3 +1,6 @@
+2011-01-17 Stéphane Voltz <stef.dev@free.fr>
+	* doc/descriptions/genesys.desc: add DSmobile variant
+
 2011-01-15 Reinhold Kainhofer <reinhold@kainhofer.com>
 	* sanei/sanei_usb.c: Add function sanei_usb_set_endpoint to change the
 	endpoints for usb communications.

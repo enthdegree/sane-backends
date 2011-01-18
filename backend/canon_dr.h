@@ -153,6 +153,7 @@ struct scanner
   int brightness_steps;
   int threshold_steps;
   int contrast_steps;
+  int Bpl_mod;       /* modulus of scanline byte width */
 
   /* the scan size in 1/1200th inches, NOT basic_units or sane units */
   int min_x;
@@ -175,6 +176,7 @@ struct scanner
   int has_comp_JPEG;
   int has_buffer;
   int has_df;
+  int has_btc;
   int can_write_panel;
   int rgb_format;       /* meaning unknown */
   int padding;          /* meaning unknown */

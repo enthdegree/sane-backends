@@ -255,6 +255,11 @@
          - cleanup #includes and copyright
          - add SANE_I18N to static strings
          - don't fail if scsi buffer is too small
+      v36 2011-01-03, MAN
+         - initial support for DR-3080 and DR-5060
+         - add code to clamp scan width to an arbitrary byte width boundary
+         - add code to prevent setting of brightness/threshold/contrast
+         - don't send dropout color command on non-color scanners
 
    SANE FLOW DIAGRAM
 
@@ -303,7 +308,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 35
+#define BUILD 36
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1104,6 +1109,7 @@ init_model (struct scanner *s)
 
   s->always_op = 1;
   s->has_df = 1;
+  s->has_btc = 1;
   s->has_counter = 1;
   s->has_adf = 1;
   s->has_duplex = 1;
@@ -1114,6 +1120,7 @@ init_model (struct scanner *s)
   s->contrast_steps = 255;
   s->threshold_steps = 255;
 
+  s->Bpl_mod = 1;
   s->bg_color = 0xee;
 
   /* assume these are same as adf, override below */
@@ -1198,6 +1205,19 @@ init_model (struct scanner *s)
     /*lies*/
     s->can_halftone=0;
     s->can_monochrome=0;
+  }
+
+  else if (strstr (s->model_name,"DR-3080")){
+    s->can_write_panel = 0;
+    s->has_df = 0;
+    s->has_btc = 0;
+  }
+
+  else if (strstr (s->model_name,"DR-5060F")){
+    s->can_write_panel = 0;
+    s->has_df = 0;
+    s->has_btc = 0;
+    s->Bpl_mod = 32;
   }
 
   DBG (10, "init_model: finish\n");
@@ -2744,6 +2764,11 @@ ssm_do (struct scanner *s)
 
   DBG (10, "ssm_do: start\n");
 
+  if(!s->can_color){
+    DBG (10, "ssm_do: unsupported, finishing\n");
+    return ret;
+  }
+
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
   set_SSM_pf(cmd, 1);
@@ -3001,6 +3026,9 @@ update_params(struct scanner *s, int calib)
     else if (s->u.mode == MODE_GRAYSCALE) {
       s->u.format = SANE_FRAME_GRAY;
       s->u.bpp = 8;
+
+      /* round down to boundary for some scanners */
+      s->u.width -= s->u.width % s->Bpl_mod;
     }
     else {
       s->u.format = SANE_FRAME_GRAY;
@@ -3089,6 +3117,10 @@ update_params(struct scanner *s, int calib)
     /* round down to byte boundary */
     if(s->s.mode < MODE_GRAYSCALE){
       s->s.width -= s->s.width % 8;
+    }
+    if(s->s.mode == MODE_GRAYSCALE){
+      /* round down to boundary for some scanners */
+      s->s.width -= s->s.width % s->Bpl_mod;
     }
 
     s->s.valid_width = s->s.width;
@@ -3606,15 +3638,17 @@ set_window (struct scanner *s)
 
   set_WD_length (desc1, s->s.height * 1200/s->s.dpi_y);
 
-  /*convert our common -127 to +127 range into HW's range
-   *FIXME: this code assumes hardware range of 0-255 */
-  set_WD_brightness (desc1, s->brightness+128);
-
-  set_WD_threshold (desc1, s->threshold);
-
-  /*convert our common -127 to +127 range into HW's range
-   *FIXME: this code assumes hardware range of 0-255 */
-  set_WD_contrast (desc1, s->contrast+128);
+  if(s->has_btc){
+    /*convert our common -127 to +127 range into HW's range
+     *FIXME: this code assumes hardware range of 0-255 */
+    set_WD_brightness (desc1, s->brightness+128);
+  
+    set_WD_threshold (desc1, s->threshold);
+  
+    /*convert our common -127 to +127 range into HW's range
+     *FIXME: this code assumes hardware range of 0-255 */
+    set_WD_contrast (desc1, s->contrast+128);
+  }
 
   set_WD_composition (desc1, s->s.mode);
 

@@ -133,13 +133,13 @@
 :model "DR-3080C"
 :interface "SCSI"
 :status :untested
-:comment "Please test!"
+:comment "Almost works, need to investigate traces from windows driver"
 
 :model "DR-3080CII"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1609"
 :status :untested
-:comment "Please test!"
+:comment "Almost works, need to investigate traces from windows driver"
 
 :model "DR-4010C"
 :interface "USB"
@@ -172,8 +172,8 @@
 
 :model "DR-5060F"
 :interface "SCSI"
-:status :untested
-:comment "Please test!"
+:status :basic
+:comment "Grayscale works"
 
 :model "DR-5080C"
 :interface "SCSI"

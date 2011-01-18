@@ -9,6 +9,7 @@
 	- update credits 
 	* po/pl.po: updated translation from Jakub Bogusz
 	* po/de.po: updated translation from Matthias Mailander
+	* backend/canon.conf.in: improved detection of scsi scanners
 
 2011-01-17 Stéphane Voltz <stef.dev@free.fr>
 	* doc/descriptions/genesys.desc: add DSmobile variant

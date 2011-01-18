@@ -1,3 +1,2 @@
 #canon.conf
-/dev/scanner
-#/dev/sg0
+scsi CANON IX

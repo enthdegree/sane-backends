@@ -260,6 +260,7 @@
          - add code to clamp scan width to an arbitrary byte width boundary
          - add code to prevent setting of brightness/threshold/contrast
          - don't send dropout color command on non-color scanners
+         - initial support for DR-7090C
 
    SANE FLOW DIAGRAM
 
@@ -1140,6 +1141,10 @@ init_model (struct scanner *s)
     s->has_comp_JPEG = 1;
 #endif
     s->rgb_format = 2;
+  }
+
+  else if (strstr (s->model_name,"DR-7090")){
+    s->has_flatbed = 1;
   }
 
   else if (strstr (s->model_name,"DR-2580")){

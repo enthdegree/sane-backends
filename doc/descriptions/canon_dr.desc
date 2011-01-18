@@ -173,7 +173,7 @@
 :model "DR-5060F"
 :interface "SCSI"
 :status :basic
-:comment "Grayscale works"
+:comment "Grayscale works, LineArt might"
 
 :model "DR-5080C"
 :interface "SCSI"
@@ -207,8 +207,8 @@
 :model "DR-7090C"
 :interface "USB SCSI"
 :usbid "0x1083" "0x1620"
-:status :untested
-:comment "Please test!"
+:status :good
+:comment "ADF works, Flatbed does not"
 
 :model "DR-7550C"
 :interface "USB SCSI"

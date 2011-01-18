@@ -192,7 +192,7 @@ machines have not been tested. Their protocol is unknown.
   
 The various authors of the sane\-fujitsu backend provided useful code
 .br
-Corcaribe Tecnología C.A. www.cc.com.ve provided significant funding
+Yabarana Corp. www.yabarana.com provided significant funding
 .br
 EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
 .br

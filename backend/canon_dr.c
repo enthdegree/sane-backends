@@ -5,7 +5,7 @@
 
    Copyright (C) 2008-2010 m. allan noah
 
-   Corcaribe Tecnología C.A. www.cc.com.ve provided significant funding
+   Yabarana Corp. www.yabarana.com provided significant funding
    EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
    Canon, USA. www.usa.canon.com loaned equipment
    HPrint hprint.com.br provided funding and testing for DR-2510 support
@@ -261,6 +261,7 @@
          - add code to prevent setting of brightness/threshold/contrast
          - don't send dropout color command on non-color scanners
          - initial support for DR-7090C
+         - update credits
 
    SANE FLOW DIAGRAM
 

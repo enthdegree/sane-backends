@@ -1,3 +1,15 @@
+2011-01-18 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr.[ch], doc/desc/canon_dr.desc, doc/sane-canon_dr.man:
+	canon_dr backend v36:
+	- initial support for DR-3080 and DR-5060 
+	- add code to clamp scan width to an arbitrary byte width boundary 
+	- add code to prevent setting of brightness/threshold/contrast 
+	- don't send dropout color command on non-color scanners 
+	- initial support for DR-7090C 
+	- update credits 
+	* po/pl.po: updated translation from Jakub Bogusz
+	* po/de.po: updated translation from Matthias Mailander
+
 2011-01-17 Stéphane Voltz <stef.dev@free.fr>
 	* doc/descriptions/genesys.desc: add DSmobile variant
 

@@ -1,5 +1,5 @@
 .\" .IX sane-magicolor
-.TH "sane-magicolor" "5" "08 Feb 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-magicolor" "5" "10 Jan 2011" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .SH "NAME"
 sane\-magicolor \- SANE backend for KONICA MINOLTA magicolor scanners
 .SH "DESCRIPTION"

@@ -147,7 +147,7 @@ dnl SNMP CHECKS
 dnl **************************************************************
 
 AC_ARG_WITH(snmp,
-	AC_HELP_STRING([--without-snmp], [disable SNMP support]))
+	AC_HELP_STRING([--with-snmp], [enable SNMP support @<:@default=yes@:>@]))
 
 if test "$with_snmp" = "no"; then
 	echo "Not including SNMP support"

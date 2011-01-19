@@ -650,6 +650,7 @@ ALLOCA
 LIBOBJS
 SOCKET_LIBS
 RESMGR_LIBS
+SNMP_CONFIG_PATH
 AVAHI_LIBS
 AVAHI_CFLAGS
 LIBV4L_LIBS
@@ -792,6 +793,7 @@ enable_locking
 with_group
 with_gphoto2
 enable_avahi
+with_snmp
 enable_libusb_1_0
 enable_libusb
 enable_scsibuffersize
@@ -1488,6 +1490,7 @@ Optional Packages:
   --with-docdir=DIR       documentation [PREFIX/doc/sane-VERSION]
   --with-group            use the specified group for lock dir [default=uucp]
   --with-gphoto2          include the gphoto2 backend [default=yes]
+  --with-snmp             enable SNMP support [default=yes]
   --with-pic              try to use only PIC/non-PIC objects [default=use
                           both]
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
@@ -6044,10 +6047,18 @@ if test "$HAVE_LE32TOH" != "1"; then
 /* Define aliases for the standard byte swapping macros */
 /* Arguments to these macros must be properly aligned on natural word */
 /* boundaries in order to work properly on all architectures */
+#ifndef htobe16
 #define htobe16(x) htons(x)
+#endif
+#ifndef htobe32
 #define htobe32(x) htonl(x)
+#endif
+#ifndef be16toh
 #define be16toh(x) ntohs(x)
+#endif
+#ifndef be32toh
 #define be32toh(x) ntohl(x)
+#endif
 
 #define HTOBE16(x) (x) = htobe16(x)
 #define HTOBE32(x) (x) = htobe32(x)
@@ -6059,13 +6070,25 @@ EOF
  if test $ac_cv_c_bigendian = yes; then
   cat >> "$ac_byteorder" << EOF
 /* Define our own extended byte swapping macros for big-endian machines */
+#ifndef htole16
 #define htole16(x)      swap16(x)
+#endif
+#ifndef htole32
 #define htole32(x)      swap32(x)
+#endif
+#ifndef le16toh
 #define le16toh(x)      swap16(x)
+#endif
+#ifndef le32toh
 #define le32toh(x)      swap32(x)
+#endif
 
+#ifndef htobe64
 #define htobe64(x)      (x)
+#endif
+#ifndef be64toh
 #define be64toh(x)      (x)
+#endif
 
 #define HTOLE16(x)      (x) = htole16(x)
 #define HTOLE32(x)      (x) = htole32(x)
@@ -6079,12 +6102,24 @@ EOF
  else
   cat >> "$ac_byteorder" << EOF
 /* On little endian machines, these macros are null */
+#ifndef htole16
 #define htole16(x)      (x)
+#endif
+#ifndef htole32
 #define htole32(x)      (x)
+#endif
+#ifndef htole64
 #define htole64(x)      (x)
+#endif
+#ifndef le16toh
 #define le16toh(x)      (x)
+#endif
+#ifndef le32toh
 #define le32toh(x)      (x)
+#endif
+#ifndef le64toh
 #define le64toh(x)      (x)
+#endif
 
 #define HTOLE16(x)      (void) (x)
 #define HTOLE32(x)      (void) (x)
@@ -6094,8 +6129,12 @@ EOF
 #define LE64TOH(x)      (void) (x)
 
 /* These don't have standard aliases */
+#ifndef htobe64
 #define htobe64(x)      swap64(x)
+#endif
+#ifndef be64toh
 #define be64toh(x)      swap64(x)
+#endif
 
 #define HTOBE64(x)      (x) = htobe64(x)
 #define BE64TOH(x)      (x) = be64toh(x)
@@ -7685,6 +7724,139 @@ $as_echo "$ac_cv_lib_sane_sane_init" >&6; }
 if test "x$ac_cv_lib_sane_sane_init" = x""yes; then :
   LIBSANE_EXISTS="yes"
 fi
+
+
+
+
+
+# Check whether --with-snmp was given.
+if test "${with_snmp+set}" = set; then :
+  withval=$with_snmp;
+fi
+
+
+if test "$with_snmp" = "no"; then
+	echo "Not including SNMP support"
+else
+	# Extract the first word of "net-snmp-config", so it can be a program name with args.
+set dummy net-snmp-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if test "${ac_cv_path_SNMP_CONFIG_PATH+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $SNMP_CONFIG_PATH in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_SNMP_CONFIG_PATH="$SNMP_CONFIG_PATH" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_path_SNMP_CONFIG_PATH="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_SNMP_CONFIG_PATH" && ac_cv_path_SNMP_CONFIG_PATH=""no""
+  ;;
+esac
+fi
+SNMP_CONFIG_PATH=$ac_cv_path_SNMP_CONFIG_PATH
+if test -n "$SNMP_CONFIG_PATH"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $SNMP_CONFIG_PATH" >&5
+$as_echo "$SNMP_CONFIG_PATH" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for snmp_timeout in -lnetsnmp" >&5
+$as_echo_n "checking for snmp_timeout in -lnetsnmp... " >&6; }
+if test "${ac_cv_lib_netsnmp_snmp_timeout+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lnetsnmp  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char snmp_timeout ();
+int
+main ()
+{
+return snmp_timeout ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_netsnmp_snmp_timeout=yes
+else
+  ac_cv_lib_netsnmp_snmp_timeout=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_netsnmp_snmp_timeout" >&5
+$as_echo "$ac_cv_lib_netsnmp_snmp_timeout" >&6; }
+if test "x$ac_cv_lib_netsnmp_snmp_timeout" = x""yes; then :
+  LIBSNMP_EXISTS="yes"
+fi
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for proper SNMP version" >&5
+$as_echo_n "checking for proper SNMP version... " >&6; }
+	if test "$SNMP_CONFIG_PATH" != "no" ; then
+		snmp_version=`$SNMP_CONFIG_PATH --version 2>/dev/null`
+		vers=`echo $snmp_version | awk 'BEGIN { FS = "."; } { printf "%d", ($1 * 1000 + $2);}'`
+		if test -n "$vers" && test "$vers" -ge 5005; then
+			SNMP_LIBS=`$SNMP_CONFIG_PATH --libs`
+			SNMP_CFLAGS=`$SNMP_CONFIG_PATH --cflags`
+			{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+			with_snmp="yes"
+		else
+			{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+			{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: You need at least net-snmp 5.5, your version is $snmp_version" >&5
+$as_echo "$as_me: WARNING: You need at least net-snmp 5.5, your version is $snmp_version" >&2;}
+			with_snmp="no"
+		fi
+	else
+		with_snmp="no"
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	fi
+fi
+
+if test "$with_snmp" = "yes"; then
+	LIBS="$LIBS $SNMP_LIBS"
+	CFLAGS="$CFLAGS $SNMP_CFLAGS"
+
+$as_echo "#define HAVE_LIBSNMP 1" >>confdefs.h
+
+else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: *** Warning: net-snmp library disabled, autodetecting network scanners will not be supported." >&5
+$as_echo "$as_me: WARNING: *** Warning: net-snmp library disabled, autodetecting network scanners will not be supported." >&2;}
+fi
+
+
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ANSI C header files" >&5
@@ -16699,7 +16871,7 @@ ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
         dell1600n_net dmc epjitsu epson epson2 fujitsu genesys \
         gphoto2 gt68xx hp hp3500 hp3900 hp4200 hp5400 \
         hp5590 hpsj5s hpljm1005 hs2p ibm kodak kvs1025 kvs20xx \
-        leo lexmark ma1509 \
+        leo lexmark ma1509 magicolor \
         matsushita microtek microtek2 mustek mustek_pp \
         mustek_usb mustek_usb2 nec net niash pie pint \
         pixma plustek plustek_pp qcam ricoh rts8891 s9036 \
@@ -19991,6 +20163,7 @@ else
 fi
 echo "IPv6 support:  `eval eval echo ${ipv6}`"
 echo "Avahi support: `eval eval echo ${enable_avahi}`"
+echo "SNMP support:  `eval eval echo ${with_snmp}`"
 echo "-> The following backends will be built:"
 for backend in ${BACKENDS} ; do
   echo $ECHO_N "${backend} "

@@ -220,6 +220,9 @@ liblexmark_la_OBJECTS = $(am_liblexmark_la_OBJECTS)
 libma1509_la_LIBADD =
 am_libma1509_la_OBJECTS = libma1509_la-ma1509.lo
 libma1509_la_OBJECTS = $(am_libma1509_la_OBJECTS)
+libmagicolor_la_LIBADD =
+am_libmagicolor_la_OBJECTS = libmagicolor_la-magicolor.lo
+libmagicolor_la_OBJECTS = $(am_libmagicolor_la_OBJECTS)
 libmatsushita_la_LIBADD =
 am_libmatsushita_la_OBJECTS = libmatsushita_la-matsushita.lo
 libmatsushita_la_OBJECTS = $(am_libmatsushita_la_OBJECTS)
@@ -768,6 +771,19 @@ libsane_ma1509_la_OBJECTS = $(nodist_libsane_ma1509_la_OBJECTS)
 libsane_ma1509_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libsane_ma1509_la_LDFLAGS) $(LDFLAGS) -o $@
+libsane_magicolor_la_DEPENDENCIES = $(COMMON_LIBS) libmagicolor.la \
+	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
+	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
+	sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
+	../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+nodist_libsane_magicolor_la_OBJECTS =  \
+	libsane_magicolor_la-magicolor-s.lo
+libsane_magicolor_la_OBJECTS = $(nodist_libsane_magicolor_la_OBJECTS)
+libsane_magicolor_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libsane_magicolor_la_LDFLAGS) $(LDFLAGS) -o $@
 libsane_matsushita_la_DEPENDENCIES = $(COMMON_LIBS) libmatsushita.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
@@ -1299,13 +1315,13 @@ SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libibm_la_SOURCES) $(libkodak_la_SOURCES) \
 	$(libkvs1025_la_SOURCES) $(libkvs20xx_la_SOURCES) \
 	$(libleo_la_SOURCES) $(liblexmark_la_SOURCES) \
-	$(libma1509_la_SOURCES) $(libmatsushita_la_SOURCES) \
-	$(libmicrotek_la_SOURCES) $(libmicrotek2_la_SOURCES) \
-	$(libmustek_la_SOURCES) $(libmustek_pp_la_SOURCES) \
-	$(libmustek_usb_la_SOURCES) $(libmustek_usb2_la_SOURCES) \
-	$(libnec_la_SOURCES) $(libnet_la_SOURCES) \
-	$(libniash_la_SOURCES) $(libp5_la_SOURCES) \
-	$(libpie_la_SOURCES) $(libpint_la_SOURCES) \
+	$(libma1509_la_SOURCES) $(libmagicolor_la_SOURCES) \
+	$(libmatsushita_la_SOURCES) $(libmicrotek_la_SOURCES) \
+	$(libmicrotek2_la_SOURCES) $(libmustek_la_SOURCES) \
+	$(libmustek_pp_la_SOURCES) $(libmustek_usb_la_SOURCES) \
+	$(libmustek_usb2_la_SOURCES) $(libnec_la_SOURCES) \
+	$(libnet_la_SOURCES) $(libniash_la_SOURCES) \
+	$(libp5_la_SOURCES) $(libpie_la_SOURCES) $(libpint_la_SOURCES) \
 	$(libpixma_la_SOURCES) $(libplustek_la_SOURCES) \
 	$(libplustek_pp_la_SOURCES) $(libpnm_la_SOURCES) \
 	$(libqcam_la_SOURCES) $(libricoh_la_SOURCES) \
@@ -1355,6 +1371,7 @@ SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(nodist_libsane_leo_la_SOURCES) \
 	$(nodist_libsane_lexmark_la_SOURCES) \
 	$(nodist_libsane_ma1509_la_SOURCES) \
+	$(nodist_libsane_magicolor_la_SOURCES) \
 	$(nodist_libsane_matsushita_la_SOURCES) \
 	$(nodist_libsane_microtek_la_SOURCES) \
 	$(nodist_libsane_microtek2_la_SOURCES) \
@@ -1427,13 +1444,13 @@ DIST_SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libibm_la_SOURCES) $(libkodak_la_SOURCES) \
 	$(libkvs1025_la_SOURCES) $(libkvs20xx_la_SOURCES) \
 	$(libleo_la_SOURCES) $(liblexmark_la_SOURCES) \
-	$(libma1509_la_SOURCES) $(libmatsushita_la_SOURCES) \
-	$(libmicrotek_la_SOURCES) $(libmicrotek2_la_SOURCES) \
-	$(libmustek_la_SOURCES) $(libmustek_pp_la_SOURCES) \
-	$(libmustek_usb_la_SOURCES) $(libmustek_usb2_la_SOURCES) \
-	$(libnec_la_SOURCES) $(libnet_la_SOURCES) \
-	$(libniash_la_SOURCES) $(libp5_la_SOURCES) \
-	$(libpie_la_SOURCES) $(libpint_la_SOURCES) \
+	$(libma1509_la_SOURCES) $(libmagicolor_la_SOURCES) \
+	$(libmatsushita_la_SOURCES) $(libmicrotek_la_SOURCES) \
+	$(libmicrotek2_la_SOURCES) $(libmustek_la_SOURCES) \
+	$(libmustek_pp_la_SOURCES) $(libmustek_usb_la_SOURCES) \
+	$(libmustek_usb2_la_SOURCES) $(libnec_la_SOURCES) \
+	$(libnet_la_SOURCES) $(libniash_la_SOURCES) \
+	$(libp5_la_SOURCES) $(libpie_la_SOURCES) $(libpint_la_SOURCES) \
 	$(libpixma_la_SOURCES) $(libplustek_la_SOURCES) \
 	$(libplustek_pp_la_SOURCES) $(libpnm_la_SOURCES) \
 	$(libqcam_la_SOURCES) $(libricoh_la_SOURCES) \
@@ -1553,6 +1570,7 @@ SCSI_LIBS = @SCSI_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SNMP_CONFIG_PATH = @SNMP_CONFIG_PATH@
 SOCKET_LIBS = @SOCKET_LIBS@ 
 STRICT_LDFLAGS = @STRICT_LDFLAGS@
 STRIP = @STRIP@
@@ -1682,49 +1700,49 @@ EXTRA_DIST = sane_strstatus.c stubs.c saned.conf.in abaton.conf.in \
 	hp5590_low.h hpsj5s.conf.in hs2p.conf.in hs2p-scsi.c \
 	hs2p-scsi.h ibm.conf.in ibm-scsi.c kodak.conf.in leo.conf.in \
 	lexmark.conf.in lexmark_models.c lexmark_sensors.c \
-	ma1509.conf.in matsushita.conf.in microtek.conf.in \
-	microtek2.conf.in mustek.conf.in mustek_scsi_pp.c \
-	mustek_scsi_pp.h mustek_pp.conf.in mustek_pp_ccd300.c \
-	mustek_pp_ccd300.h mustek_pp_cis.c mustek_pp_cis.h \
-	mustek_pp_null.c mustek_usb.conf.in mustek_usb_high.c \
-	mustek_usb_high.h mustek_usb_low.c mustek_usb_low.h \
-	mustek_usb_mid.c mustek_usb_mid.h mustek_usb2_asic.c \
-	mustek_usb2_asic.h mustek_usb2_high.c mustek_usb2_high.h \
-	mustek_usb2_reflective.c mustek_usb2_transparent.c nec.conf.in \
-	net.conf.in niash_core.c niash_core.h niash_xfer.c \
-	niash_xfer.h pie.conf.in p5.conf.in p5_device.c pixma.conf.in \
-	pixma_sane_options.c pixma_sane_options.h plustek.conf.in \
-	plustek-usb.c plustek-usb.h plustek-usbcal.c \
-	plustek-usbcalfile.c plustek-usbdevs.c plustek-usbhw.c \
-	plustek-usbimg.c plustek-usbio.c plustek-usbmap.c \
-	plustek-usbscan.c plustek-usbshading.c plustek_pp.conf.in \
-	plustek-pp_dac.c plustek-pp_dbg.h plustek-pp_detect.c \
-	plustek-pp_genericio.c plustek-pp_hwdefs.h plustek-pp_image.c \
-	plustek-pp_io.c plustek-pp_map.c plustek-pp_misc.c \
-	plustek-pp_models.c plustek-pp_motor.c plustek-pp_p12.c \
-	plustek-pp_p12ccd.c plustek-pp_p48xx.c plustek-pp_p9636.c \
-	plustek-pp_procfs.c plustek-pp_procs.h plustek-pp_ptdrv.c \
-	plustek-pp_scale.c plustek-pp_scan.h plustek-pp_scandata.h \
-	plustek-pp_sysdep.h plustek-pp_tpa.c plustek-pp_types.h \
-	plustek-pp_wrapper.c qcam.conf.in ricoh.conf.in ricoh-scsi.c \
-	rts8891.conf.in rts8891_devices.c rts8891_low.c rts8891_low.h \
-	s9036.conf.in sceptre.conf.in sharp.conf.in sm3600-color.c \
-	sm3600-gray.c sm3600-homerun.c sm3600-scanmtek.c \
-	sm3600-scantool.h sm3600-scanusb.c sm3600-scanutil.c \
-	sm3840.conf.in sm3840_lib.c sm3840_lib.h sm3840_scan.c \
-	snapscan.conf.in snapscan-data.c snapscan-mutex.c \
-	snapscan-options.c snapscan-scsi.c snapscan-sources.c \
-	snapscan-sources.h snapscan-usb.c snapscan-usb.h sp15c.conf.in \
-	st400.conf.in stv680.conf.in tamarack.conf.in test.conf.in \
-	test-picture.c teco1.conf.in teco2.conf.in teco3.conf.in \
-	u12.conf.in u12-ccd.c u12-hw.c u12-hwdef.h u12-if.c \
-	u12-image.c u12-io.c u12-map.c u12-motor.c u12-scanner.h \
-	u12-shading.c u12-tpa.c umax.conf.in umax-scanner.c \
-	umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c \
-	umax-uc1260.c umax-uc630.c umax-uc840.c umax-ug630.c \
-	umax-ug80.c umax-usb.c umax1220u.conf.in umax1220u-common.c \
-	umax_pp.conf.in v4l.conf.in xerox_mfp.conf.in dll.conf.in \
-	dll.aliases
+	ma1509.conf.in magicolor.conf.in matsushita.conf.in \
+	microtek.conf.in microtek2.conf.in mustek.conf.in \
+	mustek_scsi_pp.c mustek_scsi_pp.h mustek_pp.conf.in \
+	mustek_pp_ccd300.c mustek_pp_ccd300.h mustek_pp_cis.c \
+	mustek_pp_cis.h mustek_pp_null.c mustek_usb.conf.in \
+	mustek_usb_high.c mustek_usb_high.h mustek_usb_low.c \
+	mustek_usb_low.h mustek_usb_mid.c mustek_usb_mid.h \
+	mustek_usb2_asic.c mustek_usb2_asic.h mustek_usb2_high.c \
+	mustek_usb2_high.h mustek_usb2_reflective.c \
+	mustek_usb2_transparent.c nec.conf.in net.conf.in niash_core.c \
+	niash_core.h niash_xfer.c niash_xfer.h pie.conf.in p5.conf.in \
+	p5_device.c pixma.conf.in pixma_sane_options.c \
+	pixma_sane_options.h plustek.conf.in plustek-usb.c \
+	plustek-usb.h plustek-usbcal.c plustek-usbcalfile.c \
+	plustek-usbdevs.c plustek-usbhw.c plustek-usbimg.c \
+	plustek-usbio.c plustek-usbmap.c plustek-usbscan.c \
+	plustek-usbshading.c plustek_pp.conf.in plustek-pp_dac.c \
+	plustek-pp_dbg.h plustek-pp_detect.c plustek-pp_genericio.c \
+	plustek-pp_hwdefs.h plustek-pp_image.c plustek-pp_io.c \
+	plustek-pp_map.c plustek-pp_misc.c plustek-pp_models.c \
+	plustek-pp_motor.c plustek-pp_p12.c plustek-pp_p12ccd.c \
+	plustek-pp_p48xx.c plustek-pp_p9636.c plustek-pp_procfs.c \
+	plustek-pp_procs.h plustek-pp_ptdrv.c plustek-pp_scale.c \
+	plustek-pp_scan.h plustek-pp_scandata.h plustek-pp_sysdep.h \
+	plustek-pp_tpa.c plustek-pp_types.h plustek-pp_wrapper.c \
+	qcam.conf.in ricoh.conf.in ricoh-scsi.c rts8891.conf.in \
+	rts8891_devices.c rts8891_low.c rts8891_low.h s9036.conf.in \
+	sceptre.conf.in sharp.conf.in sm3600-color.c sm3600-gray.c \
+	sm3600-homerun.c sm3600-scanmtek.c sm3600-scantool.h \
+	sm3600-scanusb.c sm3600-scanutil.c sm3840.conf.in sm3840_lib.c \
+	sm3840_lib.h sm3840_scan.c snapscan.conf.in snapscan-data.c \
+	snapscan-mutex.c snapscan-options.c snapscan-scsi.c \
+	snapscan-sources.c snapscan-sources.h snapscan-usb.c \
+	snapscan-usb.h sp15c.conf.in st400.conf.in stv680.conf.in \
+	tamarack.conf.in test.conf.in test-picture.c teco1.conf.in \
+	teco2.conf.in teco3.conf.in u12.conf.in u12-ccd.c u12-hw.c \
+	u12-hwdef.h u12-if.c u12-image.c u12-io.c u12-map.c \
+	u12-motor.c u12-scanner.h u12-shading.c u12-tpa.c umax.conf.in \
+	umax-scanner.c umax-scanner.h umax-scsidef.h umax-uc1200s.c \
+	umax-uc1200se.c umax-uc1260.c umax-uc630.c umax-uc840.c \
+	umax-ug630.c umax-ug80.c umax-usb.c umax1220u.conf.in \
+	umax1220u-common.c umax_pp.conf.in v4l.conf.in \
+	xerox_mfp.conf.in dll.conf.in dll.aliases
 
 # Backends are not required to have a config file. Any backend
 # that wants to install a config file should list it here.
@@ -1737,8 +1755,8 @@ BACKEND_CONFS = abaton.conf agfafocus.conf apple.conf artec.conf \
 	       epson.conf fujitsu.conf genesys.conf gphoto2.conf \
 	       gt68xx.conf hp3900.conf hp4200.conf hp5400.conf \
 	       hp.conf hpsj5s.conf hs2p.conf ibm.conf kodak.conf \
-	       leo.conf lexmark.conf ma1509.conf matsushita.conf \
-	       microtek2.conf microtek.conf mustek.conf \
+	       leo.conf lexmark.conf ma1509.conf magicolor.conf \
+	       matsushita.conf microtek2.conf microtek.conf mustek.conf \
 	       mustek_pp.conf mustek_usb.conf nec.conf net.conf \
 	       p5.conf \
 	       pie.conf pixma.conf plustek.conf plustek_pp.conf \
@@ -1776,7 +1794,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libhp5400.la libhp5590.la libhpljm1005.la \
     libhpsj5s.la libhs2p.la libibm.la libkodak.la \
     libkvs1025.la libkvs20xx.la \
-    libleo.la liblexmark.la libma1509.la \
+    libleo.la liblexmark.la libma1509.la libmagicolor.la \
     libmatsushita.la libmicrotek.la libmicrotek2.la \
     libmustek.la libmustek_pp.la libmustek_usb.la \
     libmustek_usb2.la libnec.la libnet.la \
@@ -1809,8 +1827,8 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-hp3500.la libsane-hp3900.la libsane-hp4200.la \
     libsane-hp5400.la libsane-hp5590.la libsane-hpljm1005.la \
     libsane-hpsj5s.la libsane-hs2p.la libsane-ibm.la libsane-kodak.la \
-    libsane-kvs1025.la libsane-kvs20xx.la \
-    libsane-leo.la libsane-lexmark.la libsane-ma1509.la \
+    libsane-kvs1025.la libsane-kvs20xx.la libsane-leo.la \
+    libsane-lexmark.la libsane-ma1509.la libsane-magicolor.la \
     libsane-matsushita.la libsane-microtek.la libsane-microtek2.la \
     libsane-mustek.la libsane-mustek_pp.la libsane-mustek_usb.la \
     libsane-mustek_usb2.la libsane-nec.la libsane-net.la \
@@ -2117,6 +2135,12 @@ nodist_libsane_ma1509_la_SOURCES = ma1509-s.c
 libsane_ma1509_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ma1509
 libsane_ma1509_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_ma1509_la_LIBADD = $(COMMON_LIBS) libma1509.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS) $(RESMGR_LIBS)
+libmagicolor_la_SOURCES = magicolor.c magicolor.h
+libmagicolor_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=magicolor
+nodist_libsane_magicolor_la_SOURCES = magicolor-s.c
+libsane_magicolor_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=magicolor
+libsane_magicolor_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_magicolor_la_LIBADD = $(COMMON_LIBS) libmagicolor.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo  ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo  $(USB_LIBS) $(SOCKET_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
 libmatsushita_la_SOURCES = matsushita.c matsushita.h
 libmatsushita_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=matsushita
 nodist_libsane_matsushita_la_SOURCES = matsushita-s.c
@@ -2578,6 +2602,8 @@ liblexmark.la: $(liblexmark_la_OBJECTS) $(liblexmark_la_DEPENDENCIES)
 	$(LINK)  $(liblexmark_la_OBJECTS) $(liblexmark_la_LIBADD) $(LIBS)
 libma1509.la: $(libma1509_la_OBJECTS) $(libma1509_la_DEPENDENCIES) 
 	$(LINK)  $(libma1509_la_OBJECTS) $(libma1509_la_LIBADD) $(LIBS)
+libmagicolor.la: $(libmagicolor_la_OBJECTS) $(libmagicolor_la_DEPENDENCIES) 
+	$(LINK)  $(libmagicolor_la_OBJECTS) $(libmagicolor_la_LIBADD) $(LIBS)
 libmatsushita.la: $(libmatsushita_la_OBJECTS) $(libmatsushita_la_DEPENDENCIES) 
 	$(LINK)  $(libmatsushita_la_OBJECTS) $(libmatsushita_la_LIBADD) $(LIBS)
 libmicrotek.la: $(libmicrotek_la_OBJECTS) $(libmicrotek_la_DEPENDENCIES) 
@@ -2710,6 +2736,8 @@ libsane-lexmark.la: $(libsane_lexmark_la_OBJECTS) $(libsane_lexmark_la_DEPENDENC
 	$(libsane_lexmark_la_LINK)  $(libsane_lexmark_la_OBJECTS) $(libsane_lexmark_la_LIBADD) $(LIBS)
 libsane-ma1509.la: $(libsane_ma1509_la_OBJECTS) $(libsane_ma1509_la_DEPENDENCIES) 
 	$(libsane_ma1509_la_LINK)  $(libsane_ma1509_la_OBJECTS) $(libsane_ma1509_la_LIBADD) $(LIBS)
+libsane-magicolor.la: $(libsane_magicolor_la_OBJECTS) $(libsane_magicolor_la_DEPENDENCIES) 
+	$(libsane_magicolor_la_LINK)  $(libsane_magicolor_la_OBJECTS) $(libsane_magicolor_la_LIBADD) $(LIBS)
 libsane-matsushita.la: $(libsane_matsushita_la_OBJECTS) $(libsane_matsushita_la_DEPENDENCIES) 
 	$(libsane_matsushita_la_LINK)  $(libsane_matsushita_la_OBJECTS) $(libsane_matsushita_la_LIBADD) $(LIBS)
 libsane-microtek.la: $(libsane_microtek_la_OBJECTS) $(libsane_microtek_la_DEPENDENCIES) 
@@ -2911,6 +2939,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblexmark_la-lexmark.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblexmark_la-lexmark_low.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libma1509_la-ma1509.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmagicolor_la-magicolor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmatsushita_la-matsushita.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmicrotek2_la-microtek2.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmicrotek_la-microtek.Plo@am__quote@
@@ -2986,6 +3015,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_leo_la-leo-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_lexmark_la-lexmark-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_ma1509_la-ma1509-s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_magicolor_la-magicolor-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_matsushita_la-matsushita-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_microtek2_la-microtek2-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_microtek_la-microtek-s.Plo@am__quote@
@@ -3589,6 +3619,13 @@ libma1509_la-ma1509.lo: ma1509.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libma1509_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libma1509_la-ma1509.lo `test -f 'ma1509.c' || echo '$(srcdir)/'`ma1509.c
 
+libmagicolor_la-magicolor.lo: magicolor.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmagicolor_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmagicolor_la-magicolor.lo -MD -MP -MF $(DEPDIR)/libmagicolor_la-magicolor.Tpo -c -o libmagicolor_la-magicolor.lo `test -f 'magicolor.c' || echo '$(srcdir)/'`magicolor.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libmagicolor_la-magicolor.Tpo $(DEPDIR)/libmagicolor_la-magicolor.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='magicolor.c' object='libmagicolor_la-magicolor.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmagicolor_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmagicolor_la-magicolor.lo `test -f 'magicolor.c' || echo '$(srcdir)/'`magicolor.c
+
 libmatsushita_la-matsushita.lo: matsushita.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmatsushita_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmatsushita_la-matsushita.lo -MD -MP -MF $(DEPDIR)/libmatsushita_la-matsushita.Tpo -c -o libmatsushita_la-matsushita.lo `test -f 'matsushita.c' || echo '$(srcdir)/'`matsushita.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libmatsushita_la-matsushita.Tpo $(DEPDIR)/libmatsushita_la-matsushita.Plo
@@ -4106,6 +4143,13 @@ libsane_ma1509_la-ma1509-s.lo: ma1509-s.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ma1509-s.c' object='libsane_ma1509_la-ma1509-s.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_ma1509_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsane_ma1509_la-ma1509-s.lo `test -f 'ma1509-s.c' || echo '$(srcdir)/'`ma1509-s.c
+
+libsane_magicolor_la-magicolor-s.lo: magicolor-s.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_magicolor_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsane_magicolor_la-magicolor-s.lo -MD -MP -MF $(DEPDIR)/libsane_magicolor_la-magicolor-s.Tpo -c -o libsane_magicolor_la-magicolor-s.lo `test -f 'magicolor-s.c' || echo '$(srcdir)/'`magicolor-s.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libsane_magicolor_la-magicolor-s.Tpo $(DEPDIR)/libsane_magicolor_la-magicolor-s.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='magicolor-s.c' object='libsane_magicolor_la-magicolor-s.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_magicolor_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsane_magicolor_la-magicolor-s.lo `test -f 'magicolor-s.c' || echo '$(srcdir)/'`magicolor-s.c
 
 libsane_matsushita_la-matsushita-s.lo: matsushita-s.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_matsushita_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsane_matsushita_la-matsushita-s.lo -MD -MP -MF $(DEPDIR)/libsane_matsushita_la-matsushita-s.Tpo -c -o libsane_matsushita_la-matsushita-s.lo `test -f 'matsushita-s.c' || echo '$(srcdir)/'`matsushita-s.c

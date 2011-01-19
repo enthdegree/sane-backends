@@ -1224,6 +1224,8 @@ init_model (struct scanner *s)
     s->has_df = 0;
     s->has_btc = 0;
     s->Bpl_mod = 32;
+    s->reverse_by_mode[MODE_LINEART] = 0;
+    s->reverse_by_mode[MODE_HALFTONE] = 0;
   }
 
   DBG (10, "init_model: finish\n");

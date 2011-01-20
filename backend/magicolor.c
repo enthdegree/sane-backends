@@ -1983,6 +1983,7 @@ mc_network_discovery(const char*host)
 
 #else
 	DBG (1, "%s: net-snmp library not enabled, auto-detecting network scanners not supported.\n", __func__);
+	NOT_USED (host);
 	return 0;
 #endif
 }

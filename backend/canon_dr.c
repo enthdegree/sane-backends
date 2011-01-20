@@ -2678,6 +2678,9 @@ ssm_buffer (struct scanner *s)
   if(s->s.source == SOURCE_ADF_DUPLEX){
     set_SSM_BUFF_duplex(out, 1);
   }
+  else if(s->s.source == SOURCE_FLATBED){
+    set_SSM_BUFF_fb(out, 1);
+  }
   if(s->buffermode){
     set_SSM_BUFF_async(out, 1);
   }

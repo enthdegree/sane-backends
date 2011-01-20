@@ -331,6 +331,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_SSM_BUFF_unk(sb, val)       sb[0x07] = val
 #define set_SSM_BUFF_async(sb, val)     setbitfield(sb+0x0a, 1, 6, val)
 #define set_SSM_BUFF_ald(sb, val)       setbitfield(sb+0x0a, 1, 5, val)
+#define set_SSM_BUFF_fb(sb, val)        setbitfield(sb+0x0a, 1, 4, val)
 
 /* for DO (0x36) page */
 #define SSM_DO_none                     0

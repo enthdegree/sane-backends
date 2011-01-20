@@ -397,7 +397,7 @@ static void dump_hex_buffer_dense (int level, const unsigned char *buf, size_t b
 				DBG (level, "%s\n", msg);
 				memset (&msg[0], 0x00, 1024);
 			}
-			sprintf (fmt_buf, "     0x%04x  ", k);
+			sprintf (fmt_buf, "     0x%04lx  ", (unsigned long)k);
 			strcat (msg, fmt_buf);
 		}
 		if (k % 8 == 0) {
@@ -489,7 +489,7 @@ mc_send(Magicolor_Scanner * s, void *buf, size_t buf_size, SANE_Status * status)
 		size_t n;
 		n = buf_size;
 		*status = sanei_usb_write_bulk(s->fd, buf, &n);
-		DBG(125, "USB: wrote %d bytes, status: %s\n", n, sane_strstatus(*status));
+		DBG(125, "USB: wrote %lu bytes, status: %s\n", (unsigned long)n, sane_strstatus(*status));
 		return n;
 	}
 

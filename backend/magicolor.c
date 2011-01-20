@@ -67,7 +67,6 @@
 #include "../include/sane/sanei_udp.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_backend.h"
-#include "../include/byteorder.h"
 
 #include "magicolor.h"
 
@@ -325,7 +324,9 @@ sanei_magicolor_net_open(struct Magicolor_Scanner *s)
 	buf[1] = cmd->net_lock;
 	buf[2] = 0x00;
 	/* Copy the device's USB id to bytes 3-4: */
-	htole16a(&buf[3], s->hw->cap->id);
+	buf[3] = s->hw->cap->id & 0xff;
+	buf[4] = (s->hw->cap->id >> 8) & 0xff;
+
 	DBG(32, "Proper welcome message received, locking the scanner...\n");
 	sanei_magicolor_net_write_raw(s, buf, 5, &status);
 
@@ -431,7 +432,10 @@ static int mc_create_buffer (Magicolor_Scanner *s, unsigned char cmd_type, unsig
 	b[0] = cmd_type;
 	b[1] = cmd;
 	if (len1>0) {
-		htole32a (&b[2], len1);
+		b[2] = len1 & 0xff;
+		b[3] = (len1 >> 8) & 0xff;
+		b[4] = (len1 >> 16) & 0xff;
+		b[5] = (len1 >> 24) & 0xff;
 		if (arg1)
 			memcpy(b+6, arg1, len1);
 	}
@@ -460,11 +464,20 @@ static int mc_create_buffer2 (Magicolor_Scanner *s, unsigned char cmd_type, unsi
 	memset (b, 0x00, buf_len);
 	b[0] = cmd_type;
 	b[1] = cmd;
-	htole32a(&b[2], len1);
+	/* copy over the argument length in lower endian */
+	b[2] = len1 & 0xff;
+	b[3] = (len1 >> 8) & 0xff;
+	b[4] = (len1 >> 16) & 0xff;
+	b[5] = (len1 >> 24) & 0xff;
 	if (arg1) {
+		/* Copy the arguments */
 		memcpy(b+6, arg1, len1);
 	}
-	htole32a(&b[6+len1], len2);
+	/* copy over the second argument length in little endian */
+	b[6+len1] = len2 & 0xff;
+	b[7+len1] = (len2 >> 8) & 0xff;
+	b[8+len1] = (len2 >> 16) & 0xff;
+	b[9+len1] = (len2 >> 24) & 0xff;
 	if (arg2) {
 		memcpy(b+10+len1, arg2, len2);
 	}
@@ -669,15 +682,17 @@ cmd_start_scan (SANE_Handle handle, size_t value)
 	SANE_Status status;
 	unsigned char params1[4], params2[1];
 	unsigned char *buf;
-	void *p1;
 	size_t buflen;
 
 	DBG(8, "%s\n", __func__);
 	/* Copy params to buffers */
-	/* arg1 is expected returned bytes per line */
+	/* arg1 is expected returned bytes per line, 4-byte little endian */
 	/* arg2 is unknown, seems to be always 0x00 */
-	p1 = &params1[0];
-	htole32a(p1, value);
+	params1[0] = value & 0xff;
+	params1[1] = (value >> 8) & 0xff;
+	params1[2] = (value >> 16) & 0xff;
+	params1[3] = (value >> 24) & 0xff;
+
 	params2[0] = 0x00;
 	buflen = mc_create_buffer2 (s, s->hw->cmd->scanner_cmd, s->hw->cmd->start_scanning,
 				    &buf, params1, 4, params2, 1, &status);
@@ -764,8 +779,6 @@ cmd_get_scanning_parameters(SANE_Handle handle,
 	Magicolor_Scanner *s = (Magicolor_Scanner *) handle;
 	SANE_Status status;
 	unsigned char *txbuf, rxbuf[8];
-	/* Needed to prevent a compiler warning about type-punned variable: */
-	char *b = (char*)rxbuf;
 	size_t buflen;
 	NOT_USED (format);
 	NOT_USED (depth);
@@ -795,10 +808,15 @@ cmd_get_scanning_parameters(SANE_Handle handle,
 				__func__);
 			dump_hex_buffer_dense (1, rxbuf, 8);
 		}
-		*data_pixels = le16atoh (&b[0]);
-		*lines = le16atoh (&b[2]);
-		*pixels_per_line = le16atoh (&b[4]);
-		/* TODO: debug output of the returned parameters... */
+		/* Read returned values, encoded in 2-byte little endian */
+		*data_pixels = rxbuf[1] * 0x100 + rxbuf[0];
+		*lines = rxbuf[3] * 0x100 + rxbuf[2];
+		*pixels_per_line = rxbuf[5] * 0x100 + rxbuf[4];
+		DBG (8, "%s: data_pixels = 0x%x (%u), lines = 0x%x (%u), "
+		        "pixels_per_line = 0x%x (%u)\n", __func__,
+		        *data_pixels, *data_pixels,
+		        *lines, *lines,
+		        *pixels_per_line, *pixels_per_line);
 	}
 
 	return status;
@@ -835,10 +853,16 @@ cmd_set_scanning_parameters(SANE_Handle handle,
 	param[1] = color_mode;
 	param[2] = brightness;
 	param[3] = contrast | 0xff; /* TODO: Always 0xff? What about contrast? */
-	htole16a (&param[4], tl_x);
-	htole16a (&param[6], tl_y);
-	htole16a (&param[8], width);
-	htole16a (&param[10], height);
+	/* Image coordinates are encoded 2-byte little endian: */
+	param[4] = tl_x & 0xff;
+	param[5] = (tl_x >> 8) & 0xff;
+	param[6] = tl_y & 0xff;
+	param[7] = (tl_y >> 8) & 0xff;
+	param[8] = width & 0xff;
+	param[9] = (width >> 8) & 0xff;
+	param[10] = height & 0xff;
+	param[11] = (height >> 8) & 0xff;
+
 	param[12] = source;
 
 	/* dump buffer if appropriate */
@@ -912,13 +936,14 @@ cmd_read_data (SANE_Handle handle, unsigned char *buf, size_t len)
 	SANE_Status status;
 	unsigned char *txbuf;
 	unsigned char param[4];
-	void *tmp;
 	size_t txbuflen;
 	int oldtimeout = MC_Request_Timeout;
 
 	DBG(8, "%s\n", __func__);
-	tmp = &param[0];
-	htole32a(tmp, len);
+	param[0] = len & 0xff;
+	param[1] = (len >> 8) & 0xff;
+	param[2] = (len >> 16) & 0xff;
+	param[3] = (len >> 24) & 0xff;
 
 	txbuflen = mc_create_buffer (s, s->hw->cmd->scanner_cmd, s->hw->cmd->request_data,
 				   &txbuf, param, 4, &status);
@@ -1104,7 +1129,7 @@ mc_setup_block_mode (Magicolor_Scanner *s)
 	s->last_len = s->data_len - (s->blocks * s->block_len);
 	if (s->last_len>0)
 		s->blocks++;
-	DBG(1, "%s: block_len=0x%x, last_len=0x%0x, blocks=%d\n", __func__, s->block_len, s->last_len, s->blocks);
+	DBG(5, "%s: block_len=0x%x, last_len=0x%0x, blocks=%d\n", __func__, s->block_len, s->last_len, s->blocks);
 	s->counter = 0;
 	s->bytes_read_in_line = 0;
 	if (s->line_buffer)
@@ -1116,9 +1141,8 @@ mc_setup_block_mode (Magicolor_Scanner *s)
 	}
 
 
-	DBG (2, " %s: Setup block mode - scan_bytes_per_line=%d, pixels_per_line=%d, depth=%d, data_len=%x, block_len=%x, blocks=%d, last_len=%x\n",
+	DBG (5, " %s: Setup block mode - scan_bytes_per_line=%d, pixels_per_line=%d, depth=%d, data_len=%x, block_len=%x, blocks=%d, last_len=%x\n",
 		__func__, s->scan_bytes_per_line, s->params.pixels_per_line, s->params.depth, s->data_len, s->block_len, s->blocks, s->last_len);
-	DBG (1, "%s: bytes_read  in line: %d\n", __func__, s->bytes_read_in_line);
 	return SANE_STATUS_GOOD;
 }
 

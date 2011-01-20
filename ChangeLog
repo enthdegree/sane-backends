@@ -1,3 +1,7 @@
+2011-01-20 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c backend/genesys_gl646.h: tune resolution
+	list and add internal values matching them
+
 2011-01-18 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.[ch], doc/desc/canon_dr.desc, doc/sane-canon_dr.man:
 	canon_dr backend v36:

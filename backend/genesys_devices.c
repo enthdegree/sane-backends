@@ -1687,8 +1687,8 @@ Genesys_Model hp2400c_model = {
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 300, 150, 100, 75, 50, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 75, 50, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 100, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 50, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

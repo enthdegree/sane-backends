@@ -162,6 +162,9 @@
 /* Define to 1 if you have the libjpeg library. */
 #undef HAVE_LIBJPEG
 
+/* Define to 1 if you have the net-snmp library. */
+#undef HAVE_LIBSNMP
+
 /* Define to 1 if you have libusb. */
 #undef HAVE_LIBUSB
 

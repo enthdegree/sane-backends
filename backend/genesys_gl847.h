@@ -177,6 +177,7 @@
 #define REG17_TGW	0x3f
 #define REG17S_TGW      0
 
+#define REG18      	0x18
 #define REG18_CNSET	0x80
 #define REG18_DCKSEL	0x60
 #define REG18_CKTOGGLE	0x10
@@ -204,6 +205,10 @@
 #define REG1ES_WDTIME   4
 #define REG1E_LINESEL	0x0f
 #define REG1ES_LINESEL  0
+
+#define REG_DPISET      0x2c
+#define REG_STRPIXEL    0x30
+#define REG_ENDPIXEL    0x32
 
 #define REG40           0x40
 #define REG40_CHKVER    0x10
@@ -502,3 +507,38 @@ static Memory_layout layouts[]={
 		0x01, 0x24, 0x02, 0x91, 0x02, 0x92, 0x03, 0xff
 	}
 };
+
+/** @brief structure for sensor settings
+ * this structure describes the sensor settings to use for a given
+ * exposure.
+ */
+typedef struct {
+  int sensor_type;      /**> sensor id */
+  int dpi;              /**> maximum dpi for which data are valid */
+  int exposure;         /**> exposure */
+  int ck1map;           /**> CK1MAP */
+  int ck3map;           /**> CK3MAP */
+  int ck4map;           /**> CK4MAP */
+  int segcnt;           /**> SEGCNT */
+  int tg0cnt;           /**> TG0CNT */
+  int expdummy;         /**> exposure dummy */
+  int expr;             /**> initial red exposure */
+  int expg;             /**> initial green exposure */
+  int expb;             /**> initial blue exposure */
+} Sensor_Profile;
+
+/* *INDENT-OFF* */
+/**
+ * database of sensor profiles
+ */
+static Sensor_Profile sensors[]={
+	/*
+	{CIS_CANONLIDE200,  150,  2848, 240, 636, 340, 5144, 0, 255,  637,  637,  637},
+	{CIS_CANONLIDE200,  300,  1424, 240, 636, 340, 5144, 0, 255,  637,  637,  637},
+	*/
+	{CIS_CANONLIDE200,  600,  1432, 240, 636, 340, 5144, 0, 255,  410,  275,  203},
+	{CIS_CANONLIDE200, 1200,  2712, 240, 636, 340, 5144, 0, 255,  746,  478,  353},
+	{CIS_CANONLIDE200, 2400,  5280, 240, 636, 340, 5144, 0, 255, 1417,  909,  643},
+	{CIS_CANONLIDE200, 4800, 10416, 240, 636, 340, 5144, 0, 255, 2692, 1728, 1221},
+};
+/* *INDENT-ON* */

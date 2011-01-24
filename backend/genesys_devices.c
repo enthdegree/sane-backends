@@ -437,11 +437,11 @@ static Genesys_Sensor Sensor[] = {
   ,
   /* CANONLIDE200 */
   {CIS_CANONLIDE200,
-   1200,	/* optical resolution */
-   87,		/* black pixels */
-   16,		/* dummy pixels */
-   303,		
-   10272,		
+   4800,	/* optical resolution */
+   87*4,		/* black pixels */
+   16*4,		/* dummy pixels */
+   303*4,		
+   5144*8,		
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
@@ -1293,7 +1293,7 @@ static Genesys_Model canon_lide_100_model = {
   MOTOR_CANONLIDE100,	
   /* Which flags are needed for this scanner? */
       GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_ODD_EVEN_CIS
+    | GENESYS_FLAG_SIS_SENSOR
     | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
@@ -1451,7 +1451,7 @@ static Genesys_Model canon_5600f_model = {
   GENESYS_FLAG_UNTESTED		/* not working yet */
     | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_ODD_EVEN_CIS
+    | GENESYS_FLAG_SIS_SENSOR
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
@@ -1505,7 +1505,7 @@ static Genesys_Model canon_lide_700f_model = {
   GENESYS_FLAG_UNTESTED		/* not working yet */
     | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_ODD_EVEN_CIS
+    | GENESYS_FLAG_SIS_SENSOR
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
@@ -1523,8 +1523,8 @@ static Genesys_Model canon_lide_200_model = {
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
-  {1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
+  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1559,8 +1559,9 @@ static Genesys_Model canon_lide_200_model = {
   GPO_CANONLIDE200,
   MOTOR_CANONLIDE200,
       GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_NO_CALIBRATION
     | GENESYS_FLAG_MUST_WAIT
-    | GENESYS_FLAG_ODD_EVEN_CIS
+    | GENESYS_FLAG_SIS_SENSOR
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,

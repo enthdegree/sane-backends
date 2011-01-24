@@ -928,6 +928,11 @@ gl124_set_fe (Genesys_Device * dev, uint8_t set)
  */
 static int gl124_compute_dpihw(Genesys_Device *dev, int xres)
 {
+  /* can't be below 600 dpi */
+  if(xres<=600)
+    {
+      return 600;
+    }
   switch(dev->model->ccd_type)
     {
     default:

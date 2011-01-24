@@ -3587,8 +3587,8 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	}
     }
 
-  /* we always use sensor pixel number in case of odd/even sensors */
-  if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
+  /* we always use sensor pixel number when the ASIC can't handle multi-segments sensor */
+  if (!(dev->model->flags & GENESYS_FLAG_SIS_SENSOR))
     {
       pixels_per_line = (SANE_UNFIX (dev->model->x_size) * dev->settings.xres) / MM_PER_INCH;
     }
@@ -5077,12 +5077,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
    *  
    * This is also the place where full duplex data will be handled.
    */
-  if (dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS)
-    {
-      /* odd/even processing */
-      status = genesys_fill_oe_buffer (dev, work_buffer_dst, size);
-    }
-  else if (dev->line_interp>0)
+  if (dev->line_interp>0)
     {
       /* line interpolation */
       status = genesys_fill_line_interp_buffer (dev, work_buffer_dst, size);
@@ -5090,7 +5085,13 @@ genesys_fill_read_buffer (Genesys_Device * dev)
   else if (dev->segnb>1)
     {
       /* multi-segment sensors processing */
-      status = genesys_fill_segmented_buffer (dev, work_buffer_dst, size);
+      /*
+      if (!(dev->model->flags & GENESYS_FLAG_SIS_SENSOR)) */
+        status = genesys_fill_segmented_buffer (dev, work_buffer_dst, size);
+        /*
+      else
+        status = genesys_fill_oe_buffer (dev, work_buffer_dst, size);
+        */
     }
   else /* regular case with no extra copy */
     {
@@ -5240,7 +5241,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       rawfile = fopen ("raw.pnm", "wb");
       if (rawfile != NULL)
 	{
-          if (!(dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS))
+          if (!(dev->model->flags & GENESYS_FLAG_SIS_SENSOR))
 	  fprintf (rawfile,
 		   "P%c\n%d %d\n%d\n",
 		   dev->current_setup.channels == 1 ?
@@ -5741,7 +5742,7 @@ calc_parameters (Genesys_Scanner * s)
 
   /* double x resolution mode */
   s->dev->settings.double_xres = SANE_FALSE;
-  if ((s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS)
+  if ((s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR)
       && s->dev->settings.xres <= s->dev->sensor.optical_res / 2
       && s->dev->settings.xres != 400)
     {
@@ -5753,7 +5754,7 @@ calc_parameters (Genesys_Scanner * s)
     ((br_x - tl_x) * resolution) / MM_PER_INCH;
 
   /* we need an even number of pixels for even/odd handling */
-  if (s->dev->model->flags & GENESYS_FLAG_ODD_EVEN_CIS
+  if (s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR
       || s->dev->model->asic_type == GENESYS_GL124  
       || s->dev->model->asic_type == GENESYS_GL843) 
     {

@@ -1116,4 +1116,33 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
   return status;
 }
 
+/**@brief compute hardware sensor dpi to use
+ * compute the sensor hardware dpi based on target resolution.
+ * A lower dpihw enable faster scans.
+ * @param dev device used for the scan
+ * @param xres x resolution of the scan
+ * @return the hardware dpi to use
+ */
+int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres)
+{
+  /* can't be below 600 dpi */
+  if(xres<=600)
+    {
+      return 600;
+    }
+  switch(dev->model->ccd_type)
+    {
+    default:
+      if(xres<=dev->sensor.optical_res/4)
+        {
+          return dev->sensor.optical_res/4;
+        }
+      if(xres<=dev->sensor.optical_res/2)
+        {
+          return dev->sensor.optical_res/2;
+        }
+      return dev->sensor.optical_res;
+    }
+}
+
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

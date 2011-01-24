@@ -97,7 +97,7 @@
 #define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /**> allow custom gamma tables */
 #define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /**> allow scanners to use skip the calibration, needed for sheetfed scanners */
 #define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /**> scanner has setting for half ccd mode */
-#define GENESYS_FLAG_ODD_EVEN_CIS     (1 << 16)       /**> scan odd and even pixels come in separated lines */
+#define GENESYS_FLAG_SIS_SENSOR       (1 << 16)       /**> handling of multi-segments sensors in software */
 
 #define GENESYS_HAS_NO_BUTTONS       0              /**> scanner has no supported button */
 #define GENESYS_HAS_SCAN_SW          (1 << 0)       /**> scanner has SCAN button */
@@ -854,6 +854,9 @@ sanei_genesys_get_triple(Genesys_Register_Set *regs, SANE_Byte addr, uint32_t *v
 
 extern SANE_Status
 sanei_genesys_wait_for_home(Genesys_Device *dev);
+
+extern 
+int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres);
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */

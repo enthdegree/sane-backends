@@ -11,7 +11,7 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/" 
-:version "35"                    ; version of backend
+:version "37"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.21, see sane-canon_dr manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -34,6 +34,12 @@
 :status :untested
 :comment "Please test!"
 
+:model "CR-135i"
+:interface "USB SCSI"
+:usbid "0x1083" "0x1639"
+:status :untested
+:comment "Please test!"
+
 :model "CR-180"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1602"
@@ -45,6 +51,12 @@
 :usbid "0x04a9" "0x1602"
 :status :untested
 :comment "Same as CR-180? Please test!"
+
+:model "CR-190i"
+:interface "USB SCSI"
+:usbid "0x1083" "0x162b"
+:status :untested
+:comment "Please test!"
 
 :model "DR-1210C"
 :interface "USB"
@@ -68,11 +80,6 @@
 :interface "USB"
 :status :untested
 :comment "Mac version of DR-2010C? Please test!"
-
-:model "DR-2020U"
-:interface "USB"
-:status :untested
-:comment "Please test!"
 
 :model "DR-2050C"
 :interface "USB"
@@ -186,6 +193,12 @@
 :status :untested
 :comment "Please test!"
 
+:model "DR-6030C"
+:interface "USB SCSI"
+:usbid "0x1083" "0x1638"
+:status :untested
+:comment "Please test!"
+
 :model "DR-6050C"
 :interface "USB SCSI"
 :usbid "0x1083" "0x1624"
@@ -208,7 +221,7 @@
 :interface "USB SCSI"
 :usbid "0x1083" "0x1620"
 :status :good
-:comment "ADF works, Flatbed does not"
+:comment "ADF and flatbed work"
 
 :model "DR-7550C"
 :interface "USB SCSI"

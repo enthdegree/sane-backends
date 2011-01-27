@@ -251,7 +251,7 @@
          - sane_get_params uses intermediate struct instead of user struct
          - if scanner stops, clone the last line until the end of buffer
          - reset some intermediate params between duplex sides
-      v35 2010-02-09, MAN
+      v35 2010-02-09, MAN (SANE 1.0.21)
          - cleanup #includes and copyright
          - add SANE_I18N to static strings
          - don't fail if scsi buffer is too small
@@ -262,6 +262,10 @@
          - don't send dropout color command on non-color scanners
          - initial support for DR-7090C
          - update credits
+      v37 2011-01-26, MAN (SANE 1.0.22)
+         - don't center window when using flatbed
+         - improve request sense error messages
+         - enable flatbed for all known models
 
    SANE FLOW DIAGRAM
 
@@ -310,7 +314,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 36
+#define BUILD 37
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1145,6 +1149,12 @@ init_model (struct scanner *s)
   }
 
   else if (strstr (s->model_name,"DR-7090")){
+    s->has_flatbed = 1;
+  }
+
+  else if (strstr (s->model_name,"DR-4080")
+    || strstr (s->model_name,"DR-4580")
+    || strstr (s->model_name,"DR-7080")){
     s->has_flatbed = 1;
   }
 
@@ -3633,6 +3643,12 @@ set_window (struct scanner *s)
   if(s->fixed_width){
     set_WD_ULX (desc1, 0);
     set_WD_width (desc1, s->max_x);
+  }
+
+  /* or they align left */
+  else if(s->u.source == SOURCE_FLATBED){
+    set_WD_ULX (desc1, s->s.tl_x);
+    set_WD_width (desc1, s->s.width * 1200/s->s.dpi_x);
   }
 
   /* or we have to center the window ourselves */
@@ -6232,13 +6248,13 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       /* EOF is ok */
       ret2 = SANE_STATUS_GOOD;
 
-      if(inActual < inLength - s->rs_info){
-        DBG(5,"in: shorter read than RS, ignoring: %d < %d-%d\n",
-          (int)inActual,(int)inLength,(int)s->rs_info);
+      if(inActual <= inLength - s->rs_info){
+        DBG(5,"in: we read <= RS, ignoring RS: %d <= %d (%d-%d)\n",
+          (int)inActual,(int)(inLength-s->rs_info),(int)inLength,(int)s->rs_info);
       }
       else if(s->rs_info){
-        DBG(5,"in: longer read than RS, updating: %d to %d-%d\n",
-          (int)inActual,(int)inLength,(int)s->rs_info);
+        DBG(5,"in: we read > RS, using RS: %d to %d (%d-%d)\n",
+          (int)inActual,(int)(inLength-s->rs_info),(int)inLength,(int)s->rs_info);
         inActual = inLength - s->rs_info;
       }
     }

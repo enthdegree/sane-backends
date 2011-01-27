@@ -1,3 +1,13 @@
+2011-01-26 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr.[ch], doc/descriptions/canon_dr.desc,
+	backend/canon_dr.conf.in, doc/sane-canon_dr.man: 
+	canon_dr backend v37:
+	- don't center window when using flatbed
+	- improve request sense error messages
+	- enable flatbed for all known models
+	- ad usb ids for DR-6030C, CR-135i & CR-190i
+	* doc/descriptions/unsupported.desc: moved DR-2020U from canon_dr.desc
+
 2011-01-20 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl646.h: tune resolution
 	list and add internal values matching them

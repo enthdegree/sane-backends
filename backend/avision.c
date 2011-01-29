@@ -290,7 +290,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { NULL, NULL,
       0x0638, 0x0A94,
       "Avision", "AV220-G",
-      AV_INT_BUTTON,0},
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED, AV_FIRMWARE},
     /* comment="duplex! sheetfed scanner" */
     /* status="complete" */
 

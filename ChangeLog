@@ -1,3 +1,13 @@
+2011-01-28 Mike Kelly <mike@piratehaven.org>
+	* backends/avision.[ch]:
+	- Bumped build number to 294.
+	- Various minor code cleanups.
+	- Fixed initialization and duplexing for AV220-G
+	- Added ADF support for HP8200 series scanner (flipping duplexers).
+	- Return copied values in sane_get_parameters()
+	- Added paper-length option to prevent double feeds
+	- Added a Misc option group to hold misc features
+
 2011-01-26 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.[ch], doc/descriptions/canon_dr.desc,
 	backend/canon_dr.conf.in, doc/sane-canon_dr.man: 

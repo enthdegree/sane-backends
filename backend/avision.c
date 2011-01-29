@@ -8112,9 +8112,16 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters* params)
     }
 
   if (params) {
-    *params = s->params;
     /* add background raster lines */
-    params->lines += s->val[OPT_BACKGROUND].w;
+    s->params.lines += s->val[OPT_BACKGROUND].w;
+
+    /* copy structure members */
+    params->format = s->params.format;
+    params->last_frame = s->params.last_frame;
+    params->bytes_per_line = s->params.bytes_per_line;
+    params->pixels_per_line = s->params.pixels_per_line;
+    params->lines = s->params.lines;
+    params->depth = s->params.depth;
   }
   
   return SANE_STATUS_GOOD;

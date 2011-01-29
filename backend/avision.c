@@ -137,7 +137,7 @@
 #include <math.h>
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 293 /* avision backend BUILD version */
+#define BACKEND_BUILD 294 /* avision backend BUILD version */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"

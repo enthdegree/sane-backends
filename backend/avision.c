@@ -58,7 +58,7 @@
    Copyright 2003, 2004, 2005, 2006, 2007 by
                 "René Rebe" <rene@exactcode.de>
    
-   Copyright 2010 by
+   Copyright 2010, 2011 by
                 "Mike Kelly" <mike@piratehaven.org>
 
    Additional Contributers:

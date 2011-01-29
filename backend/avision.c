@@ -3098,10 +3098,63 @@ send_flash_ram_data (Avision_Connection* av_con)
 }
 #endif
 
+
+static SANE_Status
+adf_reset (Avision_Scanner* s)
+{
+  SANE_Status status;
+  Avision_Device* dev = s->hw;
+  struct command_send scmd;
+  struct command_read rcmd;
+  uint8_t payload[4];
+  size_t size;
+  size_t n;
+  int i;
+  DBG (3, "adf_reset\n");
+
+  /* loop twice */
+  for (i=1; i >= 0; i--) {
+    n=i;
+    memset (&scmd, 0, sizeof (scmd));
+    memset (&payload, 0, sizeof (payload));
+    scmd.opc = AVISION_SCSI_SEND;
+    scmd.datatypecode = 0xD0; /* unknown */
+    set_double (scmd.datatypequal, 0);
+    size = 2;
+    set_triple (scmd.transferlen, size);
+    payload[1] = 0x10 * i;  /* write 0x10 the first time, 0x00 the second */
+    status = avision_cmd (&s->av_con, &scmd, sizeof (scmd), payload, size, 0, 0);
+    if (status != SANE_STATUS_GOOD) {
+      DBG (1, "adf_reset: write %d failed (%s)\n", (2-i),
+	 sane_strstatus (status));
+      return (status);
+    }
+    DBG (3, "adf_reset: write %d complete.\n", (2-i));
+
+    memset (&rcmd, 0, sizeof (rcmd));
+    memset (&payload, 0, sizeof (payload));
+    rcmd.opc = AVISION_SCSI_READ;
+    rcmd.datatypecode = 0x69; /* Read NVRAM data */
+    set_double (rcmd.datatypequal, dev->data_dq);
+    size = 4 - i; /* read 3 bytes the first time, 4 the second */
+    set_triple (rcmd.transferlen, size);
+    status = avision_cmd (&s->av_con, &rcmd, sizeof (rcmd), 0, 0, payload, &size);
+    if (status != SANE_STATUS_GOOD || size != (4-n)) {
+      DBG (1, "adf_reset: read %d failed (%s)\n", (2-n),
+	 sane_strstatus (status));
+      return (status);
+    }
+    debug_print_raw (3, "adf_reset: raw data:\n", payload, size);
+  }
+  return SANE_STATUS_GOOD;
+}
+
+
 static SANE_Status
 get_accessories_info (Avision_Scanner* s)
 {
   Avision_Device* dev = s->hw;
+  int try = 3;
   
   /* read stuff */
   struct command_read rcmd;
@@ -3124,6 +3177,9 @@ get_accessories_info (Avision_Scanner* s)
   set_double (rcmd.datatypequal, dev->data_dq);
   set_triple (rcmd.transferlen, size);
  
+  /* after resetting the ADF unit, try reprobing it again */
+  RETRY:
+
   status = avision_cmd (&s->av_con, &rcmd, sizeof (rcmd), 0, 0, result, &size);
   if (status != SANE_STATUS_GOOD || size != sizeof (result)) {
     DBG (1, "get_accessories_info: read failed (%s)\n",
@@ -3144,9 +3200,37 @@ get_accessories_info (Avision_Scanner* s)
 
   if (dev->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX)
   {
-    dev->inquiry_duplex = 1;
-    dev->inquiry_duplex_interlaced = 0;
-    dev->inquiry_adf_need_mirror_rear = 1;
+    if (result[0] == 1)
+    {
+      dev->inquiry_duplex = 1;
+      dev->inquiry_duplex_interlaced = 0;
+      dev->inquiry_adf_need_mirror_rear = 1;
+    } else if (result[0] == 0 && result[2] != 0) {
+      /* Sometimes the scanner will report that there is no ADF attached, yet
+       * an ADF model number will still be reported.  This happens on the
+       * HP8200 series and possibly others.  In this case we need to reset the
+       * the adf and try reading it again.
+       */
+      DBG (3, "get_accessories_info: Found ADF model number but the ADF-present flag is not set. Trying to recover...\n");
+      status = adf_reset (s);
+      if (status != SANE_STATUS_GOOD) {
+        DBG (3, "get_accessories_info: Failed to reset ADF: %s\n", sane_strstatus (status));
+        return status;
+      }
+      DBG (1, "get_accessories_info: Waiting while ADF firmware resets...\n");
+      sleep(3);
+      status = wait_ready (&s->av_con, 1);
+      if (status != SANE_STATUS_GOOD) {
+        DBG (1, "get_accessories_info: wait_ready() failed: %s\n", sane_strstatus (status));
+        return status;
+      }
+      if (try) {
+        try--;
+        goto RETRY;
+      }
+      DBG (1, "get_accessories_info: Maximum retries attempted, ADF unresponsive.\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
   }
 
   /* only honor a 1, some scanner without adapter set 0xff */

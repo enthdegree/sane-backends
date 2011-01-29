@@ -77,7 +77,7 @@
                 "Falk Rohsiepe"
                    Spelling and whitespace as well as HP5370 quirks
    
-   Many additinoal special thanks to:
+   Many additional special thanks to:
                 Avision INC for providing protocol documentation.
                 Avision INC for sponsoring an AV 8000S with ADF.
                 Avision Europe and BHS Binkert for sponsoring several more scanners.
@@ -87,7 +87,7 @@
                 Matthias Wiedemann for lending his HP 7450C for some weeks.
                 Compusoft, C.A. Caracas / Venezuela for sponsoring a
                            HP 7450 scanner and so enhanced ADF support.
-                Chris Komatsu for the nice ADF scanning observartion.
+                Chris Komatsu for the nice ADF scanning observation.
 
                 All the many other beta-tester and debug-log sender!
 
@@ -106,19 +106,19 @@
  * . . - sane_get_option_descriptor() : get option information
  * . . - sane_control_option() : change option values
  * . .
- * . . - sane_start() : start image aquisition
+ * . . - sane_start() : start image acquisition
  * . .   - sane_get_parameters() : returns actual scan-parameters
  * . .   - sane_read() : read image-data (from pipe)
  *
  * in ADF mode this is done often:
- * . . - sane_start() : start image aquisition
+ * . . - sane_start() : start image acquisition
  * . .   - sane_get_parameters() : returns actual scan-parameters
  * . .   - sane_read() : read image-data (from pipe)
  *
  * . . - sane_cancel() : cancel operation, kill reader_process
  *
  * . - sane_close() : close opened scanner-device, do_cancel, free buffer and handle
- * - sane_exit() : terminate use of backend, free devicename and device-struture
+ * - sane_exit() : terminate use of backend, free devicename and device-structure
  */
 
 #include "../include/sane/config.h"
@@ -155,7 +155,7 @@
 #include <sys/time.h>
 #endif
 
-/* Attention: The comments must stay as they are - they are automatially parsed
+/* Attention: The comments must stay as they are - they are automatically parsed
    to generate the SANE avision.desc file, as well as HTML online content! */
 
 /* Attention2: This device table is part of the source code and as such
@@ -710,7 +710,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "Minolta", "#2887",
       0, 0,
       "Minolta", "Scan Multi Pro",
-      AV_FORCE_FILM | AV_NO_START_SCAN,0}, /* AV_FILMSCANNER (rame control)? */
+      AV_FORCE_FILM | AV_NO_START_SCAN,0}, /* AV_FILMSCANNER (frame control)? */
     /* status="untested" */
     
     { "MINOLTA", "FS-V1",
@@ -1233,7 +1233,7 @@ Lexmark X4500 MFP
 
 #define MAX_WHITE_SHADING       0xFFFF
 /* originally the WHITE_MAP_RANGE was 0x4000 - but this always
- * resulted in slightly too dark images - thus I have choosen
+ * resulted in slightly too dark images - thus I have chosen
  * 0x4FFF ... */
 #define WHITE_MAP_RANGE         0x4FFF
 
@@ -1319,7 +1319,7 @@ static const SANE_Range exposure_range =
 static const SANE_Range overscan_range =
   {
     SANE_FIX (0), /* minimum */
-    SANE_FIX (4), /* maximum */ /* 4mm, meassured on AV122, AV220C2, i40 */
+    SANE_FIX (4), /* maximum */ /* 4mm, measured on AV122, AV220C2, i40 */
     0 /* quantization */
   };
 
@@ -1630,7 +1630,7 @@ static void debug_print_window_descriptor (int dbg_level, char* func,
        get_double (window->descriptor.paper_length) );
   DBG (dbg_level, "%s: [40]    vendor id: %x\n", func,
        window->descriptor.vendor_specific);
-  DBG (dbg_level, "%s: [41]    param lenght: %d\n", func,
+  DBG (dbg_level, "%s: [41]    param length: %d\n", func,
        window->descriptor.paralen);
   DBG (dbg_level, "%s: [42]    bitset1: %x\n", func,
        window->avision.bitset1);
@@ -1727,7 +1727,7 @@ sense_handler (int fd, u_char* sense, void* arg)
   
   /* request valid? */
   if (! (sense[0] & (1<<7))) {
-    DBG (1, "sense_handler: sense not vaild ...\n");
+    DBG (1, "sense_handler: sense not valid ...\n");
     return status;
   }
   
@@ -1795,7 +1795,7 @@ sense_handler (int fd, u_char* sense, void* arg)
 	ADDITIONAL_SENSE (0x15,0x03, "ADF Home Sensor Error (OKI only)");
 	ADDITIONAL_SENSE (0x15,0x04, "Lock Error (OKI only)");
 	
-	ADDITIONAL_SENSE (0x1a,0x00, "parameter list lenght error");
+	ADDITIONAL_SENSE (0x1a,0x00, "parameter list length error");
 	
 	ADDITIONAL_SENSE (0x20,0x00, "Invalid command");
 	ADDITIONAL_SENSE (0x24,0x00, "Invalid field in CDB");
@@ -1804,7 +1804,7 @@ sense_handler (int fd, u_char* sense, void* arg)
 	ADDITIONAL_SENSE (0x26,0x01, "parameter not supported");
 	ADDITIONAL_SENSE (0x26,0x02, "parameter value invalid");
 	ADDITIONAL_SENSE (0x29,0x00, "Power-on, reset or bus device reset occurred");
-	ADDITIONAL_SENSE (0x2c,0x02, "Invaild combination of window specified");
+	ADDITIONAL_SENSE (0x2c,0x02, "Invalid combination of window specified");
 	ADDITIONAL_SENSE (0x2f,0x00, "Command cleared by another initiator");
 
 	ADDITIONAL_SENSE (0x3D,0x00, "Invalid Bit in Identify Message");
@@ -1814,7 +1814,7 @@ sense_handler (int fd, u_char* sense, void* arg)
 	ADDITIONAL_SENSE (0x44,0x01, "Flatbed DRAM Error(OKI only)");
 	ADDITIONAL_SENSE (0x44,0x02, "ADF DRAM Error(OKI only)");
 	ADDITIONAL_SENSE (0x44,0x03, "Write NVRAM Error");
-	ADDITIONAL_SENSE (0x47,0x00, "SCSI paritx error");
+	ADDITIONAL_SENSE (0x47,0x00, "SCSI parity error");
 	ADDITIONAL_SENSE (0x49,0x00, "Invalid message error");
 	
 	ADDITIONAL_SENSE (0x60,0x00, "Lamp failure");
@@ -1837,7 +1837,7 @@ sense_handler (int fd, u_char* sense, void* arg)
 	
         /* film scanner */
 	ADDITIONAL_SENSE (0x81,0x00, "ADF/MFP front door open"; status = SANE_STATUS_COVER_OPEN);
-	ADDITIONAL_SENSE (0x81,0x01, "ADF holder cartrige open"; status = SANE_STATUS_COVER_OPEN);
+	ADDITIONAL_SENSE (0x81,0x01, "ADF holder cartridge open"; status = SANE_STATUS_COVER_OPEN);
 	ADDITIONAL_SENSE (0x81,0x02, "ADF no film inside"; status = SANE_STATUS_NO_DOCS);
 	ADDITIONAL_SENSE (0x81,0x03, "ADF initial load fail");
 	ADDITIONAL_SENSE (0x81,0x04, "ADF film end"; status = SANE_STATUS_NO_DOCS);
@@ -2135,7 +2135,7 @@ write_usb_cmd:
       }
     }
 
-    /* 3rd: read the resuling data (payload) (if any) */
+    /* 3rd: read the resulting data (payload) (if any) */
     if (status == SANE_STATUS_GOOD && dst != NULL && *dst_size > 0) {
       out_count = 0;
       sanei_usb_set_timeout (read_timeout);
@@ -2208,7 +2208,7 @@ write_usb_cmd:
 	status = sanei_usb_read_bulk(av_con->usb_dn, sense_buffer, &count);
 	DBG (8, "read %lu bytes sense data\n", (u_long) count);
 	
-	/* we need to read out the staus from the scanner i/o buffer */
+	/* we need to read out the status from the scanner i/o buffer */
 	status = avision_usb_status (av_con, 1, status_timeout);
 	
 	/* some scanner return NEED_SENSE even after reading it */
@@ -2544,7 +2544,7 @@ compute_parameters (Avision_Scanner* s)
 	     y_max, s->avdimen.bry, s->avdimen.line_difference);
 	    
 	if (s->avdimen.bry + 2 * s->avdimen.line_difference > y_max) {
-	  DBG (1, "sane_compute_parameters: bry limitted!\n");
+	  DBG (1, "sane_compute_parameters: bry limited!\n");
 	  s->avdimen.bry = y_max - 2 * s->avdimen.line_difference;
 	}
       }
@@ -2556,7 +2556,7 @@ compute_parameters (Avision_Scanner* s)
   
   /* add overscan */
   if (dev->inquiry_tune_scan_length && is_adf_scan (s)) {
-    /* some extra efford for precise rounding ... */
+    /* some extra effort for precise rounding ... */
     int overscan = (s->avdimen.hw_yres *
 		    (SANE_UNFIX (s->val[OPT_OVERSCAN_TOP].w) +
 		     SANE_UNFIX (s->val[OPT_OVERSCAN_BOTTOM].w)) + (MM_PER_INCH - 1)
@@ -2570,7 +2570,7 @@ compute_parameters (Avision_Scanner* s)
     const double offset = 0.5; /* in current affected models 1/2 inch */
     s->avdimen.rear_offset = (int) (offset * s->avdimen.hw_yres);
     DBG (1, "sane_compute_parameters: rear_offset: %d!\n", s->avdimen.rear_offset);
-    /* we do not limit against the buttom-y here, as rear offset always
+    /* we do not limit against the bottom-y here, as rear offset always
        applies to ADF scans, only */
   }
   else {
@@ -3190,7 +3190,7 @@ string_for_button (Avision_Scanner* s, int button)
 	goto return_scan;
     }
   
-  /* those are uniqe, right now */
+  /* those are unique, right now */
   if (strcmp (dev->sane.model, "AV610") == 0)
     {
       switch (button)
@@ -3415,7 +3415,7 @@ get_frame_info (Avision_Scanner* s)
        (result[0]==3)?"Slide holder":
        (result[0]==0xff)?"Empty":"unknown");
   DBG (3, "get_frame_info: [1]  Current frame number: %d\n", result[1]);
-  DBG (3, "get_frame_info: [2]  Frame ammount: %d\n", result[2]);
+  DBG (3, "get_frame_info: [2]  Frame amount: %d\n", result[2]);
   DBG (3, "get_frame_info: [3]  Mode: %s\n", BIT(result[3],4)?"APS":"Not APS");
   DBG (3, "get_frame_info: [3]  Exposures (if APS): %s\n", 
        ((i=(BIT(result[3],3)<<1)+BIT(result[2],2))==0)?"Unknown":
@@ -3747,7 +3747,7 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   case 1:
     s = " BGR"; break;
   default:
-    s = " unknown (RESERVERD)";
+    s = " unknown (RESERVED)";
   }
   DBG (3, "attach: [36]    Bitfield:%s%s%s%s%s%s%s color plane\n",
        BIT(result[36],7)?" ADF":"",
@@ -4093,7 +4093,7 @@ get_double ( &(result[48] ) ));
       base_dpi = dev->inquiry_optical_res;
     }
     
-    /* .1 to slightly increate the size to match the one of American standard paper
+    /* .1 to slightly increase the size to match the one of American standard paper
        formats that would otherwise be .1 mm too large to scan ... */
     dev->inquiry_x_ranges [AV_NORMAL_DIM] =
       (double)get_double (&(result[81])) * MM_PER_INCH / base_dpi + .1;
@@ -4136,16 +4136,16 @@ get_double ( &(result[48] ) ));
 	  {
 	    DBG (3, "attach: x/y-range for mode %d is valid!\n", mode);
 	    if (force_a4) {
-	      DBG (1, "attach: \"force_a4\" found! Using defauld (ISO A4).\n");
+	      DBG (1, "attach: \"force_a4\" found! Using default (ISO A4).\n");
 	      dev->inquiry_x_ranges [mode] = A4_X_RANGE * MM_PER_INCH;
 	      dev->inquiry_y_ranges [mode] = A4_Y_RANGE * MM_PER_INCH;
 	    } else if (force_a3) {
-	      DBG (1, "attach: \"force_a3\" found! Using defauld (ISO A3).\n");
+	      DBG (1, "attach: \"force_a3\" found! Using default (ISO A3).\n");
 	      dev->inquiry_x_ranges [mode] = A3_X_RANGE * MM_PER_INCH;
 	      dev->inquiry_y_ranges [mode] = A3_Y_RANGE * MM_PER_INCH;
 	    }
 	  }
-	else /* mode is invaild */
+	else /* mode is invalid */
 	  {
 	    DBG (1, "attach: x/y-range for mode %d is invalid! Using a default.\n", mode);
 	    if (dev->hw->feature_type & AV_FORCE_A3) {
@@ -4273,7 +4273,7 @@ send_tune_scan_length (Avision_Scanner* s)
   scmd.datatypecode = 0x96; /* Attach/Truncate head(left) of scan length */
   set_triple (scmd.transferlen, size);
   
-  /* the SPEC says optical DPI, but real world meassuring suggests it is 1200
+  /* the SPEC says optical DPI, but real world measuring suggests it is 1200
      as in the window descriptor */
   top = 1200 * SANE_UNFIX (s->val[OPT_OVERSCAN_TOP].w) / MM_PER_INCH;
   DBG (3, "send_tune_scan_length: top: %d\n", top);
@@ -4283,7 +4283,7 @@ send_tune_scan_length (Avision_Scanner* s)
   /* set_double (payload.horizontal, 0); */
   
   /* we alway send it, even for 0 as the scanner keeps it in RAM and
-     previous runs could aleady have set something */
+     previous runs could already have set something */
   
   status = avision_cmd (&s->av_con, &scmd, sizeof (scmd),
 			&payload, sizeof (payload), 0, 0);
@@ -4321,7 +4321,7 @@ additional_probe (Avision_Scanner* s)
      perform further actions */
   
   SANE_Status status;
-  /* try to retrieve additional accessories information */
+  /* try to retrieve additional accessory information */
   if (dev->inquiry_detect_accessories) {
     status = get_accessories_info (s);
     if (status != SANE_STATUS_GOOD)
@@ -4607,7 +4607,7 @@ set_calib_data (Avision_Scanner* s, struct calibration_format* format,
     {
       int conv_out_size = format->pixel_per_line * 2;
       uint16_t* conv_out_data; /* here it is save to use 16bit data
-				   since we only move wohle words around */
+				   since we only move whole words around */
       
       DBG (3, "set_calib_data: channels in single commands\n");
       
@@ -4785,7 +4785,7 @@ compute_white_shading_data (Avision_Scanner* s,
   
   for (i = 0; i < 3; ++i) {
     if (mst[i] == INVALID_WHITE_SHADING) /* mst[i] > MAX_WHITE_SHADING) */  {
-      DBG (3, "compute_white_shading_data: target %d invaild (%x) using inquiry (%x)\n",
+      DBG (3, "compute_white_shading_data: target %d invalid (%x) using inquiry (%x)\n",
 	   i, mst[i], inquiry_mst);
       mst[i] = inquiry_mst;
     }
@@ -4799,7 +4799,7 @@ compute_white_shading_data (Avision_Scanner* s,
       DBG (3, "compute_white_shading_data: target %d: bytes swapped.\n", i);
     }
     if (mst[i] < DEFAULT_WHITE_SHADING / 2) {
-      DBG (3, "compute_white_shading_data: target %d: too low (%d) usind default (%d).\n",
+      DBG (3, "compute_white_shading_data: target %d: too low (%d) using default (%d).\n",
 	   i, mst[i], DEFAULT_WHITE_SHADING);
       mst[i] = DEFAULT_WHITE_SHADING;
     }
@@ -4842,7 +4842,7 @@ compute_white_shading_data (Avision_Scanner* s,
       /* the output to the scanner will be 16 bit little endian again */
       set_double_le ((data + i*2), result);
     }
-  DBG (3, "compute_white_shading_data: %d invalid, %d limitted\n",
+  DBG (3, "compute_white_shading_data: %d invalid, %d limited\n",
        values_invalid, values_limitted);
 }
 
@@ -4970,7 +4970,7 @@ normal_calibration (Avision_Scanner* s)
   return status;
 }
 
-/* next was taken from the GIMP and is a bit modifyed ... ;-)
+/* next was taken from the GIMP and is a bit modified ... ;-)
  * original Copyright (C) 1995 Spencer Kimball and Peter Mattis
  */
 static double 
@@ -5272,7 +5272,7 @@ get_acceleration_info (Avision_Scanner* s, struct acceleration_info* info)
   DBG (3, "get_acceleration_info: read_data: %lu bytes\n", (u_long) size);
   status = avision_cmd (&s->av_con, &rcmd, sizeof (rcmd), 0, 0, result, &size);
   if (status != SANE_STATUS_GOOD || size != sizeof (result) ) {
-    DBG (1, "get_acceleratoin_info: read accel. info failed (%s)\n",
+    DBG (1, "get_acceleration_info: read accel. info failed (%s)\n",
 	 sane_strstatus (status) );
     return status;
   }
@@ -5334,8 +5334,8 @@ send_acceleration_table (Avision_Scanner* s)
     set_double (scmd.datatypequal, table);
     set_triple (scmd.transferlen, accel_info.total_steps);
     
-    /* contruct the table - Warning: This code is derived from Avision
-       sample code and is a bit scarry! I have no idea why the scanner
+    /* construct the table - Warning: This code is derived from Avision
+       sample code and is a bit scary! I have no idea why the scanner
        needs such a dumb table and also do not know /why/ it has to be
        constructed this way. "Works for me" -ReneR */
     {
@@ -5399,7 +5399,7 @@ send_acceleration_table (Avision_Scanner* s)
 	
 	/* add_count should not be bigger than 255 */
 	if (add_count > 255) {
-	  DBG (1, "send_acceleration_table: add_count limitted, was: %d\n", add_count);
+	  DBG (1, "send_acceleration_table: add_count limited, was: %d\n", add_count);
 	  add_count = 255;
 	}
 	for (i = 0; i < accel_info.total_steps - 1 && add_count > 0; i++)
@@ -5626,7 +5626,7 @@ set_window (Avision_Scanner* s)
   cmd.window.descriptor.vendor_specific = 0xFF;
   cmd.window.descriptor.paralen = paralen; /* R² was: 9, later 14 */
 
-  /* This is normaly unsupported by Avsion scanners, and we do this
+  /* This is normally unsupported by Avision scanners, and we do this
      via the gamma table - which works for all devices ... */
   cmd.window.descriptor.threshold = 128;
   cmd.window.descriptor.brightness = 128; 
@@ -6101,8 +6101,8 @@ do_eof (Avision_Scanner *s)
     s->read_fds = -1;
   }
   
-  /* join our processes - without a wait() you will produce defunct
-     childs */
+  /* join our processes - without a wait() you will produce zombies
+     (defunct children) */
   sanei_thread_waitpid (s->reader_pid, &exit_status);
   s->reader_pid = -1;
 
@@ -6184,7 +6184,7 @@ init_options (Avision_Scanner* s)
     case AV_ASIC_C6: /* TODO: AV610 in ADF mode does not scan less than 180 or so */
       dev->dpi_range.min = 50;
       break;
-    case AV_ASIC_C7: /* AV610C2 imperically tested out */
+    case AV_ASIC_C7: /* AV610C2 empirically tested out */
       dev->dpi_range.min = 75;
       break;
     default:
@@ -6327,7 +6327,7 @@ init_options (Avision_Scanner* s)
   /* overscan bottom */
   s->opt[OPT_OVERSCAN_BOTTOM].name = "overscan-bottom";
   s->opt[OPT_OVERSCAN_BOTTOM].title = "Overscan bottom";
-  s->opt[OPT_OVERSCAN_BOTTOM].desc = "The bottom overscan controls the additional area to scan after the paper end was detected.";
+  s->opt[OPT_OVERSCAN_BOTTOM].desc = "The bottom overscan controls the additional area to scan after the paper end is detected.";
   s->opt[OPT_OVERSCAN_BOTTOM].type = SANE_TYPE_FIXED;
   s->opt[OPT_OVERSCAN_BOTTOM].unit = SANE_UNIT_MM;
   s->opt[OPT_OVERSCAN_BOTTOM].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -6342,7 +6342,7 @@ init_options (Avision_Scanner* s)
   /* background raster */
   s->opt[OPT_BACKGROUND].name = "background-lines";
   s->opt[OPT_BACKGROUND].title = "Background raster lines";
-  s->opt[OPT_BACKGROUND].desc = "The background raster controls the additional background lines to scan before the paper is feed thru the scanner.";
+  s->opt[OPT_BACKGROUND].desc = "The background raster controls the additional background lines to scan before the paper is feed through the scanner.";
   s->opt[OPT_BACKGROUND].type = SANE_TYPE_INT;
   s->opt[OPT_BACKGROUND].unit = SANE_UNIT_PIXEL;
   s->opt[OPT_BACKGROUND].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -6401,7 +6401,7 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_QCALIB].unit  = SANE_UNIT_NONE;
   s->val[OPT_QCALIB].w     = SANE_TRUE;
 
-  /* grayscale gamma vector */
+  /* gray scale gamma vector */
   s->opt[OPT_GAMMA_VECTOR].name = SANE_NAME_GAMMA_VECTOR;
   s->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
   s->opt[OPT_GAMMA_VECTOR].desc = SANE_DESC_GAMMA_VECTOR;
@@ -6483,7 +6483,7 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_MULTISAMPLE].unit  = SANE_UNIT_NONE;
   s->val[OPT_MULTISAMPLE].w     = SANE_FALSE;
   
-  /* TODO: No idea how to detect, assume exosure control devices are
+  /* TODO: No idea how to detect, assume exposure control devices are
      new enough to support this, for now. -ReneR */
   if (!dev->inquiry_exposure_control) {
     s->opt[OPT_MULTISAMPLE].cap |= SANE_CAP_INACTIVE;
@@ -6497,7 +6497,7 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_IR].unit  = SANE_UNIT_NONE;
   s->val[OPT_IR].w     = SANE_FALSE;
   
-  /* TODO: No idea how to detect, assume exosure control devices are
+  /* TODO: No idea how to detect, assume exposure control devices are
      new enough to support this, for now. -ReneR */
   if (!dev->inquiry_exposure_control) {
     s->opt[OPT_IR].cap |= SANE_CAP_INACTIVE;
@@ -6529,7 +6529,7 @@ init_options (Avision_Scanner* s)
   /* message, like options set on the scanner, LED no. & co */
   s->opt[OPT_MESSAGE].name = "message";
   s->opt[OPT_MESSAGE].title = "message text from the scanner";
-  s->opt[OPT_MESSAGE].desc = "This text contains device specific options controlled ny the user on the scanner hardware.";
+  s->opt[OPT_MESSAGE].desc = "This text contains device specific options controlled by the user on the scanner hardware.";
   s->opt[OPT_MESSAGE].type = SANE_TYPE_STRING;
   s->opt[OPT_MESSAGE].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   s->opt[OPT_MESSAGE].size = 129;
@@ -6659,7 +6659,7 @@ reader_process (void *data)
       (deinterlace != NONE && !s->duplex_rear_valid))
     {
       /* reserve unit - in the past we did this in open - but the
-	 windows driver does reserve for each scan and some ADF
+	 windows driver does reserves for each scan and some ADF
 	 devices need a release for each sheet anyway ... */
       status = reserve_unit (s);
       if (status != SANE_STATUS_GOOD) {
@@ -6674,7 +6674,7 @@ reader_process (void *data)
       else {
 	status = start_scan (s);
 	if (status != SANE_STATUS_GOOD) {
-	  DBG (1, "reader_process: start_scan faild: %s\n",
+	  DBG (1, "reader_process: start_scan failed: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -6712,7 +6712,7 @@ reader_process (void *data)
       }
     }
   
-  /* always quite some lines to saturate the (USB) bus */
+  /* it takes quite a few lines to saturate the (USB) bus */
   lines_per_stripe = dev->read_stripe_size;
   if (s->avdimen.line_difference)
     lines_per_stripe += 2 * s->avdimen.line_difference;
@@ -6743,7 +6743,7 @@ reader_process (void *data)
   
   stripe_data = malloc (stripe_size);
   
-  /* for software scaling we need an aditional interpolation line buffer */
+  /* for software scaling we need an additional interpolation line buffer */
   if (s->avdimen.hw_xres != s->avdimen.xres ||
       s->avdimen.hw_yres != s->avdimen.yres)
   {
@@ -6777,8 +6777,7 @@ reader_process (void *data)
   processed_bytes = 0;
   stripe_fill = 0;
   
-  /* First dump background raster, bypassing all the other processing
-     counters, ... */
+  /* First, dump background raster, bypassing all the other processing. */
   if (dev->inquiry_background_raster && s->val[OPT_BACKGROUND].w)
     {
       uint8_t* background = s->background_raster;
@@ -6789,7 +6788,7 @@ reader_process (void *data)
       fwrite (background, s->params.bytes_per_line, s->val[OPT_BACKGROUND].w, fp);
     }
   
-  /* Data read loop until all data has been processed.  Might exit
+  /* Data read; loop until all data has been processed.  Might exit
      before all lines are transferred for ADF paper end. */
   while (exit_status == SANE_STATUS_GOOD && processed_bytes < total_size)
     {
@@ -6889,7 +6888,7 @@ reader_process (void *data)
       
       /* Deinterlace, save the rear stripes. For some scanners (AV220)
 	 that is every 2nd stripe, the 2nd half of the transferred
-	 data ((AV83xx) or every 2nd line (AV122)). */
+	 data ((AV83xx), or every 2nd line (AV122)). */
       if (deinterlace != NONE && !s->duplex_rear_valid)
 	{
 	  /* for all lines we have in the buffer: */
@@ -6922,7 +6921,7 @@ reader_process (void *data)
 	}
       
       /*
-       * Perform needed data convertions (packing, ...) and/or copy the
+       * Perform needed data conversions (packing, ...) and/or copy the
        * image data.
        */
       
@@ -6985,7 +6984,7 @@ reader_process (void *data)
 	  if ( (s->c_mode != AV_TRUECOLOR) ||
 	       (s->c_mode == AV_TRUECOLOR && dev->inquiry_adf_bgr_order) )
 	  {
-	    /* Mirroring with bgr -> rgb convertion: Just mirror the
+	    /* Mirroring with bgr -> rgb conversion: Just mirror the
 	     * whole line */
 
 	    int l;
@@ -7004,9 +7003,9 @@ reader_process (void *data)
 		}
 	      }
 	  }
-	else /* non trival mirroring */
+	else /* non trivial mirroring */
 	  {
-	    /* Non-trival Mirroring with element swapping */
+	    /* Non-trivial Mirroring with element swapping */
 	    
 	    int l;
 	    int lines = useful_bytes / s->avdimen.hw_bytes_per_line;
@@ -7101,7 +7100,7 @@ reader_process (void *data)
 	{
 	  int lines, _hw_line = hw_line;
 	  uint8_t* src = out_data;
-	  /* we support cropping the begin and end due rear offset */
+	  /* we support cropping at the beginning and end due to rear offset */
 	  for (lines = useful_bytes / s->avdimen.hw_bytes_per_line;
 	       lines > 0; --lines, ++_hw_line, src += s->avdimen.hw_bytes_per_line)
 	  {
@@ -7121,7 +7120,7 @@ reader_process (void *data)
       else /* Software scaling - watch out - this code bites back! */
 	{
 	  int x;
-	  /* for convinience in the 16bit code path */
+	  /* for convenience in the 16bit code path */
 	  uint16_t* out_data16 = (uint16_t*) out_data;
 	  
 	  const int hw_line_end = hw_line + useful_bytes / s->avdimen.hw_bytes_per_line;
@@ -7141,7 +7140,7 @@ reader_process (void *data)
 	    
 	    /* Break out if we do not have the hw source line - yet,
 	       or when we are past the end of wanted data (e.g. on the
-	       front page due rear_offset). Also take the read_offset
+	       front page due to rear_offset). Also take the read_offset
 	       into account on the rear side */
 	    if (deinterlace != NONE) {
 	      if (!s->duplex_rear_valid && syy >= s->avdimen.hw_lines) {
@@ -7317,7 +7316,7 @@ reader_process (void *data)
     }
   else
     {
-      /* poll the cancel button if the scanner is marked to have one */
+      /* poll the cancel button if the scanner is marked as having one */
       if (dev->hw->feature_type & AV_CANCEL_BUTTON) {
 	if (get_button_status (s) == SANE_STATUS_CANCELLED)
 	  exit_status =  SANE_STATUS_CANCELLED;
@@ -7358,7 +7357,7 @@ attach_one_scsi (const char* dev)
   return SANE_STATUS_GOOD;
 }
 
-/* SANE callback to attach an USB device */
+/* SANE callback to attach a USB device */
 static SANE_Status
 attach_one_usb (const char* dev)
 {
@@ -7533,7 +7532,7 @@ sane_reload_devices (void)
   while (Avision_Device_List [model_num].scsi_mfg != NULL ||
          Avision_Device_List [model_num].real_mfg != NULL)
     {
-      /* also potentionally accessed in the attach_* callbacks */
+      /* also potentially accessed from the attach_* callbacks */
       attaching_hw = &(Avision_Device_List [model_num]);
 	if (attaching_hw->scsi_mfg != NULL)
 	  sanei_scsi_find_devices (attaching_hw->scsi_mfg,
@@ -7632,7 +7631,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 	return status;
     }
   } else {
-    /* empty devicname -> use first device */
+    /* empty devicename -> use first device */
     dev = first_dev;
   }
 
@@ -7644,6 +7643,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
     return SANE_STATUS_NO_MEM;
   
   /* initialize ... */
+  /* the other states (scanning, ...) rely on this memset (0) */
   memset (s, 0, sizeof (*s));
   
   /* initialize connection state */
@@ -7657,12 +7657,12 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 
   s->hw = dev;
   
-  /* We initilize the table to a gamma value of 2.22, since this is what
+  /* We initialize the table to a gamma value of 2.22, since this is what
      papers about Colorimetry suggest.
 
 	http://www.poynton.com/GammaFAQ.html
 
-     Avision's driver does default to 2.2 though. */
+     Avision's driver defaults to 2.2 though. */
   {
     const double gamma = 2.22;
     const double one_over_gamma = 1. / gamma;
@@ -7671,8 +7671,6 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
       for (j = 0; j < 256; ++ j)
 	s->gamma_table[i][j] = pow( (double) j / 255, one_over_gamma) * 255;
   }
-  
-  /* the other states (scanning, ...) rely on the memset (0) above */
   
   /* insert newly opened handle into list of open handles: */
   s->next = first_handle;
@@ -7719,12 +7717,12 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
       }
     }
   
-  /* initilize the options */
+  /* initialize the options */
   init_options (s);
   
   if (dev->inquiry_duplex_interlaced || dev->scanner_type == AV_FILM) {
     /* Might need at least *DOS (Windows flavour and OS/2) portability fix
-       However, I was was told Cygwin (et al.) does keep care of it. */
+       However, I was told Cygwin (et al.) takes care of it. */
     strncpy(s->duplex_rear_fname, "/tmp/avision-rear-XXXXXX", PATH_MAX);
     
     if (! mktemp(s->duplex_rear_fname) ) {
@@ -7737,7 +7735,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
     }
   }
   
-  /* calibrate film scanners, as this this must be done without the
+  /* calibrate film scanners, as this must be done without the
      film holder and at the full resolution */
   if (dev->scanner_type == AV_FILM)
     {
@@ -8083,9 +8081,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters* params)
   
   DBG (3, "sane_get_parameters:\n");
   
-  /* during an acutal scan the parameters are used and thus are not alllowed
-     to change ... if a scan is running the parameters have already been
-     computed from sane_start */
+  /* During an actual scan these parameters will have been computed in
+     sane_start().  Otherwise, the values must be computed on demand.  The
+     values cannot be changed during a scan to avoid inconsistency. */
   if (!s->scanning)
     {
       DBG (3, "sane_get_parameters: computing parameters\n");
@@ -8124,7 +8122,7 @@ sane_start (SANE_Handle handle)
   compute_parameters (s);
   
   /* for non ADF scans (e.g. scanimage --batch-prompt on a Flatbed
-     scannner) make sure we do not assume it's an ADF scan and
+     scanner) make sure we do not assume it's an ADF scan and
      optimize something away*/
   if (!is_adf_scan (s))
     s->page = 0;
@@ -8134,7 +8132,7 @@ sane_start (SANE_Handle handle)
     goto start_scan_end;
   }
   
-  /* Check for paper during ADF scans and for sheetfeed scanners. */
+  /* Check for paper during ADF scans and for sheetfed scanners. */
   if (is_adf_scan (s)) {
     status = media_check (s);
     if (status != SANE_STATUS_GOOD) {
@@ -8227,7 +8225,7 @@ sane_start (SANE_Handle handle)
     goto calib_end;
   }
   
-  /* check whether claibration is disabled by the user */
+  /* check whether calibration is disabled by the user */
   if (disable_calibration) {
     DBG (1, "sane_start: calibration disabled in config - skipped!\n");
     goto calib_end;
@@ -8321,7 +8319,7 @@ sane_start (SANE_Handle handle)
  start_scan_end:
   
   s->scanning = SANE_TRUE;
-  s->page += 1; /* procesing next page */
+  s->page += 1; /* processing next page */
   
   if (pipe (fds) < 0) {
     return SANE_STATUS_IO_ERROR;

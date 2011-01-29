@@ -293,6 +293,8 @@ enum Avision_Option
   OPT_MESSAGE,           /* optional message from the scanner display */  
   OPT_NVRAM,             /* retrieve NVRAM values as pretty printed text */
   
+  OPT_PAPERLEN,          /* Use paper_length field to detect double feeds */
+
   NUM_OPTIONS            /* must come last */
 };
 

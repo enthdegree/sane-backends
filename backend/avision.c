@@ -5584,11 +5584,8 @@ set_window (Avision_Scanner* s)
     }
   }
   
-  /* Newer scanners can utilize this paper length to detect double feeds.
-     However some others (DM152) can get confused during media flush if it
-     is set? TODO: wire to an option, ... */
-  /* if (dev->inquiry_paper_length)
-     set_double (cmd.window.descriptor.paper_length, (int)((double)30.0*1200)); */
+  if (s->val[OPT_PAPERLEN].w)
+     set_double (cmd.window.descriptor.paper_length, (int)((double)30.0*1200));
 
   if ( !(dev->hw->feature_type & AV_FUJITSU) )
     { 
@@ -6559,6 +6556,19 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_NVRAM].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_NVRAM].s = malloc(s->opt[OPT_NVRAM].size);
   s->val[OPT_NVRAM].s[0] = 0;
+  
+  /* paper_length */
+  s->opt[OPT_PAPERLEN].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  if (!dev->inquiry_paper_length)
+    s->opt[OPT_PAPERLEN].cap |= SANE_CAP_INACTIVE;
+  s->opt[OPT_PAPERLEN].name  = "paper-length";
+  s->opt[OPT_PAPERLEN].title = "Use paper length";
+  s->opt[OPT_PAPERLEN].desc  = "Newer scanners can utilize this paper length to detect double feeds.  However some others (DM152) can get confused during media flush if it is set.";
+  s->opt[OPT_PAPERLEN].type  = SANE_TYPE_BOOL;
+  s->opt[OPT_PAPERLEN].unit  = SANE_UNIT_NONE;
+  s->opt[OPT_PAPERLEN].size = sizeof(SANE_Word);
+  s->opt[OPT_PAPERLEN].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_PAPERLEN].w     = SANE_FALSE;
   
   return SANE_STATUS_GOOD;
 }
@@ -7911,6 +7921,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_MULTISAMPLE:
 	case OPT_QSCAN:
 	case OPT_QCALIB:
+	case OPT_PAPERLEN:
 	  *(SANE_Word*) val = s->val[option].w;
 	  return SANE_STATUS_GOOD;
 	  
@@ -7981,6 +7992,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_OVERSCAN_TOP:
 	case OPT_OVERSCAN_BOTTOM:
 	case OPT_BACKGROUND:
+	case OPT_PAPERLEN:
 	  s->val[option].w = *(SANE_Word*) val;
 	  return SANE_STATUS_GOOD;
 	  

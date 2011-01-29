@@ -205,7 +205,10 @@ typedef struct Avision_HWEntry {
     AV_USE_GRAY_FILTER = (1<<1),
 
     /* For (HP) scanners with flipping duplexers */
-    AV_ADF_FLIPPING_DUPLEX = (1<<2)
+    AV_ADF_FLIPPING_DUPLEX = (1<<2),
+
+    /* For scanners which need to have their firmware read to properly function. */
+    AV_FIRMWARE = (1<<3)
   } feature_type2;
 
 } Avision_HWEntry;

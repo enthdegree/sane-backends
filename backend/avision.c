@@ -649,7 +649,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "C9930A",
       0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8200",
-      0, AV_ADF_FLIPPING_DUPLEX },
+      0, AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
@@ -657,7 +657,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "C9930A",
       0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8250",
-      0, AV_ADF_FLIPPING_DUPLEX },
+      0, AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 #endif
@@ -665,7 +665,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP", "C9930A",
       0x03f0, 0x3905,
       "Hewlett-Packard", "ScanJet 8270",
-      0, AV_ADF_FLIPPING_DUPLEX },
+      0, AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
@@ -673,7 +673,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP", "C9930A",
       0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8290",
-      0, AV_ADF_FLIPPING_DUPLEX },
+      0, AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0 and SCSI - only SCSI tested so far" */
     /* status="good" */
     
@@ -3679,9 +3679,8 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   }
   
   /* second: maybe ask for the firmware status and flash ram info */
-  /* if (Avision_Device_List [model_num].feature_type & AV_FIRMWARE) */
-  if (0)
-    {
+  if (Avision_Device_List [model_num].feature_type2 & AV_FIRMWARE)
+  {
       DBG (3, "attach: reading firmware status\n");
       status = get_firmware_status (&av_con);
       if (status != SANE_STATUS_GOOD) {
@@ -3704,7 +3703,7 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
       if (status != SANE_STATUS_GOOD)
 	goto close_scanner_and_return;
 #endif
-    }
+  }
   
   /* third: get the extended Avision inquiry */
   status = inquiry (av_con, result, AVISION_INQUIRY_SIZE_V1);

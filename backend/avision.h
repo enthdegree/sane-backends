@@ -368,7 +368,6 @@ typedef struct Avision_Device
   SANE_Bool inquiry_needs_software_colorpack;
   SANE_Bool inquiry_needs_line_pack;
   SANE_Bool inquiry_adf_need_mirror;
-  SANE_Bool inquiry_adf_need_mirror_rear;
   SANE_Bool inquiry_adf_bgr_order;
   SANE_Bool inquiry_light_detect;
   SANE_Bool inquiry_light_control;

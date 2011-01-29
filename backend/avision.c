@@ -3204,7 +3204,6 @@ get_accessories_info (Avision_Scanner* s)
     {
       dev->inquiry_duplex = 1;
       dev->inquiry_duplex_interlaced = 0;
-      dev->inquiry_adf_need_mirror_rear = 1;
     } else if (result[0] == 0 && result[2] != 0) {
       /* Sometimes the scanner will report that there is no ADF attached, yet
        * an ADF model number will still be reported.  This happens on the
@@ -7081,8 +7080,7 @@ reader_process (void *data)
       /* FURTHER POST-PROCESSING ON THE FINAL OUTPUT DATA */
       
       /* maybe mirroring in ADF mode */
-      if ((s->source_mode_dim == AV_ADF_DIM && dev->inquiry_adf_need_mirror) ||
-	  (s->source_mode == AV_ADF_DUPLEX && dev->inquiry_adf_need_mirror_rear && s->page % 2 == 0))
+      if (s->source_mode_dim == AV_ADF_DIM && dev->inquiry_adf_need_mirror)
         {
 	  if ( (s->c_mode != AV_TRUECOLOR) ||
 	       (s->c_mode == AV_TRUECOLOR && dev->inquiry_adf_bgr_order) )

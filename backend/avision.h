@@ -300,6 +300,7 @@ enum Avision_Option
   OPT_NVRAM,             /* retrieve NVRAM values as pretty printed text */
   
   OPT_PAPERLEN,          /* Use paper_length field to detect double feeds */
+  OPT_ADF_FLIP,          /* For flipping duplex, reflip the document */
 
   NUM_OPTIONS            /* must come last */
 };

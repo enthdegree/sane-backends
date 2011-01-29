@@ -5665,7 +5665,8 @@ set_window (Avision_Scanner* s)
     {
       DBG (3, "set_window: non-interlaced duplex type (HP)\n");
       SET_BIT(cmd.window.avision.type.normal.bitset3, 0); /* DPLX 0x01 */
-      SET_BIT(cmd.window.avision.type.normal.bitset3, 1); /* FLIP 0x02 */
+      if (s->val[OPT_ADF_FLIP].w)
+        SET_BIT(cmd.window.avision.type.normal.bitset3, 1); /* FLIP 0x02 */
       SET_BIT(cmd.window.avision.type.normal.bitset3, 2); /* MIRR 0x04 */
     }
   }
@@ -6657,6 +6658,19 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_PAPERLEN].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_PAPERLEN].w     = SANE_FALSE;
   
+  /* ADF page flipping */
+  s->opt[OPT_ADF_FLIP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC | SANE_CAP_ADVANCED;
+  if (!(s->hw->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX && s->source_mode == AV_ADF_DUPLEX))
+    s->opt[OPT_ADF_FLIP].cap |= SANE_CAP_INACTIVE;
+  s->opt[OPT_ADF_FLIP].name = "flip-page";
+  s->opt[OPT_ADF_FLIP].title = "Flip document after duplex scanning";
+  s->opt[OPT_ADF_FLIP].desc = "Tells page-flipping document scanners to flip the paper back to its original orientation before dropping it in the output tray.  Turning this off might make scanning a little faster if you don't care about manually flipping the pages afterwards.";
+  s->opt[OPT_ADF_FLIP].type = SANE_TYPE_BOOL;
+  s->opt[OPT_ADF_FLIP].unit = SANE_UNIT_NONE;
+  s->opt[OPT_ADF_FLIP].size = sizeof(SANE_Word);
+  s->opt[OPT_ADF_FLIP].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_ADF_FLIP].w = SANE_TRUE;
+
   return SANE_STATUS_GOOD;
 }
 
@@ -7458,6 +7472,10 @@ reader_process (void *data)
   if ((dev->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX) && s->source_mode == AV_ADF_DUPLEX && s->page % 2) {
     /* front page of flipping duplex */
     if (exit_status == SANE_STATUS_EOF) {
+      if (s->val[OPT_ADF_FLIP].w) {
+        /* The page flip bit must be reset after every scan, but if the
+         * user doesn't care, there's no reason to reset.
+         */
         status = set_window (s);
         if (status != SANE_STATUS_GOOD) {
           DBG (1, "reader_process: set scan window command failed: %s\n",
@@ -7465,6 +7483,7 @@ reader_process (void *data)
           return status;
         }
       /* we can set anything here without fear because the process will terminate soon and take our changes with it */
+      }
       s->page += 1;
       s->params.lines = line;
       exit_status = reader_process (s);
@@ -8045,6 +8064,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_QSCAN:
 	case OPT_QCALIB:
 	case OPT_PAPERLEN:
+	case OPT_ADF_FLIP:
 	  *(SANE_Word*) val = s->val[option].w;
 	  return SANE_STATUS_GOOD;
 	  
@@ -8116,6 +8136,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_OVERSCAN_BOTTOM:
 	case OPT_BACKGROUND:
 	case OPT_PAPERLEN:
+	case OPT_ADF_FLIP:
 	  s->val[option].w = *(SANE_Word*) val;
 	  return SANE_STATUS_GOOD;
 	  
@@ -8156,6 +8177,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    SANE_FIX ( dev->inquiry_x_ranges[s->source_mode_dim]);
 	  dev->y_range.max =
 	    SANE_FIX ( dev->inquiry_y_ranges[s->source_mode_dim]);
+
+          if (s->hw->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX && s->source_mode == AV_ADF_DUPLEX) {
+            s->opt[OPT_ADF_FLIP].cap &= ~SANE_CAP_INACTIVE;
+          } else {
+            s->opt[OPT_ADF_FLIP].cap |= SANE_CAP_INACTIVE;
+          }
 	  
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
@@ -8213,6 +8240,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->val[OPT_POWER_SAVE_TIME].w = time;
 	    return status;
 	  }
+	} /* end switch option */
+    }
+  else if (action == SANE_ACTION_SET_AUTO)
+    {
+      if (!SANE_OPTION_IS_SETTABLE (cap))
+	return SANE_STATUS_INVAL;
+
+      switch (option)
+	{
+	case OPT_ADF_FLIP:
+	  s->val[option].w = SANE_TRUE;
+	  return SANE_STATUS_GOOD;
 	} /* end switch option */
     } /* end else SET_VALUE */
   return SANE_STATUS_INVAL;

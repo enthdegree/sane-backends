@@ -3121,19 +3121,19 @@ get_accessories_info (Avision_Scanner* s)
   status = avision_cmd (&s->av_con, &rcmd, sizeof (rcmd), 0, 0, result, &size);
   if (status != SANE_STATUS_GOOD || size != sizeof (result)) {
     DBG (1, "get_accessories_info: read failed (%s)\n",
-	 sane_strstatus (status));
+         sane_strstatus (status));
     return (status);
   }
- 
+
   debug_print_raw (6, "get_accessories_info: raw data:\n", result, size);
-  
+
   DBG (3, "get_accessories_info: [0]  ADF: %x\n", result[0]);
   DBG (3, "get_accessories_info: [1]  Light Box: %x\n", result[1]);
-  
+
   DBG (3, "get_accessories_info: [2]  ADF model: %d (%s)\n",
        result [2],
        adf_model[ (result[2] < adf_models) ? result[2] : adf_models ]);
-  
+
   dev->inquiry_adf |= result [0];
 
   if (result [2] == 2) /* HP */
@@ -3142,13 +3142,14 @@ get_accessories_info (Avision_Scanner* s)
     dev->inquiry_duplex_interlaced = 0;
     dev->inquiry_adf_need_mirror_rear = 1;
   }
-  
+
   /* only honor a 1, some scanner without adapter set 0xff */
   if (result[1] == 1)
     dev->inquiry_light_box = 1;
-  
+
   return SANE_STATUS_GOOD;
 }
+
 
 /* Returns a pointer to static char* strings or NULL for cancel (we do
    not want to start memcmp'ing for the cancel case). */
@@ -7693,7 +7694,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
     }
     DBG (1, "sane_open: got %d scsi_max_request_size\n", dev->scsi_buffer_size);
   }
-  
+
   /* first: re-awake the device with an inquiry, some devices are flunk while initializing
      the usb connection and like a inquiry to come first ... (AV610 et.al.) */
   status = inquiry (s->av_con, inquiry_result, sizeof(inquiry_result));

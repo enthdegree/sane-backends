@@ -2596,6 +2596,9 @@ compute_parameters (Avision_Scanner* s)
   
   s->params.pixels_per_line = s->avdimen.hw_pixels_per_line * s->avdimen.xres / s->avdimen.hw_xres;
   s->params.lines = s->avdimen.hw_lines * s->avdimen.xres / s->avdimen.hw_xres;
+  if (!is_adf_scan (s))
+    /* we can't know how many lines we'll see with an ADF because that depends on the paper length */
+    s->params.lines = -1;
   if (s->c_mode == AV_THRESHOLDED || s->c_mode == AV_DITHERED)
     s->params.pixels_per_line -= s->params.pixels_per_line % 8;
   
@@ -6170,7 +6173,8 @@ do_eof (Avision_Scanner *s)
   s->prepared = s->scanning = SANE_FALSE;
   
   /* we can now mark the rear data as valid */
-  if (s->avdimen.interlaced_duplex) {
+  if (s->avdimen.interlaced_duplex ||
+      (s->hw->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX && s->source_mode == AV_ADF_DUPLEX)) {
     DBG (3, "do_eof: toggling duplex rear data valid\n");
     s->duplex_rear_valid = !s->duplex_rear_valid;
     DBG (3, "do_eof: duplex rear data valid: %x\n",
@@ -6757,7 +6761,7 @@ reader_process (void *data)
     return SANE_STATUS_NO_MEM;
   
   /* start scan ? */
-  if (deinterlace == NONE ||
+  if ((deinterlace == NONE && !((dev->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX) && s->source_mode == AV_ADF_DUPLEX && s->duplex_rear_valid)) ||
       (deinterlace != NONE && !s->duplex_rear_valid))
     {
       /* reserve unit - in the past we did this in open - but the
@@ -6793,8 +6797,9 @@ reader_process (void *data)
       }
     }
   
-  /* setup file i/o for deinterlacing scans */
-  if (deinterlace != NONE)
+  /* setup file i/o for deinterlacing scans or if we are the back page with a flipping duplexer */
+  if (deinterlace != NONE ||
+     (dev->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX && s->source_mode == AV_ADF_DUPLEX && !(s->page % 2)))
     {
       if (!s->duplex_rear_valid) { /* create new file for writing */
 	DBG (3, "reader_process: opening duplex rear file for writing.\n");
@@ -7021,6 +7026,21 @@ reader_process (void *data)
 	  DBG (9, "reader_process: after deinterlacing: useful_bytes: %d, stripe_fill: %d\n",
 	       useful_bytes, stripe_fill);
 	}
+      if (dev->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX && s->source_mode == AV_ADF_DUPLEX && !(s->page % 2) && !s->duplex_rear_valid) {
+        /* Here we flip the image by writing the lines from the end of the file to the beginning. */
+	unsigned int absline = (processed_bytes - stripe_fill) / s->avdimen.hw_bytes_per_line;
+	unsigned int abslines = absline + useful_bytes / s->avdimen.hw_bytes_per_line;
+	uint8_t* ptr = stripe_data;
+	for ( ; absline < abslines; ++absline) {
+          fseek (rear_fp, (s->params.lines - absline + 1) * s->avdimen.hw_bytes_per_line, SEEK_SET);
+          fwrite (ptr, s->avdimen.hw_bytes_per_line, 1, rear_fp);
+          useful_bytes -= s->avdimen.hw_bytes_per_line;
+          stripe_fill -= s->avdimen.hw_bytes_per_line;
+          ptr += s->avdimen.hw_bytes_per_line;
+        }
+	DBG (9, "reader_process: after page flip: useful_bytes: %d, stripe_fill: %d\n",
+	       useful_bytes, stripe_fill);
+      }
       
       /*
        * Perform needed data conversions (packing, ...) and/or copy the
@@ -7228,7 +7248,7 @@ reader_process (void *data)
 	  
 	  /* on-the-fly bi-linear interpolation */
 	  while (1) {
-	    double by = (-1.0 + s->avdimen.hw_lines) * line / s->params.lines;
+	    double by = (-1.0 + s->avdimen.hw_lines) * line / (s->avdimen.hw_lines * s->avdimen.xres / s->avdimen.hw_xres + s->val[OPT_BACKGROUND].w);
 	    int sy = (int)floor(by);
 	    int ydist = (int) ((by - sy) * 256);
 	    int syy = sy + 1;
@@ -7411,7 +7431,8 @@ reader_process (void *data)
   
   /* Eject film holder and/or release_unit - but only for
      non-duplex-rear / non-virtual scans. */
-  if (deinterlace != NONE && s->duplex_rear_valid)
+  if ((deinterlace != NONE && s->duplex_rear_valid) ||
+     ((dev->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX) && s->source_mode == AV_ADF_DUPLEX && !(s->page % 2) && s->duplex_rear_valid))
     {
       DBG (1, "reader_process: virtual duplex scan - no device cleanup!\n");
     }
@@ -7434,7 +7455,28 @@ reader_process (void *data)
       }
     }
   
-  fclose (fp);
+  if ((dev->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX) && s->source_mode == AV_ADF_DUPLEX && s->page % 2) {
+    /* front page of flipping duplex */
+    if (exit_status == SANE_STATUS_EOF) {
+        status = set_window (s);
+        if (status != SANE_STATUS_GOOD) {
+          DBG (1, "reader_process: set scan window command failed: %s\n",
+          sane_strstatus (status));
+          return status;
+        }
+      /* we can set anything here without fear because the process will terminate soon and take our changes with it */
+      s->page += 1;
+      s->params.lines = line;
+      exit_status = reader_process (s);
+    }
+    /* TODO:
+    * else {
+    *   spit out the page if an error was encountered...
+    *   assuming the error won't prevent it.
+    * } */
+  } else {
+    fclose (fp);
+  }
   if (rear_fp)
     fclose (rear_fp);
  
@@ -7819,7 +7861,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   /* initialize the options */
   init_options (s);
   
-  if (dev->inquiry_duplex_interlaced || dev->scanner_type == AV_FILM) {
+  if (dev->inquiry_duplex_interlaced || dev->scanner_type == AV_FILM ||
+      dev->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX) {
     /* Might need at least *DOS (Windows flavour and OS/2) portability fix
        However, I was told Cygwin (et al.) takes care of it. */
     strncpy(s->duplex_rear_fname, "/tmp/avision-rear-XXXXXX", PATH_MAX);

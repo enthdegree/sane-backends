@@ -8140,7 +8140,6 @@ sane_start (SANE_Handle handle)
   if (status != SANE_STATUS_GOOD) {
     return status;
   }
-  compute_parameters (s);
   
   /* for non ADF scans (e.g. scanimage --batch-prompt on a Flatbed
      scanner) make sure we do not assume it's an ADF scan and

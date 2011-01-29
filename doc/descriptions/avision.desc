@@ -19,7 +19,7 @@
 ;:status :stable
 
 ; backend's web page
-:url "http://www.exactcode.de/oss/avision/index.html"
+:url "http://skull.piratehaven.org/~mike/sane/avision.html"
 
 ; name of manpage (if it exists)
 :manpage "sane-avision"

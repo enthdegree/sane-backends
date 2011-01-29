@@ -202,7 +202,10 @@ typedef struct Avision_HWEntry {
     AV_NO_TUNE_SCAN_LENGTH = (1<<0),
 
     /* for gray scans, set grey filter */
-    AV_USE_GRAY_FILTER = (1<<1)
+    AV_USE_GRAY_FILTER = (1<<1),
+
+    /* For (HP) scanners with flipping duplexers */
+    AV_ADF_FLIPPING_DUPLEX = (1<<2)
   } feature_type2;
 
 } Avision_HWEntry;

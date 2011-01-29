@@ -649,7 +649,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "C9930A",
       0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8200",
-      0,0},
+      0, AV_ADF_FLIPPING_DUPLEX },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
@@ -657,7 +657,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "C9930A",
       0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8250",
-      0,0},
+      0, AV_ADF_FLIPPING_DUPLEX },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 #endif
@@ -665,7 +665,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP", "C9930A",
       0x03f0, 0x3905,
       "Hewlett-Packard", "ScanJet 8270",
-      0,0},
+      0, AV_ADF_FLIPPING_DUPLEX },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
@@ -673,7 +673,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP", "C9930A",
       0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8290",
-      0,0},
+      0, AV_ADF_FLIPPING_DUPLEX },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0 and SCSI - only SCSI tested so far" */
     /* status="good" */
     
@@ -3142,7 +3142,7 @@ get_accessories_info (Avision_Scanner* s)
 
   dev->inquiry_adf |= result [0];
 
-  if (result [2] == 2) /* HP */
+  if (dev->hw->feature_type2 & AV_ADF_FLIPPING_DUPLEX)
   {
     dev->inquiry_duplex = 1;
     dev->inquiry_duplex_interlaced = 0;

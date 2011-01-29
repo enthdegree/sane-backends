@@ -4573,7 +4573,7 @@ set_calib_data (Avision_Scanner* s, struct calibration_format* format,
       value_new &= 0xffc0;
       value_new |= (get_double_le (dark_data + i*2) >> 10) & 0x3f;
       
-      DBG (100, "set_calib_data: element %d, dark difference %d\n",
+      DBG (9, "set_calib_data: element %d, dark difference %d\n",
 	   i, value_orig - value_new);
       
       set_double_le ((white_data + i*2), value_new);

@@ -6504,6 +6504,14 @@ init_options (Avision_Scanner* s)
     s->opt[OPT_IR].cap |= SANE_CAP_INACTIVE;
   }
   
+  /* "MISC" group: */
+  s->opt[OPT_MISC_GROUP].title = SANE_TITLE_SCAN_MODE;
+  s->opt[OPT_MISC_GROUP].desc = ""; /* for groups only title and type are valid */
+  s->opt[OPT_MISC_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_MISC_GROUP].cap = 0;
+  s->opt[OPT_MISC_GROUP].size = 0;
+  s->opt[OPT_MISC_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  
   /* film holder control */
   if (dev->scanner_type != AV_FILM)
     s->opt[OPT_FRAME].cap |= SANE_CAP_INACTIVE;

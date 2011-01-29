@@ -285,6 +285,7 @@ enum Avision_Option
   OPT_IR,                /* infra-red */
   OPT_MULTISAMPLE,       /* multi-sample */
   
+  OPT_MISC_GROUP,
   OPT_FRAME,             /* Film holder control */
 
   OPT_POWER_SAVE_TIME,   /* set power save time to the scanner */

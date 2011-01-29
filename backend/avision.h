@@ -408,10 +408,6 @@ typedef struct Avision_Device
   int scsi_buffer_size; /* nice to have SCSI buffer size */
   int read_stripe_size; /* stripes to be read at-a-time */
 
-  /* additional information - read delayed until sane_open() */
-  
-  SANE_Bool additional_probe;
-  
   /* film scanner atributes - maybe these should be in the scanner struct? */
   SANE_Range frame_range;
   SANE_Word current_frame;

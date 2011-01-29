@@ -2279,6 +2279,9 @@ add_color_mode (Avision_Device* dev, color_mode mode, SANE_String name)
 	dev->color_list [i] = strdup (name);
 	dev->color_list_num [i] = mode;
 	return SANE_STATUS_GOOD;
+      } else if (strcmp (dev->color_list [i], name) == 0) {
+	/* already in list */
+	return SANE_STATUS_GOOD;
       }
     }
   
@@ -2349,6 +2352,9 @@ add_source_mode (Avision_Device* dev, source_mode mode, SANE_String name)
         dev->source_list [i] = strdup (name);
         dev->source_list_num [i] = mode;
         return SANE_STATUS_GOOD;
+      } else if (strcmp (dev->source_list [i], name) == 0) {
+	/* already in list */
+	return SANE_STATUS_GOOD;
       }
     }
   
@@ -4185,9 +4191,6 @@ get_double ( &(result[48] ) ));
   else  /* tested on AV3200 with it's max of 300dpi @color */
     dev->read_stripe_size = 8; /* maybe made dynamic on scan res ... */
   
-  /* set the flag for an additional probe at sane_open() */
-  dev->additional_probe = SANE_TRUE;
-    
   /* normally the data_dq is 0x0a0d - but some newer scanner hang with it ... */
   if (dev->inquiry_new_protocol) /* TODO: match on ASIC? which model hung? */
     dev->data_dq = 0x0a0d;
@@ -4404,8 +4407,6 @@ additional_probe (Avision_Scanner* s)
       add_source_mode (dev, AV_ADF_REAR, "ADF Back");
     add_source_mode (dev, AV_ADF_DUPLEX, "ADF Duplex");
   }
-  
-  dev->additional_probe = SANE_FALSE;
   
   return SANE_STATUS_GOOD;
 }
@@ -7721,20 +7722,18 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 	return status;
   }
 
-  /* maybe probe for additional information */
-  if (dev->additional_probe)
-    {
-      status = wait_ready (&s->av_con, 1);
-      if (status != SANE_STATUS_GOOD) {
-	DBG (1, "sane_open: wait_ready() failed: %s\n", sane_strstatus (status));
-	return status;
-      }
-      status = additional_probe (s);
-      if (status != SANE_STATUS_GOOD) {
-	DBG (1, "sane_open: additional probe failed: %s\n", sane_strstatus (status));
-	return status;
-      }
-    }
+  status = wait_ready (&s->av_con, 1);
+  if (status != SANE_STATUS_GOOD) {
+    DBG (1, "sane_open: wait_ready() failed: %s\n", sane_strstatus (status));
+    return status;
+  }
+
+  /* update settings based on additional accessory information */
+  status = additional_probe (s);
+  if (status != SANE_STATUS_GOOD) {
+    DBG (1, "sane_open: additional probe failed: %s\n", sane_strstatus (status));
+    return status;
+  }
   
   /* initialize the options */
   init_options (s);

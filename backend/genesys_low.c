@@ -1069,6 +1069,9 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
 
   DBGSTART;
 
+  /* clearthe parking status whatever the outcome of the function */
+  dev->parking=SANE_FALSE;
+
   /* read initial status, if head isn't at home and motor is on
    * we are parking, so we wait.
    * gl847/gl124 need 2 reads for reliable results */

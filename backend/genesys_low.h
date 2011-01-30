@@ -633,6 +633,7 @@ struct Genesys_Device
   SANE_Int lamp_off_time;
 
   SANE_Bool read_active;
+  SANE_Bool parking;		/**> signal wether the park command has been issued */
   SANE_Bool document;		/**> for sheetfed scanner's, is TRUE when there
 				   is a document in the scanner */
 

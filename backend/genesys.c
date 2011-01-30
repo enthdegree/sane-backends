@@ -6841,7 +6841,7 @@ genesys_buffer_image(Genesys_Scanner *s)
       return SANE_STATUS_NO_MEM;
     }
 
-  /* loop reading data until we reach maximu or EOF */
+  /* loop reading data until we reach maximum or EOF */
   total = 0;
   while (total < maximum && status != SANE_STATUS_EOF)
     {
@@ -6882,6 +6882,7 @@ genesys_buffer_image(Genesys_Scanner *s)
   if (dev->model->is_sheetfed == SANE_FALSE)
     {
       dev->model->cmd_set->slow_back_home (dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+      dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
     }
 
   /* update counters */
@@ -7180,7 +7181,7 @@ sane_close (SANE_Handle handle)
     }
   if (!s)
     {
-      DBG (DBG_error, "close: invalid handle %p\n", handle);
+      DBG (DBG_error, "sane_close: invalid handle %p\n", handle);
       return;			/* oops, not a handle we know about */
     }
 
@@ -7191,24 +7192,18 @@ sane_close (SANE_Handle handle)
     }
   else
     {
-      /* if no MUST_WAIT flag, the head may be parking asynchronously
-       * so we wait it to head at home */
-      if(!(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT))
+      /* in case scanner is parking, wait for the head
+       * to reach home position */
+      if(s->dev->parking==SANE_TRUE)
         {
-          loop=0;
-          do
+          status = sanei_genesys_wait_for_home (s->dev);
+          if (status != SANE_STATUS_GOOD)
             {
-              usleep (100000);	/* sleep 100 ms */
-              status = sanei_genesys_get_status (s->dev, &val);
-              if (status != SANE_STATUS_GOOD)
-                {
-                  DBG (DBG_error,
-                       "sane_close: failed to read home sensor: %s\n",
-                       sane_strstatus (status));
-                }
-              ++loop;
-            } while(loop<300 && !(val & HOMESNR) && status==SANE_STATUS_GOOD);
-         }
+              DBG (DBG_error,
+                   "sane_close: failed to wait for head to park: %s\n",
+                   sane_strstatus (status));
+            }
+        }
     }
     
   /* here is the place to store calibration cache */
@@ -7965,25 +7960,33 @@ sane_cancel (SANE_Handle handle)
       s->dev->img_buffer=NULL;
     }
 
-  status = s->dev->model->cmd_set->end_scan (s->dev, s->dev->reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
+  /* no need to end scan if we are parking the head */
+  if(s->dev->parking==SANE_FALSE)
     {
-      DBG (DBG_error, "sane_cancel: failed to end scan: %s\n",
-	   sane_strstatus (status));
-      return;
+      status = s->dev->model->cmd_set->end_scan (s->dev, s->dev->reg, SANE_TRUE);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error, "sane_cancel: failed to end scan: %s\n",
+               sane_strstatus (status));
+          return;
+        }
     }
 
   /* park head if flatbed scanner */
   if (s->dev->model->is_sheetfed == SANE_FALSE)
     {
-      status = s->dev->model->cmd_set->slow_back_home (s->dev, s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "sane_cancel: failed to move scanhead to home position: %s\n",
-	       sane_strstatus (status));
-	  return;
-	}
+      if(s->dev->parking==SANE_FALSE)
+        {
+          status = s->dev->model->cmd_set->slow_back_home (s->dev, s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+          if (status != SANE_STATUS_GOOD)
+            {
+              DBG (DBG_error,
+                   "sane_cancel: failed to move scanhead to home position: %s\n",
+                   sane_strstatus (status));
+              return;
+            }
+          s->dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+        }
     }
   else
     {				/* in case of sheetfed scanners, we have to eject the document if still present */

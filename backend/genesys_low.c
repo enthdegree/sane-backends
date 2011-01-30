@@ -1126,23 +1126,19 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
 int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres)
 {
   /* can't be below 600 dpi */
-  if(xres<=600)
+  if (xres <= 600)
     {
       return 600;
     }
-  switch(dev->model->ccd_type)
+  if (xres <= dev->sensor.optical_res / 4)
     {
-    default:
-      if(xres<=dev->sensor.optical_res/4)
-        {
-          return dev->sensor.optical_res/4;
-        }
-      if(xres<=dev->sensor.optical_res/2)
-        {
-          return dev->sensor.optical_res/2;
-        }
-      return dev->sensor.optical_res;
+      return dev->sensor.optical_res / 4;
     }
+  if (xres <= dev->sensor.optical_res / 2)
+    {
+      return dev->sensor.optical_res / 2;
+    }
+  return dev->sensor.optical_res;
 }
 
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

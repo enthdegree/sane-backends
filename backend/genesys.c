@@ -4374,7 +4374,8 @@ genesys_start_scan (Genesys_Device * dev)
   
   /* GL124 is using SHDAREA, so we have to wait for scan to be set up before
    * sending shading data */
-  if(dev->model->cmd_set->send_shading_data!=NULL)
+  if(  (dev->model->cmd_set->send_shading_data!=NULL)
+   && !(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
     {
       status = genesys_send_shading_coefficient (dev);
       if (status != SANE_STATUS_GOOD)
@@ -4641,96 +4642,6 @@ static SANE_Status accurate_line_read(Genesys_Device * dev,
 }
 #endif
 
-/** @brief fill buffer for odd/even sensors
- * This function fills a read buffer with scanned data from a sensor
- * which puts odd and even pixels in 2 different data segment. So a complete
- * must be read and bytes interleaved to get usable by the other stages
- * of the backend
- */
-static SANE_Status 
-genesys_fill_oe_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, size_t size)
-{
-  size_t count;
-  SANE_Status status;
-
-      /* fill buffer if needed */
-      if (dev->oe_buffer.avail == 0)
-	{
-	  status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_error,
-		   "%s: failed to read %lu bytes (%s)\n", __FUNCTION__,
-		   (u_long) dev->oe_buffer.size, sane_strstatus (status));
-	      return SANE_STATUS_IO_ERROR;
-	    }
-	}
-
-      /* copy size bytes of data, copying from a subwindow of each line
-       * when last line of buffer is exhausted, read another one */
-      count = 0;
-      while (count < size)
-	{
-          if(dev->settings.double_xres==SANE_TRUE)
-            {
-	      /* copy only even pixel */
-	      work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-              /* update counter and pointer */
-              count++;
-              dev->cur++;
-            }
-          else if(dev->settings.depth==8 && dev->settings.double_xres==SANE_FALSE)
-            {
-	      while (dev->cur < dev->len && count < size)
-	        {
-	          /* copy even pixel */
-	          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-	          /* copy odd pixel */
-	          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
-                  /* update counter and pointer */
-	          count += 2;
-	          dev->cur++;
-                }
-            }
-          else if(dev->settings.depth==16 && dev->settings.double_xres==SANE_FALSE)
-            {
-	      while (dev->cur < dev->len && count < size)
-	        {
-                  /* copy even pixel */
-                  work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-                  work_buffer_dst[count+1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
-                  /* copy odd pixel */
-                  work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
-                  work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos+1];
-                  /* update counter and pointer */
-                  count += 4;
-                  dev->cur+=2;
-                }
-            }
-
-	  /* go to next line if needed */
-	  if (dev->cur == dev->len)
-	    {
-	      dev->oe_buffer.pos += dev->bpl;
-	      dev->cur = 0;
-	    }
-
-	  /* read a new buffer if needed */
-	  if (dev->oe_buffer.pos >= dev->oe_buffer.avail)
-	    {
-              status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
-              if (status != SANE_STATUS_GOOD)
-                {
-                  DBG (DBG_error,
-                       "%s: failed to read %lu bytes (%s)\n", __FUNCTION__, 
-                       (u_long) dev->oe_buffer.size, sane_strstatus (status));
-                  return SANE_STATUS_IO_ERROR;
-                }
-	    }
-	}
-
-    return SANE_STATUS_GOOD;
-}
 
 /** @brief fill buffer while reducing vertical resolution
  * This function fills a read buffer with scanned data from a sensor

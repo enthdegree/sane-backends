@@ -358,8 +358,9 @@ static void
 gl847_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 {
   Genesys_Register_Set *r;
-  int i;
-  int dpihw;
+  Sensor_Profile *sensor;
+  int dpihw, i;
+  uint16_t exp;
 
   DBGSTART;
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
@@ -377,6 +378,33 @@ gl847_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
       if (r)
 	r->value = dev->sensor.regs_0x52_0x5e[i];
     }
+
+  /* set EXPDUMMY and CKxMAP */
+  dpihw=sanei_genesys_compute_dpihw(dev,dpi);
+  sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
+
+  sanei_genesys_set_reg_from_set(regs,REG_EXPDMY,(uint8_t)((sensor->expdummy) & 0xff));
+
+  /* if no calibration has been done, set default values for exposures */
+  sanei_genesys_get_double(dev->reg,REG_EXPR,&exp);
+  if(exp==0)
+    {
+      sanei_genesys_set_double(dev->reg,REG_EXPR,sensor->expr);
+    }
+  sanei_genesys_get_double(dev->reg,REG_EXPG,&exp);
+  if(exp==0)
+    {
+      sanei_genesys_set_double(dev->reg,REG_EXPG,sensor->expg);
+    }
+  sanei_genesys_get_double(dev->reg,REG_EXPB,&exp);
+  if(exp==0)
+    {
+      sanei_genesys_set_double(dev->reg,REG_EXPB,sensor->expb);
+    }
+
+  sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
+  sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
+  sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);
 
   DBGCOMPLETED;
 }
@@ -713,35 +741,6 @@ gl847_init_motor_regs_off (Genesys_Device * dev,
 
   feedl = 2;
 
-/* all needed slopes available. we did even decide which mode to use. 
-   what next?
-   - transfer slopes
-SCAN:
-flags \ use_fast_fed    ! 0         1
-------------------------\--------------------
-                      0 ! 0,1,2     0,1,2,3
-MOTOR_FLAG_AUTO_GO_HOME ! 0,1,2,4   0,1,2,3,4
-OFF:       none
-FEED:      3
-GO_HOME:   3
-HOME_FREE: 3
-   - setup registers
-     * slope specific registers (already done)
-     * DECSEL for HOME_FREE/GO_HOME/SCAN
-     * FEEDL
-     * MTRREV
-     * MTRPWR
-     * FASTFED
-     * STEPSEL
-     * MTRPWM
-     * FSTPSEL
-     * FASTPWM
-     * HOMENEG
-     * BWDSTEP
-     * FWDSTEP
-     * Z1
-     * Z2
- */
   r = sanei_genesys_get_address (reg, 0x3d);
   r->value = (feedl >> 16) & 0xf;
   r = sanei_genesys_get_address (reg, 0x3e);
@@ -791,7 +790,6 @@ HOME_FREE: 3
 
   r = sanei_genesys_get_address (reg, 0x5f);
   r->value = 1;
-
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;

@@ -311,6 +311,14 @@
 #define REGA7 		0xa7
 #define REGA9 		0xa9
 
+#define REG_EXPR        0x10
+#define REG_EXPG        0x12
+#define REG_EXPB        0x14
+#define REG_EXPDMY      0x34
+#define REG_CK1MAP      0x74
+#define REG_CK3MAP      0x77
+#define REG_CK4MAP      0x7a
+
 #define SCAN_FLAG_SINGLE_LINE              0x01
 #define SCAN_FLAG_DISABLE_SHADING          0x02
 #define SCAN_FLAG_DISABLE_GAMMA            0x04
@@ -520,7 +528,6 @@ typedef struct {
   int ck3map;           /**> CK3MAP */
   int ck4map;           /**> CK4MAP */
   int segcnt;           /**> SEGCNT */
-  int tg0cnt;           /**> TG0CNT */
   int expdummy;         /**> exposure dummy */
   int expr;             /**> initial red exposure */
   int expg;             /**> initial green exposure */
@@ -536,9 +543,9 @@ static Sensor_Profile sensors[]={
 	{CIS_CANONLIDE200,  150,  2848, 240, 636, 340, 5144, 0, 255,  637,  637,  637},
 	{CIS_CANONLIDE200,  300,  1424, 240, 636, 340, 5144, 0, 255,  637,  637,  637},
 	*/
-	{CIS_CANONLIDE200,  600,  1432, 240, 636, 340, 5144, 0, 255,  410,  275,  203},
-	{CIS_CANONLIDE200, 1200,  2712, 240, 636, 340, 5144, 0, 255,  746,  478,  353},
-	{CIS_CANONLIDE200, 2400,  5280, 240, 636, 340, 5144, 0, 255, 1417,  909,  643},
-	{CIS_CANONLIDE200, 4800, 10416, 240, 636, 340, 5144, 0, 255, 2692, 1728, 1221},
+	{CIS_CANONLIDE200,  600,  1432, 240, 636, 340, 5144, 255,  410,  275,  203},
+	{CIS_CANONLIDE200, 1200,  2712, 240, 636, 340, 5144, 255,  746,  478,  353},
+	{CIS_CANONLIDE200, 2400,  5280, 240, 636, 340, 5144, 255, 1417,  909,  643},
+	{CIS_CANONLIDE200, 4800, 10416, 240, 636, 340, 5144, 255, 2692, 1728, 1221},
 };
 /* *INDENT-ON* */

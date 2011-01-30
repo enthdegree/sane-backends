@@ -118,8 +118,15 @@ sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
 	   filename, strerror (errno));
       return SANE_STATUS_INVAL;
     }
-  fprintf (out, "P%c\n%d\n%d\n%d\n", channels == 1 ? '5' : '6',
+  if(depth==1)
+    {
+      fprintf (out, "P4\n%d\n%d\n", pixels_per_line, lines);
+    }
+  else
+    {
+      fprintf (out, "P%c\n%d\n%d\n%d\n", channels == 1 ? '5' : '6',
 	   pixels_per_line, lines, (int) pow (2, depth) - 1);
+    }
   if (channels == 3)
     {
       for (count = 0; count < (pixels_per_line * lines * 3); count++)
@@ -133,18 +140,26 @@ sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
     }
   else
     {
+      if (depth==1)
+        {
+          pixels_per_line/=8;
+        }
       for (count = 0; count < (pixels_per_line * lines); count++)
 	{
-	  if (depth == 8)
-	    {
-	      fputc (*(data + count), out);
-	    }
-	  else
-	    {
-	      fputc (*(data + 1), out);
-	      fputc (*(data), out);
-	      data += 2;
-	    }
+          switch (depth)
+            {
+              case 8:
+	        fputc (*(data + count), out);
+                break;
+              case 16:
+	        fputc (*(data + 1), out);
+	        fputc (*(data), out);
+	        data += 2;
+                break;
+              default:
+                fputc(data[count], out);
+                break;
+            }
 	}
     }
   fclose (out);

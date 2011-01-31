@@ -7166,8 +7166,6 @@ sane_close (SANE_Handle handle)
   Genesys_Scanner *prev, *s;
   Genesys_Calibration_Cache *cache, *next_cache;
   SANE_Status status;
-  uint8_t val;
-  int loop;
 
   DBG (DBG_proc, "sane_close: start\n");
 

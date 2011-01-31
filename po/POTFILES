@@ -50,6 +50,8 @@
 
 ../backend/ma1509.c
 
+../backend/magicolor.c
+
 ../backend/matsushita.c
 ../backend/matsushita.h
 

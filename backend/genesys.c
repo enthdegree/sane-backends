@@ -7909,6 +7909,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
 
   *len = 0;
+  if(dev->total_bytes_read>=dev->total_bytes_to_read)
+    {
+      return SANE_STATUS_EOF;
+    }
 
   if (!s->scanning)
     {
@@ -7934,10 +7938,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
         }
       memcpy(buf,dev->img_buffer+dev->total_bytes_read,local_len);
       dev->total_bytes_read+=local_len;
-      if(dev->total_bytes_read>=dev->total_bytes_to_read)
-        {
-          status=SANE_STATUS_EOF;
-        }
     }
 
   *len = local_len;

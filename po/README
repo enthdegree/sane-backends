@@ -45,8 +45,8 @@ Backend developers: I want to add internationalization support for my backend
   already done in saneopts.h.
   Examples: s->opt[5].title = SANE_I18N("Enhancement");
             #define STANDARD_FORMAT SANE_I18N("a4 Paper")
-* Edit po/Makefile.in. Add all source code files that contain strings marked
-  by SANE_I18N() to SRC_FILES.
+* Edit po/POTFILES. Add all source code files that contain strings marked
+  by SANE_I18N() to that file.
 * If you want to also add a new language, see above.
 * ./configure
 * See "Update existing translations" or "Add a new language".

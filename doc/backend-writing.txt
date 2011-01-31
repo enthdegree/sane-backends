@@ -370,7 +370,8 @@ PROGRAMMING
   techniques generating warnings on gcc may lead to errors on other systems.
 
 * To support translation of SANE options, please mark the descriptions (desc)
-  and title of options with SANE_I18N(). See po/README for details.
+  and title of options with SANE_I18N() and add all files using SANE_I18N() to
+  po/POTFILES. See po/README for details.
 
 * Please check for TL_X < BR_X and TL_Y < BR_Y to avoid segfaults or even
   scanner damage. This should NOT be done in sane_control_option, it should
@@ -481,6 +482,9 @@ In sane-backends/doc/
   check the html pages result with a browser.
 * Check that the backend version is the same in the source and in the
   description file.
+  
+In sane-backends/po/
+* Add all files using SANE_I18N() to po/POTFILES
 
 
 INCLUDING INTO git

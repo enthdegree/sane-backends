@@ -123,7 +123,7 @@
          - dont export private symbols
       v19 2009-08-31, RG
          - rewritten calibration routines
-      v20 2010-02-09, MAN
+      v20 2010-02-09, MAN (SANE 1.0.21 & 1.0.22)
          - cleanup #include lines & copyright
          - add S1300
 

@@ -40,6 +40,12 @@
 :usbid "0x04c5" "0x117f"
 :comment "Same as S300, with different usb id"
 
+:model "ScanSnap S1100"
+:interface "USB"
+:status :untested
+;:usbid "0x04c5" "0x11ed"
+:comment "Testers needed!"
+
 :model "ScanSnap S1300"
 :interface "USB"
 :status :good

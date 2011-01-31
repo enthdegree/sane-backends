@@ -6,8 +6,8 @@
 ###                   read requests. All values are given in milliseconds,
 ###                   i.e. 1000 is 1 second.
 
-# SNMP auto-detection waits 2.5 seconds
-snmp-timeout 2500
+# SNMP auto-detection waits 1.5 seconds
+snmp-timeout 1500
 
 # wait 15 seconds for scan data (color scans take ~6 seconds to initialize,
 # so we need to wait longer than that)

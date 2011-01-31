@@ -267,6 +267,19 @@ extern SANE_Status sanei_usb_open (SANE_String_Const devname, SANE_Int * dn);
  */
 extern void sanei_usb_set_endpoint (SANE_Int dn, SANE_Int ep_type, SANE_Int ep);
 
+/** Retrieve the endpoint used for the USB communication
+ *
+ * Returns the endpoint used for the USB communication of the given type.
+ * This function can only be called after sanei_usb_open.
+ *
+ * @param dn device number
+ * @param ep_type type of endpoint to retrieve (bitwise or of USB_DIR_IN/OUT
+ *                and USB_ENDPOINT_TYPE_BULK/CONTROL/INTERRUPT/ISOCHRONOUS
+ * @return endpoint used for the given type
+ *
+ */
+extern SANE_Int sanei_usb_get_endpoint (SANE_Int dn, SANE_Int ep_type);
+
 /** Close a USB device.
  * 
  * @param dn device number

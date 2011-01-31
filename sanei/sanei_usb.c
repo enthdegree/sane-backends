@@ -1108,6 +1108,12 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
 void
 sanei_usb_set_endpoint (SANE_Int dn, SANE_Int ep_type, SANE_Int ep)
 {
+  if (dn >= device_number || dn < 0)
+    {
+      DBG (1, "sanei_usb_set_endpoint: dn >= device number || dn < 0\n");
+      return;
+    }
+
   DBG (5, "sanei_usb_set_endpoint: Setting endpoint of type 0x%02x to 0x%02x\n", ep_type, ep);
   switch (ep_type)
     {
@@ -1135,6 +1141,38 @@ sanei_usb_set_endpoint (SANE_Int dn, SANE_Int ep_type, SANE_Int ep)
       case USB_DIR_OUT|USB_ENDPOINT_TYPE_CONTROL:
 	    devices[dn].control_out_ep = ep;
 	    break;
+    }
+}
+
+SANE_Int
+sanei_usb_get_endpoint (SANE_Int dn, SANE_Int ep_type)
+{
+  if (dn >= device_number || dn < 0)
+    {
+      DBG (1, "sanei_usb_get_endpoint: dn >= device number || dn < 0\n");
+      return 0;
+    }
+
+  switch (ep_type)
+    {
+      case USB_DIR_IN|USB_ENDPOINT_TYPE_BULK:
+	    return devices[dn].bulk_in_ep;
+      case USB_DIR_OUT|USB_ENDPOINT_TYPE_BULK:
+	    return devices[dn].bulk_out_ep;
+      case USB_DIR_IN|USB_ENDPOINT_TYPE_ISOCHRONOUS:
+	    return devices[dn].iso_in_ep;
+      case USB_DIR_OUT|USB_ENDPOINT_TYPE_ISOCHRONOUS:
+	    return devices[dn].iso_out_ep;
+      case USB_DIR_IN|USB_ENDPOINT_TYPE_INTERRUPT:
+	    return devices[dn].int_in_ep;
+      case USB_DIR_OUT|USB_ENDPOINT_TYPE_INTERRUPT:
+	    return devices[dn].int_out_ep;
+      case USB_DIR_IN|USB_ENDPOINT_TYPE_CONTROL:
+	    return devices[dn].control_in_ep;
+      case USB_DIR_OUT|USB_ENDPOINT_TYPE_CONTROL:
+	    return devices[dn].control_out_ep;
+      default:
+	    return 0;
     }
 }
 

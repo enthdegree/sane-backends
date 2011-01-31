@@ -1,3 +1,12 @@
+2011-01-31 m. allan noah <kitno455 at gmail dot com>
+	* backend/epjitsu.c, doc/descriptions/epjitsu.desc:
+	- comment changes
+	- added new models
+	* backend/fujitsu.c, doc/descriptions/fujitsu.desc,
+	doc/sane-fujitsu.man: fujitsu backend v106,
+	- added new models
+	- dont call mode_select with a page code the scanner does not support
+
 2011-01-28 Mike Kelly <mike@piratehaven.org>
 	* backends/avision.[ch]:
 	- Bumped build number to 294.

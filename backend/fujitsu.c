@@ -481,6 +481,8 @@
          - backup and restore image params around image processing code
          - cache software crop/deskew parameters for use on backside of duplex
          - fi-6110 does not support bgcolor or prepick
+      v106 2011-01-30, MAN (SANE 1.0.22)
+         - dont call mode_select with a page code the scanner does not support
 
    SANE FLOW DIAGRAM
 
@@ -530,7 +532,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 105
+#define BUILD 106
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -5567,6 +5569,11 @@ mode_select_df (struct fujitsu *s)
 
   DBG (10, "mode_select_df: start\n");
 
+  if(!s->has_MS_df){
+    DBG (10, "mode_select_df: unsupported\n");
+    return SANE_STATUS_GOOD;
+  }
+
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
   set_MSEL_pf(cmd, 1);
@@ -5628,6 +5635,11 @@ mode_select_bg (struct fujitsu *s)
 
   DBG (10, "mode_select_bg: start\n");
 
+  if(!s->has_MS_bg){
+    DBG (10, "mode_select_bg: unsupported\n");
+    return SANE_STATUS_GOOD;
+  }
+
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
   set_MSEL_pf(cmd, 1);
@@ -5672,6 +5684,11 @@ mode_select_dropout (struct fujitsu *s)
   unsigned char * page = out+MSEL_header_len;
 
   DBG (10, "mode_select_dropout: start\n");
+
+  if(!s->has_MS_dropout){
+    DBG (10, "mode_select_dropout: unsupported\n");
+    return SANE_STATUS_GOOD;
+  }
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
@@ -5754,6 +5771,11 @@ mode_select_prepick (struct fujitsu *s)
 
   DBG (10, "mode_select_prepick: start\n");
 
+  if (!s->has_MS_prepick){
+    DBG (10, "mode_select_prepick: unsupported\n");
+    return SANE_STATUS_GOOD;
+  }
+
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
   set_MSEL_pf(cmd, 1);
@@ -5790,6 +5812,11 @@ mode_select_auto (struct fujitsu *s)
   unsigned char * page = out+MSEL_header_len;
 
   DBG (10, "mode_select_auto: start\n");
+
+  if(!s->has_MS_auto){
+    DBG (10, "mode_select_auto: unsupported\n");
+    return SANE_STATUS_GOOD;
+  }
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);

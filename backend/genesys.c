@@ -60,7 +60,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 62
+#define BUILD 63
 
 #include <errno.h>
 #include <string.h>

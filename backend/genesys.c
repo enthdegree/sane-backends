@@ -4192,7 +4192,7 @@ genesys_start_scan (Genesys_Device * dev)
 
   /* since not all scanners are set ot wait for head to park
    * we check we are not still parking before starting a new scan */
-  if (dev->model->is_sheetfed == SANE_FALSE && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT))
+  if (dev->parking == SANE_TRUE)
     {
       status = sanei_genesys_wait_for_home (dev);
       if (status != SANE_STATUS_GOOD)
@@ -4238,6 +4238,7 @@ genesys_start_scan (Genesys_Device * dev)
 	      return status;
 	    }
 
+          dev->parking = SANE_FALSE;
 	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -4253,6 +4254,7 @@ genesys_start_scan (Genesys_Device * dev)
 	  /* Go home */
 	  /* TODO: check we can drop this since we cannot have the
 	     scanner's head wandering here */
+          dev->parking = SANE_FALSE;
 	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -7099,6 +7101,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->lines_buffer.buffer = NULL;
   s->dev->shrink_buffer.buffer = NULL;
   s->dev->out_buffer.buffer = NULL;
+  s->dev->parking = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
   s->dev->white_average_data = NULL;
   s->dev->dark_average_data = NULL;

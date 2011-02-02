@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2010-2011 Stéphane Voltz <stef.dev@free.fr>
    
     
    This file is part of the SANE package.

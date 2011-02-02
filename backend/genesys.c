@@ -2,7 +2,7 @@
 
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2011 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
@@ -7910,10 +7910,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
 
   *len = 0;
-  if(dev->total_bytes_read>=dev->total_bytes_to_read)
-    {
-      return SANE_STATUS_EOF;
-    }
 
   if (!s->scanning)
     {
@@ -7923,6 +7919,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
 
   DBG (DBG_proc, "sane_read: start, %d maximum bytes required\n", max_len);
+  
+  if(dev->total_bytes_read>=dev->total_bytes_to_read)
+    {
+      return SANE_STATUS_EOF;
+    }
 
   local_len = max_len;
 

@@ -1137,6 +1137,7 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
+#if 0
 static int
 gl843_get_dpihw (Genesys_Device * dev)
 {
@@ -1152,6 +1153,7 @@ gl843_get_dpihw (Genesys_Device * dev)
     return 4800;
   return 0;
 }
+#endif
 
 /**@brief compute hardware sensor dpi to use
  * compute the sensor hardware dpi based on target resolution
@@ -2436,6 +2438,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   DBG (DBG_proc, "gl843_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
+  usleep (100000);	/* sleep 100 ms */
 
   dev->scanhead_position_in_steps = 0;
   status = sanei_genesys_get_status (dev, &val);

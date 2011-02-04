@@ -5835,9 +5835,10 @@ calc_parameters (Genesys_Scanner * s)
       s->dev->settings.threshold_curve=0;
 
   /* some digital processing requires the whole picture to be buffered */
-  /* no digital processing takes place when doing preview */
+  /* no digital processing takes place when doing preview, or when bit depth is
+   * higher than 8 bits */
   if ((s->val[OPT_SWDESPECK].b || s->val[OPT_SWCROP].b || s->val[OPT_SWDESKEW].b)
-      &&(!s->val[OPT_PREVIEW].b))
+      && (!s->val[OPT_PREVIEW].b) && (s->val[OPT_BIT_DEPTH].w <= 8))
     {
       s->dev->buffer_image=SANE_TRUE;
     }
@@ -7425,7 +7426,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       *myinfo |= SANE_INFO_RELOAD_PARAMS;
       break;
     case OPT_RESOLUTION:
-    case OPT_BIT_DEPTH:
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
     case OPT_DISABLE_DYNAMIC_LINEART:
@@ -7447,6 +7447,26 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       else
         {
           DISABLE(OPT_DESPECK);
+        }
+      RIE (calc_parameters (s));
+      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+      break;
+    /* software enhancement functions only apply to 8 or 1 bits data */
+    case OPT_BIT_DEPTH:
+      s->val[option].w = *(SANE_Word *) val;
+      if(s->val[OPT_BIT_DEPTH].w>8)
+        {
+          DISABLE(OPT_SWDESKEW);
+          DISABLE(OPT_SWDESPECK);
+          DISABLE(OPT_SWCROP);
+          DISABLE(OPT_DESPECK);
+        }
+      else
+        {
+          ENABLE(OPT_SWDESKEW);
+          ENABLE(OPT_SWDESPECK);
+          ENABLE(OPT_SWCROP);
+          ENABLE(OPT_DESPECK);
         }
       RIE (calc_parameters (s));
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
@@ -7872,7 +7892,7 @@ sane_start (SANE_Handle handle)
         }
    
       /* crop image if required */
-      if(s->val[OPT_SWCROP].b == SANE_TRUE)
+      if(s->val[OPT_SWCROP].b == SANE_TRUE) 
         {
           RIE(genesys_crop(s));
         }

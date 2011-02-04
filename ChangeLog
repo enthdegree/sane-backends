@@ -1,3 +1,7 @@
+2011-02-04 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c: disable image processing options at 16 bits since
+	they can't handle it.
+
 2011-02-02 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_low.c backend/genesys_gl843.c:
 	more asynchronous parking issues

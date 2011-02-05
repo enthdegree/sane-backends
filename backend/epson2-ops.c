@@ -1342,6 +1342,9 @@ e2_init_parameters(Epson_Scanner * s)
 #endif
 	}
 
+	if (s->params.bytes_per_line == 0)
+		return SANE_STATUS_INVAL;
+
 	/*
 	 * Calculate correction for line_distance in D1 scanner:
 	 * Start line_distance lines earlier and add line_distance lines at the end

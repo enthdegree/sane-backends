@@ -386,21 +386,26 @@ gl847_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   sanei_genesys_set_reg_from_set(regs,REG_EXPDMY,(uint8_t)((sensor->expdummy) & 0xff));
 
   /* if no calibration has been done, set default values for exposures */
-  sanei_genesys_get_double(dev->reg,REG_EXPR,&exp);
+  exp=dev->sensor.regs_0x10_0x1d[0]*256+dev->sensor.regs_0x10_0x1d[1];
   if(exp==0)
     {
-      sanei_genesys_set_double(dev->reg,REG_EXPR,sensor->expr);
+      exp=sensor->expr;
     }
-  sanei_genesys_get_double(dev->reg,REG_EXPG,&exp);
+  sanei_genesys_set_double(regs,REG_EXPR,exp);
+
+  exp=dev->sensor.regs_0x10_0x1d[2]*256+dev->sensor.regs_0x10_0x1d[3];
   if(exp==0)
     {
-      sanei_genesys_set_double(dev->reg,REG_EXPG,sensor->expg);
+      exp=sensor->expg;
     }
-  sanei_genesys_get_double(dev->reg,REG_EXPB,&exp);
+  sanei_genesys_set_double(regs,REG_EXPG,exp);
+
+  exp=dev->sensor.regs_0x10_0x1d[4]*256+dev->sensor.regs_0x10_0x1d[5];
   if(exp==0)
     {
-      sanei_genesys_set_double(dev->reg,REG_EXPB,sensor->expb);
+      exp=sensor->expb;
     }
+  sanei_genesys_set_double(regs,REG_EXPB,exp);
 
   sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
   sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
@@ -443,17 +448,22 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x0a, 0x00);
   SETREG (0x0b, 0x01);
   SETREG (0x0c, 0x02);
-  /* SETREG (0x0d, REG0D_CLRMCNT); */
+
+  /* LED exposures */
   SETREG (0x10, 0x00);
   SETREG (0x11, 0x00);
   SETREG (0x12, 0x00);
   SETREG (0x13, 0x00);
   SETREG (0x14, 0x00);
   SETREG (0x15, 0x00);
+
   SETREG (0x16, 0x10);
   SETREG (0x17, 0x08);
   SETREG (0x18, 0x00);
+
+  /* EXPDMY */
   SETREG (0x19, 0x50);
+
   SETREG (0x1a, 0x34);
   SETREG (0x1b, 0x00);
   SETREG (0x1c, 0x02);
@@ -2171,38 +2181,17 @@ static void
 gl847_set_lamp_power (Genesys_Device * dev,
 		      Genesys_Register_Set * regs, SANE_Bool set)
 {
-  Genesys_Register_Set *r;
-  int i;
-
   if (set)
     {
-      sanei_genesys_set_reg_from_set (regs, 0x03,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x03)
+      sanei_genesys_set_reg_from_set (regs, REG03,
+				      sanei_genesys_read_reg_from_set (regs, REG03)
 				      | REG03_LAMPPWR);
-
-      for (i = 0; i < 6; i++)
-	{
-          r = sanei_genesys_get_address (dev->calib_reg, 0x10+i);
-	  r->value = dev->sensor.regs_0x10_0x1d[i];
-	}
-      r = sanei_genesys_get_address (regs, 0x19);
-      r->value = 0x50;
     }
   else
     {
-      sanei_genesys_set_reg_from_set (regs, 0x03,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x03)
+      sanei_genesys_set_reg_from_set (regs, REG03,
+				      sanei_genesys_read_reg_from_set (regs, REG03)
 				      & ~REG03_LAMPPWR);
-
-      for (i = 0; i < 6; i++)
-	{
-          r = sanei_genesys_get_address (dev->calib_reg, 0x10+i);
-	  r->value = 0x00;
-	}
-      r = sanei_genesys_get_address (regs, 0x19);
-      r->value = 0xff;
     }
 }
 
@@ -2793,6 +2782,13 @@ gl847_feed (Genesys_Device * dev, int steps)
   gl847_init_optical_regs_off (dev, local_reg);
 
   gl847_init_motor_regs (dev, local_reg, steps, MOTOR_ACTION_FEED, 0);
+  sanei_genesys_set_double(local_reg,REG_EXPR,0);
+  sanei_genesys_set_double(local_reg,REG_EXPG,0);
+  sanei_genesys_set_double(local_reg,REG_EXPB,0);
+
+  /* clear scan and feed count */
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRMCNT));
 
   status = gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
@@ -2927,6 +2923,12 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
   gl847_init_optical_regs_off (dev, local_reg);
+  sanei_genesys_set_double(local_reg,REG_EXPR,0);
+  sanei_genesys_set_double(local_reg,REG_EXPG,0);
+  sanei_genesys_set_double(local_reg,REG_EXPB,0);
+
+  /* clear scan and feed count */
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
 
   gl847_init_motor_regs (dev, local_reg, 65536, MOTOR_ACTION_GO_HOME, 0);
 
@@ -3517,16 +3519,18 @@ gl847_led_calibration (Genesys_Device * dev)
   int turn;
   char fn[20];
   uint16_t expr, expg, expb;
+  Sensor_Profile *sensor;
   Genesys_Register_Set *r;
 
   SANE_Bool acceptable = SANE_FALSE;
 
-  DBG (DBG_proc, "gl847_led_calibration\n");
+  DBGSTART;
 
   /* offset calibration is always done in color mode */
   channels = 3;
   depth=16;
-  used_res = dev->sensor.optical_res;
+  used_res=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
+  sensor=get_sensor_profile(dev->model->ccd_type, used_res);
   num_pixels = (dev->sensor.sensor_pixels*used_res)/dev->sensor.optical_res;
   
   /* initial calibration reg values */
@@ -3576,27 +3580,20 @@ gl847_led_calibration (Genesys_Device * dev)
      adjust exposure times
  */
 
-  expr = (dev->sensor.regs_0x10_0x1d[0] << 8) | dev->sensor.regs_0x10_0x1d[1];
-  expg = (dev->sensor.regs_0x10_0x1d[2] << 8) | dev->sensor.regs_0x10_0x1d[3];
-  expb = (dev->sensor.regs_0x10_0x1d[4] << 8) | dev->sensor.regs_0x10_0x1d[5];
+  expr=sensor->expr;
+  expg=sensor->expg;
+  expb=sensor->expb;
 
   turn = 0;
 
+  /* no move during led calibration */
+  r = sanei_genesys_get_address (dev->calib_reg, REG02);
+  r->value &= ~REG02_MTRPWR;
   do
     {
-
-      dev->sensor.regs_0x10_0x1d[0] = (expr >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[1] = expr & 0xff;
-      dev->sensor.regs_0x10_0x1d[2] = (expg >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[3] = expg & 0xff;
-      dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
-
-      for (i = 0; i < 6; i++)
-	{
-          r = sanei_genesys_get_address (dev->calib_reg, 0x10+i);
-	  r->value = dev->sensor.regs_0x10_0x1d[i];
-	}
+      sanei_genesys_set_double(dev->calib_reg,REG_EXPR,expr);
+      sanei_genesys_set_double(dev->calib_reg,REG_EXPG,expg);
+      sanei_genesys_set_double(dev->calib_reg,REG_EXPB,expb);
 
       RIE (gl847_bulk_write_register
 	   (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
@@ -3632,6 +3629,7 @@ gl847_led_calibration (Genesys_Device * dev)
 
 	  avg[j] /= num_pixels;
 	}
+      avga = (avg[0] + avg[1] + avg[2]) / 3;
 
       DBG (DBG_info, "gl847_led_calibration: average: "
 	   "%d,%d,%d\n", avg[0], avg[1], avg[2]);
@@ -3645,7 +3643,6 @@ gl847_led_calibration (Genesys_Device * dev)
 
       if (!acceptable)
 	{
-	  avga = (avg[0] + avg[1] + avg[2]) / 3;
 	  expr = (expr * avga) / avg[0];
 	  expg = (expg * avga) / avg[1];
 	  expb = (expb * avga) / avg[2];
@@ -3683,6 +3680,19 @@ gl847_led_calibration (Genesys_Device * dev)
 
   DBG (DBG_info, "gl847_led_calibration: acceptable exposure: %d,%d,%d\n",
        expr, expg, expb);
+
+  /* set these values as final ones for scan */
+  sanei_genesys_set_double(dev->reg,REG_EXPR,expr);
+  sanei_genesys_set_double(dev->reg,REG_EXPG,expg);
+  sanei_genesys_set_double(dev->reg,REG_EXPB,expb);
+
+  /* store in this struct since it is the one used by cache calibration */
+  dev->sensor.regs_0x10_0x1d[0] = (expr >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[1] = expr & 0xff;
+  dev->sensor.regs_0x10_0x1d[2] = (expg >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[3] = expg & 0xff;
+  dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
 
   /* cleanup before return */
   free (line);
@@ -3734,7 +3744,7 @@ gl847_init_regs_for_warmup (Genesys_Device * dev,
 			    int *channels, int *total_size)
 {
   DBG (DBG_proc, "%s: not implemented \n", __FUNCTION__);
-  return SANE_STATUS_GOOD;
+  return SANE_STATUS_INVAL;
 }
 
 static SANE_Status

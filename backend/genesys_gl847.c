@@ -361,6 +361,7 @@ gl847_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   Sensor_Profile *sensor;
   int dpihw, i;
   uint16_t exp;
+  uint8_t val;
 
   DBGSTART;
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
@@ -410,6 +411,9 @@ gl847_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
   sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
   sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);
+
+  r = sanei_genesys_get_address (regs, 0x17);
+  r->value = sensor->r17;
 
   DBGCOMPLETED;
 }
@@ -516,12 +520,22 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x68, 0x80);
   SETREG (0x69, 0x20);
   SETREG (0x6a, 0x20);
+
+  /* CK1MAP */
   SETREG (0x74, 0x00);
   SETREG (0x75, 0x00);
   SETREG (0x76, 0x3c);
+
+  /* CK3MAP */
+  SETREG (0x77, 0x00);
+  SETREG (0x78, 0x00);
+  SETREG (0x79, 0x9f);
+
+  /* CK4MAP */
   SETREG (0x7a, 0x00);
   SETREG (0x7b, 0x00);
   SETREG (0x7c, 0x55);
+
   SETREG (0x7d, 0x00);
   /* NOTE: autoconf is a non working option */
   SETREG (0x87, 0x02);
@@ -1469,10 +1483,6 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
     r->value &= ~REG03_LAMPPWR;
   else
     r->value |= REG03_LAMPPWR;
-
-
-  r = sanei_genesys_get_address (reg, 0x19);
-  r->value = 0x50;
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, 0x2e);
@@ -4097,8 +4107,7 @@ gl847_warm_scan (Genesys_Device * dev)
 				 0,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES);
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
 
   RIE (gl847_bulk_write_register
        (dev, dev->reg, GENESYS_GL847_MAX_REGS));

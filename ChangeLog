@@ -1,3 +1,7 @@
+2011-02-10 m. allan noah <kitno455 at gmail dot com>
+	* po/nl.po: updates from Martin Kho
+	* po/uk.po: updates from Yuri Chornoivan
+
 2011-02-04 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: disable image processing options at 16 bits since
 	they can't handle it.

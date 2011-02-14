@@ -52,24 +52,25 @@ Announcing the release:
 * checkout the sane/website.git module and:
 * copy sane-backends.html to sane-backends-"old-version".html
 * update sane-supported-devices.html with link to above "old" file
-* rebuild sane-backends.html and sane-mfgs.html (see doc/Makefile)
+* rebuild sane-backends.html and sane-mfgs.html (make -C doc html-pages)
 * use man2html from http://hydra.nac.uci.edu/indiv/ehood/man2html.html
-  to rebuild html man pages (see doc/Makefile) (no other version works)
+  to rebuild html man pages (make -C doc html-man) (no other version works)
 * add md5 sum to sane-md5sum.txt
 * check and update platforms page (sane-support.html)
 * add announcement to index.html
 * git commit -a && git push
 * check that website was updated automatically. if not, see:
   /org/alioth.debian.org/chroot/home/groups/sane/bin/update-htdocs.sh
-* rebuild descriptions.db (see doc/Makefile)
-* scp descriptions.db to alioth:
+* rebuild descriptions.db (make -C doc descriptions.db)
+* scp doc/descriptions.db to alioth:
   /org/alioth.debian.org/chroot/home/groups/sane/search/release
 * write announcements sane-devel, maybe others (e.g. freshmeat),
   include the md5 hash
 
 After the release:
 
-* move ChangeLog to ChangeLog-"version" and start a new ChangeLog
+* move ChangeLog to ChangeLog-"version"
+* start a new ChangeLog
 * add ChangeLog-"version" to EXTRA_DIST in Makefile.in
 * configure.in: bump textual version & add 'git' suffix
 * configure.in: bump V_REV

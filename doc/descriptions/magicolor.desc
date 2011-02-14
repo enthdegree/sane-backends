@@ -7,7 +7,6 @@
 
 :backend "magicolor"
 :version "1.0.0"
-:new :yes
 :manpage "sane-magicolor"
 :url "http://wiki.kainhofer.com/hardware/magicolor_scan"
 

@@ -1,4 +1,19 @@
 -*-Mode: outline-*-
+New with 1.0.22, released 2011-02-13:
+
+* New backends: kvs20xx (Panasonic KV-S20xx),
+  magicolor (Konica-Minolta )
+* Significant enhancements to several backends.
+* More than 80 new scanner models supported.
+* Support many more networked scanners.
+* Added -A option to scanimage
+* Improved build system.
+* Improved USB support.
+* Improved udev rules.
+* Documentation updates.
+* Bugfixes.
+
+
 New with 1.0.21, released 2010-04-25:
 
 * New backends: kodak (Kodak i18xx), kvs1025 (Panasonic KV-S10xx),

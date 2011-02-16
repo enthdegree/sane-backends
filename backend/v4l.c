@@ -84,9 +84,8 @@
 #include "../include/sane/sanei_config.h"
 #define V4L_CONFIG_FILE "v4l.conf"
 
-#include "v4l.h"
-
 #include <libv4l1.h>
+#include "v4l.h"
 
 static const SANE_Device **devlist = NULL;
 static int num_devices;

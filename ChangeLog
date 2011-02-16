@@ -1,3 +1,6 @@
+2011-02-16 Julien Blache <jb@jblache.org>
+	* backend/v4l.c, backend/v4l.h: fix build with libv4l 0.8.3+.
+
 2011-02-13 m. allan noah <kitno455 at gmail dot com>
 	* doc/releases.txt: minor updates
 

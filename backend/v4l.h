@@ -29,6 +29,7 @@
 #ifndef v4l_h
 #define v4l_h
 
+#ifndef __LINUX_VIDEODEV_H
 /* Kernel interface */
 /* Only the stuff we need. For more features, more defines are needed */
 
@@ -165,7 +166,7 @@ struct video_channel
 
 
 /* end of kernel interface */
-
+#endif /* !__LINUX_VIDEODEV_H */
 
 #include <../include/sane/sane.h>
 

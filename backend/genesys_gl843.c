@@ -512,7 +512,7 @@ static Motor_Profile *get_motor_profile(int motor_type, int exposure)
 
 /** @brief returns the lowest possible ydpi for the device
  * Parses device entry to find lowest motor dpi.
- * @dev device description
+ * @param dev device description
  * @return lowest motor resolution
  */
 static int gl843_get_lowest_ydpi(Genesys_Device *dev)
@@ -530,6 +530,7 @@ static int gl843_get_lowest_ydpi(Genesys_Device *dev)
     }
   return min;
 }
+
 static int gl843_slope_table(uint16_t *slope,
 		             int       *steps,
 			     int       dpi,

@@ -1141,4 +1141,187 @@ int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres)
   return dev->sensor.optical_res;
 }
 
+/** @get motor profile
+ * search for the database of motor profiles and get the best one. Each
+ * profile is at full step and at a reference exposure. Use first entry
+ * by default.
+ * @param motors motor profile database
+ * @param motor_type motor id
+ * @param exposure exposure time
+ * @return a pointer to a Motor_Profile struct
+ */
+Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_type, int exposure)
+{
+  unsigned int i;
+  int idx;
+
+  i=0;
+  idx=-1;
+  while(motors[i].exposure!=0)
+    {
+      /* exact match */
+      if(motors[i].motor_type==motor_type && motors[i].exposure==exposure)
+        {
+          return &(motors[i]);
+        }
+
+      /* closest match */
+      if(motors[i].motor_type==motor_type)
+        {
+          /* if profile exposure is higher than the required one,
+           * the entry is a candidate for the closest match */
+          if(motors[i].exposure>=exposure)
+            {
+              if(idx<0)
+                {
+                  /* no match found yet */
+                  idx=i;
+                }
+              else
+                {
+                  /* test for better match */
+                  if(motors[i].exposure<motors[idx].exposure)
+                    {
+                      idx=i;
+                    }
+                }
+            }
+        }
+      i++;
+    }
+
+  /* default fallback */
+  if(idx<0)
+    {
+      DBG (DBG_warn,"%s: using default motor profile\n",__FUNCTION__);
+      idx=0;
+    }
+
+  return &(motors[idx]);
+}
+
+/**@brief compute motor step type to use
+ * compute the step type (full, half, quarter, ...) to use based
+ * on target resolution
+ * @param motors motor profile database
+ * @param motor_type motor id
+ * @param exposure sensor exposure
+ * @return 0 for full step
+ *         1 for half step
+ *         2 for quarter step
+ *         3 for eighth step
+ */
+int sanei_genesys_compute_step_type(Motor_Profile *motors, int motor_type, int exposure)
+{
+Motor_Profile *profile;
+
+    profile=sanei_genesys_get_motor_profile(motors, motor_type, exposure);
+    return profile->step_type;
+}
+
+/** @brief generate slope table
+ * Generate the slope table to use for the scan using a reference slope
+ * table.
+ * @param slope pointer to the slope table to fill
+ * @param steps pointer to return used step number
+ * @param dpi   desired motor resolution
+ * @param exposure exposure used
+ * @param base_dpi base resolution of the motor
+ * @param step_type step type used for scan
+ * @param factor shrink factor for the slope
+ * @param motor_type motor id
+ * @param motors motor profile database
+ */
+int sanei_genesys_slope_table(uint16_t *slope,
+		             int       *steps,
+			     int       dpi,
+			     int       exposure,
+			     int       base_dpi,
+			     int       step_type,
+			     int       factor,
+                             int       motor_type,
+                             Motor_Profile *motors)
+{
+int sum, i;
+uint16_t target,current;
+Motor_Profile *profile;
+
+	/* required speed */
+	target=((exposure * dpi) / base_dpi)>>step_type;
+        DBG (DBG_io2, "%s: target=%d\n", __FUNCTION__, target);
+	
+	/* fill result with target speed */
+        for(i=0;i<SLOPE_TABLE_SIZE;i++)
+          slope[i]=target;
+
+        profile=sanei_genesys_get_motor_profile(motors, motor_type, exposure);
+
+	/* use profile to build table */
+        i=0;
+	sum=0;
+
+        /* first step is used unmodified */
+        current=profile->table[0];
+
+        /* loop on profile copying and apply step type */
+        while(i<SLOPE_TABLE_SIZE && current>=target)
+          {
+            slope[i]=current;
+            sum+=slope[i];
+            i++;
+            current=profile->table[i]>>step_type;
+          }
+
+        /* range checking */
+        if(profile->table[i]==0 && DBG_LEVEL >= DBG_warn)
+          {
+            DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too low ?\n",__FUNCTION__,target);
+          }
+        if(i<3 && DBG_LEVEL >= DBG_warn)
+          {
+            DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too high ?\n",__FUNCTION__,target);
+          }
+
+        /* align on factor */
+        while(i%factor!=0)
+          {
+            slope[i+1]=slope[i];
+            sum+=slope[i];
+            i++;
+          }
+
+        /* ensure minimal slope size */
+        while(i<8)
+          {
+            sum+=slope[i];
+            i++;
+          }
+
+        /* return used steps and acceleration sum */
+        *steps=i/factor;
+	return sum;
+}
+
+/** @brief returns the lowest possible ydpi for the device
+ * Parses device entry to find lowest motor dpi.
+ * @param dev device description
+ * @return lowest motor resolution
+ */
+int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev)
+{
+  int min=20000;
+  int i=0;
+
+  while(dev->model->ydpi_values[i]!=0)
+    {
+      if(dev->model->ydpi_values[i]<min)
+        {
+          min=dev->model->ydpi_values[i];
+        }
+      i++;
+    }
+  return min;
+}
+
+
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

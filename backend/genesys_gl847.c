@@ -289,6 +289,25 @@ gl847_test_motor_flag_bit (SANE_Byte val)
   return SANE_FALSE;
 }
 
+/**
+ * compute the step multiplier used
+ */
+static int
+gl847_get_step_multiplier (Genesys_Register_Set * regs)
+{
+  Genesys_Register_Set *r = NULL;
+  int value = 1;
+
+  r = sanei_genesys_get_address (regs, 0x9d);
+  if (r != NULL)
+    {
+      value = (r->value & 0x0f)>>1;
+      value = 1 << value;
+    }
+  DBG (DBG_io, "%s: step multiplier is %d\n", __FUNCTION__, value);
+  return value;
+}
+
 /** @get sensor profile
  * search for the database of motor profiles and get the best one. Each
  * profile is at a specific dpihw. Use LiDE 110 table by default.
@@ -361,7 +380,6 @@ gl847_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   Sensor_Profile *sensor;
   int dpihw, i;
   uint16_t exp;
-  uint8_t val;
 
   DBGSTART;
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
@@ -539,8 +557,8 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x7d, 0x00);
   /* NOTE: autoconf is a non working option */
   SETREG (0x87, 0x02);
-  SETREG (0x9d, 0x06);
   SETREG (0x9d, 0x00); /* 1x multiplier instead of 8x */
+  SETREG (0x9d, 0x06);
   SETREG (0xa2, 0x0f);
   SETREG (0xa6, 0x04);
   SETREG (0xbd, 0x18);
@@ -819,244 +837,32 @@ gl847_init_motor_regs_off (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-gl847_init_motor_regs (Genesys_Device * dev, Genesys_Register_Set * reg, unsigned int feed_steps,	/*1/base_ydpi */
-/*maybe float for half/quarter step resolution?*/
-		       unsigned int action, unsigned int flags)
-{
-  SANE_Status status;
-  unsigned int fast_exposure;
-  int use_fast_fed = 0;
-  uint16_t fast_slope_table[256];
-  uint8_t val;
-  unsigned int fast_slope_time;
-  unsigned int fast_slope_steps = 32;
-  unsigned int feedl;
-  Genesys_Register_Set *r;
-/*number of scan lines to add in a scan_lines line*/
-
-  DBG (DBG_proc,
-       "gl847_init_motor_regs : feed_steps=%d, action=%d, flags=%x\n",
-       feed_steps, action, flags);
-
-  if (action == MOTOR_ACTION_FEED || action == MOTOR_ACTION_GO_HOME || action == MOTOR_ACTION_HOME_FREE)
-    {
-      /* FEED and GO_HOME can use fastest slopes available */
-      fast_slope_steps = 256;
-      fast_exposure = sanei_genesys_exposure_time2 (dev,
-                                                    dev->motor.base_ydpi / 4,
-                                                    0,	/*step_type */
-						    0,	/*last used pixel */
-						    0,
-                                                    0);
-
-      DBG (DBG_info, "gl847_init_motor_regs : fast_exposure=%d pixels\n",
-	   fast_exposure);
-    }
-
-/* HOME_FREE must be able to stop in one step, so do not try to get faster */
-  /* XXX STEF XXX
-  if (action == MOTOR_ACTION_HOME_FREE)
-    {
-      fast_slope_steps = 256;
-      fast_exposure = dev->motor.slopes[0][0].maximum_start_speed;
-    }
-    */
-
-  fast_slope_time = sanei_genesys_create_slope_table3 (dev,
-						       fast_slope_table,
-						       256,
-						       fast_slope_steps,
-						       0,
-						       fast_exposure,
-						       dev->motor.base_ydpi / 4,
-                                                       &fast_slope_steps,
-						       &fast_exposure,
-                                                       0);
-
-  feedl = feed_steps - fast_slope_steps * 2;
-  use_fast_fed = 1;
-
-/* all needed slopes available. we did even decide which mode to use. 
-   what next?
-   - transfer slopes
-SCAN:
-flags \ use_fast_fed    ! 0         1
-------------------------\--------------------
-                      0 ! 0,1,2     0,1,2,3
-MOTOR_FLAG_AUTO_GO_HOME ! 0,1,2,4   0,1,2,3,4
-OFF:       none
-FEED:      3
-GO_HOME:   3
-HOME_FREE: 3
-   - setup registers
-     * slope specific registers (already done)
-     * DECSEL for HOME_FREE/GO_HOME/SCAN
-     * FEEDL
-     * MTRREV
-     * MTRPWR
-     * FASTFED
-     * STEPSEL
-     * MTRPWM
-     * FSTPSEL
-     * FASTPWM
-     * HOMENEG
-     * BWDSTEP
-     * FWDSTEP
-     * Z1
-     * Z2
- */
-
-  r = sanei_genesys_get_address (reg, 0x3d);
-  r->value = (feedl >> 16) & 0xf;
-  r = sanei_genesys_get_address (reg, 0x3e);
-  r->value = (feedl >> 8) & 0xff;
-  r = sanei_genesys_get_address (reg, 0x3f);
-  r->value = feedl & 0xff;
-  DBG (DBG_io ,"%s: feedl=%d\n",__FUNCTION__,feedl);
-
-  r = sanei_genesys_get_address (reg, 0x25);
-  r->value = 0;
-  r = sanei_genesys_get_address (reg, 0x26);
-  r->value = 0;
-  r = sanei_genesys_get_address (reg, 0x27);
-  r->value = 0;
-
-  /* set REG 02 */
-  r = sanei_genesys_get_address (reg, REG02);
-  r->value &= ~REG02_LONGCURV;
-  r->value &= ~REG02_HOMENEG;
-  r->value &= ~REG02_AGOHOME;
-  r->value &= ~REG02_ACDCDIS;
-
-  if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
-    r->value |= REG02_ACDCDIS;
-
-  r->value |= REG02_MTRPWR;
-
-  if (action == MOTOR_ACTION_GO_HOME)
-    r->value |= (REG02_MTRREV | REG02_NOTHOME);
-  else
-    r->value &= ~(REG02_MTRREV | REG02_HOMENEG);
-
-  if (use_fast_fed)
-    r->value |= REG02_FASTFED;
-  else
-    r->value &= ~REG02_FASTFED;
-
-  if (flags & MOTOR_FLAG_AUTO_GO_HOME)
-    r->value |= REG02_AGOHOME;
-
-  /* reset gpio pin */
-  RIE (sanei_genesys_read_register (dev, REG6C, &val));
-  val |= REG6C_GPIO13;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-  RIE (sanei_genesys_read_register (dev, REG6C, &val));
-  val |= REG6C_GPIO12;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-
-  status = gl847_send_slope_table (dev, 0, fast_slope_table, 256);
-  status = gl847_send_slope_table (dev, 1, fast_slope_table, 256);
-  status = gl847_send_slope_table (dev, 2, fast_slope_table, 256);
-  status = gl847_send_slope_table (dev, 3, fast_slope_table, 256);
-  status = gl847_send_slope_table (dev, 4, fast_slope_table, 256);
-
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
-  r = sanei_genesys_get_address (reg, REG67);
-  r->value = REG67_MTRPWM;
-
-  r = sanei_genesys_get_address (reg, REG68);
-  r->value = REG68_FASTPWM;
-
-  r = sanei_genesys_get_address (reg, 0x21);
-  r->value = 1;
-
-  r = sanei_genesys_get_address (reg, 0x24);
-  r->value = 1;
-
-  r = sanei_genesys_get_address (reg, REG60);
-  r->value = 0 << REG60S_STEPSEL;
-
-  r = sanei_genesys_get_address (reg, REG63);
-  r->value = 0 << REG63S_FSTPSEL;
-
-  r = sanei_genesys_get_address (reg, 0x69);
-  r->value = 1;
-
-  r = sanei_genesys_get_address (reg, 0x6a);
-  r->value = fast_slope_steps;
-
-  r = sanei_genesys_get_address (reg, 0x5f);
-  r->value = fast_slope_steps;
-
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
-}
-
 /** @brief set up motor related register for scan
- * the following registers are modified:
- * 0x02 
- *
-   - transfer slopes
-SCAN:
-flags \ use_fast_fed    ! 0         1
-------------------------\--------------------
-                      0 ! 0,1,2     0,1,2,3
-MOTOR_FLAG_AUTO_GO_HOME ! 0,1,2,4   0,1,2,3,4
-OFF:       none
-FEED:      3
-GO_HOME:   3
-HOME_FREE: 3
-   - setup registers
-     * slope specific registers (already done)
-     * DECSEL for HOME_FREE/GO_HOME/SCAN
-     * FEEDL
-     * MTRREV
-     * MTRPWR
-     * FASTFED
-     * STEPSEL
-     * MTRPWM
-     * FSTPSEL
-     * FASTPWM
-     * HOMENEG
-     * BWDSTEP
-     * FWDSTEP
-     * Z1
-     * Z2
-     */
+ */
 static SANE_Status
 gl847_init_motor_regs_scan (Genesys_Device * dev,
                             Genesys_Register_Set * reg,
-                            unsigned int scan_exposure_time,	/*pixel */
-			    float scan_yres,	/*dpi, motor resolution */
-			    int scan_step_type,	/*0: full, 1: half, 2: quarter */
-			    unsigned int scan_lines,	/*lines, scan resolution */
+                            unsigned int scan_exposure_time,
+			    float scan_yres,
+			    int scan_step_type,
+			    unsigned int scan_lines,
 			    unsigned int scan_dummy,
-/*number of scan lines to add in a scan_lines line*/
-			    unsigned int feed_steps,	/*1/base_ydpi */
-/*maybe float for half/quarter step resolution?*/
-			    int scan_power_mode, unsigned int flags)
+			    unsigned int feed_steps,
+			    int scan_power_mode,
+                            unsigned int flags)
 {
   SANE_Status status;
-  unsigned int fast_exposure;
-  int use_fast_fed = 0;
+  int use_fast_fed;
   unsigned int fast_time;
   unsigned int slow_time;
-  uint16_t slow_slope_table[256];
-  uint16_t fast_slope_table[256];
-  uint16_t back_slope_table[256];
-  unsigned int slow_slope_time;
-  unsigned int fast_slope_time;
-  unsigned int back_slope_time;
-  unsigned int slow_slope_steps = 0;
-  unsigned int fast_slope_steps = 32;
-  unsigned int back_slope_steps = 0;
-  unsigned int feedl;
+  unsigned int fast_dpi;
+  uint16_t scan_table[SLOPE_TABLE_SIZE];
+  uint16_t fast_table[SLOPE_TABLE_SIZE];
+  int scan_steps, fast_steps, factor;
+  unsigned int feedl, dist;
   Genesys_Register_Set *r;
-  unsigned int min_restep = 0x20;
   uint32_t z1, z2;
+  unsigned int min_restep = 0x20;
   uint8_t val, effective;
 
   DBGSTART;
@@ -1068,132 +874,15 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
        scan_step_type,
        scan_lines, scan_dummy, feed_steps, scan_power_mode, flags);
 
-  fast_exposure =
-    sanei_genesys_exposure_time2 (dev, dev->motor.base_ydpi / 4,
-				  0, 0, 0, scan_power_mode);
+  /* get step multiplier */
+  factor = gl847_get_step_multiplier (reg);
 
-  DBG (DBG_info, "gl847_init_motor_regs_scan : fast_exposure=%d pixels\n",
-       fast_exposure);
+  use_fast_fed=0;
+  if(scan_yres>=300 && feed_steps>900)
+    use_fast_fed=1;
 
-/*
-  we calculate both tables for SCAN. the fast slope step count depends on
-  how many steps we need for slow acceleration and how much steps we are
-  allowed to use.
- */
-  slow_slope_time = sanei_genesys_create_slope_table3 (dev,
-						       slow_slope_table,
-						       256,
-						       256,
-						       scan_step_type,
-						       scan_exposure_time,
-						       scan_yres,
-						       &slow_slope_steps,
-						       NULL, scan_power_mode);
-
-  back_slope_time = sanei_genesys_create_slope_table3 (dev,
-						       back_slope_table,
-						       256,
-						       256,
-						       scan_step_type,
-						       scan_exposure_time,
-						       scan_yres,
-						       &back_slope_steps,
-						       NULL, scan_power_mode);
-
-  if (feed_steps < (slow_slope_steps >> scan_step_type))
-    {
-      /*TODO: what should we do here?? go back to exposure calculation? */
-      feed_steps = slow_slope_steps >> scan_step_type;
-    }
-
-  if (feed_steps > fast_slope_steps * 2 -
-      (slow_slope_steps >> scan_step_type))
-    fast_slope_steps = 256;
-  else
-    {
-      /* we need to shorten fast_slope_steps here. */
-      fast_slope_steps = (feed_steps - (slow_slope_steps >> scan_step_type)) / 2;
-    }
-  if(fast_slope_steps>256)
-    fast_slope_steps=256;
-
-  DBG (DBG_info,
-       "gl847_init_motor_regs_scan: Maximum allowed slope steps for fast slope: %d\n",
-       fast_slope_steps);
-
-  fast_slope_time = sanei_genesys_create_slope_table3 (dev,
-						       fast_slope_table,
-						       256,
-						       fast_slope_steps,
-						       0,
-						       fast_exposure,
-						       dev->motor.base_ydpi / 4,
-                                                       &fast_slope_steps,
-						       &fast_exposure,
-						       scan_power_mode);
-
-  if (feed_steps <
-      fast_slope_steps * 2 + (slow_slope_steps >> scan_step_type))
-    {
-      use_fast_fed = 0;
-      DBG (DBG_info,
-	   "gl847_init_motor_regs_scan: feed too short, slow move forced.\n");
-    }
-  else
-    {
-/* for deciding whether we should use fast mode we need to check how long we 
-   need for (fast)accelerating, moving, decelerating, (TODO: stopping?) 
-   (slow)accelerating again versus (slow)accelerating and moving. we need 
-   fast and slow tables here.
-*/
-/*NOTE: scan_exposure_time is per scan_yres*/
-/*NOTE: fast_exposure is per base_ydpi/4*/
-/*we use full steps as base unit here*/
-      fast_time =
-	fast_exposure / 4 *
-	(feed_steps - fast_slope_steps * 2 -
-	 (slow_slope_steps >> scan_step_type))
-	+ fast_slope_time * 2 + slow_slope_time;
-      slow_time =
-	(scan_exposure_time * scan_yres) / dev->motor.base_ydpi *
-	(feed_steps - (slow_slope_steps >> scan_step_type)) + slow_slope_time;
-
-      DBG (DBG_info, "gl847_init_motor_regs_scan: Time for slow move: %d\n",
-	   slow_time);
-      DBG (DBG_info, "gl847_init_motor_regs_scan: Time for fast move: %d\n",
-	   fast_time);
-
-      use_fast_fed = fast_time < slow_time;
-    }
-  
-  DBG (DBG_info, "gl847_init_motor_regs_scan: decided to use %s mode\n",
-       use_fast_fed ? "fast feed" : "slow feed");
-
-  if (use_fast_fed)
-    feedl = feed_steps - fast_slope_steps * 2 -
-      (slow_slope_steps >> scan_step_type);
-  else if ((feed_steps << scan_step_type) < slow_slope_steps)
-    feedl = 0;
-  else
-    feedl = (feed_steps << scan_step_type) - slow_slope_steps;
-
-
-/* all needed slopes available. we did even decide which mode to use. 
-   what next?  */
-  r = sanei_genesys_get_address (reg, 0x3d);
-  r->value = (feedl >> 16) & 0xf;
-  r = sanei_genesys_get_address (reg, 0x3e);
-  r->value = (feedl >> 8) & 0xff;
-  r = sanei_genesys_get_address (reg, 0x3f);
-  r->value = feedl & 0xff;
-  DBG (DBG_io ,"%s: feedl=%d\n",__FUNCTION__,feedl);
-
-  r = sanei_genesys_get_address (reg, 0x25);
-  r->value = (scan_lines >> 16) & 0xf;
-  r = sanei_genesys_get_address (reg, 0x26);
-  r->value = (scan_lines >> 8) & 0xff;
-  r = sanei_genesys_get_address (reg, 0x27);
-  r->value = scan_lines & 0xff;
+  sanei_genesys_set_triple(reg, REG_LINCNT, scan_lines);
+  DBG (DBG_io, "%s: lincnt=%d\n", __FUNCTION__, scan_lines);
 
   /* compute register 02 value */
   r = sanei_genesys_get_address (reg, REG02);
@@ -1211,7 +900,64 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
     r->value |= REG02_ACDCDIS;
 
-  /* hi res motor speed */
+  /* scan and backtracking slope table */
+  slow_time=sanei_genesys_slope_table(scan_table,
+                                      &scan_steps,
+                                      scan_yres,
+                                      scan_exposure_time,
+                                      dev->motor.base_ydpi,
+                                      scan_step_type,
+                                      factor,
+                                      dev->model->motor_type,
+                                      gl847_motors);
+  RIE(gl847_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps*factor));
+  RIE(gl847_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps*factor));
+
+  /* fast table */
+  fast_dpi=sanei_genesys_get_lowest_ydpi(dev);
+  fast_time=sanei_genesys_slope_table(fast_table,
+                                      &fast_steps,
+                                      fast_dpi,
+                                      scan_exposure_time,
+                                      dev->motor.base_ydpi,
+                                      scan_step_type,
+                                      factor,
+                                      dev->model->motor_type,
+                                      gl847_motors);
+  RIE(gl847_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps*factor));
+  RIE(gl847_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps*factor));
+  RIE(gl847_send_slope_table (dev, HOME_TABLE, fast_table, fast_steps*factor));
+
+  /* substract acceleration distance from feedl */
+  feedl=feed_steps;
+  feedl<<=scan_step_type;
+
+  dist = scan_steps;
+  if (use_fast_fed) 
+    {
+        dist += fast_steps*2;
+    }
+  DBG (DBG_io2, "%s: acceleration distance=%d\n", __FUNCTION__, dist);
+
+  /* get sure we don't use insane value */
+  if(dist<feedl)
+    feedl -= dist;
+  else
+    feedl = 1;
+
+  sanei_genesys_set_triple(reg,REG_FEEDL,feedl);
+  DBG (DBG_io ,"%s: feedl=%d\n",__FUNCTION__,feedl);
+
+  sanei_genesys_calculate_zmode2 (use_fast_fed,
+				  scan_exposure_time,
+				  scan_table,
+				  scan_steps,
+				  feedl,
+                                  scan_steps,
+                                  &z1,
+                                  &z2);
+
+  /* hi res motor speed GPIO */
   RIE (sanei_genesys_read_register (dev, REG6C, &effective));
 
   /* if quarter step, bipolar Vref2 */
@@ -1230,82 +976,13 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   val = effective | REG6C_GPIO10;
   RIE (sanei_genesys_write_register (dev, REG6C, val));
 
-  status = gl847_send_slope_table (dev, 0, slow_slope_table, 256);
-
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
-  status = gl847_send_slope_table (dev, 1, back_slope_table, 256);
-
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
-  status = gl847_send_slope_table (dev, 2, slow_slope_table, 256);
-
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
-  if (use_fast_fed)
-    {
-      status = gl847_send_slope_table (dev, 3, fast_slope_table, 256);
-
-      if (status != SANE_STATUS_GOOD)
-	return status;
-    }
-
-  if (flags & MOTOR_FLAG_AUTO_GO_HOME)
-    {
-      status = gl847_send_slope_table (dev, 4, fast_slope_table, 256);
-
-      if (status != SANE_STATUS_GOOD)
-	return status;
-    }
-
-
-/* now reg 0x21 and 0x24 are available, we can calculate reg 0x22 and 0x23,
-   reg 0x60-0x62 and reg 0x63-0x65
-   rule:
-   2*STEPNO+FWDSTEP=2*FASTNO+BWDSTEP
-*/
-/* steps of table 0*/
-  if (min_restep < slow_slope_steps * 2 + 2)
-    min_restep = slow_slope_steps * 2 + 2;
-/* steps of table 1*/
-  if (min_restep < back_slope_steps * 2 + 2)
-    min_restep = back_slope_steps * 2 + 2;
-/* steps of table 0*/
-  r = sanei_genesys_get_address (reg, 0x22);
-  r->value = min_restep - slow_slope_steps * 2;
-
-/* steps of table 1*/
-  r = sanei_genesys_get_address (reg, 0x23);
-  r->value = min_restep - back_slope_steps * 2;
-
-
-/*
-  for z1/z2:
-  in documentation mentioned variables a-d:
-  a = time needed for acceleration, table 1
-  b = time needed for reg 0x1f... wouldn't that be reg0x1f*exposure_time?
-  c = time needed for acceleration, table 1
-  d = time needed for reg 0x22... wouldn't that be reg0x22*exposure_time?
-  z1 = (c+d-1) % exposure_time 
-  z2 = (a+b-1) % exposure_time
-*/
-/* i don't see any effect of this. i can only guess that this will enhance 
-   sub-pixel accuracy
-   z1 = (slope_0_time-1) % exposure_time;
-   z2 = (slope_0_time-1) % exposure_time;
-*/
-
-  sanei_genesys_calculate_zmode2 (use_fast_fed,
-				  scan_exposure_time,
-				  slow_slope_table,
-				  slow_slope_steps,
-				  feedl,
-                                  back_slope_steps,
-                                  &z1,
-                                  &z2);
+  min_restep=scan_steps/2-1;
+  if (min_restep < 1)
+    min_restep = 1;
+  r = sanei_genesys_get_address (reg, REG_FWDSTEP);
+  r->value = min_restep;
+  r = sanei_genesys_get_address (reg, REG_BWDSTEP);
+  r->value = min_restep;
 
   DBG (DBG_info, "gl847_init_motor_regs_scan: z1 = %d\n", z1);
   r = sanei_genesys_get_address (reg, REG60);
@@ -1333,21 +1010,20 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   r = sanei_genesys_get_address (reg, REG68);
   r->value = REG68_FASTPWM;
 
-  r = sanei_genesys_get_address (reg, 0x21);
-  r->value = slow_slope_steps;
+  r = sanei_genesys_get_address (reg, REG_STEPNO);
+  r->value = scan_steps;
 
-  r = sanei_genesys_get_address (reg, 0x24);
-  r->value = back_slope_steps;
+  r = sanei_genesys_get_address (reg, REG_FASTNO);
+  r->value = scan_steps;
 
-  r = sanei_genesys_get_address (reg, 0x69);
-  r->value = slow_slope_steps;
+  r = sanei_genesys_get_address (reg, REG_FSHDEC);
+  r->value = scan_steps;
 
-  r = sanei_genesys_get_address (reg, 0x6a);
-  r->value = fast_slope_steps;
+  r = sanei_genesys_get_address (reg, REG_FMOVNO);
+  r->value = fast_steps;
 
-  r = sanei_genesys_get_address (reg, 0x5f);
-  r->value = fast_slope_steps;
-
+  r = sanei_genesys_get_address (reg, REG_FMOVDEC);
+  r->value = fast_steps;
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -1781,24 +1457,9 @@ gl847_init_scan_regs (Genesys_Device * dev,
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-  /* scan_step_type */
-  switch((int)yres)
-    {
-    case 75:
-    case 100:
-    case 150:
-      scan_step_type = 0;
-      break;
-    case 200:
-    case 300:
-      scan_step_type = 1;
-      break;
-    default:
-      scan_step_type = 2;
-    }
-
   dpihw=sanei_genesys_compute_dpihw(dev,xres);
   exposure_time = gl847_compute_exposure (dev, used_res);
+  scan_step_type = sanei_genesys_compute_step_type(gl847_motors, dev->model->motor_type, exposure_time);
 
   DBG (DBG_info, "gl847_init_scan_regs : exposure_time=%d pixels\n",
        exposure_time);
@@ -1870,25 +1531,6 @@ gl847_init_scan_regs (Genesys_Device * dev,
   move = starty;
   DBG (DBG_info, "gl847_init_scan_regs: move=%d steps\n", move);
 
-  /* subtract current head position */
-  /* XXX STEF XXX
-  move -= dev->scanhead_position_in_steps;
-  DBG (DBG_info, "gl847_init_scan_regs: move=%d steps\n", move);
-
-  if (move < 0)
-    move = 0; */
-
-  /* round it */
-/* the move is not affected by dummy -- pierre */
-/*  move = ((move + dummy) / (dummy + 1)) * (dummy + 1);
-    DBG (DBG_info, "gl847_init_scan_regs: move=%d steps\n", move);*/
-
-  if (flags & SCAN_FLAG_SINGLE_LINE)
-    status = gl847_init_motor_regs_off (dev,
-					reg,
-					dev->model->is_cis ? lincnt *
-					channels : lincnt);
-  else
     status = gl847_init_motor_regs_scan (dev,
 					 reg,
 					 exposure_time,
@@ -2107,24 +1749,9 @@ gl847_calculate_current_setup (Genesys_Device * dev)
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-  /* scan_step_type */
-  switch((int)yres)
-    {
-    case 75:
-    case 100:
-    case 150:
-      scan_step_type = 0;
-      break;
-    case 200:
-    case 300:
-      scan_step_type = 1;
-      break;
-    default:
-      scan_step_type = 2;
-    }
-
   dpihw=sanei_genesys_compute_dpihw(dev,xres);
   exposure_time = gl847_compute_exposure (dev, used_res);
+  scan_step_type = sanei_genesys_compute_step_type(gl847_motors, dev->model->motor_type, exposure_time);
 
   DBG (DBG_info,
        "gl847_calculate_current_setup : exposure_time=%d pixels\n",
@@ -2324,366 +1951,6 @@ gl847_stop_action (Genesys_Device * dev)
   return SANE_STATUS_IO_ERROR;
 }
 
-static SANE_Status
-gl847_get_paper_sensor (Genesys_Device * dev, SANE_Bool * paper_loaded)
-{
-  SANE_Status status;
-  uint8_t val;
-
-  status = sanei_genesys_read_register (dev, REG6D, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_get_paper_sensor: failed to read gpio: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-  *paper_loaded = (val & 0x1) == 0;
-  return SANE_STATUS_GOOD;
-
-  return SANE_STATUS_INVAL;
-}
-
-static SANE_Status
-gl847_eject_document (Genesys_Device * dev)
-{
-  Genesys_Register_Set local_reg[GENESYS_GL847_MAX_REGS];
-  SANE_Status status;
-  uint8_t val;
-  SANE_Bool paper_loaded;
-  unsigned int init_steps;
-  float feed_mm;
-  int loop;
-
-  DBG (DBG_proc, "gl847_eject_document\n");
-
-  if (!dev->model->is_sheetfed == SANE_TRUE)
-    {
-      DBG (DBG_proc,
-	   "gl847_eject_document: there is no \"eject sheet\"-concept for non sheet fed\n");
-      DBG (DBG_proc, "gl847_eject_document: finished\n");
-      return SANE_STATUS_GOOD;
-    }
-
-
-  memset (local_reg, 0, sizeof (local_reg));
-  val = 0;
-
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_eject_document: Failed to read status register: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  status = gl847_stop_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_eject_document: failed to stop motor: %s\n",
-	   sane_strstatus (status));
-      return SANE_STATUS_IO_ERROR;
-    }
-
-  memcpy (local_reg, dev->reg,
-	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
-
-  gl847_init_optical_regs_off (dev, local_reg);
-
-  gl847_init_motor_regs (dev, local_reg, 65536, MOTOR_ACTION_FEED, 0);
-
-  status = gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_eject_document: failed to bulk write registers: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  status = gl847_start_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_eject_document: failed to start motor: %s\n",
-	   sane_strstatus (status));
-      gl847_stop_action (dev);
-      /* send original registers */
-      gl847_bulk_write_register (dev, dev->reg, GENESYS_GL847_MAX_REGS);
-      return status;
-    }
-
-  RIE (gl847_get_paper_sensor (dev, &paper_loaded));
-  if (paper_loaded)
-    {
-      DBG (DBG_info, "gl847_eject_document: paper still loaded\n");
-      /* force document TRUE, because it is definitely present */
-      dev->document = SANE_TRUE;
-      dev->scanhead_position_in_steps = 0;
-
-      loop = 300;
-      while (loop > 0)		/* do not wait longer then 30 seconds */
-	{
-
-	  RIE (gl847_get_paper_sensor (dev, &paper_loaded));
-
-	  if (!paper_loaded)
-	    {
-	      DBG (DBG_info, "gl847_eject_document: reached home position\n");
-	      DBG (DBG_proc, "gl847_eject_document: finished\n");
-	      break;
-	    }
-	  usleep (100000);	/* sleep 100 ms */
-	  --loop;
-	}
-
-      if (loop == 0)
-	{
-	  /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-	  gl847_stop_action (dev);
-	  DBG (DBG_error,
-	       "gl847_eject_document: timeout while waiting for scanhead to go home\n");
-	  return SANE_STATUS_IO_ERROR;
-	}
-    }
-
-  feed_mm = SANE_UNFIX (dev->model->eject_feed);
-  if (dev->document)
-    {
-      feed_mm += SANE_UNFIX (dev->model->post_scan);
-    }
-
-  status = sanei_genesys_read_feed_steps (dev, &init_steps);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_eject_document: Failed to read feed steps: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  /* now feed for extra <number> steps */
-  loop = 0;
-  while (loop < 300)		/* do not wait longer then 30 seconds */
-    {
-      unsigned int steps;
-
-      status = sanei_genesys_read_feed_steps (dev, &steps);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl847_eject_document: Failed to read feed steps: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-
-      DBG (DBG_info, "gl847_eject_document: init_steps: %d, steps: %d\n",
-	   init_steps, steps);
-
-      if (steps > init_steps + (feed_mm * dev->motor.base_ydpi) / MM_PER_INCH)
-	{
-	  break;
-	}
-
-      usleep (100000);		/* sleep 100 ms */
-      ++loop;
-    }
-
-  status = gl847_stop_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_eject_document: Failed to stop motor: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  dev->document = SANE_FALSE;
-
-  DBG (DBG_proc, "gl847_eject_document: finished\n");
-  return SANE_STATUS_GOOD;
-}
-
-
-static SANE_Status
-gl847_load_document (Genesys_Device * dev)
-{
-  SANE_Status status;
-  SANE_Bool paper_loaded;
-  int loop = 300;
-  DBG (DBG_proc, "gl847_load_document\n");
-  while (loop > 0)		/* do not wait longer then 30 seconds */
-    {
-
-      RIE (gl847_get_paper_sensor (dev, &paper_loaded));
-
-      if (paper_loaded)
-	{
-	  DBG (DBG_info, "gl847_load_document: document inserted\n");
-
-	  /* when loading OK, document is here */
-	  dev->document = SANE_TRUE;
-
-	  usleep (1000000);	/* give user 1000ms to place document correctly */
-	  break;
-	}
-      usleep (100000);		/* sleep 100 ms */
-      --loop;
-    }
-
-  if (loop == 0)
-    {
-      /* when we come here then the user needed to much time for this */
-      DBG (DBG_error,
-	   "gl847_load_document: timeout while waiting for document\n");
-      return SANE_STATUS_IO_ERROR;
-    }
-
-  DBG (DBG_proc, "gl847_load_document: finished\n");
-  return SANE_STATUS_GOOD;
-}
-
-/**
- * detects end of document and adjust current scan
- * to take it into account
- * used by sheetfed scanners
- */
-static SANE_Status
-gl847_detect_document_end (Genesys_Device * dev)
-{
-  SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Bool paper_loaded;
-  unsigned int scancnt = 0;
-  int flines, channels, depth, bytes_remain, sublines,
-    bytes_to_flush, lines, sub_bytes, tmp, read_bytes_left;
-  DBG (DBG_proc, "%s: begin\n", __FUNCTION__);
-
-  RIE (gl847_get_paper_sensor (dev, &paper_loaded));
-
-  /* sheetfed scanner uses home sensor as paper present */
-  if ((dev->document == SANE_TRUE) && !paper_loaded)
-    {
-      DBG (DBG_info, "%s: no more document\n", __FUNCTION__);
-      dev->document = SANE_FALSE;
-
-      channels = dev->current_setup.channels;
-      depth = dev->current_setup.depth;
-      read_bytes_left = (int) dev->read_bytes_left;
-      DBG (DBG_io, "gl847_detect_document_end: read_bytes_left=%d\n",
-	   read_bytes_left);
-
-      /* get lines read */
-      status = sanei_genesys_read_scancnt (dev, &scancnt);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  flines = 0;
-	}
-      else
-	{
-	  /* compute number of line read */
-	  tmp = (int) dev->total_bytes_read;
-	  if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
-	    flines = tmp * 8 / dev->settings.pixels / channels;
-	  else
-	    flines = tmp / (depth / 8) / dev->settings.pixels / channels;
-
-	  /* number of scanned lines, but no read yet */
-	  flines = scancnt - flines;
-
-	  DBG (DBG_io,
-	       "gl847_detect_document_end: %d scanned but not read lines\n",
-	       flines);
-	}
-
-      /* adjust number of bytes to read 
-       * we need to read the final bytes which are word per line * number of last lines
-       * to have doc leaving feeder */
-      lines =
-	(SANE_UNFIX (dev->model->post_scan) * dev->current_setup.yres) /
-	MM_PER_INCH + flines;
-      DBG (DBG_io, "gl847_detect_document_end: adding %d line to flush\n",
-	   lines);
-
-      /* number of bytes to read from scanner to get document out of it after
-       * end of document dectected by hardware sensor */
-      bytes_to_flush = lines * dev->wpl;
-
-      /* if we are already close to end of scan, flushing isn't needed */
-      if (bytes_to_flush < read_bytes_left)
-	{
-	  /* we take all these step to work around an overflow on some plateforms */
-	  tmp = (int) dev->total_bytes_read;
-	  DBG (DBG_io, "gl847_detect_document_end: tmp=%d\n", tmp);
-	  bytes_remain = (int) dev->total_bytes_to_read;
-	  DBG (DBG_io, "gl847_detect_document_end: bytes_remain=%d\n",
-	       bytes_remain);
-	  bytes_remain = bytes_remain - tmp;
-	  DBG (DBG_io, "gl847_detect_document_end: bytes_remain=%d\n",
-	       bytes_remain);
-
-	  /* remaining lines to read by frontend for the current scan */
-	  if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
-	    {
-	      flines = bytes_remain * 8 / dev->settings.pixels / channels;
-	    }
-	  else
-	    flines = bytes_remain / (depth / 8)
-	      / dev->settings.pixels / channels;
-	  DBG (DBG_io, "gl847_detect_document_end: flines=%d\n", flines);
-
-	  if (flines > lines)
-	    {
-	      /* change the value controlling communication with the frontend :
-	       * total bytes to read is current value plus the number of remaining lines 
-	       * multiplied by bytes per line */
-	      sublines = flines - lines;
-
-	      if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
-		sub_bytes =
-		  ((dev->settings.pixels * sublines) / 8 +
-		   (((dev->settings.pixels * sublines) % 8) ? 1 : 0)) *
-		  channels;
-	      else
-		sub_bytes =
-		  dev->settings.pixels * sublines * channels * (depth / 8);
-
-	      dev->total_bytes_to_read -= sub_bytes;
-
-	      /* then adjust the physical bytes to read */
-	      if (read_bytes_left > sub_bytes)
-		{
-		  dev->read_bytes_left -= sub_bytes;
-		}
-	      else
-		{
-		  dev->total_bytes_to_read = dev->total_bytes_read;
-		  dev->read_bytes_left = 0;
-		}
-
-	      DBG (DBG_io, "gl847_detect_document_end: sublines=%d\n",
-		   sublines);
-	      DBG (DBG_io, "gl847_detect_document_end: subbytes=%d\n",
-		   sub_bytes);
-	      DBG (DBG_io,
-		   "gl847_detect_document_end: total_bytes_to_read=%lu\n",
-		   (unsigned long)dev->total_bytes_to_read);
-	      DBG (DBG_io,
-		   "gl847_detect_document_end: read_bytes_left=%d\n",
-		   read_bytes_left);
-	    }
-	}
-      else
-	{
-	  DBG (DBG_io, "gl847_detect_document_end: no flushing needed\n");
-	}
-    }
-
-  DBG (DBG_proc, "%s: finished\n", __FUNCTION__);
-  return SANE_STATUS_GOOD;
-}
-
 /* Send the low-level scan command */
 /* todo : is this that useful ? */
 #ifndef UNIT_TESTING
@@ -2770,6 +2037,8 @@ gl847_feed (Genesys_Device * dev, int steps)
 {
   Genesys_Register_Set local_reg[GENESYS_GL847_MAX_REGS];
   SANE_Status status;
+  Genesys_Register_Set *r;
+  float resolution;
   uint8_t val;
   int loop;
 
@@ -2789,9 +2058,23 @@ gl847_feed (Genesys_Device * dev, int steps)
   memcpy (local_reg, dev->reg,
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
-  gl847_init_optical_regs_off (dev, local_reg);
-
-  gl847_init_motor_regs (dev, local_reg, steps, MOTOR_ACTION_FEED, 0);
+  resolution=sanei_genesys_get_lowest_ydpi(dev);
+  gl847_init_scan_regs (dev,
+			local_reg,
+			resolution,
+			resolution,
+			0,
+			steps,
+			100,
+			3,
+			8,
+			3,
+			dev->settings.color_filter,
+			SCAN_FLAG_DISABLE_SHADING |
+			SCAN_FLAG_DISABLE_GAMMA |
+                        SCAN_FLAG_FEEDING |
+			SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+			SCAN_FLAG_IGNORE_LINE_DISTANCE);
   sanei_genesys_set_double(local_reg,REG_EXPR,0);
   sanei_genesys_set_double(local_reg,REG_EXPG,0);
   sanei_genesys_set_double(local_reg,REG_EXPB,0);
@@ -2799,15 +2082,13 @@ gl847_feed (Genesys_Device * dev, int steps)
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRMCNT));
+  
+  /* set up for no scan */
+  r = sanei_genesys_get_address (local_reg, REG01);
+  r->value &= ~REG01_SCAN;
 
-  status = gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_feed: failed to bulk write registers: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
+  /* send registers */
+  RIE (gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS));
 
   status = gl847_start_action (dev);
   if (status != SANE_STATUS_GOOD)
@@ -2857,18 +2138,12 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg[GENESYS_GL847_MAX_REGS];
   SANE_Status status;
+  Genesys_Register_Set *r;
+  float resolution;
   uint8_t val;
 
   DBG (DBG_proc, "gl847_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
-
-  if (dev->model->is_sheetfed == SANE_TRUE)
-    {
-      DBG (DBG_proc,
-	   "gl847_slow_back_home: there is no \"home\"-concept for sheet fed\n");
-      DBG (DBG_proc, "gl847_slow_back_home: finished\n");
-      return SANE_STATUS_GOOD;
-    }
 
   memset (local_reg, 0, sizeof (local_reg));
 
@@ -2931,25 +2206,39 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   memcpy (local_reg, dev->reg,
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
-
-  gl847_init_optical_regs_off (dev, local_reg);
+  
+  resolution=sanei_genesys_get_lowest_ydpi(dev);
+  gl847_init_scan_regs (dev,
+			local_reg,
+			resolution,
+			resolution,
+			0,
+			30000,
+			100,
+			3,
+			8,
+			3,
+			dev->settings.color_filter,
+			SCAN_FLAG_DISABLE_SHADING |
+			SCAN_FLAG_DISABLE_GAMMA |
+                        SCAN_FLAG_FEEDING |
+			SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+			SCAN_FLAG_IGNORE_LINE_DISTANCE);
   sanei_genesys_set_double(local_reg,REG_EXPR,0);
   sanei_genesys_set_double(local_reg,REG_EXPG,0);
   sanei_genesys_set_double(local_reg,REG_EXPB,0);
 
   /* clear scan and feed count */
-  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRMCNT));
+  
+  /* set up for reverse and no scan */
+  r = sanei_genesys_get_address (local_reg, REG02);
+  r->value |= REG02_MTRREV;
+  r = sanei_genesys_get_address (local_reg, REG01);
+  r->value &= ~REG01_SCAN;
 
-  gl847_init_motor_regs (dev, local_reg, 65536, MOTOR_ACTION_GO_HOME, 0);
-
-  status = gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_slow_back_home: failed to bulk write registers: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
+  RIE (gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS));
 
   status = gl847_start_action (dev);
   if (status != SANE_STATUS_GOOD)
@@ -4616,9 +3905,9 @@ static Genesys_Command_Set gl847_cmd_set = {
 
   gl847_update_hardware_sensors,
 
-  gl847_load_document,
-  gl847_detect_document_end,
-  gl847_eject_document,
+  NULL, /* no known gl847 sheetfed scanner */
+  NULL, /* no known gl847 sheetfed scanner */
+  NULL, /* no known gl847 sheetfed scanner */
   gl847_search_strip,
 
   gl847_is_compatible_calibration,

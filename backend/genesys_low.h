@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2011 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Parts of the structs have been taken from the gt68xx backend by
@@ -679,6 +679,35 @@ typedef struct Genesys_USB_Device_Entry
   Genesys_Model *model;			/**< Scanner model information */
 } Genesys_USB_Device_Entry;
 
+/**
+ * structure for motor database
+ */
+typedef struct {
+	int motor_type;	 /**> motor id */
+	int exposure;    /**> exposure for the slope table */
+        int step_type;   /**> default step type for given exposure */
+	uint16_t *table; /**> 0 terminated slope table at full step */
+} Motor_Profile;
+
+#define SLOPE_TABLE_SIZE 1024
+
+#define SCAN_TABLE 	0 	/* table 1 at 0x4000 for gl124 */
+#define BACKTRACK_TABLE 1 	/* table 2 at 0x4800 for gl124 */
+#define STOP_TABLE 	2 	/* table 3 at 0x5000 for gl124 */
+#define FAST_TABLE 	3 	/* table 4 at 0x5800 for gl124 */
+#define HOME_TABLE 	4 	/* table 5 at 0x6000 for gl124 */
+
+#define SCAN_FLAG_SINGLE_LINE              0x001
+#define SCAN_FLAG_DISABLE_SHADING          0x002
+#define SCAN_FLAG_DISABLE_GAMMA            0x004
+#define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE 0x008
+#define SCAN_FLAG_IGNORE_LINE_DISTANCE     0x010
+#define SCAN_FLAG_USE_OPTICAL_RES          0x020
+#define SCAN_FLAG_DISABLE_LAMP             0x040
+#define SCAN_FLAG_DYNAMIC_LINEART          0x080
+#define SCAN_FLAG_CALIBRATION              0x100
+#define SCAN_FLAG_FEEDING                  0x200
+
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
@@ -857,6 +886,18 @@ sanei_genesys_wait_for_home(Genesys_Device *dev);
 
 extern 
 int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres);
+
+extern
+Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_type, int exposure);
+
+extern
+int sanei_genesys_compute_step_type(Motor_Profile *motors, int motor_type, int exposure);
+
+extern
+int sanei_genesys_slope_table(uint16_t *slope, int *steps, int dpi, int exposure, int base_dpi, int step_type, int factor, int motor_type, Motor_Profile *motors);
+
+extern
+int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev);
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */

@@ -924,6 +924,8 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
                                       factor,
                                       dev->model->motor_type,
                                       gl847_motors);
+  /* manual override of high start value */
+  fast_table[0]=fast_table[1];
   RIE(gl847_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps*factor));
   RIE(gl847_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps*factor));
   RIE(gl847_send_slope_table (dev, HOME_TABLE, fast_table, fast_steps*factor));
@@ -2585,6 +2587,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
 
   /* at high res we do fast move to scan area */
+  /* XXX STEF XXX
   if(dev->settings.xres>150)
     {
       status = gl847_feed (dev, move);
@@ -2594,7 +2597,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
           return status;
         }
       move=0;
-    }
+    } */
  
   /* clear scancnt and fedcnt */
   val = REG0D_CLRLNCNT;
@@ -3527,7 +3530,9 @@ gl847_init (Genesys_Device * dev)
 
   /* Move home if needed */
   RIE (gl847_slow_back_home (dev, SANE_TRUE));
+  /* XXX STEF XXX 
   RIE (gl847_warm_scan (dev));
+  */
   dev->scanhead_position_in_steps = 0;
 
   /* Set powersaving (default = 15 minutes) */

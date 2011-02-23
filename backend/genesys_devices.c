@@ -440,8 +440,8 @@ static Genesys_Sensor Sensor[] = {
    4800,	/* optical resolution */
    87*4,		/* black pixels */
    16*4,		/* dummy pixels */
-   303*4,		
-   5144*8,		
+   320*8,		/* CCD_startx_offset */
+   5136*8,		/* 5144 */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},

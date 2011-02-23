@@ -1436,7 +1436,6 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   dev->len = dev->bpl/segnb;
   dev->dist = dev->bpl/segnb;
   dev->segnb = segnb;
-  dev->skip = 0;
   dev->line_count = 0;
   if(dpiset>=300)
     {
@@ -1457,7 +1456,6 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: dev->bpl   =%lu\n", __FUNCTION__, (unsigned long)dev->bpl);
   DBG (DBG_io2, "%s: dev->len   =%lu\n", __FUNCTION__, (unsigned long)dev->len);
   DBG (DBG_io2, "%s: dev->dist  =%lu\n", __FUNCTION__, (unsigned long)dev->dist);
-  DBG (DBG_io2, "%s: dev->skip  =%lu\n", __FUNCTION__, (unsigned long)dev->skip);
 
   words_per_line *= channels;
   dev->wpl = words_per_line;

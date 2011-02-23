@@ -1264,7 +1264,7 @@ Motor_Profile *profile;
         current=profile->table[0];
 
         /* loop on profile copying and apply step type */
-        while(i<SLOPE_TABLE_SIZE && current>=target)
+        while(profile->table[i]!=0 && current>=target)
           {
             slope[i]=current;
             sum+=slope[i];
@@ -1273,7 +1273,7 @@ Motor_Profile *profile;
           }
 
         /* range checking */
-        if(profile->table[i]==0 && DBG_LEVEL >= DBG_warn)
+        if(profile->table[i]==0 && DBG_LEVEL >= DBG_warn && current>target)
           {
             DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too low ?\n",__FUNCTION__,target);
           }
@@ -1293,6 +1293,7 @@ Motor_Profile *profile;
         /* ensure minimal slope size */
         while(i<8)
           {
+            slope[i+1]=slope[i];
             sum+=slope[i];
             i++;
           }

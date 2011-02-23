@@ -661,7 +661,6 @@ struct Genesys_Device
   int line_interp; /**> number of lines used in line interpolation */
   int line_count;  /**> number of scan lines used during scan */
   size_t bpl;      /**> bytes per full scan widthline */
-  size_t skip;     /**> bytes to skip from start of line to get first required pixel */
   size_t dist;     /**> bytes distance between an odd and an even pixel */
   size_t len;      /**> number of even pixels */
   size_t cur;      /**> current pixel position within sub window */

@@ -4749,7 +4749,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
           if(dev->settings.double_xres==SANE_TRUE)
             {
 	      /* copy only even pixel */
-	      work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+	      work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
               /* update counter and pointer */
               count++;
               dev->cur++;
@@ -4764,9 +4764,9 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                       while (dev->cur < dev->len && count < size)
                         {
                           /* copy even pixel */
-                          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
+                          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
                           /* copy odd pixel */
-                          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->dist + dev->oe_buffer.pos];
                           /* update counter and pointer */
                           count += 2;
                           dev->cur++;
@@ -4777,11 +4777,11 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                       while (dev->cur < dev->len && count < size)
                         {
                           /* copy even pixel */
-                          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-                          work_buffer_dst[count+1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
+                          work_buffer_dst[count+1] = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos+1];
                           /* copy odd pixel */
-                          work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
-                          work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + dev->dist + dev->oe_buffer.pos+1];
                           /* update counter and pointer */
                           count += 4;
                           dev->cur+=2;
@@ -4790,8 +4790,8 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                       while (dev->cur < dev->len && count < size)
                         {
                           /* get values to merge */
-                          odd = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-                          even = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+                          odd = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
+                          even = dev->oe_buffer.buffer[dev->cur + dev->dist + dev->oe_buffer.pos];
 
                           /* interleave bits .... */
                           merged=0;
@@ -4831,10 +4831,10 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                     {
                       while (dev->cur < dev->len && count < size)
                         { 
-                          work_buffer_dst[count + 0] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-                          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->skip + 2*dev->dist + dev->oe_buffer.pos];
-                          work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + dev->skip + 1*dev->dist + dev->oe_buffer.pos];
-                          work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + dev->skip + 3*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 0] = dev->oe_buffer.buffer[dev->cur +  dev->oe_buffer.pos];
+                          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur +  2*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur +  1*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur +  3*dev->dist + dev->oe_buffer.pos];
                           /* update counter and pointer */
                           count += 4;
                           dev->cur+=1;
@@ -4844,14 +4844,14 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                     {
                       while (dev->cur < dev->len && count < size)
                         {
-                          work_buffer_dst[count + 0] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-                          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos+1];
-                          work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + dev->skip + 2*dev->dist + dev->oe_buffer.pos];
-                          work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + dev->skip + 2*dev->dist + dev->oe_buffer.pos+1];
-                          work_buffer_dst[count + 4] = dev->oe_buffer.buffer[dev->cur + dev->skip + 1*dev->dist + dev->oe_buffer.pos];
-                          work_buffer_dst[count + 5] = dev->oe_buffer.buffer[dev->cur + dev->skip + 1*dev->dist + dev->oe_buffer.pos+1];
-                          work_buffer_dst[count + 6] = dev->oe_buffer.buffer[dev->cur + dev->skip + 3*dev->dist + dev->oe_buffer.pos];
-                          work_buffer_dst[count + 7] = dev->oe_buffer.buffer[dev->cur + dev->skip + 3*dev->dist + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count + 0] = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur + 2*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur + 2*dev->dist + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count + 4] = dev->oe_buffer.buffer[dev->cur + 1*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 5] = dev->oe_buffer.buffer[dev->cur + 1*dev->dist + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count + 6] = dev->oe_buffer.buffer[dev->cur + 3*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 7] = dev->oe_buffer.buffer[dev->cur + 3*dev->dist + dev->oe_buffer.pos+1];
 
                           /* update counter and pointer */
                           count += 8;
@@ -4861,8 +4861,8 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                       while (dev->cur < dev->len && count < size)
                         {
                           /* get values to merge */
-                          odd = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->oe_buffer.pos];
-                          even = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist + dev->oe_buffer.pos];
+                          odd = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
+                          even = dev->oe_buffer.buffer[dev->cur + dev->dist + dev->oe_buffer.pos];
 
                           /* interleave bits .... */
                           merged=0;
@@ -5652,6 +5652,7 @@ calc_parameters (Genesys_Scanner * s)
   s->dev->settings.yres = resolution;
 
   /* double x resolution mode */
+  /* XXX STEF XXX
   s->dev->settings.double_xres = SANE_FALSE;
   if ((s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR)
       && s->dev->settings.xres <= s->dev->sensor.optical_res / 2
@@ -5659,6 +5660,7 @@ calc_parameters (Genesys_Scanner * s)
     {
       s->dev->settings.double_xres = SANE_TRUE;
     }
+    */
 
   s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
   s->params.pixels_per_line =

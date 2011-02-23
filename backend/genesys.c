@@ -5651,17 +5651,6 @@ calc_parameters (Genesys_Scanner * s)
     s->dev->settings.xres = resolution;
   s->dev->settings.yres = resolution;
 
-  /* double x resolution mode */
-  /* XXX STEF XXX
-  s->dev->settings.double_xres = SANE_FALSE;
-  if ((s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR)
-      && s->dev->settings.xres <= s->dev->sensor.optical_res / 2
-      && s->dev->settings.xres != 400)
-    {
-      s->dev->settings.double_xres = SANE_TRUE;
-    }
-    */
-
   s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
   s->params.pixels_per_line =
     ((br_x - tl_x) * resolution) / MM_PER_INCH;

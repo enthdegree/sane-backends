@@ -228,17 +228,27 @@ e2_dev_post_init(struct Epson_Device *dev)
 		}
 	}
 
-	/* the device is more capable, integrating resolution list */
-	if (dev->dpi_range.max > dev->res_list[dev->res_list_size - 1]) {
+	/* try to expand the resolution list where appropriate */
 
-		int val = dev->res_list[dev->res_list_size - 1] * 2;
+	int last = dev->res_list[dev->res_list_size - 1];
+
+	DBG(1, "highest available resolution: %d\n", last);
+
+	if (dev->optical_res > last) {
+		DBG(1, "adding optical resolution (%d)\n", dev->optical_res);
+		e2_add_resolution(dev, dev->optical_res);
+	}
+
+	if (dev->dpi_range.max > last && dev->dpi_range.max != dev->optical_res) {
+
+		int val = last + last;
 
 		DBG(1, "integrating resolution list (%d-%d)\n",
 			val, dev->dpi_range.max);
 
 		while (val <= dev->dpi_range.max) {
 			e2_add_resolution(dev, val);
-			val *= 2;
+			val += last;
 		}
 	}
 
@@ -251,13 +261,15 @@ e2_dev_post_init(struct Epson_Device *dev)
 	dev->resolution_list =
 		malloc((dev->res_list_size + 1) * sizeof(SANE_Word));
 
-	if (dev->resolution_list == NULL) {
+	if (dev->resolution_list == NULL)
 		return SANE_STATUS_NO_MEM;
-	}
+
 
 	*(dev->resolution_list) = dev->res_list_size;
+
 	memcpy(&(dev->resolution_list[1]), dev->res_list,
 	       dev->res_list_size * sizeof(SANE_Word));
+
 
 	/* establish defaults */
 	dev->need_reset_on_source_change = SANE_FALSE;

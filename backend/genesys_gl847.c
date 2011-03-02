@@ -864,6 +864,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   uint32_t z1, z2;
   unsigned int min_restep = 0x20;
   uint8_t val, effective;
+  int fast_step_type;
 
   DBGSTART;
   DBG (DBG_proc, "gl847_init_motor_regs_scan : scan_exposure_time=%d, "
@@ -897,7 +898,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   if (flags & MOTOR_FLAG_AUTO_GO_HOME)
     r->value |= REG02_AGOHOME;
 
-  if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+  if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE || scan_yres>=2400)
     r->value |= REG02_ACDCDIS;
 
   /* scan and backtracking slope table */
@@ -915,12 +916,17 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
 
   /* fast table */
   fast_dpi=sanei_genesys_get_lowest_ydpi(dev);
+  fast_step_type=scan_step_type;
+  if(scan_step_type>=2)
+    {
+      fast_step_type=2;
+    }
   fast_time=sanei_genesys_slope_table(fast_table,
                                       &fast_steps,
                                       fast_dpi,
                                       scan_exposure_time,
                                       dev->motor.base_ydpi,
-                                      scan_step_type,
+                                      fast_step_type,
                                       factor,
                                       dev->model->motor_type,
                                       gl847_motors);
@@ -930,9 +936,9 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   RIE(gl847_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps*factor));
   RIE(gl847_send_slope_table (dev, HOME_TABLE, fast_table, fast_steps*factor));
 
-  /* substract acceleration distance from feedl */
+  /* substract acceleration distance from feedl XXX STEF XXX : 2 different step type */
   feedl=feed_steps;
-  feedl<<=scan_step_type;
+  feedl<<=fast_step_type;
 
   dist = scan_steps;
   if (use_fast_fed) 
@@ -997,7 +1003,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
 
   DBG (DBG_info, "gl847_init_motor_regs_scan: z2 = %d\n", z2);
   r = sanei_genesys_get_address (reg, REG63);
-  r->value = ((z2 >> 16) & REG63_Z2MOD) | (scan_step_type << REG63S_FSTPSEL);
+  r->value = ((z2 >> 16) & REG63_Z2MOD) | (fast_step_type << REG63S_FSTPSEL);
   r = sanei_genesys_get_address (reg, REG64);
   r->value = ((z2 >> 8) & REG64_Z2MOD);
   r = sanei_genesys_get_address (reg, REG65);
@@ -1128,9 +1134,9 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
    * of the sensor crossed by the scan area */
   if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR && segnb>1)
     {
-      dev->dist = sensor->segcnt*(segnb-1);
+      dev->dist = sensor->segcnt;
     }
-  endx += dev->dist;
+  endx += dev->dist*(segnb-1);
   used_pixels=endx-startx;
 
   status = gl847_set_fe (dev, AFE_SET);

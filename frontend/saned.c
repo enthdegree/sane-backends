@@ -209,6 +209,10 @@ static AvahiEntryGroup *avahi_group = NULL;
 # define MAXHOSTNAMELEN 120
 #endif
 
+#ifndef PATH_MAX
+# define PATH_MAX 1024
+#endif
+
 struct saned_child {
   pid_t pid;
   struct saned_child *next;

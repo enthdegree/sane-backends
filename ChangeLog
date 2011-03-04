@@ -1,3 +1,7 @@
+2011-03-04 Julien Blache <jb@jblache.org>
+	* frontend/saned.c: define PATH_MAX if needed, fixes build on
+	HURD. Patch from Pino Toscano <toscano.pino@tiscali.it>.
+
 2011-02-16 Julien Blache <jb@jblache.org>
 	* backend/v4l.c, backend/v4l.h: fix build with libv4l 0.8.3+.
 

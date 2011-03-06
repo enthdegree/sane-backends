@@ -55,16 +55,10 @@
 
 #define ENABLE(OPTION)  s->opt[OPTION].cap &= ~SANE_CAP_INACTIVE
 #define DISABLE(OPTION) s->opt[OPTION].cap |=  SANE_CAP_INACTIVE
-#define IS_ACTIVE(OPTION) (((s->opt[OPTION].cap) & SANE_CAP_INACTIVE) == 0)
-/* RIE: return if error */
-#define RIE(function) do {status = function; if (status != SANE_STATUS_GOOD) \
-return status;} while (SANE_FALSE)
 
 #define SCAN_BUFFER_SIZE (64 * 1024)
 #define MAX_RESOLUTIONS 12
 #define DEF_LINEARTTHRESHOLD 128
-#define PER_ADD_START_LINES 0
-#define PRE_ADD_START_X 0
 
 
 enum Mustek_Usb_Option
@@ -98,29 +92,18 @@ typedef struct Scanner_Model
   /** @name Identification */
   /*@{ */
 
-  /** A single lowercase word to be used in the configuration file. */
-  SANE_String_Const name;
-
   /** Device vendor string. */
-  SANE_String_Const vendor;
+  SANE_String_Const vendor_name;
 
   /** Device model name. */
-  SANE_String_Const model;
-
-  /** Name of the firmware file. */
-  SANE_String_Const firmware_name;
+  SANE_String_Const model_name;
 
   /** @name Scanner model parameters */
   /*@{ */
 
   SANE_Int dpi_values[MAX_RESOLUTIONS];	/* possible resolutions */
-  SANE_Fixed x_offset;		/* Start of scan area in mm */
-  SANE_Fixed y_offset;		/* Start of scan area in mm */
   SANE_Fixed x_size;		/* Size of scan area in mm */
   SANE_Fixed y_size;		/* Size of scan area in mm */
-
-  SANE_Fixed x_offset_ta;	/* Start of scan area in TA mode in mm */
-  SANE_Fixed y_offset_ta;	/* Start of scan area in TA mode in mm */
   SANE_Fixed x_size_ta;		/* Size of scan area in TA mode in mm */
   SANE_Fixed y_size_ta;		/* Size of scan area in TA mode in mm */
 
@@ -129,8 +112,6 @@ typedef struct Scanner_Model
   SANE_Fixed default_gamma_value;	/* Default gamma value */
 
   SANE_Bool is_cis;		/* Is this a CIS or CCD scanner? */
-
-  SANE_Word flags;		/* Which hacks are needed for this scanner? */
   /*@} */
 } Scanner_Model;
 
@@ -141,7 +122,6 @@ typedef struct Mustek_Scanner
 
   SANE_Option_Descriptor opt[NUM_OPTIONS];
   Option_Value val[NUM_OPTIONS];
-  unsigned short *gamma_table;
   SANE_Parameters params;   /**< SANE Parameters */
   Scanner_Model model;
   SETPARAMETERS setpara;

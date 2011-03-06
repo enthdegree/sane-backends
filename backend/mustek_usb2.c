@@ -122,30 +122,21 @@ static SANE_String_Const source_list[] = {
   0
 };
 static Scanner_Model mustek_A2nu2_model = {
-  "mustek-A2nu2",		/* Name */
-  "Mustek",			/* Device vendor string */
-
+  "Mustek",                    /* Device vendor string */
   "BearPaw 2448TA Pro",		/* Device model name */
-  "",				/* Name of the firmware file */
 
   {1200, 600, 300, 150, 75, 0},	/* possible resolutions */
 
-  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
-  SANE_FIX (0.0),		/* Start of scan area in mm (y) */
   SANE_FIX (8.3 * MM_PER_INCH),	/* Size of scan area in mm (x) */
   SANE_FIX (11.6 * MM_PER_INCH),	/* Size of scan area in mm (y) */
 
-  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
   SANE_FIX (1.46 * MM_PER_INCH),	/* Size of scan area in TA mode in mm (x) */
   SANE_FIX (6.45 * MM_PER_INCH),	/* Size of scan area in TA mode in mm (y) */
 
   RO_RGB,				/* Order of the CCD/CIS colors */
   SANE_FIX (2.0),		/* Default gamma value */
 
-  SANE_FALSE,			/* Is this a CIS scanner? */
-  0				/* Which flags are needed for this scanner? */
-    /* Setup and tested */
+  SANE_FALSE			/* Is this a CIS scanner? */
 };
 
 
@@ -259,12 +250,6 @@ calc_parameters (Mustek_Scanner * s)
     (unsigned short) ((SANE_UNFIX (s->val[OPT_TL_Y].w) * 300.0) / MM_PER_INCH + 0.5);
   s->setpara.fmArea.y2 =
     (unsigned short) ((SANE_UNFIX (s->val[OPT_BR_Y].w) * 300.0) / MM_PER_INCH + 0.5);
-
-  if (s->val[OPT_PREVIEW].w)
-    {
-      s->setpara.fmArea.y1 = s->setpara.fmArea.y1 + PER_ADD_START_LINES;
-      s->setpara.fmArea.x1 += PRE_ADD_START_X;
-    }				/*just for range bug. */
 
   s->setpara.pfPixelFlavor = PF_BlackIs0;
   s->setpara.wLinearThreshold = s->val[OPT_THRESHOLD].w;
@@ -1926,7 +1911,6 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     return SANE_STATUS_NO_MEM;
   memset (s, 0, sizeof (*s));
 
-  s->gamma_table = NULL;
   memcpy (&s->model, &mustek_A2nu2_model, sizeof (Scanner_Model));
   s->next = NULL;
   s->bIsScanning = SANE_FALSE;
@@ -2075,7 +2059,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_X:
 	case OPT_BR_Y:
 	  s->val[option].w = *(SANE_Word *) val;
-	  RIE (calc_parameters (s));
+	  status = calc_parameters (s);
+	  if (status != SANE_STATUS_GOOD)
+	    return status;
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
 	case OPT_THRESHOLD:
@@ -2096,7 +2082,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      DISABLE (OPT_THRESHOLD);
 	    }
-	  RIE (calc_parameters (s));
+	  status = calc_parameters (s);
+	  if (status != SANE_STATUS_GOOD)
+	    return status;
 	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  break;
 	case OPT_SOURCE:
@@ -2351,7 +2339,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	       (long int) sizeof (SANE_Byte) * lines_to_read * s->getpara.dwLineByteWidth +
 	       3 * 1024 + 1);
 
-	  image_row.roRgbOrder = mustek_A2nu2_model.line_mode_color_order;
+	  image_row.roRgbOrder = s->model.line_mode_color_order;
 	  image_row.wWantedLineNum = lines_to_read;
 	  image_row.pBuffer = (SANE_Byte *) tempbuf;
 	  s->bIsReading = SANE_TRUE;
@@ -2439,14 +2427,7 @@ sane_cancel (SANE_Handle handle)
       for (i = 0; i < 20; i++)
 	{
 	  if (s->bIsReading == SANE_FALSE)
-	    {
-	      if (s->gamma_table != NULL)
-		{
-		  free (s->gamma_table);
-		  s->gamma_table = NULL;
-		  break;
-		}
-	    }
+	    break;
 	  else
 	    sleep (1);
 	}

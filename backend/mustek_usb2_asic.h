@@ -218,11 +218,6 @@ STATUS;
 #define ON_CHIP_PRE_GAMMA	1
 #define ON_CHIP_FINAL_GAMMA	2
 
-#define ValidPixelNumberFor600DPI 5100 + 50 + 250
-#define ValidPixelNumberFor1200DPI 10200 + 100 + 500
-
-#define OverLapPixelNumber600 0
-#define OverLapPixelNumber1200 0
 #define	BANK_SIZE	(64)
 
 #define WaitBufferOneLineSize 11000*6
@@ -712,7 +707,7 @@ STATUS;
 #define		GRAY_BLUE_ES02						0x20
 #define		GRAY_GREEN_BLUE_ES02				0x30
 
-#define ES01_F6_MorotControl1				0xf6
+#define ES01_F6_MotorControl1				0xf6
 		/* bit[2:0] */
 #define		SPEED_UNIT_1_PIXEL_TIME			0x00
 #define		SPEED_UNIT_4_PIXEL_TIME			0x01
@@ -1078,13 +1073,12 @@ static STATUS GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipSta
 static STATUS SetAFEGainOffset (PAsic chip);
 static STATUS SetLEDTime (PAsic chip);
 static STATUS SetScanMode (PAsic chip, SANE_Byte bScanBits);
-static STATUS SetPackAddress (PAsic chip, unsigned short wXResolution,
-			      unsigned short wWidth, unsigned short wX, double XRatioAdderDouble,
-			      double XRatioTypeDouble,
+static STATUS SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
+			      double XRatioAdderDouble, double XRatioTypeDouble,
 			      SANE_Byte byClear_Pulse_Width,
 			      unsigned short * PValidPixelNumber);
 static STATUS SetExtraSetting (PAsic chip, unsigned short wXResolution,
-			       unsigned short wCCD_PixelNumber, SANE_Bool isCaribrate);
+			       unsigned short wCCD_PixelNumber, SANE_Bool isCalibrate);
 
 
 static STATUS Mustek_SendData (PAsic chip, unsigned short reg, SANE_Byte data);
@@ -1143,7 +1137,7 @@ static STATUS Asic_CarriageHome (PAsic chip);
 /* For ShadingTable */
 static STATUS Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 				    unsigned short * lpDarkShading,
-				    unsigned short wXResolution, unsigned short wWidth, unsigned short wX);
+				    unsigned short wXResolution, unsigned short wWidth);
 /* Wait motor move to home. isTA no used */
 static STATUS Asic_WaitCarriageHome (PAsic chip);
 /* Wait until asic idle */
@@ -1224,7 +1218,7 @@ static STATUS SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
 				 unsigned short wYResolution);
 static STATUS LLFSetMotorTable (PAsic chip,
 				LLF_SETMOTORTABLE * LLF_SetMotorTable);
-static STATUS SetMotorCurrent (PAsic chip, unsigned short dwMotorSpeed,
+static STATUS SetMotorCurrent (unsigned short dwMotorSpeed,
 			       LLF_MOTOR_CURRENT_AND_PHASE * CurrentPhase);
 static STATUS LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove);
 static STATUS LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr,

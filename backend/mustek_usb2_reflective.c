@@ -1677,7 +1677,7 @@ Reflective_LineCalibration16Bits (void)
   free (lpBDarkSort);
 
   Asic_SetShadingTable (&g_chip, lpWhiteShading, lpDarkShading, g_XDpi,
-			wCalWidth, 0);
+			wCalWidth);
 
   free (lpWhiteShading);
   free (lpDarkShading);

@@ -1587,7 +1587,7 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
   free (lpBDarkSort);
 
   Asic_SetShadingTable (&g_chip, lpWhiteShading, lpDarkShading, g_XDpi,
-			wCalWidth, 0);
+			wCalWidth);
 
   free (lpWhiteShading);
   free (lpDarkShading);

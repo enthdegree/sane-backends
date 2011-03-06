@@ -46,6 +46,7 @@
    and similar USB2 scanners. */
 
 #include <string.h>
+#include <math.h>
 
 #include "mustek_usb2_asic.h"
 
@@ -1853,16 +1854,13 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable, unsigned short w
 }
 
 static STATUS
-CalculateMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable,
-		     unsigned short wYResolution)
+CalculateMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
 {
   STATUS status = STATUS_GOOD;
   unsigned short i;
   unsigned short wEndSpeed, wStartSpeed;
   unsigned short wScanAccSteps;
   SANE_Byte bScanDecSteps;
-  double PI = 3.1415926;
-  double x = PI / 2;
   long double y;
   unsigned short *lpMotorTable;
 
@@ -1877,64 +1875,50 @@ CalculateMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable,
   /* Motor T0 & T6 acc table */
   for (i = 0; i < 512; i++)
     {
-      y = (6000 - 3500);
-      y *= (pow (0.09, (x * i) / 512) - pow (0.09, (x * 511) / 512));
+      y = 6000 - 3500;
+      y *= pow (0.09, (M_PI_2 * i) / 512) - pow (0.09, (M_PI_2 * 511) / 512);
       y += 4500;
-      *((unsigned short *) lpMotorTable + i) = (unsigned short) y;	/* T0 */
-      *((unsigned short *) lpMotorTable + i + 512 * 6) = (unsigned short) y;	/* T6 */
+      lpMotorTable[i] = (unsigned short) y;	/* T0 */
+      lpMotorTable[i + 512 * 6] = (unsigned short) y;	/* T6 */
     }
 
   /* Motor T1 & T7 dec table */
   for (i = 0; i < 256; i++)
     {
-      y = (6000 - 3500);
-      y *= pow (0.3, (x * i) / 256);
+      y = 6000 - 3500;
+      y *= pow (0.3, (M_PI_2 * i) / 256);
       y = 6000 - y;
-      *((unsigned short *) lpMotorTable + i + 512) = (unsigned short) y;	/* T1 */
-      *((unsigned short *) lpMotorTable + i + 512 * 7) = (unsigned short) y;	/* T7 */
+      lpMotorTable[i + 512] = (unsigned short) y;	/* T1 */
+      lpMotorTable[i + 512 * 7] = (unsigned short) y;	/* T7 */
     }
 
-  switch (wYResolution)
+  for (i = 0; i < wScanAccSteps; i++)
     {
-    case 2400:
-    case 1200:
-    case 600:
-    case 300:
-    case 150:
-    case 100:
-    case 75:
-    case 50:
-      for (i = 0; i < wScanAccSteps; i++)
-	{
-	  y = (wStartSpeed - wEndSpeed);
-	  y *=
-	    (pow (0.09, (x * i) / wScanAccSteps) -
-	     pow (0.09, (x * (wScanAccSteps - 1)) / wScanAccSteps));
-	  y += wEndSpeed;
-	  *((unsigned short *) lpMotorTable + i + 512 * 2) = (unsigned short) y;	/* T2 */
-	  *((unsigned short *) lpMotorTable + i + 512 * 4) = (unsigned short) y;	/* T4 */
-	}
-      for (i = wScanAccSteps; i < 512; i++)
-	{
-	  *((unsigned short *) lpMotorTable + i + 512 * 2) = (unsigned short) wEndSpeed;	/* T2 */
-	  *((unsigned short *) lpMotorTable + i + 512 * 4) = (unsigned short) wEndSpeed;	/* T4 */
-	}
+      y = wStartSpeed - wEndSpeed;
+      y *= pow (0.09, (M_PI_2 * i) / wScanAccSteps) -
+           pow (0.09, (M_PI_2 * (wScanAccSteps - 1)) / wScanAccSteps);
+      y += wEndSpeed;
+      lpMotorTable[i + 512 * 2] = (unsigned short) y;	/* T2 */
+      lpMotorTable[i + 512 * 4] = (unsigned short) y;	/* T4 */
+    }
+  for (i = wScanAccSteps; i < 512; i++)
+    {
+      lpMotorTable[i + 512 * 2] = wEndSpeed;	/* T2 */
+      lpMotorTable[i + 512 * 4] = wEndSpeed;	/* T4 */
+    }
 
-
-      for (i = 0; i < (unsigned short) bScanDecSteps; i++)
-	{
-	  y = (wStartSpeed - wEndSpeed);
-	  y *= pow (0.3, (x * i) / bScanDecSteps);
-	  y = wStartSpeed - y;
-	  *((unsigned short *) lpMotorTable + i + 512 * 3) = (unsigned short) (y);	/* T3 */
-	  *((unsigned short *) lpMotorTable + i + 512 * 5) = (unsigned short) (y);	/* T5 */
-	}
-      for (i = bScanDecSteps; i < 256; i++)
-	{
-	  *((unsigned short *) lpMotorTable + i + 512 * 3) = (unsigned short) wStartSpeed;	/* T3 */
-	  *((unsigned short *) lpMotorTable + i + 512 * 5) = (unsigned short) wStartSpeed;	/* T5 */
-	}
-      break;
+  for (i = 0; i < (unsigned short) bScanDecSteps; i++)
+    {
+      y = wStartSpeed - wEndSpeed;
+      y *= pow (0.3, (M_PI_2 * i) / bScanDecSteps);
+      y = wStartSpeed - y;
+      lpMotorTable[i + 512 * 3] = (unsigned short) y;	/* T3 */
+      lpMotorTable[i + 512 * 5] = (unsigned short) y;	/* T5 */
+    }
+  for (i = bScanDecSteps; i < 256; i++)
+    {
+      lpMotorTable[i + 512 * 3] = wStartSpeed;	/* T3 */
+      lpMotorTable[i + 512 * 5] = wStartSpeed;	/* T5 */
     }
 
   DBG (DBG_ASIC, "CalculateMotorTable: Exit\n");
@@ -1945,100 +1929,43 @@ static STATUS
 LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE * LLF_CalculateMotorTable)
 {
   STATUS status = STATUS_GOOD;
+  unsigned short wEndSpeed, wStartSpeed;
+  unsigned short wScanAccSteps;
+  unsigned short * lpMotorTable;
+  long double y;
   unsigned short i;
-  double PI = 3.1415926535;
-  double x;
 
   DBG (DBG_ASIC, "LLF_CALCULATEMOTORTABLE: Enter\n");
 
-  x = PI / 2;
+  wStartSpeed = LLF_CalculateMotorTable->StartSpeed;
+  wEndSpeed = LLF_CalculateMotorTable->EndSpeed;
+  wScanAccSteps = LLF_CalculateMotorTable->AccStepBeforeScan;
+  lpMotorTable = LLF_CalculateMotorTable->lpMotorTable;
 
   for (i = 0; i < 512; i++)
     {
       /* before scan acc table */
-      *(LLF_CalculateMotorTable->lpMotorTable + i) =
-	(unsigned short) ((LLF_CalculateMotorTable->StartSpeed -
-		 LLF_CalculateMotorTable->EndSpeed) * pow (0.09,
-							   (x * i) / 512) +
-		LLF_CalculateMotorTable->EndSpeed);
-      *(LLF_CalculateMotorTable->lpMotorTable + i + 512 * 2) =
-	(unsigned short) ((LLF_CalculateMotorTable->StartSpeed -
-		 LLF_CalculateMotorTable->EndSpeed) * pow (0.09,
-							   (x * i) / 512) +
-		LLF_CalculateMotorTable->EndSpeed);
-      *(LLF_CalculateMotorTable->lpMotorTable + i + 512 * 4) =
-	(unsigned short) ((LLF_CalculateMotorTable->StartSpeed -
-		 LLF_CalculateMotorTable->EndSpeed) * pow (0.09,
-							   (x * i) / 512) +
-		LLF_CalculateMotorTable->EndSpeed);
-      *(LLF_CalculateMotorTable->lpMotorTable + i + 512 * 6) =
-	(unsigned short) ((LLF_CalculateMotorTable->StartSpeed -
-		 LLF_CalculateMotorTable->EndSpeed) * pow (0.09,
-							   (x * i) / 512) +
-		LLF_CalculateMotorTable->EndSpeed);
+      y = (wStartSpeed - wEndSpeed) * pow (0.09, (M_PI_2 * i) / 512) + wEndSpeed;
+      lpMotorTable[i] = (unsigned short) y;
+      lpMotorTable[i + 512 * 2] = (unsigned short) y;
+      lpMotorTable[i + 512 * 4] = (unsigned short) y;
+      lpMotorTable[i + 512 * 6] = (unsigned short) y;
     }
 
-  for (i = 0; i < 255; i++)
+  for (i = 0; i < 256; i++)
     {
-      *(LLF_CalculateMotorTable->lpMotorTable + i + 512) =
-	(unsigned short) (LLF_CalculateMotorTable->StartSpeed -
-		(LLF_CalculateMotorTable->StartSpeed -
-		 LLF_CalculateMotorTable->EndSpeed) * pow (0.3,
-							   (x * i) / 256));
-      *(LLF_CalculateMotorTable->lpMotorTable + i + 512 * 3) =
-	(unsigned short) (LLF_CalculateMotorTable->StartSpeed -
-		(LLF_CalculateMotorTable->StartSpeed -
-		 LLF_CalculateMotorTable->EndSpeed) * pow (0.3,
-							   (x * i) / 256));
-      *(LLF_CalculateMotorTable->lpMotorTable + i + 512 * 5) =
-	(unsigned short) (LLF_CalculateMotorTable->StartSpeed -
-		(LLF_CalculateMotorTable->StartSpeed -
-		 LLF_CalculateMotorTable->EndSpeed) * pow (0.3,
-							   (x * i) / 256));
-      *(LLF_CalculateMotorTable->lpMotorTable + i + 512 * 7) =
-	(unsigned short) (LLF_CalculateMotorTable->StartSpeed -
-		(LLF_CalculateMotorTable->StartSpeed -
-		 LLF_CalculateMotorTable->EndSpeed) * pow (0.3,
-							   (x * i) / 256));
+      y = wStartSpeed - (wStartSpeed - wEndSpeed) * pow (0.3, (M_PI_2 * i) / 256);
+      lpMotorTable[i + 512] = (unsigned short) y;
+      lpMotorTable[i + 512 * 3] = (unsigned short) y;
+      lpMotorTable[i + 512 * 5] = (unsigned short) y;
+      lpMotorTable[i + 512 * 7] = (unsigned short) y;
     }
 
-  for (i = 0; i < 512; i++)
-    {				/* back acc table */
-      *(LLF_CalculateMotorTable->lpMotorTable + i) =
-	(unsigned short) ((LLF_CalculateMotorTable->StartSpeed -
-		 LLF_CalculateMotorTable->EndSpeed) * pow (0.09,
-							   (x * i) / 512) +
-		LLF_CalculateMotorTable->EndSpeed);
-      *(LLF_CalculateMotorTable->lpMotorTable + i + 512 * 6) =
-	(unsigned short) ((LLF_CalculateMotorTable->StartSpeed -
-		 LLF_CalculateMotorTable->EndSpeed) * pow (0.09,
-							   (x * i) / 512) +
-		LLF_CalculateMotorTable->EndSpeed);
-    }
-
-  if (LLF_CalculateMotorTable->AccStepBeforeScan == 0)
+  for (i = 0; i < wScanAccSteps; i++)
     {
-    }
-  else
-    {
-      for (i = 0; i < LLF_CalculateMotorTable->AccStepBeforeScan; i++)
-	{
-	  *(LLF_CalculateMotorTable->lpMotorTable + i + 512 * 2) =
-	    (unsigned short) ((LLF_CalculateMotorTable->StartSpeed -
-		     LLF_CalculateMotorTable->EndSpeed) * (pow (0.09,
-								(x * i) /
-								LLF_CalculateMotorTable->
-								AccStepBeforeScan)
-							   - pow (0.09,
-								  (x *
-								   (LLF_CalculateMotorTable->
-								    AccStepBeforeScan
-								    -
-								    1)) /
-								  LLF_CalculateMotorTable->
-								  AccStepBeforeScan))
-		    + LLF_CalculateMotorTable->EndSpeed);
-	}
+      y = (wStartSpeed - wEndSpeed) * (pow (0.09, (M_PI_2 * i) / wScanAccSteps) -
+         pow (0.09, (M_PI_2 * (wScanAccSteps - 1)) / wScanAccSteps)) + wEndSpeed;
+      lpMotorTable[i + 512 * 2] = (unsigned short) y;
     }
 
   DBG (DBG_ASIC, "LLF_CALCULATEMOTORTABLE: Exit\n");
@@ -3784,7 +3711,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   CalMotorTable.DecStepAfterScan = lpMotorStepsTable->bScanDecSteps;
   CalMotorTable.lpMotorTable = lpMotorTable;
 
-  CalculateMotorTable (&CalMotorTable, wYResolution);
+  CalculateMotorTable (&CalMotorTable);
 
   CurrentPhase.MotorDriverIs3967 = 0;
   CurrentPhase.FillPhase = 1;

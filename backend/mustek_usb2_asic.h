@@ -1207,7 +1207,7 @@ typedef struct tagLLF_MOTORMOVE
 } LLF_MOTORMOVE;
 
 static STATUS CalculateMotorTable (LLF_CALCULATEMOTORTABLE *
-				   lpCalculateMotorTable, unsigned short wYResolution);
+				   lpCalculateMotorTable);
 static STATUS LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE *
 				      lpCalculateMotorTable);
 static STATUS LLFSetMotorCurrentAndPhase (PAsic chip,

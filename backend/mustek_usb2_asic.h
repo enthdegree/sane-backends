@@ -1072,7 +1072,7 @@ static STATUS SafeInitialChip (PAsic chip);
 static STATUS DRAM_Test (PAsic chip);
 static STATUS SetLineTimeAndExposure (PAsic chip);
 static STATUS CCDTiming (PAsic chip);
-static STATUS IsCarriageHome (PAsic chip, SANE_Bool * LampHome, SANE_Bool * TAHome);
+static STATUS IsCarriageHome (PAsic chip, SANE_Bool * LampHome);
 static STATUS InitTiming (PAsic chip);
 static STATUS GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipStatus);
 static STATUS SetAFEGainOffset (PAsic chip);
@@ -1139,13 +1139,13 @@ static STATUS Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove);
 static STATUS Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps);
 /* Move Motor to Home. */
 /* If isTA is TRUE, move TA to home, else move Lamp to home */
-static STATUS Asic_CarriageHome (PAsic chip, SANE_Bool isTA);
+static STATUS Asic_CarriageHome (PAsic chip);
 /* For ShadingTable */
 static STATUS Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 				    unsigned short * lpDarkShading,
 				    unsigned short wXResolution, unsigned short wWidth, unsigned short wX);
 /* Wait motor move to home. isTA no used */
-static STATUS Asic_WaitCarriageHome (PAsic chip, SANE_Bool isTA);
+static STATUS Asic_WaitCarriageHome (PAsic chip);
 /* Wait until asic idle */
 static STATUS Asic_WaitUnitReady (PAsic chip);
 /* Set Scan Parameter to Scanner */

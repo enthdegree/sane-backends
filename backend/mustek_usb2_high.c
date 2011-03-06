@@ -319,7 +319,7 @@ MustScanner_BackHome ()
       return FALSE;
     }
 
-  if (STATUS_GOOD != Asic_CarriageHome (&g_chip, FALSE))
+  if (STATUS_GOOD != Asic_CarriageHome (&g_chip))
     {
       DBG (DBG_FUNC,
 	   "MustScanner_BackHome: Asic_CarriageHome return error\n");

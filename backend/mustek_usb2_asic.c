@@ -1719,7 +1719,7 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
       if (LLF_MotorMove->ActionType == ACTION_TYPE_BACKTOHOME)
 	{
 	  DBG (DBG_ASIC, "ACTION_TYPE_BACKTOHOME\n");
-	  Asic_WaitCarriageHome (chip, FALSE);
+	  Asic_WaitCarriageHome (chip);
 	}
       else
 	{
@@ -2363,7 +2363,7 @@ SafeInitialChip (PAsic chip)
 static STATUS
 DRAM_Test (PAsic chip)
 {
-  STATUS status;
+  STATUS status = STATUS_GOOD;
   SANE_Byte temps[DRAM_TEST_SIZE];
   unsigned int i;
 
@@ -2445,7 +2445,7 @@ DRAM_Test (PAsic chip)
     }
 
   DBG (DBG_ASIC, "DRAM_Text: Exit\n");
-  return STATUS_GOOD;
+  return status;
 }
 
 static STATUS
@@ -2598,7 +2598,7 @@ CCDTiming (PAsic chip)
 }
 
 static STATUS
-IsCarriageHome (PAsic chip, SANE_Bool * LampHome, SANE_Bool * TAHome)
+IsCarriageHome (PAsic chip, SANE_Bool * LampHome)
 {
   STATUS status = STATUS_GOOD;
   SANE_Byte temp;
@@ -2615,11 +2615,7 @@ IsCarriageHome (PAsic chip, SANE_Bool * LampHome, SANE_Bool * TAHome)
   if ((temp & SENSOR0_DETECTED) == SENSOR0_DETECTED)
     *LampHome = TRUE;
   else
-    {
-      *LampHome = FALSE;
-    }
-
-  *TAHome = TRUE;
+    *LampHome = FALSE;
 
   DBG (DBG_ASIC, "LampHome=%d\n", *LampHome);
 
@@ -3420,8 +3416,8 @@ SetExtraSetting (PAsic chip, unsigned short wXResolution, unsigned short wCCD_Pi
 
 
 /* HOLD: We don't want to have global vid/pids */
-static unsigned short ProductID = 0x0409;
-static unsigned short VendorID = 0x055f;
+static const unsigned short ProductID = 0x0409;
+static const unsigned short VendorID = 0x055f;
 
 static SANE_String_Const device_name;
 
@@ -4295,19 +4291,11 @@ Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer, unsigned short LinesCount)
       return STATUS_INVAL;
     }
 
-  dwXferBytes = (unsigned int) (LinesCount) * chip->dwBytesCountPerRow;
+  dwXferBytes = LinesCount * chip->dwBytesCountPerRow;
   DBG (DBG_ASIC, "Asic_ReadImage: chip->dwBytesCountPerRow = %d\n",
        chip->dwBytesCountPerRow);
 
-  /* HOLD: an unsigned long can't be < 0
-  if (dwXferBytes < 0)
-    {
-      DBG (DBG_ASIC, "Asic_ReadImage: dwXferBytes <0\n");
-      return STATUS_INVAL;
-    }
-  */
   if (dwXferBytes == 0)
-
     {
       DBG (DBG_ASIC, "Asic_ReadImage: dwXferBytes == 0\n");
       return STATUS_GOOD;
@@ -4537,19 +4525,16 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
 }
 
 static STATUS
-Asic_CarriageHome (PAsic chip, SANE_Bool isTA)
+Asic_CarriageHome (PAsic chip)
 {
   STATUS status = STATUS_GOOD;
-  SANE_Bool LampHome, TAHome;
-  isTA = isTA;
+  SANE_Bool LampHome;
 
   DBG (DBG_ASIC, "Asic_CarriageHome:Enter\n");
 
-  status = IsCarriageHome (chip, &LampHome, &TAHome);
+  status = IsCarriageHome (chip, &LampHome);
   if (!LampHome)
-    {
-      status = MotorBackHome (chip, TRUE);
-    }
+    status = MotorBackHome (chip, TRUE);
 
   DBG (DBG_ASIC, "Asic_CarriageHome: Exit\n");
   return status;
@@ -4662,26 +4647,24 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 }
 
 static STATUS
-Asic_WaitCarriageHome (PAsic chip, SANE_Bool isTA)
+Asic_WaitCarriageHome (PAsic chip)
 {
   STATUS status = STATUS_GOOD;
-  SANE_Bool LampHome, TAHome;
+  SANE_Bool LampHome;
   int i;
-
-  isTA = isTA;
 
   DBG (DBG_ASIC, "Asic_WaitCarriageHome:Enter\n");
 
   for (i = 0; i < 100; i++)
     {
-      status = IsCarriageHome (chip, &LampHome, &TAHome);
+      status = IsCarriageHome (chip, &LampHome);
       if (LampHome)
 	break;
       usleep (300000);
     }
   if (i == 100)
     status = STATUS_DEVICE_BUSY;
-  DBG (DBG_ASIC, "Wait %d s\n", (unsigned short) (i * 0.3));
+  DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.3));
 
   Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
   chip->firmwarestate = FS_OPENED;
@@ -4740,6 +4723,12 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   DBG (DBG_ASIC,
        "bScanBits=%d,wXResolution=%d, wYResolution=%d,	wX=%d, wY=%d, wWidth=%d, wLength=%d\n",
        bScanBits, wXResolution, wYResolution, wX, wY, wWidth, wLength);
+
+  if (lpMotorTable == NULL)
+    {
+      DBG (DBG_ASIC, "lpMotorTable == NULL\n");
+      return STATUS_MEM_ERROR;
+    }
 
   if (chip->firmwarestate != FS_OPENED)
     {

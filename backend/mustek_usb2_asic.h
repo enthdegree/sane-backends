@@ -1212,7 +1212,6 @@ RGBColor;
 #define		ES01_2CE_VALID_PIXEL_PARAMETER_OF_SEGMENT15	0x2CE
 #define		ES01_2CF_VALID_PIXEL_PARAMETER_OF_SEGMENT16	0x2CF
 
-/* forward declarations */
 static STATUS OpenScanChip (PAsic chip);
 static STATUS CloseScanChip (PAsic chip);
 static STATUS SafeInitialChip (PAsic chip);
@@ -1236,8 +1235,6 @@ static STATUS SetPackAddress (PAsic chip, unsigned short wXResolution,
 static STATUS SetExtraSetting (PAsic chip, unsigned short wXResolution,
 			       unsigned short wCCD_PixelNumber, SANE_Bool isCaribrate);
 
-
-/* Forward declarations */
 
 static STATUS Mustek_SendData (PAsic chip, unsigned short reg, SANE_Byte data);
 static STATUS Mustek_SendData2Byte (PAsic chip, unsigned short reg, SANE_Byte data);

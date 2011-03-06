@@ -45,8 +45,6 @@
    This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
    and similar USB2 scanners. */
 
-/* forward declarations */
-
 static SANE_Bool Reflective_Reset (void);
 static SANE_Bool Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest);
 static SANE_Bool Reflective_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short YDpi,
@@ -59,19 +57,10 @@ static SANE_Bool Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned sh
 static SANE_Bool Reflective_LineCalibration16Bits (void);
 static SANE_Bool Reflective_PrepareScan (void);
 
-/*function description*/
-
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	reset the scanner status
-Parameters:
-	none
 Return value: 
-	if operation is success
-	return TRUE
-	els
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Reflective_Reset ()
@@ -133,17 +122,12 @@ Reflective_Reset ()
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	get the suggest parameter of scaning
 Parameters:
 	pTarget: the information of scaning
 	pSuggest: suggest parameter of scaning
 Return value: 
-	if the operation is success
-	return TRUE
-	els
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
@@ -193,13 +177,6 @@ Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
        pTarget->wDpi);
   DBG (DBG_FUNC, "Reflective_ScanSuggest: pSuggest->wXDpi = %d\n",
        pSuggest->wXDpi);
-
-
-
-
-
-
-
   DBG (DBG_FUNC, "Reflective_ScanSuggest: pSuggest->wYDpi = %d\n",
        pSuggest->wYDpi);
 
@@ -334,8 +311,6 @@ Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	setup scanning process
 Parameters:
 	ColorMode: ScanMode of Scanning, CM_RGB48, CM_GRAY and so on
@@ -347,10 +322,7 @@ Parameters:
 	Width: Width of Scan Image
 	Height: Height of Scan Image
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Reflective_SetupScan (COLORMODE ColorMode,
@@ -560,16 +532,9 @@ Reflective_SetupScan (COLORMODE ColorMode,
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/13
-Routine Description: 
 	To adjust the value of offset gain of R/G/B
-Parameters:
-	none
 Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Reflective_AdjustAD ()
@@ -1095,17 +1060,12 @@ Reflective_AdjustAD ()
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Find top and left side
 Parameters:
 	lpwStartX: the left side
 	lpwStartY: the top side
 Return value:
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
@@ -1277,16 +1237,9 @@ Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Stop scan
-Parameters:
-	none
 Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Reflective_StopScan ()
@@ -1322,16 +1275,9 @@ Reflective_StopScan ()
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Get the calibration data
-Parameters:
-	none
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Reflective_LineCalibration16Bits ()
@@ -1742,16 +1688,9 @@ Reflective_LineCalibration16Bits ()
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Prepare scan image
-Parameters:
-	none
 Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Reflective_PrepareScan ()
@@ -1863,19 +1802,13 @@ Reflective_PrepareScan ()
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Get the data of image
 Parameters:
 	lpBlock: the data of image
 	Rows: the rows of image
-
 	isOrderInvert: the RGB order
 Return value:
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Reflective_GetRows (SANE_Byte * lpBlock, unsigned short * Rows, SANE_Bool isOrderInvert)
@@ -1934,4 +1867,4 @@ Reflective_GetRows (SANE_Byte * lpBlock, unsigned short * Rows, SANE_Bool isOrde
 
   DBG (DBG_FUNC, "Reflective_GetRows: leave Reflective_GetRows \n");
   return FALSE;
-}				/* end of the file ScannerReflective.c */
+}

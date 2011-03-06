@@ -53,8 +53,6 @@
 
 #include "mustek_usb2_high.h"
 
-/* ******************++ spuicall_g.h ****************************/
-
 /*global variable HOLD: these should go to scanner structure */
 
 /*base type*/
@@ -128,7 +126,6 @@ static SANE_Byte * g_lpBefLineImageData = NULL;
 static SANE_Bool g_bIsFirstReadBefData = TRUE;
 static unsigned int g_dwAlreadyGetLines = 0;
 
-/* forward declarations */
 static SANE_Bool MustScanner_Init (void);
 static SANE_Bool MustScanner_GetScannerState (void);
 static SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
@@ -189,15 +186,8 @@ static void ModifyLinePoint (SANE_Byte * lpImageData,
 #include "mustek_usb2_transparent.c"
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-	Routine Description: 
-Parameters:
-	none
 Return value: 
-	if initialize the scanner success
-	return TRUE
-	else
-	return FALSE
+	TRUE if initialize the scanner success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_Init ()
@@ -243,16 +233,9 @@ MustScanner_Init ()
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	check the scanner connect status
-Parameters:
-	none
 Return value: 
-	if scanner's status is OK
-	return TRUE
-	else 
-	return FASLE
+	TRUE if scanner's status is OK, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetScannerState ()
@@ -271,17 +254,12 @@ MustScanner_GetScannerState ()
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	Turn the lamp on or off
 Parameters:
 	isLampOn: turn the lamp on or off
 	isTALampOn: turn the TA lamp on or off
 Return value: 
-	if operation success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
@@ -326,16 +304,9 @@ MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	Turn the carriage home
-Parameters:
-	none
 Return value: 
-	if the operation success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_BackHome ()
@@ -369,16 +340,11 @@ MustScanner_BackHome ()
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	prepare the scan image
 Parameters:
 	bScanSource: the scan source
 Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_Prepare (SANE_Byte bScanSource)
@@ -458,11 +424,9 @@ MustScanner_Prepare (SANE_Byte bScanSource)
 
 #ifdef SANE_UNUSED
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
-	Adjuest the offset
+	Adjust the offset
 Parameters:
-	nTimes: Adjuest offset the times
+	nTimes: Adjust offset the times
 	bDirection: whether direction
 	bOffset: the data of offset
 	bLastMin: the last min data
@@ -473,10 +437,7 @@ Parameters:
 	wStdMinLevel: the min level of offset
 	wStdMaxLevel: the max level of offset
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_AdjustOffset (int nTimes, SANE_Bool * bDirection, SANE_Byte * bOffset,
@@ -615,12 +576,9 @@ MustScanner_AdjustOffset (int nTimes, SANE_Bool * bDirection, SANE_Byte * bOffse
 
 #ifdef SANE_UNUSED
 /**********************************************************************
-
-Author: Jack             Date: 2005/05/15
-Routine Description: 
-	Adjuest the offset second times
+	Adjust the offset second times
 Parameters:
-	nTimes: Adjuest offset the times
+	nTimes: Adjust offset the times
 	bDirection: whether direction
 	bOffset: the data of offset
 	bLastMin: the last min data
@@ -631,10 +589,7 @@ Parameters:
 	wStdMinLevel: the min level of offset
 	wStdMaxLevel: the max level of offset
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_SecondAdjustOffset (int nTimes, SANE_Bool * bDirection, SANE_Byte * bOffset,
@@ -737,8 +692,6 @@ MustScanner_SecondAdjustOffset (int nTimes, SANE_Bool * bDirection, SANE_Byte * 
 #endif
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Filter the data
 Parameters:
 	pSort: the sort data
@@ -778,18 +731,13 @@ MustScanner_FiltLower (unsigned short * pSort, unsigned short TotalCount, unsign
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Repair line when single CCD and color is 48bit
 Parameters:
 	lpLine: point to image be repaired
 	isOrderInvert: RGB or BGR
 	wLinesCount: how many line be repaired
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
@@ -974,18 +922,13 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Repair line when double CCD and color is 48bit
 Parameters:
 	lpLine: point to image be repaired
 	isOrderInvert: RGB or BGR
 	wLinesCount: how many line be repaired
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
@@ -1419,18 +1362,13 @@ MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Repair line when single CCD and color is 24bit
 Parameters:
 	lpLine: point to image be repaired
 	isOrderInvert: RGB or BGR
 	wLinesCount: how many line be repaired
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
@@ -1672,18 +1610,13 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Repair line when double CCD and color is 24bit
 Parameters:
 	lpLine: point to image be repaired
 	isOrderInvert: RGB or BGR
 	wLinesCount: how many line be repaired
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
@@ -2105,18 +2038,13 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Repair line when single CCD and color is 16bit
 Parameters:
 	lpLine: point to image be repaired
 	isOrderInvert: RGB or BGR
 	wLinesCount: how many line be repaired
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
@@ -2200,18 +2128,13 @@ MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Repair line when double CCD and color is 16bit
 Parameters:
 	lpLine: point to image be repaired
 	isOrderInvert: RGB or BGR
 	wLinesCount: how many line be repaired
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
@@ -2381,18 +2304,13 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Repair line when single CCD and color is 8bit
 Parameters:
 	lpLine: point to image be repaired
 	isOrderInvert: RGB or BGR
 	wLinesCount: how many line be repaired
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
@@ -2472,18 +2390,13 @@ MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Repair line when double CCD and color is 8bit
 Parameters:
 	lpLine: point to image be repaired
 	isOrderInvert: RGB or BGR
 	wLinesCount: how many line be repaired
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
@@ -2635,18 +2548,13 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Repair line when single CCD and color is 1bit
 Parameters:
 	lpLine: point to image be repaired
 	isOrderInvert: RGB or BGR
 	wLinesCount: how many line be repaired
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono1BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
@@ -2726,18 +2634,13 @@ MustScanner_GetMono1BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Repair line when double CCD and color is 1bit
 Parameters:
 	lpLine: point to image be repaired
 	isOrderInvert: RGB or BGR
 	wLinesCount: how many line be repaired
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
@@ -2843,13 +2746,9 @@ MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/21
-Routine Description: 
 	prepare calculate Max and Min value	
 Parameters:
 	wResolution: the scan resolution
-Return value:
-	none 
 ***********************************************************************/
 static void
 MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
@@ -2898,16 +2797,12 @@ MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/21
-Routine Description: 
 	calculate the Max and Min value
 Parameters:
 	pBuffer: the image data
 	lpMaxValue: the max value
 	lpMinValue: the min value
 	wResolution: the scan resolution
-Return value:
-	none 
 ***********************************************************************/
 static void
 MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
@@ -2975,16 +2870,7 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
 
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Read the data from scanner
-Parameters:
-	none
-Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
 ***********************************************************************/
 static void *
 MustScanner_ReadDataFromScanner (void * dummy)
@@ -3069,13 +2955,7 @@ MustScanner_ReadDataFromScanner (void * dummy)
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/26
-Routine Description: 
 	get the lines of scanned
-Parameters:
-	none
-Return value: 
-	the lines of scanned
 ***********************************************************************/
 static unsigned int
 GetScannedLines ()
@@ -3090,14 +2970,7 @@ GetScannedLines ()
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/26
-
-Routine Description: 
 	get lines which pass to superstratum
-Parameters:
-	none
-Return value:
-	the lines which pass to superstratum
 ***********************************************************************/
 static unsigned int
 GetReadyLines ()
@@ -3112,13 +2985,9 @@ GetReadyLines ()
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/26
-Routine Description: 
 	add the scanned total lines
 Parameters:
 	wAddLines: add the lines
-Return value: 
-	none
 ***********************************************************************/
 static void
 AddScannedLines (unsigned short wAddLines)
@@ -3131,13 +3000,7 @@ AddScannedLines (unsigned short wAddLines)
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/26
-Routine Description: 
 	add the ready lines
-Parameters:
-	none
-Return value: 
-	none
 ***********************************************************************/
 static void
 AddReadyLines ()
@@ -3148,18 +3011,14 @@ AddReadyLines ()
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/26
-Routine Description:
 	modify the point
 Parameters:
 	lpImageData: the data of image
-  lpImageDataBefore: the data of before line image
-  dwBytesPerLine: the bytes of per line
-  dwLinesCount: the line count
-  wPixDistance: the pixel distance
-  wModPtCount: the modify point count
-Return value:
-	none
+	lpImageDataBefore: the data of before line image
+	dwBytesPerLine: the bytes of per line
+	dwLinesCount: the line count
+	wPixDistance: the pixel distance
+	wModPtCount: the modify point count
 ***********************************************************************/
 static void
 ModifyLinePoint (SANE_Byte * lpImageData,
@@ -3196,8 +3055,6 @@ ModifyLinePoint (SANE_Byte * lpImageData,
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Modifiy the image data	
 Parameters:
 	A: the input the image data
@@ -3230,4 +3087,4 @@ QBET4 (SANE_Byte A, SANE_Byte B)
   A = A & 0x0f;
   B = B & 0x0f;
   return bQBET[A][B];
-}				/* end of the file MustScanner.c */
+}

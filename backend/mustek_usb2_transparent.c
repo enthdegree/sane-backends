@@ -46,7 +46,6 @@
    and similar USB2 scanners. */
 
 
-/* forward declarations */
 static SANE_Bool Transparent_Reset (void);
 static SANE_Bool Transparent_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest);
 static SANE_Bool Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short YDpi,
@@ -60,19 +59,10 @@ static SANE_Bool Transparent_LineCalibration16Bits (unsigned short wTAShadingMin
 static SANE_Bool Transparent_PrepareScan (void);
 
 
-/*function description*/
-
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	reset the scanner
-Parameters:
-	none
 Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_Reset ()
@@ -131,17 +121,12 @@ Transparent_Reset ()
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	get suggest parameter of scaning
 Parameters:
 	pTarget: the information of scaning
 	pSuggest: the suggest parameter of scaning
 Return value:
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
@@ -282,8 +267,6 @@ Transparent_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	setup scanning process
 Parameters:
 	ColorMode: ScanMode of Scanning, CM_RGB48, CM_GRAY and so on
@@ -295,10 +278,7 @@ Parameters:
 	Width: Width of Scan Image
 	Height: Height of Scan Image
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short YDpi,
@@ -492,16 +472,9 @@ Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short 
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Stop scan
-Parameters:
-	none
 Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_StopScan ()
@@ -533,18 +506,13 @@ Transparent_StopScan ()
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Get the data of image
 Parameters:
 	lpBlock: the data of image
 	Rows: the rows of image
 	isOrderInvert: the RGB order
 Return value:
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_GetRows (SANE_Byte * lpBlock, unsigned short * Rows, SANE_Bool isOrderInvert)
@@ -603,16 +571,9 @@ Transparent_GetRows (SANE_Byte * lpBlock, unsigned short * Rows, SANE_Bool isOrd
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/13
-Routine Description: 
 	To adjust the value of offset gain of R/G/B
-Parameters:
-	none
 Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_AdjustAD ()
@@ -1113,17 +1074,12 @@ Transparent_AdjustAD ()
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Find top and left side
 Parameters:
 	lpwStartX: the left side
 	lpwStartY: the top side
 Return value:
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
@@ -1265,16 +1221,9 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/15
-Routine Description: 
 	Get the calibration data
-Parameters:
-	none
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
@@ -1649,16 +1598,9 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Prepare scan image
-Parameters:
-	none
 Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_PrepareScan ()
@@ -1742,4 +1684,4 @@ Transparent_PrepareScan ()
 
   DBG (DBG_FUNC, "Transparent_PrepareScan: leave Transparent_PrepareScan\n");
   return TRUE;
-}				/* end of the file ScannerTransparent.c */
+}

@@ -149,8 +149,6 @@ static Scanner_Model mustek_A2nu2_model = {
 };
 
 
-/* Forward declarations */
-
 static SANE_Bool SetParameters (LPSETPARAMETERS pSetParameters);
 static SANE_Bool GetParameters (LPGETPARAMETERS pGetParameters);
 static SANE_Bool StartScan (void);
@@ -195,7 +193,7 @@ calc_parameters (Mustek_Scanner * s)
 
   s->params.last_frame = SANE_TRUE;
 
-  if (strcmp (val, "Color48") == 0)	/* Color48 */
+  if (strcmp (val, "Color48") == 0)
     {
       s->params.format = SANE_FRAME_RGB;
       s->params.depth = 16;
@@ -207,7 +205,7 @@ calc_parameters (Mustek_Scanner * s)
 	  s->setpara.smScanMode = SM_RGB24;
 	}
     }
-  else if (strcmp (val, "Color24") == 0)	/* Color24 */
+  else if (strcmp (val, "Color24") == 0)
     {
       s->params.format = SANE_FRAME_RGB;
       s->params.depth = 8;
@@ -516,7 +514,6 @@ init_options (Mustek_Scanner * s)
   return SANE_STATUS_GOOD;
 }
 
-/***************************** Code from spicall.c *****************************/
 
 static SANE_Byte * g_lpNegImageData = NULL;
 static SANE_Bool g_bIsFirstGetNegData = TRUE;
@@ -525,16 +522,11 @@ static unsigned int g_dwAlreadyGetNegLines = 0;
 
 #ifdef SANE_UNUSED
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	Get gamma input/output bit count
 Parameters:
 	pGammaInfo: the gamma information
 Return value: 
-	if the operation success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 GetGammaInfo (LPGAMMAINFO pGammaInfo)
@@ -570,16 +562,11 @@ GetGammaInfo (LPGAMMAINFO pGammaInfo)
 }
 #endif
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	set scan parameters
 Parameters:
 	pSetParameters: the information of scaning
 Return value: 
-	if the operation success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 SetParameters (LPSETPARAMETERS pSetParameters)
@@ -799,16 +786,11 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
 	get the optical dpi and scan area
 Parameters:
 	pGetParameters: the information of scan
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 GetParameters (LPGETPARAMETERS pGetParameters)
@@ -842,17 +824,9 @@ GetParameters (LPGETPARAMETERS pGetParameters)
 }
 
 /**********************************************************************
-Author: Jack            Date: 2005/05/13
-
-Routine Description: 
 	start scan image
-Parameters:
-	none
 Return value:
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 StartScan ()
@@ -887,17 +861,11 @@ StartScan ()
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Read the scanner data
 Parameters:
-
 	pImageRows: the information of the data
 Return value:	
-	if the operation is seccuss
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 ReadScannedData (LPIMAGEROWS pImageRows)
@@ -1028,16 +996,9 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Stop scan
-Parameters:
-	none
 Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 StopScan ()
@@ -1088,16 +1049,9 @@ StopScan ()
 }
 
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Check the status of TA
-Parameters:
-	none
 Return value: 
-	if operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if TA is connected, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 IsTAConnected ()
@@ -1125,16 +1079,11 @@ IsTAConnected ()
 
 #ifdef SANE_UNUSED
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Get the status of the HK
 Parameters:
 	pKey: the status of key
 Return value: 
-	if the operation is success
-	return TRUE
-	else
-	return FALSE
+	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 GetKeyStatus (SANE_Byte * pKey)
@@ -1188,16 +1137,12 @@ GetKeyStatus (SANE_Byte * pKey)
 }
 #endif
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Deal with the image with auto level	
 Parameters:
 	lpSource: the data of image
 	scanMode: the scan mode
 	ScanLines: the rows of image
 	BytesPerLine: the bytes of per line
-Return value: 
-	none
 ***********************************************************************/
 static void
 AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
@@ -1446,15 +1391,11 @@ AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
 
 #ifdef SANE_UNUSED
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Deal with image with auto level
 Parameters:
 	pDIB: the data of image
 	ImageWidth: the width of image
 	ImageHeight: the height of image
-Return value: 
-	none
 ***********************************************************************/
 static void
 QBETDetectAutoLevel (void *pDIB, unsigned int ImageWidth, unsigned int ImageHeight)
@@ -1741,16 +1682,12 @@ QBETDetectAutoLevel (void *pDIB, unsigned int ImageWidth, unsigned int ImageHeig
 
 #ifdef SANE_UNUSED
 /**********************************************************************
-Author: Jack             Date: 2005/05/14
-Routine Description: 
 	Change the image data and deal with auto level	
 Parameters:
 	lpSource: the data of image
 	scanMode: the scan mode
 	ScanLines: the rows of image
 	BytesPerLine: the bytes of per line
-Return value: 
-	none
 ***********************************************************************/
 static void
 QBetChange (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,

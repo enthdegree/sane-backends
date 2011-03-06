@@ -136,32 +136,32 @@ Transparent_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 
   DBG (DBG_FUNC, "Transparent_ScanSuggest: call in\n");
 
-  for (i = 0; s_wOpticalYDpi[i] != 0; i++)
+  for (i = 0; s_wOpticalDpi[i] != 0; i++)
     {
-      if (s_wOpticalYDpi[i] <= pTarget->wDpi)
+      if (s_wOpticalDpi[i] <= pTarget->wDpi)
 	{
-	  pSuggest->wYDpi = s_wOpticalYDpi[i];
+	  pSuggest->wYDpi = s_wOpticalDpi[i];
 	  break;
 	}
     }
-  if (s_wOpticalYDpi[i] == 0)
+  if (s_wOpticalDpi[i] == 0)
     {
       i--;
-      pSuggest->wYDpi = s_wOpticalYDpi[i];
+      pSuggest->wYDpi = s_wOpticalDpi[i];
     }
 
-  for (i = 0; s_wOpticalXDpi[i] != 0; i++)
+  for (i = 0; s_wOpticalDpi[i] != 0; i++)
     {
-      if (s_wOpticalXDpi[i] <= pTarget->wDpi)
+      if (s_wOpticalDpi[i] <= pTarget->wDpi)
 	{
-	  pSuggest->wXDpi = s_wOpticalXDpi[i];
+	  pSuggest->wXDpi = s_wOpticalDpi[i];
 	  break;
 	}
     }
-  if (s_wOpticalXDpi[i] == 0)
+  if (s_wOpticalDpi[i] == 0)
     {
       i--;
-      pSuggest->wXDpi = s_wOpticalXDpi[i];
+      pSuggest->wXDpi = s_wOpticalDpi[i];
     }
 
   pSuggest->wX =
@@ -1614,12 +1614,7 @@ Transparent_PrepareScan ()
   g_isCanceled = FALSE;
 
   g_dwScannedTotalLines = 0;
-  g_wReadedLines = 0;
   g_wtheReadyLines = 0;
-  g_wReadImageLines = 0;
-
-  g_wReadyShadingLine = 0;
-  g_wStartShadingLinePos = 0;
 
   switch (g_ScanMode)
     {

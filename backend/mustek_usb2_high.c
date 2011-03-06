@@ -59,7 +59,6 @@
 static SANE_Bool g_bOpened;
 static SANE_Bool g_bPrepared;
 static SANE_Bool g_isCanceled;
-static SANE_Bool g_bSharpen;
 static SANE_Bool g_bFirstReadImage;
 static SANE_Bool g_isScanning;
 static SANE_Bool g_isSelfGamma;
@@ -67,8 +66,7 @@ static SANE_Bool g_isSelfGamma;
 static SANE_Byte g_bScanBits;
 static SANE_Byte *g_lpReadImageHead;
 
-static unsigned short s_wOpticalYDpi[] = { 1200, 600, 300, 150, 75, 0 };
-static unsigned short s_wOpticalXDpi[] = { 1200, 600, 300, 150, 75, 0 };
+static const unsigned short s_wOpticalDpi[] = { 1200, 600, 300, 150, 75, 0 };
 static unsigned short g_X;
 static unsigned short g_Y;
 static unsigned short g_Width;
@@ -80,10 +78,6 @@ static unsigned short g_SWHeight;
 static unsigned short g_wPixelDistance;		/*even & odd sensor problem */
 static unsigned short g_wLineDistance;
 static unsigned short g_wScanLinesPerBlock;
-static unsigned short g_wReadedLines;
-static unsigned short g_wReadImageLines;
-static unsigned short g_wReadyShadingLine;
-static unsigned short g_wStartShadingLinePos;
 static unsigned short g_wLineartThreshold;
 
 static unsigned int g_wtheReadyLines;
@@ -125,51 +119,6 @@ static pthread_mutex_t g_readyLinesMutex = PTHREAD_MUTEX_INITIALIZER;
 static SANE_Byte * g_lpBefLineImageData = NULL;
 static SANE_Bool g_bIsFirstReadBefData = TRUE;
 static unsigned int g_dwAlreadyGetLines = 0;
-
-static SANE_Bool MustScanner_Init (void);
-static SANE_Bool MustScanner_GetScannerState (void);
-static SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
-static SANE_Bool MustScanner_BackHome (void);
-static SANE_Bool MustScanner_Prepare (SCANSOURCE ssScanSource);
-#ifdef SANE_UNUSED
-static SANE_Bool MustScanner_AdjustOffset (int nTimes, SANE_Bool * bDirection, SANE_Byte * bOffset,
-				      SANE_Byte * bLastMin, SANE_Byte * bLastOffset,
-				      unsigned short * wMinValue, SANE_Byte * bOffsetUpperBound,
-				      SANE_Byte * bOffsetLowerBound, unsigned short wStdMinLevel,
-				      unsigned short wStdMaxLevel);
-static SANE_Bool MustScanner_SecondAdjustOffset (int nTimes, SANE_Bool * bDirection,
-					    SANE_Byte * bOffset, SANE_Byte * bLastMin,
-					    SANE_Byte * bLastOffset, unsigned short * wMinValue,
-					    SANE_Byte * bOffsetUpperBound,
-					    SANE_Byte * bOffsetLowerBound,
-					    unsigned short wStdMinLevel, unsigned short wStdMaxLevel);
-#endif
-static unsigned short MustScanner_FiltLower (unsigned short * pSort, unsigned short TotalCount, unsigned short LowCount,
-				   unsigned short HighCount);
-static SANE_Bool MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-					 unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-						unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-					 unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-						unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-					  unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-						 unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-					 unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-						unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono1BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-					 unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-						unsigned short * wLinesCount);
-static void *MustScanner_ReadDataFromScanner (void * dummy);
-static void MustScanner_PrepareCalculateMaxMin (unsigned short wResolution);
-static void MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
-					 unsigned short * lpMinValue, unsigned short wResolution);
 
 static SANE_Byte QBET4 (SANE_Byte A, SANE_Byte B);
 static unsigned int GetScannedLines (void);
@@ -216,7 +165,6 @@ MustScanner_Init ()
   g_bFirstReadImage = TRUE;
   g_bOpened = FALSE;
   g_bPrepared = FALSE;
-  g_bSharpen = FALSE;
 
   g_isScanning = FALSE;
   g_isSelfGamma = FALSE;
@@ -240,17 +188,14 @@ Return value:
 static SANE_Bool
 MustScanner_GetScannerState ()
 {
-
   if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_GetScannerState: Asic_Open return error\n");
       return FALSE;
     }
-  else
-    {
-      Asic_Close (&g_chip);
-      return TRUE;
-    }
+
+  Asic_Close (&g_chip);
+  return TRUE;
 }
 
 /**********************************************************************
@@ -352,8 +297,6 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
   DBG (DBG_FUNC, "MustScanner_Prepare: call in\n");
 
   if (STATUS_GOOD != Asic_Open (&g_chip))
-
-
     {
       DBG (DBG_FUNC, "MustScanner_Prepare: Asic_Open return error\n");
       return FALSE;
@@ -421,275 +364,6 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
   DBG (DBG_FUNC, "MustScanner_Prepare: leave MustScanner_Prepare\n");
   return TRUE;
 }
-
-#ifdef SANE_UNUSED
-/**********************************************************************
-	Adjust the offset
-Parameters:
-	nTimes: Adjust offset the times
-	bDirection: whether direction
-	bOffset: the data of offset
-	bLastMin: the last min data
-	bLastOffset: the last offset data
-	wMinValue: the min value of offset
-	bOffsetUpperBound: the upper bound of offset
-	bOffsetLowerBound: the lower bound of offset
-	wStdMinLevel: the min level of offset
-	wStdMaxLevel: the max level of offset
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
-static SANE_Bool
-MustScanner_AdjustOffset (int nTimes, SANE_Bool * bDirection, SANE_Byte * bOffset,
-			  SANE_Byte * bLastMin, SANE_Byte * bLastOffset,
-			  unsigned short * wMinValue, SANE_Byte * bOffsetUpperBound,
-			  SANE_Byte * bOffsetLowerBound, unsigned short wStdMinLevel,
-			  unsigned short wStdMaxLevel)
-{
-  if ((*wMinValue <= wStdMaxLevel) && (*wMinValue >= wStdMinLevel))
-    {
-      return TRUE;
-    }
-
-  if (nTimes == 0)
-    {
-      *bLastMin = LOSANE_Byte (*wMinValue);
-      *bLastOffset = *bOffset;
-
-      if (*wMinValue == 255)
-	{
-	  *bOffset = 0;
-	}
-      else
-	{
-	  *bOffset = 255;
-	}
-    }
-
-  if (nTimes == 1)
-    {
-      if (*wMinValue > *bLastMin)
-	{
-	  if (*wMinValue > wStdMaxLevel && *bLastMin > wStdMaxLevel)
-	    {
-	      *bDirection = !(*bDirection);
-	      return TRUE;
-	    }
-
-	  if (*wMinValue < wStdMinLevel && *bLastMin < wStdMinLevel)
-	    return TRUE;
-	}
-
-      if (*wMinValue < *bLastMin)
-	{
-	  if (*wMinValue < wStdMinLevel && *bLastMin < wStdMinLevel)
-	    *bDirection = !(*bDirection);
-
-	  if (*wMinValue > wStdMaxLevel && *bLastMin > wStdMaxLevel)
-	    return TRUE;
-	}
-    }
-
-  if (nTimes > 1)
-    {
-      if (*wMinValue > *bLastMin)
-	{
-	  SANE_Byte bTemp;
-
-	  bTemp = *bOffset;
-
-	  *bOffset = (*bOffsetUpperBound + *bOffsetLowerBound) / 2;
-
-	  if (nTimes > 2)
-	    {
-	      if (*wMinValue > wStdMaxLevel)
-		if (bDirection)
-		  *bOffsetLowerBound = bTemp;
-		else
-		  *bOffsetUpperBound = bTemp;
-
-
-	      else if (bDirection)
-		*bOffsetUpperBound = bTemp;
-	      else
-		*bOffsetLowerBound = bTemp;
-	    }
-
-	  *bLastOffset = bTemp;
-	  *bLastMin = (SANE_Byte) * wMinValue;
-	}
-      else
-	{
-	  SANE_Byte bTemp;
-
-	  bTemp = *bOffset;
-
-	  *bOffset = (*bOffsetUpperBound + *bOffsetLowerBound) / 2;
-
-	  if (nTimes > 2)
-	    {
-	      if (*wMinValue == *bLastMin)
-		{
-		  if (*wMinValue > wStdMaxLevel)
-		    {
-		      if (!bDirection)
-			*bOffsetUpperBound = bTemp;
-		      else
-			*bOffsetLowerBound = bTemp;
-		    }
-		  else
-		    {
-		      if (!bDirection)
-			*bOffsetLowerBound = bTemp;
-		      else
-			*bOffsetUpperBound = bTemp;
-		    }
-		}
-	      else
-		{
-		  if (*wMinValue > wStdMaxLevel)
-		    {
-		      if (bDirection)
-			*bOffsetUpperBound = bTemp;
-		      else
-			*bOffsetLowerBound = bTemp;
-		    }
-		  else
-		    {
-		      if (bDirection)
-			*bOffsetLowerBound = bTemp;
-		      else
-			*bOffsetUpperBound = bTemp;
-		    }
-		}
-	    }
-
-	  *bLastOffset = bTemp;
-	  *bLastMin = (SANE_Byte) * wMinValue;
-
-	}
-    }				/* end of if(nTimes > 1) */
-
-  return TRUE;
-}
-#endif
-
-#ifdef SANE_UNUSED
-/**********************************************************************
-	Adjust the offset second times
-Parameters:
-	nTimes: Adjust offset the times
-	bDirection: whether direction
-	bOffset: the data of offset
-	bLastMin: the last min data
-	bLastOffset: the last offset data
-	wMinValue: the min value of offset
-	bOffsetUpperBound: the upper bound of offset
-	bOffsetLowerBound: the lower bound of offset
-	wStdMinLevel: the min level of offset
-	wStdMaxLevel: the max level of offset
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
-static SANE_Bool
-MustScanner_SecondAdjustOffset (int nTimes, SANE_Bool * bDirection, SANE_Byte * bOffset,
-				SANE_Byte * bLastMin, SANE_Byte * bLastOffset,
-				unsigned short * wMinValue, SANE_Byte * bOffsetUpperBound,
-				SANE_Byte * bOffsetLowerBound, unsigned short wStdMinLevel,
-				unsigned short wStdMaxLevel)
-{
-  if ((*wMinValue <= wStdMaxLevel) && (*wMinValue >= wStdMinLevel))
-    {
-      return TRUE;
-    }
-  if (nTimes == 0)
-    {
-      *bLastMin = LOSANE_Byte (*wMinValue);
-      *bLastOffset = *bOffset;
-
-      if (*bDirection == 0)
-	{
-	  *bOffsetUpperBound = *bLastOffset;
-	  *bOffsetLowerBound = 0;
-	  *bOffset = 0;
-	}
-      else
-	{
-	  *bOffsetUpperBound = 255;
-	  *bOffsetLowerBound = *bLastOffset;
-	  *bOffset = 255;
-	}
-    }
-
-  if (nTimes >= 1)
-    {
-      if (*wMinValue > wStdMaxLevel)
-	{
-	  if (*wMinValue > *bLastMin)
-	    {
-	      if (*bDirection == 0)
-		{
-		  *bOffsetUpperBound = *bOffset;
-		}
-	      else
-		{
-		  *bOffsetLowerBound = *bOffset;
-		}
-
-	      *bOffset = (*bOffsetUpperBound + *bOffsetLowerBound) / 2;
-	    }
-	  else
-	    {
-	      if (*bDirection == 1)
-		{
-		  *bOffsetUpperBound = *bOffset;
-		  *bOffset = (*bOffsetUpperBound + *bOffsetLowerBound) / 2;
-		}
-	      else
-		{
-		  *bOffsetLowerBound = *bOffset;
-		  *bOffset = (*bOffsetUpperBound + *bOffsetLowerBound) / 2;
-		}
-	    }
-	}			/*end of if(*wMinValue > MAX_OFFSET) */
-
-
-      if (*wMinValue < wStdMinLevel)
-	{
-	  if (*wMinValue > *bLastMin)
-	    {
-	      if (*bDirection == 0)
-		{
-		  *bOffsetLowerBound = *bOffset;
-		}
-	      else
-		{
-		  *bOffsetUpperBound = *bOffset;
-		}
-
-	      *bOffset = (*bOffsetUpperBound + *bOffsetLowerBound) / 2;
-	    }
-	  else
-	    {
-	      if (*bDirection == 1)
-		{
-		  *bOffsetUpperBound = *bOffset;
-		  *bOffset = (*bOffsetUpperBound + *bOffsetLowerBound) / 2;
-		}
-	      else
-		{
-		  *bOffsetLowerBound = *bOffset;
-		  *bOffset = (*bOffsetUpperBound + *bOffsetLowerBound) / 2;
-		}
-	    }
-	}			/*end of if(*wMinValue > MIN_OFFSET) */
-      *bLastMin = (SANE_Byte) * wMinValue;
-    }				/*end of if(nTimes >= 1)     */
-
-  /* HOLD: missing return value! Correct? */
-  return FALSE;
-}
-#endif
 
 /**********************************************************************
 	Filter the data

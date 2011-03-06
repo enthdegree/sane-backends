@@ -196,4 +196,37 @@ typedef struct tagSUGGESTSETTING
 /*#define DEBUG_SAVE_IMAGE*/
 
 
+static SANE_Bool MustScanner_Init (void);
+static SANE_Bool MustScanner_GetScannerState (void);
+static SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
+static SANE_Bool MustScanner_BackHome (void);
+static SANE_Bool MustScanner_Prepare (SCANSOURCE ssScanSource);
+static unsigned short MustScanner_FiltLower (unsigned short * pSort, unsigned short TotalCount, unsigned short LowCount,
+				   unsigned short HighCount);
+static SANE_Bool MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+					 unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+						unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+					 unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+						unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+					  unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+						 unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+					 unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+						unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono1BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+					 unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+						unsigned short * wLinesCount);
+static void *MustScanner_ReadDataFromScanner (void * dummy);
+static void MustScanner_PrepareCalculateMaxMin (unsigned short wResolution);
+static void MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
+					 unsigned short * lpMinValue, unsigned short wResolution);
+
+
 #endif

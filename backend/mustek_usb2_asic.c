@@ -1549,22 +1549,6 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 }
 
 
-#if SANE_UNUSED
-static STATUS
-LLFStopMotorMove (PAsic chip)
-{
-  STATUS status = STATUS_GOOD;
-  DBG (DBG_ASIC, "LLFStopMotorMove:Enter\n");
-
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
-
-  Asic_WaitUnitReady (chip);
-
-  DBG (DBG_ASIC, "LLFStopMotorMove:Exit\n");
-  return status;
-}
-#endif
-
 static STATUS
 LLFSetMotorTable (PAsic chip, LLF_SETMOTORTABLE * LLF_SetMotorTable)
 {
@@ -2519,27 +2503,6 @@ DRAM_Test (PAsic chip)
   DBG (DBG_ASIC, "DRAM_Text: Exit\n");
   return status;
 }
-
-#if SANE_UNUSED
-static STATUS
-SetPowerSave (PAsic chip)
-{
-  STATUS status = STATUS_GOOD;
-  DBG (DBG_ASIC, "SetPowerSave:Enter\n");
-
-  if (chip->firmwarestate < FS_OPENED)
-    OpenScanChip (chip);
-
-  if (chip->firmwarestate > FS_OPENED)
-    Asic_ScanStop (chip);
-
-  Mustek_SendData (chip, ES01_94_PowerSaveControl, 0x10);
-
-  chip->firmwarestate = FS_OPENED;
-  DBG (DBG_ASIC, "SetPowerSave:Exit\n");
-  return status;
-}
-#endif
 
 static STATUS
 SetLineTimeAndExposure (PAsic chip)

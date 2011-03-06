@@ -70,9 +70,6 @@ enum Mustek_Usb_Option
   OPT_RESOLUTION,
   OPT_PREVIEW,
 
-  OPT_DEBUG_GROUP,
-  OPT_AUTO_WARMUP,
-
   OPT_ENHANCEMENT_GROUP,
   OPT_THRESHOLD,
   OPT_GAMMA_VALUE,
@@ -107,11 +104,8 @@ typedef struct Scanner_Model
   SANE_Fixed x_size_ta;		/* Size of scan area in TA mode in mm */
   SANE_Fixed y_size_ta;		/* Size of scan area in TA mode in mm */
 
-
   RGBORDER line_mode_color_order;	/* Order of the CCD/CIS colors */
   SANE_Fixed default_gamma_value;	/* Default gamma value */
-
-  SANE_Bool is_cis;		/* Is this a CIS or CCD scanner? */
   /*@} */
 } Scanner_Model;
 

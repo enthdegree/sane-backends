@@ -134,9 +134,7 @@ static Scanner_Model mustek_A2nu2_model = {
   SANE_FIX (6.45 * MM_PER_INCH),	/* Size of scan area in TA mode in mm (y) */
 
   RO_RGB,				/* Order of the CCD/CIS colors */
-  SANE_FIX (2.0),		/* Default gamma value */
-
-  SANE_FALSE			/* Is this a CIS scanner? */
+  SANE_FIX (2.0)		/* Default gamma value */
 };
 
 
@@ -377,27 +375,6 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_PREVIEW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   s->opt[OPT_PREVIEW].type = SANE_TYPE_BOOL;
   s->val[OPT_PREVIEW].w = SANE_FALSE;
-
-  /* "Debug" group: */
-  s->opt[OPT_DEBUG_GROUP].title = SANE_I18N ("Debugging Options");
-  s->opt[OPT_DEBUG_GROUP].desc = "";
-  s->opt[OPT_DEBUG_GROUP].type = SANE_TYPE_GROUP;
-  s->opt[OPT_DEBUG_GROUP].size = 0;
-  s->opt[OPT_DEBUG_GROUP].cap = 0;
-  s->opt[OPT_DEBUG_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-
-  /* auto warmup */
-  s->opt[OPT_AUTO_WARMUP].name = "auto-warmup";
-  s->opt[OPT_AUTO_WARMUP].title = SANE_I18N ("Automatic warmup");
-  s->opt[OPT_AUTO_WARMUP].desc =
-    SANE_I18N ("Warm-up until the lamp's brightness is constant "
-	       "instead of insisting on 40 seconds warm-up time.");
-  s->opt[OPT_AUTO_WARMUP].type = SANE_TYPE_BOOL;
-  s->opt[OPT_AUTO_WARMUP].unit = SANE_UNIT_NONE;
-  s->opt[OPT_AUTO_WARMUP].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_AUTO_WARMUP].w = SANE_FALSE;
-  if (s->model.is_cis)
-    DISABLE (OPT_AUTO_WARMUP);
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
@@ -1989,7 +1966,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_NUM_OPTS:
 	case OPT_RESOLUTION:
 	case OPT_PREVIEW:
-	case OPT_AUTO_WARMUP:
 	case OPT_GAMMA_VALUE:
 	case OPT_THRESHOLD:
 	case OPT_TL_X:
@@ -2045,7 +2021,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
 	case OPT_THRESHOLD:
-	case OPT_AUTO_WARMUP:
 	case OPT_GAMMA_VALUE:
 	  s->val[option].w = *(SANE_Word *) val;
 	  break;
@@ -2151,7 +2126,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 SANE_Status
 sane_start (SANE_Handle handle)
 {
-  int i;
   Mustek_Scanner *s = handle;
 
   DBG (DBG_FUNC, "sane_start: start\n");
@@ -2233,15 +2207,6 @@ sane_start (SANE_Handle handle)
   s->read_rows = s->getpara.dwLength;
   DBG (DBG_INFO, "sane_start : read_rows = %d\n", s->read_rows);
 
-  /*warmming up */
-  if (s->val[OPT_AUTO_WARMUP].w)
-    {
-      for (i = 30; i > 0; i--)
-	{
-	  sleep (1);
-	  DBG (DBG_ERR, "warming up: %d\n", i);
-	}
-    }
   DBG (DBG_INFO, "SCANNING ... \n");
 
   s->bIsScanning = SANE_TRUE;

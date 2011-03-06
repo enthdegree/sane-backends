@@ -1069,9 +1069,6 @@ static STATUS OpenScanChip (PAsic chip);
 static STATUS CloseScanChip (PAsic chip);
 static STATUS SafeInitialChip (PAsic chip);
 static STATUS DRAM_Test (PAsic chip);
-#if SANE_UNUSED
-static STATUS SetPowerSave (PAsic chip);
-#endif
 static STATUS SetLineTimeAndExposure (PAsic chip);
 static STATUS CCDTiming (PAsic chip);
 static STATUS IsCarriageHome (PAsic chip, SANE_Bool * LampHome, SANE_Bool * TAHome);
@@ -1229,9 +1226,6 @@ static STATUS LLFSetMotorTable (PAsic chip,
 static STATUS SetMotorCurrent (PAsic chip, unsigned short dwMotorSpeed,
 			       LLF_MOTOR_CURRENT_AND_PHASE * CurrentPhase);
 static STATUS LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove);
-#if SANE_UNUSED
-static STATUS LLFStopMotorMove (PAsic chip);
-#endif
 static STATUS LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr,
 				unsigned int dwEndAddr, SANE_Byte byAccessTarget);
 static STATUS LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess);

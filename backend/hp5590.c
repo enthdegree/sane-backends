@@ -73,7 +73,7 @@
 }
 
 /* #define HAS_WORKING_COLOR_48 */
-#define BUILD 		5
+#define BUILD 		6
 #define USB_TIMEOUT	30 * 1000
 
 static SANE_Word
@@ -129,7 +129,7 @@ enum hp5590_opt_idx {
 
 struct hp5590_scanner {
   struct scanner_info 		*info;
-  struct scanner_state 		*state;
+  enum proto_flags		proto_flags;
   SANE_Device 			sane;
   SANE_Int 			dn;
   float 			br_x, br_y, tl_x, tl_y;
@@ -222,38 +222,46 @@ static SANE_Status
 attach_usb_device (SANE_String_Const devname,
 		   enum hp_scanner_types hp_scanner_type)
 {
-  struct scanner_info	*info;
-  struct hp5590_scanner *scanner, *ptr;
-  unsigned int 		max_count, count;
-  SANE_Int 		dn;
-  SANE_Status		ret;
+  struct scanner_info		*info;
+  struct hp5590_scanner		*scanner, *ptr;
+  unsigned int 			max_count, count;
+  SANE_Int 			dn;
+  SANE_Status			ret;
+  const struct hp5590_model	*hp5590_model;
 
   DBG (DBG_proc, "%s: Opening USB device\n", __FUNCTION__);
   if (sanei_usb_open (devname, &dn) != SANE_STATUS_GOOD)
     return SANE_STATUS_IO_ERROR;
   DBG (DBG_proc, "%s: USB device opened\n", __FUNCTION__);
 
-  if (hp5590_init_scanner (dn, &info, hp_scanner_type) != 0)
+  ret = hp5590_model_def (hp_scanner_type, &hp5590_model);
+  if (ret != SANE_STATUS_GOOD)
+    return ret;
+
+  if (hp5590_init_scanner (dn, hp5590_model->proto_flags,
+    			   &info, hp_scanner_type) != 0)
     return SANE_STATUS_IO_ERROR;
 
   DBG (1, "%s: found HP%s scanner at '%s'\n",
        __FUNCTION__, info->model, devname);
 
   DBG (DBG_verbose, "%s: Reading max scan count\n", __FUNCTION__);
-  if (hp5590_read_max_scan_count (dn, &max_count) != 0)
+  if (hp5590_read_max_scan_count (dn, hp5590_model->proto_flags,
+    				  &max_count) != 0)
     return SANE_STATUS_IO_ERROR;
   DBG (DBG_verbose, "%s: Max Scanning count %u\n", __FUNCTION__, max_count);
 
   DBG (DBG_verbose, "%s: Reading scan count\n", __FUNCTION__);
-  if (hp5590_read_scan_count (dn, &count) != 0)
+  if (hp5590_read_scan_count (dn, hp5590_model->proto_flags,
+    			      &count) != 0)
     return SANE_STATUS_IO_ERROR;
   DBG (DBG_verbose, "%s: Scanning count %u\n", __FUNCTION__, count);
 
-  ret = hp5590_read_part_number (dn);
+  ret = hp5590_read_part_number (dn, hp5590_model->proto_flags);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
-  ret = hp5590_stop_scan (dn);
+  ret = hp5590_stop_scan (dn, hp5590_model->proto_flags);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -267,6 +275,7 @@ attach_usb_device (SANE_String_Const devname,
   scanner->sane.type = info->kind;
   scanner->sane.name = devname;
   scanner->dn = dn;
+  scanner->proto_flags = hp5590_model->proto_flags;
   scanner->info = info;
   scanner->bulk_read_state = NULL;
   scanner->opts = NULL;
@@ -984,7 +993,7 @@ sane_start (SANE_Handle handle)
     {
       DBG (DBG_verbose, "%s: Scanner is scanning, check if more data is available\n",
 	   __FUNCTION__);
-      ret = hp5590_is_data_available (scanner->dn);
+      ret = hp5590_is_data_available (scanner->dn, scanner->proto_flags);
       if (ret == SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_verbose, "%s: More data is available\n", __FUNCTION__);
@@ -1003,7 +1012,9 @@ sane_start (SANE_Handle handle)
       enum button_status status;
       for (;;)
 	{
-	  ret = hp5590_read_buttons (scanner->dn, &status);
+	  ret = hp5590_read_buttons (scanner->dn,
+	  		     	     scanner->proto_flags,
+				     &status);
 	  if (ret != SANE_STATUS_GOOD)
 	    return ret;
 
@@ -1017,31 +1028,35 @@ sane_start (SANE_Handle handle)
     }
 
   DBG (DBG_verbose, "Init scanner\n");  
-  ret = hp5590_init_scanner (scanner->dn, NULL, SCANNER_NONE);
+  ret = hp5590_init_scanner (scanner->dn, scanner->proto_flags,
+  			     NULL, SCANNER_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
-  ret = hp5590_power_status (scanner->dn);
+  ret = hp5590_power_status (scanner->dn, scanner->proto_flags);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
   DBG (DBG_verbose, "Wakeup\n");
-  ret = hp5590_select_source_and_wakeup (scanner->dn, scanner->source,
-	scanner->extend_lamp_timeout);
+  ret = hp5590_select_source_and_wakeup (scanner->dn, scanner->proto_flags,
+  					 scanner->source,
+					 scanner->extend_lamp_timeout);
   if (ret != SANE_STATUS_GOOD)
     return ret;
  
-  ret = hp5590_set_scan_params (scanner->dn, scanner->info,
-			      scanner->tl_x * scanner->dpi,
-			      scanner->tl_y * scanner->dpi,
-			      (scanner->br_x - scanner->tl_x) * scanner->dpi,
-			      (scanner->br_y - scanner->tl_y) * scanner->dpi,
-			      scanner->dpi,
-		              scanner->depth, scanner->preview ? MODE_PREVIEW : MODE_NORMAL,
-			      scanner->source);
+  ret = hp5590_set_scan_params (scanner->dn,
+  				scanner->proto_flags,
+  				scanner->info,
+			      	scanner->tl_x * scanner->dpi,
+			      	scanner->tl_y * scanner->dpi,
+			      	(scanner->br_x - scanner->tl_x) * scanner->dpi,
+			      	(scanner->br_y - scanner->tl_y) * scanner->dpi,
+			      	scanner->dpi,
+		              	scanner->depth, scanner->preview ? MODE_PREVIEW : MODE_NORMAL,
+			      	scanner->source);
   if (ret != SANE_STATUS_GOOD)
     {
-      hp5590_reset_scan_head (scanner->dn);
+      hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
       return ret;
     }
 
@@ -1050,7 +1065,7 @@ sane_start (SANE_Handle handle)
 			   &scanner->image_size);
   if (ret != SANE_STATUS_GOOD)
     {
-      hp5590_reset_scan_head (scanner->dn);
+      hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
       return ret;
     }
 
@@ -1066,7 +1081,7 @@ sane_start (SANE_Handle handle)
 	  DBG (DBG_err, "Color 24/48 bits: image size doesn't lined up on number of colors (3) "
 	       "(image size: %u, bytes per line %u)\n",
 	       scanner->image_size, bytes_per_line);
-          hp5590_reset_scan_head (scanner->dn);
+          hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
 	  return SANE_STATUS_INVAL;
 	}
       DBG (1, "Color 24/48 bits: image size is correctly aligned on number of colors "
@@ -1080,7 +1095,7 @@ sane_start (SANE_Handle handle)
 	  DBG (DBG_err, "Color 24/48 bits: image size doesn't lined up on bytes per line "
 	       "(image size: %u, bytes per line %u)\n",
 	       scanner->image_size, bytes_per_line);
-          hp5590_reset_scan_head (scanner->dn);
+          hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
 	  return SANE_STATUS_INVAL;
 	}
       DBG (1, "Color 24/48 bits: image size correctly aligned on bytes per line "
@@ -1091,25 +1106,25 @@ sane_start (SANE_Handle handle)
   DBG (DBG_verbose, "Final image size: %u\n", scanner->image_size);
 
   DBG (DBG_verbose, "Reverse calibration maps\n");
-  ret = hp5590_send_reverse_calibration_map (scanner->dn);
+  ret = hp5590_send_reverse_calibration_map (scanner->dn, scanner->proto_flags);
   if (ret != SANE_STATUS_GOOD)
     {
-      hp5590_reset_scan_head (scanner->dn);
+      hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
       return ret;
     }
 
   DBG (DBG_verbose, "Forward calibration maps\n");
-  ret = hp5590_send_forward_calibration_maps (scanner->dn);
+  ret = hp5590_send_forward_calibration_maps (scanner->dn, scanner->proto_flags);
   if (ret != SANE_STATUS_GOOD)
     {
-      hp5590_reset_scan_head (scanner->dn);
+      hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
       return ret;
     }
 
   scanner->scanning = SANE_TRUE;
 
   DBG (DBG_verbose, "Starting scan\n");
-  ret = hp5590_start_scan (scanner->dn);
+  ret = hp5590_start_scan (scanner->dn, scanner->proto_flags);
   /* Check for paper jam */
   if (	  ret == SANE_STATUS_DEVICE_BUSY
       && (   scanner->source == SOURCE_ADF
@@ -1118,7 +1133,7 @@ sane_start (SANE_Handle handle)
 
   if (ret != SANE_STATUS_GOOD)
     {
-      hp5590_reset_scan_head (scanner->dn);
+      hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
       return ret;
     }
 
@@ -1254,7 +1269,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
       *length = 0;
       DBG (DBG_verbose, "Setting scan count\n");
 
-      ret = hp5590_inc_scan_count (scanner->dn);
+      ret = hp5590_inc_scan_count (scanner->dn, scanner->proto_flags);
       if (ret != SANE_STATUS_GOOD)
 	return ret;
 
@@ -1295,7 +1310,8 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	  max_length, *length);
    }
 
-  ret = hp5590_read (scanner->dn, data, *length, scanner->bulk_read_state);
+  ret = hp5590_read (scanner->dn, scanner->proto_flags,
+  		     data, *length, scanner->bulk_read_state);
   if (ret != SANE_STATUS_GOOD)
     {
       scanner->scanning = SANE_FALSE;
@@ -1334,7 +1350,7 @@ sane_cancel (SANE_Handle handle)
 
   hp5590_low_free_bulk_read_state (&scanner->bulk_read_state);
 
-  ret = hp5590_stop_scan (scanner->dn);
+  ret = hp5590_stop_scan (scanner->dn, scanner->proto_flags);
   if (ret != SANE_STATUS_GOOD)
     return;
 }

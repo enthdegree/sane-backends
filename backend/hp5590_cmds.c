@@ -59,37 +59,33 @@
 #include "hp5590_low.h"
 #include "hp5590_cmds.h"
 
-struct hp5590_model
-{
-  enum hp_scanner_types	scanner_type;
-  unsigned int 		usb_vendor_id;
-  unsigned int 		usb_product_id;
-  const char 		*vendor_id;
-  const char 		*model;
-  const char 		*kind;
-};
-
 static const struct hp5590_model
 hp5590_models[] = {
   {
     SCANNER_HP4570,
     0x03f0, 0x1305, "SILITEKIElwood",
-    "4570C/5500C", "Workgroup scanner"
+    "4570C/5500C", "Workgroup scanner",
+    PF_NONE
   },
   {
     SCANNER_HP5550,
     0x03f0, 0x1205, "SILITEKIPenguin",
-    "4500C/5550C", "Workgroup scanner"
+    "4500C/5550C", "Workgroup scanner",
+    PF_NO_USB_IN_USB_ACK		/* These devices need no
+    					 * acknowledgement after USB-in-USB
+					 * commands */
   },
   {
     SCANNER_HP5590,
     0x03f0, 0x1705, "SILITEKIPenguin",
-    "5590", "Workgroup scanner"
+    "5590", "Workgroup scanner",
+    PF_NONE
   },
   {
     SCANNER_HP7650,
     0x03f0, 0x1805, "SILITEKIArnold",
-    "7650", "Document scanner"
+    "7650", "Document scanner",
+    PF_NONE
   }
 };
 
@@ -428,31 +424,50 @@ struct reg_03
 
 /******************************************************************************/
 static SANE_Status
-hp5590_vendor_product_id (enum hp_scanner_types scanner_type,
-			  SANE_Word * vendor_id,
-			  SANE_Word * product_id)
+hp5590_model_def (enum hp_scanner_types scanner_type,
+		  const struct hp5590_model ** model)
 {
   unsigned int i;
-
-  hp5590_cmds_assert (vendor_id != NULL);
-  hp5590_cmds_assert (product_id != NULL);
+   
+  hp5590_cmds_assert (model != NULL);
 
   for (i = 0; i < sizeof (hp5590_models) / sizeof (struct hp5590_model); i++)
     {
       if (hp5590_models[i].scanner_type == scanner_type)
 	{
-	  *vendor_id = hp5590_models[i].usb_vendor_id;
-	  *product_id = hp5590_models[i].usb_product_id;
+	  *model = &hp5590_models[i];
 	  return SANE_STATUS_GOOD;
 	}
     }
-
+	
   return SANE_STATUS_INVAL;
 }
 
 /******************************************************************************/
 static SANE_Status
+hp5590_vendor_product_id (enum hp_scanner_types scanner_type,
+			  SANE_Word * vendor_id,
+			  SANE_Word * product_id)
+{
+  const struct hp5590_model	*model;
+  SANE_Status			ret;
+
+  hp5590_cmds_assert (vendor_id != NULL);
+  hp5590_cmds_assert (product_id != NULL);
+
+  ret = hp5590_model_def (scanner_type, &model);
+  if (ret != SANE_STATUS_GOOD)
+    return ret;
+  *vendor_id = model->usb_vendor_id;
+  *product_id = model->usb_product_id;
+
+  return SANE_STATUS_GOOD;
+}
+
+/******************************************************************************/
+static SANE_Status
 hp5590_init_scanner (SANE_Int dn,
+		     enum proto_flags proto_flags,
 		     struct scanner_info ** info,
 		     enum hp_scanner_types scanner_type)
 {
@@ -473,7 +488,9 @@ hp5590_init_scanner (SANE_Int dn,
   hp5590_cmds_assert (sizeof (init_resp) == 50);
 
   /* Init scanner */
-  ret = hp5590_cmd (dn, CMD_IN | CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_IN | CMD_VERIFY,
 		    CMD_INIT,
 		    (unsigned char *) &init_resp,
 		    sizeof (init_resp), CORE_NONE);
@@ -572,7 +589,7 @@ hp5590_init_scanner (SANE_Int dn,
 	}
     }
 
-  ret = hp5590_get_status (dn);
+  ret = hp5590_get_status (dn, proto_flags);
   if (ret != SANE_STATUS_GOOD)
     {
       DBG (DBG_err, "%s: scanner reports non-zero status: %s\n",
@@ -587,6 +604,7 @@ hp5590_init_scanner (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_read_eeprom (SANE_Int dn,
+		    enum proto_flags proto_flags,
 		    unsigned int addr,
 		    unsigned char *data, unsigned int size)
 {
@@ -599,7 +617,9 @@ hp5590_read_eeprom (SANE_Int dn,
   DBG (DBG_proc, "%s\n", __FUNCTION__);
   DBG (DBG_proc, "Reading EEPROM: addr %04x, size %u\n", addr, size);
 
-  ret = hp5590_cmd (dn, CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_VERIFY,
 		    CMD_EEPROM_ADDR,
 		    (unsigned char *) &eeprom_addr,
 		    sizeof (eeprom_addr), CORE_NONE);
@@ -607,6 +627,7 @@ hp5590_read_eeprom (SANE_Int dn,
     return ret;
 
   ret = hp5590_cmd (dn,
+  		    proto_flags,
 		    CMD_IN | CMD_VERIFY,
 		    CMD_EEPROM_READ, data, size, CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
@@ -618,6 +639,7 @@ hp5590_read_eeprom (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_write_eeprom (SANE_Int dn,
+		     enum proto_flags proto_flags,
 		     unsigned int addr,
 		     unsigned char *data, unsigned int size)
 {
@@ -630,7 +652,9 @@ hp5590_write_eeprom (SANE_Int dn,
   DBG (DBG_proc, "%s\n", __FUNCTION__);
   DBG (DBG_proc, "Writing EEPROM: addr %04x, size: %u\n", addr, size);
 
-  ret = hp5590_cmd (dn, CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_VERIFY,
 		    CMD_EEPROM_ADDR,
 		    (unsigned char *) &eeprom_addr,
 		    sizeof (eeprom_addr), CORE_NONE);
@@ -638,6 +662,7 @@ hp5590_write_eeprom (SANE_Int dn,
     return ret;
 
   ret = hp5590_cmd (dn,
+  		    proto_flags,
 		    CMD_VERIFY,
 		    CMD_EEPROM_WRITE, data, size, CORE_DATA);
   if (ret != SANE_STATUS_GOOD)
@@ -648,7 +673,9 @@ hp5590_write_eeprom (SANE_Int dn,
 
 /******************************************************************************/
 static SANE_Status
-hp5590_read_scan_count (SANE_Int dn, unsigned int *count)
+hp5590_read_scan_count (SANE_Int dn,
+			enum proto_flags proto_flags,
+			unsigned int *count)
 {
   uint32_t scan_count;
   SANE_Status ret;
@@ -659,7 +686,9 @@ hp5590_read_scan_count (SANE_Int dn, unsigned int *count)
   DBG (DBG_proc, "%s\n", __FUNCTION__);
   DBG (DBG_proc, "Reading scan count\n");
 
-  ret = hp5590_read_eeprom (dn, 0x00,
+  ret = hp5590_read_eeprom (dn,
+  			    proto_flags,
+  			    0x00,
 			    (unsigned char *) &scan_count,
 			    sizeof (scan_count));
 
@@ -676,7 +705,8 @@ hp5590_read_scan_count (SANE_Int dn, unsigned int *count)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_inc_scan_count (SANE_Int dn)
+hp5590_inc_scan_count (SANE_Int dn,
+		       enum proto_flags proto_flags)
 {
   uint32_t scan_count;
   unsigned int count;
@@ -686,20 +716,22 @@ hp5590_inc_scan_count (SANE_Int dn)
   DBG (DBG_proc, "%s\n", __FUNCTION__);
   hp5590_cmds_assert (sizeof (scan_count) == 4);
 
-  ret = hp5590_read_scan_count (dn, &count);
+  ret = hp5590_read_scan_count (dn, proto_flags, &count);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
   scan_count = ++count;
 
-  ret = hp5590_write_eeprom (dn, 0x00,
+  ret = hp5590_write_eeprom (dn,
+  			     proto_flags,
+  			     0x00,
 			     (unsigned char *) &scan_count,
 			     sizeof (scan_count));
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
   /* Verify its setting */
-  ret = hp5590_read_scan_count (dn, &new_count);
+  ret = hp5590_read_scan_count (dn, proto_flags, &new_count);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -714,7 +746,9 @@ hp5590_inc_scan_count (SANE_Int dn)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_read_max_scan_count (SANE_Int dn, unsigned int *max_count)
+hp5590_read_max_scan_count (SANE_Int dn,
+			    enum proto_flags proto_flags,
+			    unsigned int *max_count)
 {
   uint8_t max_scan_count[3];
   SANE_Status ret;
@@ -726,6 +760,7 @@ hp5590_read_max_scan_count (SANE_Int dn, unsigned int *max_count)
   DBG (DBG_proc, "Reading max scan count\n");
 
   ret = hp5590_read_eeprom (dn,
+  			    proto_flags,
 			    0x10,
 			    (unsigned char *) max_scan_count,
 			    sizeof (max_scan_count));
@@ -770,14 +805,17 @@ hp5590_read_max_scan_count (SANE_Int dn, unsigned int *max_count)
 
 /******************************************************************************/
 static __sane_unused__ SANE_Status
-hp5590_read_eeprom_all_cmd (SANE_Int dn)
+hp5590_read_eeprom_all_cmd (SANE_Int dn,
+			    enum proto_flags proto_flags)
 {
   uint8_t eeprom[255];
   SANE_Status ret;
 
   DBG (DBG_proc, "%s\n", __FUNCTION__);
 
-  ret = hp5590_read_eeprom (dn, 0x00,
+  ret = hp5590_read_eeprom (dn,
+  			    proto_flags,
+  			    0x00,
 			    (unsigned char *) eeprom,
 			    sizeof (eeprom));
   if (ret != SANE_STATUS_GOOD)
@@ -790,7 +828,8 @@ hp5590_read_eeprom_all_cmd (SANE_Int dn)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_read_part_number (SANE_Int dn)
+hp5590_read_part_number (SANE_Int dn,
+			 enum proto_flags proto_flags)
 {
   unsigned int part_number_len = PART_NUMBER_LEN;
   unsigned char part_number[PART_NUMBER_LEN + 1];
@@ -800,6 +839,7 @@ hp5590_read_part_number (SANE_Int dn)
 
   memset (part_number, 0, sizeof (part_number));
   ret = hp5590_read_eeprom (dn,
+  			    proto_flags,
 			    0x1a,
 			    part_number, part_number_len);
   if (ret != SANE_STATUS_GOOD)
@@ -812,7 +852,8 @@ hp5590_read_part_number (SANE_Int dn)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_is_data_available (SANE_Int dn)
+hp5590_is_data_available (SANE_Int dn,
+			  enum proto_flags proto_flags)
 {
   uint8_t data_status;
   SANE_Status ret;
@@ -823,7 +864,9 @@ hp5590_is_data_available (SANE_Int dn)
   hp5590_cmds_assert (sizeof (data_status) == 1);
   data_available = SANE_FALSE;
 
-  ret = hp5590_cmd (dn, CMD_IN | CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_IN | CMD_VERIFY,
 		    CMD_DATA_STATUS,
 		    (unsigned char *) &data_status,
 		    sizeof (data_status), CORE_DATA);
@@ -844,7 +887,8 @@ hp5590_is_data_available (SANE_Int dn)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_stop_scan (SANE_Int dn)
+hp5590_stop_scan (SANE_Int dn,
+		  enum proto_flags proto_flags)
 {
   uint8_t reg_011b = 0x40;
   SANE_Status ret;
@@ -853,7 +897,9 @@ hp5590_stop_scan (SANE_Int dn)
 
   hp5590_cmds_assert (sizeof (reg_011b) == 1);
 
-  ret = hp5590_cmd (dn, CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_VERIFY,
 		    CMD_STOP_SCAN,
 		    (unsigned char *) &reg_011b,
 		    sizeof (reg_011b), CORE_NONE);
@@ -867,7 +913,9 @@ hp5590_stop_scan (SANE_Int dn)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_turnon_lamp (SANE_Int dn, enum hp5590_lamp_state state)
+hp5590_turnon_lamp (SANE_Int dn,
+		    enum proto_flags proto_flags,
+		    enum hp5590_lamp_state state)
 {
   struct lamp_state lamp_state;
   SANE_Status ret;
@@ -912,7 +960,9 @@ hp5590_turnon_lamp (SANE_Int dn, enum hp5590_lamp_state state)
       DBG (DBG_cmds, "%s: setting long turnoff time\n", __FUNCTION__);
     }
 
-  ret = hp5590_cmd (dn, CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_VERIFY,
 		    CMD_CONTROL_LAMP,
 		    (unsigned char *) &lamp_state,
 		    sizeof (lamp_state), CORE_DATA);
@@ -921,7 +971,7 @@ hp5590_turnon_lamp (SANE_Int dn, enum hp5590_lamp_state state)
 
   if (state == LAMP_STATE_TURNON)
     {
-      ret = hp5590_init_scanner (dn, NULL, SCANNER_NONE);
+      ret = hp5590_init_scanner (dn, proto_flags, NULL, SCANNER_NONE);
       if (ret != SANE_STATUS_GOOD)
 	return ret;
     }
@@ -931,7 +981,8 @@ hp5590_turnon_lamp (SANE_Int dn, enum hp5590_lamp_state state)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_power_status (SANE_Int dn)
+hp5590_power_status (SANE_Int dn,
+		     enum proto_flags proto_flags)
 {
   struct power_resp power_resp;
   SANE_Status ret;
@@ -940,7 +991,9 @@ hp5590_power_status (SANE_Int dn)
 
   hp5590_cmds_assert (sizeof (power_resp) == 3);
 
-  ret = hp5590_cmd (dn, CMD_IN | CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_IN | CMD_VERIFY,
 		    CMD_POWER_STATUS,
 		    (unsigned char *) &power_resp,
 		    sizeof (power_resp), CORE_NONE);
@@ -953,7 +1006,7 @@ hp5590_power_status (SANE_Int dn)
   if (!(power_resp.flags & POWER_FLAG_ON))
     {
       DBG (DBG_cmds, "Turning lamp on\n");
-      ret = hp5590_turnon_lamp (dn, LAMP_STATE_TURNON);
+      ret = hp5590_turnon_lamp (dn, proto_flags, LAMP_STATE_TURNON);
       if (ret != SANE_STATUS_GOOD)
 	return ret;
     }
@@ -963,7 +1016,9 @@ hp5590_power_status (SANE_Int dn)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_read_error_code (SANE_Int dn, unsigned int *adf_flags)
+hp5590_read_error_code (SANE_Int dn,
+			enum proto_flags proto_flags,
+			unsigned int *adf_flags)
 {
   struct reg_03 reg_03;
   SANE_Status 	ret;
@@ -975,7 +1030,9 @@ hp5590_read_error_code (SANE_Int dn, unsigned int *adf_flags)
 
   memset (&reg_03, 0, sizeof (reg_03));
   *adf_flags = 0;
-  ret = hp5590_cmd (dn, CMD_IN,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_IN,
 		    CMD_MISC_STATUS,
 		    (unsigned char *) &reg_03,
 		    sizeof (reg_03), CORE_NONE);
@@ -994,19 +1051,20 @@ hp5590_read_error_code (SANE_Int dn, unsigned int *adf_flags)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_reset_scan_head (SANE_Int dn)
+hp5590_reset_scan_head (SANE_Int dn,
+			enum proto_flags proto_flags)
 {
   SANE_Status	ret;
 
   DBG (DBG_proc, "%s\n", __FUNCTION__);
   
-  ret = hp5590_turnon_lamp (dn, LAMP_STATE_TURNOFF);
+  ret = hp5590_turnon_lamp (dn, proto_flags, LAMP_STATE_TURNOFF);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
   usleep (100 * 1000);
 
-  ret = hp5590_turnon_lamp (dn, LAMP_STATE_TURNON);
+  ret = hp5590_turnon_lamp (dn, proto_flags, LAMP_STATE_TURNON);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1016,6 +1074,7 @@ hp5590_reset_scan_head (SANE_Int dn)
 /******************************************************************************/
 static SANE_Status
 hp5590_select_source_and_wakeup (SANE_Int dn,
+				 enum proto_flags proto_flags,
 				 enum scan_sources source,
 				 SANE_Bool extend_lamp_timeout)
 {
@@ -1029,13 +1088,14 @@ hp5590_select_source_and_wakeup (SANE_Int dn,
 
   if (source == SOURCE_TMA_SLIDES || source == SOURCE_TMA_NEGATIVES)
     {
-      ret = hp5590_turnon_lamp (dn, LAMP_STATE_TURNOFF);
+      ret = hp5590_turnon_lamp (dn, proto_flags, LAMP_STATE_TURNOFF);
       if (ret != SANE_STATUS_GOOD)
 	return ret;
     }
   else
     {
       ret = hp5590_turnon_lamp (dn,
+				proto_flags,
 				extend_lamp_timeout == SANE_TRUE ?
 				LAMP_STATE_SET_TURNOFF_TIME_LONG :
 				LAMP_STATE_SET_TURNOFF_TIME);
@@ -1068,7 +1128,9 @@ hp5590_select_source_and_wakeup (SANE_Int dn,
 
   DBG (DBG_cmds, "Scan source: %u\n", reg_d6);
 
-  ret = hp5590_cmd (dn, CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_VERIFY,
 		    CMD_SELECT_SOURCE,
 		    (unsigned char *) &reg_d6,
 		    sizeof (reg_d6), CORE_NONE);
@@ -1076,7 +1138,7 @@ hp5590_select_source_and_wakeup (SANE_Int dn,
   if (ret != SANE_STATUS_GOOD && ret != SANE_STATUS_DEVICE_BUSY)
     return ret;
 
-  ret = hp5590_read_error_code (dn, &adf_flags);
+  ret = hp5590_read_error_code (dn, proto_flags, &adf_flags);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1091,7 +1153,8 @@ hp5590_select_source_and_wakeup (SANE_Int dn,
 
 /******************************************************************************/
 static SANE_Status
-hp5590_lock_unlock_scanner (SANE_Int dn)
+hp5590_lock_unlock_scanner (SANE_Int dn,
+			    enum proto_flags proto_flags)
 {
   uint8_t 	reg_00 = 0x01;
   SANE_Status 	ret;
@@ -1103,7 +1166,9 @@ hp5590_lock_unlock_scanner (SANE_Int dn)
 
   for (waiting = 0; waiting < WAKEUP_TIMEOUT; waiting++, sleep (1))
     {
-      ret = hp5590_cmd (dn, CMD_VERIFY,
+      ret = hp5590_cmd (dn,
+      			proto_flags,
+      			CMD_VERIFY,
 			CMD_LOCK_UNLOCK,
 			(unsigned char *) &reg_00,
 			sizeof (reg_00), CORE_NONE);
@@ -1114,7 +1179,7 @@ hp5590_lock_unlock_scanner (SANE_Int dn)
 	return ret;
 
       DBG (DBG_cmds, "Waiting for scanner...\n");
-      ret = hp5590_read_error_code (dn, &adf_flags);
+      ret = hp5590_read_error_code (dn, proto_flags, &adf_flags);
       if (ret != SANE_STATUS_GOOD)
 	return ret;
 
@@ -1134,6 +1199,7 @@ hp5590_lock_unlock_scanner (SANE_Int dn)
 /******************************************************************************/
 static SANE_Status
 hp5590_set_base_dpi (SANE_Int dn,
+		     enum proto_flags proto_flags,
 		     struct scanner_info *scanner_info,
 		     unsigned int base_dpi)
 {
@@ -1159,7 +1225,9 @@ hp5590_set_base_dpi (SANE_Int dn,
 
   _base_dpi = htons (base_dpi);
 
-  ret = hp5590_cmd (dn, CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_VERIFY,
 		    CMD_SET_BASE_DPI,
 		    (unsigned char *) &_base_dpi,
 		    sizeof (_base_dpi), CORE_DATA);
@@ -1171,7 +1239,9 @@ hp5590_set_base_dpi (SANE_Int dn,
 
 /******************************************************************************/
 static SANE_Status
-hp5590_set_color_map (SANE_Int dn, unsigned int base_dpi)
+hp5590_set_color_map (SANE_Int dn,
+		      enum proto_flags proto_flags,
+		      unsigned int base_dpi)
 {
   struct color_map color_map;
   SANE_Status ret;
@@ -1206,7 +1276,9 @@ hp5590_set_color_map (SANE_Int dn, unsigned int base_dpi)
       color_map.color3[5] = 0x02;
     }
 
-  ret = hp5590_cmd (dn, CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_VERIFY,
 		    CMD_SET_COLOR_MAP,
 		    (unsigned char *) &color_map,
 		    sizeof (color_map), CORE_DATA);
@@ -1369,7 +1441,9 @@ hp5590_calc_pixel_bits (unsigned int dpi, enum color_depths color_depth,
 
 /******************************************************************************/
 static SANE_Status
-hp5590_set_scan_area (SANE_Int dn, struct scanner_info *scanner_info,
+hp5590_set_scan_area (SANE_Int dn,
+		      enum proto_flags proto_flags,
+		      struct scanner_info *scanner_info,
 		      unsigned int top_x, unsigned int top_y,
 		      unsigned int width, unsigned int height,
 		      unsigned int dpi, enum color_depths color_depth,
@@ -1534,7 +1608,9 @@ hp5590_set_scan_area (SANE_Int dn, struct scanner_info *scanner_info,
   scan_params.line_width = htons (scanner_line_width);
   DBG (DBG_cmds, "Line width: %u\n", scanner_line_width);
 
-  ret = hp5590_cmd (dn, CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_VERIFY,
 		    CMD_SET_SCAN_PARAMS,
 		    (unsigned char *) &scan_params,
 		    sizeof (scan_params), CORE_DATA);
@@ -1546,7 +1622,8 @@ hp5590_set_scan_area (SANE_Int dn, struct scanner_info *scanner_info,
 
 /******************************************************************************/
 static SANE_Status
-hp5590_read_image_params (SANE_Int dn)
+hp5590_read_image_params (SANE_Int dn,
+			  enum proto_flags proto_flags)
 {
   struct image_params image_params;
   SANE_Status ret;
@@ -1557,7 +1634,9 @@ hp5590_read_image_params (SANE_Int dn)
 
   memset (&image_params, 0, sizeof (image_params));
 
-  ret = hp5590_cmd (dn, CMD_IN | CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_IN | CMD_VERIFY,
 		    CMD_GET_IMAGE_PARAMS,
 		    (unsigned char *) &image_params,
 		    sizeof (image_params), CORE_NONE);
@@ -1585,7 +1664,9 @@ hp5590_read_image_params (SANE_Int dn)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_set_scan_params (SANE_Int dn, struct scanner_info * scanner_info,
+hp5590_set_scan_params (SANE_Int dn,
+			enum proto_flags proto_flags,
+			struct scanner_info * scanner_info,
 			unsigned int top_x, unsigned int top_y,
 			unsigned int width, unsigned int height,
 			unsigned int dpi, enum color_depths color_depth,
@@ -1601,7 +1682,7 @@ hp5590_set_scan_params (SANE_Int dn, struct scanner_info * scanner_info,
   hp5590_cmds_assert (dpi != 0);
 
   /* Lock scanner */
-  ret = hp5590_lock_unlock_scanner (dn);
+  ret = hp5590_lock_unlock_scanner (dn, proto_flags);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1610,49 +1691,51 @@ hp5590_set_scan_params (SANE_Int dn, struct scanner_info * scanner_info,
   if (ret != SANE_STATUS_GOOD)
     {
       /* Unlock scanner */
-      hp5590_lock_unlock_scanner (dn);
+      hp5590_lock_unlock_scanner (dn, proto_flags);
       return ret;
     }
 
   DBG (DBG_cmds, "Set base DPI: %u\n", base_dpi);
-  ret = hp5590_set_base_dpi (dn, scanner_info, base_dpi);
+  ret = hp5590_set_base_dpi (dn, proto_flags, scanner_info, base_dpi);
   if (ret != SANE_STATUS_GOOD)
     {
       /* Unlock scanner */
-      hp5590_lock_unlock_scanner (dn);
+      hp5590_lock_unlock_scanner (dn, proto_flags);
       return ret;
     }
 
   /* Set color map */
-  ret = hp5590_set_color_map (dn, base_dpi);
+  ret = hp5590_set_color_map (dn, proto_flags, base_dpi);
   if (ret != SANE_STATUS_GOOD)
     {
       /* Unlock scanner */
-      hp5590_lock_unlock_scanner (dn);
+      hp5590_lock_unlock_scanner (dn, proto_flags);
       return ret;
     }
 
-  ret = hp5590_set_scan_area (dn, scanner_info,
+  ret = hp5590_set_scan_area (dn,
+  			      proto_flags,
+  			      scanner_info,
 			      top_x, top_y,
 			      width, height,
 			      dpi, color_depth, scan_mode, scan_source);
   if (ret != SANE_STATUS_GOOD)
     {
       /* Unlock scanner */
-      hp5590_lock_unlock_scanner (dn);
+      hp5590_lock_unlock_scanner (dn, proto_flags);
       return ret;
     }
 
-  ret = hp5590_read_image_params (dn);
+  ret = hp5590_read_image_params (dn, proto_flags);
   if (ret != SANE_STATUS_GOOD)
     {
       /* Unlock scanner */
-      hp5590_lock_unlock_scanner (dn);
+      hp5590_lock_unlock_scanner (dn, proto_flags);
       return ret;
     }
 
   /* Unlock scanner */
-  ret = hp5590_lock_unlock_scanner (dn);
+  ret = hp5590_lock_unlock_scanner (dn, proto_flags);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1661,7 +1744,8 @@ hp5590_set_scan_params (SANE_Int dn, struct scanner_info * scanner_info,
 
 /******************************************************************************/
 static SANE_Status
-hp5590_send_reverse_calibration_map (SANE_Int dn)
+hp5590_send_reverse_calibration_map (SANE_Int dn,
+				     enum proto_flags proto_flags)
 {
   unsigned int reverse_map_size = REVERSE_MAP_LEN;
   uint16_t reverse_map[REVERSE_MAP_LEN];
@@ -1699,7 +1783,9 @@ hp5590_send_reverse_calibration_map (SANE_Int dn)
 
   DBG (DBG_proc, "Done preparing reverse calibration map\n");
 
-  ret = hp5590_bulk_write (dn, 0x2b,
+  ret = hp5590_bulk_write (dn,
+  			   proto_flags,
+  			   0x2b,
 			   (unsigned char *) reverse_map,
 			   reverse_map_size * sizeof (uint16_t));
   if (ret != SANE_STATUS_GOOD)
@@ -1710,7 +1796,8 @@ hp5590_send_reverse_calibration_map (SANE_Int dn)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_send_forward_calibration_maps (SANE_Int dn)
+hp5590_send_forward_calibration_maps (SANE_Int dn,
+				      enum proto_flags proto_flags)
 {
   unsigned int forward_map_size = FORWARD_MAP_LEN;
   uint16_t forward_map[FORWARD_MAP_LEN];
@@ -1729,19 +1816,25 @@ hp5590_send_forward_calibration_maps (SANE_Int dn)
     }
   DBG (DBG_proc, "Done preparing forward calibration map\n");
 
-  ret = hp5590_bulk_write (dn, 0x012a,
+  ret = hp5590_bulk_write (dn,
+  			   proto_flags,
+  			   0x012a,
 			   (unsigned char *) forward_map,
 			   forward_map_size * sizeof (uint16_t));
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
-  ret = hp5590_bulk_write (dn, 0x022a,
+  ret = hp5590_bulk_write (dn,
+  			   proto_flags,
+  			   0x022a,
 			   (unsigned char *) forward_map,
 			   forward_map_size * sizeof (uint16_t));
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
-  ret = hp5590_bulk_write (dn, 0x032a,
+  ret = hp5590_bulk_write (dn,
+  			   proto_flags,
+  			   0x032a,
 			   (unsigned char *) forward_map,
 			   forward_map_size * sizeof (uint16_t));
   if (ret != SANE_STATUS_GOOD)
@@ -1752,7 +1845,9 @@ hp5590_send_forward_calibration_maps (SANE_Int dn)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
+hp5590_read (SANE_Int dn,
+	     enum proto_flags proto_flags,
+	     unsigned char *bytes, unsigned int size,
 	     void *state)
 {
   SANE_Status ret;
@@ -1762,7 +1857,7 @@ hp5590_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
   hp5590_cmds_assert (bytes != NULL);
   hp5590_cmds_assert (state != NULL);
 
-  ret = hp5590_bulk_read (dn, bytes, size, state);
+  ret = hp5590_bulk_read (dn, proto_flags, bytes, size, state);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1771,7 +1866,8 @@ hp5590_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
 
 /******************************************************************************/
 static SANE_Status
-hp5590_start_scan (SANE_Int dn)
+hp5590_start_scan (SANE_Int dn,
+		   enum proto_flags proto_flags)
 {
   uint8_t reg_051b = 0x40;
   SANE_Status ret;
@@ -1780,7 +1876,9 @@ hp5590_start_scan (SANE_Int dn)
 
   hp5590_cmds_assert (sizeof (reg_051b) == 1);
 
-  ret = hp5590_cmd (dn, CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_VERIFY,
 		    CMD_START_SCAN,
 		    (unsigned char *) &reg_051b,
 		    sizeof (reg_051b), CORE_NONE);
@@ -1792,7 +1890,9 @@ hp5590_start_scan (SANE_Int dn)
 
 /******************************************************************************/
 static SANE_Status
-hp5590_read_buttons (SANE_Int dn, enum button_status * status)
+hp5590_read_buttons (SANE_Int dn,
+		     enum proto_flags proto_flags,
+		     enum button_status * status)
 {
   uint16_t button_status;
   SANE_Status ret;
@@ -1802,7 +1902,9 @@ hp5590_read_buttons (SANE_Int dn, enum button_status * status)
   hp5590_cmds_assert (status != NULL);
   hp5590_cmds_assert (sizeof (button_status) == 2);
 
-  ret = hp5590_cmd (dn, CMD_IN | CMD_VERIFY,
+  ret = hp5590_cmd (dn,
+  		    proto_flags,
+  		    CMD_IN | CMD_VERIFY,
 		    CMD_BUTTON_STATUS,
 		    (unsigned char *) &button_status,
 		    sizeof (button_status), CORE_NONE);

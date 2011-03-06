@@ -131,10 +131,15 @@ struct bulk_read_state
  * SANE_STATUS_DEVICE_BUSY - otherwise
  */
 static SANE_Status
-hp5590_get_ack (SANE_Int dn)
+hp5590_get_ack (SANE_Int dn,
+		enum proto_flags proto_flags)
 {
   uint8_t 	status;
   SANE_Status	ret;
+
+  /* Bypass reading acknowledge if the device doesn't need it */
+  if (proto_flags & PF_NO_USB_IN_USB_ACK)
+    return SANE_STATUS_GOOD;
 
   DBG (DBG_proc, "%s\n", __FUNCTION__);
 
@@ -173,7 +178,8 @@ hp5590_get_ack (SANE_Int dn)
  * SANE_STATUS_DEVICE_BUSY - otherwise
  */
 static SANE_Status
-hp5590_get_status (SANE_Int dn)
+hp5590_get_status (SANE_Int dn,
+		   __sane_unused__ enum proto_flags proto_flags)
 {
   uint8_t status;
   SANE_Status ret;
@@ -181,7 +187,7 @@ hp5590_get_status (SANE_Int dn)
   DBG (DBG_proc, "%s\n", __FUNCTION__);
 
   ret = sanei_usb_control_msg (dn, USB_DIR_IN | USB_TYPE_VENDOR,
-			       0x0c, 0x8e, 0x20,
+			       0x0c, 0x8e, 0x00,
 			       sizeof (status), &status);
   if (ret != SANE_STATUS_GOOD)
     {
@@ -222,6 +228,7 @@ hp5590_get_status (SANE_Int dn)
  */
 static SANE_Status
 hp5590_control_msg (SANE_Int dn,
+		    enum proto_flags proto_flags,
 		    int requesttype, int request,
 		    int value, int index, unsigned char *bytes,
 		    int size, int core_flags)
@@ -262,9 +269,8 @@ hp5590_control_msg (SANE_Int dn,
 	  return ret;
 	}
 
-      DBG (DBG_usb, "%s: USB-in-USB: checking acknowledge for control message\n",
-	   __FUNCTION__);
-      ret = hp5590_get_ack (dn);
+      /* USB-in-USB: checking acknowledge for control message */
+      ret = hp5590_get_ack (dn, proto_flags);
       if (ret != SANE_STATUS_GOOD)
 	return ret;
 
@@ -304,9 +310,8 @@ hp5590_control_msg (SANE_Int dn,
 	  return -1;
 	}
 
-      DBG (DBG_usb, "%s: USB-in-USB: checking if confirmation was acknowledged\n",
-	   __FUNCTION__);
-      ret = hp5590_get_ack (dn);
+      /* USB-in-USB: checking if confirmation was acknowledged */
+      ret = hp5590_get_ack (dn, proto_flags);
       if (ret != SANE_STATUS_GOOD)
 	return ret;
     }
@@ -334,9 +339,8 @@ hp5590_control_msg (SANE_Int dn,
 	  return ret;
 	}
 
-      DBG (DBG_usb, "%s: USB-in-USB: checking acknowledge for control message\n",
-	   __FUNCTION__);
-      ret = hp5590_get_ack (dn);
+      /* USB-in-USB: checking acknowledge for control message */
+      ret = hp5590_get_ack (dn, proto_flags);
       if (ret != SANE_STATUS_GOOD)
 	return ret;
 
@@ -363,9 +367,8 @@ hp5590_control_msg (SANE_Int dn,
 	  /* CORE data is acknowledged packet by packet */
 	  if (core_flags & CORE_DATA)
 	    {
-	      DBG (DBG_usb, "%s: USB-in-USB: checking if data was accepted\n",
-		   __FUNCTION__);
-	      ret = hp5590_get_ack (dn);
+	      /* USB-in-USB: checking if data was accepted */
+	      ret = hp5590_get_ack (dn, proto_flags);
 	      if (ret != SANE_STATUS_GOOD)
 		return ret;
 	    }
@@ -377,9 +380,8 @@ hp5590_control_msg (SANE_Int dn,
       /* Normal (non-CORE) data is acknowledged after its full transmission */
       if (!(core_flags & CORE_DATA))
 	{
-	  DBG (3, "%s: USB-in-USB: checking if data was accepted\n",
-	       __FUNCTION__);
-	  ret = hp5590_get_ack (dn);
+	  /* USB-in-USB: checking if data was accepted */
+	  ret = hp5590_get_ack (dn, proto_flags);
 	  if (ret != SANE_STATUS_GOOD)
 	    return ret;
 	}
@@ -429,10 +431,8 @@ hp5590_control_msg (SANE_Int dn,
 	      return ret;
 	    }
 
-	  /* Check acknowledge for bulk flags transmission */
-	  DBG (DBG_usb, "%s: USB-in-USB: checking confirmation for bulk flags\n",
-	       __FUNCTION__);
-	  ret = hp5590_get_ack (dn);
+	  /* USB-in-USB: checking confirmation for bulk flags */
+	  ret = hp5590_get_ack (dn, proto_flags);
 	  if (ret != SANE_STATUS_GOOD)
 	    return ret;
 	}
@@ -455,7 +455,9 @@ hp5590_control_msg (SANE_Int dn,
  * all other SANE_Status values - otherwise
  */
 static SANE_Status
-hp5590_verify_last_cmd (SANE_Int dn, unsigned int cmd)
+hp5590_verify_last_cmd (SANE_Int dn,
+			enum proto_flags proto_flags,
+			unsigned int cmd)
 {
   uint16_t	verify_cmd;
   unsigned int	last_cmd;
@@ -466,7 +468,9 @@ hp5590_verify_last_cmd (SANE_Int dn, unsigned int cmd)
        __FUNCTION__);
 
   /* Read last command along with CORE status */
-  ret = hp5590_control_msg (dn, USB_DIR_IN,
+  ret = hp5590_control_msg (dn,
+  			    proto_flags,
+  			    USB_DIR_IN,
 			    0x04, 0xc5, 0x00,
 			    (unsigned char *) &verify_cmd,
 			    sizeof (verify_cmd), CORE_NONE);
@@ -518,7 +522,9 @@ hp5590_verify_last_cmd (SANE_Int dn, unsigned int cmd)
  * all other SANE_Status values - otherwise
  */
 static SANE_Status
-hp5590_cmd (SANE_Int dn, unsigned int flags,
+hp5590_cmd (SANE_Int dn,
+	    enum proto_flags proto_flags,
+	    unsigned int flags,
 	    unsigned int cmd, unsigned char *data, unsigned int size,
 	    unsigned int core_flags)
 {
@@ -527,6 +533,7 @@ hp5590_cmd (SANE_Int dn, unsigned int flags,
   DBG (3, "%s: USB-in-USB: command : %04x\n", __FUNCTION__, cmd);
 
   ret = hp5590_control_msg (dn,
+  			    proto_flags,
 			    flags & CMD_IN ? USB_DIR_IN : USB_DIR_OUT,
 			    0x04, cmd, 0x00, data, size, core_flags);
   if (ret != SANE_STATUS_GOOD)
@@ -536,7 +543,7 @@ hp5590_cmd (SANE_Int dn, unsigned int flags,
   /* Verify last command if requested */
   if (flags & CMD_VERIFY)
     {
-      ret = hp5590_verify_last_cmd (dn, cmd);
+      ret = hp5590_verify_last_cmd (dn, proto_flags, cmd);
     }
 
   return ret;
@@ -632,7 +639,9 @@ hp5590_low_free_bulk_read_state (void **state)
  * state - pointer to initialized bulk read state structure
  */
 static SANE_Status
-hp5590_bulk_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
+hp5590_bulk_read (SANE_Int dn,
+		  enum proto_flags proto_flags,
+		  unsigned char *bytes, unsigned int size,
 		  void *state)
 {
   struct usb_in_usb_bulk_setup	ctrl;
@@ -712,10 +721,8 @@ hp5590_bulk_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
 	      return ret;
 	    }
 
-	  /* Check acknowledge for bulk flags just sent */
-	  DBG (DBG_usb, "%s: USB-in-USB: checking confirmation for bulk flags\n",
-	       __FUNCTION__);
-	  ret = hp5590_get_ack (dn);
+	  /* USB-in-USB: checking confirmation for bulk flags\n" */
+	  ret = hp5590_get_ack (dn, proto_flags);
 	  if (ret != SANE_STATUS_GOOD)
 	    return ret;
 
@@ -739,10 +746,8 @@ hp5590_bulk_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
 	      return ret;
 	    }
 
-	  /* Check acknowledge for bulk read request */
-	  DBG (DBG_usb, "%s: USB-in-USB: checking if control msg was accepted\n",
-	       __FUNCTION__);
-	  ret = hp5590_get_ack (dn);
+	  /* USB-in-USB: checking if control msg was accepted */
+	  ret = hp5590_get_ack (dn, proto_flags); 
 	  if (ret != SANE_STATUS_GOOD)
 	    return ret;
 	}
@@ -864,7 +869,9 @@ hp5590_bulk_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
  * all other SANE_Status value - otherwise 
  */
 static SANE_Status
-hp5590_bulk_write (SANE_Int dn, int cmd, unsigned char *bytes,
+hp5590_bulk_write (SANE_Int dn,
+		   enum proto_flags proto_flags,
+		   int cmd, unsigned char *bytes,
 		   unsigned int size)
 {
   struct usb_in_usb_bulk_setup	ctrl;
@@ -888,7 +895,9 @@ hp5590_bulk_write (SANE_Int dn, int cmd, unsigned char *bytes,
   /* Send bulk write request */
   DBG (3, "%s: USB-in-USB: total %u pages (each of %u bytes)\n",
        __FUNCTION__, bulk_size.size, BULK_WRITE_PAGE_SIZE);
-  ret = hp5590_control_msg (dn, USB_DIR_OUT,
+  ret = hp5590_control_msg (dn,
+  			    proto_flags,
+  			    USB_DIR_OUT,
 			    0x04, cmd, 0,
 			    (unsigned char *) &bulk_size, sizeof (bulk_size),
 			    CORE_DATA | CORE_BULK_OUT);
@@ -921,10 +930,8 @@ hp5590_bulk_write (SANE_Int dn, int cmd, unsigned char *bytes,
       if (ret != SANE_STATUS_GOOD)
 	return ret;
 
-      /* Check acknowledge for bulk write request */
-      DBG (DBG_usb, "%s: USB-in-USB: checking if command was accepted\n",
-	   __FUNCTION__);
-      ret = hp5590_get_ack (dn);
+      /* USB-in-USB: checking if command was accepted */
+      ret = hp5590_get_ack (dn, proto_flags);
       if (ret != SANE_STATUS_GOOD)
 	return ret;
 
@@ -948,7 +955,7 @@ hp5590_bulk_write (SANE_Int dn, int cmd, unsigned char *bytes,
     }
 
   /* Verify bulk command */
-  return hp5590_verify_last_cmd (dn, cmd);
+  return hp5590_verify_last_cmd (dn, proto_flags, cmd);
 }
 /* vim: sw=2 ts=8
  */

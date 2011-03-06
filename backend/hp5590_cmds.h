@@ -109,6 +109,17 @@ enum hp5590_lamp_state
   LAMP_STATE_SET_TURNOFF_TIME_LONG
 };
 
+struct hp5590_model
+{
+  enum hp_scanner_types	scanner_type;
+  unsigned int 		usb_vendor_id;
+  unsigned int 		usb_product_id;
+  const char 		*vendor_id;
+  const char 		*model;
+  const char 		*kind;
+  enum proto_flags	proto_flags;
+};
+
 #define FEATURE_NONE	     0
 #define FEATURE_ADF	1 << 0
 #define FEATURE_TMA	1 << 1
@@ -130,22 +141,31 @@ struct scanner_info
   unsigned int 	normal_motor_param;
 };
 
+static SANE_Status hp5590_model_def (enum hp_scanner_types scanner_type,
+				     const struct hp5590_model ** model);
 static SANE_Status hp5590_vendor_product_id (enum hp_scanner_types scanner_type,
 				      SANE_Word * vendor_id,
 				      SANE_Word * product_id);
 static SANE_Status hp5590_init_scanner (SANE_Int dn,
+				 enum proto_flags proto_flags,
 				 struct scanner_info **info,
 				 enum hp_scanner_types scanner_type);
-static SANE_Status hp5590_power_status (SANE_Int dn);
+static SANE_Status hp5590_power_status (SANE_Int dn,
+					enum proto_flags proto_flags);
 static SANE_Status hp5590_read_max_scan_count (SANE_Int dn,
+					enum proto_flags proto_flags,
 					unsigned int *max_count);
 static SANE_Status hp5590_select_source_and_wakeup (SANE_Int dn,
+					     enum proto_flags proto_flags,
 					     enum scan_sources source,
 					     SANE_Bool extend_lamp_timeout);
-static SANE_Status hp5590_stop_scan (SANE_Int dn);
+static SANE_Status hp5590_stop_scan (SANE_Int dn,
+				enum proto_flags proto_flags);
 static SANE_Status hp5590_read_scan_count (SANE_Int dn,
+				    enum proto_flags proto_flags,
 				    unsigned int *count);
 static SANE_Status hp5590_set_scan_params (SANE_Int dn,
+				    enum proto_flags proto_flags,
 				    struct scanner_info *scanner_info,
 				    unsigned int top_x, unsigned int top_y,
 				    unsigned int width, unsigned int height,
@@ -153,21 +173,30 @@ static SANE_Status hp5590_set_scan_params (SANE_Int dn,
 				    enum color_depths color_depth,
 				    enum scan_modes scan_mode,
 				    enum scan_sources scan_source);
-static SANE_Status hp5590_send_forward_calibration_maps (SANE_Int dn);
-static SANE_Status hp5590_send_reverse_calibration_map (SANE_Int dn);
-static SANE_Status hp5590_inc_scan_count (SANE_Int dn);
-static SANE_Status hp5590_start_scan (SANE_Int dn);
+static SANE_Status hp5590_send_forward_calibration_maps (SANE_Int dn,
+					enum proto_flags proto_flags);
+static SANE_Status hp5590_send_reverse_calibration_map (SANE_Int dn,
+					enum proto_flags proto_flags);
+static SANE_Status hp5590_inc_scan_count (SANE_Int dn,
+					enum proto_flags proto_flags);
+static SANE_Status hp5590_start_scan (SANE_Int dn,
+				enum proto_flags proto_flags);
 static SANE_Status hp5590_read (SANE_Int dn,
+			 enum proto_flags proto_flags,
 			 unsigned char *bytes,
 			 unsigned int size, void *state);
 static SANE_Status hp5590_read_buttons (SANE_Int dn,
+				 enum proto_flags proto_flags,
 				 enum button_status *status);
-static SANE_Status hp5590_read_part_number (SANE_Int dn);
+static SANE_Status hp5590_read_part_number (SANE_Int dn,
+				enum proto_flags proto_flags);
 static SANE_Status hp5590_calc_pixel_bits (unsigned int dpi,
 				    enum color_depths color_depth,
 				    unsigned int *pixel_bits);
-static SANE_Status hp5590_is_data_available (SANE_Int dn);
-static SANE_Status hp5590_reset_scan_head (SANE_Int dn);
+static SANE_Status hp5590_is_data_available (SANE_Int dn,
+				enum proto_flags proto_flags);
+static SANE_Status hp5590_reset_scan_head (SANE_Int dn,
+				enum proto_flags proto_flags);
 #endif /* HP5590_H */
 /* vim: sw=2 ts=8
  */

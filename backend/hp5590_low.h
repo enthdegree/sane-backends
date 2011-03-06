@@ -47,6 +47,12 @@
 
 #include "../include/sane/sane.h"
 
+enum proto_flags {
+  PF_NONE	 	= 0,
+  PF_NO_USB_IN_USB_ACK	= 1 << 0	/* Getting acknowledge after USB-in-USB command
+  					 * will be skipped */
+};
+
 /* Flags for hp5590_cmd() */
 #define CMD_IN			1 << 0	/* Indicates IN direction, otherwise - OUT */
 #define CMD_VERIFY		1 << 1	/* Requests last command verification */
@@ -61,16 +67,21 @@
 					 * transfer
 					 */
 static SANE_Status hp5590_cmd (SANE_Int dn,
+			enum proto_flags proto_flags,
 			unsigned int flags,
 			unsigned int cmd, unsigned char *data,
 			unsigned int size, unsigned int core_flags);
 static SANE_Status hp5590_bulk_read (SANE_Int dn,
+			      enum proto_flags proto_flags,
 			      unsigned char *bytes,
 			      unsigned int size, void *state);
-static SANE_Status hp5590_bulk_write (SANE_Int dn, int cmd,
+static SANE_Status hp5590_bulk_write (SANE_Int dn,
+			       enum proto_flags proto_flags,
+			       int cmd,
 			       unsigned char *bytes,
 			       unsigned int size);
-static SANE_Status hp5590_get_status (SANE_Int dn);
+static SANE_Status hp5590_get_status (SANE_Int dn,
+				      enum proto_flags proto_flags);
 static SANE_Status hp5590_low_init_bulk_read_state (void **state);
 static SANE_Status hp5590_low_free_bulk_read_state (void **state);
 #endif /* HP5590_LOW_H */

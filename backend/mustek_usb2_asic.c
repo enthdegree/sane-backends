@@ -3353,37 +3353,29 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   unsigned short ValidPixelNumber;
 
-  unsigned short wPerLineNeedBufferSize = 0;
   unsigned short BytePerPixel = 0;
-  unsigned int dwTotal_PerLineNeedBufferSize = 0;
-  unsigned int dwTotalLineTheBufferNeed = 0;
-  unsigned short dwTotal_CCDResolution = 1200;
-  unsigned short wThinkCCDResolution = 0;
-  unsigned short wCCD_PixelNumber = 0;
-  unsigned int dwLineWidthPixel = 0;
-  unsigned short wNowMotorDPI;
+  unsigned int dwTotalLineTheBufferNeed;
+  unsigned short wThinkCCDResolution;
+  unsigned short wCCD_PixelNumber;
   unsigned short XRatioTypeWord;
   double XRatioTypeDouble;
   double XRatioAdderDouble;
 
   LLF_MOTORMOVE *lpMotorStepsTable =
     (LLF_MOTORMOVE *) malloc (sizeof (LLF_MOTORMOVE));
-  SANE_Byte byDummyCycleNum = 0;
+  SANE_Byte byDummyCycleNum;
   unsigned short Total_MotorDPI;
 
   unsigned short wMultiMotorStep = 1;
   SANE_Byte bMotorMoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
 
-  SANE_Byte byClear_Pulse_Width = 0;
-
   unsigned int dwLinePixelReport;
-  SANE_Byte byPHTG_PulseWidth, byPHTG_WaitWidth;
 
   unsigned short StartSpeed, EndSpeed;
   LLF_CALCULATEMOTORTABLE CalMotorTable;
   LLF_MOTOR_CURRENT_AND_PHASE CurrentPhase;
   LLF_RAMACCESS RamAccess;
-  unsigned int dwStartAddr, dwEndAddr, dwTableBaseAddr, dwShadingTableAddr;
+  unsigned int dwEndAddr, dwTableBaseAddr, dwShadingTableAddr;
 
   SANE_Byte isMotorMoveToFirstLine = chip->isMotorGoToFirstLine;
   SANE_Byte isUniformSpeedToScan = chip->isUniformSpeedToScan;
@@ -3398,9 +3390,16 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
        "bScanBits=%d,wXResolution=%d,wYResolution=%d,wX=%d,wY=%d,wWidth=%d,wLength=%d\n",
        bScanBits, wXResolution, wYResolution, wX, wY, wWidth, wLength);
 
+  if (lpMotorStepsTable == NULL)
+    {
+      DBG (DBG_ERR, "Asic_SetWindow: lpMotorStepsTable == NULL\n");
+      return STATUS_MEM_ERROR;
+    }
+
   if (chip->firmwarestate != FS_OPENED)
     {
       DBG (DBG_ERR, "Asic_SetWindow: Scanner is not opened\n");
+      free (lpMotorStepsTable);
       return STATUS_INVAL;
     }
 
@@ -3414,39 +3413,34 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   /* dummy clock mode */
   Mustek_SendData (chip, 0x1CD, 0);
 
-  /* LED Flash */
+  /* LED flash */
   Mustek_SendData (chip, ES01_94_PowerSaveControl, 0x27 | 64 | 128);
 
   /* calculate byte per line */
   if (bScanBits > 24)
     {
-      wPerLineNeedBufferSize = wWidth * 6;
       BytePerPixel = 6;
-      chip->dwBytesCountPerRow = (unsigned int) (wWidth) * 6;
+      chip->dwBytesCountPerRow = (unsigned int) wWidth * 6;
     }
   else if (bScanBits == 24)
     {
-      wPerLineNeedBufferSize = wWidth * 3;
       BytePerPixel = 3;
-      chip->dwBytesCountPerRow = (unsigned int) (wWidth) * 3;
+      chip->dwBytesCountPerRow = (unsigned int) wWidth * 3;
     }
   else if ((bScanBits > 8) && (bScanBits <= 16))
     {
-      wPerLineNeedBufferSize = wWidth * 2;
       BytePerPixel = 2;
-      chip->dwBytesCountPerRow = (unsigned int) (wWidth) * 2;
+      chip->dwBytesCountPerRow = (unsigned int) wWidth * 2;
     }
-  else if ((bScanBits == 8))
+  else if (bScanBits == 8)
     {
-      wPerLineNeedBufferSize = wWidth;
       BytePerPixel = 1;
-      chip->dwBytesCountPerRow = (unsigned int) (wWidth);
+      chip->dwBytesCountPerRow = (unsigned int) wWidth;
     }
-  else if ((bScanBits < 8))
+  else if (bScanBits < 8)
     {
-      wPerLineNeedBufferSize = wWidth >> 3;
       BytePerPixel = 1;
-      chip->dwBytesCountPerRow = (unsigned int) (wWidth);
+      chip->dwBytesCountPerRow = (unsigned int) wWidth;
     }
   DBG (DBG_ASIC, "dwBytesCountPerRow = %d\n", chip->dwBytesCountPerRow);
 
@@ -3513,27 +3507,23 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 	}
     }
 
-  dwTotal_PerLineNeedBufferSize = wPerLineNeedBufferSize;
   dwTotalLineTheBufferNeed = wLength;
 
   chip->Dpi = wXResolution;
   CCDTiming (chip);
 
-  dwTotal_CCDResolution = SENSOR_DPI;
-
   if (chip->lsLightSource == LS_REFLECTIVE)
     {
-      if (wXResolution > (dwTotal_CCDResolution / 2))
+      if (wXResolution > (SENSOR_DPI / 2))
 	{			/* full ccd resolution 1200dpi */
-	  wThinkCCDResolution = dwTotal_CCDResolution;
+	  wThinkCCDResolution = SENSOR_DPI;
 	  Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
 	  Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x01);
-
 	  wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_1200;
 	}
       else
-	{			/*600dpi */
-	  wThinkCCDResolution = dwTotal_CCDResolution / 2;
+	{			/* 600dpi */
+	  wThinkCCDResolution = SENSOR_DPI / 2;
 	  Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
 	  Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x00);
 	  wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_600;
@@ -3541,23 +3531,21 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
     }
   else
     {
-      if (wXResolution > (dwTotal_CCDResolution / 2))
+      if (wXResolution > (SENSOR_DPI / 2))
 	{
-	  wThinkCCDResolution = dwTotal_CCDResolution;
+	  wThinkCCDResolution = SENSOR_DPI;
 	  Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
 	  Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x01);
 	  wCCD_PixelNumber = TA_IMAGE_PIXELNUMBER;
 	}
       else
 	{
-	  wThinkCCDResolution = dwTotal_CCDResolution / 2;
+	  wThinkCCDResolution = SENSOR_DPI / 2;
 	  Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
 	  Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x00);
 	  wCCD_PixelNumber = TA_IMAGE_PIXELNUMBER;
 	}
     }
-
-  dwLineWidthPixel = wWidth;
 
   SetLineTimeAndExposure (chip);
 
@@ -3566,9 +3554,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   SetLEDTime (chip);
 
-  /* calculate Y ratio */
   Total_MotorDPI = 1200;
-  wNowMotorDPI = Total_MotorDPI;
 
 
   /* SetADConverter */
@@ -3587,7 +3573,6 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   /* calculate X ratio */
   XRatioTypeDouble = wXResolution;
   XRatioTypeDouble /= wThinkCCDResolution;
-  XRatioAdderDouble = 1 / XRatioTypeDouble;
   XRatioTypeWord = (unsigned short) (XRatioTypeDouble * 32768);	/* 32768 = 2^15 */
 
   XRatioAdderDouble = (double) (XRatioTypeWord) / 32768;
@@ -3609,7 +3594,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   /* SetScanStepTable */
 
-  /*set Motor move type */
+  /* set motor movement type */
   if (wYResolution >= 1200)
     bMotorMoveType = _8_TABLE_SPACE_FOR_1_DIV_2_STEP;
 
@@ -3637,7 +3622,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
 
 
-  /*set white shading int and dec */
+  /* set white shading int and dec */
   if (chip->lsLightSource == LS_REFLECTIVE)
     Mustek_SendData (chip, ES01_F8_WHITE_SHADING_DATA_FORMAT,
 		     ES01_SHADING_3_INT_13_DEC);
@@ -3646,29 +3631,26 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 		     ES01_SHADING_4_INT_12_DEC);
 
   SetPackAddress (chip, wWidth, wX, XRatioAdderDouble,
-		  XRatioTypeDouble, byClear_Pulse_Width, &ValidPixelNumber);
+		  XRatioTypeDouble, 0, &ValidPixelNumber);
   SetExtraSetting (chip, wXResolution, wCCD_PixelNumber, FALSE);
 
-  /* calculate line time  */
-  byPHTG_PulseWidth = chip->Timing.PHTG_PulseWidth;
-  byPHTG_WaitWidth = chip->Timing.PHTG_WaitWidth;
-  dwLinePixelReport = ((byClear_Pulse_Width + 1) * 2 +
-		       (byPHTG_PulseWidth + 1) * (1) +
-		       (byPHTG_WaitWidth + 1) * (1) +
+  /* calculate line time */
+  dwLinePixelReport = (2 + (chip->Timing.PHTG_PulseWidth + 1) +
+		       (chip->Timing.PHTG_WaitWidth + 1) +
 		       (wCCD_PixelNumber + 1)) * (byDummyCycleNum + 1);
 
   DBG (DBG_ASIC, "Motor Time = %d\n",
-       (dwLinePixelReport * wYResolution / wNowMotorDPI) / wMultiMotorStep);
-  if ((dwLinePixelReport * wYResolution / wNowMotorDPI) / wMultiMotorStep >
+       (dwLinePixelReport * wYResolution / Total_MotorDPI) / wMultiMotorStep);
+  if ((dwLinePixelReport * wYResolution / Total_MotorDPI) / wMultiMotorStep >
       64000)
     {
-      DBG (DBG_ASIC, "Motor Time Over Flow !!!\n");
+      DBG (DBG_ASIC, "Motor Time overflow!\n");
     }
 
   EndSpeed =
-    (unsigned short) ((dwLinePixelReport * wYResolution / wNowMotorDPI) /
+    (unsigned short) ((dwLinePixelReport * wYResolution / Total_MotorDPI) /
 	    wMultiMotorStep);
-  SetMotorStepTable (chip, lpMotorStepsTable, wY, dwTotalLineTheBufferNeed * wNowMotorDPI / wYResolution * wMultiMotorStep, wYResolution);	/*modified by Chester 92/04/08 */
+  SetMotorStepTable (chip, lpMotorStepsTable, wY, dwTotalLineTheBufferNeed * Total_MotorDPI / wYResolution * wMultiMotorStep, wYResolution);	/*modified by Chester 92/04/08 */
 
 
   if (EndSpeed >= 20000)
@@ -3703,6 +3685,12 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   Mustek_SendData (chip, ES01_FE_MotorFixedspeedMSB, HIBYTE (EndSpeed));
 
   lpMotorTable = (unsigned short *) malloc (512 * 8 * 2);
+  if (lpMotorTable == NULL)
+    {
+      DBG (DBG_ERR, "Asic_SetWindow: lpMotorTable == NULL\n");
+      free (lpMotorStepsTable);
+      return STATUS_MEM_ERROR;
+    }
   memset (lpMotorTable, 0, 512 * 8 * sizeof (unsigned short));
 
   CalMotorTable.StartSpeed = StartSpeed;
@@ -3728,13 +3716,11 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   RealTableSize = 512 * 8;
   dwTableBaseAddr = PackAreaStartAddress - RealTableSize;
 
-  dwStartAddr = dwTableBaseAddr;
-
   RamAccess.ReadWrite = WRITE_RAM;
   RamAccess.IsOnChipGamma = EXTERNAL_RAM;
   RamAccess.DramDelayTime = SDRAMCLK_DELAY_12_ns;
-  RamAccess.LoStartAddress = (unsigned short) (dwStartAddr);
-  RamAccess.HiStartAddress = (unsigned short) (dwStartAddr >> 16);
+  RamAccess.LoStartAddress = (unsigned short) (dwTableBaseAddr);
+  RamAccess.HiStartAddress = (unsigned short) (dwTableBaseAddr >> 16);
   RamAccess.RwSize = RealTableSize * 2;
   RamAccess.BufferPtr = (SANE_Byte *) lpMotorTable;
   LLFRamAccess (chip, &RamAccess);
@@ -3747,8 +3733,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 		   (SANE_Byte) (dwTableBaseAddr >> TABLE_OFFSET_BASE));
 
 
-  /* set address and shading table */
-  /*set image buffer range and write shading table */
+  /* set image buffer range and write shading table */
   RealTableSize =
     (ACC_DEC_STEP_TABLE_SIZE * NUM_OF_ACC_DEC_STEP_TABLE) +
     ShadingTableSize (ValidPixelNumber);
@@ -3757,7 +3742,6 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
     (((RealTableSize +
        (TABLE_BASE_SIZE - 1)) >> TABLE_OFFSET_BASE) << TABLE_OFFSET_BASE);
   dwEndAddr = dwShadingTableAddr - 1;
-  dwStartAddr = dwShadingTableAddr;
 
   if (wXResolution > 600)
     dbXRatioAdderDouble = 1200 / wXResolution;
@@ -3767,28 +3751,28 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   RamAccess.ReadWrite = WRITE_RAM;
   RamAccess.IsOnChipGamma = EXTERNAL_RAM;
   RamAccess.DramDelayTime = SDRAMCLK_DELAY_12_ns;
-  RamAccess.LoStartAddress = (unsigned short) (dwStartAddr);
-  RamAccess.HiStartAddress = (unsigned short) (dwStartAddr >> 16);
+  RamAccess.LoStartAddress = (unsigned short) (dwShadingTableAddr);
+  RamAccess.HiStartAddress = (unsigned short) (dwShadingTableAddr >> 16);
   RamAccess.RwSize =
     ShadingTableSize ((int) ((wWidth + 4) * dbXRatioAdderDouble)) *
     sizeof (unsigned short);
   RamAccess.BufferPtr = (SANE_Byte *) chip->lpShadingTable;
   LLFRamAccess (chip, &RamAccess);
 
-  /*tell scan chip the shading table address, unit is 2^15 bytes(2^14 word) */
+  /* tell scan chip the shading table address, unit is 2^15 bytes (2^14 words) */
   Mustek_SendData (chip, ES01_9B_ShadingTableAddrA14_A21,
 		   (SANE_Byte) (dwShadingTableAddr >> TABLE_OFFSET_BASE));
 
-  /*empty bank */
+  /* empty bank */
   Mustek_SendData (chip, ES01_FB_BufferEmptySize16WordLSB,
 		   LOBYTE (WaitBufferOneLineSize >> (7 - 3)));
   Mustek_SendData (chip, ES01_FC_BufferEmptySize16WordMSB,
 		   HIBYTE (WaitBufferOneLineSize >> (7 - 3)));
 
-  /*full bank */
+  /* full bank */
   wFullBank =
     (unsigned short) ((dwEndAddr -
-	     (((dwLineWidthPixel * BytePerPixel) / 2) * 3 * 1)) / BANK_SIZE);
+	     (((wWidth * BytePerPixel) / 2) * 3 * 1)) / BANK_SIZE);
   Mustek_SendData (chip, ES01_F9_BufferFullSize16WordLSB, LOBYTE (wFullBank));
   Mustek_SendData (chip, ES01_FA_BufferFullSize16WordMSB, HIBYTE (wFullBank));
 

@@ -45,6 +45,8 @@
    This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
    and similar USB2 scanners. */
 
+#include <string.h>
+
 #include "mustek_usb2_asic.h"
 
 /* ---------------------- low level asic functions -------------------------- */
@@ -2361,147 +2363,89 @@ SafeInitialChip (PAsic chip)
 static STATUS
 DRAM_Test (PAsic chip)
 {
-  STATUS status = STATUS_GOOD;
-  unsigned char *temps;
+  STATUS status;
+  SANE_Byte temps[DRAM_TEST_SIZE];
   unsigned int i;
 
-  DBG (DBG_ASIC, "DRAM_Test:Enter\n");
+  DBG (DBG_ASIC, "DRAM_Test: Enter\n");
 
-  temps = (unsigned char *) malloc (64);
+  for (i = 0; i < sizeof(temps); i++)
+    temps[i] = i;
 
-  for (i = 0; i < 64; i++)
-    {
-      *(temps + i) = i;
-    }
-
-  /*set start address */
   status = Mustek_SendData (chip, ES01_A0_HostStartAddr0_7, 0x00);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
-
+    return status;
   status = Mustek_SendData (chip, ES01_A1_HostStartAddr8_15, 0x00);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
-
+    return status;
   status =
     Mustek_SendData (chip, ES01_A2_HostStartAddr16_21, 0x00 | ACCESS_DRAM);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
+    return status;
 
-  Mustek_SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL,
+  status = Mustek_SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL,
 		   SDRAMCLK_DELAY_12_ns);
+  if (status != STATUS_GOOD)
+    return status;
+
   status = Mustek_SendData (chip, ES01_A3_HostEndAddr0_7, 0xff);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
-
+    return status;
   status = Mustek_SendData (chip, ES01_A4_HostEndAddr8_15, 0xff);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
-
+    return status;
   status = Mustek_SendData (chip, ES01_A5_HostEndAddr16_21, 0xff);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
+    return status;
 
-  status = Mustek_DMAWrite (chip, 64, (SANE_Byte *) (temps));
+  status = Mustek_DMAWrite (chip, sizeof(temps), temps);
   if (status != STATUS_GOOD)
     {
       DBG (DBG_ASIC, "Mustek_DMAWrite error\n");
-      free (temps);
       return status;
     }
 
   status = Mustek_SendData (chip, ES01_A0_HostStartAddr0_7, 0x00);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
-
+    return status;
   status = Mustek_SendData (chip, ES01_A1_HostStartAddr8_15, 0x00);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
-
+    return status;
   status =
     Mustek_SendData (chip, ES01_A2_HostStartAddr16_21, 0x00 | ACCESS_DRAM);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
+    return status;
 
-  /*set end address */
   status = Mustek_SendData (chip, ES01_A3_HostEndAddr0_7, 0xff);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
-
+    return status;
   status = Mustek_SendData (chip, ES01_A4_HostEndAddr8_15, 0xff);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
-
+    return status;
   status = Mustek_SendData (chip, ES01_A5_HostEndAddr16_21, 0xff);
   if (status != STATUS_GOOD)
-    {
-      free (temps);
-      return status;
-    }
+    return status;
 
-  memset (temps, 0, 64);
+  memset (temps, 0, sizeof(temps));
 
-  status = Mustek_DMARead (chip, 64, (SANE_Byte *) (temps));
+  status = Mustek_DMARead (chip, sizeof(temps), temps);
   if (status != STATUS_GOOD)
     {
-      free (temps);
+      DBG (DBG_ASIC, "Mustek_DMARead error\n");
       return status;
     }
 
-  for (i = 0; i < 60; i += 10)
+  for (i = 0; i < sizeof(temps); i++)
     {
-      DBG (DBG_ASIC, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-	   *(temps + i), *(temps + i + 1), *(temps + i + 2), *(temps + i + 3),
-	   *(temps + i + 4), *(temps + i + 5), *(temps + i + 6),
-	   *(temps + i + 7), *(temps + i + 8), *(temps + i + 9));
-    }
-
-  for (i = 0; i < 64; i++)
-    {
-      if (*(temps + i) != i)
+      if (temps[i] != i)
 	{
-	  DBG (DBG_ERR, "DRAM Test error...(No.=%d)\n", i + 1);
+	  DBG (DBG_ERR, "DRAM test error at offset %d\n", i);
 	  return STATUS_IO_ERROR;
 	}
     }
 
-  free (temps);
-
   DBG (DBG_ASIC, "DRAM_Text: Exit\n");
-  return status;
+  return STATUS_GOOD;
 }
 
 static STATUS

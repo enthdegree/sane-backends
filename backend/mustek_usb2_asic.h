@@ -194,6 +194,7 @@ STATUS;
 #define DBG_DBG 	10	/* usefull only for tracing bugs */
 
 
+#define DRAM_TEST_SIZE 64
 #define DRAM_1Mx16_SIZE				(1024*1024)	/*unit : word */
 #define PackAreaStartAddress ((DRAM_1Mx16_SIZE/4)*3)
 

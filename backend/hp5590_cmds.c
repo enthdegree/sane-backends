@@ -1479,6 +1479,11 @@ hp5590_set_scan_area (SANE_Int dn, struct scanner_info *scanner_info,
       max_pixels_x_current_dpi = (float) (TMA_MAX_X_INCHES * dpi);
       max_pixels_y_current_dpi = (float) (TMA_MAX_Y_INCHES * dpi);
     }
+  /* In ADF mode the device can scan up to ADF_MAX_Y_INCHES, which is usually
+   * bigger than what scanner reports back during initialization
+   */
+  if ( scan_source == SOURCE_ADF )
+    max_pixels_y_current_dpi = (float) (ADF_MAX_Y_INCHES * dpi);
 
   /* Allow two times of max pixels for ADF Duplex mode */
   if (scan_source == SOURCE_ADF_DUPLEX)

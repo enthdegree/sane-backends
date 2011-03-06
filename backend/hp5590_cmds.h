@@ -51,6 +51,8 @@
 #define TMA_MAX_X_INCHES	1.69
 #define TMA_MAX_Y_INCHES	6
 
+#define ADF_MAX_Y_INCHES	14
+
 enum hp_scanner_types
 {
   SCANNER_NONE = 0,

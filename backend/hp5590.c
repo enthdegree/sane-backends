@@ -840,20 +840,23 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      scanner->br_x = scanner->info->max_size_x;
 	      scanner->br_y = scanner->info->max_size_y;
 	    }
+	  /* In ADF modes the device can scan up to ADF_MAX_Y_INCHES, which is usually
+	   * bigger than what scanner reports back during initialization
+	   */
 	  if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_ADF) == 0)
 	    {
 	      scanner->source = SOURCE_ADF;
 	      range_x.max = SANE_FIX(scanner->info->max_size_x * 25.4);
-	      range_y.max = SANE_FIX(scanner->info->max_size_y * 25.4);
+	      range_y.max = SANE_FIX(ADF_MAX_Y_INCHES * 25.4);
 	      scanner->br_x = scanner->info->max_size_x;
-	      scanner->br_y = scanner->info->max_size_y;
+	      scanner->br_y = ADF_MAX_Y_INCHES * 25.4;
 	    }
 	  if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX) == 0)
 	    {
 	      scanner->source = SOURCE_ADF_DUPLEX;
 	      range_x.max = SANE_FIX(scanner->info->max_size_x * 25.4);
-	      range_y.max = SANE_FIX(scanner->info->max_size_y * 25.4 * 2);
-	      scanner->br_y = scanner->info->max_size_y * 2;
+	      range_y.max = SANE_FIX(ADF_MAX_Y_INCHES * 25.4 * 2);
+	      scanner->br_y = ADF_MAX_Y_INCHES * 25.4 * 2;
 	      scanner->br_x = scanner->info->max_size_x;
 	    }
 	  if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_TMA_SLIDES) == 0)

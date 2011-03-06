@@ -1,3 +1,16 @@
+2011-03-06 Ilia Sotnikov <hostcc@gmail.com>
+	* backend/hp5590.c, backend/hp5590_cmds.{c,h}: in ADF modes the device can
+	  scan up to 14", which is usually bigger than what scanner reports back
+	  during initialization
+	* backend/hp5590.c, backend/hp5590_cmds.{c,h}, backend/hp5590_low.{c,h}:
+	  fixed detection of HP4500 devices (tested) and HP5550 (untested) - these
+	  devices need no reading USB-in-USB acknowledgement after each command. To
+	  achieve that, proto_flags are passed down to low-level functions. These
+	  flags are taken from device descriptions
+	* backend/hp5590_low.{c,h}: fixed up get_status command - index should
+	  be 0x00, not 0x20
+	* backend/hp5590.c: bump up the backend version
+
 2011-03-04 Julien Blache <jb@jblache.org>
 	* frontend/saned.c: define PATH_MAX if needed, fixes build on
 	HURD. Patch from Pino Toscano <toscano.pino@tiscali.it>.

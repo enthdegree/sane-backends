@@ -63,7 +63,7 @@ Return value:
 	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-Reflective_Reset ()
+Reflective_Reset (void)
 {
   DBG (DBG_FUNC, "Reflective_Reset: call in\n");
 
@@ -537,7 +537,7 @@ Return value:
 	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-Reflective_AdjustAD ()
+Reflective_AdjustAD (void)
 {
   SANE_Byte * lpCalData;
   unsigned short wCalWidth;
@@ -1242,7 +1242,7 @@ Return value:
 	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-Reflective_StopScan ()
+Reflective_StopScan (void)
 {
   DBG (DBG_FUNC, "Reflective_StopScan: call in\n");
   if (!g_bOpened)
@@ -1280,7 +1280,7 @@ Return value:
 	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-Reflective_LineCalibration16Bits ()
+Reflective_LineCalibration16Bits (void)
 {
   STATUS status;
   SANE_Byte * lpWhiteData;
@@ -1693,7 +1693,7 @@ Return value:
 	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-Reflective_PrepareScan ()
+Reflective_PrepareScan (void)
 {
   g_wScanLinesPerBlock = g_dwBufferSize / g_BytesPerRow;
   g_wMaxScanLines = g_dwImageBufferSize / g_BytesPerRow;

@@ -139,7 +139,7 @@ Return value:
 	TRUE if initialize the scanner success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-MustScanner_Init ()
+MustScanner_Init (void)
 {
   DBG (DBG_FUNC, "MustScanner_Init: Call in\n");
 
@@ -186,7 +186,7 @@ Return value:
 	TRUE if scanner's status is OK, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-MustScanner_GetScannerState ()
+MustScanner_GetScannerState (void)
 {
   if (STATUS_GOOD != Asic_Open (&g_chip))
     {
@@ -254,7 +254,7 @@ Return value:
 	TRUE if the operation success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-MustScanner_BackHome ()
+MustScanner_BackHome (void)
 {
   DBG (DBG_FUNC, "MustScanner_BackHome: call in \n");
 
@@ -444,7 +444,7 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
   if (!isOrderInvert)
     {
-      for (; TotalXferLines < wWantedTotalLines;)
+      while (TotalXferLines < wWantedTotalLines)
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
 	    {
@@ -515,7 +515,7 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
     }
   else
     {
-      for (; TotalXferLines < wWantedTotalLines;)
+      while (TotalXferLines < wWantedTotalLines)
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
 	    {
@@ -641,7 +641,7 @@ MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
   if (!isOrderInvert)
     {
-      for (; TotalXferLines < wWantedTotalLines;)
+      while (TotalXferLines < wWantedTotalLines)
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
 	    {
@@ -835,7 +835,7 @@ MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
     }
   else
     {
-      for (; TotalXferLines < wWantedTotalLines;)
+      while (TotalXferLines < wWantedTotalLines)
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
 	    {
@@ -1086,7 +1086,7 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
     {
       DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: !isOrderInvert\n");
 
-      for (; TotalXferLines < wWantedTotalLines;)
+      while (TotalXferLines < wWantedTotalLines)
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
 	    {
@@ -1176,7 +1176,7 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   else
     {
       DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: isOrderInvert is TRUE\n");
-      for (; TotalXferLines < wWantedTotalLines;)
+      while (TotalXferLines < wWantedTotalLines)
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
 	    {
@@ -1330,7 +1330,7 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
   if (!isOrderInvert)
     {
-      for (; TotalXferLines < wWantedTotalLines;)
+      while (TotalXferLines < wWantedTotalLines)
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
 	    {
@@ -1516,7 +1516,7 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   else
     {
 
-      for (; TotalXferLines < wWantedTotalLines;)
+      while (TotalXferLines < wWantedTotalLines)
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
 	    {
@@ -1748,7 +1748,7 @@ MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
       g_bFirstReadImage = FALSE;
     }
 
-  for (; TotalXferLines < wWantedTotalLines;)
+  while (TotalXferLines < wWantedTotalLines)
     {
 
       if (g_dwTotalTotalXferLines >= g_SWHeight)
@@ -1838,7 +1838,7 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert
       g_bFirstReadImage = FALSE;
     }
 
-  for (; TotalXferLines < wWantedTotalLines;)
+  while (TotalXferLines < wWantedTotalLines)
     {
       if (g_dwTotalTotalXferLines >= g_SWHeight)
 	{
@@ -2012,7 +2012,7 @@ MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
       g_bFirstReadImage = FALSE;
     }
 
-  for (; TotalXferLines < wWantedTotalLines;)
+  while (TotalXferLines < wWantedTotalLines)
     {
       if (g_dwTotalTotalXferLines >= g_SWHeight)
 	{
@@ -2103,7 +2103,7 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
       g_bFirstReadImage = FALSE;
     }
 
-  for (; TotalXferLines < wWantedTotalLines;)
+  while (TotalXferLines < wWantedTotalLines)
     {
       if (g_dwTotalTotalXferLines >= g_SWHeight)
 	{
@@ -2632,7 +2632,7 @@ MustScanner_ReadDataFromScanner (void * dummy)
 	get the lines of scanned
 ***********************************************************************/
 static unsigned int
-GetScannedLines ()
+GetScannedLines (void)
 {
   unsigned int dwScannedLines = 0;
 
@@ -2647,7 +2647,7 @@ GetScannedLines ()
 	get lines which pass to superstratum
 ***********************************************************************/
 static unsigned int
-GetReadyLines ()
+GetReadyLines (void)
 {
   unsigned int dwReadyLines = 0;
 
@@ -2677,7 +2677,7 @@ AddScannedLines (unsigned short wAddLines)
 	add the ready lines
 ***********************************************************************/
 static void
-AddReadyLines ()
+AddReadyLines (void)
 {
   pthread_mutex_lock (&g_readyLinesMutex);
   g_wtheReadyLines++;

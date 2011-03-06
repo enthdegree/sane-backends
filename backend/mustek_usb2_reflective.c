@@ -84,7 +84,7 @@ Reflective_Reset ()
       return FALSE;
     }
 
-  if (STATUS_GOOD != Asic_Open (&g_chip, g_pDeviceFile))
+  if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "Reflective_Reset: Asic_Open return error\n");
       return FALSE;
@@ -126,12 +126,6 @@ Reflective_Reset ()
   g_bFirstReadImage = TRUE;
 
   g_pGammaTable = NULL;
-
-  if (NULL != g_pDeviceFile)
-    {
-      free (g_pDeviceFile);
-      g_pDeviceFile = NULL;
-    }
 
   DBG (DBG_FUNC, "Reflective_Reset: exit\n");
 
@@ -441,7 +435,7 @@ Reflective_SetupScan (COLORMODE ColorMode,
       break;
     }
 
-  if (Asic_Open (&g_chip, g_pDeviceFile) != STATUS_GOOD)
+  if (Asic_Open (&g_chip) != STATUS_GOOD)
     {
       DBG (DBG_FUNC, "Reflective_SetupScan: Asic_Open return error\n");
       return FALSE;

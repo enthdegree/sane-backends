@@ -100,7 +100,6 @@ static unsigned int g_dwBufferSize;
 static unsigned int g_dwTotalTotalXferLines;
 
 static unsigned short *g_pGammaTable;
-static unsigned char *g_pDeviceFile;
 
 static pthread_t g_threadid_readimage;
 
@@ -206,7 +205,7 @@ MustScanner_Init ()
   DBG (DBG_FUNC, "MustScanner_Init: Call in\n");
 
   g_chip.firmwarestate = FS_NULL;
-  if (STATUS_GOOD != Asic_Open (&g_chip, g_pDeviceFile))
+  if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_Init: Asic_Open return error\n");
       return FALSE;
@@ -232,12 +231,6 @@ MustScanner_Init ()
   g_isScanning = FALSE;
   g_isSelfGamma = FALSE;
   g_pGammaTable = NULL;
-
-  if (NULL != g_pDeviceFile)
-    {
-      free (g_pDeviceFile);
-      g_pDeviceFile = NULL;
-    }
 
   g_ssScanSource = SS_Reflective;
   g_PixelFlavor = PF_BlackIs0;
@@ -265,7 +258,7 @@ static SANE_Bool
 MustScanner_GetScannerState ()
 {
 
-  if (STATUS_GOOD != Asic_Open (&g_chip, g_pDeviceFile))
+  if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_GetScannerState: Asic_Open return error\n");
       return FALSE;
@@ -295,7 +288,7 @@ MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 {
   SANE_Bool hasTA;
   DBG (DBG_FUNC, "MustScanner_PowerControl: Call in\n");
-  if (STATUS_GOOD != Asic_Open (&g_chip, g_pDeviceFile))
+  if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_PowerControl: Asic_Open return error\n");
       return FALSE;
@@ -349,7 +342,7 @@ MustScanner_BackHome ()
 {
   DBG (DBG_FUNC, "MustScanner_BackHome: call in \n");
 
-  if (STATUS_GOOD != Asic_Open (&g_chip, g_pDeviceFile))
+  if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_BackHome: Asic_Open return error\n");
       return FALSE;
@@ -392,7 +385,7 @@ MustScanner_Prepare (SANE_Byte bScanSource)
 {
   DBG (DBG_FUNC, "MustScanner_Prepare: call in\n");
 
-  if (STATUS_GOOD != Asic_Open (&g_chip, g_pDeviceFile))
+  if (STATUS_GOOD != Asic_Open (&g_chip))
 
 
     {

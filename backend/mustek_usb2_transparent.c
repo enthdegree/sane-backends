@@ -84,7 +84,7 @@ Transparent_Reset ()
       DBG (DBG_FUNC, "Transparent_Reset: scanner has been opened\n");
       return FALSE;
     }
-  if (STATUS_GOOD != Asic_Open (&g_chip, g_pDeviceFile))
+  if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "Transparent_Reset: can not open scanner\n");
       return FALSE;
@@ -393,7 +393,7 @@ Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short 
       break;
     }
 
-  if (Asic_Open (&g_chip, g_pDeviceFile) != STATUS_GOOD)
+  if (Asic_Open (&g_chip) != STATUS_GOOD)
     {
       DBG (DBG_FUNC, "Transparent_SetupScan: Asic_Open return error\n");
       return FALSE;

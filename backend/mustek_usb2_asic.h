@@ -1252,8 +1252,8 @@ static STATUS Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata
 static STATUS Mustek_ClearFIFO (PAsic chip);
 static STATUS SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size);
 
-/* Open Scanner by Scanner Name and return Chip Information */
-static STATUS Asic_Open (PAsic chip, SANE_Byte *pDeviceName);
+/* Open Scanner */
+static STATUS Asic_Open (PAsic chip);
 /* Close Scanner */
 static STATUS Asic_Close (PAsic chip);
 #if SANE_UNUSED

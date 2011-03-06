@@ -3533,7 +3533,7 @@ attach_one_scanner (SANE_String_Const devname)
 }
 
 static STATUS
-Asic_Open (PAsic chip, SANE_Byte *pDeviceName)
+Asic_Open (PAsic chip)
 {
   STATUS status;
   SANE_Status sane_status;
@@ -3607,13 +3607,7 @@ Asic_Open (PAsic chip, SANE_Byte *pDeviceName)
       return status;
     }
 
-  pDeviceName = (SANE_Byte *) strdup (device_name);
-  if (!pDeviceName)
-    {
-      DBG (DBG_ERR, "Asic_Open: not enough memory\n");
-      return STATUS_INVAL;
-    }
-  DBG (DBG_INFO, "Asic_Open: device %s successfully opened\n", pDeviceName);
+  DBG (DBG_INFO, "Asic_Open: device %s successfully opened\n", device_name);
   DBG (DBG_ASIC, "Asic_Open: Exit\n");
   return status;
 }

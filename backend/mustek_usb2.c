@@ -1167,7 +1167,7 @@ IsTAConnected ()
 
   DBG (DBG_FUNC, "StopScan: start\n");
 
-  if (Asic_Open (&g_chip, g_pDeviceFile) != STATUS_GOOD)
+  if (Asic_Open (&g_chip) != STATUS_GOOD)
     {
       return FALSE;
     }
@@ -1204,7 +1204,7 @@ GetKeyStatus (SANE_Byte * pKey)
   STATUS status = Asic_CheckFunctionKey (&g_chip, &pKeyTemp);
   DBG (DBG_FUNC, "GetKeyStatus: start\n");
 
-  if (STATUS_GOOD != Asic_Open (&g_chip, g_pDeviceFile))
+  if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_ERR, "GetKeyStatus: Asic_Open is fail\n");
       return FALSE;
@@ -2138,12 +2138,6 @@ sane_close (SANE_Handle handle)
   PowerControl (SANE_FALSE, SANE_FALSE);
 
   CarriageHome ();
-
-  if (NULL != g_pDeviceFile)
-    {
-      free (g_pDeviceFile);
-      g_pDeviceFile = NULL;
-    }
 
   if (s->Scan_data_buf != NULL)
     free (s->Scan_data_buf);

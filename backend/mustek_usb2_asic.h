@@ -73,13 +73,7 @@ typedef enum tagFIRMWARESTATE
   FS_ATTACHED = 1,
   FS_OPENED = 2,
   FS_SCANNING = 3
-} FIRMWARESTATE, *LPFIRMWARESTATE;
-
-typedef enum tagMOTORSTATE
-{
-  MS_STILL = 0,
-  MS_MOVED = 1
-} MOTORSTATE, *LPMOTORSTATE;
+} FIRMWARESTATE;
 
 typedef enum tagUSBHOST
 {
@@ -96,47 +90,6 @@ typedef enum tagLIGHTSOURCE
 
 typedef struct
 {
-  unsigned int LongX;
-  unsigned int PicWidth;
-  unsigned int PicHeight;
-
-  unsigned int Top;
-  unsigned int Bottom;
-  unsigned int Left;
-  unsigned int Right;
-  unsigned int ScanMode;
-  unsigned int Dpi;
-  unsigned int TotalMotorSteps;
-
-  unsigned int CCD_Pixel_Length;
-  SANE_Byte LineGap;
-  SANE_Byte TG_Pulse_Width_Pixel;
-  SANE_Byte TG_Wait_Width_Pixel;
-  unsigned short Multi_TG_Dummy_Pixel;
-  unsigned short CCD_Dummy_Pixel;
-  SANE_Byte Dummy_Cycle;
-  SANE_Byte TG_Times;
-
-  double LineTime;
-
-  unsigned short StartPixel;
-  unsigned short StartLine;
-}
-ScanParam;
-
-typedef struct
-{
-  unsigned int Shading_Table_Size;
-  unsigned int Image_Buffer_Size;
-  unsigned int Full_Bank;
-  unsigned int Line_Pixel;
-  double Line_Time;
-  SANE_Byte LineGap;
-}
-Temps;
-
-typedef struct
-{
   /* AFE */
   unsigned int AFE_ADCCLK_Timing;
   unsigned int AFE_ADCVS_Timing;
@@ -148,7 +101,7 @@ typedef struct
   SANE_Byte AFE_Secondary_FF_LatchPos;
   /* Sensor */
   unsigned int CCD_DummyCycleTiming;
-  SANE_Byte PHTG_PluseWidth;
+  SANE_Byte PHTG_PulseWidth;
   SANE_Byte PHTG_WaitWidth;
   unsigned short ChannelR_StartPixel;
   unsigned short ChannelR_EndPixel;
@@ -188,70 +141,26 @@ typedef struct tagADConverter
   SANE_Bool DirectionR;
   SANE_Bool DirectionG;
   SANE_Bool DirectionB;
-} ADConverter, LPADConverter;
+} ADConverter;
 
 
-
-typedef struct
-{
-  unsigned int Shading;
-  SANE_Byte Shading_0;
-  SANE_Byte Shading_1;
-  SANE_Byte Shading_2;
-
-  unsigned int Motor;
-  SANE_Byte Motor_0;
-  SANE_Byte Motor_1;
-  SANE_Byte Motor_2;
-
-  SANE_Byte ImageEndAddr_0;
-  SANE_Byte ImageEndAddr_1;
-  SANE_Byte ImageEndAddr_2;
-
-  SANE_Byte ImageFullBank_0;
-  SANE_Byte ImageFullBank_1;
-}
-RamPosition;
-
-typedef enum tagTASSTATUS
-{
-  TA_NOT_PLUGIN = 0,
-  TA_PLUGIN = 1,
-  TA_UNKNOW = 2
-} TASTATUS;
 
 typedef struct
 {
   int fd;			/* File Description of Scanner */
 
   FIRMWARESTATE firmwarestate;	/* record firmware state */
-  MOTORSTATE motorstate;	/* record motor status */
   SANE_Bool isFirstOpenChip;		/* If first open chip, is TRUE */
   USBHOST UsbHost;		/* The type of USB port */
   LIGHTSOURCE lsLightSource;	/* light source of scanner */
-  ScanParam Scan;		/* The parameters of Scan */
 
+  unsigned int Dpi;
   unsigned int dwBytesCountPerRow;
-  unsigned int dwCalibrationBytesCountPerRow;
 
-  Temps Temp;
   Timings Timing;
   ADConverter AD;
 
-  SANE_Bool isHardwareShading;
-
-  RamPosition RamPositions;
-
-  unsigned short * lpGammaTable;
   SANE_Byte isMotorMove;
-
-  unsigned int ibase1;
-  unsigned int ibase2;
-
-  unsigned short SWWidth;
-
-  TASTATUS TA_Status;
-
   SANE_Byte isMotorGoToFirstLine;	/*Roy add */
   SANE_Byte * lpShadingTable;	/*Roy add */
   SANE_Byte isUniformSpeedToScan;
@@ -266,36 +175,10 @@ typedef enum
   STATUS_DEVICE_BUSY,
   STATUS_INVAL,
   STATUS_MEM_ERROR,
-  STATUS_IO_ERROR,
-  STATUS_ACCESS_ERROR
+  STATUS_IO_ERROR
 }
 STATUS;
 
-
-/* For ScanObj */
-typedef struct Point
-{
-  unsigned int x;
-  unsigned int y;
-}
-Point;
-
-typedef struct Rect
-{
-  unsigned int left;
-  unsigned int right;
-  unsigned int top;
-  unsigned int bottom;
-}
-Rect;
-
-typedef struct RGBColor
-{
-  unsigned short Red;
-  unsigned short Green;
-  unsigned short Blue;
-}
-RGBColor;
 
 /* debug levels */
 #define DBG_CRIT 	0	/* Critical errors thatshould be printed even
@@ -311,24 +194,8 @@ RGBColor;
 #define DBG_DBG 	10	/* usefull only for tracing bugs */
 
 
-#define		DPI_2400		0x8000
-#define		DPI_1200		0x8000
-#define		DPI_600			0x8000
-#define		DPI_300			0x4000
-#define		DPI_200			0x2aaa
-#define		DPI_150			0x2000
-#define		DPI_100			0x1555
-#define		DPI_75			0x1000
-#define     DPI_50          0xaaa
-#define		PIXEL_TIME		333	/*unit : ms */
 #define DRAM_1Mx16_SIZE				(1024*1024)	/*unit : word */
 #define PackAreaStartAddress ((DRAM_1Mx16_SIZE/4)*3)
-
-#define TEMP_MEMORY_SIZE_64K 64*1024
-
-#define CALIBRATION_PIXEL_WIDTH			10240	/*need 512x */
-#define	CALIBRATE_WHITE_LINECOUNT	40
-#define	CALIBRATE_DARK_LINECOUNT	2
 
 #define ACTION_MODE_ACCDEC_MOVE 0
 #define ACTION_MODE_UNIFORM_SPEED_MOVE 1
@@ -350,41 +217,27 @@ RGBColor;
 #define ON_CHIP_PRE_GAMMA	1
 #define ON_CHIP_FINAL_GAMMA	2
 
-#define MOTOR_TABLE_SIZE	512*8
-
 #define ValidPixelNumberFor600DPI 5100 + 50 + 250
 #define ValidPixelNumberFor1200DPI 10200 + 100 + 500
 
 #define OverLapPixelNumber600 0
 #define OverLapPixelNumber1200 0
-#define SegmentGap 0
 #define	BANK_SIZE	(64)
 
 #define WaitBufferOneLineSize 11000*6
 
-#define CCD_PIXEL_NUMBER   21600
-#define CCD_Line_Spacing   24
-#define CCD_EvneOdd_Spacing 2
-
 #define	ShadingTableSize(x)			( ((x + 10)*6) + ( ((x + 10)*6)/240)*16 )
 #define ACC_DEC_STEP_TABLE_SIZE		(512)	/*unit : word */
-#define TableBase(x)				((((x)+((1<<TABLE_OFFSET_BASE)-1))>>TABLE_OFFSET_BASE)<<TABLE_OFFSET_BASE)
 #define NUM_OF_ACC_DEC_STEP_TABLE	(8)	/*unit : word */
 #define TABLE_BASE_SIZE				(1024*2*2*2*2)	/*unit : word */
+#define TABLE_OFFSET_BASE			(14)	/*unit : word */
 #define LAMP0_PWM_DEFAULT            255
 #define LAMP1_PWM_DEFAULT            255
 
-#define TABLE_OFFSET_BASE			(14)	/*unit : word */
-#define CHECK_HOME_SLEEP_TIME 100
-
-#define _MOTOR_MOVE_TYPE _4_TABLE_SPACE_FOR_FULL_STEP
-
 
 #define TA_CAL_PIXELNUMBER 50000
-
-#define SENSOR_DPI  1200
 #define TA_IMAGE_PIXELNUMBER 61000
-#define MAX_PATH 256
+#define SENSOR_DPI  1200
 
 
 /**************************** ASIC registers ***********************/
@@ -546,9 +399,9 @@ RGBColor;
 #define		SERIAL_READ_REGISTER_1		0x12
 #define		SERIAL_READ_REGISTER_2		0x13
 #define		SERIAL_READ_REGISTER_3		0x14
-#define		MOTOR_STEP_TRIGER_POSITION7_0	0x15
-#define		MOTOR_STEP_TRIGER_POSITION15_8	0x16
-#define		MOTOR_STEP_TRIGER_POSITION23_16	0x17
+#define		MOTOR_STEP_TRIGGER_POSITION7_0	0x15
+#define		MOTOR_STEP_TRIGGER_POSITION15_8	0x16
+#define		MOTOR_STEP_TRIGGER_POSITION23_16	0x17
 #define		CHIP_STATUS_A				0x18	/*reserve */
 #define		CHIP_STRING_0				0x19	/*0x45'E' */
 #define		CHIP_STRING_1				0x1a	/*0x53'S' */
@@ -839,10 +692,10 @@ RGBColor;
 /*	bit[7]*/
 #define		MOTOR_TEST_LOOP_ENABLE					0x80
 #define		MOTOR_TEST_LOOP_DISABLE					0x00
-#define ES01_F4_ActiveTriger				0xf4
+#define ES01_F4_ActiveTrigger				0xf4
 		/* bit[0] */
-#define		ACTION_TRIGER_ENABLE			0x01
-#define		ACTION_TRIGER_DISABLE			0x00
+#define		ACTION_TRIGGER_ENABLE			0x01
+#define		ACTION_TRIGGER_DISABLE			0x00
 
 #define		ES01_F5_ScanDataFormat				0xf5
 			/* bit[0] */
@@ -1253,10 +1106,6 @@ static STATUS SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size);
 static STATUS Asic_Open (PAsic chip);
 /* Close Scanner */
 static STATUS Asic_Close (PAsic chip);
-#if SANE_UNUSED
-/* Release Scanner Resource */
-static STATUS Asic_Release (PAsic chip);
-#endif
 /* Initialize Scanner Parameters */
 static STATUS Asic_Initialize (PAsic chip);
 /* Set Scan Window */
@@ -1283,15 +1132,11 @@ static STATUS Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key);
 #endif
 /* To Check if TA id connected */
 static STATUS Asic_IsTAConnected (PAsic chip, SANE_Bool *hasTA);
-#if SANE_UNUSED
-/* Download GammaTable to Scanner */
-static STATUS Asic_DownloadGammaTable (PAsic chip, void * lpBuffer);
-#endif
 /* For AdjustAD Calculate Scanner*/
 static STATUS Asic_ReadCalibrationData (PAsic chip, void * pBuffer,
 					unsigned int dwXferBytes, SANE_Byte bScanBits);
 /* Set motor move or not */
-static STATUS Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove, SANE_Bool isUniformSpeed);
+static STATUS Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove);
 /* Move Motor Forward or Backword */
 static STATUS Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps);
 /* Move Motor to Home. */
@@ -1313,20 +1158,6 @@ static STATUS Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short
 /* ---------------------- asic motor defines -------------------------- */
 
 
-#define ACTION_MODE_ACCDEC_MOVE 0
-#define ACTION_MODE_UNIFORM_SPEED_MOVE 1
-
-
-typedef struct tagMOTOR_CURRENT_AND_PHASE
-{
-  SANE_Byte MoveType;
-  SANE_Byte FillPhase;
-  SANE_Byte MotorDriverIs3967;
-  SANE_Byte MotorCurrentTableA[32];
-  SANE_Byte MotorCurrentTableB[32];
-  SANE_Byte MotorPhaseTable[32];
-} MOTOR_CURRENT_AND_PHASE, LPMOTOR_CURRENT_AND_PHASE;
-
 typedef struct tagLLF_RAMACCESS
 {
   SANE_Byte ReadWrite;
@@ -1345,7 +1176,6 @@ typedef struct tagLLF_MOTOR_CURRENT_AND_PHASE
   SANE_Byte MotorDriverIs3967;
   SANE_Byte MotorCurrentTableA[32];
   SANE_Byte MotorCurrentTableB[32];
-  SANE_Byte MotorPhaseTable[32];
 } LLF_MOTOR_CURRENT_AND_PHASE;
 
 typedef struct tagLLF_CALCULATEMOTORTABLE
@@ -1359,7 +1189,6 @@ typedef struct tagLLF_CALCULATEMOTORTABLE
 
 typedef struct tagLLF_SETMOTORTABLE
 {
-  unsigned int TableSize;
   SANE_Byte MotorTableAddress;
   unsigned short *MotorTablePtr;
 } LLF_SETMOTORTABLE;
@@ -1381,13 +1210,8 @@ typedef struct tagLLF_MOTORMOVE
   SANE_Byte Lamp0PwmFreq;		/* Lamp0 PWM freq */
   SANE_Byte Lamp1PwmFreq;		/* Lamp1 PWM freq */
 
-  unsigned short wForwardSteps;
   unsigned short wScanAccSteps;
   SANE_Byte bScanDecSteps;
-  unsigned short wFixScanSteps;
-  unsigned short wScanBackTrackingSteps;
-  unsigned short wScanRestartSteps;
-  unsigned short wScanBackHomeExtSteps;
 } LLF_MOTORMOVE;
 
 static STATUS CalculateMotorTable (LLF_CALCULATEMOTORTABLE *

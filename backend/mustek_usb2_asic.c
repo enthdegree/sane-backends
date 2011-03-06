@@ -1556,7 +1556,7 @@ LLFStopMotorMove (PAsic chip)
   STATUS status = STATUS_GOOD;
   DBG (DBG_ASIC, "LLFStopMotorMove:Enter\n");
 
-  Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
 
   Asic_WaitUnitReady (chip);
 
@@ -1611,7 +1611,7 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
 
   DBG (DBG_ASIC, "LLFMotorMove:Enter\n");
 
-  Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
 
   status = Asic_WaitUnitReady (chip);
 
@@ -1725,7 +1725,7 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
 
   Mustek_SendData (chip, ES01_F3_ActionOption, SCAN_DISABLE |
 		   SCAN_BACK_TRACKING_DISABLE | temp_motor_action);
-  Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_ENABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_ENABLE);
 
   temp_status = 0;
   if (LLF_MotorMove->WaitOrNoWait == 1)
@@ -1824,14 +1824,9 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable, unsigned short w
 
   MotorStepsTable->AccStep = wAccSteps;
   MotorStepsTable->DecStep = bDecSteps;
-  MotorStepsTable->wForwardSteps = wForwardSteps;
   MotorStepsTable->wScanAccSteps = wScanAccSteps;
   MotorStepsTable->bScanDecSteps = bScanDecSteps;
-  MotorStepsTable->wFixScanSteps = wFixScanSteps;
   MotorStepsTable->MotorSyncUnit = (SANE_Byte) wMotorSycnPixelNumber;
-  MotorStepsTable->wScanBackHomeExtSteps = wScanBackHomeExtSteps;
-  MotorStepsTable->wScanRestartSteps = wScanRestartSteps;
-  MotorStepsTable->wScanBackTrackingSteps = wScanBackTrackingSteps;
 
   /*state 1 */
   Mustek_SendData (chip, ES01_E0_MotorAccStep0_7, LOBYTE (wAccSteps));
@@ -2230,7 +2225,7 @@ InitTiming (PAsic chip)
 
   /* Sensor */
   chip->Timing.CCD_DummyCycleTiming = 0;
-  chip->Timing.PHTG_PluseWidth = 12;
+  chip->Timing.PHTG_PulseWidth = 12;
   chip->Timing.PHTG_WaitWidth = 1;
   chip->Timing.PHTG_TimingAdj = 1;
   chip->Timing.PHTG_TimingSetup = 0;
@@ -2357,7 +2352,7 @@ SafeInitialChip (PAsic chip)
   Mustek_SendData (chip, ES01_F3_ActionOption, 0);
   Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle,
 		   CLOSE_ALL_CLOCK_DISABLE);
-  Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
 
   status = Asic_WaitUnitReady (chip);
 
@@ -2585,7 +2580,7 @@ CCDTiming (PAsic chip)
   unsigned int dwPH1, dwPH2, dwPHRS, dwPHCP;
 
   DBG (DBG_ASIC, "CCDTiming:Enter\n");
-  DBG (DBG_ASIC, "Dpi=%d\n", chip->Scan.Dpi);
+  DBG (DBG_ASIC, "Dpi=%d\n", chip->Dpi);
 
   if (chip->firmwarestate < FS_OPENED)
     OpenScanChip (chip);
@@ -2649,7 +2644,7 @@ CCDTiming (PAsic chip)
   Mustek_SendData (chip, ES01_1D3_DUMMY_CYCLE_TIMING_B3,
 		   (SANE_Byte) (chip->Timing.CCD_DummyCycleTiming >> 24));
 
-  if (chip->Scan.Dpi >= 1200)
+  if (chip->Dpi >= 1200)
     {
       dwPH1 = chip->Timing.CCD_PH1_Timing_1200;
       dwPH2 = chip->Timing.CCD_PH2_Timing_1200;
@@ -3440,7 +3435,7 @@ SetExtraSetting (PAsic chip, unsigned short wXResolution, unsigned short wCCD_Pi
   Mustek_SendData (chip, ES01_C3_ChannelBlueExpEndPixelMSB,
 		   HIBYTE (chip->Timing.ChannelB_EndPixel));
 
-  byPHTG_PulseWidth = chip->Timing.PHTG_PluseWidth;
+  byPHTG_PulseWidth = chip->Timing.PHTG_PulseWidth;
   byPHTG_WaitWidth = chip->Timing.PHTG_WaitWidth;
   Mustek_SendData (chip, ES01_B2_PHTGPulseWidth, byPHTG_PulseWidth);
   Mustek_SendData (chip, ES01_B3_PHTGWaitWidth, byPHTG_WaitWidth);
@@ -3665,7 +3660,7 @@ Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn)
 
   if (chip->firmwarestate > FS_OPENED)
     {
-      Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
+      Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
     }
 
   if (isLampOn)
@@ -3701,7 +3696,7 @@ Asic_TurnTA (PAsic chip, SANE_Bool isTAOn)
     }
 
   if (chip->firmwarestate > FS_OPENED)
-    Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
+    Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
 
   if (isTAOn)
     {
@@ -3752,29 +3747,11 @@ Asic_WaitUnitReady (PAsic chip)
   while (((temp_status & 0x1f) != 0) && i < 300);
   DBG (DBG_ASIC, "Wait %d s\n", (unsigned short) (i * 0.1));
 
-  Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
-  chip->motorstate = MS_STILL;
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
 
   DBG (DBG_ASIC, "Asic_WaitUnitReady: Exit\n");
   return status;
 }
-
-#if SANE_UNUSED
-static STATUS
-Asic_Release (PAsic chip)
-{
-  STATUS status = STATUS_GOOD;
-  DBG (DBG_ASIC, "Asic_Release()\n");
-
-  if (chip->firmwarestate > FS_ATTACHED)
-    status = Asic_Close (chip);
-
-  chip->firmwarestate = FS_NULL;
-
-  DBG (DBG_ASIC, "Asic_Release: Exit\n");
-  return status;
-}
-#endif
 
 static STATUS
 Asic_Initialize (PAsic chip)
@@ -3783,16 +3760,12 @@ Asic_Initialize (PAsic chip)
   DBG (DBG_ASIC, "Asic_Initialize:Enter\n");
 
 
-  chip->motorstate = MS_STILL;
   chip->dwBytesCountPerRow = 0;
-  chip->lpGammaTable = NULL;
   DBG (DBG_ASIC, "isFirstOpenChip=%d\n", chip->isFirstOpenChip);
 
   chip->isFirstOpenChip = TRUE;
   DBG (DBG_ASIC, "isFirstOpenChip=%d\n", chip->isFirstOpenChip);
 
-  chip->SWWidth = 0;
-  chip->TA_Status = TA_UNKNOW;
   chip->lpShadingTable = NULL;
   chip->isMotorMove = MOTOR_0_ENABLE;
 
@@ -3836,7 +3809,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   unsigned short Total_MotorDPI;
 
   unsigned short wMultiMotorStep = 1;
-  SANE_Byte bMotorMoveType = _MOTOR_MOVE_TYPE;
+  SANE_Byte bMotorMoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
 
   SANE_Byte byClear_Pulse_Width = 0;
 
@@ -3871,7 +3844,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   Mustek_SendData (chip, ES01_F3_ActionOption, 0);
   Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle,
 		   CLOSE_ALL_CLOCK_DISABLE);
-  Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
 
   status = Asic_WaitUnitReady (chip);
 
@@ -3980,7 +3953,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   dwTotal_PerLineNeedBufferSize = wPerLineNeedBufferSize;
   dwTotalLineTheBufferNeed = wLength;
 
-  chip->Scan.Dpi = wXResolution;
+  chip->Dpi = wXResolution;
   CCDTiming (chip);
 
   dwTotal_CCDResolution = SENSOR_DPI;
@@ -4114,7 +4087,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   SetExtraSetting (chip, wXResolution, wCCD_PixelNumber, FALSE);
 
   /* calculate line time  */
-  byPHTG_PulseWidth = chip->Timing.PHTG_PluseWidth;
+  byPHTG_PulseWidth = chip->Timing.PHTG_PulseWidth;
   byPHTG_WaitWidth = chip->Timing.PHTG_WaitWidth;
   dwLinePixelReport = ((byClear_Pulse_Width + 1) * 2 +
 		       (byPHTG_PulseWidth + 1) * (1) +
@@ -4291,10 +4264,6 @@ Asic_Reset (PAsic chip)
   chip->AD.OffsetG = 0;
   chip->AD.OffsetB = 0;
 
-  chip->Scan.TotalMotorSteps = 60000;
-  chip->Scan.StartLine = 0;
-  chip->Scan.StartPixel = 0;
-
   DBG (DBG_ASIC, "Asic_Reset: Exit\n");
   return status;
 }
@@ -4340,7 +4309,7 @@ Asic_ScanStart (PAsic chip)
   Mustek_SendData (chip, ES01_8B_Status, 0x1c | 0x20);
   Mustek_WriteAddressLineForRegister (chip, 0x8B);
   Mustek_ClearFIFO (chip);
-  Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_ENABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_ENABLE);
 
 
   chip->firmwarestate = FS_SCANNING;
@@ -4397,7 +4366,7 @@ Asic_ScanStop (PAsic chip)
   Mustek_SendData (chip, ES01_F3_ActionOption, 0);
   Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle,
 		   CLOSE_ALL_CLOCK_DISABLE);
-  Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
   Mustek_ClearFIFO (chip);
 
   chip->firmwarestate = FS_OPENED;
@@ -4514,20 +4483,6 @@ Asic_IsTAConnected (PAsic chip, SANE_Bool * hasTA)
   return STATUS_GOOD;
 }
 
-#if SANE_UNUSED
-static STATUS
-Asic_DownloadGammaTable (PAsic chip, void * lpBuffer)
-{
-  STATUS status = STATUS_GOOD;
-  DBG (DBG_ASIC, "Asic_DownloadGammaTable()\n");
-
-  chip->lpGammaTable = lpBuffer;
-
-  DBG (DBG_ASIC, "Asic_DownloadGammaTable: Exit\n");
-  return status;
-}
-#endif
-
 static STATUS
 Asic_ReadCalibrationData (PAsic chip, void * pBuffer,
 			  unsigned int dwXferBytes, SANE_Byte bScanBits)
@@ -4595,16 +4550,13 @@ Asic_ReadCalibrationData (PAsic chip, void * pBuffer,
 }
 
 static STATUS
-Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove, SANE_Bool isUniformSpeed)
+Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove)
 {
   STATUS status = STATUS_GOOD;
-  isUniformSpeed = isUniformSpeed;
   DBG (DBG_ASIC, "Asic_SetMotorType:Enter\n");
 
   if (isMotorMove)
-    {
-      chip->isMotorMove = MOTOR_0_ENABLE;
-    }
+    chip->isMotorMove = MOTOR_0_ENABLE;
   else
     chip->isMotorMove = MOTOR_0_DISABLE;
 
@@ -4714,7 +4666,7 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 
     OpenScanChip (chip);
   if (chip->firmwarestate == FS_SCANNING)
-    Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
+    Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
 
 
   if (wXResolution > 600)
@@ -4824,9 +4776,8 @@ Asic_WaitCarriageHome (PAsic chip, SANE_Bool isTA)
     status = STATUS_DEVICE_BUSY;
   DBG (DBG_ASIC, "Wait %d s\n", (unsigned short) (i * 0.3));
 
-  Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
   chip->firmwarestate = FS_OPENED;
-  chip->motorstate = MS_STILL;
 
   DBG (DBG_ASIC, "Asic_WaitCarriageHome: Exit\n");
   return status;
@@ -4856,15 +4807,12 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   double XRatioTypeDouble;
   double XRatioAdderDouble;
 
-  LLF_MOTORMOVE *lpMotorStepsTable =
-    (LLF_MOTORMOVE *) malloc (sizeof (LLF_MOTORMOVE));
-
   SANE_Byte byDummyCycleNum = 1;
   unsigned short Total_MotorDPI;
   unsigned short BeforeScanFixSpeedStep = 0;
   unsigned short BackTrackFixSpeedStep = 20;
   unsigned short wMultiMotorStep = 1;
-  SANE_Byte bMotorMoveType = _MOTOR_MOVE_TYPE;
+  SANE_Byte bMotorMoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
   SANE_Byte isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_DISABLE;
   SANE_Byte isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
   SANE_Byte isScanBackTracking = SCAN_BACK_TRACKING_DISABLE;
@@ -4892,17 +4840,10 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
       return STATUS_INVAL;
     }
 
-  if (lpMotorStepsTable == NULL)
-    {
-      DBG (DBG_ERR, "Asic_SetCalibrate: insufficiency memory!\n");
-      return STATUS_INVAL;
-    }
-  DBG (DBG_ASIC, "malloc LLF_MOTORMOVE =%ld Byte\n", (long int) (sizeof (LLF_MOTORMOVE)));
-
   Mustek_SendData (chip, ES01_F3_ActionOption, 0);
   Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle,
 		   CLOSE_ALL_CLOCK_DISABLE);
-  Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_DISABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
 
   status = Asic_WaitUnitReady (chip);
 
@@ -4919,7 +4860,6 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   else if (bScanBits == 24)
     {
       wPerLineNeedBufferSize = wWidth * 3;
-      chip->dwCalibrationBytesCountPerRow = wWidth * 3;
       BytePerPixel = 3;
       chip->dwBytesCountPerRow = (unsigned int) (wWidth) * 3;
     }
@@ -4952,7 +4892,7 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
        wPerLineNeedBufferSize, wLength);
 
 
-  chip->Scan.Dpi = wXResolution;
+  chip->Dpi = wXResolution;
   CCDTiming (chip);
 
   dwTotal_CCDResolution = SENSOR_DPI;
@@ -5152,7 +5092,7 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 		  XRatioTypeDouble, byClear_Pulse_Width, &ValidPixelNumber);
   SetExtraSetting (chip, wXResolution, wCCD_PixelNumber, TRUE);
 
-  byPHTG_PulseWidth = chip->Timing.PHTG_PluseWidth;
+  byPHTG_PulseWidth = chip->Timing.PHTG_PulseWidth;
   byPHTG_WaitWidth = chip->Timing.PHTG_WaitWidth;
   dwLinePixelReport = ((byClear_Pulse_Width + 1) * 2 +
 		       (byPHTG_PulseWidth + 1) * (1) +
@@ -5238,7 +5178,6 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 
 
   free (lpMotorTable);
-  free (lpMotorStepsTable);
 
   DBG (DBG_ASIC, "Asic_SetCalibrate: Exit\n");
   return status;

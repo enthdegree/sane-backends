@@ -598,7 +598,7 @@ Reflective_AdjustAD ()
       return FALSE;
     }
 
-  Asic_SetMotorType (&g_chip, FALSE, TRUE);
+  Asic_SetMotorType (&g_chip, FALSE);
 
   Asic_SetCalibrate (&g_chip, 24, wAdjustADResolution, wAdjustADResolution, 0,
 		     0, wCalWidth, 1, FALSE);
@@ -1105,7 +1105,7 @@ Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
   dwTotalSize = wCalWidth * wCalHeight;
   nScanBlock = (int) (dwTotalSize / g_dwCalibrationSize);
 
-  Asic_SetMotorType (&g_chip, TRUE, TRUE);
+  Asic_SetMotorType (&g_chip, TRUE);
   Asic_SetCalibrate (&g_chip, 8, wXResolution, wYResolution, 0, 0, wCalWidth,
 		     wCalHeight, FALSE);
   SetAFEGainOffset (&g_chip);
@@ -1340,7 +1340,7 @@ Reflective_LineCalibration16Bits ()
       return FALSE;
     }
 
-  Asic_SetMotorType (&g_chip, TRUE, TRUE);
+  Asic_SetMotorType (&g_chip, TRUE);
   SetAFEGainOffset (&g_chip);
   status =
     Asic_SetCalibrate (&g_chip, 48, g_XDpi, g_YDpi, g_X, 0, wCalWidth,
@@ -1379,7 +1379,7 @@ Reflective_LineCalibration16Bits ()
   Asic_ScanStop (&g_chip);
 
   /*Read dark level data */
-  status = Asic_SetMotorType (&g_chip, FALSE, TRUE);
+  status = Asic_SetMotorType (&g_chip, FALSE);
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,

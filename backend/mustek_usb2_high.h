@@ -50,45 +50,40 @@
 
 /* const use in structures*/
 
-/*scan mode*/
-typedef unsigned short SCANMODE, *LPSCANMODE;
-#define SM_TEXT		0x00
-#define SM_GRAY		0x01
-#define SM_RGB24	0x02
-#define SM_GRAY10	0x03
-#define SM_RGB30	0x04
-#define SM_GRAY12	0x05
-#define SM_RGB36	0x06
-#define SM_GRAY14	0x07
-#define SM_RGB42	0x08
-#define SM_GRAY16	0x09
-#define SM_RGB48	0x0a
-
 /*pixel flavor*/
-typedef SANE_Byte PIXELFLAVOR, *LPPIXELFLAVOR;
+typedef SANE_Byte PIXELFLAVOR;
 #define PF_BlackIs0 0x00
 #define PF_WhiteIs0 0x01
 
 /*scan source*/
-typedef SANE_Byte SCANSOURCE, *LPSCANSOURCE;
+typedef SANE_Byte SCANSOURCE;
 #define SS_Reflective	0x00
 #define SS_Positive		0x01
 #define SS_Negative		0x02
-#define SS_ADF			0x03
 
 /*RGB order*/
-typedef unsigned short RGBORDER, *LPRGBORDER;
+typedef unsigned short RGBORDER;
 #define RO_RGB 0x00
 #define RO_BGR 0x01
 
-/* structures use in parameters of export function*/
+typedef unsigned char SCANTYPE;
+#define ST_Reflective	0x00
+#define ST_Transparent	0x01
 
-typedef struct tagGAMMAINFO
+typedef enum tagCOLORMODE
 {
-  SCANMODE smScanMode;
-  unsigned short wInputGammaBits;
-  unsigned short wOutputGammaBits;
-} GAMMAINFO, *LPGAMMAINFO;
+  CM_RGB48 = 0,
+  CM_RGB24 = 4,
+  CM_GRAY16 = 5,
+  CM_GRAY10 = 8,
+  CM_GRAY8 = 9,
+  CM_TEXT = 10,
+  CM_RGB24ext = 15,
+  CM_GRAY16ext = 16,
+  CM_GRAY8ext = 20
+} COLORMODE;
+
+/* structures use in parameters of export function*/
 
 typedef struct tagGETPARAMETERS
 {
@@ -110,7 +105,7 @@ typedef struct tagSETPARAMETERS
 {
   FRAME fmArea;
   unsigned short wTargetDPI;
-  SCANMODE smScanMode;
+  COLORMODE cmColorMode;
   unsigned short wLinearThreshold;	/*threshold for Line art mode */
   PIXELFLAVOR pfPixelFlavor;
   SCANSOURCE ssScanSource;
@@ -125,115 +120,6 @@ typedef struct tagIMAGEROWS
   SANE_Byte * pBuffer;
 } IMAGEROWS, *LPIMAGEROWS;
 
-
-/*Macro define*/
-
-#define R_GAIN							0
-#define G_GAIN                          0
-#define B_GAIN                          0
-#define R_OFFSET                        0
-#define G_OFFSET                        0
-#define B_OFFSET                        0
-#define R_DIRECTION                     0
-#define G_DIRECTION                     0
-#define B_DIRECTION                     0
-
-/* use for adjust AD's offset*/
-
-/* for Reflective*/
-#define REFL_DARK_MAX_LEVEL             20
-#define REFL_DARK_MIN_LEVEL             10
-#define REFL_WHITE_MAX_LEVEL			220
-#define REFL_WHITE_MIN_LEVEL			210
-#define REFL_MAX_LEVEL_RANGE            210
-#define REFL_MIN_LEVEL_RANGE            190
-
-/*for Transparent*/
-#define TRAN_DARK_MAX_LEVEL             20
-#define TRAN_DARK_MIN_LEVEL             10
-#define TRAN_WHITE_MAX_LEVEL            220
-#define TRAN_WHITE_MIN_LEVEL            210
-#define TRAN_MAX_LEVEL_RANGE            210
-#define TRAN_MIN_LEVEL_RANGE            190
-
-
-/* in 600 dpi*/
-#define FIND_LEFT_TOP_WIDTH_IN_DIP          512
-#define FIND_LEFT_TOP_HEIGHT_IN_DIP         180
-#define FIND_LEFT_TOP_CALIBRATE_RESOLUTION  600
-
-#define TA_FIND_LEFT_TOP_WIDTH_IN_DIP       2668
-#define TA_FIND_LEFT_TOP_HEIGHT_IN_DIP      300
-
-#define TA_MOTOR_BACK_STEP_AFTER_FIND_BOUNDARY             150
-#define TA_MOTOR_FORWARD_STEP_AFTER_READ_WHITE_DATA        1100
-
-/*must be 8x*/
-#define LINE_CALIBRATION__16BITS_HEIGHT				40
-
-/* the length from block bar to start Calibration position*/
-#define BEFORE_SCANNING_MOTOR_FORWARD_PIXEL 40
-
-#define PRE_MOVE_MOTOR_LENGTH_IN_DPI    1450
-
-/* if the motor is 1/8 step, setup MOTOR_STEP_MULTI as 8
- if the motor is 1/4 step, setup MOTOR_STEP_MULTI as 4
- if the motor is full step, setup MOTOR_STEP_MULTI as 1
-#define MOTOR_EIGHTH_STEP*/
-#ifdef MOTOR_EIGHTH_STEP
-#define MOTOR_STEP_MULTI                8
-#define GPIO_95_Config                  0x68
-#else
-#define MOTOR_STEP_MULTI                4
-
-#define GPIO_95_Config                  0x60
-#endif
-
-#define TRAN_START_POS					4550
-
-/* in 300dpi*/
-#define MAX_SCANNING_WIDTH               2550	/*just for A4 */
-#define MAX_SCANNING_HEIGHT              3540	/*just for A4 */
-
-#define INIFILENAME                         "./msam.ini"
-
-/*enable gamma*/
-#define ENABLE_GAMMA
-
-/*save debug image*/
-/*#define DEBUG_SAVE_IMAGE*/
-
-/*type define*/
-typedef unsigned char SCANTYPE;
-#define ST_Reflective	0x00
-#define ST_Transparent	0x01
-
-typedef enum tagCOLORMODE
-{
-  CM_RGB48 = 0,
-  CM_RGB42 = 1,
-  CM_RGB36 = 2,
-  CM_RGB30 = 3,
-  CM_RGB24 = 4,
-  CM_GRAY16 = 5,
-  CM_GRAY14 = 6,
-  CM_GRAY12 = 7,
-  CM_GRAY10 = 8,
-  CM_GRAY8 = 9,
-  CM_TEXT = 10,
-  CM_RGB48ext = 11,
-  CM_RGB42ext = 12,
-  CM_RGB36ext = 13,
-  CM_RGB30ext = 14,
-  CM_RGB24ext = 15,
-  CM_GRAY16ext = 16,
-  CM_GRAY14ext = 17,
-  CM_GRAY12ext = 18,
-  CM_GRAY10ext = 19,
-  CM_GRAY8ext = 20,
-  CM_TEXText = 21
-} COLORMODE, *PCOLORMODE;
-
 typedef struct tagTARGETIMAGE
 {
   SANE_Bool isOptimalSpeed;
@@ -243,7 +129,7 @@ typedef struct tagTARGETIMAGE
   unsigned short wY;
   unsigned short wWidth;
   unsigned short wHeight;
-  SANE_Byte bScanSource;
+  SCANSOURCE ssScanSource;
 } TARGETIMAGE, *PTARGETIMAGE;
 
 typedef struct tagSUGGESTSETTING
@@ -258,6 +144,56 @@ typedef struct tagSUGGESTSETTING
   unsigned int dwBytesPerRow;
 } SUGGESTSETTING, *PSUGGESTSETTING;
 
+
+/*Macro define*/
+
+#define R_GAIN							0
+#define G_GAIN                          0
+#define B_GAIN                          0
+#define R_DIRECTION                     0
+#define G_DIRECTION                     0
+#define B_DIRECTION                     0
+
+/* use for adjust AD's offset*/
+
+/* for Reflective*/
+#define REFL_WHITE_MAX_LEVEL			220
+#define REFL_WHITE_MIN_LEVEL			210
+#define REFL_MAX_LEVEL_RANGE            210
+#define REFL_MIN_LEVEL_RANGE            190
+
+/*for Transparent*/
+#define TRAN_WHITE_MAX_LEVEL            220
+#define TRAN_WHITE_MIN_LEVEL            210
+#define TRAN_MAX_LEVEL_RANGE            210
+#define TRAN_MIN_LEVEL_RANGE            190
+
+
+/* in 600 dpi*/
+#define FIND_LEFT_TOP_WIDTH_IN_DIP          512
+#define FIND_LEFT_TOP_HEIGHT_IN_DIP         180
+#define FIND_LEFT_TOP_CALIBRATE_RESOLUTION  600
+
+#define TA_FIND_LEFT_TOP_WIDTH_IN_DIP       2668
+#define TA_FIND_LEFT_TOP_HEIGHT_IN_DIP      300
+
+/*must be 8x*/
+#define LINE_CALIBRATION__16BITS_HEIGHT				40
+
+/* the length from block bar to start Calibration position*/
+#define BEFORE_SCANNING_MOTOR_FORWARD_PIXEL 40
+
+#define TRAN_START_POS					4550
+
+/* in 300dpi*/
+#define MAX_SCANNING_WIDTH               2550	/*just for A4 */
+#define MAX_SCANNING_HEIGHT              3540	/*just for A4 */
+
+/*enable gamma*/
+#define ENABLE_GAMMA
+
+/*save debug image*/
+/*#define DEBUG_SAVE_IMAGE*/
 
 
 #endif

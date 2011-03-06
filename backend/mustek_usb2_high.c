@@ -130,7 +130,7 @@ static SANE_Bool MustScanner_Init (void);
 static SANE_Bool MustScanner_GetScannerState (void);
 static SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
 static SANE_Bool MustScanner_BackHome (void);
-static SANE_Bool MustScanner_Prepare (SANE_Byte bScanSource);
+static SANE_Bool MustScanner_Prepare (SCANSOURCE ssScanSource);
 #ifdef SANE_UNUSED
 static SANE_Bool MustScanner_AdjustOffset (int nTimes, SANE_Bool * bDirection, SANE_Byte * bOffset,
 				      SANE_Byte * bLastMin, SANE_Byte * bLastOffset,
@@ -342,12 +342,12 @@ MustScanner_BackHome ()
 /**********************************************************************
 	prepare the scan image
 Parameters:
-	bScanSource: the scan source
+	ssScanSource: the scan source
 Return value: 
 	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-MustScanner_Prepare (SANE_Byte bScanSource)
+MustScanner_Prepare (SCANSOURCE ssScanSource)
 {
   DBG (DBG_FUNC, "MustScanner_Prepare: call in\n");
 
@@ -365,7 +365,7 @@ MustScanner_Prepare (SANE_Byte bScanSource)
       return FALSE;
     }
 
-  if (SS_Reflective == bScanSource)
+  if (SS_Reflective == ssScanSource)
     {
       DBG (DBG_FUNC, "MustScanner_Prepare:ScanSource is SS_Reflective\n");
       if (STATUS_GOOD != Asic_TurnLamp (&g_chip, TRUE))
@@ -381,7 +381,7 @@ MustScanner_Prepare (SANE_Byte bScanSource)
 	  return FALSE;
 	}
     }
-  else if (SS_Positive == bScanSource)
+  else if (SS_Positive == ssScanSource)
     {
       DBG (DBG_FUNC, "MustScanner_Prepare:ScanSource is SS_Positive\n");
       if (STATUS_GOOD != Asic_TurnTA (&g_chip, TRUE))
@@ -396,7 +396,7 @@ MustScanner_Prepare (SANE_Byte bScanSource)
 	  return FALSE;
 	}
     }
-  else if (SS_Negative == bScanSource)
+  else if (SS_Negative == ssScanSource)
     {
       DBG (DBG_FUNC, "MustScanner_Prepare:ScanSource is SS_Negative\n");
 

@@ -140,7 +140,7 @@ static Scanner_Model mustek_A2nu2_model = {
   SANE_FIX (1.46 * MM_PER_INCH),	/* Size of scan area in TA mode in mm (x) */
   SANE_FIX (6.45 * MM_PER_INCH),	/* Size of scan area in TA mode in mm (y) */
 
-  0,				/* Order of the CCD/CIS colors 0:RO_RGB 1:RO_BGR */
+  RO_RGB,				/* Order of the CCD/CIS colors */
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
@@ -155,14 +155,13 @@ static SANE_Bool StartScan (void);
 static SANE_Bool ReadScannedData (LPIMAGEROWS pImageRows);
 static SANE_Bool StopScan (void);
 static SANE_Bool IsTAConnected (void);
-static void AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
+static void AutoLevel (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
 		unsigned int BytesPerLine);
 static size_t max_string_size (const SANE_String_Const strings[]);
 static SANE_Status calc_parameters (Mustek_Scanner * s);
 #ifdef SANE_UNUSED
-static SANE_Bool GetGammaInfo (LPGAMMAINFO pGamaInfo);
 static SANE_Bool GetKeyStatus (SANE_Byte * pKey);
-static void QBetChange (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
+static void QBetChange (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
 		 unsigned int BytesPerLine);
 static void QBETDetectAutoLevel (void *pDIB, unsigned int ImageWidth, unsigned int ImageHeight);
 #endif
@@ -197,43 +196,43 @@ calc_parameters (Mustek_Scanner * s)
     {
       s->params.format = SANE_FRAME_RGB;
       s->params.depth = 16;
-      s->setpara.smScanMode = SM_RGB48;
+      s->setpara.cmColorMode = CM_RGB48;
       if (s->val[OPT_PREVIEW].w)
 	{
-	  DBG (DBG_DET, "calc_parameters : preview set ScanMode SM_RGB24\n");
+	  DBG (DBG_DET, "calc_parameters : preview set ColorMode CM_RGB24\n");
 	  s->params.depth = 8;
-	  s->setpara.smScanMode = SM_RGB24;
+	  s->setpara.cmColorMode = CM_RGB24;
 	}
     }
   else if (strcmp (val, "Color24") == 0)
     {
       s->params.format = SANE_FRAME_RGB;
       s->params.depth = 8;
-      s->setpara.smScanMode = SM_RGB24;
+      s->setpara.cmColorMode = CM_RGB24;
     }
   else if (strcmp (val, "Gray16") == 0)
     {
       s->params.format = SANE_FRAME_GRAY;
       s->params.depth = 16;
-      s->setpara.smScanMode = SM_GRAY16;
+      s->setpara.cmColorMode = CM_GRAY16;
       if (s->val[OPT_PREVIEW].w)
 	{
 	  s->params.depth = 8;
-	  DBG (DBG_DET, "calc_parameters : preview set ScanMode SM_GRAY\n");
-	  s->setpara.smScanMode = SM_GRAY;
+	  DBG (DBG_DET, "calc_parameters : preview set ColorMode CM_GRAY8\n");
+	  s->setpara.cmColorMode = CM_GRAY8;
 	}
     }
   else if (strcmp (val, "Gray8") == 0)
     {
       s->params.format = SANE_FRAME_GRAY;
       s->params.depth = 8;
-      s->setpara.smScanMode = SM_GRAY;
+      s->setpara.cmColorMode = CM_GRAY8;
     }
   else if (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     {
       s->params.format = SANE_FRAME_GRAY;
       s->params.depth = 1;
-      s->setpara.smScanMode = SM_TEXT;
+      s->setpara.cmColorMode = CM_TEXT;
     }
 
   /*set Scan Source */
@@ -520,47 +519,6 @@ static SANE_Bool g_bIsFirstGetNegData = TRUE;
 static SANE_Bool g_bIsMallocNegData = FALSE;
 static unsigned int g_dwAlreadyGetNegLines = 0;
 
-#ifdef SANE_UNUSED
-/**********************************************************************
-	Get gamma input/output bit count
-Parameters:
-	pGammaInfo: the gamma information
-Return value: 
-	TRUE if the operation success, FALSE otherwise
-***********************************************************************/
-static SANE_Bool
-GetGammaInfo (LPGAMMAINFO pGammaInfo)
-{
-  DBG (DBG_FUNC, "GetGammaInfo: start\n");
-
-  switch (pGammaInfo->smScanMode)
-    {
-    case SM_GRAY:
-      pGammaInfo->wInputGammaBits = 12;
-      pGammaInfo->wOutputGammaBits = 8;
-      break;
-    case SM_RGB24:
-      pGammaInfo->wInputGammaBits = 12;
-      pGammaInfo->wOutputGammaBits = 8;
-      break;
-    case SM_GRAY16:
-      pGammaInfo->wInputGammaBits = 16;
-      pGammaInfo->wOutputGammaBits = 16;
-      break;
-    case SM_RGB48:
-      pGammaInfo->wInputGammaBits = 16;
-      pGammaInfo->wOutputGammaBits = 16;
-      break;
-    default:
-      pGammaInfo->wInputGammaBits = 0;
-      pGammaInfo->wOutputGammaBits = 0;
-      return FALSE;
-    }
-
-  DBG (DBG_FUNC, "GetGammaInfo: exit\n");
-  return TRUE;
-}
-#endif
 /**********************************************************************
 	set scan parameters
 Parameters:
@@ -589,30 +547,11 @@ SetParameters (LPSETPARAMETERS pSetParameters)
     }
 
   /*1. Scan mode */
-  switch (pSetParameters->smScanMode)
-    {
-    case SM_TEXT:
-      g_tiTarget.cmColorMode = CM_TEXT;
-      break;
-    case SM_GRAY:
-      g_tiTarget.cmColorMode = CM_GRAY8;
-      break;
-    case SM_GRAY16:
-      g_tiTarget.cmColorMode = CM_GRAY16;
-      break;
-    case SM_RGB24:
-      g_tiTarget.cmColorMode = CM_RGB24;
-      break;
-    case SM_RGB48:
-      g_tiTarget.cmColorMode = CM_RGB48;
-      break;
-    default:
-      return FALSE;
-    }
+  g_tiTarget.cmColorMode = pSetParameters->cmColorMode;
 
   /*2. Scan source */
   g_ssScanSource = pSetParameters->ssScanSource;
-  g_tiTarget.bScanSource = pSetParameters->ssScanSource;
+  g_tiTarget.ssScanSource = pSetParameters->ssScanSource;
 
 
   if (SS_Reflective == pSetParameters->ssScanSource)
@@ -620,8 +559,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
       g_ScanType = ST_Reflective;
     }
   else if (SS_Positive == pSetParameters->ssScanSource
-	   || SS_Negative == pSetParameters->ssScanSource
-	   || SS_ADF == pSetParameters->ssScanSource)
+	   || SS_Negative == pSetParameters->ssScanSource)
     {
       g_ScanType = ST_Transparent;
     }
@@ -693,7 +631,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
        g_tiTarget.wHeight);
 
   /*5.Prepare */
-  if (FALSE == MustScanner_Prepare (g_tiTarget.bScanSource))
+  if (FALSE == MustScanner_Prepare (g_tiTarget.ssScanSource))
     {
       DBG (DBG_ERR, "SetParameters: MustScanner_Prepare fail\n");
       return FALSE;
@@ -701,7 +639,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 
   /*6. Linear threshold */
   if (pSetParameters->wLinearThreshold > 256
-      && pSetParameters->smScanMode == SM_TEXT)
+      && pSetParameters->cmColorMode == CM_TEXT)
     {
       DBG (DBG_ERR, "SetParameters: LinearThreshold error\n");
       return FALSE;
@@ -718,8 +656,8 @@ SetParameters (LPSETPARAMETERS pSetParameters)
       g_pGammaTable = pSetParameters->pGammaTable;
       g_isSelfGamma = FALSE;
     }
-  else if (pSetParameters->smScanMode == SM_GRAY
-	   || pSetParameters->smScanMode == SM_RGB24)
+  else if (pSetParameters->cmColorMode == CM_GRAY8
+	   || pSetParameters->cmColorMode == CM_RGB24)
     {
       unsigned short i;
       SANE_Byte byGammaData;
@@ -751,8 +689,8 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 	  *(g_pGammaTable + i + 8192) = byGammaData;
 	}
     }
-  else if (pSetParameters->smScanMode == SM_GRAY16
-	   || pSetParameters->smScanMode == SM_RGB48)
+  else if (pSetParameters->cmColorMode == CM_GRAY16
+	   || pSetParameters->cmColorMode == CM_RGB48)
     {
       unsigned int i, wGammaData;
       g_pGammaTable = (unsigned short *) malloc (sizeof (unsigned short) * 65536 * 3);
@@ -1140,12 +1078,12 @@ GetKeyStatus (SANE_Byte * pKey)
 	Deal with the image with auto level	
 Parameters:
 	lpSource: the data of image
-	scanMode: the scan mode
+	colorMode: the color mode
 	ScanLines: the rows of image
 	BytesPerLine: the bytes of per line
 ***********************************************************************/
 static void
-AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
+AutoLevel (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
 	   unsigned int BytesPerLine)
 {
   int ii;
@@ -1167,7 +1105,7 @@ AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
 
   DBG (DBG_FUNC, "AutoLevel: start\n");
 
-  if (scanMode != CM_RGB24ext)
+  if (colorMode != CM_RGB24ext)
     {
       return;
     }
@@ -1685,12 +1623,12 @@ QBETDetectAutoLevel (void *pDIB, unsigned int ImageWidth, unsigned int ImageHeig
 	Change the image data and deal with auto level	
 Parameters:
 	lpSource: the data of image
-	scanMode: the scan mode
+	colorMode: the color mode
 	ScanLines: the rows of image
 	BytesPerLine: the bytes of per line
 ***********************************************************************/
 static void
-QBetChange (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
+QBetChange (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
 	    unsigned int BytesPerLine)
 {
   unsigned short i, j;
@@ -1704,7 +1642,7 @@ QBetChange (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
   unsigned int ImageHeight = ScanLines;
   SANE_Byte *pbmpdata = (SANE_Byte *) lpSource;
 
-  if (scanMode != CM_RGB24ext)
+  if (colorMode != CM_RGB24ext)
     {
       return;
     }
@@ -2283,8 +2221,8 @@ sane_start (SANE_Handle handle)
        s->setpara.wLinearThreshold);
   DBG (DBG_INFO, "Sane_start:setpara ,setpara.wTargetDPI=%d\n",
        s->setpara.wTargetDPI);
-  DBG (DBG_INFO, "Sane_start:setpara ,setpara.smScanMode=%d\n",
-       s->setpara.smScanMode);
+  DBG (DBG_INFO, "Sane_start:setpara ,setpara.cmColorMode=%d\n",
+       s->setpara.cmColorMode);
   DBG (DBG_INFO, "Sane_start:setpara ,setpara.ssScanSource =%d\n",
        s->setpara.ssScanSource);
   DBG (DBG_INFO, "Sane_start:setpara ,setpara.pGammaTable =%p\n",

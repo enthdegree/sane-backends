@@ -140,22 +140,15 @@ static Scanner_Model mustek_A2nu2_model = {
 };
 
 
-static SANE_Bool SetParameters (LPSETPARAMETERS pSetParameters);
-static SANE_Bool GetParameters (LPGETPARAMETERS pGetParameters);
-static SANE_Bool StartScan (void);
-static SANE_Bool ReadScannedData (LPIMAGEROWS pImageRows);
-static SANE_Bool StopScan (void);
+static SANE_Byte * g_lpNegImageData = NULL;
+static SANE_Bool g_bIsFirstGetNegData = TRUE;
+static SANE_Bool g_bIsMallocNegData = FALSE;
+static unsigned int g_dwAlreadyGetNegLines = 0;
+
+
 static SANE_Bool IsTAConnected (void);
 static void AutoLevel (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
 		unsigned int BytesPerLine);
-static size_t max_string_size (const SANE_String_Const strings[]);
-static SANE_Status calc_parameters (Mustek_Scanner * s);
-#ifdef SANE_UNUSED
-static SANE_Bool GetKeyStatus (SANE_Byte * pKey);
-static void QBetChange (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
-		 unsigned int BytesPerLine);
-static void QBETDetectAutoLevel (void *pDIB, unsigned int ImageWidth, unsigned int ImageHeight);
-#endif
 
 
 
@@ -498,12 +491,6 @@ init_options (Mustek_Scanner * s)
   return SANE_STATUS_GOOD;
 }
 
-
-static SANE_Byte * g_lpNegImageData = NULL;
-static SANE_Bool g_bIsFirstGetNegData = TRUE;
-static SANE_Bool g_bIsMallocNegData = FALSE;
-static unsigned int g_dwAlreadyGetNegLines = 0;
-
 /**********************************************************************
 	set scan parameters
 Parameters:
@@ -569,7 +556,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
   /*4. Scan area */
   if (pSetParameters->fmArea.x1 >= pSetParameters->fmArea.x2)
     {
-      DBG (DBG_ERR, "SetParameters: x1 > x2, error\n");
+      DBG (DBG_ERR, "SetParameters: x1 >= x2, error\n");
       return FALSE;
     }
   if (pSetParameters->fmArea.y1 >= pSetParameters->fmArea.y2)
@@ -629,10 +616,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
       DBG (DBG_ERR, "SetParameters: LinearThreshold error\n");
       return FALSE;
     }
-  else
-    {
-      g_wLineartThreshold = pSetParameters->wLinearThreshold;
-    }
+  g_wLineartThreshold = pSetParameters->wLinearThreshold;
 
   /*7. Gamma table */
   if (NULL != pSetParameters->pGammaTable)
@@ -752,7 +736,7 @@ Return value:
 	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-StartScan ()
+StartScan (void)
 {
   DBG (DBG_FUNC, "StartScan: start\n");
   if (ST_Reflective == g_ScanType)
@@ -924,7 +908,7 @@ Return value:
 	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-StopScan ()
+StopScan (void)
 {
   SANE_Bool rt;
   int i;
@@ -977,11 +961,11 @@ Return value:
 	TRUE if TA is connected, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-IsTAConnected ()
+IsTAConnected (void)
 {
   SANE_Bool hasTA;
 
-  DBG (DBG_FUNC, "StopScan: start\n");
+  DBG (DBG_FUNC, "IsTAConnected: start\n");
 
   if (Asic_Open (&g_chip) != STATUS_GOOD)
     {
@@ -996,7 +980,7 @@ IsTAConnected ()
 
   Asic_Close (&g_chip);
 
-  DBG (DBG_FUNC, "StopScan: exit\n");
+  DBG (DBG_FUNC, "IsTAConnected: exit\n");
   return hasTA;
 }
 
@@ -1844,7 +1828,6 @@ sane_exit (void)
       devlist = NULL;
     }
 
-  devlist = NULL;
   DBG (DBG_FUNC, "sane_exit: exit\n");
 }
 
@@ -1856,10 +1839,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
        local_only == SANE_TRUE ? "true" : "false");
 
   if (devlist != NULL)
-    {
-      free (devlist);
-      devlist = NULL;
-    }
+    free (devlist);
 
   devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
   if (devlist == NULL)

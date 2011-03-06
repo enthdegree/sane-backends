@@ -5243,16 +5243,3 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   DBG (DBG_ASIC, "Asic_SetCalibrate: Exit\n");
   return status;
 }
-
-
-static STATUS
-Asic_SetAFEGainOffset (PAsic chip)
-{
-  STATUS status = STATUS_GOOD;
-  DBG (DBG_ASIC, "Asic_SetAFEGainOffset:Enter\n");
-
-  status = SetAFEGainOffset (chip);
-
-  DBG (DBG_ASIC, "Asic_SetAFEGainOffset: Exit\n");
-  return status;
-}

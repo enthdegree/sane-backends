@@ -641,7 +641,7 @@ Reflective_AdjustAD ()
   nTimesOfCal = 0;
 
 #ifdef DEBUG_SAVE_IMAGE
-  Asic_SetAFEGainOffset (&g_chip);
+  SetAFEGainOffset (&g_chip);
   Asic_ScanStart (&g_chip);
   Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
   Asic_ScanStop (&g_chip);
@@ -666,7 +666,7 @@ Reflective_AdjustAD ()
     {
       DBG (DBG_FUNC,
 	   "Reflective_AdjustAD: run in first adjust offset do-while\n");
-      Asic_SetAFEGainOffset (&g_chip);
+      SetAFEGainOffset (&g_chip);
       Asic_ScanStart (&g_chip);
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
@@ -783,7 +783,7 @@ Reflective_AdjustAD ()
   nTimesOfCal = 0;
   do
     {
-      Asic_SetAFEGainOffset (&g_chip);
+      SetAFEGainOffset (&g_chip);
       Asic_ScanStart (&g_chip);
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
@@ -985,7 +985,7 @@ Reflective_AdjustAD ()
     {
       DBG (DBG_FUNC,
 	   "Reflective_AdjustAD: run in second adjust offset do-while\n");
-      Asic_SetAFEGainOffset (&g_chip);
+      SetAFEGainOffset (&g_chip);
       Asic_ScanStart (&g_chip);
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
@@ -1148,7 +1148,7 @@ Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
   Asic_SetMotorType (&g_chip, TRUE, TRUE);
   Asic_SetCalibrate (&g_chip, 8, wXResolution, wYResolution, 0, 0, wCalWidth,
 		     wCalHeight, FALSE);
-  Asic_SetAFEGainOffset (&g_chip);
+  SetAFEGainOffset (&g_chip);
   if (Asic_ScanStart (&g_chip) != STATUS_GOOD)
     {
       DBG (DBG_FUNC, "Reflective_FindTopLeft: Asic_ScanStart return error\n");
@@ -1395,7 +1395,7 @@ Reflective_LineCalibration16Bits ()
     }
 
   Asic_SetMotorType (&g_chip, TRUE, TRUE);
-  Asic_SetAFEGainOffset (&g_chip);
+  SetAFEGainOffset (&g_chip);
   status =
     Asic_SetCalibrate (&g_chip, 48, g_XDpi, g_YDpi, g_X, 0, wCalWidth,
 		       wCalHeight, TRUE);

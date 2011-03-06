@@ -1312,8 +1312,6 @@ static STATUS Asic_WaitUnitReady (PAsic chip);
 static STATUS Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 				 unsigned short wYResolution, unsigned short wX, unsigned short wY,
 				 unsigned short wWidth, unsigned short wLength, SANE_Bool isShading);
-/* Set AFE  Parameter to Scanner */
-static STATUS Asic_SetAFEGainOffset (PAsic chip);
 
 /* ---------------------- asic motor defines -------------------------- */
 

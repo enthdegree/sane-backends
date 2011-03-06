@@ -151,9 +151,6 @@ static Scanner_Model mustek_A2nu2_model = {
 
 /* Forward declarations */
 
-static SANE_Bool GetDeviceStatus (void);
-static SANE_Bool PowerControl (SANE_Bool isLampOn, SANE_Bool isTaLampOn);
-static SANE_Bool CarriageHome (void);
 static SANE_Bool SetParameters (LPSETPARAMETERS pSetParameters);
 static SANE_Bool GetParameters (LPGETPARAMETERS pGetParameters);
 static SANE_Bool StartScan (void);
@@ -525,64 +522,6 @@ static SANE_Byte * g_lpNegImageData = NULL;
 static SANE_Bool g_bIsFirstGetNegData = TRUE;
 static SANE_Bool g_bIsMallocNegData = FALSE;
 static unsigned int g_dwAlreadyGetNegLines = 0;
-
-/**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
-	Check the device connect status
-Parameters:
-	none
-Return value: 
-	if the device is connected
-	return TRUE
-	else 
-	return FALSE
-***********************************************************************/
-static SANE_Bool
-GetDeviceStatus ()
-{
-  DBG (DBG_FUNC, "GetDeviceStatus: start\n");
-  return MustScanner_GetScannerState ();
-}
-
-/**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
-	Turn the lamp on or off
-Parameters:
-	isLampOn: turn the lamp on or off
-	isTALampOn: turn the TA lamp on or off
-Return value: 
-	if operation success
-	return TRUE
-	else
-	return FALSE
-***********************************************************************/
-static SANE_Bool
-PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
-{
-  DBG (DBG_FUNC, "PowerControl: start\n");
-  return MustScanner_PowerControl (isLampOn, isTALampOn);
-}
-
-/**********************************************************************
-Author: Jack            Date: 2005/05/13
-Routine Description: 
-	Turn the carriage home
-Parameters:
-	none
-Return value: 
-	if the operation success
-	return TRUE
-	else
-	return FALSE
-***********************************************************************/
-static SANE_Bool
-CarriageHome ()
-{
-  DBG (DBG_FUNC, "CarriageHome: start\n");
-  return MustScanner_BackHome ();
-}
 
 #ifdef SANE_UNUSED
 /**********************************************************************
@@ -2068,7 +2007,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   dev_num = 0;
   /* HOLD: This is ugly (only one scanner!) and should go to sane_init */
-  if (GetDeviceStatus ())
+  if (MustScanner_GetScannerState ())
     {
       SANE_Device *sane_device;
 
@@ -2098,11 +2037,11 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     {
       return SANE_STATUS_INVAL;
     }
-  if (!PowerControl (SANE_FALSE, SANE_FALSE))
+  if (!MustScanner_PowerControl (SANE_FALSE, SANE_FALSE))
     {
       return SANE_STATUS_INVAL;
     }
-  if (!CarriageHome ())
+  if (!MustScanner_BackHome ())
     {
       return SANE_STATUS_INVAL;
     }
@@ -2135,9 +2074,9 @@ sane_close (SANE_Handle handle)
   Mustek_Scanner *s = handle;
   DBG (DBG_FUNC, "sane_close: start\n");
 
-  PowerControl (SANE_FALSE, SANE_FALSE);
+  MustScanner_PowerControl (SANE_FALSE, SANE_FALSE);
 
-  CarriageHome ();
+  MustScanner_BackHome ();
 
   if (s->Scan_data_buf != NULL)
     free (s->Scan_data_buf);
@@ -2293,7 +2232,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->val[option].s = strdup (val);
 	      if (strcmp (s->val[option].s, "Reflective") == 0)
 		{
-		  PowerControl (SANE_TRUE, SANE_FALSE);
+		  MustScanner_PowerControl (SANE_TRUE, SANE_FALSE);
 		  s->opt[OPT_MODE].size = max_string_size (mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = mode_list;
 		  s->val[OPT_MODE].s = strdup ("Color24");
@@ -2302,7 +2241,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		}
 	      else if (0 == strcmp (s->val[option].s, "Negative"))
 		{
-		  PowerControl (SANE_FALSE, SANE_TRUE);
+		  MustScanner_PowerControl (SANE_FALSE, SANE_TRUE);
 		  s->opt[OPT_MODE].size =
 		    max_string_size (negative_mode_list);
 		  s->opt[OPT_MODE].constraint.string_list =
@@ -2313,7 +2252,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		}
 	      else if (0 == strcmp (s->val[option].s, "Positive"))
 		{
-		  PowerControl (SANE_FALSE, SANE_TRUE);
+		  MustScanner_PowerControl (SANE_FALSE, SANE_TRUE);
 		  s->opt[OPT_MODE].size = max_string_size (mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = mode_list;
 		  s->val[OPT_MODE].s = strdup ("Color24");
@@ -2621,7 +2560,7 @@ sane_cancel (SANE_Handle handle)
 
       StopScan ();
 
-      CarriageHome ();
+      MustScanner_BackHome ();
       for (i = 0; i < 20; i++)
 	{
 	  if (s->bIsReading == SANE_FALSE)

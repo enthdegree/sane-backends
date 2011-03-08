@@ -48,14 +48,12 @@
 #include <pthread.h>		/* HOLD */
 #include <stdlib.h>
 
-/* local header files */
 #include "mustek_usb2_asic.c"
 
 #include "mustek_usb2_high.h"
 
-/*global variable HOLD: these should go to scanner structure */
+/* HOLD: these global variables should go to scanner structure */
 
-/*base type*/
 static SANE_Bool g_bOpened;
 static SANE_Bool g_bPrepared;
 static SANE_Bool g_isCanceled;
@@ -75,7 +73,7 @@ static unsigned short g_XDpi;
 static unsigned short g_YDpi;
 static unsigned short g_SWWidth;
 static unsigned short g_SWHeight;
-static unsigned short g_wPixelDistance;		/*even & odd sensor problem */
+static unsigned short g_wPixelDistance;		/* even & odd sensor problem */
 static unsigned short g_wLineDistance;
 static unsigned short g_wScanLinesPerBlock;
 static unsigned short g_wLineartThreshold;
@@ -95,7 +93,6 @@ static unsigned short *g_pGammaTable;
 
 static pthread_t g_threadid_readimage;
 
-/*user define type*/
 static COLORMODE g_ScanMode;
 static TARGETIMAGE g_tiTarget;
 static SCANTYPE g_ScanType = ST_Reflective;
@@ -114,7 +111,7 @@ static unsigned short g_wStartPosition;
 static pthread_mutex_t g_scannedLinesMutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t g_readyLinesMutex = PTHREAD_MUTEX_INITIALIZER;
 
-/*for modify the last point*/
+/* for modifying the last point */
 static SANE_Byte * g_lpBefLineImageData = NULL;
 static SANE_Bool g_bIsFirstReadBefData = TRUE;
 static unsigned int g_dwAlreadyGetLines = 0;
@@ -128,15 +125,13 @@ static void ModifyLinePoint (SANE_Byte * lpImageData,
 			     SANE_Byte * lpImageDataBefore,
 			     unsigned int dwBytesPerLine,
 			     unsigned int dwLinesCount,
-			     unsigned short wPixDistance, unsigned short wModPtCount);
+			     unsigned short wPixDistance,
+			     unsigned short wModPtCount);
 
 #include "mustek_usb2_reflective.c"
 #include "mustek_usb2_transparent.c"
 
-/**********************************************************************
-Return value: 
-	TRUE if initialize the scanner success, FALSE otherwise
-***********************************************************************/
+
 static SANE_Bool
 MustScanner_Init (void)
 {
@@ -178,11 +173,6 @@ MustScanner_Init (void)
   return TRUE;
 }
 
-/**********************************************************************
-	check the scanner connect status
-Return value: 
-	TRUE if scanner's status is OK, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_GetScannerState (void)
 {
@@ -196,14 +186,6 @@ MustScanner_GetScannerState (void)
   return TRUE;
 }
 
-/**********************************************************************
-	Turn the lamp on or off
-Parameters:
-	isLampOn: turn the lamp on or off
-	isTALampOn: turn the TA lamp on or off
-Return value: 
-	TRUE if operation success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 {
@@ -246,11 +228,6 @@ MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
   return TRUE;
 }
 
-/**********************************************************************
-	Turn the carriage home
-Return value: 
-	TRUE if the operation success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_BackHome (void)
 {
@@ -282,13 +259,6 @@ MustScanner_BackHome (void)
   return TRUE;
 }
 
-/**********************************************************************
-	prepare the scan image
-Parameters:
-	ssScanSource: the scan source
-Return value: 
-	TRUE if operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_Prepare (SCANSOURCE ssScanSource)
 {
@@ -363,19 +333,9 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
   return TRUE;
 }
 
-/**********************************************************************
-	Filter the data
-Parameters:
-	pSort: the sort data
-	TotalCount: the total count 
-	LowCount: the low count
-	HighCount: the upper count
-Return value: 
-	the data of Filter 	
-***********************************************************************/
 static unsigned short
-MustScanner_FiltLower (unsigned short * pSort, unsigned short TotalCount, unsigned short LowCount,
-		       unsigned short HighCount)
+MustScanner_FiltLower (unsigned short * pSort, unsigned short TotalCount,
+		       unsigned short LowCount, unsigned short HighCount)
 {
   unsigned short Bound = TotalCount - 1;
   unsigned short LeftCount = HighCount - LowCount;
@@ -402,15 +362,6 @@ MustScanner_FiltLower (unsigned short * pSort, unsigned short TotalCount, unsign
   return (unsigned short) (Sum / LeftCount);
 }
 
-/**********************************************************************
-	Repair line when single CCD and color is 48bit
-Parameters:
-	lpLine: point to image be repaired
-	isOrderInvert: RGB or BGR
-	wLinesCount: how many line be repaired
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 			     unsigned short * wLinesCount)
@@ -425,7 +376,7 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   unsigned short wBTempData;
   unsigned short i;
 
-  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: call in \n");
+  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: call in\n");
 
   g_isCanceled = FALSE;
   g_isScanning = TRUE;
@@ -582,7 +533,7 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: thread exit\n");
 	      break;
 	    }
-	}			/*end for */
+	}			/* end for */
     }
 
   *wLinesCount = TotalXferLines;
@@ -593,15 +544,6 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   return TRUE;
 }
 
-/**********************************************************************
-	Repair line when double CCD and color is 48bit
-Parameters:
-	lpLine: point to image be repaired
-	isOrderInvert: RGB or BGR
-	wLinesCount: how many line be repaired
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 				    unsigned short * wLinesCount)
@@ -1028,20 +970,11 @@ MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   *wLinesCount = TotalXferLines;
   g_isScanning = FALSE;
 
-  DBG (DBG_FUNC,
-       "MustScanner_GetRgb48BitLine1200DPI: leave MustScanner_GetRgb48BitLine1200DPI\n");
+  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine1200DPI: " \
+                 "leave MustScanner_GetRgb48BitLine1200DPI\n");
   return TRUE;
 }
 
-/**********************************************************************
-	Repair line when single CCD and color is 24bit
-Parameters:
-	lpLine: point to image be repaired
-	isOrderInvert: RGB or BGR
-	wLinesCount: how many line be repaired
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 			     unsigned short * wLinesCount)
@@ -1132,9 +1065,12 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		  byBlue = (byBlue + bNextPixel) >> 1;
 
 #ifdef ENABLE_GAMMA
-		  tempR = (unsigned short) ((byRed << 4) | QBET4 (byBlue, byGreen));
-		  tempG = (unsigned short) ((byGreen << 4) | QBET4 (byRed, byBlue));
-		  tempB = (unsigned short) ((byBlue << 4) | QBET4 (byGreen, byRed));
+		  tempR = (unsigned short) ((byRed << 4) |
+		    QBET4 (byBlue, byGreen));
+		  tempG = (unsigned short) ((byGreen << 4) |
+		    QBET4 (byRed, byBlue));
+		  tempB = (unsigned short) ((byBlue << 4) |
+		    QBET4 (byGreen, byRed));
 
 		  *(lpLine + i * 3 + 0) =
 		    (unsigned char) (*(g_pGammaTable + tempR));
@@ -1154,11 +1090,11 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      lpLine += g_SWBytesPerRow;
 	      AddReadyLines ();
 
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine: g_dwTotalTotalXferLines=%d,g_SWHeight=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: " \
+	           "g_dwTotalTotalXferLines=%d,g_SWHeight=%d\n",
 		   g_dwTotalTotalXferLines, g_SWHeight);
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine: g_SWBytesPerRow=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: " \
+	           "g_SWBytesPerRow=%d\n",
 		   g_SWBytesPerRow);
 	    }
 	  if (g_isCanceled)
@@ -1202,7 +1138,8 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		  byRed =
 		    *(g_lpReadImageHead + wRLinePos * g_BytesPerRow + i * 3 +
 		      0);
-		  bNextPixel = *(g_lpReadImageHead + wRLinePos * g_BytesPerRow + (i + 1) * 3 + 0);	/*R-channel */
+		  bNextPixel = *(g_lpReadImageHead + wRLinePos * g_BytesPerRow +
+		    (i + 1) * 3 + 0);	/* R channel */
 		  byRed = (byRed + bNextPixel) >> 1;
 
 		  DBG (DBG_FUNC,
@@ -1211,7 +1148,8 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		  byGreen =
 		    *(g_lpReadImageHead + wGLinePos * g_BytesPerRow + i * 3 +
 		      1);
-		  bNextPixel = *(g_lpReadImageHead + wGLinePos * g_BytesPerRow + (i + 1) * 3 + 1);	/*G-channel */
+		  bNextPixel = *(g_lpReadImageHead + wGLinePos * g_BytesPerRow +
+		    (i + 1) * 3 + 1);	/* G channel */
 		  byGreen = (byGreen + bNextPixel) >> 1;
 
 		  DBG (DBG_FUNC,
@@ -1220,7 +1158,8 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		  byBlue =
 		    *(g_lpReadImageHead + wBLinePos * g_BytesPerRow + i * 3 +
 		      2);
-		  bNextPixel = *(g_lpReadImageHead + wBLinePos * g_BytesPerRow + (i + 1) * 3 + 2);	/*B-channel */
+		  bNextPixel = *(g_lpReadImageHead + wBLinePos * g_BytesPerRow +
+		    (i + 1) * 3 + 2);	/* B channel */
 		  byBlue = (byBlue + bNextPixel) >> 1;
 
 
@@ -1255,11 +1194,11 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      lpLine += g_SWBytesPerRow;
 	      AddReadyLines ();
 
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine: g_dwTotalTotalXferLines=%d,g_SWHeight=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: " \
+	           "g_dwTotalTotalXferLines=%d,g_SWHeight=%d\n",
 		   g_dwTotalTotalXferLines, g_SWHeight);
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine: g_SWBytesPerRow=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: " \
+	           "g_SWBytesPerRow=%d\n",
 		   g_SWBytesPerRow);
 	    }
 	  if (g_isCanceled)
@@ -1270,7 +1209,7 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
 	      break;
 	    }
-	}			/*end for */
+	}			/* end for */
     }
 
   *wLinesCount = TotalXferLines;
@@ -1281,15 +1220,6 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   return TRUE;
 }
 
-/**********************************************************************
-	Repair line when double CCD and color is 24bit
-Parameters:
-	lpLine: point to image be repaired
-	isOrderInvert: RGB or BGR
-	wLinesCount: how many line be repaired
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 				    unsigned short * wLinesCount)
@@ -1332,11 +1262,11 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
 	    {
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine1200DPI: g_dwTotalTotalXferLines=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
+	           "g_dwTotalTotalXferLines=%d\n",
 		   g_dwTotalTotalXferLines);
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine1200DPI: g_Height=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
+	           "g_Height=%d\n",
 		   g_Height);
 
 	      pthread_cancel (g_threadid_readimage);
@@ -1395,19 +1325,22 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		      byRed =
 			*(g_lpReadImageHead + wRLinePosOdd * g_BytesPerRow +
 			  i * 3 + 0);
-		      bNextPixel = *(g_lpReadImageHead + wRLinePosEven * g_BytesPerRow + (i + 1) * 3 + 0);	/*R-channel */
+		      bNextPixel = *(g_lpReadImageHead + wRLinePosEven *
+		        g_BytesPerRow + (i + 1) * 3 + 0);	/* R channel */
 		      byRed = (byRed + bNextPixel) >> 1;
 
 		      byGreen =
 			*(g_lpReadImageHead + wGLinePosOdd * g_BytesPerRow +
 			  i * 3 + 1);
-		      bNextPixel = *(g_lpReadImageHead + wGLinePosEven * g_BytesPerRow + (i + 1) * 3 + 1);	/*G-channel */
+		      bNextPixel = *(g_lpReadImageHead + wGLinePosEven *
+		        g_BytesPerRow + (i + 1) * 3 + 1);	/* G channel */
 		      byGreen = (byGreen + bNextPixel) >> 1;
 
 		      byBlue =
 			*(g_lpReadImageHead + wBLinePosOdd * g_BytesPerRow +
 			  i * 3 + 2);
-		      bNextPixel = *(g_lpReadImageHead + wBLinePosEven * g_BytesPerRow + (i + 1) * 3 + 2);	/*B-channel */
+		      bNextPixel = *(g_lpReadImageHead + wBLinePosEven *
+		        g_BytesPerRow + (i + 1) * 3 + 2);	/* B channel */
 		      byBlue = (byBlue + bNextPixel) >> 1;
 #ifdef ENABLE_GAMMA
 		      *(lpLine + i * 3 + 0) =
@@ -1491,11 +1424,11 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      lpLine += g_SWBytesPerRow;
 	      AddReadyLines ();
 
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine1200DPI: g_dwTotalTotalXferLines=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
+	           "g_dwTotalTotalXferLines=%d\n",
 		   g_dwTotalTotalXferLines);
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine1200DPI: g_Height=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
+	           "g_Height=%d\n",
 		   g_Height);
 
 	    }
@@ -1518,11 +1451,11 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
 	    {
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine1200DPI: g_dwTotalTotalXferLines=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
+	           "g_dwTotalTotalXferLines=%d\n",
 		   g_dwTotalTotalXferLines);
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine1200DPI: g_Height=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
+	           "g_Height=%d\n",
 		   g_Height);
 
 	      pthread_cancel (g_threadid_readimage);
@@ -1680,11 +1613,11 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      lpLine += g_SWBytesPerRow;
 	      AddReadyLines ();
 
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine1200DPI: g_dwTotalTotalXferLines=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
+	           "g_dwTotalTotalXferLines=%d\n",
 		   g_dwTotalTotalXferLines);
-	      DBG (DBG_FUNC,
-		   "MustScanner_GetRgb24BitLine1200DPI: g_Height=%d\n",
+	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
+	           "g_Height=%d\n",
 		   g_Height);
 
 	    }
@@ -1704,20 +1637,11 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   *wLinesCount = TotalXferLines;
   g_isScanning = FALSE;
 
-  DBG (DBG_FUNC,
-       "MustScanner_GetRgb24BitLine1200DPI: leave MustScanner_GetRgb24BitLine1200DPI\n");
+  DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
+    "leave MustScanner_GetRgb24BitLine1200DPI\n");
   return TRUE;
 }
 
-/**********************************************************************
-	Repair line when single CCD and color is 16bit
-Parameters:
-	lpLine: point to image be repaired
-	isOrderInvert: RGB or BGR
-	wLinesCount: how many line be repaired
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 			      unsigned short * wLinesCount)
@@ -1799,17 +1723,9 @@ MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   return TRUE;
 }
 
-/**********************************************************************
-	Repair line when double CCD and color is 16bit
-Parameters:
-	lpLine: point to image be repaired
-	isOrderInvert: RGB or BGR
-	wLinesCount: how many line be repaired
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
-MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
+				     SANE_Bool isOrderInvert,
 				     unsigned short * wLinesCount)
 {
   unsigned short wWantedTotalLines;
@@ -1940,7 +1856,7 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert
   *wLinesCount = TotalXferLines;
   g_isScanning = FALSE;
 
-  /*for modify the last point */
+  /* modify the last point */
   if (g_bIsFirstReadBefData)
     {
       g_lpBefLineImageData = (SANE_Byte *) malloc (g_SWBytesPerRow);
@@ -1970,20 +1886,11 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert
       g_bIsFirstReadBefData = TRUE;
     }
 
-  DBG (DBG_FUNC,
-       "MustScanner_GetMono16BitLine1200DPI: leave MustScanner_GetMono16BitLine1200DPI\n");
+  DBG (DBG_FUNC, "MustScanner_GetMono16BitLine1200DPI: " \
+    "leave MustScanner_GetMono16BitLine1200DPI\n");
   return TRUE;
 }
 
-/**********************************************************************
-	Repair line when single CCD and color is 8bit
-Parameters:
-	lpLine: point to image be repaired
-	isOrderInvert: RGB or BGR
-	wLinesCount: how many line be repaired
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 			     unsigned short * wLinesCount)
@@ -2061,15 +1968,6 @@ MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   return TRUE;
 }
 
-/**********************************************************************
-	Repair line when double CCD and color is 8bit
-Parameters:
-	lpLine: point to image be repaired
-	isOrderInvert: RGB or BGR
-	wLinesCount: how many line be repaired
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 				    unsigned short * wLinesCount)
@@ -2184,7 +2082,7 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   *wLinesCount = TotalXferLines;
   g_isScanning = FALSE;
 
-  /*for modify the last point */
+  /* modify the last point */
   if (g_bIsFirstReadBefData)
     {
       g_lpBefLineImageData = (SANE_Byte *) malloc (g_SWBytesPerRow);
@@ -2214,20 +2112,11 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
       g_bIsFirstReadBefData = TRUE;
     }
 
-  DBG (DBG_FUNC,
-       "MustScanner_GetMono8BitLine1200DPI: leave MustScanner_GetMono8BitLine1200DPI\n");
+  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: " \
+    "leave MustScanner_GetMono8BitLine1200DPI\n");
   return TRUE;
 }
 
-/**********************************************************************
-	Repair line when single CCD and color is 1bit
-Parameters:
-	lpLine: point to image be repaired
-	isOrderInvert: RGB or BGR
-	wLinesCount: how many line be repaired
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono1BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 			     unsigned short * wLinesCount)
@@ -2305,15 +2194,6 @@ MustScanner_GetMono1BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   return TRUE;
 }
 
-/**********************************************************************
-	Repair line when double CCD and color is 1bit
-Parameters:
-	lpLine: point to image be repaired
-	isOrderInvert: RGB or BGR
-	wLinesCount: how many line be repaired
-Return value: 
-	TRUE if the operation is success, FALSE otherwise
-***********************************************************************/
 static SANE_Bool
 MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 				    unsigned short * wLinesCount)
@@ -2407,21 +2287,16 @@ MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
 	  break;
 	}
-    }				/*end for */
+    }				/* end for */
 
   *wLinesCount = TotalXferLines;
   g_isScanning = FALSE;
 
-  DBG (DBG_FUNC,
-       "MustScanner_GetMono1BitLine1200DPI: leave MustScanner_GetMono1BitLine1200DPI\n");
+  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: " \
+    "leave MustScanner_GetMono1BitLine1200DPI\n");
   return TRUE;
 }
 
-/**********************************************************************
-	prepare calculate Max and Min value	
-Parameters:
-	wResolution: the scan resolution
-***********************************************************************/
 static void
 MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
 {
@@ -2435,7 +2310,8 @@ MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
 	{
 	  g_nPowerNum = 3;
 	  g_nSecLength = 8;	/* 2^nPowerNum */
-	  g_nDarkSecLength = g_wDarkCalWidth / 2;	/* Dark has at least 2 sections */
+	  /* Dark has at least 2 sections */
+	  g_nDarkSecLength = g_wDarkCalWidth / 2;
 	}
       else
 	{
@@ -2447,7 +2323,7 @@ MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
   else
     {
       g_nPowerNum = 6;
-      g_nSecLength = 64;	/*2^nPowerNum */
+      g_nSecLength = 64;	/* 2^nPowerNum */
       g_wCalWidth = 10240;
       g_nDarkSecLength = g_wDarkCalWidth / 5;
     }
@@ -2461,24 +2337,17 @@ MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
   g_wCalWidth -= g_wStartPosition;
 
 
-  /* start of find Max value */
+  /* start of find max value */
   g_nSecNum = (int) (g_wCalWidth / g_nSecLength);
 
-  /* start of fin min value */
+  /* start of find min value */
   g_nDarkSecNum = (int) (g_wDarkCalWidth / g_nDarkSecLength);
 }
 
-/**********************************************************************
-	calculate the Max and Min value
-Parameters:
-	pBuffer: the image data
-	lpMaxValue: the max value
-	lpMinValue: the min value
-	wResolution: the scan resolution
-***********************************************************************/
 static void
 MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
-			     unsigned short * lpMinValue, unsigned short wResolution)
+			     unsigned short * lpMinValue,
+			     unsigned short wResolution)
 {
   unsigned short *wSecData = NULL, *wDarkSecData = NULL;
   int i, j;
@@ -2512,7 +2381,8 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
 
   free (wSecData);
 
-  wDarkSecData = (unsigned short *) malloc (sizeof (unsigned short) * g_nDarkSecNum);
+  wDarkSecData = (unsigned short *) malloc (sizeof (unsigned short) *
+    g_nDarkSecNum);
   if (wDarkSecData == NULL)
     {
       return;
@@ -2541,9 +2411,6 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
 }
 
 
-/**********************************************************************
-	Read the data from scanner
-***********************************************************************/
 static void *
 MustScanner_ReadDataFromScanner (void * dummy)
 {
@@ -2581,13 +2448,13 @@ MustScanner_ReadDataFromScanner (void * dummy)
 	  if (STATUS_GOOD !=
 	      Asic_ReadImage (&g_chip, lpReadImage, wScanLinesThisBlock))
 	    {
-	      DBG (DBG_FUNC,
-		   "MustScanner_ReadDataFromScanner:Asic_ReadImage return error\n");
-	      DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner:thread exit\n");
+	      DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: Asic_ReadImage" \
+	        " return error\n");
+	      DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: thread exit\n");
 	      return NULL;
 	    }
 
-	  /*has read in memroy Buffer */
+	  /* has read in memory buffer */
 	  wReadImageLines += wScanLinesThisBlock;
 
 	  AddScannedLines (wScanLinesThisBlock);
@@ -2596,7 +2463,7 @@ MustScanner_ReadDataFromScanner (void * dummy)
 
 	  lpReadImage += wScanLinesThisBlock * g_BytesPerRow;
 
-	  /*Buffer is full */
+	  /* buffer is full */
 	  if (wReadImageLines >= wMaxScanLines)
 	    {
 	      lpReadImage = g_lpReadImageHead;
@@ -2621,14 +2488,11 @@ MustScanner_ReadDataFromScanner (void * dummy)
 
   DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: Read image ok\n");
   DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: thread exit\n");
-  DBG (DBG_FUNC,
-       "MustScanner_ReadDataFromScanner: leave MustScanner_ReadDataFromScanner\n");
+  DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: " \
+    "leave MustScanner_ReadDataFromScanner\n");
   return NULL;
 }
 
-/**********************************************************************
-	get the lines of scanned
-***********************************************************************/
 static unsigned int
 GetScannedLines (void)
 {
@@ -2641,9 +2505,6 @@ GetScannedLines (void)
   return dwScannedLines;
 }
 
-/**********************************************************************
-	get lines which pass to superstratum
-***********************************************************************/
 static unsigned int
 GetReadyLines (void)
 {
@@ -2656,11 +2517,6 @@ GetReadyLines (void)
   return dwReadyLines;
 }
 
-/**********************************************************************
-	add the scanned total lines
-Parameters:
-	wAddLines: add the lines
-***********************************************************************/
 static void
 AddScannedLines (unsigned short wAddLines)
 {
@@ -2671,9 +2527,6 @@ AddScannedLines (unsigned short wAddLines)
   pthread_mutex_unlock (&g_scannedLinesMutex);
 }
 
-/**********************************************************************
-	add the ready lines
-***********************************************************************/
 static void
 AddReadyLines (void)
 {
@@ -2682,21 +2535,10 @@ AddReadyLines (void)
   pthread_mutex_unlock (&g_readyLinesMutex);
 }
 
-/**********************************************************************
-	modify the point
-Parameters:
-	lpImageData: the data of image
-	lpImageDataBefore: the data of before line image
-	dwBytesPerLine: the bytes of per line
-	dwLinesCount: the line count
-	wPixDistance: the pixel distance
-	wModPtCount: the modify point count
-***********************************************************************/
 static void
-ModifyLinePoint (SANE_Byte * lpImageData,
-		 SANE_Byte * lpImageDataBefore,
-		 unsigned int dwBytesPerLine,
-		 unsigned int dwLinesCount, unsigned short wPixDistance, unsigned short wModPtCount)
+ModifyLinePoint (SANE_Byte * lpImageData, SANE_Byte * lpImageDataBefore,
+		 unsigned int dwBytesPerLine, unsigned int dwLinesCount,
+		 unsigned short wPixDistance, unsigned short wModPtCount)
 {
   unsigned short i = 0;
   unsigned short j = 0;
@@ -2706,11 +2548,11 @@ ModifyLinePoint (SANE_Byte * lpImageData,
     {
       for (j = 0; j < wPixDistance; j++)
 	{
-	  /*modify the first line */
+	  /* modify the first line */
 	  *(lpImageData + (dwWidth - i) * wPixDistance + j) =
 	    (*(lpImageData + (dwWidth - i - 1) * wPixDistance + j) +
 	     *(lpImageDataBefore + (dwWidth - i) * wPixDistance + j)) / 2;
-	  /*modify other lines */
+	  /* modify other lines */
 	  for (wLines = 1; wLines < dwLinesCount; wLines++)
 	    {
 	      unsigned int dwBytesBefor = (wLines - 1) * dwBytesPerLine;
@@ -2726,14 +2568,6 @@ ModifyLinePoint (SANE_Byte * lpImageData,
     }
 }
 
-/**********************************************************************
-	Modifiy the image data	
-Parameters:
-	A: the input the image data
-	B: the input the iamge data
-Return value:
-	the modified data
-***********************************************************************/
 static SANE_Byte
 QBET4 (SANE_Byte A, SANE_Byte B)
 {

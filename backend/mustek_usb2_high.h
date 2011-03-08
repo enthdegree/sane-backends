@@ -48,15 +48,11 @@
 #ifndef MUSTEK_USB2_HIGH_H
 #define MUSTEK_USB2_HIGH_H
 
-/* const use in structures*/
-
-/*scan source*/
 typedef SANE_Byte SCANSOURCE;
 #define SS_Reflective	0x00
 #define SS_Positive		0x01
 #define SS_Negative		0x02
 
-/*RGB order*/
 typedef unsigned short RGBORDER;
 #define RO_RGB 0x00
 #define RO_BGR 0x01
@@ -78,7 +74,6 @@ typedef enum
   CM_GRAY8ext = 20
 } COLORMODE;
 
-/* structures use in parameters of export function*/
 
 typedef struct
 {
@@ -99,7 +94,7 @@ typedef struct
   FRAME fmArea;
   unsigned short wTargetDPI;
   COLORMODE cmColorMode;
-  unsigned short wLinearThreshold;	/*threshold for Line art mode */
+  unsigned short wLinearThreshold;	/* threshold for line art mode */
   SCANSOURCE ssScanSource;
   unsigned short * pGammaTable;
 } SETPARAMETERS, *LPSETPARAMETERS;
@@ -137,31 +132,29 @@ typedef struct
 } SUGGESTSETTING, *PSUGGESTSETTING;
 
 
-/*Macro define*/
-
-#define R_GAIN							0
+#define R_GAIN                          0
 #define G_GAIN                          0
 #define B_GAIN                          0
 #define R_DIRECTION                     0
 #define G_DIRECTION                     0
 #define B_DIRECTION                     0
 
-/* use for adjust AD's offset*/
+/* used for adjusting the AD offset */
 
-/* for Reflective*/
-#define REFL_WHITE_MAX_LEVEL			220
-#define REFL_WHITE_MIN_LEVEL			210
+/* for Reflective */
+#define REFL_WHITE_MAX_LEVEL            220
+#define REFL_WHITE_MIN_LEVEL            210
 #define REFL_MAX_LEVEL_RANGE            210
 #define REFL_MIN_LEVEL_RANGE            190
 
-/*for Transparent*/
+/* for Transparent */
 #define TRAN_WHITE_MAX_LEVEL            220
 #define TRAN_WHITE_MIN_LEVEL            210
 #define TRAN_MAX_LEVEL_RANGE            210
 #define TRAN_MIN_LEVEL_RANGE            190
 
 
-/* in 600 dpi*/
+/* 600 dpi */
 #define FIND_LEFT_TOP_WIDTH_IN_DIP          512
 #define FIND_LEFT_TOP_HEIGHT_IN_DIP         180
 #define FIND_LEFT_TOP_CALIBRATE_RESOLUTION  600
@@ -169,56 +162,58 @@ typedef struct
 #define TA_FIND_LEFT_TOP_WIDTH_IN_DIP       2668
 #define TA_FIND_LEFT_TOP_HEIGHT_IN_DIP      300
 
-/*must be 8x*/
-#define LINE_CALIBRATION__16BITS_HEIGHT				40
+/* must be a multiple of 8 */
+#define LINE_CALIBRATION__16BITS_HEIGHT     40
 
-/* the length from block bar to start Calibration position*/
+/* the length from block bar to start calibration position */
 #define BEFORE_SCANNING_MOTOR_FORWARD_PIXEL 40
 
-#define TRAN_START_POS					4550
+#define TRAN_START_POS                      4550
 
-/* in 300dpi*/
-#define MAX_SCANNING_WIDTH               2550	/*just for A4 */
-#define MAX_SCANNING_HEIGHT              3540	/*just for A4 */
+/* 300 dpi */
+#define MAX_SCANNING_WIDTH                  2550	/* just for A4 */
+#define MAX_SCANNING_HEIGHT                 3540	/* just for A4 */
 
-/*enable gamma*/
 #define ENABLE_GAMMA
-
-/*save debug image*/
 /*#define DEBUG_SAVE_IMAGE*/
 
 
 static SANE_Bool MustScanner_Init (void);
 static SANE_Bool MustScanner_GetScannerState (void);
-static SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
+static SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn,
+					   SANE_Bool isTALampOn);
 static SANE_Bool MustScanner_BackHome (void);
 static SANE_Bool MustScanner_Prepare (SCANSOURCE ssScanSource);
-static unsigned short MustScanner_FiltLower (unsigned short * pSort, unsigned short TotalCount, unsigned short LowCount,
-				   unsigned short HighCount);
-static SANE_Bool MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-					 unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-						unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-					 unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-						unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-					  unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-						 unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-					 unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-						unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono1BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-					 unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-						unsigned short * wLinesCount);
+static unsigned short MustScanner_FiltLower (unsigned short * pSort,
+					     unsigned short TotalCount,
+					     unsigned short LowCount,
+					     unsigned short HighCount);
+static SANE_Bool MustScanner_GetRgb48BitLine (SANE_Byte * lpLine,
+	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine,
+	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetRgb24BitLine (SANE_Byte * lpLine,
+	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine,
+	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono16BitLine (SANE_Byte * lpLine,
+	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
+	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono8BitLine (SANE_Byte * lpLine,
+	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
+	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono1BitLine (SANE_Byte * lpLine,
+	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
+static SANE_Bool MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
+	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
 static void *MustScanner_ReadDataFromScanner (void * dummy);
 static void MustScanner_PrepareCalculateMaxMin (unsigned short wResolution);
-static void MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
-					 unsigned short * lpMinValue, unsigned short wResolution);
+static void MustScanner_CalculateMaxMin (SANE_Byte * pBuffer,
+					 unsigned short * lpMaxValue,
+					 unsigned short * lpMinValue,
+					 unsigned short wResolution);
 
 
 #endif

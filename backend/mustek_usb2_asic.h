@@ -98,7 +98,8 @@ typedef struct
   unsigned short AFE_ChannelC_LatchPos;
   unsigned short AFE_ChannelD_LatchPos;
   SANE_Byte AFE_Secondary_FF_LatchPos;
-  /* Sensor */
+
+  /* sensor */
   unsigned int CCD_DummyCycleTiming;
   SANE_Byte PHTG_PulseWidth;
   SANE_Byte PHTG_WaitWidth;
@@ -111,7 +112,7 @@ typedef struct
   SANE_Byte PHTG_TimingAdj;
   SANE_Byte PHTG_TimingSetup;
 
-  /*1200dpi */
+  /* 1200 dpi */
   unsigned int CCD_PHRS_Timing_1200;
   unsigned int CCD_PHCP_Timing_1200;
   unsigned int CCD_PH1_Timing_1200;
@@ -119,7 +120,7 @@ typedef struct
   SANE_Byte DE_CCD_SETUP_REGISTER_1200;
   unsigned short wCCDPixelNumber_1200;
 
-  /*600dpi */
+  /* 600 dpi */
   unsigned int CCD_PHRS_Timing_600;
   unsigned int CCD_PHCP_Timing_600;
   unsigned int CCD_PH1_Timing_600;
@@ -146,12 +147,12 @@ typedef struct
 
 typedef struct
 {
-  int fd;			/* File Description of Scanner */
+  int fd;	/* file descriptor of scanner */
 
-  FIRMWARESTATE firmwarestate;	/* record firmware state */
-  SANE_Bool isFirstOpenChip;		/* If first open chip, is TRUE */
-  USBHOST UsbHost;		/* The type of USB port */
-  LIGHTSOURCE lsLightSource;	/* light source of scanner */
+  FIRMWARESTATE firmwarestate;
+  SANE_Bool isFirstOpenChip;	/* TRUE if Asic_Open has not been called yet. */
+  USBHOST UsbHost;
+  LIGHTSOURCE lsLightSource;
 
   unsigned int Dpi;
   unsigned int dwBytesCountPerRow;
@@ -160,8 +161,8 @@ typedef struct
   ADConverter AD;
 
   SANE_Byte isMotorMove;
-  SANE_Byte isMotorGoToFirstLine;	/*Roy add */
-  SANE_Byte * lpShadingTable;	/*Roy add */
+  SANE_Byte isMotorGoToFirstLine;
+  SANE_Byte * lpShadingTable;
   SANE_Byte isUniformSpeedToScan;
 } Asic, *PAsic;
 
@@ -178,28 +179,28 @@ typedef enum
 
 
 /* debug levels */
-#define DBG_CRIT 	0	/* Critical errors thatshould be printed even
+#define DBG_CRIT 	0	/* critical errors that should be printed even
 				   if user hasn't enabled debugging -- use 
 				   with care and only after sane_open has been 
 				   called */
-#define DBG_ERR 	1	/* Other errors */
+#define DBG_ERR 	1	/* other errors */
 #define DBG_WARN 	2	/* unusual conditions that may not be fatal */
-#define DBG_INFO 	3	/* information useful for the deucated user */
+#define DBG_INFO 	3	/* information useful for the educated user */
 #define DBG_DET 	4	/* more detailed information */
 #define DBG_FUNC 	5	/* start and exits of high level functions */
 #define DBG_ASIC 	6	/* starts and exits of low level functions */
-#define DBG_DBG 	10	/* usefull only for tracing bugs */
+#define DBG_DBG 	10	/* useful only for tracing bugs */
 
 
 #define DRAM_TEST_SIZE 64
-#define DRAM_1Mx16_SIZE				(1024*1024)	/*unit : word */
+#define DRAM_1Mx16_SIZE (1024*1024)	/* unit: word */
 #define PackAreaStartAddress ((DRAM_1Mx16_SIZE/4)*3)
 
 #define ACTION_MODE_ACCDEC_MOVE 0
 #define ACTION_MODE_UNIFORM_SPEED_MOVE 1
 
 #define ACTION_TYPE_BACKWARD 0
-#define ACTION_TYPE_FORWARD  1
+#define ACTION_TYPE_FORWARD 1
 #define ACTION_TYPE_BACKTOHOME 2
 #define ACTION_TYPE_TEST_MODE 3
 
@@ -208,34 +209,34 @@ typedef enum
 #define SENSOR1_DETECTED 0x20
 #define SENSOR0AND1_DETECTED 0x30
 
-#define READ_RAM	0
-#define WRITE_RAM	1
+#define READ_RAM 0
+#define WRITE_RAM 1
 
-#define EXTERNAL_RAM	0
-#define ON_CHIP_PRE_GAMMA	1
-#define ON_CHIP_FINAL_GAMMA	2
+#define EXTERNAL_RAM 0
+#define ON_CHIP_PRE_GAMMA 1
+#define ON_CHIP_FINAL_GAMMA 2
 
-#define	BANK_SIZE	(64)
+#define BANK_SIZE (64)
 
 #define WaitBufferOneLineSize 11000*6
 
-#define	ShadingTableSize(x)			( ((x + 10)*6) + ( ((x + 10)*6)/240)*16 )
-#define ACC_DEC_STEP_TABLE_SIZE		(512)	/*unit : word */
-#define NUM_OF_ACC_DEC_STEP_TABLE	(8)	/*unit : word */
-#define TABLE_BASE_SIZE				(1024*2*2*2*2)	/*unit : word */
-#define TABLE_OFFSET_BASE			(14)	/*unit : word */
-#define LAMP0_PWM_DEFAULT            255
-#define LAMP1_PWM_DEFAULT            255
+#define ShadingTableSize(x)		(((x + 10)*6) + ( ((x + 10)*6)/240)*16)
+#define ACC_DEC_STEP_TABLE_SIZE		(512)	/* unit: word */
+#define NUM_OF_ACC_DEC_STEP_TABLE	(8)	/* unit: word */
+#define TABLE_BASE_SIZE			(1024*2*2*2*2)	/* unit: word */
+#define TABLE_OFFSET_BASE		(14)	/* unit: word */
+#define LAMP0_PWM_DEFAULT 255
+#define LAMP1_PWM_DEFAULT 255
 
 
 #define TA_CAL_PIXELNUMBER 50000
 #define TA_IMAGE_PIXELNUMBER 61000
-#define SENSOR_DPI  1200
+#define SENSOR_DPI 1200
 
 
 /**************************** ASIC registers ***********************/
 
-/*ES01_XX = Easy Scan_01 register hex xx*/
+/* ES01_XX = Easy Scan_01 register hex xx */
 #define		ES01_00_AFEReg0				0x00
 #define		ES01_01_AFEReg1				0x01
 #define		ES01_02_AFEReg2				0x02
@@ -253,547 +254,535 @@ typedef enum
 #define		ES01_29_PGAGreen			0x29
 #define		ES01_2A_PGABlue				0x2A
 
-#define		ES01_00_ADAFEConfiguration	0x00
-#define		ES01_02_ADAFEMuxConfig		0x02
+#define		ES01_00_ADAFEConfiguration		0x00
+#define		ES01_02_ADAFEMuxConfig			0x02
 #define		ES01_04_ADAFEPGACH1			0x04
 #define		ES01_06_ADAFEPGACH2			0x06
 #define		ES01_08_ADAFEPGACH3			0x08
 
-#define		ES01_0C_ADAFEOffsetCH1P		0x0C
-#define		ES01_0D_ADAFEOffsetCH1N		0x0D
-#define		ES01_0E_ADAFEOffsetCH2P		0x0E
-#define		ES01_0F_ADAFEOffsetCH2N		0x0F
-#define		ES01_10_ADAFEOffsetCH3P		0x10
-#define		ES01_11_ADAFEOffsetCH3N		0x11
+#define		ES01_0C_ADAFEOffsetCH1P			0x0C
+#define		ES01_0D_ADAFEOffsetCH1N			0x0D
+#define		ES01_0E_ADAFEOffsetCH2P			0x0E
+#define		ES01_0F_ADAFEOffsetCH2N			0x0F
+#define		ES01_10_ADAFEOffsetCH3P			0x10
+#define		ES01_11_ADAFEOffsetCH3N			0x11
 
-#define		ES01_00_AD9826Configuration	0x00
-#define		ES01_02_AD9826MuxConfig		0x02
-#define		ES01_04_AD9826PGARed		0x04
-#define		ES01_06_AD9826PGAGreen		0x06
-#define		ES01_08_AD9826PGABlue		0x08
-#define		ES01_0A_AD9826OffsetRedP	0x0a
-#define		ES01_0B_AD9826OffsetRedN	0x0b
-#define		ES01_0C_AD9826OffsetGreenP	0x0c
-#define		ES01_0D_AD9826OffsetGreenN	0x0d
-#define		ES01_0E_AD9826OffsetBlueP	0x0e
-#define		ES01_0F_AD9826OffsetBlueN	0x0f
+#define		ES01_00_AD9826Configuration		0x00
+#define		ES01_02_AD9826MuxConfig			0x02
+#define		ES01_04_AD9826PGARed			0x04
+#define		ES01_06_AD9826PGAGreen			0x06
+#define		ES01_08_AD9826PGABlue			0x08
+#define		ES01_0A_AD9826OffsetRedP		0x0A
+#define		ES01_0B_AD9826OffsetRedN		0x0B
+#define		ES01_0C_AD9826OffsetGreenP		0x0C
+#define		ES01_0D_AD9826OffsetGreenN		0x0D
+#define		ES01_0E_AD9826OffsetBlueP		0x0E
+#define		ES01_0F_AD9826OffsetBlueN		0x0F
 
 #define		ES02_50_MOTOR_CURRENT_CONTORL		0x50
-			/* bit[0] */
-#define	DOWN_LOAD_MOTOR_TABLE_DISABLE	0x00
-#define	DOWN_LOAD_MOTOR_TABLE_ENABLE	0x01
-			/* bit[3:1] */
-#define	_4_TABLE_SPACE_FOR_FULL_STEP	0x00
-#define	_8_TABLE_SPACE_FOR_1_DIV_2_STEP	0x02
-#define	_16_TABLE_SPACE_FOR_1_DIV_4_STEP	0x06
-#define	_32_TABLE_SPACE_FOR_1_DIV_8_STEP	0x0E
-			/* bit[4] */
+		/* bit[0] */
+#define	DOWN_LOAD_MOTOR_TABLE_ENABLE				0x01
+#define	DOWN_LOAD_MOTOR_TABLE_DISABLE				0x00
+		/* bit[3:1] */
+#define	_4_TABLE_SPACE_FOR_FULL_STEP				0x00
+#define	_8_TABLE_SPACE_FOR_1_DIV_2_STEP				0x02
+#define	_16_TABLE_SPACE_FOR_1_DIV_4_STEP			0x06
+#define	_32_TABLE_SPACE_FOR_1_DIV_8_STEP			0x0E
+		/* bit[4] */
+#define	MOTOR_TABLE_ADDR_SHOW_IN_FIRST_PIXEL_OF_LINE_ENABLE	0x10
 #define	MOTOR_TABLE_ADDR_SHOW_IN_FIRST_PIXEL_OF_LINE_DISABLE	0x00
-#define	MOTOR_TABLE_ADDR_SHOW_IN_FIRST_PIXEL_OF_LINE_ENABLE		0x10
-			/* bit[5] */
-#define	MOTOR_CURRENT_TABLE_ADDRESS_BIT4_TO_BIT0_DISABLE	0x00
+		/* bit[5] */
 #define	MOTOR_CURRENT_TABLE_ADDRESS_BIT4_TO_BIT0_ENABLE		0x20
+#define	MOTOR_CURRENT_TABLE_ADDRESS_BIT4_TO_BIT0_DISABLE	0x00
 
-#define		ES02_51_MOTOR_PHASE_TABLE_1			0x51
+#define		ES02_51_MOTOR_PHASE_TABLE_1		0x51
 #define		ES02_52_MOTOR_CURRENT_TABLE_A		0x52
 #define		ES02_53_MOTOR_CURRENT_TABLE_B		0x53
 
-#define		ES01_5F_REGISTER_BANK_SELECT	0x5F
+#define		ES01_5F_REGISTER_BANK_SELECT		0x5F
 		/* bit[1:0] */
-#define		SELECT_REGISTER_BANK0	0x00
-#define		SELECT_REGISTER_BANK1	0x01
-#define		SELECT_REGISTER_BANK2	0x02
+#define SELECT_REGISTER_BANK0			0x00
+#define	SELECT_REGISTER_BANK1			0x01
+#define	SELECT_REGISTER_BANK2			0x02
 
-/* AFE Auto Configuration Gain & Offset Register */
-#define		ES01_60_AFE_AUTO_GAIN_OFFSET_RED_LB		0x60
-#define		ES01_61_AFE_AUTO_GAIN_OFFSET_RED_HB		0x61
+/* AFE auto configuration */
+#define		ES01_60_AFE_AUTO_GAIN_OFFSET_RED_LB	0x60
+#define		ES01_61_AFE_AUTO_GAIN_OFFSET_RED_HB	0x61
 #define		ES01_62_AFE_AUTO_GAIN_OFFSET_GREEN_LB	0x62
 #define		ES01_63_AFE_AUTO_GAIN_OFFSET_GREEN_HB	0x63
 #define		ES01_64_AFE_AUTO_GAIN_OFFSET_BLUE_LB	0x64
 #define		ES01_65_AFE_AUTO_GAIN_OFFSET_BLUE_HB	0x65
 
-#define	ES01_74_HARDWARE_SETTING	0x74
-/* bit[0] */
+#define		ES01_74_HARDWARE_SETTING		0x74
+		/* bit[0] */
 #define	MOTOR1_SERIAL_INTERFACE_G10_8_ENABLE	0x01
 #define	MOTOR1_SERIAL_INTERFACE_G10_8_DISABLE	0x00
-/* bit[1]*/
-#define LED_OUT_G11_ENABLE	0x02
-#define LED_OUT_G11_DISABLE	0x00
-		  /* bit[2] */
+		/* bit[1] */
+#define	LED_OUT_G11_ENABLE			0x02
+#define	LED_OUT_G11_DISABLE			0x00
+		/* bit[2] */
 #define	SLAVE_SERIAL_INTERFACE_G15_14_ENABLE	0x04
 #define	SLAVE_SERIAL_INTERFACE_G15_14_DISABLE	0x00
-		  /* bit[3] */
-#define	SHUTTLE_CCD_ENABLE	0x08
-#define	SHUTTLE_CCD_DISABLE	0x00
-		  /* bit[4] */
-#define	HARDWARE_RESET_ESIC_AFE_ENABLE	0x10
-#define	HARDWARE_RESET_ESIC_AFE_DISABLE	0x00
+		/* bit[3] */
+#define	SHUTTLE_CCD_ENABLE			0x08
+#define	SHUTTLE_CCD_DISABLE			0x00
+		/* bit[4] */
+#define	HARDWARE_RESET_ESIC_AFE_ENABLE		0x10
+#define	HARDWARE_RESET_ESIC_AFE_DISABLE		0x00
 
-#define		ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL		0x79
-			/* bit[3:0] */
-#define	AFEMCLK_DELAY_0_ns		0x00
-#define	AFEMCLK_DELAY_2_ns		0x01
-#define	AFEMCLK_DELAY_4_ns		0x02
-#define	AFEMCLK_DELAY_6_ns		0x03
-#define	AFEMCLK_DELAY_8_ns		0x04
-#define	AFEMCLK_DELAY_10_ns		0x05
-#define	AFEMCLK_DELAY_12_ns		0x06
-#define	AFEMCLK_DELAY_14_ns		0x07
-#define	AFEMCLK_DELAY_16_ns		0x08
-#define	AFEMCLK_DELAY_18_ns		0x09
-#define	AFEMCLK_DELAY_20_ns		0x0A
-/* bit[7:4]*/
-#define	SDRAMCLK_DELAY_0_ns		0x00
-#define	SDRAMCLK_DELAY_2_ns		0x10
-#define	SDRAMCLK_DELAY_4_ns		0x20
-#define	SDRAMCLK_DELAY_6_ns		0x30
-#define	SDRAMCLK_DELAY_8_ns		0x40
-#define	SDRAMCLK_DELAY_10_ns	0x50
-#define	SDRAMCLK_DELAY_12_ns	0x60
-#define	SDRAMCLK_DELAY_14_ns	0x70
-#define	SDRAMCLK_DELAY_16_ns	0x80
-#define	SDRAMCLK_DELAY_18_ns	0x90
-#define	SDRAMCLK_DELAY_20_ns	0xA0
+#define		ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL	0x79
+		/* bit[3:0] */
+#define	AFEMCLK_DELAY_0_ns			0x00
+#define	AFEMCLK_DELAY_2_ns			0x01
+#define	AFEMCLK_DELAY_4_ns			0x02
+#define	AFEMCLK_DELAY_6_ns			0x03
+#define	AFEMCLK_DELAY_8_ns			0x04
+#define	AFEMCLK_DELAY_10_ns			0x05
+#define	AFEMCLK_DELAY_12_ns			0x06
+#define	AFEMCLK_DELAY_14_ns			0x07
+#define	AFEMCLK_DELAY_16_ns			0x08
+#define	AFEMCLK_DELAY_18_ns			0x09
+#define	AFEMCLK_DELAY_20_ns			0x0A
+		/* bit[7:4] */
+#define	SDRAMCLK_DELAY_0_ns			0x00
+#define	SDRAMCLK_DELAY_2_ns			0x10
+#define	SDRAMCLK_DELAY_4_ns			0x20
+#define	SDRAMCLK_DELAY_6_ns			0x30
+#define	SDRAMCLK_DELAY_8_ns			0x40
+#define	SDRAMCLK_DELAY_10_ns			0x50
+#define	SDRAMCLK_DELAY_12_ns			0x60
+#define	SDRAMCLK_DELAY_14_ns			0x70
+#define	SDRAMCLK_DELAY_16_ns			0x80
+#define	SDRAMCLK_DELAY_18_ns			0x90
+#define	SDRAMCLK_DELAY_20_ns			0xA0
 
-#define		ES01_82_AFE_ADCCLK_TIMING_ADJ_BYTE0		0x82
-#define		ES01_83_AFE_ADCCLK_TIMING_ADJ_BYTE1		0x83
-#define		ES01_84_AFE_ADCCLK_TIMING_ADJ_BYTE2		0x84
-#define		ES01_85_AFE_ADCCLK_TIMING_ADJ_BYTE3		0x85
+#define		ES01_82_AFE_ADCCLK_TIMING_ADJ_BYTE0	0x82
+#define		ES01_83_AFE_ADCCLK_TIMING_ADJ_BYTE1	0x83
+#define		ES01_84_AFE_ADCCLK_TIMING_ADJ_BYTE2	0x84
+#define		ES01_85_AFE_ADCCLK_TIMING_ADJ_BYTE3	0x85
+
 #define		ES01_86_DisableAllClockWhenIdle		0x86
-			/* bit[0] */
-#define		CLOSE_ALL_CLOCK_ENABLE	0x01
-#define		CLOSE_ALL_CLOCK_DISABLE	0x00
-#define		ES01_87_SDRAM_Timing				0x87
+		/* bit[0] */
+#define	CLOSE_ALL_CLOCK_ENABLE			0x01
+#define	CLOSE_ALL_CLOCK_DISABLE			0x00
+
+#define		ES01_87_SDRAM_Timing			0x87
 
 #define		ES01_88_LINE_ART_THRESHOLD_HIGH_VALUE	0x88
 #define		ES01_89_LINE_ART_THRESHOLD_LOW_VALUE	0x89
 
-#define ES01_8A_FixScanStepMSB			0x8a
-#define ES01_8B_Status					0x8b
+#define		ES01_8A_FixScanStepMSB			0x8A
+
+#define		ES01_8B_Status				0x8B
 		/* bit[4:0] */
-#define		H1H0L1L0_PS_MJ				0x00
-#define		SCAN_STATE					0x01
-#define		GPIO0_7						0x02
-#define		GPIO8_15					0x03
-#define		AVAILABLE_BANK_COUNT0_7		0x04
-#define		AVAILABLE_BANK_COUNT8_15	0x05
-#define		RAM_ADDRESS_POINTER0_7		0x06
-#define		RAM_ADDRESS_POINTER8_15		0x07
-#define		RAM_ADDRESS_POINTER16_19	0x08
-#define		CARRIAGE_POS_DURING_SCAN0_7	0x09
-#define		CARRIAGE_POS_DURING_SCAN8_15	0x0a
-#define		CARRIAGE_POS_DURING_SCAN16_19	0x0b
-#define		LINE_TIME0_7				0x0C
-#define		LINE_TIME8_15				0x0d
-#define		LINE_TIME16_19				0x0e
-#define		LAST_COMMAND_ADDRESS		0x0f
-#define		LAST_COMMAND_DATA			0x10
-#define		SERIAL_READ_REGISTER_0		0x11
-#define		SERIAL_READ_REGISTER_1		0x12
-#define		SERIAL_READ_REGISTER_2		0x13
-#define		SERIAL_READ_REGISTER_3		0x14
-#define		MOTOR_STEP_TRIGGER_POSITION7_0	0x15
-#define		MOTOR_STEP_TRIGGER_POSITION15_8	0x16
-#define		MOTOR_STEP_TRIGGER_POSITION23_16	0x17
-#define		CHIP_STATUS_A				0x18	/*reserve */
-#define		CHIP_STRING_0				0x19	/*0x45'E' */
-#define		CHIP_STRING_1				0x1a	/*0x53'S' */
-#define		CHIP_STRING_2				0x1b	/*0x43'C' */
-#define		CHIP_STRING_3				0x1c	/*0x41'A' */
-#define		CHIP_STRING_4				0x1d	/*0x4E'N' */
-#define		CHIP_STRING_5				0x1e	/*0x30'0' */
-#define		CHIP_STRING_6				0x1f	/*0x31'1' */
-#define ES01_8C_RestartMotorSynPixelNumberM16LSB	0x8c
-#define ES01_8D_RestartMotorSynPixelNumberM16MSB	0x8d
-#define ES01_90_Lamp0PWM				0x90
-#define ES01_91_Lamp1PWM				0x91
-#define ES01_92_TimerPowerSaveTime		0x92
-#define ES01_93_MotorWatchDogTime		0x93
-#define ES01_94_PowerSaveControl		0x94
+#define	H1H0L1L0_PS_MJ				0x00
+#define	SCAN_STATE				0x01
+#define	GPIO0_7					0x02
+#define	GPIO8_15				0x03
+#define	AVAILABLE_BANK_COUNT0_7			0x04
+#define	AVAILABLE_BANK_COUNT8_15		0x05
+#define	RAM_ADDRESS_POINTER0_7			0x06
+#define	RAM_ADDRESS_POINTER8_15			0x07
+#define	RAM_ADDRESS_POINTER16_19		0x08
+#define	CARRIAGE_POS_DURING_SCAN0_7		0x09
+#define	CARRIAGE_POS_DURING_SCAN8_15		0x0A
+#define	CARRIAGE_POS_DURING_SCAN16_19		0x0B
+#define	LINE_TIME0_7				0x0C
+#define	LINE_TIME8_15				0x0D
+#define	LINE_TIME16_19				0x0E
+#define	LAST_COMMAND_ADDRESS			0x0F
+#define	LAST_COMMAND_DATA			0x10
+#define	SERIAL_READ_REGISTER_0			0x11
+#define	SERIAL_READ_REGISTER_1			0x12
+#define	SERIAL_READ_REGISTER_2			0x13
+#define	SERIAL_READ_REGISTER_3			0x14
+#define	MOTOR_STEP_TRIGGER_POSITION7_0		0x15
+#define	MOTOR_STEP_TRIGGER_POSITION15_8		0x16
+#define	MOTOR_STEP_TRIGGER_POSITION23_16	0x17
+#define	CHIP_STATUS_A				0x18	/* reserved */
+#define	CHIP_STRING_0				0x19	/* 0x45 'E' */
+#define	CHIP_STRING_1				0x1A	/* 0x53 'S' */
+#define	CHIP_STRING_2				0x1B	/* 0x43 'C' */
+#define	CHIP_STRING_3				0x1C	/* 0x41 'A' */
+#define	CHIP_STRING_4				0x1D	/* 0x4E 'N' */
+#define	CHIP_STRING_5				0x1E	/* 0x30 '0' */
+#define	CHIP_STRING_6				0x1F	/* 0x31 '1' */
+
+#define		ES01_8C_RestartMotorSynPixelNumberM16LSB	0x8C
+#define		ES01_8D_RestartMotorSynPixelNumberM16MSB	0x8D
+#define		ES01_90_Lamp0PWM			0x90
+#define		ES01_91_Lamp1PWM			0x91
+#define		ES01_92_TimerPowerSaveTime		0x92
+#define		ES01_93_MotorWatchDogTime		0x93
+
+#define		ES01_94_PowerSaveControl		0x94
 		/* bit[0] */
-#define		TIMER_POWER_SAVE_ENABLE		0x01
-#define		TIMER_POWER_SAVE_DISABLE	0x00
+#define	TIMER_POWER_SAVE_ENABLE			0x01
+#define	TIMER_POWER_SAVE_DISABLE		0x00
+		/* bit[1] */
+#define	USB_POWER_SAVE_ENABLE			0x02
+#define	USB_POWER_SAVE_DISABLE			0x00
+		/* bit[2] */
+#define	USB_REMOTE_WAKEUP_ENABLE		0x04
+#define	USB_REMOTE_WAKEUP_DISABLE		0x00
+		/* bit[5:4] */
+#define	LED_MODE_ON				0x00
+#define	LED_MODE_OFF				0x10
+#define	LED_MODE_FLASH_SLOWLY			0x20
+#define	LED_MODE_FLASH_QUICKLY			0x30
 
-/* bit[1]*/
-#define		USB_POWER_SAVE_ENABLE		0x02
-#define		USB_POWER_SAVE_DISABLE		0x00
-/* bit[2]*/
-#define		USB_REMOTE_WAKEUP_ENABLE	0x04
-#define		USB_REMOTE_WAKEUP_DISABLE	0x00
-/* bit[5:4]*/
-#define		LED_MODE_ON					0x00
-#define		LED_MODE_OFF				0x10
-#define		LED_MODE_FLASH_SLOWLY		0x20
-#define		LED_MODE_FLASH_QUICKLY		0x30
+#define		ES01_95_GPIOValue0_7			0x95
+#define		ES01_96_GPIOValue8_15			0x96
+#define		ES01_97_GPIOControl0_7			0x97
+#define		ES01_98_GPIOControl8_15			0x98
+#define		ES01_99_LAMP_PWM_FREQ_CONTROL		0x99
 
+#define		ES01_9A_AFEControl			0x9A
+		/* bit[0] */
+#define	ADAFE_AFE				0x00
+#define	AD9826_AFE				0x01
+		/* bit[1] */
+#define	AUTO_CHANGE_AFE_GAIN_OFFSET_ENABLE	0x02
+#define	AUTO_CHANGE_AFE_GAIN_OFFSET_DISABLE	0x00
 
-#define ES01_95_GPIOValue0_7			0x95
-#define ES01_96_GPIOValue8_15			0x96
-#define ES01_97_GPIOControl0_7			0x97
-#define ES01_98_GPIOControl8_15			0x98
-#define	ES01_99_LAMP_PWM_FREQ_CONTROL	0x99
-#define ES01_9A_AFEControl				0x9a
-		/*bit[0] */
-#define ADAFE_AFE		0x00
-#define AD9826_AFE		0x01
-/*bit[1]*/
-#define AUTO_CHANGE_AFE_GAIN_OFFSET_ENABLE 0x02
-#define AUTO_CHANGE_AFE_GAIN_OFFSET_DISABLE 0x00
+#define		ES01_9B_ShadingTableAddrA14_A21		0x9B
+#define		ES01_9C_ShadingTableAddrODDA12_A19	0x9C
+#define		ES01_9D_MotorTableAddrA14_A21		0x9D
+#define		ES01_9E_HorizontalRatio1to15LSB		0x9E
+#define		ES01_9F_HorizontalRatio1to15MSB		0x9F
+#define		ES01_A0_HostStartAddr0_7		0xA0
 
-#define	ES01_9B_ShadingTableAddrA14_A21		0x9B
-#define ES01_9C_ShadingTableAddrODDA12_A19 0x9c
-#define ES01_9D_MotorTableAddrA14_A21	0x9d
-#define ES01_9E_HorizontalRatio1to15LSB 0x9e
-#define ES01_9F_HorizontalRatio1to15MSB 0x9f
-#define ES01_A0_HostStartAddr0_7		0xa0
-#define ES01_A1_HostStartAddr8_15		0xa1
+#define		ES01_A1_HostStartAddr8_15		0xA1
 		/* bit[3] */
-#define		ES01_ACCESS_PRE_GAMMA			0x08
-#define		ES01_ACCESS_FINAL_GAMMA			0x00
-#define ES01_A2_HostStartAddr16_21		0xa2
+#define	ACCESS_PRE_GAMMA_ES01			0x08
+#define	ACCESS_FINAL_GAMMA_ES01			0x00
+
+#define		ES01_A2_HostStartAddr16_21		0xA2
 		/* bit[7] */
-#define		ACCESS_DRAM	       			0x00
-#define		ACCESS_GAMMA_RAM    		0x80
-#define ES01_A3_HostEndAddr0_7			0xa3
-#define ES01_A4_HostEndAddr8_15			0xa4
-#define ES01_A5_HostEndAddr16_21		0xa5
+#define	ACCESS_DRAM				0x00
+#define	ACCESS_GAMMA_RAM			0x80
 
-#define		ES01_A6_MotorOption				0xA6
+#define		ES01_A3_HostEndAddr0_7			0xA3
+#define		ES01_A4_HostEndAddr8_15			0xA4
+#define		ES01_A5_HostEndAddr16_21		0xA5
+
+#define		ES01_A6_MotorOption			0xA6
 		/* bit[0] */
-#define		MOTOR_0_ENABLE				0x01
-#define		MOTOR_0_DISABLE				0x00
-/*	bit[1]*/
-#define		MOTOR_1_ENABLE				0x02
-#define		MOTOR_1_DISABLE				0x00
-/* bit[3:2]*/
-#define		HOME_SENSOR_0_ENABLE		0x00
-#define		HOME_SENSOR_1_ENABLE		0x04
-#define		HOME_SENSOR_BOTH_ENABLE		0x08
-#define		HOME_SENSOR_0_INVERT_ENABLE	0x0c
-/* bit[7:4]*/
-#define		ES03_UNIPOLAR_FULL_STEP_2003	0x00
-#define		ES03_BIPOLAR_FULL_2916			0x10
-#define		ES03_BIPOLAR_FULL_3955_3966		0x20
-#define		ES03_UNIPOLAR_PWM_2003			0x30
-#define		ES03_BIPOLAR_3967				0x40
-#define		ES03_TABLE_DEFINE				0x50
-#define ES01_A7_MotorPWMOnTimePhasA		0xa7
-#define ES01_A8_MotorPWMOnTimePhasB		0xa8
-#define ES01_A9_MotorPWMOffTimePhasA	0xa9
-#define ES01_AA_MotorPWMOffTimePhasB	0xaa
-#define ES01_AB_PWM_CURRENT_CONTROL		0xab
+#define	MOTOR_0_ENABLE				0x01
+#define	MOTOR_0_DISABLE				0x00
+		/* bit[1] */
+#define	MOTOR_1_ENABLE				0x02
+#define	MOTOR_1_DISABLE				0x00
+		/* bit[3:2] */
+#define	HOME_SENSOR_0_ENABLE			0x00
+#define	HOME_SENSOR_1_ENABLE			0x04
+#define	HOME_SENSOR_BOTH_ENABLE			0x08
+#define	HOME_SENSOR_0_INVERT_ENABLE		0x0C
+		/* bit[7:4] */
+#define	UNIPOLAR_FULL_STEP_2003_ES03		0x00
+#define	BIPOLAR_FULL_2916_ES03			0x10
+#define	BIPOLAR_FULL_3955_3966_ES03		0x20
+#define	UNIPOLAR_PWM_2003_ES03			0x30
+#define	BIPOLAR_3967_ES03			0x40
+#define	TABLE_DEFINE_ES03			0x50
 
+#define		ES01_A7_MotorPWMOnTimePhasA		0xA7
+#define		ES01_A8_MotorPWMOnTimePhasB		0xA8
+#define		ES01_A9_MotorPWMOffTimePhasA		0xA9
+#define		ES01_AA_MotorPWMOffTimePhasB		0xAA
+
+#define		ES01_AB_PWM_CURRENT_CONTROL		0xAB
 		/* bit[1:0] */
-#define	MOTOR_PWM_CURRENT_0	0x00
-#define	MOTOR_PWM_CURRENT_1	0x01
-#define	MOTOR_PWM_CURRENT_2	0x02
-#define	MOTOR_PWM_CURRENT_3	0x03
-/* bit[3:2]*/
-#define	MOTOR1_GPO_VALUE_0	0x00
-#define	MOTOR1_GPO_VALUE_1	0x04
-#define	MOTOR1_GPO_VALUE_2	0x08
-#define	MOTOR1_GPO_VALUE_3	0x0c
-/* bit[4]*/
-#define	GPO_OUTPUT_ENABLE	0x10
-#define	GPO_OUTPUT_DISABLE	0x00
-/* bit[5]*/
+#define	MOTOR_PWM_CURRENT_0			0x00
+#define	MOTOR_PWM_CURRENT_1			0x01
+#define	MOTOR_PWM_CURRENT_2			0x02
+#define	MOTOR_PWM_CURRENT_3			0x03
+		/* bit[3:2] */
+#define	MOTOR1_GPO_VALUE_0			0x00
+#define	MOTOR1_GPO_VALUE_1			0x04
+#define	MOTOR1_GPO_VALUE_2			0x08
+#define	MOTOR1_GPO_VALUE_3			0x0C
+		/* bit[4] */
+#define	GPO_OUTPUT_ENABLE			0x10
+#define	GPO_OUTPUT_DISABLE			0x00
+		/* bit[5] */
 #define	SERIAL_PORT_CONTINUOUS_OUTPUT_ENABLE	0x20
 #define	SERIAL_PORT_CONTINUOUS_OUTPUT_DISABLE	0x00
-#define ES01_AC_MotorPWMJamRangeLSB		0xac
-#define ES01_AD_MotorPWMJamRangeMSB		0xad
-#define ES01_AE_MotorSyncPixelNumberM16LSB	0xae
-#define ES01_AF_MotorSyncPixelNumberM16MSB	0xaf
-#define	ES01_B0_CCDPixelLSB					0xb0
-#define	ES01_B1_CCDPixelMSB					0xb1
-#define ES01_B2_PHTGPulseWidth				0xb2
-#define ES01_B3_PHTGWaitWidth				0xb3
-#define ES01_B4_StartPixelLSB				0xb4
-#define ES01_B5_StartPixelMSB				0xb5
-#define ES01_B6_LineWidthPixelLSB			0xb6
-#define ES01_B7_LineWidthPixelMSB			0xb7
 
-#define ES01_B8_ChannelRedExpStartPixelLSB		0xb8
-#define ES01_B9_ChannelRedExpStartPixelMSB		0xb9
-#define ES01_BA_ChannelRedExpEndPixelLSB		0xba
-#define ES01_BB_ChannelRedExpEndPixelMSB		0xbb
-#define ES01_BC_ChannelGreenExpStartPixelLSB	0xbc
-#define ES01_BD_ChannelGreenExpStartPixelMSB	0xbd
-#define ES01_BE_ChannelGreenExpEndPixelLSB		0xbe
-#define ES01_BF_ChannelGreenExpEndPixelMSB		0xbf
-#define ES01_C0_ChannelBlueExpStartPixelLSB		0xc0
-#define ES01_C1_ChannelBlueExpStartPixelMSB		0xc1
-#define ES01_C2_ChannelBlueExpEndPixelLSB		0xc2
-#define ES01_C3_ChannelBlueExpEndPixelMSB		0xc3
+#define		ES01_AC_MotorPWMJamRangeLSB		0xAC
+#define		ES01_AD_MotorPWMJamRangeMSB		0xAD
+#define		ES01_AE_MotorSyncPixelNumberM16LSB	0xAE
+#define		ES01_AF_MotorSyncPixelNumberM16MSB	0xAF
+#define		ES01_B0_CCDPixelLSB			0xB0
+#define		ES01_B1_CCDPixelMSB			0xB1
+#define		ES01_B2_PHTGPulseWidth			0xB2
+#define		ES01_B3_PHTGWaitWidth			0xB3
+#define		ES01_B4_StartPixelLSB			0xB4
+#define		ES01_B5_StartPixelMSB			0xB5
+#define		ES01_B6_LineWidthPixelLSB		0xB6
+#define		ES01_B7_LineWidthPixelMSB		0xB7
 
+#define		ES01_B8_ChannelRedExpStartPixelLSB	0xB8
+#define		ES01_B9_ChannelRedExpStartPixelMSB	0xB9
+#define		ES01_BA_ChannelRedExpEndPixelLSB	0xBA
+#define		ES01_BB_ChannelRedExpEndPixelMSB	0xBB
+#define		ES01_BC_ChannelGreenExpStartPixelLSB	0xBC
+#define		ES01_BD_ChannelGreenExpStartPixelMSB	0xBD
+#define		ES01_BE_ChannelGreenExpEndPixelLSB	0xBE
+#define		ES01_BF_ChannelGreenExpEndPixelMSB	0xBF
+#define		ES01_C0_ChannelBlueExpStartPixelLSB	0xC0
+#define		ES01_C1_ChannelBlueExpStartPixelMSB	0xC1
+#define		ES01_C2_ChannelBlueExpEndPixelLSB	0xC2
+#define		ES01_C3_ChannelBlueExpEndPixelMSB	0xC3
 
-#define ES01_C4_MultiTGTimesRed				0xc4
-#define ES01_C5_MultiTGTimesGreen			0xc5
-#define ES01_C6_MultiTGTimesBlue			0xc6
-#define ES01_C7_MultiTGDummyPixelNumberLSB	0xc7
-#define ES01_C8_MultiTGDummyPixelNumberMSB	0xc8
-#define ES01_C9_CCDDummyPixelNumberLSB		0xc9
-#define ES01_CA_CCDDummyPixelNumberMSB		0xca
-#define ES01_CB_CCDDummyCycleNumber			0xcb
-#define ES01_CC_PHTGTimingAdjust			0xcc
-		/*      bit[0] */
-#define		PHTG_INVERT_OUTPUT_ENABLE			0x01
-#define		PHTG_INVERT_OUTPUT_DISABLE			0x00
-/*	bit[1]*/
-#define		TWO_TG								0x01
-#define		MULTI_TG							0x00
-		  /*    bit[3:2] */
-#define		CCD_PIXEL_MODE_RED					0x0c
-#define		CCD_LINE_MOE_RED_00					0x00
-#define		CCD_LINE_MOE_RED_01					0x04
-#define		CCD_LINE_MOE_RED_10					0x08
-/*	bit[5:4]*/
-#define		CCD_PIXEL_MODE_GREEN				0x30
-#define		CCD_LINE_MOE_GREEN_00				0x00
-#define		CCD_LINE_MOE_GREEN_01				0x40
-#define		CCD_LINE_MOE_GREEN_10				0x80
-/*	bit[7:6]*/
-#define		CCD_PIXEL_MODE_BLUE					0xc0
-#define		CCD_LINE_MOE_BLUE_00				0x00
-#define		CCD_LINE_MOE_BLUE_01				0x40
-#define		CCD_LINE_MOE_BLUE_10				0x80
+#define		ES01_C4_MultiTGTimesRed			0xC4
+#define		ES01_C5_MultiTGTimesGreen		0xC5
+#define		ES01_C6_MultiTGTimesBlue		0xC6
+#define		ES01_C7_MultiTGDummyPixelNumberLSB	0xC7
+#define		ES01_C8_MultiTGDummyPixelNumberMSB	0xC8
+#define		ES01_C9_CCDDummyPixelNumberLSB		0xC9
+#define		ES01_CA_CCDDummyPixelNumberMSB		0xCA
+#define		ES01_CB_CCDDummyCycleNumber		0xCB
 
-#define		ES01_CD_TG_R_CONTROL					0xCD
-#define		ES01_CE_TG_G_CONTROL					0xCE
-#define		ES01_CF_TG_B_CONTROL					0xCF
+#define		ES01_CC_PHTGTimingAdjust		0xCC
+		/* bit[0] */
+#define	PHTG_INVERT_OUTPUT_ENABLE		0x01
+#define	PHTG_INVERT_OUTPUT_DISABLE		0x00
+		/* bit[1] */
+#define	TWO_TG					0x01
+#define	MULTI_TG				0x00
+		/* bit[3:2] */
+#define	CCD_PIXEL_MODE_RED			0x0C
+#define	CCD_LINE_MODE_RED_00			0x00
+#define	CCD_LINE_MODE_RED_01			0x04
+#define	CCD_LINE_MODE_RED_10			0x08
+		/* bit[5:4] */
+#define	CCD_PIXEL_MODE_GREEN			0x30
+#define	CCD_LINE_MODE_GREEN_00			0x00
+#define	CCD_LINE_MODE_GREEN_01			0x40
+#define	CCD_LINE_MODE_GREEN_10			0x80
+		/* bit[7:6] */
+#define	CCD_PIXEL_MODE_BLUE			0xC0
+#define	CCD_LINE_MODE_BLUE_00			0x00
+#define	CCD_LINE_MODE_BLUE_01			0x40
+#define	CCD_LINE_MODE_BLUE_10			0x80
 
-#define		ES01_D9_CLEAR_PULSE_WIDTH				0xD9
+#define		ES01_CD_TG_R_CONTROL			0xCD
+#define		ES01_CE_TG_G_CONTROL			0xCE
+#define		ES01_CF_TG_B_CONTROL			0xCF
+
+#define		ES01_D9_CLEAR_PULSE_WIDTH		0xD9
 #define		ES01_DA_CLEAR_SIGNAL_INVERTING_OUTPUT	0xDA
-#define		ES01_DB_PH_RESET_EDGE_TIMING_ADJUST		0xDB
+#define		ES01_DB_PH_RESET_EDGE_TIMING_ADJUST	0xDB
 #define		ES01_DC_CLEAR_EDGE_TO_PH_TG_EDGE_WIDTH	0xDC
-#define		ES01_D0_PH1_0						0xD0
-#define		ES01_D1_PH2_0						0xD1
-#define		ES01_D2_PH1B_0						0xD2
-#define		ES01_D4_PHRS_0						0xD4
-#define		ES01_D5_PHCP_0						0xD5
-#define		ES01_D6_AFE_VSAMP_0					0xD6
-#define		ES01_D7_AFE_RSAMP_0					0xD7
+#define		ES01_D0_PH1_0				0xD0
+#define		ES01_D1_PH2_0				0xD1
+#define		ES01_D2_PH1B_0				0xD2
+#define		ES01_D4_PHRS_0				0xD4
+#define		ES01_D5_PHCP_0				0xD5
+#define		ES01_D6_AFE_VSAMP_0			0xD6
+#define		ES01_D7_AFE_RSAMP_0			0xD7
 
 #define		ES01_D8_PHTG_EDGE_TIMING_ADJUST		0xD8
 
-#define ES01_CD_PH1_0						0xcd
-#define ES01_CE_PH1_1						0xce
-#define ES01_CF_PH2_0						0xcf
-#define ES01_D0_PH2_1						0xd0
-#define ES01_D1_PH1B_0						0xd1
-#define ES01_D2_PH1B_1						0xd2
-#define ES01_D3_PH2B_0						0xd3
-#define ES01_D4_PH2B_1						0xd4
-#define ES01_D5_PHRS_0						0xd5
-#define ES01_D6_PHRS_1						0xd6
-#define ES01_D7_PHCP_0						0xd7
-#define ES01_D8_PHCP_1						0xd8
-#define ES01_D9_AFE_VSAMP_0					0xd9
-#define ES01_DA_AFE_VSAMP_1					0xda
-#define ES01_DB_AFE_RSAMP_0					0xdb
-#define ES01_DC_AFE_RSAMP_1					0xdc
-#define ES01_DD_PH1234_IN_DUMMY_TG			0xdd
-#define		ES01_DE_CCD_SETUP_REGISTER				0xDE
+#define		ES01_CD_PH1_0				0xCD
+#define		ES01_CE_PH1_1				0xCE
+#define		ES01_CF_PH2_0				0xCF
+#define		ES01_D0_PH2_1				0xD0
+#define		ES01_D1_PH1B_0				0xD1
+#define		ES01_D2_PH1B_1				0xD2
+#define		ES01_D3_PH2B_0				0xD3
+#define		ES01_D4_PH2B_1				0xD4
+#define		ES01_D5_PHRS_0				0xD5
+#define		ES01_D6_PHRS_1				0xD6
+#define		ES01_D7_PHCP_0				0xD7
+#define		ES01_D8_PHCP_1				0xD8
+#define		ES01_D9_AFE_VSAMP_0			0xD9
+#define		ES01_DA_AFE_VSAMP_1			0xDA
+#define		ES01_DB_AFE_RSAMP_0			0xDB
+#define		ES01_DC_AFE_RSAMP_1			0xDC
+#define		ES01_DD_PH1234_IN_DUMMY_TG		0xDD
+
+#define		ES01_DE_CCD_SETUP_REGISTER		0xDE
 		/* bit[0] */
-#define		ES01_LINE_SCAN_MODE_DISABLE		0x00
-#define		ES01_LINE_SCAN_MODE_ENABLE		0x01
+#define	LINE_SCAN_MODE_ENABLE_ES01		0x01
+#define	LINE_SCAN_MODE_DISABLE_ES01		0x00
 		/* bit[1] */
-#define		ES01_CIS_SENSOR_MODE_DISABLE	0x00
-#define		ES01_CIS_SENSOR_MODE_ENABLE		0x02
+#define	CIS_SENSOR_MODE_ENABLE_ES01		0x02
+#define	CIS_SENSOR_MODE_DISABLE_ES01		0x00
 		/* bit[2] */
-#define		ES01_CIS_LED_OUTPUT_RGB			0x00
-#define		ES01_CIS_LED_OUTPUT_RtoGtoB		0x04
+#define	CIS_LED_OUTPUT_RtoGtoB_ES01		0x04
+#define	CIS_LED_OUTPUT_RGB_ES01			0x00
 		/* bit[3] */
-#define		ES01_CIS_LED_NORMAL_OUTPUT		0x00
-#define		ES01_CIS_LED_INVERT_OUTPUT		0x08
+#define	CIS_LED_INVERT_OUTPUT_ES01		0x08
+#define	CIS_LED_NORMAL_OUTPUT_ES01		0x00
 		/* bit[4] */
-#define		ES01_ACC_IN_IDLE_DISABLE		0x00
-#define		ES01_ACC_IN_IDLE_ENABLE			0x10
+#define	ACC_IN_IDLE_ENABLE_ES01			0x10
+#define	ACC_IN_IDLE_DISABLE_ES01		0x00
 		/* bit[5] */
-#define		ES01_EVEN_ODD_DISABLE			0x00
-#define		ES01_EVEN_ODD_ENABLE			0x20
+#define	EVEN_ODD_ENABLE_ES01			0x20
+#define	EVEN_ODD_DISABLE_ES01			0x00
 		/* bit[6] */
-#define		ES01_ALTERNATE_EVEN_ODD_DISABLE	0x00
-#define		ES01_ALTERNATE_EVEN_ODD_ENABLE	0x40
+#define	ALTERNATE_EVEN_ODD_ENABLE_ES01		0x40
+#define	ALTERNATE_EVEN_ODD_DISABLE_ES01		0x00
 		/* bit[7] */
-#define		ES01_RESET_CCD_STATE_DISABLE	0x00
-#define		ES01_RESET_CCD_STATE_ENABLE		0x80
+#define	RESET_CCD_STATE_ENABLE_ES01		0x80
+#define	RESET_CCD_STATE_DISABLE_ES01		0x00
 
-#define ES01_DF_ICG_CONTROL					0xdf
-		/*      bit[2:0] */
-#define	BEFORE_PHRS_0_ns		0x00
-#define	BEFORE_PHRS_416_7t_ns	0x01
-#define	BEFORE_PHRS_416_6t_ns	0x02
-#define	BEFORE_PHRS_416_5t_ns	0x03
-#define	BEFORE_PHRS_416_4t_ns	0x04
-#define	BEFORE_PHRS_416_3t_ns	0x05
-#define	BEFORE_PHRS_416_2t_ns	0x06
-#define	BEFORE_PHRS_416_1t_ns	0x07
-/*	bit[2:0]*/
-#define	ICG_UNIT_1_PIXEL_TIME	0x00
-#define	ICG_UNIT_4_PIXEL_TIME	0x10
-#define	ICG_UNIT_8_PIXEL_TIME	0x20
-#define	ICG_UNIT_16_PIXEL_TIME	0x30
-#define	ICG_UNIT_32_PIXEL_TIME	0x40
-#define	ICG_UNIT_64_PIXEL_TIME	0x50
-#define	ICG_UNIT_128_PIXEL_TIME	0x60
-#define	ICG_UNIT_256_PIXEL_TIME	0x70
-
-#define ES01_E0_MotorAccStep0_7				0xe0
-#define ES01_E1_MotorAccStep8_8				0xe1
-#define ES01_E2_MotorStepOfMaxSpeed0_7		0xe2
-#define ES01_E3_MotorStepOfMaxSpeed8_15		0xe3
-#define ES01_E4_MotorStepOfMaxSpeed16_19	0xe4
-#define ES01_E5_MotorDecStep				0xe5
-#define ES01_E6_ScanBackTrackingStepLSB		0xe6
-#define ES01_E7_ScanBackTrackingStepMSB		0xe7
-#define ES01_E8_ScanRestartStepLSB			0xe8
-#define ES01_E9_ScanRestartStepMSB			0xe9
-#define ES01_EA_ScanBackHomeExtStepLSB		0xea
-#define ES01_EB_ScanBackHomeExtStepMSB		0xeb
-#define ES01_EC_ScanAccStep0_7				0xec
-#define ES01_ED_ScanAccStep8_8				0xed
-#define ES01_EE_FixScanStepLSB				0xee
-#define ES01_EF_ScanDecStep					0xef
-#define ES01_F0_ScanImageStep0_7			0xf0
-#define ES01_F1_ScanImageStep8_15			0xf1
-#define ES01_F2_ScanImageStep16_19			0xf2
-
-#define ES01_F3_ActionOption				0xf3
-		/*      bit[0] */
-#define		MOTOR_MOVE_TO_FIRST_LINE_ENABLE			0x01
-#define		MOTOR_MOVE_TO_FIRST_LINE_DISABLE		0x00
-/*	bit[1]*/
-#define		MOTOR_BACK_HOME_AFTER_SCAN_ENABLE		0x02
-#define		MOTOR_BACK_HOME_AFTER_SCAN_DISABLE		0x00
-/*	bit[2]*/
-#define		SCAN_ENABLE								0x04
-#define		SCAN_DISABLE							0x00
-/*	bit[3]*/
-#define		SCAN_BACK_TRACKING_ENABLE				0x08
-#define		SCAN_BACK_TRACKING_DISABLE				0x00
-/*	bit[4]*/
-#define		INVERT_MOTOR_DIRECTION_ENABLE			0x10
-#define		INVERT_MOTOR_DIRECTION_DISABLE			0x00
-/*	bit[5]*/
-#define		UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE		0x20
-#define		UNIFORM_MOTOR_AND_SCAN_SPEED_DISABLE	0x00
-
-	 /* bit[6] */
-#define     ES01_STATIC_SCAN_ENABLE                 0x40
-#define     ES01_STATIC_SCAN_DISABLE                0x00
-
-/*	bit[7]*/
-#define		MOTOR_TEST_LOOP_ENABLE					0x80
-#define		MOTOR_TEST_LOOP_DISABLE					0x00
-#define ES01_F4_ActiveTrigger				0xf4
-		/* bit[0] */
-#define		ACTION_TRIGGER_ENABLE			0x01
-#define		ACTION_TRIGGER_DISABLE			0x00
-
-#define		ES01_F5_ScanDataFormat				0xf5
-			/* bit[0] */
-#define		COLOR_ES02							0x00
-#define		GRAY_ES02							0x01
-/* bit[2:1]*/
-#define		_8_BITS_ES02						0x00
-#define		_16_BITS_ES02						0x02
-#define		_1_BIT_ES02							0x04
-/* bit[5:4]*/
-#define		GRAY_RED_ES02						0x00
-#define		GRAY_GREEN_ES02						0x10
-#define		GRAY_BLUE_ES02						0x20
-#define		GRAY_GREEN_BLUE_ES02				0x30
-
-#define ES01_F6_MotorControl1				0xf6
+#define		ES01_DF_ICG_CONTROL			0xDF
 		/* bit[2:0] */
-#define		SPEED_UNIT_1_PIXEL_TIME			0x00
-#define		SPEED_UNIT_4_PIXEL_TIME			0x01
-#define		SPEED_UNIT_8_PIXEL_TIME			0x02
-#define		SPEED_UNIT_16_PIXEL_TIME		0x03
-#define		SPEED_UNIT_32_PIXEL_TIME		0x04
-#define		SPEED_UNIT_64_PIXEL_TIME		0x05
-#define		SPEED_UNIT_128_PIXEL_TIME		0x06
-#define		SPEED_UNIT_256_PIXEL_TIME		0x07
-/* bit[5:4]*/
-#define		MOTOR_SYNC_UNIT_1_PIXEL_TIME		0x00
-#define		MOTOR_SYNC_UNIT_16_PIXEL_TIME		0x10
-#define		MOTOR_SYNC_UNIT_64_PIXEL_TIME		0x20
-#define		MOTOR_SYNC_UNIT_256_PIXEL_TIME		0x30
-#define ES01_F7_DigitalControl							0xf7
-		/* bit[0] */
-#define		DIGITAL_REDUCE_ENABLE	0x01
-#define		DIGITAL_REDUCE_DISABLE	0x00
-/* bit[3:1]*/
-#define		DIGITAL_REDUCE_1_1		0x00
-#define		DIGITAL_REDUCE_1_2		0x02
-#define		DIGITAL_REDUCE_1_4		0x04
-#define		DIGITAL_REDUCE_1_8		0x06
-#define		DIGITAL_REDUCE_1_16		0x08
+#define	BEFORE_PHRS_0_ns			0x00
+#define	BEFORE_PHRS_416_7t_ns			0x01
+#define	BEFORE_PHRS_416_6t_ns			0x02
+#define	BEFORE_PHRS_416_5t_ns			0x03
+#define	BEFORE_PHRS_416_4t_ns			0x04
+#define	BEFORE_PHRS_416_3t_ns			0x05
+#define	BEFORE_PHRS_416_2t_ns			0x06
+#define	BEFORE_PHRS_416_1t_ns			0x07
+		/* bit[2:0] */
+#define	ICG_UNIT_1_PIXEL_TIME			0x00
+#define	ICG_UNIT_4_PIXEL_TIME			0x10
+#define	ICG_UNIT_8_PIXEL_TIME			0x20
+#define	ICG_UNIT_16_PIXEL_TIME			0x30
+#define	ICG_UNIT_32_PIXEL_TIME			0x40
+#define	ICG_UNIT_64_PIXEL_TIME			0x50
+#define	ICG_UNIT_128_PIXEL_TIME			0x60
+#define	ICG_UNIT_256_PIXEL_TIME			0x70
 
-#define		ES01_F8_WHITE_SHADING_DATA_FORMAT		0xF8
-			/* bit[1:0] */
-#define		ES01_SHADING_2_INT_14_DEC		0x00
-#define		ES01_SHADING_3_INT_13_DEC		0x01
-#define		ES01_SHADING_4_INT_12_DEC		0x02
-#define		ES01_SHADING_5_INT_11_DEC		0x03
-#define ES01_F9_BufferFullSize16WordLSB		0xf9
-#define ES01_FA_BufferFullSize16WordMSB		0xfa
-#define ES01_FB_BufferEmptySize16WordLSB	0xfb
-#define ES01_FC_BufferEmptySize16WordMSB	0xfc
-#define ES01_FD_MotorFixedspeedLSB			0xfd
-#define ES01_FE_MotorFixedspeedMSB			0xfe
-#define		ES01_FF_TestControl				0xff
+#define		ES01_E0_MotorAccStep0_7			0xE0
+#define		ES01_E1_MotorAccStep8_8			0xE1
+#define		ES01_E2_MotorStepOfMaxSpeed0_7		0xE2
+#define		ES01_E3_MotorStepOfMaxSpeed8_15		0xE3
+#define		ES01_E4_MotorStepOfMaxSpeed16_19	0xE4
+#define		ES01_E5_MotorDecStep			0xE5
+#define		ES01_E6_ScanBackTrackingStepLSB		0xE6
+#define		ES01_E7_ScanBackTrackingStepMSB		0xE7
+#define		ES01_E8_ScanRestartStepLSB		0xE8
+#define		ES01_E9_ScanRestartStepMSB		0xE9
+#define		ES01_EA_ScanBackHomeExtStepLSB		0xEA
+#define		ES01_EB_ScanBackHomeExtStepMSB		0xEB
+#define		ES01_EC_ScanAccStep0_7			0xEC
+#define		ES01_ED_ScanAccStep8_8			0xED
+#define		ES01_EE_FixScanStepLSB			0xEE
+#define		ES01_EF_ScanDecStep			0xEF
+#define		ES01_F0_ScanImageStep0_7		0xF0
+#define		ES01_F1_ScanImageStep8_15		0xF1
+#define		ES01_F2_ScanImageStep16_19		0xF2
+
+#define		ES01_F3_ActionOption			0xF3
 		/* bit[0] */
-#define		OUTPUT_HORIZONTAL_PATTERN_ENABLE	0x01
-#define		OUTPUT_HORIZONTAL_PATTERN_DISABLE	0x00
-/* bit[1]*/
-#define		OUTPUT_VERTICAL_PATTERN_ENABLE	0x02
-#define		OUTPUT_VERTICAL_PATTERN_DISABLE	0x00
-/* bit[2]*/
-#define		BYPASS_DARK_SHADING_ENABLE	0x04
-#define		BYPASS_DARK_SHADING_DISABLE	0x00
-/* bit[3]*/
-#define		BYPASS_WHITE_SHADING_ENABLE		0x08
-#define		BYPASS_WHITE_SHADING_DISABLE	0x00
-/* bit[4]*/
-#define		BYPASS_PRE_GAMMA_ENABLE		0x10
-#define		BYPASS_PRE_GAMMA_DISABLE	0x00
-/* bit[5]*/
-#define		BYPASS_CONVOLUTION_ENABLE	0x20
-#define		BYPASS_CONVOLUTION_DISABLE	0x00
-/* bit[6]*/
-#define		BYPASS_MATRIX_ENABLE	0x40
-#define		BYPASS_MATRIX_DISABLE	0x00
-/* bit[7]*/
-#define		BYPASS_GAMMA_ENABLE		0x80
-#define		BYPASS_GAMMA_DISABLE	0x00
-#define		ES01_FF_SCAN_IMAGE_OPTION				0xFF
+#define	MOTOR_MOVE_TO_FIRST_LINE_ENABLE		0x01
+#define	MOTOR_MOVE_TO_FIRST_LINE_DISABLE	0x00
+		/* bit[1] */
+#define	MOTOR_BACK_HOME_AFTER_SCAN_ENABLE	0x02
+#define	MOTOR_BACK_HOME_AFTER_SCAN_DISABLE	0x00
+		/* bit[2] */
+#define	SCAN_ENABLE				0x04
+#define	SCAN_DISABLE				0x00
+		/* bit[3] */
+#define	SCAN_BACK_TRACKING_ENABLE		0x08
+#define	SCAN_BACK_TRACKING_DISABLE		0x00
+		/* bit[4] */
+#define	INVERT_MOTOR_DIRECTION_ENABLE		0x10
+#define	INVERT_MOTOR_DIRECTION_DISABLE		0x00
+		/* bit[5] */
+#define	UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE	0x20
+#define	UNIFORM_MOTOR_AND_SCAN_SPEED_DISABLE	0x00
+		/* bit[6] */
+#define STATIC_SCAN_ENABLE_ES01			0x40
+#define STATIC_SCAN_DISABLE_ES01		0x00
+		/* bit[7] */
+#define	MOTOR_TEST_LOOP_ENABLE			0x80
+#define	MOTOR_TEST_LOOP_DISABLE			0x00
+
+#define		ES01_F4_ActiveTrigger			0xF4
 		/* bit[0] */
-#define		OUTPUT_HORIZONTAL_PATTERN_ENABLE	0x01
-#define		OUTPUT_HORIZONTAL_PATTERN_DISABLE	0x00
-/* bit[1]*/
-#define		OUTPUT_VERTICAL_PATTERN_ENABLE	0x02
-#define		OUTPUT_VERTICAL_PATTERN_DISABLE	0x00
-/* bit[2]*/
-#define		BYPASS_DARK_SHADING_ENABLE	0x04
-#define		BYPASS_DARK_SHADING_DISABLE	0x00
-/* bit[3]*/
-#define		BYPASS_WHITE_SHADING_ENABLE		0x08
-#define		BYPASS_WHITE_SHADING_DISABLE	0x00
-/* bit[4]*/
-#define		BYPASS_PRE_GAMMA_ENABLE		0x10
-#define		BYPASS_PRE_GAMMA_DISABLE	0x00
-/* bit[5]*/
-#define		BYPASS_CONVOLUTION_ENABLE	0x20
-#define		BYPASS_CONVOLUTION_DISABLE	0x00
-/* bit[6]*/
-#define		BYPASS_MATRIX_ENABLE	0x40
-#define		BYPASS_MATRIX_DISABLE	0x00
-/* bit[7]*/
-#define		BYPASS_GAMMA_ENABLE		0x80
-#define		BYPASS_GAMMA_DISABLE	0x00
+#define	ACTION_TRIGGER_ENABLE			0x01
+#define	ACTION_TRIGGER_DISABLE			0x00
+
+#define		ES01_F5_ScanDataFormat			0xF5
+		/* bit[0] */
+#define	COLOR_ES02				0x00
+#define	GRAY_ES02				0x01
+		/* bit[2:1] */
+#define	_8_BITS_ES02				0x00
+#define	_16_BITS_ES02				0x02
+#define	_1_BIT_ES02				0x04
+		/* bit[5:4] */
+#define	GRAY_RED_ES02				0x00
+#define	GRAY_GREEN_ES02				0x10
+#define	GRAY_BLUE_ES02				0x20
+#define	GRAY_GREEN_BLUE_ES02			0x30
+
+#define		ES01_F6_MotorControl1			0xF6
+		/* bit[2:0] */
+#define	SPEED_UNIT_1_PIXEL_TIME			0x00
+#define	SPEED_UNIT_4_PIXEL_TIME			0x01
+#define	SPEED_UNIT_8_PIXEL_TIME			0x02
+#define	SPEED_UNIT_16_PIXEL_TIME		0x03
+#define	SPEED_UNIT_32_PIXEL_TIME		0x04
+#define	SPEED_UNIT_64_PIXEL_TIME		0x05
+#define	SPEED_UNIT_128_PIXEL_TIME		0x06
+#define	SPEED_UNIT_256_PIXEL_TIME		0x07
+		/* bit[5:4] */
+#define	MOTOR_SYNC_UNIT_1_PIXEL_TIME		0x00
+#define	MOTOR_SYNC_UNIT_16_PIXEL_TIME		0x10
+#define	MOTOR_SYNC_UNIT_64_PIXEL_TIME		0x20
+#define	MOTOR_SYNC_UNIT_256_PIXEL_TIME		0x30
+
+#define		ES01_F7_DigitalControl			0xF7
+		/* bit[0] */
+#define	DIGITAL_REDUCE_ENABLE			0x01
+#define	DIGITAL_REDUCE_DISABLE			0x00
+		/* bit[3:1] */
+#define	DIGITAL_REDUCE_1_1			0x00
+#define	DIGITAL_REDUCE_1_2			0x02
+#define	DIGITAL_REDUCE_1_4			0x04
+#define	DIGITAL_REDUCE_1_8			0x06
+#define	DIGITAL_REDUCE_1_16			0x08
+
+#define		ES01_F8_WHITE_SHADING_DATA_FORMAT	0xF8
+		/* bit[1:0] */
+#define	SHADING_2_INT_14_DEC_ES01		0x00
+#define	SHADING_3_INT_13_DEC_ES01		0x01
+#define	SHADING_4_INT_12_DEC_ES01		0x02
+#define	SHADING_5_INT_11_DEC_ES01		0x03
+
+#define		ES01_F9_BufferFullSize16WordLSB		0xF9
+#define		ES01_FA_BufferFullSize16WordMSB		0xFA
+#define		ES01_FB_BufferEmptySize16WordLSB	0xFB
+#define		ES01_FC_BufferEmptySize16WordMSB	0xFC
+#define		ES01_FD_MotorFixedspeedLSB		0xFD
+#define		ES01_FE_MotorFixedspeedMSB		0xFE
+
+#define		ES01_FF_SCAN_IMAGE_OPTION		0xFF
+		/* bit[0] */
+#define	OUTPUT_HORIZONTAL_PATTERN_ENABLE	0x01
+#define	OUTPUT_HORIZONTAL_PATTERN_DISABLE	0x00
+		/* bit[1] */
+#define	OUTPUT_VERTICAL_PATTERN_ENABLE		0x02
+#define	OUTPUT_VERTICAL_PATTERN_DISABLE		0x00
+		/* bit[2] */
+#define	BYPASS_DARK_SHADING_ENABLE		0x04
+#define	BYPASS_DARK_SHADING_DISABLE		0x00
+		/* bit[3] */
+#define	BYPASS_WHITE_SHADING_ENABLE		0x08
+#define	BYPASS_WHITE_SHADING_DISABLE		0x00
+		/* bit[4] */
+#define	BYPASS_PRE_GAMMA_ENABLE			0x10
+#define	BYPASS_PRE_GAMMA_DISABLE		0x00
+		/* bit[5] */
+#define	BYPASS_CONVOLUTION_ENABLE		0x20
+#define	BYPASS_CONVOLUTION_DISABLE		0x00
+		/* bit[6] */
+#define	BYPASS_MATRIX_ENABLE			0x40
+#define	BYPASS_MATRIX_DISABLE			0x00
+		/* bit[7] */
+#define	BYPASS_GAMMA_ENABLE			0x80
+#define	BYPASS_GAMMA_DISABLE			0x00
 
 /*******************************************************************/
+
 #define		ES01_160_CHANNEL_A_LATCH_POSITION_HB	0x160
 #define		ES01_161_CHANNEL_A_LATCH_POSITION_LB	0x161
 #define		ES01_162_CHANNEL_B_LATCH_POSITION_HB	0x162
@@ -805,13 +794,12 @@ typedef enum
 
 #define		ES01_168_SECONDARY_FF_LATCH_POSITION	0x168
 
-#define		ES01_169_NUMBER_OF_SEGMENT_PIXEL_LB		0x169
-#define		ES01_16A_NUMBER_OF_SEGMENT_PIXEL_HB		0x16A
+#define		ES01_169_NUMBER_OF_SEGMENT_PIXEL_LB	0x169
+#define		ES01_16A_NUMBER_OF_SEGMENT_PIXEL_HB	0x16A
 
 #define		ES01_16B_BETWEEN_SEGMENT_INVALID_PIXEL	0x16B
 #define		ES01_16C_LINE_SHIFT_OUT_TIMES_DIRECTION	0x16C	/* bit[3:0] */
 
-/* segment start address */
 #define		ES01_16D_EXPOSURE_CYCLE1_SEGMENT1_START_ADDR_BYTE0	0x16D
 #define		ES01_16E_EXPOSURE_CYCLE1_SEGMENT1_START_ADDR_BYTE1	0x16E
 #define		ES01_16F_EXPOSURE_CYCLE1_SEGMENT1_START_ADDR_BYTE2	0x16F	/* bit[3:0] */
@@ -860,7 +848,6 @@ typedef enum
 #define		ES01_18F_EXPOSURE_CYCLE3_SEGMENT4_START_ADDR_BYTE1	0x18F
 #define		ES01_190_EXPOSURE_CYCLE3_SEGMENT4_START_ADDR_BYTE2	0x190	/* bit[3:0] */
 
-/* channel gap */
 #define		ES01_191_CHANNEL_GAP1_BYTE0	0x191
 #define		ES01_192_CHANNEL_GAP1_BYTE1	0x192
 #define		ES01_193_CHANNEL_GAP1_BYTE2	0x193	/* bit[3:0] */
@@ -873,17 +860,13 @@ typedef enum
 #define		ES01_198_CHANNEL_GAP3_BYTE1	0x198
 #define		ES01_199_CHANNEL_GAP3_BYTE2	0x199	/* bit[3:0] */
 
-/* channel line gap */
 #define		ES01_19A_CHANNEL_LINE_GAP_LB	0x19A
 #define		ES01_19B_CHANNEL_LINE_GAP_HB	0x19B
 
-/* max pack line */
 #define		ES01_19C_MAX_PACK_LINE	0x19C	/* bit[5:0] */
 
-/*pack threshold */
 #define		ES01_19D_PACK_THRESHOLD_LINE	0x19D
 
-/* pack area start address */
 #define		ES01_19E_PACK_AREA_R_START_ADDR_BYTE0	0x19E
 #define		ES01_19F_PACK_AREA_R_START_ADDR_BYTE1	0x19F
 #define		ES01_1A0_PACK_AREA_R_START_ADDR_BYTE2	0x1A0	/* bit[3:0] */
@@ -896,7 +879,6 @@ typedef enum
 #define		ES01_1A5_PACK_AREA_B_START_ADDR_BYTE1	0x1A5
 #define		ES01_1A6_PACK_AREA_B_START_ADDR_BYTE2	0x1A6	/* bit[3:0] */
 
-/* pack area end address */
 #define		ES01_1A7_PACK_AREA_R_END_ADDR_BYTE0	0x1A7
 #define		ES01_1A8_PACK_AREA_R_END_ADDR_BYTE1	0x1A8
 #define		ES01_1A9_PACK_AREA_R_END_ADDR_BYTE2	0x1A9	/* bit[3:0] */
@@ -909,14 +891,11 @@ typedef enum
 #define		ES01_1AE_PACK_AREA_B_END_ADDR_BYTE1	0x1AE
 #define		ES01_1AF_PACK_AREA_B_END_ADDR_BYTE2	0x1AF	/* bit[3:0] */
 
-/* segment pixel number */
 #define		ES01_1B0_SEGMENT_PIXEL_NUMBER_LB	0x1B0
 #define		ES01_1B1_SEGMENT_PIXEL_NUMBER_HB	0x1B1
 
-/*overlap pixel number and hold pixel number */
 #define		ES01_1B2_OVERLAP_AND_HOLD_PIXEL_NUMBER	0x1B2
 
-/*convolution parameter */
 #define		ES01_1B3_CONVOLUTION_A	0x1B3
 #define		ES01_1B4_CONVOLUTION_B	0x1B4
 #define		ES01_1B5_CONVOLUTION_C	0x1B5
@@ -924,105 +903,81 @@ typedef enum
 #define		ES01_1B7_CONVOLUTION_E	0x1B7
 #define		ES01_1B8_CONVOLUTION_F	0x1B8	/* bit[2:0] */
 
-/* line pixel number */
 #define		ES01_1B9_LINE_PIXEL_NUMBER_LB	0x1B9
 #define		ES01_1BA_LINE_PIXEL_NUMBER_HB	0x1BA
 
-/* matrix parameter */
 #define		ES01_1BB_MATRIX_A_LB	0x1BB
 #define		ES01_1BC_MATRIX_A_HB	0x1BC	/* bit[3:0] */
-
 #define		ES01_1BD_MATRIX_B_LB	0x1BD
 #define		ES01_1BE_MATRIX_B_HB	0x1BE	/* bit[3:0] */
-
 #define		ES01_1BF_MATRIX_C_LB	0x1BF
 #define		ES01_1C0_MATRIX_C_HB	0x1C0	/* bit[3:0] */
-
 #define		ES01_1C1_MATRIX_D_LB	0x1C1
 #define		ES01_1C2_MATRIX_D_HB	0x1C2	/* bit[3:0] */
-
 #define		ES01_1C3_MATRIX_E_LB	0x1C3
 #define		ES01_1C4_MATRIX_E_HB	0x1C4	/* bit[3:0] */
-
 #define		ES01_1C5_MATRIX_F_LB	0x1C5
 #define		ES01_1C6_MATRIX_F_HB	0x1C6	/* bit[3:0] */
-
 #define		ES01_1C7_MATRIX_G_LB	0x1C7
 #define		ES01_1C8_MATRIX_G_HB	0x1C8	/* bit[3:0] */
-
 #define		ES01_1C9_MATRIX_H_LB	0x1C9
 #define		ES01_1CA_MATRIX_H_HB	0x1CA	/* bit[3:0] */
-
 #define		ES01_1CB_MATRIX_I_LB	0x1CB
 #define		ES01_1CC_MATRIX_I_HB	0x1CC	/* bit[3:0] */
 
-/*dummy clock number */
 #define		ES01_1CD_DUMMY_CLOCK_NUMBER	0x1CD	/* bit[3:0] */
+#define		ES01_1CE_LINE_SEGMENT_NUMBER	0x1CE
 
-/* line segment number */
-#define		ES01_1CE_LINE_SEGMENT_NUMBER 0x1CE
-
-/* dummy cycle timing */
 #define		ES01_1D0_DUMMY_CYCLE_TIMING_B0	0x1D0
 #define		ES01_1D1_DUMMY_CYCLE_TIMING_B1	0x1D1
 #define		ES01_1D2_DUMMY_CYCLE_TIMING_B2	0x1D2
 #define		ES01_1D3_DUMMY_CYCLE_TIMING_B3	0x1D3
 
-/* PH1 timing adjust register */
 #define		ES01_1D4_PH1_TIMING_ADJ_B0	0x1D4
 #define		ES01_1D5_PH1_TIMING_ADJ_B1	0x1D5
 #define		ES01_1D6_PH1_TIMING_ADJ_B2	0x1D6
 #define		ES01_1D7_PH1_TIMING_ADJ_B3	0x1D7
 
-/* PH2 timing adjust register */
 #define		ES01_1D8_PH2_TIMING_ADJ_B0	0x1D8
 #define		ES01_1D9_PH2_TIMING_ADJ_B1	0x1D9
 #define		ES01_1DA_PH2_TIMING_ADJ_B2	0x1DA
 #define		ES01_1DB_PH2_TIMING_ADJ_B3	0x1DB
 
-/* PH3 timing adjust register */
 #define		ES01_1DC_PH3_TIMING_ADJ_B0	0x1DC
 #define		ES01_1DD_PH3_TIMING_ADJ_B1	0x1DD
 #define		ES01_1DE_PH3_TIMING_ADJ_B2	0x1DE
 #define		ES01_1DF_PH3_TIMING_ADJ_B3	0x1DF
 
-/* PH4 timing adjust register */
 #define		ES01_1E0_PH4_TIMING_ADJ_B0	0x1E0
 #define		ES01_1E1_PH4_TIMING_ADJ_B1	0x1E1
 #define		ES01_1E2_PH4_TIMING_ADJ_B2	0x1E2
 #define		ES01_1E3_PH4_TIMING_ADJ_B3	0x1E3
 
-/*PHRS timing adjust register */
 #define		ES01_1E4_PHRS_TIMING_ADJ_B0	0x1E4
 #define		ES01_1E5_PHRS_TIMING_ADJ_B1	0x1E5
 #define		ES01_1E6_PHRS_TIMING_ADJ_B2	0x1E6
 #define		ES01_1E7_PHRS_TIMING_ADJ_B3	0x1E7
 
-/* PHCP timing adjust register */
 #define		ES01_1E8_PHCP_TIMING_ADJ_B0	0x1E8
 #define		ES01_1E9_PHCP_TIMING_ADJ_B1	0x1E9
 #define		ES01_1EA_PHCP_TIMING_ADJ_B2	0x1EA
 #define		ES01_1EB_PHCP_TIMING_ADJ_B3	0x1EB
 
-/*AFEVS timing adjust register */
 #define		ES01_1EC_AFEVS_TIMING_ADJ_B0	0x1EC
 #define		ES01_1ED_AFEVS_TIMING_ADJ_B1	0x1ED
 #define		ES01_1EE_AFEVS_TIMING_ADJ_B2	0x1EE
 #define		ES01_1EF_AFEVS_TIMING_ADJ_B3	0x1EF
 
-/*AFERS timing adjust register */
 #define		ES01_1F0_AFERS_TIMING_ADJ_B0	0x1F0
 #define		ES01_1F1_AFERS_TIMING_ADJ_B1	0x1F1
 #define		ES01_1F2_AFERS_TIMING_ADJ_B2	0x1F2
 #define		ES01_1F3_AFERS_TIMING_ADJ_B3	0x1F3
 
-/* read out pixel */
 #define		ES01_1F4_START_READ_OUT_PIXEL_LB	0x1F4
 #define		ES01_1F5_START_READ_OUT_PIXEL_HB	0x1F5
 #define		ES01_1F6_READ_OUT_PIXEL_LENGTH_LB	0x1F6
 #define		ES01_1F7_READ_OUT_PIXEL_LENGTH_HB	0x1F7
 
-/* pack channel setting */
 #define		ES01_1F8_PACK_CHANNEL_SELECT_B0	0x1F8
 #define		ES01_1F9_PACK_CHANNEL_SELECT_B1	0x1F9
 #define		ES01_1FA_PACK_CHANNEL_SELECT_B2	0x1FA
@@ -1030,8 +985,7 @@ typedef enum
 #define		ES01_1FC_PACK_CHANNEL_SIZE_B1	0x1FC
 #define		ES01_1FD_PACK_CHANNEL_SIZE_B2	0x1FD
 
-/* AFE gain offset control*/
-  /* rom code ver 0.10  */
+/* AFE gain offset control - ROM code version 0.10 */
 #define		ES01_2A0_AFE_GAIN_OFFSET_CONTROL	0x2A0
 #define		ES01_2A1_AFE_AUTO_CONFIG_GAIN		0x2A1
 #define		ES01_2A2_AFE_AUTO_CONFIG_OFFSET		0x2A2
@@ -1040,7 +994,6 @@ typedef enum
 #define		ES01_2B1_SEGMENT1_OVERLAP_SEGMENT2	0x2B1
 #define		ES01_2B2_SEGMENT2_OVERLAP_SEGMENT3	0x2B2
 
-/* valid pixel parameter */
 #define		ES01_2C0_VALID_PIXEL_PARAMETER_OF_SEGMENT1	0x2C0
 #define		ES01_2C1_VALID_PIXEL_PARAMETER_OF_SEGMENT2	0x2C1
 #define		ES01_2C2_VALID_PIXEL_PARAMETER_OF_SEGMENT3	0x2C2
@@ -1057,6 +1010,7 @@ typedef enum
 #define		ES01_2CD_VALID_PIXEL_PARAMETER_OF_SEGMENT14	0x2CD
 #define		ES01_2CE_VALID_PIXEL_PARAMETER_OF_SEGMENT15	0x2CE
 #define		ES01_2CF_VALID_PIXEL_PARAMETER_OF_SEGMENT16	0x2CF
+
 
 static STATUS OpenScanChip (PAsic chip);
 static STATUS CloseScanChip (PAsic chip);
@@ -1091,60 +1045,47 @@ static STATUS Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata
 static STATUS Mustek_ClearFIFO (PAsic chip);
 static STATUS SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size);
 
-/* Open Scanner */
 static STATUS Asic_Open (PAsic chip);
-/* Close Scanner */
 static STATUS Asic_Close (PAsic chip);
-/* Initialize Scanner Parameters */
 static STATUS Asic_Initialize (PAsic chip);
-/* Set Scan Window */
 static STATUS Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 			      unsigned short wXResolution, unsigned short wYResolution,
 			      unsigned short wX, unsigned short wY, unsigned short wWidth, unsigned short wLength);
-/* Turn Lamp  ON or OFF */
 static STATUS Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn);
-/* Turn TA ON or OFF */
 static STATUS Asic_TurnTA (PAsic chip, SANE_Bool isTAOn);
-/* Reset some parameter of asic */
 static STATUS Asic_Reset (PAsic chip);
-/* Set scan source */
 static STATUS Asic_SetSource (PAsic chip, LIGHTSOURCE lsLightSource);
-/* Start scanner to scan */
 static STATUS Asic_ScanStart (PAsic chip);
-/* Stop scanner to scan */
 static STATUS Asic_ScanStop (PAsic chip);
-/* Read One Scan Line When Scanning */
+
+/* called while scanning, reads one line of image data */
 static STATUS Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer, unsigned short LinesCount);
+
 #if SANE_UNUSED
-/* To Check Hard Key */
 static STATUS Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key);
 #endif
-/* To Check if TA id connected */
 static STATUS Asic_IsTAConnected (PAsic chip, SANE_Bool *hasTA);
-/* For AdjustAD Calculate Scanner*/
+
+/* called by AdjustAD and FindTopLeft */
 static STATUS Asic_ReadCalibrationData (PAsic chip, void * pBuffer,
 					unsigned int dwXferBytes, SANE_Byte bScanBits);
-/* Set motor move or not */
+
+/* enable/disable motor movement */
 static STATUS Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove);
-/* Move Motor Forward or Backword */
+
 static STATUS Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps);
-/* Move Motor to Home. */
-/* If isTA is TRUE, move TA to home, else move Lamp to home */
 static STATUS Asic_CarriageHome (PAsic chip);
-/* For ShadingTable */
 static STATUS Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 				    unsigned short * lpDarkShading,
 				    unsigned short wXResolution, unsigned short wWidth);
-/* Wait motor move to home. isTA no used */
 static STATUS Asic_WaitCarriageHome (PAsic chip);
-/* Wait until asic idle */
 static STATUS Asic_WaitUnitReady (PAsic chip);
-/* Set Scan Parameter to Scanner */
 static STATUS Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 				 unsigned short wYResolution, unsigned short wX, unsigned short wY,
 				 unsigned short wWidth, unsigned short wLength, SANE_Bool isShading);
 
-/* ---------------------- asic motor defines -------------------------- */
+
+/* ---------------------- ASIC motor defines -------------------------- */
 
 
 typedef struct
@@ -1185,23 +1126,24 @@ typedef struct
 typedef struct
 {
   SANE_Byte ActionMode;		/* 0: AccDec Mode, 1: Uniform Speed Mode, 2: Test Mode */
-  SANE_Byte ActionType;		/* 0: Forward, 1: Backward, 2:Back To Home */
-  SANE_Byte MotorSelect;		/* 0: Motor 0 only, 1: Motor 1 only, 2: Motor 0 & 1 */
-  SANE_Byte HomeSensorSelect;	/* 0: Sensor 0, 1: Sensor 1, 2: Sensor 0 & 1, 3:Invert Sensor 1 */
+  SANE_Byte ActionType;		/* 0: Forward, 1: Backward, 2: Back To Home */
+  SANE_Byte MotorSelect;	/* 0: Motor 0 only, 1: Motor 1 only, 2: Motor 0 & 1 */
+  SANE_Byte HomeSensorSelect;	/* 0: Sensor 0, 1: Sensor 1, 2: Sensor 0 & 1, 3: Invert Sensor 1 */
   unsigned short FixMoveSpeed;
-  unsigned int FixMoveSteps;		/* 3 bytes */
+  unsigned int FixMoveSteps;	/* only lower 3 bytes used */
   SANE_Byte MotorSpeedUnit;
   SANE_Byte MotorSyncUnit;
-  unsigned short AccStep;			/*Max = 511 */
-  SANE_Byte DecStep;			/* Max = 255 */
+  unsigned short AccStep;	/* max = 511 */
+  SANE_Byte DecStep;
   SANE_Byte MotorMoveUnit;
-  SANE_Byte WaitOrNoWait;		/* 0: no wait, 1: wait */
-  SANE_Byte Lamp0PwmFreq;		/* Lamp0 PWM freq */
-  SANE_Byte Lamp1PwmFreq;		/* Lamp1 PWM freq */
+  SANE_Byte WaitOrNoWait;	/* 0: no wait, 1: wait */
+  SANE_Byte Lamp0PwmFreq;
+  SANE_Byte Lamp1PwmFreq;
 
   unsigned short wScanAccSteps;
   SANE_Byte bScanDecSteps;
 } LLF_MOTORMOVE;
+
 
 static STATUS CalculateMotorTable (LLF_CALCULATEMOTORTABLE *
 				   lpCalculateMotorTable);

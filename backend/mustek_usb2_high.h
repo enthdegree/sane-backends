@@ -214,6 +214,13 @@ static void MustScanner_CalculateMaxMin (SANE_Byte * pBuffer,
 					 unsigned short * lpMaxValue,
 					 unsigned short * lpMinValue,
 					 unsigned short wResolution);
+static SANE_Bool MustScanner_ScanSuggest (PTARGETIMAGE pTarget,
+					  PSUGGESTSETTING pSuggest);
+static SANE_Bool MustScanner_StopScan (void);
+static SANE_Bool MustScanner_PrepareScan (void);
+static SANE_Bool MustScanner_GetRows (SANE_Byte * lpBlock,
+				      unsigned short * Rows,
+				      SANE_Bool isOrderInvert);
 
 
 #endif

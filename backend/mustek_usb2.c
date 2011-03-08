@@ -667,22 +667,11 @@ static SANE_Bool
 GetParameters (LPGETPARAMETERS pGetParameters)
 {
   DBG (DBG_FUNC, "GetParameters: start\n");
-  if (ST_Reflective == g_ScanType)
-    {
-      if (FALSE == Reflective_ScanSuggest (&g_tiTarget, &g_ssSuggest))
-	{
-	  DBG (DBG_ERR, "GetParameters: Reflective_ScanSuggest error\n");
-	  return FALSE;
-	}
-    }
-  else
-    {
-      if (FALSE == Transparent_ScanSuggest (&g_tiTarget, &g_ssSuggest))
-	{
-	  DBG (DBG_ERR, "GetParameters: Transparent_ScanSuggest error\n");
-	  return FALSE;
-	}
-    }
+  if (FALSE == MustScanner_ScanSuggest (&g_tiTarget, &g_ssSuggest))
+  {
+    DBG (DBG_ERR, "GetParameters: MustScanner_ScanSuggest error\n");
+    return FALSE;
+  }
 
   pGetParameters->dwLength = (unsigned int) g_ssSuggest.wHeight;
   pGetParameters->dwLineByteWidth = g_ssSuggest.dwBytesPerRow;
@@ -754,16 +743,8 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 
   DBG (DBG_INFO, "ReadScannedData: wanted Rows = %d\n", Rows);
 
-  if (ST_Reflective == g_ScanType)
-    {
-      if (FALSE == Reflective_GetRows (lpBlock, &Rows, isRGBInvert))
-	return FALSE;
-    }
-  else if (SS_Positive == g_ssScanSource)
-    {
-      if (FALSE == Transparent_GetRows (lpBlock, &Rows, isRGBInvert))
-	return FALSE;
-    }
+  if (FALSE == MustScanner_GetRows (lpBlock, &Rows, isRGBInvert))
+    return FALSE;
 
   pImageRows->wXferedLineNum = Rows;
 
@@ -771,9 +752,7 @@ ReadScannedData (LPIMAGEROWS pImageRows)
     {
       int TotalSize = Rows * g_ssSuggest.dwBytesPerRow;
       for (i = 0; i < TotalSize; i++)
-	{
-	  *(lpBlock++) ^= 0xff;
-	}
+	*(lpBlock++) ^= 0xff;
     }
 
   if (SS_Negative == g_ssScanSource)
@@ -790,18 +769,14 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 	      DBG (DBG_INFO,
 		   "ReadScannedData: malloc the negative data is success!\n");
 	      g_bIsMallocNegData = TRUE;
-	      if (!Transparent_GetRows
+	      if (!MustScanner_GetRows
 		  (g_lpNegImageData, &g_SWHeight, isRGBInvert))
-		{
-		  return FALSE;
-		}
+		return FALSE;
 
 	      DBG (DBG_INFO, "ReadScannedData: get image data is over!\n");
 
 	      for (i = 0; i < (int) TotalImgeSize; i++)
-		{
-		  *(g_lpNegImageData++) ^= 0xff;
-		}
+		*(g_lpNegImageData++) ^= 0xff;
 	      g_lpNegImageData = lpTempData;
 	      AutoLevel (g_lpNegImageData, g_ScanMode, g_SWHeight,
 			 g_ssSuggest.dwBytesPerRow);
@@ -835,15 +810,11 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 	  int TotalSize = Rows * g_ssSuggest.dwBytesPerRow;
 	  DBG (DBG_INFO,
 	       "ReadScannedData: malloc the negative data is fail!\n");
-	  if (!Transparent_GetRows (lpReturnData, &Rows, isRGBInvert))
-	    {
-	      return FALSE;
-	    }
+	  if (!MustScanner_GetRows (lpReturnData, &Rows, isRGBInvert))
+	    return FALSE;
 
 	  for (i = 0; i < TotalSize; i++)
-	    {
-	      *(lpReturnData++) ^= 0xff;
-	    }
+	    *(lpReturnData++) ^= 0xff;
 	  pImageRows->wXferedLineNum = Rows;
 
 	  g_dwAlreadyGetNegLines += Rows;
@@ -875,17 +846,10 @@ StopScan (void)
 
   DBG (DBG_FUNC, "StopScan: start\n");
 
-  /*stop read data and kill thread */
-  if (ST_Reflective == g_ScanType)
-    {
-      rt = Reflective_StopScan ();
-    }
-  else
-    {
-      rt = Transparent_StopScan ();
-    }
+  /* stop reading data and kill thread */
+  rt = MustScanner_StopScan ();
 
-  /*free gamma table */
+  /* free gamma table */
   if (g_isSelfGamma && g_pGammaTable != NULL)
     {
       for (i = 0; i < 20; i++)
@@ -898,14 +862,13 @@ StopScan (void)
 	    }
 	  else
 	    {
-	      sleep (1);	/*waiting ReadScannedData return. */
+	      sleep (1);	/* waiting for ReadScannedData to return */
 	    }
 	}
     }
 
-  /*free image buffer */
+  /* free image buffer */
   if (g_lpReadImageHead != NULL)
-
     {
       free (g_lpReadImageHead);
       g_lpReadImageHead = NULL;

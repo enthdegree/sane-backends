@@ -65,7 +65,7 @@ typedef unsigned char SCANTYPE;
 #define ST_Reflective	0x00
 #define ST_Transparent	0x01
 
-typedef enum tagCOLORMODE
+typedef enum
 {
   CM_RGB48 = 0,
   CM_RGB24 = 4,
@@ -80,7 +80,7 @@ typedef enum tagCOLORMODE
 
 /* structures use in parameters of export function*/
 
-typedef struct tagGETPARAMETERS
+typedef struct
 {
   unsigned short wSourceXDPI;
   unsigned short wSourceYDPI;
@@ -88,7 +88,7 @@ typedef struct tagGETPARAMETERS
   unsigned int dwLength;
 } GETPARAMETERS, *LPGETPARAMETERS;
 
-typedef struct tagFRAME
+typedef struct
 {
   unsigned short x1;
   unsigned short y1;
@@ -96,7 +96,7 @@ typedef struct tagFRAME
   unsigned short y2;
 } FRAME, *LPFRAME;
 
-typedef struct tagSETPARAMETERS
+typedef struct
 {
   FRAME fmArea;
   unsigned short wTargetDPI;
@@ -106,7 +106,7 @@ typedef struct tagSETPARAMETERS
   unsigned short * pGammaTable;
 } SETPARAMETERS, *LPSETPARAMETERS;
 
-typedef struct tagIMAGEROWS
+typedef struct
 {
   RGBORDER roRgbOrder;
   unsigned short wWantedLineNum;
@@ -114,7 +114,7 @@ typedef struct tagIMAGEROWS
   SANE_Byte * pBuffer;
 } IMAGEROWS, *LPIMAGEROWS;
 
-typedef struct tagTARGETIMAGE
+typedef struct
 {
   SANE_Bool isOptimalSpeed;
   COLORMODE cmColorMode;
@@ -126,7 +126,7 @@ typedef struct tagTARGETIMAGE
   SCANSOURCE ssScanSource;
 } TARGETIMAGE, *PTARGETIMAGE;
 
-typedef struct tagSUGGESTSETTING
+typedef struct
 {
   COLORMODE cmScanMode;
   unsigned short wXDpi;

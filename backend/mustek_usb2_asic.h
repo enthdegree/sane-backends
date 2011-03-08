@@ -67,7 +67,7 @@
 #endif
 
 
-typedef enum tagFIRMWARESTATE
+typedef enum
 {
   FS_NULL = 0,
   FS_ATTACHED = 1,
@@ -75,13 +75,13 @@ typedef enum tagFIRMWARESTATE
   FS_SCANNING = 3
 } FIRMWARESTATE;
 
-typedef enum tagUSBHOST
+typedef enum
 {
   HT_USB10 = 0,
   HT_USB20 = 1
 } USBHOST;
 
-typedef enum tagLIGHTSOURCE
+typedef enum
 {
   LS_REFLECTIVE = 1,
   LS_POSITIVE = 2,
@@ -130,7 +130,7 @@ typedef struct
 } Timings;
 
 
-typedef struct tagADConverter
+typedef struct
 {
   SANE_Byte GainR;
   SANE_Byte GainG;
@@ -164,8 +164,7 @@ typedef struct
   SANE_Byte isMotorGoToFirstLine;	/*Roy add */
   SANE_Byte * lpShadingTable;	/*Roy add */
   SANE_Byte isUniformSpeedToScan;
-}
-Asic, *PAsic;
+} Asic, *PAsic;
 
 typedef enum
 {
@@ -176,8 +175,7 @@ typedef enum
   STATUS_INVAL,
   STATUS_MEM_ERROR,
   STATUS_IO_ERROR
-}
-STATUS;
+} STATUS;
 
 
 /* debug levels */
@@ -1150,7 +1148,7 @@ static STATUS Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short
 /* ---------------------- asic motor defines -------------------------- */
 
 
-typedef struct tagLLF_RAMACCESS
+typedef struct
 {
   SANE_Byte ReadWrite;
   SANE_Byte IsOnChipGamma;
@@ -1161,7 +1159,7 @@ typedef struct tagLLF_RAMACCESS
   SANE_Byte *BufferPtr;
 } LLF_RAMACCESS;
 
-typedef struct tagLLF_MOTOR_CURRENT_AND_PHASE
+typedef struct
 {
   SANE_Byte MoveType;
   SANE_Byte FillPhase;
@@ -1170,7 +1168,7 @@ typedef struct tagLLF_MOTOR_CURRENT_AND_PHASE
   SANE_Byte MotorCurrentTableB[32];
 } LLF_MOTOR_CURRENT_AND_PHASE;
 
-typedef struct tagLLF_CALCULATEMOTORTABLE
+typedef struct
 {
   unsigned short StartSpeed;
   unsigned short EndSpeed;
@@ -1179,13 +1177,13 @@ typedef struct tagLLF_CALCULATEMOTORTABLE
   unsigned short * lpMotorTable;
 } LLF_CALCULATEMOTORTABLE;
 
-typedef struct tagLLF_SETMOTORTABLE
+typedef struct
 {
   SANE_Byte MotorTableAddress;
   unsigned short *MotorTablePtr;
 } LLF_SETMOTORTABLE;
 
-typedef struct tagLLF_MOTORMOVE
+typedef struct
 {
   SANE_Byte ActionMode;		/* 0: AccDec Mode, 1: Uniform Speed Mode, 2: Test Mode */
   SANE_Byte ActionType;		/* 0: Forward, 1: Backward, 2:Back To Home */

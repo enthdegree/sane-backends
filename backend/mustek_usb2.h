@@ -61,7 +61,7 @@
 #define DEF_LINEARTTHRESHOLD 128
 
 
-enum Mustek_Usb_Option
+enum
 {
   OPT_NUM_OPTS = 0,
   OPT_MODE_GROUP,
@@ -79,12 +79,13 @@ enum Mustek_Usb_Option
   OPT_TL_Y,			/* top-left y */
   OPT_BR_X,			/* bottom-right x */
   OPT_BR_Y,			/* bottom-right y */
+
   /* must come last: */
   NUM_OPTIONS
 };
 
 
-typedef struct Scanner_Model
+typedef struct
 {
   /** @name Identification */
   /*@{ */
@@ -126,7 +127,6 @@ typedef struct Mustek_Scanner
   SANE_Byte *Scan_data_buf;	/*store Scanned data for transfer */
   SANE_Byte *Scan_data_buf_start;	/*point to data need to transfer */
   size_t scan_buffer_len;	/* length of data buf */
-}
-Mustek_Scanner;
+} Mustek_Scanner;
 
 #endif

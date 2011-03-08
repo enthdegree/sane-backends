@@ -93,6 +93,11 @@
 :usbid "0x04e8" "0x3434"
 :status :good
 
+:model "SCX-4623FW"
+:interface "USB"
+:usbid "0x04e8" "0x3440"
+:status :good
+
 :model "SCX-4825FN"
 :interface "USB"
 :usbid "0x04e8" "0x343c"

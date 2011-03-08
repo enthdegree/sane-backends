@@ -142,7 +142,7 @@ MustScanner_Init (void)
 {
   DBG (DBG_FUNC, "MustScanner_Init: Call in\n");
 
-  g_chip.firmwarestate = FS_NULL;
+  g_chip.firmwarestate = FS_ATTACHED;
   if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_Init: Asic_Open return error\n");

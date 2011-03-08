@@ -69,7 +69,6 @@
 
 typedef enum
 {
-  FS_NULL = 0,
   FS_ATTACHED = 1,
   FS_OPENED = 2,
   FS_SCANNING = 3

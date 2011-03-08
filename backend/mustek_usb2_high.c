@@ -100,7 +100,6 @@ static COLORMODE g_ScanMode;
 static TARGETIMAGE g_tiTarget;
 static SCANTYPE g_ScanType = ST_Reflective;
 static SCANSOURCE g_ssScanSource;
-static PIXELFLAVOR g_PixelFlavor;
 
 static SUGGESTSETTING g_ssSuggest;
 static Asic g_chip;
@@ -171,7 +170,6 @@ MustScanner_Init (void)
   g_pGammaTable = NULL;
 
   g_ssScanSource = SS_Reflective;
-  g_PixelFlavor = PF_BlackIs0;
 
   Asic_Close (&g_chip);
 

@@ -242,7 +242,6 @@ calc_parameters (Mustek_Scanner * s)
   s->setpara.fmArea.y2 =
     (unsigned short) ((SANE_UNFIX (s->val[OPT_BR_Y].w) * 300.0) / MM_PER_INCH + 0.5);
 
-  s->setpara.pfPixelFlavor = PF_BlackIs0;
   s->setpara.wLinearThreshold = s->val[OPT_THRESHOLD].w;
 
   s->setpara.wTargetDPI = s->val[OPT_RESOLUTION].w;
@@ -518,18 +517,6 @@ SetParameters (LPSETPARAMETERS pSetParameters)
       return FALSE;
     }
 
-  /*3. pixel flavor */
-  if (PF_BlackIs0 == pSetParameters->pfPixelFlavor
-      || PF_WhiteIs0 == pSetParameters->pfPixelFlavor)
-    {
-      g_PixelFlavor = pSetParameters->pfPixelFlavor;
-    }
-  else
-    {
-      DBG (DBG_ERR, "SetParameters: PixelFlavor error\n");
-      return FALSE;
-    }
-
   /*4. Scan area */
   if (pSetParameters->fmArea.x1 >= pSetParameters->fmArea.x2)
     {
@@ -723,7 +710,6 @@ StartScan (void)
       return Reflective_SetupScan (g_ssSuggest.cmScanMode,
 				   g_ssSuggest.wXDpi,
 				   g_ssSuggest.wYDpi,
-				   PF_BlackIs0,
 				   g_ssSuggest.wX,
 				   g_ssSuggest.wY,
 				   g_ssSuggest.wWidth, g_ssSuggest.wHeight);
@@ -737,7 +723,6 @@ StartScan (void)
       return Transparent_SetupScan (g_ssSuggest.cmScanMode,
 				    g_ssSuggest.wXDpi,
 				    g_ssSuggest.wYDpi,
-				    PF_BlackIs0,
 				    g_ssSuggest.wX,
 				    g_ssSuggest.wY,
 				    g_ssSuggest.wWidth, g_ssSuggest.wHeight);
@@ -784,7 +769,7 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 
   pImageRows->wXferedLineNum = Rows;
 
-  if (g_PixelFlavor == PF_WhiteIs0 || g_ScanMode == CM_TEXT)
+  if (g_ScanMode == CM_TEXT)
     {
       int TotalSize = Rows * g_ssSuggest.dwBytesPerRow;
       for (i = 0; i < TotalSize; i++)
@@ -1647,8 +1632,6 @@ sane_start (SANE_Handle handle)
        s->setpara.fmArea.y1);
   DBG (DBG_INFO, "Sane_start:setpara ,setpara.fmArea.y2=%d\n",
        s->setpara.fmArea.y2);
-  DBG (DBG_INFO, "Sane_start:setpara ,setpara.pfPixelFlavor=%d\n",
-       s->setpara.pfPixelFlavor);
   DBG (DBG_INFO, "Sane_start:setpara ,setpara.wLinearThreshold=%d\n",
        s->setpara.wLinearThreshold);
   DBG (DBG_INFO, "Sane_start:setpara ,setpara.wTargetDPI=%d\n",

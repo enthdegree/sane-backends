@@ -48,7 +48,7 @@
 static SANE_Bool Reflective_Reset (void);
 static SANE_Bool Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest);
 static SANE_Bool Reflective_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short YDpi,
-				  SANE_Bool isInvert, unsigned short X, unsigned short Y, unsigned short Width,
+				  unsigned short X, unsigned short Y, unsigned short Width,
 				  unsigned short Height);
 static SANE_Bool Reflective_StopScan (void);
 static SANE_Bool Reflective_GetRows (SANE_Byte * lpBlock, unsigned short * Rows, SANE_Bool isOrderInvert);
@@ -328,9 +328,8 @@ static SANE_Bool
 Reflective_SetupScan (COLORMODE ColorMode,
 		      unsigned short XDpi,
 		      unsigned short YDpi,
-		      SANE_Bool isInvert, unsigned short X, unsigned short Y, unsigned short Width, unsigned short Height)
+		      unsigned short X, unsigned short Y, unsigned short Width, unsigned short Height)
 {
-  isInvert = isInvert;
   DBG (DBG_FUNC, "Reflective_SetupScan: Call in\n");
   if (g_bOpened)
     {

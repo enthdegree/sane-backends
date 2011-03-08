@@ -49,7 +49,7 @@
 static SANE_Bool Transparent_Reset (void);
 static SANE_Bool Transparent_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest);
 static SANE_Bool Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short YDpi,
-				   SANE_Bool isInvert, unsigned short X, unsigned short Y, unsigned short Width,
+				   unsigned short X, unsigned short Y, unsigned short Width,
 				   unsigned short Height);
 static SANE_Bool Transparent_StopScan (void);
 static SANE_Bool Transparent_GetRows (SANE_Byte * lpBlock, unsigned short * Rows, SANE_Bool isOrderInvert);
@@ -282,12 +282,11 @@ Return value:
 ***********************************************************************/
 static SANE_Bool
 Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short YDpi,
-		       SANE_Bool isInvert, unsigned short X, unsigned short Y, unsigned short Width, unsigned short Height)
+		       unsigned short X, unsigned short Y, unsigned short Width, unsigned short Height)
 {
   SANE_Bool hasTA;
   unsigned short wTAShadingMinus = 0;
 
-  isInvert = isInvert;
   DBG (DBG_FUNC, "Transparent_SetupScan: call in\n");
 
   if (g_bOpened)

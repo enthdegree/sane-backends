@@ -50,11 +50,6 @@
 
 /* const use in structures*/
 
-/*pixel flavor*/
-typedef SANE_Byte PIXELFLAVOR;
-#define PF_BlackIs0 0x00
-#define PF_WhiteIs0 0x01
-
 /*scan source*/
 typedef SANE_Byte SCANSOURCE;
 #define SS_Reflective	0x00
@@ -107,7 +102,6 @@ typedef struct tagSETPARAMETERS
   unsigned short wTargetDPI;
   COLORMODE cmColorMode;
   unsigned short wLinearThreshold;	/*threshold for Line art mode */
-  PIXELFLAVOR pfPixelFlavor;
   SCANSOURCE ssScanSource;
   unsigned short * pGammaTable;
 } SETPARAMETERS, *LPSETPARAMETERS;

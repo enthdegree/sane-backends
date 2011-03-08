@@ -45,6 +45,7 @@
    This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
    and similar USB2 scanners. */
 
+
 static SANE_Bool Reflective_Reset (void);
 static SANE_Bool Reflective_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short YDpi,
 				  unsigned short X, unsigned short Y, unsigned short Width,
@@ -55,7 +56,7 @@ static SANE_Bool Reflective_LineCalibration16Bits (void);
 
 
 /**********************************************************************
-	reset the scanner status
+	reset the scanner
 Return value: 
 	TRUE if operation is success, FALSE otherwise
 ***********************************************************************/
@@ -114,7 +115,6 @@ Reflective_Reset (void)
   g_pGammaTable = NULL;
 
   DBG (DBG_FUNC, "Reflective_Reset: exit\n");
-
   return TRUE;
 }
 
@@ -134,16 +134,18 @@ Return value:
 ***********************************************************************/
 static SANE_Bool
 Reflective_SetupScan (COLORMODE ColorMode,
-		      unsigned short XDpi,
-		      unsigned short YDpi,
-		      unsigned short X, unsigned short Y, unsigned short Width, unsigned short Height)
+		      unsigned short XDpi, unsigned short YDpi,
+		      unsigned short X, unsigned short Y,
+		      unsigned short Width, unsigned short Height)
 {
   DBG (DBG_FUNC, "Reflective_SetupScan: Call in\n");
+
   if (g_bOpened)
     {
       DBG (DBG_FUNC, "Reflective_SetupScan: scanner has been opened\n");
       return FALSE;
     }
+
   if (!g_bPrepared)
     {
       DBG (DBG_FUNC, "Reflective_SetupScan: scanner not prepared\n");
@@ -159,12 +161,12 @@ Reflective_SetupScan (COLORMODE ColorMode,
   switch (g_YDpi)
     {
     case 1200:
-      g_wPixelDistance = 4;	/*even & odd sensor problem */
+      g_wPixelDistance = 4;	/* even & odd sensor problem */
       g_wLineDistance = 24;
       g_Height += g_wPixelDistance;
       break;
     case 600:
-      g_wPixelDistance = 0;	/*no even & odd problem */
+      g_wPixelDistance = 0;	/* no even & odd problem */
       g_wLineDistance = 12;
       break;
     case 300:
@@ -175,7 +177,6 @@ Reflective_SetupScan (COLORMODE ColorMode,
       g_wPixelDistance = 0;
       g_wLineDistance = 3;
       break;
-
     case 75:
     case 50:
       g_wPixelDistance = 0;
@@ -188,25 +189,25 @@ Reflective_SetupScan (COLORMODE ColorMode,
   switch (g_ScanMode)
     {
     case CM_RGB48:
-      g_BytesPerRow = 6 * g_Width;
-      g_SWBytesPerRow = 6 * g_SWWidth;
+      g_BytesPerRow = 6 * g_Width;	/* ASIC limit : width must be 8x */
+      g_SWBytesPerRow = 6 * g_SWWidth;	/* ASIC limit : width must be 8x */
       g_bScanBits = 48;
-      g_Height += g_wLineDistance * 2;	/*add height to do line distance */
+      g_Height += g_wLineDistance * 2;	/* add height to do line distance */
       break;
     case CM_RGB24ext:
-      g_BytesPerRow = 3 * g_Width;
+      g_BytesPerRow = 3 * g_Width;	/* ASIC limit : width must be 8x */
       g_SWBytesPerRow = 3 * g_SWWidth;
       g_bScanBits = 24;
-      g_Height += g_wLineDistance * 2;	/*add height to do line distance */
+      g_Height += g_wLineDistance * 2;	/* add height to do line distance */
       break;
     case CM_GRAY16ext:
-      g_BytesPerRow = 2 * g_Width;
+      g_BytesPerRow = 2 * g_Width;	/* ASIC limit : width must be 8x */
       g_SWBytesPerRow = 2 * g_SWWidth;
       g_bScanBits = 16;
       break;
     case CM_GRAY8ext:
     case CM_TEXT:
-      g_BytesPerRow = g_Width;
+      g_BytesPerRow = g_Width;	/* ASIC limit : width must be 8x */
       g_SWBytesPerRow = g_SWWidth;
       g_bScanBits = 8;
       break;

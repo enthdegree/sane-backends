@@ -70,6 +70,7 @@ Transparent_Reset (void)
       DBG (DBG_FUNC, "Transparent_Reset: scanner has been opened\n");
       return FALSE;
     }
+
   if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "Transparent_Reset: can not open scanner\n");
@@ -110,6 +111,7 @@ Transparent_Reset (void)
   g_wLineartThreshold = 128;
   g_dwTotalTotalXferLines = 0;
   g_bFirstReadImage = TRUE;
+
   g_pGammaTable = NULL;
 
   DBG (DBG_FUNC, "Transparent_Reset: leave Transparent_Reset\n");
@@ -131,8 +133,10 @@ Return value:
 	TRUE if the operation is success, FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
-Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short YDpi,
-		       unsigned short X, unsigned short Y, unsigned short Width, unsigned short Height)
+Transparent_SetupScan (COLORMODE ColorMode,
+		       unsigned short XDpi, unsigned short YDpi,
+		       unsigned short X, unsigned short Y,
+		       unsigned short Width, unsigned short Height)
 {
   SANE_Bool hasTA;
   unsigned short wTAShadingMinus = 0;
@@ -160,12 +164,12 @@ Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short 
   switch (g_YDpi)
     {
     case 1200:
-      g_wPixelDistance = 4;
+      g_wPixelDistance = 4;	/* even & odd sensor problem */
       g_wLineDistance = 24;
       g_Height += g_wPixelDistance;
       break;
     case 600:
-      g_wPixelDistance = 0;
+      g_wPixelDistance = 0;	/* no even & odd problem */
       g_wLineDistance = 12;
       g_Height += g_wPixelDistance;
       break;
@@ -184,7 +188,6 @@ Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short 
       break;
     default:
       g_wLineDistance = 0;
-
     }
 
   DBG (DBG_FUNC, "Transparent_SetupScan: g_YDpi=%d\n", g_YDpi);
@@ -199,13 +202,13 @@ Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short 
       g_BytesPerRow = 6 * g_Width;	/* ASIC limit : width must be 8x */
       g_SWBytesPerRow = 6 * g_SWWidth;	/* ASIC limit : width must be 8x */
       g_bScanBits = 48;
-      g_Height += g_wLineDistance * 2;
+      g_Height += g_wLineDistance * 2;	/* add height to do line distance */
       break;
     case CM_RGB24ext:
-      g_BytesPerRow = 3 * g_Width;	/*ASIC limit : width must be 8x */
+      g_BytesPerRow = 3 * g_Width;	/* ASIC limit : width must be 8x */
       g_SWBytesPerRow = 3 * g_SWWidth;
       g_bScanBits = 24;
-      g_Height += g_wLineDistance * 2;
+      g_Height += g_wLineDistance * 2;	/* add height to do line distance */
       break;
     case CM_GRAY16ext:
       g_BytesPerRow = 2 * g_Width;	/* ASIC limit : width must be 8x */
@@ -214,7 +217,7 @@ Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short 
       break;
     case CM_GRAY8ext:
     case CM_TEXT:
-      g_BytesPerRow = g_Width;	/*ASIC limit : width must be 8x */
+      g_BytesPerRow = g_Width;	/* ASIC limit : width must be 8x */
       g_SWBytesPerRow = g_SWWidth;
       g_bScanBits = 8;
       break;

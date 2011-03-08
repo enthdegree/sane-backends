@@ -82,8 +82,6 @@ typedef enum
 
 typedef struct
 {
-  unsigned short wSourceXDPI;
-  unsigned short wSourceYDPI;
   unsigned int dwLineByteWidth;
   unsigned int dwLength;
 } GETPARAMETERS, *LPGETPARAMETERS;

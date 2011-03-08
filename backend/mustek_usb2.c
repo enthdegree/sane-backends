@@ -684,8 +684,6 @@ GetParameters (LPGETPARAMETERS pGetParameters)
 	}
     }
 
-  pGetParameters->wSourceXDPI = g_ssSuggest.wXDpi;
-  pGetParameters->wSourceYDPI = g_ssSuggest.wYDpi;
   pGetParameters->dwLength = (unsigned int) g_ssSuggest.wHeight;
   pGetParameters->dwLineByteWidth = g_ssSuggest.dwBytesPerRow;
 

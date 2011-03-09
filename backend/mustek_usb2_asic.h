@@ -282,7 +282,6 @@ typedef enum
 #define		ES02_50_MOTOR_CURRENT_CONTORL		0x50
 		/* bit[0] */
 #define	DOWN_LOAD_MOTOR_TABLE_ENABLE				0x01
-#define	DOWN_LOAD_MOTOR_TABLE_DISABLE				0x00
 		/* bit[3:1] */
 #define	_4_TABLE_SPACE_FOR_FULL_STEP				0x00
 #define	_8_TABLE_SPACE_FOR_1_DIV_2_STEP				0x02
@@ -290,10 +289,8 @@ typedef enum
 #define	_32_TABLE_SPACE_FOR_1_DIV_8_STEP			0x0E
 		/* bit[4] */
 #define	MOTOR_TABLE_ADDR_SHOW_IN_FIRST_PIXEL_OF_LINE_ENABLE	0x10
-#define	MOTOR_TABLE_ADDR_SHOW_IN_FIRST_PIXEL_OF_LINE_DISABLE	0x00
 		/* bit[5] */
 #define	MOTOR_CURRENT_TABLE_ADDRESS_BIT4_TO_BIT0_ENABLE		0x20
-#define	MOTOR_CURRENT_TABLE_ADDRESS_BIT4_TO_BIT0_DISABLE	0x00
 
 #define		ES02_51_MOTOR_PHASE_TABLE_1		0x51
 #define		ES02_52_MOTOR_CURRENT_TABLE_A		0x52
@@ -314,21 +311,12 @@ typedef enum
 #define		ES01_65_AFE_AUTO_GAIN_OFFSET_BLUE_HB	0x65
 
 #define		ES01_74_HARDWARE_SETTING		0x74
-		/* bit[0] */
+		/* bit[4:0] */
 #define	MOTOR1_SERIAL_INTERFACE_G10_8_ENABLE	0x01
-#define	MOTOR1_SERIAL_INTERFACE_G10_8_DISABLE	0x00
-		/* bit[1] */
 #define	LED_OUT_G11_ENABLE			0x02
-#define	LED_OUT_G11_DISABLE			0x00
-		/* bit[2] */
 #define	SLAVE_SERIAL_INTERFACE_G15_14_ENABLE	0x04
-#define	SLAVE_SERIAL_INTERFACE_G15_14_DISABLE	0x00
-		/* bit[3] */
 #define	SHUTTLE_CCD_ENABLE			0x08
-#define	SHUTTLE_CCD_DISABLE			0x00
-		/* bit[4] */
 #define	HARDWARE_RESET_ESIC_AFE_ENABLE		0x10
-#define	HARDWARE_RESET_ESIC_AFE_DISABLE		0x00
 
 #define		ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL	0x79
 		/* bit[3:0] */
@@ -364,7 +352,6 @@ typedef enum
 #define		ES01_86_DisableAllClockWhenIdle		0x86
 		/* bit[0] */
 #define	CLOSE_ALL_CLOCK_ENABLE			0x01
-#define	CLOSE_ALL_CLOCK_DISABLE			0x00
 
 #define		ES01_87_SDRAM_Timing			0x87
 
@@ -416,15 +403,10 @@ typedef enum
 #define		ES01_93_MotorWatchDogTime		0x93
 
 #define		ES01_94_PowerSaveControl		0x94
-		/* bit[0] */
+		/* bit[2:0] */
 #define	TIMER_POWER_SAVE_ENABLE			0x01
-#define	TIMER_POWER_SAVE_DISABLE		0x00
-		/* bit[1] */
 #define	USB_POWER_SAVE_ENABLE			0x02
-#define	USB_POWER_SAVE_DISABLE			0x00
-		/* bit[2] */
 #define	USB_REMOTE_WAKEUP_ENABLE		0x04
-#define	USB_REMOTE_WAKEUP_DISABLE		0x00
 		/* bit[5:4] */
 #define	LED_MODE_ON				0x00
 #define	LED_MODE_OFF				0x10
@@ -443,7 +425,6 @@ typedef enum
 #define	AD9826_AFE				0x01
 		/* bit[1] */
 #define	AUTO_CHANGE_AFE_GAIN_OFFSET_ENABLE	0x02
-#define	AUTO_CHANGE_AFE_GAIN_OFFSET_DISABLE	0x00
 
 #define		ES01_9B_ShadingTableAddrA14_A21		0x9B
 #define		ES01_9C_ShadingTableAddrODDA12_A19	0x9C
@@ -467,12 +448,9 @@ typedef enum
 #define		ES01_A5_HostEndAddr16_21		0xA5
 
 #define		ES01_A6_MotorOption			0xA6
-		/* bit[0] */
+		/* bit[1:0] */
 #define	MOTOR_0_ENABLE				0x01
-#define	MOTOR_0_DISABLE				0x00
-		/* bit[1] */
 #define	MOTOR_1_ENABLE				0x02
-#define	MOTOR_1_DISABLE				0x00
 		/* bit[3:2] */
 #define	HOME_SENSOR_0_ENABLE			0x00
 #define	HOME_SENSOR_1_ENABLE			0x04
@@ -502,12 +480,9 @@ typedef enum
 #define	MOTOR1_GPO_VALUE_1			0x04
 #define	MOTOR1_GPO_VALUE_2			0x08
 #define	MOTOR1_GPO_VALUE_3			0x0C
-		/* bit[4] */
+		/* bit[5:4] */
 #define	GPO_OUTPUT_ENABLE			0x10
-#define	GPO_OUTPUT_DISABLE			0x00
-		/* bit[5] */
 #define	SERIAL_PORT_CONTINUOUS_OUTPUT_ENABLE	0x20
-#define	SERIAL_PORT_CONTINUOUS_OUTPUT_DISABLE	0x00
 
 #define		ES01_AC_MotorPWMJamRangeLSB		0xAC
 #define		ES01_AD_MotorPWMJamRangeMSB		0xAD
@@ -547,7 +522,6 @@ typedef enum
 #define		ES01_CC_PHTGTimingAdjust		0xCC
 		/* bit[0] */
 #define	PHTG_INVERT_OUTPUT_ENABLE		0x01
-#define	PHTG_INVERT_OUTPUT_DISABLE		0x00
 		/* bit[1] */
 #define	TWO_TG					0x01
 #define	MULTI_TG				0x00
@@ -604,30 +578,15 @@ typedef enum
 #define		ES01_DD_PH1234_IN_DUMMY_TG		0xDD
 
 #define		ES01_DE_CCD_SETUP_REGISTER		0xDE
-		/* bit[0] */
+		/* bit[7:0] */
 #define	LINE_SCAN_MODE_ENABLE_ES01		0x01
-#define	LINE_SCAN_MODE_DISABLE_ES01		0x00
-		/* bit[1] */
 #define	CIS_SENSOR_MODE_ENABLE_ES01		0x02
-#define	CIS_SENSOR_MODE_DISABLE_ES01		0x00
-		/* bit[2] */
 #define	CIS_LED_OUTPUT_RtoGtoB_ES01		0x04
-#define	CIS_LED_OUTPUT_RGB_ES01			0x00
-		/* bit[3] */
 #define	CIS_LED_INVERT_OUTPUT_ES01		0x08
-#define	CIS_LED_NORMAL_OUTPUT_ES01		0x00
-		/* bit[4] */
 #define	ACC_IN_IDLE_ENABLE_ES01			0x10
-#define	ACC_IN_IDLE_DISABLE_ES01		0x00
-		/* bit[5] */
 #define	EVEN_ODD_ENABLE_ES01			0x20
-#define	EVEN_ODD_DISABLE_ES01			0x00
-		/* bit[6] */
 #define	ALTERNATE_EVEN_ODD_ENABLE_ES01		0x40
-#define	ALTERNATE_EVEN_ODD_DISABLE_ES01		0x00
-		/* bit[7] */
 #define	RESET_CCD_STATE_ENABLE_ES01		0x80
-#define	RESET_CCD_STATE_DISABLE_ES01		0x00
 
 #define		ES01_DF_ICG_CONTROL			0xDF
 		/* bit[2:0] */
@@ -639,7 +598,7 @@ typedef enum
 #define	BEFORE_PHRS_416_3t_ns			0x05
 #define	BEFORE_PHRS_416_2t_ns			0x06
 #define	BEFORE_PHRS_416_1t_ns			0x07
-		/* bit[2:0] */
+		/* bit[6:4] */
 #define	ICG_UNIT_1_PIXEL_TIME			0x00
 #define	ICG_UNIT_4_PIXEL_TIME			0x10
 #define	ICG_UNIT_8_PIXEL_TIME			0x20
@@ -670,35 +629,19 @@ typedef enum
 #define		ES01_F2_ScanImageStep16_19		0xF2
 
 #define		ES01_F3_ActionOption			0xF3
-		/* bit[0] */
+		/* bit[7:0] */
 #define	MOTOR_MOVE_TO_FIRST_LINE_ENABLE		0x01
-#define	MOTOR_MOVE_TO_FIRST_LINE_DISABLE	0x00
-		/* bit[1] */
 #define	MOTOR_BACK_HOME_AFTER_SCAN_ENABLE	0x02
-#define	MOTOR_BACK_HOME_AFTER_SCAN_DISABLE	0x00
-		/* bit[2] */
 #define	SCAN_ENABLE				0x04
-#define	SCAN_DISABLE				0x00
-		/* bit[3] */
 #define	SCAN_BACK_TRACKING_ENABLE		0x08
-#define	SCAN_BACK_TRACKING_DISABLE		0x00
-		/* bit[4] */
 #define	INVERT_MOTOR_DIRECTION_ENABLE		0x10
-#define	INVERT_MOTOR_DIRECTION_DISABLE		0x00
-		/* bit[5] */
 #define	UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE	0x20
-#define	UNIFORM_MOTOR_AND_SCAN_SPEED_DISABLE	0x00
-		/* bit[6] */
 #define STATIC_SCAN_ENABLE_ES01			0x40
-#define STATIC_SCAN_DISABLE_ES01		0x00
-		/* bit[7] */
 #define	MOTOR_TEST_LOOP_ENABLE			0x80
-#define	MOTOR_TEST_LOOP_DISABLE			0x00
 
 #define		ES01_F4_ActiveTrigger			0xF4
 		/* bit[0] */
 #define	ACTION_TRIGGER_ENABLE			0x01
-#define	ACTION_TRIGGER_DISABLE			0x00
 
 #define		ES01_F5_ScanDataFormat			0xF5
 		/* bit[0] */
@@ -733,7 +676,6 @@ typedef enum
 #define		ES01_F7_DigitalControl			0xF7
 		/* bit[0] */
 #define	DIGITAL_REDUCE_ENABLE			0x01
-#define	DIGITAL_REDUCE_DISABLE			0x00
 		/* bit[3:1] */
 #define	DIGITAL_REDUCE_1_1			0x00
 #define	DIGITAL_REDUCE_1_2			0x02
@@ -756,30 +698,15 @@ typedef enum
 #define		ES01_FE_MotorFixedspeedMSB		0xFE
 
 #define		ES01_FF_SCAN_IMAGE_OPTION		0xFF
-		/* bit[0] */
+		/* bit[7:0] */
 #define	OUTPUT_HORIZONTAL_PATTERN_ENABLE	0x01
-#define	OUTPUT_HORIZONTAL_PATTERN_DISABLE	0x00
-		/* bit[1] */
 #define	OUTPUT_VERTICAL_PATTERN_ENABLE		0x02
-#define	OUTPUT_VERTICAL_PATTERN_DISABLE		0x00
-		/* bit[2] */
 #define	BYPASS_DARK_SHADING_ENABLE		0x04
-#define	BYPASS_DARK_SHADING_DISABLE		0x00
-		/* bit[3] */
 #define	BYPASS_WHITE_SHADING_ENABLE		0x08
-#define	BYPASS_WHITE_SHADING_DISABLE		0x00
-		/* bit[4] */
 #define	BYPASS_PRE_GAMMA_ENABLE			0x10
-#define	BYPASS_PRE_GAMMA_DISABLE		0x00
-		/* bit[5] */
 #define	BYPASS_CONVOLUTION_ENABLE		0x20
-#define	BYPASS_CONVOLUTION_DISABLE		0x00
-		/* bit[6] */
 #define	BYPASS_MATRIX_ENABLE			0x40
-#define	BYPASS_MATRIX_DISABLE			0x00
-		/* bit[7] */
 #define	BYPASS_GAMMA_ENABLE			0x80
-#define	BYPASS_GAMMA_DISABLE			0x00
 
 /*******************************************************************/
 

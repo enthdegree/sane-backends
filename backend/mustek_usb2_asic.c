@@ -1593,7 +1593,7 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
 
   DBG (DBG_ASIC, "LLFMotorMove: Enter\n");
 
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
 
   status = Asic_WaitUnitReady (chip);
 
@@ -1699,8 +1699,7 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
 	temp_motor_action | UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
     }
 
-  Mustek_SendData (chip, ES01_F3_ActionOption, SCAN_DISABLE |
-		   SCAN_BACK_TRACKING_DISABLE | temp_motor_action);
+  Mustek_SendData (chip, ES01_F3_ActionOption, temp_motor_action);
   Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_ENABLE);
 
   if (LLF_MotorMove->WaitOrNoWait == 1)
@@ -1777,7 +1776,7 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
 	(wStartY - wScanAccSteps) : 0;
       wForwardSteps = 0;
 
-      chip->isMotorGoToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_DISABLE;
+      chip->isMotorGoToFirstLine = 0;
     }
   else
     {
@@ -2053,7 +2052,7 @@ MotorBackHome (PAsic chip, SANE_Byte WaitOrNoWait)
   LLF_SetMotorTable.MotorTablePtr = BackHomeMotorTable;
   LLFSetMotorTable (chip, &LLF_SetMotorTable);
 
-  MotorMove.MotorSelect = MOTOR_0_ENABLE | MOTOR_1_DISABLE;
+  MotorMove.MotorSelect = MOTOR_0_ENABLE;
   MotorMove.MotorMoveUnit = TABLE_DEFINE_ES03;
   MotorMove.MotorSpeedUnit = SPEED_UNIT_1_PIXEL_TIME;
   MotorMove.MotorSyncUnit = MOTOR_SYNC_UNIT_1_PIXEL_TIME;
@@ -2250,9 +2249,8 @@ SafeInitialChip (PAsic chip)
   DBG (DBG_ASIC, "SafeInitialChip: Enter\n");
 
   Mustek_SendData (chip, ES01_F3_ActionOption, 0);
-  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle,
-		   CLOSE_ALL_CLOCK_DISABLE);
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
+  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
 
   status = Asic_WaitUnitReady (chip);
 
@@ -2699,17 +2697,10 @@ SetAFEGainOffset (PAsic chip)
   LLFSetRamAddress (chip, 0x0, PackAreaStartAddress - (512 * 8 - 1),
 		    ACCESS_DRAM);
 
-  Mustek_SendData (chip, ES01_F3_ActionOption,
-		   MOTOR_MOVE_TO_FIRST_LINE_DISABLE |
-		   MOTOR_BACK_HOME_AFTER_SCAN_DISABLE |
-		   SCAN_ENABLE |
-		   SCAN_BACK_TRACKING_DISABLE |
-		   INVERT_MOTOR_DIRECTION_DISABLE |
-		   UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE |
-		   STATIC_SCAN_DISABLE_ES01 | MOTOR_TEST_LOOP_DISABLE);
+  Mustek_SendData (chip, ES01_F3_ActionOption, SCAN_ENABLE |
+		   UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE);
 
-  Mustek_SendData (chip, ES01_9A_AFEControl,
-		   AD9826_AFE | AUTO_CHANGE_AFE_GAIN_OFFSET_DISABLE);
+  Mustek_SendData (chip, ES01_9A_AFEControl, AD9826_AFE);
 
   Mustek_SendData (chip, ES01_00_ADAFEConfiguration, 0x70);
   Mustek_SendData (chip, ES01_02_ADAFEMuxConfig, 0x80);
@@ -3165,8 +3156,7 @@ Asic_Open (PAsic chip)
     }
 
   Mustek_SendData (chip, ES01_94_PowerSaveControl, 0x27);
-  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle,
-		   CLOSE_ALL_CLOCK_DISABLE);
+  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
   Mustek_SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL,
 		   SDRAMCLK_DELAY_12_ns);
 
@@ -3245,7 +3235,7 @@ Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn)
     }
 
   if (chip->firmwarestate > FS_OPENED)
-    Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
+    Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
 
   if (isLampOn)
     PWM = LAMP0_PWM_DEFAULT;
@@ -3276,7 +3266,7 @@ Asic_TurnTA (PAsic chip, SANE_Bool isTAOn)
     }
 
   if (chip->firmwarestate > FS_OPENED)
-    Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
+    Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
 
   if (isTAOn)
     PWM = LAMP1_PWM_DEFAULT;
@@ -3321,7 +3311,7 @@ Asic_WaitUnitReady (PAsic chip)
   while (((temp_status & 0x1f) != 0) && i < 300);
   DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.1));
 
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
 
   DBG (DBG_ASIC, "Asic_WaitUnitReady: Exit\n");
   return status;
@@ -3344,7 +3334,7 @@ Asic_Initialize (PAsic chip)
   Asic_Reset (chip);
   InitTiming (chip);
 
-  chip->isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_DISABLE;
+  chip->isUniformSpeedToScan = 0;
   chip->isMotorGoToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
 
   chip->UsbHost = HT_USB10;
@@ -3406,9 +3396,8 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
     }
 
   Mustek_SendData (chip, ES01_F3_ActionOption, 0);
-  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle,
-		   CLOSE_ALL_CLOCK_DISABLE);
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
+  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
 
   status = Asic_WaitUnitReady (chip);
 
@@ -3561,16 +3550,13 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   /* SetADConverter */
   Mustek_SendData (chip, ES01_74_HARDWARE_SETTING,
-		   MOTOR1_SERIAL_INTERFACE_G10_8_ENABLE | LED_OUT_G11_DISABLE
-		   | SLAVE_SERIAL_INTERFACE_G15_14_DISABLE |
-		   SHUTTLE_CCD_DISABLE);
+		   MOTOR1_SERIAL_INTERFACE_G10_8_ENABLE);
 
   /* set AFE */
-  Mustek_SendData (chip, ES01_9A_AFEControl,
-		   AD9826_AFE | AUTO_CHANGE_AFE_GAIN_OFFSET_DISABLE);
+  Mustek_SendData (chip, ES01_9A_AFEControl, AD9826_AFE);
   SetAFEGainOffset (chip);
 
-  Mustek_SendData (chip, ES01_F7_DigitalControl, DIGITAL_REDUCE_DISABLE);
+  Mustek_SendData (chip, ES01_F7_DigitalControl, 0);
 
   /* calculate X ratio */
   XRatioTypeDouble = wXResolution;
@@ -3588,7 +3574,6 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   /* SetMotorType */
   Mustek_SendData (chip, ES01_A6_MotorOption, MOTOR_0_ENABLE |
-		   MOTOR_1_DISABLE |
 		   HOME_SENSOR_0_ENABLE | TABLE_DEFINE_ES03);
 
   Mustek_SendData (chip, ES01_F6_MotorControl1, SPEED_UNIT_1_PIXEL_TIME |
@@ -3661,17 +3646,12 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
     {
       Asic_MotorMove (chip, 1, wY / wMultiMotorStep);
       isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
-      isScanBackTracking = SCAN_BACK_TRACKING_DISABLE;
-      isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_DISABLE;
+      isScanBackTracking = 0;
+      isMotorMoveToFirstLine = 0;
     }
 
   Mustek_SendData (chip, ES01_F3_ActionOption, isMotorMoveToFirstLine |
-		   MOTOR_BACK_HOME_AFTER_SCAN_DISABLE |
-		   SCAN_ENABLE |
-		   isScanBackTracking |
-		   INVERT_MOTOR_DIRECTION_DISABLE |
-		   isUniformSpeedToScan |
-		   STATIC_SCAN_DISABLE_ES01 | MOTOR_TEST_LOOP_DISABLE);
+		   SCAN_ENABLE | isScanBackTracking | isUniformSpeedToScan);
 
   if (EndSpeed > 8000)
     {
@@ -3909,9 +3889,8 @@ Asic_ScanStop (PAsic chip)
     }
 
   Mustek_SendData (chip, ES01_F3_ActionOption, 0);
-  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle,
-		   CLOSE_ALL_CLOCK_DISABLE);
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
+  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
   Mustek_ClearFIFO (chip);
 
   chip->firmwarestate = FS_OPENED;
@@ -4090,7 +4069,7 @@ Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove)
   if (isMotorMove)
     chip->isMotorMove = MOTOR_0_ENABLE;
   else
-    chip->isMotorMove = MOTOR_0_DISABLE;
+    chip->isMotorMove = 0;
 
   DBG (DBG_ASIC, "isMotorMove=%d\n", chip->isMotorMove);
   DBG (DBG_ASIC, "Asic_SetMotorType: Exit\n");
@@ -4134,7 +4113,7 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
 
   free (NormalMoveMotorTable);
 
-  MotorMove.MotorSelect = MOTOR_0_ENABLE | MOTOR_1_DISABLE;
+  MotorMove.MotorSelect = MOTOR_0_ENABLE;
   MotorMove.MotorMoveUnit = TABLE_DEFINE_ES03;
   MotorMove.MotorSpeedUnit = SPEED_UNIT_1_PIXEL_TIME;
   MotorMove.MotorSyncUnit = MOTOR_SYNC_UNIT_1_PIXEL_TIME;
@@ -4197,7 +4176,7 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
   if (chip->firmwarestate < FS_OPENED)
     OpenScanChip (chip);
   if (chip->firmwarestate == FS_SCANNING)
-    Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
+    Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
 
 
   if (wXResolution > 600)
@@ -4304,7 +4283,7 @@ Asic_WaitCarriageHome (PAsic chip)
     status = STATUS_DEVICE_BUSY;
   DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.3));
 
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
   chip->firmwarestate = FS_OPENED;
 
   DBG (DBG_ASIC, "Asic_WaitCarriageHome: Exit\n");
@@ -4342,9 +4321,9 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   unsigned short BackTrackFixSpeedStep = 20;
   unsigned short wMultiMotorStep = 1;
   SANE_Byte bMotorMoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
-  SANE_Byte isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_DISABLE;
+  SANE_Byte isMotorMoveToFirstLine = 0;
   SANE_Byte isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
-  SANE_Byte isScanBackTracking = SCAN_BACK_TRACKING_DISABLE;
+  SANE_Byte isScanBackTracking = 0;
   unsigned int TotalStep = 0;
   unsigned short StartSpeed, EndSpeed;
   LLF_CALCULATEMOTORTABLE CalMotorTable;
@@ -4376,9 +4355,8 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
     }
 
   Mustek_SendData (chip, ES01_F3_ActionOption, 0);
-  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle,
-		   CLOSE_ALL_CLOCK_DISABLE);
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_DISABLE);
+  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
 
   status = Asic_WaitUnitReady (chip);
 
@@ -4493,14 +4471,11 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 
   /* SetADConverter */
   Mustek_SendData (chip, ES01_74_HARDWARE_SETTING,
-		   MOTOR1_SERIAL_INTERFACE_G10_8_ENABLE | LED_OUT_G11_DISABLE
-		   | SLAVE_SERIAL_INTERFACE_G15_14_DISABLE |
-		   SHUTTLE_CCD_DISABLE);
+		   MOTOR1_SERIAL_INTERFACE_G10_8_ENABLE);
 
   /* set AFE */
-  Mustek_SendData (chip, ES01_9A_AFEControl,
-		   AD9826_AFE | AUTO_CHANGE_AFE_GAIN_OFFSET_DISABLE);
-  Mustek_SendData (chip, ES01_F7_DigitalControl, DIGITAL_REDUCE_DISABLE);
+  Mustek_SendData (chip, ES01_9A_AFEControl, AD9826_AFE);
+  Mustek_SendData (chip, ES01_F7_DigitalControl, 0);
 
   XRatioTypeDouble = wXResolution;
   XRatioTypeDouble /= wThinkCCDResolution;
@@ -4518,18 +4493,8 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
        "XRatioTypeDouble=%.2f,XRatioAdderDouble=%.2f,XRatioTypeWord=%d\n",
        XRatioTypeDouble, XRatioAdderDouble, XRatioTypeWord);
 
-  if (chip->isMotorMove == MOTOR_0_ENABLE)
-    {
-      Mustek_SendData (chip, ES01_A6_MotorOption, MOTOR_0_ENABLE |
-		       MOTOR_1_DISABLE |
-		       HOME_SENSOR_0_ENABLE | TABLE_DEFINE_ES03);
-    }
-  else
-    {
-      Mustek_SendData (chip, ES01_A6_MotorOption, MOTOR_0_DISABLE |
-		       MOTOR_1_DISABLE |
-		       HOME_SENSOR_0_ENABLE | TABLE_DEFINE_ES03);
-    }
+  Mustek_SendData (chip, ES01_A6_MotorOption, chip->isMotorMove |
+		   HOME_SENSOR_0_ENABLE | TABLE_DEFINE_ES03);
   DBG (DBG_ASIC, "isMotorMove=%d\n", chip->isMotorMove);
 
   Mustek_SendData (chip, ES01_F6_MotorControl1, SPEED_UNIT_1_PIXEL_TIME |
@@ -4609,12 +4574,7 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 
 
   Mustek_SendData (chip, ES01_F3_ActionOption, isMotorMoveToFirstLine |
-		   MOTOR_BACK_HOME_AFTER_SCAN_DISABLE |
-		   SCAN_ENABLE |
-		   isScanBackTracking |
-		   INVERT_MOTOR_DIRECTION_DISABLE |
-		   isUniformSpeedToScan |
-		   STATIC_SCAN_DISABLE_ES01 | MOTOR_TEST_LOOP_DISABLE);
+		   SCAN_ENABLE | isScanBackTracking | isUniformSpeedToScan);
 
   if (chip->lsLightSource == LS_REFLECTIVE)
     Mustek_SendData (chip, ES01_F8_WHITE_SHADING_DATA_FORMAT,

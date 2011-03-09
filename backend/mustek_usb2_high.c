@@ -1643,8 +1643,7 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 static SANE_Bool
-MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-			      unsigned short * wLinesCount)
+MustScanner_GetMono16BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 {
   unsigned short wWantedTotalLines;
   unsigned short TotalXferLines;
@@ -1652,8 +1651,6 @@ MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
   unsigned short wLinePos = 0;
   unsigned short i;
-
-  isOrderInvert = isOrderInvert;
 
   DBG (DBG_FUNC, "MustScanner_GetMono16BitLine: call in\n");
 
@@ -1725,7 +1722,6 @@ MustScanner_GetMono16BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
 static SANE_Bool
 MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
-				     SANE_Bool isOrderInvert,
 				     unsigned short * wLinesCount)
 {
   unsigned short wWantedTotalLines;
@@ -1736,7 +1732,6 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
   unsigned short i;
   SANE_Byte * lpTemp = lpLine;
 
-  isOrderInvert = isOrderInvert;
   DBG (DBG_FUNC, "MustScanner_GetMono16BitLine1200DPI: call in\n");
 
   TotalXferLines = 0;
@@ -1892,8 +1887,7 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
 }
 
 static SANE_Bool
-MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-			     unsigned short * wLinesCount)
+MustScanner_GetMono8BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 {
   unsigned short wWantedTotalLines;
   unsigned short TotalXferLines;
@@ -1901,7 +1895,6 @@ MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   unsigned short i;
   unsigned short wLinePos = 0;
 
-  isOrderInvert = isOrderInvert;
   DBG (DBG_FUNC, "MustScanner_GetMono8BitLine: call in\n");
 
   TotalXferLines = 0;
@@ -1969,7 +1962,7 @@ MustScanner_GetMono8BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 static SANE_Bool
-MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
 				    unsigned short * wLinesCount)
 {
   SANE_Byte *lpTemp;
@@ -1982,7 +1975,6 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   unsigned short i;
   SANE_Byte bNextPixel = 0;
 
-  isOrderInvert = isOrderInvert;
   DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: call in\n");
 
   TotalXferLines = 0;
@@ -2118,15 +2110,12 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 static SANE_Bool
-MustScanner_GetMono1BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-			     unsigned short * wLinesCount)
+MustScanner_GetMono1BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 {
   unsigned short wWantedTotalLines;
   unsigned short TotalXferLines;
   unsigned short wLinePos;
   unsigned short i;
-
-  isOrderInvert = isOrderInvert;
 
   DBG (DBG_FUNC, "MustScanner_GetMono1BitLine: call in\n");
 
@@ -2195,7 +2184,7 @@ MustScanner_GetMono1BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 }
 
 static SANE_Bool
-MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
+MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
 				    unsigned short * wLinesCount)
 {
   unsigned short wWantedTotalLines;
@@ -2203,8 +2192,6 @@ MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   unsigned short i;
   unsigned short wLinePosOdd;
   unsigned short wLinePosEven;
-
-  isOrderInvert = isOrderInvert;
 
   DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: call in\n");
 
@@ -2570,7 +2557,7 @@ ModifyLinePoint (SANE_Byte * lpImageData, SANE_Byte * lpImageDataBefore,
 static SANE_Byte
 QBET4 (SANE_Byte A, SANE_Byte B)
 {
-  SANE_Byte bQBET[16][16] = {
+  static const SANE_Byte bQBET[16][16] = {
     {0, 0, 0, 0, 1, 1, 2, 2, 4, 4, 5, 5, 8, 8, 9, 9},
     {0, 0, 0, 0, 1, 1, 2, 2, 4, 4, 5, 5, 8, 8, 9, 9},
     {0, 0, 0, 0, 1, 1, 2, 2, 4, 4, 5, 5, 8, 8, 9, 9},
@@ -2875,24 +2862,22 @@ MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
 
     case CM_GRAY16ext:
       if (g_XDpi == 1200)
-	return MustScanner_GetMono16BitLine1200DPI (lpBlock, isOrderInvert,
-						    Rows);
+	return MustScanner_GetMono16BitLine1200DPI (lpBlock, Rows);
       else
-	return MustScanner_GetMono16BitLine (lpBlock, isOrderInvert, Rows);
+	return MustScanner_GetMono16BitLine (lpBlock, Rows);
 
     case CM_GRAY8ext:
       if (g_XDpi == 1200)
-	return MustScanner_GetMono8BitLine1200DPI (lpBlock, isOrderInvert,
-						   Rows);
+	return MustScanner_GetMono8BitLine1200DPI (lpBlock, Rows);
       else
-	return MustScanner_GetMono8BitLine (lpBlock, isOrderInvert, Rows);
+	return MustScanner_GetMono8BitLine (lpBlock, Rows);
 
     case CM_TEXT:
       if (g_XDpi == 1200)
-	return MustScanner_GetMono1BitLine1200DPI (lpBlock, isOrderInvert,
-						   Rows);
+	return MustScanner_GetMono1BitLine1200DPI (lpBlock, Rows);
       else
-	return MustScanner_GetMono1BitLine (lpBlock, isOrderInvert, Rows);
+	return MustScanner_GetMono1BitLine (lpBlock, Rows);
+
     default:
       return FALSE;
     }

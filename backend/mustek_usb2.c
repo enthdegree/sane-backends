@@ -597,7 +597,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
       double pow_d;
       double pow_z = (double) 10 / 16.0;
 
-      g_pGammaTable = (unsigned short *) malloc (sizeof (unsigned short) * 4096 * 3);
+      g_pGammaTable = malloc (sizeof (unsigned short) * 4096 * 3);
 
       DBG (DBG_INFO, "SetParameters: gamma table malloc %ld Bytes\n",
 	   (long int) sizeof (unsigned short) * 4096 * 3);
@@ -626,7 +626,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 	   || pSetParameters->cmColorMode == CM_RGB48)
     {
       unsigned int i, wGammaData;
-      g_pGammaTable = (unsigned short *) malloc (sizeof (unsigned short) * 65536 * 3);
+      g_pGammaTable = malloc (sizeof (unsigned short) * 65536 * 3);
 
       if (g_pGammaTable == NULL)
 	{
@@ -728,8 +728,8 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 {
   SANE_Bool isRGBInvert;
   unsigned short Rows = 0;
-  SANE_Byte *lpBlock = (SANE_Byte *) pImageRows->pBuffer;
-  SANE_Byte *lpReturnData = (SANE_Byte *) pImageRows->pBuffer;
+  SANE_Byte *lpBlock = pImageRows->pBuffer;
+  SANE_Byte *lpReturnData = pImageRows->pBuffer;
   int i = 0;
 
   DBG (DBG_FUNC, "ReadScannedData: start\n");
@@ -762,7 +762,7 @@ ReadScannedData (LPIMAGEROWS pImageRows)
       if (g_bIsFirstGetNegData)
 	{
 	  unsigned int TotalImgeSize = g_SWHeight * g_ssSuggest.dwBytesPerRow;
-	  g_lpNegImageData = (SANE_Byte *) malloc (TotalImgeSize);
+	  g_lpNegImageData = malloc (TotalImgeSize);
 	  if (NULL != g_lpNegImageData)
 	    {
 	      SANE_Byte * lpTempData = g_lpNegImageData;
@@ -978,7 +978,7 @@ AutoLevel (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
 
   unsigned int iWidth = BytesPerLine / 3;
   unsigned int iHeight = ScanLines;
-  SANE_Byte *pbmpdata = (SANE_Byte *) lpSource;
+  SANE_Byte *pbmpdata = lpSource;
 
   unsigned int tmp = 0;
   unsigned short imin_threshold[3];
@@ -1022,9 +1022,9 @@ AutoLevel (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
 
       for (i = 0; i < iWidth; i++)
 	{
-	  R = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 2));
-	  G = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 1));
-	  B = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3));
+	  R = (unsigned short) *(pbmpdata + (tLines + i * 3 + 2));
+	  G = (unsigned short) *(pbmpdata + (tLines + i * 3 + 1));
+	  B = (unsigned short) *(pbmpdata + (tLines + i * 3));
 
 	  max_R = _MAX (R, max_R);
 	  max_G = _MAX (G, max_G);
@@ -1142,9 +1142,9 @@ AutoLevel (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
       tLines = j * iWidth * 3;
       for (i = 0; i < iWidth; i++)
 	{
-	  R = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 2));
-	  G = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 1));
-	  B = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3));
+	  R = (unsigned short) *(pbmpdata + (tLines + i * 3 + 2));
+	  G = (unsigned short) *(pbmpdata + (tLines + i * 3 + 1));
+	  B = (unsigned short) *(pbmpdata + (tLines + i * 3));
 
 	   /*R*/ if (sum_R == 0)
 	    R = max_R;
@@ -1648,7 +1648,7 @@ sane_start (SANE_Handle handle)
     free (s->Scan_data_buf);
   s->Scan_data_buf = NULL;
 
-  s->Scan_data_buf = malloc (SCAN_BUFFER_SIZE * sizeof (SANE_Byte));
+  s->Scan_data_buf = malloc (SCAN_BUFFER_SIZE);
   if (s->Scan_data_buf == NULL)
     return SANE_STATUS_NO_MEM;
 
@@ -1707,20 +1707,18 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  if (lines_to_read > s->read_rows)
 	    lines_to_read = s->read_rows;
 
-	  tempbuf =
-	    (SANE_Byte *) malloc (sizeof (SANE_Byte) * lines_to_read *
-			     s->getpara.dwLineByteWidth + 3 * 1024 + 1);
+	  tempbuf = malloc (lines_to_read *
+			    s->getpara.dwLineByteWidth + 3 * 1024 + 1);
 	  memset (tempbuf, 0,
-		  sizeof (SANE_Byte) * lines_to_read * s->getpara.dwLineByteWidth +
-		  3 * 1024 + 1);
+		  lines_to_read * s->getpara.dwLineByteWidth + 3 * 1024 + 1);
 
 	  DBG (DBG_INFO, "sane_read: buffer size is %ld\n",
-	       (long int) sizeof (SANE_Byte) * lines_to_read * s->getpara.dwLineByteWidth +
+	       (long int) lines_to_read * s->getpara.dwLineByteWidth +
 	       3 * 1024 + 1);
 
 	  image_row.roRgbOrder = s->model.line_mode_color_order;
 	  image_row.wWantedLineNum = lines_to_read;
-	  image_row.pBuffer = (SANE_Byte *) tempbuf;
+	  image_row.pBuffer = tempbuf;
 	  s->bIsReading = SANE_TRUE;
 
 	  if (!ReadScannedData (&image_row))

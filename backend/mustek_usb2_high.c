@@ -1859,7 +1859,7 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
   /* modify the last point */
   if (g_bIsFirstReadBefData)
     {
-      g_lpBefLineImageData = (SANE_Byte *) malloc (g_SWBytesPerRow);
+      g_lpBefLineImageData = malloc (g_SWBytesPerRow);
       if (NULL == g_lpBefLineImageData)
 	{
 	  return FALSE;
@@ -2085,7 +2085,7 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   /* modify the last point */
   if (g_bIsFirstReadBefData)
     {
-      g_lpBefLineImageData = (SANE_Byte *) malloc (g_SWBytesPerRow);
+      g_lpBefLineImageData = malloc (g_SWBytesPerRow);
       if (NULL == g_lpBefLineImageData)
 	{
 	  return FALSE;
@@ -2354,7 +2354,7 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
 
   wResolution = wResolution;
 
-  wSecData = (unsigned short *) malloc (sizeof (unsigned short) * g_nSecNum);
+  wSecData = malloc (sizeof (unsigned short) * g_nSecNum);
   if (wSecData == NULL)
     {
       return;
@@ -2381,8 +2381,7 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
 
   free (wSecData);
 
-  wDarkSecData = (unsigned short *) malloc (sizeof (unsigned short) *
-    g_nDarkSecNum);
+  wDarkSecData = malloc (sizeof (unsigned short) * g_nDarkSecNum);
   if (wDarkSecData == NULL)
     {
       return;
@@ -2833,7 +2832,7 @@ MustScanner_PrepareScan (void)
 
   DBG (DBG_FUNC, "MustScanner_PrepareScan: g_lpReadImageHead malloc %d bytes\n",
        g_dwImageBufferSize);
-  g_lpReadImageHead = (SANE_Byte *) malloc (g_dwImageBufferSize);
+  g_lpReadImageHead = malloc (g_dwImageBufferSize);
   if (g_lpReadImageHead == NULL)
     {
       DBG (DBG_FUNC, "MustScanner_PrepareScan: g_lpReadImageHead malloc " \

@@ -101,11 +101,11 @@ Mustek_ClearFIFO (PAsic chip)
   buf[1] = 0;
   buf[2] = 0;
   buf[3] = 0;
-  status = WriteIOControl (chip, 0x05, 0, 4, (SANE_Byte *) (buf));
+  status = WriteIOControl (chip, 0x05, 0, 4, buf);
   if (status != STATUS_GOOD)
     return status;
 
-  status = WriteIOControl (chip, 0xc0, 0, 4, (SANE_Byte *) (buf));
+  status = WriteIOControl (chip, 0xc0, 0, 4, buf);
   if (status != STATUS_GOOD)
     return status;
 
@@ -477,7 +477,7 @@ LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
       /* steal read 2 byte */
       usleep (20000);
       RamAccess->RwSize = 2;
-      RamAccess->BufferPtr = (SANE_Byte *) a;
+      RamAccess->BufferPtr = a;
       RamAccess->ReadWrite = READ_RAM;
       LLFRamAccess (chip, RamAccess);
       DBG (DBG_ASIC, "end steal 2 byte!\n");
@@ -3371,8 +3371,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   double XRatioTypeDouble;
   double XRatioAdderDouble;
 
-  LLF_MOTORMOVE *lpMotorStepsTable =
-    (LLF_MOTORMOVE *) malloc (sizeof (LLF_MOTORMOVE));
+  LLF_MOTORMOVE lpMotorStepsTable;
   SANE_Byte byDummyCycleNum;
   unsigned short Total_MotorDPI;
 
@@ -3400,16 +3399,9 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
                  "wWidth=%d,wLength=%d\n",
        bScanBits, wXResolution, wYResolution, wX, wY, wWidth, wLength);
 
-  if (lpMotorStepsTable == NULL)
-    {
-      DBG (DBG_ERR, "Asic_SetWindow: lpMotorStepsTable == NULL\n");
-      return STATUS_MEM_ERROR;
-    }
-
   if (chip->firmwarestate != FS_OPENED)
     {
       DBG (DBG_ERR, "Asic_SetWindow: Scanner is not opened\n");
-      free (lpMotorStepsTable);
       return STATUS_INVAL;
     }
 
@@ -3660,7 +3652,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   EndSpeed =
     (unsigned short) ((dwLinePixelReport * wYResolution / Total_MotorDPI) /
 	    wMultiMotorStep);
-  SetMotorStepTable (chip, lpMotorStepsTable, wY, dwTotalLineTheBufferNeed *
+  SetMotorStepTable (chip, &lpMotorStepsTable, wY, dwTotalLineTheBufferNeed *
                        Total_MotorDPI / wYResolution * wMultiMotorStep,
                      wYResolution);
 
@@ -3696,19 +3688,18 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   Mustek_SendData (chip, ES01_FD_MotorFixedspeedLSB, LOBYTE (EndSpeed));
   Mustek_SendData (chip, ES01_FE_MotorFixedspeedMSB, HIBYTE (EndSpeed));
 
-  lpMotorTable = (unsigned short *) malloc (512 * 8 * 2);
+  lpMotorTable = malloc (512 * 8 * 2);
   if (lpMotorTable == NULL)
     {
       DBG (DBG_ERR, "Asic_SetWindow: lpMotorTable == NULL\n");
-      free (lpMotorStepsTable);
       return STATUS_MEM_ERROR;
     }
   memset (lpMotorTable, 0, 512 * 8 * sizeof (unsigned short));
 
   CalMotorTable.StartSpeed = StartSpeed;
   CalMotorTable.EndSpeed = EndSpeed;
-  CalMotorTable.AccStepBeforeScan = lpMotorStepsTable->wScanAccSteps;
-  CalMotorTable.DecStepAfterScan = lpMotorStepsTable->bScanDecSteps;
+  CalMotorTable.AccStepBeforeScan = lpMotorStepsTable.wScanAccSteps;
+  CalMotorTable.DecStepAfterScan = lpMotorStepsTable.bScanDecSteps;
   CalMotorTable.lpMotorTable = lpMotorTable;
 
   CalculateMotorTable (&CalMotorTable);
@@ -3768,7 +3759,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   RamAccess.RwSize =
     ShadingTableSize ((int) ((wWidth + 4) * dbXRatioAdderDouble)) *
     sizeof (unsigned short);
-  RamAccess.BufferPtr = (SANE_Byte *) chip->lpShadingTable;
+  RamAccess.BufferPtr = chip->lpShadingTable;
   LLFRamAccess (chip, &RamAccess);
 
   /* tell scan chip the shading table address, unit is 2^15 bytes */
@@ -3796,7 +3787,6 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   Mustek_SendData (chip, ES01_02_ADAFEMuxConfig, 0x80);
 
   free (lpMotorTable);
-  free (lpMotorStepsTable);
   chip->firmwarestate = FS_OPENED;
 
   DBG (DBG_ASIC, "Asic_SetWindow: Exit\n");
@@ -4046,7 +4036,7 @@ Asic_ReadCalibrationData (PAsic chip, void * pBuffer,
   if (bScanBits == 24)
     {
       unsigned int i;
-      pCalBuffer = (SANE_Byte *) malloc (dwXferBytes);
+      pCalBuffer = malloc (dwXferBytes);
       if (pCalBuffer == NULL)
 	{
 	  DBG (DBG_ERR, "Asic_ReadCalibrationData: Can't malloc bCalBuffer " \
@@ -4059,8 +4049,7 @@ Asic_ReadCalibrationData (PAsic chip, void * pBuffer,
 	  dwReadImageData = (dwXferBytes - dwTotalReadData) < 65536 ?
 	    (dwXferBytes - dwTotalReadData) : 65536;
 
-	  Mustek_DMARead (chip, dwReadImageData,
-			  (SANE_Byte *) (pCalBuffer + dwTotalReadData));
+	  Mustek_DMARead (chip, dwReadImageData, pCalBuffer + dwTotalReadData);
 	  dwTotalReadData += dwReadImageData;
 	}
 
@@ -4120,7 +4109,7 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
 
   DBG (DBG_ASIC, "Asic_MotorMove: Enter\n");
 
-  NormalMoveMotorTable = (unsigned short *) malloc (512 * 8 * 2);
+  NormalMoveMotorTable = malloc (512 * 8 * 2);
   if (NormalMoveMotorTable == NULL)
     {
       DBG (DBG_ASIC, "NormalMoveMotorTable == NULL\n");
@@ -4228,7 +4217,7 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 
   DBG (DBG_ASIC, "Allocating a new shading table, size=%d byte\n",
        wShadingTableSize);
-  chip->lpShadingTable = (SANE_Byte *) malloc (wShadingTableSize);
+  chip->lpShadingTable = malloc (wShadingTableSize);
   if (chip->lpShadingTable == NULL)
     {
       DBG (DBG_ASIC, "lpShadingTable == NULL\n");
@@ -4365,7 +4354,7 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   SANE_Byte byClear_Pulse_Width = 0;
   unsigned int dwLinePixelReport = 0;
   SANE_Byte byPHTG_PulseWidth, byPHTG_WaitWidth;
-  unsigned short * lpMotorTable = (unsigned short *) malloc (512 * 8 * 2);
+  unsigned short * lpMotorTable = malloc (512 * 8 * 2);
   unsigned int RealTableSize;
   unsigned short wFullBank;
 

@@ -382,7 +382,7 @@ Transparent_AdjustAD (void)
 
   wCalWidth = 10240;
 
-  lpCalData = (SANE_Byte *) malloc (sizeof (SANE_Byte) * wCalWidth * 3);
+  lpCalData = malloc (wCalWidth * 3);
   if (lpCalData == NULL)
     {
       return FALSE;
@@ -402,7 +402,7 @@ Transparent_AdjustAD (void)
   Asic_ScanStop (&g_chip);
 
   FILE *stream = NULL;
-  SANE_Byte * lpBuf = (SANE_Byte *) malloc (50);
+  SANE_Byte * lpBuf = malloc (50);
   if (NULL == lpBuf)
     {
       DBG (DBG_FUNC,
@@ -412,8 +412,8 @@ Transparent_AdjustAD (void)
   memset (lpBuf, 0, 50);
   stream = fopen ("/root/AD(Tra).pnm", "wb+\n");
   sprintf (lpBuf, "P6\n%d %d\n255\n", wCalWidth, 3);
-  fwrite (lpBuf, sizeof (SANE_Byte), strlen (lpBuf), stream);
-  fwrite (lpCalData, sizeof (SANE_Byte), wCalWidth * 3, stream);
+  fwrite (lpBuf, 1, strlen (lpBuf), stream);
+  fwrite (lpCalData, 1, wCalWidth * 3, stream);
   fclose (stream);
   free (lpBuf);
 #endif
@@ -864,7 +864,7 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
   wXResolution = wYResolution = FIND_LEFT_TOP_CALIBRATE_RESOLUTION;
 
 
-  lpCalData = (SANE_Byte *) malloc (sizeof (SANE_Byte) * wCalWidth * wCalHeight);
+  lpCalData = malloc (wCalWidth * wCalHeight);
   if (lpCalData == NULL)
     {
       DBG (DBG_FUNC, "Transparent_FindTopLeft: lpCalData malloc fail\n");
@@ -893,7 +893,7 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
 
 #ifdef DEBUG_SAVE_IMAGE
   FILE *stream = NULL;
-  SANE_Byte * lpBuf = (SANE_Byte *) malloc (50);
+  SANE_Byte * lpBuf = malloc (50);
   if (NULL == lpBuf)
     {
       return FALSE;
@@ -901,8 +901,8 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
   memset (lpBuf, 0, 50);
   stream = fopen ("/root/bound(Tra).pnm", "wb+\n");
   sprintf (lpBuf, "P5\n%d %d\n255\n", wCalWidth, wCalHeight);
-  fwrite (lpBuf, sizeof (SANE_Byte), strlen (lpBuf), stream);
-  fwrite (lpCalData, sizeof (SANE_Byte), wCalWidth * wCalHeight, stream);
+  fwrite (lpBuf, 1, strlen (lpBuf), stream);
+  fwrite (lpCalData, 1, wCalWidth * wCalHeight, stream);
   fclose (stream);
   free (lpBuf);
 #endif
@@ -1029,8 +1029,8 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
 
   dwWhiteTotalSize = wCalWidth * wCalHeight * 3 * 2;
   dwDarkTotalSize = wCalWidth * wCalHeight * 3 * 2;
-  lpWhiteData = (SANE_Byte *) malloc (sizeof (SANE_Byte) * dwWhiteTotalSize);
-  lpDarkData = (SANE_Byte *) malloc (sizeof (SANE_Byte) * dwDarkTotalSize);
+  lpWhiteData = malloc (dwWhiteTotalSize);
+  lpDarkData = malloc (dwDarkTotalSize);
   if (lpWhiteData == NULL || lpDarkData == NULL)
     {
       DBG (DBG_FUNC,
@@ -1070,7 +1070,7 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
 
 #ifdef DEBUG_SAVE_IMAGE
   FILE *stream = NULL;
-  SANE_Byte * lpBuf = (SANE_Byte *) malloc (50);
+  SANE_Byte * lpBuf = malloc (50);
   if (NULL == lpBuf)
     {
       return FALSE;
@@ -1078,28 +1078,28 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
   memset (lpBuf, 0, 50);
   stream = fopen ("/root/whiteshading(Tra).pnm", "wb+\n");
   sprintf (lpBuf, "P6\n%d %d\n65535\n", wCalWidth, wCalHeight);
-  fwrite (lpBuf, sizeof (SANE_Byte), strlen (lpBuf), stream);
-  fwrite (lpWhiteData, sizeof (SANE_Byte), wCalWidth * wCalHeight * 3 * 2, stream);
+  fwrite (lpBuf, 1, strlen (lpBuf), stream);
+  fwrite (lpWhiteData, 1, wCalWidth * wCalHeight * 3 * 2, stream);
   fclose (stream);
 
   memset (lpBuf, 0, 50);
   stream = fopen ("/root/darkshading(Tra).pnm", "wb+\n");
   sprintf (lpBuf, "P6\n%d %d\n65535\n", wCalWidth * wCalHeight);
-  fwrite (lpBuf, sizeof (SANE_Byte), strlen (lpBuf), stream);
-  fwrite (lpDarkData, sizeof (SANE_Byte), wCalWidth * wCalHeight * 3 * 2, stream);
+  fwrite (lpBuf, 1, strlen (lpBuf), stream);
+  fwrite (lpDarkData, 1, wCalWidth * wCalHeight * 3 * 2, stream);
   fclose (stream);
   free (lpBuf);
 #endif
 
-  lpWhiteShading = (unsigned short *) malloc (sizeof (unsigned short) * wCalWidth * 3);
-  lpDarkShading = (unsigned short *) malloc (sizeof (unsigned short) * wCalWidth * 3);
+  lpWhiteShading = malloc (sizeof (unsigned short) * wCalWidth * 3);
+  lpDarkShading = malloc (sizeof (unsigned short) * wCalWidth * 3);
 
-  lpRWhiteSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
-  lpGWhiteSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
-  lpBWhiteSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
-  lpRDarkSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
-  lpGDarkSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
-  lpBDarkSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
+  lpRWhiteSort = malloc (sizeof (unsigned short) * wCalHeight);
+  lpGWhiteSort = malloc (sizeof (unsigned short) * wCalHeight);
+  lpBWhiteSort = malloc (sizeof (unsigned short) * wCalHeight);
+  lpRDarkSort = malloc (sizeof (unsigned short) * wCalHeight);
+  lpGDarkSort = malloc (sizeof (unsigned short) * wCalHeight);
+  lpBDarkSort = malloc (sizeof (unsigned short) * wCalHeight);
 
   if (lpWhiteShading == NULL || lpDarkShading == NULL
       || lpRWhiteSort == NULL || lpGWhiteSort == NULL || lpBWhiteSort == NULL

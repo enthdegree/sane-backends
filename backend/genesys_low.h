@@ -685,7 +685,7 @@ typedef struct {
 	int motor_type;	 /**> motor id */
 	int exposure;    /**> exposure for the slope table */
         int step_type;   /**> default step type for given exposure */
-	uint16_t *table; /**> 0 terminated slope table at full step */
+	uint32_t *table; /**> 0 terminated slope table at full step */
 } Motor_Profile;
 
 #define SLOPE_TABLE_SIZE 1024

@@ -2846,15 +2846,6 @@ gl841_get_led_exposure(Genesys_Device * dev)
     return m + d;
 }
 
-#define SCAN_FLAG_SINGLE_LINE              0x01
-#define SCAN_FLAG_DISABLE_SHADING          0x02
-#define SCAN_FLAG_DISABLE_GAMMA            0x04
-#define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE 0x08
-#define SCAN_FLAG_IGNORE_LINE_DISTANCE     0x10
-#define SCAN_FLAG_USE_OPTICAL_RES          0x20
-#define SCAN_FLAG_DISABLE_LAMP             0x40
-#define SCAN_FLAG_DYNAMIC_LINEART          0x80
-
 /* set up registers for an actual scan
  *
  * this function sets up the scanner to scan in normal or single line mode

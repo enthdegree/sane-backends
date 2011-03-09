@@ -4896,6 +4896,89 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                         }
                     }
                 }
+              else if(dev->segnb==8)
+                {
+                  if(depth==8)
+                    {
+                      while (dev->cur < dev->len && count < size)
+                        { 
+                          work_buffer_dst[count + 0] = dev->oe_buffer.buffer[dev->cur +  dev->oe_buffer.pos];
+                          work_buffer_dst[count + 1] = dev->oe_buffer.buffer[dev->cur +  2*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 2] = dev->oe_buffer.buffer[dev->cur +  4*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 3] = dev->oe_buffer.buffer[dev->cur +  6*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 4] = dev->oe_buffer.buffer[dev->cur +  1*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 5] = dev->oe_buffer.buffer[dev->cur +  3*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 6] = dev->oe_buffer.buffer[dev->cur +  5*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 7] = dev->oe_buffer.buffer[dev->cur +  7*dev->dist + dev->oe_buffer.pos];
+                          /* update counter and pointer */
+                          count += 8;
+                          dev->cur+=1;
+                        }
+                    }
+                  else if(depth==16)
+                    {
+                      while (dev->cur < dev->len && count < size)
+                        { 
+                          work_buffer_dst[count +  0] = dev->oe_buffer.buffer[dev->cur +               dev->oe_buffer.pos];
+                          work_buffer_dst[count +  1] = dev->oe_buffer.buffer[dev->cur +               dev->oe_buffer.pos+1];
+                          work_buffer_dst[count +  2] = dev->oe_buffer.buffer[dev->cur + 2*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count +  3] = dev->oe_buffer.buffer[dev->cur + 2*dev->dist + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count +  4] = dev->oe_buffer.buffer[dev->cur + 4*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count +  5] = dev->oe_buffer.buffer[dev->cur + 4*dev->dist + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count +  6] = dev->oe_buffer.buffer[dev->cur + 6*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count +  7] = dev->oe_buffer.buffer[dev->cur + 6*dev->dist + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count +  8] = dev->oe_buffer.buffer[dev->cur + 1*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count +  9] = dev->oe_buffer.buffer[dev->cur + 1*dev->dist + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count + 10] = dev->oe_buffer.buffer[dev->cur + 3*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 11] = dev->oe_buffer.buffer[dev->cur + 3*dev->dist + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count + 12] = dev->oe_buffer.buffer[dev->cur + 5*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 13] = dev->oe_buffer.buffer[dev->cur + 5*dev->dist + dev->oe_buffer.pos+1];
+                          work_buffer_dst[count + 14] = dev->oe_buffer.buffer[dev->cur + 7*dev->dist + dev->oe_buffer.pos];
+                          work_buffer_dst[count + 15] = dev->oe_buffer.buffer[dev->cur + 7*dev->dist + dev->oe_buffer.pos+1];
+
+                          /* update counter and pointer */
+                          count += 16;
+                          dev->cur+=2;
+                        }
+                    } else { /* lineart case */
+                      while (dev->cur < dev->len && count < size)
+                        { /* XXX STEF XXX*/
+                          /* get values to merge */
+                          odd = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
+                          even = dev->oe_buffer.buffer[dev->cur + dev->dist + dev->oe_buffer.pos];
+
+                          /* interleave bits .... */
+                          merged=0;
+                          for(i=7;i>=0;i--)
+                            {
+                              mask=1<<i;
+                              if(odd & mask)
+                                {
+                                  merged |= 1;
+                                }
+                              merged<<=1;
+                              if(even & mask)
+                                {
+                                  merged |= 1;
+                                }
+
+                              /* don't shift on last bit */
+                              if(i>0)
+                                {
+                                  merged<<=1;
+                                }
+                            }
+                         
+                          /* store result */
+                          work_buffer_dst[count] = merged >> 8;
+                          work_buffer_dst[count+1] = merged & 255;
+
+                          /* update counter and pointer */
+                          count += 2;
+                          dev->cur++;
+                        }
+                    }
+                }
               else
                 {
                   DBG (DBG_error, "%s: %d is an unimplemented segment number ....\n",__FUNCTION__,dev->segnb);

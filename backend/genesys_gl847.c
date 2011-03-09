@@ -183,11 +183,12 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 	       sane_strstatus (status));
 	  return status;
 	}
+      done=read;
+      DBG (DBG_io2, "gl847_bulk_read_data: %lu bytes of data read\n", (u_long) done);
 
       /* read less than 512 bytes remainder */
       if (read < size)
 	{
-          done=read;
 	  read = size - read;
 	  DBG (DBG_io2,
 	       "gl847_bulk_read_data: trying to read %lu bytes of data\n",
@@ -200,6 +201,8 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 		   sane_strstatus (status));
 	      return status;
 	    }
+          done=read;
+          DBG (DBG_io2, "gl847_bulk_read_data: %lu bytes of data read\n", (u_long) done);
 	}
 
       DBG (DBG_io2, "%s: read %lu bytes, %lu remaining\n", __FUNCTION__,
@@ -1532,9 +1535,11 @@ gl847_init_scan_regs (Genesys_Device * dev,
 
   requested_buffer_size = 8 * bytes_per_line;
   /* we must use a round number of bytes_per_line */
+  /* XXX STEF XXX
   if (requested_buffer_size > BULKIN_MAXSIZE)
     requested_buffer_size =
       (BULKIN_MAXSIZE / bytes_per_line) * bytes_per_line;
+  */
 
   read_buffer_size =
     2 * requested_buffer_size +

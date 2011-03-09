@@ -1291,7 +1291,7 @@ Motor_Profile *profile;
           }
 
         /* ensure minimal slope size */
-        while(i<8)
+        while(i<2*factor)
           {
             slope[i+1]=slope[i];
             sum+=slope[i];

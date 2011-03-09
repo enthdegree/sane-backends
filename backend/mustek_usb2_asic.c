@@ -517,33 +517,33 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 
       /* 1 */
       Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-			    MotorCurrentAndPhase->MotorCurrentTableA[0]);
+			    MotorCurrentAndPhase->MotorCurrentA);
       Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-			    MotorCurrentAndPhase->MotorCurrentTableB[0]);
+			    MotorCurrentAndPhase->MotorCurrentB);
       Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 			    0x08 & MotorPhase);
 
       /* 2 */
       Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-			    MotorCurrentAndPhase->MotorCurrentTableA[0]);
+			    MotorCurrentAndPhase->MotorCurrentA);
       Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-			    MotorCurrentAndPhase->MotorCurrentTableB[0]);
+			    MotorCurrentAndPhase->MotorCurrentB);
       Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 			    0x09 & MotorPhase);
 
       /* 3 */
       Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-			    MotorCurrentAndPhase->MotorCurrentTableA[0]);
+			    MotorCurrentAndPhase->MotorCurrentA);
       Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-			    MotorCurrentAndPhase->MotorCurrentTableB[0]);
+			    MotorCurrentAndPhase->MotorCurrentB);
       Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 			    0x01 & MotorPhase);
 
       /* 4 */
       Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-			    MotorCurrentAndPhase->MotorCurrentTableA[0]);
+			    MotorCurrentAndPhase->MotorCurrentA);
       Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-			    MotorCurrentAndPhase->MotorCurrentTableB[0]);
+			    MotorCurrentAndPhase->MotorCurrentB);
       Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 			    0x00 & MotorPhase);
     }
@@ -555,33 +555,33 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 
 	  /* 1 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x08 & MotorPhase);
 
 	  /* 2 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x09 & MotorPhase);
 
 	  /* 3 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x01 & MotorPhase);
 
 	  /* 4 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x00 & MotorPhase);
 	}
@@ -592,65 +592,65 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 
 	  /* 1 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x25 & MotorPhase);
 
 	  /* 2 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x07 & MotorPhase);
 
 	  /* 3 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x24 & MotorPhase);
 
 	  /* 4 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x30 & MotorPhase);
 
 	  /* 5 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x2c & MotorPhase);
 
 	  /* 6 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x0e & MotorPhase);
 
 	  /* 7 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x2d & MotorPhase);
 
 	  /* 8 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-				MotorCurrentAndPhase->MotorCurrentTableA[0]);
+				MotorCurrentAndPhase->MotorCurrentA);
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-				MotorCurrentAndPhase->MotorCurrentTableB[0]);
+				MotorCurrentAndPhase->MotorCurrentB);
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x39 & MotorPhase);
 	}
@@ -662,14 +662,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 1 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (0 *
+					MotorCurrentA * sin (0 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (0 *
+					MotorCurrentB * cos (0 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -680,14 +680,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 2 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (1 *
+					MotorCurrentA * sin (1 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (1 *
+					MotorCurrentB * cos (1 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -698,14 +698,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 3 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (2 *
+					MotorCurrentA * sin (2 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (2 *
+					MotorCurrentB * cos (2 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -716,14 +716,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 4 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (3 *
+					MotorCurrentA * sin (3 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (3 *
+					MotorCurrentB * cos (3 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -734,14 +734,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 5 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * cos (0 *
+					MotorCurrentA * cos (0 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * sin (0 *
+					MotorCurrentB * sin (0 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -752,14 +752,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 6 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * cos (1 *
+					MotorCurrentA * cos (1 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * sin (1 *
+					MotorCurrentB * sin (1 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -770,14 +770,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 7 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * cos (2 *
+					MotorCurrentA * cos (2 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * sin (2 *
+					MotorCurrentB * sin (2 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -788,14 +788,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 8 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * cos (3 *
+					MotorCurrentA * cos (3 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * sin (3 *
+					MotorCurrentB * sin (3 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -806,14 +806,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 9 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (0 *
+					MotorCurrentA * sin (0 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (0 *
+					MotorCurrentB * cos (0 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -824,14 +824,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 10 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (1 *
+					MotorCurrentA * sin (1 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (1 *
+					MotorCurrentB * cos (1 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -842,14 +842,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 11 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (2 *
+					MotorCurrentA * sin (2 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (2 *
+					MotorCurrentB * cos (2 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -860,14 +860,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 12 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (3 *
+					MotorCurrentA * sin (3 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (3 *
+					MotorCurrentB * cos (3 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -878,14 +878,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 13 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * cos (0 *
+					MotorCurrentA * cos (0 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * sin (0 *
+					MotorCurrentB * sin (0 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -896,14 +896,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 14 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * cos (1 *
+					MotorCurrentA * cos (1 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * sin (1 *
+					MotorCurrentB * sin (1 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -914,14 +914,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 15 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * cos (2 *
+					MotorCurrentA * cos (2 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * sin (2 *
+					MotorCurrentB * sin (2 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -932,14 +932,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 16 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * cos (3 *
+					MotorCurrentA * cos (3 *
 								     3.141592654
 								     * 90 /
 								     4 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * sin (3 *
+					MotorCurrentB * sin (3 *
 								     3.141592654
 								     * 90 /
 								     4 /
@@ -956,14 +956,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 1 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (0 *
+					MotorCurrentA * sin (0 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (0 *
+					MotorCurrentB * cos (0 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -974,14 +974,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 2 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (1 *
+					MotorCurrentA * sin (1 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (1 *
+					MotorCurrentB * cos (1 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -992,14 +992,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 3 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (2 *
+					MotorCurrentA * sin (2 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (2 *
+					MotorCurrentB * cos (2 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1010,14 +1010,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 4 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (3 *
+					MotorCurrentA * sin (3 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (3 *
+					MotorCurrentB * cos (3 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1028,14 +1028,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 5 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (4 *
+					MotorCurrentA * sin (4 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (4 *
+					MotorCurrentB * cos (4 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1046,14 +1046,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 6 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (5 *
+					MotorCurrentA * sin (5 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (5 *
+					MotorCurrentB * cos (5 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1064,14 +1064,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 7 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (6 *
+					MotorCurrentA * sin (6 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (6 *
+					MotorCurrentB * cos (6 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1082,7 +1082,7 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 8 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (7 *
+					MotorCurrentA * sin (7 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1090,7 +1090,7 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (7 *
+					MotorCurrentB * cos (7 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1101,14 +1101,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 9 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (0 *
+					MotorCurrentA * sin (0 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (0 *
+					MotorCurrentB * cos (0 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1119,14 +1119,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 10 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (1 *
+					MotorCurrentA * sin (1 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (1 *
+					MotorCurrentB * cos (1 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1137,14 +1137,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 11 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (2 *
+					MotorCurrentA * sin (2 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (2 *
+					MotorCurrentB * cos (2 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1155,14 +1155,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 12 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (3 *
+					MotorCurrentA * sin (3 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (3 *
+					MotorCurrentB * cos (3 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1173,14 +1173,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 13 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (4 *
+					MotorCurrentA * sin (4 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (4 *
+					MotorCurrentB * cos (4 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1191,14 +1191,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 14 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (5 *
+					MotorCurrentA * sin (5 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (5 *
+					MotorCurrentB * cos (5 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1209,14 +1209,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 15 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (6 *
+					MotorCurrentA * sin (6 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (6 *
+					MotorCurrentB * cos (6 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1227,14 +1227,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 16 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (7 *
+					MotorCurrentA * sin (7 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (7 *
+					MotorCurrentB * cos (7 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1245,14 +1245,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 17 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (0 *
+					MotorCurrentA * sin (0 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (0 *
+					MotorCurrentB * cos (0 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1263,14 +1263,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 18 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (1 *
+					MotorCurrentA * sin (1 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (1 *
+					MotorCurrentB * cos (1 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1281,14 +1281,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 19 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (2 *
+					MotorCurrentA * sin (2 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (2 *
+					MotorCurrentB * cos (2 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1299,14 +1299,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 20 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (3 *
+					MotorCurrentA * sin (3 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (3 *
+					MotorCurrentB * cos (3 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1317,14 +1317,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 21 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (4 *
+					MotorCurrentA * sin (4 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (4 *
+					MotorCurrentB * cos (4 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1335,14 +1335,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 22 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (5 *
+					MotorCurrentA * sin (5 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (5 *
+					MotorCurrentB * cos (5 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1353,14 +1353,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 23 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (6 *
+					MotorCurrentA * sin (6 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (6 *
+					MotorCurrentB * cos (6 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1371,14 +1371,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 24 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (7 *
+					MotorCurrentA * sin (7 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (7 *
+					MotorCurrentB * cos (7 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1389,14 +1389,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 25 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (0 *
+					MotorCurrentA * sin (0 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (0 *
+					MotorCurrentB * cos (0 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1407,14 +1407,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 26 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (1 *
+					MotorCurrentA * sin (1 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (1 *
+					MotorCurrentB * cos (1 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1425,14 +1425,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 27 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (2 *
+					MotorCurrentA * sin (2 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (2 *
+					MotorCurrentB * cos (2 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1443,14 +1443,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 28 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (3 *
+					MotorCurrentA * sin (3 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (3 *
+					MotorCurrentB * cos (3 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1461,14 +1461,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 29 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (4 *
+					MotorCurrentA * sin (4 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (4 *
+					MotorCurrentB * cos (4 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1479,14 +1479,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 30 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (5 *
+					MotorCurrentA * sin (5 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (5 *
+					MotorCurrentB * cos (5 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1497,14 +1497,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 31 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (6 *
+					MotorCurrentA * sin (6 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (6 *
+					MotorCurrentB * cos (6 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1515,14 +1515,14 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  /* 32 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableA[0] * sin (7 *
+					MotorCurrentA * sin (7 *
 								     3.141592654
 								     * 90 /
 								     8 /
 								     180)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
 				(SANE_Byte) (MotorCurrentAndPhase->
-					MotorCurrentTableB[0] * cos (7 *
+					MotorCurrentB * cos (7 *
 								     3.141592654
 								     * 90 /
 								     8 /
@@ -1990,33 +1990,33 @@ SetMotorCurrent (unsigned short dwMotorSpeed,
 
   if (dwMotorSpeed < 2000)
     {
-      CurrentPhase->MotorCurrentTableA[0] = 255;
-      CurrentPhase->MotorCurrentTableB[0] = 255;
+      CurrentPhase->MotorCurrentA = 255;
+      CurrentPhase->MotorCurrentB = 255;
     }
   else if (dwMotorSpeed < 3500)
     {
-      CurrentPhase->MotorCurrentTableA[0] = 200;
-      CurrentPhase->MotorCurrentTableB[0] = 200;
+      CurrentPhase->MotorCurrentA = 200;
+      CurrentPhase->MotorCurrentB = 200;
     }
   else if (dwMotorSpeed < 5000)
     {
-      CurrentPhase->MotorCurrentTableA[0] = 160;
-      CurrentPhase->MotorCurrentTableB[0] = 160;
+      CurrentPhase->MotorCurrentA = 160;
+      CurrentPhase->MotorCurrentB = 160;
     }
   else if (dwMotorSpeed < 10000)
     {
-      CurrentPhase->MotorCurrentTableA[0] = 70;
-      CurrentPhase->MotorCurrentTableB[0] = 70;
+      CurrentPhase->MotorCurrentA = 70;
+      CurrentPhase->MotorCurrentB = 70;
     }
   else if (dwMotorSpeed < 17000)
     {
-      CurrentPhase->MotorCurrentTableA[0] = 60;
-      CurrentPhase->MotorCurrentTableB[0] = 60;
+      CurrentPhase->MotorCurrentA = 60;
+      CurrentPhase->MotorCurrentB = 60;
     }
   else
     {
-      CurrentPhase->MotorCurrentTableA[0] = 50;
-      CurrentPhase->MotorCurrentTableB[0] = 50;
+      CurrentPhase->MotorCurrentA = 50;
+      CurrentPhase->MotorCurrentB = 50;
     }
 
   DBG (DBG_ASIC, "SetMotorCurrent: Exit\n");
@@ -2044,8 +2044,8 @@ MotorBackHome (PAsic chip, SANE_Byte WaitOrNoWait)
   LLFCalculateMotorTable (&CalMotorTable);
 
 
-  CurrentPhase.MotorCurrentTableA[0] = 220;
-  CurrentPhase.MotorCurrentTableB[0] = 220;
+  CurrentPhase.MotorCurrentA = 220;
+  CurrentPhase.MotorCurrentB = 220;
   CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
@@ -3710,9 +3710,9 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   SetMotorCurrent (EndSpeed, &CurrentPhase);
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
-  DBG (DBG_ASIC, "EndSpeed = %d, BytesCountPerRow=%d, MotorCurrentTable=%d, " \
+  DBG (DBG_ASIC, "EndSpeed = %d, BytesCountPerRow=%d, MotorCurrentA=%d, " \
                  "LinePixelReport=%d\n",
-       EndSpeed, chip->dwBytesCountPerRow, CurrentPhase.MotorCurrentTableA[0],
+       EndSpeed, chip->dwBytesCountPerRow, CurrentPhase.MotorCurrentA,
        dwLinePixelReport);
 
   /* write motor table */
@@ -4123,8 +4123,8 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
   LLFCalculateMotorTable (&CalMotorTable);
 
   CurrentPhase.MotorDriverIs3967 = 0;
-  CurrentPhase.MotorCurrentTableA[0] = 200;
-  CurrentPhase.MotorCurrentTableB[0] = 200;
+  CurrentPhase.MotorCurrentA = 200;
+  CurrentPhase.MotorCurrentB = 200;
   CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
@@ -4669,8 +4669,8 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   CurrentPhase.MotorDriverIs3967 = 0;
   CurrentPhase.FillPhase = 1;
   CurrentPhase.MoveType = bMotorMoveType;
-  CurrentPhase.MotorCurrentTableA[0] = 200;
-  CurrentPhase.MotorCurrentTableB[0] = 200;
+  CurrentPhase.MotorCurrentA = 200;
+  CurrentPhase.MotorCurrentB = 200;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
   RealTableSize = 512 * 8;

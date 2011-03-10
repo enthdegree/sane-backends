@@ -2262,8 +2262,8 @@ MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
   g_wDarkCalWidth = 52;
   if (wResolution <= 600)
     {
-      g_wCalWidth = ((5120 * wResolution / 600 + 511) >> 9) << 9;
-      g_wDarkCalWidth = g_wDarkCalWidth / (1200 / wResolution);
+      g_wCalWidth = (5120 * wResolution / 600 + 511) & ~511;
+      g_wDarkCalWidth *= wResolution / 1200;
 
       if (wResolution < 200)
 	{
@@ -2307,7 +2307,7 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
   unsigned short *wSecData = NULL, *wDarkSecData = NULL;
   int i, j;
 
-  wSecData = malloc (sizeof (unsigned short) * g_nSecNum);
+  wSecData = malloc (g_nSecNum * sizeof (unsigned short));
   if (wSecData == NULL)
     return;
   memset (wSecData, 0, g_nSecNum * sizeof (unsigned short));
@@ -2315,7 +2315,7 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
   for (i = 0; i < g_nSecNum; i++)
     {
       for (j = 0; j < g_nSecLength; j++)
-	wSecData[i] += *(pBuffer + g_wStartPosition + i * g_nSecLength + j);
+	wSecData[i] += pBuffer[g_wStartPosition + i * g_nSecLength + j];
       wSecData[i] >>= g_nPowerNum;
     }
 
@@ -2327,7 +2327,7 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
     }
   free (wSecData);
 
-  wDarkSecData = malloc (sizeof (unsigned short) * g_nDarkSecNum);
+  wDarkSecData = malloc (g_nDarkSecNum * sizeof (unsigned short));
   if (wDarkSecData == NULL)
     return;
   memset (wDarkSecData, 0, g_nDarkSecNum * sizeof (unsigned short));
@@ -2335,9 +2335,7 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
   for (i = 0; i < g_nDarkSecNum; i++)
     {
       for (j = 0; j < g_nDarkSecLength; j++)
-	wDarkSecData[i] +=
-	  *(pBuffer + g_wStartPosition + i * g_nDarkSecLength + j);
-
+	wDarkSecData[i] += pBuffer[g_wStartPosition + i * g_nDarkSecLength + j];
       wDarkSecData[i] /= g_nDarkSecLength;
     }
 
@@ -2352,7 +2350,7 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
 
 
 static void *
-MustScanner_ReadDataFromScanner (void * dummy)
+MustScanner_ReadDataFromScanner (void __sane_unused__ * dummy)
 {
   unsigned short wTotalReadImageLines = 0;
   unsigned short wWantedLines = g_Height;
@@ -2363,24 +2361,20 @@ MustScanner_ReadDataFromScanner (void * dummy)
   unsigned short wScanLinesThisBlock;
   unsigned short wBufferLines = g_wLineDistance * 2 + g_wPixelDistance;
 
-  dummy = dummy;
   DBG (DBG_FUNC,
        "MustScanner_ReadDataFromScanner: call in, and in new thread\n");
 
-  while (wTotalReadImageLines < wWantedLines && g_lpReadImageHead)
+  while (wTotalReadImageLines < wWantedLines)
     {
       if (!isWaitImageLineDiff)
 	{
 	  wScanLinesThisBlock =
-	    (wWantedLines - wTotalReadImageLines) <
-	    g_wScanLinesPerBlock ? (wWantedLines -
-				    wTotalReadImageLines) :
-	    g_wScanLinesPerBlock;
+	    (wWantedLines - wTotalReadImageLines) < g_wScanLinesPerBlock ?
+	    (wWantedLines - wTotalReadImageLines) : g_wScanLinesPerBlock;
 
 	  DBG (DBG_FUNC,
 	       "MustScanner_ReadDataFromScanner: wWantedLines=%d\n",
 	       wWantedLines);
-
 	  DBG (DBG_FUNC,
 	       "MustScanner_ReadDataFromScanner: wScanLinesThisBlock=%d\n",
 	       wScanLinesThisBlock);
@@ -2396,11 +2390,8 @@ MustScanner_ReadDataFromScanner (void * dummy)
 
 	  /* has read in memory buffer */
 	  wReadImageLines += wScanLinesThisBlock;
-
 	  AddScannedLines (wScanLinesThisBlock);
-
 	  wTotalReadImageLines += wScanLinesThisBlock;
-
 	  lpReadImage += wScanLinesThisBlock * g_BytesPerRow;
 
 	  /* buffer is full */
@@ -2410,9 +2401,9 @@ MustScanner_ReadDataFromScanner (void * dummy)
 	      wReadImageLines = 0;
 	    }
 
-	  if ((g_dwScannedTotalLines - GetReadyLines ())
-	      >= (wMaxScanLines - (wBufferLines + g_wScanLinesPerBlock))
-	      && g_dwScannedTotalLines > GetReadyLines ())
+	  if ((g_dwScannedTotalLines - GetReadyLines ()) >=
+	      (wMaxScanLines - (wBufferLines + g_wScanLinesPerBlock)) &&
+	      g_dwScannedTotalLines > GetReadyLines ())
 	    {
 	      isWaitImageLineDiff = TRUE;
 	    }
@@ -2461,9 +2452,7 @@ static void
 AddScannedLines (unsigned short wAddLines)
 {
   pthread_mutex_lock (&g_scannedLinesMutex);
-
   g_dwScannedTotalLines += wAddLines;
-
   pthread_mutex_unlock (&g_scannedLinesMutex);
 }
 
@@ -2480,29 +2469,29 @@ ModifyLinePoint (SANE_Byte * lpImageData, SANE_Byte * lpImageDataBefore,
 		 unsigned int dwBytesPerLine, unsigned int dwLinesCount,
 		 unsigned short wPixDistance, unsigned short wModPtCount)
 {
-  unsigned short i = 0;
-  unsigned short j = 0;
-  unsigned short wLines = 0;
+  unsigned short i, j;
+  unsigned short wLines;
   unsigned int dwWidth = dwBytesPerLine / wPixDistance;
   for (i = wModPtCount; i > 0; i--)
     {
       for (j = 0; j < wPixDistance; j++)
 	{
+	  unsigned int lineOffset = (dwWidth - i) * wPixDistance + j;
+	  unsigned int prevLineOffset = (dwWidth - i - 1) * wPixDistance + j;
+
 	  /* modify the first line */
-	  *(lpImageData + (dwWidth - i) * wPixDistance + j) =
-	    (*(lpImageData + (dwWidth - i - 1) * wPixDistance + j) +
-	     *(lpImageDataBefore + (dwWidth - i) * wPixDistance + j)) / 2;
+	  lpImageData[lineOffset] =
+	    (lpImageData[prevLineOffset] +
+	     lpImageDataBefore[prevLineOffset]) / 2;
+
 	  /* modify other lines */
 	  for (wLines = 1; wLines < dwLinesCount; wLines++)
 	    {
-	      unsigned int dwBytesBefor = (wLines - 1) * dwBytesPerLine;
+	      unsigned int dwBytesBefore = (wLines - 1) * dwBytesPerLine;
 	      unsigned int dwBytes = wLines * dwBytesPerLine;
-	      *(lpImageData + dwBytes + (dwWidth - i) * wPixDistance + j) =
-		(*
-		 (lpImageData + dwBytes + (dwWidth - i - 1) * wPixDistance +
-		  j) + *(lpImageData + dwBytesBefor + (dwWidth -
-						       i) * wPixDistance +
-			 j)) / 2;
+	      lpImageData[dwBytes + lineOffset] =
+		(lpImageData[dwBytes + prevLineOffset] + 
+		 lpImageData[dwBytesBefore + prevLineOffset]) / 2;
 	    }
 	}
     }
@@ -2530,9 +2519,7 @@ QBET4 (SANE_Byte A, SANE_Byte B)
     {9, 9, 9, 9, 11, 11, 11, 11, 14, 14, 14, 14, 15, 15, 15, 15}
   };
 
-  A = A & 0x0f;
-  B = B & 0x0f;
-  return bQBET[A][B];
+  return bQBET[A & 0x0f][B & 0x0f];
 }
 
 static SANE_Bool

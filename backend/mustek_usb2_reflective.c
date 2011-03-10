@@ -444,12 +444,11 @@ Reflective_AdjustAD (void)
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
 
-      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR,
-				   wAdjustADResolution);
+      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
-				   &wMinValueG, wAdjustADResolution);
+				   &wMinValueG);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
-				   &wMinValueB, wAdjustADResolution);
+				   &wMinValueB);
 
       if (g_chip.AD.DirectionR == 0)
 	{
@@ -561,12 +560,11 @@ Reflective_AdjustAD (void)
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
 
-      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR,
-				   wAdjustADResolution);
+      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
-				   &wMinValueG, wAdjustADResolution);
+				   &wMinValueG);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
-				   &wMinValueB, wAdjustADResolution);
+				   &wMinValueB);
 
       DBG (DBG_FUNC, "Reflective_AdjustAD: "
 	   "RGain=%d, ROffset=%d, RDir=%d  GGain=%d, GOffset=%d, GDir=%d  BGain=%d, BOffset=%d, BDir=%d\n",
@@ -763,12 +761,11 @@ Reflective_AdjustAD (void)
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
 
-      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR,
-				   wAdjustADResolution);
+      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
-				   &wMinValueG, wAdjustADResolution);
+				   &wMinValueG);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
-				   &wMinValueB, wAdjustADResolution);
+				   &wMinValueB);
 
       DBG (DBG_FUNC, "Reflective_AdjustAD: "
 	   "RGain=%d, ROffset=%d, RDir=%d  GGain=%d, GOffset=%d, GDir=%d  BGain=%d, BOffset=%d, BDir=%d\n",

@@ -169,7 +169,6 @@ MustScanner_Init (void)
   Asic_Close (&g_chip);
 
   DBG (DBG_FUNC, "MustScanner_Init: leave MustScanner_Init\n");
-
   return TRUE;
 }
 
@@ -344,7 +343,6 @@ MustScanner_FiltLower (unsigned short * pSort, unsigned short TotalCount,
   unsigned short i, j;
 
   for (i = 0; i < Bound; i++)
-
     {
       for (j = 0; j < Bound - i; j++)
 	{
@@ -457,7 +455,6 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      pthread_join (g_threadid_readimage, NULL);
 
 	      DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: thread exit\n");
-
 	      break;
 	    }
 	}
@@ -961,7 +958,6 @@ MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
 	      DBG (DBG_FUNC,
 		   "MustScanner_GetRgb48BitLine1200DPI: thread exit\n");
-
 	      break;
 	    }
 	}
@@ -1102,7 +1098,6 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      pthread_cancel (g_threadid_readimage);
 	      pthread_join (g_threadid_readimage, NULL);
 	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: thread exit\n");
-
 	      break;
 	    }
 	}
@@ -1206,7 +1201,6 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      pthread_cancel (g_threadid_readimage);
 	      pthread_join (g_threadid_readimage, NULL);
 	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: thread exit\n");
-
 	      break;
 	    }
 	}			/* end for */
@@ -1438,7 +1432,6 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      pthread_join (g_threadid_readimage, NULL);
 	      DBG (DBG_FUNC,
 		   "MustScanner_GetRgb24BitLine1200DPI: thread exit\n");
-
 	      break;
 	    }
 
@@ -1627,8 +1620,6 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      pthread_join (g_threadid_readimage, NULL);
 	      DBG (DBG_FUNC,
 		   "MustScanner_GetRgb24BitLine1200DPI: thread exit\n");
-
-
 	      break;
 	    }
 	}
@@ -1707,7 +1698,6 @@ MustScanner_GetMono16BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 	  pthread_cancel (g_threadid_readimage);
 	  pthread_join (g_threadid_readimage, NULL);
 	  DBG (DBG_FUNC, "MustScanner_GetMono16BitLine: thread exit\n");
-
 	  break;
 	}
     }
@@ -1843,7 +1833,6 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
 	  pthread_join (g_threadid_readimage, NULL);
 	  DBG (DBG_FUNC,
 	       "MustScanner_GetMono16BitLine1200DPI: thread exit\n");
-
 	  break;
 	}
     }
@@ -1948,7 +1937,6 @@ MustScanner_GetMono8BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 	  pthread_cancel (g_threadid_readimage);
 	  pthread_join (g_threadid_readimage, NULL);
 	  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine: thread exit\n");
-
 	  break;
 	}
     }
@@ -2007,7 +1995,6 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
       if (GetScannedLines () > g_wtheReadyLines)
 	{
 	  if (ST_Reflective == g_ScanType)
-
 	    {
 	      wLinePosOdd =
 		(g_wtheReadyLines - g_wPixelDistance) % g_wMaxScanLines;
@@ -2019,7 +2006,6 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
 		(g_wtheReadyLines - g_wPixelDistance) % g_wMaxScanLines;
 	      wLinePosOdd = (g_wtheReadyLines) % g_wMaxScanLines;
 	    }
-
 
 	  for (i = 0; i < g_SWWidth;)
 	    {
@@ -2065,7 +2051,6 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
 	  pthread_cancel (g_threadid_readimage);
 	  pthread_join (g_threadid_readimage, NULL);
 	  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: thread exit\n");
-
 	  break;
 	}
     }
@@ -2079,9 +2064,7 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
     {
       g_lpBefLineImageData = malloc (g_SWBytesPerRow);
       if (NULL == g_lpBefLineImageData)
-	{
-	  return FALSE;
-	}
+	return FALSE;
       memset (g_lpBefLineImageData, 0, g_SWBytesPerRow);
       memcpy (g_lpBefLineImageData, lpTemp, g_SWBytesPerRow);
       g_bIsFirstReadBefData = FALSE;
@@ -2134,7 +2117,6 @@ MustScanner_GetMono1BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
   memset (lpLine, 0, wWantedTotalLines * g_SWWidth / 8);
 
   for (TotalXferLines = 0; TotalXferLines < wWantedTotalLines;)
-
     {
       if (g_dwTotalTotalXferLines >= g_SWHeight)
 	{
@@ -2155,9 +2137,7 @@ MustScanner_GetMono1BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 	    {
 	      if (*(g_lpReadImageHead + wLinePos * g_BytesPerRow + i) >
 		  g_wLineartThreshold)
-		{
-		  *(lpLine + i / 8) += (0x80 >> (i % 8));
-		}
+		*(lpLine + i / 8) += (0x80 >> (i % 8));
 	    }
 
 	  TotalXferLines++;
@@ -2170,7 +2150,6 @@ MustScanner_GetMono1BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 	  pthread_cancel (g_threadid_readimage);
 	  pthread_join (g_threadid_readimage, NULL);
 	  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine: thread exit\n");
-
 	  break;
 	}
     }
@@ -2237,8 +2216,6 @@ MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
 		(g_wtheReadyLines - g_wPixelDistance) % g_wMaxScanLines;
 	    }
 
-
-
 	  for (i = 0; i < g_SWWidth;)
 	    {
 	      if ((i + 1) != g_SWWidth)
@@ -2248,9 +2225,7 @@ MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
 		    *(lpLine + i / 8) += (0x80 >> (i % 8));
 		  i++;
 		  if (i >= g_SWWidth)
-		    {
-		      break;
-		    }
+		    break;
 
 		  if (*(g_lpReadImageHead + wLinePosEven * g_BytesPerRow + i)
 		      > g_wLineartThreshold)
@@ -2263,15 +2238,12 @@ MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
 	  g_dwTotalTotalXferLines++;
 	  lpLine += g_SWBytesPerRow / 8;
 	  AddReadyLines ();
-
-
 	}
       if (g_isCanceled)
 	{
 	  pthread_cancel (g_threadid_readimage);
 	  pthread_join (g_threadid_readimage, NULL);
 	  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: thread exit\n");
-
 	  break;
 	}
     }				/* end for */
@@ -2316,13 +2288,10 @@ MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
     }
 
   if (g_nDarkSecLength <= 0)
-    {
-      g_nDarkSecLength = 1;
-    }
+    g_nDarkSecLength = 1;
 
   g_wStartPosition = 13 * wResolution / 1200;
   g_wCalWidth -= g_wStartPosition;
-
 
   /* start of find max value */
   g_nSecNum = (int) (g_wCalWidth / g_nSecLength);
@@ -2333,27 +2302,18 @@ MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
 
 static void
 MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
-			     unsigned short * lpMinValue,
-			     unsigned short wResolution)
+			     unsigned short * lpMinValue)
 {
   unsigned short *wSecData = NULL, *wDarkSecData = NULL;
   int i, j;
 
-  wResolution = wResolution;
-
   wSecData = malloc (sizeof (unsigned short) * g_nSecNum);
   if (wSecData == NULL)
-    {
-      return;
-    }
-  else
-    {
-      memset (wSecData, 0, g_nSecNum * sizeof (unsigned short));
-    }
+    return;
+  memset (wSecData, 0, g_nSecNum * sizeof (unsigned short));
 
   for (i = 0; i < g_nSecNum; i++)
     {
-
       for (j = 0; j < g_nSecLength; j++)
 	wSecData[i] += *(pBuffer + g_wStartPosition + i * g_nSecLength + j);
       wSecData[i] >>= g_nPowerNum;
@@ -2365,18 +2325,12 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
       if (*lpMaxValue < wSecData[i])
 	*lpMaxValue = wSecData[i];
     }
-
   free (wSecData);
 
   wDarkSecData = malloc (sizeof (unsigned short) * g_nDarkSecNum);
   if (wDarkSecData == NULL)
-    {
-      return;
-    }
-  else
-    {
-      memset (wDarkSecData, 0, g_nDarkSecNum * sizeof (unsigned short));
-    }
+    return;
+  memset (wDarkSecData, 0, g_nDarkSecNum * sizeof (unsigned short));
 
   for (i = 0; i < g_nDarkSecNum; i++)
     {
@@ -2605,10 +2559,7 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 	}
     }
   if (s_wOpticalDpi[i] == 0)
-    {
-      i--;
-      pSuggest->wYDpi = s_wOpticalDpi[i];
-    }
+    pSuggest->wYDpi = s_wOpticalDpi[--i];
 
   /* 2. Look up optical X resolution */
   for (i = 0; s_wOpticalDpi[i] != 0; i++)
@@ -2620,10 +2571,7 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 	}
     }
   if (s_wOpticalDpi[i] == 0)
-    {
-      i--;
-      pSuggest->wXDpi = s_wOpticalDpi[i];
-    }
+    pSuggest->wXDpi = s_wOpticalDpi[--i];
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: pTarget->wDpi = %d\n",
        pTarget->wDpi);
@@ -2633,16 +2581,16 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
        pSuggest->wYDpi);
 
   /* 3. suggest scan area */
-  pSuggest->wX = (unsigned short) (((unsigned int) (pTarget->wX) *
-	    (unsigned int) (pSuggest->wXDpi)) / (unsigned int) (pTarget->wDpi));
-  pSuggest->wY = (unsigned short) (((unsigned int) (pTarget->wY) *
-	    (unsigned int) (pSuggest->wYDpi)) / (unsigned int) (pTarget->wDpi));
-  pSuggest->wWidth = (unsigned short) (((unsigned int) (pTarget->wWidth) *
-	    (unsigned int) (pSuggest->wXDpi)) / (unsigned int) (pTarget->wDpi));
-  pSuggest->wHeight = (unsigned short) (((unsigned int) (pTarget->wHeight) *
-	    (unsigned int) (pSuggest->wYDpi)) / (unsigned int) (pTarget->wDpi));
+  pSuggest->wX = (unsigned short) (((unsigned int) pTarget->wX *
+	    pSuggest->wXDpi) / pTarget->wDpi);
+  pSuggest->wY = (unsigned short) (((unsigned int) pTarget->wY *
+	    pSuggest->wYDpi) / pTarget->wDpi);
+  pSuggest->wWidth = (unsigned short) (((unsigned int) pTarget->wWidth *
+	    pSuggest->wXDpi) / pTarget->wDpi);
+  pSuggest->wHeight = (unsigned short) (((unsigned int) pTarget->wHeight *
+	    pSuggest->wYDpi) / pTarget->wDpi);
 
-  pSuggest->wWidth = (pSuggest->wWidth / 2) * 2;
+  pSuggest->wWidth &= ~1;
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: pTarget->wX = %d\n", pTarget->wX);
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: pTarget->wY = %d\n", pTarget->wY);
@@ -2660,7 +2608,7 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 
   if (pTarget->cmColorMode == CM_TEXT)
     {
-      pSuggest->wWidth = ((pSuggest->wWidth + 7) >> 3) << 3;
+      pSuggest->wWidth = (pSuggest->wWidth + 7) & ~7;
       if (pSuggest->wWidth < 8)
 	pSuggest->wWidth = 8;
     }
@@ -2673,7 +2621,7 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: wMaxHeight = %d\n", wMaxHeight);
 
   if (CM_TEXT == pTarget->cmColorMode)
-    wMaxWidth = (wMaxWidth >> 3) << 3;
+    wMaxWidth &= ~7;
 
   if (pSuggest->wWidth > wMaxWidth)
     pSuggest->wWidth = wMaxWidth;
@@ -2682,67 +2630,36 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: g_Width=%d\n", g_Width);
 
-  g_Width = ((pSuggest->wWidth + 15) >> 4) << 4;	/* real scan width */
+  g_Width = (pSuggest->wWidth + 15) & ~15;	/* real scan width */
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: again, g_Width=%d\n", g_Width);
 
   g_Height = pSuggest->wHeight;
 
-  if (pTarget->isOptimalSpeed)
+  switch (pTarget->cmColorMode)
     {
-      switch (pTarget->cmColorMode)
-	{
-	case CM_RGB48:
-	  pSuggest->cmScanMode = CM_RGB48;
-	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 6);
-	  break;
-	case CM_RGB24:
-	  pSuggest->cmScanMode = CM_RGB24ext;
-	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 3);
-	  break;
-	case CM_GRAY16:
-	  pSuggest->cmScanMode = CM_GRAY16ext;
-	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 2);
-	  break;
-	case CM_GRAY8:
-	  pSuggest->cmScanMode = CM_GRAY8ext;
-	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth));
-	  break;
-	case CM_TEXT:
-	  pSuggest->cmScanMode = CM_TEXT;
-	  pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth) / 8;
-	  break;
-	default:
-	  break;
-	}
-    }
-  else
-    {
-      switch (pTarget->cmColorMode)
-	{
-	case CM_RGB48:
-	  pSuggest->cmScanMode = CM_RGB48;
-	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 6);
-	  break;
-	case CM_RGB24:
-	  pSuggest->cmScanMode = CM_RGB24ext;
-	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 3);
-	  break;
-	case CM_GRAY16:
-	  pSuggest->cmScanMode = CM_GRAY16ext;
-	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 2);
-	  break;
-	case CM_GRAY8:
-	  pSuggest->cmScanMode = CM_GRAY8ext;
-	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth));
-	  break;
-	case CM_TEXT:
-	  pSuggest->cmScanMode = CM_TEXT;
-	  pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth) / 8;
-	  break;
-	default:
-	  break;
-	}
+    case CM_RGB48:
+      pSuggest->cmScanMode = CM_RGB48;
+      pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth * 6);
+      break;
+    case CM_RGB24:
+      pSuggest->cmScanMode = CM_RGB24ext;
+      pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth * 3);
+      break;
+    case CM_GRAY16:
+      pSuggest->cmScanMode = CM_GRAY16ext;
+      pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth * 2);
+      break;
+    case CM_GRAY8:
+      pSuggest->cmScanMode = CM_GRAY8ext;
+      pSuggest->dwBytesPerRow = (unsigned int) pSuggest->wWidth;
+      break;
+    case CM_TEXT:
+      pSuggest->cmScanMode = CM_TEXT;
+      pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth / 8);
+      break;
+    default:
+      return FALSE;
     }
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: pSuggest->dwBytesPerRow = %d\n",
@@ -2755,14 +2672,9 @@ static SANE_Bool
 MustScanner_StopScan (void)
 {
   DBG (DBG_FUNC, "MustScanner_StopScan: call in\n");
-  if (!g_bOpened)
+  if (!g_bOpened || !g_bPrepared)
     {
-      DBG (DBG_FUNC, "MustScanner_StopScan: scanner not opened\n");
-      return FALSE;
-    }
-  if (!g_bPrepared)
-    {
-      DBG (DBG_FUNC, "MustScanner_StopScan: scanner not prepared\n");
+      DBG (DBG_FUNC, "MustScanner_StopScan: scanner not opened or prepared\n");
       return FALSE;
     }
 
@@ -2879,7 +2791,7 @@ MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
 	return MustScanner_GetMono1BitLine (lpBlock, Rows);
 
     default:
-      return FALSE;
+      break;
     }
 
   DBG (DBG_FUNC, "MustScanner_GetRows: leave MustScanner_GetRows\n");

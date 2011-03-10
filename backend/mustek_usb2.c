@@ -552,7 +552,6 @@ SetParameters (LPSETPARAMETERS pSetParameters)
     (unsigned short) ((unsigned int) (pSetParameters->fmArea.y2) *
 	    (unsigned int) (pSetParameters->wTargetDPI) / 300L);
 
-  g_tiTarget.isOptimalSpeed = TRUE;
   g_tiTarget.wDpi = pSetParameters->wTargetDPI;
   g_tiTarget.wX = X1inTargetDpi;
   g_tiTarget.wY = Y1inTargetDpi;

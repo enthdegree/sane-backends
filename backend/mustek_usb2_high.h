@@ -50,12 +50,12 @@
 
 typedef SANE_Byte SCANSOURCE;
 #define SS_Reflective	0x00
-#define SS_Positive		0x01
-#define SS_Negative		0x02
+#define SS_Positive	0x01
+#define SS_Negative	0x02
 
 typedef unsigned short RGBORDER;
-#define RO_RGB 0x00
-#define RO_BGR 0x01
+#define RO_RGB	0x00
+#define RO_BGR	0x01
 
 typedef unsigned char SCANTYPE;
 #define ST_Reflective	0x00
@@ -109,7 +109,6 @@ typedef struct
 
 typedef struct
 {
-  SANE_Bool isOptimalSpeed;
   COLORMODE cmColorMode;
   unsigned short wDpi;
   unsigned short wX;
@@ -212,8 +211,7 @@ static void *MustScanner_ReadDataFromScanner (void * dummy);
 static void MustScanner_PrepareCalculateMaxMin (unsigned short wResolution);
 static void MustScanner_CalculateMaxMin (SANE_Byte * pBuffer,
 					 unsigned short * lpMaxValue,
-					 unsigned short * lpMinValue,
-					 unsigned short wResolution);
+					 unsigned short * lpMinValue);
 static SANE_Bool MustScanner_ScanSuggest (PTARGETIMAGE pTarget,
 					  PSUGGESTSETTING pSuggest);
 static SANE_Bool MustScanner_StopScan (void);

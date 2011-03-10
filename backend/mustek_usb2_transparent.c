@@ -171,7 +171,6 @@ Transparent_SetupScan (COLORMODE ColorMode,
     case 600:
       g_wPixelDistance = 0;	/* no even & odd problem */
       g_wLineDistance = 12;
-      g_Height += g_wPixelDistance;
       break;
     case 300:
       g_wPixelDistance = 0;
@@ -427,12 +426,11 @@ Transparent_AdjustAD (void)
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
 
-      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR,
-				   wAdjustADResolution);
+      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
-				   &wMinValueG, wAdjustADResolution);
+				   &wMinValueG);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
-				   &wMinValueB, wAdjustADResolution);
+				   &wMinValueB);
 
       if (g_chip.AD.DirectionR == 0)
 	{
@@ -532,12 +530,11 @@ Transparent_AdjustAD (void)
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
 
-      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR,
-				   wAdjustADResolution);
+      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
-				   &wMinValueG, wAdjustADResolution);
+				   &wMinValueG);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
-				   &wMinValueB, wAdjustADResolution);
+				   &wMinValueB);
 
       DBG (DBG_FUNC, "Transparent_AdjustAD: "
 	   "RGain=%d, ROffset=%d, RDir=%d  GGain=%d, GOffset=%d, GDir=%d  BGain=%d, BOffset=%d, BDir=%d\n",
@@ -733,12 +730,11 @@ Transparent_AdjustAD (void)
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
 
-      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR,
-				   wAdjustADResolution);
+      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
-				   &wMinValueG, wAdjustADResolution);
+				   &wMinValueG);
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
-				   &wMinValueB, wAdjustADResolution);
+				   &wMinValueB);
       DBG (DBG_FUNC,
 	   "Transparent_AdjustAD: "
 	   "RGain=%d, ROffset=%d, RDir=%d  GGain=%d, GOffset=%d, GDir=%d  BGain=%d, BOffset=%d, BDir=%d\n",

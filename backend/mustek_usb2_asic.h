@@ -1024,7 +1024,6 @@ typedef struct
 typedef struct
 {
   SANE_Byte MoveType;
-  SANE_Byte FillPhase;
   SANE_Byte MotorDriverIs3967;
   SANE_Byte MotorCurrentA;
   SANE_Byte MotorCurrentB;

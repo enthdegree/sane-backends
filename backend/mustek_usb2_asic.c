@@ -510,44 +510,6 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
   DBG (DBG_ASIC, "MotorPhase=0x%x\n", MotorPhase);
   Mustek_SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL, 0x01);
 
-  if (MotorCurrentAndPhase->FillPhase == 0)
-    {
-      Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, 0x00);
-
-      /* 1 */
-      Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-			    MotorCurrentAndPhase->MotorCurrentA);
-      Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-			    MotorCurrentAndPhase->MotorCurrentB);
-      Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
-			    0x08 & MotorPhase);
-
-      /* 2 */
-      Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-			    MotorCurrentAndPhase->MotorCurrentA);
-      Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-			    MotorCurrentAndPhase->MotorCurrentB);
-      Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
-			    0x09 & MotorPhase);
-
-      /* 3 */
-      Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-			    MotorCurrentAndPhase->MotorCurrentA);
-      Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-			    MotorCurrentAndPhase->MotorCurrentB);
-      Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
-			    0x01 & MotorPhase);
-
-      /* 4 */
-      Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-			    MotorCurrentAndPhase->MotorCurrentA);
-      Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-			    MotorCurrentAndPhase->MotorCurrentB);
-      Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
-			    0x00 & MotorPhase);
-    }
-  else
-    {
       if (MotorCurrentAndPhase->MoveType == _4_TABLE_SPACE_FOR_FULL_STEP)
 	{			/* full step */
 	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, 0x00);
@@ -584,8 +546,7 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x00 & MotorPhase);
 	}
-      else if (MotorCurrentAndPhase->MoveType ==
-	       _8_TABLE_SPACE_FOR_1_DIV_2_STEP)
+      else if (MotorCurrentAndPhase->MoveType == _8_TABLE_SPACE_FOR_1_DIV_2_STEP)
 	{			/* half step */
 	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, 0x01);
 
@@ -653,8 +614,7 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				0x39 & MotorPhase);
 	}
-      else if (MotorCurrentAndPhase->MoveType ==
-	       _16_TABLE_SPACE_FOR_1_DIV_4_STEP)
+      else if (MotorCurrentAndPhase->MoveType == _16_TABLE_SPACE_FOR_1_DIV_4_STEP)
 	{			/* 1/4 step */
 	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, 0x02);
 
@@ -947,8 +907,7 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 				0x00 & MotorPhase);
 
 	}
-      else if (MotorCurrentAndPhase->MoveType ==
-	       _32_TABLE_SPACE_FOR_1_DIV_8_STEP)
+      else if (MotorCurrentAndPhase->MoveType == _32_TABLE_SPACE_FOR_1_DIV_8_STEP)
 	{
 	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, 0x03);
 
@@ -1530,17 +1489,9 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 				0x01 & MotorPhase);
 
 	}
-    }
 
-  if (MotorCurrentAndPhase->FillPhase != 0)
-    {
-      Mustek_SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL,
-		       MotorCurrentAndPhase->MoveType);
-    }
-  else
-    {
-      Mustek_SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL, 0x00);
-    }
+  Mustek_SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL,
+		   MotorCurrentAndPhase->MoveType);
 
   DBG (DBG_ASIC, "LLFSetMotorCurrentAndPhase: Exit\n");
   return status;
@@ -2011,10 +1962,10 @@ MotorBackHome (PAsic chip)
   CalMotorTable.lpMotorTable = BackHomeMotorTable;
   LLFCalculateMotorTable (&CalMotorTable);
 
-
+  CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
+  CurrentPhase.MotorDriverIs3967 = 0;
   CurrentPhase.MotorCurrentA = 220;
   CurrentPhase.MotorCurrentB = 220;
-  CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
   LLFSetMotorTable (chip, BackHomeMotorTable);
@@ -3644,9 +3595,8 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   CalculateMotorTable (&CalMotorTable);
 
-  CurrentPhase.MotorDriverIs3967 = 0;
-  CurrentPhase.FillPhase = 1;
   CurrentPhase.MoveType = bMotorMoveType;
+  CurrentPhase.MotorDriverIs3967 = 0;
   SetMotorCurrent (EndSpeed, &CurrentPhase);
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
@@ -4055,11 +4005,10 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
   CalMotorTable.lpMotorTable = NormalMoveMotorTable;
   LLFCalculateMotorTable (&CalMotorTable);
 
+  CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
   CurrentPhase.MotorDriverIs3967 = 0;
-  CurrentPhase.FillPhase = 1;  /* TODO: correct? */
   CurrentPhase.MotorCurrentA = 200;
   CurrentPhase.MotorCurrentB = 200;
-  CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
   LLFSetMotorTable (chip, NormalMoveMotorTable);
@@ -4570,9 +4519,8 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 
   LLFCalculateMotorTable (&CalMotorTable);
 
-  CurrentPhase.MotorDriverIs3967 = 0;
-  CurrentPhase.FillPhase = 1;
   CurrentPhase.MoveType = bMotorMoveType;
+  CurrentPhase.MotorDriverIs3967 = 0;
   CurrentPhase.MotorCurrentA = 200;
   CurrentPhase.MotorCurrentB = 200;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);

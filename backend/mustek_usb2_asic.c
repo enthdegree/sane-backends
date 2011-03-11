@@ -46,7 +46,12 @@
    and similar USB2 scanners. */
 
 #include <string.h>
+#include <stdlib.h>
 #include <math.h>
+#include <unistd.h>
+
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_usb.h"
 
 #include "mustek_usb2_asic.h"
 
@@ -323,21 +328,21 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata)
 static STATUS
 Mustek_SendData2Byte (PAsic chip, unsigned short reg, SANE_Byte data)
 {
-  static SANE_Bool isTransfer = FALSE;
+  static SANE_Bool isTransfer = SANE_FALSE;
   static SANE_Byte DataBuf[4];
   STATUS status;
 
-  if (isTransfer == FALSE)
+  if (isTransfer == SANE_FALSE)
     {
       DataBuf[0] = LOBYTE (reg);
       DataBuf[1] = data;
-      isTransfer = TRUE;
+      isTransfer = SANE_TRUE;
     }
   else
     {
       DataBuf[2] = LOBYTE (reg);
       DataBuf[3] = data;
-      isTransfer = FALSE;
+      isTransfer = SANE_FALSE;
 
       status = SwitchBank (chip, reg);
       if (status != STATUS_GOOD)
@@ -998,7 +1003,7 @@ InitTiming (PAsic chip)
   chip->Timing.ChannelB_StartPixel = 100;
   chip->Timing.ChannelB_EndPixel = 200;
 
-  /* 1200 dpi Timing */
+  /* 1200 dpi timing */
   chip->Timing.CCD_PH2_Timing_1200 = 1048320;
   chip->Timing.CCD_PHRS_Timing_1200 = 983040;
   chip->Timing.CCD_PHCP_Timing_1200 = 61440;
@@ -1006,7 +1011,7 @@ InitTiming (PAsic chip)
   chip->Timing.DE_CCD_SETUP_REGISTER_1200 = 32;
   chip->Timing.wCCDPixelNumber_1200 = 11250;
 
-  /* 600 dpi Timing */
+  /* 600 dpi timing */
   chip->Timing.CCD_PH2_Timing_600 = 1048320;
   chip->Timing.CCD_PHRS_Timing_600 = 983040;
   chip->Timing.CCD_PHCP_Timing_600 = 61440;
@@ -1126,7 +1131,7 @@ SafeInitialChip (PAsic chip)
 	  DBG (DBG_ASIC, "DRAM_Test: Error\n");
 	  return status;
 	}
-      chip->isFirstOpenChip = FALSE;
+      chip->isFirstOpenChip = SANE_FALSE;
     }
 
   DBG (DBG_ASIC, "SafeInitialChip: exit\n");
@@ -1383,9 +1388,9 @@ IsCarriageHome (PAsic chip, SANE_Bool * LampHome)
     }
 
   if ((temp & SENSOR0_DETECTED) == SENSOR0_DETECTED)
-    *LampHome = TRUE;
+    *LampHome = SANE_TRUE;
   else
-    *LampHome = FALSE;
+    *LampHome = SANE_FALSE;
 
   DBG (DBG_ASIC, "LampHome=%d\n", *LampHome);
 
@@ -1914,7 +1919,7 @@ SetExtraSetting (PAsic chip, unsigned short wXResolution,
   temp_ff_register |= BYPASS_MATRIX_ENABLE;
   temp_ff_register |= BYPASS_GAMMA_ENABLE;
 
-  if (isCalibrate == TRUE)
+  if (isCalibrate == SANE_TRUE)
     {
       temp_ff_register |= BYPASS_DARK_SHADING_ENABLE;
       temp_ff_register |= BYPASS_WHITE_SHADING_ENABLE;
@@ -2178,8 +2183,9 @@ Asic_Initialize (PAsic chip)
 
   chip->dwBytesCountPerRow = 0;
 
-  DBG (DBG_ASIC, "isFirstOpenChip=%d, setting to TRUE\n", chip->isFirstOpenChip);
-  chip->isFirstOpenChip = TRUE;
+  DBG (DBG_ASIC, "isFirstOpenChip=%d, setting to SANE_TRUE\n",
+       chip->isFirstOpenChip);
+  chip->isFirstOpenChip = SANE_TRUE;
 
   chip->lpShadingTable = NULL;
   chip->isMotorMove = MOTOR_0_ENABLE;
@@ -2473,7 +2479,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   SetPackAddress (chip, wWidth, wX, XRatioAdderDouble,
 		  XRatioTypeDouble, 0, &ValidPixelNumber);
-  SetExtraSetting (chip, wXResolution, wCCD_PixelNumber, FALSE);
+  SetExtraSetting (chip, wXResolution, wCCD_PixelNumber, SANE_FALSE);
 
   /* calculate line time */
   dwLinePixelReport = (2 + (chip->Timing.PHTG_PulseWidth + 1) +
@@ -2831,9 +2837,9 @@ Asic_IsTAConnected (PAsic chip, SANE_Bool * hasTA)
   GetChipStatus (chip, GPIO0_7, &bBuffer_1);
 
   if ((~bBuffer_1 & 0x08) == 0x08)
-    *hasTA = TRUE;
+    *hasTA = SANE_TRUE;
   else
-    *hasTA = FALSE;
+    *hasTA = SANE_FALSE;
 
   DBG (DBG_ASIC, "hasTA=%d\n", *hasTA);
   DBG (DBG_ASIC, "Asic_IsTAConnected(): Exit\n");
@@ -3387,7 +3393,7 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 
   SetPackAddress (chip, wWidth, wX, XRatioAdderDouble,
 		  XRatioTypeDouble, byClear_Pulse_Width, &ValidPixelNumber);
-  SetExtraSetting (chip, wXResolution, wCCD_PixelNumber, TRUE);
+  SetExtraSetting (chip, wXResolution, wCCD_PixelNumber, SANE_TRUE);
 
   byPHTG_PulseWidth = chip->Timing.PHTG_PulseWidth;
   byPHTG_WaitWidth = chip->Timing.PHTG_WaitWidth;

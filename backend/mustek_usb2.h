@@ -56,6 +56,9 @@
 #define ENABLE(OPTION)  s->opt[OPTION].cap &= ~SANE_CAP_INACTIVE
 #define DISABLE(OPTION) s->opt[OPTION].cap |=  SANE_CAP_INACTIVE
 
+#define _MAX(a,b) ((a)>(b)?(a):(b))
+#define _MIN(a,b) ((a)<(b)?(a):(b))
+
 #define SCAN_BUFFER_SIZE (64 * 1024)
 #define MAX_RESOLUTIONS 12
 #define DEF_LINEARTTHRESHOLD 128

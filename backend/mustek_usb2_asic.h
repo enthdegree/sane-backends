@@ -48,15 +48,7 @@
 #ifndef MUSTEK_USB2_ASIC_H
 #define MUSTEK_USB2_ASIC_H
 
-#include "../include/sane/sanei_usb.h"
-
 /* ---------------------- low level asic defines -------------------------- */
-
-#define TRUE 1
-#define FALSE 0
-
-#define _MAX(a,b) ((a)>(b)?(a):(b))
-#define _MIN(a,b) ((a)<(b)?(a):(b))
 
 #ifndef LOBYTE
 #define LOBYTE(w) (SANE_Byte)((unsigned short)(w) & 0x00ff)
@@ -155,7 +147,7 @@ typedef struct
   int fd;	/* file descriptor of scanner */
 
   FIRMWARESTATE firmwarestate;
-  SANE_Bool isFirstOpenChip;	/* TRUE if Asic_Open has not been called yet. */
+  SANE_Bool isFirstOpenChip;	/* == SANE_FALSE after first Asic_Open */
   USBHOST UsbHost;
   LIGHTSOURCE lsLightSource;
 

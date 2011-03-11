@@ -980,8 +980,6 @@ static STATUS Asic_Reset (PAsic chip);
 static STATUS Asic_SetSource (PAsic chip, LIGHTSOURCE lsLightSource);
 static STATUS Asic_ScanStart (PAsic chip);
 static STATUS Asic_ScanStop (PAsic chip);
-
-/* called while scanning, reads one line of image data */
 static STATUS Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer, unsigned short LinesCount);
 
 #if SANE_UNUSED
@@ -1040,8 +1038,8 @@ typedef struct
 
 typedef struct
 {
-  SANE_Byte ActionMode;		/* see ACTION_MODE constants above */
-  SANE_Byte ActionType;		/* see ACTION_TYPE constants above */
+  SANE_Byte ActionMode;		/* see ACTION_MODE constants defined above */
+  SANE_Byte ActionType;		/* see ACTION_TYPE constants defined above */
   unsigned short FixMoveSpeed;
   unsigned int FixMoveSteps;	/* only lower 3 bytes used */
   unsigned short AccStep;	/* max. value = 511 */

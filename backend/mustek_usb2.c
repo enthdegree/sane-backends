@@ -1638,9 +1638,9 @@ sane_start (SANE_Handle handle)
 
 
   s->read_rows = s->getpara.dwLength;
-  DBG (DBG_INFO, "sane_start : read_rows = %d\n", s->read_rows);
+  DBG (DBG_INFO, "sane_start: read_rows = %d\n", s->read_rows);
 
-  DBG (DBG_INFO, "SCANNING ... \n");
+  DBG (DBG_INFO, "SCANNING...\n");
 
   s->bIsScanning = SANE_TRUE;
   if (s->Scan_data_buf != NULL)

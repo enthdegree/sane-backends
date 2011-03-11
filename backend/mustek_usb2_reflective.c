@@ -1102,7 +1102,7 @@ Reflective_LineCalibration16Bits (void)
   if (lpWhiteData == NULL || lpDarkData == NULL)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: lpWhiteData or lpDarkData malloc error \n");
+	   "Reflective_LineCalibration16Bits: lpWhiteData or lpDarkData malloc error\n");
 
       return FALSE;
     }
@@ -1115,7 +1115,7 @@ Reflective_LineCalibration16Bits (void)
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_SetCalibrate return error \n");
+	   "Reflective_LineCalibration16Bits: Asic_SetCalibrate return error\n");
 
       free (lpWhiteData);
 
@@ -1127,7 +1127,7 @@ Reflective_LineCalibration16Bits (void)
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_ScanStart return error \n");
+	   "Reflective_LineCalibration16Bits: Asic_ScanStart return error\n");
 
       free (lpWhiteData);
       free (lpDarkData);
@@ -1150,7 +1150,7 @@ Reflective_LineCalibration16Bits (void)
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_SetMotorType return error \n");
+	   "Reflective_LineCalibration16Bits: Asic_SetMotorType return error\n");
 
       free (lpWhiteData);
       free (lpDarkData);
@@ -1163,7 +1163,7 @@ Reflective_LineCalibration16Bits (void)
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_SetCalibrate return error \n");
+	   "Reflective_LineCalibration16Bits: Asic_SetCalibrate return error\n");
 
       free (lpWhiteData);
       free (lpDarkData);
@@ -1174,7 +1174,7 @@ Reflective_LineCalibration16Bits (void)
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_TurnLamp return error \n");
+	   "Reflective_LineCalibration16Bits: Asic_TurnLamp return error\n");
 
       free (lpWhiteData);
       free (lpDarkData);
@@ -1187,7 +1187,7 @@ Reflective_LineCalibration16Bits (void)
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_ScanStart return error \n");
+	   "Reflective_LineCalibration16Bits: Asic_ScanStart return error\n");
 
       free (lpWhiteData);
       free (lpDarkData);
@@ -1198,7 +1198,7 @@ Reflective_LineCalibration16Bits (void)
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_ReadCalibrationData return error \n");
+	   "Reflective_LineCalibration16Bits: Asic_ReadCalibrationData return error\n");
 
       free (lpWhiteData);
       free (lpDarkData);
@@ -1212,7 +1212,7 @@ Reflective_LineCalibration16Bits (void)
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_TurnLamp return error \n");
+	   "Reflective_LineCalibration16Bits: Asic_TurnLamp return error\n");
 
       free (lpWhiteData);
       free (lpDarkData);
@@ -1259,7 +1259,7 @@ Reflective_LineCalibration16Bits (void)
       || lpRWhiteSort == NULL || lpGWhiteSort == NULL || lpBWhiteSort == NULL
       || lpRDarkSort == NULL || lpGDarkSort == NULL || lpBDarkSort == NULL)
     {
-      DBG (DBG_FUNC, "Reflective_LineCalibration16Bits: malloc error \n");
+      DBG (DBG_FUNC, "Reflective_LineCalibration16Bits: malloc error\n");
 
       free (lpWhiteData);
       free (lpDarkData);

@@ -230,7 +230,7 @@ MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 static SANE_Bool
 MustScanner_BackHome (void)
 {
-  DBG (DBG_FUNC, "MustScanner_BackHome: call in \n");
+  DBG (DBG_FUNC, "MustScanner_BackHome: call in\n");
 
   if (STATUS_GOOD != Asic_Open (&g_chip))
     {
@@ -560,7 +560,7 @@ MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   unsigned int wNextTempData;
   unsigned short i;
 
-  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine1200DPI: call in \n");
+  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine1200DPI: call in\n");
 
   TotalXferLines = 0;
   wWantedTotalLines = *wLinesCount;

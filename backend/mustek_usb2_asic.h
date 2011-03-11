@@ -972,6 +972,7 @@ static STATUS Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpdata)
 static STATUS Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata);
 static STATUS Mustek_ClearFIFO (PAsic chip);
 static STATUS SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size);
+static STATUS SwitchBank (PAsic chip, unsigned short reg);
 
 static STATUS Asic_Open (PAsic chip);
 static STATUS Asic_Close (PAsic chip);
@@ -1028,8 +1029,7 @@ typedef struct
 {
   SANE_Byte MoveType;
   SANE_Byte MotorDriverIs3967;
-  SANE_Byte MotorCurrentA;
-  SANE_Byte MotorCurrentB;
+  SANE_Byte MotorCurrent;
 } LLF_MOTOR_CURRENT_AND_PHASE;
 
 typedef struct
@@ -1067,8 +1067,7 @@ static STATUS SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
 				 unsigned int dwScanImageSteps,
 				 unsigned short wYResolution);
 static STATUS LLFSetMotorTable (PAsic chip, unsigned short *MotorTablePtr);
-static STATUS SetMotorCurrent (unsigned short dwMotorSpeed,
-			       LLF_MOTOR_CURRENT_AND_PHASE * CurrentPhase);
+static SANE_Byte CalculateMotorCurrent (unsigned short dwMotorSpeed);
 static STATUS LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove);
 static STATUS LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr,
 				unsigned int dwEndAddr,

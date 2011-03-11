@@ -161,9 +161,8 @@ typedef struct
   ADConverter AD;
 
   SANE_Byte isMotorMove;
-  SANE_Byte isMotorGoToFirstLine;
+  SANE_Byte isMotorMoveToFirstLine;
   SANE_Byte * lpShadingTable;
-  SANE_Byte isUniformSpeedToScan;
 } Asic, *PAsic;
 
 typedef enum
@@ -202,12 +201,6 @@ typedef enum
 #define ACTION_TYPE_BACKWARD 0
 #define ACTION_TYPE_FORWARD 1
 #define ACTION_TYPE_BACKTOHOME 2
-#define ACTION_TYPE_TEST_MODE 3
-
-
-#define SENSOR0_DETECTED 0x10
-#define SENSOR1_DETECTED 0x20
-#define SENSOR0AND1_DETECTED 0x30
 
 #define READ_RAM 0
 #define WRITE_RAM 1
@@ -363,6 +356,9 @@ typedef enum
 #define		ES01_8B_Status				0x8B
 		/* bit[4:0] */
 #define	H1H0L1L0_PS_MJ				0x00
+#define   SENSOR0_DETECTED	0x10
+#define   SENSOR1_DETECTED	0x20
+#define   SENSOR0AND1_DETECTED	0x30
 #define	SCAN_STATE				0x01
 #define	GPIO0_7					0x02
 #define	GPIO8_15				0x03
@@ -1022,7 +1018,6 @@ typedef struct
   unsigned short LoStartAddress;
   unsigned short HiStartAddress;
   int RwSize;
-  SANE_Byte DramDelayTime;
   SANE_Byte *BufferPtr;
 } LLF_RAMACCESS;
 
@@ -1046,26 +1041,12 @@ typedef struct
 
 typedef struct
 {
-  SANE_Byte MotorTableAddress;
-  unsigned short *MotorTablePtr;
-} LLF_SETMOTORTABLE;
-
-typedef struct
-{
-  SANE_Byte ActionMode;		/* 0: AccDec Mode, 1: Uniform Speed Mode, 2: Test Mode */
-  SANE_Byte ActionType;		/* 0: Forward, 1: Backward, 2: Back To Home */
-  SANE_Byte MotorSelect;	/* 0: Motor 0 only, 1: Motor 1 only, 2: Motor 0 & 1 */
-  SANE_Byte HomeSensorSelect;	/* 0: Sensor 0, 1: Sensor 1, 2: Sensor 0 & 1, 3: Invert Sensor 1 */
+  SANE_Byte ActionMode;		/* see ACTION_MODE constants above */
+  SANE_Byte ActionType;		/* see ACTION_TYPE constants above */
   unsigned short FixMoveSpeed;
   unsigned int FixMoveSteps;	/* only lower 3 bytes used */
-  SANE_Byte MotorSpeedUnit;
-  SANE_Byte MotorSyncUnit;
-  unsigned short AccStep;	/* max = 511 */
+  unsigned short AccStep;	/* max. value = 511 */
   SANE_Byte DecStep;
-  SANE_Byte MotorMoveUnit;
-  SANE_Byte WaitOrNoWait;	/* 0: no wait, 1: wait */
-  SANE_Byte Lamp0PwmFreq;
-  SANE_Byte Lamp1PwmFreq;
 
   unsigned short wScanAccSteps;
   SANE_Byte bScanDecSteps;
@@ -1080,16 +1061,17 @@ static STATUS LLFSetMotorCurrentAndPhase (PAsic chip,
 					  LLF_MOTOR_CURRENT_AND_PHASE *
 					  MotorCurrentAndPhase);
 static STATUS SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
-				 unsigned short wStartY, unsigned int dwScanImageSteps,
+				 unsigned short wStartY,
+				 unsigned int dwScanImageSteps,
 				 unsigned short wYResolution);
-static STATUS LLFSetMotorTable (PAsic chip,
-				LLF_SETMOTORTABLE * LLF_SetMotorTable);
+static STATUS LLFSetMotorTable (PAsic chip, unsigned short *MotorTablePtr);
 static STATUS SetMotorCurrent (unsigned short dwMotorSpeed,
 			       LLF_MOTOR_CURRENT_AND_PHASE * CurrentPhase);
 static STATUS LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove);
 static STATUS LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr,
-				unsigned int dwEndAddr, SANE_Byte byAccessTarget);
+				unsigned int dwEndAddr,
+				SANE_Byte byAccessTarget);
 static STATUS LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess);
-static STATUS MotorBackHome (PAsic chip, SANE_Byte WaitOrNoWait);
+static STATUS MotorBackHome (PAsic chip);
 
 #endif

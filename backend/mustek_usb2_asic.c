@@ -214,7 +214,7 @@ SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size)
   STATUS status = STATUS_GOOD;
   DBG (DBG_ASIC, "SetRWSize: Enter\n");
 
-  if (ReadWrite == 0)
+  if (ReadWrite == WRITE_RAM)
     {				/* write */
       status = Mustek_SendData (chip, 0x7C, (SANE_Byte) (size));
       if (status != STATUS_GOOD)
@@ -265,7 +265,7 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpdata)
   buf[0] = read_size = 32 * 1024;
   for (i = 0; i < size / (read_size); i++)
     {
-      SetRWSize (chip, 1, buf[0]);
+      SetRWSize (chip, READ_RAM, buf[0]);
       status = WriteIOControl (chip, 0x03, 0, 4, (SANE_Byte *) (buf));
 
       status =
@@ -281,7 +281,7 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpdata)
   buf[0] = size - i * read_size;
   if (buf[0] > 0)
     {
-      SetRWSize (chip, 1, buf[0]);
+      SetRWSize (chip, READ_RAM, buf[0]);
       status = WriteIOControl (chip, 0x03, 0, 4, (SANE_Byte *) (buf));
 
       status =
@@ -317,7 +317,7 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata)
   buf[0] = write_size = 32 * 1024;
   for (i = 0; i < size / (write_size); i++)
     {
-      SetRWSize (chip, 0, buf[0]);
+      SetRWSize (chip, WRITE_RAM, buf[0]);
       WriteIOControl (chip, 0x02, 0, 4, (SANE_Byte *) buf);
 
       status =
@@ -334,7 +334,7 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata)
   buf[0] = size - i * write_size;
   if (buf[0] > 0)
     {
-      SetRWSize (chip, 0, buf[0]);
+      SetRWSize (chip, WRITE_RAM, buf[0]);
       WriteIOControl (chip, 0x02, 0, 4, (SANE_Byte *) buf);
 
       status =
@@ -495,8 +495,7 @@ LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
 
 static STATUS
 LLFSetMotorCurrentAndPhase (PAsic chip,
-			    LLF_MOTOR_CURRENT_AND_PHASE *
-			    MotorCurrentAndPhase)
+			    LLF_MOTOR_CURRENT_AND_PHASE * MotorCurrentAndPhase)
 {
   STATUS status = STATUS_GOOD;
   SANE_Byte MotorPhase;
@@ -1536,7 +1535,7 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
   if (MotorCurrentAndPhase->FillPhase != 0)
     {
       Mustek_SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL,
-		       0x00 | MotorCurrentAndPhase->MoveType);
+		       MotorCurrentAndPhase->MoveType);
     }
   else
     {
@@ -1549,35 +1548,27 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 
 
 static STATUS
-LLFSetMotorTable (PAsic chip, LLF_SETMOTORTABLE * LLF_SetMotorTable)
+LLFSetMotorTable (PAsic chip, unsigned short *MotorTablePtr)
 {
   STATUS status = STATUS_GOOD;
   LLF_RAMACCESS RamAccess;
 
   DBG (DBG_ASIC, "LLFSetMotorTable: Enter\n");
-  if (LLF_SetMotorTable->MotorTablePtr != NULL)
+  if (MotorTablePtr != NULL)
     {
       RamAccess.ReadWrite = WRITE_RAM;
       RamAccess.IsOnChipGamma = EXTERNAL_RAM;
-      RamAccess.DramDelayTime = SDRAMCLK_DELAY_12_ns;
 
-      RamAccess.LoStartAddress = 0;
-      RamAccess.LoStartAddress |= LLF_SetMotorTable->MotorTableAddress;
-      RamAccess.LoStartAddress <<= TABLE_OFFSET_BASE;
-      RamAccess.LoStartAddress |= 0x3000;
-
+      RamAccess.LoStartAddress = 0x3000;
       RamAccess.HiStartAddress = 0;
-      RamAccess.HiStartAddress |= LLF_SetMotorTable->MotorTableAddress;
-      RamAccess.HiStartAddress >>= (16 - TABLE_OFFSET_BASE);
 
       RamAccess.RwSize = 512 * 2 * 8;	/* unit: byte */
-      RamAccess.BufferPtr = (SANE_Byte *) LLF_SetMotorTable->MotorTablePtr;
+      RamAccess.BufferPtr = (SANE_Byte *) MotorTablePtr;
 
       LLFRamAccess (chip, &RamAccess);
 
       /* tell scan chip the motor table address, unit is 2^14 words */
-      Mustek_SendData (chip, ES01_9D_MotorTableAddrA14_A21,
-		       LLF_SetMotorTable->MotorTableAddress);
+      Mustek_SendData (chip, ES01_9D_MotorTableAddrA14_A21, 0);
     }
 
   DBG (DBG_ASIC, "LLFSetMotorTable: Exit\n");
@@ -1642,14 +1633,13 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
   DBG (DBG_ASIC, "FixMoveSpeed=%d\n", LLF_MotorMove->FixMoveSpeed);
 
   /* set motor type */
-  Mustek_SendData (chip, ES01_A6_MotorOption, LLF_MotorMove->MotorSelect |
-		   LLF_MotorMove->HomeSensorSelect | LLF_MotorMove->
-		   MotorMoveUnit);
+  Mustek_SendData (chip, ES01_A6_MotorOption,
+		   MOTOR_0_ENABLE | HOME_SENSOR_0_ENABLE | TABLE_DEFINE_ES03);
 
   /* Set motor speed unit for all motor modes, including uniform. */
   Mustek_SendData (chip, ES01_F6_MotorControl1,
-		   LLF_MotorMove->MotorSpeedUnit | LLF_MotorMove->
-		   MotorSyncUnit);
+		   SPEED_UNIT_1_PIXEL_TIME |
+		   MOTOR_SYNC_UNIT_1_PIXEL_TIME);
 
   /* set action register */
   if (LLF_MotorMove->ActionType == ACTION_TYPE_BACKTOHOME)
@@ -1667,22 +1657,14 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
       if (LLF_MotorMove->ActionType == ACTION_TYPE_BACKWARD)
 	{
 	  DBG (DBG_ASIC, "ACTION_TYPE_BACKWARD\n");
-	  temp_motor_action =
-	    temp_motor_action | INVERT_MOTOR_DIRECTION_ENABLE;
+	  temp_motor_action |= INVERT_MOTOR_DIRECTION_ENABLE;
 	}
     }
 
-  if (LLF_MotorMove->ActionType == ACTION_TYPE_TEST_MODE)
-    {
-      DBG (DBG_ASIC, "ACTION_TYPE_TEST_MODE\n");
-      temp_motor_action = temp_motor_action |
-	MOTOR_MOVE_TO_FIRST_LINE_ENABLE |
-	MOTOR_BACK_HOME_AFTER_SCAN_ENABLE | MOTOR_TEST_LOOP_ENABLE;
-    }
-
   Mustek_SendData (chip, ES01_94_PowerSaveControl,
-		   0x27 | LLF_MotorMove->Lamp0PwmFreq | LLF_MotorMove->
-		   Lamp1PwmFreq);
+		   TIMER_POWER_SAVE_ENABLE |
+		   USB_POWER_SAVE_ENABLE | USB_REMOTE_WAKEUP_ENABLE |
+		   LED_MODE_FLASH_SLOWLY);
 
   /* set number of movement steps with fixed speed */
   Mustek_SendData (chip, ES01_E2_MotorStepOfMaxSpeed0_7,
@@ -1694,26 +1676,15 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
   DBG (DBG_ASIC, "motor_steps=%d\n", motor_steps);
 
   if (LLF_MotorMove->ActionMode == ACTION_MODE_UNIFORM_SPEED_MOVE)
-    {
-      temp_motor_action =
-	temp_motor_action | UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
-    }
+    temp_motor_action |= UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
 
   Mustek_SendData (chip, ES01_F3_ActionOption, temp_motor_action);
   Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_ENABLE);
 
-  if (LLF_MotorMove->WaitOrNoWait == 1)
-    {
-      if (LLF_MotorMove->ActionType == ACTION_TYPE_BACKTOHOME)
-	{
-	  DBG (DBG_ASIC, "ACTION_TYPE_BACKTOHOME\n");
-	  status = Asic_WaitCarriageHome (chip);
-	}
-      else
-	{
-	  status = Asic_WaitUnitReady (chip);
-	}
-    }
+  if (LLF_MotorMove->ActionType == ACTION_TYPE_BACKTOHOME)
+    status = Asic_WaitCarriageHome (chip);
+  else
+    status = Asic_WaitUnitReady (chip);
 
   DBG (DBG_ASIC, "LLFMotorMove: Exit\n");
   return status;
@@ -1776,7 +1747,7 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
 	(wStartY - wScanAccSteps) : 0;
       wForwardSteps = 0;
 
-      chip->isMotorGoToFirstLine = 0;
+      chip->isMotorMoveToFirstLine = 0;
     }
   else
     {
@@ -1786,7 +1757,7 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
 	0 ? (wStartY - wAccSteps - (unsigned short) bDecSteps - wScanAccSteps -
 	     wFixScanSteps) : 0;
 
-      chip->isMotorGoToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
+      chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
     }
 
   dwTotalMotorSteps += wAccSteps;
@@ -1802,7 +1773,6 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
   MotorStepsTable->DecStep = bDecSteps;
   MotorStepsTable->wScanAccSteps = wScanAccSteps;
   MotorStepsTable->bScanDecSteps = bScanDecSteps;
-  MotorStepsTable->MotorSyncUnit = (SANE_Byte) wMotorSyncPixelNumber;
 
   /* state 1 */
   Mustek_SendData (chip, ES01_E0_MotorAccStep0_7, LOBYTE (wAccSteps));
@@ -2024,13 +1994,12 @@ SetMotorCurrent (unsigned short dwMotorSpeed,
 
 
 static STATUS
-MotorBackHome (PAsic chip, SANE_Byte WaitOrNoWait)
+MotorBackHome (PAsic chip)
 {
   STATUS status = STATUS_GOOD;
   unsigned short BackHomeMotorTable[512 * 8];
   LLF_CALCULATEMOTORTABLE CalMotorTable;
   LLF_MOTOR_CURRENT_AND_PHASE CurrentPhase;
-  LLF_SETMOTORTABLE LLF_SetMotorTable;
   LLF_MOTORMOVE MotorMove;
 
   DBG (DBG_ASIC, "MotorBackHome: Enter\n");
@@ -2048,15 +2017,8 @@ MotorBackHome (PAsic chip, SANE_Byte WaitOrNoWait)
   CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
-  LLF_SetMotorTable.MotorTableAddress = 0;
-  LLF_SetMotorTable.MotorTablePtr = BackHomeMotorTable;
-  LLFSetMotorTable (chip, &LLF_SetMotorTable);
+  LLFSetMotorTable (chip, BackHomeMotorTable);
 
-  MotorMove.MotorSelect = MOTOR_0_ENABLE;
-  MotorMove.MotorMoveUnit = TABLE_DEFINE_ES03;
-  MotorMove.MotorSpeedUnit = SPEED_UNIT_1_PIXEL_TIME;
-  MotorMove.MotorSyncUnit = MOTOR_SYNC_UNIT_1_PIXEL_TIME;
-  MotorMove.HomeSensorSelect = HOME_SENSOR_0_ENABLE;
   MotorMove.ActionMode = ACTION_MODE_ACCDEC_MOVE;
   MotorMove.ActionType = ACTION_TYPE_BACKTOHOME;
 
@@ -2064,7 +2026,6 @@ MotorBackHome (PAsic chip, SANE_Byte WaitOrNoWait)
   MotorMove.DecStep = 255;
   MotorMove.FixMoveSteps = 0;
   MotorMove.FixMoveSpeed = 3000;
-  MotorMove.WaitOrNoWait = WaitOrNoWait;
   LLFMotorMove (chip, &MotorMove);
 
   DBG (DBG_ASIC, "MotorBackHome: Exit\n");
@@ -2513,7 +2474,7 @@ IsCarriageHome (PAsic chip, SANE_Bool * LampHome)
 
   DBG (DBG_ASIC, "IsCarriageHome: Enter\n");
 
-  status = GetChipStatus (chip, 0, &temp);
+  status = GetChipStatus (chip, H1H0L1L0_PS_MJ, &temp);
   if (status != STATUS_GOOD)
     {
       DBG (DBG_ASIC, "IsCarriageHome: Error!\n");
@@ -3299,7 +3260,7 @@ Asic_WaitUnitReady (PAsic chip)
 
   do
     {
-      status = GetChipStatus (chip, 1, &temp_status);
+      status = GetChipStatus (chip, SCAN_STATE, &temp_status);
       if (status != STATUS_GOOD)
 	{
 	  DBG (DBG_ASIC, "WaitChipIdle: Error!\n");
@@ -3334,8 +3295,7 @@ Asic_Initialize (PAsic chip)
   Asic_Reset (chip);
   InitTiming (chip);
 
-  chip->isUniformSpeedToScan = 0;
-  chip->isMotorGoToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
+  chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
 
   chip->UsbHost = HT_USB10;
 
@@ -3376,8 +3336,8 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   LLF_RAMACCESS RamAccess;
   unsigned int dwEndAddr, dwTableBaseAddr, dwShadingTableAddr;
 
-  SANE_Byte isMotorMoveToFirstLine = chip->isMotorGoToFirstLine;
-  SANE_Byte isUniformSpeedToScan = chip->isUniformSpeedToScan;
+  SANE_Byte isMotorMoveToFirstLine = chip->isMotorMoveToFirstLine;
+  SANE_Byte isUniformSpeedToScan = 0;
   SANE_Byte isScanBackTracking = SCAN_BACK_TRACKING_ENABLE;
   unsigned short * lpMotorTable;
   unsigned int RealTableSize;
@@ -3690,10 +3650,8 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   SetMotorCurrent (EndSpeed, &CurrentPhase);
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
-  DBG (DBG_ASIC, "EndSpeed = %d, BytesCountPerRow=%d, MotorCurrentA=%d, " \
-                 "LinePixelReport=%d\n",
-       EndSpeed, chip->dwBytesCountPerRow, CurrentPhase.MotorCurrentA,
-       dwLinePixelReport);
+  DBG (DBG_ASIC, "EndSpeed = %d, MotorCurrentA=%d, LinePixelReport=%d\n",
+       EndSpeed, CurrentPhase.MotorCurrentA, dwLinePixelReport);
 
   /* write motor table */
   RealTableSize = 512 * 8;
@@ -3701,7 +3659,6 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   RamAccess.ReadWrite = WRITE_RAM;
   RamAccess.IsOnChipGamma = EXTERNAL_RAM;
-  RamAccess.DramDelayTime = SDRAMCLK_DELAY_12_ns;
   RamAccess.LoStartAddress = (unsigned short) (dwTableBaseAddr);
   RamAccess.HiStartAddress = (unsigned short) (dwTableBaseAddr >> 16);
   RamAccess.RwSize = RealTableSize * 2;
@@ -3733,7 +3690,6 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   RamAccess.ReadWrite = WRITE_RAM;
   RamAccess.IsOnChipGamma = EXTERNAL_RAM;
-  RamAccess.DramDelayTime = SDRAMCLK_DELAY_12_ns;
   RamAccess.LoStartAddress = (unsigned short) (dwShadingTableAddr);
   RamAccess.HiStartAddress = (unsigned short) (dwShadingTableAddr >> 16);
   RamAccess.RwSize =
@@ -3950,18 +3906,18 @@ Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key)
   Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x00);
   Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x08);
 
-  GetChipStatus (chip, 0x02, &bBuffer_1);
-  GetChipStatus (chip, 0x03, &bBuffer_2);
+  GetChipStatus (chip, GPIO0_7, &bBuffer_1);
+  GetChipStatus (chip, GPIO8_15, &bBuffer_2);
 
-  if (((0xff - bBuffer_1) & 0x10) == 0x10)
+  if ((~bBuffer_1 & 0x10) == 0x10)
     *key = 0x01;
-  else if (((0xff - bBuffer_1) & 0x01) == 0x01)
+  else if ((~bBuffer_1 & 0x01) == 0x01)
     *key = 0x02;
-  else if (((0xff - bBuffer_1) & 0x04) == 0x04)
+  else if ((~bBuffer_1 & 0x04) == 0x04)
     *key = 0x04;
-  else if (((0xff - bBuffer_2) & 0x08) == 0x08)
+  else if ((~bBuffer_2 & 0x08) == 0x08)
     *key = 0x08;
-  else if (((0xff - bBuffer_1) & 0x02) == 0x02)
+  else if ((~bBuffer_1 & 0x02) == 0x02)
     *key = 0x10;
 
   DBG (DBG_ASIC, "CheckFunctionKey=%d\n", *key);
@@ -3979,13 +3935,12 @@ Asic_IsTAConnected (PAsic chip, SANE_Bool * hasTA)
 
   Mustek_SendData (chip, ES01_97_GPIOControl0_7, 0x00);
   Mustek_SendData (chip, ES01_95_GPIOValue0_7, 0x00);
-
   Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x00);
   Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x00);
 
-  GetChipStatus (chip, 0x02, &bBuffer_1);
+  GetChipStatus (chip, GPIO0_7, &bBuffer_1);
 
-  if (((0xff - bBuffer_1) & 0x08) == 0x08)
+  if ((~bBuffer_1 & 0x08) == 0x08)
     *hasTA = TRUE;
   else
     *hasTA = FALSE;
@@ -4083,7 +4038,6 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
   unsigned short *NormalMoveMotorTable;
   LLF_CALCULATEMOTORTABLE CalMotorTable;
   LLF_MOTOR_CURRENT_AND_PHASE CurrentPhase;
-  LLF_SETMOTORTABLE LLF_SetMotorTable;
   LLF_MOTORMOVE MotorMove;
 
   DBG (DBG_ASIC, "Asic_MotorMove: Enter\n");
@@ -4102,24 +4056,18 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
   LLFCalculateMotorTable (&CalMotorTable);
 
   CurrentPhase.MotorDriverIs3967 = 0;
+  CurrentPhase.FillPhase = 1;  /* TODO: correct? */
   CurrentPhase.MotorCurrentA = 200;
   CurrentPhase.MotorCurrentB = 200;
   CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
-  LLF_SetMotorTable.MotorTableAddress = 0;
-  LLF_SetMotorTable.MotorTablePtr = NormalMoveMotorTable;
-  LLFSetMotorTable (chip, &LLF_SetMotorTable);
+  LLFSetMotorTable (chip, NormalMoveMotorTable);
 
   free (NormalMoveMotorTable);
 
-  MotorMove.MotorSelect = MOTOR_0_ENABLE;
-  MotorMove.MotorMoveUnit = TABLE_DEFINE_ES03;
-  MotorMove.MotorSpeedUnit = SPEED_UNIT_1_PIXEL_TIME;
-  MotorMove.MotorSyncUnit = MOTOR_SYNC_UNIT_1_PIXEL_TIME;
-  MotorMove.HomeSensorSelect = HOME_SENSOR_0_ENABLE;
   MotorMove.ActionMode = ACTION_MODE_ACCDEC_MOVE;
-  MotorMove.ActionType = isForward;
+  MotorMove.ActionType = isForward ? ACTION_TYPE_FORWARD : ACTION_TYPE_BACKWARD;
 
   if (dwTotalSteps > 1000)
     {
@@ -4136,7 +4084,6 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
     }
 
   MotorMove.FixMoveSpeed = 7000;
-  MotorMove.WaitOrNoWait = TRUE;
 
   LLFMotorMove (chip, &MotorMove);
 
@@ -4154,7 +4101,7 @@ Asic_CarriageHome (PAsic chip)
 
   status = IsCarriageHome (chip, &LampHome);
   if (!LampHome)
-    status = MotorBackHome (chip, TRUE);
+    status = MotorBackHome (chip);
 
   DBG (DBG_ASIC, "Asic_CarriageHome: Exit\n");
   return status;
@@ -4321,8 +4268,6 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   unsigned short BackTrackFixSpeedStep = 20;
   unsigned short wMultiMotorStep = 1;
   SANE_Byte bMotorMoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
-  SANE_Byte isMotorMoveToFirstLine = 0;
-  SANE_Byte isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
   SANE_Byte isScanBackTracking = 0;
   unsigned int TotalStep = 0;
   unsigned short StartSpeed, EndSpeed;
@@ -4562,19 +4507,18 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   DBG (DBG_ASIC, "TotalStep=%d\n", TotalStep);
 
   Mustek_SendData (chip, ES01_F0_ScanImageStep0_7, (SANE_Byte) (TotalStep));
-  Mustek_SendData (chip, ES01_F1_ScanImageStep8_15, (SANE_Byte) (TotalStep >> 8));
+  Mustek_SendData (chip, ES01_F1_ScanImageStep8_15,
+		   (SANE_Byte) (TotalStep >> 8));
   Mustek_SendData (chip, ES01_F2_ScanImageStep16_19,
 		   (SANE_Byte) (TotalStep >> 16));
 
   SetScanMode (chip, bScanBits);
 
-  DBG (DBG_ASIC, "isMotorMoveToFirstLine=%d,isUniformSpeedToScan=%d," \
-                 "isScanBackTracking=%d\n",
-       isMotorMoveToFirstLine, isUniformSpeedToScan, isScanBackTracking);
+  DBG (DBG_ASIC, "isScanBackTracking=%d\n", isScanBackTracking);
 
-
-  Mustek_SendData (chip, ES01_F3_ActionOption, isMotorMoveToFirstLine |
-		   SCAN_ENABLE | isScanBackTracking | isUniformSpeedToScan);
+  Mustek_SendData (chip, ES01_F3_ActionOption,
+		   SCAN_ENABLE | isScanBackTracking |
+		   UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE);
 
   if (chip->lsLightSource == LS_REFLECTIVE)
     Mustek_SendData (chip, ES01_F8_WHITE_SHADING_DATA_FORMAT,
@@ -4640,7 +4584,6 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 
   RamAccess.ReadWrite = WRITE_RAM;
   RamAccess.IsOnChipGamma = EXTERNAL_RAM;
-  RamAccess.DramDelayTime = SDRAMCLK_DELAY_12_ns;
   RamAccess.LoStartAddress = (unsigned short) (dwStartAddr);
   RamAccess.HiStartAddress = (unsigned short) (dwStartAddr >> 16);
   RamAccess.RwSize = RealTableSize * 2;

@@ -214,36 +214,25 @@ SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size)
   STATUS status = STATUS_GOOD;
   DBG (DBG_ASIC, "SetRWSize: Enter\n");
 
-  if (ReadWrite == WRITE_RAM)
-    {				/* write */
-      status = Mustek_SendData (chip, 0x7C, (SANE_Byte) (size));
-      if (status != STATUS_GOOD)
-	return status;
-      status = Mustek_SendData (chip, 0x7D, (SANE_Byte) (size >> 8));
-      if (status != STATUS_GOOD)
-	return status;
-      status = Mustek_SendData (chip, 0x7E, (SANE_Byte) (size >> 16));
-      if (status != STATUS_GOOD)
-	return status;
-      status = Mustek_SendData (chip, 0x7F, (SANE_Byte) (size >> 24));
-      if (status != STATUS_GOOD)
-	return status;
-    }
-  else
-    {				/* read */
-      status = Mustek_SendData (chip, 0x7C, (SANE_Byte) (size >> 1));
-      if (status != STATUS_GOOD)
-	return status;
-      status = Mustek_SendData (chip, 0x7D, (SANE_Byte) (size >> 9));
-      if (status != STATUS_GOOD)
-	return status;
-      status = Mustek_SendData (chip, 0x7E, (SANE_Byte) (size >> 17));
-      if (status != STATUS_GOOD)
-	return status;
-      status = Mustek_SendData (chip, 0x7F, (SANE_Byte) (size >> 25));
-      if (status != STATUS_GOOD)
-	return status;
-    }
+  if (ReadWrite == READ_RAM)
+    size >>= 1;
+
+  status = Mustek_SendData (chip, ES01_7C_DMA_SIZE_BYTE0,
+    (SANE_Byte) size);
+  if (status != STATUS_GOOD)
+    return status;
+  status = Mustek_SendData (chip, ES01_7D_DMA_SIZE_BYTE1,
+    (SANE_Byte) (size >> 8));
+  if (status != STATUS_GOOD)
+    return status;
+  status = Mustek_SendData (chip, ES01_7E_DMA_SIZE_BYTE2,
+    (SANE_Byte) (size >> 16));
+  if (status != STATUS_GOOD)
+    return status;
+  status = Mustek_SendData (chip, ES01_7F_DMA_SIZE_BYTE3,
+    (SANE_Byte) (size >> 24));
+  if (status != STATUS_GOOD)
+    return status;
 
   DBG (DBG_ASIC, "SetRWSize: Exit\n");
   return STATUS_GOOD;
@@ -508,11 +497,13 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
     MotorPhase = 0xFF;
 
   DBG (DBG_ASIC, "MotorPhase=0x%x\n", MotorPhase);
-  Mustek_SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL, 0x01);
+  Mustek_SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL,
+		   DOWN_LOAD_MOTOR_TABLE_ENABLE);
 
       if (MotorCurrentAndPhase->MoveType == _4_TABLE_SPACE_FOR_FULL_STEP)
 	{			/* full step */
-	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, 0x00);
+	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL,
+			   MOTOR_PWM_CURRENT_0 | MOTOR1_GPO_VALUE_0);
 
 	  /* 1 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
@@ -548,7 +539,8 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	}
       else if (MotorCurrentAndPhase->MoveType == _8_TABLE_SPACE_FOR_1_DIV_2_STEP)
 	{			/* half step */
-	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, 0x01);
+	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL,
+			   MOTOR_PWM_CURRENT_1 | MOTOR1_GPO_VALUE_0);
 
 	  /* 1 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
@@ -616,7 +608,8 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	}
       else if (MotorCurrentAndPhase->MoveType == _16_TABLE_SPACE_FOR_1_DIV_4_STEP)
 	{			/* 1/4 step */
-	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, 0x02);
+	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL,
+			   MOTOR_PWM_CURRENT_2 | MOTOR1_GPO_VALUE_0);
 
 	  /* 1 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
@@ -909,7 +902,8 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 	}
       else if (MotorCurrentAndPhase->MoveType == _32_TABLE_SPACE_FOR_1_DIV_8_STEP)
 	{
-	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, 0x03);
+	  Mustek_SendData (chip, ES01_AB_PWM_CURRENT_CONTROL,
+			   MOTOR_PWM_CURRENT_3 | MOTOR1_GPO_VALUE_0);
 
 	  /* 1 */
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
@@ -2390,7 +2384,6 @@ CCDTiming (PAsic chip)
   Mustek_SendData (chip, ES01_1D6_PH1_TIMING_ADJ_B2, (SANE_Byte) (dwPH1 >> 16));
   Mustek_SendData (chip, ES01_1D7_PH1_TIMING_ADJ_B3, (SANE_Byte) (dwPH1 >> 24));
 
-  /* set CCD ph1 ph2 rs cp */
   Mustek_SendData (chip, ES01_D0_PH1_0, 0);
   Mustek_SendData (chip, ES01_D1_PH2_0, 4);
   Mustek_SendData (chip, ES01_D4_PHRS_0, 0);
@@ -2605,8 +2598,7 @@ SetAFEGainOffset (PAsic chip)
     Mustek_SendData (chip, ES01_0E_AD9826OffsetBlueP, chip->AD.OffsetB);
 
 
-  LLFSetRamAddress (chip, 0x0, PackAreaStartAddress - (512 * 8 - 1),
-		    ACCESS_DRAM);
+  LLFSetRamAddress (chip, 0, PackAreaStartAddress - (512 * 8 - 1), ACCESS_DRAM);
 
   Mustek_SendData (chip, ES01_F3_ActionOption, SCAN_ENABLE |
 		   UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE);
@@ -2716,10 +2708,8 @@ SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
 
   for (i = 0; i < 16; i++)
     {
-      Mustek_SendData (chip, ES01_2B0_SEGMENT0_OVERLAP_SEGMENT1 + i,
-		       0);
-      Mustek_SendData (chip, ES01_2C0_VALID_PIXEL_PARAMETER_OF_SEGMENT1 + i,
-		       0);
+      Mustek_SendData (chip, ES01_2B0_SEGMENT0_OVERLAP_SEGMENT1 + i, 0);
+      Mustek_SendData (chip, ES01_2C0_VALID_PIXEL_PARAMETER_OF_SEGMENT1 + i, 0);
     }
 
   Mustek_SendData (chip, ES01_1B0_SEGMENT_PIXEL_NUMBER_LB,
@@ -2733,10 +2723,8 @@ SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
 		   HIBYTE (ValidPixelNumber));
   Mustek_SendData (chip, ES01_16B_BETWEEN_SEGMENT_INVALID_PIXEL, 0);
 
-  Mustek_SendData (chip, ES01_B6_LineWidthPixelLSB,
-		   LOBYTE (ValidPixelNumber));
-  Mustek_SendData (chip, ES01_B7_LineWidthPixelMSB,
-		   HIBYTE (ValidPixelNumber));
+  Mustek_SendData (chip, ES01_B6_LineWidthPixelLSB, LOBYTE (ValidPixelNumber));
+  Mustek_SendData (chip, ES01_B7_LineWidthPixelMSB, HIBYTE (ValidPixelNumber));
 
   Mustek_SendData (chip, ES01_19A_CHANNEL_LINE_GAP_LB,
 		   LOBYTE (ValidPixelNumber));
@@ -2747,26 +2735,17 @@ SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
   for (i = 0; i < 36; i++)
     Mustek_SendData (chip, 0x270 + i, 0);
 
-  Mustek_SendData (chip, 0x270,
-		   (SANE_Byte) ((ValidPixelNumber * 2)));
-  Mustek_SendData (chip, 0x271,
-		   (SANE_Byte) ((ValidPixelNumber * 2) >> 8));
-  Mustek_SendData (chip, 0x272,
-		   (SANE_Byte) ((ValidPixelNumber * 2) >> 16));
+  Mustek_SendData (chip, 0x270, (SANE_Byte) ((ValidPixelNumber * 2)));
+  Mustek_SendData (chip, 0x271, (SANE_Byte) ((ValidPixelNumber * 2) >> 8));
+  Mustek_SendData (chip, 0x272, (SANE_Byte) ((ValidPixelNumber * 2) >> 16));
 
-  Mustek_SendData (chip, 0x27C,
-		   (SANE_Byte) ((ValidPixelNumber * 4)));
-  Mustek_SendData (chip, 0x27D,
-		   (SANE_Byte) ((ValidPixelNumber * 4) >> 8));
-  Mustek_SendData (chip, 0x27E,
-		   (SANE_Byte) ((ValidPixelNumber * 4) >> 16));
+  Mustek_SendData (chip, 0x27C, (SANE_Byte) ((ValidPixelNumber * 4)));
+  Mustek_SendData (chip, 0x27D, (SANE_Byte) ((ValidPixelNumber * 4) >> 8));
+  Mustek_SendData (chip, 0x27E, (SANE_Byte) ((ValidPixelNumber * 4) >> 16));
 
-  Mustek_SendData (chip, 0x288,
-		   (SANE_Byte) ((ValidPixelNumber * 6)));
-  Mustek_SendData (chip, 0x289,
-		   (SANE_Byte) ((ValidPixelNumber * 6) >> 8));
-  Mustek_SendData (chip, 0x28A,
-		   (SANE_Byte) ((ValidPixelNumber * 6) >> 16));
+  Mustek_SendData (chip, 0x288, (SANE_Byte) ((ValidPixelNumber * 6)));
+  Mustek_SendData (chip, 0x289, (SANE_Byte) ((ValidPixelNumber * 6) >> 8));
+  Mustek_SendData (chip, 0x28A, (SANE_Byte) ((ValidPixelNumber * 6) >> 16));
   DBG (DBG_ASIC, "channel gap=%d\n", ValidPixelNumber * 2);
 
 
@@ -2820,11 +2799,11 @@ SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
   DBG (DBG_ASIC, "PackAreaStartAddress=%d\n", PackAreaStartAddress);
 
   Mustek_SendData (chip, ES01_16D_EXPOSURE_CYCLE1_SEGMENT1_START_ADDR_BYTE0,
-		   (SANE_Byte) ((PackAreaStartAddress + 0)));
+		   (SANE_Byte) (PackAreaStartAddress));
   Mustek_SendData (chip, ES01_16E_EXPOSURE_CYCLE1_SEGMENT1_START_ADDR_BYTE1,
-		   (SANE_Byte) ((PackAreaStartAddress + 0) >> 8));
+		   (SANE_Byte) (PackAreaStartAddress >> 8));
   Mustek_SendData (chip, ES01_16F_EXPOSURE_CYCLE1_SEGMENT1_START_ADDR_BYTE2,
-		   (SANE_Byte) ((PackAreaStartAddress + 0) >> 16));
+		   (SANE_Byte) (PackAreaStartAddress >> 16));
 
   for ( i = ES01_170_EXPOSURE_CYCLE1_SEGMENT2_START_ADDR_BYTE0;
        i <= ES01_18E_EXPOSURE_CYCLE3_SEGMENT4_START_ADDR_BYTE0; i += 3)
@@ -2988,7 +2967,8 @@ SetExtraSetting (PAsic chip, unsigned short wXResolution,
   /* pixel process time */
   Mustek_SendData (chip, ES01_B0_CCDPixelLSB, LOBYTE (wCCD_PixelNumber));
   Mustek_SendData (chip, ES01_B1_CCDPixelMSB, HIBYTE (wCCD_PixelNumber));
-  Mustek_SendData (chip, ES01_DF_ICG_CONTROL, 0x17);
+  Mustek_SendData (chip, ES01_DF_ICG_CONTROL,
+		   BEFORE_PHRS_416_1t_ns | ICG_UNIT_4_PIXEL_TIME);
   DBG (DBG_ASIC, "wCCD_PixelNumber=%d\n", wCCD_PixelNumber);
 
   Mustek_SendData (chip, ES01_88_LINE_ART_THRESHOLD_HIGH_VALUE, 128);
@@ -3066,7 +3046,10 @@ Asic_Open (PAsic chip)
       return status;
     }
 
-  Mustek_SendData (chip, ES01_94_PowerSaveControl, 0x27);
+  Mustek_SendData (chip, ES01_94_PowerSaveControl,
+		   TIMER_POWER_SAVE_ENABLE |
+		   USB_POWER_SAVE_ENABLE | USB_REMOTE_WAKEUP_ENABLE |
+		   LED_MODE_FLASH_SLOWLY);
   Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
   Mustek_SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL,
 		   SDRAMCLK_DELAY_12_ns);
@@ -3311,11 +3294,13 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   status = Asic_WaitUnitReady (chip);
 
-  /* dummy clock mode */
-  Mustek_SendData (chip, 0x1CD, 0);
+  Mustek_SendData (chip, ES01_1CD_DUMMY_CLOCK_NUMBER, 0);
 
   /* LED flash */
-  Mustek_SendData (chip, ES01_94_PowerSaveControl, 0x27 | 64 | 128);
+  Mustek_SendData (chip, ES01_94_PowerSaveControl,
+		   TIMER_POWER_SAVE_ENABLE |
+		   USB_POWER_SAVE_ENABLE | USB_REMOTE_WAKEUP_ENABLE |
+		   LED_MODE_FLASH_SLOWLY | 0x40 | 0x80);
 
   /* calculate byte per line */
   if (bScanBits > 24)
@@ -3653,20 +3638,20 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   /* empty bank */
   Mustek_SendData (chip, ES01_FB_BufferEmptySize16WordLSB,
-		   LOBYTE (WaitBufferOneLineSize >> (7 - 3)));
+		   LOBYTE (WaitBufferOneLineSize >> 4));
   Mustek_SendData (chip, ES01_FC_BufferEmptySize16WordMSB,
-		   HIBYTE (WaitBufferOneLineSize >> (7 - 3)));
+		   HIBYTE (WaitBufferOneLineSize >> 4));
 
   /* full bank */
   wFullBank =
     (unsigned short) ((dwEndAddr -
-	     (((wWidth * BytePerPixel) / 2) * 3 * 1)) / BANK_SIZE);
+	     (((wWidth * BytePerPixel) / 2) * 3)) / BANK_SIZE);
   Mustek_SendData (chip, ES01_F9_BufferFullSize16WordLSB, LOBYTE (wFullBank));
   Mustek_SendData (chip, ES01_FA_BufferFullSize16WordMSB, HIBYTE (wFullBank));
 
 
   /* set buffer address */
-  LLFSetRamAddress (chip, 0x0, dwEndAddr, ACCESS_DRAM);
+  LLFSetRamAddress (chip, 0, dwEndAddr, ACCESS_DRAM);
 
   Mustek_SendData (chip, ES01_00_ADAFEConfiguration, 0x70);
   Mustek_SendData (chip, ES01_02_ADAFEMuxConfig, 0x80);
@@ -3740,7 +3725,7 @@ Asic_ScanStart (PAsic chip)
     }
 
   Mustek_SendData (chip, ES01_8B_Status, 0x1c | 0x20);
-  Mustek_WriteAddressLineForRegister (chip, 0x8B);
+  Mustek_WriteAddressLineForRegister (chip, ES01_8B_Status);
   Mustek_ClearFIFO (chip);
   Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_ENABLE);
 
@@ -4221,9 +4206,12 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 
   status = Asic_WaitUnitReady (chip);
 
-  Mustek_SendData (chip, 0x1CD, 0);
+  Mustek_SendData (chip, ES01_1CD_DUMMY_CLOCK_NUMBER, 0);
 
-  Mustek_SendData (chip, ES01_94_PowerSaveControl, 0x27 | 64 | 128);
+  Mustek_SendData (chip, ES01_94_PowerSaveControl,
+		   TIMER_POWER_SAVE_ENABLE |
+		   USB_POWER_SAVE_ENABLE | USB_REMOTE_WAKEUP_ENABLE |
+		   LED_MODE_FLASH_SLOWLY | 0x40 | 0x80);
 
   if (bScanBits > 24)
     {
@@ -4366,9 +4354,9 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   DBG (DBG_ASIC, "wScanAccSteps=%d,byScanDecSteps=%d\n", wScanAccSteps,
        byScanDecSteps);
 
-  Mustek_SendData (chip, ES01_AE_MotorSyncPixelNumberM16LSB, LOBYTE (0));
-  Mustek_SendData (chip, ES01_AF_MotorSyncPixelNumberM16MSB, HIBYTE (0));
-  DBG (DBG_ASIC, "MotorSyncPixelNumber=%d\n", 0);
+  Mustek_SendData (chip, ES01_AE_MotorSyncPixelNumberM16LSB, 0);
+  Mustek_SendData (chip, ES01_AF_MotorSyncPixelNumberM16MSB, 0);
+  DBG (DBG_ASIC, "MotorSyncPixelNumber=0\n");
 
   Mustek_SendData (chip, ES01_EC_ScanAccStep0_7, LOBYTE (wScanAccSteps));
   Mustek_SendData (chip, ES01_ED_ScanAccStep8_8, HIBYTE (wScanAccSteps));
@@ -4510,19 +4498,19 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   dwEndAddr = PackAreaStartAddress - (512 * 8) - 1;
 
   Mustek_SendData (chip, ES01_FB_BufferEmptySize16WordLSB,
-		   LOBYTE (WaitBufferOneLineSize >> (7 - 3)));
+		   LOBYTE (WaitBufferOneLineSize >> 4));
   Mustek_SendData (chip, ES01_FC_BufferEmptySize16WordMSB,
-		   HIBYTE (WaitBufferOneLineSize >> (7 - 3)));
+		   HIBYTE (WaitBufferOneLineSize >> 4));
 
   wFullBank =
     (unsigned short) ((dwEndAddr -
-	     (((dwLineWidthPixel * BytePerPixel) / 2) * 3 * 1)) / BANK_SIZE);
+	     (((dwLineWidthPixel * BytePerPixel) / 2) * 3)) / BANK_SIZE);
   Mustek_SendData (chip, ES01_F9_BufferFullSize16WordLSB, LOBYTE (wFullBank));
   Mustek_SendData (chip, ES01_FA_BufferFullSize16WordMSB, HIBYTE (wFullBank));
 
   Mustek_SendData (chip, ES01_DB_PH_RESET_EDGE_TIMING_ADJUST, 0x00);
 
-  LLFSetRamAddress (chip, 0x0, dwEndAddr, ACCESS_DRAM);
+  LLFSetRamAddress (chip, 0, dwEndAddr, ACCESS_DRAM);
 
   Mustek_SendData (chip, ES01_DC_CLEAR_EDGE_TO_PH_TG_EDGE_WIDTH, 0);
 

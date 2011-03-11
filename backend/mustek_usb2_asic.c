@@ -356,67 +356,82 @@ Mustek_SendData2Byte (PAsic chip, unsigned short reg, SANE_Byte data)
 /* ---------------------- ASIC motor functions ----------------------------- */
 
 static STATUS
+LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr, unsigned int dwEndAddr,
+		  SANE_Byte bAccessTarget)
+{
+  STATUS status;
+
+  DBG (DBG_ASIC, "LLFSetRamAddress:Enter\n");
+
+  /* Set start address. Unit is a word. */
+  Mustek_SendData (chip, ES01_A0_HostStartAddr0_7, BYTE0 (dwStartAddr));
+
+  if (bAccessTarget == ON_CHIP_FINAL_GAMMA)
+    {
+      Mustek_SendData (chip, ES01_A1_HostStartAddr8_15,
+		       BYTE1 (dwStartAddr) | ACCESS_FINAL_GAMMA_ES01);
+      Mustek_SendData (chip, ES01_A2_HostStartAddr16_21,
+		       BYTE2 (dwStartAddr) | ACCESS_GAMMA_RAM);
+    }
+  else if (bAccessTarget == ON_CHIP_PRE_GAMMA)
+    {
+      Mustek_SendData (chip, ES01_A1_HostStartAddr8_15,
+		       BYTE1 (dwStartAddr) | ACCESS_PRE_GAMMA_ES01);
+      Mustek_SendData (chip, ES01_A2_HostStartAddr16_21,
+		       BYTE2 (dwStartAddr) | ACCESS_GAMMA_RAM);
+    }
+  else  /* DRAM */
+    {
+      Mustek_SendData (chip, ES01_A1_HostStartAddr8_15, BYTE1 (dwStartAddr));
+      Mustek_SendData (chip, ES01_A2_HostStartAddr16_21,
+		       BYTE2 (dwStartAddr) | ACCESS_DRAM);
+    }
+
+  /* Set end address. */
+  Mustek_SendData (chip, ES01_A3_HostEndAddr0_7, BYTE0 (dwEndAddr));
+  Mustek_SendData (chip, ES01_A4_HostEndAddr8_15, BYTE1 (dwEndAddr));
+  Mustek_SendData (chip, ES01_A5_HostEndAddr16_21, BYTE2 (dwEndAddr));
+
+  status = Mustek_ClearFIFO (chip);
+
+  DBG (DBG_ASIC, "LLFSetRamAddress: Exit\n");
+  return status;
+}
+
+static STATUS
 LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
 {
-  STATUS status = STATUS_GOOD;
+  STATUS status;
   SANE_Byte a[2];
 
   DBG (DBG_ASIC, "LLFRamAccess: Enter\n");
 
-  /* Set start address. Unit is a word. */
-  Mustek_SendData (chip, ES01_A0_HostStartAddr0_7,
-		   LOBYTE (RamAccess->LoStartAddress));
-
-  if (RamAccess->IsOnChipGamma == ON_CHIP_FINAL_GAMMA)
-    {
-      Mustek_SendData (chip, ES01_A1_HostStartAddr8_15,
-		       HIBYTE (RamAccess->LoStartAddress));
-      Mustek_SendData (chip, ES01_A2_HostStartAddr16_21,
-		       LOBYTE (RamAccess->HiStartAddress) | ACCESS_GAMMA_RAM);
-    }
-  else if (RamAccess->IsOnChipGamma == ON_CHIP_PRE_GAMMA)
-    {
-      Mustek_SendData (chip, ES01_A1_HostStartAddr8_15,
-		       HIBYTE (RamAccess->
-			       LoStartAddress) | ACCESS_PRE_GAMMA_ES01);
-      Mustek_SendData (chip, ES01_A2_HostStartAddr16_21,
-		       LOBYTE (RamAccess->HiStartAddress) | ACCESS_GAMMA_RAM);
-    }
-  else  /* DRAM */
-    {
-      Mustek_SendData (chip, ES01_A1_HostStartAddr8_15,
-		       HIBYTE (RamAccess->LoStartAddress));
-      Mustek_SendData (chip, ES01_A2_HostStartAddr16_21,
-		       LOBYTE (RamAccess->HiStartAddress) | ACCESS_DRAM);
-    }
+  status = LLFSetRamAddress (chip, RamAccess->StartAddress, 0xffffff,
+			     RamAccess->IsOnChipGamma);
+  if (status != STATUS_GOOD)
+    return status;
 
   /* set SDRAM delay time */
   Mustek_SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL,
 		   SDRAMCLK_DELAY_12_ns);
 
-  /* Set end address. Unit is a word. */
-  Mustek_SendData (chip, ES01_A3_HostEndAddr0_7, 0xff);
-  Mustek_SendData (chip, ES01_A4_HostEndAddr8_15, 0xff);
-  Mustek_SendData (chip, ES01_A5_HostEndAddr16_21, 0xff);
-  Mustek_ClearFIFO (chip);
-
   if (RamAccess->ReadWrite == WRITE_RAM)
     {
-      /* size must be even */
-      Mustek_DMAWrite (chip, RamAccess->RwSize, RamAccess->BufferPtr);
+      status = Mustek_DMAWrite (chip, RamAccess->RwSize, RamAccess->BufferPtr);
+      if (status != STATUS_GOOD)
+        return status;
 
       /* steal read 2 byte */
       usleep (20000);
       RamAccess->RwSize = 2;
       RamAccess->BufferPtr = a;
       RamAccess->ReadWrite = READ_RAM;
-      LLFRamAccess (chip, RamAccess);
+      status = LLFRamAccess (chip, RamAccess);
       DBG (DBG_ASIC, "end steal 2 byte!\n");
     }
   else	/* read RAM */
     {
-      /* size must be even */
-      Mustek_DMARead (chip, RamAccess->RwSize, RamAccess->BufferPtr);
+      status = Mustek_DMARead (chip, RamAccess->RwSize, RamAccess->BufferPtr);
     }
 
   DBG (DBG_ASIC, "LLFRamAccess: Exit\n");
@@ -1437,26 +1452,23 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 static STATUS
 LLFSetMotorTable (PAsic chip, unsigned short *MotorTablePtr)
 {
-  STATUS status = STATUS_GOOD;
+  STATUS status;
   LLF_RAMACCESS RamAccess;
 
   DBG (DBG_ASIC, "LLFSetMotorTable: Enter\n");
-  if (MotorTablePtr != NULL)
-    {
-      RamAccess.ReadWrite = WRITE_RAM;
-      RamAccess.IsOnChipGamma = EXTERNAL_RAM;
 
-      RamAccess.LoStartAddress = 0x3000;
-      RamAccess.HiStartAddress = 0;
+  RamAccess.ReadWrite = WRITE_RAM;
+  RamAccess.IsOnChipGamma = EXTERNAL_RAM;
+  RamAccess.StartAddress = 0x3000;
+  RamAccess.RwSize = 512 * 2 * 8;
+  RamAccess.BufferPtr = (SANE_Byte *) MotorTablePtr;
 
-      RamAccess.RwSize = 512 * 2 * 8;	/* unit: byte */
-      RamAccess.BufferPtr = (SANE_Byte *) MotorTablePtr;
+  status = LLFRamAccess (chip, &RamAccess);
+  if (status != STATUS_GOOD)
+    return status;
 
-      LLFRamAccess (chip, &RamAccess);
-
-      /* tell scan chip the motor table address, unit is 2^14 words */
-      Mustek_SendData (chip, ES01_9D_MotorTableAddrA14_A21, 0);
-    }
+  /* tell scan chip the motor table address, unit is 2^14 words */
+  status = Mustek_SendData (chip, ES01_9D_MotorTableAddrA14_A21, 0);
 
   DBG (DBG_ASIC, "LLFSetMotorTable: Exit\n");
   return status;
@@ -1465,7 +1477,7 @@ LLFSetMotorTable (PAsic chip, unsigned short *MotorTablePtr)
 static STATUS
 LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
 {
-  STATUS status = STATUS_GOOD;
+  STATUS status;
   unsigned int motor_steps;
   SANE_Byte temp_motor_action;
 
@@ -1474,6 +1486,8 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
   Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
 
   status = Asic_WaitUnitReady (chip);
+  if (status != STATUS_GOOD)
+    return status;
 
   DBG (DBG_ASIC, "Set start/end pixel\n");
 
@@ -1574,22 +1588,16 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
 		   unsigned short wStartY, unsigned int dwScanImageSteps,
 		   unsigned short wYResolution)
 {
-  STATUS status = STATUS_GOOD;
   unsigned short wAccSteps = 511;
   unsigned short wForwardSteps = 20;
   SANE_Byte bDecSteps = 255;
-  unsigned short wMotorSyncPixelNumber = 0;
   unsigned short wScanAccSteps = 511;
-  SANE_Byte bScanDecSteps = 255;
   unsigned short wFixScanSteps = 20;
+  SANE_Byte bScanDecSteps = 255;
   unsigned short wScanBackTrackingSteps = 40;
   unsigned short wScanRestartSteps = 40;
-  unsigned short wScanBackHomeExtSteps = 100;
-  unsigned int dwTotalMotorSteps;
 
   DBG (DBG_ASIC, "SetMotorStepTable: Enter\n");
-
-  dwTotalMotorSteps = dwScanImageSteps;
 
   switch (wYResolution)
     {
@@ -1622,7 +1630,7 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
     {
       wAccSteps = 1;
       bDecSteps = 1;
-      wFixScanSteps = (wStartY - wScanAccSteps) > 0 ?
+      wFixScanSteps = (short)(wStartY - wScanAccSteps) > 0 ?
 	(wStartY - wScanAccSteps) : 0;
       wForwardSteps = 0;
 
@@ -1630,23 +1638,21 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
     }
   else
     {
-      wForwardSteps =
+      wForwardSteps = (short)(wStartY - wAccSteps - (unsigned short) bDecSteps -
+	wScanAccSteps - wFixScanSteps) > 0 ?
 	(wStartY - wAccSteps - (unsigned short) bDecSteps - wScanAccSteps -
-	 wFixScanSteps) >
-	0 ? (wStartY - wAccSteps - (unsigned short) bDecSteps - wScanAccSteps -
-	     wFixScanSteps) : 0;
+	 wFixScanSteps) : 0;
 
       chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
     }
 
-  dwTotalMotorSteps += wAccSteps;
-  dwTotalMotorSteps += wForwardSteps;
-  dwTotalMotorSteps += bDecSteps;
-  dwTotalMotorSteps += wScanAccSteps;
-  dwTotalMotorSteps += wFixScanSteps;
-  dwTotalMotorSteps += bScanDecSteps;
-  dwTotalMotorSteps += 2;
-
+  dwScanImageSteps += wAccSteps;
+  dwScanImageSteps += wForwardSteps;
+  dwScanImageSteps += bDecSteps;
+  dwScanImageSteps += wScanAccSteps;
+  dwScanImageSteps += wFixScanSteps;
+  dwScanImageSteps += bScanDecSteps;
+  dwScanImageSteps += 2;
 
   MotorStepsTable->AccStep = wAccSteps;
   MotorStepsTable->DecStep = bDecSteps;
@@ -1665,10 +1671,8 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
   /* state 3 */
   Mustek_SendData (chip, ES01_E5_MotorDecStep, bDecSteps);
   /* state 4 */
-  Mustek_SendData (chip, ES01_AE_MotorSyncPixelNumberM16LSB,
-		   LOBYTE (wMotorSyncPixelNumber));
-  Mustek_SendData (chip, ES01_AF_MotorSyncPixelNumberM16MSB,
-		   HIBYTE (wMotorSyncPixelNumber));
+  Mustek_SendData (chip, ES01_AE_MotorSyncPixelNumberM16LSB, 0);
+  Mustek_SendData (chip, ES01_AF_MotorSyncPixelNumberM16MSB, 0);
   /* state 5 */
   Mustek_SendData (chip, ES01_EC_ScanAccStep0_7, LOBYTE (wScanAccSteps));
   Mustek_SendData (chip, ES01_ED_ScanAccStep8_8, HIBYTE (wScanAccSteps));
@@ -1688,33 +1692,27 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
   Mustek_SendData (chip, ES01_E9_ScanRestartStepMSB,
 		   HIBYTE (wScanRestartSteps));
   /* state 19 */
-  Mustek_SendData (chip, ES01_EA_ScanBackHomeExtStepLSB,
-		   LOBYTE (wScanBackHomeExtSteps));
-  Mustek_SendData (chip, ES01_EB_ScanBackHomeExtStepMSB,
-		   HIBYTE (wScanBackHomeExtSteps));
+  Mustek_SendData (chip, ES01_EA_ScanBackHomeExtStepLSB, LOBYTE (100));
+  Mustek_SendData (chip, ES01_EB_ScanBackHomeExtStepMSB, HIBYTE (100));
 
   /* total motor steps */
-  Mustek_SendData (chip, ES01_F0_ScanImageStep0_7,
-		   LOBYTE (dwTotalMotorSteps));
-  Mustek_SendData (chip, ES01_F1_ScanImageStep8_15,
-		   HIBYTE (dwTotalMotorSteps));
-  Mustek_SendData (chip, ES01_F2_ScanImageStep16_19,
-		   (SANE_Byte) ((dwTotalMotorSteps & 0x00ff0000) >> 16));
+  Mustek_SendData (chip, ES01_F0_ScanImageStep0_7, BYTE0 (dwScanImageSteps));
+  Mustek_SendData (chip, ES01_F1_ScanImageStep8_15, BYTE1 (dwScanImageSteps));
+  Mustek_SendData (chip, ES01_F2_ScanImageStep16_19, BYTE2 (dwScanImageSteps));
 
   DBG (DBG_ASIC, "SetMotorStepTable: Exit\n");
-  return status;
+  return STATUS_GOOD;
 }
 
-static STATUS
+static void
 CalculateMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
 {
-  STATUS status = STATUS_GOOD;
-  unsigned short i;
   unsigned short wEndSpeed, wStartSpeed;
   unsigned short wScanAccSteps;
   SANE_Byte bScanDecSteps;
+  unsigned short * lpMotorTable;
   long double y;
-  unsigned short *lpMotorTable;
+  unsigned short i;
 
   DBG (DBG_ASIC, "CalculateMotorTable: Enter\n");
 
@@ -1774,13 +1772,11 @@ CalculateMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
     }
 
   DBG (DBG_ASIC, "CalculateMotorTable: Exit\n");
-  return status;
 }
 
-static STATUS
-LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE * LLF_CalculateMotorTable)
+static void
+LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
 {
-  STATUS status = STATUS_GOOD;
   unsigned short wEndSpeed, wStartSpeed;
   unsigned short wScanAccSteps;
   unsigned short * lpMotorTable;
@@ -1789,10 +1785,10 @@ LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE * LLF_CalculateMotorTable)
 
   DBG (DBG_ASIC, "LLFCalculateMotorTable: Enter\n");
 
-  wStartSpeed = LLF_CalculateMotorTable->StartSpeed;
-  wEndSpeed = LLF_CalculateMotorTable->EndSpeed;
-  wScanAccSteps = LLF_CalculateMotorTable->AccStepBeforeScan;
-  lpMotorTable = LLF_CalculateMotorTable->lpMotorTable;
+  wStartSpeed = lpCalculateMotorTable->StartSpeed;
+  wEndSpeed = lpCalculateMotorTable->EndSpeed;
+  wScanAccSteps = lpCalculateMotorTable->AccStepBeforeScan;
+  lpMotorTable = lpCalculateMotorTable->lpMotorTable;
 
   for (i = 0; i < 512; i++)
     {
@@ -1825,7 +1821,6 @@ LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE * LLF_CalculateMotorTable)
     }
 
   DBG (DBG_ASIC, "LLFCalculateMotorTable: Exit\n");
-  return status;
 }
 
 
@@ -1850,7 +1845,7 @@ CalculateMotorCurrent (unsigned short dwMotorSpeed)
 static STATUS
 MotorBackHome (PAsic chip)
 {
-  STATUS status = STATUS_GOOD;
+  STATUS status;
   unsigned short BackHomeMotorTable[512 * 8];
   LLF_CALCULATEMOTORTABLE CalMotorTable;
   LLF_MOTOR_CURRENT_AND_PHASE CurrentPhase;
@@ -1869,7 +1864,9 @@ MotorBackHome (PAsic chip)
   CurrentPhase.MotorCurrent = 220;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
-  LLFSetMotorTable (chip, BackHomeMotorTable);
+  status = LLFSetMotorTable (chip, BackHomeMotorTable);
+  if (status != STATUS_GOOD)
+    return status;
 
   MotorMove.ActionMode = ACTION_MODE_ACCDEC_MOVE;
   MotorMove.ActionType = ACTION_TYPE_BACKTOHOME;
@@ -1878,41 +1875,9 @@ MotorBackHome (PAsic chip)
   MotorMove.DecStep = 255;
   MotorMove.FixMoveSteps = 0;
   MotorMove.FixMoveSpeed = 3000;
-  LLFMotorMove (chip, &MotorMove);
+  status = LLFMotorMove (chip, &MotorMove);
 
   DBG (DBG_ASIC, "MotorBackHome: Exit\n");
-  return status;
-}
-
-
-static STATUS
-LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr, unsigned int dwEndAddr,
-		  SANE_Byte byAccessTarget)
-{
-  STATUS status = STATUS_GOOD;
-  SANE_Byte * pStartAddr = (SANE_Byte *) & dwStartAddr;
-  SANE_Byte * pEndAddr = (SANE_Byte *) & dwEndAddr;
-
-  DBG (DBG_ASIC, "LLFSetRamAddress:Enter\n");
-
-  /* Set start address. */
-  Mustek_SendData (chip, ES01_A0_HostStartAddr0_7, *(pStartAddr));
-  Mustek_SendData (chip, ES01_A1_HostStartAddr8_15, *(pStartAddr + 1));
-  if (byAccessTarget == ACCESS_DRAM)
-    Mustek_SendData (chip, ES01_A2_HostStartAddr16_21,
-		     *(pStartAddr + 2) | ACCESS_DRAM);
-  else
-    Mustek_SendData (chip, ES01_A2_HostStartAddr16_21,
-		     *(pStartAddr + 2) | ACCESS_GAMMA_RAM);
-
-  /* Set end address. */
-  Mustek_SendData (chip, ES01_A3_HostEndAddr0_7, *(pEndAddr));
-  Mustek_SendData (chip, ES01_A4_HostEndAddr8_15, *(pEndAddr + 1));
-  Mustek_SendData (chip, ES01_A5_HostEndAddr16_21, *(pEndAddr + 2));
-
-  Mustek_ClearFIFO (chip);
-
-  DBG (DBG_ASIC, "LLFSetRamAddress: Exit\n");
   return status;
 }
 
@@ -2506,7 +2471,8 @@ SetAFEGainOffset (PAsic chip)
     Mustek_SendData (chip, ES01_0E_AD9826OffsetBlueP, chip->AD.OffsetB);
 
 
-  LLFSetRamAddress (chip, 0, PackAreaStartAddress - (512 * 8 - 1), ACCESS_DRAM);
+  LLFSetRamAddress (chip, 0, PackAreaStartAddress - (512 * 8 - 1),
+		    EXTERNAL_RAM);
 
   Mustek_SendData (chip, ES01_F3_ActionOption, SCAN_ENABLE |
 		   UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE);
@@ -3484,7 +3450,6 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   CalMotorTable.AccStepBeforeScan = lpMotorStepsTable.wScanAccSteps;
   CalMotorTable.DecStepAfterScan = lpMotorStepsTable.bScanDecSteps;
   CalMotorTable.lpMotorTable = lpMotorTable;
-
   CalculateMotorTable (&CalMotorTable);
 
   CurrentPhase.MoveType = bMotorMoveType;
@@ -3501,8 +3466,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   RamAccess.ReadWrite = WRITE_RAM;
   RamAccess.IsOnChipGamma = EXTERNAL_RAM;
-  RamAccess.LoStartAddress = (unsigned short) (dwTableBaseAddr);
-  RamAccess.HiStartAddress = (unsigned short) (dwTableBaseAddr >> 16);
+  RamAccess.StartAddress = dwTableBaseAddr;
   RamAccess.RwSize = RealTableSize * 2;
   RamAccess.BufferPtr = (SANE_Byte *) lpMotorTable;
   LLFRamAccess (chip, &RamAccess);
@@ -3532,8 +3496,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   RamAccess.ReadWrite = WRITE_RAM;
   RamAccess.IsOnChipGamma = EXTERNAL_RAM;
-  RamAccess.LoStartAddress = (unsigned short) (dwShadingTableAddr);
-  RamAccess.HiStartAddress = (unsigned short) (dwShadingTableAddr >> 16);
+  RamAccess.StartAddress = dwShadingTableAddr;
   RamAccess.RwSize =
     ShadingTableSize ((int) ((wWidth + 4) * dbXRatioAdderDouble)) *
     sizeof (unsigned short);
@@ -3559,7 +3522,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
 
   /* set buffer address */
-  LLFSetRamAddress (chip, 0, dwEndAddr, ACCESS_DRAM);
+  LLFSetRamAddress (chip, 0, dwEndAddr, EXTERNAL_RAM);
 
   Mustek_SendData (chip, ES01_00_ADAFEConfiguration, 0x70);
   Mustek_SendData (chip, ES01_02_ADAFEMuxConfig, 0x80);
@@ -4391,8 +4354,7 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 
   RamAccess.ReadWrite = WRITE_RAM;
   RamAccess.IsOnChipGamma = EXTERNAL_RAM;
-  RamAccess.LoStartAddress = (unsigned short) (dwStartAddr);
-  RamAccess.HiStartAddress = (unsigned short) (dwStartAddr >> 16);
+  RamAccess.StartAddress = dwStartAddr;
   RamAccess.RwSize = RealTableSize * 2;
   RamAccess.BufferPtr = (SANE_Byte *) lpMotorTable;
   LLFRamAccess (chip, &RamAccess);
@@ -4415,7 +4377,7 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 
   Mustek_SendData (chip, ES01_DB_PH_RESET_EDGE_TIMING_ADJUST, 0x00);
 
-  LLFSetRamAddress (chip, 0, dwEndAddr, ACCESS_DRAM);
+  LLFSetRamAddress (chip, 0, dwEndAddr, EXTERNAL_RAM);
 
   Mustek_SendData (chip, ES01_DC_CLEAR_EDGE_TO_PH_TG_EDGE_WIDTH, 0);
 

@@ -66,6 +66,11 @@
 #define HIBYTE(w) (SANE_Byte)((unsigned short)(w)>>8 & 0x00ff)
 #endif
 
+#define BYTE0(x) (SANE_Byte)((unsigned int)(x) & 0xff)
+#define BYTE1(x) (SANE_Byte)(((unsigned int)(x) >> 8) & 0xff)
+#define BYTE2(x) (SANE_Byte)(((unsigned int)(x) >> 16) & 0xff)
+#define BYTE3(x) (SANE_Byte)(((unsigned int)(x) >> 24) & 0xff)
+
 
 typedef enum
 {
@@ -1019,9 +1024,8 @@ typedef struct
 {
   SANE_Byte ReadWrite;
   SANE_Byte IsOnChipGamma;
-  unsigned short LoStartAddress;
-  unsigned short HiStartAddress;
-  int RwSize;
+  unsigned int StartAddress;	/* only lower 3 bytes used */
+  unsigned int RwSize;		/* unit: byte; must be a multiple of 2 (?) */
   SANE_Byte *BufferPtr;
 } LLF_RAMACCESS;
 
@@ -1055,10 +1059,10 @@ typedef struct
 } LLF_MOTORMOVE;
 
 
-static STATUS CalculateMotorTable (LLF_CALCULATEMOTORTABLE *
-				   lpCalculateMotorTable);
-static STATUS LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE *
-				      lpCalculateMotorTable);
+static void CalculateMotorTable (LLF_CALCULATEMOTORTABLE *
+				 lpCalculateMotorTable);
+static void LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE *
+				    lpCalculateMotorTable);
 static STATUS LLFSetMotorCurrentAndPhase (PAsic chip,
 					  LLF_MOTOR_CURRENT_AND_PHASE *
 					  MotorCurrentAndPhase);

@@ -162,7 +162,7 @@ typedef struct
 
   SANE_Byte isMotorMove;
   SANE_Byte isMotorMoveToFirstLine;
-  SANE_Byte * lpShadingTable;
+  unsigned short * lpShadingTable;
 } Asic, *PAsic;
 
 typedef enum

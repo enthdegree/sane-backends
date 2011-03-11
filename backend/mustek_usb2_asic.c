@@ -3644,7 +3644,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   RamAccess.RwSize =
     ShadingTableSize ((int) ((wWidth + 4) * dbXRatioAdderDouble)) *
     sizeof (unsigned short);
-  RamAccess.BufferPtr = chip->lpShadingTable;
+  RamAccess.BufferPtr = (SANE_Byte *) chip->lpShadingTable;
   LLFRamAccess (chip, &RamAccess);
 
   /* tell scan chip the shading table address, unit is 2^15 bytes */
@@ -4082,7 +4082,7 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 
   /* Clear old shading table, if present.
      First 4 and last 5 elements of shading table cannot be used. */
-  wShadingTableSize = (ShadingTableSize (wValidPixelNumber)) *
+  wShadingTableSize = ShadingTableSize (wValidPixelNumber) *
     sizeof (unsigned short);
   if (chip->lpShadingTable != NULL)
     free (chip->lpShadingTable);
@@ -4099,56 +4099,26 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
   n = 0;
   for (i = 0; i <= (wValidPixelNumber / 40); i++)
     {
-      if (i < (wValidPixelNumber / 40))
+      unsigned short numPixel = 40;
+      if (i == (wValidPixelNumber / 40))
+        numPixel = wValidPixelNumber % 40;
+
+      for (j = 0; j < numPixel; j++)
 	{
-	  for (j = 0; j < 40; j++)
-	    {
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6) =
-		*((unsigned short *) lpDarkShading + n * 3);
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6 + 2) =
-		*((unsigned short *) lpDarkShading + n * 3 + 1);
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6 + 4) =
-		*((unsigned short *) lpDarkShading + n * 3 + 2);
+	  chip->lpShadingTable[i * 256 + j * 6] = lpDarkShading[n * 3];
+	  chip->lpShadingTable[i * 256 + j * 6 + 2] = lpDarkShading[n * 3 + 1];
+	  chip->lpShadingTable[i * 256 + j * 6 + 4] = lpDarkShading[n * 3 + 2];
 
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6 + 1) =
-		*((unsigned short *) lpWhiteShading + n * 3);
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6 + 3) =
-		*((unsigned short *) lpWhiteShading + n * 3 + 1);
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6 + 5) =
-		*((unsigned short *) lpWhiteShading + n * 3 + 2);
-	      if ((j % (unsigned short) dbXRatioAdderDouble) ==
+	  chip->lpShadingTable[i * 256 + j * 6 + 1] = lpWhiteShading[n * 3];
+	  chip->lpShadingTable[i * 256 + j * 6 + 3] = lpWhiteShading[n * 3 + 1];
+	  chip->lpShadingTable[i * 256 + j * 6 + 5] = lpWhiteShading[n * 3 + 2];
+
+	  if ((j % (unsigned short) dbXRatioAdderDouble) ==
 		  (dbXRatioAdderDouble - 1))
-		n++;
+	    n++;
 
-	      if (i == 0 && j < 4 * dbXRatioAdderDouble)
-		n = 0;
-	    }
-	}
-      else
-	{
-	  for (j = 0; j < (wValidPixelNumber % 40); j++)
-	    {
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6) =
-		*((unsigned short *) lpDarkShading + n * 3);
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6 + 2) =
-		*((unsigned short *) lpDarkShading + n * 3 + 1);
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6 + 4) =
-		*((unsigned short *) lpDarkShading + n * 3 + 2);
-
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6 + 1) =
-		*((unsigned short *) lpWhiteShading + n * 3);
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6 + 3) =
-		*((unsigned short *) lpWhiteShading + n * 3 + 1);
-	      *((unsigned short *) chip->lpShadingTable + i * 256 + j * 6 + 5) =
-		*((unsigned short *) lpWhiteShading + n * 3 + 2);
-
-	      if ((j % (unsigned short) dbXRatioAdderDouble) ==
-		  (dbXRatioAdderDouble - 1))
-		n++;
-
-	      if (i == 0 && j < 4 * dbXRatioAdderDouble)
-		n = 0;
-	    }
+	  if (i == 0 && j < 4 * dbXRatioAdderDouble)
+	    n = 0;
 	}
     }
 

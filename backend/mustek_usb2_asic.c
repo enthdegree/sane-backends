@@ -52,40 +52,32 @@
 
 /* ---------------------- low level ASIC functions -------------------------- */
 
-static SANE_Byte RegisterBankStatus = -1;
+static SANE_Byte RegisterBankStatus = ~0;
 
 static STATUS
 WriteIOControl (PAsic chip, unsigned short wValue, unsigned short wIndex,
 		unsigned short wLength, SANE_Byte * lpbuf)
 {
-  STATUS status = STATUS_GOOD;
+  STATUS status;
 
-  status =
-    sanei_usb_control_msg (chip->fd, 0x40, 0x01, wValue, wIndex, wLength,
-			   lpbuf);
+  status = sanei_usb_control_msg (chip->fd, 0x40, 0x01, wValue, wIndex, wLength,
+				  lpbuf);
   if (status != STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "WriteIOControl Error!\n");
-      return status;
-    }
+    DBG (DBG_ERR, "WriteIOControl Error!\n");
 
-  return STATUS_GOOD;
+  return status;
 }
 
 static STATUS
 ReadIOControl (PAsic chip, unsigned short wValue, unsigned short wIndex,
 	       unsigned short wLength, SANE_Byte * lpbuf)
 {
-  STATUS status = STATUS_GOOD;
+  STATUS status;
 
-  status =
-    sanei_usb_control_msg (chip->fd, 0xc0, 0x01, wValue, wIndex, wLength,
-			   lpbuf);
+  status = sanei_usb_control_msg (chip->fd, 0xc0, 0x01, wValue, wIndex, wLength,
+				  lpbuf);
   if (status != STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "WriteIOControl Error!\n");
-      return status;
-    }
+    DBG (DBG_ERR, "WriteIOControl Error!\n");
 
   return status;
 }
@@ -93,7 +85,7 @@ ReadIOControl (PAsic chip, unsigned short wValue, unsigned short wIndex,
 static STATUS
 Mustek_ClearFIFO (PAsic chip)
 {
-  STATUS status = STATUS_GOOD;
+  STATUS status;
   SANE_Byte buf[4];
   DBG (DBG_ASIC, "Mustek_ClearFIFO: Enter\n");
 
@@ -101,6 +93,7 @@ Mustek_ClearFIFO (PAsic chip)
   buf[1] = 0;
   buf[2] = 0;
   buf[3] = 0;
+
   status = WriteIOControl (chip, 0x05, 0, 4, buf);
   if (status != STATUS_GOOD)
     return status;
@@ -115,54 +108,57 @@ Mustek_ClearFIFO (PAsic chip)
 
 
 static STATUS
+SwitchBank (PAsic chip, unsigned short reg)
+{
+  STATUS status;
+  SANE_Byte buf[4];
+  SANE_Byte bank;
+
+  if (reg < 0x100)
+    {
+      bank = SELECT_REGISTER_BANK0;
+    }
+  else if (reg < 0x200)
+    {
+      bank = SELECT_REGISTER_BANK1;
+    }
+  else if (reg < 0x300)
+    {
+      bank = SELECT_REGISTER_BANK2;
+    }
+  else
+    {
+      DBG (DBG_ERR, "SwitchBank: invalid register %d\n", reg);
+      return STATUS_INVAL;
+    }
+
+  if (RegisterBankStatus != bank)
+    {
+      DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
+      buf[0] = ES01_5F_REGISTER_BANK_SELECT;
+      buf[1] = bank;
+      buf[2] = ES01_5F_REGISTER_BANK_SELECT;
+      buf[3] = bank;
+      status = WriteIOControl (chip, 0xb0, 0, 4, buf);
+      if (status != STATUS_GOOD)
+        return status;
+      RegisterBankStatus = bank;
+      DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
+    }
+
+  return STATUS_GOOD;
+}
+
+static STATUS
 Mustek_SendData (PAsic chip, unsigned short reg, SANE_Byte data)
 {
+  STATUS status;
   SANE_Byte buf[4];
-  STATUS status = STATUS_GOOD;
   DBG (DBG_ASIC, "Mustek_SendData: Enter. reg=%x,data=%x\n", reg, data);
 
-  if (reg <= 0xFF)
-    {
-      if (RegisterBankStatus != 0)
-	{
-	  DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
-	  buf[0] = ES01_5F_REGISTER_BANK_SELECT;
-	  buf[1] = SELECT_REGISTER_BANK0;
-	  buf[2] = ES01_5F_REGISTER_BANK_SELECT;
-	  buf[3] = SELECT_REGISTER_BANK0;
-	  WriteIOControl (chip, 0xb0, 0, 4, buf);
-	  RegisterBankStatus = 0;
-	  DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
-	}
-    }
-  else if (reg <= 0x1FF)
-    {
-      if (RegisterBankStatus != 1)
-	{
-	  DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
-	  buf[0] = ES01_5F_REGISTER_BANK_SELECT;
-	  buf[1] = SELECT_REGISTER_BANK1;
-	  buf[2] = ES01_5F_REGISTER_BANK_SELECT;
-	  buf[3] = SELECT_REGISTER_BANK1;
-
-	  WriteIOControl (chip, 0xb0, 0, 4, buf);
-	  RegisterBankStatus = 1;
-	}
-    }
-  else if (reg <= 0x2FF)
-    {
-      if (RegisterBankStatus != 2)
-	{
-	  DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
-	  buf[0] = ES01_5F_REGISTER_BANK_SELECT;
-	  buf[1] = SELECT_REGISTER_BANK2;
-	  buf[2] = ES01_5F_REGISTER_BANK_SELECT;
-	  buf[3] = SELECT_REGISTER_BANK2;
-
-	  WriteIOControl (chip, 0xb0, 0, 4, buf);
-	  RegisterBankStatus = 2;
-	}
-    }
+  status = SwitchBank (chip, reg);
+  if (status != STATUS_GOOD)
+    return status;
 
   buf[0] = LOBYTE (reg);
   buf[1] = data;
@@ -178,21 +174,21 @@ Mustek_SendData (PAsic chip, unsigned short reg, SANE_Byte data)
 static STATUS
 Mustek_ReceiveData (PAsic chip, SANE_Byte * reg)
 {
-  STATUS status = STATUS_GOOD;
+  STATUS status;
   SANE_Byte buf[4];
 
   DBG (DBG_ASIC, "Mustek_ReceiveData\n");
 
   status = ReadIOControl (chip, 0x07, 0, 4, buf);
-
   *reg = buf[0];
+
   return status;
 }
 
 static STATUS
 Mustek_WriteAddressLineForRegister (PAsic chip, SANE_Byte x)
 {
-  STATUS status = STATUS_GOOD;
+  STATUS status;
   SANE_Byte buf[4];
 
   DBG (DBG_ASIC, "Mustek_WriteAddressLineForRegister: Enter\n");
@@ -211,7 +207,7 @@ Mustek_WriteAddressLineForRegister (PAsic chip, SANE_Byte x)
 static STATUS
 SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size)
 {
-  STATUS status = STATUS_GOOD;
+  STATUS status;
   DBG (DBG_ASIC, "SetRWSize: Enter\n");
 
   if (ReadWrite == READ_RAM)
@@ -241,49 +237,41 @@ SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size)
 static STATUS
 Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpdata)
 {
-  STATUS status = STATUS_GOOD;
-  unsigned int i, buf[1];
-  unsigned int read_size;
+  STATUS status;
+  size_t read_size, cur_read_size;
 
-  DBG (DBG_ASIC, "Mustek_DMARead: Enter\n");
+  DBG (DBG_ASIC, "Mustek_DMARead: Enter. size=%d\n", size);
 
   status = Mustek_ClearFIFO (chip);
   if (status != STATUS_GOOD)
     return status;
 
-  buf[0] = read_size = 32 * 1024;
-  for (i = 0; i < size / (read_size); i++)
+  read_size = 32 * 1024;
+  while (size > 0)
     {
-      SetRWSize (chip, READ_RAM, buf[0]);
-      status = WriteIOControl (chip, 0x03, 0, 4, (SANE_Byte *) (buf));
+      cur_read_size = (read_size <= size) ? read_size : size;
 
-      status =
-	sanei_usb_read_bulk (chip->fd, lpdata + i * read_size,
-			     (size_t *) buf);
+      status = SetRWSize (chip, READ_RAM, cur_read_size);
       if (status != STATUS_GOOD)
-	{
-	  DBG (DBG_ERR, "Mustek_DMARead: read error\n");
-	  return status;
-	}
-    }
+        return status;
 
-  buf[0] = size - i * read_size;
-  if (buf[0] > 0)
-    {
-      SetRWSize (chip, READ_RAM, buf[0]);
-      status = WriteIOControl (chip, 0x03, 0, 4, (SANE_Byte *) (buf));
+      status = WriteIOControl (chip, 0x03, 0, 4, (SANE_Byte *) &cur_read_size);
+      if (status != STATUS_GOOD)
+        return status;
 
-      status =
-	sanei_usb_read_bulk (chip->fd, lpdata + i * read_size,
-			     (size_t *) buf);
+      status = sanei_usb_read_bulk (chip->fd, lpdata, &cur_read_size);
       if (status != STATUS_GOOD)
 	{
 	  DBG (DBG_ERR, "Mustek_DMARead: read error\n");
 	  return status;
 	}
 
-      usleep (20000);
+      size -= cur_read_size;
+      lpdata += cur_read_size;
     }
+
+  if (cur_read_size < read_size)
+    usleep (20000);
 
   DBG (DBG_ASIC, "Mustek_DMARead: Exit\n");
   return STATUS_GOOD;
@@ -292,10 +280,8 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpdata)
 static STATUS
 Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata)
 {
-  STATUS status = STATUS_GOOD;
-  unsigned int buf[1];
-  unsigned int i;
-  unsigned int write_size;
+  STATUS status;
+  size_t write_size, cur_write_size;
 
   DBG (DBG_ASIC, "Mustek_DMAWrite: Enter. size=%d\n", size);
 
@@ -303,37 +289,28 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata)
   if (status != STATUS_GOOD)
     return status;
 
-  buf[0] = write_size = 32 * 1024;
-  for (i = 0; i < size / (write_size); i++)
+  write_size = 32 * 1024;
+  while (size > 0)
     {
-      SetRWSize (chip, WRITE_RAM, buf[0]);
-      WriteIOControl (chip, 0x02, 0, 4, (SANE_Byte *) buf);
+      cur_write_size = (write_size <= size) ? write_size : size;
 
-      status =
-	sanei_usb_write_bulk (chip->fd, lpdata + i * write_size,
-			      (size_t *) buf);
+      status = SetRWSize (chip, WRITE_RAM, cur_write_size);
+      if (status != STATUS_GOOD)
+        return status;
+
+      status = WriteIOControl (chip, 0x02, 0, 4, (SANE_Byte *) &cur_write_size);
+      if (status != STATUS_GOOD)
+        return status;
+
+      status = sanei_usb_write_bulk (chip->fd, lpdata, &cur_write_size);
       if (status != STATUS_GOOD)
 	{
 	  DBG (DBG_ERR, "Mustek_DMAWrite: write error\n");
 	  return status;
 	}
-    }
 
-
-  buf[0] = size - i * write_size;
-  if (buf[0] > 0)
-    {
-      SetRWSize (chip, WRITE_RAM, buf[0]);
-      WriteIOControl (chip, 0x02, 0, 4, (SANE_Byte *) buf);
-
-      status =
-	sanei_usb_write_bulk (chip->fd, lpdata + i * write_size,
-			      (size_t *) buf);
-      if (status != STATUS_GOOD)
-	{
-	  DBG (DBG_ERR, "Mustek_DMAWrite: write error\n");
-	  return status;
-	}
+      size -= cur_write_size;
+      lpdata += cur_write_size;
     }
 
   Mustek_ClearFIFO (chip);
@@ -347,50 +324,8 @@ static STATUS
 Mustek_SendData2Byte (PAsic chip, unsigned short reg, SANE_Byte data)
 {
   static SANE_Bool isTransfer = FALSE;
-  static SANE_Byte BankBuf[4];
   static SANE_Byte DataBuf[4];
-
-  if (reg <= 0xFF)
-    {
-      if (RegisterBankStatus != 0)
-	{
-	  DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
-	  BankBuf[0] = ES01_5F_REGISTER_BANK_SELECT;
-	  BankBuf[1] = SELECT_REGISTER_BANK0;
-	  BankBuf[2] = ES01_5F_REGISTER_BANK_SELECT;
-	  BankBuf[3] = SELECT_REGISTER_BANK0;
-	  WriteIOControl (chip, 0xb0, 0, 4, BankBuf);
-
-	  RegisterBankStatus = 0;
-	}
-    }
-  else if (reg <= 0x1FF)
-    {
-      if (RegisterBankStatus != 1)
-	{
-	  DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
-	  BankBuf[0] = ES01_5F_REGISTER_BANK_SELECT;
-	  BankBuf[1] = SELECT_REGISTER_BANK1;
-	  BankBuf[2] = ES01_5F_REGISTER_BANK_SELECT;
-
-	  BankBuf[3] = SELECT_REGISTER_BANK1;
-	  WriteIOControl (chip, 0xb0, 0, 4, BankBuf);
-	  RegisterBankStatus = 1;
-	}
-    }
-  else if (reg <= 0x2FF)
-    {
-      if (RegisterBankStatus != 2)
-	{
-	  DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
-	  BankBuf[0] = ES01_5F_REGISTER_BANK_SELECT;
-	  BankBuf[1] = SELECT_REGISTER_BANK2;
-	  BankBuf[2] = ES01_5F_REGISTER_BANK_SELECT;
-	  BankBuf[3] = SELECT_REGISTER_BANK2;
-	  WriteIOControl (chip, 0xb0, 0, 4, BankBuf);
-	  RegisterBankStatus = 2;
-	}
-    }
+  STATUS status;
 
   if (isTransfer == FALSE)
     {
@@ -402,8 +337,15 @@ Mustek_SendData2Byte (PAsic chip, unsigned short reg, SANE_Byte data)
     {
       DataBuf[2] = LOBYTE (reg);
       DataBuf[3] = data;
-      WriteIOControl (chip, 0xb0, 0, 4, DataBuf);
       isTransfer = FALSE;
+
+      status = SwitchBank (chip, reg);
+      if (status != STATUS_GOOD)
+        return status;
+
+      status = WriteIOControl (chip, 0xb0, 0, 4, DataBuf);
+      if (status != STATUS_GOOD)
+        return status;
     }
 
   return STATUS_GOOD;
@@ -459,7 +401,7 @@ LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
   Mustek_ClearFIFO (chip);
 
   if (RamAccess->ReadWrite == WRITE_RAM)
-    {				/* write RAM */
+    {
       /* size must be even */
       Mustek_DMAWrite (chip, RamAccess->RwSize, RamAccess->BufferPtr);
 
@@ -471,8 +413,8 @@ LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
       LLFRamAccess (chip, RamAccess);
       DBG (DBG_ASIC, "end steal 2 byte!\n");
     }
-  else
-    {				/* read RAM */
+  else	/* read RAM */
+    {
       /* size must be even */
       Mustek_DMARead (chip, RamAccess->RwSize, RamAccess->BufferPtr);
     }
@@ -2981,7 +2923,7 @@ SetExtraSetting (PAsic chip, unsigned short wXResolution,
 }
 
 
-/* ---------------------- high level asic functions ------------------------ */
+/* ---------------------- high level ASIC functions ------------------------ */
 
 
 /* HOLD: We don't want to have global vid/pids */

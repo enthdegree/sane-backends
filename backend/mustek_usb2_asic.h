@@ -109,20 +109,12 @@ typedef struct
   SANE_Byte PHTG_TimingAdj;
   SANE_Byte PHTG_TimingSetup;
 
-  /* 1200 dpi */
-  unsigned int CCD_PHRS_Timing_1200;
-  unsigned int CCD_PHCP_Timing_1200;
-  unsigned int CCD_PH1_Timing_1200;
-  unsigned int CCD_PH2_Timing_1200;
-  SANE_Byte DE_CCD_SETUP_REGISTER_1200;
-  unsigned short wCCDPixelNumber_1200;
+  unsigned int CCD_PHRS_Timing;
+  unsigned int CCD_PHCP_Timing;
+  unsigned int CCD_PH1_Timing;
+  unsigned int CCD_PH2_Timing;
 
-  /* 600 dpi */
-  unsigned int CCD_PHRS_Timing_600;
-  unsigned int CCD_PHCP_Timing_600;
-  unsigned int CCD_PH1_Timing_600;
-  unsigned int CCD_PH2_Timing_600;
-  SANE_Byte DE_CCD_SETUP_REGISTER_600;
+  unsigned short wCCDPixelNumber_1200;
   unsigned short wCCDPixelNumber_600;
 } Timings;
 
@@ -151,7 +143,6 @@ typedef struct
   USBHOST UsbHost;
   LIGHTSOURCE lsLightSource;
 
-  unsigned int Dpi;
   unsigned int dwBytesCountPerRow;
 
   Timings Timing;
@@ -941,20 +932,20 @@ static STATUS OpenScanChip (PAsic chip);
 static STATUS CloseScanChip (PAsic chip);
 static STATUS SafeInitialChip (PAsic chip);
 static STATUS DRAM_Test (PAsic chip);
-static STATUS SetLineTimeAndExposure (PAsic chip);
-static STATUS CCDTiming (PAsic chip);
+static void SetLineTimeAndExposure (PAsic chip);
+static void CCDTiming (PAsic chip);
 static STATUS IsCarriageHome (PAsic chip, SANE_Bool * LampHome);
-static STATUS InitTiming (PAsic chip);
+static void InitTiming (PAsic chip);
 static STATUS GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipStatus);
-static STATUS SetAFEGainOffset (PAsic chip);
-static STATUS SetLEDTime (PAsic chip);
+static void SetAFEGainOffset (PAsic chip);
+static void SetLEDTime (PAsic chip);
 static STATUS SetScanMode (PAsic chip, SANE_Byte bScanBits);
-static STATUS SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
-			      double XRatioAdderDouble, double XRatioTypeDouble,
-			      SANE_Byte byClear_Pulse_Width,
-			      unsigned short * PValidPixelNumber);
-static STATUS SetExtraSetting (PAsic chip, unsigned short wXResolution,
-			       unsigned short wCCD_PixelNumber, SANE_Bool isCalibrate);
+static void SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
+			    double XRatioAdderDouble, double XRatioTypeDouble,
+			    SANE_Byte byClear_Pulse_Width,
+			    unsigned short * PValidPixelNumber);
+static void SetExtraSetting (PAsic chip, unsigned short wXResolution,
+			     unsigned short wCCD_PixelNumber, SANE_Bool isCalibrate);
 
 
 static STATUS Mustek_SendData (PAsic chip, unsigned short reg, SANE_Byte data);
@@ -1055,13 +1046,13 @@ static void CalculateMotorTable (LLF_CALCULATEMOTORTABLE *
 				 lpCalculateMotorTable);
 static void LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE *
 				    lpCalculateMotorTable);
-static STATUS LLFSetMotorCurrentAndPhase (PAsic chip,
-					  LLF_MOTOR_CURRENT_AND_PHASE *
-					  MotorCurrentAndPhase);
-static STATUS SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
-				 unsigned short wStartY,
-				 unsigned int dwScanImageSteps,
-				 unsigned short wYResolution);
+static void LLFSetMotorCurrentAndPhase (PAsic chip,
+					LLF_MOTOR_CURRENT_AND_PHASE *
+					MotorCurrentAndPhase);
+static void SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
+			       unsigned short wStartY,
+			       unsigned int dwScanImageSteps,
+			       unsigned short wYResolution);
 static STATUS LLFSetMotorTable (PAsic chip, unsigned short *MotorTablePtr);
 static SANE_Byte CalculateMotorCurrent (unsigned short dwMotorSpeed);
 static STATUS LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove);

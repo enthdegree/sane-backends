@@ -1859,7 +1859,7 @@ LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE * LLF_CalculateMotorTable)
   long double y;
   unsigned short i;
 
-  DBG (DBG_ASIC, "LLF_CALCULATEMOTORTABLE: Enter\n");
+  DBG (DBG_ASIC, "LLFCalculateMotorTable: Enter\n");
 
   wStartSpeed = LLF_CalculateMotorTable->StartSpeed;
   wEndSpeed = LLF_CalculateMotorTable->EndSpeed;
@@ -1896,7 +1896,7 @@ LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE * LLF_CalculateMotorTable)
       lpMotorTable[i + 512 * 2] = (unsigned short) y;
     }
 
-  DBG (DBG_ASIC, "LLF_CALCULATEMOTORTABLE: Exit\n");
+  DBG (DBG_ASIC, "LLFCalculateMotorTable: Exit\n");
   return status;
 }
 
@@ -1958,7 +1958,6 @@ MotorBackHome (PAsic chip)
   CalMotorTable.StartSpeed = 5000;
   CalMotorTable.EndSpeed = 1200;
   CalMotorTable.AccStepBeforeScan = 511;
-  CalMotorTable.DecStepAfterScan = 255;
   CalMotorTable.lpMotorTable = BackHomeMotorTable;
   LLFCalculateMotorTable (&CalMotorTable);
 
@@ -4031,9 +4030,7 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
       MotorMove.DecStep = 1;
       MotorMove.FixMoveSteps = dwTotalSteps - 2;
     }
-
   MotorMove.FixMoveSpeed = 7000;
-
   LLFMotorMove (chip, &MotorMove);
 
   DBG (DBG_ASIC, "Asic_MotorMove: Exit\n");
@@ -4516,7 +4513,6 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
   CalMotorTable.EndSpeed = EndSpeed;
   CalMotorTable.AccStepBeforeScan = wScanAccSteps;
   CalMotorTable.lpMotorTable = lpMotorTable;
-
   LLFCalculateMotorTable (&CalMotorTable);
 
   CurrentPhase.MoveType = bMotorMoveType;

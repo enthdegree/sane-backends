@@ -3349,7 +3349,7 @@ rts8801_scan (unsigned x,
 	    double contrast_adjust = (double) (contrast + 1) / 64;
 
 	    multnow = f * 64 * contrast_adjust;
-	    offnow = 4 * g - brightness - 64.0l * (1.0l - contrast_adjust);
+	    offnow = 4 * g + 128 - brightness;
 	  }
 	  if (multnow < 0)
 	    multnow = 0;

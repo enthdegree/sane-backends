@@ -1285,10 +1285,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   DBG (DBG_FUNC, "sane_open: start :devicename = %s\n", devicename);
 
-  if (!MustScanner_Init ())
-    {
-      return SANE_STATUS_INVAL;
-    }
+  MustScanner_Init ();
+
   if (!MustScanner_PowerControl (SANE_FALSE, SANE_FALSE))
     {
       return SANE_STATUS_INVAL;

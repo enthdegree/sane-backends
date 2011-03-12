@@ -132,17 +132,10 @@ static void ModifyLinePoint (SANE_Byte * lpImageData,
 #include "mustek_usb2_transparent.c"
 
 
-static SANE_Bool
+static void
 MustScanner_Init (void)
 {
   DBG (DBG_FUNC, "MustScanner_Init: Call in\n");
-
-  g_chip.firmwarestate = FS_ATTACHED;
-  if (STATUS_GOOD != Asic_Open (&g_chip))
-    {
-      DBG (DBG_FUNC, "MustScanner_Init: Asic_Open return error\n");
-      return FALSE;
-    }
 
   Asic_Initialize (&g_chip);
 
@@ -162,10 +155,7 @@ MustScanner_Init (void)
 
   g_ssScanSource = SS_Reflective;
 
-  Asic_Close (&g_chip);
-
   DBG (DBG_FUNC, "MustScanner_Init: leave MustScanner_Init\n");
-  return TRUE;
 }
 
 static SANE_Bool

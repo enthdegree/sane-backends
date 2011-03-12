@@ -317,10 +317,10 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata)
       lpdata += cur_write_size;
     }
 
-  Mustek_ClearFIFO (chip);
+  status = Mustek_ClearFIFO (chip);
 
   DBG (DBG_ASIC, "Mustek_DMAWrite: Exit\n");
-  return STATUS_GOOD;
+  return status;
 }
 
 static STATUS
@@ -655,7 +655,7 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
   Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_ENABLE);
 
   if (LLF_MotorMove->ActionType == ACTION_TYPE_BACKTOHOME)
-    status = Asic_WaitCarriageHome (chip);
+    status = WaitCarriageHome (chip);
   else
     status = Asic_WaitUnitReady (chip);
 
@@ -1308,6 +1308,33 @@ IsCarriageHome (PAsic chip, SANE_Bool * LampHome)
   return STATUS_GOOD;
 }
 
+static STATUS
+WaitCarriageHome (PAsic chip)
+{
+  STATUS status;
+  SANE_Bool LampHome;
+  int i;
+
+  DBG (DBG_ASIC, "WaitCarriageHome: Enter\n");
+
+  for (i = 0; i < 100; i++)
+    {
+      status = IsCarriageHome (chip, &LampHome);
+      if (status != STATUS_GOOD)
+        return status;
+      if (LampHome)
+	break;
+      usleep (300000);
+    }
+  DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.3));
+
+  status = Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
+  if ((status == STATUS_GOOD) && (i == 100))
+    status = STATUS_DEVICE_BUSY;
+
+  DBG (DBG_ASIC, "WaitCarriageHome: Exit\n");
+  return status;
+}
 
 static STATUS
 GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipStatus)
@@ -1795,8 +1822,8 @@ Asic_Open (PAsic chip)
   status = OpenScanChip (chip);
   if (status != STATUS_GOOD)
     {
-      sanei_usb_close (chip->fd);
       DBG (DBG_ASIC, "Asic_Open: OpenScanChip error\n");
+      sanei_usb_close (chip->fd);
       return status;
     }
 
@@ -1816,11 +1843,19 @@ Asic_Open (PAsic chip)
   Mustek_SendData (chip, ES01_87_SDRAM_Timing, 0xf0);
 
   chip->firmwarestate = FS_OPENED;
-  Asic_WaitUnitReady (chip);
+
+  status = Asic_WaitUnitReady (chip);
+  if (status != STATUS_GOOD)
+    {
+      sanei_usb_close (chip->fd);
+      return status;
+    }
+
   status = SafeInitialChip (chip);
   if (status != STATUS_GOOD)
     {
       DBG (DBG_ERR, "Asic_Open: SafeInitialChip error\n");
+      sanei_usb_close (chip->fd);
       return status;
     }
 
@@ -1840,7 +1875,6 @@ Asic_Close (PAsic chip)
       DBG (DBG_ASIC, "Asic_Close: Scanner is not opened\n");
       return STATUS_GOOD;
     }
-
   if (chip->firmwarestate > FS_OPENED)
     {
       DBG (DBG_ASIC,
@@ -1853,16 +1887,14 @@ Asic_Close (PAsic chip)
 
   status = CloseScanChip (chip);
   if (status != STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "Asic_Close: CloseScanChip error\n");
-      return status;
-    }
+    DBG (DBG_ERR, "Asic_Close: CloseScanChip error\n");
 
   sanei_usb_close (chip->fd);
+
   chip->firmwarestate = FS_ATTACHED;
 
   DBG (DBG_ASIC, "Asic_Close: Exit\n");
-  return STATUS_GOOD;
+  return status;
 }
 
 static STATUS
@@ -1870,16 +1902,10 @@ Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn)
 {
   DBG (DBG_ASIC, "Asic_TurnLamp: Enter\n");
 
-  if (chip->firmwarestate < FS_OPENED)
+  if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_TurnLamp: Scanner is not opened\n");
+      DBG (DBG_ERR, "Asic_TurnLamp: Scanner is not opened or busy\n");
       return STATUS_INVAL;
-    }
-
-  if (chip->firmwarestate > FS_OPENED)
-    {
-      Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
-      chip->firmwarestate = FS_OPENED;
     }
 
   Mustek_SendData (chip, ES01_99_LAMP_PWM_FREQ_CONTROL, 1);
@@ -1898,16 +1924,10 @@ Asic_TurnTA (PAsic chip, SANE_Bool isTAOn)
 {
   DBG (DBG_ASIC, "Asic_TurnTA: Enter\n");
 
-  if (chip->firmwarestate < FS_OPENED)
+  if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_TurnTA: Scanner is not opened\n");
+      DBG (DBG_ERR, "Asic_TurnTA: Scanner is not opened or busy\n");
       return STATUS_INVAL;
-    }
-
-  if (chip->firmwarestate > FS_OPENED)
-    {
-      Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
-      chip->firmwarestate = FS_OPENED;
     }
 
   Mustek_SendData (chip, ES01_99_LAMP_PWM_FREQ_CONTROL, 1);
@@ -1974,6 +1994,8 @@ Asic_Initialize (PAsic chip)
   Asic_ResetADParameters (chip, LS_REFLECTIVE);
   InitTiming (chip);
 
+  chip->firmwarestate = FS_ATTACHED;
+
   DBG (DBG_ASIC, "Asic_Initialize: Exit\n");
 }
 
@@ -2018,10 +2040,11 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_SetWindow: Scanner is not opened\n");
+      DBG (DBG_ERR, "Asic_SetWindow: Scanner is not opened or busy\n");
       return STATUS_INVAL;
     }
 
+  /* TODO: do we need all this? */
   Mustek_SendData (chip, ES01_F3_ActionOption, 0);
   Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
   Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
@@ -2405,7 +2428,7 @@ Asic_ScanStart (PAsic chip)
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_ScanStart: Scanner is not opened\n");
+      DBG (DBG_ERR, "Asic_ScanStart: Scanner is not opened or busy\n");
       return STATUS_INVAL;
     }
 
@@ -2428,6 +2451,11 @@ Asic_ScanStop (PAsic chip)
 
   DBG (DBG_ASIC, "Asic_ScanStop: Enter\n");
 
+  if (chip->firmwarestate < FS_OPENED)
+    {
+      DBG (DBG_ERR, "Asic_ScanStop: Scanner is not opened\n");
+      return STATUS_INVAL;
+    }
   if (chip->firmwarestate < FS_SCANNING)
     return STATUS_GOOD;
 
@@ -2507,15 +2535,23 @@ Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer, unsigned short LinesCount)
 static STATUS
 Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key)
 {
+  STATUS status;
   SANE_Byte bBuffer_1 = 0xff;
   SANE_Byte bBuffer_2 = 0xff;
 
   DBG (DBG_ASIC, "Asic_CheckFunctionKey: Enter\n");
 
-  if (chip->firmwarestate != FS_OPENED)
+  *key = 0;
+
+  if (chip->firmwarestate < FS_OPENED)
     {
       DBG (DBG_ERR, "Asic_CheckFunctionKey: Scanner is not opened\n");
       return STATUS_INVAL;
+    }
+  if (chip->firmwarestate > FS_OPENED)
+    {
+      DBG (DBG_INFO, "Asic_CheckFunctionKey: Scanner is busy\n");
+      return STATUS_GOOD;
     }
 
   Mustek_SendData (chip, ES01_97_GPIOControl0_7, 0x00);
@@ -2523,8 +2559,12 @@ Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key)
   Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x00);
   Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x08);
 
-  GetChipStatus (chip, GPIO0_7, &bBuffer_1);
-  GetChipStatus (chip, GPIO8_15, &bBuffer_2);
+  status = GetChipStatus (chip, GPIO0_7, &bBuffer_1);
+  if (status != STATUS_GOOD)
+    return status;
+  status = GetChipStatus (chip, GPIO8_15, &bBuffer_2);
+  if (status != STATUS_GOOD)
+    return status;
 
   if ((~bBuffer_1 & 0x10) == 0x10)
     *key = 0x01;
@@ -2549,6 +2589,12 @@ Asic_IsTAConnected (PAsic chip, SANE_Bool * hasTA)
   SANE_Byte bBuffer_1 = 0xff;
 
   DBG (DBG_ASIC, "Asic_IsTAConnected: Enter\n");
+
+  if (chip->firmwarestate != FS_OPENED)
+    {
+      DBG (DBG_ERR, "Asic_IsTAConnected: Scanner is not opened or busy\n");
+      return STATUS_INVAL;
+    }
 
   Mustek_SendData (chip, ES01_97_GPIOControl0_7, 0x00);
   Mustek_SendData (chip, ES01_95_GPIOValue0_7, 0x00);
@@ -2649,6 +2695,12 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
 
   DBG (DBG_ASIC, "Asic_MotorMove: Enter\n");
 
+  if (chip->firmwarestate != FS_OPENED)
+    {
+      DBG (DBG_ERR, "Asic_MotorMove: Scanner is not opened or busy\n");
+      return STATUS_INVAL;
+    }
+
   NormalMoveMotorTable = malloc (512 * 8 * 2);
   if (!NormalMoveMotorTable)
     {
@@ -2702,6 +2754,12 @@ Asic_CarriageHome (PAsic chip)
 
   DBG (DBG_ASIC, "Asic_CarriageHome: Enter\n");
 
+  if (chip->firmwarestate != FS_OPENED)
+    {
+      DBG (DBG_ERR, "Asic_CarriageHome: Scanner is not opened or busy\n");
+      return STATUS_INVAL;
+    }
+
   status = IsCarriageHome (chip, &LampHome);
   if (status != STATUS_GOOD)
     return status;
@@ -2725,10 +2783,11 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 
   DBG (DBG_ASIC, "Asic_SetShadingTable: Enter\n");
 
-  if (chip->firmwarestate < FS_OPENED)
-    OpenScanChip (chip);
-  else if (chip->firmwarestate == FS_SCANNING)
-    Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
+  if (chip->firmwarestate != FS_OPENED)
+    {
+      DBG (DBG_ERR, "Asic_SetShadingTable: Scanner is not opened or busy\n");
+      return STATUS_INVAL;
+    }
 
   if (wXResolution > 600)
     dbXRatioAdderDouble = 1200 / wXResolution;
@@ -2785,36 +2844,6 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 }
 
 static STATUS
-Asic_WaitCarriageHome (PAsic chip)
-{
-  STATUS status;
-  SANE_Bool LampHome;
-  int i;
-
-  DBG (DBG_ASIC, "Asic_WaitCarriageHome: Enter\n");
-
-  for (i = 0; i < 100; i++)
-    {
-      status = IsCarriageHome (chip, &LampHome);
-      if (status != STATUS_GOOD)
-        return status;
-      if (LampHome)
-	break;
-      usleep (300000);
-    }
-  DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.3));
-
-  status = Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
-  if ((status == STATUS_GOOD) && (i == 100))
-    status = STATUS_DEVICE_BUSY;
-
-  chip->firmwarestate = FS_OPENED;
-
-  DBG (DBG_ASIC, "Asic_WaitCarriageHome: Exit\n");
-  return status;
-}
-
-static STATUS
 Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits,
 		   unsigned short wXResolution, unsigned short wYResolution,
 		   unsigned short wX, unsigned short wY, 
@@ -2850,7 +2879,7 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits,
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_SetCalibrate: Scanner is not opened\n");
+      DBG (DBG_ERR, "Asic_SetCalibrate: Scanner is not opened or busy\n");
       return STATUS_INVAL;
     }
 

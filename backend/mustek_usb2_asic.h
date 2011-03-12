@@ -938,6 +938,7 @@ static STATUS DRAM_Test (PAsic chip);
 static void SetLineTimeAndExposure (PAsic chip);
 static void CCDTiming (PAsic chip);
 static STATUS IsCarriageHome (PAsic chip, SANE_Bool * LampHome);
+static STATUS WaitCarriageHome (PAsic chip);
 static void InitTiming (PAsic chip);
 static STATUS GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipStatus);
 static void SetAFEGainOffset (PAsic chip);
@@ -996,7 +997,6 @@ static STATUS Asic_CarriageHome (PAsic chip);
 static STATUS Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 				    unsigned short * lpDarkShading,
 				    unsigned short wXResolution, unsigned short wWidth);
-static STATUS Asic_WaitCarriageHome (PAsic chip);
 static STATUS Asic_WaitUnitReady (PAsic chip);
 static STATUS Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 				 unsigned short wYResolution, unsigned short wX, unsigned short wY,

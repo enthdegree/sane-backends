@@ -180,7 +180,7 @@ typedef struct
 /*#define DEBUG_SAVE_IMAGE*/
 
 
-static SANE_Bool MustScanner_Init (void);
+static void MustScanner_Init (void);
 static SANE_Bool MustScanner_GetScannerState (void);
 static SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn,
 					   SANE_Bool isTALampOn);

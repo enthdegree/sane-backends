@@ -137,9 +137,9 @@ typedef struct
 #define R_GAIN                          0
 #define G_GAIN                          0
 #define B_GAIN                          0
-#define R_DIRECTION                     0
-#define G_DIRECTION                     0
-#define B_DIRECTION                     0
+#define R_DIRECTION                     DIR_POSITIVE
+#define G_DIRECTION                     DIR_POSITIVE
+#define B_DIRECTION                     DIR_POSITIVE
 
 /* used for adjusting the AD offset */
 

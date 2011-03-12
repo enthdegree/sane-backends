@@ -144,11 +144,7 @@ MustScanner_Init (void)
       return FALSE;
     }
 
-  if (STATUS_GOOD != Asic_Initialize (&g_chip))
-    {
-      DBG (DBG_FUNC, "MustScanner_Init: Asic_Initialize return error\n");
-      return FALSE;
-    }
+  Asic_Initialize (&g_chip);
 
   g_dwImageBufferSize = 24L * 1024L * 1024L;
   g_dwBufferSize = 64L * 1024L;
@@ -284,12 +280,7 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
 	  return FALSE;
 	}
 
-      if (STATUS_GOOD != Asic_SetSource (&g_chip, LS_REFLECTIVE))
-	{
-	  DBG (DBG_FUNC,
-	       "MustScanner_Prepare: Asic_SetSource return error\n");
-	  return FALSE;
-	}
+      g_chip.lsLightSource = LS_REFLECTIVE;
     }
   else if (SS_Positive == ssScanSource)
     {
@@ -299,30 +290,19 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
 	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnTA return error\n");
 	  return FALSE;
 	}
-      if (STATUS_GOOD != Asic_SetSource (&g_chip, LS_POSITIVE))
-	{
-	  DBG (DBG_FUNC,
-	       "MustScanner_Prepare: Asic_SetSource return error\n");
-	  return FALSE;
-	}
+
+      g_chip.lsLightSource = LS_POSITIVE;
     }
   else if (SS_Negative == ssScanSource)
     {
       DBG (DBG_FUNC, "MustScanner_Prepare:ScanSource is SS_Negative\n");
-
       if (STATUS_GOOD != Asic_TurnTA (&g_chip, TRUE))
 	{
 	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnTA return error\n");
 	  return FALSE;
 	}
 
-      if (STATUS_GOOD != Asic_SetSource (&g_chip, LS_NEGATIVE))
-	{
-	  DBG (DBG_FUNC,
-	       "MustScanner_Prepare: Asic_SetSource return error\n");
-	  return FALSE;
-	}
-      DBG (DBG_FUNC, "MustScanner_Prepare: Asic_SetSource return good\n");
+      g_chip.lsLightSource = LS_NEGATIVE;
     }
 
   Asic_Close (&g_chip);

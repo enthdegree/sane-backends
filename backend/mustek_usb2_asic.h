@@ -285,6 +285,9 @@ typedef enum
 
 /* AFE auto configuration */
 #define		ES01_60_AFE_AUTO_GAIN_OFFSET_RED_LB	0x60
+		/* bit[0] */
+#define DIR_POSITIVE	0x00
+#define DIR_NEGATIVE	0x01
 #define		ES01_61_AFE_AUTO_GAIN_OFFSET_RED_HB	0x61
 #define		ES01_62_AFE_AUTO_GAIN_OFFSET_GREEN_LB	0x62
 #define		ES01_63_AFE_AUTO_GAIN_OFFSET_GREEN_HB	0x63
@@ -964,14 +967,13 @@ static STATUS SwitchBank (PAsic chip, unsigned short reg);
 
 static STATUS Asic_Open (PAsic chip);
 static STATUS Asic_Close (PAsic chip);
-static STATUS Asic_Initialize (PAsic chip);
+static void Asic_Initialize (PAsic chip);
 static STATUS Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 			      unsigned short wXResolution, unsigned short wYResolution,
 			      unsigned short wX, unsigned short wY, unsigned short wWidth, unsigned short wLength);
 static STATUS Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn);
 static STATUS Asic_TurnTA (PAsic chip, SANE_Bool isTAOn);
-static STATUS Asic_Reset (PAsic chip);
-static STATUS Asic_SetSource (PAsic chip, LIGHTSOURCE lsLightSource);
+static void Asic_ResetADParameters (PAsic chip, LIGHTSOURCE lsLightSource);
 static STATUS Asic_ScanStart (PAsic chip);
 static STATUS Asic_ScanStop (PAsic chip);
 static STATUS Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer, unsigned short LinesCount);
@@ -982,11 +984,11 @@ static STATUS Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key);
 static STATUS Asic_IsTAConnected (PAsic chip, SANE_Bool *hasTA);
 
 /* called by AdjustAD and FindTopLeft */
-static STATUS Asic_ReadCalibrationData (PAsic chip, void * pBuffer,
+static STATUS Asic_ReadCalibrationData (PAsic chip, SANE_Byte * pBuffer,
 					unsigned int dwXferBytes, SANE_Byte bScanBits);
 
 /* enable/disable motor movement */
-static STATUS Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove);
+static void Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove);
 
 static STATUS Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps);
 static STATUS Asic_CarriageHome (PAsic chip);

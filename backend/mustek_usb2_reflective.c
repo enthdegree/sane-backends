@@ -77,17 +77,7 @@ Reflective_Reset (void)
       return FALSE;
     }
 
-  if (STATUS_GOOD != Asic_Reset (&g_chip))
-    {
-      DBG (DBG_FUNC, "Reflective_Reset: Asic_Reset return error\n");
-      return FALSE;
-    }
-
-  if (STATUS_GOOD != Asic_SetSource (&g_chip, LS_REFLECTIVE))
-    {
-      DBG (DBG_FUNC, "Reflective_Reset: Asic_SetSource return error\n");
-      return FALSE;
-    }
+  Asic_ResetADParameters (&g_chip, LS_REFLECTIVE);
 
   if (STATUS_GOOD != Asic_TurnLamp (&g_chip, TRUE))
     {
@@ -450,12 +440,12 @@ Reflective_AdjustAD (void)
       MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
 				   &wMinValueB);
 
-      if (g_chip.AD.DirectionR == 0)
+      if (g_chip.AD.DirectionR == DIR_POSITIVE)
 	{
 	  if (wMinValueR > 15)
 	    {
 	      if (g_chip.AD.OffsetR < 8)
-		g_chip.AD.DirectionR = 1;
+		g_chip.AD.DirectionR = DIR_NEGATIVE;
 	      else
 		g_chip.AD.OffsetR -= 8;
 	    }
@@ -470,12 +460,12 @@ Reflective_AdjustAD (void)
 	    g_chip.AD.OffsetR -= 8;
 	}
 
-      if (g_chip.AD.DirectionG == 0)
+      if (g_chip.AD.DirectionG == DIR_POSITIVE)
 	{
 	  if (wMinValueG > 15)
 	    {
 	      if (g_chip.AD.OffsetG < 8)
-		g_chip.AD.DirectionG = 1;
+		g_chip.AD.DirectionG = DIR_NEGATIVE;
 	      else
 		g_chip.AD.OffsetG -= 8;
 	    }
@@ -490,12 +480,12 @@ Reflective_AdjustAD (void)
 	    g_chip.AD.OffsetG -= 8;
 	}
 
-      if (g_chip.AD.DirectionB == 0)
+      if (g_chip.AD.DirectionB == DIR_POSITIVE)
 	{
 	  if (wMinValueB > 15)
 	    {
 	      if (g_chip.AD.OffsetB < 8)
-		g_chip.AD.DirectionB = 1;
+		g_chip.AD.DirectionB = DIR_NEGATIVE;
 	      else
 		g_chip.AD.OffsetB -= 8;
 	    }
@@ -778,12 +768,12 @@ Reflective_AdjustAD (void)
 	   wMaxValueR, wMinValueR, wMaxValueG, wMinValueG, wMaxValueB,
 	   wMinValueB);
 
-      if (g_chip.AD.DirectionR == 0)
+      if (g_chip.AD.DirectionR == DIR_POSITIVE)
 	{
 	  if (wMinValueR > 20)
 	    {
 	      if (g_chip.AD.OffsetR < 8)
-		g_chip.AD.DirectionR = 1;
+		g_chip.AD.DirectionR = DIR_NEGATIVE;
 	      else
 		g_chip.AD.OffsetR -= 8;
 	    }
@@ -799,12 +789,12 @@ Reflective_AdjustAD (void)
 	    g_chip.AD.OffsetR -= 8;
 	}
 
-      if (g_chip.AD.DirectionG == 0)
+      if (g_chip.AD.DirectionG == DIR_POSITIVE)
 	{
 	  if (wMinValueG > 20)
 	    {
 	      if (g_chip.AD.OffsetG < 8)
-		g_chip.AD.DirectionG = 1;
+		g_chip.AD.DirectionG = DIR_NEGATIVE;
 	      else
 		g_chip.AD.OffsetG -= 8;
 	    }
@@ -819,12 +809,12 @@ Reflective_AdjustAD (void)
 	    g_chip.AD.OffsetG -= 8;
 	}
 
-      if (g_chip.AD.DirectionB == 0)
+      if (g_chip.AD.DirectionB == DIR_POSITIVE)
 	{
 	  if (wMinValueB > 20)
 	    {
 	      if (g_chip.AD.OffsetB < 8)
-		g_chip.AD.DirectionB = 1;
+		g_chip.AD.DirectionB = DIR_NEGATIVE;
 	      else
 		g_chip.AD.OffsetB -= 8;
 	    }
@@ -1146,16 +1136,7 @@ Reflective_LineCalibration16Bits (void)
   Asic_ScanStop (&g_chip);
 
   /*Read dark level data */
-  status = Asic_SetMotorType (&g_chip, FALSE);
-  if (status != STATUS_GOOD)
-    {
-      DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_SetMotorType return error\n");
-
-      free (lpWhiteData);
-      free (lpDarkData);
-      return FALSE;
-    }
+  Asic_SetMotorType (&g_chip, FALSE);
 
   status =
     Asic_SetCalibrate (&g_chip, 48, g_XDpi, g_YDpi, g_X, 0, wCalWidth,

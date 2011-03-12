@@ -1,3 +1,7 @@
+2011-03-12 Julien Blache <jb@jblache.org>
+	* doc/scanimage.man: batch-start defaults to 1 if not specified,
+	  not 0. Reported by Jakub Wilk <jwilk@debian.org>.
+
 2011-03-12 Troy Rollo <sane@troy.rollo.name>
 	* backend/hp3500.c: Add grayscale and line art scanning. Add contrast
 	  and brightness controls which influence the calibration data provided

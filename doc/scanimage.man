@@ -171,7 +171,7 @@ is given as a printf style string with one integer parameter.
 .B \-\-batch\-start
 .I start
 selects the page number to start naming files with. If this option is not
-given, the counter will start at 0.
+given, the counter will start at 1.
 .B \-\-batch\-count
 .I count
 specifies the number of pages to attempt to scan.  If not given, 

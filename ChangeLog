@@ -1,3 +1,8 @@
+2011-03-12 Troy Rollo <sane@troy.rollo.name>
+	* backend/hp3500.c: Add grayscale and line art scanning. Add contrast
+	  and brightness controls which influence the calibration data provided
+	  to the scanner.
+
 2011-03-06 Ilia Sotnikov <hostcc@gmail.com>
 	* backend/hp5590.c, backend/hp5590_cmds.{c,h}: in ADF modes the device can
 	  scan up to 14", which is usually bigger than what scanner reports back

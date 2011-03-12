@@ -143,6 +143,8 @@ enum hp3500_option
   OPT_BR_Y,
   OPT_MODE_GROUP,
   OPT_MODE,
+  OPT_BRIGHTNESS,
+  OPT_CONTRAST,
 
   NUM_OPTIONS
 };
@@ -184,6 +186,9 @@ struct hp3500_data
   int scan_width_pixels;
   int scan_height_pixels;
 
+  int brightness;
+  int contrast;
+
   SANE_Option_Descriptor opt[NUM_OPTIONS];
   SANE_Device sane;
 };
@@ -209,6 +214,11 @@ static const SANE_Range range_x =
   { 0, SANE_FIX (215.9), SANE_FIX (MM_PER_INCH / 1200) };
 static const SANE_Range range_y =
   { 0, SANE_FIX (298.7), SANE_FIX (MM_PER_INCH / 1200) };
+static const SANE_Range range_brightness =
+  { 0, 255, 0 };
+static const SANE_Range range_contrast =
+  { 0, 255, 0 };
+
 
 #define HP3500_COLOR_SCAN 0
 #define HP3500_GRAY_SCAN 1
@@ -370,6 +380,8 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   scanner->request_mm.right = SCANNER_UNIT_TO_FIXED_MM (10200);
   scanner->request_mm.bottom = SCANNER_UNIT_TO_FIXED_MM (14100);
   scanner->mode = 0;
+  scanner->brightness = 128;
+  scanner->contrast = 64;
   calculateDerivedValues (scanner);
 
   return SANE_STATUS_GOOD;
@@ -519,6 +531,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_MODE:
 	  strcpy ((SANE_Char *) val, scan_mode_list[scanner->mode]);
 	  return SANE_STATUS_GOOD;
+
+	case OPT_CONTRAST:
+	  *(SANE_Word *) val = scanner->contrast;
+	  return SANE_STATUS_GOOD;
+
+	case OPT_BRIGHTNESS:
+	  *(SANE_Word *) val = scanner->brightness;
+	  return SANE_STATUS_GOOD;
 	}
     }
   else if (action == SANE_ACTION_SET_VALUE)
@@ -621,6 +641,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  /* Impossible */
 	  return SANE_STATUS_INVAL;
+
+	case OPT_BRIGHTNESS:
+	  scanner->brightness = *(SANE_Word *) val;
+	  return SANE_STATUS_GOOD;
+
+	case OPT_CONTRAST:
+	  scanner->contrast = *(SANE_Word *) val;
+	  return SANE_STATUS_GOOD;
 	}			/* switch */
     }				/* else */
   return SANE_STATUS_INVAL;
@@ -1020,12 +1048,9 @@ init_options (struct hp3500_data *scanner)
   if (!scan_mode_list[0])
     {
       scan_mode_list[HP3500_COLOR_SCAN] = SANE_VALUE_SCAN_MODE_COLOR;
-      scan_mode_list[1] = 0;
-#if 0
       scan_mode_list[HP3500_GRAY_SCAN] = SANE_VALUE_SCAN_MODE_GRAY;
       scan_mode_list[HP3500_LINEART_SCAN] = SANE_VALUE_SCAN_MODE_LINEART;
       scan_mode_list[HP3500_TOTAL_SCANS] = 0;
-#endif
     }
 
   opt = scanner->opt + OPT_MODE_GROUP;
@@ -1041,6 +1066,24 @@ init_options (struct hp3500_data *scanner)
   opt->type = SANE_TYPE_STRING;
   opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
   opt->constraint.string_list = scan_mode_list;
+  opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+
+  opt = scanner->opt + OPT_BRIGHTNESS;
+  opt->name = SANE_NAME_BRIGHTNESS;
+  opt->title = SANE_TITLE_BRIGHTNESS;
+  opt->desc = SANE_DESC_BRIGHTNESS;
+  opt->type = SANE_TYPE_INT;
+  opt->constraint_type = SANE_CONSTRAINT_RANGE;
+  opt->constraint.range = &range_brightness;
+  opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+
+  opt = scanner->opt + OPT_CONTRAST;
+  opt->name = SANE_NAME_CONTRAST;
+  opt->title = SANE_TITLE_CONTRAST;
+  opt->desc = SANE_DESC_CONTRAST;
+  opt->type = SANE_TYPE_INT;
+  opt->constraint_type = SANE_CONSTRAINT_RANGE;
+  opt->constraint.range = &range_contrast;
   opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
   return SANE_STATUS_GOOD;
@@ -2570,22 +2613,22 @@ rts8801_doscan (unsigned width,
 		detailed_calibration_data const *detailed_calib_data)
 {
   unsigned rowbytes = 0;
+  unsigned output_rowbytes = 0;
   unsigned channels = 0;
   unsigned total_rows = 0;
   unsigned bytesperchannel;
-  char *row_buffer;
-  char *output_buffer;
+  unsigned char *row_buffer;
+  unsigned char *output_buffer;
   unsigned buffered_rows;
   int rows_to_begin;
   int rowbuffer_bytes;
   int n;
   unsigned rownow = 0;
   unsigned bytenow = 0;
-  char *channel_data[3][2];
+  unsigned char *channel_data[3][2];
   unsigned i;
   unsigned j;
   int result = 0;
-  int calib_channel_start = 0;
   unsigned rows_supplied = 0;
 
   calib_info = calib_info;	/* Kill warning */
@@ -2593,25 +2636,21 @@ rts8801_doscan (unsigned width,
     return -1;
   rt_start_moving ();
 
+  channels = 3;
+  rowbytes = width * 3;
+  bytesperchannel = width;
   switch (colour)
     {
     case HP3500_GRAY_SCAN:
-      channels = 1;
-      rowbytes = width;
-      bytesperchannel = rowbytes;
-      calib_channel_start = 1;
+      output_rowbytes = width;
       break;
 
     case HP3500_COLOR_SCAN:
-      channels = 3;
-      rowbytes = width * 3;
-      bytesperchannel = width;
+      output_rowbytes = rowbytes;
       break;
 
     case HP3500_LINEART_SCAN:
-      channels = 1;
-      rowbytes = (width + 7) / 8;
-      bytesperchannel = rowbytes;
+      output_rowbytes = (width + 7) / 8;
       break;
     }
 
@@ -2619,8 +2658,8 @@ rts8801_doscan (unsigned width,
     red_green_offset + green_blue_offset + intra_channel_offset + 1;
   rows_to_begin = buffered_rows;
   rowbuffer_bytes = buffered_rows * rowbytes;
-  row_buffer = (char *) malloc (rowbuffer_bytes);
-  output_buffer = (char *) malloc (rowbytes);
+  row_buffer = (unsigned char *) malloc (rowbuffer_bytes);
+  output_buffer = (unsigned char *) malloc (rowbytes);
 
   for (i = j = 0; i < channels; ++i)
     {
@@ -2643,7 +2682,7 @@ rts8801_doscan (unsigned width,
 	n = 0;
       if (n > 0)
 	{
-	  char buffer[0xffc0];
+	 unsigned char buffer[0xffc0];
 
 	  if (n > 0xffc0)
 	    n = 0xffc0;
@@ -2651,7 +2690,7 @@ rts8801_doscan (unsigned width,
 	    --n;
 	  if (rt_get_data (n, buffer) >= 0)
 	    {
-	      char *bufnow = buffer;
+	      unsigned char *bufnow = buffer;
 
 	      while (n)
 		{
@@ -2660,32 +2699,17 @@ rts8801_doscan (unsigned width,
 		  if (numcopy > n)
 		    numcopy = n;
 
-		  if (colour == HP3500_LINEART_SCAN)
-		    {
-		      while (numcopy--)
-			{
-			  /* For line art we need to invert all the bits to
-			   * get the right answer for SANE
-			   */
-			  row_buffer[rownow * rowbytes + bytenow++] =
-			    ~*bufnow++;
-			  --n;
-			}
-		    }
-		  else
-		    {
-		      memcpy (row_buffer + rownow * rowbytes + bytenow,
-			      bufnow, numcopy);
-		      bytenow += numcopy;
-		      bufnow += numcopy;
-		      n -= numcopy;
-		    }
+		  memcpy (row_buffer + rownow * rowbytes + bytenow,
+		  	  bufnow, numcopy);
+		  bytenow += numcopy;
+		  bufnow += numcopy;
+		  n -= numcopy;
 
 		  if (bytenow == rowbytes)
 		    {
 		      if (!rows_to_begin || !--rows_to_begin)
 			{
-			  char *outnow = output_buffer;
+			  unsigned char *outnow = output_buffer;
 
 			  for (i = 0;
 			       i < (merged_channels ? rowbytes : width);
@@ -2716,9 +2740,42 @@ rts8801_doscan (unsigned width,
 				}
 			    }
 
-			  if (rows_supplied++ < height
-			      &&
-			      !((*cbfunc) (params, rowbytes, output_buffer)))
+			  if (colour == HP3500_GRAY_SCAN || colour == HP3500_LINEART_SCAN)
+			    {
+			      unsigned char const *in_now = output_buffer;
+			      int	bit = 7;
+
+			      outnow = output_buffer;
+			      for (i = 0; i < width; ++i)
+				{
+
+				  if (colour == HP3500_GRAY_SCAN)
+				    {
+				      *outnow++ = ((unsigned) in_now[0] * 2989 +
+						   (unsigned) in_now[1] * 5870 +
+						   (unsigned) in_now[2] * 1140) / 10000;
+				    }
+				  else
+				    {
+				      if (bit == 7)
+					*outnow = ((in_now[1] < 0x80) ? 0x80 : 0);
+				      else if (in_now[1] < 0x80)
+					*outnow |= (1 << bit);
+				      if (bit == 0)
+					{
+					  ++outnow;
+					  bit = 7;
+					}
+				      else
+					{
+					  --bit;
+					}
+				    }
+				  in_now += 3;
+				}
+			    }
+			  if (rows_supplied++ < height &&
+			      !((*cbfunc) (params, output_rowbytes, output_buffer)))
 			    break;
 
 			  for (i = 0; i < channels; ++i)
@@ -2860,7 +2917,7 @@ rts8801_fullscan (unsigned x,
   if (red_calib_offset >= 0
       && green_calib_offset >= 0
       && blue_calib_offset >= 0 &&
-      (yresolution < 400 || colour != HP3500_COLOR_SCAN))
+      yresolution < 400)
     {
       rt_set_calibration_addresses (regs, red_calib_offset,
 				    green_calib_offset, blue_calib_offset,
@@ -2875,13 +2932,10 @@ rts8801_fullscan (unsigned x,
       regs[0x40] &= 0xc0;
     }
 
-  rt_set_channel (regs,
-		  (colour ==
-		   HP3500_COLOR_SCAN) ? RT_CHANNEL_ALL : RT_CHANNEL_GREEN);
-  rt_set_single_channel_scanning (regs,
-				  (colour == HP3500_LINEART_SCAN) ? 1 : 0);
-  rt_set_merge_channels (regs, colour == HP3500_COLOR_SCAN);
-  rt_set_colour_mode (regs, colour == HP3500_COLOR_SCAN);
+  rt_set_channel (regs, RT_CHANNEL_ALL);
+  rt_set_single_channel_scanning (regs, 0);
+  rt_set_merge_channels (regs, 1);
+  rt_set_colour_mode (regs, 1);
 
   rt_set_motor_movement_clock_multiplier (regs,
 					  resparms[jres].
@@ -2899,8 +2953,6 @@ rts8801_fullscan (unsigned x,
   regs[0xc3] = (regs[0xc3] & 0xf8) | resparms[jres].reg_c3_value;
   regs[0xc6] = (regs[0xc6] & 0xf8) | resparms[jres].reg_c6_value;
   scan_frequency = resparms[jres].scan_frequency;
-/*  if (colour == HP3500_LINEART_SCAN)
-    scan_frequency *= 3;*/
   rt_set_scan_frequency (regs, scan_frequency);
   rt_set_cph0s (regs, resparms[ires].cph0s);
   if (resparms[ires].d3_bit_3_value)
@@ -2916,11 +2968,8 @@ rts8801_fullscan (unsigned x,
   rt_set_total_distance (regs, scan_frequency *
 			 (y +
 			  h +
-			  ((colour ==
-			    HP3500_COLOR_SCAN) ? (resparms[jres].
-						  red_green_offset +
-						  resparms[jres].
-						  green_blue_offset) : 0) +
+			  resparms[jres].red_green_offset +
+			  resparms[jres].green_blue_offset +
 			  resparms[jres].intra_channel_offset) - 1);
 
   rt_set_scanline_start (regs,
@@ -3037,7 +3086,11 @@ rts8801_scan (unsigned x,
 	      unsigned w,
 	      unsigned h,
 	      unsigned resolution,
-	      unsigned colour, rts8801_callback cbfunc, void *param)
+	      unsigned colour,
+	      unsigned brightness,
+	      unsigned contrast,
+	      rts8801_callback cbfunc,
+	      void *param)
 {
   unsigned char calib_info[9];
   unsigned char calibbuf[2400];
@@ -3218,29 +3271,26 @@ rts8801_scan (unsigned x,
 
   DBG (20, "Gain factors calculated\n");
 
-  if (colour != HP3500_LINEART_SCAN)
-    {
-      /* Stage 2 calibration */
+  /* Stage 2 calibration */
 
-      DBG (10, "Calibrating (stage 2)\n");
+  DBG (10, "Calibrating (stage 2)\n");
 
-      detail_buffer =
-	(unsigned char *) malloc (w * 3 * detailed_calibration_rows);
+  detail_buffer =
+    (unsigned char *) malloc (w * 3 * detailed_calibration_rows);
 
-      dcd.buffers[0] = detail_buffer;
-      dcd.buffers[1] = (detail_buffer + w * detailed_calibration_rows);
-      dcd.buffers[2] = (dcd.buffers[1] + w * detailed_calibration_rows);
-      dcd.pixelsperrow = w;
-      dcd.pixelnow = dcd.channelnow = dcd.firstrowdone = 0;
+  dcd.buffers[0] = detail_buffer;
+  dcd.buffers[1] = (detail_buffer + w * detailed_calibration_rows);
+  dcd.buffers[2] = (dcd.buffers[1] + w * detailed_calibration_rows);
+  dcd.pixelsperrow = w;
+  dcd.pixelnow = dcd.channelnow = dcd.firstrowdone = 0;
 
-      DBG (10, "Performing detailed calibration scan\n");
-      rts8801_fullscan (x, iCalibY, w, detailed_calibration_rows + 1,
-			resolution, resolution, HP3500_COLOR_SCAN,
-			(rts8801_callback) accumfunc, &dcd, calib_info,
-			RTS8801_F_SUPPRESS_MOVEMENT, -1, -1, -1, -1, 0);
+  DBG (10, "Performing detailed calibration scan\n");
+  rts8801_fullscan (x, iCalibY, w, detailed_calibration_rows + 1,
+		    resolution, resolution, HP3500_COLOR_SCAN,
+		    (rts8801_callback) accumfunc, &dcd, calib_info,
+		    RTS8801_F_SUPPRESS_MOVEMENT, -1, -1, -1, -1, 0);
 
-      DBG (10, "Detailed calibration scan completed\n");
-    }
+  DBG (10, "Detailed calibration scan completed\n");
 
   /* And now for the detailed calibration */
   resolution_index = find_resolution_index (resolution);
@@ -3296,9 +3346,10 @@ rts8801_scan (unsigned x,
 	    double denom1 =
 	      calcmedian (dcd.buffers[i], j, w, detailed_calibration_rows);
 	    double f = 0xff / (denom1 - 2 * g);
+	    double contrast_adjust = (double) (contrast + 1) / 64;
 
-	    multnow = f * 64;
-	    offnow = 4 * g;
+	    multnow = f * 64 * contrast_adjust;
+	    offnow = 4 * g - brightness - 64.0l * (1.0l - contrast_adjust);
 	  }
 	  if (multnow < 0)
 	    multnow = 0;
@@ -3313,7 +3364,7 @@ rts8801_scan (unsigned x,
 	    {
 	      /*multnow = j * resolution_divisor + k; */
 	      pDetailedCalib[idx++] = offnow;	/* Subtract this value from the result */
-	      pDetailedCalib[idx++] = multnow;	/* The multiply by this value divided by 0x40 */
+	      pDetailedCalib[idx++] = multnow;	/* Then multiply by this value divided by 0x40 */
 	    }
 	}
     }
@@ -3446,8 +3497,8 @@ reader_process (void *pv)
        scanner->actres_pixels.top + 599 * scanner->resolution / 1200,
        scanner->actres_pixels.right - scanner->actres_pixels.left,
        scanner->actres_pixels.bottom - scanner->actres_pixels.top,
-       scanner->resolution, scanner->mode, (rts8801_callback) writefunc,
-       &winfo) >= 0)
+       scanner->resolution, scanner->mode, scanner->brightness,
+       scanner->contrast, (rts8801_callback) writefunc, &winfo) >= 0)
     status = SANE_STATUS_GOOD;
   status = SANE_STATUS_IO_ERROR;
   close (scanner->pipe_w);

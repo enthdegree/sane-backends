@@ -380,7 +380,7 @@ Transparent_AdjustAD (void)
   Asic_SetMotorType (&g_chip, FALSE);
 
   Asic_SetCalibrate (&g_chip, 24, wAdjustADResolution, wAdjustADResolution, 0,
-		     0, wCalWidth, 1, FALSE);
+		     0, wCalWidth, 1);
   MustScanner_PrepareCalculateMaxMin (wAdjustADResolution);
   nTimesOfCal = 0;
 
@@ -862,7 +862,7 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
 
   Asic_SetMotorType (&g_chip, TRUE);
   Asic_SetCalibrate (&g_chip, 8, wXResolution, wYResolution, 0, 0, wCalWidth,
-		     wCalHeight, FALSE);
+		     wCalHeight);
   SetAFEGainOffset (&g_chip);
   Asic_ScanStart (&g_chip);
 
@@ -1027,8 +1027,8 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
   /*Read white level data */
   Asic_SetMotorType (&g_chip, TRUE);
   SetAFEGainOffset (&g_chip);
-  Asic_SetCalibrate (&g_chip, 48, g_XDpi, g_YDpi, g_X, 0, wCalWidth,
-		     wCalHeight, TRUE);
+  Asic_SetCalibrate (&g_chip, 48, g_XDpi, 600, g_X, 0, wCalWidth,
+		     wCalHeight);
   Asic_ScanStart (&g_chip);
 
   /* Read Data */
@@ -1039,8 +1039,8 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
   /* Read dark level data */
   Asic_SetMotorType (&g_chip, FALSE);
   SetAFEGainOffset (&g_chip);
-  Asic_SetCalibrate (&g_chip, 48, g_XDpi, g_YDpi, g_X, 0, wCalWidth,
-		     wCalHeight, TRUE);
+  Asic_SetCalibrate (&g_chip, 48, g_XDpi, 600, g_X, 0, wCalWidth,
+		     wCalHeight);
 
   Asic_TurnLamp (&g_chip, FALSE);
   Asic_TurnTA (&g_chip, FALSE);

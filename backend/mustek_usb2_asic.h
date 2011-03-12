@@ -943,12 +943,13 @@ static STATUS GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipSta
 static void SetAFEGainOffset (PAsic chip);
 static void SetLEDTime (PAsic chip);
 static STATUS SetScanMode (PAsic chip, SANE_Byte bScanBits);
-static void SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
-			    double XRatioAdderDouble, double XRatioTypeDouble,
-			    SANE_Byte byClear_Pulse_Width,
-			    unsigned short * PValidPixelNumber);
+static void SetPackAddress (PAsic chip, unsigned short wWidth,
+			    unsigned short wX, double XRatioAdderDouble,
+			    double XRatioTypeDouble, SANE_Byte bClearPulseWidth,
+			    unsigned short * pValidPixelNumber);
 static void SetExtraSetting (PAsic chip, unsigned short wXResolution,
-			     unsigned short wCCD_PixelNumber, SANE_Bool isCalibrate);
+			     unsigned short wCCD_PixelNumber,
+			     SANE_Bool bypassShading);
 
 
 static STATUS Mustek_SendData (PAsic chip, unsigned short reg, SANE_Byte data);
@@ -999,7 +1000,7 @@ static STATUS Asic_WaitCarriageHome (PAsic chip);
 static STATUS Asic_WaitUnitReady (PAsic chip);
 static STATUS Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 				 unsigned short wYResolution, unsigned short wX, unsigned short wY,
-				 unsigned short wWidth, unsigned short wLength, SANE_Bool isShading);
+				 unsigned short wWidth, unsigned short wLength);
 
 
 /* ---------------------- ASIC motor defines -------------------------- */

@@ -48,6 +48,7 @@
 #ifndef MUSTEK_USB2_ASIC_H
 #define MUSTEK_USB2_ASIC_H
 
+
 /* ---------------------- low level asic defines -------------------------- */
 
 #ifndef LOBYTE
@@ -118,7 +119,6 @@ typedef struct
   unsigned short wCCDPixelNumber_600;
 } Timings;
 
-
 typedef struct
 {
   SANE_Byte GainR;
@@ -131,7 +131,6 @@ typedef struct
   SANE_Bool DirectionG;
   SANE_Bool DirectionB;
 } ADConverter;
-
 
 
 typedef struct
@@ -208,7 +207,6 @@ typedef enum
 #define TABLE_OFFSET_BASE		(14)	/* unit: word */
 #define LAMP0_PWM_DEFAULT 255
 #define LAMP1_PWM_DEFAULT 255
-
 
 #define TA_CAL_PIXELNUMBER 50000
 #define TA_IMAGE_PIXELNUMBER 61000
@@ -941,9 +939,9 @@ static STATUS IsCarriageHome (PAsic chip, SANE_Bool * LampHome);
 static STATUS WaitCarriageHome (PAsic chip);
 static void InitTiming (PAsic chip);
 static STATUS GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipStatus);
-static void SetAFEGainOffset (PAsic chip);
+static STATUS SetAFEGainOffset (PAsic chip);
 static void SetLEDTime (PAsic chip);
-static STATUS SetScanMode (PAsic chip, SANE_Byte bScanBits);
+static void SetScanMode (PAsic chip, SANE_Byte bScanBits);
 static void SetPackAddress (PAsic chip, unsigned short wWidth,
 			    unsigned short wX, double XRatioAdderDouble,
 			    double XRatioTypeDouble, SANE_Byte bClearPulseWidth,
@@ -951,7 +949,6 @@ static void SetPackAddress (PAsic chip, unsigned short wWidth,
 static void SetExtraSetting (PAsic chip, unsigned short wXResolution,
 			     unsigned short wCCD_PixelNumber,
 			     SANE_Bool bypassShading);
-
 
 static STATUS Mustek_SendData (PAsic chip, unsigned short reg, SANE_Byte data);
 static STATUS Mustek_SendData2Byte (PAsic chip, unsigned short reg, SANE_Byte data);
@@ -1004,7 +1001,6 @@ static STATUS Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short
 
 
 /* ---------------------- ASIC motor defines -------------------------- */
-
 
 typedef struct
 {

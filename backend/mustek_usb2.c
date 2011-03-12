@@ -917,7 +917,7 @@ Return value:
 static SANE_Bool
 GetKeyStatus (SANE_Byte * pKey)
 {
-  SANE_Byte pKeyTemp = 0x00;
+  SANE_Byte pKeyTemp;
   DBG (DBG_FUNC, "GetKeyStatus: start\n");
 
   if (STATUS_GOOD != Asic_Open (&g_chip))

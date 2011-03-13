@@ -1059,7 +1059,8 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
     }
   else
     {
-      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: isOrderInvert is SANE_TRUE\n");
+      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: isOrderInvert is " \
+		     "SANE_TRUE\n");
       while (TotalXferLines < wWantedTotalLines)
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)

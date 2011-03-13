@@ -47,11 +47,14 @@
 
 
 static SANE_Bool Reflective_Reset (void);
-static SANE_Bool Reflective_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short YDpi,
-				  unsigned short X, unsigned short Y, unsigned short Width,
-				  unsigned short Height);
+static SANE_Bool Reflective_SetupScan (COLORMODE ColorMode,
+				       unsigned short XDpi, unsigned short YDpi,
+				       unsigned short X, unsigned short Y,
+				       unsigned short Width,
+				       unsigned short Height);
 static SANE_Bool Reflective_AdjustAD (void);
-static SANE_Bool Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY);
+static SANE_Bool Reflective_FindTopLeft (unsigned short * lpwStartX,
+					 unsigned short * lpwStartY);
 static SANE_Bool Reflective_LineCalibration16Bits (void);
 
 
@@ -297,19 +300,19 @@ Reflective_SetupScan (COLORMODE ColorMode,
 
   if (Reflective_LineCalibration16Bits () == SANE_FALSE)
     {
-      DBG (DBG_FUNC,
-	   "Reflective_SetupScan: Reflective_LineCalibration16Bits return error\n");
+      DBG (DBG_FUNC, "Reflective_SetupScan: Reflective_LineCalibration16Bits " \
+		     "return error\n");
       return SANE_FALSE;
     }
 
-  DBG (DBG_FUNC,
-       "Reflective_SetupScan: after Reflective_LineCalibration16Bits,g_X=%d,g_Y=%d\n",
+  DBG (DBG_FUNC, "Reflective_SetupScan: " \
+		 "after Reflective_LineCalibration16Bits,g_X=%d,g_Y=%d\n",
        g_X, g_Y);
 
   DBG (DBG_FUNC, "Reflective_SetupScan: before Asic_SetWindow\n");
 
-  DBG (DBG_FUNC,
-       "Reflective_SetupScan: g_bScanBits=%d, g_XDpi=%d, g_YDpi=%d, g_X=%d, g_Y=%d, g_Width=%d, g_Height=%d\n",
+  DBG (DBG_FUNC, "Reflective_SetupScan: g_bScanBits=%d,g_XDpi=%d,g_YDpi=%d," \
+		 "g_X=%d,g_Y=%d,g_Width=%d,g_Height=%d\n",
        g_bScanBits, g_XDpi, g_YDpi, g_X, g_Y, g_Width, g_Height);
 
   if (g_Y > 300)
@@ -340,16 +343,17 @@ Reflective_AdjustAD (void)
   SANE_Byte * lpCalData;
   unsigned short wCalWidth;
   int nTimesOfCal;
-  unsigned short wMaxValueR, wMinValueR, wMaxValueG, wMinValueG, wMaxValueB, wMinValueB;
+  unsigned short wMaxValueR, wMaxValueG, wMaxValueB;
+  unsigned short wMinValueR, wMinValueG, wMinValueB;
 #if 0
   SANE_Byte bDarkMaxLevel;
   SANE_Byte bDarkMinLevel;
-  SANE_Byte bLastMinR, bLastROffset, bROffsetUpperBound = 255, bROffsetLowerBound =
-    0;
-  SANE_Byte bLastMinG, bLastGOffset, bGOffsetUpperBound = 255, bGOffsetLowerBound =
-    0;
-  SANE_Byte bLastMinB, bLastBOffset, bBOffsetUpperBound = 255, bBOffsetLowerBound =
-    0;
+  SANE_Byte bLastMinR, bLastROffset;
+  SANE_Byte bROffsetUpperBound = 255, bROffsetLowerBound = 0;
+  SANE_Byte bLastMinG, bLastGOffset;
+  SANE_Byte bGOffsetUpperBound = 255, bGOffsetLowerBound = 0;
+  SANE_Byte bLastMinB, bLastBOffset;
+  SANE_Byte bBOffsetUpperBound = 255, bBOffsetLowerBound = 0;
   float fRFactor = 1.0;
   float fGFactor = 1.0;
   float fBFactor = 1.0;
@@ -513,10 +517,9 @@ Reflective_AdjustAD (void)
   DBG (DBG_FUNC,
        "Reflective_AdjustAD: run out first adjust offset do-while\n");
 
-  DBG (DBG_FUNC, "Reflective_AdjustAD: \
-					   g_chip.AD.OffsetR=%d,\
-					   g_chip.AD.OffsetG=%d,\
-					   g_chip.AD.OffsetB=%d\n", g_chip.AD.OffsetR, g_chip.AD.OffsetG, g_chip.AD.OffsetB);
+  DBG (DBG_FUNC, "Reflective_AdjustAD: g_chip.AD.OffsetR=%d," \
+		 "g_chip.AD.OffsetG=%d,g_chip.AD.OffsetB=%d\n",
+       g_chip.AD.OffsetR, g_chip.AD.OffsetG, g_chip.AD.OffsetB);
 
   g_chip.AD.GainR = 1 - (double) (wMaxValueR - wMinValueR) / 210 > 0 ?
     (SANE_Byte) (((1 -
@@ -560,8 +563,9 @@ Reflective_AdjustAD (void)
 				   &wMinValueB))
 	return SANE_FALSE;
 
-      DBG (DBG_FUNC, "Reflective_AdjustAD: "
-	   "RGain=%d, ROffset=%d, RDir=%d  GGain=%d, GOffset=%d, GDir=%d  BGain=%d, BOffset=%d, BDir=%d\n",
+      DBG (DBG_FUNC, "Reflective_AdjustAD: RGain=%d, ROffset=%d, RDir=%d, " \
+		     "GGain=%d, GOffset=%d, GDir=%d  BGain=%d, BOffset=%d, " \
+		     "BDir=%d\n",
 	   g_chip.AD.GainR, g_chip.AD.OffsetR, g_chip.AD.DirectionR,
 	   g_chip.AD.GainG, g_chip.AD.OffsetG, g_chip.AD.DirectionG,
 	   g_chip.AD.GainB, g_chip.AD.OffsetB, g_chip.AD.DirectionB);
@@ -764,8 +768,9 @@ Reflective_AdjustAD (void)
 				   &wMinValueB))
 	return SANE_FALSE;
 
-      DBG (DBG_FUNC, "Reflective_AdjustAD: "
-	   "RGain=%d, ROffset=%d, RDir=%d  GGain=%d, GOffset=%d, GDir=%d  BGain=%d, BOffset=%d, BDir=%d\n",
+      DBG (DBG_FUNC, "Reflective_AdjustAD: RGain=%d, ROffset=%d, RDir=%d, " \
+		     "GGain=%d, GOffset=%d, GDir=%d  BGain=%d, BOffset=%d, " \
+		     "BDir=%d\n",
 	   g_chip.AD.GainR, g_chip.AD.OffsetR, g_chip.AD.DirectionR,
 	   g_chip.AD.GainG, g_chip.AD.OffsetG, g_chip.AD.DirectionG,
 	   g_chip.AD.GainB, g_chip.AD.OffsetB, g_chip.AD.DirectionB);
@@ -924,8 +929,8 @@ Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
 				    lpCalData + i * g_dwCalibrationSize,
 				    g_dwCalibrationSize, 8))
 	{
-	  DBG (DBG_FUNC,
-	       "Reflective_FindTopLeft: Asic_ReadCalibrationData return error\n");
+	  DBG (DBG_FUNC, "Reflective_FindTopLeft: Asic_ReadCalibrationData " \
+			 "return error\n");
 	  free (lpCalData);
 	  return SANE_FALSE;
 	}
@@ -1097,8 +1102,8 @@ Reflective_LineCalibration16Bits (void)
 
   if (lpWhiteData == NULL || lpDarkData == NULL)
     {
-      DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: lpWhiteData or lpDarkData malloc error\n");
+      DBG (DBG_FUNC, "Reflective_LineCalibration16Bits: lpWhiteData or " \
+		     "lpDarkData malloc error\n");
 
       return SANE_FALSE;
     }
@@ -1179,8 +1184,8 @@ Reflective_LineCalibration16Bits (void)
   status = Asic_ReadCalibrationData (&g_chip, lpDarkData, dwDarkTotalSize, 8);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_ReadCalibrationData return error\n");
+      DBG (DBG_FUNC, "Reflective_LineCalibration16Bits: " \
+		     "Asic_ReadCalibrationData return error\n");
 
       free (lpWhiteData);
       free (lpDarkData);
@@ -1267,17 +1272,20 @@ Reflective_LineCalibration16Bits (void)
 	  lpRDarkSort[j] =
 	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 0));
 	  lpRDarkSort[j] +=
-	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 1) << 8);
+	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 1)
+	    << 8);
 
 	  lpGDarkSort[j] =
 	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 2));
 	  lpGDarkSort[j] +=
-	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 3) << 8);
+	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 3)
+	    << 8);
 
 	  lpBDarkSort[j] =
 	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 4));
 	  lpBDarkSort[j] +=
-	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 5) << 8);
+	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 5)
+	    << 8);
 	}
 
       if (g_XDpi == 1200)
@@ -1287,38 +1295,41 @@ Reflective_LineCalibration16Bits (void)
 	  if (i % 2)
 	    {
 	      dwRDarkLevel +=
-		(unsigned int) MustScanner_FiltLower (lpRDarkSort, wCalHeight, 20,
-					       30);
+		(unsigned int) MustScanner_FiltLower (lpRDarkSort, wCalHeight,
+						      20, 30);
 	      dwGDarkLevel +=
-		(unsigned int) MustScanner_FiltLower (lpGDarkSort, wCalHeight, 20,
-					       30);
+		(unsigned int) MustScanner_FiltLower (lpGDarkSort, wCalHeight,
+						      20, 30);
 	      dwBDarkLevel +=
-		(unsigned int) MustScanner_FiltLower (lpBDarkSort, wCalHeight, 20,
-					       30);
+		(unsigned int) MustScanner_FiltLower (lpBDarkSort, wCalHeight,
+						      20, 30);
 	    }
 	  else
 	    {
 	      dwREvenDarkLevel +=
-		(unsigned int) MustScanner_FiltLower (lpRDarkSort, wCalHeight, 20,
-					       30);
+		(unsigned int) MustScanner_FiltLower (lpRDarkSort, wCalHeight,
+						      20, 30);
 
 	      dwGEvenDarkLevel +=
-		(unsigned int) MustScanner_FiltLower (lpGDarkSort, wCalHeight, 20,
-					       30);
+		(unsigned int) MustScanner_FiltLower (lpGDarkSort, wCalHeight,
+						      20, 30);
 	      dwBEvenDarkLevel +=
-		(unsigned int) MustScanner_FiltLower (lpBDarkSort, wCalHeight, 20,
-					       30);
+		(unsigned int) MustScanner_FiltLower (lpBDarkSort, wCalHeight,
+						      20, 30);
 	    }
 	}
       else
 	{
 
 	  dwRDarkLevel +=
-	    (unsigned int) MustScanner_FiltLower (lpRDarkSort, wCalHeight, 20, 30);
+	    (unsigned int) MustScanner_FiltLower (lpRDarkSort, wCalHeight, 20,
+	    					  30);
 	  dwGDarkLevel +=
-	    (unsigned int) MustScanner_FiltLower (lpGDarkSort, wCalHeight, 20, 30);
+	    (unsigned int) MustScanner_FiltLower (lpGDarkSort, wCalHeight, 20,
+	    					  30);
 	  dwBDarkLevel +=
-	    (unsigned int) MustScanner_FiltLower (lpBDarkSort, wCalHeight, 20, 30);
+	    (unsigned int) MustScanner_FiltLower (lpBDarkSort, wCalHeight, 20,
+	    					  30);
 	}
     }
 
@@ -1347,20 +1358,20 @@ Reflective_LineCalibration16Bits (void)
 
       for (j = 0; j < wCalHeight; j++)
 	{
-	  lpRWhiteSort[j] =
-	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 0));
-	  lpRWhiteSort[j] +=
-	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 1) << 8);
+	  lpRWhiteSort[j] = (unsigned short) (*(lpWhiteData + j * wCalWidth *
+						2 * 3 + i * 6 + 0));
+	  lpRWhiteSort[j] += (unsigned short) (*(lpWhiteData + j * wCalWidth *
+						 2 * 3 + i * 6 + 1) << 8);
 
-	  lpGWhiteSort[j] =
-	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 2));
-	  lpGWhiteSort[j] +=
-	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 3) << 8);
+	  lpGWhiteSort[j] = (unsigned short) (*(lpWhiteData + j * wCalWidth *
+						2 * 3 + i * 6 + 2));
+	  lpGWhiteSort[j] += (unsigned short) (*(lpWhiteData + j * wCalWidth *
+						 2 * 3 + i * 6 + 3) << 8);
 
-	  lpBWhiteSort[j] =
-	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 4));
-	  lpBWhiteSort[j] +=
-	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 5) << 8);
+	  lpBWhiteSort[j] = (unsigned short) (*(lpWhiteData + j * wCalWidth *
+						2 * 3 + i * 6 + 4));
+	  lpBWhiteSort[j] += (unsigned short) (*(lpWhiteData + j * wCalWidth *
+						 2 * 3 + i * 6 + 5) << 8);
 	}
 
       if (g_XDpi == 1200)
@@ -1431,7 +1442,7 @@ Reflective_LineCalibration16Bits (void)
   free (lpWhiteShading);
   free (lpDarkShading);
 
-  DBG (DBG_FUNC,
-       "Reflective_LineCalibration16Bits: leave Reflective_LineCalibration16Bits\n");
+  DBG (DBG_FUNC, "Reflective_LineCalibration16Bits: leave " \
+		 "Reflective_LineCalibration16Bits\n");
   return SANE_TRUE;
 }

@@ -122,19 +122,19 @@ static SANE_String_Const source_list[] = {
   0
 };
 static Scanner_Model mustek_A2nu2_model = {
-  "Mustek",                    /* Device vendor string */
-  "BearPaw 2448TA Pro",		/* Device model name */
+  "Mustek", /* Device vendor string */
+  "BearPaw 2448TA Pro", /* Device model name */
 
-  {1200, 600, 300, 150, 75, 0},	/* possible resolutions */
+  {1200, 600, 300, 150, 75, 0}, /* possible resolutions */
 
   SANE_FIX (8.3 * MM_PER_INCH),	/* Size of scan area in mm (x) */
-  SANE_FIX (11.6 * MM_PER_INCH),	/* Size of scan area in mm (y) */
+  SANE_FIX (11.6 * MM_PER_INCH), /* Size of scan area in mm (y) */
 
-  SANE_FIX (1.46 * MM_PER_INCH),	/* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (6.45 * MM_PER_INCH),	/* Size of scan area in TA mode in mm (y) */
+  SANE_FIX (1.46 * MM_PER_INCH), /* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (6.45 * MM_PER_INCH), /* Size of scan area in TA mode in mm (y) */
 
-  RO_RGB,				/* Order of the CCD/CIS colors */
-  SANE_FIX (2.0)		/* Default gamma value */
+  RO_RGB, /* Order of the CCD/CIS colors */
+  SANE_FIX (2.0) /* Default gamma value */
 };
 
 
@@ -233,14 +233,14 @@ calc_parameters (Mustek_Scanner * s)
     }
 
 
-  s->setpara.fmArea.x1 =
-    (unsigned short) ((SANE_UNFIX (s->val[OPT_TL_X].w) * 300.0) / MM_PER_INCH + 0.5);
-  s->setpara.fmArea.x2 =
-    (unsigned short) ((SANE_UNFIX (s->val[OPT_BR_X].w) * 300.0) / MM_PER_INCH + 0.5);
-  s->setpara.fmArea.y1 =
-    (unsigned short) ((SANE_UNFIX (s->val[OPT_TL_Y].w) * 300.0) / MM_PER_INCH + 0.5);
-  s->setpara.fmArea.y2 =
-    (unsigned short) ((SANE_UNFIX (s->val[OPT_BR_Y].w) * 300.0) / MM_PER_INCH + 0.5);
+  s->setpara.fmArea.x1 = (unsigned short) ((SANE_UNFIX (s->val[OPT_TL_X].w) *
+					    300.0) / MM_PER_INCH + 0.5);
+  s->setpara.fmArea.x2 = (unsigned short) ((SANE_UNFIX (s->val[OPT_BR_X].w) *
+					    300.0) / MM_PER_INCH + 0.5);
+  s->setpara.fmArea.y1 = (unsigned short) ((SANE_UNFIX (s->val[OPT_TL_Y].w) *
+					    300.0) / MM_PER_INCH + 0.5);
+  s->setpara.fmArea.y2 = (unsigned short) ((SANE_UNFIX (s->val[OPT_BR_Y].w) *
+					    300.0) / MM_PER_INCH + 0.5);
 
   s->setpara.wLinearThreshold = s->val[OPT_THRESHOLD].w;
 
@@ -636,9 +636,8 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 
       for (i = 0; i < 65536; i++)
 	{
-	  wGammaData =
-	    (unsigned short) (pow ((((float) i) / 65536.0), (((float) 10) / 16.0)) *
-		    65535);
+	  wGammaData = (unsigned short) (pow ((((float) i) / 65536.0),
+					      (((float) 10) / 16.0)) * 65535);
 
 	  *(g_pGammaTable + i) = wGammaData;
 	  *(g_pGammaTable + i + 65536) = wGammaData;
@@ -1203,7 +1202,7 @@ AutoLevel (SANE_Byte *lpSource, unsigned short ScanLines,
 }
 
 
-/****************************** SANE API functions *****************************/
+/****************************** SANE API functions ****************************/
 
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
@@ -1753,9 +1752,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
 
 
-  lines_read =
-    (maxbuffersize <
-     (SANE_Int) s->scan_buffer_len) ? maxbuffersize : (SANE_Int) s->scan_buffer_len;
+  lines_read = (maxbuffersize < (SANE_Int) s->scan_buffer_len) ?
+		maxbuffersize : (SANE_Int) s->scan_buffer_len;
   DBG (DBG_DBG, "sane_read: after %d\n", lines_read);
 
   *len = (SANE_Int) lines_read;

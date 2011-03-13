@@ -971,41 +971,60 @@ CalculateMotorCurrent (unsigned short dwMotorSpeed)
 }
 
 static STATUS
-MotorBackHome (PAsic chip)
+MotorMove (PAsic chip, unsigned short wStartSpeed, unsigned short wEndSpeed,
+	   unsigned int dwFixMoveSpeed, SANE_Byte bMotorCurrent,
+	   unsigned int dwTotalSteps, SANE_Byte bActionType)
 {
   STATUS status;
-  unsigned short BackHomeMotorTable[MOTOR_TABLE_SIZE];
+  unsigned short * MotorTable;
   LLF_CALCULATEMOTORTABLE CalMotorTable;
   LLF_MOTOR_CURRENT_AND_PHASE CurrentPhase;
   LLF_MOTORMOVE MotorMove;
 
-  DBG (DBG_ASIC, "MotorBackHome: Enter\n");
+  DBG (DBG_ASIC, "MotorMove: Enter\n");
 
-  CalMotorTable.StartSpeed = 5000;
-  CalMotorTable.EndSpeed = 1200;
+  MotorTable = malloc (MOTOR_TABLE_SIZE * sizeof (unsigned short));
+  if (!MotorTable)
+    {
+      DBG (DBG_ASIC, "MotorTable == NULL\n");
+      return STATUS_MEM_ERROR;
+    }
+
+  CalMotorTable.StartSpeed = wStartSpeed;
+  CalMotorTable.EndSpeed = wEndSpeed;
   CalMotorTable.AccStepBeforeScan = 511;
-  CalMotorTable.lpMotorTable = BackHomeMotorTable;
+  CalMotorTable.lpMotorTable = MotorTable;
   CalculateMoveMotorTable (&CalMotorTable);
 
   CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
   CurrentPhase.MotorDriverIs3967 = 0;
-  CurrentPhase.MotorCurrent = 220;
+  CurrentPhase.MotorCurrent = bMotorCurrent;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
-  status = LLFSetMotorTable (chip, 0x3000, BackHomeMotorTable);
+  status = LLFSetMotorTable (chip, 0x3000, MotorTable);
+  free (MotorTable);
   if (status != STATUS_GOOD)
     return status;
 
-  MotorMove.ActionMode = ACTION_MODE_ACCDEC_MOVE;
-  MotorMove.ActionType = ACTION_TYPE_BACKTOHOME;
-
-  MotorMove.AccStep = 511;
-  MotorMove.DecStep = 255;
-  MotorMove.FixMoveSteps = 0;
-  MotorMove.FixMoveSpeed = 3000;
+  MotorMove.ActionType = bActionType;
+  if (dwTotalSteps >= 766)
+    {
+      MotorMove.ActionMode = ACTION_MODE_ACCDEC_MOVE;
+      MotorMove.AccStep = 511;
+      MotorMove.DecStep = 255;
+    }
+  else
+    {
+      MotorMove.ActionMode = ACTION_MODE_UNIFORM_SPEED_MOVE;
+      MotorMove.AccStep = 1;
+      MotorMove.DecStep = 1;
+    }
+  MotorMove.FixMoveSteps = dwTotalSteps -
+			   (MotorMove.AccStep + MotorMove.DecStep);
+  MotorMove.FixMoveSpeed = dwFixMoveSpeed;
   status = LLFMotorMove (chip, &MotorMove);
 
-  DBG (DBG_ASIC, "MotorBackHome: Exit\n");
+  DBG (DBG_ASIC, "MotorMove: Exit\n");
   return status;
 }
 
@@ -2720,10 +2739,7 @@ static STATUS
 Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
 {
   STATUS status;
-  unsigned short *NormalMoveMotorTable;
-  LLF_CALCULATEMOTORTABLE CalMotorTable;
-  LLF_MOTOR_CURRENT_AND_PHASE CurrentPhase;
-  LLF_MOTORMOVE MotorMove;
+  SANE_Byte bActionType;
 
   DBG (DBG_ASIC, "Asic_MotorMove: Enter\n");
 
@@ -2733,46 +2749,8 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
       return STATUS_INVAL;
     }
 
-  NormalMoveMotorTable = malloc (MOTOR_TABLE_SIZE * sizeof (unsigned short));
-  if (!NormalMoveMotorTable)
-    {
-      DBG (DBG_ASIC, "NormalMoveMotorTable == NULL\n");
-      return STATUS_MEM_ERROR;
-    }
-
-  CalMotorTable.StartSpeed = 5000;
-  CalMotorTable.EndSpeed = 1800;
-  CalMotorTable.AccStepBeforeScan = 511;
-  CalMotorTable.lpMotorTable = NormalMoveMotorTable;
-  CalculateMoveMotorTable (&CalMotorTable);
-
-  CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
-  CurrentPhase.MotorDriverIs3967 = 0;
-  CurrentPhase.MotorCurrent = 200;
-  LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
-
-  status = LLFSetMotorTable (chip, 0x3000, NormalMoveMotorTable);
-  free (NormalMoveMotorTable);
-  if (status != STATUS_GOOD)
-    return status;
-
-  MotorMove.ActionType = isForward ? ACTION_TYPE_FORWARD : ACTION_TYPE_BACKWARD;
-  if (dwTotalSteps > 1000)
-    {
-      MotorMove.ActionMode = ACTION_MODE_ACCDEC_MOVE;
-      MotorMove.AccStep = 511;
-      MotorMove.DecStep = 255;
-    }
-  else
-    {
-      MotorMove.ActionMode = ACTION_MODE_UNIFORM_SPEED_MOVE;
-      MotorMove.AccStep = 1;
-      MotorMove.DecStep = 1;
-    }
-  MotorMove.FixMoveSteps = dwTotalSteps -
-    (MotorMove.AccStep + MotorMove.DecStep);
-  MotorMove.FixMoveSpeed = 7000;
-  status = LLFMotorMove (chip, &MotorMove);
+  bActionType = isForward ? ACTION_TYPE_FORWARD : ACTION_TYPE_BACKWARD;
+  status = MotorMove (chip, 5000, 1800, 7000, 200, dwTotalSteps, bActionType);
 
   DBG (DBG_ASIC, "Asic_MotorMove: Exit\n");
   return status;
@@ -2797,7 +2775,8 @@ Asic_CarriageHome (PAsic chip)
     return status;
 
   if (!LampHome)
-    status = MotorBackHome (chip);
+    status = MotorMove (chip, 5000, 1200, 3000, 220, 766,
+			ACTION_TYPE_BACKTOHOME);
 
   DBG (DBG_ASIC, "Asic_CarriageHome: Exit\n");
   return status;

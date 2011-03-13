@@ -1014,7 +1014,10 @@ static void CalculateScanMotorTable (LLF_CALCULATEMOTORTABLE *
 static void CalculateMoveMotorTable (LLF_CALCULATEMOTORTABLE *
 				     lpCalculateMotorTable);
 static SANE_Byte CalculateMotorCurrent (unsigned short dwMotorSpeed);
-static STATUS MotorBackHome (PAsic chip);
+static STATUS MotorMove (PAsic chip,
+			 unsigned short wStartSpeed, unsigned short wEndSpeed,
+			 unsigned int dwFixMoveSpeed, SANE_Byte bMotorCurrent,
+			 unsigned int dwTotalSteps, SANE_Byte bActionType);
 
 static void InitTiming (PAsic chip);
 static STATUS OpenScanChip (PAsic chip);

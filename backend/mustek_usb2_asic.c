@@ -510,7 +510,8 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 }
 
 static STATUS
-LLFSetMotorTable (PAsic chip, unsigned short *MotorTablePtr)
+LLFSetMotorTable (PAsic chip, unsigned int dwTableBaseAddr,
+		  unsigned short *MotorTablePtr)
 {
   STATUS status;
   LLF_RAMACCESS RamAccess;
@@ -519,16 +520,42 @@ LLFSetMotorTable (PAsic chip, unsigned short *MotorTablePtr)
 
   RamAccess.ReadWrite = WRITE_RAM;
   RamAccess.IsOnChipGamma = EXTERNAL_RAM;
-  RamAccess.StartAddress = 0x3000;
-  RamAccess.RwSize = 512 * 2 * 8;
+  RamAccess.StartAddress = dwTableBaseAddr;
+  RamAccess.RwSize = MOTOR_TABLE_SIZE * sizeof (unsigned short);
   RamAccess.BufferPtr = (SANE_Byte *) MotorTablePtr;
 
   status = LLFRamAccess (chip, &RamAccess);
 
   /* tell scan chip the motor table address, unit is 2^14 words */
-  Mustek_SendData (chip, ES01_9D_MotorTableAddrA14_A21, 0);
+  Mustek_SendData (chip, ES01_9D_MotorTableAddrA14_A21,
+		   (SANE_Byte) (dwTableBaseAddr >> TABLE_OFFSET_BASE));
 
   DBG (DBG_ASIC, "LLFSetMotorTable: Exit\n");
+  return status;
+}
+
+static STATUS
+LLFSetShadingTable (PAsic chip, unsigned int dwTableBaseAddr,
+		    unsigned int dwTableSize, unsigned short *ShadingTablePtr)
+{
+  STATUS status;
+  LLF_RAMACCESS RamAccess;
+
+  DBG (DBG_ASIC, "LLFSetShadingTable: Enter\n");
+
+  RamAccess.ReadWrite = WRITE_RAM;
+  RamAccess.IsOnChipGamma = EXTERNAL_RAM;
+  RamAccess.StartAddress = dwTableBaseAddr;
+  RamAccess.RwSize = dwTableSize;
+  RamAccess.BufferPtr = (SANE_Byte *) ShadingTablePtr;
+
+  status = LLFRamAccess (chip, &RamAccess);
+
+  /* tell scan chip the shading table address, unit is 2^14 words */
+  Mustek_SendData (chip, ES01_9B_ShadingTableAddrA14_A21,
+		   (SANE_Byte) (dwTableBaseAddr >> TABLE_OFFSET_BASE));
+
+  DBG (DBG_ASIC, "LLFSetShadingTable: Exit\n");
   return status;
 }
 
@@ -541,9 +568,7 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
 
   DBG (DBG_ASIC, "LLFMotorMove: Enter\n");
 
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
-
-  status = Asic_WaitUnitReady (chip);
+  status = PrepareScanChip (chip);
   if (status != STATUS_GOOD)
     return status;
 
@@ -630,9 +655,13 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
   Mustek_SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_ENABLE);
 
   if (LLF_MotorMove->ActionType == ACTION_TYPE_BACKTOHOME)
-    status = WaitCarriageHome (chip);
-  else
-    status = Asic_WaitUnitReady (chip);
+    {
+      status = WaitCarriageHome (chip);
+      if (status != STATUS_GOOD)
+        return status;
+    }
+
+  status = WaitUnitReady (chip);
 
   DBG (DBG_ASIC, "LLFMotorMove: Exit\n");
   return status;
@@ -945,7 +974,7 @@ static STATUS
 MotorBackHome (PAsic chip)
 {
   STATUS status;
-  unsigned short BackHomeMotorTable[512 * 8];
+  unsigned short BackHomeMotorTable[MOTOR_TABLE_SIZE];
   LLF_CALCULATEMOTORTABLE CalMotorTable;
   LLF_MOTOR_CURRENT_AND_PHASE CurrentPhase;
   LLF_MOTORMOVE MotorMove;
@@ -963,7 +992,7 @@ MotorBackHome (PAsic chip)
   CurrentPhase.MotorCurrent = 220;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
-  status = LLFSetMotorTable (chip, BackHomeMotorTable);
+  status = LLFSetMotorTable (chip, 0x3000, BackHomeMotorTable);
   if (status != STATUS_GOOD)
     return status;
 
@@ -1105,17 +1134,30 @@ CloseScanChip (PAsic chip)
 }
 
 static STATUS
+PrepareScanChip (PAsic chip)
+{
+  STATUS status;
+
+  DBG (DBG_ASIC, "PrepareScanChip: Enter\n");
+
+  Mustek_SendData (chip, ES01_F3_ActionOption, 0);
+  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
+
+  status = WaitUnitReady (chip);
+
+  DBG (DBG_ASIC, "PrepareScanChip: Exit\n");
+  return status;
+}
+
+static STATUS
 SafeInitialChip (PAsic chip)
 {
   STATUS status;
 
   DBG (DBG_ASIC, "SafeInitialChip: Enter\n");
 
-  Mustek_SendData (chip, ES01_F3_ActionOption, 0);
-  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
-
-  status = Asic_WaitUnitReady (chip);
+  status = PrepareScanChip (chip);
   if (status != STATUS_GOOD)
     return status;
 
@@ -1131,7 +1173,7 @@ SafeInitialChip (PAsic chip)
       chip->isFirstOpenChip = SANE_FALSE;
     }
 
-  DBG (DBG_ASIC, "SafeInitialChip: exit\n");
+  DBG (DBG_ASIC, "SafeInitialChip: Exit\n");
   return status;
 }
 
@@ -1179,30 +1221,112 @@ DRAM_Test (PAsic chip)
   return STATUS_GOOD;
 }
 
-static void
-SetLineTimeAndExposure (PAsic chip)
+static STATUS
+GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipStatus)
 {
-  DBG (DBG_ASIC, "SetLineTimeAndExposure: Enter\n");
+  STATUS status;
+  DBG (DBG_ASIC, "GetChipStatus: Enter\n");
 
-  Mustek_SendData (chip, ES01_C4_MultiTGTimesRed, 0);
-  Mustek_SendData (chip, ES01_C5_MultiTGTimesGreen, 0);
-  Mustek_SendData (chip, ES01_C6_MultiTGTimesBlue, 0);
+  status = Mustek_SendData (chip, ES01_8B_Status, Selector);
+  if (status != STATUS_GOOD)
+    return status;
 
-  Mustek_SendData (chip, ES01_C7_MultiTGDummyPixelNumberLSB, 0);
-  Mustek_SendData (chip, ES01_C8_MultiTGDummyPixelNumberMSB, 0);
+  status = Mustek_WriteAddressLineForRegister (chip, ES01_8B_Status);
+  if (status != STATUS_GOOD)
+    return status;
 
-  Mustek_SendData (chip, ES01_C9_CCDDummyPixelNumberLSB, 0);
-  Mustek_SendData (chip, ES01_CA_CCDDummyPixelNumberMSB, 0);
+  if (ChipStatus)
+    status = Mustek_ReceiveData (chip, ChipStatus);
 
-  Mustek_SendData (chip, ES01_CB_CCDDummyCycleNumber, 0);
-
-  DBG (DBG_ASIC, "SetLineTimeAndExposure: Exit\n");
+  DBG (DBG_ASIC, "GetChipStatus: Exit\n");
+  return status;
 }
 
-static void
-CCDTiming (PAsic chip)
+static STATUS
+IsCarriageHome (PAsic chip, SANE_Bool * LampHome)
 {
-  DBG (DBG_ASIC, "CCDTiming: Enter\n");
+  STATUS status;
+  SANE_Byte temp;
+
+  DBG (DBG_ASIC, "IsCarriageHome: Enter\n");
+
+  status = GetChipStatus (chip, H1H0L1L0_PS_MJ, &temp);
+  if (status != STATUS_GOOD)
+    {
+      DBG (DBG_ASIC, "IsCarriageHome: Error!\n");
+      return status;
+    }
+
+  *LampHome = (temp & SENSOR0_DETECTED) ? SANE_TRUE : SANE_FALSE;
+  DBG (DBG_ASIC, "LampHome=%d\n", *LampHome);
+
+  DBG (DBG_ASIC, "IsCarriageHome: Exit\n");
+  return STATUS_GOOD;
+}
+
+static STATUS
+WaitCarriageHome (PAsic chip)
+{
+  STATUS status;
+  SANE_Bool LampHome;
+  int i;
+
+  DBG (DBG_ASIC, "WaitCarriageHome: Enter\n");
+
+  for (i = 0; i < 100; i++)
+    {
+      status = IsCarriageHome (chip, &LampHome);
+      if (status != STATUS_GOOD)
+	return status;
+      if (LampHome)
+	break;
+      usleep (300000);
+    }
+  DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.3));
+
+  status = Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
+  if ((status == STATUS_GOOD) && (i == 100))
+    status = STATUS_DEVICE_BUSY;
+
+  DBG (DBG_ASIC, "WaitCarriageHome: Exit\n");
+  return status;
+}
+
+static STATUS
+WaitUnitReady (PAsic chip)
+{
+  STATUS status;
+  SANE_Byte temp;
+  int i = 0;
+
+  DBG (DBG_ASIC, "WaitUnitReady: Enter\n");
+
+  do
+    {
+      status = GetChipStatus (chip, SCAN_STATE, &temp);
+      if (status != STATUS_GOOD)
+	{
+	  DBG (DBG_ASIC, "WaitUnitReady: Error!\n");
+	  return status;
+	}
+      if ((temp & 0x1f) == 0)
+	break;
+      usleep (100000);
+    }
+  while (++i < 300);
+  DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.1));
+
+  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
+
+  DBG (DBG_ASIC, "WaitUnitReady: Exit\n");
+  return STATUS_GOOD;
+}
+
+
+static void
+SetCCDTiming (PAsic chip)
+{
+  DBG (DBG_ASIC, "SetCCDTiming: Enter\n");
 
   Mustek_SendData (chip, ES01_82_AFE_ADCCLK_TIMING_ADJ_BYTE0,
 		   BYTE0 (chip->Timing.AFE_ADCCLK_Timing));
@@ -1304,84 +1428,67 @@ CCDTiming (PAsic chip)
   Mustek_SendData (chip, ES01_1EB_PHCP_TIMING_ADJ_B3,
 		   BYTE3 (chip->Timing.CCD_PHCP_Timing));
 
-  DBG (DBG_ASIC, "CCDTiming: Exit\n");
+  DBG (DBG_ASIC, "SetCCDTiming: Exit\n");
 }
 
-static STATUS
-IsCarriageHome (PAsic chip, SANE_Bool * LampHome)
+static void
+SetLineTimeAndExposure (PAsic chip)
 {
-  STATUS status;
-  SANE_Byte temp;
+  DBG (DBG_ASIC, "SetLineTimeAndExposure: Enter\n");
 
-  DBG (DBG_ASIC, "IsCarriageHome: Enter\n");
+  Mustek_SendData (chip, ES01_C4_MultiTGTimesRed, 0);
+  Mustek_SendData (chip, ES01_C5_MultiTGTimesGreen, 0);
+  Mustek_SendData (chip, ES01_C6_MultiTGTimesBlue, 0);
 
-  status = GetChipStatus (chip, H1H0L1L0_PS_MJ, &temp);
-  if (status != STATUS_GOOD)
-    {
-      DBG (DBG_ASIC, "IsCarriageHome: Error!\n");
-      return status;
-    }
+  Mustek_SendData (chip, ES01_C7_MultiTGDummyPixelNumberLSB, 0);
+  Mustek_SendData (chip, ES01_C8_MultiTGDummyPixelNumberMSB, 0);
 
-  *LampHome = (temp & SENSOR0_DETECTED) ? SANE_TRUE : SANE_FALSE;
-  DBG (DBG_ASIC, "LampHome=%d\n", *LampHome);
+  Mustek_SendData (chip, ES01_C9_CCDDummyPixelNumberLSB, 0);
+  Mustek_SendData (chip, ES01_CA_CCDDummyPixelNumberMSB, 0);
 
-  DBG (DBG_ASIC, "IsCarriageHome: Exit\n");
-  return STATUS_GOOD;
+  Mustek_SendData (chip, ES01_CB_CCDDummyCycleNumber, 0);
+
+  DBG (DBG_ASIC, "SetLineTimeAndExposure: Exit\n");
 }
 
-static STATUS
-WaitCarriageHome (PAsic chip)
+static void
+SetLEDTime (PAsic chip)
 {
-  STATUS status;
-  SANE_Bool LampHome;
-  int i;
+  DBG (DBG_ASIC, "SetLEDTime: Enter\n");
 
-  DBG (DBG_ASIC, "WaitCarriageHome: Enter\n");
+  Mustek_SendData (chip, ES01_B8_ChannelRedExpStartPixelLSB,
+		   LOBYTE (chip->Timing.ChannelR_StartPixel));
+  Mustek_SendData (chip, ES01_B9_ChannelRedExpStartPixelMSB,
+		   HIBYTE (chip->Timing.ChannelR_StartPixel));
+  Mustek_SendData (chip, ES01_BA_ChannelRedExpEndPixelLSB,
+		   LOBYTE (chip->Timing.ChannelR_EndPixel));
+  Mustek_SendData (chip, ES01_BB_ChannelRedExpEndPixelMSB,
+		   HIBYTE (chip->Timing.ChannelR_EndPixel));
 
-  for (i = 0; i < 100; i++)
-    {
-      status = IsCarriageHome (chip, &LampHome);
-      if (status != STATUS_GOOD)
-	return status;
-      if (LampHome)
-	break;
-      usleep (300000);
-    }
-  DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.3));
+  Mustek_SendData (chip, ES01_BC_ChannelGreenExpStartPixelLSB,
+		   LOBYTE (chip->Timing.ChannelG_StartPixel));
+  Mustek_SendData (chip, ES01_BD_ChannelGreenExpStartPixelMSB,
+		   HIBYTE (chip->Timing.ChannelG_StartPixel));
+  Mustek_SendData (chip, ES01_BE_ChannelGreenExpEndPixelLSB,
+		   LOBYTE (chip->Timing.ChannelG_EndPixel));
+  Mustek_SendData (chip, ES01_BF_ChannelGreenExpEndPixelMSB,
+		   HIBYTE (chip->Timing.ChannelG_EndPixel));
 
-  status = Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
-  if ((status == STATUS_GOOD) && (i == 100))
-    status = STATUS_DEVICE_BUSY;
+  Mustek_SendData (chip, ES01_C0_ChannelBlueExpStartPixelLSB,
+		   LOBYTE (chip->Timing.ChannelB_StartPixel));
+  Mustek_SendData (chip, ES01_C1_ChannelBlueExpStartPixelMSB,
+		   HIBYTE (chip->Timing.ChannelB_StartPixel));
+  Mustek_SendData (chip, ES01_C2_ChannelBlueExpEndPixelLSB,
+		   LOBYTE (chip->Timing.ChannelB_EndPixel));
+  Mustek_SendData (chip, ES01_C3_ChannelBlueExpEndPixelMSB,
+		   HIBYTE (chip->Timing.ChannelB_EndPixel));
 
-  DBG (DBG_ASIC, "WaitCarriageHome: Exit\n");
-  return status;
+  DBG (DBG_ASIC, "SetLEDTime: Exit\n");
 }
 
-static STATUS
-GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipStatus)
-{
-  STATUS status;
-  DBG (DBG_ASIC, "GetChipStatus: Enter\n");
-
-  status = Mustek_SendData (chip, ES01_8B_Status, Selector);
-  if (status != STATUS_GOOD)
-    return status;
-
-  status = Mustek_WriteAddressLineForRegister (chip, ES01_8B_Status);
-  if (status != STATUS_GOOD)
-    return status;
-
-  if (ChipStatus)
-    status = Mustek_ReceiveData (chip, ChipStatus);
-
-  DBG (DBG_ASIC, "GetChipStatus: Exit\n");
-  return status;
-}
-
-static STATUS
+static void
 SetAFEGainOffset (PAsic chip)
 {
-  STATUS status;
   int i;
 
   DBG (DBG_ASIC, "SetAFEGainOffset: Enter\n");
@@ -1451,54 +1558,7 @@ SetAFEGainOffset (PAsic chip)
   else
     Mustek_SendData (chip, ES01_0E_AD9826OffsetBlueP, chip->AD.OffsetB);
 
-  status = LLFSetRamAddress (chip, 0, PackAreaStartAddress - (512 * 8 - 1),
-			     EXTERNAL_RAM);
-
-  Mustek_SendData (chip, ES01_F3_ActionOption,
-		   SCAN_ENABLE | UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE);
-
-  Mustek_SendData (chip, ES01_9A_AFEControl, AD9826_AFE);
-
-  Mustek_SendData (chip, ES01_00_ADAFEConfiguration, 0x70);
-  Mustek_SendData (chip, ES01_02_ADAFEMuxConfig, 0x80);
-
   DBG (DBG_ASIC, "SetAFEGainOffset: Exit\n");
-  return status;
-}
-
-static void
-SetLEDTime (PAsic chip)
-{
-  DBG (DBG_ASIC, "SetLEDTime: Enter\n");
-
-  Mustek_SendData (chip, ES01_B8_ChannelRedExpStartPixelLSB,
-		   LOBYTE (chip->Timing.ChannelR_StartPixel));
-  Mustek_SendData (chip, ES01_B9_ChannelRedExpStartPixelMSB,
-		   HIBYTE (chip->Timing.ChannelR_StartPixel));
-  Mustek_SendData (chip, ES01_BA_ChannelRedExpEndPixelLSB,
-		   LOBYTE (chip->Timing.ChannelR_EndPixel));
-  Mustek_SendData (chip, ES01_BB_ChannelRedExpEndPixelMSB,
-		   HIBYTE (chip->Timing.ChannelR_EndPixel));
-
-  Mustek_SendData (chip, ES01_BC_ChannelGreenExpStartPixelLSB,
-		   LOBYTE (chip->Timing.ChannelG_StartPixel));
-  Mustek_SendData (chip, ES01_BD_ChannelGreenExpStartPixelMSB,
-		   HIBYTE (chip->Timing.ChannelG_StartPixel));
-  Mustek_SendData (chip, ES01_BE_ChannelGreenExpEndPixelLSB,
-		   LOBYTE (chip->Timing.ChannelG_EndPixel));
-  Mustek_SendData (chip, ES01_BF_ChannelGreenExpEndPixelMSB,
-		   HIBYTE (chip->Timing.ChannelG_EndPixel));
-
-  Mustek_SendData (chip, ES01_C0_ChannelBlueExpStartPixelLSB,
-		   LOBYTE (chip->Timing.ChannelB_StartPixel));
-  Mustek_SendData (chip, ES01_C1_ChannelBlueExpStartPixelMSB,
-		   HIBYTE (chip->Timing.ChannelB_StartPixel));
-  Mustek_SendData (chip, ES01_C2_ChannelBlueExpEndPixelLSB,
-		   LOBYTE (chip->Timing.ChannelB_EndPixel));
-  Mustek_SendData (chip, ES01_C3_ChannelBlueExpEndPixelMSB,
-		   HIBYTE (chip->Timing.ChannelB_EndPixel));
-
-  DBG (DBG_ASIC, "SetLEDTime: Exit\n");
 }
 
 static void
@@ -1617,6 +1677,7 @@ SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
 		   BYTE2 (ValidPixelNumber * 2));
 
   Mustek_SendData (chip, ES01_16C_LINE_SHIFT_OUT_TIMES_DIRECTION, 0x01);
+  Mustek_SendData (chip, ES01_1CD_DUMMY_CLOCK_NUMBER, 0);
   Mustek_SendData (chip, ES01_1CE_LINE_SEGMENT_NUMBER, 0x00);
   Mustek_SendData (chip, ES01_D8_PHTG_EDGE_TIMING_ADJUST, 0x17);
 
@@ -1646,11 +1707,11 @@ SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
       Mustek_SendData (chip, i + 2, BYTE2 (PackAreaStartAddress + 0xC0000));
     }
 
-  DBG (DBG_ASIC, "set PackAreaStartAddress ok\n");
+  DBG (DBG_ASIC, "set PackAreaStartAddress finished\n");
 
   for (i = 0; i < 16; i++)
     Mustek_SendData (chip, 0x260 + i, 0);
-  DBG (DBG_ASIC, "Set Invalid Pixel ok\n");
+  DBG (DBG_ASIC, "Set Invalid Pixel finished\n");
 
 
   /* set pack start address */
@@ -1709,12 +1770,12 @@ SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
 }
 
 static void
-SetExtraSetting (PAsic chip, unsigned short wXResolution,
-		 unsigned short wCCD_PixelNumber, SANE_Bool bypassShading)
+SetExtraSettings (PAsic chip, unsigned short wXResolution,
+		  unsigned short wCCD_PixelNumber, SANE_Bool bypassShading)
 {
   SANE_Byte temp_ff_register = 0;
 
-  DBG (DBG_ASIC, "SetExtraSetting: Enter\n");
+  DBG (DBG_ASIC, "SetExtraSettings: Enter\n");
 
   Mustek_SendData (chip, ES01_B8_ChannelRedExpStartPixelLSB,
 		   LOBYTE (chip->Timing.ChannelR_StartPixel));
@@ -1784,7 +1845,7 @@ SetExtraSetting (PAsic chip, unsigned short wXResolution,
 
   usleep (50000);
 
-  DBG (DBG_ASIC, "SetExtraSetting: Exit\n");
+  DBG (DBG_ASIC, "SetExtraSettings: Exit\n");
 }
 
 
@@ -1865,7 +1926,7 @@ Asic_Open (PAsic chip)
 
   chip->firmwarestate = FS_OPENED;
 
-  status = Asic_WaitUnitReady (chip);
+  status = WaitUnitReady (chip);
   if (status != STATUS_GOOD)
     {
       sanei_usb_close (chip->fd);
@@ -1918,6 +1979,28 @@ Asic_Close (PAsic chip)
   return status;
 }
 
+static void
+Asic_Initialize (PAsic chip)
+{
+  DBG (DBG_ASIC, "Asic_Initialize: Enter\n");
+
+  DBG (DBG_ASIC, "isFirstOpenChip=%d, setting to SANE_TRUE\n",
+       chip->isFirstOpenChip);
+  chip->isFirstOpenChip = SANE_TRUE;
+
+  chip->UsbHost = HT_USB10;
+  chip->dwBytesCountPerRow = 0;
+  chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
+  chip->lpShadingTable = NULL;
+
+  Asic_ResetADParameters (chip, LS_REFLECTIVE);
+  InitTiming (chip);
+
+  chip->firmwarestate = FS_ATTACHED;
+
+  DBG (DBG_ASIC, "Asic_Initialize: Exit\n");
+}
+
 static STATUS
 Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn)
 {
@@ -1962,96 +2045,33 @@ Asic_TurnTA (PAsic chip, SANE_Bool isTAOn)
 }
 
 static STATUS
-Asic_WaitUnitReady (PAsic chip)
-{
-  STATUS status;
-  SANE_Byte temp;
-  int i = 0;
-
-  DBG (DBG_ASIC, "Asic_WaitUnitReady: Enter\n");
-
-  if (chip->firmwarestate < FS_OPENED)
-    {
-      DBG (DBG_ERR, "Asic_WaitUnitReady: Scanner has not been opened\n");
-      return STATUS_INVAL;
-    }
-
-  do
-    {
-      status = GetChipStatus (chip, SCAN_STATE, &temp);
-      if (status != STATUS_GOOD)
-	{
-	  DBG (DBG_ASIC, "Asic_WaitUnitReady: Error!\n");
-	  return status;
-	}
-      if ((temp & 0x1f) == 0)
-	break;
-      usleep (100000);
-    }
-  while (++i < 300);
-  DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.1));
-
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
-
-  DBG (DBG_ASIC, "Asic_WaitUnitReady: Exit\n");
-  return STATUS_GOOD;
-}
-
-static void
-Asic_Initialize (PAsic chip)
-{
-  DBG (DBG_ASIC, "Asic_Initialize: Enter\n");
-
-  DBG (DBG_ASIC, "isFirstOpenChip=%d, setting to SANE_TRUE\n",
-       chip->isFirstOpenChip);
-  chip->isFirstOpenChip = SANE_TRUE;
-
-  chip->UsbHost = HT_USB10;
-  chip->dwBytesCountPerRow = 0;
-  chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
-  chip->lpShadingTable = NULL;
-
-  Asic_ResetADParameters (chip, LS_REFLECTIVE);
-  InitTiming (chip);
-
-  chip->firmwarestate = FS_ATTACHED;
-
-  DBG (DBG_ASIC, "Asic_Initialize: Exit\n");
-}
-
-static STATUS
 Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 		unsigned short wXResolution, unsigned short wYResolution,
 		unsigned short wX, unsigned short wY,
 		unsigned short wWidth, unsigned short wLength)
 {
   STATUS status;
-
   unsigned short ValidPixelNumber;
-  unsigned short BytePerPixel;
   unsigned short wThinkCCDResolution;
   unsigned short wCCD_PixelNumber;
   unsigned short XRatioTypeWord;
   double XRatioTypeDouble;
   double XRatioAdderDouble;
-
   LLF_MOTORMOVE lpMotorStepsTable;
   SANE_Byte bDummyCycleNum;
-  unsigned short wMultiMotorStep = 1;
-  SANE_Byte bMotorMoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
+  unsigned short wMultiMotorStep;
+  SANE_Byte bMotorMoveType;
   unsigned int dwLinePixelReport;
-  unsigned short StartSpeed, EndSpeed;
+  unsigned int StartSpeed, EndSpeed;
   LLF_CALCULATEMOTORTABLE CalMotorTable;
   LLF_MOTOR_CURRENT_AND_PHASE CurrentPhase;
-  LLF_RAMACCESS RamAccess;
-  unsigned int dwTableBaseAddr, dwShadingTableAddr, dwEndAddr;
-  SANE_Byte isMotorMove = MOTOR_0_ENABLE;
-  SANE_Byte isMotorMoveToFirstLine = chip->isMotorMoveToFirstLine;
-  SANE_Byte isUniformSpeedToScan = 0;
-  SANE_Byte isScanBackTracking = SCAN_BACK_TRACKING_ENABLE;
+  unsigned int dwTableBaseAddr, dwEndAddr;
+  SANE_Byte isMotorMove;
+  SANE_Byte isMotorMoveToFirstLine;
+  SANE_Byte isUniformSpeedToScan;
+  SANE_Byte isScanBackTracking;
   unsigned short * lpMotorTable;
   unsigned int RealTableSize;
-  double dbXRatioAdderDouble;
   unsigned short wFullBank;
 
   DBG (DBG_ASIC, "Asic_SetWindow: Enter\n");
@@ -2066,15 +2086,9 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
       return STATUS_INVAL;
     }
 
-  Mustek_SendData (chip, ES01_F3_ActionOption, 0);
-  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
-
-  status = Asic_WaitUnitReady (chip);
+  status = PrepareScanChip (chip);
   if (status != STATUS_GOOD)
     return status;
-
-  Mustek_SendData (chip, ES01_1CD_DUMMY_CLOCK_NUMBER, 0);
 
   /* LED flash */
   Mustek_SendData (chip, ES01_94_PowerSaveControl,
@@ -2084,32 +2098,16 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 
   /* calculate byte per line */
   if (bScanBits > 24)
-    {
-      BytePerPixel = 6;
-      chip->dwBytesCountPerRow = (unsigned int) wWidth * 6;
-    }
+    chip->dwBytesCountPerRow = (unsigned int) wWidth * 6;
   else if (bScanBits == 24)
-    {
-      BytePerPixel = 3;
-      chip->dwBytesCountPerRow = (unsigned int) wWidth * 3;
-    }
+    chip->dwBytesCountPerRow = (unsigned int) wWidth * 3;
   else if ((bScanBits > 8) && (bScanBits <= 16))
-    {
-      BytePerPixel = 2;
-      chip->dwBytesCountPerRow = (unsigned int) wWidth * 2;
-    }
+    chip->dwBytesCountPerRow = (unsigned int) wWidth * 2;
   else if (bScanBits == 8)
-    {
-      BytePerPixel = 1;
-      chip->dwBytesCountPerRow = (unsigned int) wWidth;
-    }
+    chip->dwBytesCountPerRow = (unsigned int) wWidth;
   else	/* bScanBits < 8 */
-    {
-      BytePerPixel = 1;
-      chip->dwBytesCountPerRow = (unsigned int) wWidth;
-    }
-  DBG (DBG_ASIC, "BytePerPixel=%d,dwBytesCountPerRow=%d\n", BytePerPixel,
-       chip->dwBytesCountPerRow);
+    chip->dwBytesCountPerRow = (unsigned int) wWidth;
+  DBG (DBG_ASIC, "dwBytesCountPerRow=%d\n", chip->dwBytesCountPerRow);
 
   bDummyCycleNum = 0;
   if (bScanType == SCAN_TYPE_NORMAL)
@@ -2181,40 +2179,30 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
       bDummyCycleNum = 1;
     }
 
-  CCDTiming (chip);
+  SetCCDTiming (chip);
+
+  if (wXResolution > (SENSOR_DPI / 2))
+    {
+      wThinkCCDResolution = SENSOR_DPI;
+      Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
+      Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x01);
+    }
+  else
+    {
+      wThinkCCDResolution = SENSOR_DPI / 2;
+      Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
+      Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x00);
+    }
 
   if (chip->lsLightSource == LS_REFLECTIVE)
     {
       if (wXResolution > (SENSOR_DPI / 2))
-	{
-	  wThinkCCDResolution = SENSOR_DPI;
-	  Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
-	  Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x01);
-	  wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Full;
-	}
+        wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Full;
       else
-	{
-	  wThinkCCDResolution = SENSOR_DPI / 2;
-	  Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
-	  Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x00);
-	  wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Half;
-	}
+        wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Half;
     }
   else
     {
-      if (wXResolution > (SENSOR_DPI / 2))
-	{
-	  wThinkCCDResolution = SENSOR_DPI;
-	  Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
-	  Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x01);
-	}
-      else
-	{
-	  wThinkCCDResolution = SENSOR_DPI / 2;
-	  Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
-	  Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x00);
-	}
-
       if (bScanType == SCAN_TYPE_NORMAL)
 	wCCD_PixelNumber = TA_IMAGE_PIXELNUMBER;
       else
@@ -2222,34 +2210,28 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
     }
 
   SetLineTimeAndExposure (chip);
-  if ((bScanType == SCAN_TYPE_NORMAL) || (wYResolution == (SENSOR_DPI / 2)))
-    Mustek_SendData (chip, ES01_CB_CCDDummyCycleNumber, bDummyCycleNum);
+  Mustek_SendData (chip, ES01_CB_CCDDummyCycleNumber, bDummyCycleNum);
   SetLEDTime (chip);
 
-  /* SetADConverter */
   Mustek_SendData (chip, ES01_74_HARDWARE_SETTING,
 		   MOTOR1_SERIAL_INTERFACE_G10_8_ENABLE);
 
-  /* set AFE */
   Mustek_SendData (chip, ES01_9A_AFEControl, AD9826_AFE);
   if (bScanType == SCAN_TYPE_NORMAL)
-    {
-      status = SetAFEGainOffset (chip);
-      if (status != STATUS_GOOD)
-	return status;
-    }
+    SetAFEGainOffset (chip);
+  Mustek_SendData (chip, ES01_DB_PH_RESET_EDGE_TIMING_ADJUST, 0x00);
+  Mustek_SendData (chip, ES01_DC_CLEAR_EDGE_TO_PH_TG_EDGE_WIDTH, 0);
+  Mustek_SendData (chip, ES01_00_ADAFEConfiguration, 0x70);
+  Mustek_SendData (chip, ES01_02_ADAFEMuxConfig, 0x80);
 
   Mustek_SendData (chip, ES01_F7_DigitalControl, 0);
 
   /* calculate X ratio */
-  XRatioTypeDouble = wXResolution;
-  XRatioTypeDouble /= wThinkCCDResolution;
-  XRatioTypeWord = (unsigned short) (XRatioTypeDouble * 32768);	/* x 2^15 */
+  XRatioTypeDouble = (double) wXResolution / wThinkCCDResolution;
+  XRatioTypeWord = (unsigned short) (XRatioTypeDouble * 32768);
+  XRatioAdderDouble = 1 / XRatioTypeDouble;
 
-  XRatioAdderDouble = (double) (XRatioTypeWord) / 32768;
-  XRatioAdderDouble = 1 / XRatioAdderDouble;
-
-  /* 0x8000 = 1.00000 -> get all pixel */
+  /* 32768 = 1.00000 -> get all pixel */
   Mustek_SendData (chip, ES01_9E_HorizontalRatio1to15LSB,
 		   LOBYTE (XRatioTypeWord));
   Mustek_SendData (chip, ES01_9F_HorizontalRatio1to15MSB,
@@ -2261,18 +2243,21 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
   /* set motor type */
   if (bScanType == SCAN_TYPE_CALIBRATE_DARK)
     isMotorMove = 0;
+  else
+    isMotorMove = MOTOR_0_ENABLE;
   Mustek_SendData (chip, ES01_A6_MotorOption,
 		   isMotorMove | HOME_SENSOR_0_ENABLE | TABLE_DEFINE_ES03);
-
   Mustek_SendData (chip, ES01_F6_MotorControl1,
 		   SPEED_UNIT_1_PIXEL_TIME | MOTOR_SYNC_UNIT_1_PIXEL_TIME);
 
-  /* set motor movement type */
   if ((bScanType == SCAN_TYPE_NORMAL) && (wYResolution >= SENSOR_DPI))
     bMotorMoveType = _8_TABLE_SPACE_FOR_1_DIV_2_STEP;
+  else
+    bMotorMoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
 
   switch (bMotorMoveType)
     {
+    default:
     case _4_TABLE_SPACE_FOR_FULL_STEP:
       wMultiMotorStep = 1;
       break;
@@ -2290,8 +2275,6 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 
   SetScanMode (chip, bScanBits);
 
-
-  /* set white shading int and dec */
   if (chip->lsLightSource == LS_REFLECTIVE)
     Mustek_SendData (chip, ES01_F8_WHITE_SHADING_DATA_FORMAT,
 		     SHADING_3_INT_13_DEC_ES01);
@@ -2301,8 +2284,8 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 
   SetPackAddress (chip, wWidth, wX, XRatioAdderDouble,
 		  XRatioTypeDouble, 0, &ValidPixelNumber);
-  SetExtraSetting (chip, wXResolution, wCCD_PixelNumber,
-		   (bScanType == SCAN_TYPE_NORMAL) ? SANE_FALSE : SANE_TRUE);
+  SetExtraSettings (chip, wXResolution, wCCD_PixelNumber,
+		    (bScanType == SCAN_TYPE_NORMAL) ? SANE_FALSE : SANE_TRUE);
 
   if (bScanType == SCAN_TYPE_NORMAL)
     {
@@ -2321,12 +2304,17 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 		       (chip->Timing.PHTG_WaitWidth + 1) +
 		       (wCCD_PixelNumber + 1)) * (bDummyCycleNum + 1);
 
-  EndSpeed = (unsigned short) ((dwLinePixelReport * wYResolution / SENSOR_DPI) /
-			       wMultiMotorStep);
+  EndSpeed = (dwLinePixelReport * wYResolution / SENSOR_DPI) / wMultiMotorStep;
   DBG (DBG_ASIC, "Motor Time = %d\n", EndSpeed);
-  if (EndSpeed > 64000)
-    DBG (DBG_ASIC, "Motor Time overflow!\n");
+  if (EndSpeed > 0xffff)
+    {
+      DBG (DBG_ASIC, "Motor Time overflow!\n");
+      return STATUS_INVAL;
+    }
 
+  isMotorMoveToFirstLine = chip->isMotorMoveToFirstLine;
+  isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
+  isScanBackTracking = 0;
   if (bScanType == SCAN_TYPE_NORMAL)
     {
       if (EndSpeed >= 20000)
@@ -2335,54 +2323,40 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 	  if (status != STATUS_GOOD)
 	    return status;
 
-	  isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
-	  isScanBackTracking = 0;
 	  isMotorMoveToFirstLine = 0;
 	}
+      else
+	{
+	  isUniformSpeedToScan = 0;
+	  isScanBackTracking = SCAN_BACK_TRACKING_ENABLE;
+	}
     }
-  else
-    {
-      isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
-      isScanBackTracking = 0;
-    }
-
   Mustek_SendData (chip, ES01_F3_ActionOption, isMotorMoveToFirstLine |
 		   SCAN_ENABLE | isScanBackTracking | isUniformSpeedToScan);
 
-  if (bScanType == SCAN_TYPE_NORMAL)
+  if (EndSpeed > 8000)
     {
-      if (EndSpeed > 8000)
-	{
-	  StartSpeed = EndSpeed;
-	}
-      else
-	{
-	  if (EndSpeed <= 1000)
-	    StartSpeed = EndSpeed + 4500;
-	  else
-	    StartSpeed = EndSpeed + 3500;
-	}
+      StartSpeed = EndSpeed;
     }
   else
     {
-      /* TODO: this is equivalent to the above, except in TA mode */
-      if (wXResolution > (SENSOR_DPI / 2))
-	StartSpeed = EndSpeed;
+      if (EndSpeed <= 1000)
+        StartSpeed = EndSpeed + 4500;
       else
-	StartSpeed = EndSpeed + 3500;
+        StartSpeed = EndSpeed + 3500;
     }
   DBG (DBG_ASIC, "StartSpeed=%d, EndSpeed=%d\n", StartSpeed, EndSpeed);
 
   Mustek_SendData (chip, ES01_FD_MotorFixedspeedLSB, LOBYTE (EndSpeed));
   Mustek_SendData (chip, ES01_FE_MotorFixedspeedMSB, HIBYTE (EndSpeed));
 
-  lpMotorTable = malloc (512 * 8 * 2);
+  lpMotorTable = malloc (MOTOR_TABLE_SIZE * sizeof (unsigned short));
   if (!lpMotorTable)
     {
       DBG (DBG_ERR, "Asic_SetWindow: lpMotorTable == NULL\n");
       return STATUS_MEM_ERROR;
     }
-  memset (lpMotorTable, 0, 512 * 8 * sizeof (unsigned short));
+  memset (lpMotorTable, 0, MOTOR_TABLE_SIZE * sizeof (unsigned short));
 
   CalMotorTable.StartSpeed = StartSpeed;
   CalMotorTable.EndSpeed = EndSpeed;
@@ -2406,57 +2380,31 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
        CurrentPhase.MotorCurrent, dwLinePixelReport);
 
   /* write motor table */
-  RealTableSize = 512 * 8;
+  RealTableSize = MOTOR_TABLE_SIZE;
   dwTableBaseAddr = PackAreaStartAddress - RealTableSize;
-
-  RamAccess.ReadWrite = WRITE_RAM;
-  RamAccess.IsOnChipGamma = EXTERNAL_RAM;
-  RamAccess.StartAddress = dwTableBaseAddr;
-  RamAccess.RwSize = RealTableSize * 2;
-  RamAccess.BufferPtr = (SANE_Byte *) lpMotorTable;
-  status = LLFRamAccess (chip, &RamAccess);
+  status = LLFSetMotorTable (chip, dwTableBaseAddr, lpMotorTable);
   free (lpMotorTable);
   if (status != STATUS_GOOD)
     return status;
 
-  Mustek_SendData (chip, ES01_9D_MotorTableAddrA14_A21,
-		   (SANE_Byte) (dwTableBaseAddr >> TABLE_OFFSET_BASE));
-
-
   if (bScanType == SCAN_TYPE_NORMAL)
     {
       /* set image buffer range and write shading table */
-      RealTableSize = (ACC_DEC_STEP_TABLE_SIZE * NUM_OF_ACC_DEC_STEP_TABLE) +
-		      ShadingTableSize (ValidPixelNumber);
-      dwShadingTableAddr = PackAreaStartAddress -
-			   (((RealTableSize + (TABLE_BASE_SIZE - 1))
-			     >> TABLE_OFFSET_BASE) << TABLE_OFFSET_BASE);
-      dwEndAddr = dwShadingTableAddr - 1;
+      RealTableSize += ShadingTableSize (ValidPixelNumber);
+      dwTableBaseAddr = PackAreaStartAddress -
+			((RealTableSize + (TABLE_BASE_SIZE - 1)) &
+			 ~(TABLE_BASE_SIZE - 1));
 
-      if (wXResolution > (SENSOR_DPI / 2))
-	dbXRatioAdderDouble = SENSOR_DPI / wXResolution;
-      else
-	dbXRatioAdderDouble = (SENSOR_DPI / 2) / wXResolution;
-
-      RamAccess.ReadWrite = WRITE_RAM;
-      RamAccess.IsOnChipGamma = EXTERNAL_RAM;
-      RamAccess.StartAddress = dwShadingTableAddr;
-      RamAccess.RwSize =
-	ShadingTableSize ((int) ((wWidth + 4) * dbXRatioAdderDouble)) *
-	sizeof (unsigned short);
-      RamAccess.BufferPtr = (SANE_Byte *) chip->lpShadingTable;
-      status = LLFRamAccess (chip, &RamAccess);
+      /* TODO: table size should be stored in Asic structure */
+      RealTableSize = sizeof (unsigned short) *
+	ShadingTableSize ((int) ((wWidth + 4) * XRatioAdderDouble));
+      status = LLFSetShadingTable (chip, dwTableBaseAddr, RealTableSize,
+				   chip->lpShadingTable);
       if (status != STATUS_GOOD)
 	return status;
+    }
 
-      /* tell scan chip the shading table address, unit is 2^15 bytes */
-      Mustek_SendData (chip, ES01_9B_ShadingTableAddrA14_A21,
-		       (SANE_Byte) (dwShadingTableAddr >> TABLE_OFFSET_BASE));
-    }
-  else
-    {
-      dwEndAddr = PackAreaStartAddress - RealTableSize - 1;
-    }
+  dwEndAddr = dwTableBaseAddr - 1;
 
   /* empty bank */
   Mustek_SendData (chip, ES01_FB_BufferEmptySize16WordLSB,
@@ -2466,18 +2414,11 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 
   /* full bank */
   wFullBank = (unsigned short)
-  	      ((dwEndAddr - (((wWidth * BytePerPixel) / 2) * 3)) / BANK_SIZE);
+  	      ((dwEndAddr - ((chip->dwBytesCountPerRow / 2) * 3)) / BANK_SIZE);
   Mustek_SendData (chip, ES01_F9_BufferFullSize16WordLSB, LOBYTE (wFullBank));
   Mustek_SendData (chip, ES01_FA_BufferFullSize16WordMSB, HIBYTE (wFullBank));
 
-  Mustek_SendData (chip, ES01_DB_PH_RESET_EDGE_TIMING_ADJUST, 0x00);
-
   status = LLFSetRamAddress (chip, 0, dwEndAddr, EXTERNAL_RAM);
-
-  Mustek_SendData (chip, ES01_DC_CLEAR_EDGE_TO_PH_TG_EDGE_WIDTH, 0);
-
-  Mustek_SendData (chip, ES01_00_ADAFEConfiguration, 0x70);
-  Mustek_SendData (chip, ES01_02_ADAFEMuxConfig, 0x80);
 
   DBG (DBG_ASIC, "Asic_SetWindow: Exit\n");
   return status;
@@ -2579,9 +2520,9 @@ Asic_ScanStop (PAsic chip)
       return status;
     }
 
-  Mustek_SendData (chip, ES01_F3_ActionOption, 0);
-  Mustek_SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
-  Mustek_SendData (chip, ES01_F4_ActiveTrigger, 0);
+  status = PrepareScanChip (chip);
+  if (status != STATUS_GOOD)
+    return status;
 
   status = Mustek_ClearFIFO (chip);
   if (status != STATUS_GOOD)
@@ -2608,9 +2549,6 @@ Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer, unsigned short LinesCount)
     }
 
   dwXferBytes = (unsigned int) LinesCount * chip->dwBytesCountPerRow;
-  DBG (DBG_ASIC, "Asic_ReadImage: chip->dwBytesCountPerRow = %d\n",
-       chip->dwBytesCountPerRow);
-
   if (dwXferBytes == 0)
     {
       DBG (DBG_ASIC, "Asic_ReadImage: dwXferBytes == 0\n");
@@ -2788,7 +2726,7 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
       return STATUS_INVAL;
     }
 
-  NormalMoveMotorTable = malloc (512 * 8 * 2);
+  NormalMoveMotorTable = malloc (MOTOR_TABLE_SIZE * sizeof (unsigned short));
   if (!NormalMoveMotorTable)
     {
       DBG (DBG_ASIC, "NormalMoveMotorTable == NULL\n");
@@ -2806,7 +2744,7 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
   CurrentPhase.MotorCurrent = 200;
   LLFSetMotorCurrentAndPhase (chip, &CurrentPhase);
 
-  status = LLFSetMotorTable (chip, NormalMoveMotorTable);
+  status = LLFSetMotorTable (chip, 0x3000, NormalMoveMotorTable);
   free (NormalMoveMotorTable);
   if (status != STATUS_GOOD)
     return status;

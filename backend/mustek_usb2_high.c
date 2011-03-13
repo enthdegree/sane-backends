@@ -231,13 +231,6 @@ MustScanner_BackHome (void)
       return FALSE;
     }
 
-  if (STATUS_GOOD != Asic_WaitUnitReady (&g_chip))
-    {
-      DBG (DBG_FUNC,
-	   "MustScanner_BackHome: Asic_WaitUnitReady return error\n");
-      return FALSE;
-    }
-
   Asic_Close (&g_chip);
 
   DBG (DBG_FUNC, "MustScanner_BackHome: leave  MustScanner_BackHome\n");
@@ -252,12 +245,6 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
   if (STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_Prepare: Asic_Open return error\n");
-      return FALSE;
-    }
-  if (STATUS_GOOD != Asic_WaitUnitReady (&g_chip))
-    {
-      DBG (DBG_FUNC,
-	   "MustScanner_Prepare: Asic_WaitUnitReady return error\n");
       return FALSE;
     }
 

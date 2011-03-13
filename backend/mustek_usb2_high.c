@@ -113,7 +113,7 @@ static pthread_mutex_t g_readyLinesMutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* for modifying the last point */
 static SANE_Byte * g_lpBefLineImageData = NULL;
-static SANE_Bool g_bIsFirstReadBefData = TRUE;
+static SANE_Bool g_bIsFirstReadBefData = SANE_TRUE;
 static unsigned int g_dwAlreadyGetLines = 0;
 
 static SANE_Byte QBET4 (SANE_Byte A, SANE_Byte B);
@@ -144,13 +144,13 @@ MustScanner_Init (void)
   g_dwCalibrationSize = 64L * 1024L;
   g_lpReadImageHead = NULL;
 
-  g_isCanceled = FALSE;
-  g_bFirstReadImage = TRUE;
-  g_bOpened = FALSE;
-  g_bPrepared = FALSE;
+  g_isCanceled = SANE_FALSE;
+  g_bFirstReadImage = SANE_TRUE;
+  g_bOpened = SANE_FALSE;
+  g_bPrepared = SANE_FALSE;
 
-  g_isScanning = FALSE;
-  g_isSelfGamma = FALSE;
+  g_isScanning = SANE_FALSE;
+  g_isSelfGamma = SANE_FALSE;
   g_pGammaTable = NULL;
 
   g_ssScanSource = SS_Reflective;
@@ -161,14 +161,14 @@ MustScanner_Init (void)
 static SANE_Bool
 MustScanner_GetScannerState (void)
 {
-  if (STATUS_GOOD != Asic_Open (&g_chip))
+  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_GetScannerState: Asic_Open return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   Asic_Close (&g_chip);
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -176,33 +176,33 @@ MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 {
   SANE_Bool hasTA;
   DBG (DBG_FUNC, "MustScanner_PowerControl: Call in\n");
-  if (STATUS_GOOD != Asic_Open (&g_chip))
+  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_PowerControl: Asic_Open return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  if (STATUS_GOOD != Asic_TurnLamp (&g_chip, isLampOn))
+  if (SANE_STATUS_GOOD != Asic_TurnLamp (&g_chip, isLampOn))
     {
       DBG (DBG_FUNC,
 	   "MustScanner_PowerControl: Asic_TurnLamp return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  if (STATUS_GOOD != Asic_IsTAConnected (&g_chip, &hasTA))
+  if (SANE_STATUS_GOOD != Asic_IsTAConnected (&g_chip, &hasTA))
     {
       DBG (DBG_FUNC,
 	   "MustScanner_PowerControl: Asic_IsTAConnected return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   if (hasTA)
     {
-      if (STATUS_GOOD != Asic_TurnTA (&g_chip, isTALampOn))
+      if (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, isTALampOn))
 	{
 	  DBG (DBG_FUNC,
 	       "MustScanner_PowerControl: Asic_TurnTA return error\n");
-	  return FALSE;
+	  return SANE_FALSE;
 	}
     }
 
@@ -210,7 +210,7 @@ MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 
   DBG (DBG_FUNC,
        "MustScanner_PowerControl: leave MustScanner_PowerControl\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -218,23 +218,23 @@ MustScanner_BackHome (void)
 {
   DBG (DBG_FUNC, "MustScanner_BackHome: call in\n");
 
-  if (STATUS_GOOD != Asic_Open (&g_chip))
+  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_BackHome: Asic_Open return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  if (STATUS_GOOD != Asic_CarriageHome (&g_chip))
+  if (SANE_STATUS_GOOD != Asic_CarriageHome (&g_chip))
     {
       DBG (DBG_FUNC,
 	   "MustScanner_BackHome: Asic_CarriageHome return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   Asic_Close (&g_chip);
 
   DBG (DBG_FUNC, "MustScanner_BackHome: leave  MustScanner_BackHome\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -242,19 +242,19 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
 {
   DBG (DBG_FUNC, "MustScanner_Prepare: call in\n");
 
-  if (STATUS_GOOD != Asic_Open (&g_chip))
+  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_Prepare: Asic_Open return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   if (SS_Reflective == ssScanSource)
     {
       DBG (DBG_FUNC, "MustScanner_Prepare:ScanSource is SS_Reflective\n");
-      if (STATUS_GOOD != Asic_TurnLamp (&g_chip, TRUE))
+      if (SANE_STATUS_GOOD != Asic_TurnLamp (&g_chip, SANE_TRUE))
 	{
 	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnLamp return error\n");
-	  return FALSE;
+	  return SANE_FALSE;
 	}
 
       g_chip.lsLightSource = LS_REFLECTIVE;
@@ -262,10 +262,10 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
   else if (SS_Positive == ssScanSource)
     {
       DBG (DBG_FUNC, "MustScanner_Prepare:ScanSource is SS_Positive\n");
-      if (STATUS_GOOD != Asic_TurnTA (&g_chip, TRUE))
+      if (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, SANE_TRUE))
 	{
 	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnTA return error\n");
-	  return FALSE;
+	  return SANE_FALSE;
 	}
 
       g_chip.lsLightSource = LS_POSITIVE;
@@ -273,20 +273,20 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
   else if (SS_Negative == ssScanSource)
     {
       DBG (DBG_FUNC, "MustScanner_Prepare:ScanSource is SS_Negative\n");
-      if (STATUS_GOOD != Asic_TurnTA (&g_chip, TRUE))
+      if (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, SANE_TRUE))
 	{
 	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnTA return error\n");
-	  return FALSE;
+	  return SANE_FALSE;
 	}
 
       g_chip.lsLightSource = LS_NEGATIVE;
     }
 
   Asic_Close (&g_chip);
-  g_bPrepared = TRUE;
+  g_bPrepared = SANE_TRUE;
 
   DBG (DBG_FUNC, "MustScanner_Prepare: leave MustScanner_Prepare\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static unsigned short
@@ -333,8 +333,8 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
   DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: call in\n");
 
-  g_isCanceled = FALSE;
-  g_isScanning = TRUE;
+  g_isCanceled = SANE_FALSE;
+  g_isScanning = SANE_TRUE;
   wWantedTotalLines = *wLinesCount;
   TotalXferLines = 0;
 
@@ -343,7 +343,7 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
       pthread_create (&g_threadid_readimage, NULL,
 		      MustScanner_ReadDataFromScanner, NULL);
       DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: thread create\n");
-      g_bFirstReadImage = FALSE;
+      g_bFirstReadImage = SANE_FALSE;
     }
 
   if (!isOrderInvert)
@@ -357,8 +357,8 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: thread exit\n");
 
 	      *wLinesCount = TotalXferLines;
-	      g_isScanning = FALSE;
-	      return TRUE;
+	      g_isScanning = SANE_FALSE;
+	      return SANE_TRUE;
 	    }
 
 	  if (GetScannedLines () > g_wtheReadyLines)
@@ -429,8 +429,8 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
 
 	      *wLinesCount = TotalXferLines;
-	      g_isScanning = FALSE;
-	      return TRUE;
+	      g_isScanning = SANE_FALSE;
+	      return SANE_TRUE;
 	    }
 
 	  if (GetScannedLines () > g_wtheReadyLines)
@@ -491,11 +491,11 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
     }
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = FALSE;
+  g_isScanning = SANE_FALSE;
 
   DBG (DBG_FUNC,
        "MustScanner_GetRgb48BitLine: leave MustScanner_GetRgb48BitLine\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -522,15 +522,15 @@ MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   TotalXferLines = 0;
   wWantedTotalLines = *wLinesCount;
 
-  g_isCanceled = FALSE;
-  g_isScanning = TRUE;
+  g_isCanceled = SANE_FALSE;
+  g_isScanning = SANE_TRUE;
 
   if (g_bFirstReadImage)
     {
       pthread_create (&g_threadid_readimage, NULL,
 		      MustScanner_ReadDataFromScanner, NULL);
       DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine1200DPI: thread create\n");
-      g_bFirstReadImage = FALSE;
+      g_bFirstReadImage = SANE_FALSE;
     }
 
   if (!isOrderInvert)
@@ -545,8 +545,8 @@ MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		   "MustScanner_GetRgb48BitLine1200DPI: thread exit\n");
 
 	      *wLinesCount = TotalXferLines;
-	      g_isScanning = FALSE;
-	      return TRUE;
+	      g_isScanning = SANE_FALSE;
+	      return SANE_TRUE;
 	    }
 
 	  if (GetScannedLines () > g_wtheReadyLines)
@@ -739,8 +739,8 @@ MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		   "MustScanner_GetRgb48BitLine1200DPI: thread exit\n");
 
 	      *wLinesCount = TotalXferLines;
-	      g_isScanning = FALSE;
-	      return TRUE;
+	      g_isScanning = SANE_FALSE;
+	      return SANE_TRUE;
 	    }
 
 	  if (GetScannedLines () > g_wtheReadyLines)
@@ -921,11 +921,11 @@ MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
     }
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = FALSE;
+  g_isScanning = SANE_FALSE;
 
   DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine1200DPI: " \
                  "leave MustScanner_GetRgb48BitLine1200DPI\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -947,8 +947,8 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
   DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: call in\n");
 
-  g_isCanceled = FALSE;
-  g_isScanning = TRUE;
+  g_isCanceled = SANE_FALSE;
+  g_isScanning = SANE_TRUE;
 
   wWantedTotalLines = *wLinesCount;
   DBG (DBG_FUNC,
@@ -963,7 +963,7 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		      MustScanner_ReadDataFromScanner, NULL);
       DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: thread create\n");
 
-      g_bFirstReadImage = FALSE;
+      g_bFirstReadImage = SANE_FALSE;
     }
 
   if (!isOrderInvert)
@@ -979,8 +979,8 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: thread exit\n");
 
 	      *wLinesCount = TotalXferLines;
-	      g_isScanning = FALSE;
-	      return TRUE;
+	      g_isScanning = SANE_FALSE;
+	      return SANE_TRUE;
 	    }
 
 	  if (GetScannedLines () > g_wtheReadyLines)
@@ -1061,7 +1061,7 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
     }
   else
     {
-      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: isOrderInvert is TRUE\n");
+      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: isOrderInvert is SANE_TRUE\n");
       while (TotalXferLines < wWantedTotalLines)
 	{
 	  if (g_dwTotalTotalXferLines >= g_SWHeight)
@@ -1071,8 +1071,8 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: thread exit\n");
 
 	      *wLinesCount = TotalXferLines;
-	      g_isScanning = FALSE;
-	      return TRUE;
+	      g_isScanning = SANE_FALSE;
+	      return SANE_TRUE;
 	    }
 
 	  if (GetScannedLines () > g_wtheReadyLines)
@@ -1164,11 +1164,11 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
     }
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = FALSE;
+  g_isScanning = SANE_FALSE;
 
   DBG (DBG_FUNC,
        "MustScanner_GetRgb24BitLine: leave MustScanner_GetRgb24BitLine\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -1192,8 +1192,8 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
   DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: call in\n");
 
-  g_isCanceled = FALSE;
-  g_isScanning = TRUE;
+  g_isCanceled = SANE_FALSE;
+  g_isScanning = SANE_TRUE;
   TotalXferLines = 0;
   wWantedTotalLines = *wLinesCount;
   lpTemp = lpLine;
@@ -1204,7 +1204,7 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		      MustScanner_ReadDataFromScanner, NULL);
       DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: thread create\n");
 
-      g_bFirstReadImage = FALSE;
+      g_bFirstReadImage = SANE_FALSE;
     }
 
   if (!isOrderInvert)
@@ -1226,8 +1226,8 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		   "MustScanner_GetRgb24BitLine1200DPI: thread exit\n");
 
 	      *wLinesCount = TotalXferLines;
-	      g_isScanning = FALSE;
-	      return TRUE;
+	      g_isScanning = SANE_FALSE;
+	      return SANE_TRUE;
 	    }
 
 	  if (GetScannedLines () > g_wtheReadyLines)
@@ -1414,8 +1414,8 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		   "MustScanner_GetRgb24BitLine1200DPI: thread exit\n");
 
 	      *wLinesCount = TotalXferLines;
-	      g_isScanning = FALSE;
-	      return TRUE;
+	      g_isScanning = SANE_FALSE;
+	      return SANE_TRUE;
 	    }
 
 	  if (GetScannedLines () > g_wtheReadyLines)
@@ -1583,11 +1583,11 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
     }
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = FALSE;
+  g_isScanning = SANE_FALSE;
 
   DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
     "leave MustScanner_GetRgb24BitLine1200DPI\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -1603,8 +1603,8 @@ MustScanner_GetMono16BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
   DBG (DBG_FUNC, "MustScanner_GetMono16BitLine: call in\n");
 
   TotalXferLines = 0;
-  g_isCanceled = FALSE;
-  g_isScanning = TRUE;
+  g_isCanceled = SANE_FALSE;
+  g_isScanning = SANE_TRUE;
   wWantedTotalLines = *wLinesCount;
 
   if (g_bFirstReadImage)
@@ -1612,7 +1612,7 @@ MustScanner_GetMono16BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
       pthread_create (&g_threadid_readimage, NULL,
 		      MustScanner_ReadDataFromScanner, NULL);
       DBG (DBG_FUNC, "MustScanner_GetMono16BitLine: thread create\n");
-      g_bFirstReadImage = FALSE;
+      g_bFirstReadImage = SANE_FALSE;
     }
 
   while (TotalXferLines < wWantedTotalLines)
@@ -1625,8 +1625,8 @@ MustScanner_GetMono16BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 	  DBG (DBG_FUNC, "MustScanner_GetMono16BitLine: thread exit\n");
 
 	  *wLinesCount = TotalXferLines;
-	  g_isScanning = FALSE;
-	  return TRUE;
+	  g_isScanning = SANE_FALSE;
+	  return SANE_TRUE;
 	}
 
       if (GetScannedLines () > g_wtheReadyLines)
@@ -1660,11 +1660,11 @@ MustScanner_GetMono16BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
     }
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = FALSE;
+  g_isScanning = SANE_FALSE;
 
   DBG (DBG_FUNC,
        "MustScanner_GetMono16BitLine: leave MustScanner_GetMono16BitLine\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -1682,8 +1682,8 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
   DBG (DBG_FUNC, "MustScanner_GetMono16BitLine1200DPI: call in\n");
 
   TotalXferLines = 0;
-  g_isCanceled = FALSE;
-  g_isScanning = TRUE;
+  g_isCanceled = SANE_FALSE;
+  g_isScanning = SANE_TRUE;
   wWantedTotalLines = *wLinesCount;
 
   if (g_bFirstReadImage)
@@ -1691,7 +1691,7 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
       pthread_create (&g_threadid_readimage, NULL,
 		      MustScanner_ReadDataFromScanner, NULL);
       DBG (DBG_FUNC, "MustScanner_GetMono16BitLine1200DPI: thread create\n");
-      g_bFirstReadImage = FALSE;
+      g_bFirstReadImage = SANE_FALSE;
     }
 
   while (TotalXferLines < wWantedTotalLines)
@@ -1704,8 +1704,8 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
 	       "MustScanner_GetMono16BitLine1200DPI: thread exit\n");
 
 	  *wLinesCount = TotalXferLines;
-	  g_isScanning = FALSE;
-	  return TRUE;
+	  g_isScanning = SANE_FALSE;
+	  return SANE_TRUE;
 	}
 
       if (GetScannedLines () > g_wtheReadyLines)
@@ -1795,7 +1795,7 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
     }
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = FALSE;
+  g_isScanning = SANE_FALSE;
 
   /* modify the last point */
   if (g_bIsFirstReadBefData)
@@ -1803,11 +1803,11 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
       g_lpBefLineImageData = malloc (g_SWBytesPerRow);
       if (NULL == g_lpBefLineImageData)
 	{
-	  return FALSE;
+	  return SANE_FALSE;
 	}
       memset (g_lpBefLineImageData, 0, g_SWBytesPerRow);
       memcpy (g_lpBefLineImageData, lpTemp, g_SWBytesPerRow);
-      g_bIsFirstReadBefData = FALSE;
+      g_bIsFirstReadBefData = SANE_FALSE;
     }
 
   ModifyLinePoint (lpTemp, g_lpBefLineImageData, g_SWBytesPerRow,
@@ -1824,12 +1824,12 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
       free (g_lpBefLineImageData);
       g_lpBefLineImageData = NULL;
       g_dwAlreadyGetLines = 0;
-      g_bIsFirstReadBefData = TRUE;
+      g_bIsFirstReadBefData = SANE_TRUE;
     }
 
   DBG (DBG_FUNC, "MustScanner_GetMono16BitLine1200DPI: " \
     "leave MustScanner_GetMono16BitLine1200DPI\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -1844,8 +1844,8 @@ MustScanner_GetMono8BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
   DBG (DBG_FUNC, "MustScanner_GetMono8BitLine: call in\n");
 
   TotalXferLines = 0;
-  g_isCanceled = FALSE;
-  g_isScanning = TRUE;
+  g_isCanceled = SANE_FALSE;
+  g_isScanning = SANE_TRUE;
   wWantedTotalLines = *wLinesCount;
 
   if (g_bFirstReadImage)
@@ -1853,7 +1853,7 @@ MustScanner_GetMono8BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
       pthread_create (&g_threadid_readimage, NULL,
 		      MustScanner_ReadDataFromScanner, NULL);
       DBG (DBG_FUNC, "MustScanner_GetMono8BitLine: thread create\n");
-      g_bFirstReadImage = FALSE;
+      g_bFirstReadImage = SANE_FALSE;
     }
 
   while (TotalXferLines < wWantedTotalLines)
@@ -1865,8 +1865,8 @@ MustScanner_GetMono8BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 	  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine: thread exit\n");
 
 	  *wLinesCount = TotalXferLines;
-	  g_isScanning = FALSE;
-	  return TRUE;
+	  g_isScanning = SANE_FALSE;
+	  return SANE_TRUE;
 	}
 
       if (GetScannedLines () > g_wtheReadyLines)
@@ -1899,11 +1899,11 @@ MustScanner_GetMono8BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
     }
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = FALSE;
+  g_isScanning = SANE_FALSE;
 
   DBG (DBG_FUNC,
        "MustScanner_GetMono8BitLine: leave MustScanner_GetMono8BitLine\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -1923,8 +1923,8 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
   DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: call in\n");
 
   TotalXferLines = 0;
-  g_isCanceled = FALSE;
-  g_isScanning = TRUE;
+  g_isCanceled = SANE_FALSE;
+  g_isScanning = SANE_TRUE;
   wWantedTotalLines = *wLinesCount;
   lpTemp = lpLine;
 
@@ -1933,7 +1933,7 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
       pthread_create (&g_threadid_readimage, NULL,
 		      MustScanner_ReadDataFromScanner, NULL);
       DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: thread create\n");
-      g_bFirstReadImage = FALSE;
+      g_bFirstReadImage = SANE_FALSE;
     }
 
   while (TotalXferLines < wWantedTotalLines)
@@ -1945,8 +1945,8 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
 	  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: thread exit\n");
 
 	  *wLinesCount = TotalXferLines;
-	  g_isScanning = FALSE;
-	  return TRUE;
+	  g_isScanning = SANE_FALSE;
+	  return SANE_TRUE;
 	}
 
       if (GetScannedLines () > g_wtheReadyLines)
@@ -2014,17 +2014,17 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
 
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = FALSE;
+  g_isScanning = SANE_FALSE;
 
   /* modify the last point */
   if (g_bIsFirstReadBefData)
     {
       g_lpBefLineImageData = malloc (g_SWBytesPerRow);
       if (NULL == g_lpBefLineImageData)
-	return FALSE;
+	return SANE_FALSE;
       memset (g_lpBefLineImageData, 0, g_SWBytesPerRow);
       memcpy (g_lpBefLineImageData, lpTemp, g_SWBytesPerRow);
-      g_bIsFirstReadBefData = FALSE;
+      g_bIsFirstReadBefData = SANE_FALSE;
     }
 
   ModifyLinePoint (lpTemp, g_lpBefLineImageData, g_SWBytesPerRow,
@@ -2041,12 +2041,12 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
       free (g_lpBefLineImageData);
       g_lpBefLineImageData = NULL;
       g_dwAlreadyGetLines = 0;
-      g_bIsFirstReadBefData = TRUE;
+      g_bIsFirstReadBefData = SANE_TRUE;
     }
 
   DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: " \
     "leave MustScanner_GetMono8BitLine1200DPI\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -2059,8 +2059,8 @@ MustScanner_GetMono1BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 
   DBG (DBG_FUNC, "MustScanner_GetMono1BitLine: call in\n");
 
-  g_isCanceled = FALSE;
-  g_isScanning = TRUE;
+  g_isCanceled = SANE_FALSE;
+  g_isScanning = SANE_TRUE;
   wWantedTotalLines = *wLinesCount;
 
   if (g_bFirstReadImage)
@@ -2068,7 +2068,7 @@ MustScanner_GetMono1BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
       pthread_create (&g_threadid_readimage, NULL,
 		      MustScanner_ReadDataFromScanner, NULL);
       DBG (DBG_FUNC, "MustScanner_GetMono1BitLine: thread create\n");
-      g_bFirstReadImage = FALSE;
+      g_bFirstReadImage = SANE_FALSE;
     }
 
   memset (lpLine, 0, wWantedTotalLines * g_SWWidth / 8);
@@ -2082,8 +2082,8 @@ MustScanner_GetMono1BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
 	  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine: thread exit\n");
 
 	  *wLinesCount = TotalXferLines;
-	  g_isScanning = FALSE;
-	  return TRUE;
+	  g_isScanning = SANE_FALSE;
+	  return SANE_TRUE;
 	}
 
       if (GetScannedLines () > g_wtheReadyLines)
@@ -2112,11 +2112,11 @@ MustScanner_GetMono1BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
     }
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = FALSE;
+  g_isScanning = SANE_FALSE;
 
   DBG (DBG_FUNC,
        "MustScanner_GetMono1BitLine: leave MustScanner_GetMono1BitLine\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -2131,8 +2131,8 @@ MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
 
   DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: call in\n");
 
-  g_isCanceled = FALSE;
-  g_isScanning = TRUE;
+  g_isCanceled = SANE_FALSE;
+  g_isScanning = SANE_TRUE;
   wWantedTotalLines = *wLinesCount;
 
   if (g_bFirstReadImage)
@@ -2140,7 +2140,7 @@ MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
       pthread_create (&g_threadid_readimage, NULL,
 		      MustScanner_ReadDataFromScanner, NULL);
       DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: thread create\n");
-      g_bFirstReadImage = FALSE;
+      g_bFirstReadImage = SANE_FALSE;
     }
 
   memset (lpLine, 0, wWantedTotalLines * g_SWWidth / 8);
@@ -2154,8 +2154,8 @@ MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
 	  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: thread exit\n");
 
 	  *wLinesCount = TotalXferLines;
-	  g_isScanning = FALSE;
-	  return TRUE;
+	  g_isScanning = SANE_FALSE;
+	  return SANE_TRUE;
 	}
 
       if (GetScannedLines () > g_wtheReadyLines)
@@ -2206,11 +2206,11 @@ MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
     }				/* end for */
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = FALSE;
+  g_isScanning = SANE_FALSE;
 
   DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: " \
     "leave MustScanner_GetMono1BitLine1200DPI\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static void
@@ -2312,7 +2312,7 @@ MustScanner_ReadDataFromScanner (void __sane_unused__ * dummy)
   unsigned short wTotalReadImageLines = 0;
   unsigned short wWantedLines = g_Height;
   SANE_Byte * lpReadImage = g_lpReadImageHead;
-  SANE_Bool isWaitImageLineDiff = FALSE;
+  SANE_Bool isWaitImageLineDiff = SANE_FALSE;
   unsigned int wMaxScanLines = g_wMaxScanLines;
   unsigned short wReadImageLines = 0;
   unsigned short wScanLinesThisBlock;
@@ -2336,7 +2336,7 @@ MustScanner_ReadDataFromScanner (void __sane_unused__ * dummy)
 	       "MustScanner_ReadDataFromScanner: wScanLinesThisBlock=%d\n",
 	       wScanLinesThisBlock);
 
-	  if (STATUS_GOOD !=
+	  if (SANE_STATUS_GOOD !=
 	      Asic_ReadImage (&g_chip, lpReadImage, wScanLinesThisBlock))
 	    {
 	      DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: Asic_ReadImage" \
@@ -2362,13 +2362,13 @@ MustScanner_ReadDataFromScanner (void __sane_unused__ * dummy)
 	      (wMaxScanLines - (wBufferLines + g_wScanLinesPerBlock)) &&
 	      g_dwScannedTotalLines > GetReadyLines ())
 	    {
-	      isWaitImageLineDiff = TRUE;
+	      isWaitImageLineDiff = SANE_TRUE;
 	    }
 	}
       else if (g_dwScannedTotalLines <=
 	       GetReadyLines () + wBufferLines + g_wScanLinesPerBlock)
 	{
-	  isWaitImageLineDiff = FALSE;
+	  isWaitImageLineDiff = SANE_FALSE;
 	}
 
       pthread_testcancel ();
@@ -2490,7 +2490,7 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
   if (NULL == pTarget || NULL == pSuggest)
     {
       DBG (DBG_FUNC, "MustScanner_ScanSuggest: parameters error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   /* 1. Look up optical Y resolution */
@@ -2603,13 +2603,13 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
       pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth / 8);
       break;
     default:
-      return FALSE;
+      return SANE_FALSE;
     }
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: pSuggest->dwBytesPerRow = %d\n",
        pSuggest->dwBytesPerRow);
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: leave MustScanner_ScanSuggest\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -2619,10 +2619,10 @@ MustScanner_StopScan (void)
   if (!g_bOpened || !g_bPrepared)
     {
       DBG (DBG_FUNC, "MustScanner_StopScan: scanner not opened or prepared\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  g_isCanceled = TRUE;	/* tell parent process to stop reading image data */
+  g_isCanceled = SANE_TRUE;	/* tell parent process to stop reading image data */
 
   pthread_cancel (g_threadid_readimage);
   pthread_join (g_threadid_readimage, NULL);
@@ -2632,10 +2632,10 @@ MustScanner_StopScan (void)
   Asic_ScanStop (&g_chip);
   Asic_Close (&g_chip);
 
-  g_bOpened = FALSE;
+  g_bOpened = SANE_FALSE;
 
   DBG (DBG_FUNC, "MustScanner_StopScan: leave MustScanner_StopScan\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -2648,7 +2648,7 @@ MustScanner_PrepareScan (void)
   g_wMaxScanLines =
     (g_wMaxScanLines / g_wScanLinesPerBlock) * g_wScanLinesPerBlock;
 
-  g_isCanceled = FALSE;
+  g_isCanceled = SANE_FALSE;
 
   g_dwScannedTotalLines = 0;
 
@@ -2667,7 +2667,7 @@ MustScanner_PrepareScan (void)
 
     default:
       g_wtheReadyLines = 0;
-      return FALSE;
+      return SANE_FALSE;
     }
 
   DBG (DBG_FUNC, "MustScanner_PrepareScan: g_wtheReadyLines=%d\n",
@@ -2680,13 +2680,13 @@ MustScanner_PrepareScan (void)
     {
       DBG (DBG_FUNC, "MustScanner_PrepareScan: g_lpReadImageHead malloc " \
            "error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   Asic_ScanStart (&g_chip);
 
   DBG (DBG_FUNC, "MustScanner_PrepareScan: leave MustScanner_PrepareScan\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 static SANE_Bool
@@ -2697,7 +2697,7 @@ MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
   if (!g_bOpened || !g_bPrepared)
     {
       DBG (DBG_FUNC, "MustScanner_GetRows: scanner not opened or prepared\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   switch (g_ScanMode)
@@ -2739,5 +2739,5 @@ MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
     }
 
   DBG (DBG_FUNC, "MustScanner_GetRows: leave MustScanner_GetRows\n");
-  return FALSE;
+  return SANE_FALSE;
 }

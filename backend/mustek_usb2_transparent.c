@@ -58,7 +58,7 @@ static SANE_Bool Transparent_LineCalibration16Bits (unsigned short wTAShadingMin
 /**********************************************************************
 	reset the scanner
 Return value: 
-	TRUE if operation is success, FALSE otherwise
+	SANE_TRUE if operation is success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_Reset (void)
@@ -68,44 +68,44 @@ Transparent_Reset (void)
   if (g_bOpened)
     {
       DBG (DBG_FUNC, "Transparent_Reset: scanner has been opened\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  if (STATUS_GOOD != Asic_Open (&g_chip))
+  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "Transparent_Reset: can not open scanner\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   Asic_ResetADParameters (&g_chip, LS_POSITIVE);
 
-  if (STATUS_GOOD != Asic_TurnLamp (&g_chip, FALSE))
+  if (SANE_STATUS_GOOD != Asic_TurnLamp (&g_chip, SANE_FALSE))
     {
       DBG (DBG_FUNC, "Reflective_Reset: Asic_TurnLamp return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  if (STATUS_GOOD != Asic_TurnTA (&g_chip, TRUE))
+  if (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, SANE_TRUE))
     {
       DBG (DBG_FUNC, "Reflective_Reset: Asic_TurnTA return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  if (STATUS_GOOD != Asic_Close (&g_chip))
+  if (SANE_STATUS_GOOD != Asic_Close (&g_chip))
     {
       DBG (DBG_FUNC, "Reflective_Reset: Asic_Close return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   g_Y = 0;
   g_wLineartThreshold = 128;
   g_dwTotalTotalXferLines = 0;
-  g_bFirstReadImage = TRUE;
+  g_bFirstReadImage = SANE_TRUE;
 
   g_pGammaTable = NULL;
 
   DBG (DBG_FUNC, "Transparent_Reset: leave Transparent_Reset\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 /**********************************************************************
@@ -120,7 +120,7 @@ Parameters:
 	Width: Width of Scan Image
 	Height: Height of Scan Image
 Return value: 
-	TRUE if the operation is success, FALSE otherwise
+	SANE_TRUE if the operation is success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_SetupScan (COLORMODE ColorMode,
@@ -136,13 +136,13 @@ Transparent_SetupScan (COLORMODE ColorMode,
   if (g_bOpened)
     {
       DBG (DBG_FUNC, "Transparent_SetupScan: scanner has been opened\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   if (!g_bPrepared)
     {
       DBG (DBG_FUNC, "Transparent_SetupScan: scanner not prepared\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   g_ScanMode = ColorMode;
@@ -214,40 +214,40 @@ Transparent_SetupScan (COLORMODE ColorMode,
       break;
     }
 
-  if (Asic_Open (&g_chip) != STATUS_GOOD)
+  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
     {
       DBG (DBG_FUNC, "Transparent_SetupScan: Asic_Open return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  g_bOpened = TRUE;
+  g_bOpened = SANE_TRUE;
 
-  if (STATUS_GOOD != Asic_TurnLamp (&g_chip, FALSE))
+  if (SANE_STATUS_GOOD != Asic_TurnLamp (&g_chip, SANE_FALSE))
     {
       DBG (DBG_FUNC, "Transparent_SetupScan: Asic_TurnLamp return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  if (Asic_IsTAConnected (&g_chip, &hasTA) != STATUS_GOOD)
+  if (Asic_IsTAConnected (&g_chip, &hasTA) != SANE_STATUS_GOOD)
     {
       DBG (DBG_FUNC,
 	   "Transparent_SetupScan: Asic_IsTAConnected return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
   if (!hasTA)
     {
       DBG (DBG_FUNC, "Transparent_SetupScan: no TA device\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  if (Asic_TurnTA (&g_chip, TRUE) != STATUS_GOOD)
+  if (Asic_TurnTA (&g_chip, SANE_TRUE) != SANE_STATUS_GOOD)
     {
       DBG (DBG_FUNC, "Transparent_SetupScan: Asic_TurnTA return error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   /* Begin Find Left&Top Side */
-  Asic_MotorMove (&g_chip, TRUE, TRAN_START_POS);
+  Asic_MotorMove (&g_chip, SANE_TRUE, TRAN_START_POS);
 
   if (1200 == g_XDpi)
     {
@@ -302,7 +302,7 @@ Transparent_SetupScan (COLORMODE ColorMode,
        g_bScanBits, g_XDpi, g_YDpi, g_X, g_Y, g_Width, g_Height);
 
   g_Y = Y * 1200 / g_YDpi + (300 - 40) + 189;
-  Asic_MotorMove (&g_chip, TRUE, g_Y - 360);
+  Asic_MotorMove (&g_chip, SANE_TRUE, g_Y - 360);
   g_Y = 360;
 
   Asic_SetWindow (&g_chip, SCAN_TYPE_NORMAL, g_bScanBits, g_XDpi, g_YDpi,
@@ -315,7 +315,7 @@ Transparent_SetupScan (COLORMODE ColorMode,
 /**********************************************************************
 	To adjust the value of offset gain of R/G/B
 Return value: 
-	TRUE if operation is success, FALSE otherwise
+	SANE_TRUE if operation is success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_AdjustAD (void)
@@ -342,11 +342,11 @@ Transparent_AdjustAD (void)
   DBG (DBG_FUNC, "Transparent_AdjustAD: call in\n");
   if (!g_bOpened)
     {
-      return FALSE;
+      return SANE_FALSE;
     }
   if (!g_bPrepared)
     {
-      return FALSE;
+      return SANE_FALSE;
     }
 
 
@@ -374,7 +374,7 @@ Transparent_AdjustAD (void)
   lpCalData = malloc (wCalWidth * 3);
   if (lpCalData == NULL)
     {
-      return FALSE;
+      return SANE_FALSE;
     }
 
   Asic_SetWindow (&g_chip, SCAN_TYPE_CALIBRATE_DARK, 24,
@@ -394,7 +394,7 @@ Transparent_AdjustAD (void)
     {
       DBG (DBG_FUNC,
 	   "Transparent_AdjustAD: Leave Transparent_AdjustAD for malloc fail!\n");
-      return FALSE;
+      return SANE_FALSE;
     }
   memset (lpBuf, 0, 50);
   stream = fopen ("/root/AD(Tra).pnm", "wb+\n");
@@ -807,7 +807,7 @@ Transparent_AdjustAD (void)
   DBG (DBG_FUNC, "Transparent_AdjustAD: leave Transparent_AdjustAD\n");
   free (lpCalData);
 
-  return TRUE;
+  return SANE_TRUE;
 }
 
 /**********************************************************************
@@ -816,7 +816,7 @@ Parameters:
 	lpwStartX: the left side
 	lpwStartY: the top side
 Return value:
-	TRUE if operation is success, FALSE otherwise
+	SANE_TRUE if operation is success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
@@ -837,12 +837,12 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
     {
       DBG (DBG_FUNC, "Transparent_FindTopLeft: scanner not opened\n");
 
-      return FALSE;
+      return SANE_FALSE;
     }
   if (!g_bPrepared)
     {
       DBG (DBG_FUNC, "Transparent_FindTopLeft: scanner not prepared\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   wXResolution = wYResolution = FIND_LEFT_TOP_CALIBRATE_RESOLUTION;
@@ -852,7 +852,7 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
   if (lpCalData == NULL)
     {
       DBG (DBG_FUNC, "Transparent_FindTopLeft: lpCalData malloc fail\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   dwTotalSize = wCalWidth * wCalHeight;
@@ -879,7 +879,7 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
   SANE_Byte * lpBuf = malloc (50);
   if (NULL == lpBuf)
     {
-      return FALSE;
+      return SANE_FALSE;
     }
   memset (lpBuf, 0, 50);
   stream = fopen ("/root/bound(Tra).pnm", "wb+\n");
@@ -944,7 +944,7 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
     }
 
 
-  Asic_MotorMove (&g_chip, FALSE,
+  Asic_MotorMove (&g_chip, SANE_FALSE,
 		  (wCalHeight - *lpwStartY) * 1200 / wYResolution + 300);
 
   free (lpCalData);
@@ -953,13 +953,13 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
        "Transparent_FindTopLeft: *lpwStartY = %d, *lpwStartX = %d\n",
        *lpwStartY, *lpwStartX);
   DBG (DBG_FUNC, "Transparent_FindTopLeft: leave Transparent_FindTopLeft\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 /**********************************************************************
 	Get the calibration data
 Return value: 
-	TRUE if the operation is success, FALSE otherwise
+	SANE_TRUE if the operation is success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
@@ -996,13 +996,13 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
     {
       DBG (DBG_FUNC,
 	   "Transparent_LineCalibration16Bits: scanner not opened\n");
-      return FALSE;
+      return SANE_FALSE;
     }
   if (!g_bPrepared)
     {
       DBG (DBG_FUNC,
 	   "Transparent_LineCalibration16Bits: scanner not prepared\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   if (g_XDpi < 600)
@@ -1018,7 +1018,7 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
     {
       DBG (DBG_FUNC,
 	   "Transparent_LineCalibration16Bits: lpWhiteData or lpDarkData malloc fail\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   /*Read white level data */
@@ -1037,8 +1037,8 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
   Asic_SetWindow (&g_chip, SCAN_TYPE_CALIBRATE_DARK, 48, g_XDpi, 600, g_X, 0,
 		  wCalWidth, wCalHeight);
 
-  Asic_TurnLamp (&g_chip, FALSE);
-  Asic_TurnTA (&g_chip, FALSE);
+  Asic_TurnLamp (&g_chip, SANE_FALSE);
+  Asic_TurnTA (&g_chip, SANE_FALSE);
 
   usleep (500000);
 
@@ -1047,14 +1047,14 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
 
   Asic_ScanStop (&g_chip);
 
-  Asic_TurnTA (&g_chip, TRUE);
+  Asic_TurnTA (&g_chip, SANE_TRUE);
 
 #ifdef DEBUG_SAVE_IMAGE
   FILE *stream = NULL;
   SANE_Byte * lpBuf = malloc (50);
   if (NULL == lpBuf)
     {
-      return FALSE;
+      return SANE_FALSE;
     }
   memset (lpBuf, 0, 50);
   stream = fopen ("/root/whiteshading(Tra).pnm", "wb+\n");
@@ -1090,7 +1090,7 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
 
       free (lpWhiteData);
       free (lpDarkData);
-      return FALSE;
+      return SANE_FALSE;
     }
 
   DBG (DBG_FUNC,
@@ -1328,5 +1328,5 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
 
   DBG (DBG_FUNC,
        "Transparent_LineCalibration16Bits: leave Transparent_LineCalibration16Bits\n");
-  return TRUE;
+  return SANE_TRUE;
 }

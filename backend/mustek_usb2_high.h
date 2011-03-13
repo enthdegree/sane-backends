@@ -48,9 +48,6 @@
 #ifndef MUSTEK_USB2_HIGH_H
 #define MUSTEK_USB2_HIGH_H
 
-#define TRUE 1
-#define FALSE 0
-
 typedef SANE_Byte SCANSOURCE;
 #define SS_Reflective	0x00
 #define SS_Positive	0x01

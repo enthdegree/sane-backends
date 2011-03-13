@@ -139,8 +139,8 @@ static Scanner_Model mustek_A2nu2_model = {
 
 
 static SANE_Byte * g_lpNegImageData = NULL;
-static SANE_Bool g_bIsFirstGetNegData = TRUE;
-static SANE_Bool g_bIsMallocNegData = FALSE;
+static SANE_Bool g_bIsFirstGetNegData = SANE_TRUE;
+static SANE_Bool g_bIsMallocNegData = SANE_FALSE;
 static unsigned int g_dwAlreadyGetNegLines = 0;
 
 
@@ -472,7 +472,7 @@ init_options (Mustek_Scanner * s)
 Parameters:
 	pSetParameters: the information of scaning
 Return value: 
-	TRUE if the operation success, FALSE otherwise
+	SANE_TRUE if the operation success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 SetParameters (LPSETPARAMETERS pSetParameters)
@@ -514,29 +514,29 @@ SetParameters (LPSETPARAMETERS pSetParameters)
   else
     {
       DBG (DBG_ERR, "SetParameters: ScanSource error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   /*4. Scan area */
   if (pSetParameters->fmArea.x1 >= pSetParameters->fmArea.x2)
     {
       DBG (DBG_ERR, "SetParameters: x1 >= x2, error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
   if (pSetParameters->fmArea.y1 >= pSetParameters->fmArea.y2)
     {
       DBG (DBG_ERR, "SetParameters: y1 >= y2, error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
   if (pSetParameters->fmArea.x2 > MAX_SCANNING_WIDTH)	/* Just for A4 size */
     {
       DBG (DBG_ERR, "SetParameters: x2 > MAX_SCANNING_WIDTH, error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
   if (pSetParameters->fmArea.y2 > MAX_SCANNING_HEIGHT)	/* Just for A4 size */
     {
       DBG (DBG_ERR, "SetParameters: y2 > MAX_SCANNING_HEIGHT, error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   X1inTargetDpi =
@@ -566,10 +566,10 @@ SetParameters (LPSETPARAMETERS pSetParameters)
        g_tiTarget.wHeight);
 
   /*5.Prepare */
-  if (FALSE == MustScanner_Prepare (g_tiTarget.ssScanSource))
+  if (SANE_FALSE == MustScanner_Prepare (g_tiTarget.ssScanSource))
     {
       DBG (DBG_ERR, "SetParameters: MustScanner_Prepare fail\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   /*6. Linear threshold */
@@ -577,7 +577,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
       && pSetParameters->cmColorMode == CM_TEXT)
     {
       DBG (DBG_ERR, "SetParameters: LinearThreshold error\n");
-      return FALSE;
+      return SANE_FALSE;
     }
   g_wLineartThreshold = pSetParameters->wLinearThreshold;
 
@@ -586,7 +586,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
     {
       DBG (DBG_INFO, "SetParameters: IN gamma table not NULL\n");
       g_pGammaTable = pSetParameters->pGammaTable;
-      g_isSelfGamma = FALSE;
+      g_isSelfGamma = SANE_FALSE;
     }
   else if (pSetParameters->cmColorMode == CM_GRAY8
 	   || pSetParameters->cmColorMode == CM_RGB24)
@@ -606,9 +606,9 @@ SetParameters (LPSETPARAMETERS pSetParameters)
       if (NULL == g_pGammaTable)
 	{
 	  DBG (DBG_ERR, "SetParameters: gamma table malloc fail\n");
-	  return FALSE;
+	  return SANE_FALSE;
 	}
-      g_isSelfGamma = TRUE;
+      g_isSelfGamma = SANE_TRUE;
 
       for (i = 0; i < 4096; i++)
 	{
@@ -630,9 +630,9 @@ SetParameters (LPSETPARAMETERS pSetParameters)
       if (g_pGammaTable == NULL)
 	{
 	  DBG (DBG_ERR, "SetParameters: gamma table malloc fail\n");
-	  return FALSE;
+	  return SANE_FALSE;
 	}
-      g_isSelfGamma = TRUE;
+      g_isSelfGamma = SANE_TRUE;
 
       for (i = 0; i < 65536; i++)
 	{
@@ -652,7 +652,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
     }
 
   DBG (DBG_FUNC, "SetParameters: exit\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 
 /**********************************************************************
@@ -660,16 +660,16 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 Parameters:
 	pGetParameters: the information of scan
 Return value: 
-	TRUE if the operation is success, FALSE otherwise
+	SANE_TRUE if the operation is success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 GetParameters (LPGETPARAMETERS pGetParameters)
 {
   DBG (DBG_FUNC, "GetParameters: start\n");
-  if (FALSE == MustScanner_ScanSuggest (&g_tiTarget, &g_ssSuggest))
+  if (SANE_FALSE == MustScanner_ScanSuggest (&g_tiTarget, &g_ssSuggest))
   {
     DBG (DBG_ERR, "GetParameters: MustScanner_ScanSuggest error\n");
-    return FALSE;
+    return SANE_FALSE;
   }
 
   pGetParameters->dwLength = (unsigned int) g_ssSuggest.wHeight;
@@ -677,13 +677,13 @@ GetParameters (LPGETPARAMETERS pGetParameters)
 
   DBG (DBG_FUNC, "GetParameters: exit\n");
 
-  return TRUE;
+  return SANE_TRUE;
 }
 
 /**********************************************************************
 	start scan image
 Return value:
-	TRUE if operation is success, FALSE otherwise
+	SANE_TRUE if operation is success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 StartScan (void)
@@ -720,7 +720,7 @@ StartScan (void)
 Parameters:
 	pImageRows: the information of the data
 Return value:	
-	TRUE if the operation is success, FALSE otherwise
+	SANE_TRUE if the operation is success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 ReadScannedData (LPIMAGEROWS pImageRows)
@@ -734,16 +734,16 @@ ReadScannedData (LPIMAGEROWS pImageRows)
   DBG (DBG_FUNC, "ReadScannedData: start\n");
 
   if (pImageRows->roRgbOrder == RO_RGB)
-    isRGBInvert = FALSE;
+    isRGBInvert = SANE_FALSE;
   else
-    isRGBInvert = TRUE;
+    isRGBInvert = SANE_TRUE;
 
   Rows = pImageRows->wWantedLineNum;
 
   DBG (DBG_INFO, "ReadScannedData: wanted Rows = %d\n", Rows);
 
-  if (FALSE == MustScanner_GetRows (lpBlock, &Rows, isRGBInvert))
-    return FALSE;
+  if (SANE_FALSE == MustScanner_GetRows (lpBlock, &Rows, isRGBInvert))
+    return SANE_FALSE;
 
   pImageRows->wXferedLineNum = Rows;
 
@@ -767,10 +767,10 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 	      SANE_Byte * lpTempData = g_lpNegImageData;
 	      DBG (DBG_INFO,
 		   "ReadScannedData: malloc the negative data is success!\n");
-	      g_bIsMallocNegData = TRUE;
+	      g_bIsMallocNegData = SANE_TRUE;
 	      if (!MustScanner_GetRows
 		  (g_lpNegImageData, &g_SWHeight, isRGBInvert))
-		return FALSE;
+		return SANE_FALSE;
 
 	      DBG (DBG_INFO, "ReadScannedData: get image data is over!\n");
 
@@ -781,7 +781,7 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 			 g_ssSuggest.dwBytesPerRow);
 	      DBG (DBG_INFO, "ReadScannedData: autolevel is ok\n");
 	    }
-	  g_bIsFirstGetNegData = FALSE;
+	  g_bIsFirstGetNegData = SANE_FALSE;
 	}
 
       if (g_bIsMallocNegData)
@@ -799,9 +799,9 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 	      DBG (DBG_INFO, "ReadScannedData: free the image data!\n");
 	      free (g_lpNegImageData);
 	      g_lpNegImageData = NULL;
-	      g_bIsFirstGetNegData = TRUE;
+	      g_bIsFirstGetNegData = SANE_TRUE;
 	      g_dwAlreadyGetNegLines = 0;
-	      g_bIsMallocNegData = FALSE;
+	      g_bIsMallocNegData = SANE_FALSE;
 	    }
 	}
       else
@@ -810,7 +810,7 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 	  DBG (DBG_INFO,
 	       "ReadScannedData: malloc the negative data is fail!\n");
 	  if (!MustScanner_GetRows (lpReturnData, &Rows, isRGBInvert))
-	    return FALSE;
+	    return SANE_FALSE;
 
 	  for (i = 0; i < TotalSize; i++)
 	    *(lpReturnData++) ^= 0xff;
@@ -819,9 +819,9 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 	  g_dwAlreadyGetNegLines += Rows;
 	  if (g_dwAlreadyGetNegLines >= g_SWHeight)
 	    {
-	      g_bIsFirstGetNegData = TRUE;
+	      g_bIsFirstGetNegData = SANE_TRUE;
 	      g_dwAlreadyGetNegLines = 0;
-	      g_bIsMallocNegData = FALSE;
+	      g_bIsMallocNegData = SANE_FALSE;
 	    }
 	}
 
@@ -829,13 +829,13 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 
   DBG (DBG_FUNC, "ReadScannedData: leave ReadScannedData\n");
 
-  return TRUE;
+  return SANE_TRUE;
 }
 
 /**********************************************************************
 	Stop scan
 Return value: 
-	TRUE if operation is success, FALSE otherwise
+	SANE_TRUE if operation is success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 StopScan (void)
@@ -880,7 +880,7 @@ StopScan (void)
 /**********************************************************************
 	Check the status of TA
 Return value: 
-	TRUE if TA is connected, FALSE otherwise
+	SANE_TRUE if TA is connected, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 IsTAConnected (void)
@@ -889,15 +889,15 @@ IsTAConnected (void)
 
   DBG (DBG_FUNC, "IsTAConnected: start\n");
 
-  if (Asic_Open (&g_chip) != STATUS_GOOD)
+  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
     {
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  if (Asic_IsTAConnected (&g_chip, &hasTA) != STATUS_GOOD)
+  if (Asic_IsTAConnected (&g_chip, &hasTA) != SANE_STATUS_GOOD)
     {
       Asic_Close (&g_chip);
-      return FALSE;
+      return SANE_FALSE;
     }
 
   Asic_Close (&g_chip);
@@ -912,7 +912,7 @@ IsTAConnected (void)
 Parameters:
 	pKey: the status of key
 Return value: 
-	TRUE if the operation is success, FALSE otherwise
+	SANE_TRUE if the operation is success, SANE_FALSE otherwise
 ***********************************************************************/
 static SANE_Bool
 GetKeyStatus (SANE_Byte * pKey)
@@ -920,16 +920,16 @@ GetKeyStatus (SANE_Byte * pKey)
   SANE_Byte pKeyTemp;
   DBG (DBG_FUNC, "GetKeyStatus: start\n");
 
-  if (STATUS_GOOD != Asic_Open (&g_chip))
+  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_ERR, "GetKeyStatus: Asic_Open is fail\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
-  if (STATUS_GOOD != Asic_CheckFunctionKey (&g_chip, &pKeyTemp))
+  if (SANE_STATUS_GOOD != Asic_CheckFunctionKey (&g_chip, &pKeyTemp))
     {
       DBG (DBG_ERR, "GetKeyStatus: Asic_CheckFunctionKey is fail\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   if (0x01 == pKeyTemp)
@@ -943,14 +943,14 @@ GetKeyStatus (SANE_Byte * pKey)
   else if (0x10 == pKeyTemp)
     *pKey = 0x05;		/* Panel key pressed */
 
-  if (STATUS_GOOD != Asic_Close (&g_chip))
+  if (SANE_STATUS_GOOD != Asic_Close (&g_chip))
     {
       DBG (DBG_ERR, "GetKeyStatus: Asic_Close is fail\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   DBG (DBG_FUNC, "GetKeyStatus: exit\n");
-  return TRUE;
+  return SANE_TRUE;
 }
 #endif
 
@@ -1632,7 +1632,7 @@ sane_start (SANE_Handle handle)
   s->params.bytes_per_line = s->getpara.dwLineByteWidth;
   s->params.lines = s->getpara.dwLength;
 
-  s->params.last_frame = TRUE;
+  s->params.last_frame = SANE_TRUE;
 
 
   s->read_rows = s->getpara.dwLength;

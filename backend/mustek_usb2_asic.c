@@ -132,7 +132,7 @@ SwitchBank (PAsic chip, unsigned short reg)
       buf[3] = bank;
       status = WriteIOControl (chip, 0xb0, 0, 4, buf);
       if (status != STATUS_GOOD)
-        return status;
+	return status;
 
       RegisterBankStatus = bank;
       DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
@@ -237,11 +237,11 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpData)
 
       status = SetRWSize (chip, READ_RAM, cur_read_size);
       if (status != STATUS_GOOD)
-        return status;
+	return status;
 
       status = WriteIOControl (chip, 0x03, 0, 4, (SANE_Byte *) &cur_read_size);
       if (status != STATUS_GOOD)
-        return status;
+	return status;
 
       status = sanei_usb_read_bulk (chip->fd, lpData, &cur_read_size);
       if (status != STATUS_GOOD)
@@ -279,11 +279,11 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpData)
 
       status = SetRWSize (chip, WRITE_RAM, cur_write_size);
       if (status != STATUS_GOOD)
-        return status;
+	return status;
 
       status = WriteIOControl (chip, 0x02, 0, 4, (SANE_Byte *) &cur_write_size);
       if (status != STATUS_GOOD)
-        return status;
+	return status;
 
       status = sanei_usb_write_bulk (chip->fd, lpData, &cur_write_size);
       if (status != STATUS_GOOD)
@@ -323,7 +323,7 @@ Mustek_SendData2Byte (PAsic chip, unsigned short reg, SANE_Byte data)
 
       status = SwitchBank (chip, reg);
       if (status != STATUS_GOOD)
-        return status;
+	return status;
 
       status = WriteIOControl (chip, 0xb0, 0, 4, dataBuf);
     }
@@ -398,7 +398,7 @@ LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
     {
       status = Mustek_DMAWrite (chip, RamAccess->RwSize, RamAccess->BufferPtr);
       if (status != STATUS_GOOD)
-        return status;
+	return status;
 
       /* steal read 2 byte */
       usleep (20000);
@@ -476,15 +476,15 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 		       MOTOR_PWM_CURRENT_2 | MOTOR1_GPO_VALUE_0);
 
       for (i = 0; i < 16; i++)
-        {
-          double x = (((i % 4) * M_PI * 90) / 4) / 180;
+	{
+	  double x = (((i % 4) * M_PI * 90) / 4) / 180;
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A, (SANE_Byte)
 				(MotorCurrentAndPhase->MotorCurrent * sin (x)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B, (SANE_Byte)
 				(MotorCurrentAndPhase->MotorCurrent * cos (x)));
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				MotorPhaseFullStep[i / 4] & MotorPhaseMask);
-        }
+	}
     }
   else if (MotorCurrentAndPhase->MoveType == _32_TABLE_SPACE_FOR_1_DIV_8_STEP)
     {
@@ -492,15 +492,15 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 		       MOTOR_PWM_CURRENT_3 | MOTOR1_GPO_VALUE_0);
 
       for (i = 0; i < 32; i++)
-        {
-          double x = (((i % 8) * M_PI * 90) / 8) / 180;
+	{
+	  double x = (((i % 8) * M_PI * 90) / 8) / 180;
 	  Mustek_SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A, (SANE_Byte)
 				(MotorCurrentAndPhase->MotorCurrent * sin (x)));
 	  Mustek_SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B, (SANE_Byte)
 				(MotorCurrentAndPhase->MotorCurrent * cos (x)));
 	  Mustek_SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 				MotorPhaseFullStep[i / 8] & MotorPhaseMask);
-        }
+	}
     }
 
   Mustek_SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL,
@@ -847,7 +847,7 @@ CalculateScanMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
     {
       y = wStartSpeed - wEndSpeed;
       y *= pow (0.09, (M_PI_2 * i) / wScanAccSteps) -
-           pow (0.09, (M_PI_2 * (wScanAccSteps - 1)) / wScanAccSteps);
+	   pow (0.09, (M_PI_2 * (wScanAccSteps - 1)) / wScanAccSteps);
       y += wEndSpeed;
       lpMotorTable[i + 512 * 2] = (unsigned short) y;	/* T2 */
       lpMotorTable[i + 512 * 4] = (unsigned short) y;	/* T4 */
@@ -895,7 +895,7 @@ CalculateMoveMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
     {
       /* before scan acc table */
       y = (wStartSpeed - wEndSpeed) *
-        pow (0.09, (M_PI_2 * i) / 512) + wEndSpeed;
+	pow (0.09, (M_PI_2 * i) / 512) + wEndSpeed;
       lpMotorTable[i] = (unsigned short) y;
       lpMotorTable[i + 512 * 2] = (unsigned short) y;
       lpMotorTable[i + 512 * 4] = (unsigned short) y;
@@ -905,7 +905,7 @@ CalculateMoveMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
   for (i = 0; i < 256; i++)
     {
       y = wStartSpeed - (wStartSpeed - wEndSpeed) *
-        pow (0.3, (M_PI_2 * i) / 256);
+	pow (0.3, (M_PI_2 * i) / 256);
       lpMotorTable[i + 512] = (unsigned short) y;
       lpMotorTable[i + 512 * 3] = (unsigned short) y;
       lpMotorTable[i + 512 * 5] = (unsigned short) y;
@@ -915,9 +915,9 @@ CalculateMoveMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
   for (i = 0; i < wScanAccSteps; i++)
     {
       y = (wStartSpeed - wEndSpeed) *
-        (pow (0.09, (M_PI_2 * i) / wScanAccSteps) -
-         pow (0.09, (M_PI_2 * (wScanAccSteps - 1)) / wScanAccSteps)) +
-        wEndSpeed;
+	(pow (0.09, (M_PI_2 * i) / wScanAccSteps) -
+	 pow (0.09, (M_PI_2 * (wScanAccSteps - 1)) / wScanAccSteps)) +
+	wEndSpeed;
       lpMotorTable[i + 512 * 2] = (unsigned short) y;
     }
 
@@ -1342,7 +1342,7 @@ WaitCarriageHome (PAsic chip)
     {
       status = IsCarriageHome (chip, &LampHome);
       if (status != STATUS_GOOD)
-        return status;
+	return status;
       if (LampHome)
 	break;
       usleep (300000);
@@ -1985,7 +1985,7 @@ Asic_WaitUnitReady (PAsic chip)
 	  return status;
 	}
       if ((temp & 0x1f) == 0)
-        break;
+	break;
       usleep (100000);
     }
   while (++i < 300);
@@ -2236,7 +2236,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
     {
       status = SetAFEGainOffset (chip);
       if (status != STATUS_GOOD)
-        return status;
+	return status;
     }
 
   Mustek_SendData (chip, ES01_F7_DigitalControl, 0);
@@ -2330,15 +2330,15 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
   if (bScanType == SCAN_TYPE_NORMAL)
     {
       if (EndSpeed >= 20000)
-        {
-          status = Asic_MotorMove (chip, 1, wY / wMultiMotorStep);
-          if (status != STATUS_GOOD)
-            return status;
+	{
+	  status = Asic_MotorMove (chip, 1, wY / wMultiMotorStep);
+	  if (status != STATUS_GOOD)
+	    return status;
 
-          isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
-          isScanBackTracking = 0;
-          isMotorMoveToFirstLine = 0;
-        }
+	  isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
+	  isScanBackTracking = 0;
+	  isMotorMoveToFirstLine = 0;
+	}
     }
   else
     {
@@ -2352,24 +2352,24 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
   if (bScanType == SCAN_TYPE_NORMAL)
     {
       if (EndSpeed > 8000)
-        {
-          StartSpeed = EndSpeed;
-        }
+	{
+	  StartSpeed = EndSpeed;
+	}
       else
-        {
-          if (EndSpeed <= 1000)
+	{
+	  if (EndSpeed <= 1000)
 	    StartSpeed = EndSpeed + 4500;
-          else
+	  else
 	    StartSpeed = EndSpeed + 3500;
-        }
+	}
     }
   else
     {
       /* TODO: this is equivalent to the above, except in TA mode */
       if (wXResolution > (SENSOR_DPI / 2))
-        StartSpeed = EndSpeed;
+	StartSpeed = EndSpeed;
       else
-        StartSpeed = EndSpeed + 3500;
+	StartSpeed = EndSpeed + 3500;
     }
   DBG (DBG_ASIC, "StartSpeed=%d, EndSpeed=%d\n", StartSpeed, EndSpeed);
 
@@ -2429,25 +2429,25 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
       RealTableSize = (ACC_DEC_STEP_TABLE_SIZE * NUM_OF_ACC_DEC_STEP_TABLE) +
 		      ShadingTableSize (ValidPixelNumber);
       dwShadingTableAddr = PackAreaStartAddress -
-		           (((RealTableSize + (TABLE_BASE_SIZE - 1))
+			   (((RealTableSize + (TABLE_BASE_SIZE - 1))
 			     >> TABLE_OFFSET_BASE) << TABLE_OFFSET_BASE);
       dwEndAddr = dwShadingTableAddr - 1;
 
       if (wXResolution > (SENSOR_DPI / 2))
-        dbXRatioAdderDouble = SENSOR_DPI / wXResolution;
+	dbXRatioAdderDouble = SENSOR_DPI / wXResolution;
       else
-        dbXRatioAdderDouble = (SENSOR_DPI / 2) / wXResolution;
+	dbXRatioAdderDouble = (SENSOR_DPI / 2) / wXResolution;
 
       RamAccess.ReadWrite = WRITE_RAM;
       RamAccess.IsOnChipGamma = EXTERNAL_RAM;
       RamAccess.StartAddress = dwShadingTableAddr;
       RamAccess.RwSize =
-        ShadingTableSize ((int) ((wWidth + 4) * dbXRatioAdderDouble)) *
-        sizeof (unsigned short);
+	ShadingTableSize ((int) ((wWidth + 4) * dbXRatioAdderDouble)) *
+	sizeof (unsigned short);
       RamAccess.BufferPtr = (SANE_Byte *) chip->lpShadingTable;
       status = LLFRamAccess (chip, &RamAccess);
       if (status != STATUS_GOOD)
-        return status;
+	return status;
 
       /* tell scan chip the shading table address, unit is 2^15 bytes */
       Mustek_SendData (chip, ES01_9B_ShadingTableAddrA14_A21,
@@ -2725,7 +2725,7 @@ Asic_ReadCalibrationData (PAsic chip, SANE_Byte * pBuffer,
       if (!pCalBuffer)
 	{
 	  DBG (DBG_ERR, "Asic_ReadCalibrationData: Can't malloc bCalBuffer " \
-	                "memory\n");
+			"memory\n");
 	  return STATUS_MEM_ERROR;
 	}
 
@@ -2905,7 +2905,7 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
     {
       unsigned short numPixel = 40;
       if (i == (wValidPixelNumber / 40))
-        numPixel = wValidPixelNumber % 40;
+	numPixel = wValidPixelNumber % 40;
 
       for (j = 0; j < numPixel; j++)
 	{

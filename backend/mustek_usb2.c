@@ -145,7 +145,7 @@ static unsigned int g_dwAlreadyGetNegLines = 0;
 
 
 static SANE_Bool IsTAConnected (void);
-static void AutoLevel (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
+static void AutoLevel (SANE_Byte *lpSource, unsigned short ScanLines,
 		unsigned int BytesPerLine);
 
 
@@ -777,7 +777,9 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 	      for (i = 0; i < (int) TotalImgeSize; i++)
 		*(g_lpNegImageData++) ^= 0xff;
 	      g_lpNegImageData = lpTempData;
-	      AutoLevel (g_lpNegImageData, g_ScanMode, g_SWHeight,
+	      if (g_ScanMode != CM_RGB24)
+	        return SANE_FALSE;
+	      AutoLevel (g_lpNegImageData, g_SWHeight,
 			 g_ssSuggest.dwBytesPerRow);
 	      DBG (DBG_INFO, "ReadScannedData: autolevel is ok\n");
 	    }
@@ -958,12 +960,11 @@ GetKeyStatus (SANE_Byte * pKey)
 	Deal with the image with auto level	
 Parameters:
 	lpSource: the data of image
-	colorMode: the color mode
 	ScanLines: the rows of image
 	BytesPerLine: the bytes of per line
 ***********************************************************************/
 static void
-AutoLevel (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
+AutoLevel (SANE_Byte *lpSource, unsigned short ScanLines,
 	   unsigned int BytesPerLine)
 {
   int ii;
@@ -984,11 +985,6 @@ AutoLevel (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
   unsigned short imax_threshold[3];
 
   DBG (DBG_FUNC, "AutoLevel: start\n");
-
-  if (colorMode != CM_RGB24ext)
-    {
-      return;
-    }
 
   i = j = 0;
   tLines = CountPixels = TotalImgSize = 0;
@@ -1204,7 +1200,6 @@ AutoLevel (SANE_Byte *lpSource, COLORMODE colorMode, unsigned short ScanLines,
     }
 
   DBG (DBG_FUNC, "AutoLevel: exit\n");
-  return;
 }
 
 

@@ -184,18 +184,18 @@ Reflective_SetupScan (COLORMODE ColorMode,
       g_bScanBits = 48;
       g_Height += g_wLineDistance * 2;	/* add height to do line distance */
       break;
-    case CM_RGB24ext:
+    case CM_RGB24:
       g_BytesPerRow = 3 * g_Width;	/* ASIC limit : width must be 8x */
       g_SWBytesPerRow = 3 * g_SWWidth;
       g_bScanBits = 24;
       g_Height += g_wLineDistance * 2;	/* add height to do line distance */
       break;
-    case CM_GRAY16ext:
+    case CM_GRAY16:
       g_BytesPerRow = 2 * g_Width;	/* ASIC limit : width must be 8x */
       g_SWBytesPerRow = 2 * g_SWWidth;
       g_bScanBits = 16;
       break;
-    case CM_GRAY8ext:
+    case CM_GRAY8:
     case CM_TEXT:
       g_BytesPerRow = g_Width;	/* ASIC limit : width must be 8x */
       g_SWBytesPerRow = g_SWWidth;
@@ -432,11 +432,14 @@ Reflective_AdjustAD (void)
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
 
-      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR);
-      MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
-				   &wMinValueG);
-      MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
-				   &wMinValueB);
+      if (!MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR))
+	return SANE_FALSE;
+      if (!MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
+				   &wMinValueG))
+	return SANE_FALSE;
+      if (!MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
+				   &wMinValueB))
+	return SANE_FALSE;
 
       if (g_chip.AD.DirectionR == DIR_POSITIVE)
 	{
@@ -548,11 +551,14 @@ Reflective_AdjustAD (void)
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
 
-      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR);
-      MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
-				   &wMinValueG);
-      MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
-				   &wMinValueB);
+      if (!MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR))
+	return SANE_FALSE;
+      if (!MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
+				   &wMinValueG))
+	return SANE_FALSE;
+      if (!MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
+				   &wMinValueB))
+	return SANE_FALSE;
 
       DBG (DBG_FUNC, "Reflective_AdjustAD: "
 	   "RGain=%d, ROffset=%d, RDir=%d  GGain=%d, GOffset=%d, GDir=%d  BGain=%d, BOffset=%d, BDir=%d\n",
@@ -749,11 +755,14 @@ Reflective_AdjustAD (void)
       Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
       Asic_ScanStop (&g_chip);
 
-      MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR);
-      MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
-				   &wMinValueG);
-      MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
-				   &wMinValueB);
+      if (!MustScanner_CalculateMaxMin (lpCalData, &wMaxValueR, &wMinValueR))
+	return SANE_FALSE;
+      if (!MustScanner_CalculateMaxMin (lpCalData + wCalWidth, &wMaxValueG,
+				   &wMinValueG))
+	return SANE_FALSE;
+      if (!MustScanner_CalculateMaxMin (lpCalData + wCalWidth * 2, &wMaxValueB,
+				   &wMinValueB))
+	return SANE_FALSE;
 
       DBG (DBG_FUNC, "Reflective_AdjustAD: "
 	   "RGain=%d, ROffset=%d, RDir=%d  GGain=%d, GOffset=%d, GDir=%d  BGain=%d, BOffset=%d, BDir=%d\n",

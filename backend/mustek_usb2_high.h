@@ -63,15 +63,11 @@ typedef unsigned char SCANTYPE;
 
 typedef enum
 {
-  CM_RGB48 = 0,
-  CM_RGB24 = 4,
-  CM_GRAY16 = 5,
-  CM_GRAY10 = 8,
-  CM_GRAY8 = 9,
-  CM_TEXT = 10,
-  CM_RGB24ext = 15,
-  CM_GRAY16ext = 16,
-  CM_GRAY8ext = 20
+  CM_RGB48,
+  CM_RGB24,
+  CM_GRAY16,
+  CM_GRAY8,
+  CM_TEXT
 } COLORMODE;
 
 
@@ -209,9 +205,9 @@ static SANE_Bool MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
 	unsigned short * wLinesCount);
 static void *MustScanner_ReadDataFromScanner (void * dummy);
 static void MustScanner_PrepareCalculateMaxMin (unsigned short wResolution);
-static void MustScanner_CalculateMaxMin (SANE_Byte * pBuffer,
-					 unsigned short * lpMaxValue,
-					 unsigned short * lpMinValue);
+static SANE_Bool MustScanner_CalculateMaxMin (SANE_Byte * pBuffer,
+					      unsigned short * lpMaxValue,
+					      unsigned short * lpMinValue);
 static SANE_Bool MustScanner_ScanSuggest (PTARGETIMAGE pTarget,
 					  PSUGGESTSETTING pSuggest);
 static SANE_Bool MustScanner_StopScan (void);

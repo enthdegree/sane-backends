@@ -112,9 +112,9 @@ static pthread_mutex_t g_scannedLinesMutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t g_readyLinesMutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* for modifying the last point */
-static SANE_Byte * g_lpBefLineImageData = NULL;
 static SANE_Bool g_bIsFirstReadBefData = SANE_TRUE;
-static unsigned int g_dwAlreadyGetLines = 0;
+static SANE_Byte * g_lpBefLineImageData;
+static unsigned int g_dwAlreadyGetLines;
 
 static SANE_Byte QBET4 (SANE_Byte A, SANE_Byte B);
 static unsigned int GetScannedLines (void);
@@ -139,9 +139,9 @@ MustScanner_Init (void)
 
   Asic_Initialize (&g_chip);
 
-  g_dwImageBufferSize = 24L * 1024L * 1024L;
-  g_dwBufferSize = 64L * 1024L;
-  g_dwCalibrationSize = 64L * 1024L;
+  g_dwImageBufferSize = 24 * 1024 * 1024;
+  g_dwBufferSize = 64 * 1024;
+  g_dwCalibrationSize = 64 * 1024;
   g_lpReadImageHead = NULL;
 
   g_isCanceled = SANE_FALSE;
@@ -175,7 +175,9 @@ static SANE_Bool
 MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 {
   SANE_Bool hasTA;
+
   DBG (DBG_FUNC, "MustScanner_PowerControl: Call in\n");
+
   if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
     {
       DBG (DBG_FUNC, "MustScanner_PowerControl: Asic_Open return error\n");
@@ -196,14 +198,10 @@ MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
       return SANE_FALSE;
     }
 
-  if (hasTA)
+  if (hasTA && (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, isTALampOn)))
     {
-      if (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, isTALampOn))
-	{
-	  DBG (DBG_FUNC,
-	       "MustScanner_PowerControl: Asic_TurnTA return error\n");
-	  return SANE_FALSE;
-	}
+      DBG (DBG_FUNC, "MustScanner_PowerControl: Asic_TurnTA return error\n");
+      return SANE_FALSE;
     }
 
   Asic_Close (&g_chip);
@@ -233,7 +231,7 @@ MustScanner_BackHome (void)
 
   Asic_Close (&g_chip);
 
-  DBG (DBG_FUNC, "MustScanner_BackHome: leave  MustScanner_BackHome\n");
+  DBG (DBG_FUNC, "MustScanner_BackHome: leave MustScanner_BackHome\n");
   return SANE_TRUE;
 }
 
@@ -250,7 +248,7 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
 
   if (SS_Reflective == ssScanSource)
     {
-      DBG (DBG_FUNC, "MustScanner_Prepare:ScanSource is SS_Reflective\n");
+      DBG (DBG_FUNC, "MustScanner_Prepare: ScanSource is SS_Reflective\n");
       if (SANE_STATUS_GOOD != Asic_TurnLamp (&g_chip, SANE_TRUE))
 	{
 	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnLamp return error\n");
@@ -261,7 +259,7 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
     }
   else if (SS_Positive == ssScanSource)
     {
-      DBG (DBG_FUNC, "MustScanner_Prepare:ScanSource is SS_Positive\n");
+      DBG (DBG_FUNC, "MustScanner_Prepare: ScanSource is SS_Positive\n");
       if (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, SANE_TRUE))
 	{
 	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnTA return error\n");
@@ -272,7 +270,7 @@ MustScanner_Prepare (SCANSOURCE ssScanSource)
     }
   else if (SS_Negative == ssScanSource)
     {
-      DBG (DBG_FUNC, "MustScanner_Prepare:ScanSource is SS_Negative\n");
+      DBG (DBG_FUNC, "MustScanner_Prepare: ScanSource is SS_Negative\n");
       if (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, SANE_TRUE))
 	{
 	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnTA return error\n");
@@ -295,7 +293,7 @@ MustScanner_FiltLower (unsigned short * pSort, unsigned short TotalCount,
 {
   unsigned short Bound = TotalCount - 1;
   unsigned short LeftCount = HighCount - LowCount;
-  int Temp = 0;
+  int Temp;
   unsigned int Sum = 0;
   unsigned short i, j;
 
@@ -1801,13 +1799,14 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
   if (g_bIsFirstReadBefData)
     {
       g_lpBefLineImageData = malloc (g_SWBytesPerRow);
-      if (NULL == g_lpBefLineImageData)
+      if (!g_lpBefLineImageData)
 	{
 	  return SANE_FALSE;
 	}
       memset (g_lpBefLineImageData, 0, g_SWBytesPerRow);
       memcpy (g_lpBefLineImageData, lpTemp, g_SWBytesPerRow);
       g_bIsFirstReadBefData = SANE_FALSE;
+      g_dwAlreadyGetLines = 0;
     }
 
   ModifyLinePoint (lpTemp, g_lpBefLineImageData, g_SWBytesPerRow,
@@ -1822,8 +1821,6 @@ MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
       DBG (DBG_FUNC,
 	   "MustScanner_GetMono16BitLine1200DPI: free before line data!\n");
       free (g_lpBefLineImageData);
-      g_lpBefLineImageData = NULL;
-      g_dwAlreadyGetLines = 0;
       g_bIsFirstReadBefData = SANE_TRUE;
     }
 
@@ -2020,11 +2017,12 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
   if (g_bIsFirstReadBefData)
     {
       g_lpBefLineImageData = malloc (g_SWBytesPerRow);
-      if (NULL == g_lpBefLineImageData)
+      if (!g_lpBefLineImageData)
 	return SANE_FALSE;
       memset (g_lpBefLineImageData, 0, g_SWBytesPerRow);
       memcpy (g_lpBefLineImageData, lpTemp, g_SWBytesPerRow);
       g_bIsFirstReadBefData = SANE_FALSE;
+      g_dwAlreadyGetLines = 0;
     }
 
   ModifyLinePoint (lpTemp, g_lpBefLineImageData, g_SWBytesPerRow,
@@ -2039,8 +2037,6 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
       DBG (DBG_FUNC,
 	   "MustScanner_GetMono8BitLine1200DPI: free the before line data!\n");
       free (g_lpBefLineImageData);
-      g_lpBefLineImageData = NULL;
-      g_dwAlreadyGetLines = 0;
       g_bIsFirstReadBefData = SANE_TRUE;
     }
 
@@ -2257,16 +2253,16 @@ MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
   g_nDarkSecNum = (int) (g_wDarkCalWidth / g_nDarkSecLength);
 }
 
-static void
+static SANE_Bool
 MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
 			     unsigned short * lpMinValue)
 {
-  unsigned short *wSecData = NULL, *wDarkSecData = NULL;
+  unsigned short *wSecData, *wDarkSecData;
   int i, j;
 
   wSecData = malloc (g_nSecNum * sizeof (unsigned short));
-  if (wSecData == NULL)
-    return;
+  if (!wSecData)
+    return SANE_FALSE;
   memset (wSecData, 0, g_nSecNum * sizeof (unsigned short));
 
   for (i = 0; i < g_nSecNum; i++)
@@ -2285,8 +2281,8 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
   free (wSecData);
 
   wDarkSecData = malloc (g_nDarkSecNum * sizeof (unsigned short));
-  if (wDarkSecData == NULL)
-    return;
+  if (!wDarkSecData)
+    return SANE_FALSE;
   memset (wDarkSecData, 0, g_nDarkSecNum * sizeof (unsigned short));
 
   for (i = 0; i < g_nDarkSecNum; i++)
@@ -2303,6 +2299,8 @@ MustScanner_CalculateMaxMin (SANE_Byte * pBuffer, unsigned short * lpMaxValue,
 	*lpMinValue = wDarkSecData[i];
     }
   free (wDarkSecData);
+
+  return SANE_TRUE;
 }
 
 
@@ -2340,7 +2338,7 @@ MustScanner_ReadDataFromScanner (void __sane_unused__ * dummy)
 	      Asic_ReadImage (&g_chip, lpReadImage, wScanLinesThisBlock))
 	    {
 	      DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: Asic_ReadImage" \
-	        " return error\n");
+			     " return error\n");
 	      DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: thread exit\n");
 	      return NULL;
 	    }
@@ -2377,14 +2375,14 @@ MustScanner_ReadDataFromScanner (void __sane_unused__ * dummy)
   DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: Read image ok\n");
   DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: thread exit\n");
   DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: " \
-    "leave MustScanner_ReadDataFromScanner\n");
+		 "leave MustScanner_ReadDataFromScanner\n");
   return NULL;
 }
 
 static unsigned int
 GetScannedLines (void)
 {
-  unsigned int dwScannedLines = 0;
+  unsigned int dwScannedLines;
 
   pthread_mutex_lock (&g_scannedLinesMutex);
   dwScannedLines = g_dwScannedTotalLines;
@@ -2396,7 +2394,7 @@ GetScannedLines (void)
 static unsigned int
 GetReadyLines (void)
 {
-  unsigned int dwReadyLines = 0;
+  unsigned int dwReadyLines;
 
   pthread_mutex_lock (&g_readyLinesMutex);
   dwReadyLines = g_wtheReadyLines;
@@ -2458,18 +2456,18 @@ static SANE_Byte
 QBET4 (SANE_Byte A, SANE_Byte B)
 {
   static const SANE_Byte bQBET[16][16] = {
-    {0, 0, 0, 0, 1, 1, 2, 2, 4, 4, 5, 5, 8, 8, 9, 9},
-    {0, 0, 0, 0, 1, 1, 2, 2, 4, 4, 5, 5, 8, 8, 9, 9},
-    {0, 0, 0, 0, 1, 1, 2, 2, 4, 4, 5, 5, 8, 8, 9, 9},
-    {0, 0, 0, 0, 1, 1, 2, 2, 4, 4, 5, 5, 8, 8, 9, 9},
-    {1, 1, 1, 1, 3, 3, 3, 3, 6, 6, 6, 6, 10, 10, 11, 11},
-    {1, 1, 1, 1, 3, 3, 3, 3, 6, 6, 6, 6, 10, 10, 11, 11},
-    {2, 2, 2, 2, 3, 3, 3, 3, 7, 7, 7, 7, 10, 10, 11, 11},
-    {2, 2, 2, 2, 3, 3, 3, 3, 7, 7, 7, 7, 10, 10, 11, 11},
-    {4, 4, 4, 4, 6, 6, 7, 7, 12, 12, 12, 12, 13, 13, 14, 14},
-    {4, 4, 4, 4, 6, 6, 7, 7, 12, 12, 12, 12, 13, 13, 14, 14},
-    {5, 5, 5, 5, 6, 6, 7, 7, 12, 12, 12, 12, 13, 13, 14, 14},
-    {5, 5, 5, 5, 6, 6, 7, 7, 12, 12, 12, 12, 13, 13, 14, 14},
+    {0, 0, 0, 0,  1,  1,  2,  2,  4,  4,  5,  5,  8,  8,  9,  9},
+    {0, 0, 0, 0,  1,  1,  2,  2,  4,  4,  5,  5,  8,  8,  9,  9},
+    {0, 0, 0, 0,  1,  1,  2,  2,  4,  4,  5,  5,  8,  8,  9,  9},
+    {0, 0, 0, 0,  1,  1,  2,  2,  4,  4,  5,  5,  8,  8,  9,  9},
+    {1, 1, 1, 1,  3,  3,  3,  3,  6,  6,  6,  6, 10, 10, 11, 11},
+    {1, 1, 1, 1,  3,  3,  3,  3,  6,  6,  6,  6, 10, 10, 11, 11},
+    {2, 2, 2, 2,  3,  3,  3,  3,  7,  7,  7,  7, 10, 10, 11, 11},
+    {2, 2, 2, 2,  3,  3,  3,  3,  7,  7,  7,  7, 10, 10, 11, 11},
+    {4, 4, 4, 4,  6,  6,  7,  7, 12, 12, 12, 12, 13, 13, 14, 14},
+    {4, 4, 4, 4,  6,  6,  7,  7, 12, 12, 12, 12, 13, 13, 14, 14},
+    {5, 5, 5, 5,  6,  6,  7,  7, 12, 12, 12, 12, 13, 13, 14, 14},
+    {5, 5, 5, 5,  6,  6,  7,  7, 12, 12, 12, 12, 13, 13, 14, 14},
     {8, 8, 8, 8, 10, 10, 10, 10, 13, 13, 13, 13, 15, 15, 15, 15},
     {8, 8, 8, 8, 10, 10, 10, 10, 13, 13, 13, 13, 15, 15, 15, 15},
     {9, 9, 9, 9, 11, 11, 11, 11, 14, 14, 14, 14, 15, 15, 15, 15},
@@ -2487,25 +2485,13 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: call in\n");
 
-  if (NULL == pTarget || NULL == pSuggest)
+  if (!pTarget || !pSuggest)
     {
       DBG (DBG_FUNC, "MustScanner_ScanSuggest: parameters error\n");
       return SANE_FALSE;
     }
 
-  /* 1. Look up optical Y resolution */
-  for (i = 0; s_wOpticalDpi[i] != 0; i++)
-    {
-      if (s_wOpticalDpi[i] <= pTarget->wDpi)
-	{
-	  pSuggest->wYDpi = s_wOpticalDpi[i];
-	  break;
-	}
-    }
-  if (s_wOpticalDpi[i] == 0)
-    pSuggest->wYDpi = s_wOpticalDpi[--i];
-
-  /* 2. Look up optical X resolution */
+  /* Look up optical X and Y resolution. */
   for (i = 0; s_wOpticalDpi[i] != 0; i++)
     {
       if (s_wOpticalDpi[i] <= pTarget->wDpi)
@@ -2516,15 +2502,14 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
     }
   if (s_wOpticalDpi[i] == 0)
     pSuggest->wXDpi = s_wOpticalDpi[--i];
+  pSuggest->wYDpi = pSuggest->wXDpi;
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: pTarget->wDpi = %d\n",
        pTarget->wDpi);
-  DBG (DBG_FUNC, "MustScanner_ScanSuggest: pSuggest->wXDpi = %d\n",
+  DBG (DBG_FUNC, "MustScanner_ScanSuggest: pSuggest->w(X|Y)Dpi = %d\n",
        pSuggest->wXDpi);
-  DBG (DBG_FUNC, "MustScanner_ScanSuggest: pSuggest->wYDpi = %d\n",
-       pSuggest->wYDpi);
 
-  /* 3. suggest scan area */
+  /* suggest scan area */
   pSuggest->wX = (unsigned short) (((unsigned int) pTarget->wX *
 	    pSuggest->wXDpi) / pTarget->wDpi);
   pSuggest->wY = (unsigned short) (((unsigned int) pTarget->wY *
@@ -2557,7 +2542,7 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 	pSuggest->wWidth = 8;
     }
 
-  /* 4. check width and height */
+  /* check width and height */
   wMaxWidth = (MAX_SCANNING_WIDTH * pSuggest->wXDpi) / 300;
   wMaxHeight = (MAX_SCANNING_HEIGHT * pSuggest->wYDpi) / 300;
 
@@ -2572,39 +2557,30 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
   if (pSuggest->wHeight > wMaxHeight)
     pSuggest->wHeight = wMaxHeight;
 
-  DBG (DBG_FUNC, "MustScanner_ScanSuggest: g_Width=%d\n", g_Width);
-
   g_Width = (pSuggest->wWidth + 15) & ~15;	/* real scan width */
-
-  DBG (DBG_FUNC, "MustScanner_ScanSuggest: again, g_Width=%d\n", g_Width);
-
   g_Height = pSuggest->wHeight;
+
+  DBG (DBG_FUNC, "MustScanner_ScanSuggest: g_Width=%d\n", g_Width);
 
   switch (pTarget->cmColorMode)
     {
     case CM_RGB48:
-      pSuggest->cmScanMode = CM_RGB48;
-      pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth * 6);
+      pSuggest->dwBytesPerRow = (unsigned int) pSuggest->wWidth * 6;
       break;
     case CM_RGB24:
-      pSuggest->cmScanMode = CM_RGB24ext;
-      pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth * 3);
+      pSuggest->dwBytesPerRow = (unsigned int) pSuggest->wWidth * 3;
       break;
     case CM_GRAY16:
-      pSuggest->cmScanMode = CM_GRAY16ext;
-      pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth * 2);
+      pSuggest->dwBytesPerRow = (unsigned int) pSuggest->wWidth * 2;
       break;
     case CM_GRAY8:
-      pSuggest->cmScanMode = CM_GRAY8ext;
       pSuggest->dwBytesPerRow = (unsigned int) pSuggest->wWidth;
       break;
     case CM_TEXT:
-      pSuggest->cmScanMode = CM_TEXT;
-      pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth / 8);
+      pSuggest->dwBytesPerRow = (unsigned int) pSuggest->wWidth / 8;
       break;
-    default:
-      return SANE_FALSE;
     }
+  pSuggest->cmScanMode = pTarget->cmColorMode;
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: pSuggest->dwBytesPerRow = %d\n",
        pSuggest->dwBytesPerRow);
@@ -2615,27 +2591,31 @@ MustScanner_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 static SANE_Bool
 MustScanner_StopScan (void)
 {
+  SANE_Bool result = SANE_TRUE;
+
   DBG (DBG_FUNC, "MustScanner_StopScan: call in\n");
+
   if (!g_bOpened || !g_bPrepared)
     {
       DBG (DBG_FUNC, "MustScanner_StopScan: scanner not opened or prepared\n");
       return SANE_FALSE;
     }
 
-  g_isCanceled = SANE_TRUE;	/* tell parent process to stop reading image data */
+  g_isCanceled = SANE_TRUE;
 
   pthread_cancel (g_threadid_readimage);
   pthread_join (g_threadid_readimage, NULL);
 
   DBG (DBG_FUNC, "MustScanner_StopScan: thread exit\n");
 
-  Asic_ScanStop (&g_chip);
+  if (SANE_STATUS_GOOD != Asic_ScanStop (&g_chip))
+    result = SANE_FALSE;
   Asic_Close (&g_chip);
 
   g_bOpened = SANE_FALSE;
 
   DBG (DBG_FUNC, "MustScanner_StopScan: leave MustScanner_StopScan\n");
-  return SANE_TRUE;
+  return result;
 }
 
 static SANE_Bool
@@ -2643,47 +2623,43 @@ MustScanner_PrepareScan (void)
 {
   DBG (DBG_FUNC, "MustScanner_PrepareScan: call in\n");
 
-  g_wScanLinesPerBlock = g_dwBufferSize / g_BytesPerRow;
-  g_wMaxScanLines = g_dwImageBufferSize / g_BytesPerRow;
-  g_wMaxScanLines =
-    (g_wMaxScanLines / g_wScanLinesPerBlock) * g_wScanLinesPerBlock;
-
   g_isCanceled = SANE_FALSE;
 
+  g_wScanLinesPerBlock = g_dwBufferSize / g_BytesPerRow;
+  g_wMaxScanLines = ((g_dwImageBufferSize / g_BytesPerRow) /
+		     g_wScanLinesPerBlock) * g_wScanLinesPerBlock;
   g_dwScannedTotalLines = 0;
 
   switch (g_ScanMode)
     {
     case CM_RGB48:
-    case CM_RGB24ext:
+    case CM_RGB24:
       g_wtheReadyLines = g_wLineDistance * 2 + g_wPixelDistance;
       break;
-
-    case CM_GRAY16ext:
-    case CM_GRAY8ext:
+    case CM_GRAY16:
+    case CM_GRAY8:
     case CM_TEXT:
       g_wtheReadyLines = g_wPixelDistance;
       break;
-
-    default:
-      g_wtheReadyLines = 0;
-      return SANE_FALSE;
     }
-
   DBG (DBG_FUNC, "MustScanner_PrepareScan: g_wtheReadyLines=%d\n",
        g_wtheReadyLines);
 
   DBG (DBG_FUNC, "MustScanner_PrepareScan: g_lpReadImageHead malloc %d bytes\n",
        g_dwImageBufferSize);
   g_lpReadImageHead = malloc (g_dwImageBufferSize);
-  if (g_lpReadImageHead == NULL)
+  if (!g_lpReadImageHead)
     {
       DBG (DBG_FUNC, "MustScanner_PrepareScan: g_lpReadImageHead malloc " \
            "error\n");
       return SANE_FALSE;
     }
 
-  Asic_ScanStart (&g_chip);
+  if (SANE_STATUS_GOOD != Asic_ScanStart (&g_chip))
+    {
+      free(g_lpReadImageHead);
+      return SANE_FALSE;
+    }
 
   DBG (DBG_FUNC, "MustScanner_PrepareScan: leave MustScanner_PrepareScan\n");
   return SANE_TRUE;
@@ -2694,6 +2670,7 @@ MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
 		     SANE_Bool isOrderInvert)
 {
   DBG (DBG_FUNC, "MustScanner_GetRows: call in\n");
+
   if (!g_bOpened || !g_bPrepared)
     {
       DBG (DBG_FUNC, "MustScanner_GetRows: scanner not opened or prepared\n");
@@ -2709,20 +2686,20 @@ MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
       else
 	return MustScanner_GetRgb48BitLine (lpBlock, isOrderInvert, Rows);
 
-    case CM_RGB24ext:
+    case CM_RGB24:
       if (g_XDpi == 1200)
 	return MustScanner_GetRgb24BitLine1200DPI (lpBlock, isOrderInvert,
 						   Rows);
       else
 	return MustScanner_GetRgb24BitLine (lpBlock, isOrderInvert, Rows);
 
-    case CM_GRAY16ext:
+    case CM_GRAY16:
       if (g_XDpi == 1200)
 	return MustScanner_GetMono16BitLine1200DPI (lpBlock, Rows);
       else
 	return MustScanner_GetMono16BitLine (lpBlock, Rows);
 
-    case CM_GRAY8ext:
+    case CM_GRAY8:
       if (g_XDpi == 1200)
 	return MustScanner_GetMono8BitLine1200DPI (lpBlock, Rows);
       else
@@ -2733,9 +2710,6 @@ MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
 	return MustScanner_GetMono1BitLine1200DPI (lpBlock, Rows);
       else
 	return MustScanner_GetMono1BitLine (lpBlock, Rows);
-
-    default:
-      break;
     }
 
   DBG (DBG_FUNC, "MustScanner_GetRows: leave MustScanner_GetRows\n");

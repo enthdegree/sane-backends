@@ -937,9 +937,9 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   unsigned short wRLinePos = 0;
   unsigned short wGLinePos = 0;
   unsigned short wBLinePos = 0;
-  SANE_Byte byRed;
-  SANE_Byte byGreen;
-  SANE_Byte byBlue;
+  SANE_Byte bRed;
+  SANE_Byte bGreen;
+  SANE_Byte bBlue;
   SANE_Byte bNextPixel = 0;
   unsigned short i;
 
@@ -993,37 +993,37 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
 	      for (i = 0; i < g_SWWidth; i++)
 		{
-		  byRed =
+		  bRed =
 		    *(g_lpReadImageHead + wRLinePos * g_BytesPerRow + i * 3 +
 		      0);
 		  bNextPixel =
 		    *(g_lpReadImageHead + wRLinePos * g_BytesPerRow +
 		      (i + 1) * 3 + 0);
-		  byRed = (byRed + bNextPixel) >> 1;
+		  bRed = (bRed + bNextPixel) >> 1;
 
-		  byGreen =
+		  bGreen =
 		    *(g_lpReadImageHead + wGLinePos * g_BytesPerRow + i * 3 +
 		      1);
 		  bNextPixel =
 		    *(g_lpReadImageHead + wGLinePos * g_BytesPerRow +
 		      (i + 1) * 3 + 1);
-		  byGreen = (byGreen + bNextPixel) >> 1;
+		  bGreen = (bGreen + bNextPixel) >> 1;
 
-		  byBlue =
+		  bBlue =
 		    *(g_lpReadImageHead + wBLinePos * g_BytesPerRow + i * 3 +
 		      2);
 		  bNextPixel =
 		    *(g_lpReadImageHead + wBLinePos * g_BytesPerRow +
 		      (i + 1) * 3 + 2);
-		  byBlue = (byBlue + bNextPixel) >> 1;
+		  bBlue = (bBlue + bNextPixel) >> 1;
 
 #ifdef ENABLE_GAMMA
-		  tempR = (unsigned short) ((byRed << 4) |
-		    QBET4 (byBlue, byGreen));
-		  tempG = (unsigned short) ((byGreen << 4) |
-		    QBET4 (byRed, byBlue));
-		  tempB = (unsigned short) ((byBlue << 4) |
-		    QBET4 (byGreen, byRed));
+		  tempR = (unsigned short) ((bRed << 4) |
+		    QBET4 (bBlue, bGreen));
+		  tempG = (unsigned short) ((bGreen << 4) |
+		    QBET4 (bRed, bBlue));
+		  tempB = (unsigned short) ((bBlue << 4) |
+		    QBET4 (bGreen, bRed));
 
 		  *(lpLine + i * 3 + 0) =
 		    (unsigned char) (*(g_pGammaTable + tempR));
@@ -1032,9 +1032,9 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		  *(lpLine + i * 3 + 2) =
 		    (unsigned char) (*(g_pGammaTable + 8192 + tempB));
 #else
-		  *(lpLine + i * 3 + 0) = (unsigned char) byRed;
-		  *(lpLine + i * 3 + 1) = (unsigned char) byGreen;
-		  *(lpLine + i * 3 + 2) = (unsigned char) byBlue;
+		  *(lpLine + i * 3 + 0) = (unsigned char) bRed;
+		  *(lpLine + i * 3 + 1) = (unsigned char) bGreen;
+		  *(lpLine + i * 3 + 2) = (unsigned char) bBlue;
 #endif
 		}
 
@@ -1086,33 +1086,33 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	      for (i = 0; i < g_SWWidth; i++)
 		{
 		  DBG (DBG_FUNC,
-		       "MustScanner_GetRgb24BitLine: before byRed\n");
-		  byRed =
+		       "MustScanner_GetRgb24BitLine: before bRed\n");
+		  bRed =
 		    *(g_lpReadImageHead + wRLinePos * g_BytesPerRow + i * 3 +
 		      0);
 		  bNextPixel = *(g_lpReadImageHead + wRLinePos * g_BytesPerRow +
 		    (i + 1) * 3 + 0);	/* R channel */
-		  byRed = (byRed + bNextPixel) >> 1;
+		  bRed = (bRed + bNextPixel) >> 1;
 
 		  DBG (DBG_FUNC,
-		       "MustScanner_GetRgb24BitLine: before byGreen\n");
+		       "MustScanner_GetRgb24BitLine: before bGreen\n");
 
-		  byGreen =
+		  bGreen =
 		    *(g_lpReadImageHead + wGLinePos * g_BytesPerRow + i * 3 +
 		      1);
 		  bNextPixel = *(g_lpReadImageHead + wGLinePos * g_BytesPerRow +
 		    (i + 1) * 3 + 1);	/* G channel */
-		  byGreen = (byGreen + bNextPixel) >> 1;
+		  bGreen = (bGreen + bNextPixel) >> 1;
 
 		  DBG (DBG_FUNC,
-		       "MustScanner_GetRgb24BitLine: before byBlue\n");
+		       "MustScanner_GetRgb24BitLine: before bBlue\n");
 
-		  byBlue =
+		  bBlue =
 		    *(g_lpReadImageHead + wBLinePos * g_BytesPerRow + i * 3 +
 		      2);
 		  bNextPixel = *(g_lpReadImageHead + wBLinePos * g_BytesPerRow +
 		    (i + 1) * 3 + 2);	/* B channel */
-		  byBlue = (byBlue + bNextPixel) >> 1;
+		  bBlue = (bBlue + bNextPixel) >> 1;
 
 
 		  DBG (DBG_FUNC,
@@ -1122,22 +1122,22 @@ MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		  *(lpLine + i * 3 + 2) =
 		    (unsigned
 		     char) (*(g_pGammaTable +
-			      (unsigned short) ((byRed << 4) |
-				      QBET4 (byBlue, byGreen))));
+			      (unsigned short) ((bRed << 4) |
+				      QBET4 (bBlue, bGreen))));
 		  *(lpLine + i * 3 + 1) =
 		    (unsigned
 		     char) (*(g_pGammaTable + 4096 +
-			      (unsigned short) ((byGreen << 4) |
-				      QBET4 (byRed, byBlue))));
+			      (unsigned short) ((bGreen << 4) |
+				      QBET4 (bRed, bBlue))));
 		  *(lpLine + i * 3 + 0) =
 		    (unsigned
 		     char) (*(g_pGammaTable + 8192 +
-			      (unsigned short) ((byBlue << 4) |
-				      QBET4 (byGreen, byRed))));
+			      (unsigned short) ((bBlue << 4) |
+				      QBET4 (bGreen, bRed))));
 #else
-		  *(lpLine + i * 3 + 2) = (unsigned char) byRed;
-		  *(lpLine + i * 3 + 1) = (unsigned char) byGreen;
-		  *(lpLine + i * 3 + 0) = (unsigned char) byBlue;
+		  *(lpLine + i * 3 + 2) = (unsigned char) bRed;
+		  *(lpLine + i * 3 + 1) = (unsigned char) bGreen;
+		  *(lpLine + i * 3 + 0) = (unsigned char) bBlue;
 #endif
 		}
 
@@ -1184,9 +1184,9 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   unsigned short wRLinePosEven = 0;
   unsigned short wGLinePosEven = 0;
   unsigned short wBLinePosEven = 0;
-  SANE_Byte byRed;
-  SANE_Byte byGreen;
-  SANE_Byte byBlue;
+  SANE_Byte bRed;
+  SANE_Byte bGreen;
+  SANE_Byte bBlue;
   SANE_Byte bNextPixel = 0;
   unsigned short i;
 
@@ -1273,46 +1273,46 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		{
 		  if ((i + 1) != g_SWWidth)
 		    {
-		      byRed =
+		      bRed =
 			*(g_lpReadImageHead + wRLinePosOdd * g_BytesPerRow +
 			  i * 3 + 0);
 		      bNextPixel = *(g_lpReadImageHead + wRLinePosEven *
 		        g_BytesPerRow + (i + 1) * 3 + 0);	/* R channel */
-		      byRed = (byRed + bNextPixel) >> 1;
+		      bRed = (bRed + bNextPixel) >> 1;
 
-		      byGreen =
+		      bGreen =
 			*(g_lpReadImageHead + wGLinePosOdd * g_BytesPerRow +
 			  i * 3 + 1);
 		      bNextPixel = *(g_lpReadImageHead + wGLinePosEven *
 		        g_BytesPerRow + (i + 1) * 3 + 1);	/* G channel */
-		      byGreen = (byGreen + bNextPixel) >> 1;
+		      bGreen = (bGreen + bNextPixel) >> 1;
 
-		      byBlue =
+		      bBlue =
 			*(g_lpReadImageHead + wBLinePosOdd * g_BytesPerRow +
 			  i * 3 + 2);
 		      bNextPixel = *(g_lpReadImageHead + wBLinePosEven *
 		        g_BytesPerRow + (i + 1) * 3 + 2);	/* B channel */
-		      byBlue = (byBlue + bNextPixel) >> 1;
+		      bBlue = (bBlue + bNextPixel) >> 1;
 #ifdef ENABLE_GAMMA
 		      *(lpLine + i * 3 + 0) =
 			(unsigned
 			 char) (*(g_pGammaTable +
-				  (unsigned short) ((byRed << 4) |
-					  QBET4 (byBlue, byGreen))));
+				  (unsigned short) ((bRed << 4) |
+					  QBET4 (bBlue, bGreen))));
 		      *(lpLine + i * 3 + 1) =
 			(unsigned
 			 char) (*(g_pGammaTable + 4096 +
-				  (unsigned short) ((byGreen << 4) |
-					  QBET4 (byRed, byBlue))));
+				  (unsigned short) ((bGreen << 4) |
+					  QBET4 (bRed, bBlue))));
 		      *(lpLine + i * 3 + 2) =
 			(unsigned
 			 char) (*(g_pGammaTable + 8192 +
-				  (unsigned short) ((byBlue << 4) |
-					  QBET4 (byGreen, byRed))));
+				  (unsigned short) ((bBlue << 4) |
+					  QBET4 (bGreen, bRed))));
 #else
-		      *(lpLine + i * 3 + 0) = (unsigned char) byRed;
-		      *(lpLine + i * 3 + 1) = (unsigned char) byGreen;
-		      *(lpLine + i * 3 + 2) = (unsigned char) byBlue;
+		      *(lpLine + i * 3 + 0) = (unsigned char) bRed;
+		      *(lpLine + i * 3 + 1) = (unsigned char) bGreen;
+		      *(lpLine + i * 3 + 2) = (unsigned char) bBlue;
 #endif
 
 		      i++;
@@ -1321,49 +1321,49 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 			  break;
 			}
 
-		      byRed =
+		      bRed =
 			*(g_lpReadImageHead + wRLinePosEven * g_BytesPerRow +
 			  i * 3 + 0);
 		      bNextPixel =
 			*(g_lpReadImageHead + wRLinePosOdd * g_BytesPerRow +
 			  (i + 1) * 3 + 0);
-		      byRed = (byRed + bNextPixel) >> 1;
+		      bRed = (bRed + bNextPixel) >> 1;
 
-		      byGreen =
+		      bGreen =
 			*(g_lpReadImageHead + wGLinePosEven * g_BytesPerRow +
 			  i * 3 + 1);
 		      bNextPixel =
 			*(g_lpReadImageHead + wGLinePosOdd * g_BytesPerRow +
 			  (i + 1) * 3 + 1);
-		      byGreen = (byGreen + bNextPixel) >> 1;
+		      bGreen = (bGreen + bNextPixel) >> 1;
 
-		      byBlue =
+		      bBlue =
 			*(g_lpReadImageHead + wBLinePosEven * g_BytesPerRow +
 			  i * 3 + 2);
 		      bNextPixel =
 			*(g_lpReadImageHead + wBLinePosOdd * g_BytesPerRow +
 			  (i + 1) * 3 + 2);
-		      byBlue = (byBlue + bNextPixel) >> 1;
+		      bBlue = (bBlue + bNextPixel) >> 1;
 #ifdef ENABLE_GAMMA
 		      *(lpLine + i * 3 + 0) =
 			(unsigned
 			 char) (*(g_pGammaTable +
-				  (unsigned short) ((byRed << 4) |
-					  QBET4 (byBlue, byGreen))));
+				  (unsigned short) ((bRed << 4) |
+					  QBET4 (bBlue, bGreen))));
 		      *(lpLine + i * 3 + 1) =
 			(unsigned
 			 char) (*(g_pGammaTable + 4096 +
-				  (unsigned short) ((byGreen << 4) |
-					  QBET4 (byRed, byBlue))));
+				  (unsigned short) ((bGreen << 4) |
+					  QBET4 (bRed, bBlue))));
 		      *(lpLine + i * 3 + 2) =
 			(unsigned
 			 char) (*(g_pGammaTable + 8192 +
-				  (unsigned short) ((byBlue << 4) |
-					  QBET4 (byGreen, byRed))));
+				  (unsigned short) ((bBlue << 4) |
+					  QBET4 (bGreen, bRed))));
 #else
-		      *(lpLine + i * 3 + 0) = (unsigned char) byRed;
-		      *(lpLine + i * 3 + 1) = (unsigned char) byGreen;
-		      *(lpLine + i * 3 + 2) = (unsigned char) byBlue;
+		      *(lpLine + i * 3 + 0) = (unsigned char) bRed;
+		      *(lpLine + i * 3 + 1) = (unsigned char) bGreen;
+		      *(lpLine + i * 3 + 2) = (unsigned char) bBlue;
 #endif
 		      i++;
 		    }
@@ -1459,50 +1459,50 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 		{
 		  if ((i + 1) != g_SWWidth)
 		    {
-		      byRed =
+		      bRed =
 			*(g_lpReadImageHead + wRLinePosOdd * g_BytesPerRow +
 			  i * 3 + 0);
 		      bNextPixel =
 			*(g_lpReadImageHead + wRLinePosEven * g_BytesPerRow +
 			  (i + 1) * 3 + 0);
-		      byRed = (byRed + bNextPixel) >> 1;
+		      bRed = (bRed + bNextPixel) >> 1;
 
-		      byGreen =
+		      bGreen =
 			*(g_lpReadImageHead + wGLinePosOdd * g_BytesPerRow +
 			  i * 3 + 1);
 		      bNextPixel =
 			*(g_lpReadImageHead + wGLinePosEven * g_BytesPerRow +
 			  (i + 1) * 3 + 1);
-		      byGreen = (byGreen + bNextPixel) >> 1;
+		      bGreen = (bGreen + bNextPixel) >> 1;
 
-		      byBlue =
+		      bBlue =
 			*(g_lpReadImageHead + wBLinePosOdd * g_BytesPerRow +
 			  i * 3 + 2);
 		      bNextPixel =
 			*(g_lpReadImageHead + wBLinePosEven * g_BytesPerRow +
 			  (i + 1) * 3 + 2);
-		      byBlue = (byBlue + bNextPixel) >> 1;
+		      bBlue = (bBlue + bNextPixel) >> 1;
 
 #ifdef ENABLE_GAMMA
 		      *(lpLine + i * 3 + 2) =
 			(unsigned
 			 char) (*(g_pGammaTable +
-				  (unsigned short) ((byRed << 4) |
-					  QBET4 (byBlue, byGreen))));
+				  (unsigned short) ((bRed << 4) |
+					  QBET4 (bBlue, bGreen))));
 		      *(lpLine + i * 3 + 1) =
 			(unsigned
 			 char) (*(g_pGammaTable + 4096 +
-				  (unsigned short) ((byGreen << 4) |
-					  QBET4 (byRed, byBlue))));
+				  (unsigned short) ((bGreen << 4) |
+					  QBET4 (bRed, bBlue))));
 		      *(lpLine + i * 3 + 0) =
 			(unsigned
 			 char) (*(g_pGammaTable + 8192 +
-				  (unsigned short) ((byBlue << 4) |
-					  QBET4 (byGreen, byRed))));
+				  (unsigned short) ((bBlue << 4) |
+					  QBET4 (bGreen, bRed))));
 #else
-		      *(lpLine + i * 3 + 2) = (unsigned char) byRed;
-		      *(lpLine + i * 3 + 1) = (unsigned char) byGreen;
-		      *(lpLine + i * 3 + 0) = (unsigned char) byBlue;
+		      *(lpLine + i * 3 + 2) = (unsigned char) bRed;
+		      *(lpLine + i * 3 + 1) = (unsigned char) bGreen;
+		      *(lpLine + i * 3 + 0) = (unsigned char) bBlue;
 #endif
 		      i++;
 		      if (i >= g_SWWidth)
@@ -1510,49 +1510,49 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 			  break;
 			}
 
-		      byRed =
+		      bRed =
 			*(g_lpReadImageHead + wRLinePosEven * g_BytesPerRow +
 			  i * 3 + 0);
 		      bNextPixel =
 			*(g_lpReadImageHead + wRLinePosOdd * g_BytesPerRow +
 			  (i + 1) * 3 + 0);
-		      byRed = (byRed + bNextPixel) >> 1;
+		      bRed = (bRed + bNextPixel) >> 1;
 
-		      byGreen =
+		      bGreen =
 			*(g_lpReadImageHead + wGLinePosEven * g_BytesPerRow +
 			  i * 3 + 1);
 		      bNextPixel =
 			*(g_lpReadImageHead + wGLinePosOdd * g_BytesPerRow +
 			  (i + 1) * 3 + 1);
-		      byGreen = (byGreen + bNextPixel) >> 1;
+		      bGreen = (bGreen + bNextPixel) >> 1;
 
-		      byBlue =
+		      bBlue =
 			*(g_lpReadImageHead + wBLinePosEven * g_BytesPerRow +
 			  i * 3 + 2);
 		      bNextPixel =
 			*(g_lpReadImageHead + wBLinePosOdd * g_BytesPerRow +
 			  (i + 1) * 3 + 2);
-		      byBlue = (byBlue + bNextPixel) >> 1;
+		      bBlue = (bBlue + bNextPixel) >> 1;
 #ifdef ENABLE_GAMMA
 		      *(lpLine + i * 3 + 2) =
 			(unsigned
 			 char) (*(g_pGammaTable +
-				  (unsigned short) ((byRed << 4) |
-					  QBET4 (byBlue, byGreen))));
+				  (unsigned short) ((bRed << 4) |
+					  QBET4 (bBlue, bGreen))));
 		      *(lpLine + i * 3 + 1) =
 			(unsigned
 			 char) (*(g_pGammaTable + 4096 +
-				  (unsigned short) ((byGreen << 4) |
-					  QBET4 (byRed, byBlue))));
+				  (unsigned short) ((bGreen << 4) |
+					  QBET4 (bRed, bBlue))));
 		      *(lpLine + i * 3 + 0) =
 			(unsigned
 			 char) (*(g_pGammaTable + 8192 +
-				  (unsigned short) ((byBlue << 4) |
-					  QBET4 (byGreen, byRed))));
+				  (unsigned short) ((bBlue << 4) |
+					  QBET4 (bGreen, bRed))));
 #else
-		      *(lpLine + i * 3 + 2) = (unsigned char) byRed;
-		      *(lpLine + i * 3 + 1) = (unsigned char) byGreen;
-		      *(lpLine + i * 3 + 0) = (unsigned char) byBlue;
+		      *(lpLine + i * 3 + 2) = (unsigned char) bRed;
+		      *(lpLine + i * 3 + 1) = (unsigned char) bGreen;
+		      *(lpLine + i * 3 + 0) = (unsigned char) bBlue;
 #endif
 		      i++;
 		    }
@@ -1916,7 +1916,7 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
 
   unsigned short wLinePosOdd = 0;
   unsigned short wLinePosEven = 0;
-  SANE_Byte byGray;
+  SANE_Byte bGray;
   unsigned short i;
   SANE_Byte bNextPixel = 0;
 
@@ -1968,32 +1968,32 @@ MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
 	    {
 	      if ((i + 1) != g_SWWidth)
 		{
-		  byGray =
+		  bGray =
 		    *(g_lpReadImageHead + wLinePosOdd * g_BytesPerRow + i);
 		  bNextPixel =
 		    *(g_lpReadImageHead + wLinePosEven * g_BytesPerRow +
 		      (i + 1));
-		  byGray = (byGray + bNextPixel) >> 1;
+		  bGray = (bGray + bNextPixel) >> 1;
 
 		  *(lpLine + i) =
 		    (SANE_Byte) * (g_pGammaTable +
-			      (byGray << 4 | (rand () & 0x0f)));
+			      (bGray << 4 | (rand () & 0x0f)));
 		  i++;
 		  if (i >= g_SWWidth)
 		    {
 		      break;
 		    }
 
-		  byGray =
+		  bGray =
 		    *(g_lpReadImageHead + wLinePosEven * g_BytesPerRow + i);
 		  bNextPixel =
 		    *(g_lpReadImageHead + wLinePosOdd * g_BytesPerRow +
 		      (i + 1));
-		  byGray = (byGray + bNextPixel) >> 1;
+		  bGray = (bGray + bNextPixel) >> 1;
 
 		  *(lpLine + i) =
 		    (SANE_Byte) * (g_pGammaTable +
-			      (byGray << 4 | (rand () & 0x0f)));
+			      (bGray << 4 | (rand () & 0x0f)));
 		  i++;
 		}
 	    }

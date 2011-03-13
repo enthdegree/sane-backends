@@ -592,7 +592,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 	   || pSetParameters->cmColorMode == CM_RGB24)
     {
       unsigned short i;
-      SANE_Byte byGammaData;
+      SANE_Byte bGammaData;
       double pow_d;
       double pow_z = (double) 10 / 16.0;
 
@@ -614,11 +614,11 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 	{
 	  pow_d = (double) i / (double) 4096;
 
-	  byGammaData = (SANE_Byte) (pow (pow_d, pow_z) * 255);
+	  bGammaData = (SANE_Byte) (pow (pow_d, pow_z) * 255);
 
-	  *(g_pGammaTable + i) = byGammaData;
-	  *(g_pGammaTable + i + 4096) = byGammaData;
-	  *(g_pGammaTable + i + 8192) = byGammaData;
+	  *(g_pGammaTable + i) = bGammaData;
+	  *(g_pGammaTable + i + 4096) = bGammaData;
+	  *(g_pGammaTable + i + 8192) = bGammaData;
 	}
     }
   else if (pSetParameters->cmColorMode == CM_GRAY16

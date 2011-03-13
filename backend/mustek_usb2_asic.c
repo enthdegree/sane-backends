@@ -223,7 +223,7 @@ static STATUS
 Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpData)
 {
   STATUS status;
-  size_t read_size, cur_read_size;
+  size_t cur_read_size;
 
   DBG (DBG_ASIC, "Mustek_DMARead: Enter. size=%d\n", size);
 
@@ -231,10 +231,9 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpData)
   if (status != STATUS_GOOD)
     return status;
 
-  read_size = 32 * 1024;
   while (size > 0)
     {
-      cur_read_size = (read_size <= size) ? read_size : size;
+      cur_read_size = (size > DMA_BLOCK_SIZE) ? DMA_BLOCK_SIZE : size;
 
       status = SetRWSize (chip, READ_RAM, cur_read_size);
       if (status != STATUS_GOOD)
@@ -255,7 +254,7 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpData)
       lpData += cur_read_size;
     }
 
-  if (cur_read_size < read_size)
+  if (cur_read_size < DMA_BLOCK_SIZE)
     usleep (20000);
 
   DBG (DBG_ASIC, "Mustek_DMARead: Exit\n");
@@ -266,7 +265,7 @@ static STATUS
 Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpData)
 {
   STATUS status;
-  size_t write_size, cur_write_size;
+  size_t cur_write_size;
 
   DBG (DBG_ASIC, "Mustek_DMAWrite: Enter. size=%d\n", size);
 
@@ -274,10 +273,9 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpData)
   if (status != STATUS_GOOD)
     return status;
 
-  write_size = 32 * 1024;
   while (size > 0)
     {
-      cur_write_size = (write_size <= size) ? write_size : size;
+      cur_write_size = (size > DMA_BLOCK_SIZE) ? DMA_BLOCK_SIZE : size;
 
       status = SetRWSize (chip, WRITE_RAM, cur_write_size);
       if (status != STATUS_GOOD)
@@ -1016,8 +1014,8 @@ InitTiming (PAsic chip)
   chip->Timing.CCD_PHCP_Timing = 0x0000f000;
   chip->Timing.CCD_PH1_Timing  = 0xfff00000;
 
-  chip->Timing.wCCDPixelNumber_1200 = 11250;
-  chip->Timing.wCCDPixelNumber_600 = 7500;
+  chip->Timing.wCCDPixelNumber_Full = 11250;
+  chip->Timing.wCCDPixelNumber_Half = 7500;
 
   DBG (DBG_ASIC, "InitTiming: Exit\n");
 }
@@ -1755,7 +1753,7 @@ SetExtraSetting (PAsic chip, unsigned short wXResolution,
   DBG (DBG_ASIC, "ChannelR_StartPixel=%d,ChannelR_EndPixel=%d\n",
        chip->Timing.ChannelR_StartPixel, chip->Timing.ChannelR_EndPixel);
 
-  if (wXResolution == 1200)
+  if (wXResolution == SENSOR_DPI)
     Mustek_SendData (chip, ES01_DE_CCD_SETUP_REGISTER, EVEN_ODD_ENABLE_ES01);
   else
     Mustek_SendData (chip, ES01_DE_CCD_SETUP_REGISTER, 0);
@@ -2188,18 +2186,18 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
   if (chip->lsLightSource == LS_REFLECTIVE)
     {
       if (wXResolution > (SENSOR_DPI / 2))
-	{	/* full CCD resolution 1200 dpi */
+	{
 	  wThinkCCDResolution = SENSOR_DPI;
 	  Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
 	  Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x01);
-	  wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_1200;
+	  wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Full;
 	}
       else
-	{	/* 600 dpi */
+	{
 	  wThinkCCDResolution = SENSOR_DPI / 2;
 	  Mustek_SendData (chip, ES01_98_GPIOControl8_15, 0x01);
 	  Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x00);
-	  wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_600;
+	  wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Half;
 	}
     }
   else
@@ -2224,7 +2222,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
     }
 
   SetLineTimeAndExposure (chip);
-  if ((bScanType == SCAN_TYPE_NORMAL) || (wYResolution == 600))
+  if ((bScanType == SCAN_TYPE_NORMAL) || (wYResolution == (SENSOR_DPI / 2)))
     Mustek_SendData (chip, ES01_CB_CCDDummyCycleNumber, bDummyCycleNum);
   SetLEDTime (chip);
 
@@ -2270,7 +2268,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 		   SPEED_UNIT_1_PIXEL_TIME | MOTOR_SYNC_UNIT_1_PIXEL_TIME);
 
   /* set motor movement type */
-  if ((bScanType == SCAN_TYPE_NORMAL) && (wYResolution >= 1200))
+  if ((bScanType == SCAN_TYPE_NORMAL) && (wYResolution >= SENSOR_DPI))
     bMotorMoveType = _8_TABLE_SPACE_FOR_1_DIV_2_STEP;
 
   switch (bMotorMoveType)
@@ -2368,7 +2366,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
   else
     {
       /* TODO: this is equivalent to the above, except in TA mode */
-      if (wXResolution > 600)
+      if (wXResolution > (SENSOR_DPI / 2))
         StartSpeed = EndSpeed;
       else
         StartSpeed = EndSpeed + 3500;
@@ -2435,10 +2433,10 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 			     >> TABLE_OFFSET_BASE) << TABLE_OFFSET_BASE);
       dwEndAddr = dwShadingTableAddr - 1;
 
-      if (wXResolution > 600)
-        dbXRatioAdderDouble = 1200 / wXResolution;
+      if (wXResolution > (SENSOR_DPI / 2))
+        dbXRatioAdderDouble = SENSOR_DPI / wXResolution;
       else
-        dbXRatioAdderDouble = 600 / wXResolution;
+        dbXRatioAdderDouble = (SENSOR_DPI / 2) / wXResolution;
 
       RamAccess.ReadWrite = WRITE_RAM;
       RamAccess.IsOnChipGamma = EXTERNAL_RAM;
@@ -2878,10 +2876,10 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
       return STATUS_INVAL;
     }
 
-  if (wXResolution > 600)
-    dbXRatioAdderDouble = 1200 / wXResolution;
+  if (wXResolution > (SENSOR_DPI / 2))
+    dbXRatioAdderDouble = SENSOR_DPI / wXResolution;
   else
-    dbXRatioAdderDouble = 600 / wXResolution;
+    dbXRatioAdderDouble = (SENSOR_DPI / 2) / wXResolution;
 
   wValidPixelNumber = (unsigned short) ((wWidth + 4) * dbXRatioAdderDouble);
   DBG (DBG_ASIC, "wValidPixelNumber = %d\n", wValidPixelNumber);

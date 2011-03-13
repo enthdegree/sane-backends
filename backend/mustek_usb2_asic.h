@@ -115,8 +115,8 @@ typedef struct
   unsigned int CCD_PH1_Timing;
   unsigned int CCD_PH2_Timing;
 
-  unsigned short wCCDPixelNumber_1200;
-  unsigned short wCCDPixelNumber_600;
+  unsigned short wCCDPixelNumber_Full;
+  unsigned short wCCDPixelNumber_Half;
 } Timings;
 
 typedef struct
@@ -176,6 +176,8 @@ typedef enum
 #define DBG_ASIC 	6	/* starts and exits of low level functions */
 #define DBG_DBG 	10	/* useful only for tracing bugs */
 
+
+#define DMA_BLOCK_SIZE (32 * 1024)
 
 #define DRAM_TEST_SIZE 64
 #define DRAM_1Mx16_SIZE (1024*1024)	/* unit: word */

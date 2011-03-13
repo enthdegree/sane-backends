@@ -322,8 +322,8 @@ Reflective_SetupScan (COLORMODE ColorMode,
     }
   g_Y = 300;
 
-  Asic_SetWindow (&g_chip, g_bScanBits, g_XDpi, g_YDpi, g_X, g_Y, g_Width,
-		  g_Height);
+  Asic_SetWindow (&g_chip, SCAN_TYPE_NORMAL, g_bScanBits, g_XDpi, g_YDpi,
+		  g_X, g_Y, g_Width, g_Height);
 
   DBG (DBG_FUNC, "Reflective_SetupScan: leave Reflective_SetupScan\n");
   return MustScanner_PrepareScan ();
@@ -396,10 +396,8 @@ Reflective_AdjustAD (void)
       return FALSE;
     }
 
-  Asic_SetMotorType (&g_chip, FALSE);
-
-  Asic_SetCalibrate (&g_chip, 24, wAdjustADResolution, wAdjustADResolution, 0,
-		     0, wCalWidth, 1);
+  Asic_SetWindow (&g_chip, SCAN_TYPE_CALIBRATE_DARK, 24,
+		  wAdjustADResolution, wAdjustADResolution, 0, 0, wCalWidth, 1);
   MustScanner_PrepareCalculateMaxMin (wAdjustADResolution);
   nTimesOfCal = 0;
 
@@ -900,9 +898,8 @@ Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
   dwTotalSize = wCalWidth * wCalHeight;
   nScanBlock = (int) (dwTotalSize / g_dwCalibrationSize);
 
-  Asic_SetMotorType (&g_chip, TRUE);
-  Asic_SetCalibrate (&g_chip, 8, wXResolution, wYResolution, 0, 0, wCalWidth,
-		     wCalHeight);
+  Asic_SetWindow (&g_chip, SCAN_TYPE_CALIBRATE_LIGHT, 8,
+		  wXResolution, wYResolution, 0, 0, wCalWidth, wCalHeight);
   SetAFEGainOffset (&g_chip);
   if (Asic_ScanStart (&g_chip) != STATUS_GOOD)
     {
@@ -1097,15 +1094,13 @@ Reflective_LineCalibration16Bits (void)
       return FALSE;
     }
 
-  Asic_SetMotorType (&g_chip, TRUE);
   SetAFEGainOffset (&g_chip);
-  status =
-    Asic_SetCalibrate (&g_chip, 48, g_XDpi, 600, g_X, 0, wCalWidth,
-		       wCalHeight);
+  status = Asic_SetWindow (&g_chip, SCAN_TYPE_CALIBRATE_LIGHT, 48, g_XDpi, 600,
+			   g_X, 0, wCalWidth, wCalHeight);
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_SetCalibrate return error\n");
+	   "Reflective_LineCalibration16Bits: Asic_SetWindow return error\n");
 
       free (lpWhiteData);
 
@@ -1136,15 +1131,12 @@ Reflective_LineCalibration16Bits (void)
   Asic_ScanStop (&g_chip);
 
   /*Read dark level data */
-  Asic_SetMotorType (&g_chip, FALSE);
-
-  status =
-    Asic_SetCalibrate (&g_chip, 48, g_XDpi, 600, g_X, 0, wCalWidth,
-		       wCalHeight);
+  status = Asic_SetWindow (&g_chip, SCAN_TYPE_CALIBRATE_DARK, 48, g_XDpi, 600,
+			   g_X, 0, wCalWidth, wCalHeight);
   if (status != STATUS_GOOD)
     {
       DBG (DBG_FUNC,
-	   "Reflective_LineCalibration16Bits: Asic_SetCalibrate return error\n");
+	   "Reflective_LineCalibration16Bits: Asic_SetWindow return error\n");
 
       free (lpWhiteData);
       free (lpDarkData);

@@ -305,8 +305,8 @@ Transparent_SetupScan (COLORMODE ColorMode,
   Asic_MotorMove (&g_chip, TRUE, g_Y - 360);
   g_Y = 360;
 
-  Asic_SetWindow (&g_chip, g_bScanBits, g_XDpi, g_YDpi, g_X, g_Y, g_Width,
-		  g_Height);
+  Asic_SetWindow (&g_chip, SCAN_TYPE_NORMAL, g_bScanBits, g_XDpi, g_YDpi,
+		  g_X, g_Y, g_Width, g_Height);
 
   DBG (DBG_FUNC, "Transparent_SetupScan: leave Transparent_SetupScan\n");
   return MustScanner_PrepareScan ();
@@ -377,10 +377,8 @@ Transparent_AdjustAD (void)
       return FALSE;
     }
 
-  Asic_SetMotorType (&g_chip, FALSE);
-
-  Asic_SetCalibrate (&g_chip, 24, wAdjustADResolution, wAdjustADResolution, 0,
-		     0, wCalWidth, 1);
+  Asic_SetWindow (&g_chip, SCAN_TYPE_CALIBRATE_DARK, 24,
+		  wAdjustADResolution, wAdjustADResolution, 0, 0, wCalWidth, 1);
   MustScanner_PrepareCalculateMaxMin (wAdjustADResolution);
   nTimesOfCal = 0;
 
@@ -860,9 +858,8 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
   dwTotalSize = wCalWidth * wCalHeight;
   nScanBlock = (int) (dwTotalSize / g_dwCalibrationSize);
 
-  Asic_SetMotorType (&g_chip, TRUE);
-  Asic_SetCalibrate (&g_chip, 8, wXResolution, wYResolution, 0, 0, wCalWidth,
-		     wCalHeight);
+  Asic_SetWindow (&g_chip, SCAN_TYPE_CALIBRATE_LIGHT, 8,
+		  wXResolution, wYResolution, 0, 0, wCalWidth, wCalHeight);
   SetAFEGainOffset (&g_chip);
   Asic_ScanStart (&g_chip);
 
@@ -1025,10 +1022,9 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
     }
 
   /*Read white level data */
-  Asic_SetMotorType (&g_chip, TRUE);
   SetAFEGainOffset (&g_chip);
-  Asic_SetCalibrate (&g_chip, 48, g_XDpi, 600, g_X, 0, wCalWidth,
-		     wCalHeight);
+  Asic_SetWindow (&g_chip, SCAN_TYPE_CALIBRATE_LIGHT, 48, g_XDpi, 600, g_X, 0,
+		  wCalWidth, wCalHeight);
   Asic_ScanStart (&g_chip);
 
   /* Read Data */
@@ -1037,10 +1033,9 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
 
 
   /* Read dark level data */
-  Asic_SetMotorType (&g_chip, FALSE);
   SetAFEGainOffset (&g_chip);
-  Asic_SetCalibrate (&g_chip, 48, g_XDpi, 600, g_X, 0, wCalWidth,
-		     wCalHeight);
+  Asic_SetWindow (&g_chip, SCAN_TYPE_CALIBRATE_DARK, 48, g_XDpi, 600, g_X, 0,
+		  wCalWidth, wCalHeight);
 
   Asic_TurnLamp (&g_chip, FALSE);
   Asic_TurnTA (&g_chip, FALSE);

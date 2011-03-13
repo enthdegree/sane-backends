@@ -147,7 +147,6 @@ typedef struct
   Timings Timing;
   ADConverter AD;
 
-  SANE_Byte isMotorMove;
   SANE_Byte isMotorMoveToFirstLine;
   unsigned short * lpShadingTable;
 } Asic, *PAsic;
@@ -195,6 +194,10 @@ typedef enum
 #define EXTERNAL_RAM 0
 #define ON_CHIP_PRE_GAMMA 1
 #define ON_CHIP_FINAL_GAMMA 2
+
+#define SCAN_TYPE_NORMAL 0
+#define SCAN_TYPE_CALIBRATE_LIGHT 1
+#define SCAN_TYPE_CALIBRATE_DARK 2
 
 #define BANK_SIZE (64)
 
@@ -967,9 +970,12 @@ static STATUS SwitchBank (PAsic chip, unsigned short reg);
 static STATUS Asic_Open (PAsic chip);
 static STATUS Asic_Close (PAsic chip);
 static void Asic_Initialize (PAsic chip);
-static STATUS Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
-			      unsigned short wXResolution, unsigned short wYResolution,
-			      unsigned short wX, unsigned short wY, unsigned short wWidth, unsigned short wLength);
+static STATUS Asic_SetWindow (PAsic chip,
+			      SANE_Byte bScanType, SANE_Byte bScanBits,
+			      unsigned short wXResolution,
+			      unsigned short wYResolution,
+			      unsigned short wX, unsigned short wY,
+			      unsigned short wWidth, unsigned short wLength);
 static STATUS Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn);
 static STATUS Asic_TurnTA (PAsic chip, SANE_Bool isTAOn);
 static void Asic_ResetADParameters (PAsic chip, LIGHTSOURCE lsLightSource);
@@ -986,18 +992,12 @@ static STATUS Asic_IsTAConnected (PAsic chip, SANE_Bool *hasTA);
 static STATUS Asic_ReadCalibrationData (PAsic chip, SANE_Byte * pBuffer,
 					unsigned int dwXferBytes, SANE_Byte bScanBits);
 
-/* enable/disable motor movement */
-static void Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove);
-
 static STATUS Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps);
 static STATUS Asic_CarriageHome (PAsic chip);
 static STATUS Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 				    unsigned short * lpDarkShading,
 				    unsigned short wXResolution, unsigned short wWidth);
 static STATUS Asic_WaitUnitReady (PAsic chip);
-static STATUS Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
-				 unsigned short wYResolution, unsigned short wX, unsigned short wY,
-				 unsigned short wWidth, unsigned short wLength);
 
 
 /* ---------------------- ASIC motor defines -------------------------- */
@@ -1041,10 +1041,10 @@ typedef struct
 } LLF_MOTORMOVE;
 
 
-static void CalculateMotorTable (LLF_CALCULATEMOTORTABLE *
-				 lpCalculateMotorTable);
-static void LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE *
-				    lpCalculateMotorTable);
+static void CalculateScanMotorTable (LLF_CALCULATEMOTORTABLE *
+				     lpCalculateMotorTable);
+static void CalculateMoveMotorTable (LLF_CALCULATEMOTORTABLE *
+				     lpCalculateMotorTable);
 static void LLFSetMotorCurrentAndPhase (PAsic chip,
 					LLF_MOTOR_CURRENT_AND_PHASE *
 					MotorCurrentAndPhase);
@@ -1052,6 +1052,9 @@ static void SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
 			       unsigned short wStartY,
 			       unsigned int dwScanImageSteps,
 			       unsigned short wYResolution);
+static void SetMotorStepTableForCalibration (PAsic chip,
+					     LLF_MOTORMOVE * MotorStepsTable,
+					     unsigned int dwScanImageSteps);
 static STATUS LLFSetMotorTable (PAsic chip, unsigned short *MotorTablePtr);
 static SANE_Byte CalculateMotorCurrent (unsigned short dwMotorSpeed);
 static STATUS LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove);

@@ -2044,6 +2044,86 @@ Asic_TurnTA (PAsic chip, SANE_Bool isTAOn)
   return STATUS_GOOD;
 }
 
+
+static SANE_Byte
+GetBytePerPixel (SANE_Byte bBitPerPixel)
+{
+  switch (bBitPerPixel)
+    {
+    case 48:
+      return 6;
+    case 24:
+      return 3;
+    case 16:
+      return 2;
+    case 8:
+    default:
+      return 1;
+    }
+}
+
+static SANE_Byte
+GetDummyCycleNumber (PAsic chip, unsigned short wYResolution)
+{
+  SANE_Byte bDummyCycleNum = 0;
+  if (chip->lsLightSource == LS_REFLECTIVE)
+    {
+      if (chip->UsbHost == HT_USB10)
+        {
+          switch (wYResolution)
+            {
+	    case 2400:
+	    case 1200:
+	      if (chip->dwBytesCountPerRow > 22000)
+	        bDummyCycleNum = 4;
+	      else if (chip->dwBytesCountPerRow > 15000)
+	        bDummyCycleNum = 3;
+	      else if (chip->dwBytesCountPerRow > 10000)
+	        bDummyCycleNum = 2;
+	      else if (chip->dwBytesCountPerRow > 5000)
+	        bDummyCycleNum = 1;
+	      break;
+	    case 600:
+	    case 300:
+	    case 150:
+	    case 100:
+	      if (chip->dwBytesCountPerRow > 21000)
+	        bDummyCycleNum = 7;
+	      else if (chip->dwBytesCountPerRow > 18000)
+	        bDummyCycleNum = 6;
+	      else if (chip->dwBytesCountPerRow > 15000)
+	        bDummyCycleNum = 5;
+	      else if (chip->dwBytesCountPerRow > 12000)
+	        bDummyCycleNum = 4;
+	      else if (chip->dwBytesCountPerRow > 9000)
+	        bDummyCycleNum = 3;
+	      else if (chip->dwBytesCountPerRow > 6000)
+	        bDummyCycleNum = 2;
+	      else if (chip->dwBytesCountPerRow > 3000)
+	        bDummyCycleNum = 1;
+	      break;
+	    case 75:
+	    case 50:
+	      bDummyCycleNum = 1;
+	      break;
+	    }
+	}
+      else
+	{
+	  switch (wYResolution)
+	    {
+	    case 2400:
+	    case 1200:
+	    case 75:
+	    case 50:
+	      bDummyCycleNum = 1;
+	      break;
+	    }
+	}
+    }
+  return bDummyCycleNum;
+}
+
 static STATUS
 Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 		unsigned short wXResolution, unsigned short wYResolution,
@@ -2097,87 +2177,14 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 		   LED_MODE_FLASH_SLOWLY | 0x40 | 0x80);
 
   /* calculate byte per line */
-  if (bScanBits > 24)
-    chip->dwBytesCountPerRow = (unsigned int) wWidth * 6;
-  else if (bScanBits == 24)
-    chip->dwBytesCountPerRow = (unsigned int) wWidth * 3;
-  else if ((bScanBits > 8) && (bScanBits <= 16))
-    chip->dwBytesCountPerRow = (unsigned int) wWidth * 2;
-  else if (bScanBits == 8)
-    chip->dwBytesCountPerRow = (unsigned int) wWidth;
-  else	/* bScanBits < 8 */
-    chip->dwBytesCountPerRow = (unsigned int) wWidth;
+  chip->dwBytesCountPerRow = (unsigned int) wWidth *
+			     GetBytePerPixel (bScanBits);
   DBG (DBG_ASIC, "dwBytesCountPerRow=%d\n", chip->dwBytesCountPerRow);
 
-  bDummyCycleNum = 0;
   if (bScanType == SCAN_TYPE_NORMAL)
-    {
-      if (chip->lsLightSource == LS_REFLECTIVE)
-	{
-	  if (chip->UsbHost == HT_USB10)
-	    {
-	      switch (wYResolution)
-		{
-		case 2400:
-		case 1200:
-		  if (chip->dwBytesCountPerRow > 22000)
-		    bDummyCycleNum = 4;
-		  else if (chip->dwBytesCountPerRow > 15000)
-		    bDummyCycleNum = 3;
-		  else if (chip->dwBytesCountPerRow > 10000)
-		    bDummyCycleNum = 2;
-		  else if (chip->dwBytesCountPerRow > 5000)
-		    bDummyCycleNum = 1;
-		  break;
-		case 600:
-		case 300:
-		case 150:
-		case 100:
-		  if (chip->dwBytesCountPerRow > 21000)
-		    bDummyCycleNum = 7;
-		  else if (chip->dwBytesCountPerRow > 18000)
-		    bDummyCycleNum = 6;
-		  else if (chip->dwBytesCountPerRow > 15000)
-		    bDummyCycleNum = 5;
-		  else if (chip->dwBytesCountPerRow > 12000)
-		    bDummyCycleNum = 4;
-		  else if (chip->dwBytesCountPerRow > 9000)
-		    bDummyCycleNum = 3;
-		  else if (chip->dwBytesCountPerRow > 6000)
-		    bDummyCycleNum = 2;
-		  else if (chip->dwBytesCountPerRow > 3000)
-		    bDummyCycleNum = 1;
-		  break;
-		case 75:
-		case 50:
-		  bDummyCycleNum = 1;
-		  break;
-		default:
-		  bDummyCycleNum = 0;
-		  break;
-		}
-	    }
-	  else
-	    {
-	      switch (wYResolution)
-		{
-		case 2400:
-		case 1200:
-		case 75:
-		case 50:
-		  bDummyCycleNum = 1;
-		  break;
-		default:
-		  bDummyCycleNum = 0;
-		  break;
-		}
-	    }
-	}
-    }
+    bDummyCycleNum = GetDummyCycleNumber (chip, wYResolution);
   else
-    {
-      bDummyCycleNum = 1;
-    }
+    bDummyCycleNum = 1;
 
   SetCCDTiming (chip);
 

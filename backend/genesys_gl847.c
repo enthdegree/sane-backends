@@ -975,7 +975,14 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   /* if quarter step, bipolar Vref2 */
   if (scan_step_type > 1)
     {
-      val = effective & ~REG6C_GPIO13;
+      if (scan_step_type < 3)
+        {
+          val = effective & ~REG6C_GPIO13;
+        }
+      else
+        {
+          val = effective | REG6C_GPIO13;
+        }
     }
   else
     {

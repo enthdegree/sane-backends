@@ -925,7 +925,7 @@ static Genesys_Motor Motor[] = {
   },
   {MOTOR_CANONLIDE200,		/* Canon LiDE 200 */
    1200,
-   4800,
+   6400,
    2,
    1,
    { /* motor slopes */

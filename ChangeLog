@@ -1,3 +1,7 @@
+2011-03-15 Stéphane Voltz <stef.dev@free.fr>
+	* backend/Makefile.in backend/canon_dr.[ch]: fixes to allow full
+	static build under cygwin
+
 2011-03-12 Troy Rollo <sane@troy.rollo.name>
 	* backend/hp3500.c: Remove interdependency between contrast and
 	  brightness.

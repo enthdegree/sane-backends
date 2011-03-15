@@ -7261,7 +7261,7 @@ getTransitionsX (struct scanner *s, int side, int left)
 /* Loop thru a getTransitions array, and use a simplified Hough transform
  * to divide likely edges into a 2-d array of bins. Then weight each
  * bin based on its angle and offset. Return the 'best' bin. */
-SANE_Status
+static SANE_Status
 getLine (int height, int width, int * buff,
  int slopes, double minSlope, double maxSlope,
  int offsets, int minOffset, int maxOffset,

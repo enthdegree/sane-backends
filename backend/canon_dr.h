@@ -560,7 +560,7 @@ SANE_Status getEdgeSlope (int width, int height, int * top, int * bot,
 SANE_Status rotateOnCenter (struct scanner *s, int side,
   int centerX, int centerY, double slope);
 
-SANE_Status getLine (int height, int width, int * buff,
+static SANE_Status getLine (int height, int width, int * buff,
  int slopes, double minSlope, double maxSlope,
  int offsets, int minOffset, int maxOffset,
  double * finSlope, int * finOffset, int * finDensity);

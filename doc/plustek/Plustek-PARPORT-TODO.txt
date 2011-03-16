@@ -1,4 +1,4 @@
-Plustek-PARPORT-TODO.txt (2003-29-10) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-PARPORT-TODO.txt (2003-29-10) Gerhard JÃ¤ger <gerhard@gjaeger.de>
 ========================================================================
 
 TODO (in general):

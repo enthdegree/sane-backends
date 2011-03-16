@@ -9,7 +9,7 @@ Java API:
 Backends:
 
  abaton:        David Huggins-Daines
- agfafocus:     Karl Anders Øygard
+ agfafocus:     Karl Anders Ã˜ygard
  apple:         Milon Firikis
  artec:         Chris Pinkham
  artec_eplus48u:Sergey Vlasov, Andreas Nowack, David Stevenson, and
@@ -38,7 +38,7 @@ Backends:
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*), 
                 m. allan noah (*)
  gphoto2:       Peter Fales (*)
- genesys:	Henning Geinitz (*), Gerhard Jaeger (*), Stéphane Voltz (*),
+ genesys:	Henning Geinitz (*), Gerhard Jaeger (*), StÃ©phane Voltz (*),
                 Pierre Willenbrock (*)
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Henning Geinitz (*)
@@ -51,7 +51,7 @@ Backends:
                 Frank Zago, Henning Geinitz (*)
  hp5400:        Martijn van Oosterhout, Thomas Soumarmon (*)
  hp5590:        Ilia Sotnikov (*)
- hpljm1005:     Philippe Rétornaz
+ hpljm1005:     Philippe RÃ©tornaz
  hs2p:		Jeremy Johnson
  ibm:           M.F., Henning Geinitz (*)
  kodak:         m. allan noah (*)
@@ -59,7 +59,7 @@ Backends:
  kvs20xx:       unknown, m. allan noah (*)
  kvs40xx:       unknown, m. allan noah (*)
  leo:           Frank Zago (*)
- lexmark:       Fred Odendaal, Stéphane Voltz (*)
+ lexmark:       Fred Odendaal, StÃ©phane Voltz (*)
  ma1509:        Henning Geinitz (*)
  magicolor:     Reinhold Kainhofer (based on epson2 backend)
  matsushita:    Frank Zago (*)
@@ -73,7 +73,7 @@ Backends:
  nec:           Kazuya Fukuda (*)
  net:           Andreas Beck, David Mosberger, Julien Blache (*)
  niash:         Ullrich Sigwanz (*), Bertrik Sikken
- p5:		Stéphane Voltz (*)
+ p5:		StÃ©phane Voltz (*)
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
  pixma:         Wittawat Yamwong (*)
@@ -88,7 +88,7 @@ Backends:
                 despeckling filter by Patrick Reynolds, 
                 B&W fixes by Andrew Kuchling
  ricoh:         Feico W. Dillema
- rts8891:       Stéphane Voltz (*)
+ rts8891:       StÃ©phane Voltz (*)
  s9036:         Ingo Schneider
  sceptre:       Frank Zago (*)
  sharp:         Kazuya Fukuda (*) and Abel Deuring (*)
@@ -106,7 +106,7 @@ Backends:
  test:          Henning Geinitz (*)
  u12:           Gerhard Jaeger (*)
  umax:          Oliver Rauch (*) and Michael K. Johnson
- umax_pp:       Stéphane Voltz (*)
+ umax_pp:       StÃ©phane Voltz (*)
  umax1220u:     Marcio L. Teixeira, Patrick Lessard
  v4l:           Juergen G. Schimmer, and Henning Geinitz (*)
  xerox_mfp:     Alex Belkin (*)
@@ -116,7 +116,7 @@ Frontends:
  jscanimage:    Jeff Freedman and Guido Muesch
  saned:         Andreas Beck, David Mosberger, Julien Blache (*)
  scanimage:     Andreas Beck, David Mosberger, Gordon Matzigkeit,
-                m. allan noah (*), Julien Blache (*), Stéphane Voltz (*)
+                m. allan noah (*), Julien Blache (*), StÃ©phane Voltz (*)
  tstbackend:    Frank Zago (*)
 
 Sanei internal code:
@@ -193,7 +193,7 @@ Jon Chambers <jon@jon.demon.co.uk>
 Jonathan Bravo Lopez <jkdsoft@gmail.com>
 Juergen G. Schimmer <schimmi@nbgm.siemens.de>
 Julien Blache <jb@jblache.org>
-Karl Anders Øygard <karlo@opera.no>
+Karl Anders Ã˜ygard <karlo@opera.no>
 Karl Heinz Kremer <khk@khk.net>
 Karsten Festag <karsten.festag@gmx.de>
 Kazuhiro Sasayama <kaz@hypercore.co.jp>
@@ -236,7 +236,7 @@ Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>
 Sergey Vlasov <vsu@altlinux.ru>
 Simon Krix <kinsei@users.sourceforge.net>
 Simon Munton <simon@munton.demon.co.uk>
-Stéphane Voltz <stef.dev@free.fr>
+StÃ©phane Voltz <stef.dev@free.fr>
 Thomas Soumarmon <soumarmt@nerim.net>
 Tom Martone <tom@martoneconsulting.com>
 Tom Wang <tom.wang@mustek.com.tw>

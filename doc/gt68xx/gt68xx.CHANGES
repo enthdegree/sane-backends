@@ -256,7 +256,7 @@ V 1.0-59 (2004-04-10)
 * Added Genius Colorpage Vivid4 to .conf file. Changed status to good. Added
   to man page.
 * Fixed black mark for Mustek BearPaw 2448 TA Plus. This one and the Mustek A3
-  fixes are from Jakub Dvo?�k <xdvorak@chello.cz>.
+  fixes are from Jakub Dvořák <xdvorak@chello.cz>.
 * Status of BearPaw 2448 TA/CS Plus is "basic" now.
 
 V 1.0-58 (2004-04-04)

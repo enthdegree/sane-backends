@@ -1,4 +1,4 @@
-Plustek-USB.txt (2005-08-08) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB.txt (2005-08-08) Gerhard JÃ¤ger <gerhard@gjaeger.de>
 ===============================================================
 
 NOTE:

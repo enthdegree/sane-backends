@@ -463,7 +463,7 @@ New with 1.00:
     Supports "Scan 300/GS" and may work with "Scan 300/S" but the
     latter is untested.
 
-* New Agfa Focus backend (by Karl Anders Øygard)
+* New Agfa Focus backend (by Karl Anders Ã˜ygard)
     Supports:
      o AGFA Focus GS               (6 bit gray scale)     (untested)
      o AGFA Focus Lineart          (lineart)              (untested)

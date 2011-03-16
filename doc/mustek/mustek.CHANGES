@@ -763,7 +763,7 @@ CHANGES for the SANE Mustek backend
 2000-06-04
   * changed (again) Paragon 12000 SP linedistance handling, now 1.02 uses
     normal LD corrections, all other use none. We'll see, if this works. 
-    Thanks to Reinhard Günzel who helped to debug this.
+    Thanks to Reinhard GÃ¼nzel who helped to debug this.
   * fixed some long lines (>80 chars)
 
 2000-06-03

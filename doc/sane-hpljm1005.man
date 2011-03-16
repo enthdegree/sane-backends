@@ -34,4 +34,4 @@ support dynamic loading).
 .BR sane\-usb (5),
 
 .SH AUTHOR
-Philippe Rétornaz <couriousous@mandriva.org>
+Philippe R\['e]tornaz <couriousous@mandriva.org>

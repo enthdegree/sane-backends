@@ -133,7 +133,7 @@ St\['e]phane Voltz <stef.dev@free.fr>
 
 .SH "CREDITS"
 Support for the Prima PagePartner has been made possible thank to an hardware donation
-by Sébastien Lange.
+by S\['e]bastien Lange.
 
 .SH "BUG REPORTS"
 If something doesn't work mail sane-devel@lists.alioth.debian.org or use the bug

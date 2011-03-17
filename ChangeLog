@@ -1,3 +1,7 @@
+2011-03-17 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_low.c: big endian fixes for gl847/gl124 based 
+	scanners. Patch by Olaf Zimmermann <oez@pt.lu> .
+
 2011-03-15 Stéphane Voltz <stef.dev@free.fr>
 	* backend/Makefile.in backend/canon_dr.[ch]: fixes to allow full
 	static build under cygwin

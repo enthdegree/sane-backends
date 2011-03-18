@@ -60,13 +60,17 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 63
+#define BUILD 64
 
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#ifdef HAVE_MKDIR 
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -7140,6 +7144,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
      to support multiple scanners of the same model, but to my 
      knowledge, there is no such thing in these scanners. 
      (At least the usb serial is always "0".)
+     TODO add an storedir option to genesys.conf
    */
 
   ptr = getenv ("HOME");
@@ -7149,9 +7154,14 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     }
   else
     {
+#ifdef HAVE_MKDIR 
+      /* make sure .sane directory exists */
+      sprintf (tmp_str, "%s/.sane", ptr);
+      mkdir(tmp_str,0700);
+#endif
       sprintf (tmp_str, "%s/.sane/%s.cal", ptr, s->dev->model->name);
     }
-  
+ 
   s->dev->calib_file = strdup (tmp_str);
   DBG (DBG_info, "Calibration filename set to:\n");
   DBG (DBG_info, ">%s<\n", s->dev->calib_file);

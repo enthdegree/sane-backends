@@ -1,3 +1,7 @@
+2011-03-18 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_low.c backend/genesys.c : rewrite big endian fixes 
+	for gl847/gl124 based scanners. Improve calibration cache file handling.
+
 2011-03-17 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.c: big endian fixes for gl847/gl124 based 
 	scanners. Patch by Olaf Zimmermann <oez@pt.lu> .

@@ -1,3 +1,7 @@
+2011-03-19 Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: move away from using power/level for disabling
+	USB autosuspend/power management and use power/control if available.
+
 2011-03-18 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.c backend/genesys.c : rewrite big endian fixes 
 	for gl847/gl124 based scanners. Improve calibration cache file handling.

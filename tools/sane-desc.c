@@ -3531,7 +3531,7 @@ print_udev (void)
     }
 
   printf("\n# The following rule will disable USB autosuspend for the device\n");
-  printf("ENV{libsane_matched}==\"yes\", RUN+=\"/bin/sh -c 'test -e /sys/$env{DEVPATH}/power/level && echo on > /sys/$env{DEVPATH}/power/level'\"\n");
+  printf("ENV{libsane_matched}==\"yes\", RUN+=\"/bin/sh -c 'if test -e /sys/$env{DEVPATH}/power/control; then echo on > /sys/$env{DEVPATH}/power/control; elif test -e /sys/$env{DEVPATH}/power/level; then echo on > /sys/$env{DEVPATH}/power/level; fi'\"\n");
 
   printf ("\nLABEL=\"libsane_usb_rules_end\"\n\n");
 

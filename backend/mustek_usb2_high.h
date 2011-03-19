@@ -53,11 +53,11 @@ typedef SANE_Byte SCANSOURCE;
 #define SS_Positive	0x01
 #define SS_Negative	0x02
 
-typedef unsigned short RGBORDER;
+typedef SANE_Byte RGBORDER;
 #define RO_RGB	0x00
 #define RO_BGR	0x01
 
-typedef unsigned char SCANTYPE;
+typedef SANE_Byte SCANTYPE;
 #define ST_Reflective	0x00
 #define ST_Transparent	0x01
 
@@ -169,7 +169,6 @@ typedef struct
 #define MAX_SCANNING_WIDTH                  2550	/* just for A4 */
 #define MAX_SCANNING_HEIGHT                 3540	/* just for A4 */
 
-#define ENABLE_GAMMA
 /*#define DEBUG_SAVE_IMAGE*/
 
 

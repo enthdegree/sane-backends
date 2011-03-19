@@ -182,26 +182,6 @@ static unsigned short MustScanner_FiltLower (unsigned short * pSort,
 					     unsigned short TotalCount,
 					     unsigned short LowCount,
 					     unsigned short HighCount);
-static SANE_Bool MustScanner_GetRgb48BitLine (SANE_Byte * lpLine,
-	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine,
-	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetRgb24BitLine (SANE_Byte * lpLine,
-	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine,
-	SANE_Bool isOrderInvert, unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono16BitLine (SANE_Byte * lpLine,
-	unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
-	unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono8BitLine (SANE_Byte * lpLine,
-	unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
-	unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono1BitLine (SANE_Byte * lpLine,
-	unsigned short * wLinesCount);
-static SANE_Bool MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
-	unsigned short * wLinesCount);
 static void *MustScanner_ReadDataFromScanner (void * dummy);
 static void MustScanner_PrepareCalculateMaxMin (unsigned short wResolution);
 static SANE_Bool MustScanner_CalculateMaxMin (SANE_Byte * pBuffer,

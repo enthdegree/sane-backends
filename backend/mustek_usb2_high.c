@@ -341,7 +341,7 @@ SetPixel48Bit (SANE_Byte * lpLine, unsigned short wRTempData,
 }
 
 static void
-GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
+GetRgb48BitLineHalf (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
 {
   unsigned short wRLinePos, wGLinePos, wBLinePos;
   unsigned short wRTempData, wGTempData, wBTempData;
@@ -356,7 +356,7 @@ GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
 
   for (i = 0; i < g_SWWidth; i++)
     {
-      wRTempData = g_lpReadImageHead[wRLinePos + i * 6 + 0] |
+      wRTempData = g_lpReadImageHead[wRLinePos + i * 6] |
 	(g_lpReadImageHead[wRLinePos + i * 6 + 1] << 8);
       wGTempData = g_lpReadImageHead[wGLinePos + i * 6 + 2] |
 	(g_lpReadImageHead[wGLinePos + i * 6 + 3] << 8);
@@ -369,7 +369,7 @@ GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
 }
 
 static void
-GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
+GetRgb48BitLineFull (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
 {
   unsigned short wRLinePosOdd, wGLinePosOdd, wBLinePosOdd;
   unsigned short wRLinePosEven, wGLinePosEven, wBLinePosEven;
@@ -406,9 +406,9 @@ GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
       if ((i + 1) >= g_SWWidth)
         break;
 
-      dwRTempData = g_lpReadImageHead[wRLinePosOdd + i * 6 + 0] |
+      dwRTempData = g_lpReadImageHead[wRLinePosOdd + i * 6] |
 	(g_lpReadImageHead[wRLinePosOdd + i * 6 + 1] << 8);
-      dwRTempData += g_lpReadImageHead[wRLinePosEven + (i + 1) * 6 + 0] |
+      dwRTempData += g_lpReadImageHead[wRLinePosEven + (i + 1) * 6] |
 	(g_lpReadImageHead[wRLinePosEven + (i + 1) * 6 + 1] << 8);
       dwRTempData /= 2;
 
@@ -428,9 +428,9 @@ GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
 		     isOrderInvert);
       i++;
 
-      dwRTempData = g_lpReadImageHead[wRLinePosEven + i * 6 + 0] |
+      dwRTempData = g_lpReadImageHead[wRLinePosEven + i * 6] |
 	(g_lpReadImageHead[wRLinePosEven + i * 6 + 1] << 8);
-      dwRTempData += g_lpReadImageHead[wRLinePosOdd + (i + 1) * 6 + 0] |
+      dwRTempData += g_lpReadImageHead[wRLinePosOdd + (i + 1) * 6] |
 	(g_lpReadImageHead[wRLinePosOdd + (i + 1) * 6 + 1] << 8);
       dwRTempData /= 2;
 
@@ -471,7 +471,7 @@ SetPixel24Bit (SANE_Byte * lpLine, unsigned short tempR, unsigned short tempG,
 }
 
 static void
-GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
+GetRgb24BitLineHalf (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
 {
   unsigned short wRLinePos, wGLinePos, wBLinePos;
   unsigned short wRed, wGreen, wBlue;
@@ -487,8 +487,8 @@ GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
 
   for (i = 0; i < g_SWWidth; i++)
     {
-      wRed = g_lpReadImageHead[wRLinePos + i * 3 + 0];
-      wRed += g_lpReadImageHead[wRLinePos + (i + 1) * 3 + 0];
+      wRed = g_lpReadImageHead[wRLinePos + i * 3];
+      wRed += g_lpReadImageHead[wRLinePos + (i + 1) * 3];
       wRed /= 2;
 
       wGreen = g_lpReadImageHead[wGLinePos + i * 3 + 1];
@@ -508,7 +508,7 @@ GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
 }
 
 static void
-GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
+GetRgb24BitLineFull (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
 {
   unsigned short wRLinePosOdd, wGLinePosOdd, wBLinePosOdd;
   unsigned short wRLinePosEven, wGLinePosEven, wBLinePosEven;
@@ -546,8 +546,8 @@ GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
       if ((i + 1) >= g_SWWidth)
         break;
 
-      wRed = g_lpReadImageHead[wRLinePosOdd + i * 3 + 0];
-      wRed += g_lpReadImageHead[wRLinePosEven + (i + 1) * 3 + 0];
+      wRed = g_lpReadImageHead[wRLinePosOdd + i * 3];
+      wRed += g_lpReadImageHead[wRLinePosEven + (i + 1) * 3];
       wRed /= 2;
 
       wGreen = g_lpReadImageHead[wGLinePosOdd + i * 3 + 1];
@@ -565,8 +565,8 @@ GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
       SetPixel24Bit (lpLine + (i * 3), tempR, tempG, tempB, isOrderInvert);
       i++;
 
-      wRed = g_lpReadImageHead[wRLinePosEven + i * 3 + 0];
-      wRed += g_lpReadImageHead[wRLinePosOdd + (i + 1) * 3 + 0];
+      wRed = g_lpReadImageHead[wRLinePosEven + i * 3];
+      wRed += g_lpReadImageHead[wRLinePosOdd + (i + 1) * 3];
       wRed /= 2;
 
       wGreen = g_lpReadImageHead[wGLinePosEven + i * 3 + 1];
@@ -587,7 +587,8 @@ GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
 }
 
 static void
-GetMono16BitLine (SANE_Byte * lpLine)
+GetMono16BitLineHalf (SANE_Byte * lpLine,
+		      SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned int dwTempData;
   unsigned short wLinePos;
@@ -597,15 +598,16 @@ GetMono16BitLine (SANE_Byte * lpLine)
 
   for (i = 0; i < g_SWWidth; i++)
     {
-      dwTempData = g_lpReadImageHead[wLinePos + i * 2 + 0] |
+      dwTempData = g_lpReadImageHead[wLinePos + i * 2] |
 		  (g_lpReadImageHead[wLinePos + i * 2 + 1] << 8);
-      lpLine[i * 2 + 0] = LOBYTE (g_pGammaTable[dwTempData]);
+      lpLine[i * 2] = LOBYTE (g_pGammaTable[dwTempData]);
       lpLine[i * 2 + 1] = HIBYTE (g_pGammaTable[dwTempData]);
     }
 }
 
 static void
-GetMono16BitLine1200DPI (SANE_Byte * lpLine)
+GetMono16BitLineFull (SANE_Byte * lpLine,
+		      SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned int dwTempData;
   unsigned short wLinePosOdd;
@@ -630,36 +632,37 @@ GetMono16BitLine1200DPI (SANE_Byte * lpLine)
       if ((i + 1) >= g_SWWidth)
         break;
 
-      dwTempData = (unsigned int) g_lpReadImageHead[wLinePosOdd + i * 2 + 0];
+      dwTempData = (unsigned int) g_lpReadImageHead[wLinePosOdd + i * 2];
       dwTempData += (unsigned int)
 		    g_lpReadImageHead[wLinePosOdd + i * 2 + 1] << 8;
       dwTempData += (unsigned int)
-		    g_lpReadImageHead[wLinePosEven + (i + 1) * 2 + 0];
+		    g_lpReadImageHead[wLinePosEven + (i + 1) * 2];
       dwTempData += (unsigned int)
 		    g_lpReadImageHead[wLinePosEven + (i + 1) * 2 + 1] << 8;
       dwTempData /= 2;
 
-      lpLine[i * 2 + 0] = LOBYTE (g_pGammaTable[dwTempData]);
+      lpLine[i * 2] = LOBYTE (g_pGammaTable[dwTempData]);
       lpLine[i * 2 + 1] = HIBYTE (g_pGammaTable[dwTempData]);
       i++;
 
-      dwTempData = (unsigned int) g_lpReadImageHead[wLinePosEven + i * 2 + 0];
+      dwTempData = (unsigned int) g_lpReadImageHead[wLinePosEven + i * 2];
       dwTempData += (unsigned int)
 		    g_lpReadImageHead[wLinePosEven + i * 2 + 1] << 8;
       dwTempData += (unsigned int)
-		    g_lpReadImageHead[wLinePosOdd + (i + 1) * 2 + 0];
+		    g_lpReadImageHead[wLinePosOdd + (i + 1) * 2];
       dwTempData += (unsigned int)
 		    g_lpReadImageHead[wLinePosOdd + (i + 1) * 2 + 1] << 8;
       dwTempData /= 2;
 
-      lpLine[i * 2 + 0] = LOBYTE (g_pGammaTable[dwTempData]);
+      lpLine[i * 2] = LOBYTE (g_pGammaTable[dwTempData]);
       lpLine[i * 2 + 1] = HIBYTE (g_pGammaTable[dwTempData]);
       i++;
     }
 }
 
 static void
-GetMono8BitLine (SANE_Byte * lpLine)
+GetMono8BitLineHalf (SANE_Byte * lpLine,
+		     SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned int dwTempData;
   unsigned short wLinePos;
@@ -675,7 +678,8 @@ GetMono8BitLine (SANE_Byte * lpLine)
 }
 
 static void
-GetMono8BitLine1200DPI (SANE_Byte * lpLine)
+GetMono8BitLineFull (SANE_Byte * lpLine,
+		     SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned short wLinePosOdd;
   unsigned short wLinePosEven;
@@ -717,7 +721,8 @@ GetMono8BitLine1200DPI (SANE_Byte * lpLine)
 }
 
 static void
-GetMono1BitLine (SANE_Byte * lpLine)
+GetMono1BitLineHalf (SANE_Byte * lpLine,
+		     SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned short wLinePos;
   unsigned short i;
@@ -732,7 +737,8 @@ GetMono1BitLine (SANE_Byte * lpLine)
 }
 
 static void
-GetMono1BitLine1200DPI (SANE_Byte * lpLine)
+GetMono1BitLineFull (SANE_Byte * lpLine,
+		     SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned short wLinePosOdd;
   unsigned short wLinePosEven;
@@ -767,13 +773,16 @@ GetMono1BitLine1200DPI (SANE_Byte * lpLine)
 }
 
 static SANE_Bool
-MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-			     unsigned short * wLinesCount)
+MustScanner_GetLine (SANE_Byte * lpLine, unsigned short * wLinesCount,
+		     unsigned int dwLineIncrement,
+		     void (*pFunc)(SANE_Byte *, SANE_Bool),
+		     SANE_Bool isOrderInvert, SANE_Bool fixEvenOdd)
 {
   unsigned short wWantedTotalLines;
   unsigned short TotalXferLines = 0;
+  SANE_Byte *lpFirstLine = lpLine;
 
-  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: call in\n");
+  DBG (DBG_FUNC, "MustScanner_GetLine: call in\n");
 
   g_isCanceled = SANE_FALSE;
   g_isScanning = SANE_TRUE;
@@ -783,7 +792,7 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
     {
       pthread_create (&g_threadid_readimage, NULL,
 		      MustScanner_ReadDataFromScanner, NULL);
-      DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: thread create\n");
+      DBG (DBG_FUNC, "MustScanner_GetLine: thread create\n");
       g_bFirstReadImage = SANE_FALSE;
     }
 
@@ -793,7 +802,7 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	{
 	  pthread_cancel (g_threadid_readimage);
 	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: thread exit\n");
+	  DBG (DBG_FUNC, "MustScanner_GetLine: thread exit\n");
 
 	  *wLinesCount = TotalXferLines;
 	  g_isScanning = SANE_FALSE;
@@ -802,11 +811,11 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 
       if (GetScannedLines () > g_wtheReadyLines)
 	{
-	  GetRgb48BitLine (lpLine, isOrderInvert);
+	  pFunc (lpLine, isOrderInvert);
 
 	  TotalXferLines++;
 	  g_dwTotalTotalXferLines++;
-	  lpLine += g_SWBytesPerRow;
+	  lpLine += dwLineIncrement;
 	  AddReadyLines ();
 	}
 
@@ -814,7 +823,7 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 	{
 	  pthread_cancel (g_threadid_readimage);
 	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine: thread exit\n");
+	  DBG (DBG_FUNC, "MustScanner_GetLine: thread exit\n");
 	  break;
 	}
     }
@@ -822,624 +831,117 @@ MustScanner_GetRgb48BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   *wLinesCount = TotalXferLines;
   g_isScanning = SANE_FALSE;
 
-  DBG (DBG_FUNC,
-       "MustScanner_GetRgb48BitLine: leave MustScanner_GetRgb48BitLine\n");
+  if (fixEvenOdd)
+    {
+      /* modify the last point */
+      if (g_bIsFirstReadBefData)
+	{
+	  g_lpBefLineImageData = malloc (g_SWBytesPerRow);
+	  if (!g_lpBefLineImageData)
+	    return SANE_FALSE;
+	  memset (g_lpBefLineImageData, 0, g_SWBytesPerRow);
+	  memcpy (g_lpBefLineImageData, lpFirstLine, g_SWBytesPerRow);
+	  g_bIsFirstReadBefData = SANE_FALSE;
+	  g_dwAlreadyGetLines = 0;
+	}
+
+      ModifyLinePoint (lpFirstLine, g_lpBefLineImageData, g_SWBytesPerRow,
+		       wWantedTotalLines, 1, 4);
+
+      memcpy (g_lpBefLineImageData,
+	      lpFirstLine + (wWantedTotalLines - 1) * g_SWBytesPerRow,
+	      g_SWBytesPerRow);
+      g_dwAlreadyGetLines += wWantedTotalLines;
+      if (g_dwAlreadyGetLines >= g_SWHeight)
+	{
+	  DBG (DBG_FUNC, "MustScanner_GetLine: freeing g_lpBefLineImageData\n");
+	  free (g_lpBefLineImageData);
+	  g_bIsFirstReadBefData = SANE_TRUE;
+	}
+    }
+
+  DBG (DBG_FUNC, "MustScanner_GetLine: leave MustScanner_GetLine\n");
   return SANE_TRUE;
 }
 
 static SANE_Bool
-MustScanner_GetRgb48BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-				    unsigned short * wLinesCount)
+MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
+		     SANE_Bool isOrderInvert)
 {
-  unsigned short wWantedTotalLines;
-  unsigned short TotalXferLines = 0;
+  DBG (DBG_FUNC, "MustScanner_GetRows: call in\n");
 
-  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine1200DPI: call in\n");
-
-  g_isCanceled = SANE_FALSE;
-  g_isScanning = SANE_TRUE;
-  wWantedTotalLines = *wLinesCount;
-
-  if (g_bFirstReadImage)
+  if (!g_bOpened || !g_bPrepared)
     {
-      pthread_create (&g_threadid_readimage, NULL,
-		      MustScanner_ReadDataFromScanner, NULL);
-      DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine1200DPI: thread create\n");
-      g_bFirstReadImage = SANE_FALSE;
+      DBG (DBG_FUNC, "MustScanner_GetRows: scanner not opened or prepared\n");
+      return SANE_FALSE;
     }
 
-  while (TotalXferLines < wWantedTotalLines)
+  switch (g_ScanMode)
     {
-      if (g_dwTotalTotalXferLines >= g_SWHeight)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine1200DPI: thread exit\n");
+    case CM_RGB48:
+      if (g_XDpi == SENSOR_DPI)
+	return MustScanner_GetLine (lpBlock, Rows, g_SWBytesPerRow,
+				    GetRgb48BitLineFull, isOrderInvert,
+				    SANE_FALSE);
+      else
+	return MustScanner_GetLine (lpBlock, Rows, g_SWBytesPerRow,
+				    GetRgb48BitLineHalf, isOrderInvert,
+				    SANE_FALSE);
 
-	  *wLinesCount = TotalXferLines;
-	  g_isScanning = SANE_FALSE;
-	  return SANE_TRUE;
-	}
+    case CM_RGB24:
+      if (g_XDpi == SENSOR_DPI)
+	return MustScanner_GetLine (lpBlock, Rows, g_SWBytesPerRow,
+				    GetRgb24BitLineFull, isOrderInvert,
+				    SANE_FALSE);
+      else
+	return MustScanner_GetLine (lpBlock, Rows, g_SWBytesPerRow,
+				    GetRgb24BitLineHalf, isOrderInvert,
+				    SANE_FALSE);
 
-      if (GetScannedLines () > g_wtheReadyLines)
-	{
-	  GetRgb48BitLine1200DPI (lpLine, isOrderInvert);
+    case CM_GRAY16:
+      if (g_XDpi == SENSOR_DPI)
+	return MustScanner_GetLine (lpBlock, Rows, g_SWBytesPerRow,
+				    GetMono16BitLineFull, isOrderInvert,
+				    SANE_TRUE);
+      else
+	return MustScanner_GetLine (lpBlock, Rows, g_SWBytesPerRow,
+				    GetMono16BitLineHalf, isOrderInvert,
+				    SANE_FALSE);
 
-	  TotalXferLines++;
-	  g_dwTotalTotalXferLines++;
-	  lpLine += g_SWBytesPerRow;
-	  AddReadyLines ();
-	}
+    case CM_GRAY8:
+      if (g_XDpi == SENSOR_DPI)
+	return MustScanner_GetLine (lpBlock, Rows, g_SWBytesPerRow,
+				    GetMono8BitLineFull, isOrderInvert,
+				    SANE_TRUE);
+      else
+	return MustScanner_GetLine (lpBlock, Rows, g_SWBytesPerRow,
+				    GetMono8BitLineHalf, isOrderInvert,
+				    SANE_FALSE);
 
-      if (g_isCanceled)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine1200DPI: thread exit\n");
-	  break;
-	}
+    case CM_TEXT:
+      memset (lpBlock, 0, *Rows * g_SWWidth / 8);
+      if (g_XDpi == SENSOR_DPI)
+	return MustScanner_GetLine (lpBlock, Rows, g_SWBytesPerRow / 8,
+				    GetMono1BitLineFull, isOrderInvert,
+				    SANE_FALSE);
+      else
+	return MustScanner_GetLine (lpBlock, Rows, g_SWBytesPerRow / 8,
+				    GetMono1BitLineHalf, isOrderInvert,
+				    SANE_FALSE);
     }
 
-  *wLinesCount = TotalXferLines;
-  g_isScanning = SANE_FALSE;
-
-  DBG (DBG_FUNC, "MustScanner_GetRgb48BitLine1200DPI: " \
-                 "leave MustScanner_GetRgb48BitLine1200DPI\n");
-  return SANE_TRUE;
-}
-
-static SANE_Bool
-MustScanner_GetRgb24BitLine (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-			     unsigned short * wLinesCount)
-{
-  unsigned short wWantedTotalLines;
-  unsigned short TotalXferLines = 0;
-
-  DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: call in\n");
-
-  g_isCanceled = SANE_FALSE;
-  g_isScanning = SANE_TRUE;
-  wWantedTotalLines = *wLinesCount;
-
-  if (g_bFirstReadImage)
-    {
-      pthread_create (&g_threadid_readimage, NULL,
-		      MustScanner_ReadDataFromScanner, NULL);
-      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: thread create\n");
-      g_bFirstReadImage = SANE_FALSE;
-    }
-
-  while (TotalXferLines < wWantedTotalLines)
-    {
-      if (g_dwTotalTotalXferLines >= g_SWHeight)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: thread exit\n");
-
-	  *wLinesCount = TotalXferLines;
-	  g_isScanning = SANE_FALSE;
-	  return SANE_TRUE;
-	}
-
-      if (GetScannedLines () > g_wtheReadyLines)
-	{
-	  GetRgb24BitLine (lpLine, isOrderInvert);
-
-	  TotalXferLines++;
-	  g_dwTotalTotalXferLines++;
-	  lpLine += g_SWBytesPerRow;
-	  AddReadyLines ();
-	}
-
-      if (g_isCanceled)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine: thread exit\n");
-	  break;
-	}
-    }
-
-  *wLinesCount = TotalXferLines;
-  g_isScanning = SANE_FALSE;
-
-  DBG (DBG_FUNC,
-       "MustScanner_GetRgb24BitLine: leave MustScanner_GetRgb24BitLine\n");
-  return SANE_TRUE;
-}
-
-static SANE_Bool
-MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
-				    unsigned short * wLinesCount)
-{
-  unsigned short wWantedTotalLines;
-  unsigned short TotalXferLines = 0;
-
-  DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: call in\n");
-
-  g_isCanceled = SANE_FALSE;
-  g_isScanning = SANE_TRUE;
-  wWantedTotalLines = *wLinesCount;
-
-  if (g_bFirstReadImage)
-    {
-      pthread_create (&g_threadid_readimage, NULL,
-		      MustScanner_ReadDataFromScanner, NULL);
-      DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: thread create\n");
-      g_bFirstReadImage = SANE_FALSE;
-    }
-
-  while (TotalXferLines < wWantedTotalLines)
-    {
-      if (g_dwTotalTotalXferLines >= g_SWHeight)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: thread exit\n");
-
-	  *wLinesCount = TotalXferLines;
-	  g_isScanning = SANE_FALSE;
-	  return SANE_TRUE;
-	}
-
-      if (GetScannedLines () > g_wtheReadyLines)
-	{
-	  GetRgb24BitLine1200DPI (lpLine, isOrderInvert);
-
-	  TotalXferLines++;
-	  g_dwTotalTotalXferLines++;
-	  lpLine += g_SWBytesPerRow;
-	  AddReadyLines ();
-	}
-
-      if (g_isCanceled)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: thread exit\n");
-	  break;
-	}
-    }
-
-  *wLinesCount = TotalXferLines;
-  g_isScanning = SANE_FALSE;
-
-  DBG (DBG_FUNC, "MustScanner_GetRgb24BitLine1200DPI: " \
-    "leave MustScanner_GetRgb24BitLine1200DPI\n");
-  return SANE_TRUE;
-}
-
-static SANE_Bool
-MustScanner_GetMono16BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
-{
-  unsigned short wWantedTotalLines;
-  unsigned short TotalXferLines = 0;
-
-  DBG (DBG_FUNC, "MustScanner_GetMono16BitLine: call in\n");
-
-  g_isCanceled = SANE_FALSE;
-  g_isScanning = SANE_TRUE;
-  wWantedTotalLines = *wLinesCount;
-
-  if (g_bFirstReadImage)
-    {
-      pthread_create (&g_threadid_readimage, NULL,
-		      MustScanner_ReadDataFromScanner, NULL);
-      DBG (DBG_FUNC, "MustScanner_GetMono16BitLine: thread create\n");
-      g_bFirstReadImage = SANE_FALSE;
-    }
-
-  while (TotalXferLines < wWantedTotalLines)
-    {
-      if (g_dwTotalTotalXferLines >= g_SWHeight)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono16BitLine: thread exit\n");
-
-	  *wLinesCount = TotalXferLines;
-	  g_isScanning = SANE_FALSE;
-	  return SANE_TRUE;
-	}
-
-      if (GetScannedLines () > g_wtheReadyLines)
-	{
-	  GetMono16BitLine (lpLine);
-
-	  TotalXferLines++;
-	  g_dwTotalTotalXferLines++;
-	  lpLine += g_SWBytesPerRow;
-	  AddReadyLines ();
-	}
-
-      if (g_isCanceled)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono16BitLine: thread exit\n");
-	  break;
-	}
-    }
-
-  *wLinesCount = TotalXferLines;
-  g_isScanning = SANE_FALSE;
-
-  DBG (DBG_FUNC,
-       "MustScanner_GetMono16BitLine: leave MustScanner_GetMono16BitLine\n");
-  return SANE_TRUE;
-}
-
-static SANE_Bool
-MustScanner_GetMono16BitLine1200DPI (SANE_Byte * lpLine,
-				     unsigned short * wLinesCount)
-{
-  unsigned short wWantedTotalLines;
-  unsigned short TotalXferLines = 0;
-  SANE_Byte * lpTemp = lpLine;
-
-  DBG (DBG_FUNC, "MustScanner_GetMono16BitLine1200DPI: call in\n");
-
-  g_isCanceled = SANE_FALSE;
-  g_isScanning = SANE_TRUE;
-  wWantedTotalLines = *wLinesCount;
-
-  if (g_bFirstReadImage)
-    {
-      pthread_create (&g_threadid_readimage, NULL,
-		      MustScanner_ReadDataFromScanner, NULL);
-      DBG (DBG_FUNC, "MustScanner_GetMono16BitLine1200DPI: thread create\n");
-      g_bFirstReadImage = SANE_FALSE;
-    }
-
-  while (TotalXferLines < wWantedTotalLines)
-    {
-      if (g_dwTotalTotalXferLines >= g_SWHeight)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono16BitLine1200DPI: thread exit\n");
-
-	  *wLinesCount = TotalXferLines;
-	  g_isScanning = SANE_FALSE;
-	  return SANE_TRUE;
-	}
-
-      if (GetScannedLines () > g_wtheReadyLines)
-	{
-	  GetMono16BitLine1200DPI (lpLine);
-
-	  TotalXferLines++;
-	  g_dwTotalTotalXferLines++;
-	  lpLine += g_SWBytesPerRow;
-	  AddReadyLines ();
-	}
-
-      if (g_isCanceled)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono16BitLine1200DPI: thread exit\n");
-	  break;
-	}
-    }
-
-  *wLinesCount = TotalXferLines;
-  g_isScanning = SANE_FALSE;
-
-  /* modify the last point */
-  if (g_bIsFirstReadBefData)
-    {
-      g_lpBefLineImageData = malloc (g_SWBytesPerRow);
-      if (!g_lpBefLineImageData)
-	return SANE_FALSE;
-      memset (g_lpBefLineImageData, 0, g_SWBytesPerRow);
-      memcpy (g_lpBefLineImageData, lpTemp, g_SWBytesPerRow);
-      g_bIsFirstReadBefData = SANE_FALSE;
-      g_dwAlreadyGetLines = 0;
-    }
-
-  ModifyLinePoint (lpTemp, g_lpBefLineImageData, g_SWBytesPerRow,
-		   wWantedTotalLines, 2, 4);
-
-  memcpy (g_lpBefLineImageData,
-	  lpTemp + (wWantedTotalLines - 1) * g_SWBytesPerRow,
-	  g_SWBytesPerRow);
-  g_dwAlreadyGetLines += wWantedTotalLines;
-  if (g_dwAlreadyGetLines >= g_SWHeight)
-    {
-      DBG (DBG_FUNC,
-	   "MustScanner_GetMono16BitLine1200DPI: free before line data!\n");
-      free (g_lpBefLineImageData);
-      g_bIsFirstReadBefData = SANE_TRUE;
-    }
-
-  DBG (DBG_FUNC, "MustScanner_GetMono16BitLine1200DPI: " \
-    "leave MustScanner_GetMono16BitLine1200DPI\n");
-  return SANE_TRUE;
-}
-
-static SANE_Bool
-MustScanner_GetMono8BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
-{
-  unsigned short wWantedTotalLines;
-  unsigned short TotalXferLines = 0;
-
-  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine: call in\n");
-
-  g_isCanceled = SANE_FALSE;
-  g_isScanning = SANE_TRUE;
-  wWantedTotalLines = *wLinesCount;
-
-  if (g_bFirstReadImage)
-    {
-      pthread_create (&g_threadid_readimage, NULL,
-		      MustScanner_ReadDataFromScanner, NULL);
-      DBG (DBG_FUNC, "MustScanner_GetMono8BitLine: thread create\n");
-      g_bFirstReadImage = SANE_FALSE;
-    }
-
-  while (TotalXferLines < wWantedTotalLines)
-    {
-      if (g_dwTotalTotalXferLines >= g_SWHeight)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine: thread exit\n");
-
-	  *wLinesCount = TotalXferLines;
-	  g_isScanning = SANE_FALSE;
-	  return SANE_TRUE;
-	}
-
-      if (GetScannedLines () > g_wtheReadyLines)
-	{
-	  GetMono8BitLine (lpLine);
-
-	  TotalXferLines++;
-	  g_dwTotalTotalXferLines++;
-	  lpLine += g_SWBytesPerRow;
-	  AddReadyLines ();
-	}
-
-      if (g_isCanceled)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine: thread exit\n");
-	  break;
-	}
-    }
-
-  *wLinesCount = TotalXferLines;
-  g_isScanning = SANE_FALSE;
-
-  DBG (DBG_FUNC,
-       "MustScanner_GetMono8BitLine: leave MustScanner_GetMono8BitLine\n");
-  return SANE_TRUE;
-}
-
-static SANE_Bool
-MustScanner_GetMono8BitLine1200DPI (SANE_Byte * lpLine,
-				    unsigned short * wLinesCount)
-{
-  unsigned short wWantedTotalLines;
-  unsigned short TotalXferLines = 0;
-  SANE_Byte *lpTemp = lpLine;
-
-  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: call in\n");
-
-  g_isCanceled = SANE_FALSE;
-  g_isScanning = SANE_TRUE;
-  wWantedTotalLines = *wLinesCount;
-
-  if (g_bFirstReadImage)
-    {
-      pthread_create (&g_threadid_readimage, NULL,
-		      MustScanner_ReadDataFromScanner, NULL);
-      DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: thread create\n");
-      g_bFirstReadImage = SANE_FALSE;
-    }
-
-  while (TotalXferLines < wWantedTotalLines)
-    {
-      if (g_dwTotalTotalXferLines >= g_SWHeight)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: thread exit\n");
-
-	  *wLinesCount = TotalXferLines;
-	  g_isScanning = SANE_FALSE;
-	  return SANE_TRUE;
-	}
-
-      if (GetScannedLines () > g_wtheReadyLines)
-	{
-	  GetMono8BitLine1200DPI (lpLine);
-
-	  TotalXferLines++;
-	  g_dwTotalTotalXferLines++;
-	  lpLine += g_SWBytesPerRow;
-	  AddReadyLines ();
-	}
-
-      if (g_isCanceled)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: thread exit\n");
-	  break;
-	}
-    }
-
-  *wLinesCount = TotalXferLines;
-  g_isScanning = SANE_FALSE;
-
-  /* modify the last point */
-  if (g_bIsFirstReadBefData)
-    {
-      g_lpBefLineImageData = malloc (g_SWBytesPerRow);
-      if (!g_lpBefLineImageData)
-	return SANE_FALSE;
-      memset (g_lpBefLineImageData, 0, g_SWBytesPerRow);
-      memcpy (g_lpBefLineImageData, lpTemp, g_SWBytesPerRow);
-      g_bIsFirstReadBefData = SANE_FALSE;
-      g_dwAlreadyGetLines = 0;
-    }
-
-  ModifyLinePoint (lpTemp, g_lpBefLineImageData, g_SWBytesPerRow,
-		   wWantedTotalLines, 1, 4);
-
-  memcpy (g_lpBefLineImageData,
-	  lpTemp + (wWantedTotalLines - 1) * g_SWBytesPerRow,
-	  g_SWBytesPerRow);
-  g_dwAlreadyGetLines += wWantedTotalLines;
-  if (g_dwAlreadyGetLines >= g_SWHeight)
-    {
-      DBG (DBG_FUNC,
-	   "MustScanner_GetMono8BitLine1200DPI: free the before line data!\n");
-      free (g_lpBefLineImageData);
-      g_bIsFirstReadBefData = SANE_TRUE;
-    }
-
-  DBG (DBG_FUNC, "MustScanner_GetMono8BitLine1200DPI: " \
-    "leave MustScanner_GetMono8BitLine1200DPI\n");
-  return SANE_TRUE;
-}
-
-static SANE_Bool
-MustScanner_GetMono1BitLine (SANE_Byte * lpLine, unsigned short * wLinesCount)
-{
-  unsigned short wWantedTotalLines;
-  unsigned short TotalXferLines = 0;
-
-  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine: call in\n");
-
-  g_isCanceled = SANE_FALSE;
-  g_isScanning = SANE_TRUE;
-  wWantedTotalLines = *wLinesCount;
-
-  if (g_bFirstReadImage)
-    {
-      pthread_create (&g_threadid_readimage, NULL,
-		      MustScanner_ReadDataFromScanner, NULL);
-      DBG (DBG_FUNC, "MustScanner_GetMono1BitLine: thread create\n");
-      g_bFirstReadImage = SANE_FALSE;
-    }
-
-  memset (lpLine, 0, wWantedTotalLines * g_SWWidth / 8);
-
-  while (TotalXferLines < wWantedTotalLines)
-    {
-      if (g_dwTotalTotalXferLines >= g_SWHeight)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine: thread exit\n");
-
-	  *wLinesCount = TotalXferLines;
-	  g_isScanning = SANE_FALSE;
-	  return SANE_TRUE;
-	}
-
-      if (GetScannedLines () > g_wtheReadyLines)
-	{
-	  GetMono1BitLine (lpLine);
-
-	  TotalXferLines++;
-	  g_dwTotalTotalXferLines++;
-	  lpLine += (g_SWBytesPerRow / 8);
-	  AddReadyLines ();
-	}
-
-      if (g_isCanceled)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine: thread exit\n");
-	  break;
-	}
-    }
-
-  *wLinesCount = TotalXferLines;
-  g_isScanning = SANE_FALSE;
-
-  DBG (DBG_FUNC,
-       "MustScanner_GetMono1BitLine: leave MustScanner_GetMono1BitLine\n");
-  return SANE_TRUE;
-}
-
-static SANE_Bool
-MustScanner_GetMono1BitLine1200DPI (SANE_Byte * lpLine,
-				    unsigned short * wLinesCount)
-{
-  unsigned short wWantedTotalLines;
-  unsigned short TotalXferLines = 0;
-
-  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: call in\n");
-
-  g_isCanceled = SANE_FALSE;
-  g_isScanning = SANE_TRUE;
-  wWantedTotalLines = *wLinesCount;
-
-  if (g_bFirstReadImage)
-    {
-      pthread_create (&g_threadid_readimage, NULL,
-		      MustScanner_ReadDataFromScanner, NULL);
-      DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: thread create\n");
-      g_bFirstReadImage = SANE_FALSE;
-    }
-
-  memset (lpLine, 0, wWantedTotalLines * g_SWWidth / 8);
-
-  while (TotalXferLines < wWantedTotalLines)
-    {
-      if (g_dwTotalTotalXferLines >= g_SWHeight)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: thread exit\n");
-
-	  *wLinesCount = TotalXferLines;
-	  g_isScanning = SANE_FALSE;
-	  return SANE_TRUE;
-	}
-
-      if (GetScannedLines () > g_wtheReadyLines)
-	{
-	  GetMono1BitLine1200DPI (lpLine);
-
-	  TotalXferLines++;
-	  g_dwTotalTotalXferLines++;
-	  lpLine += g_SWBytesPerRow / 8;
-	  AddReadyLines ();
-	}
-      if (g_isCanceled)
-	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
-	  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: thread exit\n");
-	  break;
-	}
-    }
-
-  *wLinesCount = TotalXferLines;
-  g_isScanning = SANE_FALSE;
-
-  DBG (DBG_FUNC, "MustScanner_GetMono1BitLine1200DPI: " \
-    "leave MustScanner_GetMono1BitLine1200DPI\n");
-  return SANE_TRUE;
+  DBG (DBG_FUNC, "MustScanner_GetRows: leave MustScanner_GetRows\n");
+  return SANE_FALSE;
 }
 
 static void
 MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
 {
   g_wDarkCalWidth = 52;
-  if (wResolution <= 600)
+  if (wResolution <= (SENSOR_DPI / 2))
     {
-      g_wCalWidth = (5120 * wResolution / 600 + 511) & ~511;
-      g_wDarkCalWidth *= wResolution / 1200;
+      g_wCalWidth = (5120 * wResolution / (SENSOR_DPI / 2) + 511) & ~511;
+      g_wDarkCalWidth *= wResolution / SENSOR_DPI;
 
       if (wResolution < 200)
 	{
@@ -1466,7 +968,7 @@ MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
   if (g_nDarkSecLength <= 0)
     g_nDarkSecLength = 1;
 
-  g_wStartPosition = 13 * wResolution / 1200;
+  g_wStartPosition = 13 * wResolution / SENSOR_DPI;
   g_wCalWidth -= g_wStartPosition;
 
   /* start of find max value */
@@ -1886,55 +1388,4 @@ MustScanner_PrepareScan (void)
 
   DBG (DBG_FUNC, "MustScanner_PrepareScan: leave MustScanner_PrepareScan\n");
   return SANE_TRUE;
-}
-
-static SANE_Bool
-MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
-		     SANE_Bool isOrderInvert)
-{
-  DBG (DBG_FUNC, "MustScanner_GetRows: call in\n");
-
-  if (!g_bOpened || !g_bPrepared)
-    {
-      DBG (DBG_FUNC, "MustScanner_GetRows: scanner not opened or prepared\n");
-      return SANE_FALSE;
-    }
-
-  switch (g_ScanMode)
-    {
-    case CM_RGB48:
-      if (g_XDpi == 1200)
-	return MustScanner_GetRgb48BitLine1200DPI (lpBlock, isOrderInvert,
-						   Rows);
-      else
-	return MustScanner_GetRgb48BitLine (lpBlock, isOrderInvert, Rows);
-
-    case CM_RGB24:
-      if (g_XDpi == 1200)
-	return MustScanner_GetRgb24BitLine1200DPI (lpBlock, isOrderInvert,
-						   Rows);
-      else
-	return MustScanner_GetRgb24BitLine (lpBlock, isOrderInvert, Rows);
-
-    case CM_GRAY16:
-      if (g_XDpi == 1200)
-	return MustScanner_GetMono16BitLine1200DPI (lpBlock, Rows);
-      else
-	return MustScanner_GetMono16BitLine (lpBlock, Rows);
-
-    case CM_GRAY8:
-      if (g_XDpi == 1200)
-	return MustScanner_GetMono8BitLine1200DPI (lpBlock, Rows);
-      else
-	return MustScanner_GetMono8BitLine (lpBlock, Rows);
-
-    case CM_TEXT:
-      if (g_XDpi == 1200)
-	return MustScanner_GetMono1BitLine1200DPI (lpBlock, Rows);
-      else
-	return MustScanner_GetMono1BitLine (lpBlock, Rows);
-    }
-
-  DBG (DBG_FUNC, "MustScanner_GetRows: leave MustScanner_GetRows\n");
-  return SANE_FALSE;
 }

@@ -65,15 +65,6 @@
 #include "../include/_stdint.h"
 #include "genesys_low.h"
 
-uint16_t bsuint16(uint16_t v)
-{
-#ifdef WORDS_BIGENDIAN
-    return (v << 8) | (v >> 8);
-#else
-    return(v);
-#endif
-}
-
 /* ------------------------------------------------------------------------ */
 /*                  functions calling ASIC specific functions               */
 /* ------------------------------------------------------------------------ */
@@ -259,11 +250,11 @@ SANE_Status
 sanei_genesys_read_hregister (Genesys_Device * dev, uint8_t reg, uint8_t * val)
 {
   SANE_Status status;
-  uint16_t value;
+  SANE_Byte value[2];
 
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_BUFFER,
-			   0x100 | VALUE_GET_REGISTER, 0x22+(reg<<8), 2, (SANE_Byte *)&value);
+			   0x100 | VALUE_GET_REGISTER, 0x22+(reg<<8), 2, value);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -271,11 +262,11 @@ sanei_genesys_read_hregister (Genesys_Device * dev, uint8_t reg, uint8_t * val)
 	   reg, sane_strstatus (status));
       return status;
     }
-  *val=bsuint16(value) & 0xff;
-  DBG( DBG_io2, "sanei_genesys_read_hregister(0x%02x)=0x%02x\n",reg,value & 0xff);
+  *val=value[0];
+  DBG( DBG_io2, "sanei_genesys_read_hregister(0x%02x)=0x%02x\n",reg,*val);
 
   /* check usb link status */
-  if((bsuint16(value) & 0xff00) != 0x5500)
+  if((value[1] & 0xff) != 0x55)
     {
       DBG (DBG_error,"sanei_genesys_read_hregister: invalid read, scanner unplugged ?\n");
       status=SANE_STATUS_IO_ERROR;
@@ -381,11 +372,11 @@ static SANE_Status
 sanei_genesys_read_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t * val)
 {
   SANE_Status status;
-  uint16_t value;
+  SANE_Byte value[2];
 
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_BUFFER,
-			   VALUE_GET_REGISTER, 0x22+(reg<<8), 2, (SANE_Byte *)&value);
+			   VALUE_GET_REGISTER, 0x22+(reg<<8), 2, value);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -393,11 +384,11 @@ sanei_genesys_read_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t * 
 	   reg, sane_strstatus (status));
       return status;
     }
-  *val=bsuint16(value) & 0xff;
-  DBG( DBG_io2, "sanei_genesys_read_gl847_register(0x%02x)=0x%02x\n",reg,value & 0xff);
+  *val=value[0];
+  DBG( DBG_io2, "sanei_genesys_read_gl847_register(0x%02x)=0x%02x\n",reg,*val);
 
   /* check usb link status */
-  if((bsuint16(value) & 0xff00) != 0x5500)
+  if((value[1] & 0xff) != 0x55)
     {
       DBG (DBG_error,"sanei_genesys_read_gl847_register: invalid read, scanner unplugged ?\n");
       status=SANE_STATUS_IO_ERROR;

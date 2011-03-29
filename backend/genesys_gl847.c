@@ -2409,6 +2409,83 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+/** @brief moves the slider to steps at motor base dpi
+ * @param dev device to work on
+ * @param steps number of steps to move
+ * */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
+gl847_feed (Genesys_Device * dev, unsigned int steps)
+{
+  Genesys_Register_Set local_reg[GENESYS_GL847_MAX_REGS];
+  SANE_Status status;
+  Genesys_Register_Set *r;
+  float resolution;
+  uint8_t val;
+
+  DBGSTART;
+
+  /* prepare local registers */
+  memset (local_reg, 0, sizeof (local_reg));
+  memcpy (local_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
+
+  resolution=300;
+  gl847_init_scan_regs (dev,
+			local_reg,
+			resolution,
+			resolution,
+			0,
+			steps,
+			100,
+			3,
+			8,
+			3,
+			dev->settings.color_filter,
+			SCAN_FLAG_DISABLE_SHADING |
+			SCAN_FLAG_DISABLE_GAMMA |
+                        SCAN_FLAG_FEEDING |
+			SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  sanei_genesys_set_triple(local_reg,REG_EXPR,0);
+  sanei_genesys_set_triple(local_reg,REG_EXPG,0);
+  sanei_genesys_set_triple(local_reg,REG_EXPB,0);
+
+  /* clear scan and feed count */
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRMCNT));
+  
+  /* set up for no scan */
+  r = sanei_genesys_get_address (local_reg, REG01);
+  r->value &= ~REG01_SCAN;
+  
+  /* send registers */
+  RIE (gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS));
+
+  status = gl847_start_action (dev);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to start motor: %s\n", __FUNCTION__, sane_strstatus (status));
+      gl847_stop_action (dev);
+
+      /* restore original registers */
+      gl847_bulk_write_register (dev, dev->reg, GENESYS_GL847_MAX_REGS);
+      return status;
+    }
+
+  /* wait until feed count reaches the required value, but do not
+   * exceed 30s */
+  do
+    {
+          status = sanei_genesys_get_status (dev, &val);
+    }
+  while (status == SANE_STATUS_GOOD && !(val & FEEDFSH));
+  
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
+
 /** @brief set up registers for the actual scan
  */
 static SANE_Status
@@ -2469,6 +2546,18 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   move += dev->settings.tl_y;
   move = (move * move_dpi) / MM_PER_INCH;
   DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
+
+  /* at high res we do fast move to scan area */
+  if(dev->settings.xres>1200)
+    {
+      status = gl847_feed (dev, move);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error, "%s: failed to move to scan area\n",__FUNCTION__);
+          return status;
+        }
+      move=0;
+    }
 
   /* clear scancnt and fedcnt */
   val = REG0D_CLRLNCNT;

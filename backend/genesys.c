@@ -5079,13 +5079,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
   else if (dev->segnb>1)
     {
       /* multi-segment sensors processing */
-      /*
-      if (!(dev->model->flags & GENESYS_FLAG_SIS_SENSOR)) */
-        status = genesys_fill_segmented_buffer (dev, work_buffer_dst, size);
-        /*
-      else
-        status = genesys_fill_oe_buffer (dev, work_buffer_dst, size);
-        */
+      status = genesys_fill_segmented_buffer (dev, work_buffer_dst, size);
     }
   else /* regular case with no extra copy */
     {
@@ -5743,11 +5737,14 @@ calc_parameters (Genesys_Scanner * s)
       || s->dev->model->asic_type == GENESYS_GL124  
       || s->dev->model->asic_type == GENESYS_GL843) 
     {
-      s->params.pixels_per_line = (s->params.pixels_per_line/4)*4;
+      if (s->dev->settings.xres <= 1200)
+        s->params.pixels_per_line = (s->params.pixels_per_line/4)*4;
+      else
+        s->params.pixels_per_line = (s->params.pixels_per_line/16)*16;
     }
 
   /* corner case for true lineart for sensor with several segments
-   * or when xres is doubled to mathc yres */
+   * or when xres is doubled to match yres */
   if (s->dev->settings.xres >= 1200
       && ( s->dev->model->asic_type == GENESYS_GL124
         || s->dev->current_setup.xres < s->dev->current_setup.yres

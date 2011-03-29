@@ -2356,7 +2356,6 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
   memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
 
-
   resolution=MOVE_DPI;
   gl124_init_scan_regs (dev,
 			local_reg,

@@ -849,22 +849,18 @@ StopScan (void)
   /* stop reading data and kill thread */
   rt = MustScanner_StopScan ();
 
-  /* free gamma table */
-  if (g_isSelfGamma && g_pGammaTable != NULL)
+  for (i = 0; i < 20; i++)
     {
-      for (i = 0; i < 20; i++)
-	{
-	  if (!g_isScanning)
-	    {
-	      free (g_pGammaTable);
-	      g_pGammaTable = NULL;
-	      break;
-	    }
-	  else
-	    {
-	      sleep (1);	/* waiting for ReadScannedData to return */
-	    }
-	}
+      if (!g_isScanning)
+	break;
+      sleep (1);	/* wait for ReadScannedData to return */
+    }
+
+  /* free gamma table */
+  if (g_isSelfGamma)
+    {
+      free (g_pGammaTable);
+      g_pGammaTable = NULL;
     }
 
   /* free image buffer */

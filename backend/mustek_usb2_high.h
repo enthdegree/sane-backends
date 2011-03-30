@@ -92,7 +92,6 @@ typedef struct
   COLORMODE cmColorMode;
   unsigned short wLinearThreshold;	/* threshold for line art mode */
   SCANSOURCE ssScanSource;
-  unsigned short * pGammaTable;
 } SETPARAMETERS, *LPSETPARAMETERS;
 
 typedef struct

@@ -75,7 +75,6 @@ enum
 
   OPT_ENHANCEMENT_GROUP,
   OPT_THRESHOLD,
-  OPT_GAMMA_VALUE,
 
   OPT_GEOMETRY_GROUP,
   OPT_TL_X,			/* top-left x */
@@ -109,7 +108,6 @@ typedef struct
   SANE_Fixed y_size_ta;		/* Size of scan area in TA mode in mm */
 
   RGBORDER line_mode_color_order;	/* Order of the CCD/CIS colors */
-  SANE_Fixed default_gamma_value;	/* Default gamma value */
   /*@} */
 } Scanner_Model;
 

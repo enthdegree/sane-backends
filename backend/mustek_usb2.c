@@ -96,11 +96,6 @@ static SANE_Range y_range = {
   SANE_FIX (0.0)		/* quantization */
 };
 
-static SANE_Range gamma_range = {
-  SANE_FIX (0.01),		/* minimum */
-  SANE_FIX (5.0),		/* maximum */
-  SANE_FIX (0.01)		/* quantization */
-};
 static SANE_String_Const mode_list[] = {
   SANE_I18N ("Color48"),
   SANE_I18N ("Color24"),
@@ -134,7 +129,6 @@ static Scanner_Model mustek_A2nu2_model = {
   SANE_FIX (6.45 * MM_PER_INCH), /* Size of scan area in TA mode in mm (y) */
 
   RO_RGB, /* Order of the CCD/CIS colors */
-  SANE_FIX (2.0) /* Default gamma value */
 };
 
 
@@ -249,8 +243,6 @@ calc_parameters (Mustek_Scanner * s)
     {
       s->setpara.wTargetDPI = 75;
     }
-
-  s->setpara.pGammaTable = NULL;
 
   s->params.pixels_per_line =
     (SANE_Int) ((s->setpara.fmArea.x2 -
@@ -394,20 +386,6 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_THRESHOLD].constraint.range = &u8_range;
   s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
   s->val[OPT_THRESHOLD].w = DEF_LINEARTTHRESHOLD;
-
-  /* internal gamma value */
-  s->opt[OPT_GAMMA_VALUE].name = "gamma-value";
-  s->opt[OPT_GAMMA_VALUE].title = SANE_I18N ("Gamma value");
-  s->opt[OPT_GAMMA_VALUE].desc =
-    SANE_I18N ("Sets the gamma value of all channels.");
-  s->opt[OPT_GAMMA_VALUE].type = SANE_TYPE_FIXED;
-  s->opt[OPT_GAMMA_VALUE].unit = SANE_UNIT_NONE;
-  s->opt[OPT_GAMMA_VALUE].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_GAMMA_VALUE].constraint.range = &gamma_range;
-  s->opt[OPT_GAMMA_VALUE].cap |= SANE_CAP_EMULATED;
-  s->val[OPT_GAMMA_VALUE].w = s->model.default_gamma_value;
-
-  DISABLE (OPT_GAMMA_VALUE);
 
   /* "Geometry" group: */
   s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
@@ -582,14 +560,8 @@ SetParameters (LPSETPARAMETERS pSetParameters)
   g_wLineartThreshold = pSetParameters->wLinearThreshold;
 
   /*7. Gamma table */
-  if (NULL != pSetParameters->pGammaTable)
-    {
-      DBG (DBG_INFO, "SetParameters: IN gamma table not NULL\n");
-      g_pGammaTable = pSetParameters->pGammaTable;
-      g_isSelfGamma = SANE_FALSE;
-    }
-  else if (pSetParameters->cmColorMode == CM_GRAY8
-	   || pSetParameters->cmColorMode == CM_RGB24)
+  if ((pSetParameters->cmColorMode == CM_GRAY8) ||
+      (pSetParameters->cmColorMode == CM_RGB24))
     {
       unsigned short i;
       SANE_Byte bGammaData;
@@ -608,7 +580,6 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 	  DBG (DBG_ERR, "SetParameters: gamma table malloc fail\n");
 	  return SANE_FALSE;
 	}
-      g_isSelfGamma = SANE_TRUE;
 
       for (i = 0; i < 4096; i++)
 	{
@@ -621,8 +592,8 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 	  *(g_pGammaTable + i + 8192) = bGammaData;
 	}
     }
-  else if (pSetParameters->cmColorMode == CM_GRAY16
-	   || pSetParameters->cmColorMode == CM_RGB48)
+  else if ((pSetParameters->cmColorMode == CM_GRAY16) ||
+	   (pSetParameters->cmColorMode == CM_RGB48))
     {
       unsigned int i, wGammaData;
       g_pGammaTable = malloc (sizeof (unsigned short) * 65536 * 3);
@@ -632,7 +603,6 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 	  DBG (DBG_ERR, "SetParameters: gamma table malloc fail\n");
 	  return SANE_FALSE;
 	}
-      g_isSelfGamma = SANE_TRUE;
 
       for (i = 0; i < 65536; i++)
 	{
@@ -857,7 +827,7 @@ StopScan (void)
     }
 
   /* free gamma table */
-  if (g_isSelfGamma)
+  if (g_pGammaTable != NULL)
     {
       free (g_pGammaTable);
       g_pGammaTable = NULL;
@@ -1389,7 +1359,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_NUM_OPTS:
 	case OPT_RESOLUTION:
 	case OPT_PREVIEW:
-	case OPT_GAMMA_VALUE:
 	case OPT_THRESHOLD:
 	case OPT_TL_X:
 	case OPT_TL_Y:
@@ -1444,7 +1413,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
 	case OPT_THRESHOLD:
-	case OPT_GAMMA_VALUE:
 	  s->val[option].w = *(SANE_Word *) val;
 	  break;
 	  /* side-effect-free word-array options: */
@@ -1570,8 +1538,6 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_INVAL;
     }
 
-  s->setpara.pGammaTable = NULL;
-
   DBG (DBG_INFO, "Sane_start:setpara ,setpara.fmArea.x1=%d\n",
        s->setpara.fmArea.x1);
   DBG (DBG_INFO, "Sane_start:setpara ,setpara.fmArea.x2=%d\n",
@@ -1588,8 +1554,6 @@ sane_start (SANE_Handle handle)
        s->setpara.cmColorMode);
   DBG (DBG_INFO, "Sane_start:setpara ,setpara.ssScanSource =%d\n",
        s->setpara.ssScanSource);
-  DBG (DBG_INFO, "Sane_start:setpara ,setpara.pGammaTable =%p\n",
-       (void *) s->setpara.pGammaTable);
 
   SetParameters (&s->setpara);
 

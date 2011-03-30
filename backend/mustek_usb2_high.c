@@ -59,7 +59,6 @@ static SANE_Bool g_bPrepared;
 static SANE_Bool g_isCanceled;
 static SANE_Bool g_bFirstReadImage;
 static SANE_Bool g_isScanning;
-static SANE_Bool g_isSelfGamma;
 
 static SANE_Byte g_bScanBits;
 static SANE_Byte *g_lpReadImageHead;
@@ -150,7 +149,6 @@ MustScanner_Init (void)
   g_bPrepared = SANE_FALSE;
 
   g_isScanning = SANE_FALSE;
-  g_isSelfGamma = SANE_FALSE;
   g_pGammaTable = NULL;
 
   g_ssScanSource = SS_Reflective;

@@ -1782,31 +1782,15 @@ sane_cancel (SANE_Handle handle)
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+sane_set_io_mode (SANE_Handle __sane_unused__ handle,
+		  SANE_Bool __sane_unused__ non_blocking)
 {
-  Mustek_Scanner *s = handle;
-  DBG (DBG_FUNC, "sane_set_io_mode: handle = %p, non_blocking = %s\n",
-       handle, non_blocking == SANE_TRUE ? "true" : "false");
-  if (!s->bIsScanning)
-    {
-      DBG (DBG_WARN, "sane_set_io_mode: not scanning\n");
-      return SANE_STATUS_INVAL;
-    }
-  if (non_blocking)
-    return SANE_STATUS_UNSUPPORTED;
-  return SANE_STATUS_GOOD;
+  return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+sane_get_select_fd (SANE_Handle __sane_unused__ handle,
+		    SANE_Int __sane_unused__ * fd)
 {
-  Mustek_Scanner *s = handle;
-  DBG (DBG_FUNC, "sane_get_select_fd: handle = %p, fd = %p\n", handle,
-       (void *) fd);
-  if (!s->bIsScanning)
-    {
-      DBG (DBG_WARN, "%s", "sane_get_select_fd: not scanning\n");
-      return SANE_STATUS_INVAL;
-    }
   return SANE_STATUS_UNSUPPORTED;
 }

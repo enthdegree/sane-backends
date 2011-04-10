@@ -428,7 +428,6 @@ SetParameters (PTARGETIMAGE pSetParameters)
   else
     Transparent_Reset ();
 
-  /* TODO */
   g_ssScanSource = pSetParameters->ssScanSource;
   g_wLineartThreshold = pSetParameters->wLineartThreshold;
 
@@ -455,9 +454,9 @@ SetParameters (PTARGETIMAGE pSetParameters)
       for (i = 0; i < 4096; i++)
 	{
 	  bGammaData = (SANE_Byte) (pow ((double) i / 4095, 0.625) * 255);
-	  *(g_pGammaTable + i) = bGammaData;
-	  *(g_pGammaTable + i + 4096) = bGammaData;
-	  *(g_pGammaTable + i + 8192) = bGammaData;
+	  g_pGammaTable[i] = bGammaData;
+	  g_pGammaTable[i + 4096] = bGammaData;
+	  g_pGammaTable[i + 8192] = bGammaData;
 	}
     }
   else if ((pSetParameters->cmColorMode == CM_GRAY16) ||
@@ -477,9 +476,9 @@ SetParameters (PTARGETIMAGE pSetParameters)
 	{
 	  wGammaData = (unsigned short)
 	    (pow ((double) i / 65535, 0.625) * 65535);
-	  *(g_pGammaTable + i) = wGammaData;
-	  *(g_pGammaTable + i + 65536) = wGammaData;
-	  *(g_pGammaTable + i + 65536 * 2) = wGammaData;
+	  g_pGammaTable[i] = wGammaData;
+	  g_pGammaTable[i + 65536] = wGammaData;
+	  g_pGammaTable[i + 65536 * 2] = wGammaData;
 	}
     }
   else
@@ -500,21 +499,6 @@ SetParameters (PTARGETIMAGE pSetParameters)
 }
 
 static SANE_Bool
-StartScan (TARGETIMAGE *pTarget)
-{
-  if (g_ssScanSource == SS_Reflective)
-    {
-      DBG (DBG_INFO, "StartScan: g_ssScanSource==SS_Reflective\n");
-      return Reflective_SetupScan (pTarget);
-    }
-  else
-    {
-      DBG (DBG_INFO, "StartScan: g_ssScanSource!=SS_Reflective\n");
-      return Transparent_SetupScan (pTarget);
-    }
-}
-
-static SANE_Bool
 ReadScannedData (LPIMAGEROWS pImageRows, TARGETIMAGE *pTarget)
 {
   SANE_Bool isRGBInvert;
@@ -527,11 +511,11 @@ ReadScannedData (LPIMAGEROWS pImageRows, TARGETIMAGE *pTarget)
   Rows = pImageRows->wWantedLineNum;
   DBG (DBG_INFO, "ReadScannedData: wanted rows = %d\n", Rows);
 
-  if (g_ssScanSource == SS_Negative)
+  if (pTarget->ssScanSource == SS_Negative)
     {
       DBG (DBG_INFO, "ReadScannedData: deal with the Negative\n");
 
-      if (g_ScanMode != CM_RGB24)
+      if (pTarget->cmColorMode != CM_RGB24)
 	return SANE_FALSE;
 
       if (!g_lpNegImageData)
@@ -574,7 +558,7 @@ ReadScannedData (LPIMAGEROWS pImageRows, TARGETIMAGE *pTarget)
 	return SANE_FALSE;
       pImageRows->wXferedLineNum = Rows;
 
-      if (g_ScanMode == CM_TEXT)
+      if (pTarget->cmColorMode == CM_TEXT)
 	{
 	  for (i = 0; i < (Rows * pTarget->dwBytesPerRow); i++)
 	    pImageRows->pBuffer[i] ^= 0xff;
@@ -1100,7 +1084,16 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_NO_MEM;
   s->scan_buffer_len = 0;
 
-  StartScan (&s->setpara);
+  if (s->setpara.ssScanSource == SS_Reflective)
+    {
+      DBG (DBG_INFO, "StartScan: ssScanSource==SS_Reflective\n");
+      Reflective_SetupScan (&s->setpara);	/* TODO: error handling */
+    }
+  else
+    {
+      DBG (DBG_INFO, "StartScan: ssScanSource!=SS_Reflective\n");
+      Transparent_SetupScan (&s->setpara);	/* TODO: error handling */
+    }
 
   DBG (DBG_FUNC, "sane_start: exit\n");
   return SANE_STATUS_GOOD;

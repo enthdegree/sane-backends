@@ -47,11 +47,7 @@
 
 
 static SANE_Bool Reflective_Reset (void);
-static SANE_Bool Reflective_SetupScan (COLORMODE ColorMode,
-				       unsigned short XDpi, unsigned short YDpi,
-				       unsigned short X, unsigned short Y,
-				       unsigned short Width,
-				       unsigned short Height);
+static SANE_Bool Reflective_SetupScan (TARGETIMAGE *pTarget);
 static SANE_Bool Reflective_AdjustAD (void);
 static SANE_Bool Reflective_FindTopLeft (unsigned short * lpwStartX,
 					 unsigned short * lpwStartY);
@@ -111,25 +107,8 @@ Reflective_Reset (void)
   return SANE_TRUE;
 }
 
-/**********************************************************************
-	setup scanning process
-Parameters:
-	ColorMode: ScanMode of Scanning, CM_RGB48, CM_GRAY and so on
-	XDpi: X Resolution
-	YDpi: Y Resolution
-	isInvert: the RGB order
-	X: X start coordinate
-	Y: Y start coordinate
-	Width: Width of Scan Image
-	Height: Height of Scan Image
-Return value: 
-	SANE_TRUE if the operation is success, SANE_FALSE otherwise
-***********************************************************************/
 static SANE_Bool
-Reflective_SetupScan (COLORMODE ColorMode,
-		      unsigned short XDpi, unsigned short YDpi,
-		      unsigned short X, unsigned short Y,
-		      unsigned short Width, unsigned short Height)
+Reflective_SetupScan (TARGETIMAGE *pTarget)
 {
   DBG (DBG_FUNC, "Reflective_SetupScan: Call in\n");
 
@@ -145,11 +124,11 @@ Reflective_SetupScan (COLORMODE ColorMode,
       return SANE_FALSE;
     }
 
-  g_ScanMode = ColorMode;
-  g_XDpi = XDpi;
-  g_YDpi = YDpi;
-  g_SWWidth = Width;
-  g_SWHeight = Height;
+  g_ScanMode = pTarget->cmColorMode;
+  g_XDpi = pTarget->wDpi;
+  g_YDpi = pTarget->wDpi;
+  g_SWWidth = pTarget->wWidth;
+  g_SWHeight = pTarget->wHeight;
 
   switch (g_YDpi)
     {
@@ -276,7 +255,7 @@ Reflective_SetupScan (COLORMODE ColorMode,
   if (1200 == g_XDpi)
     {
       g_X =
-	g_X * 1200 / FIND_LEFT_TOP_CALIBRATE_RESOLUTION + X * 1200 / g_XDpi +
+	g_X * 1200 / FIND_LEFT_TOP_CALIBRATE_RESOLUTION + pTarget->wX * 1200 / g_XDpi +
 	47;
 
     }
@@ -284,16 +263,16 @@ Reflective_SetupScan (COLORMODE ColorMode,
     {
       if (75 == g_XDpi)
 	{
-	  g_X = g_X + X * 600 / g_XDpi;
+	  g_X = g_X + pTarget->wX * 600 / g_XDpi;
 	}
       else
 	{
-	  g_X = g_X + X * 600 / g_XDpi + 23;
+	  g_X = g_X + pTarget->wX * 600 / g_XDpi + 23;
 	}
     }
 
   g_Y =
-    g_Y * 1200 / FIND_LEFT_TOP_CALIBRATE_RESOLUTION + Y * 1200 / g_YDpi + 47;
+    g_Y * 1200 / FIND_LEFT_TOP_CALIBRATE_RESOLUTION + pTarget->wY * 1200 / g_YDpi + 47;
 
 
   DBG (DBG_FUNC, "before line calibration,g_X=%d,g_Y=%d\n", g_X, g_Y);

@@ -47,12 +47,7 @@
 
 
 static SANE_Bool Transparent_Reset (void);
-static SANE_Bool Transparent_SetupScan (COLORMODE ColorMode,
-					unsigned short XDpi,
-					unsigned short YDpi,
-					unsigned short X, unsigned short Y,
-					unsigned short Width,
-					unsigned short Height);
+static SANE_Bool Transparent_SetupScan (TARGETIMAGE *pTarget);
 static SANE_Bool Transparent_AdjustAD (void);
 static SANE_Bool Transparent_FindTopLeft (unsigned short * lpwStartX,
 					  unsigned short * lpwStartY);
@@ -113,25 +108,8 @@ Transparent_Reset (void)
   return SANE_TRUE;
 }
 
-/**********************************************************************
-	setup scanning process
-Parameters:
-	ColorMode: ScanMode of Scanning, CM_RGB48, CM_GRAY and so on
-	XDpi: X Resolution
-	YDpi: Y Resolution
-	isInvert: the RGB order
-	X: X start coordinate
-	Y: Y start coordinate
-	Width: Width of Scan Image
-	Height: Height of Scan Image
-Return value: 
-	SANE_TRUE if the operation is success, SANE_FALSE otherwise
-***********************************************************************/
 static SANE_Bool
-Transparent_SetupScan (COLORMODE ColorMode,
-		       unsigned short XDpi, unsigned short YDpi,
-		       unsigned short X, unsigned short Y,
-		       unsigned short Width, unsigned short Height)
+Transparent_SetupScan (TARGETIMAGE *pTarget)
 {
   SANE_Bool hasTA;
   unsigned short wTAShadingMinus = 0;
@@ -150,11 +128,11 @@ Transparent_SetupScan (COLORMODE ColorMode,
       return SANE_FALSE;
     }
 
-  g_ScanMode = ColorMode;
-  g_XDpi = XDpi;
-  g_YDpi = YDpi;
-  g_SWWidth = Width;
-  g_SWHeight = Height;
+  g_ScanMode = pTarget->cmColorMode;
+  g_XDpi = pTarget->wDpi;
+  g_YDpi = pTarget->wDpi;
+  g_SWWidth = pTarget->wWidth;
+  g_SWHeight = pTarget->wHeight;
 
   switch (g_YDpi)
     {
@@ -278,17 +256,17 @@ Transparent_SetupScan (COLORMODE ColorMode,
   if (1200 == g_XDpi)
     {
       g_X =
-	g_X * 1200 / FIND_LEFT_TOP_CALIBRATE_RESOLUTION + X * 1200 / g_XDpi;
+	g_X * 1200 / FIND_LEFT_TOP_CALIBRATE_RESOLUTION + pTarget->wX * 1200 / g_XDpi;
     }
   else
     {
       if (75 == g_XDpi)
 	{
-	  g_X = g_X + X * 600 / g_XDpi - 23;
+	  g_X = g_X + pTarget->wX * 600 / g_XDpi - 23;
 	}
       else
 	{
-	  g_X = g_X + X * 600 / g_XDpi;
+	  g_X = g_X + pTarget->wX * 600 / g_XDpi;
 	}
     }
 
@@ -306,7 +284,7 @@ Transparent_SetupScan (COLORMODE ColorMode,
 		 "g_YDpi=%d, g_X=%d, g_Y=%d, g_Width=%d, g_Height=%d\n",
        g_bScanBits, g_XDpi, g_YDpi, g_X, g_Y, g_Width, g_Height);
 
-  g_Y = Y * 1200 / g_YDpi + (300 - 40) + 189;
+  g_Y = pTarget->wY * 1200 / g_YDpi + (300 - 40) + 189;
   Asic_MotorMove (&g_chip, SANE_TRUE, g_Y - 360);
   g_Y = 360;
 

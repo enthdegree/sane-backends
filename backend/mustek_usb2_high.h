@@ -48,18 +48,18 @@
 #ifndef MUSTEK_USB2_HIGH_H
 #define MUSTEK_USB2_HIGH_H
 
-typedef SANE_Byte SCANSOURCE;
-#define SS_Reflective	0x00
-#define SS_Positive	0x01
-#define SS_Negative	0x02
+typedef enum
+{
+  SS_Reflective,
+  SS_Positive,
+  SS_Negative
+} SCANSOURCE;
 
-typedef SANE_Byte RGBORDER;
-#define RO_RGB	0x00
-#define RO_BGR	0x01
-
-typedef SANE_Byte SCANTYPE;
-#define ST_Reflective	0x00
-#define ST_Transparent	0x01
+typedef enum
+{
+  RO_RGB,
+  RO_BGR
+} RGBORDER;
 
 typedef enum
 {
@@ -73,29 +73,6 @@ typedef enum
 
 typedef struct
 {
-  unsigned int dwLineByteWidth;
-  unsigned int dwLength;
-} GETPARAMETERS, *LPGETPARAMETERS;
-
-typedef struct
-{
-  unsigned short x1;
-  unsigned short y1;
-  unsigned short x2;
-  unsigned short y2;
-} FRAME, *LPFRAME;
-
-typedef struct
-{
-  FRAME fmArea;
-  unsigned short wTargetDPI;
-  COLORMODE cmColorMode;
-  unsigned short wLinearThreshold;	/* threshold for line art mode */
-  SCANSOURCE ssScanSource;
-} SETPARAMETERS, *LPSETPARAMETERS;
-
-typedef struct
-{
   RGBORDER roRgbOrder;
   unsigned short wWantedLineNum;
   unsigned short wXferedLineNum;
@@ -105,26 +82,19 @@ typedef struct
 typedef struct
 {
   COLORMODE cmColorMode;
+  SCANSOURCE ssScanSource;
   unsigned short wDpi;
   unsigned short wX;
   unsigned short wY;
   unsigned short wWidth;
   unsigned short wHeight;
-  SCANSOURCE ssScanSource;
+  unsigned short wLineartThreshold;
+  unsigned int dwBytesPerRow;
 } TARGETIMAGE, *PTARGETIMAGE;
 
-typedef struct
-{
-  COLORMODE cmScanMode;
-  unsigned short wXDpi;
-  unsigned short wYDpi;
-  unsigned short wX;
-  unsigned short wY;
-  unsigned short wWidth;
-  unsigned short wHeight;
-  unsigned int dwBytesPerRow;
-} SUGGESTSETTING, *PSUGGESTSETTING;
 
+#define _MAX(a,b) ((a)>(b)?(a):(b))
+#define _MIN(a,b) ((a)<(b)?(a):(b))
 
 #define R_GAIN                          0
 #define G_GAIN                          0
@@ -186,8 +156,7 @@ static void MustScanner_PrepareCalculateMaxMin (unsigned short wResolution);
 static SANE_Bool MustScanner_CalculateMaxMin (SANE_Byte * pBuffer,
 					      unsigned short * lpMaxValue,
 					      unsigned short * lpMinValue);
-static SANE_Bool MustScanner_ScanSuggest (PTARGETIMAGE pTarget,
-					  PSUGGESTSETTING pSuggest);
+static SANE_Bool MustScanner_ScanSuggest (PTARGETIMAGE pTarget);
 static SANE_Bool MustScanner_StopScan (void);
 static SANE_Bool MustScanner_PrepareScan (void);
 static SANE_Bool MustScanner_GetRows (SANE_Byte * lpBlock,

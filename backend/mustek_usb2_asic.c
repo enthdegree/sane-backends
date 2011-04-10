@@ -45,10 +45,14 @@
    This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
    and similar USB2 scanners. */
 
-#include <string.h>
 #include <stdlib.h>
-#include <math.h>
+#include <string.h>
 #include <unistd.h>
+
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif
+#include <math.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_usb.h"
@@ -1979,7 +1983,7 @@ Asic_Close (PAsic chip)
   if (chip->firmwarestate > FS_OPENED)
     {
       DBG (DBG_ASIC,
-	   "Asic_Close: Scanner is scanning, try to stop scanning\n");
+	   "Asic_Close: Scanner is scanning, trying to stop scanning\n");
       Asic_ScanStop (chip);
     }
 
@@ -2592,8 +2596,7 @@ static SANE_Status
 Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key)
 {
   SANE_Status status;
-  SANE_Byte bBuffer_1 = 0xff;
-  SANE_Byte bBuffer_2 = 0xff;
+  SANE_Byte bBuffer_1, bBuffer_2;
 
   DBG (DBG_ASIC, "Asic_CheckFunctionKey: Enter\n");
 
@@ -2615,16 +2618,19 @@ Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  if ((~bBuffer_1 & 0x10) == 0x10)
-    *key = 0x01;
-  else if ((~bBuffer_1 & 0x01) == 0x01)
-    *key = 0x02;
-  else if ((~bBuffer_1 & 0x04) == 0x04)
-    *key = 0x04;
-  else if ((~bBuffer_2 & 0x08) == 0x08)
-    *key = 0x08;
-  else if ((~bBuffer_1 & 0x02) == 0x02)
-    *key = 0x10;
+  bBuffer_1 = ~bBuffer1;
+  bBuffer_2 = ~bBuffer2;
+
+  if (bBuffer_1 & 0x10)
+    *key = 1;	/* Scan key pressed */
+  else if (bBuffer_1 & 0x01)
+    *key = 2;	/* Copy key pressed */
+  else if (bBuffer_1 & 0x04)
+    *key = 3;	/* Fax key pressed */
+  else if (bBuffer_2 & 0x08)
+    *key = 4;	/* Email key pressed */
+  else if (bBuffer_1 & 0x02)
+    *key = 5;	/* Panel key pressed */
   else
     *key = 0;
 
@@ -2657,7 +2663,7 @@ Asic_IsTAConnected (PAsic chip, SANE_Bool * hasTA)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  *hasTA = ((~bBuffer_1 & 0x08) == 0x08) ? SANE_TRUE : SANE_FALSE;
+  *hasTA = (~bBuffer_1 & 0x08) ? SANE_TRUE : SANE_FALSE;
 
   DBG (DBG_ASIC, "hasTA=%d\n", *hasTA);
   DBG (DBG_ASIC, "Asic_IsTAConnected(): Exit\n");

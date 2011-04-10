@@ -49,16 +49,6 @@
 #ifndef MUSTEK_USB2_H
 #define MUSTEK_USB2_H
 
-#ifndef SANE_I18N
-#define SANE_I18N(text) text
-#endif
-
-#define ENABLE(OPTION)  s->opt[OPTION].cap &= ~SANE_CAP_INACTIVE
-#define DISABLE(OPTION) s->opt[OPTION].cap |=  SANE_CAP_INACTIVE
-
-#define _MAX(a,b) ((a)>(b)?(a):(b))
-#define _MIN(a,b) ((a)<(b)?(a):(b))
-
 #define SCAN_BUFFER_SIZE (64 * 1024)
 #define MAX_RESOLUTIONS 12
 #define DEF_LINEARTTHRESHOLD 128
@@ -100,34 +90,31 @@ typedef struct
 
   /** @name Scanner model parameters */
   /*@{ */
+  SANE_Word dpi_values[MAX_RESOLUTIONS];	/* possible resolutions */
+  SANE_Fixed x_size;			/* size of scan area in mm */
+  SANE_Fixed y_size;
+  SANE_Fixed x_size_ta;			/* size of scan area in TA mode in mm */
+  SANE_Fixed y_size_ta;
 
-  SANE_Int dpi_values[MAX_RESOLUTIONS];	/* possible resolutions */
-  SANE_Fixed x_size;		/* Size of scan area in mm */
-  SANE_Fixed y_size;		/* Size of scan area in mm */
-  SANE_Fixed x_size_ta;		/* Size of scan area in TA mode in mm */
-  SANE_Fixed y_size_ta;		/* Size of scan area in TA mode in mm */
-
-  RGBORDER line_mode_color_order;	/* Order of the CCD/CIS colors */
+  RGBORDER line_mode_color_order;	/* order of the CCD/CIS colors */
   /*@} */
 } Scanner_Model;
 
 typedef struct Mustek_Scanner
 {
-  /* all the state needed to define a scan request: */
   struct Mustek_Scanner *next;
 
   SANE_Option_Descriptor opt[NUM_OPTIONS];
   Option_Value val[NUM_OPTIONS];
-  SANE_Parameters params;   /**< SANE Parameters */
+  SANE_Parameters params;
   Scanner_Model model;
-  SETPARAMETERS setpara;
-  GETPARAMETERS getpara;
+  TARGETIMAGE setpara;
   SANE_Bool bIsScanning;
   SANE_Bool bIsReading;
-  SANE_Word read_rows;		/* transfer image's lines */
-  SANE_Byte *Scan_data_buf;	/*store Scanned data for transfer */
-  SANE_Byte *Scan_data_buf_start;	/*point to data need to transfer */
-  size_t scan_buffer_len;	/* length of data buf */
+  SANE_Word read_rows;		/* number of transfered image lines */
+  SANE_Byte *Scan_data_buf;
+  SANE_Byte *Scan_data_buf_start;
+  size_t scan_buffer_len;
 } Mustek_Scanner;
 
 #endif

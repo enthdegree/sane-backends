@@ -423,19 +423,10 @@ SetParameters (PTARGETIMAGE pSetParameters)
 {
   DBG (DBG_FUNC, "SetParameters: start\n");
 
-  if (pSetParameters->ssScanSource == SS_Reflective)
-    Reflective_Reset ();
-  else
-    Transparent_Reset ();
+  MustScanner_Reset (pSetParameters->ssScanSource);
 
   g_ssScanSource = pSetParameters->ssScanSource;
   g_wLineartThreshold = pSetParameters->wLineartThreshold;
-
-  if (!MustScanner_Prepare (pSetParameters->ssScanSource))
-    {
-      DBG (DBG_ERR, "SetParameters: MustScanner_Prepare fail\n");
-      return SANE_FALSE;
-    }
 
   /* create gamma table */
   if ((pSetParameters->cmColorMode == CM_GRAY8) ||
@@ -967,7 +958,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->val[option].s = strdup (val);
 	      if (strcmp (s->val[option].s, source_list[SS_Reflective]) == 0)
 		{
-		  MustScanner_PowerControl (SANE_TRUE, SANE_FALSE);
 		  s->opt[OPT_MODE].size = max_string_size (mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = mode_list;
 		  s->val[OPT_MODE].s = strdup (mode_list[CM_RGB24]);
@@ -976,7 +966,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		}
 	      else if (strcmp (s->val[option].s, source_list[SS_Negative]) == 0)
 		{
-		  MustScanner_PowerControl (SANE_FALSE, SANE_TRUE);
 		  s->opt[OPT_MODE].size = max_string_size (negative_mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = negative_mode_list;
 		  s->val[OPT_MODE].s = strdup (mode_list[CM_RGB24]);
@@ -985,7 +974,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		}
 	      else if (strcmp (s->val[option].s, source_list[SS_Positive]) == 0)
 		{
-		  MustScanner_PowerControl (SANE_FALSE, SANE_TRUE);
 		  s->opt[OPT_MODE].size = max_string_size (mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = mode_list;
 		  s->val[OPT_MODE].s = strdup (mode_list[CM_RGB24]);

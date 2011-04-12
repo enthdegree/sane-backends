@@ -141,7 +141,6 @@ MustScanner_Init (void)
   g_lpReadImageHead = NULL;
 
   g_isCanceled = SANE_FALSE;
-  g_bFirstReadImage = SANE_TRUE;
   g_bOpened = SANE_FALSE;
   g_bPrepared = SANE_FALSE;
 
@@ -232,58 +231,6 @@ MustScanner_BackHome (void)
   Asic_Close (&g_chip);
 
   DBG (DBG_FUNC, "MustScanner_BackHome: leave MustScanner_BackHome\n");
-  return SANE_TRUE;
-}
-
-static SANE_Bool
-MustScanner_Prepare (SCANSOURCE ssScanSource)
-{
-  DBG (DBG_FUNC, "MustScanner_Prepare: call in\n");
-
-  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
-    {
-      DBG (DBG_FUNC, "MustScanner_Prepare: Asic_Open return error\n");
-      return SANE_FALSE;
-    }
-
-  if (SS_Reflective == ssScanSource)
-    {
-      DBG (DBG_FUNC, "MustScanner_Prepare: ScanSource is SS_Reflective\n");
-      if (SANE_STATUS_GOOD != Asic_TurnLamp (&g_chip, SANE_TRUE))
-	{
-	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnLamp return error\n");
-	  return SANE_FALSE;
-	}
-
-      g_chip.lsLightSource = LS_REFLECTIVE;
-    }
-  else if (SS_Positive == ssScanSource)
-    {
-      DBG (DBG_FUNC, "MustScanner_Prepare: ScanSource is SS_Positive\n");
-      if (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, SANE_TRUE))
-	{
-	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnTA return error\n");
-	  return SANE_FALSE;
-	}
-
-      g_chip.lsLightSource = LS_POSITIVE;
-    }
-  else if (SS_Negative == ssScanSource)
-    {
-      DBG (DBG_FUNC, "MustScanner_Prepare: ScanSource is SS_Negative\n");
-      if (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, SANE_TRUE))
-	{
-	  DBG (DBG_FUNC, "MustScanner_Prepare: Asic_TurnTA return error\n");
-	  return SANE_FALSE;
-	}
-
-      g_chip.lsLightSource = LS_NEGATIVE;
-    }
-
-  Asic_Close (&g_chip);
-  g_bPrepared = SANE_TRUE;
-
-  DBG (DBG_FUNC, "MustScanner_Prepare: leave MustScanner_Prepare\n");
   return SANE_TRUE;
 }
 
@@ -1329,5 +1276,41 @@ MustScanner_PrepareScan (void)
     }
 
   DBG (DBG_FUNC, "MustScanner_PrepareScan: leave MustScanner_PrepareScan\n");
+  return SANE_TRUE;
+}
+
+static SANE_Bool
+MustScanner_Reset (SCANSOURCE ssScanSource)
+{
+  DBG (DBG_FUNC, "MustScanner_Reset: call in\n");
+
+  if (g_bOpened)
+    {
+      DBG (DBG_FUNC, "MustScanner_Reset: scanner already open\n");
+      return SANE_FALSE;
+    }
+
+  if (ssScanSource == SS_Reflective)
+    {
+      /* TODO: merge LIGHTSOURCE and SCANSOURCE */
+      Asic_ResetADParameters (&g_chip, LS_REFLECTIVE);
+      if (!MustScanner_PowerControl (SANE_TRUE, SANE_FALSE))
+        return SANE_FALSE;
+    }
+  else
+    {
+      if (ssScanSource == SS_Positive)
+        Asic_ResetADParameters (&g_chip, LS_POSITIVE);
+      else
+        Asic_ResetADParameters (&g_chip, LS_NEGATIVE);
+      if (!MustScanner_PowerControl (SANE_FALSE, SANE_TRUE))
+        return SANE_FALSE;
+    }
+
+  g_dwTotalTotalXferLines = 0;
+  g_bFirstReadImage = SANE_TRUE;
+  g_bPrepared = SANE_TRUE;
+
+  DBG (DBG_FUNC, "MustScannert_Reset: leave\n");
   return SANE_TRUE;
 }

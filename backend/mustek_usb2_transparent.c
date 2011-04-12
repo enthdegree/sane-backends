@@ -46,7 +46,6 @@
    and similar USB2 scanners. */
 
 
-static SANE_Bool Transparent_Reset (void);
 static SANE_Bool Transparent_SetupScan (TARGETIMAGE *pTarget);
 static SANE_Bool Transparent_AdjustAD (void);
 static SANE_Bool Transparent_FindTopLeft (unsigned short * lpwStartX,
@@ -54,59 +53,6 @@ static SANE_Bool Transparent_FindTopLeft (unsigned short * lpwStartX,
 static SANE_Bool Transparent_LineCalibration16Bits (
 						unsigned short wTAShadingMinus);
 
-
-/**********************************************************************
-	reset the scanner
-Return value: 
-	SANE_TRUE if operation is success, SANE_FALSE otherwise
-***********************************************************************/
-static SANE_Bool
-Transparent_Reset (void)
-{
-  DBG (DBG_FUNC, "Transparent_Reset: call in\n");
-
-  if (g_bOpened)
-    {
-      DBG (DBG_FUNC, "Transparent_Reset: scanner has been opened\n");
-      return SANE_FALSE;
-    }
-
-  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
-    {
-      DBG (DBG_FUNC, "Transparent_Reset: can not open scanner\n");
-      return SANE_FALSE;
-    }
-
-  Asic_ResetADParameters (&g_chip, LS_POSITIVE);
-
-  if (SANE_STATUS_GOOD != Asic_TurnLamp (&g_chip, SANE_FALSE))
-    {
-      DBG (DBG_FUNC, "Reflective_Reset: Asic_TurnLamp return error\n");
-      return SANE_FALSE;
-    }
-
-  if (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, SANE_TRUE))
-    {
-      DBG (DBG_FUNC, "Reflective_Reset: Asic_TurnTA return error\n");
-      return SANE_FALSE;
-    }
-
-  if (SANE_STATUS_GOOD != Asic_Close (&g_chip))
-    {
-      DBG (DBG_FUNC, "Reflective_Reset: Asic_Close return error\n");
-      return SANE_FALSE;
-    }
-
-  g_Y = 0;
-  g_wLineartThreshold = 128;
-  g_dwTotalTotalXferLines = 0;
-  g_bFirstReadImage = SANE_TRUE;
-
-  g_pGammaTable = NULL;
-
-  DBG (DBG_FUNC, "Transparent_Reset: leave Transparent_Reset\n");
-  return SANE_TRUE;
-}
 
 static SANE_Bool
 Transparent_SetupScan (TARGETIMAGE *pTarget)

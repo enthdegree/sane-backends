@@ -146,7 +146,6 @@ static SANE_Bool MustScanner_GetScannerState (void);
 static SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn,
 					   SANE_Bool isTALampOn);
 static SANE_Bool MustScanner_BackHome (void);
-static SANE_Bool MustScanner_Prepare (SCANSOURCE ssScanSource);
 static unsigned short MustScanner_FiltLower (unsigned short * pSort,
 					     unsigned short TotalCount,
 					     unsigned short LowCount,
@@ -162,6 +161,7 @@ static SANE_Bool MustScanner_PrepareScan (void);
 static SANE_Bool MustScanner_GetRows (SANE_Byte * lpBlock,
 				      unsigned short * Rows,
 				      SANE_Bool isOrderInvert);
+static SANE_Bool MustScanner_Reset (SCANSOURCE ssScanSource);
 
 
 #endif

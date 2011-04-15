@@ -2604,6 +2604,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
   dev->calib_channels = 3;
   resolution=gl124_compute_dpihw(dev,dev->settings.xres);
   dev->calib_pixels = (dev->sensor.sensor_pixels*resolution)/dev->sensor.optical_res;
+  dev->calib_resolution = resolution;
 
   /* distance to move to reach white target at high resolution */
   move=0;
@@ -2890,7 +2891,7 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
               break;
             }
 
-          /* next shading coefficients */
+          /* next shading coefficient */
           ptr+=4;
         }
       RIE (sanei_genesys_read_register (dev, 0xd0+i, &val));
@@ -2910,7 +2911,7 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   return status;
 }
 
-/** @brief send gmma table to scanner
+/** @brief send gamma table to scanner
  * This function sends generic gamma table (ie ones built with
  * provided gamma) or the user defined one if provided by 
  * fontend.

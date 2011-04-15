@@ -2740,6 +2740,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
   dev->calib_channels = 3;
   dev->calib_pixels = dev->sensor.sensor_pixels;
   resolution=gl843_compute_dpihw(dev,dev->settings.xres);
+  dev->calib_resolution = resolution;
 
   /* distance to move to reach white target */
   move = SANE_UNFIX (dev->model->y_offset_calib);

@@ -465,6 +465,7 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x01, 0x82);
   SETREG (0x02, 0x18);
   SETREG (0x03, 0x50);
+  SETREG (0x03, 0x10);  /* XXX STEF XXX */
   SETREG (0x04, 0x12);
   SETREG (0x05, 0x80);
   SETREG (0x06, 0x50);		/* FASTMODE + POWERBIT */
@@ -884,6 +885,9 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   use_fast_fed=0;
   if(scan_yres>600 && feed_steps>900)
     use_fast_fed=1;
+  /* we are doing custom feeding at high resolution */
+  if(scan_step_type>2)
+    use_fast_fed=0;
 
   sanei_genesys_set_triple(reg, REG_LINCNT, scan_lines);
   DBG (DBG_io, "%s: lincnt=%d\n", __FUNCTION__, scan_lines);
@@ -2365,12 +2369,13 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
   memcpy (dev->calib_reg, dev->reg,
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
-  dev->calib_pixels = dev->sensor.sensor_pixels;
+  dev->calib_resolution = sanei_genesys_compute_dpihw(dev,dev->settings.xres);
+  dev->calib_pixels = (dev->sensor.sensor_pixels*dev->calib_resolution)/dev->sensor.optical_res;
 
   status = gl847_init_scan_regs (dev,
 				 dev->calib_reg,
-				 dev->sensor.optical_res,
-				 dev->motor.base_ydpi,
+                                 dev->calib_resolution,
+				 dev->calib_resolution,
 				 0,
 				 0,
 				 dev->calib_pixels,
@@ -2381,8 +2386,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
   				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES);
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
 
 
   if (status != SANE_STATUS_GOOD)
@@ -2548,7 +2552,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
 
   /* at high res we do fast move to scan area */
-  if(dev->settings.xres>1200)
+  if(dev->settings.xres>1200 && move > 900)
     {
       status = gl847_feed (dev, move);
       if (status != SANE_STATUS_GOOD)
@@ -2705,8 +2709,9 @@ static SANE_Status
 gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  uint32_t addr, length;
-  uint8_t val;
+  uint32_t addr, length, i, x, factor, pixels;
+  uint16_t dpiset, dpihw, strpixel, endpixel;
+  uint8_t val,*buffer,*ptr,*src;
 
   DBGSTART;
   DBG( DBG_io2, "%s: writing %d bytes of shading data\n",__FUNCTION__,size);
@@ -2718,44 +2723,66 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
      write(0x10068000,0x00000dd8)
    */
   length = (uint32_t) (size / 3);
-  DBG( DBG_io2, "%s: using chunks of %d (0x%04x) bytes\n",__FUNCTION__,length,length);
+  sanei_genesys_get_double(dev->reg,REG_STRPIXEL,&strpixel);
+  sanei_genesys_get_double(dev->reg,REG_ENDPIXEL,&endpixel);
+  DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d\n",__FUNCTION__,strpixel,endpixel,endpixel-strpixel);
+
+  /* compute deletion factor */
+  sanei_genesys_get_double(dev->reg,REG_DPISET,&dpiset);
+  dpihw=sanei_genesys_compute_dpihw(dev,dpiset);
+  factor=dpihw/dpiset;
+  DBG( DBG_io2, "%s: factor=%d\n",__FUNCTION__,factor);
+ 
+  /* turn pixel value into bytes 2x16 bits words */
+  strpixel-=((dev->sensor.CCD_start_xoffset*dpihw)/dev->sensor.optical_res);
+  strpixel*=2*2; /* 2 words of 2 bytes */
+  endpixel*=2*2;
+  /* byte size of coefficients */
+  pixels=endpixel-strpixel;
+
+  /* allocate temporary buffer */
+  buffer=(uint8_t *)malloc(pixels);
+  memset(buffer,0,pixels);
+  DBG( DBG_io2, "%s: using chunks of %d (0x%04x) bytes\n",__FUNCTION__,pixels,pixels);
 
   /* base addr of data has been written in reg D0-D4 in 4K word, so AHB address
    * is 8192*reg value */
 
-  /* write actual red data */
-  RIE (sanei_genesys_read_register (dev, 0xd0, &val));
-  addr = val * 8192 + 0x10000000;
-  status = sanei_genesys_write_ahb (dev->dn, addr, length, data);
-  if (status != SANE_STATUS_GOOD)
+  /* write actual color channel data */
+  for(i=0;i<3;i++)
     {
-      DBG (DBG_error, "gl847_send_shading_data; write to AHB failed (%s)\n",
-	   sane_strstatus (status));
-      return status;
+      /* build up actual shading data by copying the part from he full width one
+       * to the one corresponding to SHDAREA */
+      ptr=buffer;
+
+      /* iterate on both sensor segment */
+      for(x=0;x<pixels;x+=4*factor)
+        {
+          /* coefficient source */
+          src=(data+strpixel+i*length)+x;
+
+          /* coefficient copy */
+          ptr[0]=src[0];
+          ptr[1]=src[1];
+          ptr[2]=src[2];
+          ptr[3]=src[3];
+
+          /* next shading coefficient */
+          ptr+=4;
+        }
+
+      RIE (sanei_genesys_read_register (dev, 0xd0+i, &val));
+      addr = val * 8192 + 0x10000000;
+      status = sanei_genesys_write_ahb (dev->dn, addr, pixels, buffer);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error, "gl847_send_shading_data; write to AHB failed (%s)\n",
+	      sane_strstatus (status));
+          return status;
+        }
     }
 
-  /* write actual green data */
-  RIE (sanei_genesys_read_register (dev, 0xd1, &val));
-  addr = val * 8192 + 0x10000000;
-  status = sanei_genesys_write_ahb (dev->dn, addr, length, data + length);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "gl847_send_shading_data; write to AHB failed (%s)\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  /* write actual blue data */
-  RIE (sanei_genesys_read_register (dev, 0xd2, &val));
-  addr = val * 8192 + 0x10000000;
-  status = sanei_genesys_write_ahb (dev->dn, addr, length, data + 2 * length);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "gl847_send_shading_data; write to AHB failed (%s)\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
+  free(buffer);
   DBGCOMPLETED;
 
   return status;
@@ -2802,7 +2829,7 @@ gl847_led_calibration (Genesys_Device * dev)
   status = gl847_init_scan_regs (dev,
 				 dev->calib_reg,
 				 used_res,
-				 dev->motor.base_ydpi,
+				 used_res,
 				 0,
 				 0,
 				 num_pixels,
@@ -2813,8 +2840,7 @@ gl847_led_calibration (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES);
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
 
   if (status != SANE_STATUS_GOOD)
     {

@@ -2934,30 +2934,6 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   cmat[2] = 2;
   switch (dev->model->ccd_type)
     {
-      case CIS_CANONLIDE110:
-        words_per_color=pixels_per_line*2;
-        length = words_per_color * 3 * 2;
-        /* XXX STEF XXX re do it better, words per color is wrong since our dpihw vary */
-        free(shading_data);
-        shading_data = malloc (length);
-        if (!shading_data)
-          {
-            DBG (DBG_error,
-                 "genesys_send_shading_coefficient: failed to allocate memory\n");
-            return SANE_STATUS_NO_MEM;
-          }
-        memset (shading_data, 0x55, length);
-        compute_planar_coefficients (dev,
-                                     shading_data,
-                                     1,
-                                     pixels_per_line,
-                                     words_per_color,
-                                     channels,
-                                     cmat,
-                                     0,
-                                     coeff,
-                                     0xdc00);
-      break;
     case CCD_XP300:
     case CCD_ROADWARRIOR:
     case CCD_DP665:
@@ -3062,19 +3038,49 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
-        /* we are not using SHDAREA, and AVEENB is disabled */
         words_per_color=pixels_per_line*2;
         length = words_per_color * 3 * 2;
-    	compute_averaged_planar(dev,
-				shading_data,
-				pixels_per_line,
-				words_per_color,
-				3,
-				4,
-				coeff,
-				0xfa00,
-				0x0a00,
-                                SANE_TRUE);
+        free(shading_data);
+        shading_data = malloc (length);
+        if (!shading_data)
+          {
+            DBG (DBG_error,
+                 "genesys_send_shading_coefficient: failed to allocate memory\n");
+            return SANE_STATUS_NO_MEM;
+          }
+        compute_planar_coefficients (dev,
+                                     shading_data,
+                                     1,
+                                     pixels_per_line,
+                                     words_per_color,
+                                     channels,
+                                     cmat,
+                                     0,
+                                     coeff,
+                                     0xdc00);
+      break;
+      case CIS_CANONLIDE110:
+        words_per_color=pixels_per_line*2;
+        length = words_per_color * 3 * 2;
+        /* XXX STEF XXX re do it better, words per color is wrong since our dpihw vary */
+        free(shading_data);
+        shading_data = malloc (length);
+        if (!shading_data)
+          {
+            DBG (DBG_error,
+                 "genesys_send_shading_coefficient: failed to allocate memory\n");
+            return SANE_STATUS_NO_MEM;
+          }
+        compute_planar_coefficients (dev,
+                                     shading_data,
+                                     1,
+                                     pixels_per_line,
+                                     words_per_color,
+                                     channels,
+                                     cmat,
+                                     0,
+                                     coeff,
+                                     0xdc00);
       break;
     case CCD_CANONLIDE35:
       target_bright = 0xfa00;

@@ -768,7 +768,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     return SANE_STATUS_NO_MEM;
 
   /* HOLD: This is ugly (only one scanner!) and should go to sane_init */
-  if (MustScanner_GetScannerState ())
+  if (Asic_Open (&g_chip) == SANE_STATUS_GOOD)
     {
       SANE_Device *sane_device = malloc (sizeof (*sane_device));
       if (!sane_device)
@@ -778,6 +778,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       sane_device->model = strdup ("BearPaw 2448 TA Pro");
       sane_device->type = strdup ("flatbed scanner");
       devlist[0] = sane_device;
+      Asic_Close (&g_chip);
     }
   *device_list = devlist;
 

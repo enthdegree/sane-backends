@@ -142,7 +142,6 @@ typedef struct
 
 
 static void MustScanner_Init (void);
-static SANE_Bool MustScanner_GetScannerState (void);
 static SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn,
 					   SANE_Bool isTALampOn);
 static SANE_Bool MustScanner_BackHome (void);

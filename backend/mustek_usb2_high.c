@@ -153,19 +153,6 @@ MustScanner_Init (void)
 }
 
 static SANE_Bool
-MustScanner_GetScannerState (void)
-{
-  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
-    {
-      DBG (DBG_FUNC, "MustScanner_GetScannerState: Asic_Open return error\n");
-      return SANE_FALSE;
-    }
-
-  Asic_Close (&g_chip);
-  return SANE_TRUE;
-}
-
-static SANE_Bool
 MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 {
   SANE_Bool hasTA;

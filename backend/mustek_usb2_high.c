@@ -124,9 +124,6 @@ static void ModifyLinePoint (SANE_Byte * lpImageData,
 			     unsigned short wPixDistance,
 			     unsigned short wModPtCount);
 
-#include "mustek_usb2_reflective.c"
-#include "mustek_usb2_transparent.c"
-
 
 static void
 MustScanner_Init (void)
@@ -159,27 +156,27 @@ MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 
   DBG (DBG_FUNC, "MustScanner_PowerControl: Call in\n");
 
-  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
+  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
     {
       DBG (DBG_FUNC, "MustScanner_PowerControl: Asic_Open return error\n");
       return SANE_FALSE;
     }
 
-  if (SANE_STATUS_GOOD != Asic_TurnLamp (&g_chip, isLampOn))
+  if (Asic_TurnLamp (&g_chip, isLampOn) != SANE_STATUS_GOOD)
     {
       DBG (DBG_FUNC,
 	   "MustScanner_PowerControl: Asic_TurnLamp return error\n");
       goto error;
     }
 
-  if (SANE_STATUS_GOOD != Asic_IsTAConnected (&g_chip, &hasTA))
+  if (Asic_IsTAConnected (&g_chip, &hasTA) != SANE_STATUS_GOOD)
     {
       DBG (DBG_FUNC,
 	   "MustScanner_PowerControl: Asic_IsTAConnected return error\n");
       goto error;
     }
 
-  if (hasTA && (SANE_STATUS_GOOD != Asic_TurnTA (&g_chip, isTALampOn)))
+  if (hasTA && (Asic_TurnTA (&g_chip, isTALampOn) != SANE_STATUS_GOOD))
     {
       DBG (DBG_FUNC, "MustScanner_PowerControl: Asic_TurnTA return error\n");
       goto error;
@@ -201,13 +198,13 @@ MustScanner_BackHome (void)
 {
   DBG (DBG_FUNC, "MustScanner_BackHome: call in\n");
 
-  if (SANE_STATUS_GOOD != Asic_Open (&g_chip))
+  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
     {
       DBG (DBG_FUNC, "MustScanner_BackHome: Asic_Open return error\n");
       return SANE_FALSE;
     }
 
-  if (SANE_STATUS_GOOD != Asic_CarriageHome (&g_chip))
+  if (Asic_CarriageHome (&g_chip) != SANE_STATUS_GOOD)
     {
       DBG (DBG_FUNC,
 	   "MustScanner_BackHome: Asic_CarriageHome return error\n");
@@ -310,7 +307,7 @@ GetRgb48BitLineFull (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
   unsigned int dwRTempData, dwGTempData, dwBTempData;
   unsigned short i = 0;
 
-  if (SS_Reflective == g_ssScanSource)
+  if (g_ssScanSource == SS_Reflective)
     {
       wRLinePosOdd = g_wtheReadyLines - g_wPixelDistance;
       wGLinePosOdd = g_wtheReadyLines - g_wLineDistance - g_wPixelDistance;
@@ -450,7 +447,7 @@ GetRgb24BitLineFull (SANE_Byte * lpLine, SANE_Bool isOrderInvert)
   unsigned short tempR, tempG, tempB;
   unsigned short i = 0;
 
-  if (SS_Reflective == g_ssScanSource)
+  if (g_ssScanSource == SS_Reflective)
     {
       wRLinePosOdd = g_wtheReadyLines - g_wPixelDistance;
       wGLinePosOdd = g_wtheReadyLines - g_wLineDistance - g_wPixelDistance;
@@ -548,7 +545,7 @@ GetMono16BitLineFull (SANE_Byte * lpLine,
   unsigned short wLinePosEven;
   unsigned short i = 0;
 
-  if (SS_Reflective == g_ssScanSource)
+  if (g_ssScanSource == SS_Reflective)
     {
       wLinePosOdd = g_wtheReadyLines - g_wPixelDistance;
       wLinePosEven = g_wtheReadyLines;
@@ -620,7 +617,7 @@ GetMono8BitLineFull (SANE_Byte * lpLine,
   unsigned short wGray;
   unsigned short i = 0;
 
-  if (SS_Reflective == g_ssScanSource)
+  if (g_ssScanSource == SS_Reflective)
     {
       wLinePosOdd = (g_wtheReadyLines - g_wPixelDistance) % g_wMaxScanLines;
       wLinePosEven = (g_wtheReadyLines) % g_wMaxScanLines;
@@ -678,7 +675,7 @@ GetMono1BitLineFull (SANE_Byte * lpLine,
   unsigned short wLinePosEven;
   unsigned short i = 0;
 
-  if (SS_Reflective == g_ssScanSource)
+  if (g_ssScanSource == SS_Reflective)
     {
       wLinePosOdd = (g_wtheReadyLines - g_wPixelDistance) % g_wMaxScanLines;
       wLinePosEven = (g_wtheReadyLines) % g_wMaxScanLines;
@@ -810,7 +807,7 @@ MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
 
   if (!g_bOpened || !g_bPrepared)
     {
-      DBG (DBG_FUNC, "MustScanner_GetRows: scanner not opened or prepared\n");
+      DBG (DBG_FUNC, "MustScanner_GetRows: invalid state\n");
       return SANE_FALSE;
     }
 
@@ -994,8 +991,8 @@ MustScanner_ReadDataFromScanner (void __sane_unused__ * dummy)
 	       "MustScanner_ReadDataFromScanner: wScanLinesThisBlock=%d\n",
 	       wScanLinesThisBlock);
 
-	  if (SANE_STATUS_GOOD !=
-	      Asic_ReadImage (&g_chip, lpReadImage, wScanLinesThisBlock))
+	  if (Asic_ReadImage (&g_chip, lpReadImage, wScanLinesThisBlock) !=
+	      SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_FUNC, "MustScanner_ReadDataFromScanner: Asic_ReadImage" \
 			     " return error\n");
@@ -1198,7 +1195,7 @@ MustScanner_StopScan (void)
 
   if (!g_bOpened || !g_bPrepared)
     {
-      DBG (DBG_FUNC, "MustScanner_StopScan: scanner not opened or prepared\n");
+      DBG (DBG_FUNC, "MustScanner_StopScan: invalid state\n");
       return SANE_FALSE;
     }
 
@@ -1209,7 +1206,7 @@ MustScanner_StopScan (void)
 
   DBG (DBG_FUNC, "MustScanner_StopScan: thread exit\n");
 
-  if (SANE_STATUS_GOOD != Asic_ScanStop (&g_chip))
+  if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
     result = SANE_FALSE;
   Asic_Close (&g_chip);
 
@@ -1256,7 +1253,7 @@ MustScanner_PrepareScan (void)
       return SANE_FALSE;
     }
 
-  if (SANE_STATUS_GOOD != Asic_ScanStart (&g_chip))
+  if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
     {
       free(g_lpReadImageHead);
       return SANE_FALSE;
@@ -1279,17 +1276,11 @@ MustScanner_Reset (SCANSOURCE ssScanSource)
 
   if (ssScanSource == SS_Reflective)
     {
-      /* TODO: merge LIGHTSOURCE and SCANSOURCE */
-      Asic_ResetADParameters (&g_chip, LS_REFLECTIVE);
       if (!MustScanner_PowerControl (SANE_TRUE, SANE_FALSE))
         return SANE_FALSE;
     }
   else
     {
-      if (ssScanSource == SS_Positive)
-        Asic_ResetADParameters (&g_chip, LS_POSITIVE);
-      else
-        Asic_ResetADParameters (&g_chip, LS_NEGATIVE);
       if (!MustScanner_PowerControl (SANE_FALSE, SANE_TRUE))
         return SANE_FALSE;
     }
@@ -1300,4 +1291,932 @@ MustScanner_Reset (SCANSOURCE ssScanSource)
 
   DBG (DBG_FUNC, "MustScannert_Reset: leave\n");
   return SANE_TRUE;
+}
+
+/* TODO: error handling for Asic functions */
+
+static SANE_Bool
+MustScanner_SetupScan (TARGETIMAGE *pTarget)
+{
+  unsigned short targetY;
+
+  DBG (DBG_FUNC, "MustScanner_SetupScan: call in\n");
+
+  if (g_bOpened || !g_bPrepared)
+    {
+      DBG (DBG_FUNC, "MustScanner_SetupScan: invalid state\n");
+      return SANE_FALSE;
+    }
+
+  g_ScanMode = pTarget->cmColorMode;
+  g_XDpi = pTarget->wDpi;
+  g_YDpi = pTarget->wDpi;
+  g_SWWidth = pTarget->wWidth;
+  g_SWHeight = pTarget->wHeight;
+
+  switch (g_YDpi)
+    {
+    case 1200:
+      g_wPixelDistance = 4;	/* even & odd sensor problem */
+      g_wLineDistance = 24;
+      g_Height += g_wPixelDistance;
+      break;
+    case 600:
+      g_wPixelDistance = 0;	/* no even & odd problem */
+      g_wLineDistance = 12;
+      break;
+    case 300:
+      g_wPixelDistance = 0;
+      g_wLineDistance = 6;
+      break;
+    case 150:
+      g_wPixelDistance = 0;
+      g_wLineDistance = 3;
+      break;
+    case 75:
+    case 50:
+      g_wPixelDistance = 0;
+      g_wLineDistance = 1;
+      break;
+    default:
+      g_wPixelDistance = 0;
+      g_wLineDistance = 0;
+    }
+
+  DBG (DBG_FUNC, "MustScanner_SetupScan: g_YDpi=%d\n", g_YDpi);
+  DBG (DBG_FUNC, "MustScanner_SetupScan: g_wLineDistance=%d\n",
+       g_wLineDistance);
+  DBG (DBG_FUNC, "MustScanner_SetupScan: g_wPixelDistance=%d\n",
+       g_wPixelDistance);
+
+  switch (g_ScanMode)
+    {
+    case CM_RGB48:
+      g_BytesPerRow = 6 * g_Width;	/* ASIC limit: width must be 8x */
+      g_SWBytesPerRow = 6 * g_SWWidth;	/* ASIC limit: width must be 8x */
+      g_bScanBits = 48;
+      g_Height += g_wLineDistance * 2;
+      break;
+    case CM_RGB24:
+      g_BytesPerRow = 3 * g_Width;
+      g_SWBytesPerRow = 3 * g_SWWidth;
+      g_bScanBits = 24;
+      g_Height += g_wLineDistance * 2;
+      break;
+    case CM_GRAY16:
+      g_BytesPerRow = 2 * g_Width;
+      g_SWBytesPerRow = 2 * g_SWWidth;
+      g_bScanBits = 16;
+      break;
+    case CM_GRAY8:
+    case CM_TEXT:
+      g_BytesPerRow = g_Width;
+      g_SWBytesPerRow = g_SWWidth;
+      g_bScanBits = 8;
+      break;
+    }
+
+  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_FUNC, "MustScanner_SetupScan: Asic_Open return error\n");
+      return SANE_FALSE;
+    }
+
+  g_bOpened = SANE_TRUE;
+
+  /* find left & top side */
+  if (g_ssScanSource != SS_Reflective)
+    Asic_MotorMove (&g_chip, SANE_TRUE, TRAN_START_POS);
+
+  if (g_XDpi == SENSOR_DPI)
+    {
+      g_XDpi = SENSOR_DPI / 2;
+      if (!MustScanner_AdjustAD ())
+	return SANE_FALSE;
+      if (!MustScanner_FindTopLeft (&g_X, &g_Y))
+        {
+	  g_X = 187;
+	  g_Y = 43;
+        }
+
+      g_XDpi = SENSOR_DPI;
+      if (!MustScanner_AdjustAD ())
+        return SANE_FALSE;
+
+      g_X = g_X * SENSOR_DPI / FIND_LEFT_TOP_CALIBRATE_RESOLUTION + pTarget->wX;
+      if (g_ssScanSource == SS_Reflective)
+        {
+	  g_X += 47;
+	  g_Y = g_Y * SENSOR_DPI / FIND_LEFT_TOP_CALIBRATE_RESOLUTION +
+		pTarget->wY * SENSOR_DPI / g_YDpi + 47;
+	}
+    }
+  else
+    {
+      if (!MustScanner_AdjustAD ())
+        return SANE_FALSE;
+      if (!MustScanner_FindTopLeft (&g_X, &g_Y))
+        {
+	  g_X = 187;
+	  g_Y = 43;
+        }
+
+      g_X += pTarget->wX * (SENSOR_DPI / 2) / g_XDpi;
+      if (g_ssScanSource == SS_Reflective)
+        {
+          if (g_XDpi != 75)
+            g_X += 23;
+	  g_Y = g_Y * SENSOR_DPI / FIND_LEFT_TOP_CALIBRATE_RESOLUTION +
+		pTarget->wY * SENSOR_DPI / g_YDpi + 47;
+         }
+      else
+        {
+	  if (g_XDpi == 75)
+	    g_X -= 23;
+	}
+    }
+
+  DBG (DBG_FUNC, "MustScanner_SetupScan: before line calibration g_X=%d," \
+		 "g_Y=%d\n", g_X, g_Y);
+
+  if (!MustScanner_LineCalibration16Bits ())
+    return SANE_FALSE;
+
+  DBG (DBG_FUNC, "MustScanner_SetupScan: after " \
+		 "MustScanner_LineCalibration16Bits g_X=%d,g_Y=%d\n", g_X, g_Y);
+
+  DBG (DBG_FUNC, "MustScanner_SetupScan: g_bScanBits=%d, g_XDpi=%d, " \
+		 "g_YDpi=%d, g_X=%d, g_Y=%d, g_Width=%d, g_Height=%d\n",
+       g_bScanBits, g_XDpi, g_YDpi, g_X, g_Y, g_Width, g_Height);
+
+  if (g_ssScanSource == SS_Reflective)
+    {
+      targetY = 300;
+    }
+  else
+    {
+      g_Y = pTarget->wY * SENSOR_DPI / g_YDpi + (300 - 40) + 189;
+      targetY = 360;
+    }
+
+  if (g_Y > targetY)
+    Asic_MotorMove (&g_chip, SANE_TRUE, g_Y - targetY);
+  else
+    Asic_MotorMove (&g_chip, SANE_FALSE, targetY - g_Y);
+  g_Y = targetY;
+
+  Asic_SetWindow (&g_chip, g_ssScanSource, SCAN_TYPE_NORMAL, g_bScanBits,
+		  g_XDpi, g_YDpi, g_X, g_Y, g_Width, g_Height);
+
+  DBG (DBG_FUNC, "MustScanner_SetupScan: leave\n");
+  return MustScanner_PrepareScan ();
+}
+
+static SANE_Bool
+MustScanner_AdjustAD (void)
+{
+  SANE_Byte * lpCalData;
+  unsigned short wCalWidth;
+  unsigned short wMaxValue[3], wMinValue[3];
+  unsigned short wAdjustADResolution;
+  int i, j;
+  double range;
+#if DEBUG_SAVE_IMAGE
+  FILE * stream;
+  char buf[16];
+#endif
+
+  DBG (DBG_FUNC, "MustScanner_AdjustAD: call in\n");
+
+  if (!g_bOpened || !g_bPrepared)
+    {
+      DBG (DBG_FUNC, "MustScanner_AdjustAD: invalid state\n");
+      return SANE_FALSE;
+    }
+
+  for (i = 0; i < 3; i++)
+    {
+      g_chip.AD.Direction[i] = DIR_POSITIVE;
+      g_chip.AD.Gain[i] = 0;
+    }
+  if (g_ssScanSource == SS_Reflective)
+    {
+      g_chip.AD.Offset[0] = 152;	/* red */
+      g_chip.AD.Offset[1] = 56;		/* green */
+      g_chip.AD.Offset[2] = 8;		/* blue */
+    }
+  else
+    {
+      g_chip.AD.Offset[0] = 159;
+      g_chip.AD.Offset[1] = 50;
+      g_chip.AD.Offset[2] = 45;
+    }
+
+  if (g_XDpi <= (SENSOR_DPI / 2))
+    wAdjustADResolution = SENSOR_DPI / 2;
+  else
+    wAdjustADResolution = SENSOR_DPI;
+
+  wCalWidth = 10240;
+  lpCalData = malloc (wCalWidth * 3);
+  if (!lpCalData)
+    {
+      DBG (DBG_FUNC, "MustScanner_AdjustAD: lpCalData malloc error\n");
+      return SANE_FALSE;
+    }
+
+  Asic_SetWindow (&g_chip, g_ssScanSource, SCAN_TYPE_CALIBRATE_DARK, 24,
+		  wAdjustADResolution, wAdjustADResolution, 0, 0, wCalWidth, 1);
+  MustScanner_PrepareCalculateMaxMin (wAdjustADResolution);
+
+  for (i = 0; i < 10; i++)
+    {
+      DBG (DBG_FUNC, "MustScanner_AdjustAD: first offset adjustment loop\n");
+      SetAFEGainOffset (&g_chip);
+      Asic_ScanStart (&g_chip);
+      Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
+      Asic_ScanStop (&g_chip);
+
+#ifdef DEBUG_SAVE_IMAGE
+      if (i == 0)
+	{
+	  stream = fopen ("AD.ppm", "wb");
+	  snprintf (buf, sizeof (buf), "P6\n%u 1\n255\n", wCalWidth);
+	  fwrite (buf, 1, strlen (buf), stream);
+	  fwrite (lpCalData, 1, wCalWidth * 3, stream);
+	  fclose (stream);
+	}
+#endif
+
+      for (j = 0; j < 3; j++)
+        {
+          if (!MustScanner_CalculateMaxMin (&lpCalData[wCalWidth * j],
+					    &wMaxValue[j], &wMinValue[j]))
+	    return SANE_FALSE;
+
+	  if (g_chip.AD.Direction[j] == DIR_POSITIVE)
+	    {
+	      if (wMinValue[j] > 15)
+		{
+		  if (g_chip.AD.Offset[j] < 8)
+		    g_chip.AD.Direction[j] = DIR_NEGATIVE;
+		  else
+		    g_chip.AD.Offset[j] -= 8;
+		}
+	      else if (wMinValue[j] < 5)
+		g_chip.AD.Offset[j] += 8;
+	    }
+	  else
+	    {
+	      if (wMinValue[j] > 15)
+		g_chip.AD.Offset[j] += 8;
+	      else if (wMinValue[j] < 5)
+		g_chip.AD.Offset[j] -= 8;
+	    }
+        }
+
+      if (!(wMinValue[0] > 15 || wMinValue[0] < 5 ||
+	    wMinValue[1] > 15 || wMinValue[1] < 5 ||
+	    wMinValue[2] > 15 || wMinValue[2] < 5))
+	break;
+    }
+
+  DBG (DBG_FUNC, "MustScanner_AdjustAD: OffsetR=%d,OffsetG=%d,OffsetB=%d\n",
+       g_chip.AD.Offset[0], g_chip.AD.Offset[1], g_chip.AD.Offset[2]);
+
+  for (i = 0; i < 3; i++)
+    {
+      range = 1.0 - (double) (wMaxValue[i] - wMinValue[i]) / MAX_LEVEL_RANGE;
+      if (range > 0)
+        {
+	  g_chip.AD.Gain[i] = (SANE_Byte) range * 63 * 6 / 5;
+	  g_chip.AD.Gain[i] = _MIN (g_chip.AD.Gain[i], 63);
+	}
+      else
+      	g_chip.AD.Gain[i] = 0;
+    }
+
+  DBG (DBG_FUNC, "MustScanner_AdjustAD: GainR=%d,GainG=%d,GainB=%d\n",
+       g_chip.AD.Gain[0], g_chip.AD.Gain[1], g_chip.AD.Gain[2]);
+
+  for (i = 0; i < 10; i++)
+    {
+      SetAFEGainOffset (&g_chip);
+      Asic_ScanStart (&g_chip);
+      Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
+      Asic_ScanStop (&g_chip);
+
+      for (j = 0; j < 3; j++)
+	{
+	  if (!MustScanner_CalculateMaxMin (&lpCalData[wCalWidth * j],
+					    &wMaxValue[j], &wMinValue[j]))
+	    return SANE_FALSE;
+
+	  DBG (DBG_FUNC, "MustScanner_AdjustAD: %d: Max=%d, Min=%d\n",
+	       j, wMaxValue[j], wMinValue[j]);
+
+	  if ((wMaxValue[j] - wMinValue[j]) > MAX_LEVEL_RANGE)
+	    {
+	      if (g_chip.AD.Gain[j] != 0)
+		g_chip.AD.Gain[j]--;
+	    }
+	  else if ((wMaxValue[j] - wMinValue[j]) < MIN_LEVEL_RANGE)
+	    {
+	      if (wMaxValue[j] > WHITE_MAX_LEVEL)
+		{
+		  if (g_chip.AD.Gain[j] != 0)
+		    g_chip.AD.Gain[j]--;
+		}
+	      else
+		{
+		  if (g_chip.AD.Gain[j] < 63)
+		    g_chip.AD.Gain[j]++;
+		}
+	    }
+	  else
+	    {
+	      if (wMaxValue[j] > WHITE_MAX_LEVEL)
+		{
+		  if (g_chip.AD.Gain[j] != 0)
+		    g_chip.AD.Gain[j]--;
+		}
+	      else if (wMaxValue[j] < WHITE_MIN_LEVEL)
+		{
+		  if (g_chip.AD.Gain[j] < 63)
+		    g_chip.AD.Gain[j]++;
+		}
+	    }
+
+	  DBG (DBG_FUNC, "MustScanner_AdjustAD: %d: Gain=%d,Offset=%d,Dir=%d\n",
+	       j, g_chip.AD.Gain[j], g_chip.AD.Offset[j],
+	       g_chip.AD.Direction[j]);
+	}
+
+      if (!((wMaxValue[0] - wMinValue[0]) > MAX_LEVEL_RANGE ||
+	    (wMaxValue[0] - wMinValue[0]) < MIN_LEVEL_RANGE ||
+	    (wMaxValue[1] - wMinValue[1]) > MAX_LEVEL_RANGE ||
+	    (wMaxValue[1] - wMinValue[1]) < MIN_LEVEL_RANGE ||
+	    (wMaxValue[2] - wMinValue[2]) > MAX_LEVEL_RANGE ||
+	    (wMaxValue[2] - wMinValue[2]) < MIN_LEVEL_RANGE))
+	break;
+    }
+
+  for (i = 0; i < 8; i++)
+    {
+      DBG (DBG_FUNC, "MustScanner_AdjustAD: second offset adjustment loop\n");
+      SetAFEGainOffset (&g_chip);
+      Asic_ScanStart (&g_chip);
+      Asic_ReadCalibrationData (&g_chip, lpCalData, wCalWidth * 3, 24);
+      Asic_ScanStop (&g_chip);
+
+      for (j = 0; j < 3; j++)
+        {
+	  if (!MustScanner_CalculateMaxMin (&lpCalData[wCalWidth * j],
+					    &wMaxValue[j], &wMinValue[j]))
+	    return SANE_FALSE;
+
+	  DBG (DBG_FUNC, "MustScanner_AdjustAD: %d: Max=%d, Min=%d\n",
+	       j, wMaxValue[j], wMinValue[j]);
+
+	  if (g_chip.AD.Direction[j] == DIR_POSITIVE)
+	    {
+	      if (wMinValue[j] > 20)
+		{
+		  if (g_chip.AD.Offset[j] < 8)
+		    g_chip.AD.Direction[j] = DIR_NEGATIVE;
+		  else
+		    g_chip.AD.Offset[j] -= 8;
+		}
+	      else if (wMinValue[j] < 10)
+	        {
+		  g_chip.AD.Offset[j] += 8;
+		}
+	    }
+	  else
+	    {
+	      if (wMinValue[j] > 20)
+		g_chip.AD.Offset[j] += 8;
+	      else if (wMinValue[j] < 10)
+		g_chip.AD.Offset[j] -= 8;
+	    }
+
+	  DBG (DBG_FUNC, "MustScanner_AdjustAD: %d: Gain=%d,Offset=%d,Dir=%d\n",
+	       j, g_chip.AD.Gain[j], g_chip.AD.Offset[j],
+	       g_chip.AD.Direction[j]);
+        }
+
+      if (!(wMinValue[0] > 20 || wMinValue[0] < 10 ||
+	    wMinValue[1] > 20 || wMinValue[1] < 10 ||
+	    wMinValue[2] > 20 || wMinValue[2] < 10))
+	break;
+    }
+
+  free (lpCalData);
+
+  DBG (DBG_FUNC, "MustScanner_AdjustAD: leave\n");
+  return SANE_TRUE;
+}
+
+static SANE_Bool
+MustScanner_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
+{
+  unsigned short wCalWidth, wCalHeight;
+  unsigned int dwTotalSize;
+  int nScanBlock;
+  SANE_Byte * lpCalData;
+  unsigned short wLeftSide, wTopSide;
+  int i, j;
+#ifdef DEBUG_SAVE_IMAGE
+  FILE * stream;
+  char buf[20];
+#endif
+
+  DBG (DBG_FUNC, "MustScanner_FindTopLeft: call in\n");
+
+  if (!g_bOpened || !g_bPrepared)
+    {
+      DBG (DBG_FUNC, "MustScanner_FindTopLeft: invalid state\n");
+      return SANE_FALSE;
+    }
+
+  if (g_ssScanSource == SS_Reflective)
+    {
+      wCalWidth = FIND_LEFT_TOP_WIDTH_IN_DIP;
+      wCalHeight = FIND_LEFT_TOP_HEIGHT_IN_DIP;
+    }
+  else
+    {
+      wCalWidth = TA_FIND_LEFT_TOP_WIDTH_IN_DIP;
+      wCalHeight = TA_FIND_LEFT_TOP_HEIGHT_IN_DIP;
+    }
+
+  dwTotalSize = wCalWidth * wCalHeight;
+  lpCalData = malloc (dwTotalSize);
+  if (!lpCalData)
+    {
+      DBG (DBG_FUNC, "MustScanner_FindTopLeft: lpCalData malloc error\n");
+      return SANE_FALSE;
+    }
+  nScanBlock = dwTotalSize / g_dwCalibrationSize;
+
+  Asic_SetWindow (&g_chip, g_ssScanSource, SCAN_TYPE_CALIBRATE_LIGHT, 8,
+		  FIND_LEFT_TOP_CALIBRATE_RESOLUTION,
+		  FIND_LEFT_TOP_CALIBRATE_RESOLUTION, 0, 0,
+		  wCalWidth, wCalHeight);
+  SetAFEGainOffset (&g_chip);
+  if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_FUNC, "MustScanner_FindTopLeft: Asic_ScanStart return error\n");
+      free (lpCalData);
+      return SANE_FALSE;
+    }
+
+  for (i = 0; i < nScanBlock; i++)
+    {
+      if (Asic_ReadCalibrationData (&g_chip,
+				    &lpCalData[i * g_dwCalibrationSize],
+				    g_dwCalibrationSize, 8) != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_FUNC, "MustScanner_FindTopLeft: Asic_ReadCalibrationData " \
+			 "return error\n");
+	  free (lpCalData);
+	  return SANE_FALSE;
+	}
+    }
+
+  if (Asic_ReadCalibrationData (&g_chip,
+				&lpCalData[nScanBlock * g_dwCalibrationSize],
+				dwTotalSize - g_dwCalibrationSize * nScanBlock,
+				8) != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_FUNC, "MustScanner_FindTopLeft: Asic_ReadCalibrationData " \
+		     "return error\n");
+      free (lpCalData);
+      return SANE_FALSE;
+    }
+
+  Asic_ScanStop (&g_chip);
+
+#ifdef DEBUG_SAVE_IMAGE
+  stream = fopen ("bounds.pgm", "wb");
+  snprintf (buf, sizeof (buf), "P5\n%d %d\n255\n", wCalWidth, wCalHeight);
+  fwrite (buf, 1, strlen (buf), stream);
+  fwrite (lpCalData, 1, dwTotalSize, stream);
+  fclose (stream);
+#endif
+
+  /* find left side */
+  for (i = wCalWidth - 1; i > 0; i--)
+    {
+      wLeftSide = lpCalData[i];
+      wLeftSide += lpCalData[wCalWidth * 2 + i];
+      wLeftSide += lpCalData[wCalWidth * 4 + i];
+      wLeftSide += lpCalData[wCalWidth * 6 + i];
+      wLeftSide += lpCalData[wCalWidth * 8 + i];
+      wLeftSide /= 5;
+
+      if (wLeftSide < 60)
+	{
+	  if (i < (wCalWidth - 1))
+	    *lpwStartX = i;
+	  break;
+	}
+    }
+
+  if (g_ssScanSource == SS_Reflective)
+    {
+      /* find top side, i = left side */
+      for (j = 0; j < wCalHeight; j++)
+        {
+          wTopSide = lpCalData[wCalWidth * j + i - 2];
+          wTopSide += lpCalData[wCalWidth * j + i - 4];
+          wTopSide += lpCalData[wCalWidth * j + i - 6];
+          wTopSide += lpCalData[wCalWidth * j + i - 8];
+          wTopSide += lpCalData[wCalWidth * j + i - 10];
+          wTopSide /= 5;
+
+          if (wTopSide > 60)
+	    {
+	      if (j > 0)
+	        *lpwStartY = j;
+	      break;
+	    }
+        }
+
+      if ((*lpwStartX < 100) || (*lpwStartX > 250))
+        *lpwStartX = 187;
+      if ((*lpwStartY < 10) || (*lpwStartY > 100))
+        *lpwStartY = 43;
+
+      Asic_MotorMove (&g_chip, SANE_FALSE,
+		      (wCalHeight - *lpwStartY +
+		       BEFORE_SCANNING_MOTOR_FORWARD_PIXEL) * SENSOR_DPI /
+		      FIND_LEFT_TOP_CALIBRATE_RESOLUTION);
+    }
+  else
+    {
+      /* find top side, i = left side */
+      for (j = 0; j < wCalHeight; j++)
+        {
+          wTopSide = lpCalData[wCalWidth * j + i + 2];
+          wTopSide += lpCalData[wCalWidth * j + i + 4];
+          wTopSide += lpCalData[wCalWidth * j + i + 6];
+          wTopSide += lpCalData[wCalWidth * j + i + 8];
+          wTopSide += lpCalData[wCalWidth * j + i + 10];
+          wTopSide /= 5;
+
+          if (wTopSide < 60)
+	    {
+	      if (j > 0)
+	        *lpwStartY = j;
+	      break;
+	    }
+        }
+
+      if ((*lpwStartX < 2200) || (*lpwStartX > 2300))
+        *lpwStartX = 2260;
+      if ((*lpwStartY < 100) || (*lpwStartY > 200))
+        *lpwStartY = 124;
+
+      Asic_MotorMove (&g_chip, SANE_FALSE,
+		      (wCalHeight - *lpwStartY) * SENSOR_DPI /
+		      FIND_LEFT_TOP_CALIBRATE_RESOLUTION + 300);
+    }
+
+  free (lpCalData);
+
+  DBG (DBG_FUNC, "MustScanner_FindTopLeft: *lpwStartY = %d, *lpwStartX = %d\n",
+       *lpwStartY, *lpwStartX);
+  DBG (DBG_FUNC, "MustScanner_FindTopLeft: leave\n");
+  return SANE_TRUE;
+}
+
+static SANE_Bool
+MustScanner_LineCalibration16Bits (void)
+{
+  SANE_Byte * lpWhiteData;
+  SANE_Byte * lpDarkData;
+  unsigned int dwTotalSize;
+  unsigned short wCalWidth, wCalHeight;
+  unsigned short * lpWhiteShading;
+  unsigned short * lpDarkShading;
+  double wRWhiteLevel;
+  double wGWhiteLevel;
+  double wBWhiteLevel;
+  unsigned int dwRDarkLevel = 0;
+  unsigned int dwGDarkLevel = 0;
+  unsigned int dwBDarkLevel = 0;
+  unsigned int dwREvenDarkLevel = 0;
+  unsigned int dwGEvenDarkLevel = 0;
+  unsigned int dwBEvenDarkLevel = 0;
+  unsigned short * lpRWhiteSort;
+  unsigned short * lpGWhiteSort;
+  unsigned short * lpBWhiteSort;
+  unsigned short * lpRDarkSort;
+  unsigned short * lpGDarkSort;
+  unsigned short * lpBDarkSort;
+  int i, j;
+#ifdef DEBUG_SAVE_IMAGE
+  FILE * stream;
+  char buf[22];
+#endif
+
+  DBG (DBG_FUNC, "MustScanner_LineCalibration16Bits: call in\n");
+
+  if (!g_bOpened || !g_bPrepared)
+    {
+      DBG (DBG_FUNC, "MustScanner_LineCalibration16Bits: invalid state\n");
+      return SANE_FALSE;
+    }
+
+  wCalWidth = g_Width;
+  wCalHeight = LINE_CALIBRATION__16BITS_HEIGHT;
+  dwTotalSize = wCalWidth * wCalHeight * 3 * 2;
+  DBG (DBG_FUNC, "MustScanner_LineCalibration16Bits: wCalWidth = %d, " \
+		 "wCalHeight = %d\n", wCalWidth, wCalHeight);
+
+  lpWhiteData = malloc (dwTotalSize);
+  lpDarkData = malloc (dwTotalSize);
+  if (!lpWhiteData || !lpDarkData)
+    {
+      DBG (DBG_FUNC, "MustScanner_LineCalibration16Bits: malloc error\n");
+      return SANE_FALSE;
+    }
+
+  /* read white level data */
+  SetAFEGainOffset (&g_chip);
+  if (Asic_SetWindow (&g_chip, g_ssScanSource, SCAN_TYPE_CALIBRATE_LIGHT, 48,
+		      g_XDpi, 600, g_X, 0, wCalWidth, wCalHeight) !=
+      SANE_STATUS_GOOD)
+    goto error;
+
+  if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
+    goto error;
+
+  if (Asic_ReadCalibrationData (&g_chip, lpWhiteData, dwTotalSize, 8) != SANE_STATUS_GOOD)
+    goto error;
+
+  Asic_ScanStop (&g_chip);
+
+  /* read dark level data */
+  SetAFEGainOffset (&g_chip);
+  if (Asic_SetWindow (&g_chip, g_ssScanSource, SCAN_TYPE_CALIBRATE_DARK, 48,
+		      g_XDpi, 600, g_X, 0, wCalWidth, wCalHeight) !=
+      SANE_STATUS_GOOD)
+    goto error;
+
+  if (g_ssScanSource == SS_Reflective)
+    {
+      if (Asic_TurnLamp (&g_chip, SANE_FALSE) != SANE_STATUS_GOOD)
+	goto error;
+    }
+  else
+    {
+      if (Asic_TurnTA (&g_chip, SANE_FALSE) != SANE_STATUS_GOOD)
+	goto error;
+    }
+
+  usleep (500000);
+
+  if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
+    goto error;
+
+  if (Asic_ReadCalibrationData (&g_chip, lpDarkData, dwTotalSize, 8) !=
+      SANE_STATUS_GOOD)
+    goto error;
+
+  Asic_ScanStop (&g_chip);
+
+  if (g_ssScanSource == SS_Reflective)
+    {
+      if (Asic_TurnLamp (&g_chip, SANE_TRUE) != SANE_STATUS_GOOD)
+	goto error;
+    }
+  else
+    {
+      if (Asic_TurnTA (&g_chip, SANE_TRUE) != SANE_STATUS_GOOD)
+	goto error;
+    }
+
+#ifdef DEBUG_SAVE_IMAGE
+  stream = fopen ("whiteshading.ppm", "wb");
+  snprintf (buf, sizeof (buf), "P6\n%d %d\n65535\n", wCalWidth, wCalHeight);
+  fwrite (buf, 1, strlen (buf), stream);
+  fwrite (lpWhiteData, 1, dwTotalSize, stream);
+  fclose (stream);
+
+  stream = fopen ("darkshading.ppm", "wb");
+  snprintf (buf, sizeof (buf), "P6\n%d %d\n65535\n", wCalWidth, wCalHeight);
+  fwrite (buf, 1, strlen (buf), stream);
+  fwrite (lpDarkData, 1, dwTotalSize, stream);
+  fclose (stream);
+#endif
+
+  sleep (1);
+
+  lpWhiteShading = malloc (sizeof (unsigned short) * wCalWidth * 3);
+  lpDarkShading = malloc (sizeof (unsigned short) * wCalWidth * 3);
+
+  lpRWhiteSort = malloc (sizeof (unsigned short) * wCalHeight);
+  lpGWhiteSort = malloc (sizeof (unsigned short) * wCalHeight);
+  lpBWhiteSort = malloc (sizeof (unsigned short) * wCalHeight);
+  lpRDarkSort = malloc (sizeof (unsigned short) * wCalHeight);
+  lpGDarkSort = malloc (sizeof (unsigned short) * wCalHeight);
+  lpBDarkSort = malloc (sizeof (unsigned short) * wCalHeight);
+
+  if (!lpWhiteShading || !lpDarkShading ||
+      !lpRWhiteSort || !lpGWhiteSort || !lpBWhiteSort ||
+      !lpRDarkSort || !lpGDarkSort || !lpBDarkSort)
+    {
+      DBG (DBG_FUNC, "MustScanner_LineCalibration16Bits: malloc error\n");
+      goto error;
+    }
+
+  /* compute dark level */
+  for (i = 0; i < wCalWidth; i++)
+    {
+      for (j = 0; j < wCalHeight; j++)
+	{
+	  lpRDarkSort[j] = lpDarkData[j * wCalWidth * 6 + i * 6];
+	  lpRDarkSort[j] += lpDarkData[j * wCalWidth * 6 + i * 6 + 1] << 8;
+
+	  lpGDarkSort[j] = lpDarkData[j * wCalWidth * 6 + i * 6 + 2];
+	  lpGDarkSort[j] += lpDarkData[j * wCalWidth * 6 + i * 6 + 3] << 8;
+
+	  lpBDarkSort[j] = lpDarkData[j * wCalWidth * 6 + i * 6 + 4];
+	  lpBDarkSort[j] += lpDarkData[j * wCalWidth * 6 + i * 6 + 5] << 8;
+	}
+
+      /* sum of dark level for all pixels */
+      if ((g_XDpi == SENSOR_DPI) && ((i % 2) == 0))
+	{
+    	  /* compute dark shading table with mean */
+	  dwREvenDarkLevel += MustScanner_FiltLower (lpRDarkSort, wCalHeight,
+	  					     20, 30);
+	  dwGEvenDarkLevel += MustScanner_FiltLower (lpGDarkSort, wCalHeight,
+	  					     20, 30);
+	  dwBEvenDarkLevel += MustScanner_FiltLower (lpBDarkSort, wCalHeight,
+	  					     20, 30);
+	}
+      else
+        {
+          dwRDarkLevel += MustScanner_FiltLower (lpRDarkSort, wCalHeight,
+						 20, 30);
+	  dwGDarkLevel += MustScanner_FiltLower (lpGDarkSort, wCalHeight,
+						 20, 30);
+	  dwBDarkLevel += MustScanner_FiltLower (lpBDarkSort, wCalHeight,
+						 20, 30);
+	}
+    }
+
+  if (g_XDpi == SENSOR_DPI)
+    {
+      dwRDarkLevel /= wCalWidth / 2;
+      dwGDarkLevel /= wCalWidth / 2;
+      dwBDarkLevel /= wCalWidth / 2;
+      dwREvenDarkLevel /= wCalWidth / 2;
+      dwGEvenDarkLevel /= wCalWidth / 2;
+      dwBEvenDarkLevel /= wCalWidth / 2;
+    }
+  else
+    {
+      dwRDarkLevel /= wCalWidth;
+      dwGDarkLevel /= wCalWidth;
+      dwBDarkLevel /= wCalWidth;
+    }
+  if (g_ssScanSource != SS_Reflective)
+    {
+      dwRDarkLevel -= 512;
+      dwGDarkLevel -= 512;
+      dwBDarkLevel -= 512;
+      dwREvenDarkLevel -= 512;
+      dwGEvenDarkLevel -= 512;
+      dwBEvenDarkLevel -= 512;
+    }
+
+  /* compute white level and create shading tables */
+  for (i = 0; i < wCalWidth; i++)
+    {
+      for (j = 0; j < wCalHeight; j++)
+	{
+	  lpRWhiteSort[j] = lpWhiteData[j * wCalWidth * 2 * 3 + i * 6];
+	  lpRWhiteSort[j] += lpWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 1] <<8;
+
+	  lpGWhiteSort[j] = lpWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 2];
+	  lpGWhiteSort[j] += lpWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 3] <<8;
+
+	  lpBWhiteSort[j] = lpWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 4];
+	  lpBWhiteSort[j] += lpWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 5] <<8;
+	}
+
+      if ((g_XDpi == SENSOR_DPI) && ((i % 2) == 0))
+	{
+	  lpDarkShading[i * 3] = dwREvenDarkLevel;
+	  lpDarkShading[i * 3 + 1] = dwGEvenDarkLevel;
+	  if (g_ssScanSource == SS_Positive)
+	    lpDarkShading[i * 3 + 1] *= 0.78;
+	  lpDarkShading[i * 3 + 2] = dwBEvenDarkLevel;
+	}
+      else
+	{
+	  lpDarkShading[i * 3] = dwRDarkLevel;
+	  lpDarkShading[i * 3 + 1] = dwGDarkLevel;
+	  if (g_ssScanSource == SS_Positive)
+	    lpDarkShading[i * 3 + 1] *= 0.78;
+	  lpDarkShading[i * 3 + 2] = dwBDarkLevel;
+	}
+
+      wRWhiteLevel = MustScanner_FiltLower (lpRWhiteSort, wCalHeight, 20, 30) -
+		     lpDarkShading[i * 3];
+      wGWhiteLevel = MustScanner_FiltLower (lpGWhiteSort, wCalHeight, 20, 30) -
+		     lpDarkShading[i * 3 + 1];
+      wBWhiteLevel = MustScanner_FiltLower (lpBWhiteSort, wCalHeight, 20, 30) -
+		     lpDarkShading[i * 3 + 2];
+
+      switch (g_ssScanSource)
+        {
+        case SS_Reflective:
+          if (wRWhiteLevel > 0)
+	    lpWhiteShading[i * 3] = (unsigned short)
+				    (65535.0 / wRWhiteLevel * 0x2000);
+          else
+	    lpWhiteShading[i * 3] = 0x2000;
+
+          if (wGWhiteLevel > 0)
+	    lpWhiteShading[i * 3 + 1] = (unsigned short)
+				        (65535.0 / wGWhiteLevel * 0x2000);
+          else
+	    lpWhiteShading[i * 3 + 1] = 0x2000;
+
+          if (wBWhiteLevel > 0)
+	    lpWhiteShading[i * 3 + 2] = (unsigned short)
+				        (65535.0 / wBWhiteLevel * 0x2000);
+          else
+	    lpWhiteShading[i * 3 + 2] = 0x2000;
+	  break;
+
+	case SS_Negative:
+	  if (wRWhiteLevel > 0)
+	    lpWhiteShading[i * 3] = (unsigned short)
+	    			    (65536.0 / wRWhiteLevel * 0x1000);
+	  else
+	    lpWhiteShading[i * 3] = 0x1000;
+
+	  if (wGWhiteLevel > 0)
+	    lpWhiteShading[i * 3 + 1] = (unsigned short)
+	    				((65536 * 1.5) / wGWhiteLevel * 0x1000);
+	  else
+	    lpWhiteShading[i * 3 + 1] = 0x1000;
+
+	  if (wBWhiteLevel > 0)
+	    lpWhiteShading[i * 3 + 2] = (unsigned short)
+	    				((65536 * 2.0) / wBWhiteLevel * 0x1000);
+	  else
+	    lpWhiteShading[i * 3 + 2] = 0x1000;
+	  break;
+
+	case SS_Positive:
+	  if (wRWhiteLevel > 0)
+	    lpWhiteShading[i * 3] = (unsigned short)
+	    			    (65536.0 / wRWhiteLevel * 0x1000);
+	  else
+	    lpWhiteShading[i * 3] = 0x1000;
+
+	  if (wGWhiteLevel > 0)
+	    lpWhiteShading[i * 3 + 1] = (unsigned short)
+	    				((65536 * 1.04) / wGWhiteLevel *0x1000);
+	  else
+	    lpWhiteShading[i * 3 + 1] = 0x1000;
+
+	  if (wBWhiteLevel > 0)
+	    lpWhiteShading[i * 3 + 2] = (unsigned short)
+	    				(65536.0 / wBWhiteLevel * 0x1000);
+	  else
+	    lpWhiteShading[i * 3 + 2] = 0x1000;
+	  break;
+	}
+    }
+
+  free (lpWhiteData);
+  free (lpDarkData);
+  free (lpRWhiteSort);
+  free (lpGWhiteSort);
+  free (lpBWhiteSort);
+  free (lpRDarkSort);
+  free (lpGDarkSort);
+  free (lpBDarkSort);
+
+  Asic_SetShadingTable (&g_chip, lpWhiteShading, lpDarkShading, g_XDpi,
+			wCalWidth);
+
+  free (lpWhiteShading);
+  free (lpDarkShading);
+
+  DBG (DBG_FUNC, "MustScanner_LineCalibration16Bits: leave\n");
+  return SANE_TRUE;
+
+error:
+  free (lpWhiteData);
+  free (lpDarkData);
+  return SANE_FALSE;
 }

@@ -67,23 +67,24 @@
 
 typedef enum
 {
-  FS_ATTACHED = 1,
-  FS_OPENED = 2,
-  FS_SCANNING = 3
+  FS_ATTACHED,
+  FS_OPENED,
+  FS_SCANNING
 } FIRMWARESTATE;
 
 typedef enum
 {
-  HT_USB10 = 0,
-  HT_USB20 = 1
+  HT_USB10,
+  HT_USB20
 } USBHOST;
 
 typedef enum
 {
-  LS_REFLECTIVE = 1,
-  LS_POSITIVE = 2,
-  LS_NEGATIVE = 4
-} LIGHTSOURCE;
+  SS_Reflective,
+  SS_Positive,
+  SS_Negative
+} SCANSOURCE;
+
 
 typedef struct
 {
@@ -159,15 +160,9 @@ typedef struct
 
 typedef struct
 {
-  SANE_Byte GainR;
-  SANE_Byte GainG;
-  SANE_Byte GainB;
-  SANE_Byte OffsetR;
-  SANE_Byte OffsetG;
-  SANE_Byte OffsetB;
-  SANE_Bool DirectionR;
-  SANE_Bool DirectionG;
-  SANE_Bool DirectionB;
+  SANE_Byte Gain[3];
+  SANE_Byte Offset[3];
+  SANE_Bool Direction[3];
 } ADConverter;
 
 typedef struct
@@ -177,7 +172,6 @@ typedef struct
   FIRMWARESTATE firmwarestate;
   SANE_Bool isFirstOpenChip;	/* == SANE_FALSE after first Asic_Open */
   USBHOST UsbHost;
-  LIGHTSOURCE lsLightSource;
 
   unsigned int dwBytesCountPerRow;
 
@@ -1039,14 +1033,13 @@ static SANE_Status Asic_Close (PAsic chip);
 static void Asic_Initialize (PAsic chip);
 static SANE_Status Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn);
 static SANE_Status Asic_TurnTA (PAsic chip, SANE_Bool isTAOn);
-static SANE_Status Asic_SetWindow (PAsic chip,
+static SANE_Status Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
 				   SANE_Byte bScanType, SANE_Byte bScanBits,
 				   unsigned short wXResolution,
 				   unsigned short wYResolution,
 				   unsigned short wX, unsigned short wY,
 				   unsigned short wWidth,
 				   unsigned short wLength);
-static void Asic_ResetADParameters (PAsic chip, LIGHTSOURCE lsLightSource);
 static SANE_Status Asic_ScanStart (PAsic chip);
 static SANE_Status Asic_ScanStop (PAsic chip);
 static SANE_Status Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer,

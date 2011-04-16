@@ -50,13 +50,6 @@
 
 typedef enum
 {
-  SS_Reflective,
-  SS_Positive,
-  SS_Negative
-} SCANSOURCE;
-
-typedef enum
-{
   RO_RGB,
   RO_BGR
 } RGBORDER;
@@ -96,27 +89,11 @@ typedef struct
 #define _MAX(a,b) ((a)>(b)?(a):(b))
 #define _MIN(a,b) ((a)<(b)?(a):(b))
 
-#define R_GAIN                          0
-#define G_GAIN                          0
-#define B_GAIN                          0
-#define R_DIRECTION                     DIR_POSITIVE
-#define G_DIRECTION                     DIR_POSITIVE
-#define B_DIRECTION                     DIR_POSITIVE
-
 /* used for adjusting the AD offset */
-
-/* for Reflective */
-#define REFL_WHITE_MAX_LEVEL            220
-#define REFL_WHITE_MIN_LEVEL            210
-#define REFL_MAX_LEVEL_RANGE            210
-#define REFL_MIN_LEVEL_RANGE            190
-
-/* for Transparent */
-#define TRAN_WHITE_MAX_LEVEL            220
-#define TRAN_WHITE_MIN_LEVEL            210
-#define TRAN_MAX_LEVEL_RANGE            210
-#define TRAN_MIN_LEVEL_RANGE            190
-
+#define WHITE_MAX_LEVEL            220
+#define WHITE_MIN_LEVEL            210
+#define MAX_LEVEL_RANGE            210
+#define MIN_LEVEL_RANGE            190
 
 /* 600 dpi */
 #define FIND_LEFT_TOP_WIDTH_IN_DIP          512
@@ -161,6 +138,11 @@ static SANE_Bool MustScanner_GetRows (SANE_Byte * lpBlock,
 				      unsigned short * Rows,
 				      SANE_Bool isOrderInvert);
 static SANE_Bool MustScanner_Reset (SCANSOURCE ssScanSource);
+static SANE_Bool MustScanner_SetupScan (TARGETIMAGE *pTarget);
+static SANE_Bool MustScanner_AdjustAD (void);
+static SANE_Bool MustScanner_FindTopLeft (unsigned short * lpwStartX,
+					  unsigned short * lpwStartY);
+static SANE_Bool MustScanner_LineCalibration16Bits (void);
 
 
 #endif

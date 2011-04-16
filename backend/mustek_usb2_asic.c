@@ -1512,46 +1512,29 @@ SetLEDTime (PAsic chip)
 static void
 SetAFEGainOffset (PAsic chip)
 {
-  int i;
+  int i, j;
 
   DBG (DBG_ASIC, "SetAFEGainOffset: Enter\n");
 
-  Mustek_SendData (chip, ES01_60_AFE_AUTO_GAIN_OFFSET_RED_LB,
-		   (chip->AD.GainR << 1) | chip->AD.DirectionR);
-  Mustek_SendData (chip, ES01_61_AFE_AUTO_GAIN_OFFSET_RED_HB,
-		   chip->AD.OffsetR);
-
-  Mustek_SendData (chip, ES01_62_AFE_AUTO_GAIN_OFFSET_GREEN_LB,
-		   (chip->AD.GainG << 1) | chip->AD.DirectionG);
-  Mustek_SendData (chip, ES01_63_AFE_AUTO_GAIN_OFFSET_GREEN_HB,
-		   chip->AD.OffsetG);
-
-  Mustek_SendData (chip, ES01_64_AFE_AUTO_GAIN_OFFSET_BLUE_LB,
-		   (chip->AD.GainB << 1) | chip->AD.DirectionB);
-  Mustek_SendData (chip, ES01_65_AFE_AUTO_GAIN_OFFSET_BLUE_HB,
-		   chip->AD.OffsetB);
+  for (i = 0; i < 3; i++)
+    {
+      Mustek_SendData (chip, ES01_60_AFE_AUTO_GAIN_OFFSET_RED_LB + (i * 2),
+		       (chip->AD.Gain[i] << 1) | chip->AD.Direction[i]);
+      Mustek_SendData (chip, ES01_61_AFE_AUTO_GAIN_OFFSET_RED_HB + (i * 2),
+		       chip->AD.Offset[i]);
+    }
 
   Mustek_SendData (chip, ES01_2A0_AFE_GAIN_OFFSET_CONTROL, 0x01);
 
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < 3; i++)
     {
-      Mustek_SendData (chip, ES01_2A1_AFE_AUTO_CONFIG_GAIN,
-		       (chip->AD.GainR << 1) | chip->AD.DirectionR);
-      Mustek_SendData (chip, ES01_2A2_AFE_AUTO_CONFIG_OFFSET, chip->AD.OffsetR);
-    }
-
-  for (i = 0; i < 4; i++)
-    {
-      Mustek_SendData (chip, ES01_2A1_AFE_AUTO_CONFIG_GAIN,
-		       (chip->AD.GainG << 1) | chip->AD.DirectionG);
-      Mustek_SendData (chip, ES01_2A2_AFE_AUTO_CONFIG_OFFSET, chip->AD.OffsetG);
-    }
-
-  for (i = 0; i < 4; i++)
-    {
-      Mustek_SendData (chip, ES01_2A1_AFE_AUTO_CONFIG_GAIN,
-		       (chip->AD.GainB << 1) | chip->AD.DirectionB);
-      Mustek_SendData (chip, ES01_2A2_AFE_AUTO_CONFIG_OFFSET, chip->AD.OffsetB);
+      for (j = 0; j < 4; j++)
+	{
+	  Mustek_SendData (chip, ES01_2A1_AFE_AUTO_CONFIG_GAIN,
+			   (chip->AD.Gain[i] << 1) | chip->AD.Direction[i]);
+	  Mustek_SendData (chip, ES01_2A2_AFE_AUTO_CONFIG_OFFSET,
+			   chip->AD.Offset[i]);
+	}
     }
 
   for (i = 0; i < 36; i++)
@@ -1562,24 +1545,18 @@ SetAFEGainOffset (PAsic chip)
 
   Mustek_SendData (chip, ES01_2A0_AFE_GAIN_OFFSET_CONTROL, 0x00);
 
-  Mustek_SendData (chip, ES01_04_ADAFEPGACH1, chip->AD.GainR);
-  Mustek_SendData (chip, ES01_06_ADAFEPGACH2, chip->AD.GainG);
-  Mustek_SendData (chip, ES01_08_ADAFEPGACH3, chip->AD.GainB);
+  for (i = 0; i < 3; i++)
+    Mustek_SendData (chip, ES01_04_ADAFEPGACH1 + (i * 2), chip->AD.Gain[i]);
 
-  if (chip->AD.DirectionR == DIR_NEGATIVE)
-    Mustek_SendData (chip, ES01_0B_AD9826OffsetRedN, chip->AD.OffsetR);
-  else
-    Mustek_SendData (chip, ES01_0A_AD9826OffsetRedP, chip->AD.OffsetR);
-
-  if (chip->AD.DirectionG == DIR_NEGATIVE)
-    Mustek_SendData (chip, ES01_0D_AD9826OffsetGreenN, chip->AD.OffsetG);
-  else
-    Mustek_SendData (chip, ES01_0C_AD9826OffsetGreenP, chip->AD.OffsetG);
-
-  if (chip->AD.DirectionB == DIR_NEGATIVE)
-    Mustek_SendData (chip, ES01_0F_AD9826OffsetBlueN, chip->AD.OffsetB);
-  else
-    Mustek_SendData (chip, ES01_0E_AD9826OffsetBlueP, chip->AD.OffsetB);
+  for (i = 0; i < 3; i++)
+    {
+      if (chip->AD.Direction[i] == DIR_NEGATIVE)
+	Mustek_SendData (chip, ES01_0B_AD9826OffsetRedN + (i * 2),
+			 chip->AD.Offset[i]);
+      else
+	Mustek_SendData (chip, ES01_0A_AD9826OffsetRedP + (i * 2),
+			 chip->AD.Offset[i]);
+    }
 
   DBG (DBG_ASIC, "SetAFEGainOffset: Exit\n");
 }
@@ -2016,7 +1993,6 @@ Asic_Initialize (PAsic chip)
   chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
   chip->lpShadingTable = NULL;
 
-  Asic_ResetADParameters (chip, LS_REFLECTIVE);
   InitTiming (chip);
 
   chip->firmwarestate = FS_ATTACHED;
@@ -2086,10 +2062,11 @@ GetBytePerPixel (SANE_Byte bBitPerPixel)
 }
 
 static SANE_Byte
-GetDummyCycleNumber (PAsic chip, unsigned short wYResolution)
+GetDummyCycleNumber (PAsic chip, unsigned short wYResolution,
+		     SCANSOURCE lsLightSource)
 {
   SANE_Byte bDummyCycleNum = 0;
-  if (chip->lsLightSource == LS_REFLECTIVE)
+  if (lsLightSource == SS_Reflective)
     {
       if (chip->UsbHost == HT_USB10)
         {
@@ -2148,7 +2125,8 @@ GetDummyCycleNumber (PAsic chip, unsigned short wYResolution)
 }
 
 static SANE_Status
-Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
+Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
+		SANE_Byte bScanType, SANE_Byte bScanBits,
 		unsigned short wXResolution, unsigned short wYResolution,
 		unsigned short wX, unsigned short wY,
 		unsigned short wWidth, unsigned short wLength)
@@ -2178,10 +2156,11 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
   unsigned short wFullBank;
 
   DBG (DBG_ASIC, "Asic_SetWindow: Enter\n");
-  DBG (DBG_ASIC, "bScanType=%d,bScanBits=%d,wXResolution=%d,wYResolution=%d," \
-		 "wX=%d,wY=%d,wWidth=%d,wLength=%d\n",
-       bScanType, bScanBits, wXResolution, wYResolution, wX, wY, wWidth,
-       wLength);
+  DBG (DBG_ASIC, "lsLightSource=%d,bScanType=%d,bScanBits=%d," \
+		 "wXResolution=%d,wYResolution=%d,wX=%d,wY=%d," \
+		 "wWidth=%d,wLength=%d\n",
+       lsLightSource, bScanType, bScanBits, wXResolution, wYResolution, wX, wY,
+       wWidth, wLength);
 
   if (chip->firmwarestate != FS_OPENED)
     {
@@ -2205,7 +2184,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
   DBG (DBG_ASIC, "dwBytesCountPerRow=%d\n", chip->dwBytesCountPerRow);
 
   if (bScanType == SCAN_TYPE_NORMAL)
-    bDummyCycleNum = GetDummyCycleNumber (chip, wYResolution);
+    bDummyCycleNum = GetDummyCycleNumber (chip, wYResolution, lsLightSource);
   else
     bDummyCycleNum = 1;
 
@@ -2224,7 +2203,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
       Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x00);
     }
 
-  if (chip->lsLightSource == LS_REFLECTIVE)
+  if (lsLightSource == SS_Reflective)
     {
       if (wXResolution > (SENSOR_DPI / 2))
         wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Full;
@@ -2305,7 +2284,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 
   SetScanMode (chip, bScanBits);
 
-  if (chip->lsLightSource == LS_REFLECTIVE)
+  if (lsLightSource == SS_Reflective)
     Mustek_SendData (chip, ES01_F8_WHITE_SHADING_DATA_FORMAT,
 		     SHADING_3_INT_13_DEC_ES01);
   else
@@ -2452,27 +2431,6 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanType, SANE_Byte bScanBits,
 
   DBG (DBG_ASIC, "Asic_SetWindow: Exit\n");
   return status;
-}
-
-static void
-Asic_ResetADParameters (PAsic chip, LIGHTSOURCE lsLightSource)
-{
-  DBG (DBG_ASIC, "Asic_ResetADParameters: Enter\n");
-
-  chip->lsLightSource = lsLightSource;
-  chip->dwBytesCountPerRow = 0;
-
-  chip->AD.DirectionR = DIR_POSITIVE;
-  chip->AD.DirectionG = DIR_POSITIVE;
-  chip->AD.DirectionB = DIR_POSITIVE;
-  chip->AD.GainR = 0;
-  chip->AD.GainG = 0;
-  chip->AD.GainB = 0;
-  chip->AD.OffsetR = 0;
-  chip->AD.OffsetG = 0;
-  chip->AD.OffsetB = 0;
-
-  DBG (DBG_ASIC, "Asic_ResetADParameters: Exit\n");
 }
 
 static SANE_Status

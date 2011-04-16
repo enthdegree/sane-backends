@@ -1073,16 +1073,8 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_NO_MEM;
   s->scan_buffer_len = 0;
 
-  if (s->setpara.ssScanSource == SS_Reflective)
-    {
-      DBG (DBG_INFO, "StartScan: ssScanSource==SS_Reflective\n");
-      Reflective_SetupScan (&s->setpara);	/* TODO: error handling */
-    }
-  else
-    {
-      DBG (DBG_INFO, "StartScan: ssScanSource!=SS_Reflective\n");
-      Transparent_SetupScan (&s->setpara);	/* TODO: error handling */
-    }
+  if (!MustScanner_SetupScan (&s->setpara))
+    return SANE_STATUS_INVAL;
 
   DBG (DBG_FUNC, "sane_start: exit\n");
   return SANE_STATUS_GOOD;

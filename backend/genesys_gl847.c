@@ -2710,7 +2710,8 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   uint32_t addr, length, i, x, factor, pixels;
-  uint16_t dpiset, dpihw, strpixel, endpixel;
+  uint32_t dpiset, dpihw, strpixel, endpixel;
+  uint16_t tempo;
   uint8_t val,*buffer,*ptr,*src;
 
   DBGSTART;
@@ -2723,18 +2724,23 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
      write(0x10068000,0x00000dd8)
    */
   length = (uint32_t) (size / 3);
-  sanei_genesys_get_double(dev->reg,REG_STRPIXEL,&strpixel);
-  sanei_genesys_get_double(dev->reg,REG_ENDPIXEL,&endpixel);
+  sanei_genesys_get_double(dev->reg,REG_STRPIXEL,&tempo);
+  strpixel=tempo;
+  sanei_genesys_get_double(dev->reg,REG_ENDPIXEL,&tempo);
+  endpixel=tempo;
   DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d\n",__FUNCTION__,strpixel,endpixel,endpixel-strpixel);
 
   /* compute deletion factor */
-  sanei_genesys_get_double(dev->reg,REG_DPISET,&dpiset);
+  sanei_genesys_get_double(dev->reg,REG_DPISET,&tempo);
+  dpiset=tempo;
   dpihw=sanei_genesys_compute_dpihw(dev,dpiset);
   factor=dpihw/dpiset;
   DBG( DBG_io2, "%s: factor=%d\n",__FUNCTION__,factor);
- 
+
+  /* since we're using SHDAREA, substract startx coordinate from shading */
+  strpixel-=((dev->sensor.CCD_start_xoffset*600)/dev->sensor.optical_res);
+  
   /* turn pixel value into bytes 2x16 bits words */
-  strpixel-=((dev->sensor.CCD_start_xoffset*dpihw)/dev->sensor.optical_res);
   strpixel*=2*2; /* 2 words of 2 bytes */
   endpixel*=2*2;
   /* byte size of coefficients */

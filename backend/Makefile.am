@@ -770,15 +770,13 @@ EXTRA_DIST += mustek_usb.conf.in
 # TODO: Why are these distributed but not compiled?
 EXTRA_DIST += mustek_usb_high.c mustek_usb_high.h mustek_usb_low.c mustek_usb_low.h mustek_usb_mid.c mustek_usb_mid.h
 
-libmustek_usb2_la_SOURCES = mustek_usb2.c mustek_usb2.h
+libmustek_usb2_la_SOURCES = mustek_usb2.c mustek_usb2.h mustek_usb2_high.c mustek_usb2_high.h mustek_usb2_asic.c mustek_usb2_asic.h
 libmustek_usb2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb2
 
 nodist_libsane_mustek_usb2_la_SOURCES = mustek_usb2-s.c
 libsane_mustek_usb2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb2
 libsane_mustek_usb2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_mustek_usb2_la_LIBADD = $(COMMON_LIBS) libmustek_usb2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(PTHREAD_LIBS) $(USB_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
-# TODO: Why are these distributed but not compiled?
-EXTRA_DIST += mustek_usb2_asic.c mustek_usb2_asic.h mustek_usb2_high.c mustek_usb2_high.h mustek_usb2_reflective.c mustek_usb2_transparent.c
 
 libnec_la_SOURCES = nec.c nec.h
 libnec_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=nec

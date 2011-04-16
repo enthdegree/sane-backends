@@ -60,9 +60,7 @@
 #include "../include/sane/saneopts.h"
 
 #define BACKEND_NAME mustek_usb2
-
 #include "../include/sane/sanei_backend.h"
-#include "mustek_usb2_high.c"
 
 #include "mustek_usb2.h"
 

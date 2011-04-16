@@ -49,6 +49,8 @@
 #ifndef MUSTEK_USB2_H
 #define MUSTEK_USB2_H
 
+#include "mustek_usb2_high.h"
+
 #define SCAN_BUFFER_SIZE (64 * 1024)
 #define MAX_RESOLUTIONS 12
 #define DEF_LINEARTTHRESHOLD 128

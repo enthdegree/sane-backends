@@ -48,6 +48,8 @@
 #ifndef MUSTEK_USB2_HIGH_H
 #define MUSTEK_USB2_HIGH_H
 
+#include "mustek_usb2_asic.h"
+
 typedef enum
 {
   RO_RGB,
@@ -116,6 +118,15 @@ typedef struct
 #define MAX_SCANNING_HEIGHT                 3540	/* just for A4 */
 
 /*#define DEBUG_SAVE_IMAGE*/
+
+
+extern SANE_Bool g_isScanning;
+extern unsigned short g_SWHeight;
+extern SANE_Byte * g_lpReadImageHead;
+extern unsigned short g_wLineartThreshold;
+extern unsigned short * g_pGammaTable;
+extern SCANSOURCE g_ssScanSource;
+extern Asic g_chip;
 
 
 static void MustScanner_Init (void);

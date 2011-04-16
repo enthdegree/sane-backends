@@ -45,11 +45,16 @@
    This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
    and similar USB2 scanners. */
 
+#define DEBUG_DECLARE_ONLY
+#include "../include/sane/config.h"
+
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <pthread.h>		/* HOLD */
 
-#include "mustek_usb2_asic.c"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "mustek_usb2_high.h"
 
@@ -59,10 +64,10 @@ static SANE_Bool g_bOpened;
 static SANE_Bool g_bPrepared;
 static SANE_Bool g_isCanceled;
 static SANE_Bool g_bFirstReadImage;
-static SANE_Bool g_isScanning;
+SANE_Bool g_isScanning;
 
 static SANE_Byte g_bScanBits;
-static SANE_Byte *g_lpReadImageHead;
+SANE_Byte * g_lpReadImageHead;
 
 static unsigned short g_X;
 static unsigned short g_Y;
@@ -71,11 +76,11 @@ static unsigned short g_Height;
 static unsigned short g_XDpi;
 static unsigned short g_YDpi;
 static unsigned short g_SWWidth;
-static unsigned short g_SWHeight;
+unsigned short g_SWHeight;
 static unsigned short g_wPixelDistance;		/* even & odd sensor problem */
 static unsigned short g_wLineDistance;
 static unsigned short g_wScanLinesPerBlock;
-static unsigned short g_wLineartThreshold;
+unsigned short g_wLineartThreshold;
 
 static unsigned int g_wtheReadyLines;
 static unsigned int g_wMaxScanLines;
@@ -88,14 +93,14 @@ static unsigned int g_dwBufferSize;
 
 static unsigned int g_dwTotalTotalXferLines;
 
-static unsigned short *g_pGammaTable;
+unsigned short * g_pGammaTable;
 
 static pthread_t g_threadid_readimage;
 
 static COLORMODE g_ScanMode;
-static SCANSOURCE g_ssScanSource;
+SCANSOURCE g_ssScanSource;
 
-static Asic g_chip;
+Asic g_chip;
 
 static int g_nSecLength, g_nDarkSecLength;
 static int g_nSecNum, g_nDarkSecNum;

@@ -45,6 +45,9 @@
    This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
    and similar USB2 scanners. */
 
+#define DEBUG_DECLARE_ONLY
+#include "../include/sane/config.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -56,6 +59,7 @@
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "mustek_usb2_asic.h"
 
@@ -1855,7 +1859,7 @@ SetExtraSettings (PAsic chip, unsigned short wXResolution,
 static const unsigned short ProductID = 0x0409;
 static const unsigned short VendorID = 0x055f;
 
-static SANE_String_Const device_name;
+SANE_String_Const device_name;
 
 static SANE_Status
 attach_one_scanner (SANE_String_Const devname)

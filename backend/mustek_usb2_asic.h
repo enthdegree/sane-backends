@@ -951,6 +951,9 @@ typedef struct
 #define		ES01_2CF_VALID_PIXEL_PARAMETER_OF_SEGMENT16	0x2CF
 
 
+extern SANE_String_Const device_name;
+
+
 static SANE_Status WriteIOControl (PAsic chip, unsigned short wValue,
 				   unsigned short wIndex,
 				   unsigned short wLength, SANE_Byte * lpBuf);

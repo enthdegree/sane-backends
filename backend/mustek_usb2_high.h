@@ -104,6 +104,10 @@ typedef struct
 #define MAX_SCANNING_WIDTH			2550	/* just for A4 */
 #define MAX_SCANNING_HEIGHT			3540	/* just for A4 */
 
+#define IMAGE_BUFFER_SIZE	(24 * 1024 * 1024)
+#define BLOCK_SIZE		(64 * 1024)
+#define CALIBRATION_BLOCK_SIZE	(64 * 1024)
+
 /*#define DEBUG_SAVE_IMAGE*/
 
 

@@ -66,7 +66,6 @@ static SANE_Bool g_bPrepared;
 static SANE_Bool g_isCanceled;
 static SANE_Bool g_bFirstReadImage;
 
-static SANE_Byte g_bScanBits;
 static SANE_Byte * g_pReadImageHead;
 
 static unsigned short g_X;
@@ -85,11 +84,8 @@ static unsigned short g_wLineartThreshold;
 static unsigned int g_wtheReadyLines;
 static unsigned int g_wMaxScanLines;
 static unsigned int g_dwScannedTotalLines;
-static unsigned int g_dwImageBufferSize;
 static unsigned int g_BytesPerRow;
 static unsigned int g_SWBytesPerRow;
-static unsigned int g_dwCalibrationSize;
-static unsigned int g_dwBufferSize;
 
 static unsigned int g_dwTotalTotalXferLines;
 
@@ -125,9 +121,6 @@ MustScanner_Init (void)
 
   Asic_Initialize (&g_chip);
 
-  g_dwImageBufferSize = 24 * 1024 * 1024;
-  g_dwBufferSize = 64 * 1024;
-  g_dwCalibrationSize = 64 * 1024;
   g_pReadImageHead = NULL;
 
   g_isCanceled = SANE_FALSE;
@@ -1211,8 +1204,8 @@ MustScanner_PrepareScan (void)
 
   g_isCanceled = SANE_FALSE;
 
-  g_wScanLinesPerBlock = g_dwBufferSize / g_BytesPerRow;
-  g_wMaxScanLines = ((g_dwImageBufferSize / g_BytesPerRow) /
+  g_wScanLinesPerBlock = BLOCK_SIZE / g_BytesPerRow;
+  g_wMaxScanLines = ((IMAGE_BUFFER_SIZE / g_BytesPerRow) /
 		     g_wScanLinesPerBlock) * g_wScanLinesPerBlock;
   g_dwScannedTotalLines = 0;
 
@@ -1232,8 +1225,8 @@ MustScanner_PrepareScan (void)
        g_wtheReadyLines);
 
   DBG (DBG_FUNC, "MustScanner_PrepareScan: g_pReadImageHead malloc %d bytes\n",
-       g_dwImageBufferSize);
-  g_pReadImageHead = malloc (g_dwImageBufferSize);
+       IMAGE_BUFFER_SIZE);
+  g_pReadImageHead = malloc (IMAGE_BUFFER_SIZE);
   if (!g_pReadImageHead)
     {
       DBG (DBG_FUNC, "MustScanner_PrepareScan: g_pReadImageHead malloc " \
@@ -1679,7 +1672,7 @@ MustScanner_FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
       DBG (DBG_FUNC, "MustScanner_FindTopLeft: pCalData malloc error\n");
       return SANE_FALSE;
     }
-  nScanBlock = dwTotalSize / g_dwCalibrationSize;
+  nScanBlock = dwTotalSize / CALIBRATION_BLOCK_SIZE;
 
   if (Asic_SetWindow (&g_chip, g_ssScanSource, SCAN_TYPE_CALIBRATE_LIGHT, 8,
 		      FIND_LEFT_TOP_CALIBRATE_RESOLUTION,
@@ -1694,15 +1687,15 @@ MustScanner_FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
   for (i = 0; i < nScanBlock; i++)
     {
       if (Asic_ReadCalibrationData (&g_chip,
-				    pCalData + (i * g_dwCalibrationSize),
-				    g_dwCalibrationSize, 8) != SANE_STATUS_GOOD)
+	    pCalData + (i * CALIBRATION_BLOCK_SIZE), CALIBRATION_BLOCK_SIZE,
+	    8) != SANE_STATUS_GOOD)
 	goto error;
     }
 
   if (Asic_ReadCalibrationData (&g_chip,
-				pCalData + (nScanBlock * g_dwCalibrationSize),
-				dwTotalSize - g_dwCalibrationSize * nScanBlock,
-				8) != SANE_STATUS_GOOD)
+	pCalData + (nScanBlock * CALIBRATION_BLOCK_SIZE),
+	dwTotalSize - CALIBRATION_BLOCK_SIZE * nScanBlock, 8) !=
+      SANE_STATUS_GOOD)
     goto error;
 
   if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
@@ -2177,6 +2170,7 @@ SANE_Bool
 MustScanner_SetupScan (TARGETIMAGE * pTarget)
 {
   unsigned short targetY;
+  SANE_Byte bScanBits;
 
   DBG (DBG_FUNC, "MustScanner_SetupScan: call in\n");
 
@@ -2232,25 +2226,26 @@ MustScanner_SetupScan (TARGETIMAGE * pTarget)
     case CM_RGB48:
       g_BytesPerRow = 6 * g_Width;	/* ASIC limit: width must be 8x */
       g_SWBytesPerRow = 6 * g_SWWidth;	/* ASIC limit: width must be 8x */
-      g_bScanBits = 48;
       g_Height += g_wLineDistance * 2;
+      bScanBits = 48;
       break;
     case CM_RGB24:
       g_BytesPerRow = 3 * g_Width;
       g_SWBytesPerRow = 3 * g_SWWidth;
-      g_bScanBits = 24;
       g_Height += g_wLineDistance * 2;
+      bScanBits = 24;
       break;
     case CM_GRAY16:
       g_BytesPerRow = 2 * g_Width;
       g_SWBytesPerRow = 2 * g_SWWidth;
-      g_bScanBits = 16;
+      bScanBits = 16;
       break;
     case CM_GRAY8:
     case CM_TEXT:
+    default:
       g_BytesPerRow = g_Width;
       g_SWBytesPerRow = g_SWWidth;
-      g_bScanBits = 8;
+      bScanBits = 8;
       break;
     }
 
@@ -2321,9 +2316,9 @@ MustScanner_SetupScan (TARGETIMAGE * pTarget)
   DBG (DBG_FUNC, "MustScanner_SetupScan: after " \
 		 "MustScanner_LineCalibration16Bits g_X=%d,g_Y=%d\n", g_X, g_Y);
 
-  DBG (DBG_FUNC, "MustScanner_SetupScan: g_bScanBits=%d, g_XDpi=%d, " \
+  DBG (DBG_FUNC, "MustScanner_SetupScan: bScanBits=%d, g_XDpi=%d, " \
 		 "g_YDpi=%d, g_X=%d, g_Y=%d, g_Width=%d, g_Height=%d\n",
-       g_bScanBits, g_XDpi, g_YDpi, g_X, g_Y, g_Width, g_Height);
+       bScanBits, g_XDpi, g_YDpi, g_X, g_Y, g_Width, g_Height);
 
   if (g_ssScanSource == SS_REFLECTIVE)
     {
@@ -2349,7 +2344,7 @@ MustScanner_SetupScan (TARGETIMAGE * pTarget)
     }
   g_Y = targetY;
 
-  if (Asic_SetWindow (&g_chip, g_ssScanSource, SCAN_TYPE_NORMAL, g_bScanBits,
+  if (Asic_SetWindow (&g_chip, g_ssScanSource, SCAN_TYPE_NORMAL, bScanBits,
 		      g_XDpi, g_YDpi, g_X, g_Y, g_Width, g_Height) !=
       SANE_STATUS_GOOD)
     return SANE_FALSE;

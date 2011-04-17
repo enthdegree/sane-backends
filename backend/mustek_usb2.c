@@ -855,7 +855,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	    }
 
 	  DBG (DBG_DBG, "sane_read: Finish ReadScanedData\n");
-	  s->bIsReading = SANE_FALSE;
 	  s->scan_buf_len =
 	    image_row.wXferedLineNum * s->setpara.dwBytesPerRow;
 	  DBG (DBG_INFO, "sane_read : s->scan_buf_len = %ld\n",
@@ -872,6 +871,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  free (tempbuf);
 	  s->scan_buf_start = s->scan_buf;
 	  s->read_rows -= image_row.wXferedLineNum;
+	  s->bIsReading = SANE_FALSE;
 	}
       else
 	{

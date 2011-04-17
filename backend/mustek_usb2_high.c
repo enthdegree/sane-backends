@@ -100,7 +100,7 @@ static pthread_t g_threadid_readimage;
 static COLORMODE g_ScanMode;
 static SCANSOURCE g_ssScanSource;
 
-ASIC g_chip;
+static ASIC g_chip;
 
 static int g_nSecLength, g_nDarkSecLength;
 static int g_nSecNum, g_nDarkSecNum;

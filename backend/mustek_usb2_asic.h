@@ -74,12 +74,6 @@ typedef enum
 
 typedef enum
 {
-  HT_USB10,
-  HT_USB20
-} USBHOST;
-
-typedef enum
-{
   SS_Reflective,
   SS_Positive,
   SS_Negative
@@ -171,7 +165,7 @@ typedef struct
 
   FIRMWARESTATE firmwarestate;
   SANE_Bool isFirstOpenChip;	/* == SANE_FALSE after first Asic_Open */
-  USBHOST UsbHost;
+  SANE_Bool isUsb20;
 
   unsigned int dwBytesCountPerRow;
 

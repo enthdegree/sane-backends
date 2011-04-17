@@ -1997,7 +1997,7 @@ Asic_Initialize (PAsic chip)
        chip->isFirstOpenChip);
   chip->isFirstOpenChip = SANE_TRUE;
 
-  chip->UsbHost = HT_USB10;
+  chip->isUsb20 = SANE_FALSE;
   chip->dwBytesCountPerRow = 0;
   chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
   chip->lpShadingTable = NULL;
@@ -2077,7 +2077,7 @@ GetDummyCycleNumber (PAsic chip, unsigned short wYResolution,
   SANE_Byte bDummyCycleNum = 0;
   if (lsLightSource == SS_Reflective)
     {
-      if (chip->UsbHost == HT_USB10)
+      if (!chip->isUsb20)
         {
           switch (wYResolution)
             {

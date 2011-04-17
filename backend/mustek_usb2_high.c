@@ -51,6 +51,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
 #include <pthread.h>	/* TODO: use sanei_thread functions instead */
 
 #include "../include/sane/sane.h"
@@ -64,10 +65,9 @@ static SANE_Bool g_bOpened;
 static SANE_Bool g_bPrepared;
 static SANE_Bool g_isCanceled;
 static SANE_Bool g_bFirstReadImage;
-SANE_Bool g_isScanning;
 
 static SANE_Byte g_bScanBits;
-SANE_Byte * g_pReadImageHead;
+static SANE_Byte * g_pReadImageHead;
 
 static unsigned short g_X;
 static unsigned short g_Y;
@@ -76,11 +76,11 @@ static unsigned short g_Height;
 static unsigned short g_XDpi;
 static unsigned short g_YDpi;
 static unsigned short g_SWWidth;
-unsigned short g_SWHeight;
+static unsigned short g_SWHeight;
 static unsigned short g_wPixelDistance;		/* even & odd sensor problem */
 static unsigned short g_wLineDistance;
 static unsigned short g_wScanLinesPerBlock;
-unsigned short g_wLineartThreshold;
+static unsigned short g_wLineartThreshold;
 
 static unsigned int g_wtheReadyLines;
 static unsigned int g_wMaxScanLines;
@@ -93,12 +93,12 @@ static unsigned int g_dwBufferSize;
 
 static unsigned int g_dwTotalTotalXferLines;
 
-unsigned short * g_pGammaTable;
+static unsigned short * g_pGammaTable;
 
 static pthread_t g_threadid_readimage;
 
 static COLORMODE g_ScanMode;
-SCANSOURCE g_ssScanSource;
+static SCANSOURCE g_ssScanSource;
 
 ASIC g_chip;
 
@@ -134,12 +134,25 @@ MustScanner_Init (void)
   g_bOpened = SANE_FALSE;
   g_bPrepared = SANE_FALSE;
 
-  g_isScanning = SANE_FALSE;
   g_pGammaTable = NULL;
 
   g_ssScanSource = SS_REFLECTIVE;
 
   DBG (DBG_FUNC, "MustScanner_Init: leave MustScanner_Init\n");
+}
+
+SANE_Bool
+MustScanner_IsPresent (void)
+{
+  DBG (DBG_FUNC, "MustScanner_IsPresent: Call in\n");
+
+  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
+    return SANE_FALSE;
+  if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
+    return SANE_FALSE;
+
+  DBG (DBG_FUNC, "MustScanner_IsPresent: leave\n");
+  return SANE_TRUE;
 }
 
 SANE_Bool
@@ -208,6 +221,55 @@ MustScanner_BackHome (void)
   DBG (DBG_FUNC, "MustScanner_BackHome: leave MustScanner_BackHome\n");
   return SANE_TRUE;
 }
+
+SANE_Bool
+MustScanner_IsTAConnected (void)
+{
+  SANE_Bool hasTA;
+
+  DBG (DBG_FUNC, "MustScanner_IsTAConnected: start\n");
+
+  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
+    return SANE_FALSE;
+
+  if (Asic_IsTAConnected (&g_chip, &hasTA) != SANE_STATUS_GOOD)
+    hasTA = SANE_FALSE;
+
+  Asic_Close (&g_chip);
+
+  DBG (DBG_FUNC, "MustScanner_IsTAConnected: exit\n");
+  return hasTA;
+}
+
+#ifdef SANE_UNUSED
+SANE_Bool
+MustScanner_GetKeyStatus (SANE_Byte * pKey)
+{
+  DBG (DBG_FUNC, "MustScanner_GetKeyStatus: start\n");
+
+  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_ERR, "MustScanner_GetKeyStatus: Asic_Open failed\n");
+      return SANE_FALSE;
+    }
+
+  if (Asic_CheckFunctionKey (&g_chip, pKey) != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_ERR, "MustScanner_GetKeyStatus: Asic_CheckFunctionKey failed\n");
+      Asic_Close (&g_chip);
+      return SANE_FALSE;
+    }
+
+  if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_ERR, "MustScanner_GetKeyStatus: Asic_Close failed\n");
+      return SANE_FALSE;
+    }
+
+  DBG (DBG_FUNC, "MustScanner_GetKeyStatus: exit\n");
+  return SANE_TRUE;
+}
+#endif
 
 static SANE_Byte
 QBET4 (SANE_Byte A, SANE_Byte B)
@@ -850,7 +912,6 @@ MustScanner_GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
 
   DBG (DBG_FUNC, "MustScanner_GetLine: call in\n");
 
-  g_isScanning = SANE_TRUE;
   wWantedTotalLines = *wLinesCount;
 
   if (g_bFirstReadImage)
@@ -870,7 +931,6 @@ MustScanner_GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
 	  DBG (DBG_FUNC, "MustScanner_GetLine: thread exit\n");
 
 	  *wLinesCount = TotalXferLines;
-	  g_isScanning = SANE_FALSE;
 	  return SANE_TRUE;
 	}
 
@@ -893,7 +953,6 @@ MustScanner_GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
     }
 
   *wLinesCount = TotalXferLines;
-  g_isScanning = SANE_FALSE;
 
   if (fixEvenOdd)
     {
@@ -1012,6 +1071,58 @@ MustScanner_ScanSuggest (TARGETIMAGE * pTarget)
       return SANE_FALSE;
     }
 
+  g_wLineartThreshold = pTarget->wLineartThreshold;
+
+  /* create gamma table */
+  if ((pTarget->cmColorMode == CM_GRAY8) ||
+      (pTarget->cmColorMode == CM_RGB24))
+    {
+      unsigned short i;
+      SANE_Byte bGammaData;
+
+      g_pGammaTable = malloc (sizeof (unsigned short) * 4096 * 3);
+      if (!g_pGammaTable)
+	{
+	  DBG (DBG_ERR, "MustScanner_ScanSuggest: gamma table malloc fail\n");
+	  return SANE_FALSE;
+	}
+
+      for (i = 0; i < 4096; i++)
+	{
+	  bGammaData = (SANE_Byte) (pow ((double) i / 4095, 0.625) * 255);
+	  g_pGammaTable[i] = bGammaData;
+	  g_pGammaTable[i + 4096] = bGammaData;
+	  g_pGammaTable[i + 8192] = bGammaData;
+	}
+    }
+  else if ((pTarget->cmColorMode == CM_GRAY16) ||
+	   (pTarget->cmColorMode == CM_RGB48))
+    {
+      unsigned int i;
+      unsigned short wGammaData;
+
+      g_pGammaTable = malloc (sizeof (unsigned short) * 65536 * 3);
+      if (!g_pGammaTable)
+	{
+	  DBG (DBG_ERR, "MustScanner_ScanSuggest: gamma table malloc fail\n");
+	  return SANE_FALSE;
+	}
+
+      for (i = 0; i < 65536; i++)
+	{
+	  wGammaData = (unsigned short)
+	    (pow ((double) i / 65535, 0.625) * 65535);
+	  g_pGammaTable[i] = wGammaData;
+	  g_pGammaTable[i + 65536] = wGammaData;
+	  g_pGammaTable[i + 65536 * 2] = wGammaData;
+	}
+    }
+  else
+    {
+      DBG (DBG_INFO, "MustScanner_ScanSuggest: set g_pGammaTable to NULL\n");
+      g_pGammaTable = NULL;
+    }
+
   /* check width and height */
   wMaxWidth = (MAX_SCANNING_WIDTH * pTarget->wDpi) / 300;
   wMaxHeight = (MAX_SCANNING_HEIGHT * pTarget->wDpi) / 300;
@@ -1076,6 +1187,18 @@ MustScanner_StopScan (void)
   Asic_Close (&g_chip);
 
   g_bOpened = SANE_FALSE;
+
+  if (g_pGammaTable)
+    {
+      free (g_pGammaTable);
+      g_pGammaTable = NULL;
+    }
+
+  if (g_pReadImageHead)
+    {
+      free (g_pReadImageHead);
+      g_pReadImageHead = NULL;
+    }
 
   DBG (DBG_FUNC, "MustScanner_StopScan: leave MustScanner_StopScan\n");
   return result;
@@ -1150,6 +1273,7 @@ MustScanner_Reset (SCANSOURCE ssScanSource)
         return SANE_FALSE;
     }
 
+  g_ssScanSource = ssScanSource;
   g_dwTotalTotalXferLines = 0;
   g_bFirstReadImage = SANE_TRUE;
   g_bPrepared = SANE_TRUE;

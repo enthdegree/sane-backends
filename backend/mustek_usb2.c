@@ -53,7 +53,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <math.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -120,9 +119,6 @@ static const Scanner_Model mustek_A2nu2_model = {
 
   RO_RGB  /* order of the CCD/CIS colors */
 };
-
-
-static SANE_Bool IsTAConnected (void);
 
 
 static size_t
@@ -300,7 +296,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
   s->val[OPT_SOURCE].s = strdup (source_list[SS_REFLECTIVE]);
 
-  if (!IsTAConnected ())
+  if (!MustScanner_IsTAConnected ())
     s->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
 
   /* resolution */
@@ -412,77 +408,6 @@ init_options (Mustek_Scanner * s)
 }
 
 static SANE_Bool
-SetParameters (TARGETIMAGE * pSetParameters)
-{
-  DBG (DBG_FUNC, "SetParameters: start\n");
-
-  MustScanner_Reset (pSetParameters->ssScanSource);
-
-  g_ssScanSource = pSetParameters->ssScanSource;
-  g_wLineartThreshold = pSetParameters->wLineartThreshold;
-
-  /* create gamma table */
-  if ((pSetParameters->cmColorMode == CM_GRAY8) ||
-      (pSetParameters->cmColorMode == CM_RGB24))
-    {
-      unsigned short i;
-      SANE_Byte bGammaData;
-
-      g_pGammaTable = malloc (sizeof (unsigned short) * 4096 * 3);
-      if (!g_pGammaTable)
-	{
-	  DBG (DBG_ERR, "SetParameters: gamma table malloc fail\n");
-	  return SANE_FALSE;
-	}
-
-      for (i = 0; i < 4096; i++)
-	{
-	  bGammaData = (SANE_Byte) (pow ((double) i / 4095, 0.625) * 255);
-	  g_pGammaTable[i] = bGammaData;
-	  g_pGammaTable[i + 4096] = bGammaData;
-	  g_pGammaTable[i + 8192] = bGammaData;
-	}
-    }
-  else if ((pSetParameters->cmColorMode == CM_GRAY16) ||
-	   (pSetParameters->cmColorMode == CM_RGB48))
-    {
-      unsigned int i;
-      unsigned short wGammaData;
-
-      g_pGammaTable = malloc (sizeof (unsigned short) * 65536 * 3);
-      if (!g_pGammaTable)
-	{
-	  DBG (DBG_ERR, "SetParameters: gamma table malloc fail\n");
-	  return SANE_FALSE;
-	}
-
-      for (i = 0; i < 65536; i++)
-	{
-	  wGammaData = (unsigned short)
-	    (pow ((double) i / 65535, 0.625) * 65535);
-	  g_pGammaTable[i] = wGammaData;
-	  g_pGammaTable[i + 65536] = wGammaData;
-	  g_pGammaTable[i + 65536 * 2] = wGammaData;
-	}
-    }
-  else
-    {
-      DBG (DBG_INFO, "SetParameters: set g_pGammaTable to NULL\n");
-      g_pGammaTable = NULL;
-    }
-
-  /* adjust parameters to the scanner's requirements */
-  if (!MustScanner_ScanSuggest (pSetParameters))
-    {
-      DBG (DBG_ERR, "SetParameters: MustScanner_ScanSuggest error\n");
-      return SANE_FALSE;
-    }
-
-  DBG (DBG_FUNC, "SetParameters: exit\n");
-  return SANE_TRUE;
-}
-
-static SANE_Bool
 ReadScannedData (IMAGEROWS * pImageRows, TARGETIMAGE * pTarget)
 {
   SANE_Bool isRGBInvert;
@@ -509,89 +434,6 @@ ReadScannedData (IMAGEROWS * pImageRows, TARGETIMAGE * pTarget)
   DBG (DBG_FUNC, "ReadScannedData: exit\n");
   return SANE_TRUE;
 }
-
-static SANE_Bool
-StopScan (void)
-{
-  SANE_Bool rt;
-  int i;
-
-  DBG (DBG_FUNC, "StopScan: start\n");
-
-  /* stop reading data and kill thread */
-  rt = MustScanner_StopScan ();
-
-  for (i = 0; i < 20; i++)
-    {
-      if (!g_isScanning)
-	break;
-      sleep (1);	/* wait for ReadScannedData to return */
-    }
-
-  if (g_pGammaTable)
-    {
-      free (g_pGammaTable);
-      g_pGammaTable = NULL;
-    }
-
-  if (g_pReadImageHead)
-    {
-      free (g_pReadImageHead);
-      g_pReadImageHead = NULL;
-    }
-
-  DBG (DBG_FUNC, "StopScan: exit\n");
-  return rt;
-}
-
-static SANE_Bool
-IsTAConnected (void)
-{
-  SANE_Bool hasTA;
-
-  DBG (DBG_FUNC, "IsTAConnected: start\n");
-
-  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
-
-  if (Asic_IsTAConnected (&g_chip, &hasTA) != SANE_STATUS_GOOD)
-    hasTA = SANE_FALSE;
-
-  Asic_Close (&g_chip);
-
-  DBG (DBG_FUNC, "IsTAConnected: exit\n");
-  return hasTA;
-}
-
-#ifdef SANE_UNUSED
-static SANE_Bool
-GetKeyStatus (SANE_Byte * pKey)
-{
-  DBG (DBG_FUNC, "GetKeyStatus: start\n");
-
-  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "GetKeyStatus: Asic_Open is fail\n");
-      return SANE_FALSE;
-    }
-
-  if (Asic_CheckFunctionKey (&g_chip, pKey) != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "GetKeyStatus: Asic_CheckFunctionKey is fail\n");
-      Asic_Close (&g_chip);
-      return SANE_FALSE;
-    }
-
-  if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "GetKeyStatus: Asic_Close is fail\n");
-      return SANE_FALSE;
-    }
-
-  DBG (DBG_FUNC, "GetKeyStatus: exit\n");
-  return SANE_TRUE;
-}
-#endif
 
 
 /****************************** SANE API functions ****************************/
@@ -639,7 +481,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     return SANE_STATUS_NO_MEM;
 
   /* HOLD: This is ugly (only one scanner!) and should go to sane_init */
-  if (Asic_Open (&g_chip) == SANE_STATUS_GOOD)
+  if (MustScanner_IsPresent ())
     {
       SANE_Device *sane_device = malloc (sizeof (*sane_device));
       if (!sane_device)
@@ -649,7 +491,6 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       sane_device->model = strdup ("BearPaw 2448 TA Pro");
       sane_device->type = strdup ("flatbed scanner");
       devlist[0] = sane_device;
-      Asic_Close (&g_chip);
     }
   *device_list = devlist;
 
@@ -693,9 +534,9 @@ sane_close (SANE_Handle handle)
   MustScanner_PowerControl (SANE_FALSE, SANE_FALSE);
   MustScanner_BackHome ();
 
-  if (s->Scan_data_buf)
-    free (s->Scan_data_buf);
-  s->Scan_data_buf = NULL;
+  if (s->scan_buf)
+    free (s->scan_buf);
+  s->scan_buf = NULL;
 
   free (handle);
 
@@ -923,8 +764,14 @@ sane_start (SANE_Handle handle)
   DBG (DBG_INFO, "sane_start: setpara.ssScanSource=%d\n",
        s->setpara.ssScanSource);
 
-  if (!SetParameters (&s->setpara))
-    return SANE_STATUS_INVAL;
+  MustScanner_Reset (s->setpara.ssScanSource);
+
+  /* adjust parameters to the scanner's requirements */
+  if (!MustScanner_ScanSuggest (&s->setpara))
+    {
+      DBG (DBG_ERR, "sane_start: MustScanner_ScanSuggest error\n");
+      return SANE_STATUS_INVAL;
+    }
 
   /* update the scan parameters returned by sane_get_parameters */
   s->params.pixels_per_line = s->setpara.wWidth;
@@ -937,12 +784,12 @@ sane_start (SANE_Handle handle)
   DBG (DBG_INFO, "SCANNING...\n");
   s->bIsScanning = SANE_TRUE;
 
-  if (s->Scan_data_buf)
-    free (s->Scan_data_buf);
-  s->Scan_data_buf = malloc (SCAN_BUFFER_SIZE);
-  if (!s->Scan_data_buf)
+  if (s->scan_buf)
+    free (s->scan_buf);
+  s->scan_buf = malloc (SCAN_BUFFER_SIZE);
+  if (!s->scan_buf)
     return SANE_STATUS_NO_MEM;
-  s->scan_buffer_len = 0;
+  s->scan_buf_len = 0;
 
   if (!MustScanner_SetupScan (&s->setpara))
     return SANE_STATUS_INVAL;
@@ -979,7 +826,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
 
   DBG (DBG_DBG, "sane_read: before read data read_row=%d\n", s->read_rows);
-  if (s->scan_buffer_len == 0)
+  if (s->scan_buf_len == 0)
     {
       if (s->read_rows > 0)
 	{
@@ -1009,29 +856,29 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
 	  DBG (DBG_DBG, "sane_read: Finish ReadScanedData\n");
 	  s->bIsReading = SANE_FALSE;
-	  s->scan_buffer_len =
+	  s->scan_buf_len =
 	    image_row.wXferedLineNum * s->setpara.dwBytesPerRow;
-	  DBG (DBG_INFO, "sane_read : s->scan_buffer_len = %ld\n",
-	       (long int) s->scan_buffer_len);
+	  DBG (DBG_INFO, "sane_read : s->scan_buf_len = %ld\n",
+	       (long int) s->scan_buf_len);
 
-	  memcpy (s->Scan_data_buf, tempbuf, s->scan_buffer_len);
-	  if (s->scan_buffer_len < SCAN_BUFFER_SIZE)
+	  memcpy (s->scan_buf, tempbuf, s->scan_buf_len);
+	  if (s->scan_buf_len < SCAN_BUFFER_SIZE)
 	    {
-	      memset (s->Scan_data_buf + s->scan_buffer_len, 0,
-		      SCAN_BUFFER_SIZE - s->scan_buffer_len);
+	      memset (s->scan_buf + s->scan_buf_len, 0,
+		      SCAN_BUFFER_SIZE - s->scan_buf_len);
 	    }
 
 	  DBG (DBG_DBG, "sane_read: after memcpy\n");
 	  free (tempbuf);
-	  s->Scan_data_buf_start = s->Scan_data_buf;
+	  s->scan_buf_start = s->scan_buf;
 	  s->read_rows -= image_row.wXferedLineNum;
 	}
       else
 	{
-	  s->scan_buffer_len = 0;
+	  s->scan_buf_len = 0;
 	}
 
-      if (s->scan_buffer_len == 0)
+      if (s->scan_buf_len == 0)
 	{
 	  DBG (DBG_FUNC, "sane_read: scan finished -- exit\n");
 	  sane_cancel (handle);
@@ -1039,17 +886,17 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	}
     }
 
-  lines_read = _MIN (max_len, (SANE_Int) s->scan_buffer_len);
+  lines_read = _MIN (max_len, (SANE_Int) s->scan_buf_len);
   DBG (DBG_DBG, "sane_read: after %d\n", lines_read);
 
   *len = (SANE_Int) lines_read;
 
   DBG (DBG_INFO, "sane_read: get lines_read = %d\n", lines_read);
   DBG (DBG_INFO, "sane_read: get *len = %d\n", *len);
-  memcpy (buf, s->Scan_data_buf_start, lines_read);
+  memcpy (buf, s->scan_buf_start, lines_read);
 
-  s->scan_buffer_len -= lines_read;
-  s->Scan_data_buf_start += lines_read;
+  s->scan_buf_len -= lines_read;
+  s->scan_buf_start += lines_read;
   DBG (DBG_FUNC, "sane_read: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1070,26 +917,25 @@ sane_cancel (SANE_Handle handle)
       else
 	DBG (DBG_INFO, "sane_cancel: scan finished\n");
 
-      StopScan ();
+      MustScanner_StopScan ();
       MustScanner_BackHome ();
 
       for (i = 0; i < 20; i++)
 	{
 	  if (!s->bIsReading)
 	    break;
-	  else
-	    sleep (1);
+	  sleep (1);
 	}
 
-      if (s->Scan_data_buf)
+      if (s->scan_buf)
 	{
-	  free (s->Scan_data_buf);
-	  s->Scan_data_buf = NULL;
-	  s->Scan_data_buf_start = NULL;
+	  free (s->scan_buf);
+	  s->scan_buf = NULL;
+	  s->scan_buf_start = NULL;
 	}
 
       s->read_rows = 0;
-      s->scan_buffer_len = 0;
+      s->scan_buf_len = 0;
       memset (&s->setpara, 0, sizeof (s->setpara));
     }
   else

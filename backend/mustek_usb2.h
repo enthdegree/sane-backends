@@ -128,10 +128,10 @@ typedef struct Mustek_Scanner
   TARGETIMAGE setpara;
   SANE_Bool bIsScanning;
   SANE_Bool bIsReading;
-  SANE_Word read_rows;		/* number of transfered image lines */
-  SANE_Byte * Scan_data_buf;
-  SANE_Byte * Scan_data_buf_start;
-  size_t scan_buffer_len;
+  SANE_Word read_rows;		/* number of image lines left to read */
+  SANE_Byte * scan_buf;
+  SANE_Byte * scan_buf_start;
+  size_t scan_buf_len;
 } Mustek_Scanner;
 
 #endif

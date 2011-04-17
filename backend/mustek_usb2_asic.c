@@ -666,7 +666,7 @@ LLFMotorMove (ASIC * chip, LLF_MOTORMOVE * LLF_MotorMove)
     {
       status = WaitCarriageHome (chip);
       if (status != SANE_STATUS_GOOD)
-        return status;
+	return status;
     }
 
   status = WaitUnitReady (chip);
@@ -2070,38 +2070,38 @@ GetDummyCycleNumber (ASIC * chip, unsigned short wYResolution,
   if (lsLightSource == SS_REFLECTIVE)
     {
       if (!chip->isUsb20)
-        {
-          switch (wYResolution)
-            {
+	{
+	  switch (wYResolution)
+	    {
 	    case 2400:
 	    case 1200:
 	      if (chip->dwBytesCountPerRow > 22000)
-	        bDummyCycleNum = 4;
+		bDummyCycleNum = 4;
 	      else if (chip->dwBytesCountPerRow > 15000)
-	        bDummyCycleNum = 3;
+		bDummyCycleNum = 3;
 	      else if (chip->dwBytesCountPerRow > 10000)
-	        bDummyCycleNum = 2;
+		bDummyCycleNum = 2;
 	      else if (chip->dwBytesCountPerRow > 5000)
-	        bDummyCycleNum = 1;
+		bDummyCycleNum = 1;
 	      break;
 	    case 600:
 	    case 300:
 	    case 150:
 	    case 100:
 	      if (chip->dwBytesCountPerRow > 21000)
-	        bDummyCycleNum = 7;
+		bDummyCycleNum = 7;
 	      else if (chip->dwBytesCountPerRow > 18000)
-	        bDummyCycleNum = 6;
+		bDummyCycleNum = 6;
 	      else if (chip->dwBytesCountPerRow > 15000)
-	        bDummyCycleNum = 5;
+		bDummyCycleNum = 5;
 	      else if (chip->dwBytesCountPerRow > 12000)
-	        bDummyCycleNum = 4;
+		bDummyCycleNum = 4;
 	      else if (chip->dwBytesCountPerRow > 9000)
-	        bDummyCycleNum = 3;
+		bDummyCycleNum = 3;
 	      else if (chip->dwBytesCountPerRow > 6000)
-	        bDummyCycleNum = 2;
+		bDummyCycleNum = 2;
 	      else if (chip->dwBytesCountPerRow > 3000)
-	        bDummyCycleNum = 1;
+		bDummyCycleNum = 1;
 	      break;
 	    case 75:
 	    case 50:
@@ -2205,9 +2205,9 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   if (lsLightSource == SS_REFLECTIVE)
     {
       if (wXResolution > (SENSOR_DPI / 2))
-        wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Full;
+	wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Full;
       else
-        wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Half;
+	wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Half;
     }
   else
     {
@@ -2349,9 +2349,9 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   else
     {
       if (EndSpeed <= 1000)
-        StartSpeed = EndSpeed + 4500;
+	StartSpeed = EndSpeed + 4500;
       else
-        StartSpeed = EndSpeed + 3500;
+	StartSpeed = EndSpeed + 3500;
     }
   DBG (DBG_ASIC, "StartSpeed=%d, EndSpeed=%d\n", StartSpeed, EndSpeed);
 

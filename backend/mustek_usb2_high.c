@@ -385,7 +385,7 @@ GetRgb48BitLineFull (SANE_Byte * pLine, SANE_Bool isOrderInvert)
   while (i < g_SWWidth)
     {
       if ((i + 1) >= g_SWWidth)
-        break;
+	break;
 
       dwRTempData = g_pReadImageHead[wRLinePosOdd + i * 6] |
 	(g_pReadImageHead[wRLinePosOdd + i * 6 + 1] << 8);
@@ -525,7 +525,7 @@ GetRgb24BitLineFull (SANE_Byte * pLine, SANE_Bool isOrderInvert)
   while (i < g_SWWidth)
     {
       if ((i + 1) >= g_SWWidth)
-        break;
+	break;
 
       wRed = g_pReadImageHead[wRLinePosOdd + i * 3];
       wRed += g_pReadImageHead[wRLinePosEven + (i + 1) * 3];
@@ -611,7 +611,7 @@ GetMono16BitLineFull (SANE_Byte * pLine,
   while (i < g_SWWidth)
     {
       if ((i + 1) >= g_SWWidth)
-        break;
+	break;
 
       dwTempData = (unsigned int) g_pReadImageHead[wLinePosOdd + i * 2];
       dwTempData += (unsigned int)
@@ -683,7 +683,7 @@ GetMono8BitLineFull (SANE_Byte * pLine,
   while (i < g_SWWidth)
     {
       if ((i + 1) >= g_SWWidth)
-        break;
+	break;
 
       wGray = g_pReadImageHead[wLinePosOdd + i];
       wGray += g_pReadImageHead[wLinePosEven + i + 1];
@@ -741,7 +741,7 @@ GetMono1BitLineFull (SANE_Byte * pLine,
   while (i < g_SWWidth)
     {
       if ((i + 1) >= g_SWWidth)
-        break;
+	break;
 
       if (g_pReadImageHead[wLinePosOdd + i] > g_wLineartThreshold)
 	pLine[i / 8] |= 0x80 >> (i % 8);
@@ -1007,40 +1007,40 @@ MustScanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
     {
     case CM_RGB48:
       if (g_XDpi == SENSOR_DPI)
-        pFunc = GetRgb48BitLineFull;
+	pFunc = GetRgb48BitLineFull;
       else
-        pFunc = GetRgb48BitLineHalf;
+	pFunc = GetRgb48BitLineHalf;
       break;
 
     case CM_RGB24:
       if (g_XDpi == SENSOR_DPI)
-        pFunc = GetRgb24BitLineFull;
+	pFunc = GetRgb24BitLineFull;
       else
-        pFunc = GetRgb24BitLineHalf;
+	pFunc = GetRgb24BitLineHalf;
       break;
 
     case CM_GRAY16:
       if (g_XDpi == SENSOR_DPI)
-        {
-          fixEvenOdd = SANE_TRUE;
-          pFunc = GetMono16BitLineFull;
-        }
+	{
+	  fixEvenOdd = SANE_TRUE;
+	  pFunc = GetMono16BitLineFull;
+	}
       else
-        {
+	{
 	  pFunc = GetMono16BitLineHalf;
 	}
       break;
 
     case CM_GRAY8:
       if (g_XDpi == SENSOR_DPI)
-        {
-          fixEvenOdd = SANE_TRUE;
-          pFunc = GetMono8BitLineFull;
-        }
+	{
+	  fixEvenOdd = SANE_TRUE;
+	  pFunc = GetMono8BitLineFull;
+	}
       else
-        {
-          pFunc = GetMono8BitLineHalf;
-        }
+	{
+	  pFunc = GetMono8BitLineHalf;
+	}
       break;
 
     case CM_TEXT:
@@ -1237,7 +1237,7 @@ MustScanner_PrepareScan (void)
   if (!g_pReadImageHead)
     {
       DBG (DBG_FUNC, "MustScanner_PrepareScan: g_pReadImageHead malloc " \
-           "error\n");
+	   "error\n");
       return SANE_FALSE;
     }
 
@@ -1265,12 +1265,12 @@ MustScanner_Reset (SCANSOURCE ssScanSource)
   if (ssScanSource == SS_REFLECTIVE)
     {
       if (!MustScanner_PowerControl (SANE_TRUE, SANE_FALSE))
-        return SANE_FALSE;
+	return SANE_FALSE;
     }
   else
     {
       if (!MustScanner_PowerControl (SANE_FALSE, SANE_TRUE))
-        return SANE_FALSE;
+	return SANE_FALSE;
     }
 
   g_ssScanSource = ssScanSource;
@@ -1440,12 +1440,12 @@ MustScanner_AdjustAD (void)
       DBG (DBG_FUNC, "MustScanner_AdjustAD: first offset adjustment loop\n");
       SetAFEGainOffset (&g_chip);
       if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
-        goto error;
+	goto error;
       if (Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24) !=
 	  SANE_STATUS_GOOD)
 	goto error;
       if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
-        goto error;
+	goto error;
 
 #ifdef DEBUG_SAVE_IMAGE
       if (i == 0)
@@ -1459,8 +1459,8 @@ MustScanner_AdjustAD (void)
 #endif
 
       for (j = 0; j < 3; j++)
-        {
-          if (!MustScanner_CalculateMaxMin (pCalData + (wCalWidth * j),
+	{
+	  if (!MustScanner_CalculateMaxMin (pCalData + (wCalWidth * j),
 					    &wMaxValue[j], &wMinValue[j]))
 	    goto error;
 
@@ -1483,7 +1483,7 @@ MustScanner_AdjustAD (void)
 	      else if (wMinValue[j] < 5)
 		g_chip.AD.Offset[j] -= 8;
 	    }
-        }
+	}
 
       if (!(wMinValue[0] > 15 || wMinValue[0] < 5 ||
 	    wMinValue[1] > 15 || wMinValue[1] < 5 ||
@@ -1498,7 +1498,7 @@ MustScanner_AdjustAD (void)
     {
       range = 1.0 - (double) (wMaxValue[i] - wMinValue[i]) / MAX_LEVEL_RANGE;
       if (range > 0)
-        {
+	{
 	  g_chip.AD.Gain[i] = (SANE_Byte) range * 63 * 6 / 5;
 	  g_chip.AD.Gain[i] = _MIN (g_chip.AD.Gain[i], 63);
 	}
@@ -1513,12 +1513,12 @@ MustScanner_AdjustAD (void)
     {
       SetAFEGainOffset (&g_chip);
       if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
-        goto error;
+	goto error;
       if (Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24) !=
 	  SANE_STATUS_GOOD)
 	goto error;
       if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
-        goto error;
+	goto error;
 
       for (j = 0; j < 3; j++)
 	{
@@ -1580,15 +1580,15 @@ MustScanner_AdjustAD (void)
       DBG (DBG_FUNC, "MustScanner_AdjustAD: second offset adjustment loop\n");
       SetAFEGainOffset (&g_chip);
       if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
-        goto error;
+	goto error;
       if (Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24) !=
 	  SANE_STATUS_GOOD)
 	goto error;
       if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
-        goto error;
+	goto error;
 
       for (j = 0; j < 3; j++)
-        {
+	{
 	  if (!MustScanner_CalculateMaxMin (pCalData + (wCalWidth * j),
 					    &wMaxValue[j], &wMinValue[j]))
 	    goto error;
@@ -1606,7 +1606,7 @@ MustScanner_AdjustAD (void)
 		    g_chip.AD.Offset[j] -= 8;
 		}
 	      else if (wMinValue[j] < 10)
-	        {
+		{
 		  g_chip.AD.Offset[j] += 8;
 		}
 	    }
@@ -1621,7 +1621,7 @@ MustScanner_AdjustAD (void)
 	  DBG (DBG_FUNC, "MustScanner_AdjustAD: %d: Gain=%d,Offset=%d,Dir=%d\n",
 	       j, g_chip.AD.Gain[j], g_chip.AD.Offset[j],
 	       g_chip.AD.Direction[j]);
-        }
+	}
 
       if (!(wMinValue[0] > 20 || wMinValue[0] < 10 ||
 	    wMinValue[1] > 20 || wMinValue[1] < 10 ||
@@ -1696,7 +1696,7 @@ MustScanner_FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
       if (Asic_ReadCalibrationData (&g_chip,
 				    pCalData + (i * g_dwCalibrationSize),
 				    g_dwCalibrationSize, 8) != SANE_STATUS_GOOD)
-        goto error;
+	goto error;
     }
 
   if (Asic_ReadCalibrationData (&g_chip,
@@ -1738,26 +1738,26 @@ MustScanner_FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
     {
       /* find top side, i = left side */
       for (j = 0; j < wCalHeight; j++)
-        {
-          wTopSide = pCalData[wCalWidth * j + i - 2];
-          wTopSide += pCalData[wCalWidth * j + i - 4];
-          wTopSide += pCalData[wCalWidth * j + i - 6];
-          wTopSide += pCalData[wCalWidth * j + i - 8];
-          wTopSide += pCalData[wCalWidth * j + i - 10];
-          wTopSide /= 5;
+	{
+	  wTopSide = pCalData[wCalWidth * j + i - 2];
+	  wTopSide += pCalData[wCalWidth * j + i - 4];
+	  wTopSide += pCalData[wCalWidth * j + i - 6];
+	  wTopSide += pCalData[wCalWidth * j + i - 8];
+	  wTopSide += pCalData[wCalWidth * j + i - 10];
+	  wTopSide /= 5;
 
-          if (wTopSide > 60)
+	  if (wTopSide > 60)
 	    {
 	      if (j > 0)
-	        *pwStartY = j;
+		*pwStartY = j;
 	      break;
 	    }
-        }
+	}
 
       if ((*pwStartX < 100) || (*pwStartX > 250))
-        *pwStartX = 187;
+	*pwStartX = 187;
       if ((*pwStartY < 10) || (*pwStartY > 100))
-        *pwStartY = 43;
+	*pwStartY = 43;
 
       if (Asic_MotorMove (&g_chip, SANE_FALSE,
 			  (wCalHeight - *pwStartY +
@@ -1770,26 +1770,26 @@ MustScanner_FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
     {
       /* find top side, i = left side */
       for (j = 0; j < wCalHeight; j++)
-        {
-          wTopSide = pCalData[wCalWidth * j + i + 2];
-          wTopSide += pCalData[wCalWidth * j + i + 4];
-          wTopSide += pCalData[wCalWidth * j + i + 6];
-          wTopSide += pCalData[wCalWidth * j + i + 8];
-          wTopSide += pCalData[wCalWidth * j + i + 10];
-          wTopSide /= 5;
+	{
+	  wTopSide = pCalData[wCalWidth * j + i + 2];
+	  wTopSide += pCalData[wCalWidth * j + i + 4];
+	  wTopSide += pCalData[wCalWidth * j + i + 6];
+	  wTopSide += pCalData[wCalWidth * j + i + 8];
+	  wTopSide += pCalData[wCalWidth * j + i + 10];
+	  wTopSide /= 5;
 
-          if (wTopSide < 60)
+	  if (wTopSide < 60)
 	    {
 	      if (j > 0)
-	        *pwStartY = j;
+		*pwStartY = j;
 	      break;
 	    }
-        }
+	}
 
       if ((*pwStartX < 2200) || (*pwStartX > 2300))
-        *pwStartX = 2260;
+	*pwStartX = 2260;
       if ((*pwStartY < 100) || (*pwStartY > 200))
-        *pwStartY = 124;
+	*pwStartY = 124;
 
       if (Asic_MotorMove (&g_chip, SANE_FALSE,
 			  (wCalHeight - *pwStartY) * SENSOR_DPI /
@@ -2009,8 +2009,8 @@ MustScanner_LineCalibration16Bits (void)
 	  					     20, 30);
 	}
       else
-        {
-          dwRDarkLevel += MustScanner_FiltLower (pRDarkSort, wCalHeight,
+	{
+	  dwRDarkLevel += MustScanner_FiltLower (pRDarkSort, wCalHeight,
 						 20, 30);
 	  dwGDarkLevel += MustScanner_FiltLower (pGDarkSort, wCalHeight,
 						 20, 30);
@@ -2084,24 +2084,24 @@ MustScanner_LineCalibration16Bits (void)
 		     pDarkShading[i * 3 + 2];
 
       switch (g_ssScanSource)
-        {
-        case SS_REFLECTIVE:
-          if (wRWhiteLevel > 0)
+	{
+	case SS_REFLECTIVE:
+	  if (wRWhiteLevel > 0)
 	    pWhiteShading[i * 3] = (unsigned short)
 				   (65535.0 / wRWhiteLevel * 0x2000);
-          else
+	  else
 	    pWhiteShading[i * 3] = 0x2000;
 
-          if (wGWhiteLevel > 0)
+	  if (wGWhiteLevel > 0)
 	    pWhiteShading[i * 3 + 1] = (unsigned short)
 				       (65535.0 / wGWhiteLevel * 0x2000);
-          else
+	  else
 	    pWhiteShading[i * 3 + 1] = 0x2000;
 
-          if (wBWhiteLevel > 0)
+	  if (wBWhiteLevel > 0)
 	    pWhiteShading[i * 3 + 2] = (unsigned short)
 				       (65535.0 / wBWhiteLevel * 0x2000);
-          else
+	  else
 	    pWhiteShading[i * 3 + 2] = 0x2000;
 	  break;
 
@@ -2270,18 +2270,18 @@ MustScanner_SetupScan (TARGETIMAGE * pTarget)
       if (!MustScanner_AdjustAD ())
 	return SANE_FALSE;
       if (!MustScanner_FindTopLeft (&g_X, &g_Y))
-        {
+	{
 	  g_X = 187;
 	  g_Y = 43;
-        }
+	}
 
       g_XDpi = SENSOR_DPI;
       if (!MustScanner_AdjustAD ())
-        return SANE_FALSE;
+	return SANE_FALSE;
 
       g_X = g_X * SENSOR_DPI / FIND_LEFT_TOP_CALIBRATE_RESOLUTION + pTarget->wX;
       if (g_ssScanSource == SS_REFLECTIVE)
-        {
+	{
 	  g_X += 47;
 	  g_Y = g_Y * SENSOR_DPI / FIND_LEFT_TOP_CALIBRATE_RESOLUTION +
 		pTarget->wY * SENSOR_DPI / g_YDpi + 47;
@@ -2290,23 +2290,23 @@ MustScanner_SetupScan (TARGETIMAGE * pTarget)
   else
     {
       if (!MustScanner_AdjustAD ())
-        return SANE_FALSE;
+	return SANE_FALSE;
       if (!MustScanner_FindTopLeft (&g_X, &g_Y))
-        {
+	{
 	  g_X = 187;
 	  g_Y = 43;
-        }
+	}
 
       g_X += pTarget->wX * (SENSOR_DPI / 2) / g_XDpi;
       if (g_ssScanSource == SS_REFLECTIVE)
-        {
-          if (g_XDpi != 75)
-            g_X += 23;
+	{
+	  if (g_XDpi != 75)
+	    g_X += 23;
 	  g_Y = g_Y * SENSOR_DPI / FIND_LEFT_TOP_CALIBRATE_RESOLUTION +
 		pTarget->wY * SENSOR_DPI / g_YDpi + 47;
-         }
+	}
       else
-        {
+	{
 	  if (g_XDpi == 75)
 	    g_X -= 23;
 	}
@@ -2338,14 +2338,14 @@ MustScanner_SetupScan (TARGETIMAGE * pTarget)
   if (g_Y > targetY)
     {
       if (Asic_MotorMove (&g_chip, SANE_TRUE, g_Y - targetY) !=
-          SANE_STATUS_GOOD)
-        return SANE_FALSE;
+	  SANE_STATUS_GOOD)
+	return SANE_FALSE;
     }
   else
     {
       if (Asic_MotorMove (&g_chip, SANE_FALSE, targetY - g_Y) !=
-          SANE_STATUS_GOOD)
-        return SANE_FALSE;
+	  SANE_STATUS_GOOD)
+	return SANE_FALSE;
     }
   g_Y = targetY;
 

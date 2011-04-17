@@ -79,30 +79,30 @@ typedef struct
 #define _MIN(a,b) ((a)<(b)?(a):(b))
 
 /* used for adjusting the AD offset */
-#define WHITE_MAX_LEVEL            220
-#define WHITE_MIN_LEVEL            210
-#define MAX_LEVEL_RANGE            210
-#define MIN_LEVEL_RANGE            190
+#define WHITE_MAX_LEVEL		220
+#define WHITE_MIN_LEVEL		210
+#define MAX_LEVEL_RANGE		210
+#define MIN_LEVEL_RANGE		190
 
 /* 600 dpi */
-#define FIND_LEFT_TOP_WIDTH_IN_DIP          512
-#define FIND_LEFT_TOP_HEIGHT_IN_DIP         180
-#define FIND_LEFT_TOP_CALIBRATE_RESOLUTION  600
+#define FIND_LEFT_TOP_WIDTH_IN_DIP	  	512
+#define FIND_LEFT_TOP_HEIGHT_IN_DIP		180
+#define FIND_LEFT_TOP_CALIBRATE_RESOLUTION	600
 
-#define TA_FIND_LEFT_TOP_WIDTH_IN_DIP       2668
-#define TA_FIND_LEFT_TOP_HEIGHT_IN_DIP      300
+#define TA_FIND_LEFT_TOP_WIDTH_IN_DIP		2668
+#define TA_FIND_LEFT_TOP_HEIGHT_IN_DIP		300
 
 /* must be a multiple of 8 */
-#define LINE_CALIBRATION__16BITS_HEIGHT     40
+#define LINE_CALIBRATION__16BITS_HEIGHT		40
 
 /* the length from block bar to start calibration position */
-#define BEFORE_SCANNING_MOTOR_FORWARD_PIXEL 40
+#define BEFORE_SCANNING_MOTOR_FORWARD_PIXEL	40
 
-#define TRAN_START_POS                      4550
+#define TRAN_START_POS				4550
 
 /* 300 dpi */
-#define MAX_SCANNING_WIDTH                  2550	/* just for A4 */
-#define MAX_SCANNING_HEIGHT                 3540	/* just for A4 */
+#define MAX_SCANNING_WIDTH			2550	/* just for A4 */
+#define MAX_SCANNING_HEIGHT			3540	/* just for A4 */
 
 /*#define DEBUG_SAVE_IMAGE*/
 

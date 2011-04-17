@@ -567,8 +567,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   DBG (DBG_FUNC, "sane_control_option: start: action = %s, option = %s (%d)\n",
        (action == SANE_ACTION_GET_VALUE) ? "get" :
-         (action == SANE_ACTION_SET_VALUE) ? "set" :
-           (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown",
+	 (action == SANE_ACTION_SET_VALUE) ? "set" :
+	   (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown",
        s->opt[option].name, option);
 
   if (info)

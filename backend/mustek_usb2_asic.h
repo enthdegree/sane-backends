@@ -49,7 +49,7 @@
 #define MUSTEK_USB2_ASIC_H
 
 
-/* ---------------------- low level asic defines -------------------------- */
+/* ---------------------- low level ASIC defines -------------------------- */
 
 #ifndef LOBYTE
 #define LOBYTE(w) (SANE_Byte)((unsigned short)(w) & 0x00ff)
@@ -953,117 +953,38 @@ typedef struct
 
 extern SANE_String_Const device_name;
 
+void SetAFEGainOffset (PAsic chip);
 
-static SANE_Status WriteIOControl (PAsic chip, unsigned short wValue,
-				   unsigned short wIndex,
-				   unsigned short wLength, SANE_Byte * lpBuf);
-static SANE_Status ReadIOControl (PAsic chip, unsigned short wValue,
-				  unsigned short wIndex, unsigned short wLength,
-				  SANE_Byte * lpBuf);
-static SANE_Status Mustek_ClearFIFO (PAsic chip);
-static SANE_Status SwitchBank (PAsic chip, unsigned short reg);
-static SANE_Status Mustek_SendData (PAsic chip, unsigned short reg,
-				    SANE_Byte data);
-static SANE_Status Mustek_ReceiveData (PAsic chip, SANE_Byte * reg);
-static SANE_Status Mustek_WriteAddressLineForRegister (PAsic chip, SANE_Byte x);
-static SANE_Status SetRWSize (PAsic chip, SANE_Byte ReadWrite,
-			      unsigned int size);
-static SANE_Status Mustek_DMARead (PAsic chip, unsigned int size,
-				   SANE_Byte * lpData);
-static SANE_Status Mustek_DMAWrite (PAsic chip, unsigned int size,
-				    SANE_Byte * lpData);
-static SANE_Status Mustek_SendData2Byte (PAsic chip, unsigned short reg,
-					 SANE_Byte data);
-
-static SANE_Status LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr,
-				     unsigned int dwEndAddr,
-				     SANE_Byte byAccessTarget);
-static SANE_Status LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess);
-static void LLFSetMotorCurrentAndPhase (PAsic chip,
-					LLF_MOTOR_CURRENT_AND_PHASE *
-					MotorCurrentAndPhase);
-static SANE_Status LLFSetMotorTable (PAsic chip, unsigned int dwTableBaseAddr,
-				     unsigned short *MotorTablePtr);
-static SANE_Status LLFSetShadingTable (PAsic chip, unsigned int dwTableBaseAddr,
-				       unsigned int dwTableSize,
-				       unsigned short *ShadingTablePtr);
-static SANE_Status LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove);
-static void SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
-			       unsigned short wStartY,
-			       unsigned int dwScanImageSteps,
-			       unsigned short wYResolution);
-static void SetMotorStepTableForCalibration (PAsic chip,
-					     LLF_MOTORMOVE * MotorStepsTable,
-					     unsigned int dwScanImageSteps);
-static void CalculateScanMotorTable (LLF_CALCULATEMOTORTABLE *
-				     lpCalculateMotorTable);
-static void CalculateMoveMotorTable (LLF_CALCULATEMOTORTABLE *
-				     lpCalculateMotorTable);
-static SANE_Byte CalculateMotorCurrent (unsigned short dwMotorSpeed);
-static SANE_Status MotorMove (PAsic chip, unsigned short wStartSpeed,
-			      unsigned short wEndSpeed,
-			      unsigned int dwFixMoveSpeed,
-			      SANE_Byte bMotorCurrent,
-			      unsigned int dwTotalSteps, SANE_Byte bActionType);
-
-static void InitTiming (PAsic chip);
-static SANE_Status OpenScanChip (PAsic chip);
-static SANE_Status CloseScanChip (PAsic chip);
-static SANE_Status PrepareScanChip (PAsic chip);
-static SANE_Status SafeInitialChip (PAsic chip);
-static SANE_Status DRAM_Test (PAsic chip);
-static SANE_Status GetChipStatus (PAsic chip, SANE_Byte Selector,
-				  SANE_Byte * ChipStatus);
-static SANE_Status IsCarriageHome (PAsic chip, SANE_Bool * LampHome);
-static SANE_Status WaitCarriageHome (PAsic chip);
-static SANE_Status WaitUnitReady (PAsic chip);
-
-static void SetCCDTiming (PAsic chip);
-static void SetLineTimeAndExposure (PAsic chip);
-static void SetLEDTime (PAsic chip);
-static void SetAFEGainOffset (PAsic chip);
-static void SetScanMode (PAsic chip, SANE_Byte bScanBits);
-static void SetPackAddress (PAsic chip, unsigned short wWidth,
-			    unsigned short wX, double XRatioAdderDouble,
-			    double XRatioTypeDouble, SANE_Byte bClearPulseWidth,
-			    unsigned short * pValidPixelNumber);
-static void SetExtraSettings (PAsic chip, unsigned short wXResolution,
-			      unsigned short wCCD_PixelNumber,
-			      SANE_Bool bypassShading);
-
-static SANE_Status Asic_Open (PAsic chip);
-static SANE_Status Asic_Close (PAsic chip);
-static void Asic_Initialize (PAsic chip);
-static SANE_Status Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn);
-static SANE_Status Asic_TurnTA (PAsic chip, SANE_Bool isTAOn);
-static SANE_Status Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
-				   SANE_Byte bScanType, SANE_Byte bScanBits,
-				   unsigned short wXResolution,
-				   unsigned short wYResolution,
-				   unsigned short wX, unsigned short wY,
-				   unsigned short wWidth,
-				   unsigned short wLength);
-static SANE_Status Asic_ScanStart (PAsic chip);
-static SANE_Status Asic_ScanStop (PAsic chip);
-static SANE_Status Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer,
-				   unsigned short LinesCount);
+SANE_Status Asic_Open (PAsic chip);
+SANE_Status Asic_Close (PAsic chip);
+void Asic_Initialize (PAsic chip);
+SANE_Status Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn);
+SANE_Status Asic_TurnTA (PAsic chip, SANE_Bool isTAOn);
+SANE_Status Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
+			    SANE_Byte bScanType, SANE_Byte bScanBits,
+			    unsigned short wXResolution,
+			    unsigned short wYResolution,
+			    unsigned short wX, unsigned short wY,
+			    unsigned short wWidth, unsigned short wLength);
+SANE_Status Asic_ScanStart (PAsic chip);
+SANE_Status Asic_ScanStop (PAsic chip);
+SANE_Status Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer,
+			    unsigned short LinesCount);
 #if SANE_UNUSED
-static SANE_Status Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key);
+SANE_Status Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key);
 #endif
-static SANE_Status Asic_IsTAConnected (PAsic chip, SANE_Bool *hasTA);
+SANE_Status Asic_IsTAConnected (PAsic chip, SANE_Bool *hasTA);
 
-/* called by AdjustAD and FindTopLeft */
-static SANE_Status Asic_ReadCalibrationData (PAsic chip, SANE_Byte * pBuffer,
-					     unsigned int dwXferBytes,
-					     SANE_Byte bScanBits);
+SANE_Status Asic_ReadCalibrationData (PAsic chip, SANE_Byte * pBuffer,
+				      unsigned int dwXferBytes,
+				      SANE_Byte bScanBits);
 
-static SANE_Status Asic_MotorMove (PAsic chip, SANE_Bool isForward,
-				   unsigned int dwTotalSteps);
-static SANE_Status Asic_CarriageHome (PAsic chip);
-static SANE_Status Asic_SetShadingTable (PAsic chip,
-					 unsigned short * lpWhiteShading,
-					 unsigned short * lpDarkShading,
-					 unsigned short wXResolution,
-					 unsigned short wWidth);
+SANE_Status Asic_MotorMove (PAsic chip, SANE_Bool isForward,
+			    unsigned int dwTotalSteps);
+SANE_Status Asic_CarriageHome (PAsic chip);
+SANE_Status Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
+				  unsigned short * lpDarkShading,
+				  unsigned short wXResolution,
+				  unsigned short wWidth);
 
 #endif

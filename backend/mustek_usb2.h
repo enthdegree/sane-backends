@@ -51,6 +51,7 @@
 
 #include "mustek_usb2_high.h"
 
+
 #define SCAN_BUFFER_SIZE (64 * 1024)
 #define MAX_RESOLUTIONS 12
 #define DEF_LINEARTTHRESHOLD 128
@@ -78,6 +79,20 @@ enum
   NUM_OPTIONS
 };
 
+typedef enum
+{
+  RO_RGB,
+  RO_BGR
+} RGBORDER;
+
+
+typedef struct
+{
+  RGBORDER roRgbOrder;
+  unsigned short wWantedLineNum;
+  unsigned short wXferedLineNum;
+  SANE_Byte * pBuffer;
+} IMAGEROWS, *LPIMAGEROWS;
 
 typedef struct
 {

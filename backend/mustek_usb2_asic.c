@@ -64,6 +64,11 @@
 #include "mustek_usb2_asic.h"
 
 
+static SANE_Status PrepareScanChip (PAsic chip);
+static SANE_Status WaitCarriageHome (PAsic chip);
+static SANE_Status WaitUnitReady (PAsic chip);
+
+
 /* ---------------------- low level ASIC functions -------------------------- */
 
 static SANE_Byte RegisterBankStatus = ~0;
@@ -119,7 +124,7 @@ Mustek_ClearFIFO (PAsic chip)
 }
 
 static SANE_Status
-SwitchBank (PAsic chip, unsigned short reg)
+Mustek_SwitchBank (PAsic chip, unsigned short reg)
 {
   SANE_Status status;
   SANE_Byte buf[4];
@@ -128,7 +133,7 @@ SwitchBank (PAsic chip, unsigned short reg)
   bank = HIBYTE(reg);
   if (bank > SELECT_REGISTER_BANK2)
     {
-      DBG (DBG_ERR, "SwitchBank: invalid register %d\n", reg);
+      DBG (DBG_ERR, "Mustek_SwitchBank: invalid register %d\n", reg);
       return SANE_STATUS_INVAL;
     }
 
@@ -156,7 +161,7 @@ Mustek_SendData (PAsic chip, unsigned short reg, SANE_Byte data)
   SANE_Byte buf[4];
   DBG (DBG_ASIC, "Mustek_SendData: Enter. reg=%x,data=%x\n", reg, data);
 
-  status = SwitchBank (chip, reg);
+  status = Mustek_SwitchBank (chip, reg);
   if (status != SANE_STATUS_GOOD)
     return status;
 
@@ -204,10 +209,10 @@ Mustek_WriteAddressLineForRegister (PAsic chip, SANE_Byte x)
 }
 
 static SANE_Status
-SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size)
+Mustek_SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size)
 {
   SANE_Status status;
-  DBG (DBG_ASIC, "SetRWSize: Enter\n");
+  DBG (DBG_ASIC, "Mustek_SetRWSize: Enter\n");
 
   if (ReadWrite == READ_RAM)
     size >>= 1;
@@ -223,7 +228,7 @@ SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size)
     return status;
   status = Mustek_SendData (chip, ES01_7F_DMA_SIZE_BYTE3, BYTE3 (size));
 
-  DBG (DBG_ASIC, "SetRWSize: Exit\n");
+  DBG (DBG_ASIC, "Mustek_SetRWSize: Exit\n");
   return status;
 }
 
@@ -243,7 +248,7 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpData)
     {
       cur_read_size = (size > DMA_BLOCK_SIZE) ? DMA_BLOCK_SIZE : size;
 
-      status = SetRWSize (chip, READ_RAM, cur_read_size);
+      status = Mustek_SetRWSize (chip, READ_RAM, cur_read_size);
       if (status != SANE_STATUS_GOOD)
 	return status;
 
@@ -285,7 +290,7 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpData)
     {
       cur_write_size = (size > DMA_BLOCK_SIZE) ? DMA_BLOCK_SIZE : size;
 
-      status = SetRWSize (chip, WRITE_RAM, cur_write_size);
+      status = Mustek_SetRWSize (chip, WRITE_RAM, cur_write_size);
       if (status != SANE_STATUS_GOOD)
 	return status;
 
@@ -329,7 +334,7 @@ Mustek_SendData2Byte (PAsic chip, unsigned short reg, SANE_Byte data)
       dataBuf[3] = data;
       isTransfer = SANE_FALSE;
 
-      status = SwitchBank (chip, reg);
+      status = Mustek_SwitchBank (chip, reg);
       if (status != SANE_STATUS_GOOD)
 	return status;
 
@@ -348,7 +353,7 @@ LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr, unsigned int dwEndAddr,
 {
   SANE_Status status;
 
-  DBG (DBG_ASIC, "LLFSetRamAddress:Enter\n");
+  DBG (DBG_ASIC, "LLFSetRamAddress: Enter\n");
 
   /* Set start address. Unit is a word. */
   Mustek_SendData (chip, ES01_A0_HostStartAddr0_7, BYTE0 (dwStartAddr));
@@ -1178,33 +1183,6 @@ PrepareScanChip (PAsic chip)
 }
 
 static SANE_Status
-SafeInitialChip (PAsic chip)
-{
-  SANE_Status status;
-
-  DBG (DBG_ASIC, "SafeInitialChip: Enter\n");
-
-  status = PrepareScanChip (chip);
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
-  DBG (DBG_ASIC, "isFirstOpenChip=%d\n", chip->isFirstOpenChip);
-  if (chip->isFirstOpenChip)
-    {
-      status = DRAM_Test (chip);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_ASIC, "DRAM_Test: Error\n");
-	  return status;
-	}
-      chip->isFirstOpenChip = SANE_FALSE;
-    }
-
-  DBG (DBG_ASIC, "SafeInitialChip: Exit\n");
-  return status;
-}
-
-static SANE_Status
 DRAM_Test (PAsic chip)
 {
   SANE_Status status;
@@ -1246,6 +1224,33 @@ DRAM_Test (PAsic chip)
 
   DBG (DBG_ASIC, "DRAM_Text: Exit\n");
   return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+SafeInitialChip (PAsic chip)
+{
+  SANE_Status status;
+
+  DBG (DBG_ASIC, "SafeInitialChip: Enter\n");
+
+  status = PrepareScanChip (chip);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+
+  DBG (DBG_ASIC, "isFirstOpenChip=%d\n", chip->isFirstOpenChip);
+  if (chip->isFirstOpenChip)
+    {
+      status = DRAM_Test (chip);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_ASIC, "DRAM_Test: Error\n");
+	  return status;
+	}
+      chip->isFirstOpenChip = SANE_FALSE;
+    }
+
+  DBG (DBG_ASIC, "SafeInitialChip: Exit\n");
+  return status;
 }
 
 static SANE_Status
@@ -1513,7 +1518,7 @@ SetLEDTime (PAsic chip)
   DBG (DBG_ASIC, "SetLEDTime: Exit\n");
 }
 
-static void
+void
 SetAFEGainOffset (PAsic chip)
 {
   int i, j;
@@ -1869,7 +1874,7 @@ attach_one_scanner (SANE_String_Const devname)
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
+SANE_Status
 Asic_Open (PAsic chip)
 {
   SANE_Status status;
@@ -1950,7 +1955,7 @@ Asic_Open (PAsic chip)
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
+SANE_Status
 Asic_Close (PAsic chip)
 {
   SANE_Status status;
@@ -1983,7 +1988,7 @@ Asic_Close (PAsic chip)
   return status;
 }
 
-static void
+void
 Asic_Initialize (PAsic chip)
 {
   DBG (DBG_ASIC, "Asic_Initialize: Enter\n");
@@ -2004,7 +2009,7 @@ Asic_Initialize (PAsic chip)
   DBG (DBG_ASIC, "Asic_Initialize: Exit\n");
 }
 
-static SANE_Status
+SANE_Status
 Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn)
 {
   DBG (DBG_ASIC, "Asic_TurnLamp: Enter\n");
@@ -2026,7 +2031,7 @@ Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn)
 }
 
 
-static SANE_Status
+SANE_Status
 Asic_TurnTA (PAsic chip, SANE_Bool isTAOn)
 {
   DBG (DBG_ASIC, "Asic_TurnTA: Enter\n");
@@ -2128,7 +2133,7 @@ GetDummyCycleNumber (PAsic chip, unsigned short wYResolution,
   return bDummyCycleNum;
 }
 
-static SANE_Status
+SANE_Status
 Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
 		SANE_Byte bScanType, SANE_Byte bScanBits,
 		unsigned short wXResolution, unsigned short wYResolution,
@@ -2437,7 +2442,7 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
   return status;
 }
 
-static SANE_Status
+SANE_Status
 Asic_ScanStart (PAsic chip)
 {
   SANE_Status status;
@@ -2465,7 +2470,7 @@ Asic_ScanStart (PAsic chip)
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
+SANE_Status
 Asic_ScanStop (PAsic chip)
 {
   SANE_Status status;
@@ -2526,7 +2531,7 @@ Asic_ScanStop (PAsic chip)
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
+SANE_Status
 Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer, unsigned short LinesCount)
 {
   SANE_Status status;
@@ -2554,7 +2559,7 @@ Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer, unsigned short LinesCount)
 }
 
 #if SANE_UNUSED
-static SANE_Status
+SANE_Status
 Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key)
 {
   SANE_Status status;
@@ -2602,7 +2607,7 @@ Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key)
 }
 #endif
 
-static SANE_Status
+SANE_Status
 Asic_IsTAConnected (PAsic chip, SANE_Bool * hasTA)
 {
   SANE_Status status;
@@ -2632,7 +2637,7 @@ Asic_IsTAConnected (PAsic chip, SANE_Bool * hasTA)
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
+SANE_Status
 Asic_ReadCalibrationData (PAsic chip, SANE_Byte * pBuffer,
 			  unsigned int dwXferBytes, SANE_Byte bScanBits)
 {
@@ -2703,7 +2708,7 @@ Asic_ReadCalibrationData (PAsic chip, SANE_Byte * pBuffer,
   return status;
 }
 
-static SANE_Status
+SANE_Status
 Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
 {
   SANE_Status status;
@@ -2724,7 +2729,7 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
   return status;
 }
 
-static SANE_Status
+SANE_Status
 Asic_CarriageHome (PAsic chip)
 {
   SANE_Status status;
@@ -2750,7 +2755,7 @@ Asic_CarriageHome (PAsic chip)
   return status;
 }
 
-static SANE_Status
+SANE_Status
 Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
 		      unsigned short * lpDarkShading,
 		      unsigned short wXResolution, unsigned short wWidth)

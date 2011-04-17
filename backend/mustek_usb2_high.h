@@ -50,11 +50,6 @@
 
 #include "mustek_usb2_asic.h"
 
-typedef enum
-{
-  RO_RGB,
-  RO_BGR
-} RGBORDER;
 
 typedef enum
 {
@@ -65,14 +60,6 @@ typedef enum
   CM_TEXT
 } COLORMODE;
 
-
-typedef struct
-{
-  RGBORDER roRgbOrder;
-  unsigned short wWantedLineNum;
-  unsigned short wXferedLineNum;
-  SANE_Byte * pBuffer;
-} IMAGEROWS, *LPIMAGEROWS;
 
 typedef struct
 {
@@ -128,32 +115,16 @@ extern unsigned short * g_pGammaTable;
 extern SCANSOURCE g_ssScanSource;
 extern Asic g_chip;
 
-
-static void MustScanner_Init (void);
-static SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn,
-					   SANE_Bool isTALampOn);
-static SANE_Bool MustScanner_BackHome (void);
-static unsigned short MustScanner_FiltLower (unsigned short * pSort,
-					     unsigned short TotalCount,
-					     unsigned short LowCount,
-					     unsigned short HighCount);
-static void *MustScanner_ReadDataFromScanner (void * dummy);
-static void MustScanner_PrepareCalculateMaxMin (unsigned short wResolution);
-static SANE_Bool MustScanner_CalculateMaxMin (SANE_Byte * pBuffer,
-					      unsigned short * lpMaxValue,
-					      unsigned short * lpMinValue);
-static SANE_Bool MustScanner_ScanSuggest (PTARGETIMAGE pTarget);
-static SANE_Bool MustScanner_StopScan (void);
-static SANE_Bool MustScanner_PrepareScan (void);
-static SANE_Bool MustScanner_GetRows (SANE_Byte * lpBlock,
-				      unsigned short * Rows,
-				      SANE_Bool isOrderInvert);
-static SANE_Bool MustScanner_Reset (SCANSOURCE ssScanSource);
-static SANE_Bool MustScanner_SetupScan (TARGETIMAGE *pTarget);
-static SANE_Bool MustScanner_AdjustAD (void);
-static SANE_Bool MustScanner_FindTopLeft (unsigned short * lpwStartX,
-					  unsigned short * lpwStartY);
-static SANE_Bool MustScanner_LineCalibration16Bits (void);
+void MustScanner_Init (void);
+SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
+SANE_Bool MustScanner_BackHome (void);
+SANE_Bool MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
+			       SANE_Bool isOrderInvert);
+SANE_Bool MustScanner_ScanSuggest (PTARGETIMAGE pTarget);
+SANE_Bool MustScanner_StopScan (void);
+SANE_Bool MustScanner_PrepareScan (void);
+SANE_Bool MustScanner_Reset (SCANSOURCE ssScanSource);
+SANE_Bool MustScanner_SetupScan (TARGETIMAGE *pTarget);
 
 
 #endif

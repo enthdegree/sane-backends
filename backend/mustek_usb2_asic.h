@@ -129,7 +129,7 @@ typedef struct
   unsigned short EndSpeed;
   unsigned short AccStepBeforeScan;
   SANE_Byte DecStepAfterScan;
-  unsigned short * lpMotorTable;
+  unsigned short * pMotorTable;
 } LLF_CALCULATEMOTORTABLE;
 
 typedef struct
@@ -200,7 +200,7 @@ typedef struct
   ADConverter AD;
 
   SANE_Byte isMotorMoveToFirstLine;
-  unsigned short * lpShadingTable;
+  unsigned short * pShadingTable;
 } ASIC;
 
 
@@ -984,8 +984,8 @@ SANE_Status Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
 SANE_Status Asic_MotorMove (ASIC * chip, SANE_Bool isForward,
 			    unsigned int dwTotalSteps);
 SANE_Status Asic_CarriageHome (ASIC * chip);
-SANE_Status Asic_SetShadingTable (ASIC * chip, unsigned short * lpWhiteShading,
-				  unsigned short * lpDarkShading,
+SANE_Status Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
+				  unsigned short * pDarkShading,
 				  unsigned short wXResolution,
 				  unsigned short wWidth);
 

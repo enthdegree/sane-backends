@@ -109,7 +109,7 @@ typedef struct
 
 extern SANE_Bool g_isScanning;
 extern unsigned short g_SWHeight;
-extern SANE_Byte * g_lpReadImageHead;
+extern SANE_Byte * g_pReadImageHead;
 extern unsigned short g_wLineartThreshold;
 extern unsigned short * g_pGammaTable;
 extern SCANSOURCE g_ssScanSource;
@@ -118,7 +118,7 @@ extern ASIC g_chip;
 void MustScanner_Init (void);
 SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
 SANE_Bool MustScanner_BackHome (void);
-SANE_Bool MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
+SANE_Bool MustScanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
 			       SANE_Bool isOrderInvert);
 SANE_Bool MustScanner_ScanSuggest (TARGETIMAGE * pTarget);
 SANE_Bool MustScanner_StopScan (void);

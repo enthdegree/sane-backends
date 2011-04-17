@@ -51,10 +51,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#ifdef _MSC_VER
-#define _USE_MATH_DEFINES
-#endif
 #include <math.h>
 
 #include "../include/sane/sane.h"
@@ -75,12 +71,12 @@ static SANE_Byte RegisterBankStatus = ~0;
 
 static SANE_Status
 WriteIOControl (ASIC * chip, unsigned short wValue, unsigned short wIndex,
-		unsigned short wLength, SANE_Byte * lpBuf)
+		unsigned short wLength, SANE_Byte * pBuf)
 {
   SANE_Status status;
 
   status = sanei_usb_control_msg (chip->fd, 0x40, 0x01, wValue, wIndex, wLength,
-				  lpBuf);
+				  pBuf);
   if (status != SANE_STATUS_GOOD)
     DBG (DBG_ERR, "WriteIOControl Error!\n");
 
@@ -89,12 +85,12 @@ WriteIOControl (ASIC * chip, unsigned short wValue, unsigned short wIndex,
 
 static SANE_Status
 ReadIOControl (ASIC * chip, unsigned short wValue, unsigned short wIndex,
-	       unsigned short wLength, SANE_Byte * lpBuf)
+	       unsigned short wLength, SANE_Byte * pBuf)
 {
   SANE_Status status;
 
   status = sanei_usb_control_msg (chip->fd, 0xc0, 0x01, wValue, wIndex, wLength,
-				  lpBuf);
+				  pBuf);
   if (status != SANE_STATUS_GOOD)
     DBG (DBG_ERR, "ReadIOControl Error!\n");
 
@@ -233,7 +229,7 @@ Mustek_SetRWSize (ASIC * chip, SANE_Bool isWriteAccess, unsigned int size)
 }
 
 static SANE_Status
-Mustek_DMARead (ASIC * chip, unsigned int size, SANE_Byte * lpData)
+Mustek_DMARead (ASIC * chip, unsigned int size, SANE_Byte * pData)
 {
   SANE_Status status;
   size_t cur_read_size;
@@ -256,7 +252,7 @@ Mustek_DMARead (ASIC * chip, unsigned int size, SANE_Byte * lpData)
       if (status != SANE_STATUS_GOOD)
 	return status;
 
-      status = sanei_usb_read_bulk (chip->fd, lpData, &cur_read_size);
+      status = sanei_usb_read_bulk (chip->fd, pData, &cur_read_size);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_ERR, "Mustek_DMARead: read error\n");
@@ -264,7 +260,7 @@ Mustek_DMARead (ASIC * chip, unsigned int size, SANE_Byte * lpData)
 	}
 
       size -= cur_read_size;
-      lpData += cur_read_size;
+      pData += cur_read_size;
     }
 
   if (cur_read_size < DMA_BLOCK_SIZE)
@@ -275,7 +271,7 @@ Mustek_DMARead (ASIC * chip, unsigned int size, SANE_Byte * lpData)
 }
 
 static SANE_Status
-Mustek_DMAWrite (ASIC * chip, unsigned int size, SANE_Byte * lpData)
+Mustek_DMAWrite (ASIC * chip, unsigned int size, SANE_Byte * pData)
 {
   SANE_Status status;
   size_t cur_write_size;
@@ -298,7 +294,7 @@ Mustek_DMAWrite (ASIC * chip, unsigned int size, SANE_Byte * lpData)
       if (status != SANE_STATUS_GOOD)
 	return status;
 
-      status = sanei_usb_write_bulk (chip->fd, lpData, &cur_write_size);
+      status = sanei_usb_write_bulk (chip->fd, pData, &cur_write_size);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_ERR, "Mustek_DMAWrite: write error\n");
@@ -306,7 +302,7 @@ Mustek_DMAWrite (ASIC * chip, unsigned int size, SANE_Byte * lpData)
 	}
 
       size -= cur_write_size;
-      lpData += cur_write_size;
+      pData += cur_write_size;
     }
 
   status = Mustek_ClearFIFO (chip);
@@ -847,22 +843,22 @@ SetMotorStepTableForCalibration (ASIC * chip, LLF_MOTORMOVE * MotorStepsTable,
 }
 
 static void
-CalculateScanMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
+CalculateScanMotorTable (LLF_CALCULATEMOTORTABLE * pCalculateMotorTable)
 {
   unsigned short wEndSpeed, wStartSpeed;
   unsigned short wScanAccSteps;
   SANE_Byte bScanDecSteps;
-  unsigned short * lpMotorTable;
+  unsigned short * pMotorTable;
   long double y;
   unsigned short i;
 
   DBG (DBG_ASIC, "CalculateScanMotorTable: Enter\n");
 
-  wStartSpeed = lpCalculateMotorTable->StartSpeed;
-  wEndSpeed = lpCalculateMotorTable->EndSpeed;
-  wScanAccSteps = lpCalculateMotorTable->AccStepBeforeScan;
-  bScanDecSteps = lpCalculateMotorTable->DecStepAfterScan;
-  lpMotorTable = lpCalculateMotorTable->lpMotorTable;
+  wStartSpeed = pCalculateMotorTable->StartSpeed;
+  wEndSpeed = pCalculateMotorTable->EndSpeed;
+  wScanAccSteps = pCalculateMotorTable->AccStepBeforeScan;
+  bScanDecSteps = pCalculateMotorTable->DecStepAfterScan;
+  pMotorTable = pCalculateMotorTable->pMotorTable;
 
   /* motor T0 & T6 acc table */
   for (i = 0; i < 512; i++)
@@ -870,8 +866,8 @@ CalculateScanMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
       y = 6000 - 3500;
       y *= pow (0.09, (M_PI_2 * i) / 512) - pow (0.09, (M_PI_2 * 511) / 512);
       y += 4500;
-      lpMotorTable[i] = (unsigned short) y;	/* T0 */
-      lpMotorTable[i + 512 * 6] = (unsigned short) y;	/* T6 */
+      pMotorTable[i] = (unsigned short) y;	/* T0 */
+      pMotorTable[i + 512 * 6] = (unsigned short) y;	/* T6 */
     }
 
   /* motor T1 & T7 dec table */
@@ -880,8 +876,8 @@ CalculateScanMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
       y = 6000 - 3500;
       y *= pow (0.3, (M_PI_2 * i) / 256);
       y = 6000 - y;
-      lpMotorTable[i + 512] = (unsigned short) y;	/* T1 */
-      lpMotorTable[i + 512 * 7] = (unsigned short) y;	/* T7 */
+      pMotorTable[i + 512] = (unsigned short) y;	/* T1 */
+      pMotorTable[i + 512 * 7] = (unsigned short) y;	/* T7 */
     }
 
   for (i = 0; i < wScanAccSteps; i++)
@@ -890,13 +886,13 @@ CalculateScanMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
       y *= pow (0.09, (M_PI_2 * i) / wScanAccSteps) -
 	   pow (0.09, (M_PI_2 * (wScanAccSteps - 1)) / wScanAccSteps);
       y += wEndSpeed;
-      lpMotorTable[i + 512 * 2] = (unsigned short) y;	/* T2 */
-      lpMotorTable[i + 512 * 4] = (unsigned short) y;	/* T4 */
+      pMotorTable[i + 512 * 2] = (unsigned short) y;	/* T2 */
+      pMotorTable[i + 512 * 4] = (unsigned short) y;	/* T4 */
     }
   for (i = wScanAccSteps; i < 512; i++)
     {
-      lpMotorTable[i + 512 * 2] = wEndSpeed;	/* T2 */
-      lpMotorTable[i + 512 * 4] = wEndSpeed;	/* T4 */
+      pMotorTable[i + 512 * 2] = wEndSpeed;	/* T2 */
+      pMotorTable[i + 512 * 4] = wEndSpeed;	/* T4 */
     }
 
   for (i = 0; i < (unsigned short) bScanDecSteps; i++)
@@ -904,53 +900,53 @@ CalculateScanMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
       y = wStartSpeed - wEndSpeed;
       y *= pow (0.3, (M_PI_2 * i) / bScanDecSteps);
       y = wStartSpeed - y;
-      lpMotorTable[i + 512 * 3] = (unsigned short) y;	/* T3 */
-      lpMotorTable[i + 512 * 5] = (unsigned short) y;	/* T5 */
+      pMotorTable[i + 512 * 3] = (unsigned short) y;	/* T3 */
+      pMotorTable[i + 512 * 5] = (unsigned short) y;	/* T5 */
     }
   for (i = bScanDecSteps; i < 256; i++)
     {
-      lpMotorTable[i + 512 * 3] = wStartSpeed;	/* T3 */
-      lpMotorTable[i + 512 * 5] = wStartSpeed;	/* T5 */
+      pMotorTable[i + 512 * 3] = wStartSpeed;	/* T3 */
+      pMotorTable[i + 512 * 5] = wStartSpeed;	/* T5 */
     }
 
   DBG (DBG_ASIC, "CalculateScanMotorTable: Exit\n");
 }
 
 static void
-CalculateMoveMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
+CalculateMoveMotorTable (LLF_CALCULATEMOTORTABLE * pCalculateMotorTable)
 {
   unsigned short wEndSpeed, wStartSpeed;
   unsigned short wScanAccSteps;
-  unsigned short * lpMotorTable;
+  unsigned short * pMotorTable;
   long double y;
   unsigned short i;
 
   DBG (DBG_ASIC, "CalculateMoveMotorTable: Enter\n");
 
-  wStartSpeed = lpCalculateMotorTable->StartSpeed;
-  wEndSpeed = lpCalculateMotorTable->EndSpeed;
-  wScanAccSteps = lpCalculateMotorTable->AccStepBeforeScan;
-  lpMotorTable = lpCalculateMotorTable->lpMotorTable;
+  wStartSpeed = pCalculateMotorTable->StartSpeed;
+  wEndSpeed = pCalculateMotorTable->EndSpeed;
+  wScanAccSteps = pCalculateMotorTable->AccStepBeforeScan;
+  pMotorTable = pCalculateMotorTable->pMotorTable;
 
   for (i = 0; i < 512; i++)
     {
       /* before scan acc table */
       y = (wStartSpeed - wEndSpeed) *
 	pow (0.09, (M_PI_2 * i) / 512) + wEndSpeed;
-      lpMotorTable[i] = (unsigned short) y;
-      lpMotorTable[i + 512 * 2] = (unsigned short) y;
-      lpMotorTable[i + 512 * 4] = (unsigned short) y;
-      lpMotorTable[i + 512 * 6] = (unsigned short) y;
+      pMotorTable[i] = (unsigned short) y;
+      pMotorTable[i + 512 * 2] = (unsigned short) y;
+      pMotorTable[i + 512 * 4] = (unsigned short) y;
+      pMotorTable[i + 512 * 6] = (unsigned short) y;
     }
 
   for (i = 0; i < 256; i++)
     {
       y = wStartSpeed - (wStartSpeed - wEndSpeed) *
 	pow (0.3, (M_PI_2 * i) / 256);
-      lpMotorTable[i + 512] = (unsigned short) y;
-      lpMotorTable[i + 512 * 3] = (unsigned short) y;
-      lpMotorTable[i + 512 * 5] = (unsigned short) y;
-      lpMotorTable[i + 512 * 7] = (unsigned short) y;
+      pMotorTable[i + 512] = (unsigned short) y;
+      pMotorTable[i + 512 * 3] = (unsigned short) y;
+      pMotorTable[i + 512 * 5] = (unsigned short) y;
+      pMotorTable[i + 512 * 7] = (unsigned short) y;
     }
 
   for (i = 0; i < wScanAccSteps; i++)
@@ -959,7 +955,7 @@ CalculateMoveMotorTable (LLF_CALCULATEMOTORTABLE * lpCalculateMotorTable)
 	(pow (0.09, (M_PI_2 * i) / wScanAccSteps) -
 	 pow (0.09, (M_PI_2 * (wScanAccSteps - 1)) / wScanAccSteps)) +
 	wEndSpeed;
-      lpMotorTable[i + 512 * 2] = (unsigned short) y;
+      pMotorTable[i + 512 * 2] = (unsigned short) y;
     }
 
   DBG (DBG_ASIC, "CalculateMoveMotorTable: Exit\n");
@@ -1005,7 +1001,7 @@ MotorMove (ASIC * chip, unsigned short wStartSpeed, unsigned short wEndSpeed,
   CalMotorTable.StartSpeed = wStartSpeed;
   CalMotorTable.EndSpeed = wEndSpeed;
   CalMotorTable.AccStepBeforeScan = 511;
-  CalMotorTable.lpMotorTable = MotorTable;
+  CalMotorTable.pMotorTable = MotorTable;
   CalculateMoveMotorTable (&CalMotorTable);
 
   CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
@@ -1996,7 +1992,7 @@ Asic_Initialize (ASIC * chip)
   chip->isUsb20 = SANE_FALSE;
   chip->dwBytesCountPerRow = 0;
   chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
-  chip->lpShadingTable = NULL;
+  chip->pShadingTable = NULL;
 
   InitTiming (chip);
 
@@ -2143,7 +2139,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   unsigned short XRatioTypeWord;
   double XRatioTypeDouble;
   double XRatioAdderDouble;
-  LLF_MOTORMOVE lpMotorStepsTable;
+  LLF_MOTORMOVE pMotorStepsTable;
   SANE_Byte bDummyCycleNum;
   unsigned short wMultiMotorStep;
   SANE_Byte bMotorMoveType;
@@ -2156,7 +2152,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   SANE_Byte isMotorMoveToFirstLine;
   SANE_Byte isUniformSpeedToScan;
   SANE_Byte isScanBackTracking;
-  unsigned short * lpMotorTable;
+  unsigned short * pMotorTable;
   unsigned int RealTableSize;
   unsigned short wFullBank;
 
@@ -2301,13 +2297,13 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 
   if (ScanType == SCAN_TYPE_NORMAL)
     {
-      SetMotorStepTable (chip, &lpMotorStepsTable, wY,
+      SetMotorStepTable (chip, &pMotorStepsTable, wY,
 			 wLength * SENSOR_DPI / wYResolution * wMultiMotorStep,
 			 wYResolution);
     }
   else
     {
-      SetMotorStepTableForCalibration (chip, &lpMotorStepsTable,
+      SetMotorStepTableForCalibration (chip, &pMotorStepsTable,
 			 wLength * SENSOR_DPI / wYResolution * wMultiMotorStep);
     }
 
@@ -2362,19 +2358,19 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   Mustek_SendData (chip, ES01_FD_MotorFixedspeedLSB, LOBYTE (EndSpeed));
   Mustek_SendData (chip, ES01_FE_MotorFixedspeedMSB, HIBYTE (EndSpeed));
 
-  lpMotorTable = malloc (MOTOR_TABLE_SIZE * sizeof (unsigned short));
-  if (!lpMotorTable)
+  pMotorTable = malloc (MOTOR_TABLE_SIZE * sizeof (unsigned short));
+  if (!pMotorTable)
     {
-      DBG (DBG_ERR, "Asic_SetWindow: lpMotorTable == NULL\n");
+      DBG (DBG_ERR, "Asic_SetWindow: pMotorTable == NULL\n");
       return SANE_STATUS_NO_MEM;
     }
-  memset (lpMotorTable, 0, MOTOR_TABLE_SIZE * sizeof (unsigned short));
+  memset (pMotorTable, 0, MOTOR_TABLE_SIZE * sizeof (unsigned short));
 
   CalMotorTable.StartSpeed = StartSpeed;
   CalMotorTable.EndSpeed = EndSpeed;
-  CalMotorTable.AccStepBeforeScan = lpMotorStepsTable.wScanAccSteps;
-  CalMotorTable.DecStepAfterScan = lpMotorStepsTable.bScanDecSteps;
-  CalMotorTable.lpMotorTable = lpMotorTable;
+  CalMotorTable.AccStepBeforeScan = pMotorStepsTable.wScanAccSteps;
+  CalMotorTable.DecStepAfterScan = pMotorStepsTable.bScanDecSteps;
+  CalMotorTable.pMotorTable = pMotorTable;
   if (ScanType == SCAN_TYPE_NORMAL)
     CalculateScanMotorTable (&CalMotorTable);
   else
@@ -2394,8 +2390,8 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   /* write motor table */
   RealTableSize = MOTOR_TABLE_SIZE;
   dwTableBaseAddr = PACK_AREA_START_ADDRESS - RealTableSize;
-  status = LLFSetMotorTable (chip, dwTableBaseAddr, lpMotorTable);
-  free (lpMotorTable);
+  status = LLFSetMotorTable (chip, dwTableBaseAddr, pMotorTable);
+  free (pMotorTable);
   if (status != SANE_STATUS_GOOD)
     return status;
 
@@ -2411,7 +2407,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
       RealTableSize = sizeof (unsigned short) *
 	ShadingTableSize ((int) ((wWidth + 4) * XRatioAdderDouble));
       status = LLFSetShadingTable (chip, dwTableBaseAddr, RealTableSize,
-				   chip->lpShadingTable);
+				   chip->pShadingTable);
       if (status != SANE_STATUS_GOOD)
 	return status;
     }
@@ -2750,8 +2746,8 @@ Asic_CarriageHome (ASIC * chip)
 }
 
 SANE_Status
-Asic_SetShadingTable (ASIC * chip, unsigned short * lpWhiteShading,
-		      unsigned short * lpDarkShading,
+Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
+		      unsigned short * pDarkShading,
 		      unsigned short wXResolution, unsigned short wWidth)
 {
   unsigned short i, j, n;
@@ -2779,15 +2775,15 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * lpWhiteShading,
      First 4 and last 5 elements of shading table cannot be used. */
   wShadingTableSize = ShadingTableSize (wValidPixelNumber) *
     sizeof (unsigned short);
-  if (chip->lpShadingTable)
-    free (chip->lpShadingTable);
+  if (chip->pShadingTable)
+    free (chip->pShadingTable);
 
   DBG (DBG_ASIC, "Allocating a new shading table, size=%d byte\n",
        wShadingTableSize);
-  chip->lpShadingTable = malloc (wShadingTableSize);
-  if (!chip->lpShadingTable)
+  chip->pShadingTable = malloc (wShadingTableSize);
+  if (!chip->pShadingTable)
     {
-      DBG (DBG_ASIC, "lpShadingTable == NULL\n");
+      DBG (DBG_ASIC, "pShadingTable == NULL\n");
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2800,13 +2796,13 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * lpWhiteShading,
 
       for (j = 0; j < numPixel; j++)
 	{
-	  chip->lpShadingTable[i * 256 + j * 6] = lpDarkShading[n * 3];
-	  chip->lpShadingTable[i * 256 + j * 6 + 2] = lpDarkShading[n * 3 + 1];
-	  chip->lpShadingTable[i * 256 + j * 6 + 4] = lpDarkShading[n * 3 + 2];
+	  chip->pShadingTable[i * 256 + j * 6] = pDarkShading[n * 3];
+	  chip->pShadingTable[i * 256 + j * 6 + 2] = pDarkShading[n * 3 + 1];
+	  chip->pShadingTable[i * 256 + j * 6 + 4] = pDarkShading[n * 3 + 2];
 
-	  chip->lpShadingTable[i * 256 + j * 6 + 1] = lpWhiteShading[n * 3];
-	  chip->lpShadingTable[i * 256 + j * 6 + 3] = lpWhiteShading[n * 3 + 1];
-	  chip->lpShadingTable[i * 256 + j * 6 + 5] = lpWhiteShading[n * 3 + 2];
+	  chip->pShadingTable[i * 256 + j * 6 + 1] = pWhiteShading[n * 3];
+	  chip->pShadingTable[i * 256 + j * 6 + 3] = pWhiteShading[n * 3 + 1];
+	  chip->pShadingTable[i * 256 + j * 6 + 5] = pWhiteShading[n * 3 + 2];
 
 	  if ((j % (unsigned short) dbXRatioAdderDouble) ==
 		  (dbXRatioAdderDouble - 1))

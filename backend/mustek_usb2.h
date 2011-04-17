@@ -129,8 +129,8 @@ typedef struct Mustek_Scanner
   SANE_Bool bIsScanning;
   SANE_Bool bIsReading;
   SANE_Word read_rows;		/* number of transfered image lines */
-  SANE_Byte *Scan_data_buf;
-  SANE_Byte *Scan_data_buf_start;
+  SANE_Byte * Scan_data_buf;
+  SANE_Byte * Scan_data_buf_start;
   size_t scan_buffer_len;
 } Mustek_Scanner;
 

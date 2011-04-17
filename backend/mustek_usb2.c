@@ -122,12 +122,10 @@ static const Scanner_Model mustek_A2nu2_model = {
 };
 
 
-static SANE_Byte * g_lpNegImageData = NULL;
+static SANE_Byte * g_pNegImageData = NULL;
 static unsigned int g_dwAlreadyGetNegLines;
 
 static SANE_Bool IsTAConnected (void);
-static void AutoLevel (SANE_Byte *lpSource, unsigned short ScanLines,
-		unsigned int BytesPerLine);
 
 
 static size_t
@@ -487,6 +485,83 @@ SetParameters (TARGETIMAGE * pSetParameters)
   return SANE_TRUE;
 }
 
+static unsigned short
+AdjustColorComponent (SANE_Byte c, SANE_Byte min, SANE_Byte max,
+		      SANE_Byte range)
+{
+  if (range == 0)
+    c = max;
+  else if (c < min)
+    c = 0;
+  else
+    {
+      float fmax = (float) ((c - min) * 255) / range;
+      c = (unsigned short) fmax;
+      if ((fmax - c) >= 0.5)
+	c++;
+    }
+  return c;
+}
+
+static void
+AutoLevel (SANE_Byte * pSource, unsigned short ScanLines,
+	   unsigned int BytesPerLine)
+{
+  unsigned int i, j;
+  unsigned int tLines;
+  SANE_Byte R, G, B;
+  SANE_Byte max_R = 0, max_G = 0, max_B = 0;
+  SANE_Byte min_R = 255, min_G = 255, min_B = 255;
+  SANE_Byte range_R, range_G, range_B;
+  unsigned int iWidth = BytesPerLine / 3;
+
+  DBG (DBG_FUNC, "AutoLevel: start\n");
+
+  /* find min and max values for each color component */
+  for (j = 0, tLines = 0; j < ScanLines; j++, tLines += BytesPerLine)
+    {
+      for (i = 0; i < iWidth; i++)
+	{
+	  R = pSource[tLines + i * 3 + 2];
+	  G = pSource[tLines + i * 3 + 1];
+	  B = pSource[tLines + i * 3];
+
+	  max_R = _MAX (R, max_R);
+	  max_G = _MAX (G, max_G);
+	  max_B = _MAX (B, max_B);
+
+	  min_R = _MIN (R, min_R);
+	  min_G = _MIN (G, min_G);
+	  min_B = _MIN (B, min_B);
+	}
+    }
+
+  range_R = max_R - min_R;
+  range_G = max_G - min_G;
+  range_B = max_B - min_B;
+
+  /* stretch histogram */
+  for (j = 0, tLines = 0; j < ScanLines; j++, tLines += BytesPerLine)
+    {
+      for (i = 0; i < iWidth; i++)
+	{
+	  R = pSource[tLines + i * 3 + 2];
+	  G = pSource[tLines + i * 3 + 1];
+	  B = pSource[tLines + i * 3];
+
+	  R = AdjustColorComponent (R, min_R, max_R, range_R);
+	  G = AdjustColorComponent (G, min_G, max_G, range_G);
+	  B = AdjustColorComponent (B, min_B, max_B, range_B);
+
+	  pSource[tLines + i * 3 + 2] = R;
+	  pSource[tLines + i * 3 + 1] = G;
+	  pSource[tLines + i * 3] = B;
+	}
+    }
+
+  DBG (DBG_FUNC, "AutoLevel: exit\n");
+}
+
 static SANE_Bool
 ReadScannedData (IMAGEROWS * pImageRows, TARGETIMAGE * pTarget)
 {
@@ -507,28 +582,28 @@ ReadScannedData (IMAGEROWS * pImageRows, TARGETIMAGE * pTarget)
       if (pTarget->cmColorMode != CM_RGB24)
 	return SANE_FALSE;
 
-      if (!g_lpNegImageData)
+      if (!g_pNegImageData)
 	{
 	  unsigned int TotalImageSize = g_SWHeight * pTarget->dwBytesPerRow;
 	  g_dwAlreadyGetNegLines = 0;
-	  g_lpNegImageData = malloc (TotalImageSize);
-	  if (!g_lpNegImageData)
+	  g_pNegImageData = malloc (TotalImageSize);
+	  if (!g_pNegImageData)
 	    {
 	      DBG (DBG_ERR, "ReadScannedData: error allocating memory\n");
 	      return SANE_FALSE;
 	    }
 
-	  if (!MustScanner_GetRows (g_lpNegImageData, &g_SWHeight, isRGBInvert))
+	  if (!MustScanner_GetRows (g_pNegImageData, &g_SWHeight, isRGBInvert))
 	    return SANE_FALSE;
 	  DBG (DBG_INFO, "ReadScannedData: get image data is over!\n");
 
 	  for (i = 0; i < TotalImageSize; i++)
-	    g_lpNegImageData[i] ^= 0xff;
-	  AutoLevel (g_lpNegImageData, g_SWHeight, pTarget->dwBytesPerRow);
+	    g_pNegImageData[i] ^= 0xff;
+	  AutoLevel (g_pNegImageData, g_SWHeight, pTarget->dwBytesPerRow);
 	  DBG (DBG_INFO, "ReadScannedData: autolevel is ok\n");
 	}
 
-      memcpy (pImageRows->pBuffer, g_lpNegImageData +
+      memcpy (pImageRows->pBuffer, g_pNegImageData +
 	      (pTarget->dwBytesPerRow * g_dwAlreadyGetNegLines),
 	      pTarget->dwBytesPerRow * Rows);
       pImageRows->wXferedLineNum = Rows;
@@ -537,8 +612,8 @@ ReadScannedData (IMAGEROWS * pImageRows, TARGETIMAGE * pTarget)
       g_dwAlreadyGetNegLines += Rows;
       if (g_dwAlreadyGetNegLines >= g_SWHeight)
 	{
-	  free (g_lpNegImageData);
-	  g_lpNegImageData = NULL;
+	  free (g_pNegImageData);
+	  g_pNegImageData = NULL;
 	}
     }
   else
@@ -582,10 +657,10 @@ StopScan (void)
       g_pGammaTable = NULL;
     }
 
-  if (g_lpReadImageHead)
+  if (g_pReadImageHead)
     {
-      free (g_lpReadImageHead);
-      g_lpReadImageHead = NULL;
+      free (g_pReadImageHead);
+      g_pReadImageHead = NULL;
     }
 
   DBG (DBG_FUNC, "StopScan: exit\n");
@@ -640,83 +715,6 @@ GetKeyStatus (SANE_Byte * pKey)
   return SANE_TRUE;
 }
 #endif
-
-static unsigned short
-AdjustColorComponent (SANE_Byte c, SANE_Byte min, SANE_Byte max,
-		      SANE_Byte range)
-{
-  if (range == 0)
-    c = max;
-  else if (c < min)
-    c = 0;
-  else
-    {
-      float fmax = (float) ((c - min) * 255) / range;
-      c = (unsigned short) fmax;
-      if ((fmax - c) >= 0.5)
-	c++;
-    }
-  return c;
-}
-
-static void
-AutoLevel (SANE_Byte *lpSource, unsigned short ScanLines,
-	   unsigned int BytesPerLine)
-{
-  unsigned int i, j;
-  unsigned int tLines;
-  SANE_Byte R, G, B;
-  SANE_Byte max_R = 0, max_G = 0, max_B = 0;
-  SANE_Byte min_R = 255, min_G = 255, min_B = 255;
-  SANE_Byte range_R, range_G, range_B;
-  unsigned int iWidth = BytesPerLine / 3;
-
-  DBG (DBG_FUNC, "AutoLevel: start\n");
-
-  /* find min and max values for each color component */
-  for (j = 0, tLines = 0; j < ScanLines; j++, tLines += BytesPerLine)
-    {
-      for (i = 0; i < iWidth; i++)
-	{
-	  R = lpSource[tLines + i * 3 + 2];
-	  G = lpSource[tLines + i * 3 + 1];
-	  B = lpSource[tLines + i * 3];
-
-	  max_R = _MAX (R, max_R);
-	  max_G = _MAX (G, max_G);
-	  max_B = _MAX (B, max_B);
-
-	  min_R = _MIN (R, min_R);
-	  min_G = _MIN (G, min_G);
-	  min_B = _MIN (B, min_B);
-	}
-    }
-
-  range_R = max_R - min_R;
-  range_G = max_G - min_G;
-  range_B = max_B - min_B;
-
-  /* stretch histogram */
-  for (j = 0, tLines = 0; j < ScanLines; j++, tLines += BytesPerLine)
-    {
-      for (i = 0; i < iWidth; i++)
-	{
-	  R = lpSource[tLines + i * 3 + 2];
-	  G = lpSource[tLines + i * 3 + 1];
-	  B = lpSource[tLines + i * 3];
-
-	  R = AdjustColorComponent (R, min_R, max_R, range_R);
-	  G = AdjustColorComponent (G, min_G, max_G, range_G);
-	  B = AdjustColorComponent (B, min_B, max_B, range_B);
-
-	  lpSource[tLines + i * 3 + 2] = R;
-	  lpSource[tLines + i * 3 + 1] = G;
-	  lpSource[tLines + i * 3] = B;
-	}
-    }
-
-  DBG (DBG_FUNC, "AutoLevel: exit\n");
-}
 
 
 /****************************** SANE API functions ****************************/

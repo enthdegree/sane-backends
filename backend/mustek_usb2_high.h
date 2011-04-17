@@ -72,7 +72,7 @@ typedef struct
   unsigned short wHeight;
   unsigned short wLineartThreshold;
   unsigned int dwBytesPerRow;
-} TARGETIMAGE, *PTARGETIMAGE;
+} TARGETIMAGE;
 
 
 #define _MAX(a,b) ((a)>(b)?(a):(b))
@@ -113,18 +113,18 @@ extern SANE_Byte * g_lpReadImageHead;
 extern unsigned short g_wLineartThreshold;
 extern unsigned short * g_pGammaTable;
 extern SCANSOURCE g_ssScanSource;
-extern Asic g_chip;
+extern ASIC g_chip;
 
 void MustScanner_Init (void);
 SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
 SANE_Bool MustScanner_BackHome (void);
 SANE_Bool MustScanner_GetRows (SANE_Byte * lpBlock, unsigned short * Rows,
 			       SANE_Bool isOrderInvert);
-SANE_Bool MustScanner_ScanSuggest (PTARGETIMAGE pTarget);
+SANE_Bool MustScanner_ScanSuggest (TARGETIMAGE * pTarget);
 SANE_Bool MustScanner_StopScan (void);
 SANE_Bool MustScanner_PrepareScan (void);
 SANE_Bool MustScanner_Reset (SCANSOURCE ssScanSource);
-SANE_Bool MustScanner_SetupScan (TARGETIMAGE *pTarget);
+SANE_Bool MustScanner_SetupScan (TARGETIMAGE * pTarget);
 
 
 #endif

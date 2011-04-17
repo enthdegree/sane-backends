@@ -92,7 +92,7 @@ typedef struct
   unsigned short wWantedLineNum;
   unsigned short wXferedLineNum;
   SANE_Byte * pBuffer;
-} IMAGEROWS, *LPIMAGEROWS;
+} IMAGEROWS;
 
 typedef struct
 {

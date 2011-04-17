@@ -74,16 +74,43 @@ typedef enum
 
 typedef enum
 {
-  SS_Reflective,
-  SS_Positive,
-  SS_Negative
+  SS_REFLECTIVE,
+  SS_POSITIVE,
+  SS_NEGATIVE
 } SCANSOURCE;
+
+typedef enum
+{
+  ACTION_MODE_ACCDEC_MOVE,
+  ACTION_MODE_UNIFORM_SPEED_MOVE
+} ACTION_MODE;
+
+typedef enum
+{
+  ACTION_TYPE_BACKWARD,
+  ACTION_TYPE_FORWARD,
+  ACTION_TYPE_BACKTOHOME
+} ACTION_TYPE;
+
+typedef enum
+{
+  EXTERNAL_RAM,
+  ON_CHIP_PRE_GAMMA,
+  ON_CHIP_FINAL_GAMMA
+} RAM_TYPE;
+
+typedef enum
+{
+  SCAN_TYPE_NORMAL,
+  SCAN_TYPE_CALIBRATE_LIGHT,
+  SCAN_TYPE_CALIBRATE_DARK
+} SCAN_TYPE;
 
 
 typedef struct
 {
-  SANE_Byte ReadWrite;
-  SANE_Byte IsOnChipGamma;
+  SANE_Bool IsWriteAccess;
+  RAM_TYPE RamType;
   unsigned int StartAddress;	/* only lower 3 bytes used */
   unsigned int RwSize;		/* unit: byte; must be a multiple of 2 (?) */
   SANE_Byte *BufferPtr;
@@ -107,8 +134,8 @@ typedef struct
 
 typedef struct
 {
-  SANE_Byte ActionMode;		/* see ACTION_MODE constants defined above */
-  SANE_Byte ActionType;		/* see ACTION_TYPE constants defined above */
+  ACTION_MODE ActionMode;
+  ACTION_TYPE ActionType;
   unsigned short FixMoveSpeed;
   unsigned int FixMoveSteps;	/* only lower 3 bytes used */
   unsigned short AccStep;	/* max. value = 511 */
@@ -174,7 +201,7 @@ typedef struct
 
   SANE_Byte isMotorMoveToFirstLine;
   unsigned short * lpShadingTable;
-} Asic, *PAsic;
+} ASIC;
 
 
 /* debug levels */
@@ -191,31 +218,12 @@ typedef struct
 #define DBG_DBG 	10	/* useful only for tracing bugs */
 
 
-#define ACTION_MODE_ACCDEC_MOVE 0
-#define ACTION_MODE_UNIFORM_SPEED_MOVE 1
-
-#define ACTION_TYPE_BACKWARD 0
-#define ACTION_TYPE_FORWARD 1
-#define ACTION_TYPE_BACKTOHOME 2
-
-#define READ_RAM 0
-#define WRITE_RAM 1
-
-#define EXTERNAL_RAM 0
-#define ON_CHIP_PRE_GAMMA 1
-#define ON_CHIP_FINAL_GAMMA 2
-
-#define SCAN_TYPE_NORMAL 0
-#define SCAN_TYPE_CALIBRATE_LIGHT 1
-#define SCAN_TYPE_CALIBRATE_DARK 2
-
 #define DMA_BLOCK_SIZE (32 * 1024)
-
 #define DRAM_TEST_SIZE 64
 #define DRAM_1Mx16_SIZE (1024 * 1024)
-#define PackAreaStartAddress ((DRAM_1Mx16_SIZE / 4) * 3)
+#define PACK_AREA_START_ADDRESS ((DRAM_1Mx16_SIZE / 4) * 3)
 #define ShadingTableSize(x) (((x + 10) * 6) + (((x + 10) * 6) / 240) * 16)
-#define WaitBufferOneLineSize (11000 * 6)
+#define WAIT_BUFFER_ONE_LINE_SIZE (11000 * 6)
 #define BANK_SIZE 64
 #define MOTOR_TABLE_SIZE (512 * 8)
 #define TABLE_OFFSET_BASE 14
@@ -947,36 +955,36 @@ typedef struct
 
 extern SANE_String_Const device_name;
 
-void SetAFEGainOffset (PAsic chip);
+void SetAFEGainOffset (ASIC * chip);
 
-SANE_Status Asic_Open (PAsic chip);
-SANE_Status Asic_Close (PAsic chip);
-void Asic_Initialize (PAsic chip);
-SANE_Status Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn);
-SANE_Status Asic_TurnTA (PAsic chip, SANE_Bool isTAOn);
-SANE_Status Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
-			    SANE_Byte bScanType, SANE_Byte bScanBits,
+SANE_Status Asic_Open (ASIC * chip);
+SANE_Status Asic_Close (ASIC * chip);
+void Asic_Initialize (ASIC * chip);
+SANE_Status Asic_TurnLamp (ASIC * chip, SANE_Bool isLampOn);
+SANE_Status Asic_TurnTA (ASIC * chip, SANE_Bool isTAOn);
+SANE_Status Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
+			    SCAN_TYPE ScanType, SANE_Byte bScanBits,
 			    unsigned short wXResolution,
 			    unsigned short wYResolution,
 			    unsigned short wX, unsigned short wY,
 			    unsigned short wWidth, unsigned short wLength);
-SANE_Status Asic_ScanStart (PAsic chip);
-SANE_Status Asic_ScanStop (PAsic chip);
-SANE_Status Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer,
+SANE_Status Asic_ScanStart (ASIC * chip);
+SANE_Status Asic_ScanStop (ASIC * chip);
+SANE_Status Asic_ReadImage (ASIC * chip, SANE_Byte * pBuffer,
 			    unsigned short LinesCount);
 #if SANE_UNUSED
-SANE_Status Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key);
+SANE_Status Asic_CheckFunctionKey (ASIC * chip, SANE_Byte * key);
 #endif
-SANE_Status Asic_IsTAConnected (PAsic chip, SANE_Bool *hasTA);
+SANE_Status Asic_IsTAConnected (ASIC * chip, SANE_Bool *hasTA);
 
-SANE_Status Asic_ReadCalibrationData (PAsic chip, SANE_Byte * pBuffer,
+SANE_Status Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
 				      unsigned int dwXferBytes,
 				      SANE_Byte bScanBits);
 
-SANE_Status Asic_MotorMove (PAsic chip, SANE_Bool isForward,
+SANE_Status Asic_MotorMove (ASIC * chip, SANE_Bool isForward,
 			    unsigned int dwTotalSteps);
-SANE_Status Asic_CarriageHome (PAsic chip);
-SANE_Status Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
+SANE_Status Asic_CarriageHome (ASIC * chip);
+SANE_Status Asic_SetShadingTable (ASIC * chip, unsigned short * lpWhiteShading,
 				  unsigned short * lpDarkShading,
 				  unsigned short wXResolution,
 				  unsigned short wWidth);

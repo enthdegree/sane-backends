@@ -64,9 +64,9 @@
 #include "mustek_usb2_asic.h"
 
 
-static SANE_Status PrepareScanChip (PAsic chip);
-static SANE_Status WaitCarriageHome (PAsic chip);
-static SANE_Status WaitUnitReady (PAsic chip);
+static SANE_Status PrepareScanChip (ASIC * chip);
+static SANE_Status WaitCarriageHome (ASIC * chip);
+static SANE_Status WaitUnitReady (ASIC * chip);
 
 
 /* ---------------------- low level ASIC functions -------------------------- */
@@ -74,7 +74,7 @@ static SANE_Status WaitUnitReady (PAsic chip);
 static SANE_Byte RegisterBankStatus = ~0;
 
 static SANE_Status
-WriteIOControl (PAsic chip, unsigned short wValue, unsigned short wIndex,
+WriteIOControl (ASIC * chip, unsigned short wValue, unsigned short wIndex,
 		unsigned short wLength, SANE_Byte * lpBuf)
 {
   SANE_Status status;
@@ -88,7 +88,7 @@ WriteIOControl (PAsic chip, unsigned short wValue, unsigned short wIndex,
 }
 
 static SANE_Status
-ReadIOControl (PAsic chip, unsigned short wValue, unsigned short wIndex,
+ReadIOControl (ASIC * chip, unsigned short wValue, unsigned short wIndex,
 	       unsigned short wLength, SANE_Byte * lpBuf)
 {
   SANE_Status status;
@@ -102,7 +102,7 @@ ReadIOControl (PAsic chip, unsigned short wValue, unsigned short wIndex,
 }
 
 static SANE_Status
-Mustek_ClearFIFO (PAsic chip)
+Mustek_ClearFIFO (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte buf[4];
@@ -124,7 +124,7 @@ Mustek_ClearFIFO (PAsic chip)
 }
 
 static SANE_Status
-Mustek_SwitchBank (PAsic chip, unsigned short reg)
+Mustek_SwitchBank (ASIC * chip, unsigned short reg)
 {
   SANE_Status status;
   SANE_Byte buf[4];
@@ -155,7 +155,7 @@ Mustek_SwitchBank (PAsic chip, unsigned short reg)
 }
 
 static SANE_Status
-Mustek_SendData (PAsic chip, unsigned short reg, SANE_Byte data)
+Mustek_SendData (ASIC * chip, unsigned short reg, SANE_Byte data)
 {
   SANE_Status status;
   SANE_Byte buf[4];
@@ -177,7 +177,7 @@ Mustek_SendData (PAsic chip, unsigned short reg, SANE_Byte data)
 }
 
 static SANE_Status
-Mustek_ReceiveData (PAsic chip, SANE_Byte * reg)
+Mustek_ReceiveData (ASIC * chip, SANE_Byte * reg)
 {
   SANE_Status status;
   SANE_Byte buf[4];
@@ -191,7 +191,7 @@ Mustek_ReceiveData (PAsic chip, SANE_Byte * reg)
 }
 
 static SANE_Status
-Mustek_WriteAddressLineForRegister (PAsic chip, SANE_Byte x)
+Mustek_WriteAddressLineForRegister (ASIC * chip, SANE_Byte x)
 {
   SANE_Status status;
   SANE_Byte buf[4];
@@ -209,12 +209,12 @@ Mustek_WriteAddressLineForRegister (PAsic chip, SANE_Byte x)
 }
 
 static SANE_Status
-Mustek_SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size)
+Mustek_SetRWSize (ASIC * chip, SANE_Bool isWriteAccess, unsigned int size)
 {
   SANE_Status status;
   DBG (DBG_ASIC, "Mustek_SetRWSize: Enter\n");
 
-  if (ReadWrite == READ_RAM)
+  if (!isWriteAccess)
     size >>= 1;
 
   status = Mustek_SendData (chip, ES01_7C_DMA_SIZE_BYTE0, BYTE0 (size));
@@ -233,7 +233,7 @@ Mustek_SetRWSize (PAsic chip, SANE_Byte ReadWrite, unsigned int size)
 }
 
 static SANE_Status
-Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpData)
+Mustek_DMARead (ASIC * chip, unsigned int size, SANE_Byte * lpData)
 {
   SANE_Status status;
   size_t cur_read_size;
@@ -248,7 +248,7 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpData)
     {
       cur_read_size = (size > DMA_BLOCK_SIZE) ? DMA_BLOCK_SIZE : size;
 
-      status = Mustek_SetRWSize (chip, READ_RAM, cur_read_size);
+      status = Mustek_SetRWSize (chip, SANE_FALSE, cur_read_size);
       if (status != SANE_STATUS_GOOD)
 	return status;
 
@@ -275,7 +275,7 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpData)
 }
 
 static SANE_Status
-Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpData)
+Mustek_DMAWrite (ASIC * chip, unsigned int size, SANE_Byte * lpData)
 {
   SANE_Status status;
   size_t cur_write_size;
@@ -290,7 +290,7 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpData)
     {
       cur_write_size = (size > DMA_BLOCK_SIZE) ? DMA_BLOCK_SIZE : size;
 
-      status = Mustek_SetRWSize (chip, WRITE_RAM, cur_write_size);
+      status = Mustek_SetRWSize (chip, SANE_TRUE, cur_write_size);
       if (status != SANE_STATUS_GOOD)
 	return status;
 
@@ -316,7 +316,7 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpData)
 }
 
 static SANE_Status
-Mustek_SendData2Byte (PAsic chip, unsigned short reg, SANE_Byte data)
+Mustek_SendData2Byte (ASIC * chip, unsigned short reg, SANE_Byte data)
 {
   static SANE_Bool isTransfer = SANE_FALSE;
   static SANE_Byte dataBuf[4];
@@ -348,8 +348,8 @@ Mustek_SendData2Byte (PAsic chip, unsigned short reg, SANE_Byte data)
 /* ---------------------- ASIC motor functions ----------------------------- */
 
 static SANE_Status
-LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr, unsigned int dwEndAddr,
-		  SANE_Byte bAccessTarget)
+LLFSetRamAddress (ASIC * chip, unsigned int dwStartAddr, unsigned int dwEndAddr,
+		  RAM_TYPE AccessTarget)
 {
   SANE_Status status;
 
@@ -358,14 +358,14 @@ LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr, unsigned int dwEndAddr,
   /* Set start address. Unit is a word. */
   Mustek_SendData (chip, ES01_A0_HostStartAddr0_7, BYTE0 (dwStartAddr));
 
-  if (bAccessTarget == ON_CHIP_FINAL_GAMMA)
+  if (AccessTarget == ON_CHIP_FINAL_GAMMA)
     {
       Mustek_SendData (chip, ES01_A1_HostStartAddr8_15,
 		       BYTE1 (dwStartAddr) | ACCESS_FINAL_GAMMA_ES01);
       Mustek_SendData (chip, ES01_A2_HostStartAddr16_21,
 		       BYTE2 (dwStartAddr) | ACCESS_GAMMA_RAM);
     }
-  else if (bAccessTarget == ON_CHIP_PRE_GAMMA)
+  else if (AccessTarget == ON_CHIP_PRE_GAMMA)
     {
       Mustek_SendData (chip, ES01_A1_HostStartAddr8_15,
 		       BYTE1 (dwStartAddr) | ACCESS_PRE_GAMMA_ES01);
@@ -391,7 +391,7 @@ LLFSetRamAddress (PAsic chip, unsigned int dwStartAddr, unsigned int dwEndAddr,
 }
 
 static SANE_Status
-LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
+LLFRamAccess (ASIC * chip, LLF_RAMACCESS * RamAccess)
 {
   SANE_Status status;
   SANE_Byte a[2];
@@ -399,7 +399,7 @@ LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
   DBG (DBG_ASIC, "LLFRamAccess: Enter\n");
 
   status = LLFSetRamAddress (chip, RamAccess->StartAddress, 0xffffff,
-			     RamAccess->IsOnChipGamma);
+			     RamAccess->RamType);
   if (status != SANE_STATUS_GOOD)
     return status;
 
@@ -407,7 +407,7 @@ LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
   Mustek_SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL,
 		   SDRAMCLK_DELAY_12_ns);
 
-  if (RamAccess->ReadWrite == WRITE_RAM)
+  if (RamAccess->IsWriteAccess)
     {
       status = Mustek_DMAWrite (chip, RamAccess->RwSize, RamAccess->BufferPtr);
       if (status != SANE_STATUS_GOOD)
@@ -417,7 +417,7 @@ LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
       usleep (20000);
       RamAccess->RwSize = 2;
       RamAccess->BufferPtr = a;
-      RamAccess->ReadWrite = READ_RAM;
+      RamAccess->IsWriteAccess = SANE_FALSE;
       status = LLFRamAccess (chip, RamAccess);
       DBG (DBG_ASIC, "end steal 2 byte!\n");
     }
@@ -431,7 +431,7 @@ LLFRamAccess (PAsic chip, LLF_RAMACCESS * RamAccess)
 }
 
 static void
-LLFSetMotorCurrentAndPhase (PAsic chip,
+LLFSetMotorCurrentAndPhase (ASIC * chip,
 			    LLF_MOTOR_CURRENT_AND_PHASE * MotorCurrentAndPhase)
 {
   static const SANE_Byte MotorPhaseFullStep[] =
@@ -523,7 +523,7 @@ LLFSetMotorCurrentAndPhase (PAsic chip,
 }
 
 static SANE_Status
-LLFSetMotorTable (PAsic chip, unsigned int dwTableBaseAddr,
+LLFSetMotorTable (ASIC * chip, unsigned int dwTableBaseAddr,
 		  unsigned short *MotorTablePtr)
 {
   SANE_Status status;
@@ -531,8 +531,8 @@ LLFSetMotorTable (PAsic chip, unsigned int dwTableBaseAddr,
 
   DBG (DBG_ASIC, "LLFSetMotorTable: Enter\n");
 
-  RamAccess.ReadWrite = WRITE_RAM;
-  RamAccess.IsOnChipGamma = EXTERNAL_RAM;
+  RamAccess.IsWriteAccess = SANE_TRUE;
+  RamAccess.RamType = EXTERNAL_RAM;
   RamAccess.StartAddress = dwTableBaseAddr;
   RamAccess.RwSize = MOTOR_TABLE_SIZE * sizeof (unsigned short);
   RamAccess.BufferPtr = (SANE_Byte *) MotorTablePtr;
@@ -548,7 +548,7 @@ LLFSetMotorTable (PAsic chip, unsigned int dwTableBaseAddr,
 }
 
 static SANE_Status
-LLFSetShadingTable (PAsic chip, unsigned int dwTableBaseAddr,
+LLFSetShadingTable (ASIC * chip, unsigned int dwTableBaseAddr,
 		    unsigned int dwTableSize, unsigned short *ShadingTablePtr)
 {
   SANE_Status status;
@@ -556,8 +556,8 @@ LLFSetShadingTable (PAsic chip, unsigned int dwTableBaseAddr,
 
   DBG (DBG_ASIC, "LLFSetShadingTable: Enter\n");
 
-  RamAccess.ReadWrite = WRITE_RAM;
-  RamAccess.IsOnChipGamma = EXTERNAL_RAM;
+  RamAccess.IsWriteAccess = SANE_TRUE;
+  RamAccess.RamType = EXTERNAL_RAM;
   RamAccess.StartAddress = dwTableBaseAddr;
   RamAccess.RwSize = dwTableSize;
   RamAccess.BufferPtr = (SANE_Byte *) ShadingTablePtr;
@@ -573,7 +573,7 @@ LLFSetShadingTable (PAsic chip, unsigned int dwTableBaseAddr,
 }
 
 static SANE_Status
-LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
+LLFMotorMove (ASIC * chip, LLF_MOTORMOVE * LLF_MotorMove)
 {
   SANE_Status status;
   unsigned int motor_steps;
@@ -681,7 +681,7 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
 }
 
 static void
-SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
+SetMotorStepTable (ASIC * chip, LLF_MOTORMOVE * MotorStepsTable,
 		   unsigned short wStartY, unsigned int dwScanImageSteps,
 		   unsigned short wYResolution)
 {
@@ -799,7 +799,7 @@ SetMotorStepTable (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
 }
 
 static void
-SetMotorStepTableForCalibration (PAsic chip, LLF_MOTORMOVE * MotorStepsTable,
+SetMotorStepTableForCalibration (ASIC * chip, LLF_MOTORMOVE * MotorStepsTable,
 				 unsigned int dwScanImageSteps)
 {
   unsigned short wScanAccSteps = 1;
@@ -984,7 +984,7 @@ CalculateMotorCurrent (unsigned short dwMotorSpeed)
 }
 
 static SANE_Status
-MotorMove (PAsic chip, unsigned short wStartSpeed, unsigned short wEndSpeed,
+MotorMove (ASIC * chip, unsigned short wStartSpeed, unsigned short wEndSpeed,
 	   unsigned int dwFixMoveSpeed, SANE_Byte bMotorCurrent,
 	   unsigned int dwTotalSteps, SANE_Byte bActionType)
 {
@@ -1045,7 +1045,7 @@ MotorMove (PAsic chip, unsigned short wStartSpeed, unsigned short wEndSpeed,
 /* ---------------------- medium level ASIC functions ---------------------- */
 
 static void
-InitTiming (PAsic chip)
+InitTiming (ASIC * chip)
 {
   DBG (DBG_ASIC, "InitTiming: Enter\n");
 
@@ -1082,7 +1082,7 @@ InitTiming (PAsic chip)
 }
 
 static SANE_Status
-OpenScanChip (PAsic chip)
+OpenScanChip (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte x[4];
@@ -1124,7 +1124,7 @@ OpenScanChip (PAsic chip)
 }
 
 static SANE_Status
-CloseScanChip (PAsic chip)
+CloseScanChip (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte x[4];
@@ -1166,7 +1166,7 @@ CloseScanChip (PAsic chip)
 }
 
 static SANE_Status
-PrepareScanChip (PAsic chip)
+PrepareScanChip (ASIC * chip)
 {
   SANE_Status status;
 
@@ -1183,7 +1183,7 @@ PrepareScanChip (PAsic chip)
 }
 
 static SANE_Status
-DRAM_Test (PAsic chip)
+DRAM_Test (ASIC * chip)
 {
   SANE_Status status;
   LLF_RAMACCESS RamAccess;
@@ -1195,8 +1195,8 @@ DRAM_Test (PAsic chip)
   for (i = 0; i < sizeof (buf); i++)
     buf[i] = i;
 
-  RamAccess.ReadWrite = WRITE_RAM;
-  RamAccess.IsOnChipGamma = EXTERNAL_RAM;
+  RamAccess.IsWriteAccess = SANE_TRUE;
+  RamAccess.RamType = EXTERNAL_RAM;
   RamAccess.StartAddress = 0;
   RamAccess.RwSize = sizeof (buf);
   RamAccess.BufferPtr = buf;
@@ -1207,7 +1207,7 @@ DRAM_Test (PAsic chip)
 
   memset (buf, 0, sizeof (buf));
 
-  RamAccess.ReadWrite = READ_RAM;
+  RamAccess.IsWriteAccess = SANE_FALSE;
 
   status = LLFRamAccess (chip, &RamAccess);
   if (status != SANE_STATUS_GOOD)
@@ -1227,7 +1227,7 @@ DRAM_Test (PAsic chip)
 }
 
 static SANE_Status
-SafeInitialChip (PAsic chip)
+SafeInitialChip (ASIC * chip)
 {
   SANE_Status status;
 
@@ -1254,7 +1254,7 @@ SafeInitialChip (PAsic chip)
 }
 
 static SANE_Status
-GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipStatus)
+GetChipStatus (ASIC * chip, SANE_Byte Selector, SANE_Byte * ChipStatus)
 {
   SANE_Status status;
   DBG (DBG_ASIC, "GetChipStatus: Enter\n");
@@ -1275,7 +1275,7 @@ GetChipStatus (PAsic chip, SANE_Byte Selector, SANE_Byte * ChipStatus)
 }
 
 static SANE_Status
-IsCarriageHome (PAsic chip, SANE_Bool * LampHome)
+IsCarriageHome (ASIC * chip, SANE_Bool * LampHome)
 {
   SANE_Status status;
   SANE_Byte temp;
@@ -1297,7 +1297,7 @@ IsCarriageHome (PAsic chip, SANE_Bool * LampHome)
 }
 
 static SANE_Status
-WaitCarriageHome (PAsic chip)
+WaitCarriageHome (ASIC * chip)
 {
   SANE_Status status;
   SANE_Bool LampHome;
@@ -1325,7 +1325,7 @@ WaitCarriageHome (PAsic chip)
 }
 
 static SANE_Status
-WaitUnitReady (PAsic chip)
+WaitUnitReady (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte temp;
@@ -1356,7 +1356,7 @@ WaitUnitReady (PAsic chip)
 
 
 static void
-SetCCDTiming (PAsic chip)
+SetCCDTiming (ASIC * chip)
 {
   DBG (DBG_ASIC, "SetCCDTiming: Enter\n");
 
@@ -1464,7 +1464,7 @@ SetCCDTiming (PAsic chip)
 }
 
 static void
-SetLineTimeAndExposure (PAsic chip)
+SetLineTimeAndExposure (ASIC * chip)
 {
   DBG (DBG_ASIC, "SetLineTimeAndExposure: Enter\n");
 
@@ -1484,7 +1484,7 @@ SetLineTimeAndExposure (PAsic chip)
 }
 
 static void
-SetLEDTime (PAsic chip)
+SetLEDTime (ASIC * chip)
 {
   DBG (DBG_ASIC, "SetLEDTime: Enter\n");
 
@@ -1519,7 +1519,7 @@ SetLEDTime (PAsic chip)
 }
 
 void
-SetAFEGainOffset (PAsic chip)
+SetAFEGainOffset (ASIC * chip)
 {
   int i, j;
 
@@ -1571,7 +1571,7 @@ SetAFEGainOffset (PAsic chip)
 }
 
 static void
-SetScanMode (PAsic chip, SANE_Byte bScanBits)
+SetScanMode (ASIC * chip, SANE_Byte bScanBits)
 {
   SANE_Byte temp_f5_register;
 
@@ -1596,7 +1596,7 @@ SetScanMode (PAsic chip, SANE_Byte bScanBits)
 }
 
 static void
-SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
+SetPackAddress (ASIC * chip, unsigned short wWidth, unsigned short wX,
 		double XRatioAdderDouble, double XRatioTypeDouble,
 		SANE_Byte bClearPulseWidth, unsigned short * pValidPixelNumber)
 {
@@ -1699,24 +1699,21 @@ SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
 
 
   /* set pack area address */
-  DBG (DBG_ASIC, "PackAreaStartAddress=%d\n", PackAreaStartAddress);
-
   Mustek_SendData (chip, ES01_16D_EXPOSURE_CYCLE1_SEGMENT1_START_ADDR_BYTE0,
-		   BYTE0 (PackAreaStartAddress));
+		   BYTE0 (PACK_AREA_START_ADDRESS));
   Mustek_SendData (chip, ES01_16E_EXPOSURE_CYCLE1_SEGMENT1_START_ADDR_BYTE1,
-		   BYTE1 (PackAreaStartAddress));
+		   BYTE1 (PACK_AREA_START_ADDRESS));
   Mustek_SendData (chip, ES01_16F_EXPOSURE_CYCLE1_SEGMENT1_START_ADDR_BYTE2,
-		   BYTE2 (PackAreaStartAddress));
+		   BYTE2 (PACK_AREA_START_ADDRESS));
 
   for ( i = ES01_170_EXPOSURE_CYCLE1_SEGMENT2_START_ADDR_BYTE0;
        i <= ES01_18E_EXPOSURE_CYCLE3_SEGMENT4_START_ADDR_BYTE0; i += 3)
     {
-      Mustek_SendData (chip, i, BYTE0 (PackAreaStartAddress + 0xC0000));
-      Mustek_SendData (chip, i + 1, BYTE1 (PackAreaStartAddress + 0xC0000));
-      Mustek_SendData (chip, i + 2, BYTE2 (PackAreaStartAddress + 0xC0000));
+      Mustek_SendData (chip, i, BYTE0 (PACK_AREA_START_ADDRESS + 0xC0000));
+      Mustek_SendData (chip, i + 1, BYTE1 (PACK_AREA_START_ADDRESS + 0xC0000));
+      Mustek_SendData (chip, i + 2, BYTE2 (PACK_AREA_START_ADDRESS + 0xC0000));
     }
-
-  DBG (DBG_ASIC, "set PackAreaStartAddress finished\n");
+  DBG (DBG_ASIC, "PACK_AREA_START_ADDRESS=%d\n", PACK_AREA_START_ADDRESS);
 
   for (i = 0; i < 16; i++)
     Mustek_SendData (chip, 0x260 + i, 0);
@@ -1725,49 +1722,49 @@ SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
 
   /* set pack start address */
   Mustek_SendData (chip, ES01_19E_PACK_AREA_R_START_ADDR_BYTE0,
-		   BYTE0 (PackAreaStartAddress));
+		   BYTE0 (PACK_AREA_START_ADDRESS));
   Mustek_SendData (chip, ES01_19F_PACK_AREA_R_START_ADDR_BYTE1,
-		   BYTE1 (PackAreaStartAddress));
+		   BYTE1 (PACK_AREA_START_ADDRESS));
   Mustek_SendData (chip, ES01_1A0_PACK_AREA_R_START_ADDR_BYTE2,
-		   BYTE2 (PackAreaStartAddress));
+		   BYTE2 (PACK_AREA_START_ADDRESS));
 
   Mustek_SendData (chip, ES01_1A1_PACK_AREA_G_START_ADDR_BYTE0,
-		   BYTE0 (PackAreaStartAddress + (ValidPixelNumber * 2)));
+		   BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2)));
   Mustek_SendData (chip, ES01_1A2_PACK_AREA_G_START_ADDR_BYTE1,
-		   BYTE1 (PackAreaStartAddress + (ValidPixelNumber * 2)));
+		   BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2)));
   Mustek_SendData (chip, ES01_1A3_PACK_AREA_G_START_ADDR_BYTE2,
-		   BYTE2 (PackAreaStartAddress + (ValidPixelNumber * 2)));
+		   BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2)));
 
   Mustek_SendData (chip, ES01_1A4_PACK_AREA_B_START_ADDR_BYTE0,
-		   BYTE0 (PackAreaStartAddress + (ValidPixelNumber * 4)));
+		   BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4)));
   Mustek_SendData (chip, ES01_1A5_PACK_AREA_B_START_ADDR_BYTE1,
-		   BYTE1 (PackAreaStartAddress + (ValidPixelNumber * 4)));
+		   BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4)));
   Mustek_SendData (chip, ES01_1A6_PACK_AREA_B_START_ADDR_BYTE2,
-		   BYTE2 (PackAreaStartAddress + (ValidPixelNumber * 4)));
+		   BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4)));
 
   /* set pack end address */
   Mustek_SendData (chip, ES01_1A7_PACK_AREA_R_END_ADDR_BYTE0,
-		   BYTE0 (PackAreaStartAddress + (ValidPixelNumber * 2 - 1)));
+		   BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2 -1)));
   Mustek_SendData (chip, ES01_1A8_PACK_AREA_R_END_ADDR_BYTE1,
-		   BYTE1 (PackAreaStartAddress + (ValidPixelNumber * 2 - 1)));
+		   BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2 -1)));
   Mustek_SendData (chip, ES01_1A9_PACK_AREA_R_END_ADDR_BYTE2,
-		   BYTE2 (PackAreaStartAddress + (ValidPixelNumber * 2 - 1)));
+		   BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2 -1)));
 
   Mustek_SendData (chip, ES01_1AA_PACK_AREA_G_END_ADDR_BYTE0,
-		   BYTE0 (PackAreaStartAddress + (ValidPixelNumber * 4 - 1)));
+		   BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4 -1)));
   Mustek_SendData (chip, ES01_1AB_PACK_AREA_G_END_ADDR_BYTE1,
-		   BYTE1 (PackAreaStartAddress + (ValidPixelNumber * 4 - 1)));
+		   BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4 -1)));
   Mustek_SendData (chip, ES01_1AC_PACK_AREA_G_END_ADDR_BYTE2,
-		   BYTE2 (PackAreaStartAddress + (ValidPixelNumber * 4 - 1)));
+		   BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4 -1)));
 
   Mustek_SendData (chip, ES01_1AD_PACK_AREA_B_END_ADDR_BYTE0,
-		   BYTE0 (PackAreaStartAddress + (ValidPixelNumber * 6 - 1)));
+		   BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 6 -1)));
   Mustek_SendData (chip, ES01_1AE_PACK_AREA_B_END_ADDR_BYTE1,
-		   BYTE1 (PackAreaStartAddress + (ValidPixelNumber * 6 - 1)));
+		   BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 6 -1)));
   Mustek_SendData (chip, ES01_1AF_PACK_AREA_B_END_ADDR_BYTE2,
-		   BYTE2 (PackAreaStartAddress + (ValidPixelNumber * 6 - 1)));
-  DBG (DBG_ASIC, "PackAreaStartAddress + (ValidPixelNumber*2)=%d\n",
-       (PackAreaStartAddress + (ValidPixelNumber * 2)));
+		   BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 6 -1)));
+  DBG (DBG_ASIC, "PACK_AREA_START_ADDRESS + (ValidPixelNumber*2)=%d\n",
+       (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2)));
 
   Mustek_SendData (chip, ES01_19C_MAX_PACK_LINE, 2);
   Mustek_SendData (chip, ES01_19D_PACK_THRESHOLD_LINE, 1);
@@ -1779,7 +1776,7 @@ SetPackAddress (PAsic chip, unsigned short wWidth, unsigned short wX,
 }
 
 static void
-SetExtraSettings (PAsic chip, unsigned short wXResolution,
+SetExtraSettings (ASIC * chip, unsigned short wXResolution,
 		  unsigned short wCCD_PixelNumber, SANE_Bool bypassShading)
 {
   SANE_Byte temp_ff_register = 0;
@@ -1875,7 +1872,7 @@ attach_one_scanner (SANE_String_Const devname)
 }
 
 SANE_Status
-Asic_Open (PAsic chip)
+Asic_Open (ASIC * chip)
 {
   SANE_Status status;
 
@@ -1956,7 +1953,7 @@ Asic_Open (PAsic chip)
 }
 
 SANE_Status
-Asic_Close (PAsic chip)
+Asic_Close (ASIC * chip)
 {
   SANE_Status status;
   DBG (DBG_ASIC, "Asic_Close: Enter\n");
@@ -1989,7 +1986,7 @@ Asic_Close (PAsic chip)
 }
 
 void
-Asic_Initialize (PAsic chip)
+Asic_Initialize (ASIC * chip)
 {
   DBG (DBG_ASIC, "Asic_Initialize: Enter\n");
 
@@ -2010,7 +2007,7 @@ Asic_Initialize (PAsic chip)
 }
 
 SANE_Status
-Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn)
+Asic_TurnLamp (ASIC * chip, SANE_Bool isLampOn)
 {
   DBG (DBG_ASIC, "Asic_TurnLamp: Enter\n");
 
@@ -2032,7 +2029,7 @@ Asic_TurnLamp (PAsic chip, SANE_Bool isLampOn)
 
 
 SANE_Status
-Asic_TurnTA (PAsic chip, SANE_Bool isTAOn)
+Asic_TurnTA (ASIC * chip, SANE_Bool isTAOn)
 {
   DBG (DBG_ASIC, "Asic_TurnTA: Enter\n");
 
@@ -2071,11 +2068,11 @@ GetBytePerPixel (SANE_Byte bBitPerPixel)
 }
 
 static SANE_Byte
-GetDummyCycleNumber (PAsic chip, unsigned short wYResolution,
+GetDummyCycleNumber (ASIC * chip, unsigned short wYResolution,
 		     SCANSOURCE lsLightSource)
 {
   SANE_Byte bDummyCycleNum = 0;
-  if (lsLightSource == SS_Reflective)
+  if (lsLightSource == SS_REFLECTIVE)
     {
       if (!chip->isUsb20)
         {
@@ -2134,8 +2131,8 @@ GetDummyCycleNumber (PAsic chip, unsigned short wYResolution,
 }
 
 SANE_Status
-Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
-		SANE_Byte bScanType, SANE_Byte bScanBits,
+Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
+		SCAN_TYPE ScanType, SANE_Byte bScanBits,
 		unsigned short wXResolution, unsigned short wYResolution,
 		unsigned short wX, unsigned short wY,
 		unsigned short wWidth, unsigned short wLength)
@@ -2165,10 +2162,10 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
   unsigned short wFullBank;
 
   DBG (DBG_ASIC, "Asic_SetWindow: Enter\n");
-  DBG (DBG_ASIC, "lsLightSource=%d,bScanType=%d,bScanBits=%d," \
+  DBG (DBG_ASIC, "lsLightSource=%d,ScanType=%d,bScanBits=%d," \
 		 "wXResolution=%d,wYResolution=%d,wX=%d,wY=%d," \
 		 "wWidth=%d,wLength=%d\n",
-       lsLightSource, bScanType, bScanBits, wXResolution, wYResolution, wX, wY,
+       lsLightSource, ScanType, bScanBits, wXResolution, wYResolution, wX, wY,
        wWidth, wLength);
 
   if (chip->firmwarestate != FS_OPENED)
@@ -2192,7 +2189,7 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
 			     GetBytePerPixel (bScanBits);
   DBG (DBG_ASIC, "dwBytesCountPerRow=%d\n", chip->dwBytesCountPerRow);
 
-  if (bScanType == SCAN_TYPE_NORMAL)
+  if (ScanType == SCAN_TYPE_NORMAL)
     bDummyCycleNum = GetDummyCycleNumber (chip, wYResolution, lsLightSource);
   else
     bDummyCycleNum = 1;
@@ -2212,7 +2209,7 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
       Mustek_SendData (chip, ES01_96_GPIOValue8_15, 0x00);
     }
 
-  if (lsLightSource == SS_Reflective)
+  if (lsLightSource == SS_REFLECTIVE)
     {
       if (wXResolution > (SENSOR_DPI / 2))
         wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Full;
@@ -2221,7 +2218,7 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
     }
   else
     {
-      if (bScanType == SCAN_TYPE_NORMAL)
+      if (ScanType == SCAN_TYPE_NORMAL)
 	wCCD_PixelNumber = TA_IMAGE_PIXELNUMBER;
       else
 	wCCD_PixelNumber = TA_CAL_PIXELNUMBER;
@@ -2235,7 +2232,7 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
 		   MOTOR1_SERIAL_INTERFACE_G10_8_ENABLE);
 
   Mustek_SendData (chip, ES01_9A_AFEControl, AD9826_AFE);
-  if (bScanType == SCAN_TYPE_NORMAL)
+  if (ScanType == SCAN_TYPE_NORMAL)
     SetAFEGainOffset (chip);
   Mustek_SendData (chip, ES01_DB_PH_RESET_EDGE_TIMING_ADJUST, 0x00);
   Mustek_SendData (chip, ES01_DC_CLEAR_EDGE_TO_PH_TG_EDGE_WIDTH, 0);
@@ -2259,7 +2256,7 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
        XRatioTypeDouble, XRatioAdderDouble, XRatioTypeWord);
 
   /* set motor type */
-  if (bScanType == SCAN_TYPE_CALIBRATE_DARK)
+  if (ScanType == SCAN_TYPE_CALIBRATE_DARK)
     isMotorMove = 0;
   else
     isMotorMove = MOTOR_0_ENABLE;
@@ -2268,7 +2265,7 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
   Mustek_SendData (chip, ES01_F6_MotorControl1,
 		   SPEED_UNIT_1_PIXEL_TIME | MOTOR_SYNC_UNIT_1_PIXEL_TIME);
 
-  if ((bScanType == SCAN_TYPE_NORMAL) && (wYResolution >= SENSOR_DPI))
+  if ((ScanType == SCAN_TYPE_NORMAL) && (wYResolution >= SENSOR_DPI))
     bMotorMoveType = _8_TABLE_SPACE_FOR_1_DIV_2_STEP;
   else
     bMotorMoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
@@ -2293,7 +2290,7 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
 
   SetScanMode (chip, bScanBits);
 
-  if (lsLightSource == SS_Reflective)
+  if (lsLightSource == SS_REFLECTIVE)
     Mustek_SendData (chip, ES01_F8_WHITE_SHADING_DATA_FORMAT,
 		     SHADING_3_INT_13_DEC_ES01);
   else
@@ -2303,9 +2300,9 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
   SetPackAddress (chip, wWidth, wX, XRatioAdderDouble,
 		  XRatioTypeDouble, 0, &ValidPixelNumber);
   SetExtraSettings (chip, wXResolution, wCCD_PixelNumber,
-		    (bScanType == SCAN_TYPE_NORMAL) ? SANE_FALSE : SANE_TRUE);
+		    (ScanType == SCAN_TYPE_NORMAL) ? SANE_FALSE : SANE_TRUE);
 
-  if (bScanType == SCAN_TYPE_NORMAL)
+  if (ScanType == SCAN_TYPE_NORMAL)
     {
       SetMotorStepTable (chip, &lpMotorStepsTable, wY,
 			 wLength * SENSOR_DPI / wYResolution * wMultiMotorStep,
@@ -2333,7 +2330,7 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
   isMotorMoveToFirstLine = chip->isMotorMoveToFirstLine;
   isUniformSpeedToScan = UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
   isScanBackTracking = 0;
-  if (bScanType == SCAN_TYPE_NORMAL)
+  if (ScanType == SCAN_TYPE_NORMAL)
     {
       if (EndSpeed >= 20000)
 	{
@@ -2381,14 +2378,14 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
   CalMotorTable.AccStepBeforeScan = lpMotorStepsTable.wScanAccSteps;
   CalMotorTable.DecStepAfterScan = lpMotorStepsTable.bScanDecSteps;
   CalMotorTable.lpMotorTable = lpMotorTable;
-  if (bScanType == SCAN_TYPE_NORMAL)
+  if (ScanType == SCAN_TYPE_NORMAL)
     CalculateScanMotorTable (&CalMotorTable);
   else
     CalculateMoveMotorTable (&CalMotorTable);
 
   CurrentPhase.MoveType = bMotorMoveType;
   CurrentPhase.MotorDriverIs3967 = 0;
-  if (bScanType == SCAN_TYPE_NORMAL)
+  if (ScanType == SCAN_TYPE_NORMAL)
     CurrentPhase.MotorCurrent = CalculateMotorCurrent (EndSpeed);
   else
     CurrentPhase.MotorCurrent = 200;
@@ -2399,17 +2396,17 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
 
   /* write motor table */
   RealTableSize = MOTOR_TABLE_SIZE;
-  dwTableBaseAddr = PackAreaStartAddress - RealTableSize;
+  dwTableBaseAddr = PACK_AREA_START_ADDRESS - RealTableSize;
   status = LLFSetMotorTable (chip, dwTableBaseAddr, lpMotorTable);
   free (lpMotorTable);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  if (bScanType == SCAN_TYPE_NORMAL)
+  if (ScanType == SCAN_TYPE_NORMAL)
     {
       /* set image buffer range and write shading table */
       RealTableSize += ShadingTableSize (ValidPixelNumber);
-      dwTableBaseAddr = PackAreaStartAddress -
+      dwTableBaseAddr = PACK_AREA_START_ADDRESS -
 			((RealTableSize + (TABLE_BASE_SIZE - 1)) &
 			 ~(TABLE_BASE_SIZE - 1));
 
@@ -2426,9 +2423,9 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
 
   /* empty bank */
   Mustek_SendData (chip, ES01_FB_BufferEmptySize16WordLSB,
-		   LOBYTE (WaitBufferOneLineSize >> 4));
+		   LOBYTE (WAIT_BUFFER_ONE_LINE_SIZE >> 4));
   Mustek_SendData (chip, ES01_FC_BufferEmptySize16WordMSB,
-		   HIBYTE (WaitBufferOneLineSize >> 4));
+		   HIBYTE (WAIT_BUFFER_ONE_LINE_SIZE >> 4));
 
   /* full bank */
   wFullBank = (unsigned short)
@@ -2443,7 +2440,7 @@ Asic_SetWindow (PAsic chip, SCANSOURCE lsLightSource,
 }
 
 SANE_Status
-Asic_ScanStart (PAsic chip)
+Asic_ScanStart (ASIC * chip)
 {
   SANE_Status status;
   DBG (DBG_ASIC, "Asic_ScanStart: Enter\n");
@@ -2471,7 +2468,7 @@ Asic_ScanStart (PAsic chip)
 }
 
 SANE_Status
-Asic_ScanStop (PAsic chip)
+Asic_ScanStop (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte buf[4];
@@ -2532,7 +2529,7 @@ Asic_ScanStop (PAsic chip)
 }
 
 SANE_Status
-Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer, unsigned short LinesCount)
+Asic_ReadImage (ASIC * chip, SANE_Byte * pBuffer, unsigned short LinesCount)
 {
   SANE_Status status;
   unsigned int dwXferBytes;
@@ -2560,7 +2557,7 @@ Asic_ReadImage (PAsic chip, SANE_Byte * pBuffer, unsigned short LinesCount)
 
 #if SANE_UNUSED
 SANE_Status
-Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key)
+Asic_CheckFunctionKey (ASIC * chip, SANE_Byte * key)
 {
   SANE_Status status;
   SANE_Byte bBuffer_1, bBuffer_2;
@@ -2608,7 +2605,7 @@ Asic_CheckFunctionKey (PAsic chip, SANE_Byte * key)
 #endif
 
 SANE_Status
-Asic_IsTAConnected (PAsic chip, SANE_Bool * hasTA)
+Asic_IsTAConnected (ASIC * chip, SANE_Bool * hasTA)
 {
   SANE_Status status;
   SANE_Byte bBuffer_1 = 0xff;
@@ -2638,7 +2635,7 @@ Asic_IsTAConnected (PAsic chip, SANE_Bool * hasTA)
 }
 
 SANE_Status
-Asic_ReadCalibrationData (PAsic chip, SANE_Byte * pBuffer,
+Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
 			  unsigned int dwXferBytes, SANE_Byte bScanBits)
 {
   SANE_Status status = SANE_STATUS_GOOD;
@@ -2709,7 +2706,7 @@ Asic_ReadCalibrationData (PAsic chip, SANE_Byte * pBuffer,
 }
 
 SANE_Status
-Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
+Asic_MotorMove (ASIC * chip, SANE_Bool isForward, unsigned int dwTotalSteps)
 {
   SANE_Status status;
   SANE_Byte bActionType;
@@ -2730,7 +2727,7 @@ Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps)
 }
 
 SANE_Status
-Asic_CarriageHome (PAsic chip)
+Asic_CarriageHome (ASIC * chip)
 {
   SANE_Status status;
   SANE_Bool LampHome;
@@ -2756,7 +2753,7 @@ Asic_CarriageHome (PAsic chip)
 }
 
 SANE_Status
-Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
+Asic_SetShadingTable (ASIC * chip, unsigned short * lpWhiteShading,
 		      unsigned short * lpDarkShading,
 		      unsigned short wXResolution, unsigned short wWidth)
 {

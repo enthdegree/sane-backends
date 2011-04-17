@@ -172,12 +172,12 @@ calc_parameters (Mustek_Scanner * s)
 
   val_source = s->val[OPT_SOURCE].s;
   DBG (DBG_DET, "calc_parameters: scan source = %s\n", val_source);
-  if (strcmp (val_source, source_list[SS_Positive]) == 0)
-    s->setpara.ssScanSource = SS_Positive;
-  else if (strcmp (val_source, source_list[SS_Negative]) == 0)
-    s->setpara.ssScanSource = SS_Negative;
+  if (strcmp (val_source, source_list[SS_POSITIVE]) == 0)
+    s->setpara.ssScanSource = SS_POSITIVE;
+  else if (strcmp (val_source, source_list[SS_NEGATIVE]) == 0)
+    s->setpara.ssScanSource = SS_NEGATIVE;
   else
-    s->setpara.ssScanSource = SS_Reflective;
+    s->setpara.ssScanSource = SS_REFLECTIVE;
 
   val = s->val[OPT_MODE].s;
   if (strcmp (val, mode_list[CM_RGB48]) == 0)
@@ -303,7 +303,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_SOURCE].size = max_string_size (source_list);
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
-  s->val[OPT_SOURCE].s = strdup (source_list[SS_Reflective]);
+  s->val[OPT_SOURCE].s = strdup (source_list[SS_REFLECTIVE]);
 
   if (!IsTAConnected ())
     s->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
@@ -417,7 +417,7 @@ init_options (Mustek_Scanner * s)
 }
 
 static SANE_Bool
-SetParameters (PTARGETIMAGE pSetParameters)
+SetParameters (TARGETIMAGE * pSetParameters)
 {
   DBG (DBG_FUNC, "SetParameters: start\n");
 
@@ -488,7 +488,7 @@ SetParameters (PTARGETIMAGE pSetParameters)
 }
 
 static SANE_Bool
-ReadScannedData (LPIMAGEROWS pImageRows, TARGETIMAGE *pTarget)
+ReadScannedData (IMAGEROWS * pImageRows, TARGETIMAGE * pTarget)
 {
   SANE_Bool isRGBInvert;
   unsigned short Rows;
@@ -500,7 +500,7 @@ ReadScannedData (LPIMAGEROWS pImageRows, TARGETIMAGE *pTarget)
   Rows = pImageRows->wWantedLineNum;
   DBG (DBG_INFO, "ReadScannedData: wanted rows = %d\n", Rows);
 
-  if (pTarget->ssScanSource == SS_Negative)
+  if (pTarget->ssScanSource == SS_NEGATIVE)
     {
       DBG (DBG_INFO, "ReadScannedData: deal with the Negative\n");
 
@@ -955,7 +955,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      if (s->val[option].s)
 		free (s->val[option].s);
 	      s->val[option].s = strdup (val);
-	      if (strcmp (s->val[option].s, source_list[SS_Reflective]) == 0)
+	      if (strcmp (s->val[option].s, source_list[SS_REFLECTIVE]) == 0)
 		{
 		  s->opt[OPT_MODE].size = max_string_size (mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = mode_list;
@@ -963,7 +963,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  x_range.max = s->model.x_size;
 		  y_range.max = s->model.y_size;
 		}
-	      else if (strcmp (s->val[option].s, source_list[SS_Negative]) == 0)
+	      else if (strcmp (s->val[option].s, source_list[SS_NEGATIVE]) == 0)
 		{
 		  s->opt[OPT_MODE].size = max_string_size (negative_mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = negative_mode_list;
@@ -971,7 +971,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  x_range.max = s->model.x_size_ta;
 		  y_range.max = s->model.y_size_ta;
 		}
-	      else if (strcmp (s->val[option].s, source_list[SS_Positive]) == 0)
+	      else if (strcmp (s->val[option].s, source_list[SS_POSITIVE]) == 0)
 		{
 		  s->opt[OPT_MODE].size = max_string_size (mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = mode_list;

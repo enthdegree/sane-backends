@@ -851,7 +851,6 @@ MustScanner_GetLine (SANE_Byte * lpLine, unsigned short * wLinesCount,
 
   DBG (DBG_FUNC, "MustScanner_GetLine: call in\n");
 
-  g_isCanceled = SANE_FALSE;
   g_isScanning = SANE_TRUE;
   wWantedTotalLines = *wLinesCount;
 
@@ -888,7 +887,6 @@ MustScanner_GetLine (SANE_Byte * lpLine, unsigned short * wLinesCount,
 
       if (g_isCanceled)
 	{
-	  pthread_cancel (g_threadid_readimage);
 	  pthread_join (g_threadid_readimage, NULL);
 	  DBG (DBG_FUNC, "MustScanner_GetLine: thread exit\n");
 	  break;

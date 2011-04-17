@@ -67,8 +67,6 @@ static SANE_Status WaitUnitReady (ASIC * chip);
 
 /* ---------------------- low level ASIC functions -------------------------- */
 
-static SANE_Byte RegisterBankStatus = ~0;
-
 static SANE_Status
 WriteIOControl (ASIC * chip, unsigned short wValue, unsigned short wIndex,
 		unsigned short wLength, SANE_Byte * pBuf)
@@ -133,7 +131,7 @@ Mustek_SwitchBank (ASIC * chip, unsigned short reg)
       return SANE_STATUS_INVAL;
     }
 
-  if (RegisterBankStatus != bank)
+  if (chip->RegisterBankStatus != bank)
     {
       buf[0] = ES01_5F_REGISTER_BANK_SELECT;
       buf[1] = bank;
@@ -143,8 +141,8 @@ Mustek_SwitchBank (ASIC * chip, unsigned short reg)
       if (status != SANE_STATUS_GOOD)
 	return status;
 
-      RegisterBankStatus = bank;
-      DBG (DBG_ASIC, "RegisterBankStatus=%d\n", RegisterBankStatus);
+      chip->RegisterBankStatus = bank;
+      DBG (DBG_ASIC, "RegisterBankStatus=%d\n", chip->RegisterBankStatus);
     }
 
   return SANE_STATUS_GOOD;
@@ -314,27 +312,25 @@ Mustek_DMAWrite (ASIC * chip, unsigned int size, SANE_Byte * pData)
 static SANE_Status
 Mustek_SendData2Byte (ASIC * chip, unsigned short reg, SANE_Byte data)
 {
-  static SANE_Bool isTransfer = SANE_FALSE;
-  static SANE_Byte dataBuf[4];
   SANE_Status status = SANE_STATUS_GOOD;
 
-  if (!isTransfer)
+  if (!chip->is2ByteTransfer)
     {
-      dataBuf[0] = LOBYTE (reg);
-      dataBuf[1] = data;
-      isTransfer = SANE_TRUE;
+      chip->dataBuf[0] = LOBYTE (reg);
+      chip->dataBuf[1] = data;
+      chip->is2ByteTransfer = SANE_TRUE;
     }
   else
     {
-      dataBuf[2] = LOBYTE (reg);
-      dataBuf[3] = data;
-      isTransfer = SANE_FALSE;
+      chip->dataBuf[2] = LOBYTE (reg);
+      chip->dataBuf[3] = data;
+      chip->is2ByteTransfer = SANE_FALSE;
 
       status = Mustek_SwitchBank (chip, reg);
       if (status != SANE_STATUS_GOOD)
 	return status;
 
-      status = WriteIOControl (chip, 0xb0, 0, 4, dataBuf);
+      status = WriteIOControl (chip, 0xb0, 0, 4, chip->dataBuf);
     }
 
   return status;
@@ -1993,6 +1989,9 @@ Asic_Initialize (ASIC * chip)
   chip->dwBytesCountPerRow = 0;
   chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
   chip->pShadingTable = NULL;
+
+  chip->RegisterBankStatus = 0xff;
+  chip->is2ByteTransfer = SANE_FALSE;
 
   InitTiming (chip);
 

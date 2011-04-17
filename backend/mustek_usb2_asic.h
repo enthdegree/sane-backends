@@ -51,18 +51,21 @@
 
 /* ---------------------- low level ASIC defines -------------------------- */
 
-#ifndef LOBYTE
-#define LOBYTE(w) (SANE_Byte)((unsigned short)(w) & 0x00ff)
+#ifndef WORDS_BIGENDIAN
+#  define LOBYTE(w)	(SANE_Byte)((unsigned short)(w) & 0xff)
+#  define HIBYTE(w)	(SANE_Byte)(((unsigned short)(w) >> 8) & 0xff)
+#  define BYTE0(x)	(SANE_Byte)((unsigned int)(x) & 0xff)
+#  define BYTE1(x)	(SANE_Byte)(((unsigned int)(x) >> 8) & 0xff)
+#  define BYTE2(x)	(SANE_Byte)(((unsigned int)(x) >> 16) & 0xff)
+#  define BYTE3(x)	(SANE_Byte)(((unsigned int)(x) >> 24) & 0xff)
+#else
+#  define LOBYTE(w)	(SANE_Byte)(((unsigned short)(w) >> 8) & 0xff)
+#  define HIBYTE(w)	(SANE_Byte)((unsigned short)(w) & 0xff)
+#  define BYTE0(x)	(SANE_Byte)(((unsigned int)(x) >> 24) & 0xff)
+#  define BYTE1(x)	(SANE_Byte)(((unsigned int)(x) >> 16) & 0xff)
+#  define BYTE2(x)	(SANE_Byte)(((unsigned int)(x) >> 8) & 0xff)
+#  define BYTE3(x)	(SANE_Byte)((unsigned int)(x) & 0xff)
 #endif
-
-#ifndef HIBYTE
-#define HIBYTE(w) (SANE_Byte)((unsigned short)(w)>>8 & 0x00ff)
-#endif
-
-#define BYTE0(x) (SANE_Byte)((unsigned int)(x) & 0xff)
-#define BYTE1(x) (SANE_Byte)(((unsigned int)(x) >> 8) & 0xff)
-#define BYTE2(x) (SANE_Byte)(((unsigned int)(x) >> 16) & 0xff)
-#define BYTE3(x) (SANE_Byte)(((unsigned int)(x) >> 24) & 0xff)
 
 
 typedef enum
@@ -201,6 +204,10 @@ typedef struct
 
   SANE_Byte isMotorMoveToFirstLine;
   unsigned short * pShadingTable;
+
+  SANE_Byte RegisterBankStatus;
+  SANE_Bool is2ByteTransfer;
+  SANE_Byte dataBuf[4];
 } ASIC;
 
 

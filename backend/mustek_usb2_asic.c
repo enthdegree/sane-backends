@@ -403,7 +403,6 @@ LLFRamAccess (ASIC * chip, LLF_RAMACCESS * RamAccess)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  /* set SDRAM delay time */
   Mustek_SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL,
 		   SDRAMCLK_DELAY_12_ns);
 
@@ -421,7 +420,7 @@ LLFRamAccess (ASIC * chip, LLF_RAMACCESS * RamAccess)
       status = LLFRamAccess (chip, RamAccess);
       DBG (DBG_ASIC, "end steal 2 byte!\n");
     }
-  else	/* read RAM */
+  else
     {
       status = Mustek_DMARead (chip, RamAccess->RwSize, RamAccess->BufferPtr);
     }
@@ -602,14 +601,14 @@ LLFMotorMove (ASIC * chip, LLF_MOTORMOVE * LLF_MotorMove)
   Mustek_SendData (chip, ES01_C2_ChannelBlueExpEndPixelLSB, LOBYTE (101));
   Mustek_SendData (chip, ES01_C3_ChannelBlueExpEndPixelMSB, HIBYTE (101));
 
-  /* set motor accelerate steps, max. 511 steps */
+  /* set motor acceleration steps, max. 511 steps */
   Mustek_SendData (chip, ES01_E0_MotorAccStep0_7,
 		   LOBYTE (LLF_MotorMove->AccStep));
   Mustek_SendData (chip, ES01_E1_MotorAccStep8_8,
 		   HIBYTE (LLF_MotorMove->AccStep));
   DBG (DBG_ASIC, "AccStep=%d\n", LLF_MotorMove->AccStep);
 
-  /* set motor decelerate steps, max. 255 steps */
+  /* set motor deceleration steps, max. 255 steps */
   Mustek_SendData (chip, ES01_E5_MotorDecStep, LLF_MotorMove->DecStep);
   DBG (DBG_ASIC, "DecStep=%d\n", LLF_MotorMove->DecStep);
 
@@ -2178,13 +2177,11 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  /* LED flash */
   Mustek_SendData (chip, ES01_94_PowerSaveControl,
 		   TIMER_POWER_SAVE_ENABLE |
 		   USB_POWER_SAVE_ENABLE | USB_REMOTE_WAKEUP_ENABLE |
 		   LED_MODE_FLASH_SLOWLY | 0x40 | 0x80);
 
-  /* calculate byte per line */
   chip->dwBytesCountPerRow = (unsigned int) wWidth *
 			     GetBytePerPixel (bScanBits);
   DBG (DBG_ASIC, "dwBytesCountPerRow=%d\n", chip->dwBytesCountPerRow);
@@ -2410,7 +2407,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 			((RealTableSize + (TABLE_BASE_SIZE - 1)) &
 			 ~(TABLE_BASE_SIZE - 1));
 
-      /* TODO: table size should be stored in Asic structure */
+      /* TODO: table size should be stored in ASIC structure */
       RealTableSize = sizeof (unsigned short) *
 	ShadingTableSize ((int) ((wWidth + 4) * XRatioAdderDouble));
       status = LLFSetShadingTable (chip, dwTableBaseAddr, RealTableSize,

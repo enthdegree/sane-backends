@@ -1176,7 +1176,7 @@ MustScanner_PrepareCalculateMaxMin (unsigned short wResolution)
 	{
 	  g_nPowerNum = 3;
 	  g_nSecLength = 8;	/* 2^nPowerNum */
-	  /* Dark has at least 2 sections */
+	  /* dark has at least 2 sections */
 	  g_nDarkSecLength = g_wDarkCalWidth / 2;
 	}
       else

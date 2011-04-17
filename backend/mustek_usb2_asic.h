@@ -112,7 +112,7 @@ typedef struct
   SANE_Bool IsWriteAccess;
   RAM_TYPE RamType;
   unsigned int StartAddress;	/* only lower 3 bytes used */
-  unsigned int RwSize;		/* unit: byte; must be a multiple of 2 (?) */
+  unsigned int RwSize;		/* unit: byte; must be a multiple of 2 */
   SANE_Byte *BufferPtr;
 } LLF_RAMACCESS;
 

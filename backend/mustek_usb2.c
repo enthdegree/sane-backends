@@ -576,14 +576,12 @@ StopScan (void)
       sleep (1);	/* wait for ReadScannedData to return */
     }
 
-  /* free gamma table */
   if (g_pGammaTable)
     {
       free (g_pGammaTable);
       g_pGammaTable = NULL;
     }
 
-  /* free image buffer */
   if (g_lpReadImageHead)
     {
       free (g_lpReadImageHead);
@@ -675,7 +673,7 @@ AutoLevel (SANE_Byte *lpSource, unsigned short ScanLines,
 
   DBG (DBG_FUNC, "AutoLevel: start\n");
 
-  /* find min and max */
+  /* find min and max values for each color component */
   for (j = 0, tLines = 0; j < ScanLines; j++, tLines += BytesPerLine)
     {
       for (i = 0; i < iWidth; i++)
@@ -698,7 +696,7 @@ AutoLevel (SANE_Byte *lpSource, unsigned short ScanLines,
   range_G = max_G - min_G;
   range_B = max_B - min_B;
 
-  /* autolevel */
+  /* stretch histogram */
   for (j = 0, tLines = 0; j < ScanLines; j++, tLines += BytesPerLine)
     {
       for (i = 0; i < iWidth; i++)

@@ -1051,70 +1051,12 @@ MustScanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
 			      isOrderInvert, fixEvenOdd);
 }
 
-SANE_Bool
+void
 MustScanner_ScanSuggest (TARGETIMAGE * pTarget)
 {
   unsigned short wMaxWidth, wMaxHeight;
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: call in\n");
-
-  if (!pTarget)
-    {
-      DBG (DBG_FUNC, "MustScanner_ScanSuggest: parameters error\n");
-      return SANE_FALSE;
-    }
-
-  g_wLineartThreshold = pTarget->wLineartThreshold;
-
-  /* create gamma table */
-  if ((pTarget->cmColorMode == CM_GRAY8) ||
-      (pTarget->cmColorMode == CM_RGB24))
-    {
-      unsigned short i;
-      SANE_Byte bGammaData;
-
-      g_pGammaTable = malloc (sizeof (unsigned short) * 4096 * 3);
-      if (!g_pGammaTable)
-	{
-	  DBG (DBG_ERR, "MustScanner_ScanSuggest: gamma table malloc fail\n");
-	  return SANE_FALSE;
-	}
-
-      for (i = 0; i < 4096; i++)
-	{
-	  bGammaData = (SANE_Byte) (pow ((double) i / 4095, 0.625) * 255);
-	  g_pGammaTable[i] = bGammaData;
-	  g_pGammaTable[i + 4096] = bGammaData;
-	  g_pGammaTable[i + 8192] = bGammaData;
-	}
-    }
-  else if ((pTarget->cmColorMode == CM_GRAY16) ||
-	   (pTarget->cmColorMode == CM_RGB48))
-    {
-      unsigned int i;
-      unsigned short wGammaData;
-
-      g_pGammaTable = malloc (sizeof (unsigned short) * 65536 * 3);
-      if (!g_pGammaTable)
-	{
-	  DBG (DBG_ERR, "MustScanner_ScanSuggest: gamma table malloc fail\n");
-	  return SANE_FALSE;
-	}
-
-      for (i = 0; i < 65536; i++)
-	{
-	  wGammaData = (unsigned short)
-	    (pow ((double) i / 65535, 0.625) * 65535);
-	  g_pGammaTable[i] = wGammaData;
-	  g_pGammaTable[i + 65536] = wGammaData;
-	  g_pGammaTable[i + 65536 * 2] = wGammaData;
-	}
-    }
-  else
-    {
-      DBG (DBG_INFO, "MustScanner_ScanSuggest: set g_pGammaTable to NULL\n");
-      g_pGammaTable = NULL;
-    }
 
   /* check width and height */
   wMaxWidth = (MAX_SCANNING_WIDTH * pTarget->wDpi) / 300;
@@ -1125,10 +1067,6 @@ MustScanner_ScanSuggest (TARGETIMAGE * pTarget)
 
   pTarget->wWidth = _MIN (pTarget->wWidth, wMaxWidth);
   pTarget->wHeight = _MIN (pTarget->wHeight, wMaxHeight);
-
-  g_Width = (pTarget->wWidth + 15) & ~15;	/* real scan width */
-  g_Height = pTarget->wHeight;
-  DBG (DBG_FUNC, "MustScanner_ScanSuggest: g_Width=%d\n", g_Width);
 
   switch (pTarget->cmColorMode)
     {
@@ -1152,7 +1090,6 @@ MustScanner_ScanSuggest (TARGETIMAGE * pTarget)
        pTarget->dwBytesPerRow);
 
   DBG (DBG_FUNC, "MustScanner_ScanSuggest: leave MustScanner_ScanSuggest\n");
-  return SANE_TRUE;
 }
 
 SANE_Bool
@@ -1197,7 +1134,7 @@ MustScanner_StopScan (void)
   return result;
 }
 
-SANE_Bool
+static SANE_Bool
 MustScanner_PrepareScan (void)
 {
   DBG (DBG_FUNC, "MustScanner_PrepareScan: call in\n");
@@ -1245,7 +1182,7 @@ MustScanner_PrepareScan (void)
 }
 
 SANE_Bool
-MustScanner_Reset (SCANSOURCE ssScanSource)
+MustScanner_Reset (void)
 {
   DBG (DBG_FUNC, "MustScanner_Reset: call in\n");
 
@@ -1255,18 +1192,6 @@ MustScanner_Reset (SCANSOURCE ssScanSource)
       return SANE_FALSE;
     }
 
-  if (ssScanSource == SS_REFLECTIVE)
-    {
-      if (!MustScanner_PowerControl (SANE_TRUE, SANE_FALSE))
-	return SANE_FALSE;
-    }
-  else
-    {
-      if (!MustScanner_PowerControl (SANE_FALSE, SANE_TRUE))
-	return SANE_FALSE;
-    }
-
-  g_ssScanSource = ssScanSource;
   g_dwTotalTotalXferLines = 0;
   g_bFirstReadImage = SANE_TRUE;
   g_bPrepared = SANE_TRUE;
@@ -1753,9 +1678,8 @@ MustScanner_FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
 	*pwStartY = 43;
 
       if (Asic_MotorMove (&g_chip, SANE_FALSE,
-			  (wCalHeight - *pwStartY +
-			   BEFORE_SCANNING_MOTOR_FORWARD_PIXEL) * SENSOR_DPI /
-			  FIND_LEFT_TOP_CALIBRATE_RESOLUTION) !=
+			  (wCalHeight - *pwStartY + LINE_CALIBRATION_HEIGHT) *
+			  SENSOR_DPI / FIND_LEFT_TOP_CALIBRATE_RESOLUTION) !=
 	  SANE_STATUS_GOOD)
 	goto error;
     }
@@ -1834,27 +1758,15 @@ MustScanner_FiltLower (unsigned short * pSort, unsigned short TotalCount,
 static SANE_Bool
 MustScanner_LineCalibration16Bits (void)
 {
-  SANE_Byte * pWhiteData;
-  SANE_Byte * pDarkData;
+  SANE_Byte * pWhiteData, * pDarkData;
   unsigned int dwTotalSize;
   unsigned short wCalWidth, wCalHeight;
-  unsigned short * pWhiteShading;
-  unsigned short * pDarkShading;
-  double wRWhiteLevel;
-  double wGWhiteLevel;
-  double wBWhiteLevel;
-  unsigned int dwRDarkLevel = 0;
-  unsigned int dwGDarkLevel = 0;
-  unsigned int dwBDarkLevel = 0;
-  unsigned int dwREvenDarkLevel = 0;
-  unsigned int dwGEvenDarkLevel = 0;
-  unsigned int dwBEvenDarkLevel = 0;
-  unsigned short * pRWhiteSort;
-  unsigned short * pGWhiteSort;
-  unsigned short * pBWhiteSort;
-  unsigned short * pRDarkSort;
-  unsigned short * pGDarkSort;
-  unsigned short * pBDarkSort;
+  unsigned short * pWhiteShading, * pDarkShading;
+  double wRWhiteLevel, wGWhiteLevel, wBWhiteLevel;
+  unsigned int dwRDarkLevel = 0, dwGDarkLevel = 0, dwBDarkLevel = 0;
+  unsigned int dwREvenDarkLevel = 0, dwGEvenDarkLevel = 0, dwBEvenDarkLevel = 0;
+  unsigned short * pRWhiteSort, * pGWhiteSort, * pBWhiteSort;
+  unsigned short * pRDarkSort, * pGDarkSort, * pBDarkSort;
   int i, j;
 #ifdef DEBUG_SAVE_IMAGE
   FILE * stream;
@@ -1870,7 +1782,7 @@ MustScanner_LineCalibration16Bits (void)
     }
 
   wCalWidth = g_Width;
-  wCalHeight = LINE_CALIBRATION__16BITS_HEIGHT;
+  wCalHeight = LINE_CALIBRATION_HEIGHT;
   dwTotalSize = wCalWidth * wCalHeight * 3 * 2;
   DBG (DBG_FUNC, "MustScanner_LineCalibration16Bits: wCalWidth = %d, " \
 		 "wCalHeight = %d\n", wCalWidth, wCalHeight);
@@ -2183,8 +2095,62 @@ MustScanner_SetupScan (TARGETIMAGE * pTarget)
   g_ScanMode = pTarget->cmColorMode;
   g_XDpi = pTarget->wDpi;
   g_YDpi = pTarget->wDpi;
+  g_Width = (pTarget->wWidth + 15) & ~15;	/* real scan width */
+  g_Height = pTarget->wHeight;
   g_SWWidth = pTarget->wWidth;
   g_SWHeight = pTarget->wHeight;
+  g_wLineartThreshold = pTarget->wLineartThreshold;
+  g_ssScanSource = pTarget->ssScanSource;
+
+  /* create gamma table */
+  if ((pTarget->cmColorMode == CM_GRAY8) ||
+      (pTarget->cmColorMode == CM_RGB24))
+    {
+      unsigned short i;
+      SANE_Byte bGammaData;
+
+      g_pGammaTable = malloc (sizeof (unsigned short) * 4096 * 3);
+      if (!g_pGammaTable)
+	{
+	  DBG (DBG_ERR, "MustScanner_ScanSuggest: gamma table malloc fail\n");
+	  return SANE_FALSE;
+	}
+
+      for (i = 0; i < 4096; i++)
+	{
+	  bGammaData = (SANE_Byte) (pow ((double) i / 4095, 0.625) * 255);
+	  g_pGammaTable[i] = bGammaData;
+	  g_pGammaTable[i + 4096] = bGammaData;
+	  g_pGammaTable[i + 8192] = bGammaData;
+	}
+    }
+  else if ((pTarget->cmColorMode == CM_GRAY16) ||
+	   (pTarget->cmColorMode == CM_RGB48))
+    {
+      unsigned int i;
+      unsigned short wGammaData;
+
+      g_pGammaTable = malloc (sizeof (unsigned short) * 65536 * 3);
+      if (!g_pGammaTable)
+	{
+	  DBG (DBG_ERR, "MustScanner_ScanSuggest: gamma table malloc fail\n");
+	  return SANE_FALSE;
+	}
+
+      for (i = 0; i < 65536; i++)
+	{
+	  wGammaData = (unsigned short)
+	    (pow ((double) i / 65535, 0.625) * 65535);
+	  g_pGammaTable[i] = wGammaData;
+	  g_pGammaTable[i + 65536] = wGammaData;
+	  g_pGammaTable[i + 65536 * 2] = wGammaData;
+	}
+    }
+  else
+    {
+      DBG (DBG_INFO, "MustScanner_ScanSuggest: set g_pGammaTable to NULL\n");
+      g_pGammaTable = NULL;
+    }
 
   switch (g_YDpi)
     {
@@ -2247,6 +2213,17 @@ MustScanner_SetupScan (TARGETIMAGE * pTarget)
       g_SWBytesPerRow = g_SWWidth;
       bScanBits = 8;
       break;
+    }
+
+  if (g_ssScanSource == SS_REFLECTIVE)
+    {
+      if (!MustScanner_PowerControl (SANE_TRUE, SANE_FALSE))
+	return SANE_FALSE;
+    }
+  else
+    {
+      if (!MustScanner_PowerControl (SANE_FALSE, SANE_TRUE))
+	return SANE_FALSE;
     }
 
   if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)

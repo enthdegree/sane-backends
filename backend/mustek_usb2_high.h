@@ -92,12 +92,7 @@ typedef struct
 #define TA_FIND_LEFT_TOP_WIDTH_IN_DIP		2668
 #define TA_FIND_LEFT_TOP_HEIGHT_IN_DIP		300
 
-/* must be a multiple of 8 */
-#define LINE_CALIBRATION__16BITS_HEIGHT		40
-
-/* the length from block bar to start calibration position */
-#define BEFORE_SCANNING_MOTOR_FORWARD_PIXEL	40
-
+#define LINE_CALIBRATION_HEIGHT			40
 #define TRAN_START_POS				4550
 
 /* 300 dpi */
@@ -121,10 +116,9 @@ SANE_Bool MustScanner_GetKeyStatus (SANE_Byte * pKey);
 #endif
 SANE_Bool MustScanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
 			       SANE_Bool isOrderInvert);
-SANE_Bool MustScanner_ScanSuggest (TARGETIMAGE * pTarget);
+void MustScanner_ScanSuggest (TARGETIMAGE * pTarget);
 SANE_Bool MustScanner_StopScan (void);
-SANE_Bool MustScanner_PrepareScan (void);
-SANE_Bool MustScanner_Reset (SCANSOURCE ssScanSource);
+SANE_Bool MustScanner_Reset (void);
 SANE_Bool MustScanner_SetupScan (TARGETIMAGE * pTarget);
 
 

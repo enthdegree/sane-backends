@@ -764,16 +764,12 @@ sane_start (SANE_Handle handle)
   DBG (DBG_INFO, "sane_start: setpara.ssScanSource=%d\n",
        s->setpara.ssScanSource);
 
-  MustScanner_Reset (s->setpara.ssScanSource);
+  MustScanner_Reset ();
 
   /* adjust parameters to the scanner's requirements */
-  if (!MustScanner_ScanSuggest (&s->setpara))
-    {
-      DBG (DBG_ERR, "sane_start: MustScanner_ScanSuggest error\n");
-      return SANE_STATUS_INVAL;
-    }
+  MustScanner_ScanSuggest (&s->setpara);
 
-  /* update the scan parameters returned by sane_get_parameters */
+  /* update the scan parameters to be returned by sane_get_parameters */
   s->params.pixels_per_line = s->setpara.wWidth;
   s->params.lines = s->setpara.wHeight;
   s->params.bytes_per_line = s->setpara.dwBytesPerRow;

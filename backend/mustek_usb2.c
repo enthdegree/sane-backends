@@ -301,7 +301,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
   s->val[OPT_SOURCE].s = strdup (source_list[SS_REFLECTIVE]);
 
-  if (!MustScanner_IsTAConnected ())
+  if (!Scanner_IsTAConnected ())
     s->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
 
   /* resolution */
@@ -459,7 +459,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     return SANE_STATUS_NO_MEM;
 
   /* HOLD: This is ugly (only one scanner!) and should go to sane_init */
-  if (MustScanner_IsPresent ())
+  if (Scanner_IsPresent ())
     {
       SANE_Device *sane_device = malloc (sizeof (*sane_device));
       if (!sane_device)
@@ -483,11 +483,11 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   DBG (DBG_FUNC, "sane_open: start: devicename = %s\n", devicename);
 
-  MustScanner_Init ();
+  Scanner_Init ();
 
-  if (!MustScanner_PowerControl (SANE_FALSE, SANE_FALSE))
+  if (!Scanner_PowerControl (SANE_FALSE, SANE_FALSE))
     return SANE_STATUS_INVAL;
-  if (!MustScanner_BackHome ())
+  if (!Scanner_BackHome ())
     return SANE_STATUS_INVAL;
 
   s = malloc (sizeof (*s));
@@ -509,8 +509,8 @@ sane_close (SANE_Handle handle)
 
   DBG (DBG_FUNC, "sane_close: start\n");
 
-  MustScanner_PowerControl (SANE_FALSE, SANE_FALSE);
-  MustScanner_BackHome ();
+  Scanner_PowerControl (SANE_FALSE, SANE_FALSE);
+  Scanner_BackHome ();
 
   if (s->scan_buf)
     free (s->scan_buf);
@@ -745,10 +745,10 @@ sane_start (SANE_Handle handle)
   DBG (DBG_INFO, "sane_start: target.cmColorMode=%d\n", target.cmColorMode);
   DBG (DBG_INFO, "sane_start: target.ssScanSource=%d\n", target.ssScanSource);
 
-  MustScanner_Reset ();
+  Scanner_Reset ();
 
   /* adjust parameters to the scanner's requirements */
-  MustScanner_ScanSuggest (&target);
+  Scanner_ScanSuggest (&target);
   calc_parameters (&target, &s->params);
   s->bInvertImage = ((target.cmColorMode == CM_TEXT) ^
 		     (target.ssScanSource == SS_NEGATIVE));
@@ -766,7 +766,7 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_NO_MEM;
   s->scan_buf_len = 0;
 
-  if (!MustScanner_SetupScan (&target))
+  if (!Scanner_SetupScan (&target))
     return SANE_STATUS_INVAL;
 
   DBG (DBG_FUNC, "sane_start: exit\n");
@@ -818,10 +818,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
 	  s->bIsReading = SANE_TRUE;
 	  lines_received = (unsigned short) lines;
-	  if (!MustScanner_GetRows (tempbuf, &lines_received,
-				    s->model.isRGBInvert))
+	  if (!Scanner_GetRows (tempbuf, &lines_received, s->model.isRGBInvert))
 	    {
-	      DBG (DBG_ERR, "sane_read: MustScanner_GetRows error\n");
+	      DBG (DBG_ERR, "sane_read: Scanner_GetRows error\n");
 	      s->bIsReading = SANE_FALSE;
 	      return SANE_STATUS_INVAL;
 	    }
@@ -891,8 +890,8 @@ sane_cancel (SANE_Handle handle)
       else
 	DBG (DBG_INFO, "sane_cancel: scan finished\n");
 
-      MustScanner_StopScan ();
-      MustScanner_BackHome ();
+      Scanner_StopScan ();
+      Scanner_BackHome ();
 
       for (i = 0; i < 20; i++)
 	{

@@ -117,14 +117,14 @@ typedef struct
   unsigned int StartAddress;	/* only lower 3 bytes used */
   unsigned int RwSize;		/* unit: byte; must be a multiple of 2 */
   SANE_Byte *BufferPtr;
-} LLF_RAMACCESS;
+} RAMACCESS;
 
 typedef struct
 {
   SANE_Byte MoveType;
   SANE_Byte MotorDriverIs3967;
   SANE_Byte MotorCurrent;
-} LLF_MOTOR_CURRENT_AND_PHASE;
+} MOTOR_CURRENT_AND_PHASE;
 
 typedef struct
 {
@@ -133,7 +133,7 @@ typedef struct
   unsigned short AccStepBeforeScan;
   SANE_Byte DecStepAfterScan;
   unsigned short * pMotorTable;
-} LLF_CALCULATEMOTORTABLE;
+} CALCULATEMOTORTABLE;
 
 typedef struct
 {
@@ -146,7 +146,7 @@ typedef struct
 
   unsigned short wScanAccSteps;
   SANE_Byte bScanDecSteps;
-} LLF_MOTORMOVE;
+} MOTORMOVE;
 
 typedef struct
 {

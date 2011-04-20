@@ -114,20 +114,20 @@ typedef struct
 /*#define DEBUG_SAVE_IMAGE*/
 
 
-void MustScanner_Init (void);
-SANE_Bool MustScanner_IsPresent (void);
-SANE_Bool MustScanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
-SANE_Bool MustScanner_BackHome (void);
-SANE_Bool MustScanner_IsTAConnected (void);
+void Scanner_Init (void);
+SANE_Bool Scanner_IsPresent (void);
+SANE_Bool Scanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
+SANE_Bool Scanner_BackHome (void);
+SANE_Bool Scanner_IsTAConnected (void);
 #if SANE_UNUSED
-SANE_Bool MustScanner_GetKeyStatus (SANE_Byte * pKey);
+SANE_Bool Scanner_GetKeyStatus (SANE_Byte * pKey);
 #endif
-SANE_Bool MustScanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
+SANE_Bool Scanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
 			       SANE_Bool isOrderInvert);
-void MustScanner_ScanSuggest (TARGETIMAGE * pTarget);
-SANE_Bool MustScanner_StopScan (void);
-SANE_Bool MustScanner_Reset (void);
-SANE_Bool MustScanner_SetupScan (TARGETIMAGE * pTarget);
+void Scanner_ScanSuggest (TARGETIMAGE * pTarget);
+SANE_Bool Scanner_StopScan (void);
+SANE_Bool Scanner_Reset (void);
+SANE_Bool Scanner_SetupScan (TARGETIMAGE * pTarget);
 
 
 #endif

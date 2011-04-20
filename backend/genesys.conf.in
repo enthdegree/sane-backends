@@ -105,3 +105,6 @@ usb 0x03f0 0x4605
 
 # Plustek OpticBook 3600
 usb 0x07b3 0x0900
+
+# Primax Electronics, Ltd Xerox 2400 Onetouch
+usb 0x0461 0x038b

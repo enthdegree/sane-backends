@@ -117,9 +117,122 @@ static const Scanner_Model mustek_A2nu2_model = {
   SANE_FIX (1.46 * MM_PER_INCH), /* size of scan area in TA mode in mm (x) */
   SANE_FIX (6.45 * MM_PER_INCH), /* size of scan area in TA mode in mm (y) */
 
-  RO_RGB  /* order of the CCD/CIS colors */
+  SANE_FALSE  /* invert order of the CCD/CIS colors? */
 };
 
+
+static void
+get_target_image (Mustek_Scanner * s, TARGETIMAGE * pTarget)
+{
+  SANE_String val, val_source;
+  float x1, y1, x2, y2;
+
+  DBG (DBG_FUNC, "get_target_image: start\n");
+
+  if (s->val[OPT_PREVIEW].w)
+    pTarget->wXDpi = 75;
+  else
+    pTarget->wXDpi = s->val[OPT_RESOLUTION].w;
+  pTarget->wYDpi = pTarget->wXDpi;
+
+  x1 = SANE_UNFIX (s->val[OPT_TL_X].w) / MM_PER_INCH;
+  y1 = SANE_UNFIX (s->val[OPT_TL_Y].w) / MM_PER_INCH;
+  x2 = SANE_UNFIX (s->val[OPT_BR_X].w) / MM_PER_INCH;
+  y2 = SANE_UNFIX (s->val[OPT_BR_Y].w) / MM_PER_INCH;
+
+  pTarget->wX = (unsigned short) ((x1 * pTarget->wXDpi) + 0.5);
+  pTarget->wY = (unsigned short) ((y1 * pTarget->wYDpi) + 0.5);
+  pTarget->wWidth = (unsigned short) (((x2 - x1) * pTarget->wXDpi) + 0.5);
+  pTarget->wHeight = (unsigned short) (((y2 - y1) * pTarget->wYDpi) + 0.5);
+
+  pTarget->wLineartThreshold = s->val[OPT_THRESHOLD].w;
+
+  val_source = s->val[OPT_SOURCE].s;
+  DBG (DBG_DET, "get_target_image: scan source = %s\n", val_source);
+  if (strcmp (val_source, source_list[SS_POSITIVE]) == 0)
+    pTarget->ssScanSource = SS_POSITIVE;
+  else if (strcmp (val_source, source_list[SS_NEGATIVE]) == 0)
+    pTarget->ssScanSource = SS_NEGATIVE;
+  else
+    pTarget->ssScanSource = SS_REFLECTIVE;
+
+  val = s->val[OPT_MODE].s;
+  if (strcmp (val, mode_list[CM_RGB48]) == 0)
+    {
+      if (s->val[OPT_PREVIEW].w)
+	{
+	  DBG (DBG_DET, "get_target_image: preview, set ColorMode CM_RGB24\n");
+	  pTarget->cmColorMode = CM_RGB24;
+	}
+      else
+	pTarget->cmColorMode = CM_RGB48;
+    }
+  else if (strcmp (val, mode_list[CM_RGB24]) == 0)
+    {
+      pTarget->cmColorMode = CM_RGB24;
+    }
+  else if (strcmp (val, mode_list[CM_GRAY16]) == 0)
+    {
+      if (s->val[OPT_PREVIEW].w)
+	{
+	  DBG (DBG_DET, "get_target_image: preview, set ColorMode CM_GRAY8\n");
+	  pTarget->cmColorMode = CM_GRAY8;
+	}
+      else
+	pTarget->cmColorMode = CM_GRAY16;
+    }
+  else if (strcmp (val, mode_list[CM_GRAY8]) == 0)
+    {
+      pTarget->cmColorMode = CM_GRAY8;
+    }
+  else
+    {
+      pTarget->cmColorMode = CM_TEXT;
+    }
+
+  DBG (DBG_FUNC, "get_target_image: exit\n");
+}
+
+static void
+calc_parameters (TARGETIMAGE * pTarget, SANE_Parameters * params)
+{
+  DBG (DBG_FUNC, "calc_parameters: start\n");
+
+  params->pixels_per_line = pTarget->wWidth;
+  params->lines = pTarget->wHeight;
+  params->last_frame = SANE_TRUE;
+
+  switch (pTarget->cmColorMode)
+    {
+    case CM_RGB48:
+      params->format = SANE_FRAME_RGB;
+      params->depth = 16;
+      params->bytes_per_line = params->pixels_per_line * 6;
+      break;
+    case CM_RGB24:
+      params->format = SANE_FRAME_RGB;
+      params->depth = 8;
+      params->bytes_per_line = params->pixels_per_line * 3;
+      break;
+    case CM_GRAY16:
+      params->format = SANE_FRAME_GRAY;
+      params->depth = 16;
+      params->bytes_per_line = params->pixels_per_line * 2;
+      break;
+    case CM_GRAY8:
+      params->format = SANE_FRAME_GRAY;
+      params->depth = 8;
+      params->bytes_per_line = params->pixels_per_line;
+      break;
+    case CM_TEXT:
+      params->format = SANE_FRAME_GRAY;
+      params->depth = 1;
+      params->bytes_per_line = params->pixels_per_line / 8;
+      break;
+    }
+
+  DBG (DBG_FUNC, "calc_parameters: exit\n");
+}
 
 static size_t
 max_string_size (SANE_String_Const *strings)
@@ -136,120 +249,12 @@ max_string_size (SANE_String_Const *strings)
   return max_size;
 }
 
-static void
-calc_parameters (Mustek_Scanner * s)
-{
-  SANE_String val, val_source;
-  float x1, y1, x2, y2;
-
-  DBG (DBG_FUNC, "calc_parameters: start\n");
-
-  if (s->val[OPT_PREVIEW].w)
-    s->setpara.wDpi = 75;
-  else
-    s->setpara.wDpi = s->val[OPT_RESOLUTION].w;
-
-  x1 = SANE_UNFIX (s->val[OPT_TL_X].w) / MM_PER_INCH;
-  y1 = SANE_UNFIX (s->val[OPT_TL_Y].w) / MM_PER_INCH;
-  x2 = SANE_UNFIX (s->val[OPT_BR_X].w) / MM_PER_INCH;
-  y2 = SANE_UNFIX (s->val[OPT_BR_Y].w) / MM_PER_INCH;
-
-  s->setpara.wX = (unsigned short) ((x1 * s->setpara.wDpi) + 0.5);
-  s->setpara.wY = (unsigned short) ((y1 * s->setpara.wDpi) + 0.5);
-  s->setpara.wWidth = (unsigned short) (((x2 - x1) * s->setpara.wDpi) + 0.5);
-  s->setpara.wHeight = (unsigned short) (((y2 - y1) * s->setpara.wDpi) + 0.5);
-
-  s->setpara.wLineartThreshold = s->val[OPT_THRESHOLD].w;
-
-  val_source = s->val[OPT_SOURCE].s;
-  DBG (DBG_DET, "calc_parameters: scan source = %s\n", val_source);
-  if (strcmp (val_source, source_list[SS_POSITIVE]) == 0)
-    s->setpara.ssScanSource = SS_POSITIVE;
-  else if (strcmp (val_source, source_list[SS_NEGATIVE]) == 0)
-    s->setpara.ssScanSource = SS_NEGATIVE;
-  else
-    s->setpara.ssScanSource = SS_REFLECTIVE;
-
-  val = s->val[OPT_MODE].s;
-  if (strcmp (val, mode_list[CM_RGB48]) == 0)
-    {
-      if (s->val[OPT_PREVIEW].w)
-	{
-	  DBG (DBG_DET, "calc_parameters: preview, set ColorMode CM_RGB24\n");
-	  s->setpara.cmColorMode = CM_RGB24;
-	}
-      else
-	{
-	  s->setpara.cmColorMode = CM_RGB48;
-	}
-    }
-  else if (strcmp (val, mode_list[CM_RGB24]) == 0)
-    {
-      s->setpara.cmColorMode = CM_RGB24;
-    }
-  else if (strcmp (val, mode_list[CM_GRAY16]) == 0)
-    {
-      if (s->val[OPT_PREVIEW].w)
-	{
-	  DBG (DBG_DET, "calc_parameters: preview, set ColorMode CM_GRAY8\n");
-	  s->setpara.cmColorMode = CM_GRAY8;
-	}
-      else
-	{
-	  s->setpara.cmColorMode = CM_GRAY16;
-	}
-    }
-  else if (strcmp (val, mode_list[CM_GRAY8]) == 0)
-    {
-      s->setpara.cmColorMode = CM_GRAY8;
-    }
-  else
-    {
-      s->setpara.cmColorMode = CM_TEXT;
-    }
-
-  /* provide an estimate for scan parameters returned by sane_get_parameters */
-  s->params.pixels_per_line = s->setpara.wWidth;
-  s->params.lines = s->setpara.wHeight;
-  s->params.last_frame = SANE_TRUE;
-
-  switch (s->setpara.cmColorMode)
-    {
-    case CM_RGB48:
-      s->params.format = SANE_FRAME_RGB;
-      s->params.depth = 16;
-      s->params.bytes_per_line = s->params.pixels_per_line * 6;
-      break;
-    case CM_RGB24:
-      s->params.format = SANE_FRAME_RGB;
-      s->params.depth = 8;
-      s->params.bytes_per_line = s->params.pixels_per_line * 3;
-      break;
-    case CM_GRAY16:
-      s->params.format = SANE_FRAME_GRAY;
-      s->params.depth = 16;
-      s->params.bytes_per_line = s->params.pixels_per_line * 2;
-      break;
-    case CM_GRAY8:
-      s->params.format = SANE_FRAME_GRAY;
-      s->params.depth = 8;
-      s->params.bytes_per_line = s->params.pixels_per_line;
-      break;
-    case CM_TEXT:
-      s->params.format = SANE_FRAME_GRAY;
-      s->params.depth = 1;
-      s->params.bytes_per_line = s->params.pixels_per_line / 8;
-      break;
-    }
-
-  DBG (DBG_FUNC, "calc_parameters: exit\n");
-}
-
 static SANE_Status
 init_options (Mustek_Scanner * s)
 {
   SANE_Int option, count = 0;
   SANE_Word *dpi_list;
+  TARGETIMAGE target;
 
   DBG (DBG_FUNC, "init_options: start\n");
 
@@ -401,38 +406,11 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_BR_Y].constraint.range = &y_range;
   s->val[OPT_BR_Y].w = y_range.max;
 
-  calc_parameters (s);
+  get_target_image (s, &target);
+  calc_parameters (&target, &s->params);
 
   DBG (DBG_FUNC, "init_options: exit\n");
   return SANE_STATUS_GOOD;
-}
-
-static SANE_Bool
-ReadScannedData (IMAGEROWS * pImageRows, TARGETIMAGE * pTarget)
-{
-  SANE_Bool isRGBInvert;
-  unsigned short Rows;
-  unsigned int i;
-
-  DBG (DBG_FUNC, "ReadScannedData: start\n");
-
-  isRGBInvert = (pImageRows->roRgbOrder == RO_RGB) ? SANE_FALSE : SANE_TRUE;
-  Rows = pImageRows->wWantedLineNum;
-  DBG (DBG_INFO, "ReadScannedData: wanted rows = %d\n", Rows);
-
-  if (!MustScanner_GetRows (pImageRows->pBuffer, &Rows, isRGBInvert))
-    return SANE_FALSE;
-  pImageRows->wXferedLineNum = Rows;
-
-  if ((pTarget->cmColorMode == CM_TEXT) ||
-      (pTarget->ssScanSource == SS_NEGATIVE))
-    {
-      for (i = 0; i < (Rows * pTarget->dwBytesPerRow); i++)
-	pImageRows->pBuffer[i] ^= 0xff;
-    }
-
-  DBG (DBG_FUNC, "ReadScannedData: exit\n");
-  return SANE_TRUE;
 }
 
 
@@ -564,6 +542,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Status status;
   SANE_Word cap;
   SANE_Int myinfo = 0;
+  TARGETIMAGE target;
 
   DBG (DBG_FUNC, "sane_control_option: start: action = %s, option = %s (%d)\n",
        (action == SANE_ACTION_GET_VALUE) ? "get" :
@@ -645,7 +624,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_X:
 	case OPT_BR_Y:
 	  s->val[option].w = *(SANE_Word *) val;
-	  calc_parameters (s);
+	  get_target_image (s, &target);
+	  calc_parameters (&target, &s->params);
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
 	case OPT_THRESHOLD:
@@ -660,7 +640,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 	  else
 	    s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
-	  calc_parameters (s);
+	  get_target_image (s, &target);
+	  calc_parameters (&target, &s->params);
 	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  break;
 	case OPT_SOURCE:
@@ -740,6 +721,7 @@ SANE_Status
 sane_start (SANE_Handle handle)
 {
   Mustek_Scanner *s = handle;
+  TARGETIMAGE target;
 
   DBG (DBG_FUNC, "sane_start: start\n");
  
@@ -750,29 +732,26 @@ sane_start (SANE_Handle handle)
       return SANE_FALSE;
     }
  
-  calc_parameters (s);
+  get_target_image (s, &target);
 
-  DBG (DBG_INFO, "sane_start: setpara.wX=%d\n", s->setpara.wX);
-  DBG (DBG_INFO, "sane_start: setpara.wY=%d\n", s->setpara.wY);
-  DBG (DBG_INFO, "sane_start: setpara.wWidth=%d\n", s->setpara.wWidth);
-  DBG (DBG_INFO, "sane_start: setpara.wHeight=%d\n", s->setpara.wHeight);
-  DBG (DBG_INFO, "sane_start: setpara.wLineartThreshold=%d\n",
-       s->setpara.wLineartThreshold);
-  DBG (DBG_INFO, "sane_start: setpara.wDpi=%d\n", s->setpara.wDpi);
-  DBG (DBG_INFO, "sane_start: setpara.cmColorMode=%d\n",
-       s->setpara.cmColorMode);
-  DBG (DBG_INFO, "sane_start: setpara.ssScanSource=%d\n",
-       s->setpara.ssScanSource);
+  DBG (DBG_INFO, "sane_start: target.wX=%d\n", target.wX);
+  DBG (DBG_INFO, "sane_start: target.wY=%d\n", target.wY);
+  DBG (DBG_INFO, "sane_start: target.wWidth=%d\n", target.wWidth);
+  DBG (DBG_INFO, "sane_start: target.wHeight=%d\n", target.wHeight);
+  DBG (DBG_INFO, "sane_start: target.wLineartThreshold=%d\n",
+       target.wLineartThreshold);
+  DBG (DBG_INFO, "sane_start: target.wXDpi=%d\n", target.wXDpi);
+  DBG (DBG_INFO, "sane_start: target.wYDpi=%d\n", target.wYDpi);
+  DBG (DBG_INFO, "sane_start: target.cmColorMode=%d\n", target.cmColorMode);
+  DBG (DBG_INFO, "sane_start: target.ssScanSource=%d\n", target.ssScanSource);
 
   MustScanner_Reset ();
 
   /* adjust parameters to the scanner's requirements */
-  MustScanner_ScanSuggest (&s->setpara);
-
-  /* update the scan parameters to be returned by sane_get_parameters */
-  s->params.pixels_per_line = s->setpara.wWidth;
-  s->params.lines = s->setpara.wHeight;
-  s->params.bytes_per_line = s->setpara.dwBytesPerRow;
+  MustScanner_ScanSuggest (&target);
+  calc_parameters (&target, &s->params);
+  s->bInvertImage = ((target.cmColorMode == CM_TEXT) ^
+		     (target.ssScanSource == SS_NEGATIVE));
 
   s->read_rows = s->params.lines;
   DBG (DBG_INFO, "sane_start: read_rows = %d\n", s->read_rows);
@@ -787,7 +766,7 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_NO_MEM;
   s->scan_buf_len = 0;
 
-  if (!MustScanner_SetupScan (&s->setpara))
+  if (!MustScanner_SetupScan (&target))
     return SANE_STATUS_INVAL;
 
   DBG (DBG_FUNC, "sane_start: exit\n");
@@ -801,8 +780,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   Mustek_Scanner *s = handle;
   SANE_Byte *tempbuf;
   long int tempbuf_size;
-  SANE_Int lines_to_read, lines_read;
-  IMAGEROWS image_row;
+  SANE_Int lines, lines_read;
+  unsigned short lines_received;
+  int i;
 
   DBG (DBG_FUNC, "sane_read: start: max_len=%d\n", max_len);
 
@@ -826,33 +806,34 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     {
       if (s->read_rows > 0)
 	{
-	  lines_to_read = SCAN_BUFFER_SIZE / s->setpara.dwBytesPerRow;
-	  if (lines_to_read > s->read_rows)
-	    lines_to_read = s->read_rows;
+	  lines = SCAN_BUFFER_SIZE / s->params.bytes_per_line;
+	  lines = _MIN (lines, s->read_rows);
 
-	  tempbuf_size = lines_to_read * s->setpara.dwBytesPerRow +
-			 3 * 1024 + 1;
+	  tempbuf_size = lines * s->params.bytes_per_line + 3 * 1024 + 1;
 	  tempbuf = malloc (tempbuf_size);
 	  if (!tempbuf)
 	    return SANE_STATUS_NO_MEM;
 	  memset (tempbuf, 0, tempbuf_size);
 	  DBG (DBG_INFO, "sane_read: buffer size is %ld\n", tempbuf_size);
 
-	  image_row.roRgbOrder = s->model.line_mode_color_order;
-	  image_row.wWantedLineNum = lines_to_read;
-	  image_row.pBuffer = tempbuf;
 	  s->bIsReading = SANE_TRUE;
-
-	  if (!ReadScannedData (&image_row, &s->setpara))
+	  lines_received = (unsigned short) lines;
+	  if (!MustScanner_GetRows (tempbuf, &lines_received,
+				    s->model.isRGBInvert))
 	    {
-	      DBG (DBG_ERR, "sane_read: ReadScannedData error\n");
+	      DBG (DBG_ERR, "sane_read: MustScanner_GetRows error\n");
 	      s->bIsReading = SANE_FALSE;
 	      return SANE_STATUS_INVAL;
 	    }
 
+	  if (s->bInvertImage)
+	    {
+	      for (i = 0; i < (lines_received * s->params.bytes_per_line); i++)
+		tempbuf[i] ^= 0xff;
+	    }
+
 	  DBG (DBG_DBG, "sane_read: Finish ReadScanedData\n");
-	  s->scan_buf_len =
-	    image_row.wXferedLineNum * s->setpara.dwBytesPerRow;
+	  s->scan_buf_len = lines_received * s->params.bytes_per_line;
 	  DBG (DBG_INFO, "sane_read : s->scan_buf_len = %ld\n",
 	       (long int) s->scan_buf_len);
 
@@ -866,7 +847,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  DBG (DBG_DBG, "sane_read: after memcpy\n");
 	  free (tempbuf);
 	  s->scan_buf_start = s->scan_buf;
-	  s->read_rows -= image_row.wXferedLineNum;
+	  s->read_rows -= lines_received;
 	  s->bIsReading = SANE_FALSE;
 	}
       else
@@ -882,17 +863,14 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	}
     }
 
-  lines_read = _MIN (max_len, (SANE_Int) s->scan_buf_len);
+  lines_read = _MIN (max_len, s->scan_buf_len);
   DBG (DBG_DBG, "sane_read: after %d\n", lines_read);
+  *len = lines_read;
 
-  *len = (SANE_Int) lines_read;
-
-  DBG (DBG_INFO, "sane_read: get lines_read = %d\n", lines_read);
-  DBG (DBG_INFO, "sane_read: get *len = %d\n", *len);
   memcpy (buf, s->scan_buf_start, lines_read);
-
   s->scan_buf_len -= lines_read;
   s->scan_buf_start += lines_read;
+
   DBG (DBG_FUNC, "sane_read: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -932,7 +910,6 @@ sane_cancel (SANE_Handle handle)
 
       s->read_rows = 0;
       s->scan_buf_len = 0;
-      memset (&s->setpara, 0, sizeof (s->setpara));
     }
   else
     {

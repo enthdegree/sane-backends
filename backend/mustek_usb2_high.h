@@ -65,14 +65,22 @@ typedef struct
 {
   COLORMODE cmColorMode;
   SCANSOURCE ssScanSource;
-  unsigned short wDpi;
+  unsigned short wXDpi;
+  unsigned short wYDpi;
   unsigned short wX;
   unsigned short wY;
   unsigned short wWidth;
   unsigned short wHeight;
   unsigned short wLineartThreshold;
-  unsigned int dwBytesPerRow;
 } TARGETIMAGE;
+
+typedef struct
+{
+  int nSecLength, nDarkSecLength;
+  int nSecNum, nDarkSecNum;
+  int nPowerNum;
+  unsigned short wStartPosition;
+} CALIBRATIONPARAM;
 
 
 #define _MAX(a,b) ((a)>(b)?(a):(b))

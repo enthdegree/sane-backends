@@ -79,20 +79,6 @@ enum
   NUM_OPTIONS
 };
 
-typedef enum
-{
-  RO_RGB,
-  RO_BGR
-} RGBORDER;
-
-
-typedef struct
-{
-  RGBORDER roRgbOrder;
-  unsigned short wWantedLineNum;
-  unsigned short wXferedLineNum;
-  SANE_Byte * pBuffer;
-} IMAGEROWS;
 
 typedef struct
 {
@@ -113,7 +99,8 @@ typedef struct
   SANE_Fixed x_size_ta;			/* size of scan area in TA mode in mm */
   SANE_Fixed y_size_ta;
 
-  RGBORDER line_mode_color_order;	/* order of the CCD/CIS colors */
+  SANE_Bool isRGBInvert;	/* order of the CCD/CIS colors:
+				   RGB if SANE_False, BGR otherwise */
   /*@} */
 } Scanner_Model;
 
@@ -125,13 +112,13 @@ typedef struct Mustek_Scanner
   Option_Value val[NUM_OPTIONS];
   SANE_Parameters params;
   Scanner_Model model;
-  TARGETIMAGE setpara;
   SANE_Bool bIsScanning;
   SANE_Bool bIsReading;
+  SANE_Bool bInvertImage;
   SANE_Word read_rows;		/* number of image lines left to read */
   SANE_Byte * scan_buf;
   SANE_Byte * scan_buf_start;
-  size_t scan_buf_len;
+  SANE_Int scan_buf_len;
 } Mustek_Scanner;
 
 #endif

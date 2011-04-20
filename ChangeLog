@@ -1,3 +1,8 @@
+2011-04-20 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_low.c backend/genesys_devices.c
+	backend/genesys.conf.in: add Xerox 2400 onetouch model and improve
+	big endian handling
+
 2011-03-19 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: move away from using power/level for disabling
 	USB autosuspend/power management and use power/control if available.

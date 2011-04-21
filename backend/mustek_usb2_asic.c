@@ -76,7 +76,7 @@ WriteIOControl (ASIC * chip, unsigned short wValue, unsigned short wIndex,
   status = sanei_usb_control_msg (chip->fd, 0x40, 0x01, wValue, wIndex, wLength,
 				  pBuf);
   if (status != SANE_STATUS_GOOD)
-    DBG (DBG_ERR, "WriteIOControl Error!\n");
+    DBG (DBG_ERR, "WriteIOControl error: %s\n", sane_strstatus (status));
 
   return status;
 }
@@ -90,7 +90,7 @@ ReadIOControl (ASIC * chip, unsigned short wValue, unsigned short wIndex,
   status = sanei_usb_control_msg (chip->fd, 0xc0, 0x01, wValue, wIndex, wLength,
 				  pBuf);
   if (status != SANE_STATUS_GOOD)
-    DBG (DBG_ERR, "ReadIOControl Error!\n");
+    DBG (DBG_ERR, "ReadIOControl error: %s\n", sane_strstatus (status));
 
   return status;
 }
@@ -100,7 +100,7 @@ ClearFIFO (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte buf[4];
-  DBG (DBG_ASIC, "ClearFIFO: Enter\n");
+  DBG_ASIC_ENTER();
 
   buf[0] = 0;
   buf[1] = 0;
@@ -113,7 +113,7 @@ ClearFIFO (ASIC * chip)
 
   status = WriteIOControl (chip, 0xc0, 0, 4, buf);
 
-  DBG (DBG_ASIC, "ClearFIFO: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -123,11 +123,12 @@ SwitchBank (ASIC * chip, unsigned short reg)
   SANE_Status status;
   SANE_Byte buf[4];
   SANE_Byte bank;
+  DBG_ASIC_ENTER();
 
   bank = HIBYTE(reg);
   if (bank > SELECT_REGISTER_BANK2)
     {
-      DBG (DBG_ERR, "SwitchBank: invalid register %d\n", reg);
+      DBG (DBG_ERR, "invalid register %d\n", reg);
       return SANE_STATUS_INVAL;
     }
 
@@ -145,6 +146,7 @@ SwitchBank (ASIC * chip, unsigned short reg)
       DBG (DBG_ASIC, "RegisterBankStatus=%d\n", chip->RegisterBankStatus);
     }
 
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -153,7 +155,8 @@ SendData (ASIC * chip, unsigned short reg, SANE_Byte data)
 {
   SANE_Status status;
   SANE_Byte buf[4];
-  DBG (DBG_ASIC, "SendData: Enter. reg=%x,data=%x\n", reg, data);
+  DBG_ASIC_ENTER();
+  DBG (DBG_ASIC, "reg=%x,data=%x\n", reg, data);
 
   status = SwitchBank (chip, reg);
   if (status != SANE_STATUS_GOOD)
@@ -164,9 +167,8 @@ SendData (ASIC * chip, unsigned short reg, SANE_Byte data)
   buf[2] = LOBYTE (reg);
   buf[3] = data;
   status = WriteIOControl (chip, 0xb0, 0, 4, buf);
-  if (status != SANE_STATUS_GOOD)
-    DBG (DBG_ERR, ("SendData: write error\n"));
 
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -175,12 +177,12 @@ ReceiveData (ASIC * chip, SANE_Byte * reg)
 {
   SANE_Status status;
   SANE_Byte buf[4];
-
-  DBG (DBG_ASIC, "ReceiveData\n");
+  DBG_ASIC_ENTER();
 
   status = ReadIOControl (chip, 0x07, 0, 4, buf);
   *reg = buf[0];
 
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -189,8 +191,7 @@ WriteAddressLineForRegister (ASIC * chip, SANE_Byte x)
 {
   SANE_Status status;
   SANE_Byte buf[4];
-
-  DBG (DBG_ASIC, "WriteAddressLineForRegister: Enter\n");
+  DBG_ASIC_ENTER();
 
   buf[0] = x;
   buf[1] = x;
@@ -198,7 +199,7 @@ WriteAddressLineForRegister (ASIC * chip, SANE_Byte x)
   buf[3] = x;
   status = WriteIOControl (chip, 0x04, x, 4, buf);
 
-  DBG (DBG_ASIC, "WriteAddressLineForRegister: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -206,7 +207,7 @@ static SANE_Status
 SetRWSize (ASIC * chip, SANE_Bool isWriteAccess, unsigned int size)
 {
   SANE_Status status;
-  DBG (DBG_ASIC, "SetRWSize: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (!isWriteAccess)
     size >>= 1;
@@ -222,7 +223,7 @@ SetRWSize (ASIC * chip, SANE_Bool isWriteAccess, unsigned int size)
     return status;
   status = SendData (chip, ES01_7F_DMA_SIZE_BYTE3, BYTE3 (size));
 
-  DBG (DBG_ASIC, "SetRWSize: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -231,8 +232,8 @@ DMARead (ASIC * chip, unsigned int size, SANE_Byte * pData)
 {
   SANE_Status status;
   size_t cur_read_size;
-
-  DBG (DBG_ASIC, "DMARead: Enter. size=%d\n", size);
+  DBG_ASIC_ENTER();
+  DBG (DBG_ASIC, "size=%d\n", size);
 
   status = ClearFIFO (chip);
   if (status != SANE_STATUS_GOOD)
@@ -253,7 +254,7 @@ DMARead (ASIC * chip, unsigned int size, SANE_Byte * pData)
       status = sanei_usb_read_bulk (chip->fd, pData, &cur_read_size);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_ERR, "DMARead: read error\n");
+	  DBG (DBG_ERR, "DMA read error\n");
 	  return status;
 	}
 
@@ -264,7 +265,7 @@ DMARead (ASIC * chip, unsigned int size, SANE_Byte * pData)
   if (cur_read_size < DMA_BLOCK_SIZE)
     usleep (20000);
 
-  DBG (DBG_ASIC, "DMARead: Exit\n");
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -273,8 +274,8 @@ DMAWrite (ASIC * chip, unsigned int size, SANE_Byte * pData)
 {
   SANE_Status status;
   size_t cur_write_size;
-
-  DBG (DBG_ASIC, "DMAWrite: Enter. size=%d\n", size);
+  DBG_ASIC_ENTER();
+  DBG (DBG_ASIC, "size=%d\n", size);
 
   status = ClearFIFO (chip);
   if (status != SANE_STATUS_GOOD)
@@ -295,7 +296,7 @@ DMAWrite (ASIC * chip, unsigned int size, SANE_Byte * pData)
       status = sanei_usb_write_bulk (chip->fd, pData, &cur_write_size);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_ERR, "DMAWrite: write error\n");
+	  DBG (DBG_ERR, "DMA write error\n");
 	  return status;
 	}
 
@@ -305,7 +306,7 @@ DMAWrite (ASIC * chip, unsigned int size, SANE_Byte * pData)
 
   status = ClearFIFO (chip);
 
-  DBG (DBG_ASIC, "DMAWrite: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -313,6 +314,7 @@ static SANE_Status
 SendData2Byte (ASIC * chip, unsigned short reg, SANE_Byte data)
 {
   SANE_Status status = SANE_STATUS_GOOD;
+  DBG_ASIC_ENTER();
 
   if (!chip->is2ByteTransfer)
     {
@@ -333,6 +335,7 @@ SendData2Byte (ASIC * chip, unsigned short reg, SANE_Byte data)
       status = WriteIOControl (chip, 0xb0, 0, 4, chip->dataBuf);
     }
 
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -344,8 +347,7 @@ SetRamAddress (ASIC * chip, unsigned int dwStartAddr, unsigned int dwEndAddr,
 	       RAM_TYPE AccessTarget)
 {
   SANE_Status status;
-
-  DBG (DBG_ASIC, "SetRamAddress: Enter\n");
+  DBG_ASIC_ENTER();
 
   /* Set start address. Unit is a word. */
   SendData (chip, ES01_A0_HostStartAddr0_7, BYTE0 (dwStartAddr));
@@ -378,7 +380,7 @@ SetRamAddress (ASIC * chip, unsigned int dwStartAddr, unsigned int dwEndAddr,
 
   status = ClearFIFO (chip);
 
-  DBG (DBG_ASIC, "SetRamAddress: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -387,8 +389,7 @@ RamAccess (ASIC * chip, RAMACCESS * access)
 {
   SANE_Status status;
   SANE_Byte a[2];
-
-  DBG (DBG_ASIC, "RamAccess: Enter\n");
+  DBG_ASIC_ENTER();
 
   status = SetRamAddress (chip, access->StartAddress, 0xffffff,
 			  access->RamType);
@@ -409,14 +410,14 @@ RamAccess (ASIC * chip, RAMACCESS * access)
       access->BufferPtr = a;
       access->IsWriteAccess = SANE_FALSE;
       status = RamAccess (chip, access);
-      DBG (DBG_ASIC, "end steal 2 byte!\n");
+      DBG (DBG_ASIC, "stole 2 bytes!\n");
     }
   else
     {
       status = DMARead (chip, access->RwSize, access->BufferPtr);
     }
 
-  DBG (DBG_ASIC, "RamAccess: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -431,15 +432,14 @@ SetMotorCurrentAndPhase (ASIC * chip,
 
   SANE_Byte MotorPhaseMask;
   int i;
-
-  DBG (DBG_ASIC, "SetMotorCurrentAndPhase: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (MotorCurrentAndPhase->MotorDriverIs3967 == 1)
     MotorPhaseMask = 0xFE;
   else
     MotorPhaseMask = 0xFF;
-
   DBG (DBG_ASIC, "MotorPhaseMask=0x%x\n", MotorPhaseMask);
+
   SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL, DOWN_LOAD_MOTOR_TABLE_ENABLE);
 
   if (MotorCurrentAndPhase->MoveType == _4_TABLE_SPACE_FOR_FULL_STEP)
@@ -508,7 +508,7 @@ SetMotorCurrentAndPhase (ASIC * chip,
   SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL,
 	    MotorCurrentAndPhase->MoveType);
 
-  DBG (DBG_ASIC, "SetMotorCurrentAndPhase: Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 static SANE_Status
@@ -517,8 +517,7 @@ SetMotorTable (ASIC * chip, unsigned int dwTableBaseAddr,
 {
   SANE_Status status;
   RAMACCESS access;
-
-  DBG (DBG_ASIC, "SetMotorTable: Enter\n");
+  DBG_ASIC_ENTER();
 
   access.IsWriteAccess = SANE_TRUE;
   access.RamType = EXTERNAL_RAM;
@@ -532,7 +531,7 @@ SetMotorTable (ASIC * chip, unsigned int dwTableBaseAddr,
   SendData (chip, ES01_9D_MotorTableAddrA14_A21,
 	    (SANE_Byte) (dwTableBaseAddr >> TABLE_OFFSET_BASE));
 
-  DBG (DBG_ASIC, "SetMotorTable: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -542,8 +541,7 @@ SetShadingTable (ASIC * chip, unsigned int dwTableBaseAddr,
 {
   SANE_Status status;
   RAMACCESS access;
-
-  DBG (DBG_ASIC, "SetShadingTable: Enter\n");
+  DBG_ASIC_ENTER();
 
   access.IsWriteAccess = SANE_TRUE;
   access.RamType = EXTERNAL_RAM;
@@ -557,7 +555,7 @@ SetShadingTable (ASIC * chip, unsigned int dwTableBaseAddr,
   SendData (chip, ES01_9B_ShadingTableAddrA14_A21,
 	    (SANE_Byte) (dwTableBaseAddr >> TABLE_OFFSET_BASE));
 
-  DBG (DBG_ASIC, "SetShadingTable: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -567,14 +565,13 @@ MotorMove (ASIC * chip, MOTORMOVE * Move)
   SANE_Status status;
   unsigned int motor_steps;
   SANE_Byte temp_motor_action;
-
-  DBG (DBG_ASIC, "MotorMove: Enter\n");
+  DBG_ASIC_ENTER();
 
   status = PrepareScanChip (chip);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  DBG (DBG_ASIC, "Set start/end pixel\n");
+  DBG (DBG_ASIC, "set start/end pixel\n");
 
   SendData (chip, ES01_B8_ChannelRedExpStartPixelLSB, LOBYTE (100));
   SendData (chip, ES01_B9_ChannelRedExpStartPixelMSB, HIBYTE (100));
@@ -623,7 +620,7 @@ MotorMove (ASIC * chip, MOTORMOVE * Move)
     }
   else
     {
-      DBG (DBG_ASIC, "Forward or Backward\n");
+      DBG (DBG_ASIC, "forward or backward\n");
       temp_motor_action = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
       motor_steps = Move->FixMoveSteps;
 
@@ -660,7 +657,7 @@ MotorMove (ASIC * chip, MOTORMOVE * Move)
 
   status = WaitUnitReady (chip);
 
-  DBG (DBG_ASIC, "MotorMove: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -677,8 +674,7 @@ SetMotorStepTable (ASIC * chip, MOTORMOVE * MotorStepsTable,
   SANE_Byte bScanDecSteps = 255;
   unsigned short wScanBackTrackingSteps = 40;
   unsigned short wScanRestartSteps = 40;
-
-  DBG (DBG_ASIC, "SetMotorStepTable: Enter\n");
+  DBG_ASIC_ENTER();
 
   switch (wYResolution)
     {
@@ -775,7 +771,7 @@ SetMotorStepTable (ASIC * chip, MOTORMOVE * MotorStepsTable,
   SendData (chip, ES01_F1_ScanImageStep8_15, BYTE1 (dwScanImageSteps));
   SendData (chip, ES01_F2_ScanImageStep16_19, BYTE2 (dwScanImageSteps));
 
-  DBG (DBG_ASIC, "SetMotorStepTable: Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 static void
@@ -786,8 +782,7 @@ SetMotorStepTableForCalibration (ASIC * chip, MOTORMOVE * MotorStepsTable,
   SANE_Byte bScanDecSteps = 1;
   unsigned short wFixScanSteps = 0;
   unsigned short wScanBackTrackingSteps = 20;
-
-  DBG (DBG_ASIC, "SetMotorStepTableForCalibration: Enter\n");
+  DBG_ASIC_ENTER();
 
   chip->isMotorMoveToFirstLine = 0;
 
@@ -824,7 +819,7 @@ SetMotorStepTableForCalibration (ASIC * chip, MOTORMOVE * MotorStepsTable,
   SendData (chip, ES01_F1_ScanImageStep8_15, BYTE1 (dwScanImageSteps));
   SendData (chip, ES01_F2_ScanImageStep16_19, BYTE2 (dwScanImageSteps));
 
-  DBG (DBG_ASIC, "SetMotorStepTableForCalibration: Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 static void
@@ -836,8 +831,6 @@ CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
   unsigned short * pMotorTable;
   long double y;
   unsigned short i;
-
-  DBG (DBG_ASIC, "CalculateScanMotorTable: Enter\n");
 
   wStartSpeed = pCalculateMotorTable->StartSpeed;
   wEndSpeed = pCalculateMotorTable->EndSpeed;
@@ -893,8 +886,6 @@ CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
       pMotorTable[i + 512 * 3] = wStartSpeed;	/* T3 */
       pMotorTable[i + 512 * 5] = wStartSpeed;	/* T5 */
     }
-
-  DBG (DBG_ASIC, "CalculateScanMotorTable: Exit\n");
 }
 
 static void
@@ -905,8 +896,6 @@ CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
   unsigned short * pMotorTable;
   long double y;
   unsigned short i;
-
-  DBG (DBG_ASIC, "CalculateMoveMotorTable: Enter\n");
 
   wStartSpeed = pCalculateMotorTable->StartSpeed;
   wEndSpeed = pCalculateMotorTable->EndSpeed;
@@ -942,8 +931,6 @@ CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
 	wEndSpeed;
       pMotorTable[i + 512 * 2] = (unsigned short) y;
     }
-
-  DBG (DBG_ASIC, "CalculateMoveMotorTable: Exit\n");
 }
 
 static SANE_Byte
@@ -974,8 +961,7 @@ SimpleMotorMove (ASIC * chip,
   CALCULATEMOTORTABLE CalMotorTable;
   MOTOR_CURRENT_AND_PHASE CurrentPhase;
   MOTORMOVE Move;
-
-  DBG (DBG_ASIC, "SimpleMotorMove: Enter\n");
+  DBG_ASIC_ENTER();
 
   MotorTable = malloc (MOTOR_TABLE_SIZE * sizeof (unsigned short));
   if (!MotorTable)
@@ -1017,7 +1003,7 @@ SimpleMotorMove (ASIC * chip,
   Move.FixMoveSpeed = dwFixMoveSpeed;
   status = MotorMove (chip, &Move);
 
-  DBG (DBG_ASIC, "SimpleMotorMove: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -1027,8 +1013,6 @@ SimpleMotorMove (ASIC * chip,
 static void
 InitTiming (ASIC * chip)
 {
-  DBG (DBG_ASIC, "InitTiming: Enter\n");
-
   chip->Timing.AFE_ADCCLK_Timing = 0x3c3c3c00;
   chip->Timing.AFE_ADCVS_Timing  = 0x00c00000;
   chip->Timing.AFE_ADCRS_Timing  = 0x00000c00;
@@ -1057,8 +1041,6 @@ InitTiming (ASIC * chip)
 
   chip->Timing.wCCDPixelNumber_Full = 11250;
   chip->Timing.wCCDPixelNumber_Half = 7500;
-
-  DBG (DBG_ASIC, "InitTiming: Exit\n");
 }
 
 static SANE_Status
@@ -1066,8 +1048,7 @@ OpenScanChip (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte x[4];
-
-  DBG (DBG_ASIC, "OpenScanChip: Enter\n");
+  DBG_ASIC_ENTER();
 
   x[0] = 0x64;
   x[1] = 0x64;
@@ -1099,7 +1080,7 @@ OpenScanChip (ASIC * chip)
   x[3] = 0x45;
   status = WriteIOControl (chip, 0x90, 0, 4, x);
 
-  DBG (DBG_ASIC, "OpenScanChip: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -1108,8 +1089,7 @@ CloseScanChip (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte x[4];
-
-  DBG (DBG_ASIC, "CloseScanChip: Enter\n");
+  DBG_ASIC_ENTER();
 
   x[0] = 0x64;
   x[1] = 0x64;
@@ -1141,7 +1121,7 @@ CloseScanChip (ASIC * chip)
   x[3] = 0x17;
   status = WriteIOControl (chip, 0x90, 0, 4, x);
 
-  DBG (DBG_ASIC, "CloseScanChip: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -1149,8 +1129,7 @@ static SANE_Status
 PrepareScanChip (ASIC * chip)
 {
   SANE_Status status;
-
-  DBG (DBG_ASIC, "PrepareScanChip: Enter\n");
+  DBG_ASIC_ENTER();
 
   SendData (chip, ES01_F3_ActionOption, 0);
   SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
@@ -1158,7 +1137,7 @@ PrepareScanChip (ASIC * chip)
 
   status = WaitUnitReady (chip);
 
-  DBG (DBG_ASIC, "PrepareScanChip: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -1169,8 +1148,7 @@ TestDRAM (ASIC * chip)
   RAMACCESS access;
   SANE_Byte buf[DRAM_TEST_SIZE];
   unsigned int i;
-
-  DBG (DBG_ASIC, "TestDRAM: Enter\n");
+  DBG_ASIC_ENTER();
 
   for (i = 0; i < sizeof (buf); i++)
     buf[i] = i;
@@ -1202,7 +1180,7 @@ TestDRAM (ASIC * chip)
 	}
     }
 
-  DBG (DBG_ASIC, "DRAM_Text: Exit\n");
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -1210,8 +1188,7 @@ static SANE_Status
 SafeInitialChip (ASIC * chip)
 {
   SANE_Status status;
-
-  DBG (DBG_ASIC, "SafeInitialChip: Enter\n");
+  DBG_ASIC_ENTER();
 
   status = PrepareScanChip (chip);
   if (status != SANE_STATUS_GOOD)
@@ -1222,14 +1199,11 @@ SafeInitialChip (ASIC * chip)
     {
       status = TestDRAM (chip);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_ASIC, "TestDRAM error\n");
-	  return status;
-	}
+	return status;
       chip->isFirstOpenChip = SANE_FALSE;
     }
 
-  DBG (DBG_ASIC, "SafeInitialChip: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -1237,7 +1211,7 @@ static SANE_Status
 GetChipStatus (ASIC * chip, SANE_Byte Selector, SANE_Byte * ChipStatus)
 {
   SANE_Status status;
-  DBG (DBG_ASIC, "GetChipStatus: Enter\n");
+  DBG_ASIC_ENTER();
 
   status = SendData (chip, ES01_8B_Status, Selector);
   if (status != SANE_STATUS_GOOD)
@@ -1250,7 +1224,7 @@ GetChipStatus (ASIC * chip, SANE_Byte Selector, SANE_Byte * ChipStatus)
   if (ChipStatus)
     status = ReceiveData (chip, ChipStatus);
 
-  DBG (DBG_ASIC, "GetChipStatus: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -1259,20 +1233,16 @@ IsCarriageHome (ASIC * chip, SANE_Bool * LampHome)
 {
   SANE_Status status;
   SANE_Byte temp;
-
-  DBG (DBG_ASIC, "IsCarriageHome: Enter\n");
+  DBG_ASIC_ENTER();
 
   status = GetChipStatus (chip, H1H0L1L0_PS_MJ, &temp);
   if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_ASIC, "IsCarriageHome: Error!\n");
-      return status;
-    }
+    return status;
 
   *LampHome = (temp & SENSOR0_DETECTED) ? SANE_TRUE : SANE_FALSE;
   DBG (DBG_ASIC, "LampHome=%d\n", *LampHome);
 
-  DBG (DBG_ASIC, "IsCarriageHome: Exit\n");
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -1282,8 +1252,7 @@ WaitCarriageHome (ASIC * chip)
   SANE_Status status;
   SANE_Bool LampHome;
   int i;
-
-  DBG (DBG_ASIC, "WaitCarriageHome: Enter\n");
+  DBG_ASIC_ENTER();
 
   for (i = 0; i < 100; i++)
     {
@@ -1294,13 +1263,13 @@ WaitCarriageHome (ASIC * chip)
 	break;
       usleep (300000);
     }
-  DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.3));
+  DBG (DBG_ASIC, "waited %d s\n", (unsigned short) (i * 0.3));
 
   status = SendData (chip, ES01_F4_ActiveTrigger, 0);
   if ((status == SANE_STATUS_GOOD) && (i == 100))
     status = SANE_STATUS_DEVICE_BUSY;
 
-  DBG (DBG_ASIC, "WaitCarriageHome: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -1309,36 +1278,31 @@ WaitUnitReady (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte temp;
-  int i = 0;
+  int i;
+  DBG_ASIC_ENTER();
 
-  DBG (DBG_ASIC, "WaitUnitReady: Enter\n");
-
-  do
+  for (i = 0; i < 300; i++)
     {
       status = GetChipStatus (chip, SCAN_STATE, &temp);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_ASIC, "WaitUnitReady: Error!\n");
-	  return status;
-	}
+	return status;
       if ((temp & 0x1f) == 0)
 	break;
       usleep (100000);
     }
-  while (++i < 300);
-  DBG (DBG_ASIC, "Waited %d s\n", (unsigned short) (i * 0.1));
+  DBG (DBG_ASIC, "waited %d s\n", (unsigned short) (i * 0.1));
 
-  SendData (chip, ES01_F4_ActiveTrigger, 0);
+  status = SendData (chip, ES01_F4_ActiveTrigger, 0);
 
-  DBG (DBG_ASIC, "WaitUnitReady: Exit\n");
-  return SANE_STATUS_GOOD;
+  DBG_ASIC_LEAVE();
+  return status;
 }
 
 
 static void
 SetCCDTiming (ASIC * chip)
 {
-  DBG (DBG_ASIC, "SetCCDTiming: Enter\n");
+  DBG_ASIC_ENTER();
 
   SendData (chip, ES01_82_AFE_ADCCLK_TIMING_ADJ_BYTE0,
 	    BYTE0 (chip->Timing.AFE_ADCCLK_Timing));
@@ -1440,13 +1404,13 @@ SetCCDTiming (ASIC * chip)
   SendData (chip, ES01_1EB_PHCP_TIMING_ADJ_B3,
 	    BYTE3 (chip->Timing.CCD_PHCP_Timing));
 
-  DBG (DBG_ASIC, "SetCCDTiming: Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 static void
 SetLineTimeAndExposure (ASIC * chip)
 {
-  DBG (DBG_ASIC, "SetLineTimeAndExposure: Enter\n");
+  DBG_ASIC_ENTER();
 
   SendData (chip, ES01_C4_MultiTGTimesRed, 0);
   SendData (chip, ES01_C5_MultiTGTimesGreen, 0);
@@ -1460,13 +1424,13 @@ SetLineTimeAndExposure (ASIC * chip)
 
   SendData (chip, ES01_CB_CCDDummyCycleNumber, 0);
 
-  DBG (DBG_ASIC, "SetLineTimeAndExposure: Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 static void
 SetLEDTime (ASIC * chip)
 {
-  DBG (DBG_ASIC, "SetLEDTime: Enter\n");
+  DBG_ASIC_ENTER();
 
   SendData (chip, ES01_B8_ChannelRedExpStartPixelLSB,
 	    LOBYTE (chip->Timing.ChannelR_StartPixel));
@@ -1495,15 +1459,14 @@ SetLEDTime (ASIC * chip)
   SendData (chip, ES01_C3_ChannelBlueExpEndPixelMSB,
 	    HIBYTE (chip->Timing.ChannelB_EndPixel));
 
-  DBG (DBG_ASIC, "SetLEDTime: Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 void
 SetAFEGainOffset (ASIC * chip)
 {
   int i, j;
-
-  DBG (DBG_ASIC, "SetAFEGainOffset: Enter\n");
+  DBG_ASIC_ENTER();
 
   for (i = 0; i < 3; i++)
     {
@@ -1545,15 +1508,14 @@ SetAFEGainOffset (ASIC * chip)
 	SendData (chip, ES01_0A_AD9826OffsetRedP + (i * 2), chip->AD.Offset[i]);
     }
 
-  DBG (DBG_ASIC, "SetAFEGainOffset: Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 static void
 SetScanMode (ASIC * chip, SANE_Byte bScanBits)
 {
   SANE_Byte temp_f5_register;
-
-  DBG (DBG_ASIC, "SetScanMode(): Enter\n");
+  DBG_ASIC_ENTER();
 
   if (bScanBits >= 24)
     temp_f5_register = COLOR_ES02 | GRAY_GREEN_BLUE_ES02;
@@ -1570,7 +1532,7 @@ SetScanMode (ASIC * chip, SANE_Byte bScanBits)
   SendData (chip, ES01_F5_ScanDataFormat, temp_f5_register);
 
   DBG (DBG_ASIC, "F5_ScanDataFormat=0x%x\n", temp_f5_register);
-  DBG (DBG_ASIC, "SetScanMode(): Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 static void
@@ -1580,8 +1542,7 @@ SetPackAddress (ASIC * chip, unsigned short wWidth, unsigned short wX,
 {
   unsigned short ValidPixelNumber;
   int i;
-
-  DBG (DBG_ASIC, "SetPackAddress: Enter\n");
+  DBG_ASIC_ENTER();
 
   ValidPixelNumber = (unsigned short) ((wWidth + 10 + 15) * XRatioAdderDouble);
   ValidPixelNumber &= ~15;
@@ -1686,7 +1647,7 @@ SetPackAddress (ASIC * chip, unsigned short wWidth, unsigned short wX,
 
   for (i = 0; i < 16; i++)
     SendData (chip, 0x260 + i, 0);
-  DBG (DBG_ASIC, "Set Invalid Pixel finished\n");
+  DBG (DBG_ASIC, "set invalid pixel finished\n");
 
 
   /* set pack start address */
@@ -1741,7 +1702,7 @@ SetPackAddress (ASIC * chip, unsigned short wWidth, unsigned short wX,
   if (pValidPixelNumber)
     *pValidPixelNumber = ValidPixelNumber;
 
-  DBG (DBG_ASIC, "SetPackAddress: Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 static void
@@ -1749,8 +1710,7 @@ SetExtraSettings (ASIC * chip, unsigned short wXResolution,
 		  unsigned short wCCD_PixelNumber, SANE_Bool bypassShading)
 {
   SANE_Byte temp_ff_register = 0;
-
-  DBG (DBG_ASIC, "SetExtraSettings: Enter\n");
+  DBG_ASIC_ENTER();
 
   SendData (chip, ES01_B8_ChannelRedExpStartPixelLSB,
 	    LOBYTE (chip->Timing.ChannelR_StartPixel));
@@ -1805,7 +1765,7 @@ SetExtraSettings (ASIC * chip, unsigned short wXResolution,
     }
 
   SendData (chip, ES01_FF_SCAN_IMAGE_OPTION, temp_ff_register);
-  DBG (DBG_ASIC, "FF_SCAN_IMAGE_OPTION=0x%x\n", temp_ff_register);
+  DBG (DBG_ASIC, "temp_ff_register=0x%x\n", temp_ff_register);
 
   /* pixel process time */
   SendData (chip, ES01_B0_CCDPixelLSB, LOBYTE (wCCD_PixelNumber));
@@ -1818,8 +1778,7 @@ SetExtraSettings (ASIC * chip, unsigned short wXResolution,
   SendData (chip, ES01_89_LINE_ART_THRESHOLD_LOW_VALUE, 127);
 
   usleep (50000);
-
-  DBG (DBG_ASIC, "SetExtraSettings: Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 
@@ -1843,12 +1802,11 @@ SANE_Status
 Asic_Open (ASIC * chip)
 {
   SANE_Status status;
-
-  DBG (DBG_ASIC, "Asic_Open: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate > FS_OPENED)
     {
-      DBG (DBG_ASIC, "chip has been opened. fd=%d\n", chip->fd);
+      DBG (DBG_ASIC, "chip already open, fd=%d\n", chip->fd);
       return SANE_STATUS_INVAL;
     }
 
@@ -1857,20 +1815,20 @@ Asic_Open (ASIC * chip)
   status = sanei_usb_find_devices (VendorID, ProductID, attach_one_scanner);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_ERR, "Asic_Open: sanei_usb_find_devices failed: %s\n",
+      DBG (DBG_ERR, "sanei_usb_find_devices failed: %s\n",
 	   sane_strstatus (status));
       return status;
     }
   if (!device_name)
     {
-      DBG (DBG_ERR, "Asic_Open: no scanner found\n");
+      DBG (DBG_ERR, "no scanner found\n");
       return SANE_STATUS_INVAL;
     }
 
   status = sanei_usb_open (device_name, &chip->fd);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_ERR, "Asic_Open: sanei_usb_open of %s failed: %s\n",
+      DBG (DBG_ERR, "sanei_usb_open of %s failed: %s\n",
 	   device_name, sane_strstatus (status));
       return status;
     }
@@ -1878,7 +1836,6 @@ Asic_Open (ASIC * chip)
   status = OpenScanChip (chip);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_ASIC, "Asic_Open: OpenScanChip error\n");
       sanei_usb_close (chip->fd);
       return status;
     }
@@ -1909,13 +1866,12 @@ Asic_Open (ASIC * chip)
   status = SafeInitialChip (chip);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_ERR, "Asic_Open: SafeInitialChip error\n");
       sanei_usb_close (chip->fd);
       return status;
     }
 
-  DBG (DBG_INFO, "Asic_Open: device %s successfully opened\n", device_name);
-  DBG (DBG_ASIC, "Asic_Open: Exit\n");
+  DBG (DBG_INFO, "device %s successfully opened\n", device_name);
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -1923,48 +1879,40 @@ SANE_Status
 Asic_Close (ASIC * chip)
 {
   SANE_Status status;
-  DBG (DBG_ASIC, "Asic_Close: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ASIC, "Asic_Close: Scanner is not opened\n");
+      DBG (DBG_ASIC, "scanner is not open\n");
       return SANE_STATUS_GOOD;
     }
   if (chip->firmwarestate > FS_OPENED)
     {
-      DBG (DBG_ASIC,
-	   "Asic_Close: Scanner is scanning, trying to stop scanning\n");
+      DBG (DBG_ASIC, "scanner is scanning, trying to stop\n");
       Asic_ScanStop (chip);
     }
 
   SendData (chip, ES01_86_DisableAllClockWhenIdle, CLOSE_ALL_CLOCK_ENABLE);
-
   status = CloseScanChip (chip);
-  if (status != SANE_STATUS_GOOD)
-    DBG (DBG_ERR, "Asic_Close: CloseScanChip error\n");
 
   sanei_usb_close (chip->fd);
 
   chip->firmwarestate = FS_ATTACHED;
 
-  DBG (DBG_ASIC, "Asic_Close: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
 void
 Asic_Initialize (ASIC * chip)
 {
-  DBG (DBG_ASIC, "Asic_Initialize: Enter\n");
+  DBG_ASIC_ENTER();
 
-  DBG (DBG_ASIC, "isFirstOpenChip=%d, setting to SANE_TRUE\n",
-       chip->isFirstOpenChip);
   chip->isFirstOpenChip = SANE_TRUE;
-
   chip->isUsb20 = SANE_FALSE;
   chip->dwBytesCountPerRow = 0;
   chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
   chip->pShadingTable = NULL;
-
   chip->RegisterBankStatus = 0xff;
   chip->is2ByteTransfer = SANE_FALSE;
 
@@ -1972,17 +1920,17 @@ Asic_Initialize (ASIC * chip)
 
   chip->firmwarestate = FS_ATTACHED;
 
-  DBG (DBG_ASIC, "Asic_Initialize: Exit\n");
+  DBG_ASIC_LEAVE();
 }
 
 SANE_Status
 Asic_TurnLamp (ASIC * chip, SANE_Bool isLampOn)
 {
-  DBG (DBG_ASIC, "Asic_TurnLamp: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_TurnLamp: Scanner is not opened or busy\n");
+      DBG (DBG_ERR, "scanner is busy or not open\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -1992,7 +1940,7 @@ Asic_TurnLamp (ASIC * chip, SANE_Bool isLampOn)
   else
     SendData (chip, ES01_90_Lamp0PWM, 0);
 
-  DBG (DBG_ASIC, "Asic_TurnLamp: Exit\n");
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -2000,11 +1948,11 @@ Asic_TurnLamp (ASIC * chip, SANE_Bool isLampOn)
 SANE_Status
 Asic_TurnTA (ASIC * chip, SANE_Bool isTAOn)
 {
-  DBG (DBG_ASIC, "Asic_TurnTA: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_TurnTA: Scanner is not opened or busy\n");
+      DBG (DBG_ERR, "scanner is busy or not open\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2014,7 +1962,7 @@ Asic_TurnTA (ASIC * chip, SANE_Bool isTAOn)
   else
     SendData (chip, ES01_91_Lamp1PWM, 0);
 
-  DBG (DBG_ASIC, "Asic_TurnTA: Exit\n");
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -2129,8 +2077,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   unsigned short * pMotorTable;
   unsigned int RealTableSize;
   unsigned short wFullBank;
-
-  DBG (DBG_ASIC, "Asic_SetWindow: Enter\n");
+  DBG_ASIC_ENTER();
   DBG (DBG_ASIC, "lsLightSource=%d,ScanType=%d,bScanBits=%d," \
 		 "wXResolution=%d,wYResolution=%d,wX=%d,wY=%d," \
 		 "wWidth=%d,wLength=%d\n",
@@ -2139,7 +2086,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_SetWindow: Scanner is not opened or busy\n");
+      DBG (DBG_ERR, "scanner is busy or not open\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2285,10 +2232,10 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 		       (wCCD_PixelNumber + 1)) * (bDummyCycleNum + 1);
 
   EndSpeed = (dwLinePixelReport * wYResolution / SENSOR_DPI) / wMultiMotorStep;
-  DBG (DBG_ASIC, "Motor Time = %d\n", EndSpeed);
+  DBG (DBG_ASIC, "motor time = %d\n", EndSpeed);
   if (EndSpeed > 0xffff)
     {
-      DBG (DBG_ASIC, "Motor Time overflow!\n");
+      DBG (DBG_ASIC, "Motor time overflow!\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2326,7 +2273,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
       else
 	StartSpeed = EndSpeed + 3500;
     }
-  DBG (DBG_ASIC, "StartSpeed=%d, EndSpeed=%d\n", StartSpeed, EndSpeed);
+  DBG (DBG_ASIC, "StartSpeed=%d,EndSpeed=%d\n", StartSpeed, EndSpeed);
 
   SendData (chip, ES01_FD_MotorFixedspeedLSB, LOBYTE (EndSpeed));
   SendData (chip, ES01_FE_MotorFixedspeedMSB, HIBYTE (EndSpeed));
@@ -2334,7 +2281,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   pMotorTable = malloc (MOTOR_TABLE_SIZE * sizeof (unsigned short));
   if (!pMotorTable)
     {
-      DBG (DBG_ERR, "Asic_SetWindow: pMotorTable == NULL\n");
+      DBG (DBG_ERR, "pMotorTable == NULL\n");
       return SANE_STATUS_NO_MEM;
     }
   memset (pMotorTable, 0, MOTOR_TABLE_SIZE * sizeof (unsigned short));
@@ -2357,7 +2304,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
     CurrentPhase.MotorCurrent = 200;
   SetMotorCurrentAndPhase (chip, &CurrentPhase);
 
-  DBG (DBG_ASIC, "MotorCurrent=%d, LinePixelReport=%d\n",
+  DBG (DBG_ASIC, "MotorCurrent=%d,LinePixelReport=%d\n",
        CurrentPhase.MotorCurrent, dwLinePixelReport);
 
   /* write motor table */
@@ -2401,7 +2348,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 
   status = SetRamAddress (chip, 0, dwEndAddr, EXTERNAL_RAM);
 
-  DBG (DBG_ASIC, "Asic_SetWindow: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -2409,11 +2356,11 @@ SANE_Status
 Asic_ScanStart (ASIC * chip)
 {
   SANE_Status status;
-  DBG (DBG_ASIC, "Asic_ScanStart: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_ScanStart: Scanner is not opened or busy\n");
+      DBG (DBG_ERR, "scanner is busy or not open\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2429,7 +2376,7 @@ Asic_ScanStart (ASIC * chip)
 
   chip->firmwarestate = FS_SCANNING;
 
-  DBG (DBG_ASIC, "Asic_ScanStart: Exit\n");
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -2438,12 +2385,11 @@ Asic_ScanStop (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte buf[4];
-
-  DBG (DBG_ASIC, "Asic_ScanStop: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_ScanStop: Scanner is not opened\n");
+      DBG (DBG_ERR, "scanner is not open\n");
       return SANE_STATUS_INVAL;
     }
   if (chip->firmwarestate < FS_SCANNING)
@@ -2457,10 +2403,7 @@ Asic_ScanStop (ASIC * chip)
   buf[3] = 0x02;
   status = WriteIOControl (chip, 0xc0, 0, 4, buf);
   if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "Asic_ScanStop: Stop scan error\n");
-      return status;
-    }
+    return status;
 
   buf[0] = 0x00;	/* clear */
   buf[1] = 0x00;
@@ -2468,17 +2411,11 @@ Asic_ScanStop (ASIC * chip)
   buf[3] = 0x00;
   status = WriteIOControl (chip, 0xc0, 0, 4, buf);
   if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "Asic_ScanStop: Clear scan error\n");
-      return status;
-    }
+    return status;
 
   status = DMARead (chip, 2, buf);
   if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "Asic_ScanStop: DMARead error\n");
-      return status;
-    }
+    return status;
 
   status = PrepareScanChip (chip);
   if (status != SANE_STATUS_GOOD)
@@ -2490,7 +2427,7 @@ Asic_ScanStop (ASIC * chip)
 
   chip->firmwarestate = FS_OPENED;
 
-  DBG (DBG_ASIC, "Asic_ScanStop: Exit\n");
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -2499,25 +2436,25 @@ Asic_ReadImage (ASIC * chip, SANE_Byte * pBuffer, unsigned short LinesCount)
 {
   SANE_Status status;
   unsigned int dwXferBytes;
-
-  DBG (DBG_ASIC, "Asic_ReadImage: Enter. LinesCount = %d\n", LinesCount);
+  DBG_ASIC_ENTER();
+  DBG (DBG_ASIC, "LinesCount=%d\n", LinesCount);
 
   if (chip->firmwarestate != FS_SCANNING)
     {
-      DBG (DBG_ERR, "Asic_ReadImage: Scanner is not scanning\n");
+      DBG (DBG_ERR, "scanner is not scanning\n");
       return SANE_STATUS_INVAL;
     }
 
   dwXferBytes = (unsigned int) LinesCount * chip->dwBytesCountPerRow;
   if (dwXferBytes == 0)
     {
-      DBG (DBG_ASIC, "Asic_ReadImage: dwXferBytes == 0\n");
+      DBG (DBG_ASIC, "dwXferBytes == 0\n");
       return SANE_STATUS_GOOD;
     }
 
   status = DMARead (chip, dwXferBytes, pBuffer);
 
-  DBG (DBG_ASIC, "Asic_ReadImage: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -2527,12 +2464,11 @@ Asic_CheckFunctionKey (ASIC * chip, SANE_Byte * key)
 {
   SANE_Status status;
   SANE_Byte bBuffer_1, bBuffer_2;
-
-  DBG (DBG_ASIC, "Asic_CheckFunctionKey: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_CheckFunctionKey: Scanner is not opened or busy\n");
+      DBG (DBG_ERR, "scanner is busy or not open\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2564,8 +2500,8 @@ Asic_CheckFunctionKey (ASIC * chip, SANE_Byte * key)
   else
     *key = 0;
 
-  DBG (DBG_ASIC, "CheckFunctionKey=%d\n", *key);
-  DBG (DBG_ASIC, "Asic_CheckFunctionKey: Exit\n");
+  DBG (DBG_ASIC, "key=%d\n", *key);
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 #endif
@@ -2575,12 +2511,11 @@ Asic_IsTAConnected (ASIC * chip, SANE_Bool * hasTA)
 {
   SANE_Status status;
   SANE_Byte bBuffer_1 = 0xff;
-
-  DBG (DBG_ASIC, "Asic_IsTAConnected: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_IsTAConnected: Scanner is not opened or busy\n");
+      DBG (DBG_ERR, "scanner is busy or not open\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2596,7 +2531,7 @@ Asic_IsTAConnected (ASIC * chip, SANE_Bool * hasTA)
   *hasTA = (~bBuffer_1 & 0x08) ? SANE_TRUE : SANE_FALSE;
 
   DBG (DBG_ASIC, "hasTA=%d\n", *hasTA);
-  DBG (DBG_ASIC, "Asic_IsTAConnected(): Exit\n");
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -2608,12 +2543,11 @@ Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
   SANE_Byte * pCalBuffer;
   unsigned int dwTotalReadData = 0;
   unsigned int dwReadImageData;
-
-  DBG (DBG_ASIC, "Asic_ReadCalibrationData: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate != FS_SCANNING)
     {
-      DBG (DBG_ERR, "Asic_ReadCalibrationData: Scanner is not scanning\n");
+      DBG (DBG_ERR, "scanner is not scanning\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2624,8 +2558,7 @@ Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
       pCalBuffer = malloc (dwXferBytes);
       if (!pCalBuffer)
 	{
-	  DBG (DBG_ERR, "Asic_ReadCalibrationData: Can't malloc bCalBuffer " \
-			"memory\n");
+	  DBG (DBG_ERR, "pCalBuffer == NULL\n");
 	  return SANE_STATUS_NO_MEM;
 	}
 
@@ -2666,7 +2599,7 @@ Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
 	}
     }
 
-  DBG (DBG_ASIC, "Asic_ReadCalibrationData: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -2675,12 +2608,11 @@ Asic_MotorMove (ASIC * chip, SANE_Bool isForward, unsigned int dwTotalSteps)
 {
   SANE_Status status;
   SANE_Byte bActionType;
-
-  DBG (DBG_ASIC, "Asic_MotorMove: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_MotorMove: Scanner is not opened or busy\n");
+      DBG (DBG_ERR, "scanner is busy or not open\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2688,7 +2620,7 @@ Asic_MotorMove (ASIC * chip, SANE_Bool isForward, unsigned int dwTotalSteps)
   status = SimpleMotorMove (chip, 5000, 1800, 7000, 200, dwTotalSteps,
 			    bActionType);
 
-  DBG (DBG_ASIC, "Asic_MotorMove: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -2697,12 +2629,11 @@ Asic_CarriageHome (ASIC * chip)
 {
   SANE_Status status;
   SANE_Bool LampHome;
-
-  DBG (DBG_ASIC, "Asic_CarriageHome: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_CarriageHome: Scanner is not opened or busy\n");
+      DBG (DBG_ERR, "scanner is busy or not open\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2714,7 +2645,7 @@ Asic_CarriageHome (ASIC * chip)
     status = SimpleMotorMove (chip, 5000, 1200, 3000, 220, 766,
 			      ACTION_TYPE_BACKTOHOME);
 
-  DBG (DBG_ASIC, "Asic_CarriageHome: Exit\n");
+  DBG_ASIC_LEAVE();
   return status;
 }
 
@@ -2727,12 +2658,11 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
   unsigned short wValidPixelNumber;
   double dbXRatioAdderDouble;
   unsigned int wShadingTableSize;
-
-  DBG (DBG_ASIC, "Asic_SetShadingTable: Enter\n");
+  DBG_ASIC_ENTER();
 
   if (chip->firmwarestate != FS_OPENED)
     {
-      DBG (DBG_ERR, "Asic_SetShadingTable: Scanner is not opened or busy\n");
+      DBG (DBG_ERR, "scanner is busy or not open\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2742,7 +2672,7 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
     dbXRatioAdderDouble = (SENSOR_DPI / 2) / wXResolution;
 
   wValidPixelNumber = (unsigned short) ((wWidth + 4) * dbXRatioAdderDouble);
-  DBG (DBG_ASIC, "wValidPixelNumber = %d\n", wValidPixelNumber);
+  DBG (DBG_ASIC, "wValidPixelNumber=%d\n", wValidPixelNumber);
 
   /* Clear old shading table, if present.
      First 4 and last 5 elements of shading table cannot be used. */
@@ -2751,7 +2681,7 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
   if (chip->pShadingTable)
     free (chip->pShadingTable);
 
-  DBG (DBG_ASIC, "Allocating a new shading table, size=%d byte\n",
+  DBG (DBG_ASIC, "allocating a new shading table, size=%d byte\n",
        wShadingTableSize);
   chip->pShadingTable = malloc (wShadingTableSize);
   if (!chip->pShadingTable)
@@ -2786,6 +2716,6 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
 	}
     }
 
-  DBG (DBG_ASIC, "Asic_SetShadingTable: Exit\n");
+  DBG_ASIC_LEAVE();
   return SANE_STATUS_GOOD;
 }

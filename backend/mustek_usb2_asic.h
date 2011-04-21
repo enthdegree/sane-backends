@@ -224,6 +224,11 @@ typedef struct
 #define DBG_ASIC 	6	/* starts and exits of low level functions */
 #define DBG_DBG 	10	/* useful only for tracing bugs */
 
+#define DBG_ASIC_ENTER()	DBG (DBG_ASIC, "%s: enter\n", __FUNCTION__)
+#define DBG_ASIC_LEAVE()	DBG (DBG_ASIC, "%s: leave\n", __FUNCTION__)
+#define DBG_ENTER()		DBG (DBG_FUNC, "%s: enter\n", __FUNCTION__)
+#define DBG_LEAVE()		DBG (DBG_FUNC, "%s: leave\n", __FUNCTION__)
+
 
 #define DMA_BLOCK_SIZE (32 * 1024)
 #define DRAM_TEST_SIZE 64

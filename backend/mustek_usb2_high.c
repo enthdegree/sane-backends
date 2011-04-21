@@ -100,7 +100,7 @@ static unsigned int g_dwAlreadyGetLines;
 void
 Scanner_Init (void)
 {
-  DBG_ENTER();
+  DBG_ENTER ();
 
   Asic_Initialize (&g_chip);
 
@@ -111,20 +111,20 @@ Scanner_Init (void)
   g_pReadImageHead = NULL;
   g_pGammaTable = NULL;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
 }
 
 SANE_Bool
 Scanner_IsPresent (void)
 {
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
   if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 }
 
@@ -132,7 +132,7 @@ SANE_Bool
 Scanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 {
   SANE_Bool hasTA;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
@@ -149,7 +149,7 @@ Scanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
   if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 
 error:
@@ -160,7 +160,7 @@ error:
 SANE_Bool
 Scanner_BackHome (void)
 {
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
@@ -174,7 +174,7 @@ Scanner_BackHome (void)
   if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 }
 
@@ -182,7 +182,7 @@ SANE_Bool
 Scanner_IsTAConnected (void)
 {
   SANE_Bool hasTA;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
@@ -193,7 +193,7 @@ Scanner_IsTAConnected (void)
   if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return hasTA;
 }
 
@@ -201,7 +201,7 @@ Scanner_IsTAConnected (void)
 SANE_Bool
 Scanner_GetKeyStatus (SANE_Byte * pKey)
 {
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
@@ -215,7 +215,7 @@ Scanner_GetKeyStatus (SANE_Byte * pKey)
   if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 }
 #endif
@@ -785,7 +785,7 @@ ReadDataFromScanner (void __sane_unused__ * dummy)
   unsigned short wReadImageLines = 0;
   unsigned short wScanLinesThisBlock;
   unsigned short wBufferLines = g_wLineDistance * 2 + g_wPixelDistance;
-  DBG_ENTER();
+  DBG_ENTER ();
   DBG (DBG_FUNC, "ReadDataFromScanner: new thread\n");
 
   while (wTotalReadImageLines < wWantedLines)
@@ -838,7 +838,7 @@ ReadDataFromScanner (void __sane_unused__ * dummy)
     }
 
   DBG (DBG_FUNC, "ReadDataFromScanner: read OK, exit thread\n");
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return NULL;
 }
 
@@ -850,7 +850,7 @@ GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
   unsigned short wWantedTotalLines;
   unsigned short TotalXferLines = 0;
   SANE_Byte * pFirstLine = pLine;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   wWantedTotalLines = *wLinesCount;
 
@@ -922,7 +922,7 @@ GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
 	}
     }
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 }
 
@@ -933,7 +933,7 @@ Scanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
   unsigned int dwLineIncrement = g_SWBytesPerRow;
   SANE_Bool fixEvenOdd = SANE_FALSE;
   void (* pFunc)(SANE_Byte *, SANE_Bool) = NULL;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (!g_bOpened || !g_bPrepared)
     {
@@ -991,7 +991,7 @@ Scanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
       break;
     }
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return GetLine (pBlock, Rows, dwLineIncrement, pFunc, isOrderInvert,
 		  fixEvenOdd);
 }
@@ -1000,7 +1000,7 @@ void
 Scanner_ScanSuggest (TARGETIMAGE * pTarget)
 {
   unsigned short wMaxWidth, wMaxHeight;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   /* check width and height */
   wMaxWidth = (MAX_SCANNING_WIDTH * pTarget->wXDpi) / 300;
@@ -1010,14 +1010,14 @@ Scanner_ScanSuggest (TARGETIMAGE * pTarget)
   pTarget->wWidth = _MIN (pTarget->wWidth, wMaxWidth);
   pTarget->wHeight = _MIN (pTarget->wHeight, wMaxHeight);
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
 }
 
 SANE_Bool
 Scanner_StopScan (void)
 {
   SANE_Bool result = SANE_TRUE;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (!g_bOpened || !g_bPrepared)
     {
@@ -1050,14 +1050,14 @@ Scanner_StopScan (void)
       g_pReadImageHead = NULL;
     }
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return result;
 }
 
 static SANE_Bool
 PrepareScan (void)
 {
-  DBG_ENTER();
+  DBG_ENTER ();
 
   g_isCanceled = SANE_FALSE;
 
@@ -1094,14 +1094,14 @@ PrepareScan (void)
       return SANE_FALSE;
     }
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 }
 
 SANE_Bool
 Scanner_Reset (void)
 {
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (g_bOpened)
     {
@@ -1113,7 +1113,7 @@ Scanner_Reset (void)
   g_bFirstReadImage = SANE_TRUE;
   g_bPrepared = SANE_TRUE;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 }
 
@@ -1230,7 +1230,7 @@ AdjustAD (void)
   FILE * stream;
   char buf[16];
 #endif
-  DBG_ENTER();
+  DBG_ENTER ();
 
   for (i = 0; i < 3; i++)
     {
@@ -1463,7 +1463,7 @@ AdjustAD (void)
 
   free (pCalData);
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 
 error:
@@ -1484,7 +1484,7 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
   FILE * stream;
   char buf[20];
 #endif
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (g_Target.ssScanSource == SS_REFLECTIVE)
     {
@@ -1625,7 +1625,7 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
   free (pCalData);
 
   DBG (DBG_FUNC, "pwStartY=%d,pwStartX=%d\n", *pwStartY, *pwStartX);
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 
 error:
@@ -1678,7 +1678,7 @@ LineCalibration16Bits (void)
   FILE * stream;
   char buf[22];
 #endif
-  DBG_ENTER();
+  DBG_ENTER ();
 
   wCalWidth = g_Target.wWidth;
   wCalHeight = LINE_CALIBRATION_HEIGHT;
@@ -1961,7 +1961,7 @@ LineCalibration16Bits (void)
   free (pWhiteData);
   free (pDarkData);
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 
 error:
@@ -1974,7 +1974,7 @@ static SANE_Bool
 CreateGammaTable (COLORMODE cmColorMode, unsigned short ** pGammaTable)
 {
   unsigned short * pTable = NULL;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if ((cmColorMode == CM_GRAY8) || (cmColorMode == CM_RGB24))
     {
@@ -2024,7 +2024,7 @@ CreateGammaTable (COLORMODE cmColorMode, unsigned short ** pGammaTable)
 
   *pGammaTable = pTable;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_TRUE;
 }
 
@@ -2033,7 +2033,7 @@ Scanner_SetupScan (TARGETIMAGE * pTarget)
 {
   unsigned short finalY;
   SANE_Byte bScanBits;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (g_bOpened || !g_bPrepared)
     {
@@ -2227,6 +2227,6 @@ Scanner_SetupScan (TARGETIMAGE * pTarget)
       SANE_STATUS_GOOD)
     return SANE_FALSE;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return PrepareScan ();
 }

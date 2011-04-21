@@ -126,7 +126,7 @@ get_target_image (Mustek_Scanner * s, TARGETIMAGE * pTarget)
 {
   SANE_String val, val_source;
   float x1, y1, x2, y2;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (s->val[OPT_PREVIEW].w)
     pTarget->wXDpi = 75;
@@ -189,13 +189,13 @@ get_target_image (Mustek_Scanner * s, TARGETIMAGE * pTarget)
       pTarget->cmColorMode = CM_TEXT;
     }
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
 }
 
 static void
 calc_parameters (TARGETIMAGE * pTarget, SANE_Parameters * params)
 {
-  DBG_ENTER();
+  DBG_ENTER ();
 
   params->pixels_per_line = pTarget->wWidth;
   params->lines = pTarget->wHeight;
@@ -230,7 +230,7 @@ calc_parameters (TARGETIMAGE * pTarget, SANE_Parameters * params)
       break;
     }
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
 }
 
 static size_t
@@ -254,7 +254,7 @@ init_options (Mustek_Scanner * s)
   SANE_Int option, count = 0;
   SANE_Word *dpi_list;
   TARGETIMAGE target;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   memset (s->opt, 0, sizeof (s->opt));
   memset (s->val, 0, sizeof (s->val));
@@ -407,7 +407,7 @@ init_options (Mustek_Scanner * s)
   get_target_image (s, &target);
   calc_parameters (&target, &s->params);
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
@@ -419,21 +419,21 @@ sane_init (SANE_Int * version_code,
 	   SANE_Auth_Callback __sane_unused__ authorize)
 {
   DBG_INIT ();
-  DBG_ENTER();
+  DBG_ENTER ();
   DBG (DBG_ERR, "SANE Mustek USB2 backend version %d.%d build %d from %s\n",
        SANE_CURRENT_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
 void
 sane_exit (void)
 {
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (devlist != NULL)
     {
@@ -441,14 +441,14 @@ sane_exit (void)
       devlist = NULL;
     }
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list,
 		  SANE_Bool __sane_unused__ local_only)
 {
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (devlist != NULL)
     free (devlist);
@@ -470,7 +470,7 @@ sane_get_devices (const SANE_Device *** device_list,
     }
   *device_list = devlist;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
@@ -478,7 +478,7 @@ SANE_Status
 sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   Mustek_Scanner *s;
-  DBG_ENTER();
+  DBG_ENTER ();
   DBG (DBG_FUNC, "devicename=%s\n", devicename);
 
   Scanner_Init ();
@@ -496,7 +496,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   init_options (s);
   *handle = s;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
@@ -504,7 +504,7 @@ void
 sane_close (SANE_Handle handle)
 {
   Mustek_Scanner *s = handle;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   Scanner_PowerControl (SANE_FALSE, SANE_FALSE);
   Scanner_BackHome ();
@@ -515,7 +515,7 @@ sane_close (SANE_Handle handle)
 
   free (handle);
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
 }
 
 const SANE_Option_Descriptor *
@@ -540,7 +540,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Word cap;
   SANE_Int myinfo = 0;
   TARGETIMAGE target;
-  DBG_ENTER();
+  DBG_ENTER ();
   DBG (DBG_FUNC, "action = %s, option = %s (%d)\n",
        (action == SANE_ACTION_GET_VALUE) ? "get" :
 	 (action == SANE_ACTION_SET_VALUE) ? "set" :
@@ -686,7 +686,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   if (info)
     *info = myinfo;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
@@ -694,7 +694,7 @@ SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Mustek_Scanner *s = handle;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   DBG (DBG_INFO, "params.format = %d\n", s->params.format);
   DBG (DBG_INFO, "params.depth = %d\n", s->params.depth);
@@ -705,7 +705,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   if (params)
     *params = s->params;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
@@ -714,7 +714,7 @@ sane_start (SANE_Handle handle)
 {
   Mustek_Scanner *s = handle;
   TARGETIMAGE target;
-  DBG_ENTER();
+  DBG_ENTER ();
  
   if ((s->val[OPT_TL_X].w >= s->val[OPT_BR_X].w) ||
       (s->val[OPT_TL_Y].w >= s->val[OPT_BR_Y].w))
@@ -759,7 +759,7 @@ sane_start (SANE_Handle handle)
   if (!Scanner_SetupScan (&target))
     return SANE_STATUS_INVAL;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
@@ -773,7 +773,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   SANE_Int lines, lines_read;
   unsigned short lines_received;
   int i;
-  DBG_ENTER();
+  DBG_ENTER ();
   DBG (DBG_FUNC, "max_len=%d\n", max_len);
 
   if (!buf || !len)
@@ -857,7 +857,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   s->scan_buf_len -= lines_read;
   s->scan_buf_start += lines_read;
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
@@ -866,7 +866,7 @@ sane_cancel (SANE_Handle handle)
 {
   Mustek_Scanner *s = handle;
   int i;
-  DBG_ENTER();
+  DBG_ENTER ();
 
   if (s->bIsScanning)
     {
@@ -901,7 +901,7 @@ sane_cancel (SANE_Handle handle)
       DBG (DBG_INFO, "not scanning\n");
     }
 
-  DBG_LEAVE();
+  DBG_LEAVE ();
 }
 
 SANE_Status

@@ -126,8 +126,7 @@ get_target_image (Mustek_Scanner * s, TARGETIMAGE * pTarget)
 {
   SANE_String val, val_source;
   float x1, y1, x2, y2;
-
-  DBG (DBG_FUNC, "get_target_image: start\n");
+  DBG_ENTER();
 
   if (s->val[OPT_PREVIEW].w)
     pTarget->wXDpi = 75;
@@ -148,7 +147,7 @@ get_target_image (Mustek_Scanner * s, TARGETIMAGE * pTarget)
   pTarget->wLineartThreshold = s->val[OPT_THRESHOLD].w;
 
   val_source = s->val[OPT_SOURCE].s;
-  DBG (DBG_DET, "get_target_image: scan source = %s\n", val_source);
+  DBG (DBG_DET, "scan source = %s\n", val_source);
   if (strcmp (val_source, source_list[SS_POSITIVE]) == 0)
     pTarget->ssScanSource = SS_POSITIVE;
   else if (strcmp (val_source, source_list[SS_NEGATIVE]) == 0)
@@ -161,7 +160,7 @@ get_target_image (Mustek_Scanner * s, TARGETIMAGE * pTarget)
     {
       if (s->val[OPT_PREVIEW].w)
 	{
-	  DBG (DBG_DET, "get_target_image: preview, set ColorMode CM_RGB24\n");
+	  DBG (DBG_DET, "preview, set color mode CM_RGB24\n");
 	  pTarget->cmColorMode = CM_RGB24;
 	}
       else
@@ -175,7 +174,7 @@ get_target_image (Mustek_Scanner * s, TARGETIMAGE * pTarget)
     {
       if (s->val[OPT_PREVIEW].w)
 	{
-	  DBG (DBG_DET, "get_target_image: preview, set ColorMode CM_GRAY8\n");
+	  DBG (DBG_DET, "preview, set color mode CM_GRAY8\n");
 	  pTarget->cmColorMode = CM_GRAY8;
 	}
       else
@@ -190,13 +189,13 @@ get_target_image (Mustek_Scanner * s, TARGETIMAGE * pTarget)
       pTarget->cmColorMode = CM_TEXT;
     }
 
-  DBG (DBG_FUNC, "get_target_image: exit\n");
+  DBG_LEAVE();
 }
 
 static void
 calc_parameters (TARGETIMAGE * pTarget, SANE_Parameters * params)
 {
-  DBG (DBG_FUNC, "calc_parameters: start\n");
+  DBG_ENTER();
 
   params->pixels_per_line = pTarget->wWidth;
   params->lines = pTarget->wHeight;
@@ -231,7 +230,7 @@ calc_parameters (TARGETIMAGE * pTarget, SANE_Parameters * params)
       break;
     }
 
-  DBG (DBG_FUNC, "calc_parameters: exit\n");
+  DBG_LEAVE();
 }
 
 static size_t
@@ -255,8 +254,7 @@ init_options (Mustek_Scanner * s)
   SANE_Int option, count = 0;
   SANE_Word *dpi_list;
   TARGETIMAGE target;
-
-  DBG (DBG_FUNC, "init_options: start\n");
+  DBG_ENTER();
 
   memset (s->opt, 0, sizeof (s->opt));
   memset (s->val, 0, sizeof (s->val));
@@ -409,7 +407,7 @@ init_options (Mustek_Scanner * s)
   get_target_image (s, &target);
   calc_parameters (&target, &s->params);
 
-  DBG (DBG_FUNC, "init_options: exit\n");
+  DBG_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -421,21 +419,21 @@ sane_init (SANE_Int * version_code,
 	   SANE_Auth_Callback __sane_unused__ authorize)
 {
   DBG_INIT ();
-  DBG (DBG_FUNC, "sane_init: start\n");
+  DBG_ENTER();
   DBG (DBG_ERR, "SANE Mustek USB2 backend version %d.%d build %d from %s\n",
        SANE_CURRENT_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
-  DBG (DBG_FUNC, "sane_init: exit\n");
+  DBG_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
 void
 sane_exit (void)
 {
-  DBG (DBG_FUNC, "sane_exit: start\n");
+  DBG_ENTER();
 
   if (devlist != NULL)
     {
@@ -443,14 +441,14 @@ sane_exit (void)
       devlist = NULL;
     }
 
-  DBG (DBG_FUNC, "sane_exit: exit\n");
+  DBG_LEAVE();
 }
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device *** device_list,
+		  SANE_Bool __sane_unused__ local_only)
 {
-  DBG (DBG_FUNC, "sane_get_devices: start: local_only = %s\n",
-       local_only ? "true" : "false");
+  DBG_ENTER();
 
   if (devlist != NULL)
     free (devlist);
@@ -472,7 +470,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     }
   *device_list = devlist;
 
-  DBG (DBG_FUNC, "sane_get_devices: exit\n");
+  DBG_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -480,8 +478,8 @@ SANE_Status
 sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   Mustek_Scanner *s;
-
-  DBG (DBG_FUNC, "sane_open: start: devicename = %s\n", devicename);
+  DBG_ENTER();
+  DBG (DBG_FUNC, "devicename=%s\n", devicename);
 
   Scanner_Init ();
 
@@ -498,7 +496,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   init_options (s);
   *handle = s;
 
-  DBG (DBG_FUNC, "sane_open: exit\n");
+  DBG_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -506,8 +504,7 @@ void
 sane_close (SANE_Handle handle)
 {
   Mustek_Scanner *s = handle;
-
-  DBG (DBG_FUNC, "sane_close: start\n");
+  DBG_ENTER();
 
   Scanner_PowerControl (SANE_FALSE, SANE_FALSE);
   Scanner_BackHome ();
@@ -518,7 +515,7 @@ sane_close (SANE_Handle handle)
 
   free (handle);
 
-  DBG (DBG_FUNC, "sane_close: exit\n");
+  DBG_LEAVE();
 }
 
 const SANE_Option_Descriptor *
@@ -543,8 +540,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Word cap;
   SANE_Int myinfo = 0;
   TARGETIMAGE target;
-
-  DBG (DBG_FUNC, "sane_control_option: start: action = %s, option = %s (%d)\n",
+  DBG_ENTER();
+  DBG (DBG_FUNC, "action = %s, option = %s (%d)\n",
        (action == SANE_ACTION_GET_VALUE) ? "get" :
 	 (action == SANE_ACTION_SET_VALUE) ? "set" :
 	   (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown",
@@ -555,19 +552,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   if (s->bIsScanning)
     {
-      DBG (DBG_ERR, "sane_control_option: scanner is busy\n");
+      DBG (DBG_ERR, "scanner is busy\n");
       return SANE_STATUS_DEVICE_BUSY;
     }
   if ((option >= NUM_OPTIONS) || (option < 0))
     {
-      DBG (DBG_ERR, "sane_control_option: option index out of range\n");
+      DBG (DBG_ERR, "option index out of range\n");
       return SANE_STATUS_INVAL;
     }
 
   cap = s->opt[option].cap;
   if (!SANE_OPTION_IS_ACTIVE (cap))
     {
-      DBG (DBG_ERR, "sane_control_option: option %d is inactive\n", option);
+      DBG (DBG_ERR, "option %d is inactive\n", option);
       return SANE_STATUS_INVAL;
     }
 
@@ -594,23 +591,22 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  strcpy (val, s->val[option].s);
 	  break;
 	default:
-	  DBG (DBG_ERR, "sane_control_option: unknown option %d\n", option);
+	  DBG (DBG_ERR, "unknown option %d\n", option);
 	}
     }
   else if (action == SANE_ACTION_SET_VALUE)
     {
       if (!SANE_OPTION_IS_SETTABLE (cap))
 	{
-	  DBG (DBG_ERR, "sane_control_option: option %d is not settable\n",
-	       option);
+	  DBG (DBG_ERR, "option %d is not settable\n", option);
 	  return SANE_STATUS_INVAL;
 	}
 
       status = sanei_constrain_value (s->opt + option, val, &myinfo);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_WARN, "sane_control_option: sanei_constrain_value returned" \
-	       " %s\n", sane_strstatus (status));
+	  DBG (DBG_WARN, "sanei_constrain_value returned error: %s\n",
+	       sane_strstatus (status));
 	  return status;
 	}
 
@@ -678,20 +674,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  break;
 	default:
-	  DBG (DBG_ERR, "sane_control_option: unknown option %d\n", option);
+	  DBG (DBG_ERR, "unknown option %d\n", option);
 	}
     }
   else
     {
-      DBG (DBG_ERR, "sane_control_option: unknown action %d for option %d\n",
-	   action, option);
+      DBG (DBG_ERR, "unknown action %d for option %d\n", action, option);
       return SANE_STATUS_INVAL;
     }
 
   if (info)
     *info = myinfo;
 
-  DBG (DBG_FUNC, "sane_control_option: exit\n");
+  DBG_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -699,21 +694,18 @@ SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Mustek_Scanner *s = handle;
+  DBG_ENTER();
 
-  DBG (DBG_FUNC, "sane_get_parameters: start\n");
-
-  DBG (DBG_INFO, "sane_get_parameters: params.format = %d\n", s->params.format);
-  DBG (DBG_INFO, "sane_get_parameters: params.depth = %d\n", s->params.depth);
-  DBG (DBG_INFO, "sane_get_parameters: params.pixels_per_line = %d\n",
-       s->params.pixels_per_line);
-  DBG (DBG_INFO, "sane_get_parameters: params.bytes_per_line = %d\n",
-       s->params.bytes_per_line);
-  DBG (DBG_INFO, "sane_get_parameters: params.lines = %d\n", s->params.lines);
+  DBG (DBG_INFO, "params.format = %d\n", s->params.format);
+  DBG (DBG_INFO, "params.depth = %d\n", s->params.depth);
+  DBG (DBG_INFO, "params.pixels_per_line = %d\n", s->params.pixels_per_line);
+  DBG (DBG_INFO, "params.bytes_per_line = %d\n", s->params.bytes_per_line);
+  DBG (DBG_INFO, "params.lines = %d\n", s->params.lines);
 
   if (params)
     *params = s->params;
 
-  DBG (DBG_FUNC, "sane_get_parameters: exit\n");
+  DBG_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -722,28 +714,26 @@ sane_start (SANE_Handle handle)
 {
   Mustek_Scanner *s = handle;
   TARGETIMAGE target;
-
-  DBG (DBG_FUNC, "sane_start: start\n");
+  DBG_ENTER();
  
   if ((s->val[OPT_TL_X].w >= s->val[OPT_BR_X].w) ||
       (s->val[OPT_TL_Y].w >= s->val[OPT_BR_Y].w))
     {
-      DBG (DBG_CRIT, "sane_start: top left >= bottom right -- exiting\n");
+      DBG (DBG_CRIT, "top left >= bottom right -- exiting\n");
       return SANE_FALSE;
     }
  
   get_target_image (s, &target);
 
-  DBG (DBG_INFO, "sane_start: target.wX=%d\n", target.wX);
-  DBG (DBG_INFO, "sane_start: target.wY=%d\n", target.wY);
-  DBG (DBG_INFO, "sane_start: target.wWidth=%d\n", target.wWidth);
-  DBG (DBG_INFO, "sane_start: target.wHeight=%d\n", target.wHeight);
-  DBG (DBG_INFO, "sane_start: target.wLineartThreshold=%d\n",
-       target.wLineartThreshold);
-  DBG (DBG_INFO, "sane_start: target.wXDpi=%d\n", target.wXDpi);
-  DBG (DBG_INFO, "sane_start: target.wYDpi=%d\n", target.wYDpi);
-  DBG (DBG_INFO, "sane_start: target.cmColorMode=%d\n", target.cmColorMode);
-  DBG (DBG_INFO, "sane_start: target.ssScanSource=%d\n", target.ssScanSource);
+  DBG (DBG_INFO, "target.wX=%d\n", target.wX);
+  DBG (DBG_INFO, "target.wY=%d\n", target.wY);
+  DBG (DBG_INFO, "target.wWidth=%d\n", target.wWidth);
+  DBG (DBG_INFO, "target.wHeight=%d\n", target.wHeight);
+  DBG (DBG_INFO, "target.wLineartThreshold=%d\n", target.wLineartThreshold);
+  DBG (DBG_INFO, "target.wXDpi=%d\n", target.wXDpi);
+  DBG (DBG_INFO, "target.wYDpi=%d\n", target.wYDpi);
+  DBG (DBG_INFO, "target.cmColorMode=%d\n", target.cmColorMode);
+  DBG (DBG_INFO, "target.ssScanSource=%d\n", target.ssScanSource);
 
   Scanner_Reset ();
 
@@ -754,7 +744,7 @@ sane_start (SANE_Handle handle)
 		     (target.ssScanSource == SS_NEGATIVE));
 
   s->read_rows = s->params.lines;
-  DBG (DBG_INFO, "sane_start: read_rows = %d\n", s->read_rows);
+  DBG (DBG_INFO, "read_rows=%d\n", s->read_rows);
 
   DBG (DBG_INFO, "SCANNING...\n");
   s->bIsScanning = SANE_TRUE;
@@ -769,7 +759,7 @@ sane_start (SANE_Handle handle)
   if (!Scanner_SetupScan (&target))
     return SANE_STATUS_INVAL;
 
-  DBG (DBG_FUNC, "sane_start: exit\n");
+  DBG_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -783,12 +773,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   SANE_Int lines, lines_read;
   unsigned short lines_received;
   int i;
-
-  DBG (DBG_FUNC, "sane_read: start: max_len=%d\n", max_len);
+  DBG_ENTER();
+  DBG (DBG_FUNC, "max_len=%d\n", max_len);
 
   if (!buf || !len)
     {
-      DBG (DBG_ERR, "sane_read: output parameter is null!\n");
+      DBG (DBG_ERR, "output parameter is null!\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -796,12 +786,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
   if (!s->bIsScanning)
     {
-      DBG (DBG_WARN, "sane_read: scan was cancelled, is over or has not been " \
+      DBG (DBG_WARN, "scan was cancelled, is over or has not been " \
 	   "initiated yet\n");
       return SANE_STATUS_CANCELLED;
     }
 
-  DBG (DBG_DBG, "sane_read: before read data read_row=%d\n", s->read_rows);
+  DBG (DBG_DBG, "before read data, read_row=%d\n", s->read_rows);
   if (s->scan_buf_len == 0)
     {
       if (s->read_rows > 0)
@@ -814,13 +804,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  if (!tempbuf)
 	    return SANE_STATUS_NO_MEM;
 	  memset (tempbuf, 0, tempbuf_size);
-	  DBG (DBG_INFO, "sane_read: buffer size is %ld\n", tempbuf_size);
+	  DBG (DBG_INFO, "buffer size is %ld\n", tempbuf_size);
 
 	  s->bIsReading = SANE_TRUE;
 	  lines_received = (unsigned short) lines;
 	  if (!Scanner_GetRows (tempbuf, &lines_received, s->model.isRGBInvert))
 	    {
-	      DBG (DBG_ERR, "sane_read: Scanner_GetRows error\n");
 	      s->bIsReading = SANE_FALSE;
 	      return SANE_STATUS_INVAL;
 	    }
@@ -831,10 +820,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 		tempbuf[i] ^= 0xff;
 	    }
 
-	  DBG (DBG_DBG, "sane_read: Finish ReadScanedData\n");
 	  s->scan_buf_len = lines_received * s->params.bytes_per_line;
-	  DBG (DBG_INFO, "sane_read : s->scan_buf_len = %ld\n",
-	       (long int) s->scan_buf_len);
+	  DBG (DBG_INFO, "scan_buf_len=%ld\n", (long int) s->scan_buf_len);
 
 	  memcpy (s->scan_buf, tempbuf, s->scan_buf_len);
 	  if (s->scan_buf_len < SCAN_BUFFER_SIZE)
@@ -843,7 +830,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 		      SCAN_BUFFER_SIZE - s->scan_buf_len);
 	    }
 
-	  DBG (DBG_DBG, "sane_read: after memcpy\n");
+	  DBG (DBG_DBG, "after memcpy\n");
 	  free (tempbuf);
 	  s->scan_buf_start = s->scan_buf;
 	  s->read_rows -= lines_received;
@@ -856,21 +843,21 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
       if (s->scan_buf_len == 0)
 	{
-	  DBG (DBG_FUNC, "sane_read: scan finished -- exit\n");
+	  DBG (DBG_FUNC, "scan finished -- exit\n");
 	  sane_cancel (handle);
 	  return SANE_STATUS_EOF;
 	}
     }
 
   lines_read = _MIN (max_len, s->scan_buf_len);
-  DBG (DBG_DBG, "sane_read: after %d\n", lines_read);
+  DBG (DBG_DBG, "lines_read=%d\n", lines_read);
   *len = lines_read;
 
   memcpy (buf, s->scan_buf_start, lines_read);
   s->scan_buf_len -= lines_read;
   s->scan_buf_start += lines_read;
 
-  DBG (DBG_FUNC, "sane_read: exit\n");
+  DBG_LEAVE();
   return SANE_STATUS_GOOD;
 }
 
@@ -879,16 +866,15 @@ sane_cancel (SANE_Handle handle)
 {
   Mustek_Scanner *s = handle;
   int i;
-
-  DBG (DBG_FUNC, "sane_cancel: start\n");
+  DBG_ENTER();
 
   if (s->bIsScanning)
     {
       s->bIsScanning = SANE_FALSE;
       if (s->read_rows > 0)
-	DBG (DBG_INFO, "sane_cancel: warning: is scanning\n");
+	DBG (DBG_INFO, "warning: is scanning\n");
       else
-	DBG (DBG_INFO, "sane_cancel: scan finished\n");
+	DBG (DBG_INFO, "scan finished\n");
 
       Scanner_StopScan ();
       Scanner_BackHome ();
@@ -912,10 +898,10 @@ sane_cancel (SANE_Handle handle)
     }
   else
     {
-      DBG (DBG_INFO, "sane_cancel: do nothing\n");
+      DBG (DBG_INFO, "not scanning\n");
     }
 
-  DBG (DBG_FUNC, "sane_cancel: exit\n");
+  DBG_LEAVE();
 }
 
 SANE_Status

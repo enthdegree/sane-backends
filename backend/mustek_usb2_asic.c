@@ -1968,23 +1968,6 @@ Asic_TurnTA (ASIC * chip, SANE_Bool isTAOn)
 
 
 static SANE_Byte
-GetBytePerPixel (SANE_Byte bBitPerPixel)
-{
-  switch (bBitPerPixel)
-    {
-    case 48:
-      return 6;
-    case 24:
-      return 3;
-    case 16:
-      return 2;
-    case 8:
-    default:
-      return 1;
-    }
-}
-
-static SANE_Byte
 GetDummyCycleNumber (ASIC * chip, unsigned short wYResolution,
 		     SCANSOURCE lsLightSource)
 {
@@ -2099,8 +2082,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 	    USB_POWER_SAVE_ENABLE | USB_REMOTE_WAKEUP_ENABLE |
 	    LED_MODE_FLASH_SLOWLY | 0x40 | 0x80);
 
-  chip->dwBytesCountPerRow = (unsigned int) wWidth *
-			     GetBytePerPixel (bScanBits);
+  chip->dwBytesCountPerRow = (unsigned int) wWidth * (bScanBits / 8);
   DBG (DBG_ASIC, "dwBytesCountPerRow=%d\n", chip->dwBytesCountPerRow);
 
   if (ScanType == SCAN_TYPE_NORMAL)

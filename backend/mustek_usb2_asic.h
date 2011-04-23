@@ -203,6 +203,8 @@ typedef struct
   ADConverter AD;
 
   SANE_Byte isMotorMoveToFirstLine;
+
+  unsigned int dwShadingTableSize;
   unsigned short * pShadingTable;
 
   SANE_Byte RegisterBankStatus;

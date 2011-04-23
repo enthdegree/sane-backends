@@ -1674,25 +1674,25 @@ SetPackAddress (ASIC * chip, unsigned short wWidth, unsigned short wX,
 
   /* set pack end address */
   SendData (chip, ES01_1A7_PACK_AREA_R_END_ADDR_BYTE0,
-	    BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2 -1)));
+	    BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2 - 1)));
   SendData (chip, ES01_1A8_PACK_AREA_R_END_ADDR_BYTE1,
-	    BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2 -1)));
+	    BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2 - 1)));
   SendData (chip, ES01_1A9_PACK_AREA_R_END_ADDR_BYTE2,
-	    BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2 -1)));
+	    BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2 - 1)));
 
   SendData (chip, ES01_1AA_PACK_AREA_G_END_ADDR_BYTE0,
-	    BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4 -1)));
+	    BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4 - 1)));
   SendData (chip, ES01_1AB_PACK_AREA_G_END_ADDR_BYTE1,
-	    BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4 -1)));
+	    BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4 - 1)));
   SendData (chip, ES01_1AC_PACK_AREA_G_END_ADDR_BYTE2,
-	    BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4 -1)));
+	    BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 4 - 1)));
 
   SendData (chip, ES01_1AD_PACK_AREA_B_END_ADDR_BYTE0,
-	    BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 6 -1)));
+	    BYTE0 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 6 - 1)));
   SendData (chip, ES01_1AE_PACK_AREA_B_END_ADDR_BYTE1,
-	    BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 6 -1)));
+	    BYTE1 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 6 - 1)));
   SendData (chip, ES01_1AF_PACK_AREA_B_END_ADDR_BYTE2,
-	    BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 6 -1)));
+	    BYTE2 (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 6 - 1)));
   DBG (DBG_ASIC, "PACK_AREA_START_ADDRESS + (ValidPixelNumber*2)=%d\n",
        (PACK_AREA_START_ADDRESS + (ValidPixelNumber * 2)));
 
@@ -2323,10 +2323,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 			((RealTableSize + (TABLE_BASE_SIZE - 1)) &
 			 ~(TABLE_BASE_SIZE - 1));
 
-      /* TODO: table size should be stored in ASIC structure */
-      RealTableSize = sizeof (unsigned short) *
-	ShadingTableSize ((int) ((wWidth + 4) * XRatioAdderDouble));
-      status = SetShadingTable (chip, dwTableBaseAddr, RealTableSize,
+      status = SetShadingTable (chip, dwTableBaseAddr, chip->dwShadingTableSize,
 				chip->pShadingTable);
       if (status != SANE_STATUS_GOOD)
 	return status;
@@ -2657,7 +2654,6 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
   unsigned short i, j, n;
   unsigned short wValidPixelNumber;
   double dbXRatioAdderDouble;
-  unsigned int wShadingTableSize;
   DBG_ASIC_ENTER ();
 
   if (chip->firmwarestate != FS_OPENED)
@@ -2674,15 +2670,14 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
   wValidPixelNumber = (unsigned short) ((wWidth + 4) * dbXRatioAdderDouble);
   DBG (DBG_ASIC, "wValidPixelNumber=%d\n", wValidPixelNumber);
 
-  /* Clear old shading table, if present.
+  /* Free old shading table, if present.
      First 4 and last 5 elements of shading table cannot be used. */
-  wShadingTableSize = ShadingTableSize (wValidPixelNumber) *
+  chip->dwShadingTableSize = ShadingTableSize (wValidPixelNumber) *
     sizeof (unsigned short);
   free (chip->pShadingTable);
-
   DBG (DBG_ASIC, "allocating a new shading table, size=%d byte\n",
-       wShadingTableSize);
-  chip->pShadingTable = malloc (wShadingTableSize);
+       chip->dwShadingTableSize);
+  chip->pShadingTable = malloc (chip->dwShadingTableSize);
   if (!chip->pShadingTable)
     {
       DBG (DBG_ASIC, "pShadingTable == NULL\n");

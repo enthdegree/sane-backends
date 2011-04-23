@@ -128,95 +128,110 @@ Scanner_IsPresent (void)
   return SANE_TRUE;
 }
 
-SANE_Bool
+SANE_Status
 Scanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 {
+  SANE_Status status;
   SANE_Bool hasTA;
   DBG_ENTER ();
 
-  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
+  status = Asic_Open (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
-  if (Asic_TurnLamp (&g_chip, isLampOn) != SANE_STATUS_GOOD)
+  status = Asic_TurnLamp (&g_chip, isLampOn);
+  if (status != SANE_STATUS_GOOD)
     goto error;
 
-  if (Asic_IsTAConnected (&g_chip, &hasTA) != SANE_STATUS_GOOD)
+  status = Asic_IsTAConnected (&g_chip, &hasTA);
+  if (status != SANE_STATUS_GOOD)
     goto error;
 
-  if (hasTA && (Asic_TurnTA (&g_chip, isTALampOn) != SANE_STATUS_GOOD))
-    goto error;
+  if (hasTA)
+    {
+      status = Asic_TurnTA (&g_chip, isTALampOn);
+      if (status != SANE_STATUS_GOOD)
+	goto error;
+    }
 
-  if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
+  status = Asic_Close (&g_chip);
 
   DBG_LEAVE ();
-  return SANE_TRUE;
+  return status;
 
 error:
   Asic_Close (&g_chip);
-  return SANE_FALSE;
+  return status;
 }
 
-SANE_Bool
+SANE_Status
 Scanner_BackHome (void)
 {
+  SANE_Status status;
   DBG_ENTER ();
 
-  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
+  status = Asic_Open (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
-  if (Asic_CarriageHome (&g_chip) != SANE_STATUS_GOOD)
+  status = Asic_CarriageHome (&g_chip);
+  if (status != SANE_STATUS_GOOD)
     {
       Asic_Close (&g_chip);
-      return SANE_FALSE;
+      return status;
     }
 
-  if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
+  status = Asic_Close (&g_chip);
 
   DBG_LEAVE ();
-  return SANE_TRUE;
+  return status;
 }
 
-SANE_Bool
-Scanner_IsTAConnected (void)
+SANE_Status
+Scanner_IsTAConnected (SANE_Bool * pHasTA)
 {
-  SANE_Bool hasTA;
+  SANE_Status status;
   DBG_ENTER ();
 
-  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
+  status = Asic_Open (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
-  if (Asic_IsTAConnected (&g_chip, &hasTA) != SANE_STATUS_GOOD)
-    hasTA = SANE_FALSE;
+  status = Asic_IsTAConnected (&g_chip, pHasTA);
+  if (status != SANE_STATUS_GOOD)
+    {
+      Asic_Close (&g_chip);
+      return status;
+    }
 
-  if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
+  status = Asic_Close (&g_chip);
 
   DBG_LEAVE ();
-  return hasTA;
+  return status;
 }
 
 #ifdef SANE_UNUSED
-SANE_Bool
+SANE_Status
 Scanner_GetKeyStatus (SANE_Byte * pKey)
 {
+  SANE_Status status;
   DBG_ENTER ();
 
-  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
+  status = Asic_Open (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
-  if (Asic_CheckFunctionKey (&g_chip, pKey) != SANE_STATUS_GOOD)
+  status = Asic_CheckFunctionKey (&g_chip, pKey);
+  if (status != SANE_STATUS_GOOD)
     {
       Asic_Close (&g_chip);
-      return SANE_FALSE;
+      return status;
     }
 
-  if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
+  status = Asic_Close (&g_chip);
 
   DBG_LEAVE ();
-  return SANE_TRUE;
+  return status;
 }
 #endif
 
@@ -842,7 +857,7 @@ ReadDataFromScanner (void __sane_unused__ * dummy)
   return NULL;
 }
 
-static SANE_Bool
+static SANE_Status
 GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
 	 unsigned int dwLineIncrement, void (* pFunc)(SANE_Byte *, SANE_Bool),
 	 SANE_Bool isOrderInvert, SANE_Bool fixEvenOdd)
@@ -870,7 +885,7 @@ GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
 	  DBG (DBG_FUNC, "thread finished\n");
 
 	  *wLinesCount = TotalXferLines;
-	  return SANE_TRUE;
+	  return SANE_STATUS_GOOD;
 	}
 
       if (GetScannedLines () > g_wtheReadyLines)
@@ -900,7 +915,7 @@ GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
 	{
 	  g_pBefLineImageData = malloc (g_SWBytesPerRow);
 	  if (!g_pBefLineImageData)
-	    return SANE_FALSE;
+	    return SANE_STATUS_NO_MEM;
 	  memset (g_pBefLineImageData, 0, g_SWBytesPerRow);
 	  memcpy (g_pBefLineImageData, pFirstLine, g_SWBytesPerRow);
 	  g_bIsFirstReadBefData = SANE_FALSE;
@@ -923,13 +938,14 @@ GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
     }
 
   DBG_LEAVE ();
-  return SANE_TRUE;
+  return SANE_STATUS_GOOD;
 }
 
-SANE_Bool
-Scanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
+SANE_Status
+Scanner_GetRows (SANE_Byte * pBlock, unsigned short * pNumRows,
 		 SANE_Bool isOrderInvert)
 {
+  SANE_Status status;
   unsigned int dwLineIncrement = g_SWBytesPerRow;
   SANE_Bool fixEvenOdd = SANE_FALSE;
   void (* pFunc)(SANE_Byte *, SANE_Bool) = NULL;
@@ -938,7 +954,7 @@ Scanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
   if (!g_bOpened || !g_bPrepared)
     {
       DBG (DBG_FUNC, "invalid state\n");
-      return SANE_FALSE;
+      return SANE_STATUS_INVAL;
     }
 
   switch (g_Target.cmColorMode)
@@ -982,8 +998,7 @@ Scanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
       break;
 
     case CM_TEXT:
-      memset (pBlock, 0, *Rows * g_SWWidth / 8);
-      dwLineIncrement /= 8;
+      memset (pBlock, 0, *pNumRows * dwLineIncrement);
       if (g_Target.wXDpi == SENSOR_DPI)
 	pFunc = GetMono1BitLineFull;
       else
@@ -991,9 +1006,11 @@ Scanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
       break;
     }
 
+  status = GetLine (pBlock, pNumRows, dwLineIncrement, pFunc, isOrderInvert,
+		    fixEvenOdd);
+
   DBG_LEAVE ();
-  return GetLine (pBlock, Rows, dwLineIncrement, pFunc, isOrderInvert,
-		  fixEvenOdd);
+  return status;
 }
 
 void
@@ -1013,16 +1030,16 @@ Scanner_ScanSuggest (TARGETIMAGE * pTarget)
   DBG_LEAVE ();
 }
 
-SANE_Bool
+SANE_Status
 Scanner_StopScan (void)
 {
-  SANE_Bool result = SANE_TRUE;
+  SANE_Status status;
   DBG_ENTER ();
 
   if (!g_bOpened || !g_bPrepared)
     {
       DBG (DBG_FUNC, "invalid state\n");
-      return SANE_FALSE;
+      return SANE_STATUS_INVAL;
     }
 
   g_isCanceled = SANE_TRUE;
@@ -1031,10 +1048,8 @@ Scanner_StopScan (void)
   pthread_join (g_threadid_readimage, NULL);
   DBG (DBG_FUNC, "thread finished\n");
 
-  if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
-    result = SANE_FALSE;
-  if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
-    result = SANE_FALSE;
+  status = Asic_ScanStop (&g_chip);
+  Asic_Close (&g_chip);
 
   g_bOpened = SANE_FALSE;
 
@@ -1051,12 +1066,13 @@ Scanner_StopScan (void)
     }
 
   DBG_LEAVE ();
-  return result;
+  return status;
 }
 
-static SANE_Bool
+static SANE_Status
 PrepareScan (void)
 {
+  SANE_Status status;
   DBG_ENTER ();
 
   g_isCanceled = SANE_FALSE;
@@ -1085,20 +1101,18 @@ PrepareScan (void)
   if (!g_pReadImageHead)
     {
       DBG (DBG_FUNC, "g_pReadImageHead == NULL\n");
-      return SANE_FALSE;
+      return SANE_STATUS_NO_MEM;
     }
 
-  if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
-    {
-      free (g_pReadImageHead);
-      return SANE_FALSE;
-    }
+  status = Asic_ScanStart (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    free (g_pReadImageHead);
 
   DBG_LEAVE ();
-  return SANE_TRUE;
+  return status;
 }
 
-SANE_Bool
+SANE_Status
 Scanner_Reset (void)
 {
   DBG_ENTER ();
@@ -1106,7 +1120,7 @@ Scanner_Reset (void)
   if (g_bOpened)
     {
       DBG (DBG_FUNC, "scanner already open\n");
-      return SANE_FALSE;
+      return SANE_STATUS_INVAL;
     }
 
   g_dwTotalTotalXferLines = 0;
@@ -1114,7 +1128,7 @@ Scanner_Reset (void)
   g_bPrepared = SANE_TRUE;
 
   DBG_LEAVE ();
-  return SANE_TRUE;
+  return SANE_STATUS_GOOD;
 }
 
 static void
@@ -1164,7 +1178,7 @@ PrepareCalculateMaxMin (unsigned short wResolution,
   pCalParam->nDarkSecNum = wDarkCalWidth / pCalParam->nDarkSecLength;
 }
 
-static SANE_Bool
+static SANE_Status
 CalculateMaxMin (CALIBRATIONPARAM * pCalParam, SANE_Byte * pBuffer,
 		 unsigned short * pMaxValue, unsigned short * pMinValue)
 {
@@ -1173,7 +1187,7 @@ CalculateMaxMin (CALIBRATIONPARAM * pCalParam, SANE_Byte * pBuffer,
 
   wSecData = malloc (pCalParam->nSecNum * sizeof (unsigned short));
   if (!wSecData)
-    return SANE_FALSE;
+    return SANE_STATUS_NO_MEM;
   memset (wSecData, 0, pCalParam->nSecNum * sizeof (unsigned short));
 
   for (i = 0; i < pCalParam->nSecNum; i++)
@@ -1194,7 +1208,7 @@ CalculateMaxMin (CALIBRATIONPARAM * pCalParam, SANE_Byte * pBuffer,
 
   wDarkSecData = malloc (pCalParam->nDarkSecNum * sizeof (unsigned short));
   if (!wDarkSecData)
-    return SANE_FALSE;
+    return SANE_STATUS_NO_MEM;
   memset (wDarkSecData, 0, pCalParam->nDarkSecNum * sizeof (unsigned short));
 
   for (i = 0; i < pCalParam->nDarkSecNum; i++)
@@ -1213,12 +1227,13 @@ CalculateMaxMin (CALIBRATIONPARAM * pCalParam, SANE_Byte * pBuffer,
     }
   free (wDarkSecData);
 
-  return SANE_TRUE;
+  return SANE_STATUS_GOOD;
 }
 
-static SANE_Bool
+static SANE_Status
 AdjustAD (void)
 {
+  SANE_Status status;
   CALIBRATIONPARAM calParam;
   SANE_Byte * pCalData;
   unsigned short wCalWidth;
@@ -1260,26 +1275,31 @@ AdjustAD (void)
   if (!pCalData)
     {
       DBG (DBG_FUNC, "pCalData == NULL\n");
-      return SANE_FALSE;
+      return SANE_STATUS_NO_MEM;
     }
 
-  if (Asic_SetWindow (&g_chip, g_Target.ssScanSource, SCAN_TYPE_CALIBRATE_DARK,
-		      24, wAdjustADResolution, wAdjustADResolution, 0, 0,
-		      wCalWidth, 1) != SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_SetWindow (&g_chip, g_Target.ssScanSource,
+			   SCAN_TYPE_CALIBRATE_DARK, 24,
+			   wAdjustADResolution, wAdjustADResolution, 0, 0,
+			   wCalWidth, 1);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
+
   PrepareCalculateMaxMin (wAdjustADResolution, &calParam);
 
   for (i = 0; i < 10; i++)
     {
       DBG (DBG_FUNC, "first AD offset adjustment loop\n");
       SetAFEGainOffset (&g_chip);
-      if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
-	goto error;
-      if (Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24) !=
-	  SANE_STATUS_GOOD)
-	goto error;
-      if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
-	goto error;
+      status = Asic_ScanStart (&g_chip);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
+      status = Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
+      status = Asic_ScanStop (&g_chip);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
 
 #ifdef DEBUG_SAVE_IMAGE
       if (i == 0)
@@ -1294,9 +1314,10 @@ AdjustAD (void)
 
       for (j = 0; j < 3; j++)
 	{
-	  if (!CalculateMaxMin (&calParam, pCalData + (wCalWidth * j),
-				&wMaxValue[j], &wMinValue[j]))
-	    goto error;
+	  status = CalculateMaxMin (&calParam, pCalData + (wCalWidth * j),
+				    &wMaxValue[j], &wMinValue[j]);
+	  if (status != SANE_STATUS_GOOD)
+	    goto out;
 
 	  if (g_chip.AD.Direction[j] == DIR_POSITIVE)
 	    {
@@ -1346,20 +1367,22 @@ AdjustAD (void)
   for (i = 0; i < 10; i++)
     {
       SetAFEGainOffset (&g_chip);
-      if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
-	goto error;
-      if (Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24) !=
-	  SANE_STATUS_GOOD)
-	goto error;
-      if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
-	goto error;
+      status = Asic_ScanStart (&g_chip);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
+      status = Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
+      status = Asic_ScanStop (&g_chip);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
 
       for (j = 0; j < 3; j++)
 	{
-	  if (!CalculateMaxMin (&calParam, pCalData + (wCalWidth * j),
-				&wMaxValue[j], &wMinValue[j]))
-	    goto error;
-
+	  status = CalculateMaxMin (&calParam, pCalData + (wCalWidth * j),
+				    &wMaxValue[j], &wMinValue[j]);
+	  if (status != SANE_STATUS_GOOD)
+	    goto out;
 	  DBG (DBG_FUNC, "%d: Max=%d, Min=%d\n", j, wMaxValue[j], wMinValue[j]);
 
 	  if ((wMaxValue[j] - wMinValue[j]) > MAX_LEVEL_RANGE)
@@ -1412,20 +1435,22 @@ AdjustAD (void)
     {
       DBG (DBG_FUNC, "second AD offset adjustment loop\n");
       SetAFEGainOffset (&g_chip);
-      if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
-	goto error;
-      if (Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24) !=
-	  SANE_STATUS_GOOD)
-	goto error;
-      if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
-	goto error;
+      status = Asic_ScanStart (&g_chip);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
+      status = Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
+      status = Asic_ScanStop (&g_chip);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
 
       for (j = 0; j < 3; j++)
 	{
-	  if (!CalculateMaxMin (&calParam, pCalData + (wCalWidth * j),
-				&wMaxValue[j], &wMinValue[j]))
-	    goto error;
-
+	  status = CalculateMaxMin (&calParam, pCalData + (wCalWidth * j),
+				    &wMaxValue[j], &wMinValue[j]);
+	  if (status != SANE_STATUS_GOOD)
+	    goto out;
 	  DBG (DBG_FUNC, "%d: Max=%d, Min=%d\n", j, wMaxValue[j], wMinValue[j]);
 
 	  if (g_chip.AD.Direction[j] == DIR_POSITIVE)
@@ -1461,19 +1486,17 @@ AdjustAD (void)
 	break;
     }
 
+out:
   free (pCalData);
 
   DBG_LEAVE ();
-  return SANE_TRUE;
-
-error:
-  free (pCalData);
-  return SANE_FALSE;
+  return status;
 }
 
-static SANE_Bool
+static SANE_Status
 FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
 {
+  SANE_Status status;
   unsigned short wCalWidth, wCalHeight;
   unsigned int dwTotalSize;
   int nScanBlock;
@@ -1502,36 +1525,40 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
   if (!pCalData)
     {
       DBG (DBG_FUNC, "pCalData == NULL\n");
-      return SANE_FALSE;
+      return SANE_STATUS_NO_MEM;
     }
   nScanBlock = dwTotalSize / CALIBRATION_BLOCK_SIZE;
 
-  if (Asic_SetWindow (&g_chip, g_Target.ssScanSource, SCAN_TYPE_CALIBRATE_LIGHT,
-		      8, FIND_LEFT_TOP_CALIBRATE_RESOLUTION,
-		      FIND_LEFT_TOP_CALIBRATE_RESOLUTION, 0, 0,
-		      wCalWidth, wCalHeight) != SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_SetWindow (&g_chip, g_Target.ssScanSource,
+			   SCAN_TYPE_CALIBRATE_LIGHT, 8,
+			   FIND_LEFT_TOP_CALIBRATE_RESOLUTION,
+			   FIND_LEFT_TOP_CALIBRATE_RESOLUTION, 0, 0,
+			   wCalWidth, wCalHeight);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
   SetAFEGainOffset (&g_chip);
-  if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_ScanStart (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
   for (i = 0; i < nScanBlock; i++)
     {
-      if (Asic_ReadCalibrationData (&g_chip,
-	    pCalData + (i * CALIBRATION_BLOCK_SIZE), CALIBRATION_BLOCK_SIZE,
-	    8) != SANE_STATUS_GOOD)
-	goto error;
+      status = Asic_ReadCalibrationData (&g_chip,
+	pCalData + (i * CALIBRATION_BLOCK_SIZE), CALIBRATION_BLOCK_SIZE, 8);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
     }
 
-  if (Asic_ReadCalibrationData (&g_chip,
-	pCalData + (nScanBlock * CALIBRATION_BLOCK_SIZE),
-	dwTotalSize - CALIBRATION_BLOCK_SIZE * nScanBlock, 8) !=
-      SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_ReadCalibrationData (&g_chip,
+    pCalData + (nScanBlock * CALIBRATION_BLOCK_SIZE),
+    dwTotalSize - CALIBRATION_BLOCK_SIZE * nScanBlock, 8);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
-  if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_ScanStop (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
 #ifdef DEBUG_SAVE_IMAGE
   stream = fopen ("bounds.pgm", "wb");
@@ -1584,11 +1611,11 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
       if ((*pwStartY < 10) || (*pwStartY > 100))
 	*pwStartY = 43;
 
-      if (Asic_MotorMove (&g_chip, SANE_FALSE,
-			  (wCalHeight - *pwStartY + LINE_CALIBRATION_HEIGHT) *
-			  SENSOR_DPI / FIND_LEFT_TOP_CALIBRATE_RESOLUTION) !=
-	  SANE_STATUS_GOOD)
-	goto error;
+      status = Asic_MotorMove (&g_chip, SANE_FALSE,
+	(wCalHeight - *pwStartY + LINE_CALIBRATION_HEIGHT) *
+	SENSOR_DPI / FIND_LEFT_TOP_CALIBRATE_RESOLUTION);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
     }
   else
     {
@@ -1615,22 +1642,20 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
       if ((*pwStartY < 100) || (*pwStartY > 200))
 	*pwStartY = 124;
 
-      if (Asic_MotorMove (&g_chip, SANE_FALSE,
-			  (wCalHeight - *pwStartY) * SENSOR_DPI /
-			  FIND_LEFT_TOP_CALIBRATE_RESOLUTION + 300) !=
-	  SANE_STATUS_GOOD)
-	goto error;
+      status = Asic_MotorMove (&g_chip, SANE_FALSE,
+	(wCalHeight - *pwStartY) * SENSOR_DPI /
+	FIND_LEFT_TOP_CALIBRATE_RESOLUTION + 300);
+      if (status != SANE_STATUS_GOOD)
+	goto out;
     }
 
-  free (pCalData);
-
   DBG (DBG_FUNC, "pwStartY=%d,pwStartX=%d\n", *pwStartY, *pwStartX);
-  DBG_LEAVE ();
-  return SANE_TRUE;
 
-error:
+out:
   free (pCalData);
-  return SANE_FALSE;
+
+  DBG_LEAVE ();
+  return status;
 }
 
 static unsigned short
@@ -1661,9 +1686,10 @@ FiltLower (unsigned short * pSort, unsigned short TotalCount,
   return (unsigned short) (Sum / LeftCount);
 }
 
-static SANE_Bool
+static SANE_Status
 LineCalibration16Bits (void)
 {
+  SANE_Status status;
   SANE_Byte * pWhiteData, * pDarkData;
   unsigned int dwTotalSize;
   unsigned short wCalWidth, wCalHeight;
@@ -1690,66 +1716,64 @@ LineCalibration16Bits (void)
   if (!pWhiteData || !pDarkData)
     {
       DBG (DBG_FUNC, "malloc failed\n");
-      return SANE_FALSE;
+      return SANE_STATUS_NO_MEM;
     }
 
   /* read white level data */
   SetAFEGainOffset (&g_chip);
-  if (Asic_SetWindow (&g_chip, g_Target.ssScanSource, SCAN_TYPE_CALIBRATE_LIGHT,
-		      48, g_Target.wXDpi, 600, g_Target.wX, 0,
-		      wCalWidth, wCalHeight) != SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_SetWindow (&g_chip, g_Target.ssScanSource,
+			   SCAN_TYPE_CALIBRATE_LIGHT, 48, g_Target.wXDpi, 600,
+			   g_Target.wX, 0, wCalWidth, wCalHeight);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
-  if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_ScanStart (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
-  if (Asic_ReadCalibrationData (&g_chip, pWhiteData, dwTotalSize, 8) !=
-      SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_ReadCalibrationData (&g_chip, pWhiteData, dwTotalSize, 8);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
-  if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_ScanStop (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
   /* read dark level data */
   SetAFEGainOffset (&g_chip);
-  if (Asic_SetWindow (&g_chip, g_Target.ssScanSource, SCAN_TYPE_CALIBRATE_DARK,
-		      48, g_Target.wXDpi, 600, g_Target.wX, 0, wCalWidth,
-		      wCalHeight) != SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_SetWindow (&g_chip, g_Target.ssScanSource,
+			   SCAN_TYPE_CALIBRATE_DARK, 48, g_Target.wXDpi, 600,
+			   g_Target.wX, 0, wCalWidth, wCalHeight);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
   if (g_Target.ssScanSource == SS_REFLECTIVE)
-    {
-      if (Asic_TurnLamp (&g_chip, SANE_FALSE) != SANE_STATUS_GOOD)
-	goto error;
-    }
+    status = Asic_TurnLamp (&g_chip, SANE_FALSE);
   else
-    {
-      if (Asic_TurnTA (&g_chip, SANE_FALSE) != SANE_STATUS_GOOD)
-	goto error;
-    }
+    status = Asic_TurnTA (&g_chip, SANE_FALSE);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
   usleep (500000);
 
-  if (Asic_ScanStart (&g_chip) != SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_ScanStart (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
-  if (Asic_ReadCalibrationData (&g_chip, pDarkData, dwTotalSize, 8) !=
-      SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_ReadCalibrationData (&g_chip, pDarkData, dwTotalSize, 8);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
-  if (Asic_ScanStop (&g_chip) != SANE_STATUS_GOOD)
-    goto error;
+  status = Asic_ScanStop (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
   if (g_Target.ssScanSource == SS_REFLECTIVE)
-    {
-      if (Asic_TurnLamp (&g_chip, SANE_TRUE) != SANE_STATUS_GOOD)
-	goto error;
-    }
+    status = Asic_TurnLamp (&g_chip, SANE_TRUE);
   else
-    {
-      if (Asic_TurnTA (&g_chip, SANE_TRUE) != SANE_STATUS_GOOD)
-	goto error;
-    }
+    status = Asic_TurnTA (&g_chip, SANE_TRUE);
+  if (status != SANE_STATUS_GOOD)
+    goto out;
 
 #ifdef DEBUG_SAVE_IMAGE
   stream = fopen ("whiteshading.ppm", "wb");
@@ -1782,7 +1806,8 @@ LineCalibration16Bits (void)
       !pRDarkSort || !pGDarkSort || !pBDarkSort)
     {
       DBG (DBG_FUNC, "malloc failed\n");
-      goto error;
+      status = SANE_STATUS_NO_MEM;
+      goto out;
     }
 
   /* compute dark level */
@@ -1951,26 +1976,21 @@ LineCalibration16Bits (void)
   free (pGDarkSort);
   free (pBDarkSort);
 
-  if (Asic_SetShadingTable (&g_chip, pWhiteShading, pDarkShading,
-			    g_Target.wXDpi, wCalWidth) != SANE_STATUS_GOOD)
-    goto error;  /* TODO: memory leak */
+  status = Asic_SetShadingTable (&g_chip, pWhiteShading, pDarkShading,
+				 g_Target.wXDpi, wCalWidth);
 
   free (pWhiteShading);
   free (pDarkShading);
 
+out:
   free (pWhiteData);
   free (pDarkData);
 
   DBG_LEAVE ();
-  return SANE_TRUE;
-
-error:
-  free (pWhiteData);
-  free (pDarkData);
-  return SANE_FALSE;
+  return status;
 }
 
-static SANE_Bool
+static SANE_Status
 CreateGammaTable (COLORMODE cmColorMode, unsigned short ** pGammaTable)
 {
   unsigned short * pTable = NULL;
@@ -1985,7 +2005,7 @@ CreateGammaTable (COLORMODE cmColorMode, unsigned short ** pGammaTable)
       if (!pTable)
 	{
 	  DBG (DBG_ERR, "pTable == NULL\n");
-	  return SANE_FALSE;
+	  return SANE_STATUS_NO_MEM;
 	}
 
       for (i = 0; i < 4096; i++)
@@ -2005,7 +2025,7 @@ CreateGammaTable (COLORMODE cmColorMode, unsigned short ** pGammaTable)
       if (!pTable)
 	{
 	  DBG (DBG_ERR, "pTable == NULL\n");
-	  return SANE_FALSE;
+	  return SANE_STATUS_NO_MEM;
 	}
 
       for (i = 0; i < 65536; i++)
@@ -2025,12 +2045,13 @@ CreateGammaTable (COLORMODE cmColorMode, unsigned short ** pGammaTable)
   *pGammaTable = pTable;
 
   DBG_LEAVE ();
-  return SANE_TRUE;
+  return SANE_STATUS_GOOD;
 }
 
-SANE_Bool
+SANE_Status
 Scanner_SetupScan (TARGETIMAGE * pTarget)
 {
+  SANE_Status status;
   unsigned short finalY;
   SANE_Byte bScanBits;
   DBG_ENTER ();
@@ -2038,7 +2059,7 @@ Scanner_SetupScan (TARGETIMAGE * pTarget)
   if (g_bOpened || !g_bPrepared)
     {
       DBG (DBG_FUNC, "invalid state\n");
-      return SANE_FALSE;
+      return SANE_STATUS_INVAL;
     }
 
   g_Target = *pTarget;
@@ -2047,8 +2068,9 @@ Scanner_SetupScan (TARGETIMAGE * pTarget)
   /* set real scan width according to ASIC limit: width must be 8x */
   g_Target.wWidth = (g_Target.wWidth + 15) & ~15;
 
-  if (!CreateGammaTable (g_Target.cmColorMode, &g_pGammaTable))
-    return SANE_FALSE;
+  status = CreateGammaTable (g_Target.cmColorMode, &g_pGammaTable);
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
   switch (g_Target.wYDpi)
     {
@@ -2079,9 +2101,8 @@ Scanner_SetupScan (TARGETIMAGE * pTarget)
       g_wLineDistance = 0;
     }
 
-  DBG (DBG_FUNC, "wYDpi=%d\n", g_Target.wYDpi);
-  DBG (DBG_FUNC, "g_wLineDistance=%d\n", g_wLineDistance);
-  DBG (DBG_FUNC, "g_wPixelDistance=%d\n", g_wPixelDistance);
+  DBG (DBG_FUNC, "wYDpi=%d,g_wLineDistance=%d,g_wPixelDistance=%d\n",
+       g_Target.wYDpi, g_wLineDistance, g_wPixelDistance);
 
   switch (g_Target.cmColorMode)
     {
@@ -2091,6 +2112,7 @@ Scanner_SetupScan (TARGETIMAGE * pTarget)
       g_Target.wHeight += g_wLineDistance * 2;
       bScanBits = 48;
       break;
+    default:
     case CM_RGB24:
       g_BytesPerRow = 3 * g_Target.wWidth;
       g_SWBytesPerRow = 3 * g_SWWidth;
@@ -2103,49 +2125,48 @@ Scanner_SetupScan (TARGETIMAGE * pTarget)
       bScanBits = 16;
       break;
     case CM_GRAY8:
-    case CM_TEXT:
-    default:
       g_BytesPerRow = g_Target.wWidth;
       g_SWBytesPerRow = g_SWWidth;
       bScanBits = 8;
       break;
+    case CM_TEXT:
+      /* 1-bit image data is generated from an 8-bit grayscale scan */
+      g_BytesPerRow = g_Target.wWidth;
+      g_SWBytesPerRow = g_SWWidth / 8;
+      bScanBits = 8;
+      break;
     }
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
-    {
-      if (!Scanner_PowerControl (SANE_TRUE, SANE_FALSE))
-	return SANE_FALSE;
-    }
-  else
-    {
-      if (!Scanner_PowerControl (SANE_FALSE, SANE_TRUE))
-	return SANE_FALSE;
-    }
-
-  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
+  status = Asic_Open (&g_chip);
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
   g_bOpened = SANE_TRUE;
 
   /* find left & top side */
   if (g_Target.ssScanSource != SS_REFLECTIVE)
-    if (Asic_MotorMove (&g_chip, SANE_TRUE, TRAN_START_POS) != SANE_STATUS_GOOD)
-      return SANE_FALSE;
+    {
+      status = Asic_MotorMove (&g_chip, SANE_TRUE, TRAN_START_POS);
+      if (status != SANE_STATUS_GOOD)
+	return status;
+    }
 
   if (g_Target.wXDpi == SENSOR_DPI)
     {
       g_Target.wXDpi = SENSOR_DPI / 2;
-      if (!AdjustAD ())
-	return SANE_FALSE;
-      if (!FindTopLeft (&g_Target.wX, &g_Target.wY))
+      status = AdjustAD();
+      if (status != SANE_STATUS_GOOD)
+	return status;
+      if (FindTopLeft (&g_Target.wX, &g_Target.wY) != SANE_STATUS_GOOD)
 	{
 	  g_Target.wX = 187;
 	  g_Target.wY = 43;
 	}
 
       g_Target.wXDpi = SENSOR_DPI;
-      if (!AdjustAD ())
-	return SANE_FALSE;
+      status = AdjustAD();
+      if (status != SANE_STATUS_GOOD)
+	return status;
 
       g_Target.wX = g_Target.wX * SENSOR_DPI /
 		    FIND_LEFT_TOP_CALIBRATE_RESOLUTION + pTarget->wX;
@@ -2159,9 +2180,10 @@ Scanner_SetupScan (TARGETIMAGE * pTarget)
     }
   else
     {
-      if (!AdjustAD ())
-	return SANE_FALSE;
-      if (!FindTopLeft (&g_Target.wX, &g_Target.wY))
+      status = AdjustAD();
+      if (status != SANE_STATUS_GOOD)
+	return status;
+      if (FindTopLeft (&g_Target.wX, &g_Target.wY) != SANE_STATUS_GOOD)
 	{
 	  g_Target.wX = 187;
 	  g_Target.wY = 43;
@@ -2186,15 +2208,15 @@ Scanner_SetupScan (TARGETIMAGE * pTarget)
   DBG (DBG_FUNC, "before LineCalibration16Bits wX=%d,wY=%d\n",
        g_Target.wX, g_Target.wY);
 
-  if (!LineCalibration16Bits ())
-    return SANE_FALSE;
+  status = LineCalibration16Bits ();
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
   DBG (DBG_FUNC, "after LineCalibration16Bits wX=%d,wY=%d\n",
        g_Target.wX, g_Target.wY);
 
-  DBG (DBG_FUNC, "bScanBits=%d, wXDpi=%d, wYDpi=%d, " \
-		 "wX=%d, wY=%d, wWidth=%d, wHeight=%d\n",
-       bScanBits, g_Target.wXDpi, g_Target.wYDpi, g_Target.wX, g_Target.wY,
+  DBG (DBG_FUNC, "bScanBits=%d,wXDpi=%d,wYDpi=%d,wWidth=%d,wHeight=%d\n",
+       bScanBits, g_Target.wXDpi, g_Target.wYDpi,
        g_Target.wWidth, g_Target.wHeight);
 
   if (g_Target.ssScanSource == SS_REFLECTIVE)
@@ -2208,25 +2230,22 @@ Scanner_SetupScan (TARGETIMAGE * pTarget)
     }
 
   if (g_Target.wY > finalY)
-    {
-      if (Asic_MotorMove (&g_chip, SANE_TRUE, g_Target.wY - finalY) !=
-	  SANE_STATUS_GOOD)
-	return SANE_FALSE;
-    }
+    status = Asic_MotorMove (&g_chip, SANE_TRUE, g_Target.wY - finalY);
   else
-    {
-      if (Asic_MotorMove (&g_chip, SANE_FALSE, finalY - g_Target.wY) !=
-	  SANE_STATUS_GOOD)
-	return SANE_FALSE;
-    }
+    status = Asic_MotorMove (&g_chip, SANE_FALSE, finalY - g_Target.wY);
+  if (status != SANE_STATUS_GOOD)
+    return status;
   g_Target.wY = finalY;
 
-  if (Asic_SetWindow (&g_chip, g_Target.ssScanSource, SCAN_TYPE_NORMAL,
-		      bScanBits, g_Target.wXDpi, g_Target.wYDpi, g_Target.wX,
-		      g_Target.wY, g_Target.wWidth, g_Target.wHeight) !=
-      SANE_STATUS_GOOD)
-    return SANE_FALSE;
+  status = Asic_SetWindow (&g_chip, g_Target.ssScanSource, SCAN_TYPE_NORMAL,
+			   bScanBits, g_Target.wXDpi, g_Target.wYDpi,
+			   g_Target.wX, g_Target.wY,
+			   g_Target.wWidth, g_Target.wHeight);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+
+  status = PrepareScan();
 
   DBG_LEAVE ();
-  return PrepareScan ();
+  return status;
 }

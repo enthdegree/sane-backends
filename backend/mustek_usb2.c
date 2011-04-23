@@ -251,6 +251,8 @@ max_string_size (SANE_String_Const *strings)
 static SANE_Status
 init_options (Mustek_Scanner * s)
 {
+  SANE_Status status;
+  SANE_Bool hasTA;
   SANE_Int option, count = 0;
   SANE_Word *dpi_list;
   TARGETIMAGE target;
@@ -299,7 +301,8 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
   s->val[OPT_SOURCE].s = strdup (source_list[SS_REFLECTIVE]);
 
-  if (!Scanner_IsTAConnected ())
+  status = Scanner_IsTAConnected (&hasTA);
+  if ((status != SANE_STATUS_GOOD) || !hasTA)
     s->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
 
   /* resolution */
@@ -477,16 +480,19 @@ sane_get_devices (const SANE_Device *** device_list,
 SANE_Status
 sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
+  SANE_Status status;
   Mustek_Scanner *s;
   DBG_ENTER ();
   DBG (DBG_FUNC, "devicename=%s\n", devicename);
 
   Scanner_Init ();
 
-  if (!Scanner_PowerControl (SANE_FALSE, SANE_FALSE))
-    return SANE_STATUS_INVAL;
-  if (!Scanner_BackHome ())
-    return SANE_STATUS_INVAL;
+  status = Scanner_PowerControl (SANE_FALSE, SANE_FALSE);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+  status = Scanner_BackHome ();
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
   s = malloc (sizeof (*s));
   if (!s)
@@ -712,6 +718,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 SANE_Status
 sane_start (SANE_Handle handle)
 {
+  SANE_Status status;
   Mustek_Scanner *s = handle;
   TARGETIMAGE target;
   DBG_ENTER ();
@@ -735,7 +742,9 @@ sane_start (SANE_Handle handle)
   DBG (DBG_INFO, "target.cmColorMode=%d\n", target.cmColorMode);
   DBG (DBG_INFO, "target.ssScanSource=%d\n", target.ssScanSource);
 
-  Scanner_Reset ();
+  status = Scanner_Reset ();
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
   /* adjust parameters to the scanner's requirements */
   Scanner_ScanSuggest (&target);
@@ -756,17 +765,24 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_NO_MEM;
   s->scan_buf_len = 0;
 
-  if (!Scanner_SetupScan (&target))
-    return SANE_STATUS_INVAL;
+  if (target.ssScanSource == SS_REFLECTIVE)
+    status = Scanner_PowerControl (SANE_TRUE, SANE_FALSE);
+  else
+    status = Scanner_PowerControl (SANE_FALSE, SANE_TRUE);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+
+  status = Scanner_SetupScan (&target);
 
   DBG_LEAVE ();
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	   SANE_Int * len)
 {
+  SANE_Status status;
   Mustek_Scanner *s = handle;
   SANE_Byte *tempbuf;
   long int tempbuf_size;
@@ -808,10 +824,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
 	  s->bIsReading = SANE_TRUE;
 	  lines_received = (unsigned short) lines;
-	  if (!Scanner_GetRows (tempbuf, &lines_received, s->model.isRGBInvert))
+	  status = Scanner_GetRows (tempbuf, &lines_received,
+				    s->model.isRGBInvert);
+	  if (status != SANE_STATUS_GOOD)
 	    {
 	      s->bIsReading = SANE_FALSE;
-	      return SANE_STATUS_INVAL;
+	      return status;
 	    }
 
 	  if (s->bInvertImage)

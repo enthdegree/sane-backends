@@ -116,18 +116,18 @@ typedef struct
 
 void Scanner_Init (void);
 SANE_Bool Scanner_IsPresent (void);
-SANE_Bool Scanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
-SANE_Bool Scanner_BackHome (void);
-SANE_Bool Scanner_IsTAConnected (void);
+SANE_Status Scanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
+SANE_Status Scanner_BackHome (void);
+SANE_Status Scanner_IsTAConnected (SANE_Bool * pHasTA);
 #if SANE_UNUSED
-SANE_Bool Scanner_GetKeyStatus (SANE_Byte * pKey);
+SANE_Status Scanner_GetKeyStatus (SANE_Byte * pKey);
 #endif
-SANE_Bool Scanner_GetRows (SANE_Byte * pBlock, unsigned short * Rows,
-			       SANE_Bool isOrderInvert);
+SANE_Status Scanner_GetRows (SANE_Byte * pBlock, unsigned short * pNumRows,
+			     SANE_Bool isOrderInvert);
 void Scanner_ScanSuggest (TARGETIMAGE * pTarget);
-SANE_Bool Scanner_StopScan (void);
-SANE_Bool Scanner_Reset (void);
-SANE_Bool Scanner_SetupScan (TARGETIMAGE * pTarget);
+SANE_Status Scanner_StopScan (void);
+SANE_Status Scanner_Reset (void);
+SANE_Status Scanner_SetupScan (TARGETIMAGE * pTarget);
 
 
 #endif

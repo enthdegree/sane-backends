@@ -438,11 +438,8 @@ sane_exit (void)
 {
   DBG_ENTER ();
 
-  if (devlist != NULL)
-    {
-      free (devlist);
-      devlist = NULL;
-    }
+  free (devlist);
+  devlist = NULL;
 
   DBG_LEAVE ();
 }
@@ -453,8 +450,7 @@ sane_get_devices (const SANE_Device *** device_list,
 {
   DBG_ENTER ();
 
-  if (devlist != NULL)
-    free (devlist);
+  free (devlist);
   devlist = calloc (2, sizeof (devlist[0]));
   if (!devlist)
     return SANE_STATUS_NO_MEM;
@@ -515,8 +511,7 @@ sane_close (SANE_Handle handle)
   Scanner_PowerControl (SANE_FALSE, SANE_FALSE);
   Scanner_BackHome ();
 
-  if (s->scan_buf)
-    free (s->scan_buf);
+  free (s->scan_buf);
   s->scan_buf = NULL;
 
   free (handle);
@@ -635,8 +630,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 	  /* side-effect-free word-array options: */
 	case OPT_MODE:
-	  if (s->val[option].s)
-	    free (s->val[option].s);
+	  free (s->val[option].s);
 	  s->val[option].s = strdup (val);
 	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	    s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
@@ -649,8 +643,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_SOURCE:
 	  if (strcmp (s->val[option].s, val) != 0)
 	    {	/* something changed */
-	      if (s->val[option].s)
-		free (s->val[option].s);
+	      free (s->val[option].s);
 	      s->val[option].s = strdup (val);
 	      if (strcmp (s->val[option].s, source_list[SS_REFLECTIVE]) == 0)
 		{
@@ -758,8 +751,7 @@ sane_start (SANE_Handle handle)
   DBG (DBG_INFO, "SCANNING...\n");
   s->bIsScanning = SANE_TRUE;
 
-  if (s->scan_buf)
-    free (s->scan_buf);
+  free (s->scan_buf);
   s->scan_buf = malloc (SCAN_BUFFER_SIZE);
   if (!s->scan_buf)
     return SANE_STATUS_NO_MEM;
@@ -904,13 +896,9 @@ sane_cancel (SANE_Handle handle)
 	  sleep (1);
 	}
 
-      if (s->scan_buf)
-	{
-	  free (s->scan_buf);
-	  s->scan_buf = NULL;
-	  s->scan_buf_start = NULL;
-	}
-
+      free (s->scan_buf);
+      s->scan_buf = NULL;
+      s->scan_buf_start = NULL;
       s->read_rows = 0;
       s->scan_buf_len = 0;
     }

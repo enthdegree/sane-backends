@@ -2678,8 +2678,7 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
      First 4 and last 5 elements of shading table cannot be used. */
   wShadingTableSize = ShadingTableSize (wValidPixelNumber) *
     sizeof (unsigned short);
-  if (chip->pShadingTable)
-    free (chip->pShadingTable);
+  free (chip->pShadingTable);
 
   DBG (DBG_ASIC, "allocating a new shading table, size=%d byte\n",
        wShadingTableSize);

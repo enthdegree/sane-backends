@@ -1053,17 +1053,10 @@ Scanner_StopScan (void)
 
   g_bOpened = SANE_FALSE;
 
-  if (g_pGammaTable)
-    {
-      free (g_pGammaTable);
-      g_pGammaTable = NULL;
-    }
-
-  if (g_pReadImageHead)
-    {
-      free (g_pReadImageHead);
-      g_pReadImageHead = NULL;
-    }
+  free (g_pGammaTable);
+  g_pGammaTable = NULL;
+  free (g_pReadImageHead);
+  g_pReadImageHead = NULL;
 
   DBG_LEAVE ();
   return status;
@@ -1716,7 +1709,8 @@ LineCalibration16Bits (void)
   if (!pWhiteData || !pDarkData)
     {
       DBG (DBG_FUNC, "malloc failed\n");
-      return SANE_STATUS_NO_MEM;
+      status = SANE_STATUS_NO_MEM;
+      goto out1;
     }
 
   /* read white level data */
@@ -1725,19 +1719,19 @@ LineCalibration16Bits (void)
 			   SCAN_TYPE_CALIBRATE_LIGHT, 48, g_Target.wXDpi, 600,
 			   g_Target.wX, 0, wCalWidth, wCalHeight);
   if (status != SANE_STATUS_GOOD)
-    goto out;
+    goto out1;
 
   status = Asic_ScanStart (&g_chip);
   if (status != SANE_STATUS_GOOD)
-    goto out;
+    goto out1;
 
   status = Asic_ReadCalibrationData (&g_chip, pWhiteData, dwTotalSize, 8);
   if (status != SANE_STATUS_GOOD)
-    goto out;
+    goto out1;
 
   status = Asic_ScanStop (&g_chip);
   if (status != SANE_STATUS_GOOD)
-    goto out;
+    goto out1;
 
   /* read dark level data */
   SetAFEGainOffset (&g_chip);
@@ -1745,35 +1739,35 @@ LineCalibration16Bits (void)
 			   SCAN_TYPE_CALIBRATE_DARK, 48, g_Target.wXDpi, 600,
 			   g_Target.wX, 0, wCalWidth, wCalHeight);
   if (status != SANE_STATUS_GOOD)
-    goto out;
+    goto out1;
 
   if (g_Target.ssScanSource == SS_REFLECTIVE)
     status = Asic_TurnLamp (&g_chip, SANE_FALSE);
   else
     status = Asic_TurnTA (&g_chip, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
-    goto out;
+    goto out1;
 
   usleep (500000);
 
   status = Asic_ScanStart (&g_chip);
   if (status != SANE_STATUS_GOOD)
-    goto out;
+    goto out1;
 
   status = Asic_ReadCalibrationData (&g_chip, pDarkData, dwTotalSize, 8);
   if (status != SANE_STATUS_GOOD)
-    goto out;
+    goto out1;
 
   status = Asic_ScanStop (&g_chip);
   if (status != SANE_STATUS_GOOD)
-    goto out;
+    goto out1;
 
   if (g_Target.ssScanSource == SS_REFLECTIVE)
     status = Asic_TurnLamp (&g_chip, SANE_TRUE);
   else
     status = Asic_TurnTA (&g_chip, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
-    goto out;
+    goto out1;
 
 #ifdef DEBUG_SAVE_IMAGE
   stream = fopen ("whiteshading.ppm", "wb");
@@ -1807,7 +1801,7 @@ LineCalibration16Bits (void)
     {
       DBG (DBG_FUNC, "malloc failed\n");
       status = SANE_STATUS_NO_MEM;
-      goto out;
+      goto out2;
     }
 
   /* compute dark level */
@@ -1969,6 +1963,13 @@ LineCalibration16Bits (void)
 	}
     }
 
+  status = Asic_SetShadingTable (&g_chip, pWhiteShading, pDarkShading,
+				 g_Target.wXDpi, wCalWidth);
+
+out2:
+  free (pWhiteShading);
+  free (pDarkShading);
+
   free (pRWhiteSort);
   free (pGWhiteSort);
   free (pBWhiteSort);
@@ -1976,13 +1977,7 @@ LineCalibration16Bits (void)
   free (pGDarkSort);
   free (pBDarkSort);
 
-  status = Asic_SetShadingTable (&g_chip, pWhiteShading, pDarkShading,
-				 g_Target.wXDpi, wCalWidth);
-
-  free (pWhiteShading);
-  free (pDarkShading);
-
-out:
+out1:
   free (pWhiteData);
   free (pDarkData);
 

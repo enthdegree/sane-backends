@@ -142,10 +142,6 @@ typedef struct
 #define LINE_CALIBRATION_HEIGHT			40
 #define TRAN_START_POS				4550
 
-/* 300 dpi */
-#define MAX_SCANNING_WIDTH			2550	/* just for A4 */
-#define MAX_SCANNING_HEIGHT			3540	/* just for A4 */
-
 #define IMAGE_BUFFER_SIZE	(24 * 1024 * 1024)
 #define BLOCK_SIZE		(64 * 1024)
 #define CALIBRATION_BLOCK_SIZE	(64 * 1024)
@@ -165,7 +161,6 @@ SANE_Status Scanner_GetKeyStatus (Scanner_State * st, SANE_Byte * pKey);
 SANE_Status Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
 			     unsigned short * pNumRows,
 			     SANE_Bool isOrderInvert);
-void Scanner_ScanSuggest (TARGETIMAGE * pTarget);
 SANE_Status Scanner_StopScan (Scanner_State * st);
 SANE_Status Scanner_Reset (Scanner_State * st);
 SANE_Status Scanner_SetupScan (Scanner_State * st, TARGETIMAGE * pTarget);

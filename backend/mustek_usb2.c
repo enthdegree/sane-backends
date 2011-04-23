@@ -111,8 +111,8 @@ static const Scanner_Model mustek_A2nu2_model = {
 
   {1200, 600, 300, 150, 75, 0}, /* possible resolutions */
 
-  SANE_FIX (8.3 * MM_PER_INCH),	/* size of scan area in mm (x) */
-  SANE_FIX (11.6 * MM_PER_INCH), /* size of scan area in mm (y) */
+  SANE_FIX (8.5 * MM_PER_INCH),	/* size of scan area in mm (x) */
+  SANE_FIX (11.8 * MM_PER_INCH), /* size of scan area in mm (y) */
 
   SANE_FIX (1.46 * MM_PER_INCH), /* size of scan area in TA mode in mm (x) */
   SANE_FIX (6.45 * MM_PER_INCH), /* size of scan area in TA mode in mm (y) */
@@ -122,7 +122,7 @@ static const Scanner_Model mustek_A2nu2_model = {
 
 
 static void
-get_target_image (Mustek_Scanner * s, TARGETIMAGE * pTarget)
+calc_parameters (Mustek_Scanner * s, TARGETIMAGE * pTarget)
 {
   SANE_String val, val_source;
   float x1, y1, x2, y2;
@@ -189,44 +189,36 @@ get_target_image (Mustek_Scanner * s, TARGETIMAGE * pTarget)
       pTarget->cmColorMode = CM_TEXT;
     }
 
-  DBG_LEAVE ();
-}
-
-static void
-calc_parameters (TARGETIMAGE * pTarget, SANE_Parameters * params)
-{
-  DBG_ENTER ();
-
-  params->pixels_per_line = pTarget->wWidth;
-  params->lines = pTarget->wHeight;
-  params->last_frame = SANE_TRUE;
+  s->params.pixels_per_line = pTarget->wWidth;
+  s->params.lines = pTarget->wHeight;
+  s->params.last_frame = SANE_TRUE;
 
   switch (pTarget->cmColorMode)
     {
     case CM_RGB48:
-      params->format = SANE_FRAME_RGB;
-      params->depth = 16;
-      params->bytes_per_line = params->pixels_per_line * 6;
+      s->params.format = SANE_FRAME_RGB;
+      s->params.depth = 16;
+      s->params.bytes_per_line = s->params.pixels_per_line * 6;
       break;
     case CM_RGB24:
-      params->format = SANE_FRAME_RGB;
-      params->depth = 8;
-      params->bytes_per_line = params->pixels_per_line * 3;
+      s->params.format = SANE_FRAME_RGB;
+      s->params.depth = 8;
+      s->params.bytes_per_line = s->params.pixels_per_line * 3;
       break;
     case CM_GRAY16:
-      params->format = SANE_FRAME_GRAY;
-      params->depth = 16;
-      params->bytes_per_line = params->pixels_per_line * 2;
+      s->params.format = SANE_FRAME_GRAY;
+      s->params.depth = 16;
+      s->params.bytes_per_line = s->params.pixels_per_line * 2;
       break;
     case CM_GRAY8:
-      params->format = SANE_FRAME_GRAY;
-      params->depth = 8;
-      params->bytes_per_line = params->pixels_per_line;
+      s->params.format = SANE_FRAME_GRAY;
+      s->params.depth = 8;
+      s->params.bytes_per_line = s->params.pixels_per_line;
       break;
     case CM_TEXT:
-      params->format = SANE_FRAME_GRAY;
-      params->depth = 1;
-      params->bytes_per_line = params->pixels_per_line / 8;
+      s->params.format = SANE_FRAME_GRAY;
+      s->params.depth = 1;
+      s->params.bytes_per_line = s->params.pixels_per_line / 8;
       break;
     }
 
@@ -407,8 +399,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_BR_Y].constraint.range = &y_range;
   s->val[OPT_BR_Y].w = y_range.max;
 
-  get_target_image (s, &target);
-  calc_parameters (&target, &s->params);
+  calc_parameters (s, &target);
 
   DBG_LEAVE ();
   return SANE_STATUS_GOOD;
@@ -622,8 +613,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_X:
 	case OPT_BR_Y:
 	  s->val[option].w = *(SANE_Word *) val;
-	  get_target_image (s, &target);
-	  calc_parameters (&target, &s->params);
+	  calc_parameters (s, &target);
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
 	case OPT_THRESHOLD:
@@ -637,8 +627,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 	  else
 	    s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
-	  get_target_image (s, &target);
-	  calc_parameters (&target, &s->params);
+	  calc_parameters (s, &target);
 	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  break;
 	case OPT_SOURCE:
@@ -724,7 +713,11 @@ sane_start (SANE_Handle handle)
       return SANE_FALSE;
     }
  
-  get_target_image (s, &target);
+  status = Scanner_Reset (&s->state);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+
+  calc_parameters (s, &target);
 
   DBG (DBG_INFO, "target.wX=%d\n", target.wX);
   DBG (DBG_INFO, "target.wY=%d\n", target.wY);
@@ -736,16 +729,8 @@ sane_start (SANE_Handle handle)
   DBG (DBG_INFO, "target.cmColorMode=%d\n", target.cmColorMode);
   DBG (DBG_INFO, "target.ssScanSource=%d\n", target.ssScanSource);
 
-  status = Scanner_Reset (&s->state);
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
-  /* adjust parameters to the scanner's requirements */
-  Scanner_ScanSuggest (&target);
-  calc_parameters (&target, &s->params);
   s->bInvertImage = ((target.cmColorMode == CM_TEXT) ^
 		     (target.ssScanSource == SS_NEGATIVE));
-
   s->read_rows = s->params.lines;
   DBG (DBG_INFO, "read_rows=%d\n", s->read_rows);
 

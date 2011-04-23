@@ -1004,23 +1004,6 @@ Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
   return status;
 }
 
-void
-Scanner_ScanSuggest (TARGETIMAGE * pTarget)
-{
-  unsigned short wMaxWidth, wMaxHeight;
-  DBG_ENTER ();
-
-  /* check width and height */
-  wMaxWidth = (MAX_SCANNING_WIDTH * pTarget->wXDpi) / 300;
-  wMaxHeight = (MAX_SCANNING_HEIGHT * pTarget->wYDpi) / 300;
-  DBG (DBG_FUNC, "wMaxWidth=%d,wMaxHeight=%d\n", wMaxWidth, wMaxHeight);
-
-  pTarget->wWidth = _MIN (pTarget->wWidth, wMaxWidth);
-  pTarget->wHeight = _MIN (pTarget->wHeight, wMaxHeight);
-
-  DBG_LEAVE ();
-}
-
 SANE_Status
 Scanner_StopScan (Scanner_State * st)
 {

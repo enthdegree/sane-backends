@@ -806,6 +806,8 @@ ReadDataFromScanner (void * param)
 	  DBG (DBG_FUNC, "ReadDataFromScanner: wScanLinesThisBlock=%d\n",
 	       wScanLinesThisBlock);
 
+	  /* This call is thread-safe under the assumption that no function that
+	     might run concurrently will cause a register bank switch. */
 	  if (Asic_ReadImage (&st->chip, pReadImage, wScanLinesThisBlock) !=
 	      SANE_STATUS_GOOD)
 	    {
@@ -826,9 +828,8 @@ ReadDataFromScanner (void * param)
 	      wReadImageLines = 0;
 	    }
 
-	  if ((st->dwScannedTotalLines - GetReadyLines (st)) >=
-	      (wMaxScanLines - (wBufferLines + st->wScanLinesPerBlock)) &&
-	      st->dwScannedTotalLines > GetReadyLines (st))
+	  if (st->dwScannedTotalLines >= (GetReadyLines (st) +
+	      (wMaxScanLines - (wBufferLines + st->wScanLinesPerBlock))))
 	    {
 	      isWaitImageLineDiff = SANE_TRUE;
 	    }

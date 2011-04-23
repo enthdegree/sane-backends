@@ -1627,7 +1627,6 @@ SetPackAddress (ASIC * chip, unsigned short wWidth, unsigned short wX,
   SendData (chip, ES01_CE_TG_G_CONTROL, 0);
   SendData (chip, ES01_CF_TG_B_CONTROL, 0x3C);
 
-
   /* set pack area address */
   SendData (chip, ES01_16D_EXPOSURE_CYCLE1_SEGMENT1_START_ADDR_BYTE0,
 	    BYTE0 (PACK_AREA_START_ADDRESS));
@@ -1648,7 +1647,6 @@ SetPackAddress (ASIC * chip, unsigned short wWidth, unsigned short wX,
   for (i = 0; i < 16; i++)
     SendData (chip, 0x260 + i, 0);
   DBG (DBG_ASIC, "set invalid pixel finished\n");
-
 
   /* set pack start address */
   SendData (chip, ES01_19E_PACK_AREA_R_START_ADDR_BYTE0,
@@ -1943,7 +1941,6 @@ Asic_TurnLamp (ASIC * chip, SANE_Bool isLampOn)
   DBG_ASIC_LEAVE ();
   return SANE_STATUS_GOOD;
 }
-
 
 SANE_Status
 Asic_TurnTA (ASIC * chip, SANE_Bool isTAOn)

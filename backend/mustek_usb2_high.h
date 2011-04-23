@@ -48,6 +48,8 @@
 #ifndef MUSTEK_USB2_HIGH_H
 #define MUSTEK_USB2_HIGH_H
 
+#include <pthread.h>	/* TODO: use sanei_thread functions instead */
+
 #include "mustek_usb2_asic.h"
 
 
@@ -82,6 +84,43 @@ typedef struct
   unsigned short wStartPosition;
 } CALIBRATIONPARAM;
 
+typedef struct
+{
+  SANE_Bool bOpened;
+  SANE_Bool bPrepared;
+  SANE_Bool isCanceled;
+  SANE_Bool bFirstReadImage;
+
+  SANE_Byte * pReadImageHead;
+  unsigned short * pGammaTable;
+  ASIC chip;
+
+  TARGETIMAGE Target;
+  unsigned int BytesPerRow;
+  unsigned int SWBytesPerRow;
+  unsigned short SWWidth;
+  unsigned short SWHeight;
+
+  unsigned int wtheReadyLines;
+  unsigned int wMaxScanLines;
+  unsigned int dwScannedTotalLines;
+  unsigned int dwTotalTotalXferLines;
+
+  pthread_t threadid_readimage;
+  pthread_mutex_t scannedLinesMutex;
+  pthread_mutex_t readyLinesMutex;
+
+  /* even & odd sensor problem */
+  unsigned short wPixelDistance;
+  unsigned short wLineDistance;
+  unsigned short wScanLinesPerBlock;
+
+  /* for modifying the last point */
+  SANE_Bool bIsFirstReadBefData;
+  SANE_Byte * pBefLineImageData;
+  unsigned int dwAlreadyGetLines;
+} Scanner_State;
+
 
 #define _MAX(a,b) ((a)>(b)?(a):(b))
 #define _MIN(a,b) ((a)<(b)?(a):(b))
@@ -114,20 +153,22 @@ typedef struct
 /*#define DEBUG_SAVE_IMAGE*/
 
 
-void Scanner_Init (void);
+void Scanner_Init (Scanner_State * st);
 SANE_Bool Scanner_IsPresent (void);
-SANE_Status Scanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn);
-SANE_Status Scanner_BackHome (void);
-SANE_Status Scanner_IsTAConnected (SANE_Bool * pHasTA);
+SANE_Status Scanner_PowerControl (Scanner_State * st, SANE_Bool isLampOn,
+				  SANE_Bool isTALampOn);
+SANE_Status Scanner_BackHome (Scanner_State * st);
+SANE_Status Scanner_IsTAConnected (Scanner_State * st, SANE_Bool * pHasTA);
 #if SANE_UNUSED
-SANE_Status Scanner_GetKeyStatus (SANE_Byte * pKey);
+SANE_Status Scanner_GetKeyStatus (Scanner_State * st, SANE_Byte * pKey);
 #endif
-SANE_Status Scanner_GetRows (SANE_Byte * pBlock, unsigned short * pNumRows,
+SANE_Status Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
+			     unsigned short * pNumRows,
 			     SANE_Bool isOrderInvert);
 void Scanner_ScanSuggest (TARGETIMAGE * pTarget);
-SANE_Status Scanner_StopScan (void);
-SANE_Status Scanner_Reset (void);
-SANE_Status Scanner_SetupScan (TARGETIMAGE * pTarget);
+SANE_Status Scanner_StopScan (Scanner_State * st);
+SANE_Status Scanner_Reset (Scanner_State * st);
+SANE_Status Scanner_SetupScan (Scanner_State * st, TARGETIMAGE * pTarget);
 
 
 #endif

@@ -112,6 +112,7 @@ typedef struct Mustek_Scanner
   Option_Value val[NUM_OPTIONS];
   SANE_Parameters params;
   Scanner_Model model;
+  Scanner_State state;
   SANE_Bool bIsScanning;
   SANE_Bool bIsReading;
   SANE_Bool bInvertImage;

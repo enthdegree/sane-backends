@@ -52,7 +52,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
-#include <pthread.h>	/* TODO: use sanei_thread functions instead */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_backend.h"
@@ -60,56 +59,23 @@
 #include "mustek_usb2_high.h"
 
 
-/* HOLD: these global variables should go to scanner structure */
-
-static SANE_Bool g_bOpened;
-static SANE_Bool g_bPrepared;
-static SANE_Bool g_isCanceled;
-static SANE_Bool g_bFirstReadImage;
-static SANE_Byte * g_pReadImageHead;
-
-static TARGETIMAGE g_Target;
-static unsigned short g_SWWidth;
-static unsigned short g_SWHeight;
-
-/* even & odd sensor problem */
-static unsigned short g_wPixelDistance;
-static unsigned short g_wLineDistance;
-static unsigned short g_wScanLinesPerBlock;
-
-static unsigned int g_wtheReadyLines;
-static unsigned int g_wMaxScanLines;
-static unsigned int g_dwScannedTotalLines;
-static unsigned int g_BytesPerRow;
-static unsigned int g_SWBytesPerRow;
-static unsigned int g_dwTotalTotalXferLines;
-
-static pthread_t g_threadid_readimage;
-static pthread_mutex_t g_scannedLinesMutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t g_readyLinesMutex = PTHREAD_MUTEX_INITIALIZER;
-
-static unsigned short * g_pGammaTable;
-static ASIC g_chip;
-
-/* for modifying the last point */
-static SANE_Bool g_bIsFirstReadBefData = SANE_TRUE;
-static SANE_Byte * g_pBefLineImageData;
-static unsigned int g_dwAlreadyGetLines;
-
-
 void
-Scanner_Init (void)
+Scanner_Init (Scanner_State * st)
 {
   DBG_ENTER ();
 
-  Asic_Initialize (&g_chip);
+  Asic_Initialize (&st->chip);
 
-  g_bOpened = SANE_FALSE;
-  g_bPrepared = SANE_FALSE;
-  g_isCanceled = SANE_FALSE;
+  st->bOpened = SANE_FALSE;
+  st->bPrepared = SANE_FALSE;
+  st->isCanceled = SANE_FALSE;
+  st->bIsFirstReadBefData = SANE_TRUE;
 
-  g_pReadImageHead = NULL;
-  g_pGammaTable = NULL;
+  st->pReadImageHead = NULL;
+  st->pGammaTable = NULL;
+
+  pthread_mutex_init (&st->scannedLinesMutex, NULL);
+  pthread_mutex_init (&st->readyLinesMutex, NULL);
 
   DBG_LEAVE ();
 }
@@ -117,11 +83,13 @@ Scanner_Init (void)
 SANE_Bool
 Scanner_IsPresent (void)
 {
+  ASIC chip;
   DBG_ENTER ();
 
-  if (Asic_Open (&g_chip) != SANE_STATUS_GOOD)
+  Asic_Initialize (&chip);
+  if (Asic_Open (&chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
-  if (Asic_Close (&g_chip) != SANE_STATUS_GOOD)
+  if (Asic_Close (&chip) != SANE_STATUS_GOOD)
     return SANE_FALSE;
 
   DBG_LEAVE ();
@@ -129,82 +97,83 @@ Scanner_IsPresent (void)
 }
 
 SANE_Status
-Scanner_PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
+Scanner_PowerControl (Scanner_State * st, SANE_Bool isLampOn,
+		      SANE_Bool isTALampOn)
 {
   SANE_Status status;
   SANE_Bool hasTA;
   DBG_ENTER ();
 
-  status = Asic_Open (&g_chip);
+  status = Asic_Open (&st->chip);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  status = Asic_TurnLamp (&g_chip, isLampOn);
+  status = Asic_TurnLamp (&st->chip, isLampOn);
   if (status != SANE_STATUS_GOOD)
     goto error;
 
-  status = Asic_IsTAConnected (&g_chip, &hasTA);
+  status = Asic_IsTAConnected (&st->chip, &hasTA);
   if (status != SANE_STATUS_GOOD)
     goto error;
 
   if (hasTA)
     {
-      status = Asic_TurnTA (&g_chip, isTALampOn);
+      status = Asic_TurnTA (&st->chip, isTALampOn);
       if (status != SANE_STATUS_GOOD)
 	goto error;
     }
 
-  status = Asic_Close (&g_chip);
+  status = Asic_Close (&st->chip);
 
   DBG_LEAVE ();
   return status;
 
 error:
-  Asic_Close (&g_chip);
+  Asic_Close (&st->chip);
   return status;
 }
 
 SANE_Status
-Scanner_BackHome (void)
+Scanner_BackHome (Scanner_State * st)
 {
   SANE_Status status;
   DBG_ENTER ();
 
-  status = Asic_Open (&g_chip);
+  status = Asic_Open (&st->chip);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  status = Asic_CarriageHome (&g_chip);
+  status = Asic_CarriageHome (&st->chip);
   if (status != SANE_STATUS_GOOD)
     {
-      Asic_Close (&g_chip);
+      Asic_Close (&st->chip);
       return status;
     }
 
-  status = Asic_Close (&g_chip);
+  status = Asic_Close (&st->chip);
 
   DBG_LEAVE ();
   return status;
 }
 
 SANE_Status
-Scanner_IsTAConnected (SANE_Bool * pHasTA)
+Scanner_IsTAConnected (Scanner_State * st, SANE_Bool * pHasTA)
 {
   SANE_Status status;
   DBG_ENTER ();
 
-  status = Asic_Open (&g_chip);
+  status = Asic_Open (&st->chip);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  status = Asic_IsTAConnected (&g_chip, pHasTA);
+  status = Asic_IsTAConnected (&st->chip, pHasTA);
   if (status != SANE_STATUS_GOOD)
     {
-      Asic_Close (&g_chip);
+      Asic_Close (&st->chip);
       return status;
     }
 
-  status = Asic_Close (&g_chip);
+  status = Asic_Close (&st->chip);
 
   DBG_LEAVE ();
   return status;
@@ -212,23 +181,23 @@ Scanner_IsTAConnected (SANE_Bool * pHasTA)
 
 #ifdef SANE_UNUSED
 SANE_Status
-Scanner_GetKeyStatus (SANE_Byte * pKey)
+Scanner_GetKeyStatus (Scanner_State * st, SANE_Byte * pKey)
 {
   SANE_Status status;
   DBG_ENTER ();
 
-  status = Asic_Open (&g_chip);
+  status = Asic_Open (&st->chip);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  status = Asic_CheckFunctionKey (&g_chip, pKey);
+  status = Asic_CheckFunctionKey (&st->chip, pKey);
   if (status != SANE_STATUS_GOOD)
     {
-      Asic_Close (&g_chip);
+      Asic_Close (&st->chip);
       return status;
     }
 
-  status = Asic_Close (&g_chip);
+  status = Asic_Close (&st->chip);
 
   DBG_LEAVE ();
   return status;
@@ -261,199 +230,209 @@ QBET4 (SANE_Byte A, SANE_Byte B)
 }
 
 static void
-SetPixel48Bit (SANE_Byte * pLine, unsigned short wRTempData,
-	       unsigned short wGTempData, unsigned short wBTempData,
-	       SANE_Bool isOrderInvert)
+SetPixel48Bit (SANE_Byte * pLine, unsigned short * pGammaTable,
+	       unsigned short wRTempData, unsigned short wGTempData,
+	       unsigned short wBTempData, SANE_Bool isOrderInvert)
 {
   if (!isOrderInvert)
     {
-      pLine[0] = LOBYTE (g_pGammaTable[wRTempData]);
-      pLine[1] = HIBYTE (g_pGammaTable[wRTempData]);
-      pLine[2] = LOBYTE (g_pGammaTable[wGTempData + 0x10000]);
-      pLine[3] = HIBYTE (g_pGammaTable[wGTempData + 0x10000]);
-      pLine[4] = LOBYTE (g_pGammaTable[wBTempData + 0x20000]);
-      pLine[5] = HIBYTE (g_pGammaTable[wBTempData + 0x20000]);
+      pLine[0] = LOBYTE (pGammaTable[wRTempData]);
+      pLine[1] = HIBYTE (pGammaTable[wRTempData]);
+      pLine[2] = LOBYTE (pGammaTable[wGTempData + 0x10000]);
+      pLine[3] = HIBYTE (pGammaTable[wGTempData + 0x10000]);
+      pLine[4] = LOBYTE (pGammaTable[wBTempData + 0x20000]);
+      pLine[5] = HIBYTE (pGammaTable[wBTempData + 0x20000]);
     }
   else
     {
-      pLine[4] = LOBYTE (g_pGammaTable[wRTempData]);
-      pLine[5] = HIBYTE (g_pGammaTable[wRTempData]);
-      pLine[2] = LOBYTE (g_pGammaTable[wGTempData + 0x10000]);
-      pLine[3] = HIBYTE (g_pGammaTable[wGTempData + 0x10000]);
-      pLine[0] = LOBYTE (g_pGammaTable[wBTempData + 0x20000]);
-      pLine[1] = HIBYTE (g_pGammaTable[wBTempData + 0x20000]);
+      pLine[4] = LOBYTE (pGammaTable[wRTempData]);
+      pLine[5] = HIBYTE (pGammaTable[wRTempData]);
+      pLine[2] = LOBYTE (pGammaTable[wGTempData + 0x10000]);
+      pLine[3] = HIBYTE (pGammaTable[wGTempData + 0x10000]);
+      pLine[0] = LOBYTE (pGammaTable[wBTempData + 0x20000]);
+      pLine[1] = HIBYTE (pGammaTable[wBTempData + 0x20000]);
     }
 }
 
 static void
-GetRgb48BitLineHalf (SANE_Byte * pLine, SANE_Bool isOrderInvert)
+GetRgb48BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
+		     SANE_Bool isOrderInvert)
 {
   unsigned short wRLinePos, wGLinePos, wBLinePos;
   unsigned short wRTempData, wGTempData, wBTempData;
   unsigned short i;
 
-  wRLinePos = g_wtheReadyLines;
-  wGLinePos = g_wtheReadyLines - g_wLineDistance;
-  wBLinePos = g_wtheReadyLines - g_wLineDistance * 2;
-  wRLinePos = (wRLinePos % g_wMaxScanLines) * g_BytesPerRow;
-  wGLinePos = (wGLinePos % g_wMaxScanLines) * g_BytesPerRow;
-  wBLinePos = (wBLinePos % g_wMaxScanLines) * g_BytesPerRow;
+  wRLinePos = st->wtheReadyLines;
+  wGLinePos = st->wtheReadyLines - st->wLineDistance;
+  wBLinePos = st->wtheReadyLines - st->wLineDistance * 2;
+  wRLinePos = (wRLinePos % st->wMaxScanLines) * st->BytesPerRow;
+  wGLinePos = (wGLinePos % st->wMaxScanLines) * st->BytesPerRow;
+  wBLinePos = (wBLinePos % st->wMaxScanLines) * st->BytesPerRow;
 
-  for (i = 0; i < g_SWWidth; i++)
+  for (i = 0; i < st->SWWidth; i++)
     {
-      wRTempData = g_pReadImageHead[wRLinePos + i * 6] |
-	(g_pReadImageHead[wRLinePos + i * 6 + 1] << 8);
-      wGTempData = g_pReadImageHead[wGLinePos + i * 6 + 2] |
-	(g_pReadImageHead[wGLinePos + i * 6 + 3] << 8);
-      wBTempData = g_pReadImageHead[wBLinePos + i * 6 + 4] |
-	(g_pReadImageHead[wBLinePos + i * 6 + 5] << 8);
+      wRTempData = st->pReadImageHead[wRLinePos + i * 6] |
+	(st->pReadImageHead[wRLinePos + i * 6 + 1] << 8);
+      wGTempData = st->pReadImageHead[wGLinePos + i * 6 + 2] |
+	(st->pReadImageHead[wGLinePos + i * 6 + 3] << 8);
+      wBTempData = st->pReadImageHead[wBLinePos + i * 6 + 4] |
+	(st->pReadImageHead[wBLinePos + i * 6 + 5] << 8);
 
-      SetPixel48Bit (pLine + (i * 6), wRTempData, wGTempData, wBTempData,
-		     isOrderInvert);
+      SetPixel48Bit (pLine + (i * 6), st->pGammaTable, wRTempData, wGTempData,
+		     wBTempData, isOrderInvert);
     }
 }
 
 static void
-GetRgb48BitLineFull (SANE_Byte * pLine, SANE_Bool isOrderInvert)
+GetRgb48BitLineFull (Scanner_State * st, SANE_Byte * pLine,
+		     SANE_Bool isOrderInvert)
 {
   unsigned short wRLinePosOdd, wGLinePosOdd, wBLinePosOdd;
   unsigned short wRLinePosEven, wGLinePosEven, wBLinePosEven;
   unsigned int dwRTempData, dwGTempData, dwBTempData;
   unsigned short i = 0;
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      wRLinePosOdd = g_wtheReadyLines - g_wPixelDistance;
-      wGLinePosOdd = g_wtheReadyLines - g_wLineDistance - g_wPixelDistance;
-      wBLinePosOdd = g_wtheReadyLines - g_wLineDistance * 2 - g_wPixelDistance;
-      wRLinePosEven = g_wtheReadyLines;
-      wGLinePosEven = g_wtheReadyLines - g_wLineDistance;
-      wBLinePosEven = g_wtheReadyLines - g_wLineDistance * 2;
+      wRLinePosOdd = st->wtheReadyLines - st->wPixelDistance;
+      wGLinePosOdd = st->wtheReadyLines - st->wLineDistance -
+		     st->wPixelDistance;
+      wBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2 -
+		     st->wPixelDistance;
+      wRLinePosEven = st->wtheReadyLines;
+      wGLinePosEven = st->wtheReadyLines - st->wLineDistance;
+      wBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2;
     }
   else
     {
-      wRLinePosOdd = g_wtheReadyLines;
-      wGLinePosOdd = g_wtheReadyLines - g_wLineDistance;
-      wBLinePosOdd = g_wtheReadyLines - g_wLineDistance * 2;
-      wRLinePosEven = g_wtheReadyLines - g_wPixelDistance;
-      wGLinePosEven = g_wtheReadyLines - g_wLineDistance - g_wPixelDistance;
-      wBLinePosEven = g_wtheReadyLines - g_wLineDistance * 2 - g_wPixelDistance;
+      wRLinePosOdd = st->wtheReadyLines;
+      wGLinePosOdd = st->wtheReadyLines - st->wLineDistance;
+      wBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2;
+      wRLinePosEven = st->wtheReadyLines - st->wPixelDistance;
+      wGLinePosEven = st->wtheReadyLines - st->wLineDistance -
+		      st->wPixelDistance;
+      wBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2 -
+		      st->wPixelDistance;
     }
-  wRLinePosOdd = (wRLinePosOdd % g_wMaxScanLines) * g_BytesPerRow;
-  wGLinePosOdd = (wGLinePosOdd % g_wMaxScanLines) * g_BytesPerRow;
-  wBLinePosOdd = (wBLinePosOdd % g_wMaxScanLines) * g_BytesPerRow;
-  wRLinePosEven = (wRLinePosEven % g_wMaxScanLines) * g_BytesPerRow;
-  wGLinePosEven = (wGLinePosEven % g_wMaxScanLines) * g_BytesPerRow;
-  wBLinePosEven = (wBLinePosEven % g_wMaxScanLines) * g_BytesPerRow;
+  wRLinePosOdd = (wRLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  wGLinePosOdd = (wGLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  wBLinePosOdd = (wBLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  wRLinePosEven = (wRLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  wGLinePosEven = (wGLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  wBLinePosEven = (wBLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
 
-  while (i < g_SWWidth)
+  while (i < st->SWWidth)
     {
-      if ((i + 1) >= g_SWWidth)
+      if ((i + 1) >= st->SWWidth)
 	break;
 
-      dwRTempData = g_pReadImageHead[wRLinePosOdd + i * 6] |
-	(g_pReadImageHead[wRLinePosOdd + i * 6 + 1] << 8);
-      dwRTempData += g_pReadImageHead[wRLinePosEven + (i + 1) * 6] |
-	(g_pReadImageHead[wRLinePosEven + (i + 1) * 6 + 1] << 8);
+      dwRTempData = st->pReadImageHead[wRLinePosOdd + i * 6] |
+	(st->pReadImageHead[wRLinePosOdd + i * 6 + 1] << 8);
+      dwRTempData += st->pReadImageHead[wRLinePosEven + (i + 1) * 6] |
+	(st->pReadImageHead[wRLinePosEven + (i + 1) * 6 + 1] << 8);
       dwRTempData /= 2;
 
-      dwGTempData = g_pReadImageHead[wGLinePosOdd + i * 6 + 2] |
-	(g_pReadImageHead[wGLinePosOdd + i * 6 + 3] << 8);
-      dwGTempData += g_pReadImageHead[wGLinePosEven + (i + 1) * 6 + 2] |
-	(g_pReadImageHead[wGLinePosEven + (i + 1) * 6 + 3] << 8);
+      dwGTempData = st->pReadImageHead[wGLinePosOdd + i * 6 + 2] |
+	(st->pReadImageHead[wGLinePosOdd + i * 6 + 3] << 8);
+      dwGTempData += st->pReadImageHead[wGLinePosEven + (i + 1) * 6 + 2] |
+	(st->pReadImageHead[wGLinePosEven + (i + 1) * 6 + 3] << 8);
       dwGTempData /= 2;
 
-      dwBTempData = g_pReadImageHead[wBLinePosOdd + i * 6 + 4] |
-	(g_pReadImageHead[wBLinePosOdd + i * 6 + 5] << 8);
-      dwBTempData += g_pReadImageHead[wBLinePosEven + (i + 1) * 6 + 4] |
-	(g_pReadImageHead[wBLinePosEven + (i + 1) * 6 + 5] << 8);
+      dwBTempData = st->pReadImageHead[wBLinePosOdd + i * 6 + 4] |
+	(st->pReadImageHead[wBLinePosOdd + i * 6 + 5] << 8);
+      dwBTempData += st->pReadImageHead[wBLinePosEven + (i + 1) * 6 + 4] |
+	(st->pReadImageHead[wBLinePosEven + (i + 1) * 6 + 5] << 8);
       dwBTempData /= 2;
 
-      SetPixel48Bit (pLine + (i * 6), dwRTempData, dwGTempData, dwBTempData,
-		     isOrderInvert);
+      SetPixel48Bit (pLine + (i * 6), st->pGammaTable, dwRTempData, dwGTempData,
+		     dwBTempData, isOrderInvert);
       i++;
 
-      dwRTempData = g_pReadImageHead[wRLinePosEven + i * 6] |
-	(g_pReadImageHead[wRLinePosEven + i * 6 + 1] << 8);
-      dwRTempData += g_pReadImageHead[wRLinePosOdd + (i + 1) * 6] |
-	(g_pReadImageHead[wRLinePosOdd + (i + 1) * 6 + 1] << 8);
+      dwRTempData = st->pReadImageHead[wRLinePosEven + i * 6] |
+	(st->pReadImageHead[wRLinePosEven + i * 6 + 1] << 8);
+      dwRTempData += st->pReadImageHead[wRLinePosOdd + (i + 1) * 6] |
+	(st->pReadImageHead[wRLinePosOdd + (i + 1) * 6 + 1] << 8);
       dwRTempData /= 2;
 
-      dwGTempData = g_pReadImageHead[wGLinePosEven + i * 6 + 2] |
-	(g_pReadImageHead[wGLinePosEven + i * 6 + 3] << 8);
-      dwGTempData += g_pReadImageHead[wGLinePosOdd + (i + 1) * 6 + 2] |
-	(g_pReadImageHead[wGLinePosOdd + (i + 1) * 6 + 3] << 8);
+      dwGTempData = st->pReadImageHead[wGLinePosEven + i * 6 + 2] |
+	(st->pReadImageHead[wGLinePosEven + i * 6 + 3] << 8);
+      dwGTempData += st->pReadImageHead[wGLinePosOdd + (i + 1) * 6 + 2] |
+	(st->pReadImageHead[wGLinePosOdd + (i + 1) * 6 + 3] << 8);
       dwGTempData /= 2;
 
-      dwBTempData = g_pReadImageHead[wBLinePosEven + i * 6 + 4] |
-	(g_pReadImageHead[wBLinePosEven + i * 6 + 5] << 8);
-      dwBTempData += g_pReadImageHead[wBLinePosOdd + (i + 1) * 6 + 4] |
-	(g_pReadImageHead[wBLinePosOdd + (i + 1) * 6 + 5] << 8);
+      dwBTempData = st->pReadImageHead[wBLinePosEven + i * 6 + 4] |
+	(st->pReadImageHead[wBLinePosEven + i * 6 + 5] << 8);
+      dwBTempData += st->pReadImageHead[wBLinePosOdd + (i + 1) * 6 + 4] |
+	(st->pReadImageHead[wBLinePosOdd + (i + 1) * 6 + 5] << 8);
       dwBTempData /= 2;
 
-      SetPixel48Bit (pLine + (i * 6), dwRTempData, dwGTempData, dwBTempData,
-		     isOrderInvert);
+      SetPixel48Bit (pLine + (i * 6), st->pGammaTable, dwRTempData, dwGTempData,
+		     dwBTempData, isOrderInvert);
       i++;
     }
 }
 
 static void
-SetPixel24Bit (SANE_Byte * pLine, unsigned short tempR, unsigned short tempG,
-	       unsigned short tempB, SANE_Bool isOrderInvert)
+SetPixel24Bit (SANE_Byte * pLine, unsigned short * pGammaTable,
+	       unsigned short tempR, unsigned short tempG, unsigned short tempB,
+	       SANE_Bool isOrderInvert)
 {
   if (!isOrderInvert)
     {
-      pLine[0] = (SANE_Byte) g_pGammaTable[tempR];
-      pLine[1] = (SANE_Byte) g_pGammaTable[4096 + tempG];
-      pLine[2] = (SANE_Byte) g_pGammaTable[8192 + tempB];
+      pLine[0] = (SANE_Byte) pGammaTable[tempR];
+      pLine[1] = (SANE_Byte) pGammaTable[4096 + tempG];
+      pLine[2] = (SANE_Byte) pGammaTable[8192 + tempB];
     }
   else
     {
-      pLine[2] = (SANE_Byte) g_pGammaTable[tempR];
-      pLine[1] = (SANE_Byte) g_pGammaTable[4096 + tempG];
-      pLine[0] = (SANE_Byte) g_pGammaTable[8192 + tempB];
+      pLine[2] = (SANE_Byte) pGammaTable[tempR];
+      pLine[1] = (SANE_Byte) pGammaTable[4096 + tempG];
+      pLine[0] = (SANE_Byte) pGammaTable[8192 + tempB];
     }
 }
 
 static void
-GetRgb24BitLineHalf (SANE_Byte * pLine, SANE_Bool isOrderInvert)
+GetRgb24BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
+		     SANE_Bool isOrderInvert)
 {
   unsigned short wRLinePos, wGLinePos, wBLinePos;
   unsigned short wRed, wGreen, wBlue;
   unsigned short tempR, tempG, tempB;
   unsigned short i;
 
-  wRLinePos = g_wtheReadyLines;
-  wGLinePos = g_wtheReadyLines - g_wLineDistance;
-  wBLinePos = g_wtheReadyLines - g_wLineDistance * 2;
-  wRLinePos = (wRLinePos % g_wMaxScanLines) * g_BytesPerRow;
-  wGLinePos = (wGLinePos % g_wMaxScanLines) * g_BytesPerRow;
-  wBLinePos = (wBLinePos % g_wMaxScanLines) * g_BytesPerRow;  
+  wRLinePos = st->wtheReadyLines;
+  wGLinePos = st->wtheReadyLines - st->wLineDistance;
+  wBLinePos = st->wtheReadyLines - st->wLineDistance * 2;
+  wRLinePos = (wRLinePos % st->wMaxScanLines) * st->BytesPerRow;
+  wGLinePos = (wGLinePos % st->wMaxScanLines) * st->BytesPerRow;
+  wBLinePos = (wBLinePos % st->wMaxScanLines) * st->BytesPerRow;  
 
-  for (i = 0; i < g_SWWidth; i++)
+  for (i = 0; i < st->SWWidth; i++)
     {
-      wRed = g_pReadImageHead[wRLinePos + i * 3];
-      wRed += g_pReadImageHead[wRLinePos + (i + 1) * 3];
+      wRed = st->pReadImageHead[wRLinePos + i * 3];
+      wRed += st->pReadImageHead[wRLinePos + (i + 1) * 3];
       wRed /= 2;
 
-      wGreen = g_pReadImageHead[wGLinePos + i * 3 + 1];
-      wGreen += g_pReadImageHead[wGLinePos + (i + 1) * 3 + 1];
+      wGreen = st->pReadImageHead[wGLinePos + i * 3 + 1];
+      wGreen += st->pReadImageHead[wGLinePos + (i + 1) * 3 + 1];
       wGreen /= 2;
 
-      wBlue = g_pReadImageHead[wBLinePos + i * 3 + 2];
-      wBlue += g_pReadImageHead[wBLinePos + (i + 1) * 3 + 2];
+      wBlue = st->pReadImageHead[wBLinePos + i * 3 + 2];
+      wBlue += st->pReadImageHead[wBLinePos + (i + 1) * 3 + 2];
       wBlue /= 2;
 
       tempR = (wRed << 4) | QBET4 (wBlue, wGreen);
       tempG = (wGreen << 4) | QBET4 (wRed, wBlue);
       tempB = (wBlue << 4) | QBET4 (wGreen, wRed);
 
-      SetPixel24Bit (pLine + (i * 3), tempR, tempG, tempB, isOrderInvert);
+      SetPixel24Bit (pLine + (i * 3), st->pGammaTable, tempR, tempG, tempB,
+		     isOrderInvert);
     }
 }
 
 static void
-GetRgb24BitLineFull (SANE_Byte * pLine, SANE_Bool isOrderInvert)
+GetRgb24BitLineFull (Scanner_State * st, SANE_Byte * pLine,
+		     SANE_Bool isOrderInvert)
 {
   unsigned short wRLinePosOdd, wGLinePosOdd, wBLinePosOdd;
   unsigned short wRLinePosEven, wGLinePosEven, wBLinePosEven;
@@ -461,97 +440,103 @@ GetRgb24BitLineFull (SANE_Byte * pLine, SANE_Bool isOrderInvert)
   unsigned short tempR, tempG, tempB;
   unsigned short i = 0;
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      wRLinePosOdd = g_wtheReadyLines - g_wPixelDistance;
-      wGLinePosOdd = g_wtheReadyLines - g_wLineDistance - g_wPixelDistance;
-      wBLinePosOdd = g_wtheReadyLines - g_wLineDistance * 2 - g_wPixelDistance;
-      wRLinePosEven = g_wtheReadyLines;
-      wGLinePosEven = g_wtheReadyLines - g_wLineDistance;
-      wBLinePosEven = g_wtheReadyLines - g_wLineDistance * 2;
+      wRLinePosOdd = st->wtheReadyLines - st->wPixelDistance;
+      wGLinePosOdd = st->wtheReadyLines - st->wLineDistance -
+		     st->wPixelDistance;
+      wBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2 -
+		     st->wPixelDistance;
+      wRLinePosEven = st->wtheReadyLines;
+      wGLinePosEven = st->wtheReadyLines - st->wLineDistance;
+      wBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2;
     }
   else
     {
-      wRLinePosOdd = g_wtheReadyLines;
-      wGLinePosOdd = g_wtheReadyLines - g_wLineDistance;
-      wBLinePosOdd = g_wtheReadyLines - g_wLineDistance * 2;
-      wRLinePosEven = g_wtheReadyLines - g_wPixelDistance;
-      wGLinePosEven = g_wtheReadyLines - g_wLineDistance - g_wPixelDistance;
-      wBLinePosEven = g_wtheReadyLines - g_wLineDistance * 2 - g_wPixelDistance;
+      wRLinePosOdd = st->wtheReadyLines;
+      wGLinePosOdd = st->wtheReadyLines - st->wLineDistance;
+      wBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2;
+      wRLinePosEven = st->wtheReadyLines - st->wPixelDistance;
+      wGLinePosEven = st->wtheReadyLines - st->wLineDistance -
+		      st->wPixelDistance;
+      wBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2 -
+		      st->wPixelDistance;
     }
-  wRLinePosOdd = (wRLinePosOdd % g_wMaxScanLines) * g_BytesPerRow;
-  wGLinePosOdd = (wGLinePosOdd % g_wMaxScanLines) * g_BytesPerRow;
-  wBLinePosOdd = (wBLinePosOdd % g_wMaxScanLines) * g_BytesPerRow;
-  wRLinePosEven = (wRLinePosEven % g_wMaxScanLines) * g_BytesPerRow;
-  wGLinePosEven = (wGLinePosEven % g_wMaxScanLines) * g_BytesPerRow;
-  wBLinePosEven = (wBLinePosEven % g_wMaxScanLines) * g_BytesPerRow;
+  wRLinePosOdd = (wRLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  wGLinePosOdd = (wGLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  wBLinePosOdd = (wBLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  wRLinePosEven = (wRLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  wGLinePosEven = (wGLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  wBLinePosEven = (wBLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
 
-  while (i < g_SWWidth)
+  while (i < st->SWWidth)
     {
-      if ((i + 1) >= g_SWWidth)
+      if ((i + 1) >= st->SWWidth)
 	break;
 
-      wRed = g_pReadImageHead[wRLinePosOdd + i * 3];
-      wRed += g_pReadImageHead[wRLinePosEven + (i + 1) * 3];
+      wRed = st->pReadImageHead[wRLinePosOdd + i * 3];
+      wRed += st->pReadImageHead[wRLinePosEven + (i + 1) * 3];
       wRed /= 2;
 
-      wGreen = g_pReadImageHead[wGLinePosOdd + i * 3 + 1];
-      wGreen += g_pReadImageHead[wGLinePosEven + (i + 1) * 3 + 1];
+      wGreen = st->pReadImageHead[wGLinePosOdd + i * 3 + 1];
+      wGreen += st->pReadImageHead[wGLinePosEven + (i + 1) * 3 + 1];
       wGreen /= 2;
 
-      wBlue = g_pReadImageHead[wBLinePosOdd + i * 3 + 2];
-      wBlue += g_pReadImageHead[wBLinePosEven + (i + 1) * 3 + 2];
+      wBlue = st->pReadImageHead[wBLinePosOdd + i * 3 + 2];
+      wBlue += st->pReadImageHead[wBLinePosEven + (i + 1) * 3 + 2];
       wBlue /= 2;
 
       tempR = (wRed << 4) | QBET4 (wBlue, wGreen);
       tempG = (wGreen << 4) | QBET4 (wRed, wBlue);
       tempB = (wBlue << 4) | QBET4 (wGreen, wRed);
 
-      SetPixel24Bit (pLine + (i * 3), tempR, tempG, tempB, isOrderInvert);
+      SetPixel24Bit (pLine + (i * 3), st->pGammaTable, tempR, tempG, tempB,
+		     isOrderInvert);
       i++;
 
-      wRed = g_pReadImageHead[wRLinePosEven + i * 3];
-      wRed += g_pReadImageHead[wRLinePosOdd + (i + 1) * 3];
+      wRed = st->pReadImageHead[wRLinePosEven + i * 3];
+      wRed += st->pReadImageHead[wRLinePosOdd + (i + 1) * 3];
       wRed /= 2;
 
-      wGreen = g_pReadImageHead[wGLinePosEven + i * 3 + 1];
-      wGreen += g_pReadImageHead[wGLinePosOdd + (i + 1) * 3 + 1];
+      wGreen = st->pReadImageHead[wGLinePosEven + i * 3 + 1];
+      wGreen += st->pReadImageHead[wGLinePosOdd + (i + 1) * 3 + 1];
       wGreen /= 2;
 
-      wBlue = g_pReadImageHead[wBLinePosEven + i * 3 + 2];
-      wBlue += g_pReadImageHead[wBLinePosOdd + (i + 1) * 3 + 2];
+      wBlue = st->pReadImageHead[wBLinePosEven + i * 3 + 2];
+      wBlue += st->pReadImageHead[wBLinePosOdd + (i + 1) * 3 + 2];
       wBlue /= 2;
 
       tempR = (wRed << 4) | QBET4 (wBlue, wGreen);
       tempG = (wGreen << 4) | QBET4 (wRed, wBlue);
       tempB = (wBlue << 4) | QBET4 (wGreen, wRed);
 
-      SetPixel24Bit (pLine + (i * 3), tempR, tempG, tempB, isOrderInvert);
+      SetPixel24Bit (pLine + (i * 3), st->pGammaTable, tempR, tempG, tempB,
+		     isOrderInvert);
       i++;
     }
 }
 
 static void
-GetMono16BitLineHalf (SANE_Byte * pLine,
+GetMono16BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 		      SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned int dwTempData;
   unsigned short wLinePos;
   unsigned short i;
 
-  wLinePos = (g_wtheReadyLines % g_wMaxScanLines) * g_BytesPerRow;
+  wLinePos = (st->wtheReadyLines % st->wMaxScanLines) * st->BytesPerRow;
 
-  for (i = 0; i < g_SWWidth; i++)
+  for (i = 0; i < st->SWWidth; i++)
     {
-      dwTempData = g_pReadImageHead[wLinePos + i * 2] |
-		  (g_pReadImageHead[wLinePos + i * 2 + 1] << 8);
-      pLine[i * 2] = LOBYTE (g_pGammaTable[dwTempData]);
-      pLine[i * 2 + 1] = HIBYTE (g_pGammaTable[dwTempData]);
+      dwTempData = st->pReadImageHead[wLinePos + i * 2] |
+		  (st->pReadImageHead[wLinePos + i * 2 + 1] << 8);
+      pLine[i * 2] = LOBYTE (st->pGammaTable[dwTempData]);
+      pLine[i * 2 + 1] = HIBYTE (st->pGammaTable[dwTempData]);
     }
 }
 
 static void
-GetMono16BitLineFull (SANE_Byte * pLine,
+GetMono16BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 		      SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned int dwTempData;
@@ -559,71 +544,71 @@ GetMono16BitLineFull (SANE_Byte * pLine,
   unsigned short wLinePosEven;
   unsigned short i = 0;
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      wLinePosOdd = g_wtheReadyLines - g_wPixelDistance;
-      wLinePosEven = g_wtheReadyLines;
+      wLinePosOdd = st->wtheReadyLines - st->wPixelDistance;
+      wLinePosEven = st->wtheReadyLines;
     }
   else
     {
-      wLinePosOdd = g_wtheReadyLines;
-      wLinePosEven = g_wtheReadyLines - g_wPixelDistance;
+      wLinePosOdd = st->wtheReadyLines;
+      wLinePosEven = st->wtheReadyLines - st->wPixelDistance;
     }
-  wLinePosOdd = (wLinePosOdd % g_wMaxScanLines) * g_BytesPerRow;
-  wLinePosEven = (wLinePosEven % g_wMaxScanLines) * g_BytesPerRow;
+  wLinePosOdd = (wLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  wLinePosEven = (wLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
 
-  while (i < g_SWWidth)
+  while (i < st->SWWidth)
     {
-      if ((i + 1) >= g_SWWidth)
+      if ((i + 1) >= st->SWWidth)
 	break;
 
-      dwTempData = (unsigned int) g_pReadImageHead[wLinePosOdd + i * 2];
+      dwTempData = (unsigned int) st->pReadImageHead[wLinePosOdd + i * 2];
       dwTempData += (unsigned int)
-		    g_pReadImageHead[wLinePosOdd + i * 2 + 1] << 8;
+		    st->pReadImageHead[wLinePosOdd + i * 2 + 1] << 8;
       dwTempData += (unsigned int)
-		    g_pReadImageHead[wLinePosEven + (i + 1) * 2];
+		    st->pReadImageHead[wLinePosEven + (i + 1) * 2];
       dwTempData += (unsigned int)
-		    g_pReadImageHead[wLinePosEven + (i + 1) * 2 + 1] << 8;
+		    st->pReadImageHead[wLinePosEven + (i + 1) * 2 + 1] << 8;
       dwTempData /= 2;
 
-      pLine[i * 2] = LOBYTE (g_pGammaTable[dwTempData]);
-      pLine[i * 2 + 1] = HIBYTE (g_pGammaTable[dwTempData]);
+      pLine[i * 2] = LOBYTE (st->pGammaTable[dwTempData]);
+      pLine[i * 2 + 1] = HIBYTE (st->pGammaTable[dwTempData]);
       i++;
 
-      dwTempData = (unsigned int) g_pReadImageHead[wLinePosEven + i * 2];
+      dwTempData = (unsigned int) st->pReadImageHead[wLinePosEven + i * 2];
       dwTempData += (unsigned int)
-		    g_pReadImageHead[wLinePosEven + i * 2 + 1] << 8;
+		    st->pReadImageHead[wLinePosEven + i * 2 + 1] << 8;
       dwTempData += (unsigned int)
-		    g_pReadImageHead[wLinePosOdd + (i + 1) * 2];
+		    st->pReadImageHead[wLinePosOdd + (i + 1) * 2];
       dwTempData += (unsigned int)
-		    g_pReadImageHead[wLinePosOdd + (i + 1) * 2 + 1] << 8;
+		    st->pReadImageHead[wLinePosOdd + (i + 1) * 2 + 1] << 8;
       dwTempData /= 2;
 
-      pLine[i * 2] = LOBYTE (g_pGammaTable[dwTempData]);
-      pLine[i * 2 + 1] = HIBYTE (g_pGammaTable[dwTempData]);
+      pLine[i * 2] = LOBYTE (st->pGammaTable[dwTempData]);
+      pLine[i * 2 + 1] = HIBYTE (st->pGammaTable[dwTempData]);
       i++;
     }
 }
 
 static void
-GetMono8BitLineHalf (SANE_Byte * pLine,
+GetMono8BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned int dwTempData;
   unsigned short wLinePos;
   unsigned short i;
 
-  wLinePos = (g_wtheReadyLines % g_wMaxScanLines) * g_BytesPerRow;
+  wLinePos = (st->wtheReadyLines % st->wMaxScanLines) * st->BytesPerRow;
 
-  for (i = 0; i < g_SWWidth; i++)
+  for (i = 0; i < st->SWWidth; i++)
     {
-      dwTempData = (g_pReadImageHead[wLinePos + i] << 4) | (rand () & 0x0f);
-      pLine[i] = (SANE_Byte) g_pGammaTable[dwTempData];
+      dwTempData = (st->pReadImageHead[wLinePos + i] << 4) | (rand () & 0x0f);
+      pLine[i] = (SANE_Byte) st->pGammaTable[dwTempData];
     }
 }
 
 static void
-GetMono8BitLineFull (SANE_Byte * pLine,
+GetMono8BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned short wLinePosOdd;
@@ -631,130 +616,134 @@ GetMono8BitLineFull (SANE_Byte * pLine,
   unsigned short wGray;
   unsigned short i = 0;
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      wLinePosOdd = (g_wtheReadyLines - g_wPixelDistance) % g_wMaxScanLines;
-      wLinePosEven = (g_wtheReadyLines) % g_wMaxScanLines;
+      wLinePosOdd = (st->wtheReadyLines - st->wPixelDistance) %
+		    st->wMaxScanLines;
+      wLinePosEven = (st->wtheReadyLines) % st->wMaxScanLines;
     }
   else
     {
-      wLinePosOdd = (g_wtheReadyLines) % g_wMaxScanLines;
-      wLinePosEven = (g_wtheReadyLines - g_wPixelDistance) % g_wMaxScanLines;
+      wLinePosOdd = (st->wtheReadyLines) % st->wMaxScanLines;
+      wLinePosEven = (st->wtheReadyLines - st->wPixelDistance) %
+		     st->wMaxScanLines;
     }
-  wLinePosOdd = (wLinePosOdd % g_wMaxScanLines) * g_BytesPerRow;
-  wLinePosEven = (wLinePosEven % g_wMaxScanLines) * g_BytesPerRow;
+  wLinePosOdd = (wLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  wLinePosEven = (wLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
 
-  while (i < g_SWWidth)
+  while (i < st->SWWidth)
     {
-      if ((i + 1) >= g_SWWidth)
+      if ((i + 1) >= st->SWWidth)
 	break;
 
-      wGray = g_pReadImageHead[wLinePosOdd + i];
-      wGray += g_pReadImageHead[wLinePosEven + i + 1];
+      wGray = st->pReadImageHead[wLinePosOdd + i];
+      wGray += st->pReadImageHead[wLinePosEven + i + 1];
       wGray /= 2;
 
-      pLine[i] = (SANE_Byte) g_pGammaTable[(wGray << 4) | (rand () & 0x0f)];
+      pLine[i] = (SANE_Byte) st->pGammaTable[(wGray << 4) | (rand () & 0x0f)];
       i++;
 
-      wGray = g_pReadImageHead[wLinePosEven + i];
-      wGray += g_pReadImageHead[wLinePosOdd + i + 1];
+      wGray = st->pReadImageHead[wLinePosEven + i];
+      wGray += st->pReadImageHead[wLinePosOdd + i + 1];
       wGray /= 2;
 
-      pLine[i] = (SANE_Byte) g_pGammaTable[(wGray << 4) | (rand () & 0x0f)];
+      pLine[i] = (SANE_Byte) st->pGammaTable[(wGray << 4) | (rand () & 0x0f)];
       i++;
     }
 }
 
 static void
-GetMono1BitLineHalf (SANE_Byte * pLine,
+GetMono1BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned short wLinePos;
   unsigned short i;
 
-  wLinePos = (g_wtheReadyLines % g_wMaxScanLines) * g_BytesPerRow;
+  wLinePos = (st->wtheReadyLines % st->wMaxScanLines) * st->BytesPerRow;
 
-  for (i = 0; i < g_SWWidth; i++)
+  for (i = 0; i < st->SWWidth; i++)
     {
-      if (g_pReadImageHead[wLinePos + i] > g_Target.wLineartThreshold)
+      if (st->pReadImageHead[wLinePos + i] > st->Target.wLineartThreshold)
 	pLine[i / 8] |= 0x80 >> (i % 8);
     }
 }
 
 static void
-GetMono1BitLineFull (SANE_Byte * pLine,
+GetMono1BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool __sane_unused__ isOrderInvert)
 {
   unsigned short wLinePosOdd;
   unsigned short wLinePosEven;
   unsigned short i = 0;
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      wLinePosOdd = (g_wtheReadyLines - g_wPixelDistance) % g_wMaxScanLines;
-      wLinePosEven = (g_wtheReadyLines) % g_wMaxScanLines;
+      wLinePosOdd = (st->wtheReadyLines - st->wPixelDistance) %
+		    st->wMaxScanLines;
+      wLinePosEven = (st->wtheReadyLines) % st->wMaxScanLines;
     }
   else
     {
-      wLinePosOdd = (g_wtheReadyLines) % g_wMaxScanLines;
-      wLinePosEven = (g_wtheReadyLines - g_wPixelDistance) % g_wMaxScanLines;
+      wLinePosOdd = (st->wtheReadyLines) % st->wMaxScanLines;
+      wLinePosEven = (st->wtheReadyLines - st->wPixelDistance) %
+		     st->wMaxScanLines;
     }
-  wLinePosOdd = (wLinePosOdd % g_wMaxScanLines) * g_BytesPerRow;
-  wLinePosEven = (wLinePosEven % g_wMaxScanLines) * g_BytesPerRow;
+  wLinePosOdd = (wLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  wLinePosEven = (wLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
 
-  while (i < g_SWWidth)
+  while (i < st->SWWidth)
     {
-      if ((i + 1) >= g_SWWidth)
+      if ((i + 1) >= st->SWWidth)
 	break;
 
-      if (g_pReadImageHead[wLinePosOdd + i] > g_Target.wLineartThreshold)
+      if (st->pReadImageHead[wLinePosOdd + i] > st->Target.wLineartThreshold)
 	pLine[i / 8] |= 0x80 >> (i % 8);
       i++;
 
-      if (g_pReadImageHead[wLinePosEven + i] > g_Target.wLineartThreshold)
+      if (st->pReadImageHead[wLinePosEven + i] > st->Target.wLineartThreshold)
 	pLine[i / 8] |= 0x80 >> (i % 8);
       i++;
     }
 }
 
 static unsigned int
-GetScannedLines (void)
+GetScannedLines (Scanner_State * st)
 {
   unsigned int dwScannedLines;
 
-  pthread_mutex_lock (&g_scannedLinesMutex);
-  dwScannedLines = g_dwScannedTotalLines;
-  pthread_mutex_unlock (&g_scannedLinesMutex);
+  pthread_mutex_lock (&st->scannedLinesMutex);
+  dwScannedLines = st->dwScannedTotalLines;
+  pthread_mutex_unlock (&st->scannedLinesMutex);
 
   return dwScannedLines;
 }
 
 static unsigned int
-GetReadyLines (void)
+GetReadyLines (Scanner_State * st)
 {
   unsigned int dwReadyLines;
 
-  pthread_mutex_lock (&g_readyLinesMutex);
-  dwReadyLines = g_wtheReadyLines;
-  pthread_mutex_unlock (&g_readyLinesMutex);
+  pthread_mutex_lock (&st->readyLinesMutex);
+  dwReadyLines = st->wtheReadyLines;
+  pthread_mutex_unlock (&st->readyLinesMutex);
 
   return dwReadyLines;
 }
 
 static void
-AddScannedLines (unsigned short wAddLines)
+AddScannedLines (Scanner_State * st, unsigned short wAddLines)
 {
-  pthread_mutex_lock (&g_scannedLinesMutex);
-  g_dwScannedTotalLines += wAddLines;
-  pthread_mutex_unlock (&g_scannedLinesMutex);
+  pthread_mutex_lock (&st->scannedLinesMutex);
+  st->dwScannedTotalLines += wAddLines;
+  pthread_mutex_unlock (&st->scannedLinesMutex);
 }
 
 static void
-AddReadyLines (void)
+AddReadyLines (Scanner_State * st)
 {
-  pthread_mutex_lock (&g_readyLinesMutex);
-  g_wtheReadyLines++;
-  pthread_mutex_unlock (&g_readyLinesMutex);
+  pthread_mutex_lock (&st->readyLinesMutex);
+  st->wtheReadyLines++;
+  pthread_mutex_unlock (&st->readyLinesMutex);
 }
 
 static void
@@ -790,16 +779,17 @@ ModifyLinePoint (SANE_Byte * pImageData, SANE_Byte * pImageDataBefore,
 }
 
 static void *
-ReadDataFromScanner (void __sane_unused__ * dummy)
+ReadDataFromScanner (void * param)
 {
+  Scanner_State * st = param;
   unsigned short wTotalReadImageLines = 0;
-  unsigned short wWantedLines = g_Target.wHeight;
-  SANE_Byte * pReadImage = g_pReadImageHead;
+  unsigned short wWantedLines = st->Target.wHeight;
+  SANE_Byte * pReadImage = st->pReadImageHead;
   SANE_Bool isWaitImageLineDiff = SANE_FALSE;
-  unsigned int wMaxScanLines = g_wMaxScanLines;
+  unsigned int wMaxScanLines = st->wMaxScanLines;
   unsigned short wReadImageLines = 0;
   unsigned short wScanLinesThisBlock;
-  unsigned short wBufferLines = g_wLineDistance * 2 + g_wPixelDistance;
+  unsigned short wBufferLines = st->wLineDistance * 2 + st->wPixelDistance;
   DBG_ENTER ();
   DBG (DBG_FUNC, "ReadDataFromScanner: new thread\n");
 
@@ -808,15 +798,15 @@ ReadDataFromScanner (void __sane_unused__ * dummy)
       if (!isWaitImageLineDiff)
 	{
 	  wScanLinesThisBlock =
-	    (wWantedLines - wTotalReadImageLines) < g_wScanLinesPerBlock ?
-	    (wWantedLines - wTotalReadImageLines) : g_wScanLinesPerBlock;
+	    (wWantedLines - wTotalReadImageLines) < st->wScanLinesPerBlock ?
+	    (wWantedLines - wTotalReadImageLines) : st->wScanLinesPerBlock;
 
 	  DBG (DBG_FUNC, "ReadDataFromScanner: wWantedLines=%d\n",
 	       wWantedLines);
 	  DBG (DBG_FUNC, "ReadDataFromScanner: wScanLinesThisBlock=%d\n",
 	       wScanLinesThisBlock);
 
-	  if (Asic_ReadImage (&g_chip, pReadImage, wScanLinesThisBlock) !=
+	  if (Asic_ReadImage (&st->chip, pReadImage, wScanLinesThisBlock) !=
 	      SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_FUNC, "ReadDataFromScanner: thread exit\n");
@@ -825,26 +815,26 @@ ReadDataFromScanner (void __sane_unused__ * dummy)
 
 	  /* has read in memory buffer */
 	  wReadImageLines += wScanLinesThisBlock;
-	  AddScannedLines (wScanLinesThisBlock);
+	  AddScannedLines (st, wScanLinesThisBlock);
 	  wTotalReadImageLines += wScanLinesThisBlock;
-	  pReadImage += wScanLinesThisBlock * g_BytesPerRow;
+	  pReadImage += wScanLinesThisBlock * st->BytesPerRow;
 
 	  /* buffer is full */
 	  if (wReadImageLines >= wMaxScanLines)
 	    {
-	      pReadImage = g_pReadImageHead;
+	      pReadImage = st->pReadImageHead;
 	      wReadImageLines = 0;
 	    }
 
-	  if ((g_dwScannedTotalLines - GetReadyLines ()) >=
-	      (wMaxScanLines - (wBufferLines + g_wScanLinesPerBlock)) &&
-	      g_dwScannedTotalLines > GetReadyLines ())
+	  if ((st->dwScannedTotalLines - GetReadyLines (st)) >=
+	      (wMaxScanLines - (wBufferLines + st->wScanLinesPerBlock)) &&
+	      st->dwScannedTotalLines > GetReadyLines (st))
 	    {
 	      isWaitImageLineDiff = SANE_TRUE;
 	    }
 	}
-      else if (g_dwScannedTotalLines <=
-	       GetReadyLines () + wBufferLines + g_wScanLinesPerBlock)
+      else if (st->dwScannedTotalLines <=
+	       GetReadyLines (st) + wBufferLines + st->wScanLinesPerBlock)
 	{
 	  isWaitImageLineDiff = SANE_FALSE;
 	}
@@ -858,8 +848,9 @@ ReadDataFromScanner (void __sane_unused__ * dummy)
 }
 
 static SANE_Status
-GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
-	 unsigned int dwLineIncrement, void (* pFunc)(SANE_Byte *, SANE_Bool),
+GetLine (Scanner_State * st, SANE_Byte * pLine, unsigned short * wLinesCount,
+	 unsigned int dwLineIncrement,
+	 void (* pFunc)(Scanner_State *, SANE_Byte *, SANE_Bool),
 	 SANE_Bool isOrderInvert, SANE_Bool fixEvenOdd)
 {
   unsigned short wWantedTotalLines;
@@ -869,38 +860,38 @@ GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
 
   wWantedTotalLines = *wLinesCount;
 
-  if (g_bFirstReadImage)
+  if (st->bFirstReadImage)
     {
-      pthread_create (&g_threadid_readimage, NULL, ReadDataFromScanner, NULL);
+      pthread_create (&st->threadid_readimage, NULL, ReadDataFromScanner, st);
       DBG (DBG_FUNC, "thread started\n");
-      g_bFirstReadImage = SANE_FALSE;
+      st->bFirstReadImage = SANE_FALSE;
     }
 
   while (TotalXferLines < wWantedTotalLines)
     {
-      if (g_dwTotalTotalXferLines >= g_SWHeight)
+      if (st->dwTotalTotalXferLines >= st->SWHeight)
 	{
-	  pthread_cancel (g_threadid_readimage);
-	  pthread_join (g_threadid_readimage, NULL);
+	  pthread_cancel (st->threadid_readimage);
+	  pthread_join (st->threadid_readimage, NULL);
 	  DBG (DBG_FUNC, "thread finished\n");
 
 	  *wLinesCount = TotalXferLines;
 	  return SANE_STATUS_GOOD;
 	}
 
-      if (GetScannedLines () > g_wtheReadyLines)
+      if (GetScannedLines (st) > st->wtheReadyLines)
 	{
-	  pFunc (pLine, isOrderInvert);
+	  pFunc (st, pLine, isOrderInvert);
 
 	  TotalXferLines++;
-	  g_dwTotalTotalXferLines++;
+	  st->dwTotalTotalXferLines++;
 	  pLine += dwLineIncrement;
-	  AddReadyLines ();
+	  AddReadyLines (st);
 	}
 
-      if (g_isCanceled)
+      if (st->isCanceled)
 	{
-	  pthread_join (g_threadid_readimage, NULL);
+	  pthread_join (st->threadid_readimage, NULL);
 	  DBG (DBG_FUNC, "thread finished\n");
 	  break;
 	}
@@ -911,29 +902,29 @@ GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
   if (fixEvenOdd)
     {
       /* modify the last point */
-      if (g_bIsFirstReadBefData)
+      if (st->bIsFirstReadBefData)
 	{
-	  g_pBefLineImageData = malloc (g_SWBytesPerRow);
-	  if (!g_pBefLineImageData)
+	  st->pBefLineImageData = malloc (st->SWBytesPerRow);
+	  if (!st->pBefLineImageData)
 	    return SANE_STATUS_NO_MEM;
-	  memset (g_pBefLineImageData, 0, g_SWBytesPerRow);
-	  memcpy (g_pBefLineImageData, pFirstLine, g_SWBytesPerRow);
-	  g_bIsFirstReadBefData = SANE_FALSE;
-	  g_dwAlreadyGetLines = 0;
+	  memset (st->pBefLineImageData, 0, st->SWBytesPerRow);
+	  memcpy (st->pBefLineImageData, pFirstLine, st->SWBytesPerRow);
+	  st->bIsFirstReadBefData = SANE_FALSE;
+	  st->dwAlreadyGetLines = 0;
 	}
 
-      ModifyLinePoint (pFirstLine, g_pBefLineImageData, g_SWBytesPerRow,
+      ModifyLinePoint (pFirstLine, st->pBefLineImageData, st->SWBytesPerRow,
 		       wWantedTotalLines, 1, 4);
 
-      memcpy (g_pBefLineImageData,
-	      pFirstLine + (wWantedTotalLines - 1) * g_SWBytesPerRow,
-	      g_SWBytesPerRow);
-      g_dwAlreadyGetLines += wWantedTotalLines;
-      if (g_dwAlreadyGetLines >= g_SWHeight)
+      memcpy (st->pBefLineImageData,
+	      pFirstLine + (wWantedTotalLines - 1) * st->SWBytesPerRow,
+	      st->SWBytesPerRow);
+      st->dwAlreadyGetLines += wWantedTotalLines;
+      if (st->dwAlreadyGetLines >= st->SWHeight)
 	{
-	  DBG (DBG_FUNC, "freeing g_pBefLineImageData\n");
-	  free (g_pBefLineImageData);
-	  g_bIsFirstReadBefData = SANE_TRUE;
+	  DBG (DBG_FUNC, "freeing pBefLineImageData\n");
+	  free (st->pBefLineImageData);
+	  st->bIsFirstReadBefData = SANE_TRUE;
 	}
     }
 
@@ -942,39 +933,39 @@ GetLine (SANE_Byte * pLine, unsigned short * wLinesCount,
 }
 
 SANE_Status
-Scanner_GetRows (SANE_Byte * pBlock, unsigned short * pNumRows,
-		 SANE_Bool isOrderInvert)
+Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
+		 unsigned short * pNumRows, SANE_Bool isOrderInvert)
 {
   SANE_Status status;
-  unsigned int dwLineIncrement = g_SWBytesPerRow;
+  unsigned int dwLineIncrement = st->SWBytesPerRow;
   SANE_Bool fixEvenOdd = SANE_FALSE;
-  void (* pFunc)(SANE_Byte *, SANE_Bool) = NULL;
+  void (* pFunc)(Scanner_State *, SANE_Byte *, SANE_Bool) = NULL;
   DBG_ENTER ();
 
-  if (!g_bOpened || !g_bPrepared)
+  if (!st->bOpened || !st->bPrepared)
     {
       DBG (DBG_FUNC, "invalid state\n");
       return SANE_STATUS_INVAL;
     }
 
-  switch (g_Target.cmColorMode)
+  switch (st->Target.cmColorMode)
     {
     case CM_RGB48:
-      if (g_Target.wXDpi == SENSOR_DPI)
+      if (st->Target.wXDpi == SENSOR_DPI)
 	pFunc = GetRgb48BitLineFull;
       else
 	pFunc = GetRgb48BitLineHalf;
       break;
 
     case CM_RGB24:
-      if (g_Target.wXDpi == SENSOR_DPI)
+      if (st->Target.wXDpi == SENSOR_DPI)
 	pFunc = GetRgb24BitLineFull;
       else
 	pFunc = GetRgb24BitLineHalf;
       break;
 
     case CM_GRAY16:
-      if (g_Target.wXDpi == SENSOR_DPI)
+      if (st->Target.wXDpi == SENSOR_DPI)
 	{
 	  fixEvenOdd = SANE_TRUE;
 	  pFunc = GetMono16BitLineFull;
@@ -986,7 +977,7 @@ Scanner_GetRows (SANE_Byte * pBlock, unsigned short * pNumRows,
       break;
 
     case CM_GRAY8:
-      if (g_Target.wXDpi == SENSOR_DPI)
+      if (st->Target.wXDpi == SENSOR_DPI)
 	{
 	  fixEvenOdd = SANE_TRUE;
 	  pFunc = GetMono8BitLineFull;
@@ -999,14 +990,14 @@ Scanner_GetRows (SANE_Byte * pBlock, unsigned short * pNumRows,
 
     case CM_TEXT:
       memset (pBlock, 0, *pNumRows * dwLineIncrement);
-      if (g_Target.wXDpi == SENSOR_DPI)
+      if (st->Target.wXDpi == SENSOR_DPI)
 	pFunc = GetMono1BitLineFull;
       else
 	pFunc = GetMono1BitLineHalf;
       break;
     }
 
-  status = GetLine (pBlock, pNumRows, dwLineIncrement, pFunc, isOrderInvert,
+  status = GetLine (st, pBlock, pNumRows, dwLineIncrement, pFunc, isOrderInvert,
 		    fixEvenOdd);
 
   DBG_LEAVE ();
@@ -1031,94 +1022,95 @@ Scanner_ScanSuggest (TARGETIMAGE * pTarget)
 }
 
 SANE_Status
-Scanner_StopScan (void)
+Scanner_StopScan (Scanner_State * st)
 {
   SANE_Status status;
   DBG_ENTER ();
 
-  if (!g_bOpened || !g_bPrepared)
+  if (!st->bOpened || !st->bPrepared)
     {
       DBG (DBG_FUNC, "invalid state\n");
       return SANE_STATUS_INVAL;
     }
 
-  g_isCanceled = SANE_TRUE;
+  st->isCanceled = SANE_TRUE;
 
-  pthread_cancel (g_threadid_readimage);
-  pthread_join (g_threadid_readimage, NULL);
+  pthread_cancel (st->threadid_readimage);
+  pthread_join (st->threadid_readimage, NULL);
   DBG (DBG_FUNC, "thread finished\n");
 
-  status = Asic_ScanStop (&g_chip);
-  Asic_Close (&g_chip);
+  status = Asic_ScanStop (&st->chip);
+  Asic_Close (&st->chip);
 
-  g_bOpened = SANE_FALSE;
+  st->bOpened = SANE_FALSE;
 
-  free (g_pGammaTable);
-  g_pGammaTable = NULL;
-  free (g_pReadImageHead);
-  g_pReadImageHead = NULL;
+  free (st->pGammaTable);
+  st->pGammaTable = NULL;
+  free (st->pReadImageHead);
+  st->pReadImageHead = NULL;
 
   DBG_LEAVE ();
   return status;
 }
 
 static SANE_Status
-PrepareScan (void)
+PrepareScan (Scanner_State * st)
 {
   SANE_Status status;
   DBG_ENTER ();
 
-  g_isCanceled = SANE_FALSE;
+  st->isCanceled = SANE_FALSE;
 
-  g_wScanLinesPerBlock = BLOCK_SIZE / g_BytesPerRow;
-  g_wMaxScanLines = ((IMAGE_BUFFER_SIZE / g_BytesPerRow) /
-		     g_wScanLinesPerBlock) * g_wScanLinesPerBlock;
-  g_dwScannedTotalLines = 0;
+  st->wScanLinesPerBlock = BLOCK_SIZE / st->BytesPerRow;
+  st->wMaxScanLines = ((IMAGE_BUFFER_SIZE / st->BytesPerRow) /
+		       st->wScanLinesPerBlock) * st->wScanLinesPerBlock;
+  st->dwScannedTotalLines = 0;
 
-  switch (g_Target.cmColorMode)
+  switch (st->Target.cmColorMode)
     {
     case CM_RGB48:
     case CM_RGB24:
-      g_wtheReadyLines = g_wLineDistance * 2 + g_wPixelDistance;
+      st->wtheReadyLines = st->wLineDistance * 2 + st->wPixelDistance;
       break;
     case CM_GRAY16:
     case CM_GRAY8:
     case CM_TEXT:
-      g_wtheReadyLines = g_wPixelDistance;
+      st->wtheReadyLines = st->wPixelDistance;
       break;
     }
-  DBG (DBG_FUNC, "g_wtheReadyLines=%d\n", g_wtheReadyLines);
+  DBG (DBG_FUNC, "st->wtheReadyLines=%d\n", st->wtheReadyLines);
 
-  DBG (DBG_FUNC, "allocate %d bytes for g_pReadImageHead\n", IMAGE_BUFFER_SIZE);
-  g_pReadImageHead = malloc (IMAGE_BUFFER_SIZE);
-  if (!g_pReadImageHead)
+  DBG (DBG_FUNC, "allocate %d bytes for st->pReadImageHead\n",
+       IMAGE_BUFFER_SIZE);
+  st->pReadImageHead = malloc (IMAGE_BUFFER_SIZE);
+  if (!st->pReadImageHead)
     {
-      DBG (DBG_FUNC, "g_pReadImageHead == NULL\n");
+      DBG (DBG_FUNC, "st->pReadImageHead == NULL\n");
       return SANE_STATUS_NO_MEM;
     }
 
-  status = Asic_ScanStart (&g_chip);
+  status = Asic_ScanStart (&st->chip);
   if (status != SANE_STATUS_GOOD)
-    free (g_pReadImageHead);
+    free (st->pReadImageHead);
 
   DBG_LEAVE ();
   return status;
 }
 
 SANE_Status
-Scanner_Reset (void)
+Scanner_Reset (Scanner_State * st)
 {
   DBG_ENTER ();
 
-  if (g_bOpened)
+  if (st->bOpened)
     {
       DBG (DBG_FUNC, "scanner already open\n");
       return SANE_STATUS_INVAL;
     }
 
-  g_dwTotalTotalXferLines = 0;
-  g_bFirstReadImage = SANE_TRUE;
-  g_bPrepared = SANE_TRUE;
+  st->dwTotalTotalXferLines = 0;
+  st->bFirstReadImage = SANE_TRUE;
+  st->bPrepared = SANE_TRUE;
 
   DBG_LEAVE ();
   return SANE_STATUS_GOOD;
@@ -1224,7 +1216,7 @@ CalculateMaxMin (CALIBRATIONPARAM * pCalParam, SANE_Byte * pBuffer,
 }
 
 static SANE_Status
-AdjustAD (void)
+AdjustAD (Scanner_State * st)
 {
   SANE_Status status;
   CALIBRATIONPARAM calParam;
@@ -1242,23 +1234,23 @@ AdjustAD (void)
 
   for (i = 0; i < 3; i++)
     {
-      g_chip.AD.Direction[i] = DIR_POSITIVE;
-      g_chip.AD.Gain[i] = 0;
+      st->chip.AD.Direction[i] = DIR_POSITIVE;
+      st->chip.AD.Gain[i] = 0;
     }
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      g_chip.AD.Offset[0] = 152;	/* red */
-      g_chip.AD.Offset[1] = 56;		/* green */
-      g_chip.AD.Offset[2] = 8;		/* blue */
+      st->chip.AD.Offset[0] = 152;	/* red */
+      st->chip.AD.Offset[1] = 56;	/* green */
+      st->chip.AD.Offset[2] = 8;	/* blue */
     }
   else
     {
-      g_chip.AD.Offset[0] = 159;
-      g_chip.AD.Offset[1] = 50;
-      g_chip.AD.Offset[2] = 45;
+      st->chip.AD.Offset[0] = 159;
+      st->chip.AD.Offset[1] = 50;
+      st->chip.AD.Offset[2] = 45;
     }
 
-  if (g_Target.wXDpi <= (SENSOR_DPI / 2))
+  if (st->Target.wXDpi <= (SENSOR_DPI / 2))
     wAdjustADResolution = SENSOR_DPI / 2;
   else
     wAdjustADResolution = SENSOR_DPI;
@@ -1271,7 +1263,7 @@ AdjustAD (void)
       return SANE_STATUS_NO_MEM;
     }
 
-  status = Asic_SetWindow (&g_chip, g_Target.ssScanSource,
+  status = Asic_SetWindow (&st->chip, st->Target.ssScanSource,
 			   SCAN_TYPE_CALIBRATE_DARK, 24,
 			   wAdjustADResolution, wAdjustADResolution, 0, 0,
 			   wCalWidth, 1);
@@ -1283,14 +1275,14 @@ AdjustAD (void)
   for (i = 0; i < 10; i++)
     {
       DBG (DBG_FUNC, "first AD offset adjustment loop\n");
-      SetAFEGainOffset (&g_chip);
-      status = Asic_ScanStart (&g_chip);
+      SetAFEGainOffset (&st->chip);
+      status = Asic_ScanStart (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
-      status = Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24);
+      status = Asic_ReadCalibrationData (&st->chip, pCalData, wCalWidth*3, 24);
       if (status != SANE_STATUS_GOOD)
 	goto out;
-      status = Asic_ScanStop (&g_chip);
+      status = Asic_ScanStop (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
 
@@ -1312,24 +1304,24 @@ AdjustAD (void)
 	  if (status != SANE_STATUS_GOOD)
 	    goto out;
 
-	  if (g_chip.AD.Direction[j] == DIR_POSITIVE)
+	  if (st->chip.AD.Direction[j] == DIR_POSITIVE)
 	    {
 	      if (wMinValue[j] > 15)
 		{
-		  if (g_chip.AD.Offset[j] < 8)
-		    g_chip.AD.Direction[j] = DIR_NEGATIVE;
+		  if (st->chip.AD.Offset[j] < 8)
+		    st->chip.AD.Direction[j] = DIR_NEGATIVE;
 		  else
-		    g_chip.AD.Offset[j] -= 8;
+		    st->chip.AD.Offset[j] -= 8;
 		}
 	      else if (wMinValue[j] < 5)
-		g_chip.AD.Offset[j] += 8;
+		st->chip.AD.Offset[j] += 8;
 	    }
 	  else
 	    {
 	      if (wMinValue[j] > 15)
-		g_chip.AD.Offset[j] += 8;
+		st->chip.AD.Offset[j] += 8;
 	      else if (wMinValue[j] < 5)
-		g_chip.AD.Offset[j] -= 8;
+		st->chip.AD.Offset[j] -= 8;
 	    }
 	}
 
@@ -1340,33 +1332,33 @@ AdjustAD (void)
     }
 
   DBG (DBG_FUNC, "OffsetR=%d,OffsetG=%d,OffsetB=%d\n",
-       g_chip.AD.Offset[0], g_chip.AD.Offset[1], g_chip.AD.Offset[2]);
+       st->chip.AD.Offset[0], st->chip.AD.Offset[1], st->chip.AD.Offset[2]);
 
   for (i = 0; i < 3; i++)
     {
       range = 1.0 - (double) (wMaxValue[i] - wMinValue[i]) / MAX_LEVEL_RANGE;
       if (range > 0)
 	{
-	  g_chip.AD.Gain[i] = (SANE_Byte) range * 63 * 6 / 5;
-	  g_chip.AD.Gain[i] = _MIN (g_chip.AD.Gain[i], 63);
+	  st->chip.AD.Gain[i] = (SANE_Byte) range * 63 * 6 / 5;
+	  st->chip.AD.Gain[i] = _MIN (st->chip.AD.Gain[i], 63);
 	}
       else
-      	g_chip.AD.Gain[i] = 0;
+      	st->chip.AD.Gain[i] = 0;
     }
 
   DBG (DBG_FUNC, "GainR=%d,GainG=%d,GainB=%d\n",
-       g_chip.AD.Gain[0], g_chip.AD.Gain[1], g_chip.AD.Gain[2]);
+       st->chip.AD.Gain[0], st->chip.AD.Gain[1], st->chip.AD.Gain[2]);
 
   for (i = 0; i < 10; i++)
     {
-      SetAFEGainOffset (&g_chip);
-      status = Asic_ScanStart (&g_chip);
+      SetAFEGainOffset (&st->chip);
+      status = Asic_ScanStart (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
-      status = Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24);
+      status = Asic_ReadCalibrationData (&st->chip, pCalData, wCalWidth*3, 24);
       if (status != SANE_STATUS_GOOD)
 	goto out;
-      status = Asic_ScanStop (&g_chip);
+      status = Asic_ScanStop (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
 
@@ -1380,39 +1372,39 @@ AdjustAD (void)
 
 	  if ((wMaxValue[j] - wMinValue[j]) > MAX_LEVEL_RANGE)
 	    {
-	      if (g_chip.AD.Gain[j] != 0)
-		g_chip.AD.Gain[j]--;
+	      if (st->chip.AD.Gain[j] != 0)
+		st->chip.AD.Gain[j]--;
 	    }
 	  else if ((wMaxValue[j] - wMinValue[j]) < MIN_LEVEL_RANGE)
 	    {
 	      if (wMaxValue[j] > WHITE_MAX_LEVEL)
 		{
-		  if (g_chip.AD.Gain[j] != 0)
-		    g_chip.AD.Gain[j]--;
+		  if (st->chip.AD.Gain[j] != 0)
+		    st->chip.AD.Gain[j]--;
 		}
 	      else
 		{
-		  if (g_chip.AD.Gain[j] < 63)
-		    g_chip.AD.Gain[j]++;
+		  if (st->chip.AD.Gain[j] < 63)
+		    st->chip.AD.Gain[j]++;
 		}
 	    }
 	  else
 	    {
 	      if (wMaxValue[j] > WHITE_MAX_LEVEL)
 		{
-		  if (g_chip.AD.Gain[j] != 0)
-		    g_chip.AD.Gain[j]--;
+		  if (st->chip.AD.Gain[j] != 0)
+		    st->chip.AD.Gain[j]--;
 		}
 	      else if (wMaxValue[j] < WHITE_MIN_LEVEL)
 		{
-		  if (g_chip.AD.Gain[j] < 63)
-		    g_chip.AD.Gain[j]++;
+		  if (st->chip.AD.Gain[j] < 63)
+		    st->chip.AD.Gain[j]++;
 		}
 	    }
 
 	  DBG (DBG_FUNC, "%d: Gain=%d,Offset=%d,Dir=%d\n",
-	       j, g_chip.AD.Gain[j], g_chip.AD.Offset[j],
-	       g_chip.AD.Direction[j]);
+	       j, st->chip.AD.Gain[j], st->chip.AD.Offset[j],
+	       st->chip.AD.Direction[j]);
 	}
 
       if (!((wMaxValue[0] - wMinValue[0]) > MAX_LEVEL_RANGE ||
@@ -1427,14 +1419,14 @@ AdjustAD (void)
   for (i = 0; i < 8; i++)
     {
       DBG (DBG_FUNC, "second AD offset adjustment loop\n");
-      SetAFEGainOffset (&g_chip);
-      status = Asic_ScanStart (&g_chip);
+      SetAFEGainOffset (&st->chip);
+      status = Asic_ScanStart (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
-      status = Asic_ReadCalibrationData (&g_chip, pCalData, wCalWidth * 3, 24);
+      status = Asic_ReadCalibrationData (&st->chip, pCalData, wCalWidth*3, 24);
       if (status != SANE_STATUS_GOOD)
 	goto out;
-      status = Asic_ScanStop (&g_chip);
+      status = Asic_ScanStop (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
 
@@ -1446,31 +1438,31 @@ AdjustAD (void)
 	    goto out;
 	  DBG (DBG_FUNC, "%d: Max=%d, Min=%d\n", j, wMaxValue[j], wMinValue[j]);
 
-	  if (g_chip.AD.Direction[j] == DIR_POSITIVE)
+	  if (st->chip.AD.Direction[j] == DIR_POSITIVE)
 	    {
 	      if (wMinValue[j] > 20)
 		{
-		  if (g_chip.AD.Offset[j] < 8)
-		    g_chip.AD.Direction[j] = DIR_NEGATIVE;
+		  if (st->chip.AD.Offset[j] < 8)
+		    st->chip.AD.Direction[j] = DIR_NEGATIVE;
 		  else
-		    g_chip.AD.Offset[j] -= 8;
+		    st->chip.AD.Offset[j] -= 8;
 		}
 	      else if (wMinValue[j] < 10)
 		{
-		  g_chip.AD.Offset[j] += 8;
+		  st->chip.AD.Offset[j] += 8;
 		}
 	    }
 	  else
 	    {
 	      if (wMinValue[j] > 20)
-		g_chip.AD.Offset[j] += 8;
+		st->chip.AD.Offset[j] += 8;
 	      else if (wMinValue[j] < 10)
-		g_chip.AD.Offset[j] -= 8;
+		st->chip.AD.Offset[j] -= 8;
 	    }
 
 	  DBG (DBG_FUNC, "%d: Gain=%d,Offset=%d,Dir=%d\n",
-	       j, g_chip.AD.Gain[j], g_chip.AD.Offset[j],
-	       g_chip.AD.Direction[j]);
+	       j, st->chip.AD.Gain[j], st->chip.AD.Offset[j],
+	       st->chip.AD.Direction[j]);
 	}
 
       if (!(wMinValue[0] > 20 || wMinValue[0] < 10 ||
@@ -1487,7 +1479,8 @@ out:
 }
 
 static SANE_Status
-FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
+FindTopLeft (Scanner_State * st, unsigned short * pwStartX,
+	     unsigned short * pwStartY)
 {
   SANE_Status status;
   unsigned short wCalWidth, wCalHeight;
@@ -1502,7 +1495,7 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
 #endif
   DBG_ENTER ();
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
       wCalWidth = FIND_LEFT_TOP_WIDTH_IN_DIP;
       wCalHeight = FIND_LEFT_TOP_HEIGHT_IN_DIP;
@@ -1522,7 +1515,7 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
     }
   nScanBlock = dwTotalSize / CALIBRATION_BLOCK_SIZE;
 
-  status = Asic_SetWindow (&g_chip, g_Target.ssScanSource,
+  status = Asic_SetWindow (&st->chip, st->Target.ssScanSource,
 			   SCAN_TYPE_CALIBRATE_LIGHT, 8,
 			   FIND_LEFT_TOP_CALIBRATE_RESOLUTION,
 			   FIND_LEFT_TOP_CALIBRATE_RESOLUTION, 0, 0,
@@ -1530,26 +1523,26 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
   if (status != SANE_STATUS_GOOD)
     goto out;
 
-  SetAFEGainOffset (&g_chip);
-  status = Asic_ScanStart (&g_chip);
+  SetAFEGainOffset (&st->chip);
+  status = Asic_ScanStart (&st->chip);
   if (status != SANE_STATUS_GOOD)
     goto out;
 
   for (i = 0; i < nScanBlock; i++)
     {
-      status = Asic_ReadCalibrationData (&g_chip,
+      status = Asic_ReadCalibrationData (&st->chip,
 	pCalData + (i * CALIBRATION_BLOCK_SIZE), CALIBRATION_BLOCK_SIZE, 8);
       if (status != SANE_STATUS_GOOD)
 	goto out;
     }
 
-  status = Asic_ReadCalibrationData (&g_chip,
+  status = Asic_ReadCalibrationData (&st->chip,
     pCalData + (nScanBlock * CALIBRATION_BLOCK_SIZE),
     dwTotalSize - CALIBRATION_BLOCK_SIZE * nScanBlock, 8);
   if (status != SANE_STATUS_GOOD)
     goto out;
 
-  status = Asic_ScanStop (&g_chip);
+  status = Asic_ScanStop (&st->chip);
   if (status != SANE_STATUS_GOOD)
     goto out;
 
@@ -1579,7 +1572,7 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
 	}
     }
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
       /* find top side, i = left side */
       for (j = 0; j < wCalHeight; j++)
@@ -1604,7 +1597,7 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
       if ((*pwStartY < 10) || (*pwStartY > 100))
 	*pwStartY = 43;
 
-      status = Asic_MotorMove (&g_chip, SANE_FALSE,
+      status = Asic_MotorMove (&st->chip, SANE_FALSE,
 	(wCalHeight - *pwStartY + LINE_CALIBRATION_HEIGHT) *
 	SENSOR_DPI / FIND_LEFT_TOP_CALIBRATE_RESOLUTION);
       if (status != SANE_STATUS_GOOD)
@@ -1635,7 +1628,7 @@ FindTopLeft (unsigned short * pwStartX, unsigned short * pwStartY)
       if ((*pwStartY < 100) || (*pwStartY > 200))
 	*pwStartY = 124;
 
-      status = Asic_MotorMove (&g_chip, SANE_FALSE,
+      status = Asic_MotorMove (&st->chip, SANE_FALSE,
 	(wCalHeight - *pwStartY) * SENSOR_DPI /
 	FIND_LEFT_TOP_CALIBRATE_RESOLUTION + 300);
       if (status != SANE_STATUS_GOOD)
@@ -1680,7 +1673,7 @@ FiltLower (unsigned short * pSort, unsigned short TotalCount,
 }
 
 static SANE_Status
-LineCalibration16Bits (void)
+LineCalibration16Bits (Scanner_State * st)
 {
   SANE_Status status;
   SANE_Byte * pWhiteData, * pDarkData;
@@ -1699,7 +1692,7 @@ LineCalibration16Bits (void)
 #endif
   DBG_ENTER ();
 
-  wCalWidth = g_Target.wWidth;
+  wCalWidth = st->Target.wWidth;
   wCalHeight = LINE_CALIBRATION_HEIGHT;
   dwTotalSize = wCalWidth * wCalHeight * 3 * 2;
   DBG (DBG_FUNC, "wCalWidth=%d,wCalHeight=%d\n", wCalWidth, wCalHeight);
@@ -1714,58 +1707,58 @@ LineCalibration16Bits (void)
     }
 
   /* read white level data */
-  SetAFEGainOffset (&g_chip);
-  status = Asic_SetWindow (&g_chip, g_Target.ssScanSource,
-			   SCAN_TYPE_CALIBRATE_LIGHT, 48, g_Target.wXDpi, 600,
-			   g_Target.wX, 0, wCalWidth, wCalHeight);
+  SetAFEGainOffset (&st->chip);
+  status = Asic_SetWindow (&st->chip, st->Target.ssScanSource,
+			   SCAN_TYPE_CALIBRATE_LIGHT, 48, st->Target.wXDpi, 600,
+			   st->Target.wX, 0, wCalWidth, wCalHeight);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
-  status = Asic_ScanStart (&g_chip);
+  status = Asic_ScanStart (&st->chip);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
-  status = Asic_ReadCalibrationData (&g_chip, pWhiteData, dwTotalSize, 8);
+  status = Asic_ReadCalibrationData (&st->chip, pWhiteData, dwTotalSize, 8);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
-  status = Asic_ScanStop (&g_chip);
+  status = Asic_ScanStop (&st->chip);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
   /* read dark level data */
-  SetAFEGainOffset (&g_chip);
-  status = Asic_SetWindow (&g_chip, g_Target.ssScanSource,
-			   SCAN_TYPE_CALIBRATE_DARK, 48, g_Target.wXDpi, 600,
-			   g_Target.wX, 0, wCalWidth, wCalHeight);
+  SetAFEGainOffset (&st->chip);
+  status = Asic_SetWindow (&st->chip, st->Target.ssScanSource,
+			   SCAN_TYPE_CALIBRATE_DARK, 48, st->Target.wXDpi, 600,
+			   st->Target.wX, 0, wCalWidth, wCalHeight);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
-    status = Asic_TurnLamp (&g_chip, SANE_FALSE);
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
+    status = Asic_TurnLamp (&st->chip, SANE_FALSE);
   else
-    status = Asic_TurnTA (&g_chip, SANE_FALSE);
+    status = Asic_TurnTA (&st->chip, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
   usleep (500000);
 
-  status = Asic_ScanStart (&g_chip);
+  status = Asic_ScanStart (&st->chip);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
-  status = Asic_ReadCalibrationData (&g_chip, pDarkData, dwTotalSize, 8);
+  status = Asic_ReadCalibrationData (&st->chip, pDarkData, dwTotalSize, 8);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
-  status = Asic_ScanStop (&g_chip);
+  status = Asic_ScanStop (&st->chip);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
-    status = Asic_TurnLamp (&g_chip, SANE_TRUE);
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
+    status = Asic_TurnLamp (&st->chip, SANE_TRUE);
   else
-    status = Asic_TurnTA (&g_chip, SANE_TRUE);
+    status = Asic_TurnTA (&st->chip, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
@@ -1820,7 +1813,7 @@ LineCalibration16Bits (void)
 	}
 
       /* sum of dark level for all pixels */
-      if ((g_Target.wXDpi == SENSOR_DPI) && ((i % 2) == 0))
+      if ((st->Target.wXDpi == SENSOR_DPI) && ((i % 2) == 0))
 	{
     	  /* compute dark shading table with mean */
 	  dwREvenDarkLevel += FiltLower (pRDarkSort, wCalHeight, 20, 30);
@@ -1835,7 +1828,7 @@ LineCalibration16Bits (void)
 	}
     }
 
-  if (g_Target.wXDpi == SENSOR_DPI)
+  if (st->Target.wXDpi == SENSOR_DPI)
     {
       dwRDarkLevel /= wCalWidth / 2;
       dwGDarkLevel /= wCalWidth / 2;
@@ -1850,7 +1843,7 @@ LineCalibration16Bits (void)
       dwGDarkLevel /= wCalWidth;
       dwBDarkLevel /= wCalWidth;
     }
-  if (g_Target.ssScanSource != SS_REFLECTIVE)
+  if (st->Target.ssScanSource != SS_REFLECTIVE)
     {
       dwRDarkLevel -= 512;
       dwGDarkLevel -= 512;
@@ -1875,11 +1868,11 @@ LineCalibration16Bits (void)
 	  pBWhiteSort[j] += pWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 5] << 8;
 	}
 
-      if ((g_Target.wXDpi == SENSOR_DPI) && ((i % 2) == 0))
+      if ((st->Target.wXDpi == SENSOR_DPI) && ((i % 2) == 0))
 	{
 	  pDarkShading[i * 3] = dwREvenDarkLevel;
 	  pDarkShading[i * 3 + 1] = dwGEvenDarkLevel;
-	  if (g_Target.ssScanSource == SS_POSITIVE)
+	  if (st->Target.ssScanSource == SS_POSITIVE)
 	    pDarkShading[i * 3 + 1] *= 0.78;
 	  pDarkShading[i * 3 + 2] = dwBEvenDarkLevel;
 	}
@@ -1887,7 +1880,7 @@ LineCalibration16Bits (void)
 	{
 	  pDarkShading[i * 3] = dwRDarkLevel;
 	  pDarkShading[i * 3 + 1] = dwGDarkLevel;
-	  if (g_Target.ssScanSource == SS_POSITIVE)
+	  if (st->Target.ssScanSource == SS_POSITIVE)
 	    pDarkShading[i * 3 + 1] *= 0.78;
 	  pDarkShading[i * 3 + 2] = dwBDarkLevel;
 	}
@@ -1899,7 +1892,7 @@ LineCalibration16Bits (void)
       wBWhiteLevel = FiltLower (pBWhiteSort, wCalHeight, 20, 30) -
 		     pDarkShading[i * 3 + 2];
 
-      switch (g_Target.ssScanSource)
+      switch (st->Target.ssScanSource)
 	{
 	case SS_REFLECTIVE:
 	  if (wRWhiteLevel > 0)
@@ -1950,7 +1943,7 @@ LineCalibration16Bits (void)
 
 	  if (wGWhiteLevel > 0)
 	    pWhiteShading[i * 3 + 1] = (unsigned short)
-	    			       ((65536 * 1.04) / wGWhiteLevel *0x1000);
+	    			       ((65536 * 1.04) / wGWhiteLevel * 0x1000);
 	  else
 	    pWhiteShading[i * 3 + 1] = 0x1000;
 
@@ -1963,8 +1956,8 @@ LineCalibration16Bits (void)
 	}
     }
 
-  status = Asic_SetShadingTable (&g_chip, pWhiteShading, pDarkShading,
-				 g_Target.wXDpi, wCalWidth);
+  status = Asic_SetShadingTable (&st->chip, pWhiteShading, pDarkShading,
+				 st->Target.wXDpi, wCalWidth);
 
 out2:
   free (pWhiteShading);
@@ -2026,7 +2019,7 @@ CreateGammaTable (COLORMODE cmColorMode, unsigned short ** pGammaTable)
       for (i = 0; i < 65536; i++)
 	{
 	  wGammaData = (unsigned short)
-	    (pow ((double) i / 65535, 0.625) * 65535);
+		       (pow ((double) i / 65535, 0.625) * 65535);
 	  pTable[i] = wGammaData;
 	  pTable[i + 65536] = wGammaData;
 	  pTable[i + 65536 * 2] = wGammaData;
@@ -2044,202 +2037,203 @@ CreateGammaTable (COLORMODE cmColorMode, unsigned short ** pGammaTable)
 }
 
 SANE_Status
-Scanner_SetupScan (TARGETIMAGE * pTarget)
+Scanner_SetupScan (Scanner_State * st, TARGETIMAGE * pTarget)
 {
   SANE_Status status;
   unsigned short finalY;
   SANE_Byte bScanBits;
   DBG_ENTER ();
 
-  if (g_bOpened || !g_bPrepared)
+  if (st->bOpened || !st->bPrepared)
     {
       DBG (DBG_FUNC, "invalid state\n");
       return SANE_STATUS_INVAL;
     }
 
-  g_Target = *pTarget;
-  g_SWWidth = g_Target.wWidth;
-  g_SWHeight = g_Target.wHeight;
+  st->Target = *pTarget;
+  st->SWWidth = st->Target.wWidth;
+  st->SWHeight = st->Target.wHeight;
   /* set real scan width according to ASIC limit: width must be 8x */
-  g_Target.wWidth = (g_Target.wWidth + 15) & ~15;
+  st->Target.wWidth = (st->Target.wWidth + 15) & ~15;
 
-  status = CreateGammaTable (g_Target.cmColorMode, &g_pGammaTable);
+  status = CreateGammaTable (st->Target.cmColorMode, &st->pGammaTable);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  switch (g_Target.wYDpi)
+  switch (st->Target.wYDpi)
     {
     case 1200:
-      g_wPixelDistance = 4;	/* even & odd sensor problem */
-      g_wLineDistance = 24;
-      g_Target.wHeight += g_wPixelDistance;
+      st->wPixelDistance = 4;	/* even & odd sensor problem */
+      st->wLineDistance = 24;
+      st->Target.wHeight += st->wPixelDistance;
       break;
     case 600:
-      g_wPixelDistance = 0;	/* no even & odd problem */
-      g_wLineDistance = 12;
+      st->wPixelDistance = 0;	/* no even & odd problem */
+      st->wLineDistance = 12;
       break;
     case 300:
-      g_wPixelDistance = 0;
-      g_wLineDistance = 6;
+      st->wPixelDistance = 0;
+      st->wLineDistance = 6;
       break;
     case 150:
-      g_wPixelDistance = 0;
-      g_wLineDistance = 3;
+      st->wPixelDistance = 0;
+      st->wLineDistance = 3;
       break;
     case 75:
     case 50:
-      g_wPixelDistance = 0;
-      g_wLineDistance = 1;
+      st->wPixelDistance = 0;
+      st->wLineDistance = 1;
       break;
     default:
-      g_wPixelDistance = 0;
-      g_wLineDistance = 0;
+      st->wPixelDistance = 0;
+      st->wLineDistance = 0;
     }
 
-  DBG (DBG_FUNC, "wYDpi=%d,g_wLineDistance=%d,g_wPixelDistance=%d\n",
-       g_Target.wYDpi, g_wLineDistance, g_wPixelDistance);
+  DBG (DBG_FUNC, "wYDpi=%d,st->wLineDistance=%d,st->wPixelDistance=%d\n",
+       st->Target.wYDpi, st->wLineDistance, st->wPixelDistance);
 
-  switch (g_Target.cmColorMode)
+  switch (st->Target.cmColorMode)
     {
     case CM_RGB48:
-      g_BytesPerRow = 6 * g_Target.wWidth;
-      g_SWBytesPerRow = 6 * g_SWWidth;
-      g_Target.wHeight += g_wLineDistance * 2;
+      st->BytesPerRow = 6 * st->Target.wWidth;
+      st->SWBytesPerRow = 6 * st->SWWidth;
+      st->Target.wHeight += st->wLineDistance * 2;
       bScanBits = 48;
       break;
     default:
     case CM_RGB24:
-      g_BytesPerRow = 3 * g_Target.wWidth;
-      g_SWBytesPerRow = 3 * g_SWWidth;
-      g_Target.wHeight += g_wLineDistance * 2;
+      st->BytesPerRow = 3 * st->Target.wWidth;
+      st->SWBytesPerRow = 3 * st->SWWidth;
+      st->Target.wHeight += st->wLineDistance * 2;
       bScanBits = 24;
       break;
     case CM_GRAY16:
-      g_BytesPerRow = 2 * g_Target.wWidth;
-      g_SWBytesPerRow = 2 * g_SWWidth;
+      st->BytesPerRow = 2 * st->Target.wWidth;
+      st->SWBytesPerRow = 2 * st->SWWidth;
       bScanBits = 16;
       break;
     case CM_GRAY8:
-      g_BytesPerRow = g_Target.wWidth;
-      g_SWBytesPerRow = g_SWWidth;
+      st->BytesPerRow = st->Target.wWidth;
+      st->SWBytesPerRow = st->SWWidth;
       bScanBits = 8;
       break;
     case CM_TEXT:
       /* 1-bit image data is generated from an 8-bit grayscale scan */
-      g_BytesPerRow = g_Target.wWidth;
-      g_SWBytesPerRow = g_SWWidth / 8;
+      st->BytesPerRow = st->Target.wWidth;
+      st->SWBytesPerRow = st->SWWidth / 8;
       bScanBits = 8;
       break;
     }
 
-  status = Asic_Open (&g_chip);
+  status = Asic_Open (&st->chip);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  g_bOpened = SANE_TRUE;
+  st->bOpened = SANE_TRUE;
 
   /* find left & top side */
-  if (g_Target.ssScanSource != SS_REFLECTIVE)
+  if (st->Target.ssScanSource != SS_REFLECTIVE)
     {
-      status = Asic_MotorMove (&g_chip, SANE_TRUE, TRAN_START_POS);
+      status = Asic_MotorMove (&st->chip, SANE_TRUE, TRAN_START_POS);
       if (status != SANE_STATUS_GOOD)
 	return status;
     }
 
-  if (g_Target.wXDpi == SENSOR_DPI)
+  if (st->Target.wXDpi == SENSOR_DPI)
     {
-      g_Target.wXDpi = SENSOR_DPI / 2;
-      status = AdjustAD();
+      st->Target.wXDpi = SENSOR_DPI / 2;
+      status = AdjustAD (st);
       if (status != SANE_STATUS_GOOD)
 	return status;
-      if (FindTopLeft (&g_Target.wX, &g_Target.wY) != SANE_STATUS_GOOD)
+      if (FindTopLeft (st, &st->Target.wX, &st->Target.wY) != SANE_STATUS_GOOD)
 	{
-	  g_Target.wX = 187;
-	  g_Target.wY = 43;
+	  st->Target.wX = 187;
+	  st->Target.wY = 43;
 	}
 
-      g_Target.wXDpi = SENSOR_DPI;
-      status = AdjustAD();
+      st->Target.wXDpi = SENSOR_DPI;
+      status = AdjustAD (st);
       if (status != SANE_STATUS_GOOD)
 	return status;
 
-      g_Target.wX = g_Target.wX * SENSOR_DPI /
-		    FIND_LEFT_TOP_CALIBRATE_RESOLUTION + pTarget->wX;
-      if (g_Target.ssScanSource == SS_REFLECTIVE)
+      st->Target.wX = st->Target.wX * SENSOR_DPI /
+		      FIND_LEFT_TOP_CALIBRATE_RESOLUTION + pTarget->wX;
+      if (st->Target.ssScanSource == SS_REFLECTIVE)
 	{
-	  g_Target.wX += 47;
-	  g_Target.wY = g_Target.wY * SENSOR_DPI /
-			FIND_LEFT_TOP_CALIBRATE_RESOLUTION +
-			pTarget->wY * SENSOR_DPI / g_Target.wYDpi + 47;
+	  st->Target.wX += 47;
+	  st->Target.wY = st->Target.wY * SENSOR_DPI /
+			  FIND_LEFT_TOP_CALIBRATE_RESOLUTION +
+			  pTarget->wY * SENSOR_DPI / st->Target.wYDpi + 47;
 	}
     }
   else
     {
-      status = AdjustAD();
+      status = AdjustAD (st);
       if (status != SANE_STATUS_GOOD)
 	return status;
-      if (FindTopLeft (&g_Target.wX, &g_Target.wY) != SANE_STATUS_GOOD)
+      if (FindTopLeft (st, &st->Target.wX, &st->Target.wY) != SANE_STATUS_GOOD)
 	{
-	  g_Target.wX = 187;
-	  g_Target.wY = 43;
+	  st->Target.wX = 187;
+	  st->Target.wY = 43;
 	}
 
-      g_Target.wX += pTarget->wX * (SENSOR_DPI / 2) / g_Target.wXDpi;
-      if (g_Target.ssScanSource == SS_REFLECTIVE)
+      st->Target.wX += pTarget->wX * (SENSOR_DPI / 2) / st->Target.wXDpi;
+      if (st->Target.ssScanSource == SS_REFLECTIVE)
 	{
-	  if (g_Target.wXDpi != 75)
-	    g_Target.wX += 23;
-	  g_Target.wY = g_Target.wY * SENSOR_DPI /
-			FIND_LEFT_TOP_CALIBRATE_RESOLUTION +
-			pTarget->wY * SENSOR_DPI / g_Target.wYDpi + 47;
+	  if (st->Target.wXDpi != 75)
+	    st->Target.wX += 23;
+	  st->Target.wY = st->Target.wY * SENSOR_DPI /
+			  FIND_LEFT_TOP_CALIBRATE_RESOLUTION +
+			  pTarget->wY * SENSOR_DPI / st->Target.wYDpi + 47;
 	}
       else
 	{
-	  if (g_Target.wXDpi == 75)
-	    g_Target.wX -= 23;
+	  if (st->Target.wXDpi == 75)
+	    st->Target.wX -= 23;
 	}
     }
 
   DBG (DBG_FUNC, "before LineCalibration16Bits wX=%d,wY=%d\n",
-       g_Target.wX, g_Target.wY);
+       st->Target.wX, st->Target.wY);
 
-  status = LineCalibration16Bits ();
+  status = LineCalibration16Bits (st);
   if (status != SANE_STATUS_GOOD)
     return status;
 
   DBG (DBG_FUNC, "after LineCalibration16Bits wX=%d,wY=%d\n",
-       g_Target.wX, g_Target.wY);
+       st->Target.wX, st->Target.wY);
 
   DBG (DBG_FUNC, "bScanBits=%d,wXDpi=%d,wYDpi=%d,wWidth=%d,wHeight=%d\n",
-       bScanBits, g_Target.wXDpi, g_Target.wYDpi,
-       g_Target.wWidth, g_Target.wHeight);
+       bScanBits, st->Target.wXDpi, st->Target.wYDpi,
+       st->Target.wWidth, st->Target.wHeight);
 
-  if (g_Target.ssScanSource == SS_REFLECTIVE)
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
       finalY = 300;
     }
   else
     {
-      g_Target.wY = pTarget->wY * SENSOR_DPI / g_Target.wYDpi + (300 - 40) +189;
+      st->Target.wY = pTarget->wY * SENSOR_DPI / st->Target.wYDpi +
+		      (300 - 40) + 189;
       finalY = 360;
     }
 
-  if (g_Target.wY > finalY)
-    status = Asic_MotorMove (&g_chip, SANE_TRUE, g_Target.wY - finalY);
+  if (st->Target.wY > finalY)
+    status = Asic_MotorMove (&st->chip, SANE_TRUE, st->Target.wY - finalY);
   else
-    status = Asic_MotorMove (&g_chip, SANE_FALSE, finalY - g_Target.wY);
+    status = Asic_MotorMove (&st->chip, SANE_FALSE, finalY - st->Target.wY);
   if (status != SANE_STATUS_GOOD)
     return status;
-  g_Target.wY = finalY;
+  st->Target.wY = finalY;
 
-  status = Asic_SetWindow (&g_chip, g_Target.ssScanSource, SCAN_TYPE_NORMAL,
-			   bScanBits, g_Target.wXDpi, g_Target.wYDpi,
-			   g_Target.wX, g_Target.wY,
-			   g_Target.wWidth, g_Target.wHeight);
+  status = Asic_SetWindow (&st->chip, st->Target.ssScanSource, SCAN_TYPE_NORMAL,
+			   bScanBits, st->Target.wXDpi, st->Target.wYDpi,
+			   st->Target.wX, st->Target.wY,
+			   st->Target.wWidth, st->Target.wHeight);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  status = PrepareScan();
+  status = PrepareScan(st);
 
   DBG_LEAVE ();
   return status;

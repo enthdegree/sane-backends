@@ -301,7 +301,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
   s->val[OPT_SOURCE].s = strdup (source_list[SS_REFLECTIVE]);
 
-  status = Scanner_IsTAConnected (&hasTA);
+  status = Scanner_IsTAConnected (&s->state, &hasTA);
   if ((status != SANE_STATUS_GOOD) || !hasTA)
     s->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
 
@@ -481,20 +481,21 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   DBG_ENTER ();
   DBG (DBG_FUNC, "devicename=%s\n", devicename);
 
-  Scanner_Init ();
-
-  status = Scanner_PowerControl (SANE_FALSE, SANE_FALSE);
-  if (status != SANE_STATUS_GOOD)
-    return status;
-  status = Scanner_BackHome ();
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
   s = malloc (sizeof (*s));
   if (!s)
     return SANE_STATUS_NO_MEM;
   memset (s, 0, sizeof (*s));
   s->model = mustek_A2nu2_model;
+
+  Scanner_Init (&s->state);
+
+  status = Scanner_PowerControl (&s->state, SANE_FALSE, SANE_FALSE);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+  status = Scanner_BackHome (&s->state);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+
   init_options (s);
   *handle = s;
 
@@ -508,8 +509,8 @@ sane_close (SANE_Handle handle)
   Mustek_Scanner *s = handle;
   DBG_ENTER ();
 
-  Scanner_PowerControl (SANE_FALSE, SANE_FALSE);
-  Scanner_BackHome ();
+  Scanner_PowerControl (&s->state, SANE_FALSE, SANE_FALSE);
+  Scanner_BackHome (&s->state);
 
   free (s->scan_buf);
   s->scan_buf = NULL;
@@ -735,7 +736,7 @@ sane_start (SANE_Handle handle)
   DBG (DBG_INFO, "target.cmColorMode=%d\n", target.cmColorMode);
   DBG (DBG_INFO, "target.ssScanSource=%d\n", target.ssScanSource);
 
-  status = Scanner_Reset ();
+  status = Scanner_Reset (&s->state);
   if (status != SANE_STATUS_GOOD)
     return status;
 
@@ -758,13 +759,13 @@ sane_start (SANE_Handle handle)
   s->scan_buf_len = 0;
 
   if (target.ssScanSource == SS_REFLECTIVE)
-    status = Scanner_PowerControl (SANE_TRUE, SANE_FALSE);
+    status = Scanner_PowerControl (&s->state, SANE_TRUE, SANE_FALSE);
   else
-    status = Scanner_PowerControl (SANE_FALSE, SANE_TRUE);
+    status = Scanner_PowerControl (&s->state, SANE_FALSE, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  status = Scanner_SetupScan (&target);
+  status = Scanner_SetupScan (&s->state, &target);
 
   DBG_LEAVE ();
   return status;
@@ -816,7 +817,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
 	  s->bIsReading = SANE_TRUE;
 	  lines_received = (unsigned short) lines;
-	  status = Scanner_GetRows (tempbuf, &lines_received,
+	  status = Scanner_GetRows (&s->state, tempbuf, &lines_received,
 				    s->model.isRGBInvert);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -886,8 +887,8 @@ sane_cancel (SANE_Handle handle)
       else
 	DBG (DBG_INFO, "scan finished\n");
 
-      Scanner_StopScan ();
-      Scanner_BackHome ();
+      Scanner_StopScan (&s->state);
+      Scanner_BackHome (&s->state);
 
       for (i = 0; i < 20; i++)
 	{

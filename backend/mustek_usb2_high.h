@@ -48,8 +48,6 @@
 #ifndef MUSTEK_USB2_HIGH_H
 #define MUSTEK_USB2_HIGH_H
 
-#include <pthread.h>	/* TODO: use sanei_thread functions instead */
-
 #include "mustek_usb2_asic.h"
 
 

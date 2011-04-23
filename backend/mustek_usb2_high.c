@@ -46,15 +46,17 @@
    and similar USB2 scanners. */
 
 #define DEBUG_DECLARE_ONLY
-#include "../include/sane/config.h"
+#include "sane/config.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
+#include <pthread.h>	/* TODO: use sanei_thread functions instead */
 
-#include "../include/sane/sane.h"
-#include "../include/sane/sanei_backend.h"
+#include "byteorder.h"
+#include "sane/sane.h"
+#include "sane/sanei_backend.h"
 
 #include "mustek_usb2_high.h"
 
@@ -272,9 +274,9 @@ GetRgb48BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
       wBTempData = st->pReadImageHead[wBLinePos + i * 6 + 4] |
 	(st->pReadImageHead[wBLinePos + i * 6 + 5] << 8);
 
-      wRTempData = LE2CPU16 (wRTempData);
-      wGTempData = LE2CPU16 (wGTempData);
-      wBTempData = LE2CPU16 (wBTempData);
+      LE16TOH (wRTempData);
+      LE16TOH (wGTempData);
+      LE16TOH (wBTempData);
 
       SetPixel48Bit ((unsigned short *) (pLine + (i * 6)), st->pGammaTable,
 		     wRTempData, wGTempData, wBTempData, isOrderInvert);
@@ -342,9 +344,9 @@ GetRgb48BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 	(st->pReadImageHead[wBLinePosEven + (i + 1) * 6 + 5] << 8);
       dwBTempData /= 2;
 
-      dwRTempData = LE2CPU16 (dwRTempData);
-      dwGTempData = LE2CPU16 (dwGTempData);
-      dwBTempData = LE2CPU16 (dwBTempData);
+      LE16TOH (dwRTempData);
+      LE16TOH (dwGTempData);
+      LE16TOH (dwBTempData);
 
       SetPixel48Bit ((unsigned short *) (pLine + (i * 6)), st->pGammaTable,
 		     dwRTempData, dwGTempData, dwBTempData, isOrderInvert);
@@ -368,9 +370,9 @@ GetRgb48BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 	(st->pReadImageHead[wBLinePosOdd + (i + 1) * 6 + 5] << 8);
       dwBTempData /= 2;
 
-      dwRTempData = LE2CPU16 (dwRTempData);
-      dwGTempData = LE2CPU16 (dwGTempData);
-      dwBTempData = LE2CPU16 (dwBTempData);
+      LE16TOH (dwRTempData);
+      LE16TOH (dwGTempData);
+      LE16TOH (dwBTempData);
 
       SetPixel48Bit ((unsigned short *) (pLine + (i * 6)), st->pGammaTable,
 		     dwRTempData, dwGTempData, dwBTempData, isOrderInvert);
@@ -536,7 +538,7 @@ GetMono16BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
     {
       wTempData = st->pReadImageHead[wLinePos + i * 2] |
 		  (st->pReadImageHead[wLinePos + i * 2 + 1] << 8);
-      wTempData = LE2CPU16 (wTempData);
+      LE16TOH (wTempData);
       *((unsigned short *) (pLine + (i * 2))) = st->pGammaTable[wTempData];
     }
 }
@@ -576,7 +578,7 @@ GetMono16BitLineFull (Scanner_State * st, SANE_Byte * pLine,
       dwTempData += (unsigned int)
 		    st->pReadImageHead[wLinePosEven + (i + 1) * 2 + 1] << 8;
       dwTempData /= 2;
-      dwTempData = LE2CPU16 (dwTempData);
+      LE16TOH (dwTempData);
 
       *((unsigned short *) (pLine + (i * 2))) = st->pGammaTable[dwTempData];
       i++;
@@ -589,7 +591,7 @@ GetMono16BitLineFull (Scanner_State * st, SANE_Byte * pLine,
       dwTempData += (unsigned int)
 		    st->pReadImageHead[wLinePosOdd + (i + 1) * 2 + 1] << 8;
       dwTempData /= 2;
-      dwTempData = LE2CPU16 (dwTempData);
+      LE16TOH (dwTempData);
 
       *((unsigned short *) (pLine + (i * 2))) = st->pGammaTable[dwTempData];
       i++;
@@ -1798,9 +1800,9 @@ LineCalibration16Bits (Scanner_State * st)
     {
       for (j = 0; j < wCalHeight; j++)
 	{
-	  pRDarkSort[j] = LE2CPU16 (pDarkData[j * wCalWidth * 3 + i * 3]);
-	  pGDarkSort[j] = LE2CPU16 (pDarkData[j * wCalWidth * 3 + i * 3 + 1]);
-	  pBDarkSort[j] = LE2CPU16 (pDarkData[j * wCalWidth * 3 + i * 3 + 2]);
+	  pRDarkSort[j] = le16toh (pDarkData[j * wCalWidth * 3 + i * 3]);
+	  pGDarkSort[j] = le16toh (pDarkData[j * wCalWidth * 3 + i * 3 + 1]);
+	  pBDarkSort[j] = le16toh (pDarkData[j * wCalWidth * 3 + i * 3 + 2]);
 	}
 
       /* sum of dark level for all pixels */
@@ -1849,9 +1851,9 @@ LineCalibration16Bits (Scanner_State * st)
     {
       for (j = 0; j < wCalHeight; j++)
 	{
-	  pRWhiteSort[j] = LE2CPU16 (pWhiteData[j * wCalWidth * 3 + i * 3]);
-	  pGWhiteSort[j] = LE2CPU16 (pWhiteData[j * wCalWidth * 3 + i * 3 + 1]);
-	  pBWhiteSort[j] = LE2CPU16 (pWhiteData[j * wCalWidth * 3 + i * 3 + 2]);
+	  pRWhiteSort[j] = le16toh (pWhiteData[j * wCalWidth * 3 + i * 3]);
+	  pGWhiteSort[j] = le16toh (pWhiteData[j * wCalWidth * 3 + i * 3 + 1]);
+	  pBWhiteSort[j] = le16toh (pWhiteData[j * wCalWidth * 3 + i * 3 + 2]);
 	}
 
       if ((st->Target.wXDpi == SENSOR_DPI) && ((i % 2) == 0))

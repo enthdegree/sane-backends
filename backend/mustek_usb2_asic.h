@@ -58,9 +58,6 @@
 #  define BYTE1(x)	(SANE_Byte)(((unsigned int)(x) >> 16) & 0xff)
 #  define BYTE2(x)	(SANE_Byte)(((unsigned int)(x) >> 8) & 0xff)
 #  define BYTE3(x)	(SANE_Byte)((unsigned int)(x) & 0xff)
-#  define _SWAP16(x)	(((x) & 0xff) << 8 | ((x) & 0xff00) >> 8)
-#  define LE2CPU16(x)	_SWAP16(x)
-#  define CPU2LE16(x)	_SWAP16(x)
 #else
 #  define LOBYTE(w)	(SANE_Byte)((unsigned short)(w) & 0xff)
 #  define HIBYTE(w)	(SANE_Byte)(((unsigned short)(w) >> 8) & 0xff)
@@ -68,8 +65,6 @@
 #  define BYTE1(x)	(SANE_Byte)(((unsigned int)(x) >> 8) & 0xff)
 #  define BYTE2(x)	(SANE_Byte)(((unsigned int)(x) >> 16) & 0xff)
 #  define BYTE3(x)	(SANE_Byte)(((unsigned int)(x) >> 24) & 0xff)
-#  define LE2CPU16(x)	(x)
-#  define CPU2LE16(x)	(x)
 #endif
 
 
@@ -986,7 +981,7 @@ SANE_Status Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 			    unsigned short wXResolution,
 			    unsigned short wYResolution,
 			    unsigned short wX, unsigned short wY,
-			    unsigned short wWidth, unsigned short wLength);
+			    unsigned short wWidth, unsigned short wHeight);
 SANE_Status Asic_ScanStart (ASIC * chip);
 SANE_Status Asic_ScanStop (ASIC * chip);
 SANE_Status Asic_ReadImage (ASIC * chip, SANE_Byte * pBuffer,

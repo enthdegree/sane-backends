@@ -51,20 +51,25 @@
 
 /* ---------------------- low level ASIC defines -------------------------- */
 
-#ifndef WORDS_BIGENDIAN
-#  define LOBYTE(w)	(SANE_Byte)((unsigned short)(w) & 0xff)
-#  define HIBYTE(w)	(SANE_Byte)(((unsigned short)(w) >> 8) & 0xff)
-#  define BYTE0(x)	(SANE_Byte)((unsigned int)(x) & 0xff)
-#  define BYTE1(x)	(SANE_Byte)(((unsigned int)(x) >> 8) & 0xff)
-#  define BYTE2(x)	(SANE_Byte)(((unsigned int)(x) >> 16) & 0xff)
-#  define BYTE3(x)	(SANE_Byte)(((unsigned int)(x) >> 24) & 0xff)
-#else
+#ifdef WORDS_BIGENDIAN
 #  define LOBYTE(w)	(SANE_Byte)(((unsigned short)(w) >> 8) & 0xff)
 #  define HIBYTE(w)	(SANE_Byte)((unsigned short)(w) & 0xff)
 #  define BYTE0(x)	(SANE_Byte)(((unsigned int)(x) >> 24) & 0xff)
 #  define BYTE1(x)	(SANE_Byte)(((unsigned int)(x) >> 16) & 0xff)
 #  define BYTE2(x)	(SANE_Byte)(((unsigned int)(x) >> 8) & 0xff)
 #  define BYTE3(x)	(SANE_Byte)((unsigned int)(x) & 0xff)
+#  define _SWAP16(x)	(((x) & 0xff) << 8 | ((x) & 0xff00) >> 8)
+#  define LE2CPU16(x)	_SWAP16(x)
+#  define CPU2LE16(x)	_SWAP16(x)
+#else
+#  define LOBYTE(w)	(SANE_Byte)((unsigned short)(w) & 0xff)
+#  define HIBYTE(w)	(SANE_Byte)(((unsigned short)(w) >> 8) & 0xff)
+#  define BYTE0(x)	(SANE_Byte)((unsigned int)(x) & 0xff)
+#  define BYTE1(x)	(SANE_Byte)(((unsigned int)(x) >> 8) & 0xff)
+#  define BYTE2(x)	(SANE_Byte)(((unsigned int)(x) >> 16) & 0xff)
+#  define BYTE3(x)	(SANE_Byte)(((unsigned int)(x) >> 24) & 0xff)
+#  define LE2CPU16(x)	(x)
+#  define CPU2LE16(x)	(x)
 #endif
 
 
@@ -993,7 +998,7 @@ SANE_Status Asic_IsTAConnected (ASIC * chip, SANE_Bool *hasTA);
 
 SANE_Status Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
 				      unsigned int dwXferBytes,
-				      SANE_Byte bScanBits);
+				      SANE_Bool separateColors);
 
 SANE_Status Asic_MotorMove (ASIC * chip, SANE_Bool isForward,
 			    unsigned int dwTotalSteps);

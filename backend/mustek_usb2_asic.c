@@ -537,7 +537,7 @@ SetMotorTable (ASIC * chip, unsigned int dwTableBaseAddr,
 
 static SANE_Status
 SetShadingTable (ASIC * chip, unsigned int dwTableBaseAddr,
-		 unsigned int dwTableSize, unsigned short *ShadingTablePtr)
+		 unsigned int dwTableSize, unsigned short * ShadingTablePtr)
 {
   SANE_Status status;
   RAMACCESS access;
@@ -844,8 +844,8 @@ CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
       y = 6000 - 3500;
       y *= pow (0.09, (M_PI_2 * i) / 512) - pow (0.09, (M_PI_2 * 511) / 512);
       y += 4500;
-      pMotorTable[i] = (unsigned short) y;	/* T0 */
-      pMotorTable[i + 512 * 6] = (unsigned short) y;	/* T6 */
+      pMotorTable[i] = CPU2LE16 ((unsigned short) y);		/* T0 */
+      pMotorTable[i + 512 * 6] = CPU2LE16 ((unsigned short) y);	/* T6 */
     }
 
   /* motor T1 & T7 dec table */
@@ -854,8 +854,8 @@ CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
       y = 6000 - 3500;
       y *= pow (0.3, (M_PI_2 * i) / 256);
       y = 6000 - y;
-      pMotorTable[i + 512] = (unsigned short) y;	/* T1 */
-      pMotorTable[i + 512 * 7] = (unsigned short) y;	/* T7 */
+      pMotorTable[i + 512] = CPU2LE16 ((unsigned short) y);	/* T1 */
+      pMotorTable[i + 512 * 7] = CPU2LE16 ((unsigned short) y);	/* T7 */
     }
 
   for (i = 0; i < wScanAccSteps; i++)
@@ -864,13 +864,13 @@ CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
       y *= pow (0.09, (M_PI_2 * i) / wScanAccSteps) -
 	   pow (0.09, (M_PI_2 * (wScanAccSteps - 1)) / wScanAccSteps);
       y += wEndSpeed;
-      pMotorTable[i + 512 * 2] = (unsigned short) y;	/* T2 */
-      pMotorTable[i + 512 * 4] = (unsigned short) y;	/* T4 */
+      pMotorTable[i + 512 * 2] = CPU2LE16 ((unsigned short) y);	/* T2 */
+      pMotorTable[i + 512 * 4] = CPU2LE16 ((unsigned short) y);	/* T4 */
     }
   for (i = wScanAccSteps; i < 512; i++)
     {
-      pMotorTable[i + 512 * 2] = wEndSpeed;	/* T2 */
-      pMotorTable[i + 512 * 4] = wEndSpeed;	/* T4 */
+      pMotorTable[i + 512 * 2] = CPU2LE16 (wEndSpeed);	/* T2 */
+      pMotorTable[i + 512 * 4] = CPU2LE16 (wEndSpeed);	/* T4 */
     }
 
   for (i = 0; i < (unsigned short) bScanDecSteps; i++)
@@ -878,13 +878,13 @@ CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
       y = wStartSpeed - wEndSpeed;
       y *= pow (0.3, (M_PI_2 * i) / bScanDecSteps);
       y = wStartSpeed - y;
-      pMotorTable[i + 512 * 3] = (unsigned short) y;	/* T3 */
-      pMotorTable[i + 512 * 5] = (unsigned short) y;	/* T5 */
+      pMotorTable[i + 512 * 3] = CPU2LE16 ((unsigned short) y);	/* T3 */
+      pMotorTable[i + 512 * 5] = CPU2LE16 ((unsigned short) y);	/* T5 */
     }
   for (i = bScanDecSteps; i < 256; i++)
     {
-      pMotorTable[i + 512 * 3] = wStartSpeed;	/* T3 */
-      pMotorTable[i + 512 * 5] = wStartSpeed;	/* T5 */
+      pMotorTable[i + 512 * 3] = CPU2LE16 (wStartSpeed);	/* T3 */
+      pMotorTable[i + 512 * 5] = CPU2LE16 (wStartSpeed);	/* T5 */
     }
 }
 
@@ -907,20 +907,20 @@ CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
       /* before scan acc table */
       y = (wStartSpeed - wEndSpeed) *
 	pow (0.09, (M_PI_2 * i) / 512) + wEndSpeed;
-      pMotorTable[i] = (unsigned short) y;
-      pMotorTable[i + 512 * 2] = (unsigned short) y;
-      pMotorTable[i + 512 * 4] = (unsigned short) y;
-      pMotorTable[i + 512 * 6] = (unsigned short) y;
+      pMotorTable[i] = CPU2LE16 ((unsigned short) y);
+      pMotorTable[i + 512 * 2] = CPU2LE16 ((unsigned short) y);
+      pMotorTable[i + 512 * 4] = CPU2LE16 ((unsigned short) y);
+      pMotorTable[i + 512 * 6] = CPU2LE16 ((unsigned short) y);
     }
 
   for (i = 0; i < 256; i++)
     {
       y = wStartSpeed - (wStartSpeed - wEndSpeed) *
 	pow (0.3, (M_PI_2 * i) / 256);
-      pMotorTable[i + 512] = (unsigned short) y;
-      pMotorTable[i + 512 * 3] = (unsigned short) y;
-      pMotorTable[i + 512 * 5] = (unsigned short) y;
-      pMotorTable[i + 512 * 7] = (unsigned short) y;
+      pMotorTable[i + 512] = CPU2LE16 ((unsigned short) y);
+      pMotorTable[i + 512 * 3] = CPU2LE16 ((unsigned short) y);
+      pMotorTable[i + 512 * 5] = CPU2LE16 ((unsigned short) y);
+      pMotorTable[i + 512 * 7] = CPU2LE16 ((unsigned short) y);
     }
 
   for (i = 0; i < wScanAccSteps; i++)
@@ -929,7 +929,7 @@ CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
 	(pow (0.09, (M_PI_2 * i) / wScanAccSteps) -
 	 pow (0.09, (M_PI_2 * (wScanAccSteps - 1)) / wScanAccSteps)) +
 	wEndSpeed;
-      pMotorTable[i + 512 * 2] = (unsigned short) y;
+      pMotorTable[i + 512 * 2] = CPU2LE16 ((unsigned short) y);
     }
 }
 
@@ -2513,7 +2513,7 @@ Asic_IsTAConnected (ASIC * chip, SANE_Bool * hasTA)
 
 SANE_Status
 Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
-			  unsigned int dwXferBytes, SANE_Byte bScanBits)
+			  unsigned int dwXferBytes, SANE_Bool separateColors)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte * pCalBuffer;
@@ -2527,7 +2527,7 @@ Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
       return SANE_STATUS_INVAL;
     }
 
-  if (bScanBits == 24)
+  if (separateColors)
     {
       unsigned int i;
 
@@ -2560,7 +2560,7 @@ Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
 	}
       free (pCalBuffer);
     }
-  else if (bScanBits == 8)
+  else
     {
       while (dwTotalReadData < dwXferBytes)
 	{
@@ -2672,13 +2672,19 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
 
       for (j = 0; j < numPixel; j++)
 	{
-	  chip->pShadingTable[i * 256 + j * 6] = pDarkShading[n * 3];
-	  chip->pShadingTable[i * 256 + j * 6 + 2] = pDarkShading[n * 3 + 1];
-	  chip->pShadingTable[i * 256 + j * 6 + 4] = pDarkShading[n * 3 + 2];
+	  chip->pShadingTable[i * 256 + j * 6] =
+	    CPU2LE16 (pDarkShading[n * 3]);
+	  chip->pShadingTable[i * 256 + j * 6 + 2] =
+	    CPU2LE16 (pDarkShading[n * 3 + 1]);
+	  chip->pShadingTable[i * 256 + j * 6 + 4] =
+	    CPU2LE16 (pDarkShading[n * 3 + 2]);
 
-	  chip->pShadingTable[i * 256 + j * 6 + 1] = pWhiteShading[n * 3];
-	  chip->pShadingTable[i * 256 + j * 6 + 3] = pWhiteShading[n * 3 + 1];
-	  chip->pShadingTable[i * 256 + j * 6 + 5] = pWhiteShading[n * 3 + 2];
+	  chip->pShadingTable[i * 256 + j * 6 + 1] =
+	    CPU2LE16 (pWhiteShading[n * 3]);
+	  chip->pShadingTable[i * 256 + j * 6 + 3] = 
+	    CPU2LE16 (pWhiteShading[n * 3 + 1]);
+	  chip->pShadingTable[i * 256 + j * 6 + 5] =
+	    CPU2LE16 (pWhiteShading[n * 3 + 2]);
 
 	  if ((j % (unsigned short) dbXRatioAdderDouble) ==
 		  (dbXRatioAdderDouble - 1))

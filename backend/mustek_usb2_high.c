@@ -230,27 +230,21 @@ QBET4 (SANE_Byte A, SANE_Byte B)
 }
 
 static void
-SetPixel48Bit (SANE_Byte * pLine, unsigned short * pGammaTable,
+SetPixel48Bit (unsigned short * pLine, unsigned short * pGammaTable,
 	       unsigned short wRTempData, unsigned short wGTempData,
 	       unsigned short wBTempData, SANE_Bool isOrderInvert)
 {
   if (!isOrderInvert)
     {
-      pLine[0] = LOBYTE (pGammaTable[wRTempData]);
-      pLine[1] = HIBYTE (pGammaTable[wRTempData]);
-      pLine[2] = LOBYTE (pGammaTable[wGTempData + 0x10000]);
-      pLine[3] = HIBYTE (pGammaTable[wGTempData + 0x10000]);
-      pLine[4] = LOBYTE (pGammaTable[wBTempData + 0x20000]);
-      pLine[5] = HIBYTE (pGammaTable[wBTempData + 0x20000]);
+      pLine[0] = pGammaTable[wRTempData];
+      pLine[1] = pGammaTable[wGTempData + 0x10000];
+      pLine[2] = pGammaTable[wBTempData + 0x20000];
     }
   else
     {
-      pLine[4] = LOBYTE (pGammaTable[wRTempData]);
-      pLine[5] = HIBYTE (pGammaTable[wRTempData]);
-      pLine[2] = LOBYTE (pGammaTable[wGTempData + 0x10000]);
-      pLine[3] = HIBYTE (pGammaTable[wGTempData + 0x10000]);
-      pLine[0] = LOBYTE (pGammaTable[wBTempData + 0x20000]);
-      pLine[1] = HIBYTE (pGammaTable[wBTempData + 0x20000]);
+      pLine[2] = pGammaTable[wRTempData];
+      pLine[1] = pGammaTable[wGTempData + 0x10000];
+      pLine[0] = pGammaTable[wBTempData + 0x20000];
     }
 }
 
@@ -278,8 +272,12 @@ GetRgb48BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
       wBTempData = st->pReadImageHead[wBLinePos + i * 6 + 4] |
 	(st->pReadImageHead[wBLinePos + i * 6 + 5] << 8);
 
-      SetPixel48Bit (pLine + (i * 6), st->pGammaTable, wRTempData, wGTempData,
-		     wBTempData, isOrderInvert);
+      wRTempData = LE2CPU16 (wRTempData);
+      wGTempData = LE2CPU16 (wGTempData);
+      wBTempData = LE2CPU16 (wBTempData);
+
+      SetPixel48Bit ((unsigned short *) (pLine + (i * 6)), st->pGammaTable,
+		     wRTempData, wGTempData, wBTempData, isOrderInvert);
     }
 }
 
@@ -344,8 +342,12 @@ GetRgb48BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 	(st->pReadImageHead[wBLinePosEven + (i + 1) * 6 + 5] << 8);
       dwBTempData /= 2;
 
-      SetPixel48Bit (pLine + (i * 6), st->pGammaTable, dwRTempData, dwGTempData,
-		     dwBTempData, isOrderInvert);
+      dwRTempData = LE2CPU16 (dwRTempData);
+      dwGTempData = LE2CPU16 (dwGTempData);
+      dwBTempData = LE2CPU16 (dwBTempData);
+
+      SetPixel48Bit ((unsigned short *) (pLine + (i * 6)), st->pGammaTable,
+		     dwRTempData, dwGTempData, dwBTempData, isOrderInvert);
       i++;
 
       dwRTempData = st->pReadImageHead[wRLinePosEven + i * 6] |
@@ -366,8 +368,12 @@ GetRgb48BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 	(st->pReadImageHead[wBLinePosOdd + (i + 1) * 6 + 5] << 8);
       dwBTempData /= 2;
 
-      SetPixel48Bit (pLine + (i * 6), st->pGammaTable, dwRTempData, dwGTempData,
-		     dwBTempData, isOrderInvert);
+      dwRTempData = LE2CPU16 (dwRTempData);
+      dwGTempData = LE2CPU16 (dwGTempData);
+      dwBTempData = LE2CPU16 (dwBTempData);
+
+      SetPixel48Bit ((unsigned short *) (pLine + (i * 6)), st->pGammaTable,
+		     dwRTempData, dwGTempData, dwBTempData, isOrderInvert);
       i++;
     }
 }
@@ -520,7 +526,7 @@ static void
 GetMono16BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 		      SANE_Bool __sane_unused__ isOrderInvert)
 {
-  unsigned int dwTempData;
+  unsigned short wTempData;
   unsigned short wLinePos;
   unsigned short i;
 
@@ -528,10 +534,10 @@ GetMono16BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 
   for (i = 0; i < st->SWWidth; i++)
     {
-      dwTempData = st->pReadImageHead[wLinePos + i * 2] |
+      wTempData = st->pReadImageHead[wLinePos + i * 2] |
 		  (st->pReadImageHead[wLinePos + i * 2 + 1] << 8);
-      pLine[i * 2] = LOBYTE (st->pGammaTable[dwTempData]);
-      pLine[i * 2 + 1] = HIBYTE (st->pGammaTable[dwTempData]);
+      wTempData = LE2CPU16 (wTempData);
+      *((unsigned short *) (pLine + (i * 2))) = st->pGammaTable[wTempData];
     }
 }
 
@@ -570,9 +576,9 @@ GetMono16BitLineFull (Scanner_State * st, SANE_Byte * pLine,
       dwTempData += (unsigned int)
 		    st->pReadImageHead[wLinePosEven + (i + 1) * 2 + 1] << 8;
       dwTempData /= 2;
+      dwTempData = LE2CPU16 (dwTempData);
 
-      pLine[i * 2] = LOBYTE (st->pGammaTable[dwTempData]);
-      pLine[i * 2 + 1] = HIBYTE (st->pGammaTable[dwTempData]);
+      *((unsigned short *) (pLine + (i * 2))) = st->pGammaTable[dwTempData];
       i++;
 
       dwTempData = (unsigned int) st->pReadImageHead[wLinePosEven + i * 2];
@@ -583,9 +589,9 @@ GetMono16BitLineFull (Scanner_State * st, SANE_Byte * pLine,
       dwTempData += (unsigned int)
 		    st->pReadImageHead[wLinePosOdd + (i + 1) * 2 + 1] << 8;
       dwTempData /= 2;
+      dwTempData = LE2CPU16 (dwTempData);
 
-      pLine[i * 2] = LOBYTE (st->pGammaTable[dwTempData]);
-      pLine[i * 2 + 1] = HIBYTE (st->pGammaTable[dwTempData]);
+      *((unsigned short *) (pLine + (i * 2))) = st->pGammaTable[dwTempData];
       i++;
     }
 }
@@ -1263,7 +1269,8 @@ AdjustAD (Scanner_State * st)
       status = Asic_ScanStart (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
-      status = Asic_ReadCalibrationData (&st->chip, pCalData, wCalWidth*3, 24);
+      status = Asic_ReadCalibrationData (&st->chip, pCalData, wCalWidth * 3,
+					 SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
 	goto out;
       status = Asic_ScanStop (&st->chip);
@@ -1339,7 +1346,8 @@ AdjustAD (Scanner_State * st)
       status = Asic_ScanStart (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
-      status = Asic_ReadCalibrationData (&st->chip, pCalData, wCalWidth*3, 24);
+      status = Asic_ReadCalibrationData (&st->chip, pCalData, wCalWidth * 3,
+					 SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
 	goto out;
       status = Asic_ScanStop (&st->chip);
@@ -1407,7 +1415,8 @@ AdjustAD (Scanner_State * st)
       status = Asic_ScanStart (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
-      status = Asic_ReadCalibrationData (&st->chip, pCalData, wCalWidth*3, 24);
+      status = Asic_ReadCalibrationData (&st->chip, pCalData, wCalWidth * 3,
+					 SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
 	goto out;
       status = Asic_ScanStop (&st->chip);
@@ -1515,14 +1524,15 @@ FindTopLeft (Scanner_State * st, unsigned short * pwStartX,
   for (i = 0; i < nScanBlock; i++)
     {
       status = Asic_ReadCalibrationData (&st->chip,
-	pCalData + (i * CALIBRATION_BLOCK_SIZE), CALIBRATION_BLOCK_SIZE, 8);
+	pCalData + (i * CALIBRATION_BLOCK_SIZE), CALIBRATION_BLOCK_SIZE,
+	SANE_FALSE);
       if (status != SANE_STATUS_GOOD)
 	goto out;
     }
 
   status = Asic_ReadCalibrationData (&st->chip,
     pCalData + (nScanBlock * CALIBRATION_BLOCK_SIZE),
-    dwTotalSize - CALIBRATION_BLOCK_SIZE * nScanBlock, 8);
+    dwTotalSize - CALIBRATION_BLOCK_SIZE * nScanBlock, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     goto out;
 
@@ -1660,7 +1670,7 @@ static SANE_Status
 LineCalibration16Bits (Scanner_State * st)
 {
   SANE_Status status;
-  SANE_Byte * pWhiteData, * pDarkData;
+  unsigned short * pWhiteData, * pDarkData;
   unsigned int dwTotalSize;
   unsigned short wCalWidth, wCalHeight;
   unsigned short * pWhiteShading, * pDarkShading;
@@ -1678,7 +1688,7 @@ LineCalibration16Bits (Scanner_State * st)
 
   wCalWidth = st->Target.wWidth;
   wCalHeight = LINE_CALIBRATION_HEIGHT;
-  dwTotalSize = wCalWidth * wCalHeight * 3 * 2;
+  dwTotalSize = wCalWidth * wCalHeight * 3 * sizeof (unsigned short);
   DBG (DBG_FUNC, "wCalWidth=%d,wCalHeight=%d\n", wCalWidth, wCalHeight);
 
   pWhiteData = malloc (dwTotalSize);
@@ -1702,7 +1712,8 @@ LineCalibration16Bits (Scanner_State * st)
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
-  status = Asic_ReadCalibrationData (&st->chip, pWhiteData, dwTotalSize, 8);
+  status = Asic_ReadCalibrationData (&st->chip, (SANE_Byte *) pWhiteData,
+				     dwTotalSize, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
@@ -1731,7 +1742,8 @@ LineCalibration16Bits (Scanner_State * st)
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
-  status = Asic_ReadCalibrationData (&st->chip, pDarkData, dwTotalSize, 8);
+  status = Asic_ReadCalibrationData (&st->chip, (SANE_Byte *) pDarkData,
+				     dwTotalSize, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     goto out1;
 
@@ -1786,14 +1798,9 @@ LineCalibration16Bits (Scanner_State * st)
     {
       for (j = 0; j < wCalHeight; j++)
 	{
-	  pRDarkSort[j] = pDarkData[j * wCalWidth * 6 + i * 6];
-	  pRDarkSort[j] += pDarkData[j * wCalWidth * 6 + i * 6 + 1] << 8;
-
-	  pGDarkSort[j] = pDarkData[j * wCalWidth * 6 + i * 6 + 2];
-	  pGDarkSort[j] += pDarkData[j * wCalWidth * 6 + i * 6 + 3] << 8;
-
-	  pBDarkSort[j] = pDarkData[j * wCalWidth * 6 + i * 6 + 4];
-	  pBDarkSort[j] += pDarkData[j * wCalWidth * 6 + i * 6 + 5] << 8;
+	  pRDarkSort[j] = LE2CPU16 (pDarkData[j * wCalWidth * 3 + i * 3]);
+	  pGDarkSort[j] = LE2CPU16 (pDarkData[j * wCalWidth * 3 + i * 3 + 1]);
+	  pBDarkSort[j] = LE2CPU16 (pDarkData[j * wCalWidth * 3 + i * 3 + 2]);
 	}
 
       /* sum of dark level for all pixels */
@@ -1842,14 +1849,9 @@ LineCalibration16Bits (Scanner_State * st)
     {
       for (j = 0; j < wCalHeight; j++)
 	{
-	  pRWhiteSort[j] = pWhiteData[j * wCalWidth * 2 * 3 + i * 6];
-	  pRWhiteSort[j] += pWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 1] << 8;
-
-	  pGWhiteSort[j] = pWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 2];
-	  pGWhiteSort[j] += pWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 3] << 8;
-
-	  pBWhiteSort[j] = pWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 4];
-	  pBWhiteSort[j] += pWhiteData[j * wCalWidth * 2 * 3 + i * 6 + 5] << 8;
+	  pRWhiteSort[j] = LE2CPU16 (pWhiteData[j * wCalWidth * 3 + i * 3]);
+	  pGWhiteSort[j] = LE2CPU16 (pWhiteData[j * wCalWidth * 3 + i * 3 + 1]);
+	  pBWhiteSort[j] = LE2CPU16 (pWhiteData[j * wCalWidth * 3 + i * 3 + 2]);
 	}
 
       if ((st->Target.wXDpi == SENSOR_DPI) && ((i % 2) == 0))

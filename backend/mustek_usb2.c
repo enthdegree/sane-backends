@@ -127,6 +127,37 @@ static const Scanner_Model models[] = {
     /* button descriptions */
     {SANE_DESC_SCAN, SANE_DESC_COPY, SANE_DESC_FAX, SANE_DESC_EMAIL,
      SANE_I18N ("Panel button")}
+  },
+  {
+    "Microtek", /* device vendor string */
+    "4800H48U", /* device model name */
+
+    0x05da, 0x3025, /* USB vendor and product ID */
+
+    {5 /* count */, 1200, 600, 300, 150, 75}, /* possible resolutions */
+
+    /* x and y size of scan area in mm */
+    {SANE_FIX (0.0), SANE_FIX (8.5 * MM_PER_INCH), SANE_FIX (0.0)},
+    {SANE_FIX (0.0), SANE_FIX (11.8 * MM_PER_INCH), SANE_FIX (0.0)},
+
+    /* x and y size of scan area in TA mode in mm */
+    {SANE_FIX (0.0), SANE_FIX (1.46 * MM_PER_INCH), SANE_FIX (0.0)},
+    {SANE_FIX (0.0), SANE_FIX (6.45 * MM_PER_INCH), SANE_FIX (0.0)},
+
+    SANE_FALSE,  /* invert order of the CCD/CIS colors? */
+
+    5,  /* number of buttons */
+
+    /* button names */
+    {SANE_NAME_SCAN, SANE_NAME_COPY, SANE_NAME_EMAIL, "ocr", SANE_NAME_PDF},
+
+    /* button titles */
+    {SANE_TITLE_SCAN, SANE_TITLE_COPY, SANE_TITLE_EMAIL, "OCR button",
+     SANE_TITLE_PDF},
+
+    /* button descriptions */
+    {SANE_DESC_SCAN, SANE_DESC_COPY, SANE_DESC_EMAIL, SANE_I18N ("OCR button"),
+     SANE_DESC_PDF}
   }
 };
 
@@ -480,7 +511,7 @@ probe_devices(unsigned int * num_devices)
   Scanner_Device * device, * prev_device;
   unsigned int i, n;
 
-  for (i = 0; i < (sizeof (models[0]) / sizeof(models)); i++)
+  for (i = 0; i < (sizeof (models) / sizeof(models[0])); i++)
     {
       status = Asic_FindDevices (models[i].vendor_id, models[i].product_id,
 				 attach_scanner);

@@ -54,6 +54,7 @@
 
 #define SCAN_BUFFER_SIZE (64 * 1024)
 #define MAX_RESOLUTIONS 12
+#define MAX_BUTTONS 5
 #define DEF_LINEARTTHRESHOLD 128
 
 
@@ -74,6 +75,13 @@ enum
   OPT_TL_Y,			/* top-left y */
   OPT_BR_X,			/* bottom-right x */
   OPT_BR_Y,			/* bottom-right y */
+
+  OPT_SENSORS_GROUP,
+  OPT_BUTTON_1,
+  OPT_BUTTON_2,
+  OPT_BUTTON_3,
+  OPT_BUTTON_4,
+  OPT_BUTTON_5,  
 
   /* must come last: */
   NUM_OPTIONS
@@ -101,6 +109,12 @@ typedef struct
 
   SANE_Bool isRGBInvert;	/* order of the CCD/CIS colors:
 				   RGB if SANE_False, BGR otherwise */
+
+  SANE_Int buttons;	/* number of buttons on the scanner */
+  /* option names, titles, and descriptions for the buttons */
+  SANE_String_Const button_name[MAX_BUTTONS];
+  SANE_String_Const button_title[MAX_BUTTONS];
+  SANE_String_Const button_desc[MAX_BUTTONS];
   /*@} */
 } Scanner_Model;
 

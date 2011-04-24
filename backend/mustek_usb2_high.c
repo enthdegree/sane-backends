@@ -181,7 +181,6 @@ Scanner_IsTAConnected (Scanner_State * st, SANE_Bool * pHasTA)
   return status;
 }
 
-#ifdef SANE_UNUSED
 SANE_Status
 Scanner_GetKeyStatus (Scanner_State * st, SANE_Byte * pKey)
 {
@@ -204,7 +203,7 @@ Scanner_GetKeyStatus (Scanner_State * st, SANE_Byte * pKey)
   DBG_LEAVE ();
   return status;
 }
-#endif
+
 
 static SANE_Byte
 QBET4 (SANE_Byte A, SANE_Byte B)

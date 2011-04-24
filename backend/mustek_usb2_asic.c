@@ -2435,7 +2435,6 @@ Asic_ReadImage (ASIC * chip, SANE_Byte * pBuffer, unsigned short LinesCount)
   return status;
 }
 
-#if SANE_UNUSED
 SANE_Status
 Asic_CheckFunctionKey (ASIC * chip, SANE_Byte * key)
 {
@@ -2461,8 +2460,8 @@ Asic_CheckFunctionKey (ASIC * chip, SANE_Byte * key)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  bBuffer_1 = ~bBuffer1;
-  bBuffer_2 = ~bBuffer2;
+  bBuffer_1 = ~bBuffer_1;
+  bBuffer_2 = ~bBuffer_2;
 
   if (bBuffer_1 & 0x10)
     *key = 1;	/* Scan key pressed */
@@ -2481,7 +2480,6 @@ Asic_CheckFunctionKey (ASIC * chip, SANE_Byte * key)
   DBG_ASIC_LEAVE ();
   return SANE_STATUS_GOOD;
 }
-#endif
 
 SANE_Status
 Asic_IsTAConnected (ASIC * chip, SANE_Bool * hasTA)

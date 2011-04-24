@@ -986,15 +986,11 @@ SANE_Status Asic_ScanStart (ASIC * chip);
 SANE_Status Asic_ScanStop (ASIC * chip);
 SANE_Status Asic_ReadImage (ASIC * chip, SANE_Byte * pBuffer,
 			    unsigned short LinesCount);
-#if SANE_UNUSED
 SANE_Status Asic_CheckFunctionKey (ASIC * chip, SANE_Byte * key);
-#endif
 SANE_Status Asic_IsTAConnected (ASIC * chip, SANE_Bool *hasTA);
-
 SANE_Status Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
 				      unsigned int dwXferBytes,
 				      SANE_Bool separateColors);
-
 SANE_Status Asic_MotorMove (ASIC * chip, SANE_Bool isForward,
 			    unsigned int dwTotalSteps);
 SANE_Status Asic_CarriageHome (ASIC * chip);

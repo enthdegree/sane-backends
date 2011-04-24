@@ -109,7 +109,7 @@ static const Scanner_Model mustek_A2nu2_model = {
   "Mustek", /* device vendor string */
   "BearPaw 2448TA Pro", /* device model name */
 
-  {1200, 600, 300, 150, 75, 0}, /* possible resolutions */
+  {5 /* count */, 1200, 600, 300, 150, 75}, /* possible resolutions */
 
   SANE_FIX (8.5 * MM_PER_INCH),	/* size of scan area in mm (x) */
   SANE_FIX (11.8 * MM_PER_INCH), /* size of scan area in mm (y) */
@@ -117,7 +117,21 @@ static const Scanner_Model mustek_A2nu2_model = {
   SANE_FIX (1.46 * MM_PER_INCH), /* size of scan area in TA mode in mm (x) */
   SANE_FIX (6.45 * MM_PER_INCH), /* size of scan area in TA mode in mm (y) */
 
-  SANE_FALSE  /* invert order of the CCD/CIS colors? */
+  SANE_FALSE,  /* invert order of the CCD/CIS colors? */
+
+  5,  /* number of buttons */
+
+  /* button names */
+  {SANE_NAME_SCAN, SANE_NAME_COPY, SANE_NAME_FAX, SANE_NAME_EMAIL,
+   "panel"},
+
+  /* button titles */
+  {SANE_TITLE_SCAN, SANE_TITLE_COPY, SANE_TITLE_FAX, SANE_TITLE_EMAIL,
+   "Panel button"},
+
+  /* button descriptions */
+  {SANE_DESC_SCAN, SANE_DESC_COPY, SANE_DESC_FAX, SANE_DESC_EMAIL,
+   SANE_I18N ("Panel button")}
 };
 
 
@@ -128,7 +142,7 @@ calc_parameters (Mustek_Scanner * s, TARGETIMAGE * pTarget)
   float x1, y1, x2, y2;
   DBG_ENTER ();
 
-  if (s->val[OPT_PREVIEW].w)
+  if (s->val[OPT_PREVIEW].b)
     pTarget->wXDpi = 75;
   else
     pTarget->wXDpi = s->val[OPT_RESOLUTION].w;
@@ -158,7 +172,7 @@ calc_parameters (Mustek_Scanner * s, TARGETIMAGE * pTarget)
   val = s->val[OPT_MODE].s;
   if (strcmp (val, mode_list[CM_RGB48]) == 0)
     {
-      if (s->val[OPT_PREVIEW].w)
+      if (s->val[OPT_PREVIEW].b)
 	{
 	  DBG (DBG_DET, "preview, set color mode CM_RGB24\n");
 	  pTarget->cmColorMode = CM_RGB24;
@@ -172,7 +186,7 @@ calc_parameters (Mustek_Scanner * s, TARGETIMAGE * pTarget)
     }
   else if (strcmp (val, mode_list[CM_GRAY16]) == 0)
     {
-      if (s->val[OPT_PREVIEW].w)
+      if (s->val[OPT_PREVIEW].b)
 	{
 	  DBG (DBG_DET, "preview, set color mode CM_GRAY8\n");
 	  pTarget->cmColorMode = CM_GRAY8;
@@ -225,6 +239,14 @@ calc_parameters (Mustek_Scanner * s, TARGETIMAGE * pTarget)
   DBG_LEAVE ();
 }
 
+static void
+update_button_status (Mustek_Scanner * s)
+{
+  SANE_Byte key;
+  if (Scanner_GetKeyStatus (&s->state, &key) == SANE_STATUS_GOOD)
+    s->val[OPT_BUTTON_1 + key].b = SANE_TRUE;
+}
+
 static size_t
 max_string_size (SANE_String_Const *strings)
 {
@@ -245,8 +267,7 @@ init_options (Mustek_Scanner * s)
 {
   SANE_Status status;
   SANE_Bool hasTA;
-  SANE_Int option, count = 0;
-  SANE_Word *dpi_list;
+  SANE_Int i, option;
   TARGETIMAGE target;
   DBG_ENTER ();
 
@@ -298,14 +319,6 @@ init_options (Mustek_Scanner * s)
     s->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
 
   /* resolution */
-  while (s->model.dpi_values[count] != 0)
-    count++;
-  dpi_list = malloc ((count + 1) * sizeof (SANE_Word));
-  if (!dpi_list)
-    return SANE_STATUS_NO_MEM;
-  dpi_list[0] = count;
-  memcpy (&dpi_list[1], s->model.dpi_values, count * sizeof (SANE_Word));
-
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
@@ -313,8 +326,8 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
   s->opt[OPT_RESOLUTION].size = sizeof (SANE_Word);
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-  s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
-  s->val[OPT_RESOLUTION].w = dpi_list[1];
+  s->opt[OPT_RESOLUTION].constraint.word_list = s->model.dpi_values;
+  s->val[OPT_RESOLUTION].w = s->model.dpi_values[1];
 
   /* preview */
   s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
@@ -322,7 +335,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_PREVIEW].desc = SANE_DESC_PREVIEW;
   s->opt[OPT_PREVIEW].type = SANE_TYPE_BOOL;
   s->opt[OPT_PREVIEW].size = sizeof (SANE_Word);
-  s->val[OPT_PREVIEW].w = SANE_FALSE;
+  s->val[OPT_PREVIEW].b = SANE_FALSE;
 
   /* "enhancement" group */
   s->opt[OPT_ENHANCEMENT_GROUP].name = SANE_NAME_ENHANCEMENT;
@@ -399,7 +412,42 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_BR_Y].constraint.range = &y_range;
   s->val[OPT_BR_Y].w = y_range.max;
 
+  /* "sensors" group */
+  s->opt[OPT_SENSORS_GROUP].title = SANE_TITLE_SENSORS;
+  s->opt[OPT_SENSORS_GROUP].name = SANE_NAME_SENSORS;
+  s->opt[OPT_SENSORS_GROUP].desc = SANE_DESC_SENSORS;
+  s->opt[OPT_SENSORS_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_SENSORS_GROUP].cap = SANE_CAP_ADVANCED;
+  s->opt[OPT_SENSORS_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  /* scanner buttons */
+  for (i = OPT_BUTTON_1; i <= OPT_BUTTON_5; i++)
+    {
+      SANE_Int idx = i - OPT_BUTTON_1;
+      if (idx < s->model.buttons)
+	{
+	  s->opt[i].name = s->model.button_name[idx];
+	  s->opt[i].title = s->model.button_title[idx];
+	  s->opt[i].desc = s->model.button_desc[idx];
+	  s->opt[i].cap = SANE_CAP_HARD_SELECT | SANE_CAP_SOFT_DETECT |
+			  SANE_CAP_ADVANCED;
+	}
+      else
+	{
+	  s->opt[i].name = SANE_I18N ("unused");
+	  s->opt[i].title = SANE_I18N ("unused button");
+	  s->opt[i].cap |= SANE_CAP_INACTIVE;
+	}
+
+      s->opt[i].type = SANE_TYPE_BOOL;
+      s->opt[i].unit = SANE_UNIT_NONE;
+      s->opt[i].size = sizeof (SANE_Word);
+      s->opt[i].constraint_type = SANE_CONSTRAINT_NONE;
+      s->val[i].b = SANE_FALSE;
+    }
+
   calc_parameters (s, &target);
+  update_button_status (s);
 
   DBG_LEAVE ();
   return SANE_STATUS_GOOD;
@@ -453,9 +501,9 @@ sane_get_devices (const SANE_Device *** device_list,
       if (!sane_device)
 	return SANE_STATUS_NO_MEM;
       sane_device->name = strdup (device_name);
-      sane_device->vendor = strdup ("Mustek");
-      sane_device->model = strdup ("BearPaw 2448 TA Pro");
-      sane_device->type = strdup ("flatbed scanner");
+      sane_device->vendor = "Mustek";
+      sane_device->model = "BearPaw 2448 TA Pro";
+      sane_device->type = "flatbed scanner";
       devlist[0] = sane_device;
     }
   *device_list = devlist;
@@ -505,6 +553,9 @@ sane_close (SANE_Handle handle)
 
   free (s->scan_buf);
   s->scan_buf = NULL;
+
+  free (s->val[OPT_MODE].s);
+  free (s->val[OPT_SOURCE].s);
 
   free (handle);
 
@@ -568,7 +619,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  /* word options: */
 	case OPT_NUM_OPTS:
 	case OPT_RESOLUTION:
-	case OPT_PREVIEW:
 	case OPT_THRESHOLD:
 	case OPT_TL_X:
 	case OPT_TL_Y:
@@ -576,12 +626,32 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_Y:
 	  *(SANE_Word *) val = s->val[option].w;
 	  break;
+	  /* boolean options: */
+	case OPT_PREVIEW:
+	  *(SANE_Bool *) val = s->val[option].b;
+	  break;
 	  /* string options: */
 	case OPT_MODE:
-	  strcpy (val, s->val[option].s);
-	  break;
 	case OPT_SOURCE:
 	  strcpy (val, s->val[option].s);
+	  break;
+	  /* buttons: */
+	case OPT_BUTTON_1:
+	case OPT_BUTTON_2:
+	case OPT_BUTTON_3:
+	case OPT_BUTTON_4:
+	case OPT_BUTTON_5:
+	  if ((option - OPT_BUTTON_1) < s->model.buttons)
+	    {
+	      update_button_status (s);
+	      *(SANE_Bool *) val = s->val[option].b;
+	      s->val[option].b = SANE_FALSE;
+	    }
+	  else
+	    {
+	      DBG (DBG_WARN, "invalid button option %d\n", option);
+	      *(SANE_Bool *) val = SANE_FALSE;
+	    }
 	  break;
 	default:
 	  DBG (DBG_ERR, "unknown option %d\n", option);
@@ -605,9 +675,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
       switch (option)
 	{
-	  /* (mostly) side-effect-free word options: */
+	  /* side-effect-free word options: */
+	case OPT_THRESHOLD:
+	  s->val[option].w = *(SANE_Word *) val;
+	  break;
+	  /* word options with side effects: */
 	case OPT_RESOLUTION:
-	case OPT_PREVIEW:
 	case OPT_TL_X:
 	case OPT_TL_Y:
 	case OPT_BR_X:
@@ -616,10 +689,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  calc_parameters (s, &target);
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
-	case OPT_THRESHOLD:
-	  s->val[option].w = *(SANE_Word *) val;
+	  /* boolean options with side effects: */
+	case OPT_PREVIEW:
+	  s->val[option].b = *(SANE_Bool *) val;
+	  calc_parameters (s, &target);
+	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
-	  /* side-effect-free word-array options: */
+	  /* string array options with side effects: */
 	case OPT_MODE:
 	  free (s->val[option].s);
 	  s->val[option].s = strdup (val);
@@ -729,6 +805,7 @@ sane_start (SANE_Handle handle)
   DBG (DBG_INFO, "target.cmColorMode=%d\n", target.cmColorMode);
   DBG (DBG_INFO, "target.ssScanSource=%d\n", target.ssScanSource);
 
+  /* TODO: move to mustek_usb2_high */
   s->bInvertImage = ((target.cmColorMode == CM_TEXT) ^
 		     (target.ssScanSource == SS_NEGATIVE));
   s->read_rows = s->params.lines;

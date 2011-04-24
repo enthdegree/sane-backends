@@ -153,9 +153,7 @@ SANE_Status Scanner_PowerControl (Scanner_State * st, SANE_Bool isLampOn,
 				  SANE_Bool isTALampOn);
 SANE_Status Scanner_BackHome (Scanner_State * st);
 SANE_Status Scanner_IsTAConnected (Scanner_State * st, SANE_Bool * pHasTA);
-#if SANE_UNUSED
 SANE_Status Scanner_GetKeyStatus (Scanner_State * st, SANE_Byte * pKey);
-#endif
 SANE_Status Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
 			     unsigned short * pNumRows,
 			     SANE_Bool isOrderInvert);

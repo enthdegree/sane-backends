@@ -191,6 +191,7 @@ typedef struct
 
 typedef struct
 {
+  SANE_String_Const device_name;
   int fd;	/* file descriptor of scanner */
 
   FIRMWARESTATE firmwarestate;
@@ -967,10 +968,12 @@ typedef struct
 #define		ES01_2CF_VALID_PIXEL_PARAMETER_OF_SEGMENT16	0x2CF
 
 
-extern SANE_String_Const device_name;
-
 void SetAFEGainOffset (ASIC * chip);
 
+SANE_Status Asic_FindDevices (unsigned short wVendorID,
+			      unsigned short wProductID,
+			      SANE_Status (* attach)
+					  (SANE_String_Const devname));
 SANE_Status Asic_Open (ASIC * chip);
 SANE_Status Asic_Close (ASIC * chip);
 void Asic_Initialize (ASIC * chip);

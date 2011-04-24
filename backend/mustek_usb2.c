@@ -64,24 +64,14 @@
 #include "mustek_usb2.h"
 
 
-static const SANE_Device **devlist = NULL;
+static Scanner_Handle * first_handle = NULL;
+static Scanner_Device * first_device = NULL;
+static SANE_Device ** devlist;
 
 static const SANE_Range u8_range = {
   0,	/* minimum */
   255,	/* maximum */
   0	/* quantization */
-};
-
-static SANE_Range x_range = {
-  SANE_FIX (0.0),
-  SANE_FIX (8.3 * MM_PER_INCH),
-  SANE_FIX (0.0)
-};
-
-static SANE_Range y_range = {
-  SANE_FIX (0.0),
-  SANE_FIX (11.6 * MM_PER_INCH),
-  SANE_FIX (0.0)
 };
 
 static SANE_String_Const mode_list[] = {
@@ -105,38 +95,44 @@ static SANE_String_Const source_list[] = {
   NULL
 };
 
-static const Scanner_Model mustek_A2nu2_model = {
-  "Mustek", /* device vendor string */
-  "BearPaw 2448TA Pro", /* device model name */
+static const Scanner_Model models[] = {
+  {
+    "Mustek", /* device vendor string */
+    "BearPaw 2448TA Pro", /* device model name */
 
-  {5 /* count */, 1200, 600, 300, 150, 75}, /* possible resolutions */
+    0x055f, 0x0409, /* USB vendor and product ID */
 
-  SANE_FIX (8.5 * MM_PER_INCH),	/* size of scan area in mm (x) */
-  SANE_FIX (11.8 * MM_PER_INCH), /* size of scan area in mm (y) */
+    {5 /* count */, 1200, 600, 300, 150, 75}, /* possible resolutions */
 
-  SANE_FIX (1.46 * MM_PER_INCH), /* size of scan area in TA mode in mm (x) */
-  SANE_FIX (6.45 * MM_PER_INCH), /* size of scan area in TA mode in mm (y) */
+    /* x and y size of scan area in mm */
+    {SANE_FIX (0.0), SANE_FIX (8.5 * MM_PER_INCH), SANE_FIX (0.0)},
+    {SANE_FIX (0.0), SANE_FIX (11.8 * MM_PER_INCH), SANE_FIX (0.0)},
 
-  SANE_FALSE,  /* invert order of the CCD/CIS colors? */
+    /* x and y size of scan area in TA mode in mm */
+    {SANE_FIX (0.0), SANE_FIX (1.46 * MM_PER_INCH), SANE_FIX (0.0)},
+    {SANE_FIX (0.0), SANE_FIX (6.45 * MM_PER_INCH), SANE_FIX (0.0)},
 
-  5,  /* number of buttons */
+    SANE_FALSE,  /* invert order of the CCD/CIS colors? */
 
-  /* button names */
-  {SANE_NAME_SCAN, SANE_NAME_COPY, SANE_NAME_FAX, SANE_NAME_EMAIL,
-   "panel"},
+    5,  /* number of buttons */
 
-  /* button titles */
-  {SANE_TITLE_SCAN, SANE_TITLE_COPY, SANE_TITLE_FAX, SANE_TITLE_EMAIL,
-   "Panel button"},
+    /* button names */
+    {SANE_NAME_SCAN, SANE_NAME_COPY, SANE_NAME_FAX, SANE_NAME_EMAIL,
+     "panel"},
 
-  /* button descriptions */
-  {SANE_DESC_SCAN, SANE_DESC_COPY, SANE_DESC_FAX, SANE_DESC_EMAIL,
-   SANE_I18N ("Panel button")}
+    /* button titles */
+    {SANE_TITLE_SCAN, SANE_TITLE_COPY, SANE_TITLE_FAX, SANE_TITLE_EMAIL,
+     "Panel button"},
+
+    /* button descriptions */
+    {SANE_DESC_SCAN, SANE_DESC_COPY, SANE_DESC_FAX, SANE_DESC_EMAIL,
+     SANE_I18N ("Panel button")}
+  }
 };
 
 
 static void
-calc_parameters (Mustek_Scanner * s, TARGETIMAGE * pTarget)
+calc_parameters (Scanner_Handle * s, TARGETIMAGE * pTarget)
 {
   SANE_String val;
   float x1, y1, x2, y2;
@@ -240,7 +236,7 @@ calc_parameters (Mustek_Scanner * s, TARGETIMAGE * pTarget)
 }
 
 static void
-update_button_status (Mustek_Scanner * s)
+update_button_status (Scanner_Handle * s)
 {
   SANE_Byte key;
   if (Scanner_GetKeyStatus (&s->state, &key) == SANE_STATUS_GOOD)
@@ -263,7 +259,7 @@ max_string_size (SANE_String_Const *strings)
 }
 
 static SANE_Status
-init_options (Mustek_Scanner * s)
+init_options (Scanner_Handle * s)
 {
   SANE_Status status;
   SANE_Bool hasTA;
@@ -326,8 +322,8 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
   s->opt[OPT_RESOLUTION].size = sizeof (SANE_Word);
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-  s->opt[OPT_RESOLUTION].constraint.word_list = s->model.dpi_values;
-  s->val[OPT_RESOLUTION].w = s->model.dpi_values[1];
+  s->opt[OPT_RESOLUTION].constraint.word_list = s->model->dpi_values;
+  s->val[OPT_RESOLUTION].w = s->model->dpi_values[1];
 
   /* preview */
   s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
@@ -365,9 +361,6 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-  x_range.max = s->model.x_size;
-  y_range.max = s->model.y_size;
-
   /* top-left x */
   s->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
   s->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
@@ -376,7 +369,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
   s->opt[OPT_TL_X].size = sizeof (SANE_Word);
   s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_TL_X].constraint.range = &x_range;
+  s->opt[OPT_TL_X].constraint.range = &s->model->x_range;
   s->val[OPT_TL_X].w = 0;
 
   /* top-left y */
@@ -387,7 +380,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_TL_Y].size = sizeof (SANE_Word);
   s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_TL_Y].constraint.range = &y_range;
+  s->opt[OPT_TL_Y].constraint.range = &s->model->y_range;
   s->val[OPT_TL_Y].w = 0;
 
   /* bottom-right x */
@@ -398,8 +391,8 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_X].size = sizeof (SANE_Word);
   s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_BR_X].constraint.range = &x_range;
-  s->val[OPT_BR_X].w = x_range.max;
+  s->opt[OPT_BR_X].constraint.range = &s->model->x_range;
+  s->val[OPT_BR_X].w = s->model->x_range.max;
 
   /* bottom-right y */
   s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
@@ -409,8 +402,8 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_Y].size = sizeof (SANE_Word);
   s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_BR_Y].constraint.range = &y_range;
-  s->val[OPT_BR_Y].w = y_range.max;
+  s->opt[OPT_BR_Y].constraint.range = &s->model->y_range;
+  s->val[OPT_BR_Y].w = s->model->y_range.max;
 
   /* "sensors" group */
   s->opt[OPT_SENSORS_GROUP].title = SANE_TITLE_SENSORS;
@@ -424,11 +417,11 @@ init_options (Mustek_Scanner * s)
   for (i = OPT_BUTTON_1; i <= OPT_BUTTON_5; i++)
     {
       SANE_Int idx = i - OPT_BUTTON_1;
-      if (idx < s->model.buttons)
+      if (idx < s->model->buttons)
 	{
-	  s->opt[i].name = s->model.button_name[idx];
-	  s->opt[i].title = s->model.button_title[idx];
-	  s->opt[i].desc = s->model.button_desc[idx];
+	  s->opt[i].name = s->model->button_name[idx];
+	  s->opt[i].title = s->model->button_title[idx];
+	  s->opt[i].desc = s->model->button_desc[idx];
 	  s->opt[i].cap = SANE_CAP_HARD_SELECT | SANE_CAP_SOFT_DETECT |
 			  SANE_CAP_ADVANCED;
 	}
@@ -453,6 +446,98 @@ init_options (Mustek_Scanner * s)
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Status
+attach_scanner (SANE_String_Const devname)
+{
+  Scanner_Device * device;
+  DBG (DBG_INFO, "attach_scanner: devname = %s\n", devname);
+
+  for (device = first_device; device; device = device->next)
+    {
+      if (strcmp (devname, device->name) == 0)
+	{
+	  device->present = SANE_TRUE;
+	  return SANE_STATUS_GOOD;
+	}
+    }
+
+  device = malloc (sizeof (*device));
+  if (!device)
+    return SANE_STATUS_NO_MEM;
+  device->name = strdup (devname);
+  device->model = NULL;
+  device->present = SANE_TRUE;
+  device->next = first_device;
+  first_device = device;
+
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+probe_devices(unsigned int * num_devices)
+{
+  SANE_Status status;
+  Scanner_Device * device, * prev_device;
+  unsigned int i, n;
+
+  for (i = 0; i < (sizeof (models[0]) / sizeof(models)); i++)
+    {
+      status = Asic_FindDevices (models[i].vendor_id, models[i].product_id,
+				 attach_scanner);
+      if (status != SANE_STATUS_GOOD)
+        break;
+
+      /* Assign model data to all newly attached devices. */
+      for (device = first_device; device; device = device->next)
+        {
+          if (device->model)
+            break;
+          device->model = &models[i];
+        }
+    }
+
+  /* Remove all devices that are no longer present. */
+  n = 0;
+  prev_device = NULL;
+  device = first_device;
+  while (device)
+    {
+      if (!device->present)
+        {
+          Scanner_Device * next = device->next;
+          if (prev_device)
+            prev_device->next = next;
+          else
+            first_device = next;
+          free (device->name);
+          free (device);
+          device = next;
+        }
+      else
+        {
+          n++;
+          device->present = SANE_FALSE;
+          device = device->next;
+          prev_device = device;
+        }
+    }
+
+  if (num_devices)
+    *num_devices = n;
+
+  return status;
+}
+
+static void
+free_devlist (void)
+{
+  SANE_Device ** devlist_ptr;
+  for (devlist_ptr = devlist; *devlist_ptr; devlist_ptr++)
+    free (*devlist_ptr);
+  free (devlist);
+  devlist = NULL;
+}
+
 
 /****************************** SANE API functions ****************************/
 
@@ -460,6 +545,7 @@ SANE_Status
 sane_init (SANE_Int * version_code,
 	   SANE_Auth_Callback __sane_unused__ authorize)
 {
+  SANE_Status status;
   DBG_INIT ();
   DBG_ENTER ();
   DBG (DBG_ERR, "SANE Mustek USB2 backend version %d.%d build %d from %s\n",
@@ -468,17 +554,30 @@ sane_init (SANE_Int * version_code,
   if (version_code)
     *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
+  status = probe_devices (NULL);
+
   DBG_LEAVE ();
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 void
 sane_exit (void)
 {
+  Scanner_Device * device;
   DBG_ENTER ();
 
-  free (devlist);
-  devlist = NULL;
+  while (first_handle)
+    sane_close (first_handle);
+
+  while (first_device)
+    {
+      device = first_device;
+      free (first_device->name);
+      first_device = first_device->next;
+      free (device);
+    }
+
+  free_devlist ();
 
   DBG_LEAVE ();
 }
@@ -487,44 +586,65 @@ SANE_Status
 sane_get_devices (const SANE_Device *** device_list,
 		  SANE_Bool __sane_unused__ local_only)
 {
+  SANE_Status status;
+  unsigned int num_devices;
+  Scanner_Device * device;
+  SANE_Device ** devlist_ptr;
   DBG_ENTER ();
 
-  free (devlist);
-  devlist = calloc (2, sizeof (devlist[0]));
+  status = probe_devices (&num_devices);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+
+  free_devlist ();
+  devlist = malloc ((num_devices + 1) * sizeof (*devlist));
   if (!devlist)
     return SANE_STATUS_NO_MEM;
 
-  /* HOLD: This is ugly (only one scanner!) and should go to sane_init */
-  if (Scanner_IsPresent ())
+  devlist_ptr = devlist;
+  for (device = first_device; device; device = device->next)
     {
-      SANE_Device *sane_device = malloc (sizeof (*sane_device));
+      SANE_Device * sane_device = malloc (sizeof (*sane_device));
       if (!sane_device)
 	return SANE_STATUS_NO_MEM;
-      sane_device->name = strdup (device_name);
-      sane_device->vendor = "Mustek";
-      sane_device->model = "BearPaw 2448 TA Pro";
-      sane_device->type = "flatbed scanner";
-      devlist[0] = sane_device;
+      sane_device->name = device->name;
+      sane_device->vendor = device->model->vendor_name;
+      sane_device->model = device->model->model_name;
+      sane_device->type = SANE_I18N ("flatbed scanner");
+      *devlist_ptr++ = sane_device;
     }
-  *device_list = devlist;
+  *devlist_ptr = NULL;
+  *device_list = (const SANE_Device **) devlist;
 
   DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sane_open (SANE_String_Const devicename, SANE_Handle * handle)
+sane_open (SANE_String_Const devname, SANE_Handle * handle)
 {
   SANE_Status status;
-  Mustek_Scanner *s;
+  Scanner_Handle * s;
+  Scanner_Device * device;
   DBG_ENTER ();
-  DBG (DBG_FUNC, "devicename=%s\n", devicename);
+  DBG (DBG_FUNC, "devname=%s\n", devname);
+
+  /* Look up the device name in the list of detected devices. If the device name
+     is an empty string, use the first device. */
+  for (device = first_device; device; device = device->next)
+    {
+      if ((devname[0] == '\0') || (strcmp (devname, device->name) == 0))
+        break;
+    }
+  if (!device)
+    return SANE_STATUS_INVAL;
 
   s = malloc (sizeof (*s));
   if (!s)
     return SANE_STATUS_NO_MEM;
   memset (s, 0, sizeof (*s));
-  s->model = mustek_A2nu2_model;
+  s->model = device->model;
+  s->state.chip.device_name = device->name;
 
   Scanner_Init (&s->state);
 
@@ -545,8 +665,23 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 void
 sane_close (SANE_Handle handle)
 {
-  Mustek_Scanner *s = handle;
+  Scanner_Handle * s, * prev_handle = NULL;
   DBG_ENTER ();
+
+  for (s = first_handle; s; s = s->next)
+    {
+      if (s == (Scanner_Handle *) handle)
+        break;
+      prev_handle = s;
+    }
+  if (!s)
+    {
+      DBG (DBG_ERR, "attempting to close invalid handle %p\n", handle);
+      return;
+    }
+
+  if (s->bIsScanning)
+    sane_cancel (handle);
 
   Scanner_PowerControl (&s->state, SANE_FALSE, SANE_FALSE);
   Scanner_BackHome (&s->state);
@@ -557,7 +692,13 @@ sane_close (SANE_Handle handle)
   free (s->val[OPT_MODE].s);
   free (s->val[OPT_SOURCE].s);
 
-  free (handle);
+  /* Remove from list of open handles. */
+  if (prev_handle)
+    prev_handle->next = s->next;
+  else
+    first_handle = s->next;
+
+  free (s);
 
   DBG_LEAVE ();
 }
@@ -565,7 +706,7 @@ sane_close (SANE_Handle handle)
 const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
-  Mustek_Scanner *s = handle;
+  Scanner_Handle * s = handle;
 
   if ((option >= NUM_OPTIONS) || (option < 0))
     return NULL;
@@ -580,7 +721,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		     SANE_Action action, void *val, SANE_Int * info)
 {
   SANE_Status status;
-  Mustek_Scanner *s = handle;
+  Scanner_Handle * s = handle;
   SANE_Word cap;
   SANE_Int myinfo = 0;
   TARGETIMAGE target;
@@ -591,15 +732,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	   (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown",
        s->opt[option].name, option);
 
-  if (s->bIsScanning)
-    {
-      DBG (DBG_ERR, "scanner is busy\n");
-      return SANE_STATUS_DEVICE_BUSY;
-    }
   if ((option >= NUM_OPTIONS) || (option < 0))
     {
       DBG (DBG_ERR, "option index out of range\n");
-      return SANE_STATUS_INVAL;
+      return SANE_STATUS_UNSUPPORTED;
     }
 
   cap = s->opt[option].cap;
@@ -705,24 +841,30 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  s->opt[OPT_MODE].size = max_string_size (mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = mode_list;
 		  s->val[OPT_MODE].s = strdup (mode_list[CM_RGB24]);
-		  x_range.max = s->model.x_size;
-		  y_range.max = s->model.y_size;
+		  s->opt[OPT_TL_X].constraint.range = &s->model->x_range;
+		  s->opt[OPT_TL_Y].constraint.range = &s->model->y_range;
+		  s->opt[OPT_BR_X].constraint.range = &s->model->x_range;
+		  s->opt[OPT_BR_Y].constraint.range = &s->model->y_range;
 		}
 	      else if (strcmp (s->val[option].s, source_list[SS_NEGATIVE]) == 0)
 		{
 		  s->opt[OPT_MODE].size = max_string_size (negative_mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = negative_mode_list;
 		  s->val[OPT_MODE].s = strdup (mode_list[CM_RGB24]);
-		  x_range.max = s->model.x_size_ta;
-		  y_range.max = s->model.y_size_ta;
+		  s->opt[OPT_TL_X].constraint.range = &s->model->x_range_ta;
+		  s->opt[OPT_TL_Y].constraint.range = &s->model->y_range_ta;
+		  s->opt[OPT_BR_X].constraint.range = &s->model->x_range_ta;
+		  s->opt[OPT_BR_Y].constraint.range = &s->model->y_range_ta;
 		}
 	      else if (strcmp (s->val[option].s, source_list[SS_POSITIVE]) == 0)
 		{
 		  s->opt[OPT_MODE].size = max_string_size (mode_list);
 		  s->opt[OPT_MODE].constraint.string_list = mode_list;
 		  s->val[OPT_MODE].s = strdup (mode_list[CM_RGB24]);
-		  x_range.max = s->model.x_size_ta;
-		  y_range.max = s->model.y_size_ta;
+		  s->opt[OPT_TL_X].constraint.range = &s->model->x_range_ta;
+		  s->opt[OPT_TL_Y].constraint.range = &s->model->y_range_ta;
+		  s->opt[OPT_BR_X].constraint.range = &s->model->x_range_ta;
+		  s->opt[OPT_BR_Y].constraint.range = &s->model->y_range_ta;
 		}
 	    }
 	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
@@ -737,7 +879,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   else
     {
       DBG (DBG_ERR, "unknown action %d for option %d\n", action, option);
-      return SANE_STATUS_INVAL;
+      return SANE_STATUS_UNSUPPORTED;
     }
 
   DBG_LEAVE ();
@@ -747,7 +889,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
-  Mustek_Scanner *s = handle;
+  Scanner_Handle * s = handle;
   DBG_ENTER ();
 
   DBG (DBG_INFO, "params.format = %d\n", s->params.format);
@@ -767,7 +909,7 @@ SANE_Status
 sane_start (SANE_Handle handle)
 {
   SANE_Status status;
-  Mustek_Scanner *s = handle;
+  Scanner_Handle * s = handle;
   TARGETIMAGE target;
   DBG_ENTER ();
  
@@ -823,7 +965,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	   SANE_Int * len)
 {
   SANE_Status status;
-  Mustek_Scanner *s = handle;
+  Scanner_Handle * s = handle;
   unsigned short lines;
   SANE_Int bytes_read;
   DBG_ENTER ();
@@ -848,7 +990,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
 	  s->bIsReading = SANE_TRUE;
 	  status = Scanner_GetRows (&s->state, s->scan_buf, &lines,
-				    s->model.isRGBInvert);
+				    s->model->isRGBInvert);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      s->bIsReading = SANE_FALSE;
@@ -896,7 +1038,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 void
 sane_cancel (SANE_Handle handle)
 {
-  Mustek_Scanner *s = handle;
+  Scanner_Handle * s = handle;
   int i;
   DBG_ENTER ();
 

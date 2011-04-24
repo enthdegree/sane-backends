@@ -957,7 +957,7 @@ Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
   if (!st->bOpened || !st->bPrepared)
     {
       DBG (DBG_FUNC, "invalid state\n");
-      return SANE_STATUS_INVAL;
+      return SANE_STATUS_CANCELLED;
     }
 
   switch (st->Target.cmColorMode)
@@ -1269,7 +1269,6 @@ AdjustAD (Scanner_State * st)
   for (i = 0; i < 10; i++)
     {
       DBG (DBG_FUNC, "first AD offset adjustment loop\n");
-      SetAFEGainOffset (&st->chip);
       status = Asic_ScanStart (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
@@ -1320,6 +1319,8 @@ AdjustAD (Scanner_State * st)
 	    }
 	}
 
+      SetAFEGainOffset (&st->chip);
+
       if (!(wMinValue[0] > 15 || wMinValue[0] < 5 ||
 	    wMinValue[1] > 15 || wMinValue[1] < 5 ||
 	    wMinValue[2] > 15 || wMinValue[2] < 5))
@@ -1346,7 +1347,6 @@ AdjustAD (Scanner_State * st)
 
   for (i = 0; i < 10; i++)
     {
-      SetAFEGainOffset (&st->chip);
       status = Asic_ScanStart (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
@@ -1403,6 +1403,8 @@ AdjustAD (Scanner_State * st)
 	       st->chip.AD.Direction[j]);
 	}
 
+      SetAFEGainOffset (&st->chip);
+
       if (!((wMaxValue[0] - wMinValue[0]) > MAX_LEVEL_RANGE ||
 	    (wMaxValue[0] - wMinValue[0]) < MIN_LEVEL_RANGE ||
 	    (wMaxValue[1] - wMinValue[1]) > MAX_LEVEL_RANGE ||
@@ -1415,7 +1417,6 @@ AdjustAD (Scanner_State * st)
   for (i = 0; i < 8; i++)
     {
       DBG (DBG_FUNC, "second AD offset adjustment loop\n");
-      SetAFEGainOffset (&st->chip);
       status = Asic_ScanStart (&st->chip);
       if (status != SANE_STATUS_GOOD)
 	goto out;
@@ -1461,6 +1462,8 @@ AdjustAD (Scanner_State * st)
 	       j, st->chip.AD.Gain[j], st->chip.AD.Offset[j],
 	       st->chip.AD.Direction[j]);
 	}
+
+      SetAFEGainOffset (&st->chip);
 
       if (!(wMinValue[0] > 20 || wMinValue[0] < 10 ||
 	    wMinValue[1] > 20 || wMinValue[1] < 10 ||
@@ -1520,7 +1523,6 @@ FindTopLeft (Scanner_State * st, unsigned short * pwStartX,
   if (status != SANE_STATUS_GOOD)
     goto out;
 
-  SetAFEGainOffset (&st->chip);
   status = Asic_ScanStart (&st->chip);
   if (status != SANE_STATUS_GOOD)
     goto out;
@@ -1705,7 +1707,6 @@ LineCalibration16Bits (Scanner_State * st)
     }
 
   /* read white level data */
-  SetAFEGainOffset (&st->chip);
   status = Asic_SetWindow (&st->chip, st->Target.ssScanSource,
 			   SCAN_TYPE_CALIBRATE_LIGHT, 48, st->Target.wXDpi, 600,
 			   st->Target.wX, 0, wCalWidth, wCalHeight);
@@ -1726,7 +1727,6 @@ LineCalibration16Bits (Scanner_State * st)
     goto out1;
 
   /* read dark level data */
-  SetAFEGainOffset (&st->chip);
   status = Asic_SetWindow (&st->chip, st->Target.ssScanSource,
 			   SCAN_TYPE_CALIBRATE_DARK, 48, st->Target.wXDpi, 600,
 			   st->Target.wX, 0, wCalWidth, wCalHeight);

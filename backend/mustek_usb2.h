@@ -99,13 +99,17 @@ typedef struct
   /** Device model name. */
   SANE_String_Const model_name;
 
+  /** USB vendor and product ID */
+  unsigned short vendor_id;
+  unsigned short product_id;
+
   /** @name Scanner model parameters */
   /*@{ */
   SANE_Word dpi_values[MAX_RESOLUTIONS];	/* possible resolutions */
-  SANE_Fixed x_size;			/* size of scan area in mm */
-  SANE_Fixed y_size;
-  SANE_Fixed x_size_ta;			/* size of scan area in TA mode in mm */
-  SANE_Fixed y_size_ta;
+  SANE_Range x_range;		/* size of scan area in mm */
+  SANE_Range y_range;
+  SANE_Range x_range_ta;	/* size of scan area in TA mode in mm */
+  SANE_Range y_range_ta;
 
   SANE_Bool isRGBInvert;	/* order of the CCD/CIS colors:
 				   RGB if SANE_False, BGR otherwise */
@@ -118,21 +122,32 @@ typedef struct
   /*@} */
 } Scanner_Model;
 
-typedef struct Mustek_Scanner
+typedef struct Scanner_Device
 {
-  struct Mustek_Scanner *next;
+  struct Scanner_Device * next;
 
+  const Scanner_Model * model;
+  SANE_String name;
+  SANE_Bool present;
+} Scanner_Device;
+
+typedef struct Scanner_Handle
+{
+  struct Scanner_Handle * next;
+
+  const Scanner_Model * model;
   SANE_Option_Descriptor opt[NUM_OPTIONS];
   Option_Value val[NUM_OPTIONS];
   SANE_Parameters params;
-  Scanner_Model model;
+
   Scanner_State state;
+
   SANE_Bool bIsScanning;
   SANE_Bool bIsReading;
   SANE_Word read_rows;		/* number of image lines left to read */
   SANE_Byte * scan_buf;
   SANE_Byte * scan_buf_start;
   SANE_Int scan_buf_len;
-} Mustek_Scanner;
+} Scanner_Handle;
 
 #endif

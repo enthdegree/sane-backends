@@ -130,7 +130,7 @@ SwitchBank (ASIC * chip, unsigned short reg)
   if (bank > SELECT_REGISTER_BANK2)
     {
       DBG (DBG_ERR, "invalid register %d\n", reg);
-      return SANE_STATUS_INVAL;
+      return SANE_STATUS_IO_ERROR;
     }
 
   if (chip->RegisterBankStatus != bank)
@@ -1783,18 +1783,21 @@ SetExtraSettings (ASIC * chip, unsigned short wXResolution,
 
 /* ---------------------- high level ASIC functions ------------------------ */
 
-/* HOLD: We don't want to have global vid/pids */
-static const unsigned short ProductID = 0x0409;
-static const unsigned short VendorID = 0x055f;
-
-SANE_String_Const device_name;
-
-static SANE_Status
-attach_one_scanner (SANE_String_Const devname)
+SANE_Status
+Asic_FindDevices (unsigned short wVendorID, unsigned short wProductID,
+		  SANE_Status (* attach) (SANE_String_Const devname))
 {
-  DBG (DBG_INFO, "attach_one_scanner: devname = %s\n", devname);
-  device_name = devname;
-  return SANE_STATUS_GOOD;
+  SANE_Status status;
+  DBG_ASIC_ENTER ();
+
+  sanei_usb_init ();
+  status = sanei_usb_find_devices (wVendorID, wProductID, attach);
+  if (status != SANE_STATUS_GOOD)
+    DBG (DBG_ERR, "sanei_usb_find_devices failed: %s\n",
+	 sane_strstatus (status));
+
+  DBG_ASIC_LEAVE ();
+  return status;
 }
 
 SANE_Status
@@ -1806,29 +1809,16 @@ Asic_Open (ASIC * chip)
   if (chip->firmwarestate > FS_OPENED)
     {
       DBG (DBG_ASIC, "chip already open, fd=%d\n", chip->fd);
-      return SANE_STATUS_INVAL;
+      return SANE_STATUS_DEVICE_BUSY;
     }
 
-  device_name = NULL;
   sanei_usb_init ();
-  status = sanei_usb_find_devices (VendorID, ProductID, attach_one_scanner);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "sanei_usb_find_devices failed: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-  if (!device_name)
-    {
-      DBG (DBG_ERR, "no scanner found\n");
-      return SANE_STATUS_INVAL;
-    }
 
-  status = sanei_usb_open (device_name, &chip->fd);
+  status = sanei_usb_open (chip->device_name, &chip->fd);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_ERR, "sanei_usb_open of %s failed: %s\n",
-	   device_name, sane_strstatus (status));
+	   chip->device_name, sane_strstatus (status));
       return status;
     }
 
@@ -1869,7 +1859,7 @@ Asic_Open (ASIC * chip)
       return status;
     }
 
-  DBG (DBG_INFO, "device %s successfully opened\n", device_name);
+  DBG (DBG_INFO, "device %s successfully opened\n", chip->device_name);
   DBG_ASIC_LEAVE ();
   return SANE_STATUS_GOOD;
 }
@@ -1927,10 +1917,15 @@ Asic_TurnLamp (ASIC * chip, SANE_Bool isLampOn)
 {
   DBG_ASIC_ENTER ();
 
-  if (chip->firmwarestate != FS_OPENED)
+  if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ERR, "scanner is busy or not open\n");
-      return SANE_STATUS_INVAL;
+      DBG (DBG_ERR, "scanner is not open\n");
+      return SANE_STATUS_CANCELLED;
+    }
+  if (chip->firmwarestate > FS_OPENED)
+    {
+      DBG (DBG_ERR, "scanner is busy\n");
+      return SANE_STATUS_DEVICE_BUSY;
     }
 
   SendData (chip, ES01_99_LAMP_PWM_FREQ_CONTROL, 1);
@@ -1948,10 +1943,15 @@ Asic_TurnTA (ASIC * chip, SANE_Bool isTAOn)
 {
   DBG_ASIC_ENTER ();
 
-  if (chip->firmwarestate != FS_OPENED)
+  if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ERR, "scanner is busy or not open\n");
-      return SANE_STATUS_INVAL;
+      DBG (DBG_ERR, "scanner is not open\n");
+      return SANE_STATUS_CANCELLED;
+    }
+  if (chip->firmwarestate > FS_OPENED)
+    {
+      DBG (DBG_ERR, "scanner is busy\n");
+      return SANE_STATUS_DEVICE_BUSY;
     }
 
   SendData (chip, ES01_99_LAMP_PWM_FREQ_CONTROL, 1);
@@ -2065,10 +2065,15 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
        lsLightSource, ScanType, bScanBits, wXResolution, wYResolution, wX, wY,
        wWidth, wHeight);
 
-  if (chip->firmwarestate != FS_OPENED)
+  if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ERR, "scanner is busy or not open\n");
-      return SANE_STATUS_INVAL;
+      DBG (DBG_ERR, "scanner is not open\n");
+      return SANE_STATUS_CANCELLED;
+    }
+  if (chip->firmwarestate > FS_OPENED)
+    {
+      DBG (DBG_ERR, "scanner is busy\n");
+      return SANE_STATUS_DEVICE_BUSY;
     }
 
   status = PrepareScanChip (chip);
@@ -2126,8 +2131,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 	    MOTOR1_SERIAL_INTERFACE_G10_8_ENABLE);
 
   SendData (chip, ES01_9A_AFEControl, AD9826_AFE);
-  if (ScanType == SCAN_TYPE_NORMAL)
-    SetAFEGainOffset (chip);
+  SetAFEGainOffset (chip);
   SendData (chip, ES01_DB_PH_RESET_EDGE_TIMING_ADJUST, 0x00);
   SendData (chip, ES01_DC_CLEAR_EDGE_TO_PH_TG_EDGE_WIDTH, 0);
   SendData (chip, ES01_00_ADAFEConfiguration, 0x70);
@@ -2189,19 +2193,19 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
     SendData (chip, ES01_F8_WHITE_SHADING_DATA_FORMAT,
 	      SHADING_4_INT_12_DEC_ES01);
 
-  SetPackAddress (chip, wWidth, wX, XRatioAdderDouble,
-		  XRatioTypeDouble, 0, &ValidPixelNumber);
-  SetExtraSettings (chip, wXResolution, wCCD_PixelNumber,
-		    (ScanType == SCAN_TYPE_NORMAL) ? SANE_FALSE : SANE_TRUE);
+  SetPackAddress (chip, wWidth, wX, XRatioAdderDouble, XRatioTypeDouble, 0,
+		  &ValidPixelNumber);
 
   if (ScanType == SCAN_TYPE_NORMAL)
     {
+      SetExtraSettings (chip, wXResolution, wCCD_PixelNumber, SANE_FALSE);
       SetMotorStepTable (chip, &pMotorStepsTable, wY,
 			 wHeight * SENSOR_DPI / wYResolution * wMultiMotorStep,
 			 wYResolution);
     }
   else
     {
+      SetExtraSettings (chip, wXResolution, wCCD_PixelNumber, SANE_TRUE);
       SetMotorStepTableForCalibration (chip, &pMotorStepsTable,
 			 wHeight * SENSOR_DPI / wYResolution * wMultiMotorStep);
     }
@@ -2271,17 +2275,20 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   CalMotorTable.AccStepBeforeScan = pMotorStepsTable.wScanAccSteps;
   CalMotorTable.DecStepAfterScan = pMotorStepsTable.bScanDecSteps;
   CalMotorTable.pMotorTable = pMotorTable;
-  if (ScanType == SCAN_TYPE_NORMAL)
-    CalculateScanMotorTable (&CalMotorTable);
-  else
-    CalculateMoveMotorTable (&CalMotorTable);
 
   CurrentPhase.MoveType = bMotorMoveType;
   CurrentPhase.MotorDriverIs3967 = 0;
+
   if (ScanType == SCAN_TYPE_NORMAL)
-    CurrentPhase.MotorCurrent = CalculateMotorCurrent (EndSpeed);
+    {
+      CalculateScanMotorTable (&CalMotorTable);
+      CurrentPhase.MotorCurrent = CalculateMotorCurrent (EndSpeed);
+    }
   else
-    CurrentPhase.MotorCurrent = 200;
+    {
+      CalculateMoveMotorTable (&CalMotorTable);
+      CurrentPhase.MotorCurrent = 200;
+    }
   SetMotorCurrentAndPhase (chip, &CurrentPhase);
 
   DBG (DBG_ASIC, "MotorCurrent=%d,LinePixelReport=%d\n",
@@ -2335,10 +2342,15 @@ Asic_ScanStart (ASIC * chip)
   SANE_Status status;
   DBG_ASIC_ENTER ();
 
-  if (chip->firmwarestate != FS_OPENED)
+  if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ERR, "scanner is busy or not open\n");
-      return SANE_STATUS_INVAL;
+      DBG (DBG_ERR, "scanner is not open\n");
+      return SANE_STATUS_CANCELLED;
+    }
+  if (chip->firmwarestate > FS_OPENED)
+    {
+      DBG (DBG_ERR, "scanner is busy\n");
+      return SANE_STATUS_DEVICE_BUSY;
     }
 
   status = GetChipStatus(chip, 0x1c | 0x20, NULL);
@@ -2367,7 +2379,7 @@ Asic_ScanStop (ASIC * chip)
   if (chip->firmwarestate < FS_OPENED)
     {
       DBG (DBG_ERR, "scanner is not open\n");
-      return SANE_STATUS_INVAL;
+      return SANE_STATUS_CANCELLED;
     }
   if (chip->firmwarestate < FS_SCANNING)
     return SANE_STATUS_GOOD;
@@ -2419,7 +2431,7 @@ Asic_ReadImage (ASIC * chip, SANE_Byte * pBuffer, unsigned short LinesCount)
   if (chip->firmwarestate != FS_SCANNING)
     {
       DBG (DBG_ERR, "scanner is not scanning\n");
-      return SANE_STATUS_INVAL;
+      return SANE_STATUS_CANCELLED;
     }
 
   dwXferBytes = (unsigned int) LinesCount * chip->dwBytesCountPerRow;
@@ -2442,10 +2454,15 @@ Asic_CheckFunctionKey (ASIC * chip, SANE_Byte * key)
   SANE_Byte bBuffer_1, bBuffer_2;
   DBG_ASIC_ENTER ();
 
-  if (chip->firmwarestate != FS_OPENED)
+  if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ERR, "scanner is busy or not open\n");
-      return SANE_STATUS_INVAL;
+      DBG (DBG_ERR, "scanner is not open\n");
+      return SANE_STATUS_CANCELLED;
+    }
+  if (chip->firmwarestate > FS_OPENED)
+    {
+      DBG (DBG_ERR, "scanner is busy\n");
+      return SANE_STATUS_DEVICE_BUSY;
     }
 
   SendData (chip, ES01_97_GPIOControl0_7, 0x00);
@@ -2488,10 +2505,15 @@ Asic_IsTAConnected (ASIC * chip, SANE_Bool * hasTA)
   SANE_Byte bBuffer_1 = 0xff;
   DBG_ASIC_ENTER ();
 
-  if (chip->firmwarestate != FS_OPENED)
+  if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ERR, "scanner is busy or not open\n");
-      return SANE_STATUS_INVAL;
+      DBG (DBG_ERR, "scanner is not open\n");
+      return SANE_STATUS_CANCELLED;
+    }
+  if (chip->firmwarestate > FS_OPENED)
+    {
+      DBG (DBG_ERR, "scanner is busy\n");
+      return SANE_STATUS_DEVICE_BUSY;
     }
 
   SendData (chip, ES01_97_GPIOControl0_7, 0x00);
@@ -2523,7 +2545,7 @@ Asic_ReadCalibrationData (ASIC * chip, SANE_Byte * pBuffer,
   if (chip->firmwarestate != FS_SCANNING)
     {
       DBG (DBG_ERR, "scanner is not scanning\n");
-      return SANE_STATUS_INVAL;
+      return SANE_STATUS_CANCELLED;
     }
 
   if (separateColors)
@@ -2585,10 +2607,15 @@ Asic_MotorMove (ASIC * chip, SANE_Bool isForward, unsigned int dwTotalSteps)
   SANE_Byte bActionType;
   DBG_ASIC_ENTER ();
 
-  if (chip->firmwarestate != FS_OPENED)
+  if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ERR, "scanner is busy or not open\n");
-      return SANE_STATUS_INVAL;
+      DBG (DBG_ERR, "scanner is not open\n");
+      return SANE_STATUS_CANCELLED;
+    }
+  if (chip->firmwarestate > FS_OPENED)
+    {
+      DBG (DBG_ERR, "scanner is busy\n");
+      return SANE_STATUS_DEVICE_BUSY;
     }
 
   bActionType = isForward ? ACTION_TYPE_FORWARD : ACTION_TYPE_BACKWARD;
@@ -2606,10 +2633,15 @@ Asic_CarriageHome (ASIC * chip)
   SANE_Bool LampHome;
   DBG_ASIC_ENTER ();
 
-  if (chip->firmwarestate != FS_OPENED)
+  if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ERR, "scanner is busy or not open\n");
-      return SANE_STATUS_INVAL;
+      DBG (DBG_ERR, "scanner is not open\n");
+      return SANE_STATUS_CANCELLED;
+    }
+  if (chip->firmwarestate > FS_OPENED)
+    {
+      DBG (DBG_ERR, "scanner is busy\n");
+      return SANE_STATUS_DEVICE_BUSY;
     }
 
   status = IsCarriageHome (chip, &LampHome);
@@ -2634,10 +2666,15 @@ Asic_SetShadingTable (ASIC * chip, unsigned short * pWhiteShading,
   double dbXRatioAdderDouble;
   DBG_ASIC_ENTER ();
 
-  if (chip->firmwarestate != FS_OPENED)
+  if (chip->firmwarestate < FS_OPENED)
     {
-      DBG (DBG_ERR, "scanner is busy or not open\n");
-      return SANE_STATUS_INVAL;
+      DBG (DBG_ERR, "scanner is not open\n");
+      return SANE_STATUS_CANCELLED;
+    }
+  if (chip->firmwarestate > FS_OPENED)
+    {
+      DBG (DBG_ERR, "scanner is busy\n");
+      return SANE_STATUS_DEVICE_BUSY;
     }
 
   if (wXResolution > (SENSOR_DPI / 2))

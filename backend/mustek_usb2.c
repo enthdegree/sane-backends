@@ -138,7 +138,7 @@ static const Scanner_Model mustek_A2nu2_model = {
 static void
 calc_parameters (Mustek_Scanner * s, TARGETIMAGE * pTarget)
 {
-  SANE_String val, val_source;
+  SANE_String val;
   float x1, y1, x2, y2;
   DBG_ENTER ();
 
@@ -160,11 +160,11 @@ calc_parameters (Mustek_Scanner * s, TARGETIMAGE * pTarget)
 
   pTarget->wLineartThreshold = s->val[OPT_THRESHOLD].w;
 
-  val_source = s->val[OPT_SOURCE].s;
-  DBG (DBG_DET, "scan source = %s\n", val_source);
-  if (strcmp (val_source, source_list[SS_POSITIVE]) == 0)
+  val = s->val[OPT_SOURCE].s;
+  DBG (DBG_DET, "scan source = %s\n", val);
+  if (strcmp (val, source_list[SS_POSITIVE]) == 0)
     pTarget->ssScanSource = SS_POSITIVE;
-  else if (strcmp (val_source, source_list[SS_NEGATIVE]) == 0)
+  else if (strcmp (val, source_list[SS_NEGATIVE]) == 0)
     pTarget->ssScanSource = SS_NEGATIVE;
   else
     pTarget->ssScanSource = SS_REFLECTIVE;
@@ -579,8 +579,8 @@ SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
 		     SANE_Action action, void *val, SANE_Int * info)
 {
-  Mustek_Scanner *s = handle;
   SANE_Status status;
+  Mustek_Scanner *s = handle;
   SANE_Word cap;
   SANE_Int myinfo = 0;
   TARGETIMAGE target;
@@ -590,9 +590,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	 (action == SANE_ACTION_SET_VALUE) ? "set" :
 	   (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown",
        s->opt[option].name, option);
-
-  if (info)
-    *info = 0;
 
   if (s->bIsScanning)
     {
@@ -641,17 +638,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BUTTON_3:
 	case OPT_BUTTON_4:
 	case OPT_BUTTON_5:
-	  if ((option - OPT_BUTTON_1) < s->model.buttons)
-	    {
-	      update_button_status (s);
-	      *(SANE_Bool *) val = s->val[option].b;
-	      s->val[option].b = SANE_FALSE;
-	    }
-	  else
-	    {
-	      DBG (DBG_WARN, "invalid button option %d\n", option);
-	      *(SANE_Bool *) val = SANE_FALSE;
-	    }
+	  update_button_status (s);
+	  *(SANE_Bool *) val = s->val[option].b;
+	  s->val[option].b = SANE_FALSE;
 	  break;
 	default:
 	  DBG (DBG_ERR, "unknown option %d\n", option);
@@ -741,15 +730,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	default:
 	  DBG (DBG_ERR, "unknown option %d\n", option);
 	}
+
+      if (info)
+	*info = myinfo;
     }
   else
     {
       DBG (DBG_ERR, "unknown action %d for option %d\n", action, option);
       return SANE_STATUS_INVAL;
     }
-
-  if (info)
-    *info = myinfo;
 
   DBG_LEAVE ();
   return SANE_STATUS_GOOD;
@@ -789,12 +778,7 @@ sane_start (SANE_Handle handle)
       return SANE_FALSE;
     }
  
-  status = Scanner_Reset (&s->state);
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
   calc_parameters (s, &target);
-
   DBG (DBG_INFO, "target.wX=%d\n", target.wX);
   DBG (DBG_INFO, "target.wY=%d\n", target.wY);
   DBG (DBG_INFO, "target.wWidth=%d\n", target.wWidth);
@@ -817,6 +801,10 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_NO_MEM;
   s->scan_buf_len = 0;
 
+  status = Scanner_Reset (&s->state);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+
   if (target.ssScanSource == SS_REFLECTIVE)
     status = Scanner_PowerControl (&s->state, SANE_TRUE, SANE_FALSE);
   else
@@ -836,18 +824,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 {
   SANE_Status status;
   Mustek_Scanner *s = handle;
-  SANE_Byte *tempbuf;
-  long int tempbuf_size;
-  SANE_Int lines, lines_read;
-  unsigned short lines_received;
+  unsigned short lines;
+  SANE_Int bytes_read;
   DBG_ENTER ();
   DBG (DBG_FUNC, "max_len=%d\n", max_len);
-
-  if (!buf || !len)
-    {
-      DBG (DBG_ERR, "output parameter is null!\n");
-      return SANE_STATUS_INVAL;
-    }
 
   *len = 0;
 
@@ -858,7 +838,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       return SANE_STATUS_CANCELLED;
     }
 
-  DBG (DBG_DBG, "before read data, read_row=%d\n", s->read_rows);
+  DBG (DBG_DBG, "before read data, read_rows=%d\n", s->read_rows);
   if (s->scan_buf_len == 0)
     {
       if (s->read_rows > 0)
@@ -866,16 +846,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  lines = SCAN_BUFFER_SIZE / s->params.bytes_per_line;
 	  lines = _MIN (lines, s->read_rows);
 
-	  tempbuf_size = lines * s->params.bytes_per_line + 3 * 1024 + 1;
-	  tempbuf = malloc (tempbuf_size);
-	  if (!tempbuf)
-	    return SANE_STATUS_NO_MEM;
-	  memset (tempbuf, 0, tempbuf_size);
-	  DBG (DBG_INFO, "buffer size is %ld\n", tempbuf_size);
-
 	  s->bIsReading = SANE_TRUE;
-	  lines_received = (unsigned short) lines;
-	  status = Scanner_GetRows (&s->state, tempbuf, &lines_received,
+	  status = Scanner_GetRows (&s->state, s->scan_buf, &lines,
 				    s->model.isRGBInvert);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -883,20 +855,17 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	      return status;
 	    }
 
-	  s->scan_buf_len = lines_received * s->params.bytes_per_line;
-	  DBG (DBG_INFO, "scan_buf_len=%ld\n", (long int) s->scan_buf_len);
+	  s->scan_buf_len = lines * s->params.bytes_per_line;
+	  DBG (DBG_INFO, "scan_buf_len=%d\n", s->scan_buf_len);
 
-	  memcpy (s->scan_buf, tempbuf, s->scan_buf_len);
 	  if (s->scan_buf_len < SCAN_BUFFER_SIZE)
 	    {
 	      memset (s->scan_buf + s->scan_buf_len, 0,
 		      SCAN_BUFFER_SIZE - s->scan_buf_len);
 	    }
 
-	  DBG (DBG_DBG, "after memcpy\n");
-	  free (tempbuf);
 	  s->scan_buf_start = s->scan_buf;
-	  s->read_rows -= lines_received;
+	  s->read_rows -= lines;
 	  s->bIsReading = SANE_FALSE;
 	}
       else
@@ -912,13 +881,13 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	}
     }
 
-  lines_read = _MIN (max_len, s->scan_buf_len);
-  DBG (DBG_DBG, "lines_read=%d\n", lines_read);
-  *len = lines_read;
+  bytes_read = _MIN (max_len, s->scan_buf_len);
+  DBG (DBG_DBG, "bytes_read=%d\n", bytes_read);
+  *len = bytes_read;
 
-  memcpy (buf, s->scan_buf_start, lines_read);
-  s->scan_buf_len -= lines_read;
-  s->scan_buf_start += lines_read;
+  memcpy (buf, s->scan_buf_start, bytes_read);
+  s->scan_buf_len -= bytes_read;
+  s->scan_buf_start += bytes_read;
 
   DBG_LEAVE ();
   return SANE_STATUS_GOOD;
@@ -951,7 +920,6 @@ sane_cancel (SANE_Handle handle)
 
       free (s->scan_buf);
       s->scan_buf = NULL;
-      s->scan_buf_start = NULL;
       s->read_rows = 0;
       s->scan_buf_len = 0;
     }
@@ -964,10 +932,11 @@ sane_cancel (SANE_Handle handle)
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle __sane_unused__ handle,
-		  SANE_Bool __sane_unused__ non_blocking)
+sane_set_io_mode (SANE_Handle __sane_unused__ handle, SANE_Bool non_blocking)
 {
-  return SANE_STATUS_UNSUPPORTED;
+  if (non_blocking)
+    return SANE_STATUS_UNSUPPORTED;
+  return SANE_STATUS_GOOD;
 }
 
 SANE_Status

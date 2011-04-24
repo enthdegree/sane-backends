@@ -66,7 +66,7 @@
 
 static Scanner_Handle * first_handle = NULL;
 static Scanner_Device * first_device = NULL;
-static SANE_Device ** devlist;
+static SANE_Device ** devlist = NULL;
 
 static const SANE_Range u8_range = {
   0,	/* minimum */
@@ -563,6 +563,8 @@ static void
 free_devlist (void)
 {
   SANE_Device ** devlist_ptr;
+  if (!devlist)
+    return;
   for (devlist_ptr = devlist; *devlist_ptr; devlist_ptr++)
     free (*devlist_ptr);
   free (devlist);

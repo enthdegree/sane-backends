@@ -805,9 +805,6 @@ sane_start (SANE_Handle handle)
   DBG (DBG_INFO, "target.cmColorMode=%d\n", target.cmColorMode);
   DBG (DBG_INFO, "target.ssScanSource=%d\n", target.ssScanSource);
 
-  /* TODO: move to mustek_usb2_high */
-  s->bInvertImage = ((target.cmColorMode == CM_TEXT) ^
-		     (target.ssScanSource == SS_NEGATIVE));
   s->read_rows = s->params.lines;
   DBG (DBG_INFO, "read_rows=%d\n", s->read_rows);
 
@@ -843,7 +840,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   long int tempbuf_size;
   SANE_Int lines, lines_read;
   unsigned short lines_received;
-  int i;
   DBG_ENTER ();
   DBG (DBG_FUNC, "max_len=%d\n", max_len);
 
@@ -885,12 +881,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	    {
 	      s->bIsReading = SANE_FALSE;
 	      return status;
-	    }
-
-	  if (s->bInvertImage)
-	    {
-	      for (i = 0; i < (lines_received * s->params.bytes_per_line); i++)
-		tempbuf[i] ^= 0xff;
 	    }
 
 	  s->scan_buf_len = lines_received * s->params.bytes_per_line;

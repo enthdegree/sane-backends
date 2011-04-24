@@ -670,7 +670,7 @@ GetMono1BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 
   for (i = 0; i < st->SWWidth; i++)
     {
-      if (st->pReadImageHead[wLinePos + i] > st->Target.wLineartThreshold)
+      if (st->pReadImageHead[wLinePos + i] <= st->Target.wLineartThreshold)
 	pLine[i / 8] |= 0x80 >> (i % 8);
     }
 }
@@ -703,11 +703,11 @@ GetMono1BitLineFull (Scanner_State * st, SANE_Byte * pLine,
       if ((i + 1) >= st->SWWidth)
 	break;
 
-      if (st->pReadImageHead[wLinePosOdd + i] > st->Target.wLineartThreshold)
+      if (st->pReadImageHead[wLinePosOdd + i] <= st->Target.wLineartThreshold)
 	pLine[i / 8] |= 0x80 >> (i % 8);
       i++;
 
-      if (st->pReadImageHead[wLinePosEven + i] > st->Target.wLineartThreshold)
+      if (st->pReadImageHead[wLinePosEven + i] <= st->Target.wLineartThreshold)
 	pLine[i / 8] |= 0x80 >> (i % 8);
       i++;
     }
@@ -857,13 +857,13 @@ ReadDataFromScanner (void * param)
 
 static SANE_Status
 GetLine (Scanner_State * st, SANE_Byte * pLine, unsigned short * wLinesCount,
-	 unsigned int dwLineIncrement,
 	 void (* pFunc)(Scanner_State *, SANE_Byte *, SANE_Bool),
 	 SANE_Bool isOrderInvert, SANE_Bool fixEvenOdd)
 {
   unsigned short wWantedTotalLines;
   unsigned short TotalXferLines = 0;
   SANE_Byte * pFirstLine = pLine;
+  unsigned int i;
   DBG_ENTER ();
 
   wWantedTotalLines = *wLinesCount;
@@ -893,7 +893,7 @@ GetLine (Scanner_State * st, SANE_Byte * pLine, unsigned short * wLinesCount,
 
 	  TotalXferLines++;
 	  st->dwTotalTotalXferLines++;
-	  pLine += dwLineIncrement;
+	  pLine += st->SWBytesPerRow;
 	  AddReadyLines (st);
 	}
 
@@ -915,7 +915,6 @@ GetLine (Scanner_State * st, SANE_Byte * pLine, unsigned short * wLinesCount,
 	  st->pBefLineImageData = malloc (st->SWBytesPerRow);
 	  if (!st->pBefLineImageData)
 	    return SANE_STATUS_NO_MEM;
-	  memset (st->pBefLineImageData, 0, st->SWBytesPerRow);
 	  memcpy (st->pBefLineImageData, pFirstLine, st->SWBytesPerRow);
 	  st->bIsFirstReadBefData = SANE_FALSE;
 	  st->dwAlreadyGetLines = 0;
@@ -936,6 +935,12 @@ GetLine (Scanner_State * st, SANE_Byte * pLine, unsigned short * wLinesCount,
 	}
     }
 
+  if (st->Target.ssScanSource == SS_NEGATIVE)
+    {
+      for (i = 0; i < (*wLinesCount * st->SWBytesPerRow); i++)
+	pFirstLine[i] ^= 0xff;
+    }
+
   DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
@@ -945,7 +950,6 @@ Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
 		 unsigned short * pNumRows, SANE_Bool isOrderInvert)
 {
   SANE_Status status;
-  unsigned int dwLineIncrement = st->SWBytesPerRow;
   SANE_Bool fixEvenOdd = SANE_FALSE;
   void (* pFunc)(Scanner_State *, SANE_Byte *, SANE_Bool) = NULL;
   DBG_ENTER ();
@@ -997,7 +1001,7 @@ Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
       break;
 
     case CM_TEXT:
-      memset (pBlock, 0, *pNumRows * dwLineIncrement);
+      memset (pBlock, 0, *pNumRows * st->SWBytesPerRow);
       if (st->Target.wXDpi == SENSOR_DPI)
 	pFunc = GetMono1BitLineFull;
       else
@@ -1005,8 +1009,7 @@ Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
       break;
     }
 
-  status = GetLine (st, pBlock, pNumRows, dwLineIncrement, pFunc, isOrderInvert,
-		    fixEvenOdd);
+  status = GetLine (st, pBlock, pNumRows, pFunc, isOrderInvert, fixEvenOdd);
 
   DBG_LEAVE ();
   return status;

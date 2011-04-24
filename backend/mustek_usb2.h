@@ -129,7 +129,6 @@ typedef struct Mustek_Scanner
   Scanner_State state;
   SANE_Bool bIsScanning;
   SANE_Bool bIsReading;
-  SANE_Bool bInvertImage;
   SANE_Word read_rows;		/* number of image lines left to read */
   SANE_Byte * scan_buf;
   SANE_Byte * scan_buf_start;

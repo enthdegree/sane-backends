@@ -103,6 +103,8 @@ typedef struct
   unsigned short vendor_id;
   unsigned short product_id;
 
+  const ASIC_ModelParams * asic_params;
+
   /** @name Scanner model parameters */
   /*@{ */
   SANE_Word dpi_values[MAX_RESOLUTIONS];	/* possible resolutions */

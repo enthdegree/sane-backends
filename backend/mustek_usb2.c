@@ -102,6 +102,8 @@ static const Scanner_Model models[] = {
 
     0x055f, 0x0409, /* USB vendor and product ID */
 
+    &paramsMustekBP2448TAPro,
+
     {5 /* count */, 1200, 600, 300, 150, 75}, /* possible resolutions */
 
     /* x and y size of scan area in mm */
@@ -133,6 +135,8 @@ static const Scanner_Model models[] = {
     "4800H48U", /* device model name */
 
     0x05da, 0x3025, /* USB vendor and product ID */
+
+    &paramsMicrotek4800H48U,
 
     {5 /* count */, 1200, 600, 300, 150, 75}, /* possible resolutions */
 
@@ -678,6 +682,7 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
   memset (s, 0, sizeof (*s));
   s->model = device->model;
   s->state.chip.device_name = device->name;
+  s->state.chip.params = device->model->asic_params;
 
   Scanner_Init (&s->state);
 

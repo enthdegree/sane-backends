@@ -150,6 +150,11 @@ typedef struct
 
 typedef struct
 {
+  SANE_Byte SDRAM_Delay;
+} ASIC_ModelParams;
+
+typedef struct
+{
   /* AFE */
   unsigned int AFE_ADCCLK_Timing;
   unsigned int AFE_ADCVS_Timing;
@@ -193,6 +198,8 @@ typedef struct
 {
   SANE_String_Const device_name;
   int fd;	/* file descriptor of scanner */
+
+  const ASIC_ModelParams * params;
 
   FIRMWARESTATE firmwarestate;
   SANE_Bool isFirstOpenChip;	/* == SANE_FALSE after first Asic_Open */
@@ -967,6 +974,8 @@ typedef struct
 #define		ES01_2CE_VALID_PIXEL_PARAMETER_OF_SEGMENT15	0x2CE
 #define		ES01_2CF_VALID_PIXEL_PARAMETER_OF_SEGMENT16	0x2CF
 
+extern const ASIC_ModelParams paramsMustekBP2448TAPro;
+extern const ASIC_ModelParams paramsMicrotek4800H48U;
 
 void SetAFEGainOffset (ASIC * chip);
 

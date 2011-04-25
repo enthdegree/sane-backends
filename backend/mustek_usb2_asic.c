@@ -63,6 +63,15 @@
 #include "mustek_usb2_asic.h"
 
 
+const ASIC_ModelParams paramsMustekBP2448TAPro = {
+  SDRAMCLK_DELAY_12_ns
+};
+
+const ASIC_ModelParams paramsMicrotek4800H48U = {
+  SDRAMCLK_DELAY_8_ns
+};
+
+
 static SANE_Status PrepareScanChip (ASIC * chip);
 static SANE_Status WaitCarriageHome (ASIC * chip);
 static SANE_Status WaitUnitReady (ASIC * chip);
@@ -399,7 +408,8 @@ RamAccess (ASIC * chip, RAMACCESS * access)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL, SDRAMCLK_DELAY_12_ns);
+  SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL,
+	    chip->params->SDRAM_Delay);
 
   if (access->IsWriteAccess)
     {
@@ -1836,7 +1846,8 @@ Asic_Open (ASIC * chip)
 	    USB_POWER_SAVE_ENABLE | USB_REMOTE_WAKEUP_ENABLE |
 	    LED_MODE_FLASH_SLOWLY);
   SendData (chip, ES01_86_DisableAllClockWhenIdle, 0);
-  SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL, SDRAMCLK_DELAY_12_ns);
+  SendData (chip, ES01_79_AFEMCLK_SDRAMCLK_DELAY_CONTROL,
+	    chip->params->SDRAM_Delay);
 
   /* SDRAM initialization sequence */
   SendData (chip, ES01_87_SDRAM_Timing, 0xf1);

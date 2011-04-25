@@ -457,8 +457,7 @@ SetMotorCurrentAndPhase (ASIC * chip,
 
   if (MotorCurrentAndPhase->MoveType == _4_TABLE_SPACE_FOR_FULL_STEP)
     {
-      SendData (chip, ES01_AB_PWM_CURRENT_CONTROL,
-		MOTOR_PWM_CURRENT_0 | MOTOR1_GPO_VALUE_0);
+      SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, MOTOR_PWM_CURRENT_0);
 
       for (i = 0; i < 4; i++)
 	{
@@ -472,8 +471,7 @@ SetMotorCurrentAndPhase (ASIC * chip,
     }
   else if (MotorCurrentAndPhase->MoveType == _8_TABLE_SPACE_FOR_1_DIV_2_STEP)
     {
-      SendData (chip, ES01_AB_PWM_CURRENT_CONTROL,
-		MOTOR_PWM_CURRENT_1 | MOTOR1_GPO_VALUE_0);
+      SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, MOTOR_PWM_CURRENT_1);
 
       for (i = 0; i < 8; i++)
 	{
@@ -487,8 +485,7 @@ SetMotorCurrentAndPhase (ASIC * chip,
     }
   else if (MotorCurrentAndPhase->MoveType == _16_TABLE_SPACE_FOR_1_DIV_4_STEP)
     {
-      SendData (chip, ES01_AB_PWM_CURRENT_CONTROL,
-		MOTOR_PWM_CURRENT_2 | MOTOR1_GPO_VALUE_0);
+      SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, MOTOR_PWM_CURRENT_2);
 
       for (i = 0; i < 16; i++)
 	{
@@ -503,8 +500,7 @@ SetMotorCurrentAndPhase (ASIC * chip,
     }
   else if (MotorCurrentAndPhase->MoveType == _32_TABLE_SPACE_FOR_1_DIV_8_STEP)
     {
-      SendData (chip, ES01_AB_PWM_CURRENT_CONTROL,
-		MOTOR_PWM_CURRENT_3 | MOTOR1_GPO_VALUE_0);
+      SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, MOTOR_PWM_CURRENT_3);
 
       for (i = 0; i < 32; i++)
 	{
@@ -1038,7 +1034,7 @@ InitTiming (ASIC * chip)
   chip->Timing.CCD_DummyCycleTiming = 0;
   chip->Timing.PHTG_PulseWidth = 12;
   chip->Timing.PHTG_WaitWidth = 1;
-  chip->Timing.PHTG_TimingAdj = 1;
+  chip->Timing.PHTG_TimingAdj = PHTG_INVERT_OUTPUT_ENABLE;
   chip->Timing.PHTG_TimingSetup = 0;
   chip->Timing.ChannelR_StartPixel = 100;
   chip->Timing.ChannelR_EndPixel = 200;

@@ -559,7 +559,7 @@ typedef struct
 		/* bit[0] */
 #define	PHTG_INVERT_OUTPUT_ENABLE		0x01
 		/* bit[1] */
-#define	TWO_TG					0x01
+#define	TWO_TG					0x02
 #define	MULTI_TG				0x00
 		/* bit[3:2] */
 #define	CCD_PIXEL_MODE_RED			0x0C
@@ -973,6 +973,7 @@ typedef struct
 #define		ES01_2CD_VALID_PIXEL_PARAMETER_OF_SEGMENT14	0x2CD
 #define		ES01_2CE_VALID_PIXEL_PARAMETER_OF_SEGMENT15	0x2CE
 #define		ES01_2CF_VALID_PIXEL_PARAMETER_OF_SEGMENT16	0x2CF
+
 
 extern const ASIC_ModelParams paramsMustekBP2448TAPro;
 extern const ASIC_ModelParams paramsMicrotek4800H48U;

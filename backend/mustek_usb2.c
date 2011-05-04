@@ -102,7 +102,7 @@ static const Scanner_Model models[] = {
 
     0x055f, 0x0409, /* USB vendor and product ID */
 
-    &paramsMustekBP2448TAPro,
+    &paramsMustekBP2448TAPro, /* model specific parameters for ASIC layer */
 
     {5 /* count */, 1200, 600, 300, 150, 75}, /* possible resolutions */
 
@@ -136,7 +136,7 @@ static const Scanner_Model models[] = {
 
     0x05da, 0x3025, /* USB vendor and product ID */
 
-    &paramsMicrotek4800H48U,
+    &paramsMicrotek4800H48U, /* model specific parameters for ASIC layer */
 
     {5 /* count */, 1200, 600, 300, 150, 75}, /* possible resolutions */
 

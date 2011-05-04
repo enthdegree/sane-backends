@@ -148,9 +148,13 @@ typedef struct
   SANE_Byte bScanDecSteps;
 } MOTORMOVE;
 
+struct ASIC;
+
 typedef struct
 {
   SANE_Byte SDRAM_Delay;
+  SANE_Status (* pSetMotorCurrentAndPhase) (struct ASIC *,
+					    MOTOR_CURRENT_AND_PHASE *);
 } ASIC_ModelParams;
 
 typedef struct
@@ -194,7 +198,7 @@ typedef struct
   SANE_Bool Direction[3];
 } ADConverter;
 
-typedef struct
+typedef struct ASIC
 {
   SANE_String_Const device_name;
   int fd;	/* file descriptor of scanner */

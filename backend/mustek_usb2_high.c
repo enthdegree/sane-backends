@@ -859,7 +859,7 @@ ReadDataFromScanner (void * param)
 
 static SANE_Status
 GetLine (Scanner_State * st, SANE_Byte * pLine, unsigned short * wLinesCount,
-	 void (* pFunc)(Scanner_State *, SANE_Byte *, SANE_Bool),
+	 void (* pFunc) (Scanner_State *, SANE_Byte *, SANE_Bool),
 	 SANE_Bool isOrderInvert, SANE_Bool fixEvenOdd)
 {
   unsigned short wWantedTotalLines;
@@ -953,7 +953,7 @@ Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
 {
   SANE_Status status;
   SANE_Bool fixEvenOdd = SANE_FALSE;
-  void (* pFunc)(Scanner_State *, SANE_Byte *, SANE_Bool) = NULL;
+  void (* pFunc) (Scanner_State *, SANE_Byte *, SANE_Bool) = NULL;
   DBG_ENTER ();
 
   if (!st->bOpened || !st->bPrepared)

@@ -83,11 +83,6 @@ static SANE_String_Const mode_list[] = {
   NULL
 };
 
-static SANE_String_Const negative_mode_list[] = {
-  SANE_I18N ("Color24"),
-  NULL
-};
-
 static SANE_String_Const source_list[] = {
   SANE_I18N ("Reflective"),
   SANE_I18N ("Positive"),
@@ -876,29 +871,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->val[option].s = strdup (val);
 	      if (strcmp (s->val[option].s, source_list[SS_REFLECTIVE]) == 0)
 		{
-		  s->opt[OPT_MODE].size = max_string_size (mode_list);
-		  s->opt[OPT_MODE].constraint.string_list = mode_list;
-		  s->val[OPT_MODE].s = strdup (mode_list[CM_RGB24]);
 		  s->opt[OPT_TL_X].constraint.range = &s->model->x_range;
 		  s->opt[OPT_TL_Y].constraint.range = &s->model->y_range;
 		  s->opt[OPT_BR_X].constraint.range = &s->model->x_range;
 		  s->opt[OPT_BR_Y].constraint.range = &s->model->y_range;
 		}
-	      else if (strcmp (s->val[option].s, source_list[SS_NEGATIVE]) == 0)
+	      else
 		{
-		  s->opt[OPT_MODE].size = max_string_size (negative_mode_list);
-		  s->opt[OPT_MODE].constraint.string_list = negative_mode_list;
-		  s->val[OPT_MODE].s = strdup (mode_list[CM_RGB24]);
-		  s->opt[OPT_TL_X].constraint.range = &s->model->x_range_ta;
-		  s->opt[OPT_TL_Y].constraint.range = &s->model->y_range_ta;
-		  s->opt[OPT_BR_X].constraint.range = &s->model->x_range_ta;
-		  s->opt[OPT_BR_Y].constraint.range = &s->model->y_range_ta;
-		}
-	      else if (strcmp (s->val[option].s, source_list[SS_POSITIVE]) == 0)
-		{
-		  s->opt[OPT_MODE].size = max_string_size (mode_list);
-		  s->opt[OPT_MODE].constraint.string_list = mode_list;
-		  s->val[OPT_MODE].s = strdup (mode_list[CM_RGB24]);
 		  s->opt[OPT_TL_X].constraint.range = &s->model->x_range_ta;
 		  s->opt[OPT_TL_Y].constraint.range = &s->model->y_range_ta;
 		  s->opt[OPT_BR_X].constraint.range = &s->model->x_range_ta;

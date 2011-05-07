@@ -62,6 +62,10 @@
 
 #include "mustek_usb2_high.h"
 
+#ifdef DEBUG_SAVE_IMAGE
+#include <stdio.h>
+#endif
+
 
 void
 Scanner_Init (Scanner_State * st)

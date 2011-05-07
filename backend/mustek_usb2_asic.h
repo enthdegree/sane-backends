@@ -238,6 +238,8 @@ typedef struct ASIC
 #define DBG_ASIC 	6	/* starts and exits of low level functions */
 #define DBG_DBG 	10	/* useful only for tracing bugs */
 
+#define DBG_DBG_ENTER()		DBG (DBG_DBG, "%s: enter\n", __FUNCTION__)
+#define DBG_DBG_LEAVE()		DBG (DBG_DBG, "%s: leave\n", __FUNCTION__)
 #define DBG_ASIC_ENTER()	DBG (DBG_ASIC, "%s: enter\n", __FUNCTION__)
 #define DBG_ASIC_LEAVE()	DBG (DBG_ASIC, "%s: leave\n", __FUNCTION__)
 #define DBG_ENTER()		DBG (DBG_FUNC, "%s: enter\n", __FUNCTION__)
@@ -434,6 +436,8 @@ typedef struct ASIC
 #define	CHIP_STRING_4				0x1D	/* 0x4E 'N' */
 #define	CHIP_STRING_5				0x1E	/* 0x30 '0' */
 #define	CHIP_STRING_6				0x1F	/* 0x31 '1' */
+/* On the Microtek 4800H48U, the chip string is 'ES03' and starts at offset
+   0x1C. */
 
 #define		ES01_8C_RestartMotorSynPixelNumberM16LSB	0x8C
 #define		ES01_8D_RestartMotorSynPixelNumberM16MSB	0x8D

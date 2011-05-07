@@ -119,7 +119,7 @@ ClearFIFO (ASIC * chip)
 {
   SANE_Status status;
   SANE_Byte buf[4];
-  DBG_ASIC_ENTER ();
+  DBG_DBG_ENTER ();
 
   buf[0] = 0;
   buf[1] = 0;
@@ -132,7 +132,7 @@ ClearFIFO (ASIC * chip)
 
   status = WriteIOControl (chip, 0xc0, 0, 4, buf);
 
-  DBG_ASIC_LEAVE ();
+  DBG_DBG_LEAVE ();
   return status;
 }
 
@@ -142,7 +142,7 @@ SwitchBank (ASIC * chip, unsigned short reg)
   SANE_Status status;
   SANE_Byte buf[4];
   SANE_Byte bank;
-  DBG_ASIC_ENTER ();
+  DBG_DBG_ENTER ();
 
   bank = HIBYTE(reg);
   if (bank > SELECT_REGISTER_BANK2)
@@ -162,10 +162,10 @@ SwitchBank (ASIC * chip, unsigned short reg)
 	return status;
 
       chip->RegisterBankStatus = bank;
-      DBG (DBG_ASIC, "RegisterBankStatus=%d\n", chip->RegisterBankStatus);
+      DBG (DBG_DBG, "RegisterBankStatus=%d\n", chip->RegisterBankStatus);
     }
 
-  DBG_ASIC_LEAVE ();
+  DBG_DBG_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
@@ -174,8 +174,8 @@ SendData (ASIC * chip, unsigned short reg, SANE_Byte data)
 {
   SANE_Status status;
   SANE_Byte buf[4];
-  DBG_ASIC_ENTER ();
-  DBG (DBG_ASIC, "reg=%x,data=%x\n", reg, data);
+  DBG_DBG_ENTER ();
+  DBG (DBG_DBG, "reg=%x,data=%x\n", reg, data);
 
   status = SwitchBank (chip, reg);
   if (status != SANE_STATUS_GOOD)
@@ -187,7 +187,7 @@ SendData (ASIC * chip, unsigned short reg, SANE_Byte data)
   buf[3] = data;
   status = WriteIOControl (chip, 0xb0, 0, 4, buf);
 
-  DBG_ASIC_LEAVE ();
+  DBG_DBG_LEAVE ();
   return status;
 }
 
@@ -196,12 +196,12 @@ ReceiveData (ASIC * chip, SANE_Byte * reg)
 {
   SANE_Status status;
   SANE_Byte buf[4];
-  DBG_ASIC_ENTER ();
+  DBG_DBG_ENTER ();
 
   status = ReadIOControl (chip, 0x07, 0, 4, buf);
   *reg = buf[0];
 
-  DBG_ASIC_LEAVE ();
+  DBG_DBG_LEAVE ();
   return status;
 }
 
@@ -210,7 +210,7 @@ WriteAddressLineForRegister (ASIC * chip, SANE_Byte x)
 {
   SANE_Status status;
   SANE_Byte buf[4];
-  DBG_ASIC_ENTER ();
+  DBG_DBG_ENTER ();
 
   buf[0] = x;
   buf[1] = x;
@@ -218,7 +218,7 @@ WriteAddressLineForRegister (ASIC * chip, SANE_Byte x)
   buf[3] = x;
   status = WriteIOControl (chip, 0x04, x, 4, buf);
 
-  DBG_ASIC_LEAVE ();
+  DBG_DBG_LEAVE ();
   return status;
 }
 
@@ -542,7 +542,7 @@ Mustek_SetMotorCurrentAndPhase (ASIC * chip,
 
 static SANE_Status
 Microtek_SetMotorCurrentAndPhase (ASIC * chip,
-				  MOTOR_CURRENT_AND_PHASE * MotorCurrentAndPhase)
+				  MOTOR_CURRENT_AND_PHASE *MotorCurrentAndPhase)
 {
   int i;
   DBG_ASIC_ENTER ();
@@ -1235,7 +1235,12 @@ TestDRAM (ASIC * chip)
 
   memset (buf, 0, sizeof (buf));
 
+  /* RamAccess may have modified the parameter structure. */
   access.IsWriteAccess = SANE_FALSE;
+  access.RamType = EXTERNAL_RAM;
+  access.StartAddress = 0;
+  access.RwSize = sizeof (buf);
+  access.BufferPtr = buf;
 
   status = RamAccess (chip, &access);
   if (status != SANE_STATUS_GOOD)
@@ -1245,7 +1250,7 @@ TestDRAM (ASIC * chip)
     {
       if (buf[i] != i)
 	{
-	  DBG (DBG_ERR, "DRAM test error at offset %d\n", i);
+	  DBG (DBG_ERR, "DRAM test error at offset %d (0x%x)\n", i, buf[i]);
 	  return SANE_STATUS_IO_ERROR;
 	}
     }

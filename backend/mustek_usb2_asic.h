@@ -436,8 +436,10 @@ typedef struct ASIC
 #define	CHIP_STRING_4				0x1D	/* 0x4E 'N' */
 #define	CHIP_STRING_5				0x1E	/* 0x30 '0' */
 #define	CHIP_STRING_6				0x1F	/* 0x31 '1' */
-/* On the Microtek 4800H48U, the chip string is 'ES03' and starts at offset
-   0x1C. */
+/* Wraps around after offset 0x1F. */
+/* On a Microtek 4800H48U, offsets CHIP_STATUS_A and CHIP_STRING_0 to 2 have
+   been repurposed and contain the values 0x90, 0xff, 0xff, 0xaa after
+   initialization. The chip string is 'ES03' and starts at offset 0x1C. */
 
 #define		ES01_8C_RestartMotorSynPixelNumberM16LSB	0x8C
 #define		ES01_8D_RestartMotorSynPixelNumberM16MSB	0x8D

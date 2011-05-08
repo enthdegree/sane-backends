@@ -68,19 +68,45 @@ static SANE_Status WaitCarriageHome (ASIC * chip);
 static SANE_Status WaitUnitReady (ASIC * chip);
 
 static SANE_Status Mustek_SetMotorCurrentAndPhase (
-	ASIC * chip, MOTOR_CURRENT_AND_PHASE * MotorCurrentAndPhase);
+	ASIC * chip, SANE_Byte MoveType, SANE_Byte MotorCurrent);
 static SANE_Status Microtek_SetMotorCurrentAndPhase (
-	ASIC * chip, MOTOR_CURRENT_AND_PHASE * MotorCurrentAndPhase);
+	ASIC * chip, SANE_Byte MoveType, SANE_Byte MotorCurrent);
+static void Mustek_CalculateScanMotorTable (
+	CALCULATEMOTORTABLE * pCalculateMotorTable);
+static void Mustek_CalculateMoveMotorTable (
+	CALCULATEMOTORTABLE * pCalculateMotorTable);
+static void Microtek_CalculateMoveMotorTable (
+	CALCULATEMOTORTABLE * pCalculateMotorTable);
 
 
 const ASIC_ModelParams paramsMustekBP2448TAPro = {
   SDRAMCLK_DELAY_12_ns,
-  Mustek_SetMotorCurrentAndPhase
+  _4_TABLE_SPACE_FOR_FULL_STEP,
+  200,
+  SANE_FALSE,
+  TABLE_DEFINE_ES03,
+
+  5000,
+  1200,
+
+  Mustek_SetMotorCurrentAndPhase,
+  Mustek_CalculateScanMotorTable,
+  Mustek_CalculateMoveMotorTable
 };
 
 const ASIC_ModelParams paramsMicrotek4800H48U = {
   SDRAMCLK_DELAY_8_ns,
-  Microtek_SetMotorCurrentAndPhase
+  _8_TABLE_SPACE_FOR_1_DIV_2_STEP,
+  150,
+  SANE_FALSE,
+  BIPOLAR_3967_ES03,
+
+  5690,
+  600,
+
+  Microtek_SetMotorCurrentAndPhase,
+  Mustek_CalculateScanMotorTable,  /* TODO */
+  Microtek_CalculateMoveMotorTable
 };
 
 
@@ -448,14 +474,14 @@ static const SANE_Byte MotorPhaseHalfStep[] =
   { 0x25, 0x07, 0x24, 0x30, 0x2c, 0x0e, 0x2d, 0x39 };
 
 static SANE_Status
-Mustek_SetMotorCurrentAndPhase (ASIC * chip,
-				MOTOR_CURRENT_AND_PHASE * MotorCurrentAndPhase)
+Mustek_SetMotorCurrentAndPhase (ASIC * chip, SANE_Byte MoveType,
+				SANE_Byte MotorCurrent)
 {
   SANE_Byte MotorPhaseMask;
   int i;
   DBG_ASIC_ENTER ();
 
-  if (MotorCurrentAndPhase->MotorDriverIs3967 == 1)
+  if (chip->params->MotorDriverIs3967)
     MotorPhaseMask = 0xFE;
   else
     MotorPhaseMask = 0xFF;
@@ -463,35 +489,31 @@ Mustek_SetMotorCurrentAndPhase (ASIC * chip,
 
   SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL, DOWN_LOAD_MOTOR_TABLE_ENABLE);
 
-  if (MotorCurrentAndPhase->MoveType == _4_TABLE_SPACE_FOR_FULL_STEP)
+  if (MoveType == _4_TABLE_SPACE_FOR_FULL_STEP)
     {
       SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, MOTOR_PWM_CURRENT_0);
 
       for (i = 0; i < 4; i++)
 	{
-	  SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-			 MotorCurrentAndPhase->MotorCurrent);
-	  SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-			 MotorCurrentAndPhase->MotorCurrent);
+	  SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A, MotorCurrent);
+	  SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B, MotorCurrent);
 	  SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 			 MotorPhaseFullStep[i] & MotorPhaseMask);
 	}
     }
-  else if (MotorCurrentAndPhase->MoveType == _8_TABLE_SPACE_FOR_1_DIV_2_STEP)
+  else if (MoveType == _8_TABLE_SPACE_FOR_1_DIV_2_STEP)
     {
       SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, MOTOR_PWM_CURRENT_1);
 
       for (i = 0; i < 8; i++)
 	{
-	  SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
-			 MotorCurrentAndPhase->MotorCurrent);
-	  SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
-			 MotorCurrentAndPhase->MotorCurrent);
+	  SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A, MotorCurrent);
+	  SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B, MotorCurrent);
 	  SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 			 MotorPhaseHalfStep[i] & MotorPhaseMask);
 	}
     }
-  else if (MotorCurrentAndPhase->MoveType == _16_TABLE_SPACE_FOR_1_DIV_4_STEP)
+  else if (MoveType == _16_TABLE_SPACE_FOR_1_DIV_4_STEP)
     {
       SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, MOTOR_PWM_CURRENT_2);
 
@@ -500,56 +522,55 @@ Mustek_SetMotorCurrentAndPhase (ASIC * chip,
 	  double x = ((i % 4) * M_PI_2) / 4;
 	  if (i & 4)
 	    {
-	      SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A, (SANE_Byte)
-			     (MotorCurrentAndPhase->MotorCurrent * cos (x)));
-	      SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B, (SANE_Byte)
-			     (MotorCurrentAndPhase->MotorCurrent * sin (x)));
+	      SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
+			     (SANE_Byte) (MotorCurrent * cos (x)));
+	      SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
+			     (SANE_Byte) (MotorCurrent * sin (x)));
 	    }
 	  else
 	    {
-	      SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A, (SANE_Byte)
-			     (MotorCurrentAndPhase->MotorCurrent * sin (x)));
-	      SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B, (SANE_Byte)
-			     (MotorCurrentAndPhase->MotorCurrent * cos (x)));
+	      SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
+			     (SANE_Byte) (MotorCurrent * sin (x)));
+	      SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
+			     (SANE_Byte) (MotorCurrent * cos (x)));
 	    }
 	  SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 			 MotorPhaseFullStep[i / 4] & MotorPhaseMask);
 	}
     }
-  else if (MotorCurrentAndPhase->MoveType == _32_TABLE_SPACE_FOR_1_DIV_8_STEP)
+  else if (MoveType == _32_TABLE_SPACE_FOR_1_DIV_8_STEP)
     {
       SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, MOTOR_PWM_CURRENT_3);
 
       for (i = 0; i < 32; i++)
 	{
 	  double x = ((i % 8) * M_PI_2) / 8;
-	  SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A, (SANE_Byte)
-			 (MotorCurrentAndPhase->MotorCurrent * sin (x)));
-	  SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B, (SANE_Byte)
-			 (MotorCurrentAndPhase->MotorCurrent * cos (x)));
+	  SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
+			 (SANE_Byte) (MotorCurrent * sin (x)));
+	  SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
+			 (SANE_Byte) (MotorCurrent * cos (x)));
 	  SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 			 MotorPhaseFullStep[(3 + (i / 8)) % 4] &
 			 MotorPhaseMask);
 	}
     }
 
-  SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL,
-	    MotorCurrentAndPhase->MoveType);
+  SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL, MoveType);
 
   DBG_ASIC_LEAVE ();
   return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
-Microtek_SetMotorCurrentAndPhase (ASIC * chip,
-				  MOTOR_CURRENT_AND_PHASE *MotorCurrentAndPhase)
+Microtek_SetMotorCurrentAndPhase (ASIC * chip, SANE_Byte MoveType,
+				  SANE_Byte MotorCurrent)
 {
   int i;
   DBG_ASIC_ENTER ();
 
   SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL, DOWN_LOAD_MOTOR_TABLE_ENABLE);
 
-  if (MotorCurrentAndPhase->MoveType == _8_TABLE_SPACE_FOR_1_DIV_2_STEP)
+  if (MoveType == _8_TABLE_SPACE_FOR_1_DIV_2_STEP)
     {
       SendData (chip, ES01_AB_PWM_CURRENT_CONTROL, MOTOR_PWM_CURRENT_1);
 
@@ -557,23 +578,21 @@ Microtek_SetMotorCurrentAndPhase (ASIC * chip,
 	{
 	  double x = ((i % 4) * M_PI) / 4;
 	  double y = (((i + 2) % 4) * M_PI) / 4;
-	  SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A, (SANE_Byte)
-			 (MotorCurrentAndPhase->MotorCurrent * sin (x)));
-	  SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B, (SANE_Byte)
-			 (MotorCurrentAndPhase->MotorCurrent * sin (y)));
+	  SendData2Byte (chip, ES02_52_MOTOR_CURRENT_TABLE_A,
+			 (SANE_Byte) (MotorCurrent * sin (x)));
+	  SendData2Byte (chip, ES02_53_MOTOR_CURRENT_TABLE_B,
+			 (SANE_Byte) (MotorCurrent * sin (y)));
 	  SendData2Byte (chip, ES02_51_MOTOR_PHASE_TABLE_1,
 			 MotorPhaseFullStep[i / 2]);
 	}
     }
   else
     {
-      DBG (DBG_ERR, "invalid motor move type %d\n",
-	   MotorCurrentAndPhase->MoveType);
+      DBG (DBG_ERR, "invalid motor move type %d\n", MoveType);
       return SANE_STATUS_INVAL;
     }
 
-  SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL,
-	    MotorCurrentAndPhase->MoveType);
+  SendData (chip, ES02_50_MOTOR_CURRENT_CONTORL, MoveType);
 
   DBG_ASIC_LEAVE ();
   return SANE_STATUS_GOOD;
@@ -666,7 +685,7 @@ MotorMove (ASIC * chip, MOTORMOVE * Move)
 
   /* set motor type */
   SendData (chip, ES01_A6_MotorOption,
-	    MOTOR_0_ENABLE | HOME_SENSOR_0_ENABLE | TABLE_DEFINE_ES03);
+	    MOTOR_0_ENABLE | HOME_SENSOR_0_ENABLE | chip->params->MotorType);
 
   /* Set motor speed unit for all motor modes, including uniform. */
   SendData (chip, ES01_F6_MotorControl1,
@@ -890,7 +909,7 @@ SetMotorStepTableForCalibration (ASIC * chip, MOTORMOVE * MotorStepsTable,
 }
 
 static void
-CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
+Mustek_CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
 {
   unsigned short wEndSpeed, wStartSpeed;
   unsigned short wScanAccSteps;
@@ -956,7 +975,7 @@ CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
 }
 
 static void
-CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
+Mustek_CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
 {
   unsigned short wEndSpeed, wStartSpeed;
   unsigned short wScanAccSteps;
@@ -1000,6 +1019,40 @@ CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
     }
 }
 
+static void
+Microtek_CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
+{
+  unsigned short wEndSpeed, wStartSpeed;
+  unsigned short wScanAccSteps;
+  SANE_Byte bScanDecSteps;
+  unsigned short * pMotorTable;
+  long double x, y;
+  unsigned short i;
+
+  wStartSpeed = pCalculateMotorTable->StartSpeed;
+  wEndSpeed = pCalculateMotorTable->EndSpeed;
+  wScanAccSteps = pCalculateMotorTable->AccStepBeforeScan;
+  bScanDecSteps = pCalculateMotorTable->DecStepAfterScan;
+  pMotorTable = pCalculateMotorTable->pMotorTable;
+
+  for (i = 0; i < wScanAccSteps; i++)
+    {
+      x = (long double) i / (wScanAccSteps - 1);
+      y = (wStartSpeed - wEndSpeed) * (x * x - 2 * x + 1) + wEndSpeed;
+      pMotorTable[i] = htole16 ((unsigned short) y);
+      pMotorTable[i + 512 * 6] = htole16 ((unsigned short) y);
+    }
+
+  for (i = 0; i < bScanDecSteps; i++)
+    {
+      x = (long double) i / (bScanDecSteps - 1);
+      /* y = wStartSpeed - (wStartSpeed - wEndSpeed) * (-0.49705 * (x * x) + 1); */
+      y = (wStartSpeed - wEndSpeed) * (0.5 * x * x) + wEndSpeed;
+      pMotorTable[i + 512] = htole16 ((unsigned short) y);
+      pMotorTable[i + 512 * 7] = htole16 ((unsigned short) y);
+    }
+}
+
 static SANE_Byte
 CalculateMotorCurrent (unsigned short dwMotorSpeed)
 {
@@ -1020,13 +1073,12 @@ CalculateMotorCurrent (unsigned short dwMotorSpeed)
 static SANE_Status
 SimpleMotorMove (ASIC * chip,
 		 unsigned short wStartSpeed, unsigned short wEndSpeed,
-		 unsigned int dwFixMoveSpeed, SANE_Byte bMotorCurrent,
-		 unsigned int dwTotalSteps, SANE_Byte bActionType)
+		 unsigned int dwFixMoveSpeed, unsigned int dwTotalSteps,
+		 SANE_Byte bActionType)
 {
   SANE_Status status;
   unsigned short * MotorTable;
   CALCULATEMOTORTABLE CalMotorTable;
-  MOTOR_CURRENT_AND_PHASE CurrentPhase;
   MOTORMOVE Move;
   DBG_ASIC_ENTER ();
 
@@ -1041,12 +1093,10 @@ SimpleMotorMove (ASIC * chip,
   CalMotorTable.EndSpeed = wEndSpeed;
   CalMotorTable.AccStepBeforeScan = 511;
   CalMotorTable.pMotorTable = MotorTable;
-  CalculateMoveMotorTable (&CalMotorTable);
+  chip->params->pCalculateMoveMotorTable (&CalMotorTable);
 
-  CurrentPhase.MoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
-  CurrentPhase.MotorDriverIs3967 = 0;
-  CurrentPhase.MotorCurrent = bMotorCurrent;
-  status = chip->params->pSetMotorCurrentAndPhase (chip, &CurrentPhase);
+  status = chip->params->pSetMotorCurrentAndPhase (chip,
+	chip->params->DefaultMoveType, chip->params->DefaultCurrent);
   if (status != SANE_STATUS_GOOD)
     return status;
 
@@ -2120,10 +2170,10 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   SANE_Byte bDummyCycleNum;
   unsigned short wMultiMotorStep;
   SANE_Byte bMotorMoveType;
+  SANE_Byte bMotorCurrent;
   unsigned int dwLinePixelReport;
   unsigned int StartSpeed, EndSpeed;
   CALCULATEMOTORTABLE CalMotorTable;
-  MOTOR_CURRENT_AND_PHASE CurrentPhase;
   unsigned int dwTableBaseAddr, dwEndAddr;
   SANE_Byte isMotorMove;
   SANE_Byte isMotorMoveToFirstLine;
@@ -2231,7 +2281,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   else
     isMotorMove = MOTOR_0_ENABLE;
   SendData (chip, ES01_A6_MotorOption,
-	    isMotorMove | HOME_SENSOR_0_ENABLE | TABLE_DEFINE_ES03);
+	    isMotorMove | HOME_SENSOR_0_ENABLE | chip->params->MotorType);
   SendData (chip, ES01_F6_MotorControl1,
 	    SPEED_UNIT_1_PIXEL_TIME | MOTOR_SYNC_UNIT_1_PIXEL_TIME);
 
@@ -2304,7 +2354,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
     {
       if (EndSpeed >= 20000)
 	{
-	  status = SimpleMotorMove (chip, 5000, 1800, 7000, 200,
+	  status = SimpleMotorMove (chip, 5000, 1800, 7000,
 				    wY / wMultiMotorStep, ACTION_TYPE_FORWARD);
 	  if (status != SANE_STATUS_GOOD)
 	    return status;
@@ -2350,25 +2400,23 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   CalMotorTable.DecStepAfterScan = pMotorStepsTable.bScanDecSteps;
   CalMotorTable.pMotorTable = pMotorTable;
 
-  CurrentPhase.MoveType = bMotorMoveType;
-  CurrentPhase.MotorDriverIs3967 = 0;
-
   if (ScanType == SCAN_TYPE_NORMAL)
     {
-      CalculateScanMotorTable (&CalMotorTable);
-      CurrentPhase.MotorCurrent = CalculateMotorCurrent (EndSpeed);
+      chip->params->pCalculateScanMotorTable (&CalMotorTable);
+      bMotorCurrent = CalculateMotorCurrent (EndSpeed);
     }
   else
     {
-      CalculateMoveMotorTable (&CalMotorTable);
-      CurrentPhase.MotorCurrent = 200;
+      chip->params->pCalculateMoveMotorTable (&CalMotorTable);
+      bMotorCurrent = chip->params->DefaultCurrent;
     }
-  status = chip->params->pSetMotorCurrentAndPhase (chip, &CurrentPhase);
+  status = chip->params->pSetMotorCurrentAndPhase (chip, bMotorMoveType,
+						   bMotorCurrent);
   if (status != SANE_STATUS_GOOD)
     return status;
 
   DBG (DBG_ASIC, "MotorCurrent=%d,LinePixelReport=%d\n",
-       CurrentPhase.MotorCurrent, dwLinePixelReport);
+       bMotorCurrent, dwLinePixelReport);
 
   /* write motor table */
   RealTableSize = MOTOR_TABLE_SIZE;
@@ -2695,8 +2743,7 @@ Asic_MotorMove (ASIC * chip, SANE_Bool isForward, unsigned int dwTotalSteps)
     }
 
   bActionType = isForward ? ACTION_TYPE_FORWARD : ACTION_TYPE_BACKWARD;
-  status = SimpleMotorMove (chip, 5000, 1800, 7000, 200, dwTotalSteps,
-			    bActionType);
+  status = SimpleMotorMove (chip, 5000, 1800, 7000, dwTotalSteps, bActionType);
 
   DBG_ASIC_LEAVE ();
   return status;
@@ -2725,7 +2772,8 @@ Asic_CarriageHome (ASIC * chip)
     return status;
 
   if (!LampHome)
-    status = SimpleMotorMove (chip, 5000, 1200, 0, 220, 65535,
+    status = SimpleMotorMove (chip, chip->params->StartSpeedCarriageHome,
+			      chip->params->EndSpeedCarriageHome, 0, 65535,
 			      ACTION_TYPE_BACKTOHOME);
 
   DBG_ASIC_LEAVE ();

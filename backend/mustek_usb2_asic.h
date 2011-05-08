@@ -121,13 +121,6 @@ typedef struct
 
 typedef struct
 {
-  SANE_Byte MoveType;
-  SANE_Byte MotorDriverIs3967;
-  SANE_Byte MotorCurrent;
-} MOTOR_CURRENT_AND_PHASE;
-
-typedef struct
-{
   unsigned short StartSpeed;
   unsigned short EndSpeed;
   unsigned short AccStepBeforeScan;
@@ -153,8 +146,18 @@ struct ASIC;
 typedef struct
 {
   SANE_Byte SDRAM_Delay;
+  SANE_Byte DefaultMoveType;
+  SANE_Byte DefaultCurrent;
+  SANE_Bool MotorDriverIs3967;
+  SANE_Byte MotorType;
+
+  unsigned short StartSpeedCarriageHome;
+  unsigned short EndSpeedCarriageHome;
+
   SANE_Status (* pSetMotorCurrentAndPhase) (struct ASIC *,
-					    MOTOR_CURRENT_AND_PHASE *);
+					    SANE_Byte, SANE_Byte);
+  void (* pCalculateScanMotorTable) (CALCULATEMOTORTABLE *);
+  void (* pCalculateMoveMotorTable) (CALCULATEMOTORTABLE *);
 } ASIC_ModelParams;
 
 typedef struct

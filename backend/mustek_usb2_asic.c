@@ -631,7 +631,6 @@ static SANE_Status
 MotorMove (ASIC * chip, MOTORMOVE * Move)
 {
   SANE_Status status;
-  unsigned int motor_steps;
   SANE_Byte temp_motor_action;
   DBG_ASIC_ENTER ();
 
@@ -665,13 +664,6 @@ MotorMove (ASIC * chip, MOTORMOVE * Move)
   SendData (chip, ES01_E5_MotorDecStep, Move->DecStep);
   DBG (DBG_ASIC, "DecStep=%d\n", Move->DecStep);
 
-  /* Set motor uniform speed.
-     Only used for UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE. If you use acc mode,
-     these two registers are not used. */
-  SendData (chip, ES01_FD_MotorFixedspeedLSB, LOBYTE (Move->FixMoveSpeed));
-  SendData (chip, ES01_FE_MotorFixedspeedMSB, HIBYTE (Move->FixMoveSpeed));
-  DBG (DBG_ASIC, "FixMoveSpeed=%d\n", Move->FixMoveSpeed);
-
   /* set motor type */
   SendData (chip, ES01_A6_MotorOption,
 	    MOTOR_0_ENABLE | HOME_SENSOR_0_ENABLE | TABLE_DEFINE_ES03);
@@ -684,13 +676,11 @@ MotorMove (ASIC * chip, MOTORMOVE * Move)
     {
       DBG (DBG_ASIC, "ACTION_TYPE_BACKTOHOME\n");
       temp_motor_action = MOTOR_BACK_HOME_AFTER_SCAN_ENABLE;
-      motor_steps = 30000 * 2;
     }
   else
     {
       DBG (DBG_ASIC, "forward or backward\n");
       temp_motor_action = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
-      motor_steps = Move->FixMoveSteps;
 
       if (Move->ActionType == ACTION_TYPE_BACKWARD)
 	{
@@ -705,13 +695,22 @@ MotorMove (ASIC * chip, MOTORMOVE * Move)
 	    LED_MODE_FLASH_SLOWLY);
 
   /* set number of movement steps with fixed speed */
-  SendData (chip, ES01_E2_MotorStepOfMaxSpeed0_7, BYTE0 (motor_steps));
-  SendData (chip, ES01_E3_MotorStepOfMaxSpeed8_15, BYTE1 (motor_steps));
-  SendData (chip, ES01_E4_MotorStepOfMaxSpeed16_19, BYTE2 (motor_steps));
-  DBG (DBG_ASIC, "motor_steps=%d\n", motor_steps);
+  SendData (chip, ES01_E2_MotorStepOfMaxSpeed0_7, BYTE0 (Move->FixMoveSteps));
+  SendData (chip, ES01_E3_MotorStepOfMaxSpeed8_15, BYTE1 (Move->FixMoveSteps));
+  SendData (chip, ES01_E4_MotorStepOfMaxSpeed16_19, BYTE2 (Move->FixMoveSteps));
+  DBG (DBG_ASIC, "FixMoveSteps=%d\n", Move->FixMoveSteps);
 
   if (Move->ActionMode == ACTION_MODE_UNIFORM_SPEED_MOVE)
-    temp_motor_action |= UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
+    {
+      temp_motor_action |= UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE;
+
+      /* Set motor uniform speed.
+         Only used for UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE. If you use acc mode,
+         these two registers are not used. */
+      SendData (chip, ES01_FD_MotorFixedspeedLSB, LOBYTE (Move->FixMoveSpeed));
+      SendData (chip, ES01_FE_MotorFixedspeedMSB, HIBYTE (Move->FixMoveSpeed));
+      DBG (DBG_ASIC, "FixMoveSpeed=%d\n", Move->FixMoveSpeed);
+    }
 
   SendData (chip, ES01_F3_ActionOption, temp_motor_action);
   SendData (chip, ES01_F4_ActiveTrigger, ACTION_TRIGGER_ENABLE);
@@ -2543,8 +2542,8 @@ Asic_CheckFunctionKey (ASIC * chip, SANE_Byte * key)
     }
 
   SendData (chip, ES01_97_GPIOControl0_7, 0x00);
-  SendData (chip, ES01_95_GPIOValue0_7, 0x17);
   SendData (chip, ES01_98_GPIOControl8_15, 0x00);
+  SendData (chip, ES01_95_GPIOValue0_7, 0x17);
   SendData (chip, ES01_96_GPIOValue8_15, 0x08);
 
   status = GetChipStatus (chip, GPIO0_7, &bBuffer_1);
@@ -2726,7 +2725,7 @@ Asic_CarriageHome (ASIC * chip)
     return status;
 
   if (!LampHome)
-    status = SimpleMotorMove (chip, 5000, 1200, 3000, 220, 766,
+    status = SimpleMotorMove (chip, 5000, 1200, 0, 220, 65535,
 			      ACTION_TYPE_BACKTOHOME);
 
   DBG_ASIC_LEAVE ();

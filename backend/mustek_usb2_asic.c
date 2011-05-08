@@ -2294,7 +2294,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   SendData (chip, ES01_F6_MotorControl1,
 	    SPEED_UNIT_1_PIXEL_TIME | MOTOR_SYNC_UNIT_1_PIXEL_TIME);
 
-  if ((ScanType == SCAN_TYPE_NORMAL) && (wYResolution >= SENSOR_DPI))
+  if ((ScanType == SCAN_TYPE_NORMAL) && (wYResolution >= 1200))
     bMotorMoveType = _8_TABLE_SPACE_FOR_1_DIV_2_STEP;
   else
     bMotorMoveType = _4_TABLE_SPACE_FOR_FULL_STEP;
@@ -2333,14 +2333,14 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
     {
       SetExtraSettings (chip, wXResolution, wCCD_PixelNumber, SANE_FALSE);
       SetMotorStepTable (chip, &pMotorStepsTable, wY,
-			 wHeight * SENSOR_DPI / wYResolution * wMultiMotorStep,
+			 wHeight * 1200 / wYResolution * wMultiMotorStep,
 			 wYResolution);
     }
   else
     {
       SetExtraSettings (chip, wXResolution, wCCD_PixelNumber, SANE_TRUE);
       SetMotorStepTableForCalibration (chip, &pMotorStepsTable,
-			 wHeight * SENSOR_DPI / wYResolution * wMultiMotorStep);
+			 wHeight * 1200 / wYResolution * wMultiMotorStep);
     }
 
   /* calculate line time */
@@ -2348,7 +2348,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 		       (chip->Timing.PHTG_WaitWidth + 1) +
 		       (wCCD_PixelNumber + 1)) * (bDummyCycleNum + 1);
 
-  EndSpeed = (dwLinePixelReport * wYResolution / SENSOR_DPI) / wMultiMotorStep;
+  EndSpeed = (dwLinePixelReport * wYResolution / 1200) / wMultiMotorStep;
   DBG (DBG_ASIC, "motor time = %d\n", EndSpeed);
   if (EndSpeed > 0xffff)
     {

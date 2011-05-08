@@ -84,10 +84,20 @@ typedef struct
 
 typedef struct
 {
+  const ASIC_ModelParams * asic_params;
+
+  unsigned int calibrationStartPos;
+  unsigned int calibrationTaStartPos;
+} Scanner_ModelParams;
+
+typedef struct
+{
   SANE_Bool bOpened;
   SANE_Bool bPrepared;
   SANE_Bool isCanceled;
   SANE_Bool bFirstReadImage;
+
+  const Scanner_ModelParams * params;
 
   SANE_Byte * pReadImageHead;
   unsigned short * pGammaTable;
@@ -138,7 +148,6 @@ typedef struct
 #define TA_FIND_LEFT_TOP_HEIGHT_IN_DIP		300
 
 #define LINE_CALIBRATION_HEIGHT			40
-#define TRAN_START_POS				4550
 
 #define IMAGE_BUFFER_SIZE	(24 * 1024 * 1024)
 #define BLOCK_SIZE		(64 * 1024)
@@ -147,8 +156,10 @@ typedef struct
 /*#define DEBUG_SAVE_IMAGE*/
 
 
-void Scanner_Init (Scanner_State * st);
-SANE_Bool Scanner_IsPresent (void);
+extern const Scanner_ModelParams paramsMustekBP2448TAPro;
+extern const Scanner_ModelParams paramsMicrotek4800H48U;
+
+void Scanner_Init (Scanner_State * st, const Scanner_ModelParams * params);
 SANE_Status Scanner_PowerControl (Scanner_State * st, SANE_Bool isLampOn,
 				  SANE_Bool isTALampOn);
 SANE_Status Scanner_BackHome (Scanner_State * st);

@@ -79,7 +79,7 @@ static void Microtek_CalculateMoveMotorTable (
 	CALCULATEMOTORTABLE * pCalculateMotorTable);
 
 
-const ASIC_ModelParams paramsMustekBP2448TAPro = {
+const ASIC_ModelParams asicMustekBP2448TAPro = {
   SDRAMCLK_DELAY_12_ns,
   _4_TABLE_SPACE_FOR_FULL_STEP,
   200,
@@ -89,12 +89,16 @@ const ASIC_ModelParams paramsMustekBP2448TAPro = {
   5000,
   1200,
 
+  5000,
+  1800,
+  7000,
+
   Mustek_SetMotorCurrentAndPhase,
   Mustek_CalculateScanMotorTable,
   Mustek_CalculateMoveMotorTable
 };
 
-const ASIC_ModelParams paramsMicrotek4800H48U = {
+const ASIC_ModelParams asicMicrotek4800H48U = {
   SDRAMCLK_DELAY_8_ns,
   _8_TABLE_SPACE_FOR_1_DIV_2_STEP,
   150,
@@ -103,6 +107,10 @@ const ASIC_ModelParams paramsMicrotek4800H48U = {
 
   5690,
   600,
+
+  0,  /* TODO */
+  0,  /* TODO */
+  3000,
 
   Microtek_SetMotorCurrentAndPhase,
   Mustek_CalculateScanMotorTable,  /* TODO */
@@ -1046,7 +1054,7 @@ Microtek_CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
   for (i = 0; i < bScanDecSteps; i++)
     {
       x = (long double) i / (bScanDecSteps - 1);
-      /* y = wStartSpeed - (wStartSpeed - wEndSpeed) * (-0.49705 * (x * x) + 1); */
+      /* TODO: y = wStartSpeed - (wStartSpeed - wEndSpeed) * (-0.49705 * (x * x) + 1); */
       y = (wStartSpeed - wEndSpeed) * (0.5 * x * x) + wEndSpeed;
       pMotorTable[i + 512] = htole16 ((unsigned short) y);
       pMotorTable[i + 512 * 7] = htole16 ((unsigned short) y);
@@ -1115,7 +1123,7 @@ SimpleMotorMove (ASIC * chip,
   else
     {
       Move.ActionMode = ACTION_MODE_UNIFORM_SPEED_MOVE;
-      Move.AccStep = 1;
+      Move.AccStep = 1;  /* TODO: 4800H48U driver sets these to 0 */
       Move.DecStep = 1;
     }
   Move.FixMoveSteps = dwTotalSteps - (Move.AccStep + Move.DecStep);
@@ -2017,10 +2025,11 @@ Asic_Close (ASIC * chip)
 }
 
 void
-Asic_Initialize (ASIC * chip)
+Asic_Initialize (ASIC * chip, const ASIC_ModelParams * params)
 {
   DBG_ASIC_ENTER ();
 
+  chip->params = params;
   chip->isFirstOpenChip = SANE_TRUE;
   chip->isUsb20 = SANE_FALSE;
   chip->dwBytesCountPerRow = 0;
@@ -2354,7 +2363,9 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
     {
       if (EndSpeed >= 20000)
 	{
-	  status = SimpleMotorMove (chip, 5000, 1800, 7000,
+	  status = SimpleMotorMove (chip, chip->params->StartSpeedMove,
+				    chip->params->EndSpeedMove,
+				    chip->params->FixSpeedMove,
 				    wY / wMultiMotorStep, ACTION_TYPE_FORWARD);
 	  if (status != SANE_STATUS_GOOD)
 	    return status;
@@ -2743,7 +2754,10 @@ Asic_MotorMove (ASIC * chip, SANE_Bool isForward, unsigned int dwTotalSteps)
     }
 
   bActionType = isForward ? ACTION_TYPE_FORWARD : ACTION_TYPE_BACKWARD;
-  status = SimpleMotorMove (chip, 5000, 1800, 7000, dwTotalSteps, bActionType);
+  status = SimpleMotorMove (chip, chip->params->StartSpeedMove,
+			    chip->params->EndSpeedMove,
+			    chip->params->FixSpeedMove,
+			    dwTotalSteps, bActionType);
 
   DBG_ASIC_LEAVE ();
   return status;

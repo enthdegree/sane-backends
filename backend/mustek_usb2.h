@@ -103,7 +103,7 @@ typedef struct
   unsigned short vendor_id;
   unsigned short product_id;
 
-  const ASIC_ModelParams * asic_params;
+  const Scanner_ModelParams * scanner_params;
 
   /** @name Scanner model parameters */
   /*@{ */

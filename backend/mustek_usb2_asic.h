@@ -154,6 +154,10 @@ typedef struct
   unsigned short StartSpeedCarriageHome;
   unsigned short EndSpeedCarriageHome;
 
+  unsigned short StartSpeedMove;
+  unsigned short EndSpeedMove;
+  unsigned int FixSpeedMove;
+
   SANE_Status (* pSetMotorCurrentAndPhase) (struct ASIC *,
 					    SANE_Byte, SANE_Byte);
   void (* pCalculateScanMotorTable) (CALCULATEMOTORTABLE *);
@@ -988,8 +992,8 @@ typedef struct ASIC
 #define		ES01_2CF_VALID_PIXEL_PARAMETER_OF_SEGMENT16	0x2CF
 
 
-extern const ASIC_ModelParams paramsMustekBP2448TAPro;
-extern const ASIC_ModelParams paramsMicrotek4800H48U;
+extern const ASIC_ModelParams asicMustekBP2448TAPro;
+extern const ASIC_ModelParams asicMicrotek4800H48U;
 
 void SetAFEGainOffset (ASIC * chip);
 
@@ -999,7 +1003,7 @@ SANE_Status Asic_FindDevices (unsigned short wVendorID,
 					  (SANE_String_Const devname));
 SANE_Status Asic_Open (ASIC * chip);
 SANE_Status Asic_Close (ASIC * chip);
-void Asic_Initialize (ASIC * chip);
+void Asic_Initialize (ASIC * chip, const ASIC_ModelParams * params);
 SANE_Status Asic_TurnLamp (ASIC * chip, SANE_Bool isLampOn);
 SANE_Status Asic_TurnTA (ASIC * chip, SANE_Bool isTAOn);
 SANE_Status Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,

@@ -677,9 +677,8 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
   memset (s, 0, sizeof (*s));
   s->model = device->model;
   s->state.chip.device_name = device->name;
-  s->state.chip.params = device->model->asic_params;
 
-  Scanner_Init (&s->state);
+  Scanner_Init (&s->state, device->model->scanner_params);
 
   status = Scanner_PowerControl (&s->state, SANE_FALSE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)

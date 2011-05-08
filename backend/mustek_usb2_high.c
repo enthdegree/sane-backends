@@ -67,12 +67,28 @@
 #endif
 
 
+const Scanner_ModelParams paramsMustekBP2448TAPro = {
+  &asicMustekBP2448TAPro,
+
+  0,
+  4550
+};
+
+const Scanner_ModelParams paramsMicrotek4800H48U = {
+  &asicMicrotek4800H48U,
+
+  719,
+  0  /* TODO */
+};
+
+
 void
-Scanner_Init (Scanner_State * st)
+Scanner_Init (Scanner_State * st, const Scanner_ModelParams * params)
 {
   DBG_ENTER ();
 
-  Asic_Initialize (&st->chip);
+  st->params = params;
+  Asic_Initialize (&st->chip, st->params->asic_params);
 
   st->bOpened = SANE_FALSE;
   st->bPrepared = SANE_FALSE;
@@ -86,22 +102,6 @@ Scanner_Init (Scanner_State * st)
   pthread_mutex_init (&st->readyLinesMutex, NULL);
 
   DBG_LEAVE ();
-}
-
-SANE_Bool
-Scanner_IsPresent (void)
-{
-  ASIC chip;
-  DBG_ENTER ();
-
-  Asic_Initialize (&chip);
-  if (Asic_Open (&chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
-  if (Asic_Close (&chip) != SANE_STATUS_GOOD)
-    return SANE_FALSE;
-
-  DBG_LEAVE ();
-  return SANE_TRUE;
 }
 
 SANE_Status
@@ -2036,6 +2036,7 @@ SANE_Status
 Scanner_SetupScan (Scanner_State * st, TARGETIMAGE * pTarget)
 {
   SANE_Status status;
+  unsigned int startPos;
   unsigned short finalY;
   SANE_Byte bScanBits;
   DBG_ENTER ();
@@ -2127,10 +2128,15 @@ Scanner_SetupScan (Scanner_State * st, TARGETIMAGE * pTarget)
 
   st->bOpened = SANE_TRUE;
 
-  /* find left & top side */
-  if (st->Target.ssScanSource != SS_REFLECTIVE)
+  /* move carriage to start position for calibration */
+  if (st->Target.ssScanSource == SS_REFLECTIVE)
+    startPos = st->params->calibrationStartPos;
+  else
+    startPos = st->params->calibrationTaStartPos;
+
+  if (startPos != 0)
     {
-      status = Asic_MotorMove (&st->chip, SANE_TRUE, TRAN_START_POS);
+      status = Asic_MotorMove (&st->chip, SANE_TRUE, startPos);
       if (status != SANE_STATUS_GOOD)
 	return status;
     }

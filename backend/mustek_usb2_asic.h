@@ -136,9 +136,6 @@ typedef struct
   unsigned int FixMoveSteps;	/* only lower 3 bytes used */
   unsigned short AccStep;	/* max. value = 511 */
   SANE_Byte DecStep;
-
-  unsigned short wScanAccSteps;
-  SANE_Byte bScanDecSteps;
 } MOTORMOVE;
 
 struct ASIC;

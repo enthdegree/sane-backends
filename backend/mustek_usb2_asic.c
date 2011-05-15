@@ -111,8 +111,8 @@ const ASIC_ModelParams asicMicrotek4800H48U = {
   5690,
   600,
 
-  0,  /* TODO */
-  0,  /* TODO */
+  2143,	/* TODO */
+  771,	/* TODO */
   3000,
 
   Microtek_SetMotorCurrentAndPhase,
@@ -760,7 +760,7 @@ MotorMove (ASIC * chip, MOTORMOVE * Move)
 }
 
 static void
-SetMotorStepTable (ASIC * chip, MOTORMOVE * MotorStepsTable,
+SetMotorStepTable (ASIC * chip, CALCULATEMOTORTABLE * MotorStepsTable,
 		   unsigned short wStartY, unsigned int dwScanImageSteps,
 		   unsigned short wYResolution)
 {
@@ -829,8 +829,8 @@ SetMotorStepTable (ASIC * chip, MOTORMOVE * MotorStepsTable,
   dwScanImageSteps += bScanDecSteps;
   dwScanImageSteps += 2;
 
-  MotorStepsTable->wScanAccSteps = wScanAccSteps;
-  MotorStepsTable->bScanDecSteps = bScanDecSteps;
+  MotorStepsTable->AccStepBeforeScan = wScanAccSteps;
+  MotorStepsTable->DecStepAfterScan = bScanDecSteps;
 
   /* state 1 */
   SendData (chip, ES01_E0_MotorAccStep0_7, LOBYTE (wAccSteps));
@@ -873,7 +873,8 @@ SetMotorStepTable (ASIC * chip, MOTORMOVE * MotorStepsTable,
 }
 
 static void
-SetMotorStepTableForCalibration (ASIC * chip, MOTORMOVE * MotorStepsTable,
+SetMotorStepTableForCalibration (ASIC * chip,
+				 CALCULATEMOTORTABLE * MotorStepsTable,
 				 unsigned int dwScanImageSteps)
 {
   unsigned short wScanAccSteps = 1;
@@ -888,8 +889,8 @@ SetMotorStepTableForCalibration (ASIC * chip, MOTORMOVE * MotorStepsTable,
   dwScanImageSteps += wFixScanSteps;
   dwScanImageSteps += bScanDecSteps;
 
-  MotorStepsTable->wScanAccSteps = wScanAccSteps;
-  MotorStepsTable->bScanDecSteps = bScanDecSteps;
+  MotorStepsTable->AccStepBeforeScan = wScanAccSteps;
+  MotorStepsTable->DecStepAfterScan = bScanDecSteps;
 
   /* state 4 */
   SendData (chip, ES01_AE_MotorSyncPixelNumberM16LSB, 0);
@@ -2219,7 +2220,6 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   unsigned short XRatioTypeWord;
   double XRatioTypeDouble;
   double XRatioAdderDouble;
-  MOTORMOVE pMotorStepsTable;
   SANE_Byte bDummyCycleNum;
   unsigned short wMultiMotorStep;
   SANE_Byte bMotorMoveType;
@@ -2378,14 +2378,14 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   if (ScanType == SCAN_TYPE_NORMAL)
     {
       SetExtraSettings (chip, wXResolution, wCCD_PixelNumber, SANE_FALSE);
-      SetMotorStepTable (chip, &pMotorStepsTable, wY,
+      SetMotorStepTable (chip, &CalMotorTable, wY,
 			 wHeight * 1200 / wYResolution * wMultiMotorStep,
 			 wYResolution);
     }
   else
     {
       SetExtraSettings (chip, wXResolution, wCCD_PixelNumber, SANE_TRUE);
-      SetMotorStepTableForCalibration (chip, &pMotorStepsTable,
+      SetMotorStepTableForCalibration (chip, &CalMotorTable,
 			 wHeight * 1200 / wYResolution * wMultiMotorStep);
     }
 
@@ -2453,9 +2453,8 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 
   CalMotorTable.StartSpeed = StartSpeed;
   CalMotorTable.EndSpeed = EndSpeed;
-  CalMotorTable.AccStepBeforeScan = pMotorStepsTable.wScanAccSteps;
-  CalMotorTable.DecStepAfterScan = pMotorStepsTable.bScanDecSteps;
   CalMotorTable.pMotorTable = pMotorTable;
+  /* AccStepBeforeScan/DecStepAfterScan have been set by SetMotorStepTable */
 
   if (ScanType == SCAN_TYPE_NORMAL)
     {

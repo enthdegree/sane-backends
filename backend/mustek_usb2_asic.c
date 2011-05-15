@@ -1978,6 +1978,7 @@ SANE_Status
 Asic_Open (ASIC * chip)
 {
   SANE_Status status;
+  struct sanei_usb_dev_descriptor desc;
   DBG_ASIC_ENTER ();
 
   if (chip->firmwarestate > FS_OPENED)
@@ -1995,6 +1996,15 @@ Asic_Open (ASIC * chip)
 	   chip->device_name, sane_strstatus (status));
       return status;
     }
+
+  status = sanei_usb_get_descriptor (chip->fd, &desc);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_ERR, "sanei_usb_get_descriptor failed: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  chip->isUsb20 = (desc.bcd_usb >= 0x0200) ? SANE_TRUE : SANE_FALSE;
 
   status = OpenScanChip (chip);
   if (status != SANE_STATUS_GOOD)
@@ -2074,7 +2084,6 @@ Asic_Initialize (ASIC * chip, const ASIC_ModelParams * params)
 
   chip->params = params;
   chip->isFirstOpenChip = SANE_TRUE;
-  chip->isUsb20 = SANE_FALSE;
   chip->dwBytesCountPerRow = 0;
   chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
   chip->pShadingTable = NULL;

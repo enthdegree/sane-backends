@@ -77,6 +77,8 @@ static void Mustek_CalculateMoveMotorTable (
 	CALCULATEMOTORTABLE * pCalculateMotorTable);
 static void Microtek_CalculateMotorTable (
 	CALCULATEMOTORTABLE * pCalculateMotorTable);
+static SANE_Byte Mustek_CalculateMotorCurrent (unsigned short dwMotorSpeed);
+static SANE_Byte Microtek_CalculateMotorCurrent (unsigned short dwMotorSpeed);
 
 
 const ASIC_ModelParams asicMustekBP2448TAPro = {
@@ -95,7 +97,8 @@ const ASIC_ModelParams asicMustekBP2448TAPro = {
 
   Mustek_SetMotorCurrentAndPhase,
   Mustek_CalculateScanMotorTable,
-  Mustek_CalculateMoveMotorTable
+  Mustek_CalculateMoveMotorTable,
+  Mustek_CalculateMotorCurrent
 };
 
 const ASIC_ModelParams asicMicrotek4800H48U = {
@@ -114,7 +117,8 @@ const ASIC_ModelParams asicMicrotek4800H48U = {
 
   Microtek_SetMotorCurrentAndPhase,
   Microtek_CalculateMotorTable,
-  Microtek_CalculateMotorTable
+  Microtek_CalculateMotorTable,
+  Microtek_CalculateMotorCurrent
 };
 
 
@@ -1066,7 +1070,7 @@ Microtek_CalculateMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
 }
 
 static SANE_Byte
-CalculateMotorCurrent (unsigned short dwMotorSpeed)
+Mustek_CalculateMotorCurrent (unsigned short dwMotorSpeed)
 {
   if (dwMotorSpeed < 2000)
     return 255;
@@ -1080,6 +1084,24 @@ CalculateMotorCurrent (unsigned short dwMotorSpeed)
     return 60;
   else	/* >= 17000 */
     return 50;
+}
+
+static SANE_Byte
+Microtek_CalculateMotorCurrent (unsigned short dwMotorSpeed)
+{
+  /* TODO: need more data points */
+  if (dwMotorSpeed < 2000)
+    return 160;
+  else if (dwMotorSpeed < 3500)
+    return 125;
+  else if (dwMotorSpeed < 5000)
+    return 100;
+  else if (dwMotorSpeed < 10000)
+    return 44;
+  else if (dwMotorSpeed < 17000)
+    return 38;
+  else	/* >= 17000 */
+    return 31;
 }
 
 static SANE_Status
@@ -2438,7 +2460,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   if (ScanType == SCAN_TYPE_NORMAL)
     {
       chip->params->pCalculateScanMotorTable (&CalMotorTable);
-      bMotorCurrent = CalculateMotorCurrent (EndSpeed);
+      bMotorCurrent = chip->params->pCalculateMotorCurrent (EndSpeed);
     }
   else
     {

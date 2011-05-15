@@ -162,6 +162,7 @@ typedef struct
 					    SANE_Byte, SANE_Byte);
   void (* pCalculateScanMotorTable) (CALCULATEMOTORTABLE *);
   void (* pCalculateMoveMotorTable) (CALCULATEMOTORTABLE *);
+  SANE_Byte (* pCalculateMotorCurrent) (unsigned short);
 } ASIC_ModelParams;
 
 typedef struct

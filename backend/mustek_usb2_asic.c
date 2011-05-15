@@ -760,160 +760,129 @@ MotorMove (ASIC * chip, MOTORMOVE * Move)
 }
 
 static void
-SetMotorStepTable (ASIC * chip, CALCULATEMOTORTABLE * MotorStepsTable,
-		   unsigned short wStartY, unsigned int dwScanImageSteps,
-		   unsigned short wYResolution)
+CalculateMotorSteps (ASIC * chip, MOTORSTEPS * MotorSteps,
+		     unsigned short wStartY, unsigned short wYResolution)
 {
-  unsigned short wAccSteps = 511;
-  unsigned short wForwardSteps = 20;
-  SANE_Byte bDecSteps = 255;
-  unsigned short wScanAccSteps = 511;
-  unsigned short wFixScanSteps = 20;
-  SANE_Byte bScanDecSteps = 255;
-  unsigned short wScanBackTrackingSteps = 40;
-  unsigned short wScanRestartSteps = 40;
-  DBG_ASIC_ENTER ();
+  int d;
 
-  switch (wYResolution)
+  MotorSteps->wAccSteps = 511;
+  MotorSteps->dwForwardSteps = 20;
+  MotorSteps->bDecSteps = 255;
+  MotorSteps->wFixScanSteps = 20;
+  MotorSteps->wScanBackTrackingSteps = 40;
+  MotorSteps->wScanRestartSteps = 40;
+  MotorSteps->dwAddScanImageSteps = 2;
+  MotorSteps->wMotorSyncPixelNumber = 0;
+  MotorSteps->wScanBackHomeExtSteps = 100;
+
+  if (wYResolution >= 1200)
     {
-    case 2400:
-    case 1200:
-      wScanAccSteps = 100;
-      bScanDecSteps = 10;
-      wScanBackTrackingSteps = 10;
-      wScanRestartSteps = 10;
-      break;
-    case 600:
-    case 300:
-      wScanAccSteps = 300;
-      bScanDecSteps = 40;
-      break;
-    case 150:
-      wScanAccSteps = 300;
-      bScanDecSteps = 40;
-      break;
-    case 100:
-    case 75:
-    case 50:
-      wScanAccSteps = 300;
-      bScanDecSteps = 40;
-      break;
+      MotorSteps->wScanAccSteps = 100;
+      MotorSteps->bScanDecSteps = 10;
+      MotorSteps->wScanBackTrackingSteps = 10;
+      MotorSteps->wScanRestartSteps = 10;
+    }
+  else
+    {
+      MotorSteps->wScanAccSteps = 300;
+      MotorSteps->bScanDecSteps = 40;
     }
 
   /* not including T0,T1 steps */
-  if (wStartY < (wAccSteps + wForwardSteps + bDecSteps + wScanAccSteps))
+  if (wStartY < (MotorSteps->wAccSteps + MotorSteps->dwForwardSteps +
+		 MotorSteps->bDecSteps + MotorSteps->wScanAccSteps))
     {
-      wAccSteps = 1;
-      bDecSteps = 1;
-      wFixScanSteps = (short)(wStartY - wScanAccSteps) > 0 ?
-	(wStartY - wScanAccSteps) : 0;
-      wForwardSteps = 0;
+      MotorSteps->wAccSteps = 1;
+      MotorSteps->bDecSteps = 1;
+
+      d = wStartY - MotorSteps->wScanAccSteps;
+      if (d < 0)
+        d = 0;
+      MotorSteps->wFixScanSteps = (unsigned short) d;
+      MotorSteps->dwForwardSteps = 0;
 
       chip->isMotorMoveToFirstLine = 0;
     }
   else
     {
-      wForwardSteps = (short)(wStartY - wAccSteps - (unsigned short) bDecSteps -
-	wScanAccSteps - wFixScanSteps) > 0 ?
-	(wStartY - wAccSteps - (unsigned short) bDecSteps - wScanAccSteps -
-	 wFixScanSteps) : 0;
+      d = wStartY - MotorSteps->wAccSteps - MotorSteps->bDecSteps -
+	  MotorSteps->wScanAccSteps - MotorSteps->wFixScanSteps;
+      if (d < 0)
+        d = 0;
+      MotorSteps->dwForwardSteps = (unsigned short) d;
 
       chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
     }
-
-  dwScanImageSteps += wAccSteps;
-  dwScanImageSteps += wForwardSteps;
-  dwScanImageSteps += bDecSteps;
-  dwScanImageSteps += wScanAccSteps;
-  dwScanImageSteps += wFixScanSteps;
-  dwScanImageSteps += bScanDecSteps;
-  dwScanImageSteps += 2;
-
-  MotorStepsTable->AccStepBeforeScan = wScanAccSteps;
-  MotorStepsTable->DecStepAfterScan = bScanDecSteps;
-
-  /* state 1 */
-  SendData (chip, ES01_E0_MotorAccStep0_7, LOBYTE (wAccSteps));
-  SendData (chip, ES01_E1_MotorAccStep8_8, HIBYTE (wAccSteps));
-  /* state 2 */
-  SendData (chip, ES01_E2_MotorStepOfMaxSpeed0_7, LOBYTE (wForwardSteps));
-  SendData (chip, ES01_E3_MotorStepOfMaxSpeed8_15, HIBYTE (wForwardSteps));
-  SendData (chip, ES01_E4_MotorStepOfMaxSpeed16_19, 0);
-  /* state 3 */
-  SendData (chip, ES01_E5_MotorDecStep, bDecSteps);
-  /* state 4 */
-  SendData (chip, ES01_AE_MotorSyncPixelNumberM16LSB, 0);
-  SendData (chip, ES01_AF_MotorSyncPixelNumberM16MSB, 0);
-  /* state 5 */
-  SendData (chip, ES01_EC_ScanAccStep0_7, LOBYTE (wScanAccSteps));
-  SendData (chip, ES01_ED_ScanAccStep8_8, HIBYTE (wScanAccSteps));
-  /* state 6 */
-  SendData (chip, ES01_EE_FixScanStepLSB, LOBYTE (wFixScanSteps));
-  SendData (chip, ES01_8A_FixScanStepMSB, HIBYTE (wFixScanSteps));
-  /* state 8 */
-  SendData (chip, ES01_EF_ScanDecStep, bScanDecSteps);
-  /* state 10 */
-  SendData (chip, ES01_E6_ScanBackTrackingStepLSB,
-	    LOBYTE (wScanBackTrackingSteps));
-  SendData (chip, ES01_E7_ScanBackTrackingStepMSB,
-	    HIBYTE (wScanBackTrackingSteps));
-  /* state 15 */
-  SendData (chip, ES01_E8_ScanRestartStepLSB, LOBYTE (wScanRestartSteps));
-  SendData (chip, ES01_E9_ScanRestartStepMSB, HIBYTE (wScanRestartSteps));
-  /* state 19 */
-  SendData (chip, ES01_EA_ScanBackHomeExtStepLSB, LOBYTE (100));
-  SendData (chip, ES01_EB_ScanBackHomeExtStepMSB, HIBYTE (100));
-
-  /* total motor steps */
-  SendData (chip, ES01_F0_ScanImageStep0_7, BYTE0 (dwScanImageSteps));
-  SendData (chip, ES01_F1_ScanImageStep8_15, BYTE1 (dwScanImageSteps));
-  SendData (chip, ES01_F2_ScanImageStep16_19, BYTE2 (dwScanImageSteps));
-
-  DBG_ASIC_LEAVE ();
 }
 
 static void
-SetMotorStepTableForCalibration (ASIC * chip,
-				 CALCULATEMOTORTABLE * MotorStepsTable,
-				 unsigned int dwScanImageSteps)
+CalculateMotorStepsForCalibration (ASIC * chip, MOTORSTEPS * MotorSteps)
 {
-  unsigned short wScanAccSteps = 1;
-  SANE_Byte bScanDecSteps = 1;
-  unsigned short wFixScanSteps = 0;
-  unsigned short wScanBackTrackingSteps = 20;
-  DBG_ASIC_ENTER ();
+  memset (MotorSteps, 0, sizeof (*MotorSteps));
+  MotorSteps->wScanAccSteps = 1;
+  MotorSteps->bScanDecSteps = 1;
+  MotorSteps->wScanBackTrackingSteps = 20;
+  MotorSteps->wScanRestartSteps = 20;
 
   chip->isMotorMoveToFirstLine = 0;
+}
 
-  dwScanImageSteps += wScanAccSteps;
-  dwScanImageSteps += wFixScanSteps;
-  dwScanImageSteps += bScanDecSteps;
+static void
+SetMotorStepTable (ASIC * chip, MOTORSTEPS * MotorSteps,
+		   unsigned int dwScanImageSteps)
+{
+  DBG_ASIC_ENTER ();
 
-  MotorStepsTable->AccStepBeforeScan = wScanAccSteps;
-  MotorStepsTable->DecStepAfterScan = bScanDecSteps;
+  dwScanImageSteps += MotorSteps->wAccSteps;
+  dwScanImageSteps += MotorSteps->dwForwardSteps;
+  dwScanImageSteps += MotorSteps->bDecSteps;
+  dwScanImageSteps += MotorSteps->wScanAccSteps;
+  dwScanImageSteps += MotorSteps->wFixScanSteps;
+  dwScanImageSteps += MotorSteps->bScanDecSteps;
+  dwScanImageSteps += MotorSteps->dwAddScanImageSteps;
 
+  /* state 1 */
+  SendData (chip, ES01_E0_MotorAccStep0_7, LOBYTE (MotorSteps->wAccSteps));
+  SendData (chip, ES01_E1_MotorAccStep8_8, HIBYTE (MotorSteps->wAccSteps));
+  /* state 2 */
+  SendData (chip, ES01_E2_MotorStepOfMaxSpeed0_7,
+	    BYTE0 (MotorSteps->dwForwardSteps));
+  SendData (chip, ES01_E3_MotorStepOfMaxSpeed8_15, 
+	    BYTE1 (MotorSteps->dwForwardSteps));
+  SendData (chip, ES01_E4_MotorStepOfMaxSpeed16_19,
+	    BYTE2 (MotorSteps->dwForwardSteps));
+  /* state 3 */
+  SendData (chip, ES01_E5_MotorDecStep, MotorSteps->bDecSteps);
   /* state 4 */
-  SendData (chip, ES01_AE_MotorSyncPixelNumberM16LSB, 0);
-  SendData (chip, ES01_AF_MotorSyncPixelNumberM16MSB, 0);
+  SendData (chip, ES01_AE_MotorSyncPixelNumberM16LSB,
+	    LOBYTE (MotorSteps->wMotorSyncPixelNumber));
+  SendData (chip, ES01_AF_MotorSyncPixelNumberM16MSB,
+	    HIBYTE (MotorSteps->wMotorSyncPixelNumber));
   /* state 5 */
-  SendData (chip, ES01_EC_ScanAccStep0_7, LOBYTE (wScanAccSteps));
-  SendData (chip, ES01_ED_ScanAccStep8_8, HIBYTE (wScanAccSteps));
+  SendData (chip, ES01_EC_ScanAccStep0_7, LOBYTE (MotorSteps->wScanAccSteps));
+  SendData (chip, ES01_ED_ScanAccStep8_8, HIBYTE (MotorSteps->wScanAccSteps));
   /* state 6 */
-  SendData (chip, ES01_EE_FixScanStepLSB, LOBYTE (wFixScanSteps));
-  SendData (chip, ES01_8A_FixScanStepMSB, HIBYTE (wFixScanSteps));
+  SendData (chip, ES01_EE_FixScanStepLSB, LOBYTE (MotorSteps->wFixScanSteps));
+  SendData (chip, ES01_8A_FixScanStepMSB, HIBYTE (MotorSteps->wFixScanSteps));
   /* state 8 */
-  SendData (chip, ES01_EF_ScanDecStep, bScanDecSteps);
+  SendData (chip, ES01_EF_ScanDecStep, MotorSteps->bScanDecSteps);
   /* state 10 */
   SendData (chip, ES01_E6_ScanBackTrackingStepLSB,
-	    LOBYTE (wScanBackTrackingSteps));
+	    LOBYTE (MotorSteps->wScanBackTrackingSteps));
   SendData (chip, ES01_E7_ScanBackTrackingStepMSB,
-	    HIBYTE (wScanBackTrackingSteps));
+	    HIBYTE (MotorSteps->wScanBackTrackingSteps));
   /* state 15 */
   SendData (chip, ES01_E8_ScanRestartStepLSB,
-	    LOBYTE (wScanBackTrackingSteps));
+	    LOBYTE (MotorSteps->wScanRestartSteps));
   SendData (chip, ES01_E9_ScanRestartStepMSB,
-	    HIBYTE (wScanBackTrackingSteps));
+	    HIBYTE (MotorSteps->wScanRestartSteps));
+  /* state 19 */
+  SendData (chip, ES01_EA_ScanBackHomeExtStepLSB,
+	    LOBYTE (MotorSteps->wScanBackHomeExtSteps));
+  SendData (chip, ES01_EB_ScanBackHomeExtStepMSB,
+	    HIBYTE (MotorSteps->wScanBackHomeExtSteps));
 
+  /* total motor steps */
   SendData (chip, ES01_F0_ScanImageStep0_7, BYTE0 (dwScanImageSteps));
   SendData (chip, ES01_F1_ScanImageStep8_15, BYTE1 (dwScanImageSteps));
   SendData (chip, ES01_F2_ScanImageStep16_19, BYTE2 (dwScanImageSteps));
@@ -2226,6 +2195,7 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   SANE_Byte bMotorCurrent;
   unsigned int dwLinePixelReport;
   unsigned int StartSpeed, EndSpeed;
+  MOTORSTEPS MotorSteps;
   CALCULATEMOTORTABLE CalMotorTable;
   unsigned int dwTableBaseAddr, dwEndAddr;
   SANE_Byte isMotorMove;
@@ -2378,16 +2348,15 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   if (ScanType == SCAN_TYPE_NORMAL)
     {
       SetExtraSettings (chip, wXResolution, wCCD_PixelNumber, SANE_FALSE);
-      SetMotorStepTable (chip, &CalMotorTable, wY,
-			 wHeight * 1200 / wYResolution * wMultiMotorStep,
-			 wYResolution);
+      CalculateMotorSteps (chip, &MotorSteps, wY, wYResolution);
     }
   else
     {
       SetExtraSettings (chip, wXResolution, wCCD_PixelNumber, SANE_TRUE);
-      SetMotorStepTableForCalibration (chip, &CalMotorTable,
-			 wHeight * 1200 / wYResolution * wMultiMotorStep);
+      CalculateMotorStepsForCalibration (chip, &MotorSteps);
     }
+  SetMotorStepTable (chip, &MotorSteps,
+		     wHeight * 1200 / wYResolution * wMultiMotorStep);
 
   /* calculate line time */
   dwLinePixelReport = (2 + (chip->Timing.PHTG_PulseWidth + 1) +
@@ -2453,8 +2422,9 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 
   CalMotorTable.StartSpeed = StartSpeed;
   CalMotorTable.EndSpeed = EndSpeed;
+  CalMotorTable.AccStepBeforeScan = MotorSteps.wScanAccSteps;
+  CalMotorTable.DecStepAfterScan = MotorSteps.bScanDecSteps;
   CalMotorTable.pMotorTable = pMotorTable;
-  /* AccStepBeforeScan/DecStepAfterScan have been set by SetMotorStepTable */
 
   if (ScanType == SCAN_TYPE_NORMAL)
     {

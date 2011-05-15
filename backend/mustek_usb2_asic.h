@@ -121,6 +121,21 @@ typedef struct
 
 typedef struct
 {
+  unsigned short wAccSteps;
+  unsigned int dwForwardSteps;
+  SANE_Byte bDecSteps;
+  unsigned short wScanAccSteps;
+  unsigned short wFixScanSteps;
+  SANE_Byte bScanDecSteps;
+  unsigned short wScanBackTrackingSteps;
+  unsigned short wScanRestartSteps;
+  unsigned int dwAddScanImageSteps;
+  unsigned short wMotorSyncPixelNumber;
+  unsigned short wScanBackHomeExtSteps;
+} MOTORSTEPS;
+
+typedef struct
+{
   unsigned short StartSpeed;
   unsigned short EndSpeed;
   unsigned short AccStepBeforeScan;

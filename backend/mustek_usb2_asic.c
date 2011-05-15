@@ -75,9 +75,7 @@ static void Mustek_CalculateScanMotorTable (
 	CALCULATEMOTORTABLE * pCalculateMotorTable);
 static void Mustek_CalculateMoveMotorTable (
 	CALCULATEMOTORTABLE * pCalculateMotorTable);
-static void Microtek_CalculateScanMotorTable (
-	CALCULATEMOTORTABLE * pCalculateMotorTable);
-static void Microtek_CalculateMoveMotorTable (
+static void Microtek_CalculateMotorTable (
 	CALCULATEMOTORTABLE * pCalculateMotorTable);
 
 
@@ -115,8 +113,8 @@ const ASIC_ModelParams asicMicrotek4800H48U = {
   3000,
 
   Microtek_SetMotorCurrentAndPhase,
-  Microtek_CalculateScanMotorTable,
-  Microtek_CalculateMoveMotorTable
+  Microtek_CalculateMotorTable,
+  Microtek_CalculateMotorTable
 };
 
 
@@ -1030,40 +1028,7 @@ Mustek_CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
 }
 
 static void
-Microtek_CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
-{
-  unsigned short wEndSpeed, wStartSpeed;
-  unsigned short wScanAccSteps;
-  SANE_Byte bScanDecSteps;
-  unsigned short * pMotorTable;
-  long double x, y;
-  unsigned short i;
-
-  wStartSpeed = pCalculateMotorTable->StartSpeed;
-  wEndSpeed = pCalculateMotorTable->EndSpeed;
-  wScanAccSteps = pCalculateMotorTable->AccStepBeforeScan;
-  bScanDecSteps = pCalculateMotorTable->DecStepAfterScan;
-  pMotorTable = pCalculateMotorTable->pMotorTable;
-
-  for (i = 0; i < wScanAccSteps; i++)
-    {
-      x = (long double) i / wScanAccSteps;
-      y = (wStartSpeed - wEndSpeed) * (x * x - 2 * x + 1) + wEndSpeed;
-      pMotorTable[i + 512 * 2] = htole16 ((unsigned short) y);
-      pMotorTable[i + 512 * 4] = htole16 ((unsigned short) y);
-    }
-
-  for (i = 0; i < bScanDecSteps; i++)
-    {
-      x = (long double) i / bScanDecSteps;
-      y = wStartSpeed - (wStartSpeed - wEndSpeed) * (-1 * (x * x) + 1);
-      pMotorTable[i + 512 * 3] = htole16 ((unsigned short) y);
-      pMotorTable[i + 512 * 5] = htole16 ((unsigned short) y);
-    }
-}
-
-static void
-Microtek_CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
+Microtek_CalculateMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
 {
   unsigned short wEndSpeed, wStartSpeed;
   unsigned short wScanAccSteps;
@@ -1083,14 +1048,19 @@ Microtek_CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
       x = (long double) i / (wScanAccSteps - 1);
       y = (wStartSpeed - wEndSpeed) * (x * x - 2 * x + 1) + wEndSpeed;
       pMotorTable[i] = htole16 ((unsigned short) y);
+      pMotorTable[i + 512 * 2] = htole16 ((unsigned short) y);
+      pMotorTable[i + 512 * 4] = htole16 ((unsigned short) y);
       pMotorTable[i + 512 * 6] = htole16 ((unsigned short) y);
     }
 
   for (i = 0; i < bScanDecSteps; i++)
     {
       x = (long double) i / (bScanDecSteps - 1);
-      y = wStartSpeed - (wStartSpeed - wEndSpeed) * (-0.5 * (x * x) + 1);
+      y = wStartSpeed - (wStartSpeed - wEndSpeed) *
+	  (-((bScanDecSteps - 1) / wScanAccSteps) * (x * x) + 1);
       pMotorTable[i + 512] = htole16 ((unsigned short) y);
+      pMotorTable[i + 512 * 3] = htole16 ((unsigned short) y);
+      pMotorTable[i + 512 * 5] = htole16 ((unsigned short) y);
       pMotorTable[i + 512 * 7] = htole16 ((unsigned short) y);
     }
 }

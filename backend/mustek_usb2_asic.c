@@ -75,6 +75,8 @@ static void Mustek_CalculateScanMotorTable (
 	CALCULATEMOTORTABLE * pCalculateMotorTable);
 static void Mustek_CalculateMoveMotorTable (
 	CALCULATEMOTORTABLE * pCalculateMotorTable);
+static void Microtek_CalculateScanMotorTable (
+	CALCULATEMOTORTABLE * pCalculateMotorTable);
 static void Microtek_CalculateMoveMotorTable (
 	CALCULATEMOTORTABLE * pCalculateMotorTable);
 
@@ -113,7 +115,7 @@ const ASIC_ModelParams asicMicrotek4800H48U = {
   3000,
 
   Microtek_SetMotorCurrentAndPhase,
-  Mustek_CalculateScanMotorTable,  /* TODO */
+  Microtek_CalculateScanMotorTable,
   Microtek_CalculateMoveMotorTable
 };
 
@@ -1028,6 +1030,39 @@ Mustek_CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
 }
 
 static void
+Microtek_CalculateScanMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
+{
+  unsigned short wEndSpeed, wStartSpeed;
+  unsigned short wScanAccSteps;
+  SANE_Byte bScanDecSteps;
+  unsigned short * pMotorTable;
+  long double x, y;
+  unsigned short i;
+
+  wStartSpeed = pCalculateMotorTable->StartSpeed;
+  wEndSpeed = pCalculateMotorTable->EndSpeed;
+  wScanAccSteps = pCalculateMotorTable->AccStepBeforeScan;
+  bScanDecSteps = pCalculateMotorTable->DecStepAfterScan;
+  pMotorTable = pCalculateMotorTable->pMotorTable;
+
+  for (i = 0; i < wScanAccSteps; i++)
+    {
+      x = (long double) i / wScanAccSteps;
+      y = (wStartSpeed - wEndSpeed) * (x * x - 2 * x + 1) + wEndSpeed;
+      pMotorTable[i + 512 * 2] = htole16 ((unsigned short) y);
+      pMotorTable[i + 512 * 4] = htole16 ((unsigned short) y);
+    }
+
+  for (i = 0; i < bScanDecSteps; i++)
+    {
+      x = (long double) i / bScanDecSteps;
+      y = wStartSpeed - (wStartSpeed - wEndSpeed) * (-1 * (x * x) + 1);
+      pMotorTable[i + 512 * 3] = htole16 ((unsigned short) y);
+      pMotorTable[i + 512 * 5] = htole16 ((unsigned short) y);
+    }
+}
+
+static void
 Microtek_CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
 {
   unsigned short wEndSpeed, wStartSpeed;
@@ -1054,8 +1089,7 @@ Microtek_CalculateMoveMotorTable (CALCULATEMOTORTABLE * pCalculateMotorTable)
   for (i = 0; i < bScanDecSteps; i++)
     {
       x = (long double) i / (bScanDecSteps - 1);
-      /* TODO: y = wStartSpeed - (wStartSpeed - wEndSpeed) * (-0.49705 * (x * x) + 1); */
-      y = (wStartSpeed - wEndSpeed) * (0.5 * x * x) + wEndSpeed;
+      y = wStartSpeed - (wStartSpeed - wEndSpeed) * (-0.5 * (x * x) + 1);
       pMotorTable[i + 512] = htole16 ((unsigned short) y);
       pMotorTable[i + 512 * 7] = htole16 ((unsigned short) y);
     }
@@ -1090,16 +1124,40 @@ SimpleMotorMove (ASIC * chip,
   MOTORMOVE Move;
   DBG_ASIC_ENTER ();
 
+  if (dwTotalSteps >= 766)
+    {
+      Move.ActionMode = ACTION_MODE_ACCDEC_MOVE;
+      Move.AccStep = 511;
+      Move.DecStep = 255;
+      Move.FixMoveSpeed = 0;
+
+      CalMotorTable.StartSpeed = wStartSpeed;
+      CalMotorTable.EndSpeed = wEndSpeed;
+    }
+  else
+    {
+      Move.ActionMode = ACTION_MODE_UNIFORM_SPEED_MOVE;
+      Move.AccStep = 1;  /* NOTE: 4800H48U driver sets these to 0 sometimes. */
+      Move.DecStep = 1;
+      Move.FixMoveSpeed = dwFixMoveSpeed;
+
+      CalMotorTable.StartSpeed = dwFixMoveSpeed;
+      CalMotorTable.EndSpeed = dwFixMoveSpeed;
+    }
+
+  Move.ActionType = bActionType;
+  Move.FixMoveSteps = dwTotalSteps - (Move.AccStep + Move.DecStep);
+
+  CalMotorTable.AccStepBeforeScan = Move.AccStep;
+  CalMotorTable.DecStepAfterScan = Move.DecStep;
+
   MotorTable = malloc (MOTOR_TABLE_SIZE * sizeof (unsigned short));
   if (!MotorTable)
     {
       DBG (DBG_ASIC, "MotorTable == NULL\n");
       return SANE_STATUS_NO_MEM;
     }
-
-  CalMotorTable.StartSpeed = wStartSpeed;
-  CalMotorTable.EndSpeed = wEndSpeed;
-  CalMotorTable.AccStepBeforeScan = 511;
+  memset (MotorTable, 0, MOTOR_TABLE_SIZE * sizeof (unsigned short));
   CalMotorTable.pMotorTable = MotorTable;
   chip->params->pCalculateMoveMotorTable (&CalMotorTable);
 
@@ -1113,21 +1171,6 @@ SimpleMotorMove (ASIC * chip,
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  Move.ActionType = bActionType;
-  if (dwTotalSteps >= 766)
-    {
-      Move.ActionMode = ACTION_MODE_ACCDEC_MOVE;
-      Move.AccStep = 511;
-      Move.DecStep = 255;
-    }
-  else
-    {
-      Move.ActionMode = ACTION_MODE_UNIFORM_SPEED_MOVE;
-      Move.AccStep = 1;  /* TODO: 4800H48U driver sets these to 0 */
-      Move.DecStep = 1;
-    }
-  Move.FixMoveSteps = dwTotalSteps - (Move.AccStep + Move.DecStep);
-  Move.FixMoveSpeed = dwFixMoveSpeed;
   status = MotorMove (chip, &Move);
 
   DBG_ASIC_LEAVE ();
@@ -1554,7 +1597,7 @@ SetLineTimeAndExposure (ASIC * chip)
   SendData (chip, ES01_C9_CCDDummyPixelNumberLSB, 0);
   SendData (chip, ES01_CA_CCDDummyPixelNumberMSB, 0);
 
-  SendData (chip, ES01_CB_CCDDummyCycleNumber, 0);
+  /* TODO: move CB back, add parameter? */
 
   DBG_ASIC_LEAVE ();
 }
@@ -2218,14 +2261,6 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 	    USB_POWER_SAVE_ENABLE | USB_REMOTE_WAKEUP_ENABLE |
 	    LED_MODE_FLASH_SLOWLY | 0x40 | 0x80);
 
-  chip->dwBytesCountPerRow = (unsigned int) wWidth * (bScanBits / 8);
-  DBG (DBG_ASIC, "dwBytesCountPerRow=%d\n", chip->dwBytesCountPerRow);
-
-  if (ScanType == SCAN_TYPE_NORMAL)
-    bDummyCycleNum = GetDummyCycleNumber (chip, wYResolution, lsLightSource);
-  else
-    bDummyCycleNum = 1;
-
   SetCCDTiming (chip);
 
   if (wXResolution > (SENSOR_DPI / 2))
@@ -2241,23 +2276,18 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
       SendData (chip, ES01_96_GPIOValue8_15, 0x00);
     }
 
-  if (lsLightSource == SS_REFLECTIVE)
-    {
-      if (wXResolution > (SENSOR_DPI / 2))
-	wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Full;
-      else
-	wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Half;
-    }
-  else
-    {
-      if (ScanType == SCAN_TYPE_NORMAL)
-	wCCD_PixelNumber = TA_IMAGE_PIXELNUMBER;
-      else
-	wCCD_PixelNumber = TA_CAL_PIXELNUMBER;
-    }
-
   SetLineTimeAndExposure (chip);
+
+  /* needed for computation of dummy cycle number */
+  chip->dwBytesCountPerRow = (unsigned int) wWidth * (bScanBits / 8);
+  DBG (DBG_ASIC, "dwBytesCountPerRow=%d\n", chip->dwBytesCountPerRow);
+
+  if (ScanType == SCAN_TYPE_NORMAL)
+    bDummyCycleNum = GetDummyCycleNumber (chip, wYResolution, lsLightSource);
+  else
+    bDummyCycleNum = 1;
   SendData (chip, ES01_CB_CCDDummyCycleNumber, bDummyCycleNum);
+
   SetLEDTime (chip);
 
   SendData (chip, ES01_74_HARDWARE_SETTING,
@@ -2328,6 +2358,21 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
 
   SetPackAddress (chip, wWidth, wX, XRatioAdderDouble, XRatioTypeDouble, 0,
 		  &ValidPixelNumber);
+
+  if (lsLightSource == SS_REFLECTIVE)
+    {
+      if (wXResolution > (SENSOR_DPI / 2))
+	wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Full;
+      else
+	wCCD_PixelNumber = chip->Timing.wCCDPixelNumber_Half;
+    }
+  else
+    {
+      if (ScanType == SCAN_TYPE_NORMAL)
+	wCCD_PixelNumber = TA_IMAGE_PIXELNUMBER;
+      else
+	wCCD_PixelNumber = TA_CAL_PIXELNUMBER;
+    }
 
   if (ScanType == SCAN_TYPE_NORMAL)
     {
@@ -2488,6 +2533,7 @@ Asic_ScanStart (ASIC * chip)
       return SANE_STATUS_DEVICE_BUSY;
     }
 
+  /* NOTE: 4800H48U driver reads offset 0x22 */
   status = GetChipStatus(chip, 0x1c | 0x20, NULL);
   if (status != SANE_STATUS_GOOD)
     return status;

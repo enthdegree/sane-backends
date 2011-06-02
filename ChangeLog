@@ -1,3 +1,8 @@
+2011-06-02 Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: add udev+acl output mode, udev rules using ACLs
+	for the scanner group instead of making the device root:scanner 0664.
+	This is designed to help with MFPs and play nice with ConsoleKit.
+
 2011-04-20 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.c backend/genesys_devices.c
 	backend/genesys.conf.in: add Xerox 2400 onetouch model and improve

@@ -80,6 +80,7 @@ typedef enum output_mode
   output_mode_usermap,
   output_mode_db,
   output_mode_udev,
+  output_mode_udevacl,
   output_mode_plist,
   output_mode_hal,
   output_mode_halnew
@@ -316,7 +317,7 @@ print_usage (char *program_name)
 	  "(multiple directories can be concatenated by \":\")\n");
   printf ("  -m|--mode mode         "
 	  "Output mode (ascii, html-backends-split, html-mfgs,\n"
-	  "                         xml, statistics, usermap, db, udev, plist, hal, hal-new)\n");
+	  "                         xml, statistics, usermap, db, udev, udev+acl, plist, hal, hal-new)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -412,6 +413,11 @@ get_options (int argc, char **argv)
 	    {
 	      DBG_INFO ("Output mode: %s\n", optarg);
 	      mode = output_mode_udev;
+	    }
+	  else if (strcmp (optarg, "udev+acl") == 0)
+	    {
+	      DBG_INFO ("Output mode: %s\n", optarg);
+	      mode = output_mode_udevacl;
 	    }
 	  else if (strcmp (optarg, "plist") == 0)
 	    {
@@ -3525,8 +3531,14 @@ print_udev (void)
 	    }
 	}
       printf ("\n");
-      printf ("ATTRS{idVendor}==\"%s\", ATTRS{idProduct}==\"%s\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
-	      usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2, DEVMODE, DEVGROUP);
+
+      if (mode == output_mode_udevacl)
+	printf ("ATTRS{idVendor}==\"%s\", ATTRS{idProduct}==\"%s\", ENV{libsane_matched}=\"yes\"\n",
+		usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2);
+      else
+	printf ("ATTRS{idVendor}==\"%s\", ATTRS{idProduct}==\"%s\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
+		usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2, DEVMODE, DEVGROUP);
+
       usbid = usbid->next;
     }
 
@@ -3538,7 +3550,13 @@ print_udev (void)
   printf ("SUBSYSTEMS!=\"scsi\", GOTO=\"libsane_scsi_rules_end\"\n\n");
   printf ("LABEL=\"libsane_scsi_rules_begin\"\n");
   printf ("# Generic: SCSI device type 6 indicates a scanner\n");
-  printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"6\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n", DEVMODE, DEVGROUP);
+
+  if (mode == output_mode_udevacl)
+    printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"6\", ENV{libsane_matched}=\"yes\"\n");
+  else
+    printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"6\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n", DEVMODE, DEVGROUP);
+
+
   printf ("# Some scanners advertise themselves as SCSI device type 3\n");
 
   while (scsiid)
@@ -3571,13 +3589,21 @@ print_udev (void)
 	    }
         }
       printf ("\n");
-      printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
+
+      if (mode == output_mode_udevacl)
+	printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", ENV{libsane_matched}=\"yes\"\n",
+		scsiid->scsi_vendor_id, scsiid->scsi_product_id);
+      else
+	printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
 	      scsiid->scsi_vendor_id, scsiid->scsi_product_id, DEVMODE, DEVGROUP);
       scsiid = scsiid->next;
     }
-  printf ("LABEL=\"libsane_scsi_rules_end\"\n\n");
+  printf ("LABEL=\"libsane_scsi_rules_end\"\n");
 
-  printf ("LABEL=\"libsane_rules_end\"\n");
+  if (mode == output_mode_udevacl)
+    printf("\nENV{libsane_matched}==\"yes\", RUN+=\"/bin/setfacl -m g:%s:rw $env{DEVNAME}\"\n", DEVGROUP);
+
+  printf ("\nLABEL=\"libsane_rules_end\"\n");
 }
 
 static void
@@ -3769,6 +3795,7 @@ main (int argc, char **argv)
       print_db ();
       break;
     case output_mode_udev:
+    case output_mode_udevacl:
       print_udev ();
       break;
     case output_mode_plist:

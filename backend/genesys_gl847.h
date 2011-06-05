@@ -152,6 +152,9 @@
 #define REG0B_48MHZ     0x60
 #define REG0B_60MHZ     0x80
 
+#define REG0C           0x0c
+#define REG0C_CCDLMT    0x0f
+
 #define REG0D 		0x0d
 #define REG0D_FULLSTP   0x10
 #define REG0D_SEND      0x80
@@ -192,6 +195,7 @@
 #define REG1A_CK3INV	0x04
 #define REG1A_LINECLP	0x02
 
+#define REG1C           0x1c
 #define REG1C_TGTIME    0x07
 
 #define REG1D_CK4LOW	0x80

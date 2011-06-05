@@ -3314,10 +3314,11 @@ genesys_restore_calibration (Genesys_Device * dev)
       if (status == SANE_STATUS_GOOD)
 	{
 	  memcpy (&dev->frontend, &cache->frontend, sizeof (dev->frontend));
-	  /* don't restore the gamma fields */
-	  memcpy (&dev->sensor, &cache->sensor,
-		  offsetof (Genesys_Sensor, red_gamma));
-
+          /* we don't restore the gamma fields */
+          /* XXX STEF XXX
+	  memcpy (&dev->sensor, &cache->sensor, offsetof (Genesys_Sensor, red_gamma));
+          */
+	  memcpy (dev->sensor.regs_0x10_0x1d, cache->sensor.regs_0x10_0x1d, 6);
 	  free (dev->dark_average_data);
 	  free (dev->white_average_data);
 
@@ -3425,11 +3426,11 @@ genesys_save_calibration (Genesys_Device * dev)
     }
   else
     {
-      cache = malloc (sizeof (*cache));
+      cache = malloc (sizeof (Genesys_Calibration_Cache));
       if (!cache)
 	return SANE_STATUS_NO_MEM;
 
-      memset (cache, 0, sizeof (*cache));
+      memset (cache, 0, sizeof (Genesys_Calibration_Cache));
 
       cache->next = dev->calibration_cache;
       dev->calibration_cache = cache;
@@ -5237,7 +5238,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 	{
           if (!(dev->model->flags & GENESYS_FLAG_SIS_SENSOR))
 	  fprintf (rawfile,
-		   "P%c\n%d %d\n%d\n",
+		   "P%c\n%05d %05d\n%d\n",
 		   dev->current_setup.channels == 1 ?
 		   (dev->current_setup.depth == 1 ? '4' : '5') : '6',
 		   dev->current_setup.pixels,
@@ -5246,7 +5247,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
           else
             {
 	  fprintf (rawfile,
-		   "P5\n%d %d\n%d\n",
+		   "P5\n%05d %05d\n%d\n",
 		   (dev->sensor.sensor_pixels*3*dev->settings.xres)/dev->sensor.optical_res,
 		   dev->current_setup.lines,
 		   (1 << dev->current_setup.depth) - 1);
@@ -6640,28 +6641,34 @@ probe_genesys_devices (void)
   return status;
 }
 
-/* this should be changed if one of the substructures of 
+/**
+ * This should be changed if one of the substructures of 
    Genesys_Calibration_Cache change, but it must be changed if there are
    changes that don't change size -- at least for now, as we store most 
    of Genesys_Calibration_Cache as is.
 */
 #define CALIBRATION_VERSION 1
 
-static void
-read_calibration (Genesys_Device * dev)
+/**
+ * reads previously cached calibration data
+ * from file
+ */
+SANE_Status
+sanei_genesys_read_calibration (Genesys_Device * dev)
 {
   FILE *fp;
   uint8_t vers = 0;
   uint32_t size = 0;
   struct Genesys_Calibration_Cache *cache;
+  SANE_Status status=SANE_STATUS_GOOD;
 
-  DBG (DBG_proc, "read_calibration: enter\n");
+  DBG (DBG_proc, "sanei_genesys_read_calibration: enter\n");
   fp = fopen (dev->calib_file, "rb");
   if (!fp)
     {
       DBG (DBG_info, "Calibration: Cannot open %s\n", dev->calib_file);
-      DBG (DBG_proc, "read_calibration: exit\n");
-      return;
+      DBG (DBG_proc, "sanei_genesys_read_calibration: exit\n");
+      return SANE_STATUS_IO_ERROR;
     }
 
   /* these two checks ensure that most bad things cannot happen */
@@ -6670,8 +6677,8 @@ read_calibration (Genesys_Device * dev)
     {
       DBG (DBG_info, "Calibration: Bad version\n");
       fclose (fp);
-      DBG (DBG_proc, "read_calibration: exit\n");
-      return;
+      DBG (DBG_proc, "sanei_genesys_read_calibration: exit\n");
+      return SANE_STATUS_INVAL;
     }
   fread (&size, 4, 1, fp);
   if (size != sizeof (struct Genesys_Calibration_Cache))
@@ -6679,19 +6686,19 @@ read_calibration (Genesys_Device * dev)
       DBG (DBG_info,
 	   "Calibration: Size of calibration cache struct differs\n");
       fclose (fp);
-      DBG (DBG_proc, "read_calibration: exit\n");
-      return;
+      DBG (DBG_proc, "sanei_genesys_read_calibration: exit\n");
+      return SANE_STATUS_INVAL;
     }
 
-  while (!feof (fp))
+  while (!feof (fp) && status==SANE_STATUS_GOOD)
     {
-      DBG (DBG_info, "read_calibration: reading one record\n");
+      DBG (DBG_info, "sanei_genesys_read_calibration: reading one record\n");
       cache = (struct Genesys_Calibration_Cache *) malloc (sizeof (*cache));
 
       if (!cache)
 	{
 	  DBG (DBG_error,
-	       "read_calibration: could not allocate cache struct\n");
+	       "sanei_genesys_read_calibration: could not allocate cache struct\n");
 	  break;
 	}
 
@@ -6701,7 +6708,8 @@ read_calibration (Genesys_Device * dev)
 	  if ((x) < 1)							\
 	    {								\
 	      free(cache);						\
-	      DBG (DBG_warn, "read_calibration: partial calibration record\n"); \
+	      DBG (DBG_warn, "sanei_genesys_read_calibration: partial calibration record\n"); \
+              status=SANE_STATUS_EOF;                                   \
 	      break;							\
 	    }								\
 	} while(0)
@@ -6710,49 +6718,35 @@ read_calibration (Genesys_Device * dev)
       if (fread (&cache->used_setup, sizeof (cache->used_setup), 1, fp) < 1)
 	{			/* eof is only detected here */
 	  free (cache);
+          status=SANE_STATUS_GOOD;
 	  break;
 	}
-      BILT1 (fread
-	     (&cache->last_calibration, sizeof (cache->last_calibration), 1,
-	      fp));
+      BILT1 (fread (&cache->last_calibration, sizeof (cache->last_calibration), 1, fp));
       BILT1 (fread (&cache->frontend, sizeof (cache->frontend), 1, fp));
       /* the gamma (and later) fields are not stored */
-      BILT1 (fread
-	     (&cache->sensor, offsetof (Genesys_Sensor, red_gamma), 1, fp));
-      BILT1 (fread
-	     (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp));
-      BILT1 (fread
-	     (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp));
-      BILT1 (fread
-	     (&cache->average_size, sizeof (cache->average_size), 1, fp));
-
-      /* Make sure we don't do bad things if someone feeds us a forged/
-         sufficiently corrupted calibration file.
-         gl843 can do up to 0x5800 pixels. add some slack for the
-         dummy/blank pixel mess */
-      if (cache->average_size > 0x5800 * 2 * 3 * 2 + 0x100)
-	{
-	  DBG (DBG_error, "read_calibration: bad size of calibration data\n");
-	  free (cache);
-	  break;
-	}
+      BILT1 (fread (&cache->sensor, offsetof (Genesys_Sensor, red_gamma), 1, fp));
+      BILT1 (fread (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp));
+      BILT1 (fread (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp));
+      BILT1 (fread (&cache->average_size, sizeof (cache->average_size), 1, fp));
 
       cache->white_average_data = (uint8_t *) malloc (cache->average_size);
       cache->dark_average_data = (uint8_t *) malloc (cache->average_size);
 
       if (!cache->white_average_data || !cache->dark_average_data)
 	{
+          status=SANE_STATUS_NO_MEM;
 	  FREE_IFNOT_NULL (cache->white_average_data);
 	  FREE_IFNOT_NULL (cache->dark_average_data);
 	  free (cache);
 	  DBG (DBG_error,
-	       "read_calibration: could not allocate space for average data\n");
+	       "sanei_genesys_read_calibration: could not allocate space for average data\n");
 	  break;
 	}
 
       if (fread (cache->white_average_data, cache->average_size, 1, fp) < 1)
 	{
-	  DBG (DBG_warn, "read_calibration: partial calibration record\n");
+          status=SANE_STATUS_EOF;
+	  DBG (DBG_warn, "sanei_genesys_read_calibration: partial calibration record\n");
 	  free (cache->white_average_data);
 	  free (cache->dark_average_data);
 	  free (cache);
@@ -6760,20 +6754,22 @@ read_calibration (Genesys_Device * dev)
 	}
       if (fread (cache->dark_average_data, cache->average_size, 1, fp) < 1)
 	{
-	  DBG (DBG_warn, "read_calibration: partial calibration record\n");
+	  DBG (DBG_warn, "sanei_genesys_read_calibration: partial calibration record\n");
 	  free (cache->white_average_data);
 	  free (cache->dark_average_data);
 	  free (cache);
+          status=SANE_STATUS_EOF;
 	  break;
 	}
 #undef BILT1
-      DBG (DBG_info, "read_calibration: adding record to list\n");
+      DBG (DBG_info, "sanei_genesys_read_calibration: adding record to list\n");
       cache->next = dev->calibration_cache;
       dev->calibration_cache = cache;
     }
 
   fclose (fp);
-  DBG (DBG_proc, "read_calibration: exit\n");
+  DBG (DBG_proc, "sanei_genesys_read_calibration: exit\n");
+  return status;
 }
 
 static void
@@ -6783,10 +6779,12 @@ write_calibration (Genesys_Device * dev)
   uint8_t vers = 0;
   uint32_t size = 0;
   struct Genesys_Calibration_Cache *cache;
+
+  DBGSTART;
   fp = fopen (dev->calib_file, "wb");
   if (!fp)
     {
-      DBG (DBG_info, "Calibration: Cannot open %s\n", dev->calib_file);
+      DBG (DBG_info, "write_calibration: Cannot open %s for writing\n", dev->calib_file);
       return;
     }
 
@@ -6798,18 +6796,18 @@ write_calibration (Genesys_Device * dev)
   for (cache = dev->calibration_cache; cache; cache = cache->next)
     {
       fwrite (&cache->used_setup, sizeof (cache->used_setup), 1, fp);
-      fwrite (&cache->last_calibration, sizeof (cache->last_calibration), 1,
-	      fp);
+      fwrite (&cache->last_calibration, sizeof (cache->last_calibration), 1, fp);
       fwrite (&cache->frontend, sizeof (cache->frontend), 1, fp);
       /* the gamma (and later) fields are not stored */
       fwrite (&cache->sensor, offsetof (Genesys_Sensor, red_gamma), 1, fp);
+
       fwrite (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp);
       fwrite (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp);
       fwrite (&cache->average_size, sizeof (cache->average_size), 1, fp);
       fwrite (cache->white_average_data, cache->average_size, 1, fp);
       fwrite (cache->dark_average_data, cache->average_size, 1, fp);
     }
-
+  DBGCOMPLETED;
   fclose (fp);
 }
 
@@ -7182,7 +7180,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   /* now open file, fetch calibration records */
 
-  read_calibration (s->dev);
+  sanei_genesys_read_calibration (s->dev);
 
   DBG (DBG_proc, "sane_open: exit\n");
   return SANE_STATUS_GOOD;

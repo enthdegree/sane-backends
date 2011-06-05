@@ -869,6 +869,8 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   unsigned int min_restep = 0x20;
   uint8_t val, effective;
   int fast_step_type;
+  int acdcdis;
+  unsigned int ccdlmt,tgtime;
 
   DBGSTART;
   DBG (DBG_proc, "gl847_init_motor_regs_scan : scan_exposure_time=%d, "
@@ -882,12 +884,8 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   /* get step multiplier */
   factor = gl847_get_step_multiplier (reg);
 
+  /* we never use fast fed since we do manual feed for the scans */
   use_fast_fed=0;
-  if(scan_yres>600 && feed_steps>900)
-    use_fast_fed=1;
-  /* we are doing custom feeding at high resolution */
-  if(scan_step_type>2)
-    use_fast_fed=0;
 
   sanei_genesys_set_triple(reg, REG_LINCNT, scan_lines);
   DBG (DBG_io, "%s: lincnt=%d\n", __FUNCTION__, scan_lines);
@@ -905,8 +903,12 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   if (flags & MOTOR_FLAG_AUTO_GO_HOME)
     r->value |= REG02_AGOHOME;
 
-  if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE || scan_yres>=2400)
-    r->value |= REG02_ACDCDIS;
+  acdcdis=0;
+  if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+    {
+      r->value |= REG02_ACDCDIS;
+      acdcdis=1;
+    }
 
   /* scan and backtracking slope table */
   slow_time=sanei_genesys_slope_table(scan_table,
@@ -945,12 +947,16 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
 
   /* substract acceleration distance from feedl XXX STEF XXX : 2 different step type */
   feedl=feed_steps;
-  feedl<<=fast_step_type;
 
   dist = scan_steps;
   if (use_fast_fed) 
     {
+        feedl<<=fast_step_type;
         dist += fast_steps*2;
+    }
+  else
+    {
+      feedl<<=scan_step_type;
     }
   dist *=factor;
   DBG (DBG_io2, "%s: acceleration distance=%d\n", __FUNCTION__, dist);
@@ -964,14 +970,11 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   sanei_genesys_set_triple(reg,REG_FEEDL,feedl);
   DBG (DBG_io ,"%s: feedl=%d\n",__FUNCTION__,feedl);
 
-  sanei_genesys_calculate_zmode2 (use_fast_fed,
-				  scan_exposure_time,
-				  scan_table,
-				  scan_steps*factor,
-				  feedl,
-                                  fast_steps*factor,
-                                  &z1,
-                                  &z2);
+  r = sanei_genesys_get_address (reg, REG0C);
+  ccdlmt=(r->value & REG0C_CCDLMT)+1;
+
+  r = sanei_genesys_get_address (reg, REG1C);
+  tgtime=1<<(r->value & REG1C_TGTIME);
 
   /* hi res motor speed GPIO */
   RIE (sanei_genesys_read_register (dev, REG6C, &effective));
@@ -1006,6 +1009,15 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   r->value = min_restep;
   r = sanei_genesys_get_address (reg, REG_BWDSTEP);
   r->value = min_restep;
+
+  sanei_genesys_calculate_zmode2(use_fast_fed,
+			         scan_exposure_time*ccdlmt*tgtime,
+				 scan_table,
+				 scan_steps*factor,
+				 feedl,
+                                 min_restep*factor,
+                                 &z1,
+                                 &z2);
 
   DBG (DBG_info, "gl847_init_motor_regs_scan: z1 = %d\n", z1);
   r = sanei_genesys_get_address (reg, REG60);
@@ -1348,7 +1360,8 @@ gl847_init_scan_regs (Genesys_Device * dev,
 		      float lines,
 		      unsigned int depth,
 		      unsigned int channels,
-		      int color_filter, unsigned int flags)
+		      int color_filter,
+                      unsigned int flags)
 {
   int used_res;
   int start, used_pixels;
@@ -1380,6 +1393,23 @@ gl847_init_scan_regs (Genesys_Device * dev,
        "Depth/Channels: %u/%u\n"
        "Flags         : %x\n\n",
        xres, yres, lines, pixels, startx, starty, depth, channels, flags);
+
+#ifdef SANE_DEBUG_LOG_RAW_DATA
+  /* for raw data debug, we know here the exact raw image
+   * attributes */
+  if (rawfile == NULL && DBG_LEVEL >= DBG_data)
+    {
+      if (rawfile != NULL)
+	{
+          rewind(rawfile);
+	  fprintf (rawfile,
+		   "P5\n%05d %05d\n%d\n",
+		   pixels*channel,
+		   lines,
+		   (1 << depth) - 1);
+        }
+    }
+#endif
 
   /* we may have 2 domains for ccd: xres below or above half ccd max dpi */
   if (dev->sensor.optical_res < 2 * xres ||
@@ -2112,7 +2142,6 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
                         SCAN_FLAG_FEEDING |
-			SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
   sanei_genesys_set_double(local_reg,REG_EXPR,0);
   sanei_genesys_set_double(local_reg,REG_EXPG,0);
@@ -2206,8 +2235,7 @@ gl847_search_start_position (Genesys_Device * dev)
 				 600, dev->model->search_lines, 8, 1, 1,	/*green */
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE);
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
 
   /* send to scanner */
   status = gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS);
@@ -2435,7 +2463,7 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
   memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
-  resolution=300;
+  resolution=200;
   gl847_init_scan_regs (dev,
 			local_reg,
 			resolution,
@@ -2450,7 +2478,6 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
                         SCAN_FLAG_FEEDING |
-			SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
   sanei_genesys_set_triple(local_reg,REG_EXPR,0);
   sanei_genesys_set_triple(local_reg,REG_EXPG,0);
@@ -2549,11 +2576,11 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   move = SANE_UNFIX (dev->model->y_offset);
   move += dev->settings.tl_y;
   move = (move * move_dpi) / MM_PER_INCH;
-  DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
+  DBG (DBG_info, "%s: move=%f steps\n",__FUNCTION__, move);
 
-  /* at high res we do fast move to scan area */
-  if(dev->settings.xres>1200 && move > 900)
+  if(dev->settings.yres>=1200)
     {
+      move -= 90; /* [90,80] */
       status = gl847_feed (dev, move);
       if (status != SANE_STATUS_GOOD)
         {
@@ -2562,6 +2589,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
         }
       move=0;
     }
+  DBG (DBG_info, "%s: move=%f steps\n", __FUNCTION__, move);
 
   /* clear scancnt and fedcnt */
   val = REG0D_CLRLNCNT;
@@ -2579,6 +2607,9 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   /* emulated lineart from gray data is required for now */
   flags |= SCAN_FLAG_DYNAMIC_LINEART;
 
+  /* backtracking isn't handled well, so don't enable it */
+  flags |= SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
+
   status = gl847_init_scan_regs (dev,
 				 dev->reg,
 				 dev->settings.xres,
@@ -2594,7 +2625,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
 
   if (status != SANE_STATUS_GOOD)
     return status;
-
+  
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }

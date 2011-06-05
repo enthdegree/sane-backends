@@ -2753,13 +2753,6 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
         }
       move=0;
     }
-  else
-    {
-      if(channels==1)
-        {
-          move-=0;
-        }
-    }
   DBG (DBG_info, "gl124_init_regs_for_scan: move=%f steps\n", move);
 
   /* start */

@@ -1009,7 +1009,7 @@ SANE_Status
 sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * data)
 {
   uint8_t outdata[8];
-  size_t written;
+  size_t written,blksize;
   SANE_Status status = SANE_STATUS_GOOD;
   int i;
   char msg[60]="AHB=";
@@ -1045,14 +1045,28 @@ sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * da
     }
 
   /* write actual data */
-  written = size;
-  status = sanei_usb_write_bulk (dn, data, &written);
-  if (status != SANE_STATUS_GOOD)
+  written = 0;
+  do
     {
-      DBG (DBG_error, "sanei_genesys_write_ahb: failed while writing bulk data: %s\n",
-	   sane_strstatus (status));
-      return status;
+      if (size - written > BULKOUT_MAXSIZE)
+        {
+          blksize = BULKOUT_MAXSIZE;
+        }
+      else
+        {
+          blksize = size - written;
+        }
+      status = sanei_usb_write_bulk (dn, data + written, &blksize);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error,
+               "sanei_genesys_write_ahb: failed while writing bulk data: %s\n",
+               sane_strstatus (status));
+          return status;
+        }
+      written += blksize;
     }
+  while (written < size);
 
   return status;
 }

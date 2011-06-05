@@ -884,8 +884,11 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   /* get step multiplier */
   factor = gl847_get_step_multiplier (reg);
 
-  /* we never use fast fed since we do manual feed for the scans */
   use_fast_fed=0;
+  if(dev->settings.yres==1200 && feed_steps>100)
+    {
+      use_fast_fed=1;
+    }
 
   sanei_genesys_set_triple(reg, REG_LINCNT, scan_lines);
   DBG (DBG_io, "%s: lincnt=%d\n", __FUNCTION__, scan_lines);
@@ -2578,9 +2581,8 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   move = (move * move_dpi) / MM_PER_INCH;
   DBG (DBG_info, "%s: move=%f steps\n",__FUNCTION__, move);
 
-  if(dev->settings.yres>=1200)
+  if(dev->settings.yres>1200)
     {
-      move -= 90; /* [90,80] */
       status = gl847_feed (dev, move);
       if (status != SANE_STATUS_GOOD)
         {

@@ -885,7 +885,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   factor = gl847_get_step_multiplier (reg);
 
   use_fast_fed=0;
-  if(dev->settings.yres==1200 && feed_steps>100)
+  if(dev->settings.yres>=1200 && feed_steps>100)
     {
       use_fast_fed=1;
     }
@@ -2581,7 +2581,8 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   move = (move * move_dpi) / MM_PER_INCH;
   DBG (DBG_info, "%s: move=%f steps\n",__FUNCTION__, move);
 
-  if(dev->settings.yres>1200)
+  /* unused for now */
+  if(dev->settings.yres>31200)
     {
       status = gl847_feed (dev, move);
       if (status != SANE_STATUS_GOOD)

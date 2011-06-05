@@ -163,7 +163,7 @@ static const SANE_Range u16_range = {
   0				/* quantization */
 };
 
-static const SANE_Range threshold_percentage_range = {
+static const SANE_Range percentage_range = {
   SANE_FIX (0),			/* minimum */
   SANE_FIX (100),		/* maximum */
   SANE_FIX (1)			/* quantization */
@@ -174,7 +174,6 @@ static const SANE_Range threshold_curve_range = {
   127,		        /* maximum */
   1			/* quantization */
 };
-
 
 void
 sanei_genesys_init_structs (Genesys_Device * dev)
@@ -5841,8 +5840,13 @@ calc_parameters (Genesys_Scanner * s)
   /* some digital processing requires the whole picture to be buffered */
   /* no digital processing takes place when doing preview, or when bit depth is
    * higher than 8 bits */
-  if ((s->val[OPT_SWDESPECK].b || s->val[OPT_SWCROP].b || s->val[OPT_SWDESKEW].b)
-      && (!s->val[OPT_PREVIEW].b) && (s->val[OPT_BIT_DEPTH].w <= 8))
+  if ((s->val[OPT_SWDESPECK].b 
+    || s->val[OPT_SWCROP].b 
+    || s->val[OPT_SWDESKEW].b
+    || s->val[OPT_SWDEROTATE].b
+    ||(SANE_UNFIX(s->val[OPT_SWSKIP].w)>0))
+    && (!s->val[OPT_PREVIEW].b)
+    && (s->val[OPT_BIT_DEPTH].w <= 8))
     {
       s->dev->buffer_image=SANE_TRUE;
     }
@@ -6167,11 +6171,32 @@ init_options (Genesys_Scanner * s)
 
   /* crop by software */
   s->opt[OPT_SWCROP].name = "swcrop";
-  s->opt[OPT_SWCROP].title = "Software crop";
-  s->opt[OPT_SWCROP].desc = "Request backend to remove border from pages digitally";
+  s->opt[OPT_SWCROP].title = SANE_I18N ("Software crop");
+  s->opt[OPT_SWCROP].desc = SANE_I18N ("Request backend to remove border from pages digitally");
   s->opt[OPT_SWCROP].type = SANE_TYPE_BOOL;
   s->opt[OPT_SWCROP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->opt[OPT_SWCROP].unit = SANE_UNIT_NONE;
   s->val[OPT_SWCROP].b = SANE_FALSE;
+
+  /* Software blank page skip */
+  s->opt[OPT_SWSKIP].name = "swskip";
+  s->opt[OPT_SWSKIP].title = SANE_I18N ("Software blank skip percentage");
+  s->opt[OPT_SWSKIP].desc = SANE_I18N("Request driver to discard pages with low numbers of dark pixels");
+  s->opt[OPT_SWSKIP].type = SANE_TYPE_FIXED;
+  s->opt[OPT_SWSKIP].unit = SANE_UNIT_PERCENT;
+  s->opt[OPT_SWSKIP].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_SWSKIP].constraint.range = &(percentage_range);
+  /* disable by default */
+  s->val[OPT_SWSKIP].w = 0;
+
+  /* Software Derotate */
+  s->opt[OPT_SWDEROTATE].name = "swderotate";
+  s->opt[OPT_SWDEROTATE].title = SANE_I18N ("Software derotate");
+  s->opt[OPT_SWDEROTATE].desc = SANE_I18N("Request driver to detect and correct 90 degree image rotation");
+  s->opt[OPT_SWDEROTATE].type = SANE_TYPE_BOOL;
+  s->opt[OPT_SWCROP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->opt[OPT_SWDEROTATE].unit = SANE_UNIT_NONE;
+  s->val[OPT_SWDEROTATE].b = SANE_FALSE;
 
   /* "Extras" group: */
   s->opt[OPT_EXTRAS_GROUP].title = SANE_I18N ("Extras");
@@ -6188,7 +6213,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_THRESHOLD].type = SANE_TYPE_FIXED;
   s->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_THRESHOLD].constraint.range = &threshold_percentage_range;
+  s->opt[OPT_THRESHOLD].constraint.range = &percentage_range;
   s->val[OPT_THRESHOLD].w = SANE_FIX (50);
   
   /* BW threshold curve */
@@ -7327,6 +7352,8 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_SWDESKEW:
     case OPT_SWCROP:
     case OPT_SWDESPECK:
+    case OPT_SWDEROTATE:
+    case OPT_SWSKIP:
     case OPT_DESPECK:
       *(SANE_Word *) val = s->val[option].w;
       break;
@@ -7442,6 +7469,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_SWCROP:
     case OPT_SWDESKEW:
     case OPT_DESPECK:
+    case OPT_SWDEROTATE:
+    case OPT_SWSKIP:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_PREVIEW:
       s->val[option].w = *(SANE_Word *) val;
@@ -7470,6 +7499,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
           DISABLE(OPT_SWDESPECK);
           DISABLE(OPT_SWCROP);
           DISABLE(OPT_DESPECK);
+          DISABLE(OPT_SWDEROTATE);
+          DISABLE(OPT_SWSKIP);
         }
       else
         {
@@ -7477,6 +7508,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
           ENABLE(OPT_SWDESPECK);
           ENABLE(OPT_SWCROP);
           ENABLE(OPT_DESPECK);
+          ENABLE(OPT_SWDEROTATE);
+          ENABLE(OPT_SWSKIP);
         }
       RIE (calc_parameters (s));
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
@@ -7888,6 +7921,24 @@ sane_start (SANE_Handle handle)
   if (s->dev->buffer_image)
     {
       RIE(genesys_buffer_image(s));
+
+      /* check if we need to skip this page, sheetfed scanners
+       * can go to next doc while flatbed ones can't */
+      if (s->val[OPT_SWSKIP].w && IS_ACTIVE(OPT_SWSKIP))
+        {
+          status = sanei_magic_isBlank(&s->params,
+				       s->dev->img_buffer,
+                                       SANE_UNFIX(s->val[OPT_SWSKIP].w));
+          if(status == SANE_STATUS_NO_DOCS)
+            {
+              if (s->dev->model->is_sheetfed == SANE_TRUE)
+                {
+                  DBG (DBG_info, "sane_start: blank page, recurse\n");
+                  return sane_start(handle);
+                }
+              return status;
+            }
+        }
    
       /* deskew image if required */
       if(s->val[OPT_SWDESKEW].b == SANE_TRUE)
@@ -7905,6 +7956,12 @@ sane_start (SANE_Handle handle)
       if(s->val[OPT_SWCROP].b == SANE_TRUE) 
         {
           RIE(genesys_crop(s));
+        }
+   
+      /* de-rotate image if required */
+      if(s->val[OPT_SWDEROTATE].b == SANE_TRUE) 
+        {
+          RIE(genesys_derotate(s));
         }
     }
 

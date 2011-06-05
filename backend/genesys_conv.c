@@ -1,6 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2010-2011 Stéphane Voltz <stef.dev@free.fr>
 
    This file is part of the SANE package.
    
@@ -383,5 +384,42 @@ genesys_despeck(Genesys_Scanner *s)
   return SANE_STATUS_GOOD;
 }
 
+/** Look if image needs rotation and apply it
+ * */
+static SANE_Status
+genesys_derotate (Genesys_Scanner * s)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  int angle = 0;
+  int resolution = s->val[OPT_RESOLUTION].w;
 
+  DBGSTART;
+  status = sanei_magic_findTurn (&s->params,
+				 s->dev->img_buffer,
+				 resolution,
+                                 resolution,
+                                 &angle);
+
+  if (status)
+    {
+      DBG (DBG_warn, "%s: failed : %d\n", __FUNCTION__, status);
+      DBGCOMPLETED;
+      return SANE_STATUS_GOOD;
+    }
+
+  /* apply rotation angle found */
+  status = sanei_magic_turn (&s->params, s->dev->img_buffer, angle);
+  if (status)
+    {
+      DBG (DBG_warn, "%s: failed : %d\n", __FUNCTION__, status);
+      DBGCOMPLETED;
+      return SANE_STATUS_GOOD;
+    }
+
+  /* update counters to new image size */
+  s->dev->total_bytes_to_read = s->params.bytes_per_line * s->params.lines;
+
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

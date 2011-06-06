@@ -2384,66 +2384,6 @@ gl847_init_regs_for_coarse_calibration (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-
-/* init registers for shading calibration */
-static SANE_Status
-gl847_init_regs_for_shading (Genesys_Device * dev)
-{
-  SANE_Status status;
-
-  DBG (DBG_proc, "gl847_init_regs_for_shading: lines = %d\n",
-       dev->model->shading_lines);
-
-  dev->calib_channels = 3;
-
-  /* initial calibration reg values */
-  memcpy (dev->calib_reg, dev->reg,
-	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
-
-  dev->calib_resolution = sanei_genesys_compute_dpihw(dev,dev->settings.xres);
-  dev->calib_pixels = (dev->sensor.sensor_pixels*dev->calib_resolution)/dev->sensor.optical_res;
-
-  status = gl847_init_scan_regs (dev,
-				 dev->calib_reg,
-                                 dev->calib_resolution,
-				 dev->calib_resolution,
-				 0,
-				 0,
-				 dev->calib_pixels,
-				 dev->model->shading_lines,
-                                 16,
-				 dev->calib_channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-  				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
-
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_init_registers_for_shading: Failed to setup scan: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-  
-  dev->scanhead_position_in_steps += dev->model->shading_lines;
-
-  status =
-    gl847_bulk_write_register (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl847_init_registers_for_shading: Failed to bulk write registers: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
-}
-
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
  * @param steps number of steps to move
@@ -2520,6 +2460,61 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
   return SANE_STATUS_GOOD;
 }
 
+
+/* init registers for shading calibration */
+static SANE_Status
+gl847_init_regs_for_shading (Genesys_Device * dev)
+{
+  SANE_Status status;
+
+  DBG (DBG_proc, "gl847_init_regs_for_shading: lines = %d\n",
+       dev->model->shading_lines);
+
+  dev->calib_channels = 3;
+
+  /* initial calibration reg values */
+  memcpy (dev->calib_reg, dev->reg,
+	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
+
+  dev->calib_resolution = sanei_genesys_compute_dpihw(dev,dev->settings.xres);
+  dev->calib_pixels = (dev->sensor.sensor_pixels*dev->calib_resolution)/dev->sensor.optical_res;
+
+  status = gl847_init_scan_regs (dev,
+				 dev->calib_reg,
+                                 dev->calib_resolution,
+				 dev->calib_resolution,
+				 0,
+				 0,
+				 dev->calib_pixels,
+				 dev->model->shading_lines,
+                                 16,
+				 dev->calib_channels,
+				 dev->settings.color_filter,
+				 SCAN_FLAG_DISABLE_SHADING |
+				 SCAN_FLAG_DISABLE_GAMMA |
+  				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__, sane_strstatus (status));
+      return status;
+    }
+ 
+  status = gl847_bulk_write_register (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __FUNCTION__, sane_strstatus (status));
+      return status;
+    }
+
+  /* TODO this is a good approximation, replace by exact value */
+  dev->scanhead_position_in_steps = (6*dev->model->shading_lines*600)/dev->calib_resolution;
+
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
+
 /** @brief set up registers for the actual scan
  */
 static SANE_Status
@@ -2540,8 +2535,6 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
        "Lines     : %u\nPPL       : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n",
        dev->settings.yres, dev->settings.lines, dev->settings.pixels,
        dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
-
-  gl847_slow_back_home (dev, 1);
 
  /* channels */
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
@@ -2579,6 +2572,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   move = SANE_UNFIX (dev->model->y_offset);
   move += dev->settings.tl_y;
   move = (move * move_dpi) / MM_PER_INCH;
+  move -= dev->scanhead_position_in_steps;
   DBG (DBG_info, "%s: move=%f steps\n",__FUNCTION__, move);
 
   /* unused for now */
@@ -2791,7 +2785,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   /* write actual color channel data */
   for(i=0;i<3;i++)
     {
-      /* build up actual shading data by copying the part from he full width one
+      /* build up actual shading data by copying the part from the full width one
        * to the one corresponding to SHDAREA */
       ptr=buffer;
 
@@ -3025,8 +3019,6 @@ gl847_led_calibration (Genesys_Device * dev)
   /* cleanup before return */
   free (line);
  
-  gl847_slow_back_home (dev, SANE_TRUE);
-
   DBGCOMPLETED;
   return status;
 }
@@ -3503,7 +3495,6 @@ gl847_init (Genesys_Device * dev)
 
   /* Move home if needed */
   RIE (gl847_slow_back_home (dev, SANE_TRUE));
-  dev->scanhead_position_in_steps = 0;
 
   /* Set powersaving (default = 15 minutes) */
   RIE (gl847_set_powersaving (dev, 15));

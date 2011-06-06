@@ -37,7 +37,7 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-hp5590.5 sane-hpljm1005.5 sane-cardscan.5 sane-hp3900.5 \
 	sane-epjitsu.5 sane-hs2p.5 sane-canon_dr.5 sane-xerox_mfp.5 \
 	sane-rts8891.5 sane-coolscan3.5 sane-kvs1025.5 sane-kvs20xx.5 \
-	sane-p5.5 sane-magicolor.5
+	sane-kvs40xx.5 sane-p5.5 sane-magicolor.5
 
 EXTRA_DIST += sane-abaton.man sane-agfafocus.man sane-apple.man sane-as6e.man \
 	sane-dll.man sane-dc25.man sane-dmc.man sane-epson.man \
@@ -61,8 +61,8 @@ EXTRA_DIST += sane-abaton.man sane-agfafocus.man sane-apple.man sane-as6e.man \
 	sane-pixma.man sane-stv680.man sane-hp5590.man sane-hpljm1005.man \
 	sane-cardscan.man sane-hp3900.man sane-epjitsu.man sane-hs2p.man \
 	sane-canon_dr.man sane-xerox_mfp.man sane-rts8891.man \
-	sane-coolscan3.man sane-kvs1025.man sane-kvs20xx.man sane-p5.man \
-	sane-magicolor.man
+	sane-coolscan3.man sane-kvs1025.man sane-kvs20xx.man sane-kvs40xx.man \
+	sane-p5.man sane-magicolor.man
 
 man7_MANS = sane.7
 EXTRA_DIST += sane.man
@@ -175,6 +175,7 @@ DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/hp5590.desc descriptions/hp.desc descriptions/hpljm1005.desc \
   descriptions/hpsj5s.desc descriptions/hs2p.desc descriptions/ibm.desc \
   descriptions/kodak.desc descriptions/kvs1025.desc descriptions/kvs20xx.desc \
+  descriptions/kvs40xx.desc \
   descriptions/leo.desc descriptions/lexmark.desc descriptions/ma1509.desc \
   descriptions/magicolor.desc \
   descriptions/matsushita.desc descriptions/microtek2.desc \

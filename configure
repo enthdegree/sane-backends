@@ -16871,7 +16871,7 @@ ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
         dell1600n_net dmc epjitsu epson epson2 fujitsu genesys \
         gphoto2 gt68xx hp hp3500 hp3900 hp4200 hp5400 \
         hp5590 hpsj5s hpljm1005 hs2p ibm kodak kvs1025 kvs20xx \
-        leo lexmark ma1509 magicolor \
+        kvs40xx leo lexmark ma1509 magicolor \
         matsushita microtek microtek2 mustek mustek_pp \
         mustek_usb mustek_usb2 nec net niash pie pint \
         pixma plustek plustek_pp qcam ricoh rts8891 s9036 \
@@ -16982,7 +16982,7 @@ for be in ${BACKENDS}; do
     fi
     ;;
 
-    mustek_usb2)
+    mustek_usb2|kvs40xx)
     if test "${have_pthread}" != "yes"; then
       echo "*** $be backend requires pthread library - $DISABLE_MSG"
       backend_supported="no"
@@ -17143,7 +17143,7 @@ for be in ${BACKENDS}; do
     fi
     ;;
 
-    mustek_usb2)
+    mustek_usb2|kvs40xx)
     if test "${have_pthread}" != "yes"; then
       echo "*** $be backend requires pthread library - $DISABLE_MSG"
       backend_supported="no"

@@ -640,7 +640,7 @@ for be in ${BACKENDS}; do
     fi
     ;;
 
-    mustek_usb2)
+    mustek_usb2|kvs40xx)
     if test "${have_pthread}" != "yes"; then
       echo "*** $be backend requires pthread library - $DISABLE_MSG"
       backend_supported="no"

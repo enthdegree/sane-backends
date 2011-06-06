@@ -1,3 +1,10 @@
+2011-06-06 m. allan noah <kitno455 at gmail dot com>
+	* docs/*kvs40xx*, backend/kvs40xx*: New Panasonic KV-S40xx/70xx
+	backend, originally by Panasonic Russia.
+	* acinclude.m4, */Makefile.am, configure*: build new kvs40xx backend
+	* po/POTFILES: add new kvs40xx backend
+	* po/.gitignore: ignore sane-backends.pot
+
 2011-06-02 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: add udev+acl output mode, udev rules using ACLs
 	for the scanner group instead of making the device root:scanner 0664.

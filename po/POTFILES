@@ -43,6 +43,9 @@
 ../backend/hp-option.c
 ../backend/hp-option.h
 
+../backend/kvs40xx.c
+../backend/kvs40xx_opt.c
+
 ../backend/leo.c
 ../backend/leo.h
 

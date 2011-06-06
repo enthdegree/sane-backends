@@ -54,6 +54,10 @@ Backends:
  hpljm1005:     Philippe Rétornaz
  hs2p:		Jeremy Johnson
  ibm:           M.F., Henning Geinitz (*)
+ kodak:         m. allan noah (*)
+ kvs1025:       Tao Zhang, m. allan noah (*)
+ kvs20xx:       unknown, m. allan noah (*)
+ kvs40xx:       unknown, m. allan noah (*)
  leo:           Frank Zago (*)
  lexmark:       Fred Odendaal, Stéphane Voltz (*)
  ma1509:        Henning Geinitz (*)

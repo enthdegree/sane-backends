@@ -98,7 +98,7 @@ LATEX	= TEXINPUTS="$(srcdir):$$TEXINPUTS" @LATEX@
 DVIPS   = @DVIPS@
 MAKEINDEX = @MAKEINDEX@
 DLH	= TEXINPUTS="$(srcdir):$$TEXINPUTS" dlh
-MAN2HTML= nroff -man |\
+MAN2HTML= nroff -c -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
           -cgiurl '$$title.$$section.html'|\
 	  sed 's,<BODY>,<BODY BGCOLOR=\#FFFFFF TEXT=\#000000><H1 ALIGN=CENTER><IMG SRC="/images/sane.png" HEIGHT=117 WIDTH=346></H1>,'

@@ -2,10 +2,11 @@
 	* docs/*kvs40xx*, backend/kvs40xx*: New Panasonic KV-S40xx/70xx
 	backend, originally by Panasonic Russia.
 	* acinclude.m4, */Makefile.am, configure*: build new kvs40xx backend
-	* po/POTFILES: add new kvs40xx backend
+	* po/POTFILES: add kvs* backends
 	* po/.gitignore: ignore sane-backends.pot
 	* include/sane/sanei_magic.h, sanei/sanei_magic.c:
 	add new blank detection and rotation detection routines
+	* backend/kvs1025*, backend/Makefile*: add support for sanei_magic
 
 2011-06-02 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: add udev+acl output mode, udev rules using ACLs

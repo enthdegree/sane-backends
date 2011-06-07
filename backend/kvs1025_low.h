@@ -130,6 +130,14 @@ typedef enum
   OPT_INVERSE,			/* Inverse image */
   OPT_MIRROR,			/* Mirror image */
   OPT_JPEG,			/* JPEG Compression */
+  OPT_ROTATE,			/* Rotate image */
+
+  OPT_SWDESKEW,                 /* Software deskew */
+  OPT_SWDESPECK,                /* Software despeckle */
+  OPT_SWDEROTATE,               /* Software detect/correct 90 deg. rotation */
+  OPT_SWCROP,                   /* Software autocrop */
+  OPT_SWSKIP,                   /* Software blank page skip */
+
   /* must come last: */
   OPT_NUM_OPTIONS
 } KV_OPTION;
@@ -180,8 +188,17 @@ typedef struct kv_scanner_dev
   int current_page;		/* the current page number, 0 is page 1 */
   int current_side;		/* the current side */
   int bytes_to_read[2];		/* bytes to read */
-  /* Support info */
 
+  /* --------------------------------------------------------------------- */
+  /* values used by the software enhancment code (deskew, crop, etc)       */
+  SANE_Status deskew_stat;
+  int deskew_vals[2];
+  double deskew_slope;
+
+  SANE_Status crop_stat;
+  int crop_vals[4];
+
+  /* Support info */
   KV_SUPPORT_INFO support_info;
 
   SANE_Range x_range, y_range;
@@ -263,5 +280,11 @@ SANE_Status AllocateImageBuffer (PKV_DEV dev);
 SANE_Status ReadImageDataSimplex (PKV_DEV dev, int page);
 SANE_Status ReadImageDataDuplex (PKV_DEV dev, int page);
 SANE_Status ReadImageData (PKV_DEV dev, int page);
+
+SANE_Status buffer_deskew (PKV_DEV dev, int side);
+SANE_Status buffer_crop (PKV_DEV dev, int side);
+SANE_Status buffer_despeck (PKV_DEV dev, int side);
+int buffer_isblank (PKV_DEV dev, int side);
+SANE_Status buffer_rotate(PKV_DEV dev, int side);
 
 #endif /* #ifndef __KVS1025_LOW_H */

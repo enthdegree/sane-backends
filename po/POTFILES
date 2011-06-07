@@ -30,9 +30,6 @@
 
 ../backend/genesys.c
 
-../backend/kodak.c
-../backend/kodak.h
-
 ../backend/gt68xx.c
 ../backend/gt68xx_low.h
 
@@ -42,6 +39,15 @@
 ../backend/hp5590.c
 ../backend/hp-option.c
 ../backend/hp-option.h
+
+../backend/kodak.c
+../backend/kodak.h
+
+../backend/kvs1025.h
+../backend/kvs1025_opt.c
+../backend/kvs20xx.c
+
+../backend/kvs20xx_opt.c
 
 ../backend/kvs40xx.c
 ../backend/kvs40xx_opt.c

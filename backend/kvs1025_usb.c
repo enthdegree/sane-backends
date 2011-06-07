@@ -77,7 +77,10 @@ attach_scanner_usb (const char *device_name)
   strcpy (dev->scsi_type_str, "ADF Scanner");
   strcpy (dev->scsi_vendor, "Panasonic");
   strcpy (dev->scsi_product,
-    product == (int) KV_S1025C ? "KV-S1025C" : "KV-S1020C");
+    product == (int) KV_S1020C ? "KV-S1020C" :
+    product == (int) KV_S1025C ? "KV-S1025C" :
+    product == (int) KV_S1045C ? "KV-S1045C" :
+    "KV-S10xxC");
   strcpy (dev->scsi_version, "1.00");
 
   /* Set SANE_Device */

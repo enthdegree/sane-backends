@@ -255,6 +255,12 @@ static SANE_Range go_value_range = { 0, 255, 0 };
 
 static SANE_Range go_jpeg_compression_range = { 0, 0x64, 0 };
 
+static SANE_Range go_rotate_range = { 0, 270, 90 };
+
+static SANE_Range go_swdespeck_range = { 0, 9, 1 };
+
+static SANE_Range go_swskip_range = { SANE_FIX(0), SANE_FIX(100), 1 };
+
 static const char *go_option_name[] = {
   "OPT_NUM_OPTS",
 
@@ -294,9 +300,15 @@ static const char *go_option_name[] = {
   "OPT_LAMP",			/* Lamp -- color drop out */
   "OPT_INVERSE",		/* Inverse image */
   "OPT_MIRROR",			/* Mirror image */
-  "OPT_JPEG",			/*  */
-  "OPT_SEPARATION_SHEET",	/* Detect Separation Sheet  */
-  "OPT_CONTROL_SHEET",		/* Detect Control Sheet */
+  "OPT_JPEG",			/* JPEG Compression */
+  "OPT_ROTATE",         	/* Rotate image */
+
+  "OPT_SWDESKEW",               /* Software deskew */
+  "OPT_SWDESPECK",              /* Software despeckle */
+  "OPT_SWDEROTATE",             /* Software detect/correct 90 deg. rotation */
+  "OPT_SWCROP",                 /* Software autocrop */
+  "OPT_SWSKIP",                 /* Software blank page skip */
+
   /* must come last: */
   "OPT_NUM_OPTIONS"
 };
@@ -843,6 +855,67 @@ kv_init_options (PKV_DEV dev)
   dev->opt[OPT_JPEG].constraint.range = &(go_jpeg_compression_range);
   dev->val[OPT_JPEG].w = 0;
 
+  /* Image Rotation */
+  dev->opt[OPT_ROTATE].name = "rotate";
+  dev->opt[OPT_ROTATE].title = SANE_I18N ("Rotate image clockwise");
+  dev->opt[OPT_ROTATE].desc =
+    SANE_I18N("Request driver to rotate pages by a fixed amount");
+  dev->opt[OPT_ROTATE].type = SANE_TYPE_INT;
+  dev->opt[OPT_ROTATE].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_ROTATE].size = sizeof (SANE_Int);
+  dev->opt[OPT_ROTATE].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_ROTATE].constraint.range = &(go_rotate_range);
+  dev->val[OPT_ROTATE].w = 0;
+
+  /* Software Deskew */
+  dev->opt[OPT_SWDESKEW].name = "swdeskew";
+  dev->opt[OPT_SWDESKEW].title = SANE_I18N ("Software deskew");
+  dev->opt[OPT_SWDESKEW].desc =
+    SANE_I18N("Request driver to rotate skewed pages digitally");
+  dev->opt[OPT_SWDESKEW].type = SANE_TYPE_BOOL;
+  dev->opt[OPT_SWDESKEW].unit = SANE_UNIT_NONE;
+  dev->val[OPT_SWDESKEW].w = SANE_FALSE;
+
+  /* Software Despeckle */
+  dev->opt[OPT_SWDESPECK].name = "swdespeck";
+  dev->opt[OPT_SWDESPECK].title = SANE_I18N ("Software despeckle diameter");
+  dev->opt[OPT_SWDESPECK].desc =
+    SANE_I18N("Maximum diameter of lone dots to remove from scan");
+  dev->opt[OPT_SWDESPECK].type = SANE_TYPE_INT;
+  dev->opt[OPT_SWDESPECK].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_SWDESPECK].size = sizeof (SANE_Int);
+  dev->opt[OPT_SWDESPECK].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_SWDESPECK].constraint.range = &(go_swdespeck_range);
+  dev->val[OPT_SWDESPECK].w = 0;
+
+  /* Software Derotate */
+  dev->opt[OPT_SWDEROTATE].name = "swderotate";
+  dev->opt[OPT_SWDEROTATE].title = SANE_I18N ("Software derotate");
+  dev->opt[OPT_SWDEROTATE].desc =
+    SANE_I18N("Request driver to detect and correct 90 degree image rotation");
+  dev->opt[OPT_SWDEROTATE].type = SANE_TYPE_BOOL;
+  dev->opt[OPT_SWDEROTATE].unit = SANE_UNIT_NONE;
+  dev->val[OPT_SWDEROTATE].w = SANE_FALSE;
+
+  /* Software Autocrop*/
+  dev->opt[OPT_SWCROP].name = "swcrop";
+  dev->opt[OPT_SWCROP].title = SANE_I18N ("Software automatic cropping");
+  dev->opt[OPT_SWCROP].desc =
+    SANE_I18N("Request driver to remove border from pages digitally");
+  dev->opt[OPT_SWCROP].type = SANE_TYPE_BOOL;
+  dev->opt[OPT_SWCROP].unit = SANE_UNIT_NONE;
+  dev->val[OPT_SWCROP].w = SANE_FALSE;
+
+  /* Software blank page skip */
+  dev->opt[OPT_SWSKIP].name = "swskip";
+  dev->opt[OPT_SWSKIP].title = SANE_I18N ("Software blank skip percentage");
+  dev->opt[OPT_SWSKIP].desc
+   = SANE_I18N("Request driver to discard pages with low numbers of dark pixels");
+  dev->opt[OPT_SWSKIP].type = SANE_TYPE_FIXED;
+  dev->opt[OPT_SWSKIP].unit = SANE_UNIT_PERCENT;
+  dev->opt[OPT_SWSKIP].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_SWSKIP].constraint.range = &(go_swskip_range);
+
   /* Lastly, set the default scan mode. This might change some
    * values previously set here. */
   sane_control_option (dev, OPT_PAPER_SIZE, SANE_ACTION_SET_VALUE,
@@ -918,6 +991,12 @@ kv_control_option (PKV_DEV dev, SANE_Int option,
 	case OPT_MIRROR:
 	case OPT_FEED_TIMEOUT:
 	case OPT_JPEG:
+	case OPT_ROTATE:
+	case OPT_SWDESKEW:
+	case OPT_SWDESPECK:
+	case OPT_SWDEROTATE:
+	case OPT_SWCROP:
+	case OPT_SWSKIP:
 	case OPT_FIT_TO_PAGE:
 	  *(SANE_Word *) val = dev->val[option].w;
 	  DBG (DBG_error, "opt value = %d\n", *(SANE_Word *) val);
@@ -1083,6 +1162,12 @@ kv_control_option (PKV_DEV dev, SANE_Int option,
 	case OPT_MIRROR:
 	case OPT_AUTOMATIC_SEPARATION:
 	case OPT_JPEG:
+	case OPT_ROTATE:
+	case OPT_SWDESKEW:
+	case OPT_SWDESPECK:
+	case OPT_SWDEROTATE:
+	case OPT_SWCROP:
+	case OPT_SWSKIP:
 	case OPT_FIT_TO_PAGE:
 	  dev->val[option].w = *(SANE_Word *) val;
 	  return SANE_STATUS_GOOD;

@@ -27,6 +27,7 @@
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/lassert.h"
+#include "../include/sane/sanei_magic.h"
 
 #include "kvs1025.h"
 #include "kvs1025_low.h"
@@ -965,4 +966,213 @@ ReadImageData (PKV_DEV dev, int page)
   DBG (DBG_proc, "Reading image data for page %d, finished\n", page);
 
   return status;
+}
+
+/* Look in image for likely upper and left paper edges, then rotate
+ * image so that upper left corner of paper is upper left of image.
+ * FIXME: should we do this before we binarize instead of after? */
+SANE_Status
+buffer_deskew(PKV_DEV s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int bg_color = 0xd6;
+  int side_index = (side == SIDE_FRONT)?0:1;
+  int resolution = s->val[OPT_RESOLUTION].w;
+
+  DBG (10, "buffer_deskew: start\n");
+
+  /*only find skew on first image from a page, or if first image had error */
+  if(side == SIDE_FRONT || s->deskew_stat){
+
+    s->deskew_stat = sanei_magic_findSkew(
+      &s->params[side_index],s->img_buffers[side_index],
+      resolution,resolution,
+      &s->deskew_vals[0],&s->deskew_vals[1],&s->deskew_slope);
+  
+    if(s->deskew_stat){
+      DBG (5, "buffer_despeck: bad findSkew, bailing\n");
+      goto cleanup;
+    }
+  }
+  /* backside images can use a 'flipped' version of frontside data */
+  else{
+    s->deskew_slope *= -1;
+    s->deskew_vals[0] 
+      = s->params[side_index].pixels_per_line - s->deskew_vals[0];
+  }
+
+  ret = sanei_magic_rotate(&s->params[side_index],s->img_buffers[side_index],
+    s->deskew_vals[0],s->deskew_vals[1],s->deskew_slope,bg_color);
+
+  if(ret){
+    DBG(5,"buffer_deskew: rotate error: %d",ret);
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
+  }
+
+  cleanup:
+  DBG (10, "buffer_deskew: finish\n");
+  return ret;
+}
+
+/* Look in image for likely left/right/bottom paper edges, then crop image.
+ * Does not attempt to rotate the image, that should be done first.
+ * FIXME: should we do this before we binarize instead of after? */
+SANE_Status
+buffer_crop(PKV_DEV s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int side_index = (side == SIDE_FRONT)?0:1;
+  int resolution = s->val[OPT_RESOLUTION].w;
+
+  DBG (10, "buffer_crop: start\n");
+
+  /*only find edges on first image from a page, or if first image had error */
+  if(side == SIDE_FRONT || s->crop_stat){
+
+    s->crop_stat = sanei_magic_findEdges(
+      &s->params[side_index],s->img_buffers[side_index],
+      resolution,resolution,
+      &s->crop_vals[0],&s->crop_vals[1],&s->crop_vals[2],&s->crop_vals[3]);
+
+    if(s->crop_stat){
+      DBG (5, "buffer_crop: bad edges, bailing\n");
+      goto cleanup;
+    }
+  
+    DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",
+      s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
+
+    /* we dont listen to the 'top' value, since the top is not padded */
+    /*s->crop_vals[0] = 0;*/
+  }
+  /* backside images can use a 'flipped' version of frontside data */
+  else{
+    int left  = s->crop_vals[2];
+    int right = s->crop_vals[3];
+
+    s->crop_vals[2] = s->params[side_index].pixels_per_line - right;
+    s->crop_vals[3] = s->params[side_index].pixels_per_line - left;
+  }
+
+  /* now crop the image */
+  ret = sanei_magic_crop(&s->params[side_index],s->img_buffers[side_index],
+      s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
+
+  if(ret){
+    DBG (5, "buffer_crop: bad crop, bailing\n");
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
+  }
+
+  /* update image size counter to new, smaller size */
+  s->img_size[side_index] 
+    = s->params[side_index].lines * s->params[side_index].bytes_per_line;
+ 
+  cleanup:
+  DBG (10, "buffer_crop: finish\n");
+  return ret;
+}
+
+/* Look in image for disconnected 'spots' of the requested size.
+ * Replace the spots with the average color of the surrounding pixels.
+ * FIXME: should we do this before we binarize instead of after? */
+SANE_Status
+buffer_despeck(PKV_DEV s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int side_index = (side == SIDE_FRONT)?0:1;
+
+  DBG (10, "buffer_despeck: start\n");
+
+  ret = sanei_magic_despeck(
+    &s->params[side_index],s->img_buffers[side_index],s->val[OPT_SWDESPECK].w
+  );
+  if(ret){
+    DBG (5, "buffer_despeck: bad despeck, bailing\n");
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
+  }
+
+  cleanup:
+  DBG (10, "buffer_despeck: finish\n");
+  return ret;
+}
+
+/* Look if image has too few dark pixels.
+ * FIXME: should we do this before we binarize instead of after? */
+int
+buffer_isblank(PKV_DEV s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int side_index = (side == SIDE_FRONT)?0:1;
+  int status = 0;
+
+  DBG (10, "buffer_isblank: start\n");
+
+  ret = sanei_magic_isBlank(
+    &s->params[side_index],s->img_buffers[side_index],
+    SANE_UNFIX(s->val[OPT_SWSKIP].w)
+  );
+
+  if(ret == SANE_STATUS_NO_DOCS){
+    DBG (5, "buffer_isblank: blank!\n");
+    status = 1;
+  }
+  else if(ret){
+    DBG (5, "buffer_isblank: error %d\n",ret);
+  }
+
+  DBG (10, "buffer_isblank: finished\n");
+  return status;
+}
+
+/* Look if image needs rotation
+ * FIXME: should we do this before we binarize instead of after? */
+SANE_Status
+buffer_rotate(PKV_DEV s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int angle = 0;
+  int side_index = (side == SIDE_FRONT)?0:1;
+  int resolution = s->val[OPT_RESOLUTION].w;
+
+  DBG (10, "buffer_rotate: start\n");
+
+  if(s->val[OPT_SWDEROTATE].w){
+    ret = sanei_magic_findTurn(
+      &s->params[side_index],s->img_buffers[side_index],
+      resolution,resolution,&angle);
+  
+    if(ret){
+      DBG (5, "buffer_rotate: error %d\n",ret);
+      ret = SANE_STATUS_GOOD;
+      goto cleanup;
+    }
+  }
+
+  angle += s->val[OPT_ROTATE].w;
+
+  /*90 or 270 degree rotations are reversed on back side*/
+  if(side == SIDE_BACK && s->val[OPT_ROTATE].w % 180){
+    angle += 180;
+  }
+
+  ret = sanei_magic_turn(
+    &s->params[side_index],s->img_buffers[side_index],
+    angle);
+  
+  if(ret){
+    DBG (5, "buffer_rotate: error %d\n",ret);
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
+  }
+
+  /* update image size counter to new, smaller size */
+  s->img_size[side_index] 
+    = s->params[side_index].lines * s->params[side_index].bytes_per_line;
+ 
+  cleanup:
+  DBG (10, "buffer_rotate: finished\n");
+  return ret;
 }

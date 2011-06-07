@@ -16,7 +16,7 @@
 #define BACKEND_NAME          kvs1025
 
 /* Build version */
-#define V_BUILD            3
+#define V_BUILD            5
 
 /* Paper range supported -- MAX A4 */
 #define KV_MAX_X_RANGE     210

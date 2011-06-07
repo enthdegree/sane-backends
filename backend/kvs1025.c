@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2008, Panasonic Russia Ltd.
-   Copyright (C) 2010, m. allan noah
+   Copyright (C) 2010-2011, m. allan noah
 */
 /* sane - Scanner Access Now Easy.
    Panasonic KV-S1020C / KV-S1025C USB scanners.
@@ -282,11 +282,11 @@ sane_start (SANE_Handle handle)
 	{
 	  if (dev->current_side == SIDE_FRONT)
 	    {
+	      /* back image data already read, so just return */
 	      dev->current_side = SIDE_BACK;
-	      /* return; image data already read */
-	      DBG (DBG_proc, "sane_start: exit\n");
-
-	      return SANE_STATUS_GOOD;
+	      DBG (DBG_proc, "sane_start: duplex back\n");
+	      status = SANE_STATUS_GOOD;
+              goto cleanup;
 	    }
 	  else
 	    {
@@ -326,6 +326,48 @@ sane_start (SANE_Handle handle)
       if (status)
 	return status;
     }
+
+  /* software based enhancement functions from sanei_magic */
+  /* these will modify the image, and adjust the params */
+  /* at this point, we are only looking at the front image */
+  /* of simplex or duplex data, back side has already exited */
+  /* so, we do both sides now, if required */
+  if (dev->val[OPT_SWDESKEW].w){
+    buffer_deskew(dev,SIDE_FRONT);
+  }
+  if (dev->val[OPT_SWCROP].w){
+    buffer_crop(dev,SIDE_FRONT);
+  }
+  if (dev->val[OPT_SWDESPECK].w){
+    buffer_despeck(dev,SIDE_FRONT);
+  }
+  if (dev->val[OPT_SWDEROTATE].w || dev->val[OPT_ROTATE].w){
+    buffer_rotate(dev,SIDE_FRONT);
+  }
+
+  if (IS_DUPLEX (dev)){
+    if (dev->val[OPT_SWDESKEW].w){
+      buffer_deskew(dev,SIDE_BACK);
+    }
+    if (dev->val[OPT_SWCROP].w){
+      buffer_crop(dev,SIDE_BACK);
+    }
+    if (dev->val[OPT_SWDESPECK].w){
+      buffer_despeck(dev,SIDE_BACK);
+    }
+    if (dev->val[OPT_SWDEROTATE].w || dev->val[OPT_ROTATE].w){
+      buffer_rotate(dev,SIDE_BACK);
+    }
+  }
+
+  cleanup:
+
+  /* check if we need to skip this page */
+  if (dev->val[OPT_SWSKIP].w && buffer_isblank(dev,dev->current_side)){
+    DBG (DBG_proc, "sane_start: blank page, recurse\n");
+    return sane_start(handle);
+  }
+
   DBG (DBG_proc, "sane_start: exit\n");
   return status;
 }

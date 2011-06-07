@@ -628,7 +628,7 @@ libkvs1025_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs1025
 nodist_libsane_kvs1025_la_SOURCES = kvs1025-s.c
 libsane_kvs1025_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs1025
 libsane_kvs1025_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_kvs1025_la_LIBADD = $(COMMON_LIBS) libkvs1025.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo  $(USB_LIBS) $(RESMGR_LIBS)
+libsane_kvs1025_la_LIBADD = $(COMMON_LIBS) libkvs1025.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 
 libkvs20xx_la_SOURCES = kvs20xx.c kvs20xx_cmd.c kvs20xx_opt.c \
  kvs20xx_cmd.h kvs20xx.h 

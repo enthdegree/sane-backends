@@ -1,3 +1,7 @@
+2011-06-07 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys.h backend/genesys_conv.c:
+	add blank page skipping and rotation detection options
+
 2011-06-06 m. allan noah <kitno455 at gmail dot com>
 	* docs/*kvs40xx*, backend/kvs40xx*: New Panasonic KV-S40xx/70xx
 	backend, originally by Panasonic Russia.

@@ -529,6 +529,8 @@ sanei_magic_findSkew(SANE_Parameters * params, SANE_Byte * buffer,
 
   DBG (10, "sanei_magic_findSkew: start\n");
 
+  dpiX=dpiX;
+
   /* get buffers for edge detection */
   topBuf = sanei_magic_getTransY(params,dpiY,buffer,1);
   if(!topBuf){
@@ -709,6 +711,448 @@ sanei_magic_rotate (SANE_Parameters * params, SANE_Byte * buffer,
   DBG(10,"sanei_magic_rotate: finish\n");
 
   return 0;
+}
+
+SANE_Status
+sanei_magic_isBlank (SANE_Parameters * params, SANE_Byte * buffer,
+  double thresh)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  double imagesum = 0;
+  int i, j;
+
+  DBG(10,"sanei_magic_isBlank: start: %f\n",thresh);
+
+  /*convert thresh from percent (0-100) to 0-1 range*/
+  thresh /= 100;
+
+  if(params->format == SANE_FRAME_RGB || 
+    (params->format == SANE_FRAME_GRAY && params->depth == 8)
+  ){
+
+    /* loop over all rows, find density of each */
+    for(i=0; i<params->lines; i++){
+      int rowsum = 0;
+      SANE_Byte * ptr = buffer + params->bytes_per_line*i;
+
+      /* loop over all columns, sum the 'darkness' of the pixels */
+      for(j=0; j<params->bytes_per_line; j++){
+        rowsum += 255 - ptr[j];
+      }
+
+      imagesum += (double)rowsum/params->bytes_per_line/255;
+    }
+
+  }
+  else if(params->format == SANE_FRAME_GRAY && params->depth == 1){
+
+    /* loop over all rows, find density of each */
+    for(i=0; i<params->lines; i++){
+      int rowsum = 0;
+      SANE_Byte * ptr = buffer + params->bytes_per_line*i;
+
+      /* loop over all columns, sum the pixels */
+      for(j=0; j<params->pixels_per_line; j++){
+        rowsum += ptr[j/8] >> (7-(j%8)) & 1;
+      }
+
+      imagesum += (double)rowsum/params->pixels_per_line;
+    }
+
+  }
+  else{
+    DBG (5, "sanei_magic_isBlank: unsupported format/depth\n");
+    ret = SANE_STATUS_INVAL;
+    goto cleanup;
+  }
+
+  DBG (5, "sanei_magic_isBlank: sum:%f lines:%d thresh:%f density:%f\n",
+    imagesum,params->lines,thresh,imagesum/params->lines);
+
+  if(imagesum/params->lines <= thresh){
+    DBG (5, "sanei_magic_isBlank: blank!\n");
+    ret = SANE_STATUS_NO_DOCS;
+  }
+
+  cleanup:
+
+  DBG(10,"sanei_magic_isBlank: finish\n");
+
+  return ret;
+}
+
+SANE_Status
+sanei_magic_findTurn(SANE_Parameters * params, SANE_Byte * buffer,
+  int dpiX, int dpiY, int * angle)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int i, j, k;
+  int depth = 1;
+  int htrans=0, vtrans=0;
+  int htot=0, vtot=0;
+
+  DBG(10,"sanei_magic_findTurn: start\n");
+
+  if(params->format == SANE_FRAME_RGB || 
+    (params->format == SANE_FRAME_GRAY && params->depth == 8)
+  ){
+
+    if(params->format == SANE_FRAME_RGB)
+      depth = 3;
+
+    /* loop over some rows, count segment lengths */
+    for(i=0; i<params->lines; i+=dpiY/20){
+      SANE_Byte * ptr = buffer + params->bytes_per_line*i;
+      int color = 0;
+      int len   = 0;
+      int sum   = 0;
+
+      /* loop over all columns */
+      for(j=0; j<params->pixels_per_line; j++){
+        int curr = 0;
+
+        /*convert color to gray*/
+        for (k=0; k<depth; k++) {
+          curr += ptr[j*depth+k];
+        }
+        curr /= depth;
+
+        /*convert gray to binary (with hysteresis) */
+        curr = (curr < 100)?1:
+               (curr > 156)?0:color;
+
+        /*count segment length*/
+        if(curr != color || j==params->pixels_per_line-1){
+          sum += len * len/5;
+          len = 0;
+          color = curr;
+        }
+        else{
+          len++;
+        }
+      }
+
+      htot++;
+      htrans += (double)sum/params->pixels_per_line;
+    }
+
+    /* loop over some cols, count dark vs light transitions */
+    for(i=0; i<params->pixels_per_line; i+=dpiX/20){
+      SANE_Byte * ptr = buffer + i*depth;
+      int color = 0;
+      int len   = 0;
+      int sum   = 0;
+
+      /* loop over all rows */
+      for(j=0; j<params->lines; j++){
+        int curr = 0;
+
+        /*convert color to gray*/
+        for (k=0; k<depth; k++) {
+          curr += ptr[j*params->bytes_per_line+k];
+        }
+        curr /= depth;
+
+        /*convert gray to binary (with hysteresis) */
+        curr = (curr < 100)?1:
+               (curr > 156)?0:color;
+
+        /*count segment length*/
+        if(curr != color || j==params->lines-1){
+          sum += len * len/5;
+          len = 0;
+          color = curr;
+        }
+        else{
+          len++;
+        }
+      }
+
+      vtot++;
+      vtrans += (double)sum/params->lines;
+    }
+
+  }
+  else if(params->format == SANE_FRAME_GRAY && params->depth == 1){
+
+    /* loop over some rows, count segment lengths */
+    for(i=0; i<params->lines; i+=dpiY/30){
+      SANE_Byte * ptr = buffer + params->bytes_per_line*i;
+      int color = 0;
+      int len   = 0;
+      int sum   = 0;
+
+      /* loop over all columns */
+      for(j=0; j<params->pixels_per_line; j++){
+        int curr = ptr[j/8] >> (7-(j%8)) & 1;
+
+        /*count segment length*/
+        if(curr != color || j==params->pixels_per_line-1){
+          sum += len * len/5;
+          len = 0;
+          color = curr;
+        }
+        else{
+          len++;
+        }
+      }
+
+      htot++;
+      htrans += (double)sum/params->pixels_per_line;
+    }
+
+    /* loop over some cols, count dark vs light transitions */
+    for(i=0; i<params->pixels_per_line; i+=dpiX/30){
+      SANE_Byte * ptr = buffer;
+      int color = 0;
+      int len   = 0;
+      int sum   = 0;
+
+      /* loop over all rows */
+      for(j=0; j<params->lines; j++){
+        int curr = ptr[j*params->bytes_per_line + i/8] >> (7-(i%8)) & 1;
+
+        /*count segment length*/
+        if(curr != color || j==params->lines-1){
+          sum += len * len/5;
+          len = 0;
+          color = curr;
+        }
+        else{
+          len++;
+        }
+      }
+
+      vtot++;
+      vtrans += (double)sum/params->lines;
+    }
+
+  }
+  else{
+    DBG (5, "sanei_magic_findTurn: unsupported format/depth\n");
+    ret = SANE_STATUS_INVAL;
+    goto cleanup;
+  }
+
+  DBG (10, "sanei_magic_findTurn: vtrans=%d vtot=%d vfrac=%f htrans=%d htot=%d hfrac=%f\n",
+    vtrans, vtot, (double)vtrans/vtot, htrans, htot, (double)htrans/htot
+  );
+
+  if((double)vtrans/vtot > (double)htrans/htot){
+    DBG (10, "sanei_magic_findTurn: suggest turning 90\n");
+    *angle = 90;
+  }
+
+  cleanup:
+
+  DBG(10,"sanei_magic_findTurn: finish\n");
+
+  return ret;
+}
+
+/* FIXME: Do in-place rotation to save memory */
+SANE_Status
+sanei_magic_turn(SANE_Parameters * params, SANE_Byte * buffer,
+  int angle)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int opwidth, ipwidth = params->pixels_per_line;
+  int obwidth, ibwidth = params->bytes_per_line;
+  int oheight, iheight = params->lines;
+  int depth = 1;
+
+  unsigned char * outbuf = NULL;
+  int i, j, k;
+
+  DBG(10,"sanei_magic_turn: start %d\n",angle);
+
+  if(params->format == SANE_FRAME_RGB)
+    depth = 3;
+
+  /*clean angle and convert to 0-3*/
+  angle = (angle % 360) / 90;
+
+  /*figure size of output image*/
+  switch(angle){
+    case 1:
+    case 3:
+      opwidth = iheight;
+      oheight = ipwidth;
+
+      /*gray and color, 1 or 3 bytes per pixel*/
+      if ( params->format == SANE_FRAME_RGB
+        || (params->format == SANE_FRAME_GRAY && params->depth == 8)
+      ){
+        obwidth = opwidth*depth;
+      }
+
+      /*clamp binary to byte width. must be <= input image*/
+      else if(params->format == SANE_FRAME_GRAY && params->depth == 1){
+        obwidth = opwidth/8;
+        opwidth = obwidth*8;
+      }
+
+      else{
+        DBG(10,"sanei_magic_turn: bad params\n");
+        ret = SANE_STATUS_INVAL;
+        goto cleanup;
+      }
+
+      break;
+
+    case 2:
+      opwidth = ipwidth;
+      obwidth = ibwidth;
+      oheight = iheight;
+      break;
+
+    default:
+      DBG(10,"sanei_magic_turn: no turn\n");
+      goto cleanup;
+  }
+
+  /*get output image buffer*/
+  outbuf = malloc(obwidth*oheight);
+  if(!outbuf){
+    DBG(15,"sanei_magic_turn: no outbuf\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  /*turn color & gray image*/
+  if(params->format == SANE_FRAME_RGB || 
+    (params->format == SANE_FRAME_GRAY && params->depth == 8)
+  ){
+
+    switch (angle) {
+
+      /*rotate 90 clockwise*/
+      case 1:
+        for (i=0; i<oheight; i++) {
+          for (j=0; j<opwidth; j++) {
+            for (k=0; k<depth; k++) {
+              outbuf[i*obwidth + j*depth + k]
+                = buffer[(iheight-j-1)*ibwidth + i*depth + k];
+            }
+          }
+        }
+        break;
+
+      /*rotate 180 clockwise*/
+      case 2:
+        for (i=0; i<oheight; i++) {
+          for (j=0; j<opwidth; j++) {
+            for (k=0; k<depth; k++) {
+              outbuf[i*obwidth + j*depth + k]
+                = buffer[(iheight-i-1)*ibwidth + (ipwidth-j-1)*depth + k];
+            }
+          }
+        }
+        break;
+
+      /*rotate 270 clockwise*/
+      case 3:
+        for (i=0; i<oheight; i++) {
+          for (j=0; j<opwidth; j++) {
+            for (k=0; k<depth; k++) {
+              outbuf[i*obwidth + j*depth + k]
+                = buffer[j*ibwidth + (ipwidth-i-1)*depth + k];
+            }
+          }
+        }
+        break;
+    } /*end switch*/
+  }
+
+  /*turn binary image*/
+  else if(params->format == SANE_FRAME_GRAY && params->depth == 1){
+
+    switch (angle) {
+
+      /*rotate 90 clockwise*/
+      case 1:
+        for (i=0; i<oheight; i++) {
+          for (j=0; j<opwidth; j++) {
+            unsigned char curr
+              = buffer[(iheight-j-1)*ibwidth + i/8] >> (7-(i%8)) & 1;
+
+            unsigned char mask = 1 << (7-(j%8));
+
+            if(curr){
+              outbuf[i*obwidth + j/8] |= mask;
+            }
+            else{
+              outbuf[i*obwidth + j/8] &= (~mask);
+            }
+
+          }
+        }
+        break;
+
+      /*rotate 180 clockwise*/
+      case 2:
+        for (i=0; i<oheight; i++) {
+          for (j=0; j<opwidth; j++) {
+            unsigned char curr
+              = buffer[(iheight-i-1)*ibwidth + (ipwidth-j-1)/8] >> (j%8) & 1;
+
+            unsigned char mask = 1 << (7-(j%8));
+
+            if(curr){
+              outbuf[i*obwidth + j/8] |= mask;
+            }
+            else{
+              outbuf[i*obwidth + j/8] &= (~mask);
+            }
+
+          }
+        }
+        break;
+
+      /*rotate 270 clockwise*/
+      case 3:
+        for (i=0; i<oheight; i++) {
+          for (j=0; j<opwidth; j++) {
+            unsigned char curr
+              = buffer[j*ibwidth + (ipwidth-i-1)/8] >> (i%8) & 1;
+
+            unsigned char mask = 1 << (7-(j%8));
+
+            if(curr){
+              outbuf[i*obwidth + j/8] |= mask;
+            }
+            else{
+              outbuf[i*obwidth + j/8] &= (~mask);
+            }
+
+          }
+        }
+        break;
+    } /*end switch*/
+  }
+
+  else{
+    DBG (5, "sanei_magic_turn: unsupported format/depth\n");
+    ret = SANE_STATUS_INVAL;
+    goto cleanup;
+  }
+
+  /*copy output back into input buffer*/
+  memcpy(buffer,outbuf,obwidth*oheight);
+
+  /*update input params*/
+  params->pixels_per_line = opwidth;
+  params->bytes_per_line = obwidth;
+  params->lines = oheight;
+
+  cleanup:
+
+  if(outbuf)
+    free(outbuf);
+
+  DBG(10,"sanei_magic_turn: finish\n");
+
+  return ret;
 }
 
 /* Utility functions, not used outside this file */

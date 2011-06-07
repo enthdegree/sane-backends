@@ -47,6 +47,8 @@
  * - Deskew (correct rotated scans, by detecting media edges)
  * - Autocrop (reduce image size to minimum rectangle containing media)
  * - Despeckle (replace dots of significantly different color with background)
+ * - Blank detection (check if density is over a threshold)
+ * - Rotate (detect and correct 90 degree increment rotations)
  *
  * Note that these functions are simplistic, and are expected to change.
  * Patches and suggestions are welcome.
@@ -150,5 +152,53 @@ sanei_magic_findEdges(SANE_Parameters * params, SANE_Byte * buffer,
 extern SANE_Status
 sanei_magic_crop(SANE_Parameters * params, SANE_Byte * buffer,
   int top, int bot, int left, int right);
+
+/** Determine if image is blank
+ *
+ * @param params describes image
+ * @param buffer contains image data
+ * @param thresh maximum % density for blankness (0-100)
+ *
+ * @return
+ * - SANE_STATUS_GOOD - page is not blank
+ * - SANE_STATUS_NO_DOCS - page is blank
+ * - SANE_STATUS_NO_MEM - not enough memory
+ * - SANE_STATUS_INVAL - invalid image parameters
+ */
+extern SANE_Status
+sanei_magic_isBlank(SANE_Parameters * params, SANE_Byte * buffer,
+  double thresh);
+
+/** Determine coarse image rotation (90 degree increments)
+ *
+ * @param params describes image
+ * @param buffer contains image data
+ * @param dpiX horizontal resolution
+ * @param dpiY vertical resolution
+ * @param[out] angle amount of rotation recommended
+ *
+ * @return
+ * - SANE_STATUS_GOOD - success
+ * - SANE_STATUS_NO_MEM - not enough memory
+ * - SANE_STATUS_INVAL - invalid image parameters
+ */
+extern SANE_Status
+sanei_magic_findTurn(SANE_Parameters * params, SANE_Byte * buffer,
+  int dpiX, int dpiY, int * angle);
+
+/** Coarse image rotation (90 degree increments)
+ *
+ * @param params describes image
+ * @param buffer contains image data
+ * @param angle amount of rotation requested (multiple of 90)
+ *
+ * @return
+ * - SANE_STATUS_GOOD - success
+ * - SANE_STATUS_NO_MEM - not enough memory
+ * - SANE_STATUS_INVAL - invalid image or angle parameters
+ */
+extern SANE_Status
+sanei_magic_turn(SANE_Parameters * params, SANE_Byte * buffer,
+  int angle);
 
 #endif /* SANEI_MAGIC_H */

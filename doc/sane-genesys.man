@@ -110,12 +110,12 @@ image, and fill the space with the average surrounding color.
 .PP
 .B \-\-swskip 0..100% (in steps of 1) [0]
 .RS
-        Request driver to discard pages with low numbers of dark pixels
+        Request driver to discard pages with low numbers of dark pixels.
 .RE
 .PP
 .B \-\-swderotate[=(yes|no)] [no]
 .RS
-        Request driver to detect and correct 90 degree image rotation
+        Request driver to detect and correct 90 degree image rotation.
 
 .PP
 .SH "SYSTEM ISSUES"

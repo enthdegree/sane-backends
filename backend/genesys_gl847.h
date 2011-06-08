@@ -569,8 +569,8 @@ static uint32_t lide200_max[] = { 124992, 124992, 124992, 124992, 124992, 124992
 
 /* *INDENT-OFF* */
 static Motor_Profile gl847_motors[]={
-	{MOTOR_CANONLIDE200,  2848, 0, lide200_base},
-	{MOTOR_CANONLIDE200,  1432, 0, lide200_base},
+	{MOTOR_CANONLIDE200,  2848, 1, lide200_base},
+	{MOTOR_CANONLIDE200,  1432, 1, lide200_base},
 	{MOTOR_CANONLIDE200,  2712, 2, lide200_medium},
 	{MOTOR_CANONLIDE200,  5280, 3, lide200_high},
 	{MOTOR_CANONLIDE200, 10416, 3, lide200_high},

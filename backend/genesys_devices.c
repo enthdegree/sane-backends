@@ -462,11 +462,11 @@ static Genesys_Sensor Sensor[] = {
   ,
   /* CANONLIDE100 */
   {CIS_CANONLIDE100,
-   1200,	/* optical resolution */
-   87,		/* black pixels */
-   16,		/* dummy pixels 16 */
-   303,		/* 303 */
-   10272,       /* 10272 */
+   2400,	/* optical resolution */
+   87*4,	/* black pixels */
+   16*4,	/* dummy pixels 16 */
+   323*4,	/* 303 */
+   5136*4,      /* 10272 */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
@@ -912,7 +912,7 @@ static Genesys_Motor Motor[] = {
   },
   {MOTOR_CANONLIDE100,		/* Canon LiDE 100 */
    1200,
-   4800,
+   6400,
    2,   /* maximum step type count */
    1,   /* maximum power modes count */
    { /* motor slopes */
@@ -1299,7 +1299,7 @@ static Genesys_Model canon_lide_100_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  60,
+  40,
   400
 };
 

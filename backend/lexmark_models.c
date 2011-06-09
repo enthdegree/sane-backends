@@ -50,6 +50,7 @@ static Lexmark_Model model_list[] = {
    "Lexmark X1100",		/* name */
    "Lexmark",			/* vendor */
    "X1100/rev. B2",		/* model */
+   X1100_MOTOR,
    /* X1100 series has 2 sensors */
    X1100_B2_SENSOR,
    1235,			/* first x-coordinate of Home Point */

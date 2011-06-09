@@ -1,4 +1,7 @@
-2011-06-07 Stéphane Voltz <stef.dev@free.fr>
+2011-06-10 Stéphane Voltz <stef.dev@free.fr>
+	* backend/lexmark_models.c: fix missing motor initialization
+
+2011-06-09 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys*.[ch] : rework of gl847 to reach 2400 dpi for 
 	LiDE 100 and 4800 dpi for LiDE 200
 

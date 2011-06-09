@@ -1,4 +1,8 @@
 2011-06-07 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys*.[ch] : rework of gl847 to reach 2400 dpi for 
+	LiDE 100 and 4800 dpi for LiDE 200
+
+2011-06-07 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_conv.c:
 	add blank page skipping and rotation detection options
 

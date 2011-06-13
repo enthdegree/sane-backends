@@ -3,9 +3,11 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2009 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2011 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
+   Copyright (C) 2011 Alexey Osipov <simba@lerlan.ru> for HP2400 description
+                      and tuning
    
    This file is part of the SANE package.
    
@@ -994,6 +996,27 @@ gl646_setup_registers (Genesys_Device * dev,
   /* manual CCD/2 clock programming => half_ccd for hp2300 */
   regs[reg_0x1d].value = sensor->reg_0x1d;
 
+  /* HP2400 1200dpi mode tuning */
+
+  if (dev->model->ccd_type == CCD_HP2400)
+    {
+      /* reset count of dummy lines to zero */
+      regs[reg_0x1e].value &= ~REG1E_LINESEL;
+      if (scan_settings.xres >= 1200)
+        {
+          /* there must be one dummy line */
+          regs[reg_0x1e].value |= 1 & REG1E_LINESEL;
+
+          /* GPO12 need to be set to zero */
+          regs[reg_0x66].value &= ~0x20;
+        }
+        else
+        {
+          /* set GPO12 back to one */
+          regs[reg_0x66].value |= 0x20;
+        }
+    }
+
   /* motor steps used */
   regs[reg_0x21].value = motor->steps1;
   regs[reg_0x22].value = motor->fwdbwd;
@@ -1150,6 +1173,31 @@ gl646_setup_registers (Genesys_Device * dev,
 	      break;
 	    case 1200:
 	      feedl += 45;
+	      break;
+	    default:
+	      break;
+	    }
+	  break;
+	case MOTOR_HP2400:
+	  switch (motor->ydpi)
+	    {
+	    case 150:
+	      feedl += 150;
+	      break;
+	    case 300:
+	      feedl += 220;
+	      break;
+	    case 600:
+	      feedl += 260;
+	      break;
+	    case 1200:
+	      feedl += 280; /* 300 */
+	      break;
+	    case 50:
+	      feedl += 0;
+	      break;
+	    case 100:
+	      feedl += 100;
 	      break;
 	    default:
 	      break;
@@ -1882,7 +1930,10 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set, int dpi)
       i = dev->frontend.reg[3];
       if (dpi > dev->sensor.optical_res / 2)
 	{
-	  i = i & 0x1f;
+	  /* fe_reg_0x03 must be 0x12 for 1200 dpi in DAC_WOLFSON_HP3670.
+	   * DAC_WOLFSON_HP2400 in 1200 dpi mode works well with
+	   * fe_reg_0x03 set to 0x32 or 0x12 but not to 0x02 */
+	  i = 0x12;
 	}
       status = sanei_genesys_fe_write_data (dev, 0x03, i);
       if (status != SANE_STATUS_GOOD)

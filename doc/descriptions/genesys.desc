@@ -55,7 +55,7 @@
 :model "ScanJet 2400C"
 :interface "USB"
 :usbid "0x03f0" "0x0a01"
-:status :untested
+:status :complete
 :comment "1200x1200 dpi max"
 
 :model "ScanJet G2410"

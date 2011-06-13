@@ -1,4 +1,10 @@
 2011-06-13 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c backend/genesys_gl646.c 
+	backend/genesys_gl646.h doc/descriptions/genesys.desc
+	doc/sane-genesys.man: add full HP2400 support thanks a patch from
+	Alexey Osipov <simba@lerlan.ru>
+
+2011-06-13 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys*.[ch] : rework of gl847 to reach 2400 dpi for 
 	LiDE 100 and 4800 dpi for LiDE 200
 

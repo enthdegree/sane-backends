@@ -87,7 +87,8 @@ static Genesys_Frontend Wolfson[] = {
    }
   ,				/* 3: MD6228/MD6471 */
   {DAC_WOLFSON_HP2400,
-     {0x00, 0x03, 0x05, 0x02}
+   /* reg0  reg1  reg2  reg3 */
+     {0x00, 0x03, 0x05, 0x02} /* reg3=0x02 for 50-600 dpi, 0x32 (0x12 also works well) at 1200 */
    , {0x00, 0x00, 0x00}
    , {0xb4, 0xb6, 0xbc}
    , {0x06, 0x09, 0x08}
@@ -768,7 +769,7 @@ static Genesys_Motor Motor[] = {
   },
   {MOTOR_HP2400,		/* HP 2400c */
    1200,
-   2400,
+   1200,
    1,
    1,
    {{{
@@ -1692,9 +1693,9 @@ Genesys_Model hp2400c_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (3.5),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.5),		/* Start of scan area in mm (y) */
-  SANE_FIX (215.9),		/* Size of scan area in mm (x) */
+  SANE_FIX (6.5),		/* Start of scan area in mm  (x) */
+  SANE_FIX (2.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (220.0),		/* Size of scan area in mm (x) */
   SANE_FIX (297.2),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in mm (y) */
@@ -1722,10 +1723,8 @@ Genesys_Model hp2400c_model = {
   DAC_WOLFSON_HP2400,
   GPO_HP2400,
   MOTOR_HP2400,
-  GENESYS_FLAG_UNTESTED		/* not fully working yet */
-    | GENESYS_FLAG_LAZY_INIT
+      GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_XPA
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_SKIP_WARMUP

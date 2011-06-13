@@ -2509,7 +2509,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
     }
 
   /* TODO this is a good approximation, replace by exact value */
-  dev->scanhead_position_in_steps = (6*dev->model->shading_lines*600)/dev->calib_resolution;
+  dev->scanhead_position_in_steps = (5*dev->model->shading_lines*600)/dev->calib_resolution;
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;

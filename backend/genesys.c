@@ -4732,7 +4732,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
   int depth,i;
   
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == SCAN_MODE_LINEART)
+  if (dev->settings.scan_mode == SCAN_MODE_LINEART && dev->settings.dynamic_lineart==SANE_FALSE)
     depth = 1;
 
       /* fill buffer if needed */

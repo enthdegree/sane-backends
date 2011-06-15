@@ -1,3 +1,6 @@
+2011-06-15 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_gl847.c: lineart fix
+
 2011-06-13 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl646.c 
 	backend/genesys_gl646.h doc/descriptions/genesys.desc

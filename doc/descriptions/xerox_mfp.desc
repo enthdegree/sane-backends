@@ -58,6 +58,11 @@
 :usbid "0x04e8" "0x341f"
 :status :good
 
+:model "CLX-2160"
+:interface "USB"
+:usbid "0x04e8" "0x3425"
+:status :good
+
 :model "SCX-4500"
 :interface "USB"
 :usbid "0x04e8" "0x3426"

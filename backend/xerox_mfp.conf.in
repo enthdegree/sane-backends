@@ -18,6 +18,9 @@ usb 0x04e8 0x341b
 #Samsung SCX4725-FN
 usb 0x04e8 0x341f
 
+#Samsung CLX-216x Series
+usb 0x04e8 0x3425
+
 #Samsung SCX-4500
 usb 0x04e8 0x3426
 

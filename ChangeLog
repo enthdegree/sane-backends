@@ -1,3 +1,8 @@
+2011-06-16 Alex Belkin <abc at telekom.ru>
+	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
+	for Samsung CLX-216x Series, tested with CLX-2160, reported by Malte
+	Starostik <malte@malte.homeip.net>
+
 2011-06-15 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl847.c: lineart fix
 

@@ -1,3 +1,7 @@
+2011-06-21 Julien Blache <jb@jblache.org>
+	* doc/descriptions/epson2.desc: added SCSI IDs for the GT-10000+,
+	reported by Simon Becherer.
+
 2011-06-16 Alex Belkin <abc at telekom.ru>
 	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
 	for Samsung CLX-216x Series, tested with CLX-2160, reported by Malte

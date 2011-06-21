@@ -490,6 +490,7 @@
 
 :model      "GT-10000+"			; command spec
 :interface  "SCSI"
+:scsi       "EPSON" "SCANNER GT-10000" "processor"
 :status     :good
 :comment    "IEEE1394 untested<br>overseas version of the ES-6000H"
 

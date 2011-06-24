@@ -1,3 +1,8 @@
+2011-06-24 Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: add a wildcard rule for Epson SCSI scanners
+	with a model string beginning with "SCANNER". Idea from Olaf
+	Meeuwissen.
+
 2011-06-21 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson2.desc: added SCSI IDs for the GT-10000+,
 	reported by Simon Becherer.

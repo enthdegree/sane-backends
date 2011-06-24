@@ -3559,11 +3559,26 @@ print_udev (void)
 
   printf ("# Some scanners advertise themselves as SCSI device type 3\n");
 
+  printf ("# Wildcard: for some Epson SCSI scanners\n");
+  if (mode == output_mode_udevacl)
+    printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"EPSON\", ATTRS{model}==\"SCANNER*\", ENV{libsane_matched}=\"yes\"\n");
+  else
+    printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"EPSON\", ATTRS{model}==\"SCANNER*\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
+	    DEVMODE, DEVGROUP);
+
   while (scsiid)
     {
       manufacturer_model_type * name = scsiid->name;
 
       if (!scsiid->is_processor)
+	{
+	  scsiid = scsiid->next;
+	  continue;
+	}
+
+      /* Wildcard for Epson scanners: vendor = EPSON, product = SCANNER* */
+      if ((strcmp(scsiid->scsi_vendor_id, "EPSON") == 0)
+	  && (strncmp(scsiid->scsi_product_id, "SCANNER", 7) == 0))
 	{
 	  scsiid = scsiid->next;
 	  continue;

@@ -3564,7 +3564,10 @@ print_udev (void)
       manufacturer_model_type * name = scsiid->name;
 
       if (!scsiid->is_processor)
-	continue;
+	{
+	  scsiid = scsiid->next;
+	  continue;
+	}
 
       i = 0;
       printf ("# ");
@@ -3596,6 +3599,7 @@ print_udev (void)
       else
 	printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
 	      scsiid->scsi_vendor_id, scsiid->scsi_product_id, DEVMODE, DEVGROUP);
+
       scsiid = scsiid->next;
     }
   printf ("LABEL=\"libsane_scsi_rules_end\"\n");

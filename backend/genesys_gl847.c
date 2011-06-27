@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2010-2011 Stéphane Voltz <stef.dev@free.fr>
    
     
    This file is part of the SANE package.
@@ -3438,6 +3438,9 @@ gl847_init (Genesys_Device * dev)
 
   /* set up hardware and registers */
   RIE (gl847_cold_boot (dev));
+
+  /* move head away from park position */
+  gl847_feed (dev, 300);
 
   /* now hardware part is OK, set up device struct */
   FREE_IFNOT_NULL (dev->white_average_data);

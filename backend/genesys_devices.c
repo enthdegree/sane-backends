@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2011 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
    Copyright (C) 2010 Jack McGill <jmcgill85258@yahoo.com>
@@ -439,9 +439,9 @@ static Genesys_Sensor Sensor[] = {
   /* CANONLIDE200 */
   {CIS_CANONLIDE200,
    4800,	/* optical resolution */
-   87*4,		/* black pixels */
-   16*4,		/* dummy pixels */
-   323*8,		/* CCD_startx_offset */
+   87*4,	/* black pixels */
+   16*4,	/* dummy pixels */
+   320*8,	/* CCD_startx_offset 323 */
    5136*8,
    210,
    200,
@@ -466,7 +466,7 @@ static Genesys_Sensor Sensor[] = {
    2400,	/* optical resolution */
    87*4,	/* black pixels */
    16*4,	/* dummy pixels 16 */
-   323*4,	/* 303 */
+   320*4,	/* 323 */
    5136*4,      /* 10272 */
    210,
    200,

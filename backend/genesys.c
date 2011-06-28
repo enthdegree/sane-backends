@@ -4548,12 +4548,6 @@ sanei_genesys_buffer_consume (Genesys_Buffer * buf, size_t size)
 
 #include "genesys_conv.c"
 
-#define SANE_DEBUG_LOG_RAW_DATA 1
-
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-static FILE *rawfile = NULL;
-#endif
-
 static SANE_Status accurate_line_read(Genesys_Device * dev,
                                       SANE_Byte *buffer,
                                       size_t size)
@@ -4571,12 +4565,6 @@ static SANE_Status accurate_line_read(Genesys_Device * dev,
   /* done reading */
   dev->oe_buffer.avail = size;
   dev->oe_buffer.pos = 0;
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-  if (rawfile != NULL)
-    {
-      fwrite (buffer, size, 1, rawfile);
-    }
-#endif
   return status;
 }
 #if 0
@@ -4639,12 +4627,6 @@ static SANE_Status accurate_line_read(Genesys_Device * dev,
   /* done reading */
   dev->oe_buffer.avail = dev->oe_buffer.size;
   dev->oe_buffer.pos = 0;
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-  if (rawfile != NULL)
-    {
-      fwrite (dev->oe_buffer.buffer, dev->oe_buffer.avail, 1, rawfile);
-    }
-#endif
   return status;
 }
 #endif
@@ -5091,14 +5073,6 @@ genesys_fill_read_buffer (Genesys_Device * dev)
   else /* regular case with no extra copy */
     {
       status = dev->model->cmd_set->bulk_read_data (dev, 0x45, work_buffer_dst, size);
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-      if (rawfile != NULL && DBG_LEVEL >= DBG_data)
-	{
-	  /*TODO: convert big/little endian if depth == 16. 
-	     note: xv got this wrong for P5/P6. */
-	  fwrite (work_buffer_dst, size, 1, rawfile);
-	}
-#endif
     }
   if (status != SANE_STATUS_GOOD)
     {
@@ -5221,40 +5195,8 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       DBG (DBG_proc,
 	   "genesys_read_ordered_data: nothing more to scan: EOF\n");
       *len = 0;
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-      if (rawfile != NULL)
-	{
-	  fclose (rawfile);
-	  rawfile = NULL;
-	}
-#endif
       return SANE_STATUS_EOF;
     }
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-  if (rawfile == NULL && DBG_LEVEL >= DBG_data)
-    {
-      rawfile = fopen ("raw.pnm", "wb");
-      if (rawfile != NULL)
-	{
-          if (!(dev->model->flags & GENESYS_FLAG_SIS_SENSOR))
-	  fprintf (rawfile,
-		   "P%c\n%05d %05d\n%d\n",
-		   dev->current_setup.channels == 1 ?
-		   (dev->current_setup.depth == 1 ? '4' : '5') : '6',
-		   dev->current_setup.pixels,
-		   dev->current_setup.lines,
-		   (1 << dev->current_setup.depth) - 1);
-          else
-            {
-	  fprintf (rawfile,
-		   "P5\n%05d %05d\n%d\n",
-		   (dev->sensor.sensor_pixels*3*dev->settings.xres)/dev->sensor.optical_res,
-		   dev->current_setup.lines,
-		   (1 << dev->current_setup.depth) - 1);
-            }
-	}
-    }
-#endif
 
   DBG (DBG_info, "genesys_read_ordered_data: %lu lines left by output\n",
        ((dev->total_bytes_to_read - dev->total_bytes_read) * 8UL) /
@@ -8027,6 +7969,13 @@ sane_cancel (SANE_Handle handle)
   SANE_Status status = SANE_STATUS_GOOD;
 
   DBG (DBG_proc, "sane_cancel: start\n");
+
+  /* end binary logging if needed */
+  if (s->dev->binary!=NULL)
+    {
+      fclose(s->dev->binary);
+      s->dev->binary=NULL;
+    }
 
   s->scanning = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;

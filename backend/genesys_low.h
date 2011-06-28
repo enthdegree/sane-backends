@@ -670,6 +670,8 @@ struct Genesys_Device
   SANE_Bool buffer_image; /**> when true the scanned picture is first buffered
 			   * to allow software image enhancements */
   SANE_Byte *img_buffer; /**> image buffer where the scanned picture is stored */
+
+  FILE *binary; /**> binary logger file */
 };
 
 typedef struct Genesys_USB_Device_Entry

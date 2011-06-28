@@ -121,6 +121,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
   SANE_Status status;
   size_t size, target, read, done;
   uint8_t outdata[8];
+  uint8_t *buffer;
 
   DBG (DBG_io, "gl847_bulk_read_data: requesting %lu bytes at addr=0x%02x\n", (u_long) len, addr);
 
@@ -128,6 +129,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
     return SANE_STATUS_GOOD;
 
   target = len;
+  buffer = data;
 
   /* loop until computed data size is read */
   while (target)
@@ -175,7 +177,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
       DBG (DBG_io2,
 	   "gl847_bulk_read_data: trying to read %lu bytes of data\n",
 	   (u_long) read);
-      status = sanei_usb_read_bulk (dev->dn, data, &read);
+      status = sanei_usb_read_bulk (dev->dn, buffer, &read);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -193,7 +195,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 	  DBG (DBG_io2,
 	       "gl847_bulk_read_data: trying to read %lu bytes of data\n",
 	       (u_long) read);
-	  status = sanei_usb_read_bulk (dev->dn, data+done, &read);
+	  status = sanei_usb_read_bulk (dev->dn, buffer+done, &read);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
@@ -209,7 +211,12 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 	   (u_long) size, (u_long) (target - size));
 
       target -= size;
-      data += size;
+      buffer += size;
+    }
+
+  if (DBG_LEVEL >= DBG_data && dev->binary!=NULL)
+    {
+      fwrite(data, len, 1, dev->binary);
     }
 
   DBGCOMPLETED;
@@ -1396,23 +1403,6 @@ gl847_init_scan_regs (Genesys_Device * dev,
        "Depth/Channels: %u/%u\n"
        "Flags         : %x\n\n",
        xres, yres, lines, pixels, startx, starty, depth, channels, flags);
-
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-  /* for raw data debug, we know here the exact raw image
-   * attributes */
-  if (rawfile == NULL && DBG_LEVEL >= DBG_data)
-    {
-      if (rawfile != NULL)
-	{
-          rewind(rawfile);
-	  fprintf (rawfile,
-		   "P5\n%05d %05d\n%d\n",
-		   pixels*channel,
-		   lines,
-		   (1 << depth) - 1);
-        }
-    }
-#endif
 
   /* we may have 2 domains for ccd: xres below or above half ccd max dpi */
   if (dev->sensor.optical_res < 2 * xres ||
@@ -2744,6 +2734,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   uint32_t addr, length, i, x, factor, pixels;
   uint32_t dpiset, dpihw, strpixel, endpixel;
   uint16_t tempo;
+  uint32_t lines;
   uint8_t val,*buffer,*ptr,*src;
 
   DBGSTART;
@@ -2768,6 +2759,17 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   dpihw=sanei_genesys_compute_dpihw(dev,dpiset);
   factor=dpihw/dpiset;
   DBG( DBG_io2, "%s: factor=%d\n",__FUNCTION__,factor);
+
+  if(DBG_LEVEL>=DBG_data)
+    {
+      dev->binary=fopen("raw.pnm","wb");
+      sanei_genesys_get_triple(dev->reg, REG_LINCNT, &lines);
+      channels=3;
+      if(dev->binary!=NULL)
+        {
+          fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines,255);
+        }
+    }
 
   /* since we're using SHDAREA, substract startx coordinate from shading */
   strpixel-=((dev->sensor.CCD_start_xoffset*600)/dev->sensor.optical_res);

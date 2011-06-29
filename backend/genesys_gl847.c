@@ -2734,7 +2734,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   uint32_t addr, length, i, x, factor, pixels;
   uint32_t dpiset, dpihw, strpixel, endpixel;
   uint16_t tempo;
-  uint32_t lines;
+  uint32_t lines, channels;
   uint8_t val,*buffer,*ptr,*src;
 
   DBGSTART;
@@ -2767,7 +2767,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
       channels=3;
       if(dev->binary!=NULL)
         {
-          fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines,255);
+          fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);
         }
     }
 

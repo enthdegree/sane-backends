@@ -1192,8 +1192,6 @@ scan_it (void)
   SANE_Word total_bytes = 0, expected_bytes;
   SANE_Int hang_over = -1;
 
-  buffer = malloc (buffer_size);
-
   do
     {
       if (!first_frame)
@@ -2239,6 +2237,8 @@ List of available devices:", prog_name);
 	fprintf (stderr,"%s: output is not a file, exiting\n", prog_name);
         exit (1);
       }
+
+      buffer = malloc (buffer_size);
 
       do
 	{

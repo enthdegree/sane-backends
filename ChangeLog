@@ -1,3 +1,6 @@
+2011-06-30 Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
+	* frontend/scanimage.c: plug a memory leak in batch mode.
+
 2011-06-24 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: add a wildcard rule for Epson SCSI scanners
 	with a model string beginning with "SCANNER". Idea from Olaf

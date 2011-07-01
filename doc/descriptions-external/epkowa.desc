@@ -1,5 +1,5 @@
 ;;;  epkowa.desc			-*- emacs-lisp -*- (eh, sort of)
-;;;  Copyright (C) 2004--2009  Olaf Meeuwissen
+;;;  Copyright (C) 2004--2011  Olaf Meeuwissen
 ;;;
 ;;;  This file is part of the "Image Scan!" documentation.
 ;;;
@@ -38,7 +38,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "iscan 2.26.1/iscan-data 1.5.0"
+:version "iscan 2.26.4/iscan-data 1.9.0"
 :url     "http://www.avasys.jp/english/linux_e/"
 
 ;:comment "Based on the epson backend of sane-backends-1.0.15."
@@ -107,6 +107,12 @@
 :comment   "network interface not supported<br>business all-in-one"
 
 :model     "AcuLaser MX20DNF"
+:interface "USB"
+:usbid     "0x04b8" "0x0866"
+:status    :complete
+:comment   "network interface not supported<br>business all-in-one"
+
+:model     "AcuLaser MX21DNF"
 :interface "USB"
 :usbid     "0x04b8" "0x0866"
 :status    :complete
@@ -593,16 +599,16 @@
 :status    :complete
 
 :model     "GT-9700F"			; product spec (JP)
-:interface "USB"
+:interface "USB IEEE1394"
 :usbid     "0x04b8" "0x0112"
+:scsi      "EPSON" "GT-9700" "processor"
 :status    :complete
-:comment   "IEEE1394 untested"
 
 :model     "GT-9800F"			; product spec (JP)
-:interface "USB"
+:interface "USB IEEE1394"
 :usbid     "0x04b8" "0x011c"
+:scsi      "EPSON" "GT-9800" "processor"
 :status    :complete
-:comment   "IEEE1394 untested"
 
 :model     "GT-10000"
 :interface "SCSI"
@@ -793,6 +799,18 @@
 :status    :good
 :comment   "IEEE1394 untested"
 
+:model     "K200 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0871"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "L200 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0873"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "LP-7900CS"
 :status    :untested
 :comment   "business all-in-one; scanner is a ES-7000H"
@@ -890,6 +908,12 @@
 :model     "ME 330 Series"
 :interface "USB"
 :usbid     "0x04b8" "0x085c"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "ME 340 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0883"
 :status    :complete
 :comment   "all-in-one"
 
@@ -1049,6 +1073,12 @@
 :status    :good
 :comment   "all-in-one"
 
+:model     "PX-403A"
+:interface "USB"
+:usbid     "0x04b8" "0x087f"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "PX-501A"
 :interface "USB"
 :usbid     "0x04b8" "0x084a"
@@ -1076,6 +1106,18 @@
 :model     "PX-602F"
 :interface "USB"
 :usbid     "0x04b8" "0x0855"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "PX-603F"
+:interface "USB"
+:usbid     "0x04b8" "0x085d"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "PX-673F"
+:interface "USB"
+:usbid     "0x04b8" "0x086a"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
@@ -1267,10 +1309,11 @@
 :comment   "overseas version of the GT-9300UF"
 
 :model     "Perfection 2450 PHOTO"	; command spec
-:interface "USB"
+:interface "USB IEEE1394"
 :usbid     "0x04b8" "0x0112"
+:scsi      "EPSON" "GT-9700" "processor"
 :status    :complete
-:comment   "IEEE1394 untested<br>overseas version of the GT-9700F"
+:comment   "overseas version of the GT-9700F"
 
 :model     "Perfection 2480 PHOTO"
 :interface "USB"
@@ -1294,10 +1337,11 @@
 :url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
 :model     "Perfection 3200 PHOTO"	; command spec
-:interface "USB"
+:interface "USB IEEE1394"
 :usbid     "0x04b8" "0x011c"
+:scsi      "EPSON" "GT-9800" "processor"
 :status    :complete
-:comment   "IEEE1394 untested<br>overseas version of the GT-9800F"
+:comment   "overseas version of the GT-9800F"
 
 :model     "Perfection 3490 PHOTO"
 :interface "USB"
@@ -1838,6 +1882,12 @@
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
+:model     "Stylus Office BX925FWD"
+:interface "USB"
+:usbid     "0x04b8" "0x086a"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-673F"
+
 :model     "Stylus Office TX300F"
 :interface "USB"
 :usbid     "0x04b8" "0x0848"
@@ -2078,11 +2128,23 @@
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-802A"
 
+:model     "Stylus Photo TX720WD Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0861"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-803A"
+
 :model     "Stylus Photo TX800FW"
 :interface "USB"
 :usbid     "0x04b8" "0x0844"
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-901A"
+
+:model     "Stylus Photo TX820FWD Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0860"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-903A"
 
 :model     "Stylus NX100"
 :interface "USB"
@@ -2288,6 +2350,12 @@
 :status    :complete
 :comment   "all-in-one"
 
+:model     "Stylus TX130 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0883"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "Stylus TX200"
 :interface "USB"
 :usbid     "0x04b8" "0x0849"
@@ -2395,3 +2463,9 @@
 :usbid     "0x04b8" "0x085d"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "WorkForce 840 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x086a"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-673F"

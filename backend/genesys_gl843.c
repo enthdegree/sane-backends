@@ -3608,15 +3608,19 @@ gl843_is_compatible_calibration (Genesys_Device * dev,
     }
 
   /* a cache entry expires after 30 minutes for non CIS scanners */
+  /* this is not taken into account when overwriting cache entries    */
 #ifdef HAVE_SYS_TIME_H
-  gettimeofday (&time, NULL);
-  if ((time.tv_sec - cache->last_calibration > 30 * 60)
-      && (dev->model->is_cis == SANE_FALSE)
-      && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+  if(for_overwrite == SANE_FALSE)
     {
-      DBG (DBG_proc,
-	   "gl843_is_compatible_calibration: expired entry, non compatible cache\n");
-      return SANE_STATUS_UNSUPPORTED;
+      gettimeofday (&time, NULL);
+      if ((time.tv_sec - cache->last_calibration > 30 * 60)
+          && (dev->model->is_cis == SANE_FALSE)
+          && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+        {
+          DBG (DBG_proc,
+               "gl843_is_compatible_calibration: expired entry, non compatible cache\n");
+          return SANE_STATUS_UNSUPPORTED;
+        }
     }
 #endif
 

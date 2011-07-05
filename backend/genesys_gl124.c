@@ -3674,15 +3674,19 @@ gl124_is_compatible_calibration (Genesys_Device * dev,
     }
 
   /* a cache entry expires after 60 minutes for non sheetfed scanners */
+  /* this is not taken into account when overwriting cache entries    */
 #ifdef HAVE_SYS_TIME_H
-  gettimeofday (&time, NULL);
-  if ((time.tv_sec - cache->last_calibration > 60 * 60)
-      && (dev->model->is_sheetfed == SANE_FALSE)
-      && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+  if(for_overwrite == SANE_FALSE)
     {
-      DBG (DBG_proc,
-	   "gl124_is_compatible_calibration: expired entry, non compatible cache\n");
-      return SANE_STATUS_UNSUPPORTED;
+      gettimeofday (&time, NULL);
+      if ((time.tv_sec - cache->last_calibration > 60 * 60)
+          && (dev->model->is_sheetfed == SANE_FALSE)
+          && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+        {
+          DBG (DBG_proc,
+               "gl124_is_compatible_calibration: expired entry, non compatible cache\n");
+          return SANE_STATUS_UNSUPPORTED;
+        }
     }
 #endif
 

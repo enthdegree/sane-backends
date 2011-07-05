@@ -1,3 +1,9 @@
+2011-07-05 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_low.h backend/genesys_gl847.c backend/genesys_devices.c
+	backend/genesys.c backend/genesys_gl124.c backend/genesys_gl843.c
+	backend/genesys_gl646.c backend/genesys_gl841.c: make 4800 pdi work
+	for Lide200. Calibration cache file leak fix.
+
 2011-06-30 Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
 	* frontend/scanimage.c: plug a memory leak in batch mode.
 

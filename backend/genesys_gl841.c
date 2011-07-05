@@ -5908,7 +5908,6 @@ gl841_init (Genesys_Device * dev)
       RIE (sanei_gl841_asic_test (dev));
     }
 
-
   /* Set analog frontend */
   RIE (gl841_set_fe (dev, AFE_INIT));
 

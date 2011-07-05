@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2010-2011 Stéphane Voltz <stef.dev@free.fr>
    
     
    This file is part of the SANE package.
@@ -121,6 +121,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
   SANE_Status status;
   size_t size, target, read, done;
   uint8_t outdata[8];
+  uint8_t *buffer;
 
   DBG (DBG_io, "gl847_bulk_read_data: requesting %lu bytes at addr=0x%02x\n", (u_long) len, addr);
 
@@ -128,6 +129,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
     return SANE_STATUS_GOOD;
 
   target = len;
+  buffer = data;
 
   /* loop until computed data size is read */
   while (target)
@@ -175,7 +177,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
       DBG (DBG_io2,
 	   "gl847_bulk_read_data: trying to read %lu bytes of data\n",
 	   (u_long) read);
-      status = sanei_usb_read_bulk (dev->dn, data, &read);
+      status = sanei_usb_read_bulk (dev->dn, buffer, &read);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -193,7 +195,7 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 	  DBG (DBG_io2,
 	       "gl847_bulk_read_data: trying to read %lu bytes of data\n",
 	       (u_long) read);
-	  status = sanei_usb_read_bulk (dev->dn, data+done, &read);
+	  status = sanei_usb_read_bulk (dev->dn, buffer+done, &read);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
@@ -209,7 +211,12 @@ gl847_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 	   (u_long) size, (u_long) (target - size));
 
       target -= size;
-      data += size;
+      buffer += size;
+    }
+
+  if (DBG_LEVEL >= DBG_data && dev->binary!=NULL)
+    {
+      fwrite(data, len, 1, dev->binary);
     }
 
   DBGCOMPLETED;
@@ -465,7 +472,6 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x01, 0x82);
   SETREG (0x02, 0x18);
   SETREG (0x03, 0x50);
-  SETREG (0x03, 0x10);  /* XXX STEF XXX */
   SETREG (0x04, 0x12);
   SETREG (0x05, 0x80);
   SETREG (0x06, 0x50);		/* FASTMODE + POWERBIT */
@@ -1147,8 +1153,10 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   /* start and end coordinate in optical dpi coordinates */
   startx = start/cksel+dev->sensor.CCD_start_xoffset;
   used_pixels=pixels/cksel;
+ 
+  /* end of sensor window */
   endx = startx + used_pixels;
-  
+
   /* sensors are built from 600 dpi segments */
   segnb=dpihw/600;
 
@@ -1158,6 +1166,18 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   endx/=factor*segnb;
   dev->len=endx-startx;
   dev->dist=0;
+  dev->skip=0;
+
+  /* in case of 4800 dpi, we must match full sensor width */
+  if(dpihw==4800)
+    {
+      dev->skip=startx-dev->sensor.CCD_start_xoffset/segnb;
+      if(depth==16)
+        dev->skip*=2;
+      startx = dev->sensor.CCD_start_xoffset/segnb;
+      used_pixels = sensor->segcnt;
+      endx = startx + used_pixels;
+    }
 
   /* in cas of multi-segments sensor, we have to add the witdh
    * of the sensor crossed by the scan area */
@@ -1396,23 +1416,6 @@ gl847_init_scan_regs (Genesys_Device * dev,
        "Depth/Channels: %u/%u\n"
        "Flags         : %x\n\n",
        xres, yres, lines, pixels, startx, starty, depth, channels, flags);
-
-#ifdef SANE_DEBUG_LOG_RAW_DATA
-  /* for raw data debug, we know here the exact raw image
-   * attributes */
-  if (rawfile == NULL && DBG_LEVEL >= DBG_data)
-    {
-      if (rawfile != NULL)
-	{
-          rewind(rawfile);
-	  fprintf (rawfile,
-		   "P5\n%05d %05d\n%d\n",
-		   pixels*channel,
-		   lines,
-		   (1 << depth) - 1);
-        }
-    }
-#endif
 
   /* we may have 2 domains for ccd: xres below or above half ccd max dpi */
   if (dev->sensor.optical_res < 2 * xres ||
@@ -2744,6 +2747,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   uint32_t addr, length, i, x, factor, pixels;
   uint32_t dpiset, dpihw, strpixel, endpixel;
   uint16_t tempo;
+  uint32_t lines, channels;
   uint8_t val,*buffer,*ptr,*src;
 
   DBGSTART;
@@ -2769,14 +2773,34 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   factor=dpihw/dpiset;
   DBG( DBG_io2, "%s: factor=%d\n",__FUNCTION__,factor);
 
-  /* since we're using SHDAREA, substract startx coordinate from shading */
-  strpixel-=((dev->sensor.CCD_start_xoffset*600)/dev->sensor.optical_res);
+  if(DBG_LEVEL>=DBG_data)
+    {
+      dev->binary=fopen("binary.pnm","wb");
+      sanei_genesys_get_triple(dev->reg, REG_LINCNT, &lines);
+      channels=3;
+      if(dev->binary!=NULL)
+        {
+          fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);
+        }
+    }
+  
+  pixels=endpixel-strpixel;
+
+  /* since we're using SHDAREA, substract startx coordinate from shading,
+   * but not a 4800 dpi where hardware coordinates are fixed */
+  if(dpihw!=4800)
+    {
+      strpixel-=((dev->sensor.CCD_start_xoffset*600)/dev->sensor.optical_res);
+    }
+  else
+    {
+      strpixel=0;
+    }
   
   /* turn pixel value into bytes 2x16 bits words */
-  strpixel*=2*2; /* 2 words of 2 bytes */
+  strpixel*=2*2; 
   endpixel*=2*2;
-  /* byte size of coefficients */
-  pixels=endpixel-strpixel;
+  pixels*=2*2;
 
   /* allocate temporary buffer */
   buffer=(uint8_t *)malloc(pixels);
@@ -2804,7 +2828,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
           ptr[1]=src[1];
           ptr[2]=src[2];
           ptr[3]=src[3];
-
+          
           /* next shading coefficient */
           ptr+=4;
         }
@@ -3084,7 +3108,7 @@ gl847_is_compatible_calibration (Genesys_Device * dev,
 
   DBGSTART;
   
-  if (cache == NULL || for_overwrite)
+  if (cache == NULL)
     return SANE_STATUS_UNSUPPORTED;
 
   status = gl847_calculate_current_setup (dev);
@@ -3118,15 +3142,19 @@ gl847_is_compatible_calibration (Genesys_Device * dev,
     }
 
   /* a cache entry expires after 60 minutes for non sheetfed scanners */
+  /* this is not taken into account when overwriting cache entries    */
 #ifdef HAVE_SYS_TIME_H
-  gettimeofday (&time, NULL);
-  if ((time.tv_sec - cache->last_calibration > 60 * 60)
-      && (dev->model->is_sheetfed == SANE_FALSE)
-      && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+  if(for_overwrite == SANE_FALSE)
     {
-      DBG (DBG_proc,
-	   "gl847_is_compatible_calibration: expired entry, non compatible cache\n");
-      return SANE_STATUS_UNSUPPORTED;
+      gettimeofday (&time, NULL);
+      if ((time.tv_sec - cache->last_calibration > 60 * 60)
+          && (dev->model->is_sheetfed == SANE_FALSE)
+          && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+        {
+          DBG (DBG_proc,
+               "gl847_is_compatible_calibration: expired entry, non compatible cache\n");
+          return SANE_STATUS_UNSUPPORTED;
+        }
     }
 #endif
 
@@ -3438,6 +3466,9 @@ gl847_init (Genesys_Device * dev)
 
   /* set up hardware and registers */
   RIE (gl847_cold_boot (dev));
+
+  /* move head away from park position */
+  gl847_feed (dev, 300);
 
   /* now hardware part is OK, set up device struct */
   FREE_IFNOT_NULL (dev->white_average_data);

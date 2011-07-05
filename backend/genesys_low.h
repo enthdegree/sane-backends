@@ -665,6 +665,7 @@ struct Genesys_Device
   size_t dist;     /**> bytes distance between an odd and an even pixel */
   size_t len;      /**> number of even pixels */
   size_t cur;      /**> current pixel position within sub window */
+  size_t skip;     /**> number of bytes to skip at start of line */
   Genesys_Buffer oe_buffer; /**> buffer to handle even/odd data */
 
   SANE_Bool buffer_image; /**> when true the scanned picture is first buffered

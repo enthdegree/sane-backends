@@ -4331,8 +4331,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
   SANE_Status status;
   SANE_Int ydpi;
 
-  DBG (DBG_proc, "gl841_init_regs_for_shading: lines = %d\n",
-       dev->model->shading_lines);
+  DBG (DBG_proc, "gl841_init_regs_for_shading: lines = %d\n", dev->calib_lines);
 
   ydpi = dev->motor.base_ydpi;
   if (dev->motor.motor_id == MOTOR_PLUSTEK_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
@@ -4341,6 +4340,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
     }
 
   dev->calib_channels = 3;
+  dev->calib_lines = dev->model->shading_lines;
   status = gl841_init_scan_regs (dev,
 				 dev->calib_reg,
 				 dev->settings.xres,
@@ -4348,7 +4348,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 0,
 				 0,
 				 (dev->sensor.sensor_pixels * dev->settings.xres) / dev->sensor.optical_res,
-				 dev->model->shading_lines,
+				 dev->calib_lines,
 				 16,
 				 dev->calib_channels,
 				 dev->settings.color_filter,
@@ -4360,7 +4360,6 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 SCAN_FLAG_USE_OPTICAL_RES
       );
 
-  dev->calib_lines = dev->model->shading_lines;
   dev->calib_pixels = dev->current_setup.pixels;
 
   if (status != SANE_STATUS_GOOD)
@@ -4371,7 +4370,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
       return status;
     }
 
-  dev->scanhead_position_in_steps += dev->model->shading_lines;
+  dev->scanhead_position_in_steps += dev->calib_lines;
 
   status =
     gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS);

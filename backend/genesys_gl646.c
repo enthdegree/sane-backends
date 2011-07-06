@@ -3314,7 +3314,8 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   settings.tl_y = 0;
   settings.pixels =
     (dev->sensor.sensor_pixels * settings.xres) / dev->sensor.optical_res;
-  settings.lines = dev->model->shading_lines * (3 - half_ccd);
+  dev->calib_lines = dev->model->shading_lines;
+  settings.lines = dev->calib_lines * (3 - half_ccd);
   settings.depth = 16;
   settings.color_filter = dev->settings.color_filter;
 
@@ -3330,7 +3331,6 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   status = setup_for_scan (dev, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
 
   /* used when sending shading calibration data */
-  dev->calib_lines = dev->model->shading_lines;
   dev->calib_pixels = settings.pixels;
   dev->calib_channels = dev->current_setup.channels;
   if (dev->model->is_cis == SANE_FALSE)
@@ -3349,12 +3349,11 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
   if (dev->model->is_cis == SANE_FALSE)
     {
-      gl646_set_triple_reg (dev->reg, REG_LINCNT, dev->model->shading_lines);
+      gl646_set_triple_reg (dev->reg, REG_LINCNT, dev->calib_lines);
     }
   else
     {
-      gl646_set_triple_reg (dev->reg, REG_LINCNT,
-			    dev->model->shading_lines * 3);
+      gl646_set_triple_reg (dev->reg, REG_LINCNT, dev->calib_lines * 3);
     }
 
   /* copy reg to calib_reg */

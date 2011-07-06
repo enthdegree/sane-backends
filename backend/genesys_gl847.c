@@ -2470,8 +2470,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
 
-  DBG (DBG_proc, "gl847_init_regs_for_shading: lines = %d\n",
-       dev->model->shading_lines);
+  DBG (DBG_proc, "gl847_init_regs_for_shading: lines = %d\n", dev->calib_lines);
 
   dev->calib_channels = 3;
 
@@ -2490,7 +2489,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
 				 0,
 				 0,
 				 dev->calib_pixels,
-				 dev->model->shading_lines,
+				 dev->calib_lines,
                                  16,
 				 dev->calib_channels,
 				 dev->settings.color_filter,
@@ -2513,7 +2512,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
     }
 
   /* TODO this is a good approximation, replace by exact value */
-  dev->scanhead_position_in_steps = (5*dev->model->shading_lines*600)/dev->calib_resolution;
+  dev->scanhead_position_in_steps = (5*dev->calib_lines*600)/dev->calib_resolution;
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;

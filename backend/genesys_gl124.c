@@ -2623,7 +2623,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
 				 0,
 				 move,
 				 dev->calib_pixels,
-				 dev->model->shading_lines,
+				 dev->calib_lines,
 				 16,
 				 dev->calib_channels,
 				 0,
@@ -2642,7 +2642,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
       return status;
     }
 
-  dev->scanhead_position_in_steps += dev->model->shading_lines + move;
+  dev->scanhead_position_in_steps += dev->calib_lines + move;
 
   status =
     gl124_bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS);

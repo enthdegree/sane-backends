@@ -622,7 +622,8 @@ struct Genesys_Device
   time_t init_date;
 
   size_t average_size;
-  size_t calib_pixels;
+  size_t calib_pixels;	/**> number of pixels used during shading calibration */
+  size_t calib_lines;	/**> number of lines used during shading calibration */
   size_t calib_channels;
   size_t calib_resolution;
   uint8_t *white_average_data;
@@ -901,6 +902,13 @@ int sanei_genesys_slope_table(uint16_t *slope, int *steps, int dpi, int exposure
 
 extern
 int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev);
+
+/**
+ * reads previously cached calibration data
+ * from file
+ */
+extern SANE_Status
+sanei_genesys_read_calibration (Genesys_Device * dev);
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */

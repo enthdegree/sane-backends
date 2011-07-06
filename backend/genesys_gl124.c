@@ -2603,6 +2603,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
 
   dev->calib_channels = 3;
   resolution=gl124_compute_dpihw(dev,dev->settings.xres);
+  dev->calib_lines = dev->model->shading_lines;
   dev->calib_pixels = (dev->sensor.sensor_pixels*resolution)/dev->sensor.optical_res;
   dev->calib_resolution = resolution;
 

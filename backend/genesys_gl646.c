@@ -3330,6 +3330,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   status = setup_for_scan (dev, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
 
   /* used when sending shading calibration data */
+  dev->calib_lines = dev->model->shading_lines;
   dev->calib_pixels = settings.pixels;
   dev->calib_channels = dev->current_setup.channels;
   if (dev->model->is_cis == SANE_FALSE)

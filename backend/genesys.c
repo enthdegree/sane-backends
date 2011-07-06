@@ -1862,7 +1862,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
     }
 
   /* size is size in bytes for scanarea: bytes_per_line * lines */
-  size = channels * 2 * pixels_per_line * (dev->model->shading_lines + 1);
+  size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
 
   calibration_data = malloc (size);
   if (!calibration_data)
@@ -1931,14 +1931,14 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
     }
 
   genesys_average_data (dev->dark_average_data, calibration_data,
-			dev->model->shading_lines,
+			dev->calib_lines,
 			pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
     {
       sanei_genesys_write_pnm_file ("black_shading.pnm", calibration_data, 16,
 				    channels, pixels_per_line,
-				    dev->model->shading_lines);
+				    dev->calib_lines);
       sanei_genesys_write_pnm_file ("black_average.pnm",
 				    dev->dark_average_data, 16, channels,
 				    pixels_per_line, 1);
@@ -2061,7 +2061,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   uint8_t channels;
 
   DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
-       dev->model->shading_lines);
+       dev->calib_lines);
 
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
@@ -2077,7 +2077,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
       return SANE_STATUS_NO_MEM;
     }
 
-  size = channels * 2 * pixels_per_line * (dev->model->shading_lines + 1);
+  size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
 
   calibration_data = malloc (size);
   if (!calibration_data)
@@ -2140,10 +2140,10 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file ("white_shading.pnm", calibration_data, 16,
 				  channels, pixels_per_line,
-				  dev->model->shading_lines);
+				  dev->calib_lines);
   
   genesys_average_data (dev->white_average_data, calibration_data,
-			dev->model->shading_lines,
+			dev->calib_lines,
 			pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
@@ -2189,7 +2189,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
 
   DBG (DBG_proc, "genesys_black_white_shading_calibration (lines = %d)\n",
-       dev->model->shading_lines);
+       dev->calib_lines);
 
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
@@ -2218,7 +2218,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
       return SANE_STATUS_NO_MEM;
     }
 
-  size = channels * 2 * pixels_per_line * dev->model->shading_lines;
+  size = channels * 2 * pixels_per_line * dev->calib_lines;
 
   calibration_data = malloc (size);
   if (!calibration_data)
@@ -2279,7 +2279,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file ("black_white_shading.pnm", calibration_data,
 				  16, channels, pixels_per_line,
-				  dev->model->shading_lines);
+				  dev->calib_lines);
 
 
   average_white = dev->white_average_data;
@@ -2290,7 +2290,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
       dark = 0xffff;
       white = 0;
 
-      for (y = 0; y < dev->model->shading_lines; y++)
+      for (y = 0; y < (int)dev->calib_lines; y++)
 	{
 	  col = calibration_data[(x + y * pixels_per_line * channels) * 2];
 	  col |=
@@ -2314,7 +2314,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
       white_count = 0;
       white_sum = 0;
 
-      for (y = 0; y < dev->model->shading_lines; y++)
+      for (y = 0; y < (int)dev->calib_lines; y++)
 	{
 	  col = calibration_data[(x + y * pixels_per_line * channels) * 2];
 	  col |=
@@ -3836,7 +3836,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
        * pixel and use it to fill the dark_average
        * dev->calib_pixels
        (dev->sensor.sensor_pixels * dev->settings.xres) / dev->sensor.optical_res,
-       dev->model->shading_lines,
+       dev->calib_lines,
        */
     }
 

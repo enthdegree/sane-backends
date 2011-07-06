@@ -2480,6 +2480,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
   dev->calib_resolution = sanei_genesys_compute_dpihw(dev,dev->settings.xres);
+  dev->calib_lines = dev->model->shading_lines;
   dev->calib_pixels = (dev->sensor.sensor_pixels*dev->calib_resolution)/dev->sensor.optical_res;
 
   status = gl847_init_scan_regs (dev,

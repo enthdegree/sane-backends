@@ -260,5 +260,6 @@ This backend will be much slower if not using libusb-1.0. So be sure that sane-b
 .br
 
 .SH "BUGS"
-Currently no known bug.
+For the LiDE 200, the scanned data at 4800 dpi is obtained "as is" from sensor. It seems the windows driver does some digital processing
+to improve it, which is not implemented in the backend.
 .PP 

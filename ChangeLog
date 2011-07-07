@@ -1,3 +1,7 @@
+2011-07-07 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c: fixed incorrect image height for sheetfed
+	scanners
+
 2011-07-07 m. allan noah <kitno455 at gmail dot com>
 	* po/pt.po: updated translation from cncsolutions.com.br
 

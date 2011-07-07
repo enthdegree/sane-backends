@@ -7701,9 +7701,10 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       /* in the case of a sheetfed scanner, when full height is specified
        * we override the computed line number with -1 to signal that we
        * don't know the real document height.
+       * We don't do that doing buffering image for digital processing
        */
       if (s->dev->model->is_sheetfed == SANE_TRUE
-          && s->dev->read_active == SANE_FALSE
+          && s->dev->buffer_image == SANE_FALSE
 	  && s->val[OPT_BR_Y].w == s->opt[OPT_BR_Y].constraint.range->max)
 	{
 	  params->lines = -1;

@@ -1,3 +1,9 @@
+2011-07-06 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_low.h backend/genesys_gl847.c backend/genesys.c 
+	backend/genesys_gl124.c backend/genesys_gl843.c backend/genesys_gl646.c
+	backend/genesys_gl841.c: improve 4800 dpi quality for LiDE 200 by
+	increasing the number of lines scan for shading
+
 2011-07-05 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.h backend/genesys_gl847.c backend/genesys_devices.c
 	backend/genesys.c backend/genesys_gl124.c backend/genesys_gl843.c

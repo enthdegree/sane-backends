@@ -266,6 +266,12 @@
          - don't center window when using flatbed
          - improve request sense error messages
          - enable flatbed for all known models
+      v38 2011-07-06, MAN
+	 - initial support for DR-5020
+	 - use ppl_mod instead of Bpl_mod, apply to all modes
+	 - invert logic of read_panel tracking
+	 - add ability to disable read_panel()
+	 - automatically disable read/send_panel if unsupported
 
    SANE FLOW DIAGRAM
 
@@ -314,7 +320,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 37
+#define BUILD 38
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1120,13 +1126,14 @@ init_model (struct scanner *s)
   s->has_adf = 1;
   s->has_duplex = 1;
   s->has_buffer = 1;
+  s->can_read_panel = 1;
   s->can_write_panel = 1;
 
   s->brightness_steps = 255;
   s->contrast_steps = 255;
   s->threshold_steps = 255;
 
-  s->Bpl_mod = 1;
+  s->ppl_mod = 1;
   s->bg_color = 0xee;
 
   /* assume these are same as adf, override below */
@@ -1233,7 +1240,17 @@ init_model (struct scanner *s)
     s->can_write_panel = 0;
     s->has_df = 0;
     s->has_btc = 0;
-    s->Bpl_mod = 32;
+    s->ppl_mod = 32;
+    s->reverse_by_mode[MODE_LINEART] = 0;
+    s->reverse_by_mode[MODE_HALFTONE] = 0;
+  }
+
+  else if (strstr (s->model_name,"DR-5020")){
+    s->can_read_panel = 0;
+    s->can_write_panel = 0;
+    s->has_df = 0;
+    s->has_btc = 0;
+    s->ppl_mod = 32;
     s->reverse_by_mode[MODE_LINEART] = 0;
     s->reverse_by_mode[MODE_HALFTONE] = 0;
   }
@@ -1253,10 +1270,21 @@ init_panel (struct scanner *s)
 
   DBG (10, "init_panel: start\n");
 
-  ret = read_panel(s,OPT_COUNTER);
+  ret = read_panel(s,0);
+  if(ret){
+    DBG (5, "init_panel: disabling read_panel\n");
+    s->can_read_panel = 0;
+    ret = SANE_STATUS_GOOD;
+  }
+
   s->panel_enable_led = 1;
   s->panel_counter = 0;
   ret = send_panel(s);
+  if(ret){
+    DBG (5, "init_panel: disabling send_panel\n");
+    s->can_write_panel = 0;
+    ret = SANE_STATUS_GOOD;
+  }
 
   DBG (10, "init_panel: finish\n");
 
@@ -2072,6 +2100,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    if(!s->can_read_panel)
+      opt->cap = SANE_CAP_INACTIVE;
   }
 
   if(option==OPT_STOP){
@@ -2081,6 +2111,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    if(!s->can_read_panel)
+      opt->cap = SANE_CAP_INACTIVE;
   }
 
   if(option==OPT_BUTT3){
@@ -2090,6 +2122,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    if(!s->can_read_panel)
+      opt->cap = SANE_CAP_INACTIVE;
   }
 
   if(option==OPT_NEWFILE){
@@ -2099,6 +2133,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    if(!s->can_read_panel)
+      opt->cap = SANE_CAP_INACTIVE;
   }
 
   if(option==OPT_COUNTONLY){
@@ -2108,6 +2144,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    if(!s->can_read_panel)
+      opt->cap = SANE_CAP_INACTIVE;
   }
 
   if(option==OPT_BYPASSMODE){
@@ -2117,6 +2155,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    if(!s->can_read_panel)
+      opt->cap = SANE_CAP_INACTIVE;
   }
 
   if(option==OPT_COUNTER){
@@ -2131,7 +2171,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->counter_range.max=500;
     s->counter_range.quant=1;
 
-    if (s->has_counter)
+    if (s->can_read_panel && s->has_counter)
      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else
       opt->cap = SANE_CAP_INACTIVE;
@@ -2878,10 +2918,16 @@ read_panel(struct scanner *s,SANE_Int option)
   unsigned char in[R_PANEL_len];
   size_t inLen = R_PANEL_len;
 
-  DBG (10, "read_panel: start\n");
+  DBG (10, "read_panel: start %d\n", option);
  
-  /* only run this if frontend has read previous value */
-  if (s->hw_read[option-OPT_START]) {
+  if(!s->can_read_panel){
+    DBG (10, "read_panel: unsupported, finishing\n");
+    return ret;
+  }
+
+  /* only run this if frontend has read previous value
+   * or if the caller does not want the data stored */
+  if (!option || !s->hw_read[option-OPT_START]) {
 
     DBG (15, "read_panel: running\n");
 
@@ -2898,8 +2944,9 @@ read_panel(struct scanner *s,SANE_Int option)
     );
     
     if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
-      /*blast the read flags*/
-      memset(s->hw_read,0,sizeof(s->hw_read));
+      /*set flags indicating there is data to read*/
+      if(option)
+        memset(s->hw_read,1,sizeof(s->hw_read));
 
       s->panel_start = get_R_PANEL_start(in);
       s->panel_stop = get_R_PANEL_stop(in);
@@ -2913,7 +2960,8 @@ read_panel(struct scanner *s,SANE_Int option)
     }
   }
   
-  s->hw_read[option-OPT_START] = 1;
+  if(option)
+    s->hw_read[option-OPT_START] = 0;
 
   DBG (10, "read_panel: finish %d\n",s->panel_counter);
   
@@ -3047,9 +3095,6 @@ update_params(struct scanner *s, int calib)
     else if (s->u.mode == MODE_GRAYSCALE) {
       s->u.format = SANE_FRAME_GRAY;
       s->u.bpp = 8;
-
-      /* round down to boundary for some scanners */
-      s->u.width -= s->u.width % s->Bpl_mod;
     }
     else {
       s->u.format = SANE_FRAME_GRAY;
@@ -3058,6 +3103,9 @@ update_params(struct scanner *s, int calib)
       /* round down to byte boundary */
       s->u.width -= s->u.width % 8;
     }
+
+    /* round down to pixel boundary for some scanners */
+    s->u.width -= s->u.width % s->ppl_mod;
 
 #ifdef SANE_FRAME_JPEG
     /* jpeg requires 8x8 squares */
@@ -3139,10 +3187,9 @@ update_params(struct scanner *s, int calib)
     if(s->s.mode < MODE_GRAYSCALE){
       s->s.width -= s->s.width % 8;
     }
-    if(s->s.mode == MODE_GRAYSCALE){
-      /* round down to boundary for some scanners */
-      s->s.width -= s->s.width % s->Bpl_mod;
-    }
+
+    /* round down to pixel boundary for some scanners */
+    s->s.width -= s->s.width % s->ppl_mod;
 
     s->s.valid_width = s->s.width;
     s->s.valid_Bpl = s->s.valid_width * s->s.bpp / 8;

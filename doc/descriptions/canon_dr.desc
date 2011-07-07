@@ -11,9 +11,9 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/" 
-:version "37"                    ; version of backend
+:version "38"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
-:comment "Backend updated for SANE release 1.0.21, see sane-canon_dr manpage"
+:comment "Backend updated for SANE release 1.0.23, see sane-canon_dr manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
@@ -174,8 +174,8 @@
 
 :model "DR-5020"
 :interface "SCSI"
-:status :untested
-:comment "Please test!"
+:status :good
+:comment "LineArt, Duplex working, cannot read buttons or screen?"
 
 :model "DR-5060F"
 :interface "SCSI"

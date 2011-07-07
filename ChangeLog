@@ -1,3 +1,12 @@
+2011-07-06 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr.[ch]: backend version 38
+	- initial support for DR-5020
+	- use ppl_mod instead of Bpl_mod, apply to all modes
+	- invert logic of read_panel tracking
+	- add ability to disable read_panel()
+	- automatically disable read/send_panel if unsupported
+	* doc/descriptions/canon_dr.desc: status of DR-5020
+
 2011-07-06 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.h backend/genesys_gl847.c backend/genesys.c 
 	backend/genesys_gl124.c backend/genesys_gl843.c backend/genesys_gl646.c

@@ -2067,6 +2067,8 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   Genesys_Register_Set *r;
   float resolution;
   uint8_t val;
+  int loop = 0;
+
 
   DBG (DBG_proc, "gl847_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
@@ -2179,8 +2181,6 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   if (wait_until_home)
     {
-      int loop = 0;
-
       while (loop < 300)	/* do not wait longer then 30 seconds */
 	{
 	  status = sanei_genesys_get_status (dev, &val);

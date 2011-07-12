@@ -2990,6 +2990,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   Genesys_Settings settings;
   uint8_t val;
   int i;
+  int loop = 0;
 
   DBG (DBG_proc, "gl646_slow_back_home: start , wait_until_home = %d\n",
        wait_until_home);
@@ -3061,8 +3062,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* setup for a backward scan of 65535 steps, with no actual data reading */
   settings.scan_method = SCAN_METHOD_FLATBED;
   settings.scan_mode = SCAN_MODE_COLOR;
-  settings.xres =
-    get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
+  settings.xres = get_lowest_resolution (dev->model->ccd_type, SANE_FALSE);
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 0;
@@ -3119,9 +3119,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* loop until head parked */
   if (wait_until_home)
     {
-      int loop = 0;
-
-      while (loop < 3)		/* do not wait longer then 30 seconds */
+      while (loop < 300)		/* do not wait longer then 30 seconds */
 	{
 	  status = sanei_genesys_get_status (dev, &val);
 	  if (status != SANE_STATUS_GOOD)
@@ -3140,6 +3138,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      return SANE_STATUS_GOOD;
 	    }
 	  usleep (100000);	/* sleep 100 ms */
+          ++loop;
 	}
 
       /* when we come here then the scanner needed too much time for this, so we better stop the motor */

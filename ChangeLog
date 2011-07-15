@@ -1,4 +1,7 @@
 2011-07-15 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c: re-tune scan area of MD5345/MD6228.
+
+2011-07-15 Stéphane Voltz <stef.dev@free.fr>
 	* backend/lexmark.c backend/lexmark_low.c: increase tolerance when
 	detecting the 'home' dot.
 

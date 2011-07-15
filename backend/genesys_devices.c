@@ -1956,9 +1956,9 @@ static Genesys_Model medion_md5345_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX ( 4.00),		/* Start of scan area in mm  (x) */
+  SANE_FIX ( 0.30),		/* Start of scan area in mm  (x) */
   SANE_FIX ( 0.80),		/* 2.79 < Start of scan area in mm (y) */
-  SANE_FIX (215.9),		/* Size of scan area in mm (x) */
+  SANE_FIX (220.0),		/* Size of scan area in mm (x) */
   SANE_FIX (296.4),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.00),		/* Start of white strip in mm (y) */

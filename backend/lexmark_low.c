@@ -1,7 +1,7 @@
 /* lexmark-low.c: scanner-interface file for low Lexmark scanners.
 
    (C) 2005 Fred Odendaal
-   (C) 2006-2010 Stéphane Voltz	<stef.dev@free.fr>
+   (C) 2006-2011 Stéphane Voltz	<stef.dev@free.fr>
    (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
    
    This file is part of the SANE package.
@@ -62,7 +62,7 @@ typedef enum
 }
 region_type;
 
-#define HomeTolerance 30
+#define HomeTolerance 32
 
 
 #define LOBYTE(x)  ((uint8_t)((x) & 0xFF))

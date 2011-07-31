@@ -453,6 +453,11 @@ typedef struct Genesys_Command_Set
      */
     SANE_Status (*send_shading_data) (Genesys_Device * dev, uint8_t * data, int size);
 
+    /**
+     * calculate current scan setup
+     */
+    SANE_Status (*calculate_current_setup) (Genesys_Device * dev);
+
 } Genesys_Command_Set;
 
 typedef struct Genesys_Model
@@ -909,6 +914,11 @@ int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev);
  */
 extern SANE_Status
 sanei_genesys_read_calibration (Genesys_Device * dev);
+
+extern SANE_Status
+sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
+				 Genesys_Calibration_Cache * cache,
+				 int for_overwrite);
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */

@@ -3097,73 +3097,6 @@ gl847_init_regs_for_warmup (Genesys_Device * dev,
   return SANE_STATUS_INVAL;
 }
 
-static SANE_Status
-gl847_is_compatible_calibration (Genesys_Device * dev,
-				 Genesys_Calibration_Cache * cache,
-				 int for_overwrite)
-{
-#ifdef HAVE_SYS_TIME_H
-  struct timeval time;
-#endif
-  int compatible = 1, resolution;
-  SANE_Status status;
-
-  DBGSTART;
-  
-  if (cache == NULL)
-    return SANE_STATUS_UNSUPPORTED;
-
-  status = gl847_calculate_current_setup (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "%s: failed to calculate current setup: %s\n", __FUNCTION__,
-	   sane_strstatus (status));
-      return status;
-    }
-  resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
-  dev->current_setup.scan_method = dev->settings.scan_method;
-
-  DBG (DBG_proc, "gl847_is_compatible_calibration: checking\n");
-  
-  /* a calibration cache is compatible if color mode and x dpi match the user 
-   * requested scan. In the case of CIS scanners, dpi isn't a criteria */
-  compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev,cache->used_setup.xres)));
-  if (dev->current_setup.scan_method != cache->used_setup.scan_method)
-    {
-      DBG (DBG_io,
-	   "%s: current method=%d, used=%d\n", __FUNCTION__,
-	   dev->current_setup.scan_method, cache->used_setup.scan_method);
-      compatible = 0;
-    }
-  if (!compatible)
-    {
-      DBG (DBG_proc,
-	   "%s: completed, non compatible cache\n", __FUNCTION__);
-      return SANE_STATUS_UNSUPPORTED;
-    }
-
-  /* a cache entry expires after 60 minutes for non sheetfed scanners */
-  /* this is not taken into account when overwriting cache entries    */
-#ifdef HAVE_SYS_TIME_H
-  if(for_overwrite == SANE_FALSE)
-    {
-      gettimeofday (&time, NULL);
-      if ((time.tv_sec - cache->last_calibration > 60 * 60)
-          && (dev->model->is_sheetfed == SANE_FALSE)
-          && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
-        {
-          DBG (DBG_proc,
-               "gl847_is_compatible_calibration: expired entry, non compatible cache\n");
-          return SANE_STATUS_UNSUPPORTED;
-        }
-    }
-#endif
-
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
-}
-
 /** 
  * set up GPIO/GPOE for idle state
  */
@@ -3913,9 +3846,10 @@ static Genesys_Command_Set gl847_cmd_set = {
   NULL, /* no known gl847 sheetfed scanner */
   gl847_search_strip,
 
-  gl847_is_compatible_calibration,
+  sanei_genesys_is_compatible_calibration,
   NULL,
-  gl847_send_shading_data
+  gl847_send_shading_data,
+  gl847_calculate_current_setup
 };
 
 SANE_Status

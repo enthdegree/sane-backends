@@ -3529,77 +3529,6 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-gl843_is_compatible_calibration (Genesys_Device * dev,
-				 Genesys_Calibration_Cache * cache,
-				 int for_overwrite)
-{
-#ifdef HAVE_SYS_TIME_H
-  struct timeval time;
-#endif
-  int compatible = 1, resolution;
-  SANE_Status status;
-
-  DBGSTART;
-  
-  status = gl843_calculate_current_setup (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl843_is_compatible_calibration: failed to calculate current setup: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-  resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
-  dev->current_setup.scan_method = dev->settings.scan_method;
-
-  DBG (DBG_proc, "gl843_is_compatible_calibration: checking\n");
-  
-  /* a calibration cache is compatible if color mode and x dpi match the user 
-   * requested scan. In the case of CIS scanners, dpi isn't a criteria */
-  if (dev->model->is_cis == SANE_FALSE)
-    {
-      compatible = (resolution == ((int) cache->used_setup.xres));
-    }
-  else
-    {
-      compatible = (dev->current_setup.channels == cache->used_setup.channels);
-    }
-  if (dev->current_setup.scan_method != cache->used_setup.scan_method)
-    {
-      DBG (DBG_io,
-	   "gl843_is_compatible_calibration: current method=%d, used=%d\n",
-	   dev->current_setup.scan_method, cache->used_setup.scan_method);
-      compatible = 0;
-    }
-  if (!compatible)
-    {
-      DBG (DBG_proc,
-	   "gl843_is_compatible_calibration: completed, non compatible cache\n");
-      return SANE_STATUS_UNSUPPORTED;
-    }
-
-  /* a cache entry expires after 30 minutes for non CIS scanners */
-  /* this is not taken into account when overwriting cache entries    */
-#ifdef HAVE_SYS_TIME_H
-  if(for_overwrite == SANE_FALSE)
-    {
-      gettimeofday (&time, NULL);
-      if ((time.tv_sec - cache->last_calibration > 30 * 60)
-          && (dev->model->is_cis == SANE_FALSE)
-          && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
-        {
-          DBG (DBG_proc,
-               "gl843_is_compatible_calibration: expired entry, non compatible cache\n");
-          return SANE_STATUS_UNSUPPORTED;
-        }
-    }
-#endif
-
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
-}
-
 /** 
  * set up GPIO/GPOE for idle state
 WRITE GPIO[17-21]= GPIO19
@@ -4248,9 +4177,10 @@ static Genesys_Command_Set gl843_cmd_set = {
   gl843_eject_document,
   gl843_search_strip,
 
-  gl843_is_compatible_calibration,
+  sanei_genesys_is_compatible_calibration,
   NULL,
-  NULL /* gl843_send_shading_data */
+  NULL, /* gl843_send_shading_data */
+  gl843_calculate_current_setup
 };
 
 SANE_Status

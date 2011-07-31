@@ -1338,5 +1338,87 @@ int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev)
   return min;
 }
 
+/** @brief check is a cache entry may be used
+ * Compares current settings with the cache entry and return
+ * SANE_TRUE if they are compatible.
+ */
+SANE_Status
+sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
+				 Genesys_Calibration_Cache * cache,
+				 int for_overwrite)
+{
+#ifdef HAVE_SYS_TIME_H
+  struct timeval time;
+#endif
+  int compatible = 1, resolution;
+  SANE_Status status;
+
+  DBGSTART;
+ 
+  if(dev->model->cmd_set->calculate_current_setup==NULL)
+    {
+      DBG (DBG_proc,
+	   "sanei_genesys_is_compatible_calibration: no calculate_setup, non compatible cache\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+
+  status = dev->model->cmd_set->calculate_current_setup (dev);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "sanei_genesys_is_compatible_calibration: failed to calculate current setup: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
+  dev->current_setup.scan_method = dev->settings.scan_method;
+
+  DBG (DBG_proc, "sanei_genesys_is_compatible_calibration: checking\n");
+  
+  /* a calibration cache is compatible if color mode and x dpi match the user 
+   * requested scan. In the case of CIS scanners, dpi isn't a criteria */
+  if (dev->model->is_cis == SANE_FALSE)
+    {
+      compatible = (resolution == ((int) cache->used_setup.xres));
+    }
+  else
+    {
+      compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev,cache->used_setup.xres)));
+    }
+  if (dev->current_setup.scan_method != cache->used_setup.scan_method)
+    {
+      DBG (DBG_io,
+	   "sanei_genesys_is_compatible_calibration: current method=%d, used=%d\n",
+	   dev->current_setup.scan_method, cache->used_setup.scan_method);
+      compatible = 0;
+    }
+  if (!compatible)
+    {
+      DBG (DBG_proc,
+	   "sanei_genesys_is_compatible_calibration: completed, non compatible cache\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+
+  /* a cache entry expires after 60 minutes for non sheetfed scanners */
+  /* this is not taken into account when overwriting cache entries    */
+#ifdef HAVE_SYS_TIME_H
+  if(for_overwrite == SANE_FALSE)
+    {
+      gettimeofday (&time, NULL);
+      if ((time.tv_sec - cache->last_calibration > 60 * 60)
+          && (dev->model->is_sheetfed == SANE_FALSE)
+          && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+        {
+          DBG (DBG_proc,
+               "sanei_genesys_is_compatible_calibration: expired entry, non compatible cache\n");
+          return SANE_STATUS_UNSUPPORTED;
+        }
+    }
+#endif
+
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
+
 
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

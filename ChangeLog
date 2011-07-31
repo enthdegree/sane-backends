@@ -1,4 +1,10 @@
-2011-07-15 Stéphane Voltz <stef.dev@free.fr>
+2011-07-31 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl646.c backend/genesys_gl841.c
+	backend/genesys_gl843.c backend/genesys_gl847.c backend/genesys_gl124.c
+	backend/genesys_low.[ch]: is_compatible cache refactor for gl843,
+	gl847 and gl124
+
+2011-07-31 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl124.[ch] backend/genesys_gl843.[ch]:
 	use sanei_genesys_compute_dpihw instead of specific function.
 

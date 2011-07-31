@@ -6113,7 +6113,8 @@ static Genesys_Command_Set gl841_cmd_set = {
 
   gl841_is_compatible_calibration,
   NULL,
-  NULL
+  NULL,
+  gl841_calculate_current_setup
 };
 
 SANE_Status

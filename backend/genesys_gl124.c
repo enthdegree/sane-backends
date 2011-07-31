@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2010-2011 Stéphane Voltz <stef.dev@free.fr>
    
     
    This file is part of the SANE package.
@@ -919,35 +919,6 @@ gl124_set_fe (Genesys_Device * dev, uint8_t set)
 }
 
 
-/**@brief compute hardware sensor dpi to use
- * compute the sensor hardware dpi based on target resolution.
- * A lower dpihw enable faster scans.
- * @param dev device used for the scan
- * @param xres x resolution of the scan
- * @return the hardware dpi to use
- */
-static int gl124_compute_dpihw(Genesys_Device *dev, int xres)
-{
-  /* can't be below 600 dpi */
-  if(xres<=600)
-    {
-      return 600;
-    }
-  switch(dev->model->ccd_type)
-    {
-    default:
-      if(xres<=dev->sensor.optical_res/4)
-        {
-          return dev->sensor.optical_res/4;
-        }
-      if(xres<=dev->sensor.optical_res/2)
-        {
-          return dev->sensor.optical_res/2;
-        }
-      return dev->sensor.optical_res;
-    }
-}
-
 /**@brief compute exposure to use
  * compute the sensor exposure based on target resolution
  */
@@ -1187,7 +1158,7 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
     }
 
   /* set EXPDUMMY and CKxMAP */
-  dpihw=gl124_compute_dpihw(dev,dpi);
+  dpihw=sanei_genesys_compute_dpihw(dev,dpi);
   sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
       
   r = sanei_genesys_get_address (regs, 0x18);
@@ -1290,7 +1261,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
 
   /* to manage high resolution device while keeping good
    * low resolution scanning speed, we make hardware dpi vary */
-  dpihw=gl124_compute_dpihw(dev, used_res * cksel);
+  dpihw=sanei_genesys_compute_dpihw(dev, used_res * cksel);
   factor=dev->sensor.optical_res/dpihw;
   DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __FUNCTION__, dpihw, factor);
 
@@ -1910,7 +1881,7 @@ gl124_calculate_current_setup (Genesys_Device * dev)
       max_shift = 0;
     }
   
-  dpihw=gl124_compute_dpihw(dev,used_res);
+  dpihw=sanei_genesys_compute_dpihw(dev,used_res);
   sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
   dev->segnb=sensor->reg98 & 0x0f;
 
@@ -2602,7 +2573,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
 	  GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
 
   dev->calib_channels = 3;
-  resolution=gl124_compute_dpihw(dev,dev->settings.xres);
+  resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   dev->calib_lines = dev->model->shading_lines;
   dev->calib_pixels = (dev->sensor.sensor_pixels*resolution)/dev->sensor.optical_res;
   dev->calib_resolution = resolution;
@@ -2829,7 +2800,7 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 
   /* compute deletion factor */
   sanei_genesys_get_double(dev->reg,REG_DPISET,&dpiset);
-  dpihw=gl124_compute_dpihw(dev,dpiset);
+  dpihw=sanei_genesys_compute_dpihw(dev,dpiset);
   factor=dpihw/dpiset;
   DBG( DBG_io2, "%s: factor=%d\n",__FUNCTION__,factor);
 
@@ -3038,7 +3009,7 @@ gl124_led_calibration (Genesys_Device * dev)
   /* offset calibration is always done in color mode */
   channels = 3;
   depth = 16;
-  used_res=gl124_compute_dpihw(dev,dev->settings.xres);
+  used_res=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   sensor=get_sensor_profile(dev->model->ccd_type, used_res);
   num_pixels =
     (dev->sensor.sensor_pixels * used_res) / dev->sensor.optical_res;
@@ -3641,9 +3612,6 @@ gl124_is_compatible_calibration (Genesys_Device * dev,
 
   DBGSTART;
   
-  if (cache == NULL || for_overwrite)
-    return SANE_STATUS_UNSUPPORTED;
-
   status = gl124_calculate_current_setup (dev);
   if (status != SANE_STATUS_GOOD)
     {
@@ -3652,14 +3620,14 @@ gl124_is_compatible_calibration (Genesys_Device * dev,
 	   sane_strstatus (status));
       return status;
     }
-  resolution=gl124_compute_dpihw(dev,dev->settings.xres);
+  resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG (DBG_proc, "gl124_is_compatible_calibration: checking\n");
   
   /* a calibration cache is compatible if color mode and x dpi match the user 
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
-  compatible = (resolution == ((int) gl124_compute_dpihw(dev,cache->used_setup.xres)));
+  compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev,cache->used_setup.xres)));
   if (dev->current_setup.scan_method != cache->used_setup.scan_method)
     {
       DBG (DBG_io,

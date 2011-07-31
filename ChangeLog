@@ -1,4 +1,8 @@
 2011-07-15 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl124.[ch] backend/genesys_gl843.[ch]:
+	use sanei_genesys_compute_dpihw instead of specific function.
+
+2011-07-15 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl847.c: re-tune scan area of MD5345/MD6228.
 	parking function clean up.

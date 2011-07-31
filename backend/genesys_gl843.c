@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2010-2011 Stéphane Voltz <stef.dev@free.fr>
    
     
    This file is part of the SANE package.
@@ -1156,32 +1156,6 @@ gl843_get_dpihw (Genesys_Device * dev)
 }
 #endif
 
-/**@brief compute hardware sensor dpi to use
- * compute the sensor hardware dpi based on target resolution
- */
-static int gl843_compute_dpihw(Genesys_Device *dev, int xres)
-{
-  switch(dev->model->ccd_type)
-    {
-    case CCD_G4050:
-      if(xres<=300)
-        {
-          return 600;
-        }
-      if(xres<=600)
-        {
-          return 1200;
-        }
-      if(xres<=1200)
-        {
-          return 2400;
-        }
-      return dev->sensor.optical_res;
-    case CCD_KVSS080:
-    default:
-      return dev->sensor.optical_res;
-    }
-}
 
 /**@brief compute exposure to use
  * compute the sensor exposure based on target resolution
@@ -1270,7 +1244,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 
   /* to manage high resolution device while keeping good
    * low resolution scanning speed, we make hardware dpi vary */
-  dpihw=gl843_compute_dpihw(dev, used_res);
+  dpihw=sanei_genesys_compute_dpihw(dev, used_res);
   factor=dev->sensor.optical_res/dpihw;
   DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __FUNCTION__, dpihw, factor);
 
@@ -2740,7 +2714,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
   dev->calib_channels = 3;
   dev->calib_lines = dev->model->shading_lines;
   dev->calib_pixels = dev->sensor.sensor_pixels;
-  resolution=gl843_compute_dpihw(dev,dev->settings.xres);
+  resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   dev->calib_resolution = resolution;
 
   /* distance to move to reach white target */
@@ -3568,9 +3542,6 @@ gl843_is_compatible_calibration (Genesys_Device * dev,
 
   DBGSTART;
   
-  if (cache == NULL || for_overwrite)
-    return SANE_STATUS_UNSUPPORTED;
-
   status = gl843_calculate_current_setup (dev);
   if (status != SANE_STATUS_GOOD)
     {
@@ -3579,7 +3550,7 @@ gl843_is_compatible_calibration (Genesys_Device * dev,
 	   sane_strstatus (status));
       return status;
     }
-  resolution=gl843_compute_dpihw(dev,dev->settings.xres);
+  resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG (DBG_proc, "gl843_is_compatible_calibration: checking\n");

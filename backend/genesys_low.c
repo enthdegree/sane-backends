@@ -1370,7 +1370,6 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
 	   sane_strstatus (status));
       return status;
     }
-  resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG (DBG_proc, "sanei_genesys_is_compatible_calibration: checking\n");
@@ -1379,10 +1378,12 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
   if (dev->model->is_cis == SANE_FALSE)
     {
+      resolution = dev->settings.xres;
       compatible = (resolution == ((int) cache->used_setup.xres));
     }
   else
     {
+      resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
       compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev,cache->used_setup.xres)));
     }
   if (dev->current_setup.scan_method != cache->used_setup.scan_method)

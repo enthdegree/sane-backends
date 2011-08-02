@@ -1415,7 +1415,7 @@ genesys_average_white (Genesys_Device * dev, int channels, int channel,
 
   range = size / 50;
 
-  if (dev->settings.scan_method == 2)	/* transparency mode */
+  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)	/* transparency mode */
     gain_white_ref = dev->sensor.fau_gain_white_ref * 256;
   else
     gain_white_ref = dev->sensor.gain_white_ref * 256;
@@ -1560,7 +1560,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	  double applied_multi;
 	  double gain_white_ref;
 
-	  if (dev->settings.scan_method == 2)	/* Transparency */
+	  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)	/* Transparency */
 	    gain_white_ref = dev->sensor.fau_gain_white_ref * 256;
 	  else
 	    gain_white_ref = dev->sensor.gain_white_ref * 256;
@@ -6355,6 +6355,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       sanei_usb_find_devices (vendor, 0x1006, check_present);
       sanei_usb_find_devices (vendor, 0x1007, check_present);
       sanei_usb_find_devices (vendor, 0x1010, check_present);
+      sanei_usb_find_devices (vendor, 0x100f, check_present);
       if(present==SANE_FALSE)
         {
           DBG (DBG_error,"attach: master device not present\n");

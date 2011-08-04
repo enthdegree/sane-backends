@@ -5400,13 +5400,13 @@ Problems with the first approach:
 
       if (dst_lines != 0)
 	{
-
 	  if (depth == 1)
 	    status = genesys_shrink_lines_1 (work_buffer_src,
 					     work_buffer_dst,
 					     dst_lines,
 					     src_pixels,
-					     dev->settings.pixels, channels);
+					     dev->settings.pixels,
+                                             channels);
 	  else if (depth == 8)
 	    status = genesys_shrink_lines_8 (work_buffer_src,
 					     work_buffer_dst,
@@ -6355,7 +6355,6 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       sanei_usb_find_devices (vendor, 0x1006, check_present);
       sanei_usb_find_devices (vendor, 0x1007, check_present);
       sanei_usb_find_devices (vendor, 0x1010, check_present);
-      sanei_usb_find_devices (vendor, 0x100f, check_present);
       if(present==SANE_FALSE)
         {
           DBG (DBG_error,"attach: master device not present\n");

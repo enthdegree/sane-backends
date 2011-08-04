@@ -206,6 +206,11 @@ genesys_gray_lineart(
   return SANE_STATUS_GOOD;
 }
 
+/** @brief shrink or grow scanned data to fit the final scan size
+ * This function shrinks the scanned data it the required resolution is lower than the hardware one,
+ * or grows it in case it is the opposite like when motor resolution is higher than
+ * sensor's one.
+ */
 static SANE_Status 
 genesys_shrink_lines_1 (
     uint8_t *src_data, 
@@ -215,55 +220,102 @@ genesys_shrink_lines_1 (
     unsigned int dst_pixels, 
     unsigned int channels) 
 {
-/*in search for a correct implementation*/
-    unsigned int dst_x, src_x, y, c, cnt;
-    unsigned int avg[3];
-    uint8_t *src = (uint8_t *)src_data;
-    uint8_t *dst = (uint8_t *)dst_data;
+  unsigned int dst_x, src_x, y, c, cnt;
+  unsigned int avg[3], val;
+  uint8_t *src = (uint8_t *) src_data;
+  uint8_t *dst = (uint8_t *) dst_data;
 
-    src_pixels /= 8;
-    dst_pixels /= 8;
+  /* choose between case where me must reduce or grow the scanned data */
+  if (src_pixels > dst_pixels)
+    {
+      /* shrink data */
+      /* TODO action must be taken at bit level, no bytes */
+      src_pixels /= 8;
+      dst_pixels /= 8;
+      /*take first _byte_ */
+      for (y = 0; y < lines; y++)
+	{
+	  cnt = src_pixels / 2;
+	  src_x = 0;
+	  for (dst_x = 0; dst_x < dst_pixels; dst_x++)
+	    {
+	      while (cnt < src_pixels && src_x < src_pixels)
+		{
+		  cnt += dst_pixels;
 
-    if (src_pixels > dst_pixels) {
-/*take first _byte_*/
-	for(y = 0; y < lines; y++) {
-	    cnt = src_pixels / 2;
-	    src_x = 0;
-	    for (dst_x = 0; dst_x < dst_pixels; dst_x++) {
-		while (cnt < src_pixels && src_x < src_pixels) {
-		    cnt += dst_pixels;
-
-		    for (c = 0; c < channels; c++)
-			avg[c] = *src++;
-		    src_x++;
+		  for (c = 0; c < channels; c++)
+		    avg[c] = *src++;
+		  src_x++;
 		}
-		cnt -= src_pixels;
+	      cnt -= src_pixels;
 
-		for (c = 0; c < channels; c++) 
-		    *dst++ = avg[c];
+	      for (c = 0; c < channels; c++)
+		*dst++ = avg[c];
 	    }
 	}
-    } else {
-/*interpolate. copy pixels*/
-	for(y = 0; y < lines; y++) {
-	    cnt = dst_pixels / 2;
-	    dst_x = 0;
-	    for (src_x = 0; src_x < src_pixels; src_x++) {
-		for (c = 0; c < channels; c++) 
-		    avg[c] = *src++;
-		while (cnt < dst_pixels && dst_x < dst_pixels) {
-		    cnt += src_pixels;
+    }
+  else
+    {
+      /* common case where y res is double x res */
+      for (y = 0; y < lines; y++)
+	{
+	  if (2 * src_pixels == dst_pixels)
+	    {
+	      /* double and interleave on line */
+	      for (c = 0; c < src_pixels/8; c++)
+		{
+		  /* first 4 bits */
+		  val = 0;
+		  val |= (*src & 0x80) >> 0;	/* X___ ____ --> X___ ____ */
+		  val |= (*src & 0x80) >> 1;	/* X___ ____ --> _X__ ____ */
+		  val |= (*src & 0x40) >> 1;	/* _X__ ____ --> __X_ ____ */
+		  val |= (*src & 0x40) >> 2;	/* _X__ ____ --> ___X ____ */
+		  val |= (*src & 0x20) >> 2;	/* __X_ ____ --> ____ X___ */
+		  val |= (*src & 0x20) >> 3;	/* __X_ ____ --> ____ _X__ */
+		  val |= (*src & 0x10) >> 3;	/* ___X ____ --> ____ __X_ */
+		  val |= (*src & 0x10) >> 4;	/* ___X ____ --> ____ ___X */
+		  *dst = val;
+		  dst++;
 
-		    for (c = 0; c < channels; c++) 
-			*dst++ = avg[c];
-		    dst_x++;
+		  /* last for bits */
+		  val = 0;
+		  val |= (*src & 0x08) << 4;	/* ____ X___ --> X___ ____ */
+		  val |= (*src & 0x08) << 3;	/* ____ X___ --> _X__ ____ */
+		  val |= (*src & 0x04) << 3;	/* ____ _X__ --> __X_ ____ */
+		  val |= (*src & 0x04) << 2;	/* ____ _X__ --> ___X ____ */
+		  val |= (*src & 0x02) << 2;	/* ____ __X_ --> ____ X___ */
+		  val |= (*src & 0x02) << 1;	/* ____ __X_ --> ____ _X__ */
+		  val |= (*src & 0x01) << 1;	/* ____ ___X --> ____ __X_ */
+		  val |= (*src & 0x01) << 0;	/* ____ ___X --> ____ ___X */
+		  *dst = val;
+		  dst++;
+		  src++;
 		}
-		cnt -= dst_pixels;
+	    }
+	  else
+	    {
+	      /* TODO: since depth is 1, we must interpolate bit within bytes */
+	      DBG (DBG_warn, "%s: inaccurate bit expansion!\n", __FUNCTION__);
+	      cnt = dst_pixels / 2;
+	      dst_x = 0;
+	      for (src_x = 0; src_x < src_pixels; src_x++)
+		{
+		  for (c = 0; c < channels; c++)
+		    avg[c] = *src++;
+		  while (cnt < dst_pixels && dst_x < dst_pixels)
+		    {
+		      cnt += src_pixels;
+		      for (c = 0; c < channels; c++)
+			*dst++ = avg[c];
+		      dst_x++;
+		    }
+		  cnt -= dst_pixels;
+		}
 	    }
 	}
     }
 
-    return SANE_STATUS_GOOD;
+  return SANE_STATUS_GOOD;
 }
 
 

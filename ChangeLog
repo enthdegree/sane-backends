@@ -1,3 +1,9 @@
+2011-08-05 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_low.c backend/genesys_conv.c:
+	fixed generic calibration cache for CCD case and when yres is higher
+	than sensor's maximum one. Fixed lineart data enlarging when yres is
+	higher than xres.
+
 2011-07-31 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c backend/genesys_gl841.c
 	backend/genesys_gl843.c backend/genesys_gl847.c backend/genesys_gl124.c

@@ -1379,6 +1379,10 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
   if (dev->model->is_cis == SANE_FALSE)
     {
       resolution = dev->settings.xres;
+      if(resolution>dev->sensor.optical_res)
+        {
+          resolution=dev->sensor.optical_res;
+        }
       compatible = (resolution == ((int) cache->used_setup.xres));
     }
   else

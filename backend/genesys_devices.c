@@ -515,9 +515,9 @@ static Genesys_Sensor Sensor[] = {
    /* 08    09    0a    0b */
    {0x00, 0x00, 0x18, 0x69} ,
    /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0c, 0x01, 0x2a, 0x30, 0x00, 0x00, 0x08} ,
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0c, 0x00, 0x2a, 0x30, 0x00, 0x00, 0x08} ,
    /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
-   {0x0e, 0x11, 0x02, 0x05, 0x08, 0x0b, 0x6b, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x6f} ,
+   {0x0b, 0x0e, 0x11, 0x02, 0x05, 0x08, 0x63, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x6f} ,
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
@@ -1187,8 +1187,8 @@ static Genesys_Model hpg4010_model = {
   DAC_G4050,
   GPO_G4050,
   MOTOR_G4050,
-  GENESYS_FLAG_NO_CALIBRATION |
   GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_NO_CALIBRATION |
   GENESYS_FLAG_SKIP_WARMUP | 
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_CUSTOM_GAMMA,
@@ -1204,8 +1204,8 @@ static Genesys_Model hpg4050_model = {
   GENESYS_GL843,
   NULL,
 
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
+  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

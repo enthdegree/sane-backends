@@ -460,6 +460,57 @@ gl843_test_motor_flag_bit (SANE_Byte val)
   return SANE_FALSE;
 }
 
+/** @get sensor profile
+ * search for the database of motor profiles and get the best one. Each
+ * profile is at a specific dpihw. Use first entry of table by default.
+ * @param sensor_type sensor id
+ * @param dpi hardware dpi for the scan
+ * @return a pointer to a Sensor_Profile struct
+ */
+static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
+{
+  unsigned int i;
+  int idx;
+
+  i=0;
+  idx=-1;
+  while(i<sizeof(sensors)/sizeof(Sensor_Profile))
+    {
+      /* exact match */
+      if(sensors[i].sensor_type==sensor_type && sensors[i].dpi==dpi)
+        {
+          return &(sensors[i]);
+        }
+
+      /* closest match */
+      if(sensors[i].sensor_type==sensor_type)
+        {
+          if(idx<0)
+            {
+              idx=i;
+            }
+          else
+            {
+              if(sensors[i].dpi>=dpi 
+              && sensors[i].dpi<sensors[idx].dpi)
+                {
+                  idx=i;
+                }
+            }
+        }
+      i++;
+    }
+
+  /* default fallback */
+  if(idx<0)
+    {
+      DBG (DBG_warn,"%s: using default sensor profile\n",__FUNCTION__);
+      idx=0;
+    }
+
+  return &(sensors[idx]);
+}
+
 /** @get motor profile
  * search for the database of motor profiles and get the best one. Each
  * profile is at full step and at a reference exposure. Use KV-SS080 table
@@ -565,6 +616,16 @@ Motor_Profile *profile;
             current=profile->table[i]>>step_type;
           }
 
+        /* flat table case */
+        if(i==0)
+          {
+            for(i=0;i<1024;i++)
+              {
+                slope[i]=profile->table[i]>>step_type;
+                sum+=slope[i];
+              }
+          }
+
         /* align size on step time factor */
         while(i%factor!=0)
           {
@@ -585,48 +646,17 @@ static void
 gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 {
   Genesys_Register_Set *r;
-  int i;
+  Sensor_Profile *sensor;
+  int i,dpihw;
 
   DBGSTART;
 
+  /* common settings */
   for (i = 0x06; i < 0x0e; i++)
     {
       r = sanei_genesys_get_address (regs, 0x10 + i);
       if (r)
 	r->value = dev->sensor.regs_0x10_0x1d[i];
-    }
-
-  /* TODO we need to create another data struct
-   * for CKxMAP and CKSEL */
-  /* G4050/G4010 sensor */
-  if (dev->model->ccd_type == CCD_G4050)
-    {
-      if(dpi<=300)
-        {
-          sanei_genesys_write_register (dev, 0x74, 0x00);
-          sanei_genesys_write_register (dev, 0x75, 0x1c);
-          sanei_genesys_write_register (dev, 0x76, 0x7f);
-        }
-      else if(dpi<=600)
-        {
-          sanei_genesys_write_register (dev, 0x74, 0x00);
-          sanei_genesys_write_register (dev, 0x75, 0x01);
-          sanei_genesys_write_register (dev, 0x76, 0xff);
-        }
-      else /* 800 to 2400 case */
-        {
-          sanei_genesys_write_register (dev, 0x5a, 0x40);
-          sanei_genesys_write_register (dev, 0x74, 0x0f);
-          sanei_genesys_write_register (dev, 0x75, 0xff);
-          sanei_genesys_write_register (dev, 0x76, 0xff);
-          sanei_genesys_write_register (dev, 0x77, 0x00);
-          sanei_genesys_write_register (dev, 0x78, 0x01);
-          sanei_genesys_write_register (dev, 0x7a, 0x00);
-          sanei_genesys_write_register (dev, 0x7b, 0x01);
-          sanei_genesys_write_register (dev, 0x7d, 0x90);
-          sanei_genesys_write_register (dev, 0x80, 0x05);
-          sanei_genesys_write_register (dev, 0x9e, 0xc0);
-        }
     }
 
   for (i = 0; i < 9; i++)
@@ -635,6 +665,42 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
       if (r)
 	r->value = dev->sensor.regs_0x52_0x5e[i];
     }
+
+  /* set EXPDUMMY and CKxMAP */
+  dpihw=sanei_genesys_compute_dpihw(dev,dpi);
+  sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
+  
+  /* specific registers */
+  r = sanei_genesys_get_address (regs, 0x18);
+  if (r)
+    {
+      r->value = sensor->reg18;
+    }
+  r = sanei_genesys_get_address (regs, 0x5a);
+  if (r)
+    {
+      r->value = sensor->reg5a;
+    }
+  r = sanei_genesys_get_address (regs, 0x7d);
+  if (r)
+    {
+      r->value = sensor->reg7d;
+    }
+  r = sanei_genesys_get_address (regs, 0x80);
+  if (r)
+    {
+      r->value = sensor->reg80;
+    }
+  r = sanei_genesys_get_address (regs, 0x9e);
+  if (r)
+    {
+      r->value = sensor->reg9e;
+    }
+
+  /* CKxMAP */
+  sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
+  sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
+  sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);
 
   DBG (DBG_proc, "gl843_setup_sensor: completed \n");
 }
@@ -742,6 +808,18 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x71, 0x03);
   SETREG (0x72, 0x04);
   SETREG (0x73, 0x05);
+
+  /* CKxMAP */
+  SETREG (0x74, 0x00);
+  SETREG (0x75, 0x00);
+  SETREG (0x76, 0x3c);
+  SETREG (0x77, 0x00);
+  SETREG (0x78, 0x00);
+  SETREG (0x79, 0x9f);
+  SETREG (0x7a, 0x00);
+  SETREG (0x7b, 0x00);
+  SETREG (0x7c, 0x55);
+
   SETREG (0x7d, 0x00);
   SETREG (0x7f, 0x00);
   SETREG (0x80, 0x00);
@@ -754,6 +832,7 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x87, 0x00);
   SETREG (0x9d, 0x04);
   SETREG (0x94, 0xff);
+  SETREG (0x9e, 0x00);
   SETREG (0xab, 0x50);
 
   /* G4050 values */
@@ -1162,45 +1241,30 @@ gl843_get_dpihw (Genesys_Device * dev)
  */
 static int gl843_compute_exposure(Genesys_Device *dev, int xres)
 {
-  switch(dev->model->ccd_type)
-    {
-    case CCD_G4050:
-      if(xres<=600)
-        {
-          return 8016;
-        }
-      return 56064 /* 21376 */;
-    case CCD_KVSS080:
-    default:
-      return 8000;
-    }
+  Sensor_Profile *sensor;
+
+  sensor=get_sensor_profile(dev->model->ccd_type, xres);
+  return sensor->exposure;
 }
 
 /**@brief compute motor step type to use
  * compute the step type (full, half, quarter, ...) to use based
  * on target resolution
  * @param dev device description
- * @param yres motor resolution
+ * @param exposure sensor exposure
  * @return 0 for full step
  *         1 for half step
  *         2 for quarter step
  *         3 for eighth step
  */
-static int gl843_compute_step_type(Genesys_Device *dev, int yres)
+static int gl843_compute_step_type(Genesys_Device *dev, int exposure)
 {
-  switch(dev->model->motor_type)
-    {
-    case MOTOR_G4050:
-      if(yres<=1200)
-        {
-          return 1;
-        }
-      return 2;
-    case MOTOR_KVSS080:
-    default:
-      return 1;
-    }
+Motor_Profile *profile;
+
+    profile=get_motor_profile(dev->model->motor_type,exposure);
+    return profile->step_type;
 }
+
 
 #define OPTICAL_FLAG_DISABLE_GAMMA   1
 #define OPTICAL_FLAG_DISABLE_SHADING 2
@@ -1375,10 +1439,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   else
     r->value |= REG05_GMMENB;
 
-  r = sanei_genesys_get_address (reg, 0x2c);
-  r->value = HIBYTE (dpiset);
-  r = sanei_genesys_get_address (reg, 0x2d);
-  r->value = LOBYTE (dpiset);
+  sanei_genesys_set_double(reg,REG_DPISET,dpiset);
   DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset);
 
   r = sanei_genesys_get_address (reg, 0x30);

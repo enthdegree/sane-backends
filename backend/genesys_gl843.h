@@ -165,6 +165,10 @@
 
 #define REG0F 		0x0f
 
+#define REG_EXPR        0x10
+#define REG_EXPG        0x12
+#define REG_EXPB        0x14
+
 #define REG16_CTRLHI	0x80
 #define REG16_TOSHIBA	0x40
 #define REG16_TGINV	0x20
@@ -572,5 +576,9 @@ static Motor_Profile motors[]={
 	{0, 0, 0, NULL},
 };
 /* *INDENT-ON* */
+
+#define MOTOR_FLAG_AUTO_GO_HOME             1
+#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 2
+#define MOTOR_FLAG_FEED                     4
 
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

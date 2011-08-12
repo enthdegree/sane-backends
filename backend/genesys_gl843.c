@@ -48,30 +48,6 @@
  Low level function
  ****************************************************************************/
 
-/**
- * decodes and prints content of status (0x41) register
- * @param val value read from reg41
- */
-#ifndef UNIT_TESTING
-static
-#endif
-  void
-print_status (uint8_t val)
-{
-  char msg[80];
-
-  sprintf (msg, "%s%s%s%s%s%s%s%s",
-	   val & REG41_PWRBIT ? "PWRBIT " : "",
-	   val & REG41_BUFEMPTY ? "BUFEMPTY " : "",
-	   val & REG41_FEEDFSH ? "FEEDFSH " : "",
-	   val & REG41_SCANFSH ? "SCANFSH " : "",
-	   val & REG41_HOMESNR ? "HOMESNR " : "",
-	   val & REG41_LAMPSTS ? "LAMPSTS " : "",
-	   val & REG41_FEBUSY ? "FEBUSY " : "",
-	   val & REG41_MOTORENB ? "MOTORENB" : "");
-  DBG (DBG_info, "status=%s\n", msg);
-}
-
 /* ------------------------------------------------------------------------ */
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
@@ -560,28 +536,6 @@ static Motor_Profile *get_motor_profile(int motor_type, int exposure)
   return &(motors[idx]);
 }
 
-
-/** @brief returns the lowest possible ydpi for the device
- * Parses device entry to find lowest motor dpi.
- * @param dev device description
- * @return lowest motor resolution
- */
-static int gl843_get_lowest_ydpi(Genesys_Device *dev)
-{
-  int min=9600;
-  int i=0;
-
-  while(dev->model->ydpi_values[i]!=0)
-    {
-      if(dev->model->ydpi_values[i]<min)
-        {
-          min=dev->model->ydpi_values[i];
-        }
-      i++;
-    }
-  return min;
-}
-
 static int gl843_slope_table(uint16_t *slope,
 		             int       *steps,
 			     int       dpi,
@@ -1032,13 +986,6 @@ gl843_set_fe (Genesys_Device * dev, uint8_t set)
   return SANE_STATUS_GOOD;
 }
 
-#define MOTOR_FLAG_AUTO_GO_HOME             1
-#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 2
-
-#define MOTOR_ACTION_FEED       1
-#define MOTOR_ACTION_GO_HOME    2
-#define MOTOR_ACTION_HOME_FREE  3
-
 
 static SANE_Status
 gl843_init_motor_regs_scan (Genesys_Device * dev,
@@ -1078,7 +1025,7 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
 
   use_fast_fed = 0;
 
-  if(scan_yres>=300 && feed_steps>900)
+  if((scan_yres>=300 && feed_steps>900) || (flags & MOTOR_FLAG_FEED))
     use_fast_fed=1;
   lincnt=scan_lines;
 
@@ -1127,7 +1074,7 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
   /* fast table */
   fast_time=gl843_slope_table(fast_table,
                               &fast_steps,
-                              gl843_get_lowest_ydpi(dev),
+                              sanei_genesys_get_lowest_ydpi(dev),
                               scan_exposure_time,
                               dev->motor.base_ydpi,
                               scan_step_type,
@@ -1544,7 +1491,7 @@ gl843_init_scan_regs (Genesys_Device * dev,
   int bytes_per_line;
   int move;
   unsigned int lincnt;
-  unsigned int oflags; /**> optical flags */
+  unsigned int oflags, mflags; /**> optical and motor flags */
   int exposure_time;
   int stagger;
 
@@ -1742,6 +1689,13 @@ independent of our calculated values:
   move = starty;
   DBG (DBG_info, "gl843_init_scan_regs: move=%d steps\n", move);
 
+
+  mflags=0;
+  if(flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
+    mflags|=MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
+  if(flags & SCAN_FLAG_FEEDING)
+    mflags|=MOTOR_FLAG_FEED;
+
     status = gl843_init_motor_regs_scan (dev,
 					 reg,
 					 exposure_time,
@@ -1751,7 +1705,7 @@ independent of our calculated values:
 					 dummy,
 					 move,
 					 scan_power_mode,
-					 (flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE) ?  MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE : 0);
+					 mflags);
   if (status != SANE_STATUS_GOOD)
     return status;
 
@@ -2113,7 +2067,7 @@ gl843_stop_action (Genesys_Device * dev)
   status = sanei_genesys_get_status (dev, &val);
   if (DBG_LEVEL >= DBG_io)
     {
-      print_status (val);
+      sanei_genesys_print_status (val);
     }
 
   val40 = 0;
@@ -2155,7 +2109,7 @@ gl843_stop_action (Genesys_Device * dev)
       status = sanei_genesys_get_status (dev, &val);
       if (DBG_LEVEL >= DBG_io)
 	{
-	  print_status (val);
+	  sanei_genesys_print_status (val);
 	}
       val40 = 0;
       status = sanei_genesys_read_register (dev, 0x40, &val40);
@@ -2474,9 +2428,21 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   DBG (DBG_proc, "gl843_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
-  usleep (100000);	/* sleep 100 ms */
 
   dev->scanhead_position_in_steps = 0;
+
+  /* first read gives HOME_SENSOR true */
+  status = sanei_genesys_get_status (dev, &val);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl124_slow_back_home: failed to read home sensor: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  usleep (100000);		/* sleep 100 ms */
+
+  /* second is reliable */
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
     {
@@ -2487,26 +2453,24 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
   if (DBG_LEVEL >= DBG_io)
     {
-      print_status (val);
+      sanei_genesys_print_status (val);
     }
-  if (val & REG41_HOMESNR)	/* is sensor at home? */
+  if (val & HOMESNR)	/* is sensor at home? */
     {
-      DBG (DBG_info, "gl843_slow_back_home: already at home, completed\n");
+      DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
 
   memset (local_reg, 0, sizeof (local_reg));
-
-  memcpy (local_reg, dev->reg,
-	  GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
-  resolution=gl843_get_lowest_ydpi(dev);
+  memcpy (local_reg, dev->reg, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
+  resolution=sanei_genesys_get_lowest_ydpi(dev);
 
   gl843_init_scan_regs (dev,
 			local_reg,
 			resolution,
 			resolution,
 			100,
-			100,
+			30000,
 			100,
 			100,
 			8,
@@ -2514,18 +2478,15 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			dev->settings.color_filter,
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
+                        SCAN_FLAG_FEEDING |
+			SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
-  gl843_init_motor_regs_scan (dev,
-                              local_reg,
-                              gl843_compute_exposure (dev, resolution),
-			      resolution,
-			      gl843_compute_step_type(dev, resolution),
-			      1,
-			      1,
-			      30000, /* feed steps */
-			      0,
-                              0);
 
+  /* set exposure to zero */
+  sanei_genesys_set_triple(local_reg,REG_EXPR,0);
+  sanei_genesys_set_triple(local_reg,REG_EXPG,0);
+  sanei_genesys_set_triple(local_reg,REG_EXPB,0);
+  
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
   
@@ -2580,8 +2541,8 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_IO_ERROR;
     }
 
-  DBG (DBG_info, "gl843_slow_back_home: scanhead is still moving\n");
-  DBG (DBG_proc, "gl843_slow_back_home: finished\n");
+  DBG (DBG_info, "gl124_slow_back_home: scanhead is still moving\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 

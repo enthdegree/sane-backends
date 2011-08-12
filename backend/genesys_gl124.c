@@ -371,30 +371,6 @@ static Motor_Profile *get_motor_profile(int motor_type, int exposure)
   return &(motors[idx]);
 }
 
-
-/** @brief returns the lowest possible ydpi for the device
- * Parses device entry to find lowest motor dpi.
- * @dev device description
- * @return lowest motor resolution
- */
-/*
-static int gl124_get_lowest_ydpi(Genesys_Device *dev)
-{
-  int min=9600;
-  int i=0;
-
-  while(dev->model->ydpi_values[i]!=0)
-    {
-      if(dev->model->ydpi_values[i]<min)
-        {
-          min=dev->model->ydpi_values[i];
-        }
-      i++;
-    }
-  return min;
-}
-*/
-
 /** @brief generate slope table
  * Generate the slope table to use for the scan using a reference slope
  * table.
@@ -2225,7 +2201,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
-  resolution=MOVE_DPI;
+  resolution=sanei_genesys_get_lowest_ydpi(dev);
 
   gl124_init_scan_regs (dev,
 			local_reg,
@@ -2242,6 +2218,8 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			SCAN_FLAG_DISABLE_GAMMA |
 			SCAN_FLAG_FEEDING |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+
+  /* set exposure to zero */
   sanei_genesys_set_triple(local_reg,REG_EXPR,0);
   sanei_genesys_set_triple(local_reg,REG_EXPG,0);
   sanei_genesys_set_triple(local_reg,REG_EXPB,0);
@@ -2301,7 +2279,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   DBG (DBG_info, "gl124_slow_back_home: scanhead is still moving\n");
-  DBG (DBG_proc, "gl124_slow_back_home: finished\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -2327,7 +2305,7 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
   memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
 
-  resolution=MOVE_DPI;
+  resolution=sanei_genesys_get_lowest_ydpi(dev);
   gl124_init_scan_regs (dev,
 			local_reg,
 			resolution,
@@ -2344,6 +2322,8 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
                         SCAN_FLAG_FEEDING |
 			SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+
+  /* set exposure to zero */
   sanei_genesys_set_triple(local_reg,REG_EXPR,0);
   sanei_genesys_set_triple(local_reg,REG_EXPG,0);
   sanei_genesys_set_triple(local_reg,REG_EXPB,0);

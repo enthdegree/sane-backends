@@ -1,3 +1,7 @@
+2011-08-22 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys*.[ch]: enable calibration for G4050/G4010 and
+	minor code refactors
+
 2011-08-05 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_low.c backend/genesys_conv.c:
 	fixed generic calibration cache for CCD case and when yres is higher

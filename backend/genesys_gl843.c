@@ -1262,7 +1262,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   dpiset = used_res * cksel;
 
   /* start and end coordinate in optical dpi coordinates */
-  startx = (start + dev->sensor.dummy_pixel+dev->sensor.black_pixels)/cksel;
+  startx = (start + dev->sensor.dummy_pixel)/cksel;
   used_pixels=pixels/cksel;
   endx = startx + used_pixels;
 
@@ -2430,9 +2430,9 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
 
   /* set exposure to zero */
-  sanei_genesys_set_triple(local_reg,REG_EXPR,0);
-  sanei_genesys_set_triple(local_reg,REG_EXPG,0);
-  sanei_genesys_set_triple(local_reg,REG_EXPB,0);
+  sanei_genesys_set_double(local_reg,REG_EXPR,0);
+  sanei_genesys_set_double(local_reg,REG_EXPG,0);
+  sanei_genesys_set_double(local_reg,REG_EXPB,0);
   
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
@@ -3239,10 +3239,10 @@ gl843_offset_calibration (Genesys_Device * dev)
   lines=1;
   bpp=8;
 
-  /* comptue divider factor to compute final pixels number */
+  /* compute divider factor to compute final pixels number */
   dpihw=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   factor=dev->sensor.optical_res/dpihw;
-  resolution=dev->settings.xres;
+  resolution=dpihw;
   pixels = dev->sensor.sensor_pixels/factor;
   black_pixels = dev->sensor.black_pixels / factor;
   DBG (DBG_io, "gl843_offset_calibration: dpihw       =%d\n", dpihw);

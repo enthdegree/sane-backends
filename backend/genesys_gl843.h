@@ -223,6 +223,14 @@
 #define REG2A           0x2a
 #define REG2B           0x2b
 #define REG_DPISET      0x2c
+#define REG2E           0x2e
+#define REG2F           0x2f
+
+#define REG_STRPIXEL    0x30
+#define REG_ENDPIXEL    0x32
+#define REG_DUMMY       0x34
+#define REG_MAXWD       0x35
+#define REG_LPERIOD     0x38
 
 #define REG40           0x40
 #define REG40_DOCSNR    0x80

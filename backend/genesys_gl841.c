@@ -2258,11 +2258,6 @@ gl841_get_dpihw(Genesys_Device * dev)
   return 0;
 }
 
-#define OPTICAL_FLAG_DISABLE_GAMMA   1
-#define OPTICAL_FLAG_DISABLE_SHADING 2
-#define OPTICAL_FLAG_DISABLE_LAMP    4
-#define OPTICAL_FLAG_ENABLE_LEDADD   8
-
 static SANE_Status
 gl841_init_optical_regs_off(Genesys_Device * dev,
 			    Genesys_Register_Set * reg)

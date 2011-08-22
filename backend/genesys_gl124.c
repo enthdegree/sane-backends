@@ -1191,18 +1191,12 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   DBGCOMPLETED;
 }
 
-
-
-#define OPTICAL_FLAG_DISABLE_GAMMA   1
-#define OPTICAL_FLAG_DISABLE_SHADING 2
-#define OPTICAL_FLAG_DISABLE_LAMP    4
-#define OPTICAL_FLAG_ENABLE_LEDADD   8
-#define OPTICAL_FLAG_DISABLE_DOUBLE  16
-
 /** @brief setup optical related registers
  * start and pixels are expressed in optical sensor resolution coordinate
- * space. To handle odd/even case we double the resolution and
- * use only first logical half the sensor which maps to effective CCD.
+ * space.
+ * @param exposure_time exposure time to use
+ * @param used_res scanning resolution used, may differ from
+ *        scan's one
  * @param start logical start pixel coordinate
  * @param pixels logical number of pixels to use
  * @return SANE_STATUS_GOOD if OK
@@ -1407,7 +1401,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   words_per_line *= channels;
   dev->wpl = words_per_line;
 
-  /* allocate buffer for odd/even pixles handling */
+  /* allocate buffer for odd/even pixels handling */
   if(dev->oe_buffer.buffer!=NULL)
     {
       sanei_genesys_buffer_free (&(dev->oe_buffer));
@@ -1499,17 +1493,15 @@ gl124_init_scan_regs (Genesys_Device * dev,
     stagger = 0;
   DBG (DBG_info, "gl124_init_scan_regs : stagger=%d lines\n", stagger);
 
-  /** @brief compute used resolution
-   * the sensor if mapped only to odd pixels. So we double the optical 
-   * resolution and use first half
-   * */
+  /** @brief compute used resolution */
   if (flags & SCAN_FLAG_USE_OPTICAL_RES)
     {
       used_res = optical_res;
     }
   else
     {
-      /* resolution is choosen from a fixed list and can be used directly */
+      /* resolution is choosen from a fixed list and can be used directly,
+       * unless we have ydpi higher than sensor's maximum one */
       if(xres>optical_res)
         used_res=optical_res;
       else
@@ -1527,7 +1519,6 @@ gl124_init_scan_regs (Genesys_Device * dev,
     start |= 1;
 
   /* compute correct pixels number */
-  /* pixels */
   used_pixels = (pixels * optical_res) / xres;
   DBG (DBG_info, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
 
@@ -1560,12 +1551,10 @@ gl124_init_scan_regs (Genesys_Device * dev,
       scan_step_type = gl124_compute_step_type(dev, exposure_time);
     }
 
-  DBG (DBG_info, "gl124_init_scan_regs : exposure_time=%d pixels\n",
-       exposure_time);
-  DBG (DBG_info, "gl124_init_scan_regs : scan_step_type=%d\n",
-       scan_step_type);
+  DBG (DBG_info, "gl124_init_scan_regs : exposure_time=%d pixels\n", exposure_time);
+  DBG (DBG_info, "gl124_init_scan_regs : scan_step_type=%d\n", scan_step_type);
 
-/*** optical parameters ***/
+  /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
   if ((flags & SCAN_FLAG_DYNAMIC_LINEART)
@@ -1596,14 +1585,15 @@ gl124_init_scan_regs (Genesys_Device * dev,
 					 used_pixels,
 					 channels,
 					 depth,
-					 half_ccd, color_filter, oflags);
-
+					 half_ccd,
+                                         color_filter,
+                                         oflags);
   if (status != SANE_STATUS_GOOD)
     return status;
 
-/*** motor parameters ***/
+  /*** motor parameters ***/
 
-/* max_shift */
+  /* max_shift */
   /* scanned area must be enlarged by max color shift needed */
   /* all values are assumed >= 0 */
   if (channels > 1 && !(flags & SCAN_FLAG_IGNORE_LINE_DISTANCE))
@@ -2539,24 +2529,25 @@ gl124_init_regs_for_coarse_calibration (Genesys_Device * dev)
 
 
 /* init registers for shading calibration */
+/* shading calibration is done at dpihw */
 static SANE_Status
 gl124_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
-  int move,resolution;
+  int move, resolution, dpihw, factor;
   Genesys_Register_Set *r;
 
   DBGSTART;
   
   /* initial calibration reg values */
-  memcpy (dev->calib_reg, dev->reg,
-	  GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
+  memcpy (dev->calib_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
 
   dev->calib_channels = 3;
-  resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   dev->calib_lines = dev->model->shading_lines;
-  dev->calib_pixels = (dev->sensor.sensor_pixels*resolution)/dev->sensor.optical_res;
+  dpihw=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
+  factor=dev->sensor.optical_res/dpihw;
   dev->calib_resolution = resolution;
+  dev->calib_pixels = dev->sensor.sensor_pixels/factor;
 
   /* distance to move to reach white target at high resolution */
   move=0;
@@ -2578,13 +2569,12 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
 				 16,
 				 dev->calib_channels,
 				 0,
-				 0);
-  r = sanei_genesys_get_address (dev->calib_reg, REG01);
-  r->value &= ~REG01_DVDSET;
+				 SCAN_FLAG_DISABLE_SHADING |
+				 SCAN_FLAG_DISABLE_GAMMA |
+				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
   r = sanei_genesys_get_address (dev->calib_reg, REG02);
   r->value &= ~REG02_MTRPWR;
-  r = sanei_genesys_get_address (dev->calib_reg, REG05);
-  r->value &= ~REG05_GMMENB;
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -2595,8 +2585,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
 
-  status =
-    gl124_bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS);
+  status = gl124_bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3410,7 +3399,7 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
     }
   lines=10;
   bpp=8;
-  pixels = (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res,
+  pixels = (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
 
   status = gl124_init_scan_regs (dev,
 				 dev->calib_reg,

@@ -717,6 +717,12 @@ typedef struct {
 #define SCAN_FLAG_CALIBRATION              0x100
 #define SCAN_FLAG_FEEDING                  0x200
 
+#define OPTICAL_FLAG_DISABLE_GAMMA   1
+#define OPTICAL_FLAG_DISABLE_SHADING 2
+#define OPTICAL_FLAG_DISABLE_LAMP    4
+#define OPTICAL_FLAG_ENABLE_LEDADD   8
+#define OPTICAL_FLAG_DISABLE_DOUBLE  16
+
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/

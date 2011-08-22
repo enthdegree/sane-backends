@@ -1122,6 +1122,10 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
 	       sane_strstatus (status));
 	  return status;
 	}
+          if (DBG_LEVEL >= DBG_io2)
+            {
+              sanei_genesys_print_status (val);
+            }
       ++loop;
     }
   while (loop < 300 && !(val & HOMESNR) && status == SANE_STATUS_GOOD);

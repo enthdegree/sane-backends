@@ -5765,7 +5765,7 @@ SANE_Range *range=NULL;
 static SANE_Status
 init_options (Genesys_Scanner * s)
 {
-  SANE_Int option, count;
+  SANE_Int option, count, min_dpi;
   SANE_Status status;
   SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
@@ -5845,7 +5845,14 @@ init_options (Genesys_Scanner * s)
     DISABLE (OPT_BIT_DEPTH);
 
   /* resolution */
-  for (count = 0; model->ydpi_values[count] != 0; count++);
+  min_dpi=200000;
+  for (count = 0; model->ydpi_values[count] != 0; count++)
+    {
+      if(model->ydpi_values[count]<min_dpi)
+        {
+          min_dpi=model->ydpi_values[count];
+        }
+    }
   dpi_list = malloc ((count + 1) * sizeof (SANE_Word));
   if (!dpi_list)
     return SANE_STATUS_NO_MEM;
@@ -5859,7 +5866,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
   s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
-  s->val[OPT_RESOLUTION].w = 300;
+  s->val[OPT_RESOLUTION].w = min_dpi;
 
   /* "Geometry" group: */
   s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");

@@ -2670,6 +2670,82 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+/** @brief moves the slider to steps at motor base dpi
+ * @param dev device to work on
+ * @param steps number of steps to move
+ * */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
+gl843_feed (Genesys_Device * dev, unsigned int steps)
+{
+  Genesys_Register_Set local_reg[GENESYS_GL843_MAX_REGS];
+  SANE_Status status;
+  Genesys_Register_Set *r;
+  float resolution;
+  uint8_t val;
+
+  DBGSTART;
+
+  /* prepare local registers */
+  memset (local_reg, 0, sizeof (local_reg));
+  memcpy (local_reg, dev->reg, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
+
+  resolution=sanei_genesys_get_lowest_ydpi(dev);
+  gl843_init_scan_regs (dev,
+			local_reg,
+			resolution,
+			resolution,
+			0,
+			steps,
+			100,
+			3,
+			8,
+			3,
+			0,
+			SCAN_FLAG_DISABLE_SHADING |
+			SCAN_FLAG_DISABLE_GAMMA |
+                        SCAN_FLAG_FEEDING |
+			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  sanei_genesys_set_triple(local_reg,REG_EXPR,0);
+  sanei_genesys_set_triple(local_reg,REG_EXPG,0);
+  sanei_genesys_set_triple(local_reg,REG_EXPB,0);
+
+  /* clear scan and feed count */
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRMCNT));
+  
+  /* set up for no scan */
+  r = sanei_genesys_get_address (local_reg, REG01);
+  r->value &= ~REG01_SCAN;
+  
+  /* send registers */
+  RIE (gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
+
+  status = gl843_start_action (dev);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to start motor: %s\n", __FUNCTION__, sane_strstatus (status));
+      gl843_stop_action (dev);
+
+      /* restore original registers */
+      gl843_bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS);
+      return status;
+    }
+
+  /* wait until feed count reaches the required value, but do not
+   * exceed 30s */
+  do
+    {
+          status = sanei_genesys_get_status (dev, &val);
+    }
+  while (status == SANE_STATUS_GOOD && !(val & FEEDFSH));
+  
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
+
 
 /* init registers for shading calibration */
 /* shading calibration is done at dpihw */
@@ -3592,34 +3668,6 @@ gl843_cold_boot (Genesys_Device * dev)
   /* URB    14  control  0x40 0x0c 0x8c 0x10 len     1 wrote 0xb4 */
   RIE (write_end_access (dev, 0x10, 0xb4));
 
-  /* set up clock once for all TODO use sensor type for these sensor related registers */
-  if (strncmp (dev->model->name, "hewlett-packard-scanjet-g40", 27) == 0)
-    {
-      /* CK1MAP */
-      RIE (sanei_genesys_write_register (dev, 0x74, 0x00));
-      RIE (sanei_genesys_write_register (dev, 0x75, 0x1c));
-      RIE (sanei_genesys_write_register (dev, 0x76, 0x7f));
-      /* CK3MAP */
-      RIE (sanei_genesys_write_register (dev, 0x77, 0x03));
-      RIE (sanei_genesys_write_register (dev, 0x78, 0xff));
-      RIE (sanei_genesys_write_register (dev, 0x79, 0xff));
-    }
-  else
-    {
-      /* CK1MAP */
-      RIE (sanei_genesys_write_register (dev, 0x74, 0x00));
-      RIE (sanei_genesys_write_register (dev, 0x75, 0x00));
-      RIE (sanei_genesys_write_register (dev, 0x76, 0x00));
-      /* CK3MAP */
-      RIE (sanei_genesys_write_register (dev, 0x77, 0x00));
-      RIE (sanei_genesys_write_register (dev, 0x78, 0xff));
-      RIE (sanei_genesys_write_register (dev, 0x79, 0xff));
-    }
-  /* CK4MAP */
-  RIE (sanei_genesys_write_register (dev, 0x7a, 0x03));
-  RIE (sanei_genesys_write_register (dev, 0x7b, 0xff));
-  RIE (sanei_genesys_write_register (dev, 0x7c, 0xff));
-
   /* CLKSET */
   val = (dev->reg[reg_0x0b].value & ~REG0B_CLKSET) | REG0B_48MHZ;
   RIE (sanei_genesys_write_register (dev, REG0B, val));
@@ -3712,6 +3760,9 @@ gl843_init (Genesys_Device * dev)
   /* set up hardware and registers */
   RIE (gl843_cold_boot (dev));
 
+  /* move head away from park position */
+  gl843_feed (dev, 300);
+
   /* now hardware part is OK, set up device struct */
   FREE_IFNOT_NULL (dev->white_average_data);
   FREE_IFNOT_NULL (dev->dark_average_data);
@@ -3721,8 +3772,7 @@ gl843_init (Genesys_Device * dev)
 
   dev->settings.color_filter = 0;
 
-  memcpy (dev->calib_reg, dev->reg,
-	  GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
+  memcpy (dev->calib_reg, dev->reg, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
 
   /* Set analog frontend */
   RIE (gl843_set_fe (dev, AFE_INIT));
@@ -3738,8 +3788,7 @@ gl843_init (Genesys_Device * dev)
 	       "gl843_init: could not allocate memory for gamma table\n");
 	  return SANE_STATUS_NO_MEM;
 	}
-      sanei_genesys_create_gamma_table (dev->sensor.red_gamma_table, size,
-					65535, 65535, dev->sensor.red_gamma);
+      sanei_genesys_create_gamma_table (dev->sensor.red_gamma_table, size, 65535, 65535, dev->sensor.red_gamma);
     }
   if (dev->sensor.green_gamma_table == NULL)
     {
@@ -3750,9 +3799,7 @@ gl843_init (Genesys_Device * dev)
 	       "gl843_init: could not allocate memory for gamma table\n");
 	  return SANE_STATUS_NO_MEM;
 	}
-      sanei_genesys_create_gamma_table (dev->sensor.green_gamma_table, size,
-					65535, 65535,
-					dev->sensor.green_gamma);
+      sanei_genesys_create_gamma_table (dev->sensor.green_gamma_table, size, 65535, 65535, dev->sensor.green_gamma);
     }
   if (dev->sensor.blue_gamma_table == NULL)
     {
@@ -3763,8 +3810,7 @@ gl843_init (Genesys_Device * dev)
 	       "gl843_init: could not allocate memory for gamma table\n");
 	  return SANE_STATUS_NO_MEM;
 	}
-      sanei_genesys_create_gamma_table (dev->sensor.blue_gamma_table, size,
-					65535, 65535, dev->sensor.blue_gamma);
+      sanei_genesys_create_gamma_table (dev->sensor.blue_gamma_table, size, 65535, 65535, dev->sensor.blue_gamma);
     }
 
   dev->oe_buffer.buffer = NULL;

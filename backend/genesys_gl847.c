@@ -1073,11 +1073,6 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
-#define OPTICAL_FLAG_DISABLE_GAMMA   1
-#define OPTICAL_FLAG_DISABLE_SHADING 2
-#define OPTICAL_FLAG_DISABLE_LAMP    4
-#define OPTICAL_FLAG_ENABLE_LEDADD   8
-
 static SANE_Status
 gl847_init_optical_regs_off (Genesys_Device * dev, Genesys_Register_Set * reg)
 {

@@ -506,10 +506,10 @@ static Genesys_Sensor Sensor[] = {
   ,
   {CCD_G4050,
    4800,
-   48,
-   28,
+   38*8,	/* 38 at 600 dpi */
+   31*8,	/* 31 at 600 dpi */
    152,
-   20400, /* 20400 only half part of the sensor is used */
+   5360*8,      /* 5360 max at 600 dpi */
    210,
    230,
    /* 08    09    0a    0b */
@@ -1159,7 +1159,7 @@ static Genesys_Model hpg4010_model = {
 
   SANE_FIX (6.55),		/* Start of scan area in mm  (x) */
   SANE_FIX (15.00),		/* Start of scan area in mm (y) */
-  SANE_FIX (223.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (217.9),		/* Size of scan area in mm (x) */
   SANE_FIX (315.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (3.0),		/* Start of white strip in mm (y) */
@@ -1190,10 +1190,11 @@ static Genesys_Model hpg4010_model = {
   GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
   GENESYS_FLAG_SKIP_WARMUP | 
   GENESYS_FLAG_OFFSET_CALIBRATION |
+  GENESYS_FLAG_DARK_CALIBRATION |
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
-  280,
-  400
+  100,
+  100
 };
 
 static Genesys_Model hpg4050_model = {
@@ -1210,7 +1211,7 @@ static Genesys_Model hpg4050_model = {
 
   SANE_FIX (6.55),		/* Start of scan area in mm  (x) */
   SANE_FIX (15.00),		/* Start of scan area in mm (y) */
-  SANE_FIX (223.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (217.9),		/* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
   SANE_FIX (315.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (3.0),		/* Start of white strip in mm (y) */
@@ -1239,13 +1240,13 @@ static Genesys_Model hpg4050_model = {
   GPO_G4050,
   MOTOR_G4050,
   GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
-  GENESYS_FLAG_NO_CALIBRATION |
   GENESYS_FLAG_SKIP_WARMUP | 
   GENESYS_FLAG_OFFSET_CALIBRATION |
+  GENESYS_FLAG_DARK_CALIBRATION |
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
-  280,
-  400
+  100,
+  100
 };
 
 

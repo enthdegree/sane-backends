@@ -1453,7 +1453,9 @@ gl843_init_scan_regs (Genesys_Device * dev,
 		      float lines,
 		      unsigned int depth,
 		      unsigned int channels,
-		      int color_filter, unsigned int flags)
+		      int scan_mode,
+		      int color_filter,
+                      unsigned int flags)
 {
   int used_res;
   int start, used_pixels;
@@ -1573,8 +1575,7 @@ gl843_init_scan_regs (Genesys_Device * dev,
   /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
-  if ((flags & SCAN_FLAG_DYNAMIC_LINEART)
-      && (dev->settings.scan_mode == SCAN_MODE_LINEART))
+  if ((flags & SCAN_FLAG_DYNAMIC_LINEART) && (scan_mode == SCAN_MODE_LINEART))
     {
       depth = 8;
     }
@@ -1708,7 +1709,7 @@ gl843_init_scan_regs (Genesys_Device * dev,
   dev->current_setup.max_shift = max_shift + stagger;
 
   dev->total_bytes_read = 0;
-  if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
+  if (depth == 1 || scan_mode == SCAN_MODE_LINEART)
     dev->total_bytes_to_read =
       ((dev->settings.pixels * dev->settings.lines) / 8 +
        (((dev->settings.pixels * dev->settings.lines) % 8) ? 1 : 0)) *
@@ -1765,14 +1766,14 @@ gl843_calculate_current_setup (Genesys_Device * dev)
        dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
 
   /* channels */
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
   else
     channels = 1;
 
   /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == 0)
+  if (dev->settings.scan_mode == SCAN_MODE_LINEART)
     depth = 1;
 
   /* start */
@@ -2422,6 +2423,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			100,
 			8,
 			1,
+                        SCAN_MODE_LINEART,
 			dev->settings.color_filter,
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
@@ -2514,8 +2516,18 @@ gl843_search_start_position (Genesys_Device * dev)
   /* sets for a 200 lines * 600 pixels */
   /* normal scan with no shading */
 
-  status = gl843_init_scan_regs (dev, local_reg, dpi, dpi, 0, 0,	/*we should give a small offset here~60 steps */
-				 600, dev->model->search_lines, 8, 1, 1,	/*green */
+  status = gl843_init_scan_regs (dev,
+                                 local_reg,
+                                 dpi,
+                                 dpi,
+                                 0,
+                                 0,	/*we should give a small offset here~60 steps */
+				 600,
+                                 dev->model->search_lines,
+                                 8,
+                                 1,
+                                 SCAN_MODE_GRAY,
+                                 1,	/*green */
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
@@ -2631,6 +2643,7 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
 				 20,
 				 16,
 				 channels,
+				 dev->settings.scan_mode,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -2697,6 +2710,7 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
 			3,
 			8,
 			3,
+                        SCAN_MODE_COLOR,
 			0,
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
@@ -2776,6 +2790,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
 				 dev->calib_lines,
 				 16,
 				 dev->calib_channels,
+				 dev->settings.scan_mode,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -2874,7 +2889,10 @@ gl843_init_regs_for_scan (Genesys_Device * dev)
 				 dev->settings.pixels,
 				 dev->settings.lines,
 				 depth,
-				 channels, dev->settings.color_filter, flags);
+				 channels,
+				 dev->settings.scan_mode,
+                                 dev->settings.color_filter,
+                                 flags);
 
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -3022,6 +3040,7 @@ gl843_led_calibration (Genesys_Device * dev)
 				 1,
 				 depth,
 				 channels,
+				 SCAN_MODE_COLOR,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -3255,7 +3274,8 @@ gl843_offset_calibration (Genesys_Device * dev)
 				 lines,
 				 bpp,
 				 channels,
-				 dev->settings.color_filter,
+                                 SCAN_MODE_COLOR,
+				 0,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
@@ -3427,6 +3447,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
                                  lines,
                                  bpp,
                                  channels,
+                                 SCAN_MODE_COLOR,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -3558,6 +3579,7 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
 				 1,
 				 8,
 				 *channels,
+                                 SCAN_MODE_COLOR,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -3888,13 +3910,9 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
     }
 
   /* set up for a gray scan at lowest dpi */
-  dpi = 9600;
-  for (x = 0; x < MAX_RESOLUTIONS; x++)
-    {
-      if (dev->model->xdpi_values[x] > 0 && dev->model->xdpi_values[x] < dpi)
-	dpi = dev->model->xdpi_values[x];
-    }
+  dpi = sanei_genesys_get_lowest_dpi(dev);
   channels = 1;
+
   /* 10 MM */
   lines = (10 * dpi) / MM_PER_INCH;
   /* shading calibation is done with dev->motor.base_ydpi */
@@ -3923,6 +3941,7 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 				 lines,
 				 depth,
 				 channels,
+                                 SCAN_MODE_GRAY,
 				 0,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA);

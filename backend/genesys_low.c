@@ -1342,6 +1342,36 @@ int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev)
   return min;
 }
 
+/** @brief returns the lowest possible dpi for the device
+ * Parses device entry to find lowest motor or sensor dpi.
+ * @param dev device description
+ * @return lowest motor resolution
+ */
+int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
+{
+  int min=20000;
+  int i=0;
+
+  while(dev->model->ydpi_values[i]!=0)
+    {
+      if(dev->model->ydpi_values[i]<min)
+        {
+          min=dev->model->ydpi_values[i];
+        }
+      i++;
+    }
+  i=0;
+  while(dev->model->xdpi_values[i]!=0)
+    {
+      if(dev->model->xdpi_values[i]<min)
+        {
+          min=dev->model->xdpi_values[i];
+        }
+      i++;
+    }
+  return min;
+}
+
 /** @brief check is a cache entry may be used
  * Compares current settings with the cache entry and return
  * SANE_TRUE if they are compatible.

@@ -1,3 +1,9 @@
+2011-08-23 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl847.c backend/genesys_low.c backend/genesys_low.h
+	backend/genesys.c backend/genesys_gl124.c backend/genesys_gl843.c:
+	make sure to use the fatest speed when parking, use lowest sensor dpi
+	as default resolution
+
 2011-08-22 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys*.[ch]: enable calibration for G4050/G4010 and
 	minor code refactors

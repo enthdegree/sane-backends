@@ -911,8 +911,23 @@ int sanei_genesys_compute_step_type(Motor_Profile *motors, int motor_type, int e
 extern
 int sanei_genesys_slope_table(uint16_t *slope, int *steps, int dpi, int exposure, int base_dpi, int step_type, int factor, int motor_type, Motor_Profile *motors);
 
+/** @brief find lowest motor resolution for the device.
+ * Parses the resolution list for motor and
+ * returns the lowest value.
+ * @param device for which to find the lowest motor resolution
+ * @return the lowest available motor resolution for the device
+ */
 extern
 int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev);
+
+/** @brief find lowest resolution for the device.
+ * Parses the resolution list for motor and sensor and
+ * returns the lowest value.
+ * @param device for which to find the lowest resolution
+ * @return the lowest available resolution for the device
+ */
+extern
+int sanei_genesys_get_lowest_dpi(Genesys_Device *dev);
 
 /**
  * reads previously cached calibration data

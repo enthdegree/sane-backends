@@ -774,10 +774,6 @@ gl847_set_fe (Genesys_Device * dev, uint8_t set)
 #define MOTOR_FLAG_AUTO_GO_HOME             1
 #define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 2
 
-#define MOTOR_ACTION_FEED       1
-#define MOTOR_ACTION_GO_HOME    2
-#define MOTOR_ACTION_HOME_FREE  3
-
 /** @brief setup motor for off mode
  * 
  */
@@ -2140,15 +2136,11 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			100,
 			3,
 			8,
-			3,
+			1,
 			dev->settings.color_filter,
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
-                        SCAN_FLAG_FEEDING |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
-  sanei_genesys_set_double(local_reg,REG_EXPR,0);
-  sanei_genesys_set_double(local_reg,REG_EXPG,0);
-  sanei_genesys_set_double(local_reg,REG_EXPB,0);
 
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));

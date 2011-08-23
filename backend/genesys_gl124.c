@@ -1210,7 +1210,9 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
 			      unsigned int pixels,
 			      int channels,
 			      int depth,
-			      SANE_Bool half_ccd, int color_filter, int flags)
+			      SANE_Bool half_ccd,
+                              int color_filter,
+                              int flags)
 {
   unsigned int words_per_line, segcnt;
   unsigned int startx, endx, used_pixels, segnb;
@@ -1439,7 +1441,8 @@ gl124_init_scan_regs (Genesys_Device * dev,
 		      float lines,
 		      unsigned int depth,
 		      unsigned int channels,
-		      int color_filter, unsigned int flags)
+		      int color_filter,
+                      unsigned int flags)
 {
   int used_res;
   int start, used_pixels;
@@ -2153,6 +2156,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   uint8_t val;
   float resolution;
   int loop = 0;
+  int scan_mode;
 
   DBG (DBG_proc, "gl124_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
@@ -2191,8 +2195,11 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
-  resolution=sanei_genesys_get_lowest_ydpi(dev);
+  resolution=sanei_genesys_get_lowest_dpi(dev);
 
+  /* TODO add scan_mode to the API */
+  scan_mode= dev->settings.scan_mode;
+  dev->settings.scan_mode=SCAN_MODE_LINEART;
   gl124_init_scan_regs (dev,
 			local_reg,
 			resolution,
@@ -2202,17 +2209,12 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			100,
 			100,
 			8,
-			3,
-			dev->settings.color_filter,
+			1,
+			0,
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
-			SCAN_FLAG_FEEDING |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
-
-  /* set exposure to zero */
-  sanei_genesys_set_triple(local_reg,REG_EXPR,0);
-  sanei_genesys_set_triple(local_reg,REG_EXPG,0);
-  sanei_genesys_set_triple(local_reg,REG_EXPB,0);
+  dev->settings.scan_mode=scan_mode;
 
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
@@ -2546,6 +2548,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
   dev->calib_lines = dev->model->shading_lines;
   dpihw=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   factor=dev->sensor.optical_res/dpihw;
+  resolution=dpihw;
   dev->calib_resolution = resolution;
   dev->calib_pixels = dev->sensor.sensor_pixels/factor;
 
@@ -2719,7 +2722,9 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
 				 dev->settings.pixels,
 				 dev->settings.lines,
 				 depth,
-				 channels, dev->settings.color_filter, flags);
+				 channels,
+                                 dev->settings.color_filter,
+                                 flags);
 
   if (status != SANE_STATUS_GOOD)
     return status;

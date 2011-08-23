@@ -5846,19 +5846,19 @@ init_options (Genesys_Scanner * s)
 
   /* resolution */
   min_dpi=200000;
-  for (count = 0; model->ydpi_values[count] != 0; count++)
+  for (count = 0; model->xdpi_values[count] != 0; count++)
     {
-      if(model->ydpi_values[count]<min_dpi)
+      if(model->xdpi_values[count]<min_dpi)
         {
-          min_dpi=model->ydpi_values[count];
+          min_dpi=model->xdpi_values[count];
         }
     }
   dpi_list = malloc ((count + 1) * sizeof (SANE_Word));
   if (!dpi_list)
     return SANE_STATUS_NO_MEM;
   dpi_list[0] = count;
-  for (count = 0; model->ydpi_values[count] != 0; count++)
-    dpi_list[count + 1] = model->ydpi_values[count];
+  for (count = 0; model->xdpi_values[count] != 0; count++)
+    dpi_list[count + 1] = model->xdpi_values[count];
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;

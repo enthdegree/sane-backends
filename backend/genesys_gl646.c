@@ -3361,7 +3361,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
   /* this is an hack to make calibration cache working .... */
   /* if we don't do this, cache will be identified at the shading calibration
-   * dpi which is diferent from calibration one */
+   * dpi which is different from calibration one */
   dev->current_setup.xres = dev->settings.xres;
   DBG (DBG_info,
        "gl646_init_register_for_shading:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n",

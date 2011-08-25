@@ -1843,6 +1843,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   uint32_t pixels_per_line;
   uint8_t channels;
   uint8_t *calibration_data;
+  SANE_Bool motor;
 
   DBG (DBG_proc, "genesys_dark_shading_calibration\n");
   /* end pixel - start pixel */
@@ -1872,17 +1873,23 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
       return SANE_STATUS_NO_MEM;
     }
 
+  motor=SANE_TRUE;
+  if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
+    {
+      motor=SANE_FALSE;
+    }
+
   /* turn off motor and lamp power for flatbed scanners, but not for sheetfed scanners
-   * because they have a calibration sheet with a sufficent black strip                */
+   * because they have a calibration sheet with a sufficient black strip                */
   if (dev->model->is_sheetfed == SANE_FALSE)
     {
       dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_FALSE);
-      dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
+      dev->model->cmd_set->set_motor_power (dev->calib_reg, motor);
     }
   else
     {
       dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-      dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
+      dev->model->cmd_set->set_motor_power (dev->calib_reg, motor);
     }
 
   status =
@@ -1893,7 +1900,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_dark_shading_calibration: Failed to bulk write registers: %s\n",
+	   "genesys_dark_shading_calibration: failed to bulk write registers: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2059,6 +2066,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   uint32_t pixels_per_line;
   uint8_t *calibration_data;
   uint8_t channels;
+  SANE_Bool motor;
 
   DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
        dev->calib_lines);
@@ -2087,9 +2095,15 @@ genesys_white_shading_calibration (Genesys_Device * dev)
       return SANE_STATUS_NO_MEM;
     }
 
+  motor=SANE_TRUE;
+  if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
+    {
+      motor=SANE_FALSE;
+    }
+
   /* turn on motor and lamp power */
   dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
+  dev->model->cmd_set->set_motor_power (dev->calib_reg, motor);
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
@@ -2186,6 +2200,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   int y;
   uint32_t dark, white, dark_sum, white_sum, dark_count, white_count, col,
     dif;
+  SANE_Bool motor;
 
 
   DBG (DBG_proc, "genesys_black_white_shading_calibration (lines = %d)\n",
@@ -2228,9 +2243,15 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
       return SANE_STATUS_NO_MEM;
     }
 
+  motor=SANE_TRUE;
+  if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
+    {
+      motor=SANE_FALSE;
+    }
+
   /* turn on motor and lamp power */
   dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, SANE_TRUE);
+  dev->model->cmd_set->set_motor_power (dev->calib_reg, motor);
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,

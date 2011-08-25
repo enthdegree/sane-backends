@@ -98,6 +98,7 @@
 #define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /**> allow scanners to use skip the calibration, needed for sheetfed scanners */
 #define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /**> scanner has setting for half ccd mode */
 #define GENESYS_FLAG_SIS_SENSOR       (1 << 16)       /**> handling of multi-segments sensors in software */
+#define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**> scanner doesn't move sensor during shading calibration */
 
 #define GENESYS_HAS_NO_BUTTONS       0              /**> scanner has no supported button */
 #define GENESYS_HAS_SCAN_SW          (1 << 0)       /**> scanner has SCAN button */
@@ -460,6 +461,10 @@ typedef struct Genesys_Command_Set
 
 } Genesys_Command_Set;
 
+/** @brief structure to describe a scanner model
+ * This structure describes a model. It is composed of information on the
+ * sensor, the motor, scanner geometry and flags to drive operation.
+ */
 typedef struct Genesys_Model
 {
   SANE_String_Const name;

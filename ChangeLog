@@ -1,3 +1,7 @@
+2011-09-07 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c backend/genesys_low.h
+	backend/genesys_gl124.c: fix button mapping for LiDE 210
+
 2011-08-25 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c backend/genesys_low.c backend/genesys_low.h
 	backend/genesys.c: add a no move during shading calibratiob flag, and

@@ -310,6 +310,7 @@ Genesys_Color_Order;
 #define GPO_G4050        14
 #define GPO_CANONLIDE110 15
 #define GPO_PLUSTEK_3600 16
+#define GPO_CANONLIDE210 17
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1

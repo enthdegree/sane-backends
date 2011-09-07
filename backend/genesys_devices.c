@@ -686,6 +686,12 @@ static Genesys_Gpo Gpo[] = {
    {0xff, 0x00},
   }
   ,
+  /* CANONLIDE210 */
+  {GPO_CANONLIDE110,
+   {0xfb, 0x20},
+   {0xff, 0x00},
+  }
+  ,
   /* Plustek 3600 */
   {GPO_PLUSTEK_3600,
    {0x02, 0x00},
@@ -1396,7 +1402,7 @@ static Genesys_Model canon_lide_210_model = {
   SANE_FALSE,			/* Is this a sheetfed scanner? */
   CIS_CANONLIDE110,
   DAC_CANONLIDE110,
-  GPO_CANONLIDE110,
+  GPO_CANONLIDE210,
   MOTOR_CANONLIDE110,	
       GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION

@@ -3879,7 +3879,7 @@ gl124_init (Genesys_Device * dev)
 static SANE_Status
 gl124_update_hardware_sensors (Genesys_Scanner * s)
 {
-  /* do what is needed to get a new set of events, but try to not lose
+  /* do what is needed to get a new set of events, but try to not loose
      any of them.
    */
   SANE_Status status = SANE_STATUS_GOOD;
@@ -3887,14 +3887,32 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
 
   RIE (sanei_genesys_read_register (s->dev, REG31, &val));
 
-  if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-    s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
-  if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
-    s->val[OPT_FILE_SW].b = (val & 0x08) == 0;
-  if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
-    s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
-  if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
-    s->val[OPT_COPY_SW].b = (val & 0x02) == 0;
+  /* TODO : for the next scanner special case,
+   * add another per scanner button profile struct to avoid growing
+   * hard-coded button mapping here. 
+   */
+  if(dev->model->gpo_type == GPO_CANONLIDE110)
+    {
+      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
+        s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
+      if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
+        s->val[OPT_FILE_SW].b = (val & 0x08) == 0;
+      if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
+        s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
+      if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
+        s->val[OPT_COPY_SW].b = (val & 0x02) == 0;
+    }
+  else
+    { /* LiDE 210 case */
+      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
+        s->val[OPT_SCAN_SW].b = (val & 0x02) == 0;
+      if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
+        s->val[OPT_COPY_SW].b = (val & 0x04) == 0;
+      if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
+        s->val[OPT_EMAIL_SW].b = (val & 0x08) == 0;
+      if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
+        s->val[OPT_FILE_SW].b = (val & 0x10) == 0;
+    }
   return status;
 }
 

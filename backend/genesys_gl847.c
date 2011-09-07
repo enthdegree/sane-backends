@@ -771,9 +771,6 @@ gl847_set_fe (Genesys_Device * dev, uint8_t set)
   return SANE_STATUS_UNSUPPORTED;
 }
 
-#define MOTOR_FLAG_AUTO_GO_HOME             1
-#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 2
-
 /** @brief setup motor for off mode
  * 
  */
@@ -871,7 +868,6 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   unsigned int min_restep = 0x20;
   uint8_t val, effective;
   int fast_step_type;
-  int acdcdis;
   unsigned int ccdlmt,tgtime;
 
   DBGSTART;
@@ -898,7 +894,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   /* compute register 02 value */
   r = sanei_genesys_get_address (reg, REG02);
   r->value = 0x00;
-  r->value |= REG02_NOTHOME | REG02_MTRPWR;
+  r->value |= REG02_MTRPWR;
 
   if (use_fast_fed)
     r->value |= REG02_FASTFED;
@@ -906,13 +902,12 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
     r->value &= ~REG02_FASTFED;
 
   if (flags & MOTOR_FLAG_AUTO_GO_HOME)
-    r->value |= REG02_AGOHOME;
+    r->value |= REG02_AGOHOME | REG02_NOTHOME;
 
-  acdcdis=0;
-  if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+  if ((flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+      ||(scan_yres>=dev->sensor.optical_res))
     {
       r->value |= REG02_ACDCDIS;
-      acdcdis=1;
     }
 
   /* scan and backtracking slope table */
@@ -944,8 +939,10 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
                                       factor,
                                       dev->model->motor_type,
                                       gl847_motors);
+
   /* manual override of high start value */
   fast_table[0]=fast_table[1];
+
   RIE(gl847_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps*factor));
   RIE(gl847_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps*factor));
   RIE(gl847_send_slope_table (dev, HOME_TABLE, fast_table, fast_steps*factor));
@@ -1770,10 +1767,7 @@ gl847_calculate_current_setup (Genesys_Device * dev)
   dpihw=sanei_genesys_compute_dpihw(dev,xres);
   exposure_time = gl847_compute_exposure (dev, used_res);
   scan_step_type = sanei_genesys_compute_step_type(gl847_motors, dev->model->motor_type, exposure_time);
-
-  DBG (DBG_info,
-       "gl847_calculate_current_setup : exposure_time=%d pixels\n",
-       exposure_time);
+  DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
 /* max_shift */
   /* scanned area must be enlarged by max color shift needed */
@@ -2580,12 +2574,6 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
     }
   DBG (DBG_info, "%s: move=%f steps\n", __FUNCTION__, move);
 
-  /* clear scancnt and fedcnt */
-  val = REG0D_CLRLNCNT;
-  RIE (sanei_genesys_write_register (dev, REG0D, val));
-  val = REG0D_CLRMCNT;
-  RIE (sanei_genesys_write_register (dev, REG0D, val));
-
   /* start */
   start = SANE_UNFIX (dev->model->x_offset);
   start += dev->settings.tl_x;
@@ -2926,8 +2914,7 @@ gl847_led_calibration (Genesys_Device * dev)
   turn = 0;
 
   /* no move during led calibration */
-  r = sanei_genesys_get_address (dev->calib_reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl847_set_motor_power (dev->calib_reg, SANE_FALSE);
   do
     {
       sanei_genesys_set_double(dev->calib_reg,REG_EXPR,expr);

@@ -924,10 +924,6 @@ Motor_Profile *profile;
     return profile->step_type;
 }
 
-#define MOTOR_FLAG_AUTO_GO_HOME             1
-#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 2
-#define MOTOR_FLAG_FEED                     4
-
 
 static SANE_Status
 gl124_init_motor_regs_scan (Genesys_Device * dev,
@@ -2508,15 +2504,13 @@ gl124_init_regs_for_coarse_calibration (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
-  r = sanei_genesys_get_address (dev->calib_reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl124_set_motor_power (dev->calib_reg, SANE_FALSE);
 
   DBG (DBG_info,
        "gl124_init_register_for_coarse_calibration: optical sensor res: %d dpi, actual res: %d\n",
        dev->sensor.optical_res / cksel, dev->settings.xres);
 
-  status =
-    gl124_bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS);
+  status = gl124_bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2576,8 +2570,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
-  r = sanei_genesys_get_address (dev->calib_reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl124_set_motor_power (dev->calib_reg, SANE_FALSE);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3043,8 +3036,7 @@ gl124_led_calibration (Genesys_Device * dev)
   turn = 0;
 
   /* no move during led calibration */
-  r = sanei_genesys_get_address (dev->calib_reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl124_set_motor_power (dev->calib_reg, SANE_FALSE);
   do
     {
       sanei_genesys_set_triple(dev->calib_reg,REG_EXPR,expr);
@@ -3247,8 +3239,7 @@ gl124_offset_calibration (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
-  r = sanei_genesys_get_address (dev->calib_reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl124_set_motor_power (dev->calib_reg, SANE_FALSE);
 
   /* allocate memory for scans */
   total_size = pixels * channels * lines * (bpp/8);	/* colors * bytes_per_color * scan lines */
@@ -3421,8 +3412,7 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
-  r = sanei_genesys_get_address (dev->calib_reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl124_set_motor_power (dev->calib_reg, SANE_FALSE);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3565,8 +3555,7 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
 
   *total_size = num_pixels * 3 * 1;	/* colors * bytes_per_color * scan lines */
 
-  r = sanei_genesys_get_address (reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl124_set_motor_power (reg, SANE_FALSE);
   RIE (gl124_bulk_write_register (dev, reg, GENESYS_GL124_MAX_REGS));
 
   DBGCOMPLETED;

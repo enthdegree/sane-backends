@@ -4051,8 +4051,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_warmup_lamp: start\n");
 
-  dev->model->cmd_set->init_regs_for_warmup (dev, dev->reg, &channels,
-					     &total_size);
+  dev->model->cmd_set->init_regs_for_warmup (dev, dev->reg, &channels, &total_size);
   first_line = malloc (total_size);
   if (!first_line)
     return SANE_STATUS_NO_MEM;
@@ -4063,7 +4062,6 @@ genesys_warmup_lamp (Genesys_Device * dev)
 
   do
     {
-
       DBG (DBG_info, "genesys_warmup_lamp: one more loop\n");
       RIE (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE));
       do
@@ -4072,8 +4070,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	}
       while (empty);
 
-      status =
-	sanei_genesys_read_data_from_scanner (dev, first_line, total_size);
+      status = sanei_genesys_read_data_from_scanner (dev, first_line, total_size);
       if (status != SANE_STATUS_GOOD)
 	{
 	  RIE (sanei_genesys_read_data_from_scanner
@@ -4099,12 +4096,11 @@ genesys_warmup_lamp (Genesys_Device * dev)
       /* compute difference between the two scans */
       for (pixel = 0; pixel < total_size; pixel++)
 	{
+          /* 16 bit data */
 	  if (dev->model->cmd_set->get_bitset_bit (dev->reg))
 	    {
-	      first_average +=
-		(first_line[pixel] + first_line[pixel + 1] * 256);
-	      second_average +=
-		(second_line[pixel] + second_line[pixel + 1] * 256);
+	      first_average += (first_line[pixel] + first_line[pixel + 1] * 256);
+	      second_average += (second_line[pixel] + second_line[pixel + 1] * 256);
 	      pixel++;
 	    }
 	  else
@@ -4142,9 +4138,8 @@ genesys_warmup_lamp (Genesys_Device * dev)
 					    total_size / (lines * channels),
 					    lines);
 	    }
-	  DBG (DBG_info,
-	       "genesys_warmup_lamp: average 1 = %.2f %%, average 2 = %.2f %%\n",
-	       first_average, second_average);
+	  DBG (DBG_info, "genesys_warmup_lamp: average 1 = %.2f, average 2 = %.2f\n", first_average, second_average);
+          /* if delta below 15/255 ~= 5.8%, lamp is considred warm enough */
 	  if (abs (first_average - second_average) < 15
 	      && second_average > 55)
 	    break;

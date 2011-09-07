@@ -723,6 +723,10 @@ typedef struct {
 #define SCAN_FLAG_CALIBRATION              0x100
 #define SCAN_FLAG_FEEDING                  0x200
 
+#define MOTOR_FLAG_AUTO_GO_HOME             1
+#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 2
+#define MOTOR_FLAG_FEED                     4
+
 #define OPTICAL_FLAG_DISABLE_GAMMA   1
 #define OPTICAL_FLAG_DISABLE_SHADING 2
 #define OPTICAL_FLAG_DISABLE_LAMP    4

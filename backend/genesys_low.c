@@ -1229,7 +1229,9 @@ Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_
  *         2 for quarter step
  *         3 for eighth step
  */
-int sanei_genesys_compute_step_type(Motor_Profile *motors, int motor_type, int exposure)
+int sanei_genesys_compute_step_type(Motor_Profile *motors,
+                                    int motor_type,
+                                    int exposure)
 {
 Motor_Profile *profile;
 

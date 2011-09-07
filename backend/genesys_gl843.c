@@ -487,113 +487,6 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
   return &(sensors[idx]);
 }
 
-/** @get motor profile
- * search for the database of motor profiles and get the best one. Each
- * profile is at full step and at a reference exposure. Use KV-SS080 table
- * by default.
- * @param motor_type motor id
- * @param exposure exposure time
- * @return a pointer to a Motor_Profile struct
- */
-static Motor_Profile *get_motor_profile(int motor_type, int exposure)
-{
-  unsigned int i;
-  int idx;
-
-  i=0;
-  idx=-1;
-  while(i<sizeof(motors)/sizeof(Motor_Profile))
-    {
-      /* exact match */
-      if(motors[i].motor_type==motor_type && motors[i].exposure==exposure)
-        {
-          return &(motors[i]);
-        }
-
-      /* closest match */
-      if(motors[i].motor_type==motor_type)
-        {
-          if(idx<0)
-            {
-              idx=i;
-            }
-          else
-            {
-              if(motors[i].exposure>=exposure 
-              && motors[i].exposure<motors[idx].exposure)
-                {
-                  idx=i;
-                }
-            }
-        }
-      i++;
-    }
-
-  /* default fallback */
-  if(idx<0)
-    idx=0;
-
-  return &(motors[idx]);
-}
-
-static int gl843_slope_table(uint16_t *slope,
-		             int       *steps,
-			     int       dpi,
-			     int       exposure,
-			     int       base_dpi,
-			     int       step_type,
-			     int       factor,
-                             int       motor_type)
-{
-int sum, i;
-uint16_t target,current;
-Motor_Profile *profile;
-
-	/* required speed */
-	target=((exposure * dpi) / base_dpi)>>step_type;
-	
-	/* fill result with target speed */
-        for(i=0;i<256*factor;i++)
-          slope[i]=target;
-
-        profile=get_motor_profile(motor_type,exposure);
-
-	/* use profile to build table */
-	sum=0;
-        i=0;
-        current=profile->table[0]>>step_type;
-        while(i<(256*factor) && current>target)
-          {
-            slope[i]=current;
-            sum+=slope[i];
-            i++;
-            current=profile->table[i]>>step_type;
-          }
-
-        /* flat table case */
-        if(i==0)
-          {
-            for(i=0;i<1024;i++)
-              {
-                slope[i]=profile->table[i]>>step_type;
-                sum+=slope[i];
-              }
-          }
-
-        /* align size on step time factor */
-        while(i%factor!=0)
-          {
-            sum+=slope[i];
-            i++;
-          }
-
-        /* return used steps and acceleration sum */
-        *steps=i;
-	return sum;
-}
-
-
-
 
 /** copy sensor specific settings */
 static void
@@ -605,45 +498,43 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 
   DBGSTART;
 
-  /* common settings */
+
+  dpihw=sanei_genesys_compute_dpihw(dev,dpi);
+  sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
+
   for (i = 0x06; i < 0x0e; i++)
     {
       r = sanei_genesys_get_address (regs, 0x10 + i);
       if (r)
-	r->value = dev->sensor.regs_0x10_0x1d[i];
+	r->value = sensor->regs_0x10_0x1d[i];
     }
-
   for (i = 0; i < 9; i++)
     {
       r = sanei_genesys_get_address (regs, 0x52 + i);
       if (r)
-	r->value = dev->sensor.regs_0x52_0x5e[i];
+	r->value = sensor->regs_0x52_0x5e[i];
     }
-
-  /* set EXPDUMMY and CKxMAP */
-  dpihw=sanei_genesys_compute_dpihw(dev,dpi);
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
   
   /* specific registers */
-  r = sanei_genesys_get_address (regs, 0x18);
+  r = sanei_genesys_get_address (regs, 0x0c);
   if (r)
     {
-      r->value = sensor->reg18;
+      r->value = sensor->reg0c;
     }
-  r = sanei_genesys_get_address (regs, 0x5a);
+  r = sanei_genesys_get_address (regs, 0x70);
   if (r)
     {
-      r->value = sensor->reg5a;
+      r->value = sensor->reg70;
+    }
+  r = sanei_genesys_get_address (regs, 0x71);
+  if (r)
+    {
+      r->value = sensor->reg71;
     }
   r = sanei_genesys_get_address (regs, 0x7d);
   if (r)
     {
       r->value = sensor->reg7d;
-    }
-  r = sanei_genesys_get_address (regs, 0x80);
-  if (r)
-    {
-      r->value = sensor->reg80;
     }
   r = sanei_genesys_get_address (regs, 0x9e);
   if (r)
@@ -655,6 +546,13 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
   sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
   sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);
+
+  /* tune AFE */
+  for (i = 0; i < 3; i++)
+    {
+      sanei_genesys_fe_write_data (dev, 0x20 + i, sensor->afe[i]);
+      sanei_genesys_fe_write_data (dev, 0x28 + i, sensor->afe[i+3]);
+    }
 
   DBG (DBG_proc, "gl843_setup_sensor: completed \n");
 }
@@ -1000,13 +898,13 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                             unsigned int flags)
 {
   SANE_Status status;
-  int use_fast_fed;
+  int use_fast_fed, coeff;
   unsigned int fast_time;
   unsigned int slow_time;
   unsigned int lincnt;
   uint16_t scan_table[1024];
   uint16_t fast_table[1024];
-  int scan_steps,fast_steps;
+  int scan_steps,fast_steps, fast_step_type;
   unsigned int feedl,factor,dist;
   Genesys_Register_Set *r;
   uint32_t z1, z2;
@@ -1027,14 +925,9 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
 
   if((scan_yres>=300 && feed_steps>900) || (flags & MOTOR_FLAG_FEED))
     use_fast_fed=1;
-  lincnt=scan_lines;
 
-  r = sanei_genesys_get_address (reg, 0x25);
-  r->value = (lincnt >> 16) & 0xf;
-  r = sanei_genesys_get_address (reg, 0x26);
-  r->value = (lincnt >> 8) & 0xff;
-  r = sanei_genesys_get_address (reg, 0x27);
-  r->value = lincnt & 0xff;
+  lincnt=scan_lines;
+  sanei_genesys_set_triple(reg,REG_LINCNT,lincnt);
   DBG (DBG_io, "%s: lincnt=%d\n", __FUNCTION__, lincnt);
 
   /* compute register 02 value */
@@ -1047,49 +940,59 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
   else
     r->value &= ~REG02_FASTFED;
 
+  /* in case of automatic go home, move until home sensor */
   if (flags & MOTOR_FLAG_AUTO_GO_HOME)
-    r->value |= REG02_AGOHOME;
+    r->value |= REG02_AGOHOME | REG02_NOTHOME;
 
-  if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+  if ((flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+      ||(scan_yres>=dev->sensor.optical_res))
     r->value |= REG02_ACDCDIS;
 
   /* scan and backtracking slope table */
-  slow_time=gl843_slope_table(scan_table,
-                              &scan_steps,
-                              scan_yres,
-                              scan_exposure_time,
-                              dev->motor.base_ydpi,
-                              scan_step_type,
-                              factor,
-                              dev->model->motor_type);
-  RIE(gl843_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps));
-  RIE(gl843_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps));
+  slow_time=sanei_genesys_slope_table(scan_table,
+                                      &scan_steps,
+                                      scan_yres,
+                                      scan_exposure_time,
+                                      dev->motor.base_ydpi,
+                                      scan_step_type,
+                                      factor,
+                                      dev->model->motor_type,
+                                      gl843_motors);
+  RIE(gl843_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps*factor));
+  RIE(gl843_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps*factor));
 
-  r = sanei_genesys_get_address (reg, 0x21);
-  r->value = scan_steps/factor;
-
-  r = sanei_genesys_get_address (reg, 0x24);
-  r->value = scan_steps/factor;
+  /* STEPNO */
+  r = sanei_genesys_get_address (reg, REG_STEPNO);
+  r->value = scan_steps;
 
   /* fast table */
-  fast_time=gl843_slope_table(fast_table,
-                              &fast_steps,
-                              sanei_genesys_get_lowest_ydpi(dev),
-                              scan_exposure_time,
-                              dev->motor.base_ydpi,
-                              scan_step_type,
-                              factor,
-                              dev->model->motor_type);
-  RIE(gl843_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps));
-  RIE(gl843_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps));
+  fast_step_type=scan_step_type;
+  if(scan_step_type>=2)
+    {
+      fast_step_type=2;
+    }
+  fast_time=sanei_genesys_slope_table(fast_table,
+                                      &fast_steps,
+                                      sanei_genesys_get_lowest_ydpi(dev),
+                                      scan_exposure_time,
+                                      dev->motor.base_ydpi,
+                                      fast_step_type,
+                                      factor,
+                                      dev->model->motor_type,
+                                      gl843_motors);
+  RIE(gl843_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps*factor));
+  RIE(gl843_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps*factor));
+  RIE(gl843_send_slope_table (dev, HOME_TABLE, fast_table, fast_steps*factor));
 
-  r = sanei_genesys_get_address (reg, 0x69);
-  r->value = fast_steps / factor;
-  /* better stop time */
-  r->value = 1;
+  /* FASTNO */
+  r = sanei_genesys_get_address (reg, REG_FASTNO);
+  r->value = fast_steps;
 
-  r = sanei_genesys_get_address (reg, REG6A);
-  r->value = fast_steps / factor;
+  r = sanei_genesys_get_address (reg, REG_FSHDEC);
+  r->value = fast_steps;
+
+  r = sanei_genesys_get_address (reg, REG_FMOVNO);
+  r->value = fast_steps;
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
@@ -1102,18 +1005,14 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
     }
   DBG (DBG_io2, "%s: acceleration distance=%d\n", __FUNCTION__, dist);
 
-  /* get sure when don't insane value */
+  /* get sure when don't insane value : XXX STEF XXX in this case we should
+   * fall back to single table move */
   if(dist<feedl)
     feedl -= dist;
   else
     feedl = 1;
 
-  r = sanei_genesys_get_address (reg, 0x3d);
-  r->value = (feedl >> 16) & 0xf;
-  r = sanei_genesys_get_address (reg, 0x3e);
-  r->value = (feedl >> 8) & 0xff;
-  r = sanei_genesys_get_address (reg, 0x3f);
-  r->value = feedl & 0xff;
+  sanei_genesys_set_triple(reg,REG_FEEDL,feedl);
   DBG (DBG_io, "%s: feedl=%d\n", __FUNCTION__, feedl);
 
   /* doesn't seem to matter that much */
@@ -1126,21 +1025,11 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                                   &z1,
                                   &z2);
 
+  sanei_genesys_set_triple(reg,REG_Z1MOD,z1);
   DBG (DBG_info, "gl843_init_motor_regs_scan: z1 = %d\n", z1);
-  r = sanei_genesys_get_address (reg, REG60);
-  r->value = ((z1 >> 16) & REG60_Z1MOD);
-  r = sanei_genesys_get_address (reg, REG61);
-  r->value = ((z1 >> 8) & REG61_Z1MOD);
-  r = sanei_genesys_get_address (reg, REG62);
-  r->value = (z1 & REG62_Z1MOD);
 
+  sanei_genesys_set_triple(reg,REG_Z2MOD,z2);
   DBG (DBG_info, "gl843_init_motor_regs_scan: z2 = %d\n", z2);
-  r = sanei_genesys_get_address (reg, REG63);
-  r->value = ((z2 >> 16) & REG63_Z2MOD);
-  r = sanei_genesys_get_address (reg, REG64);
-  r->value = ((z2 >> 8) & REG64_Z2MOD);
-  r = sanei_genesys_get_address (reg, REG65);
-  r->value = (z2 & REG65_Z2MOD);
 
   r = sanei_genesys_get_address (reg, REG1E);
   r->value &= 0xf0;		/* 0 dummy lines */
@@ -1153,34 +1042,39 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
   r->value = 0x3f | (scan_step_type << REG68S_FSTPSEL);
 
   /* steps for STOP table */
-  r = sanei_genesys_get_address (reg, 0x5f);
-  r->value = 1;
+  r = sanei_genesys_get_address (reg, REG_FMOVDEC);
+  r->value = fast_steps;
 
-  /* Vref */
+  /* Vref XXX STEF XXX : optical divider or step type ? */
   r = sanei_genesys_get_address (reg, 0x80);
-  r->value = 0x05;		/* kv 75,150,300 dpi */
+  r->value = 0x50;
+  coeff=dev->sensor.optical_res/sanei_genesys_compute_dpihw(dev, scan_yres);
+  if (dev->model->motor_type == MOTOR_KVSS080) 
+    {
+      if(coeff>=1)
+        {
+          r->value |= 0x05;
+        }
+    }
+  else {
+    switch(coeff)
+      {
+      case 4:
+          r->value |= 0x0a;
+          break;
+      case 2:
+          r->value |= 0x0f;
+          break;
+      case 1:
+          r->value |= 0x0f;
+          break;
+      }
+  }
+
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
-
-#if 0
-static int
-gl843_get_dpihw (Genesys_Device * dev)
-{
-  Genesys_Register_Set *r;
-  r = sanei_genesys_get_address (dev->reg, REG05);
-  if ((r->value & REG05_DPIHW) == REG05_DPIHW_600)
-    return 600;
-  if ((r->value & REG05_DPIHW) == REG05_DPIHW_1200)
-    return 1200;
-  if ((r->value & REG05_DPIHW) == REG05_DPIHW_2400)
-    return 2400;
-  if ((r->value & REG05_DPIHW) == REG05_DPIHW_4800)
-    return 4800;
-  return 0;
-}
-#endif
 
 
 /**@brief compute exposure to use
@@ -1192,24 +1086,6 @@ static int gl843_compute_exposure(Genesys_Device *dev, int xres)
 
   sensor=get_sensor_profile(dev->model->ccd_type, xres);
   return sensor->exposure;
-}
-
-/**@brief compute motor step type to use
- * compute the step type (full, half, quarter, ...) to use based
- * on target resolution
- * @param dev device description
- * @param exposure sensor exposure
- * @return 0 for full step
- *         1 for half step
- *         2 for quarter step
- *         3 for eighth step
- */
-static int gl843_compute_step_type(Genesys_Device *dev, int exposure)
-{
-Motor_Profile *profile;
-
-    profile=get_motor_profile(dev->model->motor_type,exposure);
-    return profile->step_type;
 }
 
 /** @brief setup optical related registers
@@ -1413,28 +1289,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
-
-static int
-gl843_get_led_exposure (Genesys_Device * dev)
-{
-  int d, r, g, b, m;
-  if (!dev->model->is_cis)
-    return 0;
-  d = dev->reg[reg_0x19].value;
-  r = dev->sensor.regs_0x10_0x1d[1] | (dev->sensor.regs_0x10_0x1d[0] << 8);
-  g = dev->sensor.regs_0x10_0x1d[3] | (dev->sensor.regs_0x10_0x1d[2] << 8);
-  b = dev->sensor.regs_0x10_0x1d[5] | (dev->sensor.regs_0x10_0x1d[4] << 8);
-
-  m = r;
-  if (m < g)
-    m = g;
-  if (m < b)
-    m = b;
-
-  return m + d;
-}
-
-
 /* set up registers for an actual scan
  *
  * this function sets up the scanner to scan in normal or single line mode
@@ -1560,12 +1414,12 @@ gl843_init_scan_regs (Genesys_Device * dev,
   /* scan_step_type */
   if(flags & SCAN_FLAG_FEEDING)
     {
-      scan_step_type=gl843_compute_step_type (dev, sanei_genesys_get_lowest_ydpi(dev));
+      scan_step_type=sanei_genesys_compute_step_type (gl843_motors, dev->model->motor_type, sanei_genesys_get_lowest_ydpi(dev));
       exposure_time=gl843_compute_exposure (dev, sanei_genesys_get_lowest_ydpi(dev));
     }
   else
     {
-      scan_step_type = gl843_compute_step_type(dev, slope_dpi);
+      scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, slope_dpi);
       exposure_time = gl843_compute_exposure (dev, used_res);
     }
 
@@ -1748,7 +1602,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-  int scan_power_mode = 0;
   int max_shift;
 
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
@@ -1847,15 +1700,10 @@ gl843_calculate_current_setup (Genesys_Device * dev)
     slope_dpi = yres;
 
   /* scan_step_type */
-  scan_step_type = gl843_compute_step_type(dev, yres);
+  scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, yres);
 
-  exposure_time = sanei_genesys_exposure_time2 (dev,
-						slope_dpi,
-						scan_step_type,
-						start + used_pixels + 258,
-						gl843_get_led_exposure (dev),
-						scan_power_mode);
-
+  /* exposure */
+  exposure_time = gl843_compute_exposure (dev, used_res);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
 /* max_shift */
@@ -2275,10 +2123,15 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 {
   SANE_Status status;
   uint8_t val;
+  uint16_t dpiset,dpihw;
 
   DBGSTART;
   if (reg == NULL)
     return SANE_STATUS_INVAL;
+ 
+  /* get back the target dpihw */
+  sanei_genesys_get_double(reg,REG_DPISET,&dpiset);
+  dpihw=sanei_genesys_compute_dpihw(dev,dpiset);
 
   /* set up GPIO for scan */
   /* KV case */
@@ -2291,10 +2144,19 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     }
   if (dev->model->gpo_type == GPO_G4050)
     {
-      RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
-      RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
-      RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
-      RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
+          RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
+          RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
+          RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
+      switch(dpihw)
+        {
+        case 1200:
+          RIE (sanei_genesys_write_register (dev, REG6C, 0x60));
+          RIE (sanei_genesys_write_register (dev, REGA6, 0x46));
+          break;
+        default: /* 600 dpi  case */
+          RIE (sanei_genesys_write_register (dev, REG6C, 0x20));
+          RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
+        }
       /* blinking led */
       RIE(sanei_genesys_write_register(dev,0x7e,0x01)); 
     }
@@ -2622,7 +2484,6 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
   SANE_Status status;
   uint8_t channels;
   uint8_t cksel;
-  Genesys_Register_Set *r;
 
   DBGSTART;
   cksel = (dev->calib_reg[reg_0x18].value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
@@ -2656,15 +2517,13 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
-  r = sanei_genesys_get_address (dev->calib_reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl843_set_motor_power (dev->calib_reg, SANE_FALSE);
 
   DBG (DBG_info,
        "gl843_init_register_for_coarse_calibration: optical sensor res: %d dpi, actual res: %d\n",
        dev->sensor.optical_res / cksel, dev->settings.xres);
 
-  status =
-    gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS);
+  status = gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3236,7 +3095,6 @@ dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
 static SANE_Status
 gl843_offset_calibration (Genesys_Device * dev)
 {
-  Genesys_Register_Set *r;
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t *first_line, *second_line;
   unsigned int channels, bpp;
@@ -3287,8 +3145,7 @@ gl843_offset_calibration (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
-  r = sanei_genesys_get_address (dev->calib_reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl843_set_motor_power (dev->calib_reg, SANE_FALSE);
 
   /* allocate memory for scans */
   total_size = pixels * channels * lines * (bpp/8);	/* colors * bytes_per_color * scan lines */
@@ -3414,7 +3271,6 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   float gain[3],coeff;
   int val, code, lines;
   int resolution;
-  Genesys_Register_Set *r;
   int bpp;
 
   DBG (DBG_proc, "gl843_coarse_gain_calibration: dpi = %d\n", dpi);
@@ -3453,8 +3309,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
-  r = sanei_genesys_get_address (dev->calib_reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl843_set_motor_power (dev->calib_reg, SANE_FALSE);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3560,22 +3415,29 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
 {
   int num_pixels;
   SANE_Status status = SANE_STATUS_GOOD;
-  Genesys_Register_Set *r;
+  int dpihw;
+  int resolution;
+  int factor;
 
   DBGSTART;
   if (dev == NULL || reg == NULL || channels == NULL || total_size == NULL)
     return SANE_STATUS_INVAL;
   
   *channels=3;
+  resolution=600;
+  dpihw=sanei_genesys_compute_dpihw(dev, resolution);
+  factor=dev->sensor.optical_res/dpihw;
+  num_pixels=dev->sensor.sensor_pixels/(factor*2);
+  *total_size = num_pixels * 3 * 1;
 
   memcpy (reg, dev->reg, (GENESYS_GL843_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
   status = gl843_init_scan_regs (dev,
 				 reg,
-				 dev->sensor.optical_res,
-				 dev->motor.base_ydpi,
-				 dev->sensor.sensor_pixels/4,
+				 resolution,
+				 resolution,
+				 num_pixels/2,
 				 0,
-				 dev->sensor.sensor_pixels/2,
+				 num_pixels,
 				 1,
 				 8,
 				 *channels,
@@ -3588,18 +3450,11 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl843_init_regs_for_warmup: failed to setup scan: %s\n",
-	   sane_strstatus (status));
+      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__, sane_strstatus (status));
       return status;
     }
 
-  num_pixels = dev->current_setup.pixels;
-
-  *total_size = num_pixels * 3 * 1;	/* colors * bytes_per_color * scan lines */
-
-  r = sanei_genesys_get_address (reg, REG02);
-  r->value &= ~REG02_MTRPWR;
+  gl843_set_motor_power (reg, SANE_FALSE);
   RIE (gl843_bulk_write_register (dev, reg, GENESYS_GL843_MAX_REGS));
 
   DBGCOMPLETED;
@@ -3634,10 +3489,10 @@ gl843_init_gpio (Genesys_Device * dev)
     {
       i = 1;
     }
-  RIE (sanei_genesys_write_register (dev, 0xa6, gpios[i].ra6));
-  RIE (sanei_genesys_write_register (dev, 0xa7, gpios[i].ra7));
-  RIE (sanei_genesys_write_register (dev, 0xa8, gpios[i].ra8));
-  RIE (sanei_genesys_write_register (dev, 0xa9, gpios[i].ra9));
+  RIE (sanei_genesys_write_register (dev, REGA6, gpios[i].ra6));
+  RIE (sanei_genesys_write_register (dev, REGA7, gpios[i].ra7));
+  RIE (sanei_genesys_write_register (dev, REGA8, gpios[i].ra8));
+  RIE (sanei_genesys_write_register (dev, REGA9, gpios[i].ra9));
 
   DBGCOMPLETED;
   return status;

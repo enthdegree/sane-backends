@@ -3891,7 +3891,7 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
    * add another per scanner button profile struct to avoid growing
    * hard-coded button mapping here. 
    */
-  if(dev->model->gpo_type == GPO_CANONLIDE110)
+  if(s->dev->model->gpo_type == GPO_CANONLIDE110)
     {
       if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
         s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;

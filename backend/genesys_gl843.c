@@ -3422,7 +3422,8 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
   DBGSTART;
   if (dev == NULL || reg == NULL || channels == NULL || total_size == NULL)
     return SANE_STATUS_INVAL;
-  
+
+  /* setup scan */
   *channels=3;
   resolution=600;
   dpihw=sanei_genesys_compute_dpihw(dev, resolution);

@@ -2150,6 +2150,7 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
       switch(dpihw)
         {
         case 1200:
+        case 2400:
           RIE (sanei_genesys_write_register (dev, REG6C, 0x60));
           RIE (sanei_genesys_write_register (dev, REGA6, 0x46));
           break;

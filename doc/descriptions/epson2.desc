@@ -1875,6 +1875,12 @@
 :status     :good
 :comment    "all-in-one<br>overseas version of the PX-402A"
 
+:model      "Stylus SX125"
+:interface  "USB"
+:usbid      "0x04b8" "0x085c"
+:status     :untested
+:comment    "all-in-one"
+
 :model      "Stylus SX200"
 :interface  "USB"
 :usbid      "0x04b8" "0x0849"

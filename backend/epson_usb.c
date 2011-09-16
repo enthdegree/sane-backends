@@ -81,6 +81,7 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x851, /* Stylus NX410 Series, Stylus SX410 Series, Stylus TX410 Series */
   0x854, /* ME OFFICE 650FN Series, Stylus Office BX310FN Series, Stylus Office TX510FN Series, WorkForce 310 Series */
   0x856, /* PX-502A, Stylus NX510 Series, Stylus SX510W Series, Stylus TX550W Series */
+  0x85c, /* Stylus SX125 */
   0				/* last entry - this is used for devices that are specified 
 				   in the config file as "usb <vendor> <product>" */
 };

@@ -7,31 +7,10 @@
 PACKAGE="@PACKAGE@"
 scriptname="sane-config"
 
-LINKER_RPATH="@LINKER_RPATH@"
-
 prefix="@prefix@"
 exec_prefix="@exec_prefix@"
 
-LDFLAGS="@LDFLAGS@ @GPHOTO2_LDFLAGS@"
-LIBS="@LIBS@ @DL_LIBS@ @LIBV4L_LIBS@ @MATH_LIB@ @TIFF_LIBS@ @JPEG_LIBS@ @GPHOTO2_LIBS@ @SOCKET_LIBS@ @AVAHI_LIBS@ @USB_LIBS@ @SCSI_LIBS@ @RESMGR_LIBS@"
-pkgincludedir="@pkgincludedir@"
-pkglibdir="@pkglibdir@"
-includedir="@includedir@"
-mandir="@mandir@"
-infodir="@infodir@"
-libdir="@libdir@"
-localstatedir="@localstatedir@"
-sysconfdir="@sysconfdir@"
-datarootdir="@datarootdir@"
-datadir="@datadir@"
-libexecdir="@libexecdir@"
-sbindir="@sbindir@"
-bindir="@bindir@"
-#${prefix}
-#exec_prefix_set=no
-srcdir="@srcdir@"
-top_srcdir="@top_srcdir@"
-cflags=
+pkgconfig_package=sane-backends
 
 usage ()
 {
@@ -60,7 +39,7 @@ if test $# -gt 0; then
       if test $# -eq 1; then
         usage
       elif test $# -eq 2; then
-        case $2 in 
+        case $2 in
           --cflags)
             echo "Usage: $0 --cflags"
             echo "  Print C compiler flags for compiling code that uses SANE."
@@ -85,33 +64,19 @@ if test $# -gt 0; then
       exit 1
       ;;
     --ldflags)
-
-      if test -z "$LINKER_RPATH"; then
-        echo "-L${libdir} @LDFLAGS@" 
-      else
-        echo "-L${libdir} @LDFLAGS@ ${LINKER_RPATH}${libdir}"
-      fi
+      pkg-config --libs-only-L "$pkgconfig_package"
       ;;
     --libs)
-      echo "-lsane ${LIBS}"
+      pkg-config --libs "$pkgconfig_package"
       ;;
     --cflags)
-      unique_cflags=
-      if test "${includedir}" != "/usr/include"; then
-        unique_cflags="${unique_cflags} -I${includedir}"
-      fi
-      for i in $cflags; do
-        if test "${i}" != "-I${includedir}"; then
-          unique_cflags="${unique_cflags} $i"
-        fi
-      done
-      echo ${unique_cflags}
+      pkg-config --cflags "$pkgconfig_package"
       ;;
     --prefix)
-      echo ${prefix}
+      echo "${prefix}"
       ;;
     --exec-prefix)
-      echo ${exec_prefix}
+      echo "${exec_prefix}"
       ;;
     *)
       usage

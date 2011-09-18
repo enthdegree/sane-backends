@@ -958,7 +958,7 @@ static Genesys_Motor Motor[] = {
   },
   {MOTOR_G4050,
    2400,
-   4800,
+   9600,
    2,
    1,
    { /* motor slopes */
@@ -1234,7 +1234,7 @@ static Genesys_Model hpg4050_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  0, 32, 48,			/* RGB CCD Line-distance correction in pixel */
+  0, 37, 74,		/* RGB CCD Line-distance correction in line number */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
@@ -1247,6 +1247,7 @@ static Genesys_Model hpg4050_model = {
   GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_DARK_CALIBRATION |
+  GENESYS_FLAG_STAGGERED_LINE |
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,

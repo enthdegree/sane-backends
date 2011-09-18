@@ -940,7 +940,7 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 	  time_count++;
 	}
     }
-  while ((time_count < 2500) && (words == 0));
+  while ((time_count < 2500*2) && (words == 0));
 
   if (words == 0)		/* timeout, buffer does not get filled */
     {

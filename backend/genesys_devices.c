@@ -506,12 +506,12 @@ static Genesys_Sensor Sensor[] = {
   ,
   {CCD_G4050,
    4800,
-   38*8,	/* 38 at 600 dpi */
-   31*8,	/* 31 at 600 dpi */
+   50*8,	/* black_pixels */
+   31,	        /* 31 at 600 dpi dummy_pixels */
    152,
    5360*8,      /* 5360 max at 600 dpi */
-   210,
-   230,
+   190,
+   190,
    /* 08    09    0a    0b */
    {0x00, 0x00, 0x18, 0x69} ,
    /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
@@ -1215,7 +1215,7 @@ static Genesys_Model hpg4050_model = {
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (6.55),		/* Start of scan area in mm  (x) */
-  SANE_FIX (15.00),		/* Start of scan area in mm (y) */
+  SANE_FIX (13.00),		/* Start of scan area in mm (y) */
   SANE_FIX (217.9),		/* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
   SANE_FIX (315.0),		/* Size of scan area in mm (y) */
 
@@ -1234,7 +1234,9 @@ static Genesys_Model hpg4050_model = {
   SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
 				   after finishing scanning in mm */
 
-  0, 37, 74,		/* RGB CCD Line-distance correction in line number */
+  0, 24, 48,		        /* RGB CCD Line-distance correction in line number */
+  				/* 0 38 76 OK 1200/2400 */
+  				/* 0 24 48 OK [100,600] dpi */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
@@ -1246,8 +1248,9 @@ static Genesys_Model hpg4050_model = {
   MOTOR_G4050,
   GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
   GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_DARK_CALIBRATION |
   GENESYS_FLAG_STAGGERED_LINE |
+  GENESYS_FLAG_SKIP_WARMUP |
+  GENESYS_FLAG_DARK_CALIBRATION |
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,

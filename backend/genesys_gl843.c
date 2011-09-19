@@ -1135,7 +1135,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   dpiset = used_res * cksel;
 
   /* start and end coordinate in optical dpi coordinates */
-  startx = (start + dev->sensor.dummy_pixel)/cksel;
+  startx = (start + dev->sensor.dummy_pixel * tgtime)/cksel;
 
   used_pixels=pixels/cksel;
   endx = startx + used_pixels;
@@ -1288,7 +1288,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: exposure used=%d\n", __FUNCTION__, exposure/tgtime);
 
   r = sanei_genesys_get_address (reg, REG_DUMMY);
-  r->value = dev->sensor.dummy_pixel/factor;
+  r->value = dev->sensor.dummy_pixel * tgtime;
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -3116,7 +3116,7 @@ gl843_offset_calibration (Genesys_Device * dev)
 
   /* offset calibration is always done in color mode */
   channels = 3;
-  lines=1;
+  lines=8;
   bpp=8;
 
   /* compute divider factor to compute final pixels number */
@@ -3283,7 +3283,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   int bpp;
 
   DBG (DBG_proc, "gl843_coarse_gain_calibration: dpi = %d\n", dpi);
-  dpihw=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
+  dpihw=sanei_genesys_compute_dpihw(dev, dpi);
   factor=dev->sensor.optical_res/dpihw;
 
   /* coarse gain calibration is always done in color mode */
@@ -3643,6 +3643,7 @@ gl843_init (Genesys_Device * dev)
 
   /* move head away from park position */
   gl843_feed (dev, 300);
+  usleep (100000);
 
   /* now hardware part is OK, set up device struct */
   FREE_IFNOT_NULL (dev->white_average_data);

@@ -1783,11 +1783,26 @@ device_detect(const char *name, int type, SANE_Status *status)
 }
 
 #if HAVE_LIBSNMP
+
+/* Keep a linked list of already observed IP addresses */
+/* typedef struct snmp_ip SNMP_IP; */
+typedef struct snmp_ip {
+  char ip_addr[1024];
+  struct snmp_ip*next;
+} snmp_ip;
+
+typedef struct {
+  int nr;
+  snmp_ip*handled;
+  snmp_ip*detected;
+} snmp_discovery_data;
+
+
 /** Handle one SNMP response (whether received sync or async) and if describes
  * a magicolor device, attach it. Returns the number of attached devices (0
  * or 1) */
 static int
-mc_network_discovery_handle (struct snmp_pdu *pdu)
+mc_network_discovery_handle (struct snmp_pdu *pdu, snmp_discovery_data *magic)
 {
 	netsnmp_variable_list *varlist = pdu->variables, *vp;
 	oid anOID[MAX_OID_LEN];
@@ -1800,6 +1815,7 @@ mc_network_discovery_handle (struct snmp_pdu *pdu)
 	netsnmp_indexed_addr_pair *responder = (netsnmp_indexed_addr_pair *) pdu->transport_data;
 	struct sockaddr_in *remote = NULL;
 	struct MagicolorCap *cap;
+	snmp_ip *ip = NULL;
 
 	DBG(5, "%s: Handling SNMP response \n", __func__);
 
@@ -1816,6 +1832,21 @@ mc_network_discovery_handle (struct snmp_pdu *pdu)
 	}
 	snprintf(ip_addr, sizeof(ip_addr), "%s", inet_ntoa(remote->sin_addr));
 	DBG(35, "%s: IP Address of responder is %s\n", __func__, ip_addr);
+	if (magic)
+		ip = magic->handled;
+	while (ip) {
+		if (strcmp (ip->ip_addr, ip_addr) == 0) {
+			DBG (5, "%s: Already handled device %s, skipping\n", __func__, ip_addr);
+			return 0;
+		}
+		ip = ip->next;
+	}
+	if (magic) {
+		snmp_ip *new_handled = malloc(sizeof(snmp_ip));
+		strcpy (&new_handled->ip_addr[0], ip_addr);
+		new_handled->next = magic->handled;
+		magic->handled = new_handled;
+	}
 
 	/* System Object ID (Unique OID identifying model)
 	 * This determines whether we really have a magicolor device */
@@ -1861,6 +1892,12 @@ mc_network_discovery_handle (struct snmp_pdu *pdu)
 	if (cap) {
 		DBG(1, "%s: Found autodiscovered device: %s (type 0x%x)\n", __func__, cap->model, cap->id);
 		attach_one_net (ip_addr, cap->id);
+		if (magic) {
+			snmp_ip *new_detected = malloc(sizeof(snmp_ip));
+			strcpy (&new_detected->ip_addr[0], ip_addr);
+			new_detected->next = magic->detected;
+			magic->detected = new_detected;
+		}
 		return 1;
 	}
 	return 0;
@@ -1875,13 +1912,13 @@ mc_network_discovery_cb (int operation, struct snmp_session *sp, int reqid,
 	DBG(5, "%s: Received broadcast response \n", __func__);
 
 	if (operation == NETSNMP_CALLBACK_OP_RECEIVED_MESSAGE) {
-		int nr = mc_network_discovery_handle (pdu);
-		int *m = (int*)magic;
-		*m += nr;
+		snmp_discovery_data *m = (snmp_discovery_data*)magic;
+		int nr = mc_network_discovery_handle (pdu, m);
+		m->nr += nr;
 		DBG(5, "%s: Added %d discovered host(s) for SNMP response.\n", __func__, nr);
 	}
 
-	return 1;
+	return 0;
 }
 #endif
 
@@ -1896,8 +1933,10 @@ mc_network_discovery(const char*host)
 	netsnmp_pdu *pdu;
 	oid anOID[MAX_OID_LEN];
 	size_t anOID_len = MAX_OID_LEN;
-	int nr = 0; /* Nr of added hosts */
-
+	snmp_discovery_data magic;
+	magic.nr = 0;
+	magic.handled = 0;
+	magic.detected = 0;
 
 	DBG(1, "%s: running network discovery \n", __func__);
 
@@ -1915,7 +1954,7 @@ mc_network_discovery(const char*host)
 		session.peername = "255.255.255.255";
 		session.flags   |= SNMP_FLAGS_UDP_BROADCAST;
 		session.callback = mc_network_discovery_cb;
-		session.callback_magic = &nr;
+		session.callback_magic = &magic;
 	}
 
 	ss = snmp_open (&session); /* establish the session */
@@ -1958,7 +1997,7 @@ mc_network_discovery(const char*host)
 		netsnmp_pdu *response = 0;
 		int status = snmp_synch_response(ss, pdu, &response);
  		if (status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR) {
-			nr = mc_network_discovery_handle (response);
+			magic.nr = mc_network_discovery_handle (response, &magic);
 		}
 		if (response)
 			snmp_free_pdu(response);
@@ -1997,13 +2036,24 @@ mc_network_discovery(const char*host)
 			else snmp_timeout();
 			gettimeofday(&nowtime, NULL);
 		}
+		/* Clean up the data in magic */
+		while (magic.handled) {
+		  snmp_ip *tmp = magic.handled->next;
+		  free (magic.handled);
+		  magic.handled = tmp;
+		}
+		while (magic.detected) {
+		  snmp_ip *tmp = magic.detected->next;
+		  free (magic.detected);
+		  magic.detected = tmp;
+		}
 	}
 
 	/* Clean up */
 	snmp_close(ss);
 	SOCK_CLEANUP;
-	DBG (5, "%s: Discovered %d host(s)\n", __func__, nr);
-	return nr;
+	DBG (5, "%s: Discovered %d host(s)\n", __func__, magic.nr);
+	return magic.nr;
 
 #else
 	DBG (1, "%s: net-snmp library not enabled, auto-detecting network scanners not supported.\n", __func__);

@@ -1593,21 +1593,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
   /*** motor parameters ***/
 
   /* max_shift */
-  /* scanned area must be enlarged by max color shift needed */
-  /* all values are assumed >= 0 */
-  if (channels > 1 && !(flags & SCAN_FLAG_IGNORE_LINE_DISTANCE))
-    {
-      max_shift = dev->model->ld_shift_r;
-      if (dev->model->ld_shift_b > max_shift)
-	max_shift = dev->model->ld_shift_b;
-      if (dev->model->ld_shift_g > max_shift)
-	max_shift = dev->model->ld_shift_g;
-      max_shift = (max_shift * yres) / dev->motor.base_ydpi;
-    }
-  else
-    {
-      max_shift = 0;
-    }
+  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,flags);
 
   /* lines to scan */
   lincnt = lines + max_shift + stagger;
@@ -1829,22 +1815,8 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   scan_step_type = gl124_compute_step_type(dev, exposure_time);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
-/* max_shift */
-  /* scanned area must be enlarged by max color shift needed */
-  /* all values are assumed >= 0 */
-  if (channels > 1)
-    {
-      max_shift = dev->model->ld_shift_r;
-      if (dev->model->ld_shift_b > max_shift)
-	max_shift = dev->model->ld_shift_b;
-      if (dev->model->ld_shift_g > max_shift)
-	max_shift = dev->model->ld_shift_g;
-      max_shift = (max_shift * yres) / dev->motor.base_ydpi;
-    }
-  else
-    {
-      max_shift = 0;
-    }
+  /* max_shift */
+  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
   
   dpihw=sanei_genesys_compute_dpihw(dev,used_res);
   sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
@@ -2470,7 +2442,6 @@ gl124_init_regs_for_coarse_calibration (Genesys_Device * dev)
   SANE_Status status;
   uint8_t channels;
   uint8_t cksel;
-  Genesys_Register_Set *r;
 
   DBGSTART;
   cksel = (dev->calib_reg[reg_0x18].value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
@@ -2531,7 +2502,6 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
   int move, resolution, dpihw, factor;
-  Genesys_Register_Set *r;
 
   DBGSTART;
   
@@ -2967,7 +2937,6 @@ gl124_led_calibration (Genesys_Device * dev)
   char fn[20];
   uint32_t expr, expg, expb;
   Sensor_Profile *sensor;
-  Genesys_Register_Set *r;
 
   SANE_Bool acceptable = SANE_FALSE;
 
@@ -3188,7 +3157,6 @@ dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
 static SANE_Status
 gl124_offset_calibration (Genesys_Device * dev)
 {
-  Genesys_Register_Set *r;
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t *first_line, *second_line, reg0a;
   unsigned int channels, bpp;
@@ -3365,7 +3333,6 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   float gain[3],coeff;
   int val, code, lines;
   int resolution;
-  Genesys_Register_Set *r;
   int bpp;
 
   DBG (DBG_proc, "gl124_coarse_gain_calibration: dpi = %d\n", dpi);
@@ -3518,7 +3485,6 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
 {
   int num_pixels;
   SANE_Status status = SANE_STATUS_GOOD;
-  Genesys_Register_Set *r;
 
   DBGSTART;
   if (dev == NULL || reg == NULL || channels == NULL || total_size == NULL)

@@ -1027,22 +1027,7 @@ gl646_setup_registers (Genesys_Device * dev,
   linecnt = (linecnt * motor->ydpi) / scan_settings.yres;
 
   /* scanned area height must be enlarged by max color shift needed */
-  /* all values are assumed >= 0 */
-  if (channels > 1)
-    {
-      max_shift = dev->model->ld_shift_r;
-      if (dev->model->ld_shift_b > max_shift)
-	max_shift = dev->model->ld_shift_b;
-      if (dev->model->ld_shift_g > max_shift)
-	max_shift = dev->model->ld_shift_g;
-      max_shift = (max_shift * scan_settings.yres) / dev->motor.base_ydpi;
-
-      linecnt += max_shift;
-    }
-  else
-    {
-      max_shift = 0;
-    }
+  max_shift=sanei_genesys_compute_max_shift(dev,channels,scan_settings.yres,0);
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
   stagger = 0;

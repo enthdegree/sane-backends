@@ -210,6 +210,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 	}
     }
 
+  /* sanity check */
   if (sensor_ok == 0 || motor_ok == 0 || gpo_ok == 0)
     {
       DBG (DBG_error0,
@@ -217,6 +218,11 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 	   dev->model->ccd_type, dev->model->gpo_type,
 	   dev->model->motor_type);
     }
+
+  /* set up initial line distance shift */
+  dev->ld_shift_r = dev->model->ld_shift_r;
+  dev->ld_shift_g = dev->model->ld_shift_g;
+  dev->ld_shift_b = dev->model->ld_shift_b;
 }
 
 void
@@ -5131,13 +5137,13 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
   else
     {
       ccd_shift[0] =
-	((dev->model->ld_shift_r * dev->settings.yres) /
+	((dev->ld_shift_r * dev->settings.yres) /
 	 dev->motor.base_ydpi);
       ccd_shift[1] =
-	((dev->model->ld_shift_g * dev->settings.yres) /
+	((dev->ld_shift_g * dev->settings.yres) /
 	 dev->motor.base_ydpi);
       ccd_shift[2] =
-	((dev->model->ld_shift_b * dev->settings.yres) /
+	((dev->ld_shift_b * dev->settings.yres) /
 	 dev->motor.base_ydpi);
 
       ccd_shift[3] = ccd_shift[0] + dev->current_setup.stagger;

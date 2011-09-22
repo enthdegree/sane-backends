@@ -1520,24 +1520,10 @@ gl847_init_scan_regs (Genesys_Device * dev,
 
 /*** motor parameters ***/
 
-/* max_shift */
-  /* scanned area must be enlarged by max color shift needed */
-  /* all values are assumed >= 0 */
-  if (channels > 1 && !(flags & SCAN_FLAG_IGNORE_LINE_DISTANCE))
-    {
-      max_shift = dev->model->ld_shift_r;
-      if (dev->model->ld_shift_b > max_shift)
-	max_shift = dev->model->ld_shift_b;
-      if (dev->model->ld_shift_g > max_shift)
-	max_shift = dev->model->ld_shift_g;
-      max_shift = (max_shift * yres) / dev->motor.base_ydpi;
-    }
-  else
-    {
-      max_shift = 0;
-    }
+  /* max_shift */
+  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,flags);
 
-/* lincnt */
+  /* lincnt */
   lincnt = lines + max_shift + stagger;
 
   /* add tl_y to base movement */
@@ -1769,24 +1755,10 @@ gl847_calculate_current_setup (Genesys_Device * dev)
   scan_step_type = sanei_genesys_compute_step_type(gl847_motors, dev->model->motor_type, exposure_time);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
-/* max_shift */
-  /* scanned area must be enlarged by max color shift needed */
-  /* all values are assumed >= 0 */
-  if (channels > 1)
-    {
-      max_shift = dev->model->ld_shift_r;
-      if (dev->model->ld_shift_b > max_shift)
-	max_shift = dev->model->ld_shift_b;
-      if (dev->model->ld_shift_g > max_shift)
-	max_shift = dev->model->ld_shift_g;
-      max_shift = (max_shift * yres) / dev->motor.base_ydpi;
-    }
-  else
-    {
-      max_shift = 0;
-    }
+  /* max_shift */
+  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
 
-/* lincnt */
+  /* lincnt */
   lincnt = lines + max_shift + stagger;
 
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
@@ -2512,7 +2484,6 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   float move;
   int move_dpi;
   float start;
-  uint8_t val;
 
   SANE_Status status;
 
@@ -2848,7 +2819,6 @@ gl847_led_calibration (Genesys_Device * dev)
   char fn[20];
   uint16_t expr, expg, expb;
   Sensor_Profile *sensor;
-  Genesys_Register_Set *r;
 
   SANE_Bool acceptable = SANE_FALSE;
 

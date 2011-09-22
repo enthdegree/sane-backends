@@ -670,6 +670,9 @@ struct Genesys_Device
 
   struct Genesys_Device *next;
 
+  SANE_Int ld_shift_r;		/**> used red line-distance shift*/
+  SANE_Int ld_shift_g;		/**> used green line-distance shift*/
+  SANE_Int ld_shift_b;		/**> used blue line-distance shift*/
   int segnb;       /**> number of segments composing the sensor */
   int line_interp; /**> number of lines used in line interpolation */
   int line_count;  /**> number of scan lines used during scan */
@@ -951,6 +954,23 @@ extern SANE_Status
 sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite);
+
+/** @brief compute maximum line distance shift
+ * compute maximum line distance shift for the motor and sensor
+ * combination. Line distance shift is the distance between different
+ * color component of CCD sensors. Since these components aren't at
+ * the same physical place, they scan diffrent lines. Software must
+ * take this into account to accurately mix color data.
+ * @param dev device session to compute max_shift for
+ * @param channels number of color channels for the scan
+ * @param yres motor resolution used for the scan
+ * @param flags scan flags
+ * @return 0 or line distance shift
+ */
+int sanei_genesys_compute_max_shift(Genesys_Device *dev,
+                                    int channels,
+                                    int yres,
+                                    int flags);
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */

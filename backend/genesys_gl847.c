@@ -775,9 +775,7 @@ gl847_set_fe (Genesys_Device * dev, uint8_t set)
  * 
  */
 static SANE_Status
-gl847_init_motor_regs_off (Genesys_Device * dev,
-			   Genesys_Register_Set * reg,
-			   unsigned int scan_lines)
+gl847_init_motor_regs_off (Genesys_Register_Set * reg, unsigned int scan_lines)
 {
   unsigned int feedl;
   Genesys_Register_Set *r;
@@ -1067,11 +1065,11 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
 }
 
 static SANE_Status
-gl847_init_optical_regs_off (Genesys_Device * dev, Genesys_Register_Set * reg)
+gl847_init_optical_regs_off (Genesys_Register_Set * reg)
 {
   Genesys_Register_Set *r;
 
-  DBG (DBG_proc, "gl847_init_optical_regs_off : start\n");
+  DBGSTART;
 
   r = sanei_genesys_get_address (reg, REG01);
   r->value &= ~REG01_SCAN;
@@ -1885,9 +1883,9 @@ gl847_stop_action (Genesys_Device * dev)
   memcpy (local_reg, dev->reg,
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
-  gl847_init_optical_regs_off (dev, local_reg);
+  gl847_init_optical_regs_off (local_reg);
 
-  gl847_init_motor_regs_off (dev, local_reg, 0);
+  gl847_init_motor_regs_off (local_reg, 0);
   status = gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {

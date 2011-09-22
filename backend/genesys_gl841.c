@@ -1630,12 +1630,12 @@ gl841_set_fe (Genesys_Device * dev, uint8_t set)
 #define MOTOR_ACTION_GO_HOME    2
 #define MOTOR_ACTION_HOME_FREE  3
 
-/* setup motor for given parameters */
+/** @brief turn off motor
+ *
+ */
 static SANE_Status
-gl841_init_motor_regs_off(Genesys_Device * dev,
-			  Genesys_Register_Set * reg,
-			  unsigned int scan_lines/*lines, scan resolution*/
-    ) 
+gl841_init_motor_regs_off(Genesys_Register_Set * reg,
+			  unsigned int scan_lines) 
 {
     unsigned int feedl;
     Genesys_Register_Set * r;
@@ -1645,36 +1645,6 @@ gl841_init_motor_regs_off(Genesys_Device * dev,
 
     feedl = 2;
     
-/* all needed slopes available. we did even decide which mode to use. 
-   what next?
-   - transfer slopes
-SCAN:
-flags \ use_fast_fed    ! 0         1
-------------------------\--------------------
-                      0 ! 0,1,2     0,1,2,3
-MOTOR_FLAG_AUTO_GO_HOME ! 0,1,2,4   0,1,2,3,4
-OFF:       none
-FEED:      3
-GO_HOME:   3
-HOME_FREE: 3
-   - setup registers
-     * slope specific registers (already done)
-     * DECSEL for HOME_FREE/GO_HOME/SCAN
-     * FEEDL
-     * MTRREV
-     * MTRPWR
-     * FASTFED
-     * STEPSEL
-     * MTRPWM
-     * FSTPSEL
-     * FASTPWM
-     * HOMENEG
-     * BWDSTEP
-     * FWDSTEP
-     * Z1
-     * Z2
- */
-
     r = sanei_genesys_get_address (reg, 0x3d);
     r->value = (feedl >> 16) & 0xf;
     r = sanei_genesys_get_address (reg, 0x3e);
@@ -2259,17 +2229,16 @@ gl841_get_dpihw(Genesys_Device * dev)
 }
 
 static SANE_Status
-gl841_init_optical_regs_off(Genesys_Device * dev,
-			    Genesys_Register_Set * reg)
+gl841_init_optical_regs_off(Genesys_Register_Set * reg)
 {
     Genesys_Register_Set * r;
 
-    DBG (DBG_proc, "gl841_init_optical_regs_off : start\n");
+    DBGSTART;
 
     r = sanei_genesys_get_address (reg, 0x01);
     r->value &= ~REG01_SCAN;
 
-    DBG (DBG_proc, "gl841_init_optical_regs_off : completed. \n");
+    DBGCOMPLETED;
     return SANE_STATUS_GOOD;	
 }
 
@@ -2819,10 +2788,7 @@ dummy \ scanned lines
     DBG (DBG_info, "gl841_init_scan_regs: move=%d steps\n", move);*/
 
   if (flags & SCAN_FLAG_SINGLE_LINE)
-      status = gl841_init_motor_regs_off(dev,
-					 reg,
-					 dev->model->is_cis?lincnt*channels:lincnt
-	  );
+      status = gl841_init_motor_regs_off(reg, dev->model->is_cis?lincnt*channels:lincnt);
   else
       status = gl841_init_motor_regs_scan(dev,
 					  reg,
@@ -3474,11 +3440,10 @@ gl841_stop_action (Genesys_Device * dev)
 
   memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
 
-  gl841_init_optical_regs_off(dev,local_reg);
+  gl841_init_optical_regs_off(local_reg);
 
-  gl841_init_motor_regs_off(dev,local_reg,0);
-  status =
-    gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
+  gl841_init_motor_regs_off(local_reg,0);
+  status = gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3588,7 +3553,7 @@ gl841_eject_document (Genesys_Device * dev)
 
   memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
 
-  gl841_init_optical_regs_off(dev,local_reg);
+  gl841_init_optical_regs_off(local_reg);
 
   gl841_init_motor_regs(dev,local_reg,
 			65536,MOTOR_ACTION_FEED,0);
@@ -3924,7 +3889,7 @@ gl841_feed (Genesys_Device * dev, int steps)
 
   memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
 
-  gl841_init_optical_regs_off(dev,local_reg);
+  gl841_init_optical_regs_off(local_reg);
 
   gl841_init_motor_regs(dev,local_reg,
 			steps,MOTOR_ACTION_FEED,0);
@@ -4033,7 +3998,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
 
-  gl841_init_optical_regs_off(dev,local_reg);
+  gl841_init_optical_regs_off(local_reg);
 
   gl841_init_motor_regs(dev,local_reg,
 			65536,MOTOR_ACTION_GO_HOME,0);

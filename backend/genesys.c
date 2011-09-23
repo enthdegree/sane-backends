@@ -2543,80 +2543,6 @@ compute_averaged_planar (Genesys_Device * dev,
 	}
     }
 }
-#ifndef UNIT_TESTING
-static
-#endif
-int
-compute_gl843_coefficients (Genesys_Device * dev,
-		            uint8_t ** shading_data,
-		            unsigned int pixels,
-		            unsigned int coeff,
-		            unsigned int target)
-{
-  uint16_t *buffer = (uint16_t *) * shading_data, *darkptr, *whiteptr;
-  int size;
-  unsigned int i, count;
-  uint16_t val;
-
-  darkptr = (uint16_t *) dev->dark_average_data;
-  whiteptr = (uint16_t *) dev->white_average_data;
-
-  size = (pixels * 2 * 3 * 256) / 252 * 2 + 512;
-  DBG (DBG_io, "%s: final shading size=%04x\n", __FUNCTION__, size);
-  *shading_data = (uint8_t *) malloc (size);
-  if (*shading_data == NULL)
-    return 0;
-
-  memset(*shading_data,0,size);
-
-  /* offset */
-  buffer = (uint16_t *)*shading_data;
-  count = 0;
-
-  /* loop over calibration data to build shading coefficients */
-  for (i = 0; i < pixels; i++)
-    {
-      /* red */
-      *buffer = darkptr[3 * i];
-      buffer++;
-      count++;
-      val =
-	compute_coefficient (coeff, target, whiteptr[3 * i] - darkptr[3 * i]);
-      *buffer = val;
-      buffer++;
-      count++;
-
-      /* green */
-      *buffer = darkptr[3 * i + 1];
-      buffer++;
-      count++;
-      val =
-	compute_coefficient (coeff, target,
-			     whiteptr[3 * i + 1] - darkptr[3 * i + 1]);
-      *buffer = val;
-      buffer++;
-      count++;
-
-      /* blue */
-      *buffer = darkptr[3 * i + 2];
-      buffer++;
-      count++;
-      val =
-	compute_coefficient (coeff, target,
-			     whiteptr[3 * i + 2] - darkptr[3 * i + 2]);
-      *buffer = val;
-      buffer++;
-      count++;
-
-      if ((count % 256) == 252)
-	{
-	  buffer += 4;
-	  count += 4;
-	}
-    }
-
-  return size;
-}
 
 /**
  * Computes shading coefficient using formula in data sheet. 16bit data values
@@ -3060,12 +2986,15 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CCD_KVSS080:
     case CCD_G4050:
       target_code = 0xf000;
-      free(shading_data);
-      length=compute_gl843_coefficients (dev,
-			                 &shading_data,
-			                 pixels_per_line,
-                                         coeff, 
-                                         target_code);
+      o = 0;
+      compute_coefficients (dev,
+			    shading_data,
+			    pixels_per_line,
+			    3, 
+                            cmat, 
+                            o, 
+                            coeff, 
+                            target_code);
       break;
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:

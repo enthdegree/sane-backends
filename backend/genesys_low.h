@@ -612,6 +612,11 @@ struct Genesys_Calibration_Cache
   struct Genesys_Calibration_Cache *next;
 };
 
+/**
+ * Describes the current device status for the backend
+ * session. This should be more accurately called
+ * Genesys_Session .
+ */
 struct Genesys_Device
 {
   SANE_Int dn;

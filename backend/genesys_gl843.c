@@ -4049,6 +4049,70 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   return status;
 }
 
+/**
+ * Send shading calibration data. The buffer is considered to always hold values
+ * for all the channels.
+ */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
+gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
+{
+  SANE_Status status;
+  int final_size;
+  uint8_t *final_data;
+  uint8_t *buffer;
+  int i,count;
+
+  DBGSTART;
+
+  /* compute and allocate size for final data */
+  final_size = (size / 252) * 256 + 512;
+  DBG (DBG_io, "%s: final shading size=%04x\n", __FUNCTION__, final_size);
+  final_data = (uint8_t *) malloc (final_size);
+  if(final_data==NULL)
+    {
+      DBG (DBG_error, "%s: failed to allocate memory for shding data\n", __FUNCTION__);
+      return SANE_STATUS_NO_MEM;
+    }
+
+  /* copy regular shading data to the expected layout */
+  buffer = final_data;
+  count = 0;
+
+  /* loop over calibration data */
+  for (i = 0; i < size; i++)
+    {
+      buffer[count] = data[i];
+      count++;
+      if ((count % (256*2)) == (252*2))
+	{
+	  count += 4*2;
+	}
+    }
+
+  /* send data */
+  status = sanei_genesys_set_buffer_address (dev, 0);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to set buffer address: %s\n", __FUNCTION__, sane_strstatus (status));
+      free(final_data);
+      return status;
+    }
+  
+  status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, final_data, final_size);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to send shading table: %s\n", __FUNCTION__, sane_strstatus (status));
+    }
+  
+  free(final_data);
+  DBGCOMPLETED;
+  return status;
+}
+
+
 /** the gl843 command set */
 static Genesys_Command_Set gl843_cmd_set = {
   "gl843-generic",		/* the name of this set */
@@ -4102,7 +4166,7 @@ static Genesys_Command_Set gl843_cmd_set = {
 
   sanei_genesys_is_compatible_calibration,
   NULL,
-  NULL, /* gl843_send_shading_data */
+  gl843_send_shading_data,
   gl843_calculate_current_setup
 };
 

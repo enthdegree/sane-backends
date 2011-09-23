@@ -1474,6 +1474,14 @@ gl843_init_scan_regs (Genesys_Device * dev,
 
   /*** motor parameters ***/
 
+  /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
+  if (dev->model->motor_type == MOTOR_G4050 && yres>600) 
+    {
+      dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
+      dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
+      dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
+    }
+
   /* max_shift */
   /* scanned area must be enlarged by max color shift needed */
   max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,flags);
@@ -1700,6 +1708,13 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, exposure);
   DBG (DBG_info, "%s : exposure=%d pixels\n", __FUNCTION__, exposure);
 
+  /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
+  if (dev->model->motor_type == MOTOR_G4050 && yres>600) 
+    {
+      dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
+      dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
+      dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
+    }
   /* scanned area must be enlarged by max color shift needed */
   max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
 

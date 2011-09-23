@@ -6999,6 +6999,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->line_count = 0;
   s->dev->segnb = 0;
   s->dev->oe_buffer.buffer=NULL;
+  s->dev->binary=NULL;
 
   /* insert newly opened handle into list of open handles: */
   s->next = first_handle;

@@ -1481,6 +1481,12 @@ gl843_init_scan_regs (Genesys_Device * dev,
       dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
       dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
     }
+  else
+    {
+      dev->ld_shift_r = dev->model->ld_shift_r;
+      dev->ld_shift_g = dev->model->ld_shift_g;
+      dev->ld_shift_b = dev->model->ld_shift_b;
+    }
 
   /* max_shift */
   /* scanned area must be enlarged by max color shift needed */
@@ -1715,6 +1721,13 @@ gl843_calculate_current_setup (Genesys_Device * dev)
       dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
       dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
     }
+  else
+    {
+      dev->ld_shift_r = dev->model->ld_shift_r;
+      dev->ld_shift_g = dev->model->ld_shift_g;
+      dev->ld_shift_b = dev->model->ld_shift_b;
+    }
+
   /* scanned area must be enlarged by max color shift needed */
   max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
 

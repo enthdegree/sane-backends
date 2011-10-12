@@ -47,11 +47,6 @@
 #ifndef GENESYS_H
 #define GENESYS_H
 
-/*
-#define UNIT_TESTING 1
-*/
-#undef UNIT_TESTING
-
 #include "genesys_low.h"
 
 #define FREE_IFNOT_NULL(x)		if(x!=NULL) { free(x); x=NULL;}

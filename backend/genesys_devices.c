@@ -507,7 +507,7 @@ static Genesys_Sensor Sensor[] = {
   {CCD_G4050,
    4800,
    50*8,	/* black_pixels */
-   31,	        /* 31 at 600 dpi dummy_pixels */
+   31,	        /* 31 at 600 dpi dummy_pixels 58 at 1200 */
    152,
    5360*8,      /* 5360 max at 600 dpi */
    190,

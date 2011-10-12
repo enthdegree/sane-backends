@@ -535,6 +535,12 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
     {
       r->value = sensor->reg9e;
     }
+  /* undocumented register */
+  r = sanei_genesys_get_address (regs, 0xaa);
+  if (r)
+    {
+      r->value = sensor->regaa;
+    }
 
   /* CKxMAP */
   sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
@@ -699,7 +705,9 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x99, 0x30);
       SETREG (0x9a, 0x01);
       SETREG (0x9b, 0x80);
-      
+     
+      /* so many time burnt for this register ....*/
+      SETREG (0xaa, 0x00);
       SETREG (0xac, 0x00);
     }
 
@@ -1011,6 +1019,11 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                                   scan_steps,
                                   &z1,
                                   &z2);
+  if(scan_yres>=1200)
+    {
+      z1=0;
+      z2=0;
+    }
 
   sanei_genesys_set_triple(reg,REG_Z1MOD,z1);
   DBG (DBG_info, "gl843_init_motor_regs_scan: z1 = %d\n", z1);
@@ -2121,7 +2134,6 @@ gl843_detect_document_end (Genesys_Device * dev)
 }
 
 /* Send the low-level scan command */
-/* todo : is this that useful ? */
 #ifndef UNIT_TESTING
 static
 #endif
@@ -4076,7 +4088,7 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   int final_size;
   uint8_t *final_data;
   uint8_t *buffer;
-  int i,count;
+  int i,count,offset;
 
   DBGSTART;
 
@@ -4093,9 +4105,10 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   /* copy regular shading data to the expected layout */
   buffer = final_data;
   count = 0;
+  offset = 0;
 
   /* loop over calibration data */
-  for (i = 0; i < size; i++)
+  for (i = offset; i < size-offset; i++)
     {
       buffer[count] = data[i];
       count++;

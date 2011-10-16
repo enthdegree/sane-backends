@@ -687,6 +687,7 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x03, 0x1d);
       SETREG (0x05, 0x08);
       SETREG (0x06, 0xd0); /* SCANMOD=110, PWRBIT and no GAIN4 */
+      SETREG (0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
       SETREG (0x0a, 0x18);
       SETREG (0x0b, 0x69);
       SETREG (0x6b, 0xf4);
@@ -1184,6 +1185,14 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   else
     {
       r->value |= REG01_DVDSET;
+    }
+  if(dpihw>600)
+    {
+      r->value |= REG01_SHDAREA;
+    }
+  else
+    {
+      r->value &= ~REG01_SHDAREA;
     }
 
   r = sanei_genesys_get_address (reg, REG03);
@@ -2643,6 +2652,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
   int move, resolution, dpihw, factor;
+  uint16_t strpixel;
 
   DBGSTART;
   
@@ -2687,6 +2697,8 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
     }
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
+  sanei_genesys_get_double(dev->calib_reg,REG_STRPIXEL,&strpixel);
+  DBG (DBG_info, "%s: STRPIXEL=%d\n", __FUNCTION__, strpixel);
 
   status = gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
@@ -4089,8 +4101,41 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   uint8_t *final_data;
   uint8_t *buffer;
   int i,count,offset;
+  unsigned int tgtime;
+  unsigned int cksel;
+  Genesys_Register_Set *r;
+  uint16_t dpiset, strpixel, startx, factor;
 
   DBGSTART;
+      
+  offset=0;
+  r = sanei_genesys_get_address (dev->reg, REG01);
+  if(r->value & REG01_SHDAREA)
+    {
+      /* recompute STRPIXEL used shading calibration so we can
+       * compute offset within data for SHDAREA case */
+      r = sanei_genesys_get_address (dev->reg, REG18);
+      cksel= (r->value & REG18_CKSEL)+1;
+      sanei_genesys_get_double(dev->reg,REG_DPISET,&strpixel);
+      tgtime=1;
+      sanei_genesys_get_double(dev->reg,REG_DPISET,&dpiset);
+      factor=dev->sensor.optical_res/sanei_genesys_compute_dpihw(dev,dpiset);
+      if (dev->model->ccd_type == CCD_G4050 && dpiset>2400)
+        {
+          tgtime=2;
+        }
+
+      /* start coordinate in optical dpi coordinates */
+      startx = ((dev->sensor.dummy_pixel * tgtime)/cksel)/factor;
+
+      /* current scan coordinates */
+      sanei_genesys_get_double(dev->reg,REG_STRPIXEL,&strpixel);
+      strpixel*=tgtime;
+      
+      /* 16 bit words, 2 words per color, 3 color channels */
+      offset=(strpixel-startx)*2*2*3;
+      DBG (DBG_info, "%s: STRPIXEL=%d, startx=%d\n", __FUNCTION__, strpixel,startx);
+    }
 
   /* compute and allocate size for final data */
   final_size = (size / 252) * 256 + 512;
@@ -4098,17 +4143,17 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   final_data = (uint8_t *) malloc (final_size);
   if(final_data==NULL)
     {
-      DBG (DBG_error, "%s: failed to allocate memory for shding data\n", __FUNCTION__);
+      DBG (DBG_error, "%s: failed to allocate memory for shading data\n", __FUNCTION__);
       return SANE_STATUS_NO_MEM;
     }
+  memset(final_data,0x00,final_size);
 
   /* copy regular shading data to the expected layout */
   buffer = final_data;
   count = 0;
-  offset = 0;
 
   /* loop over calibration data */
-  for (i = offset; i < size-offset; i++)
+  for (i = offset; i < size; i++)
     {
       buffer[count] = data[i];
       count++;

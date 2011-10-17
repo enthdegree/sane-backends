@@ -1,0 +1,319 @@
+[genesys] WARNING: Your scanner is not fully supported or at least 
+[genesys]          had only limited testing. Please be careful and 
+[genesys]          report any failure/success to 
+[genesys]          sane-devel@lists.alioth.debian.org. Please provide as many
+[genesys]          details as possible, e.g. the exact name of your
+[genesys]          scanner and what does (not) work.
+[sanei_debug] Setting debug level of genesys_gl847 to 255.
+[genesys_gl847] gl847_init start
+[genesys_gl847] gl847_init: value=0x00
+[genesys_gl847] gl847_init: device is warm
+[genesys_gl847] gl847_cold_boot start
+[genesys_gl847] gl847_cold_boot: reported version for genesys chip is 0x05
+[genesys_gl847] gl847_init_registers start
+[genesys_gl847] gl847_init_registers completed
+[genesys_gl847] gl847_bulk_write_register: wrote 141 registers
+[genesys_gl847] gl847_init_gpio: start
+[genesys_gl847] gl847_init_gpio completed
+[genesys_gl847] gl847_init_memory_layout
+[genesys_gl847] gl847_init_memory_layout completed
+[genesys_gl847] gl847_cold_boot completed
+[genesys_gl847] gl847_feed start
+[genesys_gl847] gl847_init_scan_regs settings:
+Resolution    : 200DPI/200DPI
+Lines         : 3
+PPL           : 100
+Startpos      : 0/300
+Depth/Channels: 8/3
+Flags         : 216
+
+[genesys_gl847] gl847_init_scan_regs : stagger=0 lines
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_init_scan_regs : exposure_time=2848 pixels
+[genesys_gl847] gl847_init_scan_regs : scan_step_type=1
+[genesys_gl847] gl847_init_optical_regs_scan :  exposure_time=2848, used_res=200, start=0, pixels=1200, channels=3, depth=8, half_ccd=0, flags=3
+[genesys_gl847] gl847_init_optical_regs_scan: cksel=1
+[genesys_gl847] gl847_init_optical_regs_scan: dpihw=600 (factor=4)
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_setup_sensor start
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_setup_sensor completed
+[genesys_gl847] gl847_set_fe (set)
+[genesys_gl847] gl847_set_ad_fe(): start
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_set_ad_fe(): end
+[genesys_gl847] gl847_init_optical_regs_scan: dpiset used=200
+[genesys_gl847] gl847_init_optical_regs_scan: used_pixels=300
+[genesys_gl847] gl847_init_optical_regs_scan: pixels     =1200
+[genesys_gl847] gl847_init_optical_regs_scan: depth      =8
+[genesys_gl847] gl847_init_optical_regs_scan: dev->bpl   =100
+[genesys_gl847] gl847_init_optical_regs_scan: dev->len   =300
+[genesys_gl847] gl847_init_optical_regs_scan: dev->dist  =0
+[genesys_gl847] gl847_init_optical_regs_scan: dev->segnb =1
+[genesys_gl847] gl847_init_optical_regs_scan: words_per_line used=300
+[genesys_gl847] gl847_init_optical_regs_scan: exposure_time used=2848
+[genesys_gl847] gl847_init_optical_regs_scan completed
+[genesys_gl847] gl847_init_scan_regs: move=300 steps
+[genesys_gl847] gl847_init_motor_regs_scan start
+[genesys_gl847] gl847_init_motor_regs_scan : scan_exposure_time=2848, scan_yres=200, scan_step_type=1, scan_lines=3, scan_dummy=0, feed_steps=300, scan_power_mode=0, flags=0
+[genesys_gl847] gl847_get_step_multiplier: step multiplier is 8
+[genesys_gl847] gl847_init_motor_regs_scan: lincnt=3
+[genesys_gl847] gl847_send_slope_table (table_nr = 0, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 0 (256)=,46876,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 1, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 1 (256)=,46876,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 2, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 2 (256)=,1171,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 3, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 3 (256)=,1171,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 4, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 4 (256)=,1171,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_init_motor_regs_scan: acceleration distance=256
+[genesys_gl847] gl847_init_motor_regs_scan: feedl=344
+[genesys_gl847] gl847_init_motor_regs_scan: z1 = 1017
+[genesys_gl847] gl847_init_motor_regs_scan: z2 = 1017
+[genesys_gl847] gl847_init_motor_regs_scan completed
+[genesys_gl847] gl847_init_scan_regs: physical bytes to read = 900
+[genesys_gl847] gl847_init_scan_regs: total bytes to send = 2977443
+[genesys_gl847] gl847_init_scan_regs completed
+[genesys_gl847] gl847_bulk_write_register: wrote 141 registers
+[genesys_gl847] gl847_feed completed
+[genesys_gl847] gl847_set_fe (init)
+[genesys_gl847] gl847_set_ad_fe(): start
+[genesys_gl847] gl847_set_ad_fe(): setting DAC 11
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_set_ad_fe(): end
+[genesys_gl847] gl847_slow_back_home (wait_until_home = 1)
+[genesys_gl847] status=PWRBIT BUFEMPTY FEEDFSH LAMPSTS MOTORENB
+[genesys_gl847] status=PWRBIT BUFEMPTY FEEDFSH LAMPSTS 
+[genesys_gl847] gl847_init_scan_regs settings:
+Resolution    : 100DPI/100DPI
+Lines         : 3
+PPL           : 100
+Startpos      : 0/30000
+Depth/Channels: 8/1
+Flags         : 16
+
+[genesys_gl847] gl847_init_scan_regs : stagger=0 lines
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_init_scan_regs : exposure_time=2848 pixels
+[genesys_gl847] gl847_init_scan_regs : scan_step_type=1
+[genesys_gl847] gl847_init_optical_regs_scan :  exposure_time=2848, used_res=100, start=0, pixels=2400, channels=1, depth=8, half_ccd=0, flags=3
+[genesys_gl847] gl847_init_optical_regs_scan: cksel=1
+[genesys_gl847] gl847_init_optical_regs_scan: dpihw=600 (factor=4)
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_setup_sensor start
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_setup_sensor completed
+[genesys_gl847] gl847_set_fe (set)
+[genesys_gl847] gl847_set_ad_fe(): start
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_set_ad_fe(): end
+[genesys_gl847] gl847_init_optical_regs_scan: dpiset used=100
+[genesys_gl847] gl847_init_optical_regs_scan: used_pixels=600
+[genesys_gl847] gl847_init_optical_regs_scan: pixels     =2400
+[genesys_gl847] gl847_init_optical_regs_scan: depth      =8
+[genesys_gl847] gl847_init_optical_regs_scan: dev->bpl   =100
+[genesys_gl847] gl847_init_optical_regs_scan: dev->len   =600
+[genesys_gl847] gl847_init_optical_regs_scan: dev->dist  =0
+[genesys_gl847] gl847_init_optical_regs_scan: dev->segnb =1
+[genesys_gl847] gl847_init_optical_regs_scan: words_per_line used=100
+[genesys_gl847] gl847_init_optical_regs_scan: exposure_time used=2848
+[genesys_gl847] gl847_init_optical_regs_scan completed
+[genesys_gl847] gl847_init_scan_regs: move=30000 steps
+[genesys_gl847] gl847_init_motor_regs_scan start
+[genesys_gl847] gl847_init_motor_regs_scan : scan_exposure_time=2848, scan_yres=300, scan_step_type=1, scan_lines=3, scan_dummy=2, feed_steps=30000, scan_power_mode=0, flags=0
+[genesys_gl847] gl847_get_step_multiplier: step multiplier is 8
+[genesys_gl847] gl847_init_motor_regs_scan: lincnt=3
+[genesys_gl847] gl847_send_slope_table (table_nr = 0, steps = 232)
+[genesys_gl847] gl847_send_slope_table: write slope 0 (232)=,46876,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 1, steps = 232)
+[genesys_gl847] gl847_send_slope_table: write slope 1 (232)=,46876,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 2, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 2 (256)=,1171,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 3, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 3 (256)=,1171,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 4, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 4 (256)=,1171,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_init_motor_regs_scan: acceleration distance=232
+[genesys_gl847] gl847_init_motor_regs_scan: feedl=59768
+[genesys_gl847] gl847_init_motor_regs_scan: z1 = 7269
+[genesys_gl847] gl847_init_motor_regs_scan: z2 = 6981
+[genesys_gl847] gl847_init_motor_regs_scan completed
+[genesys_gl847] gl847_init_scan_regs: physical bytes to read = 300
+[genesys_gl847] gl847_init_scan_regs: total bytes to send = 992481
+[genesys_gl847] gl847_init_scan_regs completed
+[genesys_gl847] gl847_bulk_write_register: wrote 141 registers
+[genesys_gl847] gl847_slow_back_home: reached home position
+[genesys_gl847] gl847_slow_back_home: finished
+[genesys_gl847] gl847_set_powersaving (delay = 15)
+[genesys_gl847] gl847_set_powersaving completed
+[genesys_gl847] gl847_init completed
+[genesys_gl847] gl847_save_power: enable = 0
+[genesys_gl847] gl847_save_power completed
+[genesys_gl847] gl847_slow_back_home (wait_until_home = 1)
+[genesys_gl847] status=PWRBIT BUFEMPTY HOMESNR LAMPSTS 
+[genesys_gl847] status=PWRBIT BUFEMPTY HOMESNR LAMPSTS 
+[genesys_gl847] gl847_slow_back_home: already at home, completed
+[genesys_gl847] gl847_slow_back_home completed
+[genesys_gl847] gl847_send_gamma_table
+[genesys_gl847] gl847_send_gamma_table completed
+[genesys_gl847] gl847_calculate_current_setup settings:
+Resolution: 100DPI
+Lines     : 1169
+PPL       : 849
+Startpos  : 0.000/0.000
+Scan mode : 2
+
+[genesys_gl847] gl847_calculate_current_setup settings:
+Resolution    : 100DPI/100DPI
+Lines         : 1169
+PPL           : 849
+Startpos      : 0
+Depth/Channels: 8/1
+
+[genesys_gl847] gl847_calculate_current_setup: stagger=0 lines
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_calculate_current_setup : exposure_time=2848 pixels
+[genesys_gl847] gl847_calculate_current_setup completed
+[genesys_gl847] gl847_calculate_current_setup settings:
+Resolution: 100DPI
+Lines     : 1169
+PPL       : 849
+Startpos  : 0.000/0.000
+Scan mode : 2
+
+[genesys_gl847] gl847_calculate_current_setup settings:
+Resolution    : 100DPI/100DPI
+Lines         : 1169
+PPL           : 849
+Startpos      : 0
+Depth/Channels: 8/1
+
+[genesys_gl847] gl847_calculate_current_setup: stagger=0 lines
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_calculate_current_setup : exposure_time=2848 pixels
+[genesys_gl847] gl847_calculate_current_setup completed
+[genesys_gl847] gl847_init_regs_for_scan settings:
+Resolution: 100DPI
+Lines     : 1169
+PPL       : 849
+Startpos  : 0.000/0.000
+Scan mode : 2
+
+[genesys_gl847] gl847_init_regs_for_scan: move=0.000000 steps
+[genesys_gl847] gl847_init_regs_for_scan: move=0.000000 steps
+[genesys_gl847] gl847_init_scan_regs settings:
+Resolution    : 100DPI/100DPI
+Lines         : 1169
+PPL           : 849
+Startpos      : 0/0
+Depth/Channels: 8/1
+Flags         : 8
+
+[genesys_gl847] gl847_init_scan_regs : stagger=0 lines
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_init_scan_regs : exposure_time=2848 pixels
+[genesys_gl847] gl847_init_scan_regs : scan_step_type=1
+[genesys_gl847] gl847_init_optical_regs_scan :  exposure_time=2848, used_res=100, start=0, pixels=20376, channels=1, depth=8, half_ccd=0, flags=0
+[genesys_gl847] gl847_init_optical_regs_scan: cksel=1
+[genesys_gl847] gl847_init_optical_regs_scan: dpihw=600 (factor=4)
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_setup_sensor start
+[genesys_gl847] get_sensor_profile: using default sensor profile
+[genesys_gl847] gl847_setup_sensor completed
+[genesys_gl847] gl847_set_fe (set)
+[genesys_gl847] gl847_set_ad_fe(): start
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_bulk_write_register: wrote 3 registers
+[genesys_gl847] gl847_set_ad_fe(): end
+[genesys_gl847] gl847_init_optical_regs_scan: dpiset used=100
+[genesys_gl847] gl847_init_optical_regs_scan: used_pixels=5094
+[genesys_gl847] gl847_init_optical_regs_scan: pixels     =20376
+[genesys_gl847] gl847_init_optical_regs_scan: depth      =8
+[genesys_gl847] gl847_init_optical_regs_scan: dev->bpl   =849
+[genesys_gl847] gl847_init_optical_regs_scan: dev->len   =5094
+[genesys_gl847] gl847_init_optical_regs_scan: dev->dist  =0
+[genesys_gl847] gl847_init_optical_regs_scan: dev->segnb =1
+[genesys_gl847] gl847_init_optical_regs_scan: words_per_line used=849
+[genesys_gl847] gl847_init_optical_regs_scan: exposure_time used=2848
+[genesys_gl847] gl847_init_optical_regs_scan completed
+[genesys_gl847] gl847_init_scan_regs: move=0 steps
+[genesys_gl847] gl847_init_motor_regs_scan start
+[genesys_gl847] gl847_init_motor_regs_scan : scan_exposure_time=2848, scan_yres=300, scan_step_type=1, scan_lines=1169, scan_dummy=2, feed_steps=0, scan_power_mode=0, flags=2
+[genesys_gl847] gl847_get_step_multiplier: step multiplier is 8
+[genesys_gl847] gl847_init_motor_regs_scan: lincnt=1169
+[genesys_gl847] gl847_send_slope_table (table_nr = 0, steps = 232)
+[genesys_gl847] gl847_send_slope_table: write slope 0 (232)=,46876,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 1, steps = 232)
+[genesys_gl847] gl847_send_slope_table: write slope 1 (232)=,46876,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 2, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 2 (256)=,1171,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 3, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 3 (256)=,1171,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_send_slope_table (table_nr = 4, steps = 256)
+[genesys_gl847] gl847_send_slope_table: write slope 4 (256)=,1171,1171,1171,1171,1171,1171,1171,1171,1171,1168,1164,1161,1157,1153,1150,1146,1142,1139,1135,1131,1128,1124,1120,1117,1113,1109,1106,1102,1099,1095,1091,1088,1084,1080,1077,1073,1069,1066,1062,1058,1055,1051,1047,1044,1040,1036,1033,1029,1026,1022,1018,1015,1011,1007,1004,1000,996,993,989,985,982,978,974,971,967,964,960,956,953,949,945,942,938,934,931,927,923,920,916,912,909,905,901,898,894,891,887,883,880,876,872,869,865,861,858,854,850,847,843,839,836,832,829,825,821,818,814,810,807,803,799,796,792,788,785,781,777,774,770,766,763,759,756,752,748,745,741,737,734,730,726,723,719,715,712,708,704,701,697,694,690,686,683,679,675,672,668,664,661,657,653,650,646,642,639,635,631,628,624,621,617,613,610,606,602,599,595,591,588,584,580,577,573,569,566,562,559,555,551,548,544,540,537,533,529,526,522,518,515,511,507,504,500,496,493,489,486,482,478,475,471,467,464,460,456,453,449,445,442,438,434,431,427,424,420,416,413,409,405,402,398,394,391,387,383,380,376,372,369,365,361,358,354,351,347,343,340,336,332,329,325,321,318,314,310,307,303,299,296,292,289,285,281,278,267,267
+[genesys_gl847] gl847_send_slope_table completed
+[genesys_gl847] gl847_init_motor_regs_scan: acceleration distance=232
+[genesys_gl847] gl847_init_motor_regs_scan: feedl=1
+[genesys_gl847] gl847_init_motor_regs_scan: z1 = 7269
+[genesys_gl847] gl847_init_motor_regs_scan: z2 = 4571
+[genesys_gl847] gl847_init_motor_regs_scan completed
+[genesys_gl847] gl847_init_scan_regs: physical bytes to read = 992481
+[genesys_gl847] gl847_init_scan_regs: total bytes to send = 992481
+[genesys_gl847] gl847_init_scan_regs completed
+[genesys_gl847] gl847_init_regs_for_scan completed
+[genesys_gl847] gl847_bulk_write_register: wrote 141 registers
+[genesys_gl847] gl847_begin_scan start
+[genesys_gl847] gl847_begin_scan completed
+[genesys_gl847] gl847_bulk_read_data: requesting 13568 bytes at addr=0x45
+[genesys_gl847] gl847_bulk_read_data: trying to read 13312 bytes of data
+[genesys_gl847] gl847_bulk_read_data: 13312 bytes of data read
+[genesys_gl847] gl847_bulk_read_data: trying to read 256 bytes of data
+[genesys_gl847] gl847_bulk_read_data: 256 bytes of data read
+[genesys_gl847] gl847_bulk_read_data: read 13568 bytes, 0 remaining

@@ -1,0 +1,42 @@
+!/bin/bash
+#export SANE_DEBUG_GENESYS=255
+#export SANE_DEBUG_GENESYS_LOW=255
+#export SANE_DEBUG_GENESYS_GL646=255
+#export SANE_DEBUG_GENESYS_GL841=255
+#export SANE_DEBUG_GENESYS_GL843=255
+#export SANE_DEBUG_GENESYS_GL847=255
+#export SANE_DEBUG_GENESYS_GL124=255
+#export SANE_DEBUG_SANEI_USB=255
+export LD_PRELOAD=.libs/libsane-genesys.so
+#
+# to run scanimage for preview or scan, uncomment the desired line
+#
+
+# preview
+#../frontend/scanimage -d genesys --preview=yes --mode Color 2>preview.log >preview.pnm
+#scanimage -L
+
+# scan: you can change resolution and color mode
+#../frontend/scanimage -d genesys --resolution 150 -mode Color --help 2>scan.log >scan.pnm
+
+#
+# to run xsane uncomment the command line below
+#
+xsane #2>dbgGeny_Low22.log
+#scanimage >1232.pnm 2>debug_gen_low122.log
+
+#xsane
+#scanimage 2>Genys_dum.log > 12312.pnm
+#scanimage > 12123.pnm
+#
+# to run a debugger
+#
+
+# bare gdb
+#gdb -tui ../frontend/.libs/scanimage 
+
+# color gdb
+#cgdb ../frontend/.libs/scanimage 
+
+#gdb with text UI
+#gdb -tui ../frontend/.libs/scanimage 

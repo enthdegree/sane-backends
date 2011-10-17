@@ -165,14 +165,6 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00,0x00,0x00}
    }
   ,
-  {DAC_HP_N6310,
-		    {0x00, 0x23, 0x24, 0x1f}
-		   , {0x00, 0x00, 0x00}
-		   , {0x30, 0x30, 0x30}	/* 0x20, 0x21, 0x22 */
-		   , {0x4b, 0x4b, 0x4b} /* 0x28, 0x29, 0x2a */
-		   , {0x00,0x00,0x00}
-  }
-  ,
   {DAC_CANONLIDE110,
      {0x80, 0x8a, 0x23, 0x4c}
    , {0x00, 0xca, 0x94}
@@ -539,11 +531,11 @@ static Genesys_Sensor Sensor[] = {
 		     210,
 		     230,
 		     /* 08    09    0a    0b */
-		     {0x00, 0x10, 0x10, 0x0c} ,
+		     {0x00, 0x00, 0x18, 0x00} ,
 		     /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
-		     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0c, 0x02, 0x2a, 0x30, 0x00, 0x00, 0x08} ,
+		     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0c, 0x00, 0x2a, 0x30, 0x00, 0x00, 0x08} ,
 		     /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
-		     {0x0b, 0x0e, 0x11, 0x02, 0x05, 0x08, 0x63, 0x00, 0x40, 0x00, 0x00, 0x06, 0x6f} ,
+		     {0x07, 0x00, 0x00, 0x00, 0x05, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x41} ,
 		     1.0, 1.0, 1.0,
 
 		     NULL, NULL, NULL
@@ -978,8 +970,8 @@ static Genesys_Motor Motor[] = {
    },
 
    {MOTOR_HP_N6310,		/* HP Scanjet N6310 */
-    1200,
-    1200,/*6400*/
+    2400,/*1200*/
+    600,/*1200/*6400*/
     2,
     1,
     { /* motor slopes */
@@ -2808,8 +2800,8 @@ static Genesys_Model hpn6310_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (6), /*.5)		/* Start of scan area in mm  (x) */
-  SANE_FIX (2), /*.5)		/* Start of scan area in mm (y) */
+  SANE_FIX (6),/* .5),		/* Start of scan area in mm  (x) */
+  SANE_FIX (2), /*.5),		/* Start of scan area in mm (y) */
   SANE_FIX (216),		/* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
@@ -2828,14 +2820,13 @@ static Genesys_Model hpn6310_model = {
   SANE_FIX (0),		/* Amount of feeding needed to eject document
 				   after finishing scanning in mm */
 
-  0, 0, 0,				/* RGB CCD Line-distance correction in pixel */
+  0, 32, 48,				/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
   SANE_FALSE,			/* Is this a sheetfed scanner? */
   CCD_HP_N6310,
-  /*DAC_HP_N6310*/
   DAC_CANONLIDE200,
   GPO_HP_N6310, /*CANONLIDE200,*/
   MOTOR_CANONLIDE200,

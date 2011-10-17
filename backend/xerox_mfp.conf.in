@@ -30,9 +30,6 @@ usb 0x04e8 0x342b
 # Samsung SCX-4824
 usb 0x04e8 0x342c
 
-# Samsung SCX-4828FN or SCX-4x28 Series
-usb 0x04e8 0x342d
-
 # Samsung SCX-4300
 usb 0x04e8 0x342e
 

@@ -118,7 +118,7 @@ scan\-client.somedomain.firm
 .br
 [::1]
 .br
-[2001:7a8:185e::42:12]/64
+[2001:db8:185e::42:12]/64
 .RE
 .PP
 The case of the host names does not matter, so AHost.COM is considered

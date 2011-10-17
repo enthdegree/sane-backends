@@ -22,8 +22,8 @@
 #scan-client.somedomain.firm
 #192.168.0.1
 #192.168.0.1/29
-#[2001:7a8:185e::42:12]
-#[2001:7a8:185e::42:12]/64
+#[2001:db8:185e::42:12]
+#[2001:db8:185e::42:12]/64
 
 # NOTE: /etc/inetd.conf (or /etc/xinetd.conf) and
 # /etc/services must also be properly configured to start

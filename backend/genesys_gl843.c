@@ -73,7 +73,8 @@ write_end_access (Genesys_Device * dev, uint8_t index, uint8_t val)
   return status;
 }
 
-/* Write bulk data (e.g. gamma) */
+/**
+ * Write bulk data (e.g. gamma or shading data) */
 static SANE_Status
 gl843_bulk_write_data (Genesys_Device * dev, uint8_t addr,
 		       uint8_t * data, size_t len)
@@ -96,10 +97,12 @@ gl843_bulk_write_data (Genesys_Device * dev, uint8_t addr,
       return status;
     }
 
-  /* TODO check with G4050 that we shouldn't loop at all */
   while (len)
     {
-      size = len;
+      if(len>65472)
+        size=65472;
+      else
+        size = len;
 
       outdata[0] = BULK_OUT;
       outdata[1] = BULK_RAM;
@@ -132,7 +135,7 @@ gl843_bulk_write_data (Genesys_Device * dev, uint8_t addr,
 	}
 
       DBG (DBG_io2,
-	   "gl843_bulk_write_data: gamma wrote %lu bytes, %lu remaining\n",
+	   "gl843_bulk_write_data: wrote %lu bytes, %lu remaining\n",
 	   (u_long) size, (u_long) (len - size));
 
       len -= size;
@@ -3338,10 +3341,18 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   /* coarse gain calibration is always done in color mode */
   channels = 3;
+
   /* follow CKSEL */
-  if(dev->settings.xres<dev->sensor.optical_res)
+  if (dev->model->ccd_type == CCD_KVSS080)
     {
-      coeff=0.9;
+      if(dev->settings.xres<dev->sensor.optical_res)
+        {
+          coeff=0.9;
+        }
+      else
+        {
+          coeff=1.0;
+        }
     }
   else
     {
@@ -4097,18 +4108,19 @@ SANE_Status
 gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 {
   SANE_Status status;
-  int final_size;
+  uint32_t final_size, length, i;
   uint8_t *final_data;
   uint8_t *buffer;
-  int i,count,offset;
+  int count,offset;
   unsigned int tgtime;
   unsigned int cksel;
   Genesys_Register_Set *r;
-  uint16_t dpiset, strpixel, startx, factor;
+  uint16_t dpiset, strpixel, endpixel, startx, factor;
 
   DBGSTART;
       
   offset=0;
+  length=size;
   r = sanei_genesys_get_address (dev->reg, REG01);
   if(r->value & REG01_SHDAREA)
     {
@@ -4130,16 +4142,19 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 
       /* current scan coordinates */
       sanei_genesys_get_double(dev->reg,REG_STRPIXEL,&strpixel);
+      sanei_genesys_get_double(dev->reg,REG_ENDPIXEL,&endpixel);
       strpixel*=tgtime;
+      endpixel*=tgtime;
       
       /* 16 bit words, 2 words per color, 3 color channels */
       offset=(strpixel-startx)*2*2*3;
-      DBG (DBG_info, "%s: STRPIXEL=%d, startx=%d\n", __FUNCTION__, strpixel,startx);
+      length=(endpixel-strpixel)*2*2*3;
+      DBG (DBG_info, "%s: STRPIXEL=%d, ENDPIXEL=%d, startx=%d\n", __FUNCTION__, strpixel, endpixel, startx);
     }
 
   /* compute and allocate size for final data */
-  final_size = (size / 252) * 256 + 512;
-  DBG (DBG_io, "%s: final shading size=%04x\n", __FUNCTION__, final_size);
+  final_size = ((length+251) / 252) * 256;
+  DBG (DBG_io, "%s: final shading size=%04x (length=%d)\n", __FUNCTION__, final_size, length);
   final_data = (uint8_t *) malloc (final_size);
   if(final_data==NULL)
     {
@@ -4153,9 +4168,9 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   count = 0;
 
   /* loop over calibration data */
-  for (i = offset; i < size; i++)
+  for (i = 0; i < length; i++)
     {
-      buffer[count] = data[i];
+      buffer[count] = data[offset+i];
       count++;
       if ((count % (256*2)) == (252*2))
 	{
@@ -4172,7 +4187,7 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
       return status;
     }
   
-  status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, final_data, final_size);
+  status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, final_data, count);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "%s: failed to send shading table: %s\n", __FUNCTION__, sane_strstatus (status));

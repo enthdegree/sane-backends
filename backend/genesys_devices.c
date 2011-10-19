@@ -507,11 +507,11 @@ static Genesys_Sensor Sensor[] = {
   {CCD_G4050,
    4800,
    50*8,	/* black_pixels */
-   31,	        /* 31 at 600 dpi dummy_pixels 58 at 1200 */
+   58,	        /* 31 at 600 dpi dummy_pixels 58 at 1200 */
    152,
    5360*8,      /* 5360 max at 600 dpi */
-   190,
-   190,
+   160,
+   160,
    /* 08    09    0a    0b */
    {0x00, 0x00, 0x18, 0x69} ,
    /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
@@ -1214,7 +1214,7 @@ static Genesys_Model hpg4050_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (6.55),		/* Start of scan area in mm  (x) */
+  SANE_FIX (8.0),		/* Start of scan area in mm  (x) */
   SANE_FIX (13.00),		/* Start of scan area in mm (y) */
   SANE_FIX (217.9),		/* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
   SANE_FIX (315.0),		/* Size of scan area in mm (y) */

@@ -2985,7 +2985,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CCD_KVSS080:
     case CCD_G4050:
-      target_code = 0xf000;
+      target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,
 			    shading_data,

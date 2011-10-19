@@ -1,0 +1,1162 @@
+[genesys] WARNING: Your scanner is not fully supported or at least 
+[genesys]          had only limited testing. Please be careful and 
+[genesys]          report any failure/success to 
+[genesys]          sane-devel@lists.alioth.debian.org. Please provide as many
+[genesys]          details as possible, e.g. the exact name of your
+[genesys]          scanner and what does (not) work.
+[sanei_debug] Setting debug level of genesys_low to 255.
+[genesys_low] sanei_genesys_read_gl847_register(0x06)=0x50
+[genesys_low] sanei_genesys_write_gl847_register (0x0e, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0e, 0x00) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x40)=0x70
+[genesys_low] sanei_genesys_read_gl847_register(0x00)=0x05
+[genesys_low] sanei_genesys_read_gl847_register(0xa6)=0x00
+[genesys_low] sanei_genesys_write_gl847_register (0xa6, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa7, 0x0f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa9, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6b, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6d, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6e, 0x7e) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6f, 0x21) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x01, 0x82) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x02, 0x18) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x03, 0x50) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x04, 0x12) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x05, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x06, 0x50) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x08, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x09, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0b, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0c, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x10, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x11, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x12, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x13, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x14, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x15, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x16, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x17, 0x08) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x18, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x19, 0x50) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1a, 0x34) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1b, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1c, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1d, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1e, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1f, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x20, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x21, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x22, 0x7f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x23, 0x7f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x24, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x25, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x26, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x27, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2c, 0x09) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2d, 0x60) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2e, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2f, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x30, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x31, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x32, 0x15) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x33, 0x0e) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x34, 0x40) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x35, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x36, 0x2a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x37, 0x30) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x38, 0x2a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x39, 0xf8) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3d, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3e, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3f, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x52, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x53, 0x07) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x54, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x55, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x56, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x57, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x58, 0x2a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x59, 0xe1) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5a, 0x55) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5e, 0x41) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5f, 0x40) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x60, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x61, 0x21) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x62, 0x40) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x63, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x64, 0x21) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x65, 0x40) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x67, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x68, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x69, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6a, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x74, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x75, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x76, 0x3c) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x77, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x78, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x79, 0x9f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7b, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7c, 0x55) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7d, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x87, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x9d, 0x06) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa2, 0x0f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa6, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xbd, 0x18) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xbe, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc5, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc6, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc7, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc8, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc9, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xca, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xfe, 0x08) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0b, 0x09) completed
+[genesys_low] sanei_genesys_read_gl847_register(0xa6)=0x04
+[genesys_low] sanei_genesys_write_gl847_register (0x77, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x78, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x79, 0x9f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0b, 0x29) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x08, 0x10) completed
+[genesys_low] sanei_genesys_write_0x8c: 0x10,0x0b
+[genesys_low] sanei_genesys_write_0x8c: 0x13,0x0e
+[genesys_low] sanei_genesys_write_gl847_register (0xa7, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa9, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6e, 0xff) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6f, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa7, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa8, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa9, 0x00) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0x00
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0x80) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0x80
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xc0) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xc0
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xe0) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x0b)=0x29
+[genesys_low] sanei_genesys_write_gl847_register (0x0b, 0x29) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xe0
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xe2) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xe2
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xe3) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xe3
+[genesys_low] sanei_genesys_write_gl847_register (0xd0, 0x0a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xd1, 0x15) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xd2, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xe0, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xe1, 0xac) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xe2, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xe3, 0x55) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xe4, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xe5, 0x56) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xe6, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xe7, 0xff) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xe8, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xe9, 0xac) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xea, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xeb, 0x55) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xec, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xed, 0x56) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xee, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xef, 0xff) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf0, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf1, 0xac) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf2, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf3, 0x55) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf4, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf5, 0x56) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf6, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf7, 0xff) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf8, 0x01) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x04)=0x12
+[genesys_low] sanei_genesys_fe_write_data (0x00, 0x0080)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x80) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x00, 0x0062)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x62) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x01, 0x006d)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x6d) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x02, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x03, 0x003c)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x3c) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x04, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x05, 0x00fb)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x05) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0xfb) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x06, 0x0016)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x06) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x16) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x07, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x07) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_slope_table: target=237
+[genesys_low] sanei_genesys_write_ahb: write(0x10000000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x00 0x00 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_write_ahb: write(0x10004000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x40 0x00 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_slope_table: target=118
+[genesys_low] sanei_genesys_write_ahb: write(0x10008000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x80 0x00 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_write_ahb: write(0x1000c000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0xc0 0x00 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_write_ahb: write(0x10010000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x00 0x01 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xe3
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xe3) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xe3
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xe3) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0d, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0d, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x01, 0x82) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x02, 0x90) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x03, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x04, 0x12) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x05, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x06, 0x50) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x08, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x09, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0c, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x10, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x11, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x12, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x13, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x14, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x15, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x16, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x17, 0x0a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x18, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x19, 0x2a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1a, 0x30) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1b, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1c, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1d, 0x08) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1e, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1f, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x20, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x21, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x22, 0x0f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x23, 0x0f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x24, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x25, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x26, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x27, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2c, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2d, 0xc8) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2e, 0x7f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2f, 0x7f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x30, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x31, 0x26) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x32, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x33, 0x52) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x34, 0xf8) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x35, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x36, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x37, 0x4b) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x38, 0x0b) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x39, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3d, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3e, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3f, 0x58) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x52, 0x07) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x53, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x54, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x55, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x56, 0x05) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x57, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x58, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x59, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5a, 0x23) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5e, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5f, 0x40) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x60, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x61, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x62, 0xf9) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x63, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x64, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x65, 0xf9) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x67, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x68, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x69, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6a, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x74, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x75, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x76, 0x3c) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x77, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x78, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x79, 0x9f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7b, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7c, 0x55) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7d, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x87, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x9d, 0x06) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa2, 0x0f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa6, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xbd, 0x18) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xbe, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc5, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc6, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc7, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc8, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc9, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xca, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf8, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xfe, 0x08) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0f, 0x01) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xe5
+[genesys_low] sanei_genesys_read_gl847_register(0x04)=0x12
+[genesys_low] sanei_genesys_fe_write_data (0x00, 0x0080)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x80) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x00, 0x009d)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x9d) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x01, 0x0091)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x91) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x02, 0x0032)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x32) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x03, 0x0004)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x04) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x04, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x05, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x05) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x06, 0x003f)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x06) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x3f) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x07, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x07) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xe3
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xfc) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xe5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xe4
+[genesys_low] sanei_genesys_read_gl847_register(0x04)=0x12
+[genesys_low] sanei_genesys_fe_write_data (0x00, 0x0080)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x80) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x00, 0x009d)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x9d) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x01, 0x0091)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x91) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x02, 0x0032)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x32) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x03, 0x0004)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x04) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x04, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x05, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x05) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x06, 0x003f)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x06) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x3f) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x07, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x07) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_slope_table: target=356
+[genesys_low] sanei_genesys_write_ahb: write(0x10000000,0x000001d0)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x00 0x00 0x10 0xd0 0x01 0x00 0x00
+[genesys_low] sanei_genesys_write_ahb: write(0x10004000,0x000001d0)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x40 0x00 0x10 0xd0 0x01 0x00 0x00
+[genesys_low] sanei_genesys_slope_table: target=118
+[genesys_low] sanei_genesys_write_ahb: write(0x10008000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x80 0x00 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_write_ahb: write(0x1000c000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0xc0 0x00 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_write_ahb: write(0x10010000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x00 0x01 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xfc
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xfc) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xfc
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xfe) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0d, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0d, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x01, 0x82) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x02, 0x94) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x03, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x04, 0x16) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x05, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x06, 0x50) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x08, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x09, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0c, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x10, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x11, 0x9a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x12, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x13, 0x13) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x14, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x15, 0xcb) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x16, 0x33) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x17, 0x0a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x18, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x19, 0x2a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1a, 0x30) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1b, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1c, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1d, 0x08) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1e, 0x12) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1f, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x20, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x21, 0x1d) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x22, 0x0d) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x23, 0x0d) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x24, 0x1d) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x25, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x26, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x27, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2c, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2d, 0x64) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2e, 0x7f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2f, 0x7f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x30, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x31, 0x26) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x32, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x33, 0x7e) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x34, 0xf8) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x35, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x36, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x37, 0x19) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x38, 0x0b) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x39, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3d, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3e, 0xe9) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3f, 0x78) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x52, 0x07) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x53, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x54, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x55, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x56, 0x05) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x57, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x58, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x59, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5a, 0x23) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5e, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5f, 0x40) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x60, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x61, 0x1c) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x62, 0x65) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x63, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x64, 0x1b) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x65, 0x45) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x67, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x68, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x69, 0x1d) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6a, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x74, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x75, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x76, 0x3c) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x77, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x78, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x79, 0x9f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7b, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7c, 0x55) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7d, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x87, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x9d, 0x06) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa2, 0x0f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa6, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xbd, 0x18) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xbe, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc5, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc6, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc7, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc8, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc9, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xca, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf8, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xfe, 0x08) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0f, 0x01) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xc5
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xcc
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xfe
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xfc) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xcc
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xcc
+[genesys_low] sanei_genesys_read_gl847_register(0xbd)=0x18
+[genesys_low] sanei_genesys_write_gl847_register (0xbd, 0x18) completed
+[genesys_low] sanei_genesys_read_gl847_register(0xbe)=0x00
+[genesys_low] sanei_genesys_write_gl847_register (0xbe, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc5, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc6, 0x00) completed
+[genesys_low] sanei_genesys_write_ahb: write(0x01000000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x00 0x00 0x01 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_read_gl847_register(0xbd)=0x18
+[genesys_low] sanei_genesys_write_gl847_register (0xbd, 0x18) completed
+[genesys_low] sanei_genesys_read_gl847_register(0xbe)=0x00
+[genesys_low] sanei_genesys_write_gl847_register (0xbe, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc7, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc8, 0x00) completed
+[genesys_low] sanei_genesys_write_ahb: write(0x01000200,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x02 0x00 0x01 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_read_gl847_register(0xbd)=0x18
+[genesys_low] sanei_genesys_write_gl847_register (0xbd, 0x18) completed
+[genesys_low] sanei_genesys_read_gl847_register(0xbe)=0x00
+[genesys_low] sanei_genesys_write_gl847_register (0xbe, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc9, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xca, 0x00) completed
+[genesys_low] sanei_genesys_write_ahb: write(0x01000400,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x04 0x00 0x01 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_is_compatible_calibration start
+[genesys_low] sanei_genesys_is_compatible_calibration: checking
+[genesys_low] sanei_genesys_is_compatible_calibration: completed, non compatible cache
+[genesys_low] sanei_genesys_is_compatible_calibration start
+[genesys_low] sanei_genesys_is_compatible_calibration: checking
+[genesys_low] sanei_genesys_is_compatible_calibration: expired entry, non compatible cache
+[genesys_low] sanei_genesys_write_gl847_register (0x0d, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0d, 0x04) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x04)=0x16
+[genesys_low] sanei_genesys_fe_write_data (0x00, 0x0080)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x80) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x00, 0x009d)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x9d) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x01, 0x0091)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x91) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x02, 0x0032)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x32) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x03, 0x0004)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x03) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x04) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x04, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x05, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x05) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x06, 0x003f)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x06) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x3f) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_fe_write_data (0x07, 0x0000)
+[genesys_low] sanei_genesys_write_gl847_register (0x51, 0x07) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3b, 0x00) completed
+[genesys_low] sanei_genesys_fe_write_data: completed
+[genesys_low] sanei_genesys_slope_table: target=356
+[genesys_low] sanei_genesys_write_ahb: write(0x10000000,0x000001d0)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x00 0x00 0x10 0xd0 0x01 0x00 0x00
+[genesys_low] sanei_genesys_write_ahb: write(0x10004000,0x000001d0)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x40 0x00 0x10 0xd0 0x01 0x00 0x00
+[genesys_low] sanei_genesys_slope_table: target=118
+[genesys_low] sanei_genesys_write_ahb: write(0x10008000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x80 0x00 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_write_ahb: write(0x1000c000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0xc0 0x00 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_write_ahb: write(0x10010000,0x00000200)
+[genesys_low] sanei_genesys_write_ahb: AHB= 0x00 0x00 0x01 0x10 0x00 0x02 0x00 0x00
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xfc
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xfc) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xfc
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xfe) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x01, 0x82) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x02, 0xd0) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x03, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x04, 0x1a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x05, 0x08) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x06, 0x50) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x08, 0x10) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x09, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0c, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x10, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x11, 0x9a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x12, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x13, 0x13) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x14, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x15, 0xcb) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x16, 0x33) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x17, 0x0a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x18, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x19, 0x2a) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1a, 0x30) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1b, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1c, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1d, 0x08) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1e, 0x12) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x1f, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x20, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x21, 0x1d) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x22, 0x0d) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x23, 0x0d) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x24, 0x1d) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x25, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x26, 0x07) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x27, 0xd9) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2c, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2d, 0x64) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2e, 0x7f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x2f, 0x7f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x30, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x31, 0xb9) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x32, 0x14) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x33, 0x99) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x34, 0xf8) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x35, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x36, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x37, 0xd4) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x38, 0x0b) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x39, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3d, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3e, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x3f, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x52, 0x07) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x53, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x54, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x55, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x56, 0x05) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x57, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x58, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x59, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5a, 0x23) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5e, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x5f, 0x40) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x60, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x61, 0x1c) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x62, 0x65) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x63, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x64, 0x11) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x65, 0xdb) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x67, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x68, 0x80) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x69, 0x1d) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x6a, 0x20) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x74, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x75, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x76, 0x3c) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x77, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x78, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x79, 0x9f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7a, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7b, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7c, 0x55) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x7d, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x87, 0x02) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x9d, 0x06) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa2, 0x0f) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xa6, 0x04) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xbd, 0x18) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xbe, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc5, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc6, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc7, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc8, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xc9, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xca, 0x00) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xf8, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0xfe, 0x08) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x6c)=0xfe
+[genesys_low] sanei_genesys_write_gl847_register (0x6c, 0xfc) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0d, 0x01) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0d, 0x04) completed
+[genesys_low] sanei_genesys_read_gl847_register(0x01)=0x82
+[genesys_low] sanei_genesys_write_gl847_register (0x01, 0x83) completed
+[genesys_low] sanei_genesys_write_gl847_register (0x0f, 0x01) completed
+[genesys_low] sanei_genesys_read_feed_steps
+[genesys_low] sanei_genesys_read_gl847_register(0x4a)=0x16
+[genesys_low] sanei_genesys_read_gl847_register(0x49)=0x05
+[genesys_low] sanei_genesys_read_gl847_register(0x48)=0x00
+[genesys_low] sanei_genesys_read_feed_steps: 1302 steps
+[genesys_low] sanei_genesys_read_gl847_register(0x41)=0xa5
+[genesys_low] sanei_genesys_test_buffer_empty: buffer is filled
+[genesys_low] sanei_genesys_read_valid_words
+[genesys_low] sanei_genesys_read_gl847_register(0x42)=0x00
+[genesys_low] sanei_genesys_read_gl847_register(0x43)=0x00
+[genesys_low] sanei_genesys_read_gl847_register(0x44)=0x1d
+[genesys_low] sanei_genesys_read_gl847_register(0x45)=0x18
+[genesys_low] sanei_genesys_read_valid_words: 7448 words

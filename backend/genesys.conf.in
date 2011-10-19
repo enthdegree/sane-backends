@@ -108,6 +108,3 @@ usb 0x07b3 0x0900
 
 # Primax Electronics, Ltd Xerox 2400 Onetouch
 usb 0x0461 0x038b
-
-#Hewlett Packard ScanJet N6310
-usb 0x03f0 0x4705

@@ -1,3 +1,7 @@
+2011-10-19 Alex Belkin <abc at telekom.ru>
+	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
+	for Samsung CLX 3185, reported by John Dignum.
+
 2011-10-01 Alex Belkin <abc at telekom.ru>
 	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
 	for Samsung SCX-4828FN or SCX-4x28 Series, reported by Patrice

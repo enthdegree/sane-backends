@@ -39,6 +39,9 @@ usb 0x04e8 0x342e
 # Samsung SCX-4600
 usb 0x04e8 0x3433
 
+# Samsung CLX 3185
+usb 0x04e8 0x343d
+
 #Xerox WorkCentre 3119 Series
 usb 0x0924 0x4265
 

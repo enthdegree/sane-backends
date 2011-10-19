@@ -98,6 +98,11 @@
 :usbid "0x04e8" "0x3433"
 :status :good
 
+:model "CLX-3185"
+:interface "USB"
+:usbid "0x04e8" "0x343d"
+:status :good
+
 :model "SCX-4623"
 :interface "USB"
 :usbid "0x04e8" "0x3434"

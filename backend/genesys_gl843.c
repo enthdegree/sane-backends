@@ -1023,7 +1023,7 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                                   scan_steps,
                                   &z1,
                                   &z2);
-  if(scan_yres>=1200)
+  if(scan_yres>600)
     {
       z1=0;
       z2=0;

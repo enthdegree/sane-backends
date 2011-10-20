@@ -1158,59 +1158,8 @@ static Genesys_Model hpg4010_model = {
   GENESYS_GL843,
   NULL,
 
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO when settled down, add 800 and 1600 */
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0}, /* TODO 4800 available */
-  {16, 8, 0},			/* possible depths in gray mode */
-  {16, 8, 0},			/* possible depths in color mode */
-
-  SANE_FIX (6.55),		/* Start of scan area in mm  (x) */
-  SANE_FIX (15.00),		/* Start of scan area in mm (y) */
-  SANE_FIX (217.9),		/* Size of scan area in mm (x) */
-  SANE_FIX (315.0),		/* Size of scan area in mm (y) */
-
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
-  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
-				   after finishing scanning in mm */
-
-  0, 32, 48,			/* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
-
-  SANE_FALSE,			/* Is this a CIS scanner? */
-  SANE_FALSE,			/* Is this a sheetfed scanner? */
-  CCD_G4050,
-  DAC_G4050,
-  GPO_G4050,
-  MOTOR_G4050,
-  GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_DARK_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
-  100,
-  100
-};
-
-static Genesys_Model hpg4050_model = {
-  "hewlett-packard-scanjet-g4050",	/* Name */
-  "Hewlett Packard",			/* Device vendor string */
-  "ScanJet G4050",			/* Device model name */
-  GENESYS_GL843,
-  NULL,
-
-  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
-  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -1246,7 +1195,62 @@ static Genesys_Model hpg4050_model = {
   DAC_G4050,
   GPO_G4050,
   MOTOR_G4050,
-  GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_LAZY_INIT | 
+  GENESYS_FLAG_OFFSET_CALIBRATION |
+  GENESYS_FLAG_STAGGERED_LINE |
+  GENESYS_FLAG_SKIP_WARMUP |
+  GENESYS_FLAG_DARK_CALIBRATION |
+  GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
+  100,
+  100
+};
+
+static Genesys_Model hpg4050_model = {
+  "hewlett-packard-scanjet-g4050",	/* Name */
+  "Hewlett Packard",			/* Device vendor string */
+  "ScanJet G4050",			/* Device model name */
+  GENESYS_GL843,
+  NULL,
+
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (8.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (13.00),		/* Start of scan area in mm (y) */
+  SANE_FIX (217.9),		/* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
+  SANE_FIX (315.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 24, 48,		        /* RGB CCD Line-distance correction in line number */
+  				/* 0 38 76 OK 1200/2400 */
+  				/* 0 24 48 OK [100,600] dpi */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CCD_G4050,
+  DAC_G4050,
+  GPO_G4050,
+  MOTOR_G4050,
+  GENESYS_FLAG_LAZY_INIT | 
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_STAGGERED_LINE |
   GENESYS_FLAG_SKIP_WARMUP |

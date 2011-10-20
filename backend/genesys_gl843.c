@@ -682,6 +682,9 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x94, 0xff);
   SETREG (0x9e, 0x00);
   SETREG (0xab, 0x50);
+     
+  /* so many time burnt for this register ....*/
+  SETREG (0xaa, 0x00);
 
   /* G4050 values */
   if ((strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0)
@@ -709,9 +712,6 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x99, 0x30);
       SETREG (0x9a, 0x01);
       SETREG (0x9b, 0x80);
-     
-      /* so many time burnt for this register ....*/
-      SETREG (0xaa, 0x00);
       SETREG (0xac, 0x00);
     }
 

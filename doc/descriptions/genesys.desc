@@ -79,14 +79,14 @@
 :model "ScanJet G4010"
 :interface "USB"
 :usbid "0x03f0" "0x4505"
-:status :basic
-:comment "resolution from 100 to 600 supported, 1200 and 2400 remain to be added"
+:status :good
+:comment "resolution from 100 to 2400 supported, UTA not supported yet"
 
 :model "ScanJet G4050"
 :interface "USB"
 :usbid "0x03f0" "0x4605"
 :status :basic
-:comment "resolution from 100 to 600 supported, 1200 and 2400 remain to be added"
+:comment "resolution from 100 to 2400 supported, UTA not supported yet"
 
 ; -----------------------------------------------------------------------------
 

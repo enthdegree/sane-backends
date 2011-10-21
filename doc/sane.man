@@ -260,9 +260,9 @@ and adf scanners. See
 for details.
 .TP
 .B genesys
-The genesys backend provides support for scanners based on the Genesys Logic 
-GL646 and GL841 chips like the Medion 6471 and Hewlett-Packard 2300c.
-Support for GL841 based scanners is far from being complete. See
+The genesys backend provides support for several scanners based on the Genesys Logic 
+GL646, GL841, GL843, GL847 and GL124 chips like the Medion 6471 and Hewlett-Packard 2300c.
+ See
 .BR sane\-genesys (5)
 for details.
 .TP

@@ -7076,7 +7076,8 @@ sane_close (SANE_Handle handle)
   else
     first_handle = s->next;
 
-  /* maybe todo: shut down scanner */
+  /* LAMP OFF : same register across all the ASICs */
+  sanei_genesys_write_register (s->dev, 0x03, 0x00);
 
   /* we need this to avoid ASIC getting stuck
    * in bulk writes */

@@ -10,72 +10,72 @@
 :model "i1210"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x600a"
+:usbid "0x040a" "0x600a"
 :comment "No report yet."
 
 :model "i1220"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x600b"
+:usbid "0x040a" "0x600b"
 :comment "No report yet."
 
 :model "i1310"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x600c"
+:usbid "0x040a" "0x600c"
 :comment "No report yet."
 
 :model "i1320"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x600d"
+:usbid "0x040a" "0x600d"
 :comment "Reported to work on Fedora 12."
 
 :model "i1410"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x600e"
+:usbid "0x040a" "0x600e"
 :comment "No report yet."
 
 :model "i1420"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x600f"
+:usbid "0x040a" "0x600f"
 :comment "No report yet."
 
 :model "i1440"
 :status :untested
 :interface "USB"
-;:usbid "0x004a" "0x6010"
+;:usbid "0x040a" "0x6010"
 :comment "No report yet."
 
 :model "i2400"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x601c"
+:usbid "0x040a" "0x601c"
 :comment "No report yet."
 
 :model "i2600"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x601d"
+:usbid "0x040a" "0x601d"
 :comment "No report yet."
 
 :model "i2800"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x601e"
+:usbid "0x040a" "0x601e"
 :comment "No report yet."
 
 :model "i1000 A3 accessory"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x6012"
+:usbid "0x040a" "0x6012"
 :comment "Flatbed attachment for use with Kodak ADF scanner. Requires 12V power over usb cable. No report yet."
 
 :model "i1000 A4 accessory"
 :status :untested
 :interface "USB"
-:usbid "0x004a" "0x6011"
+:usbid "0x040a" "0x6011"
 :comment "Flatbed attachment for use with Kodak ADF scanner. Requires 12V power over usb cable. No report yet."
 

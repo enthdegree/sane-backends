@@ -31,6 +31,12 @@
 :usbid "0x040a" "0x600d"
 :comment "Reported to work on Fedora 12."
 
+:model "i1405"
+:status :untested
+:interface "USB"
+:usbid "0x040a" "0x601a"
+:comment "No report yet."
+
 :model "i1410"
 :status :untested
 :interface "USB"
@@ -46,7 +52,7 @@
 :model "i1440"
 :status :untested
 :interface "USB"
-;:usbid "0x040a" "0x6010"
+:usbid "0x040a" "0x6010"
 :comment "No report yet."
 
 :model "i2400"

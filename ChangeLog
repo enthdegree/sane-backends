@@ -1,3 +1,6 @@
+2011-10-30 Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* backend/kvs40xx.h: Use portable endian macro from config.h
+
 2011-10-21 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
 	backend/genesys_gl*.c backend/genesys_gl843.h

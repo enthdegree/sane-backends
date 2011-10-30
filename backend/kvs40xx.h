@@ -8,7 +8,7 @@
    Panasonic KV-S40xx USB-SCSI scanner driver.
 */
 
-#include <endian.h>
+#include "../include/sane/config.h"
 #include <semaphore.h>
 
 #undef  BACKEND_NAME
@@ -226,7 +226,7 @@ swap_bytes32 (u32 x)
     (x & (u32) 0x0000ff00UL) << 8 | (x & (u32) 0x00ff0000UL) >> 8;
 }
 
-#if __BYTE_ORDER == __BIG_ENDIAN
+#if WORDS_BIGENDIAN
 static inline void
 set24 (u8 * p, u32 x)
 {

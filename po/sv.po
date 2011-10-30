@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.18\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-30 10:39+0100\n"
-"PO-Revision-Date: 2011-10-30 13:37+0100\n"
+"PO-Revision-Date: 2011-10-30 14:24+0100\n"
 "Last-Translator: Mattias Ellert <mattias.ellert@tsl.uu.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "Language: sv\n"
@@ -3197,7 +3197,7 @@ msgstr ""
 #: ../backend/kvs40xx_opt.c:142
 #, no-c-format
 msgid "Check"
-msgstr "Kontrollera"
+msgstr "Check"
 
 #: ../backend/kvs1025_opt.c:101 ../backend/kvs20xx_opt.c:74
 #: ../backend/kvs40xx_opt.c:128 ../backend/kvs40xx_opt.c:145

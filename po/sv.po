@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-06 22:10-0400\n"
-"PO-Revision-Date: 2010-01-17 10:25+0100\n"
+"POT-Creation-Date: 2011-10-30 10:39+0100\n"
+"PO-Revision-Date: 2011-10-30 13:37+0100\n"
 "Last-Translator: Mattias Ellert <mattias.ellert@tsl.uu.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "Language: sv\n"
@@ -32,7 +32,7 @@ msgstr "Standard"
 
 #: ../include/sane/saneopts.h:157 ../backend/artec_eplus48u.c:2884
 #: ../backend/epson.c:3284 ../backend/epson2.c:1269
-#: ../backend/genesys.c:6028 ../backend/gt68xx.c:703
+#: ../backend/genesys.c:5823 ../backend/gt68xx.c:703
 #: ../backend/hp3500.c:1003 ../backend/hp-option.c:3297
 #: ../backend/kvs1025_opt.c:640 ../backend/kvs20xx_opt.c:284
 #: ../backend/kvs40xx_opt.c:505 ../backend/leo.c:823
@@ -50,7 +50,7 @@ msgid "Geometry"
 msgstr "Geometri"
 
 #: ../include/sane/saneopts.h:158 ../backend/artec_eplus48u.c:2805
-#: ../backend/canon.c:1492 ../backend/genesys.c:6088
+#: ../backend/canon.c:1492 ../backend/genesys.c:5883
 #: ../backend/gt68xx.c:672 ../backend/hp-option.c:2953
 #: ../backend/kvs1025_opt.c:704 ../backend/leo.c:871
 #: ../backend/ma1509.c:599 ../backend/matsushita.c:1189
@@ -1034,42 +1034,42 @@ msgid ""
 "Duplex scan provide a scan of the front and back side of the document"
 msgstr "Dubbelsidig inläsning läser in dokumentets framsida och baksida"
 
-#: ../backend/canon630u.c:158
+#: ../backend/canon630u.c:159
 #, no-c-format
 msgid "Calibrate Scanner"
 msgstr "Kalibrera bildläsaren"
 
-#: ../backend/canon630u.c:159
+#: ../backend/canon630u.c:160
 #, no-c-format
 msgid "Force scanner calibration before scan"
 msgstr "Utför bildläsarkalibrering före inläsning"
 
-#: ../backend/canon630u.c:258 ../backend/umax1220u.c:208
+#: ../backend/canon630u.c:259 ../backend/umax1220u.c:208
 #, no-c-format
 msgid "Grayscale scan"
 msgstr "Gråskaleinläsning"
 
-#: ../backend/canon630u.c:259 ../backend/umax1220u.c:209
+#: ../backend/canon630u.c:260 ../backend/umax1220u.c:209
 #, no-c-format
 msgid "Do a grayscale rather than color scan"
 msgstr "Gör en gråskaleinläsning i stället för en färginläsning"
 
-#: ../backend/canon630u.c:305
+#: ../backend/canon630u.c:306
 #, no-c-format
 msgid "Analog Gain"
 msgstr "Analog förstärkning"
 
-#: ../backend/canon630u.c:306
+#: ../backend/canon630u.c:307
 #, no-c-format
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Öka eller minska CCD-sensorns analoga förstärkning"
 
-#: ../backend/canon630u.c:346 ../backend/epson.h:68 ../backend/epson2.h:72
+#: ../backend/canon630u.c:347 ../backend/epson.h:68 ../backend/epson2.h:72
 #, no-c-format
 msgid "Gamma Correction"
 msgstr "Gammakorrigering"
 
-#: ../backend/canon630u.c:347
+#: ../backend/canon630u.c:348
 #, no-c-format
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Väljer gammakorrigerad överföringskurva"
@@ -1538,7 +1538,7 @@ msgstr "Välj filmtyp"
 msgid "Select the film type"
 msgstr "Välj filmtyp"
 
-#: ../backend/canon_dr.c:330 ../backend/epjitsu.c:203
+#: ../backend/canon_dr.c:336 ../backend/epjitsu.c:203
 #: ../backend/epson.c:501 ../backend/epson2.c:110 ../backend/fujitsu.c:548
 #: ../backend/gt68xx.c:148 ../backend/hp3900_sane.c:418
 #: ../backend/hp3900_sane.c:427 ../backend/hp3900_sane.c:1017
@@ -1551,26 +1551,26 @@ msgstr "Välj filmtyp"
 msgid "Flatbed"
 msgstr "Flatbädd"
 
-#: ../backend/canon_dr.c:331 ../backend/epjitsu.c:204
+#: ../backend/canon_dr.c:337 ../backend/epjitsu.c:204
 #: ../backend/fujitsu.c:549 ../backend/kodak.c:135
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF Front"
-msgstr "automatiska dokumentmatarens lock är öppet"
+msgstr "Automatisk dokumentmatare framsida"
 
-#: ../backend/canon_dr.c:332 ../backend/epjitsu.c:205
+#: ../backend/canon_dr.c:338 ../backend/epjitsu.c:205
 #: ../backend/fujitsu.c:550 ../backend/kodak.c:136
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF Back"
-msgstr "stopp i den automatiska dokumentmataren"
+msgstr "Automatisk dokumentmatare baksida"
 
-#: ../backend/canon_dr.c:333 ../backend/epjitsu.c:206
+#: ../backend/canon_dr.c:339 ../backend/epjitsu.c:206
 #: ../backend/fujitsu.c:551 ../backend/hp5590.c:84 ../backend/kodak.c:137
 #: ../backend/pixma.c:675
 #, no-c-format
 msgid "ADF Duplex"
 msgstr "Automatisk dokumentmatare dubbelsidigt"
 
-#: ../backend/canon_dr.c:340 ../backend/epson.c:599
+#: ../backend/canon_dr.c:346 ../backend/epson.c:599
 #: ../backend/epson.c:3082 ../backend/epson2.c:195
 #: ../backend/fujitsu.c:568 ../backend/genesys.c:110
 #: ../backend/genesys.c:117 ../backend/gt68xx_low.h:136
@@ -1579,7 +1579,7 @@ msgstr "Automatisk dokumentmatare dubbelsidigt"
 msgid "Red"
 msgstr "Röd"
 
-#: ../backend/canon_dr.c:341 ../backend/epson.c:600
+#: ../backend/canon_dr.c:347 ../backend/epson.c:600
 #: ../backend/epson.c:3078 ../backend/epson2.c:196
 #: ../backend/fujitsu.c:569 ../backend/genesys.c:111
 #: ../backend/genesys.c:118 ../backend/gt68xx_low.h:137
@@ -1588,7 +1588,7 @@ msgstr "Röd"
 msgid "Green"
 msgstr "Grön"
 
-#: ../backend/canon_dr.c:342 ../backend/epson.c:601
+#: ../backend/canon_dr.c:348 ../backend/epson.c:601
 #: ../backend/epson.c:3086 ../backend/epson2.c:197
 #: ../backend/fujitsu.c:570 ../backend/genesys.c:112
 #: ../backend/genesys.c:119 ../backend/gt68xx_low.h:138
@@ -1597,22 +1597,22 @@ msgstr "Grön"
 msgid "Blue"
 msgstr "Blå"
 
-#: ../backend/canon_dr.c:343
-#, fuzzy, no-c-format
+#: ../backend/canon_dr.c:349
+#, no-c-format
 msgid "Enhance Red"
-msgstr "Förbättring"
+msgstr "Framhäv rött"
 
-#: ../backend/canon_dr.c:344
-#, fuzzy, no-c-format
+#: ../backend/canon_dr.c:350
+#, no-c-format
 msgid "Enhance Green"
-msgstr "Förbättring"
+msgstr "Framhäv grönt"
 
-#: ../backend/canon_dr.c:345
-#, fuzzy, no-c-format
+#: ../backend/canon_dr.c:351
+#, no-c-format
 msgid "Enhance Blue"
-msgstr "Förbättring"
+msgstr "Framhäv blått"
 
-#: ../backend/canon_dr.c:347 ../backend/epson.c:556 ../backend/epson.c:564
+#: ../backend/canon_dr.c:353 ../backend/epson.c:556 ../backend/epson.c:564
 #: ../backend/epson.c:576 ../backend/epson.c:598 ../backend/epson2.c:159
 #: ../backend/epson2.c:167 ../backend/epson2.c:179 ../backend/epson2.c:194
 #: ../backend/epson2.c:208 ../backend/fujitsu.c:574
@@ -1624,10 +1624,10 @@ msgstr "Förbättring"
 msgid "None"
 msgstr "Inget"
 
-#: ../backend/canon_dr.c:348 ../backend/fujitsu.c:575
+#: ../backend/canon_dr.c:354 ../backend/fujitsu.c:575
 #, no-c-format
 msgid "JPEG"
-msgstr ""
+msgstr "JPEG"
 
 #: ../backend/epson.c:491 ../backend/epson2.c:103
 #: ../backend/magicolor.c:156
@@ -1828,7 +1828,7 @@ msgid "Max"
 msgstr "Max"
 
 #: ../backend/epson.c:2799 ../backend/epson2.c:954
-#: ../backend/genesys.c:5959 ../backend/gt68xx.c:458
+#: ../backend/genesys.c:5747 ../backend/gt68xx.c:458
 #: ../backend/hp-option.c:2914 ../backend/kvs1025_opt.c:522
 #: ../backend/kvs20xx_opt.c:170 ../backend/kvs40xx_opt.c:319
 #: ../backend/ma1509.c:501 ../backend/matsushita.c:1084
@@ -2030,13 +2030,13 @@ msgid "Eject document after scanning"
 msgstr "Mata ut dokument efter inläsning"
 
 #: ../backend/epson.c:3443 ../backend/epson2.c:1395
-#: ../backend/magicolor.c:2345
+#: ../backend/magicolor.c:2395
 #, no-c-format
 msgid "ADF Mode"
 msgstr "Dokumentmatarläge"
 
 #: ../backend/epson.c:3445 ../backend/epson2.c:1397
-#: ../backend/magicolor.c:2347
+#: ../backend/magicolor.c:2397
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr ""
@@ -2129,12 +2129,12 @@ msgstr "Av"
 #: ../backend/fujitsu.c:562
 #, no-c-format
 msgid "DTC"
-msgstr ""
+msgstr "DTC"
 
 #: ../backend/fujitsu.c:563
 #, no-c-format
 msgid "SDTC"
-msgstr ""
+msgstr "SDTC"
 
 #: ../backend/fujitsu.c:565 ../backend/teco1.c:1152
 #: ../backend/teco1.c:1153 ../backend/teco2.c:1971 ../backend/teco2.c:1972
@@ -2144,44 +2144,44 @@ msgid "Dither"
 msgstr "Gitter"
 
 #: ../backend/fujitsu.c:566
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Diffusion"
-msgstr "Feldiffusion"
+msgstr "Diffusion"
 
 #: ../backend/fujitsu.c:571
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "White"
-msgstr "Vitnivå"
+msgstr "Vit"
 
 #: ../backend/fujitsu.c:572
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Black"
-msgstr "Svartnivå"
+msgstr "Svart"
 
 #: ../backend/fujitsu.c:577
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Continue"
-msgstr "Villkorlig"
+msgstr "Fortsätt"
 
 #: ../backend/fujitsu.c:578
 #, no-c-format
 msgid "Stop"
-msgstr ""
+msgstr "Avsluta"
 
 #: ../backend/fujitsu.c:580
 #, no-c-format
 msgid "10mm"
-msgstr ""
+msgstr "10 mm"
 
 #: ../backend/fujitsu.c:581
 #, no-c-format
 msgid "15mm"
-msgstr ""
+msgstr "15 mm"
 
 #: ../backend/fujitsu.c:582
 #, no-c-format
 msgid "20mm"
-msgstr ""
+msgstr "20 mm"
 
 #: ../backend/fujitsu.c:584 ../backend/hp-option.c:3045
 #, no-c-format
@@ -2189,14 +2189,14 @@ msgid "Horizontal"
 msgstr "Vågrätt"
 
 #: ../backend/fujitsu.c:585
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Horizontal bold"
-msgstr "Vågrätt"
+msgstr "Vågrätt fetstil"
 
 #: ../backend/fujitsu.c:586
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Horizontal narrow"
-msgstr "Vågrätt"
+msgstr "Vågrätt smal"
 
 #: ../backend/fujitsu.c:587 ../backend/hp-option.c:3044
 #, no-c-format
@@ -2204,63 +2204,97 @@ msgid "Vertical"
 msgstr "Lodrätt"
 
 #: ../backend/fujitsu.c:588
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Vertical bold"
-msgstr "Lodrätt"
+msgstr "Lodrätt fetstil"
 
 #: ../backend/fujitsu.c:590
 #, no-c-format
 msgid "Top to bottom"
-msgstr ""
+msgstr "Uppifrån och ner"
 
 #: ../backend/fujitsu.c:591
 #, no-c-format
 msgid "Bottom to top"
-msgstr ""
+msgstr "Nerifrån och upp"
 
 #: ../backend/fujitsu.c:593
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Front"
-msgstr "Fotografi"
+msgstr "Framsida"
 
 #: ../backend/fujitsu.c:594
 #, no-c-format
 msgid "Back"
-msgstr ""
+msgstr "Baksida"
 
-#: ../backend/genesys.c:6177
+#: ../backend/genesys.c:5965
+#, no-c-format
+msgid "Software crop"
+msgstr "Mjukvarubeskärning"
+
+#: ../backend/genesys.c:5966
+#, no-c-format
+msgid "Request backend to remove border from pages digitally"
+msgstr "Begär att drivrutinen tar bort ram från sidor automatiskt"
+
+#: ../backend/genesys.c:5974 ../backend/kvs1025_opt.c:911
+#, no-c-format
+msgid "Software blank skip percentage"
+msgstr "Procentsats för hoppa över blanka sidor"
+
+#: ../backend/genesys.c:5975 ../backend/kvs1025_opt.c:913
+#, no-c-format
+msgid "Request driver to discard pages with low numbers of dark pixels"
+msgstr "Begär att drivrutinen hoppar över sidor med få mörka pixlar"
+
+#: ../backend/genesys.c:5985 ../backend/kvs1025_opt.c:893
+#, no-c-format
+msgid "Software derotate"
+msgstr "Mjukvaruavrotera"
+
+#: ../backend/genesys.c:5986 ../backend/kvs1025_opt.c:895
+#, no-c-format
+msgid "Request driver to detect and correct 90 degree image rotation"
+msgstr ""
+"Begär att drivrutinen detekterar och korrigerar 90 graders bildrotation"
+
+#: ../backend/genesys.c:5993
 #, no-c-format
 msgid "Extras"
 msgstr "Övrigt"
 
-#: ../backend/genesys.c:6196
-#, fuzzy, no-c-format
+#: ../backend/genesys.c:6012
+#, no-c-format
 msgid "Threshold curve"
-msgstr "Tröskelvärde"
+msgstr "Tröskelkurva"
 
-#: ../backend/genesys.c:6197
+#: ../backend/genesys.c:6013
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
-msgstr ""
+msgstr "Dynamisk tröskelkurva, från ljust till mörkt, vanligen 50-65"
 
-#: ../backend/genesys.c:6206
+#: ../backend/genesys.c:6022
 #, no-c-format
 msgid "Disable dynamic lineart"
-msgstr ""
+msgstr "Avaktivera dynamisk streckteckning"
 
-#: ../backend/genesys.c:6208
+#: ../backend/genesys.c:6024
 #, no-c-format
 msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
 "instead on hardware lineart."
 msgstr ""
+"Stäng av användandet av en adaptiv algoritm i mjukvaran för att generera "
+"streckteckningsinläsningar för att i stället använda hårdvarans "
+"streckteckningsinläsningsläge."
 
-#: ../backend/genesys.c:6223
+#: ../backend/genesys.c:6039
 #, no-c-format
 msgid "Disable interpolation"
 msgstr "Stäng av interpolering"
 
-#: ../backend/genesys.c:6226
+#: ../backend/genesys.c:6042
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
@@ -2270,24 +2304,24 @@ msgstr ""
 "mindre än den vertikala upplösningen stänger detta av den horisontella "
 "interpoleringen."
 
-#: ../backend/genesys.c:6235
+#: ../backend/genesys.c:6051
 #, no-c-format
 msgid "Color Filter"
 msgstr "Färgfilter"
 
-#: ../backend/genesys.c:6238
+#: ../backend/genesys.c:6054
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 "När gråskala eller streckteckning används väljer denna inställning den "
 "använda färgen."
 
-#: ../backend/genesys.c:6264
+#: ../backend/genesys.c:6080
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Lampavstängningstid"
 
-#: ../backend/genesys.c:6267
+#: ../backend/genesys.c:6083
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
@@ -2296,56 +2330,56 @@ msgstr ""
 "Lampan kommer att stängas av efter den angivna tiden (i minuter). Värdet "
 "0 betyder att lampan inte kommer att stängas av."
 
-#: ../backend/genesys.c:6296 ../backend/genesys.c:6297
+#: ../backend/genesys.c:6112 ../backend/genesys.c:6113
 #, no-c-format
 msgid "File button"
 msgstr "Filknapp"
 
-#: ../backend/genesys.c:6349 ../backend/genesys.c:6350
+#: ../backend/genesys.c:6165 ../backend/genesys.c:6166
 #, no-c-format
 msgid "OCR button"
 msgstr "Optisk teckenigenkännings-knapp"
 
-#: ../backend/genesys.c:6363 ../backend/genesys.c:6364
+#: ../backend/genesys.c:6179 ../backend/genesys.c:6180
 #, no-c-format
 msgid "Power button"
 msgstr "Påslagningsknapp"
 
-#: ../backend/genesys.c:6377 ../backend/gt68xx.c:762
+#: ../backend/genesys.c:6193 ../backend/gt68xx.c:762
 #, no-c-format
 msgid "Need calibration"
 msgstr "Behöver kalibrering"
 
-#: ../backend/genesys.c:6378 ../backend/gt68xx.c:763
+#: ../backend/genesys.c:6194 ../backend/gt68xx.c:763
 #, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "Bildläsaren behöver kalibrering för nuvarande inställningar"
 
-#: ../backend/genesys.c:6391 ../backend/gt68xx.c:787
+#: ../backend/genesys.c:6207 ../backend/gt68xx.c:787
 #: ../backend/gt68xx.c:788 ../backend/pixma_sane_options.c:210
 #: ../backend/plustek.c:1079
 #, no-c-format
 msgid "Buttons"
 msgstr "Knappar"
 
-#: ../backend/genesys.c:6398 ../backend/gt68xx.c:794
+#: ../backend/genesys.c:6214 ../backend/gt68xx.c:794
 #: ../backend/hp5400_sane.c:392 ../backend/hp-option.h:97
 #: ../backend/niash.c:728 ../backend/plustek.c:940
 #, no-c-format
 msgid "Calibrate"
 msgstr "Kalibrera"
 
-#: ../backend/genesys.c:6400 ../backend/gt68xx.c:796
+#: ../backend/genesys.c:6216 ../backend/gt68xx.c:796
 #, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "Påbörja kalibrering med specialark"
 
-#: ../backend/genesys.c:6414 ../backend/gt68xx.c:809
+#: ../backend/genesys.c:6230 ../backend/gt68xx.c:809
 #, no-c-format
 msgid "Clear calibration"
 msgstr "Rensa kalibrering"
 
-#: ../backend/genesys.c:6415 ../backend/gt68xx.c:810
+#: ../backend/genesys.c:6231 ../backend/gt68xx.c:810
 #, no-c-format
 msgid "Clear calibration cache"
 msgstr "Rensa kalibreringsdatacache"
@@ -3033,43 +3067,43 @@ msgstr "Automatisk separering"
 
 #: ../backend/kvs1025.h:53 ../backend/kvs20xx_opt.c:306
 #: ../backend/kvs40xx_opt.c:530
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Landscape"
-msgstr "A5 liggande"
+msgstr "Liggande"
 
 #: ../backend/kvs1025.h:54 ../backend/kvs40xx_opt.c:692
 #, no-c-format
 msgid "Inverse Image"
-msgstr ""
+msgstr "Inverterad bild"
 
 #: ../backend/kvs1025.h:56 ../backend/kvs40xx_opt.c:403
 #, no-c-format
 msgid "Long paper mode"
-msgstr ""
+msgstr "Läge för långa papper"
 
 #: ../backend/kvs1025.h:57 ../backend/kvs20xx_opt.c:229
 #: ../backend/kvs40xx_opt.c:392
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Length control mode"
-msgstr "Ställer in densitetsinställningsläge"
+msgstr "Längdkontrollsläge"
 
 #: ../backend/kvs1025.h:58 ../backend/kvs20xx_opt.c:241
 #: ../backend/kvs40xx_opt.c:415
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed mode"
-msgstr "Manuell förfokusering"
+msgstr "Manuell matning"
 
 #: ../backend/kvs1025.h:59 ../backend/kvs20xx_opt.c:253
 #: ../backend/kvs40xx_opt.c:427
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed timeout"
-msgstr "Manuell förfokusering"
+msgstr "Timeout för manuell matning"
 
 #: ../backend/kvs1025.h:60 ../backend/kvs20xx_opt.c:266
 #: ../backend/kvs40xx_opt.c:440
 #, no-c-format
 msgid "Double feed detection"
-msgstr ""
+msgstr "Dubbelmatningsdetektering"
 
 #: ../backend/kvs1025.h:63 ../backend/kvs20xx_opt.c:204
 #: ../backend/kvs40xx_opt.c:353 ../backend/matsushita.h:223
@@ -3089,9 +3123,9 @@ msgid "bw"
 msgstr ""
 
 #: ../backend/kvs1025_opt.c:40
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone"
-msgstr "Raster"
+msgstr ""
 
 #: ../backend/kvs1025_opt.c:41
 #, no-c-format
@@ -3099,9 +3133,9 @@ msgid "gray"
 msgstr ""
 
 #: ../backend/kvs1025_opt.c:42
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "color"
-msgstr "Färg"
+msgstr ""
 
 #: ../backend/kvs1025_opt.c:61 ../backend/kvs40xx_opt.c:107
 #: ../backend/kvs40xx_opt.c:1046
@@ -3125,15 +3159,15 @@ msgstr ""
 #: ../backend/kvs20xx_opt.c:55 ../backend/kvs40xx.c:703
 #: ../backend/kvs40xx.c:721 ../backend/kvs40xx_opt.c:101
 #: ../backend/kvs40xx_opt.c:1086
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "continuous"
-msgstr "Villkorlig"
+msgstr ""
 
 #: ../backend/kvs1025_opt.c:83 ../backend/kvs20xx_opt.c:61
 #: ../backend/kvs40xx_opt.c:114
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "off"
-msgstr "Av"
+msgstr ""
 
 #: ../backend/kvs1025_opt.c:84 ../backend/kvs20xx_opt.c:62
 #: ../backend/kvs40xx_opt.c:115
@@ -3163,85 +3197,85 @@ msgstr ""
 #: ../backend/kvs40xx_opt.c:142
 #, no-c-format
 msgid "Check"
-msgstr ""
+msgstr "Kontrollera"
 
 #: ../backend/kvs1025_opt.c:101 ../backend/kvs20xx_opt.c:74
 #: ../backend/kvs40xx_opt.c:128 ../backend/kvs40xx_opt.c:145
 #, no-c-format
 msgid "A5"
-msgstr ""
+msgstr "A5"
 
 #: ../backend/kvs1025_opt.c:102 ../backend/kvs20xx_opt.c:75
 #: ../backend/kvs40xx_opt.c:129 ../backend/kvs40xx_opt.c:146
 #, no-c-format
 msgid "A6"
-msgstr ""
+msgstr "A6"
 
 #: ../backend/kvs1025_opt.c:106 ../backend/kvs20xx_opt.c:79
 #: ../backend/kvs40xx_opt.c:133 ../backend/kvs40xx_opt.c:150
 #, no-c-format
 msgid "B5"
-msgstr ""
+msgstr "B5"
 
 #: ../backend/kvs1025_opt.c:107 ../backend/kvs20xx_opt.c:80
 #: ../backend/kvs40xx_opt.c:134 ../backend/kvs40xx_opt.c:151
 #, no-c-format
 msgid "B6"
-msgstr ""
+msgstr "B6"
 
 #: ../backend/kvs1025_opt.c:108 ../backend/kvs20xx_opt.c:81
 #: ../backend/kvs40xx_opt.c:135 ../backend/kvs40xx_opt.c:152
 #, no-c-format
 msgid "Legal"
-msgstr ""
+msgstr "US-Legal"
 
 #: ../backend/kvs1025_opt.c:149 ../backend/kvs40xx_opt.c:238
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "bayer_64"
-msgstr "Bayer"
+msgstr "Bayer 64"
 
 #: ../backend/kvs1025_opt.c:150 ../backend/kvs40xx_opt.c:239
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "bayer_16"
-msgstr "Bayer"
+msgstr "Bayer 16"
 
 #: ../backend/kvs1025_opt.c:151 ../backend/kvs40xx_opt.c:240
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone_32"
-msgstr "Raster"
+msgstr "Raster 32"
 
 #: ../backend/kvs1025_opt.c:152 ../backend/kvs40xx_opt.c:241
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone_64"
-msgstr "Raster"
+msgstr "Raster 64"
 
 #: ../backend/kvs1025_opt.c:153
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "diffusion"
-msgstr "Feldiffusion"
+msgstr "diffusion"
 
 #: ../backend/kvs1025_opt.c:166 ../backend/kvs1025_opt.c:228
 #: ../backend/kvs1025_opt.c:241 ../backend/kvs20xx_opt.c:128
 #: ../backend/kvs20xx_opt.c:136 ../backend/kvs40xx_opt.c:214
 #: ../backend/kvs40xx_opt.c:222 ../backend/kvs40xx_opt.c:257
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "normal"
-msgstr "Normal"
+msgstr "normal"
 
 #: ../backend/kvs1025_opt.c:167 ../backend/kvs40xx_opt.c:258
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "light"
-msgstr "Belysning"
+msgstr "ljus"
 
 #: ../backend/kvs1025_opt.c:168 ../backend/kvs40xx_opt.c:259
 #, no-c-format
 msgid "dark"
-msgstr ""
+msgstr "mörk"
 
 #: ../backend/kvs1025_opt.c:179 ../backend/kvs40xx_opt.c:270
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "From scanner"
-msgstr "filmbildläsare"
+msgstr "Från bildläsare"
 
 #: ../backend/kvs1025_opt.c:180 ../backend/kvs40xx_opt.c:271
 #: ../backend/matsushita.c:177
@@ -3250,15 +3284,15 @@ msgid "From paper"
 msgstr "Från papper"
 
 #: ../backend/kvs1025_opt.c:192 ../backend/kvs40xx_opt.c:283
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "default"
-msgstr "Standard"
+msgstr "standard"
 
 #: ../backend/kvs1025_opt.c:211 ../backend/kvs20xx_opt.c:122
 #: ../backend/kvs40xx_opt.c:208
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "smooth"
-msgstr "Jämn"
+msgstr "jämn"
 
 #: ../backend/kvs1025_opt.c:212 ../backend/kvs20xx_opt.c:118
 #: ../backend/kvs40xx_opt.c:204
@@ -3268,55 +3302,55 @@ msgstr ""
 
 #: ../backend/kvs1025_opt.c:213 ../backend/kvs20xx_opt.c:119
 #: ../backend/kvs40xx_opt.c:205
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "low"
-msgstr "Långsam"
+msgstr "låg"
 
 #: ../backend/kvs1025_opt.c:214 ../backend/kvs1025_opt.c:804
 #: ../backend/kvs20xx_opt.c:120 ../backend/kvs40xx_opt.c:206
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "medium"
-msgstr "Medel"
+msgstr "medel"
 
 #: ../backend/kvs1025_opt.c:215 ../backend/kvs20xx_opt.c:121
 #: ../backend/kvs40xx_opt.c:207
 #, no-c-format
 msgid "high"
-msgstr ""
+msgstr "hög"
 
 #: ../backend/kvs1025_opt.c:229 ../backend/kvs20xx_opt.c:129
 #: ../backend/kvs40xx_opt.c:215
 #, no-c-format
 msgid "crt"
-msgstr ""
+msgstr "bildskärm"
 
 #: ../backend/kvs1025_opt.c:230
 #, no-c-format
 msgid "linier"
-msgstr ""
+msgstr "linjär"
 
 #: ../backend/kvs1025_opt.c:242 ../backend/kvs20xx_opt.c:137
 #: ../backend/kvs40xx_opt.c:223
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "red"
-msgstr "Röd"
+msgstr "röd"
 
 #: ../backend/kvs1025_opt.c:243 ../backend/kvs20xx_opt.c:138
 #: ../backend/kvs40xx_opt.c:224
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "green"
-msgstr "Grön"
+msgstr "grön"
 
 #: ../backend/kvs1025_opt.c:244 ../backend/kvs20xx_opt.c:139
 #: ../backend/kvs40xx_opt.c:225
 #, no-c-format
 msgid "blue"
-msgstr ""
+msgstr "blå"
 
 #: ../backend/kvs1025_opt.c:562
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the scan source"
-msgstr "Bildläsarkälla"
+msgstr "Väljer bildläsarkälla"
 
 #: ../backend/kvs1025_opt.c:573 ../backend/kvs20xx_opt.c:217
 #: ../backend/kvs40xx_opt.c:366 ../backend/matsushita.c:1126
@@ -3331,32 +3365,32 @@ msgid "Sets the feeding mode"
 msgstr "Ställer in dokumentmatarläge"
 
 #: ../backend/kvs1025_opt.c:584
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable/Disable long paper mode"
-msgstr "Aktivera/avaktivera autofokus"
+msgstr "Aktivera/avaktivera läge för långt papper"
 
 #: ../backend/kvs1025_opt.c:593
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable/Disable length control mode"
-msgstr "Ställer in densitetsinställningsläge"
+msgstr "Aktivera/avaktivera läge för längdkontroll"
 
 #: ../backend/kvs1025_opt.c:601 ../backend/kvs20xx_opt.c:242
 #: ../backend/kvs40xx_opt.c:416
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the manual feed mode"
-msgstr "Ställer in dokumentmatarläge"
+msgstr "Ställer in manuellt matningsläge"
 
 #: ../backend/kvs1025_opt.c:612 ../backend/kvs20xx_opt.c:254
 #: ../backend/kvs40xx_opt.c:428
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the manual feed timeout in seconds"
-msgstr "Ställer in dokumentmatarläge"
+msgstr "Ställer in timeout för manuell matning i sekunder"
 
 #: ../backend/kvs1025_opt.c:625 ../backend/kvs20xx_opt.c:267
 #: ../backend/kvs40xx_opt.c:441
 #, no-c-format
 msgid "Enable/Disable double feed detection"
-msgstr ""
+msgstr "Aktivera/avaktivera dubbelmatningsdetekteing"
 
 #: ../backend/kvs1025_opt.c:631 ../backend/kvs20xx_opt.c:275
 #: ../backend/kvs40xx_opt.c:496
@@ -3368,19 +3402,19 @@ msgstr ""
 #: ../backend/kvs40xx_opt.c:497
 #, no-c-format
 msgid "Fit to page"
-msgstr ""
+msgstr "Anpassa till sida"
 
 #: ../backend/kvs1025_opt.c:634 ../backend/kvs20xx_opt.c:277
 #: ../backend/kvs40xx_opt.c:498
 #, no-c-format
 msgid "Scanner shrinks image to fit scanned page"
-msgstr ""
+msgstr "Bildläsaren krymper sidan för att rymmas på den inlästa sidan"
 
 #: ../backend/kvs1025_opt.c:661 ../backend/kvs20xx_opt.c:308
 #: ../backend/kvs40xx_opt.c:532
 #, no-c-format
 msgid "Set paper position : true for landscape, false for portrait"
-msgstr ""
+msgstr "Ställ in pappersläge: sant för liggande, falskt för stående"
 
 #: ../backend/kvs1025_opt.c:735 ../backend/matsushita.c:1224
 #, no-c-format
@@ -3429,95 +3463,76 @@ msgstr "Gamma"
 
 #: ../backend/kvs1025_opt.c:818 ../backend/kvs20xx_opt.c:435
 #: ../backend/kvs40xx_opt.c:680
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp color"
-msgstr "Lampa på"
+msgstr "Lampfärg"
 
 #: ../backend/kvs1025_opt.c:819 ../backend/kvs20xx_opt.c:436
 #: ../backend/kvs40xx_opt.c:681
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the lamp color (color dropout)"
-msgstr "Sätter på eller av lampan."
+msgstr "Ställer in lampfärg (blindfärg)"
 
 #: ../backend/kvs1025_opt.c:832
 #, no-c-format
 msgid "Inverse image in B/W or halftone mode"
-msgstr ""
+msgstr "Invertera bild i svart-vitt eller rasterläge"
 
 #: ../backend/kvs1025_opt.c:840
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Mirror image (left/right flip)"
-msgstr "Spegla bilden lodrätt."
+msgstr "Spegla bilden (vänster/höger)"
 
 #: ../backend/kvs1025_opt.c:847
 #, no-c-format
 msgid "jpeg compression"
-msgstr ""
+msgstr "jpeg-komprimmering"
 
 #: ../backend/kvs1025_opt.c:850
 #, no-c-format
 msgid "JPEG Image Compression with Q parameter, '0' - no compression"
-msgstr ""
+msgstr "JPEG-bildkomprimmering med Q-parameter, '0' - ingen komprimmering"
 
 #: ../backend/kvs1025_opt.c:860
 #, no-c-format
 msgid "Rotate image clockwise"
-msgstr ""
+msgstr "Rotera bilden medurs"
 
 #: ../backend/kvs1025_opt.c:862
 #, no-c-format
 msgid "Request driver to rotate pages by a fixed amount"
-msgstr ""
+msgstr "Begär att drivrutinen roterar sidor med ett fixt värde"
 
 #: ../backend/kvs1025_opt.c:872
 #, no-c-format
 msgid "Software deskew"
-msgstr ""
+msgstr "Mjukvaruupplinjering"
 
 #: ../backend/kvs1025_opt.c:874
 #, no-c-format
 msgid "Request driver to rotate skewed pages digitally"
-msgstr ""
+msgstr "Begär att drivrutinen linjerar upp sneda sidor digitalt"
 
 #: ../backend/kvs1025_opt.c:881
 #, no-c-format
 msgid "Software despeckle diameter"
-msgstr ""
+msgstr "Mjukvarufläckborttagningsdiameter"
 
 #: ../backend/kvs1025_opt.c:883
 #, no-c-format
 msgid "Maximum diameter of lone dots to remove from scan"
 msgstr ""
-
-#: ../backend/kvs1025_opt.c:893
-#, no-c-format
-msgid "Software derotate"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:895
-#, no-c-format
-msgid "Request driver to detect and correct 90 degree image rotation"
-msgstr ""
+"Maximal diameter för ensamma prickar som tas bort från den inlästa bilden"
 
 #: ../backend/kvs1025_opt.c:902
 #, no-c-format
 msgid "Software automatic cropping"
-msgstr ""
+msgstr "Automatisk beskärning i mjukvara"
 
 #: ../backend/kvs1025_opt.c:904
 #, no-c-format
 msgid "Request driver to remove border from pages digitally"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:911
-#, no-c-format
-msgid "Software blank skip percentage"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:913
-#, no-c-format
-msgid "Request driver to discard pages with low numbers of dark pixels"
-msgstr ""
+msgstr "Begär att drivrutinen tar bort ramar från sidor auomatiskt"
 
 #: ../backend/kvs20xx_opt.c:232 ../backend/kvs40xx_opt.c:395
 #, no-c-format
@@ -3525,6 +3540,8 @@ msgid ""
 "Length Control Mode is a mode that the scanner reads up to the shorter "
 "length of actual paper or logical document length."
 msgstr ""
+"I längdkontrolläge läser bildläsaren upp till den kortare av verklig "
+"papperslängd och logisk dokumentlängd."
 
 #: ../backend/kvs20xx_opt.c:423 ../backend/kvs20xx_opt.c:424
 #: ../backend/kvs40xx_opt.c:667 ../backend/kvs40xx_opt.c:668
@@ -3541,47 +3558,47 @@ msgstr ""
 #: ../backend/kvs40xx_opt.c:126
 #, no-c-format
 msgid "A3"
-msgstr ""
+msgstr "A3"
 
 #: ../backend/kvs40xx_opt.c:131
 #, no-c-format
 msgid "Double letter 11x17 in"
-msgstr ""
+msgstr "Dubbelt US-Letter 11x17 tum"
 
 #: ../backend/kvs40xx_opt.c:132
 #, no-c-format
 msgid "B4"
-msgstr ""
+msgstr "B4"
 
 #: ../backend/kvs40xx_opt.c:230
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "High sensivity"
-msgstr "Utskrift med hög densitet"
+msgstr "Hög känsighet"
 
 #: ../backend/kvs40xx_opt.c:231
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Low sensivity"
-msgstr "Utskrift med låg densitet"
+msgstr "Låg känsighet"
 
 #: ../backend/kvs40xx_opt.c:242
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "err_diffusion"
 msgstr "Feldiffusion"
 
 #: ../backend/kvs40xx_opt.c:248
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "No detection"
-msgstr "Ingen korrigering"
+msgstr "Ingen detektering"
 
 #: ../backend/kvs40xx_opt.c:249
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Normal mode"
-msgstr "Normal"
+msgstr "Normalläge"
 
 #: ../backend/kvs40xx_opt.c:250
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enhanced mode"
-msgstr "Förbättring"
+msgstr "Förbättringsläge"
 
 #: ../backend/kvs40xx_opt.c:404
 #, no-c-format
@@ -3589,126 +3606,129 @@ msgid ""
 "Long Paper Mode is a mode that the scanner reads the image after it "
 "divides long paperby the length which is set in Document Size option"
 msgstr ""
+"I långpappersläge läser bildläsaren in bilden efter att den delat upp "
+"långa papper i delar med en längd som angetts in "
+"dokumentstorleksparametrarna."
 
 #: ../backend/kvs40xx_opt.c:448
 #, no-c-format
 msgid "Double feed detector sensitivity"
-msgstr ""
+msgstr "Dubbelmatningsdetektionskänslighet"
 
 #: ../backend/kvs40xx_opt.c:449
 #, no-c-format
 msgid "Set the double feed detector sensitivity"
-msgstr ""
+msgstr "Ställ in dubbelmatningsdetektionskänsligheten"
 
 #: ../backend/kvs40xx_opt.c:460 ../backend/kvs40xx_opt.c:461
 #, no-c-format
 msgid "Do not stop after double feed detection"
-msgstr ""
+msgstr "Avbryt inte efter dubbelmatningsdetektering"
 
 #: ../backend/kvs40xx_opt.c:469 ../backend/kvs40xx_opt.c:470
 #, no-c-format
 msgid "Ignore left double feed sensor"
-msgstr ""
+msgstr "Ignorera vänstra dubbelmatningssensorn"
 
 #: ../backend/kvs40xx_opt.c:478 ../backend/kvs40xx_opt.c:479
 #, no-c-format
 msgid "Ignore center double feed sensor"
-msgstr ""
+msgstr "Ignorera mellersta dubbelmatningssensorn"
 
 #: ../backend/kvs40xx_opt.c:487 ../backend/kvs40xx_opt.c:488
 #, no-c-format
 msgid "Ignore right double feed sensor"
-msgstr ""
+msgstr "Ignorera högra dubbelmatningssensorn"
 
 #: ../backend/kvs40xx_opt.c:641
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Automatic threshold mode"
-msgstr "Automatiskt tröskelvärde"
+msgstr "Automatiskt tröskelläge"
 
 #: ../backend/kvs40xx_opt.c:642
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the automatic threshold mode"
-msgstr "Automatiskt tröskelvärde"
+msgstr "Väljer automatiskt tröskelläge"
 
 #: ../backend/kvs40xx_opt.c:693
 #, no-c-format
 msgid "Inverse image in B/W mode"
-msgstr ""
+msgstr "Invertera bilden i svart-vitt läge"
 
 #: ../backend/kvs40xx_opt.c:714
 #, no-c-format
 msgid "JPEG compression"
-msgstr ""
+msgstr "JPEG-komprimmering"
 
 #: ../backend/kvs40xx_opt.c:717
 #, no-c-format
 msgid "JPEG compression (yours application must be able to uncompress)"
-msgstr ""
+msgstr "JPEG-komprimmering (din applikation måste kunna dekomprimmera)"
 
 #: ../backend/kvs40xx_opt.c:736 ../backend/kvs40xx_opt.c:737
 #, no-c-format
 msgid "Detect stapled document"
-msgstr ""
+msgstr "Detektera häftade dokument"
 
 #: ../backend/kvs40xx_opt.c:775
 #, no-c-format
 msgid "chroma of red"
-msgstr ""
+msgstr "Röd färgmättnad"
 
 #: ../backend/kvs40xx_opt.c:776
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set chroma of red"
-msgstr "Ställ in ordningen för bildrutorna"
+msgstr "Ställ in färgmättnad för rött"
 
 #: ../backend/kvs40xx_opt.c:786
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "chroma of blue"
-msgstr "Skugga för blått"
+msgstr "Blå färgmättnad"
 
 #: ../backend/kvs40xx_opt.c:787
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set chroma of blue"
-msgstr "Skifta röd till blå"
+msgstr "Ställ in färgmättnad för blått"
 
 #: ../backend/kvs40xx_opt.c:797 ../backend/kvs40xx_opt.c:798
 #, no-c-format
 msgid "Skew adjustment"
-msgstr ""
+msgstr "Justering för sned inmatning"
 
 #: ../backend/kvs40xx_opt.c:807
 #, no-c-format
 msgid "Stop scanner when a paper have been skewed"
-msgstr ""
+msgstr "Stoppa bildläsaren när ett papper har inmatats snett"
 
 #: ../backend/kvs40xx_opt.c:808
 #, no-c-format
 msgid "Scanner will be stop  when a paper have been skewed"
-msgstr ""
+msgstr "Stoppa bildläsaren när ett papper har inmatats snett"
 
 #: ../backend/kvs40xx_opt.c:815
 #, no-c-format
 msgid "Crop actual image area"
-msgstr ""
+msgstr "Beskär verklig bildarea"
 
 #: ../backend/kvs40xx_opt.c:816
 #, no-c-format
 msgid "Scanner automatically detect image area and crop it"
-msgstr ""
+msgstr "Bildläsaren detecterar automatiskt verklig bildarea och beskär den"
 
 #: ../backend/kvs40xx_opt.c:826
 #, no-c-format
 msgid "It is right and left reversing"
-msgstr ""
+msgstr "Den kastar om höger och vänster"
 
 #: ../backend/kvs40xx_opt.c:833 ../backend/kvs40xx_opt.c:834
 #, no-c-format
 msgid "Addition of space in top position"
-msgstr ""
+msgstr "Lägg till utrymme ovanför bilden"
 
 #: ../backend/kvs40xx_opt.c:841 ../backend/kvs40xx_opt.c:842
 #, no-c-format
 msgid "Addition of space in bottom position"
-msgstr ""
+msgstr "Lägg till utrymme nedanför bilden"
 
 #: ../backend/leo.c:110
 #, no-c-format
@@ -5593,12 +5613,3 @@ msgstr "Ställer in den gröna kanalens offset"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Ställer in den blå kanalens offset"
-
-#~ msgid "Grayscale"
-#~ msgstr "Gråskala"
-
-#~ msgid "Binary"
-#~ msgstr "Binär"
-
-#~ msgid "Black & White"
-#~ msgstr "Svart-vit"

@@ -7,6 +7,7 @@
 	  backend/genesys_low.c, backend/hp3900_rts8822.c,
 	  backend/rts88xx_lib.c, backend/xerox_mfp.c, sanei/sanei_pio.c:
 	  Include <sys/types.h> for definition of u_long on MacOS X
+	* po/sv.po: Update Swedish translation
 
 2011-10-21 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c

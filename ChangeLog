@@ -1,6 +1,12 @@
 2011-10-30 Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* backend/kvs40xx.h: Use portable endian macro from config.h
 	* backend/kodak.c: Use more precise path to internal headers
+	* backend/canon630u.c, backend/genesys_gl124.c,
+	  backend/genesys_gl646.c, backend/genesys_gl841.c,
+	  backend/genesys_gl843.c, backend/genesys_gl847.c,
+	  backend/genesys_low.c, backend/hp3900_rts8822.c,
+	  backend/rts88xx_lib.c, backend/xerox_mfp.c, sanei/sanei_pio.c:
+	  Include <sys/types.h> for definition of u_long on MacOS X
 
 2011-10-21 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c

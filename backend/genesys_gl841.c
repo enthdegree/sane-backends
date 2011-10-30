@@ -60,6 +60,7 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include "../include/_stdint.h"
 
 #include "../include/sane/sane.h"

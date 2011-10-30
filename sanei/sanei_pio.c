@@ -57,6 +57,7 @@
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
+#include <sys/types.h>
 
 #ifdef HAVE_SYS_IO_H
 # include <sys/io.h>	/* use where available (glibc 2.x, for example) */

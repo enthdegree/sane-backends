@@ -68,6 +68,7 @@
 #include <math.h>		/* truncf()  */
 #include <ctype.h>		/* tolower() */
 #include <unistd.h>		/* usleep()  */
+#include <sys/types.h>
 
 #include "hp3900_types.c"
 #include "hp3900_debug.c"

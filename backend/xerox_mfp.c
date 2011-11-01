@@ -22,6 +22,7 @@
 #include <math.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"

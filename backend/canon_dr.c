@@ -272,6 +272,8 @@
 	 - invert logic of read_panel tracking
 	 - add ability to disable read_panel()
 	 - automatically disable read/send_panel if unsupported
+      v39 2011-11-01, MAN
+         - DR-2580C pads the backside of duplex scans
 
    SANE FLOW DIAGRAM
 
@@ -320,7 +322,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 38
+#define BUILD 39
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5

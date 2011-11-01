@@ -110,10 +110,10 @@
 # include <libc.h>              /* NeXTStep/OpenStep */
 #endif
 
-#include "sane/sanei_backend.h"
-#include "sane/sanei_scsi.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_config.h"
 
 #include "kodak-cmd.h"
 #include "kodak.h"

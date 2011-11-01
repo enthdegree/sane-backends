@@ -194,6 +194,7 @@ struct scanner
   int duplex_interlace; /* different models interlace sides differently      */
   int jpeg_interlace;   /* different models interlace jpeg sides differently */
   int duplex_offset;    /* number of lines of padding added to front (1/1200)*/
+  int duplex_offset_side; /* padding added to front or back? */
 
   int sw_lut;           /* no hardware brightness/contrast support */
   int bg_color;         /* needed to fill in after rotation */

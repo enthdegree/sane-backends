@@ -1,3 +1,7 @@
+2011-11-01 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr.[ch]: backend v39
+	- DR-2580C pads the backside of duplex scans
+
 2011-10-21 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
 	backend/genesys_gl*.c backend/genesys_gl843.h

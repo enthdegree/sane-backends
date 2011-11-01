@@ -1174,6 +1174,8 @@ init_model (struct scanner *s)
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
     s->need_ccal = 1;
     s->need_fcal = 1;
+    s->duplex_offset = 432;
+    s->duplex_offset_side = SIDE_BACK;
 
     /*lies*/
     s->can_halftone=0;
@@ -3235,7 +3237,7 @@ update_params(struct scanner *s, int calib)
       memcpy(&s->i,&s->u,sizeof(struct img_params));
       /*dumb scanners pad the top of front page in duplex*/
       if(s->i.source == SOURCE_ADF_DUPLEX)
-        s->i.skip_lines[0] = s->duplex_offset * s->i.dpi_y / 1200;
+        s->i.skip_lines[s->duplex_offset_side] = s->duplex_offset * s->i.dpi_y / 1200;
     }
 
     DBG (15, "update_params: i params: w:%d h:%d m:%d f:%d b:%d\n",

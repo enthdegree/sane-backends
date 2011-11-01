@@ -18,7 +18,6 @@
 	  backend/rts88xx_lib.c, backend/xerox_mfp.c, sanei/sanei_pio.c:
 	  Include <sys/types.h> for definition of u_long on MacOS X
 	* po/sv.po: Update Swedish translation
->>>>>>> f0e42223a7ef1c4c10aa256b3f42f65bdebf4998
 
 2011-10-21 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c

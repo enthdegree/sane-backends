@@ -1,3 +1,9 @@
+2011-11-01 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl124.c backend/genesys_gl646.c
+	backend/genesys_gl841.c backend/genesys_gl843.c backend/genesys_gl847.c
+	backend/genesys_low.c backend/genesys_low.h: do <sys/types.h> include
+	in a clean way
+
 2011-10-30 Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* backend/kvs40xx.h: Use portable endian macro from config.h
 	* backend/kodak.c: Use more precise path to internal headers

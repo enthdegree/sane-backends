@@ -48,7 +48,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
-#include <sys/types.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"

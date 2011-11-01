@@ -50,8 +50,6 @@
 
 #include "genesys_gl646.h"
 
-#include <sys/types.h>
-
 /**
  * returns the value hold by a 3 word register
  * @param regs register set from which reading the value

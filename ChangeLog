@@ -1,3 +1,7 @@
+2011-11-02 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_*.[ch] backend/Makefile.am backend/Makefile.in:
+	genesys_gl841.h creation and genesys backend code cleanup
+
 2011-11-01 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.[ch]: backend v39
 	- DR-2580C pads the backside of duplex scans

@@ -51,6 +51,15 @@
 #ifndef GENESYS_LOW_H
 #define GENESYS_LOW_H
 
+
+#include "../include/sane/config.h"
+
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <math.h>
 #include <stddef.h>
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
@@ -58,7 +67,15 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
+
 #include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_usb.h"
+
+#include "../include/_stdint.h"
 
 #define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */
 #define DBG_error       1	/* fatal errors */
@@ -84,7 +101,11 @@
 #define GENESYS_FLAG_LAZY_INIT    (1 << 2)	/**> skip extensive ASIC test at init   */
 #define GENESYS_FLAG_XPA          (1 << 3)
 #define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/**> skip genesys_warmup()              */
-#define GENESYS_FLAG_OFFSET_CALIBRATION   (1 << 5)	/**> do offset calibration      */
+/** @brief offset calibration flag
+ * signals that the scanner does offset calibration. In this case off_calibration() and
+ * coarse_gain_calibration() functions must be implemented 
+ */
+#define GENESYS_FLAG_OFFSET_CALIBRATION   (1 << 5)
 #define GENESYS_FLAG_SEARCH_START (1 << 6)	/**> do start search before scanning    */
 #define GENESYS_FLAG_REPARK       (1 << 7)	/**> repark head (and check for lock) by 
 						   moving without scanning */

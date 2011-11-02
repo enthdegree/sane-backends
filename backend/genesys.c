@@ -3986,6 +3986,13 @@ genesys_warmup_lamp (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_warmup_lamp: start\n");
 
+  /* check if the current chipset implements warmup */
+  if(dev->model->cmd_set->init_regs_for_warmup==NULL)
+    {
+      DBG (DBG_error, "%s: init_regs_for_warmup not implemented\n", __FUNCTION__);
+      return status;
+    }
+
   dev->model->cmd_set->init_regs_for_warmup (dev, dev->reg, &channels, &total_size);
   first_line = malloc (total_size);
   if (!first_line)

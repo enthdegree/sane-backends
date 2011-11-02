@@ -1797,7 +1797,7 @@ gl847_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
 }
 
 static void
-gl847_set_lamp_power (Genesys_Device * dev,
+gl847_set_lamp_power (Genesys_Device __sane_unused__ * dev,
 		      Genesys_Register_Set * regs, SANE_Bool set)
 {
   if (set)
@@ -1934,7 +1934,6 @@ gl847_stop_action (Genesys_Device * dev)
 }
 
 /* Send the low-level scan command */
-/* todo : is this that useful ? */
 #ifndef UNIT_TESTING
 static
 #endif
@@ -2995,50 +2994,6 @@ gl847_led_calibration (Genesys_Device * dev)
   return status;
 }
 
-/* this function does the offset calibration by scanning one line of the calibration
-   area below scanner's top. There is a black margin and the remaining is white.
-   sanei_genesys_search_start() must have been called so that the offsets and margins
-   are allready known.
-
-this function expects the slider to be where?
-*/
-static SANE_Status
-gl847_offset_calibration (Genesys_Device * dev)
-{
-  DBG (DBG_proc, "%s: not implemented \n", __FUNCTION__);
-  return SANE_STATUS_GOOD;
-}
-
-
-/* alternative coarse gain calibration 
-   this on uses the settings from offset_calibration and
-   uses only one scanline
- */
-/*
-  with offset and coarse calibration we only want to get our input range into
-  a reasonable shape. the fine calibration of the upper and lower bounds will 
-  be done with shading.
- */
-static SANE_Status
-gl847_coarse_gain_calibration (Genesys_Device * dev, int dpi)
-{
-  DBG (DBG_proc, "%s: not implemented \n", __FUNCTION__);
-  return SANE_STATUS_GOOD;
-}
-
-/*
- * wait for lamp warmup by scanning the same line until difference
- * between 2 scans is below a threshold
- */
-static SANE_Status
-gl847_init_regs_for_warmup (Genesys_Device * dev,
-			    Genesys_Register_Set * local_reg,
-			    int *channels, int *total_size)
-{
-  DBG (DBG_proc, "%s: not implemented \n", __FUNCTION__);
-  return SANE_STATUS_INVAL;
-}
-
 /** 
  * set up GPIO/GPOE for idle state
  */
@@ -3742,7 +3697,7 @@ static Genesys_Command_Set gl847_cmd_set = {
   "gl847-generic",		/* the name of this set */
 
   gl847_init,
-  gl847_init_regs_for_warmup,
+  NULL, /*gl847_init_regs_for_warmup*/
   gl847_init_regs_for_coarse_calibration,
   gl847_init_regs_for_shading,
   gl847_init_regs_for_scan,
@@ -3771,8 +3726,8 @@ static Genesys_Command_Set gl847_cmd_set = {
 
   gl847_search_start_position,
 
-  gl847_offset_calibration,
-  gl847_coarse_gain_calibration,
+  NULL, /*gl847_offset_calibration*/
+  NULL, /*gl847_coarse_gain_calibration*/
   gl847_led_calibration,
 
   gl847_slow_back_home,

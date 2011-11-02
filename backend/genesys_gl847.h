@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2010-2011 Stéphane Voltz <stef.dev@free.fr>
 
    This file is part of the SANE package.
    
@@ -40,30 +40,11 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice. 
 */
-#include "../include/sane/config.h"
-
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <math.h>
-
-#include "../include/sane/sane.h"
-#include "../include/sane/sanei.h"
-#include "../include/sane/saneopts.h"
 
 #undef BACKEND_NAME
 #define BACKEND_NAME genesys_gl847
 
-#include "../include/sane/sanei_backend.h"
-#include "../include/sane/sanei_config.h"
-#include "../include/sane/sanei_usb.h"
-
-#include "../include/_stdint.h"
 #include "genesys.h"
-
-#define DBGSTART DBG (DBG_proc, "%s start\n", __FUNCTION__);
-#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __FUNCTION__);
 
 #define REG01           0x01
 #define REG01_CISSET	0x80
@@ -482,6 +463,61 @@ enum
 };
 
 #define SETREG(adr,val) {dev->reg[reg_##adr].address=adr;dev->reg[reg_##adr].value=val;}
+
+/**
+ * Write to many GL847 registers at once
+ * Note: sequential call to write register, no effective
+ * bulk write implemented.
+ * @param dev device to write to
+ * @param reg pointer to an array of registers
+ * @param elems size of the array
+ */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status gl847_bulk_write_register (Genesys_Device * dev, Genesys_Register_Set * reg, size_t elems);
+
+/** set up registers for an actual scan
+ *
+ * this function sets up the scanner to scan in normal or single line mode
+ */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status gl847_init_scan_regs (Genesys_Device * dev,
+                      Genesys_Register_Set * reg,
+                      float xres,	/*dpi */
+		      float yres,	/*dpi */
+		      float startx,	/*optical_res, from dummy_pixel+1 */
+		      float starty,	/*base_ydpi, from home! */
+		      float pixels,
+		      float lines,
+		      unsigned int depth,
+		      unsigned int channels,
+		      int color_filter,
+                      unsigned int flags);
+
+/* Send the low-level scan command */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status gl847_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool start_motor);
+
+/* Send the stop scan command */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);
+
+/** @brief moves the slider to steps at motor base dpi
+ * @param dev device to work on
+ * @param steps number of steps to move
+ * */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
+gl847_feed (Genesys_Device * dev, unsigned int steps);
 
 typedef struct
 {

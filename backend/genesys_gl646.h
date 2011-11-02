@@ -2,7 +2,7 @@
 
    Copyright (C) 2003-2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004-2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2011 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
    This file is part of the SANE package.
@@ -43,26 +43,10 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice. 
 */
-#include "../include/sane/config.h"
-
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <math.h>
-
-#include "../include/sane/sane.h"
-#include "../include/sane/sanei.h"
-#include "../include/sane/saneopts.h"
 
 #undef BACKEND_NAME
 #define BACKEND_NAME genesys_gl646
 
-#include "../include/sane/sanei_backend.h"
-#include "../include/sane/sanei_config.h"
-#include "../include/sane/sanei_usb.h"
-
-#include "../include/_stdint.h"
 #include "genesys.h"
 
 /*

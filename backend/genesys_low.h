@@ -115,7 +115,7 @@
 #define GENESYS_FLAG_MUST_WAIT        (1 << 10)	/**> tells wether the scanner must wait for the head when parking */
 
 
-#define GENESYS_FLAG_ALT_SLOPE_CREATE (1 << 11)	/**> use alternative slope creation function */
+#define GENESYS_FLAG_HAS_UTA          (1 << 11)	/**> scanner has a transparency adapter */
 
 #define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /**> yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
 #define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /**> allow custom gamma tables */

@@ -67,6 +67,10 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
+#ifdef HAVE_MKDIR 
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"

@@ -58,33 +58,12 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847/GL124 based scanners
  */
 
-#include "../include/sane/config.h"
-
-#define BUILD 64
-
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <math.h>
-#ifdef HAVE_MKDIR 
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
-
-#include "../include/sane/sane.h"
-#include "../include/sane/sanei.h"
-#include "../include/sane/saneopts.h"
-
+#define BUILD 65
 #define BACKEND_NAME genesys
 
-#include "../include/sane/sanei_backend.h"
-#include "../include/sane/sanei_usb.h"
-#include "../include/sane/sanei_config.h"
-#include "../include/_stdint.h"
-#include "../include/sane/sanei_magic.h"
-
 #include "genesys.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_magic.h"
 #include "genesys_devices.c"
 
 static SANE_Int num_devices = 0;

@@ -44,9 +44,6 @@
    If you do not wish that, delete this exception notice. 
 */
 
-#undef BACKEND_NAME
-#define BACKEND_NAME genesys_gl646
-
 #include "genesys.h"
 
 /*

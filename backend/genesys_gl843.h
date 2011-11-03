@@ -353,6 +353,8 @@ SANE_Status gl843_bulk_write_register (Genesys_Device * dev, Genesys_Register_Se
 #define REG_CK3MAP      0x77
 #define REG_CK4MAP      0x7a
 
+#define REG7E           0x7e
+
 #define REG9D           0x9d
 #define REG9DS_STEPTIM  2
 

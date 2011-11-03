@@ -1114,7 +1114,9 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 			      unsigned int pixels,
 			      int channels,
 			      int depth,
-			      SANE_Bool half_ccd, int color_filter, int flags)
+			      SANE_Bool half_ccd,
+                              int color_filter,
+                              int flags)
 {
   unsigned int words_per_line;
   unsigned int startx, endx, used_pixels;
@@ -1207,6 +1209,13 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
     r->value &= ~REG03_LAMPPWR;
   else
     r->value |= REG03_LAMPPWR;
+
+  /* select XPA */
+  r->value &= ~REG03_XPASEL;
+  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+    {
+      r->value |= REG03_XPASEL;
+    }
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, REG2E);
@@ -1806,14 +1815,13 @@ gl843_set_lamp_power (Genesys_Device * dev,
 {
   Genesys_Register_Set *r;
   int i;
+  uint8_t val;
 
+  val = sanei_genesys_read_reg_from_set (regs, REG03);
   if (set)
     {
-      sanei_genesys_set_reg_from_set (regs, 0x03,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x03)
-				      | REG03_LAMPPWR);
-
+      val |= REG03_LAMPPWR;
+      sanei_genesys_set_reg_from_set (regs, REG03, val);
       for (i = 0; i < 6; i++)
 	{
 	  r = sanei_genesys_get_address (dev->calib_reg, 0x10 + i);
@@ -1822,11 +1830,8 @@ gl843_set_lamp_power (Genesys_Device * dev,
     }
   else
     {
-      sanei_genesys_set_reg_from_set (regs, 0x03,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x03)
-				      & ~REG03_LAMPPWR);
-
+      val &= ~REG03_LAMPPWR;
+      sanei_genesys_set_reg_from_set (regs, REG03, val);
       for (i = 0; i < 6; i++)
 	{
 	  r = sanei_genesys_get_address (dev->calib_reg, 0x10 + i);
@@ -2158,15 +2163,13 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 {
   SANE_Status status;
   uint8_t val;
-  uint16_t dpiset,dpihw;
+  uint16_t dpiset, dpihw;
 
   DBGSTART;
-  if (reg == NULL)
-    return SANE_STATUS_INVAL;
- 
+
   /* get back the target dpihw */
-  sanei_genesys_get_double(reg,REG_DPISET,&dpiset);
-  dpihw=sanei_genesys_compute_dpihw(dev,dpiset);
+  sanei_genesys_get_double (reg, REG_DPISET, &dpiset);
+  dpihw = sanei_genesys_compute_dpihw (dev, dpiset);
 
   /* set up GPIO for scan */
   /* KV case */
@@ -2175,31 +2178,48 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
       RIE (sanei_genesys_write_register (dev, REGA9, 0x00));
       RIE (sanei_genesys_write_register (dev, REGA6, 0xf6));
       /* blinking led */
-      RIE(sanei_genesys_write_register(dev,0x7e,0x04)); 
+      RIE (sanei_genesys_write_register (dev, 0x7e, 0x04));
     }
   if (dev->model->gpo_type == GPO_G4050)
     {
-          RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
-          RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
-          RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
-      switch(dpihw)
+      RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
+      RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
+      RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
+      switch (dpihw)
+	{
+	case 1200:
+	case 2400:
+	case 4800:
+	  RIE (sanei_genesys_write_register (dev, REG6C, 0x60));
+	  RIE (sanei_genesys_write_register (dev, REGA6, 0x46));
+	  break;
+	default:		/* 600 dpi  case */
+	  RIE (sanei_genesys_write_register (dev, REG6C, 0x20));
+	  RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
+	}
+
+      /* XPA lamp */
+      val = sanei_genesys_read_reg_from_set (reg, REG03);
+      if (val & REG03_XPASEL)
         {
-        case 1200:
-        case 2400:
-        case 4800:
-          RIE (sanei_genesys_write_register (dev, REG6C, 0x60));
-          RIE (sanei_genesys_write_register (dev, REGA6, 0x46));
-          break;
-        default: /* 600 dpi  case */
-          RIE (sanei_genesys_write_register (dev, REG6C, 0x20));
-          RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
+          sanei_genesys_read_register (dev, REGA6, &val);
+          
+          /* switch off regular lamp */
+          val &= 0xbf;
+
+          /* light XPA lamp at full power (2 bits for level: __11 ____) */
+          val |= 0x30;
+	  
+          RIE (sanei_genesys_write_register (dev, REGA6, val));
         }
+
       /* blinking led */
-      RIE(sanei_genesys_write_register(dev,0x7e,0x01)); 
+      RIE (sanei_genesys_write_register (dev, REG7E, 0x01));
     }
 
   /* clear scan and feed count */
-  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
+  RIE (sanei_genesys_write_register
+       (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
 
   /* enable scan and motor */
   RIE (sanei_genesys_read_register (dev, REG01, &val));

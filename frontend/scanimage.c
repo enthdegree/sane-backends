@@ -2211,9 +2211,13 @@ List of available devices:", prog_name);
   if (output_format != OUTPUT_PNM)
     resolution_value = get_resolution ();
 
+#ifdef SIGHUP
   signal (SIGHUP, sighandler);
-  signal (SIGINT, sighandler);
+#endif
+#ifdef SIGPIPE
   signal (SIGPIPE, sighandler);
+#endif
+  signal (SIGINT, sighandler);
   signal (SIGTERM, sighandler);
 
   if (test == 0)

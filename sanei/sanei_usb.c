@@ -55,7 +55,9 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
 #include <stdio.h>
 #include <dirent.h>
 #include <time.h>
@@ -1807,6 +1809,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	       devname, strerror (errno));
 	  return status;
 	}
+#ifdef FD_CLOEXEC
       flag = fcntl (devices[devcount].fd, F_GETFD);
       if (flag >= 0)
 	{
@@ -1814,6 +1817,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	    DBG (1, "sanei_usb_open: fcntl of `%s' failed: %s\n",
 		 devname, strerror (errno));
 	}
+#endif
     }
   else if (devices[devcount].method == sanei_usb_method_usbcalls)
     {

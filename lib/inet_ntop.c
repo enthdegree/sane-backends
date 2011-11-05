@@ -4,9 +4,14 @@
 
 #include <string.h>
 #include <sys/types.h>
+#ifdef WIN32
+#include <winsock.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#endif
 
 
 const char *

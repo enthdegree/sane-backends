@@ -56,7 +56,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
 #include <sys/param.h>
 #include <sys/types.h>
 
@@ -5046,7 +5048,7 @@ sanei_scsi_cmd2 (int fd,
 
   pkt.sptd.TimeOutValue       = sane_scsicmd_timeout;
 
-  pkt.sptd.SenseInfoOffset = offsetof(struct pkt, sense);
+  pkt.sptd.SenseInfoOffset = (void *)pkt.sense - (void *)&pkt;
   pkt.sptd.SenseInfoLength = sizeof(pkt.sense);
 
   ret = DeviceIoControl(fd,

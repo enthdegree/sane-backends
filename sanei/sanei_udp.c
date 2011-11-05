@@ -46,10 +46,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef WIN32
+#include <winsock.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#endif
 
 #define BACKEND_NAME sanei_udp
 

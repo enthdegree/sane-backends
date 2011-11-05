@@ -20,8 +20,10 @@
 
 #include <sane/sane.h>
 
+#ifdef HAVE_SYS_SOCKET_H
 #include <netinet/in.h>
 #include <netdb.h>
+#endif
 
 extern SANE_Status sanei_udp_open(const char *host, int port, int *fdp);
 extern SANE_Status sanei_udp_open_broadcast(int *fdp);

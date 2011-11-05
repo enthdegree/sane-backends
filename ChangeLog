@@ -1,3 +1,12 @@
+2011-11-05 Chris Bagwell <chris at cnpbagwell dot com>
+	* lib/vsyslog.c, frontend/scanimage.c, include/sane/sanei_tcp.h
+	include/sane/sanei_udp.h, lib/inet_ntop.c, lib/inet_pton.c,
+	sanei/sanie_init_debug.c, sanei/sanei_scsi.c, sanei/sanei_tcp.c,
+	sanei_udp.c, sanei_usb.c: mingw32 compile fixes. Mostly its
+	not including header files that windows doesn't have and
+	add winsock.h as needed.  Also, do not use signals windows
+	doesn't have as well.
+
 2011-11-02 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_*.[ch] backend/Makefile.am backend/Makefile.in:
 	genesys_gl841.h creation and genesys backend code cleanup

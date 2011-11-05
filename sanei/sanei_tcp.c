@@ -46,7 +46,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef WIN32
+#include <winsock.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
 
 #define BACKEND_NAME sanei_tcp
 

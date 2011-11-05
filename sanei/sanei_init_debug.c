@@ -48,7 +48,9 @@
 #endif
 #include <string.h>
 #include <stdarg.h>
+#ifdef HAVE_VSYSLOG
 #include <syslog.h>
+#endif
 #ifdef HAVE_OS2_H
 #include <sys/types.h>
 #endif

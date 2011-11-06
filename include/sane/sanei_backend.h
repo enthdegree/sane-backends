@@ -42,7 +42,9 @@
 # ifdef O_NDELAY
 #  define O_NONBLOCK O_NDELAY
 # else
-#  define O_NONBLOCK FNDELAY    /* last resort */
+#  ifdef FNDELAY
+#   define O_NONBLOCK FNDELAY    /* last resort */
+#  endif
 # endif
 #endif
 #endif /* HAVE_OS2_H */

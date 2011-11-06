@@ -2072,12 +2072,14 @@ main (int argc, char **argv)
   if (verbose > 0)
     printf ("\n  # Most Scanners connected to the parallel port or other "
 	    "proprietary ports\n  # can't be detected by this program.\n");
+#ifdef HAVE_GETUID
   if (getuid ())
     if (verbose > 0)
       printf
 	("\n  # You may want to run this program as root to find all devices. "
 	 "Once you\n  # found the scanner devices, be sure to adjust access "
 	 "permissions as\n  # necessary.\n");
+#endif
 
   if (verbose > 1)
     printf ("done\n");

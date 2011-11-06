@@ -31,6 +31,10 @@ sigprocmask (int how, int *new, int *old)
 {
   int o, n = *new;
 
+/* FIXME: Get this working on Windows.  Probably should move to
+ * POSIX sigaction API and emulate it before emulating this one.
+ */
+#ifndef WIN32
   switch (how)
     {
     case 1: o = sigblock (n); break;
@@ -42,6 +46,7 @@ sigprocmask (int how, int *new, int *old)
     }
   if (old)
     *old = o;
+#endif
   return 0;
 }
 

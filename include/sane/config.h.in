@@ -97,6 +97,12 @@
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
 
+/* Define to 1 if you have the `getpass' function. */
+#undef HAVE_GETPASS
+
+/* Define to 1 if you have the `getuid' function. */
+#undef HAVE_GETUID
+
 /* Define to 1 if you have the `gp_camera_init' function. */
 #undef HAVE_GP_CAMERA_INIT
 
@@ -306,6 +312,9 @@
 /* Define if struct flock is available. */
 #undef HAVE_STRUCT_FLOCK
 
+/* Define to 1 if you have the `syslog' function. */
+#undef HAVE_SYSLOG
+
 /* Define to 1 if you have the <sys/bitypes.h> header file. */
 #undef HAVE_SYS_BITYPES_H
 
@@ -416,6 +425,9 @@
 
 /* Define to 1 if you have the <windows.h> header file. */
 #undef HAVE_WINDOWS_H
+
+/* Define to 1 if you have the <winsock2.h> header file. */
+#undef HAVE_WINSOCK2_H
 
 /* Define to 1 if you have the `_portaccess' function. */
 #undef HAVE__PORTACCESS

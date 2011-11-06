@@ -282,8 +282,12 @@ auth_callback (SANE_String_Const resource,
 
   if (query_user == 1)
     {
+#ifdef HAVE_GETPASS
       strcpy (password, (wipe = getpass ("Enter password: ")));
       memset (wipe, 0, strlen (password));
+#else
+      printf("OS has no getpass().  User Queries will not work\n");
+#endif
     }
 
   if (md5mode)

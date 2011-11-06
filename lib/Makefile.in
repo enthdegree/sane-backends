@@ -48,7 +48,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libfelib_la_LIBADD =
-am_libfelib_la_OBJECTS = getopt.lo getopt1.lo md5.lo vsyslog.lo
+am_libfelib_la_OBJECTS = getopt.lo getopt1.lo md5.lo syslog.lo \
+	vsyslog.lo
 libfelib_la_OBJECTS = $(am_libfelib_la_OBJECTS)
 liblib_la_LIBADD =
 am_liblib_la_OBJECTS = alloca.lo getenv.lo inet_ntop.lo inet_pton.lo \
@@ -140,6 +141,7 @@ LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINDEX = @MAKEINDEX@
 MAKEINFO = @MAKEINFO@
+MANIFEST_TOOL = @MANIFEST_TOOL@
 MATH_LIB = @MATH_LIB@
 MKDIR_P = @MKDIR_P@
 MSGFMT = @MSGFMT@
@@ -189,6 +191,7 @@ abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
+ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
@@ -241,7 +244,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CPPFLAGS = -I. -I$(top_builddir)/include -I$(top_srcdir)/include
 noinst_LTLIBRARIES = liblib.la libfelib.la
-libfelib_la_SOURCES = getopt.c getopt1.c md5.c vsyslog.c
+libfelib_la_SOURCES = getopt.c getopt1.c md5.c syslog.c vsyslog.c
 liblib_la_SOURCES = alloca.c getenv.c inet_ntop.c inet_pton.c \
 	isfdtype.c sigprocmask.c snprintf.c strcasestr.c strdup.c \
 	strndup.c strsep.c usleep.c
@@ -314,6 +317,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strdup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strndup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strsep.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/syslog.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/usleep.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vsyslog.Plo@am__quote@
 

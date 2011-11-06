@@ -46,8 +46,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef WIN32
-#include <winsock.h>
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
 #endif
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>

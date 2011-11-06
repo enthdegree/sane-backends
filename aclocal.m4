@@ -13,8 +13,8 @@
 
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
-m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.66],,
-[m4_warning([this file was generated for autoconf 2.66.
+m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.68],,
+[m4_warning([this file was generated for autoconf 2.68.
 You have another version of autoconf.  It may work, but is not guaranteed to.
 If you have problems, you may need to regenerate the build system entirely.
 To do so, use the procedure documented by the package, typically `autoreconf'.])])
@@ -516,17 +516,17 @@ m4_define([lt_dict_filter],
 # unlimited permission to copy and/or distribute it, with or without
 # modifications, as long as this notice is preserved.
 
-# Generated from ltversion.in.
+# @configure_input@
 
-# serial 3175 ltversion.m4
+# serial 3293 ltversion.m4
 # This file is part of GNU Libtool
 
-m4_define([LT_PACKAGE_VERSION], [2.2.10])
-m4_define([LT_PACKAGE_REVISION], [1.3175])
+m4_define([LT_PACKAGE_VERSION], [2.4])
+m4_define([LT_PACKAGE_REVISION], [1.3293])
 
 AC_DEFUN([LTVERSION_VERSION],
-[macro_version='2.2.10'
-macro_revision='1.3175'
+[macro_version='2.4'
+macro_revision='1.3293'
 _LT_DECL(, macro_version, 0, [Which release of libtool.m4 was used?])
 _LT_DECL(, macro_revision, 0)
 ])

@@ -200,6 +200,8 @@ AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 
 SANE_CHECK_MISSING_HEADERS
 
+AC_CHECK_HEADERS(winsock2.h, SOCKET_LIB="-lws2_32")
+
 AC_CHECK_HEADER(resmgr.h,[
 	AC_CHECK_LIB(
 		resmgr,
@@ -271,7 +273,7 @@ dnl Define SOCKET_LIB, NSL_LIB, BIND_LIB, and RESOLV_LIB  when required
 dnl for functions we use.
 AC_CHECK_FUNC(gethostbyaddr,, [AC_CHECK_LIB(bind, gethostbyaddr, BIND_LIB="-lbind")])
 AC_CHECK_FUNC(gethostbyaddr,, [AC_CHECK_LIB(nsl, gethostbyaddr, NSL_LIB="-lnsl")])
-AC_CHECK_FUNC(socket, [SOCKET_LIBS=], [AC_CHECK_LIB(socket, socket, SOCKET_LIB="-lsocket")])
+AC_CHECK_FUNC(socket,, [AC_CHECK_LIB(socket, socket, SOCKET_LIB="-lsocket")])
 AC_CHECK_FUNC(inet_aton,, [AC_CHECK_LIB(resolv, inet_aton, RESOLV_LIB="-lresolv")])
 
 dnl Group related network libraries together so they can always be linked
@@ -298,9 +300,9 @@ AC_FUNC_MMAP
 AC_CHECK_FUNCS(atexit ioperm i386_set_ioperm \
     mkdir strftime strstr strtod  \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess \
-    getaddrinfo getnameinfo poll setitimer iopl )
+    getaddrinfo getnameinfo poll setitimer iopl getuid getpass)
 AC_REPLACE_FUNCS(getenv isfdtype sigprocmask snprintf \
-    strcasestr strdup strndup strsep usleep vsyslog)
+    strcasestr strdup strndup strsep usleep syslog vsyslog)
 
 SANE_PROTOTYPES
 

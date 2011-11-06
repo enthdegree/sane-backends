@@ -211,7 +211,13 @@ struct backend
 }
 
 #ifndef __BEOS__
+#ifdef ENABLE_PRELOAD
 #include "dll-preload.h"
+#else
+static struct backend preloaded_backends[] = {
+ { 0, 0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }}
+};
+#endif
 #endif
 
 struct meta_scanner

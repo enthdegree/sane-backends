@@ -11,6 +11,13 @@
 	* lib/sigprocmask.c: Comment out logic on windows for now since
 	it doesn't work. At least it will compile.
 	* lib/syslog.c: Add a replacement syslog for at least mingw.
+	* testsuite/Makefile.*: Use $(EXEEXT) so that scanimage can
+	be ran on windows.
+	* backend/Makefile.*, backend/dll.c: Modify dll backend
+	so that libsane-dll does not reference preloaded backends
+	symbols since its not linking them in.  Only libsane
+	references preloaded backend symbols and also links them
+	in now.
 
 2011-11-05 Chris Bagwell <chris at cnpbagwell dot com>
 	* lib/vsyslog.c, frontend/scanimage.c, include/sane/sanei_tcp.h

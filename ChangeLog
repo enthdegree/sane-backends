@@ -1,3 +1,10 @@
+2011-11-07 Chris Bagwell <chris at cnpbagwell dot com>
+	* ltmain.sh: Disable sane's soname libtool hack for
+	mingw platform so that DLL's will be created for
+	each backin built; just like on unix platforms.
+	* backend/Makefile.*: Add missing sanei_magic.lo to
+	libsane backend.
+
 2011-11-06 Chris Bagwell <chris at cnpbagwell dot com>
 	* INSTALL, Makefile.am, */Makefile.in, compile, config.guess,
 	config.sub, configure, depcomp, include/sane/config.h.in,

@@ -8111,6 +8111,8 @@ EOF
 	  dlname="$soname"
 	fi
 	case $host in
+	  *mingw*)
+	    ;;
 	  *aix*)
 	    ;;
 	  *)

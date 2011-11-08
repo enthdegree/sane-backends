@@ -65,9 +65,18 @@ sanei_tcp_open(const char *host, int port, int *fdp)
 	int fd, err;
 	struct sockaddr_in saddr;
 	struct hostent *h;
+#ifdef HAVE_WINSOCK2_H
+	WSADATA wsaData;
+#endif
 
 	DBG_INIT();
 	DBG(1, "%s: host = %s, port = %d\n", __FUNCTION__, host, port);
+
+#ifdef HAVE_WINSOCK2_H
+	err = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (err != 0)
+	    return SANE_STATUS_INVAL;
+#endif
 
 	h = gethostbyname(host);
 
@@ -100,6 +109,9 @@ void
 sanei_tcp_close(int fd)
 {
 	close(fd);
+#ifdef HAVE_WINSOCK2_H
+	WSACleanup();
+#endif
 }
 
 ssize_t

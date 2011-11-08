@@ -115,9 +115,18 @@ SANE_Status
 sanei_udp_open(const char *host, int port, int *fdp)
 {
 	int status;
+#ifdef HAVE_WINSOCK2_H
+	WSADATA wsaData;
+#endif
 
 	DBG_INIT();
 	DBG(1, "%s\n", __func__);
+
+#ifdef HAVE_WINSOCK2_H
+	status = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (status != 0)
+	    return SANE_STATUS_INVAL;
+#endif
 
 	status = sanei_udp_socket(fdp, 0);
 	if (status != SANE_STATUS_GOOD)
@@ -151,6 +160,9 @@ void
 sanei_udp_close(int fd)
 {
 	close(fd);
+#ifdef HAVE_WINSOCK2_H
+	WSACleanup();
+#endif
 }
 
 ssize_t
@@ -172,6 +184,25 @@ sanei_udp_write_broadcast(int fd, int port, const u_char * buf, int count)
 
 	return sendto(fd, buf, count, 0,
 		(struct sockaddr *)&saddr, sizeof(saddr));
+}
+
+void
+sanei_udp_set_nonblock(int fd, SANE_Bool nonblock)
+{
+#ifdef HAVE_WINSOCK2_H
+	u_long mode=nonblock;
+
+	ioctlsocket(fd, FIONBIO, &mode);
+#else
+	long flags;
+
+	save_flags = flags = fcntl(fd, F_GETFL, 0L);
+	if (nonblock)
+		flags |= O_NONBLOCK;
+	else
+		flags &= ~O_NONBLOCK;
+	fcntl(fd, F_SETFL, flags);
+#endif
 }
 
 ssize_t

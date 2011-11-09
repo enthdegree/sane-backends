@@ -45,6 +45,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
 
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
@@ -194,7 +195,7 @@ sanei_udp_set_nonblock(int fd, SANE_Bool nonblock)
 
 	ioctlsocket(fd, FIONBIO, &mode);
 #else
-	long flags;
+	long save_flags, flags;
 
 	save_flags = flags = fcntl(fd, F_GETFL, 0L);
 	if (nonblock)

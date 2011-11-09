@@ -45,7 +45,7 @@ libraries and their respective header files are available before running
 configure. On some Linux distributions the header files are part of separate
 packages (e.g. usb.h in libusb-devel or libusb-dev). These must also be
 installed.
-        
+
         - libusb (>=0.1.8): Strongly recommended if you use a USB scanner.
           Some backends won't work without libusb at all.
 
@@ -87,18 +87,19 @@ configure options, there are the following SANE specific options:
 	Disable dynamic loading of backends (in the dll backend).
 	configure normally turns on dynamic loading when it
 	can find the appropriate header files and libraries
-	(<dlfcn.h> and -dl).
+	(<dlfcn.h> and -ldl).
 
  --enable-static
         Use static libraries (turned off by default).
 
  --enable-preload
         Preload backends into DLL backend.  This is useful for debugging,
-	when dynamic loading is unavailable, or to reduce runtime linking
-	overheads.  If dynamic loading or shared libraries are unavailable
-	or disabled, this option is turned on automatically.
-	
- --enable-scsibuffersize=N 
+	when dynamic loading is unavailable, to reduce runtime linking
+	overheads, or when you only want to distribute a single DLL with
+	all backends available.  If dynamic loading or shared libraries are
+	unavailable or disabled, this option is turned on automatically.
+
+ --enable-scsibuffersize=N
         Specify the buffer size of the buffer for SCSI commands. The default
 	value is 131072 bytes (128 kb). This may be changed at runtime by
 	setting	the environment variable SANE_SG_BUFFERSIZE to the desired
@@ -118,10 +119,22 @@ configure options, there are the following SANE specific options:
 	Means, that some backends will use a lockfile for allowing multiple
 	access to one scanner. This is useful, i.e. one frontend is scanning
 	the button status and another one will scan. The path to the lock
-	files is define by --localstatedir at the configure step and is 
+	files is define by --localstatedir at the configure step and is
 	$localstatedir/lock/sane. The default group is uucp and can be
 	changed by using --with-group=newgroup. If you do not want any
 	backend to use a lockfile, simply use --disable-locking.
+
+To limit the backends that are compiled, set the variable BACKENDS to
+the list of backends to compile.  The following will limit compiling
+to the epson2 and fujitsu backends:
+
+  ./configure BACKENDS="epson2 fujitsu"
+
+To limit the backends that are preloaded into the DLL, set the variable
+PRELOADABLE_BACKENDS.  The following will limit compiling  to the epson2
+and fujitsu backends but only preloads the epson2 backend:
+
+  ./configure BACKENDS="epson2 futjisu" PRELOADABLE_BACKENDS="epson2"
 
 In addition to these configuration options, there are some more SANE-specific
 options and many standard-options.  To get a description of available options,

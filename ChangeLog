@@ -12,6 +12,8 @@
 	Add back the useful --disable-dynamic and
 	--disable-preload that appear to have been removed
 	at some point but are documented in README.
+	* README.windows: Update info to include mingw
+	references.
 
 2011-11-07 Chris Bagwell <chris at cnpbagwell dot com>
 	* ltmain.sh: Disable sane's soname libtool hack for

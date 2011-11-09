@@ -748,27 +748,30 @@ typedef struct {
 #define FAST_TABLE 	3 	/* table 4 at 0x5800 for gl124 */
 #define HOME_TABLE 	4 	/* table 5 at 0x6000 for gl124 */
 
-#define SCAN_FLAG_SINGLE_LINE              0x001
-#define SCAN_FLAG_DISABLE_SHADING          0x002
-#define SCAN_FLAG_DISABLE_GAMMA            0x004
-#define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE 0x008
-#define SCAN_FLAG_IGNORE_LINE_DISTANCE     0x010
-#define SCAN_FLAG_USE_OPTICAL_RES          0x020
-#define SCAN_FLAG_DISABLE_LAMP             0x040
-#define SCAN_FLAG_DYNAMIC_LINEART          0x080
-#define SCAN_FLAG_CALIBRATION              0x100
-#define SCAN_FLAG_FEEDING                  0x200
+#define SCAN_FLAG_SINGLE_LINE               0x001
+#define SCAN_FLAG_DISABLE_SHADING           0x002
+#define SCAN_FLAG_DISABLE_GAMMA             0x004
+#define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE  0x008
+#define SCAN_FLAG_IGNORE_LINE_DISTANCE      0x010
+#define SCAN_FLAG_USE_OPTICAL_RES           0x020
+#define SCAN_FLAG_DISABLE_LAMP              0x040
+#define SCAN_FLAG_DYNAMIC_LINEART           0x080
+#define SCAN_FLAG_CALIBRATION               0x100
+#define SCAN_FLAG_FEEDING                   0x200
+#define SCAN_FLAG_USE_XPA                   0x400
 
-#define MOTOR_FLAG_AUTO_GO_HOME             1
-#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 2
-#define MOTOR_FLAG_FEED                     4
+#define MOTOR_FLAG_AUTO_GO_HOME             0x01
+#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 0x02
+#define MOTOR_FLAG_FEED                     0x04
+#define MOTOR_FLAG_USE_XPA                  0x08
 
-#define OPTICAL_FLAG_DISABLE_GAMMA   1
-#define OPTICAL_FLAG_DISABLE_SHADING 2
-#define OPTICAL_FLAG_DISABLE_LAMP    4
-#define OPTICAL_FLAG_ENABLE_LEDADD   8
-#define OPTICAL_FLAG_DISABLE_DOUBLE  16
-#define OPTICAL_FLAG_STAGGER         32
+#define OPTICAL_FLAG_DISABLE_GAMMA          0x01
+#define OPTICAL_FLAG_DISABLE_SHADING        0x02
+#define OPTICAL_FLAG_DISABLE_LAMP           0x04
+#define OPTICAL_FLAG_ENABLE_LEDADD          0x08
+#define OPTICAL_FLAG_DISABLE_DOUBLE         0x10
+#define OPTICAL_FLAG_STAGGER                0x20
+#define OPTICAL_FLAG_USE_XPA                0x20
 
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */

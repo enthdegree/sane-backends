@@ -1301,9 +1301,6 @@ gl841_set_fe (Genesys_Device * dev, uint8_t set)
   return SANE_STATUS_GOOD;
 }
 
-#define MOTOR_FLAG_AUTO_GO_HOME             1
-#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 2
-
 #define MOTOR_ACTION_FEED       1
 #define MOTOR_ACTION_GO_HOME    2
 #define MOTOR_ACTION_HOME_FREE  3

@@ -515,7 +515,7 @@ static Genesys_Sensor Sensor[] = {
    /* 08    09    0a    0b */
    {0x00, 0x00, 0x18, 0x69} ,
    /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0c, 0x00, 0x2a, 0x30, 0x00, 0x00, 0x08} ,
+   {0x2c, 0x09, 0x22, 0xb8, 0x10, 0xf0, 0x33, 0x0c, 0x00, 0x2a, 0x30, 0x00, 0x00, 0x08} ,
    /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
    {0x0b, 0x0e, 0x11, 0x02, 0x05, 0x08, 0x63, 0x00, 0x40, 0x00, 0x00, 0x00, 0x6f} ,
    1.0, 1.0, 1.0,
@@ -1231,7 +1231,7 @@ static Genesys_Model hpg4050_model = {
   SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
 
-  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+  SANE_FIX (40.0),		/* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
 				   sensing document in mm */

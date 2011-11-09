@@ -134,6 +134,9 @@ libdell1600n_net_la_OBJECTS = $(am_libdell1600n_net_la_OBJECTS)
 libdll_la_LIBADD =
 am_libdll_la_OBJECTS = libdll_la-dll.lo
 libdll_la_OBJECTS = $(am_libdll_la_OBJECTS)
+libdll_preload_la_LIBADD =
+am_libdll_preload_la_OBJECTS = libdll_preload_la-dll.lo
+libdll_preload_la_OBJECTS = $(am_libdll_preload_la_OBJECTS)
 libdmc_la_LIBADD =
 am_libdmc_la_OBJECTS = libdmc_la-dmc.lo
 libdmc_la_OBJECTS = $(am_libdmc_la_OBJECTS)
@@ -1319,26 +1322,26 @@ SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libcoolscan2_la_SOURCES) $(libcoolscan3_la_SOURCES) \
 	$(libdc210_la_SOURCES) $(libdc240_la_SOURCES) \
 	$(libdc25_la_SOURCES) $(libdell1600n_net_la_SOURCES) \
-	$(libdll_la_SOURCES) $(libdmc_la_SOURCES) \
-	$(libepjitsu_la_SOURCES) $(libepson_la_SOURCES) \
-	$(libepson2_la_SOURCES) $(libfujitsu_la_SOURCES) \
-	$(libgenesys_la_SOURCES) $(libgphoto2_i_la_SOURCES) \
-	$(libgt68xx_la_SOURCES) $(libhp_la_SOURCES) \
-	$(libhp3500_la_SOURCES) $(libhp3900_la_SOURCES) \
-	$(libhp4200_la_SOURCES) $(libhp5400_la_SOURCES) \
-	$(libhp5590_la_SOURCES) $(libhpljm1005_la_SOURCES) \
-	$(libhpsj5s_la_SOURCES) $(libhs2p_la_SOURCES) \
-	$(libibm_la_SOURCES) $(libkodak_la_SOURCES) \
-	$(libkvs1025_la_SOURCES) $(libkvs20xx_la_SOURCES) \
-	$(libkvs40xx_la_SOURCES) $(libleo_la_SOURCES) \
-	$(liblexmark_la_SOURCES) $(libma1509_la_SOURCES) \
-	$(libmagicolor_la_SOURCES) $(libmatsushita_la_SOURCES) \
-	$(libmicrotek_la_SOURCES) $(libmicrotek2_la_SOURCES) \
-	$(libmustek_la_SOURCES) $(libmustek_pp_la_SOURCES) \
-	$(libmustek_usb_la_SOURCES) $(libmustek_usb2_la_SOURCES) \
-	$(libnec_la_SOURCES) $(libnet_la_SOURCES) \
-	$(libniash_la_SOURCES) $(libp5_la_SOURCES) \
-	$(libpie_la_SOURCES) $(libpint_la_SOURCES) \
+	$(libdll_la_SOURCES) $(libdll_preload_la_SOURCES) \
+	$(libdmc_la_SOURCES) $(libepjitsu_la_SOURCES) \
+	$(libepson_la_SOURCES) $(libepson2_la_SOURCES) \
+	$(libfujitsu_la_SOURCES) $(libgenesys_la_SOURCES) \
+	$(libgphoto2_i_la_SOURCES) $(libgt68xx_la_SOURCES) \
+	$(libhp_la_SOURCES) $(libhp3500_la_SOURCES) \
+	$(libhp3900_la_SOURCES) $(libhp4200_la_SOURCES) \
+	$(libhp5400_la_SOURCES) $(libhp5590_la_SOURCES) \
+	$(libhpljm1005_la_SOURCES) $(libhpsj5s_la_SOURCES) \
+	$(libhs2p_la_SOURCES) $(libibm_la_SOURCES) \
+	$(libkodak_la_SOURCES) $(libkvs1025_la_SOURCES) \
+	$(libkvs20xx_la_SOURCES) $(libkvs40xx_la_SOURCES) \
+	$(libleo_la_SOURCES) $(liblexmark_la_SOURCES) \
+	$(libma1509_la_SOURCES) $(libmagicolor_la_SOURCES) \
+	$(libmatsushita_la_SOURCES) $(libmicrotek_la_SOURCES) \
+	$(libmicrotek2_la_SOURCES) $(libmustek_la_SOURCES) \
+	$(libmustek_pp_la_SOURCES) $(libmustek_usb_la_SOURCES) \
+	$(libmustek_usb2_la_SOURCES) $(libnec_la_SOURCES) \
+	$(libnet_la_SOURCES) $(libniash_la_SOURCES) \
+	$(libp5_la_SOURCES) $(libpie_la_SOURCES) $(libpint_la_SOURCES) \
 	$(libpixma_la_SOURCES) $(libplustek_la_SOURCES) \
 	$(libplustek_pp_la_SOURCES) $(libpnm_la_SOURCES) \
 	$(libqcam_la_SOURCES) $(libricoh_la_SOURCES) \
@@ -1450,26 +1453,26 @@ DIST_SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libcoolscan2_la_SOURCES) $(libcoolscan3_la_SOURCES) \
 	$(libdc210_la_SOURCES) $(libdc240_la_SOURCES) \
 	$(libdc25_la_SOURCES) $(libdell1600n_net_la_SOURCES) \
-	$(libdll_la_SOURCES) $(libdmc_la_SOURCES) \
-	$(libepjitsu_la_SOURCES) $(libepson_la_SOURCES) \
-	$(libepson2_la_SOURCES) $(libfujitsu_la_SOURCES) \
-	$(libgenesys_la_SOURCES) $(libgphoto2_i_la_SOURCES) \
-	$(libgt68xx_la_SOURCES) $(libhp_la_SOURCES) \
-	$(libhp3500_la_SOURCES) $(libhp3900_la_SOURCES) \
-	$(libhp4200_la_SOURCES) $(libhp5400_la_SOURCES) \
-	$(libhp5590_la_SOURCES) $(libhpljm1005_la_SOURCES) \
-	$(libhpsj5s_la_SOURCES) $(libhs2p_la_SOURCES) \
-	$(libibm_la_SOURCES) $(libkodak_la_SOURCES) \
-	$(libkvs1025_la_SOURCES) $(libkvs20xx_la_SOURCES) \
-	$(libkvs40xx_la_SOURCES) $(libleo_la_SOURCES) \
-	$(liblexmark_la_SOURCES) $(libma1509_la_SOURCES) \
-	$(libmagicolor_la_SOURCES) $(libmatsushita_la_SOURCES) \
-	$(libmicrotek_la_SOURCES) $(libmicrotek2_la_SOURCES) \
-	$(libmustek_la_SOURCES) $(libmustek_pp_la_SOURCES) \
-	$(libmustek_usb_la_SOURCES) $(libmustek_usb2_la_SOURCES) \
-	$(libnec_la_SOURCES) $(libnet_la_SOURCES) \
-	$(libniash_la_SOURCES) $(libp5_la_SOURCES) \
-	$(libpie_la_SOURCES) $(libpint_la_SOURCES) \
+	$(libdll_la_SOURCES) $(libdll_preload_la_SOURCES) \
+	$(libdmc_la_SOURCES) $(libepjitsu_la_SOURCES) \
+	$(libepson_la_SOURCES) $(libepson2_la_SOURCES) \
+	$(libfujitsu_la_SOURCES) $(libgenesys_la_SOURCES) \
+	$(libgphoto2_i_la_SOURCES) $(libgt68xx_la_SOURCES) \
+	$(libhp_la_SOURCES) $(libhp3500_la_SOURCES) \
+	$(libhp3900_la_SOURCES) $(libhp4200_la_SOURCES) \
+	$(libhp5400_la_SOURCES) $(libhp5590_la_SOURCES) \
+	$(libhpljm1005_la_SOURCES) $(libhpsj5s_la_SOURCES) \
+	$(libhs2p_la_SOURCES) $(libibm_la_SOURCES) \
+	$(libkodak_la_SOURCES) $(libkvs1025_la_SOURCES) \
+	$(libkvs20xx_la_SOURCES) $(libkvs40xx_la_SOURCES) \
+	$(libleo_la_SOURCES) $(liblexmark_la_SOURCES) \
+	$(libma1509_la_SOURCES) $(libmagicolor_la_SOURCES) \
+	$(libmatsushita_la_SOURCES) $(libmicrotek_la_SOURCES) \
+	$(libmicrotek2_la_SOURCES) $(libmustek_la_SOURCES) \
+	$(libmustek_pp_la_SOURCES) $(libmustek_usb_la_SOURCES) \
+	$(libmustek_usb2_la_SOURCES) $(libnec_la_SOURCES) \
+	$(libnet_la_SOURCES) $(libniash_la_SOURCES) \
+	$(libp5_la_SOURCES) $(libpie_la_SOURCES) $(libpint_la_SOURCES) \
 	$(libpixma_la_SOURCES) $(libplustek_la_SOURCES) \
 	$(libplustek_pp_la_SOURCES) $(libpnm_la_SOURCES) \
 	$(libqcam_la_SOURCES) $(libricoh_la_SOURCES) \
@@ -1799,7 +1802,7 @@ CLEANFILES = $(BACKEND_CONFS) $(be_convenience_libs) dll-preload.h
 # form of lib${backend}.la to match what configure will list to
 # build.
 # Occasionally, this approach will have name conflicts with external
-# libraries that need to be linked in.  See libgphoto2_i.la for 
+# libraries that need to be linked in.  See libgphoto2_i.la for
 # example of working around that issue.
 be_convenience_libs = libabaton.la libagfafocus.la \
     libapple.la libartec.la libartec_eplus48u.la \
@@ -1808,7 +1811,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libcanon_pp.la libcardscan.la libcoolscan.la \
     libcoolscan2.la libcoolscan3.la libdc25.la \
     libdc210.la libdc240.la libdell1600n_net.la \
-    libdmc.la libdll.la libepjitsu.la libepson.la \
+    libdmc.la libdll.la libdll_preload.la libepjitsu.la libepson.la \
     libepson2.la libfujitsu.la libgenesys.la \
     libgphoto2_i.la libgt68xx.la libhp.la \
     libhp3500.la libhp3900.la libhp4200.la \
@@ -2411,9 +2414,11 @@ nodist_libsane_xerox_mfp_la_SOURCES = xerox_mfp-s.c
 libsane_xerox_mfp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=xerox_mfp
 libsane_xerox_mfp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_xerox_mfp_la_LIBADD = $(COMMON_LIBS) libxerox_mfp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_tcp.lo $(MATH_LIB) $(SOCKET_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
+libdll_preload_la_SOURCES = dll.c
+libdll_preload_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll -DENABLE_PRELOAD
 libdll_la_SOURCES = dll.c
-BUILT_SOURCES = dll-preload.h
 libdll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
+BUILT_SOURCES = dll-preload.h
 nodist_libsane_dll_la_SOURCES = dll-s.c
 libsane_dll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_dll_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
@@ -2439,12 +2444,12 @@ libsane_dll_la_LIBADD = $(COMMON_LIBS) libdll.la ../sanei/sanei_init_debug.lo ..
 # Need to update configure to build a list of only what needs to go into
 # LIBADD based on whats being preloaded.
 nodist_libsane_la_SOURCES = dll-s.c
-libsane_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll -DENABLE_PRELOAD
+libsane_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_la_LDFLAGS = $(DIST_LIBS_LDFLAGS)
-libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(DL_LIBS) $(LIBV4L_LIBS) $(MATH_LIB) $(IEEE1284_LIBS) $(TIFF_LIBS) $(JPEG_LIBS) $(GPHOTO2_LIBS) $(SOCKET_LIBS) $(USB_LIBS) $(AVAHI_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
+libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(DL_LIBS) $(LIBV4L_LIBS) $(MATH_LIB) $(IEEE1284_LIBS) $(TIFF_LIBS) $(JPEG_LIBS) $(GPHOTO2_LIBS) $(SOCKET_LIBS) $(USB_LIBS) $(AVAHI_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
 
 # WARNING: Automake is getting this wrong so have to do it ourselves.
-libsane_la_DEPENDENCIES = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo @SANEI_SANEI_JPEG_LO@
+libsane_la_DEPENDENCIES = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo @SANEI_SANEI_JPEG_LO@
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -2584,6 +2589,8 @@ libdell1600n_net.la: $(libdell1600n_net_la_OBJECTS) $(libdell1600n_net_la_DEPEND
 	$(LINK)  $(libdell1600n_net_la_OBJECTS) $(libdell1600n_net_la_LIBADD) $(LIBS)
 libdll.la: $(libdll_la_OBJECTS) $(libdll_la_DEPENDENCIES) 
 	$(LINK)  $(libdll_la_OBJECTS) $(libdll_la_LIBADD) $(LIBS)
+libdll_preload.la: $(libdll_preload_la_OBJECTS) $(libdll_preload_la_DEPENDENCIES) 
+	$(LINK)  $(libdll_preload_la_OBJECTS) $(libdll_preload_la_LIBADD) $(LIBS)
 libdmc.la: $(libdmc_la_OBJECTS) $(libdmc_la_DEPENDENCIES) 
 	$(LINK)  $(libdmc_la_OBJECTS) $(libdmc_la_LIBADD) $(LIBS)
 libepjitsu.la: $(libepjitsu_la_OBJECTS) $(libepjitsu_la_DEPENDENCIES) 
@@ -2922,6 +2929,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdc25_la-dc25.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdell1600n_net_la-dell1600n_net.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdll_la-dll.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdll_preload_la-dll.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdmc_la-dmc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepjitsu_la-epjitsu.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepson2_la-epson2-cct.Plo@am__quote@
@@ -3299,6 +3307,13 @@ libdll_la-dll.lo: dll.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dll.c' object='libdll_la-dll.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdll_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libdll_la-dll.lo `test -f 'dll.c' || echo '$(srcdir)/'`dll.c
+
+libdll_preload_la-dll.lo: dll.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdll_preload_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libdll_preload_la-dll.lo -MD -MP -MF $(DEPDIR)/libdll_preload_la-dll.Tpo -c -o libdll_preload_la-dll.lo `test -f 'dll.c' || echo '$(srcdir)/'`dll.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libdll_preload_la-dll.Tpo $(DEPDIR)/libdll_preload_la-dll.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dll.c' object='libdll_preload_la-dll.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdll_preload_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libdll_preload_la-dll.lo `test -f 'dll.c' || echo '$(srcdir)/'`dll.c
 
 libdmc_la-dmc.lo: dmc.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdmc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libdmc_la-dmc.lo -MD -MP -MF $(DEPDIR)/libdmc_la-dmc.Tpo -c -o libdmc_la-dmc.lo `test -f 'dmc.c' || echo '$(srcdir)/'`dmc.c

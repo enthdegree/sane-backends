@@ -161,7 +161,7 @@ clean-local:
 # form of lib${backend}.la to match what configure will list to
 # build.
 # Occasionally, this approach will have name conflicts with external
-# libraries that need to be linked in.  See libgphoto2_i.la for 
+# libraries that need to be linked in.  See libgphoto2_i.la for
 # example of working around that issue.
 be_convenience_libs = libabaton.la libagfafocus.la \
     libapple.la libartec.la libartec_eplus48u.la \
@@ -170,7 +170,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libcanon_pp.la libcardscan.la libcoolscan.la \
     libcoolscan2.la libcoolscan3.la libdc25.la \
     libdc210.la libdc240.la libdell1600n_net.la \
-    libdmc.la libdll.la libepjitsu.la libepson.la \
+    libdmc.la libdll.la libdll_preload.la libepjitsu.la libepson.la \
     libepson2.la libfujitsu.la libgenesys.la \
     libgphoto2_i.la libgt68xx.la libhp.la \
     libhp3500.la libhp3900.la libhp4200.la \
@@ -1074,10 +1074,12 @@ libsane_xerox_mfp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_xerox_mfp_la_LIBADD = $(COMMON_LIBS) libxerox_mfp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_tcp.lo $(MATH_LIB) $(SOCKET_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += xerox_mfp.conf.in
 
+libdll_preload_la_SOURCES =  dll.c
+libdll_preload_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll -DENABLE_PRELOAD
 libdll_la_SOURCES =  dll.c
+libdll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 BUILT_SOURCES = dll-preload.h
 CLEANFILES += dll-preload.h
-libdll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 
 nodist_libsane_dll_la_SOURCES =  dll-s.c
 libsane_dll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
@@ -1107,9 +1109,9 @@ EXTRA_DIST += dll.aliases
 # Need to update configure to build a list of only what needs to go into
 # LIBADD based on whats being preloaded.
 nodist_libsane_la_SOURCES =  dll-s.c
-libsane_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll -DENABLE_PRELOAD
+libsane_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_la_LDFLAGS = $(DIST_LIBS_LDFLAGS)
-libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(DL_LIBS) $(LIBV4L_LIBS) $(MATH_LIB) $(IEEE1284_LIBS) $(TIFF_LIBS) $(JPEG_LIBS) $(GPHOTO2_LIBS) $(SOCKET_LIBS) $(USB_LIBS) $(AVAHI_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
+libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(DL_LIBS) $(LIBV4L_LIBS) $(MATH_LIB) $(IEEE1284_LIBS) $(TIFF_LIBS) $(JPEG_LIBS) $(GPHOTO2_LIBS) $(SOCKET_LIBS) $(USB_LIBS) $(AVAHI_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
 
 # WARNING: Automake is getting this wrong so have to do it ourselves.
-libsane_la_DEPENDENCIES = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo @SANEI_SANEI_JPEG_LO@
+libsane_la_DEPENDENCIES = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo @SANEI_SANEI_JPEG_LO@

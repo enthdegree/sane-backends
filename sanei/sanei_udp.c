@@ -195,9 +195,9 @@ sanei_udp_set_nonblock(int fd, SANE_Bool nonblock)
 
 	ioctlsocket(fd, FIONBIO, &mode);
 #else
-	long save_flags, flags;
+	long flags;
 
-	save_flags = flags = fcntl(fd, F_GETFL, 0L);
+	flags = fcntl(fd, F_GETFL, 0L);
 	if (nonblock)
 		flags |= O_NONBLOCK;
 	else

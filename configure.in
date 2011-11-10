@@ -103,6 +103,10 @@ AX_CREATE_STDINT_H([include/_stdint.h])
 dnl ***********************************************************************
 dnl Checks for libraries
 dnl ***********************************************************************
+AC_ARG_ENABLE(dynamic,
+	AC_HELP_STRING([--disable-dynamic],
+		       [Disable dynamic loading of backends]),
+	[enable_dynamic=$enableval], [enable_dynamic=auto])
 SANE_CHECK_DLL_LIB
 dnl Checks for Backend libraries.
 AC_CHECK_LIB(m, sqrt, MATH_LIB="-lm")
@@ -508,10 +512,6 @@ fi
 dnl ***********************************************************************
 dnl initialize libtool
 dnl ***********************************************************************
-AC_ARG_ENABLE(dynamic,
-	AC_HELP_STRING([--disable-dynamic],
-		       [Disable dynamic loading of backends]),
-	[enable_dynamic=$enableval], [enable_dynamic=yes])
 AC_ARG_ENABLE(preload,
 	AC_HELP_STRING([--disable-preload],
 		       [Disable preloading of backends]),

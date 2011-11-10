@@ -799,6 +799,7 @@ with_docdir
 enable_dependency_tracking
 enable_warnings
 enable_rpath
+enable_dynamic
 enable_pthread
 enable_locking
 with_group
@@ -810,7 +811,6 @@ enable_libusb
 enable_scsibuffersize
 enable_scsi_directio
 enable_ipv6
-enable_dynamic
 enable_preload
 enable_static
 enable_shared
@@ -1472,6 +1472,7 @@ Optional Features:
   --enable-dependency-tracking   do not reject slow dependency extractors
   --enable-warnings       turn on tons of compiler warnings (GCC only)
   --enable-rpath          use runtime library search path [default=yes]
+  --disable-dynamic       Disable dynamic loading of backends
   --enable-pthread        use pthread instead of fork (default=yes for MacOS
                           X/MINGW, no for everything else)
   --enable-locking        activate device locking (default=yes, but only used
@@ -1485,7 +1486,6 @@ Optional Features:
   --enable-scsi-directio  enable SCSI direct IO (Linux only, dangerous, see
                           README.linux)
   --disable-ipv6          disable IPv6 support
-  --disable-dynamic       Disable dynamic loading of backends
   --disable-preload       Disable preloading of backends
   --enable-static[=PKGS]  build static libraries [default=no]
   --enable-shared[=PKGS]  build shared libraries [default=yes]
@@ -6715,9 +6715,18 @@ ac_config_commands="$ac_config_commands $ac_stdint_h"
 
 
 
+# Check whether --enable-dynamic was given.
+if test "${enable_dynamic+set}" = set; then :
+  enableval=$enable_dynamic; enable_dynamic=$enableval
+else
+  enable_dynamic=auto
+fi
+
 
     DL_LIBS=""
-  if test "${enable_dynamic}" != "no"; then
+  if test "${enable_dynamic}" = "auto"; then
+      # default to disabled unless library found.
+      enable_dynamic=no
       # dlopen
       for ac_header in dlfcn.h
 do :
@@ -10148,13 +10157,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 else
   ipv6="no"
-fi
-
-# Check whether --enable-dynamic was given.
-if test "${enable_dynamic+set}" = set; then :
-  enableval=$enable_dynamic; enable_dynamic=$enableval
-else
-  enable_dynamic=yes
 fi
 
 # Check whether --enable-preload was given.

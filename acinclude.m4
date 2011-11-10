@@ -136,7 +136,9 @@ AC_DEFUN([SANE_CHECK_DLL_LIB],
 [
   dnl Checks for dll libraries: dl
   DL_LIBS=""
-  if test "${enable_dynamic}" != "no"; then
+  if test "${enable_dynamic}" = "auto"; then
+      # default to disabled unless library found.
+      enable_dynamic=no
       # dlopen
       AC_CHECK_HEADERS(dlfcn.h,
       [AC_CHECK_LIB(dl, dlopen, DL_LIBS=-ldl)

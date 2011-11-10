@@ -22,7 +22,9 @@
 #define BACKEND_NAME epson2
 #define DEBUG_NOT_STATIC
 
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
 
 #ifdef HAVE_STDDEF_H
 #include <stddef.h>

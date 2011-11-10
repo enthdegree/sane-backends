@@ -1,4 +1,15 @@
-2011-11-07 Chris Bagwell <chris at cnpbagwell dot com>
+2011-11-09 Chris Bagwell <chris at cnpbagwell dot com>
+	* configure, configure.in, acinclude.m4:
+	Convert enable_dynamic to "auto" behavior. Previous
+	attempt was resulting in it always defaulting to
+	"yes" and user had to use --disable-dynamic on
+	platforms that couldn't support it.
+	* backend/epson2-ops.c, backend/epson2.c, backend/epson2.h:
+	minor portability changes to epson2.  #ifdef some optional
+	headers and use usleep() instead of sleep(). Switch to
+	sanei_udb_set_noblock().
+
+2011-11-08 Chris Bagwell <chris at cnpbagwell dot com>
 	* backend/Makefile.*: Finish preload linking fix.
 	dll.c was being linked in with convienence library.
 	If it needs to have two behaviors then we need to

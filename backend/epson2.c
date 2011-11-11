@@ -645,7 +645,7 @@ device_detect(const char *name, int type, SANE_Status *status)
 			 * sleep a bit.
 			 */
 			if (dev->connection == SANE_EPSON_NET)
-				usleep(1000);
+				sleep(1);
 
 			return scanner_create(dev, status);
 		}

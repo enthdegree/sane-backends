@@ -6048,7 +6048,7 @@ initScanner610p (int recover)
       CMDSETGET (4, 0x08, op03);
       CMDSYNC (0x40);
       CMDSYNC (0xC2);
-      usleep (2000);
+      sleep (2);
     }
 
   /* move backward */
@@ -6060,7 +6060,7 @@ initScanner610p (int recover)
   CMDSETGET (4, 0x08, op03);
   CMDSYNC (0x40);
   CMDSYNC (0xC2);
-  usleep (2000);
+  sleep (2);
 
   /* means 'CONTINUE MOVE' */
   CMDSYNC (0x00);
@@ -6090,7 +6090,7 @@ initScanner610p (int recover)
       CMDSETGET (4, 0x08, op03);
       CMDSYNC (0x40);
       CMDSYNC (0xC2);
-      usleep (9000);
+      sleep (9);
     }
 
   CMDSYNC (0x00);
@@ -6223,7 +6223,7 @@ sanei_umax_pp_initScanner (int recover)
 	  CMDSYNC (0x40);
 	  do
 	    {
-	      usleep (1000);
+	      sleep (1);
 	      CMDSYNC (0xC2);
 	    }
 	  while ((sanei_umax_pp_scannerStatus () & 0x90) != 0x90);
@@ -6239,7 +6239,7 @@ sanei_umax_pp_initScanner (int recover)
 	  CMDSYNC (0x40);
 	  do
 	    {
-	      usleep (1000);
+	      sleep (1);
 	      CMDSYNC (0xC2);
 	    }
 	  while ((sanei_umax_pp_scannerStatus () & 0x90) != 0x90);
@@ -6319,7 +6319,7 @@ sanei_umax_pp_initScanner (int recover)
 	      /* the sleep is here to prevent */
 	      /* excessive CPU usage, can be  */
 	      /* removed, if we don't care    */
-	      usleep (3000);
+	      sleep (3);
 	      CMDSYNC (0xC2);
 	      DBG (16, "PARKING polling status is 0x%02X   (%s:%d)\n",
 		   sanei_umax_pp_scannerStatus (), __FILE__, __LINE__);
@@ -11671,7 +11671,7 @@ sanei_umax_pp_checkModel (void)
       /* poll parking */
       do
 	{
-	  usleep (1000);
+	  sleep (1);
 	  CMDSYNC (0x40);
 	}
       while ((sanei_umax_pp_scannerStatus () & MOTOR_BIT) == 0x00);

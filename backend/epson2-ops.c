@@ -1439,7 +1439,7 @@ e2_wait_button(Epson_Scanner * s)
 			if (button_status)
 				s->hw->wait_for_button = SANE_FALSE;
 			else
-				usleep(1000);
+				sleep(1);
 		} else {
 			/* we run into an error condition, just continue */
 			s->hw->wait_for_button = SANE_FALSE;
@@ -1533,7 +1533,7 @@ e2_wait_warm_up(Epson_Scanner * s)
 			    s->retry_count);
 			return SANE_STATUS_DEVICE_BUSY;
 		}
-		usleep(5000);
+		sleep(5);
 	}
 
 	return SANE_STATUS_GOOD;
@@ -1816,7 +1816,7 @@ read_info_block(Epson_Scanner * s, EpsonDataRec * result)
 		if (ext_status[0] & EXT_STATUS_WU) {
 			free(ext_status);
 
-			usleep(5000);	/* for the next attempt */
+			sleep(5);	/* for the next attempt */
 
 			DBG(1, "retrying ESC G - %d\n", ++(s->retry_count));
 

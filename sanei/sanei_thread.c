@@ -116,10 +116,59 @@ sanei_thread_is_forked( void )
 #endif
 }
 
+/* Use this to mark a SANE_Pid as invaild instead of marking with -1.
+ */
+static void
+sanei_thread_set_invalid( SANE_Pid *pid )
+{
+
+#ifdef WIN32
+	pid->p = 0;
+#else
+	*pid = -1;
+#endif
+}
+
+/* Return if PID is a valid PID or not. */
+SANE_Bool
+sanei_thread_is_invalid( SANE_Pid pid )
+{
+	SANE_Bool rc = SANE_FALSE;
+
+#ifdef WIN32
+	if (pid.p == 0)
+	    rc = SANE_TRUE;
+#else
+	if (pid == -1)
+	    rc = SANE_TRUE;
+#endif
+
+	return rc;
+}
+
+/* pthread_t is not an integer on all platform.  Do our best to return
+ * a PID-like value from structure.  On platforms were it is an integer,
+ * return that.
+ */
+static long
+sanei_thread_pid_to_long( SANE_Pid pid )
+{
+	int rc;
+
+#ifdef WIN32
+	rc = pid.p;
+#else
+	rc = pid;
+#endif
+
+	return rc;
+}
+
 int
 sanei_thread_kill( SANE_Pid pid )
 {
-	DBG(2, "sanei_thread_kill() will kill %ld\n", (long) pid);
+	DBG(2, "sanei_thread_kill() will kill %ld\n",
+	    sanei_thread_pid_to_long(pid));
 #ifdef USE_PTHREAD
 #if defined (__APPLE__) && defined (__MACH__)
 	return pthread_kill((pthread_t)pid, SIGUSR2);
@@ -307,6 +356,7 @@ local_thread( void *arg )
 static void
 restore_sigpipe( void )
 {
+#ifdef SIGPIPE
 	struct sigaction act;
 
 	if( sigaction( SIGPIPE, NULL, &act ) == 0 ) {
@@ -320,6 +370,7 @@ restore_sigpipe( void )
 			sigaction( SIGPIPE, &act, NULL );
 		}
 	}
+#endif
 }
 
 #else /* the process stuff */
@@ -352,9 +403,10 @@ SANE_Pid
 sanei_thread_begin( int (func)(void *args), void* args )
 {
 #ifdef USE_PTHREAD
-	struct sigaction act;
 	int result;
 	pthread_t thread;
+#ifdef SIGPIPE
+	struct sigaction act;
 
 	/* if signal handler for SIGPIPE is SIG_DFL, replace by SIG_IGN */
 	if( sigaction( SIGPIPE, NULL, &act ) == 0 ) {
@@ -368,6 +420,7 @@ sanei_thread_begin( int (func)(void *args), void* args )
 			sigaction( SIGPIPE, &act, NULL );
 		}
 	}
+#endif
 
 	td.func      = func;
 	td.func_data = args;
@@ -377,10 +430,12 @@ sanei_thread_begin( int (func)(void *args), void* args )
 
 	if ( result != 0 ) {
 		DBG( 1, "pthread_create() failed with %d\n", result );
-		return -1;
+		sanei_thread_set_invalid(&thread);
 	}
+	else
+		DBG( 2, "pthread_create() created thread %ld\n",
+		     (SANE_Pid)thread );
 
-	DBG( 2, "pthread_create() created thread %ld\n", (SANE_Pid)thread );
 	return (SANE_Pid)thread;
 #else
 	SANE_Pid pid;
@@ -407,11 +462,11 @@ sanei_thread_begin( int (func)(void *args), void* args )
 int
 sanei_thread_sendsig( SANE_Pid pid, int sig )
 {
+	DBG(2, "sanei_thread_sendsig() %d to thread (id=%ld)\n", sig,
+	    sanei_thread_pid_to_long(pid));
 #ifdef USE_PTHREAD
-	DBG(2, "sanei_thread_sendsig() %d to thread (id=%ld)\n", sig, pid);
 	return pthread_kill( (pthread_t)pid, sig );
 #else
-	DBG(2, "sanei_thread_sendsig() %d to process (id=%d)\n", sig, pid);
 	return kill( pid, sig );
 #endif
 }
@@ -429,11 +484,13 @@ sanei_thread_waitpid( SANE_Pid pid, int *status )
 
 	stat = 0;
 
-	DBG(2, "sanei_thread_waitpid() - %ld\n", (long) pid);
+	DBG(2, "sanei_thread_waitpid() - %ld\n",
+	    sanei_thread_pid_to_long(pid));
 #ifdef USE_PTHREAD
-	result = pthread_join( (pthread_t)pid, (void*)&ls );
+	int rc;
+	rc = pthread_join( (pthread_t)pid, (void*)&ls );
 
-	if( 0 == result ) {
+	if( 0 == rc ) {
 		if( PTHREAD_CANCELED == ls ) {
 			DBG(2, "* thread has been canceled!\n" );
 			stat = SANE_STATUS_GOOD;

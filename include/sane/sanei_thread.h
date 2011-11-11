@@ -61,7 +61,7 @@
 #include "../include/sane/config.h"
 
 #ifdef USE_PTHREAD
-typedef long SANE_Pid;
+typedef pthread_t SANE_Pid;
 #else
 typedef int SANE_Pid;
 #endif
@@ -81,6 +81,17 @@ extern void sanei_thread_init (void);
  * - SANE_FALSE - i threads are used
  */
 extern SANE_Bool sanei_thread_is_forked (void);
+
+/** Is SANE_Pid valid pid?
+ *
+ * This function can be used to check if thread/fork creation worked
+ * regardless of SANE_Pid's data type.
+ *
+ * @return
+ * - SANE_TRUE - if pid is not a valid process
+ * - SANE_FALSE - if pid is a valid process
+ */
+extern SANE_Bool sanei_thread_is_invalid (SANE_Pid pid);
 
 /** Spawn a new task.
  *

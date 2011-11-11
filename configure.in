@@ -306,7 +306,7 @@ AC_CHECK_FUNCS(atexit ioperm i386_set_ioperm \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess \
     getaddrinfo getnameinfo poll setitimer iopl getuid getpass)
 AC_REPLACE_FUNCS(getenv isfdtype sigprocmask snprintf \
-    strcasestr strdup strndup strsep usleep syslog vsyslog)
+    strcasestr strdup strndup strsep usleep sleep syslog vsyslog)
 
 SANE_PROTOTYPES
 

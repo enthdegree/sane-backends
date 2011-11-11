@@ -9467,6 +9467,19 @@ esac
 
 fi
 
+ac_fn_c_check_func "$LINENO" "sleep" "ac_cv_func_sleep"
+if test "x$ac_cv_func_sleep" = xyes; then :
+  $as_echo "#define HAVE_SLEEP 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" sleep.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS sleep.$ac_objext"
+ ;;
+esac
+
+fi
+
 ac_fn_c_check_func "$LINENO" "syslog" "ac_cv_func_syslog"
 if test "x$ac_cv_func_syslog" = xyes; then :
   $as_echo "#define HAVE_SYSLOG 1" >>confdefs.h

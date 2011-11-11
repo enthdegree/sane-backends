@@ -53,8 +53,8 @@ am_libfelib_la_OBJECTS = getopt.lo getopt1.lo md5.lo syslog.lo \
 libfelib_la_OBJECTS = $(am_libfelib_la_OBJECTS)
 liblib_la_LIBADD =
 am_liblib_la_OBJECTS = alloca.lo getenv.lo inet_ntop.lo inet_pton.lo \
-	isfdtype.lo sigprocmask.lo snprintf.lo strcasestr.lo strdup.lo \
-	strndup.lo strsep.lo usleep.lo
+	isfdtype.lo sigprocmask.lo sleep.lo snprintf.lo strcasestr.lo \
+	strdup.lo strndup.lo strsep.lo usleep.lo
 liblib_la_OBJECTS = $(am_liblib_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include/sane
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -247,8 +247,8 @@ AM_CPPFLAGS = -I. -I$(top_builddir)/include -I$(top_srcdir)/include
 noinst_LTLIBRARIES = liblib.la libfelib.la
 libfelib_la_SOURCES = getopt.c getopt1.c md5.c syslog.c vsyslog.c
 liblib_la_SOURCES = alloca.c getenv.c inet_ntop.c inet_pton.c \
-	isfdtype.c sigprocmask.c snprintf.c strcasestr.c strdup.c \
-	strndup.c strsep.c usleep.c
+	isfdtype.c sigprocmask.c sleep.c snprintf.c strcasestr.c \
+	strdup.c strndup.c strsep.c usleep.c
 
 all: all-am
 
@@ -313,6 +313,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/isfdtype.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sigprocmask.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sleep.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/snprintf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strcasestr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strdup.Plo@am__quote@

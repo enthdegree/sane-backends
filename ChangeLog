@@ -1,3 +1,14 @@
+2011-11-10 Chris Bagwell <chris at cnpbagwell dot com>
+	* include/sane/sanei_thread.h, sanei/sanei_thread.c:
+	Make SANE_Pid map to pthread_t to be compilable
+	on platforms where pthread_t is not a integer;
+	namely mingw.
+	* configure, configure.in, include/sane/config.h.in,
+	lib/Makefile.am, lib/Makefile.in, lib/sleep.c: Add
+	a sleep() replacement function; mostly for mingw.
+	* backend/epson2-ops.c, backend/epson2.c, umax_pp_low.c:
+	Revert some broken sleep()->usleep() conversions.
+
 2011-11-09 Chris Bagwell <chris at cnpbagwell dot com>
 	* configure, configure.in, acinclude.m4:
 	Convert enable_dynamic to "auto" behavior. Previous

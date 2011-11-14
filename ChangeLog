@@ -1,3 +1,7 @@
+2011-11-14 Chris Bagwell <chris at cnpbagwell dot com>
+        * doc/descriptions-external/epkowa.desc: update for new iScan
+	release from Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>.
+
 2011-11-10 Chris Bagwell <chris at cnpbagwell dot com>
 	* include/sane/sanei_thread.h, sanei/sanei_thread.c:
 	Make SANE_Pid map to pthread_t to be compilable

@@ -20,10 +20,11 @@
 ;;;      59 Temple Place, Suite 330
 ;;;      Boston, MA  02111-1307  USA
 
-;;;  This list of devices was compiled from the following sources:
+;;;  This list of devices has been compiled using the following sources:
 ;;;
+;;;  * iscan-data-$version (see :version field below)
 ;;;  * iscan-2.24.0/NEWS
-;;;  * iscan-2.24.0/backend/usb
+;;;  * iscan-2.24.0/backend/usb (since moved to iscan-data)
 ;;;  * sane-backends/backend/epson_usb.c (CVS 1.18)
 ;;;  * sane-backends/doc/descriptions/epson.desc (CVS 1.26)
 ;;;  * http://www.freecolormanagement.com/sane/supported.html
@@ -33,15 +34,14 @@
 ;;;  * http://www.i-love-epson.co.jp/
 ;;;  * messages on the sane-devel and LinuxPrinting.org epson-list
 ;;;    mailing lists
-
+;;;
+;;;  Some of the above sources may have moved or may no longer exist.
 
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "iscan 2.26.4/iscan-data 1.9.0"
-:url     "http://www.avasys.jp/english/linux_e/"
-
-;:comment "Based on the epson backend of sane-backends-1.0.15."
+:version "iscan 2.28.0/iscan-data 1.12.0"
+:url     "http://avasys.jp/eng/linux_driver/"
 
 
 ;;  Device and manufacturer information.
@@ -64,6 +64,9 @@
 ;   JP	= http://www.i-love-epson.co.jp/	(in Japanese)
 ;
 ; All command specs were downloaded from www.epsondevelopers.com.
+;
+; Note that the above location may have moved, may no longer exist
+; or no longer provide (unfettered) access to the specifications.
 
 ; For the :comment sections I have tried to stick to the following
 ; ordering
@@ -136,6 +139,12 @@
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-803A"
 
+:model     "Artisan 730 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x087b"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-804A"
+
 :model     "Artisan 800"
 :interface "USB"
 :usbid     "0x04b8" "0x0844"
@@ -153,6 +162,12 @@
 :usbid     "0x04b8" "0x0860"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-903A"
+
+:model     "Artisan 837"
+:interface "USB"
+:usbid     "0x04b8" "0x0879"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-904F"
 
 :model     "CC-500L"			; product spec (JP)
 :interface "USB"
@@ -196,6 +211,18 @@
 :status    :complete
 :comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
+:model     "EP-704A"
+:interface "USB"
+:usbid     "0x04b8" "0x0878"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "EP-774A"
+:interface "USB"
+:usbid     "0x04b8" "0x0893"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "EP-801A"
 :interface "USB"
 :usbid     "0x04b8" "0x0846"
@@ -217,6 +244,24 @@
 :model     "EP-803AW"
 :interface "USB"
 :usbid     "0x04b8" "0x0861"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "EP-804A"
+:interface "USB"
+:usbid     "0x04b8" "0x087b"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "EP-804AR"
+:interface "USB"
+:usbid     "0x04b8" "0x087b"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "EP-804AW"
+:interface "USB"
+:usbid     "0x04b8" "0x087b"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
@@ -247,6 +292,18 @@
 :model     "EP-903F"
 :interface "USB"
 :usbid     "0x04b8" "0x0860"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "EP-904A"
+:interface "USB"
+:usbid     "0x04b8" "0x0879"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "EP-904F"
+:interface "USB"
+:usbid     "0x04b8" "0x0879"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
@@ -726,11 +783,25 @@
 :comment   "requires DFSG non-free esci-interpreter-gt-s80<br>overseas version of the ES-D200"
 :url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
+:model     "GT-S55"
+:interface "USB"
+:usbid     "0x04b8" "0x0143"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-gt-s80"
+:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+
 :model     "GT-S80"
 :interface "USB"
 :usbid     "0x04b8" "0x0136"
 :status    :good
 :comment   "requires DFSG non-free esci-interpreter-gt-s80<br>overseas version of the ES-D400"
+:url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+
+:model     "GT-S85"
+:interface "USB"
+:usbid     "0x04b8" "0x0144"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-gt-s80"
 :url       "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
 :model     "GT-S600"
@@ -1061,6 +1132,12 @@
 :status    :good
 :comment   "all-in-one<br>PM-A970 with network interface"
 
+:model     "PX-1600F"
+:interface "USB"
+:usbid     "0x04b8" "0x0869"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "PX-401A"
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
@@ -1078,6 +1155,18 @@
 :usbid     "0x04b8" "0x087f"
 :status    :complete
 :comment   "all-in-one"
+
+:model     "PX-404A"
+:interface "USB"
+:usbid     "0x04b8" "0x0881"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "PX-434A"
+:interface "USB"
+:usbid     "0x04b8" "0x0880"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "PX-501A"
 :interface "USB"
@@ -1156,6 +1245,12 @@
 :usbid     "0x04b8" "0x0839"
 :status    :good
 :comment   "all-in-one"
+
+:model     "PX-B750F"
+:interface "USB"
+:usbid     "0x04b8" "0x087d"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "PX-FA700"
 :interface "USB"
@@ -1846,6 +1941,12 @@
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
+:model     "Stylus Office BX305FW PLUS"
+:interface "USB"
+:usbid     "0x04b8" "0x0870"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "Stylus Office BX310FN Series"
 :interface "USB"
 :usbid     "0x04b8" "0x0854"
@@ -1879,6 +1980,12 @@
 :model     "Stylus Office BX625FWD"
 :interface "USB"
 :usbid     "0x04b8" "0x085d"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "Stylus Office BX635FWD"
+:interface "USB"
+:usbid     "0x04b8" "0x088f"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
@@ -1960,6 +2067,12 @@
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-803A"
 
+:model     "Stylus Photo PX730WD Series"
+:interface "USB"
+:usbid     "0x04b8" "0x087b"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-804A"
+
 :model     "Stylus Photo PX800FW"
 :interface "USB"
 :usbid     "0x04b8" "0x0844"
@@ -1977,6 +2090,12 @@
 :usbid     "0x04b8" "0x0860"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-903A"
+
+:model     "Stylus Photo PX830FWD Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0879"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the EP-904F"
 
 :model     "Stylus Photo RX420"
 :interface "USB"
@@ -2170,6 +2289,12 @@
 :status    :complete
 :comment   "all-in-one"
 
+:model     "Stylus NX130 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0883"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "Stylus NX200"
 :interface "USB"
 :usbid     "0x04b8" "0x0849"
@@ -2188,11 +2313,23 @@
 :status    :complete
 :comment   "all-in-one"
 
+:model     "Stylus NX230 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0885"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "Stylus NX300 Series"
 :interface "USB"
 :usbid     "0x04b8" "0x0848"
 :status    :good
 :comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "Stylus NX330 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0880"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus NX400"
 :interface "USB"
@@ -2211,6 +2348,12 @@
 :usbid     "0x04b8" "0x0864"
 :status    :complete
 :comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "Stylus NX430W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0884"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus NX510 Series"
 :interface "USB"
@@ -2242,6 +2385,12 @@
 :status    :complete
 :comment   "all-in-one"
 
+:model     "Stylus SX130 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0883"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "Stylus SX200"
 :interface "USB"
 :usbid     "0x04b8" "0x0849"
@@ -2266,6 +2415,12 @@
 :status    :complete
 :comment   "all-in-one"
 
+:model     "Stylus SX235W"
+:interface "USB"
+:usbid     "0x04b8" "0x0885"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "Stylus SX400"
 :interface "USB"
 :usbid     "0x04b8" "0x084a"
@@ -2289,6 +2444,18 @@
 :usbid     "0x04b8" "0x0864"
 :status    :complete
 :comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "Stylus SX430W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0880"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "Stylus SX440W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0884"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "Stylus SX510W Series"
 :interface "USB"
@@ -2386,6 +2553,18 @@
 :status    :complete
 :comment   "all-in-one"
 
+:model     "Stylus TX230W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0885"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "Stylus TX235"
+:interface "USB"
+:usbid     "0x04b8" "0x0881"
+:status    :complete
+:comment   "all-in-one<br>overseas version of the PX-404A"
+
 :model     "Stylus TX400"
 :interface "USB"
 :usbid     "0x04b8" "0x084a"
@@ -2404,6 +2583,18 @@
 :status    :complete
 :comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
+:model     "Stylus TX430W Series"
+:interface "USB"
+:usbid     "0x04b8" "0x0880"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "Stylus TX435W"
+:interface "USB"
+:usbid     "0x04b8" "0x0884"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "Stylus TX550W Series"
 :interface "USB"
 :usbid     "0x04b8" "0x0856"
@@ -2415,6 +2606,42 @@
 :usbid     "0x04b8" "0x085e"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-503A"
+
+:model     "WP-4515"
+:interface "USB"
+:usbid     "0x04b8" "0x087d"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "WP-4525"
+:interface "USB"
+:usbid     "0x04b8" "0x087d"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-B750F"
+
+:model     "WP-4530"
+:interface "USB"
+:usbid     "0x04b8" "0x087d"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-B750F"
+
+:model     "WP-4535"
+:interface "USB"
+:usbid     "0x04b8" "0x087d"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "WP-4540"
+:interface "USB"
+:usbid     "0x04b8" "0x087d"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-B750F"
+
+:model     "WP-4545"
+:interface "USB"
+:usbid     "0x04b8" "0x087d"
+:status    :complete
+:comment   "network interface option supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "WorkForce 310 Series"
 :interface "USB"
@@ -2428,6 +2655,12 @@
 :status    :complete
 :comment   "network interface (option) supported via DFSG non-free iscan-network-nt package<br>some models in the series have a built-in network interface<br>all-in-one"
 
+:model     "WorkForce 435"
+:interface "USB"
+:usbid     "0x04b8" "0x0870"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "WorkForce 500"
 :interface "USB"
 :usbid     "0x04b8" "0x084c"
@@ -2437,6 +2670,12 @@
 :model     "WorkForce 520 Series"
 :interface "USB"
 :usbid     "0x04b8" "0x085f"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "WorkForce 545"
+:interface "USB"
+:usbid     "0x04b8" "0x0890"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 

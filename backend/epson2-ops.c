@@ -559,10 +559,9 @@ e2_discover_capabilities(Epson_Scanner *s)
 	 * Extended status flag request (ESC f).
 	 * this also requests the scanner device name from the the scanner.
 	 * It seems unsupported on the network transport (CX11NF/LP-A500).
-	 * so avoid it if the device support request_extended_identity.
 	 */
 
-	if (dev->cmd->request_extended_status && !dev->cmd->request_extended_identity) {
+	if (dev->cmd->request_extended_status && dev->connection != SANE_EPSON_NET) {
 
 		unsigned char *es;
 		size_t es_len;

@@ -447,25 +447,37 @@ gl843_test_motor_flag_bit (SANE_Byte val)
  * profile is at a specific dpihw. Use first entry of table by default.
  * @param sensor_type sensor id
  * @param dpi hardware dpi for the scan
+ * @param flags to select between XPA, XPA+IR or regular scan from OPTICAL_FLAGS_*
  * @return a pointer to a Sensor_Profile struct
  */
-static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
+static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi, int flags)
 {
-  unsigned int i;
+  unsigned int i, count;
   int idx;
+  Sensor_Profile *sp;
 
+  if(flags & OPTICAL_FLAG_USE_XPA)
+    {
+      sp=xpa_sensors;
+      count=sizeof(xpa_sensors)/sizeof(Sensor_Profile);
+    }
+  else
+    {
+      sp=sensors;
+      count=sizeof(sensors)/sizeof(Sensor_Profile);
+    }
   i=0;
   idx=-1;
-  while(i<sizeof(sensors)/sizeof(Sensor_Profile))
+  while(i<count)
     {
       /* exact match */
-      if(sensors[i].sensor_type==sensor_type && sensors[i].dpi==dpi)
+      if(sp[i].sensor_type==sensor_type && sp[i].dpi==dpi)
         {
-          return &(sensors[i]);
+          return &(sp[i]);
         }
 
       /* closest match */
-      if(sensors[i].sensor_type==sensor_type)
+      if(sp[i].sensor_type==sensor_type)
         {
           if(idx<0)
             {
@@ -473,8 +485,8 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
             }
           else
             {
-              if(sensors[i].dpi>=dpi 
-              && sensors[i].dpi<sensors[idx].dpi)
+              if(sp[i].dpi>=dpi 
+              && sp[i].dpi<sp[idx].dpi)
                 {
                   idx=i;
                 }
@@ -490,13 +502,13 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
       idx=0;
     }
 
-  return &(sensors[idx]);
+  return &(sp[idx]);
 }
 
 
 /** copy sensor specific settings */
 static void
-gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
+gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi,int flags)
 {
   Genesys_Register_Set *r;
   Sensor_Profile *sensor;
@@ -505,7 +517,7 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   DBGSTART;
 
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
+  sensor=get_sensor_profile(dev->model->ccd_type, dpihw, flags);
 
   for (i = 0x06; i < 0x0e; i++)
     {
@@ -535,6 +547,11 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   if (r)
     {
       r->value = sensor->reg71;
+    }
+  r = sanei_genesys_get_address (regs, 0x7d);
+  if (r)
+    {
+      r->value = 0x90;
     }
   r = sanei_genesys_get_address (regs, 0x9e);
   if (r)
@@ -1096,11 +1113,11 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
 /**@brief compute exposure to use
  * compute the sensor exposure based on target resolution
  */
-static int gl843_compute_exposure(Genesys_Device *dev, int xres)
+static int gl843_compute_exposure(Genesys_Device *dev, int xres, int flags)
 {
   Sensor_Profile *sensor;
 
-  sensor=get_sensor_profile(dev->model->ccd_type, xres);
+  sensor=get_sensor_profile(dev->model->ccd_type, xres, flags);
   return sensor->exposure;
 }
 
@@ -1112,6 +1129,7 @@ static int gl843_compute_exposure(Genesys_Device *dev, int xres)
  *        scan's one
  * @param start logical start pixel coordinate
  * @param pixels logical number of pixels to use
+ * @param flags to drive specific settings such no calibration, XPA use ...
  * @return SANE_STATUS_GOOD if OK
  */
 static SANE_Status
@@ -1142,11 +1160,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
        exposure,
        used_res, start, pixels, channels, depth, half_ccd, flags);
 
-  /* resolution is divided according to CKSEL */ 
-  r = sanei_genesys_get_address (reg, REG18);
-  cksel= (r->value & REG18_CKSEL)+1;
-  DBG (DBG_io2, "%s: cksel=%d\n", __FUNCTION__, cksel);
-
   /* tgtime */
   tgtime=1;
   if (dev->model->ccd_type == CCD_G4050 && used_res>2400)
@@ -1162,7 +1175,12 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __FUNCTION__, dpihw, factor);
 
   /* sensor parameters */
-  gl843_setup_sensor (dev, reg, dpihw);
+  gl843_setup_sensor (dev, reg, dpihw, flags);
+
+  /* resolution is divided according to CKSEL which is known once sensor is set up*/ 
+  r = sanei_genesys_get_address (reg, REG18);
+  cksel= (r->value & REG18_CKSEL)+1;
+  DBG (DBG_io2, "%s: cksel=%d\n", __FUNCTION__, cksel);
   dpiset = used_res * cksel;
 
   /* start and end coordinate in optical dpi coordinates */
@@ -1419,6 +1437,23 @@ gl843_init_scan_regs (Genesys_Device * dev,
     }
   DBG (DBG_info, "%s : stagger=%d lines\n", __FUNCTION__, stagger);
 
+  /* we enable true gray for cis scanners only, and just when doing 
+   * scan since color calibration is OK for this mode
+   */
+  oflags = 0;
+  if (flags & SCAN_FLAG_DISABLE_SHADING)
+    oflags |= OPTICAL_FLAG_DISABLE_SHADING;
+  if (flags & SCAN_FLAG_DISABLE_GAMMA)
+    oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
+  if (flags & SCAN_FLAG_DISABLE_LAMP)
+    oflags |= OPTICAL_FLAG_DISABLE_LAMP;
+  if (flags & SCAN_FLAG_CALIBRATION)
+    oflags |= OPTICAL_FLAG_DISABLE_DOUBLE;
+  if(stagger)
+    oflags |= OPTICAL_FLAG_STAGGER;
+  if (flags & SCAN_FLAG_USE_XPA)
+    oflags |= OPTICAL_FLAG_USE_XPA;
+
   /** @brief compute used resolution */
   if (flags & SCAN_FLAG_USE_OPTICAL_RES)
     {
@@ -1453,6 +1488,7 @@ gl843_init_scan_regs (Genesys_Device * dev,
     used_pixels++;
 
   dummy = 0;
+  /* dummy = 1;  XXX STEF XXX */
 
   /* slope_dpi */
   /* cis color scan is effectively a gray scan with 3 gray lines per color line and a FILTER of 0 */
@@ -1460,16 +1496,17 @@ gl843_init_scan_regs (Genesys_Device * dev,
     slope_dpi = yres * channels;
   else
     slope_dpi = yres;
+  slope_dpi = slope_dpi * (1 + dummy);
 
   /* scan_step_type */
   if(flags & SCAN_FLAG_FEEDING)
     {
-      exposure=gl843_compute_exposure (dev, sanei_genesys_get_lowest_ydpi(dev));
+      exposure=gl843_compute_exposure (dev, sanei_genesys_get_lowest_ydpi(dev), oflags);
       scan_step_type=sanei_genesys_compute_step_type (gl843_motors, dev->model->motor_type, exposure);
     }
   else
     {
-      exposure = gl843_compute_exposure (dev, used_res);
+      exposure = gl843_compute_exposure (dev, used_res, oflags);
       scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, exposure);
     }
 
@@ -1485,25 +1522,10 @@ gl843_init_scan_regs (Genesys_Device * dev,
     }
   /* no 16 bit gamma for this ASIC */
   if (depth == 16)
-    flags |= SCAN_FLAG_DISABLE_GAMMA;
-
-  /* we enable true gray for cis scanners only, and just when doing 
-   * scan since color calibration is OK for this mode
-   */
-  oflags = 0;
-  if (flags & SCAN_FLAG_DISABLE_SHADING)
-    oflags |= OPTICAL_FLAG_DISABLE_SHADING;
-  if (flags & SCAN_FLAG_DISABLE_GAMMA)
-    oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
-  if (flags & SCAN_FLAG_DISABLE_LAMP)
-    oflags |= OPTICAL_FLAG_DISABLE_LAMP;
-  if (flags & SCAN_FLAG_CALIBRATION)
-    oflags |= OPTICAL_FLAG_DISABLE_DOUBLE;
-  if(stagger)
-    oflags |= OPTICAL_FLAG_STAGGER;
-  if (flags & SCAN_FLAG_USE_XPA)
-    oflags |= OPTICAL_FLAG_USE_XPA;
-
+    {
+      flags |= SCAN_FLAG_DISABLE_GAMMA;
+      oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
+    }
 
   /* now _LOGICAL_ optical values used are known, setup registers */
   status = gl843_init_optical_regs_scan (dev,
@@ -1664,6 +1686,7 @@ gl843_calculate_current_setup (Genesys_Device * dev)
 
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
+  int oflags;
 
   DBG (DBG_info,
        "gl843_calculate_current_setup settings:\n"
@@ -1692,6 +1715,12 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   start += dev->settings.tl_x;
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
 
+  /* optical flags */
+  oflags=0;
+  if(dev->settings.scan_method==SCAN_METHOD_TRANSPARENCY)
+    {
+      oflags=OPTICAL_FLAG_USE_XPA;
+    }
 
   xres = dev->settings.xres;
   yres = dev->settings.yres;
@@ -1758,7 +1787,7 @@ gl843_calculate_current_setup (Genesys_Device * dev)
     slope_dpi = yres;
 
   /* exposure */
-  exposure = gl843_compute_exposure (dev, used_res);
+  exposure = gl843_compute_exposure (dev, used_res, oflags);
 
   /* scan_step_type */
   scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, exposure);

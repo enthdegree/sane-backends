@@ -771,7 +771,7 @@ typedef struct {
 #define OPTICAL_FLAG_ENABLE_LEDADD          0x08
 #define OPTICAL_FLAG_DISABLE_DOUBLE         0x10
 #define OPTICAL_FLAG_STAGGER                0x20
-#define OPTICAL_FLAG_USE_XPA                0x20
+#define OPTICAL_FLAG_USE_XPA                0x40
 
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */

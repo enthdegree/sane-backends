@@ -1226,10 +1226,10 @@ static Genesys_Model hpg4050_model = {
   SANE_FIX (3.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
-  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+  SANE_FIX (8.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (13.00),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (217.9),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (250.0),		/* Size of scan area in TA mode in mm (y) */
 
   SANE_FIX (40.0),		/* Start of white strip in TA mode in mm (y) */
 

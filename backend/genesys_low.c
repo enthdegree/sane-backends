@@ -41,28 +41,9 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice. 
 */
-#include "../include/sane/config.h"
-
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <math.h>
-
-#include "../include/sane/sane.h"
-#include "../include/sane/sanei.h"
-#include "../include/sane/saneopts.h"
-
-#ifndef HACK
 #undef BACKEND_NAME
 #define BACKEND_NAME genesys_low
-#endif
 
-#include "../include/sane/sanei_backend.h"
-#include "../include/sane/sanei_config.h"
-#include "../include/sane/sanei_usb.h"
-
-#include "../include/_stdint.h"
 #include "genesys_low.h"
 
 /* ------------------------------------------------------------------------ */

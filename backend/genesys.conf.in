@@ -97,6 +97,9 @@ usb  0x04a7 0x04ac
 # Panasonic KV-SS080
 usb 0x04da 0x100f
 
+# Hewlett Packard ScanJet 4850C
+usb 0x03f0 0x1b05
+
 # Hewlett Packard ScanJet G4010
 usb 0x03f0 0x4505
 

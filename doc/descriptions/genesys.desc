@@ -74,7 +74,13 @@
 :interface "USB"
 :usbid "0x03f0" "0x1405"
 :status :complete
-:comment "1200x1200 dpi max, same as HP3670C"
+:comment "1200x1200 dpi max, same as HP 3670C"
+
+:model "ScanJet 4850C"
+:interface "USB"
+:usbid "0x03f0" "0x1b05"
+:status :untested
+:comment "resolution from 100 to 2400 supported, UTA not supported yet"
 
 :model "ScanJet G4010"
 :interface "USB"

@@ -521,6 +521,29 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
+
+  /* HP N6310 */
+
+  {CCD_HP_N6310,
+		     2400,
+		     96,
+		     26,
+		     128,
+		     42720,
+		     210,
+		     230,
+		     /* 08    09    0a    0b */
+		     {0x00, 0x10, 0x10, 0x0c} ,
+		     /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
+		     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0c, 0x02, 0x2a, 0x30, 0x00, 0x00, 0x08} ,
+		     /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
+		     {0x0b, 0x0e, 0x11, 0x02, 0x05, 0x08, 0x63, 0x00, 0x40, 0x00, 0x00, 0x06, 0x6f} ,
+		     1.0, 1.0, 1.0,
+
+		     NULL, NULL, NULL
+  }
+  ,
+
   /* CANONLIDE110 */
   {CIS_CANONLIDE110,
    2400,	/* optical resolution */
@@ -668,8 +691,8 @@ static Genesys_Gpo Gpo[] = {
   {GPO_CANONLIDE200,
    {0xfb, 0x20},	/* 0xfb when idle , 0xf9/0xe9 (1200) when scanning */
    {0xff, 0x00},
-  }
-  ,
+  },
+
   {GPO_KVSS080,
    {0xf5, 0x20},
    {0x7e, 0xa1},
@@ -678,6 +701,12 @@ static Genesys_Gpo Gpo[] = {
   {GPO_G4050,
    {0x20, 0x00},
    {0xfc, 0x00},
+  }
+  ,
+  /* HP N6310 */
+  {GPO_HP_N6310,
+   {0xa3, 0x00},
+   {0x7f, 0x00},
   }
   ,
   /* CANONLIDE110 */
@@ -1364,7 +1393,6 @@ static Genesys_Model canon_lide_100_model = {
       GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_SIS_SENSOR
     | GENESYS_FLAG_MUST_WAIT
-    | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
@@ -1521,7 +1549,6 @@ static Genesys_Model canon_5600f_model = {
     | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_SIS_SENSOR
-    | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
@@ -2809,6 +2836,64 @@ static Genesys_Model plustek_3600_model = {
   200
 };
  
+static Genesys_Model hpn6310_model = {
+  "hewlett-packard-scanjet-N6310",	/* Name */
+  "Hewlett Packard",			/* Device vendor string */
+  "ScanJet N6310",			/* Device model name */
+  GENESYS_GL847,
+  NULL,
+
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 0},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 0},
+
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (6), 		/* Start of scan area in mm  (x) */
+  SANE_FIX (2), 		/* Start of scan area in mm (y) */
+  SANE_FIX (216),		/* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
+  SANE_FIX (511),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0),		/* Amount of feeding needed to eject document
+				   after finishing scanning in mm */
+
+  0, 0, 0,				/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CCD_HP_N6310,
+  DAC_CANONLIDE200,     /*Not defined yet for N6310 */
+  GPO_HP_N6310,
+  MOTOR_CANONLIDE200,   /*Not defined yet for N6310 */
+  GENESYS_FLAG_UNTESTED		/* not fully working yet */
+  | GENESYS_FLAG_LAZY_INIT
+    | GENESYS_FLAG_14BIT_GAMMA
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_CUSTOM_GAMMA
+    | GENESYS_FLAG_SKIP_WARMUP
+   | GENESYS_FLAG_NO_CALIBRATION,
+/*     | GENESYS_FLAG_HALF_CCD_MODE,*/
+
+  GENESYS_HAS_NO_BUTTONS,
+  100,
+  100
+};
+
 
 
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
@@ -2844,6 +2929,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a9, 0x1905, &canon_lide_200_model},
   {0x04a9, 0x1906, &canon_5600f_model},
   {0x04a9, 0x1907, &canon_lide_700f_model},
+  {0x03f0, 0x4705, &hpn6310_model},
   /* GL843 devices */
   {0x04da, 0x100f, &panasonic_kvss080_model},
   {0x03f0, 0x1b05, &hp4850c_model},

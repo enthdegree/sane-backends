@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2011 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2011 Stï¿½phane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Parts of the structs have been taken from the gt68xx backend by
@@ -320,6 +320,7 @@ Genesys_Color_Order;
 #define CCD_G4050        18
 #define CIS_CANONLIDE110 19
 #define CCD_PLUSTEK_3600 20
+#define CCD_HP_N6310     21
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -339,6 +340,7 @@ Genesys_Color_Order;
 #define GPO_CANONLIDE110 15
 #define GPO_PLUSTEK_3600 16
 #define GPO_CANONLIDE210 17
+#define GPO_HP_N6310     18
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1

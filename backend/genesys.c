@@ -58,33 +58,12 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847/GL124 based scanners
  */
 
-#include "../include/sane/config.h"
-
-#define BUILD 64
-
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <math.h>
-#ifdef HAVE_MKDIR 
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
-
-#include "../include/sane/sane.h"
-#include "../include/sane/sanei.h"
-#include "../include/sane/saneopts.h"
-
+#define BUILD 65
 #define BACKEND_NAME genesys
 
-#include "../include/sane/sanei_backend.h"
-#include "../include/sane/sanei_usb.h"
-#include "../include/sane/sanei_config.h"
-#include "../include/_stdint.h"
-#include "../include/sane/sanei_magic.h"
-
 #include "genesys.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_magic.h"
 #include "genesys_devices.c"
 
 static SANE_Int num_devices = 0;
@@ -437,62 +416,6 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
   return sum_time;
 }
 
-/* Generate slope table for motor movement */
-/* This function translates a call of the old slope creation function to a 
-   call to the new one
- */
-static SANE_Int
-genesys_create_slope_table4 (Genesys_Device * dev,
-			     uint16_t * slope_table, int steps,
-			     int step_type, int exposure_time,
-			     SANE_Bool same_speed, double yres,
-			     int power_mode)
-{
-  unsigned int sum_time = 0;
-  unsigned int vtarget;
-  unsigned int vend;
-  unsigned int vstart;
-
-  DBG (DBG_proc,
-       "sanei_genesys_create_slope_table: %d steps, step_type = %d, "
-       "exposure_time = %d, same_speed = %d, yres = %.2f, power_mode = %d\n",
-       steps, step_type, exposure_time, same_speed, yres, power_mode);
-
-  /* final speed */
-  vtarget = (exposure_time * yres) / dev->motor.base_ydpi;
-
-  vstart = dev->motor.slopes[power_mode][step_type].maximum_start_speed;
-  vend = dev->motor.slopes[power_mode][step_type].maximum_speed;
-
-  vtarget >>= step_type;
-  if (vtarget > 65535)
-    vtarget = 65535;
-
-  vstart >>= step_type;
-  if (vstart > 65535)
-    vstart = 65535;
-
-  vend >>= step_type;
-  if (vend > 65535)
-    vend = 65535;
-
-  sum_time = sanei_genesys_generate_slope_table (slope_table, 128,
-						 steps,
-						 vtarget,
-						 vstart,
-						 vend,
-						 dev->motor.slopes[power_mode]
-						 [step_type].minimum_steps <<
-						 step_type,
-						 dev->motor.slopes[power_mode]
-						 [step_type].g, NULL, NULL);
-
-  DBG (DBG_proc,
-       "sanei_genesys_create_slope_table: returns sum_time=%d, completed\n",
-       sum_time);
-
-  return sum_time;
-}
 
 /* alternate slope table creation function        */
 /* the hardcoded values (g and vstart) will go in a motor struct */
@@ -634,11 +557,6 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
   int same_step;
 
   dev = dev;
-
-  if (dev->model->flags & GENESYS_FLAG_ALT_SLOPE_CREATE)
-    return genesys_create_slope_table4 (dev, slope_table, steps,
-					step_type, exposure_time,
-					same_speed, yres, power_mode);
 
   if (dev->model->motor_type == MOTOR_5345
       || dev->model->motor_type == MOTOR_HP2300
@@ -5777,7 +5695,14 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SOURCE].size = max_string_size (source_list);
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
   s->val[OPT_SOURCE].s = strdup (FLATBED);
-  DISABLE (OPT_SOURCE);
+  if (!(model->flags & GENESYS_FLAG_HAS_UTA))
+    {
+      DISABLE (OPT_SOURCE);
+    }
+  else
+    {
+      ENABLE (OPT_SOURCE);
+    }
 
   /* preview */
   s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
@@ -7001,6 +6926,7 @@ sane_close (SANE_Handle handle)
   Genesys_Scanner *prev, *s;
   Genesys_Calibration_Cache *cache, *next_cache;
   SANE_Status status;
+  SANE_Range *range;
 
   DBG (DBG_proc, "sane_close: start\n");
 
@@ -7064,19 +6990,22 @@ sane_close (SANE_Handle handle)
   FREE_IFNOT_NULL (s->dev->sensor.blue_gamma_table);
 
   /* for an handful of bytes .. */
-  free (s->opt[OPT_RESOLUTION].constraint.word_list);
+  free ((void *)s->opt[OPT_RESOLUTION].constraint.word_list);
   free (s->val[OPT_SOURCE].s);
   free (s->val[OPT_MODE].s);
   free (s->val[OPT_COLOR_FILTER].s);
-  FREE_IFNOT_NULL (s->opt[OPT_TL_X].constraint.range);
-  FREE_IFNOT_NULL (s->opt[OPT_TL_Y].constraint.range);
+  range=s->opt[OPT_TL_X].constraint.range;
+  FREE_IFNOT_NULL (range);
+  range=s->opt[OPT_TL_Y].constraint.range;
+  FREE_IFNOT_NULL (range);
 
   if (prev)
     prev->next = s->next;
   else
     first_handle = s->next;
 
-  /* maybe todo: shut down scanner */
+  /* LAMP OFF : same register across all the ASICs */
+  sanei_genesys_write_register (s->dev, 0x03, 0x00);
 
   /* we need this to avoid ASIC getting stuck
    * in bulk writes */
@@ -7334,8 +7263,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
             }
 
           /* assign new values */
-          free(s->opt[OPT_TL_X].constraint.range);
-          free(s->opt[OPT_TL_Y].constraint.range);
+          free((SANE_Range *)s->opt[OPT_TL_X].constraint.range);
+          free((SANE_Range *)s->opt[OPT_TL_Y].constraint.range);
           s->opt[OPT_TL_X].constraint.range = x_range;
           s->val[OPT_TL_X].w = 0;
           s->opt[OPT_TL_Y].constraint.range = y_range;

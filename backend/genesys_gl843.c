@@ -42,6 +42,9 @@
    If you do not wish that, delete this exception notice. 
 */
 
+#undef BACKEND_NAME
+#define BACKEND_NAME genesys_gl843
+
 #include "genesys_gl843.h"
 
 /****************************************************************************
@@ -444,25 +447,37 @@ gl843_test_motor_flag_bit (SANE_Byte val)
  * profile is at a specific dpihw. Use first entry of table by default.
  * @param sensor_type sensor id
  * @param dpi hardware dpi for the scan
+ * @param flags to select between XPA, XPA+IR or regular scan from OPTICAL_FLAGS_*
  * @return a pointer to a Sensor_Profile struct
  */
-static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
+static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi, int flags)
 {
-  unsigned int i;
+  unsigned int i, count;
   int idx;
+  Sensor_Profile *sp;
 
+  if(flags & OPTICAL_FLAG_USE_XPA)
+    {
+      sp=xpa_sensors;
+      count=sizeof(xpa_sensors)/sizeof(Sensor_Profile);
+    }
+  else
+    {
+      sp=sensors;
+      count=sizeof(sensors)/sizeof(Sensor_Profile);
+    }
   i=0;
   idx=-1;
-  while(i<sizeof(sensors)/sizeof(Sensor_Profile))
+  while(i<count)
     {
       /* exact match */
-      if(sensors[i].sensor_type==sensor_type && sensors[i].dpi==dpi)
+      if(sp[i].sensor_type==sensor_type && sp[i].dpi==dpi)
         {
-          return &(sensors[i]);
+          return &(sp[i]);
         }
 
       /* closest match */
-      if(sensors[i].sensor_type==sensor_type)
+      if(sp[i].sensor_type==sensor_type)
         {
           if(idx<0)
             {
@@ -470,8 +485,8 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
             }
           else
             {
-              if(sensors[i].dpi>=dpi 
-              && sensors[i].dpi<sensors[idx].dpi)
+              if(sp[i].dpi>=dpi 
+              && sp[i].dpi<sp[idx].dpi)
                 {
                   idx=i;
                 }
@@ -487,13 +502,13 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
       idx=0;
     }
 
-  return &(sensors[idx]);
+  return &(sp[idx]);
 }
 
 
 /** copy sensor specific settings */
 static void
-gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
+gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi,int flags)
 {
   Genesys_Register_Set *r;
   Sensor_Profile *sensor;
@@ -502,7 +517,7 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   DBGSTART;
 
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
+  sensor=get_sensor_profile(dev->model->ccd_type, dpihw, flags);
 
   for (i = 0x06; i < 0x0e; i++)
     {
@@ -533,6 +548,11 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
     {
       r->value = sensor->reg71;
     }
+  r = sanei_genesys_get_address (regs, 0x7d);
+  if (r)
+    {
+      r->value = 0x90;
+    }
   r = sanei_genesys_get_address (regs, 0x9e);
   if (r)
     {
@@ -550,7 +570,7 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
   sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);
 
-  DBG (DBG_proc, "gl843_setup_sensor: completed \n");
+  DBGCOMPLETED;
 }
 
 
@@ -696,6 +716,15 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
       SETREG (0x0a, 0x18);
       SETREG (0x0b, 0x69);
+  
+      /* CIS exposure is used for XPA lamp movement */
+      SETREG (0x10, 0x2c);
+      SETREG (0x11, 0x09);
+      SETREG (0x12, 0x22);
+      SETREG (0x13, 0xb8);
+      SETREG (0x14, 0x10);
+      SETREG (0x15, 0xf0);
+
       SETREG (0x6b, 0xf4);
 
       SETREG (0x70, 0x00);
@@ -1084,11 +1113,11 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
 /**@brief compute exposure to use
  * compute the sensor exposure based on target resolution
  */
-static int gl843_compute_exposure(Genesys_Device *dev, int xres)
+static int gl843_compute_exposure(Genesys_Device *dev, int xres, int flags)
 {
   Sensor_Profile *sensor;
 
-  sensor=get_sensor_profile(dev->model->ccd_type, xres);
+  sensor=get_sensor_profile(dev->model->ccd_type, xres, flags);
   return sensor->exposure;
 }
 
@@ -1100,6 +1129,7 @@ static int gl843_compute_exposure(Genesys_Device *dev, int xres)
  *        scan's one
  * @param start logical start pixel coordinate
  * @param pixels logical number of pixels to use
+ * @param flags to drive specific settings such no calibration, XPA use ...
  * @return SANE_STATUS_GOOD if OK
  */
 static SANE_Status
@@ -1111,7 +1141,9 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 			      unsigned int pixels,
 			      int channels,
 			      int depth,
-			      SANE_Bool half_ccd, int color_filter, int flags)
+			      SANE_Bool half_ccd,
+                              int color_filter,
+                              int flags)
 {
   unsigned int words_per_line;
   unsigned int startx, endx, used_pixels;
@@ -1128,11 +1160,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
        exposure,
        used_res, start, pixels, channels, depth, half_ccd, flags);
 
-  /* resolution is divided according to CKSEL */ 
-  r = sanei_genesys_get_address (reg, REG18);
-  cksel= (r->value & REG18_CKSEL)+1;
-  DBG (DBG_io2, "%s: cksel=%d\n", __FUNCTION__, cksel);
-
   /* tgtime */
   tgtime=1;
   if (dev->model->ccd_type == CCD_G4050 && used_res>2400)
@@ -1148,7 +1175,12 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __FUNCTION__, dpihw, factor);
 
   /* sensor parameters */
-  gl843_setup_sensor (dev, reg, dpihw);
+  gl843_setup_sensor (dev, reg, dpihw, flags);
+
+  /* resolution is divided according to CKSEL which is known once sensor is set up*/ 
+  r = sanei_genesys_get_address (reg, REG18);
+  cksel= (r->value & REG18_CKSEL)+1;
+  DBG (DBG_io2, "%s: cksel=%d\n", __FUNCTION__, cksel);
   dpiset = used_res * cksel;
 
   /* start and end coordinate in optical dpi coordinates */
@@ -1204,6 +1236,13 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
     r->value &= ~REG03_LAMPPWR;
   else
     r->value |= REG03_LAMPPWR;
+
+  /* select XPA */
+  r->value &= ~REG03_XPASEL;
+  if (flags & OPTICAL_FLAG_USE_XPA)
+    {
+      r->value |= REG03_XPASEL;
+    }
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, REG2E);
@@ -1398,6 +1437,23 @@ gl843_init_scan_regs (Genesys_Device * dev,
     }
   DBG (DBG_info, "%s : stagger=%d lines\n", __FUNCTION__, stagger);
 
+  /* we enable true gray for cis scanners only, and just when doing 
+   * scan since color calibration is OK for this mode
+   */
+  oflags = 0;
+  if (flags & SCAN_FLAG_DISABLE_SHADING)
+    oflags |= OPTICAL_FLAG_DISABLE_SHADING;
+  if (flags & SCAN_FLAG_DISABLE_GAMMA)
+    oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
+  if (flags & SCAN_FLAG_DISABLE_LAMP)
+    oflags |= OPTICAL_FLAG_DISABLE_LAMP;
+  if (flags & SCAN_FLAG_CALIBRATION)
+    oflags |= OPTICAL_FLAG_DISABLE_DOUBLE;
+  if(stagger)
+    oflags |= OPTICAL_FLAG_STAGGER;
+  if (flags & SCAN_FLAG_USE_XPA)
+    oflags |= OPTICAL_FLAG_USE_XPA;
+
   /** @brief compute used resolution */
   if (flags & SCAN_FLAG_USE_OPTICAL_RES)
     {
@@ -1432,6 +1488,7 @@ gl843_init_scan_regs (Genesys_Device * dev,
     used_pixels++;
 
   dummy = 0;
+  /* dummy = 1;  XXX STEF XXX */
 
   /* slope_dpi */
   /* cis color scan is effectively a gray scan with 3 gray lines per color line and a FILTER of 0 */
@@ -1439,16 +1496,17 @@ gl843_init_scan_regs (Genesys_Device * dev,
     slope_dpi = yres * channels;
   else
     slope_dpi = yres;
+  slope_dpi = slope_dpi * (1 + dummy);
 
   /* scan_step_type */
   if(flags & SCAN_FLAG_FEEDING)
     {
-      exposure=gl843_compute_exposure (dev, sanei_genesys_get_lowest_ydpi(dev));
+      exposure=gl843_compute_exposure (dev, sanei_genesys_get_lowest_ydpi(dev), oflags);
       scan_step_type=sanei_genesys_compute_step_type (gl843_motors, dev->model->motor_type, exposure);
     }
   else
     {
-      exposure = gl843_compute_exposure (dev, used_res);
+      exposure = gl843_compute_exposure (dev, used_res, oflags);
       scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, exposure);
     }
 
@@ -1464,23 +1522,10 @@ gl843_init_scan_regs (Genesys_Device * dev,
     }
   /* no 16 bit gamma for this ASIC */
   if (depth == 16)
-    flags |= SCAN_FLAG_DISABLE_GAMMA;
-
-  /* we enable true gray for cis scanners only, and just when doing 
-   * scan since color calibration is OK for this mode
-   */
-  oflags = 0;
-  if (flags & SCAN_FLAG_DISABLE_SHADING)
-    oflags |= OPTICAL_FLAG_DISABLE_SHADING;
-  if (flags & SCAN_FLAG_DISABLE_GAMMA)
-    oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
-  if (flags & SCAN_FLAG_DISABLE_LAMP)
-    oflags |= OPTICAL_FLAG_DISABLE_LAMP;
-  if (flags & SCAN_FLAG_CALIBRATION)
-    oflags |= OPTICAL_FLAG_DISABLE_DOUBLE;
-  if(stagger)
-    oflags |= OPTICAL_FLAG_STAGGER;
-
+    {
+      flags |= SCAN_FLAG_DISABLE_GAMMA;
+      oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
+    }
 
   /* now _LOGICAL_ optical values used are known, setup registers */
   status = gl843_init_optical_regs_scan (dev,
@@ -1530,17 +1575,19 @@ gl843_init_scan_regs (Genesys_Device * dev,
     mflags|=MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
   if(flags & SCAN_FLAG_FEEDING)
     mflags|=MOTOR_FLAG_FEED;
+  if (flags & SCAN_FLAG_USE_XPA)
+    mflags |= MOTOR_FLAG_USE_XPA;
 
-    status = gl843_init_motor_regs_scan (dev,
-					 reg,
-					 exposure,
-					 slope_dpi,
-					 scan_step_type,
-					 dev->model->is_cis ? lincnt * channels : lincnt,
-					 dummy,
-					 move,
-					 scan_power_mode,
-					 mflags);
+  status = gl843_init_motor_regs_scan (dev,
+                                       reg,
+                                       exposure,
+                                       slope_dpi,
+                                       scan_step_type,
+                                       dev->model->is_cis ? lincnt * channels : lincnt,
+                                       dummy,
+                                       move,
+                                       scan_power_mode,
+                                       mflags);
   if (status != SANE_STATUS_GOOD)
     return status;
 
@@ -1639,6 +1686,7 @@ gl843_calculate_current_setup (Genesys_Device * dev)
 
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
+  int oflags;
 
   DBG (DBG_info,
        "gl843_calculate_current_setup settings:\n"
@@ -1667,6 +1715,12 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   start += dev->settings.tl_x;
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
 
+  /* optical flags */
+  oflags=0;
+  if(dev->settings.scan_method==SCAN_METHOD_TRANSPARENCY)
+    {
+      oflags=OPTICAL_FLAG_USE_XPA;
+    }
 
   xres = dev->settings.xres;
   yres = dev->settings.yres;
@@ -1733,7 +1787,7 @@ gl843_calculate_current_setup (Genesys_Device * dev)
     slope_dpi = yres;
 
   /* exposure */
-  exposure = gl843_compute_exposure (dev, used_res);
+  exposure = gl843_compute_exposure (dev, used_res, oflags);
 
   /* scan_step_type */
   scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, exposure);
@@ -1803,30 +1857,26 @@ gl843_set_lamp_power (Genesys_Device * dev,
 {
   Genesys_Register_Set *r;
   int i;
+  uint8_t val;
 
+  val = sanei_genesys_read_reg_from_set (regs, REG03);
   if (set)
     {
-      sanei_genesys_set_reg_from_set (regs, 0x03,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x03)
-				      | REG03_LAMPPWR);
-
+      val |= REG03_LAMPPWR;
+      sanei_genesys_set_reg_from_set (regs, REG03, val);
       for (i = 0; i < 6; i++)
 	{
-	  r = sanei_genesys_get_address (dev->calib_reg, 0x10 + i);
+	  r = sanei_genesys_get_address (regs, 0x10 + i);
 	  r->value = dev->sensor.regs_0x10_0x1d[i];
 	}
     }
   else
     {
-      sanei_genesys_set_reg_from_set (regs, 0x03,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x03)
-				      & ~REG03_LAMPPWR);
-
+      val &= ~REG03_LAMPPWR;
+      sanei_genesys_set_reg_from_set (regs, REG03, val);
       for (i = 0; i < 6; i++)
 	{
-	  r = sanei_genesys_get_address (dev->calib_reg, 0x10 + i);
+	  r = sanei_genesys_get_address (regs, 0x10 + i);
 	  r->value = 0x00;
 	}
     }
@@ -2154,16 +2204,14 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  SANE_Bool start_motor)
 {
   SANE_Status status;
-  uint8_t val;
-  uint16_t dpiset,dpihw;
+  uint8_t val,r03;
+  uint16_t dpiset, dpihw;
 
   DBGSTART;
-  if (reg == NULL)
-    return SANE_STATUS_INVAL;
- 
+
   /* get back the target dpihw */
-  sanei_genesys_get_double(reg,REG_DPISET,&dpiset);
-  dpihw=sanei_genesys_compute_dpihw(dev,dpiset);
+  sanei_genesys_get_double (reg, REG_DPISET, &dpiset);
+  dpihw = sanei_genesys_compute_dpihw (dev, dpiset);
 
   /* set up GPIO for scan */
   /* KV case */
@@ -2172,31 +2220,73 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
       RIE (sanei_genesys_write_register (dev, REGA9, 0x00));
       RIE (sanei_genesys_write_register (dev, REGA6, 0xf6));
       /* blinking led */
-      RIE(sanei_genesys_write_register(dev,0x7e,0x04)); 
+      RIE (sanei_genesys_write_register (dev, 0x7e, 0x04));
     }
   if (dev->model->gpo_type == GPO_G4050)
     {
-          RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
-          RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
-          RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
-      switch(dpihw)
+      RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
+      RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
+      RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
+      switch (dpihw)
+	{
+	case 1200:
+	case 2400:
+	case 4800:
+	  RIE (sanei_genesys_write_register (dev, REG6C, 0x60));
+	  RIE (sanei_genesys_write_register (dev, REGA6, 0x46));
+	  break;
+	default:		/* 600 dpi  case */
+	  RIE (sanei_genesys_write_register (dev, REG6C, 0x20));
+	  RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
+	}
+
+      /* turn on XPA lamp if XPA is selected and lamp power on*/
+      r03 = sanei_genesys_read_reg_from_set (reg, REG03);
+      if ((r03 & REG03_XPASEL) && (r03 & REG03_LAMPPWR))
         {
-        case 1200:
-        case 2400:
-        case 4800:
-          RIE (sanei_genesys_write_register (dev, REG6C, 0x60));
-          RIE (sanei_genesys_write_register (dev, REGA6, 0x46));
-          break;
-        default: /* 600 dpi  case */
-          RIE (sanei_genesys_write_register (dev, REG6C, 0x20));
-          RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
+          RIE (sanei_genesys_read_register (dev, REGA6, &val));
+          
+          /* switch off regular lamp */
+          val &= 0xbf;
+
+          /* light XPA lamp at full power (2 bits for level: __11 ____) */
+          val |= 0x30;
+	  
+          RIE (sanei_genesys_write_register (dev, REGA6, val));
         }
+
+      /* enable XPA lamp motor */
+      if (r03 & REG03_XPASEL)
+        {
+          /* set MULTFILM et GPOADF */
+          RIE (sanei_genesys_read_register (dev, REG6B, &val));
+          val |=REG6B_MULTFILM|REG6B_GPOADF;
+          RIE (sanei_genesys_write_register (dev, REG6B, val));
+
+          RIE (sanei_genesys_read_register (dev, REG6C, &val));
+          val &= ~REG6C_GPIO15;
+          RIE (sanei_genesys_write_register (dev, REG6C, val));
+
+          RIE (sanei_genesys_read_register (dev, REGA6, &val));
+          val |= REGA6_GPIO20;
+          RIE (sanei_genesys_write_register(dev,REGA6,val));
+
+          RIE (sanei_genesys_read_register (dev, REGA8, &val));
+          val &= ~REGA8_GPO27;
+          RIE (sanei_genesys_write_register (dev, REGA8, val));
+
+          RIE (sanei_genesys_read_register (dev, REGA9, &val));
+          val |= REGA9_GPO32|REGA9_GPO31;
+          RIE (sanei_genesys_write_register (dev, REGA9, val));
+        }
+
       /* blinking led */
-      RIE(sanei_genesys_write_register(dev,0x7e,0x01)); 
+      RIE (sanei_genesys_write_register (dev, REG7E, 0x01));
     }
 
   /* clear scan and feed count */
-  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
+  RIE (sanei_genesys_write_register
+       (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
 
   /* enable scan and motor */
   RIE (sanei_genesys_read_register (dev, REG01, &val));
@@ -2226,6 +2316,7 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop)
 {
   SANE_Status status;
+  uint8_t val;
 
   DBG (DBG_proc, "gl843_end_scan (check_stop = %d)\n", check_stop);
   if (reg == NULL)
@@ -2233,6 +2324,21 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
   /* post scan gpio */
   RIE(sanei_genesys_write_register(dev,0x7e,0x00));
+
+  /* turn off XPA lamp if XPA is selected and lamp power on*/
+  val = sanei_genesys_read_reg_from_set (reg, REG03);
+  if (val & (REG03_XPASEL|REG03_LAMPPWR))
+    {
+      sanei_genesys_read_register (dev, REGA6, &val);
+      
+      /* switch on regular lamp */
+      val |= 0x40;
+
+      /* no XPA lamp power (2 bits for level: __11 ____) */
+      val &= ~0x30;
+      
+      RIE (sanei_genesys_write_register (dev, REGA6, val));
+    }
 
   if (dev->model->is_sheetfed == SANE_TRUE)
     {
@@ -2254,6 +2360,82 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   return status;
 }
 
+/** @brief park XPA lamp
+ * park the XPA lamp if needed
+ */
+static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
+{
+  Genesys_Register_Set local_reg[GENESYS_GL843_MAX_REGS];
+  SANE_Status status;
+  Genesys_Register_Set *r;
+  uint8_t val;
+  int loop = 0;
+ 
+  DBGSTART;
+
+  /* copy scan settings */
+  memset (local_reg, 0, sizeof (local_reg));
+  memcpy (local_reg, dev->reg, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
+
+  /* set a huge feedl and reverse direction */
+  sanei_genesys_set_triple(local_reg,REG_FEEDL,0xbdcd);
+
+  /* clear scan and feed count */
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
+  
+  /* set up for reverse and no scan */
+  r = sanei_genesys_get_address (local_reg, REG02);
+  r->value |= REG02_MTRREV;
+  r = sanei_genesys_get_address (local_reg, REG01);
+  r->value &= ~REG01_SCAN;
+
+  /* write to scanner and start action */
+  RIE (gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
+  status = gl843_start_action (dev);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to start motor: %s\n",__FUNCTION__, sane_strstatus (status));
+      gl843_stop_action (dev);
+      /* restore original registers */
+      gl843_bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS);
+      return status;
+    }
+
+      while (loop < 600)	/* do not wait longer then 60 seconds */
+	{
+	  status = sanei_genesys_get_status (dev, &val);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "%s: failed to read home sensor: %s\n",__FUNCTION__,
+		   sane_strstatus (status));
+	      return status;
+	    }
+          if (DBG_LEVEL >= DBG_io2)
+            {
+              sanei_genesys_print_status (val);
+            }
+
+	  if (val & REG41_HOMESNR)	/* home sensor */
+	    {
+	      DBG (DBG_info, "%s: reached home position\n",__FUNCTION__);
+	      DBG (DBG_proc, "%s: finished\n",__FUNCTION__);
+
+              /* clear GPOADF to avoid reparking again */
+              sanei_genesys_read_register (dev, REG6B, &val);
+              val &= ~REG6B_GPOADF;
+              sanei_genesys_write_register (dev, REG6B, val);
+	      return SANE_STATUS_GOOD;
+	    }
+	  usleep (100000);	/* sleep 100 ms */
+	  ++loop;
+	}
+
+  /* we are not parked here.... should we fail ? */
+  DBG (DBG_info, "%s: XPA lamp is not parked\n", __FUNCTION__);
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
 
 /** @brief Moves the slider to the home (top) position slowly
  * */
@@ -2273,15 +2455,24 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   DBG (DBG_proc, "gl843_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
 
+  if (dev->model->gpo_type == GPO_G4050)
+    {
+      /* test if we need to park XPA lamp, we check GPOADF */
+      RIE (sanei_genesys_read_register (dev, REG6B, &val));
+      if(val & REG6B_GPOADF)
+        {
+          RIE(gl843_park_xpa_lamp(dev));
+        }
+    }
+
+  /* regular slow back home */
   dev->scanhead_position_in_steps = 0;
 
   /* first read gives HOME_SENSOR true */
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_slow_back_home: failed to read home sensor: %s\n",
-	   sane_strstatus (status));
+      DBG (DBG_error, "%s: failed to read home sensor: %s\n", __FUNCTION__, sane_strstatus (status));
       return status;
     }
   usleep (100000);		/* sleep 100 ms */
@@ -2384,7 +2575,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_IO_ERROR;
     }
 
-  DBG (DBG_info, "gl124_slow_back_home: scanhead is still moving\n");
+  DBG (DBG_info, "%s: scanhead is still moving\n", __FUNCTION__);
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
@@ -2609,9 +2800,6 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
 			SCAN_FLAG_DISABLE_GAMMA |
                         SCAN_FLAG_FEEDING |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
-  sanei_genesys_set_triple(local_reg,REG_EXPR,0);
-  sanei_genesys_set_triple(local_reg,REG_EXPG,0);
-  sanei_genesys_set_triple(local_reg,REG_EXPB,0);
 
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
@@ -3800,6 +3988,31 @@ gl843_update_hardware_sensors (Genesys_Scanner * s)
 
   return status;
 }
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
+gl843_move_to_ta (Genesys_Device * dev)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  float resolution;
+  unsigned int feed;
+
+  DBGSTART;
+
+  resolution=sanei_genesys_get_lowest_ydpi(dev);
+  feed = 16*(SANE_UNFIX (dev->model->y_offset_calib_ta) * resolution) / MM_PER_INCH;
+  status = gl843_feed (dev, feed);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to move to XPA calibration area\n", __FUNCTION__);
+      return status;
+    }
+
+  DBGCOMPLETED;
+  return status;
+}
+
 
 /** @brief search for a full width black or white strip.
  * This function searches for a black or white stripe across the scanning area.
@@ -4251,7 +4464,7 @@ static Genesys_Command_Set gl843_cmd_set = {
   gl843_search_strip,
 
   sanei_genesys_is_compatible_calibration,
-  NULL,
+  gl843_move_to_ta,
   gl843_send_shading_data,
   gl843_calculate_current_setup
 };

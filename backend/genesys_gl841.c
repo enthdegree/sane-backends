@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2010 Stephane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2011 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005 Philipp Schmid <philipp8288@web.de>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
@@ -49,6 +49,9 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice. 
 */
+
+#undef BACKEND_NAME
+#define BACKEND_NAME genesys_gl841
 
 #include "genesys_gl841.h"
 
@@ -1297,9 +1300,6 @@ gl841_set_fe (Genesys_Device * dev, uint8_t set)
 
   return SANE_STATUS_GOOD;
 }
-
-#define MOTOR_FLAG_AUTO_GO_HOME             1
-#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 2
 
 #define MOTOR_ACTION_FEED       1
 #define MOTOR_ACTION_GO_HOME    2

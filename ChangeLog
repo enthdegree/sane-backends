@@ -1,3 +1,8 @@
+2011-11-20 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_*.[ch] doc/descriptions/genesys.desc: build
+	66. Add hp N6310 and 4850C devices. Fix gl847 calibration. 
+	GL843 XPA support groundwork.
+
 2011-11-14 Chris Bagwell <chris at cnpbagwell dot com>
         * doc/descriptions-external/epkowa.desc: update for new iScan
 	release from Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>.

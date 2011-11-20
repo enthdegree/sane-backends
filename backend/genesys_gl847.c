@@ -766,7 +766,7 @@ gl847_set_fe (Genesys_Device * dev, uint8_t set)
       return gl847_set_ad_fe (dev, set);
     }
 
-  /* for now ther is no support for wolfson fe */
+  /* for now there is no support yet for wolfson fe */
   DBG (DBG_proc, "gl847_set_fe(): unsupported frontend type %d\n",
        dev->reg[reg_0x04].value & REG04_FESET);
 
@@ -3695,6 +3695,354 @@ gl847_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   return status;
 }
 
+/**
+ * average dark pixels of a 8 bits scan
+ */
+static int
+dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
+	      unsigned int channels, unsigned int black)
+{
+  unsigned int i, j, k, average, count;
+  unsigned int avg[3];
+  uint8_t val;
+
+  /* computes average value on black margin */
+  for (k = 0; k < channels; k++)
+    {
+      avg[k] = 0;
+      count = 0;
+      for (i = 0; i < lines; i++)
+	{
+	  for (j = 0; j < black; j++)
+	    {
+	      val = data[i * channels * pixels + j + k];
+	      avg[k] += val;
+	      count++;
+	    }
+	}
+      if (count)
+	avg[k] /= count;
+      DBG (DBG_info, "dark_average: avg[%d] = %d\n", k, avg[k]);
+    }
+  average = 0;
+  for (i = 0; i < channels; i++)
+    average += avg[i];
+  average /= channels;
+  DBG (DBG_info, "dark_average: average = %d\n", average);
+  return average;
+}
+
+static SANE_Status
+gl847_offset_calibration (Genesys_Device * dev)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  uint8_t *first_line, *second_line, reg04;
+  unsigned int channels, bpp;
+  char title[32];
+  int pass = 0, avg, total_size;
+  int topavg, bottomavg, resolution, lines;
+  int top, bottom, black_pixels, pixels;
+
+  DBGSTART;
+
+  /* no gain nor offset for AKM AFE */
+  RIE (sanei_genesys_read_register (dev, REG04, &reg04));
+  if ((reg04 & REG04_FESET) == 0x02)
+    {
+      DBGCOMPLETED;
+      return status;
+    }
+
+  /* offset calibration is always done in color mode */
+  channels = 3;
+  resolution=dev->sensor.optical_res;
+  dev->calib_pixels = dev->sensor.sensor_pixels;
+  lines=1;
+  bpp=8;
+  pixels= (dev->sensor.sensor_pixels*resolution) / dev->sensor.optical_res;
+  black_pixels = (dev->sensor.black_pixels * resolution) / dev->sensor.optical_res;
+  DBG (DBG_io2, "gl847_offset_calibration: black_pixels=%d\n", black_pixels);
+
+  status = gl847_init_scan_regs (dev,
+				 dev->calib_reg,
+				 resolution,
+				 resolution,
+				 0,
+				 0,
+				 pixels,
+				 lines,
+				 bpp,
+				 channels,
+				 dev->settings.color_filter,
+				 SCAN_FLAG_DISABLE_SHADING |
+				 SCAN_FLAG_DISABLE_GAMMA |
+				 SCAN_FLAG_SINGLE_LINE |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl847_offset_calibration: failed to setup scan: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  gl847_set_motor_power (dev->calib_reg, SANE_FALSE);
+
+  /* allocate memory for scans */
+  total_size = pixels * channels * lines * (bpp/8);	/* colors * bytes_per_color * scan lines */
+
+  first_line = malloc (total_size);
+  if (!first_line)
+    return SANE_STATUS_NO_MEM;
+
+  second_line = malloc (total_size);
+  if (!second_line)
+    {
+      free (first_line);
+      return SANE_STATUS_NO_MEM;
+    }
+
+  /* init gain */
+  dev->frontend.gain[0] = 0;
+  dev->frontend.gain[1] = 0;
+  dev->frontend.gain[2] = 0;
+
+  /* scan with no move */
+  bottom = 10;
+  dev->frontend.offset[0] = bottom;
+  dev->frontend.offset[1] = bottom;
+  dev->frontend.offset[2] = bottom;
+
+  RIE (gl847_set_fe(dev, AFE_SET));
+  RIE (gl847_bulk_write_register (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
+  DBG (DBG_info, "gl847_offset_calibration: starting first line reading\n");
+  RIE (gl847_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE (sanei_genesys_read_data_from_scanner (dev, first_line, total_size));
+  if (DBG_LEVEL >= DBG_data)
+   {
+      snprintf(title,20,"offset%03d.pnm",bottom);
+      sanei_genesys_write_pnm_file (title, first_line, bpp, channels, pixels, lines);
+   }
+     
+  bottomavg = dark_average (first_line, pixels, lines, channels, black_pixels);
+  DBG (DBG_io2, "gl847_offset_calibration: bottom avg=%d\n", bottomavg);
+
+  /* now top value */
+  top = 255;
+  dev->frontend.offset[0] = top;
+  dev->frontend.offset[1] = top;
+  dev->frontend.offset[2] = top;
+  RIE (gl847_set_fe(dev, AFE_SET));
+  RIE (gl847_bulk_write_register (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
+  DBG (DBG_info, "gl847_offset_calibration: starting second line reading\n");
+  RIE (gl847_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
+      
+  topavg = dark_average (second_line, pixels, lines, channels, black_pixels);
+  DBG (DBG_io2, "gl847_offset_calibration: top avg=%d\n", topavg);
+
+  /* loop until acceptable level */
+  while ((pass < 32) && (top - bottom > 1))
+    {
+      pass++;
+
+      /* settings for new scan */
+      dev->frontend.offset[0] = (top + bottom) / 2;
+      dev->frontend.offset[1] = (top + bottom) / 2;
+      dev->frontend.offset[2] = (top + bottom) / 2;
+
+      /* scan with no move */
+      RIE(gl847_set_fe(dev, AFE_SET));
+      RIE (gl847_bulk_write_register (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
+      DBG (DBG_info, "gl847_offset_calibration: starting second line reading\n");
+      RIE (gl847_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+      RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
+
+      if (DBG_LEVEL >= DBG_data)
+	{
+	  sprintf (title, "offset%03d.pnm", dev->frontend.offset[1]);
+	  sanei_genesys_write_pnm_file (title, second_line, bpp, channels, pixels, lines);
+	}
+
+      avg = dark_average (second_line, pixels, lines, channels, black_pixels);
+      DBG (DBG_info, "gl847_offset_calibration: avg=%d offset=%d\n", avg,
+	   dev->frontend.offset[1]);
+
+      /* compute new boundaries */
+      if (topavg == avg)
+	{
+	  topavg = avg;
+	  top = dev->frontend.offset[1];
+	}
+      else
+	{
+	  bottomavg = avg;
+	  bottom = dev->frontend.offset[1];
+	}
+    }
+  DBG (DBG_info, "gl847_offset_calibration: offset=(%d,%d,%d)\n", dev->frontend.offset[0], dev->frontend.offset[1], dev->frontend.offset[2]);
+
+  /* cleanup before return */
+  free (first_line);
+  free (second_line);
+
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+gl847_coarse_gain_calibration (Genesys_Device * dev, int dpi)
+{
+  int pixels;
+  int total_size;
+  uint8_t *line, reg04;
+  int i, j, channels;
+  SANE_Status status = SANE_STATUS_GOOD;
+  int max[3];
+  float gain[3],coeff;
+  int val, code, lines;
+  int resolution;
+  int bpp;
+
+  DBG (DBG_proc, "gl847_coarse_gain_calibration: dpi = %d\n", dpi);
+
+  /* no gain nor offset for AKM AFE */
+  RIE (sanei_genesys_read_register (dev, REG04, &reg04));
+  if ((reg04 & REG04_FESET) == 0x02)
+    {
+      DBGCOMPLETED;
+      return status;
+    }
+
+  /* coarse gain calibration is always done in color mode */
+  channels = 3;
+
+  /* follow CKSEL */
+  if(dev->settings.xres<dev->sensor.optical_res)
+    {
+      coeff=0.9;
+      resolution=dev->sensor.optical_res/2;
+      resolution=dev->sensor.optical_res;
+    }
+  else
+    {
+      resolution=dev->sensor.optical_res;
+      coeff=1.0;
+    }
+  lines=10;
+  bpp=8;
+  pixels = (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
+
+  status = gl847_init_scan_regs (dev,
+				 dev->calib_reg,
+				 resolution,
+				 resolution,
+				 0,
+				 0,
+				 pixels,
+                                 lines,
+                                 bpp,
+                                 channels,
+				 dev->settings.color_filter,
+				 SCAN_FLAG_DISABLE_SHADING |
+				 SCAN_FLAG_DISABLE_GAMMA |
+				 SCAN_FLAG_SINGLE_LINE |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  gl847_set_motor_power (dev->calib_reg, SANE_FALSE);
+
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl847_coarse_calibration: failed to setup scan: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  RIE (gl847_bulk_write_register
+       (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
+
+  total_size = pixels * channels * (16/bpp) * lines;
+
+  line = malloc (total_size);
+  if (!line)
+    return SANE_STATUS_NO_MEM;
+
+  RIE (gl847_set_fe(dev, AFE_SET));
+  RIE (gl847_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
+
+  if (DBG_LEVEL >= DBG_data)
+    sanei_genesys_write_pnm_file ("coarse.pnm", line, bpp, channels, pixels, lines);
+
+  /* average value on each channel */
+  for (j = 0; j < channels; j++)
+    {
+      max[j] = 0;
+      for (i = pixels/4; i < (pixels*3/4); i++)
+	{
+          if(bpp==16)
+            {
+	  if (dev->model->is_cis)
+	    val =
+	      line[i * 2 + j * 2 * pixels + 1] * 256 +
+	      line[i * 2 + j * 2 * pixels];
+	  else
+	    val =
+	      line[i * 2 * channels + 2 * j + 1] * 256 +
+	      line[i * 2 * channels + 2 * j];
+            }
+          else
+            {
+	  if (dev->model->is_cis)
+	    val = line[i + j * pixels];
+	  else
+	    val = line[i * channels + j];
+            }
+
+	    max[j] += val;
+	}
+      max[j] = max[j] / (pixels/2);
+
+      gain[j] = ((float) dev->sensor.gain_white_ref*coeff) / max[j];
+
+      /* turn logical gain value into gain code, checking for overflow */
+      code = 283 - 208 / gain[j];
+      if (code > 255)
+	code = 255;
+      else if (code < 0)
+	code = 0;
+      dev->frontend.gain[j] = code;
+
+      DBG (DBG_proc,
+	   "gl847_coarse_gain_calibration: channel %d, max=%d, gain = %f, setting:%d\n",
+	   j, max[j], gain[j], dev->frontend.gain[j]);
+    }
+
+  if (dev->model->is_cis)
+    {
+      if (dev->frontend.gain[0] > dev->frontend.gain[1])
+	dev->frontend.gain[0] = dev->frontend.gain[1];
+      if (dev->frontend.gain[0] > dev->frontend.gain[2])
+	dev->frontend.gain[0] = dev->frontend.gain[2];
+      dev->frontend.gain[2] = dev->frontend.gain[1] = dev->frontend.gain[0];
+    }
+
+  if (channels == 1)
+    {
+      dev->frontend.gain[0] = dev->frontend.gain[1];
+      dev->frontend.gain[2] = dev->frontend.gain[1];
+    }
+
+  free (line);
+
+  RIE (gl847_stop_action (dev));
+
+  gl847_slow_back_home (dev, SANE_TRUE);
+
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
+
+
 /** the gl847 command set */
 static Genesys_Command_Set gl847_cmd_set = {
   "gl847-generic",		/* the name of this set */
@@ -3729,8 +4077,8 @@ static Genesys_Command_Set gl847_cmd_set = {
 
   gl847_search_start_position,
 
-  NULL, /*gl847_offset_calibration*/
-  NULL, /*gl847_coarse_gain_calibration*/
+  gl847_offset_calibration,
+  gl847_coarse_gain_calibration,
   gl847_led_calibration,
 
   gl847_slow_back_home,

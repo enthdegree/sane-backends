@@ -94,6 +94,12 @@
 :status :basic
 :comment "resolution from 100 to 2400 supported, UTA not supported yet"
 
+:model "ScanJet N6310"
+:interface "USB"
+:usbid "0x03f0" "0x4705"
+:status :untested
+:comment "Not completed yet to capture the images"
+
 ; -----------------------------------------------------------------------------
 
 :mfg "Canon"

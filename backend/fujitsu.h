@@ -18,16 +18,15 @@ enum fujitsu_Option
   OPT_STANDARD_GROUP,
   OPT_SOURCE, /*fb/adf/front/back/duplex*/
   OPT_MODE,   /*mono/gray/color*/
-  OPT_X_RES,  /*a range or a list*/
-  OPT_Y_RES,  /*a range or a list*/
+  OPT_RES,    /*a range or a list*/
 
   OPT_GEOMETRY_GROUP,
+  OPT_PAGE_WIDTH,
+  OPT_PAGE_HEIGHT,
   OPT_TL_X,
   OPT_TL_Y,
   OPT_BR_X,
   OPT_BR_Y,
-  OPT_PAGE_WIDTH,
-  OPT_PAGE_HEIGHT,
 
   OPT_ENHANCEMENT_GROUP,
   OPT_BRIGHTNESS,
@@ -153,29 +152,14 @@ struct fujitsu
   /* members in order found in scsi data...                                */
   int basic_x_res;
   int basic_y_res;
-  int step_x_res;
-  int step_y_res;
+  int step_x_res[6]; /*one for each mode*/
+  int step_y_res[6]; /*one for each mode*/
   int max_x_res;
   int max_y_res;
   int min_x_res;
   int min_y_res;
 
-  int std_res_200;
-  int std_res_180;
-  int std_res_160;
-  int std_res_150;
-  int std_res_120;
-  int std_res_100;
-  int std_res_75;
-  int std_res_60;
-  int std_res_1200;
-  int std_res_800;
-  int std_res_600;
-  int std_res_480;
-  int std_res_400;
-  int std_res_320;
-  int std_res_300;
-  int std_res_240;
+  int std_res[16]; /*some scanners only support a few resolutions*/
 
   /* max scan size in pixels comes from scanner in basic res units */
   int max_x_basic;
@@ -348,10 +332,8 @@ struct fujitsu
   SANE_String_Const mode_list[7];
   SANE_String_Const source_list[5];
 
-  SANE_Int x_res_list[17];
-  SANE_Int y_res_list[17];
-  SANE_Range x_res_range;
-  SANE_Range y_res_range;
+  SANE_Int res_list[17];
+  SANE_Range res_range;
 
   /*geometry group*/
   SANE_Range tl_x_range;

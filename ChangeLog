@@ -1,3 +1,18 @@
+2011-11-21 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.[ch]: backend v107 and v108
+	- M3091 does not support scanner_control(adf)
+	- Correct buffer overflow in read_from_3091duplex()
+	- sane_read() now always calls read_from_*()
+	- read_from_*() are callable when there is no data, and read to eof
+	- sane_read() will keep alternate duplex reads to similar length
+	- Added debugging statements
+	- Corrected comments
+	- Updated Copyright
+	- merged x/y resolution options
+	- moved page width/height to start of geometry group
+	- use mode to pick resolution list v/s range
+	- improved M3091 resolution choices
+
 2011-11-20 Chris Bagwell <chris at cnpbagwell dot com>
 	* epson2-commands.c: Include <sys/types.h> to resolve u_long.
 	* epson2.c, magicolor.c, xerox_mfp-tcp.c: Include <sys/types.h>

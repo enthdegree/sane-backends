@@ -154,22 +154,22 @@
 :comment "Please test!"
 
 :model "i810 Scanner"
-:interface "IEEE-1394"
+:interface "SCSI"
 :status :untested
 :comment "Please test!"
 
 :model "i820 Scanner"
-:interface "IEEE-1394"
+:interface "SCSI"
 :status :untested
 :comment "Please test!"
 
 :model "i830 Scanner"
-:interface "IEEE-1394"
+:interface "SCSI"
 :status :untested
 :comment "Please test!"
 
 :model "i840 Scanner"
-:interface "IEEE-1394"
+:interface "SCSI"
 :status :untested
 :comment "Please test!"
 

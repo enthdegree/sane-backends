@@ -99,7 +99,8 @@ GetNextDescriptor( struct usb_descriptor_header *currHead, UCHAR *lastBytePtr)
 }
 #endif /* HAVE_USBCALLS */
 
-#if defined (__FreeBSD__) 
+#if (defined (__FreeBSD__) && (__FreeBSD_version < 800064))
+#include <sys/param.h>
 #include <dev/usb/usb.h>
 #endif /* __FreeBSD__ */
 #if defined (__DragonFly__)
@@ -276,7 +277,7 @@ kernel_get_vendor_product (int fd, const char *name, int *vendorID, int *product
     *vendorID = vendor;
     *productID = product;
   }
-#elif defined (__FreeBSD__) || defined (__DragonFly__)
+#elif (defined (__FreeBSD__) && __FreeBSD_version < 800064) || defined (__DragonFly__)
   {
     int controller;
     int ctrl_fd;

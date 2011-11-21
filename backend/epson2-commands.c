@@ -21,6 +21,7 @@
 
 #include <byteorder.h>
 #include <math.h>
+#include <sys/types.h>
 
 #include "epson2.h"
 #include "epson2-io.h"

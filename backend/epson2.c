@@ -57,6 +57,10 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
 
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"

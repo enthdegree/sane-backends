@@ -27,6 +27,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #endif
+#include <sys/types.h>
 
 extern SANE_Status sanei_tcp_open(const char *host, int port, int *fdp);
 extern void sanei_tcp_close(int fd);

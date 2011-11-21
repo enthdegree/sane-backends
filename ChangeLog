@@ -1,3 +1,11 @@
+2011-11-20 Chris Bagwell <chris at cnpbagwell dot com>
+	* epson2-commands.c: Include <sys/types.h> to resolve u_long.
+	* epson2.c, magicolor.c, xerox_mfp-tcp.c: Include <sys/types.h>
+	and to <sys/socket.h> for anyone using setsockopt().
+	* sanei_tcp.h: Include <sys/types.h> since ssize_t is referenced.
+	* sanei_usb.c: FreeBSD version checks.  All changes in this
+	batch come from FreeBSD ports patches. Bug #312503.
+
 2011-11-20 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_*.[ch] doc/descriptions/genesys.desc: build
 	66. Add hp N6310 and 4850C devices. Fix gl847 calibration. 

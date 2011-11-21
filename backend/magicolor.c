@@ -52,6 +52,10 @@
 #include <sys/time.h>
 #include <math.h>
 #include <poll.h>
+#include <sys/types.h>
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
 
 
 #if HAVE_LIBSNMP

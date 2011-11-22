@@ -3302,6 +3302,9 @@ gl847_init (Genesys_Device * dev)
   /* set up hardware and registers */
   RIE (gl847_cold_boot (dev));
 
+  /* Set analog frontend */
+  RIE (gl847_set_fe (dev, AFE_INIT));
+
   /* move head away from park position */
   gl847_feed (dev, 300);
 
@@ -3316,9 +3319,6 @@ gl847_init (Genesys_Device * dev)
 
   memcpy (dev->calib_reg, dev->reg,
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
-
-  /* Set analog frontend */
-  RIE (gl847_set_fe (dev, AFE_INIT));
 
   /* init gamma tables */
   size = 256;

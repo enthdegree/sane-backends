@@ -2814,10 +2814,10 @@ gl847_led_calibration (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
   int val;
   int channels, depth;
-  int avg[3], avga, avge;
+  int avg[3], top[3], bottom[3];
   int turn;
   char fn[20];
-  uint16_t expr, expg, expb;
+  uint16_t exp[3];
   Sensor_Profile *sensor;
 
   SANE_Bool acceptable = SANE_FALSE;
@@ -2869,17 +2869,17 @@ gl847_led_calibration (Genesys_Device * dev)
   if (!line)
     return SANE_STATUS_NO_MEM;
 
-/* 
-   we try to get equal bright leds here:
+  exp[0]=sensor->expr;
+  exp[1]=sensor->expg;
+  exp[2]=sensor->expb;
 
-   loop:
-     average per color
-     adjust exposure times
- */
+  bottom[0]=40000;
+  bottom[1]=50000;
+  bottom[2]=50000;
 
-  expr=sensor->expr;
-  expg=sensor->expg;
-  expb=sensor->expb;
+  top[0]=45000;
+  top[1]=55000;
+  top[2]=55000;
 
   turn = 0;
 
@@ -2887,9 +2887,9 @@ gl847_led_calibration (Genesys_Device * dev)
   gl847_set_motor_power (dev->calib_reg, SANE_FALSE);
   do
     {
-      sanei_genesys_set_double(dev->calib_reg,REG_EXPR,expr);
-      sanei_genesys_set_double(dev->calib_reg,REG_EXPG,expg);
-      sanei_genesys_set_double(dev->calib_reg,REG_EXPB,expb);
+      sanei_genesys_set_double(dev->calib_reg,REG_EXPR,exp[0]);
+      sanei_genesys_set_double(dev->calib_reg,REG_EXPG,exp[1]);
+      sanei_genesys_set_double(dev->calib_reg,REG_EXPB,exp[2]);
 
       RIE (gl847_bulk_write_register
 	   (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
@@ -2925,70 +2925,45 @@ gl847_led_calibration (Genesys_Device * dev)
 
 	  avg[j] /= num_pixels;
 	}
-      avga = (avg[0] + avg[1] + avg[2]) / 3;
 
       DBG (DBG_info, "gl847_led_calibration: average: "
 	   "%d,%d,%d\n", avg[0], avg[1], avg[2]);
 
       acceptable = SANE_TRUE;
 
-      if (avg[0] < avg[1] * 0.95 || avg[1] < avg[0] * 0.95 ||
-	  avg[0] < avg[2] * 0.95 || avg[2] < avg[0] * 0.95 ||
-	  avg[1] < avg[2] * 0.95 || avg[2] < avg[1] * 0.95)
-	acceptable = SANE_FALSE;
-
-      if (!acceptable)
-	{
-	  expr = (expr * avga) / avg[0];
-	  expg = (expg * avga) / avg[1];
-	  expb = (expb * avga) / avg[2];
-/*
-  keep the resulting exposures below this value.
-  too long exposure drives the ccd into saturation.
-  we may fix this by relying on the fact that 
-  we get a striped scan without shading, by means of
-  statistical calculation 
-*/
-	  avge = (expr + expg + expb) / 3;
-
-          /* don't overflow max exposure */
-	  if (avge > 3000)
-	    {
-	      expr = (expr * 2000) / avge;
-	      expg = (expg * 2000) / avge;
-	      expb = (expb * 2000) / avge;
-	    }
-	  if (avge < 50)
-	    {
-	      expr = (expr * 50) / avge;
-	      expg = (expg * 50) / avge;
-	      expb = (expb * 50) / avge;
-	    }
-
-	}
-
+      for(i=0;i<3;i++)
+        {
+          if(avg[i]<bottom[i])
+            {
+              exp[i]=(exp[i]*bottom[i])/avg[i];
+              acceptable = SANE_FALSE;
+            }
+          if(avg[i]>top[i])
+            {
+              exp[i]=(exp[i]*top[i])/avg[i];
+              acceptable = SANE_FALSE;
+            }
+        }
       RIE (gl847_stop_action (dev));
 
       turn++;
-
     }
   while (!acceptable && turn < 100);
 
-  DBG (DBG_info, "gl847_led_calibration: acceptable exposure: %d,%d,%d\n",
-       expr, expg, expb);
+  DBG (DBG_info, "gl847_led_calibration: acceptable exposure: %d,%d,%d\n", exp[0], exp[1], exp[2]);
 
   /* set these values as final ones for scan */
-  sanei_genesys_set_double(dev->reg,REG_EXPR,expr);
-  sanei_genesys_set_double(dev->reg,REG_EXPG,expg);
-  sanei_genesys_set_double(dev->reg,REG_EXPB,expb);
+  sanei_genesys_set_double(dev->reg,REG_EXPR,exp[0]);
+  sanei_genesys_set_double(dev->reg,REG_EXPG,exp[1]);
+  sanei_genesys_set_double(dev->reg,REG_EXPB,exp[2]);
 
   /* store in this struct since it is the one used by cache calibration */
-  dev->sensor.regs_0x10_0x1d[0] = (expr >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[1] = expr & 0xff;
-  dev->sensor.regs_0x10_0x1d[2] = (expg >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[3] = expg & 0xff;
-  dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
+  dev->sensor.regs_0x10_0x1d[0] = (exp[0] >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[1] = exp[0] & 0xff;
+  dev->sensor.regs_0x10_0x1d[2] = (exp[1] >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[3] = exp[1] & 0xff;
+  dev->sensor.regs_0x10_0x1d[4] = (exp[2] >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[5] = exp[2] & 0xff;
 
   /* cleanup before return */
   free (line);

@@ -1,3 +1,8 @@
+2011-11-29 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_low.h backend/genesys_devices.c
+	backend/genesys_gl847.c: genesys backend build 67, gl847 led and
+	shadingcalibration improvements.
+
 2011-11-21 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.[ch]: backend v107 and v108
 	- M3091 does not support scanner_control(adf)

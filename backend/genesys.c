@@ -209,7 +209,7 @@ sanei_genesys_init_fe (Genesys_Device * dev)
 {
   unsigned int i;
 
-  DBG (DBG_proc, "sanei_genesys_init_fe: start\n");
+  DBGSTART;
   for (i = 0; i < sizeof (Wolfson) / sizeof (Genesys_Frontend); i++)
     {
       if (dev->model->dac_type == Wolfson[i].fe_id)
@@ -223,7 +223,7 @@ sanei_genesys_init_fe (Genesys_Device * dev)
        dev->model->dac_type);
   DBG (DBG_info, "sanei_genesys_init_fe: dac_type %d set up\n",
        dev->model->dac_type);
-  DBG (DBG_proc, "sanei_genesys_init_fe: end\n");
+  DBGCOMPLETED;
 }
 
 /* main function for slope creation */
@@ -912,7 +912,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
   if(dev->model->cmd_set->send_shading_data!=NULL)
     {
         status=dev->model->cmd_set->send_shading_data(dev, data, size);
-        DBG (DBG_proc, "genesys_send_offset_and_shading: completed\n");
+        DBGCOMPLETED;
         return status;
     }
 
@@ -965,7 +965,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
       return status;
     }
 
-  DBG (DBG_proc, "genesys_send_offset_and_shading: completed\n");
+  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }
@@ -1020,7 +1020,7 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
 
   free (shading_data);
 
-  DBG (DBG_proc, "sanei_genesys_init_shading_data: completed\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -1717,7 +1717,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
        dev->frontend.gain[0], dev->frontend.gain[1], dev->frontend.gain[2],
        dev->frontend.offset[0], dev->frontend.offset[1],
        dev->frontend.offset[2]);
-  DBG (DBG_proc, "genesys_coarse_calibration: completed\n");
+  DBGCOMPLETED;
 
   return status;
 }
@@ -1769,7 +1769,8 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   uint8_t *calibration_data;
   SANE_Bool motor;
 
-  DBG (DBG_proc, "genesys_dark_shading_calibration\n");
+  DBGSTART;
+
   /* end pixel - start pixel */
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
@@ -1877,7 +1878,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
   free (calibration_data);
 
-  DBG (DBG_proc, "genesys_dark_shading_calibration: completed\n");
+  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }
@@ -1897,7 +1898,7 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
   uint32_t x, skip, xend;
   int dummy1, dummy2, dummy3;	/* dummy black average per channel */
 
-  DBG (DBG_proc, "genesys_dummy_dark_shading \n");
+  DBGSTART;
 
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
@@ -1977,7 +1978,7 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
 	}
     }
 
-  DBG (DBG_proc, "genesys_dummy_dark_shading: completed \n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -2028,6 +2029,10 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   /* turn on motor and lamp power */
   dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
   dev->model->cmd_set->set_motor_power (dev->calib_reg, motor);
+  if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK)
+    {
+	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
+    }
 
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
@@ -2103,8 +2108,13 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 	  return status;
 	}
     }
+  
+  if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK)
+    {
+	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
+    }
 
-  DBG (DBG_proc, "genesys_white_shading_calibration: completed\n");
+  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }
@@ -2301,7 +2311,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   free (calibration_data);
 
-  DBG (DBG_proc, "genesys_dark_white_shading_calibration: completed\n");
+  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }
@@ -2734,7 +2744,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
   unsigned int target_dark, target_bright, br;
 
-  DBG (DBG_proc, "genesys_send_shading_coefficient\n");
+  DBGSTART;
 
 
   pixels_per_line = dev->calib_pixels;
@@ -3133,7 +3143,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	 sane_strstatus (status));
 
   free (shading_data);
-  DBG (DBG_proc, "genesys_send_shading_coefficient: completed\n");
+  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }
@@ -3152,7 +3162,7 @@ genesys_restore_calibration (Genesys_Device * dev)
   SANE_Status status;
   Genesys_Calibration_Cache *cache;
 
-  DBG (DBG_proc, "genesys_restore_calibration\n");
+  DBGSTART;
 
   /* if no cache or no function to evaluate cache entry ther can be no match */
   if (!dev->model->cmd_set->is_compatible_calibration
@@ -3235,7 +3245,7 @@ genesys_save_calibration (Genesys_Device * dev)
   struct timeval time;
 #endif
 
-  DBG (DBG_proc, "genesys_save_calibration\n");
+  DBGSTART;
 
   if (!dev->model->cmd_set->is_compatible_calibration)
     return SANE_STATUS_UNSUPPORTED;
@@ -3301,7 +3311,7 @@ genesys_save_calibration (Genesys_Device * dev)
   cache->last_calibration = time.tv_sec;
 #endif
 
-  DBG (DBG_proc, "genesys_save_calibration: completed\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -3531,7 +3541,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
   SANE_Bool forward = SANE_TRUE;
   int xres;
 
-  DBG (DBG_proc, "genesys_sheetfed_calibration: start\n");
+  DBGSTART;
   if (dev->model->cmd_set->search_strip == NULL)
     {
       DBG (DBG_error,
@@ -3743,7 +3753,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
 
   /* resotre settings */
   dev->settings.xres = xres;
-  DBG (DBG_proc, "genesys_sheetfed_calibration: end\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -3843,7 +3853,7 @@ load_lut (unsigned char * lut,
   int max_out_val = (1 << out_bits) - 1;
   unsigned char * lut_p = lut;
 
-  DBG (DBG_proc, "load_lut: start\n");
+  DBGSTART;
 
   /* slope is converted to rise per unit run:
    * first [-127,127] to [-1,1]
@@ -3876,7 +3886,7 @@ load_lut (unsigned char * lut,
     lut_p++;
   }
 
-  DBG (DBG_proc, "load_lut: finish\n");
+  DBGCOMPLETED;
   return ret;
 }
 
@@ -3902,7 +3912,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
   int empty, lines = 3;
   SANE_Status status = SANE_STATUS_IO_ERROR;
 
-  DBG (DBG_proc, "genesys_warmup_lamp: start\n");
+  DBGSTART;
 
   /* check if the current chipset implements warmup */
   if(dev->model->cmd_set->init_regs_for_warmup==NULL)
@@ -4027,6 +4037,9 @@ genesys_warmup_lamp (Genesys_Device * dev)
 
   free (first_line);
   free (second_line);
+
+  DBGCOMPLETED;
+
   return status;
 }
 
@@ -4039,7 +4052,7 @@ genesys_start_scan (Genesys_Device * dev)
   unsigned int steps, expected;
   SANE_Bool empty;
 
-  DBG (DBG_proc, "genesys_start_scan\n");
+  DBGSTART;
 
   /* since not all scanners are set ot wait for head to park
    * we check we are not still parking before starting a new scan */
@@ -4314,7 +4327,7 @@ genesys_start_scan (Genesys_Device * dev)
       while (steps < 1);
     }
 
-  DBG (DBG_proc, "genesys_start_scan: completed\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -4785,7 +4798,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
   SANE_Status status;
   uint8_t *work_buffer_dst;
 
-  DBG (DBG_proc, "genesys_fill_read_buffer: start\n");
+  DBGSTART;
 
   /* for sheetfed scanner, we must check is document is shorter than
    * the requested scan */
@@ -4866,7 +4879,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 
   RIE (sanei_genesys_buffer_produce (&(dev->read_buffer), size));
 
-  DBG (DBG_proc, "genesys_fill_read_buffer: end\n");
+  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }
@@ -4895,7 +4908,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
   Genesys_Buffer *src_buffer;
   Genesys_Buffer *dst_buffer;
 
-  DBG (DBG_proc, "genesys_read_ordered_data\n");
+  DBGSTART;
   if (dev->read_active != SANE_TRUE)
     {
       DBG (DBG_error, "genesys_read_ordered_data: read not active!\n");
@@ -5648,7 +5661,7 @@ init_options (Genesys_Scanner * s)
   SANE_Bool has_ta;
   SANE_Range *x_range, *y_range;
 
-  DBG (DBG_proc, "init_options: start\n");
+  DBGSTART;
 
   /* no transparency adaptor support yet */
   has_ta = SANE_FALSE;
@@ -6171,7 +6184,7 @@ init_options (Genesys_Scanner * s)
 
   RIE (calc_parameters (s));
 
-  DBG (DBG_proc, "init_options: exit\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -6288,7 +6301,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
   if (devp)
     *devp = dev;
   sanei_usb_close (dn);
-  DBG (DBG_proc, "attach: exit\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -6348,7 +6361,7 @@ probe_genesys_devices (void)
   SANEI_Config config;
   SANE_Status status;
 
-  DBG (DBG_proc, "probe_genesys_devices: start\n");
+  DBGSTART;
 
   new_dev = 0;
   new_dev_len = 0;
@@ -6369,7 +6382,7 @@ probe_genesys_devices (void)
       free (new_dev);
     }
 
-  DBG (DBG_proc, "probe_genesys_devices: exit\n");
+  DBGCOMPLETED;
 
   return status;
 }
@@ -6395,12 +6408,12 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
   struct Genesys_Calibration_Cache *cache;
   SANE_Status status=SANE_STATUS_GOOD;
 
-  DBG (DBG_proc, "sanei_genesys_read_calibration: enter\n");
+  DBGSTART;
   fp = fopen (dev->calib_file, "rb");
   if (!fp)
     {
       DBG (DBG_info, "Calibration: Cannot open %s\n", dev->calib_file);
-      DBG (DBG_proc, "sanei_genesys_read_calibration: exit\n");
+      DBGCOMPLETED;
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -6410,7 +6423,7 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
     {
       DBG (DBG_info, "Calibration: Bad version\n");
       fclose (fp);
-      DBG (DBG_proc, "sanei_genesys_read_calibration: exit\n");
+      DBGCOMPLETED;
       return SANE_STATUS_INVAL;
     }
   fread (&size, 4, 1, fp);
@@ -6419,7 +6432,7 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
       DBG (DBG_info,
 	   "Calibration: Size of calibration cache struct differs\n");
       fclose (fp);
-      DBG (DBG_proc, "sanei_genesys_read_calibration: exit\n");
+      DBGCOMPLETED;
       return SANE_STATUS_INVAL;
     }
 
@@ -6501,7 +6514,7 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
     }
 
   fclose (fp);
-  DBG (DBG_proc, "sanei_genesys_read_calibration: exit\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -6701,7 +6714,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   /* cold-plug case :detection of allready connected scanners */
   status = probe_genesys_devices ();
 
-  DBG (DBG_proc, "sane_init: exit\n");
+  DBGCOMPLETED;
 
   return status;
 }
@@ -6711,7 +6724,7 @@ sane_exit (void)
 {
   Genesys_Device *dev, *next;
 
-  DBG (DBG_proc, "sane_exit: start\n");
+  DBGSTART;
   for (dev = first_dev; dev; dev = next)
     {
       /* sane_close() free many fields, not much things left to
@@ -6726,7 +6739,7 @@ sane_exit (void)
     free (devlist);
   devlist = 0;
 
-  DBG (DBG_proc, "sane_exit: exit\n");
+  DBGCOMPLETED;
 }
 
 SANE_Status
@@ -6766,7 +6779,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   *device_list = devlist;
 
-  DBG (DBG_proc, "sane_get_devices: exit\n");
+  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }
@@ -6916,7 +6929,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   sanei_genesys_read_calibration (s->dev);
 
-  DBG (DBG_proc, "sane_open: exit\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -6928,7 +6941,7 @@ sane_close (SANE_Handle handle)
   SANE_Status status;
   SANE_Range *range;
 
-  DBG (DBG_proc, "sane_close: start\n");
+  DBGSTART;
 
   /* remove handle from list of open handles: */
   prev = 0;
@@ -7016,7 +7029,7 @@ sane_close (SANE_Handle handle)
   sanei_usb_close (s->dev->dn);
   free (s);
 
-  DBG (DBG_proc, "sane_close: exit\n");
+  DBGCOMPLETED;
 }
 
 const SANE_Option_Descriptor *
@@ -7582,7 +7595,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   Genesys_Scanner *s = handle;
   SANE_Status status;
 
-  DBG (DBG_proc, "sane_get_parameters: start\n");
+  DBGSTART;
 
   /* don't recompute parameters once data reading is active, ie during scan */
   if(s->dev->read_active == SANE_FALSE)
@@ -7606,7 +7619,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	}
     }
 
-  DBG (DBG_proc, "sane_get_parameters: exit\n");
+  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }
@@ -7617,7 +7630,7 @@ sane_start (SANE_Handle handle)
   Genesys_Scanner *s = handle;
   SANE_Status status=SANE_STATUS_GOOD;
 
-  DBG (DBG_proc, "sane_start: start\n");
+  DBGSTART;
 
   if (s->val[OPT_TL_X].w >= s->val[OPT_BR_X].w)
     {
@@ -7691,7 +7704,7 @@ sane_start (SANE_Handle handle)
         }
     }
 
-  DBG (DBG_proc, "sane_start: exit\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -7765,7 +7778,7 @@ sane_cancel (SANE_Handle handle)
   Genesys_Scanner *s = handle;
   SANE_Status status = SANE_STATUS_GOOD;
 
-  DBG (DBG_proc, "sane_cancel: start\n");
+  DBGSTART;
 
   /* end binary logging if needed */
   if (s->dev->binary!=NULL)
@@ -7831,7 +7844,7 @@ sane_cancel (SANE_Handle handle)
       return;
     }
 
-  DBG (DBG_proc, "sane_cancel: exit\n");
+  DBGCOMPLETED;
   return;
 }
 

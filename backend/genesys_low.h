@@ -127,6 +127,7 @@
 #define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /**> scanner has setting for half ccd mode */
 #define GENESYS_FLAG_SIS_SENSOR       (1 << 16)       /**> handling of multi-segments sensors in software */
 #define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**> scanner doesn't move sensor during shading calibration */
+#define GENESYS_FLAG_SHADING_REPARK   (1 << 18)       /**> repark head between shading scans */
 
 #define GENESYS_HAS_NO_BUTTONS       0              /**> scanner has no supported button */
 #define GENESYS_HAS_SCAN_SW          (1 << 0)       /**> scanner has SCAN button */

@@ -1364,7 +1364,7 @@ static Genesys_Model canon_lide_100_model = {
   SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (1.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -1394,10 +1394,11 @@ static Genesys_Model canon_lide_100_model = {
     | GENESYS_FLAG_SIS_SENSOR
     | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_SHADING_REPARK
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  40,
+  50,
   400
 };
 
@@ -1631,7 +1632,7 @@ static Genesys_Model canon_lide_200_model = {
   SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (1.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -1661,9 +1662,10 @@ static Genesys_Model canon_lide_200_model = {
     | GENESYS_FLAG_SIS_SENSOR
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_SHADING_REPARK
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  40,
+  50,
   400
 };
 

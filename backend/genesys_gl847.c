@@ -2423,18 +2423,17 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
 
-  DBG (DBG_proc, "gl847_init_regs_for_shading: lines = %d\n", dev->calib_lines);
-
+  DBGSTART;
   dev->calib_channels = 3;
 
   /* initial calibration reg values */
-  memcpy (dev->calib_reg, dev->reg,
-	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
+  memcpy (dev->calib_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
   dev->calib_resolution = sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   dev->calib_lines = dev->model->shading_lines;
   if(dev->calib_resolution==4800)
     dev->calib_lines *= 2;
+  DBG (DBG_io, "%s: lines = %d\n", __FUNCTION__, dev->calib_lines);
   dev->calib_pixels = (dev->sensor.sensor_pixels*dev->calib_resolution)/dev->sensor.optical_res;
 
   status = gl847_init_scan_regs (dev,
@@ -2466,8 +2465,8 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
       return status;
     }
 
-  /* TODO this is a good approximation, replace by exact value */
-  dev->scanhead_position_in_steps = (5*dev->calib_lines*600)/dev->calib_resolution;
+  /* we use GENESYS_FLAG_SHADING_REPARK */
+  dev->scanhead_position_in_steps = 0;
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -2819,10 +2818,15 @@ gl847_led_calibration (Genesys_Device * dev)
   char fn[20];
   uint16_t exp[3];
   Sensor_Profile *sensor;
-
-  SANE_Bool acceptable = SANE_FALSE;
+  float move;
+  SANE_Bool acceptable;
 
   DBGSTART;
+
+  /* move to reach calibration area */
+  move = SANE_UNFIX (dev->model->y_offset_calib);
+  move = (move * dev->motor.base_ydpi) / MM_PER_INCH;
+  RIE(gl847_feed (dev, move));
 
   /* offset calibration is always done in color mode */
   channels = 3;
@@ -2882,6 +2886,7 @@ gl847_led_calibration (Genesys_Device * dev)
   top[2]=55000;
 
   turn = 0;
+  acceptable = SANE_FALSE;
 
   /* no move during led calibration */
   gl847_set_motor_power (dev->calib_reg, SANE_FALSE);
@@ -2967,6 +2972,9 @@ gl847_led_calibration (Genesys_Device * dev)
 
   /* cleanup before return */
   free (line);
+  
+  /* go back home */
+  RIE (gl847_slow_back_home (dev, SANE_TRUE));
  
   DBGCOMPLETED;
   return status;

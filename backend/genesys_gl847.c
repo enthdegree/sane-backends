@@ -2797,11 +2797,11 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   return status;
 }
 
-/* this function does the led calibration by scanning one line of the calibration
-   area below scanner's top on white strip.
-
--needs working coarse/gain
-*/
+/** @brief calibrates led exposure
+ * Calibrate exposure by scanning a white area until the used exposure gives
+ * data white enough.
+ * @param dev device to calibrate
+ */
 static SANE_Status
 gl847_led_calibration (Genesys_Device * dev)
 {
@@ -2826,7 +2826,10 @@ gl847_led_calibration (Genesys_Device * dev)
   /* move to reach calibration area */
   move = SANE_UNFIX (dev->model->y_offset_calib);
   move = (move * dev->motor.base_ydpi) / MM_PER_INCH;
-  RIE(gl847_feed (dev, move));
+  if(move>20)
+    {
+      RIE(gl847_feed (dev, move));
+    }
 
   /* offset calibration is always done in color mode */
   channels = 3;
@@ -2836,9 +2839,9 @@ gl847_led_calibration (Genesys_Device * dev)
   num_pixels = (dev->sensor.sensor_pixels*used_res)/dev->sensor.optical_res;
   
   /* initial calibration reg values */
-  memcpy (dev->calib_reg, dev->reg,
-	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
+  memcpy (dev->calib_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
+  /* set up for the calibration scan */
   status = gl847_init_scan_regs (dev,
 				 dev->calib_reg,
 				 used_res,
@@ -2854,7 +2857,6 @@ gl847_led_calibration (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
-
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2863,55 +2865,52 @@ gl847_led_calibration (Genesys_Device * dev)
       return status;
     }
 
-  RIE (gl847_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
-
-
   total_size = num_pixels * channels * (depth/8) * 1;	/* colors * bytes_per_color * scan lines */
-
   line = malloc (total_size);
   if (!line)
     return SANE_STATUS_NO_MEM;
 
+  /* initial loop values and boundaries */
   exp[0]=sensor->expr;
   exp[1]=sensor->expg;
   exp[2]=sensor->expb;
 
-  bottom[0]=40000;
-  bottom[1]=50000;
-  bottom[2]=50000;
+  bottom[0]=39000;
+  bottom[1]=49000;
+  bottom[2]=49000;
 
-  top[0]=45000;
-  top[1]=55000;
-  top[2]=55000;
+  top[0]=41000;
+  top[1]=51000;
+  top[2]=51000;
 
   turn = 0;
-  acceptable = SANE_FALSE;
 
   /* no move during led calibration */
   gl847_set_motor_power (dev->calib_reg, SANE_FALSE);
   do
     {
+      /* set up exposure */
       sanei_genesys_set_double(dev->calib_reg,REG_EXPR,exp[0]);
       sanei_genesys_set_double(dev->calib_reg,REG_EXPG,exp[1]);
       sanei_genesys_set_double(dev->calib_reg,REG_EXPB,exp[2]);
 
-      RIE (gl847_bulk_write_register
-	   (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
+      /* write registers and scan data */
+      RIE (gl847_bulk_write_register (dev, dev->calib_reg, GENESYS_GL847_MAX_REGS));
 
-      DBG (DBG_info, "gl847_led_calibration: starting first line reading\n");
+      DBG (DBG_info, "gl847_led_calibration: starting line reading\n");
       RIE (gl847_begin_scan (dev, dev->calib_reg, SANE_TRUE));
       RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
+
+      /* stop scanning */
+      RIE (gl847_stop_action (dev));
 
       if (DBG_LEVEL >= DBG_data)
 	{
 	  snprintf (fn, 20, "led_%02d.pnm", turn);
-	  sanei_genesys_write_pnm_file (fn,
-					line, depth, channels, num_pixels, 1);
+	  sanei_genesys_write_pnm_file (fn, line, depth, channels, num_pixels, 1);
 	}
 
-      acceptable = SANE_TRUE;
-
+      /* compute average */
       for (j = 0; j < channels; j++)
 	{
 	  avg[j] = 0;
@@ -2931,11 +2930,10 @@ gl847_led_calibration (Genesys_Device * dev)
 	  avg[j] /= num_pixels;
 	}
 
-      DBG (DBG_info, "gl847_led_calibration: average: "
-	   "%d,%d,%d\n", avg[0], avg[1], avg[2]);
+      DBG (DBG_info, "gl847_led_calibration: average: %d,%d,%d\n", avg[0], avg[1], avg[2]);
 
+      /* check if exposure gives average within the boundaries */
       acceptable = SANE_TRUE;
-
       for(i=0;i<3;i++)
         {
           if(avg[i]<bottom[i])
@@ -2949,7 +2947,6 @@ gl847_led_calibration (Genesys_Device * dev)
               acceptable = SANE_FALSE;
             }
         }
-      RIE (gl847_stop_action (dev));
 
       turn++;
     }
@@ -2974,7 +2971,10 @@ gl847_led_calibration (Genesys_Device * dev)
   free (line);
   
   /* go back home */
-  RIE (gl847_slow_back_home (dev, SANE_TRUE));
+  if(move>20)
+    {
+      RIE (gl847_slow_back_home (dev, SANE_TRUE));
+    }
  
   DBGCOMPLETED;
   return status;

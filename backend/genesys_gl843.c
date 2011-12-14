@@ -2195,11 +2195,120 @@ gl843_detect_document_end (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+/** @brief disable XPA slider motor
+ * toggle gpios to switch disble XPA slider motor
+ * @param dev device to set up
+ */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status gl843_xpa_motor_off(Genesys_Device *dev)
+{
+  uint8_t val;
+  SANE_Status status=SANE_STATUS_GOOD;
+
+  DBGSTART;
+
+  /* unset GPOADF */
+  RIE (sanei_genesys_read_register (dev, REG6B, &val));
+  val &= ~REG6B_GPOADF;
+  RIE (sanei_genesys_write_register (dev, REG6B, val));
+
+  RIE (sanei_genesys_read_register (dev, REGA8, &val));
+  val |= REGA8_GPO27;
+  RIE (sanei_genesys_write_register (dev, REGA8, val));
+
+  RIE (sanei_genesys_read_register (dev, REGA9, &val));
+  val &= ~REGA9_GPO31;
+  RIE (sanei_genesys_write_register (dev, REGA9, val));
+
+  DBGCOMPLETED;
+  return status;
+}
+
+
+/** @brief enable XPA slider motor
+ * toggle gpios to switch enable XPA slider motor
+ * @param dev device to set up
+ */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status gl843_xpa_motor_on(Genesys_Device *dev)
+{
+  uint8_t val;
+  SANE_Status status=SANE_STATUS_GOOD;
+
+  DBGSTART;
+
+  /* set MULTFILM et GPOADF */
+  RIE (sanei_genesys_read_register (dev, REG6B, &val));
+  val |=REG6B_MULTFILM|REG6B_GPOADF;
+  RIE (sanei_genesys_write_register (dev, REG6B, val));
+
+  RIE (sanei_genesys_read_register (dev, REG6C, &val));
+  val &= ~REG6C_GPIO15;
+  RIE (sanei_genesys_write_register (dev, REG6C, val));
+
+  /* Motor power ? No move at all without this one */
+  RIE (sanei_genesys_read_register (dev, REGA6, &val));
+  val |= REGA6_GPIO20;
+  RIE (sanei_genesys_write_register(dev,REGA6,val));
+
+  RIE (sanei_genesys_read_register (dev, REGA8, &val));
+  val &= ~REGA8_GPO27;
+  RIE (sanei_genesys_write_register (dev, REGA8, val));
+
+  RIE (sanei_genesys_read_register (dev, REGA9, &val));
+  val |= REGA9_GPO32|REGA9_GPO31;
+  RIE (sanei_genesys_write_register (dev, REGA9, val));
+
+  DBGCOMPLETED;
+  return status;
+}
+
+
+/** @brief light XPA lamp
+ * toggle gpios to switch off regular lamp and light on the
+ * XPA light
+ * @param dev device to set up
+ */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status gl843_xpa_lamp_on(Genesys_Device *dev)
+{
+  uint8_t val;
+  SANE_Status status=SANE_STATUS_GOOD;
+
+  DBGSTART;
+
+  /* REGA6 */
+  RIE(sanei_genesys_read_register(dev, REGA6, &val));
+
+  /* cut regular lamp power */
+  val &= ~(REGA6_GPIO24|REGA6_GPIO23);
+
+  /* set XPA lamp power */
+  val |= REGA6_GPIO22 | REGA6_GPIO21 | REGA6_GPIO19;
+
+  RIE(sanei_genesys_write_register(dev, REGA6, val));
+
+  RIE(sanei_genesys_read_register(dev, REGA7, &val));
+  val|=REGA7_GPOE24; /* lamp 1 off GPOE 24 */
+  val|=REGA7_GPOE23; /* lamp 2 off GPOE 23 */
+  val|=REGA7_GPOE22; /* full XPA lamp power */
+  RIE(sanei_genesys_write_register(dev, REGA7, val));
+
+  DBGCOMPLETED;
+  return status;
+}
+
 /* Send the low-level scan command */
 #ifndef UNIT_TESTING
 static
 #endif
-  SANE_Status
+SANE_Status
 gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  SANE_Bool start_motor)
 {
@@ -2244,40 +2353,13 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
       r03 = sanei_genesys_read_reg_from_set (reg, REG03);
       if ((r03 & REG03_XPASEL) && (r03 & REG03_LAMPPWR))
         {
-          RIE (sanei_genesys_read_register (dev, REGA6, &val));
-          
-          /* switch off regular lamp */
-          val &= 0xbf;
-
-          /* light XPA lamp at full power (2 bits for level: __11 ____) */
-          val |= 0x30;
-	  
-          RIE (sanei_genesys_write_register (dev, REGA6, val));
+          RIE(gl843_xpa_lamp_on(dev));
         }
 
       /* enable XPA lamp motor */
       if (r03 & REG03_XPASEL)
         {
-          /* set MULTFILM et GPOADF */
-          RIE (sanei_genesys_read_register (dev, REG6B, &val));
-          val |=REG6B_MULTFILM|REG6B_GPOADF;
-          RIE (sanei_genesys_write_register (dev, REG6B, val));
-
-          RIE (sanei_genesys_read_register (dev, REG6C, &val));
-          val &= ~REG6C_GPIO15;
-          RIE (sanei_genesys_write_register (dev, REG6C, val));
-
-          RIE (sanei_genesys_read_register (dev, REGA6, &val));
-          val |= REGA6_GPIO20;
-          RIE (sanei_genesys_write_register(dev,REGA6,val));
-
-          RIE (sanei_genesys_read_register (dev, REGA8, &val));
-          val &= ~REGA8_GPO27;
-          RIE (sanei_genesys_write_register (dev, REGA8, val));
-
-          RIE (sanei_genesys_read_register (dev, REGA9, &val));
-          val |= REGA9_GPO32|REGA9_GPO31;
-          RIE (sanei_genesys_write_register (dev, REGA9, val));
+          RIE(gl843_xpa_motor_on(dev));
         }
 
       /* blinking led */
@@ -2391,6 +2473,7 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 
   /* write to scanner and start action */
   RIE (gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
+  RIE (gl843_xpa_motor_on(dev));
   status = gl843_start_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
@@ -2425,6 +2508,9 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
               sanei_genesys_read_register (dev, REG6B, &val);
               val &= ~REG6B_GPOADF;
               sanei_genesys_write_register (dev, REG6B, val);
+
+              /* disable XPA slider motor */
+              gl843_xpa_motor_off(dev);
 	      return SANE_STATUS_GOOD;
 	    }
 	  usleep (100000);	/* sleep 100 ms */
@@ -3991,8 +4077,11 @@ gl843_update_hardware_sensors (Genesys_Scanner * s)
 #ifndef UNIT_TESTING
 static
 #endif
-SANE_Status
-gl843_move_to_ta (Genesys_Device * dev)
+/** @brief move sensor to transparency adaptor
+ * Move sensor to the calibration of the transparency adapator (XPA).
+ * @param dev device to use
+ */
+SANE_Status gl843_move_to_ta (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   float resolution;

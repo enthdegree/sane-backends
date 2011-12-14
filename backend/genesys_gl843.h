@@ -66,6 +66,10 @@ SANE_Status gl843_feed (Genesys_Device * dev, unsigned int steps);
 SANE_Status gl843_init (Genesys_Device * dev);
 SANE_Status gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size);
 SANE_Status gl843_bulk_write_register (Genesys_Device * dev, Genesys_Register_Set * reg, size_t elems);
+SANE_Status gl843_xpa_lamp_on (Genesys_Device * dev);
+SANE_Status gl843_xpa_motor_on (Genesys_Device * dev);
+SANE_Status gl843_xpa_motor_off (Genesys_Device * dev);
+SANE_Status gl843_move_to_ta (Genesys_Device * dev);
 #endif
 
 #define DBGSTART DBG (DBG_proc, "%s start\n", __FUNCTION__);

@@ -1,3 +1,7 @@
+2011-12-18 Chris Bagwell <chris at cnpbagwell dot com>
+        * doc/descriptions-external/epkowa.desc: update for new iScan
+	2.28.1 release from Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>.
+
 2011-11-29 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_low.h backend/genesys_devices.c
 	backend/genesys_gl847.c: genesys backend build 67, gl847 led and

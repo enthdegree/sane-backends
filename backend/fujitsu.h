@@ -221,7 +221,10 @@ struct fujitsu
   int has_cmd_subwindow;
   int has_cmd_endorser;
   int has_cmd_hw_status;
+  int has_cmd_hw_status_2;
+  int has_cmd_hw_status_3;
   int has_cmd_scanner_ctl;
+  int has_cmd_device_restart;
 
   /*FIXME: do we need the vendor window param list? */
 
@@ -268,7 +271,7 @@ struct fujitsu
   /* --------------------------------------------------------------------- */
   /* immutable values which are gathered by mode_sense command     */
 
-  int has_MS_unknown;
+  int has_MS_autocolor;
   int has_MS_prepick;
   int has_MS_sleep;
   int has_MS_duplex;

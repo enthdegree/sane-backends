@@ -3,8 +3,10 @@
 
 # to set data buffer size, in bytes
 # the value ranges from 4096 - infinity
-# but you may have scanning problems with
-# a value larger than 65536 (the default)
+# but old scanners may have scanning problems
+# with a value larger than 65536 (the default)
+# NOTE: this option is set to a larger value
+# later in this file, for more recent scanners
 option buffer-size 65536
 
 # To search for all FUJITSU scsi devices
@@ -74,6 +76,9 @@ usb 0x04c5 0x1135
 #fi-5530C2
 usb 0x04c5 0x114a
 
+# More recent scanners need a larger buffer for maximum speed
+option buffer-size 262144
+
 #fi-6140
 usb 0x04c5 0x114d
 
@@ -128,16 +133,16 @@ usb 0x04c5 0x11ee
 #fi-6225
 usb 0x04c5 0x11ef
 
-#fi-6145
+#fi-6140Z
 usb 0x04c5 0x11f1
 
-#fi-6245
+#fi-6240Z
 usb 0x04c5 0x11f2
 
-#fi-6135
+#fi-6130Z
 usb 0x04c5 0x11f3
 
-#fi-6235
+#fi-6230Z
 usb 0x04c5 0x11f4
 
 #fi-6110

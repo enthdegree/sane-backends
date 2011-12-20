@@ -497,6 +497,10 @@
          - moved page width/height to start of geometry group
          - use mode to pick resolution list v/s range
          - improved M3091 resolution choices
+      v109 2011-12-20, MAN
+         - added some MS and INQ information
+         - increased default buffer size for later machines in config file
+         - renamed new fi-6xx0Z models
 
    SANE FLOW DIAGRAM
 
@@ -546,7 +550,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 108
+#define BUILD 109
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1339,6 +1343,8 @@ init_vpd (struct fujitsu *s)
           s->buffer_bytes = get_IN_buffer_bytes(in);
           DBG (15, "  buffer bytes: %d\n",s->buffer_bytes);
 
+          DBG (15, "Standard commands\n");
+
           /* std scsi command support byte 26*/
           s->has_cmd_msen10 = get_IN_has_cmd_msen10(in);
           DBG (15, "  mode_sense_10 cmd: %d\n", s->has_cmd_msen10);
@@ -1423,6 +1429,8 @@ init_vpd (struct fujitsu *s)
 
           /* vendor added scsi command support */
           /* FIXME: there are more of these... */
+          DBG (15, "Vendor commands\n");
+
           s->has_cmd_subwindow = get_IN_has_cmd_subwindow(in);
           DBG (15, "  subwindow cmd: %d\n", s->has_cmd_subwindow);
 
@@ -1432,8 +1440,17 @@ init_vpd (struct fujitsu *s)
           s->has_cmd_hw_status = get_IN_has_cmd_hw_status (in);
           DBG (15, "  hardware status cmd: %d\n", s->has_cmd_hw_status);
 
+          s->has_cmd_hw_status_2 = get_IN_has_cmd_hw_status_2 (in);
+          DBG (15, "  hardware status 2 cmd: %d\n", s->has_cmd_hw_status_2);
+
+          s->has_cmd_hw_status_3 = get_IN_has_cmd_hw_status_3 (in);
+          DBG (15, "  hardware status 3 cmd: %d\n", s->has_cmd_hw_status_3);
+
           s->has_cmd_scanner_ctl = get_IN_has_cmd_scanner_ctl(in);
           DBG (15, "  scanner control cmd: %d\n", s->has_cmd_scanner_ctl);
+
+          s->has_cmd_device_restart = get_IN_has_cmd_device_restart(in);
+          DBG (15, "  device restart cmd: %d\n", s->has_cmd_device_restart);
 
           /* get threshold, brightness and contrast ranges. */
           s->brightness_steps = get_IN_brightness_steps(in);
@@ -1555,6 +1572,10 @@ init_vpd (struct fujitsu *s)
               DBG (15, "  vertical overscan: %d\n", s->os_y_basic);
           }
 
+          if (get_IN_page_length (in) > 0x68) {
+              /*lots of additional params here*/
+          }
+
           ret = SANE_STATUS_GOOD;
       }
       /*FIXME no vendor vpd, set some defaults? */
@@ -1607,8 +1628,8 @@ init_ms(struct fujitsu *s)
   set_SCSI_opcode(cmd, MODE_SENSE_code);
   set_MSEN_xfer_length (cmd, inLen);
 
-  DBG (35, "init_ms: 32 unknown)\n");
-  set_MSEN_pc(cmd, MS_pc_unknown);
+  DBG (35, "init_ms: autocolor )\n");
+  set_MSEN_pc(cmd, MS_pc_autocolor);
   ret = do_cmd (
     s, 1, 0,
     cmd, cmdLen,
@@ -1616,7 +1637,7 @@ init_ms(struct fujitsu *s)
     in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
-    s->has_MS_unknown=1;
+    s->has_MS_autocolor=1;
   }
 
   DBG (35, "init_ms: prepick\n");
@@ -1764,7 +1785,7 @@ init_ms(struct fujitsu *s)
 
   IF_DBG (DBG_LEVEL = oldDbg;)
 
-  DBG (15, "  unknown: %d\n", s->has_MS_unknown);
+  DBG (15, "  autocolor: %d\n", s->has_MS_autocolor);
   DBG (15, "  prepick: %d\n", s->has_MS_prepick);
   DBG (15, "  sleep: %d\n", s->has_MS_sleep);
   DBG (15, "  duplex: %d\n", s->has_MS_duplex);

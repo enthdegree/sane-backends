@@ -1,5 +1,11 @@
+2011-12-20 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu*, doc/descriptions/fujitsu.desc: backend v109
+	- added some MS and INQ information
+	- increased default buffer size for later machines in config file
+	- renamed new fi-6xx0Z models
+
 2011-12-18 Chris Bagwell <chris at cnpbagwell dot com>
-        * doc/descriptions-external/epkowa.desc: update for new iScan
+	* doc/descriptions-external/epkowa.desc: update for new iScan
 	2.28.1 release from Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>.
 
 2011-11-29 Stéphane Voltz <stef.dev@free.fr>

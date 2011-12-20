@@ -245,7 +245,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_has_cmd_subwindow(in)       getbitfield(in+0x2b, 1, 0) 
 #define get_IN_has_cmd_endorser(in)        getbitfield(in+0x2b, 1, 1)
 #define get_IN_has_cmd_hw_status(in)       getbitfield(in+0x2b, 1, 2)
+#define get_IN_has_cmd_hw_status_2(in)     getbitfield(in+0x2b, 1, 3)
+#define get_IN_has_cmd_hw_status_3(in)     getbitfield(in+0x2b, 1, 4)
 #define get_IN_has_cmd_scanner_ctl(in)     getbitfield(in+0x31, 1, 1)
+#define get_IN_has_cmd_device_restart(in)  getbitfield(in+0x31, 1, 2)
 
 #define get_IN_brightness_steps(in)        getnbyte(in+0x52, 1)
 #define get_IN_threshold_steps(in)         getnbyte(in+0x53, 1)
@@ -330,7 +333,9 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 /* ==================================================================== */
 /* page codes used by mode_sense and mode_select */
-#define MS_pc_unknown 0x32 /* unknown mode? */
+#define MS_pc_patch   0x2e /* Patch code scanning */
+#define MS_pc_counter 0x2f /* Page number and counter reset */
+#define MS_pc_autocolor 0x32 /* Automatic color detection */
 #define MS_pc_prepick 0x33 /* Prepick next adf page */
 #define MS_pc_sleep   0x34 /* Sleep mode */
 #define MS_pc_duplex  0x35 /* ADF duplex transfer mode */

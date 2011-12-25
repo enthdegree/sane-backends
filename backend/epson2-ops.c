@@ -100,6 +100,7 @@ extern struct mode_param mode_params[];
 
 #define FBF_STR	SANE_I18N("Flatbed")
 #define TPU_STR	SANE_I18N("Transparency Unit")
+#define TP2_STR SANE_I18N("TPU8x10")
 #define ADF_STR	SANE_I18N("Automatic Document Feeder")
 
 /*
@@ -450,6 +451,27 @@ e2_set_tpu_area(struct Epson_Scanner *s, int x, int y, int unit)
 }
 
 void
+e2_set_tpu2_area(struct Epson_Scanner *s, int x, int y, int unit)
+{
+	struct Epson_Device *dev = s->hw;
+
+	dev->tpu2_x_range.min = 0;
+	dev->tpu2_x_range.max = SANE_FIX(x * MM_PER_INCH / unit);
+	dev->tpu2_x_range.quant = 0;
+
+	dev->tpu2_y_range.min = 0;
+	dev->tpu2_y_range.max = SANE_FIX(y * MM_PER_INCH / unit);
+	dev->tpu2_y_range.quant = 0;
+
+	DBG(5, "%s: %f,%f %f,%f %d [mm]\n",
+	    __func__,
+	    SANE_UNFIX(dev->tpu2_x_range.min),
+	    SANE_UNFIX(dev->tpu2_y_range.min),
+	    SANE_UNFIX(dev->tpu2_x_range.max),
+	    SANE_UNFIX(dev->tpu2_y_range.max), unit);
+}
+
+void
 e2_add_depth(Epson_Device * dev, SANE_Word depth)
 {
 	if (depth > dev->maxDepth)
@@ -681,19 +703,6 @@ e2_discover_capabilities(Epson_Scanner *s)
 		}
 
 		/* TPU */
-		if (e2_model(s, "GT-X800") || e2_model(s, "GT-X900")) {
-			if (le32atoh(&buf[68]) > 0 && !dev->TPU) {
-				e2_set_tpu_area(s,
-						le32atoh(&buf[68]),
-						le32atoh(&buf[72]),
-						dev->optical_res);
-
-				*source_list_add++ = TPU_STR;
-				dev->TPU = SANE_TRUE;
-				dev->TPU2 = SANE_TRUE;
-			}
-		}
-
 		if (le32atoh(&buf[36]) > 0 && !dev->TPU) {
 			e2_set_tpu_area(s,
 					le32atoh(&buf[36]),
@@ -701,6 +710,18 @@ e2_discover_capabilities(Epson_Scanner *s)
 
 			*source_list_add++ = TPU_STR;
 			dev->TPU = SANE_TRUE;
+		}
+
+                /* TPU2 */
+		if (e2_model(s, "GT-X800") || e2_model(s, "GT-X900")) {
+			if (le32atoh(&buf[68]) > 0 ) {
+				e2_set_tpu2_area(s,
+					  	 le32atoh(&buf[68]),
+						 le32atoh(&buf[72]),
+						 dev->optical_res);
+
+				*source_list_add++ = TP2_STR;
+			}
 		}
 
 		*source_list_add = NULL; /* add end marker to source list */
@@ -889,6 +910,16 @@ e2_set_extended_scanning_parameters(Epson_Scanner * s)
 		 */
 		if (s->hw->use_extension && s->hw->TPU2)
 			extensionCtrl = 5;
+
+		if (s->val[OPT_MODE].w == MODE_INFRARED)
+                        /* only infrared in TPU mode (NOT in TPU2 or flatbeth) 
+	                 * XXX investigate this ... only tested on GT-X800 
+                         */
+
+                        if (extensionCtrl == 1)   /* test for TPU */
+                           extensionCtrl = 3;
+                        else
+                           return SANE_STATUS_UNSUPPORTED;
 
 		/* ESC e */
 		buf[26] = extensionCtrl;

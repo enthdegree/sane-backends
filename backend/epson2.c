@@ -113,6 +113,7 @@ static const SANE_String_Const adf_mode_list[] = {
 
 #define FBF_STR	SANE_I18N("Flatbed")
 #define TPU_STR	SANE_I18N("Transparency Unit")
+#define TPU_STR2 SANE_I18N("TPU8x10")
 #define ADF_STR	SANE_I18N("Automatic Document Feeder")
 
 /*
@@ -966,7 +967,7 @@ init_options(Epson_Scanner *s)
 	s->val[OPT_MODE].w = 0;	/* Binary */
 
 	/* disable infrared on unsupported scanners */
-	if (!e2_model(s, "GT-X800") && !e2_model(s, "GT-X700"))
+	if (!e2_model(s, "GT-X800") && !e2_model(s, "GT-X700") && !e2_model(s, "GT-X900"))
 		mode_list[MODE_INFRARED] = NULL;
 
 	/* bit depth */
@@ -1742,9 +1743,17 @@ change_source(Epson_Scanner *s, SANE_Int optindex, char *value)
 		DBG(1, "adf activated (%d %d)\n", s->hw->use_extension,
 		    s->hw->duplex);
 
-	} else if (strcmp(TPU_STR, value) == 0) {
-		s->hw->x_range = &s->hw->tpu_x_range;
-		s->hw->y_range = &s->hw->tpu_y_range;
+	} else if (strcmp(TPU_STR, value) == 0 || strcmp(TPU_STR2, value) == 0) {
+	        if (strcmp(TPU_STR, value) == 0) {
+	  	        s->hw->x_range = &s->hw->tpu_x_range;
+		        s->hw->y_range = &s->hw->tpu_y_range;
+			s->hw->TPU2 = SANE_FALSE;
+                }
+	        if (strcmp(TPU_STR2, value) == 0) {
+	  	        s->hw->x_range = &s->hw->tpu2_x_range;
+		        s->hw->y_range = &s->hw->tpu2_y_range;
+			s->hw->TPU2 = SANE_TRUE;
+                }
 		s->hw->use_extension = SANE_TRUE;
 
 		/* enable film type option only if the scanner supports it */

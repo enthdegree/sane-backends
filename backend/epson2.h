@@ -315,15 +315,17 @@ struct Epson_Device
 	SANE_Int level;
 	SANE_Range dpi_range;
 
-	SANE_Range *x_range;	/* x range w/out extension */
-	SANE_Range *y_range;	/* y range w/out extension */
+	SANE_Range *x_range;	        /* x range w/out extension */
+	SANE_Range *y_range;	        /* y range w/out extension */
 
-	SANE_Range fbf_x_range;	/* flattbed x range */
-	SANE_Range fbf_y_range;	/* flattbed y range */
-	SANE_Range adf_x_range;	/* autom. document feeder x range */
-	SANE_Range adf_y_range;	/* autom. document feeder y range */
-	SANE_Range tpu_x_range;	/* transparency unit x range */
-	SANE_Range tpu_y_range;	/* transparency unit y range */
+	SANE_Range fbf_x_range;	        /* flattbed x range */
+	SANE_Range fbf_y_range;	        /* flattbed y range */
+	SANE_Range adf_x_range;	        /* autom. document feeder x range */
+	SANE_Range adf_y_range;	        /* autom. document feeder y range */
+	SANE_Range tpu_x_range;	        /* transparency unit x range */
+	SANE_Range tpu_y_range;	        /* transparency unit y range */
+	SANE_Range tpu2_x_range;	/* transparency unit 2 x range */
+	SANE_Range tpu2_y_range;	/* transparency unit 2 y range */
 
 	Epson_Connection_Type connection;
 

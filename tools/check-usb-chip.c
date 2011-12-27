@@ -35,7 +35,11 @@
 #include <string.h>
 #include <errno.h>
 
+#ifdef HAVE_LUSB0_USB_H
+#include <lusb0_usb.h>
+#else
 #include <usb.h>
+#endif
 
 #include "../include/_stdint.h"
 

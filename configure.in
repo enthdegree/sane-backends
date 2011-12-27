@@ -371,9 +371,13 @@ if test "$enable_libusb" != "no"; then
     dnl Fallback to the old libusb
     dnl libusb >= 0.1.8 is required, as we need usb_interrupt_read()
     AC_CHECK_HEADER(usb.h,
-                    AC_CHECK_LIB(usb, usb_interrupt_read, 
+                    AC_CHECK_LIB(usb, usb_interrupt_read,
                                  [USB_LIBS="$USB_LIBS -lusb"
                                   HAVE_USB=yes]))
+    AC_CHECK_HEADERS(lusb0_usb.h,
+		     AC_CHECK_LIB(usb, usb_interrupt_read,
+				  [USB_LIBS="$USB_LIBS -lusb"
+				   HAVE_USB=yes]))
   fi
   ;;
   esac

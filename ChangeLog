@@ -1,3 +1,12 @@
+2011-12-27 Chris Bagwell <chris at cnpbagwell dot com>
+	* configure.in, configure, config.h.in, sanei_usb.c,
+	check-usb-chip.c, sane-find-scanner.c: Add check for
+	libusb-win32 which is API compatible with libusb-0.1
+	but has different header file name to prevent conflicts
+	with Windows own usb.h.  Since libusb-1.0 is scheduled to
+	support Windows (not a forked version), it will probably
+	work as-is if user has pkg-config installed under mingw.
+
 2011-12-20 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu*, doc/descriptions/fujitsu.desc: backend v109
 	- added some MS and INQ information

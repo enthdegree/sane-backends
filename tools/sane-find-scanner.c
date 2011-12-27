@@ -42,7 +42,11 @@
 #include "../include/sane/sanei_config.h"
 
 #ifdef HAVE_LIBUSB
+#ifdef HAVE_LUSB0_USB_H
+#include <lusb0_usb.h>
+#else
 #include <usb.h>
+#endif
 extern char * check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file);
 #endif
 

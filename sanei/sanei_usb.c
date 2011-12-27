@@ -67,7 +67,11 @@
 #endif
 
 #ifdef HAVE_LIBUSB
+#ifdef HAVE_LUSB0_USB_H
+#include <lusb0_usb.h>
+#else
 #include <usb.h>
+#endif
 #endif /* HAVE_LIBUSB */
 
 #ifdef HAVE_LIBUSB_1_0

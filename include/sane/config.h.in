@@ -186,6 +186,9 @@
 /* Define if the long long type is available. */
 #undef HAVE_LONG_LONG
 
+/* Define to 1 if you have the <lusb0_usb.h> header file. */
+#undef HAVE_LUSB0_USB_H
+
 /* Define to 1 if you have the <machine/cpufunc.h> header file. */
 #undef HAVE_MACHINE_CPUFUNC_H
 

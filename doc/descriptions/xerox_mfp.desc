@@ -114,7 +114,7 @@
 :status :good
 
 :model "SCX-3205W"
-:interface "USB"
+:interface "USB Ethernet"
 :usbid "0x04e8" "0x3441"
 :status :good
 

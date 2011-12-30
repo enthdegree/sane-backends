@@ -113,6 +113,11 @@
 :usbid "0x04e8" "0x3440"
 :status :good
 
+:model "SCX-3205W"
+:interface "USB"
+:usbid "0x04e8" "0x3441"
+:status :good
+
 :model "SCX-4825FN"
 :interface "USB"
 :usbid "0x04e8" "0x343c"

@@ -1,3 +1,7 @@
+2011-11-30 Alex Belkin <abc at telekom.ru>
+	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
+	for Samsung SCX-3205W, reported by sane tester.
+
 2011-12-27 Chris Bagwell <chris at cnpbagwell dot com>
 	* configure.in, configure, config.h.in, sanei_usb.c,
 	check-usb-chip.c, sane-find-scanner.c: Add check for

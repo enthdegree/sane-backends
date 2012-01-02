@@ -1177,7 +1177,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   /* sensor parameters */
   gl843_setup_sensor (dev, reg, dpihw, flags);
 
-  /* resolution is divided according to CKSEL which is known once sensor is set up*/ 
+  /* resolution is divided according to CKSEL which is known once sensor is set up */ 
   r = sanei_genesys_get_address (reg, REG18);
   cksel= (r->value & REG18_CKSEL)+1;
   DBG (DBG_io2, "%s: cksel=%d\n", __FUNCTION__, cksel);
@@ -2811,6 +2811,7 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
 				 dev->settings.yres,
 				 0,
 				 0,
+                                 /* XXX STEF XXX dpi instead of pixels !*/
 				 dev->sensor.optical_res / cksel,
 				 20,
 				 16,

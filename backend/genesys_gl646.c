@@ -1026,11 +1026,11 @@ gl646_setup_registers (Genesys_Device * dev,
   regs[reg_0x23].value = motor->fwdbwd;
   regs[reg_0x24].value = motor->steps1;
 
-  /* we adjust linecnt according to real motor dpi */
-  linecnt = (linecnt * motor->ydpi) / scan_settings.yres;
-
   /* scanned area height must be enlarged by max color shift needed */
   max_shift=sanei_genesys_compute_max_shift(dev,channels,scan_settings.yres,0);
+
+  /* we adjust linecnt according to real motor dpi */
+  linecnt = (linecnt * motor->ydpi) / scan_settings.yres + max_shift;
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
   stagger = 0;

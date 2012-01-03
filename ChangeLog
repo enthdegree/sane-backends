@@ -1,4 +1,10 @@
-2011-11-30 Alex Belkin <abc at telekom.ru>
+2012-01-03 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl646.c backend/genesys_gl847.c
+	backend/genesys_gl43.[ch]: fixd scan line number for gl646 CCD
+	scanners, improved led calbration for gl847 CIS scanners and G4050 XPA
+	work progress.
+
+2011-12-30 Alex Belkin <abc at telekom.ru>
 	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
 	for Samsung SCX-3205W, reported by sane tester.
 

@@ -292,14 +292,6 @@ struct scanner
 #  define PATH_MAX 1024
 #endif
 
-#ifndef PATH_SEP
-#ifdef HAVE_OS2_H
-#  define PATH_SEP       '\\'
-#else
-#  define PATH_SEP       '/'
-#endif
-#endif
-
 /* ------------------------------------------------------------------------- */
 
 SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize);

@@ -64,7 +64,7 @@
 
 #ifdef HAVE_AUTHORIZATION
 #ifndef PATH_SEP
-#if defined(HAVE_OS2_H)
+#if defined(_WIN32) || defined(HAVE_OS2_H)
 # define PATH_SEP	"\\"
 #else
 # define PATH_SEP	"/"

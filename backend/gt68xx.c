@@ -934,7 +934,7 @@ attach_one_device (SANE_String_Const devname)
   return SANE_STATUS_GOOD;
 }
 
-#if defined(HAVE_OS2_H)
+#if defined(_WIN32) || defined(HAVE_OS2_H)
 # define PATH_SEP       "\\"
 #else
 # define PATH_SEP       "/"

@@ -59,13 +59,7 @@
 # define PATH_MAX	1024
 #endif
 
-#if defined(HAVE_OS2_H)
-# define DIR_SEP	";"
-# define PATH_SEP	'\\'
-#elif defined(__CYGWIN__)
-# define DIR_SEP	":"
-# define PATH_SEP	'/'
-#elif defined(HAVE_WINDOWS_H)
+#if defined(_WIN32) || defined(HAVE_OS2_H)
 # define DIR_SEP	";"
 # define PATH_SEP	'\\'
 #else

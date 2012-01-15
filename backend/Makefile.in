@@ -274,7 +274,7 @@ am_libpixma_la_OBJECTS = libpixma_la-pixma.lo \
 	libpixma_la-pixma_io_sanei.lo libpixma_la-pixma_common.lo \
 	libpixma_la-pixma_mp150.lo libpixma_la-pixma_mp730.lo \
 	libpixma_la-pixma_mp750.lo libpixma_la-pixma_mp810.lo \
-	libpixma_la-pixma_imageclass.lo libpixma_la-pixma_bjnp.lo 
+	libpixma_la-pixma_imageclass.lo libpixma_la-pixma_bjnp.lo
 libpixma_la_OBJECTS = $(am_libpixma_la_OBJECTS)
 libplustek_la_LIBADD =
 am_libplustek_la_OBJECTS = libplustek_la-plustek.lo

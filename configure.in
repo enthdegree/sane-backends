@@ -421,6 +421,7 @@ AC_CHECK_HEADERS(IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
   sys/scsi/targets/scgio.h apollo/scsi.h sys/sdi_comm.h \
   sys/passthrudef.h)
 AC_CHECK_HEADERS([io/cam/cam.h],,,[#include <io/common/iotypes.h>])
+AC_CHECK_HEADERS([ntddscsi.h ddk/ntddscsi.h],,,[#include <windows.h>])
 
 dnl FreeBSD < 3
 if test "$ac_cv_header_sys_scsiio_h" = "yes" \

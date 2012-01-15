@@ -273,8 +273,8 @@ libpixma_la_LIBADD =
 am_libpixma_la_OBJECTS = libpixma_la-pixma.lo \
 	libpixma_la-pixma_io_sanei.lo libpixma_la-pixma_common.lo \
 	libpixma_la-pixma_mp150.lo libpixma_la-pixma_mp730.lo \
-	libpixma_la-pixma_mp750.lo libpixma_la-pixma_imageclass.lo \
-	libpixma_la-pixma_bjnp.lo
+	libpixma_la-pixma_mp750.lo libpixma_la-pixma_mp810.lo \
+	libpixma_la-pixma_imageclass.lo libpixma_la-pixma_bjnp.lo 
 libpixma_la_OBJECTS = $(am_libpixma_la_OBJECTS)
 libplustek_la_LIBADD =
 am_libplustek_la_OBJECTS = libplustek_la-plustek.lo
@@ -2253,7 +2253,7 @@ nodist_libsane_pint_la_SOURCES = pint-s.c
 libsane_pint_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pint
 libsane_pint_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_pint_la_LIBADD = $(COMMON_LIBS) libpint.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo 
-libpixma_la_SOURCES = pixma.c pixma.h pixma_io_sanei.c pixma_io.h pixma_common.c pixma_common.h pixma_mp150.c pixma_mp730.c pixma_mp750.c pixma_imageclass.c pixma_bjnp.c pixma_bjnp.h pixma_bjnp_private.h pixma_rename.h
+libpixma_la_SOURCES = pixma.c pixma.h pixma_io_sanei.c pixma_io.h pixma_common.c pixma_common.h pixma_mp150.c pixma_mp730.c pixma_mp750.c pixma_mp810.c pixma_imageclass.c pixma_bjnp.c pixma_bjnp.h pixma_bjnp_private.h pixma_rename.h
 libpixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
 nodist_libsane_pixma_la_SOURCES = pixma-s.c
 libsane_pixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
@@ -3007,6 +3007,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpixma_la-pixma_mp150.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpixma_la-pixma_mp730.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpixma_la-pixma_mp750.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpixma_la-pixma_mp810.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplustek_la-plustek.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplustek_pp_la-plustek_pp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpnm_la-pnm.Plo@am__quote@
@@ -3833,6 +3834,13 @@ libpixma_la-pixma_mp750.lo: pixma_mp750.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pixma_mp750.c' object='libpixma_la-pixma_mp750.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpixma_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libpixma_la-pixma_mp750.lo `test -f 'pixma_mp750.c' || echo '$(srcdir)/'`pixma_mp750.c
+
+libpixma_la-pixma_mp810.lo: pixma_mp810.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpixma_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libpixma_la-pixma_mp810.lo -MD -MP -MF $(DEPDIR)/libpixma_la-pixma_mp810.Tpo -c -o libpixma_la-pixma_mp810.lo `test -f 'pixma_mp810.c' || echo '$(srcdir)/'`pixma_mp810.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libpixma_la-pixma_mp810.Tpo $(DEPDIR)/libpixma_la-pixma_mp810.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pixma_mp810.c' object='libpixma_la-pixma_mp810.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpixma_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libpixma_la-pixma_mp810.lo `test -f 'pixma_mp810.c' || echo '$(srcdir)/'`pixma_mp810.c
 
 libpixma_la-pixma_imageclass.lo: pixma_imageclass.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpixma_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libpixma_la-pixma_imageclass.lo -MD -MP -MF $(DEPDIR)/libpixma_la-pixma_imageclass.Tpo -c -o libpixma_la-pixma_imageclass.lo `test -f 'pixma_imageclass.c' || echo '$(srcdir)/'`pixma_imageclass.c

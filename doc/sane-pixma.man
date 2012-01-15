@@ -43,14 +43,14 @@ ImageCLASS MF4660, MF4690, MF5770, MF6550, D480
 .br
 I-SENSYS MF4320d, MF4330d
 .br
-CanoScan 8800F
+CanoScan 8800F, 9000F
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs
 and must be switched off and on.
 .PP
 .RS
-PIXMA PIXMA MP760, PIXMA MP780
+PIXMA MP760, MP770, MP780, MP790
 .RE
 .PP
 The following models may use the same Pixma protocol as those listed 
@@ -77,7 +77,7 @@ ImageCLASS MF5630, MF5650, MF5730, MF5750, MF8170c
 The backend supports:
 .PP
 .RS
-* resolutions of 75, 150, 300, 600, 1200, 2400, and 4800 DPI (some maybe buggy),
+* resolutions of 75, 150, 300, 600, 1200, 2400, 4800, and 9600 DPI (some maybe buggy),
 .br
 * color and grayscale mode, as well as lineart on certain models,
 .br

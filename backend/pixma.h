@@ -244,8 +244,8 @@ struct pixma_scan_param_t
     /** Size in bytes of one image line (row).
      *  line_size >= depth / 8 * channels * w <br>
      *  This field will be set by pixma_check_scan_param(). */
-  unsigned line_size;
-
+  uint64_t line_size;
+  
     /** Size in bytes of the whole image.
      *  image_size = line_size * h <br>
      *  This field will be set by pixma_check_scan_param(). */
@@ -271,6 +271,11 @@ struct pixma_scan_param_t
   /*@{ */
   unsigned x, y, w, h,   xs, wx;
   /*@} */
+
+  /** Flag indicating whether the offset correction for TPU scans 
+   *  was already performed (to avoid repeated corrections).
+   *  Currently only used in pixma_mp810.c sub-driver */
+  unsigned tpu_offset_added;
 
     /** Gamma table. 4096 entries, 12 bit => 8 bit. If \c NULL, default gamma
      *  specified by subdriver will be used. */

@@ -556,7 +556,7 @@ static void
 print_scan_param (int level, const pixma_scan_param_t * sp)
 {
   pixma_dbg (level, "Scan parameters\n");
-  pixma_dbg (level, "  line_size=%u image_size=%"PRIu64" channels=%u depth=%u\n",
+  pixma_dbg (level, "  line_size=%"PRIu64" image_size=%"PRIu64" channels=%u depth=%u\n",
 	     sp->line_size, sp->image_size, sp->channels, sp->depth);
   pixma_dbg (level, "  dpi=%ux%u offset=(%u,%u) dimension=%ux%u\n",
 	     sp->xdpi, sp->ydpi, sp->x, sp->y, sp->w, sp->h);
@@ -603,6 +603,7 @@ calc_scan_param (pixma_sane_t * ss, pixma_scan_param_t * sp)
     sp->w = 1;
   if (sp->h == 0)
     sp->h = 1;
+  sp->tpu_offset_added = 0;
 
   sp->gamma_table = (OVAL (opt_custom_gamma).b) ? ss->gamma_table : NULL;
   sp->source = ss->source_map[OVAL (opt_source).w];

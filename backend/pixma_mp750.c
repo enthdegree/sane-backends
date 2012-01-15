@@ -107,6 +107,10 @@ typedef struct mp750_t
   uint8_t current_status[12];
 
   uint8_t *buf, *rawimg, *img;
+  /* make new buffer for rgb_to_gray to act on */
+  uint8_t *imgcol;
+  unsigned line_size; /* need in 2 functions */
+
   unsigned rawimg_left, imgbuf_len, last_block_size, imgbuf_ofs;
   int shifted_bytes;
   int stripe_shift; /* for 2400dpi */
@@ -209,6 +213,26 @@ select_source (pixma_t * s)
 }
 
 static int
+has_ccd_sensor (pixma_t * s)
+{
+  return ((s->cfg->cap & PIXMA_CAP_CCD) != 0);
+}
+
+static int
+is_ccd_grayscale (pixma_t * s)
+{
+  return (has_ccd_sensor (s) && (s->param->channels == 1));
+}
+
+/* CCD sensors don't have a Grayscale mode, but use color mode instead */
+static unsigned
+get_cis_ccd_line_size (pixma_t * s)
+{
+  return (s->param->wx ? s->param->line_size / s->param->w * s->param->wx 
+	  : s->param->line_size) * ((is_ccd_grayscale (s)) ? 3 : 1); 
+}
+
+static int
 send_scan_param (pixma_t * s)
 {
   mp750_t *mp = (mp750_t *) s->subdriver;
@@ -222,7 +246,8 @@ send_scan_param (pixma_t * s)
   pixma_set_be32 (mp->raw_width, data + 0x10);
   pixma_set_be32 (mp->raw_height, data + 0x14);
   data[0x18] = 8;		/* 8 = color, 4 = grayscale(?) */
-  data[0x19] = s->param->channels * s->param->depth;
+  /* GH: No, there is no grayscale for CCD devices, Windows shows same  */
+  data[0x19] = s->param->depth * ((is_ccd_grayscale (s)) ? 3 : s->param->channels);	/* bits per pixel */
   data[0x20] = 0xff;
   data[0x23] = 0x81;
   data[0x26] = 0x02;
@@ -302,7 +327,7 @@ read_image_block (pixma_t * s, uint8_t * data)
       if ((error = pixma_read (s->io, &temp, 0)) < 0)
         {
           PDBG (pixma_dbg
-          (1, "WARNING:reading zero-length packet failed %d\n", error));
+          (1, "WARNING: reading zero-length packet failed %d\n", error));
         }
     }
   return count;
@@ -351,7 +376,7 @@ handle_interrupt (pixma_t * s, int timeout)
     return error;
   if (error != 16)
     {
-      PDBG (pixma_dbg (1, "WARNING:unexpected interrupt packet length %d\n",
+      PDBG (pixma_dbg (1, "WARNING: unexpected interrupt packet length %d\n",
 		       error));
       return PIXMA_EPROTO;
     }
@@ -409,8 +434,8 @@ step1 (pixma_t * s)
 
 static void
 shift_rgb (const uint8_t * src, unsigned pixels,
-           int sr, int sg, int sb, int stripe_shift,
-           int line_size, uint8_t * dst)
+	   int sr, int sg, int sb, int stripe_shift,
+	   int line_size, uint8_t * dst)
 {
   unsigned st;
 
@@ -421,6 +446,29 @@ shift_rgb (const uint8_t * src, unsigned pixels,
       *(dst++ + sg + st) = *src++;
       *(dst++ + sb + st) = *src++;
     }
+}
+
+static uint8_t *
+rgb_to_gray (uint8_t * gptr, const uint8_t * cptr, unsigned pixels, unsigned c)
+{
+  unsigned i, j, g;
+
+  /* gptr: destination gray scale buffer */
+  /* cptr: source color scale buffer */
+  /* c: 3 for 3-channel single-byte data, 6 for double-byte data */
+
+  for (i=0; i < pixels; i++)
+    {
+      for (j = 0, g = 0; j < 3; j++)
+        {
+          g += *cptr++;
+	  if (c == 6) g += (*cptr++ << 8);
+        }
+      g /= 3;
+      *gptr++ = g;
+      if (c == 6) *gptr++ = (g >> 8);
+    }
+  return gptr;
 }
 
 static int
@@ -494,7 +542,6 @@ workaround_first_command (pixma_t * s)
     }
 }
 
-
 static int
 mp750_open (pixma_t * s)
 {
@@ -553,11 +600,18 @@ mp750_check_param (pixma_t * s, pixma_scan_param_t * sp)
   UNUSED (s);
 
   sp->depth = 8;		/* FIXME: Does MP750 supports other depth? */
-  if (sp->channels == 1)
-    raw_width = ALIGN_SUP (sp->w, 12);
-  else
+
+  /* GH: my implementation */
+  /*   if ((sp->channels == 3) || (is_ccd_grayscale (s)))
     raw_width = ALIGN_SUP (sp->w, 4);
-  sp->line_size = raw_width * sp->channels;
+  else
+  raw_width = ALIGN_SUP (sp->w, 12);*/
+
+  /* the above code gives segmentation fault?!? why... it seems to work in the mp750_scan function */
+  raw_width = ALIGN_SUP (sp->w, 4);
+
+  /*sp->line_size = raw_width * sp->channels;*/
+  sp->line_size = raw_width * sp->channels * (sp->depth / 8);  /* no cropping? */
   return 0;
 }
 
@@ -569,6 +623,10 @@ mp750_scan (pixma_t * s)
   uint8_t *buf;
   unsigned size, dpi, spare;
 
+  dpi = s->param->ydpi;
+  /* add a stripe shift for 2400dpi */
+  mp->stripe_shift = (dpi == 2400) ? 4 : 0;
+
   if (mp->state != state_idle)
     return PIXMA_EBUSY;
 
@@ -577,15 +635,17 @@ mp750_scan (pixma_t * s)
     {
     }
 
-  if (s->param->channels == 1)
+  /*  if (s->param->channels == 1)
     mp->raw_width = ALIGN_SUP (s->param->w, 12);
   else
+    mp->raw_width = ALIGN_SUP (s->param->w, 4);*/
+
+  /* change to use CCD grayscale mode --- why does this give segmentation error at runtime in mp750_check_param? */
+  if ((s->param->channels == 3) || (is_ccd_grayscale (s)))
     mp->raw_width = ALIGN_SUP (s->param->w, 4);
-
-  dpi = s->param->ydpi;
-
-  /* add a stripe shift for 2400dpi */
-  mp->stripe_shift = (dpi == 2400) ? 4 : 0;
+  else
+    mp->raw_width = ALIGN_SUP (s->param->w, 12);
+  /* not sure about MP750, but there is no need for aligning at 12 for the MP760/770, MP780/790 since always use CCD color mode */
 
   /* modify for stripe shift */
   spare = 2 * calc_component_shifting (s) + 2 * mp->stripe_shift; /* FIXME: or maybe (2*... + 1)? */
@@ -593,13 +653,18 @@ mp750_scan (pixma_t * s)
   PDBG (pixma_dbg (3, "raw_width=%u raw_height=%u dpi=%u\n",
 		   mp->raw_width, mp->raw_height, dpi));
 
-  size = 8 + 2 * IMAGE_BLOCK_SIZE + spare * s->param->line_size;
+  /* PDBG (pixma_dbg (4, "line_size=%"PRIu64"\n",s->param->line_size)); */
+
+  mp->line_size = get_cis_ccd_line_size (s); /* scanner hardware line_size multiplied by 3 for CCD grayscale */
+
+  size = 8 + 2 * IMAGE_BLOCK_SIZE + spare * mp->line_size;
   buf = (uint8_t *) malloc (size);
   if (!buf)
     return PIXMA_ENOMEM;
   mp->buf = buf;
   mp->rawimg = buf;
-  mp->imgbuf_ofs = spare * s->param->line_size;
+  mp->imgbuf_ofs = spare * mp->line_size;
+  mp->imgcol = mp->rawimg + IMAGE_BLOCK_SIZE + 8; /* added to make rgb->gray */
   mp->img = mp->rawimg + IMAGE_BLOCK_SIZE + 8;
   mp->imgbuf_len = IMAGE_BLOCK_SIZE + mp->imgbuf_ofs;
   mp->rawimg_left = 0;
@@ -623,6 +688,7 @@ mp750_scan (pixma_t * s)
   return 0;
 }
 
+
 static int
 mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 {
@@ -631,6 +697,9 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
   uint8_t info;
   unsigned block_size, bytes_received, n;
   int shift[3], base_shift;
+  int c;
+
+  c = ((is_ccd_grayscale (s)) ? 3 : s->param->channels) * s->param->depth / 8; /* single-byte or double-byte data */
 
   if (mp->state == state_warmup)
     {
@@ -652,14 +721,14 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
         }
       if (tmo < 0)
         {
-          PDBG (pixma_dbg (1, "WARNING:Timed out waiting for calibration\n"));
+          PDBG (pixma_dbg (1, "WARNING: Timed out waiting for calibration\n"));
           return PIXMA_ETIMEDOUT;
         }
       pixma_sleep (100000);
       query_status (s);
       if (is_warming_up (s) || !is_calibrated (s))
         {
-          PDBG (pixma_dbg (1, "WARNING:Wrong status: wup=%d cal=%d\n",
+          PDBG (pixma_dbg (1, "WARNING: Wrong status: wup=%d cal=%d\n",
                is_warming_up (s), is_calibrated (s)));
           return PIXMA_EPROTO;
         }
@@ -670,7 +739,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
     }
 
   /* TODO: Move to other place, values are constant. */
-  base_shift = calc_component_shifting (s) * s->param->line_size;
+  base_shift = calc_component_shifting (s) * mp->line_size;
   if (s->param->source == PIXMA_SOURCE_ADF)
     {
       shift[0] = 0;
@@ -754,23 +823,46 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       /* TODO: simplify! */
       mp->rawimg_left += bytes_received;
       n = mp->rawimg_left / 3;
-      /* n = number of pixels in the buffer */
-      shift_rgb (mp->rawimg, n, shift[0], shift[1], shift[2],
-                 mp->stripe_shift, s->param->line_size,
-                 mp->img + mp->imgbuf_ofs);
+      /* n = number of pixels in the buffer? */
+
+      /* Color to Grayscale converion for CCD sensor */
+      if (is_ccd_grayscale (s)) {
+	shift_rgb (mp->rawimg, n, shift[0], shift[1], shift[2], mp->stripe_shift, mp->line_size, 
+		   mp->imgcol + mp->imgbuf_ofs); 
+	/* dst: img, src: imgcol */
+	rgb_to_gray (mp->img, mp->imgcol, n, c); /* cropping occurs later? */  
+	PDBG (pixma_dbg (4, "*fill_buffer: did grayscale conversion \n"));
+      }
+      /* Color image processing */
+      else {
+	shift_rgb (mp->rawimg, n, shift[0], shift[1], shift[2], mp->stripe_shift, mp->line_size, 
+		   mp->img + mp->imgbuf_ofs);
+	PDBG (pixma_dbg (4, "*fill_buffer: no grayscale conversion---keep color \n")); 
+      }
+
+      /* entering remaining unprocessed bytes after last complete pixel into mp->rawimg buffer -- no influence on mp->img */
       n *= 3;
       mp->shifted_bytes += n;
       mp->rawimg_left -= n;	/* rawimg_left = 0, 1 or 2 bytes left in the buffer. */
       mp->last_block_size = n;
       memcpy (mp->rawimg, mp->rawimg + n, mp->rawimg_left);
+
     }
   while (mp->shifted_bytes <= 0);
 
-  if ((unsigned) mp->shifted_bytes < mp->last_block_size)
-    ib->rptr = mp->img + mp->last_block_size - mp->shifted_bytes;
+  if ((unsigned) mp->shifted_bytes < mp->last_block_size) 
+    {
+      if (is_ccd_grayscale (s))
+	ib->rptr = mp->img + mp->last_block_size/3 - mp->shifted_bytes/3; /* testing---works OK */
+      else
+	ib->rptr = mp->img + mp->last_block_size - mp->shifted_bytes;
+    }
   else
     ib->rptr = mp->img;
-  ib->rend = mp->img + mp->last_block_size;
+  if (is_ccd_grayscale (s))
+    ib->rend = mp->img + mp->last_block_size/3; /* testing---works OK */
+  else
+    ib->rend = mp->img + mp->last_block_size; 
   return ib->rend - ib->rptr;
 }
 
@@ -855,7 +947,7 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
   mp750_get_status
 };
 
-#define DEVICE(name, model, pid, dpi, cap) {			\
+#define DEVICE(name, model, pid, dpi, cap) {		\
 	name,                  /* name */		\
 	model,                 /* model */		\
 	0x04a9, pid,           /* vid pid */		\
@@ -863,12 +955,12 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
 	&pixma_mp750_ops,      /* ops */		\
 	dpi, 2*(dpi),          /* xdpi, ydpi */		\
 	637, 877,              /* width, height */	\
-        PIXMA_CAP_EVENTS|cap                            \
+        PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap             \
 }
 
 const pixma_config_t pixma_mp750_devices[] = {
-  DEVICE ("Canon PIXMA MP750", "MP750", MP750_PID, 2400, PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MP760", "MP760", MP760_PID, 2400, PIXMA_CAP_TPU),
-  DEVICE ("Canon PIXMA MP780", "MP780", MP780_PID, 2400, PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP750", "MP750", MP750_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP760/770", "MP760/770", MP760_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP780/790", "MP780/790", MP780_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_ADF),
   DEVICE (NULL, NULL, 0, 0, 0)
 };

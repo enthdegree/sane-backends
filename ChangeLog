@@ -1,3 +1,10 @@
+2012-01-14 m. allan noah <kitno455 at gmail dot com>
+	* backend/Makefile.{am,in}, backend/pixma.[ch],
+	backend/pixma_common.c, backend/pixma_mp[17]50.c,
+	backend/pixma_mp810.c, backend/pixma_rename.h,
+	doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Updated Pixma backend from Gernot Hassenpflug.
+
 2012-01-03 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c backend/genesys_gl847.c
 	backend/genesys_gl43.[ch]: fixd scan line number for gl646 CCD

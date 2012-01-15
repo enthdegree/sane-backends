@@ -142,20 +142,20 @@
 :model "PIXMA MP800"
 :interface "USB"
 :usbid "0x04a9" "0x170d"
-:status :good
-:comment "All resolutions supported up to 2400DPI. TPU scan up to 1200DPI."
+:status :complete
+:comment "All resolutions supported up to 2400DPI. Full TPU support up to 2400DPI."
 
 :model "PIXMA MP800R"
 :interface "USB"
 :usbid "0x04a9" "0x170e"
-:status :good
-:comment "All resolutions supported up to 2400DPI. TPU scan up to 1200DPI."
+:status :complete
+:comment "All resolutions supported up to 2400DPI. Full TPU support up to 2400DPI."
 
 :model "PIXMA MP810"
 :interface "USB"
 :usbid "0x04a9" "0x171a"
-:status :good
-:comment "All resolutions supported up to 2400DPI. Vertical stripes at 4800DPI. USB Snoops needed for TPU film scan."
+:status :complete
+:comment "All resolutions supported up to 4800DPI. Full TPU support (negative and slides) up to 4800DPI."
 
 :model "PIXMA MP830"
 :interface "USB"
@@ -166,7 +166,8 @@
 :model "PIXMA MP960"
 :interface "USB"
 :usbid "0x04a9" "0x171b"
-:status :minimal
+:status :complete
+:comment "All resolutions supported up to 4800DPI. Full TPU support (negative and slides) up to 4800DPI."
 
 :model "PIXMA MP970"
 :interface "USB Ethernet"
@@ -521,3 +522,9 @@
 :usbid "0x04a9" "0x1901"
 :status :complete
 :comment "Flatbed scan. TPU for negatives and slides. All resolutions supported (up to 4800DPI)."
+
+:model "CanoScan 9000F"
+:interface "USB"
+:usbid "0x04a9" "0x1908"
+:status :complete
+:comment "Full flatbed support up to 4800DPI (Note: flatbed does not have 9600DPI capability). Full TPU support (negatives and slides) up to 9600DPI."

@@ -66,12 +66,14 @@
 extern const pixma_config_t pixma_mp150_devices[];
 extern const pixma_config_t pixma_mp750_devices[];
 extern const pixma_config_t pixma_mp730_devices[];
+extern const pixma_config_t pixma_mp810_devices[];
 extern const pixma_config_t pixma_iclass_devices[];
 
 static const pixma_config_t *const pixma_devices[] = {
   pixma_mp150_devices,
   pixma_mp750_devices,
   pixma_mp730_devices,
+  pixma_mp810_devices,
   pixma_iclass_devices,
   NULL
 };
@@ -378,7 +380,7 @@ pixma_cmd_transaction (pixma_t * s, const void *cmd, unsigned cmdlen,
         {
           /* Write timeout is too low? */
           PDBG (pixma_dbg
-          (1, "ERROR:incomplete write, %u out of %u written\n",
+          (1, "ERROR: incomplete write, %u out of %u written\n",
            (unsigned) error, cmdlen));
           error = PIXMA_ETIMEDOUT;
         }
@@ -403,7 +405,7 @@ pixma_cmd_transaction (pixma_t * s, const void *cmd, unsigned cmdlen,
   while (error == PIXMA_ETIMEDOUT && --tmo != 0);
   if (error < 0)
     {
-      PDBG (pixma_dbg (1, "WARNING:Error in response phase. cmd:%02x%02x\n",
+      PDBG (pixma_dbg (1, "WARNING: Error in response phase. cmd:%02x%02x\n",
 		       ((const uint8_t *) cmd)[0],
 		       ((const uint8_t *) cmd)[1]));
       PDBG (pixma_dbg (1,"  If the scanner hangs, reset it and/or unplug the "
@@ -544,7 +546,7 @@ pixma_close (pixma_t * s)
     {
       if (s->scanning)
 	{
-	  PDBG (pixma_dbg (3, "pixma_close():scanning in progress, call"
+	  PDBG (pixma_dbg (3, "pixma_close(): scanning in progress, call"
 			   " finish_scan()\n"));
 	  s->ops->finish_scan (s);
 	}
@@ -567,7 +569,7 @@ pixma_scan (pixma_t * s, pixma_scan_param_t * sp)
 #ifndef NDEBUG
   pixma_dbg (3, "\n");
   pixma_dbg (3, "pixma_scan(): start\n");
-  pixma_dbg (3, "  line_size=%u image_size=%"PRIu64" channels=%u depth=%u\n",
+  pixma_dbg (3, "  line_size=%"PRIu64" image_size=%"PRIu64" channels=%u depth=%u\n",
 	     sp->line_size, sp->image_size, sp->channels, sp->depth);
   pixma_dbg (3, "  dpi=%ux%u offset=(%u,%u) dimension=%ux%u\n",
 	     sp->xdpi, sp->ydpi, sp->x, sp->y, sp->w, sp->h);
@@ -601,7 +603,7 @@ fill_pixels (pixma_t * s, uint8_t * ptr, uint8_t * end, uint8_t value)
 {
   if (s->cur_image_size < s->param->image_size)
     {
-      int n = s->param->image_size - s->cur_image_size;
+      long n = s->param->image_size - s->cur_image_size;
       if (n > (end - ptr))
 	n = end - ptr;
       memset (ptr, value, n);
@@ -638,7 +640,7 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
       else
         {
           PDBG (pixma_dbg
-          (3, "pixma_read_image():completed (underrun detected)\n"));
+          (3, "pixma_read_image(): completed (underrun detected)\n"));
           s->scanning = 0;
         }
       return ib.wptr - (uint8_t *) buf;
@@ -659,10 +661,10 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
                 {
                   pixma_dbg (1, "WARNING:image size mismatches\n");
                   pixma_dbg (1,
-                       "    %"PRIu64" expected (%d lines) but %"PRIu64" received (%d lines)\n",
+                       "    %"PRIu64" expected (%d lines) but %"PRIu64" received (%"PRIu64" lines)\n",
                        s->param->image_size, s->param->h,
                        s->cur_image_size,
-                       (int) s->cur_image_size / s->param->line_size);
+                       s->cur_image_size / s->param->line_size);
                   if ((s->cur_image_size % s->param->line_size) != 0)
                     {
                       pixma_dbg (1,
@@ -682,6 +684,7 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
               break;
             }
           s->cur_image_size += result;
+
           PASSERT (s->cur_image_size <= s->param->image_size);
         }
       if (ib.rptr)
@@ -700,7 +703,7 @@ cancel:
   s->scanning = 0;
   if (result == PIXMA_ECANCELED)
     {
-      PDBG (pixma_dbg (3, "pixma_read_image():cancelled by %sware\n",
+      PDBG (pixma_dbg (3, "pixma_read_image(): cancelled by %sware\n",
 		       (s->cancel) ? "soft" : "hard"));
     }
   else

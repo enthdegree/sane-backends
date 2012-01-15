@@ -94,80 +94,31 @@
 
 #define CANON_VID 0x04a9
 
-/* Generation 1 */
-#define MP150_PID 0x1709
-#define MP170_PID 0x170a
-#define MP450_PID 0x170b
-#define MP500_PID 0x170c
-#define MP530_PID 0x1712
-#define MP800_PID 0x170d
-#define MP800R_PID 0x170e
-#define MP830_PID 0x1713
-
 /* Generation 2 */
-#define MP160_PID 0x1714
-#define MP180_PID 0x1715
-#define MP460_PID 0x1716
-#define MP510_PID 0x1717
-#define MP600_PID 0x1718
-#define MP600R_PID 0x1719
-
-#define MP140_PID 0x172b
+#define MP810_PID 0x171a
+#define MP960_PID 0x171b
 
 /* Generation 3 */
 /* PIXMA 2007 vintage */
-#define MX7600_PID 0x171c
-#define MP210_PID 0x1721
-#define MP220_PID 0x1722
-#define MP470_PID 0x1723
-#define MP520_PID 0x1724
-#define MP610_PID 0x1725
-#define MX300_PID 0x1727
-#define MX310_PID 0x1728
-#define MX700_PID 0x1729
-#define MX850_PID 0x172c
+#define MP970_PID 0x1726
+
+/* Flatbed scanner CCD (2007) */
+#define CS8800F_PID 0x1901
 
 /* PIXMA 2008 vintage */
-#define MP630_PID 0x172e
-#define MP620_PID 0x172f
-#define MP540_PID 0x1730
-#define MP480_PID 0x1731
-#define MP240_PID 0x1732
-#define MP260_PID 0x1733
-#define MP190_PID 0x1734
-
-/* PIXMA 2009 vintage */
-#define MX860_PID 0x1735
-#define MX320_PID 0x1736    /* untested */
-#define MX330_PID 0x1737
+#define MP980_PID 0x172d
 
 /* Generation 4 */
-#define MP250_PID 0x173a
-#define MP270_PID 0x173b
-#define MP490_PID 0x173c
-#define MP550_PID 0x173d
-#define MP560_PID 0x173e
-#define MP640_PID 0x173f
+#define MP990_PID 0x1740
 
-/* PIXMA 2010 vintage */
-#define MX340_PID 0x1741
-#define MX350_PID 0x1742
-#define MX870_PID 0x1743
+/* Flatbed scanner CCD (2010) */
+#define CS9000F_PID 0x1908
 
-/* 2010 new devices (untested) */
-#define MP280_PID 0x1746
-#define MP495_PID 0x1747
-#define MG5100_PID 0x1748
-#define MG5200_PID 0x1749
-#define MG6100_PID 0x174a
+/* 2010 new device (untested) */
+#define MG8100_PID 0x174b /* CCD */
 
-/* 2011 new devices (untested) */
-#define MG2100_PID 0x1751
-#define MG3100_PID 0x1752
-#define MG4100_PID 0x1753
-#define MG5300_PID 0x1754
-#define MG6200_PID 0x1755
-#define MP493_PID 0x1757
+/* 2011 new device (untested) */
+#define MG8200_PID 0x1756 /* CCD */
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
@@ -194,7 +145,7 @@
 
 #define XML_OK   "<ivec:response>OK</ivec:response>"
 
-enum mp150_state_t
+enum mp810_state_t
 {
   state_idle,
   state_warmup,
@@ -203,7 +154,7 @@ enum mp150_state_t
   state_finished
 };
 
-enum mp150_cmd_t
+enum mp810_cmd_t
 {
   cmd_start_session = 0xdb20,
   cmd_select_source = 0xdd20,
@@ -226,9 +177,9 @@ enum mp150_cmd_t
   cmd_e920 = 0xe920		/* seen in MP800 */
 };
 
-typedef struct mp150_t
+typedef struct mp810_t
 {
-  enum mp150_state_t state;
+  enum mp810_state_t state;
   pixma_cmdbuf_t cb;
   uint8_t *imgbuf;
   uint8_t current_status[16];
@@ -241,9 +192,11 @@ typedef struct mp150_t
   int shift[3];
   unsigned color_shift;
   unsigned stripe_shift;
+  unsigned stripe_shift2; /* added for MP810, MP960 at 4800dpi & 9000F at 9600dpi */
+  unsigned jumplines; /* added for MP810, MP960 at 4800dpi & 9000F at 9600dpi */
   uint8_t tpu_datalen;
   uint8_t tpu_data[0x40];
-} mp150_t;
+} mp810_t;
 
 /*
   STAT:  0x0606 = ok,
@@ -298,7 +251,7 @@ typedef struct mp150_t
    u8[ILEN]   image data
  */
 
-static void mp150_finish_scan (pixma_t * s);
+static void mp810_finish_scan (pixma_t * s);
 
 static int
 is_scanning_from_adf (pixma_t * s)
@@ -322,7 +275,7 @@ is_scanning_from_tpu (pixma_t * s)
 static int
 send_xml_dialog (pixma_t * s, const char * xml_message)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   int datalen;
 
   datalen = pixma_cmd_transaction (s, xml_message, strlen (xml_message),
@@ -348,7 +301,7 @@ new_cmd_tpu_msg (pixma_t *s, pixma_cmdbuf_t * cb, uint16_t cmd)
 static int
 start_session (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
 
   new_cmd_tpu_msg (s, &mp->cb, cmd_start_session);
   return pixma_exec (s, &mp->cb);
@@ -357,7 +310,7 @@ start_session (pixma_t * s)
 static int
 start_scan_3 (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
 
   new_cmd_tpu_msg (s, &mp->cb, cmd_scan_start_3);
   return pixma_exec (s, &mp->cb);
@@ -366,7 +319,7 @@ start_scan_3 (pixma_t * s)
 static int
 send_cmd_start_calibrate_ccd_3 (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   
   pixma_newcmd (&mp->cb, cmd_start_calibrate_ccd_3, 0, 0);
   mp->cb.buf[3] = 0x01;
@@ -376,7 +329,7 @@ send_cmd_start_calibrate_ccd_3 (pixma_t * s)
 static int
 is_calibrated (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   if (mp->generation >= 3)
     {
       return ((mp->current_status[0] & 0x01) == 1);
@@ -394,7 +347,7 @@ is_calibrated (pixma_t * s)
 static int
 has_paper (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   
   if (is_scanning_from_adfdup (s))
     return (mp->current_status[1] == 0 || mp->current_status[2] == 0);
@@ -405,28 +358,28 @@ has_paper (pixma_t * s)
 static void
 drain_bulk_in (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   while (pixma_read (s->io, mp->imgbuf, IMAGE_BLOCK_SIZE) >= 0);
 }
 
 static int
 abort_session (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   return pixma_exec_short_cmd (s, &mp->cb, cmd_abort_session);
 }
 
 static int
 send_cmd_e920 (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   return pixma_exec_short_cmd (s, &mp->cb, cmd_e920);
 }
 
 static int
 select_source (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   uint8_t *data;
 
   data = pixma_newcmd (&mp->cb, cmd_select_source, 12, 0);
@@ -461,7 +414,7 @@ select_source (pixma_t * s)
 static int
 send_get_tpu_info_3 (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   uint8_t *data;
   int error;
 
@@ -474,7 +427,7 @@ send_get_tpu_info_3 (pixma_t * s)
 static int
 send_set_tpu_info (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   uint8_t *data;
 
   if (mp->tpu_datalen == 0)
@@ -487,7 +440,7 @@ send_set_tpu_info (pixma_t * s)
 static int
 send_gamma_table (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   const uint8_t *lut = s->param->gamma_table;
   uint8_t *data;
 
@@ -533,7 +486,7 @@ send_gamma_table (pixma_t * s)
 }
 
 static unsigned
-calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
+calc_raw_width (const mp810_t * mp, const pixma_scan_param_t * param)
 {
   unsigned raw_width;
   /* NOTE: Actually, we can send arbitary width to MP150. Lines returned
@@ -542,7 +495,7 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
   if (mp->generation >= 2)
     {
       raw_width = ALIGN_SUP (param->w + param->xs, 32);
-      /* PDBG (pixma_dbg (4, "*calc_raw_width***** width %i extended by %i and rounded to %i *****\n", param->w, param->xs, raw_width)); */
+      /* PDBG (pixma_dbg (4, "*calc_raw_width***** width %u extended by %u and rounded to %u *****\n", param->w, param->xs, raw_width)); */
     }
   else if (param->channels == 1)
     {
@@ -578,14 +531,49 @@ get_cis_ccd_line_size (pixma_t * s)
 static unsigned
 calc_shifting (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
 
   /* If stripes shift needed (CCD devices), how many pixels shift */
   mp->stripe_shift = 0;
+  mp->stripe_shift2 = 0;
+  mp->jumplines = 0;
+
   switch (s->cfg->pid)
     {
-      case MP800_PID:
-      case MP800R_PID:
+      case MP970_PID:	/* MP970 at 4800 dpi */
+      case CS8800F_PID: /* CanoScan 8800F at 4800 dpi */
+        if (s->param->xdpi == 4800)
+          {
+             if (is_scanning_from_tpu(s))
+               mp->stripe_shift = 6;
+             else
+               mp->stripe_shift = 3;
+           }
+        break;
+
+      case CS9000F_PID: /* CanoScan 9000F at 4800 dpi */
+        if (s->param->xdpi == 4800)
+	  {
+	    if (is_scanning_from_tpu(s))
+	      mp->stripe_shift = 6; /* should work for CS9000F same as manual */
+	    else
+	      mp->stripe_shift = 3;
+	  }
+        if (s->param->xdpi == 9600)
+	  {
+	    if (is_scanning_from_tpu(s))
+	      {
+	        /* need to double up for TPU */
+	        mp->stripe_shift = 6; /* for 1st set of 4 images */
+	        /* unfortunately there are 2 stripe shifts */
+	        mp->stripe_shift2 = 6;  /* for 2nd set of 4 images */
+	        mp->jumplines=32; /* try 33 or 34 */
+	      }
+	    /* there is no 9600dpi support in flatbed mode */
+	  }
+        break;
+      
+      case MP960_PID:
         if (s->param->xdpi == 2400)
           {
 	    if (is_scanning_from_tpu(s))
@@ -593,15 +581,41 @@ calc_shifting (pixma_t * s)
 	    else
 	      mp->stripe_shift = 3;
           }
+        if (s->param->xdpi == 4800)
+	  {
+	    if (is_scanning_from_tpu(s))
+	      {
+	        mp->stripe_shift = 6;
+	        mp->stripe_shift2 = 6;
+	      }
+	    else
+	      {
+	        mp->stripe_shift = 3;
+	        mp->stripe_shift2 = 3;
+	      }
+	    mp->jumplines=33; /* better than 32 or 34 : applies to flatbed & TPU */
+	  }
         break;
 
-      case MP830_PID:
+      case MP810_PID:
         if (s->param->xdpi == 2400) 
           {
             if (is_scanning_from_tpu(s))
               mp->stripe_shift = 6;
             else
               mp->stripe_shift = 3;
+          }
+        if (s->param->xdpi == 4800)
+          {
+            if (is_scanning_from_tpu(s)) {
+              mp->stripe_shift = 6;
+              mp->stripe_shift2 = 6;
+            }
+            else {
+              mp->stripe_shift = 3;
+              mp->stripe_shift2 = 3;
+            }
+            mp->jumplines=33; /* better than 32 or 34 : applies to flatbed & TPU */
           }
         break;
 
@@ -614,42 +628,76 @@ calc_shifting (pixma_t * s)
     {
       switch (s->cfg->pid)
         {
-          case MP800_PID:
-          case MP800R_PID:
-          case MP830_PID:
-            mp->color_shift = s->param->ydpi / ((s->param->ydpi < 1200) ? 150 : 75);
-
-            if (is_scanning_from_tpu (s)) 
-              mp->color_shift = s->param->ydpi / 75;
-
+          case MP970_PID:
+          case CS8800F_PID:   /* CanoScan 8800F */
+            mp->color_shift = s->param->ydpi / 50;
             mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
-            if (is_scanning_from_adf (s))
-              {  /* ADF */
+            mp->shift[0] = 0;
+            mp->shift[2] = 2 * mp->shift[1];
+            break;
+
+          case CS9000F_PID:   /* CanoScan 9000F */
+            mp->color_shift = s->param->ydpi / 30;
+            mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
+            mp->shift[0] = 0;
+            mp->shift[2] = 2 * mp->shift[1];
+            break;
+
+          case MP980_PID:
+          case MP990_PID:
+            if (s->param->ydpi > 150)
+              {
+                mp->color_shift = s->param->ydpi / 75;
+                mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
                 mp->shift[0] = 0;
                 mp->shift[2] = 2 * mp->shift[1];
               }
-            else
-              {  /* Flatbed or TPU */
-                mp->shift[0] = 2 * mp->shift[1];
-                mp->shift[2] = 0;
-              }
             break;
 
-          default:
+          case MP810_PID:
+          case MP960_PID:
+            mp->color_shift = s->param->ydpi / 50;
+            if (is_scanning_from_tpu (s))
+              mp->color_shift = s->param->ydpi / 50;
+            mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
+            mp->shift[0] = 2 * mp->shift[1];
+            mp->shift[2] = 0;
             break;
+
+         default:
+           break;
         }
     }
-  return (2 * mp->color_shift + mp->stripe_shift);
+  return (2 * mp->color_shift + mp->stripe_shift + mp->jumplines ); /* note impact of stripe shift2 later if needed! */
 }
 
 static int
 send_scan_param (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   uint8_t *data;
   unsigned raw_width = calc_raw_width (mp, s->param);
-  unsigned h = MIN (s->param->h + calc_shifting (s), 
-                    s->cfg->height * s->param->ydpi / 75);
+  unsigned h, h1, h2, shifting;
+
+  shifting = calc_shifting (s);
+  h1 = s->param->h + shifting;		/* add lines for color shifting */
+  /* PDBG (pixma_dbg (4, "* send_scan_param: height calc (choose lesser) 1 %u \n", h1 )); */
+  if (mp->generation >= 4)				/* use most global condition */
+    {
+	  /* tested for MP960, 9000F */
+	  /* add lines for color shifting */
+	  /* otherwise you cannot scan all lines defined for flatbed mode */
+	  /* this shouldn't affect TPU mode */
+	  h2 = s->cfg->height * s->param->ydpi / 75 + shifting;
+	  /* PDBG (pixma_dbg (4, "* send_scan_param: height calc (choose lesser) 2 %u = %u max. lines for scanner + %u lines for color shifting \n", h2, s->cfg->height * s->param->ydpi / 75, shifting )); */
+    }
+  else
+	{
+	  /* TODO: Check for other scanners. */
+	  h2 = s->cfg->height * s->param->ydpi / 75;	/* this might be causing problems for generation 1 devices */
+	  /* PDBG (pixma_dbg (4, "* send_scan_param: height calc (choose lesser) 2 %u \n", h2 )); */
+    }
+  h = MIN (h1, h2);
 
   if (mp->generation <= 2)
     {
@@ -679,7 +727,13 @@ send_scan_param (pixma_t * s)
         {
           data[0x00] = 0x04;
           data[0x01] = 0x02;
-          data[0x1e] = 0x02;
+          data[0x1e] = 0x02;  /* NB: CanoScan 8800F: 0x02->negatives, 0x01->positives, paper->0x00 */
+          /* the above appears to be same for the 9000F also */
+	  /* set it positives for 9000F for now */
+	  if (s->cfg->pid == CS9000F_PID)
+	    {
+	      data[0x1e] = 0x01;
+	    }
         }
       data[0x02] = 0x01;
       if (is_scanning_from_adfdup (s))
@@ -688,10 +742,12 @@ send_scan_param (pixma_t * s)
           data[0x03] = 0x03;
         }
       data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
+      /* the scanner controls the scan */
+      /* no software control needed */
       pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
       pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
-      /*PDBG (pixma_dbg (4, "*send_scan_param***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n", 
-                           s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width));*/
+      /*PDBG (pixma_dbg (4, "*send_scan_param***** Setting: xdpi=%hi ydpi=%hi  x=%u y=%u  w=%u h=%u ***** \n",
+	                   s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width,h));*/
       pixma_set_be32 (s->param->x - s->param->xs, data + 0x0c);
       pixma_set_be32 (s->param->y, data + 0x10);
       pixma_set_be32 (raw_width, data + 0x14);
@@ -704,12 +760,28 @@ send_scan_param (pixma_t * s)
       data[0x1d] = (is_scanning_from_tpu (s)) ? 48 :
                    s->param->depth * ((is_ccd_grayscale (s)) ? 3 : s->param->channels);  /* bits per pixel */
 #endif
+                         
+      data[0x1f] = 0x01; /* for 9000F this appears to be 0x00, not sure if that is because of positives */
 
-      data[0x1f] = 0x01;
+      if (s->cfg->pid == CS9000F_PID)
+	{
+	  data[0x1f] = 0x00;
+	}
+
       data[0x20] = 0xff;
       data[0x21] = 0x81;
       data[0x23] = 0x02;
       data[0x24] = 0x01;
+      if (s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID)   /* CS8800F & CS9000F addition */
+        data[0x25] = (is_scanning_from_tpu (s)) ? 0x00 : 0x01; /* 0x01 normally, 0x00 for TPU color management*/
+
+      /* fix this: for 9000F : it should be 0x00 for flatbed, 0x01 if
+	 scanning from TPU in slide mode, and 0x02 in negative mode */
+      if (s->cfg->pid == CS9000F_PID)
+	{
+	  data[0x25] = 0x01; 
+	}
+
       data[0x30] = 0x01;
     }
   return pixma_exec (s, &mp->cb);
@@ -718,7 +790,7 @@ send_scan_param (pixma_t * s)
 static int
 query_status_3 (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   uint8_t *data;
   int error, status_len;
 
@@ -732,7 +804,7 @@ query_status_3 (pixma_t * s)
 static int
 query_status (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   uint8_t *data;
   int error, status_len;
 
@@ -752,7 +824,7 @@ send_time (pixma_t * s)
   time_t now;
   struct tm *t;
   uint8_t *data;
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
 
   data = pixma_newcmd (&mp->cb, cmd_time, 20, 0);
   pixma_get_time (&now, NULL);
@@ -770,11 +842,12 @@ static int
 read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
 {
   uint8_t cmd[16];
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   const int hlen = 8 + 8;
   int error, datalen;
 
   memset (cmd, 0, sizeof (cmd));
+  /* PDBG (pixma_dbg (4, "* read_image_block: last_block\n", mp->last_block)); */
   pixma_set_be16 (cmd_read_image, cmd);
   if ((mp->last_block & 0x20) == 0)
     pixma_set_be32 ((IMAGE_BLOCK_SIZE / 65536) * 65536 + 8, cmd + 0xc);
@@ -783,19 +856,21 @@ read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
 
   mp->state = state_transfering;
   mp->cb.reslen =
-    pixma_cmd_transaction (s, cmd, sizeof (cmd), mp->cb.buf, 512);
+    pixma_cmd_transaction (s, cmd, sizeof (cmd), mp->cb.buf, 512);	/* read 1st 512 bytes of image block */
   datalen = mp->cb.reslen;
   if (datalen < 0)
     return datalen;
 
   memcpy (header, mp->cb.buf, hlen);
+  /* PDBG (pixma_dbg (4, "* read_image_block: datalen %i\n", datalen)); */
+  /* PDBG (pixma_dbg (4, "* read_image_block: hlen %i\n", hlen)); */
   if (datalen >= hlen)
     {
       datalen -= hlen;
       memcpy (data, mp->cb.buf + hlen, datalen);
       data += datalen;
       if (mp->cb.reslen == 512)
-        {
+        {	/* read the rest of the image block */
           error = pixma_read (s->io, data, IMAGE_BLOCK_SIZE - 512 + hlen);
           RET_IF_ERR (error);
           datalen += error;
@@ -814,7 +889,7 @@ static int
 read_error_info (pixma_t * s, void *buf, unsigned size)
 {
   unsigned len = 16;
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   uint8_t *data;
   int error;
 
@@ -875,7 +950,7 @@ handle_interrupt (pixma_t * s, int timeout)
 static int
 init_ccd_lamp_3 (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   uint8_t *data;
   int error, status_len, tmo;
 
@@ -901,7 +976,7 @@ init_ccd_lamp_3 (pixma_t * s)
 static int
 wait_until_ready (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   int error, tmo = 60;
 
   RET_IF_ERR ((mp->generation >= 3) ? query_status_3 (s)
@@ -911,13 +986,9 @@ wait_until_ready (pixma_t * s)
       WAIT_INTERRUPT (1000);
       if (mp->generation >= 3)
         RET_IF_ERR (query_status_3 (s));
-      else if (s->cfg->pid == MP600_PID || 
-               s->cfg->pid == MP600R_PID ||  
-               s->cfg->pid == MP800R_PID)
-        RET_IF_ERR (query_status (s));
       if (--tmo == 0)
         {
-          PDBG (pixma_dbg (1, "WARNING:Timed out in wait_until_ready()\n"));
+          PDBG (pixma_dbg (1, "WARNING: Timed out in wait_until_ready()\n"));
           PDBG (query_status (s));
           return PIXMA_ETIMEDOUT;
         }
@@ -925,6 +996,24 @@ wait_until_ready (pixma_t * s)
   return 0;
 }
 
+/* the RGB images are shifted by # of lines              */
+/* the R image is shifted by colshift[0]                 */
+/* the G image is shifted by colshift[1]                 */
+/* the B image is shifted by colshift[2]                 */
+/* usually one of the RGB images must not be shifted     */
+/* which one depends on the scanner                      */
+/* some scanners have an additional stripe shift         */
+/* e.g. colshift[0]=0, colshift[1]=1, colshift[2]=2      */
+/* R image is OK: RGBRGBRGB...                           */
+/*                 ^^ ^^ ^^                              */
+/*                 || || ||                              */
+/* shift G image: RG|RG|RG|...                           */
+/*                  |  |  |                              */
+/* shift B image: RGBRGBRGB...                           */
+/* this doesn't affect the G and B images                */
+/* G image will become the R image in the next run       */
+/* B image will become the G image in the next run       */
+/* the next line will become the B image in the next run */
 static uint8_t *
 shift_colors (uint8_t * dptr, uint8_t * sptr, 
               unsigned w, unsigned dpi, unsigned pid, unsigned c, 
@@ -934,9 +1023,10 @@ shift_colors (uint8_t * dptr, uint8_t * sptr,
   UNUSED(dpi);
   UNUSED(pid);
   sr = colshft[0]; sg = colshft[1]; sb = colshft[2];
+
   for (i = 0; i < w; i++)
     {
-      /* stripes shift for MP800, MP800R at 2400 dpi */
+      /* stripes shift for MP970 at 4800 dpi, MP810 at 2400 dpi */
       st = (i % 2 == 0) ? strshft : 0;
         
       *sptr++ = *(dptr++ + sr + st);
@@ -945,6 +1035,47 @@ shift_colors (uint8_t * dptr, uint8_t * sptr,
       if (c == 6) *sptr++ = *(dptr++ + sg + st);
       *sptr++ = *(dptr++ + sb + st);
       if (c == 6) *sptr++ = *(dptr++ + sb + st);
+    }
+
+  return dptr;
+}
+
+
+static uint8_t *
+shift_colorsCS9000 (uint8_t * dptr, uint8_t * sptr, 
+		    unsigned w, unsigned dpi, unsigned pid, unsigned c, 
+		    int * colshft, unsigned strshft, unsigned strshft2, unsigned jump)
+
+{
+  unsigned i, sr, sg, sb, st, st2;
+  UNUSED(dpi);
+  UNUSED(pid);
+  sr = colshft[0]; sg = colshft[1]; sb = colshft[2];
+
+    for (i = 0; i < w; i++)
+    {
+      if (i<(w/2))
+	{
+	  /* stripes shift for 1st 4 images for Canoscan 9000F at 9600dpi */
+	  st = (i % 2 == 0) ? strshft : 0;	  
+	  *sptr++ = *(dptr++ + sr + st);
+	  if (c == 6) *sptr++ = *(dptr++ + sr + st);
+	  *sptr++ = *(dptr++ + sg + st);
+	  if (c == 6) *sptr++ = *(dptr++ + sg + st);
+	  *sptr++ = *(dptr++ + sb + st);
+	  if (c == 6) *sptr++ = *(dptr++ + sb + st);
+	}
+      if (i>=(w/2))
+	{
+	  /* stripes shift for 2nd 4 images for Canoscan 9000F at 9600dpi */
+	  st2 = (i % 2 == 0) ? strshft2 : 0;        
+	  *sptr++ = *(dptr++ + sr + jump + st2);
+	  if (c == 6) *sptr++ = *(dptr++ + sr + jump + st2);
+	  *sptr++ = *(dptr++ + sg + jump + st2);
+	  if (c == 6) *sptr++ = *(dptr++ + sg + jump + st2);
+	  *sptr++ = *(dptr++ + sb + jump + st2);
+	  if (c == 6) *sptr++ = *(dptr++ + sb + jump + st2);
+	}
     }
   return dptr;
 }
@@ -969,6 +1100,10 @@ rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
   return gptr;
 }
 
+/* under some conditions some scanners have sub images in one line */
+/* e.g. doubled image, line size = 8				   */
+/* line before reordering: px1 px3 px5 px7 px2 px4 px6 px8         */
+/* line after reordering:  px1 px2 px3 px4 px5 px6 px7 px8         */
 static void
 reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n, 
                 unsigned m, unsigned w, unsigned line_size)
@@ -976,9 +1111,142 @@ reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n,
   unsigned i;
 
   for (i = 0; i < w; i++)
-    {
+    {	/* process complete line */
       memcpy (linebuf + c * (n * (i % m) + i / m), sptr + c * i, c);
     }
+  memcpy (sptr, linebuf, line_size);
+}
+
+/* special reorder matrix for mp960 */
+static void
+mp960_reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n, 
+                unsigned m, unsigned w, unsigned line_size)
+{
+  unsigned i,i2;
+
+  /* try and copy 2 px at once */  
+  for (i = 0; i < w; i++)
+    {	/* process complete line */
+      i2 = i % 2;
+      if (i<w/2) {
+	if (i2 == 0)
+	  memcpy (linebuf + c * (n * ((i) % m) + ((i) / m)), sptr + c * i, c);
+	else
+	  memcpy (linebuf + c * (n * ((i-1) % m) + 1 + ((i) / m)), sptr + c * i, c); 
+      }
+      else {
+	if (i2 == 0)
+	  memcpy (linebuf + c * (n * ((i) % m) + ((i) / m) + 1), sptr + c * i, c);
+	else
+	  memcpy (linebuf + c * (n * ((i-1) % m) + 1 + ((i) / m) + 1), sptr + c * i, c); 
+      }
+    }
+
+  memcpy (sptr, linebuf, line_size);
+}
+
+/* special reorder matrix for mp970 */
+static void
+mp970_reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, 
+                      unsigned w, unsigned line_size)
+{
+  unsigned i, i8;
+
+  for (i = 0; i < w; i++)
+    {	/* process complete line */
+      i8 = i % 8;
+      memcpy (linebuf + c * (i + i8 - ((i8 > 3) ? 7 : 0)), sptr + c * i, c);
+    }
+  memcpy (sptr, linebuf, line_size);
+}
+
+/* special reorder matrix for CS9000F */
+static void
+cs9000f_initial_reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n, 
+                unsigned m, unsigned w, unsigned line_size)
+{
+  unsigned i,i2;
+
+  /* try and copy 2 px at once */  
+  for (i = 0; i < w; i++)
+    {	/* process complete line */
+      i2 = i % 2;
+      if (i<w/8) {
+	if (i2 == 0)
+	  memcpy (linebuf + c * (n * ((i) % m) + ((i) / m)), sptr + c * i, c);
+	else
+	  memcpy (linebuf + c * (n * ((i-1) % m) + 1 + ((i) / m)), sptr + c * i, c); 
+      }
+      else if (i>=w/8 && i<w/4) {
+	if (i2 == 0)
+	  memcpy (linebuf + c * (n * ((i) % m) + ((i) / m) + 1), sptr + c * i, c);
+	else
+	  memcpy (linebuf + c * (n * ((i-1) % m) + 1 + ((i) / m) +1), sptr + c * i, c); 
+      }
+      else if (i>=w/4 && i<3*w/8) {
+	if (i2 == 0)
+	  memcpy (linebuf + c * (n * ((i) % m) + ((i) / m) +2), sptr + c * i, c);
+	else
+	  memcpy (linebuf + c * (n * ((i-1) % m) + 1 + ((i) / m) +2), sptr + c * i, c); 
+      }
+      else if (i>=3*w/8 && i<w/2) {
+	if (i2 == 0)
+	  memcpy (linebuf + c * (n * ((i) % m) + ((i) / m) +3), sptr + c * i, c);
+	else
+	  memcpy (linebuf + c * (n * ((i-1) % m) + 1 + ((i) / m) +3), sptr + c * i, c); 
+      }
+      else if (i>=w/2 && i<5*w/8) {
+	if (i2 == 0)
+	  memcpy (linebuf + c * (n * ((i) % m) + ((i) / m) +4), sptr + c * i, c);
+	else
+	  memcpy (linebuf + c * (n * ((i-1) % m) + 1 + ((i) / m) +4), sptr + c * i, c); 
+      }
+      else if (i>=5*w/8 && i<3*w/4) {
+	if (i2 == 0)
+	  memcpy (linebuf + c * (n * ((i) % m) + ((i) / m) +5), sptr + c * i, c);
+	else
+	  memcpy (linebuf + c * (n * ((i-1) % m) + 1 + ((i) / m) +5), sptr + c * i, c); 
+      }
+      else if (i>=3*w/4 && i<7*w/8) {
+	if (i2 == 0)
+	  memcpy (linebuf + c * (n * ((i) % m) + ((i) / m) +6), sptr + c * i, c);
+	else
+	  memcpy (linebuf + c * (n * ((i-1) % m) + 1 + ((i) / m) +6), sptr + c * i, c); 
+      }
+      else {
+	if (i2 == 0)
+	  memcpy (linebuf + c * (n * ((i) % m) + ((i) / m) + 7), sptr + c * i, c);
+	else
+	  memcpy (linebuf + c * (n * ((i-1) % m) + 1 + ((i) / m) + 7), sptr + c * i, c); 
+      }
+    }
+
+  memcpy (sptr, linebuf, line_size);
+}
+
+/* CS9000F 9600dpi reorder: actually 4800dpi since each pixel is doubled      */
+/* need to rearrange each sequence of 16 pairs of pixels as follows:          */
+/* start px : 0   2   4   6   8   10  12  14  16  18  20  22  24  26  28  30  */
+/* before   : p1a p1b p1c p1d p2a p2b p2c p2d p3a p3b p3c p3d p4a p4b p4c p4d */
+/* after    : p1a p3a p1b p3b p1c p3c p1d p3d p2a p4a p2b p4b p2c p4c p2d p4d */
+/* start px : 0   16  2   18  4   20  6   22  8   24  10  26  12  28  14  30  */
+/* change   :      *   *   *   *   *   *   *   *   *   *   *   *   *   *      */
+/* no change:  *                                                           *  */
+/* so the 1st and the 3rd set are interleaved, followed by the 2nd and 4th sets interleaved */
+static void
+cs9000f_second_reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c,
+                unsigned w, unsigned line_size)
+{
+  unsigned i,i8;
+  static const int shifts[8] = { 2, 4, 6, 8, -8, -6, -4, -2 };
+
+  for (i = 0; i < w; i+= 2)
+    {	/* process complete line */
+      i8 = (i >> 1) & 0x7;
+      /* Copy 2 pixels at once */
+      memcpy(linebuf + c * (i + shifts[i8]), sptr + c * i, c*2);
+    }
+
   memcpy (sptr, linebuf, line_size);
 }
 
@@ -1011,70 +1279,189 @@ pack_48_24_bpc (uint8_t * sptr, unsigned n)
 static unsigned
 post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned c, lines, i, line_size, n, m, cw, cx;
+  mp810_t *mp = (mp810_t *) s->subdriver;
+  unsigned c, lines, i, line_size, n, m, cw, cx, reducelines;
   uint8_t *sptr, *dptr, *gptr, *cptr;
+  unsigned color_shift, stripe_shift, stripe_shift2, jumplines  /*, height*/;
+  int test;
+
+  /* For testers: */
+  /* set this to 1 in order to get unprocessed images next to one another at 9600dpi */
+  /* other resolutions should not be affected */
+  /* set this to 2 if you want to see the same with jumplines=0 */
+  test=0;
+  jumplines=0;
 
   c = ((is_ccd_grayscale (s)) ? 3 : s->param->channels) * s->param->depth / 8;
   cw = c * s->param->w;
   cx = c * s->param->xs;
   
+  /* PDBG (pixma_dbg (4, "*post_process_image_data***** c = %u, cw = %u, cx = %u  *****\n", c, cw, cx)); */
+
   if (mp->generation >= 3)
     n = s->param->xdpi / 600;
   else    /* FIXME: maybe need different values for CIS and CCD sensors */
     n = s->param->xdpi / 2400;
     
-  if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID) 
-    n = s->param->xdpi / 1200;
+  /* Some exceptions to global rules here */
+  if (s->cfg->pid == MP970_PID || 
+      s->cfg->pid == MP990_PID ||
+      s->cfg->pid == CS8800F_PID ||
+      s->cfg->pid == CS9000F_PID) 
+    n = MIN (n, 4);
+  if (s->cfg->pid == MP970_PID || 
+      s->cfg->pid == MP990_PID)
+    n = 1; /* always only one image */
+
+  /* exception for 9600dpi on Canoscan 9000F */
+  if ((s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600))
+    {
+      n = 8;
+      if (test>0)
+	n=1; /* test if 8 images are next to one another */
+    }
+
+  /* test if 2 images are next to one another */  
+  if ((s->cfg->pid == MP960_PID) && (s->param->xdpi == 4800) && (test>0))
+    {
+      n = 1;
+    }
   
   m = (n > 0) ? s->param->wx / n : 1;
+
   sptr = dptr = gptr = cptr = mp->imgbuf;
   line_size = get_cis_ccd_line_size (s);
-  /*PDBG (pixma_dbg (4, "*post_process_image_data***** ----- Set n=%u, m=%u, line_size=%u ----- ***** \n", n, m, line_size));*/
+  /* PDBG (pixma_dbg (4, "*post_process_image_data***** ----- Set n=%u, m=%u, line_size=%u ----- ***** \n", n, m, line_size)); */
+  /* PDBG (pixma_dbg (4, "*post_process_image_data***** ----- spr=dpr=%u, linebuf=%u ----- ***** \n", sptr, mp->linebuf)); */
 
   lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
-  /*PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i > 2 * mp->color_shift + mp->stripe_shift = %i ***** \n",
-	        lines, 2 * mp->color_shift + mp->stripe_shift));*/
-  if (lines > 2 * mp->color_shift + mp->stripe_shift)
+  /* PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i > 2 * mp->color_shift + mp->stripe_shift = %i ***** \n",
+	        lines, 2 * mp->color_shift + mp->stripe_shift)); */
+
+  color_shift = mp->color_shift;
+  stripe_shift = mp->stripe_shift;
+  stripe_shift2 = mp->stripe_shift2;
+  jumplines=mp->jumplines;
+
+  /* height not needed here! */
+  /* removed to avoid confusion */
+  /* height = MIN (s->param->h + calc_shifting (s),
+                    s->cfg->height * s->param->ydpi / 75); */
+
+  /* have to test if rounding down is OK or not -- currently 0.5 lines is rounded down */
+  /*note stripe shifts doubled already in definitions */
+  if ((s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600) && (test>0))
     {
-      lines -= 2 * mp->color_shift + mp->stripe_shift;
+      /* using test==2 you can check in GIMP the required offset, and
+	use the below line (uncommented) and replace XXX with that
+	number, and then compile again with test set to 1. */
+
+      jumplines=32;
+      if (test==2)
+	jumplines=0; 
+    }
+
+  /* mp960 test */
+  if ((s->cfg->pid == MP960_PID) && (s->param->xdpi == 4800) && (test>0))
+    {
+      jumplines=32;
+      if (test==2)
+	jumplines=0;
+    }
+
+  reducelines = ((2 * mp->color_shift + mp->stripe_shift) + jumplines);
+  /* PDBG (pixma_dbg (4, "*post_process_image_data: reducelines %u \n", reducelines)); */
+   if (lines > reducelines)
+    {	/* (line - reducelines) of image lines can be converted */
+      lines -= reducelines;
+
       for (i = 0; i < lines; i++, sptr += line_size)
-        {
+        {	/* convert only full image lines */
           /* Color plane and stripes shift needed by e.g. CCD */
-          /*PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, w=%i, line_size=%u ***** \n",
-	        c, n, m, s->param->wx, line_size));*/
+          /* PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, w=%i, line_size=%u ***** \n",
+               c, n, m, s->param->wx, line_size)); */
           if (c >= 3)
-            dptr = shift_colors (dptr, sptr, 
-                                 s->param->wx, s->param->xdpi, s->cfg->pid, c,
-                                 mp->shift, mp->stripe_shift);
-                       
-          /* special image format for *most* devices at high dpi. 
-           * MP220 is a gen3 exception */
-          if (s->cfg->pid != MP220_PID && n > 0)
-              reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
-          
-          /* Crop line to selected borders */
-          memmove(cptr, sptr + cx, cw);
-	  
+	    {
+	      if  ( ((s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600)) || ((s->cfg->pid == MP960_PID) && (s->param->xdpi == 4800)) || ((s->cfg->pid == MP810_PID) && (s->param->xdpi == 4800)) ) { 
+		dptr = shift_colorsCS9000 (dptr, sptr, 
+					   s->param->wx, s->param->xdpi, s->cfg->pid, c,
+					   mp->shift, mp->stripe_shift, mp->stripe_shift2, jumplines*line_size);
+	      }
+	      
+	      else  /* all except 9000F at 9600dpi */
+		dptr = shift_colors (dptr, sptr, 
+				     s->param->wx, s->param->xdpi, s->cfg->pid, c,
+				     mp->shift, mp->stripe_shift);
+	    } 
+
+	  /*PDBG (pixma_dbg (4, "*post_process_image_data***** test = %i  *****\n", test)); */
+
+	  /*--comment out all between this line and the one below for 9000F tests at 9600dpi or MP960 at 4800dpi ------*/
+	  /* if ( 0 ) */
+	  if ( (((s->cfg->pid != CS9000F_PID) || (s->param->xdpi < 9600)) && ((s->cfg->pid != MP960_PID) || (s->param->xdpi < 4800)) && ((s->cfg->pid != MP810_PID) || (s->param->xdpi < 4800)) )  || (test==0))
+	    {
+	      /* PDBG (pixma_dbg (4, "*post_process_image_data***** MUST GET HERE WHEN TEST == 0  *****\n")); */
+
+		if (!( (s->cfg->pid == MP810_PID) && (s->param->xdpi == 4800) ) && !( (s->cfg->pid == MP960_PID) && (s->param->xdpi == 4800) ) && !( (s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600) ) ) { /* for both flatbed & TPU */
+		  /* PDBG (pixma_dbg (4, "*post_process_image_data***** reordering pixels normal n = %i  *****\n", n)); */
+		  reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
+		}
+	      
+	      if ( (s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600) ) {
+		/* PDBG (pixma_dbg (4, "*post_process_image_data***** cs900f_initial_reorder_pixels n = %i  *****\n", n)); */
+		  /* this combines pixels from 8 images 2px at a time from left to right: 1122334455667788... */
+		  cs9000f_initial_reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
+		  /* final interleaving */
+		  cs9000f_second_reorder_pixels (mp->linebuf, sptr, c, s->param->wx, line_size);
+	      }
+
+	      /* comment: special image format for MP960 in flatbed mode
+		 at 4800dpi. It is actually 2400dpi, with each pixel
+		 doubled. The TPU mode has proper pixel ordering */
+	      if ( ( ((s->cfg->pid == MP960_PID) || (s->cfg->pid == MP810_PID)) && (s->param->xdpi == 4800) ) && (n > 0)) { 
+		/* for both flatbed & TPU */
+		/* PDBG (pixma_dbg (4, "*post_process_image_data***** flatbed mp960_reordering pixels n = %i  *****\n", n)); */
+		mp960_reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
+	      }
+	      
+	      /* comment: MP970, CS8800F, CS9000F specific reordering for 4800 dpi */
+	      if ((s->cfg->pid == MP970_PID || s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID) 
+		  && (s->param->xdpi == 4800)) {
+		/*PDBG (pixma_dbg (4, "*post_process_image_data***** mp970_reordering pixels n = %i  *****\n", n)); */
+		mp970_reorder_pixels (mp->linebuf, sptr, c, s->param->wx, line_size);
+	      }
+	      	      
+	    }
+	  /*-------------------------------------------------------*/	  
+
+	  /* PDBG (pixma_dbg (4, "*post_process_image_data: sptr=%u, dptr=%u \n", sptr, dptr)); */
+
+	  /* Crop line to selected borders */
+          memmove(cptr, sptr + cx, cw);	  
+	  /* PDBG (pixma_dbg (4, "*post_process_image_data***** crop line: cx=%u, cw=%u ***** \n", cx, cw)); */
+	  	  
           /* Color to Grayscale convert for CCD sensor */
           if (is_ccd_grayscale (s))
               cptr = gptr = rgb_to_gray (gptr, cptr, s->param->w, c);
           else
               cptr += cw;
         }
+      /* PDBG (pixma_dbg (4, "*post_process_image_data: sptr=%u, dptr=%u \n", sptr, dptr)); */
     }
   ib->rptr = mp->imgbuf;
   ib->rend = cptr;
   return mp->data_left_ofs - sptr;    /* # of non processed bytes */
+                                      /* contains shift color data for new lines */
+                                      /* and already received data for the next line */
 }
 
 static int
-mp150_open (pixma_t * s)
+mp810_open (pixma_t * s)
 {
-  mp150_t *mp;
+  mp810_t *mp;
   uint8_t *buf;
 
-  mp = (mp150_t *) calloc (1, sizeof (*mp));
+  mp = (mp810_t *) calloc (1, sizeof (*mp));
   if (!mp)
     return PIXMA_ENOMEM;
 
@@ -1097,46 +1484,55 @@ mp150_open (pixma_t * s)
   mp->imgbuf = buf + CMDBUF_SIZE;
 
   /* General rules for setting Pixma protocol generation # */
-  mp->generation = (s->cfg->pid >= MP160_PID) ? 2 : 1;
+  mp->generation = (s->cfg->pid >= MP810_PID) ? 2 : 1; /* no generation 1 devices anyway, but keep similar to pixma_mp150.c file */
 
-  if (s->cfg->pid >= MX7600_PID)
+  if (s->cfg->pid >= MP970_PID)
     mp->generation = 3;
 
-  if (s->cfg->pid >= MP250_PID)
+  if (s->cfg->pid >= MP990_PID)
     mp->generation = 4;
 
-  /* And exceptions to be added here */
-  if (s->cfg->pid == MP140_PID)
-    mp->generation = 2;
-    
+  /* And exceptions to be added here */    
+  if (s->cfg->pid == CS8800F_PID)
+    mp->generation = 3;
+
+  if (s->cfg->pid == CS9000F_PID)
+    mp->generation = 4;
+
   /* TPU info data setup */
   mp->tpu_datalen = 0;
 
   if (mp->generation < 4)
     {
-      query_status (s);
-      handle_interrupt (s, 200);
-      if (mp->generation == 3 && has_ccd_sensor (s)) 
-	send_cmd_start_calibrate_ccd_3 (s);
-    }
+    /* Canoscan 8800F ignores commands if not initialized */
+      if (s->cfg->pid == CS8800F_PID)
+        abort_session (s);
+      else
+	    {
+		  query_status (s);
+		  handle_interrupt (s, 200);
+		  if (mp->generation == 3 && has_ccd_sensor (s)) 
+		    send_cmd_start_calibrate_ccd_3 (s);
+	    }
+	}
   return 0;
 }
 
 static void
-mp150_close (pixma_t * s)
+mp810_close (pixma_t * s)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
 
-  mp150_finish_scan (s);
+  mp810_finish_scan (s);
   free (mp->cb.buf);
   free (mp);
   s->subdriver = NULL;
 }
 
 static int
-mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
+mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
 
   sp->depth = 8;		/* MP150 only supports 8 bit per channel. */
 #ifdef TPU_48
@@ -1146,39 +1542,94 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
       sp->depth = 16;   /* TPU in 16 bits mode */
 #endif
 
+  if (sp->source == PIXMA_SOURCE_TPU && !sp->tpu_offset_added)
+    {
+      unsigned fixed_offset_y; /* TPU offsets for CanoScan 8800F, or other CCD at 300dpi. */
+
+      /* CanoScan 8800F and others adding an offset depending on resolution */
+      switch (s->cfg->pid)
+        {
+          case CS8800F_PID:
+            fixed_offset_y = 140;
+            break;
+          case CS9000F_PID:
+            fixed_offset_y = 146;
+            break;
+          default:
+            fixed_offset_y = 0;
+            break;
+        }
+        
+      /* Convert the offsets from 300dpi to actual resolution */
+      fixed_offset_y = fixed_offset_y*(sp->xdpi)/300;
+
+      /* In TPU mode, the CS9000F appears to always subtract 146 from the
+         vertical starting position, but clamps its at 0. Therefore vertical
+         offsets 0 through 146 (@300 dpi) get all mapped onto the same 
+         physical starting position: line 0. Then, starting from 147, the
+         offsets get mapped onto successive physical lines:
+                y    line         
+                0 ->  0
+                1 ->  0
+                2 ->  0
+                 ...
+              146 ->  0
+              147 ->  1
+              148 ->  2
+                 ...
+         Since a preview scan is typically made starting from y = 0, but
+         partial image scans usually start at y >> 147, this results in a
+         discontinuity in the y to line mapping, resulting in wrong offsets.
+         To prevent this, we must always add (at least) 146 to the y
+         offset before it is sent to the scanner. The scanner will then
+         map y = 0 (146) to the first line, y = 1 (147) to the second line,
+         and so on. Any distance that is then measured on the preview scan,
+         can be translated without any discontinuity.
+         
+         However, there is one complication: during a preview scan, which
+         normally covers the whole scan area of the scanner, we should _not_
+         add the offset because it will result in a reduced number of lines
+         being returned (the scan height is clamped in
+         pixma_check_scan_param()). Since the frontend has no way of telling
+         that the scan area has been reduced, it would derive an incorrect
+         effective scan resolution, and any position calculations based on
+         this would therefore be inaccurate.
+         
+         To prevent this, we don't add the offset in case y = 0, which is
+         typically the case during a preview scan (the scanner effectively
+         adds the offset for us, see above). In that way we keep the
+         linearity and we don't affect the scan area during previews.
+       */
+
+      if (sp->y > 0)
+          sp->y += fixed_offset_y;
+
+      /* Prevent repeated corrections as check_param may be called multiple times */
+      sp->tpu_offset_added = 1;
+    }
+
   if (mp->generation >= 2)
     {
       /* mod 32 and expansion of the X scan limits */
-      /*PDBG (pixma_dbg (4, "*mp150_check_param***** ----- Initially: x=%i, y=%i, w=%i, h=%i *****\n", sp->x, sp->y, sp->w, sp->h));*/
+      /* PDBG (pixma_dbg (4, "*mp810_check_param***** (gen>=2) xs=mod32 ----- Initially: x=%u, y=%u, w=%u, h=%u *****\n", sp->x, sp->y, sp->w, sp->h)); */
       sp->xs = (sp->x) % 32;
     }
   else
+    {
       sp->xs = 0;
-  /*PDBG (pixma_dbg (4, "*mp150_check_param***** Selected origin, origin shift: %i, %i *****\n", sp->x, sp->xs));*/
+      /* PDBG (pixma_dbg (4, "*mp810_check_param***** (else) xs=0 Selected origin, origin shift: %u, %u *****\n", sp->x, sp->xs)); */
+    }
   sp->wx = calc_raw_width (mp, sp);
   sp->line_size = sp->w * sp->channels * (sp->depth / 8);		/* bytes per line per color after cropping */
-  /*PDBG (pixma_dbg (4, "*mp150_check_param***** Final scan width and line-size: %i, %i *****\n", sp->wx, sp->line_size));*/
-    
-  /* Some exceptions here for particular devices */
-  /* Those devices can scan up to 14" with ADF, but A4 11.7" in flatbed */
-  if (( s->cfg->pid == MX850_PID ||
-        s->cfg->pid == MX860_PID ||
-        s->cfg->pid == MX870_PID ||
-        s->cfg->pid == MX320_PID ||
-        s->cfg->pid == MX330_PID ||
-        s->cfg->pid == MX340_PID ||
-        s->cfg->pid == MX350_PID ||
-        s->cfg->pid == MX7600_PID )
-       &&
-        sp->source == PIXMA_SOURCE_FLATBED)
-    sp->h = MIN (sp->h, 877 * sp->ydpi / 75);
+  /* PDBG (pixma_dbg (4, "*mp810_check_param***** (else) Final scan width and line-size: %u, %"PRIu64" *****\n", sp->wx, sp->line_size)); */
     
   if (sp->source == PIXMA_SOURCE_TPU)
     {
       uint8_t k;
 
-  /* TPU mode: lowest res is 150 or 300 dpi */
-      if (mp->generation >= 3)
+      /* TPU mode: lowest res is 150 or 300 dpi */
+      /* MP810, MP960 appear to have a 200dpi mode for low-res scans, not 150 dpi */
+      if ((mp->generation >= 3) || (s->cfg->pid == MP810_PID) || (s->cfg->pid == MP960_PID))
         k = MAX (sp->xdpi, 300) / sp->xdpi;
       else
         k = MAX (sp->xdpi, 150) / sp->xdpi;
@@ -1213,10 +1664,10 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
 }
 
 static int
-mp150_scan (pixma_t * s)
+mp810_scan (pixma_t * s)
 {
   int error = 0, tmo, i;
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
 
   if (mp->state != state_idle)
     return PIXMA_EBUSY;
@@ -1265,7 +1716,7 @@ mp150_scan (pixma_t * s)
             query_status (s);
             break;
           default:
-            PDBG (pixma_dbg (1, "WARNING:cmd e920 or d520 failed %s\n", 
+            PDBG (pixma_dbg (1, "WARNING: cmd e920 or d520 failed %s\n", 
                              pixma_strerror (error)));
             return error;
         }
@@ -1328,22 +1779,24 @@ mp150_scan (pixma_t * s)
   if (error < 0)
     {
       mp->last_block = 0x38;   /* Force abort session if ADF scan */
-      mp150_finish_scan (s);
+      mp810_finish_scan (s);
       return error;
     }
   return 0;
 }
 
 static int
-mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
+mp810_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 {
   int error;
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
   unsigned block_size, bytes_received, proc_buf_size, line_size;
   uint8_t header[16];
 
   if (mp->state == state_warmup)
-    {
+    {	/* prepare read image data */
+      /* PDBG (pixma_dbg (4, "**mp810_fill_buffer***** warmup *****\n")); */
+      
       RET_IF_ERR (wait_until_ready (s));
       pixma_sleep (1000000);	/* No need to sleep, actually, but Window's driver
 				 * sleep 1.5 sec. */
@@ -1362,15 +1815,16 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
     }
 
   do
-    {
+    {	/* read complete image data from the scanner */
       if (s->cancel)
         return PIXMA_ECANCELED;
       if ((mp->last_block & 0x28) == 0x28)
         {       /* end of image */
            mp->state = state_finished;
+           /* PDBG (pixma_dbg (4, "**mp810_fill_buffer***** end of image *****\n")); */
            return 0;
         }
-      /*PDBG (pixma_dbg (4, "*mp150_fill_buffer***** moving %u bytes into buffer *****\n", mp->data_left_len));*/
+      /* PDBG (pixma_dbg (4, "*mp810_fill_buffer***** moving %u bytes into buffer *****\n", mp->data_left_len)); */
       memmove (mp->imgbuf, mp->data_left_ofs, mp->data_left_len);
       error = read_image_block (s, header, mp->imgbuf + mp->data_left_len);
       if (error < 0)
@@ -1384,7 +1838,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
         }
 
       bytes_received = error;
-      /*PDBG (pixma_dbg (4, "*mp150_fill_buffer***** %u bytes received by read_image_block *****\n", bytes_received));*/
+      /*PDBG (pixma_dbg (4, "*mp810_fill_buffer***** %u bytes received by read_image_block *****\n", bytes_received));*/
       block_size = pixma_get_be32 (header + 12);
       mp->last_block = header[8] & 0x38;
       if ((header[8] & ~0x38) != 0)
@@ -1401,6 +1855,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       /* For TPU at 48 bits/pixel to output at 24 bits/pixel */
 #ifndef DEBUG_TPU_48
 #ifndef TPU_48
+      PDBG (pixma_dbg (1, "WARNING: 9000F using 24 instead of 48 bit processing \n"));
 #ifndef DEBUG_TPU_24
       if (is_scanning_from_tpu (s))
 #endif
@@ -1411,6 +1866,8 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       mp->data_left_ofs = mp->imgbuf + mp->data_left_len + bytes_received;
       mp->data_left_len = post_process_image_data (s, ib);
       mp->data_left_ofs -= mp->data_left_len;
+      /* PDBG (pixma_dbg (4, "* mp810_fill_buffer: data_left_len %u \n", mp->data_left_len)); */
+      /* PDBG (pixma_dbg (4, "* mp810_fill_buffer: data_left_ofs %u \n", mp->data_left_ofs)); */
     }
   while (ib->rend == ib->rptr);
 
@@ -1418,10 +1875,10 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 }
 
 static void
-mp150_finish_scan (pixma_t * s)
+mp810_finish_scan (pixma_t * s)
 {
   int error;
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  mp810_t *mp = (mp810_t *) s->subdriver;
 
   switch (mp->state)
     {
@@ -1457,7 +1914,7 @@ mp150_finish_scan (pixma_t * s)
 }
 
 static void
-mp150_wait_event (pixma_t * s, int timeout)
+mp810_wait_event (pixma_t * s, int timeout)
 {
   /* FIXME: timeout is not correct. See usbGetCompleteUrbNoIntr() for
    * instance. */
@@ -1467,7 +1924,7 @@ mp150_wait_event (pixma_t * s, int timeout)
 }
 
 static int
-mp150_get_status (pixma_t * s, pixma_device_status_t * status)
+mp810_get_status (pixma_t * s, pixma_device_status_t * status)
 {
   int error;
 
@@ -1479,15 +1936,15 @@ mp150_get_status (pixma_t * s, pixma_device_status_t * status)
   return 0;
 }
 
-static const pixma_scan_ops_t pixma_mp150_ops = {
-  mp150_open,
-  mp150_close,
-  mp150_scan,
-  mp150_fill_buffer,
-  mp150_finish_scan,
-  mp150_wait_event,
-  mp150_check_param,
-  mp150_get_status
+static const pixma_scan_ops_t pixma_mp810_ops = {
+  mp810_open,
+  mp810_close,
+  mp810_scan,
+  mp810_fill_buffer,
+  mp810_finish_scan,
+  mp810_wait_event,
+  mp810_check_param,
+  mp810_get_status
 };
 
 #define DEVICE(name, model, pid, dpi, w, h, cap) { \
@@ -1495,7 +1952,7 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
         model,             /* model */              \
         CANON_VID, pid,    /* vid pid */            \
         0,                 /* iface */              \
-        &pixma_mp150_ops,  /* ops */                \
+        &pixma_mp810_ops,  /* ops */                \
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
         w, h,              /* width, height */      \
         PIXMA_CAP_EASY_RGB|PIXMA_CAP_GRAY|          \
@@ -1504,84 +1961,31 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
 
 #define END_OF_DEVICE_LIST DEVICE(NULL, NULL, 0, 0, 0, 0, 0)
 
-const pixma_config_t pixma_mp150_devices[] = {
-  /* Generation 1: CIS */
-  DEVICE ("Canon PIXMA MP150", "MP150", MP150_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP170", "MP170", MP170_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP450", "MP450", MP450_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP500", "MP500", MP500_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP530", "MP530", MP530_PID, 1200, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+const pixma_config_t pixma_mp810_devices[] = {
+  /* Generation 2: CCD */
+  DEVICE ("Canon PIXMA MP810", "MP810", MP810_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP960", "MP960", MP960_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
-  /* Generation 1: CCD */
-  DEVICE ("Canon PIXMA MP800", "MP800", MP800_PID, 2400, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
-  DEVICE ("Canon PIXMA MP800R", "MP800R", MP800R_PID, 2400, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
-  DEVICE ("Canon PIXMA MP830", "MP830", MP830_PID, 2400, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_ADFDUP | PIXMA_CAP_48BIT),
+  /* Generation 3 CCD not managed as Generation 2 */
+  DEVICE ("Canon Pixma MP970", "MP970", MP970_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
-  /* Generation 2: CIS */
-  DEVICE ("Canon PIXMA MP140", "MP140", MP140_PID, 600, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP160", "MP160", MP160_PID, 600, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP180", "MP180", MP180_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP460", "MP460", MP460_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP510", "MP510", MP510_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP600", "MP600", MP600_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP600R", "MP600R", MP600R_PID, 2400, 638, 877, PIXMA_CAP_CIS),
+  /* Flatbed scanner CCD (2007) */
+  DEVICE ("Canoscan 8800F", "8800F", CS8800F_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
-  /* Generation 3: CIS */
-  DEVICE ("Canon PIXMA MP210", "MP210", MP210_PID, 600, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP220", "MP220", MP220_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP470", "MP470", MP470_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP520", "MP520", MP520_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP610", "MP610", MP610_PID, 4800, 638, 877, PIXMA_CAP_CIS),
+  /* PIXMA 2008 vintage CCD */
+  DEVICE ("Canon MP980 series", "MP980", MP980_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
-  DEVICE ("Canon PIXMA MX300", "MX300", MX300_PID, 600, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MX310", "MX310", MX310_PID, 1200, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX700", "MX700", MX700_PID, 2400, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX850", "MX850", MX850_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MX7600", "MX7600", MX7600_PID, 4800, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  /* Generation 4 CCD */
+  DEVICE ("Canon MP990 series", "MP990", MP990_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
-  DEVICE ("Canon PIXMA MP630", "MP630", MP630_PID, 4800, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP620", "MP620", MP620_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP540", "MP540", MP540_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP480", "MP480", MP480_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP240", "MP240", MP240_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP260", "MP260", MP260_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP190", "MP190", MP190_PID, 600, 638, 877, PIXMA_CAP_CIS),
+  /* Flatbed scanner (2010) */
+  DEVICE ("Canoscan 9000F", "9000F", CS9000F_PID, 9600, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
-  /* PIXMA 2009 vintage */
-  DEVICE ("Canon PIXMA MX320", "MX320", MX320_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX330", "MX330", MX330_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-/* width and height adjusted to flatbed size 21.8 x 30.2 cm^2 respective
- * Not sure if anything's going wrong here, leaving as is
-  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 638, 880, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),*/
+  /* Latest devices (2010) Generation 4 CCD untested */
+  DEVICE ("Canon PIXMA MG8100", "MG8100", MG8100_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
-  /* PIXMA 2010 vintage */
-  DEVICE ("Canon PIXMA MX340", "MX340", MX340_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX350", "MX350", MX350_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX870", "MX870", MX870_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-
-  /* Generation 4: CIS */
-  DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP560", "MP560", MP560_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP550", "MP550", MP550_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP490", "MP490", MP490_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP250", "MP250", MP250_PID, 600, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP270", "MP270", MP270_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-
-  /* Latest devices (2010) Generation 4 CIS/CCD */
-  DEVICE ("Canon PIXMA MP280",  "MP280",  MP280_PID,  1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP495",  "MP495",  MP495_PID,  1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5100", "MG5100", MG5100_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5200", "MG5200", MG5200_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6100", "MG6200", MG6100_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-
-  /* Latest devices (2011) Generation 4 CIS/CCD */
-  DEVICE ("Canon PIXMA MG2100", "MG2100", MG2100_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG3100", "MG3100", MG3100_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG4100", "MG4100", MG4100_PID, 1200, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5300", "MG5300", MG5300_PID, 2400, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6200", "MG6200", MG6200_PID, 4800, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP493",  "MP493",  MP493_PID,  1200, 638, 877, PIXMA_CAP_CIS),
+  /* Latest devices (2011) Generation 4 CCD untested */
+  DEVICE ("Canon PIXMA MG8200", "MG8200", MG8200_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   END_OF_DEVICE_LIST
 };

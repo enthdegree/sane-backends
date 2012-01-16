@@ -1,8 +1,10 @@
-2012-01-15 Ruediger Meier <sweet_f_a@gmx.de>
+2012-01-21 Ruediger Meier <sweet_f_a@gmx.de>
 	* backend/canon_dr.h, backend/cardscan.h, backend/dll.c,
 	backend/epjitsu.h, backend/fujitsu.h, backend/gt68xx.c,
 	backend/kodak.h, backend/microtek2.h, sanei/sanei_access.[hc]: fix and
 	cleanup portable PATH_SEP and DIR_PATH defines
+	* sanei/sanei_scsi.c, tools/sane-find-scanner.c, configure.in,
+	sane/config.h.in: use the right scsi header on win32.
 
 2012-01-18 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150, doc/descriptions/pixma.desc, doc/sane-pixma.man:

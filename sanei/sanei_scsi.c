@@ -62,6 +62,10 @@
 #include <sys/param.h>
 #include <sys/types.h>
 
+#if defined (HAVE_WINDOWS_H)
+# include <windows.h>
+#endif
+
 #define STUBBED_INTERFACE	0
 #define LINUX_INTERFACE		1
 #define BSD_INTERFACE		2
@@ -211,11 +215,13 @@
 #  include <IOKit/scsi-commands/SCSITaskLib.h>
 # endif
 # endif
-#elif defined (HAVE_WINDOWS_H)
+#elif defined (HAVE_DDK_NTDDSCSI_H)
 # define USE WIN32_INTERFACE
-# include <windows.h>
 # include <ddk/scsi.h>
 # include <ddk/ntddscsi.h>
+#elif defined (HAVE_NTDDSCSI_H)
+# define USE WIN32_INTERFACE
+# include <ntddscsi.h>
 #endif
 
 #ifndef USE

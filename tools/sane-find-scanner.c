@@ -30,10 +30,15 @@
 #include <dirent.h>
 #include <errno.h>
 
-#if defined (HAVE_WINDOWS_H)
-#include <windows.h>
-#include <ddk/scsi.h>
-#include <ddk/ntddscsi.h>
+#if defined (HAVE_DDK_NTDDSCSI_H) || defined (HAVE_NTDDSCSI_H)
+# define WIN32_SCSI
+# include <windows.h>
+# if defined (HAVE_DDK_NTDDSCSI_H)
+#  include <ddk/scsi.h>
+#  include <ddk/ntddscsi.h>
+# elif defined (HAVE_NTDDSCSI_H)
+#  include <ntddscsi.h>
+# endif
 #endif
 
 #include "../include/sane/sanei.h"
@@ -1148,7 +1153,7 @@ get_next_file (char *dir_name, DIR * dir)
   return file_name;
 }
 
-#if defined (HAVE_WINDOWS_H)
+#if defined(WIN32_SCSI)
 /* Return a list of potential scanners. There's a lot of hardcoded values here that might break on a system with lots of scsi devices. */
 static char **build_scsi_dev_list(void)
 {
@@ -1840,7 +1845,7 @@ main (int argc, char **argv)
 	0
       };
 
-#if defined (HAVE_WINDOWS_H) || \
+#if defined (WIN32_SCSI) || \
     defined (HAVE_IOKIT_CDB_IOSCSILIB_H) || \
     defined (HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H) || \
     defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)

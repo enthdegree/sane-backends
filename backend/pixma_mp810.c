@@ -1623,6 +1623,20 @@ mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
   sp->line_size = sp->w * sp->channels * (sp->depth / 8);		/* bytes per line per color after cropping */
   /* PDBG (pixma_dbg (4, "*mp810_check_param***** (else) Final scan width and line-size: %u, %"PRIu64" *****\n", sp->wx, sp->line_size)); */
     
+  if (sp->source == PIXMA_SOURCE_FLATBED)
+    {
+      /* flatbed mode: highest res is 4800 dpi */
+      uint8_t k = sp->xdpi / MIN (sp->xdpi, 4800);
+      sp->x /= k;
+      sp->xs /= k;
+      sp->y /= k;
+      sp->w /= k;
+      sp->wx /= k;
+      sp->h /= k;
+      sp->xdpi /= k;
+      sp->ydpi = sp->xdpi;
+    }
+
   if (sp->source == PIXMA_SOURCE_TPU)
     {
       uint8_t k;

@@ -31,7 +31,7 @@ PIXMA MP800, MP800R, MP810, MP830, MP960, MP970, MP980, MP990
 .br
 PIXMA MX300, MX310, MX330, MX340, MX350
 .br
-PIXMA MX700, MX850, MX860, MX870, MX7600
+PIXMA MX700, MX850, MX860, MX870, MX880, MX7600
 .br
 PIXMA MP700, MP730, PIXMA MP750 (no grayscale)
 .br
@@ -243,7 +243,7 @@ the pixma backend, available in the Sane git repository at:
 You can also post into the Sane-devel mailing list for support.
 
 .SH AUTHORS
-Wittawat Yamwong, Nicolas Martin, Dennis Lou, Louis Lagendijk
+Wittawat Yamwong, Nicolas Martin, Dennis Lou, Louis Lagendijk, Rolf Bensch
 .PP
 We would like to thank all testers and helpers. Without them we could not be
 able to write subdrivers for models we don't have. See also the project

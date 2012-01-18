@@ -161,6 +161,9 @@
 #define MG5200_PID 0x1749
 #define MG6100_PID 0x174a
 
+/* PIXMA 2011 vintage */
+#define MX880_PID 0x1750
+
 /* 2011 new devices (untested) */
 #define MG2100_PID 0x1751
 #define MG3100_PID 0x1752
@@ -1164,6 +1167,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   if (( s->cfg->pid == MX850_PID ||
         s->cfg->pid == MX860_PID ||
         s->cfg->pid == MX870_PID ||
+        s->cfg->pid == MX880_PID ||
         s->cfg->pid == MX320_PID ||
         s->cfg->pid == MX330_PID ||
         s->cfg->pid == MX340_PID ||
@@ -1559,6 +1563,9 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MX340", "MX340", MX340_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX350", "MX350", MX350_PID, 1200, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX870", "MX870", MX870_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+
+  /* PIXMA 2011 vintage */
+  DEVICE ("Canon PIXMA MX880", "MX880", MX880_PID, 2400, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   /* Generation 4: CIS */
   DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 638, 877, PIXMA_CAP_CIS),

@@ -1,6 +1,6 @@
 2012-01-23 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150, doc/descriptions/pixma.desc, doc/sane-pixma.man:
-	New scanner MX882.
+	New scanner PIXMA MX880 Series.
 
 2012-01-21 Ruediger Meier <sweet_f_a@gmx.de>
 	* backend/canon_dr.h, backend/cardscan.h, backend/dll.c,

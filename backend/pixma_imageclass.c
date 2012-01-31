@@ -696,6 +696,7 @@ static const pixma_scan_ops_t pixma_iclass_ops = {
             1,                        /* iface */		\
             &pixma_iclass_ops,        /* ops */		\
             dpi, dpi,                 /* xdpi, ydpi */	\
+            0, 0,                     /* ext_min_dpi & ext_max_dpi not used in this subdriver */ \
             w, h,                     /* width, height */	\
             PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap             \
 }

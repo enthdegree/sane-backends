@@ -1,3 +1,8 @@
+2012-01-31 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.[ch], backend/pixma_imageclass.c, backend/pixma_mp[17]50.c,
+	backend/pixma_mp730.c, backend/pixma_mp810.c: modify dpi_list dependent on
+	different scanner capabilities for normal (flatbed) and ADF/TPU modes.    
+
 2012-01-23 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	New scanner PIXMA MX880 Series.

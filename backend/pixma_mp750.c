@@ -954,6 +954,7 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
 	0,                     /* iface */		\
 	&pixma_mp750_ops,      /* ops */		\
 	dpi, 2*(dpi),          /* xdpi, ydpi */		\
+        0, 0,                  /* ext_min_dpi & ext_max_dpi not used in this subdriver */ \
 	637, 877,              /* width, height */	\
         PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap             \
 }

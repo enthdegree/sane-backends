@@ -301,6 +301,10 @@ struct pixma_config_t
   const pixma_scan_ops_t *ops;	  /**< Subdriver ops */
   unsigned xdpi;	     /**< Maximum horizontal resolution[DPI] */
   unsigned ydpi;	     /**< Maximum vertical resolution[DPI] */
+  unsigned ext_min_dpi;    /**< Maximum horizontal resolution[DPI] for tpu/adf
+                             *  only needed if ADF/TPU has another min. dpi value than 75 dpi */
+  unsigned ext_max_dpi;    /**< Maximum vertical resolution[DPI] for tpu/adf
+                             *  only needed if ADF/TPU has another max. dpi value than xdpi */
   unsigned width;	     /**< Maximum width of scannable area in pixels at 75DPI */
   unsigned height;	   /**< Maximum height of scannable area in pixels at 75DPI */
   unsigned cap;		     /**< Capability bitfield \see PIXMA_CAP_* */

@@ -1961,45 +1961,46 @@ static const pixma_scan_ops_t pixma_mp810_ops = {
   mp810_get_status
 };
 
-#define DEVICE(name, model, pid, dpi, w, h, cap) { \
+#define DEVICE(name, model, pid, dpi, ext_min_dpi, ext_max_dpi, w, h, cap) { \
         name,              /* name */               \
         model,             /* model */              \
         CANON_VID, pid,    /* vid pid */            \
         0,                 /* iface */              \
         &pixma_mp810_ops,  /* ops */                \
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
+        ext_min_dpi, ext_max_dpi,  /* ext_min_dpi, ext_max_dpi */ \
         w, h,              /* width, height */      \
         PIXMA_CAP_EASY_RGB|PIXMA_CAP_GRAY|          \
         PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap  \
 }
 
-#define END_OF_DEVICE_LIST DEVICE(NULL, NULL, 0, 0, 0, 0, 0)
+#define END_OF_DEVICE_LIST DEVICE(NULL, NULL, 0, 0, 0, 0, 0, 0, 0)
 
 const pixma_config_t pixma_mp810_devices[] = {
   /* Generation 2: CCD */
-  DEVICE ("Canon PIXMA MP810", "MP810", MP810_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
-  DEVICE ("Canon PIXMA MP960", "MP960", MP960_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP810", "MP810", MP810_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP960", "MP960", MP960_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Generation 3 CCD not managed as Generation 2 */
-  DEVICE ("Canon Pixma MP970", "MP970", MP970_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon Pixma MP970", "MP970", MP970_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Flatbed scanner CCD (2007) */
-  DEVICE ("Canoscan 8800F", "8800F", CS8800F_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canoscan 8800F", "8800F", CS8800F_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* PIXMA 2008 vintage CCD */
-  DEVICE ("Canon MP980 series", "MP980", MP980_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon MP980 series", "MP980", MP980_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Generation 4 CCD */
-  DEVICE ("Canon MP990 series", "MP990", MP990_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon MP990 series", "MP990", MP990_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Flatbed scanner (2010) */
-  DEVICE ("Canoscan 9000F", "9000F", CS9000F_PID, 9600, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canoscan 9000F", "9000F", CS9000F_PID, 4800, 300, 9600, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Latest devices (2010) Generation 4 CCD untested */
-  DEVICE ("Canon PIXMA MG8100", "MG8100", MG8100_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MG8100", "MG8100", MG8100_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Latest devices (2011) Generation 4 CCD untested */
-  DEVICE ("Canon PIXMA MG8200", "MG8200", MG8200_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MG8200", "MG8200", MG8200_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   END_OF_DEVICE_LIST
 };

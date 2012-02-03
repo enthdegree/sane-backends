@@ -760,18 +760,26 @@ pixma_wait_event (pixma_t * s, int timeout /*ms */ )
 int
 pixma_check_scan_param (pixma_t * s, pixma_scan_param_t * sp)
 {
+  unsigned cfg_xdpi;
+
   if (!(sp->channels == 3 ||
 	(sp->channels == 1 && (s->cfg->cap & PIXMA_CAP_GRAY) != 0)))
     return PIXMA_EINVAL;
 
-  if (pixma_check_dpi (sp->xdpi, s->cfg->xdpi) < 0 ||
+  /* flatbed: use s->cfg->xdpi
+   * TPU/ADF: use s->cfg->ext_max_dpi, if configured with dpi value */
+  cfg_xdpi = ((sp->source == PIXMA_SOURCE_FLATBED
+               || s->cfg->ext_max_dpi == 0) ? s->cfg->xdpi
+                                            : s->cfg->ext_max_dpi);
+
+  if (pixma_check_dpi (sp->xdpi, cfg_xdpi) < 0 ||
       pixma_check_dpi (sp->ydpi, s->cfg->ydpi) < 0)
     return PIXMA_EINVAL;
 
   /* xdpi must be equal to ydpi except that
      xdpi = max_xdpi and ydpi = max_ydpi. */
   if (!(sp->xdpi == sp->ydpi ||
-	(sp->xdpi == s->cfg->xdpi && sp->ydpi == s->cfg->ydpi)))
+	(sp->xdpi == cfg_xdpi && sp->ydpi == s->cfg->ydpi)))
     return PIXMA_EINVAL;
 
   if (s->ops->check_param (s, sp) < 0)

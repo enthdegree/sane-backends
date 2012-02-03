@@ -601,7 +601,9 @@ control_option (pixma_sane_t * ss, SANE_Int n,
     case opt_source:
       if (cfg->cap & (PIXMA_CAP_ADF|PIXMA_CAP_ADFDUP|PIXMA_CAP_TPU)
           && (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO))
-        {
+        { /* new source selected: flatbed, ADF, TPU, ... */
+          /* to avoid fatal errors, select 600 dpi for dpi_list */
+          OVAL (opt_resolution).w = 600;
           if (ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_TPU
               || ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_ADF
               || ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_ADFDUP)

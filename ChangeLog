@@ -1,3 +1,9 @@
+2012-02-03 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/scripts/pixma_gen_options.py: script to generate 
+	backend/pixma_sane_options.c and backend/pixma_sane_options.h 
+	from pixma.c. Found in old pixma project archive file
+	http://home.arcor.de/wittawat/pixma/mp150-0.13.1.tar.bz2.
+
 2012-01-31 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_imageclass.c, backend/pixma_mp[17]50.c,
 	backend/pixma_mp730.c, backend/pixma_mp810.c: modify dpi_list dependent on

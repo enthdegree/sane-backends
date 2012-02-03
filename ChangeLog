@@ -1,4 +1,9 @@
 2012-02-03 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.[ch], backend/pixma_common.[ch], 
+	backend/pixma_sane_options.[ch], backend/pixma_mp{150,810}.c:
+	1 bit B/W lineart for pixma_mp150 and pixma_810 subdrivers.  
+
+2012-02-03 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.h: set PIXMA_VERSION_{MAJOR,MINOR,BUILD} to 0.16.3.
 
 2012-02-03 Rolf Bensch <rolf at bensch hyphen online dot de>

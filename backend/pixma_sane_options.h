@@ -30,6 +30,8 @@ typedef enum
   opt_button_update,
   opt_button_1,
   opt_button_2,
+  opt__group_5,
+  opt_threshold,
   opt_last
 } option_t;
 

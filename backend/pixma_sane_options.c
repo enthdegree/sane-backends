@@ -1,7 +1,6 @@
 /* Automatically generated from pixma_sane.c */
 static const SANE_Range constraint_gamma_table = { 0, 255, 0 };
 
-
 static int
 find_string_in_list (SANE_String_Const str, const SANE_String_Const * list)
 {
@@ -67,7 +66,7 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod->constraint_type = SANE_CONSTRAINT_STRING_LIST;
   sod->constraint.string_list = ss->mode_list;
   OPT_IN_CTX[opt_mode].info = SANE_INFO_RELOAD_PARAMS;
-  opt->def.s = SANE_VALUE_SCAN_MODE_COLOR;
+  opt->def.s = SANE_I18N (ss->mode_list[0]);
   opt->val.w = find_string_in_list (opt->def.s, sod->constraint.string_list);
 
   opt = &(OPT_IN_CTX[opt_source]);
@@ -250,6 +249,29 @@ build_option_descriptors (struct pixma_sane_t *ss)
   opt->def.w = 0;
   opt->val.w = 0;
 
+  opt = &(OPT_IN_CTX[opt__group_5]);
+  sod = &opt->sod;
+  sod->type = SANE_TYPE_GROUP;
+  sod->title = SANE_I18N ("Extras");
+  sod->desc = sod->title;
+
+  opt = &(OPT_IN_CTX[opt_threshold]);
+  sod = &opt->sod;
+  sod->type = SANE_TYPE_INT;
+  sod->title = SANE_TITLE_THRESHOLD;
+  sod->desc = SANE_DESC_THRESHOLD;
+  sod->name = "threshold";
+  sod->unit = SANE_UNIT_PERCENT;
+  sod->size = 1 * sizeof (SANE_Word);
+  sod->cap =
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC |
+    SANE_CAP_INACTIVE;
+  sod->constraint_type = SANE_CONSTRAINT_NONE;
+  OPT_IN_CTX[opt_threshold].info = 0;
+  opt->def.w = 50;
+  opt->val.w = 50;
+
   return 0;
 
 }
+

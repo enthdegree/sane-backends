@@ -198,6 +198,16 @@ typedef enum pixma_paper_source_t
   PIXMA_SOURCE_ADFDUP		/* duplex */
 } pixma_paper_source_t;
 
+/** Scan modes */
+typedef enum pixma_scan_mode_t
+{
+  /* standard scan modes */
+  PIXMA_SCAN_MODE_COLOR,
+  PIXMA_SCAN_MODE_GRAY,
+  /* 1 bit lineart scan mode */
+  PIXMA_SCAN_MODE_LINEART
+} pixma_scan_mode_t;
+
 typedef enum pixma_hardware_status_t
 {
   PIXMA_HARDWARE_OK,
@@ -251,10 +261,15 @@ struct pixma_scan_param_t
      *  This field will be set by pixma_check_scan_param(). */
   uint64_t image_size;
 
-    /** Channels per pixel. 1 = grayscale, 3 = color */
+    /** Channels per pixel. 1 = grayscale and lineart, 3 = color */
   unsigned channels;
 
-    /** Bits per channels. 0 = default. Currently not used. */
+    /** Bits per channels.
+     *   1 =  1 bit B/W lineart (flatbed)
+     *   8 =  8 bit grayscale,
+     *       24 bit color (both flatbed)
+     *  16 = 16 bit grayscale (TPU, flatbed not implemeted),
+     *       48 bit color (TPU, flatbed not implemented) */
   unsigned depth;
 
   /*@{ */
@@ -277,12 +292,24 @@ struct pixma_scan_param_t
    *  Currently only used in pixma_mp810.c sub-driver */
   unsigned tpu_offset_added;
 
+  /** Flag indicating whether a software-lineart scan is in progress
+   *  0 = other scan
+   *  1 = software-lineart scan */
+  unsigned software_lineart;
+
+  /** Threshold for software-lineart scans
+   *  Value in percent (0% ... 100%) */
+  unsigned threshold;
+
     /** Gamma table. 4096 entries, 12 bit => 8 bit. If \c NULL, default gamma
      *  specified by subdriver will be used. */
   const uint8_t *gamma_table;
 
     /** \see #pixma_paper_source_t */
   pixma_paper_source_t source;
+
+  /** \see #pixma_scan_mode_t */
+  pixma_scan_mode_t mode;
 
     /** The current page # in the same ADF scan session, 0 in non ADF */
   unsigned adf_pageid;

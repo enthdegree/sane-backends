@@ -304,6 +304,115 @@ pixma_get_time (time_t * sec, uint32_t * usec)
     *usec = tv.tv_usec;
 }
 
+/* convert 24/48 bit RGB to 8/16 bit grayscale
+ *
+ * Formular: g = (R + G + B) / 3
+ *
+ * sptr: source color scale buffer
+ * gptr: destination gray scale buffer
+ * c == 3: 24 bit RGB -> 8 bit gray
+ * c == 6: 48 bit RGB -> 16 bit gray
+ */
+uint8_t *
+pixma_rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
+{
+  unsigned i, j, g;
+
+  /* PDBG (pixma_dbg (4, "*pixma_rgb_to_gray*****\n")); */
+
+  for (i = 0; i < w; i++)
+    {
+      for (j = 0, g = 0; j < 3; j++)
+        {
+          g += *sptr++;
+          if (c == 6) g += (*sptr++ << 8);      /* 48 bit RGB: high byte */
+        }
+
+      g /= 3;                                   /* 8 or 16 bit gray */
+      *gptr++ = g;
+      if (c == 6) *gptr++ = (g >> 8);           /* 16 bit gray: high byte */
+    }
+  return gptr;
+}
+
+/**
+ * This code was taken from the genesys backend
+ * This sub-driver has no threshold_curve
+ * uses threshold to control software binarization
+ * @param sp    device set up for the scan
+ * @param dst   pointer where to store result
+ * @param src   pointer to raw data
+ * @param width width of the processed line
+ * @param c     3 for 3-channel single-byte data, 6 for double-byte data
+ * */
+uint8_t *
+pixma_binarize_line(pixma_scan_param_t * sp, uint8_t * dst, uint8_t * src, unsigned width, unsigned c)
+{
+  unsigned j, x, offset;
+  unsigned char mask;
+  uint8_t min, max;
+  unsigned threshold = 0xFF * sp->threshold / 100;      /* sp->threshold is 0% ... 100% */
+
+  /* PDBG (pixma_dbg (4, "*pixma_binarize_line***** src = %u, dst = %u, width = %u, c = %u, threshold = %u *****\n",
+                      src, dst, width, c, sp->threshold)); */
+
+  /* 16 bit grayscale not supported */
+  if (c == 6)
+    {
+      PDBG (pixma_dbg (1, "*pixma_binarize_line***** Error: 16 bit grayscale not supported\n"));
+      return dst;
+    }
+
+  /* first, color convert to grayscale */
+    pixma_rgb_to_gray(dst, src, width, c);
+
+  /* second, normalize line */
+    min = 255;
+    max = 0;
+    for (x = 0; x < width; x++)
+      {
+        if (src[x] > max)
+          {
+            max = src[x];
+          }
+        if (src[x] < min)
+          {
+            min = src[x];
+          }
+      }
+
+    /* safeguard against dark or white areas */
+    if(min>80)
+        min=0;
+    if(max<80)
+        max=255;
+    for (x = 0; x < width; x++)
+      {
+        src[x] = ((src[x] - min) * 255) / (max - min);
+      }
+
+  /* third, walk the input buffer, output bits */
+    for (j = 0; j < width; j++)
+      {
+        /* output image location */
+        offset = j % 8;
+        mask = 0x80 >> offset;
+
+        /* lookup threshold */
+        if (src[j] > threshold)
+            *dst &= ~mask;      /* white */
+        else
+            *dst |= mask;       /* black */
+
+        if (offset == 7)
+            dst++;
+      }
+
+  /* PDBG (pixma_dbg (4, " *pixma_binarize_line***** ready: src = %u, dst = %u *****\n", src, dst)); */
+
+  return dst;
+}
+
 int
 pixma_map_status_errno (unsigned status)
 {
@@ -574,6 +683,7 @@ pixma_scan (pixma_t * s, pixma_scan_param_t * sp)
   pixma_dbg (3, "  dpi=%ux%u offset=(%u,%u) dimension=%ux%u\n",
 	     sp->xdpi, sp->ydpi, sp->x, sp->y, sp->w, sp->h);
   pixma_dbg (3, "  gamma_table=%p source=%d\n", sp->gamma_table, sp->source);
+  pixma_dbg (3, "  threshold=%d\n", sp->threshold);
 #endif
 
   s->param = sp;
@@ -843,6 +953,10 @@ pixma_check_scan_param (pixma_t * s, pixma_scan_param_t * sp)
   if (sp->line_size == 0)
     sp->line_size = sp->depth / 8 * sp->channels * sp->w;
   sp->image_size = sp->line_size * sp->h;
+
+  /* image_size for software lineart is counted in bits */
+  if (sp->software_lineart == 1)
+    sp->image_size /= 8;
   return 0;
 }
 

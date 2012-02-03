@@ -1,4 +1,7 @@
 2012-02-03 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.h: set PIXMA_VERSION_{MAJOR,MINOR,BUILD} to 0.16.3.
+
+2012-02-03 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/scripts/pixma_gen_options.py: script to generate 
 	backend/pixma_sane_options.c and backend/pixma_sane_options.h 
 	from pixma.c. Found in old pixma project archive file

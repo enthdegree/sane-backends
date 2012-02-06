@@ -160,6 +160,7 @@
 #define MG5100_PID 0x1748
 #define MG5200_PID 0x1749
 #define MG6100_PID 0x174a
+#define MX360_PID 0x174d
 
 /* PIXMA 2011 vintage */
 #define MX880_PID 0x1750
@@ -1195,6 +1196,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
         s->cfg->pid == MX330_PID ||
         s->cfg->pid == MX340_PID ||
         s->cfg->pid == MX350_PID ||
+        s->cfg->pid == MX360_PID ||
         s->cfg->pid == MX7600_PID )
        &&
         sp->source == PIXMA_SOURCE_FLATBED)
@@ -1587,6 +1589,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   /* PIXMA 2010 vintage */
   DEVICE ("Canon PIXMA MX340", "MX340", MX340_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX350", "MX350", MX350_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX360", "MX360", MX350_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX870", "MX870", MX870_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   /* PIXMA 2011 vintage */

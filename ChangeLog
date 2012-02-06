@@ -1,3 +1,7 @@
+2012-02-06 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	New scanner Canon PIXMA MX360.
+
 2012-02-03 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_common.[ch], 
 	backend/pixma_sane_options.[ch], backend/pixma_mp{150,810}.c:

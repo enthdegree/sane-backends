@@ -1055,8 +1055,8 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
           /* Crop line to selected borders */
           memmove(cptr, sptr + cx, cw);
 	  
-          /* Color to Lineart convert for CCD sensor */
-          if (is_ccd_lineart (s))
+          /* Color / Gray to Lineart convert */
+          if (s->param->software_lineart)
               cptr = gptr = pixma_binarize_line (s->param, gptr, cptr, s->param->w, c);
           /* Color to Grayscale convert for CCD sensor */
           else if (is_ccd_grayscale (s))

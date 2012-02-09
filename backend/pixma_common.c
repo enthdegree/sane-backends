@@ -343,7 +343,9 @@ pixma_rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
  * @param dst   pointer where to store result
  * @param src   pointer to raw data
  * @param width width of the processed line
- * @param c     3 for 3-channel single-byte data, 6 for double-byte data
+ * @param c     1 for 1-channel single-byte data,
+ *              3 for 3-channel single-byte data,
+ *              6 for double-byte data
  * */
 uint8_t *
 pixma_binarize_line(pixma_scan_param_t * sp, uint8_t * dst, uint8_t * src, unsigned width, unsigned c)
@@ -364,7 +366,8 @@ pixma_binarize_line(pixma_scan_param_t * sp, uint8_t * dst, uint8_t * src, unsig
     }
 
   /* first, color convert to grayscale */
-    pixma_rgb_to_gray(dst, src, width, c);
+    if (c != 1)
+      pixma_rgb_to_gray(dst, src, width, c);
 
   /* second, normalize line */
     min = 255;

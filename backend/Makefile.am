@@ -139,8 +139,7 @@ install-firmware-path:
 	  done
 
 install-lockpath:
-	$(mkinstalldirs) -m 775 -g $(LOCKPATH_GROUP) $(DESTDIR)$(locksanedir) || \
-		$(mkinstalldirs) -m 775 $(DESTDIR)$(locksanedir)
+	$(mkinstalldirs) -m 775 $(DESTDIR)$(locksanedir)
 
 uninstall-hook:
 	rm -rf $(DESTDIR)$(libdir)/sane $(DESTDIR)$(configdir) $(DESTDIR)$(locksanedir)

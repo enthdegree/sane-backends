@@ -641,7 +641,8 @@ control_option (pixma_sane_t * ss, SANE_Int n,
         }
       break;
     case opt_mode:
-      if (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO)
+      if (cfg->cap & (PIXMA_CAP_LINEART)
+          && (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO))
         {
           if (ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_LINEART)
             {

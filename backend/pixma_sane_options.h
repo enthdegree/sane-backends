@@ -21,6 +21,7 @@ typedef enum
   opt__group_2,
   opt_custom_gamma,
   opt_gamma_table,
+  opt_gamma,
   opt__group_3,
   opt_tl_x,
   opt_tl_y,

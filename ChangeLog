@@ -1,3 +1,7 @@
+2012-02-16 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.c, backend/pixma_sane_options.[ch]: 
+	New device specific option 'gamma'.
+
 2012-02-09 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_common.[ch], 
 	backend/pixma_sane_options.[ch], backend/pixma_mp{150,810}.c:

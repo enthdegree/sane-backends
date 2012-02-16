@@ -640,6 +640,15 @@ control_option (pixma_sane_t * ss, SANE_Int n,
             *info |= SANE_INFO_RELOAD_OPTIONS;
         }
       break;
+    case opt_gamma:
+      if (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO)
+        {
+          /* PDBG (pixma_dbg (4, "*control_option***** gamma = %f *\n",
+                           SANE_UNFIX (OVAL (opt_gamma).w))); */
+          pixma_fill_gamma_table (SANE_UNFIX (OVAL (opt_gamma).w),
+                                  ss->gamma_table, sizeof (ss->gamma_table));
+        }
+      break;
     case opt_mode:
       if (cfg->cap & (PIXMA_CAP_LINEART)
           && (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO))
@@ -813,6 +822,7 @@ init_option_descriptors (pixma_sane_t * ss)
   /* Enable options that are available only in some scanners. */
   if (cfg->cap & PIXMA_CAP_GAMMA_TABLE)
     {
+      enable_option (ss, opt_gamma, SANE_TRUE);
       enable_option (ss, opt_custom_gamma, SANE_TRUE);
       sane_control_option (ss, opt_custom_gamma, SANE_ACTION_SET_AUTO,
 			   NULL, NULL);
@@ -1608,6 +1618,13 @@ type int gamma-table[4096]
   constraint (0,255,0)
   title @SANE_TITLE_GAMMA_VECTOR
   desc  @SANE_DESC_GAMMA_VECTOR
+  cap soft_select soft_detect automatic inactive
+
+type fixed gamma
+  default AUTO_GAMMA
+  constraint (0.3,5,0)
+  title Gamma function exponent
+  desc  Changes intensity of midtones
   cap soft_select soft_detect automatic inactive
 
 rem -------------------------------------------

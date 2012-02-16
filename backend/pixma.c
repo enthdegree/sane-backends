@@ -646,11 +646,9 @@ control_option (pixma_sane_t * ss, SANE_Int n,
           if (ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_LINEART)
             {
               enable_option (ss, opt_threshold, SANE_TRUE);
-              enable_option (ss, opt_custom_gamma, SANE_FALSE);
             }
           else
             {
-              enable_option (ss, opt_custom_gamma, SANE_TRUE);
               enable_option (ss, opt_threshold, SANE_FALSE);
             }
           *info |= SANE_INFO_RELOAD_OPTIONS;

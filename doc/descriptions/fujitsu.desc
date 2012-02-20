@@ -156,18 +156,6 @@
 :usbid "0x04c5" "0x1150"
 :comment "small, current"
 
-:model "fi-6125"
-:interface "USB"
-:status :untested
-:usbid "0x04c5" "0x11ee"
-:comment "small, unreleased"
-
-:model "fi-6225"
-:interface "USB"
-:status :untested
-:usbid "0x04c5" "0x11ef"
-:comment "small, unreleased"
-
 :model "fi-6140Z"
 :interface "USB"
 :status :untested
@@ -182,9 +170,9 @@
 
 :model "fi-6130Z"
 :interface "USB"
-:status :untested
+:status :complete
 :usbid "0x04c5" "0x11f3"
-:comment "small, unreleased"
+:comment "small"
 
 :model "fi-6230Z"
 :interface "USB"
@@ -442,15 +430,3 @@
 :status :untested
 :usbid "0x04c5" "0x119e"
 :comment "big, current. VRS CGA board unsupported"
-
-:model "fi-6900"
-:interface "SCSI USB"
-:status :untested
-:usbid "0x04c5" "0x119f"
-:comment "big, unreleased, similar to fi-5900?"
-
-:model "fi-6900-CGA"
-:interface "SCSI USB"
-:status :untested
-:usbid "0x04c5" "0x11a0"
-:comment "big, unreleased, similar to fi-5900? VRS CGA board unsupported"

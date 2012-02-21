@@ -52,7 +52,7 @@ The following models are not well tested and/or the scanner sometimes hangs
 and must be switched off and on.
 .PP
 .RS
-PIXMA MP760, MP770, MP780, MP790
+PIXMA MP760, MP770, MP780, MP790, MX360
 .RE
 .PP
 The following models may use the same Pixma protocol as those listed 

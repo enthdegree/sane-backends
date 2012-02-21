@@ -263,7 +263,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x174d"
 :status :complete
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)"
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
 
 :model "PIXMA MX700"
 :interface "USB Ethernet"

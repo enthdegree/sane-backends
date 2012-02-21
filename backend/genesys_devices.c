@@ -1187,15 +1187,15 @@ static Genesys_Model hp4850c_model = {
   GENESYS_GL843,
   NULL,
 
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  {2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  {2400, 1200, 600, 400, 300, 200, 150, 100, 0},
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (8.0),		/* Start of scan area in mm  (x) */
-  SANE_FIX (13.00),		/* Start of scan area in mm (y) */
-  SANE_FIX (217.9),		/* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
-  SANE_FIX (315.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (7.9),        /* Start of scan area in mm  (x) */
+  SANE_FIX (5.9),        /* Start of scan area in mm (y) */
+  SANE_FIX (219.6),      /* Size of scan area in mm (x) */
+  SANE_FIX (314.5),      /* Size of scan area in mm (y) */
 
   SANE_FIX (3.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */

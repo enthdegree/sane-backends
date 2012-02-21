@@ -1048,8 +1048,8 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
                                  mp->shift, mp->stripe_shift);
                        
           /* special image format for *most* devices at high dpi. 
-           * MP220 is a gen3 exception */
-          if (s->cfg->pid != MP220_PID && n > 0)
+           * MP220 and MX360 are exceptions */
+          if (s->cfg->pid != MP220_PID && s->cfg->pid != MX360_PID && n > 0)
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
           
           /* Crop line to selected borders */

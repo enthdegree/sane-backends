@@ -77,6 +77,7 @@
 #define MF4320_PID 0x26ee
 #define MF3200_PID 0x2684
 #define MF6500_PID 0x2686
+#define MF4410_PID 0x2737
 /* the following are all untested */
 #define MF5630_PID 0x264e
 #define MF5650_PID 0x264f
@@ -99,7 +100,8 @@ enum iclass_cmd_t
   cmd_scan_param = 0xde20,
   cmd_status = 0xf320,
   cmd_abort_session = 0xef20,
-  cmd_read_image = 0xd420,
+  cmd_read_image  = 0xd420,
+  cmd_read_image2 = 0xd460,     /* New multifunctionals, such as MF4410 */
   cmd_error_info = 0xff20,
 
   cmd_activate = 0xcf60
@@ -264,10 +266,11 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
   const int hlen = 2 + 6;
 
   memset (mf->cb.buf, 0, 11);
-  pixma_set_be16 (cmd_read_image, mf->cb.buf);
+  pixma_set_be16 ((s->cfg->pid == MF4410_PID ? cmd_read_image2 : cmd_read_image), mf->cb.buf);
   mf->cb.buf[8] = flag;
   mf->cb.buf[10] = 0x06;
-  expected_len = (s->cfg->pid == MF4600_PID ||
+  expected_len = (s->cfg->pid == MF4410_PID ||
+                  s->cfg->pid == MF4600_PID ||
                   s->cfg->pid == MF6500_PID ||
                   s->cfg->pid == MF8030_PID) ? 512 : hlen;
   mf->cb.reslen = pixma_cmd_transaction (s, mf->cb.buf, 11, mf->cb.buf, expected_len);
@@ -277,7 +280,8 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
       *size = pixma_get_be16 (mf->cb.buf + 6);    /* 16bit size */
       error = 0;
 
-      if (s->cfg->pid == MF4600_PID ||
+      if (s->cfg->pid == MF4410_PID ||
+          s->cfg->pid == MF4600_PID ||
           s->cfg->pid == MF6500_PID ||
           s->cfg->pid == MF8030_PID)
         {                                         /* 32bit size */
@@ -299,7 +303,8 @@ read_image_block (pixma_t * s, uint8_t * data, unsigned size)
   int error;
   unsigned maxchunksize, chunksize, count = 0;
   
-  maxchunksize = MAX_CHUNK_SIZE * ((s->cfg->pid == MF4600_PID || 
+  maxchunksize = MAX_CHUNK_SIZE * ((s->cfg->pid == MF4410_PID ||
+                                    s->cfg->pid == MF4600_PID ||
                                     s->cfg->pid == MF6500_PID ||
                                     s->cfg->pid == MF8030_PID) ? 4 : 1);
   while (size)
@@ -595,6 +600,7 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       if (n != 0)
         {
           if (s->param->channels != 1 &&
+	          s->cfg->pid != MF4410_PID &&
 	          s->cfg->pid != MF4600_PID &&
 	          s->cfg->pid != MF6500_PID &&
 	          s->cfg->pid != MF8030_PID)
@@ -643,7 +649,7 @@ iclass_finish_scan (pixma_t * s)
       query_status (s);
       activate (s, 0);
       query_status (s);
-      if (mf->last_block == 0x28)
+      if (mf->last_block == 0x28 || (s->cfg->pid==MF4410_PID && mf->last_block==0x38))
 	{
 	  abort_session (s);
 	}
@@ -710,6 +716,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF4010", "MF4010", MF4010_PID, 600, 640, 877, 0),
   DEV ("Canon imageCLASS MF3240", "MF3240", MF3200_PID, 600, 640, 877, 0),
   DEV ("Canon imageClass MF6500", "MF6500", MF6500_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF4410", "MF4410", MF4410_PID, 600, 640, 877, 0),
   /* FIXME: the following capabilities all need updating/verifying */
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),

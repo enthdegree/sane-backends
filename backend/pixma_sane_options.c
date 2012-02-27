@@ -2,6 +2,7 @@
 static const SANE_Range constraint_gamma_table = { 0, 255, 0 };
 static const SANE_Range constraint_gamma = { SANE_FIX (0.3), SANE_FIX (5),
                                              SANE_FIX (0) };
+static const SANE_Range constraint_threshold = { 0, 100, 1 };
 
 static int
 find_string_in_list (SANE_String_Const str, const SANE_String_Const * list)
@@ -285,7 +286,8 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod->cap =
     SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC |
     SANE_CAP_INACTIVE;
-  sod->constraint_type = SANE_CONSTRAINT_NONE;
+  sod->constraint_type = SANE_CONSTRAINT_RANGE;
+  sod->constraint.range = &constraint_threshold;
   OPT_IN_CTX[opt_threshold].info = 0;
   opt->def.w = 50;
   opt->val.w = 50;

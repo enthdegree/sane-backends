@@ -1692,6 +1692,7 @@ type group
 type int threshold
   unit PERCENT
   default 50
+  constraint (0,100,1)
   title @SANE_TITLE_THRESHOLD
   desc  @SANE_DESC_THRESHOLD
   cap soft_select soft_detect automatic inactive

@@ -1,3 +1,8 @@
+2012-02-29 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.[ch], backend/pixma_common.c, 
+	backend/pixma_sane_options.[ch]: New device specific option 
+	'threshold-curve'. Can be used to optimize 1 bit B/W lineart scans.
+
 2012-02-27 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc, 
 	doc/sane-pixma.man: New scanner Canon imageCLASS MF4410 from 

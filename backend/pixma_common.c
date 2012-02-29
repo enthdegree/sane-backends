@@ -337,8 +337,7 @@ pixma_rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
 
 /**
  * This code was taken from the genesys backend
- * This sub-driver has no threshold_curve
- * uses threshold to control software binarization
+ * uses threshold and threshold_curve to control software binarization
  * @param sp    device set up for the scan
  * @param dst   pointer where to store result
  * @param src   pointer to raw data
@@ -350,13 +349,15 @@ pixma_rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
 uint8_t *
 pixma_binarize_line(pixma_scan_param_t * sp, uint8_t * dst, uint8_t * src, unsigned width, unsigned c)
 {
-  unsigned j, x, offset;
+  unsigned j, x, windowX, sum = 0;
+  unsigned threshold;
+  unsigned offset, addCol;
+  int dropCol;
   unsigned char mask;
   uint8_t min, max;
-  unsigned threshold = 0xFF * sp->threshold / 100;      /* sp->threshold is 0% ... 100% */
 
-  /* PDBG (pixma_dbg (4, "*pixma_binarize_line***** src = %u, dst = %u, width = %u, c = %u, threshold = %u *****\n",
-                      src, dst, width, c, sp->threshold)); */
+  /* PDBG (pixma_dbg (4, "*pixma_binarize_line***** src = %u, dst = %u, width = %u, c = %u, threshold = %u, thershold_curve = %u *****\n",
+                      src, dst, width, c, sp->threshold, sp->threshold_curve)); */
 
   /* 16 bit grayscale not supported */
   if (c == 6)
@@ -394,12 +395,40 @@ pixma_binarize_line(pixma_scan_param_t * sp, uint8_t * dst, uint8_t * src, unsig
         src[x] = ((src[x] - min) * 255) / (max - min);
       }
 
-  /* third, walk the input buffer, output bits */
+  /* third, create sliding window, prefill the sliding sum */
+    /* ~1mm works best, but the window needs to have odd # of pixels */
+    windowX = (6 * sp->xdpi) / 150;
+    if (!(windowX % 2))
+      windowX++;
+
+    /* to avoid conflicts with *dst start at 2nd pixel (byte) */
+    for (j = 1; j <= windowX; j++)
+      sum += src[j];
+    /* PDBG (pixma_dbg (4, " *pixma_binarize_line***** windowX = %d, sum = %d\n", windowX, sum)); */
+
+  /* fourth, walk the input buffer, output bits */
     for (j = 0; j < width; j++)
       {
         /* output image location */
         offset = j % 8;
         mask = 0x80 >> offset;
+        threshold = sp->threshold;
+
+        /* move sum/update threshold only if there is a curve */
+        if (sp->threshold_curve)
+          {
+            addCol = j + windowX / 2;
+            dropCol = addCol - windowX;
+
+            if (dropCol > 0 && addCol < width)
+              {
+                sum += src[addCol];
+                sum -= src[dropCol];
+              }
+            threshold = sp->lineart_lut[sum / windowX];
+            /* PDBG (pixma_dbg (4, " *pixma_binarize_line***** addCol = %u, dropCol = %d, sum = %u, windowX = %u, lut-element = %d, threshold = %u\n",
+                             addCol, dropCol, sum, windowX, sum/windowX, threshold)); */
+          }
 
         /* lookup threshold */
         if (src[j] > threshold)
@@ -414,6 +443,91 @@ pixma_binarize_line(pixma_scan_param_t * sp, uint8_t * dst, uint8_t * src, unsig
   /* PDBG (pixma_dbg (4, " *pixma_binarize_line***** ready: src = %u, dst = %u *****\n", src, dst)); */
 
   return dst;
+}
+
+/**
+   This code was taken from the genesys backend
+   Function to build a lookup table (LUT), often
+   used by scanners to implement brightness/contrast/gamma
+   or by backends to speed binarization/thresholding
+
+   offset and slope inputs are -127 to +127
+
+   slope rotates line around central input/output val,
+   0 makes horizontal line
+
+       pos           zero          neg
+       .       x     .             .  x
+       .      x      .             .   x
+   out .     x       .xxxxxxxxxxx  .    x
+       .    x        .             .     x
+       ....x.......  ............  .......x....
+            in            in            in
+
+   offset moves line vertically, and clamps to output range
+   0 keeps the line crossing the center of the table
+
+       high           low
+       .   xxxxxxxx   .
+       . x            .
+   out x              .          x
+       .              .        x
+       ............   xxxxxxxx....
+            in             in
+
+   out_min/max provide bounds on output values,
+   useful when building thresholding lut.
+   0 and 255 are good defaults otherwise.
+  * */
+static SANE_Status
+load_lut (unsigned char * lut,
+  int in_bits, int out_bits,
+  int out_min, int out_max,
+  int slope, int offset)
+{
+  int i, j;
+  double shift, rise;
+  int max_in_val = (1 << in_bits) - 1;
+  int max_out_val = (1 << out_bits) - 1;
+  unsigned char * lut_p = lut;
+
+  /* PDBG (pixma_dbg (4, "*load_lut***** start %d %d *****\n", slope, offset)); */
+
+  /* slope is converted to rise per unit run:
+   * first [-127,127] to [-1,1]
+   * then multiply by PI/2 to convert to radians
+   * then take the tangent (T.O.A)
+   * then multiply by the normal linear slope
+   * because the table may not be square, i.e. 1024x256*/
+  rise = tan((double)slope/127 * M_PI/2) * max_out_val / max_in_val;
+
+  /* line must stay vertically centered, so figure
+   * out vertical offset at central input value */
+  shift = (double)max_out_val/2 - (rise*max_in_val/2);
+
+  /* convert the user offset setting to scale of output
+   * first [-127,127] to [-1,1]
+   * then to [-max_out_val/2,max_out_val/2]*/
+  shift += (double)offset / 127 * max_out_val / 2;
+
+  for(i=0;i<=max_in_val;i++){
+    j = rise*i + shift;
+
+    if(j<out_min){
+      j=out_min;
+    }
+    else if(j>out_max){
+      j=out_max;
+    }
+
+    *lut_p=j;
+    lut_p++;
+  }
+
+  /* PDBG (pixma_dbg (4, "*load_lut***** finish *****\n")); */
+  /* PDBG (pixma_hexdump (4, lut, max_in_val+1)); */
+
+  return SANE_STATUS_GOOD;
 }
 
 int
@@ -678,6 +792,12 @@ pixma_scan (pixma_t * s, pixma_scan_param_t * sp)
   if (error < 0)
     return error;
 
+  if (sp->mode == PIXMA_SCAN_MODE_LINEART)
+    {
+      load_lut(sp->lineart_lut, 8, 8, 50, 205,
+               sp->threshold_curve, sp->threshold-127);
+    }
+
 #ifndef NDEBUG
   pixma_dbg (3, "\n");
   pixma_dbg (3, "pixma_scan(): start\n");
@@ -686,7 +806,7 @@ pixma_scan (pixma_t * s, pixma_scan_param_t * sp)
   pixma_dbg (3, "  dpi=%ux%u offset=(%u,%u) dimension=%ux%u\n",
 	     sp->xdpi, sp->ydpi, sp->x, sp->y, sp->w, sp->h);
   pixma_dbg (3, "  gamma_table=%p source=%d\n", sp->gamma_table, sp->source);
-  pixma_dbg (3, "  threshold=%d\n", sp->threshold);
+  pixma_dbg (3, "  threshold=%d threshold_curve=%d\n", sp->threshold, sp->threshold_curve);
 #endif
 
   s->param = sp;

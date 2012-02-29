@@ -297,9 +297,14 @@ struct pixma_scan_param_t
    *  1 = software-lineart scan */
   unsigned software_lineart;
 
-  /** Threshold for software-lineart scans
-   *  Value in percent (0% ... 100%) */
+  /** Threshold for software-lineart scans */
   unsigned threshold;
+
+  /** lineart threshold curve for dynamic rasterization */
+  unsigned threshold_curve;
+
+  /* look up table used in dynamic rasterization */
+  unsigned char lineart_lut[256];
 
     /** Gamma table. 4096 entries, 12 bit => 8 bit. If \c NULL, default gamma
      *  specified by subdriver will be used. */

@@ -3,6 +3,7 @@ static const SANE_Range constraint_gamma_table = { 0, 255, 0 };
 static const SANE_Range constraint_gamma = { SANE_FIX (0.3), SANE_FIX (5),
                                              SANE_FIX (0) };
 static const SANE_Range constraint_threshold = { 0, 100, 1 };
+static const SANE_Range constraint_threshold_curve = { 0, 127, 1 };
 
 static int
 find_string_in_list (SANE_String_Const str, const SANE_String_Const * list)
@@ -91,9 +92,7 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod = &opt->sod;
   sod->type = SANE_TYPE_BOOL;
   sod->title = SANE_I18N ("Button-controlled scan");
-  sod->desc =
-    SANE_I18N
-    ("When enabled, scan process will not start immediately. To proceed, press \"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To cancel, press \"GRAY\" button.");
+  sod->desc = SANE_I18N ("When enabled, scan process will not start immediately. To proceed, press \"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To cancel, press \"GRAY\" button.");
   sod->name = "button-controlled";
   sod->unit = SANE_UNIT_NONE;
   sod->size = sizeof (SANE_Word);
@@ -117,9 +116,8 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod->name = "custom-gamma";
   sod->unit = SANE_UNIT_NONE;
   sod->size = sizeof (SANE_Word);
-  sod->cap =
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC |
-    SANE_CAP_INACTIVE;
+  sod->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC
+      | SANE_CAP_INACTIVE;
   sod->constraint_type = SANE_CONSTRAINT_NONE;
   OPT_IN_CTX[opt_custom_gamma].info = 0;
   opt->def.w = SANE_TRUE;
@@ -133,9 +131,8 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod->name = "gamma-table";
   sod->unit = SANE_UNIT_NONE;
   sod->size = 4096 * sizeof (SANE_Word);
-  sod->cap =
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC |
-    SANE_CAP_INACTIVE;
+  sod->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC
+      | SANE_CAP_INACTIVE;
   sod->constraint_type = SANE_CONSTRAINT_RANGE;
   sod->constraint.range = &constraint_gamma_table;
   OPT_IN_CTX[opt_gamma_table].info = 0;
@@ -148,9 +145,8 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod->name = "gamma";
   sod->unit = SANE_UNIT_NONE;
   sod->size = 1 * sizeof (SANE_Word);
-  sod->cap =
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC |
-    SANE_CAP_INACTIVE;
+  sod->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC
+      | SANE_CAP_INACTIVE;
   sod->constraint_type = SANE_CONSTRAINT_RANGE;
   sod->constraint.range = &constraint_gamma;
   OPT_IN_CTX[opt_gamma].info = 0;
@@ -283,14 +279,27 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod->name = "threshold";
   sod->unit = SANE_UNIT_PERCENT;
   sod->size = 1 * sizeof (SANE_Word);
-  sod->cap =
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC |
-    SANE_CAP_INACTIVE;
+  sod->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC
+      | SANE_CAP_INACTIVE;
   sod->constraint_type = SANE_CONSTRAINT_RANGE;
   sod->constraint.range = &constraint_threshold;
   OPT_IN_CTX[opt_threshold].info = 0;
   opt->def.w = 50;
   opt->val.w = 50;
+
+  opt = &(OPT_IN_CTX[opt_threshold_curve]);
+  sod = &opt->sod;
+  sod->type = SANE_TYPE_INT;
+  sod->title = SANE_I18N ("Threshold curve");
+  sod->desc = SANE_I18N ("Dynamic threshold curve, from light to dark, normally 50-65");
+  sod->name = "threshold-curve";
+  sod->unit = SANE_UNIT_NONE;
+  sod->size = 1 * sizeof (SANE_Word);
+  sod->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC
+      | SANE_CAP_INACTIVE;
+  sod->constraint_type = SANE_CONSTRAINT_RANGE;
+  sod->constraint.range = &constraint_threshold_curve;
+  OPT_IN_CTX[opt_threshold_curve].info = 0;
 
   return 0;
 

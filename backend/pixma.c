@@ -656,10 +656,12 @@ control_option (pixma_sane_t * ss, SANE_Int n,
           if (ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_LINEART)
             {
               enable_option (ss, opt_threshold, SANE_TRUE);
+              enable_option (ss, opt_threshold_curve, SANE_TRUE);
             }
           else
             {
               enable_option (ss, opt_threshold, SANE_FALSE);
+              enable_option (ss, opt_threshold_curve, SANE_FALSE);
             }
           *info |= SANE_INFO_RELOAD_OPTIONS;
         }
@@ -756,7 +758,8 @@ calc_scan_param (pixma_sane_t * ss, pixma_scan_param_t * sp)
   sp->source = ss->source_map[OVAL (opt_source).w];
   sp->mode = ss->mode_map[OVAL (opt_mode).w];
   sp->adf_pageid = ss->page_count;
-  sp->threshold = OVAL (opt_threshold).w;
+  sp->threshold = 2.55 * OVAL (opt_threshold).w;
+  sp->threshold_curve = OVAL (opt_threshold_curve).w;
 
   error = pixma_check_scan_param (ss->s, sp);
   if (error < 0)
@@ -1695,6 +1698,12 @@ type int threshold
   constraint (0,100,1)
   title @SANE_TITLE_THRESHOLD
   desc  @SANE_DESC_THRESHOLD
+  cap soft_select soft_detect automatic inactive
+
+type int threshold-curve
+  constraint (0,127,1)
+  title Threshold curve
+  desc  Dynamic threshold curve, from light to dark, normally 50-65
   cap soft_select soft_detect automatic inactive
 
 rem -------------------------------------------

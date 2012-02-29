@@ -352,7 +352,7 @@ pixma_binarize_line(pixma_scan_param_t * sp, uint8_t * dst, uint8_t * src, unsig
   unsigned j, x, windowX, sum = 0;
   unsigned threshold;
   unsigned offset, addCol;
-  int dropCol;
+  int dropCol, offsetX;
   unsigned char mask;
   uint8_t min, max;
 
@@ -401,10 +401,12 @@ pixma_binarize_line(pixma_scan_param_t * sp, uint8_t * dst, uint8_t * src, unsig
     if (!(windowX % 2))
       windowX++;
 
-    /* to avoid conflicts with *dst start at 2nd pixel (byte) */
-    for (j = 1; j <= windowX; j++)
+    /* to avoid conflicts with *dst start with offset */
+    offsetX = 1 + (windowX / 2) / 8;
+    for (j = offsetX; j <= windowX; j++)
       sum += src[j];
-    /* PDBG (pixma_dbg (4, " *pixma_binarize_line***** windowX = %d, sum = %d\n", windowX, sum)); */
+    /* PDBG (pixma_dbg (4, " *pixma_binarize_line***** windowX = %u, startX = %u, sum = %u\n",
+                     windowX, startX, sum)); */
 
   /* fourth, walk the input buffer, output bits */
     for (j = 0; j < width; j++)
@@ -420,10 +422,10 @@ pixma_binarize_line(pixma_scan_param_t * sp, uint8_t * dst, uint8_t * src, unsig
             addCol = j + windowX / 2;
             dropCol = addCol - windowX;
 
-            if (dropCol > 0 && addCol < width)
+            if (dropCol >= offsetX && addCol < width)
               {
                 sum += src[addCol];
-                sum -= src[dropCol];
+                sum -= (sum < src[dropCol] ? sum : src[dropCol]);       /* no negative sum */
               }
             threshold = sp->lineart_lut[sum / windowX];
             /* PDBG (pixma_dbg (4, " *pixma_binarize_line***** addCol = %u, dropCol = %d, sum = %u, windowX = %u, lut-element = %d, threshold = %u\n",

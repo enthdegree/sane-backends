@@ -196,7 +196,7 @@ truncate_hostname (char *hostname, char *short_hostname)
     {
       /* this is a hostname, not an ip-address, so remove domain part of the name */
 
-      if ((dot = index (short_hostname, '.')) != NULL)
+      if ((dot = strchr (short_hostname, '.')) != NULL)
 	*dot = '\0';
     }
   return short_hostname;

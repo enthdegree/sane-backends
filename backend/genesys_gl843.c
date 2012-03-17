@@ -1332,6 +1332,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
       words_per_line *= bytes;
     }
 
+  dev->wpl = words_per_line;
   dev->bpl = words_per_line;
 
   DBG (DBG_io2, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
@@ -1342,7 +1343,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: dev->dist  =%lu\n", __FUNCTION__, (unsigned long)dev->dist);
 
   words_per_line *= channels;
-  dev->wpl = words_per_line;
 
   /* MAXWD is expressed in 2 words unit */
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */

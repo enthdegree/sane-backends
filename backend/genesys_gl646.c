@@ -1083,6 +1083,7 @@ gl646_setup_registers (Genesys_Device * dev,
   if (dev->model->is_cis == SANE_FALSE)
     wpl *= channels;
   dev->wpl = wpl;
+  dev->bpl = wpl;
 
   DBG (DBG_info, "gl646_setup_registers: wpl=%d\n", wpl);
   gl646_set_triple_reg (regs, REG_MAXWD, wpl);

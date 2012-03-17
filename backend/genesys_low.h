@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2011 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2012 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Parts of the structs have been taken from the gt68xx backend by
@@ -691,11 +691,11 @@ struct Genesys_Device
   Genesys_Buffer shrink_buffer;
   Genesys_Buffer out_buffer;
 
-  size_t read_bytes_left;	/* bytes to read from scanner */
+  size_t read_bytes_left;	/**> bytes to read from scanner */
 
-  size_t total_bytes_read;	/* total bytes read sent to frontend */
-  size_t total_bytes_to_read;	/* total bytes read to be sent to frontend */
-  size_t wpl;			/* asic's word per line */
+  size_t total_bytes_read;	/**> total bytes read sent to frontend */
+  size_t total_bytes_to_read;	/**> total bytes read to be sent to frontend */
+  size_t wpl;			/**> asic's word per line */
 
   Genesys_Current_Setup current_setup; /* contains the real used values */
  

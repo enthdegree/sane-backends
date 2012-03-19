@@ -83,6 +83,7 @@
  * - 0.51 - added fine calibration caching
  *        - removed #define _PLUSTEK_USB
  * - 0.52 - added skipDarkStrip and OPT_LOFF4DARK to frontend options
+ *        - fixed batch scanning
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -158,7 +159,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.52-9"
+#define BACKEND_VERSION "0.52-10"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -2706,6 +2707,7 @@ sane_read( SANE_Handle handle, SANE_Byte *data,
 				(unsigned long)(s->params.lines * s->params.bytes_per_line)) {
 				sanei_thread_waitpid( s->reader_pid, 0 );
 				s->reader_pid = -1;
+				s->scanning = SANE_FALSE;
 				drvclose( s->hw );
 				return close_pipe(s);
 			}
@@ -2734,6 +2736,7 @@ sane_read( SANE_Handle handle, SANE_Byte *data,
 			return s->exit_code;
 		}
 		s->reader_pid = -1;
+		s->scanning = SANE_FALSE;
 		return close_pipe(s);
 	}
 	return SANE_STATUS_GOOD;

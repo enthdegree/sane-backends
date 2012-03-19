@@ -1,4 +1,8 @@
-2012-01-19 Stéphane Voltz <stef.dev@free.fr>
+2012-03-19 Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/plustek.c: Fix batch scanning with Plustek backend
+	Patch submitted and tested by Elias Oltmanns <eo@nebensachen.de>
+
+2012-03-19 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl843.c: update HP4850
 	geometry and fix initial state
 

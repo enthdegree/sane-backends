@@ -1,3 +1,8 @@
+2012-03-20 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_*.[ch]: gl841 sheetfed scanners calibration
+	improvement, fix document end detection when doing dynamic lineart.
+	Copyrights updates.
+
 2012-03-19 Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/plustek.c: Fix batch scanning with Plustek backend
 	Patch submitted and tested by Elias Oltmanns <eo@nebensachen.de>

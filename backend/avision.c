@@ -7046,7 +7046,7 @@ reader_process (void *data)
 	unsigned int abslines = absline + useful_bytes / s->avdimen.hw_bytes_per_line;
 	uint8_t* ptr = stripe_data;
 	for ( ; absline < abslines; ++absline) {
-          fseek (rear_fp, (s->params.lines - absline + 1) * s->avdimen.hw_bytes_per_line, SEEK_SET);
+          fseek (rear_fp, ((0 - s->params.lines) - absline - 2) * s->avdimen.hw_bytes_per_line, SEEK_SET);
           fwrite (ptr, s->avdimen.hw_bytes_per_line, 1, rear_fp);
           useful_bytes -= s->avdimen.hw_bytes_per_line;
           stripe_fill -= s->avdimen.hw_bytes_per_line;

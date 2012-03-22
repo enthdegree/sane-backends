@@ -7054,7 +7054,7 @@ reader_process (void *data)
         }
 	DBG (9, "reader_process: after page flip: useful_bytes: %d, stripe_fill: %d\n",
 	       useful_bytes, stripe_fill);
-      }
+      } else {
       
       /*
        * Perform needed data conversions (packing, ...) and/or copy the
@@ -7412,6 +7412,7 @@ reader_process (void *data)
 	          out_data + useful_bytes - s->avdimen.hw_bytes_per_line,
 		  s->avdimen.hw_bytes_per_line);
 	}
+      }
       
       /* save image date in stripe buffer for next next stripe */
       stripe_fill -= useful_bytes;

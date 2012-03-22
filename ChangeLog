@@ -1,3 +1,6 @@
+2012-03-22 Rolf Bensch <rolf at bensch hyphen online dot de>
+    * backends/po/de.po: New German translations for pixma backend.
+
 2012-03-21 Mike Kelly <mike@piratehaven.org>
         * backends/avision.[ch]:
         - Added Gray mode support for Kodak i30 and i40.

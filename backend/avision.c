@@ -2596,7 +2596,7 @@ compute_parameters (Avision_Scanner* s)
   
   s->params.pixels_per_line = s->avdimen.hw_pixels_per_line * s->avdimen.xres / s->avdimen.hw_xres;
   s->params.lines = s->avdimen.hw_lines * s->avdimen.xres / s->avdimen.hw_xres;
-  if (!is_adf_scan (s))
+  if (is_adf_scan (s))
     /* we can't know how many lines we'll see with an ADF because that depends on the paper length */
     s->params.lines = -1;
   if (s->c_mode == AV_THRESHOLDED || s->c_mode == AV_DITHERED)

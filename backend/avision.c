@@ -7483,8 +7483,8 @@ reader_process (void *data)
           sane_strstatus (status));
           return status;
         }
-      /* we can set anything here without fear because the process will terminate soon and take our changes with it */
       }
+      /* we can set anything here without fear because the process will terminate soon and take our changes with it */
       s->page += 1;
       s->params.lines = line;
       exit_status = reader_process (s);

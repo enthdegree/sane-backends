@@ -850,13 +850,13 @@ static Avision_HWEntry Avision_Device_List [] =
     { NULL, NULL,
       0x040a, 0x6001,
       "Kodak", "i30",
-      AV_INT_BUTTON,0},
+      AV_INT_BUTTON | AV_GRAY_MODES,0},
     /* status="untested" */
 
     { NULL, NULL,
       0x040a, 0x6002,
       "Kodak", "i40",
-      AV_INT_BUTTON,0},
+      AV_INT_BUTTON | AV_GRAY_MODES,0},
     /* status="basic" */
     
     { NULL, NULL,

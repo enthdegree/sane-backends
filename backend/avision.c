@@ -7527,29 +7527,6 @@ attach_one_usb (const char* dev)
   attach (dev, AV_USB, 0);
   return SANE_STATUS_GOOD;
 }
-
-SANE_Status
-sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
-{
-  authorize = authorize; /* silence gcc */
-  
-  DBG_INIT();
-
-#ifdef AVISION_STATIC_DEBUG_LEVEL
-  DBG_LEVEL = AVISION_STATIC_DEBUG_LEVEL;
-#endif
-  
-  DBG (3, "sane_init:(Version: %i.%i Build: %i)\n",
-       SANE_CURRENT_MAJOR, V_MINOR, BACKEND_BUILD);
-  
-  /* must come first */
-  sanei_thread_init ();
-
-  if (version_code)
-    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BACKEND_BUILD);
-
-  return SANE_STATUS_GOOD;
-}
   
 static SANE_Status
 sane_reload_devices (void)
@@ -7720,6 +7697,31 @@ sane_reload_devices (void)
     } /* end for all devices in supported list */
   
   attaching_hw = 0;
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
+{
+  authorize = authorize; /* silence gcc */
+  
+  DBG_INIT();
+
+#ifdef AVISION_STATIC_DEBUG_LEVEL
+  DBG_LEVEL = AVISION_STATIC_DEBUG_LEVEL;
+#endif
+  
+  DBG (3, "sane_init:(Version: %i.%i Build: %i)\n",
+       SANE_CURRENT_MAJOR, V_MINOR, BACKEND_BUILD);
+  
+  /* must come first */
+  sanei_thread_init ();
+
+  if (version_code)
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BACKEND_BUILD);
+
+  sane_reload_devices ();
+
   return SANE_STATUS_GOOD;
 }
 

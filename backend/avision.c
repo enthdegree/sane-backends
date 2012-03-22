@@ -7486,7 +7486,7 @@ reader_process (void *data)
       }
       /* we can set anything here without fear because the process will terminate soon and take our changes with it */
       s->page += 1;
-      s->params.lines = line;
+      s->params.lines = -line;
       exit_status = reader_process (s);
     }
     /* TODO:

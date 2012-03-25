@@ -4226,7 +4226,7 @@ get_double ( &(result[48] ) ));
   
   /* check if x/y ranges are valid :-((( */
   {
-    source_mode mode;
+    source_mode_dim mode;
 
     for (mode = AV_NORMAL_DIM; mode < AV_SOURCE_MODE_DIM_LAST; ++ mode)
       {

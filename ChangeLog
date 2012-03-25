@@ -2,14 +2,14 @@
     * backends/po/de.po: New German translations for pixma backend.
 
 2012-03-21 Mike Kelly <mike@piratehaven.org>
-        * backends/avision.[ch]:
-        - Added Gray mode support for Kodak i30 and i40.
-        - Skip post-processing when caching flipping duplex.
-        - Moved a comment nearer its code.
-        - Added sane_reload_devices() to sane_init().
-        - Corrected the logic to set lines = -1 for ADF mode.
-        - Fix calculations when flipping back of duplex page.
-        - Track the number of lines to flip as a negative number.
+	* backends/avision.[ch]:
+	- Added Gray mode support for Kodak i30 and i40.
+	- Skip post-processing when caching flipping duplex.
+	- Moved a comment nearer its code.
+	- Added sane_reload_devices() to sane_init().
+	- Corrected the logic to set lines = -1 for ADF mode.
+	- Fix calculations when flipping back of duplex page.
+	- Track the number of lines to flip as a negative number.
 
 2012-03-20 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_*.[ch]: gl841 sheetfed scanners calibration

@@ -331,15 +331,16 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="untested" */
     
     { NULL, "AV610",
-      0x0638, 0x0a19,
+      0x0638, 0x0a18,
       "Avision", "AV610",
-      AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN | AV_INT_STATUS | AV_INT_BUTTON,0},
+      AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN | AV_INT_BUTTON, 0},
     /* status="good" */
 
     { NULL, NULL,
       0x0638, 0x0a18,
       "Avision", "AV600U Plus",
-      AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN | AV_INT_STATUS | AV_INT_BUTTON,0},
+      /* If this unit requires the AV_INT_STATUS flag, then we'll need to alter the code to deal with two different devices with the same USB id (AV610 above) */
+      AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN | /* AV_INT_STATUS | */ AV_INT_BUTTON,0},
     /* status="good" */
 
     { NULL, NULL,

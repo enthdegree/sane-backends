@@ -163,7 +163,7 @@
 
 :model "AV610"
 :interface "USB"
-:usbid "0x0638" "0x0a19"
+:usbid "0x0638" "0x0a18"
 :status :good
 
 :model "AV600U Plus"

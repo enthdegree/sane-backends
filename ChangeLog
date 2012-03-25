@@ -1,3 +1,11 @@
+2012-03-25 Mike Kelly <mike@piratehaven.org>
+	* backends/avision.[ch]:
+	- Added Xerox Documate 632.
+	- Added firmware checking for HP5370c scanners.
+	- Reverted AV610 USB IDs and removed AV_INT_STATUS.
+	- Fixed warning about printf and size_t.
+	- Fixed bug using wrong enum in x/y range check.
+
 2012-03-22 Rolf Bensch <rolf at bensch hyphen online dot de>
     * backends/po/de.po: New German translations for pixma backend.
 

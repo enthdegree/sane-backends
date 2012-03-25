@@ -1056,6 +1056,12 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="good" */
     
     { NULL, NULL,
+      0x04a7, 0x0476,
+      "Xerox", "DocuMate232",
+      AV_INT_BUTTON,0},
+    /* status="good" */
+
+    { NULL, NULL,
       0x04a7, 0x044c,
       "Xerox", "DocuMate262",
       AV_INT_BUTTON,0},

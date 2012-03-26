@@ -863,20 +863,6 @@
 :comment "Probably not supported. See link for details."
 :status :unsupported
 
-:model "ScanJet G4010"
-:url "/unsupported/hp-g4000.html"
-:interface "USB"
-:usbid "0x03f0" "0x4505"
-:comment "Probably not supported. See link for details."
-:status :unsupported
-
-:model "ScanJet G4050"
-:url "/unsupported/hp-g4050.html"
-:interface "USB"
-:usbid "0x03f0" "0x4605"
-:comment "gl843 scanner, support is currently being work on in the genesys backend"
-:status :unsupported
-
 ;********************************************************************************************
 
 :mfg "IBM"

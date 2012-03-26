@@ -1,3 +1,7 @@
+2012-03-26 Stéphane Voltz <stef.dev@free.fr>
+	* doc/descriptions/unsupported.desc: removed G4010/G4050,
+	patch by Martin Michlmayr <tbm@cyrius.com>.
+
 2012-03-25 Mike Kelly <mike@piratehaven.org>
 	* backends/avision.[ch]:
 	- Added Xerox Documate 632.

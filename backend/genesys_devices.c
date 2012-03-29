@@ -1416,7 +1416,7 @@ static Genesys_Model canon_lide_110_model = {
 
   SANE_FIX (2.2),		/* Start of scan area in mm (x) */
   SANE_FIX (9.0),		/* Start of scan area in mm (y) */
-  SANE_FIX (213.80),		/* Size of scan area in mm (x) */
+  SANE_FIX (216.70),		/* Size of scan area in mm (x) */
   SANE_FIX (300.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (1.0),		/* Start of white strip in mm (y) */
@@ -1468,7 +1468,7 @@ static Genesys_Model canon_lide_210_model = {
 
   SANE_FIX (2.2),		/* Start of scan area in mm (x) */
   SANE_FIX (9.0),		/* Start of scan area in mm (y) */
-  SANE_FIX (213.80),		/* Size of scan area in mm (x) */
+  SANE_FIX (216.70),		/* Size of scan area in mm (x) */
   SANE_FIX (300.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in mm (y) */

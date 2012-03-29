@@ -2652,7 +2652,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
   move = (move * move_dpi) / MM_PER_INCH;
   DBG (DBG_info, "%s: move=%f steps\n", __FUNCTION__, move);
 
-  if(channels*dev->settings.yres>=1200 && move>3000)
+  if(channels*dev->settings.yres>=1200 && move>1000)
     {
       move -= 180;
       status = gl124_feed (dev, move);

@@ -1,3 +1,7 @@
+2012-03-29 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl124.c backend/genesys_devices.c: use feed earlier
+	at high resolution. Tune LiDE 110/210 geometry.
+
 2012-03-26 Stéphane Voltz <stef.dev@free.fr>
 	* doc/descriptions/unsupported.desc: removed G4010/G4050,
 	patch by Martin Michlmayr <tbm@cyrius.com>.

@@ -2902,7 +2902,7 @@ cs2_scan (cs2_t * s, cs2_scan_t type)
       cs2_pack_byte (s, 0x05);	/* image composition CCCCCCC */
       cs2_pack_byte (s, s->real_depth);	/* pixel composition */
       cs2_parse_cmd (s, "00 00 00 00 00 00 00 00 00 00 00 00 00");
-      cs2_pack_byte (s, 0x00);	/* multiread, ordering */
+      cs2_pack_byte (s, ((s->samples_per_scan - 1) << 4) + 0x00);	/* multiread, ordering */
       /* No need to use an undocumented bit in LS50 */
       if ((s->type == CS2_TYPE_LS50) || (s->type == CS2_TYPE_LS5000))
         cs2_pack_byte (s, 0x00 + (s->negative ? 0 : 1));	/* averaging, pos/neg */
@@ -2924,7 +2924,10 @@ cs2_scan (cs2_t * s, cs2_scan_t type)
 	  DBG (1, "BUG: cs2_scan(): Unknown scanning type.\n");
 	  return SANE_STATUS_INVAL;
 	}
-      cs2_pack_byte (s, 0x02);	/* scanning mode */
+      if (s->samples_per_scan == 1)
+        cs2_pack_byte (s, 0x02);	/* scanning mode single */
+      else
+        cs2_pack_byte (s, 0x10);	/* scanning mode multi */
       cs2_pack_byte (s, 0x02);	/* colour interleaving */
       cs2_pack_byte (s, 0xff);	/* (ae) */
       if (i_colour == 3)	/* infrared */

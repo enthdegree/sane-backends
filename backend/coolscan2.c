@@ -518,6 +518,9 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
 	  o.unit = SANE_UNIT_NONE;
 	  o.size = WSIZE;
 	  o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+	  if (s->type != CS2_TYPE_LS2000 && s->type != CS2_TYPE_LS4000
+		  && s->type != CS2_TYPE_LS5000 && s->type != CS2_TYPE_LS8000)
+		o.cap |= SANE_CAP_INACTIVE;
 	  o.constraint_type = SANE_CONSTRAINT_RANGE;
 	  range = (SANE_Range *) cs2_xmalloc (sizeof (SANE_Range));
 	  if (! range)

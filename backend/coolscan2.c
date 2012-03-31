@@ -181,6 +181,8 @@ typedef enum
 
   CS2_OPTION_INFRARED,
 
+  CS2_OPTION_SAMPLES_PER_SCAN,
+
   CS2_OPTION_DEPTH,
 
   CS2_OPTION_EXPOSURE,
@@ -249,8 +251,8 @@ typedef struct
 
   /* settings */
   SANE_Bool preview, negative, infrared;
-  int depth, real_depth, bytes_per_pixel, shift_bits, n_colour_in,
-    n_colour_out;
+  int samples_per_scan, depth, real_depth, bytes_per_pixel, shift_bits,
+	n_colour_in, n_colour_out;
   cs2_pixel_t n_lut;
   cs2_pixel_t *lut_r, *lut_g, *lut_b, *lut_neutral;
   unsigned long resx, resy, res, res_independent, res_preview;
@@ -507,6 +509,26 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
 	  o.type = SANE_TYPE_BOOL;
 	  o.size = WSIZE;
 	  o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+	  break;
+	case CS2_OPTION_SAMPLES_PER_SCAN:
+	  o.name = "samples-per-scan";
+	  o.title = "Samples per Scan";
+	  o.desc = "Number of samples per scan";
+	  o.type = SANE_TYPE_INT;
+	  o.unit = SANE_UNIT_NONE;
+	  o.size = WSIZE;
+	  o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+	  o.constraint_type = SANE_CONSTRAINT_RANGE;
+	  range = (SANE_Range *) cs2_xmalloc (sizeof (SANE_Range));
+	  if (! range)
+		alloc_failed = 1;
+	  else
+		{
+		  range->min = 1;
+		  range->max = 16;
+		  range->quant = 1;
+		  o.constraint.range = range;
+		}
 	  break;
 	case CS2_OPTION_DEPTH:
 	  o.name = "depth";
@@ -994,6 +1016,7 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
   s->negative = SANE_FALSE;
   s->depth = 8;
   s->infrared = 0;
+  s->samples_per_scan = 1;
   s->i_frame = 1;
   s->subframe = 0.;
   s->res = s->resx = s->resx_max;
@@ -1079,6 +1102,9 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 	  break;
 	case CS2_OPTION_INFRARED:
 	  *(SANE_Word *) v = s->infrared;
+	  break;
+	case CS2_OPTION_SAMPLES_PER_SCAN:
+	  *(SANE_Word *) v = s->samples_per_scan;
 	  break;
 	case CS2_OPTION_DEPTH:
 	  *(SANE_Word *) v = s->depth;
@@ -1230,6 +1256,9 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 	case CS2_OPTION_INFRARED:
 	  s->infrared = *(SANE_Word *) v;
 	  /*      flags |= SANE_INFO_RELOAD_PARAMS; XXXXXXXXXXXXXXXXX */
+	  break;
+	case CS2_OPTION_SAMPLES_PER_SCAN:
+	  s->samples_per_scan = *(SANE_Word *) v;
 	  break;
 	case CS2_OPTION_DEPTH:
 	  s->depth = *(SANE_Word *) v;

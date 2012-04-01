@@ -1494,9 +1494,10 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   SANE_Status status;
   ssize_t xfer_len_in, xfer_len_line, xfer_len_out;
   unsigned long index;
-  int colour;
+  int colour, n_colours, sample_pass;
   uint8_t *s8 = NULL;
   uint16_t *s16 = NULL;
+  double m_avg_sum;
   SANE_Byte *line_buf_new;
 
   DBG (10, "sane_read() called, maxlen = %i.\n", maxlen);
@@ -1586,6 +1587,9 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
       s->n_line_buf = xfer_len_line;
     }
 
+  /* adapt for multi-sampling */
+  xfer_len_in *= s->samples_per_scan;
+
   cs2_scanner_ready (s, CS2_STATUS_READY);
   cs2_init_buffer (s);
   cs2_parse_cmd (s, "28 00 00 00 00 00");
@@ -1602,24 +1606,44 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
       return status;
     }
 
+  n_colours = s->n_colour_out +
+	  (s->infrared_stage == CS2_INFRARED_IN ? 1 : 0);
+
   for (index = 0; index < s->logical_width; index++)
-    for (colour = 0;
-	 colour < s->n_colour_out + (s->infrared_stage ==
-				     CS2_INFRARED_IN ? 1 : 0); colour++)
+    for (colour = 0; colour < n_colours; colour++) {
+	  m_avg_sum = 0.0;
       switch (s->bytes_per_pixel)
 	{
 	case 1:
+	  /* calculate target address */
 	  if ((s->infrared_stage == CS2_INFRARED_IN)
 	      && (colour == s->n_colour_out))
 	    s8 = (uint8_t *) & (s->infrared_buf[s->infrared_index++]);
 	  else
 	    s8 =
 	      (uint8_t *) & (s->line_buf[s->n_colour_out * index + colour]);
-	  *s8 =
-	    s->recv_buf[colour * s->logical_width +
-			(colour + 1) * s->odd_padding + index];
+
+	  if (s->samples_per_scan > 1)
+		{
+		  /* calculate average of multi samples */
+		  for (sample_pass = 0;
+			   sample_pass < s->samples_per_scan;
+			   sample_pass++)
+			m_avg_sum += (double)
+			  s->recv_buf[s->logical_width *
+			  (sample_pass * n_colours + colour) +
+			  (colour + 1) * s->odd_padding + index];
+
+		  *s8 = (uint8_t) (m_avg_sum / s->samples_per_scan + 0.5);
+		}
+	  else
+		/* shortcut for single sample */
+		*s8 =
+		  s->recv_buf[colour * s->logical_width +
+					  (colour + 1) * s->odd_padding + index];
 	  break;
 	case 2:
+	  /* calculate target address */
 	  if ((s->infrared_stage == CS2_INFRARED_IN)
 	      && (colour == s->n_colour_out))
 	    s16 =
@@ -1629,9 +1653,24 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	      (uint16_t *) & (s->
 			       line_buf[2 *
 					(s->n_colour_out * index + colour)]);
-	  *s16 =
-	    s->recv_buf[2 * (colour * s->logical_width + index)] * 256 +
-	    s->recv_buf[2 * (colour * s->logical_width + index) + 1];
+
+	  if (s->samples_per_scan > 1)
+		{
+		  /* calculate average of multi samples */
+		  for (sample_pass = 0;
+			   s->samples_per_scan > 1 && sample_pass < s->samples_per_scan;
+			   sample_pass++)
+			m_avg_sum += (double)
+			  (s->recv_buf[2 * (s->logical_width * (sample_pass * n_colours + colour) + index)] * 256 +
+			   s->recv_buf[2 * (s->logical_width * (sample_pass * n_colours + colour) + index) + 1]);
+
+		  *s16 = (uint16_t) (m_avg_sum / s->samples_per_scan + 0.5);
+		}
+	  else
+		/* shortcut for single sample */
+		*s16 =
+		  s->recv_buf[2 * (colour * s->logical_width + index)] * 256 +
+		  s->recv_buf[2 * (colour * s->logical_width + index) + 1];
 	  *s16 <<= s->shift_bits;
 	  break;
 	default:
@@ -1639,6 +1678,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	  *len = 0;
 	  return SANE_STATUS_INVAL;
 	  break;
+	}
 	}
   s->xfer_position += xfer_len_line;
 

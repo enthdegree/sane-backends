@@ -104,8 +104,8 @@ typedef struct pixma_sane_t
   option_descriptor_t opt[opt_last];
   SANE_Range xrange, yrange;
   SANE_Word dpi_list[9];	/* up to 9600 dpi */
-  SANE_String_Const mode_list[4];
-  pixma_scan_mode_t mode_map[4];
+  SANE_String_Const mode_list[5];
+  pixma_scan_mode_t mode_map[5];
   uint8_t gamma_table[4096];
   SANE_String_Const source_list[4];
   pixma_paper_source_t source_map[4];
@@ -352,7 +352,18 @@ create_mode_list (pixma_sane_t * ss, SANE_Bool tpu)
       ss->mode_map[i] = PIXMA_SCAN_MODE_GRAY;
       i++;
     }
-
+  if (tpu && cfg->cap & PIXMA_CAP_NEGATIVE)
+    {
+      ss->mode_list[i] = SANE_I18N ("Negative color");
+      ss->mode_map[i] = PIXMA_SCAN_MODE_NEGATIVE_COLOR;
+      i++;
+      if (cfg->cap & PIXMA_CAP_GRAY)
+        {
+          ss->mode_list[i] = SANE_I18N ("Negative gray");
+          ss->mode_map[i] = PIXMA_SCAN_MODE_NEGATIVE_GRAY;
+          i++;
+        }
+    }
   if (!tpu && cfg->cap & PIXMA_CAP_LINEART)
     {
       ss->mode_list[i] = SANE_VALUE_SCAN_MODE_LINEART;
@@ -385,7 +396,8 @@ create_dpi_list (pixma_sane_t * ss, SANE_Bool ext)
    *  75 dpi: j = 0
    * 150 dpi: j = 1 \
    * 300 dpi: j = 2 |--> from cfg->ext_min_dpi for ADF/TPU
-   * ...            /      */
+   * ...            /
+   * */
   j = 0;
   if (ext && cfg->ext_min_dpi)
     {

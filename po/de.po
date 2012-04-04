@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-22 12:13+0100\n"
+"POT-Creation-Date: 2012-04-04 14:50+0200\n"
 "PO-Revision-Date: 2010-08-06 17:17+0100\n"
 "Last-Translator: Rolf Bensch <rolf at bensch hyphen online dot de>\n"
 "Language-Team: German <kde-i18n-de@kde.org>\n"
@@ -1574,7 +1574,7 @@ msgstr "Wählt den Filmtyp aus"
 #: ../backend/hp3900_sane.c:427 ../backend/hp3900_sane.c:1017
 #: ../backend/hp5590.c:82 ../backend/ma1509.c:108
 #: ../backend/magicolor.c:167 ../backend/mustek.c:156
-#: ../backend/mustek.c:160 ../backend/mustek.c:164 ../backend/pixma.c:801
+#: ../backend/mustek.c:160 ../backend/mustek.c:164 ../backend/pixma.c:813
 #: ../backend/pixma_sane_options.c:88 ../backend/snapscan-options.c:82
 #: ../backend/test.c:192 ../backend/umax.c:181
 #, no-c-format
@@ -1595,7 +1595,7 @@ msgstr "Automatischer Dokumenteneinzug hinten"
 
 #: ../backend/canon_dr.c:341 ../backend/epjitsu.c:206
 #: ../backend/fujitsu.c:569 ../backend/hp5590.c:84 ../backend/kodak.c:137
-#: ../backend/pixma.c:812
+#: ../backend/pixma.c:824
 #, no-c-format
 msgid "ADF Duplex"
 msgstr "ADF-Duplex"
@@ -1672,14 +1672,14 @@ msgstr "Einseitig"
 msgid "Duplex"
 msgstr "Duplex"
 
-#: ../backend/epson.c:502 ../backend/epson2.c:115 ../backend/pixma.c:818
+#: ../backend/epson.c:502 ../backend/epson2.c:115 ../backend/pixma.c:830
 #, no-c-format
 msgid "Transparency Unit"
 msgstr "Durchlichtaufsatz"
 
 #: ../backend/epson.c:503 ../backend/epson2.c:117
 #: ../backend/magicolor.c:168 ../backend/mustek.c:160
-#: ../backend/pixma.c:806 ../backend/test.c:192 ../backend/umax.c:183
+#: ../backend/pixma.c:818 ../backend/test.c:192 ../backend/umax.c:183
 #, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Autom. Dokumenteneinzug"
@@ -4435,6 +4435,16 @@ msgstr ""
 "Warte solange, bis die Helligkeit der Lampe konstant ist anstatt einfach "
 "40 Sekunden zu warten."
 
+#: ../backend/pixma.c:357
+#, no-c-format
+msgid "Negative color"
+msgstr "Negativfilm Farbe"
+
+#: ../backend/pixma.c:362
+#, no-c-format
+msgid "Negative gray"
+msgstr "Negativfilm Graustufen"
+
 #: ../backend/pixma_sane_options.c:94
 #, no-c-format
 msgid "Button-controlled scan"
@@ -5685,16 +5695,3 @@ msgstr "Legt den Offset des grünen Kanals fest"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Legt den Offset des blauen Kanals fest"
-
-#~ msgid "Grayscale"
-#~ msgstr "Graustufen"
-
-#, fuzzy
-#~ msgid "Binary"
-#~ msgstr "Schwarzweiss"
-
-#~ msgid "Display a shortened resolution list"
-#~ msgstr "Zeigt eine verkürzte Auflösungsliste an"
-
-#~ msgid "Black & White"
-#~ msgstr "Schwarzweiß"

@@ -1,4 +1,8 @@
 2012-04-04 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.[ch], backend/pixma_mp810.c, po/de.po: color and grayscale
+	negatives scan in TPU mode, for CS8800F and CS9000F.
+
+2012-04-04 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp810.c: cropping y and h to scanable area in TPU mode,
 	for CS8800F and CS9000F.
 
@@ -19,7 +23,7 @@
 	- Fixed bug using wrong enum in x/y range check.
 
 2012-03-22 Rolf Bensch <rolf at bensch hyphen online dot de>
-    * backends/po/de.po: New German translations for pixma backend.
+    * po/de.po: New German translations for pixma backend.
 
 2012-03-21 Mike Kelly <mike@piratehaven.org>
 	* backends/avision.[ch]:

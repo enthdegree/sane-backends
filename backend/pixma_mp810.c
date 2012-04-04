@@ -740,13 +740,6 @@ send_scan_param (pixma_t * s)
         {
           data[0x00] = 0x04;
           data[0x01] = 0x02;
-          data[0x1e] = 0x02;  /* NB: CanoScan 8800F: 0x02->negatives, 0x01->positives, paper->0x00 */
-          /* the above appears to be same for the 9000F also */
-	  /* set it positives for 9000F for now */
-	  if (s->cfg->pid == CS9000F_PID)
-	    {
-	      data[0x1e] = 0x01;
-	    }
         }
       data[0x02] = 0x01;
       if (is_scanning_from_adfdup (s))
@@ -786,16 +779,46 @@ send_scan_param (pixma_t * s)
       data[0x21] = 0x81;
       data[0x23] = 0x02;
       data[0x24] = 0x01;
-      if (s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID)   /* CS8800F & CS9000F addition */
-        data[0x25] = (is_scanning_from_tpu (s)) ? 0x00 : 0x01; /* 0x01 normally, 0x00 for TPU color management*/
 
-      /* fix this: for 9000F : it should be 0x00 for flatbed, 0x01 if
-	 scanning from TPU in slide mode, and 0x02 in negative mode */
-      if (s->cfg->pid == CS9000F_PID)
-	{
-	  data[0x25] = 0x01; 
-	}
+      /* CS8800F & CS9000F addition */
+      if (s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID)
+        {
+          if (is_scanning_from_tpu (s))
+            { /* TPU */
+              /* 0x02->negatives, 0x01->positives, paper->0x00
+               * no paper in TPU mode */
+              if (s->param->mode == PIXMA_SCAN_MODE_NEGATIVE_COLOR
+                  || s->param->mode == PIXMA_SCAN_MODE_NEGATIVE_GRAY)
+                {
+                  PDBG (pixma_dbg (4, "*send_scan_param***** TPU scan negatives *****\n"));
+                  data[0x1e] = 0x02;
+                }
+              else
+                {
+                  PDBG (pixma_dbg (4, "*send_scan_param***** TPU scan positives *****\n"));
+                  data[0x1e] = 0x01;
+                }
+              /* CS8800F: 0x00 for TPU color management */
+              if (s->cfg->pid == CS8800F_PID)
+                data[0x25] = 0x00;
+              /* CS9000F: 0x01 for TPU */
+              if (s->cfg->pid == CS9000F_PID)
+                data[0x25] = 0x01;
+            }
+          else
+            { /* flatbed and ADF */
+              /* paper->0x00 */
+              data[0x1e] = 0x00;
+              /* CS8800F: 0x01 normally */
+              if (s->cfg->pid == CS8800F_PID)
+                data[0x25] = 0x01;
+              /* CS9000F: 0x00 normally */
+              if (s->cfg->pid == CS9000F_PID)
+                data[0x25] = 0x00;
+            }
+        }
 
+      /* FIXME: This makes no sense, we only need 0x28 bytes */
       data[0x30] = 0x01;
     }
   return pixma_exec (s, &mp->cb);
@@ -1533,28 +1556,35 @@ mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
   mp810_t *mp = (mp810_t *) s->subdriver;
   unsigned w_max;
 
-   /* PDBG (pixma_dbg (4, "*mp810_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
-                        sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx)); */
+  /* PDBG (pixma_dbg (4, "*mp810_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
+                   sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx)); */
 
-   /* MP810 only supports 8 bit per channel in color and grayscale mode */
-   if (sp->depth != 1)
-     {
-       sp->software_lineart = 0;
-       sp->depth = 8;
+  sp->channels = 3;
+  sp->software_lineart = 0;
+  switch (sp->mode)
+    {
+      /* standard scan modes */
+      /* 8 bit per channel in color and grayscale mode */
+      case PIXMA_SCAN_MODE_GRAY:
+      case PIXMA_SCAN_MODE_NEGATIVE_GRAY:
+        sp->channels = 1;
+      case PIXMA_SCAN_MODE_COLOR:
+      case PIXMA_SCAN_MODE_NEGATIVE_COLOR:
+        sp->depth = 8;
 #ifdef TPU_48
 #ifndef DEBUG_TPU_48
-       if (sp->source == PIXMA_SOURCE_TPU)
+        if (sp->source == PIXMA_SOURCE_TPU)
 #endif
-           sp->depth = 16;   /* TPU in 16 bits mode */
+            sp->depth = 16;   /* TPU in 16 bits mode */
 #endif
-     }
-   else
-     {
-       /* software lineart */
-       sp->software_lineart = 1;
-       sp->depth = 1;
-       sp->channels = 1;
-     }
+        break;
+      /* software lineart */
+      case PIXMA_SCAN_MODE_LINEART:
+        sp->software_lineart = 1;
+        sp->channels = 1;
+        sp->depth = 1;
+        break;
+    }
 
   /* for software lineart w must be a multiple of 8 */
   if (sp->software_lineart == 1 && sp->w % 8)
@@ -2029,7 +2059,7 @@ const pixma_config_t pixma_mp810_devices[] = {
   DEVICE ("Canon Pixma MP970", "MP970", MP970_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Flatbed scanner CCD (2007) */
-  DEVICE ("Canoscan 8800F", "8800F", CS8800F_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canoscan 8800F", "8800F", CS8800F_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_NEGATIVE),
 
   /* PIXMA 2008 vintage CCD */
   DEVICE ("Canon MP980 series", "MP980", MP980_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
@@ -2038,7 +2068,7 @@ const pixma_config_t pixma_mp810_devices[] = {
   DEVICE ("Canon MP990 series", "MP990", MP990_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Flatbed scanner (2010) */
-  DEVICE ("Canoscan 9000F", "9000F", CS9000F_PID, 4800, 300, 9600, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canoscan 9000F", "9000F", CS9000F_PID, 4800, 300, 9600, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_NEGATIVE),
 
   /* Latest devices (2010) Generation 4 CCD untested */
   DEVICE ("Canon PIXMA MG8100", "MG8100", MG8100_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),

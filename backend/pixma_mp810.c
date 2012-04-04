@@ -1571,21 +1571,35 @@ mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
   if (sp->source == PIXMA_SOURCE_TPU && !sp->tpu_offset_added)
     {
       unsigned fixed_offset_y; /* TPU offsets for CanoScan 8800F, or other CCD at 300dpi. */
+      unsigned max_y;          /* max TPU height for CS9000F at 75 dpi */
 
       /* CanoScan 8800F and others adding an offset depending on resolution */
+      /* CS9000F and others maximum TPU height */
       switch (s->cfg->pid)
         {
           case CS8800F_PID:
             fixed_offset_y = 140;
+            max_y = MIN (740, s->cfg->height);
             break;
           case CS9000F_PID:
             fixed_offset_y = 146;
+            max_y = MIN (740, s->cfg->height);
             break;
           default:
             fixed_offset_y = 0;
+            max_y = s->cfg->height;
             break;
         }
-        
+
+      /* cropping y and h to scanable area */
+      max_y *= (sp->ydpi) / 75;
+      sp->y = MIN(sp->y, max_y);
+      sp->h = MIN(sp->h, max_y - sp->y);
+      /* PDBG (pixma_dbg (4, "*mp810_check_param***** Cropping: y=%u, h=%u *****\n",
+                       sp->y, sp->h)); */
+      if (!sp->h)
+        return SANE_STATUS_INVAL;       /* no lines */
+
       /* Convert the offsets from 300dpi to actual resolution */
       fixed_offset_y = fixed_offset_y*(sp->xdpi)/300;
 

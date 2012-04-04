@@ -63,7 +63,7 @@ Feedback in the Sane-dev mailing list welcome.
 .RS
 PIXMA MP375R, MP740
 .br
-PIXMA MX320
+PIXMA MX320, MX510, MX890
 .br
 ImageCLASS MF5630, MF5650, MF5730, MF5750, MF8170c
 .RE

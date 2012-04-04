@@ -173,6 +173,11 @@
 #define MG6200_PID 0x1755
 #define MP493_PID 0x1757
 
+/* 2012 new devices (untested) */
+#define MX510_PID 0x175C
+#define MX890_PID 0x175E
+
+
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
 "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\
@@ -1617,6 +1622,10 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MG5300", "MG5300", MG5300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG6200", "MG6200", MG6200_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP493",  "MP493",  MP493_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+
+  /* Latest devices (2012) Generation 4 CIS/CCD */
+  DEVICE ("Canon PIXMA MX510 Series", "MX510", MX510_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MX890 Series", "MX890", MX890_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

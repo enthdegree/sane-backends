@@ -1,4 +1,8 @@
 2012-04-04 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	New scanners Canon Pixma MX510 and Canon Pixma MX890. Both are untested.
+
+2012-04-04 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_mp810.c, po/de.po: color and grayscale
 	negatives scan in TPU mode, for CS8800F and CS9000F.
 

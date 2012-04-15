@@ -501,6 +501,8 @@
          - added some MS and INQ information
          - increased default buffer size for later machines in config file
          - renamed new fi-6xx0Z models
+      v110 2012-03-27, MAN
+         - correct max_y_fb for fi-62x0 series
 
    SANE FLOW DIAGRAM
 
@@ -2017,12 +2019,13 @@ init_model (struct fujitsu *s)
     s->ppl_mod_by_mode[MODE_COLOR] = 4;
   }
 
+  /* also includes the 'Z' models */
   else if (strstr (s->model_name,"fi-6230")
    || strstr (s->model_name,"fi-6240")){
 
     /* missing from vpd */
     s->max_x_fb = 10488;
-    s->max_y_fb = 14173;
+    s->max_y_fb = 14032;
   }
 
   else if (strstr (s->model_name,"S1500")

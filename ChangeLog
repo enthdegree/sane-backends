@@ -1,4 +1,8 @@
 2012-04-17 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.c, * backend/pixma_sane_options.c, po/de.po:
+	New description for device specific option "source".
+
+2012-04-17 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.c: select first entries of dynamic dpi list 
 	and dynamic mode list as default values after changing the scan source 
 

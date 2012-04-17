@@ -77,7 +77,7 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod = &opt->sod;
   sod->type = SANE_TYPE_STRING;
   sod->title = SANE_TITLE_SCAN_SOURCE;
-  sod->desc = SANE_DESC_SCAN_SOURCE;
+  sod->desc = SANE_I18N ("Selects the scan source (such as a document-feeder). Set source before mode and resolution. Resets mode and resolution to auto values.");
   sod->name = "source";
   sod->unit = SANE_UNIT_NONE;
   sod->size = 31;

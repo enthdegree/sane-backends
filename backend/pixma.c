@@ -1610,7 +1610,7 @@ type string mode[10]
 type string source[30]
   constraint @string_list = ss->source_list
   title @SANE_TITLE_SCAN_SOURCE
-  desc  @SANE_DESC_SCAN_SOURCE
+  desc  Selects the scan source (such as a document-feeder). Set source before mode and resolution. Resets mode and resolution to auto values.
   default Flatbed
   cap soft_select soft_detect
 

@@ -682,11 +682,6 @@ control_option (pixma_sane_t * ss, SANE_Int n,
       if (cfg->cap & (PIXMA_CAP_ADF|PIXMA_CAP_ADFDUP|PIXMA_CAP_TPU)
           && (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO))
         { /* new source selected: flatbed, ADF, TPU, ... */
-          /* to avoid fatal errors, select 600 dpi
-           * and first entry of dynamic mode_list
-           * available identifiers are unknown here */
-          OVAL (opt_resolution).w = 600;
-          OVAL (opt_mode).w = 0;
           /* recreate dynamic lists */
           if (ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_TPU)
             { /* TPU mode */
@@ -704,6 +699,12 @@ control_option (pixma_sane_t * ss, SANE_Int n,
               create_mode_list (ss, SANE_FALSE);
               create_dpi_list (ss, SANE_FALSE);
             }
+          /* to avoid fatal errors,
+           * select first entry of dynamic dpi_list
+           * and first entry of dynamic mode_list
+           * identifiers are unknown here */
+          OVAL (opt_resolution).w = ss->dpi_list[1];
+          OVAL (opt_mode).w = ss->mode_map[0];
           *info |= SANE_INFO_RELOAD_OPTIONS;
         }
       break;

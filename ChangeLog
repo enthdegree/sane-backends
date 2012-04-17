@@ -1,3 +1,7 @@
+2012-04-17 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.c: select first entries of dynamic dpi list 
+	and dynamic mode list as default values after changing the scan source 
+
 2012-04-04 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	New scanners Canon Pixma MX510 and Canon Pixma MX890. Both are untested.

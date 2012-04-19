@@ -1515,6 +1515,11 @@ init_vpd (struct fujitsu *s)
           s->has_rotation = get_IN_ipc_rotation (in);
           DBG (15, "  rotation: %d\n", s->has_rotation);
 
+          s->has_hybrid_crop_deskew = get_IN_ipc_hybrid_crop_deskew(in);
+          DBG (15, "  hybrid crop deskew: %d\n", s->has_hybrid_crop_deskew);
+
+          DBG (15, "  ipc2 byte 67: %d\n", get_IN_ipc_ipc2_byte67(in));
+
           /* compression modes */
           s->has_comp_MH = get_IN_compression_MH (in);
           DBG (15, "  compression MH: %d\n", s->has_comp_MH);
@@ -1542,23 +1547,23 @@ init_vpd (struct fujitsu *s)
           DBG (15, "  compression JPG3: %d\n", s->has_comp_JPG3);
 
           /* FIXME: we dont store these? */
-          DBG (15, " back endorser mech: %d\n", get_IN_endorser_b_mech(in));
-          DBG (15, " back endorser stamp: %d\n", get_IN_endorser_b_stamp(in));
-          DBG (15, " back endorser elec: %d\n", get_IN_endorser_b_elec(in));
-          DBG (15, " endorser max id: %d\n", get_IN_endorser_max_id(in));
+          DBG (15, "  back endorser mech: %d\n", get_IN_endorser_b_mech(in));
+          DBG (15, "  back endorser stamp: %d\n", get_IN_endorser_b_stamp(in));
+          DBG (15, "  back endorser elec: %d\n", get_IN_endorser_b_elec(in));
+          DBG (15, "  endorser max id: %d\n", get_IN_endorser_max_id(in));
 
-          DBG (15, " front endorser mech: %d\n", get_IN_endorser_f_mech(in));
-          DBG (15, " front endorser stamp: %d\n", get_IN_endorser_f_stamp(in));
-          DBG (15, " front endorser elec: %d\n", get_IN_endorser_f_elec(in));
+          DBG (15, "  front endorser mech: %d\n", get_IN_endorser_f_mech(in));
+          DBG (15, "  front endorser stamp: %d\n", get_IN_endorser_f_stamp(in));
+          DBG (15, "  front endorser elec: %d\n", get_IN_endorser_f_elec(in));
 
           s->endorser_type_b = get_IN_endorser_b_type(in);
-          DBG (15, " back endorser type: %d\n", s->endorser_type_b);
+          DBG (15, "  back endorser type: %d\n", s->endorser_type_b);
 
           s->endorser_type_f = get_IN_endorser_f_type(in);
-          DBG (15, " back endorser type: %d\n", s->endorser_type_f);
+          DBG (15, "  back endorser type: %d\n", s->endorser_type_f);
 
           /*not all scanners go this far*/
-          if (get_IN_page_length (in) > 0x5f) {
+          if (get_IN_page_length (in) >= 0x67-5) {
               DBG (15, "  connection type: %d\n", get_IN_connection(in));
     
               DBG (15, "  endorser ext: %d\n", get_IN_endorser_type_ext(in));
@@ -1574,12 +1579,62 @@ init_vpd (struct fujitsu *s)
               DBG (15, "  vertical overscan: %d\n", s->os_y_basic);
           }
 
-          if (get_IN_page_length (in) > 0x68) {
-              /*lots of additional params here*/
+          if (get_IN_page_length (in) >= 0x70-5) {
+              DBG (15, "  default bg adf b: %d\n", get_IN_default_bg_adf_b(in));
+              DBG (15, "  default bg adf f: %d\n", get_IN_default_bg_adf_f(in));
+              DBG (15, "  default bg fb: %d\n", get_IN_default_bg_fb(in));
+
+              DBG (15, "  auto color: %d\n", get_IN_auto_color(in));
+              DBG (15, "  blank skip: %d\n", get_IN_blank_skip(in));
+              DBG (15, "  multi image: %d\n", get_IN_multi_image(in));
+              DBG (15, "  f b type indep: %d\n", get_IN_f_b_type_indep(in));
+              DBG (15, "  f b res indep: %d\n", get_IN_f_b_res_indep(in));
+
+              DBG (15, "  dropout spec: %d\n", get_IN_dropout_spec(in));
+              DBG (15, "  dropout non: %d\n", get_IN_dropout_non(in));
+              DBG (15, "  dropout white: %d\n", get_IN_dropout_white(in));
+
+              DBG (15, "  skew check: %d\n", get_IN_skew_check(in));
+              DBG (15, "  new feed roller: %d\n", get_IN_new_fd_roll(in));
+          }
+
+          if (get_IN_page_length (in) > 0x70-5) {
+
+              DBG (15, "  paper count: %d\n", get_IN_paper_count(in));
+              DBG (15, "  paper number: %d\n", get_IN_paper_number(in));
+              DBG (15, "  ext send to: %d\n", get_IN_ext_send_to(in));
+              DBG (15, "  staple det: %d\n", get_IN_staple_det(in));
+              DBG (15, "  pause host: %d\n", get_IN_pause_host(in));
+              DBG (15, "  pause panel: %d\n", get_IN_pause_panel(in));
+              DBG (15, "  pause conf: %d\n", get_IN_pause_conf(in));
+              DBG (15, "  hq print: %d\n", get_IN_hq_print(in));
+
+              DBG (15, "  ext GHS len: %d\n", get_IN_ext_GHS_len(in));
+
+              DBG (15, "  smbc func: %d\n", get_IN_smbc_func(in));
+              DBG (15, "  imprint chk b: %d\n", get_IN_imprint_chk_b(in));
+              DBG (15, "  imprint chk f: %d\n", get_IN_imprint_chk_f(in));
+              DBG (15, "  force w bg: %d\n", get_IN_force_w_bg(in));
+              DBG (15, "  mf recover lvl: %d\n", get_IN_mf_recover_lvl(in));
+
+              DBG (15, "  first read time: %d\n", get_IN_first_read_time(in));
+              DBG (15, "  div scanning: %d\n", get_IN_div_scanning(in));
+              DBG (15, "  start job: %d\n", get_IN_start_job(in));
+              DBG (15, "  lifetime log: %d\n", get_IN_lifetime_log(in));
+              DBG (15, "  imff save rest: %d\n", get_IN_imff_save_rest(in));
+              DBG (15, "  wide scsi type: %d\n", get_IN_wide_scsi_type(in));
+
+              DBG (15, "  lut hybrid crop: %d\n", get_IN_lut_hybrid_crop(in));
+              DBG (15, "  over under amt: %d\n", get_IN_over_under_amt(in));
+              DBG (15, "  rgb lut: %d\n", get_IN_rgb_lut(in));
+              DBG (15, "  num lut dl: %d\n", get_IN_num_lut_dl(in));
+
+              DBG (15, "  sync next feed: %d\n", get_IN_sync_next_feed(in));
           }
 
           ret = SANE_STATUS_GOOD;
       }
+
       /*FIXME no vendor vpd, set some defaults? */
       else{
         DBG (5, "init_vpd: Your scanner supports only partial VPD?\n");
@@ -1630,7 +1685,7 @@ init_ms(struct fujitsu *s)
   set_SCSI_opcode(cmd, MODE_SENSE_code);
   set_MSEN_xfer_length (cmd, inLen);
 
-  DBG (35, "init_ms: autocolor )\n");
+  DBG (35, "init_ms: autocolor\n");
   set_MSEN_pc(cmd, MS_pc_autocolor);
   ret = do_cmd (
     s, 1, 0,
@@ -6744,6 +6799,11 @@ get_pixelsize(struct fujitsu *s)
     if (ret == SANE_STATUS_GOOD){
 
       s->params.pixels_per_line = get_PSIZE_num_x(in);
+
+      if(get_PSIZE_req_driv_valid(in)){
+        s->req_driv_crop = get_PSIZE_req_driv_valid(in);
+        s->req_driv_crop = get_PSIZE_req_driv_valid(in);
+      }
 
       /* stupid trick. 3091/2 require reading extra lines,
        * because they have a gap between R G and B

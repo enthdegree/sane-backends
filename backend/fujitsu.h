@@ -249,6 +249,7 @@ struct fujitsu
   int has_diffusion;
   int has_ipc3;
   int has_rotation;
+  int has_hybrid_crop_deskew;
 
   int has_comp_MH;
   int has_comp_MR;
@@ -517,6 +518,11 @@ struct fujitsu
   int buff_tx[2];
 
   unsigned char * buffers[2];
+
+  /* --------------------------------------------------------------------- */
+  /*hardware feature bookkeeping*/
+  int req_driv_crop;
+  int req_driv_lut;
 
   /* --------------------------------------------------------------------- */
   /* values used by the software enhancment code (deskew, crop, etc)       */

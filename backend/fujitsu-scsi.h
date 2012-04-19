@@ -125,7 +125,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define INQUIRY_len             6
 
 #define INQUIRY_std_len         96
-#define INQUIRY_vpd_len         104
+#define INQUIRY_vpd_len         204        /* unlikely maximum value */
 
 #define set_IN_evpd(icb, val)              setbitfield(icb + 1, 1, 0, val)
 #define set_IN_page_code(icb, val)         icb[0x02]=val
@@ -273,7 +273,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_ipc_diffusion(in)           getbitfield(in+0x59, 1, 6)
 #define get_IN_ipc_ipc3(in)                getbitfield(in+0x59, 1, 5)
 #define get_IN_ipc_rotation(in)            getbitfield(in+0x59, 1, 4)
-#define get_IN_ipc_hybrid_clip_deskew(in)  getbitfield(in+0x59, 1, 3)
+#define get_IN_ipc_hybrid_crop_deskew(in)  getbitfield(in+0x59, 1, 3)
 #define get_IN_ipc_ipc2_byte67(in)         getbitfield(in+0x59, 1, 0)
 
 #define get_IN_compression_MH(in)          getbitfield(in+0x5a, 1, 7)
@@ -327,9 +327,45 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_dropout_white(in)      getbitfield(in+0x6a, 1, 7)
 
 #define get_IN_skew_check(in)         getbitfield(in+0x6d, 1, 7)
+#define get_IN_new_fd_roll(in)        getbitfield(in+0x6d, 1, 6)
+
+#define get_IN_evpd_len(in)           getnbyte(in + 0x6f, 1)
+
+#define get_IN_paper_count(in)        getbitfield(in+0x70, 1, 7)
+#define get_IN_paper_number(in)       getbitfield(in+0x70, 1, 6)
+#define get_IN_ext_send_to(in)        getbitfield(in+0x70, 1, 5)
+#define get_IN_staple_det(in)         getbitfield(in+0x70, 1, 4)
+#define get_IN_pause_host(in)         getbitfield(in+0x70, 1, 3)
+#define get_IN_pause_panel(in)        getbitfield(in+0x70, 1, 2)
+#define get_IN_pause_conf(in)         getbitfield(in+0x70, 1, 1)
+#define get_IN_hq_print(in)           getbitfield(in+0x70, 1, 0)
+
+#define get_IN_ext_GHS_len(in)        getnbyte(in + 0x71, 1)
+
+#define get_IN_smbc_func(in)          getbitfield(in+0x72, 1, 7)
+#define get_IN_imprint_chk_b(in)      getbitfield(in+0x72, 1, 6)
+#define get_IN_imprint_chk_f(in)      getbitfield(in+0x72, 1, 5)
+#define get_IN_force_w_bg(in)         getbitfield(in+0x72, 1, 4)
+#define get_IN_mf_recover_lvl(in)     getbitfield(in+0x72, 0x0f, 0)
+
+#define get_IN_first_read_time(in)    getbitfield(in+0x73, 1, 7)
+#define get_IN_div_scanning(in)       getbitfield(in+0x73, 1, 6)
+#define get_IN_start_job(in)          getbitfield(in+0x73, 1, 5)
+#define get_IN_lifetime_log(in)       getbitfield(in+0x73, 1, 4)
+#define get_IN_imff_save_rest(in)     getbitfield(in+0x73, 1, 3)
+#define get_IN_wide_scsi_type(in)     getbitfield(in+0x73, 0x07, 0)
+
+#define get_IN_lut_hybrid_crop(in)    getbitfield(in+0x74, 1, 7)
+#define get_IN_over_under_amt(in)     getbitfield(in+0x74, 1, 6)
+#define get_IN_rgb_lut(in)            getbitfield(in+0x74, 1, 5)
+#define get_IN_num_lut_dl(in)         getbitfield(in+0x74, 0x0f, 0)
+
+/*byte 75 is poorly documented*/
+
+#define get_IN_sync_next_feed(in)     getbitfield(in+0x76, 0x07, 0)
 
 /* some scanners need evpd inquiry data manipulated */
-#define set_IN_page_length(in,val)             in[0x04]=val
+#define set_IN_page_length(in,val)    in[0x04]=val
 
 /* ==================================================================== */
 /* page codes used by mode_sense and mode_select */
@@ -402,9 +438,21 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_MSEL_prepick(sb, val) setbitfield(sb + 0x02, 0x03, 6, val)
 
 /*more automatic stuff with this one...*/
-#define set_MSEL_awd(sb, val) setbitfield(sb + 0x02, 0x01, 7, val)
-#define set_MSEL_ald(sb, val) setbitfield(sb + 0x03, 0x01, 7, val)
-#define set_MSEL_overscan(sb, val) setbitfield(sb + 0x05, 0x03, 6, val)
+#define set_MSEL_awd(sb, val)           setbitfield(sb + 0x02, 0x01, 7, val)
+#define set_MSEL_w_wfill(sb, val)       setbitfield(sb + 0x02, 0x01, 6, val)
+#define set_MSEL_req_driv_lut(sb, val)  setbitfield(sb + 0x02, 0x01, 1, val)
+#define set_MSEL_req_driv_crop(sb, val) setbitfield(sb + 0x02, 0x01, 0, val)
+
+#define set_MSEL_ald(sb, val)       setbitfield(sb + 0x03, 0x01, 7, val)
+#define set_MSEL_l_wfill(sb, val)   setbitfield(sb + 0x03, 0x01, 6, val)
+
+#define set_MSEL_deskew(sb, val)    setbitfield(sb + 0x04, 0x01, 7, val)
+
+#define set_MSEL_overscan(sb, val)  setbitfield(sb + 0x05, 0x02, 6, val)
+#define set_MSEL_overcrop(sb, val)  setbitfield(sb + 0x05, 0x01, 5, val)
+#define set_MSEL_undercrop(sb, val) setbitfield(sb + 0x05, 0x01, 4, val)
+
+#define set_MSEL_over_under_amt(sb, val) sb[0x06]=val
 
 /*buffer, prepick, overscan use these*/
 #define MSEL_DEFAULT 0
@@ -513,8 +561,11 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define R_PSIZE_len                0x18
 #define get_PSIZE_num_x(in)            getnbyte(in + 0x00, 4)
 #define get_PSIZE_num_y(in)            getnbyte(in + 0x04, 4)
-#define get_PSIZE_paper_w(in)            getnbyte(in + 0x08, 4)
-#define get_PSIZE_paper_l(in)            getnbyte(in + 0x0C, 4)
+#define get_PSIZE_paper_w(in)          getnbyte(in + 0x08, 4)
+#define get_PSIZE_paper_l(in)          getnbyte(in + 0x0C, 4)
+#define get_PSIZE_req_driv_crop(in)    getbitfield(in + 0x10, 1, 7)
+#define get_PSIZE_req_driv_lut(in)     getbitfield(in + 0x10, 1, 6)
+#define get_PSIZE_req_driv_valid(in)   getbitfield(in + 0x10, 1, 0)
 
 /* ==================================================================== */
 /* SEND */

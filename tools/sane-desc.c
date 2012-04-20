@@ -3621,6 +3621,8 @@ print_udev (void)
 
   if (mode == output_mode_udevacl)
     printf("\nENV{libsane_matched}==\"yes\", RUN+=\"/bin/setfacl -m g:%s:rw $env{DEVNAME}\"\n", DEVGROUP);
+  else
+    printf ("\nENV{libsane_matched}==\"yes\", MODE=\"664\", GROUP=\"scanner\"\n");
 
   printf ("\nLABEL=\"libsane_rules_end\"\n");
 }

@@ -1,3 +1,7 @@
+2012-04-20 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* tools/sane-desc.c: tools/udev/libsane.rules supports scanner group
+	access to any scanner, with and without acl support. 
+
 2012-04-17 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.c, backend/pixma_sane_options.c, po/de.po:
 	New description for device specific option "source".

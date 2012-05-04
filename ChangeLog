@@ -1,3 +1,11 @@
+2012-05-03 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_io_sanei.c, backend/pixma_mp150.c, 
+	doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Patch for Canon Pixma MP280 from Daniel Beer.
+	- PIXMA_EOF mapped to PIXMA_ETIMEDOUT.
+	- Maximum resolution reduced to 600dpi.
+	- Scanner added to doc files.
+
 2012-04-23 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* AUTHORS: Pixma backend and email addresses updates.
 

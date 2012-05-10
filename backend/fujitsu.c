@@ -503,6 +503,12 @@
          - renamed new fi-6xx0Z models
       v110 2012-03-27, MAN
          - correct max_y_fb for fi-62x0 series
+         - add must_fully_buffer helper routine
+         - add hwdeskewcrop option, with fallback to software versions
+         - add 'actual' param to get_pixelsize for post-scan
+         - add recent model VPD params
+         - only set params->lines = -1 when using ald without buffering
+         - fix bugs in background color when using software deskew
 
    SANE FLOW DIAGRAM
 
@@ -552,7 +558,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 109
+#define BUILD 110
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -3192,6 +3198,24 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
 
+  /*automatic width detection */
+  if(option==OPT_AWD){
+  
+    opt->name = "awd";
+    opt->title = "Auto width detection";
+    opt->desc = "Scanner detects paper sides. May reduce scanning speed.";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+
+    /* this option is useless by itself? */
+    if (0 && s->has_MS_auto && s->has_hybrid_crop_deskew){
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    }
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /*automatic length detection */
   if(option==OPT_ALD){
   
@@ -3572,11 +3596,23 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
 
+  /*deskew and crop by hardware*/
+  if(option==OPT_HWDESKEWCROP){
+    opt->name = "hwdeskewcrop";
+    opt->title = "Hardware deskew and crop";
+    opt->desc = "Request scanner to rotate and crop pages digitally.";
+    opt->type = SANE_TYPE_BOOL;
+    if (s->has_hybrid_crop_deskew)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /*deskew by software*/
   if(option==OPT_SWDESKEW){
     opt->name = "swdeskew";
     opt->title = "Software deskew";
-    opt->desc = "Request driver to rotate skewed pages digitally";
+    opt->desc = "Request driver to rotate skewed pages digitally.";
     opt->type = SANE_TYPE_BOOL;
     if (1)
      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
@@ -3589,7 +3625,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     opt->name = "swdespeck";
     opt->title = "Software despeckle diameter";
-    opt->desc = "Maximum diameter of lone dots to remove from scan";
+    opt->desc = "Maximum diameter of lone dots to remove from scan.";
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
@@ -3609,7 +3645,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_SWCROP){
     opt->name = "swcrop";
     opt->title = "Software crop";
-    opt->desc = "Request driver to remove border from pages digitally";
+    opt->desc = "Request driver to remove border from pages digitally.";
     opt->type = SANE_TYPE_BOOL;
     if (1)
      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
@@ -4345,6 +4381,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
+        case OPT_AWD:
+          *val_p = s->awd;
+          return SANE_STATUS_GOOD;
+
         case OPT_ALD:
           *val_p = s->ald;
           return SANE_STATUS_GOOD;
@@ -4500,6 +4540,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_SIDE:
           *val_p = s->side;
+          return SANE_STATUS_GOOD;
+
+        case OPT_HWDESKEWCROP:
+          *val_p = s->hwdeskewcrop;
           return SANE_STATUS_GOOD;
 
         case OPT_SWDESKEW:
@@ -4967,6 +5011,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
+        case OPT_AWD:
+          s->awd = val_c;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
+          return mode_select_auto(s);
+
         case OPT_ALD:
           s->ald = val_c;
           *info |= SANE_INFO_RELOAD_OPTIONS;
@@ -5096,6 +5145,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_LOW_MEM:
           s->low_mem = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_HWDESKEWCROP:
+          s->hwdeskewcrop = val_c;
           return SANE_STATUS_GOOD;
 
         case OPT_SWDESKEW:
@@ -5812,7 +5865,10 @@ mode_select_auto (struct fujitsu *s)
   set_MSEL_page_len(page, MSEL_data_min_len-2);
 
   set_MSEL_overscan(page, s->overscan);
-  set_MSEL_ald(page, s->ald);
+  set_MSEL_ald(page, s->ald || s->hwdeskewcrop);
+  set_MSEL_awd(page, s->awd || s->hwdeskewcrop);
+  set_MSEL_req_driv_crop(page, s->hwdeskewcrop && (s->swcrop || s->swdeskew));
+  set_MSEL_deskew(page, s->hwdeskewcrop);
   
   ret = do_cmd (
       s, 1, 0,
@@ -5870,7 +5926,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   params->pixels_per_line = s->params.pixels_per_line;
   params->bytes_per_line = s->params.bytes_per_line;
 
-  if(s->ald){
+  /* we wont know the end until we get to it */
+  if(s->ald && !must_fully_buffer(s)){
+    DBG (15, "sane_get_parameters: hand-scanner mode\n");
     params->lines = -1;
   }
 
@@ -6092,8 +6150,8 @@ sane_start (SANE_Handle handle)
         return ret;
       }
     
-      /* try to read actual scan size from scanner */
-      ret = get_pixelsize(s);
+      /* try to read scan size from scanner */
+      ret = get_pixelsize(s,0);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot get pixelsize\n");
         return ret;
@@ -6172,14 +6230,11 @@ sane_start (SANE_Handle handle)
         /* the front buffer is normally very small, but some scanners or
          * option combinations can't handle it, so we make a big one */
         if(
-         (s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091)
-         || ( (s->swcrop || s->swdeskew || s->swdespeck)
-#ifdef SANE_FRAME_JPEG
-            && s->params.format != SANE_FRAME_JPEG
-#endif
-         )
-        )
+          (s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091)
+          || must_fully_buffer(s)
+        ){
           s->buff_tot[SIDE_FRONT] = s->bytes_tot[SIDE_FRONT];
+        }
       }
       else{
         s->bytes_tot[SIDE_FRONT] = 0;
@@ -6237,11 +6292,7 @@ sane_start (SANE_Handle handle)
    * tell the user the size of the image. the sane 
    * API has no way to inform the frontend of this,
    * so we block and buffer. yuck */
-  if( (s->swdeskew || s->swdespeck || s->swcrop)
-#ifdef SANE_FRAME_JPEG
-    && s->params.format != SANE_FRAME_JPEG
-#endif
-  ){
+  if( must_fully_buffer(s) ){
 
     /* get image */
     while(!s->eof_rx[s->side] && !ret){
@@ -6257,11 +6308,18 @@ sane_start (SANE_Handle handle)
 
     DBG (5, "sane_start: OK: done buffering\n");
 
+    /* hardware deskew will tell image size after transfer */
+    ret = get_pixelsize(s,1);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot get final pixelsize\n");
+      return ret;
+    }
+
     /* finished buffering, adjust image as required */
-    if(s->swdeskew){
+    if(s->swdeskew && (!s->hwdeskewcrop || s->req_driv_crop)){
       buffer_deskew(s,s->side);
     }
-    if(s->swcrop){
+    if(s->swcrop && (!s->hwdeskewcrop || s->req_driv_crop)){
       buffer_crop(s,s->side);
     }
     if(s->swdespeck){
@@ -6767,7 +6825,7 @@ set_window (struct fujitsu *s)
 
 /* update our private copy of params with actual data size scanner reports */
 static SANE_Status
-get_pixelsize(struct fujitsu *s)
+get_pixelsize(struct fujitsu *s, int actual)
 {
     SANE_Status ret;
 
@@ -6777,7 +6835,7 @@ get_pixelsize(struct fujitsu *s)
     unsigned char in[R_PSIZE_len];
     size_t inLen = R_PSIZE_len;
 
-    DBG (10, "get_pixelsize: start\n");
+    DBG (10, "get_pixelsize: start %d\n",actual);
 
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, READ_code);
@@ -6798,11 +6856,14 @@ get_pixelsize(struct fujitsu *s)
     );
     if (ret == SANE_STATUS_GOOD){
 
-      s->params.pixels_per_line = get_PSIZE_num_x(in);
-
-      if(get_PSIZE_req_driv_valid(in)){
-        s->req_driv_crop = get_PSIZE_req_driv_valid(in);
-        s->req_driv_crop = get_PSIZE_req_driv_valid(in);
+      /* when we are called post-scan, the scanner may give
+       * more accurate data in other fields */
+      if(actual && get_PSIZE_paper_w(in)){
+        s->params.pixels_per_line = get_PSIZE_paper_w(in);
+        DBG(5,"get_pixelsize: Actual width\n");
+      }
+      else{
+        s->params.pixels_per_line = get_PSIZE_num_x(in);
       }
 
       /* stupid trick. 3091/2 require reading extra lines,
@@ -6810,6 +6871,12 @@ get_pixelsize(struct fujitsu *s)
        * we only want to report the shorter value to the frontend */
       if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
         DBG(5,"get_pixelsize: Ignoring length %d\n",get_PSIZE_num_y(in));
+      }
+      /* when we are called post-scan, the scanner may give
+       * more accurate data in other fields */
+      else if(actual && get_PSIZE_paper_l(in)){
+        s->params.lines = get_PSIZE_paper_l(in);
+        DBG(5,"get_pixelsize: Actual length\n");
       }
       else{
         s->params.lines = get_PSIZE_num_y(in);
@@ -6826,9 +6893,16 @@ get_pixelsize(struct fujitsu *s)
         s->params.bytes_per_line = s->params.pixels_per_line / 8;
       }
   
+      /* some scanners can request that the driver clean img */
+      if(get_PSIZE_req_driv_valid(in)){
+        s->req_driv_crop = get_PSIZE_req_driv_crop(in);
+        s->req_driv_lut = get_PSIZE_req_driv_lut(in);
+        DBG(5,"get_pixelsize: scanner requests: crop=%d, lut=%d\n",
+          s->req_driv_crop,s->req_driv_lut);
+      }
+
       DBG (15, "get_pixelsize: scan_x=%d, Bpl=%d, scan_y=%d\n", 
         s->params.pixels_per_line, s->params.bytes_per_line, s->params.lines );
-        
     }
 
     DBG (10, "get_pixelsize: finish\n");
@@ -8577,6 +8651,28 @@ wait_scanner(struct fujitsu *s)
   return ret;
 }
 
+/* certain options require the entire image to 
+ * be collected from the scanner before we can
+ * tell the user the size of the image. */
+static int
+must_fully_buffer(struct fujitsu *s)
+{
+  if(s->hwdeskewcrop){
+    return 1;
+  }
+
+  if(
+    (s->swdeskew || s->swdespeck || s->swcrop)
+#ifdef SANE_FRAME_JPEG
+    && s->params.format != SANE_FRAME_JPEG
+#endif
+  ){
+    return 1;
+  }
+
+  return 0;
+}
+
 /* s->page_width stores the user setting
  * for the paper width in adf. sometimes,
  * we need a value that differs from this
@@ -8753,7 +8849,7 @@ buffer_deskew(struct fujitsu *s, int side)
       &s->deskew_vals[0],&s->deskew_vals[1],&s->deskew_slope);
   
     if(s->deskew_stat){
-      DBG (5, "buffer_despeck: bad findSkew, bailing\n");
+      DBG (5, "buffer_deskew: bad findSkew, bailing\n");
       goto cleanup;
     }
   }
@@ -8764,13 +8860,13 @@ buffer_deskew(struct fujitsu *s, int side)
   }
 
   /* tweak the bg color based on scanner settings */
-  if(s->mode == MODE_HALFTONE || s->mode == MODE_GRAYSCALE){
-    if(s->bg_color == COLOR_BLACK)
+  if(s->mode == MODE_HALFTONE || s->mode == MODE_LINEART){
+    if(s->bg_color == COLOR_BLACK || s->hwdeskewcrop || s->overscan)
       bg_color = 0xff;
     else
       bg_color = 0;
   }
-  else if(s->bg_color == COLOR_BLACK)
+  else if(s->bg_color == COLOR_BLACK || s->hwdeskewcrop || s->overscan)
     bg_color = 0;
 
   ret = sanei_magic_rotate(&s->params,s->buffers[side],

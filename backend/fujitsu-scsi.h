@@ -448,7 +448,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 #define set_MSEL_deskew(sb, val)    setbitfield(sb + 0x04, 0x01, 7, val)
 
-#define set_MSEL_overscan(sb, val)  setbitfield(sb + 0x05, 0x02, 6, val)
+#define set_MSEL_overscan(sb, val)  setbitfield(sb + 0x05, 0x03, 6, val)
 #define set_MSEL_overcrop(sb, val)  setbitfield(sb + 0x05, 0x01, 5, val)
 #define set_MSEL_undercrop(sb, val) setbitfield(sb + 0x05, 0x01, 4, val)
 
@@ -558,7 +558,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_R_window_id(sb, val)       sb[0x05] = val
 #define set_R_xfer_length(sb, val)     putnbyte(sb + 0x06, val, 3)
 
-#define R_PSIZE_len                0x18
+#define R_PSIZE_len                0x20
 #define get_PSIZE_num_x(in)            getnbyte(in + 0x00, 4)
 #define get_PSIZE_num_y(in)            getnbyte(in + 0x04, 4)
 #define get_PSIZE_paper_w(in)          getnbyte(in + 0x08, 4)

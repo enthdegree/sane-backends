@@ -61,6 +61,7 @@ enum fujitsu_Option
   OPT_VARIANCE,
 
   OPT_ADVANCED_GROUP,
+  OPT_AWD,
   OPT_ALD,
   OPT_COMPRESS,
   OPT_COMPRESS_ARG,
@@ -80,6 +81,7 @@ enum fujitsu_Option
   OPT_BLUE_OFFSET,
   OPT_LOW_MEM,
   OPT_SIDE,
+  OPT_HWDESKEWCROP,
   OPT_SWDESKEW,
   OPT_SWDESPECK,
   OPT_SWCROP,
@@ -440,6 +442,7 @@ struct fujitsu
   int variance;
 
   /*advanced group*/
+  int awd;
   int ald;
   int compress;
   int compress_arg;
@@ -459,6 +462,7 @@ struct fujitsu
   int green_offset;
   int blue_offset;
   int low_mem;
+  int hwdeskewcrop;
   int swdeskew;
   int swdespeck;
   int swcrop;
@@ -764,6 +768,7 @@ static SANE_Status mode_select_auto (struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
 
+static int must_fully_buffer (struct fujitsu *s);
 static int get_page_width (struct fujitsu *s);
 static int get_page_height (struct fujitsu *s);
 
@@ -771,7 +776,7 @@ static SANE_Status send_lut (struct fujitsu *s);
 static SANE_Status send_endorser (struct fujitsu *s);
 static SANE_Status endorser (struct fujitsu *s);
 static SANE_Status set_window (struct fujitsu *s);
-static SANE_Status get_pixelsize(struct fujitsu *s);
+static SANE_Status get_pixelsize(struct fujitsu *s, int actual);
 
 static SANE_Status update_params (struct fujitsu *s);
 static SANE_Status backup_params (struct fujitsu *s);

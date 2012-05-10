@@ -1171,8 +1171,8 @@ getTopEdge(int width, int height, int resolution,
   int offsets = 31;
   double maxSlope = 1;
   double minSlope = -1;
-  int maxOffset = resolution/6;
-  int minOffset = -resolution/6;
+  int maxOffset = resolution;
+  int minOffset = -resolution;
 
   double topSlope = 0;
   int topOffset = 0;
@@ -1431,7 +1431,7 @@ getLine (int height, int width, int * buff,
    * prefered (smaller absolute value) slope and offset */
   for(i=0;i<slopes;i++){
     for(j=0;j<offsets;j++){
-      lines[i][j] = lines[i][j] * slopeScale[i] * offsetScale[j] / maxDensity;
+      lines[i][j] = (float)lines[i][j] / maxDensity * slopeScale[i] * offsetScale[j];
       if(lines[i][j] > *finDensity){
         *finDensity = lines[i][j];
         *finSlope = slopeCenter[i];
@@ -1441,24 +1441,24 @@ getLine (int height, int width, int * buff,
   }
   
   if(0){
-    DBG(15,"offsetCenter:       ");
+    fprintf(stderr,"offsetCenter:       ");
     for(j=0;j<offsets;j++){
-      DBG(15," %+04.0f",offsetCenter[j]);
+      fprintf(stderr," %+04.0f",offsetCenter[j]);
     }
-    DBG(15,"\n");
+    fprintf(stderr,"\n");
   
-    DBG(15,"offsetScale:        ");
+    fprintf(stderr,"offsetScale:        ");
     for(j=0;j<offsets;j++){
-      DBG(15," %04d",offsetScale[j]);
+      fprintf(stderr," %04d",offsetScale[j]);
     }
-    DBG(15,"\n");
+    fprintf(stderr,"\n");
   
     for(i=0;i<slopes;i++){
-      DBG(15,"slope: %02d %+02.2f %03d:",i,slopeCenter[i],slopeScale[i]);
+      fprintf(stderr,"slope: %02d %+02.2f %03d:",i,slopeCenter[i],slopeScale[i]);
       for(j=0;j<offsets;j++){
-        DBG(15,"% 5d",lines[i][j]/100);
+        fprintf(stderr,"% 5d",lines[i][j]);
       }
-      DBG(15,"\n");
+      fprintf(stderr,"\n");
     }
   }
 

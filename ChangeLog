@@ -1,3 +1,17 @@
+2012-05-09 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v110
+	- correct max_y_fb for fi-62x0 series
+	- add must_fully_buffer helper routine
+	- add hwdeskewcrop option, with fallback to software versions
+	- add 'actual' param to get_pixelsize for post-scan
+	- add recent model VPD params
+	- only set params->lines = -1 when using ald without buffering
+	- fix bugs in background color when using software deskew
+	* sanei/sanei_magic.c: Update deskew algo
+	- allow paper to be +/- 1 inch from top of image
+	- correct integer overflow
+	- improve (disabled) debug logs
+
 2012-05-03 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_io_sanei.c, backend/pixma_mp150.c, 
 	doc/descriptions/pixma.desc, doc/sane-pixma.man:

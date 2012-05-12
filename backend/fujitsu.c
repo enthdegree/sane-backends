@@ -501,7 +501,7 @@
          - added some MS and INQ information
          - increased default buffer size for later machines in config file
          - renamed new fi-6xx0Z models
-      v110 2012-03-27, MAN
+      v110 2012-05-09, MAN
          - correct max_y_fb for fi-62x0 series
          - add must_fully_buffer helper routine
          - add hwdeskewcrop option, with fallback to software versions
@@ -509,6 +509,9 @@
          - add recent model VPD params
          - only set params->lines = -1 when using ald without buffering
          - fix bugs in background color when using software deskew
+      v111 2012-05-10, MAN
+         - call send_* and mode_select_* from sane_start
+         - split read payloads into new debug level
 
    SANE FLOW DIAGRAM
 
@@ -558,7 +561,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 110
+#define BUILD 111
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -566,7 +569,8 @@
  - function detail 15
  - get/setopt cmds 20
  - scsi/usb trace  25 
- - scsi/usb detail 30
+ - scsi/usb writes 30
+ - scsi/usb reads  31
  - useless noise   35
 */
 
@@ -2086,7 +2090,7 @@ init_model (struct fujitsu *s)
 
     /* missing from vpd */
     s->max_x_fb = 10488;
-    s->max_y_fb = 14032;
+    s->max_y_fb = 14032; /* some scanners can be slightly more? */
   }
 
   else if (strstr (s->model_name,"S1500")
@@ -4879,20 +4883,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->brightness = val_c;
 
           /* send lut if scanner has no hardware brightness */
-          if(!s->brightness_steps && s->num_download_gamma && s->adbits){
+          if(!s->brightness_steps)
             return send_lut(s);
-          }
-    
+
           return SANE_STATUS_GOOD;
 
         case OPT_CONTRAST:
           s->contrast = val_c;
 
           /* send lut if scanner has no hardware contrast */
-          if(!s->contrast_steps && s->num_download_gamma && s->adbits){
+          if(!s->contrast_steps)
             return send_lut(s);
-          }
-    
+
           return SANE_STATUS_GOOD;
 
         case OPT_GAMMA:
@@ -5090,10 +5092,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->dropout_color = COLOR_GREEN;
           else if (!strcmp(val, STRING_BLUE))
             s->dropout_color = COLOR_BLUE;
-          if (s->has_MS_dropout)
-            return mode_select_dropout(s);
-          else
-            return SANE_STATUS_GOOD;
+          return mode_select_dropout(s);
 
         case OPT_BUFF_MODE:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5111,10 +5110,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->prepick = MSEL_ON;
           else if (!strcmp(val, STRING_OFF))
             s->prepick = MSEL_OFF;
-          if (s->has_MS_prepick)
-            return mode_select_prepick(s);
-          else
-            return SANE_STATUS_GOOD;
+          return mode_select_prepick(s);
 
         case OPT_OVERSCAN:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5405,6 +5401,11 @@ send_endorser(struct fujitsu *s)
 
   DBG (10, "send_endorser: start\n");
 
+  if (!s->has_endorser_f && !s->has_endorser_b){
+    DBG (10, "send_endorser: unsupported\n");
+    return ret;
+  }
+
   /*build the payload*/
   memset(out,0,outLen);
 
@@ -5532,6 +5533,11 @@ send_lut (struct fujitsu *s)
   unsigned char * p = out + S_lut_header_len;
 
   DBG (10, "send_lut: start\n");
+
+  if(!s->num_download_gamma || !s->adbits){
+    DBG (10, "send_lut: unsupported\n");
+    return ret;
+  }
 
   /* contrast is converted to a slope [0,90] degrees:
    * first [-127,127] to [0,254] then to [0,1]
@@ -6138,10 +6144,44 @@ sane_start (SANE_Handle handle)
 
       /* enable overscan/auto detection */
       ret = mode_select_auto(s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot mode_select_auto\n");
-        return ret;
+      if (ret != SANE_STATUS_GOOD)
+        DBG (5, "sane_start: WARNING: cannot mode_select_auto %d\n", ret);
+
+      /* enable double feed detection */
+      ret = mode_select_df(s);
+      if (ret != SANE_STATUS_GOOD)
+        DBG (5, "sane_start: WARNING: cannot mode_select_df %d\n", ret);
+
+      /* send lut if scanner has no hardware brightness/contrast */
+      if (!s->brightness_steps || !s->contrast_steps){
+        ret = send_lut(s);
+        if (ret != SANE_STATUS_GOOD)
+          DBG (5, "sane_start: WARNING: cannot send_lut %d\n", ret);
       }
+    
+      /* enable background color setting */
+      ret = mode_select_bg(s);
+      if (ret != SANE_STATUS_GOOD)
+        DBG (5, "sane_start: WARNING: cannot mode_select_bg %d\n", ret);
+
+      /* enable dropout color setting */
+      ret = mode_select_dropout(s);
+      if (ret != SANE_STATUS_GOOD)
+        DBG (5, "sane_start: WARNING: cannot mode_select_dropout %d\n", ret);
+
+      /* enable buffering setting */
+      ret = mode_select_buff(s);
+      if (ret != SANE_STATUS_GOOD)
+        DBG (5, "sane_start: WARNING: cannot mode_select_buff %d\n", ret);
+
+      /* enable prepick setting */
+      ret = mode_select_prepick(s);
+      if (ret != SANE_STATUS_GOOD)
+        DBG (5, "sane_start: WARNING: cannot mode_select_prepick %d\n", ret);
+
+      ret = send_endorser(s);
+      if (ret != SANE_STATUS_GOOD)
+        DBG (5, "sane_start: WARNING: cannot send_endorser %d\n", ret);
 
       /* set window command */
       ret = set_window(s);
@@ -8506,7 +8546,7 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
 
         DBG(25, "in: read %lu bytes\n", (unsigned long)*inLen);
         if(*inLen){
-            hexdump(30, "in: <<", inBuff, *inLen);
+            hexdump(31, "in: <<", inBuff, *inLen);
         }
 
         if(*inLen && *inLen != askLen){

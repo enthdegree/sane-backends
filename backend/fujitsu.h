@@ -70,6 +70,9 @@ enum fujitsu_Option
   OPT_DF_THICKNESS,
   OPT_DF_LENGTH,
   OPT_DF_DIFF,
+  OPT_DF_RECOVERY,
+  OPT_PAPER_PROTECT,
+  OPT_STAPLE_DETECT,
   OPT_BG_COLOR,
   OPT_DROPOUT_COLOR,
   OPT_BUFF_MODE,
@@ -239,6 +242,10 @@ struct fujitsu
   int num_internal_dither;
   int num_download_dither;
 
+  int has_df_recovery;
+  int has_paper_protect;
+  int has_staple_detect;
+
   int has_rif;
   int has_dtc;
   int has_sdtc;
@@ -370,6 +377,9 @@ struct fujitsu
   SANE_Range compress_arg_range;
   SANE_String_Const df_action_list[4];
   SANE_String_Const df_diff_list[5];
+  SANE_String_Const df_recovery_list[4];
+  SANE_String_Const paper_protect_list[4];
+  SANE_String_Const staple_detect_list[4];
   SANE_String_Const bg_color_list[4];
   SANE_String_Const do_color_list[5];
   SANE_String_Const lamp_color_list[5];
@@ -451,6 +461,9 @@ struct fujitsu
   int df_thickness;
   int df_length;
   int df_diff;
+  int df_recovery;
+  int paper_protect;
+  int staple_detect;
   int bg_color;
   int dropout_color;
   int buff_mode;

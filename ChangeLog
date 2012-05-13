@@ -2,6 +2,7 @@
 	* backend/fujitsu.c: backend v111
 	- call send_* and mode_select_* from sane_start
 	- split read payloads into new debug level
+	- add paper-protect, staple-detect and df-recovery options
 
 2012-05-09 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v110

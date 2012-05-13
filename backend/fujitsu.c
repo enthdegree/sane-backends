@@ -512,6 +512,7 @@
       v111 2012-05-10, MAN
          - call send_* and mode_select_* from sane_start
          - split read payloads into new debug level
+         - add paper-protect, staple-detect and df-recovery options
 
    SANE FLOW DIAGRAM
 
@@ -1347,7 +1348,11 @@ init_vpd (struct fujitsu *s)
 
           DBG (15, "  multi-purpose stacker: %d\n", get_IN_mp_stacker(in));
 
-          DBG (15, "  unused caps: %d\n", get_IN_unused(in));
+          DBG (15, "  prepick: %d\n", get_IN_prepick(in));
+          DBG (15, "  mf detect: %d\n", get_IN_mf_detect(in));
+
+          s->has_paper_protect = get_IN_paperprot(in);
+          DBG (15, "  paper protection: %d\n", s->has_paper_protect);
 
           s->adbits = get_IN_adbits(in);
           DBG (15, "  A/D bits: %d\n",s->adbits);
@@ -2098,6 +2103,13 @@ init_model (struct fujitsu *s)
     /*lies*/
     s->has_MS_bg=0;
     s->has_MS_prepick=0;
+  }
+
+  else if (strstr (s->model_name,"fi-6800")
+   || strstr (s->model_name,"fi-5900")){ /* guessing this scanner too */
+    /* missing from vpd */
+    s->has_staple_detect=1; /* may not actually work? */
+    s->has_df_recovery=1;
   }
 
   DBG (10, "init_model: finish\n");
@@ -3394,6 +3406,66 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
      opt->cap = SANE_CAP_INACTIVE;
   }
 
+  /*df recovery*/
+  if(option==OPT_DF_RECOVERY){
+    s->df_recovery_list[0] = STRING_DEFAULT;
+    s->df_recovery_list[1] = STRING_OFF;
+    s->df_recovery_list[2] = STRING_ON;
+    s->df_recovery_list[3] = NULL;
+  
+    opt->name = "df-recovery";
+    opt->title = "DF recovery mode";
+    opt->desc = "Request scanner to reverse feed on paper jam";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->df_recovery_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+    if (s->has_MS_df && s->has_df_recovery)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*paper protection*/
+  if(option==OPT_PAPER_PROTECT){
+    s->paper_protect_list[0] = STRING_DEFAULT;
+    s->paper_protect_list[1] = STRING_OFF;
+    s->paper_protect_list[2] = STRING_ON;
+    s->paper_protect_list[3] = NULL;
+  
+    opt->name = "paper-protect";
+    opt->title = "Paper protection";
+    opt->desc = "Request scanner to predict jams in the ADF";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->paper_protect_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+    if (s->has_MS_df && s->has_paper_protect)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*staple detection*/
+  if(option==OPT_STAPLE_DETECT){
+    s->staple_detect_list[0] = STRING_DEFAULT;
+    s->staple_detect_list[1] = STRING_OFF;
+    s->staple_detect_list[2] = STRING_ON;
+    s->staple_detect_list[3] = NULL;
+  
+    opt->name = "staple-detect";
+    opt->title = "Staple detection";
+    opt->desc = "Request scanner to detect jams in the ADF caused by staples";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->staple_detect_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+    if (s->has_MS_df && s->has_staple_detect)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /*background color*/
   if(option==OPT_BG_COLOR){
     s->bg_color_list[0] = STRING_DEFAULT;
@@ -4449,6 +4521,48 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           }
           return SANE_STATUS_GOOD;
 
+        case OPT_DF_RECOVERY:
+          switch (s->df_recovery) {
+            case MSEL_DEFAULT:
+              strcpy (val, STRING_DEFAULT);
+              break;
+            case MSEL_ON:
+              strcpy (val, STRING_ON);
+              break;
+            case MSEL_OFF:
+              strcpy (val, STRING_OFF);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_PAPER_PROTECT:
+          switch (s->paper_protect) {
+            case MSEL_DEFAULT:
+              strcpy (val, STRING_DEFAULT);
+              break;
+            case MSEL_ON:
+              strcpy (val, STRING_ON);
+              break;
+            case MSEL_OFF:
+              strcpy (val, STRING_OFF);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_STAPLE_DETECT:
+          switch (s->staple_detect) {
+            case MSEL_DEFAULT:
+              strcpy (val, STRING_DEFAULT);
+              break;
+            case MSEL_ON:
+              strcpy (val, STRING_ON);
+              break;
+            case MSEL_OFF:
+              strcpy (val, STRING_OFF);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
         case OPT_BG_COLOR:
           switch (s->bg_color) {
             case COLOR_DEFAULT:
@@ -5074,6 +5188,33 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->df_diff = MSEL_df_diff_20MM;
           return mode_select_df(s);
 
+        case OPT_DF_RECOVERY:
+          if (!strcmp(val, STRING_DEFAULT))
+            s->df_recovery = MSEL_DEFAULT;
+          else if (!strcmp(val, STRING_ON))
+            s->df_recovery = MSEL_ON;
+          else if (!strcmp(val, STRING_OFF))
+            s->df_recovery = MSEL_OFF;
+          return mode_select_df(s);
+
+        case OPT_PAPER_PROTECT:
+          if (!strcmp(val, STRING_DEFAULT))
+            s->paper_protect = MSEL_DEFAULT;
+          else if (!strcmp(val, STRING_ON))
+            s->paper_protect = MSEL_ON;
+          else if (!strcmp(val, STRING_OFF))
+            s->paper_protect = MSEL_OFF;
+          return mode_select_df(s);
+
+        case OPT_STAPLE_DETECT:
+          if (!strcmp(val, STRING_DEFAULT))
+            s->staple_detect = MSEL_DEFAULT;
+          else if (!strcmp(val, STRING_ON))
+            s->staple_detect = MSEL_ON;
+          else if (!strcmp(val, STRING_OFF))
+            s->staple_detect = MSEL_OFF;
+          return mode_select_df(s);
+
         case OPT_BG_COLOR:
           if (!strcmp(val, STRING_DEFAULT))
             s->bg_color = COLOR_DEFAULT;
@@ -5651,6 +5792,10 @@ mode_select_df (struct fujitsu *s)
       set_MSEL_df_diff (page, s->df_diff);
     }
   }
+
+  set_MSEL_df_paperprot(page,s->paper_protect);
+  set_MSEL_df_stapledet(page,s->staple_detect);
+  set_MSEL_df_recovery(page,s->df_recovery);
 
   ret = do_cmd (
       s, 1, 0,

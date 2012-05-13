@@ -205,7 +205,9 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_endorser_f(in)              getbitfield(in+0x20, 1, 0)
 
 #define get_IN_mp_stacker(in)              getbitfield(in+0x21, 1, 7)
-#define get_IN_unused(in)                  getbitfield(in+0x21, 0x07, 4)
+#define get_IN_prepick(in)                 getbitfield(in+0x21, 1, 6)
+#define get_IN_mf_detect(in)               getbitfield(in+0x21, 1, 5)
+#define get_IN_paperprot(in)               getbitfield(in+0x21, 1, 4)
 #define get_IN_adbits(in)                  getbitfield(in+0x21, 0x0f, 0)
 
 #define get_IN_buffer_bytes(in)            getnbyte(in + 0x22, 4)
@@ -423,6 +425,9 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define MSEL_df_diff_10MM 1
 #define MSEL_df_diff_15MM 2
 #define MSEL_df_diff_20MM 3
+#define set_MSEL_df_paperprot(sb, val) setbitfield(sb + 3, 3, 6, val)
+#define set_MSEL_df_stapledet(sb, val) setbitfield(sb + 3, 3, 4, val)
+#define set_MSEL_df_recovery(sb, val)  setbitfield(sb + 3, 3, 2, val)
 
 #define set_MSEL_dropout_front(sb, val) setbitfield(sb + 0x02, 0x0f, 0, val)
 #define set_MSEL_dropout_back(sb, val) setbitfield(sb + 0x02, 0x0f, 4, val)
@@ -454,7 +459,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 #define set_MSEL_over_under_amt(sb, val) sb[0x06]=val
 
-/*buffer, prepick, overscan use these*/
+/*buffer, prepick, overscan and df use these*/
 #define MSEL_DEFAULT 0
 #define MSEL_OFF 2
 #define MSEL_ON 3

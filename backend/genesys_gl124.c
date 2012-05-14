@@ -1946,7 +1946,7 @@ gl124_stop_action (Genesys_Device * dev)
   uint8_t val40, val;
   unsigned int loop;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBGSTART;
 
   /* post scan gpio */
   RIE (sanei_genesys_read_register (dev, REG32, &val));
@@ -1999,7 +1999,6 @@ gl124_stop_action (Genesys_Device * dev)
 	{
 	  sanei_genesys_print_status (val);
 	}
-      val40 = 0;
       status = sanei_genesys_read_hregister (dev, REG100, &val40);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -2135,8 +2134,6 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   DBG (DBG_proc, "gl124_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
 
-  dev->scanhead_position_in_steps = 0;
-
   /* first read gives HOME_SENSOR true */
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
@@ -2145,6 +2142,10 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	   "gl124_slow_back_home: failed to read home sensor: %s\n",
 	   sane_strstatus (status));
       return status;
+    }
+  if (DBG_LEVEL >= DBG_io)
+    {
+      sanei_genesys_print_status (val);
     }
   usleep (100000);		/* sleep 100 ms */
 
@@ -2161,8 +2162,12 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       sanei_genesys_print_status (val);
     }
-  if (val & HOMESNR)	/* is sensor at home? */
+  
+  /* is sensor at home? */
+  if (val & HOMESNR)
     {
+      DBG (DBG_info, "%s: already at home, completed\n", __FUNCTION__);
+      dev->scanhead_position_in_steps = 0;
       DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
@@ -2230,7 +2235,8 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	  if (val & HOMESNR)	/* home sensor */
 	    {
 	      DBG (DBG_info, "gl124_slow_back_home: reached home position\n");
-	      DBG (DBG_proc, "gl124_slow_back_home: finished\n");
+	      DBGCOMPLETED;
+              dev->scanhead_position_in_steps = 0;
 	      return SANE_STATUS_GOOD;
 	    }
 	  usleep (100000);	/* sleep 100 ms */

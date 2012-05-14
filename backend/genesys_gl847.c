@@ -51,27 +51,6 @@
  Low level function
  ****************************************************************************/
 
-/**
- * decodes and prints content of status (0x41) register
- * @param val value read from reg41
- */
-static void
-print_status (uint8_t val)
-{
-  char msg[80];
-
-  sprintf (msg, "%s%s%s%s%s%s%s%s",
-	   val & REG41_PWRBIT ? "PWRBIT " : "",
-	   val & REG41_BUFEMPTY ? "BUFEMPTY " : "",
-	   val & REG41_FEEDFSH ? "FEEDFSH " : "",
-	   val & REG41_SCANFSH ? "SCANFSH " : "",
-	   val & REG41_HOMESNR ? "HOMESNR " : "",
-	   val & REG41_LAMPSTS ? "LAMPSTS " : "",
-	   val & REG41_FEBUSY ? "FEBUSY " : "",
-	   val & REG41_MOTORENB ? "MOTORENB" : "");
-  DBG (DBG_info, "status=%s\n", msg);
-}
-
 /* ------------------------------------------------------------------------ */
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
@@ -470,7 +449,15 @@ gl847_bulk_full_size (void)
 static void
 gl847_init_registers (Genesys_Device * dev)
 {
+  int lide700=0;
+  uint8_t val;
+
   DBGSTART;
+  /* 700F class needs some different initial settings */
+  if (strcmp (dev->model->name, "canon-lide-700f") == 0)
+    {
+       lide700 = 1;
+    }
 
   memset (dev->reg, 0,
 	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
@@ -571,12 +558,12 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0x7c, 0x55);
 
   SETREG (0x7d, 0x00);
+
   /* NOTE: autoconf is a non working option */
   SETREG (0x87, 0x02);
   SETREG (0x9d, 0x00); /* 1x multiplier instead of 8x */
   SETREG (0x9d, 0x06);
   SETREG (0xa2, 0x0f);
-  SETREG (0xa6, 0x04);
   SETREG (0xbd, 0x18);
   SETREG (0xfe, 0x08);
 
@@ -588,6 +575,20 @@ gl847_init_registers (Genesys_Device * dev)
   SETREG (0xc8, 0x00);
   SETREG (0xc9, 0x00);
   SETREG (0xca, 0x00);
+
+  /* LiDE 700 fixups */
+  if(lide700)
+    {
+      SETREG (0x5f, 0x04);
+      SETREG (0x7d, 0x80);
+
+      /* we write to these registers only once */
+      val=0;
+      sanei_genesys_write_register (dev, REG7E, val);
+      sanei_genesys_write_register (dev, REG9E, val);
+      sanei_genesys_write_register (dev, REG9F, val);
+      sanei_genesys_write_register (dev, REGAB, val);
+    }
 
   /* fine tune upon device description */
   dev->reg[reg_0x05].value &= ~REG05_DPIHW;
@@ -682,8 +683,18 @@ gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
   SANE_Status status = SANE_STATUS_GOOD;
   int i;
   uint16_t val;
+  uint8_t val8;
 
-  DBG (DBG_proc, "gl847_set_ad_fe(): start\n");
+  DBGSTART;
+
+  /* wait for FE to be ready */
+  status = sanei_genesys_get_status (dev, &val8);
+  while (val8 & REG41_FEBUSY);
+    {
+      usleep (10000);
+      status = sanei_genesys_get_status (dev, &val8);
+    };
+
   if (set == AFE_INIT)
     {
       DBG (DBG_proc, "gl847_set_ad_fe(): setting DAC %u\n",
@@ -745,8 +756,7 @@ gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
 	}
     }
 
-  DBG (DBG_proc, "gl847_set_ad_fe(): end\n");
-
+  DBGCOMPLETED;
   return status;
 }
 
@@ -934,6 +944,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
     {
       fast_step_type=2;
     }
+
   fast_time=sanei_genesys_slope_table(fast_table,
                                       &fast_steps,
                                       fast_dpi,
@@ -1149,7 +1160,8 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   /* end of sensor window */
   endx = startx + used_pixels;
 
-  /* sensors are built from 600 dpi segments */
+  /* sensors are built from 600 dpi segments for LiDE 100/200
+   * and 1200 dpi for the 700F */
   segnb=dpihw/600;
 
   /* compute pixel coordinate in the given dpihw space,
@@ -1382,10 +1394,9 @@ gl847_init_scan_regs (Genesys_Device * dev,
   int start, used_pixels;
   int bytes_per_line;
   int move;
-  unsigned int lincnt, dpihw;
+  unsigned int lincnt;
   unsigned int oflags; /**> optical flags */
   int exposure_time;
-  int i;
   int stagger;
 
   int slope_dpi = 0;
@@ -1433,7 +1444,6 @@ gl847_init_scan_regs (Genesys_Device * dev,
   DBG (DBG_info, "gl847_init_scan_regs : stagger=%d lines\n", stagger);
 
   /* used_res */
-  i = optical_res / xres;
   if (flags & SCAN_FLAG_USE_OPTICAL_RES)
     {
       used_res = optical_res;
@@ -1474,14 +1484,11 @@ gl847_init_scan_regs (Genesys_Device * dev,
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-  dpihw=sanei_genesys_compute_dpihw(dev,xres);
   exposure_time = gl847_compute_exposure (dev, used_res);
   scan_step_type = sanei_genesys_compute_step_type(gl847_motors, dev->model->motor_type, exposure_time);
 
-  DBG (DBG_info, "gl847_init_scan_regs : exposure_time=%d pixels\n",
-       exposure_time);
-  DBG (DBG_info, "gl847_init_scan_regs : scan_step_type=%d\n",
-       scan_step_type);
+  DBG (DBG_info, "gl847_init_scan_regs : exposure_time=%d pixels\n", exposure_time);
+  DBG (DBG_info, "gl847_init_scan_regs : scan_step_type=%d\n", scan_step_type);
 
 /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
@@ -1650,17 +1657,15 @@ gl847_calculate_current_setup (Genesys_Device * dev)
   float startx;			/*optical_res, from dummy_pixel+1 */
   float pixels;
   float lines;
-  int color_filter;
 
   int used_res;
   int used_pixels;
-  unsigned int lincnt, dpihw;
+  unsigned int lincnt;
   int exposure_time;
   int stagger;
 
   int slope_dpi = 0;
   int dummy = 0;
-  int scan_step_type = 1;
   int max_shift;
 
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
@@ -1698,8 +1703,6 @@ gl847_calculate_current_setup (Genesys_Device * dev)
   startx = start;		/*optical_res, from dummy_pixel+1 */
   pixels = dev->settings.pixels;
   lines = dev->settings.lines;
-  color_filter = dev->settings.color_filter;
-
 
   DBG (DBG_info,
        "gl847_calculate_current_setup settings:\n"
@@ -1754,9 +1757,7 @@ gl847_calculate_current_setup (Genesys_Device * dev)
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-  dpihw=sanei_genesys_compute_dpihw(dev,xres);
   exposure_time = gl847_compute_exposure (dev, used_res);
-  scan_step_type = sanei_genesys_compute_step_type(gl847_motors, dev->model->motor_type, exposure_time);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
   /* max_shift */
@@ -1849,23 +1850,29 @@ gl847_start_action (Genesys_Device * dev)
   return sanei_genesys_write_register (dev, 0x0f, 0x01);
 }
 
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl847_stop_action (Genesys_Device * dev)
 {
-  Genesys_Register_Set local_reg[GENESYS_GL847_MAX_REGS];
   SANE_Status status;
   uint8_t val40, val;
   unsigned int loop;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBGSTART;
+
+  /* post scan gpio */
+  RIE (sanei_genesys_read_register (dev, REG6C, &val));
+  val &= ~REG6C_GPIO10;
+  RIE (sanei_genesys_write_register (dev, REG6C, val));
 
   status = sanei_genesys_get_status (dev, &val);
   if (DBG_LEVEL >= DBG_io)
     {
-      print_status (val);
+      sanei_genesys_print_status (val);
     }
 
-  val40 = 0;
   status = sanei_genesys_read_register (dev, REG40, &val40);
   if (status != SANE_STATUS_GOOD)
     {
@@ -1884,25 +1891,19 @@ gl847_stop_action (Genesys_Device * dev)
       return SANE_STATUS_GOOD;
     }
 
-  memset (local_reg, 0, sizeof (local_reg));
-
-  memcpy (local_reg, dev->reg,
-	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
-
-  gl847_init_optical_regs_off (local_reg);
-
-  gl847_init_motor_regs_off (local_reg, 0);
-  status = gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS);
+  /* ends scan */
+  val = sanei_genesys_read_reg_from_set (dev->reg, REG01);
+  val &= ~REG01_SCAN;
+  sanei_genesys_set_reg_from_set (dev->reg, REG01, val);
+  status = sanei_genesys_write_register (dev, REG01, val);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to bulk write registers: %s\n",
-	   __FUNCTION__, sane_strstatus (status));
+      DBG (DBG_error,
+	   "%s: failed to write register 01: %s\n", __FUNCTION__,
+	   sane_strstatus (status));
       return status;
     }
-
-  /* looks like writing the right registers to zero is enough to get the chip 
-     out of scan mode into command mode, actually triggering(writing to 
-     register 0x0f) seems to be unnecessary */
+  usleep (100 * 1000);
 
   loop = 10;
   while (loop > 0)
@@ -1910,9 +1911,8 @@ gl847_stop_action (Genesys_Device * dev)
       status = sanei_genesys_get_status (dev, &val);
       if (DBG_LEVEL >= DBG_io)
 	{
-	  print_status (val);
+	  sanei_genesys_print_status (val);
 	}
-      val40 = 0;
       status = sanei_genesys_read_register (dev, 0x40, &val40);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -1954,9 +1954,11 @@ gl847_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   DBGSTART;
 
   /* clear GPIO 10 */
+  /* XXX STEF XXX
   RIE (sanei_genesys_read_register (dev, REG6C, &val));
   val &= ~REG6C_GPIO10;
   RIE (sanei_genesys_write_register (dev, REG6C, val));
+  */
 
   val = REG0D_CLRLNCNT;
   RIE (sanei_genesys_write_register (dev, REG0D, val));
@@ -2019,7 +2021,10 @@ gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 }
 
 /* Moves the slider to the home (top) postion slowly */
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg[GENESYS_GL847_MAX_REGS];
@@ -2028,17 +2033,11 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   float resolution;
   uint8_t val;
   int loop = 0;
+  int scan_mode;
 
 
   DBG (DBG_proc, "gl847_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
-
-  memset (local_reg, 0, sizeof (local_reg));
-
-  /* reset gpio pin */
-  RIE (sanei_genesys_read_register (dev, REG6C, &val));
-  val = dev->gpo.value[0];
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
 
   /* first read gives HOME_SENSOR true */
   status = sanei_genesys_get_status (dev, &val);
@@ -2051,7 +2050,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
   if (DBG_LEVEL >= DBG_io)
     {
-      print_status (val);
+      sanei_genesys_print_status (val);
     }
   usleep (100000);		/* sleep 100 ms */
 
@@ -2066,56 +2065,46 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
   if (DBG_LEVEL >= DBG_io)
     {
-      print_status (val);
+      sanei_genesys_print_status (val);
     }
 
-  dev->scanhead_position_in_steps = 0;
-
-  if (val & REG41_HOMESNR)	/* is sensor at home? */
+  /* is sensor at home? */
+  if (val & HOMESNR)
     {
-      DBG (DBG_info, "gl847_slow_back_home: already at home, completed\n");
+      DBG (DBG_info, "%s: already at home, completed\n", __FUNCTION__);
       dev->scanhead_position_in_steps = 0;
       DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
 
-  /* if motor is on, stop current action */
-  if (val & REG41_MOTORENB)
-    {
-      status = gl847_stop_action (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl847_slow_back_home: failed to stop motor: %s\n",
-	       sane_strstatus (status));
-	  return SANE_STATUS_IO_ERROR;
-	}
-    }
-
-  memcpy (local_reg, dev->reg,
-	  GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
+  memset (local_reg, 0, sizeof (local_reg));
+  memcpy (local_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
   
   resolution=sanei_genesys_get_lowest_ydpi(dev);
+  
+  /* TODO add scan_mode to the API */
+  scan_mode= dev->settings.scan_mode;
+  dev->settings.scan_mode=SCAN_MODE_LINEART;
   gl847_init_scan_regs (dev,
 			local_reg,
 			resolution,
 			resolution,
-			0,
+			100,
 			30000,
 			100,
-			3,
+			100,
 			8,
 			1,
-			dev->settings.color_filter,
+			0,
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  dev->settings.scan_mode=scan_mode;
 
   /* clear scan and feed count */
-  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
-  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRMCNT));
+  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
   
-  /* set up for reverse and no scan */
+  /* set up for reverse AND scan */
   r = sanei_genesys_get_address (local_reg, REG02);
   r->value |= REG02_MTRREV;
   r = sanei_genesys_get_address (local_reg, REG01);
@@ -2135,6 +2124,11 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return status;
     }
 
+  /* post scan gpio */
+  RIE (sanei_genesys_read_register (dev, REG6C, &val));
+  val &= ~REG6C_GPIO10;
+  RIE (sanei_genesys_write_register (dev, REG6C, val));
+
   if (wait_until_home)
     {
       while (loop < 300)	/* do not wait longer then 30 seconds */
@@ -2148,10 +2142,11 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      return status;
 	    }
 
-	  if (val & REG41_HOMESNR)	/* home sensor */
+	  if (val & HOMESNR)	/* home sensor */
 	    {
 	      DBG (DBG_info, "gl847_slow_back_home: reached home position\n");
-	      DBG (DBG_proc, "gl847_slow_back_home: finished\n");
+	      DBGCOMPLETED;
+              dev->scanhead_position_in_steps = 0;
 	      return SANE_STATUS_GOOD;
 	    }
 	  usleep (100000);	/* sleep 100 ms */
@@ -2166,7 +2161,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   DBG (DBG_info, "gl847_slow_back_home: scanhead is still moving\n");
-  DBG (DBG_proc, "gl847_slow_back_home: finished\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -2990,83 +2985,30 @@ static SANE_Status
 gl847_init_gpio (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  uint8_t val, effective;
+  int idx=0;
 
-  DBG (DBG_proc, "gl847_init_gpio: start\n");
+  DBGSTART;
 
-  RIE (sanei_genesys_write_register (dev, 0x6e, dev->gpo.enable[0]));
-  RIE (sanei_genesys_write_register (dev, 0x6f, dev->gpo.enable[1]));
-  RIE (sanei_genesys_write_register (dev, 0xa7, 0x04));
-  RIE (sanei_genesys_write_register (dev, 0xa8, 0x00));
-  RIE (sanei_genesys_write_register (dev, 0xa9, 0x00));
-
-  /* toggle needed bits one after all */
-  /* TODO define a function for bit toggling */
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  val = effective | 0x80;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (effective != val)
+  /* search GPIO profile */
+  while(gpios[idx].sensor_id!=0 && dev->model->gpo_type!=gpios[idx].sensor_id)
     {
-      DBG (DBG_warn,
-	   "gl847_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-	   effective, val);
+      idx++;
+    }
+  if(gpios[idx].sensor_id==0)
+    {
+      DBG (DBG_error, "%s: failed to find GPIO profile for sensor_id=%d\n", __FUNCTION__, dev->model->ccd_type);
+      return SANE_STATUS_INVAL;
     }
 
-  val = effective | 0x40;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (effective != val)
-    {
-      DBG (DBG_warn,
-	   "gl847_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-	   effective, val);
-    }
-
-  val = effective | 0x20;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-
-  /* seems useless : memory or clock related ? */
-  RIE (sanei_genesys_read_register (dev, REG0B, &effective));
-  RIE (sanei_genesys_write_register (dev, REG0B, effective));
-
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (effective != val)
-    {
-      DBG (DBG_warn,
-	   "gl847_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-	   effective, val);
-    }
-
-  /* not done yet for LiDE 100
-     val = effective | 0x08;
-     RIE (sanei_genesys_write_register (dev, REG6C, val));
-     RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-     if (effective != val)
-     {
-     DBG (DBG_warn, "gl847_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-     effective, val);
-     } */
-
-  val = effective | 0x02;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (effective != val)
-    {
-      DBG (DBG_warn,
-	   "gl847_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-	   effective, val);
-    }
-
-  val = effective | 0x01;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-  RIE (sanei_genesys_read_register (dev, REG6C, &effective));
-  if (effective != val)
-    {
-      DBG (DBG_warn,
-	   "gl847_init_gpio: effective!=needed (0x%02x!=0x%02x) \n",
-	   effective, val);
-    }
+  RIE (sanei_genesys_write_register (dev, REG6B, gpios[idx].r6b));
+  RIE (sanei_genesys_write_register (dev, REG6C, gpios[idx].r6c));
+  RIE (sanei_genesys_write_register (dev, REG6D, gpios[idx].r6d));
+  RIE (sanei_genesys_write_register (dev, REG6E, gpios[idx].r6e));
+  RIE (sanei_genesys_write_register (dev, REG6F, gpios[idx].r6f));
+  RIE (sanei_genesys_write_register (dev, REGA6, gpios[idx].ra6));
+  RIE (sanei_genesys_write_register (dev, REGA7, gpios[idx].ra7));
+  RIE (sanei_genesys_write_register (dev, REGA8, gpios[idx].ra8));
+  RIE (sanei_genesys_write_register (dev, REGA9, gpios[idx].ra9));
 
   DBGCOMPLETED;
   return status;
@@ -3080,6 +3022,7 @@ gl847_init_memory_layout (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int idx = 0;
+  uint8_t val;
 
   DBG (DBG_proc, "gl847_init_memory_layout\n");
 
@@ -3102,6 +3045,14 @@ gl847_init_memory_layout (Genesys_Device * dev)
       idx = 3;
     }
 
+  /* CLKSET nd DRAMSEL */
+  val = layouts[idx].dramsel;
+  RIE (sanei_genesys_write_register (dev, REG0B, val));
+  dev->reg[reg_0x0b].value = val;
+
+  /* prevent further writings by bulk write register */
+  dev->reg[reg_0x0b].address = 0x00;
+
   /* setup base address for shading data. */
   /* values must be multiplied by 8192=0x4000 to give address on AHB */
   /* R-Channel shading bank0 address setting for CIS */
@@ -3117,18 +3068,18 @@ gl847_init_memory_layout (Genesys_Device * dev)
   /* size for each buffer is 0x16d*1k word */
   sanei_genesys_write_register (dev, 0xe0, layouts[idx].re0);
   sanei_genesys_write_register (dev, 0xe1, layouts[idx].re1);
-/* R-Channel ODD image buffer end-address 0x0291->0x148800 => size=0xB6800*/
+  /* R-Channel ODD image buffer end-address 0x0291->0x148800 => size=0xB6800*/
   sanei_genesys_write_register (dev, 0xe2, layouts[idx].re2);
   sanei_genesys_write_register (dev, 0xe3, layouts[idx].re3);
 
   /* R-Channel EVEN image buffer 0x0292 */
   sanei_genesys_write_register (dev, 0xe4, layouts[idx].re4);
   sanei_genesys_write_register (dev, 0xe5, layouts[idx].re5);
-/* R-Channel EVEN image buffer end-address 0x03ff*/
+  /* R-Channel EVEN image buffer end-address 0x03ff*/
   sanei_genesys_write_register (dev, 0xe6, layouts[idx].re6);
   sanei_genesys_write_register (dev, 0xe7, layouts[idx].re7);
 
-/* same for green, since CIS, same addresses */
+  /* same for green, since CIS, same addresses */
   sanei_genesys_write_register (dev, 0xe8, layouts[idx].re0);
   sanei_genesys_write_register (dev, 0xe9, layouts[idx].re1);
   sanei_genesys_write_register (dev, 0xea, layouts[idx].re2);
@@ -3174,20 +3125,8 @@ gl847_cold_boot (Genesys_Device * dev)
       DBG (DBG_info, "gl847_cold_boot: reported version for genesys chip is 0x%02x\n", val);
     }
 
-  /* setup GPIO */
-  sanei_genesys_read_register (dev, REGA6, &val);
-  sanei_genesys_write_register (dev, REGA6, val | 0x04);
-  sanei_genesys_write_register (dev, REGA7, 0x0f);
-  sanei_genesys_write_register (dev, REGA9, 0x00);
-
   /* Set default values for registers */
   gl847_init_registers (dev);
-
-  RIE (sanei_genesys_write_register (dev, REG6B, 0x02));
-  RIE (sanei_genesys_write_register (dev, REG6C, 0x00));
-  RIE (sanei_genesys_write_register (dev, REG6D, 0x20));
-  RIE (sanei_genesys_write_register (dev, REG6E, 0x7e));
-  RIE (sanei_genesys_write_register (dev, REG6F, 0x21));
 
   /* Write initial registers */
   RIE (gl847_bulk_write_register (dev, dev->reg, GENESYS_GL847_MAX_REGS));
@@ -3198,26 +3137,6 @@ gl847_cold_boot (Genesys_Device * dev)
   RIE (sanei_genesys_write_register (dev, REG0B, val));
   dev->reg[reg_0x0b].value = val;
 
-  /* read back GPIO TODO usefull ? */
-  sanei_genesys_read_register (dev, REGA6, &val);
-  if (val != 0x04)
-    {
-      DBG (DBG_warn, "gl847_cold_boot: GPIO is 0x%02d instead of 0x04\n", val);
-    }
-
-  /* set up clock once for all */
-  RIE (sanei_genesys_write_register (dev, 0x77, 0x00));
-  RIE (sanei_genesys_write_register (dev, 0x78, 0x00));
-  RIE (sanei_genesys_write_register (dev, 0x79, 0x9f));
-
-  /* CLKSET */
-  val = (dev->reg[reg_0x0b].value & ~REG0B_CLKSET) | REG0B_30MHZ;
-  RIE (sanei_genesys_write_register (dev, REG0B, val));
-  dev->reg[reg_0x0b].value = val;
-
-  /* prevent further writings by bulk write register */
-  dev->reg[reg_0x0b].address = 0x00;
-
   /* CIS_LINE */
   SETREG (0x08, REG08_CIS_LINE);
   RIE (sanei_genesys_write_register (dev, 0x08, dev->reg[reg_0x08].value));
@@ -3225,9 +3144,6 @@ gl847_cold_boot (Genesys_Device * dev)
   /* set up end access */
   RIE (sanei_genesys_write_0x8c (dev, 0x10, 0x0b));
   RIE (sanei_genesys_write_0x8c (dev, 0x13, 0x0e));
-
-  sanei_genesys_write_register (dev, REGA7, 0x04);
-  sanei_genesys_write_register (dev, REGA9, 0x00);
 
   /* setup gpio */
   RIE (gl847_init_gpio (dev));
@@ -3288,11 +3204,11 @@ gl847_init (Genesys_Device * dev)
   /* set up hardware and registers */
   RIE (gl847_cold_boot (dev));
 
-  /* Set analog frontend */
+  /* set analog frontend */
   RIE (gl847_set_fe (dev, AFE_INIT));
 
   /* move head away from park position */
-  gl847_feed (dev, 300);
+  /* XXX gl847_feed (dev, 300) STEF XXX;*/
 
   /* now hardware part is OK, set up device struct */
   FREE_IFNOT_NULL (dev->white_average_data);
@@ -3367,17 +3283,31 @@ gl847_update_hardware_sensors (Genesys_Scanner * s)
    */
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
-
+  uint8_t scan, file, email, copy;
+  switch(s->dev->model->gpo_type)
+    {
+      case GPO_CANONLIDE700:
+        scan=0x04;
+        file=0x02;
+        email=0x01;
+        copy=0x08;
+        break;
+      default:
+        scan=0x01;
+        file=0x02;
+        email=0x04;
+        copy=0x08;
+    }
   RIE (sanei_genesys_read_register (s->dev, REG6D, &val));
 
   if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-    s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
+    s->val[OPT_SCAN_SW].b = (val & scan) == 0;
   if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
-    s->val[OPT_FILE_SW].b = (val & 0x02) == 0;
+    s->val[OPT_FILE_SW].b = (val & file) == 0;
   if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
-    s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
+    s->val[OPT_EMAIL_SW].b = (val & email) == 0;
   if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
-    s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
+    s->val[OPT_COPY_SW].b = (val & copy) == 0;
 
   return status;
 }

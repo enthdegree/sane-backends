@@ -2926,6 +2926,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
+    case CIS_CANONLIDE700:
     case CIS_CANONLIDE110:
         words_per_color=pixels_per_line*2;
         length = words_per_color * 3 * 2;
@@ -6695,6 +6696,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->white_average_data = NULL;
   s->dev->dark_average_data = NULL;
   s->dev->calibration_cache = NULL;
+  s->dev->calib_file = NULL;
   s->dev->img_buffer = NULL;
   s->dev->line_interp = 0;
   s->dev->line_count = 0;

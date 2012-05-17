@@ -621,7 +621,7 @@ gl847_init_registers (Genesys_Device * dev)
  * @param table_nr index of the slope table in ASIC memory
  * Must be in the [0-4] range.
  * @param slope_table pointer to 16 bit values array of the slope table
- * @param steps number of elemnts in the slope table
+ * @param steps number of elements in the slope table
  */
 static SANE_Status
 gl847_send_slope_table (Genesys_Device * dev, int table_nr,
@@ -1162,7 +1162,14 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 
   /* sensors are built from 600 dpi segments for LiDE 100/200
    * and 1200 dpi for the 700F */
-  segnb=dpihw/600;
+  if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR)
+    {
+      segnb=dpihw/600;
+    }
+  else
+    {
+      segnb=1;
+    }
 
   /* compute pixel coordinate in the given dpihw space,
    * taking segments into account */
@@ -1172,21 +1179,20 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   dev->dist=0;
   dev->skip=0;
 
-  /* in case of 4800 dpi, we must match full sensor width */
-  if(dpihw==4800)
-    {
-      dev->skip=startx-dev->sensor.CCD_start_xoffset/segnb;
-      if(depth==16)
-        dev->skip*=2;
-      startx = dev->sensor.CCD_start_xoffset/segnb;
-      used_pixels = sensor->segcnt;
-      endx = startx + used_pixels;
-    }
-
   /* in cas of multi-segments sensor, we have to add the witdh
    * of the sensor crossed by the scan area */
   if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR && segnb>1)
     {
+      /* in case of 4800 dpi, we must match full sensor width */
+      if(dpihw==4800)
+        {
+          dev->skip=startx-dev->sensor.CCD_start_xoffset/segnb;
+          if(depth==16)
+            dev->skip*=2;
+          startx = dev->sensor.CCD_start_xoffset/segnb;
+          used_pixels = sensor->segcnt;
+          endx = startx + used_pixels;
+        }
       dev->dist = sensor->segcnt;
     }
   endx += dev->dist*(segnb-1);
@@ -2036,6 +2042,11 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   int scan_mode;
 
 
+  /* post scan gpio : without that HOMSNR is unreliable */
+  RIE (sanei_genesys_read_register (dev, REG6C, &val));
+  val &= ~REG6C_GPIO10;
+  RIE (sanei_genesys_write_register (dev, REG6C, val));
+
   DBG (DBG_proc, "gl847_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
 
@@ -2124,7 +2135,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return status;
     }
 
-  /* post scan gpio */
+  /* post scan gpio : without that HOMSNR is unreliable */
   RIE (sanei_genesys_read_register (dev, REG6C, &val));
   val &= ~REG6C_GPIO10;
   RIE (sanei_genesys_write_register (dev, REG6C, val));
@@ -2145,8 +2156,9 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	  if (val & HOMESNR)	/* home sensor */
 	    {
 	      DBG (DBG_info, "gl847_slow_back_home: reached home position\n");
-	      DBGCOMPLETED;
+              gl847_stop_action (dev);
               dev->scanhead_position_in_steps = 0;
+	      DBGCOMPLETED;
 	      return SANE_STATUS_GOOD;
 	    }
 	  usleep (100000);	/* sleep 100 ms */
@@ -2353,14 +2365,30 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
   Genesys_Register_Set *r;
   float resolution;
   uint8_t val;
+  unsigned int i;
 
   DBGSTART;
+  DBG (DBG_io, "%s: steps=%d\n", __FUNCTION__, steps);
 
   /* prepare local registers */
   memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
   resolution=200;
+  resolution=150;
+
+  /* search lowest move dpi XXX STEF XXX*/
+  i=0;
+  resolution=600;
+  while(i<sizeof(sensors)/sizeof(Sensor_Profile))
+    {
+      if(sensors[i].sensor_type==dev->model->ccd_type && sensors[i].dpi<resolution)
+        {
+          resolution=sensors[i].dpi;
+        }
+      i++;
+    }
+  resolution=sanei_genesys_get_lowest_ydpi(dev);
   gl847_init_scan_regs (dev,
 			local_reg,
 			resolution,
@@ -2409,6 +2437,9 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
           status = sanei_genesys_get_status (dev, &val);
     }
   while (status == SANE_STATUS_GOOD && !(val & FEEDFSH));
+
+  /* then stop scanning */
+  RIE (gl847_stop_action (dev));
   
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -2431,8 +2462,9 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
   dev->calib_lines = dev->model->shading_lines;
   if(dev->calib_resolution==4800)
     dev->calib_lines *= 2;
-  DBG (DBG_io, "%s: lines = %d\n", __FUNCTION__, dev->calib_lines);
   dev->calib_pixels = (dev->sensor.sensor_pixels*dev->calib_resolution)/dev->sensor.optical_res;
+  DBG (DBG_io, "%s: calib_lines  = %d\n", __FUNCTION__, dev->calib_lines);
+  DBG (DBG_io, "%s: calib_pixels = %d\n", __FUNCTION__, dev->calib_pixels);
 
   status = gl847_init_scan_regs (dev,
 				 dev->calib_reg,
@@ -2709,11 +2741,11 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   strpixel=tempo;
   sanei_genesys_get_double(dev->reg,REG_ENDPIXEL,&tempo);
   endpixel=tempo;
-  DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d\n",__FUNCTION__,strpixel,endpixel,endpixel-strpixel);
 
   /* compute deletion factor */
   sanei_genesys_get_double(dev->reg,REG_DPISET,&tempo);
   dpiset=tempo;
+  DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d, DPISET=%d\n",__FUNCTION__,strpixel,endpixel,endpixel-strpixel,dpiset);
   dpihw=sanei_genesys_compute_dpihw(dev,dpiset);
   factor=dpihw/dpiset;
   DBG( DBG_io2, "%s: factor=%d\n",__FUNCTION__,factor);
@@ -2857,9 +2889,7 @@ gl847_led_calibration (Genesys_Device * dev)
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl847_led_calibration: failed to setup scan: %s\n",
-	   sane_strstatus (status));
+      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__, sane_strstatus (status));
       return status;
     }
 
@@ -3208,7 +3238,7 @@ gl847_init (Genesys_Device * dev)
   RIE (gl847_set_fe (dev, AFE_INIT));
 
   /* move head away from park position */
-  /* XXX gl847_feed (dev, 300) STEF XXX;*/
+  /* XXX STEF XXX gl847_feed (dev, 300); */
 
   /* now hardware part is OK, set up device struct */
   FREE_IFNOT_NULL (dev->white_average_data);

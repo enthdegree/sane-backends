@@ -472,10 +472,10 @@ static Genesys_Sensor Sensor[] = {
   /* CANONLIDE700 */
   {CIS_CANONLIDE700,
    4800,	/* optical resolution */
-   107*4,	/* black pixels */
-   16*4,	/* dummy pixels */
-   400*8,	/* CCD_startx_offset 323 */
-   5187*8,
+   73*8,	/* black pixels */
+   16*8,	/* dummy pixels */
+   384*8,	/* CCD_startx_offset 384 at 600 */
+   5186*8,	/* 8x5570 segments */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
@@ -491,7 +491,7 @@ static Genesys_Sensor Sensor[] = {
     0x41	
     }
    ,
-   1.7, 1.7, 1.7,
+   1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
   /* CANONLIDE100 */
@@ -1620,12 +1620,12 @@ static Genesys_Model canon_lide_700f_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (1.1),		/* Start of scan area in mm  (x) */
-  SANE_FIX (8.3),		/* Start of scan area in mm (y) */
+  SANE_FIX (3.1),		/* Start of scan area in mm  (x) */
+  SANE_FIX (8.1),		/* Start of scan area in mm (y) */
   SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (297.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -1651,8 +1651,7 @@ static Genesys_Model canon_lide_700f_model = {
   GPO_CANONLIDE700,
   MOTOR_CANONLIDE700,
       GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_NO_CALIBRATION
-    | GENESYS_FLAG_MUST_WAIT
+    /*| GENESYS_FLAG_MUST_WAIT*/
     | GENESYS_FLAG_SIS_SENSOR
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
@@ -1682,7 +1681,7 @@ static Genesys_Model canon_lide_200_model = {
   SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (1.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */

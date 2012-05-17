@@ -5300,6 +5300,7 @@ calc_parameters (Genesys_Scanner * s)
 
   /* we need an even number of pixels for even/odd handling */
   if (s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR
+      || s->dev->model->asic_type == GENESYS_GL847  
       || s->dev->model->asic_type == GENESYS_GL124  
       || s->dev->model->asic_type == GENESYS_GL843) 
     {

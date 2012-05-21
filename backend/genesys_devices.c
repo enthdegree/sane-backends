@@ -472,9 +472,9 @@ static Genesys_Sensor Sensor[] = {
   /* CANONLIDE700 */
   {CIS_CANONLIDE700,
    4800,	/* optical resolution */
-   73*8,	/* black pixels */
+   73*8,	/* black pixels 73 at 600 dpi */
    16*8,	/* dummy pixels */
-   384*8,	/* CCD_startx_offset 384 at 600 */
+   384*8,	/* CCD_startx_offset 384 at 600 dpi */
    5186*8,	/* 8x5570 segments */
    210,
    200,
@@ -1625,7 +1625,7 @@ static Genesys_Model canon_lide_700f_model = {
   SANE_FIX (216.07),		/* Size of scan area in mm (x) */
   SANE_FIX (297.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (1.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -1658,7 +1658,7 @@ static Genesys_Model canon_lide_700f_model = {
     | GENESYS_FLAG_SHADING_REPARK
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  50,
+  100,
   400
 };
 

@@ -2590,10 +2590,6 @@ compute_planar_coefficients (Genesys_Device * dev,
 	  /* x2 because of 16 bit values, and x2 since one coeff for dark
 	   * and another for white */
 	  ptr = shading_data + words_per_color * cmat[c] * 2 + (x + offset) * 4;
-          if(ptr-shading_data==0x385fc)
-            {
-              dk = 0;
-            }
 
 	  dk = 0;
 	  br = 0;
@@ -2924,9 +2920,9 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                             coeff, 
                             target_code);
       break;
+    case CIS_CANONLIDE700:
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
-    case CIS_CANONLIDE700:
     case CIS_CANONLIDE110:
         words_per_color=pixels_per_line*2;
         length = words_per_color * 3 * 2;

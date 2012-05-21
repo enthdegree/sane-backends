@@ -760,6 +760,27 @@ gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
   return status;
 }
 
+static SANE_Status
+gl847_homsnr_gpio(Genesys_Device *dev)
+{
+uint8_t val;
+SANE_Status status=SANE_STATUS_GOOD;
+
+  if (dev->model->gpo_type == GPO_CANONLIDE700)
+    {
+      RIE (sanei_genesys_read_register (dev, REG6C, &val));
+      val &= ~REG6C_GPIO10;
+      RIE (sanei_genesys_write_register (dev, REG6C, val));
+    }
+  else
+    {
+      RIE (sanei_genesys_read_register (dev, REG6C, &val));
+      val |= REG6C_GPIO10;
+      RIE (sanei_genesys_write_register (dev, REG6C, val));
+    }
+  return status;
+}
+
 /* Set values of analog frontend */
 static SANE_Status
 gl847_set_fe (Genesys_Device * dev, uint8_t set)
@@ -1869,9 +1890,7 @@ gl847_stop_action (Genesys_Device * dev)
   DBGSTART;
 
   /* post scan gpio */
-  RIE (sanei_genesys_read_register (dev, REG6C, &val));
-  val &= ~REG6C_GPIO10;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
+  gl847_homsnr_gpio(dev);
 
   status = sanei_genesys_get_status (dev, &val);
   if (DBG_LEVEL >= DBG_io)
@@ -1960,11 +1979,12 @@ gl847_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   DBGSTART;
 
   /* clear GPIO 10 */
-  /* XXX STEF XXX
-  RIE (sanei_genesys_read_register (dev, REG6C, &val));
-  val &= ~REG6C_GPIO10;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-  */
+  if (dev->model->gpo_type != GPO_CANONLIDE700)
+    {
+      RIE (sanei_genesys_read_register (dev, REG6C, &val));
+      val &= ~REG6C_GPIO10;
+      RIE (sanei_genesys_write_register (dev, REG6C, val));
+    }
 
   val = REG0D_CLRLNCNT;
   RIE (sanei_genesys_write_register (dev, REG0D, val));
@@ -2041,14 +2061,11 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   int loop = 0;
   int scan_mode;
 
-
-  /* post scan gpio : without that HOMSNR is unreliable */
-  RIE (sanei_genesys_read_register (dev, REG6C, &val));
-  val &= ~REG6C_GPIO10;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
-
   DBG (DBG_proc, "gl847_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
+
+  /* post scan gpio : without that HOMSNR is unreliable */
+  gl847_homsnr_gpio(dev);
 
   /* first read gives HOME_SENSOR true */
   status = sanei_genesys_get_status (dev, &val);
@@ -2136,9 +2153,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   /* post scan gpio : without that HOMSNR is unreliable */
-  RIE (sanei_genesys_read_register (dev, REG6C, &val));
-  val &= ~REG6C_GPIO10;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
+  gl847_homsnr_gpio(dev);
 
   if (wait_until_home)
     {
@@ -2365,7 +2380,6 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
   Genesys_Register_Set *r;
   float resolution;
   uint8_t val;
-  unsigned int i;
 
   DBGSTART;
   DBG (DBG_io, "%s: steps=%d\n", __FUNCTION__, steps);
@@ -2374,20 +2388,6 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
   memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
-  resolution=200;
-  resolution=150;
-
-  /* search lowest move dpi XXX STEF XXX*/
-  i=0;
-  resolution=600;
-  while(i<sizeof(sensors)/sizeof(Sensor_Profile))
-    {
-      if(sensors[i].sensor_type==dev->model->ccd_type && sensors[i].dpi<resolution)
-        {
-          resolution=sensors[i].dpi;
-        }
-      i++;
-    }
   resolution=sanei_genesys_get_lowest_ydpi(dev);
   gl847_init_scan_regs (dev,
 			local_reg,
@@ -2439,7 +2439,7 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
   while (status == SANE_STATUS_GOOD && !(val & FEEDFSH));
 
   /* then stop scanning */
-  RIE (gl847_stop_action (dev));
+  /* XXX STEF XXX RIE (gl847_stop_action (dev)); */
   
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -2471,7 +2471,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
                                  dev->calib_resolution,
 				 dev->calib_resolution,
 				 0,
-				 0,
+				 90, /* XXX STEF XXX ensure it is compatible with LiDE 100/200 */
 				 dev->calib_pixels,
 				 dev->calib_lines,
                                  16,
@@ -2754,7 +2754,7 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
     {
       dev->binary=fopen("binary.pnm","wb");
       sanei_genesys_get_triple(dev->reg, REG_LINCNT, &lines);
-      channels=3;
+      channels=dev->current_setup.channels;
       if(dev->binary!=NULL)
         {
           fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);
@@ -2853,13 +2853,13 @@ gl847_led_calibration (Genesys_Device * dev)
 
   DBGSTART;
 
-  /* move to reach calibration area */
   move = SANE_UNFIX (dev->model->y_offset_calib);
-  move = (move * dev->motor.base_ydpi) / MM_PER_INCH;
+  move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
   if(move>20)
     {
       RIE(gl847_feed (dev, move));
     }
+  DBG (DBG_io, "%s: move=%f steps\n", __FUNCTION__, move);
 
   /* offset calibration is always done in color mode */
   channels = 3;
@@ -2903,9 +2903,9 @@ gl847_led_calibration (Genesys_Device * dev)
   exp[1]=sensor->expg;
   exp[2]=sensor->expb;
 
-  bottom[0]=39000;
-  bottom[1]=49000;
-  bottom[2]=49000;
+  bottom[0]=29000;
+  bottom[1]=29000;
+  bottom[2]=29000;
 
   top[0]=41000;
   top[1]=51000;
@@ -3030,13 +3030,18 @@ gl847_init_gpio (Genesys_Device * dev)
       return SANE_STATUS_INVAL;
     }
 
+  RIE (sanei_genesys_write_register (dev, REGA7, gpios[idx].ra7));
+  RIE (sanei_genesys_write_register (dev, REGA6, gpios[idx].ra6));
+  
+  RIE (sanei_genesys_write_register (dev, REG6E, gpios[idx].r6e));
+  RIE (sanei_genesys_write_register (dev, REG6C, 0x00));
+  
   RIE (sanei_genesys_write_register (dev, REG6B, gpios[idx].r6b));
   RIE (sanei_genesys_write_register (dev, REG6C, gpios[idx].r6c));
   RIE (sanei_genesys_write_register (dev, REG6D, gpios[idx].r6d));
   RIE (sanei_genesys_write_register (dev, REG6E, gpios[idx].r6e));
   RIE (sanei_genesys_write_register (dev, REG6F, gpios[idx].r6f));
-  RIE (sanei_genesys_write_register (dev, REGA6, gpios[idx].ra6));
-  RIE (sanei_genesys_write_register (dev, REGA7, gpios[idx].ra7));
+
   RIE (sanei_genesys_write_register (dev, REGA8, gpios[idx].ra8));
   RIE (sanei_genesys_write_register (dev, REGA9, gpios[idx].ra9));
 

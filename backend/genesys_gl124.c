@@ -2272,6 +2272,7 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
   uint8_t val;
 
   DBGSTART;
+  DBG (DBG_io, "%s: steps=%d\n", __FUNCTION__, steps);
 
   /* prepare local registers */
   memset (local_reg, 0, sizeof (local_reg));

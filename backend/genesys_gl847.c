@@ -2471,7 +2471,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
                                  dev->calib_resolution,
 				 dev->calib_resolution,
 				 0,
-				 90, /* XXX STEF XXX ensure it is compatible with LiDE 100/200 */
+				 90,
 				 dev->calib_pixels,
 				 dev->calib_lines,
                                  16,

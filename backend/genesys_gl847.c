@@ -561,7 +561,6 @@ gl847_init_registers (Genesys_Device * dev)
 
   /* NOTE: autoconf is a non working option */
   SETREG (0x87, 0x02);
-  SETREG (0x9d, 0x00); /* 1x multiplier instead of 8x */
   SETREG (0x9d, 0x06);
   SETREG (0xa2, 0x0f);
   SETREG (0xbd, 0x18);
@@ -1889,14 +1888,8 @@ gl847_stop_action (Genesys_Device * dev)
 
   DBGSTART;
 
-  /* post scan gpio */
+  /* post scan gpio : without that HOMSNR is unreliable */
   gl847_homsnr_gpio(dev);
-
-  status = sanei_genesys_get_status (dev, &val);
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
-    }
 
   status = sanei_genesys_read_register (dev, REG40, &val40);
   if (status != SANE_STATUS_GOOD)
@@ -2132,11 +2125,9 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
   
-  /* set up for reverse AND scan */
+  /* set up for reverse */
   r = sanei_genesys_get_address (local_reg, REG02);
   r->value |= REG02_MTRREV;
-  r = sanei_genesys_get_address (local_reg, REG01);
-  r->value &= ~REG01_SCAN;
 
   RIE (gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS));
 
@@ -2404,22 +2395,15 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
 			SCAN_FLAG_DISABLE_GAMMA |
                         SCAN_FLAG_FEEDING |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
-  sanei_genesys_set_triple(local_reg,REG_EXPR,0);
-  sanei_genesys_set_triple(local_reg,REG_EXPG,0);
-  sanei_genesys_set_triple(local_reg,REG_EXPB,0);
 
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRMCNT));
   
-  /* set up for no scan */
-  r = sanei_genesys_get_address (local_reg, REG01);
-  r->value &= ~REG01_SCAN;
-  
   /* send registers */
   RIE (gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS));
 
-  status = gl847_start_action (dev);
+  status = gl847_begin_scan (dev, local_reg,SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "%s: failed to start motor: %s\n", __FUNCTION__, sane_strstatus (status));
@@ -2429,6 +2413,10 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
       gl847_bulk_write_register (dev, dev->reg, GENESYS_GL847_MAX_REGS);
       return status;
     }
+  
+  /* set up for no scan */
+  r = sanei_genesys_get_address (local_reg, REG01);
+  r->value &= ~REG01_SCAN;
 
   /* wait until feed count reaches the required value, but do not
    * exceed 30s */
@@ -2471,7 +2459,7 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
                                  dev->calib_resolution,
 				 dev->calib_resolution,
 				 0,
-				 90,
+				 0,
 				 dev->calib_pixels,
 				 dev->calib_lines,
                                  16,

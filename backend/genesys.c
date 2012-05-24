@@ -5219,6 +5219,14 @@ Problems with the first approach:
   dev->total_bytes_read += *len;
 
   RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
+  
+  /* end scan if all needed data have been read */
+  /* TODO extend this to other ASICs */
+  if((dev->model->asic_type == GENESYS_GL847)
+   &&(dev->total_bytes_read >= dev->total_bytes_to_read))
+    {
+      dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE);
+    }
 
   DBG (DBG_proc, "genesys_read_ordered_data: completed, %lu bytes read\n",
        (u_long) bytes);

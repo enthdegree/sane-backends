@@ -188,6 +188,7 @@
 #define REG1E_LINESEL	0x0f
 #define REG1ES_LINESEL  0
 
+#define REG24           0x1c
 #define REG40           0x40
 #define REG40_CHKVER    0x10
 #define REG40_HISPDFLG  0x04
@@ -310,7 +311,7 @@
 #define REG_MAXWD       0x35
 #define REG_LPERIOD     0x38
 #define REG_FEEDL       0x3d
-#define REG_FMOVDEC     0x5e
+#define REG_FMOVDEC     0x5f
 #define REG_FSHDEC      0x69
 #define REG_FMOVNO      0x6a
 #define REG_CK1MAP      0x74
@@ -672,9 +673,9 @@ static Motor_Profile gl847_motors[]={
 	{MOTOR_CANONLIDE200, 10416, EIGHTH_STEP , lide200_high},
 
         /* LiDE 700F */
-	{MOTOR_CANONLIDE700,  2848, FULL_STEP  , lide200_base},
-	{MOTOR_CANONLIDE700,  1424, FULL_STEP  , lide200_base},
-	{MOTOR_CANONLIDE700,   752, FULL_STEP  , lide200_base},
+	{MOTOR_CANONLIDE700,  2848, HALF_STEP  , lide200_base},
+	{MOTOR_CANONLIDE700,  1424, HALF_STEP  , lide200_base},
+	{MOTOR_CANONLIDE700,   752, HALF_STEP  , lide200_base},
 	{MOTOR_CANONLIDE700,  2836, HALF_STEP  , lide700_medium}, /* 2696 */
 	{MOTOR_CANONLIDE700, 10576, EIGHTH_STEP, lide700_high},
 

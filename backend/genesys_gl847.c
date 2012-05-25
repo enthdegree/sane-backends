@@ -2439,6 +2439,7 @@ static SANE_Status
 gl847_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
+  float move;
 
   DBGSTART;
   dev->calib_channels = 3;
@@ -2454,12 +2455,20 @@ gl847_init_regs_for_shading (Genesys_Device * dev)
   DBG (DBG_io, "%s: calib_lines  = %d\n", __FUNCTION__, dev->calib_lines);
   DBG (DBG_io, "%s: calib_pixels = %d\n", __FUNCTION__, dev->calib_pixels);
 
+  /* this is aworkaround insufficent distance for slope 
+   * motor acceleration TODO special motor slope for shading  */
+  move=1;
+  if(dev->calib_resolution<1200)
+    {
+      move=40;
+    }
+
   status = gl847_init_scan_regs (dev,
 				 dev->calib_reg,
                                  dev->calib_resolution,
 				 dev->calib_resolution,
 				 0,
-				 0,
+				 move,
 				 dev->calib_pixels,
 				 dev->calib_lines,
                                  16,

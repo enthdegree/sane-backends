@@ -1215,7 +1215,8 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
         }
       dev->dist = sensor->segcnt;
     }
-  endx += dev->dist*(segnb-1);
+  /* use a segcnt rounded to next even number */
+  endx += ((dev->dist+1)&0xfffe)*(segnb-1);
   used_pixels=endx-startx;
 
   status = gl847_set_fe (dev, AFE_SET);

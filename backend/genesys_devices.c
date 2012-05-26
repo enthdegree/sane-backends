@@ -475,7 +475,7 @@ static Genesys_Sensor Sensor[] = {
    73*8,	/* black pixels 73 at 600 dpi */
    16*8,	/* dummy pixels */
    384*8,	/* CCD_startx_offset 384 at 600 dpi */
-   5186*8,	/* 8x5570 segments */
+   5188*8,	/* 8x5570 segments , 5187+1 for rounding */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},

@@ -443,6 +443,9 @@ gl847_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
   sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);
 
+  /* order of the sub-segments */
+  dev->order=sensor->order;
+
   r = sanei_genesys_get_address (regs, 0x17);
   r->value = sensor->r17;
 

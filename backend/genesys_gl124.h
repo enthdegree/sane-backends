@@ -572,20 +572,25 @@ typedef struct {
   int expr;             /**> initial red exposure */
   int expg;             /**> initial green exposure */
   int expb;             /**> initial blue exposure */
+  size_t *order;        /**> order of sub-segments */
   uint8_t reg18;        /**> register 0x18 value */
   uint8_t reg20;        /**> register 0x20 value */
   uint8_t reg61;        /**> register 0x61 value */
   uint8_t reg98;        /**> register 0x98 value */
 } Sensor_Profile;
 
+static size_t order_01[]={0,1};
+static size_t order_0213[]={0,2,1,3};
+static size_t order_0246[]={0,2,4,6,1,3,5,7};
+
 /**
  * database of sensor profiles
  */
 static Sensor_Profile sensors[]={
-	{CIS_CANONLIDE110,  300,  5359, 0x1e, 0x9f, 0x55, 5168, 154,  101,  388,  574,  393, 0x00, 0x0a, 0x20, 0x21},
-	{CIS_CANONLIDE110,  600,  5360, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, 0x00, 0x0a, 0x20, 0x21},
-	{CIS_CANONLIDE110, 1200, 10528, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, 0x00, 0x08, 0x20, 0x22},
-	{CIS_CANONLIDE110, 2400, 20864, 0x1e, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, 0x00, 0x06, 0x20, 0x24},
+	{CIS_CANONLIDE110,  300,  5359, 0x1e, 0x9f, 0x55, 5168, 154,  101,  388,  574,  393, NULL      , 0x00, 0x0a, 0x20, 0x21},
+	{CIS_CANONLIDE110,  600,  5360, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, NULL      , 0x00, 0x0a, 0x20, 0x21},
+	{CIS_CANONLIDE110, 1200, 10528, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, order_01  , 0x00, 0x08, 0x20, 0x22},
+	{CIS_CANONLIDE110, 2400, 20864, 0x1e, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, order_0213, 0x00, 0x06, 0x20, 0x24},
 	/* {CIS_CANONLIDE110,  200,  2304, 0x1e, 0x9f, 0x55, 5168, 154,  101,  388,  574,  393, 0x00, 0x0a, 0x20, 0x21}, */
 };
 

@@ -570,27 +570,33 @@ typedef struct {
   int expr;             /**> initial red exposure */
   int expg;             /**> initial green exposure */
   int expb;             /**> initial blue exposure */
+  size_t *order;        /**> order of sub-segments */
   uint8_t r17;		/**> TG width */
 } Sensor_Profile;
 
 /* *INDENT-OFF* */
+
+static size_t order_01[]={0,1};
+static size_t order_0213[]={0,2,1,3};
+static size_t order_0246[]={0,2,4,6,1,3,5,7};
+
 /**
  * database of sensor profiles
  */
 static Sensor_Profile sensors[]={
-	{CIS_CANONLIDE100,  200,  2848, 60, 159, 85, 5136, 255,  410,  275,  203, 0x0a},
-	{CIS_CANONLIDE100,  600,  1432, 60, 159, 85, 5136, 255,  410,  275,  203, 0x0a},
-	{CIS_CANONLIDE100, 1200,  2712, 60, 159, 85, 5136, 255,  746,  478,  353, 0x08},
-	{CIS_CANONLIDE100, 2400,  5280, 60, 159, 85, 5136, 255, 1417,  909,  643, 0x06},
+	{CIS_CANONLIDE100,  200,  2848, 60, 159, 85, 5136, 255,  410,  275,  203, NULL      , 0x0a},
+	{CIS_CANONLIDE100,  600,  1432, 60, 159, 85, 5136, 255,  410,  275,  203, NULL      , 0x0a},
+	{CIS_CANONLIDE100, 1200,  2712, 60, 159, 85, 5136, 255,  746,  478,  353, order_01  , 0x08},
+	{CIS_CANONLIDE100, 2400,  5280, 60, 159, 85, 5136, 255, 1417,  909,  643, order_0213, 0x06},
 	/*
 	{CIS_CANONLIDE200,  150,  2848, 240, 636, 340, 5144, 0, 255,  637,  637,  637},
 	{CIS_CANONLIDE200,  300,  1424, 240, 636, 340, 5144, 0, 255,  637,  637,  637},
 	*/
-	{CIS_CANONLIDE200,  200,  2848, 60, 159, 85, 5136, 255,  410,  275,  203, 0x0a},
-	{CIS_CANONLIDE200,  600,  1432, 60, 159, 85, 5136, 255,  410,  275,  203, 0x0a},
-	{CIS_CANONLIDE200, 1200,  2712, 60, 159, 85, 5136, 255,  746,  478,  353, 0x08},
-	{CIS_CANONLIDE200, 2400,  5280, 60, 159, 85, 5136, 255, 1417,  909,  643, 0x06},
-	{CIS_CANONLIDE200, 4800, 10416, 60, 159, 85, 5136, 255, 2692, 1728, 1221, 0x04},
+	{CIS_CANONLIDE200,  200,  2848, 60, 159, 85, 5136, 255,  410,  275,  203, NULL      , 0x0a},
+	{CIS_CANONLIDE200,  600,  1432, 60, 159, 85, 5136, 255,  410,  275,  203, NULL      , 0x0a},
+	{CIS_CANONLIDE200, 1200,  2712, 60, 159, 85, 5136, 255,  746,  478,  353, order_01  , 0x08},
+	{CIS_CANONLIDE200, 2400,  5280, 60, 159, 85, 5136, 255, 1417,  909,  643, order_0213, 0x06},
+	{CIS_CANONLIDE200, 4800, 10416, 60, 159, 85, 5136, 255, 2692, 1728, 1221, order_0246, 0x04},
 };
 /* *INDENT-ON* */
 

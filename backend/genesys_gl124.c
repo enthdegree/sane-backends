@@ -1183,6 +1183,9 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
     }
   sanei_genesys_set_triple(regs,REG_EXPB,exp);
 
+  /* order of the sub-segments */
+  dev->order=sensor->order;
+
   sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
   sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
   sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);

@@ -79,6 +79,16 @@ static void Microtek_CalculateMotorTable (
 	CALCULATEMOTORTABLE * pCalculateMotorTable);
 static SANE_Byte Mustek_CalculateMotorCurrent (unsigned short dwMotorSpeed);
 static SANE_Byte Microtek_CalculateMotorCurrent (unsigned short dwMotorSpeed);
+static void Mustek_CalculateMotorSteps (ASIC * chip, MOTORSTEPS * MotorSteps,
+					unsigned short wStartY,
+					unsigned short wYResolution);
+static void Microtek_CalculateMotorSteps (ASIC * chip, MOTORSTEPS * MotorSteps,
+					  unsigned short wStartY,
+					  unsigned short wYResolution);
+static void Mustek_CalculateMotorStepsForCalibration (ASIC * chip,
+	MOTORSTEPS * MotorSteps);
+static void Microtek_CalculateMotorStepsForCalibration (ASIC * chip,
+	MOTORSTEPS * MotorSteps);
 
 
 const ASIC_ModelParams asicMustekBP2448TAPro = {
@@ -98,7 +108,9 @@ const ASIC_ModelParams asicMustekBP2448TAPro = {
   Mustek_SetMotorCurrentAndPhase,
   Mustek_CalculateScanMotorTable,
   Mustek_CalculateMoveMotorTable,
-  Mustek_CalculateMotorCurrent
+  Mustek_CalculateMotorCurrent,
+  Mustek_CalculateMotorSteps,
+  Mustek_CalculateMotorStepsForCalibration
 };
 
 const ASIC_ModelParams asicMicrotek4800H48U = {
@@ -118,7 +130,9 @@ const ASIC_ModelParams asicMicrotek4800H48U = {
   Microtek_SetMotorCurrentAndPhase,
   Microtek_CalculateMotorTable,
   Microtek_CalculateMotorTable,
-  Microtek_CalculateMotorCurrent
+  Microtek_CalculateMotorCurrent,
+  Microtek_CalculateMotorSteps,
+  Microtek_CalculateMotorStepsForCalibration
 };
 
 
@@ -760,8 +774,8 @@ MotorMove (ASIC * chip, MOTORMOVE * Move)
 }
 
 static void
-CalculateMotorSteps (ASIC * chip, MOTORSTEPS * MotorSteps,
-		     unsigned short wStartY, unsigned short wYResolution)
+Mustek_CalculateMotorSteps (ASIC * chip, MOTORSTEPS * MotorSteps,
+			    unsigned short wStartY, unsigned short wYResolution)
 {
   int d;
 
@@ -816,13 +830,64 @@ CalculateMotorSteps (ASIC * chip, MOTORSTEPS * MotorSteps,
 }
 
 static void
-CalculateMotorStepsForCalibration (ASIC * chip, MOTORSTEPS * MotorSteps)
+Microtek_CalculateMotorSteps (ASIC * chip, MOTORSTEPS * MotorSteps,
+			      unsigned short wStartY,
+			      unsigned short wYResolution)
+{
+  int d;
+
+  memset (MotorSteps, 0, sizeof (*MotorSteps));
+  MotorSteps->wFixScanSteps = 32;
+  MotorSteps->wScanBackTrackingSteps = 32;
+  MotorSteps->wScanRestartSteps = 32;
+
+  if (wYResolution >= 1200)
+    {
+      /* TODO: compare to dumps */
+      MotorSteps->wScanAccSteps = 20;
+      MotorSteps->bScanDecSteps = 8;
+      MotorSteps->wScanBackTrackingSteps = 8;
+      MotorSteps->wScanRestartSteps = 8;
+    }
+  else
+    {
+      MotorSteps->wScanAccSteps = 64;
+      MotorSteps->bScanDecSteps = 32;
+    }
+
+  if (wStartY != 0)
+    {
+      /* TODO: compare to dumps */
+      d = wStartY - MotorSteps->wScanAccSteps - MotorSteps->wFixScanSteps;
+      if (d < 0)
+        d = 0;
+      MotorSteps->dwForwardSteps = (unsigned short) d;
+
+      chip->isMotorMoveToFirstLine = MOTOR_MOVE_TO_FIRST_LINE_ENABLE;
+    }
+  else
+    chip->isMotorMoveToFirstLine = 0;  
+}
+
+static void
+Mustek_CalculateMotorStepsForCalibration (ASIC * chip, MOTORSTEPS * MotorSteps)
 {
   memset (MotorSteps, 0, sizeof (*MotorSteps));
   MotorSteps->wScanAccSteps = 1;
   MotorSteps->bScanDecSteps = 1;
   MotorSteps->wScanBackTrackingSteps = 20;
   MotorSteps->wScanRestartSteps = 20;
+
+  chip->isMotorMoveToFirstLine = 0;
+}
+
+static void
+Microtek_CalculateMotorStepsForCalibration (ASIC * chip,
+					    MOTORSTEPS * MotorSteps)
+{
+  memset (MotorSteps, 0, sizeof (*MotorSteps));
+  MotorSteps->wScanAccSteps = 1;
+  MotorSteps->bScanDecSteps = 1;
 
   chip->isMotorMoveToFirstLine = 0;
 }
@@ -876,6 +941,11 @@ SetMotorStepTable (ASIC * chip, MOTORSTEPS * MotorSteps,
 	    LOBYTE (MotorSteps->wScanRestartSteps));
   SendData (chip, ES01_E9_ScanRestartStepMSB,
 	    HIBYTE (MotorSteps->wScanRestartSteps));
+  /* state ?? */
+  SendData (chip, ES01_8C_RestartMotorSynPixelNumberM16LSB,
+	    LOBYTE (MotorSteps->wMotorSyncPixelNumber));
+  SendData (chip, ES01_8D_RestartMotorSynPixelNumberM16MSB,
+	    HIBYTE (MotorSteps->wMotorSyncPixelNumber));
   /* state 19 */
   SendData (chip, ES01_EA_ScanBackHomeExtStepLSB,
 	    LOBYTE (MotorSteps->wScanBackHomeExtSteps));
@@ -2348,12 +2418,12 @@ Asic_SetWindow (ASIC * chip, SCANSOURCE lsLightSource,
   if (ScanType == SCAN_TYPE_NORMAL)
     {
       SetExtraSettings (chip, wXResolution, wCCD_PixelNumber, SANE_FALSE);
-      CalculateMotorSteps (chip, &MotorSteps, wY, wYResolution);
+      chip->params->pCalculateMotorSteps (chip, &MotorSteps, wY, wYResolution);
     }
   else
     {
       SetExtraSettings (chip, wXResolution, wCCD_PixelNumber, SANE_TRUE);
-      CalculateMotorStepsForCalibration (chip, &MotorSteps);
+      chip->params->pCalculateMotorStepsForCalibration (chip, &MotorSteps);
     }
   SetMotorStepTable (chip, &MotorSteps,
 		     wHeight * 1200 / wYResolution * wMultiMotorStep);

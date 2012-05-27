@@ -53,7 +53,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
-#include <pthread.h>	/* TODO: use sanei_thread functions instead */
+#include <pthread.h>	/* TODO: use sanei_thread functions instead, possibly require USE_PHTREAD */
 
 #include "byteorder.h"
 #include "sane/sane.h"

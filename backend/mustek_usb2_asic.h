@@ -175,6 +175,9 @@ typedef struct
   void (* pCalculateScanMotorTable) (CALCULATEMOTORTABLE *);
   void (* pCalculateMoveMotorTable) (CALCULATEMOTORTABLE *);
   SANE_Byte (* pCalculateMotorCurrent) (unsigned short);
+  void (* pCalculateMotorSteps) (struct ASIC * chip, MOTORSTEPS *,
+				 unsigned short, unsigned short);
+  void (* pCalculateMotorStepsForCalibration) (struct ASIC *, MOTORSTEPS *);
 } ASIC_ModelParams;
 
 typedef struct

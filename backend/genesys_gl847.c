@@ -3140,22 +3140,26 @@ gl847_init_memory_layout (Genesys_Device * dev)
  * initialize ASIC from power on condition
  */
 static SANE_Status
-gl847_cold_boot (Genesys_Device * dev)
+gl847_boot (Genesys_Device * dev, SANE_Bool cold)
 {
   SANE_Status status;
   uint8_t val;
 
   DBGSTART;
 
-  RIE (sanei_genesys_write_register (dev, 0x0e, 0x01));
-  RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
+  /* reset ASIC ifcold boot */
+  if(cold)
+    {
+      RIE (sanei_genesys_write_register (dev, 0x0e, 0x01));
+      RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
+    }
 
   /* test CHKVER */
   RIE (sanei_genesys_read_register (dev, REG40, &val));
   if (val & REG40_CHKVER)
     {
       RIE (sanei_genesys_read_register (dev, 0x00, &val));
-      DBG (DBG_info, "gl847_cold_boot: reported version for genesys chip is 0x%02x\n", val);
+      DBG (DBG_info, "%s: reported version for genesys chip is 0x%02x\n", __FUNCTION__, val);
     }
 
   /* Set default values for registers */
@@ -3235,7 +3239,7 @@ gl847_init (Genesys_Device * dev)
     }
 
   /* set up hardware and registers */
-  RIE (gl847_cold_boot (dev));
+  RIE (gl847_boot (dev, cold));
 
   /* set analog frontend */
   RIE (gl847_set_fe (dev, AFE_INIT));

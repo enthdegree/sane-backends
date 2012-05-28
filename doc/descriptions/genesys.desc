@@ -160,8 +160,8 @@
 :model "CanoScan 700F"
 :interface "USB"
 :usbid "0x04a9" "0x1907"
-:status :unsupported
-:comment "GL847 based, to be added to the genesys backend"
+:status :good
+:comment "GL847 based, resolution from 75 to 2400 dpi"
 
 ; -----------------------------------------------------------------------------
 

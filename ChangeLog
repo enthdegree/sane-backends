@@ -1,3 +1,9 @@
+2012-05-28 Stéphane Voltz <stef.dev@free.fr>
+	*  backend/genesys.c backend/genesys_devices.c backend/genesys_gl124.c
+	backend/genesys_gl847.c backend/genesys_gl847.h backend/genesys_low.h
+	doc/descriptions/genesys.desc doc/sane-genesys.man: 
+	add support for LiDE 700F up to 2400 dpi
+
 2012-05-10 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu.c: backend v111
 	- call send_* and mode_select_* from sane_start

@@ -917,10 +917,13 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   factor = gl847_get_step_multiplier (reg);
 
   use_fast_fed=0;
-  if(dev->settings.yres>=1200 && feed_steps>100)
+  /* no fast fed since feed works well */
+  if(dev->settings.yres==4444 && feed_steps>100 
+     && ((flags & MOTOR_FLAG_FEED)==0))
     {
       use_fast_fed=1;
     }
+  DBG (DBG_io, "%s: use_fast_fed=%d\n", __FUNCTION__, use_fast_fed);
 
   sanei_genesys_set_triple(reg, REG_LINCNT, scan_lines);
   DBG (DBG_io, "%s: lincnt=%d\n", __FUNCTION__, scan_lines);
@@ -982,27 +985,34 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   RIE(gl847_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps*factor));
   RIE(gl847_send_slope_table (dev, HOME_TABLE, fast_table, fast_steps*factor));
 
-  /* substract acceleration distance from feedl XXX STEF XXX : 2 different step type */
+  /* correct move distance by acceleration and deceleration amounts */
   feedl=feed_steps;
-
-  dist = scan_steps;
   if (use_fast_fed) 
     {
         feedl<<=fast_step_type;
-        dist += fast_steps*2;
+        dist=(scan_steps+2*fast_steps)*factor;
+        /* TODO read and decode REGAB */
+        r = sanei_genesys_get_address (reg, 0x5e);
+        dist += (r->value & 31);
+        /* FEDCNT */
+        r = sanei_genesys_get_address (reg, REG_FEDCNT);
+        dist += r->value;
     }
   else
     {
       feedl<<=scan_step_type;
+      dist=scan_steps*factor;
+      if (flags & MOTOR_FLAG_FEED)
+        dist *=2;
     }
-  dist *=factor;
+  DBG (DBG_io2, "%s: scan steps=%d\n", __FUNCTION__, scan_steps);
   DBG (DBG_io2, "%s: acceleration distance=%d\n", __FUNCTION__, dist);
 
-  /* get sure we don't use insane value */
+  /* check for overflow */
   if(dist<feedl)
     feedl -= dist;
   else
-    feedl = 1;
+    feedl = 0;
 
   sanei_genesys_set_triple(reg,REG_FEEDL,feedl);
   DBG (DBG_io ,"%s: feedl=%d\n",__FUNCTION__,feedl);
@@ -1057,20 +1067,10 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
                                  &z2);
 
   DBG (DBG_info, "gl847_init_motor_regs_scan: z1 = %d\n", z1);
-  r = sanei_genesys_get_address (reg, REG60);
-  r->value = ((z1 >> 16) & REG60_Z1MOD) | (scan_step_type << REG60S_STEPSEL);
-  r = sanei_genesys_get_address (reg, REG61);
-  r->value = ((z1 >> 8) & REG61_Z1MOD);
-  r = sanei_genesys_get_address (reg, REG62);
-  r->value = (z1 & REG62_Z1MOD);
+  sanei_genesys_set_triple(reg, REG60, z1 | (scan_step_type << (16+REG60S_STEPSEL)));
 
   DBG (DBG_info, "gl847_init_motor_regs_scan: z2 = %d\n", z2);
-  r = sanei_genesys_get_address (reg, REG63);
-  r->value = ((z2 >> 16) & REG63_Z2MOD) | (fast_step_type << REG63S_FSTPSEL);
-  r = sanei_genesys_get_address (reg, REG64);
-  r->value = ((z2 >> 8) & REG64_Z2MOD);
-  r = sanei_genesys_get_address (reg, REG65);
-  r->value = (z2 & REG65_Z2MOD);
+  sanei_genesys_set_triple(reg, REG63, z2 | (scan_step_type << (16+REG63S_FSTPSEL)));
 
   r = sanei_genesys_get_address (reg, 0x1e);
   r->value &= 0xf0;		/* 0 dummy lines */
@@ -1423,6 +1423,7 @@ gl847_init_scan_regs (Genesys_Device * dev,
   int move;
   unsigned int lincnt;
   unsigned int oflags; /**> optical flags */
+  unsigned int mflags; /**> motor flags */
   int exposure_time;
   int stagger;
 
@@ -1568,6 +1569,12 @@ gl847_init_scan_regs (Genesys_Device * dev,
   move = starty;
   DBG (DBG_info, "gl847_init_scan_regs: move=%d steps\n", move);
 
+  mflags=0;
+  if(flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
+    mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
+  if(flags & SCAN_FLAG_FEEDING)
+    mflags |= MOTOR_FLAG_FEED;
+
     status = gl847_init_motor_regs_scan (dev,
 					 reg,
 					 exposure_time,
@@ -1576,11 +1583,7 @@ gl847_init_scan_regs (Genesys_Device * dev,
 					 dev->model->is_cis ? lincnt *
 					 channels : lincnt, dummy, move,
 					 scan_power_mode,
-					 (flags &
-					  SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
-					 ?
-					 MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE
-					 : 0);
+					 mflags);
 
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -2359,7 +2362,7 @@ gl847_init_regs_for_coarse_calibration (Genesys_Device * dev)
 
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
- * @param steps number of steps to move
+ * @param steps number of steps to move in base_dpi line count
  * */
 #ifndef UNIT_TESTING
 static
@@ -2397,14 +2400,23 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
                         SCAN_FLAG_FEEDING |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
 
+  /* set exposure to zero */
+  sanei_genesys_set_triple(local_reg,REG_EXPR,0);
+  sanei_genesys_set_triple(local_reg,REG_EXPG,0);
+  sanei_genesys_set_triple(local_reg,REG_EXPB,0);
+
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRMCNT));
   
+  /* set up for no scan */
+  r = sanei_genesys_get_address (local_reg, REG01);
+  r->value &= ~REG01_SCAN;
+  
   /* send registers */
   RIE (gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS));
 
-  status = gl847_begin_scan (dev, local_reg,SANE_TRUE);
+  status = gl847_start_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "%s: failed to start motor: %s\n", __FUNCTION__, sane_strstatus (status));
@@ -2414,10 +2426,6 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
       gl847_bulk_write_register (dev, dev->reg, GENESYS_GL847_MAX_REGS);
       return status;
     }
-  
-  /* set up for no scan */
-  r = sanei_genesys_get_address (local_reg, REG01);
-  r->value &= ~REG01_SCAN;
 
   /* wait until feed count reaches the required value, but do not
    * exceed 30s */
@@ -2428,7 +2436,7 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
   while (status == SANE_STATUS_GOOD && !(val & FEEDFSH));
 
   /* then stop scanning */
-  /* XXX STEF XXX RIE (gl847_stop_action (dev)); */
+  RIE(gl847_stop_action (dev));
   
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -2559,17 +2567,23 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
   move -= dev->scanhead_position_in_steps;
   DBG (DBG_info, "%s: move=%f steps\n",__FUNCTION__, move);
 
-  /* unused for now */
-  if(dev->settings.yres>31200)
+  /* fast move to scan area */
+  /* we don't move fast the whole distance since it would involve
+   * computing acceleration/deceleration distance for scan
+   * resolution. So leave a remainder for it so scan makes the final
+   * move tuning */
+  if(channels*dev->settings.yres>=600 && move>700)
     {
-      status = gl847_feed (dev, move);
+      status = gl847_feed (dev, move-500);
       if (status != SANE_STATUS_GOOD)
         {
           DBG (DBG_error, "%s: failed to move to scan area\n",__FUNCTION__);
           return status;
         }
-      move=0;
+      move=500;
     }
+ 
+  DBG (DBG_info, "gl124_init_regs_for_scan: move=%f steps\n", move);
   DBG (DBG_info, "%s: move=%f steps\n", __FUNCTION__, move);
 
   /* start */

@@ -1,3 +1,10 @@
+2012-05-29 Stéphane Voltz <stef.dev@free.fr>
+	*  backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
+	backend/genesys_gl847.h doc/descriptions/genesys.desc: add 4800 dpi
+	for LiDE 700F
+	- improve fedd/move to scan area for gl847 based scanners
+	- remove non working 400 dpi mode
+
 2012-05-28 Stéphane Voltz <stef.dev@free.fr>
 	*  backend/genesys.c backend/genesys_devices.c backend/genesys_gl124.c
 	backend/genesys_gl847.c backend/genesys_gl847.h backend/genesys_low.h

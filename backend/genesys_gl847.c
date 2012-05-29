@@ -1203,18 +1203,9 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
    * of the sensor crossed by the scan area */
   if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR && segnb>1)
     {
-      /* in case of 4800 dpi, we must match full sensor width */
-      if(dpihw==4800)
-        {
-          dev->skip=startx-dev->sensor.CCD_start_xoffset/segnb;
-          if(depth==16)
-            dev->skip*=2;
-          startx = dev->sensor.CCD_start_xoffset/segnb;
-          used_pixels = sensor->segcnt;
-          endx = startx + used_pixels;
-        }
       dev->dist = sensor->segcnt;
     }
+
   /* use a segcnt rounded to next even number */
   endx += ((dev->dist+1)&0xfffe)*(segnb-1);
   used_pixels=endx-startx;
@@ -2775,16 +2766,8 @@ gl847_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   
   pixels=endpixel-strpixel;
 
-  /* since we're using SHDAREA, substract startx coordinate from shading,
-   * but not a 4800 dpi where hardware coordinates are fixed */
-  if(dpihw!=4800)
-    {
-      strpixel-=((dev->sensor.CCD_start_xoffset*600)/dev->sensor.optical_res);
-    }
-  else
-    {
-      strpixel=0;
-    }
+  /* since we're using SHDAREA, substract startx coordinate from shading */
+  strpixel-=((dev->sensor.CCD_start_xoffset*600)/dev->sensor.optical_res);
   
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; 

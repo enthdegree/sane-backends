@@ -615,6 +615,7 @@ static size_t order_0213[]={0,2,1,3};
 static size_t order_0246[]={0,2,4,6,1,3,5,7};
 
 static size_t new_order[]={0,1,2,3};
+static size_t order_0145[]={0,1,4,5,2,3,6,7};
 
 /**
  * database of sensor profiles
@@ -640,6 +641,7 @@ static Sensor_Profile sensors[]={
 	{CIS_CANONLIDE700,  600,  1504, 135, 249, 85, 5187, 255,  465,  310,  239, NULL      , 0x0c},
 	{CIS_CANONLIDE700, 1200,  2696, 135, 249, 85, 5187, 255, 1464,  844,  555, order_01  , 0x0a},
 	{CIS_CANONLIDE700, 2400, 10576, 135, 249, 85, 5187, 255, 2798, 1558,  972, new_order , 0x08},
+	{CIS_CANONLIDE700, 4800, 10576, 135, 249, 85, 5187, 255, 2798, 1558,  972, order_0145, 0x06},
 };
 /* *INDENT-ON* */
 

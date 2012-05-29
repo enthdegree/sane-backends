@@ -622,6 +622,7 @@ static size_t order_0145[]={0,1,4,5,2,3,6,7};
  */
 static Sensor_Profile sensors[]={
 	{CIS_CANONLIDE100,  200,  2848,  60, 159, 85, 5136, 255,  410,  275,  203, NULL      , 0x0a},
+	{CIS_CANONLIDE100,  300,  1424,  60, 159, 85, 5136, 255,  410,  275,  203, NULL      , 0x0a},
 	{CIS_CANONLIDE100,  600,  1432,  60, 159, 85, 5136, 255,  410,  275,  203, NULL      , 0x0a},
 	{CIS_CANONLIDE100, 1200,  2712,  60, 159, 85, 5136, 255,  746,  478,  353, order_01  , 0x08},
 	{CIS_CANONLIDE100, 2400,  5280,  60, 159, 85, 5136, 255, 1417,  909,  643, order_0213, 0x06},
@@ -630,6 +631,7 @@ static Sensor_Profile sensors[]={
 	{CIS_CANONLIDE200,  300,  1424, 240, 636, 340, 5144, 0, 255,  637,  637,  637},
 	*/
 	{CIS_CANONLIDE200,  200,  2848,  60, 159, 85, 5136, 255,  410,  275,  203, NULL      , 0x0a},
+	{CIS_CANONLIDE200,  300,  1424,  60, 159, 85, 5136, 255,  410,  275,  203, NULL      , 0x0a},
 	{CIS_CANONLIDE200,  600,  1432,  60, 159, 85, 5136, 255,  410,  275,  203, NULL      , 0x0a},
 	{CIS_CANONLIDE200, 1200,  2712,  60, 159, 85, 5136, 255,  746,  478,  353, order_01  , 0x08},
 	{CIS_CANONLIDE200, 2400,  5280,  60, 159, 85, 5136, 255, 1417,  909,  643, order_0213, 0x06},
@@ -667,12 +669,14 @@ static uint32_t lide200_max[] = { 124992, 124992, 124992, 124992, 124992, 124992
 static Motor_Profile gl847_motors[]={
         /* LiDE 100 */
 	{MOTOR_CANONLIDE100,  2848, HALF_STEP   , lide200_base},
+	{MOTOR_CANONLIDE100,  1424, HALF_STEP   , lide200_base},
 	{MOTOR_CANONLIDE100,  1432, HALF_STEP   , lide200_base},
 	{MOTOR_CANONLIDE100,  2712, QUARTER_STEP, lide200_medium},
 	{MOTOR_CANONLIDE100,  5280, EIGHTH_STEP , lide200_high},
         
         /* LiDE 200 */
 	{MOTOR_CANONLIDE200,  2848, HALF_STEP   , lide200_base},
+	{MOTOR_CANONLIDE200,  1424, HALF_STEP   , lide200_base},
 	{MOTOR_CANONLIDE200,  1432, HALF_STEP   , lide200_base},
 	{MOTOR_CANONLIDE200,  2712, QUARTER_STEP, lide200_medium},
 	{MOTOR_CANONLIDE200,  5280, EIGHTH_STEP , lide200_high},
@@ -681,7 +685,7 @@ static Motor_Profile gl847_motors[]={
         /* LiDE 700F */
 	{MOTOR_CANONLIDE700,  2848, HALF_STEP  , lide200_base},
 	{MOTOR_CANONLIDE700,  1424, HALF_STEP  , lide200_base},
-	{MOTOR_CANONLIDE700,   752, HALF_STEP  , lide200_base},
+	{MOTOR_CANONLIDE700,  1504, HALF_STEP  , lide200_base},
 	{MOTOR_CANONLIDE700,  2696, HALF_STEP  , lide700_medium}, /* 2696 , 2838 */
 	{MOTOR_CANONLIDE700, 10576, EIGHTH_STEP, lide700_high},
 

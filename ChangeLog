@@ -10,6 +10,10 @@
 	doc/descriptions/unsupported.desc: updated Xerox onetouch 2400 status
 	to supported
 
+2012-05-30 Stéphane Voltz <stef.dev@free.fr>
+	*  backend/genesys.c backend/genesys_gl124.c backend/genesys_gl124.h:
+	align gl124 code on latest gl847 improvements
+
 2012-05-29 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
 	backend/genesys_gl847.h doc/descriptions/genesys.desc: add 4800 dpi

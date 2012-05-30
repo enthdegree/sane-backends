@@ -581,7 +581,6 @@ typedef struct {
 
 static size_t order_01[]={0,1};
 static size_t order_0213[]={0,2,1,3};
-static size_t order_0246[]={0,2,4,6,1,3,5,7};
 
 /**
  * database of sensor profiles

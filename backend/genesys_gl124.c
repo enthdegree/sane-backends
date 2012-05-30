@@ -1054,6 +1054,8 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   feedl<<=scan_step_type;
 
   dist = scan_steps;
+  if (flags & MOTOR_FLAG_FEED)
+    dist *=2;
   if (use_fast_fed) 
     {
         dist += fast_steps*2;
@@ -1064,7 +1066,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   if(dist<feedl)
     feedl -= dist;
   else
-    feedl = 1;
+    feedl = 0;
 
   sanei_genesys_set_triple(reg,REG_FEEDL,feedl);
   DBG (DBG_io, "%s: feedl=%d\n", __FUNCTION__, feedl);
@@ -1183,12 +1185,12 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
     }
   sanei_genesys_set_triple(regs,REG_EXPB,exp);
 
-  /* order of the sub-segments */
-  dev->order=sensor->order;
-
   sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
   sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
   sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);
+
+  /* order of the sub-segments */
+  dev->order=sensor->order;
 
   DBGCOMPLETED;
 }
@@ -1378,6 +1380,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
 
   dev->bpl = words_per_line;
   dev->cur = 0;
+  dev->skip = 0;
   dev->len = dev->bpl/segnb;
   dev->dist = dev->bpl/segnb;
   dev->segnb = segnb;
@@ -2201,8 +2204,6 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* set up for reverse and no scan */
   r = sanei_genesys_get_address (local_reg, REG02);
   r->value |= REG02_MTRREV;
-  r = sanei_genesys_get_address (local_reg, REG01);
-  r->value &= ~REG01_SCAN;
 
   RIE (gl124_bulk_write_register (dev, local_reg, GENESYS_GL124_MAX_REGS));
 
@@ -2330,6 +2331,9 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
           status = sanei_genesys_get_status (dev, &val);
     }
   while (status == SANE_STATUS_GOOD && !(val & FEEDFSH));
+
+  /* then stop scanning */
+  RIE(gl124_stop_action (dev));
   
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -2662,16 +2666,15 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
   move = (move * move_dpi) / MM_PER_INCH;
   DBG (DBG_info, "%s: move=%f steps\n", __FUNCTION__, move);
 
-  if(channels*dev->settings.yres>=1200 && move>1000)
+  if(channels*dev->settings.yres>=600 && move>700)
     {
-      move -= 180;
-      status = gl124_feed (dev, move);
+      status = gl124_feed (dev, move-500);
       if (status != SANE_STATUS_GOOD)
         {
           DBG (DBG_error, "%s: failed to move to scan area\n",__FUNCTION__);
           return status;
         }
-      move=0;
+      move=500;
     }
   DBG (DBG_info, "gl124_init_regs_for_scan: move=%f steps\n", move);
 

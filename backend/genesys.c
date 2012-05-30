@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847/GL124 based scanners
  */
 
-#define BUILD 81
+#define BUILD 82
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -5222,7 +5222,8 @@ Problems with the first approach:
   
   /* end scan if all needed data have been read */
   /* TODO extend this to other ASICs */
-  if((dev->model->asic_type == GENESYS_GL847)
+  if(((dev->model->asic_type == GENESYS_GL847)
+    ||(dev->model->asic_type == GENESYS_GL124))
    &&(dev->total_bytes_read >= dev->total_bytes_to_read))
     {
       dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE);

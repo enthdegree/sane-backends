@@ -2652,16 +2652,6 @@
 
 ;********************************************************************************************
 
-:mfg "Xerox"
-:url "http://www.xerox.com/"
-
-:model "2400 Onetouch"
-:url "/unsupported/xerox-2400-onetouch.html"
-:interface "USB"
-:usbid "0x0461" "0x038b"
-:status :unsupported
-:comment "Probably GL646_HP based, maybe can be added to genesys backend"
-
 :model "4800 One Touch"
 :url "/unsupported/xerox-4800-onetouch.html"
 :interface "USB"

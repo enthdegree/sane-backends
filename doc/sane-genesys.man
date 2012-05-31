@@ -26,7 +26,7 @@ Syscan/Ambir DocketPORT 467/485/487/665/685
 .br
 Visioneer OneTouch 7100/Strobe XP100 (rev3)/XP200/XP300/Roadwarrior
 .br
-Xerox Travel Scanner 100
+Xerox Travel Scanner 100, OneTouch 2400
 .RE
 
 .PP 
@@ -224,7 +224,7 @@ Pentax DSmobile 600
 .br
 Syscan/Ambir DocketPORT 467/485/487/665/685
 .br
-Xerox Travel Scanner 100
+Xerox Travel Scanner 100, Onetouch 2400
 .RE
 .TP
 cncsolutions (http://www.cncsolutions.com.br) sponsored and supported the work on the Panasonic KV-SS080.

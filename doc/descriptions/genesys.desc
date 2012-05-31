@@ -257,12 +257,20 @@
 :comment "All resolution and mode supported, calibration is available, front- and backside side-by-side, with backside mirrored horizontally."
 
 :mfg "Xerox"
+:url "http://www.xerox.com/"
 
 :model "Travel Scanner 100"
 :interface "USB"
 :usbid  "0x04a7" "0x04ac"
 :status :good
 :comment "All resolution and mode supported, calibration is available"
+
+:model "2400 Onetouch"
+:interface "USB"
+:usbid "0x0461" "0x038b"
+:status :complete
+:comment "GL646 based, resolution from 75 to 2400 dpi"
+
 
 ; -----------------------------------------------------------------------------
 

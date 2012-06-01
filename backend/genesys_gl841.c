@@ -4237,6 +4237,10 @@ gl841_led_calibration (Genesys_Device * dev)
 
   SANE_Bool acceptable = SANE_FALSE;
 
+  /* these 2 boundaries should be per sensor */
+  uint16_t min_exposure=500;
+  uint16_t max_exposure;
+
   DBG (DBG_proc, "gl841_led_calibration\n");
 
 
@@ -4306,6 +4310,9 @@ gl841_led_calibration (Genesys_Device * dev)
   expb = (dev->sensor.regs_0x10_0x1d[4] << 8) | dev->sensor.regs_0x10_0x1d[5];
 
   turn = 0;
+  /* max exposure is set to ~2 time initial average
+   * exposure, or 2 time last calibration exposure */
+  max_exposure=((expr+expg+expb)/3)*2;
 
   do {
 
@@ -4385,15 +4392,15 @@ gl841_led_calibration (Genesys_Device * dev)
 */
 	  avge = (expr + expg + expb) / 3;
 
-	  if (avge > 2000) {
-	      expr = (expr * 2000) / avge;
-	      expg = (expg * 2000) / avge;
-	      expb = (expb * 2000) / avge;
+	  if (avge > max_exposure) {
+	      expr = (expr * max_exposure) / avge;
+	      expg = (expg * max_exposure) / avge;
+	      expb = (expb * max_exposure) / avge;
 	  }
-	  if (avge < 500) {
-	      expr = (expr * 500) / avge;
-	      expg = (expg * 500) / avge;
-	      expb = (expb * 500) / avge;
+	  if (avge < min_exposure) {
+	      expr = (expr * min_exposure) / avge;
+	      expg = (expg * min_exposure) / avge;
+	      expb = (expb * min_exposure) / avge;
 	  }
 	  
       }      

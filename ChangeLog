@@ -1,4 +1,7 @@
 2012-06-01 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_gl841.c: apply led calibration fix
+
+2012-06-01 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: fix get_device to handle scanner plugging and
 	unplugging
 

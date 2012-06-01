@@ -6588,7 +6588,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
        local_only == SANE_TRUE ? "true" : "false");
 
   /* hot-plug case :detection of newly connected scanners */
-  sanei_usb_init();
+  sanei_usb_init ();
   probe_genesys_devices ();
 
   if (devlist)
@@ -6601,61 +6601,61 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   prev = NULL;
   index = 0;
   dev = first_dev;
-  while(dev!=NULL)
+  while (dev != NULL)
     {
       /* check if device removed */
       status = sanei_usb_open (dev->file_name, &dn);
-      if(status==SANE_STATUS_GOOD)
-        {
-          sanei_usb_close(dn);
-          sane_device = malloc (sizeof (*sane_device));
-          if (!sane_device)
-            return SANE_STATUS_NO_MEM;
-          sane_device->name = dev->file_name;
-          sane_device->vendor = dev->model->vendor;
-          sane_device->model = dev->model->model;
-          sane_device->type = strdup ("flatbed scanner");
-          devlist[index] = sane_device;
-          index++;
-          prev=dev;
-          dev=dev->next;
-        }
+      if (status == SANE_STATUS_GOOD)
+	{
+	  sanei_usb_close (dn);
+	  sane_device = malloc (sizeof (*sane_device));
+	  if (!sane_device)
+	    return SANE_STATUS_NO_MEM;
+	  sane_device->name = dev->file_name;
+	  sane_device->vendor = dev->model->vendor;
+	  sane_device->model = dev->model->model;
+	  sane_device->type = strdup ("flatbed scanner");
+	  devlist[index] = sane_device;
+	  index++;
+	  prev = dev;
+	  dev = dev->next;
+	}
       else
-        {
-          /* remove device from internal list */
-          /* case 1 : removed device is first_dev */
-          if(prev==NULL)
-            {
-              /* test for another dev */
-              if(dev->next==NULL)
-                {
-                  /* empty the whole list */
-                  free(dev);
-                  first_dev=NULL;
-                  num_devices=0;
-                  dev=NULL;
-                }
-              else
-                {
-                  /* assign new start */
-                  first_dev=dev->next;
-                  num_devices--;
-                  free(dev);
-                  dev=dev->next;
-                }
-            }
-          /* case 2 : removed device is not first_dev */
-          else
-            {
-              /* link previous dev to next dev */
-              prev->next=dev->next;
-              free(dev);
-              num_devices--;
+	{
+	  /* remove device from internal list */
+	  /* case 1 : removed device is first_dev */
+	  if (prev == NULL)
+	    {
+	      /* test for another dev */
+	      if (dev->next == NULL)
+		{
+		  /* empty the whole list */
+		  free (dev);
+		  first_dev = NULL;
+		  num_devices = 0;
+		  dev = NULL;
+		}
+	      else
+		{
+		  /* assign new start */
+		  first_dev = dev->next;
+		  num_devices--;
+		  free (dev);
+		  dev = dev->next;
+		}
+	    }
+	  /* case 2 : removed device is not first_dev */
+	  else
+	    {
+	      /* link previous dev to next dev */
+	      prev->next = dev->next;
+	      free (dev);
+	      num_devices--;
 
-              /* next loop */
-              dev=prev->next;
-            }
-        }
+	      /* next loop */
+	      dev = prev->next;
+	    }
+	}
     }
   devlist[index] = 0;
 

@@ -1,7 +1,11 @@
 2012-06-01 Stéphane Voltz <stef.dev@free.fr>
-2012-05-31 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: fix get_device to handle scanner plugging and
 	unplugging
+
+2012-05-31 Stéphane Voltz <stef.dev@free.fr>
+	* doc/descriptions/genesys.desc doc/sane-genesys.man
+	doc/descriptions/unsupported.desc: updated Xerox onetouch 2400 status
+	to supported
 
 2012-05-29 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c

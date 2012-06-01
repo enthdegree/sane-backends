@@ -1,17 +1,17 @@
+2012-06-01 Stéphane Voltz <stef.dev@free.fr>
 2012-05-31 Stéphane Voltz <stef.dev@free.fr>
-	*  doc/descriptions/genesys.desc doc/sane-genesys.man
-	doc/descriptions/unsupported.desc: updated Xerox onetouch 2400 status
-	to supported
+	* backend/genesys.c: fix get_device to handle scanner plugging and
+	unplugging
 
 2012-05-29 Stéphane Voltz <stef.dev@free.fr>
-	*  backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
 	backend/genesys_gl847.h doc/descriptions/genesys.desc: add 4800 dpi
 	for LiDE 700F
 	- improve fedd/move to scan area for gl847 based scanners
 	- remove non working 400 dpi mode
 
 2012-05-28 Stéphane Voltz <stef.dev@free.fr>
-	*  backend/genesys.c backend/genesys_devices.c backend/genesys_gl124.c
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl124.c
 	backend/genesys_gl847.c backend/genesys_gl847.h backend/genesys_low.h
 	doc/descriptions/genesys.desc doc/sane-genesys.man: 
 	add support for LiDE 700F up to 2400 dpi

@@ -2948,28 +2948,26 @@ gl124_led_calibration (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
   int val;
   int channels, depth;
-  int avg[3], avga, avge;
+  int avg[3], top[3], bottom[3];
   int turn;
   char fn[20];
-  uint32_t expr, expg, expb;
+  uint16_t exp[3];
   Sensor_Profile *sensor;
-
-  SANE_Bool acceptable = SANE_FALSE;
+  SANE_Bool acceptable;
 
   DBGSTART;
 
   /* offset calibration is always done in color mode */
   channels = 3;
-  depth = 16;
+  depth=16;
   used_res=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   sensor=get_sensor_profile(dev->model->ccd_type, used_res);
-  num_pixels =
-    (dev->sensor.sensor_pixels * used_res) / dev->sensor.optical_res;
-
+  num_pixels = (dev->sensor.sensor_pixels*used_res)/dev->sensor.optical_res;
+  
   /* initial calibration reg values */
-  memcpy (dev->calib_reg, dev->reg,
-	  GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
+  memcpy (dev->calib_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
 
+  /* set up for the calibration scan */
   status = gl124_init_scan_regs (dev,
 				 dev->calib_reg,
 				 used_res,
@@ -2977,157 +2975,123 @@ gl124_led_calibration (Genesys_Device * dev)
 				 0,
 				 0,
 				 num_pixels,
-				 1,
-				 depth,
-				 channels,
+                                 1,
+                                 depth,
+                                 channels,
 				 dev->settings.color_filter,
-                                 SCAN_FLAG_CALIBRATION |
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
-
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_led_calibration: failed to setup scan: %s\n",
-	   sane_strstatus (status));
+      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__, sane_strstatus (status));
       return status;
     }
 
-  RIE (gl124_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS));
-
-
-  total_size = num_pixels * channels * (depth / 8) * 1;	/* colors * bytes_per_color * scan lines */
-
+  total_size = num_pixels * channels * (depth/8) * 1;	/* colors * bytes_per_color * scan lines */
   line = malloc (total_size);
   if (!line)
     return SANE_STATUS_NO_MEM;
 
-/* 
-   we try to get equal bright leds here:
+  /* initial loop values and boundaries */
+  exp[0]=sensor->expr;
+  exp[1]=sensor->expg;
+  exp[2]=sensor->expb;
 
-   loop:
-     average per color
-     adjust exposure times
- */
+  for(i=0;i<3;i++)
+    {
+      bottom[i]=exp[i]/2;
+      top[i]=exp[i]*1.5;
+    }
 
-  /* inital values */
-  expr=sensor->expr;
-  expg=sensor->expg;
-  expb=sensor->expb;
-  
   turn = 0;
 
   /* no move during led calibration */
   gl124_set_motor_power (dev->calib_reg, SANE_FALSE);
   do
     {
-      sanei_genesys_set_triple(dev->calib_reg,REG_EXPR,expr);
-      sanei_genesys_set_triple(dev->calib_reg,REG_EXPG,expg);
-      sanei_genesys_set_triple(dev->calib_reg,REG_EXPB,expb);
+      /* set up exposure */
+      sanei_genesys_set_double(dev->calib_reg,REG_EXPR,exp[0]);
+      sanei_genesys_set_double(dev->calib_reg,REG_EXPG,exp[1]);
+      sanei_genesys_set_double(dev->calib_reg,REG_EXPB,exp[2]);
 
-      RIE (gl124_bulk_write_register
-	   (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS));
+      /* write registers and scan data */
+      RIE (gl124_bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS));
 
-      DBG (DBG_info, "gl124_led_calibration: starting first line reading\n");
+      DBG (DBG_info, "gl124_led_calibration: starting line reading\n");
       RIE (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE));
       RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
+
+      /* stop scanning */
+      RIE (gl124_stop_action (dev));
 
       if (DBG_LEVEL >= DBG_data)
 	{
 	  snprintf (fn, 20, "led_%02d.pnm", turn);
-	  sanei_genesys_write_pnm_file (fn,
-					line, depth, channels, num_pixels, 1);
+	  sanei_genesys_write_pnm_file (fn, line, depth, channels, num_pixels, 1);
 	}
 
-      acceptable = SANE_TRUE;
-
+      /* compute average */
       for (j = 0; j < channels; j++)
 	{
 	  avg[j] = 0;
 	  for (i = 0; i < num_pixels; i++)
 	    {
-	      val = line[i * 2 + j * 2 * num_pixels + 1] * 256 +
+	      if (dev->model->is_cis)
+		val =
+		  line[i * 2 + j * 2 * num_pixels + 1] * 256 +
 		  line[i * 2 + j * 2 * num_pixels];
+	      else
+		val =
+		  line[i * 2 * channels + 2 * j + 1] * 256 +
+		  line[i * 2 * channels + 2 * j];
 	      avg[j] += val;
 	    }
+
 	  avg[j] /= num_pixels;
 	}
-      avga = (avg[0] + avg[1] + avg[2]) / 3;
 
-      DBG (DBG_info, "gl124_led_calibration: average: "
-	   "%d,%d,%d\n", avg[0], avg[1], avg[2]);
+      DBG (DBG_info, "gl124_led_calibration: average: %d,%d,%d\n", avg[0], avg[1], avg[2]);
 
+      /* check if exposure gives average within the boundaries */
       acceptable = SANE_TRUE;
-
-      /* averages must be in a %5 range from each other */
-      if (avg[0] < avg[1] * 0.95 || avg[1] < avg[0] * 0.95 ||
-	  avg[0] < avg[2] * 0.95 || avg[2] < avg[0] * 0.95 ||
-	  avg[1] < avg[2] * 0.95 || avg[2] < avg[1] * 0.95)
-	acceptable = SANE_FALSE;
-
-      if (!acceptable)
-	{
-	  expr = (expr * avga) / avg[0];
-	  expg = (expg * avga) / avg[1];
-	  expb = (expb * avga) / avg[2];
-/*
-  keep the resulting exposures below this value.
-  too long exposure drives the ccd into saturation.
-  we may fix this by relying on the fact that 
-  we get a striped scan without shading, by means of
-  statistical calculation 
-*/
-	  avge = (expr + expg + expb) / 3;
-
-	  /* XXX STEF XXX check limits: don't overflow max exposure */
-	  if (avge > 40000)
-	    {
-	      expr = (expr * 40000) / avge;
-	      expg = (expg * 40000) / avge;
-	      expb = (expb * 40000) / avge;
-	    }
-	  if (avge < 200)
-	    {
-	      expr = (expr * 200) / avge;
-	      expg = (expg * 200) / avge;
-	      expb = (expb * 200) / avge;
-	    }
-
-	}
-
-      RIE (gl124_stop_action (dev));
+      for(i=0;i<3;i++)
+        {
+          if(avg[i]<bottom[i])
+            {
+              exp[i]=(exp[i]*bottom[i])/avg[i];
+              acceptable = SANE_FALSE;
+            }
+          if(avg[i]>top[i])
+            {
+              exp[i]=(exp[i]*top[i])/avg[i];
+              acceptable = SANE_FALSE;
+            }
+        }
 
       turn++;
-
     }
   while (!acceptable && turn < 100);
 
-  DBG (DBG_info, "gl124_led_calibration: acceptable exposure: %d,%d,%d\n",
-       expr, expg, expb);
+  DBG (DBG_info, "gl124_led_calibration: acceptable exposure: %d,%d,%d\n", exp[0], exp[1], exp[2]);
 
   /* set these values as final ones for scan */
-  sanei_genesys_set_triple(dev->reg,REG_EXPR,expr);
-  sanei_genesys_set_triple(dev->reg,REG_EXPG,expg);
-  sanei_genesys_set_triple(dev->reg,REG_EXPB,expb);
+  sanei_genesys_set_double(dev->reg,REG_EXPR,exp[0]);
+  sanei_genesys_set_double(dev->reg,REG_EXPG,exp[1]);
+  sanei_genesys_set_double(dev->reg,REG_EXPB,exp[2]);
 
-  /* we're hoping that the values are 16bits so we can have them
-   * persist in cache */
-  dev->sensor.regs_0x10_0x1d[0] = (expr >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[1] = expr & 0xff;
-  dev->sensor.regs_0x10_0x1d[2] = (expg >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[3] = expg & 0xff;
-  dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
+  /* store in this struct since it is the one used by cache calibration */
+  dev->sensor.regs_0x10_0x1d[0] = (exp[0] >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[1] = exp[0] & 0xff;
+  dev->sensor.regs_0x10_0x1d[2] = (exp[1] >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[3] = exp[1] & 0xff;
+  dev->sensor.regs_0x10_0x1d[4] = (exp[2] >> 8) & 0xff;
+  dev->sensor.regs_0x10_0x1d[5] = exp[2] & 0xff;
 
   /* cleanup before return */
   free (line);
-
-  /* repark head */
-  gl124_slow_back_home (dev, SANE_TRUE);
-
+ 
   DBGCOMPLETED;
   return status;
 }

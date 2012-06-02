@@ -447,6 +447,18 @@ gl124_bulk_full_size (void)
   return GENESYS_GL124_MAX_REGS;
 }
 
+static SANE_Status
+gl124_homsnr_gpio(Genesys_Device *dev)
+{
+uint8_t val;
+SANE_Status status=SANE_STATUS_GOOD;
+
+  RIE (sanei_genesys_read_register (dev, REG32, &val));
+  val &= ~REG32_GPIO10;
+  RIE (sanei_genesys_write_register (dev, REG32, val));
+  return status;
+}
+
 /** @brief set all registers to default values .
  * This function is called only once at the beginning and
  * fills register startup values for registers reused across scans.
@@ -1951,10 +1963,8 @@ gl124_stop_action (Genesys_Device * dev)
 
   DBGSTART;
 
-  /* post scan gpio */
-  RIE (sanei_genesys_read_register (dev, REG32, &val));
-  val &= 0xf9;
-  RIE (sanei_genesys_write_register (dev, REG32, val));
+  /* post scan gpio : without that HOMSNR is unreliable */
+  gl124_homsnr_gpio(dev);
 
   status = sanei_genesys_get_status (dev, &val);
   if (DBG_LEVEL >= DBG_io)
@@ -2137,6 +2147,9 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   DBG (DBG_proc, "gl124_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
 
+  /* post scan gpio : without that HOMSNR is unreliable */
+  gl124_homsnr_gpio(dev);
+
   /* first read gives HOME_SENSOR true */
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
@@ -2218,6 +2231,9 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       gl124_bulk_write_register (dev, dev->reg, GENESYS_GL124_MAX_REGS);
       return status;
     }
+
+  /* post scan gpio : without that HOMSNR is unreliable */
+  gl124_homsnr_gpio(dev);
 
   if (wait_until_home)
     {
@@ -2528,6 +2544,10 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
   dev->calib_channels = 3;
   dev->calib_lines = dev->model->shading_lines;
   dpihw=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
+  if(dpihw>=2400)
+    {
+      dev->calib_lines *= 2;
+    }
   factor=dev->sensor.optical_res/dpihw;
   resolution=dpihw;
   dev->calib_resolution = resolution;
@@ -2951,7 +2971,7 @@ gl124_led_calibration (Genesys_Device * dev)
   int avg[3], top[3], bottom[3];
   int turn;
   char fn[20];
-  uint16_t exp[3];
+  uint16_t exp[3],target;
   Sensor_Profile *sensor;
   SANE_Bool acceptable;
 
@@ -2998,6 +3018,7 @@ gl124_led_calibration (Genesys_Device * dev)
   exp[0]=sensor->expr;
   exp[1]=sensor->expg;
   exp[2]=sensor->expb;
+  target=dev->sensor.gain_white_ref*256;
 
   for(i=0;i<3;i++)
     {
@@ -3012,9 +3033,9 @@ gl124_led_calibration (Genesys_Device * dev)
   do
     {
       /* set up exposure */
-      sanei_genesys_set_double(dev->calib_reg,REG_EXPR,exp[0]);
-      sanei_genesys_set_double(dev->calib_reg,REG_EXPG,exp[1]);
-      sanei_genesys_set_double(dev->calib_reg,REG_EXPB,exp[2]);
+      sanei_genesys_set_triple(dev->calib_reg,REG_EXPR,exp[0]);
+      sanei_genesys_set_triple(dev->calib_reg,REG_EXPG,exp[1]);
+      sanei_genesys_set_triple(dev->calib_reg,REG_EXPB,exp[2]);
 
       /* write registers and scan data */
       RIE (gl124_bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS));
@@ -3058,14 +3079,10 @@ gl124_led_calibration (Genesys_Device * dev)
       acceptable = SANE_TRUE;
       for(i=0;i<3;i++)
         {
-          if(avg[i]<bottom[i])
+          /* we accept +- 2% delta from target */
+          if(abs(avg[i]-target)>target/50)
             {
-              exp[i]=(exp[i]*bottom[i])/avg[i];
-              acceptable = SANE_FALSE;
-            }
-          if(avg[i]>top[i])
-            {
-              exp[i]=(exp[i]*top[i])/avg[i];
+              exp[i]=(exp[i]*target)/avg[i];
               acceptable = SANE_FALSE;
             }
         }
@@ -3077,9 +3094,9 @@ gl124_led_calibration (Genesys_Device * dev)
   DBG (DBG_info, "gl124_led_calibration: acceptable exposure: %d,%d,%d\n", exp[0], exp[1], exp[2]);
 
   /* set these values as final ones for scan */
-  sanei_genesys_set_double(dev->reg,REG_EXPR,exp[0]);
-  sanei_genesys_set_double(dev->reg,REG_EXPG,exp[1]);
-  sanei_genesys_set_double(dev->reg,REG_EXPB,exp[2]);
+  sanei_genesys_set_triple(dev->reg,REG_EXPR,exp[0]);
+  sanei_genesys_set_triple(dev->reg,REG_EXPG,exp[1]);
+  sanei_genesys_set_triple(dev->reg,REG_EXPB,exp[2]);
 
   /* store in this struct since it is the one used by cache calibration */
   dev->sensor.regs_0x10_0x1d[0] = (exp[0] >> 8) & 0xff;

@@ -189,6 +189,14 @@
 #define REG30           0x30
 #define REG31           0x31
 #define REG32           0x32
+#define REG32_GPIO16    0x80
+#define REG32_GPIO15    0x40
+#define REG32_GPIO14    0x20
+#define REG32_GPIO13    0x10
+#define REG32_GPIO12    0x08
+#define REG32_GPIO11    0x04
+#define REG32_GPIO10    0x02
+#define REG32_GPIO9     0x01
 #define REG33           0x33
 #define REG34           0x34
 #define REG35           0x35

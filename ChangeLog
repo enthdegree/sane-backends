@@ -1,3 +1,10 @@
+2012-06-04 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys.h backend/genesys_low.h
+	backend/genesys_devices.c backend/genesys_gl124.[ch] : LiDE 110/210
+	led calibration improvements, add a 'lamp off during scan' option,
+	add 2400x4800 mode to LiDE 100, 110 and 210, improve remove/add
+	scanner detection.
+
 2012-06-01 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl841.c: apply led calibration fix
 

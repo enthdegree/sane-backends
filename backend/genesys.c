@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847/GL124 based scanners
  */
 
-#define BUILD 83
+#define BUILD 84
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -4043,7 +4043,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 
 /* High-level start of scanning */
 static SANE_Status
-genesys_start_scan (Genesys_Device * dev)
+genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 {
   SANE_Status status;
   unsigned int steps, expected;
@@ -4228,6 +4228,12 @@ genesys_start_scan (Genesys_Device * dev)
 	   "genesys_start_scan: failed to do init registers for scan: %s\n",
 	   sane_strstatus (status));
       return status;
+    }
+
+  /* no lamp during scan */
+  if(lamp_off == SANE_TRUE) 
+    {
+      dev->model->cmd_set->set_lamp_power (dev, dev->reg, SANE_FALSE);
     }
   
   /* GL124 is using SHDAREA, so we have to wait for scan to be set up before
@@ -5866,6 +5872,15 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_LAMP_OFF_TIME].constraint.range = &time_range;
   s->val[OPT_LAMP_OFF_TIME].w = 15;	/* 15 minutes */
 
+  /* turn lamp off during scan */
+  s->opt[OPT_LAMP_OFF].name = "lamp-off-scan";
+  s->opt[OPT_LAMP_OFF].title = SANE_I18N ("Lamp off during scan");
+  s->opt[OPT_LAMP_OFF].desc = SANE_I18N ("The lamp will be turned off during scan. ");
+  s->opt[OPT_LAMP_OFF].type = SANE_TYPE_BOOL;
+  s->opt[OPT_LAMP_OFF].unit = SANE_UNIT_NONE;
+  s->opt[OPT_LAMP_OFF].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_LAMP_OFF].w = SANE_FALSE;
+
   s->opt[OPT_SENSOR_GROUP].name = SANE_NAME_SENSORS;
   s->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
   s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
@@ -6969,6 +6984,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_DISABLE_DYNAMIC_LINEART:
     case OPT_CLEAR_CALIBRATION:
     case OPT_DISABLE_INTERPOLATION:
+    case OPT_LAMP_OFF:
     case OPT_LAMP_OFF_TIME:
     case OPT_SWDESKEW:
     case OPT_SWCROP:
@@ -7093,6 +7109,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_SWDEROTATE:
     case OPT_SWSKIP:
     case OPT_DISABLE_INTERPOLATION:
+    case OPT_LAMP_OFF:
     case OPT_PREVIEW:
       s->val[option].w = *(SANE_Word *) val;
       RIE (calc_parameters (s));
@@ -7532,7 +7549,7 @@ sane_start (SANE_Handle handle)
      parameters will be overwritten below, but that's OK.  */
 
   RIE (calc_parameters (s));
-  RIE (genesys_start_scan (s->dev));
+  RIE (genesys_start_scan (s->dev, s->val[OPT_LAMP_OFF].w));
 
   s->scanning = SANE_TRUE;
 

@@ -6123,6 +6123,8 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
     return SANE_STATUS_NO_MEM;
 
   dev->model = genesys_usb_device_list[i].model;
+  dev->vendorId = genesys_usb_device_list[i].vendor;
+  dev->productId = genesys_usb_device_list[i].product;
   dev->already_initialized = SANE_FALSE;
 
   DBG (DBG_info, "attach: found %s flatbed scanner %s at %s\n",
@@ -6579,9 +6581,7 @@ SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
   Genesys_Device *dev, *prev;
-  SANE_Status status;
   SANE_Int index;
-  SANE_Int dn;
   SANE_Device *sane_device;
 
   DBG (DBG_proc, "sane_get_devices: start: local_only = %s\n",
@@ -6604,10 +6604,10 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   while (dev != NULL)
     {
       /* check if device removed */
-      status = sanei_usb_open (dev->file_name, &dn);
-      if (status == SANE_STATUS_GOOD)
+      present = SANE_FALSE;
+      sanei_usb_find_devices (dev->vendorId, dev->productId, check_present);
+      if (present)
 	{
-	  sanei_usb_close (dn);
 	  sane_device = malloc (sizeof (*sane_device));
 	  if (!sane_device)
 	    return SANE_STATUS_NO_MEM;

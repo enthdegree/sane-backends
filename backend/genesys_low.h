@@ -655,6 +655,8 @@ struct Genesys_Calibration_Cache
 struct Genesys_Device
 {
   SANE_Int dn;
+  SANE_Word vendorId;			/**< USB vendor identifier */
+  SANE_Word productId;			/**< USB product identifier */
   SANE_Bool usb_mode;
   SANE_String file_name;
   SANE_String calib_file;

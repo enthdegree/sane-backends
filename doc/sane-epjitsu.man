@@ -88,6 +88,9 @@ No scan area options are exposed.
 .br
 .br
 fi\-60F hardware grayscale mode is not used.
+.br
+.br
+The S1100 is not currently supported, but a patch is available.
 .RE
 
 .SH CREDITS

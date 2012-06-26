@@ -515,15 +515,27 @@ has_ccd_sensor (pixma_t * s)
 }
 
 static int
-is_ccd_grayscale (pixma_t * s)
+is_gray (pixma_t * s)
 {
-  return (has_ccd_sensor (s) && (s->param->channels == 1) && !s->param->software_lineart);
+  return (s->param->mode == PIXMA_SCAN_MODE_GRAY);
 }
 
 static int
-is_ccd_lineart (pixma_t * s)
+is_gray_negative (pixma_t * s)
 {
-  return (has_ccd_sensor (s) && s->param->software_lineart);
+  return (s->param->mode == PIXMA_SCAN_MODE_NEGATIVE_GRAY);
+}
+
+static int
+is_gray_all (pixma_t * s)
+{
+  return (is_gray (s) || is_gray_negative (s));
+}
+
+static int
+is_lineart (pixma_t * s)
+{
+  return (s->param->mode == PIXMA_SCAN_MODE_LINEART);
 }
 
 /* CCD sensors don't have neither a Grayscale mode nor a Lineart mode,
@@ -532,7 +544,7 @@ static unsigned
 get_cis_ccd_line_size (pixma_t * s)
 {
   return ((s->param->wx ? s->param->line_size / s->param->w * s->param->wx
-                        : s->param->line_size) * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : 1));
+                        : s->param->line_size) * ((is_gray_all (s) || is_lineart (s)) ? 3 : 1));
 }
  
 static unsigned
@@ -687,7 +699,7 @@ send_scan_param (pixma_t * s)
   unsigned h, h1, h2, shifting;
 
   /* TPU scan does not support lineart */
-  if (is_scanning_from_tpu (s) && is_ccd_lineart (s))
+  if (is_scanning_from_tpu (s) && is_lineart (s))
     {
       return PIXMA_ENOTSUP;
     }
@@ -723,8 +735,8 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (s->param->y, data + 0x0c);
       pixma_set_be32 (raw_width, data + 0x10);
       pixma_set_be32 (h, data + 0x14);
-      data[0x18] = ((s->param->channels != 1) || is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 0x08 : 0x04;
-      data[0x19] = s->param->depth * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels);	/* bits per pixel */
+      data[0x18] = ((s->param->channels != 1) || is_gray_all (s) || is_lineart (s)) ? 0x08 : 0x04;
+      data[0x19] = s->param->depth * ((is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels);	/* bits per pixel */
       data[0x1a] = (is_scanning_from_tpu (s) ? 1 : 0);
       data[0x20] = 0xff;
       data[0x23] = 0x81;
@@ -758,14 +770,14 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (s->param->y, data + 0x10);
       pixma_set_be32 (raw_width, data + 0x14);
       pixma_set_be32 (h, data + 0x18);
-      data[0x1c] = ((s->param->channels != 1) || is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 0x08 : 0x04;
+      data[0x1c] = ((s->param->channels != 1) || is_gray_all (s) || is_lineart (s)) ? 0x08 : 0x04;
       
 #ifdef DEBUG_TPU_48
       data[0x1d] = 24;
 #else
       data[0x1d] = (is_scanning_from_tpu (s)) ? 48
                                               : (((s->param->depth == 1) ? 8 : s->param->depth)
-                                                 * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels));   /* bits per pixel */
+                                                 * ((is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels));   /* bits per pixel */
 #endif
                          
       data[0x1f] = 0x01; /* for 9000F this appears to be 0x00, not sure if that is because of positives */
@@ -1309,7 +1321,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   test=0;
   jumplines=0;
 
-  c = ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels)
+  c = ((is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels)
       * ((s->param->depth == 1) ? 8 : s->param->depth) / 8;
   cw = c * s->param->w;
   cx = c * s->param->xs;
@@ -1405,7 +1417,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 					   s->param->wx, s->param->xdpi, s->cfg->pid, c,
 					   mp->shift, mp->stripe_shift, mp->stripe_shift2, jumplines*line_size);
 	      }
-	      
+
 	      else  /* all except 9000F at 9600dpi */
 		dptr = shift_colors (dptr, sptr, 
 				     s->param->wx, s->param->xdpi, s->cfg->pid, c,
@@ -1459,10 +1471,10 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 	  /* PDBG (pixma_dbg (4, "*post_process_image_data***** crop line: cx=%u, cw=%u ***** \n", cx, cw)); */
 	  	  
           /* Color to Lineart convert for CCD sensor */
-          if (is_ccd_lineart (s))
+          if (is_lineart (s))
               cptr = gptr = pixma_binarize_line (s->param, gptr, cptr, s->param->w, c);
           /* Color to Grayscale convert for CCD sensor */
-          else if (is_ccd_grayscale (s))
+          else if (is_gray_all (s))
               cptr = gptr = pixma_rgb_to_gray (gptr, cptr, s->param->w, c);
           else
               cptr += cw;
@@ -1586,7 +1598,8 @@ mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
         break;
     }
 
-  /* for software lineart w must be a multiple of 8 */
+  /* for software lineart w must be a multiple of 8
+   * I don't know why is_lineart(s) doesn't work here */
   if (sp->software_lineart == 1 && sp->w % 8)
     {
       sp->w += 8 - (sp->w % 8);

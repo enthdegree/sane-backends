@@ -63,13 +63,13 @@ int * sanei_magic_getTransY (
 int * sanei_magic_getTransX (
   SANE_Parameters * params, int dpi, SANE_Byte * buffer, int left);
 
-SANE_Status getTopEdge (int width, int height, int resolution,
+static SANE_Status getTopEdge (int width, int height, int resolution,
   int * buff, double * finSlope, int * finXInter, int * finYInter);
 
-SANE_Status getLeftEdge (int width, int height, int * top, int * bot,
+static SANE_Status getLeftEdge (int width, int height, int * top, int * bot,
  double slope, int * finXInter, int * finYInter);
 
-SANE_Status getLine (int height, int width, int * buff,
+static SANE_Status getLine (int height, int width, int * buff,
   int slopes, double minSlope, double maxSlope,
   int offsets, int minOffset, int maxOffset,
   double * finSlope, int * finOffset, int * finDensity);
@@ -1161,7 +1161,7 @@ sanei_magic_turn(SANE_Parameters * params, SANE_Byte * buffer,
  * Shift the ranges thru 4 different positions to avoid splitting data
  * across multiple bins (false positive). Home-in on the most likely upper
  * line of the paper inside the image. Return the 'best' edge. */
-SANE_Status
+static SANE_Status
 getTopEdge(int width, int height, int resolution,
   int * buff, double * finSlope, int * finXInter, int * finYInter)
 {
@@ -1272,7 +1272,7 @@ getTopEdge(int width, int height, int resolution,
 /* Loop thru a transition array, and use a simplified Hough transform
  * to divide likely edges into a 2-d array of bins. Then weight each
  * bin based on its angle and offset. Return the 'best' bin. */
-SANE_Status
+static SANE_Status
 getLine (int height, int width, int * buff,
   int slopes, double minSlope, double maxSlope,
   int offsets, int minOffset, int maxOffset,
@@ -1489,7 +1489,7 @@ getLine (int height, int width, int * buff,
  * the 'left-most' point on the paper is the
  * one with the smallest X intercept
  * return x and y intercepts */
-SANE_Status 
+static SANE_Status 
 getLeftEdge (int width, int height, int * top, int * bot,
  double slope, int * finXInter, int * finYInter)
 {

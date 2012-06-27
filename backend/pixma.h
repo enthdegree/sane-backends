@@ -208,6 +208,9 @@ typedef enum pixma_scan_mode_t
   /* TPU scan modes for negatives */
   PIXMA_SCAN_MODE_NEGATIVE_COLOR,
   PIXMA_SCAN_MODE_NEGATIVE_GRAY,
+  /* extended scan modes for 48 bit flatbed scanners */
+  PIXMA_SCAN_MODE_COLOR_48,
+  PIXMA_SCAN_MODE_GRAY_16,
   /* 1 bit lineart scan mode */
   PIXMA_SCAN_MODE_LINEART
 } pixma_scan_mode_t;

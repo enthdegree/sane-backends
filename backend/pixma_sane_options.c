@@ -65,7 +65,7 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod->desc = SANE_DESC_SCAN_MODE;
   sod->name = "mode";
   sod->unit = SANE_UNIT_NONE;
-  sod->size = 11;
+  sod->size = 31;
   sod->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC;
   sod->constraint_type = SANE_CONSTRAINT_STRING_LIST;
   sod->constraint.string_list = ss->mode_list;

@@ -515,9 +515,39 @@ has_ccd_sensor (pixma_t * s)
 }
 
 static int
+is_color (pixma_t * s)
+{
+  return (s->param->mode == PIXMA_SCAN_MODE_COLOR);
+}
+
+static int
+is_color_48 (pixma_t * s)
+{
+  return (s->param->mode == PIXMA_SCAN_MODE_COLOR_48);
+}
+
+static int
+is_color_negative (pixma_t * s)
+{
+  return (s->param->mode == PIXMA_SCAN_MODE_NEGATIVE_COLOR);
+}
+
+static int
+is_color_all (pixma_t * s)
+{
+  return (is_color (s) || is_color_48 (s) || is_color_negative (s));
+}
+
+static int
 is_gray (pixma_t * s)
 {
   return (s->param->mode == PIXMA_SCAN_MODE_GRAY);
+}
+
+static int
+is_gray_16 (pixma_t * s)
+{
+  return (s->param->mode == PIXMA_SCAN_MODE_GRAY_16);
 }
 
 static int
@@ -529,7 +559,7 @@ is_gray_negative (pixma_t * s)
 static int
 is_gray_all (pixma_t * s)
 {
-  return (is_gray (s) || is_gray_negative (s));
+  return (is_gray (s) || is_gray_16 (s) || is_gray_negative (s));
 }
 
 static int
@@ -687,6 +717,25 @@ calc_shifting (pixma_t * s)
            break;
         }
     }
+  /* special settings for 16 bit flatbed mode @ 75 dpi
+   * minimum of 150 dpi is used yet */
+  /* else if (!is_scanning_from_tpu (s))
+    {
+      switch (s->cfg->pid)
+        {
+          case CS9000F_PID:
+            if (is_color_48 (s) || is_gray_16 (s))
+              {
+                mp->color_shift = 5;
+                mp->shift[1] = 0;
+                mp->shift[0] = 0;
+                mp->shift[2] = 0;
+              }
+            break;
+        }
+    } */
+  /* PDBG (pixma_dbg (4, "*calc_shifing***** color_shift = %u, stripe_shift = %u, jumplines = %u  *****\n",
+                   mp->color_shift, mp->stripe_shift, mp->jumplines)); */
   return (2 * mp->color_shift + mp->stripe_shift + mp->jumplines ); /* note impact of stripe shift2 later if needed! */
 }
 
@@ -1129,6 +1178,33 @@ shift_colorsCS9000 (uint8_t * dptr, uint8_t * sptr,
   return dptr;
 }
 
+static uint8_t *
+shift_colorsCS9000_4800 (uint8_t * dptr, uint8_t * sptr,
+                    unsigned w, unsigned dpi, unsigned pid, unsigned c,
+                    int * colshft, unsigned strshft, unsigned strshft2, unsigned jump)
+
+{
+  unsigned i, sr, sg, sb, st2;
+  UNUSED(dpi);
+  UNUSED(pid);
+  UNUSED(strshft);
+  sr = colshft[0]; sg = colshft[1]; sb = colshft[2];
+
+  for (i = 0; i < w; i++)
+    {
+      /* stripes shift for 2nd 4 images
+       * for Canoscan 9000F with 16 bit flatbed scans at 4800dpi */
+      st2 = (i % 2 == 0) ? strshft2 : 0;
+      *sptr++ = *(dptr++ + sr + jump + st2);
+      if (c == 6) *sptr++ = *(dptr++ + sr + jump + st2);
+      *sptr++ = *(dptr++ + sg + jump + st2);
+      if (c == 6) *sptr++ = *(dptr++ + sg + jump + st2);
+      *sptr++ = *(dptr++ + sb + jump + st2);
+      if (c == 6) *sptr++ = *(dptr++ + sb + jump + st2);
+    }
+  return dptr;
+}
+
 /* under some conditions some scanners have sub images in one line */
 /* e.g. doubled image, line size = 8				   */
 /* line before reordering: px1 px3 px5 px7 px2 px4 px6 px8         */
@@ -1367,6 +1443,8 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
   /* PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i > 2 * mp->color_shift + mp->stripe_shift = %i ***** \n",
 	        lines, 2 * mp->color_shift + mp->stripe_shift)); */
+  /* PDBG (pixma_dbg (4, "*post_process_image_data***** mp->color_shift = %u, mp->stripe_shift = %u, , mp->stripe_shift2 = %u ***** \n",
+                mp->color_shift, mp->stripe_shift, mp->stripe_shift2)); */
 
   color_shift = mp->color_shift;
   stripe_shift = mp->stripe_shift;
@@ -1400,7 +1478,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
     }
 
   reducelines = ((2 * mp->color_shift + mp->stripe_shift) + jumplines);
-  /* PDBG (pixma_dbg (4, "*post_process_image_data: reducelines %u \n", reducelines)); */
+  /* PDBG (pixma_dbg (4, "*post_process_image_data: lines %u, reducelines %u \n", lines, reducelines)); */
    if (lines > reducelines)
     {	/* (line - reducelines) of image lines can be converted */
       lines -= reducelines;
@@ -1417,6 +1495,14 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 					   s->param->wx, s->param->xdpi, s->cfg->pid, c,
 					   mp->shift, mp->stripe_shift, mp->stripe_shift2, jumplines*line_size);
 	      }
+
+              else if ((s->cfg->pid == CS9000F_PID)  /* 9000F: 16 bit flatbed scan at 4800dpi */
+                       && ((s->param->mode == PIXMA_SCAN_MODE_COLOR_48) || (s->param->mode == PIXMA_SCAN_MODE_GRAY_16))
+                       && (s->param->xdpi == 4800)
+                       && (s->param->source == PIXMA_SOURCE_FLATBED))
+                dptr = shift_colorsCS9000_4800 (dptr, sptr,
+                                                s->param->wx, s->param->xdpi, s->cfg->pid, c,
+                                                mp->shift, mp->stripe_shift, mp->stripe_shift2, jumplines*line_size);
 
 	      else  /* all except 9000F at 9600dpi */
 		dptr = shift_colors (dptr, sptr, 
@@ -1575,8 +1661,9 @@ mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
   sp->software_lineart = 0;
   switch (sp->mode)
     {
-      /* standard scan modes */
-      /* 8 bit per channel in color and grayscale mode */
+      /* standard scan modes
+       * 8 bit per channel in color and grayscale mode
+       * 16 bit per channel with TPU */
       case PIXMA_SCAN_MODE_GRAY:
       case PIXMA_SCAN_MODE_NEGATIVE_GRAY:
         sp->channels = 1;
@@ -1590,7 +1677,18 @@ mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
             sp->depth = 16;   /* TPU in 16 bits mode */
 #endif
         break;
-      /* software lineart */
+      /* extended scan modes for 48 bit flatbed scanners
+       * 16 bit per channel in color and grayscale mode */
+      case PIXMA_SCAN_MODE_GRAY_16:
+        sp->channels = 1;
+        sp->depth = 16;
+        break;
+      case PIXMA_SCAN_MODE_COLOR_48:
+        sp->channels = 3;
+        sp->depth = 16;
+        break;
+      /* software lineart
+       * 1 bit per channel */
       case PIXMA_SCAN_MODE_LINEART:
         sp->software_lineart = 1;
         sp->channels = 1;
@@ -1720,13 +1818,18 @@ mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
       sp->ydpi = sp->xdpi;
     }
 
-  if (sp->source == PIXMA_SOURCE_TPU)
+  /* TPU mode and 16 bit flatbed scans
+   * TODO: either the frontend (xsane) cannot handle 48 bit flatbed scans @ 75 dpi (prescan)
+   *       or there is a bug in this subdriver */
+  if (sp->source == PIXMA_SOURCE_TPU
+      || sp->mode == PIXMA_SCAN_MODE_COLOR_48 || sp->mode == PIXMA_SCAN_MODE_GRAY_16)
     {
       uint8_t k;
 
-      /* TPU mode: lowest res is 150 or 300 dpi */
+      /* lowest res is 150 or 300 dpi */
       /* MP810, MP960 appear to have a 200dpi mode for low-res scans, not 150 dpi */
-      if ((mp->generation >= 3) || (s->cfg->pid == MP810_PID) || (s->cfg->pid == MP960_PID))
+      if (sp->source == PIXMA_SOURCE_TPU
+          && ((mp->generation >= 3) || (s->cfg->pid == MP810_PID) || (s->cfg->pid == MP960_PID)))
         k = MAX (sp->xdpi, 300) / sp->xdpi;
       else
         k = MAX (sp->xdpi, 150) / sp->xdpi;
@@ -1862,8 +1965,15 @@ mp810_scan (pixma_t * s)
       if ((error >= 0) && (mp->generation >= 3) && has_ccd_sensor (s))
         error = init_ccd_lamp_3 (s);
       if ((error >= 0) && !is_scanning_from_tpu (s))
-        for (i = (mp->generation >= 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
-          error = send_gamma_table (s);
+        {
+          /* FIXME: 48 bit flatbed scans don't need gamma tables
+           *        the code below doesn't run */
+          /*if (is_color_48 (s) || is_gray_16 (s))
+            error = 0;
+          else*/
+            for (i = (mp->generation >= 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
+              error = send_gamma_table (s);
+        }
       else if (error >= 0)  /* in TPU mode, for gen 1, 2, and 3 */
         error = send_set_tpu_info (s);
     }
@@ -2081,7 +2191,7 @@ const pixma_config_t pixma_mp810_devices[] = {
   DEVICE ("Canon MP990 series", "MP990", MP990_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Flatbed scanner (2010) */
-  DEVICE ("Canoscan 9000F", "9000F", CS9000F_PID, 4800, 300, 9600, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_NEGATIVE),
+  DEVICE ("Canoscan 9000F", "9000F", CS9000F_PID, 4800, 300, 9600, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_NEGATIVE | PIXMA_CAP_48BIT),
 
   /* Latest devices (2010) Generation 4 CCD untested */
   DEVICE ("Canon PIXMA MG8100", "MG8100", MG8100_PID, 4800, 300, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),

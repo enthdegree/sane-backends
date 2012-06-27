@@ -1,3 +1,17 @@
+2012-06-27 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.[ch], backend/pixma_sane_options.c,
+	doc/descriptions/pixma.desc:
+	- Pixma backend version 0.16.4
+	- new scan modes for 48 bit flatbed scanners:
+	  PIXMA_SCAN_MODE_COLOR_48, PIXMA_SCAN_MODE_GRAY_16,
+	  enabled by capability PIXMA_CAP_48BIT
+	* backend/pixma_mp150.c: unused capability PIXMA_CAP_48BIT removed
+	* backend/pixma_mp810.c:
+	- new capability for CS9000F: PIXMA_CAP_48BIT  
+	- functions for scan mode detection improved
+	- lowest resolution for 48 bit flatbed scan modes is 150 dpi 
+	* po/de.po: German translations for new scan modes
+
 2012-06-04 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_low.h
 	backend/genesys_devices.c backend/genesys_gl124.[ch] : LiDE 110/210

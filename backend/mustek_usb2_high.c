@@ -259,25 +259,25 @@ static void
 GetRgb48BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool isOrderInvert)
 {
-  unsigned short wRLinePos, wGLinePos, wBLinePos;
+  unsigned int dwRLinePos, dwGLinePos, dwBLinePos;
   unsigned short wRTempData, wGTempData, wBTempData;
   unsigned short i;
 
-  wRLinePos = st->wtheReadyLines;
-  wGLinePos = st->wtheReadyLines - st->wLineDistance;
-  wBLinePos = st->wtheReadyLines - st->wLineDistance * 2;
-  wRLinePos = (wRLinePos % st->wMaxScanLines) * st->BytesPerRow;
-  wGLinePos = (wGLinePos % st->wMaxScanLines) * st->BytesPerRow;
-  wBLinePos = (wBLinePos % st->wMaxScanLines) * st->BytesPerRow;
+  dwRLinePos = st->wtheReadyLines;
+  dwGLinePos = st->wtheReadyLines - st->wLineDistance;
+  dwBLinePos = st->wtheReadyLines - st->wLineDistance * 2;
+  dwRLinePos = (dwRLinePos % st->wMaxScanLines) * st->BytesPerRow;
+  dwGLinePos = (dwGLinePos % st->wMaxScanLines) * st->BytesPerRow;
+  dwBLinePos = (dwBLinePos % st->wMaxScanLines) * st->BytesPerRow;
 
   for (i = 0; i < st->SWWidth; i++)
     {
-      wRTempData = st->pReadImageHead[wRLinePos + i * 6] |
-	(st->pReadImageHead[wRLinePos + i * 6 + 1] << 8);
-      wGTempData = st->pReadImageHead[wGLinePos + i * 6 + 2] |
-	(st->pReadImageHead[wGLinePos + i * 6 + 3] << 8);
-      wBTempData = st->pReadImageHead[wBLinePos + i * 6 + 4] |
-	(st->pReadImageHead[wBLinePos + i * 6 + 5] << 8);
+      wRTempData = st->pReadImageHead[dwRLinePos + i * 6] |
+	(st->pReadImageHead[dwRLinePos + i * 6 + 1] << 8);
+      wGTempData = st->pReadImageHead[dwGLinePos + i * 6 + 2] |
+	(st->pReadImageHead[dwGLinePos + i * 6 + 3] << 8);
+      wBTempData = st->pReadImageHead[dwBLinePos + i * 6 + 4] |
+	(st->pReadImageHead[dwBLinePos + i * 6 + 5] << 8);
 
       LE16TOH (wRTempData);
       LE16TOH (wGTempData);
@@ -292,61 +292,61 @@ static void
 GetRgb48BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool isOrderInvert)
 {
-  unsigned short wRLinePosOdd, wGLinePosOdd, wBLinePosOdd;
-  unsigned short wRLinePosEven, wGLinePosEven, wBLinePosEven;
+  unsigned int dwRLinePosOdd, dwGLinePosOdd, dwBLinePosOdd;
+  unsigned int dwRLinePosEven, dwGLinePosEven, dwBLinePosEven;
   unsigned int dwRTempData, dwGTempData, dwBTempData;
   unsigned short i = 0;
 
   if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      wRLinePosOdd = st->wtheReadyLines - st->wPixelDistance;
-      wGLinePosOdd = st->wtheReadyLines - st->wLineDistance -
-		     st->wPixelDistance;
-      wBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2 -
-		     st->wPixelDistance;
-      wRLinePosEven = st->wtheReadyLines;
-      wGLinePosEven = st->wtheReadyLines - st->wLineDistance;
-      wBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2;
+      dwRLinePosOdd = st->wtheReadyLines - st->wPixelDistance;
+      dwGLinePosOdd = st->wtheReadyLines - st->wLineDistance -
+		      st->wPixelDistance;
+      dwBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2 -
+		      st->wPixelDistance;
+      dwRLinePosEven = st->wtheReadyLines;
+      dwGLinePosEven = st->wtheReadyLines - st->wLineDistance;
+      dwBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2;
     }
   else
     {
-      wRLinePosOdd = st->wtheReadyLines;
-      wGLinePosOdd = st->wtheReadyLines - st->wLineDistance;
-      wBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2;
-      wRLinePosEven = st->wtheReadyLines - st->wPixelDistance;
-      wGLinePosEven = st->wtheReadyLines - st->wLineDistance -
-		      st->wPixelDistance;
-      wBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2 -
-		      st->wPixelDistance;
+      dwRLinePosOdd = st->wtheReadyLines;
+      dwGLinePosOdd = st->wtheReadyLines - st->wLineDistance;
+      dwBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2;
+      dwRLinePosEven = st->wtheReadyLines - st->wPixelDistance;
+      dwGLinePosEven = st->wtheReadyLines - st->wLineDistance -
+		       st->wPixelDistance;
+      dwBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2 -
+		       st->wPixelDistance;
     }
-  wRLinePosOdd = (wRLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
-  wGLinePosOdd = (wGLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
-  wBLinePosOdd = (wBLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
-  wRLinePosEven = (wRLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
-  wGLinePosEven = (wGLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
-  wBLinePosEven = (wBLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  dwRLinePosOdd = (dwRLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  dwGLinePosOdd = (dwGLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  dwBLinePosOdd = (dwBLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  dwRLinePosEven = (dwRLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  dwGLinePosEven = (dwGLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  dwBLinePosEven = (dwBLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
 
   while (i < st->SWWidth)
     {
       if ((i + 1) >= st->SWWidth)
 	break;
 
-      dwRTempData = st->pReadImageHead[wRLinePosOdd + i * 6] |
-	(st->pReadImageHead[wRLinePosOdd + i * 6 + 1] << 8);
-      dwRTempData += st->pReadImageHead[wRLinePosEven + (i + 1) * 6] |
-	(st->pReadImageHead[wRLinePosEven + (i + 1) * 6 + 1] << 8);
+      dwRTempData = st->pReadImageHead[dwRLinePosOdd + i * 6] |
+	(st->pReadImageHead[dwRLinePosOdd + i * 6 + 1] << 8);
+      dwRTempData += st->pReadImageHead[dwRLinePosEven + (i + 1) * 6] |
+	(st->pReadImageHead[dwRLinePosEven + (i + 1) * 6 + 1] << 8);
       dwRTempData /= 2;
 
-      dwGTempData = st->pReadImageHead[wGLinePosOdd + i * 6 + 2] |
-	(st->pReadImageHead[wGLinePosOdd + i * 6 + 3] << 8);
-      dwGTempData += st->pReadImageHead[wGLinePosEven + (i + 1) * 6 + 2] |
-	(st->pReadImageHead[wGLinePosEven + (i + 1) * 6 + 3] << 8);
+      dwGTempData = st->pReadImageHead[dwGLinePosOdd + i * 6 + 2] |
+	(st->pReadImageHead[dwGLinePosOdd + i * 6 + 3] << 8);
+      dwGTempData += st->pReadImageHead[dwGLinePosEven + (i + 1) * 6 + 2] |
+	(st->pReadImageHead[dwGLinePosEven + (i + 1) * 6 + 3] << 8);
       dwGTempData /= 2;
 
-      dwBTempData = st->pReadImageHead[wBLinePosOdd + i * 6 + 4] |
-	(st->pReadImageHead[wBLinePosOdd + i * 6 + 5] << 8);
-      dwBTempData += st->pReadImageHead[wBLinePosEven + (i + 1) * 6 + 4] |
-	(st->pReadImageHead[wBLinePosEven + (i + 1) * 6 + 5] << 8);
+      dwBTempData = st->pReadImageHead[dwBLinePosOdd + i * 6 + 4] |
+	(st->pReadImageHead[dwBLinePosOdd + i * 6 + 5] << 8);
+      dwBTempData += st->pReadImageHead[dwBLinePosEven + (i + 1) * 6 + 4] |
+	(st->pReadImageHead[dwBLinePosEven + (i + 1) * 6 + 5] << 8);
       dwBTempData /= 2;
 
       LE16TOH (dwRTempData);
@@ -357,22 +357,22 @@ GetRgb48BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 		     dwRTempData, dwGTempData, dwBTempData, isOrderInvert);
       i++;
 
-      dwRTempData = st->pReadImageHead[wRLinePosEven + i * 6] |
-	(st->pReadImageHead[wRLinePosEven + i * 6 + 1] << 8);
-      dwRTempData += st->pReadImageHead[wRLinePosOdd + (i + 1) * 6] |
-	(st->pReadImageHead[wRLinePosOdd + (i + 1) * 6 + 1] << 8);
+      dwRTempData = st->pReadImageHead[dwRLinePosEven + i * 6] |
+	(st->pReadImageHead[dwRLinePosEven + i * 6 + 1] << 8);
+      dwRTempData += st->pReadImageHead[dwRLinePosOdd + (i + 1) * 6] |
+	(st->pReadImageHead[dwRLinePosOdd + (i + 1) * 6 + 1] << 8);
       dwRTempData /= 2;
 
-      dwGTempData = st->pReadImageHead[wGLinePosEven + i * 6 + 2] |
-	(st->pReadImageHead[wGLinePosEven + i * 6 + 3] << 8);
-      dwGTempData += st->pReadImageHead[wGLinePosOdd + (i + 1) * 6 + 2] |
-	(st->pReadImageHead[wGLinePosOdd + (i + 1) * 6 + 3] << 8);
+      dwGTempData = st->pReadImageHead[dwGLinePosEven + i * 6 + 2] |
+	(st->pReadImageHead[dwGLinePosEven + i * 6 + 3] << 8);
+      dwGTempData += st->pReadImageHead[dwGLinePosOdd + (i + 1) * 6 + 2] |
+	(st->pReadImageHead[dwGLinePosOdd + (i + 1) * 6 + 3] << 8);
       dwGTempData /= 2;
 
-      dwBTempData = st->pReadImageHead[wBLinePosEven + i * 6 + 4] |
-	(st->pReadImageHead[wBLinePosEven + i * 6 + 5] << 8);
-      dwBTempData += st->pReadImageHead[wBLinePosOdd + (i + 1) * 6 + 4] |
-	(st->pReadImageHead[wBLinePosOdd + (i + 1) * 6 + 5] << 8);
+      dwBTempData = st->pReadImageHead[dwBLinePosEven + i * 6 + 4] |
+	(st->pReadImageHead[dwBLinePosEven + i * 6 + 5] << 8);
+      dwBTempData += st->pReadImageHead[dwBLinePosOdd + (i + 1) * 6 + 4] |
+	(st->pReadImageHead[dwBLinePosOdd + (i + 1) * 6 + 5] << 8);
       dwBTempData /= 2;
 
       LE16TOH (dwRTempData);
@@ -408,30 +408,30 @@ static void
 GetRgb24BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool isOrderInvert)
 {
-  unsigned short wRLinePos, wGLinePos, wBLinePos;
+  unsigned int dwRLinePos, dwGLinePos, dwBLinePos;
   unsigned short wRed, wGreen, wBlue;
   unsigned short tempR, tempG, tempB;
   unsigned short i;
 
-  wRLinePos = st->wtheReadyLines;
-  wGLinePos = st->wtheReadyLines - st->wLineDistance;
-  wBLinePos = st->wtheReadyLines - st->wLineDistance * 2;
-  wRLinePos = (wRLinePos % st->wMaxScanLines) * st->BytesPerRow;
-  wGLinePos = (wGLinePos % st->wMaxScanLines) * st->BytesPerRow;
-  wBLinePos = (wBLinePos % st->wMaxScanLines) * st->BytesPerRow;  
+  dwRLinePos = st->wtheReadyLines;
+  dwGLinePos = st->wtheReadyLines - st->wLineDistance;
+  dwBLinePos = st->wtheReadyLines - st->wLineDistance * 2;
+  dwRLinePos = (dwRLinePos % st->wMaxScanLines) * st->BytesPerRow;
+  dwGLinePos = (dwGLinePos % st->wMaxScanLines) * st->BytesPerRow;
+  dwBLinePos = (dwBLinePos % st->wMaxScanLines) * st->BytesPerRow;  
 
   for (i = 0; i < st->SWWidth; i++)
     {
-      wRed = st->pReadImageHead[wRLinePos + i * 3];
-      wRed += st->pReadImageHead[wRLinePos + (i + 1) * 3];
+      wRed = st->pReadImageHead[dwRLinePos + i * 3];
+      wRed += st->pReadImageHead[dwRLinePos + (i + 1) * 3];
       wRed /= 2;
 
-      wGreen = st->pReadImageHead[wGLinePos + i * 3 + 1];
-      wGreen += st->pReadImageHead[wGLinePos + (i + 1) * 3 + 1];
+      wGreen = st->pReadImageHead[dwGLinePos + i * 3 + 1];
+      wGreen += st->pReadImageHead[dwGLinePos + (i + 1) * 3 + 1];
       wGreen /= 2;
 
-      wBlue = st->pReadImageHead[wBLinePos + i * 3 + 2];
-      wBlue += st->pReadImageHead[wBLinePos + (i + 1) * 3 + 2];
+      wBlue = st->pReadImageHead[dwBLinePos + i * 3 + 2];
+      wBlue += st->pReadImageHead[dwBLinePos + (i + 1) * 3 + 2];
       wBlue /= 2;
 
       tempR = (wRed << 4) | QBET4 (wBlue, wGreen);
@@ -447,56 +447,56 @@ static void
 GetRgb24BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool isOrderInvert)
 {
-  unsigned short wRLinePosOdd, wGLinePosOdd, wBLinePosOdd;
-  unsigned short wRLinePosEven, wGLinePosEven, wBLinePosEven;
+  unsigned int dwRLinePosOdd, dwGLinePosOdd, dwBLinePosOdd;
+  unsigned int dwRLinePosEven, dwGLinePosEven, dwBLinePosEven;
   unsigned short wRed, wGreen, wBlue;
   unsigned short tempR, tempG, tempB;
   unsigned short i = 0;
 
   if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      wRLinePosOdd = st->wtheReadyLines - st->wPixelDistance;
-      wGLinePosOdd = st->wtheReadyLines - st->wLineDistance -
-		     st->wPixelDistance;
-      wBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2 -
-		     st->wPixelDistance;
-      wRLinePosEven = st->wtheReadyLines;
-      wGLinePosEven = st->wtheReadyLines - st->wLineDistance;
-      wBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2;
+      dwRLinePosOdd = st->wtheReadyLines - st->wPixelDistance;
+      dwGLinePosOdd = st->wtheReadyLines - st->wLineDistance -
+		      st->wPixelDistance;
+      dwBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2 -
+		      st->wPixelDistance;
+      dwRLinePosEven = st->wtheReadyLines;
+      dwGLinePosEven = st->wtheReadyLines - st->wLineDistance;
+      dwBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2;
     }
   else
     {
-      wRLinePosOdd = st->wtheReadyLines;
-      wGLinePosOdd = st->wtheReadyLines - st->wLineDistance;
-      wBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2;
-      wRLinePosEven = st->wtheReadyLines - st->wPixelDistance;
-      wGLinePosEven = st->wtheReadyLines - st->wLineDistance -
-		      st->wPixelDistance;
-      wBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2 -
-		      st->wPixelDistance;
+      dwRLinePosOdd = st->wtheReadyLines;
+      dwGLinePosOdd = st->wtheReadyLines - st->wLineDistance;
+      dwBLinePosOdd = st->wtheReadyLines - st->wLineDistance * 2;
+      dwRLinePosEven = st->wtheReadyLines - st->wPixelDistance;
+      dwGLinePosEven = st->wtheReadyLines - st->wLineDistance -
+		       st->wPixelDistance;
+      dwBLinePosEven = st->wtheReadyLines - st->wLineDistance * 2 -
+		       st->wPixelDistance;
     }
-  wRLinePosOdd = (wRLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
-  wGLinePosOdd = (wGLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
-  wBLinePosOdd = (wBLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
-  wRLinePosEven = (wRLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
-  wGLinePosEven = (wGLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
-  wBLinePosEven = (wBLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  dwRLinePosOdd = (dwRLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  dwGLinePosOdd = (dwGLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  dwBLinePosOdd = (dwBLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  dwRLinePosEven = (dwRLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  dwGLinePosEven = (dwGLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  dwBLinePosEven = (dwBLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
 
   while (i < st->SWWidth)
     {
       if ((i + 1) >= st->SWWidth)
 	break;
 
-      wRed = st->pReadImageHead[wRLinePosOdd + i * 3];
-      wRed += st->pReadImageHead[wRLinePosEven + (i + 1) * 3];
+      wRed = st->pReadImageHead[dwRLinePosOdd + i * 3];
+      wRed += st->pReadImageHead[dwRLinePosEven + (i + 1) * 3];
       wRed /= 2;
 
-      wGreen = st->pReadImageHead[wGLinePosOdd + i * 3 + 1];
-      wGreen += st->pReadImageHead[wGLinePosEven + (i + 1) * 3 + 1];
+      wGreen = st->pReadImageHead[dwGLinePosOdd + i * 3 + 1];
+      wGreen += st->pReadImageHead[dwGLinePosEven + (i + 1) * 3 + 1];
       wGreen /= 2;
 
-      wBlue = st->pReadImageHead[wBLinePosOdd + i * 3 + 2];
-      wBlue += st->pReadImageHead[wBLinePosEven + (i + 1) * 3 + 2];
+      wBlue = st->pReadImageHead[dwBLinePosOdd + i * 3 + 2];
+      wBlue += st->pReadImageHead[dwBLinePosEven + (i + 1) * 3 + 2];
       wBlue /= 2;
 
       tempR = (wRed << 4) | QBET4 (wBlue, wGreen);
@@ -507,16 +507,16 @@ GetRgb24BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 		     isOrderInvert);
       i++;
 
-      wRed = st->pReadImageHead[wRLinePosEven + i * 3];
-      wRed += st->pReadImageHead[wRLinePosOdd + (i + 1) * 3];
+      wRed = st->pReadImageHead[dwRLinePosEven + i * 3];
+      wRed += st->pReadImageHead[dwRLinePosOdd + (i + 1) * 3];
       wRed /= 2;
 
-      wGreen = st->pReadImageHead[wGLinePosEven + i * 3 + 1];
-      wGreen += st->pReadImageHead[wGLinePosOdd + (i + 1) * 3 + 1];
+      wGreen = st->pReadImageHead[dwGLinePosEven + i * 3 + 1];
+      wGreen += st->pReadImageHead[dwGLinePosOdd + (i + 1) * 3 + 1];
       wGreen /= 2;
 
-      wBlue = st->pReadImageHead[wBLinePosEven + i * 3 + 2];
-      wBlue += st->pReadImageHead[wBLinePosOdd + (i + 1) * 3 + 2];
+      wBlue = st->pReadImageHead[dwBLinePosEven + i * 3 + 2];
+      wBlue += st->pReadImageHead[dwBLinePosOdd + (i + 1) * 3 + 2];
       wBlue /= 2;
 
       tempR = (wRed << 4) | QBET4 (wBlue, wGreen);
@@ -533,16 +533,16 @@ static void
 GetMono16BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 		      SANE_Bool __sane_unused__ isOrderInvert)
 {
+  unsigned int dwLinePos;
   unsigned short wTempData;
-  unsigned short wLinePos;
   unsigned short i;
 
-  wLinePos = (st->wtheReadyLines % st->wMaxScanLines) * st->BytesPerRow;
+  dwLinePos = (st->wtheReadyLines % st->wMaxScanLines) * st->BytesPerRow;
 
   for (i = 0; i < st->SWWidth; i++)
     {
-      wTempData = st->pReadImageHead[wLinePos + i * 2] |
-		  (st->pReadImageHead[wLinePos + i * 2 + 1] << 8);
+      wTempData = st->pReadImageHead[dwLinePos + i * 2] |
+		  (st->pReadImageHead[dwLinePos + i * 2 + 1] << 8);
       LE16TOH (wTempData);
       *((unsigned short *) (pLine + (i * 2))) = st->pGammaTable[wTempData];
     }
@@ -552,49 +552,49 @@ static void
 GetMono16BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 		      SANE_Bool __sane_unused__ isOrderInvert)
 {
+  unsigned int dwLinePosOdd;
+  unsigned int dwLinePosEven;
   unsigned int dwTempData;
-  unsigned short wLinePosOdd;
-  unsigned short wLinePosEven;
   unsigned short i = 0;
 
   if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      wLinePosOdd = st->wtheReadyLines - st->wPixelDistance;
-      wLinePosEven = st->wtheReadyLines;
+      dwLinePosOdd = st->wtheReadyLines - st->wPixelDistance;
+      dwLinePosEven = st->wtheReadyLines;
     }
   else
     {
-      wLinePosOdd = st->wtheReadyLines;
-      wLinePosEven = st->wtheReadyLines - st->wPixelDistance;
+      dwLinePosOdd = st->wtheReadyLines;
+      dwLinePosEven = st->wtheReadyLines - st->wPixelDistance;
     }
-  wLinePosOdd = (wLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
-  wLinePosEven = (wLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  dwLinePosOdd = (dwLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  dwLinePosEven = (dwLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
 
   while (i < st->SWWidth)
     {
       if ((i + 1) >= st->SWWidth)
 	break;
 
-      dwTempData = (unsigned int) st->pReadImageHead[wLinePosOdd + i * 2];
+      dwTempData = (unsigned int) st->pReadImageHead[dwLinePosOdd + i * 2];
       dwTempData += (unsigned int)
-		    st->pReadImageHead[wLinePosOdd + i * 2 + 1] << 8;
+		    st->pReadImageHead[dwLinePosOdd + i * 2 + 1] << 8;
       dwTempData += (unsigned int)
-		    st->pReadImageHead[wLinePosEven + (i + 1) * 2];
+		    st->pReadImageHead[dwLinePosEven + (i + 1) * 2];
       dwTempData += (unsigned int)
-		    st->pReadImageHead[wLinePosEven + (i + 1) * 2 + 1] << 8;
+		    st->pReadImageHead[dwLinePosEven + (i + 1) * 2 + 1] << 8;
       dwTempData /= 2;
       LE16TOH (dwTempData);
 
       *((unsigned short *) (pLine + (i * 2))) = st->pGammaTable[dwTempData];
       i++;
 
-      dwTempData = (unsigned int) st->pReadImageHead[wLinePosEven + i * 2];
+      dwTempData = (unsigned int) st->pReadImageHead[dwLinePosEven + i * 2];
       dwTempData += (unsigned int)
-		    st->pReadImageHead[wLinePosEven + i * 2 + 1] << 8;
+		    st->pReadImageHead[dwLinePosEven + i * 2 + 1] << 8;
       dwTempData += (unsigned int)
-		    st->pReadImageHead[wLinePosOdd + (i + 1) * 2];
+		    st->pReadImageHead[dwLinePosOdd + (i + 1) * 2];
       dwTempData += (unsigned int)
-		    st->pReadImageHead[wLinePosOdd + (i + 1) * 2 + 1] << 8;
+		    st->pReadImageHead[dwLinePosOdd + (i + 1) * 2 + 1] << 8;
       dwTempData /= 2;
       LE16TOH (dwTempData);
 
@@ -607,15 +607,15 @@ static void
 GetMono8BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool __sane_unused__ isOrderInvert)
 {
+  unsigned int dwLinePos;
   unsigned int dwTempData;
-  unsigned short wLinePos;
   unsigned short i;
 
-  wLinePos = (st->wtheReadyLines % st->wMaxScanLines) * st->BytesPerRow;
+  dwLinePos = (st->wtheReadyLines % st->wMaxScanLines) * st->BytesPerRow;
 
   for (i = 0; i < st->SWWidth; i++)
     {
-      dwTempData = (st->pReadImageHead[wLinePos + i] << 4) | (rand () & 0x0f);
+      dwTempData = (st->pReadImageHead[dwLinePos + i] << 4) | (rand () & 0x0f);
       pLine[i] = (SANE_Byte) st->pGammaTable[dwTempData];
     }
 }
@@ -624,40 +624,40 @@ static void
 GetMono8BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool __sane_unused__ isOrderInvert)
 {
-  unsigned short wLinePosOdd;
-  unsigned short wLinePosEven;
+  unsigned int dwLinePosOdd;
+  unsigned int dwLinePosEven;
   unsigned short wGray;
   unsigned short i = 0;
 
   if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      wLinePosOdd = (st->wtheReadyLines - st->wPixelDistance) %
-		    st->wMaxScanLines;
-      wLinePosEven = (st->wtheReadyLines) % st->wMaxScanLines;
+      dwLinePosOdd = (st->wtheReadyLines - st->wPixelDistance) %
+		     st->wMaxScanLines;
+      dwLinePosEven = (st->wtheReadyLines) % st->wMaxScanLines;
     }
   else
     {
-      wLinePosOdd = (st->wtheReadyLines) % st->wMaxScanLines;
-      wLinePosEven = (st->wtheReadyLines - st->wPixelDistance) %
-		     st->wMaxScanLines;
+      dwLinePosOdd = (st->wtheReadyLines) % st->wMaxScanLines;
+      dwLinePosEven = (st->wtheReadyLines - st->wPixelDistance) %
+		      st->wMaxScanLines;
     }
-  wLinePosOdd = (wLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
-  wLinePosEven = (wLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  dwLinePosOdd = (dwLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  dwLinePosEven = (dwLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
 
   while (i < st->SWWidth)
     {
       if ((i + 1) >= st->SWWidth)
 	break;
 
-      wGray = st->pReadImageHead[wLinePosOdd + i];
-      wGray += st->pReadImageHead[wLinePosEven + i + 1];
+      wGray = st->pReadImageHead[dwLinePosOdd + i];
+      wGray += st->pReadImageHead[dwLinePosEven + i + 1];
       wGray /= 2;
 
       pLine[i] = (SANE_Byte) st->pGammaTable[(wGray << 4) | (rand () & 0x0f)];
       i++;
 
-      wGray = st->pReadImageHead[wLinePosEven + i];
-      wGray += st->pReadImageHead[wLinePosOdd + i + 1];
+      wGray = st->pReadImageHead[dwLinePosEven + i];
+      wGray += st->pReadImageHead[dwLinePosOdd + i + 1];
       wGray /= 2;
 
       pLine[i] = (SANE_Byte) st->pGammaTable[(wGray << 4) | (rand () & 0x0f)];
@@ -669,14 +669,14 @@ static void
 GetMono1BitLineHalf (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool __sane_unused__ isOrderInvert)
 {
-  unsigned short wLinePos;
+  unsigned int dwLinePos;
   unsigned short i;
 
-  wLinePos = (st->wtheReadyLines % st->wMaxScanLines) * st->BytesPerRow;
+  dwLinePos = (st->wtheReadyLines % st->wMaxScanLines) * st->BytesPerRow;
 
   for (i = 0; i < st->SWWidth; i++)
     {
-      if (st->pReadImageHead[wLinePos + i] <= st->Target.wLineartThreshold)
+      if (st->pReadImageHead[dwLinePos + i] <= st->Target.wLineartThreshold)
 	pLine[i / 8] |= 0x80 >> (i % 8);
     }
 }
@@ -685,35 +685,35 @@ static void
 GetMono1BitLineFull (Scanner_State * st, SANE_Byte * pLine,
 		     SANE_Bool __sane_unused__ isOrderInvert)
 {
-  unsigned short wLinePosOdd;
-  unsigned short wLinePosEven;
+  unsigned int dwLinePosOdd;
+  unsigned int dwLinePosEven;
   unsigned short i = 0;
 
   if (st->Target.ssScanSource == SS_REFLECTIVE)
     {
-      wLinePosOdd = (st->wtheReadyLines - st->wPixelDistance) %
-		    st->wMaxScanLines;
-      wLinePosEven = (st->wtheReadyLines) % st->wMaxScanLines;
+      dwLinePosOdd = (st->wtheReadyLines - st->wPixelDistance) %
+		     st->wMaxScanLines;
+      dwLinePosEven = (st->wtheReadyLines) % st->wMaxScanLines;
     }
   else
     {
-      wLinePosOdd = (st->wtheReadyLines) % st->wMaxScanLines;
-      wLinePosEven = (st->wtheReadyLines - st->wPixelDistance) %
-		     st->wMaxScanLines;
+      dwLinePosOdd = (st->wtheReadyLines) % st->wMaxScanLines;
+      dwLinePosEven = (st->wtheReadyLines - st->wPixelDistance) %
+		      st->wMaxScanLines;
     }
-  wLinePosOdd = (wLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
-  wLinePosEven = (wLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
+  dwLinePosOdd = (dwLinePosOdd % st->wMaxScanLines) * st->BytesPerRow;
+  dwLinePosEven = (dwLinePosEven % st->wMaxScanLines) * st->BytesPerRow;
 
   while (i < st->SWWidth)
     {
       if ((i + 1) >= st->SWWidth)
 	break;
 
-      if (st->pReadImageHead[wLinePosOdd + i] <= st->Target.wLineartThreshold)
+      if (st->pReadImageHead[dwLinePosOdd + i] <= st->Target.wLineartThreshold)
 	pLine[i / 8] |= 0x80 >> (i % 8);
       i++;
 
-      if (st->pReadImageHead[wLinePosEven + i] <= st->Target.wLineartThreshold)
+      if (st->pReadImageHead[dwLinePosEven + i] <= st->Target.wLineartThreshold)
 	pLine[i / 8] |= 0x80 >> (i % 8);
       i++;
     }

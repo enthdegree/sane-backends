@@ -675,6 +675,8 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
   if (!s)
     return SANE_STATUS_NO_MEM;
   memset (s, 0, sizeof (*s));
+  s->next = first_handle;
+  first_handle = s;
   s->model = device->model;
   s->state.chip.device_name = device->name;
 
@@ -689,6 +691,7 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
 
   init_options (s);
   *handle = s;
+  DBG (DBG_FUNC, "handle=%p\n", *handle);
 
   DBG_LEAVE ();
   return SANE_STATUS_GOOD;

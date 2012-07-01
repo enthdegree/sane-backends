@@ -397,7 +397,7 @@
 ; CURRENT MODELS, BIG
 :model "fi-5950C"
 :interface "SCSI USB"
-;:usbid "0x04c5" "0x10e7"
+:usbid "0x04c5" "0x1213"
 :status :untested
 :comment "big, current. Faster version of fi-5900?"
 

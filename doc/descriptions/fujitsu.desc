@@ -61,6 +61,12 @@
 :status :complete
 :comment "small, recent, discontinued, usb 2.0"
 
+:model "fi-5110C"
+:interface "USB"
+:status :complete
+:usbid "0x04c5" "0x1097"
+:comment "small, recent, discontinued"
+
 :model "fi-5110EOX/2"
 :interface "USB"
 :status :complete
@@ -125,15 +131,26 @@
 :usbid "0x04c5" "0x116f"
 :comment "small, recent, discontinued"
 
-;==================================================
-; CURRENT MODELS, SMALL
-:model "fi-5110C"
+:model "fi-6130"
 :interface "USB"
 :status :complete
-:usbid "0x04c5" "0x1097"
-:comment "small, current"
+:usbid "0x04c5" "0x114f"
+:comment "small, recent, discontinued"
 
-:model "fi-6010N"
+:model "fi-6230"
+:interface "USB"
+:status :complete
+:usbid "0x04c5" "0x1150"
+:comment "small, recent, discontinued"
+
+;==================================================
+; CURRENT MODELS, SMALL
+:model "ScanSnap N1800"
+:interface "Ethernet"
+:status :untested
+:comment "small, current, integrated touchscreen and keyboard"
+
+:model "ScanSnap fi-6010N"
 :interface "Ethernet"
 :status :untested
 :comment "small, current, integrated touchscreen and keyboard"
@@ -142,30 +159,6 @@
 :interface "USB"
 :status :complete
 :usbid "0x04c5" "0x11fc"
-:comment "small, current"
-
-:model "fi-6130"
-:interface "USB"
-:status :complete
-:usbid "0x04c5" "0x114f"
-:comment "small, current"
-
-:model "fi-6230"
-:interface "USB"
-:status :complete
-:usbid "0x04c5" "0x1150"
-:comment "small, current"
-
-:model "fi-6140Z"
-:interface "USB"
-:status :complete
-:usbid "0x04c5" "0x11f1"
-:comment "small, current"
-
-:model "fi-6240Z"
-:interface "USB"
-:status :complete
-:usbid "0x04c5" "0x11f2"
 :comment "small, current"
 
 :model "fi-6130Z"
@@ -251,6 +244,12 @@
 
 ;==================================================
 ; DISCONTINUED NEWER MODELS, MEDIUM
+:model "fi-4340C"
+:interface "SCSI USB"
+:usbid "0x04c5" "0x10cf"
+:status :complete
+:comment "medium, current"
+
 :model "fi-4530C"
 :interface "SCSI USB"
 :status :complete
@@ -273,13 +272,20 @@
 :usbid "0x04c5" "0x10e2"
 :comment "medium, recent, discontinued"
 
+:model "fi-6140"
+:interface "SCSI USB"
+:status :complete
+:usbid "0x04c5" "0x114d"
+:comment "medium, recent, discontinued"
+
+:model "fi-6240"
+:interface "SCSI USB"
+:status :complete
+:usbid "0x04c5" "0x114e"
+:comment "medium, recent, discontinued"
+
 ;==================================================
 ; CURRENT MODELS, MEDIUM
-:model "fi-4340C"
-:interface "SCSI USB"
-:usbid "0x04c5" "0x10cf"
-:status :complete
-:comment "medium, current"
 
 :model "fi-5530C2"
 :interface "SCSI USB"
@@ -287,17 +293,17 @@
 :usbid "0x04c5" "0x114a"
 :comment "medium, current"
 
-:model "fi-6140"
+:model "fi-6140Z"
 :interface "SCSI USB"
-:status :good
-:usbid "0x04c5" "0x114d"
-:comment "medium, current, Autocrop and Autodeskew not supported"
+:status :complete
+:usbid "0x04c5" "0x11f1"
+:comment "medium, current"
 
-:model "fi-6240"
+:model "fi-6240Z"
 :interface "SCSI USB"
-:status :good
-:usbid "0x04c5" "0x114e"
-:comment "medium, current, Autocrop and Autodeskew not supported"
+:status :complete
+:usbid "0x04c5" "0x11f2"
+:comment "medium, current"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, BIG
@@ -375,6 +381,12 @@
 :status :complete
 :comment "big, recent, discontinued"
 
+:model "fi-5900C"
+:interface "SCSI USB"
+:usbid "0x04c5" "0x10e7"
+:status :good
+:comment "big, recent, discontinued. Independent ultrasonic control and multistream unsupported"
+
 :model "fi-6750S"
 :interface "USB"
 :status :untested
@@ -383,17 +395,11 @@
 
 ;==================================================
 ; CURRENT MODELS, BIG
-:model "fi-5900C"
-:interface "SCSI USB"
-:usbid "0x04c5" "0x10e7"
-:status :good
-:comment "big, current, independent ultrasonic control and multistream unsupported"
-
 :model "fi-5950C"
 :interface "SCSI USB"
 ;:usbid "0x04c5" "0x10e7"
 :status :untested
-:comment "Faster version of fi-5900?"
+:comment "big, current. Faster version of fi-5900?"
 
 :model "fi-6670"
 :interface "SCSI USB"
@@ -423,10 +429,10 @@
 :interface "SCSI USB"
 :status :untested
 :usbid "0x04c5" "0x119d"
-:comment "big, current"
+:comment "big, current. Independent ultrasonic control and multistream unsupported"
 
 :model "fi-6800-CGA"
 :interface "SCSI USB"
 :status :untested
 :usbid "0x04c5" "0x119e"
-:comment "big, current. VRS CGA board unsupported"
+:comment "big, current. VRS CGA board unsupported, Independent ultrasonic control and multistream unsupported"

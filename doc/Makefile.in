@@ -269,24 +269,25 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 	sane-mustek.man sane-nec.man sane-net.man sane-pie.man \
 	sane-pint.man sane-pnm.man sane-umax.man sane-qcam.man \
 	sane-scsi.man sane-artec.man sane-fujitsu.man sane-sharp.man \
-	sane-s9036.man sane-tamarack.man sane-kodak.man sane-ricoh.man \
-	sane-avision.man sane-plustek.man sane-st400.man \
-	sane-mustek_pp.man sane-dc210.man sane-v4l.man \
-	sane-snapscan.man sane-canon.man sane-coolscan.man sane-bh.man \
-	sane-dc240.man sane-umax_pp.man sane-umax1220u.man \
-	sane-sm3600.man sane-usb.man sane-mustek_usb.man \
-	sane-sceptre.man sane-canon_pp.man sane-canon630u.man \
-	sane-teco1.man sane-teco2.man sane-teco3.man sane-test.man \
-	sane-sp15c.man sane-coolscan2.man sane-hpsj5s.man \
-	sane-gt68xx.man sane-artec_eplus48u.man sane-ma1509.man \
-	sane-ibm.man sane-hp5400.man sane-plustek_pp.man sane-u12.man \
-	sane-niash.man sane-sm3840.man sane-genesys.man \
-	sane-hp4200.man sane-mustek_usb2.man sane-hp3500.man \
-	sane-pixma.man sane-stv680.man sane-hp5590.man \
-	sane-hpljm1005.man sane-cardscan.man sane-hp3900.man \
-	sane-epjitsu.man sane-hs2p.man sane-canon_dr.man \
-	sane-xerox_mfp.man sane-rts8891.man sane-coolscan3.man \
-	sane-kvs1025.man sane-kvs20xx.man sane-kvs40xx.man sane-p5.man \
+	sane-s9036.man sane-tamarack.man sane-kodak.man \
+	sane-kodakaio.man sane-ricoh.man sane-avision.man \
+	sane-plustek.man sane-st400.man sane-mustek_pp.man \
+	sane-dc210.man sane-v4l.man sane-snapscan.man sane-canon.man \
+	sane-coolscan.man sane-bh.man sane-dc240.man sane-umax_pp.man \
+	sane-umax1220u.man sane-sm3600.man sane-usb.man \
+	sane-mustek_usb.man sane-sceptre.man sane-canon_pp.man \
+	sane-canon630u.man sane-teco1.man sane-teco2.man \
+	sane-teco3.man sane-test.man sane-sp15c.man sane-coolscan2.man \
+	sane-hpsj5s.man sane-gt68xx.man sane-artec_eplus48u.man \
+	sane-ma1509.man sane-ibm.man sane-hp5400.man \
+	sane-plustek_pp.man sane-u12.man sane-niash.man \
+	sane-sm3840.man sane-genesys.man sane-hp4200.man \
+	sane-mustek_usb2.man sane-hp3500.man sane-pixma.man \
+	sane-stv680.man sane-hp5590.man sane-hpljm1005.man \
+	sane-cardscan.man sane-hp3900.man sane-epjitsu.man \
+	sane-hs2p.man sane-canon_dr.man sane-xerox_mfp.man \
+	sane-rts8891.man sane-coolscan3.man sane-kvs1025.man \
+	sane-kvs20xx.man sane-kvs40xx.man sane-p5.man \
 	sane-magicolor.man sane.man saned.man descriptions.txt \
 	releases.txt sane-logo2.jpg sane-logo.png sane.png sane.tex \
 	net.tex html.sty $(DESC_FILES) descriptions/template.desc. \
@@ -303,7 +304,7 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-hp.5 sane-gphoto2.5 sane-leo.5 sane-lexmark.5 \
 	sane-matsushita.5 sane-microtek.5 sane-microtek2.5 sane-mustek.5 \
 	sane-nec.5 sane-net.5 sane-pie.5 sane-pint.5 sane-pnm.5 \
-	sane-umax.5 sane-qcam.5 sane-scsi.5 sane-artec.5 sane-kodak.5 \
+	sane-umax.5 sane-qcam.5 sane-scsi.5 sane-artec.5 sane-kodak.5 sane-kodakaio.5 \
 	sane-fujitsu.5 sane-sharp.5 sane-s9036.5 sane-tamarack.5 \
 	sane-ricoh.5 sane-avision.5 sane-plustek.5 sane-st400.5 \
 	sane-mustek_pp.5 sane-dc210.5 sane-v4l.5 sane-snapscan.5 \
@@ -383,8 +384,8 @@ DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/hp3900.desc descriptions/hp4200.desc descriptions/hp5400.desc \
   descriptions/hp5590.desc descriptions/hp.desc descriptions/hpljm1005.desc \
   descriptions/hpsj5s.desc descriptions/hs2p.desc descriptions/ibm.desc \
-  descriptions/kodak.desc descriptions/kvs1025.desc descriptions/kvs20xx.desc \
-  descriptions/kvs40xx.desc \
+  descriptions/kodak.desc descriptions/kodakaio.desc descriptions/kvs1025.desc \
+  descriptions/kvs20xx.desc descriptions/kvs40xx.desc \
   descriptions/leo.desc descriptions/lexmark.desc descriptions/ma1509.desc \
   descriptions/magicolor.desc \
   descriptions/matsushita.desc descriptions/microtek2.desc \

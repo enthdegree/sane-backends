@@ -85,7 +85,7 @@ BACKEND_CONFS= abaton.conf agfafocus.conf apple.conf artec.conf \
 	       dell1600n_net.conf dmc.conf epjitsu.conf epson2.conf \
 	       epson.conf fujitsu.conf genesys.conf gphoto2.conf \
 	       gt68xx.conf hp3900.conf hp4200.conf hp5400.conf \
-	       hp.conf hpsj5s.conf hs2p.conf ibm.conf kodak.conf \
+	       hp.conf hpsj5s.conf hs2p.conf ibm.conf kodak.conf kodakaio.conf\
 	       leo.conf lexmark.conf ma1509.conf magicolor.conf \
 	       matsushita.conf microtek2.conf microtek.conf mustek.conf \
 	       mustek_pp.conf mustek_usb.conf nec.conf net.conf \
@@ -175,7 +175,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libgphoto2_i.la libgt68xx.la libhp.la \
     libhp3500.la libhp3900.la libhp4200.la \
     libhp5400.la libhp5590.la libhpljm1005.la \
-    libhpsj5s.la libhs2p.la libibm.la libkodak.la \
+    libhpsj5s.la libhs2p.la libibm.la libkodak.la libkodakaio.la\
     libkvs1025.la libkvs20xx.la libkvs40xx.la \
     libleo.la liblexmark.la libma1509.la libmagicolor.la \
     libmatsushita.la libmicrotek.la libmicrotek2.la \
@@ -208,7 +208,7 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-gphoto2.la libsane-gt68xx.la libsane-hp.la \
     libsane-hp3500.la libsane-hp3900.la libsane-hp4200.la \
     libsane-hp5400.la libsane-hp5590.la libsane-hpljm1005.la \
-    libsane-hpsj5s.la libsane-hs2p.la libsane-ibm.la libsane-kodak.la \
+    libsane-hpsj5s.la libsane-hs2p.la libsane-ibm.la libsane-kodak.la libsane-kodakaio.la\
     libsane-kvs1025.la libsane-kvs20xx.la libsane-kvs40xx.la \
     libsane-leo.la \
     libsane-lexmark.la libsane-ma1509.la libsane-magicolor.la \
@@ -620,6 +620,15 @@ libsane_kodak_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kodak
 libsane_kodak_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_kodak_la_LIBADD = $(COMMON_LIBS) libkodak.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += kodak.conf.in
+
+libkodakaio_la_SOURCES = kodakaio.c kodakaio.h
+libkodakaio_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kodakaio
+
+nodist_libsane_kodakaio_la_SOURCES = kodakaio-s.c
+libsane_kodakaio_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kodakaio
+libsane_kodakaio_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_kodakaio_la_LIBADD = $(COMMON_LIBS) libkodakaio.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo  ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo  $(USB_LIBS) $(SOCKET_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
+EXTRA_DIST += kodakaio.conf.in
 
 libkvs1025_la_SOURCES = kvs1025.c kvs1025_low.c kvs1025_opt.c kvs1025_usb.c \
  kvs1025.h kvs1025_low.h kvs1025_usb.h kvs1025_cmds.h

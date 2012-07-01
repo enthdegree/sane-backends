@@ -325,6 +325,11 @@ The SANE backend for some large Kodak scanners. See
 .BR sane\-kodak (5)
 for details.
 .TP
+.B kodakaio
+The SANE backend for Kodak AiO printer/scanners. See
+.BR sane\-kodakaio (5)
+for details.
+.TP
 .B kvs1025
 The SANE backend for Panasonic KV-S102xC scanners. See
 .BR sane\-kvs1025 (5)

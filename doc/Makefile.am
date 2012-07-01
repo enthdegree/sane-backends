@@ -22,7 +22,7 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-hp.5 sane-gphoto2.5 sane-leo.5 sane-lexmark.5 \
 	sane-matsushita.5 sane-microtek.5 sane-microtek2.5 sane-mustek.5 \
 	sane-nec.5 sane-net.5 sane-pie.5 sane-pint.5 sane-pnm.5 \
-	sane-umax.5 sane-qcam.5 sane-scsi.5 sane-artec.5 sane-kodak.5 \
+	sane-umax.5 sane-qcam.5 sane-scsi.5 sane-artec.5 sane-kodak.5 sane-kodakaio.5 \
 	sane-fujitsu.5 sane-sharp.5 sane-s9036.5 sane-tamarack.5 \
 	sane-ricoh.5 sane-avision.5 sane-plustek.5 sane-st400.5 \
 	sane-mustek_pp.5 sane-dc210.5 sane-v4l.5 sane-snapscan.5 \
@@ -46,7 +46,7 @@ EXTRA_DIST += sane-abaton.man sane-agfafocus.man sane-apple.man sane-as6e.man \
 	sane-microtek2.man sane-mustek.man sane-nec.man sane-net.man \
 	sane-pie.man sane-pint.man sane-pnm.man sane-umax.man \
 	sane-qcam.man sane-scsi.man sane-artec.man sane-fujitsu.man \
-	sane-sharp.man sane-s9036.man sane-tamarack.man sane-kodak.man \
+	sane-sharp.man sane-s9036.man sane-tamarack.man sane-kodak.man sane-kodakaio.man\
 	sane-ricoh.man sane-avision.man sane-plustek.man sane-st400.man \
 	sane-mustek_pp.man sane-dc210.man sane-v4l.man sane-snapscan.man \
 	sane-canon.man sane-coolscan.man sane-bh.man sane-dc240.man \
@@ -174,8 +174,8 @@ DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/hp3900.desc descriptions/hp4200.desc descriptions/hp5400.desc \
   descriptions/hp5590.desc descriptions/hp.desc descriptions/hpljm1005.desc \
   descriptions/hpsj5s.desc descriptions/hs2p.desc descriptions/ibm.desc \
-  descriptions/kodak.desc descriptions/kvs1025.desc descriptions/kvs20xx.desc \
-  descriptions/kvs40xx.desc \
+  descriptions/kodak.desc descriptions/kodakaio.desc descriptions/kvs1025.desc \
+  descriptions/kvs20xx.desc descriptions/kvs40xx.desc \
   descriptions/leo.desc descriptions/lexmark.desc descriptions/ma1509.desc \
   descriptions/magicolor.desc \
   descriptions/matsushita.desc descriptions/microtek2.desc \

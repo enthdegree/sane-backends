@@ -55,6 +55,7 @@ Backends:
  hs2p:		Jeremy Johnson
  ibm:           M.F., Henning Geinitz (*)
  kodak:         m. allan noah (*)
+ kodakaio:	Paul Newall
  kvs1025:       Tao Zhang, m. allan noah (*)
  kvs20xx:       unknown, m. allan noah (*)
  kvs40xx:       unknown, m. allan noah (*)
@@ -224,6 +225,7 @@ Oliver Schirrmeister <oschirr@abm.de>
 Oliver Schwartz <oliverschwartz@users.sourceforge.net>
 Patrick Lessard <palessar@cgocable.ca>
 Patrick Reynolds <patrickr@virginia.edu>
+Paul Newall <quandry@ntlworld.com>
 Peter Fales <peter@fales-lorenz.net>
 Peter Kirchgessner <peter@kirchgessner.net>
 Petter Reinholdtsen <pere@hungry.com>

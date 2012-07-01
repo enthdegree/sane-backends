@@ -1,0 +1,147 @@
+:backend "kodakaio"
+:url "http://sourceforge.net/projects/cupsdriverkodak/" 
+:version "2.4"
+:manpage ""
+:comment "New backend for Kodak aio ESP and Hero printers"
+:devicetype :scanner
+:new :yes
+
+:mfg "Kodak"
+:url "http://www.kodak.com/"
+
+;======================================
+; ESP series
+
+:model "ESP 2150"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 2150"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 2170"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 3200"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 3300"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 4100"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 5000"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 5100"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 5200"
+:interface "USB Ethernet"
+:status :basic
+:comment "USB good, Network good"
+
+:model "ESP 5300"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 5500"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 6100"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 7200"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 9200"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 5"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 7"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP 9"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP C110"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP C115"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP C310"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "ESP C315"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+;======================================
+; Hero series
+
+:model "Hero 3.1"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "Hero 5.1"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "Hero Office 6.1"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "Hero 7.1"
+:interface "USB"
+:status :untested
+:comment "Please test!"
+
+:model "Hero 9.1"
+:interface "USB Ethernet"
+:status :basic
+:comment "USB good, Network good"
+

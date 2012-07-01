@@ -1,3 +1,10 @@
+2012-06-28 Paul Newall <quandry@ntlworld.com>
+	* backend/kodakaio.c backend/kodakaio.conf.in backend/kodakaio.h
+	doc/sane-kodakaio.man doc/descriptions/kodakaio.desc
+	configure.in makefile.am dllconf.in doc/makefile.am: Added new backend kodakaio for 
+	kodak ESP nnnn, Cnnn, hero AiOs, detection of cups added to configure
+	since cups is used for network auto detection.
+
 2012-06-27 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_sane_options.c,
 	doc/descriptions/pixma.desc:

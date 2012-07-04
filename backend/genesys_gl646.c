@@ -4317,7 +4317,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 {
   uint8_t *line;
   unsigned int i, j, k, channels, val, maximum, idx;
-  unsigned int size, count, resolution, pass;
+  unsigned int count, resolution, pass;
   SANE_Status status = SANE_STATUS_GOOD;
   float average[3];
   Genesys_Settings settings;
@@ -4371,8 +4371,6 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
-
-  size = channels * settings.pixels * settings.lines;
 
   /* start gain value */
   dev->frontend.gain[0] = 1;

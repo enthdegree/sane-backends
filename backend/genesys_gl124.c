@@ -1954,7 +1954,10 @@ gl124_start_action (Genesys_Device * dev)
   return sanei_genesys_write_register (dev, 0x0f, 0x01);
 }
 
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl124_stop_action (Genesys_Device * dev)
 {
   SANE_Status status;

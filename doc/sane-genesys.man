@@ -1,4 +1,4 @@
-.TH "sane\-genesys" "5" "26 Dec 2010" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-genesys" "5" "4 Jul 2012" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-genesys
 .SH "NAME"
 sane\-genesys \- SANE backend for GL646, GL841, GL843, GL847 and GL124 based USB flatbed scanners
@@ -43,7 +43,7 @@ or syslog) to the sane\-devel mailing list. Even if the scanner's name is only
 slightly different from the models mentioned above, please let me know.
 .PP 
 If you own a scanner that isn't detected by the genesys backend but has a GL646,
-GL841, GL843 or GL847 chipset, you can try to add it to the backend. 
+GL841, GL843, GL847 or GL124 chipset, you can try to add it to the backend. 
 .PP 
 .SH "CALIBRATION"
 To give correct image quality, sheet fed scanners need to be calibrated using the
@@ -79,6 +79,11 @@ real scanned data.
         When using gray or lineart this option selects the used color. Using a color filter
 will give a monochrome scan. CIS based scanners can to true gray when no filter (None value) is
 selected.
+.RE
+
+.B \-\-lamp\-off\-scan
+.RS
+        The lamp will be turned off during the scan. Calibration is still done with lamp on.
 .RE
 
 .PP

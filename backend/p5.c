@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2009 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2009-12 Stéphane Voltz <stef.dev@free.fr>
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -54,7 +54,7 @@
 /**
  * the build number allow to know which version of the backend is running.
  */
-#define BUILD 1
+#define BUILD 2301
 
 #include "p5.h"
 

@@ -280,6 +280,9 @@ struct scanner
 #define WINDOW_SENDCAL 2
 #define WINDOW_SCAN 3
 
+#define EPJITSU_PAPER_INGEST 1
+#define EPJITSU_PAPER_EJECT 0
+
 /* ------------------------------------------------------------------------- */
 
 #define MM_PER_UNIT_UNFIX SANE_UNFIX(SANE_FIX(MM_PER_INCH / 1200.0))
@@ -359,7 +362,7 @@ static SANE_Status destroy(struct scanner *s);
 static SANE_Status teardown_buffers(struct scanner *s);
 static SANE_Status setup_buffers(struct scanner *s);
 
-static SANE_Status ingest(struct scanner *s);
+static SANE_Status object_position(struct scanner *s, int ingest);
 static SANE_Status coarsecal(struct scanner *s);
 static SANE_Status finecal(struct scanner *s);
 static SANE_Status send_lut(struct scanner *s);

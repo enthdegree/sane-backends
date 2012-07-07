@@ -2176,7 +2176,7 @@ sane_start (SANE_Handle handle)
     /* ingest paper with adf */
     if( s->source == SOURCE_ADF_BACK || s->source == SOURCE_ADF_FRONT
      || (s->source == SOURCE_ADF_DUPLEX && s->side == SIDE_FRONT) ){
-        ret = ingest(s);
+        ret = object_position(s,EPJITSU_PAPER_INGEST);
         if (ret != SANE_STATUS_GOOD) {
             DBG (5, "sane_start: ERROR: failed to ingest\n");
             sane_cancel((SANE_Handle)s);
@@ -3442,11 +3442,10 @@ get_hardware_status (struct scanner *s)
 }
 
 static SANE_Status
-ingest(struct scanner *s)
+object_position(struct scanner *s, int ingest)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
     int i;
-
     unsigned char cmd[2];
     size_t cmdLen = sizeof(cmd);
     unsigned char stat[1];
@@ -3454,10 +3453,11 @@ ingest(struct scanner *s)
     unsigned char pay[2];
     size_t payLen = sizeof(pay);
 
-    DBG (10, "ingest: start\n");
+    DBG (10, "object_position: start\n");
 
-    for(i=0;i<5;i++){
-    
+    i = (ingest)?5:1;
+
+    while(i--){    
         /*send paper load cmd*/
         cmd[0] = 0x1b;
         cmd[1] = 0xd4;
@@ -3470,18 +3470,18 @@ ingest(struct scanner *s)
           stat, &statLen
         );
         if(ret){
-            DBG (5, "ingest: error sending cmd\n");
+            DBG (5, "object_position: error sending cmd\n");
             return ret;
         }
         if(stat[0] != 6){
-            DBG (5, "ingest: cmd bad status? %d\n",stat[0]);
+            DBG (5, "object_position: cmd bad status? %d\n",stat[0]);
             continue;
         }
     
         /*send payload*/
         statLen = 1;
         payLen = 1;
-        pay[0] = 1;
+        pay[0] = ingest;
         
         ret = do_cmd(
           s, 0,
@@ -3490,25 +3490,25 @@ ingest(struct scanner *s)
           stat, &statLen
         );
         if(ret){
-            DBG (5, "ingest: error sending payload\n");
+            DBG (5, "object_position: error sending payload\n");
             return ret;
         }
         if(stat[0] == 6){
-            DBG (5, "ingest: found paper?\n");
+            DBG (5, "object_position: found paper?\n");
             break;
         }
         else if(stat[0] == 0x15 || stat[0] == 0){
-            DBG (5, "ingest: no paper?\n");
+            DBG (5, "object_position: no paper?\n");
             ret=SANE_STATUS_NO_DOCS;
 	    continue;
         }
         else{
-            DBG (5, "ingest: payload bad status?\n");
+            DBG (5, "object_position: payload bad status?\n");
             return SANE_STATUS_IO_ERROR;
         }
     }
 
-    DBG (10, "ingest: finish\n");
+    DBG (10, "object_position: finish\n");
     return ret;
 }
 

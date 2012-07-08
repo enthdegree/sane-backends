@@ -2399,43 +2399,123 @@ setup_buffers(struct scanner *s)
 */
 
 static SANE_Status
-coarsecal(struct scanner *s)
+coarsecal_send_cal(struct scanner *s, unsigned char *pay)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+    unsigned char cmd[2];
+    unsigned char stat[1];
+    size_t cmdLen,statLen,payLen;
+    
+    DBG (5, "coarsecal_send_cal: start\n");
+    /* send coarse cal (c6) */
+    cmd[0] = 0x1b;
+    cmd[1] = 0xc6;
+    cmdLen = 2;
+    stat[0] = 0;
+    statLen = 1;
+    
+    ret = do_cmd(
+      s, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      stat, &statLen
+    );
+    if(ret){
+         DBG (5, "coarsecal_send_cal: error sending c6 cmd\n");
+         return ret;
+    }
+    if(stat[0] != 6){
+        DBG (5, "coarsecal_send_cal: cmd bad c6 status?\n");
+        return SANE_STATUS_IO_ERROR;
+     }
+    
+    /*send coarse cal payload*/
+    stat[0] = 0;
+    statLen = 1;
+    payLen = 28;
+
+    ret = do_cmd(
+      s, 0,
+      pay, payLen,
+      NULL, 0,
+      stat, &statLen
+    );
+    if(ret){
+        DBG (5, "coarsecal_send_cal: error sending c6 payload\n");
+        return ret;
+    }
+    if(stat[0] != 6){
+        DBG (5, "coarsecal_send_cal: c6 payload bad status?\n");
+        return SANE_STATUS_IO_ERROR;
+    }
+
+    DBG (5, "coarsecal_send_cal: finish\n");
+    return ret;
+}
+
+static SANE_Status
+coarsecal_get_line(struct scanner *s, struct image *img)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+    unsigned char cmd[2];
+    unsigned char stat[1];
+    size_t cmdLen,statLen;
+
+    DBG (5, "coarsecal_get_line: start\n");
+
+    /* send scan d2 command */
+    cmd[0] = 0x1b;
+    cmd[1] = 0xd2;
+    cmdLen = 2;
+    stat[0] = 0;
+    statLen = 1;
+   
+    ret = do_cmd(
+      s, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      stat, &statLen
+    );
+    if(ret){
+        DBG (5, "coarsecal_get_line: error sending d2 cmd\n");
+        return ret;
+    }
+    if(stat[0] != 6){
+        DBG (5, "coarsecal_get_line: cmd bad d2 status?\n");
+        return SANE_STATUS_IO_ERROR;
+    }
+
+    s->cal_image.image = img;
+    update_transfer_totals(&s->cal_image);
+ 
+    while(!s->cal_image.done){
+        ret = read_from_scanner(s,&s->cal_image);
+        if(ret){
+            DBG (5, "coarsecal_get_line: cant read from scanner\n");
+            return ret;
+        }
+    }
+    /* convert the raw data into normal packed pixel data */
+    descramble_raw(s, &s->cal_image);
+
+    DBG (5, "coarsecal_get_line: finish\n");
+    return ret;
+}
+
+static SANE_Status
+coarsecal_dark(struct scanner *s, unsigned char *pay)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
 
-    size_t cmdLen = 2;
-    unsigned char cmd[2];
-
-    size_t statLen = 1;
-    unsigned char stat[1];
-
-    size_t payLen = 28;
-    unsigned char pay[28];
-
-    int try_count, cal_good[2], x, i, j;
+    int try_count, cal_good[2], x, j;
     int param[2], zcount[2], high_param[2], low_param[2], avg[2], maxval[2];
-    int rgb_avg[2][3], rgb_hicount[2][3];
 
-    DBG (10, "coarsecal: start\n");
-
-    if(s->model == MODEL_S300){
-        memcpy(pay,coarseCalData_S300,payLen);
-    }
-    else{
-        memcpy(pay,coarseCalData_FI60F,payLen);
-    }
-
-    /* ask for 1 line */
-    ret = set_window(s, WINDOW_COARSECAL);
-    if(ret){
-        DBG (5, "coarsecal: error sending setwindow\n");
-        return ret;
-    }
+    DBG (5, "coarsecal_dark: start\n");
 
     /* dark cal, lamp off */
     ret = lamp(s,0);
     if(ret){
-        DBG (5, "coarsecal: error lamp off\n");
+        DBG (5, "coarsecal_dark: error lamp off\n");
         return ret;
     }
 
@@ -2462,81 +2542,11 @@ coarsecal(struct scanner *s)
             pay[9] = param[0];
         }
 
-        /* send coarse cal (c6) */
-        cmd[0] = 0x1b;
-        cmd[1] = 0xc6;
-        stat[0] = 0;
-        statLen = 1;
-    
-        ret = do_cmd(
-          s, 0,
-          cmd, cmdLen,
-          NULL, 0,
-          stat, &statLen
-        );
-        if(ret){
-            DBG (5, "coarsecal: error sending c6 cmd\n");
-            return ret;
-        }
-        if(stat[0] != 6){
-            DBG (5, "coarsecal: cmd bad c6 status?\n");
-            return SANE_STATUS_IO_ERROR;
-        }
-    
-        /*send coarse cal payload*/
-        stat[0] = 0;
-        statLen = 1;
-    
-        ret = do_cmd(
-          s, 0,
-          pay, payLen,
-          NULL, 0,
-          stat, &statLen
-        );
-        if(ret){
-            DBG (5, "coarsecal: error sending c6 payload\n");
-            return ret;
-        }
-        if(stat[0] != 6){
-            DBG (5, "coarsecal: c6 payload bad status?\n");
-            return SANE_STATUS_IO_ERROR;
-        }
+        ret = coarsecal_send_cal(s, pay);
         
-        DBG(15, "coarsecal offset: parameter front: %i back: %i\n", param[0], param[1]);
+        DBG(15, "coarsecal_dark offset: parameter front: %i back: %i\n", param[0], param[1]);
 
-        /* send scan d2 command */
-        cmd[0] = 0x1b;
-        cmd[1] = 0xd2;
-        stat[0] = 0;
-        statLen = 1;
-    
-        ret = do_cmd(
-          s, 0,
-          cmd, cmdLen,
-          NULL, 0,
-          stat, &statLen
-        );
-        if(ret){
-            DBG (5, "coarsecal: error sending d2 cmd\n");
-            return ret;
-        }
-        if(stat[0] != 6){
-            DBG (5, "coarsecal: cmd bad d2 status?\n");
-            return SANE_STATUS_IO_ERROR;
-        }
-
-        s->cal_image.image = &s->coarsecal;
-        update_transfer_totals(&s->cal_image);
-    
-        while(!s->cal_image.done){
-            ret = read_from_scanner(s,&s->cal_image);
-            if(ret){
-                DBG (5, "coarsecal: cant read from scanner\n");
-                return ret;
-            }
-        }
-        /* convert the raw data into normal packed pixel data */
-        descramble_raw(s, &s->cal_image);
+        ret = coarsecal_get_line(s, &s->coarsecal);
 
         /* gather statistics: count the proportion of 0-valued pixels */
         /* since the lamp is off, there's no point in looking at the green or blue data - they're all from the same sensor anyway */
@@ -2560,9 +2570,9 @@ coarsecal(struct scanner *s)
             avg[j] /= s->coarsecal.width_bytes;
             zcount[j] = zcount[j] * 1000 / s->coarsecal.width_bytes;
         }
-        DBG(15, "coarsecal offset: average pixel values front: %i  back: %i\n", avg[0], avg[1]);
-        DBG(15, "coarsecal offset: maximum pixel values front: %i  back: %i\n", maxval[0], maxval[1]);
-        DBG(15, "coarsecal offset: 0-valued pixel count front: %f%% back: %f%%\n", zcount[0] / 10.0f, zcount[1] / 10.0f);
+        DBG(15, "coarsecal_dark offset: average pixel values front: %i  back: %i\n", avg[0], avg[1]);
+        DBG(15, "coarsecal_dark offset: maximum pixel values front: %i  back: %i\n", maxval[0], maxval[1]);
+        DBG(15, "coarsecal_dark offset: 0-valued pixel count front: %f%% back: %f%%\n", zcount[0] / 10.0f, zcount[1] / 10.0f);
 
         /* check the values, adjust parameters if they are not within the target range */
         for (j = 0; j < s->coarsecal.pages; j++)
@@ -2586,10 +2596,25 @@ coarsecal(struct scanner *s)
 
     } /* continue looping for up to 8 tries */
 
+    DBG (5, "coarsecal_dark: finish\n");
+    return ret;
+}
+
+static SANE_Status
+coarsecal_light(struct scanner *s, unsigned char *pay)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+
+    int try_count, cal_good[2], x, i, j;
+    int param[2], zcount[2], high_param[2], low_param[2], avg[2];
+    int rgb_avg[2][3], rgb_hicount[2][3];
+
+    DBG (5, "coarsecal_light: start\n");
+
     /* light cal, lamp on */
     ret = lamp(s,1);
     if(ret){
-        DBG (5, "coarsecal: error lamp on\n");
+        DBG (5, "coarsecal_light: error lamp on\n");
         return ret;
     }
 
@@ -2603,82 +2628,12 @@ coarsecal(struct scanner *s)
     while (try_count > 0){
         try_count--;
 
-        /* send coarse cal (c6) */
-        cmd[0] = 0x1b;
-        cmd[1] = 0xc6;
-        stat[0] = 0;
-        statLen = 1;
-    
-        ret = do_cmd(
-          s, 0,
-          cmd, cmdLen,
-          NULL, 0,
-          stat, &statLen
-        );
-        if(ret){
-            DBG (5, "coarsecal: error sending c6 cmd\n");
-            return ret;
-        }
-        if(stat[0] != 6){
-            DBG (5, "coarsecal: cmd bad c6 status?\n");
-            return SANE_STATUS_IO_ERROR;
-        }
-    
-        /*send coarse cal payload*/
-        stat[0] = 0;
-        statLen = 1;
-    
-        ret = do_cmd(
-          s, 0,
-          pay, payLen,
-          NULL, 0,
-          stat, &statLen
-        );
-        if(ret){
-            DBG (5, "coarsecal: error sending c6 payload\n");
-            return ret;
-        }
-        if(stat[0] != 6){
-            DBG (5, "coarsecal: c6 payload bad status?\n");
-            return SANE_STATUS_IO_ERROR;
-        }
+        ret = coarsecal_send_cal(s, pay);
 
-        DBG(15, "coarsecal gain: parameter front: %i back: %i\n", param[0], param[1]);
+        DBG(15, "coarsecal_light gain: parameter front: %i back: %i\n", param[0], param[1]);
 
-        /* send scan d2 command */
-        cmd[0] = 0x1b;
-        cmd[1] = 0xd2;
-        stat[0] = 0;
-        statLen = 1;
+        ret = coarsecal_get_line(s, &s->coarsecal);
     
-        ret = do_cmd(
-          s, 0,
-          cmd, cmdLen,
-          NULL, 0,
-          stat, &statLen
-        );
-        if(ret){
-            DBG (5, "coarsecal: error sending d2 cmd\n");
-            return ret;
-        }
-        if(stat[0] != 6){
-            DBG (5, "coarsecal: cmd bad d2 status?\n");
-            return SANE_STATUS_IO_ERROR;
-        }
-
-        s->cal_image.image = &s->coarsecal;
-        update_transfer_totals(&s->cal_image);
-    
-        while(!s->cal_image.done){
-            ret = read_from_scanner(s,&s->cal_image);
-            if(ret){
-                DBG (5, "coarsecal: cant read from scanner\n");
-                return ret;
-            }
-        }
-        /* convert the raw data into normal packed pixel data */
-        descramble_raw(s, &s->cal_image);
-
         /* gather statistics: count the proportion of 255-valued pixels in each color channel */
         /*                    count the average pixel value in each color channel */
         for (i = 0; i < s->coarsecal.pages; i++)
@@ -2718,9 +2673,9 @@ coarsecal(struct scanner *s)
             }
             zcount[i] = MAX3(rgb_hicount[i][0], rgb_hicount[i][1], rgb_hicount[i][2]);
         }
-        DBG(15, "coarsecal gain: average RGB values front: (%i,%i,%i)  back: (%i,%i,%i)\n",
+        DBG(15, "coarsecal_light gain: average RGB values front: (%i,%i,%i)  back: (%i,%i,%i)\n",
             rgb_avg[0][0], rgb_avg[0][1], rgb_avg[0][2], rgb_avg[1][0], rgb_avg[1][1], rgb_avg[1][2]);
-        DBG(15, "coarsecal gain: 255-valued pixel count front: (%g,%g,%g) back: (%g,%g,%g)\n",
+        DBG(15, "coarsecal_light gain: 255-valued pixel count front: (%g,%g,%g) back: (%g,%g,%g)\n",
             rgb_hicount[0][0]/10.0f, rgb_hicount[0][1]/10.0f, rgb_hicount[0][2]/10.0f,
             rgb_hicount[1][0]/10.0f, rgb_hicount[1][1]/10.0f, rgb_hicount[1][2]/10.0f);
 
@@ -2757,6 +2712,38 @@ coarsecal(struct scanner *s)
             pay[15] = param[0];
         }
     }
+
+    DBG (5, "coarsecal_light: finish\n");
+    return ret;
+}
+
+static SANE_Status
+coarsecal(struct scanner *s)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+    unsigned char pay[28];
+    size_t payLen;
+
+    DBG (10, "coarsecal: start\n");
+
+    payLen = sizeof(pay);
+
+    if(s->model == MODEL_S300){
+        memcpy(pay,coarseCalData_S300,payLen);
+    }
+    else{
+        memcpy(pay,coarseCalData_FI60F,payLen);
+    }
+
+    /* ask for 1 line */
+    ret = set_window(s, WINDOW_COARSECAL);
+    if(ret){
+        DBG (5, "coarsecal: error sending setwindow\n");
+        return ret;
+    }
+
+    ret = coarsecal_dark(s, pay);
+    ret = coarsecal_light(s, pay);
 
     DBG (10, "coarsecal: finish\n");
     return ret;

@@ -96,6 +96,7 @@ struct scanner
 
   int has_fb;
   int has_adf;
+  int has_adf_duplex;
   int x_res_150;
   int x_res_225;
   int x_res_300;
@@ -259,6 +260,7 @@ struct scanner
 #define MODEL_NONE 0
 #define MODEL_S300 1
 #define MODEL_FI60F 2
+#define MODEL_S1100 3
 
 #define USB_COMMAND_TIME   10000
 #define USB_DATA_TIME      10000
@@ -363,6 +365,7 @@ static SANE_Status teardown_buffers(struct scanner *s);
 static SANE_Status setup_buffers(struct scanner *s);
 
 static SANE_Status object_position(struct scanner *s, int ingest);
+static SANE_Status six5 (struct scanner *s);
 static SANE_Status coarsecal(struct scanner *s);
 static SANE_Status finecal(struct scanner *s);
 static SANE_Status send_lut(struct scanner *s);

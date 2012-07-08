@@ -474,6 +474,7 @@ attach_one (const char *name)
         s->model = MODEL_S300;
 
         s->has_adf = 1;
+        s->has_adf_duplex = 1;
         s->x_res_150 = 1;
         s->x_res_225 = 1;
         s->x_res_300 = 1;
@@ -484,14 +485,37 @@ attach_one (const char *name)
         s->y_res_600 = 1;
 
         s->source = SOURCE_ADF_FRONT;
-	s->mode = MODE_LINEART;
+        s->mode = MODE_LINEART;
         s->resolution_x = 300;
         s->page_height = 11.5 * 1200;
 
         s->threshold = 120;
         s->threshold_curve = 55;
     }
+    else if (strstr (s->sane.model, "S1100")){
+        DBG (15, "attach_one: Found S1100\n");
+        s->model = MODEL_S1100;
 
+        s->usb_power = 1;
+        s->has_adf = 1;
+        s->has_adf_duplex = 0;
+        s->x_res_150 = 0;
+        s->x_res_225 = 0;
+        s->x_res_300 = 1;
+        s->x_res_600 = 1;
+        s->y_res_150 = 0;
+        s->y_res_225 = 0;
+        s->y_res_300 = 1;
+        s->y_res_600 = 1;
+
+        s->source = SOURCE_ADF_FRONT;
+        s->mode = MODE_LINEART;
+        s->resolution_x = 300;
+        s->page_height = 11.5 * 1200;
+
+        s->threshold = 120;
+        s->threshold_curve = 55;
+    }
     else if (strstr (s->sane.model, "fi-60F")){
         DBG (15, "attach_one: Found fi-60F\n");
 
@@ -506,7 +530,7 @@ attach_one (const char *name)
         s->y_res_600 = 1;
 
         s->source = SOURCE_FLATBED;
-	s->mode = MODE_COLOR;
+        s->mode = MODE_COLOR;
         s->resolution_x = 300;
         s->page_height = 5.83 * 1200;
 
@@ -948,8 +972,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     }
     if(s->has_adf){
       s->source_list[i++]=STRING_ADFFRONT;
-      s->source_list[i++]=STRING_ADFBACK;
-      s->source_list[i++]=STRING_ADFDUPLEX;
+      if(s->has_adf_duplex){
+        s->source_list[i++]=STRING_ADFBACK;
+        s->source_list[i++]=STRING_ADFDUPLEX;
+      }
     }
     s->source_list[i]=NULL;
 
@@ -1769,6 +1795,18 @@ static struct model_res settings[] = {
    setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
    sendCal2Header_FI60F_600, setWindowScan_FI60F_600 },
 
+ /*S1100 USB*/
+/* model        xres yres  u   mxx mnx   mxy mny   actw  reqw  hedw  padw  bh   calw  cal_hedw  cal_reqw */
+ { MODEL_S1100,  300, 300, 1, 2592, 32, 5324, 32, 8912/3, 3160/3, 8912/3-3160/3, 2592, 58, 8912/3, 3160/3, 2592,
+   setWindowCoarseCal_S1100_300_U, setWindowFineCal_S1100_300_U,
+   setWindowSendCal_S1100_300_U, sendCal1Header_S1100_300_U,
+   sendCal2Header_S1100_300_U, setWindowScan_S1100_300_U },
+
+ { MODEL_S1100,  600, 600, 1, 5184, 32, 10648, 32, 15904/3, 5360/3, 15904/3-5360/3, 5184, 32, 15904/3, 5360/3, 5184,
+   setWindowCoarseCal_S1100_600_U, setWindowFineCal_S1100_600_U,
+   setWindowSendCal_S1100_600_U, sendCal1Header_S1100_600_U,
+   sendCal2Header_S1100_600_U, setWindowScan_S1100_600_U },
+
  { MODEL_NONE,    0, 0, 0, 0,  0,    0,  0,    0,    0,    0,    0,  0,    0, 0, 0,
    NULL, NULL, NULL, NULL, NULL, NULL },
 
@@ -1834,6 +1872,11 @@ change_params(struct scanner *s)
     {
         img_heads = 1; /* image width is the same as the plane width on the S300 */
         img_pages = 2;
+    }
+    else if (s->model == MODEL_S1100)
+    {
+        img_heads = 1; /* image width is the same as the plane width on the S1000 */
+        img_pages = 1;
     }
     else /* (s->model == MODEL_FI60F) */
     {
@@ -2731,6 +2774,9 @@ coarsecal(struct scanner *s)
     if(s->model == MODEL_S300){
         memcpy(pay,coarseCalData_S300,payLen);
     }
+    else if(s->model == MODEL_S1100){
+        memcpy(pay,coarseCalData_S1100,payLen);
+    }
     else{
         memcpy(pay,coarseCalData_FI60F,payLen);
     }
@@ -2742,8 +2788,13 @@ coarsecal(struct scanner *s)
         return ret;
     }
 
-    ret = coarsecal_dark(s, pay);
-    ret = coarsecal_light(s, pay);
+    if(s->model == MODEL_S1100){
+        ret = coarsecal_send_cal(s, pay);
+    }
+    else{
+        ret = coarsecal_dark(s, pay);
+        ret = coarsecal_light(s, pay);
+    }
 
     DBG (10, "coarsecal: finish\n");
     return ret;
@@ -2762,7 +2813,14 @@ finecal_send_cal(struct scanner *s)
 
     int i, j, k;
     unsigned short *p_out, *p_in = (unsigned short *) s->sendcal.buffer;
-    int planes = (s->model == MODEL_S300) ? 2 : 3;
+    int planes;
+
+    if(s->model == MODEL_FI60F)
+      planes = 3;
+    if(s->model == MODEL_S300)
+      planes = 2;
+    if(s->model == MODEL_S1100)
+      planes = 1;
 
     /* scramble the raster buffer data into scanner raw format */
     memset(s->cal_data.raw_data, 0, s->cal_data.line_stride);
@@ -2949,12 +3007,20 @@ finecal(struct scanner *s)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
 
-    const int max_pages = (s->model == MODEL_S300 ? 2 : 1);
+    int max_pages;
     int gain_delta = 0xff - 0xbf;
     float *gain_slope, *last_error;
     int i, j, k, idx, try_count, cal_good;
 
     DBG (10, "finecal: start\n");
+
+    if (s->model == MODEL_S300) { /* S300, S1300 */
+        max_pages = 2;
+    }
+    else /* fi-60f, S1100 */
+    {
+        max_pages = 1;
+    }
 
     /* set fine dark offset to 0 and fix all fine gains to lowest parameter (0xFF) */
     for (i = 0; i < s->sendcal.width_bytes * s->sendcal.pages / 2; i++)
@@ -3290,15 +3356,30 @@ send_lut (struct scanner *s)
     size_t cmdLen = 2;
     unsigned char stat[1];
     size_t statLen = 1;
-    unsigned char out[0x6000];
-    size_t outLen = 0x6000;
+    unsigned char *out;
+    size_t outLen;
     
     int i, j;
     double b, slope, offset;
-    int width = outLen / 6; /* 3 colors, 2 bytes */
-    int height = width; /* square table */
+    int width;
+    int height;
   
     DBG (10, "send_lut: start\n");
+
+    if (s->model == MODEL_S1100){
+        outLen = 0x200;
+        width = outLen / 2; /* 1 color, 2 bytes */
+        height = width; /* square table */
+    }
+    else {
+        outLen = 0x6000;
+        width = outLen / 6; /* 3 colors, 2 bytes */
+        height = width; /* square table */
+    }
+    out = ( unsigned char *)malloc(outLen*sizeof(unsigned char));
+    if (out == NULL){
+        return SANE_STATUS_NO_MEM;
+    }
 
     /* contrast is converted to a slope [0,90] degrees:
      * first [-127,127] to [0,254] then to [0,1]
@@ -3330,18 +3411,25 @@ send_lut (struct scanner *s)
       if(j>(height-1)){
         j=height-1;
       }
-  
-      /*first table, le order*/
-      out[i*2] = j & 0xff;
-      out[i*2+1] = (j >> 8) & 0x0f;
 
-      /*second table, le order*/
-      out[width*2 + i*2] = j & 0xff;
-      out[width*2 + i*2+1] = (j >> 8) & 0x0f;
+        if (s->model == MODEL_S1100){
+            /*only one table, be order*/
+            out[i*2] = (j >> 8) & 0xff;
+            out[i*2+1] = j & 0xff;
+        }
+        else {  
+            /*first table, le order*/
+            out[i*2] = j & 0xff;
+            out[i*2+1] = (j >> 8) & 0x0f;
 
-      /*third table, le order*/
-      out[width*4 + i*2] = j & 0xff;
-      out[width*4 + i*2+1] = (j >> 8) & 0x0f;
+            /*second table, le order*/
+            out[width*2 + i*2] = j & 0xff;
+            out[width*2 + i*2+1] = (j >> 8) & 0x0f;
+
+            /*third table, le order*/
+            out[width*4 + i*2] = j & 0xff;
+            out[width*4 + i*2+1] = (j >> 8) & 0x0f;
+        }
     }
 
     ret = do_cmd(
@@ -3510,7 +3598,7 @@ scan(struct scanner *s)
     
     DBG (10, "scan: start\n");
 
-    if(s->model == MODEL_S300){
+    if(s->model == MODEL_S300 || s->model == MODEL_S1100){
         cmd[1] = 0xd6;
     }
 
@@ -3570,7 +3658,27 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     /* have sent all of current buffer */
     if(s->fullscan.done && page->done){
         DBG (10, "sane_read: returning eof\n");
-        return SANE_STATUS_EOF;
+
+      /*S1100 needs help to turn off button*/
+      if(s->model == MODEL_S1100){
+        usleep(15000);
+  
+        /* eject paper */
+        ret = object_position(s,EPJITSU_PAPER_EJECT);
+        if (ret != SANE_STATUS_GOOD && ret != SANE_STATUS_NO_DOCS) {
+          DBG (5, "sane_read: ERROR: failed to eject\n");
+          return ret;
+        }
+  
+        /* reset flashing button? */
+        ret = six5(s);
+        if (ret != SANE_STATUS_GOOD) {
+          DBG (5, "sane_read: ERROR: failed to six6\n");
+          return ret;
+        }
+      }
+
+      return SANE_STATUS_EOF;
     } 
 
     /* scan not finished, get more into block buffer */
@@ -3586,8 +3694,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                 DBG (15, "sane_read: shrinking block to %lu\n", (unsigned long)remainTotal);
                 s->block_xfr.total_bytes = remainTotal;
             }
-            /* send d3 cmd for S300 */
-            if(s->model == MODEL_S300)
+            /* send d3 cmd for S300, S1100, S1300 */
+            if(s->model == MODEL_S300 || s->model == MODEL_S1100)
             {
                 unsigned char cmd[] = {0x1b, 0xd3};
                 size_t cmdLen = 2;
@@ -3629,8 +3737,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
             s->block_xfr.done = 0;
 
-            /* get the 0x43 cmd for the S300 */
-            if(s->model == MODEL_S300){
+            /* get the 0x43 cmd for the S300, S1100, S1300  */
+            if(s->model == MODEL_S300 || s->model == MODEL_S1100){
 
                 unsigned char cmd[] = {0x1b, 0x43};
                 size_t cmdLen = 2;
@@ -3726,6 +3834,42 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     return ret;
 }
 
+static SANE_Status
+six5 (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[2];
+  size_t cmdLen = sizeof(cmd);
+  unsigned char stat[1];
+  size_t statLen = sizeof(stat);
+
+  DBG (10, "six5: start\n");
+
+  cmd[0] = 0x1b;
+  cmd[1] = 0x65;
+  statLen = 1;
+
+  ret = do_cmd(
+    s, 0,
+    cmd, cmdLen,
+    NULL, 0,
+    stat, &statLen
+  );
+  if(ret){
+      DBG (5, "six5: error sending cmd\n");
+      return ret;
+  }
+  if(stat[0] != 6){
+      DBG (5, "six5: cmd bad status? %d\n",stat[0]);
+      return SANE_STATUS_IO_ERROR;
+  }
+
+  DBG (10, "six5: finish\n");
+
+  return ret;
+}
+
 /* de-scrambles the raw data from the scanner into the image buffer */
 static SANE_Status
 descramble_raw(struct scanner *s, struct transfer * tp)
@@ -3745,6 +3889,21 @@ descramble_raw(struct scanner *s, struct transfer * tp)
                         p_in = (unsigned char *) tp->raw_data + (j * tp->line_stride) + (l * tp->plane_stride) + k * 3 + i;
                         *p_out++ = *p_in;
                     }
+    }
+    else if (s->model == MODEL_S1100){
+        for (j = 0; j < height; j++){                   /* row (y)*/
+           for (k = 0; k <= tp->plane_width; k++){ /* column (x) */
+               /*red is second*/
+                p_in = (unsigned char *) tp->raw_data + (j*tp->line_stride) + (tp->plane_stride) + k;
+                *p_out++ = *p_in;
+                /*green is third*/
+                p_in = (unsigned char *) tp->raw_data + (j*tp->line_stride) + (2*tp->plane_stride) + k;
+                *p_out++ = *p_in;
+                /*blue is first*/
+                p_in = (unsigned char *) tp->raw_data + (j*tp->line_stride) + k;
+                *p_out++ = *p_in;
+            }
+        }
     }
     else /* MODEL_FI60F */
     {

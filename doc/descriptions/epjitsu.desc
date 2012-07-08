@@ -42,9 +42,9 @@
 
 :model "ScanSnap S1100"
 :interface "USB"
-:status :unsupported
+:status :untested
 :usbid "0x04c5" "0x1200"
-:comment "Beta version of backend source available, which works well, but breaks support for other epjitsu scanners. See http://ubuntuforums.org/showthread.php?t=1678335"
+:comment "Test needed."
 
 :model "ScanSnap S1300"
 :interface "USB"

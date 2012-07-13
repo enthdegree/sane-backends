@@ -1,3 +1,13 @@
+2012-07-13 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl124.c
+	backend/genesys_gl646.c backend/p5.c backend/p5.h backend/p5_device.h
+	backend/rts8891.c backend/rts8891.h backend/rts8891_devices.c backend/rts8891_low.c
+	backend/rts8891_low.h backend/rts88xx_lib.c backend/rts88xx_lib.h
+	backend/umax_pp.c backend/umax_pp.h backend/umax_pp_low.c
+	backend/umax_pp_low.h backend/umax_pp_mid.c backend/umax_pp_mid.h
+	doc/sane-genesys.man sanei/sanei_magic.c :
+	misc cleanups and doc updates to prepare release
+
 2012-06-28 Paul Newall <quandry@ntlworld.com>
 	* backend/kodakaio.c backend/kodakaio.conf.in backend/kodakaio.h
 	doc/sane-kodakaio.man doc/descriptions/kodakaio.desc

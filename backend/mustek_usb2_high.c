@@ -1341,7 +1341,7 @@ AdjustAD (Scanner_State * st)
       range = 1.0 - (double) (wMaxValue[i] - wMinValue[i]) / MAX_LEVEL_RANGE;
       if (range > 0)
 	{
-	  st->chip.AD.Gain[i] = (SANE_Byte) range * 63 * 6 / 5;
+	  st->chip.AD.Gain[i] = (SANE_Byte) (range * 63 * 6 / 5);
 	  st->chip.AD.Gain[i] = _MIN (st->chip.AD.Gain[i], 63);
 	}
       else

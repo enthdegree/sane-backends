@@ -2010,7 +2010,6 @@ SANE_Status
 Asic_Open (ASIC * chip)
 {
   SANE_Status status;
-  struct sanei_usb_dev_descriptor desc;
   DBG_ASIC_ENTER ();
 
   if (chip->firmwarestate > FS_OPENED)
@@ -2028,15 +2027,6 @@ Asic_Open (ASIC * chip)
 	   chip->device_name, sane_strstatus (status));
       return status;
     }
-
-  status = sanei_usb_get_descriptor (chip->fd, &desc);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_ERR, "sanei_usb_get_descriptor failed: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-  chip->isUsb20 = (desc.bcd_usb >= 0x0200) ? SANE_TRUE : SANE_FALSE;
 
   status = OpenScanChip (chip);
   if (status != SANE_STATUS_GOOD)
@@ -2189,57 +2179,42 @@ GetDummyCycleNumber (ASIC * chip, unsigned short wYResolution,
   SANE_Byte bDummyCycleNum = 0;
   if (lsLightSource == SS_REFLECTIVE)
     {
-      if (!chip->isUsb20)
+      switch (wYResolution)
 	{
-	  switch (wYResolution)
-	    {
-	    case 2400:
-	    case 1200:
-	      if (chip->dwBytesCountPerRow > 22000)
-		bDummyCycleNum = 4;
-	      else if (chip->dwBytesCountPerRow > 15000)
-		bDummyCycleNum = 3;
-	      else if (chip->dwBytesCountPerRow > 10000)
-		bDummyCycleNum = 2;
-	      else if (chip->dwBytesCountPerRow > 5000)
-		bDummyCycleNum = 1;
-	      break;
-	    case 600:
-	    case 300:
-	    case 150:
-	    case 100:
-	      if (chip->dwBytesCountPerRow > 21000)
-		bDummyCycleNum = 7;
-	      else if (chip->dwBytesCountPerRow > 18000)
-		bDummyCycleNum = 6;
-	      else if (chip->dwBytesCountPerRow > 15000)
-		bDummyCycleNum = 5;
-	      else if (chip->dwBytesCountPerRow > 12000)
-		bDummyCycleNum = 4;
-	      else if (chip->dwBytesCountPerRow > 9000)
-		bDummyCycleNum = 3;
-	      else if (chip->dwBytesCountPerRow > 6000)
-		bDummyCycleNum = 2;
-	      else if (chip->dwBytesCountPerRow > 3000)
-		bDummyCycleNum = 1;
-	      break;
-	    case 75:
-	    case 50:
-	      bDummyCycleNum = 1;
-	      break;
-	    }
-	}
-      else
-	{
-	  switch (wYResolution)
-	    {
-	    case 2400:
-	    case 1200:
-	    case 75:
-	    case 50:
-	      bDummyCycleNum = 1;
-	      break;
-	    }
+	case 2400:
+	case 1200:
+	  if (chip->dwBytesCountPerRow > 22000)
+	    bDummyCycleNum = 4;
+	  else if (chip->dwBytesCountPerRow > 15000)
+	    bDummyCycleNum = 3;
+	  else if (chip->dwBytesCountPerRow > 10000)
+	    bDummyCycleNum = 2;
+	  else if (chip->dwBytesCountPerRow > 5000)
+	    bDummyCycleNum = 1;
+	  break;
+	case 600:
+	case 300:
+	case 150:
+	case 100:
+	  if (chip->dwBytesCountPerRow > 21000)
+	    bDummyCycleNum = 7;
+	  else if (chip->dwBytesCountPerRow > 18000)
+	    bDummyCycleNum = 6;
+	  else if (chip->dwBytesCountPerRow > 15000)
+	    bDummyCycleNum = 5;
+	  else if (chip->dwBytesCountPerRow > 12000)
+	    bDummyCycleNum = 4;
+	  else if (chip->dwBytesCountPerRow > 9000)
+	    bDummyCycleNum = 3;
+	  else if (chip->dwBytesCountPerRow > 6000)
+	    bDummyCycleNum = 2;
+	  else if (chip->dwBytesCountPerRow > 3000)
+	    bDummyCycleNum = 1;
+	  break;
+	case 75:
+	case 50:
+	  bDummyCycleNum = 1;
+	  break;
 	}
     }
   return bDummyCycleNum;

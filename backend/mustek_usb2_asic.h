@@ -230,7 +230,6 @@ typedef struct ASIC
 
   FIRMWARESTATE firmwarestate;
   SANE_Bool isFirstOpenChip;	/* == SANE_FALSE after first Asic_Open */
-  SANE_Bool isUsb20;
 
   unsigned int dwBytesCountPerRow;
 

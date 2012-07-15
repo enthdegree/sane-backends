@@ -73,7 +73,7 @@
 }
 
 /* #define HAS_WORKING_COLOR_48 */
-#define BUILD 		6
+#define BUILD 		7
 #define USB_TIMEOUT	30 * 1000
 
 static SANE_Word

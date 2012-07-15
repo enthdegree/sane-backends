@@ -82,7 +82,7 @@ struct usb_in_usb_bulk_setup
   uint8_t	bRequest;
   uint8_t	bEndpoint;
   uint16_t	unknown;
-  uint16_t	wLength;
+  uint16_t	wLength;	/* MSB first */
   uint8_t 	pad;
 } __attribute__ ((packed));
 
@@ -90,9 +90,9 @@ struct usb_in_usb_bulk_setup
 struct usb_in_usb_ctrl_setup {
   uint8_t  bRequestType;
   uint8_t  bRequest;
-  uint16_t wValue;
-  uint16_t wIndex;
-  uint16_t wLength;
+  uint16_t wValue;		/* MSB first */
+  uint16_t wIndex;		/* MSB first */
+  uint16_t wLength;		/* LSB first */
 } __attribute__ ((packed));
 
 /* CORE status flag - ready or not */
@@ -255,7 +255,7 @@ hp5590_control_msg (SANE_Int dn,
       ctrl.bRequest = request;
       ctrl.wValue = htons (value);
       ctrl.wIndex = htons (index);
-      ctrl.wLength = size;
+      ctrl.wLength = htole16 (size);
 
       DBG (DBG_usb, "%s: USB-in-USB: sending control msg\n", __FUNCTION__);
       /* Send USB-in-USB control message */
@@ -325,7 +325,7 @@ hp5590_control_msg (SANE_Int dn,
       ctrl.bRequest = request;
       ctrl.wValue = htons (value);
       ctrl.wIndex = htons (index);
-      ctrl.wLength = size;
+      ctrl.wLength = htole16 (size);
 
       DBG (DBG_usb, "%s: USB-in-USB: sending control msg\n", __FUNCTION__);
       /* Send USB-in-USB control message */
@@ -476,6 +476,8 @@ hp5590_verify_last_cmd (SANE_Int dn,
 			    sizeof (verify_cmd), CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
+
+  verify_cmd = le16toh (verify_cmd); /* Response is LSB first */
 
   /* Last command - minor byte */
   last_cmd = verify_cmd & 0xff;

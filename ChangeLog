@@ -1,3 +1,8 @@
+2012-07-15 Ilia Sotnikov <hostcc@gmail.com>
+	* backend/hp5590.c, backend/hp5590_low.c:
+	Fix hp5590 backend on big-endian platforms provided by Nhan Ngo Dinh
+	<nngodinh@tiscali.it>
+
 2012-07-13 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl124.c
 	backend/genesys_gl646.c backend/p5.c backend/p5.h backend/p5_device.h

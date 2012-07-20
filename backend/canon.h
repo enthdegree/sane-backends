@@ -245,6 +245,7 @@ typedef struct CANON_Info
   SANE_Bool can_focus;			/* has got focus control */
   SANE_Bool can_autoexpose;		/* can do autoexposure by hardware */
   SANE_Bool can_calibrate;		/* has got calibration control */
+  SANE_Bool can_diagnose;		/* has diagnostic command */
   SANE_Bool can_eject;			/* can eject medium */
   SANE_Bool can_mirror;			/* can mirror image by hardware */
   SANE_Bool is_filmscanner;

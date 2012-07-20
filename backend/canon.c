@@ -840,6 +840,7 @@ attach (const char *devnam, CANON_Device ** devp)
      - whether it has got focus control
      - whether it can optimize image parameters (autoexposure)
      - whether it can calibrate itself
+     - whether it can diagnose itself
      - whether it can eject the media
      - whether it can mirror the scanned data
      - whether it is a film scanner (or can be used as one)
@@ -854,6 +855,7 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.can_focus = SANE_TRUE;
       dev->info.can_autoexpose = SANE_TRUE;
       dev->info.can_calibrate = SANE_FALSE;
+      dev->info.can_diagnose = SANE_FALSE;
       dev->info.can_eject = SANE_TRUE;
       dev->info.can_mirror = SANE_TRUE;
       dev->info.is_filmscanner = SANE_TRUE;
@@ -868,6 +870,7 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.can_focus = SANE_TRUE;
       dev->info.can_autoexpose = SANE_TRUE;
       dev->info.can_calibrate = SANE_FALSE;
+      dev->info.can_diagnose = SANE_FALSE;
       dev->info.can_eject = SANE_TRUE;
       dev->info.can_mirror = SANE_TRUE;
       dev->info.is_filmscanner = SANE_TRUE;
@@ -882,6 +885,7 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.can_focus = SANE_FALSE;
       dev->info.can_autoexpose = SANE_FALSE;
       dev->info.can_calibrate = SANE_TRUE;
+      dev->info.can_diagnose = SANE_TRUE;
       dev->info.can_eject = SANE_FALSE;
       dev->info.can_mirror = SANE_FALSE;
       dev->info.is_filmscanner = SANE_FALSE;
@@ -896,6 +900,7 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.can_focus = SANE_FALSE;
       dev->info.can_autoexpose = SANE_FALSE;
       dev->info.can_calibrate = SANE_FALSE;
+      dev->info.can_diagnose = SANE_FALSE;
       dev->info.can_eject = SANE_FALSE;
       dev->info.can_mirror = SANE_FALSE;
       dev->info.is_filmscanner = SANE_FALSE;
@@ -910,6 +915,7 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.can_focus = SANE_FALSE;
       dev->info.can_autoexpose = SANE_FALSE;
       dev->info.can_calibrate = SANE_FALSE;
+      dev->info.can_diagnose = SANE_FALSE;
       dev->info.can_eject = SANE_FALSE;
       dev->info.can_mirror = SANE_TRUE;
       dev->info.is_filmscanner = SANE_FALSE;
@@ -1591,8 +1597,8 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_CALIBRATION_GROUP].title = SANE_I18N("Calibration");
   s->opt[OPT_CALIBRATION_GROUP].desc = "";
   s->opt[OPT_CALIBRATION_GROUP].type = SANE_TYPE_GROUP;
-  s->opt[OPT_CALIBRATION_GROUP].cap |=
-    (s->hw->info.can_calibrate) ? 0 : SANE_CAP_INACTIVE;
+  s->opt[OPT_CALIBRATION_GROUP].cap |= (s->hw->info.can_calibrate ||
+    s->hw->info.can_diagnose) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_CALIBRATION_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* calibration now */
@@ -1614,7 +1620,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].type = SANE_TYPE_BUTTON;
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].unit = SANE_UNIT_NONE;
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].cap |=
-    (s->hw->info.can_calibrate) ? 0 : SANE_CAP_INACTIVE;
+    (s->hw->info.can_diagnose) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].constraint_type = SANE_CONSTRAINT_NONE;
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].constraint.range = NULL;
 

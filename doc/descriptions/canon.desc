@@ -50,6 +50,11 @@
 :comment "1 pass; 36bit film scanner"
 :status :good
 
+:model "IX-4015"		; name models for above-specified mfg.
+:interface "SCSI"
+:comment "1 pass; flatbed scanner"
+:status :good
+
 :mfg "Apple"			; name a manufacturer
 :url "http://www.apple.com/"
 

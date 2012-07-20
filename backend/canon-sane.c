@@ -1404,6 +1404,20 @@ sane_start (SANE_Handle handle)
       wbuf[57] = 1;
       wbuf[58] = 1;
     }
+  else if (s->hw->info.model == IX4015) /* modification for IX-4015 */
+    {
+      wbuf[36] = 0;
+      wbuf[37] = (s->RIF << 7);
+      wbuf[57] = 0;
+      wbuf[58] = 0;
+      /* no highlight and shadow control */
+      wbuf[59] = 0;
+      wbuf[60] = 0;
+      wbuf[62] = 0;
+      wbuf[64] = 0;
+      wbuf[70] = 0;
+      wbuf[71] = 0;
+    }
 
   buf_size = sizeof (wbuf);
   status = set_window (s->fd, wbuf);

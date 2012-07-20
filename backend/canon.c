@@ -906,6 +906,21 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.is_filmscanner = SANE_FALSE;
       dev->info.has_fixed_resolutions = SANE_TRUE;
     }
+  else if (!strncmp (str, "IX-4015", 7))	/* IX-4015 */
+    {
+      dev->info.model = IX4015;
+      dev->sane.type = SANE_I18N("flatbed scanner");
+      dev->adf.Status = ADF_STAT_INACTIVE;
+      dev->tpu.Status = TPU_STAT_INACTIVE;
+      dev->info.can_focus = SANE_FALSE;
+      dev->info.can_autoexpose = SANE_TRUE;
+      dev->info.can_calibrate = SANE_FALSE;
+      dev->info.can_diagnose = SANE_TRUE;
+      dev->info.can_eject = SANE_FALSE;
+      dev->info.can_mirror = SANE_TRUE;
+      dev->info.is_filmscanner = SANE_FALSE;
+      dev->info.has_fixed_resolutions = SANE_FALSE;
+    }
   else						/* CS300, CS600 */
     {
       dev->info.model = CS3_600;
@@ -1406,8 +1421,8 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_BIND_HILO].title = SANE_TITLE_RGB_BIND;
   s->opt[OPT_BIND_HILO].desc = SANE_DESC_RGB_BIND;
   s->opt[OPT_BIND_HILO].type = SANE_TYPE_BOOL;
-  s->opt[OPT_BIND_HILO].cap |=
-    (s->hw->info.model == FB620) ? SANE_CAP_INACTIVE : 0;
+  s->opt[OPT_BIND_HILO].cap |= (s->hw->info.model == FB620 ||
+    s->hw->info.model == IX4015) ? SANE_CAP_INACTIVE : 0;
   s->val[OPT_BIND_HILO].w = SANE_TRUE;
 
   /* highlight point for red   */
@@ -1440,6 +1455,8 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_HILITE_G].unit = SANE_UNIT_NONE;
   s->opt[OPT_HILITE_G].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_HILITE_G].constraint.range = &s->hw->info.HiliteG_range;
+  s->opt[OPT_HILITE_G].cap |=
+    (s->hw->info.model == IX4015) ? SANE_CAP_INACTIVE : 0;
   s->val[OPT_HILITE_G].w = 255;
 
   /* shadow point for green */
@@ -1450,6 +1467,8 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_SHADOW_G].unit = SANE_UNIT_NONE;
   s->opt[OPT_SHADOW_G].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_SHADOW_G].constraint.range = &s->hw->info.ShadowG_range;
+  s->opt[OPT_SHADOW_G].cap |=
+    (s->hw->info.model == IX4015) ? SANE_CAP_INACTIVE : 0;
   s->val[OPT_SHADOW_G].w = 0;
 
   /* highlight point for blue  */

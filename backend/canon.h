@@ -97,6 +97,7 @@
 #define FB620    2		/* CanoScan FB620S */
 #define FS2710   3		/* CanoScan FS2710S */
 #define FB1200   4		/* CanoScan FB1200S */
+#define IX4015   5		/* IX-4015 */
 
 #ifndef MAX
 #define MAX(A,B)	(((A) > (B))? (A) : (B))

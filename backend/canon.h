@@ -247,7 +247,6 @@ typedef struct CANON_Info
   SANE_Bool can_calibrate;		/* has got calibration control */
   SANE_Bool can_eject;			/* can eject medium */
   SANE_Bool can_mirror;			/* can mirror image by hardware */
-  SANE_Bool is_scsi2;			/* is an SCSI-2 device */
   SANE_Bool is_filmscanner;
   SANE_Bool has_fixed_resolutions;	/* only a finite number possible */
 }

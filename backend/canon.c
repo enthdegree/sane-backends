@@ -325,7 +325,6 @@ static SANE_Status
 sense_handler (int scsi_fd, u_char * result, void *arg)
 {
   static char me[] = "canon_sense_handler";
-  CANON_Device *dev = (CANON_Device *) arg;
   u_char sense;
   int asc;
   char *sense_str = NULL;
@@ -342,210 +341,198 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
 
   status = SANE_STATUS_GOOD;
 
-  /* If the sense handler is invoked before the scanner has been
-     identified, pretend that nothing has happened. */
-  if (strncmp(dev->sane.vendor, "CANON", 5) != 0) return (status);
-
-  if (dev && dev->info.is_scsi2)
+  DBG(11, "sense data interpretation for SCSI-2 devices\n");
+  sense = result[2] & 0x0f;		/* extract the sense key */
+  if (result[7] > 3)		/* additional sense code available? */
     {
-      DBG(11, "sense data interpretation for SCSI-2 devices\n");
-      sense = result[2] & 0x0f;		/* extract the sense key */
-      if (result[7] > 3)		/* additional sense code available? */
-	{
-	  asc = (result[12] << 8) + result[13];	/* 12: additional sense code */
-	}					/* 13: a.s.c. qualifier */
-      else
-	asc = 0xffff;
-
-      switch (sense)
-	{
-	case 0x00:
-	  DBG(11, "sense category: no error\n");
-	  status = SANE_STATUS_GOOD;
-	  break;
-
-	case 0x01:
-	  DBG(11, "sense category: recovered error\n");
-	  switch (asc)
-	    {
-	    case 0x3700:
-	      sense_str = SANE_I18N("rounded parameter");
-	      break;
-	    default:
-	      sense_str = SANE_I18N("unknown");
-	    }
-	  status = SANE_STATUS_GOOD;
-	  break;
-
-	case 0x03:
-	  DBG(11, "sense category: medium error\n");
-	  switch (asc)
-	    {
-	    case 0x8000:
-	      sense_str = SANE_I18N("ADF jam");
-	      break;
-	    case 0x8001:
-	      sense_str = SANE_I18N("ADF cover open");
-	      break;
-	    default:
-	      sense_str = SANE_I18N("unknown");
-	    }
-	  status = SANE_STATUS_IO_ERROR;
-	  break;
-
-	case 0x04:
-	  DBG(11, "sense category: hardware error\n");
-	  switch (asc)
-	    {
-	    case 0x6000:
-	      sense_str = SANE_I18N("lamp failure");
-	      break;
-	    case 0x6200:
-	      sense_str = SANE_I18N("scan head positioning error");
-	      break;
-	    case 0x8001:
-	      sense_str = SANE_I18N("CPU check error");
-	      break;
-	    case 0x8002:
-	      sense_str = SANE_I18N("RAM check error");
-	      break;
-	    case 0x8003:
-	      sense_str = SANE_I18N("ROM check error");
-	      break;
-	    case 0x8004:
-	      sense_str = SANE_I18N("hardware check error");
-	      break;
-	    case 0x8005:
-	      sense_str = SANE_I18N("transparency unit lamp failure");
-	      break;
-	    case 0x8006:
-	      sense_str = SANE_I18N("transparency unit scan head "
-	      "positioning failure");
-	      break;
-	    default:
-	      sense_str = SANE_I18N("unknown");
-	    }
-	  status = SANE_STATUS_IO_ERROR;
-	  break;
-
-	case 0x05:
-	  DBG(11, "sense category: illegal request\n");
-	  switch (asc)
-	    {
-	    case 0x1a00:
-	      sense_str = SANE_I18N("parameter list length error");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    case 0x2000:
-	      sense_str = SANE_I18N("invalid command operation code");
-	      status = SANE_STATUS_UNSUPPORTED;
-	      break;
-	    case 0x2400:
-	      sense_str = SANE_I18N("invalid field in CDB");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    case 0x2500:
-	      sense_str = SANE_I18N("unsupported LUN");
-	      status = SANE_STATUS_UNSUPPORTED;
-	      break;
-	    case 0x2600:
-	      sense_str = SANE_I18N("invalid field in parameter list");
-	      status = SANE_STATUS_UNSUPPORTED;
-	      break;
-	    case 0x2c00:
-	      sense_str = SANE_I18N("command sequence error");
-	      status = SANE_STATUS_UNSUPPORTED;
-	      break;
-	    case 0x2c01:
-	      sense_str = SANE_I18N("too many windows specified");
-	      status = SANE_STATUS_UNSUPPORTED;
-	      break;
-	    case 0x3a00:
-	      sense_str = SANE_I18N("medium not present");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    case 0x3d00:
-	      sense_str = SANE_I18N("invalid bit IDENTIFY message");
-	      status = SANE_STATUS_UNSUPPORTED;
-	      break;
-	    case 0x8002:
-	      sense_str = SANE_I18N("option not connect");
-	      status = SANE_STATUS_UNSUPPORTED;
-	      break;
-	    default:
-	      sense_str = SANE_I18N("unknown");
-	      status = SANE_STATUS_UNSUPPORTED;
-	    }
-	  break;
-
-	case 0x06:
-	  DBG(11, "sense category: unit attention\n");
-	  switch (asc)
-	    {
-	    case 0x2900:
-	      sense_str = SANE_I18N("power on reset / bus device reset");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    case 0x2a00:
-	      sense_str = SANE_I18N("parameter changed by another initiator");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    default:
-	      sense_str = SANE_I18N("unknown");
-	      status = SANE_STATUS_IO_ERROR;
-	    }
-	  break;
-
-	case 0x0b:
-	  DBG(11, "sense category: non-standard\n");
-	  switch (asc)
-	    {
-	    case 0x0000:
-	      sense_str = SANE_I18N("no additional sense information");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    case 0x4500:
-	      sense_str = SANE_I18N("reselect failure");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    case 0x4700:
-	      sense_str = SANE_I18N("SCSI parity error");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    case 0x4800:
-	      sense_str = SANE_I18N("initiator detected error message "
-	      "received");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    case 0x4900:
-	      sense_str = SANE_I18N("invalid message error");
-	      status = SANE_STATUS_UNSUPPORTED;
-	      break;
-	    case 0x8000:
-	      sense_str = SANE_I18N("timeout error");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    case 0x8001:
-	      sense_str = SANE_I18N("transparency unit shading error");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    case 0x8003:
-	      sense_str = SANE_I18N("lamp not stabilized");
-	      status = SANE_STATUS_IO_ERROR;
-	      break;
-	    default:
-	      sense_str = SANE_I18N("unknown");
-	      status = SANE_STATUS_IO_ERROR;
-	    }
-	  break;
-	default:
-	  DBG(11, "sense category: else\n");
-	}
-    }
+      asc = (result[12] << 8) + result[13];	/* 12: additional sense code */
+    }					/* 13: a.s.c. qualifier */
   else
+    asc = 0xffff;
+
+  switch (sense)
     {
-      sense_str = SANE_I18N("problem not analyzed (unknown SCSI class)");
+    case 0x00:
+      DBG(11, "sense category: no error\n");
+      status = SANE_STATUS_GOOD;
+      break;
+
+    case 0x01:
+      DBG(11, "sense category: recovered error\n");
+      switch (asc)
+        {
+        case 0x3700:
+          sense_str = SANE_I18N("rounded parameter");
+          break;
+        default:
+          sense_str = SANE_I18N("unknown");
+        }
+      status = SANE_STATUS_GOOD;
+      break;
+
+    case 0x03:
+      DBG(11, "sense category: medium error\n");
+      switch (asc)
+        {
+        case 0x8000:
+          sense_str = SANE_I18N("ADF jam");
+          break;
+        case 0x8001:
+          sense_str = SANE_I18N("ADF cover open");
+          break;
+        default:
+          sense_str = SANE_I18N("unknown");
+        }
       status = SANE_STATUS_IO_ERROR;
+      break;
+
+    case 0x04:
+      DBG(11, "sense category: hardware error\n");
+      switch (asc)
+        {
+        case 0x6000:
+          sense_str = SANE_I18N("lamp failure");
+          break;
+        case 0x6200:
+          sense_str = SANE_I18N("scan head positioning error");
+          break;
+        case 0x8001:
+          sense_str = SANE_I18N("CPU check error");
+          break;
+        case 0x8002:
+          sense_str = SANE_I18N("RAM check error");
+          break;
+        case 0x8003:
+          sense_str = SANE_I18N("ROM check error");
+          break;
+        case 0x8004:
+          sense_str = SANE_I18N("hardware check error");
+          break;
+        case 0x8005:
+          sense_str = SANE_I18N("transparency unit lamp failure");
+          break;
+        case 0x8006:
+          sense_str = SANE_I18N("transparency unit scan head "
+          "positioning failure");
+          break;
+        default:
+          sense_str = SANE_I18N("unknown");
+        }
+      status = SANE_STATUS_IO_ERROR;
+      break;
+
+    case 0x05:
+      DBG(11, "sense category: illegal request\n");
+      switch (asc)
+        {
+        case 0x1a00:
+          sense_str = SANE_I18N("parameter list length error");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        case 0x2000:
+          sense_str = SANE_I18N("invalid command operation code");
+          status = SANE_STATUS_UNSUPPORTED;
+          break;
+        case 0x2400:
+          sense_str = SANE_I18N("invalid field in CDB");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        case 0x2500:
+          sense_str = SANE_I18N("unsupported LUN");
+          status = SANE_STATUS_UNSUPPORTED;
+          break;
+        case 0x2600:
+          sense_str = SANE_I18N("invalid field in parameter list");
+          status = SANE_STATUS_UNSUPPORTED;
+          break;
+        case 0x2c00:
+          sense_str = SANE_I18N("command sequence error");
+          status = SANE_STATUS_UNSUPPORTED;
+          break;
+        case 0x2c01:
+          sense_str = SANE_I18N("too many windows specified");
+          status = SANE_STATUS_UNSUPPORTED;
+          break;
+        case 0x3a00:
+          sense_str = SANE_I18N("medium not present");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        case 0x3d00:
+          sense_str = SANE_I18N("invalid bit IDENTIFY message");
+          status = SANE_STATUS_UNSUPPORTED;
+          break;
+        case 0x8002:
+          sense_str = SANE_I18N("option not connect");
+          status = SANE_STATUS_UNSUPPORTED;
+          break;
+        default:
+          sense_str = SANE_I18N("unknown");
+          status = SANE_STATUS_UNSUPPORTED;
+        }
+      break;
+
+    case 0x06:
+      DBG(11, "sense category: unit attention\n");
+      switch (asc)
+        {
+        case 0x2900:
+          sense_str = SANE_I18N("power on reset / bus device reset");
+          status = SANE_STATUS_GOOD;
+          break;
+        case 0x2a00:
+          sense_str = SANE_I18N("parameter changed by another initiator");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        default:
+          sense_str = SANE_I18N("unknown");
+          status = SANE_STATUS_IO_ERROR;
+        }
+      break;
+
+    case 0x0b:
+      DBG(11, "sense category: non-standard\n");
+      switch (asc)
+        {
+        case 0x0000:
+          sense_str = SANE_I18N("no additional sense information");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        case 0x4500:
+          sense_str = SANE_I18N("reselect failure");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        case 0x4700:
+          sense_str = SANE_I18N("SCSI parity error");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        case 0x4800:
+          sense_str = SANE_I18N("initiator detected error message "
+          "received");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        case 0x4900:
+          sense_str = SANE_I18N("invalid message error");
+          status = SANE_STATUS_UNSUPPORTED;
+          break;
+        case 0x8000:
+          sense_str = SANE_I18N("timeout error");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        case 0x8001:
+          sense_str = SANE_I18N("transparency unit shading error");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        case 0x8003:
+          sense_str = SANE_I18N("lamp not stabilized");
+          status = SANE_STATUS_IO_ERROR;
+          break;
+        default:
+          sense_str = SANE_I18N("unknown");
+          status = SANE_STATUS_IO_ERROR;
+        }
+      break;
+    default:
+      DBG(11, "sense category: else\n");
     }
   DBG (11, "sense message: %s\n", sense_str);
 #if 0					/* superfluous? [U.D.] */
@@ -855,7 +842,6 @@ attach (const char *devnam, CANON_Device ** devp)
      - whether it can calibrate itself
      - whether it can eject the media
      - whether it can mirror the scanned data
-     - whether it is an SCSI-2 device (gives status information by "sense key")
      - whether it is a film scanner (or can be used as one)
      - whether it has fixed, hardware-set scan resolutions only
   */
@@ -870,7 +856,6 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.can_calibrate = SANE_FALSE;
       dev->info.can_eject = SANE_TRUE;
       dev->info.can_mirror = SANE_TRUE;
-      dev->info.is_scsi2 = SANE_TRUE;
       dev->info.is_filmscanner = SANE_TRUE;
       dev->info.has_fixed_resolutions = SANE_TRUE;
     }
@@ -885,7 +870,6 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.can_calibrate = SANE_FALSE;
       dev->info.can_eject = SANE_TRUE;
       dev->info.can_mirror = SANE_TRUE;
-      dev->info.is_scsi2 = SANE_TRUE;
       dev->info.is_filmscanner = SANE_TRUE;
       dev->info.has_fixed_resolutions = SANE_TRUE;
     }
@@ -900,7 +884,6 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.can_calibrate = SANE_TRUE;
       dev->info.can_eject = SANE_FALSE;
       dev->info.can_mirror = SANE_FALSE;
-      dev->info.is_scsi2 = SANE_TRUE;
       dev->info.is_filmscanner = SANE_FALSE;
       dev->info.has_fixed_resolutions = SANE_TRUE;
     }
@@ -915,7 +898,6 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.can_calibrate = SANE_FALSE;
       dev->info.can_eject = SANE_FALSE;
       dev->info.can_mirror = SANE_FALSE;
-      dev->info.is_scsi2 = SANE_TRUE;
       dev->info.is_filmscanner = SANE_FALSE;
       dev->info.has_fixed_resolutions = SANE_TRUE;
     }
@@ -930,7 +912,6 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.can_calibrate = SANE_FALSE;
       dev->info.can_eject = SANE_FALSE;
       dev->info.can_mirror = SANE_TRUE;
-      dev->info.is_scsi2 = SANE_TRUE;
       dev->info.is_filmscanner = SANE_FALSE;
       dev->info.has_fixed_resolutions = SANE_FALSE;
     }

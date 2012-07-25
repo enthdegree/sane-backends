@@ -402,8 +402,8 @@ init_options (struct scanner *s)
   o->name = "long-paper";
   o->title = SANE_I18N ("Long paper mode");
   o->desc = SANE_I18N ("Long Paper Mode is a mode that the scanner "
-		       "reads the image after it divides long paper"
-		       "by the length which is set in Document Size option");
+		       "reads the image after it divides long paper "
+		       "by the length which is set in Document Size option.");
   o->type = SANE_TYPE_BOOL;
   o->unit = SANE_UNIT_NONE;
   s->val[LONG_PAPER].w = SANE_FALSE;

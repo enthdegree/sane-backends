@@ -10,6 +10,10 @@ scriptname="sane-config"
 prefix="@prefix@"
 exec_prefix="@exec_prefix@"
 
+# using our installed *.pc only - neither default nor user paths
+export PKG_CONFIG_LIBDIR="@libdir@/pkgconfig"
+export PKG_CONFIG_PATH=""
+
 pkgconfig_package=sane-backends
 
 usage ()

@@ -48,6 +48,9 @@ EXTRA_DIST += hotplug/README hotplug/libusbscanner
 EXTRA_DIST += hotplug-ng/README hotplug-ng/libsane.hotplug
 EXTRA_DIST += openbsd/attach openbsd/detach
 
+pkgconfigdir = @libdir@/pkgconfig
+pkgconfig_DATA = sane-backends.pc
+
 # When build directory is not same as source directory then any
 # subdirectories that targets use must be manually created (under
 # the build directory that is).

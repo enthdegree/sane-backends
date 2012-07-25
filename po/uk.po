@@ -1,20 +1,20 @@
 # Copyright (C) 2009
 # This file is distributed under the same license as the sane-backends package.
 #
-# Yuri Chornoivan <yurchor@ukr.net>, 2009, 2010, 2011.
+# Yuri Chornoivan <yurchor@ukr.net>, 2009, 2010, 2011, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-06 22:10-0400\n"
-"PO-Revision-Date: 2011-01-31 18:22+0200\n"
+"POT-Creation-Date: 2012-07-06 23:07+0300\n"
+"PO-Revision-Date: 2012-07-06 23:08+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation@linux.org.ua>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.2\n"
+"X-Generator: Lokalize 1.5\n"
 "Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
@@ -30,15 +30,15 @@ msgstr "Типово"
 
 #: ../include/sane/saneopts.h:157 ../backend/artec_eplus48u.c:2884
 #: ../backend/epson.c:3284 ../backend/epson2.c:1269
-#: ../backend/genesys.c:6028 ../backend/gt68xx.c:703
+#: ../backend/genesys.c:5607 ../backend/gt68xx.c:703
 #: ../backend/hp3500.c:1003 ../backend/hp-option.c:3297
 #: ../backend/kvs1025_opt.c:640 ../backend/kvs20xx_opt.c:284
 #: ../backend/kvs40xx_opt.c:505 ../backend/leo.c:823
 #: ../backend/lexmark.c:199 ../backend/ma1509.c:551
 #: ../backend/matsushita.c:1135 ../backend/microtek2.h:599
 #: ../backend/mustek.c:4363 ../backend/mustek_usb.c:305
-#: ../backend/mustek_usb2.c:465 ../backend/pixma_sane_options.c:144
-#: ../backend/plustek.c:807 ../backend/plustek_pp.c:746
+#: ../backend/mustek_usb2.c:465 ../backend/pixma_sane_options.c:159
+#: ../backend/plustek.c:808 ../backend/plustek_pp.c:746
 #: ../backend/sceptre.c:702 ../backend/snapscan-options.c:494
 #: ../backend/teco1.c:1095 ../backend/teco2.c:1914 ../backend/teco3.c:920
 #: ../backend/test.c:647 ../backend/u12.c:546 ../backend/umax.c:5176
@@ -48,13 +48,13 @@ msgid "Geometry"
 msgstr "Позиція і розміри"
 
 #: ../include/sane/saneopts.h:158 ../backend/artec_eplus48u.c:2805
-#: ../backend/canon.c:1492 ../backend/genesys.c:6088
+#: ../backend/canon.c:1492 ../backend/genesys.c:5667
 #: ../backend/gt68xx.c:672 ../backend/hp-option.c:2953
 #: ../backend/kvs1025_opt.c:704 ../backend/leo.c:871
 #: ../backend/ma1509.c:599 ../backend/matsushita.c:1189
 #: ../backend/microtek2.h:600 ../backend/mustek.c:4411
 #: ../backend/mustek_usb.c:353 ../backend/mustek_usb2.c:431
-#: ../backend/niash.c:756 ../backend/plustek.c:853
+#: ../backend/niash.c:756 ../backend/plustek.c:854
 #: ../backend/plustek_pp.c:792 ../backend/sceptre.c:750
 #: ../backend/snapscan-options.c:561 ../backend/stv680.c:1067
 #: ../backend/teco1.c:1143 ../backend/teco2.c:1962 ../backend/teco3.c:968
@@ -92,7 +92,7 @@ msgid "Bit depth"
 msgstr "К-ть бітів на колір"
 
 #: ../include/sane/saneopts.h:165 ../backend/canon.c:1143
-#: ../backend/leo.c:781 ../backend/pixma_sane_options.c:40
+#: ../backend/leo.c:781 ../backend/pixma_sane_options.c:43
 #, no-c-format
 msgid "Scan mode"
 msgstr "Режим сканування"
@@ -300,7 +300,7 @@ msgstr "Пов’язати роздільні здатності за X і Y"
 #: ../include/sane/saneopts.h:206 ../backend/hp3900_sane.c:428
 #: ../backend/hp3900_sane.c:1021 ../backend/hp3900_sane.c:1421
 #: ../backend/hp-option.c:3235 ../backend/mustek_usb2.c:121
-#: ../backend/plustek.c:235 ../backend/plustek_pp.c:202
+#: ../backend/plustek.c:236 ../backend/plustek_pp.c:202
 #: ../backend/u12.c:157
 #, no-c-format
 msgid "Negative"
@@ -531,8 +531,7 @@ msgstr "Визначає роздільну здатність сканован�
 #: ../include/sane/saneopts.h:295
 #, no-c-format
 msgid "Sets the horizontal resolution of the scanned image."
-msgstr ""
-"Визначає горизонтальну роздільну здатність засканованого зображення."
+msgstr "Визначає горизонтальну роздільну здатність засканованого зображення."
 
 #: ../include/sane/saneopts.h:298
 #, no-c-format
@@ -555,8 +554,7 @@ msgstr "Визначає висоту носія."
 
 #: ../include/sane/saneopts.h:308
 #, no-c-format
-msgid ""
-"Determines whether a builtin or a custom gamma-table should be used."
+msgid "Determines whether a builtin or a custom gamma-table should be used."
 msgstr "Визначає буде використано вбудовану чи нетипову таблицю гами."
 
 #: ../include/sane/saneopts.h:312
@@ -607,8 +605,7 @@ msgstr ""
 #: ../include/sane/saneopts.h:336
 #, no-c-format
 msgid "Selects whether the acquired image should be halftoned (dithered)."
-msgstr ""
-"Визначає, чи має бути отримане зображення напівтоновим (з дизерингом)."
+msgstr "Визначає, чи має бути отримане зображення напівтоновим (з дизерингом)."
 
 #: ../include/sane/saneopts.h:339 ../include/sane/saneopts.h:354
 #, no-c-format
@@ -658,17 +655,14 @@ msgstr ""
 
 #: ../include/sane/saneopts.h:367
 #, no-c-format
-msgid ""
-"Selects what green radiance level should be considered \"full green\"."
+msgid "Selects what green radiance level should be considered \"full green\"."
 msgstr ""
 "Визначає рівень світності зеленого, який слід вважати «цілком зеленим»."
 
 #: ../include/sane/saneopts.h:370
 #, no-c-format
-msgid ""
-"Selects what blue radiance level should be considered \"full blue\"."
-msgstr ""
-"Визначає рівень світності синього, який слід вважати «цілком синім»."
+msgid "Selects what blue radiance level should be considered \"full blue\"."
+msgstr "Визначає рівень світності синього, який слід вважати «цілком синім»."
 
 #: ../include/sane/saneopts.h:374
 #, no-c-format
@@ -710,8 +704,7 @@ msgstr ""
 #: ../include/sane/saneopts.h:393
 #, no-c-format
 msgid "Use same values for X and Y resolution"
-msgstr ""
-"Використовувати однакові значення для роздільних здатностей за X та Y"
+msgstr "Використовувати однакові значення для роздільних здатностей за X та Y"
 
 #: ../include/sane/saneopts.h:395
 #, no-c-format
@@ -1037,48 +1030,47 @@ msgstr "Двобічне сканування"
 
 #: ../backend/avision.h:786
 #, no-c-format
-msgid ""
-"Duplex scan provide a scan of the front and back side of the document"
+msgid "Duplex scan provide a scan of the front and back side of the document"
 msgstr ""
 "За використання двобічного сканування ви отримаєте одразу зображення "
 "лицьового та зворотного боків документа"
 
-#: ../backend/canon630u.c:158
+#: ../backend/canon630u.c:159
 #, no-c-format
 msgid "Calibrate Scanner"
 msgstr "Калібрувати сканер"
 
-#: ../backend/canon630u.c:159
+#: ../backend/canon630u.c:160
 #, no-c-format
 msgid "Force scanner calibration before scan"
 msgstr "Виконувати примусове калібрування перед скануванням"
 
-#: ../backend/canon630u.c:258 ../backend/umax1220u.c:208
+#: ../backend/canon630u.c:259 ../backend/umax1220u.c:208
 #, no-c-format
 msgid "Grayscale scan"
 msgstr "Сканувати у відтінках сірого"
 
-#: ../backend/canon630u.c:259 ../backend/umax1220u.c:209
+#: ../backend/canon630u.c:260 ../backend/umax1220u.c:209
 #, no-c-format
 msgid "Do a grayscale rather than color scan"
 msgstr "Виконувати чорно-біле сканування замість кольорового"
 
-#: ../backend/canon630u.c:305
+#: ../backend/canon630u.c:306
 #, no-c-format
 msgid "Analog Gain"
 msgstr "Аналогове підсилення"
 
-#: ../backend/canon630u.c:306
+#: ../backend/canon630u.c:307
 #, no-c-format
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Збільшити або зменшити аналогове підсилення матриці ПЗЗ"
 
-#: ../backend/canon630u.c:346 ../backend/epson.h:68 ../backend/epson2.h:72
+#: ../backend/canon630u.c:347 ../backend/epson.h:68 ../backend/epson2.h:74
 #, no-c-format
 msgid "Gamma Correction"
 msgstr "Виправлення гами"
 
-#: ../backend/canon630u.c:347
+#: ../backend/canon630u.c:348
 #, no-c-format
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Визначити криву виправлення гами"
@@ -1281,8 +1273,7 @@ msgstr "Помилка парності SCSI"
 #: ../backend/canon.c:516
 #, no-c-format
 msgid "initiator detected error message received"
-msgstr ""
-"Отримано повідомлення про помилку виявлення інструменту ініціалізації"
+msgstr "Отримано повідомлення про помилку виявлення інструменту ініціалізації"
 
 #: ../backend/canon.c:521
 #, no-c-format
@@ -1315,7 +1306,7 @@ msgid "film scanner"
 msgstr "плівковий сканер"
 
 #: ../backend/canon.c:895 ../backend/canon.c:910 ../backend/canon.c:925
-#: ../backend/hp3900_sane.c:1683 ../backend/plustek.c:1334
+#: ../backend/hp3900_sane.c:1683 ../backend/plustek.c:1335
 #: ../backend/plustek_pp.c:1014 ../backend/sceptre.c:593
 #: ../backend/teco2.c:1836 ../backend/u12.c:851
 #, no-c-format
@@ -1465,8 +1456,7 @@ msgstr "Виштовхувати плівку після кожного скан
 #: ../backend/canon.c:1663
 #, no-c-format
 msgid "Automatically eject the film from the device after each scan"
-msgstr ""
-"Автоматично виштовхувати плівку з пристрою після кожного сканування"
+msgstr "Автоматично виштовхувати плівку з пристрою після кожного сканування"
 
 #: ../backend/canon.c:1672
 #, no-c-format
@@ -1475,8 +1465,7 @@ msgstr "Виштовхувати плівку перед завершенням 
 
 #: ../backend/canon.c:1673
 #, no-c-format
-msgid ""
-"Automatically eject the film from the device before exiting the program"
+msgid "Automatically eject the film from the device before exiting the program"
 msgstr ""
 "Автоматично виштовхувати плівку з пристрою перед завершенням роботи "
 "програми"
@@ -1504,8 +1493,7 @@ msgstr "Лише планшетний"
 #: ../backend/canon.c:1700
 #, no-c-format
 msgid "Disable auto document feeder and use flatbed only"
-msgstr ""
-"Вимкнути автоматичну подачу, використовувати лише планшетний механізм"
+msgstr "Вимкнути автоматичну подачу, використовувати лише планшетний механізм"
 
 #: ../backend/canon.c:1710 ../backend/canon.c:1720
 #, no-c-format
@@ -1552,85 +1540,85 @@ msgstr "Оберіть тип плівки"
 msgid "Select the film type"
 msgstr "Визначає тип плівки"
 
-#: ../backend/canon_dr.c:330 ../backend/epjitsu.c:203
-#: ../backend/epson.c:501 ../backend/epson2.c:110 ../backend/fujitsu.c:548
+#: ../backend/canon_dr.c:338 ../backend/epjitsu.c:203
+#: ../backend/epson.c:501 ../backend/epson2.c:114 ../backend/fujitsu.c:579
 #: ../backend/gt68xx.c:148 ../backend/hp3900_sane.c:418
 #: ../backend/hp3900_sane.c:427 ../backend/hp3900_sane.c:1017
 #: ../backend/hp5590.c:82 ../backend/ma1509.c:108
-#: ../backend/magicolor.c:163 ../backend/mustek.c:156
-#: ../backend/mustek.c:160 ../backend/mustek.c:164 ../backend/pixma.c:664
-#: ../backend/pixma_sane_options.c:85 ../backend/snapscan-options.c:82
+#: ../backend/magicolor.c:167 ../backend/mustek.c:156
+#: ../backend/mustek.c:160 ../backend/mustek.c:164 ../backend/pixma.c:850
+#: ../backend/pixma_sane_options.c:88 ../backend/snapscan-options.c:82
 #: ../backend/test.c:192 ../backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
 msgstr "Планшетний"
 
-#: ../backend/canon_dr.c:331 ../backend/epjitsu.c:204
-#: ../backend/fujitsu.c:549 ../backend/kodak.c:135
+#: ../backend/canon_dr.c:339 ../backend/epjitsu.c:204
+#: ../backend/fujitsu.c:580 ../backend/kodak.c:135
 #, no-c-format
 msgid "ADF Front"
 msgstr "Перед протяжного механізму"
 
-#: ../backend/canon_dr.c:332 ../backend/epjitsu.c:205
-#: ../backend/fujitsu.c:550 ../backend/kodak.c:136
+#: ../backend/canon_dr.c:340 ../backend/epjitsu.c:205
+#: ../backend/fujitsu.c:581 ../backend/kodak.c:136
 #, no-c-format
 msgid "ADF Back"
 msgstr "Зворот протяжного механізму"
 
-#: ../backend/canon_dr.c:333 ../backend/epjitsu.c:206
-#: ../backend/fujitsu.c:551 ../backend/hp5590.c:84 ../backend/kodak.c:137
-#: ../backend/pixma.c:675
+#: ../backend/canon_dr.c:341 ../backend/epjitsu.c:206
+#: ../backend/fujitsu.c:582 ../backend/hp5590.c:84 ../backend/kodak.c:137
+#: ../backend/pixma.c:861
 #, no-c-format
 msgid "ADF Duplex"
 msgstr "Двобічна АПД"
 
-#: ../backend/canon_dr.c:340 ../backend/epson.c:599
-#: ../backend/epson.c:3082 ../backend/epson2.c:195
-#: ../backend/fujitsu.c:568 ../backend/genesys.c:110
-#: ../backend/genesys.c:117 ../backend/gt68xx_low.h:136
+#: ../backend/canon_dr.c:348 ../backend/epson.c:599
+#: ../backend/epson.c:3082 ../backend/epson2.c:200
+#: ../backend/fujitsu.c:599 ../backend/genesys.c:89
+#: ../backend/genesys.c:96 ../backend/gt68xx_low.h:136
 #: ../backend/hp-option.c:3093
 #, no-c-format
 msgid "Red"
 msgstr "Червоний"
 
-#: ../backend/canon_dr.c:341 ../backend/epson.c:600
-#: ../backend/epson.c:3078 ../backend/epson2.c:196
-#: ../backend/fujitsu.c:569 ../backend/genesys.c:111
-#: ../backend/genesys.c:118 ../backend/gt68xx_low.h:137
+#: ../backend/canon_dr.c:349 ../backend/epson.c:600
+#: ../backend/epson.c:3078 ../backend/epson2.c:201
+#: ../backend/fujitsu.c:600 ../backend/genesys.c:90
+#: ../backend/genesys.c:97 ../backend/gt68xx_low.h:137
 #: ../backend/hp-option.c:3094
 #, no-c-format
 msgid "Green"
 msgstr "Зелений"
 
-#: ../backend/canon_dr.c:342 ../backend/epson.c:601
-#: ../backend/epson.c:3086 ../backend/epson2.c:197
-#: ../backend/fujitsu.c:570 ../backend/genesys.c:112
-#: ../backend/genesys.c:119 ../backend/gt68xx_low.h:138
+#: ../backend/canon_dr.c:350 ../backend/epson.c:601
+#: ../backend/epson.c:3086 ../backend/epson2.c:202
+#: ../backend/fujitsu.c:601 ../backend/genesys.c:91
+#: ../backend/genesys.c:98 ../backend/gt68xx_low.h:138
 #: ../backend/hp-option.c:3095
 #, no-c-format
 msgid "Blue"
 msgstr "Синій"
 
-#: ../backend/canon_dr.c:343
+#: ../backend/canon_dr.c:351
 #, no-c-format
 msgid "Enhance Red"
 msgstr "Покращити червоний"
 
-#: ../backend/canon_dr.c:344
+#: ../backend/canon_dr.c:352
 #, no-c-format
 msgid "Enhance Green"
 msgstr "Покращити зелений"
 
-#: ../backend/canon_dr.c:345
+#: ../backend/canon_dr.c:353
 #, no-c-format
 msgid "Enhance Blue"
 msgstr "Покращити синій"
 
-#: ../backend/canon_dr.c:347 ../backend/epson.c:556 ../backend/epson.c:564
-#: ../backend/epson.c:576 ../backend/epson.c:598 ../backend/epson2.c:159
-#: ../backend/epson2.c:167 ../backend/epson2.c:179 ../backend/epson2.c:194
-#: ../backend/epson2.c:208 ../backend/fujitsu.c:574
-#: ../backend/genesys.c:120 ../backend/leo.c:109
+#: ../backend/canon_dr.c:355 ../backend/epson.c:556 ../backend/epson.c:564
+#: ../backend/epson.c:576 ../backend/epson.c:598 ../backend/epson2.c:164
+#: ../backend/epson2.c:172 ../backend/epson2.c:184 ../backend/epson2.c:199
+#: ../backend/epson2.c:213 ../backend/fujitsu.c:605
+#: ../backend/genesys.c:99 ../backend/leo.c:109
 #: ../backend/matsushita.c:138 ../backend/matsushita.c:159
 #: ../backend/matsushita.c:191 ../backend/matsushita.c:213
 #: ../backend/snapscan-options.c:87
@@ -1638,109 +1626,109 @@ msgstr "Покращити синій"
 msgid "None"
 msgstr "Немає"
 
-#: ../backend/canon_dr.c:348 ../backend/fujitsu.c:575
+#: ../backend/canon_dr.c:356 ../backend/fujitsu.c:606
 #, no-c-format
 msgid "JPEG"
 msgstr "JPEG"
 
-#: ../backend/epson.c:491 ../backend/epson2.c:103
-#: ../backend/magicolor.c:156
+#: ../backend/epson.c:491 ../backend/epson2.c:107
+#: ../backend/magicolor.c:160
 #, no-c-format
 msgid "Simplex"
 msgstr "Однобічна"
 
-#: ../backend/epson.c:492 ../backend/epson2.c:104 ../backend/kvs1025.h:50
+#: ../backend/epson.c:492 ../backend/epson2.c:108 ../backend/kvs1025.h:50
 #: ../backend/kvs20xx_opt.c:203 ../backend/kvs40xx_opt.c:352
-#: ../backend/magicolor.c:157 ../backend/matsushita.h:218
+#: ../backend/magicolor.c:161 ../backend/matsushita.h:218
 #, no-c-format
 msgid "Duplex"
 msgstr "Двобічна"
 
-#: ../backend/epson.c:502 ../backend/epson2.c:111 ../backend/pixma.c:681
+#: ../backend/epson.c:502 ../backend/epson2.c:115 ../backend/pixma.c:867
 #, no-c-format
 msgid "Transparency Unit"
 msgstr "Модуль для слайдів"
 
-#: ../backend/epson.c:503 ../backend/epson2.c:112
-#: ../backend/magicolor.c:164 ../backend/mustek.c:160
-#: ../backend/pixma.c:669 ../backend/test.c:192 ../backend/umax.c:183
+#: ../backend/epson.c:503 ../backend/epson2.c:117
+#: ../backend/magicolor.c:168 ../backend/mustek.c:160
+#: ../backend/pixma.c:855 ../backend/test.c:192 ../backend/umax.c:183
 #, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Автоматична подача документів"
 
-#: ../backend/epson.c:523 ../backend/epson2.c:128
+#: ../backend/epson.c:523 ../backend/epson2.c:133
 #, no-c-format
 msgid "Positive Film"
 msgstr "Плівка-позитив"
 
-#: ../backend/epson.c:524 ../backend/epson2.c:129
+#: ../backend/epson.c:524 ../backend/epson2.c:134
 #, no-c-format
 msgid "Negative Film"
 msgstr "Плівка-негатив"
 
-#: ../backend/epson.c:529 ../backend/epson2.c:136
+#: ../backend/epson.c:529 ../backend/epson2.c:141
 #, no-c-format
 msgid "Focus on glass"
 msgstr "Фокус на склі"
 
-#: ../backend/epson.c:530 ../backend/epson2.c:137
+#: ../backend/epson.c:530 ../backend/epson2.c:142
 #, no-c-format
 msgid "Focus 2.5mm above glass"
 msgstr "Фокус 2,5 мм над склом"
 
 #: ../backend/epson.c:557 ../backend/epson.c:565 ../backend/epson.c:577
-#: ../backend/epson2.c:160 ../backend/epson2.c:168 ../backend/epson2.c:180
+#: ../backend/epson2.c:165 ../backend/epson2.c:173 ../backend/epson2.c:185
 #, no-c-format
 msgid "Halftone A (Hard Tone)"
 msgstr "Півтони A (Різкі тони)"
 
 #: ../backend/epson.c:558 ../backend/epson.c:566 ../backend/epson.c:578
-#: ../backend/epson2.c:161 ../backend/epson2.c:169 ../backend/epson2.c:181
+#: ../backend/epson2.c:166 ../backend/epson2.c:174 ../backend/epson2.c:186
 #, no-c-format
 msgid "Halftone B (Soft Tone)"
 msgstr "Півтони B (М’які тони)"
 
 #: ../backend/epson.c:559 ../backend/epson.c:567 ../backend/epson.c:579
-#: ../backend/epson2.c:162 ../backend/epson2.c:170 ../backend/epson2.c:182
+#: ../backend/epson2.c:167 ../backend/epson2.c:175 ../backend/epson2.c:187
 #, no-c-format
 msgid "Halftone C (Net Screen)"
 msgstr "Півтони C (Net Screen)"
 
-#: ../backend/epson.c:568 ../backend/epson.c:580 ../backend/epson2.c:171
-#: ../backend/epson2.c:183
+#: ../backend/epson.c:568 ../backend/epson.c:580 ../backend/epson2.c:176
+#: ../backend/epson2.c:188
 #, no-c-format
 msgid "Dither A (4x4 Bayer)"
 msgstr "Дизеринг A (секція 4x4)"
 
-#: ../backend/epson.c:569 ../backend/epson.c:581 ../backend/epson2.c:172
-#: ../backend/epson2.c:184
+#: ../backend/epson.c:569 ../backend/epson.c:581 ../backend/epson2.c:177
+#: ../backend/epson2.c:189
 #, no-c-format
 msgid "Dither B (4x4 Spiral)"
 msgstr "Дизеринг B (спіраль 4x4)"
 
-#: ../backend/epson.c:570 ../backend/epson.c:582 ../backend/epson2.c:173
-#: ../backend/epson2.c:185
+#: ../backend/epson.c:570 ../backend/epson.c:582 ../backend/epson2.c:178
+#: ../backend/epson2.c:190
 #, no-c-format
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Дизеринг C (4x4 Net Screen)"
 
-#: ../backend/epson.c:571 ../backend/epson.c:583 ../backend/epson2.c:174
-#: ../backend/epson2.c:186
+#: ../backend/epson.c:571 ../backend/epson.c:583 ../backend/epson2.c:179
+#: ../backend/epson2.c:191
 #, no-c-format
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Дизеринг D (8x4 Net Screen)"
 
-#: ../backend/epson.c:584 ../backend/epson2.c:187
+#: ../backend/epson.c:584 ../backend/epson2.c:192
 #, no-c-format
 msgid "Text Enhanced Technology"
 msgstr "Технологія покращення тексту"
 
-#: ../backend/epson.c:585 ../backend/epson2.c:188
+#: ../backend/epson.c:585 ../backend/epson2.c:193
 #, no-c-format
 msgid "Download pattern A"
 msgstr "Завантажити шаблон A"
 
-#: ../backend/epson.c:586 ../backend/epson2.c:189
+#: ../backend/epson.c:586 ../backend/epson2.c:194
 #, no-c-format
 msgid "Download pattern B"
 msgstr "Завантажити шаблон B"
@@ -1750,7 +1738,7 @@ msgstr "Завантажити шаблон B"
 msgid "No Correction"
 msgstr "Без виправлення"
 
-#: ../backend/epson.c:632 ../backend/epson.c:657 ../backend/epson2.c:249
+#: ../backend/epson.c:632 ../backend/epson.c:657 ../backend/epson2.c:254
 #, no-c-format
 msgid "User defined"
 msgstr "Визначене користувачем"
@@ -1775,33 +1763,33 @@ msgstr "Струминні принтери"
 msgid "CRT monitors"
 msgstr "Монітори з ЕПТ"
 
-#: ../backend/epson.c:656 ../backend/epson2.c:248 ../backend/fujitsu.c:558
+#: ../backend/epson.c:656 ../backend/epson2.c:253 ../backend/fujitsu.c:589
 #: ../backend/hp-option.c:3226 ../backend/test.c:143
 #, no-c-format
 msgid "Default"
 msgstr "Типовий"
 
-#: ../backend/epson.c:658 ../backend/epson2.c:250
+#: ../backend/epson.c:658 ../backend/epson2.c:255
 #, no-c-format
 msgid "High density printing"
 msgstr "Друк з високою щільністю"
 
-#: ../backend/epson.c:659 ../backend/epson2.c:251
+#: ../backend/epson.c:659 ../backend/epson2.c:256
 #, no-c-format
 msgid "Low density printing"
 msgstr "Друк з низькою щільністю"
 
-#: ../backend/epson.c:660 ../backend/epson2.c:252
+#: ../backend/epson.c:660 ../backend/epson2.c:257
 #, no-c-format
 msgid "High contrast printing"
 msgstr "Друк з високою контрастністю"
 
-#: ../backend/epson.c:678 ../backend/epson2.c:270
+#: ../backend/epson.c:678 ../backend/epson2.c:275
 #, no-c-format
 msgid "User defined (Gamma=1.0)"
 msgstr "Визначене користувачем (Gamma=1.0)"
 
-#: ../backend/epson.c:679 ../backend/epson2.c:271
+#: ../backend/epson.c:679 ../backend/epson2.c:276
 #, no-c-format
 msgid "User defined (Gamma=1.8)"
 msgstr "Визначена користувачем (Gamma=1.8)"
@@ -1842,13 +1830,13 @@ msgid "Max"
 msgstr "Макс"
 
 #: ../backend/epson.c:2799 ../backend/epson2.c:954
-#: ../backend/genesys.c:5959 ../backend/gt68xx.c:458
+#: ../backend/genesys.c:5524 ../backend/gt68xx.c:458
 #: ../backend/hp-option.c:2914 ../backend/kvs1025_opt.c:522
 #: ../backend/kvs20xx_opt.c:170 ../backend/kvs40xx_opt.c:319
 #: ../backend/ma1509.c:501 ../backend/matsushita.c:1084
 #: ../backend/microtek2.h:598 ../backend/mustek.c:4205
 #: ../backend/mustek_usb.c:260 ../backend/mustek_usb2.c:344
-#: ../backend/niash.c:736 ../backend/plustek.c:720
+#: ../backend/niash.c:736 ../backend/plustek.c:721
 #: ../backend/plustek_pp.c:657 ../backend/sceptre.c:673
 #: ../backend/snapscan-options.c:315 ../backend/stv680.c:1030
 #: ../backend/teco2.c:1886 ../backend/test.c:306 ../backend/u12.c:473
@@ -2046,13 +2034,13 @@ msgid "Eject document after scanning"
 msgstr "Виштовхнути документ після сканування"
 
 #: ../backend/epson.c:3443 ../backend/epson2.c:1395
-#: ../backend/magicolor.c:2345
+#: ../backend/magicolor.c:2399
 #, no-c-format
 msgid "ADF Mode"
 msgstr "Режим автоподавання"
 
 #: ../backend/epson.c:3445 ../backend/epson2.c:1397
-#: ../backend/magicolor.c:2347
+#: ../backend/magicolor.c:2401
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr "Визначає режим автоподавання (однобічний/двобічний)"
@@ -2067,7 +2055,7 @@ msgstr "Секція"
 msgid "Select bay to scan"
 msgstr "Визначає секцію, яку буде скановано"
 
-#: ../backend/epson.h:69 ../backend/epson2.h:73
+#: ../backend/epson.h:69 ../backend/epson2.h:75
 #, no-c-format
 msgid ""
 "Selects the gamma correction value from a list of pre-defined devices or "
@@ -2077,25 +2065,24 @@ msgstr ""
 "попереднього визначених пристроїв або визначеної користувачем таблиці, "
 "яку можна завантажити у сканер"
 
-#: ../backend/epson.h:72 ../backend/epson2.h:76
+#: ../backend/epson.h:72 ../backend/epson2.h:78
 #, no-c-format
 msgid "Focus Position"
 msgstr "Позиція фокусування"
 
-#: ../backend/epson.h:73 ../backend/epson2.h:77
+#: ../backend/epson.h:73 ../backend/epson2.h:79
 #, no-c-format
-msgid ""
-"Sets the focus position to either the glass or 2.5mm above the glass"
+msgid "Sets the focus position to either the glass or 2.5mm above the glass"
 msgstr ""
 "Визначає позицію фокусування на рівень від поверхні скла до висоти 2,5 "
 "мм над склом"
 
-#: ../backend/epson.h:75 ../backend/epson2.h:79
+#: ../backend/epson.h:75 ../backend/epson2.h:81
 #, no-c-format
 msgid "Wait for Button"
 msgstr "Очікувати натискання кнопки"
 
-#: ../backend/epson.h:76 ../backend/epson2.h:80
+#: ../backend/epson.h:76 ../backend/epson2.h:82
 #, no-c-format
 msgid ""
 "After sending the scan command, wait until the button on the scanner is "
@@ -2104,168 +2091,209 @@ msgstr ""
 "Після надсилання команди сканування не розпочинати сканування до "
 "натискання кнопки на сканері."
 
-#: ../backend/epson2.c:97
+#: ../backend/epson2.c:101
 #, no-c-format
 msgid "Infrared"
 msgstr "Інфрачервоне"
 
-#: ../backend/epson2.c:130
+#: ../backend/epson2.c:116
+#, no-c-format
+msgid "TPU8x10"
+msgstr "TPU8x10"
+
+#: ../backend/epson2.c:135
 #, no-c-format
 msgid "Positive Slide"
 msgstr "Слайд-позитив"
 
-#: ../backend/epson2.c:131
+#: ../backend/epson2.c:136
 #, no-c-format
 msgid "Negative Slide"
 msgstr "Слайд-негатив"
 
-#: ../backend/epson2.c:209
+#: ../backend/epson2.c:214
 #, no-c-format
 msgid "Built in CCT profile"
 msgstr "Вбудований профіль CCT"
 
-#: ../backend/epson2.c:210
+#: ../backend/epson2.c:215
 #, no-c-format
 msgid "User defined CCT profile"
 msgstr "Визначений користувачем профіль CCT"
 
-#: ../backend/fujitsu.c:559 ../backend/hp-option.c:3327
+#: ../backend/fujitsu.c:590 ../backend/hp-option.c:3327
 #: ../backend/hp-option.c:3340
 #, no-c-format
 msgid "On"
 msgstr "Увімкнути"
 
-#: ../backend/fujitsu.c:560 ../backend/hp-option.c:3159
+#: ../backend/fujitsu.c:591 ../backend/hp-option.c:3159
 #: ../backend/hp-option.c:3326 ../backend/hp-option.c:3339
 #, no-c-format
 msgid "Off"
 msgstr "Вимкнути"
 
-#: ../backend/fujitsu.c:562
+#: ../backend/fujitsu.c:593
 #, no-c-format
 msgid "DTC"
 msgstr "DTC"
 
-#: ../backend/fujitsu.c:563
+#: ../backend/fujitsu.c:594
 #, no-c-format
 msgid "SDTC"
 msgstr "SDTC"
 
-#: ../backend/fujitsu.c:565 ../backend/teco1.c:1152
+#: ../backend/fujitsu.c:596 ../backend/teco1.c:1152
 #: ../backend/teco1.c:1153 ../backend/teco2.c:1971 ../backend/teco2.c:1972
 #: ../backend/teco3.c:977 ../backend/teco3.c:978
 #, no-c-format
 msgid "Dither"
 msgstr "Дизеринг"
 
-#: ../backend/fujitsu.c:566
+#: ../backend/fujitsu.c:597
 #, no-c-format
 msgid "Diffusion"
 msgstr "Дифузія"
 
-#: ../backend/fujitsu.c:571
+#: ../backend/fujitsu.c:602
 #, no-c-format
 msgid "White"
 msgstr "Білий"
 
-#: ../backend/fujitsu.c:572
+#: ../backend/fujitsu.c:603
 #, no-c-format
 msgid "Black"
 msgstr "Чорний"
 
-#: ../backend/fujitsu.c:577
+#: ../backend/fujitsu.c:608
 #, no-c-format
 msgid "Continue"
 msgstr "Продовжити"
 
-#: ../backend/fujitsu.c:578
+#: ../backend/fujitsu.c:609
 #, no-c-format
 msgid "Stop"
 msgstr "Зупинити"
 
-#: ../backend/fujitsu.c:580
+#: ../backend/fujitsu.c:611
 #, no-c-format
 msgid "10mm"
 msgstr "10мм"
 
-#: ../backend/fujitsu.c:581
+#: ../backend/fujitsu.c:612
 #, no-c-format
 msgid "15mm"
 msgstr "15мм"
 
-#: ../backend/fujitsu.c:582
+#: ../backend/fujitsu.c:613
 #, no-c-format
 msgid "20mm"
 msgstr "20мм"
 
-#: ../backend/fujitsu.c:584 ../backend/hp-option.c:3045
+#: ../backend/fujitsu.c:615 ../backend/hp-option.c:3045
 #, no-c-format
 msgid "Horizontal"
 msgstr "По горизонталі"
 
-#: ../backend/fujitsu.c:585
+#: ../backend/fujitsu.c:616
 #, no-c-format
 msgid "Horizontal bold"
 msgstr "Жирний по горизонталі"
 
-#: ../backend/fujitsu.c:586
+#: ../backend/fujitsu.c:617
 #, no-c-format
 msgid "Horizontal narrow"
 msgstr "Вузький по горизонталі"
 
-#: ../backend/fujitsu.c:587 ../backend/hp-option.c:3044
+#: ../backend/fujitsu.c:618 ../backend/hp-option.c:3044
 #, no-c-format
 msgid "Vertical"
 msgstr "По вертикалі"
 
-#: ../backend/fujitsu.c:588
+#: ../backend/fujitsu.c:619
 #, no-c-format
 msgid "Vertical bold"
 msgstr "Жирний по вертикалі"
 
-#: ../backend/fujitsu.c:590
+#: ../backend/fujitsu.c:621
 #, no-c-format
 msgid "Top to bottom"
 msgstr "Згори вниз"
 
-#: ../backend/fujitsu.c:591
+#: ../backend/fujitsu.c:622
 #, no-c-format
 msgid "Bottom to top"
 msgstr "Знизу догори"
 
-#: ../backend/fujitsu.c:593
+#: ../backend/fujitsu.c:624
 #, no-c-format
 msgid "Front"
 msgstr "Перед"
 
-#: ../backend/fujitsu.c:594
+#: ../backend/fujitsu.c:625
 #, no-c-format
 msgid "Back"
 msgstr "Зворот"
 
-#: ../backend/genesys.c:6177
+#: ../backend/genesys.c:5749
+#, no-c-format
+msgid "Software crop"
+msgstr "Програмне обрізання"
+
+#: ../backend/genesys.c:5750
+#, no-c-format
+msgid "Request backend to remove border from pages digitally"
+msgstr ""
+"Вимагати від програмного модуля вилучення границі зі сторінок у "
+"автоматичному режимі"
+
+#: ../backend/genesys.c:5758 ../backend/kvs1025_opt.c:911
+#, no-c-format
+msgid "Software blank skip percentage"
+msgstr "Порогове значення порожніх сторінок для програмного відкидання"
+
+#: ../backend/genesys.c:5759 ../backend/kvs1025_opt.c:913
+#, no-c-format
+msgid "Request driver to discard pages with low numbers of dark pixels"
+msgstr ""
+"Вимагати від драйвера відкидання сторінок з надто низькою кількістю "
+"темних пікселів"
+
+#: ../backend/genesys.c:5769 ../backend/kvs1025_opt.c:893
+#, no-c-format
+msgid "Software derotate"
+msgstr "Програмне усування обертання"
+
+#: ../backend/genesys.c:5770 ../backend/kvs1025_opt.c:895
+#, no-c-format
+msgid "Request driver to detect and correct 90 degree image rotation"
+msgstr ""
+"Вимагати від драйвера виявлення і виправлення обертання зображення на 90 "
+"градусів"
+
+#: ../backend/genesys.c:5777 ../backend/pixma_sane_options.c:271
 #, no-c-format
 msgid "Extras"
 msgstr "Додаткові"
 
-#: ../backend/genesys.c:6196
+#: ../backend/genesys.c:5796 ../backend/pixma_sane_options.c:293
 #, no-c-format
 msgid "Threshold curve"
 msgstr "Порогова крива"
 
-#: ../backend/genesys.c:6197
+#: ../backend/genesys.c:5797 ../backend/pixma_sane_options.c:294
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr ""
 "Крива динамічного порогового значення, від світлого до темного, типово "
 "50-65"
 
-#: ../backend/genesys.c:6206
+#: ../backend/genesys.c:5806
 #, no-c-format
 msgid "Disable dynamic lineart"
 msgstr "Вимкнути динамічне штрихування"
 
-#: ../backend/genesys.c:6208
+#: ../backend/genesys.c:5808
 #, no-c-format
 msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
@@ -2274,12 +2302,12 @@ msgstr ""
 "Вимкнути використання адаптивного програмного алгоритму для створення "
 "штрихування замість апаратного алгоритму штрихування."
 
-#: ../backend/genesys.c:6223
+#: ../backend/genesys.c:5823
 #, no-c-format
 msgid "Disable interpolation"
 msgstr "Вимкнути інтерполяцію"
 
-#: ../backend/genesys.c:6226
+#: ../backend/genesys.c:5826
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
@@ -2289,24 +2317,24 @@ msgstr ""
 "роздільна здатність менша за вертикальну, вимикає горизонтальну "
 "інтерполяцію."
 
-#: ../backend/genesys.c:6235
+#: ../backend/genesys.c:5835
 #, no-c-format
 msgid "Color Filter"
 msgstr "Фільтр кольорів"
 
-#: ../backend/genesys.c:6238
+#: ../backend/genesys.c:5838
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 "За використання друку у півтонах або штрихового друку за допомогою цього "
 "пункту можна обрати колір друку."
 
-#: ../backend/genesys.c:6264
+#: ../backend/genesys.c:5864
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Час вимикання лампи"
 
-#: ../backend/genesys.c:6267
+#: ../backend/genesys.c:5867
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
@@ -2315,56 +2343,66 @@ msgstr ""
 "Лампу буде вимкнено, коли спливе вказаний час (у хвилинах). Значення "
 "рівне 0 означатиме, що лампа не вимикатиметься."
 
-#: ../backend/genesys.c:6296 ../backend/genesys.c:6297
+#: ../backend/genesys.c:5877
+#, no-c-format
+msgid "Lamp off during scan"
+msgstr "Вимикання лампи під час сканування"
+
+#: ../backend/genesys.c:5878
+#, no-c-format
+msgid "The lamp will be turned off during scan. "
+msgstr "Лампу буде вимкнено під час сканування. "
+
+#: ../backend/genesys.c:5905 ../backend/genesys.c:5906
 #, no-c-format
 msgid "File button"
 msgstr "Кнопка «File»"
 
-#: ../backend/genesys.c:6349 ../backend/genesys.c:6350
+#: ../backend/genesys.c:5958 ../backend/genesys.c:5959
 #, no-c-format
 msgid "OCR button"
 msgstr "Кнопка «OCR»"
 
-#: ../backend/genesys.c:6363 ../backend/genesys.c:6364
+#: ../backend/genesys.c:5972 ../backend/genesys.c:5973
 #, no-c-format
 msgid "Power button"
 msgstr "Кнопка «Power»"
 
-#: ../backend/genesys.c:6377 ../backend/gt68xx.c:762
+#: ../backend/genesys.c:5986 ../backend/gt68xx.c:762
 #, no-c-format
 msgid "Need calibration"
 msgstr "Потребує калібрування"
 
-#: ../backend/genesys.c:6378 ../backend/gt68xx.c:763
+#: ../backend/genesys.c:5987 ../backend/gt68xx.c:763
 #, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "Для застосування поточних параметрів потрібне калібрування"
 
-#: ../backend/genesys.c:6391 ../backend/gt68xx.c:787
-#: ../backend/gt68xx.c:788 ../backend/pixma_sane_options.c:210
-#: ../backend/plustek.c:1079
+#: ../backend/genesys.c:6000 ../backend/gt68xx.c:787
+#: ../backend/gt68xx.c:788 ../backend/pixma_sane_options.c:225
+#: ../backend/plustek.c:1080
 #, no-c-format
 msgid "Buttons"
 msgstr "Кнопки"
 
-#: ../backend/genesys.c:6398 ../backend/gt68xx.c:794
+#: ../backend/genesys.c:6007 ../backend/gt68xx.c:794
 #: ../backend/hp5400_sane.c:392 ../backend/hp-option.h:97
-#: ../backend/niash.c:728 ../backend/plustek.c:940
+#: ../backend/niash.c:728 ../backend/plustek.c:941
 #, no-c-format
 msgid "Calibrate"
 msgstr "Відкалібрувати"
 
-#: ../backend/genesys.c:6400 ../backend/gt68xx.c:796
+#: ../backend/genesys.c:6009 ../backend/gt68xx.c:796
 #, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "Почати калібрування за допомогою спеціального аркуша"
 
-#: ../backend/genesys.c:6414 ../backend/gt68xx.c:809
+#: ../backend/genesys.c:6023 ../backend/gt68xx.c:809
 #, no-c-format
 msgid "Clear calibration"
 msgstr "Спорожнити дані калібрування"
 
-#: ../backend/genesys.c:6415 ../backend/gt68xx.c:810
+#: ../backend/genesys.c:6024 ../backend/gt68xx.c:810
 #, no-c-format
 msgid "Clear calibration cache"
 msgstr "Спорожнити кеш калібрування"
@@ -2806,7 +2844,7 @@ msgstr "Повільно"
 
 #: ../backend/hp-option.c:3145 ../backend/hp-option.c:3252
 #: ../backend/kvs40xx_opt.c:229 ../backend/matsushita.c:244
-#: ../backend/mustek.c:149 ../backend/plustek.c:233
+#: ../backend/mustek.c:149 ../backend/plustek.c:234
 #: ../backend/plustek_pp.c:200 ../backend/u12.c:155
 #, no-c-format
 msgid "Normal"
@@ -3059,43 +3097,43 @@ msgstr "Автоматичне відокремлення"
 
 #: ../backend/kvs1025.h:53 ../backend/kvs20xx_opt.c:306
 #: ../backend/kvs40xx_opt.c:530
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Landscape"
-msgstr "A5 альбомна"
+msgstr "Альбомна"
 
 #: ../backend/kvs1025.h:54 ../backend/kvs40xx_opt.c:692
 #, no-c-format
 msgid "Inverse Image"
-msgstr ""
+msgstr "Інверсивне зображення"
 
 #: ../backend/kvs1025.h:56 ../backend/kvs40xx_opt.c:403
 #, no-c-format
 msgid "Long paper mode"
-msgstr ""
+msgstr "Режим довгого паперу"
 
 #: ../backend/kvs1025.h:57 ../backend/kvs20xx_opt.c:229
 #: ../backend/kvs40xx_opt.c:392
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Length control mode"
-msgstr "Встановити режим керування щільністю"
+msgstr "Режим керування довжиною"
 
 #: ../backend/kvs1025.h:58 ../backend/kvs20xx_opt.c:241
 #: ../backend/kvs40xx_opt.c:415
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed mode"
-msgstr "Попереднє фокусування вручну"
+msgstr "Режим подавання вручну"
 
 #: ../backend/kvs1025.h:59 ../backend/kvs20xx_opt.c:253
 #: ../backend/kvs40xx_opt.c:427
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed timeout"
-msgstr "Попереднє фокусування вручну"
+msgstr "Час очікування на подачу вручну"
 
 #: ../backend/kvs1025.h:60 ../backend/kvs20xx_opt.c:266
 #: ../backend/kvs40xx_opt.c:440
 #, no-c-format
 msgid "Double feed detection"
-msgstr ""
+msgstr "Виявлення двобічного подавання"
 
 #: ../backend/kvs1025.h:63 ../backend/kvs20xx_opt.c:204
 #: ../backend/kvs40xx_opt.c:353 ../backend/matsushita.h:223
@@ -3112,162 +3150,162 @@ msgstr "Фізичний розмір паперу у пристрої авто�
 #: ../backend/kvs1025_opt.c:39
 #, no-c-format
 msgid "bw"
-msgstr ""
+msgstr "чб"
 
 #: ../backend/kvs1025_opt.c:40
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone"
-msgstr "Півтони"
+msgstr "півтони"
 
 #: ../backend/kvs1025_opt.c:41
 #, no-c-format
 msgid "gray"
-msgstr ""
+msgstr "сірий"
 
 #: ../backend/kvs1025_opt.c:42
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "color"
-msgstr "Кольорове"
+msgstr "кольорове"
 
 #: ../backend/kvs1025_opt.c:61 ../backend/kvs40xx_opt.c:107
 #: ../backend/kvs40xx_opt.c:1046
 #, no-c-format
 msgid "adf"
-msgstr ""
+msgstr "АПД"
 
 #: ../backend/kvs1025_opt.c:62 ../backend/kvs40xx_opt.c:49
 #: ../backend/kvs40xx_opt.c:108
 #, no-c-format
 msgid "fb"
-msgstr ""
+msgstr "планшет"
 
 #: ../backend/kvs1025_opt.c:72 ../backend/kvs20xx_opt.c:54
 #: ../backend/kvs40xx_opt.c:100
 #, no-c-format
 msgid "single"
-msgstr ""
+msgstr "однобічний"
 
 #: ../backend/kvs1025_opt.c:73 ../backend/kvs20xx.c:457
 #: ../backend/kvs20xx_opt.c:55 ../backend/kvs40xx.c:703
 #: ../backend/kvs40xx.c:721 ../backend/kvs40xx_opt.c:101
 #: ../backend/kvs40xx_opt.c:1086
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "continuous"
-msgstr "Продовжити"
+msgstr "безперервне"
 
 #: ../backend/kvs1025_opt.c:83 ../backend/kvs20xx_opt.c:61
 #: ../backend/kvs40xx_opt.c:114
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "off"
-msgstr "Вимкнути"
+msgstr "вимкнено"
 
 #: ../backend/kvs1025_opt.c:84 ../backend/kvs20xx_opt.c:62
 #: ../backend/kvs40xx_opt.c:115
 #, no-c-format
 msgid "wait_doc"
-msgstr ""
+msgstr "очік_документа"
 
 #: ../backend/kvs1025_opt.c:85 ../backend/kvs20xx_opt.c:63
 #: ../backend/kvs40xx_opt.c:117
 #, no-c-format
 msgid "wait_key"
-msgstr ""
+msgstr "очік_клавіші"
 
 #: ../backend/kvs1025_opt.c:96 ../backend/kvs20xx_opt.c:69
 #: ../backend/kvs40xx_opt.c:123 ../backend/kvs40xx_opt.c:140
 #, no-c-format
 msgid "user_def"
-msgstr ""
+msgstr "визн_користувачем"
 
 #: ../backend/kvs1025_opt.c:97 ../backend/kvs20xx_opt.c:70
 #: ../backend/kvs40xx_opt.c:124 ../backend/kvs40xx_opt.c:141
 #, no-c-format
 msgid "business_card"
-msgstr ""
+msgstr "бізнес_картка"
 
 #: ../backend/kvs1025_opt.c:98 ../backend/kvs40xx_opt.c:125
 #: ../backend/kvs40xx_opt.c:142
 #, no-c-format
 msgid "Check"
-msgstr ""
+msgstr "Чек"
 
 #: ../backend/kvs1025_opt.c:101 ../backend/kvs20xx_opt.c:74
 #: ../backend/kvs40xx_opt.c:128 ../backend/kvs40xx_opt.c:145
 #, no-c-format
 msgid "A5"
-msgstr ""
+msgstr "A5"
 
 #: ../backend/kvs1025_opt.c:102 ../backend/kvs20xx_opt.c:75
 #: ../backend/kvs40xx_opt.c:129 ../backend/kvs40xx_opt.c:146
 #, no-c-format
 msgid "A6"
-msgstr ""
+msgstr "A6"
 
 #: ../backend/kvs1025_opt.c:106 ../backend/kvs20xx_opt.c:79
 #: ../backend/kvs40xx_opt.c:133 ../backend/kvs40xx_opt.c:150
 #, no-c-format
 msgid "B5"
-msgstr ""
+msgstr "B5"
 
 #: ../backend/kvs1025_opt.c:107 ../backend/kvs20xx_opt.c:80
 #: ../backend/kvs40xx_opt.c:134 ../backend/kvs40xx_opt.c:151
 #, no-c-format
 msgid "B6"
-msgstr ""
+msgstr "B6"
 
 #: ../backend/kvs1025_opt.c:108 ../backend/kvs20xx_opt.c:81
 #: ../backend/kvs40xx_opt.c:135 ../backend/kvs40xx_opt.c:152
 #, no-c-format
 msgid "Legal"
-msgstr ""
+msgstr "Легал"
 
 #: ../backend/kvs1025_opt.c:149 ../backend/kvs40xx_opt.c:238
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "bayer_64"
-msgstr "Секція"
+msgstr "баєр_64"
 
 #: ../backend/kvs1025_opt.c:150 ../backend/kvs40xx_opt.c:239
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "bayer_16"
-msgstr "Секція"
+msgstr "баєр_16"
 
 #: ../backend/kvs1025_opt.c:151 ../backend/kvs40xx_opt.c:240
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone_32"
-msgstr "Півтони"
+msgstr "напівтони_32"
 
 #: ../backend/kvs1025_opt.c:152 ../backend/kvs40xx_opt.c:241
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone_64"
-msgstr "Півтони"
+msgstr "напівтони_64"
 
 #: ../backend/kvs1025_opt.c:153
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "diffusion"
-msgstr "Дифузія"
+msgstr "розсіяне"
 
 #: ../backend/kvs1025_opt.c:166 ../backend/kvs1025_opt.c:228
 #: ../backend/kvs1025_opt.c:241 ../backend/kvs20xx_opt.c:128
 #: ../backend/kvs20xx_opt.c:136 ../backend/kvs40xx_opt.c:214
 #: ../backend/kvs40xx_opt.c:222 ../backend/kvs40xx_opt.c:257
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "normal"
-msgstr "Звичайна"
+msgstr "звичайне"
 
 #: ../backend/kvs1025_opt.c:167 ../backend/kvs40xx_opt.c:258
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "light"
-msgstr "Підсвічування"
+msgstr "світле"
 
 #: ../backend/kvs1025_opt.c:168 ../backend/kvs40xx_opt.c:259
 #, no-c-format
 msgid "dark"
-msgstr ""
+msgstr "темне"
 
 #: ../backend/kvs1025_opt.c:179 ../backend/kvs40xx_opt.c:270
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "From scanner"
-msgstr "плівковий сканер"
+msgstr "Зі сканера"
 
 #: ../backend/kvs1025_opt.c:180 ../backend/kvs40xx_opt.c:271
 #: ../backend/matsushita.c:177
@@ -3276,73 +3314,73 @@ msgid "From paper"
 msgstr "Від паперу"
 
 #: ../backend/kvs1025_opt.c:192 ../backend/kvs40xx_opt.c:283
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "default"
-msgstr "Типовий"
+msgstr "типове"
 
 #: ../backend/kvs1025_opt.c:211 ../backend/kvs20xx_opt.c:122
 #: ../backend/kvs40xx_opt.c:208
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "smooth"
-msgstr "Плавний"
+msgstr "гладке"
 
 #: ../backend/kvs1025_opt.c:212 ../backend/kvs20xx_opt.c:118
 #: ../backend/kvs40xx_opt.c:204
 #, no-c-format
 msgid "none"
-msgstr ""
+msgstr "немає"
 
 #: ../backend/kvs1025_opt.c:213 ../backend/kvs20xx_opt.c:119
 #: ../backend/kvs40xx_opt.c:205
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "low"
-msgstr "Повільно"
+msgstr "низьке"
 
 #: ../backend/kvs1025_opt.c:214 ../backend/kvs1025_opt.c:804
 #: ../backend/kvs20xx_opt.c:120 ../backend/kvs40xx_opt.c:206
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "medium"
-msgstr "Середній"
+msgstr "середнє"
 
 #: ../backend/kvs1025_opt.c:215 ../backend/kvs20xx_opt.c:121
 #: ../backend/kvs40xx_opt.c:207
 #, no-c-format
 msgid "high"
-msgstr ""
+msgstr "високе"
 
 #: ../backend/kvs1025_opt.c:229 ../backend/kvs20xx_opt.c:129
 #: ../backend/kvs40xx_opt.c:215
 #, no-c-format
 msgid "crt"
-msgstr ""
+msgstr "ЕПТ"
 
 #: ../backend/kvs1025_opt.c:230
 #, no-c-format
 msgid "linier"
-msgstr ""
+msgstr "лінійна"
 
 #: ../backend/kvs1025_opt.c:242 ../backend/kvs20xx_opt.c:137
 #: ../backend/kvs40xx_opt.c:223
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "red"
-msgstr "Червоний"
+msgstr "червоний"
 
 #: ../backend/kvs1025_opt.c:243 ../backend/kvs20xx_opt.c:138
 #: ../backend/kvs40xx_opt.c:224
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "green"
-msgstr "Зелений"
+msgstr "зелений"
 
 #: ../backend/kvs1025_opt.c:244 ../backend/kvs20xx_opt.c:139
 #: ../backend/kvs40xx_opt.c:225
 #, no-c-format
 msgid "blue"
-msgstr ""
+msgstr "синій"
 
 #: ../backend/kvs1025_opt.c:562
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the scan source"
-msgstr "Джерело сканування"
+msgstr "Встановлює джерело сканування"
 
 #: ../backend/kvs1025_opt.c:573 ../backend/kvs20xx_opt.c:217
 #: ../backend/kvs40xx_opt.c:366 ../backend/matsushita.c:1126
@@ -3357,56 +3395,56 @@ msgid "Sets the feeding mode"
 msgstr "Визначити режим подачі"
 
 #: ../backend/kvs1025_opt.c:584
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable/Disable long paper mode"
-msgstr "Увімкнути/Вимкнути автоматичне фокусування"
+msgstr "Увімкнути/Вимкнути режим довгого паперу"
 
 #: ../backend/kvs1025_opt.c:593
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable/Disable length control mode"
-msgstr "Встановити режим керування щільністю"
+msgstr "Увімкнути/Вимкнути режим керування довжиною"
 
 #: ../backend/kvs1025_opt.c:601 ../backend/kvs20xx_opt.c:242
 #: ../backend/kvs40xx_opt.c:416
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the manual feed mode"
-msgstr "Визначити режим подачі"
+msgstr "Встановлює режим подавання вручну"
 
 #: ../backend/kvs1025_opt.c:612 ../backend/kvs20xx_opt.c:254
 #: ../backend/kvs40xx_opt.c:428
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the manual feed timeout in seconds"
-msgstr "Визначити режим подачі"
+msgstr "Встановлює час очікування на подавання вручну"
 
 #: ../backend/kvs1025_opt.c:625 ../backend/kvs20xx_opt.c:267
 #: ../backend/kvs40xx_opt.c:441
 #, no-c-format
 msgid "Enable/Disable double feed detection"
-msgstr ""
+msgstr "Увімкнути або вимкнути виявлення подвійного подавання"
 
 #: ../backend/kvs1025_opt.c:631 ../backend/kvs20xx_opt.c:275
 #: ../backend/kvs40xx_opt.c:496
 #, no-c-format
 msgid "fit-to-page"
-msgstr ""
+msgstr "за аркушем"
 
 #: ../backend/kvs1025_opt.c:632 ../backend/kvs20xx_opt.c:276
 #: ../backend/kvs40xx_opt.c:497
 #, no-c-format
 msgid "Fit to page"
-msgstr ""
+msgstr "За аркушем"
 
 #: ../backend/kvs1025_opt.c:634 ../backend/kvs20xx_opt.c:277
 #: ../backend/kvs40xx_opt.c:498
 #, no-c-format
 msgid "Scanner shrinks image to fit scanned page"
-msgstr ""
+msgstr "Сканер стискає зображення відповідно до розмірів аркуша"
 
 #: ../backend/kvs1025_opt.c:661 ../backend/kvs20xx_opt.c:308
 #: ../backend/kvs40xx_opt.c:532
 #, no-c-format
 msgid "Set paper position : true for landscape, false for portrait"
-msgstr ""
+msgstr "Встановлює розташування аркуша: true — альбомне, false — книжкове"
 
 #: ../backend/kvs1025_opt.c:735 ../backend/matsushita.c:1224
 #, no-c-format
@@ -3448,102 +3486,87 @@ msgstr "Визначає виразність зображення"
 
 #: ../backend/kvs1025_opt.c:808 ../backend/kvs1025_opt.c:809
 #: ../backend/matsushita.c:1300 ../backend/matsushita.c:1301
-#: ../backend/pixma_sane_options.c:107
+#: ../backend/pixma_sane_options.c:108
 #, no-c-format
 msgid "Gamma"
 msgstr "Гама"
 
 #: ../backend/kvs1025_opt.c:818 ../backend/kvs20xx_opt.c:435
 #: ../backend/kvs40xx_opt.c:680
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp color"
-msgstr "Увімкнути лампу"
+msgstr "Колір лампи"
 
 #: ../backend/kvs1025_opt.c:819 ../backend/kvs20xx_opt.c:436
 #: ../backend/kvs40xx_opt.c:681
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the lamp color (color dropout)"
-msgstr "Вмикає або вимикає лампу."
+msgstr "Встановлює колір лампи (відкидання кольорів)"
 
 #: ../backend/kvs1025_opt.c:832
 #, no-c-format
 msgid "Inverse image in B/W or halftone mode"
-msgstr ""
+msgstr "Інверсивне зображення у чорно-білому або півтоновому режимі"
 
 #: ../backend/kvs1025_opt.c:840
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Mirror image (left/right flip)"
-msgstr "Віддзеркалити зображення по вертикалі."
+msgstr "Віддзеркалити зображення (перевертання через лівий/правий край)"
 
 #: ../backend/kvs1025_opt.c:847
 #, no-c-format
 msgid "jpeg compression"
-msgstr ""
+msgstr "стискання jpeg"
 
 #: ../backend/kvs1025_opt.c:850
 #, no-c-format
 msgid "JPEG Image Compression with Q parameter, '0' - no compression"
-msgstr ""
+msgstr "Стискання зображень JPEG з параметром Q, «0» — не стискати"
 
 #: ../backend/kvs1025_opt.c:860
 #, no-c-format
 msgid "Rotate image clockwise"
-msgstr ""
+msgstr "Обернути зображення за год. стрілкою"
 
 #: ../backend/kvs1025_opt.c:862
 #, no-c-format
 msgid "Request driver to rotate pages by a fixed amount"
-msgstr ""
+msgstr "Вимагати від драйвера обертання сторінок на фіксований вказаний кут"
 
 #: ../backend/kvs1025_opt.c:872
 #, no-c-format
 msgid "Software deskew"
-msgstr ""
+msgstr "Програмне усування обертання"
 
 #: ../backend/kvs1025_opt.c:874
 #, no-c-format
 msgid "Request driver to rotate skewed pages digitally"
 msgstr ""
+"Вимагати від драйвера усування обертання сторінок у автоматичному режимі"
 
 #: ../backend/kvs1025_opt.c:881
 #, no-c-format
 msgid "Software despeckle diameter"
-msgstr ""
+msgstr "Діаметр плям для програмного усування"
 
 #: ../backend/kvs1025_opt.c:883
 #, no-c-format
 msgid "Maximum diameter of lone dots to remove from scan"
 msgstr ""
-
-#: ../backend/kvs1025_opt.c:893
-#, no-c-format
-msgid "Software derotate"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:895
-#, no-c-format
-msgid "Request driver to detect and correct 90 degree image rotation"
-msgstr ""
+"Мінімальний діаметр окремих плям, які слід усунути зі сканованого "
+"зображення"
 
 #: ../backend/kvs1025_opt.c:902
 #, no-c-format
 msgid "Software automatic cropping"
-msgstr ""
+msgstr "Програмне автоматичне обрізання"
 
 #: ../backend/kvs1025_opt.c:904
 #, no-c-format
 msgid "Request driver to remove border from pages digitally"
 msgstr ""
-
-#: ../backend/kvs1025_opt.c:911
-#, no-c-format
-msgid "Software blank skip percentage"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:913
-#, no-c-format
-msgid "Request driver to discard pages with low numbers of dark pixels"
-msgstr ""
+"Вимагати від драйвера вилучення границі зі сторінок у автоматичному "
+"режимі"
 
 #: ../backend/kvs20xx_opt.c:232 ../backend/kvs40xx_opt.c:395
 #, no-c-format
@@ -3551,6 +3574,8 @@ msgid ""
 "Length Control Mode is a mode that the scanner reads up to the shorter "
 "length of actual paper or logical document length."
 msgstr ""
+"У режимі керування довжиною сканер читає дані до найкоротшої з таких "
+"довжин: дійсної довжини аркуша паперу або логічної довжини документа."
 
 #: ../backend/kvs20xx_opt.c:423 ../backend/kvs20xx_opt.c:424
 #: ../backend/kvs40xx_opt.c:667 ../backend/kvs40xx_opt.c:668
@@ -3562,179 +3587,182 @@ msgstr "Виправлення гами"
 #: ../backend/kvs40xx_opt.c:116
 #, no-c-format
 msgid "wait_doc_hopper_up"
-msgstr ""
+msgstr "очік_документа_з_бункера"
 
 #: ../backend/kvs40xx_opt.c:126
 #, no-c-format
 msgid "A3"
-msgstr ""
+msgstr "A3"
 
 #: ../backend/kvs40xx_opt.c:131
 #, no-c-format
 msgid "Double letter 11x17 in"
-msgstr ""
+msgstr "Подвійний лист 11x17 дюймів"
 
 #: ../backend/kvs40xx_opt.c:132
 #, no-c-format
 msgid "B4"
-msgstr ""
+msgstr "B4"
 
 #: ../backend/kvs40xx_opt.c:230
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "High sensivity"
-msgstr "Друк з високою щільністю"
+msgstr "Висока чутливість"
 
 #: ../backend/kvs40xx_opt.c:231
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Low sensivity"
-msgstr "Друк з низькою щільністю"
+msgstr "Низька чутливість"
 
 #: ../backend/kvs40xx_opt.c:242
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "err_diffusion"
-msgstr "Дифузія"
+msgstr "помилка_розс"
 
 #: ../backend/kvs40xx_opt.c:248
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "No detection"
-msgstr "Без виправлення"
+msgstr "Без виявлення"
 
 #: ../backend/kvs40xx_opt.c:249
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Normal mode"
-msgstr "Звичайна"
+msgstr "Звичайний режим"
 
 #: ../backend/kvs40xx_opt.c:250
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enhanced mode"
-msgstr "Покращення"
+msgstr "Розширений режим"
 
 #: ../backend/kvs40xx_opt.c:404
 #, no-c-format
 msgid ""
 "Long Paper Mode is a mode that the scanner reads the image after it "
-"divides long paperby the length which is set in Document Size option"
+"divides long paper by the length which is set in Document Size option."
 msgstr ""
+"У режимі довгого паперу сканер виконує читання зображення після поділу "
+"довгого листа паперу на відрізки довжини, встановлені за допомогою "
+"параметра «Розмір документа»"
 
 #: ../backend/kvs40xx_opt.c:448
 #, no-c-format
 msgid "Double feed detector sensitivity"
-msgstr ""
+msgstr "Значення чутливості датчика подвійного подавання"
 
 #: ../backend/kvs40xx_opt.c:449
 #, no-c-format
 msgid "Set the double feed detector sensitivity"
-msgstr ""
+msgstr "Встановити значення чутливості датчика подвійного подавання"
 
 #: ../backend/kvs40xx_opt.c:460 ../backend/kvs40xx_opt.c:461
 #, no-c-format
 msgid "Do not stop after double feed detection"
-msgstr ""
+msgstr "Не зупинятися після виявлення подвійного подавання"
 
 #: ../backend/kvs40xx_opt.c:469 ../backend/kvs40xx_opt.c:470
 #, no-c-format
 msgid "Ignore left double feed sensor"
-msgstr ""
+msgstr "Ігнорувати лівий датчик подвійного подавання"
 
 #: ../backend/kvs40xx_opt.c:478 ../backend/kvs40xx_opt.c:479
 #, no-c-format
 msgid "Ignore center double feed sensor"
-msgstr ""
+msgstr "Ігнорувати центральний датчик подвійного подавання"
 
 #: ../backend/kvs40xx_opt.c:487 ../backend/kvs40xx_opt.c:488
 #, no-c-format
 msgid "Ignore right double feed sensor"
-msgstr ""
+msgstr "Ігнорувати правий датчик подвійного подавання"
 
 #: ../backend/kvs40xx_opt.c:641
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Automatic threshold mode"
-msgstr "Автоматичне визначення"
+msgstr "Режим автоматичного порогового значення"
 
 #: ../backend/kvs40xx_opt.c:642
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the automatic threshold mode"
-msgstr "Автоматичне визначення"
+msgstr "Встановлює режим автоматичного порогового значення"
 
 #: ../backend/kvs40xx_opt.c:693
 #, no-c-format
 msgid "Inverse image in B/W mode"
-msgstr ""
+msgstr "Інверсивне зображення у чорно-білому режимі"
 
 #: ../backend/kvs40xx_opt.c:714
 #, no-c-format
 msgid "JPEG compression"
-msgstr ""
+msgstr "Стискання JPEG"
 
 #: ../backend/kvs40xx_opt.c:717
 #, no-c-format
 msgid "JPEG compression (yours application must be able to uncompress)"
-msgstr ""
+msgstr "Стискання JPEG (ваша програма повинна мати змогу розпакувати дані)"
 
 #: ../backend/kvs40xx_opt.c:736 ../backend/kvs40xx_opt.c:737
 #, no-c-format
 msgid "Detect stapled document"
-msgstr ""
+msgstr "Виявляти підшиті документи"
 
 #: ../backend/kvs40xx_opt.c:775
 #, no-c-format
 msgid "chroma of red"
-msgstr ""
+msgstr "інтенсивність червоного"
 
 #: ../backend/kvs40xx_opt.c:776
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set chroma of red"
-msgstr "Визначити порядок кадрів"
+msgstr "Встановити інтенсивність червоного"
 
 #: ../backend/kvs40xx_opt.c:786
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "chroma of blue"
-msgstr "Затіненість для синього"
+msgstr "інтенсивність синього"
 
 #: ../backend/kvs40xx_opt.c:787
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set chroma of blue"
-msgstr "Зсув червоного до синього"
+msgstr "Встановити інтенсивність синього"
 
 #: ../backend/kvs40xx_opt.c:797 ../backend/kvs40xx_opt.c:798
 #, no-c-format
 msgid "Skew adjustment"
-msgstr ""
+msgstr "Коригування перекошування"
 
 #: ../backend/kvs40xx_opt.c:807
 #, no-c-format
 msgid "Stop scanner when a paper have been skewed"
-msgstr ""
+msgstr "Зупинити сканування, якщо папір було перекошено"
 
 #: ../backend/kvs40xx_opt.c:808
 #, no-c-format
 msgid "Scanner will be stop  when a paper have been skewed"
-msgstr ""
+msgstr "Сканування буде зупинено, якщо папір було вставлено з нахилом"
 
 #: ../backend/kvs40xx_opt.c:815
 #, no-c-format
 msgid "Crop actual image area"
-msgstr ""
+msgstr "Обрізати до справжньої області зображення"
 
 #: ../backend/kvs40xx_opt.c:816
 #, no-c-format
 msgid "Scanner automatically detect image area and crop it"
-msgstr ""
+msgstr "Сканер автоматично визначає область зображення і обрізає його"
 
 #: ../backend/kvs40xx_opt.c:826
 #, no-c-format
 msgid "It is right and left reversing"
-msgstr ""
+msgstr "Перевертання ліворуч і праворуч"
 
 #: ../backend/kvs40xx_opt.c:833 ../backend/kvs40xx_opt.c:834
 #, no-c-format
 msgid "Addition of space in top position"
-msgstr ""
+msgstr "Додавання простору у верхній частині"
 
 #: ../backend/kvs40xx_opt.c:841 ../backend/kvs40xx_opt.c:842
 #, no-c-format
 msgid "Addition of space in bottom position"
-msgstr ""
+msgstr "Додавання простору у нижній частині"
 
 #: ../backend/leo.c:110
 #, no-c-format
@@ -3781,7 +3809,7 @@ msgstr "Підсилення сірого"
 msgid "Sets gray channel gain"
 msgstr "Визначає підсилення сірого каналу"
 
-#: ../backend/lexmark.c:297 ../backend/plustek.c:1000
+#: ../backend/lexmark.c:297 ../backend/plustek.c:1001
 #: ../backend/umax_pp.c:735
 #, no-c-format
 msgid "Red gain"
@@ -3792,7 +3820,7 @@ msgstr "Підсилення червоного"
 msgid "Sets red channel gain"
 msgstr "Визначає підсилення каналу червоного"
 
-#: ../backend/lexmark.c:311 ../backend/plustek.c:1016
+#: ../backend/lexmark.c:311 ../backend/plustek.c:1017
 #: ../backend/umax_pp.c:747
 #, no-c-format
 msgid "Green gain"
@@ -3803,7 +3831,7 @@ msgstr "Підсилення зеленого"
 msgid "Sets green channel gain"
 msgstr "Визначає підсилення каналу зеленого"
 
-#: ../backend/lexmark.c:325 ../backend/plustek.c:1032
+#: ../backend/lexmark.c:325 ../backend/plustek.c:1033
 #: ../backend/umax_pp.c:759
 #, no-c-format
 msgid "Blue gain"
@@ -3895,7 +3923,7 @@ msgstr "Одна сторінка"
 msgid "All pages"
 msgstr "Всі сторінки"
 
-#: ../backend/matsushita.c:1034 ../backend/plustek.c:1332
+#: ../backend/matsushita.c:1034 ../backend/plustek.c:1333
 #, no-c-format
 msgid "sheetfed scanner"
 msgstr "сканер з подачею аркушів"
@@ -3952,8 +3980,7 @@ msgstr "Калібрування програмою обробки"
 
 #: ../backend/microtek2.h:617
 #, no-c-format
-msgid ""
-"If checked the color calibration before a scan is done by the backend"
+msgid "If checked the color calibration before a scan is done by the backend"
 msgstr ""
 "Якщо позначено цей пункт, калібрування кольорів перед скануванням "
 "виконується програмою обробки"
@@ -4037,8 +4064,7 @@ msgstr "Скалярна гама червоного"
 #: ../backend/microtek2.h:655
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (red channel)"
-msgstr ""
-"Визначає значення для скалярного виправлення гами (канал червоного)."
+msgstr "Визначає значення для скалярного виправлення гами (канал червоного)."
 
 #: ../backend/microtek2.h:659
 #, no-c-format
@@ -4048,8 +4074,7 @@ msgstr "Скалярна гама зеленого"
 #: ../backend/microtek2.h:660
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (green channel)"
-msgstr ""
-"Визначає значення для скалярного виправлення гами (канал зеленого)."
+msgstr "Визначає значення для скалярного виправлення гами (канал зеленого)."
 
 #: ../backend/microtek2.h:664
 #, no-c-format
@@ -4070,8 +4095,7 @@ msgstr "Канал"
 #, no-c-format
 msgid ""
 "Selects the colour band, \"Master\" means that all colours are affected."
-msgstr ""
-"Визначає зв’язок кольорів. «Основний» визначає зв’язок всіх кольорів."
+msgstr "Визначає зв’язок кольорів. «Основний» визначає зв’язок всіх кольорів."
 
 #: ../backend/microtek2.h:674
 #, no-c-format
@@ -4408,12 +4432,42 @@ msgstr ""
 "Розігрівати, до сталої яскравості лампи, не наполягати на 40-ти "
 "секундному розігріві."
 
-#: ../backend/pixma_sane_options.c:91
+#: ../backend/pixma.c:357
+#, no-c-format
+msgid "Negative color"
+msgstr "Кольоровий негатив"
+
+#: ../backend/pixma.c:362
+#, no-c-format
+msgid "Negative gray"
+msgstr "Чорно-білий негатив"
+
+#: ../backend/pixma.c:369
+#, no-c-format
+msgid "48 bits color"
+msgstr "48-бітовий колір"
+
+#: ../backend/pixma.c:374
+#, no-c-format
+msgid "16 bits gray"
+msgstr "16-бітовий сірий"
+
+#: ../backend/pixma_sane_options.c:80
+#, no-c-format
+msgid ""
+"Selects the scan source (such as a document-feeder). Set source before "
+"mode and resolution. Resets mode and resolution to auto values."
+msgstr ""
+"Визначає джерело сканування (зокрема пристрій подачі документів). "
+"Встановіть джерело перед режимом і роздільною здатністю. Відновлює "
+"автоматично визначені значення режиму та роздільної здатності."
+
+#: ../backend/pixma_sane_options.c:94
 #, no-c-format
 msgid "Button-controlled scan"
 msgstr "Кероване кнопкою сканування"
 
-#: ../backend/pixma_sane_options.c:94
+#: ../backend/pixma_sane_options.c:95
 #, no-c-format
 msgid ""
 "When enabled, scan process will not start immediately. To proceed, press "
@@ -4424,178 +4478,188 @@ msgstr ""
 "негайно. Для продовження, натисніть кнопку «SCAN» (MP150) або "
 "«COLOR» (для інших моделей). Для скасування натисніть кнопку «GRAY»."
 
-#: ../backend/pixma_sane_options.c:216
+#: ../backend/pixma_sane_options.c:143
+#, no-c-format
+msgid "Gamma function exponent"
+msgstr "Показник функції гами"
+
+#: ../backend/pixma_sane_options.c:144
+#, no-c-format
+msgid "Changes intensity of midtones"
+msgstr "Змінює інтенсивність напівтонів"
+
+#: ../backend/pixma_sane_options.c:231
 #, no-c-format
 msgid "Update button state"
 msgstr "Оновити стан кнопки"
 
-#: ../backend/pixma_sane_options.c:228
+#: ../backend/pixma_sane_options.c:243
 #, no-c-format
 msgid "Button 1"
 msgstr "Кнопка 1"
 
-#: ../backend/pixma_sane_options.c:242
+#: ../backend/pixma_sane_options.c:257
 #, no-c-format
 msgid "Button 2"
 msgstr "Кнопка 2"
 
-#: ../backend/plustek.c:234 ../backend/plustek_pp.c:201
+#: ../backend/plustek.c:235 ../backend/plustek_pp.c:201
 #: ../backend/u12.c:156
 #, no-c-format
 msgid "Transparency"
 msgstr "Прозорість"
 
-#: ../backend/plustek.c:912
+#: ../backend/plustek.c:913
 #, no-c-format
 msgid "Device-Settings"
 msgstr "Параметри пристрою"
 
-#: ../backend/plustek.c:919
+#: ../backend/plustek.c:920
 #, no-c-format
 msgid "Lampswitch"
 msgstr "Перемикач лампи"
 
-#: ../backend/plustek.c:920
+#: ../backend/plustek.c:921
 #, no-c-format
 msgid "Manually switching the lamp(s)."
 msgstr "Перемикання ламп вручну."
 
-#: ../backend/plustek.c:925
+#: ../backend/plustek.c:926
 #, no-c-format
 msgid "Lamp off during dark calibration"
 msgstr "Вимикання лампи під час калібрування темного"
 
-#: ../backend/plustek.c:926
+#: ../backend/plustek.c:927
 #, no-c-format
 msgid "Always switches lamp off when doing dark calibration."
 msgstr "Завжди вимикати лампу під час виконання калібрування темної зони"
 
-#: ../backend/plustek.c:934
+#: ../backend/plustek.c:935
 #, no-c-format
 msgid "Calibration data cache"
 msgstr "Кешування даних калібрування"
 
-#: ../backend/plustek.c:935
+#: ../backend/plustek.c:936
 #, no-c-format
 msgid "Enables or disables calibration data cache."
 msgstr "Вмикає або вимикає кешування даних калібрування."
 
-#: ../backend/plustek.c:941
+#: ../backend/plustek.c:942
 #, no-c-format
 msgid "Performs calibration"
 msgstr "Виконує калібрування"
 
-#: ../backend/plustek.c:958
+#: ../backend/plustek.c:959
 #, no-c-format
 msgid "Speedup sensor"
 msgstr "Пришвидшити датчик"
 
-#: ../backend/plustek.c:959
+#: ../backend/plustek.c:960
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
 msgstr "Вмикає або вимикає пришвидшення руху датчика."
 
-#: ../backend/plustek.c:973
+#: ../backend/plustek.c:974
 #, no-c-format
 msgid "Warmup-time"
 msgstr "Час розігріву"
 
-#: ../backend/plustek.c:974
+#: ../backend/plustek.c:975
 #, no-c-format
 msgid "Warmup-time in seconds."
 msgstr "Час розігріву у секундах."
 
-#: ../backend/plustek.c:986
+#: ../backend/plustek.c:987
 #, no-c-format
 msgid "Lampoff-time"
 msgstr "Час вимикання"
 
-#: ../backend/plustek.c:987
+#: ../backend/plustek.c:988
 #, no-c-format
 msgid "Lampoff-time in seconds."
 msgstr "Час вимикання лампи у секундах."
 
-#: ../backend/plustek.c:994
+#: ../backend/plustek.c:995
 #, no-c-format
 msgid "Analog frontend"
 msgstr "Аналогова оболонка"
 
-#: ../backend/plustek.c:1001
+#: ../backend/plustek.c:1002
 #, no-c-format
 msgid "Red gain value of the AFE"
 msgstr "Значення підсилення червоного AFE"
 
-#: ../backend/plustek.c:1008 ../backend/umax_pp.c:792
+#: ../backend/plustek.c:1009 ../backend/umax_pp.c:792
 #, no-c-format
 msgid "Red offset"
 msgstr "Зміщення червоного"
 
-#: ../backend/plustek.c:1009
+#: ../backend/plustek.c:1010
 #, no-c-format
 msgid "Red offset value of the AFE"
 msgstr "Значення зміщення червоного AFE"
 
-#: ../backend/plustek.c:1017
+#: ../backend/plustek.c:1018
 #, no-c-format
 msgid "Green gain value of the AFE"
 msgstr "Значення підсилення зеленого AFE"
 
-#: ../backend/plustek.c:1024 ../backend/umax_pp.c:804
+#: ../backend/plustek.c:1025 ../backend/umax_pp.c:804
 #, no-c-format
 msgid "Green offset"
 msgstr "Зміщення зеленого"
 
-#: ../backend/plustek.c:1025
+#: ../backend/plustek.c:1026
 #, no-c-format
 msgid "Green offset value of the AFE"
 msgstr "Значення зміщення зеленого AFE"
 
-#: ../backend/plustek.c:1033
+#: ../backend/plustek.c:1034
 #, no-c-format
 msgid "Blue gain value of the AFE"
 msgstr "Значення підсилення синього AFE"
 
-#: ../backend/plustek.c:1040 ../backend/umax_pp.c:816
+#: ../backend/plustek.c:1041 ../backend/umax_pp.c:816
 #, no-c-format
 msgid "Blue offset"
 msgstr "Зміщення синього"
 
-#: ../backend/plustek.c:1041
+#: ../backend/plustek.c:1042
 #, no-c-format
 msgid "Blue offset value of the AFE"
 msgstr "Значення зміщення синього AFE"
 
-#: ../backend/plustek.c:1048
+#: ../backend/plustek.c:1049
 #, no-c-format
 msgid "Red lamp off"
 msgstr "Вимикання лампи червоного"
 
-#: ../backend/plustek.c:1049
+#: ../backend/plustek.c:1050
 #, no-c-format
 msgid "Defines red lamp off parameter"
 msgstr "Визначає параметр вимикання лампи червоного"
 
-#: ../backend/plustek.c:1056
+#: ../backend/plustek.c:1057
 #, no-c-format
 msgid "Green lamp off"
 msgstr "Вимикання лампи зеленого"
 
-#: ../backend/plustek.c:1057
+#: ../backend/plustek.c:1058
 #, no-c-format
 msgid "Defines green lamp off parameter"
 msgstr "Визначає параметр вимикання лампи зеленого"
 
-#: ../backend/plustek.c:1064
+#: ../backend/plustek.c:1065
 #, no-c-format
 msgid "Blue lamp off"
 msgstr "Вимикання лампи синього"
 
-#: ../backend/plustek.c:1065
+#: ../backend/plustek.c:1066
 #, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr "Визначає параметр вимикання лампи синього"
 
-#: ../backend/plustek.c:1095
+#: ../backend/plustek.c:1096
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
 msgstr "Цей параметр відповідає стану кнопок сканера."
@@ -4673,8 +4737,7 @@ msgstr ""
 
 #: ../backend/pnm.c:283
 #, no-c-format
-msgid ""
-"Set default values for enhancement controls (brightness & contrast)."
+msgid "Set default values for enhancement controls (brightness & contrast)."
 msgstr ""
 "Встановити типові значення керування покращенням (яскравістю і "
 "контрастністю)."
@@ -4995,8 +5058,7 @@ msgstr "Другий запис"
 msgid ""
 "This is the very long third entry. Maybe the frontend has an idea how to "
 "display it"
-msgstr ""
-"Третій запис є затримується. Можливо, оболонка не може його показати."
+msgstr "Третій запис є затримується. Можливо, оболонка не може його показати."
 
 #: ../backend/test.c:348
 #, no-c-format
@@ -5112,8 +5174,7 @@ msgstr "Розмір границі читання"
 
 #: ../backend/test.c:499
 #, no-c-format
-msgid ""
-"The (maximum) amount of data transferred with each call to sane_read()."
+msgid "The (maximum) amount of data transferred with each call to sane_read()."
 msgstr ""
 "Об’єм (максимальний) даних, які буде передано під час кожного з викликів "
 "sane_read()."
@@ -5648,3 +5709,4 @@ msgstr "Визначає зсув каналу зеленого"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Визначає зсув каналу синього"
+

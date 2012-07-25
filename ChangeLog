@@ -1,3 +1,10 @@
+2012-07-24 m. allan noah <kitno455 at gmail dot com>
+	* backend/kvs40xx_opt.c: Oops- it is new
+	* doc/descriptions/kvs40xx.desc: Fix typo (Yuri Chornoivan)
+	* po/uk.po: Updated (Yuri Chornoivan)
+	* tools/Makefile.am, tools/Makefile.in, tools/sane-config.in: 
+	sane-config fixes (Ruediger Meier)
+
 2012-07-15 Ilia Sotnikov <hostcc@gmail.com>
 	* backend/hp5590.c, backend/hp5590_low.c:
 	Fix hp5590 backend on big-endian platforms provided by Nhan Ngo Dinh

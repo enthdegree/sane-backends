@@ -1,3 +1,7 @@
+2012-07-26 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* README.linux: 
+	New detailled description for the installation of SANE backend.
+
 2012-07-24 m. allan noah <kitno455 at gmail dot com>
 	* backend/kvs40xx_opt.c: Oops- it is new
 	* doc/descriptions/kvs40xx.desc: Fix typo (Yuri Chornoivan)

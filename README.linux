@@ -192,35 +192,39 @@ Install missing development packages with your prefered package manager:
   libusb-dev
 
 Search the location where your system installed libsane.so.1.
-  Each distribution uses different folders and package names for the libraries.
+  Each distribution uses different folders for the libraries.
   
-  On systems with DEB packaging (e.g. Debian, [KX]Ubuntu, LinuxMint) you can 
-    search the location of libsane with this command (the response can be 
-    different to this example):
+  Here are some examples from 64 bit Ubuntu 10.04. For the installation process
+  you need to replace /usr/lib with the folder detected on your system.
+  
+  $ sudo find / -name libsane.so.1
+  /usr/lib/libsane.so.1
 
-    $ dpkg -L libsane | grep libsane.so.1
-    /usr/lib/libsane.so.1.0.20
+  /usr/lib is the folder we are looking for.
+  
+  Be careful on 64 bit systems, if you already installed 32 bit compatibility
+    libraries, e.g. the package ia32-libs: 
+
+    $ sudo find / -name libsane.so.1
     /usr/lib/libsane.so.1
-
-  On systems with RPM packaging (e.g. Redhat, Fedora, openSUSE) you can search
-    the location of libsane with one of these commands (the response can be 
-    different to these examples):
-
-    $ rpm -ql sane-backends | grep libsane.so.1  <==  needed for openSUSE 12.1
+    /usr/lib32/libsane.so.1
+    
+    This response contains 2 folders: (1) /usr/lib32 is the location of the 
+    32 bit compatibility libraries. (2) /usr/lib is the folder we are looking 
+    for.
+    
+  Be careful, if you already compiled and installed new SANE backend:
+    
+    $ sudo find / -name libsane.so.1
     /usr/lib/libsane.so.1
-    /usr/lib/libsane.so.1.0.22
-  
-    or
-  
-    $ rpm -ql sane-backends-libs | grep libsane.so.1  <==  needed for Fedora 17
-    /usr/lib/libsane.so.1
-    /usr/lib/libsane.so.1.0.22
-	
-  In the examples above /usr/lib is the folder we are looking for. 
-  
-  During the installation process described below please replace /usr/lib with 
-  the location of your system's libsane.
+    /usr/local/lib/libsane.so.1
+    /home/user/src/sane-backends/backend/.libs/libsane.so.1
 
+    This response contains 3 folders: (1) /usr/local/lib is the location of 
+    installed new SANE backend. (2) /home/user/src/sane-backends/backend/.libs
+    is the location of compiled new SANE backend in the source tree. 
+    (3) /usr/lib is the folder we are looking for.
+  
 Decide where you want to install new libsane.
   You can set symbolic links to new libsane.
     I assume that new libsane version 1.0.23 will be installed to 

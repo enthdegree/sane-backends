@@ -1671,7 +1671,9 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_EJECT_AFTERSCAN].cap |=
     (s->hw->info.can_eject) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_EJECT_AFTERSCAN].type = SANE_TYPE_BOOL;
-  s->val[OPT_EJECT_AFTERSCAN].w = SANE_FALSE;
+  /* IX-4015 requires medium_position command after cancel */
+  s->val[OPT_EJECT_AFTERSCAN].w =
+    (s->hw->info.model == IX4015) ? SANE_TRUE : SANE_FALSE;
 
   /* eject before exit */
   s->opt[OPT_EJECT_BEFOREEXIT].name = "eject-before-exit";

@@ -63,7 +63,7 @@ Feedback in the sane\-devel mailing list welcome.
 .RS
 PIXMA MP375R, MP740
 .br
-PIXMA MX320, MX410, MX510, MX890
+PIXMA MX320, MX410
 .br
 ImageCLASS MF5630, MF5650, MF5730, MF5750, MF8170c
 .RE
@@ -76,7 +76,7 @@ the sane\-devel mailing list.
 .RS
 PIXMA E500, E600
 .br
-PIXMA MX370, MX430, MX710
+PIXMA MX370, MX430, MX510, MX710, MX890
 .RE
 .PP
 The backend supports:

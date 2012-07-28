@@ -1,3 +1,16 @@
+2012-07-28 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc: scanners resorted by name
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, 
+	doc/sane-pixma.man: new scanners reported by DMoeller
+	- Canon PIXMA MX410 as untested
+	- Canon PIXMA MX420 as complete
+	- Canon PIXMA E500, E600, MX370 Series, MX430 Series, MX710 Series
+	  as untested and experimental
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc: capabilities updated
+	  for Canon PIXMA MX510 and MX890 
+	* backend/pixma_mp150.c, doc/sane-pixma.man: all 2012 untested new devices
+	  marked as experimental 
+
 2012-07-26 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* README.linux: 
 	New detailled description for the installation of SANE backend.

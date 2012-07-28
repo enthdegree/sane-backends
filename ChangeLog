@@ -1,3 +1,7 @@
+2012-07-28 Paul Newall <quandry at ntlworld dot com>
+	* /doc/descriptions/kodakaio.desc: 
+	usbids added and version.
+
 2012-07-28 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc: scanners resorted by name
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, 

@@ -29,7 +29,7 @@ PIXMA MP600, MP600R, MP610, MP620, MP630, MP640, MP710
 .br
 PIXMA MP800, MP800R, MP810, MP830, MP960, MP970, MP980, MP990
 .br
-PIXMA MX300, MX310, MX330, MX340, MX350, MX360
+PIXMA MX300, MX310, MX330, MX340, MX350, MX360, MX420
 .br
 PIXMA MX700, MX850, MX860, MX870, MX7600
 .br
@@ -58,24 +58,27 @@ PIXMA MP760, MP770, MP780, MP790, MX360
 The following models may use the same Pixma protocol as those listed 
 above, but have not yet been reported to work (or not). They are declared 
 in the backend so that they get recognized and activated. 
-Feedback in the Sane-dev mailing list welcome.
+Feedback in the sane\-devel mailing list welcome.
 .PP
 .RS
 PIXMA MP375R, MP740
 .br
-PIXMA MX320, MX510, MX890
+PIXMA MX320, MX410, MX510, MX890
 .br
 ImageCLASS MF5630, MF5650, MF5730, MF5750, MF8170c
 .RE
 .PP
-\#The following models may use partly the same Pixma protocol as MPs listed
-\#above, but may still need some work. They are declared in the backend as 
-\#experimental. Snoop logs are required to further investigate, please contact 
-\#the sane\-devel mailing list.
-\#.PP
-\#.RS
-\#PIXMA MP---
-\#.RE
+The following models may use partly the same Pixma protocol as MPs listed
+above, but may still need some work. They are declared in the backend as 
+experimental. Snoop logs are required to further investigate, please contact 
+the sane\-devel mailing list.
+.PP
+.RS
+PIXMA E500, E600
+.br
+PIXMA MX370, MX430, MX710
+.RE
+.PP
 The backend supports:
 .PP
 .RS

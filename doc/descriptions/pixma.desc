@@ -24,6 +24,18 @@
 :mfg "Canon"                   ; name a manufacturer
 :url "http://www.canon.com/"
 
+:model "PIXMA E500"
+:interface "USB"
+:usbid "0x04a9" "0x1758"
+:status :untested
+:comment "All resolutions supported (up to 1200DPI)."
+
+:model "PIXMA E600"
+:interface "USB"
+:usbid "0x04a9" "0x175a"
+:status :untested
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
+
 :model "PIXMA MP140"
 :interface "USB"
 :usbid "0x04a9" "0x172b"
@@ -361,6 +373,30 @@
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
 
+:model "PIXMA MX370 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1759"
+:status :untested
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+
+:model "PIXMA MX410"
+:interface "USB WLAN"
+:usbid "0x04a9" "0x174e"
+:status :untested
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+
+:model "PIXMA MX420"
+:interface "USB Ethernet WLAN"
+:usbid "0x04a9" "0x174f"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+
+:model "PIXMA MX430 Series"
+:interface "USB WLAN"
+:usbid "0x04a9" "0x175b"
+:status :untested
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+
 :model "PIXMA MX510 Series"
 :interface "USB"
 :usbid "0x04a9" "0x175c"
@@ -372,6 +408,12 @@
 :usbid "0x04a9" "0x1729"
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 2400DPI)"
+
+:model "PIXMA MX710 Series"
+:interface "USB Ethernet WLAN"
+:usbid "0x04a9" "0x175d"
+:status :untested
+:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
 
 :model "PIXMA MX850"
 :interface "USB Ethernet"

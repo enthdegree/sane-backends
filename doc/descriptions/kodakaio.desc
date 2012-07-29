@@ -122,12 +122,13 @@
 
 :model "ESP C310"
 :interface "USB"
+:usbid "0x040a" "0x405d"
 :status :untested
 :comment "Please test!"
 
 :model "ESP C315"
 :interface "USB"
-:usbid "0x040a" "0x405d"
+:usbid "0x040a" "0x405e"
 :status :untested
 :comment "Please test!"
 
@@ -163,4 +164,17 @@
 :usbid "0x040a" "0x4067"
 :status :basic
 :comment "USB good, Network good"
+
+;===================================
+
+:mfg "Advent"
+:url "http://www.adventcomputers.co.uk"
+
+:model "AW10"
+:interface "USB"
+:usbid "0x040a" "0x4060"
+:status :untested
+:comment "Please test!"
+
+
 

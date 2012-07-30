@@ -1976,8 +1976,7 @@ gl843_stop_action (Genesys_Device * dev)
   status = sanei_genesys_write_register (dev, REG01, val);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "end_scan: failed to write register 01: %s\n",
+      DBG (DBG_error, "%s: failed to write register 01: %s\n", __FUNCTION__, 
 	   sane_strstatus (status));
       return status;
     }

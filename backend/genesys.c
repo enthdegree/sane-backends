@@ -4076,7 +4076,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
     }
 
   /* wait for lamp warmup : until a warmup for TRANSPARENCY is designed, skip
-   * it when scanning from XPA */
+   * it when scanning from XPA. */
   if (!(dev->model->flags & GENESYS_FLAG_SKIP_WARMUP)
     && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
     {
@@ -5227,10 +5227,7 @@ Problems with the first approach:
   RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
   
   /* end scan if all needed data have been read */
-  /* TODO extend this to other ASICs */
-  if(((dev->model->asic_type == GENESYS_GL847)
-    ||(dev->model->asic_type == GENESYS_GL124))
-   &&(dev->total_bytes_read >= dev->total_bytes_to_read))
+   if(dev->total_bytes_read >= dev->total_bytes_to_read)
     {
       dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE);
     }

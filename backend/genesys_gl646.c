@@ -4500,7 +4500,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 
   resolution = get_closest_resolution (dev->model->ccd_type, 300, SANE_FALSE);
 
-  /* set up for a half width 2 lines color scan without moving */
+  /* set up for a half width 2 lines gray scan without moving */
   settings.scan_method = SCAN_METHOD_FLATBED;
   settings.scan_mode = SCAN_MODE_GRAY;
   settings.xres = resolution;

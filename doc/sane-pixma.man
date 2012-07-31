@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "8 Jan 2010" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "31 Jul 2012" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 .B sane\-pixma 

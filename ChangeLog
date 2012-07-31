@@ -1,3 +1,10 @@
+2012-07-31 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	doc updates for all PIXMA scanners
+	* backend/pixma.h, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	- Pixma backend version 0.17.0
+	- date updated in Pixma man page
+
 2012-07-30 m. allan noah <kitno455 at gmail dot com>
 	* backend/kvs1025.h: Increase max paper size (Matthew Wild)
 	* doc/*.man, doc/*.html: Typo fixes (Yuri Chornoivan)

@@ -18,9 +18,9 @@
 /* Build version */
 #define V_BUILD            5
 
-/* Paper range supported -- MAX A4 */
-#define KV_MAX_X_RANGE     210
-#define KV_MAX_Y_RANGE     297
+/* Paper range supported -- MAX scanner limits */
+#define KV_MAX_X_RANGE     216
+#define KV_MAX_Y_RANGE     2540
 
 /* Round ULX, ULY, Width and Height to 16 Pixels */
 #define KV_PIXEL_ROUND  19200

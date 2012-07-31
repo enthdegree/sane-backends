@@ -7,7 +7,7 @@ sane\-avision \- SANE backend for original Avision and Avision OEM scanners
 
 .SH ABOUT THIS FILE
 
-This file is a short descripton for the avision-backend shipped with SANE.
+This file is a short description for the avision-backend shipped with SANE.
 
 .SH DESCRIPTION
 The
@@ -149,7 +149,7 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.
 Higher debug levels increase the verbosity of the output. The debug
-level 7 is the author's prefered value to debug backend problems.
+level 7 is the author's preferred value to debug backend problems.
 
 Example: 
 export SANE_DEBUG_AVISION=7

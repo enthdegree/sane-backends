@@ -67,7 +67,7 @@ enhancement, compression, buttons and sensors, etc.
 Additionally, several 'software' options are exposed by the backend. These
 are reimplementations of features provided natively by larger scanners, but
 running on the host computer. This enables smaller machines to have similar
-capabilites. Please note that these features are somewhat simplistic, and 
+capabilities. Please note that these features are somewhat simplistic, and 
 may not perform as well as the native implementations. Note also that these 
 features all require that the driver cache the entire image in memory. This 
 will almost certainly result in a reduction of scanning speed.

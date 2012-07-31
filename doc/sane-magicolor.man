@@ -19,7 +19,7 @@ Model: magicolor 1690MF
 
 .SH "CONFIGURATION"
 .PP 
-This section decribes the backend's configuration file entries. The file is located at:
+This section describes the backend's configuration file entries. The file is located at:
 .IP 
 .I @CONFIGDIR@/magicolor.conf
 .PP 

@@ -29,7 +29,7 @@ Genius ColorPage-Life Pro
 .RE
 .PP 
 This backend handles 75x75, 150x150, 300x300, 600x600 and 600x1200 for 1220P/1600P/2000P
-dpi scan reslutions,and 75x75, 150x150, 300x300 and 300x600 for 610P. In color and gray 
+dpi scan resolutions, and 75x75, 150x150, 300x300 and 300x600 for 610P. In color and gray 
 levels, there is a software lineart mode.
 .PP 
 The new generation models share a newer version of the 610P ASIC embedded in an EPAT chip. 
@@ -146,7 +146,7 @@ Options
 .B green\-gain
 and
 .B blue\-gain
-allow you to adjust the sensitivy of your scanner for the given color. Values
+allow you to adjust the sensitivity of your scanner for the given color. Values
 range from 0 (lowest gain) to 15 (highest). If the advanced option "Gain" isn't
 checked in the frontend, the backend does automatic gain calibration, and do not use
 user provided values.
@@ -167,8 +167,8 @@ Option
 .B astra
 allows you to change the model of your scanner. Current auto detection is based
 on side effects on scanning when using 1220P command set on other models, so
-it may fail on unkown hardware combination. Valid values are 610, 1220, 1600 
-and 2000. It is usefull only when autodetection fails to detect properly
+it may fail on unknown hardware combination. Valid values are 610, 1220, 1600 
+and 2000. It is useful only when autodetection fails to detect properly
 your scanner model. If your scanner work properly but is reported wrongly, 
 let it be that way. 
 The only valid case to change the model is when your scanner produces "black" or 

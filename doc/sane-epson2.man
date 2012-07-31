@@ -261,7 +261,7 @@ option ejects the sheet in the ADF.
 
 The
 .I \-\-adf-mode
-option selecst the ADF mode (simplex/duplex).
+option select the ADF mode (simplex/duplex).
 
 .SH CONFIGURATION FILE
 The configuration file @CONFIGDIR@/epson2.conf specifies the device(s) that the 

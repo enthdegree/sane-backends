@@ -110,12 +110,12 @@
 :model "Astra 6400"
 :interface "IEEE-1394"
 :status :unsupported
-:comment "will propably work one day"
+:comment "will probably work one day"
 
 :model "Astra 6450"
 :interface "IEEE-1394"
 :status :unsupported
-:comment "will propably work one day"
+:comment "will probably work one day"
 
 :model "Astra MX3"
 :interface "SCSI"
@@ -175,7 +175,7 @@
 :model "PowerLook 1100"
 :interface "IEEE-1394"
 :status :unsupported
-:comment "will propably work one day"
+:comment "will probably work one day"
 
 :model "PowerLook 2000"
 :interface "SCSI"

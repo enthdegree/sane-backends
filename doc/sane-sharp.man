@@ -160,13 +160,13 @@ for scanimage). Allowed values: 0..255; 256 numbers must be defined.
 The default values are 0, 1, 2, .. 255 (i.e., gamma == 1).
 
 .B Green Gamma Table
-(paramter 
+(parameter 
 .B \-\-green\-gamma\-table 
 for scanimage). Allowed values: 0..255; 256 numbers must be defined.
 The default values are 0, 1, 2, .. 255 (i.e., gamma == 1).
 
 .B Blue Gamma Table
-(paramter 
+(parameter 
 .B \-\-blue\-gamma\-table 
 for scanimage). Allowed values: 0..255; 256 numbers must be defined.
 The default values are 0, 1, 2, .. 255 (i.e., gamma == 1).

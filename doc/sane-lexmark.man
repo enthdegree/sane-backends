@@ -121,7 +121,7 @@ backend. However they are only software adjustments. This backend only
 implements what the scanner can support. For instance, shading correction
 (vertical stripes due to sensor variation across its width) is done in
 software. Head park position is also detected by software.
-The data compression isn't supported for the X1200 serie on USB 1.1,
+The data compression isn't supported for the X1200 series on USB 1.1,
 leading to slow scans.
 
 .SH "BUGS"
@@ -136,10 +136,10 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 .SH "AUTHOR"
 .TP 
-The backend was originaly written by Fred Odendaal.
+The backend was originally written by Fred Odendaal.
 .I http://ca.geocities.com/freshshelf@rogers.com/
 .TP 
-The new version is currently developped by St\['e]phane Voltz.
+The new version is currently developed by St\['e]phane Voltz.
 .I http://stef.dev.free.fr/sane/lexmark
 .TP
 X74 support was written by Torsten Houwaart (<ToHo@gmx.de>)

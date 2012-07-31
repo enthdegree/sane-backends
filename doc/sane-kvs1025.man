@@ -12,7 +12,7 @@ provides access to the Panasonic KV-S1020C/1025C and KV-S1045C scanners.
 
 .SH KNOWN ISSUES
 This document was written by the SANE project, which has no information
-regarding the capabilites or reliability of the backend. All information
+regarding the capabilities or reliability of the backend. All information
 contained here is suspect.
 
 .SH CREDITS

@@ -106,7 +106,7 @@ If option
 .B read\-return\-value
 is different from "Default", the selected status will be returned by every
 call to sane_read().  This is useful to test the frontend's handling of the
-SANE statii.
+SANE statuses.
 .PP
 If option
 .B ppl\-loss

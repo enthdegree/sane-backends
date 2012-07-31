@@ -117,8 +117,8 @@ Number  Remark
  2       print sense
  3       print warnings
  4       print scanner-inquiry
- 5       print informations
- 6       print less important informations
+ 5       print information
+ 6       print less important information
  7       print called procedures
  8       print reader_process messages
  10      print called sane\-init-routines

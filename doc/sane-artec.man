@@ -138,8 +138,8 @@ Number  Remark
  2       print sense
  3       print warnings
  4       print scanner-inquiry
- 5       print informations
- 6       print less important informations
+ 5       print information
+ 6       print less important information
  7       print major called procedures
  8       print all called procedures
  9       print procedure info/data messages

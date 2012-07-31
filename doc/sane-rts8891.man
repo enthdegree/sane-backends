@@ -100,7 +100,7 @@ Option
 enables or not the sharing of the scanner between multiple frontends at the same time.
 .PP
 .B modelnumber
-is used to force the reported model by the backend and is only usefull in the case of a scanner which NVRAM has been erased.
+is used to force the reported model by the backend and is only useful in the case of a scanner which NVRAM has been erased.
 .RS
 .ft CR
 .nf 
@@ -134,7 +134,7 @@ reduce verbosity.
 .SH "LIMITATIONS"
 Scanners of the same model exist with different sensors, due to lack of data
 (ie USB logs) some sensors are better supported than others. At least 75 dpi
-mode is working for any model. Sharing the a scanner between several frontends
+mode is working for any model. Sharing the scanner between several frontends
 at the same time (allowsharing option) may not work on some USB controllers.
 .PP
 XPA is no (yet) supported.
@@ -149,7 +149,7 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 .SH "AUTHOR"
 .TP 
-This backend has been developped by St\['e]phane Voltz.
+This backend has been developed by St\['e]phane Voltz.
 .I http://stef.dev.free.fr/sane/rts8891
 .SH "CREDITS"
 .TP 

@@ -291,7 +291,7 @@ port=ppp
 .I ppp
 specifies the port base address, where the scanner
 is connected to. The default value is 0x378, which
-normaly is standard.
+is normally a standard.
 .RE
 .PP
 warmup=www

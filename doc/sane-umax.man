@@ -6,15 +6,15 @@ sane\-umax \- SANE backend for UMAX scanners
 
 .SH ABOUT THIS FILE
 
-This file only is a short descripton of the umax-backend for sane! For detailled information take a look at
+This file only is a short description of the umax-backend for sane! For detailed information take a look at
 sane\-umax\-doc.html (it is included in the sane source directory and in the xsane online help)!
 
 .SH DESCRIPTION
 
 The
 .B sane\-umax
-library implements a SANE backend that provides acces to several UMAX-SCSI-scanners and some Linotye Hell SCSI-scanners,
-parallel- and USB-scanners are not (and propably will never be) supported!
+library implements a SANE backend that provides access to several UMAX-SCSI-scanners and some Linotye Hell SCSI-scanners,
+parallel- and USB-scanners are not (and probably will never be) supported!
 
 .B I suggest you hold one hand on the power-button of the scanner while you try the first scans!
 
@@ -246,8 +246,8 @@ Number  Remark
  2       print sense
  3       print warnings
  4       print scanner-inquiry
- 5       print informations
- 6       print less important informations
+ 5       print information
+ 6       print less important information
  7       print called procedures
  8       print reader_process messages
  10      print called sane\-init-routines

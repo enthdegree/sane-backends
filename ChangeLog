@@ -1,3 +1,7 @@
+2012-07-30 m. allan noah <kitno455 at gmail dot com>
+	* backend/kvs1025.h: Increase max paper size (Matthew Wild)
+	* doc/*.man, doc/*.html: Typo fixes (Yuri Chornoivan)
+
 2012-07-30 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl843.c backend/genesys_gl646.c:
 	fix batch scanning for gl646 scanners

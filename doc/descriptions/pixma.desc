@@ -28,13 +28,73 @@
 :interface "USB"
 :usbid "0x04a9" "0x1758"
 :status :untested
-:comment "All resolutions supported (up to 1200DPI)."
+:comment "Testers needed!"
 
 :model "PIXMA E600"
 :interface "USB"
 :usbid "0x04a9" "0x175a"
 :status :untested
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
+:comment "Testers needed!"
+
+:model "PIXMA MG2100 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1751"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG3100 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1752"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG4100 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1753"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG5100 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1748"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG5200 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1749"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG5300 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1754"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG6100 Series"
+:interface "USB"
+:usbid "0x04a9" "0x174a"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG6200 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1755"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG8100 Series"
+:interface "USB"
+:usbid "0x04a9" "0x174b"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG8200 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1756"
+:status :untested
+:comment "Testers needed!"
 
 :model "PIXMA MP140"
 :interface "USB"
@@ -108,7 +168,7 @@
 :model "PIXMA MP280"
 :interface "USB"
 :usbid "0x04a9" "0x1746"
-:status :complete
+:status :good
 :comment "All resolutions supported (up to 600DPI)."
 
 :model "PIXMA MP360"
@@ -164,6 +224,18 @@
 :usbid "0x04a9" "0x173c"
 :status :complete
 :comment "All resolutions supported (up to 1200DPI)"
+
+:model "PIXMA MP493"
+:interface "USB"
+:usbid "0x04a9" "0x1757"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MP495"
+:interface "USB"
+:usbid "0x04a9" "0x1747"
+:status :untested
+:comment "Same protocol as Pixma MP280? Testers needed!"
 
 :model "PIXMA MP500"
 :interface "USB"
@@ -277,7 +349,19 @@
 :status :minimal
 :comment "No grayscale. The scanner sometimes hangs!"
 
+:model "PIXMA MP770"
+:interface "USB"
+:usbid "0x04a9" "0x1708"
+:status :minimal
+:comment "No grayscale. The scanner sometimes hangs!"
+
 :model "PIXMA MP780"
+:interface "USB"
+:usbid "0x04a9" "0x1707"
+:status :minimal
+:comment "No grayscale. The scanner sometimes hangs!"
+
+:model "PIXMA MP790"
 :interface "USB"
 :usbid "0x04a9" "0x1707"
 :status :minimal
@@ -377,31 +461,31 @@
 :interface "USB"
 :usbid "0x04a9" "0x1759"
 :status :untested
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+:comment "Testers needed!"
 
 :model "PIXMA MX410"
-:interface "USB WLAN"
+:interface "USB Ethernet"
 :usbid "0x04a9" "0x174e"
 :status :untested
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+:comment "Same protocol as Pixma MX420? Testers needed!"
 
 :model "PIXMA MX420"
-:interface "USB Ethernet WLAN"
+:interface "USB Ethernet"
 :usbid "0x04a9" "0x174f"
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
 
 :model "PIXMA MX430 Series"
-:interface "USB WLAN"
+:interface "USB Ethernet"
 :usbid "0x04a9" "0x175b"
 :status :untested
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+:comment "Testers needed!"
 
 :model "PIXMA MX510 Series"
-:interface "USB Ethernet WLAN"
+:interface "USB Ethernet"
 :usbid "0x04a9" "0x175c"
 :status :untested
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+:comment "Testers needed!"
 
 :model "PIXMA MX700"
 :interface "USB Ethernet"
@@ -410,10 +494,10 @@
 :comment "Flatbed and ADF scan. All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MX710 Series"
-:interface "USB Ethernet WLAN"
+:interface "USB Ethernet"
 :usbid "0x04a9" "0x175d"
 :status :untested
-:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
+:comment "Testers needed!"
 
 :model "PIXMA MX850"
 :interface "USB Ethernet"
@@ -439,11 +523,23 @@
 :status :complete
 :comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
 
+:model "PIXMA MX882"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x1750"
+:status :complete
+:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
+
+:model "PIXMA MX885"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x1750"
+:status :complete
+:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
+
 :model "PIXMA MX890 Series"
-:interface "USB Ethernet WLAN"
+:interface "USB Ethernet"
 :usbid "0x04a9" "0x175e"
 :status :untested
-:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
+:comment "Testers needed!"
 
 :model "PIXMA MX7600"
 :interface "USB Ethernet"
@@ -547,6 +643,12 @@
 :status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
+:model "imageCLASS MF4660"
+:interface "USB"
+:usbid "0x04a9" "0x26b0"
+:status :complete
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
+
 :model "imageCLASS MF4690"
 :interface "USB"
 :usbid "0x04a9" "0x26b0"
@@ -589,9 +691,27 @@
 :status :complete
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
+:model "imageCLASS MF6550"
+:interface "USB"
+:usbid "0x04a9" "0x2686"
+:status :complete
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
+
+:model "imageCLASS MF8030"
+:interface "USB"
+:usbid "0x04a9" "0x2707"
+:status :untested
+:comment "Testers needed!"
+
 :model "imageCLASS MF8170c"
 :interface "USB"
 :usbid "0x04a9" "0x2659"
+:status :untested
+:comment "Testers needed!"
+
+:model "imageRUNNER 1020/1024/1025"
+:interface "USB"
+:usbid "0x04a9" "0x26e6"
 :status :untested
 :comment "Testers needed!"
 

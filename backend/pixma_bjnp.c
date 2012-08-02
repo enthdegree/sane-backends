@@ -538,10 +538,15 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
 
   struct in_addr ip_addr;
   struct hostent *myhost;
+  struct addrinfo hints;
+  struct addrinfo *results;
+  struct addrinfo *result;
+  struct sockaddr_in *res_address;
   char ip_address[16];
   int res;
   int i, j;
   uint8_t byte;
+  int match = 0;
 
 
   struct DISCOVER_RESPONSE *init_resp;
@@ -555,15 +560,60 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
   PDBG (pixma_dbg
 	(LOG_INFO, "Found scanner at ip address: %s\n", ip_address));
 
-  /* do reverse name lookup, if hostname can not be fouund return ip-address */
+  /* do reverse name lookup, if hostname can not be found return ip-address */
 
   res = inet_aton (ip_address, &ip_addr);
   myhost = gethostbyaddr ((void *) &ip_addr, sizeof (ip_addr), AF_INET);
 
-  if (myhost == NULL)
+  if ((myhost == NULL) || (myhost->h_name == NULL))
     strcpy (address, ip_address);
-  else
-    strcpy (address, myhost->h_name);
+  else {
+    /* some buggy routers return rubbish if reverse lookup fails, so 
+      * we do a forward lookup on the received name to see if it matches */
+
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = 0;
+    hints.ai_protocol = 0;
+    hints.ai_flags = 0;
+    hints.ai_addrlen = 0;
+    hints.ai_addr = NULL;
+    hints.ai_canonname = NULL;
+    hints.ai_next = NULL;
+
+    if (getaddrinfo( myhost-> h_name, NULL, &hints, &results) == 0) {
+
+      result = results;
+
+      while (result != NULL) {
+
+        res_address = (struct sockaddr_in *)result-> ai_addr;
+
+        if((result-> ai_family == AF_INET) && (res_address->sin_addr.s_addr == ip_addr.s_addr)) {
+
+                  /* found match, good */
+                   PDBG (pixma_dbg (LOG_DEBUG, 
+                            "Forward lookup for %s succeeded, using as hostname", myhost-> h_name));
+                  match = 1;
+                  break;
+        }
+        result = result-> ai_next;
+      }
+      freeaddrinfo(results);
+
+      if (match == 1) {
+        strcpy (address, myhost-> h_name );
+      } else {
+        PDBG (pixma_dbg (LOG_DEBUG, 
+               "Reseverse lookup for %s succeeded, IP-address however not found, using IP-address instead", 
+               myhost-> h_name));
+        strcpy (address, ip_address);
+      }
+    } else {
+      /* lookup failed, use ip-address */
+      PDBG( pixma_dbg (LOG_DEBUG, "reverse lookup of %s failed, using IP-address", myhost-> h_name));
+      strcpy (address, ip_address);
+    }
+  }
 
   /* construct serial, first 3 bytes contain vendor ID, skip them */
 

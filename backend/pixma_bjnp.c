@@ -473,6 +473,7 @@ get_scanner_id (const int dev_no, char *model)
   char scanner_id[BJNP_IEEE1284_MAX];
   int resp_len;
   char resp_buf[BJNP_RESP_MAX];
+  int id_len;
 
   /* set defaults */
 
@@ -497,19 +498,19 @@ get_scanner_id (const int dev_no, char *model)
   id = (struct IDENTITY *) resp_buf;
 
   /* truncate string to be safe */
-  id->id[BJNP_IEEE1284_MAX - 1] = '\0';
-
+  id_len = htons( id-> id_len ) - sizeof(id->id_len);
+  id->id[id_len] = '\0';
   strcpy (scanner_id, id->id);
 
-  PDBG (pixma_dbg (LOG_INFO, "Scanner identity string = %s\n", scanner_id));
+  PDBG (pixma_dbg (LOG_INFO, "Scanner identity string = %s - lenght = %d\n", scanner_id, id_len));
 
   /* get make&model from IEEE1284 id  */
 
   if (model != NULL)
-    {
-      parse_IEEE1284_to_model (scanner_id, model);
-      PDBG (pixma_dbg (LOG_INFO, "Scanner model = %s\n", model));
-    }
+  {
+    parse_IEEE1284_to_model (scanner_id, model);
+    PDBG (pixma_dbg (LOG_INFO, "Scanner model = %s\n", model));
+  }
   return 0;
 }
 
@@ -518,15 +519,14 @@ u8tohex (uint8_t x, char *str)
 {
   static const char hdigit[16] =
     { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
-    'e', 'f'
-  };
+      'e', 'f' };
   str[0] = hdigit[(x >> 4) & 0xf];
   str[1] = hdigit[x & 0xf];
   str[2] = '\0';
 }
 
 
-static void
+	static void
 parse_scanner_address (char *resp_buf, char *address, char *serial)
 {
   /*
@@ -545,17 +545,15 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
   uint8_t byte;
   int match = 0;
 
-
   struct DISCOVER_RESPONSE *init_resp;
 
   init_resp = (struct DISCOVER_RESPONSE *) resp_buf;
   sprintf (ip_address, "%u.%u.%u.%u",
-	   init_resp->ip_addr[0],
-	   init_resp->ip_addr[1],
-	   init_resp->ip_addr[2], init_resp->ip_addr[3]);
+           init_resp->ip_addr[0],
+           init_resp->ip_addr[1],
+           init_resp->ip_addr[2], init_resp->ip_addr[3]);
 
-  PDBG (pixma_dbg
-	(LOG_INFO, "Found scanner at ip address: %s\n", ip_address));
+  PDBG (pixma_dbg (LOG_INFO, "Found scanner at ip address: %s\n", ip_address));
 
   /* do reverse name lookup, if hostname can not be found return ip-address */
 
@@ -564,53 +562,61 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
 
   if ((myhost == NULL) || (myhost->h_name == NULL))
     strcpy (address, ip_address);
-  else {
-    /* some buggy routers return rubbish if reverse lookup fails, so 
-      * we do a forward lookup on the received name to see if it matches */
+  else 
+    {
+      /* some buggy routers return rubbish if reverse lookup fails, so 
+       * we do a forward lookup on the received name to see if it matches */
 
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = 0;
-    hints.ai_protocol = 0;
-    hints.ai_flags = 0;
-    hints.ai_addrlen = 0;
-    hints.ai_addr = NULL;
-    hints.ai_canonname = NULL;
-    hints.ai_next = NULL;
+      hints.ai_family = AF_INET;
+      hints.ai_socktype = 0;
+      hints.ai_protocol = 0;
+      hints.ai_flags = 0;
+      hints.ai_addrlen = 0;
+      hints.ai_addr = NULL;
+      hints.ai_canonname = NULL;
+      hints.ai_next = NULL;
 
-    if (getaddrinfo( myhost-> h_name, NULL, &hints, &results) == 0) {
+      if (getaddrinfo( myhost-> h_name, NULL, &hints, &results) == 0) 
+        {
 
-      result = results;
+          result = results;
 
-      while (result != NULL) {
+          while (result != NULL) 
+            {
+              res_address = (struct sockaddr_in *)result-> ai_addr;
 
-        res_address = (struct sockaddr_in *)result-> ai_addr;
+               if((result-> ai_family == AF_INET) && (res_address->sin_addr.s_addr == ip_addr.s_addr)) 
+                 {
 
-        if((result-> ai_family == AF_INET) && (res_address->sin_addr.s_addr == ip_addr.s_addr)) {
+                     /* found match, good */
+                     PDBG (pixma_dbg (LOG_DEBUG, 
+                              "Forward lookup for %s succeeded, using as hostname\n", myhost-> h_name));
+                    match = 1;
+                    break;
+                 }
+              result = result-> ai_next;
+            }
+          freeaddrinfo(results);
 
-                  /* found match, good */
-                   PDBG (pixma_dbg (LOG_DEBUG, 
-                            "Forward lookup for %s succeeded, using as hostname", myhost-> h_name));
-                  match = 1;
-                  break;
-        }
-        result = result-> ai_next;
-      }
-      freeaddrinfo(results);
-
-      if (match == 1) {
-        strcpy (address, myhost-> h_name );
-      } else {
-        PDBG (pixma_dbg (LOG_DEBUG, 
-               "Reseverse lookup for %s succeeded, IP-address however not found, using IP-address instead", 
-               myhost-> h_name));
-        strcpy (address, ip_address);
-      }
-    } else {
-      /* lookup failed, use ip-address */
-      PDBG( pixma_dbg (LOG_DEBUG, "reverse lookup of %s failed, using IP-address", myhost-> h_name));
-      strcpy (address, ip_address);
+          if (match == 1) 
+            {
+              strcpy (address, myhost-> h_name );
+            } 
+          else 
+            {
+              PDBG (pixma_dbg (LOG_DEBUG, 
+                 "Reseverse lookup for %s succeeded, IP-address however not found, using IP-address instead", 
+                 myhost-> h_name));
+              strcpy (address, ip_address);
+            }
+         } 
+       else 
+         {
+           /* lookup failed, use ip-address */
+           PDBG( pixma_dbg (LOG_DEBUG, "reverse lookup of %s failed, using IP-address", myhost-> h_name));
+           strcpy (address, ip_address);
+         }
     }
-  }
 
   /* construct serial, first 3 bytes contain vendor ID, skip them */
 
@@ -625,25 +631,17 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
 
 }
 
-static int
-bjnp_send_broadcast (struct in_addr local_addr, int local_port,
-		     struct in_addr broadcast_addr, struct BJNP_command cmd,
-		     int size)
+static int create_broadcast_socket( struct in_addr local_addr, int local_port )
 {
-  /*
-   * send command to interface and return open socket
-   */
-
   struct sockaddr_in sendaddr;
   int sockfd;
   int broadcast = 1;
-  int numbytes;
 
-  if ((sockfd = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+ if ((sockfd = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
       PDBG (pixma_dbg
-	    (LOG_INFO, "bjnp_send_broadcast: can not open socket - %s",
-	     strerror (errno)));
+            (LOG_INFO, "create_braodcast_socket: can not open socket - %s",
+             strerror (errno)));
       return -1;
     }
 
@@ -654,9 +652,9 @@ bjnp_send_broadcast (struct in_addr local_addr, int local_port,
        sizeof (broadcast)) != 0)
     {
       PDBG (pixma_dbg
-	    (LOG_INFO,
-	     "bjnp_send_broadcast: setting socket options failed - %s",
-	     strerror (errno)));
+            (LOG_INFO,
+             "create_braodcast_socket: setting socket options failed - %s",
+             strerror (errno)));
       close (sockfd);
       return -1;
     };
@@ -673,30 +671,38 @@ bjnp_send_broadcast (struct in_addr local_addr, int local_port,
        (socklen_t) sizeof (sendaddr)) != 0)
     {
       PDBG (pixma_dbg
-	    (LOG_INFO,
-	     "bjnp_send_broadcast: bind socket to local address failed - %s\n",
-	     strerror (errno)));
+            (LOG_INFO,
+             "create_braodcast_socket: bind socket to local address failed - %s\n",
+             strerror (errno)));
       close (sockfd);
       return -1;
     }
+  return sockfd;
+}
+
+
+static int
+bjnp_send_broadcast (int sockfd, struct in_addr broadcast_addr, 
+                     struct BJNP_command cmd, int size)
+{
+  struct sockaddr_in sendaddr;
+  int num_bytes;
 
   /* set address to send packet to */
+  /* usebroadcast address of interface */
 
   sendaddr.sin_family = AF_INET;
   sendaddr.sin_port = htons (BJNP_PORT_SCAN);
-
-  /* usebroadcast address of interface */
   sendaddr.sin_addr = broadcast_addr;
   memset (sendaddr.sin_zero, '\0', sizeof sendaddr.sin_zero);
 
-
-  if ((numbytes = sendto (sockfd, &cmd, size, 0,
+  if ((num_bytes = sendto (sockfd, &cmd, size, 0,
 			  (struct sockaddr *) &sendaddr,
 			  sizeof (sendaddr))) != size)
     {
       PDBG (pixma_dbg (LOG_INFO,
 		       "bjnp_send_broadcast: Sent only %x = %d bytes of packet, error = %s\n",
-		       numbytes, numbytes, strerror (errno)));
+		       num_bytes, num_bytes, strerror (errno)));
       /* not allowed, skip this interface */
 
       close (sockfd);
@@ -1165,7 +1171,7 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
   struct in_addr *addr_list;
   int i;
 
-  PDBG (pixma_dbg (LOG_DEBUG, "bjnp_allocate_device(%s)", devname));
+  PDBG (pixma_dbg (LOG_DEBUG, "bjnp_allocate_device(%s)\n", devname));
 
   if (split_uri (devname, method, hostname, &port, args) != 0)
     {
@@ -1314,6 +1320,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
 #ifdef HAVE_IFADDRS_H
   struct ifaddrs *interfaces;
   struct ifaddrs *interface;
+  struct in_addr local_addr[BJNP_SOCK_MAX];
 #else
   struct in_addr broadcast;
   struct in_addr local;
@@ -1322,6 +1329,10 @@ sanei_bjnp_find_devices (const char **conf_devices,
   PDBG (pixma_dbg (LOG_INFO, "sanei_bjnp_find_devices:\n"));
   first_free_device = 0;
 
+  for (i=0; i < BJNP_SOCK_MAX; i++)
+    {
+      socket_fd[i] = -1;
+    }
   /* First add devices from config file */
 
   for (i = 0; conf_devices[i] != NULL; i++)
@@ -1381,59 +1392,61 @@ sanei_bjnp_find_devices (const char **conf_devices,
   no_sockets = 0;
   getifaddrs (&interfaces);
 
+  /* create a socket for each ipv4 interface */
+  interface = interfaces;
+  while ((no_sockets < BJNP_SOCK_MAX) && (interface != NULL))
+    {
+      if ((interface->ifa_addr == NULL)
+          || (interface->ifa_broadaddr == NULL)
+          || (interface->ifa_addr->sa_family != AF_INET)
+          || (((struct sockaddr_in *) interface->ifa_addr)->sin_addr.s_addr == 
+                                                    htonl (INADDR_LOOPBACK)))
+        {
+          /* not an IPv4 address */
+
+          PDBG (pixma_dbg (LOG_DEBUG, 
+                           "%s is not a valid IPv4 interface, skipping...\n",
+	     interface->ifa_name));
+        }
+      else
+        {
+         socket_fd[no_sockets] = create_broadcast_socket( 
+                   ((struct sockaddr_in *) interface->ifa_addr)->sin_addr,
+                    BJNP_PORT_SCAN);
+          if (socket_fd[no_sockets] != -1) 
+            {
+              PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, sending broadcast..\n",
+                     interface->ifa_name));
+             local_addr[no_sockets] = ((struct sockaddr_in *)
+                                         interface->ifa_broadaddr)->sin_addr;
+             /* track highest used port forlater use in select */
+             if (socket_fd[no_sockets] > last_socketfd)
+                    {
+                      last_socketfd = socket_fd[no_sockets];
+                    }
+             FD_SET (socket_fd[no_sockets], &fdset);
+             no_sockets++;
+            }
+          else
+            {
+               PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, ibut failed to create a socket.\n",
+                     interface->ifa_name));
+            }
+        }
+      interface = interface->ifa_next;
+    }  
+  freeifaddrs (interfaces);
+
   /* send MAX_SELECT_ATTEMPTS broadcasts on each suitable interface */
   for (attempt = 0; attempt < MAX_SELECT_ATTEMPTS; attempt++)
     {
-      interface = interfaces;
-
-      while ((no_sockets < BJNP_SOCK_MAX) && (interface != NULL))
-	{
-	  /* send broadcast packet to each suitable  interface */
-
-	  if ((interface->ifa_addr == NULL)
-	      || (interface->ifa_broadaddr == NULL)
-	      || (interface->ifa_addr->sa_family != AF_INET)
-	      || (((struct sockaddr_in *) interface->ifa_addr)->sin_addr.
-		  s_addr == htonl (INADDR_LOOPBACK)))
-	    {
-	      /* not an IPv4 address */
-
-	      PDBG (pixma_dbg
-		    (LOG_DEBUG,
-		     "%s is not a valid IPv4 interface, skipping...\n",
-		     interface->ifa_name));
-
-	    }
-	  else
-	    {
-	      PDBG (pixma_dbg
-		    (LOG_INFO, "%s is IPv4 capable, sending broadcast..\n",
-		     interface->ifa_name));
-
-	      if ((socket_fd[no_sockets] =
-		   bjnp_send_broadcast (((struct sockaddr_in *)
-					 interface->ifa_addr)->sin_addr,
-					BJNP_PORT_BROADCAST_BASE + attempt,
-					((struct sockaddr_in *)
-					 interface->ifa_broadaddr)->sin_addr,
-					cmd, sizeof (cmd))) != -1)
-		{
-		  if (socket_fd[no_sockets] > last_socketfd)
-		    {
-		      /* track highest used socket for use in select */
-
-		      last_socketfd = socket_fd[no_sockets];
-		    }
-		  FD_SET (socket_fd[no_sockets], &fdset);
-		  no_sockets++;
-		}
-	    }
-	  interface = interface->ifa_next;
+      for ( i=0; i < no_sockets; i++)
+        {
+          bjnp_send_broadcast ( socket_fd[i], local_addr[i], cmd, sizeof (cmd));
 	}
       /* wait for some time between broadcast packets */
-      usleep (100 * USLEEP_MS);
+      usleep (BJNP_BROADCAST_INTERVAL * USLEEP_MS);
     }
-  freeifaddrs (interfaces);
 #else
   /* we have no easy way to find interfaces with their broadcast addresses, use global broadcast */
 

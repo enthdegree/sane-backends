@@ -63,6 +63,7 @@
 #define BJNP_STATUS_MAX 256	/* max size for status string */
 #define BJNP_IEEE1284_MAX 1024	/* max. allowed size of IEEE1284 id */
 #define BJNP_NO_DEVICES 16	/* max number of open devices */
+#define BJNP_BROADCAST_INTERVAL 30 /* ms between broadcasts */
 #define SCAN_BUF_MAX 65536	/* size of scanner data intermediate buffer */
 #define MAX_SELECT_ATTEMPTS 5   /* max nr of retries on select (EINTR) */
 #define USLEEP_MS 1000          /* sleep for 1 msec */

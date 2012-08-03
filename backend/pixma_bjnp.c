@@ -472,7 +472,6 @@ get_scanner_id (const int dev_no, char *model)
   struct IDENTITY *id;
   char scanner_id[BJNP_IEEE1284_MAX];
   int resp_len;
-  int id_len;
   char resp_buf[BJNP_RESP_MAX];
 
   /* set defaults */
@@ -499,7 +498,6 @@ get_scanner_id (const int dev_no, char *model)
 
   /* truncate string to be safe */
   id->id[BJNP_IEEE1284_MAX - 1] = '\0';
-  id_len = ntohs (id->id_len) - sizeof (id->id_len);
 
   strcpy (scanner_id, id->id);
 
@@ -543,7 +541,6 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
   struct addrinfo *result;
   struct sockaddr_in *res_address;
   char ip_address[16];
-  int res;
   int i, j;
   uint8_t byte;
   int match = 0;
@@ -562,7 +559,7 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
 
   /* do reverse name lookup, if hostname can not be found return ip-address */
 
-  res = inet_aton (ip_address, &ip_addr);
+  inet_aton (ip_address, &ip_addr);
   myhost = gethostbyaddr ((void *) &ip_addr, sizeof (ip_addr), AF_INET);
 
   if ((myhost == NULL) || (myhost->h_name == NULL))

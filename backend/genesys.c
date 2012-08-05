@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847/GL124 based scanners
  */
 
-#define BUILD 2301
+#define BUILD 2302
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -1993,7 +1993,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   uint8_t channels;
   SANE_Bool motor;
 
-  DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
+  DBG (DBG_proc, "genesys_white_shading_calibration (lines = %lu)\n",
        dev->calib_lines);
 
   pixels_per_line = dev->calib_pixels;
@@ -2137,7 +2137,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   SANE_Bool motor;
 
 
-  DBG (DBG_proc, "genesys_black_white_shading_calibration (lines = %d)\n",
+  DBG (DBG_proc, "genesys_black_white_shading_calibration (lines = %lu)\n",
        dev->calib_lines);
 
   pixels_per_line = dev->calib_pixels;
@@ -4329,7 +4329,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 	}
       while (steps < 1);
     }
-
+      
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
@@ -4733,7 +4733,6 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
   unsigned int needs_ccd;
   unsigned int needs_shrink;
   unsigned int needs_reverse;
-  unsigned int needs_gray_lineart;
   Genesys_Buffer *src_buffer;
   Genesys_Buffer *dst_buffer;
 
@@ -4767,7 +4766,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
        dev->current_setup.half_ccd ? "yes" : "no",
        dev->current_setup.stagger, dev->current_setup.max_shift);
 
-/*prepare conversion*/
+  /* prepare conversion */
   /* current settings */
   channels = dev->current_setup.channels;
   depth = dev->current_setup.depth;
@@ -4791,15 +4790,13 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
   needs_ccd = dev->current_setup.max_shift > 0;
   needs_shrink = dev->settings.pixels != src_pixels;
   needs_reverse = depth == 1;
-  needs_gray_lineart = depth == 8 && dev->settings.scan_mode == 0;
 
   DBG (DBG_info,
-       "genesys_read_ordered_data: using filters:%s%s%s%s%s\n",
+       "genesys_read_ordered_data: using filters:%s%s%s%s\n",
        needs_reorder ? " reorder" : "",
        needs_ccd ? " ccd" : "",
        needs_shrink ? " shrink" : "",
-       needs_reverse ? " reverse" : "",
-       needs_gray_lineart ? " gray_lineart" : "");
+       needs_reverse ? " reverse" : "");
 
   DBG (DBG_info,
        "genesys_read_ordered_data: frontend requested %lu bytes\n",
@@ -5101,8 +5098,8 @@ Problems with the first approach:
 /*lines in input*/
       dst_lines = (bytes * 8) / (src_pixels * channels * depth);
 
-/*how many lines can be processed here?*/
-/*we are greedy. we work as much as possible*/
+      /* how many lines can be processed here?      */
+      /* we are greedy. we work as much as possible */
       bytes = dst_buffer->size - dst_buffer->avail;
 
       if (dst_lines > (bytes * 8) / (dev->settings.pixels * channels * depth))
@@ -5146,11 +5143,11 @@ Problems with the first approach:
 	      return SANE_STATUS_IO_ERROR;
 	    }
 
-/*we just consumed this many bytes*/
+          /* we just consumed this many bytes*/
 	  bytes = (dst_lines * src_pixels * channels * depth) / 8;
 	  RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
 
-/*we just created this many bytes*/
+          /* we just created this many bytes*/
 	  bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
 	  RIE (sanei_genesys_buffer_produce (dst_buffer, bytes));
 
@@ -5158,8 +5155,7 @@ Problems with the first approach:
       src_buffer = dst_buffer;
     }
 
-/* move data to destination */
-
+  /* move data to destination */
   bytes = src_buffer->avail;
   if (bytes > *len)
     bytes = *len;
@@ -5177,39 +5173,6 @@ Problems with the first approach:
 	}
       *len = bytes;
     }
-  else if (needs_gray_lineart)
-    {
-      if (depth != 8)
-	{
-	  DBG (DBG_error, "Cannot convert from 16bit to lineart\n");
-	  return SANE_STATUS_INVAL;
-	}
-      /* lines in input to process */
-      dst_lines = bytes / (dev->settings.pixels * channels);
-      if(dst_lines==0)
-        {
-          /* padd to at least line length */
-          dst_lines=1;
-        }
-      bytes = dst_lines * dev->settings.pixels * channels;
-
-      status = genesys_gray_lineart (dev,
-                                     work_buffer_src,
-                                     destination,
-				     dev->settings.pixels,
-				     dst_lines,
-                                     dev->settings.threshold);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "genesys_read_ordered_data: failed to convert bits(%s)\n",
-	       sane_strstatus (status));
-	  return SANE_STATUS_IO_ERROR;
-	}
-
-      *len = dst_lines * channels *
-	(dev->settings.pixels / 8 + ((dev->settings.pixels % 8) ? 1 : 0));
-    }
   else
     {
       memcpy (destination, work_buffer_src, bytes);
@@ -5217,7 +5180,7 @@ Problems with the first approach:
     }
 
   /* avoid signaling some extra data because we have treated a full block
-   * on  the last block */
+   * on the last block */
   if (dev->total_bytes_read + *len > dev->total_bytes_to_read)
     *len = dev->total_bytes_to_read - dev->total_bytes_read;
 
@@ -5494,13 +5457,9 @@ init_options (Genesys_Scanner * s)
   SANE_Status status;
   SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
-  SANE_Bool has_ta;
   SANE_Range *x_range, *y_range;
 
   DBGSTART;
-
-  /* no transparency adaptor support yet */
-  has_ta = SANE_FALSE;
 
   memset (s->opt, 0, sizeof (s->opt));
   memset (s->val, 0, sizeof (s->val));
@@ -6021,9 +5980,10 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_CLEAR_CALIBRATION].desc = SANE_I18N ("Clear calibration cache");
   s->opt[OPT_CLEAR_CALIBRATION].type = SANE_TYPE_BUTTON;
   s->opt[OPT_CLEAR_CALIBRATION].unit = SANE_UNIT_NONE;
+  s->opt[OPT_CLEAR_CALIBRATION].size = 0;
+  s->opt[OPT_CLEAR_CALIBRATION].constraint_type = SANE_CONSTRAINT_NONE;
   s->opt[OPT_CLEAR_CALIBRATION].cap =
-    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED |
-    SANE_CAP_AUTOMATIC;
+    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
   s->val[OPT_CLEAR_CALIBRATION].b = 0;
   s->last_val[OPT_CLEAR_CALIBRATION].b = 0;
 
@@ -6758,6 +6718,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->lines_buffer.buffer = NULL;
   s->dev->shrink_buffer.buffer = NULL;
   s->dev->out_buffer.buffer = NULL;
+  s->dev->binarize_buffer.buffer = NULL;
+  s->dev->local_buffer.buffer = NULL;
   s->dev->parking = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
   s->dev->white_average_data = NULL;
@@ -6888,6 +6850,8 @@ sane_close (SANE_Handle handle)
   sanei_genesys_buffer_free (&(s->dev->lines_buffer));
   sanei_genesys_buffer_free (&(s->dev->shrink_buffer));
   sanei_genesys_buffer_free (&(s->dev->out_buffer));
+  sanei_genesys_buffer_free (&(s->dev->binarize_buffer));
+  sanei_genesys_buffer_free (&(s->dev->local_buffer));
   FREE_IFNOT_NULL (s->dev->white_average_data);
   FREE_IFNOT_NULL (s->dev->dark_average_data);
   FREE_IFNOT_NULL (s->dev->calib_file);
@@ -6979,7 +6943,6 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
     case OPT_DISABLE_DYNAMIC_LINEART:
-    case OPT_CLEAR_CALIBRATION:
     case OPT_DISABLE_INTERPOLATION:
     case OPT_LAMP_OFF:
     case OPT_LAMP_OFF_TIME:
@@ -7550,6 +7513,15 @@ sane_start (SANE_Handle handle)
 
   s->scanning = SANE_TRUE;
 
+  /* allocate intermediate buffer when doing dynamic lineart */
+  if(s->dev->settings.dynamic_lineart==SANE_TRUE)
+    {
+      RIE (sanei_genesys_buffer_free (&(s->dev->binarize_buffer)));
+      RIE (sanei_genesys_buffer_alloc (&(s->dev->binarize_buffer), s->dev->settings.pixels));
+      RIE (sanei_genesys_buffer_free (&(s->dev->local_buffer)));
+      RIE (sanei_genesys_buffer_alloc (&(s->dev->local_buffer), s->dev->binarize_buffer.size * 8));
+    }
+
   /* if one of the software enhancement option is selected,
    * we do the scan internally, process picture then put it an internal
    * buffer. Since cropping may change scan parameters, we recompute them
@@ -7642,18 +7614,67 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
 
   DBG (DBG_proc, "sane_read: start, %d maximum bytes required\n", max_len);
+  DBG (DBG_io2, "sane_read: bytes_to_read=%lu, total_bytes_read=%lu\n",
+       (u_long) dev->total_bytes_to_read, (u_long) dev->total_bytes_read);
+  DBG (DBG_io2, "sane_read: physical bytes to read = %lu\n", (u_long) dev->read_bytes_left);
   
   if(dev->total_bytes_read>=dev->total_bytes_to_read)
     {
+      DBG (DBG_proc, "sane_read: nothing more to scan: EOF\n");
       return SANE_STATUS_EOF;
     }
 
   local_len = max_len;
 
-  /* if image hasn't been buffered, read data from scanner */
+  /* in case of image processing, all data has been stored in
+   * buffer_image. So read data from it if it exists, else from scanner */
   if(!dev->buffer_image)
     {
-      status = genesys_read_ordered_data (dev, buf, &local_len);
+      /* dynamic lineart is another kind of digital processing that needs
+       * another layer of buffering on top of genesys_read_ordered_data */
+      if(dev->settings.dynamic_lineart==SANE_TRUE)
+        {
+          /* if buffer is empty, fill it with genesys_read_ordered_data */
+          if(dev->binarize_buffer.avail==0)
+            {
+              /* store gray data */
+              local_len=dev->local_buffer.size;
+              status = genesys_read_ordered_data (dev, dev->local_buffer.buffer, &local_len);
+
+              /* binarize data is read successful */
+              if(status==SANE_STATUS_GOOD)
+                {
+                  dev->local_buffer.avail=local_len;
+                  dev->local_buffer.pos=0;
+                  dev->binarize_buffer.avail=local_len/8;
+                  dev->binarize_buffer.pos=0;
+                  genesys_gray_lineart (dev,
+                                        dev->local_buffer.buffer,
+                                        dev->binarize_buffer.buffer,
+                                        dev->settings.pixels,
+                                        local_len/dev->settings.pixels,
+                                        dev->settings.threshold);
+                }
+
+            }
+
+          /* return data from lineart buffer if any, up to the available amount */
+          local_len = max_len;
+          if((size_t)max_len>dev->binarize_buffer.avail)
+            {
+              local_len=dev->binarize_buffer.avail;
+            }
+          if(local_len)
+            {
+              memcpy(buf,sanei_genesys_buffer_get_read_pos (&(dev->binarize_buffer)),local_len);
+	      RIE (sanei_genesys_buffer_consume (&(dev->binarize_buffer), local_len));
+            }
+        }
+      else
+        {
+          /* most usual case, direct read of data from scanner */
+          status = genesys_read_ordered_data (dev, buf, &local_len);
+        }
     }
   else /* read data from buffer */
     {
@@ -7666,6 +7687,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
 
   *len = local_len;
+  if(local_len>(size_t)max_len)
+    {
+      fprintf (stderr, "[genesys] sane_read: returning incorrect length!!\n"); 
+    }
+  DBG (DBG_proc, "sane_read: %d bytes returned\n", *len);
   return status;
 } 
 

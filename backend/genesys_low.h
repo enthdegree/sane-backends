@@ -696,6 +696,8 @@ struct Genesys_Device
   Genesys_Buffer lines_buffer;
   Genesys_Buffer shrink_buffer;
   Genesys_Buffer out_buffer;
+  Genesys_Buffer binarize_buffer; /**> buffer for digital lineart from gray data */
+  Genesys_Buffer local_buffer;    /**> local buffer for gray data during dynamix lineart */
 
   size_t read_bytes_left;	/**> bytes to read from scanner */
 

@@ -1301,7 +1301,7 @@ gl646_setup_registers (Genesys_Device * dev,
    * read_bytes_left is the number of bytes to read from the scanner
    */
   dev->total_bytes_read = 0;
-  if (depth == 1 || scan_settings.scan_mode == SCAN_MODE_LINEART)
+  if (depth == 1)
     dev->total_bytes_to_read =
       ((scan_settings.pixels * scan_settings.lines) / 8 +
        (((scan_settings.pixels * scan_settings.lines) % 8) ? 1 : 0)) *

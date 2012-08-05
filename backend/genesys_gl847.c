@@ -1649,7 +1649,7 @@ gl847_init_scan_regs (Genesys_Device * dev,
    */
 
   dev->total_bytes_read = 0;
-  if (depth == 1 || dev->settings.scan_mode == SCAN_MODE_LINEART)
+  if (depth == 1)
     dev->total_bytes_to_read =
       ((dev->settings.pixels * dev->settings.lines) / 8 +
        (((dev->settings.pixels * dev->settings.lines) % 8) ? 1 : 0)) *

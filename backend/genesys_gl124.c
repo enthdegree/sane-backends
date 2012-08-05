@@ -994,7 +994,9 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
     }
   if ((scan_mode != SCAN_MODE_COLOR) && (yres<300))
     {
-        yres=300;
+      scan_dummy=dev->line_interp-1;
+      dev->line_interp=0;
+      yres=300;
     }
 
   sanei_genesys_set_triple(reg,REG_LINCNT,lincnt);

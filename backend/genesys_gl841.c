@@ -3441,16 +3441,8 @@ gl841_detect_document_end (Genesys_Device * dev)
 
       /* the current scancnt is also the final one, so we use it to
        * compute total bytes to read. We also add the line count to eject document */
-      if (dev->settings.dynamic_lineart && dev->settings.scan_mode == SCAN_MODE_LINEART)
-        {
-          /* dynamic lineart case */
-          total_bytes_to_read=(scancnt+postcnt)*dev->wpl/8;
-        }
-      else
-        {
-          /* regular case */
-          total_bytes_to_read=(scancnt+postcnt)*dev->wpl;
-        }
+      total_bytes_to_read=(scancnt+postcnt)*dev->wpl;
+      
       DBG (DBG_io, "%s: old total_bytes_to_read=%u\n",__FUNCTION__,dev->total_bytes_to_read);
       DBG (DBG_io, "%s: new total_bytes_to_read=%u\n",__FUNCTION__,total_bytes_to_read);
 

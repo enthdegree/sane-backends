@@ -5193,6 +5193,10 @@ Problems with the first approach:
    if(dev->total_bytes_read >= dev->total_bytes_to_read)
     {
       dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE);
+      if (dev->model->is_sheetfed == SANE_TRUE)
+        {
+          dev->model->cmd_set->eject_document (dev);
+        }
     }
 
   DBG (DBG_proc, "genesys_read_ordered_data: completed, %lu bytes read\n",

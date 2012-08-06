@@ -5773,8 +5773,8 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_DISABLE_DYNAMIC_LINEART].w = SANE_FALSE;
 
-  /* not working for GL646 scanners yet, and required for GL847 ones */
-  if (s->dev->model->asic_type == GENESYS_GL646 || s->dev->model->asic_type == GENESYS_GL847)
+  /* not working for GL646 scanners yet */
+  if (s->dev->model->asic_type == GENESYS_GL646)
     {
       s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
     }

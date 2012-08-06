@@ -6385,6 +6385,7 @@ genesys_buffer_image(Genesys_Scanner *s)
   size_t read_size;   /**> size of reads */
   int lines;	      /** number of lines of the scan */
   Genesys_Device *dev = s->dev;
+  SANE_Byte *lineart=NULL;
 
   /* compute maximum number of lines for the scan */
   if (s->params.lines > 0)
@@ -6401,6 +6402,10 @@ genesys_buffer_image(Genesys_Scanner *s)
 
   /* maximum bytes to read */
   maximum = s->params.bytes_per_line * lines;
+  if(s->dev->settings.dynamic_lineart==SANE_TRUE)
+    {
+      maximum *= 8;
+    }
 
   /* initial size of the read buffer */
   size =
@@ -6461,6 +6466,29 @@ genesys_buffer_image(Genesys_Scanner *s)
     {
       dev->model->cmd_set->slow_back_home (dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
       dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+    }
+
+  /* in case of dynamic lineart, we have buffered gray data which
+   * must be converted to lineart first */
+  if(s->dev->settings.dynamic_lineart==SANE_TRUE)
+    {
+      total/=8;
+      lineart=(SANE_Byte *)malloc(total);
+      if (lineart == NULL)
+        {
+          DBG (DBG_error0,
+               "%s: digital processing requires too much memory.\nConsider disabling it\n",
+               __FUNCTION__);
+          return SANE_STATUS_NO_MEM;
+        }
+      genesys_gray_lineart (dev,
+                            dev->img_buffer,
+                            lineart,
+                            dev->settings.pixels,
+                            (total*8)/dev->settings.pixels,
+                            dev->settings.threshold);
+      free(dev->img_buffer);
+      dev->img_buffer = lineart;
     }
 
   /* update counters */

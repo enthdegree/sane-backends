@@ -5349,14 +5349,16 @@ calc_parameters (Genesys_Scanner * s)
     s->dev->settings.true_gray = 0;
 
   /* dynamic lineart */
-  s->dev->settings.dynamic_lineart =
-    s->val[OPT_DISABLE_DYNAMIC_LINEART].w == SANE_FALSE;
- 
-  /* threshold curve for dynamic ratserization */
-  if(s->dev->settings.dynamic_lineart==SANE_TRUE)
-      s->dev->settings.threshold_curve=s->val[OPT_THRESHOLD_CURVE].w;
-  else
-      s->dev->settings.threshold_curve=0;
+  s->dev->settings.dynamic_lineart = SANE_FALSE;
+  s->dev->settings.threshold_curve=0;
+  if(s->val[OPT_DISABLE_DYNAMIC_LINEART].w ==SANE_FALSE
+   &&s->dev->settings.scan_mode == SCAN_MODE_LINEART)
+   {
+      s->dev->settings.dynamic_lineart = SANE_TRUE;
+      /* threshold curve for dynamic ratserization */
+      if(s->dev->settings.dynamic_lineart==SANE_TRUE)
+          s->dev->settings.threshold_curve=s->val[OPT_THRESHOLD_CURVE].w;
+   }
 
   /* some digital processing requires the whole picture to be buffered */
   /* no digital processing takes place when doing preview, or when bit depth is

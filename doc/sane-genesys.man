@@ -74,6 +74,11 @@ data is expanded by software to preserve picture geometry. This can be disabled 
 real scanned data.
 .RE
 
+.B \-\-disable-dynamic-lineart yes|no
+.RS
+        Disable use of a software adaptive algorithm to generate lineart and rely on hardware lineart.
+.RE
+
 .B \-\-color-filter None|Red|Green|Blue
 .RS
         When using gray or lineart this option selects the used color. Using a color filter
@@ -261,7 +266,7 @@ Alexey Osipov <simba@lerlan.ru> for HP2400 final support
 
 .SH "LIMITATIONS"
 
-Powersaving isn't implemented for gl646 based scanner.
+Powersaving isn't implemented for gl646 based scanner. Dynamic (emulated from gray data and with dithering) isn't enabled for gl646 scanners. Hardware lineart is limited up to 600 dpi for gl847 based scanners, due to the way image sensors are built.
 .br
 .TP
 This backend will be much slower if not using libusb-1.0. So be sure that sane-backends is built with the --enable-libusb_1_0 option.

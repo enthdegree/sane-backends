@@ -235,8 +235,8 @@ kvs20xx_reset_window (struct scanner * s)
   return send_command (s, &c);
 }
 
-static SANE_Status
-scan (struct scanner * s)
+SANE_Status
+kvs20xx_scan (struct scanner * s)
 {
   struct cmd c = {
     {0},

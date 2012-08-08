@@ -111,6 +111,7 @@ static const struct
   {
 3, 0x80, 9, SANE_STATUS_JAMMED},};
 
+SANE_Status kvs20xx_scan (struct scanner *s);
 SANE_Status kvs20xx_test_unit_ready (struct scanner *s);
 SANE_Status kvs20xx_set_timeout (struct scanner *s, int timeout);
 SANE_Status kvs20xx_set_window (struct scanner *s, int wnd_id);

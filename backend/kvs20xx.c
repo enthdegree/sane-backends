@@ -349,7 +349,7 @@ sane_start (SANE_Handle handle)
 	  if (st)
 	    return st;
 	}
-      st = scan (s);
+      st = kvs20xx_scan (s);
       if (st)
 	return st;
 

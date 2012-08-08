@@ -168,19 +168,19 @@ struct backend
 #define BE_ENTRY(be,func)       sane_##be##_##func
 
 #define PRELOAD_DECL(name)                                                            \
-  extern void *BE_ENTRY(name,init) (SANE_Int *, SANE_Auth_Callback);                  \
-  extern void *BE_ENTRY(name,exit) (void);                  \
-  extern void *BE_ENTRY(name,get_devices) (const SANE_Device ***, SANE_Bool);           \
-  extern void *BE_ENTRY(name,open) (SANE_String_Const, SANE_Handle *);                  \
-  extern void *BE_ENTRY(name,close) (SANE_Handle);                 \
-  extern void *BE_ENTRY(name,get_option_descriptor) (SANE_Handle,  SANE_Int); \
-  extern void *BE_ENTRY(name,control_option) (SANE_Handle, SANE_Int, SANE_Action, void *, SANE_Int *);        \
-  extern void *BE_ENTRY(name,get_parameters) (SANE_Handle, SANE_Parameters *);        \
-  extern void *BE_ENTRY(name,start) (SANE_Handle);                 \
-  extern void *BE_ENTRY(name,read) (SANE_Handle, SANE_Byte *, SANE_Int, SANE_Int *);                  \
-  extern void *BE_ENTRY(name,cancel) (SANE_Handle);                \
-  extern void *BE_ENTRY(name,set_io_mode) (SANE_Handle, SANE_Bool);           \
-  extern void *BE_ENTRY(name,get_select_fd) (SANE_Handle, SANE_Int *);
+  extern SANE_Status BE_ENTRY(name,init) (SANE_Int *, SANE_Auth_Callback);                  \
+  extern void BE_ENTRY(name,exit) (void);                  \
+  extern SANE_Status BE_ENTRY(name,get_devices) (const SANE_Device ***, SANE_Bool);           \
+  extern SANE_Status BE_ENTRY(name,open) (SANE_String_Const, SANE_Handle *);                  \
+  extern void BE_ENTRY(name,close) (SANE_Handle);                 \
+  extern const SANE_Option_Descriptor *BE_ENTRY(name,get_option_descriptor) (SANE_Handle,  SANE_Int); \
+  extern SANE_Status BE_ENTRY(name,control_option) (SANE_Handle, SANE_Int, SANE_Action, void *, SANE_Int *);        \
+  extern SANE_Status BE_ENTRY(name,get_parameters) (SANE_Handle, SANE_Parameters *);        \
+  extern SANE_Status BE_ENTRY(name,start) (SANE_Handle);                 \
+  extern SANE_Status BE_ENTRY(name,read) (SANE_Handle, SANE_Byte *, SANE_Int, SANE_Int *);                  \
+  extern void BE_ENTRY(name,cancel) (SANE_Handle);                \
+  extern SANE_Status BE_ENTRY(name,set_io_mode) (SANE_Handle, SANE_Bool);           \
+  extern SANE_Status BE_ENTRY(name,get_select_fd) (SANE_Handle, SANE_Int *);
 
 #define PRELOAD_DEFN(name)                      \
 {                                               \

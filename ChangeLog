@@ -1,3 +1,9 @@
+2012-07-30 Stéphane Voltz <stef.dev@free.fr>
+	* doc/sane-genesys.man backend/genesys_low.h backend/genesys*.c:
+	rewrite lineart emulation du to bugs exhibited by the use of the
+	genesys backend through saned. Fixed an option delcartion that led
+	to saned crash and fixed batch scanning with sheet-fed scanners.
+
 2012-08-07 Chris Bagwell <chris at cnpbagwell dot com>
 	* backend/kvs20xx*, backend/kvs40xx*: Fix duplicate symbols
 	caused by copy&pasting between related backends. This

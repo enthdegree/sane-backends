@@ -1329,18 +1329,12 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 	}*/
     }
 
-  sanei_genesys_set_double(reg,REG_DPISET,dpiset);
-  DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset);
-
-  sanei_genesys_set_double(reg,REG_STRPIXEL,startx);
-  sanei_genesys_set_double(reg,REG_ENDPIXEL,endx);
-
   /* words(16bit) before gamma, conversion to 8 bit or lineart*/
   words_per_line = (used_pixels * dpiset) / dpihw;
   bytes=depth/8;
   if (depth == 1)
     {
-      words_per_line = (words_per_line >> 3) + ((words_per_line & 7) ? 1 : 0);
+      words_per_line = (words_per_line+7)/8 ;
       dev->len = (dev->len >> 3) + ((dev->len & 7) ? 1 : 0);
       dev->dist = (dev->dist >> 3) + ((dev->dist & 7) ? 1 : 0);
     }
@@ -1355,6 +1349,14 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   dev->cur=0;
   dev->segnb=segnb;
   dev->line_interp = 0;
+
+  sanei_genesys_set_double(reg,REG_DPISET,dpiset);
+  DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset);
+
+  sanei_genesys_set_double(reg,REG_STRPIXEL,startx);
+  sanei_genesys_set_double(reg,REG_ENDPIXEL,endx);
+  DBG (DBG_io2, "%s: startx=%d\n", __FUNCTION__, startx);
+  DBG (DBG_io2, "%s: endx  =%d\n", __FUNCTION__, endx);
 
   DBG (DBG_io2, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
   DBG (DBG_io2, "%s: pixels     =%d\n", __FUNCTION__, pixels);

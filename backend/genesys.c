@@ -4544,7 +4544,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                             {
                                   work_buffer_dst[count+n] = 0;
                             }
-                          /* interleaving is a bit level */
+                          /* interleaving is at bit level */
                           for(i=0;i<8;i++)
                             {
                               k=count+(i*dev->segnb)/8;
@@ -5288,8 +5288,9 @@ calc_parameters (Genesys_Scanner * s)
   /* corner case for true lineart for sensor with several segments
    * or when xres is doubled to match yres */
   if (s->dev->settings.xres >= 1200
-      && ( s->dev->model->asic_type == GENESYS_GL124
-        || s->dev->current_setup.xres < s->dev->current_setup.yres
+      && (    s->dev->model->asic_type == GENESYS_GL124 
+           || s->dev->model->asic_type == GENESYS_GL847
+           || s->dev->current_setup.xres < s->dev->current_setup.yres
          )
      )
     {
@@ -5359,10 +5360,21 @@ calc_parameters (Genesys_Scanner * s)
    &&s->dev->settings.scan_mode == SCAN_MODE_LINEART)
    {
       s->dev->settings.dynamic_lineart = SANE_TRUE;
-      /* threshold curve for dynamic ratserization */
-      if(s->dev->settings.dynamic_lineart==SANE_TRUE)
-          s->dev->settings.threshold_curve=s->val[OPT_THRESHOLD_CURVE].w;
    }
+
+  /* hardware lineart works only when we don't have interleave data
+   * for GL847 scanners, ie up to 600 DPI, then we have to rely on
+   * dynamic_lineart */
+  if(s->dev->settings.xres > 600 
+     && s->dev->model->asic_type==GENESYS_GL847
+     && s->dev->settings.scan_mode == SCAN_MODE_LINEART)
+   {
+      s->dev->settings.dynamic_lineart = SANE_TRUE;
+   }
+  
+  
+  /* threshold curve for dynamic rasterization */
+  s->dev->settings.threshold_curve=s->val[OPT_THRESHOLD_CURVE].w;
 
   /* some digital processing requires the whole picture to be buffered */
   /* no digital processing takes place when doing preview, or when bit depth is

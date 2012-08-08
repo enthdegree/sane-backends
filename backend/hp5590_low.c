@@ -51,6 +51,8 @@
 # include <netinet/in.h>
 #endif /* HAVE_NETINET_IN_H */
 
+#include "byteorder.h"
+
 #include "../include/sane/sanei_debug.h"
 #include "../include/sane/sanei_usb.h"
 #include "../include/_stdint.h"

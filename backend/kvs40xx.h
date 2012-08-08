@@ -193,23 +193,21 @@ struct support_info
   unsigned char data[32];
 };
 
-void init_options (struct scanner *);
-SANE_Status test_unit_ready (struct scanner *s);
-SANE_Status set_timeout (struct scanner *s, int timeout);
-void init_window (struct scanner *s, struct window *wnd, int wnd_id);
-SANE_Status set_window (struct scanner *s, int wnd_id);
-SANE_Status reset_window (struct scanner *s);
-SANE_Status read_picture_element (struct scanner *s, unsigned side,
-				  SANE_Parameters * p);
+void kvs40xx_init_options (struct scanner *);
+SANE_Status kvs40xx_test_unit_ready (struct scanner *s);
+SANE_Status kvs40xx_set_timeout (struct scanner *s, int timeout);
+void kvs40xx_init_window (struct scanner *s, struct window *wnd, int wnd_id);
+SANE_Status kvs40xx_set_window (struct scanner *s, int wnd_id);
+SANE_Status kvs40xx_reset_window (struct scanner *s);
+SANE_Status kvs40xx_read_picture_element (struct scanner *s, unsigned side,
+					  SANE_Parameters * p);
 SANE_Status read_support_info (struct scanner *s, struct support_info *inf);
-SANE_Status read_image_data (struct scanner *s, unsigned page,
-			     unsigned side, void *buf, unsigned max_size,
-			     unsigned *size);
-SANE_Status document_exist (struct scanner *s);
+SANE_Status kvs40xx_read_image_data (struct scanner *s, unsigned page,
+				     unsigned side, void *buf,
+				     unsigned max_size, unsigned *size);
+SANE_Status kvs40xx_document_exist (struct scanner *s);
 SANE_Status get_buffer_status (struct scanner *s, unsigned *data_avalible);
-SANE_Status scan (struct scanner *s);
-SANE_Status get_adjust_data (struct scanner *s, unsigned *dummy_length);
-SANE_Status sense_handler (int fd, u_char * sense_buffer, void *arg);
+SANE_Status kvs40xx_sense_handler (int fd, u_char * sense_buffer, void *arg);
 SANE_Status stop_adf (struct scanner *s);
 SANE_Status hopper_down (struct scanner *s);
 SANE_Status inquiry (struct scanner *s, char *id);

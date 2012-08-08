@@ -21,7 +21,7 @@
 #include "kvs20xx.h"
 #include "kvs20xx_cmd.h"
 
-SANE_Status
+static SANE_Status
 usb_send_command (struct scanner *s, struct cmd *c, struct response *r,
 		  void *buf)
 {
@@ -81,8 +81,8 @@ usb_send_command (struct scanner *s, struct cmd *c, struct response *r,
 }
 
 SANE_Status
-sense_handler (int __sane_unused__ fd,
-	       u_char * sense_buffer, void __sane_unused__ * arg)
+kvs20xx_sense_handler (int __sane_unused__ fd,
+		       u_char * sense_buffer, void __sane_unused__ * arg)
 {
   unsigned i;
   SANE_Status st = SANE_STATUS_GOOD;
@@ -105,7 +105,7 @@ sense_handler (int __sane_unused__ fd,
   return st;
 }
 
-SANE_Status
+static SANE_Status
 send_command (struct scanner * s, struct cmd * c)
 {
   SANE_Status st = SANE_STATUS_GOOD;
@@ -131,7 +131,7 @@ send_command (struct scanner * s, struct cmd * c)
 	  st = usb_send_command (s, &c2, &r, b);
 	  if (st)
 	    return st;
-	  st = sense_handler (0, b + sizeof (struct bulk_header), NULL);
+	  st = kvs20xx_sense_handler (0, b + sizeof (struct bulk_header), NULL);
 	}
     }
   else
@@ -158,7 +158,7 @@ send_command (struct scanner * s, struct cmd * c)
 }
 
 SANE_Status
-test_unit_ready (struct scanner * s)
+kvs20xx_test_unit_ready (struct scanner * s)
 {
   struct cmd c = {
     {0},
@@ -175,7 +175,7 @@ test_unit_ready (struct scanner * s)
 }
 
 SANE_Status
-set_timeout (struct scanner * s, int timeout)
+kvs20xx_set_timeout (struct scanner * s, int timeout)
 {
   u16 t = cpu2be16 ((u16) timeout);
   struct cmd c = {
@@ -199,7 +199,7 @@ set_timeout (struct scanner * s, int timeout)
 }
 
 SANE_Status
-set_window (struct scanner * s, int wnd_id)
+kvs20xx_set_window (struct scanner * s, int wnd_id)
 {
   struct window wnd;
   struct cmd c = {
@@ -215,13 +215,13 @@ set_window (struct scanner * s, int wnd_id)
   c.data = &wnd;
   c.data_size = sizeof (wnd);
 
-  init_window (s, &wnd, wnd_id);
+  kvs20xx_init_window (s, &wnd, wnd_id);
 
   return send_command (s, &c);
 }
 
 SANE_Status
-reset_window (struct scanner * s)
+kvs20xx_reset_window (struct scanner * s)
 {
   struct cmd c = {
     {0},
@@ -235,7 +235,7 @@ reset_window (struct scanner * s)
   return send_command (s, &c);
 }
 
-SANE_Status
+static SANE_Status
 scan (struct scanner * s)
 {
   struct cmd c = {
@@ -250,7 +250,7 @@ scan (struct scanner * s)
 }
 
 SANE_Status
-document_exist (struct scanner * s)
+kvs20xx_document_exist (struct scanner * s)
 {
   SANE_Status status;
   struct cmd c = {
@@ -275,7 +275,8 @@ document_exist (struct scanner * s)
 }
 
 SANE_Status
-read_picture_element (struct scanner * s, unsigned side, SANE_Parameters * p)
+kvs20xx_read_picture_element (struct scanner * s, unsigned side,
+			      SANE_Parameters * p)
 {
   SANE_Status status;
   struct cmd c = {
@@ -300,7 +301,7 @@ read_picture_element (struct scanner * s, unsigned side, SANE_Parameters * p)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status
+static SANE_Status
 get_buffer_status (struct scanner * s, unsigned *data_avalible)
 {
   SANE_Status status;
@@ -324,8 +325,8 @@ get_buffer_status (struct scanner * s, unsigned *data_avalible)
 }
 
 SANE_Status
-read_image_data (struct scanner * s, unsigned page,
-		 unsigned side, void *buf, unsigned max_size, unsigned *size)
+kvs20xx_read_image_data (struct scanner * s, unsigned page, unsigned side,
+			 void *buf, unsigned max_size, unsigned *size)
 {
   SANE_Status status;
   struct cmd c = {
@@ -348,7 +349,7 @@ read_image_data (struct scanner * s, unsigned page,
     return status;
 
   *size = c.data_size;
-  DBG (DBG_INFO, "read_image_data: read %d, status %d\n", *size, status);
+  DBG (DBG_INFO, "kvs20xx_read_image_data: read %d, status %d\n", *size, status);
   memcpy (buf, c.data, *size);
   return status;
 }

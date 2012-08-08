@@ -83,10 +83,7 @@ struct response
   unsigned char data[RESPONSE_SIZE];
 };
 
-SANE_Status
-usb_send_command (struct scanner *s, struct cmd *c, struct response *r,
-		  void *buf);
-SANE_Status
+static SANE_Status
 usb_send_command (struct scanner *s, struct cmd *c, struct response *r,
 		  void *buf)
 {
@@ -249,8 +246,8 @@ static const struct
 5, 0x2c, 0x83, SANE_STATUS_INVAL},};
 
 SANE_Status
-sense_handler (int __sane_unused__ fd,
-	       u_char * sense_buffer, void __sane_unused__ * arg)
+kvs40xx_sense_handler (int __sane_unused__ fd,
+		       u_char * sense_buffer, void __sane_unused__ * arg)
 {
   unsigned i;
   SANE_Status st = SANE_STATUS_GOOD;
@@ -284,10 +281,7 @@ sense_handler (int __sane_unused__ fd,
   return st;
 }
 
-SANE_Status
-send_command (struct scanner * s, struct cmd * c);
-
-SANE_Status
+static SANE_Status
 send_command (struct scanner * s, struct cmd * c)
 {
   SANE_Status st = SANE_STATUS_GOOD;
@@ -312,7 +306,7 @@ send_command (struct scanner * s, struct cmd * c)
 	  st = usb_send_command (s, &c2, &r, b);
 	  if (st)
 	    return st;
-	  st = sense_handler (0, b + sizeof (struct bulk_header), NULL);
+	  st = kvs40xx_sense_handler (0, b + sizeof (struct bulk_header), NULL);
 	}
     }
   else
@@ -339,7 +333,7 @@ send_command (struct scanner * s, struct cmd * c)
 }
 
 SANE_Status
-test_unit_ready (struct scanner * s)
+kvs40xx_test_unit_ready (struct scanner * s)
 {
   struct cmd c = {
     {0}, 6,
@@ -354,7 +348,7 @@ test_unit_ready (struct scanner * s)
 }
 
 SANE_Status
-set_timeout (struct scanner * s, int timeout)
+kvs40xx_set_timeout (struct scanner * s, int timeout)
 {
   u16 t = cpu2be16 ((u16) timeout);
   struct cmd c = {
@@ -374,7 +368,7 @@ set_timeout (struct scanner * s, int timeout)
 }
 
 SANE_Status
-set_window (struct scanner * s, int wnd_id)
+kvs40xx_set_window (struct scanner * s, int wnd_id)
 {
   struct window wnd;
   struct cmd c = {
@@ -386,13 +380,13 @@ set_window (struct scanner * s, int wnd_id)
   c.data_size = sizeof (wnd);
   c.cmd[0] = SET_WINDOW;
   *((u16 *) (c.cmd + 7)) = cpu2be16 (sizeof (wnd));
-  init_window (s, &wnd, wnd_id);
+  kvs40xx_init_window (s, &wnd, wnd_id);
 
   return send_command (s, &c);
 }
 
 SANE_Status
-reset_window (struct scanner * s)
+kvs40xx_reset_window (struct scanner * s)
 {
   struct cmd c = {
     {0}, 10,
@@ -404,7 +398,7 @@ reset_window (struct scanner * s)
   return send_command (s, &c);
 }
 
-SANE_Status
+static SANE_Status
 scan (struct scanner * s)
 {
   struct cmd c = {
@@ -446,7 +440,7 @@ stop_adf (struct scanner * s)
 }
 
 SANE_Status
-document_exist (struct scanner * s)
+kvs40xx_document_exist (struct scanner * s)
 {
   SANE_Status status;
   struct cmd c = {
@@ -469,7 +463,8 @@ document_exist (struct scanner * s)
 }
 
 SANE_Status
-read_picture_element (struct scanner * s, unsigned side, SANE_Parameters * p)
+kvs40xx_read_picture_element (struct scanner * s, unsigned side,
+			      SANE_Parameters * p)
 {
   SANE_Status status;
   struct cmd c = {
@@ -513,8 +508,8 @@ get_buffer_status (struct scanner * s, unsigned *data_avalible)
 }
 
 SANE_Status
-read_image_data (struct scanner * s, unsigned page,
-		 unsigned side, void *buf, unsigned max_size, unsigned *size)
+kvs40xx_read_image_data (struct scanner * s, unsigned page, unsigned side,
+			 void *buf, unsigned max_size, unsigned *size)
 {
   SANE_Status status;
   struct cmd c = {
@@ -539,7 +534,7 @@ read_image_data (struct scanner * s, unsigned page,
   return status;
 }
 
-SANE_Status
+static SANE_Status
 get_adjust_data (struct scanner * s, unsigned *dummy_length)
 {
   SANE_Status status;

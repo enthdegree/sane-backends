@@ -142,7 +142,7 @@ static SANE_String_Const lamp_list[] = {
 
 /* Reset the options for that scanner. */
 void
-init_options (struct scanner *s)
+kvs20xx_init_options (struct scanner *s)
 {
   int i;
   SANE_Option_Descriptor *o;
@@ -590,7 +590,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case FEED_TIMEOUT:
 	  s->val[option].w = *(SANE_Word *) val;
-	  return set_timeout (s, s->val[option].w);
+	  return kvs20xx_set_timeout (s, s->val[option].w);
 
 	  /* String mode */
 	case IMAGE_EMPHASIS:
@@ -679,7 +679,7 @@ scanner_units2mm (unsigned u)
 }
 
 void
-init_window (struct scanner *s, struct window *wnd, int wnd_id)
+kvs20xx_init_window (struct scanner *s, struct window *wnd, int wnd_id)
 {
   int paper = str_index (paper_list, s->val[PAPER_SIZE].s);
   memset (wnd, 0, sizeof (struct window));

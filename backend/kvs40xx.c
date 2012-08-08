@@ -301,7 +301,7 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
     return st;
   if (st)
     {
-      st = sanei_scsi_open (devname, &h, sense_handler, NULL);
+      st = sanei_scsi_open (devname, &h, kvs40xx_sense_handler, NULL);
       if (st)
 	{
 	  return st;
@@ -334,13 +334,13 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
   *handle = s;
   for (i = 0; i < 3; i++)
     {
-      st = test_unit_ready (s);
+      st = kvs40xx_test_unit_ready (s);
       if (st)
 	{
 	  if (s->bus == SCSI)
 	    {
 	      sanei_scsi_close (s->file);
-	      st = sanei_scsi_open (devname, &h, sense_handler, NULL);
+	      st = sanei_scsi_open (devname, &h, kvs40xx_sense_handler, NULL);
 	      if (st)
 		return st;
 	    }
@@ -377,8 +377,8 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
       else
 	s->id = !strcmp (str, "KV-S4065CL") ? KV_S4065CL : KV_S4065CW;
     }
-  init_options (s);
-  st = set_timeout (s, s->val[FEED_TIMEOUT].w);
+  kvs40xx_init_options (s);
+  st = kvs40xx_set_timeout (s, s->val[FEED_TIMEOUT].w);
   if (st)
     goto err;
 
@@ -436,11 +436,11 @@ wait_document (struct scanner *s)
   if (!strcmp ("fb", s->val[SOURCE].s))
     return SANE_STATUS_GOOD;
   if (!strcmp ("off", s->val[MANUALFEED].s))
-    return document_exist (s);
+    return kvs40xx_document_exist (s);
 
   for (i = 0; i < s->val[FEED_TIMEOUT].w; i++)
     {
-      st = document_exist (s);
+      st = kvs40xx_document_exist (s);
       if (st != SANE_STATUS_NO_DOCS)
 	return st;
       sleep (1);
@@ -478,9 +478,9 @@ static SANE_Status read_image_duplex(SANE_Handle handle)
 			b->mx = BUF_SIZE;
 		}
 
-		st = read_image_data(s, s->page,
-				     side, b->p + BUF_SIZE - b->mx, b->mx,
-				     &read);
+		st = kvs40xx_read_image_data(s, s->page, side,
+					     b->p + BUF_SIZE - b->mx, b->mx,
+					     &read);
 		b->mx -= read;
 		if (st) {
 			if (st != INCORRECT_LENGTH
@@ -514,8 +514,9 @@ static SANE_Status read_image_simplex(SANE_Handle handle)
 		for (read = 0, mx = BUF_SIZE; mx &&
 		     (!st || st == INCORRECT_LENGTH); mx -= read) {
 			pthread_testcancel();
-			st = read_image_data(s, s->page, SIDE_FRONT,
-					     p + BUF_SIZE - mx, mx, &read);
+			st = kvs40xx_read_image_data(s, s->page, SIDE_FRONT,
+						     p + BUF_SIZE - mx, mx,
+						     &read);
 		}
 		push_buf(&s->buf[0], BUF_SIZE - mx);
 	}
@@ -534,7 +535,7 @@ static SANE_Status read_data(struct scanner *s)
 	if (st && (st != SANE_STATUS_EOF))
 		goto err;
 
-	st = read_picture_element(s, SIDE_FRONT, &s->params);
+	st = kvs40xx_read_picture_element(s, SIDE_FRONT, &s->params);
 	if (st)
 		goto err;
 	if (!s->params.lines) {
@@ -568,7 +569,7 @@ sane_start (SANE_Handle handle)
     }
   if (!s->scanning)
     {
-      st = test_unit_ready (s);
+      st = kvs40xx_test_unit_ready (s);
       if (st)
 	return st;
 
@@ -576,17 +577,17 @@ sane_start (SANE_Handle handle)
       if (st)
 	return st;
 
-      st = reset_window (s);
+      st = kvs40xx_reset_window (s);
       if (st)
 	return st;
-      st = set_window (s, SIDE_FRONT);
+      st = kvs40xx_set_window (s, SIDE_FRONT);
 
       if (st)
 	return st;
 
       if (duplex)
 	{
-	  st = set_window (s, SIDE_BACK);
+	  st = kvs40xx_set_window (s, SIDE_BACK);
 	  if (st)
 	    return st;
 	}
@@ -606,7 +607,7 @@ sane_start (SANE_Handle handle)
 	}
       else
 	{
-	  st = read_picture_element (s, SIDE_FRONT, &s->params);
+	  st = kvs40xx_read_picture_element (s, SIDE_FRONT, &s->params);
 	  if (st)
 	    return st;
 	}

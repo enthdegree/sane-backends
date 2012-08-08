@@ -24,9 +24,6 @@
 #include "kvs20xx.h"
 #include "kvs20xx_cmd.h"
 
-/* private functions */
-SANE_Status attach (SANE_String_Const devname);
-
 struct known_device
 {
   const SANE_Int id;
@@ -98,7 +95,7 @@ sane_exit (void)
     }
 }
 
-SANE_Status
+static SANE_Status
 attach (SANE_String_Const devname)
 {
   int i = 0;
@@ -192,7 +189,7 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
     return st;
   if (st)
     {
-      st = sanei_scsi_open (devname, &h, sense_handler, NULL);
+      st = sanei_scsi_open (devname, &h, kvs20xx_sense_handler, NULL);
       if (st)
 	{
 	  return st;
@@ -220,17 +217,17 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
   s->file = h;
   s->bus = bus;
   s->id = id;
-  init_options (s);
+  kvs20xx_init_options (s);
   *handle = s;
   for (i = 0; i < 3; i++)
     {
-      st = test_unit_ready (s);
+      st = kvs20xx_test_unit_ready (s);
       if (st)
 	{
 	  if (s->bus == SCSI)
 	    {
 	      sanei_scsi_close (s->file);
-	      st = sanei_scsi_open (devname, &h, sense_handler, NULL);
+	      st = sanei_scsi_open (devname, &h, kvs20xx_sense_handler, NULL);
 	      if (st)
 		return st;
 	    }
@@ -256,7 +253,7 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
   if (i == 3)
     return SANE_STATUS_DEVICE_BUSY;
 
-  st = set_timeout (s, s->val[FEED_TIMEOUT].w);
+  st = kvs20xx_set_timeout (s, s->val[FEED_TIMEOUT].w);
   if (st)
     {
       sane_close (s);
@@ -309,11 +306,11 @@ wait_document (struct scanner *s)
   SANE_Status st;
   int i;
   if (!strcmp ("off", s->val[MANUALFEED].s))
-    return document_exist (s);
+    return kvs20xx_document_exist (s);
 
   for (i = 0; i < s->val[FEED_TIMEOUT].w; i++)
     {
-      st = document_exist (s);
+      st = kvs20xx_document_exist (s);
       if (st != SANE_STATUS_NO_DOCS)
 	return st;
       sleep (1);
@@ -332,7 +329,7 @@ sane_start (SANE_Handle handle)
   if (!s->scanning)
     {
       unsigned dummy_length;
-      st = test_unit_ready (s);
+      st = kvs20xx_test_unit_ready (s);
       if (st)
 	return st;
 
@@ -340,15 +337,15 @@ sane_start (SANE_Handle handle)
       if (st)
 	return st;
 
-      st = reset_window (s);
+      st = kvs20xx_reset_window (s);
       if (st)
 	return st;
-      st = set_window (s, SIDE_FRONT);
+      st = kvs20xx_set_window (s, SIDE_FRONT);
       if (st)
 	return st;
       if (duplex)
 	{
-	  st = set_window (s, SIDE_BACK);
+	  st = kvs20xx_set_window (s, SIDE_BACK);
 	  if (st)
 	    return st;
 	}
@@ -356,7 +353,7 @@ sane_start (SANE_Handle handle)
       if (st)
 	return st;
 
-      st = read_picture_element (s, SIDE_FRONT, &s->params);
+      st = kvs20xx_read_picture_element (s, SIDE_FRONT, &s->params);
       if (st)
 	return st;
       if (duplex)
@@ -401,25 +398,26 @@ sane_start (SANE_Handle handle)
       s->read = 0;
       s->dummy_size = s->saved_dummy_size;
       s->side = SIDE_FRONT;
-      st = document_exist (s);
+      st = kvs20xx_document_exist (s);
       if (st)
 	return st;
       for (mx = s->side_size * 2; !st; mx -= read, side ^= SIDE_BACK)
-	st = read_image_data (s, s->page, side,
-			      &s->data[s->side_size * 2 - mx], mx, &read);
+	st = kvs20xx_read_image_data (s, s->page, side,
+				      &s->data[s->side_size * 2 - mx], mx,
+				      &read);
     }
   else
     {
       unsigned read, mx;
       s->read = 0;
-      st = document_exist (s);
+      st = kvs20xx_document_exist (s);
       if (st)
 	return st;
       DBG (DBG_INFO, "start: %d\n", s->page);
 
       for (mx = s->side_size; !st; mx -= read)
-	st = read_image_data (s, s->page, SIDE_FRONT,
-			      &s->data[s->side_size - mx], mx, &read);
+	st = kvs20xx_read_image_data (s, s->page, SIDE_FRONT,
+				      &s->data[s->side_size - mx], mx, &read);
     }
   if (st && st != SANE_STATUS_EOF)
     {

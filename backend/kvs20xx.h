@@ -153,8 +153,8 @@ struct window
   u8 stop_mode;
 } __attribute__((__packed__));
 
-void init_options (struct scanner *);
-void init_window (struct scanner *s, struct window *wnd, int wnd_id);
+void kvs20xx_init_options (struct scanner *);
+void kvs20xx_init_window (struct scanner *s, struct window *wnd, int wnd_id);
 
 static inline u16
 swap_bytes16 (u16 x)

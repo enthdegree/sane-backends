@@ -111,21 +111,17 @@ static const struct
   {
 3, 0x80, 9, SANE_STATUS_JAMMED},};
 
-SANE_Status usb_send_command (struct scanner *s, struct cmd *c,
-  struct response *r, void *buf);
-SANE_Status send_command (struct scanner * s, struct cmd * c);
-SANE_Status test_unit_ready (struct scanner *s);
-SANE_Status set_timeout (struct scanner *s, int timeout);
-SANE_Status set_window (struct scanner *s, int wnd_id);
-SANE_Status reset_window (struct scanner *s);
-SANE_Status read_picture_element (struct scanner *s, unsigned side,
-				  SANE_Parameters * p);
-SANE_Status read_image_data (struct scanner *s, unsigned page, unsigned side,
-			     void *buf, unsigned max_size, unsigned *size);
-SANE_Status document_exist (struct scanner *s);
-SANE_Status get_buffer_status (struct scanner *s, unsigned *data_avalible);
-SANE_Status scan (struct scanner *s);
+SANE_Status kvs20xx_test_unit_ready (struct scanner *s);
+SANE_Status kvs20xx_set_timeout (struct scanner *s, int timeout);
+SANE_Status kvs20xx_set_window (struct scanner *s, int wnd_id);
+SANE_Status kvs20xx_reset_window (struct scanner *s);
+SANE_Status kvs20xx_read_picture_element (struct scanner *s, unsigned side,
+					  SANE_Parameters * p);
+SANE_Status kvs20xx_read_image_data (struct scanner *s, unsigned page,
+				     unsigned side, void *buf,
+				     unsigned max_size, unsigned *size);
+SANE_Status kvs20xx_document_exist (struct scanner *s);
 SANE_Status get_adjust_data (struct scanner *s, unsigned *dummy_length);
-SANE_Status sense_handler (int fd, u_char * sense_buffer, void *arg);
+SANE_Status kvs20xx_sense_handler (int fd, u_char * sense_buffer, void *arg);
 
 #endif /*__KVS20XX_CMD_H*/

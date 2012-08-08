@@ -1,3 +1,12 @@
+2012-08-07 Chris Bagwell <chris at cnpbagwell dot com>
+	* backend/kvs20xx*, backend/kvs40xx*: Fix duplicate symbols
+	caused by copy&pasting between related backends. This
+	allows prelinking of backends to work.
+	* backend/hp5590_low.c: Fix unresolved symbols error by
+	including byteorder.h header.
+	* backend/dll.c: Use correct function prototype for prelink
+	version of DLL backend.  Helps some 64-bit compilers.
+
 2012-07-31 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	doc updates for all PIXMA scanners

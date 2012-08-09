@@ -1,3 +1,7 @@
+2012-08-09 Paul Newall <quandry at ntlworld dot com>
+	* /backend/kodakaio.c: 
+	calling of poll tidied up, may fix problems with repeated scans.
+
 2012-07-30 Stéphane Voltz <stef.dev@free.fr>
 	* doc/sane-genesys.man backend/genesys_low.h backend/genesys*.c:
 	rewrite lineart emulation du to bugs exhibited by the use of the

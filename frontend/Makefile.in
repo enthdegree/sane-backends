@@ -55,12 +55,12 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(sbindir)"
 PROGRAMS = $(bin_PROGRAMS) $(sbin_PROGRAMS)
 am_saned_OBJECTS = saned.$(OBJEXT)
 saned_OBJECTS = $(am_saned_OBJECTS)
-saned_DEPENDENCIES = ../sanei/libsanei.la ../lib/liblib.la \
-	../lib/libfelib.la ../backend/libsane.la
+saned_DEPENDENCIES = ../backend/libsane.la ../sanei/libsanei.la \
+	../lib/liblib.la ../lib/libfelib.la
 am_scanimage_OBJECTS = scanimage.$(OBJEXT) stiff.$(OBJEXT)
 scanimage_OBJECTS = $(am_scanimage_OBJECTS)
-scanimage_DEPENDENCIES = ../lib/liblib.la ../lib/libfelib.la \
-	../backend/libsane.la
+scanimage_DEPENDENCIES = ../backend/libsane.la ../lib/liblib.la \
+	../lib/libfelib.la
 am_test_OBJECTS = test.$(OBJEXT)
 test_OBJECTS = $(am_test_OBJECTS)
 test_DEPENDENCIES = ../lib/liblib.la ../lib/libfelib.la \
@@ -260,10 +260,10 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
 scanimage_SOURCES = scanimage.c stiff.c stiff.h
-scanimage_LDADD = ../lib/liblib.la ../lib/libfelib.la ../backend/libsane.la
+scanimage_LDADD = ../backend/libsane.la ../lib/liblib.la ../lib/libfelib.la
 saned_SOURCES = saned.c
-saned_LDADD = ../sanei/libsanei.la ../lib/liblib.la ../lib/libfelib.la \
-  ../backend/libsane.la @SYSLOG_LIBS@
+saned_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \
+             ../lib/libfelib.la @SYSLOG_LIBS@
 
 test_SOURCES = test.c
 test_LDADD = ../lib/liblib.la ../lib/libfelib.la ../backend/libsane.la

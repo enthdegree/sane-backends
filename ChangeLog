@@ -1,3 +1,7 @@
+2012-08-11 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.c, backend/pixma_mp150.c, backend/pixma_mp810.c:
+	Lineart fix for generation 1+2 scanners.   
+
 2012-08-09 Paul Newall <quandry at ntlworld dot com>
 	* /backend/kodakaio.c: 
 	calling of poll tidied up, may fix problems with repeated scans.

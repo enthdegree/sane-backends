@@ -682,6 +682,8 @@ send_scan_param (pixma_t * s)
 
   if (mp->generation <= 2)
     {
+      /*PDBG (pixma_dbg (4, "*send_scan_param gen. 1-2 ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
+                           s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width));*/
       data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x30, 0);
       pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
       pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x06);
@@ -692,7 +694,8 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (raw_width, data + 0x10);
       pixma_set_be32 (h, data + 0x14);
       data[0x18] = ((s->param->channels != 1) || is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 0x08 : 0x04;
-      data[0x19] = s->param->depth * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels);   /* bits per pixel */
+      data[0x19] = ((s->param->software_lineart) ? 8 : s->param->depth)
+                    * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels);   /* bits per pixel */
       data[0x1a] = (is_scanning_from_tpu (s) ? 1 : 0);
       data[0x20] = 0xff;
       data[0x23] = 0x81;
@@ -719,7 +722,7 @@ send_scan_param (pixma_t * s)
       data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
       pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
       pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
-      /*PDBG (pixma_dbg (4, "*send_scan_param***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n", 
+      /*PDBG (pixma_dbg (4, "*send_scan_param gen. 3+ ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
                            s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width));*/
       pixma_set_be32 (s->param->x - s->param->xs, data + 0x0c);
       pixma_set_be32 (s->param->y, data + 0x10);
@@ -731,7 +734,7 @@ send_scan_param (pixma_t * s)
       data[0x1d] = 24;
 #else
       data[0x1d] = (is_scanning_from_tpu (s)) ? 48
-                                              : (((s->param->depth == 1) ? 8 : s->param->depth)
+                                              : (((s->param->software_lineart) ? 8 : s->param->depth)
                                                  * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels));   /* bits per pixel */
 #endif
 
@@ -1026,7 +1029,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   uint8_t *sptr, *dptr, *gptr, *cptr;
 
   c = ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels)
-      * ((s->param->depth == 1) ? 8 : s->param->depth) / 8;
+      * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;
   cw = c * s->param->w;
   cx = c * s->param->xs;
   
@@ -1045,7 +1048,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
   lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
   /*PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i > 2 * mp->color_shift + mp->stripe_shift = %i ***** \n",
-	        lines, 2 * mp->color_shift + mp->stripe_shift));*/
+	           lines, 2 * mp->color_shift + mp->stripe_shift));*/
   if (lines > 2 * mp->color_shift + mp->stripe_shift)
     {
       lines -= 2 * mp->color_shift + mp->stripe_shift;
@@ -1153,6 +1156,9 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   mp150_t *mp = (mp150_t *) s->subdriver;
   unsigned w_max;
 
+  /* PDBG (pixma_dbg (4, "*mp150_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
+                   sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx)); */
+
   /* MP150 only supports 8 bit per channel in color and grayscale mode */
   if (sp->depth != 1)
     {
@@ -1195,7 +1201,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
       sp->xs = 0;
   /*PDBG (pixma_dbg (4, "*mp150_check_param***** Selected origin, origin shift: %i, %i *****\n", sp->x, sp->xs));*/
   sp->wx = calc_raw_width (mp, sp);
-  sp->line_size = sp->w * sp->channels * (((sp->depth == 1) ? 8 : sp->depth) / 8);              /* bytes per line per color after cropping */
+  sp->line_size = sp->w * sp->channels * (((sp->software_lineart) ? 8 : sp->depth) / 8);              /* bytes per line per color after cropping */
   /*PDBG (pixma_dbg (4, "*mp150_check_param***** Final scan width and line-size: %i, %i *****\n", sp->wx, sp->line_size));*/
     
   /* Some exceptions here for particular devices */
@@ -1250,6 +1256,8 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
       sp->ydpi = sp->xdpi;
     }
 
+  /*PDBG (pixma_dbg (4, "*mp150_check_param***** Finally: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
+                   sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx));*/
   return 0;
 }
 
@@ -1540,8 +1548,9 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
         ext_min_dpi, ext_max_dpi,   /* ext_min_dpi, ext_max_dpi */ \
         w, h,              /* width, height */      \
-        PIXMA_CAP_EASY_RGB|PIXMA_CAP_GRAY|          \
-        PIXMA_CAP_LINEART|                          \
+        PIXMA_CAP_EASY_RGB|                         \
+        PIXMA_CAP_GRAY|    /* CIS with native grayscale and CCD with software grayscale */ \
+        PIXMA_CAP_LINEART| /* all scanners with software lineart */ \
         PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap  \
 }
 

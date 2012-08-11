@@ -1514,7 +1514,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 
   status = SANE_STATUS_GOOD;
   /* CCD scanners use software lineart
-   * the scanner must scan 24 bit color for one bit lineart */
+   * the scanner must scan 24 bit color or 8 bit grayscale for one bit lineart */
   if ((ss->sp.line_size - ((ss->sp.software_lineart == 1) ? (ss->output_line_size * 8) : ss->output_line_size)) == 0)
     {
       status = read_image (ss, buf, maxlen, &sum);

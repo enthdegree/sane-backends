@@ -785,7 +785,8 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (raw_width, data + 0x10);
       pixma_set_be32 (h, data + 0x14);
       data[0x18] = ((s->param->channels != 1) || is_gray_all (s) || is_lineart (s)) ? 0x08 : 0x04;
-      data[0x19] = s->param->depth * ((is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels);	/* bits per pixel */
+      data[0x19] = ((s->param->software_lineart) ? 8 : s->param->depth)
+                    * ((is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels);	/* bits per pixel */
       data[0x1a] = (is_scanning_from_tpu (s) ? 1 : 0);
       data[0x20] = 0xff;
       data[0x23] = 0x81;
@@ -825,7 +826,7 @@ send_scan_param (pixma_t * s)
       data[0x1d] = 24;
 #else
       data[0x1d] = (is_scanning_from_tpu (s)) ? 48
-                                              : (((s->param->depth == 1) ? 8 : s->param->depth)
+                                              : (((s->param->software_lineart) ? 8 : s->param->depth)
                                                  * ((is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels));   /* bits per pixel */
 #endif
                          
@@ -1398,7 +1399,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   jumplines=0;
 
   c = ((is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels)
-      * ((s->param->depth == 1) ? 8 : s->param->depth) / 8;
+      * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;
   cw = c * s->param->w;
   cx = c * s->param->xs;
   
@@ -1801,7 +1802,7 @@ mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
       /* PDBG (pixma_dbg (4, "*mp810_check_param***** (else) xs=0 Selected origin, origin shift: %u, %u *****\n", sp->x, sp->xs)); */
     }
   sp->wx = calc_raw_width (mp, sp);
-  sp->line_size = sp->w * sp->channels * (((sp->depth == 1) ? 8 : sp->depth) / 8);		/* bytes per line per color after cropping */
+  sp->line_size = sp->w * sp->channels * (((sp->software_lineart) ? 8 : sp->depth) / 8);		/* bytes per line per color after cropping */
   /* PDBG (pixma_dbg (4, "*mp810_check_param***** (else) Final scan width and line-size: %u, %"PRIu64" *****\n", sp->wx, sp->line_size)); */
     
   if (sp->source == PIXMA_SOURCE_FLATBED)
@@ -2166,8 +2167,9 @@ static const pixma_scan_ops_t pixma_mp810_ops = {
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
         ext_min_dpi, ext_max_dpi,  /* ext_min_dpi, ext_max_dpi */ \
         w, h,              /* width, height */      \
-        PIXMA_CAP_EASY_RGB|PIXMA_CAP_GRAY|          \
-        PIXMA_CAP_LINEART|                          \
+        PIXMA_CAP_EASY_RGB|                         \
+        PIXMA_CAP_GRAY|    /* all scanners with software grayscale */ \
+        PIXMA_CAP_LINEART| /* all scanners with software lineart */ \
         PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap  \
 }
 

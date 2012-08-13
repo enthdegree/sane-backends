@@ -67,9 +67,13 @@
 #define SCAN_BUF_MAX 65536	/* size of scanner data intermediate buffer */
 #define MAX_SELECT_ATTEMPTS 5   /* max nr of retries on select (EINTR) */
 #define USLEEP_MS 1000          /* sleep for 1 msec */
+#define BJNP_TIMEOUT_UDP 2	/* standard UDP timeout */
+#define BJNP_TIMEOUT_TCP 4	/* standard TCP timeout */
 
-/* Do not yet use this, it does not work */
-/* #define PIXMA_BJNP_STATUS 1 */
+#define BJNP_RESTART_POLL -1	/* lost poll dialog, restart dialog */
+
+/* This works now, disable when it gives you problems */
+#define PIXMA_BJNP_USE_STATUS 1
 
 /* loglevel definitions */
 
@@ -80,9 +84,9 @@
 #define LOG_DEBUG2 12
 #define LOG_DEBUG3 13
 
-/*
- * BJNP protocol related definitions
- */
+/*************************************/
+/* BJNP protocol related definitions */
+/*************************************/
 
 /* port numbers */
 typedef enum bjnp_port_e
@@ -101,13 +105,14 @@ typedef enum bjnp_port_e
 typedef enum bjnp_cmd_e
 {
   CMD_UDP_DISCOVER = 0x01,	/* discover if service type is listening at this port */
-  CMD_UDP_JOB_DET = 0x10,	/* send print job owner details */
+  CMD_UDP_START_SCAN = 0x02,	/* start scan pressed, sent from scanner to 224.0.0.1 */
+  CMD_UDP_JOB_DETAILS = 0x10,	/* send print/ scanner job owner details */
   CMD_UDP_CLOSE = 0x11,		/* request connection closure */
   CMD_UDP_GET_STATUS = 0x20,	/* get printer status  */
   CMD_TCP_REQ = 0x20,		/* read data from device */
   CMD_TCP_SEND = 0x21,		/* send data to device */
   CMD_UDP_GET_ID = 0x30,	/* get printer identity */
-  CMD_UDP_SCAN_INFO = 0x32	/* Send some scan info?????? */
+  CMD_UDP_POLL = 0x32		/* poll scanner for button status */
 } bjnp_cmd_t;
 
 /* command type */
@@ -120,8 +125,13 @@ typedef enum uint8_t
   BJNP_RES_SCAN = 0x82		/* scanner response */
 } bjnp_cmd_type_t;
 
+/***************************/
+/* BJNP protocol structure */
+/***************************/
 
-struct BJNP_command
+/* The common protocol header */
+
+struct  __attribute__ ((__packed__)) BJNP_command
 {
   char BJNP_id[4];		/* string: BJNP */
   uint8_t dev_type;		/* 1 = printer, 2 = scanner */
@@ -130,71 +140,104 @@ struct BJNP_command
   int16_t seq_no;		/* sequence number */
   uint16_t session_id;		/* session id for printing */
   uint32_t payload_len;		/* length of command buffer */
-} __attribute__ ((__packed__));
+};
 
 /* Layout of the init response buffer */
 
-struct DISCOVER_RESPONSE
+struct  __attribute__ ((__packed__)) DISCOVER_RESPONSE
 {
   struct BJNP_command response;	/* reponse header */
   char unknown1[6];		/* 00 01 08 00 06 04 */
   char mac_addr[6];		/* printers mac address */
   unsigned char ip_addr[4];	/* printers IP-address */
-} __attribute__ ((__packed__));
+};
 
 /* layout of payload for the JOB_DETAILS command */
 
-struct JOB_DETAILS
+struct  __attribute__ ((__packed__)) JOB_DETAILS
 {
   struct BJNP_command cmd;	/* command header */
   char unknown[8];		/* don't know what these are for */
   char hostname[64];		/* hostname of sender */
   char username[64];		/* username */
   char jobtitle[256];		/* job title */
-} __attribute__ ((__packed__));
+};
 
-/* layout of scan details, prety vague stuff */
+/* layout of the poll command, not everything is complete */
 
-struct INTR_STATUS_REQ
+struct  __attribute__ ((__packed__)) POLL_DETAILS
+{
+  struct BJNP_command cmd;      /* command header */
+  uint16_t type;                /* 0, 1, 2 or 5 */
+                                /* 05 = reset status */
+  union {
+    struct {
+	char empty0[78];	/* type 0 has only 0 */
+      } type0;			/* length = 80 */
+
+    struct __attribute__ ((__packed__)) {
+      char empty1[6];		/* 0 */
+      char user_host[64];       /* unicode user <space> <space> hostname */
+      uint64_t emtpy2;		/* 0 */
+    } type1;			/* length = 80 */ 
+
+    struct __attribute__ ((__packed__)) {
+      uint16_t empty_1;         /* 00 00 */
+      uint32_t dialog;          /* constant dialog id, from previous response */
+      char user_host[64];       /* unicode user <space> <space> hostname */
+      uint32_t unknown_1;	/* 00 00 00 14 */
+      uint32_t empty_2[5];      /* only 0 */
+      uint32_t unknown_2;	/* 00 00 00 10 */
+      char ascii_date[16];      /* YYYYMMDDHHMMSS  only for type 2 */
+    } type2;			/* length = 116 */
+
+    struct __attribute__ ((__packed__)) {
+      uint16_t empty_1;         /* 00 00 */
+      uint32_t dialog;          /* constant dialog id, from previous response */
+      char user_host[64];       /* unicode user <space> <space> hostname */
+      uint32_t unknown_1;	/* 00 00 00 14 */
+      uint32_t key;		/* copied from key field in status msg */
+      uint32_t unknown_3[5];    /* only 0 */
+    } type5;			/* length = 100 */
+
+  } extensions;
+};
+
+/* the poll response layout */
+
+struct  __attribute__ ((__packed__)) POLL_RESPONSE
 {
   struct BJNP_command cmd;	/* command header */
-  uint16_t type;		/* 00 02 */
-  uint32_t unknown_2;		/* 00 00 00 00 */
-  uint16_t dialogue;		/* some kind of session number for */
-  				/* the status requests */
-  char user_details[66];	/* user <space> <space> hostname */
-  uint16_t unknown_4;		/* 00 14 */
-  char unknown_5[23];		/* only zeroes */
-  char date_len;		/* length of date-field 0 for type 0 and 1 */
-  				/* 0x16 for type 2 */
-  char ascii_date[16];		/* YYYYMMDDHHMMSS */
-} __attribute__ ((__packed__));
-
-struct INTR_STATUS_RESP
-{
-  struct BJNP_command cmd;	/* command header */
-  char unknown_1[16];		/* unknown stuff */
-  char status[16];		/* interrupt status */
-  char unknown_2[4];		/* 00 00 00 00 */
-} __attribute__ ((__packed__));
+  
+  unsigned char result[4];	/* unknown stuff, result[2] = 80 -> status is available*/
+                                /* result[8] is dialog, size? */
+  uint32_t dialog;		/* to be returned in next request */
+  uint32_t unknown_2;		/* returns the 00 00 00 14 from unknown_2 in request */
+  uint32_t key;			/* to be returned in type 5 status reset */
+  unsigned char status[20];	/* interrupt status */
+};
 
 /* Layout of ID and status responses */
 
-struct IDENTITY
+struct  __attribute__ ((__packed__)) IDENTITY
 {
   struct BJNP_command cmd;
   uint16_t id_len;		/* length of identity */
   char id[BJNP_IEEE1284_MAX];	/* identity */
-} __attribute__ ((__packed__));
+};
 
 
 /* response to TCP print command */
 
-struct SCAN_BUF
+struct  __attribute__ ((__packed__)) SCAN_BUF
 {
   struct BJNP_command cmd;
   char scan_data[65536];
-} __attribute__ ((__packed__));
+};
+
+/**************************/
+/* Local enum definitions */
+/**************************/
 
 typedef enum bjnp_paper_status_e
 {
@@ -210,6 +253,15 @@ typedef enum
   BJNP_STATUS_ALREADY_ALLOCATED
 } BJNP_Status;
 
+/* button polling */
+
+typedef enum
+{
+  BJNP_POLL_STOPPED = 0,
+  BJNP_POLL_STARTED = 1,
+  BJNP_POLL_STATUS_RECEIVED = 2
+} BJNP_polling_status_e;
+
 /*
  * Device information for opened devices
  */
@@ -218,19 +270,20 @@ typedef struct device_s
 {
   int open;			/* connection to printer is opened */
   int active;			/* connection is active (has open tcp connection */
-  int fd;			/* file descriptor */
-  struct sockaddr_in addr;
+  int tcp_socket;		/* open tcp socket for communcation to scannner */
+  int udp_socket;		/* open udp socket for communication to scanner */
+  struct sockaddr_in addr;	
   int session_id;		/* session id used in bjnp protocol for TCP packets */
   int16_t serial;		/* sequence number of command */
-  int bjnp_timeout_sec;		/* timeout (seconds) for next command */
-  int bjnp_timeout_msec;	/* timeout (msec) for next command */
+  int bjnp_timeout;		/* timeout (msec) for next poll command */
   size_t scanner_data_left;	/* TCP data left from last read request */
   int last_cmd;			/* last command sent */
   size_t blocksize;		/* size of (TCP) blocks returned by the scanner */
   char short_read;		/* last TCP read command was shorter than blocksize */
-#ifdef PIXMA_BJNP_STATUS
-  char polling;			/* status polling ongoing */
-  int dialogue;			/* polling dialogue-id */
+#ifdef PIXMA_BJNP_USE_STATUS
+  char polling_status;		/* status polling ongoing */
+  uint32_t dialog;		/* poll dialog */
+  uint32_t status_key;		/* key of last received status message */
 #endif
 } device_t;
 

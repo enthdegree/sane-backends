@@ -17,7 +17,8 @@ endif
 AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
 
 scanimage_SOURCES = scanimage.c stiff.c stiff.h
-scanimage_LDADD = ../backend/libsane.la ../lib/liblib.la ../lib/libfelib.la
+scanimage_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \
+             ../lib/libfelib.la
 
 saned_SOURCES = saned.c
 saned_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \

@@ -2,6 +2,7 @@
 
    Copyright (C) 2007-2009 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2008 Dennis Lou, dlou 99 at yahoo dot com
+   Copyright (C) 2011-2012 Rolf Bensch <rolf at bensch hyphen online dot de>
 
    This file is part of the SANE package.
 

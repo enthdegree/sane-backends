@@ -1,3 +1,8 @@
+2012-08-16 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.[ch], backend/pixma_common.[ch], 
+	backend/pixma_imageclass.c, backend/pixma_mp*.c:
+	Copyright updated.
+
 2012-08-11 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.c, backend/pixma_mp150.c, backend/pixma_mp810.c:
 	Lineart fix for generation 1+2 scanners.   

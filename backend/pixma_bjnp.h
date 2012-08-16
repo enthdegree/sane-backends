@@ -66,9 +66,9 @@ extern void sanei_bjnp_init (void);
 /** Find scanners responding to a BJNP broadcast.
  *
  * The function attach is called for every device which has been found.
- * Serial is the address of the pinter in himan readable form of max
+ * Serial is the address of the scanner in human readable form of max
  * SHORT_HOSTNAME_MAX characters
- * @param conf_devices lsit of pre-configures device URI's to attach
+ * @param conf_devices list of pre-configures device URI's to attach
  * @param attach attach function
  * @param pixma_devices device informatio needed by attach function
  *

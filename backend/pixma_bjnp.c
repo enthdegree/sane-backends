@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2008 by Louis Lagendijk
+   Copyright (C) 2008  2012 by Louis Lagendijk
 
    This file is part of the SANE package.
 
@@ -98,7 +98,7 @@
 
 /* static data */
 static device_t device[BJNP_NO_DEVICES];
-static int first_free_device = 0;
+static int bjnp_no_devices = 0;
 
 /*
  * Private functions
@@ -205,9 +205,13 @@ static int
 bjnp_open_tcp (int devno)
 {
   int sock;
+  int socklen;
   int val;
+  int domain;
 
-  if ((sock = socket (PF_INET, SOCK_STREAM, 0)) < 0)
+  domain = device[devno].addr -> sa_family;
+
+  if ((sock = socket (domain, SOCK_STREAM, 0)) < 0)
     {
       PDBG (pixma_dbg (LOG_CRIT, "bjnp_open_tcp: Can not create socket: %s\n",
 		       strerror (errno)));
@@ -238,9 +242,9 @@ bjnp_open_tcp (int devno)
 
   fcntl (sock, F_SETFD, FD_CLOEXEC); 
 
+  socklen = (device[devno].addr -> sa_family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof( struct sockaddr_in6);
   if (connect
-      (sock, (struct sockaddr *) &device[devno].addr,
-       sizeof (device[devno].addr)) != 0)
+      (sock, device[devno].addr, socklen) != 0)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "bjnp_open_tcp: Can not connect to scanner: %s\n",
@@ -252,7 +256,7 @@ bjnp_open_tcp (int devno)
 }
 
 static int
-split_uri (const char *devname, char *method, char *hostname, int *port,
+split_uri (const char *devname, char *method, char *host, char *port,
 	   char *args)
 {
   char copy[1024];
@@ -273,7 +277,7 @@ split_uri (const char *devname, char *method, char *hostname, int *port,
       i++;
     }
 
-  if (((strncmp (start + i, "://", 3) != 0)) || (i > 255))
+  if (((strncmp (start + i, "://", 3) != 0)) || (i > BJNP_METHOD_MAX -1 ))
     {
       PDBG (pixma_dbg (LOG_NOTICE, "Can not find method in %s (offset %d)\n",
 		       devname, i));
@@ -285,51 +289,70 @@ split_uri (const char *devname, char *method, char *hostname, int *port,
   start = start + i + 3;
 
 /*
- * retrieve hostname
+ * retrieve host
  */
 
-  i = 0;
-  while ((start[i] != '\0') && (start[i] != '/') && (start[i] != ':'))
+  if (start[0] == '[')
     {
-      i++;
+      /* literal IPv6 address */
+
+      char *end_of_address = strchr(start, ']'); 
+
+      if ( ( end_of_address == NULL) || 
+           ( (end_of_address[1] != ':') && (end_of_address[1] != '/' ) &&  (end_of_address[1] != '\0' )) ||
+           ( (end_of_address - start) >= BJNP_HOST_MAX ) )
+        {
+          PDBG (pixma_dbg (LOG_NOTICE, "Can not find hostname or address in %s\n", devname));
+          return -1;
+        }
+      next = end_of_address[1];
+      *end_of_address = '\0';
+      strcpy(host, start + 1);
+      start = end_of_address +1;
+    }
+  else
+    {
+      i = 0;
+      while ((start[i] != '\0') && (start[i] != '/') && (start[i] != ':'))
+        {
+          i++;
+        }
+      next = start[i];
+      start[i] = '\0';
+      if ((i == 0) || (i >= BJNP_HOST_MAX ) )
+        {
+          PDBG (pixma_dbg (LOG_NOTICE, "Can not find hostname or address in %s\n", devname));
+          return -1;
+        }
+      strcpy (host, start);
+      start = start + i +1;
     }
 
-
-  if ((strlen (start) == 0) || (i > 255))
-    {
-      PDBG (pixma_dbg (LOG_NOTICE, "Can not find hostname in %s\n", devname));
-      return -1;
-    }
-
-  next = start[i];
-  strncpy (hostname, start, i);
-  hostname[i] = '\0';
-  start = start + i + 1;
 
 /*
  * retrieve port number
  */
 
   if (next != ':')
-    *port = 0;
+    strcpy(port, "");
   else
     {
-      i = 0;
-      while ((start[i] != '\0') && (start[i] != '/'))
-	{
-	  if ((start[i] < '0') || (start[i] > '9') || (i > 5))
-	    {
-	      PDBG (pixma_dbg (LOG_NOTICE, "Can not find port number in %s\n",
-			       devname));
-	      return -1;
-	    }
-
-	  i++;
-	}
-      next = start[i];
-      start[i] = '\0';
-      sscanf (start, "%d", port);
-      start = start + i + 1;
+      char *end_of_port = strchr(start, '/');
+      if (end_of_port == NULL) 
+        { 
+          next = '\0';
+        }
+      else
+        {
+          next = *end_of_port;
+          *end_of_port = '\0';
+        }
+      if ((strlen(start) == 0) || (strlen(start) >= BJNP_PORT_MAX ) )
+        {
+          PDBG (pixma_dbg (LOG_NOTICE, "Can not find port in %s (have \"%s\")\n", devname, start));
+          return -1;
+        }
+      strcpy(port, start);
     }
 
 /*
@@ -337,7 +360,14 @@ split_uri (const char *devname, char *method, char *hostname, int *port,
  */
 
   if (next == '/')
+    {
+    i = strlen(start);
+    if ( i >= BJNP_ARGS_MAX)
+      {
+        PDBG (pixma_dbg (LOG_NOTICE, "Argument string too long in %s\n", devname));
+      }
     strcpy (args, start);
+    }
   else
     strcpy (args, "");
   return 0;
@@ -358,7 +388,7 @@ set_cmd (int devno, struct BJNP_command *cmd, char cmd_code, int payload_len)
   cmd->unknown1 = htons (0);
   if (devno == -1)
     {
-      /* device not opened, use 0 for serial and session) */
+      /* device not yet opened, use 0 for serial and session) */
       cmd->seq_no = htons (0);
       cmd->session_id = htons (0);
     }
@@ -366,9 +396,9 @@ set_cmd (int devno, struct BJNP_command *cmd, char cmd_code, int payload_len)
     {
       cmd->seq_no = htons (++(device[devno].serial));
       cmd->session_id = (cmd_code == CMD_UDP_POLL ) ? 0 : htons (device[devno].session_id);
+      device[devno].last_cmd = cmd_code;
     }
   cmd->payload_len = htonl (payload_len);
-  device[devno].last_cmd = cmd_code;
 }
 
 static int
@@ -380,12 +410,33 @@ bjnp_setup_udp_socket ( const int dev_no )
    */
 
   int sockfd;
+  int socklen;
+  char addr_string[256];
+  int port;
 
-  PDBG (pixma_dbg (LOG_DEBUG, "setup_udp_socket: Setting up the UDP socket to: %s:%d\n",
-		   inet_ntoa (device[dev_no].addr.sin_addr),
-		   ntohs (device[dev_no].addr.sin_port)));
+  struct sockaddr * addr = device[dev_no].addr;
+  if ( addr->sa_family == AF_INET)
+    {
+      struct sockaddr_in *addr_ipv4 = (struct sockaddr_in *) addr;
+      inet_ntop( AF_INET, &(addr_ipv4 -> sin_addr.s_addr), addr_string, 256);
+      port = ntohs (addr_ipv4->sin_port);
+    }
+  else if (addr->sa_family == AF_INET6)
+    {
+      struct sockaddr_in6 *addr_ipv6 = (struct sockaddr_in6 *) addr;
+      inet_ntop( AF_INET6, &(addr_ipv6->sin6_addr), addr_string, 256);
+      port = ntohs (addr_ipv6->sin6_port);
+    }
+  else 
+    {
+      /* unknown address family, should not occur */
+      return -1;
+    }
 
-  if ((sockfd = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+  PDBG (pixma_dbg (LOG_DEBUG, "setup_udp_socket: Setting up the UDP socket to: %s  port %d\n",
+		   addr_string, port ) );
+
+  if ((sockfd = socket (addr->sa_family, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "setup_udp_socket: can not open socket - %s\n",
@@ -393,9 +444,9 @@ bjnp_setup_udp_socket ( const int dev_no )
       return -1;
     }
 
+  socklen = (device[dev_no].addr -> sa_family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
   if (connect
-      (sockfd, (struct sockaddr *) &device[dev_no].addr,
-       (socklen_t) sizeof (struct sockaddr_in)) != 0)
+      (sockfd, device[dev_no].addr, socklen )!= 0)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "setup_udp_socket: connect failed- %s\n",
@@ -570,6 +621,7 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
 
   /* do reverse name lookup, if hostname can not be found return ip-address */
 
+  /* TODO: use ipv6 compatible function or start using recvfrom?*/
   inet_aton (ip_address, &ip_addr);
   myhost = gethostbyaddr ((void *) &ip_addr, sizeof (ip_addr), AF_INET);
 
@@ -580,6 +632,7 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
       /* some buggy routers return rubbish if reverse lookup fails, so 
        * we do a forward lookup on the received name to see if it matches */
 
+      /* TODO: get rid of hints or use protocol family? */
       hints.ai_family = AF_INET;
       hints.ai_socktype = 0;
       hints.ai_protocol = 0;
@@ -709,6 +762,7 @@ bjnp_send_broadcast (int sockfd, struct in_addr broadcast_addr,
   sendaddr.sin_addr = broadcast_addr;
   memset (sendaddr.sin_zero, '\0', sizeof sendaddr.sin_zero);
 
+  /* TODO: IPv6 compat */
   if ((num_bytes = sendto (sockfd, &cmd, size, 0,
 			  (struct sockaddr *) &sendaddr,
 			  sizeof (sendaddr))) != size)
@@ -1175,19 +1229,19 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t * len)
 
 static BJNP_Status
 bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
-		      char *res_hostname)
+		      char *res_host)
 {
-  char method[256];
-  char hostname[256];
-  int port;
-  char args[256];
-  struct hostent *result;
-  struct in_addr *addr_list;
+  char method[BJNP_METHOD_MAX]; 
+  char host[BJNP_HOST_MAX];
+  char port[BJNP_PORT_MAX] = "";
+  char args[BJNP_ARGS_MAX];
+  struct addrinfo *res, *cur;
+  int result;
   int i;
 
-  PDBG (pixma_dbg (LOG_DEBUG, "bjnp_allocate_device(%s)\n", devname));
+  PDBG (pixma_dbg (LOG_DEBUG, "bjnp_allocate_device(%s) %d\n", devname, bjnp_no_devices));
 
-  if (split_uri (devname, method, hostname, &port, args) != 0)
+  if (split_uri (devname, method, host, port, args) != 0)
     {
       return BJNP_STATUS_INVAL;
     }
@@ -1209,51 +1263,80 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
       return BJNP_STATUS_INVAL;
     }
 
-  result = gethostbyname (hostname);
-  if ((result == NULL) || result->h_addrtype != AF_INET)
+  if (strlen(port) == 0)
     {
-      PDBG (pixma_dbg (LOG_CRIT, "Cannot resolve hostname: %s\n", hostname));
+      sprintf( port, "%d", BJNP_PORT_SCAN );
+    }
+
+  result = getaddrinfo (host, port, NULL, &res );
+  if (result != 0 ) 
+    {
+      PDBG (pixma_dbg (LOG_CRIT, "Cannot resolve host: %s\n", host));
       return SANE_STATUS_INVAL;
     }
-  if (port == 0)
+  PDBG(pixma_dbg( LOG_INFO, "Have now %s - %s - %d\n", host, port, bjnp_no_devices ) );
+
+  /* Check if a device number is already allocated to any of the scanner's addresses */
+
+  for (i = 0; i < bjnp_no_devices; i++)
     {
-      port = BJNP_PORT_SCAN;
+      cur = res;
+      while( cur != NULL)
+        {
+          struct sockaddr * dev_addr = device[i].addr;
+          if (dev_addr->sa_family == cur -> ai_family)
+            {
+              if( cur -> ai_family == AF_INET)
+                {
+                  struct sockaddr_in *dev_addr4 = (struct sockaddr_in *) dev_addr;
+                  struct sockaddr_in *res_addr4 = (struct sockaddr_in *) cur->ai_addr;
+                  if ( (dev_addr4->sin_port == res_addr4->sin_port) &&
+                      (dev_addr4->sin_addr.s_addr == res_addr4->sin_addr.s_addr))
+                    {
+                    *dn = i;
+                    freeaddrinfo(res);
+                    return BJNP_STATUS_ALREADY_ALLOCATED;
+                    }
+                } else if (cur -> ai_family == AF_INET6 )
+                {
+                  struct sockaddr_in6 *dev_addr6 = ( struct sockaddr_in6 *)  dev_addr;
+                  struct sockaddr_in6 *res_addr6 = ( struct sockaddr_in6 *) cur->ai_addr;
+                  if ( (dev_addr6->sin6_port == res_addr6->sin6_port) &&
+                      (memcmp(&(dev_addr6->sin6_addr), &(res_addr6->sin6_addr), sizeof(struct sockaddr_in6)) == 0))
+                    {
+                    *dn = i;
+                    freeaddrinfo(res);
+                    return BJNP_STATUS_ALREADY_ALLOCATED;
+                    }
+
+                }
+            }
+          cur = cur->ai_next;
+        }
     }
-
-  addr_list = (struct in_addr *) *result->h_addr_list;
-
-  /* Check if a device number is already allocated */
-
-  for (i = 0; i < first_free_device; i++)
-    {
-      /* check address, AF_INET is assumed */
-
-      if ((device[i].addr.sin_port == htons (port)) &&
-	  (device[i].addr.sin_addr.s_addr == addr_list[0].s_addr))
-	{
-	  *dn = i;
-	  return BJNP_STATUS_ALREADY_ALLOCATED;
-	}
-    }
+  PDBG (pixma_dbg (LOG_INFO, "Scanner not found, adding it: %s:%s\n", host, port));
+  sleep(4);
 
   /* return hostname if required */
 
-  if (res_hostname != NULL)
-    strcpy (res_hostname, hostname);
+  if (res_host != NULL)
+    strcpy (res_host, host);
 
   /*
    * No existing device structure found, fill new device structure
    */
 
-  if (first_free_device == BJNP_NO_DEVICES)
+  if (bjnp_no_devices == BJNP_NO_DEVICES)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT,
 	     "Too many devices, ran out of device structures, can not add %s\n",
 	     devname));
+      freeaddrinfo(res);
       return BJNP_STATUS_INVAL;
     }
-  *dn = first_free_device++;
+  *dn = bjnp_no_devices;
+  bjnp_no_devices++;
   device[*dn].open = 1;
   device[*dn].active = 0;
 #ifdef PIXMA_BJNP_USE_STATUS
@@ -1262,9 +1345,12 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
   device[*dn].status_key = 0;
 #endif
   device[*dn].tcp_socket = -1;
-  device[*dn].addr.sin_family = AF_INET;
-  device[*dn].addr.sin_port = htons (port);
-  device[*dn].addr.sin_addr = addr_list[0];
+
+  /* this should fit both a struct sockaddr_in and a sockaddr_in6 */
+  device[*dn].addr = (struct sockaddr *) malloc(sizeof ( struct sockaddr_in6) );
+  
+  memcpy(device[*dn].addr, res-> ai_addr, sizeof(struct sockaddr_in6) );
+  
   device[*dn].session_id = 0;
   device[*dn].serial = -1;
   device[*dn].bjnp_timeout = 0;
@@ -1276,10 +1362,12 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
 
   device[*dn].blocksize = 1024;
   device[*dn].short_read = 0;
-
+   
+  freeaddrinfo(res);
   if (bjnp_setup_udp_socket(*dn) == -1 )
     {
-      first_free_device--;
+      bjnp_no_devices--;
+      free(device[*dn].addr);
       return  BJNP_STATUS_INVAL;
     }
   return BJNP_STATUS_GOOD;
@@ -1296,7 +1384,7 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
 extern void
 sanei_bjnp_init (void)
 {
-  first_free_device = 0;
+  bjnp_no_devices = 0;
 }
 
 /** 
@@ -1344,7 +1432,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
 #endif
 
   PDBG (pixma_dbg (LOG_INFO, "sanei_bjnp_find_devices:\n"));
-  first_free_device = 0;
+  bjnp_no_devices = 0;
 
   for (i=0; i < BJNP_SOCK_MAX; i++)
     {
@@ -1352,10 +1440,13 @@ sanei_bjnp_find_devices (const char **conf_devices,
     }
   /* First add devices from config file */
 
+  if (conf_devices[0] == NULL)
+    PDBG (pixma_dbg( LOG_DEBUG, "No devices specified in configuration file.\n" ) );
+
   for (i = 0; conf_devices[i] != NULL; i++)
     {
       PDBG (pixma_dbg
-	    (LOG_DEBUG, "Adding configured scanner: %s\n", conf_devices[i]));
+	    (LOG_DEBUG, "Adding scanner from pixma.conf: %s\n", conf_devices[i]));
 
       /* Allocate device structure for scanner and read its model */
       switch (bjnp_allocate_device (conf_devices[i], &dev_no, hostname))
@@ -1563,7 +1654,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
 	}
       active_fdset = fdset;
       timeout.tv_sec = 0;
-      timeout.tv_usec = 500 * USLEEP_MS;
+      timeout.tv_usec = 2 * BJNP_BROADCAST_INTERVAL * USLEEP_MS;
     }
   PDBG (pixma_dbg (LOG_DEBUG, "scanner discovery finished...\n"));
 

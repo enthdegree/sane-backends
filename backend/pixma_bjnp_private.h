@@ -62,8 +62,12 @@
 #define BJNP_MODEL_MAX 64	/* max allowed size for make&model */
 #define BJNP_STATUS_MAX 256	/* max size for status string */
 #define BJNP_IEEE1284_MAX 1024	/* max. allowed size of IEEE1284 id */
+#define BJNP_METHOD_MAX 16	/* max length of method */
+#define BJNP_HOST_MAX 128       /* max length of hostname or address */
+#define BJNP_PORT_MAX 64	/* max length of port string */
+#define BJNP_ARGS_MAX 128	/* max length of argument string */
 #define BJNP_NO_DEVICES 16	/* max number of open devices */
-#define BJNP_BROADCAST_INTERVAL 30 /* ms between broadcasts */
+#define BJNP_BROADCAST_INTERVAL 10 /* ms between broadcasts */
 #define SCAN_BUF_MAX 65536	/* size of scanner data intermediate buffer */
 #define MAX_SELECT_ATTEMPTS 5   /* max nr of retries on select (EINTR) */
 #define USLEEP_MS 1000          /* sleep for 1 msec */
@@ -272,7 +276,7 @@ typedef struct device_s
   int active;			/* connection is active (has open tcp connection */
   int tcp_socket;		/* open tcp socket for communcation to scannner */
   int udp_socket;		/* open udp socket for communication to scanner */
-  struct sockaddr_in addr;	
+  struct sockaddr * addr;	/* ip-address of the scanner */
   int session_id;		/* session id used in bjnp protocol for TCP packets */
   int16_t serial;		/* sequence number of command */
   int bjnp_timeout;		/* timeout (msec) for next poll command */

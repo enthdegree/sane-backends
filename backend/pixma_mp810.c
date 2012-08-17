@@ -881,7 +881,6 @@ send_scan_param (pixma_t * s)
             }
         }
 
-      /* FIXME: This makes no sense, we only need 0x28 bytes */
       data[0x30] = 0x01;
     }
   return pixma_exec (s, &mp->cb);

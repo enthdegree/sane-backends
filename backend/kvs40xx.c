@@ -592,7 +592,7 @@ sane_start (SANE_Handle handle)
 	    return st;
 	}
 
-      st = scan (s);
+      st = ksv40xx_scan (s);
       if (st)
 	return st;
 

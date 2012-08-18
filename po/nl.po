@@ -4,20 +4,20 @@
 # Martin Kho <mkho@xs4all.nl>, 2003, 2009.
 # Bertrik Sikken <bertrik@zonnet.nl>, 2003.
 # Martin Kho <mdlkho@gmail.com>, 2010.
-# Martin Kho <mkho@dds.nl>, 2011.
+# Martin Kho <mkho@dds.nl>, 2011, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends.nl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-06 22:10-0400\n"
-"PO-Revision-Date: 2011-02-01 15:36+0100\n"
+"POT-Creation-Date: 2012-08-14 22:45+0200\n"
+"PO-Revision-Date: 2012-08-15 16:35+0200\n"
 "Last-Translator: Martin Kho <mkho@dds.nl>\n"
 "Language-Team: American English <sane-devel@lists.alioth.debian.org>\n"
-"Language: \n"
+"Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.2\n"
+"X-Generator: Lokalize 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../include/sane/saneopts.h:154
@@ -32,15 +32,15 @@ msgstr "Standaard"
 
 #: ../include/sane/saneopts.h:157 ../backend/artec_eplus48u.c:2884
 #: ../backend/epson.c:3284 ../backend/epson2.c:1269
-#: ../backend/genesys.c:6028 ../backend/gt68xx.c:703
+#: ../backend/genesys.c:5581 ../backend/gt68xx.c:703
 #: ../backend/hp3500.c:1003 ../backend/hp-option.c:3297
 #: ../backend/kvs1025_opt.c:640 ../backend/kvs20xx_opt.c:284
 #: ../backend/kvs40xx_opt.c:505 ../backend/leo.c:823
 #: ../backend/lexmark.c:199 ../backend/ma1509.c:551
 #: ../backend/matsushita.c:1135 ../backend/microtek2.h:599
 #: ../backend/mustek.c:4363 ../backend/mustek_usb.c:305
-#: ../backend/mustek_usb2.c:465 ../backend/pixma_sane_options.c:144
-#: ../backend/plustek.c:807 ../backend/plustek_pp.c:746
+#: ../backend/mustek_usb2.c:465 ../backend/pixma_sane_options.c:159
+#: ../backend/plustek.c:808 ../backend/plustek_pp.c:746
 #: ../backend/sceptre.c:702 ../backend/snapscan-options.c:494
 #: ../backend/teco1.c:1095 ../backend/teco2.c:1914 ../backend/teco3.c:920
 #: ../backend/test.c:647 ../backend/u12.c:546 ../backend/umax.c:5176
@@ -50,13 +50,13 @@ msgid "Geometry"
 msgstr "Geometrie"
 
 #: ../include/sane/saneopts.h:158 ../backend/artec_eplus48u.c:2805
-#: ../backend/canon.c:1492 ../backend/genesys.c:6088
+#: ../backend/canon.c:1492 ../backend/genesys.c:5641
 #: ../backend/gt68xx.c:672 ../backend/hp-option.c:2953
 #: ../backend/kvs1025_opt.c:704 ../backend/leo.c:871
 #: ../backend/ma1509.c:599 ../backend/matsushita.c:1189
 #: ../backend/microtek2.h:600 ../backend/mustek.c:4411
 #: ../backend/mustek_usb.c:353 ../backend/mustek_usb2.c:431
-#: ../backend/niash.c:756 ../backend/plustek.c:853
+#: ../backend/niash.c:756 ../backend/plustek.c:854
 #: ../backend/plustek_pp.c:792 ../backend/sceptre.c:750
 #: ../backend/snapscan-options.c:561 ../backend/stv680.c:1067
 #: ../backend/teco1.c:1143 ../backend/teco2.c:1962 ../backend/teco3.c:968
@@ -94,7 +94,7 @@ msgid "Bit depth"
 msgstr "Bitdiepte"
 
 #: ../include/sane/saneopts.h:165 ../backend/canon.c:1143
-#: ../backend/leo.c:781 ../backend/pixma_sane_options.c:40
+#: ../backend/leo.c:781 ../backend/pixma_sane_options.c:43
 #, no-c-format
 msgid "Scan mode"
 msgstr "Scanmodus"
@@ -302,7 +302,7 @@ msgstr "Combineer X- en Y-resolutie"
 #: ../include/sane/saneopts.h:206 ../backend/hp3900_sane.c:428
 #: ../backend/hp3900_sane.c:1021 ../backend/hp3900_sane.c:1421
 #: ../backend/hp-option.c:3235 ../backend/mustek_usb2.c:121
-#: ../backend/plustek.c:235 ../backend/plustek_pp.c:202
+#: ../backend/plustek.c:236 ../backend/plustek_pp.c:202
 #: ../backend/u12.c:157
 #, no-c-format
 msgid "Negative"
@@ -553,8 +553,7 @@ msgstr "Bepaalt de hoogte van het origineel."
 
 #: ../include/sane/saneopts.h:308
 #, no-c-format
-msgid ""
-"Determines whether a builtin or a custom gamma-table should be used."
+msgid "Determines whether a builtin or a custom gamma-table should be used."
 msgstr ""
 "Bepaalt of de interne of de door de gebruiker gedefinieerde gammatabel "
 "wordt gebruikt."
@@ -612,8 +611,7 @@ msgstr "Bepaalt of het beeld in de halftoonmodus (dithered) wordt gescand."
 #: ../include/sane/saneopts.h:339 ../include/sane/saneopts.h:354
 #, no-c-format
 msgid "Selects what radiance level should be considered \"black\"."
-msgstr ""
-"Bepaalt welke helderheidswaarde als \"zwart\" moet worden beschouwd."
+msgstr "Bepaalt welke helderheidswaarde als \"zwart\" moet worden beschouwd."
 
 #: ../include/sane/saneopts.h:342 ../include/sane/saneopts.h:363
 #, no-c-format
@@ -671,16 +669,14 @@ msgstr ""
 
 #: ../include/sane/saneopts.h:367
 #, no-c-format
-msgid ""
-"Selects what green radiance level should be considered \"full green\"."
+msgid "Selects what green radiance level should be considered \"full green\"."
 msgstr ""
 "Bepaalt welke helderheidswaarde van de groene component als \"verzadigd "
 "groen\" moet worden beschouwd."
 
 #: ../include/sane/saneopts.h:370
 #, no-c-format
-msgid ""
-"Selects what blue radiance level should be considered \"full blue\"."
+msgid "Selects what blue radiance level should be considered \"full blue\"."
 msgstr ""
 "Bepaalt welke helderheidswaarde van de blauwe component als \"verzadigd "
 "blauw\" moet worden beschouwd."
@@ -782,20 +778,17 @@ msgstr "Bepaalt de belichtingstijd voor de kalibrering"
 #: ../include/sane/saneopts.h:419
 #, no-c-format
 msgid "Define exposure-time for red calibration"
-msgstr ""
-"Bepaalt de belichtingstijd voor de kalibrering van de rode component"
+msgstr "Bepaalt de belichtingstijd voor de kalibrering van de rode component"
 
 #: ../include/sane/saneopts.h:421
 #, no-c-format
 msgid "Define exposure-time for green calibration"
-msgstr ""
-"Bepaalt de belichtingstijd voor de kalibrering van de groen component"
+msgstr "Bepaalt de belichtingstijd voor de kalibrering van de groen component"
 
 #: ../include/sane/saneopts.h:423
 #, no-c-format
 msgid "Define exposure-time for blue calibration"
-msgstr ""
-"Bepaalt de belichtingstijd voor de kalibrering van de blauwe component"
+msgstr "Bepaalt de belichtingstijd voor de kalibrering van de blauwe component"
 
 #: ../include/sane/saneopts.h:425
 #, no-c-format
@@ -1051,46 +1044,45 @@ msgstr "Dubbelzijdig scannen"
 
 #: ../backend/avision.h:786
 #, no-c-format
-msgid ""
-"Duplex scan provide a scan of the front and back side of the document"
+msgid "Duplex scan provide a scan of the front and back side of the document"
 msgstr "Dubbelzijdig scannen scant beide zijden van een document"
 
-#: ../backend/canon630u.c:158
+#: ../backend/canon630u.c:159
 #, no-c-format
 msgid "Calibrate Scanner"
 msgstr "Kalibreer scanner"
 
-#: ../backend/canon630u.c:159
+#: ../backend/canon630u.c:160
 #, no-c-format
 msgid "Force scanner calibration before scan"
 msgstr "Forceer kalibreren voor het scannen"
 
-#: ../backend/canon630u.c:258 ../backend/umax1220u.c:208
+#: ../backend/canon630u.c:259 ../backend/umax1220u.c:208
 #, no-c-format
 msgid "Grayscale scan"
 msgstr "Grijstrapscan"
 
-#: ../backend/canon630u.c:259 ../backend/umax1220u.c:209
+#: ../backend/canon630u.c:260 ../backend/umax1220u.c:209
 #, no-c-format
 msgid "Do a grayscale rather than color scan"
 msgstr "Voer een grijstrap-, in plaats van een kleurenscan uit"
 
-#: ../backend/canon630u.c:305
+#: ../backend/canon630u.c:306
 #, no-c-format
 msgid "Analog Gain"
 msgstr "Analoog bereik"
 
-#: ../backend/canon630u.c:306
+#: ../backend/canon630u.c:307
 #, no-c-format
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Vergroot of verklein het analoge bereik van de CCD-sensor"
 
-#: ../backend/canon630u.c:346 ../backend/epson.h:68 ../backend/epson2.h:72
+#: ../backend/canon630u.c:347 ../backend/epson.h:68 ../backend/epson2.h:74
 #, no-c-format
 msgid "Gamma Correction"
 msgstr "Gammacorrectie"
 
-#: ../backend/canon630u.c:347
+#: ../backend/canon630u.c:348
 #, no-c-format
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Kiest de gamma gecorrigeerde overdrachtscurve"
@@ -1327,7 +1319,7 @@ msgid "film scanner"
 msgstr "Filmscanner"
 
 #: ../backend/canon.c:895 ../backend/canon.c:910 ../backend/canon.c:925
-#: ../backend/hp3900_sane.c:1683 ../backend/plustek.c:1334
+#: ../backend/hp3900_sane.c:1683 ../backend/plustek.c:1335
 #: ../backend/plustek_pp.c:1014 ../backend/sceptre.c:593
 #: ../backend/teco2.c:1836 ../backend/u12.c:851
 #, no-c-format
@@ -1398,8 +1390,7 @@ msgstr "Handmatige focuspositie"
 #: ../backend/canon.c:1344
 #, no-c-format
 msgid "Set the optical system's focus position by hand (default: 128)."
-msgstr ""
-"Stel de optische focus van de scanner handmatig in (standaard: 128)"
+msgstr "Stel de optische focus van de scanner handmatig in (standaard: 128)"
 
 #: ../backend/canon.c:1354
 #, no-c-format
@@ -1485,8 +1476,7 @@ msgstr "Werp de film uit voor het verlaten van het programma"
 
 #: ../backend/canon.c:1673
 #, no-c-format
-msgid ""
-"Automatically eject the film from the device before exiting the program"
+msgid "Automatically eject the film from the device before exiting the program"
 msgstr ""
 "Werp automatisch de film uit de scanner voor het verlaten van het "
 "programma"
@@ -1514,8 +1504,7 @@ msgstr "Alleen flatbed"
 #: ../backend/canon.c:1700
 #, no-c-format
 msgid "Disable auto document feeder and use flatbed only"
-msgstr ""
-"Schakel automatische documentendoorvoor uit en gebruik alleen flatbed"
+msgstr "Schakel automatische documentendoorvoor uit en gebruik alleen flatbed"
 
 #: ../backend/canon.c:1710 ../backend/canon.c:1720
 #, no-c-format
@@ -1562,85 +1551,85 @@ msgstr "Selecteert filmtype"
 msgid "Select the film type"
 msgstr "Selecteert het filmtype"
 
-#: ../backend/canon_dr.c:330 ../backend/epjitsu.c:203
-#: ../backend/epson.c:501 ../backend/epson2.c:110 ../backend/fujitsu.c:548
+#: ../backend/canon_dr.c:338 ../backend/epjitsu.c:203
+#: ../backend/epson.c:501 ../backend/epson2.c:114 ../backend/fujitsu.c:579
 #: ../backend/gt68xx.c:148 ../backend/hp3900_sane.c:418
 #: ../backend/hp3900_sane.c:427 ../backend/hp3900_sane.c:1017
 #: ../backend/hp5590.c:82 ../backend/ma1509.c:108
-#: ../backend/magicolor.c:163 ../backend/mustek.c:156
-#: ../backend/mustek.c:160 ../backend/mustek.c:164 ../backend/pixma.c:664
-#: ../backend/pixma_sane_options.c:85 ../backend/snapscan-options.c:82
+#: ../backend/magicolor.c:167 ../backend/mustek.c:156
+#: ../backend/mustek.c:160 ../backend/mustek.c:164 ../backend/pixma.c:850
+#: ../backend/pixma_sane_options.c:88 ../backend/snapscan-options.c:82
 #: ../backend/test.c:192 ../backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
 msgstr "Flatbed"
 
-#: ../backend/canon_dr.c:331 ../backend/epjitsu.c:204
-#: ../backend/fujitsu.c:549 ../backend/kodak.c:135
+#: ../backend/canon_dr.c:339 ../backend/epjitsu.c:204
+#: ../backend/fujitsu.c:580 ../backend/kodak.c:135
 #, no-c-format
 msgid "ADF Front"
 msgstr "Voorkant van de ADF"
 
-#: ../backend/canon_dr.c:332 ../backend/epjitsu.c:205
-#: ../backend/fujitsu.c:550 ../backend/kodak.c:136
+#: ../backend/canon_dr.c:340 ../backend/epjitsu.c:205
+#: ../backend/fujitsu.c:581 ../backend/kodak.c:136
 #, no-c-format
 msgid "ADF Back"
 msgstr "Achterkant van de ADF"
 
-#: ../backend/canon_dr.c:333 ../backend/epjitsu.c:206
-#: ../backend/fujitsu.c:551 ../backend/hp5590.c:84 ../backend/kodak.c:137
-#: ../backend/pixma.c:675
+#: ../backend/canon_dr.c:341 ../backend/epjitsu.c:206
+#: ../backend/fujitsu.c:582 ../backend/hp5590.c:84 ../backend/kodak.c:137
+#: ../backend/pixma.c:861
 #, no-c-format
 msgid "ADF Duplex"
 msgstr "Dubbelzijdige ADF"
 
-#: ../backend/canon_dr.c:340 ../backend/epson.c:599
-#: ../backend/epson.c:3082 ../backend/epson2.c:195
-#: ../backend/fujitsu.c:568 ../backend/genesys.c:110
-#: ../backend/genesys.c:117 ../backend/gt68xx_low.h:136
+#: ../backend/canon_dr.c:348 ../backend/epson.c:599
+#: ../backend/epson.c:3082 ../backend/epson2.c:200
+#: ../backend/fujitsu.c:599 ../backend/genesys.c:89
+#: ../backend/genesys.c:96 ../backend/gt68xx_low.h:136
 #: ../backend/hp-option.c:3093
 #, no-c-format
 msgid "Red"
 msgstr "Rood"
 
-#: ../backend/canon_dr.c:341 ../backend/epson.c:600
-#: ../backend/epson.c:3078 ../backend/epson2.c:196
-#: ../backend/fujitsu.c:569 ../backend/genesys.c:111
-#: ../backend/genesys.c:118 ../backend/gt68xx_low.h:137
+#: ../backend/canon_dr.c:349 ../backend/epson.c:600
+#: ../backend/epson.c:3078 ../backend/epson2.c:201
+#: ../backend/fujitsu.c:600 ../backend/genesys.c:90
+#: ../backend/genesys.c:97 ../backend/gt68xx_low.h:137
 #: ../backend/hp-option.c:3094
 #, no-c-format
 msgid "Green"
 msgstr "Groen"
 
-#: ../backend/canon_dr.c:342 ../backend/epson.c:601
-#: ../backend/epson.c:3086 ../backend/epson2.c:197
-#: ../backend/fujitsu.c:570 ../backend/genesys.c:112
-#: ../backend/genesys.c:119 ../backend/gt68xx_low.h:138
+#: ../backend/canon_dr.c:350 ../backend/epson.c:601
+#: ../backend/epson.c:3086 ../backend/epson2.c:202
+#: ../backend/fujitsu.c:601 ../backend/genesys.c:91
+#: ../backend/genesys.c:98 ../backend/gt68xx_low.h:138
 #: ../backend/hp-option.c:3095
 #, no-c-format
 msgid "Blue"
 msgstr "Blauw"
 
-#: ../backend/canon_dr.c:343
+#: ../backend/canon_dr.c:351
 #, no-c-format
 msgid "Enhance Red"
 msgstr "Verbeter rood"
 
-#: ../backend/canon_dr.c:344
+#: ../backend/canon_dr.c:352
 #, no-c-format
 msgid "Enhance Green"
 msgstr "Verbeter groen"
 
-#: ../backend/canon_dr.c:345
+#: ../backend/canon_dr.c:353
 #, no-c-format
 msgid "Enhance Blue"
 msgstr "Verbeter blauw"
 
-#: ../backend/canon_dr.c:347 ../backend/epson.c:556 ../backend/epson.c:564
-#: ../backend/epson.c:576 ../backend/epson.c:598 ../backend/epson2.c:159
-#: ../backend/epson2.c:167 ../backend/epson2.c:179 ../backend/epson2.c:194
-#: ../backend/epson2.c:208 ../backend/fujitsu.c:574
-#: ../backend/genesys.c:120 ../backend/leo.c:109
+#: ../backend/canon_dr.c:355 ../backend/epson.c:556 ../backend/epson.c:564
+#: ../backend/epson.c:576 ../backend/epson.c:598 ../backend/epson2.c:164
+#: ../backend/epson2.c:172 ../backend/epson2.c:184 ../backend/epson2.c:199
+#: ../backend/epson2.c:213 ../backend/fujitsu.c:605
+#: ../backend/genesys.c:99 ../backend/leo.c:109
 #: ../backend/matsushita.c:138 ../backend/matsushita.c:159
 #: ../backend/matsushita.c:191 ../backend/matsushita.c:213
 #: ../backend/snapscan-options.c:87
@@ -1648,109 +1637,109 @@ msgstr "Verbeter blauw"
 msgid "None"
 msgstr "Geen"
 
-#: ../backend/canon_dr.c:348 ../backend/fujitsu.c:575
+#: ../backend/canon_dr.c:356 ../backend/fujitsu.c:606
 #, no-c-format
 msgid "JPEG"
 msgstr "JPEG"
 
-#: ../backend/epson.c:491 ../backend/epson2.c:103
-#: ../backend/magicolor.c:156
+#: ../backend/epson.c:491 ../backend/epson2.c:107
+#: ../backend/magicolor.c:160
 #, no-c-format
 msgid "Simplex"
 msgstr "enkelzijdig"
 
-#: ../backend/epson.c:492 ../backend/epson2.c:104 ../backend/kvs1025.h:50
+#: ../backend/epson.c:492 ../backend/epson2.c:108 ../backend/kvs1025.h:50
 #: ../backend/kvs20xx_opt.c:203 ../backend/kvs40xx_opt.c:352
-#: ../backend/magicolor.c:157 ../backend/matsushita.h:218
+#: ../backend/magicolor.c:161 ../backend/matsushita.h:218
 #, no-c-format
 msgid "Duplex"
 msgstr "Dubbelzijdig"
 
-#: ../backend/epson.c:502 ../backend/epson2.c:111 ../backend/pixma.c:681
+#: ../backend/epson.c:502 ../backend/epson2.c:115 ../backend/pixma.c:867
 #, no-c-format
 msgid "Transparency Unit"
 msgstr "Filmeenheid"
 
-#: ../backend/epson.c:503 ../backend/epson2.c:112
-#: ../backend/magicolor.c:164 ../backend/mustek.c:160
-#: ../backend/pixma.c:669 ../backend/test.c:192 ../backend/umax.c:183
+#: ../backend/epson.c:503 ../backend/epson2.c:117
+#: ../backend/magicolor.c:168 ../backend/mustek.c:160
+#: ../backend/pixma.c:855 ../backend/test.c:192 ../backend/umax.c:183
 #, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Automatische documenten doorvoer"
 
-#: ../backend/epson.c:523 ../backend/epson2.c:128
+#: ../backend/epson.c:523 ../backend/epson2.c:133
 #, no-c-format
 msgid "Positive Film"
 msgstr "Dia"
 
-#: ../backend/epson.c:524 ../backend/epson2.c:129
+#: ../backend/epson.c:524 ../backend/epson2.c:134
 #, no-c-format
 msgid "Negative Film"
 msgstr "Transparant"
 
-#: ../backend/epson.c:529 ../backend/epson2.c:136
+#: ../backend/epson.c:529 ../backend/epson2.c:141
 #, no-c-format
 msgid "Focus on glass"
 msgstr "Focus op het glas"
 
-#: ../backend/epson.c:530 ../backend/epson2.c:137
+#: ../backend/epson.c:530 ../backend/epson2.c:142
 #, no-c-format
 msgid "Focus 2.5mm above glass"
 msgstr "Focus 2.5mm boven het glas"
 
 #: ../backend/epson.c:557 ../backend/epson.c:565 ../backend/epson.c:577
-#: ../backend/epson2.c:160 ../backend/epson2.c:168 ../backend/epson2.c:180
+#: ../backend/epson2.c:165 ../backend/epson2.c:173 ../backend/epson2.c:185
 #, no-c-format
 msgid "Halftone A (Hard Tone)"
 msgstr "Halftoon A (hard)"
 
 #: ../backend/epson.c:558 ../backend/epson.c:566 ../backend/epson.c:578
-#: ../backend/epson2.c:161 ../backend/epson2.c:169 ../backend/epson2.c:181
+#: ../backend/epson2.c:166 ../backend/epson2.c:174 ../backend/epson2.c:186
 #, no-c-format
 msgid "Halftone B (Soft Tone)"
 msgstr "Halftoon B (zacht)"
 
 #: ../backend/epson.c:559 ../backend/epson.c:567 ../backend/epson.c:579
-#: ../backend/epson2.c:162 ../backend/epson2.c:170 ../backend/epson2.c:182
+#: ../backend/epson2.c:167 ../backend/epson2.c:175 ../backend/epson2.c:187
 #, no-c-format
 msgid "Halftone C (Net Screen)"
 msgstr "Halftoon C"
 
-#: ../backend/epson.c:568 ../backend/epson.c:580 ../backend/epson2.c:171
-#: ../backend/epson2.c:183
+#: ../backend/epson.c:568 ../backend/epson.c:580 ../backend/epson2.c:176
+#: ../backend/epson2.c:188
 #, no-c-format
 msgid "Dither A (4x4 Bayer)"
 msgstr "Dither A (4x4 Bayer)"
 
-#: ../backend/epson.c:569 ../backend/epson.c:581 ../backend/epson2.c:172
-#: ../backend/epson2.c:184
+#: ../backend/epson.c:569 ../backend/epson.c:581 ../backend/epson2.c:177
+#: ../backend/epson2.c:189
 #, no-c-format
 msgid "Dither B (4x4 Spiral)"
 msgstr "Dither B (4x4 Spiraalvorm)"
 
-#: ../backend/epson.c:570 ../backend/epson.c:582 ../backend/epson2.c:173
-#: ../backend/epson2.c:185
+#: ../backend/epson.c:570 ../backend/epson.c:582 ../backend/epson2.c:178
+#: ../backend/epson2.c:190
 #, no-c-format
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Dither C (4x4 Net Screen)"
 
-#: ../backend/epson.c:571 ../backend/epson.c:583 ../backend/epson2.c:174
-#: ../backend/epson2.c:186
+#: ../backend/epson.c:571 ../backend/epson.c:583 ../backend/epson2.c:179
+#: ../backend/epson2.c:191
 #, no-c-format
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Dither D (8x4 Net Screen)"
 
-#: ../backend/epson.c:584 ../backend/epson2.c:187
+#: ../backend/epson.c:584 ../backend/epson2.c:192
 #, no-c-format
 msgid "Text Enhanced Technology"
 msgstr "Tekstverbeteringstechnologie"
 
-#: ../backend/epson.c:585 ../backend/epson2.c:188
+#: ../backend/epson.c:585 ../backend/epson2.c:193
 #, no-c-format
 msgid "Download pattern A"
 msgstr "Download patroon A"
 
-#: ../backend/epson.c:586 ../backend/epson2.c:189
+#: ../backend/epson.c:586 ../backend/epson2.c:194
 #, no-c-format
 msgid "Download pattern B"
 msgstr "Download patroon B"
@@ -1760,7 +1749,7 @@ msgstr "Download patroon B"
 msgid "No Correction"
 msgstr "Geen correctie"
 
-#: ../backend/epson.c:632 ../backend/epson.c:657 ../backend/epson2.c:249
+#: ../backend/epson.c:632 ../backend/epson.c:657 ../backend/epson2.c:254
 #, no-c-format
 msgid "User defined"
 msgstr "Door gebruiker gedefinieerd"
@@ -1785,33 +1774,33 @@ msgstr "Inktjetprinters"
 msgid "CRT monitors"
 msgstr "CRT-monitoren"
 
-#: ../backend/epson.c:656 ../backend/epson2.c:248 ../backend/fujitsu.c:558
+#: ../backend/epson.c:656 ../backend/epson2.c:253 ../backend/fujitsu.c:589
 #: ../backend/hp-option.c:3226 ../backend/test.c:143
 #, no-c-format
 msgid "Default"
 msgstr "Standaardinstelling"
 
-#: ../backend/epson.c:658 ../backend/epson2.c:250
+#: ../backend/epson.c:658 ../backend/epson2.c:255
 #, no-c-format
 msgid "High density printing"
 msgstr "Afdrukken op hoge kwaliteit"
 
-#: ../backend/epson.c:659 ../backend/epson2.c:251
+#: ../backend/epson.c:659 ../backend/epson2.c:256
 #, no-c-format
 msgid "Low density printing"
 msgstr "Afdrukken op lage kwaliteit"
 
-#: ../backend/epson.c:660 ../backend/epson2.c:252
+#: ../backend/epson.c:660 ../backend/epson2.c:257
 #, no-c-format
 msgid "High contrast printing"
 msgstr "Afdrukken met hoog contrast"
 
-#: ../backend/epson.c:678 ../backend/epson2.c:270
+#: ../backend/epson.c:678 ../backend/epson2.c:275
 #, no-c-format
 msgid "User defined (Gamma=1.0)"
 msgstr "Door gebruiker gedefinieerd (Gamma=1.0)"
 
-#: ../backend/epson.c:679 ../backend/epson2.c:271
+#: ../backend/epson.c:679 ../backend/epson2.c:276
 #, no-c-format
 msgid "User defined (Gamma=1.8)"
 msgstr "Door gebruiker gedefinieerd (Gamma=1.8)"
@@ -1852,13 +1841,13 @@ msgid "Max"
 msgstr "Maximaal"
 
 #: ../backend/epson.c:2799 ../backend/epson2.c:954
-#: ../backend/genesys.c:5959 ../backend/gt68xx.c:458
+#: ../backend/genesys.c:5498 ../backend/gt68xx.c:458
 #: ../backend/hp-option.c:2914 ../backend/kvs1025_opt.c:522
 #: ../backend/kvs20xx_opt.c:170 ../backend/kvs40xx_opt.c:319
 #: ../backend/ma1509.c:501 ../backend/matsushita.c:1084
 #: ../backend/microtek2.h:598 ../backend/mustek.c:4205
 #: ../backend/mustek_usb.c:260 ../backend/mustek_usb2.c:344
-#: ../backend/niash.c:736 ../backend/plustek.c:720
+#: ../backend/niash.c:736 ../backend/plustek.c:721
 #: ../backend/plustek_pp.c:657 ../backend/sceptre.c:673
 #: ../backend/snapscan-options.c:315 ../backend/stv680.c:1030
 #: ../backend/teco2.c:1886 ../backend/test.c:306 ../backend/u12.c:473
@@ -2054,13 +2043,13 @@ msgid "Eject document after scanning"
 msgstr "Werpt het document uit na het scannen"
 
 #: ../backend/epson.c:3443 ../backend/epson2.c:1395
-#: ../backend/magicolor.c:2345
+#: ../backend/magicolor.c:2399
 #, no-c-format
 msgid "ADF Mode"
 msgstr "ADF Mode"
 
 #: ../backend/epson.c:3445 ../backend/epson2.c:1397
-#: ../backend/magicolor.c:2347
+#: ../backend/magicolor.c:2401
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr "Selecteert de ADF mode (enkelzijdig/dubbelzijdig)"
@@ -2075,7 +2064,7 @@ msgstr "Bak"
 msgid "Select bay to scan"
 msgstr "Kies de bak om te scannen"
 
-#: ../backend/epson.h:69 ../backend/epson2.h:73
+#: ../backend/epson.h:69 ../backend/epson2.h:75
 #, no-c-format
 msgid ""
 "Selects the gamma correction value from a list of pre-defined devices or "
@@ -2085,23 +2074,22 @@ msgstr ""
 "apparaten of de door de gebruiker gedefinieerde tabel die naar de "
 "scanner kan worden gestuurd"
 
-#: ../backend/epson.h:72 ../backend/epson2.h:76
+#: ../backend/epson.h:72 ../backend/epson2.h:78
 #, no-c-format
 msgid "Focus Position"
 msgstr "Focus positie"
 
-#: ../backend/epson.h:73 ../backend/epson2.h:77
+#: ../backend/epson.h:73 ../backend/epson2.h:79
 #, no-c-format
-msgid ""
-"Sets the focus position to either the glass or 2.5mm above the glass"
+msgid "Sets the focus position to either the glass or 2.5mm above the glass"
 msgstr "Stelt de focus in op het glas of 2.5mm daarboven"
 
-#: ../backend/epson.h:75 ../backend/epson2.h:79
+#: ../backend/epson.h:75 ../backend/epson2.h:81
 #, no-c-format
 msgid "Wait for Button"
 msgstr "Wacht op een druk op de knop"
 
-#: ../backend/epson.h:76 ../backend/epson2.h:80
+#: ../backend/epson.h:76 ../backend/epson2.h:82
 #, no-c-format
 msgid ""
 "After sending the scan command, wait until the button on the scanner is "
@@ -2110,166 +2098,202 @@ msgstr ""
 "Begin pas met scannen nadat eerst het scancommando is gestuurd en "
 "vervolgens de knop van de scanner is ingedrukt."
 
-#: ../backend/epson2.c:97
+#: ../backend/epson2.c:101
 #, no-c-format
 msgid "Infrared"
 msgstr "Infrarood"
 
-#: ../backend/epson2.c:130
+#: ../backend/epson2.c:116
+#, no-c-format
+msgid "TPU8x10"
+msgstr "TPU8x10"
+
+#: ../backend/epson2.c:135
 #, no-c-format
 msgid "Positive Slide"
 msgstr "Dia"
 
-#: ../backend/epson2.c:131
+#: ../backend/epson2.c:136
 #, no-c-format
 msgid "Negative Slide"
 msgstr "Negatief"
 
-#: ../backend/epson2.c:209
+#: ../backend/epson2.c:214
 #, no-c-format
 msgid "Built in CCT profile"
 msgstr "Ingebouwd CCT profiel"
 
-#: ../backend/epson2.c:210
+#: ../backend/epson2.c:215
 #, no-c-format
 msgid "User defined CCT profile"
 msgstr "Door gebruiker gedefinieerd CCT profiel"
 
-#: ../backend/fujitsu.c:559 ../backend/hp-option.c:3327
+#: ../backend/fujitsu.c:590 ../backend/hp-option.c:3327
 #: ../backend/hp-option.c:3340
 #, no-c-format
 msgid "On"
 msgstr "Aan"
 
-#: ../backend/fujitsu.c:560 ../backend/hp-option.c:3159
+#: ../backend/fujitsu.c:591 ../backend/hp-option.c:3159
 #: ../backend/hp-option.c:3326 ../backend/hp-option.c:3339
 #, no-c-format
 msgid "Off"
 msgstr "Uit"
 
-#: ../backend/fujitsu.c:562
+#: ../backend/fujitsu.c:593
 #, no-c-format
 msgid "DTC"
 msgstr "DTC"
 
-#: ../backend/fujitsu.c:563
+#: ../backend/fujitsu.c:594
 #, no-c-format
 msgid "SDTC"
 msgstr "SDTC"
 
-#: ../backend/fujitsu.c:565 ../backend/teco1.c:1152
+#: ../backend/fujitsu.c:596 ../backend/teco1.c:1152
 #: ../backend/teco1.c:1153 ../backend/teco2.c:1971 ../backend/teco2.c:1972
 #: ../backend/teco3.c:977 ../backend/teco3.c:978
 #, no-c-format
 msgid "Dither"
 msgstr "Dither"
 
-#: ../backend/fujitsu.c:566
+#: ../backend/fujitsu.c:597
 #, no-c-format
 msgid "Diffusion"
 msgstr "Verspreiding"
 
-#: ../backend/fujitsu.c:571
+#: ../backend/fujitsu.c:602
 #, no-c-format
 msgid "White"
 msgstr "Wit"
 
-#: ../backend/fujitsu.c:572
+#: ../backend/fujitsu.c:603
 #, no-c-format
 msgid "Black"
 msgstr "Zwart"
 
-#: ../backend/fujitsu.c:577
+#: ../backend/fujitsu.c:608
 #, no-c-format
 msgid "Continue"
 msgstr "Voortzetten"
 
-#: ../backend/fujitsu.c:578
+#: ../backend/fujitsu.c:609
 #, no-c-format
 msgid "Stop"
 msgstr "Stoppen"
 
-#: ../backend/fujitsu.c:580
+#: ../backend/fujitsu.c:611
 #, no-c-format
 msgid "10mm"
 msgstr "10mm"
 
-#: ../backend/fujitsu.c:581
+#: ../backend/fujitsu.c:612
 #, no-c-format
 msgid "15mm"
 msgstr "15mm"
 
-#: ../backend/fujitsu.c:582
+#: ../backend/fujitsu.c:613
 #, no-c-format
 msgid "20mm"
 msgstr "20mm"
 
-#: ../backend/fujitsu.c:584 ../backend/hp-option.c:3045
+#: ../backend/fujitsu.c:615 ../backend/hp-option.c:3045
 #, no-c-format
 msgid "Horizontal"
 msgstr "Horizontaal"
 
-#: ../backend/fujitsu.c:585
+#: ../backend/fujitsu.c:616
 #, no-c-format
 msgid "Horizontal bold"
 msgstr "Horizontaal vet"
 
-#: ../backend/fujitsu.c:586
+#: ../backend/fujitsu.c:617
 #, no-c-format
 msgid "Horizontal narrow"
 msgstr "Horizontaal smal"
 
-#: ../backend/fujitsu.c:587 ../backend/hp-option.c:3044
+#: ../backend/fujitsu.c:618 ../backend/hp-option.c:3044
 #, no-c-format
 msgid "Vertical"
 msgstr "Verticaal"
 
-#: ../backend/fujitsu.c:588
+#: ../backend/fujitsu.c:619
 #, no-c-format
 msgid "Vertical bold"
 msgstr "Verticaal vet"
 
-#: ../backend/fujitsu.c:590
+#: ../backend/fujitsu.c:621
 #, no-c-format
 msgid "Top to bottom"
 msgstr "Van boven naar beneden"
 
-#: ../backend/fujitsu.c:591
+#: ../backend/fujitsu.c:622
 #, no-c-format
 msgid "Bottom to top"
 msgstr "Van beneden naar boven"
 
-#: ../backend/fujitsu.c:593
+#: ../backend/fujitsu.c:624
 #, no-c-format
 msgid "Front"
 msgstr "Voorzijde"
 
-#: ../backend/fujitsu.c:594
+#: ../backend/fujitsu.c:625
 #, no-c-format
 msgid "Back"
 msgstr "Achterzijde"
 
-#: ../backend/genesys.c:6177
+#: ../backend/genesys.c:5723
+#, no-c-format
+msgid "Software crop"
+msgstr "Softwarematig uitsnijden"
+
+#: ../backend/genesys.c:5724
+#, no-c-format
+msgid "Request backend to remove border from pages digitally"
+msgstr "Vraag backend randen van pagina's digitaal te verwijderen"
+
+#: ../backend/genesys.c:5732 ../backend/kvs1025_opt.c:911
+#, no-c-format
+msgid "Software blank skip percentage"
+msgstr "Softwarematig over te slaan percentage lege pagina's"
+
+#: ../backend/genesys.c:5733 ../backend/kvs1025_opt.c:913
+#, no-c-format
+msgid "Request driver to discard pages with low numbers of dark pixels"
+msgstr "Vraag het stuurprogramma pagina's met weinig dekking te verwijderen"
+
+#: ../backend/genesys.c:5743 ../backend/kvs1025_opt.c:893
+#, no-c-format
+msgid "Software derotate"
+msgstr "Softwarematige rotatie tegen de klok in"
+
+#: ../backend/genesys.c:5744 ../backend/kvs1025_opt.c:895
+#, no-c-format
+msgid "Request driver to detect and correct 90 degree image rotation"
+msgstr ""
+"Vraag stuurprogramma een 90 graden gedraaid beeld te herkennen en corrigeren"
+
+#: ../backend/genesys.c:5751 ../backend/pixma_sane_options.c:271
 #, no-c-format
 msgid "Extras"
 msgstr "Extra's"
 
-#: ../backend/genesys.c:6196
+#: ../backend/genesys.c:5770 ../backend/pixma_sane_options.c:293
 #, no-c-format
 msgid "Threshold curve"
 msgstr "Drempel curve"
 
-#: ../backend/genesys.c:6197
+#: ../backend/genesys.c:5771 ../backend/pixma_sane_options.c:294
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr "Dynamische drempel curve, van licht naar donker, normaal 50-65"
 
-#: ../backend/genesys.c:6206
+#: ../backend/genesys.c:5780
 #, no-c-format
 msgid "Disable dynamic lineart"
 msgstr "Dynamische lijntekening uitschakelen"
 
-#: ../backend/genesys.c:6208
+#: ../backend/genesys.c:5782
 #, no-c-format
 msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
@@ -2278,12 +2302,12 @@ msgstr ""
 "Schakel, om een lijntekening te genereren het gebruik van een software "
 "aanpassend algoritme uit en vertrouw in plaats daarvan op de hardware."
 
-#: ../backend/genesys.c:6223
+#: ../backend/genesys.c:5797
 #, no-c-format
 msgid "Disable interpolation"
 msgstr "Schakel interpolatie uit"
 
-#: ../backend/genesys.c:6226
+#: ../backend/genesys.c:5800
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
@@ -2293,24 +2317,24 @@ msgstr ""
 "resolutie kleiner is dan de verticale resolutie, wordt de horizontale "
 "interpolatie uitgeschakeld."
 
-#: ../backend/genesys.c:6235
+#: ../backend/genesys.c:5809
 #, no-c-format
 msgid "Color Filter"
 msgstr "Kleurenfilter"
 
-#: ../backend/genesys.c:6238
+#: ../backend/genesys.c:5812
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 "Wanneer grijs of lijntekening wordt gebruikt, selecteert deze optie de "
 "huidige actieve kleur."
 
-#: ../backend/genesys.c:6264
+#: ../backend/genesys.c:5838
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Lamp uit tijd"
 
-#: ../backend/genesys.c:6267
+#: ../backend/genesys.c:5841
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
@@ -2319,56 +2343,66 @@ msgstr ""
 "De lamp wordt uitgeschakeld na de opgegeven tijd (in minuten). Een "
 "waarde van 0 betekent, dat de lamp niet wordt uitgeschakeld."
 
-#: ../backend/genesys.c:6296 ../backend/genesys.c:6297
+#: ../backend/genesys.c:5851
+#, no-c-format
+msgid "Lamp off during scan"
+msgstr "Lamp uit tijdens het scannen"
+
+#: ../backend/genesys.c:5852
+#, no-c-format
+msgid "The lamp will be turned off during scan. "
+msgstr "De lamp wordt uitgeschakeld tijdens het scannen"
+
+#: ../backend/genesys.c:5879 ../backend/genesys.c:5880
 #, no-c-format
 msgid "File button"
 msgstr "Bestandsknop"
 
-#: ../backend/genesys.c:6349 ../backend/genesys.c:6350
+#: ../backend/genesys.c:5932 ../backend/genesys.c:5933
 #, no-c-format
 msgid "OCR button"
 msgstr "OCR-knop"
 
-#: ../backend/genesys.c:6363 ../backend/genesys.c:6364
+#: ../backend/genesys.c:5946 ../backend/genesys.c:5947
 #, no-c-format
 msgid "Power button"
 msgstr "Power-knop"
 
-#: ../backend/genesys.c:6377 ../backend/gt68xx.c:762
+#: ../backend/genesys.c:5960 ../backend/gt68xx.c:762
 #, no-c-format
 msgid "Need calibration"
 msgstr "Kalibratie nodig"
 
-#: ../backend/genesys.c:6378 ../backend/gt68xx.c:763
+#: ../backend/genesys.c:5961 ../backend/gt68xx.c:763
 #, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "De scanner moet worden gekalibreerd voor de huidige instellingen"
 
-#: ../backend/genesys.c:6391 ../backend/gt68xx.c:787
-#: ../backend/gt68xx.c:788 ../backend/pixma_sane_options.c:210
-#: ../backend/plustek.c:1079
+#: ../backend/genesys.c:5974 ../backend/gt68xx.c:787
+#: ../backend/gt68xx.c:788 ../backend/pixma_sane_options.c:225
+#: ../backend/plustek.c:1080
 #, no-c-format
 msgid "Buttons"
 msgstr "Knoppen"
 
-#: ../backend/genesys.c:6398 ../backend/gt68xx.c:794
+#: ../backend/genesys.c:5981 ../backend/gt68xx.c:794
 #: ../backend/hp5400_sane.c:392 ../backend/hp-option.h:97
-#: ../backend/niash.c:728 ../backend/plustek.c:940
+#: ../backend/niash.c:728 ../backend/plustek.c:941
 #, no-c-format
 msgid "Calibrate"
 msgstr "Kalibreren"
 
-#: ../backend/genesys.c:6400 ../backend/gt68xx.c:796
+#: ../backend/genesys.c:5983 ../backend/gt68xx.c:796
 #, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "Gebruik een speciale transparant voor het kalibreerproces"
 
-#: ../backend/genesys.c:6414 ../backend/gt68xx.c:809
+#: ../backend/genesys.c:5997 ../backend/gt68xx.c:809
 #, no-c-format
 msgid "Clear calibration"
 msgstr "Reset kalibratie"
 
-#: ../backend/genesys.c:6415 ../backend/gt68xx.c:810
+#: ../backend/genesys.c:5998 ../backend/gt68xx.c:810
 #, no-c-format
 msgid "Clear calibration cache"
 msgstr "Reset kalibratiecache"
@@ -2810,7 +2844,7 @@ msgstr "Langzaam"
 
 #: ../backend/hp-option.c:3145 ../backend/hp-option.c:3252
 #: ../backend/kvs40xx_opt.c:229 ../backend/matsushita.c:244
-#: ../backend/mustek.c:149 ../backend/plustek.c:233
+#: ../backend/mustek.c:149 ../backend/plustek.c:234
 #: ../backend/plustek_pp.c:200 ../backend/u12.c:155
 #, no-c-format
 msgid "Normal"
@@ -3059,43 +3093,43 @@ msgstr "Automatische kleurscheiding"
 
 #: ../backend/kvs1025.h:53 ../backend/kvs20xx_opt.c:306
 #: ../backend/kvs40xx_opt.c:530
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Landscape"
-msgstr "A5 liggend"
+msgstr "Liggend"
 
 #: ../backend/kvs1025.h:54 ../backend/kvs40xx_opt.c:692
 #, no-c-format
 msgid "Inverse Image"
-msgstr ""
+msgstr "Geinverteerd beeld"
 
 #: ../backend/kvs1025.h:56 ../backend/kvs40xx_opt.c:403
 #, no-c-format
 msgid "Long paper mode"
-msgstr ""
+msgstr "Groot formaat papier modus"
 
 #: ../backend/kvs1025.h:57 ../backend/kvs20xx_opt.c:229
 #: ../backend/kvs40xx_opt.c:392
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Length control mode"
-msgstr "Kies de dichtheidscontrolemodus"
+msgstr "Lengte-controlemodus"
 
 #: ../backend/kvs1025.h:58 ../backend/kvs20xx_opt.c:241
 #: ../backend/kvs40xx_opt.c:415
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed mode"
-msgstr "Handmatige voorfocusering"
+msgstr "Handmatige doorvoermodus"
 
 #: ../backend/kvs1025.h:59 ../backend/kvs20xx_opt.c:253
 #: ../backend/kvs40xx_opt.c:427
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed timeout"
-msgstr "Handmatige voorfocusering"
+msgstr "Handmatige doorvoer timeout"
 
 #: ../backend/kvs1025.h:60 ../backend/kvs20xx_opt.c:266
 #: ../backend/kvs40xx_opt.c:440
 #, no-c-format
 msgid "Double feed detection"
-msgstr ""
+msgstr "Dubbele doorvoer herkenning"
 
 #: ../backend/kvs1025.h:63 ../backend/kvs20xx_opt.c:204
 #: ../backend/kvs40xx_opt.c:353 ../backend/matsushita.h:223
@@ -3112,162 +3146,162 @@ msgstr "Feitelijke papierformaat van de ADF"
 #: ../backend/kvs1025_opt.c:39
 #, no-c-format
 msgid "bw"
-msgstr ""
+msgstr "z/w"
 
 #: ../backend/kvs1025_opt.c:40
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone"
-msgstr "Halftoon"
+msgstr "halftoon"
 
 #: ../backend/kvs1025_opt.c:41
 #, no-c-format
 msgid "gray"
-msgstr ""
+msgstr "Grijs"
 
 #: ../backend/kvs1025_opt.c:42
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "color"
-msgstr "Kleur"
+msgstr "kleur"
 
 #: ../backend/kvs1025_opt.c:61 ../backend/kvs40xx_opt.c:107
 #: ../backend/kvs40xx_opt.c:1046
 #, no-c-format
 msgid "adf"
-msgstr ""
+msgstr "adf"
 
 #: ../backend/kvs1025_opt.c:62 ../backend/kvs40xx_opt.c:49
 #: ../backend/kvs40xx_opt.c:108
 #, no-c-format
 msgid "fb"
-msgstr ""
+msgstr "fb"
 
 #: ../backend/kvs1025_opt.c:72 ../backend/kvs20xx_opt.c:54
 #: ../backend/kvs40xx_opt.c:100
 #, no-c-format
 msgid "single"
-msgstr ""
+msgstr "enkel"
 
-#: ../backend/kvs1025_opt.c:73 ../backend/kvs20xx.c:457
-#: ../backend/kvs20xx_opt.c:55 ../backend/kvs40xx.c:703
-#: ../backend/kvs40xx.c:721 ../backend/kvs40xx_opt.c:101
+#: ../backend/kvs1025_opt.c:73 ../backend/kvs20xx.c:455
+#: ../backend/kvs20xx_opt.c:55 ../backend/kvs40xx.c:704
+#: ../backend/kvs40xx.c:722 ../backend/kvs40xx_opt.c:101
 #: ../backend/kvs40xx_opt.c:1086
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "continuous"
-msgstr "Voortzetten"
+msgstr "continu"
 
 #: ../backend/kvs1025_opt.c:83 ../backend/kvs20xx_opt.c:61
 #: ../backend/kvs40xx_opt.c:114
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "off"
-msgstr "Uit"
+msgstr "uit"
 
 #: ../backend/kvs1025_opt.c:84 ../backend/kvs20xx_opt.c:62
 #: ../backend/kvs40xx_opt.c:115
 #, no-c-format
 msgid "wait_doc"
-msgstr ""
+msgstr "wacht_doc"
 
 #: ../backend/kvs1025_opt.c:85 ../backend/kvs20xx_opt.c:63
 #: ../backend/kvs40xx_opt.c:117
 #, no-c-format
 msgid "wait_key"
-msgstr ""
+msgstr "wacht_toets"
 
 #: ../backend/kvs1025_opt.c:96 ../backend/kvs20xx_opt.c:69
 #: ../backend/kvs40xx_opt.c:123 ../backend/kvs40xx_opt.c:140
 #, no-c-format
 msgid "user_def"
-msgstr ""
+msgstr "gebruiker_gedefinieerd"
 
 #: ../backend/kvs1025_opt.c:97 ../backend/kvs20xx_opt.c:70
 #: ../backend/kvs40xx_opt.c:124 ../backend/kvs40xx_opt.c:141
 #, no-c-format
 msgid "business_card"
-msgstr ""
+msgstr "visitekaart"
 
 #: ../backend/kvs1025_opt.c:98 ../backend/kvs40xx_opt.c:125
 #: ../backend/kvs40xx_opt.c:142
 #, no-c-format
 msgid "Check"
-msgstr ""
+msgstr "Controleer"
 
 #: ../backend/kvs1025_opt.c:101 ../backend/kvs20xx_opt.c:74
 #: ../backend/kvs40xx_opt.c:128 ../backend/kvs40xx_opt.c:145
 #, no-c-format
 msgid "A5"
-msgstr ""
+msgstr "A5"
 
 #: ../backend/kvs1025_opt.c:102 ../backend/kvs20xx_opt.c:75
 #: ../backend/kvs40xx_opt.c:129 ../backend/kvs40xx_opt.c:146
 #, no-c-format
 msgid "A6"
-msgstr ""
+msgstr "A6"
 
 #: ../backend/kvs1025_opt.c:106 ../backend/kvs20xx_opt.c:79
 #: ../backend/kvs40xx_opt.c:133 ../backend/kvs40xx_opt.c:150
 #, no-c-format
 msgid "B5"
-msgstr ""
+msgstr "B5"
 
 #: ../backend/kvs1025_opt.c:107 ../backend/kvs20xx_opt.c:80
 #: ../backend/kvs40xx_opt.c:134 ../backend/kvs40xx_opt.c:151
 #, no-c-format
 msgid "B6"
-msgstr ""
+msgstr "B6"
 
 #: ../backend/kvs1025_opt.c:108 ../backend/kvs20xx_opt.c:81
 #: ../backend/kvs40xx_opt.c:135 ../backend/kvs40xx_opt.c:152
 #, no-c-format
 msgid "Legal"
-msgstr ""
+msgstr "Legal"
 
 #: ../backend/kvs1025_opt.c:149 ../backend/kvs40xx_opt.c:238
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "bayer_64"
-msgstr "Bayer"
+msgstr "bayer 64"
 
 #: ../backend/kvs1025_opt.c:150 ../backend/kvs40xx_opt.c:239
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "bayer_16"
-msgstr "Bayer"
+msgstr "bayer 16"
 
 #: ../backend/kvs1025_opt.c:151 ../backend/kvs40xx_opt.c:240
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone_32"
-msgstr "Halftoon"
+msgstr "halftoon 32"
 
 #: ../backend/kvs1025_opt.c:152 ../backend/kvs40xx_opt.c:241
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone_64"
-msgstr "Halftoon"
+msgstr "halftoon 64"
 
 #: ../backend/kvs1025_opt.c:153
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "diffusion"
-msgstr "Verspreiding"
+msgstr "verspreiding"
 
 #: ../backend/kvs1025_opt.c:166 ../backend/kvs1025_opt.c:228
 #: ../backend/kvs1025_opt.c:241 ../backend/kvs20xx_opt.c:128
 #: ../backend/kvs20xx_opt.c:136 ../backend/kvs40xx_opt.c:214
 #: ../backend/kvs40xx_opt.c:222 ../backend/kvs40xx_opt.c:257
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "normal"
-msgstr "Normaal"
+msgstr "normaal"
 
 #: ../backend/kvs1025_opt.c:167 ../backend/kvs40xx_opt.c:258
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "light"
-msgstr "Contrast"
+msgstr "licht"
 
 #: ../backend/kvs1025_opt.c:168 ../backend/kvs40xx_opt.c:259
 #, no-c-format
 msgid "dark"
-msgstr ""
+msgstr "donker"
 
 #: ../backend/kvs1025_opt.c:179 ../backend/kvs40xx_opt.c:270
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "From scanner"
-msgstr "Filmscanner"
+msgstr "Vanuit de scanner"
 
 #: ../backend/kvs1025_opt.c:180 ../backend/kvs40xx_opt.c:271
 #: ../backend/matsushita.c:177
@@ -3276,73 +3310,73 @@ msgid "From paper"
 msgstr "Vanaf papier"
 
 #: ../backend/kvs1025_opt.c:192 ../backend/kvs40xx_opt.c:283
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "default"
-msgstr "Standaardinstelling"
+msgstr "standaardinstelling"
 
 #: ../backend/kvs1025_opt.c:211 ../backend/kvs20xx_opt.c:122
 #: ../backend/kvs40xx_opt.c:208
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "smooth"
-msgstr "Gelijkmatig"
+msgstr "gelijkmatig"
 
 #: ../backend/kvs1025_opt.c:212 ../backend/kvs20xx_opt.c:118
 #: ../backend/kvs40xx_opt.c:204
 #, no-c-format
 msgid "none"
-msgstr ""
+msgstr "geen"
 
 #: ../backend/kvs1025_opt.c:213 ../backend/kvs20xx_opt.c:119
 #: ../backend/kvs40xx_opt.c:205
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "low"
-msgstr "Langzaam"
+msgstr "laag"
 
 #: ../backend/kvs1025_opt.c:214 ../backend/kvs1025_opt.c:804
 #: ../backend/kvs20xx_opt.c:120 ../backend/kvs40xx_opt.c:206
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "medium"
-msgstr "Gemiddeld"
+msgstr "gemiddeld"
 
 #: ../backend/kvs1025_opt.c:215 ../backend/kvs20xx_opt.c:121
 #: ../backend/kvs40xx_opt.c:207
 #, no-c-format
 msgid "high"
-msgstr ""
+msgstr "hoog"
 
 #: ../backend/kvs1025_opt.c:229 ../backend/kvs20xx_opt.c:129
 #: ../backend/kvs40xx_opt.c:215
 #, no-c-format
 msgid "crt"
-msgstr ""
+msgstr "crt"
 
 #: ../backend/kvs1025_opt.c:230
 #, no-c-format
 msgid "linier"
-msgstr ""
+msgstr "liniair"
 
 #: ../backend/kvs1025_opt.c:242 ../backend/kvs20xx_opt.c:137
 #: ../backend/kvs40xx_opt.c:223
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "red"
-msgstr "Rood"
+msgstr "rood"
 
 #: ../backend/kvs1025_opt.c:243 ../backend/kvs20xx_opt.c:138
 #: ../backend/kvs40xx_opt.c:224
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "green"
-msgstr "Groen"
+msgstr "groen"
 
 #: ../backend/kvs1025_opt.c:244 ../backend/kvs20xx_opt.c:139
 #: ../backend/kvs40xx_opt.c:225
 #, no-c-format
 msgid "blue"
-msgstr ""
+msgstr "blauw"
 
 #: ../backend/kvs1025_opt.c:562
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the scan source"
-msgstr "Scanbron"
+msgstr "Stelt de scanbron in"
 
 #: ../backend/kvs1025_opt.c:573 ../backend/kvs20xx_opt.c:217
 #: ../backend/kvs40xx_opt.c:366 ../backend/matsushita.c:1126
@@ -3357,56 +3391,56 @@ msgid "Sets the feeding mode"
 msgstr "Stelt de doorvoermodus in"
 
 #: ../backend/kvs1025_opt.c:584
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable/Disable long paper mode"
-msgstr "Aan/uit schakelen van autofocus"
+msgstr "Groot formaat papier modus aan/uit schakelen"
 
 #: ../backend/kvs1025_opt.c:593
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable/Disable length control mode"
-msgstr "Kies de dichtheidscontrolemodus"
+msgstr "Formaat gestuurde modus aan/uit schakelen"
 
 #: ../backend/kvs1025_opt.c:601 ../backend/kvs20xx_opt.c:242
 #: ../backend/kvs40xx_opt.c:416
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the manual feed mode"
-msgstr "Stelt de doorvoermodus in"
+msgstr "Stelt de handmatige doorvoermodus in"
 
 #: ../backend/kvs1025_opt.c:612 ../backend/kvs20xx_opt.c:254
 #: ../backend/kvs40xx_opt.c:428
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the manual feed timeout in seconds"
-msgstr "Stelt de doorvoermodus in"
+msgstr "Stelt de handmatige doorvoer timeout in seconden in"
 
 #: ../backend/kvs1025_opt.c:625 ../backend/kvs20xx_opt.c:267
 #: ../backend/kvs40xx_opt.c:441
 #, no-c-format
 msgid "Enable/Disable double feed detection"
-msgstr ""
+msgstr "Dubbele doorvoer herkenning aan/uit schakelen"
 
 #: ../backend/kvs1025_opt.c:631 ../backend/kvs20xx_opt.c:275
 #: ../backend/kvs40xx_opt.c:496
 #, no-c-format
 msgid "fit-to-page"
-msgstr ""
+msgstr "aangepast aan de pagina"
 
 #: ../backend/kvs1025_opt.c:632 ../backend/kvs20xx_opt.c:276
 #: ../backend/kvs40xx_opt.c:497
 #, no-c-format
 msgid "Fit to page"
-msgstr ""
+msgstr "Aangepast aan de pagina"
 
 #: ../backend/kvs1025_opt.c:634 ../backend/kvs20xx_opt.c:277
 #: ../backend/kvs40xx_opt.c:498
 #, no-c-format
 msgid "Scanner shrinks image to fit scanned page"
-msgstr ""
+msgstr "Scanner verkleint het beeld in lijn met de gescande pagina"
 
 #: ../backend/kvs1025_opt.c:661 ../backend/kvs20xx_opt.c:308
 #: ../backend/kvs40xx_opt.c:532
 #, no-c-format
 msgid "Set paper position : true for landscape, false for portrait"
-msgstr ""
+msgstr "Stelt de papier positie in: waar voor liggend, onwaar voor staand"
 
 #: ../backend/kvs1025_opt.c:735 ../backend/matsushita.c:1224
 #, no-c-format
@@ -3448,102 +3482,85 @@ msgstr "Stelt beeldverbetering in"
 
 #: ../backend/kvs1025_opt.c:808 ../backend/kvs1025_opt.c:809
 #: ../backend/matsushita.c:1300 ../backend/matsushita.c:1301
-#: ../backend/pixma_sane_options.c:107
+#: ../backend/pixma_sane_options.c:108
 #, no-c-format
 msgid "Gamma"
 msgstr "Gamma"
 
 #: ../backend/kvs1025_opt.c:818 ../backend/kvs20xx_opt.c:435
 #: ../backend/kvs40xx_opt.c:680
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp color"
-msgstr "Lamp aan"
+msgstr "Lamp kleur"
 
 #: ../backend/kvs1025_opt.c:819 ../backend/kvs20xx_opt.c:436
 #: ../backend/kvs40xx_opt.c:681
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the lamp color (color dropout)"
-msgstr "Schakelt de lamp aan of uit."
+msgstr "Schakelt de lamp kleur in (kleur uitval)"
 
 #: ../backend/kvs1025_opt.c:832
 #, no-c-format
 msgid "Inverse image in B/W or halftone mode"
-msgstr ""
+msgstr "Geinverteerd beeld in Z/W of halftoon modus"
 
 #: ../backend/kvs1025_opt.c:840
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Mirror image (left/right flip)"
-msgstr "Beeld verticaal spiegelen"
+msgstr "Spiegel beeld (links/rechts verwisselen)"
 
 #: ../backend/kvs1025_opt.c:847
 #, no-c-format
 msgid "jpeg compression"
-msgstr ""
+msgstr "jpeg compressie"
 
 #: ../backend/kvs1025_opt.c:850
 #, no-c-format
 msgid "JPEG Image Compression with Q parameter, '0' - no compression"
-msgstr ""
+msgstr "JPEG beeld compressie met Q parameter, '0' - geen compressie"
 
 #: ../backend/kvs1025_opt.c:860
 #, no-c-format
 msgid "Rotate image clockwise"
-msgstr ""
+msgstr "Roteer beeld met de klok mee"
 
 #: ../backend/kvs1025_opt.c:862
 #, no-c-format
 msgid "Request driver to rotate pages by a fixed amount"
-msgstr ""
+msgstr "Vraag het stuurprogramma pagina's met een vaste hoeveelheid te roteren"
 
 #: ../backend/kvs1025_opt.c:872
 #, no-c-format
 msgid "Software deskew"
-msgstr ""
+msgstr "Softwarematige scheefheid correctie"
 
 #: ../backend/kvs1025_opt.c:874
 #, no-c-format
 msgid "Request driver to rotate skewed pages digitally"
 msgstr ""
+"Vraag het stuurprogramma de scheef getrokken pagina's digitaal te roteren"
 
 #: ../backend/kvs1025_opt.c:881
 #, no-c-format
 msgid "Software despeckle diameter"
-msgstr ""
+msgstr "Softwarematige ontspikkel omvang"
 
 #: ../backend/kvs1025_opt.c:883
 #, no-c-format
 msgid "Maximum diameter of lone dots to remove from scan"
 msgstr ""
-
-#: ../backend/kvs1025_opt.c:893
-#, no-c-format
-msgid "Software derotate"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:895
-#, no-c-format
-msgid "Request driver to detect and correct 90 degree image rotation"
-msgstr ""
+"Maximale omvang van verspreid liggende spikkels, die van het gescande beeld "
+"moeten worden verwijderd"
 
 #: ../backend/kvs1025_opt.c:902
 #, no-c-format
 msgid "Software automatic cropping"
-msgstr ""
+msgstr "Automatisch softwarematig uitsnijden"
 
 #: ../backend/kvs1025_opt.c:904
 #, no-c-format
 msgid "Request driver to remove border from pages digitally"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:911
-#, no-c-format
-msgid "Software blank skip percentage"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:913
-#, no-c-format
-msgid "Request driver to discard pages with low numbers of dark pixels"
-msgstr ""
+msgstr "Vraag het stuurprogramma randen van pagina's digitaal te verwijderen "
 
 #: ../backend/kvs20xx_opt.c:232 ../backend/kvs40xx_opt.c:395
 #, no-c-format
@@ -3551,6 +3568,9 @@ msgid ""
 "Length Control Mode is a mode that the scanner reads up to the shorter "
 "length of actual paper or logical document length."
 msgstr ""
+"Formaat Controle Modus is een modus waarin de scanner leest tot aan de "
+"kortste lengte van het gebruikte papier of de logische lengte van het "
+"document."
 
 #: ../backend/kvs20xx_opt.c:423 ../backend/kvs20xx_opt.c:424
 #: ../backend/kvs40xx_opt.c:667 ../backend/kvs40xx_opt.c:668
@@ -3562,179 +3582,182 @@ msgstr "Gammacorrectie"
 #: ../backend/kvs40xx_opt.c:116
 #, no-c-format
 msgid "wait_doc_hopper_up"
-msgstr ""
+msgstr "wacht_doc_spring_op"
 
 #: ../backend/kvs40xx_opt.c:126
 #, no-c-format
 msgid "A3"
-msgstr ""
+msgstr "A3"
 
 #: ../backend/kvs40xx_opt.c:131
 #, no-c-format
 msgid "Double letter 11x17 in"
-msgstr ""
+msgstr "Dubbel briefpapier 11x17 inc."
 
 #: ../backend/kvs40xx_opt.c:132
 #, no-c-format
 msgid "B4"
-msgstr ""
+msgstr "B4"
 
 #: ../backend/kvs40xx_opt.c:230
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "High sensivity"
-msgstr "Afdrukken op hoge kwaliteit"
+msgstr "Hoge gevoeligheid"
 
 #: ../backend/kvs40xx_opt.c:231
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Low sensivity"
-msgstr "Afdrukken op lage kwaliteit"
+msgstr "Lage gevoeligheid"
 
 #: ../backend/kvs40xx_opt.c:242
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "err_diffusion"
-msgstr "Verspreiding"
+msgstr "err_verspreiding"
 
 #: ../backend/kvs40xx_opt.c:248
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "No detection"
-msgstr "Geen correctie"
+msgstr "geen herkenning"
 
 #: ../backend/kvs40xx_opt.c:249
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Normal mode"
-msgstr "Normaal"
+msgstr "normale modus"
 
 #: ../backend/kvs40xx_opt.c:250
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enhanced mode"
-msgstr "Kleurverbetering"
+msgstr "Verbetermodus"
 
 #: ../backend/kvs40xx_opt.c:404
 #, no-c-format
 msgid ""
 "Long Paper Mode is a mode that the scanner reads the image after it "
-"divides long paperby the length which is set in Document Size option"
+"divides long paper by the length which is set in Document Size option."
 msgstr ""
+"Groot Papier Modus is een modus waarin de scanner het beeld leest nadat hij"
+"het formaat van het  papier heeft gedeeld door de lengte, die is ingesteld bij"
+"de optie Document Formaat"
 
 #: ../backend/kvs40xx_opt.c:448
 #, no-c-format
 msgid "Double feed detector sensitivity"
-msgstr ""
+msgstr "Gevoeligheid van de dubbele doorvoer verklikker"
 
 #: ../backend/kvs40xx_opt.c:449
 #, no-c-format
 msgid "Set the double feed detector sensitivity"
-msgstr ""
+msgstr "Stel de gevoeligheid van de dubbele doorvoer verklikker in"
 
 #: ../backend/kvs40xx_opt.c:460 ../backend/kvs40xx_opt.c:461
 #, no-c-format
 msgid "Do not stop after double feed detection"
-msgstr ""
+msgstr "Stop niet na de dubbele doorvoer verklikker"
 
 #: ../backend/kvs40xx_opt.c:469 ../backend/kvs40xx_opt.c:470
 #, no-c-format
 msgid "Ignore left double feed sensor"
-msgstr ""
+msgstr "Negeer linker dubbele doorvoor voeler"
 
 #: ../backend/kvs40xx_opt.c:478 ../backend/kvs40xx_opt.c:479
 #, no-c-format
 msgid "Ignore center double feed sensor"
-msgstr ""
+msgstr "Negeer middelste dubbele doorvoer voeler"
 
 #: ../backend/kvs40xx_opt.c:487 ../backend/kvs40xx_opt.c:488
 #, no-c-format
 msgid "Ignore right double feed sensor"
-msgstr ""
+msgstr "Negeer rechter dubbele doorvoer voeler"
 
 #: ../backend/kvs40xx_opt.c:641
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Automatic threshold mode"
-msgstr "Automatische drempelwaarde"
+msgstr "Automatische drempelwaarde modus"
 
 #: ../backend/kvs40xx_opt.c:642
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the automatic threshold mode"
-msgstr "Automatische drempelwaarde"
+msgstr "Stel de automatische drempelwaarde in"
 
 #: ../backend/kvs40xx_opt.c:693
 #, no-c-format
 msgid "Inverse image in B/W mode"
-msgstr ""
+msgstr "Inverteer beeld in Z/W modus"
 
 #: ../backend/kvs40xx_opt.c:714
 #, no-c-format
 msgid "JPEG compression"
-msgstr ""
+msgstr "JPEG compressie"
 
 #: ../backend/kvs40xx_opt.c:717
 #, no-c-format
 msgid "JPEG compression (yours application must be able to uncompress)"
-msgstr ""
+msgstr "JPEG compressie (je programma moet in staat zijn te decomprimeren)"
 
 #: ../backend/kvs40xx_opt.c:736 ../backend/kvs40xx_opt.c:737
 #, no-c-format
 msgid "Detect stapled document"
-msgstr ""
+msgstr "Herken aan elkaar geniet document"
 
 #: ../backend/kvs40xx_opt.c:775
 #, no-c-format
 msgid "chroma of red"
-msgstr ""
+msgstr "kleurwaarde van rood"
 
 #: ../backend/kvs40xx_opt.c:776
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set chroma of red"
-msgstr "Legt de volgorde van de \"frames\" vast"
+msgstr "Stel kleurwaarde van rood in"
 
 #: ../backend/kvs40xx_opt.c:786
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "chroma of blue"
-msgstr "Schaduw voor blauw"
+msgstr "kleurwaarde van blauw"
 
 #: ../backend/kvs40xx_opt.c:787
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set chroma of blue"
-msgstr "Verschuift rood naar blauw"
+msgstr "Stel kleurwaarde van blauw in"
 
 #: ../backend/kvs40xx_opt.c:797 ../backend/kvs40xx_opt.c:798
 #, no-c-format
 msgid "Skew adjustment"
-msgstr ""
+msgstr "Scheefheid correctie"
 
 #: ../backend/kvs40xx_opt.c:807
 #, no-c-format
 msgid "Stop scanner when a paper have been skewed"
-msgstr ""
+msgstr "Stop de scanner als het papier is scheefgetrokken"
 
 #: ../backend/kvs40xx_opt.c:808
 #, no-c-format
 msgid "Scanner will be stop  when a paper have been skewed"
-msgstr ""
+msgstr "De scanner wordt gestopt als het papier is scheefgetrokken"
 
 #: ../backend/kvs40xx_opt.c:815
 #, no-c-format
 msgid "Crop actual image area"
-msgstr ""
+msgstr "Snij het effectieve beeldoppervlak uit"
 
 #: ../backend/kvs40xx_opt.c:816
 #, no-c-format
 msgid "Scanner automatically detect image area and crop it"
-msgstr ""
+msgstr "Laat de scanner automatisch het beeldoppervlak herkennen en uitsnijden"
 
 #: ../backend/kvs40xx_opt.c:826
 #, no-c-format
 msgid "It is right and left reversing"
-msgstr ""
+msgstr "Het is links/rechtse omkering"
 
 #: ../backend/kvs40xx_opt.c:833 ../backend/kvs40xx_opt.c:834
 #, no-c-format
 msgid "Addition of space in top position"
-msgstr ""
+msgstr "Ruimte toevoegen aan de bovenzijde"
 
 #: ../backend/kvs40xx_opt.c:841 ../backend/kvs40xx_opt.c:842
 #, no-c-format
 msgid "Addition of space in bottom position"
-msgstr ""
+msgstr "Ruimte toevoegen aan de onderzijde"
 
 #: ../backend/leo.c:110
 #, no-c-format
@@ -3781,7 +3804,7 @@ msgstr "Grijsbereik"
 msgid "Sets gray channel gain"
 msgstr "Stelt het bereik in van het grijze kanaal"
 
-#: ../backend/lexmark.c:297 ../backend/plustek.c:1000
+#: ../backend/lexmark.c:297 ../backend/plustek.c:1001
 #: ../backend/umax_pp.c:735
 #, no-c-format
 msgid "Red gain"
@@ -3792,7 +3815,7 @@ msgstr "Roodbereik"
 msgid "Sets red channel gain"
 msgstr "Stelt het bereik in van het rode kanaal"
 
-#: ../backend/lexmark.c:311 ../backend/plustek.c:1016
+#: ../backend/lexmark.c:311 ../backend/plustek.c:1017
 #: ../backend/umax_pp.c:747
 #, no-c-format
 msgid "Green gain"
@@ -3803,7 +3826,7 @@ msgstr "Groenbereik"
 msgid "Sets green channel gain"
 msgstr "Stelt het bereik in van het groene kanaal"
 
-#: ../backend/lexmark.c:325 ../backend/plustek.c:1032
+#: ../backend/lexmark.c:325 ../backend/plustek.c:1033
 #: ../backend/umax_pp.c:759
 #, no-c-format
 msgid "Blue gain"
@@ -3895,7 +3918,7 @@ msgstr "Eén pagina"
 msgid "All pages"
 msgstr "Alle pagina's"
 
-#: ../backend/matsushita.c:1034 ../backend/plustek.c:1332
+#: ../backend/matsushita.c:1034 ../backend/plustek.c:1333
 #, no-c-format
 msgid "sheetfed scanner"
 msgstr "Doorvoerscanner"
@@ -3933,8 +3956,7 @@ msgstr "Geen \"backtracking\""
 #: ../backend/microtek2.h:608
 #, no-c-format
 msgid "If checked the scanner does not perform backtracking"
-msgstr ""
-"Wanneer aangevinkt, gaat de scannerkop niet terug naar de beginpositie"
+msgstr "Wanneer aangevinkt, gaat de scannerkop niet terug naar de beginpositie"
 
 #: ../backend/microtek2.h:612
 #, no-c-format
@@ -3953,8 +3975,7 @@ msgstr "Softwarematig kalibreren"
 
 #: ../backend/microtek2.h:617
 #, no-c-format
-msgid ""
-"If checked the color calibration before a scan is done by the backend"
+msgid "If checked the color calibration before a scan is done by the backend"
 msgstr ""
 "Sommige scanners moeten softwarematig worden gekalibreerd, anders kunnen "
 "moiré strepen op het beeld ontstaan"
@@ -4312,8 +4333,7 @@ msgstr "Rode helderheid"
 #: ../backend/mustek.c:4434
 #, no-c-format
 msgid "Controls the brightness of the red channel of the acquired image."
-msgstr ""
-"Stelt de helderheid van de rode component in van het gescande beeld."
+msgstr "Stelt de helderheid van de rode component in van het gescande beeld."
 
 #: ../backend/mustek.c:4446
 #, no-c-format
@@ -4323,8 +4343,7 @@ msgstr "Groene helderheid"
 #: ../backend/mustek.c:4447
 #, no-c-format
 msgid "Controls the brightness of the green channel of the acquired image."
-msgstr ""
-"Stelt de helderheid van de groene component in van het gescande beeld."
+msgstr "Stelt de helderheid van de groene component in van het gescande beeld."
 
 #: ../backend/mustek.c:4459
 #, no-c-format
@@ -4334,8 +4353,7 @@ msgstr "Blauwe helderheid"
 #: ../backend/mustek.c:4460
 #, no-c-format
 msgid "Controls the brightness of the blue channel of the acquired image."
-msgstr ""
-"Stelt de helderheid van de blauwe component in van het gescande beeld."
+msgstr "Stelt de helderheid van de blauwe component in van het gescande beeld."
 
 #: ../backend/mustek.c:4485
 #, no-c-format
@@ -4345,8 +4363,7 @@ msgstr "Contrast van de rode component"
 #: ../backend/mustek.c:4486
 #, no-c-format
 msgid "Controls the contrast of the red channel of the acquired image."
-msgstr ""
-"Stelt het contrast van de rode component in van het gescande beeld."
+msgstr "Stelt het contrast van de rode component in van het gescande beeld."
 
 #: ../backend/mustek.c:4498
 #, no-c-format
@@ -4356,8 +4373,7 @@ msgstr "Contrast van de groene component"
 #: ../backend/mustek.c:4499
 #, no-c-format
 msgid "Controls the contrast of the green channel of the acquired image."
-msgstr ""
-"Stelt het contrast van de groene component in van het gescande beeld."
+msgstr "Stelt het contrast van de groene component in van het gescande beeld."
 
 #: ../backend/mustek.c:4511
 #, no-c-format
@@ -4367,8 +4383,7 @@ msgstr "Contrast van de blauwe component"
 #: ../backend/mustek.c:4512
 #, no-c-format
 msgid "Controls the contrast of the blue channel of the acquired image."
-msgstr ""
-"Stelt het contrast van de blauwe component in van het gescande beeld."
+msgstr "Stelt het contrast van de blauwe component in van het gescande beeld."
 
 #: ../backend/mustek_usb2.c:105
 #, no-c-format
@@ -4409,12 +4424,39 @@ msgstr ""
 "Wacht totdat de lamp constant brandt in plaats van de eis van 40 seconde "
 "opwarmtijd na te leven."
 
-#: ../backend/pixma_sane_options.c:91
+#: ../backend/pixma.c:357
+#, no-c-format
+msgid "Negative color"
+msgstr "Kleurennegatief"
+
+#: ../backend/pixma.c:362
+#, no-c-format
+msgid "Negative gray"
+msgstr "Grijsnegatief"
+
+#: ../backend/pixma.c:369
+#, no-c-format
+msgid "48 bits color"
+msgstr "48 bits kleur"
+
+#: ../backend/pixma.c:374
+#, no-c-format
+msgid "16 bits gray"
+msgstr "16 bits grijs"
+
+#: ../backend/pixma_sane_options.c:80
+#, no-c-format
+msgid ""
+"Selects the scan source (such as a document-feeder). Set source before "
+"mode and resolution. Resets mode and resolution to auto values."
+msgstr "Selecteert de scanbron (zoals b.v. documentendoorvoer)."
+
+#: ../backend/pixma_sane_options.c:94
 #, no-c-format
 msgid "Button-controlled scan"
 msgstr "Knop-gestuurde scan"
 
-#: ../backend/pixma_sane_options.c:94
+#: ../backend/pixma_sane_options.c:95
 #, no-c-format
 msgid ""
 "When enabled, scan process will not start immediately. To proceed, press "
@@ -4425,178 +4467,188 @@ msgstr ""
 "gaan, druk op de \"SCAN\" knop (voor MP150) of \"COLOR\" knop (voor "
 "andere modellen). Om te annuleren, druk op de \"GRAY\" knop."
 
-#: ../backend/pixma_sane_options.c:216
+#: ../backend/pixma_sane_options.c:143
+#, no-c-format
+msgid "Gamma function exponent"
+msgstr "Gammafunctie exponent"
+
+#: ../backend/pixma_sane_options.c:144
+#, no-c-format
+msgid "Changes intensity of midtones"
+msgstr "Verandert de intensiteit van de middentonen"
+
+#: ../backend/pixma_sane_options.c:231
 #, no-c-format
 msgid "Update button state"
 msgstr "Werk stand van de knop bij"
 
-#: ../backend/pixma_sane_options.c:228
+#: ../backend/pixma_sane_options.c:243
 #, no-c-format
 msgid "Button 1"
 msgstr "Knop 1"
 
-#: ../backend/pixma_sane_options.c:242
+#: ../backend/pixma_sane_options.c:257
 #, no-c-format
 msgid "Button 2"
 msgstr "Knop 2"
 
-#: ../backend/plustek.c:234 ../backend/plustek_pp.c:201
+#: ../backend/plustek.c:235 ../backend/plustek_pp.c:201
 #: ../backend/u12.c:156
 #, no-c-format
 msgid "Transparency"
 msgstr "Diapositief"
 
-#: ../backend/plustek.c:912
+#: ../backend/plustek.c:913
 #, no-c-format
 msgid "Device-Settings"
 msgstr "Apparaatinstellingen"
 
-#: ../backend/plustek.c:919
+#: ../backend/plustek.c:920
 #, no-c-format
 msgid "Lampswitch"
 msgstr "Lampschakelaar"
 
-#: ../backend/plustek.c:920
+#: ../backend/plustek.c:921
 #, no-c-format
 msgid "Manually switching the lamp(s)."
 msgstr "Schakel de lamp(en) handmatig aan/uit."
 
-#: ../backend/plustek.c:925
+#: ../backend/plustek.c:926
 #, no-c-format
 msgid "Lamp off during dark calibration"
 msgstr "Lamp uit tijdens donker kalibreren"
 
-#: ../backend/plustek.c:926
+#: ../backend/plustek.c:927
 #, no-c-format
 msgid "Always switches lamp off when doing dark calibration."
 msgstr "Schakel altijd de lamp uit tijdens donker kalibreren."
 
-#: ../backend/plustek.c:934
+#: ../backend/plustek.c:935
 #, no-c-format
 msgid "Calibration data cache"
 msgstr "Kalibratie gegevenscache"
 
-#: ../backend/plustek.c:935
+#: ../backend/plustek.c:936
 #, no-c-format
 msgid "Enables or disables calibration data cache."
 msgstr "Schakelt kalibratiecache in/uit"
 
-#: ../backend/plustek.c:941
+#: ../backend/plustek.c:942
 #, no-c-format
 msgid "Performs calibration"
 msgstr "Voert kalibratie uit"
 
-#: ../backend/plustek.c:958
+#: ../backend/plustek.c:959
 #, no-c-format
 msgid "Speedup sensor"
 msgstr "Snellere sensor beweging"
 
-#: ../backend/plustek.c:959
+#: ../backend/plustek.c:960
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
 msgstr "Schakelt snellere sensor beweging in/uit"
 
-#: ../backend/plustek.c:973
+#: ../backend/plustek.c:974
 #, no-c-format
 msgid "Warmup-time"
 msgstr "Opwarmtijd"
 
-#: ../backend/plustek.c:974
+#: ../backend/plustek.c:975
 #, no-c-format
 msgid "Warmup-time in seconds."
 msgstr "Opwarmtijd in seconden."
 
-#: ../backend/plustek.c:986
+#: ../backend/plustek.c:987
 #, no-c-format
 msgid "Lampoff-time"
 msgstr "Lamp uit tijd"
 
-#: ../backend/plustek.c:987
+#: ../backend/plustek.c:988
 #, no-c-format
 msgid "Lampoff-time in seconds."
 msgstr "Lamp uit tijd in seconden."
 
-#: ../backend/plustek.c:994
+#: ../backend/plustek.c:995
 #, no-c-format
 msgid "Analog frontend"
 msgstr "Analoge \"frontend\""
 
-#: ../backend/plustek.c:1001
+#: ../backend/plustek.c:1002
 #, no-c-format
 msgid "Red gain value of the AFE"
 msgstr "Roodbereik waarde van de AFE"
 
-#: ../backend/plustek.c:1008 ../backend/umax_pp.c:792
+#: ../backend/plustek.c:1009 ../backend/umax_pp.c:792
 #, no-c-format
 msgid "Red offset"
 msgstr "Roodoffset"
 
-#: ../backend/plustek.c:1009
+#: ../backend/plustek.c:1010
 #, no-c-format
 msgid "Red offset value of the AFE"
 msgstr "Roodoffset waarde van de AFE"
 
-#: ../backend/plustek.c:1017
+#: ../backend/plustek.c:1018
 #, no-c-format
 msgid "Green gain value of the AFE"
 msgstr "Groenbereik waarde van de AFE"
 
-#: ../backend/plustek.c:1024 ../backend/umax_pp.c:804
+#: ../backend/plustek.c:1025 ../backend/umax_pp.c:804
 #, no-c-format
 msgid "Green offset"
 msgstr "Groenoffset"
 
-#: ../backend/plustek.c:1025
+#: ../backend/plustek.c:1026
 #, no-c-format
 msgid "Green offset value of the AFE"
 msgstr "Groenoffset waarde van de AFE"
 
-#: ../backend/plustek.c:1033
+#: ../backend/plustek.c:1034
 #, no-c-format
 msgid "Blue gain value of the AFE"
 msgstr "Blauwbereik waarde van de AFE"
 
-#: ../backend/plustek.c:1040 ../backend/umax_pp.c:816
+#: ../backend/plustek.c:1041 ../backend/umax_pp.c:816
 #, no-c-format
 msgid "Blue offset"
 msgstr "Blauwoffset"
 
-#: ../backend/plustek.c:1041
+#: ../backend/plustek.c:1042
 #, no-c-format
 msgid "Blue offset value of the AFE"
 msgstr "Blauwoffset waarde van de AFE"
 
-#: ../backend/plustek.c:1048
+#: ../backend/plustek.c:1049
 #, no-c-format
 msgid "Red lamp off"
 msgstr "Rode lamp uit"
 
-#: ../backend/plustek.c:1049
+#: ../backend/plustek.c:1050
 #, no-c-format
 msgid "Defines red lamp off parameter"
 msgstr "Bepaalt de rode lamp uit parameter"
 
-#: ../backend/plustek.c:1056
+#: ../backend/plustek.c:1057
 #, no-c-format
 msgid "Green lamp off"
 msgstr "Groene lamp uit"
 
-#: ../backend/plustek.c:1057
+#: ../backend/plustek.c:1058
 #, no-c-format
 msgid "Defines green lamp off parameter"
 msgstr "Bepaalt de groene lamp uit parameter"
 
-#: ../backend/plustek.c:1064
+#: ../backend/plustek.c:1065
 #, no-c-format
 msgid "Blue lamp off"
 msgstr "Blauwe lamp uit"
 
-#: ../backend/plustek.c:1065
+#: ../backend/plustek.c:1066
 #, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr "Bepaalt de blauwe lamp uit parameter"
 
-#: ../backend/plustek.c:1095
+#: ../backend/plustek.c:1096
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
 msgstr "Deze optie geeft de status weer van de sannerknoppen."
@@ -4674,8 +4726,7 @@ msgstr ""
 
 #: ../backend/pnm.c:283
 #, no-c-format
-msgid ""
-"Set default values for enhancement controls (brightness & contrast)."
+msgid "Set default values for enhancement controls (brightness & contrast)."
 msgstr ""
 "Stelt de kleurverbeteringsinstellingen (helderheid en contrast) in op "
 "standaardwaarden."
@@ -5112,8 +5163,7 @@ msgstr "Grootte van de leesbegrenzing"
 
 #: ../backend/test.c:499
 #, no-c-format
-msgid ""
-"The (maximum) amount of data transferred with each call to sane_read()."
+msgid "The (maximum) amount of data transferred with each call to sane_read()."
 msgstr ""
 "De (maximale) hoeveelheid gegevens die bij iedere aanroep van sane_read"
 "() wordt overgedragen."
@@ -5452,8 +5502,7 @@ msgstr "(3/3) Vaste beperkte woordenlijst"
 #: ../backend/test.c:993
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
-msgstr ""
-"(3/3) Vaste-testoptie zonder eenheid en met een beperkte woordenlijst."
+msgstr "(3/3) Vaste-testoptie zonder eenheid en met een beperkte woordenlijst."
 
 #: ../backend/test.c:1008
 #, no-c-format

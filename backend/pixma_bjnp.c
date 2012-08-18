@@ -734,9 +734,21 @@ static int create_broadcast_socket( const struct sockaddr * local_addr, int loca
 
 static int 
 prepare_socket(const char *if_name, const struct sockaddr *local_sa, 
-               const struct sockaddr *broadcast_sa)
+               const struct sockaddr *broadcast_sa, struct sockaddr_storage * dest_sa)
 {
+  /*
+   * Prepare a socket for broadcast or multicast
+   * Input:
+   * if_name: the name of the interface
+   * local_sa: local address to use
+   * broadcast_sa: broadcast address to use, if NULL we use all hosts
+   * dest_sa: (write) where to return destination address of broadcast
+   * retuns: open socket or -1
+   */
+
   int socket = -1;
+  struct sockaddr_in *dest_sa_4 = (struct sockaddr_in *) dest_sa;
+
   if ( local_sa == NULL )
     {
       PDBG (pixma_dbg (LOG_DEBUG, 
@@ -749,11 +761,9 @@ prepare_socket(const char *if_name, const struct sockaddr *local_sa,
       case AF_INET:
         {
           const struct sockaddr_in * broadcast_sa_4 = (const struct sockaddr_in *) broadcast_sa;
-          if ( (broadcast_sa_4 == NULL) ||
-               (broadcast_sa_4 -> sin_addr.s_addr == 
-                                                    htonl (INADDR_LOOPBACK) ) )
+          if (broadcast_sa_4 -> sin_addr.s_addr == htonl (INADDR_LOOPBACK) ) 
             {
-              /* not a valid IPv4 address */
+              /* not a valid interface */
 
               PDBG (pixma_dbg (LOG_DEBUG, 
                                "%s is not a valid IPv4 interface, skipping...\n",
@@ -762,6 +772,16 @@ prepare_socket(const char *if_name, const struct sockaddr *local_sa,
             }
           else
             {
+             if (broadcast_sa_4 == NULL) 
+               {
+                 dest_sa_4 -> sin_family = AF_INET;
+           	 dest_sa_4 -> sin_port = htons(BJNP_PORT_SCAN);
+                 dest_sa_4 -> sin_addr.s_addr = htonl(INADDR_ALLHOSTS_GROUP);
+               }
+             else
+               {
+                 memcpy(dest_sa_4, broadcast_sa_4, sizeof(struct sockaddr_in));
+               }
              socket = create_broadcast_socket( local_sa, BJNP_PORT_SCAN);
               if (socket != -1) 
                 {
@@ -789,7 +809,7 @@ prepare_socket(const char *if_name, const struct sockaddr *local_sa,
 }
 
 static int
-bjnp_send_broadcast (int sockfd, struct in_addr broadcast_addr, 
+bjnp_send_broadcast (int sockfd, struct sockaddr_storage * broadcast_addr, 
                      struct BJNP_command cmd, int size)
 {
   struct sockaddr_in sendaddr;
@@ -798,10 +818,8 @@ bjnp_send_broadcast (int sockfd, struct in_addr broadcast_addr,
   /* set address to send packet to */
   /* usebroadcast address of interface */
 
-  sendaddr.sin_family = AF_INET;
+  memcpy(&sendaddr, broadcast_addr, sizeof(struct sockaddr_in) );   
   sendaddr.sin_port = htons (BJNP_PORT_SCAN);
-  sendaddr.sin_addr = broadcast_addr;
-  memset (sendaddr.sin_zero, '\0', sizeof sendaddr.sin_zero);
 
   /* TODO: IPv6 compat */
   if ((num_bytes = sendto (sockfd, &cmd, size, 0,
@@ -1510,7 +1528,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
   char uri[256];
   int dev_no;
   /* char serial[13]; */
-  struct in_addr broadcast_addr[BJNP_SOCK_MAX];
+  struct sockaddr_storage broadcast_addr[BJNP_SOCK_MAX];
   struct sockaddr_storage scanner_sa; 
   socklen_t socklen;
 #ifdef HAVE_IFADDRS_H
@@ -1559,11 +1577,12 @@ sanei_bjnp_find_devices (const char **conf_devices,
   while ((no_sockets < BJNP_SOCK_MAX) && (interface != NULL))
     {
       if ( ! (interface -> ifa_flags & IFF_POINTOPOINT) &&  
-          ( (socket_fd[no_sockets] = prepare_socket( interface -> ifa_name, 
-             interface -> ifa_addr, interface -> ifa_broadaddr) ) != -1 ))
+          ( (socket_fd[no_sockets] = 
+                    prepare_socket( interface -> ifa_name, 
+                                    interface -> ifa_addr, 
+                                    interface -> ifa_broadaddr,
+                                    &broadcast_addr[no_sockets] ) ) != -1 ) )
         {
-          broadcast_addr[no_sockets] = ((struct sockaddr_in *)
-                                        interface->ifa_broadaddr)->sin_addr;
           /* track highest used socket for later use in select */
           if (socket_fd[no_sockets] > last_socketfd)
             {
@@ -1600,7 +1619,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
     {
       for ( i=0; i < no_sockets; i++)
         {
-          bjnp_send_broadcast ( socket_fd[i], broadcast_addr[i], cmd, sizeof (cmd));
+          bjnp_send_broadcast ( socket_fd[i], &broadcast_addr[i], cmd, sizeof (cmd));
 	}
       /* wait for some time between broadcast packets */
       usleep (BJNP_BROADCAST_INTERVAL * USLEEP_MS);
@@ -1627,7 +1646,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
                              (struct sockaddr *) &scanner_sa, &socklen ) ) == -1)
 		{
 		  PDBG (pixma_dbg
-			(LOG_INFO, "bjnp_send_broadcasts: no data received"));
+			(LOG_INFO, "find_devices: no data received"));
 		  break;
 		}
 	      else

@@ -1,3 +1,6 @@
+2012-08-18 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* po/nl.po: Updated Dutch translation from Martin Kho.
+
 2012-08-17 Chris Bagwell <chris at cnpbagwell dot com>
 	* backend/kvs40xx*: Fix scan() symbol name that
 	was still conflicting the epjistu and snapscan backends.

@@ -684,11 +684,12 @@ get_scanner_name(const struct sockaddr *scanner_sa, char *host)
     }
 }
 
-static int create_broadcast_socket( struct in_addr local_addr, int local_port )
+static int create_broadcast_socket( const struct sockaddr * local_addr, int local_port )
 {
-  struct sockaddr_in sendaddr;
-  int sockfd;
+  struct sockaddr_in local_addr_4;
+  int sockfd = -1;
   int broadcast = 1;
+
 
  if ((sockfd = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
@@ -714,14 +715,12 @@ static int create_broadcast_socket( struct in_addr local_addr, int local_port )
 
   /* Bind to local address, use BJNP port */
 
-  sendaddr.sin_family = AF_INET;
-  sendaddr.sin_port = htons (local_port);
-  sendaddr.sin_addr = local_addr;
-  memset (sendaddr.sin_zero, '\0', sizeof sendaddr.sin_zero);
+  memcpy( &local_addr_4, local_addr, sizeof(struct sockaddr_in) );
+  local_addr_4.sin_port = htons (local_port);
 
   if (bind
-      (sockfd, (struct sockaddr *) &sendaddr,
-       (socklen_t) sizeof (sendaddr)) != 0)
+      (sockfd, (struct sockaddr *) &local_addr_4,
+       (socklen_t) sizeof (struct sockaddr_in)) != 0)
     {
       PDBG (pixma_dbg
             (LOG_CRIT,
@@ -733,6 +732,61 @@ static int create_broadcast_socket( struct in_addr local_addr, int local_port )
   return sockfd;
 }
 
+static int 
+prepare_socket(const char *if_name, const struct sockaddr *local_sa, 
+               const struct sockaddr *broadcast_sa)
+{
+  int socket = -1;
+  if ( local_sa == NULL )
+    {
+      PDBG (pixma_dbg (LOG_DEBUG, 
+                       "%s is not a valid IPv4 interface, skipping...\n",
+                       if_name));
+      return -1;
+    }
+  switch( local_sa -> sa_family )
+    {
+      case AF_INET:
+        {
+          const struct sockaddr_in * broadcast_sa_4 = (const struct sockaddr_in *) broadcast_sa;
+          if ( (broadcast_sa_4 == NULL) ||
+               (broadcast_sa_4 -> sin_addr.s_addr == 
+                                                    htonl (INADDR_LOOPBACK) ) )
+            {
+              /* not a valid IPv4 address */
+
+              PDBG (pixma_dbg (LOG_DEBUG, 
+                               "%s is not a valid IPv4 interface, skipping...\n",
+	                       if_name));
+              return -1;
+            }
+          else
+            {
+             socket = create_broadcast_socket( local_sa, BJNP_PORT_SCAN);
+              if (socket != -1) 
+                {
+                  PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, sending broadcast, socket = %d\n",
+                         if_name, socket));
+                }
+              else
+                {
+                   PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, but failed to create a socket.\n",
+                         if_name));
+                   return -1;
+                }
+            }
+        }
+        break;
+
+      case AF_INET6:
+        socket = -1;
+        break;
+
+      default:
+        socket = -1;
+    }
+  return socket;
+}
 
 static int
 bjnp_send_broadcast (int sockfd, struct in_addr broadcast_addr, 
@@ -755,8 +809,8 @@ bjnp_send_broadcast (int sockfd, struct in_addr broadcast_addr,
 			  sizeof (sendaddr))) != size)
     {
       PDBG (pixma_dbg (LOG_INFO,
-		       "bjnp_send_broadcast: Sent only %x = %d bytes of packet, error = %s\n",
-		       num_bytes, num_bytes, strerror (errno)));
+		       "bjnp_send_broadcast: Socket: %d: sent only %x = %d bytes of packet, error = %s\n",
+		       sockfd, num_bytes, num_bytes, strerror (errno)));
       /* not allowed, skip this interface */
 
       close (sockfd);
@@ -1489,8 +1543,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
 	 "Added all configured scanners, now do auto detection...\n"));
 
   /*
-   * Send UDP broadcast to discover scanners and return the list of scanners found
-   * Returns: number of scanners found
+   * Send UDP DISCOVER to discover scanners and return the list of scanners found
    */
 
   FD_ZERO (&fdset);
@@ -1500,53 +1553,32 @@ sanei_bjnp_find_devices (const char **conf_devices,
   no_sockets = 0;
   getifaddrs (&interfaces);
 
-  /* create a socket for each ipv4 interface */
+  /* create a socket for each suitable interface */
+
   interface = interfaces;
   while ((no_sockets < BJNP_SOCK_MAX) && (interface != NULL))
     {
-      if ((interface->ifa_addr == NULL)
-          || (interface->ifa_broadaddr == NULL)
-          || (interface->ifa_addr->sa_family != AF_INET)
-          || (((struct sockaddr_in *) interface->ifa_addr)->sin_addr.s_addr == 
-                                                    htonl (INADDR_LOOPBACK)))
+      if ( ! (interface -> ifa_flags & IFF_POINTOPOINT) &&  
+          ( (socket_fd[no_sockets] = prepare_socket( interface -> ifa_name, 
+             interface -> ifa_addr, interface -> ifa_broadaddr) ) != -1 ))
         {
-          /* not a valid IPv4 address */
-
-          PDBG (pixma_dbg (LOG_DEBUG, 
-                           "%s is not a valid IPv4 interface, skipping...\n",
-	     interface->ifa_name));
-        }
-      else
-        {
-         socket_fd[no_sockets] = create_broadcast_socket( 
-                  ( (struct sockaddr_in *) interface->ifa_addr)->sin_addr,
-                    BJNP_PORT_SCAN);
-          if (socket_fd[no_sockets] != -1) 
+          broadcast_addr[no_sockets] = ((struct sockaddr_in *)
+                                        interface->ifa_broadaddr)->sin_addr;
+          /* track highest used socket for later use in select */
+          if (socket_fd[no_sockets] > last_socketfd)
             {
-              PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, sending broadcast..\n",
-                     interface->ifa_name));
-             broadcast_addr[no_sockets] = ((struct sockaddr_in *)
-                                         interface->ifa_broadaddr)->sin_addr;
-             /* track highest used socket for later use in select */
-             if (socket_fd[no_sockets] > last_socketfd)
-                    {
-                      last_socketfd = socket_fd[no_sockets];
-                    }
-             FD_SET (socket_fd[no_sockets], &fdset);
-             no_sockets++;
+              last_socketfd = socket_fd[no_sockets];
             }
-          else
-            {
-               PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, but failed to create a socket.\n",
-                     interface->ifa_name));
-            }
+          FD_SET (socket_fd[no_sockets], &fdset);
+          no_sockets++;
         }
       interface = interface->ifa_next;
     }  
   freeifaddrs (interfaces);
 
 #else
-  /* we have no easy way to find interfaces with their broadcast addresses, use global broadcast */
+  /* we have no easy way to find interfaces with their broadcast addresses. */
+  /* use global broadcast and all-hosts instead */
 
   local.s_addr = htonl (INADDR_ANY);
   broadcast_addr[0].s_addr = htonl (INADDR_BROADCAST);

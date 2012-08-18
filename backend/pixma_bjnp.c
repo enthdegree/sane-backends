@@ -104,6 +104,37 @@ static int bjnp_no_devices = 0;
  * Private functions
  */
 
+static int sa_is_equal( const struct sockaddr * sa1, const struct sockaddr * sa2)
+{
+  if ((sa1 == NULL) || (sa2 == NULL) )
+    return 0;
+
+  if (sa1->sa_family == sa2-> sa_family)
+    {
+      if( sa1 -> sa_family == AF_INET)
+        {
+          const struct sockaddr_in *sa1_4 = (const struct sockaddr_in *) sa1;
+          const struct sockaddr_in *sa2_4 = (const struct sockaddr_in *) sa2;
+          if ( (sa1_4->sin_port == sa2_4->sin_port) &&
+               (sa1_4->sin_addr.s_addr == sa2_4->sin_addr.s_addr))
+            {
+            return 1;
+            }
+        } 
+      else if (sa1 -> sa_family == AF_INET6 )
+        {
+          const struct sockaddr_in6 *sa1_6 = ( const struct sockaddr_in6 *) sa1;
+          const struct sockaddr_in6 *sa2_6 = ( const struct sockaddr_in6 *) sa2;
+          if ( (sa1_6->sin6_port == sa2_6->sin6_port) &&
+              (memcmp(&(sa1_6->sin6_addr), &(sa2_6->sin6_addr), sizeof(sa1_6->sin6_addr)) == 0))
+            {
+              return 1;
+            }
+        } 
+    }
+    return 0; 
+}
+
 static int
 parse_IEEE1284_to_model (char *scanner_id, char *model)
 {
@@ -205,7 +236,6 @@ static int
 bjnp_open_tcp (int devno)
 {
   int sock;
-  int socklen;
   int val;
   int domain;
 
@@ -242,9 +272,8 @@ bjnp_open_tcp (int devno)
 
   fcntl (sock, F_SETFD, FD_CLOEXEC); 
 
-  socklen = (device[devno].addr -> sa_family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof( struct sockaddr_in6);
   if (connect
-      (sock, device[devno].addr, socklen) != 0)
+      (sock, device[devno].addr, sizeof(struct sockaddr_storage )) != 0)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "bjnp_open_tcp: Can not connect to scanner: %s\n",
@@ -410,7 +439,6 @@ bjnp_setup_udp_socket ( const int dev_no )
    */
 
   int sockfd;
-  int socklen;
   char addr_string[256];
   int port;
 
@@ -444,9 +472,8 @@ bjnp_setup_udp_socket ( const int dev_no )
       return -1;
     }
 
-  socklen = (device[dev_no].addr -> sa_family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
   if (connect
-      (sockfd, device[dev_no].addr, socklen )!= 0)
+      (sockfd, device[dev_no].addr, sizeof(struct sockaddr_storage) )!= 0)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "setup_udp_socket: connect failed- %s\n",
@@ -579,84 +606,60 @@ get_scanner_id (const int dev_no, char *model)
 }
 
 static void
-u8tohex (uint8_t x, char *str)
-{
-  static const char hdigit[16] =
-    { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
-      'e', 'f' };
-  str[0] = hdigit[(x >> 4) & 0xf];
-  str[1] = hdigit[x & 0xf];
-  str[2] = '\0';
-}
-
-
-static void
-parse_scanner_address (char *resp_buf, char *address, char *serial)
+get_scanner_name(const struct sockaddr *scanner_sa, char *host)
 {
   /*
    * Parse identify command responses to ip-address
    * and hostname
    */
 
-  struct in_addr ip_addr;
-  struct hostent *myhost;
-  struct addrinfo hints;
   struct addrinfo *results;
   struct addrinfo *result;
-  struct sockaddr_in *res_address;
-  char ip_address[16];
-  int i, j;
-  uint8_t byte;
+  const struct sockaddr_in * scanner_sa4;
+  const struct sockaddr_in6 * scanner_sa6;
+  char tmp_addr[INET6_ADDRSTRLEN];
+  char ip_address[INET6_ADDRSTRLEN + 2];
+  int error;
   int match = 0;
+  char service[64];
 
-  struct DISCOVER_RESPONSE *init_resp;
-
-  init_resp = (struct DISCOVER_RESPONSE *) resp_buf;
-  sprintf (ip_address, "%u.%u.%u.%u",
-           init_resp->ip_addr[0],
-           init_resp->ip_addr[1],
-           init_resp->ip_addr[2], init_resp->ip_addr[3]);
-
-  PDBG (pixma_dbg (LOG_INFO, "Found scanner at ip address: %s\n", ip_address));
+  switch (scanner_sa -> sa_family)
+    {
+      case AF_INET:
+        scanner_sa4 = (const struct sockaddr_in *) scanner_sa;
+        inet_ntop( AF_INET, &(scanner_sa4 -> sin_addr), ip_address, sizeof(ip_address ) );
+        sprintf(service, "%d", ntohs( scanner_sa4 -> sin_port ));
+        break;
+      default: 
+        scanner_sa6 = (const struct sockaddr_in6 *) scanner_sa;
+        inet_ntop( AF_INET6, &(scanner_sa6 -> sin6_addr), tmp_addr, sizeof(tmp_addr) );
+        sprintf(ip_address, "[%s]", tmp_addr);
+        sprintf(service, "%d", ntohs( scanner_sa6 -> sin6_port)) ;
+    }        
 
   /* do reverse name lookup, if hostname can not be found return ip-address */
 
-  /* TODO: use ipv6 compatible function or start using recvfrom?*/
-  inet_aton (ip_address, &ip_addr);
-  myhost = gethostbyaddr ((void *) &ip_addr, sizeof (ip_addr), AF_INET);
-
-  if ((myhost == NULL) || (myhost->h_name == NULL))
-    strcpy (address, ip_address);
-  else 
+  if( (error = getnameinfo( scanner_sa, sizeof(struct sockaddr_storage), 
+                  host, BJNP_HOST_MAX , NULL, 0, 0) ) != 0 )
+    {
+      PDBG (pixma_dbg(LOG_INFO, "Reverse lookup failed: %s\n", gai_strerror(error) ) );
+    }
+  else
     {
       /* some buggy routers return rubbish if reverse lookup fails, so 
        * we do a forward lookup on the received name to see if it matches */
 
-      /* TODO: get rid of hints or use protocol family? */
-      hints.ai_family = AF_INET;
-      hints.ai_socktype = 0;
-      hints.ai_protocol = 0;
-      hints.ai_flags = 0;
-      hints.ai_addrlen = 0;
-      hints.ai_addr = NULL;
-      hints.ai_canonname = NULL;
-      hints.ai_next = NULL;
-
-      if (getaddrinfo( myhost-> h_name, NULL, &hints, &results) == 0) 
+      if (getaddrinfo(host , service, NULL, &results) == 0) 
         {
-
           result = results;
 
           while (result != NULL) 
             {
-              res_address = (struct sockaddr_in *)result-> ai_addr;
-
-               if((result-> ai_family == AF_INET) && (res_address->sin_addr.s_addr == ip_addr.s_addr)) 
+               if(sa_is_equal( scanner_sa, result-> ai_addr))
                  {
-
                      /* found match, good */
                      PDBG (pixma_dbg (LOG_INFO, 
-                              "Forward lookup for %s succeeded, using as hostname\n", myhost-> h_name));
+                              "Forward lookup for %s succeeded, using as hostname\n", host));
                     match = 1;
                     break;
                  }
@@ -664,37 +667,21 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
             }
           freeaddrinfo(results);
 
-          if (match == 1) 
-            {
-              strcpy (address, myhost-> h_name );
-            } 
-          else 
+          if (match != 1) 
             {
               PDBG (pixma_dbg (LOG_INFO, 
-                 "Reseverse lookup for %s succeeded, IP-address however not found, using IP-address instead", 
-                 myhost-> h_name));
-              strcpy (address, ip_address);
+                 "Reseverse lookup for %s succeeded, IP-address however not found, using IP-address %s instead\n", 
+                 host, ip_address));
+              strcpy (host, ip_address);
             }
          } 
        else 
          {
            /* lookup failed, use ip-address */
-           PDBG( pixma_dbg (LOG_INFO, "reverse lookup of %s failed, using IP-address", myhost-> h_name));
-           strcpy (address, ip_address);
+           PDBG ( pixma_dbg (LOG_INFO, "reverse lookup of %s failed, using IP-address", ip_address));
+           strcpy (host, ip_address);
          }
     }
-
-  /* construct serial, first 3 bytes contain vendor ID, skip them */
-
-  j = 0;
-  for (i = 3; i < 6; i++)
-    {
-      byte = init_resp->mac_addr[i];
-      u8tohex (byte, (serial + j));
-      j = j + 2;
-    }
-  serial[j] = '\0';
-
 }
 
 static int create_broadcast_socket( struct in_addr local_addr, int local_port )
@@ -1274,7 +1261,6 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
       PDBG (pixma_dbg (LOG_CRIT, "Cannot resolve host: %s\n", host));
       return SANE_STATUS_INVAL;
     }
-  PDBG(pixma_dbg( LOG_INFO, "Have now %s - %s - %d\n", host, port, bjnp_no_devices ) );
 
   /* Check if a device number is already allocated to any of the scanner's addresses */
 
@@ -1288,6 +1274,7 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
             {
               if( cur -> ai_family == AF_INET)
                 {
+                  /* TODO: can we use memcmp? Or dow we have issues with zero field */
                   struct sockaddr_in *dev_addr4 = (struct sockaddr_in *) dev_addr;
                   struct sockaddr_in *res_addr4 = (struct sockaddr_in *) cur->ai_addr;
                   if ( (dev_addr4->sin_port == res_addr4->sin_port) &&
@@ -1346,8 +1333,8 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
 #endif
   device[*dn].tcp_socket = -1;
 
-  /* this should fit both a struct sockaddr_in and a sockaddr_in6 */
-  device[*dn].addr = (struct sockaddr *) malloc(sizeof ( struct sockaddr_in6) );
+  /* both a struct sockaddr_in and a sockaddr_in6 fir in sovkaddr_storage */
+  device[*dn].addr = (struct sockaddr *) malloc(sizeof ( struct sockaddr_storage) );
   
   memcpy(device[*dn].addr, res-> ai_addr, sizeof(struct sockaddr_in6) );
   
@@ -1372,6 +1359,54 @@ bjnp_allocate_device (SANE_String_Const devname, SANE_Int * dn,
     }
   return BJNP_STATUS_GOOD;
 }
+
+static void add_scanner(SANE_Int *dev_no, 
+                        const char *uri, 
+			SANE_Status (*attach_bjnp)
+			              (SANE_String_Const devname,
+			               SANE_String_Const makemodel,
+			               SANE_String_Const serial,
+			               const struct pixma_config_t *
+			               const pixma_devices[]),
+			 const struct pixma_config_t *const pixma_devices[])
+
+{
+  char scanner_host[BJNP_HOST_MAX];
+  char short_host[SHORT_HOSTNAME_MAX];
+  char makemodel[BJNP_IEEE1284_MAX];
+
+  /* Allocate device structure for scanner and read its model */
+  switch (bjnp_allocate_device (uri, dev_no, scanner_host))
+    {
+      case BJNP_STATUS_GOOD:
+        if (get_scanner_id (*dev_no, makemodel) != 0)
+          {
+            PDBG (pixma_dbg (LOG_CRIT, "Cannot read scanner make & model: %s\n", 
+                             uri));
+          }
+        else
+          {
+          /*
+           * inform caller of found scanner
+           */
+
+           truncate_hostname (scanner_host, short_host);
+           attach_bjnp (uri, makemodel,
+                        short_host, pixma_devices);
+          }
+        break;
+      case BJNP_STATUS_ALREADY_ALLOCATED:
+        PDBG (pixma_dbg (LOG_NOTICE, "Scanner at %s was added before, good!\n",
+	                 uri));
+        break;
+
+      case BJNP_STATUS_INVAL:
+        PDBG (pixma_dbg (LOG_NOTICE, "Scanner at %s can not be added\n",
+	                 uri));
+        break;
+    }
+}
+
 
 /*
  * Public functions
@@ -1417,15 +1452,15 @@ sanei_bjnp_find_devices (const char **conf_devices,
   fd_set fdset;
   fd_set active_fdset;
   struct timeval timeout;
-  char hostname[256];
-  char short_hostname[SHORT_HOSTNAME_MAX];
-  char makemodel[BJNP_IEEE1284_MAX];
+  char scanner_host[256]; 
   char uri[256];
   int dev_no;
-  char serial[13];
+  /* char serial[13]; */
   struct in_addr broadcast_addr[BJNP_SOCK_MAX];
+  struct sockaddr_storage scanner_sa; 
+  socklen_t socklen;
 #ifdef HAVE_IFADDRS_H
-  struct ifaddrs *interfaces;
+  struct ifaddrs *interfaces = NULL;
   struct ifaddrs *interface;
 #else
   struct in_addr local;
@@ -1447,42 +1482,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
     {
       PDBG (pixma_dbg
 	    (LOG_DEBUG, "Adding scanner from pixma.conf: %s\n", conf_devices[i]));
-
-      /* Allocate device structure for scanner and read its model */
-      switch (bjnp_allocate_device (conf_devices[i], &dev_no, hostname))
-	{
-	case BJNP_STATUS_GOOD:
-	  if (get_scanner_id (dev_no, makemodel) != 0)
-	    {
-	      PDBG (pixma_dbg
-		    (LOG_CRIT,
-		     "Cannot read scanner make & model: %s\n", uri));
-	    }
-	  else
-	    {
-	      /*
-	       * inform caller of found scanner
-	       */
-
-	      truncate_hostname (hostname, short_hostname);
-	      attach_bjnp (conf_devices[i], makemodel,
-			   short_hostname, pixma_devices);
-	    }
-	  break;
-	case BJNP_STATUS_ALREADY_ALLOCATED:
-	  PDBG (pixma_dbg
-		(LOG_NOTICE,
-		 "Scanner at %s defined in configuration file, but it was added before, good!\n",
-		 uri));
-	  break;
-
-	case BJNP_STATUS_INVAL:
-	  PDBG (pixma_dbg
-		(LOG_NOTICE,
-		 "Scanner at %s defined in configuration file, but can not add it\n",
-		 uri));
-	  break;
-	}
+      add_scanner(&dev_no, conf_devices[i], attach_bjnp, pixma_devices);
     }
   PDBG (pixma_dbg
 	(LOG_DEBUG,
@@ -1519,7 +1519,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
       else
         {
          socket_fd[no_sockets] = create_broadcast_socket( 
-                   ((struct sockaddr_in *) interface->ifa_addr)->sin_addr,
+                  ( (struct sockaddr_in *) interface->ifa_addr)->sin_addr,
                     BJNP_PORT_SCAN);
           if (socket_fd[no_sockets] != -1) 
             {
@@ -1551,11 +1551,16 @@ sanei_bjnp_find_devices (const char **conf_devices,
   local.s_addr = htonl (INADDR_ANY);
   broadcast_addr[0].s_addr = htonl (INADDR_BROADCAST);
   socket_fd[0] = create_broadcast_socket( local, BJNP_PORT_SCAN);
-
-  no_sockets = 1;
-  last_socketfd = socket_fd[0];
-
   FD_SET (socket_fd[0], &fdset);
+
+  /* we can also try all hosts: 224.0.0.1 */
+  broadcast_addr[1].s_addr = htonl (INADDR_ALLHOSTS_GROUP);
+  socket_fd[1] = create_broadcast_socket( local, BJNP_PORT_SCAN);
+  FD_SET (socket_fd[1], &fdset);
+
+  no_sockets = 2;
+  last_socketfd = `socket_fd[0] > socket_fd(1) ? socket_fd(0) : socket_fd(1);
+
 #endif
 
   /* send MAX_SELECT_ATTEMPTS broadcasts on each socket */
@@ -1584,8 +1589,10 @@ sanei_bjnp_find_devices (const char **conf_devices,
 	{
 	  if (FD_ISSET (socket_fd[i], &active_fdset))
 	    {
+              socklen =  sizeof(scanner_sa);
 	      if ((numbytes =
-		   recv (socket_fd[i], resp_buf, sizeof (resp_buf), 0)) == -1)
+		   recvfrom (socket_fd[i], resp_buf, sizeof (resp_buf), 0, 
+                             (struct sockaddr *) &scanner_sa, &socklen ) ) == -1)
 		{
 		  PDBG (pixma_dbg
 			(LOG_INFO, "bjnp_send_broadcasts: no data received"));
@@ -1596,7 +1603,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
 		  PDBG (pixma_dbg (LOG_DEBUG2, "Discover response:\n"));
 		  PDBG (pixma_hexdump (LOG_DEBUG2, &resp_buf, numbytes));
 
-		  /* check if ip-address of scanner is returned */
+		  /* check if something sensible is returned */
 		  if ((numbytes != sizeof (struct DISCOVER_RESPONSE))
 		      || (strncmp ("BJNP", resp_buf, 4) != 0))
 		    {
@@ -1606,50 +1613,14 @@ sanei_bjnp_find_devices (const char **conf_devices,
 		};
 
 	      /* scanner found, get IP-address and hostname */
-	      parse_scanner_address (resp_buf, hostname, serial);
+              get_scanner_name( (struct sockaddr *) &scanner_sa, scanner_host);
 
 	      /* construct URI */
-	      sprintf (uri, "%s://%s:%d", BJNP_METHOD, hostname,
+	      sprintf (uri, "%s://%s:%d", BJNP_METHOD, scanner_host,
 		       BJNP_PORT_SCAN);
 
-	      /* Test scanner connection by attaching it and reading its IEEE1284 id */
+              add_scanner( &dev_no, uri, attach_bjnp, pixma_devices); 
 
-	      switch (bjnp_allocate_device (uri, &dev_no, NULL))
-		{
-		case BJNP_STATUS_GOOD:
-		  if (get_scanner_id (dev_no, makemodel) != 0)
-		    {
-		      PDBG (pixma_dbg
-			    (LOG_CRIT,
-			     "Scanner not added: Cannot read scanner make & model: %s\n",
-			     uri));
-		    }
-		  else
-		    {
-		      /*
-		       * inform caller of found scanner
-		       */
-
-		      truncate_hostname (hostname, short_hostname);
-		      attach_bjnp (uri, makemodel, short_hostname,
-				   pixma_devices);
-		    }
-		  break;
-
-		case BJNP_STATUS_INVAL:
-		  PDBG (pixma_dbg
-			(LOG_CRIT,
-			 "Found scanner at %s, but can not open it\n", uri));
-		  break;
-
-		case BJNP_STATUS_ALREADY_ALLOCATED:
-		  /* already allocated before, no action required  */
-		  PDBG (pixma_dbg
-			(LOG_NOTICE,
-			 "Scanner at %s detected, but it was added before, good!\n",
-			 uri));
-		  break;
-		}
 	    }
 	}
       active_fdset = fdset;

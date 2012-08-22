@@ -66,10 +66,11 @@
 #define BJNP_HOST_MAX 128       /* max length of hostname or address */
 #define BJNP_PORT_MAX 64	/* max length of port string */
 #define BJNP_ARGS_MAX 128	/* max length of argument string */
+#define BJNP_SERIAL_MAX 16	/* maximum length of serial number */
 #define BJNP_NO_DEVICES 16	/* max number of open devices */
 #define BJNP_BROADCAST_INTERVAL 10 /* ms between broadcasts */
 #define SCAN_BUF_MAX 65536	/* size of scanner data intermediate buffer */
-#define MAX_SELECT_ATTEMPTS 5   /* max nr of retries on select (EINTR) */
+#define MAX_SELECT_ATTEMPTS 3   /* max nr of retries on select (EINTR) */
 #define USLEEP_MS 1000          /* sleep for 1 msec */
 #define BJNP_TIMEOUT_UDP 2	/* standard UDP timeout */
 #define BJNP_TIMEOUT_TCP 4	/* standard TCP timeout */
@@ -139,6 +140,7 @@ struct  __attribute__ ((__packed__)) BJNP_command
 {
   char BJNP_id[4];		/* string: BJNP */
   uint8_t dev_type;		/* 1 = printer, 2 = scanner */
+                                /* responses have MSB set */
   uint8_t cmd_code;		/* command code/response code */
   int16_t unknown1;		/* unknown, always 0? */
   int16_t seq_no;		/* sequence number */
@@ -151,9 +153,19 @@ struct  __attribute__ ((__packed__)) BJNP_command
 struct  __attribute__ ((__packed__)) DISCOVER_RESPONSE
 {
   struct BJNP_command response;	/* reponse header */
-  char unknown1[6];		/* 00 01 08 00 06 04 */
-  char mac_addr[6];		/* printers mac address */
-  unsigned char ip_addr[4];	/* printers IP-address */
+  char unknown1[4];		/* 00 01 08 00 */
+  char mac_len;			/* length of mac address */
+  char addr_len;		/* length od address field */
+  unsigned char mac_addr[6];	/* printers mac address */
+  union  {
+    struct __attribute__ ((__packed__)) {
+       unsigned char ipv4_addr[4];
+     } ipv4;
+     struct  __attribute__ ((__packed__)) {
+       unsigned char ipv6_addr_1[16];	
+       unsigned char ipv6_addr_2[16];
+     } ipv6;
+  } addresses;
 };
 
 /* layout of payload for the JOB_DETAILS command */
@@ -175,7 +187,7 @@ struct  __attribute__ ((__packed__)) POLL_DETAILS
   uint16_t type;                /* 0, 1, 2 or 5 */
                                 /* 05 = reset status */
   union {
-    struct {
+    struct  __attribute__ ((__packed__)) {
 	char empty0[78];	/* type 0 has only 0 */
       } type0;			/* length = 80 */
 
@@ -284,6 +296,7 @@ typedef struct device_s
   int last_cmd;			/* last command sent */
   size_t blocksize;		/* size of (TCP) blocks returned by the scanner */
   char short_read;		/* last TCP read command was shorter than blocksize */
+  char mac_address[6];		/* mac-address, used as device serial no */
 #ifdef PIXMA_BJNP_USE_STATUS
   char polling_status;		/* status polling ongoing */
   uint32_t dialog;		/* poll dialog */

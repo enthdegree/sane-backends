@@ -55,27 +55,34 @@
  *  BJNP definitions 
  */
 
-#define BJNP_PRINTBUF_MAX 1400	/* size of printbuffer */
-#define BJNP_CMD_MAX 2048	/* size of BJNP response buffer */
-#define BJNP_RESP_MAX 2048	/* size of BJNP response buffer */
-#define BJNP_SOCK_MAX 256	/* maximum number of open sockets */
-#define BJNP_MODEL_MAX 64	/* max allowed size for make&model */
-#define BJNP_STATUS_MAX 256	/* max size for status string */
-#define BJNP_IEEE1284_MAX 1024	/* max. allowed size of IEEE1284 id */
-#define BJNP_METHOD_MAX 16	/* max length of method */
-#define BJNP_HOST_MAX 128       /* max length of hostname or address */
-#define BJNP_PORT_MAX 64	/* max length of port string */
-#define BJNP_ARGS_MAX 128	/* max length of argument string */
-#define BJNP_SERIAL_MAX 16	/* maximum length of serial number */
-#define BJNP_NO_DEVICES 16	/* max number of open devices */
-#define BJNP_BROADCAST_INTERVAL 10 /* ms between broadcasts */
-#define SCAN_BUF_MAX 65536	/* size of scanner data intermediate buffer */
-#define MAX_SELECT_ATTEMPTS 3   /* max nr of retries on select (EINTR) */
-#define USLEEP_MS 1000          /* sleep for 1 msec */
-#define BJNP_TIMEOUT_UDP 2	/* standard UDP timeout */
-#define BJNP_TIMEOUT_TCP 4	/* standard TCP timeout */
+/* sizes */
 
-#define BJNP_RESTART_POLL -1	/* lost poll dialog, restart dialog */
+#define BJNP_PRINTBUF_MAX 1400		/* size of printbuffer */
+#define BJNP_CMD_MAX 2048		/* size of BJNP response buffer */
+#define BJNP_RESP_MAX 2048		/* size of BJNP response buffer */
+#define BJNP_SOCK_MAX 256		/* maximum number of open sockets */
+#define BJNP_MODEL_MAX 64		/* max allowed size for make&model */
+#define BJNP_STATUS_MAX 256		/* max size for status string */
+#define BJNP_IEEE1284_MAX 1024		/* max. allowed size of IEEE1284 id */
+#define BJNP_METHOD_MAX 16		/* max length of method */
+#define BJNP_HOST_MAX 128       	/* max length of hostname or address */
+#define BJNP_PORT_MAX 64		/* max length of port string */
+#define BJNP_ARGS_MAX 128		/* max length of argument string */
+#define BJNP_SERIAL_MAX 16		/* maximum length of serial number */
+#define BJNP_NO_DEVICES 16		/* max number of open devices */
+
+/* timers */
+#define BJNP_BROADCAST_INTERVAL 10 	/* ms between broadcasts */
+#define BJNP_BC_RESPONSE_TIMEOUT 500  	/* waiting time for broadc. responses */
+#define BJNP_SCAN_BUF_MAX 65536		/* size of scanner data intermediate buffer */
+#define USLEEP_MS 1000          	/* sleep for 1 msec */
+#define BJNP_TIMEOUT_UDP 2		/* standard UDP timeout */
+#define BJNP_TIMEOUT_TCP 4		/* standard TCP timeout */
+
+#define BJNP_MAX_SELECT_ATTEMPTS 3   	/* max nr of retries on select (EINTR) */
+#define BJNP_MAX_BROADCAST_ATTEMPTS 2	/* number of broadcast packets to be sent */
+#define BJNP_UDP_RETRY_MAX 3		/* max nt of retries on a udp command */
+#define BJNP_RESTART_POLL -1		/* lost poll dialog, restart dialog */
 
 /* This works now, disable when it gives you problems */
 #define PIXMA_BJNP_USE_STATUS 1

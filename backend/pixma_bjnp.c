@@ -529,8 +529,7 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
   struct BJNP_command *resp = (struct BJNP_command *) response;
   struct BJNP_command *cmd = (struct BJNP_command *) command;
  
-	/* TODO: add symbol constant */ 
-  for (try = 0; try < 3; try++)
+  for (try = 0; try < BJNP_UDP_RETRY_MAX; try++)
     {
       if ((numbytes = send (sockfd, command, cmd_len, 0)) != cmd_len)
 	{
@@ -553,7 +552,7 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
 	}
       while (((result =
 	       select (sockfd + 1, &fdset, NULL, NULL, &timeout)) <= 0)
-	     && (errno == EINTR) && (attempt++ < MAX_SELECT_ATTEMPTS) 
+	     && (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS) 
              && resp-> seq_no != cmd->seq_no);
 
       if (result <= 0)
@@ -800,6 +799,7 @@ prepare_socket(const char *if_name, const struct sockaddr *local_sa,
 
   int socket = -1;
   struct sockaddr_storage local_sa_s;
+  memset( &local_sa_s, 0, sizeof(local_sa_s) );
 
   if ( local_sa == NULL )
     {
@@ -849,7 +849,6 @@ prepare_socket(const char *if_name, const struct sockaddr *local_sa,
 #ifdef ENABLE_IPV6
       case AF_INET6:
         {
-          /* TODO: initialize all sockaddr_in6 to 0!! */
           struct sockaddr_in6 *dest_sa_6 = (struct sockaddr_in6 *) dest_sa;
           struct sockaddr_in6 *local_sa_6 = (struct sockaddr_in6 *) &local_sa_s;
 
@@ -968,8 +967,8 @@ bjnp_poll_scanner (int devno, char type,char *hostname, char *user, SANE_Byte *s
   int user_host_len;
 
   poll = (struct POLL_DETAILS *) (cmd_buf);
-  memset(poll, 0, sizeof( struct POLL_DETAILS));
-  memset(resp_buf, 0, sizeof( resp_buf) );
+  memset( &poll, 0, sizeof( struct POLL_DETAILS));
+  memset( &resp_buf, 0, sizeof( resp_buf) );
 
 
   /* create payload */
@@ -1244,7 +1243,7 @@ bjnp_recv_header (int devno)
       timeout.tv_usec = 0;
     }
   while (((result = select (fd + 1, &input, NULL, NULL, &timeout)) == -1) &&
-	 (errno == EINTR) && (attempt++ < MAX_SELECT_ATTEMPTS));
+	 (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS));
 
   if (result < 0)
     {
@@ -1347,7 +1346,7 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t * len)
       timeout.tv_usec = 0;
     }
   while (((result = select (fd + 1, &input, NULL, NULL, &timeout)) == -1) &&
-	 (errno == EINTR) && (attempt++ < MAX_SELECT_ATTEMPTS));
+	 (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS));
 
   if (result < 0)
     {
@@ -1506,8 +1505,8 @@ bjnp_allocate_device (SANE_String_Const devname,  const char *mac_address_string
 
   /* both a struct sockaddr_in and a sockaddr_in6 fit in sockaddr_storage */
   device[*dn].addr = (struct sockaddr *) malloc(sizeof ( struct sockaddr_storage) );
-  
-  memcpy(device[*dn].addr, res-> ai_addr, sizeof(struct sockaddr_in6) );
+  memset( device[*dn].addr, 0, sizeof( struct sockaddr ) );  
+  memcpy(device[*dn].addr, res-> ai_addr, sizeof(struct sockaddr_storage) );
   
   device[*dn].session_id = 0;
   device[*dn].serial = -1;
@@ -1642,6 +1641,8 @@ sanei_bjnp_find_devices (const char **conf_devices,
   socklen_t socklen;
   char mac_address_string[BJNP_SERIAL_MAX];
 
+  memset( broadcast_addr, 0, sizeof( broadcast_addr) );
+  memset( &scanner_sa, 0 ,sizeof( scanner_sa ) );
   PDBG (pixma_dbg (LOG_INFO, "sanei_bjnp_find_devices:\n"));
   bjnp_no_devices = 0;
 
@@ -1709,9 +1710,11 @@ sanei_bjnp_find_devices (const char **conf_devices,
     struct sockaddr_storage local;
     struct sockaddr_in * local_4 = (struct sockaddr_in *) &local;
     struct sockaddr_in bc_addr_4;
+
 #ifdef ENABLE_IPV6
     struct sockaddr_in6 * local_6 = (struct sockaddr_in6 *) &local;
 #endif
+    memset( &local, 0, sizeof( local) );
     local_4 -> sin_family = AF_INET;
     local_4 -> sin_addr.s_addr = htonl (INADDR_ANY);
 
@@ -1753,8 +1756,8 @@ sanei_bjnp_find_devices (const char **conf_devices,
   }
 #endif
 
-  /* send MAX_SELECT_ATTEMPTS broadcasts on each prepared socket */
-  for (attempt = 0; attempt < MAX_SELECT_ATTEMPTS; attempt++)
+  /* send BJNP_MAX_BROADCAST_ATTEMPTS broadcasts on each prepared socket */
+  for (attempt = 0; attempt < BJNP_MAX_BROADCAST_ATTEMPTS; attempt++)
     {
       for ( i=0; i < no_sockets; i++)
         {
@@ -1767,7 +1770,8 @@ sanei_bjnp_find_devices (const char **conf_devices,
   /* wait for a UDP response */
 
   timeout.tv_sec = 0;
-  timeout.tv_usec = 500 * USLEEP_MS;
+  timeout.tv_usec = BJNP_BC_RESPONSE_TIMEOUT * USLEEP_MS;
+
 
   active_fdset = fdset;
 
@@ -1811,11 +1815,9 @@ sanei_bjnp_find_devices (const char **conf_devices,
                     {
                       /* not a response, a command from somebody else or */
                       /* a discover command that we generated */
-printf("discarded command\n");
                       break;
                     }
 		};
-printf("Received response\n");
 
 	      /* scanner found, get IP-address and hostname */
               u8tohex( mac_address_string, disc_resp -> mac_addr, sizeof(disc_resp -> mac_addr) );
@@ -1831,7 +1833,7 @@ printf("Received response\n");
 	}
       active_fdset = fdset;
       timeout.tv_sec = 0;
-      timeout.tv_usec = 500 * USLEEP_MS;
+      timeout.tv_usec = BJNP_BC_RESPONSE_TIMEOUT * USLEEP_MS;
     }
   PDBG (pixma_dbg (LOG_DEBUG, "scanner discovery finished...\n"));
 

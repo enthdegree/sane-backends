@@ -97,7 +97,7 @@
 
 
 /* static data */
-static device_t device[BJNP_NO_DEVICES];
+static bjnp_device_t device[BJNP_NO_DEVICES];
 static int bjnp_no_devices = 0;
 
 /*
@@ -122,30 +122,26 @@ u8tohex (char *string, uint8_t *value, int len )
   string[2 * len ] = '\0';
 }
 
-static int sa_is_equal( const struct sockaddr * sa1, const struct sockaddr * sa2)
+static int sa_is_equal( const bjnp_sockaddr_t * sa1, const bjnp_sockaddr_t * sa2)
 {
   if ((sa1 == NULL) || (sa2 == NULL) )
     return 0;
 
-  if (sa1->sa_family == sa2-> sa_family)
+  if (sa1->sa.sa_family == sa2-> sa.sa_family)
     {
-      if( sa1 -> sa_family == AF_INET)
+      if( sa1 -> sa.sa_family == AF_INET)
         {
-          const struct sockaddr_in *sa1_4 = (const struct sockaddr_in *) sa1;
-          const struct sockaddr_in *sa2_4 = (const struct sockaddr_in *) sa2;
-          if ( (sa1_4->sin_port == sa2_4->sin_port) &&
-               (sa1_4->sin_addr.s_addr == sa2_4->sin_addr.s_addr))
+          if ( (sa1->ipv4.sin_port == sa2->ipv4.sin_port) &&
+               (sa1->ipv4.sin_addr.s_addr == sa2->ipv4.sin_addr.s_addr))
             {
             return 1;
             }
         } 
 #ifdef ENABLE_IPV6
-      else if (sa1 -> sa_family == AF_INET6 )
+      else if (sa1 -> sa.sa_family == AF_INET6 )
         {
-          const struct sockaddr_in6 *sa1_6 = ( const struct sockaddr_in6 *) sa1;
-          const struct sockaddr_in6 *sa2_6 = ( const struct sockaddr_in6 *) sa2;
-          if ( (sa1_6->sin6_port == sa2_6->sin6_port) &&
-              (memcmp(&(sa1_6->sin6_addr), &(sa2_6->sin6_addr), sizeof(sa1_6->sin6_addr)) == 0))
+          if ( (sa1-> ipv6.sin6_port == sa2->ipv6.sin6_port) &&
+              (memcmp(&(sa1->ipv6.sin6_addr), &(sa2->ipv6.sin6_addr), sizeof(struct in6_addr)) == 0))
             {
               return 1;
             }
@@ -153,6 +149,23 @@ static int sa_is_equal( const struct sockaddr * sa1, const struct sockaddr * sa2
 #endif
     }
     return 0; 
+}
+
+static int 
+sa_size( const bjnp_sockaddr_t *sa)
+{
+  switch (sa -> sa.sa_family)
+    {
+      case AF_INET: 
+        return (sizeof(struct sockaddr_in) );
+      case AF_INET6:
+        return (sizeof(struct sockaddr_in6) );
+      default:
+        /* should not occur */
+        return sizeof( bjnp_sockaddr_t );
+    }
+
+   
 }
 
 static int
@@ -265,7 +278,7 @@ bjnp_open_tcp (int devno)
   int val;
   int domain;
 
-  domain = device[devno].addr -> sa_family;
+  domain = device[devno].addr -> sa.sa_family;
 
   if ((sock = socket (domain, SOCK_STREAM, 0)) < 0)
     {
@@ -299,7 +312,7 @@ bjnp_open_tcp (int devno)
   fcntl (sock, F_SETFD, FD_CLOEXEC); 
 
   if (connect
-      (sock, device[devno].addr, sizeof(struct sockaddr_storage )) != 0)
+      (sock, &(device[devno].addr->in), sa_size(device[devno].addr) )!= 0)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "bjnp_open_tcp: Can not connect to scanner: %s\n",
@@ -468,19 +481,17 @@ bjnp_setup_udp_socket ( const int dev_no )
   char addr_string[256];
   int port;
 
-  struct sockaddr * addr = device[dev_no].addr;
-  if ( addr->sa_family == AF_INET)
+  bjnp_sockaddr_t * addr = device[dev_no].addr;
+  if ( addr->sa.sa_family == AF_INET)
     {
-      struct sockaddr_in *addr_ipv4 = (struct sockaddr_in *) addr;
-      inet_ntop( AF_INET, &(addr_ipv4 -> sin_addr.s_addr), addr_string, 256);
-      port = ntohs (addr_ipv4->sin_port);
+      inet_ntop( AF_INET, &(addr -> ipv4.sin_addr.s_addr), addr_string, 256);
+      port = ntohs (addr->ipv4.sin_port);
     }
 #ifdef ENABLE_IPV6
-  else if (addr->sa_family == AF_INET6)
+  else if (addr->sa.sa_family == AF_INET6)
     {
-      struct sockaddr_in6 *addr_ipv6 = (struct sockaddr_in6 *) addr;
-      inet_ntop( AF_INET6, &(addr_ipv6->sin6_addr), addr_string, 256);
-      port = ntohs (addr_ipv6->sin6_port);
+      inet_ntop( AF_INET6, &(addr->ipv6.sin6_addr), addr_string, 256);
+      port = ntohs (addr->ipv6.sin6_port);
     }
 #endif
   else 
@@ -492,7 +503,7 @@ bjnp_setup_udp_socket ( const int dev_no )
   PDBG (pixma_dbg (LOG_DEBUG, "setup_udp_socket: Setting up the UDP socket to: %s  port %d\n",
 		   addr_string, port ) );
 
-  if ((sockfd = socket (addr->sa_family, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+  if ((sockfd = socket (addr->sa.sa_family, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "setup_udp_socket: can not open socket - %s\n",
@@ -501,7 +512,7 @@ bjnp_setup_udp_socket ( const int dev_no )
     }
 
   if (connect
-      (sockfd, device[dev_no].addr, sizeof(struct sockaddr_storage) )!= 0)
+      (sockfd, &(device[dev_no].addr->sa), sa_size(device[dev_no].addr) )!= 0)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "setup_udp_socket: connect failed- %s\n",
@@ -634,7 +645,7 @@ get_scanner_id (const int dev_no, char *model)
 }
 
 static void
-get_scanner_name(const struct sockaddr *scanner_sa, char *host)
+get_scanner_name(const bjnp_sockaddr_t *scanner_sa, char *host)
 {
   /*
    * Parse identify command responses to ip-address
@@ -643,9 +654,7 @@ get_scanner_name(const struct sockaddr *scanner_sa, char *host)
 
   struct addrinfo *results;
   struct addrinfo *result;
-  const struct sockaddr_in * scanner_sa4;
 #ifdef ENABLE_IPV6
-  const struct sockaddr_in6 * scanner_sa6;
   char tmp_addr[INET6_ADDRSTRLEN + 1];
   char ip_address[INET6_ADDRSTRLEN + 3];
 #else
@@ -655,22 +664,20 @@ get_scanner_name(const struct sockaddr *scanner_sa, char *host)
   int match = 0;
   char service[64];
 
-  switch (scanner_sa -> sa_family)
+  switch (scanner_sa -> sa.sa_family)
     {
       case AF_INET:
-        scanner_sa4 = (const struct sockaddr_in *) scanner_sa;
-        inet_ntop( AF_INET, &(scanner_sa4 -> sin_addr.s_addr), ip_address, sizeof(ip_address ) );
-        sprintf(service, "%d", ntohs( scanner_sa4 -> sin_port ));
+        inet_ntop( AF_INET, &(scanner_sa -> ipv4.sin_addr.s_addr), ip_address, sizeof(ip_address ) );
+        sprintf(service, "%d", ntohs( scanner_sa -> ipv4.sin_port ));
         break;
 #ifdef ENABLE_IPV6
       case AF_INET6: 
-        scanner_sa6 = (const struct sockaddr_in6 *) scanner_sa;
-        inet_ntop( AF_INET6, scanner_sa6 -> sin6_addr.s6_addr, tmp_addr, sizeof(tmp_addr) );
-        if (IN6_IS_ADDR_LINKLOCAL(scanner_sa6 -> sin6_addr.s6_addr) )
-          sprintf(ip_address, "[%s%%%d]", tmp_addr, scanner_sa6 -> sin6_scope_id);
+        inet_ntop( AF_INET6, scanner_sa -> ipv6.sin6_addr.s6_addr, tmp_addr, sizeof(tmp_addr) );
+        if (IN6_IS_ADDR_LINKLOCAL(scanner_sa -> ipv6.sin6_addr.s6_addr) )
+          sprintf(ip_address, "[%s%%%d]", tmp_addr, scanner_sa -> ipv6.sin6_scope_id);
         else  
           sprintf(ip_address, "[%s]", tmp_addr);
-        sprintf(service, "%d", ntohs( scanner_sa6 -> sin6_port)) ;
+        sprintf(service, "%d", ntohs( scanner_sa -> ipv6.sin6_port)) ;
         break;
 #endif
       default:
@@ -680,7 +687,7 @@ get_scanner_name(const struct sockaddr *scanner_sa, char *host)
 
   /* do reverse name lookup, if hostname can not be found return ip-address */
 
-  if( (error = getnameinfo( scanner_sa, sizeof(struct sockaddr_storage), 
+  if( (error = getnameinfo( &(scanner_sa -> sa) , sa_size( scanner_sa), 
                   host, BJNP_HOST_MAX , NULL, 0, NI_NAMEREQD) ) != 0 )
     {
       PDBG (pixma_dbg(LOG_INFO, "Using IP-address as reverse lookup failed: %s\n", gai_strerror(error) ) );
@@ -690,7 +697,7 @@ get_scanner_name(const struct sockaddr *scanner_sa, char *host)
   else
     {
       /* some buggy routers return rubbish if reverse lookup fails, so 
-       * we do a forward lookup on the received name to see if it matches */
+       * we do a forward lookup on the received name to see if the result matches */
 
       if (getaddrinfo(host , service, NULL, &results) == 0) 
         {
@@ -698,7 +705,7 @@ get_scanner_name(const struct sockaddr *scanner_sa, char *host)
 
           while (result != NULL) 
             {
-               if(sa_is_equal( scanner_sa, result-> ai_addr))
+               if(sa_is_equal( scanner_sa, (bjnp_sockaddr_t *)result-> ai_addr))
                  {
                      /* found match, good */
                      PDBG (pixma_dbg (LOG_INFO, 
@@ -713,7 +720,7 @@ get_scanner_name(const struct sockaddr *scanner_sa, char *host)
           if (match != 1) 
             {
               PDBG (pixma_dbg (LOG_INFO, 
-                 "Forward lookup for %s succeeded, IP-address however not found, using IP-address %s instead\n", 
+                 "Forward lookup for %s succeeded, IP-address does not match, using IP-address %s instead\n", 
                  host, ip_address));
               strcpy (host, ip_address);
             }
@@ -727,14 +734,14 @@ get_scanner_name(const struct sockaddr *scanner_sa, char *host)
     }
 }
 
-static int create_broadcast_socket( const struct sockaddr * local_addr )
+static int create_broadcast_socket( const bjnp_sockaddr_t * local_addr )
 {
   int sockfd = -1;
   int broadcast = 1;
   int ipv6_v6only = 1;
 
 
- if ((sockfd = socket (local_addr-> sa_family, SOCK_DGRAM, 0)) == -1)
+ if ((sockfd = socket (local_addr-> sa.sa_family, SOCK_DGRAM, 0)) == -1)
     {
       PDBG (pixma_dbg
             (LOG_CRIT, "create_broadcast_socket: can not open socket - %s",
@@ -757,7 +764,7 @@ static int create_broadcast_socket( const struct sockaddr * local_addr )
     };
 
   /* For an IPv6 socket, bind to v6 only so a V6 socket can co-exist with a v4 socket */
-  if ( (local_addr -> sa_family == AF_INET6) && ( setsockopt
+  if ( (local_addr -> sa.sa_family == AF_INET6) && ( setsockopt
       (sockfd, IPPROTO_IPV6, IPV6_V6ONLY, (const char *) &ipv6_v6only,
        sizeof (ipv6_v6only)) != 0) )
     {
@@ -770,8 +777,8 @@ static int create_broadcast_socket( const struct sockaddr * local_addr )
     };
 
   if (bind
-      (sockfd, local_addr,
-       (socklen_t) sizeof (struct sockaddr_storage)) != 0)
+      (sockfd, &(local_addr->in),
+       (socklen_t) sa_size( local_addr)) != 0)
     {
       PDBG (pixma_dbg
             (LOG_CRIT,
@@ -784,8 +791,8 @@ static int create_broadcast_socket( const struct sockaddr * local_addr )
 }
 
 static int 
-prepare_socket(const char *if_name, const struct sockaddr *local_sa, 
-               const struct sockaddr *broadcast_sa, struct sockaddr_storage * dest_sa)
+prepare_socket(const char *if_name, const bjnp_sockaddr_t *local_sa, 
+               const bjnp_sockaddr_t *broadcast_sa, bjnp_sockaddr_t * dest_sa)
 {
   /*
    * Prepare a socket for broadcast or multicast
@@ -798,8 +805,7 @@ prepare_socket(const char *if_name, const struct sockaddr *local_sa,
    */
 
   int socket = -1;
-  struct sockaddr_storage local_sa_s;
-  memset( &local_sa_s, 0, sizeof(local_sa_s) );
+  bjnp_sockaddr_t local_sa_copy;
 
   if ( local_sa == NULL )
     {
@@ -808,18 +814,17 @@ prepare_socket(const char *if_name, const struct sockaddr *local_sa,
                        if_name));
       return -1;
     }
-  switch( local_sa -> sa_family )
+
+  memset( &local_sa_copy, 0, sizeof(local_sa_copy) );
+  memcpy( &local_sa_copy, local_sa, sa_size(local_sa) );
+
+  switch( local_sa_copy.sa.sa_family )
     {
       case AF_INET:
         {
-          const struct sockaddr_in * broadcast_sa_4 = (const struct sockaddr_in *) broadcast_sa;
-          struct sockaddr_in *dest_sa_4 = (struct sockaddr_in *) dest_sa;
+          local_sa_copy.ipv4.sin_port = htons(BJNP_PORT_SCAN);
 
-          struct sockaddr_in *local_sa_4 = (struct sockaddr_in *) &local_sa_s;
-          memcpy(local_sa_4, local_sa, sizeof(struct sockaddr_in) );
-          local_sa_4-> sin_port = htons(BJNP_PORT_SCAN);
-
-          if (local_sa_4 -> sin_addr.s_addr == htonl (INADDR_LOOPBACK) )
+          if (local_sa_copy.ipv4.sin_addr.s_addr == htonl (INADDR_LOOPBACK) )
             {
               /* not a valid interface */
 
@@ -828,34 +833,31 @@ prepare_socket(const char *if_name, const struct sockaddr *local_sa,
 	                       if_name));
               return -1;
             }
+
+
+          /* send broadcasts to the broadcast address of the interface */
+
+          memcpy(dest_sa, broadcast_sa, sa_size(dest_sa) );
+          dest_sa -> ipv4.sin_port = htons(BJNP_PORT_SCAN);
+          if ( (socket = create_broadcast_socket( &local_sa_copy) ) != -1) 
+            {
+               PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, sending broadcast, socket = %d\n",
+                      if_name, socket));
+            }
           else
             {
-              memcpy(dest_sa_4, broadcast_sa_4, sizeof(struct sockaddr_in));
-              dest_sa_4 -> sin_port = htons(BJNP_PORT_SCAN);
-              if ( (socket = create_broadcast_socket( (struct sockaddr *)local_sa_4) ) != -1) 
-                {
-                   PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, sending broadcast, socket = %d\n",
-                          if_name, socket));
-                }
-              else
-                {
-                  PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, but failed to create a socket.\n",
-                        if_name));
-                  return -1;
-                }
+              PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, but failed to create a socket.\n",
+                    if_name));
+              return -1;
             }
         }
         break;
 #ifdef ENABLE_IPV6
       case AF_INET6:
         {
-          struct sockaddr_in6 *dest_sa_6 = (struct sockaddr_in6 *) dest_sa;
-          struct sockaddr_in6 *local_sa_6 = (struct sockaddr_in6 *) &local_sa_s;
+          local_sa_copy.ipv6.sin6_port = htons(BJNP_PORT_SCAN);
 
-          memcpy(local_sa_6, local_sa, sizeof(struct sockaddr_in6) );
-          local_sa_6-> sin6_port = htons(BJNP_PORT_SCAN);
-
-          if (IN6_IS_ADDR_LOOPBACK( local_sa_6 -> sin6_addr.s6_addr )  ) 
+          if (IN6_IS_ADDR_LOOPBACK( local_sa_copy.ipv6.sin6_addr.s6_addr )  ) 
             {
               /* not a valid interface */
 
@@ -866,10 +868,10 @@ prepare_socket(const char *if_name, const struct sockaddr *local_sa,
             }
           else
             {
-              dest_sa_6 -> sin6_family = AF_INET6;
-              dest_sa_6 -> sin6_port = htons(BJNP_PORT_SCAN);
-              inet_pton(AF_INET6, "ff02::1", dest_sa_6 -> sin6_addr.s6_addr);
-              if ( (socket = create_broadcast_socket( (struct sockaddr *) local_sa_6) ) != -1) 
+              dest_sa -> ipv6.sin6_family = AF_INET6;
+              dest_sa -> ipv6.sin6_port = htons(BJNP_PORT_SCAN);
+              inet_pton(AF_INET6, "ff02::1", dest_sa -> ipv6.sin6_addr.s6_addr);
+              if ( (socket = create_broadcast_socket( &local_sa_copy ) ) != -1) 
                 {
                    PDBG (pixma_dbg (LOG_INFO, "%s is IPv6 capable, sending broadcast, socket = %d\n",
                           if_name, socket));
@@ -892,7 +894,7 @@ prepare_socket(const char *if_name, const struct sockaddr *local_sa,
 }
 
 static int
-bjnp_send_broadcast (int sockfd, struct sockaddr_storage * broadcast_addr, 
+bjnp_send_broadcast (int sockfd, const bjnp_sockaddr_t * broadcast_addr, 
                      struct BJNP_command cmd, int size)
 {
   int num_bytes;
@@ -901,8 +903,8 @@ bjnp_send_broadcast (int sockfd, struct sockaddr_storage * broadcast_addr,
   /* usebroadcast address of interface */
 
   if ((num_bytes = sendto (sockfd, &cmd, size, 0,
-			  (struct sockaddr *) broadcast_addr,
-			  sizeof ( struct sockaddr_storage ) ) ) != size)
+			  &(broadcast_addr->in),
+			  sa_size( broadcast_addr)) ) != size)
     {
       PDBG (pixma_dbg (LOG_INFO,
 		       "bjnp_send_broadcast: Socket: %d: sent only %x = %d bytes of packet, error = %s\n",
@@ -1461,7 +1463,7 @@ bjnp_allocate_device (SANE_String_Const devname,  const char *mac_address_string
           /* we check for matching addresses as wel as matching mac_addresses as */
           /* an IPv6 host can have multiple adresses */
 
-          if ( (sa_is_equal( device[i].addr, cur -> ai_addr) ) ||
+          if ( (sa_is_equal( device[i].addr, (bjnp_sockaddr_t *)cur -> ai_addr) ) ||
                ( strcmp( device[i].mac_address, mac_address_string ) == 0 ) )
             {
               freeaddrinfo(res); 
@@ -1503,10 +1505,9 @@ bjnp_allocate_device (SANE_String_Const devname,  const char *mac_address_string
 #endif
   device[*dn].tcp_socket = -1;
 
-  /* both a struct sockaddr_in and a sockaddr_in6 fit in sockaddr_storage */
-  device[*dn].addr = (struct sockaddr *) malloc(sizeof ( struct sockaddr_storage) );
-  memset( device[*dn].addr, 0, sizeof( struct sockaddr ) );  
-  memcpy(device[*dn].addr, res-> ai_addr, sizeof(struct sockaddr_storage) );
+  device[*dn].addr = (bjnp_sockaddr_t *) malloc(sizeof ( bjnp_sockaddr_t) );
+  memset( device[*dn].addr, 0, sizeof( bjnp_sockaddr_t ) );  
+  memcpy(device[*dn].addr, res-> ai_addr, sizeof( bjnp_sockaddr_t ) );
   
   device[*dn].session_id = 0;
   device[*dn].serial = -1;
@@ -1636,8 +1637,8 @@ sanei_bjnp_find_devices (const char **conf_devices,
   char scanner_host[256]; 
   char uri[256];
   int dev_no;
-  struct sockaddr_storage broadcast_addr[BJNP_SOCK_MAX];
-  struct sockaddr_storage scanner_sa; 
+  bjnp_sockaddr_t broadcast_addr[BJNP_SOCK_MAX];
+  bjnp_sockaddr_t scanner_sa; 
   socklen_t socklen;
   char mac_address_string[BJNP_SERIAL_MAX];
 
@@ -1687,8 +1688,8 @@ sanei_bjnp_find_devices (const char **conf_devices,
         if ( ! (interface -> ifa_flags & IFF_POINTOPOINT) &&  
             ( (socket_fd[no_sockets] = 
                       prepare_socket( interface -> ifa_name, 
-                                      interface -> ifa_addr, 
-                                      interface -> ifa_broadaddr,
+                                      (bjnp_sockaddr_t *) interface -> ifa_addr, 
+                                      (bjnp_sockaddr_t *) interface -> ifa_broadaddr,
                                       &broadcast_addr[no_sockets] ) ) != -1 ) )
           {
             /* track highest used socket for later use in select */
@@ -1707,24 +1708,20 @@ sanei_bjnp_find_devices (const char **conf_devices,
   /* we have no easy way to find interfaces with their broadcast addresses. */
   /* use global broadcast and all-hosts instead */
   {
-    struct sockaddr_storage local;
-    struct sockaddr_in * local_4 = (struct sockaddr_in *) &local;
-    struct sockaddr_in bc_addr_4;
+    bjnp_sockaddr_t local;
+    bjnp_sockaddr_t bc_addr;
 
-#ifdef ENABLE_IPV6
-    struct sockaddr_in6 * local_6 = (struct sockaddr_in6 *) &local;
-#endif
     memset( &local, 0, sizeof( local) );
-    local_4 -> sin_family = AF_INET;
-    local_4 -> sin_addr.s_addr = htonl (INADDR_ANY);
+    local -> ipv4.sin_family = AF_INET;
+    local -> ipv4.sin_addr.s_addr = htonl (INADDR_ANY);
 
-    bc_addr_4.sin_family = AF_INET;
-    bc_addr_4.sin_port = htons(BJNP_PORT_SCAN);
-    bc_addr_4.sin_addr.s_addr = htonl (INADDR_BROADCAST);
+    bc_addr.ipv4.sin_family = AF_INET;
+    bc_addr.ipv4.sin_port = htons(BJNP_PORT_SCAN);
+    bc_addr.ipv4.sin_addr.s_addr = htonl (INADDR_BROADCAST);
 
     socket_fd[no_sockets] = prepare_socket( "any_interface", 
-                                   (struct sockaddr *) &local, 
-                                   (struct sockaddr *) &bc_addr_4,  
+                                   &local, 
+                                   &bc_addr,  
                                    &broadcast_addr[no_sockets] ); 
     if (socket_fd[no_sockets] >= 0)
       {
@@ -1736,11 +1733,11 @@ sanei_bjnp_find_devices (const char **conf_devices,
         no_sockets++;
       }
 #ifdef ENABLE_IPV6
-    local_6 -> sin6_family = AF_INET6;
-    local_6 -> sin6_addr = in6addr_any;
+    local -> ipv6.sin6_family = AF_INET6;
+    local -> ipv6.sin6_addr = in6addr_any;
 
     socket_fd[no_sockets] = prepare_socket( "any_interface", 
-                                   (struct sockaddr *) &local, 
+                                   &local, 
                                    NULL,
                                    &broadcast_addr[no_sockets] ); 
     if (socket_fd[no_sockets] >= 0)
@@ -1786,7 +1783,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
               socklen =  sizeof(scanner_sa);
 	      if ((numbytes =
 		   recvfrom (socket_fd[i], resp_buf, sizeof (resp_buf), 0, 
-                             (struct sockaddr *) &scanner_sa, &socklen ) ) == -1)
+                             &(scanner_sa.in), &socklen ) ) == -1)
 		{
 		  PDBG (pixma_dbg
 			(LOG_INFO, "find_devices: no data received"));
@@ -1821,7 +1818,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
 
 	      /* scanner found, get IP-address and hostname */
               u8tohex( mac_address_string, disc_resp -> mac_addr, sizeof(disc_resp -> mac_addr) );
-              get_scanner_name( (struct sockaddr *) &scanner_sa, scanner_host);
+              get_scanner_name( &scanner_sa, scanner_host);
 
 	      /* construct URI */
 	      sprintf (uri, "%s://%s:%d", BJNP_METHOD, scanner_host,

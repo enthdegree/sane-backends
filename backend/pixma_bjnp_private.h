@@ -55,6 +55,10 @@
  *  BJNP definitions 
  */
 
+/* selection of options */
+/* This works now, disable when it gives you problems */
+#define PIXMA_BJNP_USE_STATUS 1 
+
 /* sizes */
 
 #define BJNP_PRINTBUF_MAX 1400		/* size of printbuffer */
@@ -70,22 +74,22 @@
 #define BJNP_ARGS_MAX 128		/* max length of argument string */
 #define BJNP_SERIAL_MAX 16		/* maximum length of serial number */
 #define BJNP_NO_DEVICES 16		/* max number of open devices */
+#define BJNP_SCAN_BUF_MAX 65536		/* size of scanner data intermediate buffer */
 
 /* timers */
 #define BJNP_BROADCAST_INTERVAL 10 	/* ms between broadcasts */
 #define BJNP_BC_RESPONSE_TIMEOUT 500  	/* waiting time for broadc. responses */
-#define BJNP_SCAN_BUF_MAX 65536		/* size of scanner data intermediate buffer */
+#define BJNP_TIMEOUT_UDP 2		/* standard UDP timeout in seconds */
+#define BJNP_TIMEOUT_TCP 4		/* standard TCP timeout in seconds */
 #define USLEEP_MS 1000          	/* sleep for 1 msec */
-#define BJNP_TIMEOUT_UDP 2		/* standard UDP timeout */
-#define BJNP_TIMEOUT_TCP 4		/* standard TCP timeout */
 
+/* retries */
 #define BJNP_MAX_SELECT_ATTEMPTS 3   	/* max nr of retries on select (EINTR) */
 #define BJNP_MAX_BROADCAST_ATTEMPTS 2	/* number of broadcast packets to be sent */
 #define BJNP_UDP_RETRY_MAX 3		/* max nt of retries on a udp command */
-#define BJNP_RESTART_POLL -1		/* lost poll dialog, restart dialog */
 
-/* This works now, disable when it gives you problems */
-#define PIXMA_BJNP_USE_STATUS 1
+/* resturn values */
+#define BJNP_RESTART_POLL -1		/* lost poll dialog, restart dialog */
 
 /* loglevel definitions */
 
@@ -285,6 +289,15 @@ typedef enum
   BJNP_POLL_STATUS_RECEIVED = 2
 } BJNP_polling_status_e;
 
+typedef union
+{
+  struct sockaddr_storage storage;
+  struct sockaddr sa;
+  struct sockaddr_in in;
+  struct sockaddr_in ipv4;
+  struct sockaddr_in6 ipv6;
+} bjnp_sockaddr_t;
+
 /*
  * Device information for opened devices
  */
@@ -295,7 +308,7 @@ typedef struct device_s
   int active;			/* connection is active (has open tcp connection */
   int tcp_socket;		/* open tcp socket for communcation to scannner */
   int udp_socket;		/* open udp socket for communication to scanner */
-  struct sockaddr * addr;	/* ip-address of the scanner */
+  bjnp_sockaddr_t * addr;	/* ip-address of the scanner */
   int session_id;		/* session id used in bjnp protocol for TCP packets */
   int16_t serial;		/* sequence number of command */
   int bjnp_timeout;		/* timeout (msec) for next poll command */
@@ -309,5 +322,5 @@ typedef struct device_s
   uint32_t dialog;		/* poll dialog */
   uint32_t status_key;		/* key of last received status message */
 #endif
-} device_t;
+} bjnp_device_t;
 

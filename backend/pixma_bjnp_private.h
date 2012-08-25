@@ -88,8 +88,6 @@
 #define BJNP_MAX_BROADCAST_ATTEMPTS 2	/* number of broadcast packets to be sent */
 #define BJNP_UDP_RETRY_MAX 3		/* max nt of retries on a udp command */
 
-/* resturn values */
-#define BJNP_RESTART_POLL -1		/* lost poll dialog, restart dialog */
 
 /* loglevel definitions */
 
@@ -99,6 +97,8 @@
 #define LOG_DEBUG 11
 #define LOG_DEBUG2 12
 #define LOG_DEBUG3 13
+
+#define BJNP_RESTART_POLL -1
 
 /*************************************/
 /* BJNP protocol related definitions */
@@ -304,20 +304,33 @@ typedef union
 
 typedef struct device_s
 {
-  int open;			/* connection to printer is opened */
-  int active;			/* connection is active (has open tcp connection */
+  int open;			/* connection to scanner is opened */
+
+  /* sockets */
+
   int tcp_socket;		/* open tcp socket for communcation to scannner */
-  int udp_socket;		/* open udp socket for communication to scanner */
-  bjnp_sockaddr_t * addr;	/* ip-address of the scanner */
-  int session_id;		/* session id used in bjnp protocol for TCP packets */
   int16_t serial;		/* sequence number of command */
-  int bjnp_timeout;		/* timeout (msec) for next poll command */
-  size_t scanner_data_left;	/* TCP data left from last read request */
+
+  /* communication state */
+
+  int session_id;		/* session id used in bjnp protocol for TCP packets */
   int last_cmd;			/* last command sent */
+
+  /* TCP bulk read state information */
+
+  size_t scanner_data_left;	/* TCP data left from last read request */
   size_t blocksize;		/* size of (TCP) blocks returned by the scanner */
   char short_read;		/* last TCP read command was shorter than blocksize */
-  char mac_address[6];		/* mac-address, used as device serial no */
+
+  /* device information */
+  char mac_address[BJNP_HOST_MAX];
+ 		 		/* mac-address, used as device serial no */
+  bjnp_sockaddr_t * addr;	/* ip-address of the scanner */
+  int bjnp_timeout;		/* timeout (msec) for next poll command */
+
 #ifdef PIXMA_BJNP_USE_STATUS
+  /* polling state information */
+
   char polling_status;		/* status polling ongoing */
   uint32_t dialog;		/* poll dialog */
   uint32_t status_key;		/* key of last received status message */

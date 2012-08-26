@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "25 Aug 2012" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "31 Jul 2012" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 .B sane\-pixma 
@@ -35,7 +35,7 @@ PIXMA MP800, MP800R, MP810, MP830
 .br
 PIXMA MP960, MP970, MP980, MP990
 .br
-PIXMA MX300, MX310, MX330, MX340, MX350, MX360, MX370
+PIXMA MX300, MX310, MX330, MX340, MX350, MX360
 .br
 PIXMA MX420, MX700, MX7600
 .br
@@ -71,30 +71,30 @@ in the backend so that they get recognized and activated.
 Feedback in the sane\-devel mailing list welcome.
 .PP
 .RS
-PIXMA E500, E600
-.br
 PIXMA MG2100, MG3100, MG4100, MG5100, MG5200, MG5300 
 .br
 PIXMA MG6100, MG6200, MG8100, MG8200
 .br
 PIXMA MP375R, MP493, MP495, MP740
 .br
-PIXMA MX320, MX410, MX430, MX510, MX710, MX890
+PIXMA MX320, MX410
 .br
 ImageCLASS MF5630, MF5650, MF5730, MF5750, MF8030, MF8170c
 .br
 imageRunner iR1020, iR1024, iR1025
 .RE
 .PP
-\#The following models may use partly the same Pixma protocol as other devices
-\#listed above, but may still need some work. They are declared in the backend 
-\#as experimental. Snoop logs are required to further investigate, please contact 
-\#the sane\-devel mailing list.
-\#.PP
-\#.RS
-\#PIXMA MP---
-\#.RE
-\#.PP
+The following models may use partly the same Pixma protocol as other devices
+listed above, but may still need some work. They are declared in the backend 
+as experimental. Snoop logs are required to further investigate, please contact 
+the sane\-devel mailing list.
+.PP
+.RS
+PIXMA E500, E600
+.br
+PIXMA MX370, MX430, MX510, MX710, MX890
+.RE
+.PP
 The backend supports:
 .PP
 .RS

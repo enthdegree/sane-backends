@@ -326,7 +326,7 @@ if test -c /dev/urandom ; then
     AC_DEFINE(HAVE_DEV_URANDOM, 1, [Is /dev/urandom available?])
 fi
 
-nl added by PN 3/2/12 to detect cups
+dnl added by PN 3/2/12 to detect cups
 $as_echo "checking for cups"
 if test -e /usr/include/cups/cups.h ; then
     AC_DEFINE(HAVE_CUPS, 1, [Is /usr/include/cups/cups.h available?])

@@ -9546,7 +9546,6 @@ $as_echo "#define HAVE_DEV_URANDOM 1" >>confdefs.h
 
 fi
 
-nl added by PN 3/2/12 to detect cups
 $as_echo "checking for cups"
 if test -e /usr/include/cups/cups.h ; then
 

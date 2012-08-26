@@ -460,8 +460,8 @@
 :model "PIXMA MX370 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1759"
-:status :good
-:comment "Flatbed and ADF scan. Resolutions are supported up to 600DPI."
+:status :untested
+:comment "Testers needed!"
 
 :model "PIXMA MX410"
 :interface "USB Ethernet"

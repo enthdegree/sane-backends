@@ -1,3 +1,7 @@
+2012-08-27 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Pixma MG6100 support reported by Yann Bonnamy. Bug #313471.
+
 2012-08-26 m. allan noah <kitno455 at gmail dot com>
 	* ChangeLog*, configure*, Makefile.in, doc/desc/{kodakaio,kvs40xx}.desc:
 	Various updates related to starting 1.0.24git 

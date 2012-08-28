@@ -709,7 +709,8 @@ gl646_setup_registers (Genesys_Device * dev,
 		       uint32_t move,
 		       uint32_t linecnt,
 		       uint16_t startx,
-		       uint16_t endx, SANE_Bool color, SANE_Int depth)
+		       uint16_t endx, SANE_Bool color,
+                       SANE_Int depth)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int i, nb;
@@ -718,9 +719,10 @@ gl646_setup_registers (Genesys_Device * dev,
   Sensor_Settings *settings = NULL;
   Genesys_Register_Set *r;
   unsigned int used1, used2, vfinal;
+  unsigned int bpp;   /**> bytes per pixel */
   uint32_t z1, z2;
   uint16_t ex, sx;
-  int channels = 1, stagger, wpl, max_shift;
+  int channels = 1, stagger, words_per_line, max_shift;
   size_t requested_buffer_size;
   size_t read_buffer_size;
   SANE_Bool half_ccd = SANE_FALSE;
@@ -948,13 +950,20 @@ gl646_setup_registers (Genesys_Device * dev,
     }
 
   /* R04 */
-  if (depth > 8)
+  /* monochrome / color scan */
+  switch (depth)
     {
-      regs[reg_0x04].value |= REG04_BITSET;
-    }
-  else
-    {
+    case 1:
       regs[reg_0x04].value &= ~REG04_BITSET;
+      regs[reg_0x04].value |= REG04_LINEART;
+      break;
+    case 8:
+      regs[reg_0x04].value &= ~(REG04_LINEART | REG04_BITSET);
+      break;
+    case 16:
+      regs[reg_0x04].value &= ~REG04_LINEART;
+      regs[reg_0x04].value |= REG04_BITSET;
+      break;
     }
 
   /* R05 */
@@ -1075,18 +1084,25 @@ gl646_setup_registers (Genesys_Device * dev,
   DBG (DBG_info, "gl646_setup_registers: startx=%d, endx=%d, half_ccd=%d\n",
        sx, ex, half_ccd);
 
-  /* wpl must be computed according to the scan's resolution */
-  /* in fact, wpl _gives_ the actual scan resolution */
-  wpl = (((endx - startx) * sensor->xdpi) / dev->sensor.optical_res);
-  if (depth == 16)
-    wpl *= 2;
-  if (dev->model->is_cis == SANE_FALSE)
-    wpl *= channels;
-  dev->wpl = wpl;
-  dev->bpl = wpl;
+  /* words_per_line must be computed according to the scan's resolution */
+  /* in fact, words_per_line _gives_ the actual scan resolution */
+  words_per_line = (((endx - startx) * sensor->xdpi) / dev->sensor.optical_res);
+  bpp=depth/8;
+  if (depth == 1)
+    {
+      words_per_line = (words_per_line+7)/8 ;
+      bpp=1;
+    }
+  else
+    {
+      words_per_line *= bpp;
+    }
+  dev->bpl = words_per_line;
+  words_per_line *= channels;
+  dev->wpl = words_per_line;
 
-  DBG (DBG_info, "gl646_setup_registers: wpl=%d\n", wpl);
-  gl646_set_triple_reg (regs, REG_MAXWD, wpl);
+  DBG (DBG_info, "gl646_setup_registers: wpl=%d\n", words_per_line);
+  gl646_set_triple_reg (regs, REG_MAXWD, words_per_line);
 
   gl646_set_double_reg (regs, REG_DPISET, sensor->dpiset);
   gl646_set_double_reg (regs, REG_LPERIOD, sensor->exposure);
@@ -1249,15 +1265,15 @@ gl646_setup_registers (Genesys_Device * dev,
    * need the buffer to be short enough not to miss the end of document in the feeder*/
   if (dev->model->is_sheetfed == SANE_FALSE)
     {
-      requested_buffer_size = (GL646_BULKIN_MAXSIZE / wpl) * wpl;
+      requested_buffer_size = (GL646_BULKIN_MAXSIZE / words_per_line) * words_per_line;
       /* TODO seems CIS scanners should be treated differently */
       read_buffer_size =
 	2 * requested_buffer_size +
-	((max_shift + stagger) * scan_settings.pixels * channels * depth) / 8;
+	((max_shift + stagger) * scan_settings.pixels * channels * bpp);
     }
   else
     {
-      requested_buffer_size = 8 * wpl * channels;
+      requested_buffer_size = 8 * words_per_line * channels;
       read_buffer_size = requested_buffer_size;
     }
 
@@ -1273,11 +1289,10 @@ gl646_setup_registers (Genesys_Device * dev,
 
   RIE (sanei_genesys_buffer_free (&(dev->out_buffer)));
   RIE (sanei_genesys_buffer_alloc (&(dev->out_buffer),
-				   (8 * scan_settings.pixels * channels *
-				    depth) / 8));
+				   8 * scan_settings.pixels * channels * bpp));
 
   /* scan bytes to read */
-  dev->read_bytes_left = wpl * linecnt;
+  dev->read_bytes_left = words_per_line * linecnt;
 
   DBG (DBG_info,
        "gl646_setup_registers: physical bytes to read = %lu\n",
@@ -1308,7 +1323,7 @@ gl646_setup_registers (Genesys_Device * dev,
       channels;
   else
     dev->total_bytes_to_read =
-      scan_settings.pixels * scan_settings.lines * channels * (depth / 8);
+      scan_settings.pixels * scan_settings.lines * channels * bpp;
 
   DBG (DBG_proc, "gl646_setup_registers: end\n");
   return SANE_STATUS_GOOD;
@@ -3063,6 +3078,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   status = setup_for_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_TRUE);
 
@@ -3178,6 +3194,7 @@ gl646_search_start_position (Genesys_Device * dev)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   /* scan the desired area */
   status =
@@ -3310,6 +3327,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   settings.disable_interpolation = dev->settings.disable_interpolation;
   settings.threshold = dev->settings.threshold;
   settings.exposure_time = dev->settings.exposure_time;
+  settings.dynamic_lineart = SANE_FALSE;
 
   /* keep account of the movement for final scan move */
   dev->scanhead_position_in_steps += settings.lines;
@@ -3403,6 +3421,7 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool color;
+  SANE_Int depth;
   int channels;
   uint16_t startx = 0, endx, pixels;
   int move = 0;
@@ -3424,6 +3443,20 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
     {
       channels = 1;
       color = SANE_FALSE;
+    }
+ 
+  depth=settings.depth;
+  if (settings.scan_mode == SCAN_MODE_LINEART)
+    {
+      if (settings.dynamic_lineart == SANE_TRUE)
+        {
+          depth = 8;
+        }
+      else
+        {
+          /* XXX STEF XXX : why does the common layer never send depth=1 ? */
+          depth = 1;
+        }
     }
 
   /* compute distance to move */
@@ -3514,7 +3547,8 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
 				  settings.xres,
 				  move,
 				  settings.lines,
-				  startx, endx, color, settings.depth);
+				  startx, endx, color,
+                                  depth);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3744,6 +3778,7 @@ gl646_led_calibration (Genesys_Device * dev)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   /* colors * bytes_per_color * scan lines */
   total_size = settings.pixels * channels * 2 * 1;
@@ -3751,7 +3786,7 @@ gl646_led_calibration (Genesys_Device * dev)
   line = malloc (total_size);
   if (!line)
     {
-      DBG (DBG_error, "gl646_led_calibration: Failed to allocate %d bytes\n",
+      DBG (DBG_error, "gl646_led_calibration: failed to allocate %d bytes\n",
 	   total_size);
       return SANE_STATUS_NO_MEM;
     }
@@ -3946,6 +3981,7 @@ ad_fe_offset_calibration (Genesys_Device * dev)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   /* scan first line of data with no gain */
   dev->frontend.gain[0] = 0;
@@ -4073,6 +4109,7 @@ gl646_offset_calibration (Genesys_Device * dev)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   /* scan first line of data with no gain, but with offset from
    * last calibration */
@@ -4242,6 +4279,7 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   size = channels * settings.pixels * settings.lines;
 
@@ -4371,6 +4409,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   /* start gain value */
   dev->frontend.gain[0] = 1;
@@ -4516,6 +4555,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   /* setup for scan */
   status = setup_for_scan (dev, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
@@ -4584,6 +4624,7 @@ gl646_repark_head (Genesys_Device * dev)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   status = setup_for_scan (dev, settings, SANE_FALSE, SANE_FALSE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
@@ -5240,6 +5281,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   status =
     simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, &data);
@@ -5623,6 +5665,7 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   settings.disable_interpolation = 0;
   settings.threshold = 0;
   settings.exposure_time = 0;
+  settings.dynamic_lineart = SANE_FALSE;
 
   /* signals if a strip of the given color has been found */
   found = 0;

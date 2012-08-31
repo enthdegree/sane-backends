@@ -1,3 +1,7 @@
+2012-09-36 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl646.c backend/genesys.c: enable hardware lineart
+	for Strobe XP200
+
 2012-09-05 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
 	doc/sane-pixma.man: New scanner reported by Eric Schwartz. Bug #313761.

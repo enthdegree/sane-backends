@@ -2071,6 +2071,12 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 	      *size = recvd;
 	      return SANE_STATUS_IO_ERROR;
 	    }
+          if ( device[dn].scanner_data_left == 0 )
+            {
+              PDBG (pixma_dbg(LOG_DEBUG, "Scanner reports no data, retry\n" ) );
+              break;
+            } 
+
 	  PDBG (pixma_dbg
 		(LOG_DEBUG, "Scanner reports 0x%lx = %ld bytes available\n",
 		 (unsigned long) device[dn].scanner_data_left,

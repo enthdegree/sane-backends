@@ -132,7 +132,7 @@ static const struct pixma_config_t *lookup_scanner(const char *makemodel,
                   return cfg;
                 }
             }
-          pixma_dbg (13, "Name %s(%s) does not match %s\n", cfg->model, cfg->name, makemodel);
+          pixma_dbg (13, "Scanner model %s(%s) not found, giving up! %s\n", cfg->model, cfg->name, makemodel);
        }
     }
   return NULL;

@@ -1065,7 +1065,8 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
                        
           /* special image format for *most* devices at high dpi. 
            * MP220 and MX360 are exceptions */
-          if (s->cfg->pid != MP220_PID && s->cfg->pid != MX360_PID && n > 0)
+          if (s->cfg->pid != MP220_PID && s->cfg->pid != MX360_PID
+              && s->cfg->pid != MX370_PID && n > 0)
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
           
           /* Crop line to selected borders */

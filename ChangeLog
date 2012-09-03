@@ -1,3 +1,14 @@
+2012-09-03 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* README.linux: Installation description updated for sane-backends
+	1.0.24git.
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Canon imageRunner 1020/1024/1025 support reported by Yuri Kirin.
+	Bug #313203.
+	* backend/pixma_mp150.c: Use xdpi to check for 14" / A4 scan.
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Pixma MX370 support reported by Daniel Lehmann. Bug #313750.
+	* backend/pixma_mp150.c: PIXMA_CAP_EXPERIMENT removed from new scanners.
+
 2012-08-27  Louis Lagendijk <louis.lagendijk at gmail dot com>
 	* pixma_bjnp.c pixma_bjnp_private.h
 	Added working scan-button support

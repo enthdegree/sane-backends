@@ -712,8 +712,8 @@
 :model "imageRUNNER 1020/1024/1025"
 :interface "USB"
 :usbid "0x04a9" "0x26e6"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "CanoScan 8800F"
 :interface "USB"

@@ -227,11 +227,11 @@ Search the location where your system installed libsane.so.1.
   
 Decide where you want to install new libsane.
   You can set symbolic links to new libsane.
-    I assume that new libsane version 1.0.23 will be installed to 
+    I assume that new libsane version 1.0.24 will be installed to
     /usr/local/lib and your system installed libsane.so.1 to /usr/lib. 
 
     $ cd /usr/lib 
-    $ sudo ln -sf /usr/local/lib/libsane.so.1.0.23 libsane.so.1
+    $ sudo ln -sf /usr/local/lib/libsane.so.1.0.24 libsane.so.1
     $ sudo ln -sf /usr/local/lib/sane/libsane.la libsane.la
     $ cd -
 
@@ -268,14 +268,14 @@ Test your scanner.
   First you should check if new libsane is used.
   
     $ scanimage -V
-    scanimage (sane-backends) 1.0.23git; backend version 1.0.23
+    scanimage (sane-backends) 1.0.24git; backend version 1.0.24
   
-    This example shows that backend and scanimage are version 1.0.23.
+    This example shows that backend and scanimage are version 1.0.24.
   
     $ /usr/bin/scanimage -V
-    scanimage (sane-backends) 1.0.20; backend version 1.0.23
+    scanimage (sane-backends) 1.0.20; backend version 1.0.24
   
-    This example shows that an old scanimage (1.0.20) uses the backend 1.0.23.
+    This example shows that an old scanimage (1.0.20) uses the backend 1.0.24.
   
     If you want to use xsane, start xsane and check the used version with 
     CTRL - i.

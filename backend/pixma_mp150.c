@@ -1220,7 +1220,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
         s->cfg->pid == MX7600_PID )
        &&
         sp->source == PIXMA_SOURCE_FLATBED)
-    sp->h = MIN (sp->h, 877 * sp->ydpi / 75);
+    sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
     
   if (sp->source == PIXMA_SOURCE_TPU)
     {

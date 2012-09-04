@@ -744,6 +744,21 @@ send_scan_param (pixma_t * s)
       data[0x21] = 0x81;
       data[0x23] = 0x02;
       data[0x24] = 0x01;
+
+      switch (s->cfg->pid)
+        {
+	case MG5300_PID:
+	  /* unknown values (perhaps counter) for MG5300 series---values must be 0x30-0x39: decimal 0-9 */
+	  data[0x26] = 0x32; /* using example values from a real scan here */
+	  data[0x27] = 0x31;
+	  data[0x28] = 0x34;
+	  data[0x29] = 0x35;
+	  break;
+
+	default:
+	  break;
+	}
+
       data[0x30] = 0x01;
     }
   return pixma_exec (s, &mp->cb);
@@ -1058,15 +1073,15 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
           /* Color plane and stripes shift needed by e.g. CCD */
           /*PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, w=%i, line_size=%u ***** \n",
 	        c, n, m, s->param->wx, line_size));*/
-          if (c >= 3)
+          if (s->cfg->pid != MG5300_PID && c >= 3)
             dptr = shift_colors (dptr, sptr, 
                                  s->param->wx, s->param->xdpi, s->cfg->pid, c,
                                  mp->shift, mp->stripe_shift);
                        
           /* special image format for *most* devices at high dpi. 
-           * MP220 and MX360 are exceptions */
+           * MP220, MX360, MX370, MG5300 are exceptions */
           if (s->cfg->pid != MP220_PID && s->cfg->pid != MX360_PID
-              && s->cfg->pid != MX370_PID && n > 0)
+              && s->cfg->pid != MX370_PID && s->cfg->pid != MG5300_PID && n > 0)
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
           
           /* Crop line to selected borders */

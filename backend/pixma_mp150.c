@@ -1232,6 +1232,8 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
         s->cfg->pid == MX340_PID ||
         s->cfg->pid == MX350_PID ||
         s->cfg->pid == MX360_PID ||
+        s->cfg->pid == MX410_PID ||
+        s->cfg->pid == MX420_PID ||
         s->cfg->pid == MX7600_PID )
        &&
         sp->source == PIXMA_SOURCE_FLATBED)

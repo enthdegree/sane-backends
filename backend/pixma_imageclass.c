@@ -76,6 +76,7 @@
 #define MF4360_PID 0x26ec
 #define D480_PID   0x26ed
 #define MF4320_PID 0x26ee
+#define D420_PID   0x26ef
 #define MF3200_PID 0x2684
 #define MF6500_PID 0x2686
 #define MF4410_PID 0x2737
@@ -185,6 +186,7 @@ activate (pixma_t * s, uint8_t x)
     case MF4600_PID:
     case MF6500_PID:
     case D480_PID:
+    case D420_PID:
     case MF4360_PID:
       return iclass_exec (s, &mf->cb, 1);
       break;
@@ -215,6 +217,7 @@ select_source (pixma_t * s)
     case MF4600_PID:
     case MF6500_PID:
     case D480_PID:
+    case D420_PID:
     case MF4360_PID:
       return iclass_exec (s, &mf->cb, 0);
       break;
@@ -248,6 +251,7 @@ send_scan_param (pixma_t * s)
     case MF4600_PID:
     case MF6500_PID:
     case D480_PID:
+    case D420_PID:
     case MF4360_PID:
       return iclass_exec (s, &mf->cb, 0);
       break;
@@ -341,6 +345,7 @@ read_error_info (pixma_t * s, void *buf, unsigned size)
     case MF4600_PID:
     case MF6500_PID:
     case D480_PID:
+    case D420_PID:
     case MF4360_PID:
       error = iclass_exec (s, &mf->cb, 0);
       break;
@@ -711,6 +716,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF4270", "MF4270", MF4200_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4150", "MF4100", MF4100_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4690", "MF4690", MF4600_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS D420", "D420", D420_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageCLASS D480", "D480", D480_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageCLASS MF4360", "MF4360", MF4360_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageCLASS MF4320", "MF4320", MF4320_PID, 600, 640, 877, PIXMA_CAP_ADF),

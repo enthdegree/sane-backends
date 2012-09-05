@@ -547,6 +547,12 @@
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 4800DPI)"
 
+:model "imageCLASS D420"
+:interface "USB"
+:usbid "0x04a9" "0x26ef"
+:status :complete
+:comment "All resolutions supported (up to 600DPI). Flatbed, ADF simplex and Duplex supported."
+
 :model "imageCLASS D480"
 :interface "USB"
 :usbid "0x04a9" "0x26ed"

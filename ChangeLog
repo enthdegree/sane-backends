@@ -1,3 +1,9 @@
+2012-09-05 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
+	doc/sane-pixma.man: New scanner reported by Eric Schwartz. Bug #313761.
+	* backend/pixma_mp150.c: 14" (ADF) / A4 (Flatbed) exception for Pixma MX420
+	reported by D.Möller. Same exception also added for Pixma MX410.
+
 2012-09-04 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	Pixma MG5300 support reported by Gernot Hassenpflug.

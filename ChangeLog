@@ -1,4 +1,4 @@
-2012-09-36 Stéphane Voltz <stef.dev@free.fr>
+2012-09-06 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c backend/genesys.c: enable hardware lineart
 	for Strobe XP200
 

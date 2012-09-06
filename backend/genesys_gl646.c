@@ -1261,21 +1261,10 @@ gl646_setup_registers (Genesys_Device * dev,
   /* we setup values needed for the data transfer */
 
   /* we must use a round number of words_per_line */
-  /* CCD scanners have different requirements than CIS, and sheetfed ones
-   * need the buffer to be short enough not to miss the end of document in the feeder*/
-  if (dev->model->is_sheetfed == SANE_FALSE)
-    {
-      requested_buffer_size = (GL646_BULKIN_MAXSIZE / words_per_line) * words_per_line;
-      /* TODO seems CIS scanners should be treated differently */
-      read_buffer_size =
-	2 * requested_buffer_size +
-	((max_shift + stagger) * scan_settings.pixels * channels * bpp);
-    }
-  else
-    {
-      requested_buffer_size = 8 * words_per_line * channels;
-      read_buffer_size = requested_buffer_size;
-    }
+  requested_buffer_size = 8 * words_per_line;
+  read_buffer_size =
+    2 * requested_buffer_size +
+    ((max_shift + stagger) * scan_settings.pixels * channels * depth) / 8;
 
   RIE (sanei_genesys_buffer_free (&(dev->read_buffer)));
   RIE (sanei_genesys_buffer_alloc (&(dev->read_buffer), read_buffer_size));

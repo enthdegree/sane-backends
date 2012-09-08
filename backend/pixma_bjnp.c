@@ -324,6 +324,12 @@ bjnp_open_tcp (int devno)
   int sock;
   int val;
   bjnp_sockaddr_t *addr = device[devno].addr;
+  char host[BJNP_HOST_MAX];
+  int port;
+
+  get_address_info( addr, host, &port);
+  PDBG (pixma_dbg (LOG_DEBUG, "bjnp_open_tcp: Setting up a TCP socket, dest: %s  port %d\n",
+		   host, port ) );
 
   if ((sock = socket (get_protocol_family( addr ) , SOCK_STREAM, 0)) < 0)
     {
@@ -528,7 +534,7 @@ bjnp_setup_udp_socket ( const int dev_no )
 
   get_address_info( addr, addr_string, &port);
 
-  PDBG (pixma_dbg (LOG_DEBUG, "setup_udp_socket: Setting up the UDP socket, dest: %s  port %d\n",
+  PDBG (pixma_dbg (LOG_DEBUG, "setup_udp_socket: Setting up a UDP socket, dest: %s  port %d\n",
 		   addr_string, port ) );
 
   if ((sockfd = socket (get_protocol_family( addr ), SOCK_DGRAM, IPPROTO_UDP)) == -1)
@@ -1226,11 +1232,12 @@ bjnp_send_read_request (int devno)
 }
 
 static SANE_Status
-bjnp_recv_header (int devno)
+bjnp_recv_header (int devno, size_t *payload_size )
 {
 /*
  * This function receives the response header to bjnp commands.
  * devno device number
+ * size: return value for data size returned by scanner 
  * Returns: 
  * SANE_STATUS_IO_ERROR when any IO error occurs
  * SANE_STATUS_GOOD in case no errors were encountered
@@ -1245,16 +1252,10 @@ bjnp_recv_header (int devno)
   int attempt;
 
   PDBG (pixma_dbg
-	(LOG_DEBUG, "bjnp_recv_header: receiving response header\n"));
+	(LOG_DEBUG, "bjnp_recv_header: receiving response header\n") );
   fd = device[devno].tcp_socket;
 
-  if (device[devno].scanner_data_left)
-    PDBG (pixma_dbg
-	  (LOG_CRIT,
-	   "bjnp_send_request: ERROR scanner data left = 0x%lx = %ld\n",
-	   (unsigned long) device[devno].scanner_data_left,
-	   (unsigned long) device[devno].scanner_data_left));
-
+  *payload_size = 0;
   attempt = 0;
   do
     {
@@ -1265,7 +1266,7 @@ bjnp_recv_header (int devno)
       timeout.tv_sec = BJNP_TIMEOUT_TCP;
       timeout.tv_usec = 0;
     }
-  while (((result = select (fd + 1, &input, NULL, NULL, &timeout)) == -1) &&
+  while ( ( (result = select (fd + 1, &input, NULL, NULL, &timeout)) <= 0) &&
 	 (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS));
 
   if (result < 0)
@@ -1281,8 +1282,7 @@ bjnp_recv_header (int devno)
     {
       terrno = errno;
       PDBG (pixma_dbg (LOG_CRIT,
-		       "bjnp_recv_header: could not read response header (select timed out): %s!\n",
-		       strerror (terrno)));
+		       "bjnp_recv_header: could not read response header (select timed out)!\n" ) );
       errno = terrno;
       return SANE_STATUS_IO_ERROR;
     }
@@ -1326,10 +1326,10 @@ bjnp_recv_header (int devno)
   /* got response header back, retrieve length of scanner data */
 
 
-  device[devno].scanner_data_left = ntohl (resp_buf.payload_len);
+  *payload_size = ntohl (resp_buf.payload_len);
   PDBG (pixma_dbg
-	(LOG_DEBUG2, "TCP response header(scanner data = %ld bytes):\n",
-	 (unsigned long) device[devno].scanner_data_left));
+	(LOG_DEBUG, "TCP response header(scanner data = %ld bytes):\n",
+	 *payload_size) );
   PDBG (pixma_hexdump
 	(LOG_DEBUG2, (char *) &resp_buf, sizeof (struct BJNP_command)));
   return SANE_STATUS_GOOD;
@@ -1357,13 +1357,8 @@ bjnp_init_device_structure(int dn, struct sockaddr *sa )
   device[dn].bjnp_timeout = 0;
   device[dn].scanner_data_left = 0;
   device[dn].last_cmd = 0;
-
-  /* we make a pessimistic guess on blocksize, will be corrected to max size
-   * of received block when we read data  */
-
-  device[dn].blocksize = 1024;
-  device[dn].short_read = 0;
-
+  device[dn].blocksize = 2048;	/* safe assumption, we start low */
+  device[dn].last_block = 0;
   /* fill mac_address */
 
   if (bjnp_get_scanner_mac_address(dn, device[dn].mac_address) != 0 )
@@ -1419,7 +1414,7 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t * len)
       timeout.tv_sec = BJNP_TIMEOUT_TCP;
       timeout.tv_usec = 0;
     }
-  while (((result = select (fd + 1, &input, NULL, NULL, &timeout)) == -1) &&
+  while (((result = select (fd + 1, &input, NULL, NULL, &timeout)) <= 0) &&
 	 (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS));
 
   if (result < 0)
@@ -1456,9 +1451,6 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t * len)
   PDBG (pixma_dbg (LOG_DEBUG2, "Received TCP response payload (%ld bytes):\n",
 		   (unsigned long) recv_bytes));
   PDBG (pixma_hexdump (LOG_DEBUG2, buffer, recv_bytes));
-
-  device[devno].scanner_data_left =
-    device[devno].scanner_data_left - recv_bytes;
 
   *len = recv_bytes;
   return SANE_STATUS_GOOD;
@@ -1801,13 +1793,13 @@ sanei_bjnp_find_devices (const char **conf_devices,
           bjnp_send_broadcast ( socket_fd[i], &broadcast_addr[i], cmd, sizeof (cmd));
 	}
       /* wait for some time between broadcast packets */
-      usleep (BJNP_BROADCAST_INTERVAL * USLEEP_MS);
+      usleep (BJNP_BROADCAST_INTERVAL * BJNP_USLEEP_MS);
     }
 
   /* wait for a UDP response */
 
   timeout.tv_sec = 0;
-  timeout.tv_usec = BJNP_BC_RESPONSE_TIMEOUT * USLEEP_MS;
+  timeout.tv_usec = BJNP_BC_RESPONSE_TIMEOUT * BJNP_USLEEP_MS;
 
 
   active_fdset = fdset;
@@ -1869,7 +1861,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
 	}
       active_fdset = fdset;
       timeout.tv_sec = 0;
-      timeout.tv_usec = BJNP_BC_RESPONSE_TIMEOUT * USLEEP_MS;
+      timeout.tv_usec = BJNP_BC_RESPONSE_TIMEOUT * BJNP_USLEEP_MS;
     }
   PDBG (pixma_dbg (LOG_DEBUG, "scanner discovery finished...\n"));
 
@@ -2011,109 +2003,100 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   SANE_Status result;
   SANE_Status error;
   size_t recvd;
-  size_t more;
-  size_t left;
+  size_t more; 
+  size_t requested;
 
   PDBG (pixma_dbg
 	(LOG_INFO, "bjnp_read_bulk(%d, bufferptr, 0x%lx = %ld)\n", dn,
-	 (unsigned long) *size, (unsigned long) size));
+	 (unsigned long) *size, (unsigned long) *size));
 
   recvd = 0;
-  left = *size;
-
-  if ((device[dn].scanner_data_left == 0) && (device[dn].short_read != 0))
-    {
-      /* new read, but we have no data queued from scanner, last read was short, */
-      /* so scanner needs first a high level read command. This is not an error */
-
-      PDBG (pixma_dbg
-	    (LOG_DEBUG,
-	     "Scanner has no more data available, return immediately!\n"));
-      *size = 0;
-      return SANE_STATUS_EOF;
-    }
+  requested = *size;
 
   PDBG (pixma_dbg
-	(LOG_DEBUG, "bjnp_read_bulk: 0x%lx = %ld bytes available at start, "
-	 "Short block = %d blocksize = 0x%lx = %ld\n",
+	(LOG_DEBUG, "bjnp_read_bulk: 0x%lx = %ld bytes available at start\n", 
 	 (unsigned long) device[dn].scanner_data_left,
-	 (unsigned long) device[dn].scanner_data_left,
-	 (int) device[dn].short_read,
-	 (unsigned long) device[dn].blocksize, 
-	 (unsigned long) device[dn].blocksize));
+	 (unsigned long) device[dn].scanner_data_left ) );
 
-  while ((recvd < *size)
-	 && (!device[dn].short_read || device[dn].scanner_data_left))
+  while ( (recvd < requested) && !( device[dn].last_block && (device[dn].scanner_data_left == 0)) )
+
     {
       PDBG (pixma_dbg
 	    (LOG_DEBUG,
-	     "So far received 0x%lx bytes = %ld, need 0x%lx = %ld\n",
+	     "Received 0x%lx = %ld bytes, backend requested 0x%lx = %ld bytes\n",
 	     (unsigned long) recvd, (unsigned long) recvd, 
-	     (unsigned long) *size, (unsigned long) *size));
+	     (unsigned long) requested, (unsigned long)requested ));
 
       if (device[dn].scanner_data_left == 0)
-	{
-	  /*
-	   * send new read request
-	   */
+        {
+	  /* send new read request */
 
-	  PDBG (pixma_dbg
-		(LOG_DEBUG,
-		 "No (more) scanner data available, requesting more\n"));
+          PDBG (pixma_dbg (LOG_DEBUG,
+                          "No (more) scanner data available, requesting more( blocksize = %ld =%lx\n",
+                          (long int) device[dn].blocksize, (long int) device[dn].blocksize ));
 
-	  if ((error = bjnp_send_read_request (dn)) != SANE_STATUS_GOOD)
-	    {
-	      *size = recvd;
-	      return SANE_STATUS_IO_ERROR;
-	    }
-	  if ((error = bjnp_recv_header (dn)) != SANE_STATUS_GOOD)
-	    {
-	      *size = recvd;
-	      return SANE_STATUS_IO_ERROR;
-	    }
+          if ((error = bjnp_send_read_request (dn)) != SANE_STATUS_GOOD)
+            {
+              *size = recvd;
+              return SANE_STATUS_IO_ERROR;
+            }
+          if ( ( error = bjnp_recv_header (dn, &(device[dn].scanner_data_left) )  ) != SANE_STATUS_GOOD)
+            {
+              *size = recvd;
+              return SANE_STATUS_IO_ERROR;
+            }
+          /* correct blocksize if applicable */ 
+
+          device[dn].blocksize = MAX (device[dn].blocksize, device[dn].scanner_data_left);
+
+          if ( device[dn].scanner_data_left < device[dn].blocksize)
+            {
+              /* the scanner will not react at all to a read request, when no more data is available */
+              /* we now determine end of data by comparing the payload size to the maximun blocksize */
+              /* this block is shorter than blocksize, so after this block we are done */
+        
+              device[dn].last_block = 1;
+            }
           if ( device[dn].scanner_data_left == 0 )
             {
-              PDBG (pixma_dbg(LOG_DEBUG, "Scanner reports no data, retry\n" ) );
               break;
-            } 
+            }
+        }
 
-	  PDBG (pixma_dbg
-		(LOG_DEBUG, "Scanner reports 0x%lx = %ld bytes available\n",
+      PDBG (pixma_dbg (LOG_DEBUG, "Scanner reports 0x%lx = %ld bytes available\n",
 		 (unsigned long) device[dn].scanner_data_left,
 		 (unsigned long) device[dn].scanner_data_left));
 
-	  /* correct blocksize if more data is sent by scanner than current blocksize assumption */
+     /* read as many bytes as needed and available */
 
-	  if (device[dn].scanner_data_left > device[dn].blocksize)
-	    device[dn].blocksize = device[dn].scanner_data_left;
-
-	  /* decide if we reached end of data to be sent by scanner */
-
-	  device[dn].short_read =
-	    (device[dn].scanner_data_left < device[dn].blocksize);
-	}
-
-      more = left;
+      more = MIN( device[dn].scanner_data_left, (requested - recvd) );
 
       PDBG (pixma_dbg
 	    (LOG_DEBUG,
-	     "reading 0x%lx = %ld (of max 0x%lx = %ld) bytes more\n",
-	     (unsigned long) device[dn].scanner_data_left, 
-	     (unsigned long) device[dn].scanner_data_left,
+	     "reading 0x%lx = %ld (of max 0x%lx = %ld) bytes\n",
 	     (unsigned long) more, 
-	     (unsigned long) more));
-      result = bjnp_recv_data (dn, buffer, &more);
+	     (unsigned long) more,
+	     (unsigned long) device[dn].scanner_data_left, 
+	     (unsigned long) device[dn].scanner_data_left) );
+
+      result = bjnp_recv_data (dn, buffer + recvd, &more);
       if (result != SANE_STATUS_GOOD)
 	{
 	  *size = recvd;
 	  return SANE_STATUS_IO_ERROR;
 	}
+      PDBG (pixma_dbg (LOG_DEBUG, "Requested %ld bytes, received: %ld\n", 
+            MIN( device[dn].scanner_data_left, (requested - recvd) ), more) );
 
-      left = left - more;
+      device[dn].scanner_data_left = device[dn].scanner_data_left - more;
       recvd = recvd + more;
-      buffer = buffer + more;
     }
+
+  PDBG (pixma_dbg (LOG_DEBUG, "returning %ld bytes, backend expexts %ld\n", 
+        recvd, *size ) );
   *size = recvd;
+  if ( *size == 0 )
+    return SANE_STATUS_EOF;
   return SANE_STATUS_GOOD;
 }
 
@@ -2138,6 +2121,7 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
   ssize_t sent;
   size_t recvd;
   uint32_t buf;
+  size_t payload_size;
 
   PDBG (pixma_dbg
 	(LOG_INFO, "bjnp_write_bulk(%d, bufferptr, 0x%lx = %ld)\n", dn,
@@ -2153,23 +2137,23 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
       return SANE_STATUS_IO_ERROR;
     }
 
-  if (bjnp_recv_header (dn) != SANE_STATUS_GOOD)
+  if (bjnp_recv_header (dn, &payload_size) != SANE_STATUS_GOOD)
     {
       PDBG (pixma_dbg (LOG_CRIT, "Could not read response to command!\n"));
       return SANE_STATUS_IO_ERROR;
     }
 
-  if (device[dn].scanner_data_left != 4)
+  if (payload_size != 4)
     {
       PDBG (pixma_dbg (LOG_CRIT,
 		       "Scanner length of write confirmation = 0x%lx bytes = %ld, expected %d!!\n",
-		       (unsigned long) device[dn].scanner_data_left,
-		       (unsigned long) device[dn].scanner_data_left, 4));
+		       (unsigned long) payload_size,
+		       (unsigned long) payload_size, 4));
       return SANE_STATUS_IO_ERROR;
     }
-  recvd = 4;
+  recvd = payload_size;
   if ((bjnp_recv_data (dn, (unsigned char *) &buf, &recvd) !=
-       SANE_STATUS_GOOD) || (recvd != 4))
+       SANE_STATUS_GOOD) || (recvd != payload_size))
     {
       PDBG (pixma_dbg (LOG_CRIT,
 		       "Could not read length of data confirmed by device\n"));
@@ -2183,10 +2167,9 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
 	     (unsigned long) recvd, (unsigned long) *size));
       return SANE_STATUS_IO_ERROR;
     }
+  /* we can expect data from the scanner again */
 
-  /* we sent a new command, so reset end of block indication */
-
-  device[dn].short_read = 0;
+  device[dn].last_block = 0;
 
   return SANE_STATUS_GOOD;
 }

@@ -1,3 +1,10 @@
+2012-09-08 Louis Lagendijk <louis.lagendijk at gmail dot com>
+         * backend/pixma_bjnp.c, backend/pixma_bjnp_private.h
+	 bulk reading rewritten and solved the case where the scanner returns
+	 a 0 length payload.
+	 Use MDL string instead of DES as it is mre fool proof when matching
+	 the model string from the backend
+
 2012-09-06 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c backend/genesys.c: enable hardware lineart
 	for Strobe XP200

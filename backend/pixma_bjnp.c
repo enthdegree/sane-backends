@@ -234,9 +234,9 @@ parse_IEEE1284_to_model (char *scanner_id, char *model)
   tok = strtok (s, ";");
   while (tok != NULL)
     {
-      /* DES contains make and model */
+      /* MDL contains make and model */
 
-      if (strncmp (tok, "DES:", 4) == 0)
+      if (strncmp (tok, "MDL:", 4) == 0)
 	{
 	  strcpy (model, tok + 4);
 	  return 1;

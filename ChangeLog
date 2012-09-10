@@ -1,3 +1,7 @@
+2012-09-10 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/unsupported.desc: Removed Canon Multipass 390 from
+	unsupported device list.
+
 2012-09-08 Louis Lagendijk <louis.lagendijk at gmail dot com>
          * backend/pixma_bjnp.c, backend/pixma_bjnp_private.h
 	 bulk reading rewritten and solved the case where the scanner returns

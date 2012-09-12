@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "05 Sep 2012" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "12 Sep 2012" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 .B sane\-pixma 
@@ -51,7 +51,7 @@ ImageCLASS MF4270, MF4350d, MF4370dn, MF4380dn
 .br
 ImageCLASS MF4410, MF4660, MF4690
 .br
-ImageCLASS MF5770, MF6550, D420, D480
+ImageCLASS MF5730, MF5770, MF6550, D420, D480
 .br
 I-SENSYS MF4320d, MF4330d
 .br
@@ -85,7 +85,7 @@ PIXMA MP375R, MP493, MP495, MP740
 .br
 PIXMA MX320, MX410, MX430, MX510, MX710, MX890
 .br
-ImageCLASS MF5630, MF5650, MF5730, MF5750, MF8030, MF8170c
+ImageCLASS MF5630, MF5650, MF5750, MF8030, MF8170c
 .RE
 .PP
 \#The following models may use partly the same Pixma protocol as other devices

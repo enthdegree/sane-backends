@@ -676,8 +676,8 @@
 :model "imageCLASS MF5730"
 :interface "USB"
 :usbid "0x04a9" "0x265d"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "imageCLASS MF5750"
 :interface "USB"

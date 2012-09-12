@@ -1,3 +1,7 @@
+2012-09-12 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Canon imageCLASS MF5730 support reported by Ondrej Zary.
+
 2012-09-10 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/unsupported.desc: Removed Canon Multipass 390 from
 	unsupported device list.

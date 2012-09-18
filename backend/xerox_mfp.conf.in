@@ -45,6 +45,9 @@ usb 0x04e8 0x343d
 # Samsung SCX-3205W
 usb 0x04e8 0x3441
 
+#Samsung SCX-4729FD
+usb 0x04e8 0x3453
+
 #Xerox WorkCentre 3119 Series
 usb 0x0924 0x4265
 

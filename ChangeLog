@@ -1,3 +1,7 @@
+2012-09-18 Alex Belkin <abc at telekom.ru>
+        * backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
+        for Samsung SCX-4729FD, reported by wom balton.
+
 2012-09-12 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	Canon imageCLASS MF5730 support reported by Ondrej Zary.

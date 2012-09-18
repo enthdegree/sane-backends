@@ -127,3 +127,9 @@
 :interface "USB Ethernet"
 :usbid "0x04e8" "0x342b"
 :status :basic
+
+:model "SCX-4729FD"
+:interface "USB"
+:usbid "0x04e8" "0x3453"
+:status :basic
+

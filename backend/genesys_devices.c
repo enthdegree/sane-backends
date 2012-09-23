@@ -554,6 +554,23 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
+  {CCD_CS4400F,
+   4800,
+   50*8,	/* black_pixels */
+   58,	        /* 31 at 600 dpi dummy_pixels 58 at 1200 */
+   152,
+   5360*8,      /* 5360 max at 600 dpi */
+   160,
+   160,
+   /* 08    09    0a    0b */
+   {0x00, 0x00, 0x18, 0x69} ,
+   /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
+   {0x9c, 0x40, 0x9c, 0x40, 0x9c, 0x40, 0x13, 0x0a, 0x10, 0x2a, 0x30, 0x00, 0x00, 0x6b},
+   /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
+   {0x0a, 0x0d, 0x00, 0x03, 0x06, 0x08, 0x5b, 0x00, 0x40, 0x00, 0x00, 0x00, 0x3f},
+   1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
+  ,
 
   /* HP N6310 */
 
@@ -761,6 +778,12 @@ static Genesys_Gpo Gpo[] = {
   {GPO_PLUSTEK_3600,
    {0x02, 0x00},
    {0x1e, 0x80},
+  }
+  /* CanoScan 4400f */
+  ,
+  {GPO_CS4400F,
+   {0x01, 0x7f},
+   {0xff, 0x00},
   }
 };
 
@@ -1383,6 +1406,63 @@ static Genesys_Model hpg4050_model = {
   DAC_G4050,
   GPO_G4050,
   MOTOR_G4050,
+  GENESYS_FLAG_LAZY_INIT | 
+  GENESYS_FLAG_OFFSET_CALIBRATION |
+  GENESYS_FLAG_STAGGERED_LINE |
+  GENESYS_FLAG_SKIP_WARMUP |
+  GENESYS_FLAG_DARK_CALIBRATION |
+  GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
+  100,
+  100
+};
+
+
+static Genesys_Model canon_4400f_model = {
+  "canon-canoscan-4400f",	/* Name */
+  "Canon",			/* Device vendor string */
+  "Canoscan 4400f",		/* Device model name */
+  GENESYS_GL843,
+  NULL,
+
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (8.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (13.00),		/* Start of scan area in mm (y) */
+  SANE_FIX (217.9),		/* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
+  SANE_FIX (315.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (8.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (13.00),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (217.9),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (250.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (40.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 24, 48,		        /* RGB CCD Line-distance correction in line number */
+  				/* 0 38 76 OK 1200/2400 */
+  				/* 0 24 48 OK [100,600] dpi */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CCD_CS4400F,
+  DAC_G4050,
+  GPO_CS4400F,
+  MOTOR_G4050,
+  GENESYS_FLAG_NO_CALIBRATION |
   GENESYS_FLAG_LAZY_INIT | 
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_STAGGERED_LINE |
@@ -2983,6 +3063,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x03f0, 0x1b05, &hp4850c_model},
   {0x03f0, 0x4505, &hpg4010_model},
   {0x03f0, 0x4605, &hpg4050_model},
+  {0x03f0, 0x4605, &canon_4400f_model},
   /* GL124 devices */
   {0x04a9, 0x1909, &canon_lide_110_model},
   {0x04a9, 0x190a, &canon_lide_210_model},

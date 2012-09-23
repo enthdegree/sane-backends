@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847/GL124 based scanners
  */
 
-#define BUILD 2401
+#define BUILD 2402
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -925,6 +925,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
   if (dev->settings.scan_mode < 2
       && dev->model->ccd_type != CCD_KVSS080
       && dev->model->ccd_type != CCD_G4050
+      && dev->model->ccd_type != CCD_CS4400F
       && dev->model->ccd_type != CCD_DSMOBILE600
       && dev->model->ccd_type != CCD_XP300
       && dev->model->ccd_type != CCD_DP665
@@ -981,7 +982,10 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
 
   /* these models don't need to init shading data due to the use of specific send shading data
      function */
-  if(dev->model->ccd_type==CCD_KVSS080 || dev->model->ccd_type==CCD_G4050 || dev->model->cmd_set->send_shading_data!=NULL)
+  if (dev->model->ccd_type==CCD_KVSS080
+   || dev->model->ccd_type==CCD_G4050
+   || dev->model->ccd_type==CCD_CS4400F
+   || dev->model->cmd_set->send_shading_data!=NULL)
     return SANE_STATUS_GOOD;
 
   DBG (DBG_proc, "sanei_genesys_init_shading_data (pixels_per_line = %d)\n",
@@ -1927,7 +1931,9 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
       skip = 4;
       xend = 68;
     }
-  if(dev->model->ccd_type==CCD_G4050 || dev->model->ccd_type==CCD_KVSS080)
+  if (dev->model->ccd_type==CCD_G4050
+   || dev->model->ccd_type==CCD_CS4400F
+   || dev->model->ccd_type==CCD_KVSS080)
     {
       skip = 2;
       xend = dev->sensor.black_pixels;
@@ -2909,6 +2915,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CCD_KVSS080:
     case CCD_G4050:
+    case CCD_CS4400F:
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,

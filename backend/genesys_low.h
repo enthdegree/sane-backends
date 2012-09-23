@@ -235,8 +235,8 @@ typedef struct
 typedef struct
 {
   uint8_t gpo_id;	/**> id of the gpo description */
-  uint8_t value[2];
-  uint8_t enable[2];
+  uint8_t value[2];	/**> registers 0x6c and 0x6d on gl843 */
+  uint8_t enable[2];	/**> registers 0x6e and 0x6F on gl843 */
 } Genesys_Gpo;
 
 typedef struct
@@ -324,6 +324,7 @@ Genesys_Color_Order;
 #define CCD_PLUSTEK_3600 20
 #define CCD_HP_N6310     21
 #define CIS_CANONLIDE700 22
+#define CCD_CS4400F      23
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -345,6 +346,7 @@ Genesys_Color_Order;
 #define GPO_CANONLIDE210 17
 #define GPO_HP_N6310     18
 #define GPO_CANONLIDE700 19
+#define GPO_CS4400F      20
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1

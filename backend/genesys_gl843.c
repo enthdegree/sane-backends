@@ -744,6 +744,13 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x9b, 0x80);
       SETREG (0xac, 0x00);
     }
+  
+  if (strcmp (dev->model->name, "canon-canoscan-4400f") == 0)
+    {
+     sanei_genesys_set_double(dev->reg,REG_EXPR,0x9c40);
+     sanei_genesys_set_double(dev->reg,REG_EXPG,0x9c40);
+     sanei_genesys_set_double(dev->reg,REG_EXPB,0x9c40);
+    }
 
   /* fine tune upon device description */
   dev->reg[reg_0x05].value &= ~REG05_DPIHW;
@@ -2323,47 +2330,51 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   dpihw = sanei_genesys_compute_dpihw (dev, dpiset);
 
   /* set up GPIO for scan */
-  /* KV case */
-  if (dev->model->gpo_type == GPO_KVSS080)
+  switch(dev->model->gpo_type)
     {
-      RIE (sanei_genesys_write_register (dev, REGA9, 0x00));
-      RIE (sanei_genesys_write_register (dev, REGA6, 0xf6));
-      /* blinking led */
-      RIE (sanei_genesys_write_register (dev, 0x7e, 0x04));
-    }
-  if (dev->model->gpo_type == GPO_G4050)
-    {
-      RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
-      RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
-      RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
-      switch (dpihw)
-	{
-	case 1200:
-	case 2400:
-	case 4800:
-	  RIE (sanei_genesys_write_register (dev, REG6C, 0x60));
-	  RIE (sanei_genesys_write_register (dev, REGA6, 0x46));
-	  break;
-	default:		/* 600 dpi  case */
-	  RIE (sanei_genesys_write_register (dev, REG6C, 0x20));
-	  RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
-	}
+      /* KV case */
+      case GPO_KVSS080:
+        RIE (sanei_genesys_write_register (dev, REGA9, 0x00));
+        RIE (sanei_genesys_write_register (dev, REGA6, 0xf6));
+        /* blinking led */
+        RIE (sanei_genesys_write_register (dev, 0x7e, 0x04));
+        break;
+      case GPO_G4050:
+        RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
+        RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
+        RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
+        switch (dpihw)
+	  {
+	   case 1200:
+	   case 2400:
+	   case 4800:
+	     RIE (sanei_genesys_write_register (dev, REG6C, 0x60));
+	     RIE (sanei_genesys_write_register (dev, REGA6, 0x46));
+	     break;
+	   default:		/* 600 dpi  case */
+	     RIE (sanei_genesys_write_register (dev, REG6C, 0x20));
+	     RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
+	  }
 
-      /* turn on XPA lamp if XPA is selected and lamp power on*/
-      r03 = sanei_genesys_read_reg_from_set (reg, REG03);
-      if ((r03 & REG03_XPASEL) && (r03 & REG03_LAMPPWR))
-        {
-          RIE(gl843_xpa_lamp_on(dev));
-        }
+        /* turn on XPA lamp if XPA is selected and lamp power on*/
+        r03 = sanei_genesys_read_reg_from_set (reg, REG03);
+        if ((r03 & REG03_XPASEL) && (r03 & REG03_LAMPPWR))
+          {
+            RIE(gl843_xpa_lamp_on(dev));
+          }
 
-      /* enable XPA lamp motor */
-      if (r03 & REG03_XPASEL)
-        {
-          RIE(gl843_xpa_motor_on(dev));
-        }
+        /* enable XPA lamp motor */
+        if (r03 & REG03_XPASEL)
+          {
+            RIE(gl843_xpa_motor_on(dev));
+          }
 
-      /* blinking led */
-      RIE (sanei_genesys_write_register (dev, REG7E, 0x01));
+        /* blinking led */
+        RIE (sanei_genesys_write_register (dev, REG7E, 0x01));
+        break;
+      case GPO_CS4400F:
+      default:
+        break;
     }
 
   /* clear scan and feed count */
@@ -3818,7 +3829,7 @@ static SANE_Status
 gl843_init_gpio (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  int i;
+  int idx;
 
   DBGSTART;
 
@@ -3826,20 +3837,23 @@ gl843_init_gpio (Genesys_Device * dev)
   RIE (sanei_genesys_write_register (dev, REG6F, dev->gpo.enable[1]));
   RIE (sanei_genesys_write_register (dev, REG6C, dev->gpo.value[0]));
   RIE (sanei_genesys_write_register (dev, REG6D, dev->gpo.value[1]));
-  if ((strcmp (dev->model->name, "hewlett-packard-scanjet-g4010") == 0)
-   || (strcmp (dev->model->name, "hewlett-packard-scanjet-4850c") == 0)
-   || (strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0))
+
+  idx=0;
+  while(dev->model->gpo_type != gpios[idx].gpo_type && gpios[idx].gpo_type!=0)
     {
-      i = 0;
+      idx++;
+    }
+  if (gpios[idx].gpo_type!=0)
+    {
+      RIE (sanei_genesys_write_register (dev, REGA6, gpios[idx].ra6));
+      RIE (sanei_genesys_write_register (dev, REGA7, gpios[idx].ra7));
+      RIE (sanei_genesys_write_register (dev, REGA8, gpios[idx].ra8));
+      RIE (sanei_genesys_write_register (dev, REGA9, gpios[idx].ra9));
     }
   else
     {
-      i = 1;
+      status=SANE_STATUS_INVAL;
     }
-  RIE (sanei_genesys_write_register (dev, REGA6, gpios[i].ra6));
-  RIE (sanei_genesys_write_register (dev, REGA7, gpios[i].ra7));
-  RIE (sanei_genesys_write_register (dev, REGA8, gpios[i].ra8));
-  RIE (sanei_genesys_write_register (dev, REGA9, gpios[i].ra9));
 
   DBGCOMPLETED;
   return status;
@@ -4057,21 +4071,25 @@ gl843_update_hardware_sensors (Genesys_Scanner * s)
 
   RIE (sanei_genesys_read_register (s->dev, REG6D, &val));
 
-  if (s->dev->model->gpo_type == GPO_KVSS080) 
+  switch (s->dev->model->gpo_type)
     {
-      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-        s->val[OPT_SCAN_SW].b = (val & 0x04) == 0;
-    }
-  else
-    {
-      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-        s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
-      if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
-        s->val[OPT_FILE_SW].b = (val & 0x02) == 0;
-      if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
-        s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
-      if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
-        s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
+      case GPO_KVSS080:
+        if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
+          s->val[OPT_SCAN_SW].b = (val & 0x04) == 0;
+        break;
+      case GPO_G4050:
+        if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
+          s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
+        if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
+          s->val[OPT_FILE_SW].b = (val & 0x02) == 0;
+        if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
+          s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
+        if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
+          s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
+        break;
+      case GPO_CS4400F:
+      default:
+        break;
     }
 
   return status;

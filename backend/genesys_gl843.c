@@ -812,6 +812,13 @@ gl843_send_slope_table (Genesys_Device * dev, int table_nr,
       DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
     }
 
+  /* unit testing case */
+  if(dev->dn==0)
+    {
+      DBGCOMPLETED;
+      return SANE_STATUS_GOOD;
+    }
+
   /* slope table addresses are fixed : 0x4000,  0x4800,  0x5000,  0x5800,  0x6000 */
   /* XXX STEF XXX USB 1.1 ? write_end_access (dev, 0x0f, 0x14); */
   status = write_data (dev, 0x4000 + 0x800 * table_nr, steps * 2, table);
@@ -823,7 +830,7 @@ gl843_send_slope_table (Genesys_Device * dev, int table_nr,
     }
 
   free (table);
-  DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+  DBGCOMPLETED;
   return status;
 }
 
@@ -2551,6 +2558,12 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   DBG (DBG_proc, "gl843_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
+
+  /* unit testing case */
+  if(dev->dn==0)
+    {
+      return SANE_STATUS_GOOD;
+    }
 
   if (dev->model->gpo_type == GPO_G4050)
     {

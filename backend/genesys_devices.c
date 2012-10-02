@@ -3064,7 +3064,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x03f0, 0x1b05, &hp4850c_model},
   {0x03f0, 0x4505, &hpg4010_model},
   {0x03f0, 0x4605, &hpg4050_model},
-  {0x03f0, 0x4605, &canon_4400f_model},
+  {0x04a9, 0x2228, &canon_4400f_model},
   /* GL124 devices */
   {0x04a9, 0x1909, &canon_lide_110_model},
   {0x04a9, 0x190a, &canon_lide_210_model},

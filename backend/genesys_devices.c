@@ -557,7 +557,7 @@ static Genesys_Sensor Sensor[] = {
   {CCD_CS4400F,
    4800,
    50*8,	/* black_pixels */
-   58,	        /* 31 at 600 dpi dummy_pixels 58 at 1200 */
+   20,	        /* 31 at 600 dpi dummy_pixels 58 at 1200 */
    152,
    5360*8,      /* 5360 max at 600 dpi */
    160,
@@ -1469,6 +1469,7 @@ static Genesys_Model canon_4400f_model = {
   GENESYS_FLAG_SKIP_WARMUP |
   GENESYS_FLAG_DARK_CALIBRATION |
   GENESYS_FLAG_FULL_HWDPI_MODE |
+  GENESYS_FLAG_HALF_CCD_MODE |		/* actually quarter CCD mode ... */
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,

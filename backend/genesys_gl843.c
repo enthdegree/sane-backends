@@ -407,7 +407,7 @@ gl843_get_step_multiplier (Genesys_Register_Set * regs)
   Genesys_Register_Set *r = NULL;
   int value = 1;
 
-  r = sanei_genesys_get_address (regs, 0x9d);
+  r = sanei_genesys_get_address (regs, REG9D);
   if (r != NULL)
     {
       switch (r->value & 0x0c)
@@ -551,7 +551,14 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi,i
   r = sanei_genesys_get_address (regs, 0x7d);
   if (r)
     {
-      r->value = 0x90;
+      if (dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)
+        {
+          r->value = 0x00;
+        }
+      else
+        {
+          r->value = 0x90;
+        }
     }
   r = sanei_genesys_get_address (regs, 0x9e);
   if (r)
@@ -691,12 +698,15 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x7d, 0x00);
   SETREG (0x7f, 0x00);
   SETREG (0x80, 0x00);
-  SETREG (0x81, 0x00);
-  SETREG (0x82, 0x00);
-  SETREG (0x83, 0x00);
-  SETREG (0x84, 0x00);
+  if (strcmp (dev->model->name, "canon-canoscan-4400f") != 0)
+    {
+      SETREG (0x81, 0x00);
+      SETREG (0x82, 0x00);
+      SETREG (0x83, 0x00);
+      SETREG (0x84, 0x00);
+      SETREG (0x86, 0x00);
+    }
   SETREG (0x85, 0x00);
-  SETREG (0x86, 0x00);
   SETREG (0x87, 0x00);
   SETREG (0x9d, 0x04);
   SETREG (0x94, 0xff);
@@ -704,7 +714,10 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0xab, 0x50);
      
   /* so many time burnt for this register ....*/
-  SETREG (0xaa, 0x00);
+  if (strcmp (dev->model->name, "canon-canoscan-4400f") != 0)
+    {
+      SETREG (0xaa, 0x00);
+    }
 
   /* G4050 values */
   if ((strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0)
@@ -747,9 +760,25 @@ gl843_init_registers (Genesys_Device * dev)
   
   if (strcmp (dev->model->name, "canon-canoscan-4400f") == 0)
     {
-     sanei_genesys_set_double(dev->reg,REG_EXPR,0x9c40);
-     sanei_genesys_set_double(dev->reg,REG_EXPG,0x9c40);
-     sanei_genesys_set_double(dev->reg,REG_EXPB,0x9c40);
+      SETREG (0x06, 0xf0); /* SCANMOD=111, PWRBIT and no GAIN4 */
+      SETREG (0x0b, 0x69); /* 16M only */
+      SETREG (0x1e, 0x20);
+      SETREG (0x22, 0xc8);
+      SETREG (0x23, 0xc8);
+      SETREG (0x5e, 0x3f);
+      SETREG (0x5f, 0xf0);
+      SETREG (0x6b, 0x72);
+      SETREG (0x72, 0x01);
+      SETREG (0x73, 0x03);
+      SETREG (0x80, 0x0c);
+      SETREG (0x85, 0x85);      /* strange at least */
+      SETREG (0x87, 0x02);      /* MCLOCK -> CK4MAP */
+      SETREG (0x9d, 0x08);      /* STEPTIM=2        */
+      SETREG (0xa2, 0x1f);
+      SETREG (0xab, 0x00);
+      sanei_genesys_set_double(dev->reg,REG_EXPR,0x9c40);
+      sanei_genesys_set_double(dev->reg,REG_EXPG,0x9c40);
+      sanei_genesys_set_double(dev->reg,REG_EXPB,0x9c40);
     }
 
   /* fine tune upon device description */
@@ -1095,30 +1124,36 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
 
   /* Vref XXX STEF XXX : optical divider or step type ? */
   r = sanei_genesys_get_address (reg, 0x80);
-  r->value = 0x50;
-  coeff=dev->sensor.optical_res/sanei_genesys_compute_dpihw(dev, scan_yres);
-  if (dev->model->motor_type == MOTOR_KVSS080) 
+  if (dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)
     {
-      if(coeff>=1)
+      r->value = 0x0c;
+    }
+  else
+    {
+      r->value = 0x50;
+      coeff=dev->sensor.optical_res/sanei_genesys_compute_dpihw(dev, scan_yres);
+      if (dev->model->motor_type == MOTOR_KVSS080) 
         {
-          r->value |= 0x05;
+          if(coeff>=1)
+            {
+              r->value |= 0x05;
+            }
+        }
+      else {
+        switch(coeff)
+          {
+          case 4:
+              r->value |= 0x0a;
+              break;
+          case 2:
+              r->value |= 0x0f;
+              break;
+          case 1:
+              r->value |= 0x0f;
+              break;
+          }
         }
     }
-  else {
-    switch(coeff)
-      {
-      case 4:
-          r->value |= 0x0a;
-          break;
-      case 2:
-          r->value |= 0x0f;
-          break;
-      case 1:
-          r->value |= 0x0f;
-          break;
-      }
-  }
-
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -1328,8 +1363,16 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   else
     r->value |= REG05_GMMENB;
 
-  sanei_genesys_set_double(reg,REG_DPISET,dpiset);
-  DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset);
+  if(half_ccd)
+    {
+      sanei_genesys_set_double(reg,REG_DPISET,dpiset*4);
+      DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset*4);
+    }
+  else
+    {
+      sanei_genesys_set_double(reg,REG_DPISET,dpiset);
+      DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset);
+    }
 
   sanei_genesys_set_double(reg,REG_STRPIXEL,startx/tgtime);
   sanei_genesys_set_double(reg,REG_ENDPIXEL,endx/tgtime);
@@ -1427,7 +1470,7 @@ gl843_init_scan_regs (Genesys_Device * dev,
 
 
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (dev->sensor.optical_res < 2 * xres ||
+  if (dev->sensor.optical_res < 4 * xres ||
       !(dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE))
     {
       half_ccd = SANE_FALSE;
@@ -1440,7 +1483,7 @@ gl843_init_scan_regs (Genesys_Device * dev,
   /* optical_res */
   optical_res = dev->sensor.optical_res;
   if (half_ccd)
-    optical_res /= 2;
+    optical_res /= 4;
 
   /* stagger starting at 2400, and not applied for calibration */
   stagger = 0;
@@ -1756,7 +1799,7 @@ gl843_calculate_current_setup (Genesys_Device * dev)
 
 /* half_ccd */
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if ((dev->sensor.optical_res < 2 * xres) ||
+  if ((dev->sensor.optical_res < 4 * xres) ||
       !(dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE))
     {
       half_ccd = SANE_FALSE;
@@ -1770,7 +1813,7 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   /* optical_res */
   optical_res = dev->sensor.optical_res;
   if (half_ccd)
-    optical_res /= 2;
+    optical_res /= 4;
 
   /* stagger */
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
@@ -3876,7 +3919,10 @@ gl843_init_gpio (Genesys_Device * dev)
 /* *
  * initialize ASIC from power on condition
  */
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl843_cold_boot (Genesys_Device * dev)
 {
   SANE_Status status;

@@ -3715,7 +3715,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      return status;
 	    }
 
-	  if (val & 0x08)	/* home sensor */
+	  if (val & HOMESNR)	/* home sensor */
 	    {
 	      DBG (DBG_info,
 		   "gl841_slow_back_home: reached home position\n");

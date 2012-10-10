@@ -44,6 +44,7 @@
 #include "genesys.h"
 
 /* Individual bits */
+#define REG01           0x01
 #define REG01_CISSET	0x80
 #define REG01_DOGENB	0x40
 #define REG01_DVDSET	0x20
@@ -52,6 +53,7 @@
 #define REG01_SHDAREA	0x02
 #define REG01_SCAN	0x01
 
+#define REG02           0x02
 #define REG02_NOTHOME	0x80
 #define REG02_ACDCDIS	0x40
 #define REG02_AGOHOME	0x20
@@ -115,6 +117,7 @@
 
 #define REG0A_SRAMBUF	0x01
 
+#define REG0D         	0x0d
 #define REG0D_CLRLNCNT	0x01
 
 #define REG16_CTRLHI	0x80

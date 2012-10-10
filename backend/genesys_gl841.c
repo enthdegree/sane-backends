@@ -3084,31 +3084,32 @@ gl841_stop_action (Genesys_Device * dev)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
-  uint8_t val40;
+  uint8_t val40, val;
   unsigned int loop;
 
-  DBG (DBG_proc,
-       "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __FUNCTION__);
 
-  val40 = 0;
+  status = sanei_genesys_get_status (dev, &val);
+  if (DBG_LEVEL >= DBG_io)
+    {
+      sanei_genesys_print_status (val);
+    }
+
   status = sanei_genesys_read_register(dev, 0x40, &val40);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
 	   "%s: failed to read home sensor: %s\n",__FUNCTION__,
 	   sane_strstatus (status));
-      DBG (DBG_proc,
-	   "%s: completed\n", __FUNCTION__);
+      DBGCOMPLETED;
       return status;
     }
 
   /* only stop action if needed */
   if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
     {
-      DBG (DBG_info,
-	   "%s: already stopped\n", __FUNCTION__);
-      DBG (DBG_proc,
-	   "%s: completed\n", __FUNCTION__);
+      DBG (DBG_info, "%s: already stopped\n", __FUNCTION__);
+      DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
 
@@ -3122,8 +3123,7 @@ gl841_stop_action (Genesys_Device * dev)
   status = gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "%s: failed to bulk write registers: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
@@ -3135,23 +3135,24 @@ gl841_stop_action (Genesys_Device * dev)
   loop = 10;
   while (loop > 0) 
     {
-      val40 = 0;
       status = sanei_genesys_read_register(dev, 0x40, &val40);
+      if (DBG_LEVEL >= DBG_io)
+	{
+	  sanei_genesys_print_status (val);
+        }
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
 	       "%s: failed to read home sensor: %s\n",__FUNCTION__,
 	       sane_strstatus (status));
-	  DBG (DBG_proc,
-	       "%s: completed\n", __FUNCTION__);
+	  DBGCOMPLETED;
 	  return status;
 	}
       
       /* if scanner is in command mode, we are done */
       if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
 	{
-	  DBG (DBG_proc,
-	       "%s: completed\n", __FUNCTION__);
+	  DBGCOMPLETED;
 	  return SANE_STATUS_GOOD;
 	}
 
@@ -3159,9 +3160,7 @@ gl841_stop_action (Genesys_Device * dev)
       loop--;
     }
 
-  DBG (DBG_proc,
-       "%s: completed\n", __FUNCTION__);
-
+  DBGCOMPLETED;
   return SANE_STATUS_IO_ERROR;
 }
 
@@ -3619,17 +3618,22 @@ gl841_feed (Genesys_Device * dev, int steps)
   gl841_stop_action (dev);
 
   DBG (DBG_error,
-       "gl841_slow_back_home: timeout while waiting for scanhead to go home\n");
+       "gl841_feed: timeout while waiting for scanhead to go home\n");
   return SANE_STATUS_IO_ERROR;
 }
 
-/* Moves the slider to the home (top) postion slowly */
-static SANE_Status
+/* Moves the slider to the home (top) position slowly */
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
+  Genesys_Register_Set *r;
   uint8_t val;
+  float resolution;
   int loop = 0;
 
   DBG (DBG_proc, "gl841_slow_back_home (wait_until_home = %d)\n",
@@ -3642,8 +3646,6 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_GOOD;
     }
   
-  memset (local_reg, 0, sizeof (local_reg));
-
   /* reset gpio pin */ 
   if (dev->model->gpo_type == GPO_CANONLIDE35)
     {
@@ -3692,6 +3694,10 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_GOOD;
     }
 
+  /* end previous scan if any */
+  r = sanei_genesys_get_address (dev->reg, REG01);
+  r->value &= ~REG01_SCAN;
+  status = sanei_genesys_write_register (dev, REG01, r->value);
 
   /* if motor is on, stop current action */
   if (val & REG41_MOTORENB)
@@ -3706,22 +3712,18 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
         }
     }
 
+  memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
 
-  gl841_init_optical_regs_off(local_reg);
+  gl841_init_motor_regs(dev,local_reg, 65536,MOTOR_ACTION_GO_HOME,0);
+  
+  /* set up for reverse and no scan */
+  r = sanei_genesys_get_address (local_reg, REG02);
+  r->value |= REG02_MTRREV;
+  r = sanei_genesys_get_address (local_reg, REG01);
+  r->value &= ~REG01_SCAN;
 
-  gl841_init_motor_regs(dev,local_reg,
-			65536,MOTOR_ACTION_GO_HOME,0);
-
-  status =
-    gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl841_slow_back_home: failed to bulk write registers: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
+  RIE (gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS));
 
   status = gl841_start_action (dev);
   if (status != SANE_STATUS_GOOD)

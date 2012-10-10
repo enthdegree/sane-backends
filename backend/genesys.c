@@ -2392,40 +2392,65 @@ compute_averaged_planar (Genesys_Device * dev,
 			     unsigned int o,
 			     unsigned int coeff,
 			     unsigned int target_bright,
-			     unsigned int target_dark,
-                             SANE_Bool deletion)
+			     unsigned int target_dark)
 {
-  unsigned int x, i, j, br, dk, res, avgpixels, val, loop;
+  unsigned int x, i, j, br, dk, res, avgpixels, val;
 
-  DBG (DBG_info, "%s: pixels=%d, offset=%d\n", __FUNCTION__, pixels_per_line, o);
+  DBG (DBG_info, "%s: pixels=%d, offset=%d\n", __FUNCTION__, pixels_per_line,
+       o);
   /* initialize result */
   memset (shading_data, 0xff, words_per_color * 3 * 2);
 
+  /* 
+     strangely i can write 0x20000 bytes beginning at 0x00000 without overwriting
+     slope tables - which begin at address 0x10000(for 1200dpi hw mode):
+     memory is organized in words(2 bytes) instead of single bytes. explains
+     quite some things
+   */
+/*
+  another one: the dark/white shading is actually performed _after_ reducing 
+  resolution via averaging. only dark/white shading data for what would be
+  first pixel at full resolution is used.
+ */
+/*
+  scanner raw input to output value calculation:
+    o=(i-off)*(gain/coeff)
+
+  from datasheet:
+    off=dark_average
+    gain=coeff*bright_target/(bright_average-dark_average)
+  works for dark_target==0
+
+  what we want is these:
+    bright_target=(bright_average-off)*(gain/coeff)
+    dark_target=(dark_average-off)*(gain/coeff)
+  leading to
+    off = (dark_average*bright_target - bright_average*dark_target)/(bright_target - dark_target)
+    gain = (bright_target - dark_target)/(bright_average - dark_average)*coeff
+ */
   /* duplicate half-ccd logic */
   res = dev->settings.xres;
-  if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE)
-      && dev->settings.xres <= dev->sensor.optical_res / 2)
-    {
-      /* scanner is using half-ccd mode */
-      res *= 2;
-    }
-  if (dev->settings.double_xres == SANE_TRUE)
-    {
-      /* scanner is using double x resolution */
-      res *= 2;
-    }
-
-  /* this should be evenly dividable */
+  if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE) &&
+      dev->settings.xres <= dev->sensor.optical_res / 2)
+    res *= 2;			/* scanner is using half-ccd mode */
+  /*this should be evenly dividable */
   avgpixels = dev->sensor.optical_res / res;
 
-  if(deletion==SANE_TRUE)
-    {
-      loop=1;
-    }
+/* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
+  if (avgpixels < 1)
+    avgpixels = 1;
+  else if (avgpixels < 6)
+    avgpixels = avgpixels;
+  else if (avgpixels < 8)
+    avgpixels = 6;
+  else if (avgpixels < 10)
+    avgpixels = 8;
+  else if (avgpixels < 12)
+    avgpixels = 10;
+  else if (avgpixels < 15)
+    avgpixels = 12;
   else
-    {
-      loop=avgpixels;
-    }
+    avgpixels = 15;
 
   DBG (DBG_info, "%s: averaging over %d pixels\n", __FUNCTION__, avgpixels);
 
@@ -2440,41 +2465,87 @@ compute_averaged_planar (Genesys_Device * dev,
 
 	  dk = 0;
 	  br = 0;
-	  for (i = 0; i < loop; i++)
+	  for (i = 0; i < avgpixels; i++)
 	    {
 	      /* dark data */
-	      dk += (dev->dark_average_data[(x + i + pixels_per_line * j) * 2]
-                     | (dev-> dark_average_data[(x + i + pixels_per_line * j) * 2 + 1] << 8));
+	      dk +=
+		(dev->dark_average_data[(x + i +
+					 pixels_per_line * j) *
+					2] |
+		 (dev->dark_average_data
+		  [(x + i + pixels_per_line * j) * 2 + 1] << 8));
 
 	      /* white data */
-	      br += (dev->white_average_data[(x + i + pixels_per_line * j) * 2]
-                     | (dev-> white_average_data[(x + i + pixels_per_line * j) * 2 + 1] << 8));
+	      br +=
+		(dev->white_average_data[(x + i +
+					  pixels_per_line * j) *
+					 2] |
+		 (dev->white_average_data
+		  [(x + i + pixels_per_line * j) * 2 + 1] << 8));
 	    }
 
-	  br /= i;
-	  dk /= i;
+	  br /= avgpixels;
+	  dk /= avgpixels;
 
 	  if (br * target_dark > dk * target_bright)
 	    val = 0;
-	  else if (dk * target_bright - br * target_dark > 65535
-		   * (target_bright - target_dark))
+	  else if (dk * target_bright - br * target_dark >
+		   65535 * (target_bright - target_dark))
 	    val = 65535;
 	  else
-	    val = (dk * target_bright - br * target_dark) / (target_bright
-							     - target_dark);
+	    val =
+	      (dk * target_bright - br * target_dark) / (target_bright -
+							 target_dark);
 
-	  shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
-	  shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
+/*fill all pixels, even if only the last one is relevant*/
+	  for (i = 0; i < avgpixels; i++)
+	    {
+	      shading_data[(x + o + i) * 2 * 2 +
+			   words_per_color * 2 * j] = val & 0xff;
+	      shading_data[(x + o + i) * 2 * 2 +
+			   words_per_color * 2 * j + 1] = val >> 8;
+	    }
 
 	  val = br - dk;
+
 	  if (65535 * val > (target_bright - target_dark) * coeff)
 	    val = (coeff * (target_bright - target_dark)) / val;
 	  else
 	    val = 65535;
 
-	      shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
-	      shading_data[(x/avgpixels) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
+/*fill all pixels, even if only the last one is relevant*/
+	  for (i = 0; i < avgpixels; i++)
+	    {
+	      shading_data[(x + o + i) * 2 * 2 +
+			   words_per_color * 2 * j + 2] = val & 0xff;
+	      shading_data[(x + o + i) * 2 * 2 +
+			   words_per_color * 2 * j + 3] = val >> 8;
+	    }
 	}
+
+/*fill remaining channels*/
+      for (j = channels; j < 3; j++)
+	{
+	  for (i = 0; i < avgpixels; i++)
+	    {
+	      shading_data[(x + o + i) * 2 * 2 +
+			   words_per_color * 2 * j] =
+		shading_data[(x + o + i) * 2 * 2 + words_per_color * 0];
+	      shading_data[(x + o + i) * 2 * 2 +
+			   words_per_color * 2 * j + 1] =
+		shading_data[(x + o + i) * 2 * 2 +
+			     words_per_color * 2 * 0 + 1];
+	      shading_data[(x + o + i) * 2 * 2 +
+			   words_per_color * 2 * j + 2] =
+		shading_data[(x + o + i) * 2 * 2 +
+			     words_per_color * 2 * 0 + 2];
+	      shading_data[(x + o + i) * 2 * 2 +
+			   words_per_color * 2 * j + 3] =
+		shading_data[(x + o + i) * 2 * 2 +
+			     words_per_color * 2 * 0 + 3];
+	    }
+	}
+
     }
 }
 
@@ -2741,13 +2812,11 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   uint8_t channels;
   int o;
   unsigned int length;		/**> number of shading calibration data words */
-  unsigned int x, j, i, res, factor;
+  unsigned int factor;
   unsigned int cmat[3];		/**> matrix of color channels */
-  unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
-  unsigned int target_dark, target_bright, br;
+  unsigned int coeff, target_code, words_per_color = 0;
 
   DBGSTART;
-
 
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
@@ -2954,170 +3023,15 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                                      0xdc00);
       break;
     case CCD_CANONLIDE35:
-      target_bright = 0xfa00;
-      target_dark = 0xa00;
-      o = 4;			/*first four pixels are ignored */
-      memset (shading_data, 0xff, length);
-
-/* 
-  strangely i can write 0x20000 bytes beginning at 0x00000 without overwriting
-  slope tables - which begin at address 0x10000(for 1200dpi hw mode):
-  memory is organized in words(2 bytes) instead of single bytes. explains
-  quite some things
- */
-/*
-  another one: the dark/white shading is actually performed _after_ reducing 
-  resolution via averaging. only dark/white shading data for what would be
-  first pixel at full resolution is used.
- */
-/*
-  scanner raw input to output value calculation:
-    o=(i-off)*(gain/coeff)
-
-  from datasheet:
-    off=dark_average
-    gain=coeff*bright_target/(bright_average-dark_average)
-  works for dark_target==0
-
-  what we want is these:
-    bright_target=(bright_average-off)*(gain/coeff)
-    dark_target=(dark_average-off)*(gain/coeff)
-  leading to
-    off = (dark_average*bright_target - bright_average*dark_target)/(bright_target - dark_target)
-    gain = (bright_target - dark_target)/(bright_average - dark_average)*coeff
- */
-      /* duplicate half-ccd logic */
-      res = dev->settings.xres;
-      if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE) &&
-	  dev->settings.xres <= dev->sensor.optical_res / 2)
-	res *= 2;		/* scanner is using half-ccd mode */
-      /*this should be evenly dividable */
-      avgpixels = dev->sensor.optical_res / res;
-
-/* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
-      if (avgpixels < 1)
-	avgpixels = 1;
-      else if (avgpixels < 6)
-	avgpixels = avgpixels;
-      else if (avgpixels < 8)
-	avgpixels = 6;
-      else if (avgpixels < 10)
-	avgpixels = 8;
-      else if (avgpixels < 12)
-	avgpixels = 10;
-      else if (avgpixels < 15)
-	avgpixels = 12;
-      else
-	avgpixels = 15;
-
-      DBG (DBG_info,
-	   "genesys_send_shading_coefficient: averaging over %d pixels\n",
-	   avgpixels);
-
-      for (x = 0; x <= pixels_per_line - avgpixels; x += avgpixels)
-	{
-
-	  if ((x + o) * 2 * 2 + 3 > words_per_color * 2)
-	    break;
-
-	  for (j = 0; j < channels; j++)
-	    {
-
-	      dk = 0;
-	      br = 0;
-	      for (i = 0; i < avgpixels; i++)
-		{
-		  /* dark data */
-		  dk +=
-		    (dev->dark_average_data[(x + i +
-					     pixels_per_line * j) *
-					    2] |
-		     (dev->dark_average_data
-		      [(x + i + pixels_per_line * j) * 2 + 1] << 8));
-
-		  /* white data */
-		  br +=
-		    (dev->white_average_data[(x + i +
-					      pixels_per_line * j) *
-					     2] |
-		     (dev->white_average_data
-		      [(x + i + pixels_per_line * j) * 2 + 1] << 8));
-		}
-
-	      br /= avgpixels;
-	      dk /= avgpixels;
-
-	      if (br * target_dark > dk * target_bright)
-		val = 0;
-	      else if (dk * target_bright - br * target_dark >
-		       65535 * (target_bright - target_dark))
-		val = 65535;
-	      else
-		val =
-		  (dk * target_bright - br * target_dark) / (target_bright -
-							     target_dark);
-
-/*fill all pixels, even if only the last one is relevant*/
-	      for (i = 0; i < avgpixels; i++)
-		{
-		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * 2 * j] = val & 0xff;
-		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * 2 * j + 1] = val >> 8;
-		}
-
-	      val = br - dk;
-
-	      if (65535 * val > (target_bright - target_dark) * coeff)
-		val = (coeff * (target_bright - target_dark)) / val;
-	      else
-		val = 65535;
-
-/*fill all pixels, even if only the last one is relevant*/
-	      for (i = 0; i < avgpixels; i++)
-		{
-		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * 2 * j + 2] = val & 0xff;
-		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * 2 * j + 3] = val >> 8;
-		}
-	    }
-
-/*fill remaining channels*/
-	  for (j = channels; j < 3; j++)
-	    {
-	      for (i = 0; i < avgpixels; i++)
-		{
-		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * 2 * j] =
-		    shading_data[(x + o + i) * 2 * 2 + words_per_color * 0];
-		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * 2 * j + 1] =
-		    shading_data[(x + o + i) * 2 * 2 +
-				 words_per_color * 2 * 0 + 1];
-		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * 2 * j + 2] =
-		    shading_data[(x + o + i) * 2 * 2 +
-				 words_per_color * 2 * 0 + 2];
-		  shading_data[(x + o + i) * 2 * 2 +
-			       words_per_color * 2 * j + 3] =
-		    shading_data[(x + o + i) * 2 * 2 +
-				 words_per_color * 2 * 0 + 3];
-		}
-	    }
-
-	}
-
-/* creates a black line in image
-      for ( x = 65; x < 66; x++) {
-	  for ( j = 0; j < 3; j++) {
-	      shading_data[(x+o) * 2 * 2 + words_per_color * 2 * j + 0] = 0;
-	      shading_data[(x+o) * 2 * 2 + words_per_color * 2 * j + 1] = 0;
-	      shading_data[(x+o) * 2 * 2 + words_per_color * 2 * j + 2] = 0;
-	      shading_data[(x+o) * 2 * 2 + words_per_color * 2 * j + 3] = 0;
-	  }
-      }
-*/
+      compute_averaged_planar (dev,
+			       shading_data,
+                               pixels_per_line,
+                               words_per_color,
+                               channels,
+                               4,
+                               coeff,
+                               0xfa00,
+                               0x0a00);
       break;
     case CCD_PLUSTEK_3600:
       compute_shifted_coefficients (dev,

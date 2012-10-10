@@ -221,8 +221,15 @@
 #define REG6B_GPO18	0x02
 #define REG6B_GPO17	0x01
 
+#define REG6B      	0x6b
+
+#define REG6C      	0x6c
 #define REG6C_GPIOH	0xff
 #define REG6C_GPIOL	0xff
+
+#define REG6D      	0x6d
+
+#define REG6E      	0x6e
 
 #define REG87_LEDADD    0x04
 

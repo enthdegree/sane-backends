@@ -1979,7 +1979,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     if (dev->model->gpo_type == GPO_CANONLIDE35) 
       {
 /* gpio part.*/
-	r = sanei_genesys_get_address (reg, 0x6c);
+	r = sanei_genesys_get_address (reg, REG6C);
 	if (half_ccd)
 	  r->value &= ~0x80;
 	else
@@ -2897,33 +2897,33 @@ gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
 /* final state: GPIO8 disabled, GPIO9 enabled, GPIO17 disabled, 
    GPIO18 disabled*/
 
-	    sanei_genesys_read_register(dev, 0x6D, &val);
-	    sanei_genesys_write_register(dev, 0x6D, val | 0x80);
+	    sanei_genesys_read_register(dev, REG6D, &val);
+	    sanei_genesys_write_register(dev, REG6D, val | 0x80);
 
 	    usleep(1000);
 
 	    /*enable GPIO9*/
-	    sanei_genesys_read_register(dev, 0x6C, &val);
-	    sanei_genesys_write_register(dev, 0x6C, val | 0x01);
+	    sanei_genesys_read_register(dev, REG6C, &val);
+	    sanei_genesys_write_register(dev, REG6C, val | 0x01);
 	    
 	    /*disable GPO17*/
-	    sanei_genesys_read_register(dev, 0x6B, &val);
-	    sanei_genesys_write_register(dev, 0x6B, val & ~REG6B_GPO17);
+	    sanei_genesys_read_register(dev, REG6B, &val);
+	    sanei_genesys_write_register(dev, REG6B, val & ~REG6B_GPO17);
 
 	    /*disable GPO18*/
-	    sanei_genesys_read_register(dev, 0x6B, &val);
-	    sanei_genesys_write_register(dev, 0x6B, val & ~REG6B_GPO18);
+	    sanei_genesys_read_register(dev, REG6B, &val);
+	    sanei_genesys_write_register(dev, REG6B, val & ~REG6B_GPO18);
 
 	    usleep(1000);
 
-	    sanei_genesys_read_register(dev, 0x6D, &val);
-	    sanei_genesys_write_register(dev, 0x6D, val & ~0x80);
+	    sanei_genesys_read_register(dev, REG6D, &val);
+	    sanei_genesys_write_register(dev, REG6D, val & ~0x80);
 
 	}
 	if (dev->model->gpo_type == GPO_DP685)
 	  {
-	    sanei_genesys_read_register(dev, 0x6B, &val);
-	    sanei_genesys_write_register(dev, 0x6B, val & ~REG6B_GPO17);
+	    sanei_genesys_read_register(dev, REG6B, &val);
+	    sanei_genesys_write_register(dev, REG6B, val & ~REG6B_GPO17);
 	    dev->reg[reg_0x6b].value &= ~REG6B_GPO17;
 	    dev->calib_reg[reg_0x6b].value &= ~REG6B_GPO17;
 	  }
@@ -2940,34 +2940,34 @@ gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
 /* final state: GPIO8 enabled, GPIO9 disabled, GPIO17 enabled, 
    GPIO18 enabled*/
 
-	    sanei_genesys_read_register(dev, 0x6D, &val);
-	    sanei_genesys_write_register(dev, 0x6D, val | 0x80);
+	    sanei_genesys_read_register(dev, REG6D, &val);
+	    sanei_genesys_write_register(dev, REG6D, val | 0x80);
 	    dev->reg[reg_0x6d].value |= 0x80;
 	    dev->calib_reg[reg_0x6d].value |= 0x80;
 
 	    usleep(10000);
 
 	    /*disable GPIO9*/
-	    sanei_genesys_read_register(dev, 0x6C, &val);
-	    sanei_genesys_write_register(dev, 0x6C, val & ~0x01);
+	    sanei_genesys_read_register(dev, REG6C, &val);
+	    sanei_genesys_write_register(dev, REG6C, val & ~0x01);
 	    dev->reg[reg_0x6c].value &= ~0x01;
 	    dev->calib_reg[reg_0x6c].value &= ~0x01;
 
 	    /*enable GPIO10*/
-	    sanei_genesys_read_register(dev, 0x6C, &val);
-	    sanei_genesys_write_register(dev, 0x6C, val | 0x02);
+	    sanei_genesys_read_register(dev, REG6C, &val);
+	    sanei_genesys_write_register(dev, REG6C, val | 0x02);
 	    dev->reg[reg_0x6c].value |= 0x02;
 	    dev->calib_reg[reg_0x6c].value |= 0x02;
 
 	    /*enable GPO17*/
-	    sanei_genesys_read_register(dev, 0x6B, &val);
-	    sanei_genesys_write_register(dev, 0x6B, val | REG6B_GPO17);
+	    sanei_genesys_read_register(dev, REG6B, &val);
+	    sanei_genesys_write_register(dev, REG6B, val | REG6B_GPO17);
 	    dev->reg[reg_0x6b].value |= REG6B_GPO17;
 	    dev->calib_reg[reg_0x6b].value |= REG6B_GPO17;
 
 	    /*enable GPO18*/
-	    sanei_genesys_read_register(dev, 0x6B, &val);
-	    sanei_genesys_write_register(dev, 0x6B, val | REG6B_GPO18);
+	    sanei_genesys_read_register(dev, REG6B, &val);
+	    sanei_genesys_write_register(dev, REG6B, val | REG6B_GPO18);
 	    dev->reg[reg_0x6b].value |= REG6B_GPO18;
 	    dev->calib_reg[reg_0x6b].value |= REG6B_GPO18;
 
@@ -2975,8 +2975,8 @@ gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
 	if (dev->model->gpo_type == GPO_DP665 
             || dev->model->gpo_type == GPO_DP685)
 	  {
-	    sanei_genesys_read_register(dev, 0x6B, &val);
-	    sanei_genesys_write_register(dev, 0x6B, val | REG6B_GPO17);
+	    sanei_genesys_read_register(dev, REG6B, &val);
+	    sanei_genesys_write_register(dev, REG6B, val | REG6B_GPO17);
 	    dev->reg[reg_0x6b].value |= REG6B_GPO17;
 	    dev->calib_reg[reg_0x6b].value |= REG6B_GPO17;
 	  }
@@ -3171,7 +3171,7 @@ gl841_get_paper_sensor(Genesys_Device * dev, SANE_Bool * paper_loaded)
   SANE_Status status;
   uint8_t val;
   
-  status = sanei_genesys_read_register(dev, 0x6d, &val);
+  status = sanei_genesys_read_register(dev, REG6D, &val);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3630,6 +3630,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
   uint8_t val;
+  int loop = 0;
 
   DBG (DBG_proc, "gl841_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
@@ -3642,7 +3643,32 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
   
   memset (local_reg, 0, sizeof (local_reg));
-  val = 0;
+
+  /* reset gpio pin */ 
+  if (dev->model->gpo_type == GPO_CANONLIDE35)
+    {
+      RIE (sanei_genesys_read_register (dev, REG6C, &val));
+      val = dev->gpo.value[0];
+      RIE (sanei_genesys_write_register (dev, REG6C, val));
+    }
+  gl841_save_power(dev, SANE_FALSE);
+
+  /* first read gives HOME_SENSOR true */
+  status = sanei_genesys_get_status (dev, &val);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl847_slow_back_home: failed to read home sensor: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  if (DBG_LEVEL >= DBG_io)
+    {
+      sanei_genesys_print_status (val);
+    }
+  usleep (100000);		/* sleep 100 ms */
+
+  /* second is reliable */
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
     {
@@ -3650,6 +3676,10 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	   "gl841_slow_back_home: failed to read home sensor: %s\n",
 	   sane_strstatus (status));
       return status;
+    }
+  if (DBG_LEVEL >= DBG_io)
+    {
+      sanei_genesys_print_status (val);
     }
 
   dev->scanhead_position_in_steps = 0;
@@ -3662,13 +3692,18 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_GOOD;
     }
 
-  status = gl841_stop_action (dev);
-  if (status != SANE_STATUS_GOOD)
+
+  /* if motor is on, stop current action */
+  if (val & REG41_MOTORENB)
     {
-      DBG (DBG_error,
-	   "gl841_slow_back_home: failed to stop motor: %s\n",
-	   sane_strstatus (status));
-      return SANE_STATUS_IO_ERROR;
+      status = gl841_stop_action (dev);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error,
+               "gl841_slow_back_home: failed to stop motor: %s\n",
+               sane_strstatus (status));
+          return SANE_STATUS_IO_ERROR;
+        }
     }
 
   memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
@@ -3702,8 +3737,6 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   if (wait_until_home)
     {
-      int loop = 0;
-
       while (loop < 300)		/* do not wait longer then 30 seconds */
 	{
 	  status = sanei_genesys_get_status (dev, &val);
@@ -3715,10 +3748,9 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      return status;
 	    }
 
-	  if (val & HOMESNR)	/* home sensor */
+	  if (val & REG41_HOMESNR)	/* home sensor */
 	    {
-	      DBG (DBG_info,
-		   "gl841_slow_back_home: reached home position\n");
+	      DBG (DBG_info, "gl841_slow_back_home: reached home position\n");
 	      DBG (DBG_proc, "gl841_slow_back_home: finished\n");
 	      return SANE_STATUS_GOOD;
 	    }
@@ -4012,7 +4044,7 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
        dev->settings.yres, dev->settings.lines, dev->settings.pixels,
        dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
 
-  gl841_slow_back_home(dev,1);
+  gl841_slow_back_home(dev,SANE_TRUE);
 
 /* channels */
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
@@ -5112,7 +5144,7 @@ sanei_gl841_repark_head (Genesys_Device * dev)
     }
 
   /* toggle motor flag, put an huge step number and redo move backward */
-  status = gl841_slow_back_home (dev, 1);
+  status = gl841_slow_back_home (dev, SANE_TRUE);
   DBG (DBG_proc, "gl841_park_head: completed\n");
   return status;
 }
@@ -5363,7 +5395,7 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
   
   if (s->dev->model->gpo_type == GPO_CANONLIDE35) 
     {
-      RIE(sanei_genesys_read_register(s->dev, 0x6d, &val));
+      RIE(sanei_genesys_read_register(s->dev, REG6D, &val));
 
       if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
 	s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
@@ -5379,7 +5411,7 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
       s->dev->model->gpo_type == GPO_DP665 ||
       s->dev->model->gpo_type == GPO_DP685)
     {
-      RIE(sanei_genesys_read_register(s->dev, 0x6d, &val));
+      RIE(sanei_genesys_read_register(s->dev, REG6D, &val));
 
       if (s->val[OPT_PAGE_LOADED_SW].b == s->last_val[OPT_PAGE_LOADED_SW].b)
 	s->val[OPT_PAGE_LOADED_SW].b = (val & 0x01) == 0;

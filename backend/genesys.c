@@ -6888,6 +6888,15 @@ sane_close (SANE_Handle handle)
             }
         }
     }
+
+  /* enable power saving before leaving */
+  status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+           "sane_close: failed to enable power saving mode: %s\n",
+           sane_strstatus (status));
+    }
     
   /* here is the place to store calibration cache */
   write_calibration (s->dev);
@@ -7811,14 +7820,17 @@ sane_cancel (SANE_Handle handle)
 	}
     }
 
-  /* enable power saving mode */
-  status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
+  /* enable power saving mode unless no parking */
+  if(s->dev->parking==SANE_FALSE)
     {
-      DBG (DBG_error,
-	   "sane_cancel: failed to enable power saving mode: %s\n",
-	   sane_strstatus (status));
-      return;
+      status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error,
+               "sane_cancel: failed to enable power saving mode: %s\n",
+               sane_strstatus (status));
+          return;
+        }
     }
 
   DBGCOMPLETED;

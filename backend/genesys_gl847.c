@@ -1887,6 +1887,11 @@ gl847_stop_action (Genesys_Device * dev)
 
   /* post scan gpio : without that HOMSNR is unreliable */
   gl847_homsnr_gpio(dev);
+  status = sanei_genesys_get_status (dev, &val);
+  if (DBG_LEVEL >= DBG_io)
+    {
+      sanei_genesys_print_status (val);
+    }
 
   status = sanei_genesys_read_register (dev, REG40, &val40);
   if (status != SANE_STATUS_GOOD)

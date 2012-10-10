@@ -360,12 +360,12 @@ msgstr "ランプの暖機"
 #: ../include/sane/saneopts.h:217
 #, no-c-format
 msgid "Cal. exposure-time"
-msgstr "露出時間を構成"
+msgstr "露出時間を較正"
 
 #: ../include/sane/saneopts.h:218
 #, no-c-format
 msgid "Cal. exposure-time for red"
-msgstr "赤の露出時間を構成"
+msgstr "赤の露出時間を較正"
 
 #: ../include/sane/saneopts.h:219
 #, no-c-format
@@ -4571,7 +4571,7 @@ msgid ""
 msgstr ""
 "ハンドスキャナーをシミュレートします。ハンドスキャナーは、たいていの場"
 "合、イメージの高さが事前にはわかりません。その代わり、高さとしてー１を返"
-"します。このオプションを設定すると、フロントエンドが正しくそれを圧あける"
+"します。このオプションを設定すると、フロントエンドが正しくそれを扱える"
 "か、テストします。"
 
 #: ../backend/pnm.c:283

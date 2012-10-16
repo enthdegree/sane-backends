@@ -127,9 +127,9 @@ static int sa_is_equal( const bjnp_sockaddr_t * sa1, const bjnp_sockaddr_t * sa2
   if ((sa1 == NULL) || (sa2 == NULL) )
     return 0;
 
-  if (sa1->sa.sa_family == sa2-> sa.sa_family)
+  if (sa1->addr.sa_family == sa2-> addr.sa_family)
     {
-      if( sa1 -> sa.sa_family == AF_INET)
+      if( sa1 -> addr.sa_family == AF_INET)
         {
           if ( (sa1->ipv4.sin_port == sa2->ipv4.sin_port) &&
                (sa1->ipv4.sin_addr.s_addr == sa2->ipv4.sin_addr.s_addr))
@@ -138,7 +138,7 @@ static int sa_is_equal( const bjnp_sockaddr_t * sa1, const bjnp_sockaddr_t * sa2
             }
         } 
 #ifdef ENABLE_IPV6
-      else if (sa1 -> sa.sa_family == AF_INET6 )
+      else if (sa1 -> addr.sa_family == AF_INET6 )
         {
           if ( (sa1-> ipv6.sin6_port == sa2->ipv6.sin6_port) &&
               (memcmp(&(sa1->ipv6.sin6_addr), &(sa2->ipv6.sin6_addr), sizeof(struct in6_addr)) == 0))
@@ -154,7 +154,7 @@ static int sa_is_equal( const bjnp_sockaddr_t * sa1, const bjnp_sockaddr_t * sa2
 static int 
 sa_size( const bjnp_sockaddr_t *sa)
 {
-  switch (sa -> sa.sa_family)
+  switch (sa -> addr.sa_family)
     {
       case AF_INET: 
         return (sizeof(struct sockaddr_in) );
@@ -171,7 +171,7 @@ sa_size( const bjnp_sockaddr_t *sa)
 static int
 get_protocol_family( const bjnp_sockaddr_t *sa)
 {
-  switch (sa -> sa.sa_family)
+  switch (sa -> addr.sa_family)
     {
       case AF_INET:
         return PF_INET;
@@ -191,13 +191,13 @@ static void
 get_address_info ( const bjnp_sockaddr_t *addr, char * addr_string, int *port)
 {
   char tmp_addr[BJNP_HOST_MAX];
-  if ( addr->sa.sa_family == AF_INET)
+  if ( addr->addr.sa_family == AF_INET)
     {
       inet_ntop( AF_INET, &(addr -> ipv4.sin_addr.s_addr), addr_string, BJNP_HOST_MAX);
       *port = ntohs (addr->ipv4.sin_port);
     }
 #ifdef ENABLE_IPV6
-  else if (addr->sa.sa_family == AF_INET6)
+  else if (addr->addr.sa_family == AF_INET6)
     {
       inet_ntop( AF_INET6, addr -> ipv6.sin6_addr.s6_addr, tmp_addr, sizeof(tmp_addr) );
 
@@ -363,7 +363,7 @@ bjnp_open_tcp (int devno)
   fcntl (sock, F_SETFD, FD_CLOEXEC); 
 
   if (connect
-      (sock, &(addr->in), sa_size(device[devno].addr) )!= 0)
+      (sock, &(addr->addr), sa_size(device[devno].addr) )!= 0)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "bjnp_open_tcp: Can not connect to scanner: %s\n",
@@ -546,7 +546,7 @@ bjnp_setup_udp_socket ( const int dev_no )
     }
 
   if (connect
-      (sockfd, &(device[dev_no].addr->sa), sa_size(device[dev_no].addr) )!= 0)
+      (sockfd, &(device[dev_no].addr->addr), sa_size(device[dev_no].addr) )!= 0)
     {
       PDBG (pixma_dbg
 	    (LOG_CRIT, "setup_udp_socket: connect failed- %s\n",
@@ -684,7 +684,7 @@ get_scanner_id (const int dev_no, char *model)
   return 0;
 }
 
-static void
+static int
 get_scanner_name(const bjnp_sockaddr_t *scanner_sa, char *host)
 {
   /*
@@ -696,25 +696,30 @@ get_scanner_name(const bjnp_sockaddr_t *scanner_sa, char *host)
   struct addrinfo *result;
   char ip_address[BJNP_HOST_MAX];
   int port;
-/*
-  char ip_address2[BJNP_HOST_MAX];
-  int port2;
-*/
   int error; 
   int match = 0;
+  int level;
   char service[64];
+
+#ifdef ENABLE_IPV6
+  if ( ( scanner_sa -> addr.sa_family == AF_INET6 ) &&
+       ( IN6_IS_ADDR_LINKLOCAL( &(scanner_sa -> ipv6 ) ) ) )
+    level = BJNP_ADDRESS_IS_LINK_LOCAL;
+  else
+#endif
+    level = BJNP_ADDRESS_IS_GLOBAL;
 
   get_address_info( scanner_sa, ip_address, &port );
 
   /* do reverse name lookup, if hostname can not be found return ip-address */
 
-  if( (error = getnameinfo( &(scanner_sa -> sa) , sa_size( scanner_sa), 
+  if( (error = getnameinfo( &(scanner_sa -> addr) , sa_size( scanner_sa), 
                   host, BJNP_HOST_MAX , NULL, 0, NI_NAMEREQD) ) != 0 )
     {
       PDBG (pixma_dbg(LOG_INFO, "Name for %s not found : %s\n", 
                       ip_address, gai_strerror(error) ) );
       strcpy(host, ip_address);
-      return;
+      return level;
     }
   else
     {
@@ -728,14 +733,13 @@ get_scanner_name(const bjnp_sockaddr_t *scanner_sa, char *host)
 
           while (result != NULL) 
             {
-               /* get_address_info((bjnp_sockaddr_t *) result->ai_addr, ip_address2, &port2);
-               PDBG (pixma_dbg (LOG_DEBUG, "Testing against %s\n", ip_address2 ) ); */
                if(sa_is_equal( scanner_sa, (bjnp_sockaddr_t *)result-> ai_addr))
                  {
                      /* found match, good */
                      PDBG (pixma_dbg (LOG_INFO, 
                               "Forward lookup for %s succeeded, using as hostname\n", host));
                     match = 1;
+                    level = BJNP_ADDRESS_HAS_FQDN;
                     break;
                  }
               result = result-> ai_next;
@@ -757,6 +761,7 @@ get_scanner_name(const bjnp_sockaddr_t *scanner_sa, char *host)
            strcpy (host, ip_address);
          }
     }
+  return level;
 }
 
 static int create_broadcast_socket( const bjnp_sockaddr_t * local_addr )
@@ -766,7 +771,7 @@ static int create_broadcast_socket( const bjnp_sockaddr_t * local_addr )
   int ipv6_v6only = 1;
 
 
- if ((sockfd = socket (local_addr-> sa.sa_family, SOCK_DGRAM, 0)) == -1)
+ if ((sockfd = socket (local_addr-> addr.sa_family, SOCK_DGRAM, 0)) == -1)
     {
       PDBG (pixma_dbg
             (LOG_CRIT, "create_broadcast_socket: can not open socket - %s",
@@ -789,7 +794,7 @@ static int create_broadcast_socket( const bjnp_sockaddr_t * local_addr )
     };
 
   /* For an IPv6 socket, bind to v6 only so a V6 socket can co-exist with a v4 socket */
-  if ( (local_addr -> sa.sa_family == AF_INET6) && ( setsockopt
+  if ( (local_addr -> addr.sa_family == AF_INET6) && ( setsockopt
       (sockfd, IPPROTO_IPV6, IPV6_V6ONLY, (const char *) &ipv6_v6only,
        sizeof (ipv6_v6only)) != 0) )
     {
@@ -802,7 +807,7 @@ static int create_broadcast_socket( const bjnp_sockaddr_t * local_addr )
     };
 
   if (bind
-      (sockfd, &(local_addr->in),
+      (sockfd, &(local_addr->addr),
        (socklen_t) sa_size( local_addr)) != 0)
     {
       PDBG (pixma_dbg
@@ -843,7 +848,7 @@ prepare_socket(const char *if_name, const bjnp_sockaddr_t *local_sa,
   memset( &local_sa_copy, 0, sizeof(local_sa_copy) );
   memcpy( &local_sa_copy, local_sa, sa_size(local_sa) );
 
-  switch( local_sa_copy.sa.sa_family )
+  switch( local_sa_copy.addr.sa_family )
     {
       case AF_INET:
         {
@@ -928,7 +933,7 @@ bjnp_send_broadcast (int sockfd, const bjnp_sockaddr_t * broadcast_addr,
   /* usebroadcast address of interface */
 
   if ((num_bytes = sendto (sockfd, &cmd, size, 0,
-			  &(broadcast_addr->in),
+			  &(broadcast_addr->addr),
 			  sa_size( broadcast_addr)) ) != size)
     {
       PDBG (pixma_dbg (LOG_INFO,
@@ -1336,9 +1341,11 @@ bjnp_recv_header (int devno, size_t *payload_size )
 }
 
 static int
-bjnp_init_device_structure(int dn, struct sockaddr *sa )
+bjnp_init_device_structure(int dn, bjnp_sockaddr_t *sa )
 {
   /* initialize device structure */
+
+  char name[BJNP_HOST_MAX];
 
   device[dn].open = 0;
 #ifdef PIXMA_BJNP_USE_STATUS
@@ -1351,7 +1358,7 @@ bjnp_init_device_structure(int dn, struct sockaddr *sa )
   device[dn].addr = (bjnp_sockaddr_t *) malloc(sizeof ( bjnp_sockaddr_t) );
   memset( device[dn].addr, 0, sizeof( bjnp_sockaddr_t ) );  
   memcpy(device[dn].addr, sa, sa_size((bjnp_sockaddr_t *)sa) );
-  
+  device[dn].address_level = get_scanner_name(sa, name);
   device[dn].session_id = 0;
   device[dn].serial = -1;
   device[dn].bjnp_timeout = 0;
@@ -1534,7 +1541,7 @@ bjnp_allocate_device (SANE_String_Const devname,
           freeaddrinfo(res);
           return BJNP_STATUS_INVAL;
         }
-      if (bjnp_init_device_structure( bjnp_no_devices, cur -> ai_addr) != 0)
+      if (bjnp_init_device_structure( bjnp_no_devices, (bjnp_sockaddr_t *)cur -> ai_addr) != 0)
         {
           /* giving up on this address, try next one if any */
           break;
@@ -1547,6 +1554,14 @@ bjnp_allocate_device (SANE_String_Const devname,
           if ( (sa_is_equal( device[i].addr, (bjnp_sockaddr_t *)cur -> ai_addr) ) ||
                ( strcmp( device[i].mac_address, device[bjnp_no_devices].mac_address ) == 0 ) )
             {
+              if ( device[i].address_level < device[bjnp_no_devices].address_level ) 
+                {
+                  /* use the new address instead as it is better */
+                  free (device[i].addr);
+                  device[i].addr = device[bjnp_no_devices].addr;
+                  device[bjnp_no_devices].addr = NULL;
+                  device[i].address_level = device[bjnp_no_devices].address_level;
+                }
               freeaddrinfo(res); 
               *dn = i;
               bjnp_free_device_structure( bjnp_no_devices);
@@ -1815,7 +1830,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
               socklen =  sizeof(scanner_sa);
 	      if ((numbytes =
 		   recvfrom (socket_fd[i], resp_buf, sizeof (resp_buf), 0, 
-                             &(scanner_sa.in), &socklen ) ) == -1)
+                             &(scanner_sa.addr), &socklen ) ) == -1)
 		{
 		  PDBG (pixma_dbg
 			(LOG_INFO, "find_devices: no data received"));

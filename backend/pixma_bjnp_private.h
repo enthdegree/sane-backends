@@ -292,11 +292,18 @@ typedef enum
 typedef union
 {
   struct sockaddr_storage storage;
-  struct sockaddr sa;
-  struct sockaddr_in in;
+  struct sockaddr addr;
   struct sockaddr_in ipv4;
   struct sockaddr_in6 ipv6;
 } bjnp_sockaddr_t;
+
+typedef enum
+{
+  BJNP_ADDRESS_IS_LINK_LOCAL = 0,
+  BJNP_ADDRESS_IS_GLOBAL = 1,
+  BJNP_ADDRESS_HAS_FQDN = 2
+} bjnp_address_type_t;
+
 
 /*
  * Device information for opened devices
@@ -319,13 +326,14 @@ typedef struct device_s
   /* TCP bulk read state information */
 
   size_t blocksize;		/* size of (TCP) blocks returned by the scanner */
-  size_t  scanner_data_left;	/* TCP data left from last read request */
+  size_t scanner_data_left;	/* TCP data left from last read request */
   char last_block;		/* last TCP read command was shorter than blocksize */
 
   /* device information */
   char mac_address[BJNP_HOST_MAX];
  		 		/* mac-address, used as device serial no */
   bjnp_sockaddr_t * addr;	/* ip-address of the scanner */
+  int address_level;		/* link local, public or has a FQDN */
   int bjnp_timeout;		/* timeout (msec) for next poll command */
 
 #ifdef PIXMA_BJNP_USE_STATUS

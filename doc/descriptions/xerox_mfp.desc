@@ -48,6 +48,11 @@
 :mfg "Samsung"
 :url "http://www.samsung.com"
 
+:model "SCX-4100"
+:interface "USB"
+:usbid "0x04e8" "0x3413"
+:status :good
+
 :model "SCX-4200"
 :interface "USB"
 :usbid "0x04e8" "0x341b"

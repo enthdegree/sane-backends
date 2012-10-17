@@ -1,3 +1,7 @@
+2012-10-17 Alex Belkin <abc at telekom.ru>
+        * backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
+        for Samsung SCX-4100, reported by Antonello Lobianco.
+
 2012-09-18 Alex Belkin <abc at telekom.ru>
         * backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
         for Samsung SCX-4729FD, reported by wom balton.

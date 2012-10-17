@@ -1916,14 +1916,6 @@ gl847_stop_action (Genesys_Device * dev)
   val &= ~REG01_SCAN;
   sanei_genesys_set_reg_from_set (dev->reg, REG01, val);
   status = sanei_genesys_write_register (dev, REG01, val);
-
-  memset (local_reg, 0, sizeof (local_reg));
-  memcpy (local_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
-
-  gl847_init_optical_regs_off (local_reg);
-
-  gl847_init_motor_regs_off (local_reg, 0);
-  status = gl847_bulk_write_register (dev, local_reg, GENESYS_GL847_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,

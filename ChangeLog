@@ -1,3 +1,6 @@
+2012-10-18 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon*: IX-4015 support by Ondrej Zary
+
 2012-10-17 Alex Belkin <abc at telekom.ru>
         * backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
         for Samsung SCX-4100, reported by Antonello Lobianco.

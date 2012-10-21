@@ -907,8 +907,7 @@ gl841_init_registers (Genesys_Device * dev)
 
   sanei_gl841_setup_sensor (dev, dev->reg, 0, 0); 
 
-
-
+  /* set up GPIO */
   dev->reg[reg_0x6c].value = dev->gpo.value[0];
   dev->reg[reg_0x6d].value = dev->gpo.value[1];
   dev->reg[reg_0x6e].value = dev->gpo.enable[0];
@@ -2942,22 +2941,16 @@ gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
 
 	    sanei_genesys_read_register(dev, REG6D, &val);
 	    sanei_genesys_write_register(dev, REG6D, val | 0x80);
-	    dev->reg[reg_0x6d].value |= 0x80;
-	    dev->calib_reg[reg_0x6d].value |= 0x80;
 
 	    usleep(10000);
 
 	    /*disable GPIO9*/
 	    sanei_genesys_read_register(dev, REG6C, &val);
 	    sanei_genesys_write_register(dev, REG6C, val & ~0x01);
-	    dev->reg[reg_0x6c].value &= ~0x01;
-	    dev->calib_reg[reg_0x6c].value &= ~0x01;
 
 	    /*enable GPIO10*/
 	    sanei_genesys_read_register(dev, REG6C, &val);
 	    sanei_genesys_write_register(dev, REG6C, val | 0x02);
-	    dev->reg[reg_0x6c].value |= 0x02;
-	    dev->calib_reg[reg_0x6c].value |= 0x02;
 
 	    /*enable GPO17*/
 	    sanei_genesys_read_register(dev, REG6B, &val);

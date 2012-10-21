@@ -697,7 +697,7 @@ static Genesys_Gpo Gpo[] = {
   ,
   /* CANONLIDE35 */
   {GPO_CANONLIDE35,
-   {0x81, 0x80}
+   {0x12, 0x80}
    ,
    {0xef, 0x80}
    ,

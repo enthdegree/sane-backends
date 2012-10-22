@@ -201,7 +201,7 @@ get_address_info ( const bjnp_sockaddr_t *addr, char * addr_string, int *port)
     {
       inet_ntop( AF_INET6, addr -> ipv6.sin6_addr.s6_addr, tmp_addr, sizeof(tmp_addr) );
 
-      if (IN6_IS_ADDR_LINKLOCAL( addr -> ipv6.sin6_addr.s6_addr) )
+      if (IN6_IS_ADDR_LINKLOCAL( &(addr -> ipv6.sin6_addr) ) )
           sprintf(addr_string, "[%s%%%d]", tmp_addr, addr -> ipv6.sin6_scope_id);
 
       *port = ntohs (addr->ipv6.sin6_port);
@@ -703,7 +703,7 @@ get_scanner_name(const bjnp_sockaddr_t *scanner_sa, char *host)
 
 #ifdef ENABLE_IPV6
   if ( ( scanner_sa -> addr.sa_family == AF_INET6 ) &&
-       ( IN6_IS_ADDR_LINKLOCAL( &(scanner_sa -> ipv6 ) ) ) )
+       ( IN6_IS_ADDR_LINKLOCAL( &(scanner_sa -> ipv6.sin6_addr ) ) ) )
     level = BJNP_ADDRESS_IS_LINK_LOCAL;
   else
 #endif
@@ -887,7 +887,7 @@ prepare_socket(const char *if_name, const bjnp_sockaddr_t *local_sa,
         {
           local_sa_copy.ipv6.sin6_port = htons(BJNP_PORT_SCAN);
 
-          if (IN6_IS_ADDR_LOOPBACK( local_sa_copy.ipv6.sin6_addr.s6_addr )  ) 
+          if (IN6_IS_ADDR_LOOPBACK( &(local_sa_copy.ipv6.sin6_addr) ) )
             {
               /* not a valid interface */
 

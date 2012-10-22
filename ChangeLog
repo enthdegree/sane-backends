@@ -1,3 +1,7 @@
+2012-10-22 Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* po/sv.po: Updated Swedish translation
+	* backend/pixma_bjnp.c: Fix arguments to IPv6 macros
+
 2012-10-18 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon*: IX-4015 support by Ondrej Zary
 

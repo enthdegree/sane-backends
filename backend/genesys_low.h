@@ -301,6 +301,7 @@ Genesys_Color_Order;
 #define DAC_CANONLIDE110   14
 #define DAC_PLUSTEK_3600   15
 #define DAC_CANONLIDE700   16
+#define DAC_CS8400F        17
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -326,6 +327,7 @@ Genesys_Color_Order;
 #define CCD_HP_N6310     21
 #define CIS_CANONLIDE700 22
 #define CCD_CS4400F      23
+#define CCD_CS8400F      24
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -348,18 +350,19 @@ Genesys_Color_Order;
 #define GPO_HP_N6310     18
 #define GPO_CANONLIDE700 19
 #define GPO_CS4400F      20
+#define GPO_CS8400F      21
 
-#define MOTOR_UMAX       0
-#define MOTOR_5345       1
-#define MOTOR_ST24       2
-#define MOTOR_HP2400     3
-#define MOTOR_HP2300     4
-#define MOTOR_CANONLIDE35 5
-#define MOTOR_XP200      6
-#define MOTOR_XP300      7
-#define MOTOR_HP3670     9
-#define MOTOR_DP665      10
-#define MOTOR_ROADWARRIOR 11
+#define MOTOR_UMAX          0
+#define MOTOR_5345          1
+#define MOTOR_ST24          2
+#define MOTOR_HP2400        3
+#define MOTOR_HP2300        4
+#define MOTOR_CANONLIDE35   5
+#define MOTOR_XP200         6
+#define MOTOR_XP300         7
+#define MOTOR_HP3670        9
+#define MOTOR_DP665        10
+#define MOTOR_ROADWARRIOR  11
 #define MOTOR_DSMOBILE_600 12
 #define MOTOR_CANONLIDE200 13
 #define MOTOR_CANONLIDE100 14
@@ -368,6 +371,7 @@ Genesys_Color_Order;
 #define MOTOR_CANONLIDE110 17
 #define MOTOR_PLUSTEK_3600 18
 #define MOTOR_CANONLIDE700 19
+#define MOTOR_CS8400F      20
 
 
 /* Forward typedefs */
@@ -658,9 +662,10 @@ struct Genesys_Calibration_Cache
 struct Genesys_Device
 {
   SANE_Int dn;
-  SANE_Word vendorId;			/**< USB vendor identifier */
-  SANE_Word productId;			/**< USB product identifier */
-  SANE_Bool usb_mode;
+  SANE_Word vendorId;			/**> USB vendor identifier */
+  SANE_Word productId;			/**> USB product identifier */
+  SANE_Int usb_mode;			/**> USB mode: 1 for USB 1.1, 2 for USB 2.0,
+					  0 unset and -1 for fake USB device */
   SANE_String file_name;
   SANE_String calib_file;
   Genesys_Model *model;

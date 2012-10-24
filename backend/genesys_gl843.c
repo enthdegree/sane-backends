@@ -65,6 +65,13 @@ write_end_access (Genesys_Device * dev, uint8_t index, uint8_t val)
 
   DBG (DBG_io, "write_end_access: 0x%02x,0x%02x\n", index, val);
 
+#ifdef UNIT_TESTING
+  if(dev->usb_mode<0)
+    {
+      return SANE_STATUS_GOOD;
+    }
+#endif
+
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
 			   VALUE_BUF_ENDACCESS, index, 1, &val);
@@ -551,11 +558,7 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi,i
   r = sanei_genesys_get_address (regs, 0x7d);
   if (r)
     {
-      if (dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)
-        {
-          r->value = 0x00;
-        }
-      else
+      if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE))
         {
           r->value = 0x90;
         }
@@ -615,7 +618,6 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x09, 0x00);
   SETREG (0x0a, 0x00);
   SETREG (0x0b, 0x6a);
-  SETREG (0x0c, 0x00);
   SETREG (0x10, 0x00);
   SETREG (0x11, 0x00);
   SETREG (0x12, 0x00);
@@ -704,17 +706,22 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x82, 0x00);
       SETREG (0x83, 0x00);
       SETREG (0x84, 0x00);
+      SETREG (0x85, 0x00);
       SETREG (0x86, 0x00);
     }
-  SETREG (0x85, 0x00);
   SETREG (0x87, 0x00);
   SETREG (0x9d, 0x04);
-  SETREG (0x94, 0xff);
   SETREG (0x9e, 0x00);
-  SETREG (0xab, 0x50);
+  if (strcmp (dev->model->name, "canon-canoscan-8400f") != 0)
+    {
+      SETREG (0x0c, 0x00);
+      SETREG (0x94, 0xff);
+      SETREG (0xab, 0x50);
+    }
      
   /* so many time burnt for this register ....*/
-  if (strcmp (dev->model->name, "canon-canoscan-4400f") != 0)
+  if (strcmp (dev->model->name, "canon-canoscan-4400f") != 0
+    &&strcmp (dev->model->name, "canon-canoscan-8400f") != 0)
     {
       SETREG (0xaa, 0x00);
     }
@@ -771,7 +778,6 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x72, 0x01);
       SETREG (0x73, 0x03);
       SETREG (0x80, 0x0c);
-      SETREG (0x85, 0x85);      /* strange at least */
       SETREG (0x87, 0x02);      /* MCLOCK -> CK4MAP */
       SETREG (0x9d, 0x08);      /* STEPTIM=2        */
       SETREG (0xa2, 0x1f);
@@ -779,6 +785,24 @@ gl843_init_registers (Genesys_Device * dev)
       sanei_genesys_set_double(dev->reg,REG_EXPR,0x9c40);
       sanei_genesys_set_double(dev->reg,REG_EXPG,0x9c40);
       sanei_genesys_set_double(dev->reg,REG_EXPB,0x9c40);
+    }
+  
+  if (strcmp (dev->model->name, "canon-canoscan-8400f") == 0)
+    {
+      SETREG (0x03, 0x1c);
+      SETREG (0x06, 0xd0); /* SCANMOD=110, PWRBIT and no GAIN4 */
+      SETREG (0x0a, 0x10);
+      SETREG (0x22, 0x50);
+      SETREG (0x23, 0x50);
+      SETREG (0x5e, 0x85);
+      SETREG (0x6b, 0xb1);
+      SETREG (0x1e, 0xa0);
+      SETREG (0x72, 0x03);
+      SETREG (0x73, 0x04);
+      SETREG (0x7d, 0x20);
+      SETREG (0x80, 0x28);
+      SETREG (0x87, 0x02);      /* MCLOCK -> CK4MAP */
+      SETREG (0x9d, 0x08);      /* STEPTIM=2        */
     }
 
   /* fine tune upon device description */
@@ -1124,11 +1148,7 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
 
   /* Vref XXX STEF XXX : optical divider or step type ? */
   r = sanei_genesys_get_address (reg, 0x80);
-  if (dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)
-    {
-      r->value = 0x0c;
-    }
-  else
+  if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE))
     {
       r->value = 0x50;
       coeff=dev->sensor.optical_res/sanei_genesys_compute_dpihw(dev, scan_yres);
@@ -2423,6 +2443,7 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
         RIE (sanei_genesys_write_register (dev, REG7E, 0x01));
         break;
       case GPO_CS4400F:
+      case GPO_CS8400F:
       default:
         break;
     }
@@ -4147,6 +4168,7 @@ gl843_update_hardware_sensors (Genesys_Scanner * s)
           s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
         break;
       case GPO_CS4400F:
+      case GPO_CS8400F:
       default:
         break;
     }

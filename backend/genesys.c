@@ -926,6 +926,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
       && dev->model->ccd_type != CCD_KVSS080
       && dev->model->ccd_type != CCD_G4050
       && dev->model->ccd_type != CCD_CS4400F
+      && dev->model->ccd_type != CCD_CS8400F
       && dev->model->ccd_type != CCD_DSMOBILE600
       && dev->model->ccd_type != CCD_XP300
       && dev->model->ccd_type != CCD_DP665
@@ -985,6 +986,7 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
   if (dev->model->ccd_type==CCD_KVSS080
    || dev->model->ccd_type==CCD_G4050
    || dev->model->ccd_type==CCD_CS4400F
+   || dev->model->ccd_type==CCD_CS8400F
    || dev->model->cmd_set->send_shading_data!=NULL)
     return SANE_STATUS_GOOD;
 
@@ -1933,6 +1935,7 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
     }
   if (dev->model->ccd_type==CCD_G4050
    || dev->model->ccd_type==CCD_CS4400F
+   || dev->model->ccd_type==CCD_CS8400F
    || dev->model->ccd_type==CCD_KVSS080)
     {
       skip = 2;
@@ -2985,6 +2988,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CCD_KVSS080:
     case CCD_G4050:
     case CCD_CS4400F:
+    case CCD_CS8400F:
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,

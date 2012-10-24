@@ -290,6 +290,13 @@ sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
 {
   SANE_Status status;
 
+#ifdef UNIT_TESTING
+  if(dev->usb_mode<0)
+    {
+      return SANE_STATUS_GOOD;
+    }
+#endif
+
   /* route to gl847 function if needed */
   if(dev->model->asic_type==GENESYS_GL847 || dev->model->asic_type==GENESYS_GL124)
     return sanei_genesys_write_gl847_register(dev, reg, val);
@@ -382,6 +389,14 @@ SANE_Status
 sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg, uint8_t * val)
 {
   SANE_Status status;
+
+#ifdef UNIT_TESTING
+  if(dev->usb_mode<0)
+    {
+      *val=0;
+      return SANE_STATUS_GOOD;
+    }
+#endif
 
   /* route to gl847 function if needed */
   if(dev->model->asic_type==GENESYS_GL847 || dev->model->asic_type==GENESYS_GL124)
@@ -509,6 +524,13 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
 {
   SANE_Status status;
   Genesys_Register_Set reg[3];
+
+#ifdef UNIT_TESTING
+  if(dev->usb_mode<0)
+    {
+      return SANE_STATUS_GOOD;
+    }
+#endif
 
   DBG (DBG_io, "sanei_genesys_fe_write_data (0x%02x, 0x%04x)\n", addr, data);
 

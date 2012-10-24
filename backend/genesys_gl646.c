@@ -538,7 +538,6 @@ gl646_stop_motor (Genesys_Device * dev)
 /**
  * find the lowest resolution for the sensor in the given mode.
  * @param sensor id of the sensor
- * @param required required resolution
  * @param color true is color mode
  * @return the closest resolution for the sensor and mode
  */
@@ -2229,7 +2228,7 @@ gl646_set_lamp_power (Genesys_Device * dev,
  * enters or leaves power saving mode
  * limited to AFE for now.
  * @param dev scanner's device
- * @param SANE_TRUE to enable power saving, SANE_FALSE to leave it
+ * @param enable SANE_TRUE to enable power saving, SANE_FALSE to leave it
  * @return allways SANE_STATUS_GOOD 
  */
 #ifndef UNIT_TESTING
@@ -4985,7 +4984,8 @@ gl646_move_to_ta (Genesys_Device * dev)
  * @param dev device of the scanner
  * @param settings parameters of the scan
  * @param move SANE_TRUE if moving during scan
- * @param move SANE_TRUE if moving forward during scan
+ * @param forward SANE_TRUE if moving forward during scan
+ * @param shading SANE_TRUE to enable shading correction
  * @param data pointer for the data
  */
 #ifndef UNIT_TESTING
@@ -5517,7 +5517,7 @@ write_control (Genesys_Device * dev, int resolution)
  * Whenever an error is met, it is returned.
  * @param dev scanner device
  * @param cache cache entry to test
- * @for_overwrite reserved for future use ...
+ * @param for_overwrite reserved for future use ...
  */
 static SANE_Status
 gl646_is_compatible_calibration (Genesys_Device * dev,

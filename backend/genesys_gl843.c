@@ -449,7 +449,7 @@ gl843_test_motor_flag_bit (SANE_Byte val)
   return SANE_FALSE;
 }
 
-/** @get sensor profile
+/** @brief sensor profile
  * search for the database of motor profiles and get the best one. Each
  * profile is at a specific dpihw. Use first entry of table by default.
  * @param sensor_type sensor id
@@ -1194,11 +1194,17 @@ static int gl843_compute_exposure(Genesys_Device *dev, int xres, int flags)
 /** @brief setup optical related registers
  * start and pixels are expressed in optical sensor resolution coordinate
  * space. 
+ * @param dev device to use
+ * @param reg registers to set up
  * @param exposure exposure time to use
  * @param used_res scanning resolution used, may differ from
  *        scan's one
  * @param start logical start pixel coordinate
  * @param pixels logical number of pixels to use
+ * @param channels number of color channles used (1 or 3)
+ * @param depth bit depth of the scan (1, 8 or 16 bits)
+ * @param half_ccd SANE_TRUE if timings are such that x coordiantes must be halved
+ * @param color_filter to choose the color channel used in gray scans
  * @param flags to drive specific settings such no calibration, XPA use ...
  * @return SANE_STATUS_GOOD if OK
  */
@@ -1962,7 +1968,7 @@ gl843_set_lamp_power (Genesys_Device * dev,
 
 /**
  * for fast power saving methods only, like disabling certain amplifiers
- * @param device device to use
+ * @param dev device to use
  * @param enable true to set inot powersaving
  * */
 static SANE_Status

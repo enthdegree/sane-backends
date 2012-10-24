@@ -235,7 +235,7 @@ sanei_genesys_init_fe (Genesys_Device * dev)
  * number of accerelation steps is put into used_steps. 
  *
  * @param slope_table    Table to write to
- * @param max_step       Size of slope_table in steps
+ * @param max_steps      Size of slope_table in steps
  * @param use_steps      Maximum number of steps to use for acceleration
  * @param stop_at        Minimum step time to use
  * @param vstart         Start step time of default slope
@@ -351,6 +351,7 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
  * @param yres           Resolution of a scan line
  * @param used_steps     Final number of steps is stored here
  * @param final_exposure Final step time is stored here
+ * @param power_mode     Power mode (related to the Vref used) of the motor
  * @return               Time for acceleration
  * @note  all times in pixel time
  */
@@ -2351,25 +2352,24 @@ compute_coefficient (unsigned int coeff, unsigned int target, unsigned int value
 }
 
 /** @brief compute shading coefficients for LiDE scanners
- *
-The dark/white shading is actually performed _after_ reducing
-resolution via averaging. only dark/white shading data for what would be
-first pixel at full resolution is used.
-
-scanner raw input to output value calculation:
-  o=(i-off)*(gain/coeff)
-
-from datasheet:
-  off=dark_average
-  gain=coeff*bright_target/(bright_average-dark_average)
-works for dark_target==0
-
-what we want is these:
-  bright_target=(bright_average-off)*(gain/coeff)
-  dark_target=(dark_average-off)*(gain/coeff)
-leading to
-  off = (dark_average*bright_target - bright_average*dark_target)/(bright_target - dark_target)
-  gain = (bright_target - dark_target)/(bright_average - dark_average)*coeff
+ * The dark/white shading is actually performed _after_ reducing
+ * resolution via averaging. only dark/white shading data for what would be
+ * first pixel at full resolution is used.
+ * 
+ * scanner raw input to output value calculation:
+ *   o=(i-off)*(gain/coeff)
+ * 
+ * from datasheet:
+ *   off=dark_average
+ *   gain=coeff*bright_target/(bright_average-dark_average)
+ * works for dark_target==0
+ * 
+ * what we want is these:
+ *   bright_target=(bright_average-off)*(gain/coeff)
+ *   dark_target=(dark_average-off)*(gain/coeff)
+ * leading to
+ *  off = (dark_average*bright_target - bright_average*dark_target)/(bright_target - dark_target)
+ *  gain = (bright_target - dark_target)/(bright_average - dark_average)*coeff
  *
  * @param dev scanner's device
  * @param shading_data memory area where to store the computed shading coefficients
@@ -2380,8 +2380,6 @@ leading to
  * @param coeff 4000h or 2000h depending on fast scan mode or not (GAIN4 bit)
  * @param target_bright value of the white target code
  * @param target_dark value of the black target code
- * @param deletion is true if scan is done with deletion set, else averaging
- * is used
 */
 #ifndef UNIT_TESTING
 static
@@ -2557,9 +2555,10 @@ compute_averaged_planar (Genesys_Device * dev,
  * manipulated here are little endian. For now we assume deletion scanning type
  * and that there is always 3 channels.
  * @param dev scanner's device
- * @shading_data memory area where to store the computed shading coefficients
+ * @param shading_data memory area where to store the computed shading coefficients
  * @param pixels_per_line number of pixels per line
  * @param channels number of color channels (actually 1 or 3)
+ * @param cmat color transposition matrix
  * @param offset shading coefficients left offset
  * @param coeff 4000h or 2000h depending on fast scan mode or not
  * @param target value of the target code
@@ -2630,10 +2629,11 @@ compute_coefficients (Genesys_Device * dev,
  * manipulated here are little endian. Data is in planar form, ie grouped by
  * lines of the same color component.
  * @param dev scanner's device
- * @shading_data memory area where to store the computed shading coefficients
- * @factor averaging factor when the calibration scan is done at a higher resolution
+ * @param shading_data memory area where to store the computed shading coefficients
+ * @param factor averaging factor when the calibration scan is done at a higher resolution
  * than the final scan
  * @param pixels_per_line number of pixels per line
+ * @param words_per_color total number of shading data words for one color element
  * @param channels number of color channels (actually 1 or 3)
  * @param cmat transcoding matrix for color channel order
  * @param offset shading coefficients left offset

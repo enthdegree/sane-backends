@@ -312,7 +312,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance);
  * it put in an allocated area which must be freed by the caller.
  * and slope tables, based on the parameter struct. There is no shading
  * correction while gamma correction is active.
- * @param device   device to set up
+ * @param dev      device to set up
  * @param settings settings of the scan
  * @param move     flag to enable scanhead to move
  * @param forward  flag to tell movement direction

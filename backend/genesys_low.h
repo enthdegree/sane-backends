@@ -100,45 +100,45 @@
 #define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __FUNCTION__);
 
 /* Flags */
-#define GENESYS_FLAG_UNTESTED     (1 << 0)	/**> Print a warning for these scanners */
-#define GENESYS_FLAG_14BIT_GAMMA  (1 << 1)	/**> use 14bit Gamma table instead of 12 */
-#define GENESYS_FLAG_LAZY_INIT    (1 << 2)	/**> skip extensive ASIC test at init   */
+#define GENESYS_FLAG_UNTESTED     (1 << 0)	/**< Print a warning for these scanners */
+#define GENESYS_FLAG_14BIT_GAMMA  (1 << 1)	/**< use 14bit Gamma table instead of 12 */
+#define GENESYS_FLAG_LAZY_INIT    (1 << 2)	/**< skip extensive ASIC test at init   */
 #define GENESYS_FLAG_XPA          (1 << 3)
-#define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/**> skip genesys_warmup()              */
+#define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/**< skip genesys_warmup()              */
 /** @brief offset calibration flag
  * signals that the scanner does offset calibration. In this case off_calibration() and
  * coarse_gain_calibration() functions must be implemented 
  */
 #define GENESYS_FLAG_OFFSET_CALIBRATION   (1 << 5)
-#define GENESYS_FLAG_SEARCH_START (1 << 6)	/**> do start search before scanning    */
-#define GENESYS_FLAG_REPARK       (1 << 7)	/**> repark head (and check for lock) by 
+#define GENESYS_FLAG_SEARCH_START (1 << 6)	/**< do start search before scanning    */
+#define GENESYS_FLAG_REPARK       (1 << 7)	/**< repark head (and check for lock) by 
 						   moving without scanning */
-#define GENESYS_FLAG_DARK_CALIBRATION (1 << 8)	/**> do dark calibration */
-#define GENESYS_FLAG_STAGGERED_LINE   (1 << 9)	/**> pixel columns are shifted vertically for hi-res modes */
+#define GENESYS_FLAG_DARK_CALIBRATION (1 << 8)	/**< do dark calibration */
+#define GENESYS_FLAG_STAGGERED_LINE   (1 << 9)	/**< pixel columns are shifted vertically for hi-res modes */
 
-#define GENESYS_FLAG_MUST_WAIT        (1 << 10)	/**> tells wether the scanner must wait for the head when parking */
+#define GENESYS_FLAG_MUST_WAIT        (1 << 10)	/**< tells wether the scanner must wait for the head when parking */
 
 
-#define GENESYS_FLAG_HAS_UTA          (1 << 11)	/**> scanner has a transparency adapter */
+#define GENESYS_FLAG_HAS_UTA          (1 << 11)	/**< scanner has a transparency adapter */
 
-#define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /**> yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
-#define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /**> allow custom gamma tables */
-#define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /**> allow scanners to use skip the calibration, needed for sheetfed scanners */
-#define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /**> scanner has setting for half ccd mode */
-#define GENESYS_FLAG_SIS_SENSOR       (1 << 16)       /**> handling of multi-segments sensors in software */
-#define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**> scanner doesn't move sensor during shading calibration */
-#define GENESYS_FLAG_SHADING_REPARK   (1 << 18)       /**> repark head between shading scans */
-#define GENESYS_FLAG_FULL_HWDPI_MODE  (1 << 19)       /**> scanner always use maximum hw dpi to setup the sensor */
+#define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /**< yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
+#define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /**< allow custom gamma tables */
+#define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /**< allow scanners to use skip the calibration, needed for sheetfed scanners */
+#define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /**< scanner has setting for half ccd mode */
+#define GENESYS_FLAG_SIS_SENSOR       (1 << 16)       /**< handling of multi-segments sensors in software */
+#define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**< scanner doesn't move sensor during shading calibration */
+#define GENESYS_FLAG_SHADING_REPARK   (1 << 18)       /**< repark head between shading scans */
+#define GENESYS_FLAG_FULL_HWDPI_MODE  (1 << 19)       /**< scanner always use maximum hw dpi to setup the sensor */
 
-#define GENESYS_HAS_NO_BUTTONS       0              /**> scanner has no supported button */
-#define GENESYS_HAS_SCAN_SW          (1 << 0)       /**> scanner has SCAN button */
-#define GENESYS_HAS_FILE_SW          (1 << 1)       /**> scanner has FILE button */
-#define GENESYS_HAS_COPY_SW          (1 << 2)       /**> scanner has COPY button */
-#define GENESYS_HAS_EMAIL_SW         (1 << 3)       /**> scanner has EMAIL button */
-#define GENESYS_HAS_PAGE_LOADED_SW   (1 << 4)       /**> scanner has paper in detection */
-#define GENESYS_HAS_OCR_SW           (1 << 5)       /**> scanner has OCR button */
-#define GENESYS_HAS_POWER_SW         (1 << 6)       /**> scanner has power button */
-#define GENESYS_HAS_CALIBRATE        (1 << 7)       /**> scanner has 'calibrate' software button to start calibration */
+#define GENESYS_HAS_NO_BUTTONS       0              /**< scanner has no supported button */
+#define GENESYS_HAS_SCAN_SW          (1 << 0)       /**< scanner has SCAN button */
+#define GENESYS_HAS_FILE_SW          (1 << 1)       /**< scanner has FILE button */
+#define GENESYS_HAS_COPY_SW          (1 << 2)       /**< scanner has COPY button */
+#define GENESYS_HAS_EMAIL_SW         (1 << 3)       /**< scanner has EMAIL button */
+#define GENESYS_HAS_PAGE_LOADED_SW   (1 << 4)       /**< scanner has paper in detection */
+#define GENESYS_HAS_OCR_SW           (1 << 5)       /**< scanner has OCR button */
+#define GENESYS_HAS_POWER_SW         (1 << 6)       /**< scanner has power button */
+#define GENESYS_HAS_CALIBRATE        (1 << 7)       /**< scanner has 'calibrate' software button to start calibration */
 
 /* USB control message values */
 #define REQUEST_TYPE_IN		(USB_TYPE_VENDOR | USB_DIR_IN)
@@ -204,7 +204,7 @@ typedef struct
 
 typedef struct
 {
-  uint8_t fe_id;	      /**> id of the frontend description */
+  uint8_t fe_id;	      /**< id of the frontend description */
   uint8_t reg[4];
   uint8_t sign[3];
   uint8_t offset[3];
@@ -214,7 +214,7 @@ typedef struct
 
 typedef struct
 {
-  uint8_t sensor_id;	      /**> id of the sensor description */
+  uint8_t sensor_id;	      /**< id of the sensor description */
   int optical_res;
   int black_pixels;
   int dummy_pixel;              /* value of dummy register. */
@@ -235,9 +235,9 @@ typedef struct
 
 typedef struct
 {
-  uint8_t gpo_id;	/**> id of the gpo description */
-  uint8_t value[2];	/**> registers 0x6c and 0x6d on gl843 */
-  uint8_t enable[2];	/**> registers 0x6e and 0x6F on gl843 */
+  uint8_t gpo_id;	/**< id of the gpo description */
+  uint8_t value[2];	/**< registers 0x6c and 0x6d on gl843 */
+  uint8_t enable[2];	/**< registers 0x6e and 0x6F on gl843 */
 } Genesys_Gpo;
 
 typedef struct
@@ -254,7 +254,7 @@ typedef struct
 
 typedef struct
 {
-  uint8_t motor_id;	         /**> id of the motor description */
+  uint8_t motor_id;	         /**< id of the motor description */
   SANE_Int base_ydpi;		 /* motor base steps. Unit: 1/" */
   SANE_Int optical_ydpi;	 /* maximum resolution in y-direction. Unit: 1/"  */
   SANE_Int max_step_type;        /* maximum step type. 0-2 */
@@ -564,27 +564,27 @@ typedef struct Genesys_Model
   SANE_Int search_lines;	/* how many lines are used to search start position */
 } Genesys_Model;
 
-#define SCAN_METHOD_FLATBED      0     /**> normal scan method */
-#define SCAN_METHOD_TRANSPARENCY 2     /**> scan using transparency adaptor */
-#define SCAN_METHOD_NEGATIVE     0x88  /**> scan using negative adaptor */
+#define SCAN_METHOD_FLATBED      0     /**< normal scan method */
+#define SCAN_METHOD_TRANSPARENCY 2     /**< scan using transparency adaptor */
+#define SCAN_METHOD_NEGATIVE     0x88  /**< scan using negative adaptor */
 
-#define SCAN_MODE_LINEART        0 	/**> lineart scan mode */
-#define SCAN_MODE_HALFTONE       1 	/**> halftone scan mode */
-#define SCAN_MODE_GRAY           2 	/**> gray scan mode */
-#define SCAN_MODE_COLOR          4 	/**> color scan mode */
+#define SCAN_MODE_LINEART        0 	/**< lineart scan mode */
+#define SCAN_MODE_HALFTONE       1 	/**< halftone scan mode */
+#define SCAN_MODE_GRAY           2 	/**< gray scan mode */
+#define SCAN_MODE_COLOR          4 	/**< color scan mode */
 
 typedef struct
 {
   int scan_method;		/* todo: change >=2: Transparency, 0x88: negative film */
   int scan_mode;		/* todo: change 0,1 = lineart, halftone; 2 = gray, 3 = 3pass color, 4=single pass color */
-  int xres;			/**> horizontal dpi */
-  int yres;			/**> vertical dpi */
+  int xres;			/**< horizontal dpi */
+  int yres;			/**< vertical dpi */
 
   double tl_x;			/* x start on scan table in mm */
   double tl_y;			/* y start on scan table in mm */
 
-  unsigned int lines;		/**> number of lines at scan resolution */
-  unsigned int pixels;		/**> number of pixels at scan resolution */
+  unsigned int lines;		/**< number of lines at scan resolution */
+  unsigned int pixels;		/**< number of pixels at scan resolution */
 
   unsigned int depth;/* bit depth of the scan */
 
@@ -593,23 +593,23 @@ typedef struct
 
   unsigned int color_filter;
 
-  /**> true if scan is true gray, false if monochrome scan */
+  /**< true if scan is true gray, false if monochrome scan */
   int true_gray;	
 
-  /**> lineart threshold */
+  /**< lineart threshold */
   int threshold;
 
-  /**> lineart threshold curve for dynamic rasterization */
+  /**< lineart threshold curve for dynamic rasterization */
   int threshold_curve;
 
-  /**> Disable interpolation for xres<yres*/
+  /**< Disable interpolation for xres<yres*/
   int disable_interpolation;
 
-  /**> Use double x resolution internally to provide better
+  /**< Use double x resolution internally to provide better
    * quality */
   int double_xres;
 
-  /**> true is lineart is generated from gray data by
+  /**< true is lineart is generated from gray data by
    * the dynamic rasterization algo */
   int dynamic_lineart;
 } Genesys_Settings;
@@ -662,9 +662,9 @@ struct Genesys_Calibration_Cache
 struct Genesys_Device
 {
   SANE_Int dn;
-  SANE_Word vendorId;			/**> USB vendor identifier */
-  SANE_Word productId;			/**> USB product identifier */
-  SANE_Int usb_mode;			/**> USB mode: 1 for USB 1.1, 2 for USB 2.0,
+  SANE_Word vendorId;			/**< USB vendor identifier */
+  SANE_Word productId;			/**< USB product identifier */
+  SANE_Int usb_mode;			/**< USB mode: 1 for USB 1.1, 2 for USB 2.0,
 					  0 unset and -1 for fake USB device */
   SANE_String file_name;
   SANE_String calib_file;
@@ -683,8 +683,8 @@ struct Genesys_Device
   time_t init_date;
 
   size_t average_size;
-  size_t calib_pixels;	/**> number of pixels used during shading calibration */
-  size_t calib_lines;	/**> number of lines used during shading calibration */
+  size_t calib_pixels;	/**< number of pixels used during shading calibration */
+  size_t calib_lines;	/**< number of lines used during shading calibration */
   size_t calib_channels;
   size_t calib_resolution;
   uint8_t *white_average_data;
@@ -696,51 +696,51 @@ struct Genesys_Device
   SANE_Int lamp_off_time;
 
   SANE_Bool read_active;
-  SANE_Bool parking;		/**> signal wether the park command has been issued */
-  SANE_Bool document;		/**> for sheetfed scanner's, is TRUE when there
+  SANE_Bool parking;		/**< signal wether the park command has been issued */
+  SANE_Bool document;		/**< for sheetfed scanner's, is TRUE when there
 				   is a document in the scanner */
 
   Genesys_Buffer read_buffer;
   Genesys_Buffer lines_buffer;
   Genesys_Buffer shrink_buffer;
   Genesys_Buffer out_buffer;
-  Genesys_Buffer binarize_buffer; /**> buffer for digital lineart from gray data */
-  Genesys_Buffer local_buffer;    /**> local buffer for gray data during dynamix lineart */
+  Genesys_Buffer binarize_buffer; /**< buffer for digital lineart from gray data */
+  Genesys_Buffer local_buffer;    /**< local buffer for gray data during dynamix lineart */
 
-  size_t read_bytes_left;	/**> bytes to read from scanner */
+  size_t read_bytes_left;	/**< bytes to read from scanner */
 
-  size_t total_bytes_read;	/**> total bytes read sent to frontend */
-  size_t total_bytes_to_read;	/**> total bytes read to be sent to frontend */
-  size_t wpl;			/**> asic's word per line */
+  size_t total_bytes_read;	/**< total bytes read sent to frontend */
+  size_t total_bytes_to_read;	/**< total bytes read to be sent to frontend */
+  size_t wpl;			/**< asic's word per line */
 
   Genesys_Current_Setup current_setup; /* contains the real used values */
  
-  /**> look up table used in dynamic rasterization */
+  /**< look up table used in dynamic rasterization */
   unsigned char lineart_lut[256];
 
   Genesys_Calibration_Cache *calibration_cache;
 
   struct Genesys_Device *next;
 
-  SANE_Int ld_shift_r;		/**> used red line-distance shift*/
-  SANE_Int ld_shift_g;		/**> used green line-distance shift*/
-  SANE_Int ld_shift_b;		/**> used blue line-distance shift*/
-  int segnb;       /**> number of segments composing the sensor */
-  int line_interp; /**> number of lines used in line interpolation */
-  int line_count;  /**> number of scan lines used during scan */
-  size_t bpl;      /**> bytes per full scan widthline */
-  size_t dist;     /**> bytes distance between an odd and an even pixel */
-  size_t len;      /**> number of even pixels */
-  size_t cur;      /**> current pixel position within sub window */
-  size_t skip;     /**> number of bytes to skip at start of line */
-  size_t *order;   /**> array describing the order of the sub-segments of the sensor */
-  Genesys_Buffer oe_buffer; /**> buffer to handle even/odd data */
+  SANE_Int ld_shift_r;		/**< used red line-distance shift*/
+  SANE_Int ld_shift_g;		/**< used green line-distance shift*/
+  SANE_Int ld_shift_b;		/**< used blue line-distance shift*/
+  int segnb;       /**< number of segments composing the sensor */
+  int line_interp; /**< number of lines used in line interpolation */
+  int line_count;  /**< number of scan lines used during scan */
+  size_t bpl;      /**< bytes per full scan widthline */
+  size_t dist;     /**< bytes distance between an odd and an even pixel */
+  size_t len;      /**< number of even pixels */
+  size_t cur;      /**< current pixel position within sub window */
+  size_t skip;     /**< number of bytes to skip at start of line */
+  size_t *order;   /**< array describing the order of the sub-segments of the sensor */
+  Genesys_Buffer oe_buffer; /**< buffer to handle even/odd data */
 
-  SANE_Bool buffer_image; /**> when true the scanned picture is first buffered
+  SANE_Bool buffer_image; /**< when true the scanned picture is first buffered
 			   * to allow software image enhancements */
-  SANE_Byte *img_buffer; /**> image buffer where the scanned picture is stored */
+  SANE_Byte *img_buffer; /**< image buffer where the scanned picture is stored */
 
-  FILE *binary; /**> binary logger file */
+  FILE *binary; /**< binary logger file */
 };
 
 typedef struct Genesys_USB_Device_Entry
@@ -754,10 +754,10 @@ typedef struct Genesys_USB_Device_Entry
  * structure for motor database
  */
 typedef struct {
-	int motor_type;	 /**> motor id */
-	int exposure;    /**> exposure for the slope table */
-        int step_type;   /**> default step type for given exposure */
-	uint32_t *table; /**> 0 terminated slope table at full step */
+	int motor_type;	 /**< motor id */
+	int exposure;    /**< exposure for the slope table */
+        int step_type;   /**< default step type for given exposure */
+	uint32_t *table; /**< 0 terminated slope table at full step */
 } Motor_Profile;
 
 #define FULL_STEP       0
@@ -790,13 +790,18 @@ typedef struct {
 #define MOTOR_FLAG_FEED                     0x04
 #define MOTOR_FLAG_USE_XPA                  0x08
 
-#define OPTICAL_FLAG_DISABLE_GAMMA          0x01
-#define OPTICAL_FLAG_DISABLE_SHADING        0x02
-#define OPTICAL_FLAG_DISABLE_LAMP           0x04
-#define OPTICAL_FLAG_ENABLE_LEDADD          0x08
-#define OPTICAL_FLAG_DISABLE_DOUBLE         0x10
-#define OPTICAL_FLAG_STAGGER                0x20
-#define OPTICAL_FLAG_USE_XPA                0x40
+/** @name "Optical flags" */
+/*@{ optical flags available when setting up sensor for scan */
+
+#define OPTICAL_FLAG_DISABLE_GAMMA          0x01 /**< disable gamma correction */
+#define OPTICAL_FLAG_DISABLE_SHADING        0x02 /**< disable shading correction */
+#define OPTICAL_FLAG_DISABLE_LAMP           0x04 /**< turn off lamp */
+#define OPTICAL_FLAG_ENABLE_LEDADD          0x08 /**< enable true CIS gray by enabling LED addition */
+#define OPTICAL_FLAG_DISABLE_DOUBLE         0x10 /**< disable automatic x-direction double data expansion */
+#define OPTICAL_FLAG_STAGGER                0x20 /**< disable stagger correction */
+#define OPTICAL_FLAG_USE_XPA                0x40 /**< use XPA lamp rather than regular one */
+
+/*@} */
 
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
@@ -989,7 +994,7 @@ int sanei_genesys_slope_table(uint16_t *slope, int *steps, int dpi, int exposure
 /** @brief find lowest motor resolution for the device.
  * Parses the resolution list for motor and
  * returns the lowest value.
- * @param device for which to find the lowest motor resolution
+ * @param dev for which to find the lowest motor resolution
  * @return the lowest available motor resolution for the device
  */
 extern
@@ -998,7 +1003,7 @@ int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev);
 /** @brief find lowest resolution for the device.
  * Parses the resolution list for motor and sensor and
  * returns the lowest value.
- * @param device for which to find the lowest resolution
+ * @param dev for which to find the lowest resolution
  * @return the lowest available resolution for the device
  */
 extern

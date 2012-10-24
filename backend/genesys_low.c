@@ -1168,7 +1168,7 @@ int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres)
   return dev->sensor.optical_res;
 }
 
-/** @get motor profile
+/** @brief motor profile
  * search for the database of motor profiles and get the best one. Each
  * profile is at full step and at a reference exposure. Use first entry
  * by default.

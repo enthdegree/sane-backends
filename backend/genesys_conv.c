@@ -92,7 +92,7 @@ genesys_reverse_bits(
 
 /**
  * uses the threshold/threshold_curve to control software binarization
- * This code was taken from the epjistsu backend by m. allan noah <kitno455 at gmail dot com>
+ * This code was taken from the epjistsu backend by m. allan noah
  * @param dev device set up for the scan
  * @param src pointer to raw data
  * @param dst pointer where to store result

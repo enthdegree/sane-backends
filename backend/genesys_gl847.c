@@ -300,7 +300,7 @@ gl847_get_step_multiplier (Genesys_Register_Set * regs)
   return value;
 }
 
-/** @get sensor profile
+/** @brief sensor profile
  * search for the database of motor profiles and get the best one. Each
  * profile is at a specific dpihw. Use LiDE 110 table by default.
  * @param sensor_type sensor id

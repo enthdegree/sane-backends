@@ -271,7 +271,7 @@ gl124_test_motor_flag_bit (SANE_Byte val)
   return SANE_FALSE;
 }
 
-/** @get sensor profile
+/** @brief sensor profile
  * search for the database of motor profiles and get the best one. Each
  * profile is at a specific dpihw. Use LiDE 110 table by default.
  * @param sensor_type sensor id
@@ -322,7 +322,7 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
   return &(sensors[idx]);
 }
 
-/** @get motor profile
+/** @brief motor profile
  * search for the database of motor profiles and get the best one. Each
  * profile is at full step and at a reference exposure. Use LiDE 110 table
  * by default.
@@ -1212,11 +1212,19 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 /** @brief setup optical related registers
  * start and pixels are expressed in optical sensor resolution coordinate
  * space.
+ * @param dev scanner device to use
+ * @param reg registers to set up
  * @param exposure_time exposure time to use
  * @param used_res scanning resolution used, may differ from
  *        scan's one
  * @param start logical start pixel coordinate
  * @param pixels logical number of pixels to use
+ * @param channels number of color channels (currently 1 or 3)
+ * @param depth bit depth of the scan (1, 8 or 16)
+ * @param half_ccd SANE_TRUE if sensor's timings are such that x coordinates 
+ *           must be halved
+ * @param color_filter color channel to use as gray data
+ * @param flags optical flags (@see )
  * @return SANE_STATUS_GOOD if OK
  */
 static SANE_Status
@@ -1911,7 +1919,7 @@ gl124_set_lamp_power (Genesys_Device * dev,
 
 /**
  * for fast power saving methods only, like disabling certain amplifiers
- * @param device device to use
+ * @param dev device to use
  * @param enable true to set inot powersaving
  * */
 static SANE_Status

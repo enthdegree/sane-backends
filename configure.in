@@ -425,6 +425,11 @@ dnl ************
 dnl FIXME: These are a lot of header files to scan.  We should
 dnl scan for just one that is unique per platform and then do
 dnl conditional scans for more specific only as needed.
+
+# Unset VERSION during the SCSI header check
+sed "s!^#define VERSION .*!/* & */!" confdefs.h >> confdefs.h.tmp
+mv confdefs.h.tmp confdefs.h
+ 
 AC_CHECK_HEADERS(IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
   IOKit/scsi/SCSICommandOperationCodes.h \
   IOKit/scsi-commands/SCSICommandOperationCodes.h scsi.h sys/scsi.h \
@@ -432,6 +437,11 @@ AC_CHECK_HEADERS(IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
   camlib.h scdds.h sys/scsi/scsi.h sys/scsi/sgdefs.h \
   sys/scsi/targets/scgio.h apollo/scsi.h sys/sdi_comm.h \
   sys/passthrudef.h)
+
+# Restore VERSION
+sed "s!/\* \(#define VERSION .*\) \*/!\1!" confdefs.h >> confdefs.h.tmp
+mv confdefs.h.tmp confdefs.h
+
 AC_CHECK_HEADERS([io/cam/cam.h],,,[#include <io/common/iotypes.h>])
 AC_CHECK_HEADERS([ntddscsi.h ddk/ntddscsi.h],,,[#include <windows.h>])
 

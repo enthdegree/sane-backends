@@ -9855,6 +9855,11 @@ fi
 
 
 
+
+# Unset VERSION during the SCSI header check
+sed "s!^#define VERSION .*!/* & */!" confdefs.h >> confdefs.h.tmp
+mv confdefs.h.tmp confdefs.h
+
 for ac_header in IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
   IOKit/scsi/SCSICommandOperationCodes.h \
   IOKit/scsi-commands/SCSICommandOperationCodes.h scsi.h sys/scsi.h \
@@ -9873,6 +9878,11 @@ _ACEOF
 fi
 
 done
+
+
+# Restore VERSION
+sed "s!/\* \(#define VERSION .*\) \*/!\1!" confdefs.h >> confdefs.h.tmp
+mv confdefs.h.tmp confdefs.h
 
 for ac_header in io/cam/cam.h
 do :

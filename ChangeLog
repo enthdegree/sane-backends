@@ -1,3 +1,7 @@
+2012-10-24 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_*.[ch]: Lide 35 improvements, doxygen fixes,
+	experimental 100 dpi support for Canoscan 4400F and 8400F
+
 2012-10-24 Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* configure.in, configure: Unset VERSION during the SCSI header check
 	  (Check fails on MacOS X if VERSION is defined)

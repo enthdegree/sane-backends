@@ -427,7 +427,7 @@ dnl scan for just one that is unique per platform and then do
 dnl conditional scans for more specific only as needed.
 
 # Unset VERSION during the SCSI header check
-sed "s!^#define VERSION .*!/* & */!" confdefs.h >> confdefs.h.tmp
+sed "s!^#define VERSION .*!/* & */!" confdefs.h > confdefs.h.tmp
 mv confdefs.h.tmp confdefs.h
  
 AC_CHECK_HEADERS(IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
@@ -439,7 +439,7 @@ AC_CHECK_HEADERS(IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
   sys/passthrudef.h)
 
 # Restore VERSION
-sed "s!/\* \(#define VERSION .*\) \*/!\1!" confdefs.h >> confdefs.h.tmp
+sed "s!/\* \(#define VERSION .*\) \*/!\1!" confdefs.h > confdefs.h.tmp
 mv confdefs.h.tmp confdefs.h
 
 AC_CHECK_HEADERS([io/cam/cam.h],,,[#include <io/common/iotypes.h>])

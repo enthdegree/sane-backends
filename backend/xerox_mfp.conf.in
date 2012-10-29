@@ -48,6 +48,9 @@ usb 0x04e8 0x343d
 # Samsung SCX-3205W
 usb 0x04e8 0x3441
 
+# Samsung SCX-4833FD
+usb 0x04e8 0x344b
+
 #Samsung SCX-4729FD
 usb 0x04e8 0x3453
 

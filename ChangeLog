@@ -1,3 +1,8 @@
+2012-10-29 Alex Belkin <abc at telekom.ru>
+	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
+	for Samsung SCX-4833FD, reported by Frank Pennycook; description for
+	SCX-3405W working in networking mode, reported by Patrick Mackinlay.
+
 2012-10-24 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_*.[ch]: Lide 35 improvements, doxygen fixes,
 	experimental 100 dpi support for Canoscan 4400F and 8400F
@@ -14,12 +19,12 @@
 	* backend/canon*: IX-4015 support by Ondrej Zary
 
 2012-10-17 Alex Belkin <abc at telekom.ru>
-        * backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
-        for Samsung SCX-4100, reported by Antonello Lobianco.
+	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
+	for Samsung SCX-4100, reported by Antonello Lobianco.
 
 2012-09-18 Alex Belkin <abc at telekom.ru>
-        * backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
-        for Samsung SCX-4729FD, reported by wom balton.
+	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
+	for Samsung SCX-4729FD, reported by wom balton.
 
 2012-09-12 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:

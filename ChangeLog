@@ -1,3 +1,14 @@
+2012-10-31 Louis Lagendijk <louis.lagendijk at gmail dot com>
+        * backend/scripts/pixma_gen_options.py
+	  Updated formatting of produced files to match pixma.c formatting
+	  without need for manual editing
+	* pixma.[ch] pixma_mp810.c pixma_mp150.c
+	  Rewrite of button option handling. Button options can now be read
+	  without triggering through the button-update option. Buton-update 
+	  options is left for ease of use with xsane
+	  Options are cached so that only when an option is read again all
+	  options are re-read.
+
 2012-10-29 Alex Belkin <abc at telekom.ru>
 	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
 	for Samsung SCX-4833FD, reported by Frank Pennycook; description for

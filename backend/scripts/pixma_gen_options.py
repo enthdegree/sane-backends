@@ -183,27 +183,27 @@ def parseFile(f):
 def genHeader(options):
     print """
 typedef union {
-    SANE_Word w;
-    SANE_Int  i;
-    SANE_Bool b;
-    SANE_Fixed f;
-    SANE_String s;
-    void *ptr;
+  SANE_Word w;
+  SANE_Int  i;
+  SANE_Bool b;
+  SANE_Fixed f;
+  SANE_String s;
+  void *ptr;
 } option_value_t;
 """
     print 'typedef enum {'
     for o in options:
-        if o['type'] == 'SANE_TYPE_GROUP':
-            sys.stdout.write('\t')
-        print '\t%(cname_opt)s,' % o
-    print '\t\t' + opt_prefix + 'last'
+        print '  %(cname_opt)s,' % o
+    print '  ' + opt_prefix + 'last'
     print '} option_t;'
     print """
+
 typedef struct {
-    SANE_Option_Descriptor sod;
-    option_value_t val,def;
-    SANE_Word info;
+  SANE_Option_Descriptor sod;
+  option_value_t val,def;
+  SANE_Word info;
 } option_descriptor_t;
+
 
 struct pixma_sane_t;
 static int build_option_descriptors(struct pixma_sane_t *ss);
@@ -214,7 +214,7 @@ def genMinMaxRange(n, t, r):
     if t == 'SANE_TYPE_FIXED':
         r = ['SANE_FIX(%s)' % x for x in r]
     print 'static const SANE_Range ' + n + ' = '
-    print '\t{ ' + r[0] + ',' + r[1] + ',' + r[2] + ' };'
+    print '  { ' + r[0] + ',' + r[1] + ',' + r[2] + ' };'
 
 
 def genList(n, t, l):
@@ -307,11 +307,11 @@ def ccode(o):
             rhs = 's = SANE_I18N("%(default)s")'
         o['code_default'] = rhs % o
     if 'code_default' in o:
-        code = '\topt->def.%(code_default)s;\n'
+        code = '  opt->def.%(code_default)s;\n'
         if o['constraint_type'] != 'SANE_CONSTRAINT_STRING_LIST':
-            code += '\topt->val.%(code_default)s;\n'
+            code += '  opt->val.%(code_default)s;\n'
         else:
-            code += '\topt->val.w = find_string_in_list' \
+            code += '  opt->val.w = find_string_in_list' \
                     '(opt->def.s, sod->constraint.string_list);\n'
         o['full_code_default'] = code % o
     else:
@@ -327,7 +327,7 @@ def ccode(o):
             rhs = '%(cname_con)s' % o
         o['code_constraint'] = ctype + ' = ' + rhs
     if 'code_constraint' in o:
-        code = '\tsod->constraint.%(code_constraint)s;\n'
+        code = '  sod->constraint.%(code_constraint)s;\n'
         o['full_code_constraint'] = code % o
     else:
         o['full_code_constraint'] = ''
@@ -335,45 +335,45 @@ def ccode(o):
     return o
 
 def genBuildOptions(options):
-    print """
+  print """
 static
 int find_string_in_list(SANE_String_Const str, const SANE_String_Const *list)
 {
-    int i;
-    for (i = 0; list[i] && strcmp(str, list[i]) != 0; i++) {}
-    return i;
+  int i;
+  for (i = 0; list[i] && strcmp(str, list[i]) != 0; i++) {}
+  return i;
 }
 
 static
 int build_option_descriptors(struct pixma_sane_t *ss)
 {
-    SANE_Option_Descriptor *sod;
-    option_descriptor_t *opt;
+  SANE_Option_Descriptor *sod;
+  option_descriptor_t *opt;
 
-    memset(OPT_IN_CTX, 0, sizeof(OPT_IN_CTX));"""
+  memset(OPT_IN_CTX, 0, sizeof(OPT_IN_CTX));"""
 
-    for o in options:
-        o = ccode(o)
-        otype = o['type']
-        code = '\n\topt = &(OPT_IN_CTX[%(cname_opt)s]);\n' \
-               '\tsod = &opt->sod;\n' \
-               '\tsod->type = %(code_type)s;\n' \
-               '\tsod->title = %(code_title)s;\n' \
-               '\tsod->desc = %(code_desc)s;\n'
-        if otype != 'SANE_TYPE_GROUP':
-            code += '\tsod->name = %(code_name)s;\n' \
-                    '\tsod->unit = %(code_unit)s;\n' \
-                    '\tsod->size = %(code_size)s;\n' \
-                    '\tsod->cap  = %(code_cap)s;\n' \
-                    '\tsod->constraint_type = %(code_constraint_type)s;\n' \
-                    '%(full_code_constraint)s' \
-                    '\tOPT_IN_CTX[%(cname_opt)s].info = %(code_info)s;\n' \
-                    '%(full_code_default)s'
-        sys.stdout.write(code % o)
-    print
-    print '\treturn 0;\n'
-    print '}'
-    print
+  for o in options:
+      o = ccode(o)
+      otype = o['type']
+      code = '\n  opt = &(OPT_IN_CTX[%(cname_opt)s]);\n' \
+             '  sod = &opt->sod;\n' \
+             '  sod->type = %(code_type)s;\n' \
+             '  sod->title = %(code_title)s;\n' \
+             '  sod->desc = %(code_desc)s;\n'
+      if otype != 'SANE_TYPE_GROUP':
+          code += '  sod->name = %(code_name)s;\n' \
+                  '  sod->unit = %(code_unit)s;\n' \
+                  '  sod->size = %(code_size)s;\n' \
+                  '  sod->cap  = %(code_cap)s;\n' \
+                  '  sod->constraint_type = %(code_constraint_type)s;\n' \
+                  '%(full_code_constraint)s' \
+                  '  OPT_IN_CTX[%(cname_opt)s].info = %(code_info)s;\n' \
+                  '%(full_code_default)s'
+      sys.stdout.write(code % o)
+  print
+  print '  return 0;\n'
+  print '}'
+  print
 
 g = Struct()
 g.ngroups = 0

@@ -152,12 +152,18 @@ typedef uint32_t uint32_t;
 #define PIXMA_CAP_EXPERIMENT   (1 << 31)
 /**@}*/
 
-/** \name Button events returned by pixma_wait_event() */
+/** \name Button events and related information returned by pixma_wait_event() */
 /**@{*/
-#define PIXMA_EV_NONE        0
-#define PIXMA_EV_ACTION_MASK (0xff)
-#define PIXMA_EV_BUTTON1     (1 << 8)
-#define PIXMA_EV_BUTTON2     (2 << 8)
+#define PIXMA_EV_NONE          0
+#define PIXMA_EV_ACTION_MASK   (0xffff)
+#define PIXMA_EV_BUTTON1       (1 << 16)
+#define PIXMA_EV_BUTTON2       (2 << 16)
+#define PIXMA_EV_TARGET_MASK   (0xff)
+#define PIXMA_EV_ORIGINAL_MASK (0xff00)
+
+#define GET_EV_TARGET(x) (x & PIXMA_EV_TARGET_MASK)
+#define GET_EV_ORIGINAL(x) ( (x & PIXMA_EV_ORIGINAL_MASK) >> 8 )
+
 /**@}*/
 /** @} end of API group */
 

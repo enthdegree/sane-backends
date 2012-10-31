@@ -1040,9 +1040,9 @@ handle_interrupt (pixma_t * s, int timeout)
   if (buf[9] & 2)
     query_status (s);
   if (buf[0] & 2)
-    s->events = PIXMA_EV_BUTTON2 | buf[1];	/* b/w scan */
+    s->events = PIXMA_EV_BUTTON2 | buf[1] | ((buf[0] & 0xf0) << 4);	/* b/w scan */
   if (buf[0] & 1)
-    s->events = PIXMA_EV_BUTTON1 | buf[1];	/* color scan */
+    s->events = PIXMA_EV_BUTTON1 | buf[1] | ((buf[0] & 0xf0) << 4);	/* color scan */
   return 1;
 }
 

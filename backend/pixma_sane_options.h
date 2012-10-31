@@ -1,17 +1,15 @@
 /* Automatically generated from pixma_sane.c */
 
-typedef union
-{
+typedef union {
   SANE_Word w;
-  SANE_Int i;
+  SANE_Int  i;
   SANE_Bool b;
   SANE_Fixed f;
   SANE_String s;
   void *ptr;
 } option_value_t;
 
-typedef enum
-{
+typedef enum {
   opt_opt_num_opts,
   opt__group_1,
   opt_resolution,
@@ -31,18 +29,22 @@ typedef enum
   opt_button_update,
   opt_button_1,
   opt_button_2,
+  opt_original,
+  opt_target,
   opt__group_5,
   opt_threshold,
   opt_threshold_curve,
   opt_last
 } option_t;
 
-typedef struct
-{
+
+typedef struct {
   SANE_Option_Descriptor sod;
-  option_value_t val, def;
+  option_value_t val,def;
   SANE_Word info;
 } option_descriptor_t;
 
+
 struct pixma_sane_t;
-static int build_option_descriptors (struct pixma_sane_t *ss);
+static int build_option_descriptors(struct pixma_sane_t *ss);
+

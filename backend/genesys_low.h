@@ -202,14 +202,24 @@ typedef struct
   SANE_Byte value;
 } Genesys_Register_Set;
 
+/** @brief Data structure to set up analog frontend.
+ * The analog frontend converts analog value from image sensor to
+ * digital value. It has its own control registers which are set up
+ * with this structure. The values are written using sanei_genesys_fe_write_data.
+ * The actual register addresses they map to depends on the frontend used.
+ * @see sanei_genesys_fe_write_data
+ */
 typedef struct
 {
-  uint8_t fe_id;	      /**< id of the frontend description */
-  uint8_t reg[4];
-  uint8_t sign[3];
-  uint8_t offset[3];
-  uint8_t gain[3];
-  uint8_t reg2[3];
+  uint8_t fe_id;      /**< id of the frontend description */
+  uint8_t reg[4];     /**< values to set up frontend control register, they
+ 		      usually map to analog register 0x00 to 0x03 */
+  uint8_t sign[3];    /**< sets the sign of the digital value */
+  uint8_t offset[3];  /**< offset correction to apply to signal, most often
+			maps to frontend register 0x20-0x22 */
+  uint8_t gain[3];     /**< amplification to apply to signal, most often
+			maps to frontend register 0x28-0x2a */
+  uint8_t reg2[3];    /**< extra control registers */
 } Genesys_Frontend;
 
 typedef struct
@@ -881,10 +891,17 @@ sanei_genesys_calculate_zmode (Genesys_Device * dev,
 extern SANE_Status
 sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr);
 
+/** @brief Reads data from frontend register.
+ * Reads data from the given frontend register. May be used to query
+ * analog frontend status by reading the right register.
+ */
 extern SANE_Status
 sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
 			    uint16_t *data);
-
+/** @brief Write data to frontend register.
+ * Writes data to analog frontend register at the given address.
+ * The use and address of registers change from model to model.
+ */
 extern SANE_Status
 sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
 			     uint16_t data);

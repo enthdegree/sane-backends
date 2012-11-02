@@ -1,5 +1,9 @@
+2012-11-02 Stéphane Voltz <stef.dev@free.fr>
+	* configure configure.in doc/Makefile.am doc/Makefile.in: add optional
+	doxygen documentation generation for genesys backend.
+
 2012-10-31 Louis Lagendijk <louis.lagendijk at gmail dot com>
-        * backend/scripts/pixma_gen_options.py
+	* backend/scripts/pixma_gen_options.py
 	  Updated formatting of produced files to match pixma.c formatting
 	  without need for manual editing
 	* pixma.[ch] pixma_mp810.c pixma_mp150.c

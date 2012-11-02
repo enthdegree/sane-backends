@@ -307,7 +307,7 @@ distclean-local:
 	rm -f sane.dvi sane.ps sane-backends.html sane-backends-external.html
 	rm -f sane-mfgs.html sane-mfgs-external.html
 	rm -f sane/*.html sane/*.gif
-	rm -f doxygen-sanei.conf
+	rm -f doxygen-sanei.conf doxygen-genesys.conf
 	-rm -rf sane sanei-html
 	for manpage in $(MANPAGES) ; do \
 	  rm -f $${manpage}.html ; \

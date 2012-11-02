@@ -1825,6 +1825,20 @@
 :status :unsupported
 :comment "GL841 based, to be added to genesys backend"
 
+:model "OpticPro ST28"
+:url "/unsupported/plustek-opticpro-st28.html"
+:interface "USB"
+:usbid "0x07b3" "0x0802"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
+
+:model "Umax AstraScan 4750"
+:url "/unsupported/umax-astrscan-4750.html"
+:interface "USB"
+:usbid "0x07b3" "0x0802"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend, rebadged Plustek ST28"
+
 :model "OpticPro ST48"
 :url "/unsupported/plustek-opticpro-st48.html"
 :interface "USB"

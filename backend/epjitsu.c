@@ -1798,33 +1798,33 @@ change_params(struct scanner *s)
       i++;
     } while (settings[i].model);
 
-          /*pull in closest y resolution*/
-          s->resolution_y = settings[i].y_res;
+    /*pull in closest y resolution*/
+    s->resolution_y = settings[i].y_res;
 
-          /*1200 dpi*/
-          s->max_x = PIX_TO_SCANNER_UNIT( settings[i].max_x, s->resolution_x );
-          s->min_x = PIX_TO_SCANNER_UNIT( settings[i].min_x, s->resolution_x );
-          s->max_y = PIX_TO_SCANNER_UNIT( settings[i].max_y, s->resolution_y );
-          s->min_y = PIX_TO_SCANNER_UNIT( settings[i].min_y, s->resolution_y );
+    /*1200 dpi*/
+    s->max_x = PIX_TO_SCANNER_UNIT( settings[i].max_x, s->resolution_x );
+    s->min_x = PIX_TO_SCANNER_UNIT( settings[i].min_x, s->resolution_x );
+    s->max_y = PIX_TO_SCANNER_UNIT( settings[i].max_y, s->resolution_y );
+    s->min_y = PIX_TO_SCANNER_UNIT( settings[i].min_y, s->resolution_y );
 
-          /*current dpi*/
-          s->setWindowCoarseCal = settings[i].sw_coarsecal;
-          s->setWindowCoarseCalLen = SET_WINDOW_LEN;
+    /*current dpi*/
+    s->setWindowCoarseCal = settings[i].sw_coarsecal;
+    s->setWindowCoarseCalLen = SET_WINDOW_LEN;
 
-          s->setWindowFineCal = settings[i].sw_finecal;
-          s->setWindowFineCalLen = SET_WINDOW_LEN;
+    s->setWindowFineCal = settings[i].sw_finecal;
+    s->setWindowFineCalLen = SET_WINDOW_LEN;
 
-          s->setWindowSendCal = settings[i].sw_sendcal;
-          s->setWindowSendCalLen = SET_WINDOW_LEN;
+    s->setWindowSendCal = settings[i].sw_sendcal;
+    s->setWindowSendCalLen = SET_WINDOW_LEN;
 
-          s->sendCal1Header = settings[i].head_cal1;
-          s->sendCal1HeaderLen = 14;
+    s->sendCal1Header = settings[i].head_cal1;
+    s->sendCal1HeaderLen = 14;
 
-          s->sendCal2Header = settings[i].head_cal2;
-          s->sendCal2HeaderLen = 7;
+    s->sendCal2Header = settings[i].head_cal2;
+    s->sendCal2HeaderLen = 7;
 
-          s->setWindowScan = settings[i].sw_scan;
-          s->setWindowScanLen = SET_WINDOW_LEN;
+    s->setWindowScan = settings[i].sw_scan;
+    s->setWindowScanLen = SET_WINDOW_LEN;
 
     if (!settings[i].model)
     {

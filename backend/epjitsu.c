@@ -1124,7 +1124,6 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     else{
       opt->cap = SANE_CAP_INACTIVE;
     }
-    opt->cap = SANE_CAP_INACTIVE;
   }
 
   /* page height */
@@ -1803,10 +1802,6 @@ change_params(struct scanner *s)
           s->max_y = PIX_TO_SCANNER_UNIT( settings[i].max_y, s->resolution_y );
           s->min_y = PIX_TO_SCANNER_UNIT( settings[i].min_y, s->resolution_y );
 
-          s->page_width = s->max_x;
-          s->br_x = s->max_x;
-          s->br_y = s->max_y;
-
           /*current dpi*/
           s->setWindowCoarseCal = settings[i].sw_coarsecal;
           s->setWindowCoarseCalLen = SET_WINDOW_LEN;
@@ -1846,6 +1841,15 @@ change_params(struct scanner *s)
         img_heads = 3; /* image width is 3* the plane width on the FI-60F */
         img_pages = 1;
     }
+
+    /*width*/
+    if (s->page_width > s->max_x)
+       s->page_width = s->max_x;
+    else if (s->page_width < s->min_x)
+       s->page_width = s->min_x;
+    s->tl_x = (s->max_x - s->page_width)/2;
+    s->br_x = (s->max_x + s->page_width)/2;
+    s->br_y = s->max_y;
     
     /* set up the transfer structs */
     s->cal_image.plane_width = settings[i].cal_headwidth;
@@ -1906,15 +1910,21 @@ change_params(struct scanner *s)
 
     /* fill in front settings */
     s->front.width_pix = SCANNER_UNIT_TO_PIX(s->page_width, s->resolution_x * img_heads); 
+    s->front.x_start_offset = (s->block_xfr.image->width_pix - s->front.width_pix)/2;
     switch (s->mode) {
       case MODE_COLOR:
         s->front.width_bytes = s->front.width_pix*3;
+        s->front.x_offset_bytes = s->front.x_start_offset *3;
         break;
       case MODE_GRAYSCALE:
         s->front.width_bytes = s->front.width_pix;
+        s->front.x_offset_bytes = s->front.x_start_offset;
         break;
       default: /*binary*/
         s->front.width_bytes = s->front.width_pix/8;
+        s->front.width_pix = s->front.width_bytes * 8;
+        s->page_width = PIX_TO_SCANNER_UNIT(s->front.width_pix, (img_heads * s->resolution_x));
+        s->front.x_offset_bytes = s->front.x_start_offset/8;
         break;
     }
     /*output image might be taller than scan due to interpolation*/
@@ -1927,6 +1937,8 @@ change_params(struct scanner *s)
     s->back.width_pix = s->front.width_pix;
     s->back.width_bytes = s->front.width_bytes;
     s->back.height = s->front.height;
+    s->back.x_start_offset = s->front.x_start_offset;
+    s->back.x_offset_bytes = s->front.x_offset_bytes;
     s->back.pages = 1;
     s->back.buffer = NULL;
 
@@ -3788,7 +3800,8 @@ copy_block_to_page(struct scanner *s,int side)
     struct transfer * block = &s->block_xfr;
     struct page * page = &s->pages[side];
     int height = block->total_bytes / block->line_stride;
-    int width = block->image->width_pix;
+    int image_width = block->image->width_pix;
+    int page_width = page->image->width_pix;
     int block_page_stride = block->image->width_bytes * block->image->height;
     int page_y_offset = page->bytes_scanned / page->image->width_bytes;
     int line_reverse = (side == SIDE_BACK) || (s->model == MODEL_FI60F);
@@ -3799,14 +3812,15 @@ copy_block_to_page(struct scanner *s,int side)
     /* loop over all the lines in the block */
     for (i = 0; i < height; i++)
     {
-        unsigned char * p_in = block->image->buffer + (side * block_page_stride) + (i * block->image->width_bytes);
+        unsigned char * p_in = block->image->buffer + (side * block_page_stride) + (i * block->image->width_bytes) + page->image->x_start_offset * 3;
         unsigned char * p_out = page->image->buffer + ((i + page_y_offset) * page->image->width_bytes);
         unsigned char * lineStart = p_out;
         /* reverse order for back side or FI-60F scanner */
         if (line_reverse)
-            p_in += (width - 1) * 3;
+            p_in += (page_width - 1) * 3;
+
         /* convert all of the pixels in this row */
-        for (j = 0; j < width; j++)
+        for (j = 0; j < page_width; j++)
         {
             unsigned char r, g, b;
             if (s->model == MODEL_S300)
@@ -3825,18 +3839,26 @@ copy_block_to_page(struct scanner *s,int side)
             }
             else if (s->mode == MODE_LINEART)
             {
-                s->dt.buffer[j] = (r + g + b) / 3;
+                s->dt.buffer[j] = (r + g + b) / 3; /* stores dt temp image buffer and binalize afterword */
             }
             if (line_reverse)
                 p_in -= 3;
             else
                 p_in += 3;
         }
-        /* for MODE_LINEART, binarize the gray line stored in the temp image buffer */
+	/* skip non-transfer pixels in block image buffer */
+        if (line_reverse)
+            p_in -= page->image->x_offset_bytes;
+        else
+            p_in += page->image->x_offset_bytes;
+
+        /* for MODE_LINEART, binarize the gray line stored in the temp image buffer(dt) */
+        /* bacause dt.width = page_width, we pass page_width */
         if (s->mode == MODE_LINEART)
-            binarize_line(s, lineStart, width);
+            binarize_line(s, lineStart, page_width);
+
         /*add a periodic row because of non-square pixels*/
-        /*FIXME: only works with 225x200*/
+        /*FIXME: only works with 225x200, but it need only when selecting 225x200 */
         if (s->resolution_x > s->resolution_y && (i + page_y_offset) % 9 == 8)
         {
             memcpy(lineStart + page->image->width_bytes, lineStart, page->image->width_bytes);

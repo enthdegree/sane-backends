@@ -1791,7 +1791,12 @@ change_params(struct scanner *s)
     do {
       if(settings[i].model == s->model
         && settings[i].x_res == s->resolution_x
-        && settings[i].usb_power == s->usb_power){
+        && settings[i].usb_power == s->usb_power)
+      {
+          break;
+      }
+      i++;
+    } while (settings[i].model);
 
           /*pull in closest y resolution*/
           s->resolution_y = settings[i].y_res;
@@ -1820,11 +1825,6 @@ change_params(struct scanner *s)
 
           s->setWindowScan = settings[i].sw_scan;
           s->setWindowScanLen = SET_WINDOW_LEN;
-
-          break;
-      }
-      i++;
-    } while (settings[i].model);
 
     if (!settings[i].model)
     {

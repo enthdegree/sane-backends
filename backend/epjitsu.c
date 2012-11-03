@@ -1058,7 +1058,6 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range = &(s->tl_y_range);
     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    opt->cap = SANE_CAP_INACTIVE;
   }
 
   /* bottom-right x */
@@ -1599,7 +1598,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->tl_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-          return SANE_STATUS_GOOD;
+          return change_params(s);
 
         case OPT_BR_X:
           if (s->br_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
@@ -1842,6 +1841,37 @@ change_params(struct scanner *s)
         img_pages = 1;
     }
 
+    /* height */
+    if (s->model == MODEL_S300)
+    {
+        if (s->tl_y > s->max_y - s->min_y)
+           s->tl_y = s->max_y - s->min_y - ADF_HEIGHT_PADDING;
+        if (s->tl_y + s->page_height > s->max_y - ADF_HEIGHT_PADDING)
+           s->page_height = s->max_y - ADF_HEIGHT_PADDING - s->tl_y;
+        if (s->page_height < s->min_y && s->page_height > 0)
+           s->page_height = s->min_y;
+        if (s->tl_y + s->page_height > s->max_y)
+           s->tl_y = s->max_y - ADF_HEIGHT_PADDING - s->page_height ;
+    }
+    else /* (s->model == MODEL_FI60F) */
+    {
+        if (s->tl_y > s->max_y - s->min_y)
+           s->tl_y = s->max_y - s->min_y;
+        if (s->tl_y + s->page_height > s->max_y)
+           s->page_height = s->max_y - s->tl_y;
+        if (s->page_height < s->min_y && s->page_height > 0)
+           s->page_height = s->min_y;
+        if (s->tl_y + s->page_height > s->max_y)
+           s->tl_y = s->max_y - s->page_height ;
+    }
+    if (s->page_height > 0) {
+        s->br_y = s->tl_y + s->page_height;
+    }
+    else
+    {
+        s->br_y = s->max_y;
+    }
+
     /*width*/
     if (s->page_width > s->max_x)
        s->page_width = s->max_x;
@@ -1849,7 +1879,6 @@ change_params(struct scanner *s)
        s->page_width = s->min_x;
     s->tl_x = (s->max_x - s->page_width)/2;
     s->br_x = (s->max_x + s->page_width)/2;
-    s->br_y = s->max_y;
     
     /* set up the transfer structs */
     s->cal_image.plane_width = settings[i].cal_headwidth;
@@ -1905,7 +1934,7 @@ change_params(struct scanner *s)
     else
     {
       /* adf with specified paper size requires padding on top (~1/2in) */
-      s->fullscan.height = SCANNER_UNIT_TO_PIX((s->page_height + ADF_HEIGHT_PADDING), s->resolution_y);
+      s->fullscan.height = SCANNER_UNIT_TO_PIX((s->page_height + s->tl_y + ADF_HEIGHT_PADDING), s->resolution_y);
     }
 
     /* fill in front settings */
@@ -1934,11 +1963,11 @@ change_params(struct scanner *s)
     /* ADF front need to remove padding header */
     if (s->source != SOURCE_FLATBED)
     {
-        s->front.y_skip_offset = SCANNER_UNIT_TO_PIX(ADF_HEIGHT_PADDING, s->resolution_y);
+        s->front.y_skip_offset = SCANNER_UNIT_TO_PIX(s->tl_y+ADF_HEIGHT_PADDING, s->resolution_y);
     }
     else
     {
-        s->front.y_skip_offset = 0;
+        s->front.y_skip_offset = SCANNER_UNIT_TO_PIX(s->tl_y, s->resolution_y);
     }
 
     s->front.pages = 1;
@@ -1950,7 +1979,7 @@ change_params(struct scanner *s)
     s->back.height = s->front.height;
     s->back.x_start_offset = s->front.x_start_offset;
     s->back.x_offset_bytes = s->front.x_offset_bytes;
-    s->back.y_skip_offset = 0;
+    s->back.y_skip_offset = SCANNER_UNIT_TO_PIX(s->tl_y, s->resolution_y);
     s->back.pages = 1;
     s->back.buffer = NULL;
 
@@ -3822,7 +3851,7 @@ copy_block_to_page(struct scanner *s,int side)
 
     DBG (10, "copy_block_to_page: start\n");
 
-    /* skip padding */
+    /* skip padding and tl_y */
     if (s->fullscan.rx_bytes + s->block_xfr.rx_bytes < block->line_stride * page->image->y_skip_offset)
     {
         return ret;

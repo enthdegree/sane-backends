@@ -286,6 +286,9 @@ struct scanner
 #define SCANNER_UNIT_TO_FIXED_MM(number) SANE_FIX((number) * MM_PER_UNIT_UNFIX)
 #define FIXED_MM_TO_SCANNER_UNIT(number) SANE_UNFIX(number) / MM_PER_UNIT_UNFIX
 
+#define PIX_TO_SCANNER_UNIT(number, dpi) SANE_UNFIX(SANE_FIX((number) * 1200 / dpi ))
+#define SCANNER_UNIT_TO_PIX(number, dpi) SANE_UNFIX(SANE_FIX((number) * dpi / 1200 ))
+
 #define CONFIG_FILE "epjitsu.conf"
 
 #ifndef PATH_MAX

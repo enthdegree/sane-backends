@@ -209,6 +209,8 @@ static float white_factor[3] = {1.0, 0.93, 0.98};  /* Blue, Red, Green */
 #define STRING_GRAYSCALE SANE_VALUE_SCAN_MODE_GRAY
 #define STRING_COLOR SANE_VALUE_SCAN_MODE_COLOR
 
+#define ADF_HEIGHT_PADDING 600
+
 /*
  * used by attach* and sane_get_devices
  * a ptr to a null term array of ptrs to SANE_Device structs
@@ -1796,10 +1798,10 @@ change_params(struct scanner *s)
           s->resolution_y = settings[i].y_res;
 
           /*1200 dpi*/
-          s->max_x = settings[i].max_x * 1200/s->resolution_x;
-          s->min_x = settings[i].min_x * 1200/s->resolution_x;
-          s->max_y = settings[i].max_y * 1200/s->resolution_y;
-          s->min_y = settings[i].min_y * 1200/s->resolution_y;
+          s->max_x = PIX_TO_SCANNER_UNIT( settings[i].max_x, s->resolution_x );
+          s->min_x = PIX_TO_SCANNER_UNIT( settings[i].min_x, s->resolution_x );
+          s->max_y = PIX_TO_SCANNER_UNIT( settings[i].max_y, s->resolution_y );
+          s->min_y = PIX_TO_SCANNER_UNIT( settings[i].min_y, s->resolution_y );
 
           s->page_width = s->max_x;
           s->br_x = s->max_x;
@@ -1894,16 +1896,16 @@ change_params(struct scanner *s)
     if(s->source == SOURCE_FLATBED || !s->page_height)
     {
       /* flatbed and adf in autodetect always ask for all*/
-      s->fullscan.height = s->max_y * s->resolution_y / 1200;
+      s->fullscan.height = SCANNER_UNIT_TO_PIX(s->max_y, s->resolution_y);
     }
     else
     {
-      /* adf with specified paper size requires padding (~1/2in) */
-      s->fullscan.height = (s->page_height+600) * s->resolution_y / 1200;
+      /* adf with specified paper size requires padding on top (~1/2in) */
+      s->fullscan.height = SCANNER_UNIT_TO_PIX((s->page_height + ADF_HEIGHT_PADDING), s->resolution_y);
     }
 
     /* fill in front settings */
-    s->front.width_pix = s->block_img.width_pix;
+    s->front.width_pix = SCANNER_UNIT_TO_PIX(s->page_width, s->resolution_x * img_heads); 
     switch (s->mode) {
       case MODE_COLOR:
         s->front.width_bytes = s->front.width_pix*3;
@@ -1916,7 +1918,8 @@ change_params(struct scanner *s)
         break;
     }
     /*output image might be taller than scan due to interpolation*/
-    s->front.height = s->fullscan.height * s->resolution_x / s->resolution_y;
+    s->front.height = SCANNER_UNIT_TO_PIX(s->page_height, s->resolution_x);
+    /*  SCANNER_UNIT_TO_PIX(s->page_height, s->resolution_y) * (s->resolution_x / s->resolution_y) */
     s->front.pages = 1;
     s->front.buffer = NULL;
 

@@ -58,6 +58,7 @@ struct image {
   int pages;
   int x_start_offset;
   int x_offset_bytes;
+  int y_skip_offset;
   unsigned char * buffer;
 };
 

@@ -3832,6 +3832,36 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
     return ret;
 }
 
+static int get_GCD(int x, int y)
+{
+    /* Here should be implemented Euclidean algorithm */
+    /* FIXME: only works with 225x200 */
+    if (x == 225 && y == 200)
+    {
+        return 25;
+    }
+    return 1;
+}
+
+/* test it is nessesary to insert row because of non-square pixel */
+static inline int test_nessesary_insert_row(int res_x, int res_y, int offset_y)
+{
+    if (res_x > res_y)
+    {
+        int gcd = get_GCD(res_x, res_y);
+        int y_r = res_y / gcd;
+        int x_r = res_x / gcd;
+        return ((offset_y % x_r) == y_r);
+    }
+    return 0;
+}
+
+static inline int test_nessesary_skip_row(int res_x, int res_y, int offset_y)
+{
+    /* Reverse logic */
+    return test_nessesary_insert_row(res_y, res_x, offset_y);
+}
+
 /* copies block buffer into front or back image buffer */
 /* converts pixel data from RGB Color to the output format */
 static SANE_Status
@@ -3841,13 +3871,14 @@ copy_block_to_page(struct scanner *s,int side)
     struct transfer * block = &s->block_xfr;
     struct page * page = &s->pages[side];
     int image_height = block->total_bytes / block->line_stride;
-    int image_width = block->image->width_pix;
+    /* int image_width = block->image->width_pix; */
     int page_height = SCANNER_UNIT_TO_PIX(s->page_height, s->resolution_x);
     int page_width = page->image->width_pix;
     int block_page_stride = block->image->width_bytes * block->image->height;
     int page_y_offset = page->bytes_scanned / page->image->width_bytes;
     int line_reverse = (side == SIDE_BACK) || (s->model == MODEL_FI60F);
     int i,j,k=0,l=0;
+    int page_y_skipped = 0;
 
     DBG (10, "copy_block_to_page: start\n");
 
@@ -3880,8 +3911,14 @@ copy_block_to_page(struct scanner *s,int side)
     for (i = 0; i < image_height-k-l; i++)
     {
         unsigned char * p_in = block->image->buffer + (side * block_page_stride) + ((i+k) * block->image->width_bytes) + page->image->x_start_offset * 3;
-        unsigned char * p_out = page->image->buffer + ((i + page_y_offset) * page->image->width_bytes);
+        unsigned char * p_out = page->image->buffer + ((i + page_y_offset - page_y_skipped) * page->image->width_bytes);
         unsigned char * lineStart = p_out;
+        /* skip a periodic row when non-square pixels */
+        if (test_nessesary_skip_row(s->resolution_x, s->resolution_y, i + page_y_offset))
+        {
+            page_y_skipped++;
+            break;
+        }
         /* reverse order for back side or FI-60F scanner */
         if (line_reverse)
             p_in += (page_width - 1) * 3;
@@ -3924,18 +3961,17 @@ copy_block_to_page(struct scanner *s,int side)
         if (s->mode == MODE_LINEART)
             binarize_line(s, lineStart, page_width);
 
-        /*add a periodic row because of non-square pixels*/
-        /*FIXME: only works with 225x200, but it need only when selecting 225x200 */
-        if (s->resolution_x > s->resolution_y && (i + page_y_offset) % 9 == 8)
+        if (test_nessesary_insert_row(s->resolution_x, s->resolution_y, i + page_y_offset))
         {
+            /* add a periodic row when non-square pixels */
             memcpy(lineStart + page->image->width_bytes, lineStart, page->image->width_bytes);
             page_y_offset += 1;
             page->bytes_scanned += page->image->width_bytes;
         }
-    }
 
-    /* update the page counter of bytes scanned */
-    page->bytes_scanned += page->image->width_bytes * (image_height - k - l);
+        /* update the page counter of bytes scanned */
+        page->bytes_scanned += page->image->width_bytes;
+    }
 
     DBG (10, "copy_block_to_page: finish\n");
 

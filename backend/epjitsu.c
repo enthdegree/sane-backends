@@ -3980,13 +3980,17 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
 
 static int get_GCD(int x, int y)
 {
-    /* Here should be implemented Euclidean algorithm */
-    /* FIXME: only works with 225x200 */
-    if (x == 225 && y == 200)
-    {
-        return 25;
+    int z;
+
+    while (y > 0) {
+        if (y > x) {
+            z = x;x = y;y = z;
+        }
+        z = y;
+        y = x % y;
+        x = z;
     }
-    return 1;
+    return x;
 }
 
 /* test it is nessesary to insert row because of non-square pixel */

@@ -900,7 +900,7 @@ gl124_set_fe (Genesys_Device * dev, uint8_t set)
     case 1:
     case 2:
     default:
-      DBG (DBG_error, "%s: unsupported anlog FE 0x%02x\n",__FUNCTION__,val);
+      DBG (DBG_error, "%s: unsupported analog FE 0x%02x\n",__FUNCTION__,val);
       status=SANE_STATUS_INVAL;
       break;
     }
@@ -2051,6 +2051,33 @@ gl124_stop_action (Genesys_Device * dev)
   return SANE_STATUS_IO_ERROR;
 }
 
+
+static SANE_Status
+gl124_setup_scan_gpio(Genesys_Device *dev, int resolution)
+{
+SANE_Status status;
+uint8_t val;
+
+  DBGSTART;
+  RIE (sanei_genesys_read_register (dev, REG32, &val));
+  if(resolution>=dev->motor.base_ydpi/2)
+    {
+      val &= 0xf7;
+    }
+  else if(resolution>=dev->motor.base_ydpi/4)
+    {
+      val &= 0xef;
+    }
+  else
+    {
+      val |= 0x10;
+    }
+  val |= 0x02;
+  RIE (sanei_genesys_write_register (dev, REG32, val));
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
+
 /* Send the low-level scan command */
 /* todo : is this that useful ? */
 #ifndef UNIT_TESTING
@@ -2068,21 +2095,7 @@ gl124_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     return SANE_STATUS_INVAL;
 
   /* set up GPIO for scan */
-  RIE (sanei_genesys_read_register (dev, REG32, &val));
-  if(dev->settings.yres>=dev->motor.base_ydpi/2)
-    {
-      val &= 0xf7;
-    }
-  else if(dev->settings.yres>=dev->motor.base_ydpi/4)
-    {
-      val &= 0xef;
-    }
-  else
-    {
-      val |= 0x10;
-    }
-  val |= 0x02;
-  RIE (sanei_genesys_write_register (dev, REG32, val));
+  RIE(gl124_setup_scan_gpio(dev,dev->settings.yres));
 
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
@@ -2232,6 +2245,8 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   r->value |= REG02_MTRREV;
 
   RIE (gl124_bulk_write_register (dev, local_reg, GENESYS_GL124_MAX_REGS));
+  
+  RIE(gl124_setup_scan_gpio(dev,resolution));
 
   status = gl124_start_action (dev);
   if (status != SANE_STATUS_GOOD)
@@ -2965,6 +2980,76 @@ gl124_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
   return status;
 }
 
+/** @brief move to calibration area
+ * This functions moves scanning head to calibration area
+ * by doing a 600 dpi scan
+ * @param dev scanner device
+ * @return SANE_STATUS_GOOD on success, else the error code 
+ */
+static SANE_Status
+move_to_calibration_area (Genesys_Device * dev)
+{
+  int pixels;
+  int size;
+  uint8_t *line;
+  SANE_Status status = SANE_STATUS_GOOD;
+
+  DBGSTART;
+
+  pixels = (dev->sensor.sensor_pixels*600)/dev->sensor.optical_res;
+  
+  /* initial calibration reg values */
+  memcpy (dev->calib_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
+
+  /* set up for the calibration scan */
+  status = gl124_init_scan_regs (dev,
+				 dev->calib_reg,
+				 600,
+				 600,
+				 0,
+				 0,
+				 pixels,
+                                 1,
+                                 8,
+                                 3,
+				 dev->settings.color_filter,
+				 SCAN_FLAG_DISABLE_SHADING |
+				 SCAN_FLAG_DISABLE_GAMMA |
+				 SCAN_FLAG_SINGLE_LINE |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__, sane_strstatus (status));
+      return status;
+    }
+
+  size = pixels * 3;
+  line = malloc (size);
+  if (!line)
+    return SANE_STATUS_NO_MEM;
+
+  /* write registers and scan data */
+  RIE (gl124_bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS));
+
+  DBG (DBG_info, "%s: starting line reading\n", __FUNCTION__);
+  RIE (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE (sanei_genesys_read_data_from_scanner (dev, line, size));
+
+  /* stop scanning */
+  RIE (gl124_stop_action (dev));
+
+  if (DBG_LEVEL >= DBG_data)
+    {
+      sanei_genesys_write_pnm_file ("movetocalarea.pnm", line, 8, 3, pixels, 1);
+    }
+
+  /* cleanup before return */
+  free (line);
+ 
+  DBGCOMPLETED;
+  return status;
+}
+
 /* this function does the led calibration by scanning one line of the calibration
    area below scanner's top on white strip.
 
@@ -2990,7 +3075,10 @@ gl124_led_calibration (Genesys_Device * dev)
 
   DBGSTART;
 
-  /* offset calibration is always done in color mode */
+  /* move to calibration area */
+  move_to_calibration_area(dev);
+
+  /* offset calibration is always done in 16 bit depth color mode */
   channels = 3;
   depth=16;
   used_res=sanei_genesys_compute_dpihw(dev,dev->settings.xres);

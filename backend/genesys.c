@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847/GL124 based scanners
  */
 
-#define BUILD 2402
+#define BUILD 2404
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -3004,6 +3004,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
     case CIS_CANONLIDE110:
+        if(dev->model->ccd_type==CIS_CANONLIDE110)
+          target_code=0xdc00;
+        else
+          target_code=0xf000;
         words_per_color=pixels_per_line*2;
         length = words_per_color * 3 * 2;
         free(shading_data);
@@ -3024,7 +3028,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                                      cmat,
                                      0,
                                      coeff,
-                                     0xdc00);
+                                     target_code);
       break;
     case CCD_CANONLIDE35:
       compute_averaged_planar (dev,

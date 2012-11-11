@@ -1,5 +1,9 @@
+2012-11-11 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_gl124.c: improve calibration for
+	gl124 based scanners. Fix head parking issue at 1200 dpi.
+
 2012-11-02 Stéphane Voltz <stef.dev@free.fr>
-	* doc/descriptiios/unsupported.desc: add USB ID 0x07b3, 0x0802
+	* doc/descriptions/unsupported.desc: add USB ID 0x07b3, 0x0802
 
 2012-11-02 Stéphane Voltz <stef.dev@free.fr>
 	* configure configure.in doc/Makefile.am doc/Makefile.in: add optional

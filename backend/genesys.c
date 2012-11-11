@@ -3004,7 +3004,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
     case CIS_CANONLIDE110:
-        if(dev->model->ccd_type==CIS_CANONLIDE110)
+        if(dev->model->ccd_type!=CIS_CANONLIDE110)
           target_code=0xdc00;
         else
           target_code=0xf000;

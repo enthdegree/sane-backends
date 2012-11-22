@@ -323,7 +323,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (version_code)
     *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
-  /* cold-plugging case : probe for allready plugged devices */
+  /* cold-plugging case : probe for already plugged devices */
   status = probe_rts8891_devices ();
 
   DBG (DBG_proc, "sane_init: exit\n");
@@ -1078,10 +1078,10 @@ sane_start (SANE_Handle handle)
 
   DBG (DBG_proc, "sane_start: start\n");
 
-  /* if allready scanning, tell we're busy */
+  /* if already scanning, tell we're busy */
   if (session->scanning == SANE_TRUE)
     {
-      DBG (DBG_warn, "sane_start: device is allready scanning\n");
+      DBG (DBG_warn, "sane_start: device is already scanning\n");
       return SANE_STATUS_DEVICE_BUSY;
     }
 
@@ -1706,7 +1706,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
   SANE_Int length;
   SANE_Int data_size;
   SANE_Byte val = 0;
-  SANE_Int bit, min;
+  SANE_Int bit;
 
   DBG (DBG_proc, "sane_read: start\n");
   DBG (DBG_io, "sane_read: up to %d bytes required by frontend\n", max_len);
@@ -1754,9 +1754,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 
   /* byte length for high dpi mode */
   length = (session->params.bytes_per_line * 8) / session->params.depth;
-
-  /* minimal physical read length */
-  min = 0;
 
   /* checks if buffer has been pre filled with the extra data needed for */
   /* line distance reordering                                            */
@@ -2985,6 +2982,7 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   int x, y, sum, current;
   int starty = 18;
   int height = 180;
+  int timing;
 
   DBG (DBG_proc, "find_origin: start\n");
 
@@ -3034,13 +3032,11 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   dev->regs[0x35] = 0x1b;
   dev->regs[0x36] = 0x29;
   dev->regs[0x3a] = 0x1b;
-  dev->regs[0x80] = 0x32;	/* 8180-> 50 */
-  dev->regs[0x82] = 0x33;	/* 8382-> 51 */
+  timing=0x32;
   dev->regs[0x85] = 0x00;
   dev->regs[0x86] = 0x06;
   dev->regs[0x87] = 0x00;
   dev->regs[0x88] = 0x06;
-  dev->regs[0x89] = 0x34;	/* 8a89-> 52 */
   dev->regs[0x8d] = 0x80;
   dev->regs[0x8e] = 0x68;
 
@@ -3114,6 +3110,9 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
       dev->regs[0xd7] = 0x30;	/* 0x10 */
       dev->regs[0xda] = 0xa7;	/* 0xa0 */
     }
+  SET_DOUBLE (dev->regs, TIMING_REG, timing);
+  SET_DOUBLE (dev->regs, TIMING1_REG, timing+1);
+  SET_DOUBLE (dev->regs, TIMING2_REG, timing+2);
 
 
   /* allocate memory for the data */
@@ -3242,7 +3241,6 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
 	{
 	  dev->regs[0x36] = 0x21;	/* direction reverse (& ~0x08) */
 
-	  dev->regs[0xe2] = 0x03;
 	  dev->regs[0xe2] = 0x03;	/* 0x01 */
 
 	  /* dev->regs[0xe5] = 0x0d;     0x1c 
@@ -3298,6 +3296,7 @@ find_margin (struct Rts8891_Device *dev)
   int starty = 1;
   int height = 1;
   SANE_Byte reg = 0xa2;
+  int timing=0;
 
   DBG (DBG_proc, "find_margin: start\n");
 
@@ -3326,9 +3325,7 @@ find_margin (struct Rts8891_Device *dev)
   dev->regs[0x73] = 0x15;
   dev->regs[0x74] = 0x62;
 
-  dev->regs[0x81] = 0x00;
-  dev->regs[0x83] = 0x00;
-  dev->regs[0x8a] = 0x00;
+  timing=0;
 
   dev->regs[0xc0] = 0xff;
   dev->regs[0xc1] = 0xff;
@@ -3399,15 +3396,16 @@ find_margin (struct Rts8891_Device *dev)
       dev->regs[0x17] = 0x10;	/* 0x00 */
       dev->regs[0x23] = 0x00;	/* 0xff */
       dev->regs[0x39] = 0x00;	/* 0x02 */
-      dev->regs[0x80] = 0xb0;	/* 0x32 */
-      dev->regs[0x82] = 0xb1;	/* 0x33 */
       dev->regs[0x85] = 0x46;	/* 0x00 */
       dev->regs[0x86] = 0x0b;	/* 0x06 */
       dev->regs[0x87] = 0x8c;	/* 0x00 */
       dev->regs[0x88] = 0x10;	/* 0x06 */
-      dev->regs[0x89] = 0xb2;	/* 0x34 */
       dev->regs[0x8d] = 0x3b;	/* 0x00 */
+      timing=0x00b0;
     }
+  SET_DOUBLE (dev->regs, TIMING_REG, timing);
+  SET_DOUBLE (dev->regs, TIMING1_REG, timing+1);
+  SET_DOUBLE (dev->regs, TIMING2_REG, timing+2);
 
   /* set vertical and horizontal start/end positions */
   sanei_rts88xx_set_scan_area (dev->regs, starty, starty + height, startx,
@@ -3650,151 +3648,14 @@ initialize_device (struct Rts8891_Device *dev)
   return status;
 }
 #else /* FAST_INIT */
-/*
- * This function intializes the device:
- * 	- initial registers values
- * 	- test if at home
- * 	- head parking if needed
- */
-static SANE_Status
-init_device (struct Rts8891_Device *dev)
+
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
+init_registers (struct Rts8891_Device *dev)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Byte control, reg, id;
-  SANE_Int i, page;
-  SANE_Byte buffer[2072];
-  char message[256 * 6];
-  SANE_Int val;
-
-  /* these commands are used to acces NVRAM through a serial manner */
-  /* we ignore NVRAM settingsd for now                              */
-  SANE_Byte nv_cmd1[21] =
-    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38,
-    0x08, 0x18, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x08
-  };
-  SANE_Byte nv_cmd2[21] =
-    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38,
-    0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x08
-  };
-  SANE_Byte nv_cmd3[21] =
-    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38,
-    0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38, 0x08
-  };
-  SANE_Byte nv_cmd4[21] =
-    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18,
-    0x08, 0x18, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x08
-  };
-  SANE_Byte nv_cmd5[21] =
-    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18,
-    0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x08
-  };
-  SANE_Byte nv_cmd6[21] =
-    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18,
-    0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38, 0x08
-  };
-  SANE_Byte nv_cmd7[21] =
-    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18,
-    0x28, 0x38, 0x08, 0x18, 0x08, 0x18, 0x08, 0x18, 0x08
-  };
-
-  DBG (DBG_proc, "init_device: start\n");
-  if (dev->initialized == SANE_TRUE)
-    return SANE_STATUS_GOOD;
-
-  /* read control register, if busy, something will have to be done ... */
-  sanei_rts88xx_read_reg (dev->devnum, CONTROL_REG, &control);
-  DBG (DBG_io, "init_device: control=0x%02x\n", control);
-
-  /* when just plugged, we expect to get 0x04 */
-  if (control != 0x04)
-    {
-      DBG (DBG_warn, "init_device: expected control=0x04, got 0x%02x\n",
-	   control);
-    }
-
-  /* then read "link" register */
-  sanei_rts88xx_read_reg (dev->devnum, 0xb0, &control);
-  DBG (DBG_io, "init_device: link=0x%02x\n", control);
-
-  /* we expect to get 0x80 */
-  if (control != 0x80)
-    {
-      DBG (DBG_warn, "init_device: expected link=0x80, got 0x%02x\n",
-	   control);
-    }
-
-  /* reads scanner status */
-  sanei_rts88xx_get_status (dev->devnum, dev->regs);
-  DBG (DBG_io, "init_device: status=0x%02x 0x%02x\n", dev->regs[0x10],
-       dev->regs[0x11]);
-
-  /* reads lamp status and sensor information */
-  sanei_rts88xx_get_lamp_status (dev->devnum, dev->regs);
-  DBG (DBG_io, "init_device: lamp status=0x%02x\n", dev->regs[0x8e]);
-
-  /* initalize sensor with default from model */
-  dev->sensor = dev->model->sensor;
-  DBG (DBG_info, "init_device: reg[8e]=0x%02x\n", dev->regs[0x8e]);
-
-  /* reset lamp */
-  sanei_rts88xx_reset_lamp (dev->devnum, dev->regs);
-  if ((dev->regs[0x8e] & 0x60) != 0x60)
-    {
-      DBG (DBG_info, "init_device: lamp needs warming\n");
-      dev->needs_warming = SANE_TRUE;
-    }
-  else
-    {
-      dev->needs_warming = SANE_FALSE;
-    }
-
-  /* reads lcd panel status */
-  sanei_rts88xx_get_lcd (dev->devnum, dev->regs);
-  DBG (DBG_io, "init_device: lcd panel=0x%02x 0x%02x 0x%02x\n",
-       dev->regs[0x20], dev->regs[0x21], dev->regs[0x22]);
-
-  /* read mainboard ID/scanner present register */
-  sanei_rts88xx_read_reg (dev->devnum, LINK_REG, &id);
-  DBG (DBG_io, "init_device: link=0x%02x\n", id);
-
-  /* only known ID is currently 0x00 or 0x01 */
-  if (id != 0x00 && id != 0x01)
-    {
-      DBG (DBG_warn, "init_device: expected id=0x00 or 0x01, got 0x%02x\n",
-	   id);
-    }
-
-  /* write 0x00 twice to control */
-  control = 0x00;
-  sanei_rts88xx_write_control (dev->devnum, control);
-  sanei_rts88xx_write_control (dev->devnum, control);
-
-  /* read initial register set */
-  sanei_rts88xx_read_regs (dev->devnum, 0, dev->regs, dev->reg_count);
-  if (DBG_LEVEL > DBG_io2)
-    {
-      sprintf (message, "init_device: initial register settings: ");
-      for (i = 0; i < dev->reg_count; i++)
-	sprintf (message + strlen (message), "0x%02x ", dev->regs[i]);
-
-      DBG (DBG_io2, "%s\n", message);
-    }
-
-  /* initial sensor guess */
-  val = dev->regs[0x44] + 256 * dev->regs[0x45];
-  DBG (DBG_io, "init_device: R44/45=0x%04x\n", val);
-  if (dev->sensor == SENSOR_TYPE_4400)
-    {
-      if(val != 0x00)
-        {
-          DBG (DBG_info, "init_device: SENSOR_TYPE_4400 detected\n");
-        }
-      else
-        {
-          DBG (DBG_info, "init_device: SENSOR_TYPE_4400_BARE detected\n");
-          dev->sensor = SENSOR_TYPE_4400_BARE;
-        }
-    }
+int i;
 
   /* initial set written to scanner
    * 0xe5 0x41 0x1f 0x1f 0x1f 0x1f 0x1f 0x1f 0x0a 0x0a 0x0a 0x70 0x00 0x00 0x00 0x00 0x60 0x1b 0x08 0x20 0x00 0x20 0x08 0x00 0x00 0x00 0x00 0x00 0x00 0x20 0x00 0x00 0x3a 0xf2 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x10 0x00 0x07 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x20 0x00 0x00 0x00 0x8c 0x76 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x80 0x68 0x00 0x00 0x00 0x00 0x02 0x0e 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xcc 0x27 0x64 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x02 ---- 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xe0 0x00 0x00 0x00 0x00 0x86 0x1b 0x00 0xff 0x00 0x27 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x01 0x00 0x00 0x14 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
@@ -3893,10 +3754,6 @@ init_device (struct Rts8891_Device *dev)
       dev->regs[0x5d] = 0x00;
       dev->regs[0x5e] = 0x00;
       dev->regs[0x5f] = 0x00;
-      dev->regs[0x60] = 0x00;
-      dev->regs[0x61] = 0x00;
-      dev->regs[0x62] = 0x00;
-      dev->regs[0x63] = 0x00;
       dev->regs[0x64] = 0x00;
       dev->regs[0x65] = 0x00;
       dev->regs[0x66] = 0x00;
@@ -3905,8 +3762,6 @@ init_device (struct Rts8891_Device *dev)
       dev->regs[0x69] = 0x00;
       dev->regs[0x6a] = 0x00;
       dev->regs[0x6b] = 0x00;
-      dev->regs[0x6c] = 0x00;
-      dev->regs[0x6d] = 0x00;
       dev->regs[0x6e] = 0x00;
       dev->regs[0x6f] = 0x00;
       dev->regs[0x70] = 0x00;
@@ -4115,6 +3970,156 @@ init_device (struct Rts8891_Device *dev)
 	}
       break;
     }
+  return SANE_STATUS_GOOD;
+}
+
+/*
+ * This function intializes the device:
+ * 	- initial registers values
+ * 	- test if at home
+ * 	- head parking if needed
+ */
+static SANE_Status
+init_device (struct Rts8891_Device *dev)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Byte control, reg, id;
+  SANE_Int i, page;
+  SANE_Byte buffer[2072];
+  char message[256 * 6];
+  SANE_Int val;
+
+  /* these commands are used to acces NVRAM through a serial manner */
+  /* we ignore NVRAM settingsd for now                              */
+  SANE_Byte nv_cmd1[21] =
+    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38,
+    0x08, 0x18, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x08
+  };
+  SANE_Byte nv_cmd2[21] =
+    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38,
+    0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x08
+  };
+  SANE_Byte nv_cmd3[21] =
+    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38,
+    0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38, 0x08
+  };
+  SANE_Byte nv_cmd4[21] =
+    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18,
+    0x08, 0x18, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x08
+  };
+  SANE_Byte nv_cmd5[21] =
+    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18,
+    0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x08
+  };
+  SANE_Byte nv_cmd6[21] =
+    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18,
+    0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38, 0x08
+  };
+  SANE_Byte nv_cmd7[21] =
+    { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x08, 0x18,
+    0x28, 0x38, 0x08, 0x18, 0x08, 0x18, 0x08, 0x18, 0x08
+  };
+
+  DBG (DBG_proc, "init_device: start\n");
+  if (dev->initialized == SANE_TRUE)
+    return SANE_STATUS_GOOD;
+
+  /* read control register, if busy, something will have to be done ... */
+  sanei_rts88xx_read_reg (dev->devnum, CONTROL_REG, &control);
+  DBG (DBG_io, "init_device: control=0x%02x\n", control);
+
+  /* when just plugged, we expect to get 0x04 */
+  if (control != 0x04)
+    {
+      DBG (DBG_warn, "init_device: expected control=0x04, got 0x%02x\n",
+	   control);
+    }
+
+  /* then read "link" register */
+  sanei_rts88xx_read_reg (dev->devnum, 0xb0, &control);
+  DBG (DBG_io, "init_device: link=0x%02x\n", control);
+
+  /* we expect to get 0x80 */
+  if (control != 0x80)
+    {
+      DBG (DBG_warn, "init_device: expected link=0x80, got 0x%02x\n",
+	   control);
+    }
+
+  /* reads scanner status */
+  sanei_rts88xx_get_status (dev->devnum, dev->regs);
+  DBG (DBG_io, "init_device: status=0x%02x 0x%02x\n", dev->regs[0x10],
+       dev->regs[0x11]);
+
+  /* reads lamp status and sensor information */
+  sanei_rts88xx_get_lamp_status (dev->devnum, dev->regs);
+  DBG (DBG_io, "init_device: lamp status=0x%02x\n", dev->regs[0x8e]);
+
+  /* initalize sensor with default from model */
+  dev->sensor = dev->model->sensor;
+  DBG (DBG_info, "init_device: reg[8e]=0x%02x\n", dev->regs[0x8e]);
+
+  /* reset lamp */
+  sanei_rts88xx_reset_lamp (dev->devnum, dev->regs);
+  if ((dev->regs[0x8e] & 0x60) != 0x60)
+    {
+      DBG (DBG_info, "init_device: lamp needs warming\n");
+      dev->needs_warming = SANE_TRUE;
+    }
+  else
+    {
+      dev->needs_warming = SANE_FALSE;
+    }
+
+  /* reads lcd panel status */
+  sanei_rts88xx_get_lcd (dev->devnum, dev->regs);
+  DBG (DBG_io, "init_device: lcd panel=0x%02x 0x%02x 0x%02x\n",
+       dev->regs[0x20], dev->regs[0x21], dev->regs[0x22]);
+
+  /* read mainboard ID/scanner present register */
+  sanei_rts88xx_read_reg (dev->devnum, LINK_REG, &id);
+  DBG (DBG_io, "init_device: link=0x%02x\n", id);
+
+  /* only known ID is currently 0x00 or 0x01 */
+  if (id != 0x00 && id != 0x01)
+    {
+      DBG (DBG_warn, "init_device: expected id=0x00 or 0x01, got 0x%02x\n",
+	   id);
+    }
+
+  /* write 0x00 twice to control */
+  control = 0x00;
+  sanei_rts88xx_write_control (dev->devnum, control);
+  sanei_rts88xx_write_control (dev->devnum, control);
+
+  /* read initial register set */
+  sanei_rts88xx_read_regs (dev->devnum, 0, dev->regs, dev->reg_count);
+  if (DBG_LEVEL > DBG_io2)
+    {
+      sprintf (message, "init_device: initial register settings: ");
+      for (i = 0; i < dev->reg_count; i++)
+	sprintf (message + strlen (message), "0x%02x ", dev->regs[i]);
+
+      DBG (DBG_io2, "%s\n", message);
+    }
+
+  /* initial sensor guess */
+  val = dev->regs[0x44] + 256 * dev->regs[0x45];
+  DBG (DBG_io, "init_device: R44/45=0x%04x\n", val);
+  if (dev->sensor == SENSOR_TYPE_4400)
+    {
+      if(val != 0x00)
+        {
+          DBG (DBG_info, "init_device: SENSOR_TYPE_4400 detected\n");
+        }
+      else
+        {
+          DBG (DBG_info, "init_device: SENSOR_TYPE_4400_BARE detected\n");
+          dev->sensor = SENSOR_TYPE_4400_BARE;
+        }
+    }
+
+  init_registers(dev);
 
   sanei_rts88xx_set_offset (dev->regs, 31, 31, 31);
   sanei_rts88xx_set_gain (dev->regs, 10, 10, 10);
@@ -4828,6 +4833,7 @@ gain_calibration (struct Rts8891_Device *dev, int mode, int light)
   int length = CALIBRATION_SIZE;
   unsigned char image[CALIBRATION_SIZE];
   int pass = 0;
+  int timing=0;
 
   int xstart = (dev->left_offset * 75) / dev->model->max_xdpi;
 
@@ -4969,14 +4975,15 @@ gain_calibration (struct Rts8891_Device *dev, int mode, int light)
       dev->regs[0xef] = 0x02;
       dev->regs[0xf0] = 0xa8;
 
-      dev->regs[0x80] = 0x32;
-      dev->regs[0x82] = 0x33;
+      timing=0x32;
       dev->regs[0x85] = 0x00;
       dev->regs[0x86] = 0x06;
       dev->regs[0x87] = 0x00;
       dev->regs[0x88] = 0x06;
-      dev->regs[0x89] = 0x34;
     }
+  SET_DOUBLE (dev->regs, TIMING_REG, timing);
+  SET_DOUBLE (dev->regs, TIMING1_REG, timing+1);
+  SET_DOUBLE (dev->regs, TIMING2_REG, timing+2);
 
 
   /* we loop scanning a 637 (1911 bytes) pixels wide area in color mode until each white average
@@ -5405,6 +5412,8 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int lines = 66;
+  int exposure=0;
+  int timing=0;
 
   DBG (DBG_proc, "setup_shading_calibration: start\n");
   DBG (DBG_info, "setup_shading_calibration: sensor type is %s (%d)\n", sensor_name (dev->sensor), dev->sensor);
@@ -5418,6 +5427,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
     }
 
   /* we default to 75 dpi then override needed registers */
+  timing=0x00b0;
   regs[0x32] = 0x20;
   regs[0x33] = 0x83;
   regs[0x35] = 0x0e;
@@ -5436,7 +5446,8 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
   regs[0xf0] = 0x00;
   regs[0xf2] = 0x00;
   /* regs[0xe5] = 0xdd; */
-  SET_DOUBLE (regs, EXPOSURE_REG, 221);
+
+  exposure=221;
   if (dev->sensor == SENSOR_TYPE_XPA || dev->sensor == SENSOR_TYPE_4400)
     {
       regs[0xc0] = 0x67;
@@ -5466,16 +5477,11 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
     {
       *light &= 0xf7;		/* clear bit 3 */
       regs[0x36] = 0x29;	/* 0x2c */
-      regs[0x80] = 0x32;	/* 0x2e */
-      regs[0x81] = 0x00;	/* 0x01 */
-      regs[0x82] = 0x33;	/* 0x2f */
-      regs[0x83] = 0x00;	/* 0x01 */
+      timing=0x0032;
       regs[0x85] = 0x00;	/* 0x8c */
       regs[0x86] = 0x06;	/* 0x10 */
       regs[0x87] = 0x00;	/* 0x18 */
       regs[0x88] = 0x06;	/* 0x1b */
-      regs[0x89] = 0x34;	/* 0x30 */
-      regs[0x8a] = 0x00;	/* 0x01 */
       regs[0x8d] = 0x00;	/* 0x77 */
       /* c5,c6 ?? */
       /* regs[0xd3] = 0x02;         0x0e */
@@ -5483,7 +5489,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
       regs[0xe2] = 0x02;	/* 0x05 */
       /* regs[0xe5] = 0xbb;    
          regs[0xe6] = 0x01;    1bb =443 */
-      SET_DOUBLE (regs, EXPOSURE_REG, 443);	/* 221*2+1 */
+      exposure=443;
     }
   if (dev->sensor == SENSOR_TYPE_4400_BARE)
     {
@@ -5496,7 +5502,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
       regs[0x36] = 0x29;	/* 0x2c */
       regs[0x39] = 0x00;	/* 0x02 */
       regs[0xe2] = 0x02;	/* 0x05 */
-      SET_DOUBLE (regs, EXPOSURE_REG, 443);	/* 221*2+1 */
+      exposure=443;
     }
 
   switch (dev->xdpi)
@@ -5511,16 +5517,11 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	case SENSOR_TYPE_XPA:
 	  DBG (DBG_io,
 	       "setup_shading_calibration: setting up SENSOR_TYPE_XPA for 150 dpi\n");
-	  regs[0x80] = 0x2b;
-	  regs[0x81] = 0x02;	/* 22b=555 */
-	  regs[0x82] = 0x2c;
-	  regs[0x83] = 0x02;	/* 22c=556 */
+          timing=0x022b;
 	  regs[0x85] = 0x18;
 	  regs[0x86] = 0x1b;
 	  regs[0x87] = 0x30;
 	  regs[0x88] = 0x30;
-	  regs[0x89] = 0x2d;
-	  regs[0x8a] = 0x02;	/* 22d=557=3*150+107 */
 	  regs[0x8d] = 0xef;
 	  regs[0xc0] = 0x00;
 	  regs[0xc1] = 0x8e;
@@ -5544,21 +5545,16 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  /* regs[0xd3] = 0x0b; */
 	  regs[0xd4] = 0x0d;
 	  /* regs[0xe5] = 0xe4; */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 228);
+          exposure=228;
 	  break;
 	case SENSOR_TYPE_BARE:
 	  DBG (DBG_io,
 	       "setup_shading_calibration: setting up SENSOR_TYPE_BARE for 150 dpi\n");
-	  regs[0x80] = 0x2e;
-	  regs[0x81] = 0x01;	/* 12e=302 */
-	  regs[0x82] = 0x2f;
-	  regs[0x83] = 0x01;	/* 12f */
+          timing=0x012e;
 	  regs[0x85] = 0x8c;
 	  regs[0x86] = 0x10;
 	  regs[0x87] = 0x18;
 	  regs[0x88] = 0x1b;
-	  regs[0x89] = 0x30;
-	  regs[0x8a] = 0x01;	/* 130 */
 	  regs[0x8d] = 0x77;
 	  regs[0xc0] = 0x80;
 	  regs[0xc1] = 0x87;
@@ -5578,21 +5574,16 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xd4] = 0x10;
 
 	  /* regs[0xe5] = 0xe4; */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 228);
+          exposure=228;
 	  break;
 	case SENSOR_TYPE_4400:
 	  DBG (DBG_io,
 	       "setup_shading_calibration: setting up SENSOR_TYPE_4400 for 150 dpi\n");
-	  regs[0x80] = 0x2e;
-	  regs[0x81] = 0x01;
-	  regs[0x82] = 0x2f;
-	  regs[0x83] = 0x01;
+          timing=0x012e;
 	  regs[0x85] = 0x8c;
 	  regs[0x86] = 0x10;
 	  regs[0x87] = 0x18;
 	  regs[0x88] = 0x1b;
-	  regs[0x89] = 0x30;
-	  regs[0x8a] = 0x01;
 	  regs[0x8d] = 0x77;
 	  regs[0xc0] = 0x00;
 	  regs[0xc1] = 0x8e;
@@ -5615,7 +5606,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xd2] = 0x17;
 	  /* regs[0xd3] = 0x0b; */
 	  regs[0xd4] = 0x0d;
-	  SET_DOUBLE (regs, EXPOSURE_REG, 457);
+          exposure=457;
 	  break;
 	case SENSOR_TYPE_4400_BARE:
 	  DBG (DBG_io,
@@ -5628,13 +5619,11 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0x23] = 0x00;	/* 0xff */
 	  regs[0x36] = 0x29;	/* 0x2c */
 	  regs[0x39] = 0x00;	/* 0x02 */
-	  regs[0x80] = 0xb0;	/* 0x32 */
-	  regs[0x82] = 0xb1;	/* 0x33 */
+          timing=0x00b0;
 	  regs[0x85] = 0x46;	/* 0x00 */
 	  regs[0x86] = 0x0b;	/* 0x06 */
 	  regs[0x87] = 0x8c;	/* 0x00 */
 	  regs[0x88] = 0x10;	/* 0x06 */
-	  regs[0x89] = 0xb2;	/* 0x34 */
 	  regs[0x8d] = 0x3b;	/* 0x00 */
 	  regs[0xc0] = 0xff;	/* 0x06 */
 	  regs[0xc1] = 0x0f;	/* 0xe6 */
@@ -5653,7 +5642,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xd4] = 0x01;	/* 0x04 */
 	  regs[0xe2] = 0x02;	/* 0x05 */
 	  /* regs[0xe5] = 0x93;   regs[0xe6] = 0x03; */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 915);	/* 221*2+1 */
+          exposure=915;
 	  break;
 	}
       break;
@@ -5664,16 +5653,11 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	case SENSOR_TYPE_XPA:
 	  DBG (DBG_io,
 	       "setup_shading_calibration: setting up SENSOR_TYPE_XPA for 300 dpi\n");
-	  regs[0x80] = 0xb0;
-	  regs[0x81] = 0x00;
-	  regs[0x82] = 0xb1;
-	  regs[0x83] = 0x00;
+          timing=0x00b0;
 	  regs[0x85] = 0x46;
 	  regs[0x86] = 0x0b;
 	  regs[0x87] = 0x8c;
 	  regs[0x88] = 0x10;
-	  regs[0x89] = 0xb2;
-	  regs[0x8a] = 0x00;
 	  regs[0x8d] = 0x3b;
 	  regs[0xc0] = 0x00;
 	  regs[0xc1] = 0xff;
@@ -5698,21 +5682,16 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xd4] = 0x01;
 	  /* regs[0xe5] = 0xc9;
 	     regs[0xe6] = 0x01;     0x01c9=457 */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 457);
+          exposure=457;
 	  break;
 	case SENSOR_TYPE_BARE:
 	  DBG (DBG_io,
 	       "setup_shading_calibration: setting up SENSOR_TYPE_BARE for 300 dpi\n");
-	  regs[0x80] = 0x2e;
-	  regs[0x81] = 0x01;
-	  regs[0x82] = 0x2f;
-	  regs[0x83] = 0x01;
+          timing=0x012e;
 	  regs[0x85] = 0x8c;
 	  regs[0x86] = 0x10;
 	  regs[0x87] = 0x18;
 	  regs[0x88] = 0x1b;
-	  regs[0x89] = 0x30;
-	  regs[0x8a] = 0x01;
 
 	  regs[0x8d] = 0xde;
 	  regs[0x8e] = 0x61;	/* low nibble of 8e and 8d are proportional to 
@@ -5737,21 +5716,16 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xd4] = 0x01;
 	  /* regs[0xe5] = 0xc9;
 	     regs[0xe6] = 0x01;    0x1c9=457 */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 457);
+          exposure=457;
 	  break;
 	case SENSOR_TYPE_4400:
 	  DBG (DBG_io,
 	       "setup_shading_calibration: setting up SENSOR_TYPE_4400 for 300 dpi\n");
-	  regs[0x80] = 0x2b;
-	  regs[0x81] = 0x02;
-	  regs[0x82] = 0x2c;
-	  regs[0x83] = 0x02;
+          timing=0x022b;
 	  regs[0x85] = 0x18;
 	  regs[0x86] = 0x1b;
 	  regs[0x87] = 0x30;
 	  regs[0x88] = 0x30;
-	  regs[0x89] = 0x2d;
-	  regs[0x8a] = 0x02;
 	  regs[0x8d] = 0xef;
 	  regs[0xc0] = 0x00;
 	  regs[0xc1] = 0xff;
@@ -5775,7 +5749,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  /* regs[0xd3] = 0x17; */
 	  regs[0xd4] = 0x01;
 	  /* 0x0393 = 915 = 2*457+1 */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 915);
+          exposure=915;
 	  break;
 
 	case SENSOR_TYPE_4400_BARE:
@@ -5798,20 +5772,13 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0x73] = 0x15;
 	  regs[0x74] = 0x62;
 
-	  regs[0x80] = 0x2b;
-	  regs[0x81] = 0x02;
-
-	  regs[0x82] = 0x2c;
-	  regs[0x83] = 0x02;
+          timing=0x022b;
 
 	  regs[0x85] = 0x18;
 	  regs[0x86] = 0x1b;
 
 	  regs[0x87] = 0x30;
 	  regs[0x88] = 0x30;
-
-	  regs[0x89] = 0x2d;
-	  regs[0x8a] = 0x02;
 
 	  regs[0x8d] = 0xde;
 	  regs[0x8e] = 0x61;	/* low nibble of 8e and 8d are proportional to 
@@ -5834,7 +5801,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 
 	  /* regs[0xe5] = 0x93;
 	     regs[0xe6] = 0x03;         0x393=915 = 457*2+1 */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 915);
+          exposure=915;
 	  break;
 
 	case SENSOR_TYPE_XPA:
@@ -5848,22 +5815,19 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0x64] = 0x01;       /* 0x02 */
 	  regs[0x65] = 0x20;       /* 0x10 */
 	  regs[0x66] = 0xa6;
-	  regs[0x6c] = 0x92;
 	  regs[0x72] = 0x3a;
 	  regs[0x73] = 0x15;
 	  regs[0x74] = 0x62;
-	  regs[0x80] = 0xb0;
-	  regs[0x81] = 0x00;
-	  regs[0x82] = 0xb1;
-	  regs[0x83] = 0x00;
-	  regs[0x85] = 0x46;
-	  regs[0x86] = 0x0b;
-	  regs[0x87] = 0x8c;
-	  regs[0x88] = 0x10;
-	  regs[0x89] = 0xb2;
-	  regs[0x8a] = 0x00;
-	  regs[0x8d] = 0x3b; /* 0x77 */
-	  regs[0x8e] = 0x60;
+
+	  regs[0x85] = 0x00;
+	  regs[0x86] = 0x06;
+
+	  regs[0x87] = 0x00;
+	  regs[0x88] = 0x06;
+
+	  regs[0x8d] = 0x00; 
+	  regs[0x8e] = 0x60; /* XXX STEF XXX */
+
 	  regs[0xc0] = 0xf8;
 	  regs[0xc1] = 0x7f;
 	  regs[0xc2] = 0x00;
@@ -5886,7 +5850,9 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xd3] = 0x0e;
 	  regs[0xd4] = 0x10;
 	  regs[0xd7] = 0x31;
-	  SET_DOUBLE (regs, EXPOSURE_REG, 915); /* 0x393 */
+          
+          timing=0x0032;
+          exposure=915;
 	  break;
 
 	case SENSOR_TYPE_4400:
@@ -5906,16 +5872,11 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0x72] = 0x3a;
 	  regs[0x73] = 0x15;
 	  regs[0x74] = 0x62;
-	  regs[0x80] = 0x26;
-	  regs[0x81] = 0x04;
-	  regs[0x82] = 0x27;
-	  regs[0x83] = 0x04;
+          timing=0x0426;
 	  regs[0x85] = 0x30;
 	  regs[0x86] = 0x30;
 	  regs[0x87] = 0x60;
 	  regs[0x88] = 0x5a;
-	  regs[0x89] = 0x28;
-	  regs[0x8a] = 0x04;
 	  regs[0x8d] = 0xde;
 	  regs[0x8e] = 0x61;
 	  regs[0xc0] = 0xf8;
@@ -5941,7 +5902,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xd4] = 0x10;
 	  regs[0xd7] = 0x31;
 	  regs[0xe2] = 0x02;
-	  SET_DOUBLE (regs, EXPOSURE_REG, 1832);
+          exposure=1832;
 
 	  break;
 
@@ -5962,20 +5923,13 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0x34] = 0xf0;
 	  regs[0x40] = 0xa0;
 
-	  regs[0x80] = 0x26;
-	  regs[0x81] = 0x04;
-
-	  regs[0x82] = 0x27;
-	  regs[0x83] = 0x04;
+          timing=0x0426;
 
 	  regs[0x85] = 0x30;
 	  regs[0x86] = 0x30;
 
 	  regs[0x87] = 0x60;
 	  regs[0x88] = 0x5a;
-
-	  regs[0x89] = 0x28;
-	  regs[0x8a] = 0x04;
 
 	  regs[0x8d] = 0xbd;
 	  regs[0x8e] = 0x63;
@@ -6003,40 +5957,35 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xd8] = 0xa4;
 	  /* regs[0xe5] = 0x28;
 	     regs[0xe6] = 0x07;         0x728=1832=915*2+2 */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 1832);
+          exposure=1832;
 	  break;
 	case SENSOR_TYPE_XPA:
 	  DBG (DBG_io,
 	       "setup_shading_calibration: setting up SENSOR_TYPE_XPA for 1200 dpi\n");
-	  regs[0x34] = 0xf0;
+	  regs[0x34] = 0x10;
 	  regs[0x40] = 0xa0;
 
-	  regs[0x80] = 0x26;
-	  regs[0x81] = 0x04;
+          timing=0x00b0;
+          exposure=1832;
 
-	  regs[0x82] = 0x27;
-	  regs[0x83] = 0x04;
+          /* XXX STEF XXX */
+	  regs[0x85] = 0x46;
+	  regs[0x86] = 0x0b;
 
-	  regs[0x85] = 0x30;
-	  regs[0x86] = 0x30;
+	  regs[0x87] = 0x8c;
+	  regs[0x88] = 0x10;
 
-	  regs[0x87] = 0x60;
-	  regs[0x88] = 0x5a;
-
-	  regs[0x89] = 0x28;
-	  regs[0x8a] = 0x04;
-
-	  regs[0x8e] = 0x63;
+	  regs[0x8e] = 0x3b;
+	  regs[0x8d] = 0x60;
 
 	  regs[0xc1] = 0xff;
 	  regs[0xce] = 0xff;
 	  regs[0xcf] = 0xf5;
 	  regs[0xd0] = 0xf7;
-	  SET_DOUBLE (regs, EXPOSURE_REG, 1832);
-	  regs[0x33] = 0x86;
-	  regs[0x50] = 0x18;
-	  regs[0x64] = 0x02;
-	  regs[0x65] = 0x10;
+	  regs[0x33] = 0x83;
+	  regs[0x50] = 0x00;
+	  regs[0x64] = 0x01;
+	  regs[0x65] = 0x20;
 	  regs[0x8d] = 0xbc;
 	  regs[0xc0] = 0xe0;
 	  regs[0xc2] = 0x01;
@@ -6053,7 +6002,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xcd] = 0x00;
 	  regs[0xd1] = 0xec;
 	  regs[0xd2] = 0x0d;
-	  /* regs[0xd3] = 0x05; */
+	  regs[0xd3] = 0x05;
 	  regs[0xd4] = 0x67;
 	  regs[0xd7] = 0x10;
 	  regs[0xd8] = 0x52;
@@ -6072,16 +6021,11 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0x36] = 0x29;
 	  regs[0x39] = 0x00;
 	  regs[0x40] = 0xa0;
-	  regs[0x80] = 0x26;
-	  regs[0x81] = 0x04;
-	  regs[0x82] = 0x27;
-	  regs[0x83] = 0x04;
+          timing=0x0426;
 	  regs[0x85] = 0x30;
 	  regs[0x86] = 0x30;
 	  regs[0x87] = 0x60;
 	  regs[0x88] = 0x5a;
-	  regs[0x89] = 0x28;
-	  regs[0x8a] = 0x04;
 	  regs[0x8d] = 0xde;
 	  regs[0x8e] = 0x61;
 	  regs[0xc0] = 0xe0;
@@ -6109,7 +6053,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xd8] = 0x52;
 	  regs[0xe2] = 0x02;
 	  *light = 0x23;
-	  SET_DOUBLE (regs, EXPOSURE_REG, 3665);
+          exposure=3665;
 	  break;
 
 	case SENSOR_TYPE_4400_BARE:
@@ -6120,6 +6064,12 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	}
       break;
     }
+ 
+  /* apply computed settings */ 
+  SET_DOUBLE (regs, EXPOSURE_REG, exposure);
+  SET_DOUBLE (regs, TIMING_REG, timing);
+  SET_DOUBLE (regs, TIMING1_REG, timing+1);
+  SET_DOUBLE (regs, TIMING2_REG, timing+2);
 
   /* in logs, the driver use the computed offset minus 2 */
   sanei_rts88xx_set_offset (regs, dev->red_offset, dev->green_offset, dev->blue_offset);
@@ -6567,6 +6517,8 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 {
   SANE_Status status = SANE_STATUS_GOOD;
   struct Rts8891_Device *dev = session->dev;
+  int exposure=0;
+  int timing=0;
 
   /* only software gray modes for now */
   if (session->params.format == SANE_FRAME_GRAY
@@ -6719,17 +6671,12 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
   regs[0x7d] = 0x00;
   regs[0x7e] = 0x00;
   regs[0x7f] = 0x00;
-  regs[0x80] = 0xaf;
-  regs[0x81] = 0x00;
-  regs[0x82] = 0xb0;
-  regs[0x83] = 0x00;
+  timing=0x00af;
   regs[0x84] = 0x00;
   regs[0x85] = 0x46;
   regs[0x86] = 0x0b;
   regs[0x87] = 0x8c;
   regs[0x88] = 0x10;
-  regs[0x89] = 0xb1;
-  regs[0x8a] = 0x00;
   regs[0x8b] = 0xff;
   regs[0x8c] = 0x3f;
   regs[0x8d] = 0x3b;
@@ -6833,7 +6780,7 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 
   /* regs[0xe5] = 0x52;
      regs[0xe6] = 0x00;     exposure time 0x0052=82 */
-  SET_DOUBLE (regs, EXPOSURE_REG, 82);
+  exposure=82;
 
   regs[0xe7] = 0x75;
   regs[0xe8] = 0x01;
@@ -6884,16 +6831,11 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
       regs[0x35] = 0x47;	/* 0x45 */
       regs[0x36] = 0x29;	/* 0x2c */
       regs[0x39] = 0x00;	/* 0x02 */
-      regs[0x80] = 0xaf;	/* 0x2e */
-      regs[0x81] = 0x00;	/* 0x01 */
-      regs[0x82] = 0xb0;	/* 0x2f */
-      regs[0x83] = 0x00;	/* 0x01 */
+      timing=0x00af;
       regs[0x85] = 0x46;	/* 0x8c */
       regs[0x86] = 0x0b;	/* 0x10 */
       regs[0x87] = 0x8c;	/* 0x18 */
       regs[0x88] = 0x10;	/* 0x1b */
-      regs[0x89] = 0xb1;	/* 0x30 */
-      regs[0x8a] = 0x00;	/* 0x01 */
       regs[0x8d] = 0x3b;	/* 0x77 */
 
       regs[0xd3] = 0x02;	/* 0x0e */
@@ -6901,7 +6843,7 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
       regs[0xe2] = 0x07;	/* 0x0f */
       regs[0xe3] = 0x84;	/* 0x87 */
       /*regs[0xe5] = 0xa5; 0x54 */
-      SET_DOUBLE (regs, EXPOSURE_REG, 165);	/* 82*2+1 */
+      exposure=165;
       regs[0xe7] = 0x0e;	/* 0xa8 */
       regs[0xe8] = 0x01;	/* 0x00 */
       regs[0xe9] = 0x0a;	/* 0x0b */
@@ -6923,19 +6865,17 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
       regs[0x39] = 0x00;	/* 0x02 */
       regs[0x3a] = 0x43;	/* 0x0e */
       regs[0x40] = 0x2c;	/* 0x20 */
-      regs[0x80] = 0xaf;	/* 0x32 */
-      regs[0x82] = 0xb0;	/* 0x33 */
       regs[0x85] = 0x46;	/* 0x00 */
       regs[0x86] = 0x0b;	/* 0x06 */
       regs[0x87] = 0x8c;	/* 0x00 */
       regs[0x88] = 0x10;	/* 0x06 */
-      regs[0x89] = 0xb1;	/* 0x34 */
       regs[0x8d] = 0x3b;	/* 0x00 */
       regs[0x90] = 0x18;	/* 0x1c */
       regs[0xe2] = 0x07;	/* 0x05 */
       regs[0xe3] = 0x84;	/* 0x00 */
       regs[0xe4] = 0x03;	/* 0x00 */
-      regs[0xe5] = 0xa5;	/* 0xdd */
+      timing=0x00af;
+      exposure=165;
       regs[0xe7] = 0x0e;	/* 0x00 */
       regs[0xe8] = 0x01;	/* 0x00 */
       regs[0xe9] = 0x0a;	/* 0x00 */
@@ -6954,11 +6894,6 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
     case 150:
       regs[0x35] = 0x45;
 
-      regs[0x80] = 0x2e;
-      regs[0x81] = 0x01;
-
-      regs[0x82] = 0x2f;
-      regs[0x83] = 0x01;
 
       regs[0x85] = 0x8c;
       regs[0x86] = 0x10;
@@ -6966,16 +6901,14 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
       regs[0x87] = 0x18;
       regs[0x88] = 0x1b;
 
-      regs[0x89] = 0x30;
-      regs[0x8a] = 0x01;
-
       regs[0x8d] = 0x77;
 
       regs[0xe3] = 0x87;
 
       /* regs[0xe5] = 0x54;
          regs[0xe6] = 0x00;        exposure time 0x0054=84 */
-      SET_DOUBLE (regs, EXPOSURE_REG, 84);
+      exposure=84;
+      timing=0x012e;
 
       regs[0xe7] = 0xa8;
       regs[0xe8] = 0x00;
@@ -7032,16 +6965,12 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
           DBG (DBG_io, "setup_scan_registers: setting up SENSOR_TYPE_4400 for 150 dpi\n");
 	  regs[0x35] = 0x47;
 
-	  regs[0x80] = 0x2e;
-	  regs[0x81] = 0x01;
-	  regs[0x82] = 0x2f;
-	  regs[0x83] = 0x01;
+          exposure=170;
+          timing=0x012e;
 	  regs[0x85] = 0x8c;
 	  regs[0x86] = 0x10;
 	  regs[0x87] = 0x18;
 	  regs[0x88] = 0x1b;
-	  regs[0x89] = 0x30;
-	  regs[0x8a] = 0x01;
 	  regs[0x8d] = 0x77;
 	  regs[0xc0] = 0x00;
 	  regs[0xc1] = 0x8e;
@@ -7065,7 +6994,6 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xd3] = 0x0b;
 	  regs[0xd4] = 0x0d;
 	  regs[0xe3] = 0x86;
-	  SET_DOUBLE (regs, EXPOSURE_REG, 170);
 	  regs[0xe7] = 0x00;
 	  regs[0xe8] = 0x1c;
 	  regs[0xe9] = 0x01;
@@ -7089,20 +7017,12 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x35] = 0x0e;	/* fast ? */
 	  regs[0x3a] = 0x0e;
 
-	  regs[0x80] = 0x2b;
-	  regs[0x81] = 0x02;
-
-	  regs[0x82] = 0x2c;
-	  regs[0x83] = 0x02;	/* x8180 +1 */
 
 	  regs[0x85] = 0x18;
 	  regs[0x86] = 0x1b;
 
 	  regs[0x87] = 0x30;
 	  regs[0x88] = 0x30;
-
-	  regs[0x89] = 0x2d;
-	  regs[0x8a] = 0x02;	/* x8180 +2 */
 
 	  regs[0xe7] = 0x00;
 	  regs[0xe8] = 0x00;
@@ -7138,9 +7058,8 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xe2] = 0x07;
 	  regs[0xe3] = 0x00;
 	  regs[0xe4] = 0x00;
-	  /* regs[0xe5] = 0x56;
-	     regs[0xe6] = 0x01; */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 342);	/* 171*2 */
+          timing=0x022b;
+          exposure=342;
 	  regs[0xf2] = 0x00;
 	  break;
 	case SENSOR_TYPE_BARE:
@@ -7148,20 +7067,13 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x35] = 0x0e;	/* fast ? */
 	  regs[0x3a] = 0x0e;
 
-	  regs[0x80] = 0x2b;
-	  regs[0x81] = 0x02;
-
-	  regs[0x82] = 0x2c;
-	  regs[0x83] = 0x02;	/* x8180 +1 */
+          timing=0x022b;
 
 	  regs[0x85] = 0x18;
 	  regs[0x86] = 0x1b;
 
 	  regs[0x87] = 0x30;
 	  regs[0x88] = 0x30;
-
-	  regs[0x89] = 0x2d;
-	  regs[0x8a] = 0x02;	/* x8180 +2 */
 
 	  regs[0xe7] = 0x00;
 	  regs[0xe8] = 0x00;
@@ -7197,25 +7109,17 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xe3] = 0x00;
 	  regs[0xe4] = 0x00;
 
-	  /* regs[0xe5] = 0x56;
-	     regs[0xe6] = 0x01;     exposure time 0x156 (~ 5500 /16) */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 342);
+          exposure=342;
 	  break;
 	case SENSOR_TYPE_4400:
           DBG (DBG_io, "setup_scan_registers: setting up SENSOR_TYPE_4400 for 300 dpi\n");
 	  regs[0x11] = 0x22;
 	  regs[0x35] = 0x0e;
 	  regs[0x3a] = 0x0e;
-	  regs[0x80] = 0x2b;
-	  regs[0x81] = 0x02;
-	  regs[0x82] = 0x2c;
-	  regs[0x83] = 0x02;
 	  regs[0x85] = 0x18;
 	  regs[0x86] = 0x1b;
 	  regs[0x87] = 0x30;
 	  regs[0x88] = 0x30;
-	  regs[0x89] = 0x2d;
-	  regs[0x8a] = 0x02;
 	  regs[0x8d] = 0xef;
 	  regs[0xc0] = 0x00;
 	  regs[0xc1] = 0xff;
@@ -7241,8 +7145,8 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xe2] = 0x03;
 	  regs[0xe3] = 0x00;
 	  regs[0xe4] = 0x00;
-	  /* 0x2ae=686 = 342*2+2 */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 686);
+          timing=0x022b;
+          exposure=686;
 	  regs[0xe7] = 0x00;
 	  regs[0xe8] = 0x00;
 	  regs[0xe9] = 0x00;
@@ -7272,16 +7176,11 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x73] = 0x15;
 	  regs[0x74] = 0x62;
 
-	  regs[0x80] = 0x25;	/* 425=1061 */
-	  regs[0x81] = 0x04;
-	  regs[0x82] = 0x26;	/* 426=1062 */
-	  regs[0x83] = 0x04;
+          timing=0x0425;
 	  regs[0x85] = 0x30;
 	  regs[0x86] = 0x30;
 	  regs[0x87] = 0x60;
 	  regs[0x88] = 0x5a;
-	  regs[0x89] = 0x27;	/* 427=1063 */
-	  regs[0x8a] = 0x04;
 
 	  regs[0x8d] = 0xde;
 	  regs[0x8e] = 0x61;	/* low nibble of 8e and 8d are proportional to 
@@ -7308,7 +7207,7 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xe4] = 0x00;
 	  /* regs[0xe5] = 0xbd;
 	     regs[0xe6] = 0x0a;         exposure time = 0x0abd=2749 (5500/2-1) */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 2749);
+          exposure=2749;
 	  regs[0xe7] = 0x00;
 	  regs[0xe8] = 0x00;
 	  regs[0xe9] = 0x00;
@@ -7331,27 +7230,22 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x3a] = 0x1b;
 	  regs[0x40] = 0x2c; /* 0x24 */
 	  regs[0x50] = 0x00; /* 0x18 */
-	  regs[0x64] = 0x01; /* 0x02 */
+	  
+          regs[0x64] = 0x01; /* 0x02 */
 	  regs[0x65] = 0x20; /* 0x10 */
-	  regs[0x66] = 0xa6;
-	  regs[0x6c] = 0x92; 
-	  regs[0x6d] = 0x14;
+
+	  regs[0x66] = 0xaf;
+
 	  regs[0x72] = 0x3a;
 	  regs[0x73] = 0x15;
 	  regs[0x74] = 0x62;
 
-	  regs[0x80] = 0x25;	/* 425=1061 */
-	  regs[0x81] = 0x04;
-	  regs[0x82] = 0x26;	/* 426=1062 */
-	  regs[0x83] = 0x04;
 
 	  regs[0x85] = 0x30;
 	  regs[0x86] = 0x30;
+
 	  regs[0x87] = 0x60;
 	  regs[0x88] = 0x5a;
-
-	  regs[0x89] = 0x27;	/* 427=1063 */
-	  regs[0x8a] = 0x04;
 
 	  regs[0x8d] = 0xde;
 	  regs[0x8e] = 0x61;	/* 25054 */
@@ -7391,7 +7285,8 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xef] = 0x00;
 	  regs[0xf0] = 0x00;
 	  regs[0xf2] = 0x00;
-	  SET_DOUBLE (regs, EXPOSURE_REG, 2749); /* 0x0abd */
+          exposure=2749;
+          timing=0x0425;
 	  break;
 
 	case SENSOR_TYPE_4400:
@@ -7413,16 +7308,10 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x72] = 0x3a;
 	  regs[0x73] = 0x15;
 	  regs[0x74] = 0x62;
-	  regs[0x80] = 0x25;
-	  regs[0x81] = 0x04;
-	  regs[0x82] = 0x26;
-	  regs[0x83] = 0x04;
 	  regs[0x85] = 0x30;
 	  regs[0x86] = 0x30;
 	  regs[0x87] = 0x60;
 	  regs[0x88] = 0x5a;
-	  regs[0x89] = 0x27;
-	  regs[0x8a] = 0x04;
 	  regs[0x8d] = 0xde;
 	  regs[0x8e] = 0x61;
 	  regs[0xc0] = 0xf8;
@@ -7460,7 +7349,8 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xef] = 0x00;
 	  regs[0xf0] = 0x00;
 	  regs[0xf2] = 0x00;
-	  SET_DOUBLE (regs, EXPOSURE_REG, 2749);
+          timing=0x0425;
+          exposure=2749;
 	  break;
 
 	case SENSOR_TYPE_4400_BARE:
@@ -7481,16 +7371,11 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x36] = 0x29;
 	  regs[0x3a] = 0x1b;
 	  regs[0x40] = 0xac;
-	  regs[0x80] = 0x1a;
-	  regs[0x81] = 0x08;	/* 81a=2074 */
-	  regs[0x82] = 0x1b;
-	  regs[0x83] = 0x08;	/* 81b=2075 */
+          timing=0x081a;
 	  regs[0x85] = 0x60;
 	  regs[0x86] = 0x5a;
 	  regs[0x87] = 0xc0;
 	  regs[0x88] = 0xae;
-	  regs[0x89] = 0x1c;
-	  regs[0x8a] = 0x08;	/* 81c=2076 */
 
 	  regs[0x8d] = 0xbd;	/* about twice the 600 dpi values */
 	  regs[0x8e] = 0x63;	/* low nibble of 8e and 8d are proportional to 
@@ -7523,7 +7408,7 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xe4] = 0x00;
 	  /* regs[0xe5] = 0x7b;
 	     regs[0xe6] = 0x15;         exposure time = 0x157b=5499 */
-	  SET_DOUBLE (regs, EXPOSURE_REG, 5499);
+          exposure=5499;
 	  regs[0xe7] = 0x00;
 	  regs[0xe8] = 0x00;
 	  regs[0xe9] = 0x00;
@@ -7543,15 +7428,9 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x35] = 0x1b;
 	  regs[0x36] = 0x29;
 	  regs[0x3a] = 0x1b;
-	  regs[0x80] = 0x1a;
-	  regs[0x81] = 0x08;	/* 81a=2074 */
-	  regs[0x82] = 0x1b;
-	  regs[0x83] = 0x08;	/* 81b=2075 */
 	  regs[0x85] = 0x60;
 	  regs[0x86] = 0x5a;
 	  regs[0x87] = 0xc0;
-	  regs[0x88] = 0xae;
-	  regs[0x89] = 0x1c;
 	  regs[0x8a] = 0x08;	/* 81c=2076 */
 
 	  regs[0xc1] = 0xff;
@@ -7562,7 +7441,8 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xe2] = 0x01;
 	  regs[0xe3] = 0x00;
 	  regs[0xe4] = 0x00;
-	  SET_DOUBLE (regs, EXPOSURE_REG, 5499);
+          timing=0x081a;
+          exposure=5499;
 	  regs[0xe7] = 0x00;
 	  regs[0xe8] = 0x00;
 	  regs[0xe9] = 0x00;
@@ -7573,13 +7453,14 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xef] = 0x00;
 	  regs[0xf0] = 0x00;
 	  regs[0xf2] = 0x00;
-	  regs[0x33] = 0x86;
-	  regs[0x40] = 0xa4;
-	  regs[0x50] = 0x18;
-	  regs[0x64] = 0x02;
-	  regs[0x65] = 0x10;
-	  regs[0x8d] = 0x78;
-	  regs[0x8e] = 0x67;
+	  regs[0x33] = 0x83;
+	  regs[0x40] = 0xac;
+	  regs[0x50] = 0x00;
+	  regs[0x64] = 0x01;
+	  regs[0x65] = 0x20;
+	  regs[0x88] = 0xae;
+	  regs[0x8d] = 0xbc;
+	  regs[0x8e] = 0x63;
 	  regs[0xc0] = 0xe0;
 	  regs[0xc2] = 0x01;
 	  regs[0xc3] = 0x1f;
@@ -7617,16 +7498,11 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x40] = 0xac;
 	  regs[0x64] = 0x02;
 	  regs[0x65] = 0x10;
-	  regs[0x80] = 0x1a;
-	  regs[0x81] = 0x08;
-	  regs[0x82] = 0x1b;
-	  regs[0x83] = 0x08;
+          timing=0x081a;
 	  regs[0x85] = 0x60;
 	  regs[0x86] = 0x5a;
 	  regs[0x87] = 0xc0;
 	  regs[0x88] = 0xae;
-	  regs[0x89] = 0x1c;
-	  regs[0x8a] = 0x08;
 	  regs[0x8d] = 0xbc;
 	  regs[0x8e] = 0x63;
 	  regs[0xc0] = 0xe0;
@@ -7665,7 +7541,7 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xef] = 0x00;
 	  regs[0xf0] = 0x00;
 	  regs[0xf2] = 0x00;
-	  SET_DOUBLE (regs, EXPOSURE_REG, 10999);	/* max sensors pixels - 1 */
+          exposure=10999;
 	  *status1 = 0x10;
 	  *status2 = 0x23;
 	  break;
@@ -7677,6 +7553,12 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	}
       break;
     }
+
+  /* apply computed settings */
+  SET_DOUBLE (regs, EXPOSURE_REG, exposure);
+  SET_DOUBLE (regs, TIMING_REG, timing);
+  SET_DOUBLE (regs, TIMING1_REG, timing+1);
+  SET_DOUBLE (regs, TIMING2_REG, timing+2);
 
   /* sets divisor */
   regs[0xd3] = rts8891_data_format (dev->xdpi, dev->sensor);

@@ -93,9 +93,9 @@ typedef struct Rts8891_Device Rts8891_Device;
 #define EXPOSURE_REG            0xe6
 
 
-#define REG8180                 0x81
-#define REG8382                 0x83     /* holds REG8180+1 */
-#define REG8a89                 0x8a     /* holds REG8180+2 */
+#define TIMING_REG              0x81
+#define TIMING1_REG             0x83     /* holds REG8180+1 */
+#define TIMING2_REG             0x8a     /* holds REG8180+2 */
 
 
 /* this struc describes a particular model which is handled by the backend */

@@ -541,19 +541,15 @@ rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs,
 }
 
  /**
-  * move the head backward by a huge line number then poll home sensor until
-  * head has get back home. We have our own copy of the registers to avoid
-  * messing scanner status
+  * wait for the scanning head to reach home position
   */
 static SANE_Status
-rts8891_park (struct Rts8891_Device *device, SANE_Byte * regs)
+rts8891_wait_for_home (struct Rts8891_Device *device, SANE_Byte * regs)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte motor, sensor, reg;
 
-  DBG (DBG_proc, "rts8891_park: start\n");
-
-  rts8891_move (device, regs, 8000, SANE_FALSE);
+  DBG (DBG_proc, "rts8891_wait_for_home: start\n");
 
   /* wait for controller home bit to raise, no timeout */
   /* at each loop we check that motor is on, then that the sensor bit it cleared */
@@ -564,11 +560,14 @@ rts8891_park (struct Rts8891_Device *device, SANE_Byte * regs)
     }
   while ((motor & 0x08) && ((sensor & 0x02) == 0));
 
+  /* flag that device has finished parking */
+  device->parking=SANE_FALSE;
+
   /* check for error */
   if (((motor & 0x08) == 0x00) && ((sensor & 0x02) == 0))
     {
       DBG (DBG_error,
-	   "rts8891_park: error, motor stopped before head parked\n");
+	   "rts8891_wait_for_home: error, motor stopped before head parked\n");
       status = SANE_STATUS_INVAL;
     }
 
@@ -586,10 +585,33 @@ rts8891_park (struct Rts8891_Device *device, SANE_Byte * regs)
   sanei_rts88xx_write_reg (device->devnum, 0x36, &reg);
   sanei_rts88xx_cancel (device->devnum);
 
-  DBG (DBG_proc, "rts8891_park: end\n");
+  DBG (DBG_proc, "rts8891_wait_for_home: end\n");
   return status;
 }
 
+ /**
+  * move the head backward by a huge line number then poll home sensor until
+  * head has get back home. We have our own copy of the registers to avoid
+  * messing scanner status
+  */
+static SANE_Status
+rts8891_park (struct Rts8891_Device *device, SANE_Byte *regs, SANE_Bool wait)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+
+  DBG (DBG_proc, "rts8891_park: start\n");
+
+  device->parking=SANE_TRUE;
+  rts8891_move (device, regs, 8000, SANE_FALSE);
+
+  if(wait==SANE_TRUE)
+    {
+      status = rts8891_wait_for_home (device,regs);
+    }
+
+  DBG (DBG_proc, "rts8891_park: end\n");
+  return status;
+}
 
 /* reads data from scanner.
  * First we wait for some data to be available and then loop reading
@@ -843,3 +865,5 @@ reset_lamp()=(0x20,0x3f)
 write_reg(LAMP_REG,1)=0x8d 
 write_reg(LAMP_REG,1)=0xad 
    */
+
+/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

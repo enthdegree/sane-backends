@@ -246,7 +246,7 @@ static SANE_Status read_data (struct Rts8891_Session *session,
 			      SANE_Byte * dest, SANE_Int length);
 static SANE_Status compute_parameters (struct Rts8891_Session *session);
 static SANE_Status move_to_scan_area (struct Rts8891_Session *session);
-static SANE_Status park_head (struct Rts8891_Device *dev);
+static SANE_Status park_head (struct Rts8891_Device *dev, SANE_Bool wait);
 static SANE_Status update_button_status (struct Rts8891_Session *session);
 static SANE_Status set_lamp_state (struct Rts8891_Session *session, int on);
 
@@ -1122,6 +1122,14 @@ sane_start (SANE_Handle handle)
       dev->last_scan.tv_sec = current.tv_sec;
     }
 #endif
+
+  /* if parking, wait for head to stop */
+  if(dev->parking==SANE_TRUE)
+    {
+      rts8891_wait_for_home (dev, dev->regs);
+    }
+
+  /* reinit registers to start values */
   rts8891_set_default_regs (dev->regs);
 
   /* step 0: light up */
@@ -1746,6 +1754,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
   if (session->sent >= session->to_send)
     {
       DBG (DBG_io, "sane_read: end of scan reached\n");
+
+      /* signal end of scanning */
+      session->scanning=SANE_FALSE;
+
+      /* send asynchronous head parking command then return */
+      park_head (session->dev, SANE_FALSE);
       return SANE_STATUS_EOF;
     }
 
@@ -2102,10 +2116,10 @@ sane_cancel (SANE_Handle handle)
       session->scanning = SANE_FALSE;
 
       /* head parking */
-      if (park_head (dev) != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "sane_cancel: failed to park head!\n");
-	}
+      if (park_head (dev, SANE_FALSE) != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error, "sane_cancel: failed to park head!\n");
+        }
     }
 
   /* free ressources used by scanning */
@@ -2147,6 +2161,7 @@ void
 sane_close (SANE_Handle handle)
 {
   Rts8891_Session *prev, *session;
+  Rts8891_Device *dev;
   int i;
 
   DBG (DBG_proc, "sane_close: start\n");
@@ -2164,13 +2179,21 @@ sane_close (SANE_Handle handle)
       DBG (DBG_error, "close: invalid handle %p\n", handle);
       return;			/* oops, not a handle we know about */
     }
+  
+  dev=session->dev;
 
   /* cancel any active scan */
   if (session->scanning == SANE_TRUE)
     {
       sane_cancel (handle);
     }
-  set_lamp_brightness (session->dev, 0);
+  /* if head is parking, wait for completion */
+  if(dev->parking==SANE_TRUE)
+    {
+      rts8891_wait_for_home (dev, dev->regs);
+    }
+  set_lamp_brightness (dev, 0);
+  
 
   if (prev)
     prev->next = session->next;
@@ -2178,12 +2201,12 @@ sane_close (SANE_Handle handle)
     first_handle = session->next;
 
   /* switch off lamp and close usb */
-  if (session->dev->conf.allowsharing == SANE_TRUE)
+  if (dev->conf.allowsharing == SANE_TRUE)
     {
-      sanei_usb_claim_interface (session->dev->devnum, 0);
+      sanei_usb_claim_interface (dev->devnum, 0);
     }
   set_lamp_state (session, 0);
-  sanei_usb_close (session->dev->devnum);
+  sanei_usb_close (dev->devnum);
 
   /* free per session data */
   if (session->dev->model->gamma != session->val[OPT_GAMMA_VECTOR].wa)
@@ -2495,6 +2518,7 @@ attach_rts8891 (const char *devicename)
   /* intialization is done at sane_open */
   device->initialized = SANE_FALSE;
   device->needs_warming = SANE_TRUE;
+  device->parking = SANE_FALSE;
 #ifdef HAVE_SYS_TIME_H
   device->last_scan.tv_sec = 0;
   device->start_time.tv_sec = 0;
@@ -2992,7 +3016,7 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   sanei_rts88xx_read_reg (dev->devnum, CONTROLER_REG, &reg);
   if ((reg & 0x02) == 0)
     {
-      if (park_head (dev) != SANE_STATUS_GOOD)
+      if (park_head (dev, SANE_TRUE) != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "find_origin: failed to park head!\n");
 	  return SANE_STATUS_IO_ERROR;
@@ -3510,7 +3534,7 @@ initialize_device (struct Rts8891_Device *dev)
     {
       dev->sensor = device->model->sensor;
     }
-  DBG (DBG_info, "sane_start: initial sensor type is %d\n", dev->sensor);
+  DBG (DBG_info, "initialize_device: initial sensor type is %d\n", dev->sensor);
   DBG (DBG_info, "initialize_device: reg[8e]=0x%02x\n", dev->regs[0x8e]);
 
   /* detects if warming up is needed */
@@ -3541,7 +3565,7 @@ initialize_device (struct Rts8891_Device *dev)
   sanei_rts88xx_read_reg (dev->devnum, CONTROLER_REG, &control);
   if (!(control & 0x02))
     {
-      if (park_head (dev) != SANE_STATUS_GOOD)
+      if (park_head (dev, SANE_TRUE) != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "initialize_device: failed to park head!\n");
 	  return SANE_STATUS_IO_ERROR;
@@ -4322,7 +4346,7 @@ init_device (struct Rts8891_Device *dev)
   sanei_rts88xx_read_reg (dev->devnum, CONTROLER_REG, &control);
   if (!(control & 0x02))
     {
-      if (park_head (dev) != SANE_STATUS_GOOD)
+      if (park_head (dev, SANE_TRUE) != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "init_device: failed to park head!\n");
 	  return SANE_STATUS_IO_ERROR;
@@ -5814,7 +5838,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0x50] = 0x00;       /* 0x18 */
 	  regs[0x64] = 0x01;       /* 0x02 */
 	  regs[0x65] = 0x20;       /* 0x10 */
-	  regs[0x66] = 0xa6;
+
 	  regs[0x72] = 0x3a;
 	  regs[0x73] = 0x15;
 	  regs[0x74] = 0x62;
@@ -7234,8 +7258,6 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
           regs[0x64] = 0x01; /* 0x02 */
 	  regs[0x65] = 0x20; /* 0x10 */
 
-	  regs[0x66] = 0xaf;
-
 	  regs[0x72] = 0x3a;
 	  regs[0x73] = 0x15;
 	  regs[0x74] = 0x62;
@@ -7618,7 +7640,7 @@ write_scan_registers (struct Rts8891_Session *session)
  * very large amount without scanning
  */
 static SANE_Status
-park_head (struct Rts8891_Device *dev)
+park_head (struct Rts8891_Device *dev, SANE_Bool wait)
 {
   SANE_Status status;
   SANE_Byte reg, control;
@@ -7663,7 +7685,7 @@ park_head (struct Rts8891_Device *dev)
     }
 
   /* head parking */
-  status = rts8891_park (dev, regs);
+  status = rts8891_park (dev, regs, wait);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "park_head: failed to park head!\n");

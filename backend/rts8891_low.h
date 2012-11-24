@@ -174,6 +174,7 @@ struct Rts8891_Device
 
   SANE_Bool initialized;	/* true if device has been intialized */
   SANE_Bool needs_warming;	/* true if device needs warming up    */
+  SANE_Bool parking;	        /* true if device is parking head     */
 
   /* values detected during find origin */
   /* TODO these are currently unused after detection */
@@ -288,10 +289,13 @@ void rts8891_lib_init (void);
  /* this functions commits pending scan command */
 static SANE_Status rts8891_commit (SANE_Int devnum, SANE_Byte value);
 
+/* wait for head to park to home position */
+static SANE_Status rts8891_wait_for_home (struct Rts8891_Device *device, SANE_Byte * regs);
+
  /**
   * move the head backward by a huge line number then poll home sensor until
   * head has get back home
   */
-static SANE_Status rts8891_park (struct Rts8891_Device *device, SANE_Byte * regs);
+static SANE_Status rts8891_park (struct Rts8891_Device *device, SANE_Byte * regs, SANE_Bool wait);
 
 #endif /* not RTS8891_LOW_H */

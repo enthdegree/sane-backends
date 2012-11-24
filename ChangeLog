@@ -1,3 +1,8 @@
+2012-11-24 Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts9918.c backend/rts8891_low.c  backend/rts8891_low.h:
+	fix batch scan by adding asynchronous head parking. Fix 600 and 1200
+	dpi scan mode for sensor type 1
+
 2012-11-11 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl124.c: improve calibration for
 	gl124 based scanners. Fix head parking issue at 1200 dpi.

@@ -4740,6 +4740,16 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       DBG (DBG_proc,
 	   "genesys_read_ordered_data: nothing more to scan: EOF\n");
       *len = 0;
+
+      /* issue park command immediatly in case scanner can handle it
+       * so we save time */
+      if (dev->model->is_sheetfed == SANE_FALSE
+       && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT)
+       && dev->parking == SANE_FALSE)
+        {
+          dev->model->cmd_set->slow_back_home (dev, SANE_FALSE);
+          dev->parking = SANE_TRUE;
+        }
       return SANE_STATUS_EOF;
     }
 
@@ -6404,7 +6414,8 @@ genesys_buffer_image(Genesys_Scanner *s)
    * issue head parking command so that the head move while
    * computing so we can save time
    */
-  if (dev->model->is_sheetfed == SANE_FALSE)
+  if (dev->model->is_sheetfed == SANE_FALSE &&
+      dev->parking == SANE_FALSE)
     {
       dev->model->cmd_set->slow_back_home (dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
       dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
@@ -7606,6 +7617,16 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   if(dev->total_bytes_read>=dev->total_bytes_to_read)
     {
       DBG (DBG_proc, "sane_read: nothing more to scan: EOF\n");
+
+      /* issue park command immediatly in case scanner can handle it
+       * so we save time */
+      if (dev->model->is_sheetfed == SANE_FALSE
+       && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT)
+       && dev->parking == SANE_FALSE)
+        {
+          dev->model->cmd_set->slow_back_home (dev, SANE_FALSE);
+          dev->parking = SANE_TRUE;
+        }
       return SANE_STATUS_EOF;
     }
 
@@ -7742,14 +7763,13 @@ sane_cancel (SANE_Handle handle)
 	}
     }
 
-  /* enable power saving mode unless no parking */
+  /* enable power saving mode unless we are parking .... */
   if(s->dev->parking==SANE_FALSE)
     {
       status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
         {
-          DBG (DBG_error,
-               "sane_cancel: failed to enable power saving mode: %s\n",
+          DBG (DBG_error, "sane_cancel: failed to enable power saving mode: %s\n",
                sane_strstatus (status));
           return;
         }

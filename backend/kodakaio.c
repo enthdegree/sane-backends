@@ -1,7 +1,7 @@
 /*
  * kodakaio.c - SANE library for Kodak ESP Aio scanners.
  *
- * Copyright (C)  2011-2012 Paul Newall
+ * Copyright (C)   2011-2012 Paul Newall
  *
  * Based on the Magicolor sane backend:
  * Based on the epson2 sane backend:
@@ -10,19 +10,26 @@
  * Please see those files for additional copyrights.
  * Author: Paul Newall
  *
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
+
+ * Using avahi now 25/11/12 for net autodiscovery. Use configure option --enable-avahi
  */
 
 /* convenient lines to paste
 export SANE_DEBUG_KODAKAIO=40
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-latex BACKENDS=kodakaio 
+
+for ubuntu prior to 12.10
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS=kodakaio
+
+for ubuntu 12.10
+./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS=kodakaio 
+
 */
 
 /* SANE-FLOW-DIAGRAM  Kodakaio commands in [] brackets
-
+ 
    - sane_init() : initialize backend, attach scanners(devicename,0)
    . - sane_get_devices() : query list of scanner-devices
    . - sane_open() : open a particular scanner-device and attach_scanner(devicename,&dev)
@@ -82,11 +89,11 @@ export SANE_DEBUG_KODAKAIO=40
 	attach_one_config - (Passed to sanei_configure_attach)
 		kodakaio_getNumberOfUSBProductIds
 		kodak_network_discovery
+			client_callback
+			browse_callback
+				resolve_callback
+					ProcessAvahiDevice
 		attach_one_net
-			ProcessDevice
-				extract_from_id
-				probably_supported
-				attach_one_net
 	attach_one_net
 		attach
 			device_detect
@@ -114,12 +121,15 @@ export SANE_DEBUG_KODAKAIO=40
 
 #define KODAKAIO_VERSION	02
 #define KODAKAIO_REVISION	4
-#define KODAKAIO_BUILD		3
+#define KODAKAIO_BUILD		4
+/* candidate for build 4 */
 
 /* for usb (but also used for net). I don't know if this size will always work */
 /* #define MAX_BLOCK_SIZE		32768 */
 #define MAX_BLOCK_SIZE		65536 
 #define SCANNER_READ_TIMEOUT	15
+/* POLL_ITN_MS sets the individual poll timeout */
+#define POLL_ITN_MS 20
 
 
 /* debugging levels:
@@ -131,6 +141,7 @@ use these defines to promote certain functions that you are interested in
 define low values to make detail of a section appear when DBG level is low
 define a high value eg 99 to get normal behaviour. */
 #define DBG_READ		99
+#define DBG_AUTO		99  /* for autodiscovery */
 
 /*
 normal levels. This system is a plan rather than a reality
@@ -166,9 +177,17 @@ normal levels. This system is a plan rather than a reality
 #include <poll.h>
 #include <time.h>
 
-#if HAVE_CUPS
+#if WITH_AVAHI
 /* used for auto detecting network printers  */
-#include <cups/cups.h>
+#include <assert.h>
+#include <avahi-client/client.h>
+#include <avahi-client/lookup.h>
+#include <avahi-common/simple-watch.h>
+#include <avahi-common/malloc.h>
+#include <avahi-common/error.h>
+
+static AvahiSimplePoll *simple_poll = NULL; /* global because called by several functions */
+
 #endif
 
 #include "../include/sane/saneopts.h"
@@ -185,8 +204,8 @@ normal levels. This system is a plan rather than a reality
 
 #define min(x,y) (((x)<(y))?(x):(y))
 
-/* I think these timeouts are defaults, overridden by any timeouts in the kodakaio.conf file */
-static int K_SNMP_Timeout = 2500;
+/* I think these timeouts (ms) are defaults, overridden by any timeouts in the kodakaio.conf file */
+static int K_SNMP_Timeout = 3000; /* used for any auto detection method */
 static int K_Scan_Data_Timeout = 40000;
 static int K_Request_Timeout = 5000;
 
@@ -194,13 +213,10 @@ static int K_Request_Timeout = 5000;
 If RawScanPath has no length it will not be created */
 FILE *RawScan = NULL;
 /* example: unsigned char RawScanPath[] = "TestRawScan.pgm"; */
-char RawScanPath[] = "/tmp/TestRawScan.pgm"; /* empty path means no raw scan file is made */
-
-
+char RawScanPath[] = ""; /* empty path means no raw scan file is made */
 
 /****************************************************************************
- *   Devices supported by this backend
- ****************************************************************************/
+ *   Devices supported by this backend ****************************************************************************/
 
 /* kodak command strings */
 static unsigned char KodakEsp_V[]      = {0x1b,'S','V',0,0,0,0,0};  /* version?? */
@@ -222,8 +238,8 @@ static unsigned char KodakEsp_Go[]     = {0x1b,'S','G',0,0,0,0,0}; /* Starts the
 static SANE_Int kodakaio_resolution_list[] = {75, 150, 300, 600, 1200};
 static SANE_Int kodakaio_depth_list[] = {1,8}; /* The first value is the number of following entries */
 
-/* strings to try and match the model ';' separator*/
-static unsigned char SupportedMatchString[] = "KODAK ESP;KODAK HERO;KODAK OFFICE HERO;ADVENT WiFi AIO;"; 
+/* strings to try and match the model ';' separator
+static unsigned char SupportedMatchString[] = "KODAK ESP;KODAK HERO;KODAK OFFICE HERO;ADVENT WiFi AIO;"; */
 
 static struct KodakaioCap kodakaio_cap[] = {
 /* usbid,commandtype, modelname, USBoutEP, USBinEP,
@@ -522,8 +538,7 @@ commandtype, max depth, pointer to depth list
 };
 
 /****************************************************************************
- *   General configuration parameter definitions
- ****************************************************************************/
+ *   General configuration parameter definitions ****************************************************************************/
 
 
 /*
@@ -575,9 +590,9 @@ static SANE_Status attach_one_usb(SANE_String_Const devname);
 static SANE_Status attach_one_net(SANE_String_Const devname, unsigned int device);
 void kodakaio_com_str(unsigned char *buf, char *fmt_buf);
 int cmparray (unsigned char *array1, unsigned char *array2, size_t len);
-int extract_from_id(char *device_id, const char *token, const char term_char, char *result, size_t result_size);
-int probably_supported(char *model);
-static struct KodakaioCap *get_device_from_identification (char *ident);
+static struct KodakaioCap *get_device_from_identification (const char *ident, const char *vid, const char *pid);
+void ProcessAvahiDevice(const char *device_id, const char *vid, const char *pid, const char *ip_addr);
+
 
 /* Some utility functions */
 
@@ -624,8 +639,7 @@ print_status(KodakAio_Scanner *s,int level)
 }
 
 /****************************************************************************
- *   Low-level Network communication functions
- ****************************************************************************/
+ *   Low-level Network communication functions ****************************************************************************/
 
 /* We don't have a packet wrapper, which holds packet size etc., so we
    don't have to use a *read_raw and a *_read function... */
@@ -643,7 +657,7 @@ kodakaio_net_read(struct KodakAio_Scanner *s, unsigned char *buf, size_t wanted,
 	fds[0].fd = s->fd;
 	fds[0].events = POLLIN;
 	fds[0].revents = 0;
-	if (pollreply = poll (fds, 1, K_Request_Timeout) <= 0) {
+	if ((pollreply = poll (fds, 1, K_Request_Timeout)) <= 0) {
 		if (pollreply ==0)
 			DBG(1, "poll timeout\n");
 		else
@@ -668,6 +682,7 @@ kodakaio_net_read(struct KodakAio_Scanner *s, unsigned char *buf, size_t wanted,
 	}
 	else
 		DBG(1, "Unknown problem with poll\n");
+		return read;
 }
 
 /* kodak does not pad commands like magicolor, so there's only a write_raw function */
@@ -709,8 +724,7 @@ sanei_kodakaio_net_close(struct KodakAio_Scanner *s)
 
 
 /****************************************************************************
- *   Low-level USB communication functions
- ****************************************************************************/
+ *   Low-level USB communication functions ****************************************************************************/
 
 static int
 kodakaio_getNumberOfUSBProductIds (void)
@@ -719,8 +733,7 @@ kodakaio_getNumberOfUSBProductIds (void)
 }
 
 /****************************************************************************
- *   low-level communication commands
- ****************************************************************************/
+ *   low-level communication commands ****************************************************************************/
 
 static void dump_hex_buffer_dense (int level, const unsigned char *buf, size_t buf_size)
 {
@@ -944,8 +957,7 @@ and returns appropriate status
 }
 
 /****************************************************************************
- *   high-level communication commands
- ****************************************************************************/
+ *   high-level communication commands ****************************************************************************/
 
 /* Start scan command */
 static SANE_Status
@@ -1199,8 +1211,7 @@ when you get the ackstring return EOF status
 
 
 /****************************************************************************
- *  kodakaio backend high-level operations
- ****************************************************************************/
+ *  kodakaio backend high-level operations ****************************************************************************/
 
 static void
 k_dev_init(Kodak_Device *dev, const char *devname, int conntype)
@@ -1477,77 +1488,7 @@ k_scan_finish(KodakAio_Scanner * s)
 	return status;
 }
 
-
-static void
-mc_copy_image_data(KodakAio_Scanner * s, SANE_Byte * data, SANE_Int max_length,
-		   SANE_Int * length)
-/* copies the read data from s->line_buffer to the position in data pointer to by s->ptr 
-uncompressed data is RRRR...GGGG...BBBB  per line */
-{
-		/* int rc; */
-
-		DBG (min(18,DBG_READ), "%s: bytes_read  in line: %d\n", __func__, s->bytes_read_in_line);
-		SANE_Int bytes_available;
-/* scan_pixels_per_line = s->scan_bytes_per_line/3; */
-		*length = 0;
-
-		while ((max_length >= s->params.bytes_per_line) && (s->ptr < s->end)) {
-			SANE_Int bytes_to_copy = s->scan_bytes_per_line - s->bytes_read_in_line;
-			/* First, fill the line buffer for the current line: */
-			bytes_available = (s->end - s->ptr);
-			/* Don't copy more than we have buffer and available */
-			if (bytes_to_copy > bytes_available)
-				bytes_to_copy = bytes_available;
-
-			if (bytes_to_copy > 0) {
-				memcpy (s->line_buffer + s->bytes_read_in_line, s->ptr, bytes_to_copy);
-				s->ptr += bytes_to_copy;
-				s->bytes_read_in_line += bytes_to_copy;
-			}
-
-			/* We have filled as much as possible of the current line
-			 * with data from the scanner. If we have a complete line,
-			 * copy it over. 
-			line points to the current byte in the input s->line_buffer
-			data points to the output buffer*/
-			if ((s->bytes_read_in_line >= s->scan_bytes_per_line) &&
-			    (s->params.bytes_per_line <= max_length))
-			{
-				SANE_Int i;
-				SANE_Byte *line = s->line_buffer;
-				*length += s->params.bytes_per_line;
-
-				for (i=0; i< s->params.pixels_per_line; ++i) {
-
-					if (s->val[OPT_MODE].w == MODE_COLOR){
-					/*interlace */
-					*data++ = 255-line[0]; /* red */
-					*data++ = 255-line[s->params.pixels_per_line]; /* green */
-					*data++ = 255-line[2 * s->params.pixels_per_line]; /* blue */
-					/*line++;*/
-					}
-
-					else { /* grey */
-					/*Average*/
-					*data++ = (255-line[0]
-						+255-line[s->params.pixels_per_line]
-						+255-line[2 * s->params.pixels_per_line])
-						/ 3;
-					/*line++;*/
-					}
-				
-					line++;
-				}
-/*debug file The same for color or grey because the scan is colour */
-				if (RawScan != NULL) {
-					for (i=0; i< s->scan_bytes_per_line; ++i) fputc(s->line_buffer[i],RawScan); 
-				}
-				max_length -= s->params.bytes_per_line;
-				s->bytes_read_in_line -= s->scan_bytes_per_line;
-			}
-		}
-}
-
+/* mc_copy_image_data deleted here */
 
 static void
 k_copy_image_data(KodakAio_Scanner * s, SANE_Byte * data, SANE_Int max_length,
@@ -1555,9 +1496,9 @@ k_copy_image_data(KodakAio_Scanner * s, SANE_Byte * data, SANE_Int max_length,
 /* copies the read data from s->line_buffer to the position in data pointer to by s->ptr 
 uncompressed data is RRRR...GGGG...BBBB  per line */
 {
+		SANE_Int bytes_available;
 
 		DBG (min(18,DBG_READ), "%s: bytes_read  in line: %d\n", __func__, s->bytes_read_in_line);
-		SANE_Int bytes_available;
 /* scan_pixels_per_line = s->scan_bytes_per_line/3; */
 		*length = 0;
 
@@ -1755,21 +1696,35 @@ you don't know how many blocks there will be in advance because their size is de
 }
 
 /****************************************************************************
- *   SANE API implementation (high-level functions)
- ****************************************************************************/
+ *   SANE API implementation (high-level functions) ****************************************************************************/
 
 static struct KodakaioCap *
-get_device_from_identification (char *ident)
+get_device_from_identification (const char *ident, const char *vid, const char *pid)
 {
 	int n;
+	SANE_Word pidnum, vidnum;
+
+	if(sscanf(vid, "%x", &vidnum) == EOF) {
+    		DBG(50, "could not convert hex vid <%s>\n", vid);
+    		return NULL;
+	}
+	if(sscanf(pid, "%x", &pidnum) == EOF) {
+    		DBG(50, "could not convert hex pid <%s>\n", pid);
+    		return NULL;
+	}
 	for (n = 0; n < NELEMS (kodakaio_cap); n++) {
 		
 		if (strcmp (kodakaio_cap[n].model, ident)==0) {
 			DBG(50, "matched <%s> & <%s>\n", kodakaio_cap[n].model, ident);
 			return &kodakaio_cap[n];
 		}
+		else 
+		if (kodakaio_cap[n].id == pidnum && 0x040A == vidnum) {
+			DBG(50, "matched <%s> & <%s:%s>\n", kodakaio_cap[n].model, vid, pid);
+			return &kodakaio_cap[n];
+		}
 		else {
-			DBG(60, "not <%s> & <%s>\n", kodakaio_cap[n].model, ident);
+			DBG(60, "not found <%s> & <%s>\n", kodakaio_cap[n].model, pid);
 		}
 	}
 	return NULL;
@@ -2063,126 +2018,136 @@ device_detect(const char *name, int type, SANE_Status *status)
 }
 
 
-/* Use the cups autodetection system to detect devices */
 
-/* extract_from_id copies the the string following the token (eg "MDL:") in device_id and terminated by term_char as a null terminated string in result
-returns 0 if OK, 1 if not OK */
-int 
-extract_from_id(char *device_id, const char *token, const char term_char, char *result, size_t result_size)
-{
-	char *start, *end, *limit;
-	limit = device_id + strlen(device_id);
-	/* find position of token in device_id */
-	start = strstr(device_id, token);
-	if (start == NULL) {
-		return 1;
-	}
-	else {
-		DBG(1,"found %s \n", start);
-	}
-	start += strlen(token);
-	
-	for(end = start;end < limit && *end != term_char;++end);
-	if (end >= limit) {
-		DBG(1,"did not find ;\n");		
-		return 1;
-	}
-	if (end >= start + result_size) {
-		DBG(1,"size %d >= result_size %d ;\n", end-start, result_size);		
-		return 1;
-	}
-	/* copy string to result */
-	memcpy(result, start, end-start);
-	result[end-start]=0;
-	return 0;
-}
-
-int 
-probably_supported(char *model)
-{
-/* returns zero if the model matches the possible match strings */
-	unsigned char *ThisToken;
-	char token[512];
-	int i;
-	/* extract tokens from the match string */
-	ThisToken = SupportedMatchString;
-	i=0;
-	while (*ThisToken != 0)
-	{
-		if (*ThisToken == ';' || i == sizeof(token))
-		{
-			token[i] = 0;
-			if (strstr(model, token) != NULL) {
-				return 0;
-			}
-			i=0;
-		}
-		else
-		{
-			token[i]=*ThisToken;
-			++i;
-		}
-			++ThisToken;
-	}
-	DBG(1,"probably not a supported device\n");		
-	return 1;
-}
-
-#if HAVE_CUPS
-/* ProcessDevice is called by cupsGetDevices to process each discovered device in turn */
+#if WITH_AVAHI
+/* ProcessAvahiDevice is called to process each discovered device in turn */
 void 
-ProcessDevice(const char *device_class, const char *device_id, const char *device_info, const char *device_make_and_model, const char *device_uri, const char *device_location, void *user_data)
+ProcessAvahiDevice(const char *device_id, const char *vid, const char *pid, const char *ip_addr)
 {
-	NOT_USED(device_class);
-	NOT_USED(device_info);
-	NOT_USED(device_make_and_model);
-	NOT_USED(device_location);
-	NOT_USED(user_data);
-
-	char *resolved; /*, *start; */
-	char device_model[512], ip_addr[512], uribuffer[512];
 	struct KodakaioCap *cap;
 
-	DBG(10,"device_id = <%s>\n", device_id);
+	DBG(min(10,DBG_AUTO),"device_id = <%s> vid:pid = <%s:%s>\n", device_id,vid,pid);
 
-/* extract the model string from the device_id */
-	if(extract_from_id(device_id, "MDL:", ';', device_model, sizeof(device_model)) != 0) {
-		DBG(1,"could not find %s in %s\n", "MDL:", device_id);
-		return;
-	}
-/* check if it is a model likely to be supported: "KODAK ESP" or "KODAK HERO" */
+/* check if it is a model likely to be supported: "KODAK ESP" or "KODAK HERO" 
 
-	DBG(1,"look up model <%s>\n", device_model);
-/* check the model against the cap data to see if this is a recognised device */
-	if (probably_supported(device_model) != 0) {
-		return;
-	}
-	cap = get_device_from_identification(device_model);
+	DBG(min(10,DBG_AUTO),"look up model <%s>\n", device_model); */
+	cap = get_device_from_identification("", vid, pid);
 	if (cap == NULL) {
 		return;
-	}
-	DBG(2, "%s: Found autodiscovered device: %s (type 0x%x)\n", __func__, cap->model, cap->id);
+	} 
 
-/*    DBG(1, "using cupsBackendDeviceURI\n");
-	resolved = cupsBackendDeviceURI(&device_uri); produces output on stderr */
-
-/* lower level attempt
-_httpResolveURI  is in http-support.c http-private.h
-options = _HTTP_RESOLVE_STDERR causes the std err output
-options |= _HTTP_RESOLVE_FQDN ?  not sure if or when required
-options = 0 seems to work */
-	DBG(5, "using _httpResolveURI\n");
-	resolved = _httpResolveURI(device_uri, uribuffer, sizeof(uribuffer), 0, NULL, NULL);
-
-	/* extract the IP address */
-	if(extract_from_id(resolved, "socket://", ':', ip_addr, sizeof(ip_addr)) != 0) {
-		DBG(1,"could not find %s in %s\n", "socket://", resolved);
-		return;
-	}
-	else {
-		DBG(1,"attach %s\n", resolved);
+	DBG(min(2,DBG_AUTO), "%s: Found autodiscovered device: %s (type 0x%x)\n", __func__, cap->model, cap->id);
 		attach_one_net (ip_addr, cap->id);
-	}
+}
+
+
+static void resolve_callback(
+    AvahiServiceResolver *r,
+    AVAHI_GCC_UNUSED AvahiIfIndex interface,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
+    AvahiResolverEvent event,
+    const char *name,
+    const char *type,
+    const char *domain,
+    const char *host_name,
+    const AvahiAddress *address,
+    uint16_t port,
+    AvahiStringList *txt,
+    AvahiLookupResultFlags flags,
+    AVAHI_GCC_UNUSED void* userdata) {
+
+	char *pidkey, *pidvalue;
+	char *vidkey, *vidvalue;
+	size_t valuesize;
+	NOT_USED (flags);
+
+    assert(r);
+
+    /* Called whenever a service has been resolved successfully or timed out */
+
+    switch (event) {
+        case AVAHI_RESOLVER_FAILURE:
+            DBG(min(1,DBG_AUTO), "(Resolver) Failed to resolve service '%s' of type '%s' in domain '%s': %s\n", name, type, domain, avahi_strerror(avahi_client_errno(avahi_service_resolver_get_client(r))));
+            break;
+
+        case AVAHI_RESOLVER_FOUND: {
+            char a[AVAHI_ADDRESS_STR_MAX];
+
+            avahi_address_snprint(a, sizeof(a), address);
+
+/* Output short for Kodak ESP */
+	DBG(min(1,DBG_AUTO), "%s:%u  %s  ", a,port,host_name);
+	avahi_string_list_get_pair(avahi_string_list_find(txt, "vid"), 
+		&vidkey, &vidvalue, &valuesize);
+	DBG(min(1,DBG_AUTO), "%s=%s  ", vidkey, vidvalue);
+	avahi_string_list_get_pair(avahi_string_list_find(txt, "pid"), 
+		&pidkey, &pidvalue, &valuesize);
+	DBG(min(1,DBG_AUTO), "%s=%s\n", pidkey, pidvalue);
+
+		ProcessAvahiDevice(name, vidvalue, pidvalue, a);
+	avahi_free(vidkey); avahi_free(vidvalue);
+	avahi_free(pidkey); avahi_free(pidvalue);
+        }
+    }
+
+    avahi_service_resolver_free(r);
+}
+
+static void browse_callback(
+    AvahiServiceBrowser *b,
+    AvahiIfIndex interface,
+    AvahiProtocol protocol,
+    AvahiBrowserEvent event,
+    const char *name,
+    const char *type,
+    const char *domain,
+    AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+    void* userdata) {
+
+    AvahiClient *c = userdata;
+    assert(b);
+
+    /* Called whenever a new services becomes available on the LAN or is removed from the LAN */
+    switch (event) {
+        case AVAHI_BROWSER_FAILURE:
+
+            DBG(min(1,DBG_AUTO), "(Browser) %s\n", avahi_strerror(avahi_client_errno(avahi_service_browser_get_client(b))));
+            avahi_simple_poll_quit(simple_poll);
+            return;
+
+        case AVAHI_BROWSER_NEW:
+            DBG(min(1,DBG_AUTO), "(Browser) NEW: service '%s' of type '%s' in domain '%s'\n", name, type, domain);
+
+            /* We ignore the returned resolver object. In the callback
+               function we free it. If the server is terminated before
+               the callback function is called the server will free
+               the resolver for us. */
+
+            if (!(avahi_service_resolver_new(c, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, 0, resolve_callback, c)))
+                DBG(min(1,DBG_AUTO), "Failed to resolve service '%s': %s\n", name, avahi_strerror(avahi_client_errno(c)));
+
+            break;
+
+        case AVAHI_BROWSER_REMOVE:
+            DBG(min(1,DBG_AUTO), "(Browser) REMOVE: service '%s' of type '%s' in domain '%s'\n", name, type, domain);
+            break;
+
+        case AVAHI_BROWSER_ALL_FOR_NOW:
+        case AVAHI_BROWSER_CACHE_EXHAUSTED:
+            DBG(min(1,DBG_AUTO), "(Browser) %s\n", event == AVAHI_BROWSER_CACHE_EXHAUSTED ? "CACHE_EXHAUSTED" : "ALL_FOR_NOW");
+            break;
+    }
+}
+
+static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UNUSED void * userdata) {
+    assert(c);
+
+    /* Called whenever the client or server state changes */
+
+    if (state == AVAHI_CLIENT_FAILURE) {
+        DBG(min(1,DBG_AUTO), "Server connection failure: %s\n", avahi_strerror(avahi_client_errno(c)));
+        avahi_simple_poll_quit(simple_poll);
+    }
 }
 
 
@@ -2191,17 +2156,59 @@ kodak_network_discovery(const char*host)
 /* If host = NULL do autodiscovery. If host != NULL try to verify the model 
 First version only does autodiscovery */
 {
+    AvahiClient *client = NULL;
+    AvahiServiceBrowser *sb = NULL;
+    int error;
+    int i, ret = 1;
 	NOT_USED(host);
-	void * Dummy;
-	ipp_status_t reply;
 
-	reply = cupsGetDevices(CUPS_HTTP_DEFAULT, CUPS_TIMEOUT_DEFAULT, 
-		"dnssd", CUPS_EXCLUDE_NONE, ProcessDevice, Dummy);
-	if(reply != IPP_OK) printf("Failed cupsGetDevices\n");
+        DBG(min(1,DBG_AUTO), "Starting network discovery.\n");
+    /* Allocate main loop object */
+    if (!(simple_poll = avahi_simple_poll_new())) {
+        DBG(min(1,DBG_AUTO), "Failed to create simple poll object.\n");
+        goto fail;
+    }
 
-	return 0;
+    /* Allocate a new client */
+    client = avahi_client_new(avahi_simple_poll_get(simple_poll), 0, client_callback, NULL, &error);
+
+    /* Check wether creating the client object succeeded */
+    if (!client) {
+        DBG(min(1,DBG_AUTO), "Failed to create client: %s\n", avahi_strerror(error));
+        goto fail;
+    }
+
+    /* Create the service browser */
+    if (!(sb = avahi_service_browser_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_scanner._tcp", NULL, 0, browse_callback, client))) {
+        DBG(min(1,DBG_AUTO), "Failed to create service browser: %s\n", avahi_strerror(avahi_client_errno(client)));
+        goto fail;
+    }
+
+    /* Run the main loop */
+	for(i=1;i<K_SNMP_Timeout/POLL_ITN_MS;++i) {
+    		avahi_simple_poll_iterate(simple_poll,POLL_ITN_MS);
+	}
+    ret = 0;
+
+fail:
+
+
+    /* Cleanup things  */
+        DBG(min(1,DBG_AUTO), "Cleaning up.\n");
+    if (sb)
+        avahi_service_browser_free(sb);
+
+    if (client)
+        avahi_client_free(client);
+
+    if (simple_poll)
+        avahi_simple_poll_free(simple_poll);
+
+    return ret;
 }
+
 #endif
+
 
 static SANE_Status
 attach(const char *name, int type)
@@ -2268,7 +2275,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 
 	} else if (strncmp(line, "usb", 3) == 0 && len == 3) {
 		int i, numIds;
-		/* auto detect ? */
+		/* auto detect ?  */
 		numIds = kodakaio_getNumberOfUSBProductIds();
 
 		for (i = 0; i < numIds; i++) {
@@ -2286,21 +2293,25 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 		unsigned int model = 0;
 
 		if (strncmp(name, "autodiscovery", 13) == 0) {
-#if HAVE_CUPS
-			DBG (30, "%s: Initiating network autodiscovery via CUPS\n", __func__);
+
+#if WITH_AVAHI
+			DBG (30, "%s: Initiating network autodiscovery via avahi\n", __func__);
 			kodak_network_discovery(NULL);
+#else
+			DBG (30, "%s: Network autodiscovery not done because not configured with avahi.\n", __func__);
 #endif
+
 		} else if (sscanf(name, "%s %x", IP, &model) == 2) {
 			DBG(30, "%s: Using network device on IP %s, forcing model 0x%x\n", __func__, IP, model);
 			attach_one_net(IP, model);
 		} else {
-				DBG(1, "%s: Autodetecting device model is \n only possible if it's a cups device, using default model\n", __func__);
+				DBG(1, "%s: net entry %s may be a host name?\n", __func__, name);
 				attach_one_net(name, 0);
 			}
 
 	} else if (sscanf(line, "snmp-timeout %i\n", &timeout)) {
-		/* Timeout for SNMP network discovery */
-		DBG(50, "%s: SNMP timeout set to %d\n", __func__, timeout);
+		/* Timeout for auto network discovery */
+		DBG(50, "%s: network auto-discovery timeout set to %d\n", __func__, timeout);
 		K_SNMP_Timeout = timeout;
 
 	} else if (sscanf(line, "scan-data-timeout %i\n", &timeout)) {
@@ -2355,8 +2366,10 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback __sane_unused__ authorize)
 						  KODAKAIO_BUILD);
 	sanei_usb_init();
 
-#if HAVE_CUPS
-	DBG(1, "cups detected\n");
+#if WITH_AVAHI
+	DBG(min(1,DBG_AUTO), "avahi detected\n");
+#else
+	DBG(min(1,DBG_AUTO), "avahi not detected\n");
 #endif
 	return SANE_STATUS_GOOD;
 }

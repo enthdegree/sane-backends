@@ -1,3 +1,8 @@
+2012-11-28 Paul Newall <quandry@ntlworld.com>
+	* backend/kodakaio.c backend/kodakaio.h  backend/kodakaio.conf.in 
+	backend/Makefile.am backend/Makefile.in docs/descriptions/kodakaio.desc:
+	Use avahi instead of cups for network autodetection
+
 2012-11-24 Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts9918.c backend/rts8891_low.c  backend/rts8891_low.h:
 	fix batch scan by adding asynchronous head parking. Fix 600 and 1200

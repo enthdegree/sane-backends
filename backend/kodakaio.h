@@ -62,7 +62,7 @@
 /* Structure holding the device capabilities */
 struct KodakaioCap
 {
-	SANE_Word id;
+	SANE_Word id;			/* USB pid */
 	const char *cmds;		/* may be used for different command sets in future */
 	const char *model;
 	SANE_Int out_ep, in_ep;		/* USB bulk out/in endpoints */

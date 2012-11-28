@@ -6,14 +6,14 @@
 ###                   read requests. All values are given in milliseconds,
 ###                   i.e. 1000 is 1 second.
 
-# SNMP auto-detection waits 1.5 seconds
-snmp-timeout 1500
+# snmp-timeout controls auto-detection timeout in ms (1500=1.5s).
+snmp-timeout 1000
 
-# wait 15 seconds for scan data (scans may take several seconds to initialize,
-# so we need to wait longer)
+# scan-data-timeout controls the timeout for scan data 
+# (scans may take several seconds to initialize, so we need to wait longer)
 scan-data-timeout 7000
 
-# Wait 5 seconds for all other data requests
+# request-timeout controls all other data requests
 request-timeout 5000
 
 
@@ -30,7 +30,7 @@ net autodiscovery
 #net 10.0.0.5 0x4067
 
 # kodak ESP5250 is usb 0x040a 0x4041
-#net 192.168.1.4 0x4041
+#net 192.168.1.2 0x4041
 # kodak HERO 9.1 is usb 0x040a 0x4067
 #net 192.168.1.17 0x4067
 

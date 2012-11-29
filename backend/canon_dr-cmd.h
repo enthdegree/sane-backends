@@ -299,7 +299,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define GET_SCAN_MODE_code               0xd5
 #define GET_SCAN_MODE_len                6
 
-#define set_GSM_unkown(sb, val)         sb[0x01] = val
+#define set_GSM_unknown(sb, val)        sb[0x01] = val
 #define set_GSM_page_code(sb, val)      sb[0x02] = val
 #define set_GSM_len(sb, val)            sb[0x04] = val
 
@@ -381,6 +381,20 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_CC_exp_b_r2(sb, val)    putnbyte(sb + 0x1a, val, 2)
 #define set_CC_exp_b_g2(sb, val)    putnbyte(sb + 0x1c, val, 2)
 #define set_CC_exp_b_b2(sb, val)    putnbyte(sb + 0x1e, val, 2)
+
+/* ==================================================================== */
+/* SET SCAN MODE 2 */
+#define SET_SCAN_MODE2_code             0xe5
+#define SET_SCAN_MODE2_len              10
+
+#define set_SSM2_page_code(sb, val)     sb[0x02] = val
+#define set_SSM2_pay_len(sb, val)       sb[0x08] = val
+
+/* the payload */
+#define SSM2_PAY_len                     0x10
+#define set_SSM2_unk(sb, val)           sb[0x02] = val
+#define set_SSM2_unk2(sb, val)          sb[0x03] = val
+#define set_SSM2_unk3(sb, val)          sb[0x04] = val
 
 /* ==================================================================== */
 /* window descriptor macros for SET_WINDOW and GET_WINDOW */

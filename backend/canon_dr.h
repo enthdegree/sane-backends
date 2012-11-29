@@ -177,6 +177,8 @@ struct scanner
   int has_buffer;
   int has_df;
   int has_btc;
+  int has_ssm;           /* older scanners use this set scan mode command */         
+  int has_ssm2;          /* newer scanners user this similar command */
   int can_read_panel;
   int can_write_panel;
   int rgb_format;       /* meaning unknown */

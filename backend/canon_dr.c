@@ -274,6 +274,8 @@
 	 - automatically disable read/send_panel if unsupported
       v39 2011-11-01, MAN
          - DR-2580C pads the backside of duplex scans
+      v40 2012-11-01, MAN
+         - initial DR-9050C, DR-7550C, DR-6050C and DR-3010C support
 
    SANE FLOW DIAGRAM
 
@@ -322,7 +324,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 39
+#define BUILD 40
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -824,14 +826,14 @@ connect_fd (struct scanner *s)
     ret = SANE_STATUS_GOOD;
   }
   else if (s->connection == CONNECTION_USB) {
-    DBG (15, "connect_fd: opening USB device\n");
+    DBG (15, "connect_fd: opening USB device (%s)\n", s->device_name);
     ret = sanei_usb_open (s->device_name, &(s->fd));
     if(!ret){
       ret = sanei_usb_clear_halt(s->fd);
     }
   }
   else {
-    DBG (15, "connect_fd: opening SCSI device\n");
+    DBG (15, "connect_fd: opening SCSI device (%s)\n", s->device_name);
     ret = sanei_scsi_open_extended (s->device_name, &(s->fd), sense_handler, s,
       &s->buffer_size);
     if(!ret && buffer_size != s->buffer_size){
@@ -1130,6 +1132,7 @@ init_model (struct scanner *s)
   s->has_buffer = 1;
   s->can_read_panel = 1;
   s->can_write_panel = 1;
+  s->has_ssm = 1;
 
   s->brightness_steps = 255;
   s->contrast_steps = 255;
@@ -1159,6 +1162,31 @@ init_model (struct scanner *s)
 
   else if (strstr (s->model_name,"DR-7090")){
     s->has_flatbed = 1;
+  }
+
+  else if (strstr (s->model_name,"DR-9050")
+    || strstr (s->model_name,"DR-7550")
+    || strstr (s->model_name,"DR-6050")){
+
+    /*missing*/
+    s->std_res_x[DPI_100]=1;
+    s->std_res_y[DPI_100]=1;
+    s->std_res_x[DPI_150]=1;
+    s->std_res_y[DPI_150]=1;
+    s->std_res_x[DPI_200]=1;
+    s->std_res_y[DPI_200]=1;
+    s->std_res_x[DPI_240]=1;
+    s->std_res_y[DPI_240]=1;
+    s->std_res_x[DPI_300]=1;
+    s->std_res_y[DPI_300]=1;
+    s->std_res_x[DPI_400]=1;
+    s->std_res_y[DPI_400]=1;
+    s->std_res_x[DPI_600]=1;
+    s->std_res_y[DPI_600]=1;
+    
+    /*weirdness*/
+    s->has_ssm = 0;
+    s->has_ssm2 = 1;
   }
 
   else if (strstr (s->model_name,"DR-4080")
@@ -1202,6 +1230,36 @@ init_model (struct scanner *s)
     s->need_fcal = 1;
     s->sw_lut = 1;
     /*s->invert_tly = 1;*/
+
+    /*only in Y direction, so we trash them in X*/
+    s->std_res_x[DPI_100]=0;
+    s->std_res_x[DPI_150]=0;
+    s->std_res_x[DPI_200]=0;
+    s->std_res_x[DPI_240]=0;
+    s->std_res_x[DPI_400]=0;
+
+    /*lies*/
+    s->can_halftone=0;
+    s->can_monochrome=0;
+  }
+
+  /* copied from 2510, possibly incorrect */
+  else if (strstr (s->model_name,"DR-3010")){
+    s->rgb_format = 1;
+    s->always_op = 0;
+    s->unknown_byte2 = 0x80;
+    s->fixed_width = 1;
+    s->valid_x = 8.5 * 1200;
+    s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_2510;
+    s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_2510;
+    s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_2510;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_2510;
+    s->duplex_interlace = DUPLEX_INTERLACE_2510;
+    s->duplex_offset = 400;
+    s->need_ccal = 1;
+    s->need_fcal = 1;
+    s->sw_lut = 1;
+    s->invert_tly = 1;
 
     /*only in Y direction, so we trash them in X*/
     s->std_res_x[DPI_100]=0;
@@ -2720,6 +2778,11 @@ ssm_buffer (struct scanner *s)
 
   DBG (10, "ssm_buffer: start\n");
 
+  if(!s->has_ssm){
+    DBG (10, "ssm_buffer: unsupported\n");
+    return ret;
+  }
+
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
   set_SSM_pf(cmd, 1);
@@ -2770,7 +2833,7 @@ ssm_df (struct scanner *s)
 
   DBG (10, "ssm_df: start\n");
 
-  if(!s->has_df){
+  if(!s->has_ssm || !s->has_df){
     DBG (10, "ssm_df: unsupported, finishing\n");
     return ret;
   }
@@ -2829,7 +2892,7 @@ ssm_do (struct scanner *s)
 
   DBG (10, "ssm_do: start\n");
 
-  if(!s->can_color){
+  if(!s->has_ssm || !s->can_color){
     DBG (10, "ssm_do: unsupported, finishing\n");
     return ret;
   }
@@ -2907,6 +2970,50 @@ ssm_do (struct scanner *s)
   );
 
   DBG (10, "ssm_do: finish\n");
+
+  return ret;
+}
+
+/* used by recent scanners. meaning of payloads unknown */
+static SANE_Status
+ssm2 (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[SET_SCAN_MODE2_len];
+  size_t cmdLen = SET_SCAN_MODE2_len;
+
+  unsigned char out[SSM2_PAY_len];
+  size_t outLen = SSM2_PAY_len;
+
+  DBG (10, "ssm2:start\n");
+
+  if(!s->has_ssm2){
+    DBG (10, "ssm2: unsupported, finishing\n");
+    return ret;
+  }
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
+  /*FIXME: set this correctly */
+  set_SSM2_page_code(cmd, 0);
+  set_SSM2_pay_len(cmd, outLen);
+
+  /*FIXME: set these correctly */
+  memset(out,0,outLen);
+  set_SSM2_unk(out, 0);
+  set_SSM2_unk2(out, 0);
+  set_SSM2_unk3(out, 0);
+
+  /*
+  ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      out, outLen,
+      NULL, NULL
+  );*/
+
+  DBG (10, "ssm2: finish\n");
 
   return ret;
 }

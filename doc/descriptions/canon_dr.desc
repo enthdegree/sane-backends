@@ -119,8 +119,8 @@
 :model "DR-3010C"
 :interface "USB"
 :usbid "0x1083" "0x161d"
-:status :untested
-:comment "Please test!"
+:status :good
+:comment "Minimal testing, settings copied from DR-2510C"
 
 :model "DR3020"
 :interface "SCSI"
@@ -202,8 +202,8 @@
 :model "DR-6050C"
 :interface "USB SCSI"
 :usbid "0x1083" "0x1624"
-:status :untested
-:comment "Please test!"
+:status :good
+:comment "Simplex, duplex, all resolutions, binary/ht/gray working.  Can't wake from stand-by mode"
 
 :model "DR-6080"
 :interface "USB SCSI"
@@ -227,7 +227,7 @@
 :interface "USB SCSI"
 :usbid "0x1083" "0x1623"
 :status :untested
-:comment "Please test!"
+:comment "Assumed compatible with DR-6050C"
 
 :model "DR-7580"
 :interface "USB SCSI"
@@ -238,8 +238,8 @@
 :model "DR-9050C"
 :interface "USB SCSI"
 :usbid "0x1083" "0x1622"
-:status :untested
-:comment "Please test!"
+:status :good
+:comment "Simplex, duplex, all resolutions, binary/ht/gray working.  Can't wake from stand-by mode"
 
 :model "DR-9080C"
 :interface "USB SCSI"

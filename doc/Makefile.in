@@ -37,8 +37,8 @@ host_triplet = @host@
 subdir = doc
 DIST_COMMON = $(dist_doc_DATA) $(nobase_dist_doc_DATA) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/doxygen-sanei.conf.in \
-	$(srcdir)/doxygen-genesys.conf.in 
+	$(srcdir)/doxygen-genesys.conf.in \
+	$(srcdir)/doxygen-sanei.conf.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/byteorder.m4 \

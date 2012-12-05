@@ -1,3 +1,8 @@
+2012-12-05 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_gl124.c: add binary data logging
+	for gl124 based scanners. Issue park command as early as possible to
+	speed up batch scans
+
 2012-11-28 Paul Newall <quandry@ntlworld.com>
 	* backend/kodakaio.c backend/kodakaio.h  backend/kodakaio.conf.in 
 	backend/Makefile.am backend/Makefile.in docs/descriptions/kodakaio.desc:

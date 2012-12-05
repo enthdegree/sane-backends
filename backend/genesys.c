@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847/GL124 based scanners
  */
 
-#define BUILD 2404
+#define BUILD 2405
 #define BACKEND_NAME genesys
 
 #include "genesys.h"

@@ -102,7 +102,7 @@ gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 {
   SANE_Status status;
   size_t size, target, read, done;
-  uint8_t outdata[8];
+  uint8_t outdata[8], *buffer;
 
   DBG (DBG_io, "gl124_bulk_read_data: requesting %lu bytes (unused addr=0x%02x)\n", (u_long) len,addr);
 
@@ -110,6 +110,7 @@ gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
     return SANE_STATUS_GOOD;
 
   target = len;
+  buffer = data;
 
   /* loop until computed data size is read */
   while (target)
@@ -189,6 +190,11 @@ gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 
       target -= size;
       data += size;
+    }
+
+  if (DBG_LEVEL >= DBG_data && dev->binary!=NULL)
+    {
+      fwrite(buffer, len, 1, dev->binary);
     }
 
   DBGCOMPLETED;
@@ -2772,6 +2778,7 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   uint32_t addr, length, strpixel ,endpixel, x, factor, segcnt, pixels, i;
+  uint32_t lines, channels;
   uint16_t dpiset,dpihw;
   uint8_t val,*buffer,*ptr,*src;
 
@@ -2788,6 +2795,24 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
       endpixel=segcnt;
     }
   DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d, SEGCNT=%d\n",__FUNCTION__,strpixel,endpixel,endpixel-strpixel,segcnt);
+
+  /* compute deletion factor */
+  sanei_genesys_get_double(dev->reg,REG_DPISET,&dpiset);
+  dpihw=sanei_genesys_compute_dpihw(dev,dpiset);
+  factor=dpihw/dpiset;
+  DBG( DBG_io2, "%s: factor=%d\n",__FUNCTION__,factor);
+
+  /* binary data logging */
+  if(DBG_LEVEL>=DBG_data)
+    {
+      dev->binary=fopen("binary.pnm","wb");
+      sanei_genesys_get_triple(dev->reg, REG_LINCNT, &lines);
+      channels=dev->current_setup.channels;
+      if(dev->binary!=NULL)
+        {
+          fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels*dev->segnb,lines/channels,255);
+        }
+    }
  
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */
@@ -2798,12 +2823,6 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   DBG( DBG_io2, "%s: using chunks of %d bytes (%d shading data pixels)\n",__FUNCTION__,length, length/4);
   buffer=(uint8_t *)malloc(pixels*dev->segnb);
   memset(buffer,0,pixels*dev->segnb);
-
-  /* compute deletion factor */
-  sanei_genesys_get_double(dev->reg,REG_DPISET,&dpiset);
-  dpihw=sanei_genesys_compute_dpihw(dev,dpiset);
-  factor=dpihw/dpiset;
-  DBG( DBG_io2, "%s: factor=%d\n",__FUNCTION__,factor);
 
   /* write actual red data */
   for(i=0;i<3;i++)

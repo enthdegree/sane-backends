@@ -45,8 +45,8 @@
 :model "PIXMA MG3100 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1752"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MG4100 Series"
 :interface "USB"

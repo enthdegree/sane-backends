@@ -17,7 +17,7 @@ using Canon's BJNP protocol.
 Currently, the following models work with this backend:
 .PP
 .RS
-PIXMA MG5300, MG6100
+PIXMA MG3100, MG5300, MG6100
 .br
 PIXMA MP140, MP150, MP160, MP170, MP180, MP190
 .br
@@ -77,7 +77,7 @@ Feedback in the sane\-devel mailing list welcome.
 .RS
 PIXMA E500, E600
 .br
-PIXMA MG2100, MG3100, MG4100, MG5100, MG5200 
+PIXMA MG2100, MG4100, MG5100, MG5200
 .br
 PIXMA MG6200, MG8100, MG8200
 .br

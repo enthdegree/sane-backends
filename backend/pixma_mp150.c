@@ -739,7 +739,7 @@ send_scan_param (pixma_t * s)
                                                  * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels));   /* bits per pixel */
 #endif
 
-      data[0x1f] = 0x01;
+      data[0x1f] = 0x01;        /* This one also seen at 0. Don't know yet what's used for */
       data[0x20] = 0xff;
       data[0x21] = 0x81;
       data[0x23] = 0x02;
@@ -1085,6 +1085,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
               && s->cfg->pid != MX360_PID
               && s->cfg->pid != MX370_PID
               && s->cfg->pid != MX890_PID
+              && s->cfg->pid != MG3100_PID
               && s->cfg->pid != MG5300_PID)
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
           

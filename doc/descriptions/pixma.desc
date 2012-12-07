@@ -81,8 +81,8 @@
 :model "PIXMA MG6200 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1755"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 4800 DPI)"
 
 :model "PIXMA MG8100 Series"
 :interface "USB"

@@ -3,7 +3,7 @@
  *
  * Copyright (C)   2011-2012 Paul Newall
  *
- * Based on the Magicolor sane backend:
+ * Based on the Magicolor sane backend: 
  * Based on the epson2 sane backend:
  * Based on Kazuhiro Sasayama previous
  * work on epson.[ch] file from the SANE package.
@@ -383,7 +383,7 @@ commandtype, max depth, pointer to depth list
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
       SANE_TRUE, SANE_FALSE, /* ADF, duplex */ 
-      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.3* MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
   },
   /* KODAK ESP7200 ,  */
   {
@@ -423,7 +423,7 @@ commandtype, max depth, pointer to depth list
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
       SANE_TRUE, SANE_FALSE, /* ADF, duplex */ 
-      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.3* MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
   },
   /* KODAK ESP C310 ,  */
   {
@@ -453,7 +453,7 @@ commandtype, max depth, pointer to depth list
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
       SANE_TRUE, SANE_FALSE, /* ADF, duplex. */
-      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.3* MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
   },
   /* KODAK HERO 6.1,   */
   {
@@ -463,7 +463,7 @@ commandtype, max depth, pointer to depth list
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
       SANE_TRUE, SANE_FALSE, /* ADF, duplex. */
-      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.3* MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
   },
   /* KODAK HERO 7.1,   */
   {
@@ -473,7 +473,7 @@ commandtype, max depth, pointer to depth list
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
       SANE_FALSE, SANE_TRUE, /* ADF, duplex. */
-      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.3* MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
   },
   /* KODAK HERO 5.1,   */
   {
@@ -483,7 +483,7 @@ commandtype, max depth, pointer to depth list
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
       SANE_FALSE, SANE_TRUE, /* ADF, duplex.*/
-      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.3* MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
   },
   /* KODAK ESP9200 ,  */
   {
@@ -493,7 +493,7 @@ commandtype, max depth, pointer to depth list
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
       SANE_TRUE, SANE_FALSE, /* ADF, duplex */ 
-      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.3* MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
   },
   /* KODAK ESP2170 ,  */
   {
@@ -502,7 +502,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_TRUE, SANE_FALSE, /* ADF, duplex */ 
       {0, SANE_FIX(100), 0}, {0, SANE_FIX(100), 0} /* ADF x/y ranges (TODO!) */
   },
   /* KODAK HERO 9.1,   */
@@ -513,7 +513,7 @@ commandtype, max depth, pointer to depth list
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
       SANE_TRUE, SANE_FALSE, /* ADF, duplex. */
-      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.3 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
   },
   /* KODAK HERO 3.1,   */
   {
@@ -523,7 +523,7 @@ commandtype, max depth, pointer to depth list
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
       SANE_FALSE, SANE_TRUE, /* ADF, duplex. Disabled because there's no code to work it yet*/
-      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.3* MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
   },
   /* spare use for specified usbid */
   {
@@ -533,7 +533,7 @@ commandtype, max depth, pointer to depth list
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
       SANE_FALSE, SANE_TRUE, /* ADF, duplex. Disabled because there's no code to work it yet*/
-      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.3* MM_PER_INCH), 0} /* ADF x/y ranges (TODO!) */
   }
 };
 

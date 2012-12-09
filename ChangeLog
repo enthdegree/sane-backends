@@ -1,3 +1,7 @@
+2012-12-09 Paul Newall <quandry@ntlworld.com>
+	* backend/kodakaio.c:
+	add adf to ESP2170. Reduce the default adf y length to 11.3 inch
+
 2012-12-09 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys*.c backend/genesys_low.h: reworked gamma table
 	handling. Compute gamma table outside send_gamma_table so default

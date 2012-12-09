@@ -486,10 +486,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x03,0x50 & ~REG03_AVEENB);
   SETREG (0x04,0x03);
   SETREG (0x05,0x00);
-  SETREG (0x06,0x50 | REG06_GAIN4); /* causes calibration trouble */
-  SETREG (0x06,0x50);
-  /* SETREG (0x07,0x00); */
-  /* SETREG (0x08,0x10); */
+  SETREG (0x06,0x50 | REG06_GAIN4); 
   SETREG (0x09,0x00);
   SETREG (0x0a,0xc0);
   SETREG (0x0b,0x2a);
@@ -1381,6 +1378,9 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
 
   sanei_genesys_set_double(reg,REG_DPISET,dpiset);
   DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset);
+  
+  r = sanei_genesys_get_address (reg, REG06);
+  r->value |= REG06_GAIN4;
 
   /* segment number */
   r = sanei_genesys_get_address (reg, 0x98);
@@ -2910,6 +2910,7 @@ gl124_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
   int status;
   uint8_t *gamma, val;
   int i, gmmval;
+  float gmm;
 
   DBG (DBG_proc, "gl124_send_gamma_table\n");
 
@@ -2923,32 +2924,45 @@ gl124_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
       return SANE_STATUS_GOOD;
     }
 
-  size = 256;
+  size = 256 + 1;
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
   gamma = (uint8_t *) malloc (size * 2 * 3);
   if (!gamma)
-    return SANE_STATUS_NO_MEM;
+    {
+      return SANE_STATUS_NO_MEM;
+    }
+  memset(gamma, 255, size*3*2);
 
   /* take care off generic/specific data */
   if (generic)
     {
-      /* fill with default values */
-      for (i = 0; i < size; i++)
-	{
-	  gmmval = i * 256;
-	  gamma[i * 2 + size * 0 + 0] = gmmval & 0xff;
-	  gamma[i * 2 + size * 0 + 1] = (gmmval >> 8) & 0xff;
-	  gamma[i * 2 + size * 2 + 0] = gmmval & 0xff;
-	  gamma[i * 2 + size * 2 + 1] = (gmmval >> 8) & 0xff;
-	  gamma[i * 2 + size * 4 + 0] = gmmval & 0xff;
-	  gamma[i * 2 + size * 4 + 1] = (gmmval >> 8) & 0xff;
-	}
+      /* fill with default values built from device gamma */
+      for(i=0;i<3;i++)
+        {
+          switch(i)
+            {
+              case 0:
+                gmm=dev->sensor.red_gamma;
+                break;
+              case 1:
+                gmm=dev->sensor.green_gamma;
+                break;
+              case 2:
+                gmm=dev->sensor.blue_gamma;
+                break;
+            }
+          sanei_genesys_create_gamma_table (gamma+i*size*2,
+                                            size-1,
+                                            65535,
+                                            65535,
+                                            gmm);
+        }
     }
   else
     {
-      /* copy sensor specific's gamma tables */
-      for (i = 0; i < size; i++)
+      /* copy sensor user defined gamma tables */
+      for (i = 0; i < size-1; i++)
 	{
 	  gamma[i * 2 + size * 0 + 0] = dev->sensor.red_gamma_table[i] & 0xff;
 	  gamma[i * 2 + size * 0 + 1] =
@@ -2980,12 +2994,12 @@ gl124_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
       RIE (sanei_genesys_write_register (dev, 0xbe, val));
 
       /* set GMM_Z */
-      RIE (sanei_genesys_write_register (dev, 0xc5+2*i, 0x00));
-      RIE (sanei_genesys_write_register (dev, 0xc6+2*i, 0x00));
+      RIE (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]));
+      RIE (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]));
 
       status =
-	sanei_genesys_write_ahb (dev->dn, 0x01000000 + 0x200 * i, size * 2,
-		   gamma + i * size * 2);
+	sanei_genesys_write_ahb (dev->dn, 0x01000000 + 0x200 * i, (size-1) * 2,
+		   gamma + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,

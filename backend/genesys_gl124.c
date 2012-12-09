@@ -2904,25 +2904,15 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
  * @param generic flag for using generic gamma tables
  */
 static SANE_Status
-gl124_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
+gl124_send_gamma_table (Genesys_Device * dev)
 {
   int size;
   int status;
   uint8_t *gamma, val;
-  int i, gmmval;
-  float gmm;
+  int i;
 
   DBG (DBG_proc, "gl124_send_gamma_table\n");
 
-  /* don't send anything if no specific gamma table defined */
-  if (!generic
-      && (dev->sensor.red_gamma_table == NULL
-	  || dev->sensor.green_gamma_table == NULL
-	  || dev->sensor.blue_gamma_table == NULL))
-    {
-      DBG (DBG_proc, "gl124_send_gamma_table: nothing to send, skipping\n");
-      return SANE_STATUS_GOOD;
-    }
 
   size = 256 + 1;
 
@@ -2934,48 +2924,15 @@ gl124_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
     }
   memset(gamma, 255, size*3*2);
 
-  /* take care off generic/specific data */
-  if (generic)
+  /* copy sensor defined gamma tables */
+  for (i = 0; i < size-1; i++)
     {
-      /* fill with default values built from device gamma */
-      for(i=0;i<3;i++)
-        {
-          switch(i)
-            {
-              case 0:
-                gmm=dev->sensor.red_gamma;
-                break;
-              case 1:
-                gmm=dev->sensor.green_gamma;
-                break;
-              case 2:
-                gmm=dev->sensor.blue_gamma;
-                break;
-            }
-          sanei_genesys_create_gamma_table (gamma+i*size*2,
-                                            size-1,
-                                            65535,
-                                            65535,
-                                            gmm);
-        }
-    }
-  else
-    {
-      /* copy sensor user defined gamma tables */
-      for (i = 0; i < size-1; i++)
-	{
-	  gamma[i * 2 + size * 0 + 0] = dev->sensor.red_gamma_table[i] & 0xff;
-	  gamma[i * 2 + size * 0 + 1] =
-	    (dev->sensor.red_gamma_table[i] >> 8) & 0xff;
-	  gamma[i * 2 + size * 2 + 0] =
-	    dev->sensor.green_gamma_table[i] & 0xff;
-	  gamma[i * 2 + size * 2 + 1] =
-	    (dev->sensor.green_gamma_table[i] >> 8) & 0xff;
-	  gamma[i * 2 + size * 4 + 0] =
-	    dev->sensor.blue_gamma_table[i] & 0xff;
-	  gamma[i * 2 + size * 4 + 1] =
-	    (dev->sensor.blue_gamma_table[i] >> 8) & 0xff;
-	}
+      gamma[i * 2 + size * 0 + 0] = dev->sensor.gamma_table[GENESYS_RED][i] & 0xff;
+      gamma[i * 2 + size * 0 + 1] = (dev->sensor.gamma_table[GENESYS_RED][i] >> 8) & 0xff;
+      gamma[i * 2 + size * 2 + 0] = dev->sensor.gamma_table[GENESYS_GREEN][i] & 0xff;
+      gamma[i * 2 + size * 2 + 1] = (dev->sensor.gamma_table[GENESYS_GREEN][i] >> 8) & 0xff;
+      gamma[i * 2 + size * 4 + 0] = dev->sensor.gamma_table[GENESYS_BLUE][i] & 0xff;
+      gamma[i * 2 + size * 4 + 1] = (dev->sensor.gamma_table[GENESYS_BLUE][i] >> 8) & 0xff;
     }
 
   /* loop sending gamma tables NOTE: 0x01000000 not 0x10000000 */
@@ -2983,23 +2940,19 @@ gl124_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
     {
       /* clear corresponding GMM_N bit */
       RIE (sanei_genesys_read_register (dev, 0xbd, &val));
-      /* val &= ~(0x01 << i); */
-      val = 0x00;
+      val &= ~(0x01 << i);
       RIE (sanei_genesys_write_register (dev, 0xbd, val));
 
       /* clear corresponding GMM_F bit */
       RIE (sanei_genesys_read_register (dev, 0xbe, &val));
-      /* val &= ~(0x01 << i); */
-      val = 0x07;
+      val &= ~(0x01 << i);
       RIE (sanei_genesys_write_register (dev, 0xbe, val));
 
       /* set GMM_Z */
       RIE (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]));
       RIE (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]));
 
-      status =
-	sanei_genesys_write_ahb (dev->dn, 0x01000000 + 0x200 * i, (size-1) * 2,
-		   gamma + i * size * 2+2);
+      status = sanei_genesys_write_ahb (dev->dn, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3843,7 +3796,7 @@ gl124_init (Genesys_Device * dev)
   SANE_Status status;
   uint8_t val;
   SANE_Bool cold = SANE_TRUE;
-  int size;
+  int size, i;
 
   DBG_INIT ();
   DBGSTART;
@@ -3896,9 +3849,9 @@ gl124_init (Genesys_Device * dev)
   /* now hardware part is OK, set up device struct */
   FREE_IFNOT_NULL (dev->white_average_data);
   FREE_IFNOT_NULL (dev->dark_average_data);
-  FREE_IFNOT_NULL (dev->sensor.red_gamma_table);
-  FREE_IFNOT_NULL (dev->sensor.green_gamma_table);
-  FREE_IFNOT_NULL (dev->sensor.blue_gamma_table);
+  FREE_IFNOT_NULL (dev->sensor.gamma_table[0]);
+  FREE_IFNOT_NULL (dev->sensor.gamma_table[1]);
+  FREE_IFNOT_NULL (dev->sensor.gamma_table[2]);
 
   dev->settings.color_filter = 0;
 
@@ -3910,42 +3863,24 @@ gl124_init (Genesys_Device * dev)
 
   /* init gamma tables */
   size = 256;
-  if (dev->sensor.red_gamma_table == NULL)
+
+  for(i=0;i<3;i++)
     {
-      dev->sensor.red_gamma_table = (uint16_t *) malloc (2 * size);
-      if (dev->sensor.red_gamma_table == NULL)
-	{
-	  DBG (DBG_error,
-	       "gl124_init: could not allocate memory for gamma table\n");
-	  return SANE_STATUS_NO_MEM;
-	}
-      sanei_genesys_create_gamma_table (dev->sensor.red_gamma_table, size,
-					65535, 65535, dev->sensor.red_gamma);
-    }
-  if (dev->sensor.green_gamma_table == NULL)
-    {
-      dev->sensor.green_gamma_table = (uint16_t *) malloc (2 * size);
-      if (dev->sensor.red_gamma_table == NULL)
-	{
-	  DBG (DBG_error,
-	       "gl124_init: could not allocate memory for gamma table\n");
-	  return SANE_STATUS_NO_MEM;
-	}
-      sanei_genesys_create_gamma_table (dev->sensor.green_gamma_table, size,
-					65535, 65535,
-					dev->sensor.green_gamma);
-    }
-  if (dev->sensor.blue_gamma_table == NULL)
-    {
-      dev->sensor.blue_gamma_table = (uint16_t *) malloc (2 * size);
-      if (dev->sensor.red_gamma_table == NULL)
-	{
-	  DBG (DBG_error,
-	       "gl124_init: could not allocate memory for gamma table\n");
-	  return SANE_STATUS_NO_MEM;
-	}
-      sanei_genesys_create_gamma_table (dev->sensor.blue_gamma_table, size,
-					65535, 65535, dev->sensor.blue_gamma);
+      if (dev->sensor.gamma_table[i] == NULL)
+        {
+          dev->sensor.gamma_table[i] = (uint16_t *) malloc (2 * size);
+          if (dev->sensor.gamma_table[i] == NULL)
+            {
+              DBG (DBG_error,
+                   "gl124_init: could not allocate memory for gamma table %d\n", i);
+              return SANE_STATUS_NO_MEM;
+            }
+          sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
+                                            size,
+                                            65535,
+                                            65535,
+                                            dev->sensor.gamma[i]);
+        }
     }
 
   dev->oe_buffer.buffer = NULL;

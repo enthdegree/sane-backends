@@ -99,6 +99,10 @@
 #define DBGSTART DBG (DBG_proc, "%s start\n", __FUNCTION__);
 #define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __FUNCTION__);
 
+#define GENESYS_RED   0
+#define GENESYS_GREEN 1
+#define GENESYS_BLUE  2
+
 /* Flags */
 #define GENESYS_FLAG_UNTESTED     (1 << 0)	/**< Print a warning for these scanners */
 #define GENESYS_FLAG_14BIT_GAMMA  (1 << 1)	/**< use 14bit Gamma table instead of 12 */
@@ -235,12 +239,8 @@ typedef struct
   uint8_t regs_0x08_0x0b[4];
   uint8_t regs_0x10_0x1d[14];
   uint8_t regs_0x52_0x5e[13];
-  float red_gamma;
-  float green_gamma;
-  float blue_gamma;
-  uint16_t *red_gamma_table;
-  uint16_t *green_gamma_table;
-  uint16_t *blue_gamma_table;
+  float gamma[3];		/**< red, green and blue gamma coefficient for default gamma tables */
+  uint16_t *gamma_table[3];	/**< sensor specific gamma tables */
 } Genesys_Sensor;
 
 typedef struct
@@ -443,7 +443,10 @@ typedef struct Genesys_Command_Set
 			     Genesys_Register_Set * regs,
 			     SANE_Bool check_stop);
 
-    SANE_Status (*send_gamma_table) (Genesys_Device * dev, SANE_Bool generic);
+    /**
+     * Send gamma tables to ASIC
+     */
+    SANE_Status (*send_gamma_table) (Genesys_Device * dev);
 
     SANE_Status (*search_start_position) (Genesys_Device * dev);
     SANE_Status (*offset_calibration) (Genesys_Device * dev);

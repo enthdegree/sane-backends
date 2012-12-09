@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847/GL124 based scanners
  */
 
-#define BUILD 2405
+#define BUILD 2407
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -715,7 +715,16 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
   return sum_time;
 }
 
-/* computes gamma table */
+/** @brief computes gamma table
+ * Generates a gamma table of the given length within 0 and the given
+ * maximum value
+ * @param gamma_table gamma table to fill
+ * @param size size of the table
+ * @param maximum value allowed for gamma
+ * @param gamma_max maximum gamma value
+ * @param gamma gamma to compute values
+ * @return a gamma table filled with the computed values
+ * */
 void
 sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
 				  float maximum, float gamma_max, float gamma)
@@ -733,9 +742,6 @@ sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
       if (value > maximum)
 	value = maximum;
       gamma_table[i] = value;
-      /* DBG (DBG_data,
-         "sanei_genesys_create_gamma_table: gamma_table[%.3d] = %.5d\n",
-         i, (int) value); */
     }
   DBG (DBG_proc, "sanei_genesys_create_gamma_table: completed\n");
 }
@@ -3108,9 +3114,6 @@ genesys_restore_calibration (Genesys_Device * dev)
 	{
 	  memcpy (&dev->frontend, &cache->frontend, sizeof (dev->frontend));
           /* we don't restore the gamma fields */
-          /* XXX STEF XXX
-	  memcpy (&dev->sensor, &cache->sensor, offsetof (Genesys_Sensor, red_gamma));
-          */
 	  memcpy (dev->sensor.regs_0x10_0x1d, cache->sensor.regs_0x10_0x1d, 6);
 	  free (dev->dark_average_data);
 	  free (dev->white_average_data);
@@ -4085,17 +4088,9 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 	}
     }
 
-  /* send custom or generic gamma tables depending on flag */
-  if (dev->model->flags & GENESYS_FLAG_CUSTOM_GAMMA)
-    {
-      /* use custom gamma table */
-      status = dev->model->cmd_set->send_gamma_table (dev, 0);
-    }
-  else
-    {
-      /* send default gamma table if no custom gamma */
-      status = dev->model->cmd_set->send_gamma_table (dev, 1);
-    }
+  /* send gamma tbales. They have been set ot device or user value
+   * when setting option value */
+  status = dev->model->cmd_set->send_gamma_table (dev);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -6235,7 +6230,7 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
       BILT1 (fread (&cache->last_calibration, sizeof (cache->last_calibration), 1, fp));
       BILT1 (fread (&cache->frontend, sizeof (cache->frontend), 1, fp));
       /* the gamma (and later) fields are not stored */
-      BILT1 (fread (&cache->sensor, offsetof (Genesys_Sensor, red_gamma), 1, fp));
+      BILT1 (fread (&cache->sensor, offsetof (Genesys_Sensor, gamma[0]), 1, fp));
       BILT1 (fread (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp));
       BILT1 (fread (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp));
       BILT1 (fread (&cache->average_size, sizeof (cache->average_size), 1, fp));
@@ -6310,7 +6305,7 @@ write_calibration (Genesys_Device * dev)
       fwrite (&cache->last_calibration, sizeof (cache->last_calibration), 1, fp);
       fwrite (&cache->frontend, sizeof (cache->frontend), 1, fp);
       /* the gamma (and later) fields are not stored */
-      fwrite (&cache->sensor, offsetof (Genesys_Sensor, red_gamma), 1, fp);
+      fwrite (&cache->sensor, offsetof (Genesys_Sensor, gamma[0]), 1, fp);
 
       fwrite (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp);
       fwrite (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp);
@@ -6853,9 +6848,9 @@ sane_close (SANE_Handle handle)
   FREE_IFNOT_NULL (s->dev->calib_file);
 
   /* free allocated gamma tables */
-  FREE_IFNOT_NULL (s->dev->sensor.red_gamma_table);
-  FREE_IFNOT_NULL (s->dev->sensor.green_gamma_table);
-  FREE_IFNOT_NULL (s->dev->sensor.blue_gamma_table);
+  FREE_IFNOT_NULL (s->dev->sensor.gamma_table[0]);
+  FREE_IFNOT_NULL (s->dev->sensor.gamma_table[1]);
+  FREE_IFNOT_NULL (s->dev->sensor.gamma_table[2]);
 
   /* for an handful of bytes .. */
   free ((void *)s->opt[OPT_RESOLUTION].constraint.word_list);
@@ -6964,15 +6959,15 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       table = (SANE_Word *) val;
       if (strcmp (s->val[OPT_COLOR_FILTER].s, "Red") == 0)
 	{
-	  gamma = s->dev->sensor.red_gamma_table;
+	  gamma = s->dev->sensor.gamma_table[GENESYS_RED];
 	}
       else if (strcmp (s->val[OPT_COLOR_FILTER].s, "Blue") == 0)
 	{
-	  gamma = s->dev->sensor.blue_gamma_table;
+	  gamma = s->dev->sensor.gamma_table[GENESYS_BLUE];
 	}
       else
 	{
-	  gamma = s->dev->sensor.green_gamma_table;
+	  gamma = s->dev->sensor.gamma_table[GENESYS_GREEN];
 	}
       for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
 	{
@@ -6983,21 +6978,21 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       table = (SANE_Word *) val;
       for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
 	{
-	  table[i] = s->dev->sensor.red_gamma_table[i];
+	  table[i] = s->dev->sensor.gamma_table[GENESYS_RED][i];
 	}
       break;
     case OPT_GAMMA_VECTOR_G:
       table = (SANE_Word *) val;
       for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
 	{
-	  table[i] = s->dev->sensor.green_gamma_table[i];
+	  table[i] = s->dev->sensor.gamma_table[GENESYS_GREEN][i];
 	}
       break;
     case OPT_GAMMA_VECTOR_B:
       table = (SANE_Word *) val;
       for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
 	{
-	  table[i] = s->dev->sensor.blue_gamma_table[i];
+	  table[i] = s->dev->sensor.gamma_table[GENESYS_BLUE][i];
 	}
       break;
       /* sensors */
@@ -7254,31 +7249,21 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  /* restore default sensor gamma table */
 	  /* currently there is no sensor's specific gamma table,
 	   * tables are built by sanei_genesys_create_gamma_table */
-	  sanei_genesys_create_gamma_table (s->dev->sensor.red_gamma_table,
-					    s->opt[OPT_GAMMA_VECTOR_R].size /
-					    sizeof (SANE_Word),
-					    s->opt
-					    [OPT_GAMMA_VECTOR_R].
-					    constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_R].
-					    constraint.range->max,
-					    s->dev->sensor.red_gamma);
-	  sanei_genesys_create_gamma_table (s->dev->sensor.green_gamma_table,
-					    s->opt[OPT_GAMMA_VECTOR_G].size /
-					    sizeof (SANE_Word),
-					    s->opt[OPT_GAMMA_VECTOR_G].
-					    constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_G].
-					    constraint.range->max,
-					    s->dev->sensor.red_gamma);
-	  sanei_genesys_create_gamma_table (s->dev->sensor.blue_gamma_table,
-					    s->opt[OPT_GAMMA_VECTOR_B].size /
-					    sizeof (SANE_Word),
-					    s->opt[OPT_GAMMA_VECTOR_B].
-					    constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_B].
-					    constraint.range->max,
-					    s->dev->sensor.red_gamma);
+	  sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_RED],
+					    s->opt[OPT_GAMMA_VECTOR_R].size / sizeof (SANE_Word),
+					    s->opt[OPT_GAMMA_VECTOR_R].constraint.range->max,
+					    s->opt[OPT_GAMMA_VECTOR_R].constraint.range->max,
+					    s->dev->sensor.gamma[GENESYS_RED]);
+	  sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_GREEN],
+					    s->opt[OPT_GAMMA_VECTOR_G].size / sizeof (SANE_Word),
+					    s->opt[OPT_GAMMA_VECTOR_G].constraint.range->max,
+					    s->opt[OPT_GAMMA_VECTOR_G].constraint.range->max,
+					    s->dev->sensor.gamma[GENESYS_GREEN]);
+	  sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_BLUE],
+					    s->opt[OPT_GAMMA_VECTOR_B].size / sizeof (SANE_Word),
+					    s->opt[OPT_GAMMA_VECTOR_B].constraint.range->max,
+					    s->opt[OPT_GAMMA_VECTOR_B].constraint.range->max,
+					    s->dev->sensor.gamma[GENESYS_BLUE]);
 	}
       break;
 
@@ -7286,30 +7271,30 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       table = (SANE_Word *) val;
       for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
 	{
-	  s->dev->sensor.red_gamma_table[i] = table[i];
-	  s->dev->sensor.green_gamma_table[i] = table[i];
-	  s->dev->sensor.blue_gamma_table[i] = table[i];
+	  s->dev->sensor.gamma_table[GENESYS_RED][i] = table[i];
+	  s->dev->sensor.gamma_table[GENESYS_GREEN][i] = table[i];
+	  s->dev->sensor.gamma_table[GENESYS_BLUE][i] = table[i];
 	}
       break;
     case OPT_GAMMA_VECTOR_R:
       table = (SANE_Word *) val;
       for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
 	{
-	  s->dev->sensor.red_gamma_table[i] = table[i];
+	  s->dev->sensor.gamma_table[GENESYS_RED][i] = table[i];
 	}
       break;
     case OPT_GAMMA_VECTOR_G:
       table = (SANE_Word *) val;
       for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
 	{
-	  s->dev->sensor.green_gamma_table[i] = table[i];
+	  s->dev->sensor.gamma_table[GENESYS_GREEN][i] = table[i];
 	}
       break;
     case OPT_GAMMA_VECTOR_B:
       table = (SANE_Word *) val;
       for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
 	{
-	  s->dev->sensor.blue_gamma_table[i] = table[i];
+	  s->dev->sensor.gamma_table[GENESYS_BLUE][i] = table[i];
 	}
       break;
     case OPT_CALIBRATE:

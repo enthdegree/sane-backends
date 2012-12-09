@@ -1,3 +1,9 @@
+2012-12-09 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys*.c backend/genesys_low.h: reworked gamma table
+	handling. Compute gamma table outside send_gamma_table so default
+	gamma table use device specific gamma values defined in device
+	description.
+
 2012-12-07 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.h: Pixma backend version 0.17.1
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:

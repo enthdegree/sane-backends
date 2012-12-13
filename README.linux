@@ -45,6 +45,150 @@ Gentoo information:
 Gentoo users: If your USB scanner is not detected at all check that USE=usb is
 set when emerging.
 
+Quick install:
+--------------
+
+$ ./configure
+$ make
+$ make install
+
+Step by step install on Linux 2.6.* and 3.*, both with udev:
+------------------------------------------------------------
+
+1. Install missing development packages with your prefered package manager:
+	- libusb-dev
+
+2. Get the latest SANE backend from git:
+	You can download daily git snapshot from here:
+
+	http://www.sane-project.org/snapshots/
+
+	If you prefer to use git, you can fetch a read-only copy of the git tree
+	with this command:
+
+	$ git clone git://git.debian.org/sane/sane-backends.git
+
+	If you already are using a self compiled SANE backend and just fetched a
+	new copy of the git tree or if you patched some source files, there is no
+	need to follow the installation procedure again. You only need to make and
+	install libsane:
+
+	$ make && sudo make install
+
+3. Search the location where your system installed libsane:
+	Each distribution uses different folders for the libraries.
+
+	Here are some examples from 64 bit Ubuntu 10.04. For the installation on
+	your system you need to replace /usr/lib with the folder detected below.
+
+	$ sudo find / -name libsane.so.1
+	/usr/lib/libsane.so.1
+
+	/usr/lib is the folder we are looking for.
+
+	Be careful on 64 bit systems, if you already installed 32 bit compatibility
+		libraries, e.g. the package ia32-libs:
+
+		$ sudo find / -name libsane.so.1
+		/usr/lib/libsane.so.1
+		/usr/lib32/libsane.so.1
+
+		This response contains 2 folders:
+		(1) /usr/lib32 is the location of the 32 bit compatibility libraries.
+		(2) /usr/lib is the folder we are looking for.
+
+	Be careful, if you already compiled and installed new SANE backend:
+
+		$ sudo find / -name libsane.so.1
+		/usr/lib/libsane.so.1
+		/usr/local/lib/libsane.so.1
+		/home/user/src/sane-backends/backend/.libs/libsane.so.1
+
+		This response contains 3 folders:
+		(1) /usr/local/lib is the location of installed new SANE backend.
+		(2) /home/user/src/sane-backends/backend/.libs is the location of
+		    compiled new SANE backend in the source tree.
+		(3) /usr/lib is the folder we are looking for.
+
+4. Decide where you want to install new libsane:
+	You don't need to remove your linux distribution's libsane packages, this
+	may break needed depedencies to other useful packages like xsane.
+
+	You should set symbolic links to new libsane. This avoids problems with the
+	package manager of your Linux distribution.
+
+	I assume that new libsane version 1.0.24 will be installed to
+	/usr/local/lib and your system installed libsane.so.1 to /usr/lib.
+
+	You can backup the existing symlinks and files as *.orig.
+
+	$ cd /usr/lib
+	$ sudo mv libsane.so.1 libsane.so.1.orig
+	$ sudo mv libsane.la libsane.la.orig
+	$ sudo ln -sf /usr/local/lib/libsane.so.1.0.24 libsane.so.1
+	$ sudo ln -sf /usr/local/lib/sane/libsane.la libsane.la
+	$ cd -
+
+	Alternatively you can overwrite standard libsane. But then you must pay
+		attention to your system's upgrades of libsane.
+
+		You need to do some extra configuration for latest SANE backend:
+
+		$ ./configure --libdir="/usr/lib"
+
+	You also can replace the binaries, configuration, manuals, translations,
+		etc. of your distribution. For more information please read:
+
+		$ ./configure --help
+
+5. Configure, make and install latest SANE backend:
+
+	$ ./configure [with your options defined above]
+	$ make && sudo make install
+
+6. Use the scanner with normal user rights:
+	Copy udev rules file:
+
+	$ sudo cp tools/udev/libsane.rules /etc/udev/rules.d
+
+	Reconnect your scanner to the USB bus to activate the new rules file.
+
+	Your user must be a member of the group scanner:
+
+	$ sudo adduser [username] scanner
+
+	After this you must logoff and login again.
+
+7. Test your scanner:
+	First you should check the used libsane version.
+
+		$ scanimage -V
+		scanimage (sane-backends) 1.0.24git; backend version 1.0.24
+
+		This example shows that backend and scanimage are version 1.0.24.
+
+		$ /usr/bin/scanimage -V
+		scanimage (sane-backends) 1.0.20; backend version 1.0.24
+
+		This example shows that an old scanimage (1.0.20) uses the backend 1.0.24.
+
+		If you want to use xsane, start xsane and check the used version with
+		CTRL - i.
+
+	Now you can test if your scanner is recognized with normal user rights.
+
+		$ scanimage -L
+
+		If your scanner isn't recognised here, try this:
+
+			$ sudo scanimage -L
+
+			If this works, your user doesn't have the rights to access the
+			scanner.
+
+			However, please check and redo the installation described above.
+			If this doesn't help, you can ask the mailing list
+			<sane-devel@lists.alioth.debian.org> for further support.
 
 Information about SCSI scanners:
 ================================
@@ -163,135 +307,4 @@ The Intel C++ Compiler for IA32 and IA64 isn't supported yet. If you want
   # include <asm/io.h>
   #endif
 
-Installation
-============
-
-Get the latest SANE backend from git.
-  You can download daily git snapshot from here: 
-
-  http://www.sane-project.org/snapshots/.
-
-  If you prefer to use git, you can fetch a read-only copy of the git tree with
-  this command:
-
-  $ git clone git://git.debian.org/sane/sane-backends.git
-  
-You need to install SANE backend on a terminal window from inside sane-backends 
-  source folder.
-  
-If you already are using a self compiled SANE backend and just fetched a new 
-  copy of the git tree or if you patched some source files, there is no need to
-  follow the installation procedure again. You only need to make and install 
-  libsane:
-  
-  $ make && sudo make install
-
-Read the file README and this file.
-
-Install missing development packages with your prefered package manager:
-  libusb-dev
-
-Search the location where your system installed libsane.so.1.
-  Each distribution uses different folders for the libraries.
-  
-  Here are some examples from 64 bit Ubuntu 10.04. For the installation process
-  you need to replace /usr/lib with the folder detected on your system.
-  
-  $ sudo find / -name libsane.so.1
-  /usr/lib/libsane.so.1
-
-  /usr/lib is the folder we are looking for.
-  
-  Be careful on 64 bit systems, if you already installed 32 bit compatibility
-    libraries, e.g. the package ia32-libs: 
-
-    $ sudo find / -name libsane.so.1
-    /usr/lib/libsane.so.1
-    /usr/lib32/libsane.so.1
-    
-    This response contains 2 folders: (1) /usr/lib32 is the location of the 
-    32 bit compatibility libraries. (2) /usr/lib is the folder we are looking 
-    for.
-    
-  Be careful, if you already compiled and installed new SANE backend:
-    
-    $ sudo find / -name libsane.so.1
-    /usr/lib/libsane.so.1
-    /usr/local/lib/libsane.so.1
-    /home/user/src/sane-backends/backend/.libs/libsane.so.1
-
-    This response contains 3 folders: (1) /usr/local/lib is the location of 
-    installed new SANE backend. (2) /home/user/src/sane-backends/backend/.libs
-    is the location of compiled new SANE backend in the source tree. 
-    (3) /usr/lib is the folder we are looking for.
-  
-Decide where you want to install new libsane.
-  You can set symbolic links to new libsane.
-    I assume that new libsane version 1.0.24 will be installed to
-    /usr/local/lib and your system installed libsane.so.1 to /usr/lib. 
-
-    $ cd /usr/lib 
-    $ sudo ln -sf /usr/local/lib/libsane.so.1.0.24 libsane.so.1
-    $ sudo ln -sf /usr/local/lib/sane/libsane.la libsane.la
-    $ cd -
-
-  Alternatively you can overwrite standard libsane. 
-    Then you need to do some extra configuration for latest SANE backend:
-    
-    $ ./configure --libdir="/usr/lib"
-    
-You also can replace the binaries, configuration, manuals, translations, etc.
-  of your distribution. For more information please read:
-  
-  $ ./configure --help
-
-Configure, make and install latest SANE backend.
-
-  $ ./configure [with your options defined above]
-  $ make && sudo make install
-
-Use the scanner with normal user rights.
-  This only works if udev is installed. Please note that historically not all
-  of the distributions have used the same format for the udev rules file.
-  
-  Copy udev rules file:
-  
-  $ sudo cp tools/udev/libsane.rules /etc/udev/rules.d
-  
-  Reconnect your scanner to the USB bus to activate the new rules file.
-  
-  Your user must be a member of the group scanner. Please use the system tools
-  to check, if this group exists, if needed create this group and join this 
-  group. After this you must logoff and login again.
-
-Test your scanner.
-  First you should check if new libsane is used.
-  
-    $ scanimage -V
-    scanimage (sane-backends) 1.0.24git; backend version 1.0.24
-  
-    This example shows that backend and scanimage are version 1.0.24.
-  
-    $ /usr/bin/scanimage -V
-    scanimage (sane-backends) 1.0.20; backend version 1.0.24
-  
-    This example shows that an old scanimage (1.0.20) uses the backend 1.0.24.
-  
-    If you want to use xsane, start xsane and check the used version with 
-    CTRL - i.
-    
-  Now you can test if your scanner is recognized with normal user rights.
-  
-    $ scanimage -L
-    
-    If your scanner isn't recognized here, try this:
-    
-      $ sudo scanimage -L
-    
-        If this works, your user doesn't have the rights to access the scanner. 
-
-      However, please check and redo the installation steps described above.  
-      If this doesn't help, you can ask the mailing list  
-      <sane-devel@lists.alioth.debian.org> for further support.
-    
 Have a lot of fun with the latest SANE backend.

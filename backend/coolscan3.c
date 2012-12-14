@@ -1521,9 +1521,10 @@ sane_read(SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	SANE_Status status;
 	ssize_t xfer_len_in, xfer_len_line, xfer_len_out;
 	unsigned long index;
-	int color;
+	int color, sample_pass;
 	uint8_t *s8 = NULL;
 	uint16_t *s16 = NULL;
+	double m_avg_sum;
 	SANE_Byte *line_buf_new;
 
 	DBG(32, "%s, maxlen = %i.\n", __func__, maxlen);
@@ -1601,6 +1602,9 @@ sane_read(SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 		s->n_line_buf = xfer_len_line;
 	}
 
+	/* adapt for multi-sampling */
+	xfer_len_in *= s->samples_per_scan;
+
 	cs3_scanner_ready(s, CS3_STATUS_READY);
 	cs3_init_buffer(s);
 	cs3_parse_cmd(s, "28 00 00 00 00 00");
@@ -1618,30 +1622,63 @@ sane_read(SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 
 	for (index = 0; index < s->logical_width; index++) {
 		for (color = 0; color < s->n_colors; color++) {
-
 			int where = s->bytes_per_pixel
 				* (s->n_colors * index + color);
+
+			m_avg_sum = 0.0;
 
 			switch (s->bytes_per_pixel) {
 			case 1:
 			{
-				int p8 = color * s->logical_width
-					+ (color + 1) * s->odd_padding
-					+ index;
-
+				/* target address */
 				s8 = (uint8_t *) & (s->line_buf[where]);
-				*s8 = s->recv_buf[p8];
+
+				if (s->samples_per_scan > 1) {
+					/* calculate average of multi samples */
+					for (sample_pass = 0;
+							sample_pass < s->samples_per_scan;
+							sample_pass++) {
+						/* source index */
+						int p8 = (sample_pass * s->n_colors + color)
+							* s->logical_width
+							+ (color + 1) * s->odd_padding
+							+ index;
+						m_avg_sum += (double) s->recv_buf[p8];
+					}
+					*s8 = (uint8_t) (m_avg_sum / s->samples_per_scan + 0.5);
+				} else {
+					/* shortcut for single sample */
+					int p8 = s->logical_width * color
+						+ (color + 1) * s->odd_padding
+						+ index;
+					*s8 = s->recv_buf[p8];
+				}
 			}
 				break;
 			case 2:
 			{
-				int p16 =
-					2 * (color * s->logical_width +
-					     index);
-
+				/* target address */
 				s16 = (uint16_t *) & (s->line_buf[where]);
-				*s16 = (s->recv_buf[p16] << 8)
-					+ s->recv_buf[p16 + 1];
+
+				if (s->samples_per_scan > 1) {
+					/* calculate average of multi samples */
+					for (sample_pass = 0;
+							sample_pass < s->samples_per_scan;
+							sample_pass++) {
+						/* source index */
+						int p16 = 2 * ((sample_pass * s->n_colors + color)
+								* s->logical_width + index);
+						m_avg_sum += (double) ((s->recv_buf[p16] << 8)
+							+ s->recv_buf[p16 + 1]);
+					}
+					*s16 = (uint16_t) (m_avg_sum / s->samples_per_scan + 0.5);
+				} else {
+					/* shortcut for single sample */
+					int p16 = 2 * (color * s->logical_width + index);
+
+					*s16 = (s->recv_buf[p16] << 8)
+						+ s->recv_buf[p16 + 1];
+				}
 
 				*s16 <<= s->shift_bits;
 			}

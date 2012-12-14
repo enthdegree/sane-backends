@@ -2989,7 +2989,7 @@ cs3_set_window(cs3_t * s, cs3_scan_t type)
 		cs3_pack_byte(s, 0x05);	/* image composition CCCCCCC */
 		cs3_pack_byte(s, s->real_depth);	/* pixel composition */
 		cs3_parse_cmd(s, "00 00 00 00 00 00 00 00 00 00 00 00 00");
-		cs3_pack_byte(s, 0x00);	/* multiread, ordering */
+		cs3_pack_byte(s, ((s->samples_per_scan - 1) << 4) | 0x00);	/* multiread, ordering */
 
 		cs3_pack_byte(s, 0x80 | (s->negative ? 0 : 1));	/* averaging, pos/neg */
 
@@ -3007,7 +3007,10 @@ cs3_set_window(cs3_t * s, cs3_scan_t type)
 			DBG(1, "BUG: cs3_scan(): Unknown scanning type.\n");
 			return SANE_STATUS_INVAL;
 		}
-		cs3_pack_byte(s, 0x02);	/* scanning mode */
+		if (s->samples_per_scan == 1)
+			cs3_pack_byte(s, 0x02);	/* scanning mode single */
+		else
+			cs3_pack_byte(s, 0x10);	/* scanning mode multi */
 		cs3_pack_byte(s, 0x02);	/* color interleaving */
 		cs3_pack_byte(s, 0xff);	/* (ae) */
 		if (color == 3)	/* infrared */

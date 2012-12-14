@@ -115,6 +115,8 @@ typedef enum
 
 	CS3_OPTION_INFRARED,
 
+	CS3_OPTION_SAMPLES_PER_SCAN,
+
 	CS3_OPTION_DEPTH,
 
 	CS3_OPTION_EXPOSURE,
@@ -212,7 +214,8 @@ typedef struct
 
 	/* settings */
 	SANE_Bool preview, negative, infrared, autoload, autofocus, ae, aewb;
-	int depth, real_depth, bytes_per_pixel, shift_bits, n_colors;
+	int samples_per_scan, depth, real_depth, bytes_per_pixel, shift_bits,
+		n_colors;
 	cs3_pixel_t n_lut;
 	cs3_pixel_t *lut_r, *lut_g, *lut_b, *lut_neutral;
 	unsigned long resx, resy, res, res_independent, res_preview;
@@ -461,6 +464,27 @@ sane_open(SANE_String_Const name, SANE_Handle * h)
 #ifndef SANE_FRAME_RGBI
                         o.cap |= SANE_CAP_INACTIVE;
 #endif
+			break;
+
+		case CS3_OPTION_SAMPLES_PER_SCAN:
+			o.name = "samples-per-scan";
+			o.title = "Samples per Scan";
+			o.desc = "Number of samples per scan";
+			o.type = SANE_TYPE_INT;
+			o.unit = SANE_UNIT_NONE;
+			o.size = WSIZE;
+			o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+			o.constraint_type = SANE_CONSTRAINT_RANGE;
+			range = (SANE_Range *) cs3_xmalloc (sizeof (SANE_Range));
+			if (! range)
+				  alloc_failed = 1;
+			else
+				  {
+					range->min = 1;
+					range->max = 16;
+					range->quant = 1;
+					o.constraint.range = range;
+				  }
 			break;
 
 		case CS3_OPTION_DEPTH:
@@ -983,6 +1007,7 @@ sane_open(SANE_String_Const name, SANE_Handle * h)
 	s->infrared = SANE_FALSE;
 	s->ae = SANE_FALSE;
 	s->aewb = SANE_FALSE;
+	s->samples_per_scan = 1;
 	s->depth = 8;
 	s->i_frame = 1;
 	s->frame_count = 1;
@@ -1063,6 +1088,9 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 			break;
 		case CS3_OPTION_INFRARED:
 			*(SANE_Word *) v = s->infrared;
+			break;
+		case CS3_OPTION_SAMPLES_PER_SCAN:
+			*(SANE_Word *) v = s->samples_per_scan;
 			break;
 		case CS3_OPTION_DEPTH:
 			*(SANE_Word *) v = s->depth;
@@ -1221,6 +1249,9 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 		case CS3_OPTION_INFRARED:
 			s->infrared = *(SANE_Word *) v;
 			/*      flags |= SANE_INFO_RELOAD_PARAMS; XXX */
+			break;
+		case CS3_OPTION_SAMPLES_PER_SCAN:
+			s->samples_per_scan = *(SANE_Word *) v;
 			break;
 		case CS3_OPTION_DEPTH:
 			if (*(SANE_Word *) v > s->maxbits)

@@ -551,6 +551,7 @@ bjnp_setup_udp_socket ( const int dev_no )
       PDBG (pixma_dbg
 	    (LOG_CRIT, "setup_udp_socket: connect failed- %s\n",
 	     strerror (errno)));
+      close(sockfd);
       return -1;
     }
   return sockfd;
@@ -621,10 +622,13 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
 		 strerror (errno)));
 	  continue;
 	}
+      close(sockfd);
       return numbytes;
     }
 
   /* no response even after retry */
+
+  close(sockfd);
   PDBG (pixma_dbg
         (LOG_CRIT, "udp_command: no data received\n" ) );
   return -1;

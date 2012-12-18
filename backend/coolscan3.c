@@ -115,6 +115,8 @@ typedef enum
 
 	CS3_OPTION_INFRARED,
 
+	CS3_OPTION_SAMPLES_PER_SCAN,
+
 	CS3_OPTION_DEPTH,
 
 	CS3_OPTION_EXPOSURE,
@@ -212,7 +214,8 @@ typedef struct
 
 	/* settings */
 	SANE_Bool preview, negative, infrared, autoload, autofocus, ae, aewb;
-	int depth, real_depth, bytes_per_pixel, shift_bits, n_colors;
+	int samples_per_scan, depth, real_depth, bytes_per_pixel, shift_bits,
+		n_colors;
 	cs3_pixel_t n_lut;
 	cs3_pixel_t *lut_r, *lut_g, *lut_b, *lut_neutral;
 	unsigned long resx, resy, res, res_independent, res_preview;
@@ -461,6 +464,30 @@ sane_open(SANE_String_Const name, SANE_Handle * h)
 #ifndef SANE_FRAME_RGBI
                         o.cap |= SANE_CAP_INACTIVE;
 #endif
+			break;
+
+		case CS3_OPTION_SAMPLES_PER_SCAN:
+			o.name = "samples-per-scan";
+			o.title = "Samples per Scan";
+			o.desc = "Number of samples per scan";
+			o.type = SANE_TYPE_INT;
+			o.unit = SANE_UNIT_NONE;
+			o.size = WSIZE;
+			o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+			if (s->type != CS3_TYPE_LS2000 && s->type != CS3_TYPE_LS4000
+					&& s->type != CS3_TYPE_LS5000 && s->type != CS3_TYPE_LS8000)
+				o.cap |= SANE_CAP_INACTIVE;
+			o.constraint_type = SANE_CONSTRAINT_RANGE;
+			range = (SANE_Range *) cs3_xmalloc (sizeof (SANE_Range));
+			if (! range)
+				  alloc_failed = 1;
+			else
+				  {
+					range->min = 1;
+					range->max = 16;
+					range->quant = 1;
+					o.constraint.range = range;
+				  }
 			break;
 
 		case CS3_OPTION_DEPTH:
@@ -983,6 +1010,7 @@ sane_open(SANE_String_Const name, SANE_Handle * h)
 	s->infrared = SANE_FALSE;
 	s->ae = SANE_FALSE;
 	s->aewb = SANE_FALSE;
+	s->samples_per_scan = 1;
 	s->depth = 8;
 	s->i_frame = 1;
 	s->frame_count = 1;
@@ -1063,6 +1091,9 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 			break;
 		case CS3_OPTION_INFRARED:
 			*(SANE_Word *) v = s->infrared;
+			break;
+		case CS3_OPTION_SAMPLES_PER_SCAN:
+			*(SANE_Word *) v = s->samples_per_scan;
 			break;
 		case CS3_OPTION_DEPTH:
 			*(SANE_Word *) v = s->depth;
@@ -1221,6 +1252,9 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 		case CS3_OPTION_INFRARED:
 			s->infrared = *(SANE_Word *) v;
 			/*      flags |= SANE_INFO_RELOAD_PARAMS; XXX */
+			break;
+		case CS3_OPTION_SAMPLES_PER_SCAN:
+			s->samples_per_scan = *(SANE_Word *) v;
 			break;
 		case CS3_OPTION_DEPTH:
 			if (*(SANE_Word *) v > s->maxbits)
@@ -1487,9 +1521,10 @@ sane_read(SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	SANE_Status status;
 	ssize_t xfer_len_in, xfer_len_line, xfer_len_out;
 	unsigned long index;
-	int color;
+	int color, sample_pass;
 	uint8_t *s8 = NULL;
 	uint16_t *s16 = NULL;
+	double m_avg_sum;
 	SANE_Byte *line_buf_new;
 
 	DBG(32, "%s, maxlen = %i.\n", __func__, maxlen);
@@ -1567,6 +1602,9 @@ sane_read(SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 		s->n_line_buf = xfer_len_line;
 	}
 
+	/* adapt for multi-sampling */
+	xfer_len_in *= s->samples_per_scan;
+
 	cs3_scanner_ready(s, CS3_STATUS_READY);
 	cs3_init_buffer(s);
 	cs3_parse_cmd(s, "28 00 00 00 00 00");
@@ -1584,30 +1622,63 @@ sane_read(SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 
 	for (index = 0; index < s->logical_width; index++) {
 		for (color = 0; color < s->n_colors; color++) {
-
 			int where = s->bytes_per_pixel
 				* (s->n_colors * index + color);
+
+			m_avg_sum = 0.0;
 
 			switch (s->bytes_per_pixel) {
 			case 1:
 			{
-				int p8 = color * s->logical_width
-					+ (color + 1) * s->odd_padding
-					+ index;
-
+				/* target address */
 				s8 = (uint8_t *) & (s->line_buf[where]);
-				*s8 = s->recv_buf[p8];
+
+				if (s->samples_per_scan > 1) {
+					/* calculate average of multi samples */
+					for (sample_pass = 0;
+							sample_pass < s->samples_per_scan;
+							sample_pass++) {
+						/* source index */
+						int p8 = (sample_pass * s->n_colors + color)
+							* s->logical_width
+							+ (color + 1) * s->odd_padding
+							+ index;
+						m_avg_sum += (double) s->recv_buf[p8];
+					}
+					*s8 = (uint8_t) (m_avg_sum / s->samples_per_scan + 0.5);
+				} else {
+					/* shortcut for single sample */
+					int p8 = s->logical_width * color
+						+ (color + 1) * s->odd_padding
+						+ index;
+					*s8 = s->recv_buf[p8];
+				}
 			}
 				break;
 			case 2:
 			{
-				int p16 =
-					2 * (color * s->logical_width +
-					     index);
-
+				/* target address */
 				s16 = (uint16_t *) & (s->line_buf[where]);
-				*s16 = (s->recv_buf[p16] << 8)
-					+ s->recv_buf[p16 + 1];
+
+				if (s->samples_per_scan > 1) {
+					/* calculate average of multi samples */
+					for (sample_pass = 0;
+							sample_pass < s->samples_per_scan;
+							sample_pass++) {
+						/* source index */
+						int p16 = 2 * ((sample_pass * s->n_colors + color)
+								* s->logical_width + index);
+						m_avg_sum += (double) ((s->recv_buf[p16] << 8)
+							+ s->recv_buf[p16 + 1]);
+					}
+					*s16 = (uint16_t) (m_avg_sum / s->samples_per_scan + 0.5);
+				} else {
+					/* shortcut for single sample */
+					int p16 = 2 * (color * s->logical_width + index);
+
+					*s16 = (s->recv_buf[p16] << 8)
+						+ s->recv_buf[p16 + 1];
+				}
 
 				*s16 <<= s->shift_bits;
 			}
@@ -2955,7 +3026,7 @@ cs3_set_window(cs3_t * s, cs3_scan_t type)
 		cs3_pack_byte(s, 0x05);	/* image composition CCCCCCC */
 		cs3_pack_byte(s, s->real_depth);	/* pixel composition */
 		cs3_parse_cmd(s, "00 00 00 00 00 00 00 00 00 00 00 00 00");
-		cs3_pack_byte(s, 0x00);	/* multiread, ordering */
+		cs3_pack_byte(s, ((s->samples_per_scan - 1) << 4) | 0x00);	/* multiread, ordering */
 
 		cs3_pack_byte(s, 0x80 | (s->negative ? 0 : 1));	/* averaging, pos/neg */
 
@@ -2973,7 +3044,10 @@ cs3_set_window(cs3_t * s, cs3_scan_t type)
 			DBG(1, "BUG: cs3_scan(): Unknown scanning type.\n");
 			return SANE_STATUS_INVAL;
 		}
-		cs3_pack_byte(s, 0x02);	/* scanning mode */
+		if (s->samples_per_scan == 1)
+			cs3_pack_byte(s, 0x02);	/* scanning mode single */
+		else
+			cs3_pack_byte(s, 0x10);	/* scanning mode multi */
 		cs3_pack_byte(s, 0x02);	/* color interleaving */
 		cs3_pack_byte(s, 0xff);	/* (ae) */
 		if (color == 3)	/* infrared */

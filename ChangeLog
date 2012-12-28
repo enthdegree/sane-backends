@@ -1,3 +1,7 @@
+2012-12-28 Alex Belkin <abc at telekom.ru>
+	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
+	for Samsung CLX-3300 Series, reported by Jarkko A-L.
+
 2012-12-23 Paul Newall <quandry@ntlworld.com>
 	* backend/kodakaio.c:
 	fix bug where adf could not scan more than 1 page with net connection

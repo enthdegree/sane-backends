@@ -147,3 +147,8 @@
 :usbid "0x04e8" "0x3453"
 :status :basic
 
+:model "CLX-3300 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3456"
+:status :basic
+

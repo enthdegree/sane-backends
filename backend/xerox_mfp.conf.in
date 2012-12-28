@@ -54,6 +54,9 @@ usb 0x04e8 0x344b
 #Samsung SCX-4729FD
 usb 0x04e8 0x3453
 
+# Samsung CLX-3300 Series
+usb 0x04e8 0x3456
+
 #Xerox WorkCentre 3119 Series
 usb 0x0924 0x4265
 

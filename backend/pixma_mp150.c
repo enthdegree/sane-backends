@@ -184,6 +184,7 @@
 #define MX710_PID 0x175D
 #define MX890_PID 0x175E
 #define E600_PID 0x175A
+#define MG4200_PID 0x1763
 
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
@@ -1673,6 +1674,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MX710 Series", "MX710", MX710_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
   DEVICE ("Canon PIXMA MX890 Series", "MX890", MX890_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
   DEVICE ("Canon PIXMA E600 Series",  "E600",  E600_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MG4200", "MG4200", MG4200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

@@ -54,6 +54,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA MG4200 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1763"
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
+
 :model "PIXMA MG5100 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1748"

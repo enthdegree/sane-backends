@@ -14,6 +14,8 @@
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
+
+	29/12/12 added KodakAio_Scanner.ack 
  */
 
 #ifndef kodakaio_h
@@ -149,7 +151,8 @@ struct KodakAio_Scanner
 	Option_Value val[NUM_OPTIONS];
 	SANE_Parameters params;
 
-	SANE_Bool eof;
+	SANE_Bool ack; /* scanner has finished a page (happens early with adf and padding) */
+	SANE_Bool eof; /* backend has finished a page (after padding with adf) */
 	SANE_Byte *buf, *end, *ptr;
 	SANE_Bool canceling;
 	SANE_Bool scanning; /* scan in progress */
@@ -166,10 +169,10 @@ struct KodakAio_Scanner
 	SANE_Int counter;
 	SANE_Int bytes_unread; /* to track when to stop */
 
-	/* store how many bytes of the current pixel line we have already
+	/* Used to store how many bytes of the current pixel line we have already
 	 * read in previous read attempts. Since each line will be padded
 	 * to multiples of 512 bytes, this is needed to know which bytes
-	 * to ignore */
+	 * to ignore. NOT NEEDED FOR KODAKAIO */
 	SANE_Int bytes_read_in_line;
 	SANE_Byte *line_buffer;
 	/* How many bytes are scanned per line */

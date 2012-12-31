@@ -1,3 +1,9 @@
+2012-12-31 Paul Newall <quandry@ntlworld.com>
+	* backend/kodakaio.c kodakaio.h kodakaio.conf kodakaio.conf.in:
+	better fix for bug where adf could not scan more than 1 page with net connection
+	end of paper now detected with adf, if it is less than the selected size
+	ESP 2170 and Hero 9.1 can now do 1200dpi
+
 2012-12-31 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	New scanner Canon Pixma MG4200 reported by nuxer.

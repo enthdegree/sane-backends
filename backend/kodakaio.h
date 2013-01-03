@@ -1,7 +1,7 @@
 /*
  * kodakaio.c - SANE library for Kodak ESP Aio scanners.
  *
- * Copyright (C)  2011-2012 Paul Newall
+ * Copyright (C)  2011-2013 Paul Newall
  *
  * Based on the Magicolor sane backend:
  * Based on the epson2 sane backend:
@@ -15,7 +15,8 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
 
-	29/12/12 added KodakAio_Scanner.ack 
+	29/12/12 added KodakAio_Scanner.ack
+	2/1/13 added KodakAio_Scanner.background[]
  */
 
 #ifndef kodakaio_h
@@ -101,6 +102,7 @@ enum {
 	OPT_PREVIEW,
 	OPT_SOURCE,
 	OPT_ADF_MODE,
+	OPT_PADDING,		/* Selects padding of adf pages to the specified length */
 	OPT_GEOMETRY_GROUP,
 	OPT_TL_X,
 	OPT_TL_Y,
@@ -157,6 +159,7 @@ struct KodakAio_Scanner
 	SANE_Bool canceling;
 	SANE_Bool scanning; /* scan in progress */
 	SANE_Bool adf_loaded; /* paper in adf */
+	SANE_Int background[3]; /* stores background RGB components for padding */
 
 	SANE_Int left, top; /* in optres units? */
 	SANE_Int width, height; /* in optres units? */

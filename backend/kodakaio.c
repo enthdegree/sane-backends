@@ -1,7 +1,7 @@
 /*
  * kodakaio.c - SANE library for Kodak ESP Aio scanners.
  *
- * Copyright (C)   2011-2012 Paul Newall
+ * Copyright (C)   2011-2013 Paul Newall
  *
  * Based on the Magicolor sane backend: 
  * Based on the epson2 sane backend:
@@ -15,8 +15,8 @@
  * published by the Free Software Foundation, version 2.
 
  * Using avahi now 25/11/12 for net autodiscovery. Use configure option --enable-avahi
- * 31/12/12 Now with adf, the scan can be padded to make up the full page length, 
- * or the page can terminate at the end of the paper
+ * 01/01/13 Now with adf, the scan can be padded to make up the full page length, 
+ * or the page can terminate at the end of the paper. This is a selectable option.
  */
 
 /* convenient lines to paste
@@ -127,7 +127,7 @@ for ubuntu 12.10
 
 #define KODAKAIO_VERSION	02
 #define KODAKAIO_REVISION	4
-#define KODAKAIO_BUILD		5
+#define KODAKAIO_BUILD		6
 
 /* for usb (but also used for net though it's not required). */
 #define MAX_BLOCK_SIZE		32768
@@ -213,10 +213,6 @@ static AvahiSimplePoll *simple_poll = NULL; /* global because called by several 
 static int K_SNMP_Timeout = 3000; /* used for any auto detection method */
 static int K_Scan_Data_Timeout = 10000;
 static int K_Request_Timeout = 5000;
-
-/* Temporary constant to make adf scans padded or terminate at the paper end.
-propose in future to make this a user selectable option  */
-SANE_Bool padding = SANE_FALSE;
 
 /* This file is used to store directly the raster returned by the scanner for debugging
 If RawScanPath has no length it will not be created */
@@ -1218,17 +1214,26 @@ if no padding option return EOF
 	int oldtimeout = K_Request_Timeout;
 	size_t bytecount;
 	unsigned char *Last8; /* will point to the last 8 chars in buf */
+	int i, line, lines;
 
-	if (s->ack && padding) {
+	if (s->ack && s->val[OPT_PADDING].w) {
 		/* do padding of whole block*/
-		memset(buf, 0x80, *len); /* need to work out the background colour for this */
+		/* memset(buf, 0x80, *len);  need to work out the background colour for this */
+		lines = *len / s->params.bytes_per_line;
+		for (line=0; line < lines; ++line) {
+			for (i=0; i< s->params.pixels_per_line; ++i) {
+				buf[line * s->params.bytes_per_line + i] = s->background[0]; /*red */
+				buf[line * s->params.bytes_per_line + s->params.pixels_per_line + i] = s->background[1];  /*green */
+				buf[line * s->params.bytes_per_line + 2 * s->params.pixels_per_line + i] = s->background[2];  /*blue */
+			}
+		}
 		s->bytes_unread -= *len;
 		if (s->bytes_unread < 0)
 			s->bytes_unread = 0;
 		return SANE_STATUS_GOOD;
 	}
 
-	if (s->ack && !padding) {
+	if (s->ack && !s->val[OPT_PADDING].w) {
 		s->bytes_unread = 0;
 		s->eof = SANE_TRUE;
 		return SANE_STATUS_EOF;
@@ -1268,6 +1273,25 @@ But it seems that the scanner takes care of that, and gives you the ack as a sep
 	else {
 		DBG(min(1,DBG_READ), "%s: tiny read, got %d bytes of %d\n", __func__, bytecount, *len);
 		return SANE_STATUS_IO_ERROR;
+	}
+	if (*len > s->params.bytes_per_line) {
+		/* store average colour as background. That's not the ideal method but it's easy to implement. */
+		lines = *len / s->params.bytes_per_line;
+		s->background[0] = 0;
+		s->background[1] = 0;
+		s->background[2] = 0;
+
+		for (line=0; line < lines; ++line) {
+			for (i=0; i< s->params.pixels_per_line; ++i) {
+				s->background[0] += buf[line * s->params.bytes_per_line + i]; /*red */
+				s->background[1] += buf[line * s->params.bytes_per_line + s->params.pixels_per_line + i];  /*green */
+				s->background[2] += buf[line * s->params.bytes_per_line + 2 * s->params.pixels_per_line + i];  /*blue */
+			}
+		}
+		s->background[0] = s->background[0] / (lines * s->params.pixels_per_line);
+		s->background[1] = s->background[1] / (lines * s->params.pixels_per_line);
+		s->background[2] = s->background[2] / (lines * s->params.pixels_per_line);
+
 	}
 
 	if (status == SANE_STATUS_GOOD)
@@ -1665,7 +1689,7 @@ k_init_parametersta(KodakAio_Scanner * s)
 	s->params.pixels_per_line = s->width * dpi / optres + 0.5;
 
 	/* ADF used without padding? added 30/12/12 */
-	if (strcmp(source_list[s->val[OPT_SOURCE].w], ADF_STR) == 0 && !padding)
+	if (strcmp(source_list[s->val[OPT_SOURCE].w], ADF_STR) == 0 && !s->val[OPT_PADDING].w)
 		s->params.lines = -1;
 	else
 		s->params.lines = s->height * dpi / optres + 0.5;
@@ -2603,17 +2627,6 @@ init_options(KodakAio_Scanner *s)
 		DBG(20, "%s: Only one depth in list so inactive option\n", __func__);
 	}
 
-
-	/* brightness 
-	s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
-	s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
-	s->opt[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
-	s->opt[OPT_BRIGHTNESS].type = SANE_TYPE_INT;
-	s->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_NONE;
-	s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
-	s->opt[OPT_BRIGHTNESS].constraint.range = &s->hw->cap->brightness;
-	s->val[OPT_BRIGHTNESS].w = 5;	  Normal */
-
 	/* resolution */
 	s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
 	s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -2656,8 +2669,7 @@ init_options(KodakAio_Scanner *s)
 		s->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
 	}
 
-/* TODO make source inactive if no adf, like for bit depth */
-	
+/* Are there any ESP scanners that are duplex? */	
 	s->opt[OPT_ADF_MODE].name = "adf-mode";
 	s->opt[OPT_ADF_MODE].title = SANE_I18N("ADF Mode");
 	s->opt[OPT_ADF_MODE].desc =
@@ -2667,7 +2679,7 @@ init_options(KodakAio_Scanner *s)
 	s->opt[OPT_ADF_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_ADF_MODE].constraint.string_list = adf_mode_list;
 	s->val[OPT_ADF_MODE].w = 0;	/* simplex */
-	if ((!s->hw->cap->ADF) || (s->hw->cap->adf_duplex == SANE_FALSE))
+	if ((!s->hw->cap->ADF) || (!s->hw->cap->adf_duplex))
 		s->opt[OPT_ADF_MODE].cap |= SANE_CAP_INACTIVE;
 
 
@@ -2717,6 +2729,18 @@ init_options(KodakAio_Scanner *s)
 	s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_BR_Y].constraint.range = s->hw->y_range;
 	s->val[OPT_BR_Y].w = s->hw->y_range->max;
+
+	/* padding short pages in adf */
+	s->opt[OPT_PADDING].name = "adf-padding";
+	s->opt[OPT_PADDING].title = "pad short adf pages";
+	s->opt[OPT_PADDING].desc = "Selects whether to make short pages up to full length";
+	s->opt[OPT_PADDING].type = SANE_TYPE_BOOL;
+	s->val[OPT_PADDING].w = SANE_FALSE;
+	if ((!s->hw->cap->ADF) || (strcmp(source_list[s->val[OPT_SOURCE].w], ADF_STR) != 0))
+	{
+		DBG(9, "adf not source so padding option off and inactive\n");
+		s->opt[OPT_PADDING].cap |= SANE_CAP_INACTIVE;
+	}
 
 	return SANE_STATUS_GOOD;
 }
@@ -2901,6 +2925,9 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 	case OPT_ADF_MODE:
 		strcpy((char *) value, sopt->constraint.string_list[sval->w]);
 		break;
+	case OPT_PADDING:
+		*((SANE_Bool *) value) = sval->w;
+		break;
 
 	default:
 		return SANE_STATUS_INVAL;
@@ -2945,6 +2972,7 @@ change_source(KodakAio_Scanner *s, SANE_Int optindex, char *value)
 			deactivateOption(s, OPT_ADF_MODE, &dummy);
 			s->val[OPT_ADF_MODE].w = 0;
 		}
+		activateOption(s, OPT_PADDING, &dummy);
 
 		DBG(5, "adf activated flag = %d\n",s->hw->cap->adf_duplex);
 
@@ -2954,6 +2982,7 @@ change_source(KodakAio_Scanner *s, SANE_Int optindex, char *value)
 		s->hw->y_range = &s->hw->cap->fbf_y_range;
 
 		deactivateOption(s, OPT_ADF_MODE, &dummy);
+		deactivateOption(s, OPT_PADDING, &dummy);
 	}
 
 	s->opt[OPT_BR_X].constraint.range = s->hw->x_range;
@@ -3064,6 +3093,10 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 		sval->w = optindex;	/* Simple lists */
 		break;
 
+	case OPT_PADDING:
+		sval->w = *((SANE_Word *) value);
+		break;
+
 /*	case OPT_BRIGHTNESS: */
 	case OPT_PREVIEW:	/* needed? */
 		sval->w = *((SANE_Word *) value);
@@ -3089,7 +3122,10 @@ sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action action,
 	DBG(2, "%s: action = %x, option = %d %s\n", __func__, action, option, s->opt[option].name);
 
 	if (option < 0 || option >= NUM_OPTIONS)
+	{
+		DBG(1, "%s: option num = %d (%s) out of range\n", __func__, option, s->opt[option].name);
 		return SANE_STATUS_INVAL;
+	}
 
 	if (info != NULL)
 		*info = 0;

@@ -803,6 +803,7 @@ send_scan_param (pixma_t * s)
         {
           data[0x00] = 0x04;
           data[0x01] = 0x02;
+          data[0x1e] = 0x02;  /* NB: CanoScan 8800F: 0x02->negatives, 0x01->positives, paper->0x00 */
         }
       data[0x02] = 0x01;
       if (is_scanning_from_adfdup (s))

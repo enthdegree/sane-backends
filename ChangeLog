@@ -1,3 +1,6 @@
+2013-01-08 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp810.c: fix for broken tpu scan.
+
 2013-01-03 Paul Newall <quandry@ntlworld.com>
 	* backend/kodakaio.c kodakaio.h:
 	Detecting end of paper when using adf is now an option.

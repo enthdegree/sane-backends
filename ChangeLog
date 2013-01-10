@@ -1,3 +1,17 @@
+2013-01-10 Louis Lagendijk <louis dot lagendijk at gmail dot com>
+	* Changed the pixma_bjnp.c implementation to use its own debug environment
+	variable (SANE_DEBUG_BJNP) so debugging for the bjnp protocol and the
+	backend proper can be controlled independently.
+	Updated manpage for sane-pixma to document the above changes as well
+	as the changed scannner buttjn options and the fact the bjnp protocol
+	has added support for IPv6
+
+2013-01-10 Louis Lagendijk <louis dot lagendijk at gmail dot com>
+	* Added optional support in sanedi.c for systemd socket activation. This 
+	will allow for using backend debugging using SANE_DEBUG_xxx to be used 
+	for saned controlled scanning when using socket activation. When only the 
+	socket is received we use the existing code path.
+
 2013-01-08 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp810.c: fix for broken tpu scan.
 

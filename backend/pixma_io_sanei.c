@@ -128,11 +128,11 @@ static const struct pixma_config_t *lookup_scanner(const char *makemodel,
                   (match[strlen(cfg->model)] == '\0') ||
                   (match[strlen(cfg->model)] == '-'))
                 {
-                  pixma_dbg (13, "Scanner model found: Name %s(%s) matches %s\n", cfg->model, cfg->name, makemodel);
+                  pixma_dbg (3, "Scanner model found: Name %s(%s) matches %s\n", cfg->model, cfg->name, makemodel);
                   return cfg;
                 }
             }
-          pixma_dbg (13, "Scanner model %s(%s) not found, giving up! %s\n", cfg->model, cfg->name, makemodel);
+          pixma_dbg (20, "Scanner model %s(%s) not found, giving up! %s\n", cfg->model, cfg->name, makemodel);
        }
     }
   return NULL;

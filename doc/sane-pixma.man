@@ -12,8 +12,10 @@ The
 .B sane\-pixma
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to Canon PIXMA multi-function devices (All-in-one printers).
-The backend implements both USB interface and Network LAN interface
-using Canon's BJNP protocol.
+The backend implements both USB interface and network interface 
+using Canon's BJNP protocol. The network interface supports scanners over
+IPv4 as well as IPv6.
+.PP
 Currently, the following models work with this backend:
 .PP
 .RS
@@ -121,7 +123,7 @@ where aaaa is the scanners model and bbbb is the hostname or ip-adress.
 This backend, based on cloning original Canon drivers protocols, is in 
 a production stage. Designed has been carried out without any applicable
 manufacturer documentation, probably never available. However, we have tested 
-it as well as we could, but it may not work in every situations. You will find 
+it as well as we could, but it may not work in all situations. You will find 
 an up-to-date status at the project homepage. (See below). 
 Users feedback is essential to help improve features and performances. 
 .SH OPTIONS
@@ -134,10 +136,10 @@ Button scan is disabled on MAC OS X due to darwin libusb not handling
 timeouts in usb interrupt reads. 
 .TP
 .I button\-controlled
-This option can be used in combination with
+This option can be used by applications (like
 .BR scanadf (1)
 and
-.BR scanimage (1)
+.BR scanimage (1))
 in batch mode, for example when you want to scan many photos or
 multiple-page documents. If it is enabled (i.e. is set to true or yes), the
 backend waits before every scan until the user presses the "SCAN" button
@@ -146,18 +148,32 @@ first page in the scanner, press the button, then the next page, press
 the button and so on. When you finished, press the gray-scan button. (For
 MP150 you have to stop the frontend by pressing Ctrl-C for example.)
 .TP
-.I button\-update button\-1 button\-2
-These options are interesting for developers. To check button status: (1) set
+.I button\-update
+(write only) In the past this option was required to be set to force 
+reading of the button status for
 .I button\-1
 and
-.I button\-2
-to zero, (2) set
-.I button-update
-(Its type is SANE_TYPE_BUTTON.), (3) get
-.I button\-1
-and
-.IR button\-2 .
-If the result is not zero, the corresponding button was pressed.
+.I button\-2.
+The 
+.B sane\-pixma
+no longer requires this option to be used: if no fresh data is available, it 
+will be now requested automatically from the scanner. This option is left for 
+backward compatibility reasons.
+.TP
+.I button\-1 button\-2
+(read only) These options will return the value of the respective buttons.
+value 0 means that the button was not pressed, 1 is returned when the button 
+was pressed.
+.TP
+.I original
+(read only) returns the value of the type of original to be scanned if the 
+scanner provides that data. Known values: 1 = document, 2 = foto, 5 = film. 
+Not all scanners can provide this data.
+.TP
+.I target
+(read only) returns the value of the target of the scan operation if the scanner
+provides that data. Known values: 1 = save to disk, 2 = save to pdf, 3 = send to
+email, 4 = send to application. Not all scanners can provide this data.
 .SH FILES
 .TP
 .I @LIBDIR@/libsane\-pixma.a
@@ -180,36 +196,42 @@ Scanners shall be listed as:
 .I bjnp://<host>
 .RE
 .RS
-where host is the hostname or IP address of the scanner, e.g. bjnp://10.0.1.4 or
-bjnp://myscanner.mydomain.org. Define each scanner on a new line.
+where host is the hostname or IP address of the scanner, e.g. bjnp://10.0.1.4 
+for IPv4, bjnp://[2001:888:118e:18e2:21e:8fff:fe36:b64a] for a literal 
+IPv6-address or bjnp://myscanner.mydomain.org. Define each scanner on a new 
+line.
 .SH USB SUPPORT
 USB scanners will be auto-detected and require no configuration.
 .SH NETWORKING SUPPORT
-The pixma backend supports network scanners using the so called Canon BJNP protocol.
+The pixma backend supports network scanners using the so called Canon BJNP 
+protocol. Both IPv4 and IPv6 are supported.
+.PP
 Configuration is normally not required.
 The pixma backend will auto-detect your scanner if it is within
 the same subnet as your computer if your OS does support this.
-
-If your scanner can not be auto-detected, you can add it to the pixma configuration
-file (see above).
+.PP
+If your scanner can not be auto-detected, you can add it to the pixma 
+configuration file (see above).
 .SH FIREWALLING FOR NETWORKED SCANNERS
 The sane pixma backend communicates with port 8612 on the scanner. So
 you will have to allow outgoing traffic TO port 8612 on the common subnet
 for scanning.
-
+.PP
 Scanner detection is slightly more complicated. The pixma backend sends
-a broadcast on all direct connected subnets it can find (provided your OS allows for enumeration
-of all interfaces). The broadcast is sent FROM port
-8612 TO port 8612 on the broadcast address of each interface.
+a broadcast on all direct connected subnets it can find (provided your OS 
+allows for enumeration of all netowrk interfaces). The broadcast is sent FROM 
+port 8612 TO port 8612 on the broadcast address of each interface.
 The outgoing packets will be allowed by the rule described above.
+.PP
 Responses from the scanner are sent back to the computer TO port 8612.
 Connection tracking however does not see a match as the response does not come
 from the broadcast address but from the scanners own address.
-You will therefore have to allow incoming packets TO port 8612 on your computer.
-
-So in short: open the firewall for all traffic from your computer to port 8612 AND
-to port 8612 to your computer.
-
+For automatic detection of your scanner, you will therefore have to allow 
+incoming packets TO port 8612 on your computer.
+.PP
+So in short: open the firewall for all traffic from your computer to port 8612 
+AND to port 8612 to your computer.
+.PP
 With the firewall rules above there is no need to add the scanner to the
 pixma.conf file, unless the scanner is on a network that is not directly
 connected to your computer.
@@ -217,9 +239,8 @@ connected to your computer.
 .TP
 .B SANE_DEBUG_PIXMA
 If the library was compiled with debug support enabled, this environment
-variable controls the debug level for this backend. Higher value increases
-the verbosity.
-.PP
+variable controls the debug level for this backend itself. Higher value increases
+the verbosity and includes the information printed at the lower levels.
 .RS
 0  print nothing (default)
 .br
@@ -229,10 +250,30 @@ the verbosity.
 .br
 3  print debug-level messages
 .br
-11 dump USB/BJNP traffics
+11 dump USB traffic
 .br
-21 full dump USB/BJNP traffic
+21 full dump USB traffic
 .br
+.RE
+.TP
+.B SANE_DEBUG_BJNP
+If the library was compiled with debug support enabled, this environment
+variable controls the debug level for the 
+.B BJNP
+network protocol for this backend. Higher value increases
+the verbosity and includes the information printed at the lower levels.
+.RS
+0 print nothing (default)
+.br
+1 Print error and warning messages (recommended)
+.br
+2 Print high level function tracing information
+.br 
+3 Print more detailed protocol tracing information
+.br
+4 Print protocol headers
+.br
+5 Print full protocol contents
 .RE
 .TP
 .B PIXMA_EXPERIMENT

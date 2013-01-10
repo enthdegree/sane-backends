@@ -88,15 +88,17 @@
 #define BJNP_MAX_BROADCAST_ATTEMPTS 2	/* number of broadcast packets to be sent */
 #define BJNP_UDP_RETRY_MAX 3		/* max nt of retries on a udp command */
 
+#define bjnp_dbg DBG
+#include "../include/sane/sanei_debug.h"
 
 /* loglevel definitions */
 
 #define LOG_CRIT 0
 #define LOG_NOTICE 1
 #define LOG_INFO 2
-#define LOG_DEBUG 11
-#define LOG_DEBUG2 12
-#define LOG_DEBUG3 13
+#define LOG_DEBUG 3
+#define LOG_DEBUG2 4
+#define LOG_DEBUG3 5
 
 #define BJNP_RESTART_POLL -1
 

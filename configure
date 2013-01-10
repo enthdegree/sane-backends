@@ -657,6 +657,7 @@ SCSI_LIBS
 USB_LIBS
 LIBUSB_1_0_LIBS
 LIBUSB_1_0_CFLAGS
+SYSTEMD_LIBS
 ALLOCA
 LIBOBJS
 SOCKET_LIBS
@@ -9557,6 +9558,20 @@ else
 	$as_echo "cups.h not found, you may want to install a cups development package"
 	$as_echo "in order to autodetect network scanners in kodakaio."
 	with_cups="no"
+fi
+
+$as_echo_n "Checking for systemd..."
+if test -e /usr/include/systemd/sd-daemon.h ; then
+
+$as_echo "#define HAVE_SYSTEMD 1" >>confdefs.h
+
+    with_systemd="yes"
+    SYSTEMD_LIBS=" -lsystemd-daemon"
+
+    $as_echo "yes"
+else
+    with_systemd="no"
+    $as_echo "no"
 fi
 
 

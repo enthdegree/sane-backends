@@ -330,6 +330,9 @@
 /* Define to 1 if you have the `syslog' function. */
 #undef HAVE_SYSLOG
 
+/* Is /usr/include/systemd/sd-daemon.h available? */
+#undef HAVE_SYSTEMD
+
 /* Define to 1 if you have the <sys/bitypes.h> header file. */
 #undef HAVE_SYS_BITYPES_H
 

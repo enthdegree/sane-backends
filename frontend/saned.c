@@ -82,7 +82,6 @@
 #include <pwd.h>
 #include <grp.h>
 
-
 #if defined(HAVE_SYS_POLL_H) && defined(HAVE_POLL)
 # include <sys/poll.h>
 #else
@@ -174,6 +173,10 @@ static AvahiClient *avahi_client = NULL;
 static AvahiSimplePoll *avahi_poll = NULL;
 static AvahiEntryGroup *avahi_group = NULL;
 #endif /* WITH_AVAHI */
+
+#ifdef HAVE_SYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
 
 
 #include "../include/sane/sane.h"
@@ -3171,43 +3174,70 @@ run_standalone (int argc, char **argv)
 static void
 run_inetd (int argc, char **argv)
 {
-  int fd = 1;
-  int dave_null;
+  
+  int fd = -1;
 
-  /* Some backends really can't keep their dirty fingers off
-   * stdin/stdout/stderr; we work around them here so they don't
-   * mess up the network dialog and crash the remote net backend.
-   */
-  do
+#ifdef HAVE_SYSTEMD
+  int n;
+
+  n = sd_listen_fds(0);
+
+  if (n > 1) 
     {
-      fd = dup (fd);
-
-      if (fd == -1)
-	{
-	  DBG (DBG_ERR, "run_inetd: duplicating fd failed: %s", strerror (errno));
-	  return;
-	}
-    }
-  while (fd < 3);
-
-  /* Our good'ole friend Dave Null to the rescue */
-  dave_null = open ("/dev/null", O_RDWR);
-  if (dave_null < 0)
-    {
-      DBG (DBG_ERR, "run_inetd: could not open /dev/null: %s", strerror (errno));
+      DBG (DBG_ERR, "run_inetd: Too many file descriptors (sockets) received from systemd!\n");
       return;
     }
 
-  close (STDIN_FILENO);
-  close (STDOUT_FILENO);
-  close (STDERR_FILENO);
+  if (n == 1)
+    {
+    fd = SD_LISTEN_FDS_START + 0;
+    DBG (DBG_INFO, "run_inetd: Using systemd socket %d!\n", fd);
+    }
+#endif
 
-  dup2 (dave_null, STDIN_FILENO);
-  dup2 (dave_null, STDOUT_FILENO);
-  dup2 (dave_null, STDERR_FILENO);
+  if (fd == -1) 
+    {
+      int dave_null;
 
-  close (dave_null);
+      /* Some backends really can't keep their dirty fingers off
+       * stdin/stdout/stderr; we work around them here so they don't
+       * mess up the network dialog and crash the remote net backend
+       * by messing with the inetd socket.
+       * For systemd this not an issue as systemd uses fd >= 3 for the
+       * socket and can even redirect stdout and stderr to syslog.
+       * We can even use this to get the debug logging
+       */
+      do
+        {
+          /* get new fd for the inetd socket */
+          fd = dup (1);
 
+          if (fd == -1)
+      	    {
+              DBG (DBG_ERR, "run_inetd: duplicating fd failed: %s", strerror (errno));
+              return;
+            }
+        }
+      while (fd < 3);
+
+      /* Our good'ole friend Dave Null to the rescue */
+      dave_null = open ("/dev/null", O_RDWR);
+      if (dave_null < 0)
+        {
+          DBG (DBG_ERR, "run_inetd: could not open /dev/null: %s", strerror (errno));
+          return;
+        }
+
+      close (STDIN_FILENO);
+      close (STDOUT_FILENO);
+      close (STDERR_FILENO);
+
+      dup2 (dave_null, STDIN_FILENO);
+      dup2 (dave_null, STDOUT_FILENO);
+      dup2 (dave_null, STDERR_FILENO);
+
+      close (dave_null);
+    }
 #ifndef HAVE_OS2_H
   /* Unused in this function */
   argc = argc;
@@ -3232,6 +3262,7 @@ run_inetd (int argc, char **argv)
 int
 main (int argc, char *argv[])
 {
+  char options[64] = "";
   debug = DBG_WARN;
 
   prog_name = strrchr (argv[0], '/');
@@ -3276,16 +3307,29 @@ main (int argc, char *argv[])
   wire.io.read = read;
   wire.io.write = write;
 
-/* define the version string depending on which network code is used */
 #ifdef SANED_USES_AF_INDEP
+  strcat(options, "AF-indep");
 # ifdef ENABLE_IPV6
-  DBG (DBG_WARN, "saned (AF-indep+IPv6) from %s starting up\n", PACKAGE_STRING);
-# else
-  DBG (DBG_WARN, "saned (AF-indep) from %s starting up\n", PACKAGE_STRING);
-# endif /* ENABLE_IPV6 */
+  strcat(options, "+IPv6");
+#endif
 #else
-  DBG (DBG_WARN, "saned from %s ready\n", PACKAGE_STRING);
-#endif /* SANED_USES_AF_INDEP */
+  strcat(options, "IPv4 only");
+#endif
+#ifdef HAVE_SYSTEMD
+  if (sd_listen_fds(0) > 0)
+    {
+      strcat(options, "+systemd");
+    }
+#endif
+
+  if (strlen(options) > 0)
+    {
+      DBG (DBG_WARN, "saned (%s) from %s starting up\n", options, PACKAGE_STRING);
+    }
+  else
+    {
+      DBG (DBG_WARN, "saned from %s ready\n", PACKAGE_STRING);
+    }
 
   if ((run_mode == SANED_RUN_ALONE) || (run_mode == SANED_RUN_DEBUG))
     {

@@ -338,6 +338,19 @@ else
 	with_cups="no"
 fi
 
+dnl added by llagendijk 12/7/2012 to detect systemd for saned
+$as_echo_n "Checking for systemd..."
+if test -e /usr/include/systemd/sd-daemon.h ; then
+    AC_DEFINE(HAVE_SYSTEMD, 1, [Is /usr/include/systemd/sd-daemon.h available?])
+    with_systemd="yes"
+    SYSTEMD_LIBS=" -lsystemd-daemon"
+    AC_SUBST(SYSTEMD_LIBS)
+    $as_echo "yes"
+else
+    with_systemd="no"
+    $as_echo "no"
+fi
+
 dnl ***********
 dnl USB Support
 dnl ***********

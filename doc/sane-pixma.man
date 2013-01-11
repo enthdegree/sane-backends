@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "07 Dec 2012" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "11 Jan 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 .B sane\-pixma 
@@ -19,7 +19,7 @@ IPv4 as well as IPv6.
 Currently, the following models work with this backend:
 .PP
 .RS
-PIXMA MG3100, MG4200, MG5300, MG6100, MG6200
+PIXMA MG3100, MG4200, MG5100, MG5300, MG6100, MG6200
 .br
 PIXMA MP140, MP150, MP160, MP170, MP180, MP190
 .br
@@ -79,7 +79,7 @@ Feedback in the sane\-devel mailing list welcome.
 .RS
 PIXMA E500, E600
 .br
-PIXMA MG2100, MG4100, MG5100, MG5200
+PIXMA MG2100, MG4100, MG5200
 .br
 PIXMA MG8100, MG8200
 .br

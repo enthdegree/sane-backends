@@ -789,8 +789,8 @@ static int send_scan_param (pixma_t * s)
     }
     data[0x05] = 0x01; /* This one also seen at 0. Don't know yet what's used for */
     /* the scanner controls the scan */
-    /* no software control needed */pixma_set_be16 (s->param->xdpi | 0x8000,
-                                                    data + 0x08);
+    /* no software control needed */
+    pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
     pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
     /*PDBG (pixma_dbg (4, "*send_scan_param***** Setting: xdpi=%hi ydpi=%hi  x=%u y=%u  w=%u h=%u ***** \n",
      s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width,h));*/
@@ -1406,8 +1406,6 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   if (s->cfg->pid == MP970_PID || s->cfg->pid == MP990_PID
       || s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID)
     n = MIN (n, 4);
-  if (s->cfg->pid == MP970_PID || s->cfg->pid == MP990_PID)
-    n = 1; /* always only one image */
 
   /* exception for 9600dpi on Canoscan 9000F */
   if ((s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600))

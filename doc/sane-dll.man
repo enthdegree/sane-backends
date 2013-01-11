@@ -53,6 +53,18 @@ pnm
 mustek
 .RE
 .PP
+It is also possible to add a file in
+.I @CONFIGDIR@/dll.d
+that contains the list of backends to be added. Backends mentioned in a 
+file included in this directory will be added before any backends listed 
+in 
+.I dll.conf.
+Files in 
+.I @CONFIGDIR@/dll.d
+can be freely named. They shall follow the format conventions as apply for
+.I dll.conf.
+
+.PP
 Note that backends that were pre-loaded when building this library do
 not have to be listed in this configuration file.  That is, if a
 backend was preloaded, then that backend will always be present,

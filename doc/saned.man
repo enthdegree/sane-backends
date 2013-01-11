@@ -44,7 +44,7 @@ flags request that
 .B saned
 run in debug mode (as opposed to
 .BR inetd (8)
-mode).  In this mode,
+daemon mode).  In this mode,
 .B saned
 explicitly waits for a connection request.  When compiled with
 debugging enabled, these flags may be followed by a number to request
@@ -60,7 +60,7 @@ requests using syslog.
 .PP
 If 
 .B saned
-is run from inetd or xinetd, no option can be given.
+is run from inetd, xinetdi or systemd, no option can be given.
 .SH CONFIGURATION
 First and foremost: 
 .B saned
@@ -123,21 +123,43 @@ scan\-client.somedomain.firm
 .PP
 The case of the host names does not matter, so AHost.COM is considered
 identical to ahost.com.
-.SH INETD CONFIGURATION
+.SH SERVER DAEMON CONFIGURATION
 For
 .B saned
-to work properly in its default mode of operation, it is also necessary to add
-a configuration line to
-.IR /etc/inetd.conf .
+to work properly in its default mode of operation, it is also necessary to 
+add the appropriate configuration for 
+.I (x)inetd or systemd.
+(see below).
 Note that your inetd must support IPv6 if you
-want to connect to saned over IPv6 ; xinetd and openbsd-inetd are known to
-support IPv6, check the documentation for your inetd daemon.
+want to connect to saned over IPv6 ; xinetd, openbsd-inetd and systemd 
+are known to support IPv6, check the documentation for your inetd daemon.
+.PP
+In the sections below the configuration for 
+.I inetd, xinetd
+and
+.I systemd
+are described in more detail.
+.PP
+For the configurations below it is necessary to add a line of the following 
+form to
+.IR /etc/services :
+.PP
+.RS
+sane\-port 6566/tcp # SANE network scanner daemon
+.RE
+.PP
+The official IANA short name for port 6566 is "sane\-port". The older name 
+"sane" is now deprecated.
+.SH INETD CONFIGURATION
+It is required to add a single line to the inetd configuration file
+.IR (/etc/inetd.conf)
+.
 .PP
 The configuration line normally looks like this:
 .PP
 .RS
 sane\-port stream tcp nowait saned.saned @SBINDIR@/saned saned
-.RE
+.E
 .PP
 However, if your system uses
 .BR tcpd (8)
@@ -161,9 +183,11 @@ access permissions on the special device are set such that
 .B saned
 can access the scanner (the program generally needs read and
 write access to scanner devices).
-.PP
+.SH XINETD CONFIGURATION
 If xinetd is installed on your system instead of inetd the following example
-for xinetd.conf may be helpful:
+for 
+.I /etc/xinetd.conf 
+may be helpful:
 .PP
 .RS
 .ft CR
@@ -184,17 +208,67 @@ service sane\-port
 .fi
 .ft R
 .RE
+.SH SYSTEMD CONFIGURATION
+for systemd we need to add 2 configuation files in 
+.I /etc/systemd/system.
 .PP
-Finally, it is also necessary to add a line of the following form to
-.IR /etc/services :
+The first file we need to add here is called 
+.I saned.socket. 
+It shall have
+the following contents:
 .PP
 .RS
-sane\-port 6566/tcp # SANE network scanner daemon
+.ft CR
+.nf
+[Unit]
+Description=saned incoming socket
+
+[Socket]
+ListenStream=6566
+Accept=yes
+MaxConnections=1
+
+[Install]
+WantedBy=sockets.target
+.fi
+.ft R
 .RE
 .PP
-The official IANA short name for port 6566 is "sane\-port". The older name "sane"
-is now deprecated.
+The second file to be added is 
+.I saned@.service 
+with the following contents:
+.PP
+.RS
+.ft CR
+.nf
+[Unit]
+Description=Scanner Service
+Requires=saned.socket
 
+[Service]
+ExecStart=/usr/sbin/saned
+User=saned
+Group=saned
+StandardInput=null
+StandardOutput=syslog
+StandardError=syslog
+# Environment=SANE_CONFIG_DIR=@CONFIGDIR@ SANE_DEBUG_DLL=255
+.fi
+.ft R
+.RE
+.PP
+Is you need to set an environment variable for saned like
+.B SANE_CONFIG_DIR
+you will have to remove the # on the last line and set the variable 
+appropriately.  Multiple variables can be set by separating the assignments 
+by spaces as shown in the example above.
+.PP
+Unlike 
+.I (x)inetd
+systemd allows debugging output from backends set using
+.B SANE_DEBUG_<backend_name> 
+to be captured. With the service unit as described above, the debugging output is 
+forwarded to the system log.
 .SH FILES
 .TP
 .I /etc/hosts.equiv

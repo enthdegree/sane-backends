@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "11 Jan 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "14 Jan 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 .B sane\-pixma 
@@ -55,7 +55,7 @@ ImageCLASS MF4410, MF4430, MF4660, MF4690
 .br
 ImageCLASS MF5730, MF5770, MF6550, D420, D480
 .br
-I-SENSYS MF4320d, MF4330d
+I-SENSYS MF4320d, MF4330d, MF4550d
 .br
 imageRunner 1020/1024/1025
 .br

@@ -727,6 +727,12 @@
 :status :complete
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
+:model "i-SENSYS MF6680dn"
+:interface "USB"
+:usbid "0x04a9" "0x26fa"
+:status :untested
+:comment "Testers needed!"
+
 :model "imageCLASS MF8030"
 :interface "USB"
 :usbid "0x04a9" "0x2707"

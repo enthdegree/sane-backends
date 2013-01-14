@@ -89,7 +89,7 @@ PIXMA MX320, MX410, MX430, MX510, MX710
 .br
 ImageCLASS MF5630, MF5650, MF5750, MF8030, MF8170c
 .br
-I-SENSYS MF5880dn
+I-SENSYS MF5880dn, MF6680dn
 .RE
 .PP
 \#The following models may use partly the same Pixma protocol as other devices

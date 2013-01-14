@@ -85,6 +85,7 @@
 #define MF5650_PID 0x264f
 #define MF8100_PID 0x2659
 #define MF5880_PID 0x26f9
+#define MF6680_PID 0x26fa
 #define MF8030_PID 0x2707
 #define MF4550_PID 0x2736
 
@@ -737,5 +738,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF8170c", "MF8170c", MF8100_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageClass MF8030", "MF8030", MF8030_PID, 600, 640, 877, PIXMA_CAP_ADF),  
   DEV ("Canon i-SENSYS MF5880dn", "MF5880", MF5880_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
+  DEV ("Canon i-SENSYS MF6680dn", "MF6680", MF6680_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
   DEV (NULL, NULL, 0, 0, 0, 0, 0)
 };

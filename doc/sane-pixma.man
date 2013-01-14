@@ -88,6 +88,8 @@ PIXMA MP375R, MP493, MP495, MP740
 PIXMA MX320, MX410, MX430, MX510, MX710
 .br
 ImageCLASS MF5630, MF5650, MF5750, MF8030, MF8170c
+.br
+I-SENSYS MF5880dn
 .RE
 .PP
 \#The following models may use partly the same Pixma protocol as other devices

@@ -3,7 +3,7 @@
 	- formatted white space
 	- Canon Pixma MP970 & MP990: fix for broken post_process_image_data.
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
-	Canon Pixma MG5100 support reported by Martijn Versteegh .
+	Canon Pixma MG5100 support reported by Patrick Viola.
 
 2013-01-10 Louis Lagendijk <louis dot lagendijk at gmail dot com>
 	* Changed the pixma_bjnp.c implementation to use its own debug environment

@@ -1,3 +1,7 @@
+2013-01-16 Paul Newall <quandry@ntlworld.com>
+	* doc/descriptions/kodakaio.desc:
+	Desc file updated.
+
 2013-01-14 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
 	doc/sane-pixma.man:

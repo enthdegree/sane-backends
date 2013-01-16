@@ -7285,6 +7285,10 @@ SANE_Status sane_start(SANE_Handle handle)
 
   DBG(DBG_sane_init,"sane_start\n");
 
+  /* Initialize reader_pid to invalid so a subsequent error and following call
+   * to do_cancel() won't trip over it. */
+  scanner->reader_pid = -1;
+
   mode = scanner->val[OPT_MODE].s;
 
   if (scanner->device->sfd == -1)   /* first call, don`t run this routine again on multi frame or multi image scan */

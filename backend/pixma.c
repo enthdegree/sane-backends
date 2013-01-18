@@ -982,7 +982,7 @@ reader_loop (pixma_sane_t * ss)
 #ifndef NDEBUG
       pixma_dbg (1, "==== Button-controlled scan mode is enabled.\n");
       pixma_dbg (1, "==== To proceed, press 'SCAN' or 'COLOR' button. "
-		 "To cancel, press 'GRAY' button.\n");
+		 "To cancel, press 'GRAY' or 'END' button.\n");
 #endif
       while (pixma_wait_event (ss->s, 10) != 0)
         {

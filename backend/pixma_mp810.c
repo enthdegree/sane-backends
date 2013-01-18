@@ -989,7 +989,7 @@ static int read_error_info (pixma_t * s, void *buf, unsigned size)
  */
 static int handle_interrupt (pixma_t * s, int timeout)
 {
-  uint8_t buf[16];
+  uint8_t buf[64];      /* check max. packet size with 'lsusb -v' for "EP 9 IN" */
   int len;
 
   len = pixma_wait_interrupt (s->io, buf, sizeof(buf), timeout);
@@ -997,7 +997,7 @@ static int handle_interrupt (pixma_t * s, int timeout)
     return 0;
   if (len < 0)
     return len;
-  if (len != 16)
+  if (len%16)           /* len must be a multiple of 16 bytes */
   {
     PDBG(pixma_dbg (1, "WARNING:unexpected interrupt packet length %d\n", len));
     return PIXMA_EPROTO;
@@ -1008,10 +1008,32 @@ static int handle_interrupt (pixma_t * s, int timeout)
     send_time (s);
   if (buf[9] & 2)
     query_status (s);
-  if (buf[0] & 2)
-    s->events = PIXMA_EV_BUTTON2 | buf[1] | ((buf[0] & 0xf0) << 4); /* b/w scan */
-  if (buf[0] & 1)
-    s->events = PIXMA_EV_BUTTON1 | buf[1] | ((buf[0] & 0xf0) << 4); /* color scan */
+
+  /* s->event = 0x0boott
+   * b:  button
+   * oo: original
+   * tt: target
+   * poll event with 'scanimage -A'
+   * */
+  if (s->cfg->pid == CS9000F_PID)
+  /* button no. in buf[1]
+   * target = button no. */
+  {
+    if (buf[1] == 0x50)
+      s->events = PIXMA_EV_BUTTON2 | buf[1] >> 4;  /* button 2 = cancel / end scan */
+    else
+      s->events = PIXMA_EV_BUTTON1 | buf[1] >> 4;  /* button 1 = start scan */
+  }
+  else
+  /* button no. in buf[0]
+   * original in buf[0]
+   * target in buf[1] */
+  {
+    if (buf[0] & 2)
+      s->events = PIXMA_EV_BUTTON2 | buf[1] | ((buf[0] & 0xf0) << 4); /* b/w scan */
+    if (buf[0] & 1)
+      s->events = PIXMA_EV_BUTTON1 | buf[1] | ((buf[0] & 0xf0) << 4); /* color scan */
+  }
   return 1;
 }
 

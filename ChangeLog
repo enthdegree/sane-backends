@@ -1,3 +1,8 @@
+2013-01-18 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.c, backend/pixma_mp810.c: fixed button support for Canon
+	Canoscan CS9000F.
+	* doc/sane-pixma-man: additional description for button support.
+
 2013-01-16 Paul Newall <quandry@ntlworld.com>
 	* doc/descriptions/kodakaio.desc:
 	Desc file updated.

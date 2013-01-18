@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "14 Jan 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "18 Jan 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 .B sane\-pixma 
@@ -134,8 +134,10 @@ provides the following
 \#.B experimental
 options for button handling, i.e. the options might change in the future.
 .br
+The button status can be polled i.e. with 'scanimage -A'.
+.br
 Button scan is disabled on MAC OS X due to darwin libusb not handling
-timeouts in usb interrupt reads. 
+timeouts in usb interrupt reads.
 .TP
 .I button\-controlled
 This option can be used by applications (like
@@ -165,7 +167,8 @@ backward compatibility reasons.
 .I button\-1 button\-2
 (read only) These options will return the value of the respective buttons.
 value 0 means that the button was not pressed, 1 is returned when the button 
-was pressed.
+was pressed. Some scanners with more than two buttons send the button number
+as target.
 .TP
 .I original
 (read only) returns the value of the type of original to be scanned if the 
@@ -175,7 +178,8 @@ Not all scanners can provide this data.
 .I target
 (read only) returns the value of the target of the scan operation if the scanner
 provides that data. Known values: 1 = save to disk, 2 = save to pdf, 3 = send to
-email, 4 = send to application. Not all scanners can provide this data.
+email, 4 = send to application. For some scanners this value is equivalent to
+the number of the pressed button. Not all scanners can provide this data.
 .SH FILES
 .TP
 .I @LIBDIR@/libsane\-pixma.a

@@ -521,6 +521,18 @@ commandtype, max depth, pointer to depth list
       SANE_TRUE, SANE_FALSE, /* ADF, duplex. */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
+  /* KODAK HERO 4.1,   */
+  {
+      0x4069, "esp", "KODAK HERO 4.1 AiO",
+      -1, 0x82,
+      600, {75, 600, 0}, kodakaio_resolution_list, 4, /* 600 dpi max, {from, to, 0} 4 resolutions */
+      8, kodakaio_depth_list,                          /* color depth max 8, list above */
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
+      SANE_TRUE, SANE_FALSE, /* ADF, duplex.*/
+
+      {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
+  },
+
   /* KODAK HERO 3.1,   */
   {
       0x406D, "esp", "KODAK HERO 3.1 AiO",

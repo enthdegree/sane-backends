@@ -1,7 +1,8 @@
-2013-01-21 Rolf Bensch <rolf at bensch hyphen online dot de>
+2013-01-24 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c: fixed 1200 dpi scan for Canon Pixma MG2100.
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	Canon Pixma MG2100 support reported by David Durgee.
+	* backend/pixma_imageclass.c: fixed usb checksums for MF4100.
 
 2013-01-19 Paul Newall <quandry@ntlworld.com>
 	* backends/kodakaio.c:

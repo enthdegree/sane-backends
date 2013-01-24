@@ -191,9 +191,9 @@ activate (pixma_t * s, uint8_t x)
     case D480_PID:
     case D420_PID:
     case MF4360_PID:
+    case MF4100_PID:
       return iclass_exec (s, &mf->cb, 1);
       break;
-    case MF4100_PID:
     default:
       return pixma_exec (s, &mf->cb);
     }
@@ -222,9 +222,9 @@ select_source (pixma_t * s)
     case D480_PID:
     case D420_PID:
     case MF4360_PID:
+    case MF4100_PID:
       return iclass_exec (s, &mf->cb, 0);
       break;
-    case MF4100_PID:
     default:
       return pixma_exec (s, &mf->cb);
     }
@@ -256,9 +256,9 @@ send_scan_param (pixma_t * s)
     case D480_PID:
     case D420_PID:
     case MF4360_PID:
+    case MF4100_PID:
       return iclass_exec (s, &mf->cb, 0);
       break;
-    case MF4100_PID:
     default:
       return pixma_exec (s, &mf->cb);
     }
@@ -353,9 +353,9 @@ read_error_info (pixma_t * s, void *buf, unsigned size)
     case D480_PID:
     case D420_PID:
     case MF4360_PID:
+    case MF4100_PID:
       error = iclass_exec (s, &mf->cb, 0);
       break;
-    case MF4100_PID:
     default:
       error = pixma_exec (s, &mf->cb);
     }

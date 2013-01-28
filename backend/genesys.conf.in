@@ -117,3 +117,6 @@ usb 0x0461 0x038b
 
 #Hewlett Packard ScanJet N6310
 usb 0x03f0 0x4705
+
+# Canon Image Formula 101
+usb 0x1803 0x162e

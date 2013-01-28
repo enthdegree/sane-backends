@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2012 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2013 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Parts of the structs have been taken from the gt68xx backend by
@@ -98,6 +98,8 @@
 
 #define DBGSTART DBG (DBG_proc, "%s start\n", __FUNCTION__);
 #define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __FUNCTION__);
+
+#define FREE_IFNOT_NULL(x)		if(x!=NULL) { free(x); x=NULL;}
 
 #define GENESYS_RED   0
 #define GENESYS_GREEN 1
@@ -290,6 +292,7 @@ Genesys_Color_Order;
 #define GENESYS_GL846	 846
 #define GENESYS_GL847	 847
 #define GENESYS_GL848	 848
+#define GENESYS_GL123	 123
 #define GENESYS_GL124	 124
 
 #define GENESYS_MAX_REGS 256
@@ -312,6 +315,7 @@ Genesys_Color_Order;
 #define DAC_PLUSTEK_3600   15
 #define DAC_CANONLIDE700   16
 #define DAC_CS8400F        17
+#define DAC_IMG101         18
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -338,6 +342,7 @@ Genesys_Color_Order;
 #define CIS_CANONLIDE700 22
 #define CCD_CS4400F      23
 #define CCD_CS8400F      24
+#define CCD_IMG101       25
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -361,6 +366,7 @@ Genesys_Color_Order;
 #define GPO_CANONLIDE700 19
 #define GPO_CS4400F      20
 #define GPO_CS8400F      21
+#define GPO_IMG101       22
 
 #define MOTOR_UMAX          0
 #define MOTOR_5345          1
@@ -382,6 +388,7 @@ Genesys_Color_Order;
 #define MOTOR_PLUSTEK_3600 18
 #define MOTOR_CANONLIDE700 19
 #define MOTOR_CS8400F      20
+#define MOTOR_IMG101       21
 
 
 /* Forward typedefs */
@@ -514,6 +521,11 @@ typedef struct Genesys_Command_Set
      * calculate current scan setup
      */
     SANE_Status (*calculate_current_setup) (Genesys_Device * dev);
+
+    /**
+     * cold boot init function
+     */
+    SANE_Status (*asic_boot) (Genesys_Device * dev, SANE_Bool cold);
 
 } Genesys_Command_Set;
 
@@ -849,6 +861,11 @@ extern SANE_Status
 sanei_genesys_write_hregister (Genesys_Device * dev, uint8_t reg,
 			      uint8_t val);
 
+extern SANE_Status
+sanei_genesys_bulk_write_register (Genesys_Device * dev,
+			           Genesys_Register_Set * reg,
+                                   size_t elems);
+
 extern SANE_Status sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val);
 
 extern SANE_Status sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status);
@@ -856,7 +873,7 @@ extern SANE_Status sanei_genesys_get_status (Genesys_Device * dev, uint8_t * sta
 extern void sanei_genesys_print_status (uint8_t val);
 
 extern SANE_Status
-sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * data);
+sanei_genesys_write_ahb (SANE_Int dn, int usb_mode, uint32_t addr, uint32_t size, uint8_t * data);
 
 extern void sanei_genesys_init_fe (Genesys_Device * dev);
 
@@ -945,6 +962,8 @@ extern void
 sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
 				  float maximum, float gamma_max,
 				  float gamma);
+    
+extern SANE_Status sanei_genesys_send_gamma_table (Genesys_Device * dev);
 
 extern SANE_Status sanei_genesys_start_motor (Genesys_Device * dev);
 
@@ -998,6 +1017,9 @@ sanei_genesys_get_triple(Genesys_Register_Set *regs, SANE_Byte addr, uint32_t *v
 
 extern SANE_Status
 sanei_genesys_wait_for_home(Genesys_Device *dev);
+
+extern SANE_Status
+sanei_genesys_asic_init(Genesys_Device *dev, SANE_Bool cold);
 
 extern 
 int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres);
@@ -1053,10 +1075,73 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
  * @param flags scan flags
  * @return 0 or line distance shift
  */
+extern
 int sanei_genesys_compute_max_shift(Genesys_Device *dev,
                                     int channels,
                                     int yres,
                                     int flags);
+#ifdef UNIT_TESTING
+SANE_Status
+genesys_send_offset_and_shading (Genesys_Device * dev,
+          	                 uint8_t * data,
+				 int size);
+
+void
+genesys_average_data (uint8_t * average_data,
+		      uint8_t * calibration_data,
+                      uint32_t lines,
+		      uint32_t pixel_components_per_line);
+
+void
+compute_averaged_planar (Genesys_Device * dev,
+			     uint8_t * shading_data,
+			     unsigned int pixels_per_line,
+			     unsigned int words_per_color,
+			     unsigned int channels,
+			     unsigned int o,
+			     unsigned int coeff,
+			     unsigned int target_bright,
+			     unsigned int target_dark);
+
+
+void
+compute_coefficients (Genesys_Device * dev,
+		      uint8_t * shading_data,
+		      unsigned int pixels_per_line,
+		      unsigned int channels,
+		      unsigned int cmat[3],
+		      int offset,
+		      unsigned int coeff,
+		      unsigned int target);
+
+void
+compute_planar_coefficients (Genesys_Device * dev,
+			     uint8_t * shading_data,
+			     unsigned int factor,
+			     unsigned int pixels_per_line,
+			     unsigned int words_per_color,
+			     unsigned int channels,
+			     unsigned int cmat[3],
+			     unsigned int offset,
+			     unsigned int coeff, 
+			     unsigned int target);
+
+void
+compute_shifted_coefficients (Genesys_Device * dev,
+			      uint8_t * shading_data,
+			      unsigned int pixels_per_line,
+			      unsigned int channels,
+			      unsigned int cmat[3],
+			      int offset,
+			      unsigned int coeff,
+			      unsigned int target_dark,
+			      unsigned int target_bright,
+			      unsigned int patch_size);		/* contigous extent */
+
+SANE_Status
+probe_genesys_devices (void);
+#endif
+
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
@@ -1064,6 +1149,7 @@ int sanei_genesys_compute_max_shift(Genesys_Device *dev,
 extern SANE_Status sanei_gl646_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl841_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl843_init_cmd_set (Genesys_Device * dev);
+extern SANE_Status sanei_gl846_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl847_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl124_init_cmd_set (Genesys_Device * dev);
 

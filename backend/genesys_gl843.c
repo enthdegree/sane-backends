@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2010-2012 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2010-2013 Stéphane Voltz <stef.dev@free.fr>
    
     
    This file is part of the SANE package.
@@ -235,32 +235,6 @@ write_data (Genesys_Device * dev, uint32_t addr, uint32_t size,
   return status;
 }
 
-/**
- * Write to many GL843 registers at once
- */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
-gl843_bulk_write_register (Genesys_Device * dev, Genesys_Register_Set * reg,
-			   size_t elems)
-{
-  SANE_Status status = SANE_STATUS_GOOD;
-  size_t i;
-
-  for (i = 0; i < elems && status == SANE_STATUS_GOOD; i++)
-    {
-      if (reg[i].address != 0)
-	{
-	  status =
-	    sanei_genesys_write_register (dev, reg[i].address, reg[i].value);
-	}
-    }
-
-  DBG (DBG_io, "gl843_bulk_write_register: wrote %lu registers\n",
-       (u_long) elems);
-  return status;
-}
 
 static SANE_Status
 gl843_bulk_read_data (Genesys_Device * dev, uint8_t addr,
@@ -843,7 +817,7 @@ gl843_send_slope_table (Genesys_Device * dev, int table_nr,
   SANE_Status status;
   uint8_t *table;
   int i;
-  char msg[2048 * 4];
+  char msg[10000];
 
   DBG (DBG_proc, "%s (table_nr = %d, steps = %d)\n", __FUNCTION__,
        table_nr, steps);
@@ -865,12 +839,6 @@ gl843_send_slope_table (Genesys_Device * dev, int table_nr,
       DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
     }
 
-  /* unit testing case */
-  if(dev->dn==0)
-    {
-      DBGCOMPLETED;
-      return SANE_STATUS_GOOD;
-    }
 
   /* slope table addresses are fixed : 0x4000,  0x4800,  0x5000,  0x5800,  0x6000 */
   /* XXX STEF XXX USB 1.1 ? write_end_access (dev, 0x0f, 0x14); */
@@ -1755,7 +1723,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   float startx;			/*optical_res, from dummy_pixel+1 */
   float pixels;
   float lines;
-  int color_filter;
 
   int used_res;
   int used_pixels;
@@ -1763,8 +1730,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   int exposure;
   int stagger;
 
-  int slope_dpi = 0;
-  int dummy = 0;
   int scan_step_type = 1;
   int max_shift;
 
@@ -1811,8 +1776,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   startx = start;
   pixels = dev->settings.pixels;
   lines = dev->settings.lines;
-  color_filter = dev->settings.color_filter;
-
 
   DBG (DBG_info,
        "gl843_calculate_current_setup settings:\n"
@@ -1860,15 +1823,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   /* compute correct pixels number */
   used_pixels = (pixels * optical_res) / xres;
   DBG (DBG_info, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
-  dummy = 0;
-
-  /* slope_dpi */
-  /* cis color scan is effectively a gray scan with 3 gray lines per color
-   line and a FILTER of 0 */
-  if (dev->model->is_cis)
-    slope_dpi = yres * channels;
-  else
-    slope_dpi = yres;
 
   /* exposure */
   exposure = gl843_compute_exposure (dev, used_res, oflags);
@@ -2560,7 +2514,7 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
   r->value &= ~REG01_SCAN;
 
   /* write to scanner and start action */
-  RIE (gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
+  RIE (dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
   RIE (gl843_xpa_motor_on(dev));
   status = gl843_start_action (dev);
   if (status != SANE_STATUS_GOOD)
@@ -2568,7 +2522,7 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
       DBG (DBG_error, "%s: failed to start motor: %s\n",__FUNCTION__, sane_strstatus (status));
       gl843_stop_action (dev);
       /* restore original registers */
-      gl843_bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS);
+      dev->model->cmd_set->bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS);
       return status;
     }
 
@@ -2628,12 +2582,6 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   DBG (DBG_proc, "gl843_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
-
-  /* unit testing case */
-  if(dev->dn==0)
-    {
-      return SANE_STATUS_GOOD;
-    }
 
   if (dev->model->gpo_type == GPO_G4050)
     {
@@ -2706,7 +2654,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   r = sanei_genesys_get_address (local_reg, REG01);
   r->value &= ~REG01_SCAN;
 
-  RIE (gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
+  RIE (dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
 
   status = gl843_start_action (dev);
   if (status != SANE_STATUS_GOOD)
@@ -2716,7 +2664,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	   sane_strstatus (status));
       gl843_stop_action (dev);
       /* restore original registers */
-      gl843_bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS);
+      dev->model->cmd_set->bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS);
       return status;
     }
 
@@ -2801,7 +2749,7 @@ gl843_search_start_position (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE);
 
   /* send to scanner */
-  status = gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS);
+  status = dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2929,7 +2877,7 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
        "gl843_init_register_for_coarse_calibration: optical sensor res: %d dpi, actual res: %d\n",
        dev->sensor.optical_res / cksel, dev->settings.xres);
 
-  status = gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS);
+  status = dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2991,7 +2939,7 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
   r->value &= ~REG01_SCAN;
   
   /* send registers */
-  RIE (gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
+  RIE (dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS));
 
   status = gl843_start_action (dev);
   if (status != SANE_STATUS_GOOD)
@@ -3000,7 +2948,7 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
       gl843_stop_action (dev);
 
       /* restore original registers */
-      gl843_bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS);
+      dev->model->cmd_set->bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS);
       return status;
     }
 
@@ -3072,7 +3020,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
   sanei_genesys_get_double(dev->calib_reg,REG_STRPIXEL,&strpixel);
   DBG (DBG_info, "%s: STRPIXEL=%d\n", __FUNCTION__, strpixel);
 
-  status = gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS);
+  status = dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3175,7 +3123,7 @@ gl843_send_gamma_table (Genesys_Device * dev)
   int size;
   int status;
   uint8_t *gamma;
-  int i, gmmval;
+  int i;
 
   DBGSTART;
 
@@ -3286,7 +3234,7 @@ gl843_led_calibration (Genesys_Device * dev)
       return status;
     }
 
-  RIE (gl843_bulk_write_register
+  RIE (dev->model->cmd_set->bulk_write_register
        (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
 
 
@@ -3326,7 +3274,7 @@ gl843_led_calibration (Genesys_Device * dev)
 	  r->value = dev->sensor.regs_0x10_0x1d[i];
 	}
 
-      RIE (gl843_bulk_write_register
+      RIE (dev->model->cmd_set->bulk_write_register
 	   (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
 
       DBG (DBG_info, "gl843_led_calibration: starting first line reading\n");
@@ -3539,7 +3487,7 @@ gl843_offset_calibration (Genesys_Device * dev)
   RIE (gl843_set_fe (dev, AFE_SET));
 
   /* scan with obttom AFE settings */
-  RIE (gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
+  RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
   DBG (DBG_info, "gl843_offset_calibration: starting first line reading\n");
   RIE (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
   RIE (sanei_genesys_read_data_from_scanner (dev, first_line, total_size));
@@ -3567,7 +3515,7 @@ gl843_offset_calibration (Genesys_Device * dev)
   RIE (gl843_set_fe (dev, AFE_SET));
 
   /* scan with top AFE values */
-  RIE (gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
+  RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
   DBG (DBG_info, "gl843_offset_calibration: starting second line reading\n");
   RIE (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
   RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
@@ -3598,7 +3546,7 @@ gl843_offset_calibration (Genesys_Device * dev)
       RIE (gl843_set_fe (dev, AFE_SET));
 
       /* scan with no move */
-      RIE (gl843_bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
+      RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
       DBG (DBG_info, "gl843_offset_calibration: starting second line reading\n");
       RIE (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
       RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
@@ -3724,7 +3672,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       return status;
     }
 
-  RIE (gl843_bulk_write_register
+  RIE (dev->model->cmd_set->bulk_write_register
        (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
 
   total_size = pixels * channels * (16/bpp) * lines;
@@ -3861,7 +3809,7 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
     }
 
   gl843_set_motor_power (reg, SANE_FALSE);
-  RIE (gl843_bulk_write_register (dev, reg, GENESYS_GL843_MAX_REGS));
+  RIE (dev->model->cmd_set->bulk_write_register (dev, reg, GENESYS_GL843_MAX_REGS));
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -3916,15 +3864,28 @@ gl843_init_gpio (Genesys_Device * dev)
 static
 #endif
 SANE_Status
-gl843_cold_boot (Genesys_Device * dev)
+gl843_boot (Genesys_Device * dev, SANE_Bool cold)
 {
   SANE_Status status;
   uint8_t val;
 
   DBGSTART;
 
-  RIE (sanei_genesys_write_register (dev, 0x0e, 0x01));
-  RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
+  if(cold)
+    {
+      RIE (sanei_genesys_write_register (dev, 0x0e, 0x01));
+      RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
+    }
+  
+  if(dev->usb_mode == 1)
+    {
+      val = 0x14;
+    }
+  else
+    {
+      val = 0x11;
+    }
+  RIE (write_end_access (dev, 0x0f, val));
 
   /* test CHKVER */
   RIE (sanei_genesys_read_register (dev, REG40, &val));
@@ -3932,7 +3893,7 @@ gl843_cold_boot (Genesys_Device * dev)
     {
       RIE (sanei_genesys_read_register (dev, 0x00, &val));
       DBG (DBG_info,
-	   "gl843_cold_boot: reported version for genesys chip is 0x%02x\n",
+	   "%s: reported version for genesys chip is 0x%02x\n", __FUNCTION__,
 	   val);
     }
 
@@ -3942,7 +3903,7 @@ gl843_cold_boot (Genesys_Device * dev)
   RIE (sanei_genesys_write_register (dev, REG6B, 0x02));
 
   /* Write initial registers */
-  RIE (gl843_bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS));
+  RIE (dev->model->cmd_set->bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS));
 
   /* Enable DRAM by setting a rising edge on bit 3 of reg 0x0b */
   val = dev->reg[reg_0x0b].value & REG0B_DRAMSEL;
@@ -3971,6 +3932,9 @@ gl843_cold_boot (Genesys_Device * dev)
 
   /* setup gpio */
   RIE (gl843_init_gpio (dev));
+  
+  gl843_feed (dev, 300);
+  usleep (100000);
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -3987,110 +3951,11 @@ SANE_Status
 gl843_init (Genesys_Device * dev)
 {
   SANE_Status status;
-  uint8_t val;
-  SANE_Bool cold = SANE_TRUE;
-  int size, i;
 
   DBG_INIT ();
   DBGSTART;
 
-  /* URB    16  control  0xc0 0x0c 0x8e 0x0b len     1 read  0x00 */
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_REGISTER,
-			   VALUE_GET_REGISTER, 0x0b, 1, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "gl843_init: request register failed %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-  DBG (DBG_io2, "gl843_init: value=0x%02x\n", val);
-  DBG (DBG_info, "%s: device is %s\n", __FUNCTION__,
-       (val & 0x08) ? "USB 1.0" : "USB2.0");
-  if (val & 0x08)
-    {
-      /* URB    17  control  0x40 0x0c 0x8c 0x0f len     1 wrote 0x14  */
-      dev->usb_mode = 1;
-      val = 0x14;
-    }
-  else
-    {
-      /* URB    17  control  0x40 0x0c 0x8c 0x0f len     1 wrote 0x11  */
-      dev->usb_mode = 2;
-      val = 0x11;
-    }
-  RIE (write_end_access (dev, 0x0f, val));
-
-  /* check if the device has already been initialized and powered up 
-   * we read register 6 and check PWRBIT, if reset scanner has been
-   * freshly powered up. This bit will be set to later so that following
-   * reads can detect power down/up cycle*/
-  RIE (sanei_genesys_read_register (dev, 0x06, &val));
-  if (val & REG06_PWRBIT)
-    {
-      cold = SANE_FALSE;
-    }
-  DBG (DBG_info, "%s: device is %s\n", __FUNCTION__, cold ? "cold" : "warm");
-
-  /* don't do anything if backend is initialized and hardware hasn't been
-   * replug */
-  if (dev->already_initialized && !cold)
-    {
-      DBG (DBG_info, "gl843_init: already initialized, nothing to do\n");
-      return SANE_STATUS_GOOD;
-    }
-
-  /* set up hardware and registers */
-  RIE (gl843_cold_boot (dev));
-
-  /* move head away from park position */
-  gl843_feed (dev, 300);
-  usleep (100000);
-
-  /* now hardware part is OK, set up device struct */
-  FREE_IFNOT_NULL (dev->white_average_data);
-  FREE_IFNOT_NULL (dev->dark_average_data);
-  FREE_IFNOT_NULL (dev->sensor.gamma_table[0]);
-  FREE_IFNOT_NULL (dev->sensor.gamma_table[1]);
-  FREE_IFNOT_NULL (dev->sensor.gamma_table[2]);
-
-  dev->settings.color_filter = 0;
-
-  memcpy (dev->calib_reg, dev->reg, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
-
-  /* Set analog frontend */
-  RIE (gl843_set_fe (dev, AFE_INIT));
-
-  /* init gamma tables */
-  size = 256;
-  for(i=0;i<3;i++)
-    {
-      if (dev->sensor.gamma_table[i] == NULL)
-        {
-          dev->sensor.gamma_table[i] = (uint16_t *) malloc (2 * size);
-          if (dev->sensor.gamma_table[i] == NULL)
-            {
-              DBG (DBG_error, "gl843_init: could not allocate memory for gamma table %d\n", i);
-              return SANE_STATUS_NO_MEM;
-            }
-          sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
-                                            size,
-                                            65535,
-                                            65535,
-                                            dev->sensor.gamma[i]);
-        }
-    }
-
-  dev->oe_buffer.buffer = NULL;
-  dev->already_initialized = SANE_TRUE;
-
-  /* Move home if needed */
-  RIE (gl843_slow_back_home (dev, SANE_TRUE));
-  dev->scanhead_position_in_steps = 0;
-
-  /* Set powersaving (default = 15 minutes) */
-  RIE (gl843_set_powersaving (dev, 15));
+  status=sanei_genesys_asic_init(dev, GENESYS_GL843_MAX_REGS);
 
   DBGCOMPLETED;
   return status;
@@ -4247,7 +4112,7 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
     r->value |= REG02_MTRREV;
 
 
-  status = gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS);
+  status = dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -4304,7 +4169,7 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   while (pass < 20 && !found)
     {
       status =
-	gl843_bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS);
+	dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -4598,7 +4463,7 @@ static Genesys_Command_Set gl843_cmd_set = {
 
   gl843_slow_back_home,
 
-  gl843_bulk_write_register,
+  sanei_genesys_bulk_write_register,
   gl843_bulk_write_data,
   gl843_bulk_read_data,
 
@@ -4612,7 +4477,8 @@ static Genesys_Command_Set gl843_cmd_set = {
   sanei_genesys_is_compatible_calibration,
   gl843_move_to_ta,
   gl843_send_shading_data,
-  gl843_calculate_current_setup
+  gl843_calculate_current_setup,
+  gl843_boot
 };
 
 SANE_Status

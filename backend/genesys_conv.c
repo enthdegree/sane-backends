@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
-   Copyright (C) 2010-2012 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2010-2013 Stéphane Voltz <stef.dev@free.fr>
 
    This file is part of the SANE package.
    

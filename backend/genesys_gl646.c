@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2012 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2013 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
    Copyright (C) 2011 Alexey Osipov <simba@lerlan.ru> for HP2400 description
@@ -5782,6 +5782,7 @@ static Genesys_Command_Set gl646_cmd_set = {
 
   gl646_is_compatible_calibration,
   gl646_move_to_ta,
+  NULL,
   NULL,
   NULL
 };

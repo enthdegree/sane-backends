@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
-   Copyright (C) 2005-2012 Stephane Voltz <stef.dev@free.fr>
+   Copyright (C) 2005-2013 Stephane Voltz <stef.dev@free.fr>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Copyright (C) 2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    
@@ -49,7 +49,6 @@
 
 #include "genesys_low.h"
 
-#define FREE_IFNOT_NULL(x)		if(x!=NULL) { free(x); x=NULL;}
 
 #define ENABLE(OPTION)  s->opt[OPTION].cap &= ~SANE_CAP_INACTIVE
 #define DISABLE(OPTION) s->opt[OPTION].cap |=  SANE_CAP_INACTIVE

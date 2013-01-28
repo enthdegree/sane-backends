@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2012 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2013 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
    Copyright (C) 2010 Jack McGill <jmcgill85258@yahoo.com>
@@ -194,7 +194,15 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00, 0x00, 0x00}
    , {0x60, 0x5c, 0x6c}	/* 0x20, 0x21, 0x22 */
    , {0x8a, 0x9f, 0xc2} /* 0x28, 0x29, 0x2a */
-   , {0x00,0x00,0x00}
+   , {0x00, 0x00, 0x00}
+   }
+  ,
+  {DAC_IMG101,
+     {0x78, 0xf0, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}	/* 0x20, 0x21, 0x22 */
+   , {0x00, 0x00, 0x00} /* 0x28, 0x29, 0x2a */
+   , {0x00, 0x00, 0x00}
    }
 };
 
@@ -654,6 +662,32 @@ static Genesys_Sensor Sensor[] = {
    {1.0, 1.0, 1.0},
    {NULL, NULL, NULL}}
   ,
+  /* Canon Image formula 101 */
+  {CCD_IMG101,
+   1200,	/* optical resolution */
+   31,	
+   31,	
+   0,
+   10800,
+   210,
+   200,
+   {0x60, 0x00, 0x00, 0x8b},
+   /* reg 0x10 - 0x15 */
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* EXPR/EXPG/EXPB */
+   /* reg 0x16 - 0x1d 0x19=0x50*/
+    0xbb, 0x13, 0x10, 0x2a, 0x34, 0x00, 0x20, 0x06 },
+   /* reg 0x52 - 0x5e */
+   {0x02, 0x04,
+    0x06, 0x08, 0x0a, 0x00,
+    0x59, 0x31,
+    0x40,		
+    0x00, 0x00, 0x00, 
+    0x1f	
+    }
+   ,
+   {1.7, 1.7, 1.7},
+   {NULL, NULL, NULL}
+  }
 };
 
 /** for General Purpose Output specific settings:
@@ -805,6 +839,12 @@ static Genesys_Gpo Gpo[] = {
   {GPO_CS8400F,
    {0x9a, 0xdf},
    {0xfe, 0x60},
+  }
+  /* Canon Image formula 101 */
+  ,
+  {GPO_IMG101,
+   {0x41, 0xa4},
+   {0x13, 0xa7}
   }
 };
 
@@ -1118,6 +1158,17 @@ static Genesys_Motor Motor[] = {
   {MOTOR_PLUSTEK_3600,		/* PLUSTEK 3600 */
    1200,
    2400,
+   1,
+   1,
+   {
+     {
+       { 3500, 1300, 60, 0.8 },
+       { 3500, 3250, 60, 0.8 },
+     },
+   },},
+  {MOTOR_IMG101,		/* Canon Image Formula 101 */
+   600,
+   1200,
    1,
    1,
    {
@@ -3118,6 +3169,57 @@ static Genesys_Model hpn6310_model = {
 };
 
 
+static Genesys_Model canon_formula101_model = {
+  "canon-image-formula-101",		/* Name */
+  "Canon",			/* Device vendor string */
+  "Image Formula 101",			/* Device model name */
+  GENESYS_GL846,
+  NULL,
+
+  { 1200, 600, 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  { 1200, 600, 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (7.2),		/* Start of scan area in mm  (x) */
+  SANE_FIX (14.7),		/* Start of scan area in mm (y) */
+  SANE_FIX (217.7),		/* Size of scan area in mm (x) */
+  SANE_FIX (300.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (9.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (0.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 24, 48,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CCD_IMG101,
+  DAC_IMG101,
+  GPO_IMG101,
+  MOTOR_IMG101,
+  GENESYS_FLAG_LAZY_INIT |
+  GENESYS_FLAG_SKIP_WARMUP |
+  GENESYS_FLAG_OFFSET_CALIBRATION |
+  GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_NO_BUTTONS ,
+  100,
+  100
+};
+
 
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   /* GL646 devices */
@@ -3147,12 +3249,6 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x0a82, 0x480c, &syscan_docketport_685_model},
   {0x1dcc, 0x4810, &dct_docketport_487_model},
   {0x1dcc, 0x4812, &syscan_docketport_467_model},
-  /* GL847 devices */
-  {0x04a9, 0x1904, &canon_lide_100_model},
-  {0x04a9, 0x1905, &canon_lide_200_model},
-  {0x04a9, 0x1906, &canon_5600f_model},
-  {0x04a9, 0x1907, &canon_lide_700f_model},
-  {0x03f0, 0x4705, &hpn6310_model},
   /* GL843 devices */
   {0x04da, 0x100f, &panasonic_kvss080_model},
   {0x03f0, 0x1b05, &hp4850c_model},
@@ -3160,6 +3256,14 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x03f0, 0x4605, &hpg4050_model},
   {0x04a9, 0x2228, &canon_4400f_model},
   {0x04a9, 0x221e, &canon_8400f_model},
+  /* GL846 devices */
+  {0x1083, 0x162e, &canon_formula101_model},
+  /* GL847 devices */
+  {0x04a9, 0x1904, &canon_lide_100_model},
+  {0x04a9, 0x1905, &canon_lide_200_model},
+  {0x04a9, 0x1906, &canon_5600f_model},
+  {0x04a9, 0x1907, &canon_lide_700f_model},
+  {0x03f0, 0x4705, &hpn6310_model},
   /* GL124 devices */
   {0x04a9, 0x1909, &canon_lide_110_model},
   {0x04a9, 0x190a, &canon_lide_210_model},

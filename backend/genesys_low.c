@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2010-2012 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2010-2013 Stéphane Voltz <stef.dev@free.fr>
    
     
    This file is part of the SANE package.
@@ -65,6 +65,8 @@ sanei_genesys_init_cmd_set (Genesys_Device * dev)
       return sanei_gl841_init_cmd_set (dev);
     case GENESYS_GL843:
       return sanei_gl843_init_cmd_set (dev);
+    case GENESYS_GL846:
+      return sanei_gl846_init_cmd_set (dev);
     case GENESYS_GL847:
       return sanei_gl847_init_cmd_set (dev);
     case GENESYS_GL124:
@@ -298,8 +300,12 @@ sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
 #endif
 
   /* route to gl847 function if needed */
-  if(dev->model->asic_type==GENESYS_GL847 || dev->model->asic_type==GENESYS_GL124)
-    return sanei_genesys_write_gl847_register(dev, reg, val);
+  if(dev->model->asic_type==GENESYS_GL847
+  || dev->model->asic_type==GENESYS_GL846 
+  || dev->model->asic_type==GENESYS_GL124)
+    {
+      return sanei_genesys_write_gl847_register(dev, reg, val);
+    }
 
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
@@ -339,6 +345,13 @@ SANE_Status
 sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val)
 {
   SANE_Status status;
+
+#ifdef UNIT_TESTING
+  if(dev->usb_mode<0)
+    {
+      return SANE_STATUS_GOOD;
+    }
+#endif
 
   DBG (DBG_io, "sanei_genesys_write_0x8c: 0x%02x,0x%02x\n", index, val);
 
@@ -399,7 +412,9 @@ sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg, uint8_t * val)
 #endif
 
   /* route to gl847 function if needed */
-  if(dev->model->asic_type==GENESYS_GL847 || dev->model->asic_type==GENESYS_GL124)
+  if(dev->model->asic_type==GENESYS_GL847
+  || dev->model->asic_type==GENESYS_GL846
+  || dev->model->asic_type==GENESYS_GL124)
     return sanei_genesys_read_gl847_register(dev, reg, val);
 
   status =
@@ -438,10 +453,12 @@ sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 {
   SANE_Status status;
   
-  if(dev->model->asic_type==GENESYS_GL847 || dev->model->asic_type==GENESYS_GL124)
+  if(dev->model->asic_type==GENESYS_GL847
+  || dev->model->asic_type==GENESYS_GL846 
+  || dev->model->asic_type==GENESYS_GL124)
     {
       DBG (DBG_warn,
-	   "sanei_genesys_set_buffer_address: shouldn't be used for GL847 or GL124\n");
+	   "sanei_genesys_set_buffer_address: shouldn't be used for GL846+ ASICs\n");
       return SANE_STATUS_GOOD;
     }
 
@@ -639,43 +656,56 @@ sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
   SANE_Status status;
   uint8_t value;
 
-  DBG (DBG_proc, "sanei_genesys_read_valid_words\n");
-  if (dev->model->asic_type == GENESYS_GL124)
+  DBGSTART;
+  switch (dev->model->asic_type)
     {
+    case GENESYS_GL124:
       RIE (sanei_genesys_read_hregister (dev, 0x02, &value));
-      *words=(value & 0x03);
+      *words = (value & 0x03);
       RIE (sanei_genesys_read_hregister (dev, 0x03, &value));
-      *words=*words*256+value;
+      *words = *words * 256 + value;
       RIE (sanei_genesys_read_hregister (dev, 0x04, &value));
-      *words=*words*256+value;
+      *words = *words * 256 + value;
       RIE (sanei_genesys_read_hregister (dev, 0x05, &value));
-      *words=*words*256+value;
-    }
-  else if (dev->model->asic_type == GENESYS_GL847)
-    {
+      *words = *words * 256 + value;
+      break;
+
+    case GENESYS_GL846:
       RIE (sanei_genesys_read_register (dev, 0x42, &value));
-      *words=(value & 0x03);
+      *words = (value & 0x02);
       RIE (sanei_genesys_read_register (dev, 0x43, &value));
-      *words=*words*256+value;
+      *words = *words * 256 + value;
       RIE (sanei_genesys_read_register (dev, 0x44, &value));
-      *words=*words*256+value;
+      *words = *words * 256 + value;
       RIE (sanei_genesys_read_register (dev, 0x45, &value));
-      *words=*words*256+value;
-    }
-  else
-    {
+      *words = *words * 256 + value;
+      break;
+
+    case GENESYS_GL847:
+      RIE (sanei_genesys_read_register (dev, 0x42, &value));
+      *words = (value & 0x03);
+      RIE (sanei_genesys_read_register (dev, 0x43, &value));
+      *words = *words * 256 + value;
+      RIE (sanei_genesys_read_register (dev, 0x44, &value));
+      *words = *words * 256 + value;
+      RIE (sanei_genesys_read_register (dev, 0x45, &value));
+      *words = *words * 256 + value;
+      break;
+
+    default:
       RIE (sanei_genesys_read_register (dev, 0x44, &value));
       *words = value;
       RIE (sanei_genesys_read_register (dev, 0x43, &value));
       *words += (value * 256);
       RIE (sanei_genesys_read_register (dev, 0x42, &value));
       if (dev->model->asic_type == GENESYS_GL646)
-        *words += ((value & 0x03) * 256 * 256);
+	*words += ((value & 0x03) * 256 * 256);
       else
-        *words += ((value & 0x0f) * 256 * 256);
+	*words += ((value & 0x0f) * 256 * 256);
     }
 
-  DBG (DBG_proc, "sanei_genesys_read_valid_words: %d words\n", *words);
+  DBG (DBG_proc, "%s: %d words\n", __FUNCTION__, *words);
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -1002,14 +1032,46 @@ sanei_genesys_read_feed_steps (Genesys_Device * dev, unsigned int *steps)
 
 
 /**
+ * Write to many registers at once
+ * Note: sequential call to write register, no effective
+ * bulk write implemented.
+ * @param dev device to write to
+ * @param reg pointer to an array of registers
+ * @param elems size of the array
+ */
+SANE_Status
+sanei_genesys_bulk_write_register (Genesys_Device * dev,
+			           Genesys_Register_Set * reg,
+                                   size_t elems)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  size_t i;
+
+  for (i = 0; i < elems && status == SANE_STATUS_GOOD; i++)
+    {
+      if (reg[i].address != 0)
+	{
+	  status =
+	    sanei_genesys_write_register (dev, reg[i].address, reg[i].value);
+	}
+    }
+
+  DBG (DBG_io, "%s: wrote %lu registers\n", __FUNCTION__, (u_long) elems);
+  return status;
+}
+
+
+
+/**
  * writes a block of data to AHB
  * @param dn USB device index
+ * @param usb_mode usb mode : -1, fake usb, 1 usb 1.1, 2 usb 2.0
  * @param addr AHB address to write to
  * @param size size of the chunk of data
  * @param data pointer to the data to write
  */
 SANE_Status
-sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * data)
+sanei_genesys_write_ahb (SANE_Int dn, int usb_mode, uint32_t addr, uint32_t size, uint8_t * data)
 {
   uint8_t outdata[8];
   size_t written,blksize;
@@ -1034,6 +1096,13 @@ sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * da
 	}
       DBG (DBG_io, "%s: write(0x%08x,0x%08x)\n", __FUNCTION__, addr,size);
       DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
+    }
+
+  /* no effective write if fake USB */
+  if(usb_mode<0)
+    {
+      DBGCOMPLETED;
+      return status;
     }
 
   /* write addr and size for AHB */
@@ -1071,6 +1140,188 @@ sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * da
     }
   while (written < size);
 
+  return status;
+}
+
+
+/** @brief send gamma table to scanner
+ * This function sends generic gamma table (ie ones built with
+ * provided gamma) or the user defined one if provided by 
+ * fontend. Used by gl846+ ASICs
+ * @param dev device to write to
+ */
+SANE_Status
+sanei_genesys_send_gamma_table (Genesys_Device * dev)
+{
+  int size;
+  int status;
+  uint8_t *gamma, val;
+  int i;
+
+  DBG (DBG_proc, "gl124_send_gamma_table\n");
+
+
+  size = 256 + 1;
+
+  /* allocate temporary gamma tables: 16 bits words, 3 channels */
+  gamma = (uint8_t *) malloc (size * 2 * 3);
+  if (!gamma)
+    {
+      return SANE_STATUS_NO_MEM;
+    }
+  memset(gamma, 255, size*3*2);
+
+  /* copy sensor defined gamma tables */
+  for (i = 0; i < size-1; i++)
+    {
+      gamma[i * 2 + size * 0 + 0] = dev->sensor.gamma_table[GENESYS_RED][i] & 0xff;
+      gamma[i * 2 + size * 0 + 1] = (dev->sensor.gamma_table[GENESYS_RED][i] >> 8) & 0xff;
+      gamma[i * 2 + size * 2 + 0] = dev->sensor.gamma_table[GENESYS_GREEN][i] & 0xff;
+      gamma[i * 2 + size * 2 + 1] = (dev->sensor.gamma_table[GENESYS_GREEN][i] >> 8) & 0xff;
+      gamma[i * 2 + size * 4 + 0] = dev->sensor.gamma_table[GENESYS_BLUE][i] & 0xff;
+      gamma[i * 2 + size * 4 + 1] = (dev->sensor.gamma_table[GENESYS_BLUE][i] >> 8) & 0xff;
+    }
+
+  /* loop sending gamma tables NOTE: 0x01000000 not 0x10000000 */
+  for (i = 0; i < 3; i++)
+    {
+      /* clear corresponding GMM_N bit */
+      RIE (sanei_genesys_read_register (dev, 0xbd, &val));
+      val &= ~(0x01 << i);
+      RIE (sanei_genesys_write_register (dev, 0xbd, val));
+
+      /* clear corresponding GMM_F bit */
+      RIE (sanei_genesys_read_register (dev, 0xbe, &val));
+      val &= ~(0x01 << i);
+      RIE (sanei_genesys_write_register (dev, 0xbe, val));
+
+      /* set GMM_Z */
+      RIE (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]));
+      RIE (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]));
+
+      status = sanei_genesys_write_ahb (dev->dn, dev->usb_mode, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl124_send_gamma_table: write to AHB failed writing table %d (%s)\n",
+	       i, sane_strstatus (status));
+	}
+    }
+
+  free (gamma);
+  DBGCOMPLETED;
+  return status;
+}
+
+/** @brief initialize device
+ * initialize backend and ASIC : registers, motor tables, and gamma tables
+ * then ensure scanner's head is at home. Designed for gl846+ ASICs
+ * @param dev device to initialize
+ * @param max_regs umber of maximum used registers
+ */
+SANE_Status
+sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
+{
+  SANE_Status status;
+  uint8_t val;
+  SANE_Bool cold = SANE_TRUE;
+  int size, i;
+
+  DBGSTART;
+
+  /* URB    16  control  0xc0 0x0c 0x8e 0x0b len     1 read  0x00 */
+  if(dev->usb_mode>=0)
+    {
+      status = sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_GET_REGISTER, 0x00, 1, &val);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error, "%s: request register failed %s\n", __FUNCTION__,
+               sane_strstatus (status));
+          return status;
+        }
+      DBG (DBG_io2, "%s: value=0x%02x\n", __FUNCTION__, val);
+      DBG (DBG_info, "%s: device is %s\n", __FUNCTION__, (val & 0x08) ? "USB 1.0" : "USB2.0");
+      if (val & 0x08)
+        {
+          dev->usb_mode = 1;
+        }
+      else
+        {
+          dev->usb_mode = 2;
+        }
+    }
+
+  /* check if the device has already been initialized and powered up 
+   * we read register 6 and check PWRBIT, if reset scanner has been
+   * freshly powered up. This bit will be set to later so that following
+   * reads can detect power down/up cycle*/
+  RIE (sanei_genesys_read_register (dev, 0x06, &val));
+  /* test for POWER bit */
+  if (val & 0x10)
+    {
+      cold = SANE_FALSE;
+    }
+  DBG (DBG_info, "%s: device is %s\n", __FUNCTION__, cold ? "cold" : "warm");
+
+  /* don't do anything if backend is initialized and hardware hasn't been
+   * replug */
+  if (dev->already_initialized && !cold)
+    {
+      DBG (DBG_info, "%s: already initialized, nothing to do\n", __FUNCTION__);
+      return SANE_STATUS_GOOD;
+    }
+
+  /* set up hardware and registers */
+  RIE (dev->model->cmd_set->asic_boot (dev, cold));
+
+  /* now hardware part is OK, set up device struct */
+  FREE_IFNOT_NULL (dev->white_average_data);
+  FREE_IFNOT_NULL (dev->dark_average_data);
+  FREE_IFNOT_NULL (dev->sensor.gamma_table[0]);
+  FREE_IFNOT_NULL (dev->sensor.gamma_table[1]);
+  FREE_IFNOT_NULL (dev->sensor.gamma_table[2]);
+
+  dev->settings.color_filter = 0;
+
+  /* duplicate initial values into calibration registers */
+  memcpy (dev->calib_reg, dev->reg, max_regs * sizeof (Genesys_Register_Set));
+
+  /* Set analog frontend */
+  RIE (dev->model->cmd_set->set_fe (dev, AFE_INIT));
+
+  /* init gamma tables */
+  size = 256;
+
+  for(i=0;i<3;i++)
+    {
+      if (dev->sensor.gamma_table[i] == NULL)
+        {
+          dev->sensor.gamma_table[i] = (uint16_t *) malloc (2 * size);
+          if (dev->sensor.gamma_table[i] == NULL)
+            {
+              DBG (DBG_error, "%s: could not allocate memory for gamma table %d\n",
+                   __FUNCTION__, i);
+              return SANE_STATUS_NO_MEM;
+            }
+          sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
+                                            size,
+                                            65535,
+                                            65535,
+                                            dev->sensor.gamma[i]);
+        }
+    }
+
+  dev->oe_buffer.buffer = NULL;
+  dev->already_initialized = SANE_TRUE;
+
+  /* Move to home if needed */
+  RIE (dev->model->cmd_set->slow_back_home (dev, SANE_TRUE));
+  dev->scanhead_position_in_steps = 0;
+
+  /* Set powersaving (default = 15 minutes) */
+  RIE (dev->model->cmd_set->set_powersaving (dev, 15));
+
+  DBGCOMPLETED;
   return status;
 }
 

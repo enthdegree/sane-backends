@@ -2,7 +2,7 @@
 
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2012 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2013 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
@@ -5207,10 +5207,11 @@ calc_parameters (Genesys_Scanner * s)
   s->params.pixels_per_line =
     ((br_x - tl_x) * resolution) / MM_PER_INCH;
 
-  /* we need an even number of pixels for even/odd handling */
+  /* we need an even pixels number */
   if (s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR
       || s->dev->model->asic_type == GENESYS_GL847  
       || s->dev->model->asic_type == GENESYS_GL124  
+      || s->dev->model->asic_type == GENESYS_GL846  
       || s->dev->model->asic_type == GENESYS_GL843) 
     {
       if (s->dev->settings.xres <= 1200)

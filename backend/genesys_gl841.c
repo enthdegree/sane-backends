@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2012 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2013 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005 Philipp Schmid <philipp8288@web.de>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
@@ -5728,7 +5728,8 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_is_compatible_calibration,
   NULL,
   NULL,
-  gl841_calculate_current_setup
+  gl841_calculate_current_setup,
+  NULL
 };
 
 SANE_Status

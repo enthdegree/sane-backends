@@ -926,8 +926,6 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 {
   SANE_Status status;
   int use_fast_fed;
-  unsigned int fast_time;
-  unsigned int slow_time;
   unsigned int lincnt, fast_dpi;
   uint16_t scan_table[SLOPE_TABLE_SIZE];
   uint16_t fast_table[SLOPE_TABLE_SIZE];
@@ -995,14 +993,14 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   sanei_genesys_set_double(reg,REG_SCANFED,4);
 
   /* scan and backtracking slope table */
-  slow_time=gl124_slope_table(scan_table,
-                              &scan_steps,
-                              yres,
-                              scan_exposure_time,
-                              dev->motor.base_ydpi,
-                              scan_step_type,
-                              factor,
-                              dev->model->motor_type);
+  gl124_slope_table(scan_table,
+                    &scan_steps,
+                    yres,
+                    scan_exposure_time,
+                    dev->motor.base_ydpi,
+                    scan_step_type,
+                    factor,
+                    dev->model->motor_type);
   RIE(gl124_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps));
   RIE(gl124_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps));
 
@@ -1015,14 +1013,14 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
     {
       fast_dpi*=3;
     }
-  fast_time=gl124_slope_table(fast_table,
-                              &fast_steps,
-                              fast_dpi,
-                              scan_exposure_time,
-                              dev->motor.base_ydpi,
-                              scan_step_type,
-                              factor,
-                              dev->model->motor_type);
+  gl124_slope_table(fast_table,
+                    &fast_steps,
+                    fast_dpi,
+                    scan_exposure_time,
+                    dev->motor.base_ydpi,
+                    scan_step_type,
+                    factor,
+                    dev->model->motor_type);
   RIE(gl124_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps));
   RIE(gl124_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps));
 
@@ -1455,8 +1453,8 @@ gl124_init_scan_regs (Genesys_Device * dev,
   int exposure_time;
   int stagger;
 
-  int slope_dpi = 0;
   int dummy = 0;
+  int slope_dpi = 0;
   int scan_step_type = 1;
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
@@ -1534,8 +1532,6 @@ gl124_init_scan_regs (Genesys_Device * dev,
   /* we want even number of pixels here */
   if(used_pixels & 1)
     used_pixels++;
-
-  dummy = 0;
 
   /* slope_dpi */
   /* cis color scan is effectively a gray scan with 3 gray lines per color line and a FILTER of 0 */
@@ -1707,7 +1703,6 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   float startx;			/*optical_res, from dummy_pixel+1 */
   float pixels;
   float lines;
-  int color_filter;
 
   int used_res;
   int used_pixels;
@@ -1715,9 +1710,6 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   int exposure_time;
   int stagger;
 
-  int slope_dpi = 0;
-  int dummy = 0;
-  int scan_step_type = 1;
   int max_shift, dpihw;
   Sensor_Profile *sensor;
 
@@ -1757,7 +1749,6 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   startx = start;
   pixels = dev->settings.pixels;
   lines = dev->settings.lines;
-  color_filter = dev->settings.color_filter;
 
 
   DBG (DBG_info,
@@ -1806,19 +1797,9 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   /* compute correct pixels number */
   used_pixels = (pixels * optical_res) / xres;
   DBG (DBG_info, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
-  dummy = 0;
 
-  /* slope_dpi */
-  /* cis color scan is effectively a gray scan with 3 gray lines per color
-   line and a FILTER of 0 */
-  if (dev->model->is_cis)
-    slope_dpi = yres * channels;
-  else
-    slope_dpi = yres;
-
-  /* scan_step_type and exposure */
+  /* exposure */
   exposure_time = gl124_compute_exposure (dev, xres);
-  scan_step_type = gl124_compute_step_type(dev, exposure_time);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
   /* max_shift */
@@ -2952,7 +2933,7 @@ gl124_led_calibration (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
   int val;
   int channels, depth;
-  int avg[3], top[3], bottom[3];
+  int avg[3];
   int turn;
   char fn[20];
   uint16_t exp[3],target;
@@ -3006,12 +2987,6 @@ gl124_led_calibration (Genesys_Device * dev)
   exp[1]=sensor->expg;
   exp[2]=sensor->expb;
   target=dev->sensor.gain_white_ref*256;
-
-  for(i=0;i<3;i++)
-    {
-      bottom[i]=exp[i]/2;
-      top[i]=exp[i]*1.5;
-    }
 
   turn = 0;
 

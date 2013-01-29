@@ -1388,7 +1388,6 @@ gl841_init_motor_regs(Genesys_Device * dev,
     unsigned int fast_exposure;
     int use_fast_fed = 0;
     uint16_t fast_slope_table[256];
-    unsigned int fast_slope_time;
     unsigned int fast_slope_steps = 0;
     unsigned int feedl;
     Genesys_Register_Set * r;
@@ -1429,7 +1428,7 @@ gl841_init_motor_regs(Genesys_Device * dev,
 	fast_exposure = dev->motor.slopes[0][0].maximum_start_speed;
     }
 
-    fast_slope_time = sanei_genesys_create_slope_table3 (
+     sanei_genesys_create_slope_table3 (
 	dev,
 	fast_slope_table, 256,
 	fast_slope_steps,
@@ -1567,7 +1566,6 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
     uint16_t back_slope_table[256];
     unsigned int slow_slope_time;
     unsigned int fast_slope_time;
-    unsigned int back_slope_time;
     unsigned int slow_slope_steps = 0;
     unsigned int fast_slope_steps = 0;
     unsigned int back_slope_steps = 0;
@@ -1625,7 +1623,7 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 	NULL,
 	scan_power_mode);
     
-    back_slope_time = sanei_genesys_create_slope_table3 (
+     sanei_genesys_create_slope_table3 (
 	dev,
 	back_slope_table, 256,
 	256,
@@ -2196,7 +2194,6 @@ gl841_init_scan_regs (Genesys_Device * dev,
   int stagger;
 
   int slope_dpi = 0;
-  int move_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
   int scan_power_mode = 0;
@@ -2443,9 +2440,6 @@ dummy \ scanned lines
   /* lincnt */
   lincnt = lines + max_shift + stagger;
 
-/* move */
-  move_dpi = dev->motor.base_ydpi;
-
   /* add tl_y to base movement */
   move = starty;
   DBG (DBG_info, "gl841_init_scan_regs: move=%d steps\n", move);
@@ -2577,7 +2571,6 @@ gl841_calculate_current_setup (Genesys_Device * dev)
   float startx;/*optical_res, from dummy_pixel+1*/
   float pixels;
   float lines;
-  int color_filter;
 
   int used_res;
   int used_pixels;
@@ -2629,8 +2622,6 @@ gl841_calculate_current_setup (Genesys_Device * dev)
   startx = start;/*optical_res, from dummy_pixel+1*/
   pixels = dev->settings.pixels;
   lines = dev->settings.lines;
-  color_filter = dev->settings.color_filter;
-
 
   DBG (DBG_info,
        "gl841_calculate_current_setup settings:\n"
@@ -3626,7 +3617,6 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   SANE_Status status;
   Genesys_Register_Set *r;
   uint8_t val;
-  float resolution;
   int loop = 0;
 
   DBG (DBG_proc, "gl841_slow_back_home (wait_until_home = %d)\n",
@@ -4145,7 +4135,7 @@ gl841_send_gamma_table (Genesys_Device * dev)
   int size;
   int status;
   uint8_t *gamma;
-  int i,gmmval;
+  int i;
 
   DBGSTART;
 
@@ -4204,7 +4194,6 @@ gl841_led_calibration (Genesys_Device * dev)
 {
   int num_pixels;
   int total_size;
-  int used_res;
   uint8_t *line;
   int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -4269,7 +4258,6 @@ gl841_led_calibration (Genesys_Device * dev)
 
   RIE (gl841_bulk_write_register(dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
-  used_res = dev->current_setup.xres;
   num_pixels = dev->current_setup.pixels;
 
   total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
@@ -4439,7 +4427,6 @@ gl841_offset_calibration (Genesys_Device * dev)
 {
   int num_pixels;
   int total_size;
-  int used_res;
   uint8_t *first_line, *second_line;
   int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -4491,7 +4478,6 @@ gl841_offset_calibration (Genesys_Device * dev)
       return status;
     }
 
-  used_res = dev->current_setup.xres;
   num_pixels = dev->current_setup.pixels;
 
   total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
@@ -4855,7 +4841,6 @@ static SANE_Status
 gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 {
   int num_pixels;
-  int black_pixels;
   int total_size;
   uint8_t *line;
   int i, j, channels;
@@ -4863,9 +4848,8 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   int max[3];
   float gain[3];
   int val;
-  int used_res;
 
-  DBG (DBG_proc, "gl841_coarse_gain_calibration\n");
+  DBG (DBG_proc, "gl841_coarse_gain_calibration dpi=%d\n", dpi);
 
   if (dev->model->gpo_type == GPO_CANONLIDE35)
     {
@@ -4912,10 +4896,6 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   RIE (gl841_bulk_write_register
        (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
-  black_pixels =
-    (dev->sensor.CCD_start_xoffset * dpi) / dev->sensor.optical_res;
-
-  used_res = dev->current_setup.xres;
   num_pixels = dev->current_setup.pixels;
 
   total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */

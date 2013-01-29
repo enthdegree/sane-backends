@@ -650,11 +650,7 @@ static
 		      unsigned int depth,
 		      unsigned int channels,
 		      int color_filter, unsigned int flags);
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
-gl124_bulk_write_register (Genesys_Device * dev, Genesys_Register_Set * reg, size_t elems);
+
 #ifndef UNIT_TESTING
 static
 #endif

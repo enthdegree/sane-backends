@@ -754,7 +754,7 @@ gl846_init_motor_regs_scan (Genesys_Device * dev,
   Genesys_Register_Set *r;
   uint32_t z1, z2;
   unsigned int min_restep = 0x20;
-  uint8_t val, effective;
+  uint8_t val;
   int fast_step_type;
   unsigned int ccdlmt,tgtime;
 

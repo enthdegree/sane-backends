@@ -961,8 +961,6 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
 {
   SANE_Status status;
   int use_fast_fed, coeff;
-  unsigned int fast_time;
-  unsigned int slow_time;
   unsigned int lincnt;
   uint16_t scan_table[1024];
   uint16_t fast_table[1024];
@@ -1011,15 +1009,15 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
     r->value |= REG02_ACDCDIS;
 
   /* scan and backtracking slope table */
-  slow_time=sanei_genesys_slope_table(scan_table,
-                                      &scan_steps,
-                                      scan_yres,
-                                      exposure,
-                                      dev->motor.base_ydpi,
-                                      scan_step_type,
-                                      factor,
-                                      dev->model->motor_type,
-                                      gl843_motors);
+  sanei_genesys_slope_table(scan_table,
+                            &scan_steps,
+                            scan_yres,
+                            exposure,
+                            dev->motor.base_ydpi,
+                            scan_step_type,
+                            factor,
+                            dev->model->motor_type,
+                            gl843_motors);
   RIE(gl843_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps*factor));
   RIE(gl843_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps*factor));
 
@@ -1037,15 +1035,15 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
     {
       fast_step_type=scan_step_type;
     }
-  fast_time=sanei_genesys_slope_table(fast_table,
-                                      &fast_steps,
-                                      sanei_genesys_get_lowest_ydpi(dev),
-                                      exposure,
-                                      dev->motor.base_ydpi,
-                                      fast_step_type,
-                                      factor,
-                                      dev->model->motor_type,
-                                      gl843_motors);
+  sanei_genesys_slope_table(fast_table,
+                            &fast_steps,
+                            sanei_genesys_get_lowest_ydpi(dev),
+                            exposure,
+                            dev->motor.base_ydpi,
+                            fast_step_type,
+                            factor,
+                            dev->model->motor_type,
+                            gl843_motors);
   RIE(gl843_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps*factor));
   RIE(gl843_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps*factor));
   RIE(gl843_send_slope_table (dev, HOME_TABLE, fast_table, fast_steps*factor));
@@ -1730,7 +1728,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
   int exposure;
   int stagger;
 
-  int scan_step_type = 1;
   int max_shift;
 
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
@@ -1826,9 +1823,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
 
   /* exposure */
   exposure = gl843_compute_exposure (dev, used_res, oflags);
-
-  /* scan_step_type */
-  scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, exposure);
   DBG (DBG_info, "%s : exposure=%d pixels\n", __FUNCTION__, exposure);
 
   /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/

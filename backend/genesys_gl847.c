@@ -776,72 +776,6 @@ gl847_set_fe (Genesys_Device * dev, uint8_t set)
   return SANE_STATUS_UNSUPPORTED;
 }
 
-/** @brief setup motor for off mode
- * 
- */
-static SANE_Status
-gl847_init_motor_regs_off (Genesys_Register_Set * reg, unsigned int scan_lines)
-{
-  unsigned int feedl;
-  Genesys_Register_Set *r;
-
-  DBG (DBG_proc, "gl847_init_motor_regs_off : scan_lines=%d\n", scan_lines);
-
-  feedl = 2;
-
-  r = sanei_genesys_get_address (reg, 0x3d);
-  r->value = (feedl >> 16) & 0xf;
-  r = sanei_genesys_get_address (reg, 0x3e);
-  r->value = (feedl >> 8) & 0xff;
-  r = sanei_genesys_get_address (reg, 0x3f);
-  r->value = feedl & 0xff;
-  DBG (DBG_io ,"%s: feedl=%d\n",__FUNCTION__,feedl);
-
-  r = sanei_genesys_get_address (reg, 0x25);
-  r->value = (scan_lines >> 16) & 0xf;
-  r = sanei_genesys_get_address (reg, 0x26);
-  r->value = (scan_lines >> 8) & 0xff;
-  r = sanei_genesys_get_address (reg, 0x27);
-  r->value = scan_lines & 0xff;
-
-  r = sanei_genesys_get_address (reg, REG02);
-  r->value &= ~0x01;		/*LONGCURV OFF */
-  r->value &= ~0x80;		/*NOT_HOME OFF */
-
-  r->value &= ~0x10;
-
-  r->value &= ~0x06;
-
-  r->value &= ~0x08;
-
-  r->value &= ~0x20;
-
-  r->value &= ~0x40;
-
-  r = sanei_genesys_get_address (reg, REG67);
-  r->value = REG67_MTRPWM;
-
-  r = sanei_genesys_get_address (reg, REG68);
-  r->value = REG68_FASTPWM;
-
-  r = sanei_genesys_get_address (reg, 0x21);
-  r->value = 1;
-
-  r = sanei_genesys_get_address (reg, 0x24);
-  r->value = 1;
-
-  r = sanei_genesys_get_address (reg, 0x69);
-  r->value = 1;
-
-  r = sanei_genesys_get_address (reg, 0x6a);
-  r->value = 1;
-
-  r = sanei_genesys_get_address (reg, 0x5f);
-  r->value = 1;
-
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
-}
 
 /** @brief set up motor related register for scan
  */
@@ -859,8 +793,6 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
 {
   SANE_Status status;
   int use_fast_fed;
-  unsigned int fast_time;
-  unsigned int slow_time;
   unsigned int fast_dpi;
   uint16_t scan_table[SLOPE_TABLE_SIZE];
   uint16_t fast_table[SLOPE_TABLE_SIZE];
@@ -917,15 +849,15 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
     }
 
   /* scan and backtracking slope table */
-  slow_time=sanei_genesys_slope_table(scan_table,
-                                      &scan_steps,
-                                      scan_yres,
-                                      scan_exposure_time,
-                                      dev->motor.base_ydpi,
-                                      scan_step_type,
-                                      factor,
-                                      dev->model->motor_type,
-                                      gl847_motors);
+  sanei_genesys_slope_table(scan_table,
+                            &scan_steps,
+                            scan_yres,
+                            scan_exposure_time,
+                            dev->motor.base_ydpi,
+                            scan_step_type,
+                            factor,
+                            dev->model->motor_type,
+                            gl847_motors);
   RIE(gl847_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps*factor));
   RIE(gl847_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps*factor));
 
@@ -937,15 +869,15 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
       fast_step_type=2;
     }
 
-  fast_time=sanei_genesys_slope_table(fast_table,
-                                      &fast_steps,
-                                      fast_dpi,
-                                      scan_exposure_time,
-                                      dev->motor.base_ydpi,
-                                      fast_step_type,
-                                      factor,
-                                      dev->model->motor_type,
-                                      gl847_motors);
+  sanei_genesys_slope_table(fast_table,
+                            &fast_steps,
+                            fast_dpi,
+                            scan_exposure_time,
+                            dev->motor.base_ydpi,
+                            fast_step_type,
+                            factor,
+                            dev->model->motor_type,
+                            gl847_motors);
 
   /* manual override of high start value */
   fast_table[0]=fast_table[1];
@@ -1070,19 +1002,6 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-gl847_init_optical_regs_off (Genesys_Register_Set * reg)
-{
-  Genesys_Register_Set *r;
-
-  DBGSTART;
-
-  r = sanei_genesys_get_address (reg, REG01);
-  r->value &= ~REG01_SCAN;
-
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
-}
 
 /** @brief set up registers related to sensor
  * Set up the following registers

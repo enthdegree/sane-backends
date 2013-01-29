@@ -476,19 +476,6 @@ enum
 
 #define SETREG(adr,val) {dev->reg[reg_##adr].address=adr;dev->reg[reg_##adr].value=val;}
 
-/**
- * Write to many GL847 registers at once
- * Note: sequential call to write register, no effective
- * bulk write implemented.
- * @param dev device to write to
- * @param reg pointer to an array of registers
- * @param elems size of the array
- */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl847_bulk_write_register (Genesys_Device * dev, Genesys_Register_Set * reg, size_t elems);
-
 /** set up registers for an actual scan
  *
  * this function sets up the scanner to scan in normal or single line mode

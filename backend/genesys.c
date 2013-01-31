@@ -55,10 +55,10 @@
 */
 
 /*
- * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL847/GL124 based scanners
+ * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL846/GL847/GL124 based scanners
  */
 
-#define BUILD 2407
+#define BUILD 2408
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -5890,6 +5890,20 @@ init_options (Genesys_Scanner * s)
     s->opt[OPT_POWER_SW].cap = SANE_CAP_INACTIVE;
   s->val[OPT_POWER_SW].b = 0;
   s->last_val[OPT_POWER_SW].b = 0;
+  
+  /* extra button */
+  s->opt[OPT_EXTRA_SW].name = "extra";
+  s->opt[OPT_EXTRA_SW].title = SANE_I18N ("Extra button");
+  s->opt[OPT_EXTRA_SW].desc = SANE_I18N ("Extra button");
+  s->opt[OPT_EXTRA_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_EXTRA_SW].unit = SANE_UNIT_NONE;
+  if (model->buttons & GENESYS_HAS_EXTRA_SW)
+    s->opt[OPT_EXTRA_SW].cap =
+      SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_EXTRA_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_EXTRA_SW].b = 0;
+  s->last_val[OPT_EXTRA_SW].b = 0;
 
   /* calibration needed */
   s->opt[OPT_NEED_CALIBRATION_SW].name = "need-calibration";
@@ -7004,6 +7018,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_PAGE_LOADED_SW:
     case OPT_OCR_SW:
     case OPT_POWER_SW:
+    case OPT_EXTRA_SW:
       RIE (s->dev->model->cmd_set->update_hardware_sensors (s));
       *(SANE_Bool *) val = s->val[option].b;
       s->last_val[option].b = *(SANE_Bool *) val;

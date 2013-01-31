@@ -169,6 +169,12 @@
 :status :good
 :comment "GL847 based, resolution from 75 to 4800 dpi"
 
+:model "Canon Image Formula 101"
+:interface "USB"
+:usbid "0x1083" "0x162e"
+:status :unsupported
+:comment "GL846 based, work in progress"
+
 ; -----------------------------------------------------------------------------
 
 :mfg "Visioneer"

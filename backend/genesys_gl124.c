@@ -3711,6 +3711,8 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
     }
   else
     { /* LiDE 210 case */
+      if (s->val[OPT_EXTRA_SW].b == s->last_val[OPT_EXTRA_SW].b)
+        s->val[OPT_EXTRA_SW].b = (val & 0x01) == 0;
       if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
         s->val[OPT_SCAN_SW].b = (val & 0x02) == 0;
       if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)

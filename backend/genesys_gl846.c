@@ -2873,6 +2873,16 @@ gl846_boot (Genesys_Device * dev, SANE_Bool cold)
       RIE (sanei_genesys_write_register (dev, 0x0e, 0x01));
       RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
     }
+  
+  if(dev->usb_mode == 1)
+    {
+      val = 0x14;
+    }
+  else
+    {
+      val = 0x11;
+    }
+  RIE (sanei_genesys_write_0x8c (dev, 0x0f, val));
 
   /* test CHKVER */
   RIE (sanei_genesys_read_register (dev, REG40, &val));
@@ -2901,7 +2911,7 @@ gl846_boot (Genesys_Device * dev, SANE_Bool cold)
       RIE (sanei_genesys_write_register (dev, 0x08, dev->reg[reg_0x08].value));
     }
 
-  /* set up end access */
+  /* set up clocks */
   RIE (sanei_genesys_write_0x8c (dev, 0x10, 0x0e));
   RIE (sanei_genesys_write_0x8c (dev, 0x13, 0x0e));
 

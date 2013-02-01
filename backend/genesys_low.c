@@ -336,7 +336,9 @@ sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
 }
 
 /** 
- * write command to 0x8c endpoint
+ * @brief write command to 0x8c endpoint
+ * Write a value to 0x8c end point (end access), for USB firmware related operations
+ * Known values are 0x0f, 0x11 for USB 2.0 data transfer and 0x0f,0x14 for USB1.1
  * @param dev device to write to
  * @param index index of the command
  * @param val value to write

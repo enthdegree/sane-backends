@@ -55,33 +55,6 @@
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
-/**
- *
- */
-static SANE_Status
-write_end_access (Genesys_Device * dev, uint8_t index, uint8_t val)
-{
-  SANE_Status status;
-
-  DBG (DBG_io, "write_end_access: 0x%02x,0x%02x\n", index, val);
-
-#ifdef UNIT_TESTING
-  if(dev->usb_mode<0)
-    {
-      return SANE_STATUS_GOOD;
-    }
-#endif
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_BUF_ENDACCESS, index, 1, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "write_end_access: failed %s\n", sane_strstatus (status));
-    }
-  return status;
-}
 
 /**
  * Write bulk data (e.g. gamma or shading data) */
@@ -841,7 +814,7 @@ gl843_send_slope_table (Genesys_Device * dev, int table_nr,
 
 
   /* slope table addresses are fixed : 0x4000,  0x4800,  0x5000,  0x5800,  0x6000 */
-  /* XXX STEF XXX USB 1.1 ? write_end_access (dev, 0x0f, 0x14); */
+  /* XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14); */
   status = write_data (dev, 0x4000 + 0x800 * table_nr, steps * 2, table);
   if (status != SANE_STATUS_GOOD)
     {
@@ -3879,7 +3852,7 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
     {
       val = 0x11;
     }
-  RIE (write_end_access (dev, 0x0f, val));
+  RIE (sanei_genesys_write_0x8c (dev, 0x0f, val));
 
   /* test CHKVER */
   RIE (sanei_genesys_read_register (dev, REG40, &val));
@@ -3905,7 +3878,7 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
   RIE (sanei_genesys_write_register (dev, REG0B, val));
   dev->reg[reg_0x0b].value = val;
   /* URB    14  control  0x40 0x0c 0x8c 0x10 len     1 wrote 0xb4 */
-  RIE (write_end_access (dev, 0x10, 0xb4));
+  RIE (sanei_genesys_write_0x8c (dev, 0x10, 0xb4));
 
   /* CLKSET */
   val = (dev->reg[reg_0x0b].value & ~REG0B_CLKSET) | REG0B_48MHZ;

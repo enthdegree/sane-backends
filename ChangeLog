@@ -1,3 +1,7 @@
+2013-02-06 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c: fixed button support for Canon Pixma MG6200
+	by Matthias Thon.
+
 2013-02-01 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.c backend/genesys_gl843.c
 	backend/genesys_gl846.c: minor usb firmware setup changes

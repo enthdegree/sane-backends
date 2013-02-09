@@ -497,6 +497,7 @@ static int has_ccd_sensor (pixma_t * s)
   return ((s->cfg->cap & PIXMA_CAP_CCD) != 0);
 }
 
+#if 0
 static int is_color (pixma_t * s)
 {
   return (s->param->mode == PIXMA_SCAN_MODE_COLOR);
@@ -516,6 +517,7 @@ static int is_color_all (pixma_t * s)
 {
   return (is_color (s) || is_color_48 (s) || is_color_negative (s));
 }
+#endif
 
 static int is_gray (pixma_t * s)
 {
@@ -1401,7 +1403,7 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   mp810_t *mp = (mp810_t *) s->subdriver;
   unsigned c, lines, i, line_size, n, m, cw, cx, reducelines;
   uint8_t *sptr, *dptr, *gptr, *cptr;
-  unsigned color_shift, stripe_shift, stripe_shift2, jumplines /*, height*/;
+  unsigned /*color_shift, stripe_shift, stripe_shift2,*/ jumplines /*, height*/;
   int test;
 
   /* For testers: */
@@ -1456,9 +1458,9 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   /* PDBG (pixma_dbg (4, "*post_process_image_data***** mp->color_shift = %u, mp->stripe_shift = %u, , mp->stripe_shift2 = %u ***** \n",
                mp->color_shift, mp->stripe_shift, mp->stripe_shift2)); */
 
-  color_shift = mp->color_shift;
-  stripe_shift = mp->stripe_shift;
-  stripe_shift2 = mp->stripe_shift2;
+  /*color_shift = mp->color_shift;*/
+  /*stripe_shift = mp->stripe_shift;*/
+  /*stripe_shift2 = mp->stripe_shift2;*/
   jumplines = mp->jumplines;
 
   /* height not needed here! */

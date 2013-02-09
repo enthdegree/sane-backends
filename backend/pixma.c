@@ -1673,7 +1673,7 @@ type int resolution
 
 type string mode[30]
   constraint @string_list = ss->mode_list
-  default @s = SANE_I18N(ss->mode_list[0])
+  default @s = SANE_VALUE_SCAN_MODE_COLOR
   title @SANE_TITLE_SCAN_MODE
   desc  @SANE_DESC_SCAN_MODE
   cap soft_select soft_detect automatic

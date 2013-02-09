@@ -881,7 +881,7 @@ mp750_finish_scan (pixma_t * s)
     case state_scanning:
     case state_warmup:
       error = abort_session (s);
-      if (abort_session (s) == PIXMA_ECANCELED)
+      if (error == PIXMA_ECANCELED)
 	read_error_info (s, NULL, 0);
       /* fall through */
     case state_finished:

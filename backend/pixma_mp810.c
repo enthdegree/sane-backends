@@ -1401,7 +1401,7 @@ pack_48_24_bpc (uint8_t * sptr, unsigned n)
 static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 {
   mp810_t *mp = (mp810_t *) s->subdriver;
-  unsigned c, lines, i, line_size, n, m, cw, cx, reducelines;
+  unsigned c, lines, line_size, n, m, cw, cx, reducelines;
   uint8_t *sptr, *dptr, *gptr, *cptr;
   unsigned /*color_shift, stripe_shift, stripe_shift2,*/ jumplines /*, height*/;
   int test;
@@ -1493,6 +1493,8 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   /* PDBG (pixma_dbg (4, "*post_process_image_data: lines %u, reducelines %u \n", lines, reducelines)); */
   if (lines > reducelines)
   { /* (line - reducelines) of image lines can be converted */
+    unsigned i;
+
     lines -= reducelines;
 
     for (i = 0; i < lines; i++, sptr += line_size)
@@ -1697,7 +1699,7 @@ static int mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
     case PIXMA_SCAN_MODE_GRAY:
     case PIXMA_SCAN_MODE_NEGATIVE_GRAY:
       sp->channels = 1;
-      /* no break */
+      /* fall through */
     case PIXMA_SCAN_MODE_COLOR:
     case PIXMA_SCAN_MODE_NEGATIVE_COLOR:
       sp->depth = 8;
@@ -1899,7 +1901,7 @@ static int mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
 
 static int mp810_scan (pixma_t * s)
 {
-  int error = 0, tmo, i;
+  int error = 0, tmo;
   mp810_t *mp = (mp810_t *) s->subdriver;
 
   if (mp->state != state_idle)
@@ -1942,7 +1944,7 @@ static int mp810_scan (pixma_t * s)
       case PIXMA_ECANCELED:
       case PIXMA_EBUSY:
         PDBG(pixma_dbg (2, "cmd e920 or d520 returned %s\n", pixma_strerror (error)));
-        /* no break */
+        /* fall through */
       case 0:
         query_status (s);
         break;
@@ -1992,6 +1994,7 @@ static int mp810_scan (pixma_t * s)
       error = init_ccd_lamp_3 (s);
     if ((error >= 0) && !is_scanning_from_tpu (s))
     {
+      int i;
       /* FIXME: 48 bit flatbed scans don't need gamma tables
        *        the code below doesn't run */
       /*if (is_color_48 (s) || is_gray_16 (s))
@@ -2118,7 +2121,7 @@ static void mp810_finish_scan (pixma_t * s)
   {
     case state_transfering:
       drain_bulk_in (s);
-      /* no break */
+      /* fall through */
     case state_scanning:
     case state_warmup:
     case state_finished:
@@ -2142,7 +2145,7 @@ static void mp810_finish_scan (pixma_t * s)
         }
       }
       mp->state = state_idle;
-      /* no break */
+      /* fall through */
     case state_idle:
       break;
   }

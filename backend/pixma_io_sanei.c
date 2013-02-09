@@ -164,6 +164,7 @@ attach_bjnp (SANE_String_Const devname,  SANE_String_Const makemodel,
 {
   scanner_info_t *si;
   const pixma_config_t *cfg;
+  SANE_Status error;
 
   si = (scanner_info_t *) calloc (1, sizeof (*si));
   if (!si)
@@ -172,14 +173,18 @@ attach_bjnp (SANE_String_Const devname,  SANE_String_Const makemodel,
   if (!si->devname)
     return SANE_STATUS_NO_MEM;
   if ((cfg = lookup_scanner(makemodel, pixma_devices)) == (struct pixma_config_t *)NULL)
-    return SANE_STATUS_INVAL;
-  si->cfg = cfg;
-  sprintf(si->serial, "%s_%s", cfg->model, serial);
-  si -> interface = INT_BJNP;
-  si->next = first_scanner;
-  first_scanner = si;
-  nscanners++;
-  return SANE_STATUS_GOOD;
+    error = SANE_STATUS_INVAL;
+  else
+    {
+      si->cfg = cfg;
+      sprintf(si->serial, "%s_%s", cfg->model, serial);
+      si -> interface = INT_BJNP;
+      si->next = first_scanner;
+      first_scanner = si;
+      nscanners++;
+      error = SANE_STATUS_GOOD;
+    }
+  return error;
 }
 
 static void
@@ -232,9 +237,8 @@ read_serial_number (scanner_info_t * si)
 {
   uint8_t unicode[2 * (PIXMA_MAX_ID_LEN - 9) + 2];
   uint8_t ddesc[18];
-  int i, len, iSerialNumber;
+  int iSerialNumber;
   SANE_Int usb;
-  SANE_Status status;
   char *serial = si->serial;
 
   u16tohex (si->cfg->vid, serial);
@@ -248,6 +252,9 @@ read_serial_number (scanner_info_t * si)
   iSerialNumber = ddesc[16];
   if (iSerialNumber != 0)
     {
+      int i, len;
+      SANE_Status status;
+
       /*int iSerialNumber = ddesc[16];*/
       /* Read the first language code. Assumed that there is at least one. */
       if (get_string_descriptor (usb, 0, 0, 4, unicode) != SANE_STATUS_GOOD)

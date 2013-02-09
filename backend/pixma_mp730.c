@@ -401,7 +401,7 @@ read_error_info (pixma_t * s, void *buf, unsigned size)
 static int
 step1 (pixma_t * s)
 {
-  int error, tmo;
+  int error;
 
   error = query_status (s);
   if (error < 0)
@@ -420,7 +420,7 @@ step1 (pixma_t * s)
           /* MF57x0: Wait 10 sec before starting for 1st page only */
             if (s->param->adf_pageid == 0)
 	      {
-                tmo = 10;  /* like Windows driver, 10 sec CCD calibration ? */
+                int tmo = 10;  /* like Windows driver, 10 sec CCD calibration ? */
                 while (--tmo >= 0)
                   {
                     error = handle_interrupt (s, 1000);		\

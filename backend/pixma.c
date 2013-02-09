@@ -42,7 +42,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
  */
-# include "../include/sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <string.h>
@@ -370,7 +370,7 @@ create_mode_list (pixma_sane_t * ss, SANE_Bool tpu)
       ss->mode_map[i] = PIXMA_SCAN_MODE_GRAY;
       i++;
     }
-  if (tpu && cfg->cap & PIXMA_CAP_NEGATIVE)
+  if (tpu && (cfg->cap & PIXMA_CAP_NEGATIVE))
     {
       ss->mode_list[i] = SANE_I18N ("Negative color");
       ss->mode_map[i] = PIXMA_SCAN_MODE_NEGATIVE_COLOR;
@@ -382,7 +382,7 @@ create_mode_list (pixma_sane_t * ss, SANE_Bool tpu)
           i++;
         }
     }
-  if (!tpu && cfg->cap & PIXMA_CAP_48BIT)
+  if (!tpu && (cfg->cap & PIXMA_CAP_48BIT))
     {
       ss->mode_list[i] = SANE_I18N ("48 bits color");
       ss->mode_map[i] = PIXMA_SCAN_MODE_COLOR_48;
@@ -394,7 +394,7 @@ create_mode_list (pixma_sane_t * ss, SANE_Bool tpu)
           i++;
         }
     }
-  if (!tpu && cfg->cap & PIXMA_CAP_LINEART)
+  if (!tpu && (cfg->cap & PIXMA_CAP_LINEART))
     {
       ss->mode_list[i] = SANE_VALUE_SCAN_MODE_LINEART;
       ss->mode_map[i] = PIXMA_SCAN_MODE_LINEART;
@@ -561,7 +561,6 @@ control_string_option (pixma_sane_t * ss, SANE_Int n, SANE_Action a, void *v,
   option_descriptor_t *opt = &(OPT_IN_CTX[n]);
   const SANE_String_Const *slist = opt->sod.constraint.string_list;
   SANE_String str = (SANE_String) v;
-  int i;
 
   if (opt->sod.constraint_type == SANE_CONSTRAINT_NONE)
     {
@@ -582,6 +581,8 @@ control_string_option (pixma_sane_t * ss, SANE_Int n, SANE_Action a, void *v,
     }
   else
     {
+      int i;
+
       switch (a)
         {
         case SANE_ACTION_GET_VALUE:
@@ -712,7 +713,7 @@ control_option (pixma_sane_t * ss, SANE_Int n,
         }
       break;
     case opt_mode:
-      if (cfg->cap & (PIXMA_CAP_LINEART)
+      if ((cfg->cap & (PIXMA_CAP_LINEART))
           && (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO))
         { /* new mode selected: Color, Gray, ... */
           /* PDBG (pixma_dbg (4, "*control_option***** mode = %u *\n",
@@ -738,7 +739,7 @@ control_option (pixma_sane_t * ss, SANE_Int n,
         }
       break;
     case opt_source:
-      if (cfg->cap & (PIXMA_CAP_ADF|PIXMA_CAP_ADFDUP|PIXMA_CAP_TPU)
+      if ((cfg->cap & (PIXMA_CAP_ADF|PIXMA_CAP_ADFDUP|PIXMA_CAP_TPU))
           && (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO))
         { /* new source selected: flatbed, ADF, TPU, ... */
           /* recreate dynamic lists */

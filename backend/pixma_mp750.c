@@ -324,8 +324,8 @@ read_image_block (pixma_t * s, uint8_t * data)
     return count;
   if (count == IMAGE_BLOCK_SIZE)
     {
-      int error;
-      if ((error = pixma_read (s->io, &temp, 0)) < 0)
+      int error = pixma_read (s->io, &temp, 0);
+      if (error < 0)
         {
           PDBG (pixma_dbg
           (1, "WARNING: reading zero-length packet failed %d\n", error));
@@ -488,6 +488,7 @@ calc_component_shifting (pixma_t * s)
 	  return s->param->ydpi / 75;
 	}
       /* never reached */
+      break;
 
     case MP750_PID:
     case MP780_PID:

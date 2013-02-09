@@ -1065,7 +1065,7 @@ static unsigned
 post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned c, lines, i, line_size, n, m, cw, cx;
+  unsigned c, lines, line_size, n, m, cw, cx;
   uint8_t *sptr, *dptr, *gptr, *cptr;
 
   c = ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels)
@@ -1091,6 +1091,8 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 	           lines, 2 * mp->color_shift + mp->stripe_shift));*/
   if (lines > 2 * mp->color_shift + mp->stripe_shift)
     {
+      unsigned i;
+
       lines -= 2 * mp->color_shift + mp->stripe_shift;
       for (i = 0; i < lines; i++, sptr += line_size)
         {
@@ -1201,7 +1203,6 @@ static int
 mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned w_max;
 
   /* PDBG (pixma_dbg (4, "*mp150_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
                    sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx)); */
@@ -1229,6 +1230,8 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   /* for software lineart w must be a multiple of 8 */
   if (sp->software_lineart == 1 && sp->w % 8)
     {
+      unsigned w_max;
+
       sp->w += 8 - (sp->w % 8);
 
       /* do not exceed the scanner capability */
@@ -1313,7 +1316,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
 static int
 mp150_scan (pixma_t * s)
 {
-  int error = 0, tmo, i;
+  int error = 0, tmo;
   mp150_t *mp = (mp150_t *) s->subdriver;
 
   if (mp->state != state_idle)
@@ -1409,8 +1412,12 @@ mp150_scan (pixma_t * s)
       if ((error >= 0) && (mp->generation >= 3) && has_ccd_sensor (s))
         error = init_ccd_lamp_3 (s);
       if ((error >= 0) && !is_scanning_from_tpu (s))
-        for (i = (mp->generation >= 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
-          error = send_gamma_table (s);
+        {
+          int i;
+
+          for (i = (mp->generation >= 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
+            error = send_gamma_table (s);
+        }
       else if (error >= 0)  /* in TPU mode, for gen 1, 2, and 3 */
         error = send_set_tpu_info (s);
     }

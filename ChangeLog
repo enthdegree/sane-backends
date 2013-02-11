@@ -1,3 +1,8 @@
+2013-02-11 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_common.c, backend/pixma_imageclass.c,
+	doc/descriptions/pixma.desc: fixed adf paper empty for Canon i-SENSYS
+	MF4550d. Bug #313674.
+
 2013-02-11 Stéphane Voltz <stef.dev@free.fr>
 	* tools/sane-desc.c: fix minor memleaks and whitespace at end of line.
 

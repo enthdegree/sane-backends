@@ -5178,6 +5178,12 @@ gl841_init (Genesys_Device * dev)
   /* ASIC reset */
   RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
 
+  /* firmware command, possibly related to USB transfer mode */
+  if (dev->model->gpo_type == GPO_CANONLIDE35) 
+    {
+      RIE (sanei_genesys_write_0x8c (dev, 0x10, 0xa4));
+    }
+
   /* Write initial registers */
   RIE (gl841_bulk_write_register
        (dev, dev->reg, GENESYS_GL841_MAX_REGS));

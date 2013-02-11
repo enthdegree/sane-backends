@@ -534,12 +534,20 @@ iclass_scan (pixma_t * s)
   mf->blk_len = 0;
 
   error = step1 (s);
-  if (error >= 0)
-    error = start_session (s);
-  if (error >= 0)
-    mf->state = state_scanning;
-  if (error >= 0)
-    error = select_source (s);
+  if (error >= 0 && (s->param->adf_pageid == 0 || mf->generation == 1))
+    { /* single sheet or first sheet from ADF */
+      PDBG (pixma_dbg (3, "*iclass_scan***** start scanning *****\n"));
+      error = start_session (s);
+      if (error >= 0)
+        mf->state = state_scanning;
+      if (error >= 0)
+        error = select_source (s);
+    }
+  else if (error >= 0)
+    { /* next sheet from ADF */
+      PDBG (pixma_dbg (3, "*iclass_scan***** scan next sheet from ADF  *****\n"));
+      mf->state = state_scanning;
+    }
   if (error >= 0)
     error = send_scan_param (s);
   if (error >= 0)
@@ -676,10 +684,17 @@ iclass_finish_scan (pixma_t * s)
           activate (s, 0);
           query_status (s);
         }
-      if (mf->last_block == 0x28 || ((s->cfg->pid==MF4410_PID || s->cfg->pid == MF4550_PID) && mf->last_block==0x38))
+      /* 0x38 = last block and ADF empty
+       * 0x28 = last block and Paper in ADF */
+      if (mf->last_block==0x38                                  /* ADF empty */
+          || (mf->generation == 1 && mf->last_block == 0x28))   /* generation 1 scanner or Paper in ADF */
 	{
+          PDBG (pixma_dbg (3, "*iclass_finish_scan***** abort session  *****\n"));
 	  abort_session (s);
 	}
+      else
+        PDBG (pixma_dbg (3, "*iclass_finish_scan***** wait for next page from ADF  *****\n"));
+
       mf->state = state_idle;
       /* fall through */
     case state_idle:

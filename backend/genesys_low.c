@@ -1079,7 +1079,7 @@ sanei_genesys_write_ahb (SANE_Int dn, int usb_mode, uint32_t addr, uint32_t size
   size_t written,blksize;
   SANE_Status status = SANE_STATUS_GOOD;
   int i;
-  char msg[60]="AHB=";
+  char msg[100]="AHB=";
 
   outdata[0] = addr & 0xff;
   outdata[1] = ((addr >> 8) & 0xff);
@@ -1094,7 +1094,7 @@ sanei_genesys_write_ahb (SANE_Int dn, int usb_mode, uint32_t addr, uint32_t size
     {
       for (i = 0; i < 8; i++)
 	{
-          sprintf (msg, "%s 0x%02x", msg, outdata[i]);
+          sprintf (msg+strlen(msg), " 0x%02x", outdata[i]);
 	}
       DBG (DBG_io, "%s: write(0x%08x,0x%08x)\n", __FUNCTION__, addr,size);
       DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
@@ -1188,18 +1188,18 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
   for (i = 0; i < 3; i++)
     {
       /* clear corresponding GMM_N bit */
-      RIE (sanei_genesys_read_register (dev, 0xbd, &val));
+      RIEF (sanei_genesys_read_register (dev, 0xbd, &val), gamma);
       val &= ~(0x01 << i);
-      RIE (sanei_genesys_write_register (dev, 0xbd, val));
+      RIEF (sanei_genesys_write_register (dev, 0xbd, val), gamma);
 
       /* clear corresponding GMM_F bit */
-      RIE (sanei_genesys_read_register (dev, 0xbe, &val));
+      RIEF (sanei_genesys_read_register (dev, 0xbe, &val), gamma);
       val &= ~(0x01 << i);
-      RIE (sanei_genesys_write_register (dev, 0xbe, val));
+      RIEF (sanei_genesys_write_register (dev, 0xbe, val), gamma);
 
       /* set GMM_Z */
-      RIE (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]));
-      RIE (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]));
+      RIEF (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]), gamma);
+      RIEF (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]), gamma);
 
       status = sanei_genesys_write_ahb (dev->dn, dev->usb_mode, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
@@ -1346,6 +1346,13 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
    * we are parking, so we wait.
    * gl847/gl124 need 2 reads for reliable results */
   status = sanei_genesys_get_status (dev, &val);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "%s: failed to read home sensor: %s\n", __FUNCTION__,
+	   sane_strstatus (status));
+      return status;
+    }
   usleep (10000);
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)

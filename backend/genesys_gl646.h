@@ -403,8 +403,8 @@ typedef struct
   /* uint8_t regs_0x10_0x15[6];*/
   uint8_t *regs_0x10_0x15; 	/**< per color exposure time for CIS scanners */
   SANE_Bool half_ccd;		/**> true if manual CCD/2 clock programming or real dpi is half dpiset */
-  uint8_t reg_0x18;		/**> content of register 18h */
-  uint8_t reg_0x1d;		/**> content of register 1dh */
+  uint8_t r18;			/**> content of register 18h */
+  uint8_t r1d;			/**> content of register 1dh */
 } Sensor_Master;
 
 /**

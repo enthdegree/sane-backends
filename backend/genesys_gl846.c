@@ -595,7 +595,7 @@ gl846_send_slope_table (Genesys_Device * dev, int table_nr,
       sprintf (msg, "write slope %d (%d)=", table_nr, steps);
       for (i = 0; i < steps; i++)
 	{
-	  sprintf (msg, "%s,%d", msg, slope_table[i]);
+	  sprintf (msg+strlen(msg), "%d", slope_table[i]);
 	}
       DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
     }
@@ -1547,7 +1547,7 @@ gl846_calculate_current_setup (Genesys_Device * dev)
   int exposure_time;
   int stagger;
 
-  int slope_dpi = 0;
+  int slope_dpi;
   int dummy = 0;
   int max_shift;
 
@@ -1964,7 +1964,6 @@ gl846_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_GOOD;
     }
 
-  memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL846_MAX_REGS * sizeof (Genesys_Register_Set));
   
   resolution=sanei_genesys_get_lowest_ydpi(dev);
@@ -2065,7 +2064,6 @@ gl846_search_start_position (Genesys_Device * dev)
 
   DBG (DBG_proc, "gl846_search_start_position\n");
 
-  memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg,
 	  GENESYS_GL846_MAX_REGS * sizeof (Genesys_Register_Set));
 
@@ -2077,6 +2075,14 @@ gl846_search_start_position (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl846_search_start_position: failed to set up registers: %s\n",
+	   sane_strstatus (status));
+      DBGCOMPLETED;
+      return status;
+    }
 
   /* send to scanner */
   status = dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL846_MAX_REGS);
@@ -2085,6 +2091,7 @@ gl846_search_start_position (Genesys_Device * dev)
       DBG (DBG_error,
 	   "gl846_search_start_position: failed to bulk write registers: %s\n",
 	   sane_strstatus (status));
+      DBGCOMPLETED;
       return status;
     }
 
@@ -2241,7 +2248,6 @@ gl846_feed (Genesys_Device * dev, unsigned int steps)
   DBG (DBG_io, "%s: steps=%d\n", __FUNCTION__, steps);
 
   /* prepare local registers */
-  memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL846_MAX_REGS * sizeof (Genesys_Register_Set));
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
@@ -2540,7 +2546,6 @@ gl846_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; 
-  endpixel*=2*2;
   pixels*=2*2;
 
   /* allocate temporary buffer */
@@ -2687,14 +2692,14 @@ gl846_led_calibration (Genesys_Device * dev)
       sanei_genesys_set_double(dev->calib_reg,REG_EXPB,exp[2]);
 
       /* write registers and scan data */
-      RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS));
+      RIEF (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS), line);
 
       DBG (DBG_info, "gl846_led_calibration: starting line reading\n");
-      RIE (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-      RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
+      RIEF (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE), line);
+      RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
 
       /* stop scanning */
-      RIE (gl846_stop_action (dev));
+      RIEF (gl846_stop_action (dev), line);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2765,7 +2770,7 @@ gl846_led_calibration (Genesys_Device * dev)
   /* go back home */
   if(move>20)
     {
-      RIE (gl846_slow_back_home (dev, SANE_TRUE));
+      status=gl846_slow_back_home (dev, SANE_TRUE);
     }
  
   DBGCOMPLETED;
@@ -3023,7 +3028,7 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
     }
   channels = 1;
   /* 10 MM */
-  lines = (10 * dpi) / MM_PER_INCH;
+  /* lines = (10 * dpi) / MM_PER_INCH; */
   /* shading calibation is done with dev->motor.base_ydpi */
   lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
   depth = 8;
@@ -3055,6 +3060,7 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 				 SCAN_FLAG_DISABLE_GAMMA);
   if (status != SANE_STATUS_GOOD)
     {
+      free(data);
       DBG (DBG_error,
 	   "gl846_search_strip: failed to setup for scan: %s\n",
 	   sane_strstatus (status));
@@ -3072,6 +3078,7 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   status = dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL846_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
+      free(data);
       DBG (DBG_error,
 	   "gl846_search_strip: Failed to bulk write registers: %s\n",
 	   sane_strstatus (status));
@@ -3116,7 +3123,7 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   if (DBG_LEVEL >= DBG_data)
     {
       sprintf (title, "search_strip_%s_%s%02d.pnm",
-	       black ? "black" : "white", forward ? "fwd" : "bwd", pass);
+	       black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
       sanei_genesys_write_pnm_file (title, data, depth, channels, pixels,
 				    lines);
     }
@@ -3172,7 +3179,7 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       if (DBG_LEVEL >= DBG_data)
 	{
 	  sprintf (title, "search_strip_%s_%s%02d.pnm",
-		   black ? "black" : "white", forward ? "fwd" : "bwd", pass);
+		   black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
 	  sanei_genesys_write_pnm_file (title, data, depth, channels,
 					pixels, lines);
 	}
@@ -3394,11 +3401,11 @@ gl846_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[1] = bottom;
   dev->frontend.offset[2] = bottom;
 
-  RIE (gl846_set_fe(dev, AFE_SET));
-  RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS));
+  RIEF2 (gl846_set_fe(dev, AFE_SET), first_line, second_line);
+  RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS), first_line, second_line);
   DBG (DBG_info, "gl846_offset_calibration: starting first line reading\n");
-  RIE (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-  RIE (sanei_genesys_read_data_from_scanner (dev, first_line, total_size));
+  RIEF2 (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
+  RIEF2 (sanei_genesys_read_data_from_scanner (dev, first_line, total_size), first_line, second_line);
   if (DBG_LEVEL >= DBG_data)
    {
       snprintf(title,20,"offset%03d.pnm",bottom);
@@ -3413,11 +3420,11 @@ gl846_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = top;
   dev->frontend.offset[1] = top;
   dev->frontend.offset[2] = top;
-  RIE (gl846_set_fe(dev, AFE_SET));
-  RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS));
+  RIEF2 (gl846_set_fe(dev, AFE_SET), first_line, second_line);
+  RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS), first_line, second_line);
   DBG (DBG_info, "gl846_offset_calibration: starting second line reading\n");
-  RIE (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-  RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
+  RIEF2 (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
+  RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
       
   topavg = dark_average (second_line, pixels, lines, channels, black_pixels);
   DBG (DBG_io2, "gl846_offset_calibration: top avg=%d\n", topavg);
@@ -3433,11 +3440,11 @@ gl846_offset_calibration (Genesys_Device * dev)
       dev->frontend.offset[2] = (top + bottom) / 2;
 
       /* scan with no move */
-      RIE(gl846_set_fe(dev, AFE_SET));
-      RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS));
+      RIEF2 (gl846_set_fe(dev, AFE_SET), first_line, second_line);
+      RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS), first_line, second_line);
       DBG (DBG_info, "gl846_offset_calibration: starting second line reading\n");
-      RIE (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-      RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
+      RIEF2 (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
+      RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3502,7 +3509,7 @@ gl846_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   if(dev->settings.xres<dev->sensor.optical_res)
     {
       coeff=0.9;
-      resolution=dev->sensor.optical_res/2;
+      /*resolution=dev->sensor.optical_res/2;*/
       resolution=dev->sensor.optical_res;
     }
   else
@@ -3548,9 +3555,9 @@ gl846_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   if (!line)
     return SANE_STATUS_NO_MEM;
 
-  RIE (gl846_set_fe(dev, AFE_SET));
-  RIE (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-  RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
+  RIEF (gl846_set_fe(dev, AFE_SET), line);
+  RIEF (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE), line);
+  RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file ("coarse.pnm", line, bpp, channels, pixels, lines);
@@ -3618,10 +3625,10 @@ gl846_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   RIE (gl846_stop_action (dev));
 
-  gl846_slow_back_home (dev, SANE_TRUE);
+  status=gl846_slow_back_home (dev, SANE_TRUE);
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 

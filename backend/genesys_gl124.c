@@ -742,7 +742,7 @@ gl124_send_slope_table (Genesys_Device * dev, int table_nr,
       sprintf (msg, "write slope %d (%d)=", table_nr, steps);
       for (i = 0; i < steps; i++)
 	{
-	  sprintf (msg, "%s,%d", msg, slope_table[i]);
+	  sprintf (msg+strlen(msg), ",%d", slope_table[i]);
 	}
       DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
     }
@@ -2170,7 +2170,6 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_GOOD;
     }
 
-  memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
   resolution=sanei_genesys_get_lowest_dpi(dev);
 
@@ -2276,7 +2275,6 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
   DBG (DBG_io, "%s: steps=%d\n", __FUNCTION__, steps);
 
   /* prepare local registers */
-  memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
@@ -2356,7 +2354,6 @@ gl124_search_start_position (Genesys_Device * dev)
 
   DBG (DBG_proc, "gl124_search_start_position\n");
 
-  memset (local_reg, 0, sizeof (local_reg));
   memcpy (local_reg, dev->reg,
 	  GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
 
@@ -2369,6 +2366,13 @@ gl124_search_start_position (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
 				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE);
+  if (status!=SANE_STATUS_GOOD) 
+    {
+      DBG (DBG_error,
+	   "%s: failed to init scan registers: %s\n", __FUNCTION__, 
+	   sane_strstatus (status));
+      return status;
+    }
 
   /* send to scanner */
   status = dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL124_MAX_REGS);
@@ -2896,11 +2900,11 @@ move_to_calibration_area (Genesys_Device * dev)
     return SANE_STATUS_NO_MEM;
 
   /* write registers and scan data */
-  RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS));
+  RIEF (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS), line);
 
   DBG (DBG_info, "%s: starting line reading\n", __FUNCTION__);
-  RIE (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-  RIE (sanei_genesys_read_data_from_scanner (dev, line, size));
+  RIEF (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), line);
+  RIEF (sanei_genesys_read_data_from_scanner (dev, line, size), line);
 
   /* stop scanning */
   RIE (gl124_stop_action (dev));
@@ -3000,14 +3004,14 @@ gl124_led_calibration (Genesys_Device * dev)
       sanei_genesys_set_triple(dev->calib_reg,REG_EXPB,exp[2]);
 
       /* write registers and scan data */
-      RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS));
+      RIEF (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS), line);
 
       DBG (DBG_info, "gl124_led_calibration: starting line reading\n");
-      RIE (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-      RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
+      RIEF (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), line);
+      RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
 
       /* stop scanning */
-      RIE (gl124_stop_action (dev));
+      RIEF (gl124_stop_action (dev), line);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3193,11 +3197,11 @@ gl124_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[1] = bottom;
   dev->frontend.offset[2] = bottom;
 
-  RIE (gl124_set_fe(dev, AFE_SET));
-  RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS));
+  RIEF2 (gl124_set_fe(dev, AFE_SET), first_line, second_line);
+  RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS), first_line, second_line);
   DBG (DBG_info, "gl124_offset_calibration: starting first line reading\n");
-  RIE (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-  RIE (sanei_genesys_read_data_from_scanner (dev, first_line, total_size));
+  RIEF2 (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
+  RIEF2 (sanei_genesys_read_data_from_scanner (dev, first_line, total_size), first_line, second_line);
   if (DBG_LEVEL >= DBG_data)
    {
       snprintf(title,20,"offset%03d.pnm",bottom);
@@ -3212,11 +3216,11 @@ gl124_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = top;
   dev->frontend.offset[1] = top;
   dev->frontend.offset[2] = top;
-  RIE (gl124_set_fe(dev, AFE_SET));
-  RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS));
+  RIEF2 (gl124_set_fe(dev, AFE_SET), first_line, second_line);
+  RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS), first_line, second_line);
   DBG (DBG_info, "gl124_offset_calibration: starting second line reading\n");
-  RIE (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-  RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
+  RIEF2 (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
+  RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
       
   topavg = dark_average (second_line, pixels, lines, channels, black_pixels);
   DBG (DBG_io2, "gl124_offset_calibration: top avg=%d\n", topavg);
@@ -3232,11 +3236,11 @@ gl124_offset_calibration (Genesys_Device * dev)
       dev->frontend.offset[2] = (top + bottom) / 2;
 
       /* scan with no move */
-      RIE(gl124_set_fe(dev, AFE_SET));
-      RIE (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS));
+      RIEF2 (gl124_set_fe(dev, AFE_SET), first_line, second_line);
+      RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS), first_line, second_line);
       DBG (DBG_info, "gl124_offset_calibration: starting second line reading\n");
-      RIE (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-      RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
+      RIEF2 (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
+      RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3311,7 +3315,7 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   if(dev->settings.xres<dev->sensor.optical_res)
     {
       coeff=0.9;
-      resolution=dev->sensor.optical_res/2;
+      /*resolution=dev->sensor.optical_res/2;*/
       resolution=dev->sensor.optical_res;
     }
   else
@@ -3357,9 +3361,9 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   if (!line)
     return SANE_STATUS_NO_MEM;
 
-  RIE (gl124_set_fe(dev, AFE_SET));
-  RIE (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-  RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
+  RIEF (gl124_set_fe(dev, AFE_SET), line);
+  RIEF (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), line);
+  RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file ("coarse.pnm", line, bpp, channels, pixels, lines);
@@ -3427,10 +3431,10 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   RIE (gl124_stop_action (dev));
 
-  gl124_slow_back_home (dev, SANE_TRUE);
+  status = gl124_slow_back_home (dev, SANE_TRUE);
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 /*

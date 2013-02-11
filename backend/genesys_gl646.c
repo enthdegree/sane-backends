@@ -1002,10 +1002,10 @@ gl646_setup_registers (Genesys_Device * dev,
     }
 
   /* cktoggle, ckdelay and cksel at once, cktdelay=2 => half_ccd for md5345 */
-  regs[reg_0x18].value = sensor->reg_0x18;
+  regs[reg_0x18].value = sensor->r18;
 
   /* manual CCD/2 clock programming => half_ccd for hp2300 */
-  regs[reg_0x1d].value = sensor->reg_0x1d;
+  regs[reg_0x1d].value = sensor->r1d;
 
   /* HP2400 1200dpi mode tuning */
 
@@ -3069,6 +3069,14 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   settings.dynamic_lineart = SANE_FALSE;
 
   status = setup_for_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_TRUE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "%s: failed to setup for scan: %s\n", __FUNCTION__, 
+	   sane_strstatus (status));
+      DBGCOMPLETED;
+      return status;
+    }
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
   dev->reg[reg_0x02].value |= REG02_MTRREV;
@@ -3080,8 +3088,9 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl646_slow_back_home: failed to set frontend: %s\n",
+	   "%s: failed to set frontend: %s\n", __FUNCTION__, 
 	   sane_strstatus (status));
+      DBGCOMPLETED;
       return status;
     }
 
@@ -3220,6 +3229,8 @@ gl646_search_start_position (Genesys_Device * dev)
     {
       DBG (DBG_error, "gl646_search_start_position: simple_scan failed\n");
       free (data);
+      DBGCOMPLETED;
+      return status;
     }
 
   /* now search reference points on the data */
@@ -3230,15 +3241,13 @@ gl646_search_start_position (Genesys_Device * dev)
 					  settings.lines);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG (DBG_error,
 	   "gl646_search_start_position: failed to set search reference point: %s\n",
 	   sane_strstatus (status));
-      return status;
     }
 
   free (data);
-  DBG (DBG_proc, "gl646_search_start_position: end\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -3786,8 +3795,9 @@ gl646_led_calibration (Genesys_Device * dev)
 	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
       if (status != SANE_STATUS_GOOD)
 	{
+          free(line);
 	  DBG (DBG_error,
-	       "gl646_led_calibration: Failed to setup scan: %s\n",
+	       "gl646_led_calibration: failed to setup scan: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -3861,7 +3871,7 @@ gl646_led_calibration (Genesys_Device * dev)
   /* cleanup before return */
   free (line);
 
-  DBG (DBG_proc, "gl646_led_calibration: completed\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -3963,13 +3973,14 @@ ad_fe_offset_calibration (Genesys_Device * dev)
 	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
       if (status != SANE_STATUS_GOOD)
 	{
+          free(line);
 	  DBG (DBG_error,
 	       "ad_fe_offset_calibration: failed to scan first line\n");
 	  return status;
 	}
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "offset%03d.pnm", bottom);
+	  sprintf (title, "offset%03d.pnm", (int)bottom);
 	  sanei_genesys_write_pnm_file (title, line, 8, channels,
 					settings.pixels, settings.lines);
 	}
@@ -4090,6 +4101,7 @@ gl646_offset_calibration (Genesys_Device * dev)
 		 &first_line);
   if (status != SANE_STATUS_GOOD)
     {
+      free(first_line);
       DBG (DBG_error,
 	   "gl646_offset_calibration: failed to scan first line\n");
       return status;
@@ -4116,6 +4128,7 @@ gl646_offset_calibration (Genesys_Device * dev)
 		 &second_line);
   if (status != SANE_STATUS_GOOD)
     {
+      free(second_line);
       DBG (DBG_error,
 	   "gl646_offset_calibration: failed to scan first line\n");
       return status;
@@ -4149,6 +4162,7 @@ gl646_offset_calibration (Genesys_Device * dev)
 		     &second_line);
       if (status != SANE_STATUS_GOOD)
 	{
+          free(second_line);
 	  DBG (DBG_error,
 	       "gl646_offset_calibration: failed to scan first line\n");
 	  return status;
@@ -4189,6 +4203,7 @@ gl646_offset_calibration (Genesys_Device * dev)
 		     &second_line);
       if (status != SANE_STATUS_GOOD)
 	{
+          free(second_line);
 	  DBG (DBG_error,
 	       "gl646_offset_calibration: failed to scan final line\n");
 	  return status;
@@ -4262,6 +4277,7 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
       if (status != SANE_STATUS_GOOD)
 	{
+          free(line);
 	  DBG (DBG_error,
 	       "ad_fe_coarse_gain_calibration: failed to scan first line\n");
 	  return status;
@@ -4270,7 +4286,7 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "alternative_coarse%02d.pnm", pass);
+	  sprintf (title, "alternative_coarse%02d.pnm", (int)pass);
 	  sanei_genesys_write_pnm_file (title, line, 8,
 					channels, settings.pixels,
 					settings.lines);
@@ -4406,6 +4422,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
       if (status != SANE_STATUS_GOOD)
 	{
+          free(line);
 	  DBG (DBG_error,
 	       "gl646_coarse_gain_calibration: failed to scan first line\n");
 	  return status;
@@ -4414,7 +4431,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "coarse_gain%02d.pnm", pass);
+	  sprintf (title, "coarse_gain%02d.pnm", (int)pass);
 	  sanei_genesys_write_pnm_file (title, line, 8,
 					channels, settings.pixels,
 					settings.lines);
@@ -5201,7 +5218,7 @@ static
   SANE_Status
 simple_move (Genesys_Device * dev, SANE_Int distance)
 {
-  SANE_Status status = SANE_STATUS_INVAL;
+  SANE_Status status;
   unsigned char *data = NULL;
   Genesys_Settings settings;
 
@@ -5225,16 +5242,14 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
   settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
-  status =
-    simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, &data);
-  free (data);
+  status = simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, &data);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "simple_move: simple_scan failed\n");
-      return status;
     }
 
-  DBG (DBG_proc, "simple_move: end.\n");
+  free (data);
+  DBGCOMPLETED
   return status;
 }
 
@@ -5630,7 +5645,7 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       if (DBG_LEVEL >= DBG_data)
 	{
 	  sprintf (title, "search_strip_%s%02d.pnm", forward ? "fwd" : "bwd",
-		   pass);
+		   (int)pass);
 	  sanei_genesys_write_pnm_file (title, data, settings.depth, 1,
 					settings.pixels, settings.lines);
 	}

@@ -1476,21 +1476,31 @@ genesys_coarse_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->set_fe (dev, AFE_INIT);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "genesys_coarse_calibration: failed to set frontend: %s\n",
+      DBG (DBG_error, "%s: failed to set frontend: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
+      free(all_data);
+      free(calibration_data);
       return status;
     }
-  dev->frontend.sign[0] = dev->frontend.sign[1] = dev->frontend.sign[2] = 0;
-  dev->frontend.gain[0] = dev->frontend.gain[1] = dev->frontend.gain[2] = 2;	/* todo: ?  was 2 */
-  dev->frontend.offset[0] = dev->frontend.offset[1] =
-    dev->frontend.offset[2] = offset[0];
+
+  dev->frontend.sign[0] = 0;
+  dev->frontend.sign[1] = 0;
+  dev->frontend.sign[2] = 0;
+  dev->frontend.gain[0] = 2;
+  dev->frontend.gain[1] = 2;
+  dev->frontend.gain[2] = 2;	/* todo: ?  was 2 */
+  dev->frontend.offset[0] = offset[0];
+  dev->frontend.offset[1] = offset[0];
+  dev->frontend.offset[2] = offset[0];
 
   for (i = 0; i < 4; i++)	/* read 4 lines */
     {
       if (i < 3)		/* first 3 lines */
-	dev->frontend.offset[0] = dev->frontend.offset[1] =
+        {
+	  dev->frontend.offset[0] = offset[i];
+          dev->frontend.offset[1] = offset[i];
 	  dev->frontend.offset[2] = offset[i];
+        }
 
       if (i == 1)		/* second line */
 	{
@@ -1724,6 +1734,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	}
     }				/* for (i = 0; i < 4; i++) */
 
+  free(all_data);
   DBG (DBG_info,
        "genesys_coarse_calibration: final: sign: %d/%d/%d, gain: %d/%d/%d, offset: %d/%d/%d\n",
        dev->frontend.sign[0], dev->frontend.sign[1], dev->frontend.sign[2],
@@ -2132,7 +2143,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 
   DBGCOMPLETED;
 
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 /* This calibration uses a scan over the calibration target, comprising a 
@@ -3857,12 +3868,16 @@ genesys_warmup_lamp (Genesys_Device * dev)
 
   second_line = malloc (total_size);
   if (!second_line)
-    return SANE_STATUS_NO_MEM;
+    {
+      free(first_line);
+      DBGCOMPLETED;
+      return SANE_STATUS_NO_MEM;
+    }
 
   do
     {
       DBG (DBG_info, "genesys_warmup_lamp: one more loop\n");
-      RIE (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE));
+      RIEF2 (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE), first_line, second_line);
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
@@ -3872,25 +3887,24 @@ genesys_warmup_lamp (Genesys_Device * dev)
       status = sanei_genesys_read_data_from_scanner (dev, first_line, total_size);
       if (status != SANE_STATUS_GOOD)
 	{
-	  RIE (sanei_genesys_read_data_from_scanner
-	       (dev, first_line, total_size));
+	  RIEF2 (sanei_genesys_read_data_from_scanner
+	       (dev, first_line, total_size), first_line, second_line);
 	}
 
-      RIE (dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE));
+      RIEF2 (dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE), first_line, second_line);
 
       sleep (1);		/* sleep 1 s */
       seconds++;
 
-      RIE (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE));
+      RIEF2 (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE), first_line, second_line);
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
           usleep (100 * 1000);
 	}
       while (empty);
-      RIE (sanei_genesys_read_data_from_scanner
-	   (dev, second_line, total_size));
-      RIE (dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE));
+      RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
+      RIEF2 (dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE), first_line, second_line);
 
       /* compute difference between the two scans */
       for (pixel = 0; pixel < total_size; pixel++)
@@ -6059,7 +6073,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
     }
 
   dev->file_name = strdup (devname);
-  if (!dev)
+  if (!dev->file_name)
     return SANE_STATUS_NO_MEM;
 
   dev->model = genesys_usb_device_list[i].model;
@@ -6085,6 +6099,7 @@ attach_one_device (SANE_String_Const devname)
 {
   Genesys_Device *dev;
   SANE_Status status;
+  Genesys_Device **tmp_dev;
 
   RIE (attach (devname, &dev, SANE_FALSE));
 
@@ -6096,12 +6111,20 @@ attach_one_device (SANE_String_Const devname)
 	{
 	  new_dev_alloced += 4;
 	  if (new_dev)
-	    new_dev =
-	      realloc (new_dev, new_dev_alloced * sizeof (new_dev[0]));
+            {
+              tmp_dev = new_dev;
+	      new_dev = realloc (new_dev, new_dev_alloced * sizeof (new_dev[0]));
+            }
 	  else
-	    new_dev = malloc (new_dev_alloced * sizeof (new_dev[0]));
+            {
+	      new_dev = malloc (new_dev_alloced * sizeof (new_dev[0]));
+            }
 	  if (!new_dev)
 	    {
+              if(tmp_dev)
+                {
+                  free(tmp_dev);
+                }
 	      DBG (DBG_error, "attach_one_device: out of memory\n");
 	      return SANE_STATUS_NO_MEM;
 	    }
@@ -6610,7 +6633,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 		  first_dev = dev->next;
 		  num_devices--;
 		  free (dev);
-		  dev = dev->next;
+	          dev = prev->next;
 		}
 	    }
 	  /* case 2 : removed device is not first_dev */
@@ -7579,13 +7602,20 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	   SANE_Int * len)
 {
   Genesys_Scanner *s = handle;
-  Genesys_Device *dev=s->dev;
+  Genesys_Device *dev;
   SANE_Status status=SANE_STATUS_GOOD;
   size_t local_len;
 
   if (!s)
     {
       DBG (DBG_error, "sane_read: handle is null!\n");
+      return SANE_STATUS_INVAL;
+    }
+  
+  dev=s->dev;
+  if (!dev)
+    {
+      DBG (DBG_error, "sane_read: dev is null!\n");
       return SANE_STATUS_INVAL;
     }
 

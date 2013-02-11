@@ -1,3 +1,6 @@
+2013-02-11 Stéphane Voltz <stef.dev@free.fr>
+	* tools/sane-desc.c: fix minor memleaks and whitespace at end of line.
+
 2013-02-09 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.c, backend/pixma_mp750.c, backend/pixma_mp810.c,
 	backend/pixma_sane_options.c: fixed compiler warnings.

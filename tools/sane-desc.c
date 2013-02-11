@@ -1,4 +1,4 @@
-/* 
+/*
    sane-desc.c -- generate list of supported SANE devices
 
    Copyright (C) 2002-2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -258,17 +258,17 @@ static enum output_mode mode = output_mode_ascii;
 static char *title = 0;
 static char *intro = 0;
 static SANE_String desc_name = 0;
-static const char *status_name[] = 
-  {"Unknown", "Unsupported", "Untested", "Minimal", "Basic", 
+static const char *status_name[] =
+  {"Unknown", "Unsupported", "Untested", "Minimal", "Basic",
    "Good", "Complete"};
-static const char *device_type_name[] = 
-  {"Unknown", "Scanners", "Still cameras", "Video Cameras", "Meta backends", 
+static const char *device_type_name[] =
+  {"Unknown", "Scanners", "Still cameras", "Video Cameras", "Meta backends",
    "APIs"};
-static const char *device_type_aname[] = 
-  {"UKNOWN", "SCANNERS", "STILL", "VIDEO", "META", 
+static const char *device_type_aname[] =
+  {"UKNOWN", "SCANNERS", "STILL", "VIDEO", "META",
    "API"};
 static const char *status_color[] =
-  {COLOR_UNKNOWN, COLOR_UNSUPPORTED, COLOR_UNTESTED, COLOR_MINIMAL, 
+  {COLOR_UNKNOWN, COLOR_UNSUPPORTED, COLOR_UNTESTED, COLOR_MINIMAL,
    COLOR_BASIC, COLOR_GOOD, COLOR_COMPLETE};
 
 
@@ -616,7 +616,10 @@ read_keyword (SANE_String line, SANE_String keyword_token,
     }
 
   if (strcmp (word, keyword_token) != 0)
-    return SANE_STATUS_INVAL;
+    {
+      free(word);
+      return SANE_STATUS_INVAL;
+    }
 
   free (word);
   word = 0;
@@ -651,6 +654,7 @@ read_keyword (SANE_String line, SANE_String keyword_token,
 	cp = get_token (cp, &word);
 	if (!word)
 	  {
+	    free(strings);
 	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
 	    return SANE_STATUS_INVAL;
 	  }
@@ -666,6 +670,7 @@ read_keyword (SANE_String line, SANE_String keyword_token,
 	cp = get_token (cp, &word);
 	if (!word)
 	  {
+	    free(strings);
 	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
 	    return SANE_STATUS_INVAL;
 	  }
@@ -686,6 +691,7 @@ read_keyword (SANE_String line, SANE_String keyword_token,
 	cp = get_token (cp, &word);
 	if (!word)
 	  {
+	    free(strings);
 	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
 	    return SANE_STATUS_INVAL;
 	  }
@@ -701,6 +707,7 @@ read_keyword (SANE_String line, SANE_String keyword_token,
 	cp = get_token (cp, &word);
 	if (!word)
 	  {
+	    free(strings);
 	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
 	    return SANE_STATUS_INVAL;
 	  }
@@ -716,6 +723,7 @@ read_keyword (SANE_String line, SANE_String keyword_token,
 	cp = get_token (cp, &word);
 	if (!word)
 	  {
+	    free(strings);
 	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
 	    return SANE_STATUS_INVAL;
 	  }
@@ -827,7 +835,7 @@ read_files (void)
 			   strerror (errno));
 		  return SANE_FALSE;
 		}
-	      /* now we check if everything is ok with the previous backend 
+	      /* now we check if everything is ok with the previous backend
 		 before we read the new one */
 	      if (current_backend)
 		{
@@ -835,7 +843,7 @@ read_files (void)
 		  int no_usbids = 0;
 		  int no_interface = 0;
 		  int no_status = 0;
-		  
+
 		  while (current_type)
 		    {
 		      if (current_type->type == type_scanner ||
@@ -874,7 +882,7 @@ read_files (void)
 					  && !current_model->ignore_usb_id)
 					{
 					  DBG_INFO ("`%s' seems to provide a USB device "
-						    "without :usbid (%s %s)\n", 
+						    "without :usbid (%s %s)\n",
 						    current_backend->name,
 						    current_mfg->name,
 						    current_model->name);
@@ -890,17 +898,17 @@ read_files (void)
 		    }
 		  if (no_status)
 		    {
-		      DBG_WARN ("Backend `%s': %d devices without :status\n", 
+		      DBG_WARN ("Backend `%s': %d devices without :status\n",
 				current_backend->name, no_status);
 		    }
 		  if (no_interface)
 		    {
-		      DBG_WARN ("Backend `%s': %d devices without :interface\n", 
+		      DBG_WARN ("Backend `%s': %d devices without :interface\n",
 				current_backend->name, no_interface);
 		    }
 		  if (no_usbids)
 		    {
-		      DBG_WARN ("Backend `%s': %d USB devices without :usbid\n", 
+		      DBG_WARN ("Backend `%s': %d USB devices without :usbid\n",
 				current_backend->name, no_usbids);
 		    }
 		}
@@ -1443,7 +1451,7 @@ read_files (void)
 				    "`%s' to `%s/%s' (was: `%s/%s')\n",
 				    current_backend->name,
 				    current_model->name, two_string_entry[0],
-				    two_string_entry[1], 
+				    two_string_entry[1],
 				    current_model->usb_vendor_id,
 				    current_model->usb_product_id);
 			}
@@ -2299,7 +2307,7 @@ calculate_statistics_per_type (device_type dev_type, statistics_type num)
 static void
 html_print_statistics_cell (const char * color, int number)
 {
-  printf ("<td align=center><font color=%s>%d</font></td>\n", 
+  printf ("<td align=center><font color=%s>%d</font></td>\n",
 	  color, number);
 }
 
@@ -2311,18 +2319,18 @@ html_print_statistics_per_type (device_type dev_type)
 
   calculate_statistics_per_type (dev_type, num);
   printf ("<tr>\n");
-  printf("<td align=center><a href=\"#%s\">%s</a></td>\n", 
+  printf("<td align=center><a href=\"#%s\">%s</a></td>\n",
 	 device_type_aname [dev_type], device_type_name [dev_type]);
 
-  html_print_statistics_cell 
-    (COLOR_UNKNOWN, 
+  html_print_statistics_cell
+    (COLOR_UNKNOWN,
      num[status_minimal] + num[status_basic] + num[status_good] +
      num[status_complete] + num[status_untested] + num[status_unsupported]);
   if (dev_type == type_scanner || dev_type == type_stillcam
       || dev_type == type_vidcam)
     {
-      html_print_statistics_cell 
-	(COLOR_UNKNOWN, 
+      html_print_statistics_cell
+	(COLOR_UNKNOWN,
 	 num[status_minimal] + num[status_basic] + num[status_good] +
 	 num[status_complete]);
       for (status = status_complete; status >= status_unsupported; status--)
@@ -2351,7 +2359,7 @@ html_print_summary (void)
   printf ("<tr bgcolor=E0E0FF>\n");
   printf ("<th align=center rowspan=2>Total</th>\n");
   printf ("<th align=center colspan=5>Supported</th>\n");
-  printf ("<th align=center rowspan=2><font color=" COLOR_UNTESTED 
+  printf ("<th align=center rowspan=2><font color=" COLOR_UNTESTED
 	  ">%s</font></th>\n", status_name[status_untested]);
   printf ("<th align=center rowspan=2><font color=" COLOR_UNSUPPORTED
 	  ">%s</font></th>\n", status_name[status_unsupported]);
@@ -2591,12 +2599,12 @@ html_backends_split_table (device_type dev_type)
 			    printf ("<td align=center>?</td>\n");
 
 			  if (model->usb_vendor_id && model->usb_product_id)
-			    printf ("<td align=center>%s/%s</td>\n", 
+			    printf ("<td align=center>%s/%s</td>\n",
 				    model->usb_vendor_id, model->usb_product_id);
 			  else
 			    printf ("<td align=center>&nbsp;</td>\n");
 
-			  printf ("<td align=center><font color=%s>%s</font></td>\n", 
+			  printf ("<td align=center><font color=%s>%s</font></td>\n",
 				  status_color[status], status_name[status]);
 
 			  if (model->comment && model->comment[0] != 0)
@@ -2701,12 +2709,12 @@ html_mfgs_table (device_type dev_type)
 	    printf ("<td align=center>?</td>\n");
 
 	  if (model_record->usb_vendor_id && model_record->usb_product_id)
-	    printf ("<td align=center>%s/%s</td>\n", 
+	    printf ("<td align=center>%s/%s</td>\n",
 		    model_record->usb_vendor_id, model_record->usb_product_id);
 	  else
 	    printf ("<td align=center>&nbsp;</td>\n");
-	  
-	  printf ("<td align=center><font color=%s>%s</font></td>\n", 
+
+	  printf ("<td align=center><font color=%s>%s</font></td>\n",
 		  status_color[status], status_name[status]);
 
 	  if (model_record->comment && model_record->comment[0] != 0)
@@ -3026,7 +3034,7 @@ print_statistics_per_type (device_type dev_type)
       || dev_type == type_vidcam)
     {
       printf (" Supported:   %4d (complete: %d, good: %d, basic: %d, "
-	      "minimal: %d)\n", 
+	      "minimal: %d)\n",
 	      num[status_minimal] + num[status_basic] + num[status_good] +
 	      num[status_complete], num[status_complete], num[status_good],
 	      num[status_basic], num[status_minimal]);
@@ -3052,7 +3060,7 @@ print_statistics (void)
 }
 
 static usbid_type *
-create_usbid (char *manufacturer, char *model, 
+create_usbid (char *manufacturer, char *model,
 	      char *usb_vendor_id, char *usb_product_id)
 {
   usbid_type * usbid = calloc (1, sizeof (usbid_type));
@@ -3070,7 +3078,7 @@ create_usbid (char *manufacturer, char *model,
 }
 
 static scsiid_type *
-create_scsiid (char *manufacturer, char *model, 
+create_scsiid (char *manufacturer, char *model,
 	       char *scsi_vendor_id, char *scsi_product_id, SANE_Bool is_processor)
 {
   scsiid_type * scsiid = calloc (1, sizeof (scsiid_type));
@@ -3089,7 +3097,7 @@ create_scsiid (char *manufacturer, char *model,
 }
 
 static usbid_type *
-add_usbid (usbid_type *first_usbid, char *manufacturer, char *model, 
+add_usbid (usbid_type *first_usbid, char *manufacturer, char *model,
 	   char *usb_vendor_id, char *usb_product_id)
 {
   usbid_type *usbid = first_usbid;
@@ -3116,11 +3124,11 @@ add_usbid (usbid_type *first_usbid, char *manufacturer, char *model,
 			usb_vendor_id, usb_product_id);
 	      break;
 	    }
-	  if (strcmp (usb_vendor_id, usbid->usb_vendor_id) < 0 || 
+	  if (strcmp (usb_vendor_id, usbid->usb_vendor_id) < 0 ||
 	      (strcmp (usb_vendor_id, usbid->usb_vendor_id) == 0 &&
 	       strcmp (usb_product_id, usbid->usb_product_id) < 0))
 	    {
-	      
+
 	      tmp_usbid = create_usbid (manufacturer, model, usb_vendor_id, usb_product_id);
 	      tmp_usbid->next = usbid;
 	      if (prev_usbid)
@@ -3142,7 +3150,7 @@ add_usbid (usbid_type *first_usbid, char *manufacturer, char *model,
 }
 
 static scsiid_type *
-add_scsiid (scsiid_type *first_scsiid, char *manufacturer, char *model, 
+add_scsiid (scsiid_type *first_scsiid, char *manufacturer, char *model,
 	    char *scsi_vendor_id, char *scsi_product_id, SANE_Bool is_processor)
 {
   scsiid_type *scsiid = first_scsiid;
@@ -3169,11 +3177,11 @@ add_scsiid (scsiid_type *first_scsiid, char *manufacturer, char *model,
 			scsi_vendor_id, scsi_product_id);
 	      break;
 	    }
-	  if (strcmp (scsi_vendor_id, scsiid->scsi_vendor_id) < 0 || 
+	  if (strcmp (scsi_vendor_id, scsiid->scsi_vendor_id) < 0 ||
 	      (strcmp (scsi_vendor_id, scsiid->scsi_vendor_id) == 0 &&
 	       strcmp (scsi_product_id, scsiid->scsi_product_id) < 0))
 	    {
-	      
+
 	      tmp_scsiid = create_scsiid (manufacturer, model, scsi_vendor_id, scsi_product_id, is_processor);
 	      tmp_scsiid->next = scsiid;
 	      if (prev_scsiid)
@@ -3232,7 +3240,7 @@ create_usbids_table (void)
 
 		  if (model->usb_vendor_id && model->usb_product_id)
 		    {
-		      first_usbid = add_usbid (first_usbid, mfg->name, 
+		      first_usbid = add_usbid (first_usbid, mfg->name,
 					       model->name,
 					       model->usb_vendor_id,
 					       model->usb_product_id);
@@ -3283,7 +3291,7 @@ create_scsiids_table (void)
 
 		  if (model->scsi_vendor_id && model->scsi_product_id)
 		    {
-		      first_scsiid = add_scsiid (first_scsiid, mfg->name, 
+		      first_scsiid = add_scsiid (first_scsiid, mfg->name,
 						 model->name,
 						 model->scsi_vendor_id,
 						 model->scsi_product_id,
@@ -3386,7 +3394,7 @@ print_db_header (void)
      "# permissions on the \"device node\" used by libusb.\n"
      "# Sample entry (replace 0xVVVV and 0xPPPP with vendor ID and product ID\n"
      "# respectively):\n");
-  printf 
+  printf
     ("#\n"
      "# 0xVVVV<tab>0xPPPP<tab>%s:%s<tab>%s<tab>[/usr/local/bin/foo.sh]\n"
      "# Fields:\n"
@@ -3445,7 +3453,7 @@ print_udev_header (void)
 	  "# by sane-desc %s from %s on %s",
 	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
 
-  printf 
+  printf
     ("#\n"
      "# udev rules file for supported USB and SCSI devices\n"
      "#\n"

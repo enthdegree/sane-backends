@@ -123,6 +123,8 @@ typedef struct iclass_t
   unsigned buf_len, blk_len;
 
   unsigned last_block;
+
+  uint8_t generation;           /* New multifunctionals are (generation == 2) */
 } iclass_t;
 
 
@@ -458,6 +460,10 @@ iclass_open (pixma_t * s)
   mf->cb.res_header_len = 2;
   mf->cb.cmd_header_len = 10;
   mf->cb.cmd_len_field_ofs = 7;
+
+  /* set generation = 2 for new multifunctionals */
+  mf->generation = (s->cfg->pid >= MF8030_PID) ? 2 : 1;
+  PDBG (pixma_dbg (3, "*iclass_open***** This is a generation %d scanner.  *****\n", mf->generation));
 
   PDBG (pixma_dbg (3, "Trying to clear the interrupt buffer...\n"));
   if (handle_interrupt (s, 200) == 0)

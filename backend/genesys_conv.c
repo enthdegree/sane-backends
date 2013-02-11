@@ -325,7 +325,7 @@ genesys_shrink_lines_1 (
 static SANE_Status
 genesys_crop(Genesys_Scanner *s)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Status status;
   Genesys_Device *dev = s->dev;
   int top = 0;
   int bottom = 0;
@@ -441,7 +441,7 @@ genesys_despeck(Genesys_Scanner *s)
 static SANE_Status
 genesys_derotate (Genesys_Scanner * s)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Status status;
   int angle = 0;
   int resolution = s->val[OPT_RESOLUTION].w;
 

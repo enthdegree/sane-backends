@@ -91,9 +91,36 @@
 #define DBG_io2         7	/* io functions that are called very often */
 #define DBG_data        8	/* log image data */
 
+/**
+ * call a function and return on error
+ */
 #define RIE(function)                                   \
   do { status = function;                               \
-    if (status != SANE_STATUS_GOOD) return status;      \
+    if (status != SANE_STATUS_GOOD) \
+      { \
+        DBG(DBG_error, "%s: %s\n", __FUNCTION__, sane_strstatus (status)); \
+	return status; \
+      }	\
+  } while (SANE_FALSE)
+
+#define RIEF(function, mem)                                   \
+  do { status = function;                               \
+    if (status != SANE_STATUS_GOOD) \
+      { \
+	 free(mem); \
+	 DBG(DBG_error, "%s: %s\n", __FUNCTION__, sane_strstatus (status)); \
+	 return status;      \
+      } \
+  } while (SANE_FALSE)
+
+#define RIEF2(function, mem1, mem2)                                   \
+  do { status = function;                               \
+    if (status != SANE_STATUS_GOOD) \
+	  { \
+		 free(mem1); \
+		 free(mem2); \
+		 return status;      \
+	  } \
   } while (SANE_FALSE)
 
 #define DBGSTART DBG (DBG_proc, "%s start\n", __FUNCTION__);

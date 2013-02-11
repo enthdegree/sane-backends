@@ -148,7 +148,7 @@ static int
 has_paper (pixma_t * s)
 {
   iclass_t *mf = (iclass_t *) s->subdriver;
-  return (mf->current_status[1] == 0);
+  return ((mf->current_status[1] & 0x0f) == 0);         /* allow 0x10 as ADF paper OK */
 }
 
 static int

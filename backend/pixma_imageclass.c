@@ -401,16 +401,21 @@ static int
 step1 (pixma_t * s)
 {
   int error;
+  iclass_t *mf = (iclass_t *) s->subdriver;
 
   error = query_status (s);
   if (error < 0)
     return error;
   if (s->param->source == PIXMA_SOURCE_ADF && !has_paper (s))
     return PIXMA_ENO_PAPER;
-  if (error >= 0)
-    error = activate (s, 0);
-  if (error >= 0)
-    error = activate (s, 4);
+  /* activate only seen for generation 1 scanners */
+  if (mf->generation == 1)
+    {
+      if (error >= 0)
+        error = activate (s, 0);
+      if (error >= 0)
+        error = activate (s, 4);
+    }
   return error;
 }
 
@@ -666,8 +671,11 @@ iclass_finish_scan (pixma_t * s)
     case state_finished:
       query_status (s);
       query_status (s);
-      activate (s, 0);
-      query_status (s);
+      if (mf->generation == 1)
+        { /* activate only seen for generation 1 scanners */
+          activate (s, 0);
+          query_status (s);
+        }
       if (mf->last_block == 0x28 || ((s->cfg->pid==MF4410_PID || s->cfg->pid == MF4550_PID) && mf->last_block==0x38))
 	{
 	  abort_session (s);

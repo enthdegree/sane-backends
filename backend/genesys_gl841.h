@@ -350,3 +350,41 @@ enum
   reg_0x87,
   GENESYS_GL841_MAX_REGS
 };
+/**
+ * prototypes declaration in case of unit testing
+ */
+#ifdef UNIT_TESTING
+SANE_Status
+gl841_init_scan_regs (Genesys_Device * dev,
+		      Genesys_Register_Set * reg,
+		      float xres,
+		      float yres,
+		      float startx,
+		      float starty,
+		      float pixels,
+		      float lines,
+		      unsigned int depth,
+		      unsigned int channels,
+		      int color_filter,
+		      unsigned int flags);
+
+SANE_Status
+gl841_begin_scan (Genesys_Device * dev,
+	 	  Genesys_Register_Set * reg,
+		  SANE_Bool start_motor);
+
+SANE_Status
+gl841_end_scan (Genesys_Device * dev,
+		Genesys_Register_Set __sane_unused__ * reg,
+		SANE_Bool check_stop);
+
+SANE_Status
+gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
+
+SANE_Status
+sanei_gl841_repark_head (Genesys_Device * dev);
+
+SANE_Status
+gl841_feed (Genesys_Device * dev, int steps);
+
+#endif

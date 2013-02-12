@@ -2169,7 +2169,10 @@ gl841_get_led_exposure(Genesys_Device * dev)
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl841_init_scan_regs (Genesys_Device * dev,
 		      Genesys_Register_Set * reg,
 		      float xres,/*dpi*/
@@ -3441,7 +3444,10 @@ gl841_detect_document_end (Genesys_Device * dev)
 
 /* Send the low-level scan command */
 /* todo : is this that useful ? */
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl841_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 			SANE_Bool start_motor)
 {
@@ -3490,7 +3496,10 @@ gl841_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
 
 /* Send the stop scan command */
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set __sane_unused__ * reg,
 		      SANE_Bool check_stop)
 {
@@ -3520,7 +3529,10 @@ gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set __sane_unused__ * reg
 }
 
 /* Moves the slider to steps */
-static SANE_Status
+#ifndef UNIT_TESTING
+static 
+#endif
+SANE_Status
 gl841_feed (Genesys_Device * dev, int steps)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
@@ -5063,7 +5075,10 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
  * so that the head goes to park position.
  * as a by-product, also check for lock
  */
-static SANE_Status
+#ifndef UNIT_TESTING
+static 
+#endif
+SANE_Status
 sanei_gl841_repark_head (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -5152,7 +5167,7 @@ gl841_init (Genesys_Device * dev)
   int i;
 
   DBG_INIT ();
-  DBG (DBG_proc, "gl841_init\n");
+  DBGSTART;
 
   dev->scanhead_position_in_steps = 0;
 
@@ -5163,6 +5178,7 @@ gl841_init (Genesys_Device * dev)
       if (val & REG41_PWRBIT)
 	{
 	  DBG (DBG_info, "gl841_init: already initialized\n");
+          DBGCOMPLETED;
 	  return SANE_STATUS_GOOD;
 	}
     }
@@ -5176,13 +5192,8 @@ gl841_init (Genesys_Device * dev)
   gl841_init_registers (dev);
 
   /* ASIC reset */
+  RIE (sanei_genesys_write_register (dev, 0x0e, 0x01));
   RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
-
-  /* firmware command, possibly related to USB transfer mode */
-  if (dev->model->gpo_type == GPO_CANONLIDE35) 
-    {
-      RIE (sanei_genesys_write_0x8c (dev, 0x10, 0xa4));
-    }
 
   /* Write initial registers */
   RIE (gl841_bulk_write_register

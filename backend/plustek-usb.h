@@ -7,7 +7,7 @@
  *  @brief Main defines for the USB devices.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -45,6 +45,7 @@
  *        - added DEVCAPSFLAG_SheetFed
  *        - added dpi_thresh and lineend to motor structure
  * - 0.52 - added MODEL_QSCAN
+ *        - added MODEL_QSCAN_A6 (thanks to Hiroshi Miura)
  *        - changed DCapsDef, lamp -> misc_io
  *        - bPCB is now ushort to be "missused" by non Plustek
  *          devices (as threshhold for resetting sensor order)
@@ -338,7 +339,8 @@ typedef enum
 	MODEL_UMAX1200,       /**< for UMAX 5400                */
 	MODEL_TSCAN,          /**< for Syscan TravelScan A6     */
 	MODEL_TSCAN_A4,       /**< for Syscan TravelScan A4     */
-	MODEL_QSCAN,          /**< for PandP Q-Scan             */
+	MODEL_QSCAN,          /**< for PandP Q-Scan A4          */
+	MODEL_QSCAN_A6,       /**< for PandP Q-Scan A6          */
 	MODEL_LAST
 } eModelDef;
 

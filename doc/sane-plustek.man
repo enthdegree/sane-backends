@@ -1,4 +1,4 @@
-.TH sane\-plustek 5 "25 Aug 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-plustek 5 "13 Feb 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-plustek
 .SH NAME
 sane\-plustek \- SANE backend for LM983[1/2/3] based
@@ -165,6 +165,7 @@ Vendor Portable Peripheral Co., Ltd. \- ID: 0x0A53
 USB Model:         ASIC:  Properties:              Prod-ID
 ----------------------------------------------------------
 Q-Scan USB001      LM9832   300x600dpi 42bit 512Kb 0x1000
+Q-Scan USB201      LM9832   300x600dpi 42bit 512Kb 0x2000
 .fi
 .ft R
 .PP

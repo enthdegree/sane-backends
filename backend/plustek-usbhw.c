@@ -7,7 +7,7 @@
  *  @brief Functions to control the scanner hardware.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-20013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -48,12 +48,14 @@
  *        - added special misc I/O setup for CIS devices (usb_ResetRegisters)
  * - 0.51 - change usb_AdjustLamps() and use it now in usb_switchLamp() 
  *        - added usb_Wait4ScanSample() and usb_InCalibrationMode()
- *        - tweaked EjectPaper to work correctly with the supported sheetfed
+ *        - tweaked EjectPaper to work correctly with the supported sheet-fed
  *          devices
  *        - fixed button handling for Plustek/Genius devices and added
  *          some more debug output to that code path
  * - 0.52 - changed DCapsDef, lamp -> misc_io
  *        - hammer in output bit, when using misc io pins for lamp switching
+ *        - increased wait time for sheet-fed scanner (needed for Q-SCAN A6,
+ *          patch by Hiroshi Miura)
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -104,6 +106,9 @@
 #define DEV_LampAll             3
 #define DEV_LampPositive        4
 #define DEV_LampNegative        5
+
+#define WAIT_TIME_FOR_SCAN_SAMPLE 20   /* 20 seconds maximum wait time */
+
 
 /** the NatSemi 983x is a big endian chip, and the line protocol data all
  *  arrives big-endian.  This determines if we need to swap to host-order
@@ -308,7 +313,6 @@ usb_Wait4ScanSample( Plustek_Device *dev )
 {
 	struct timeval start_time, t2;
 
-	/* we wait about 10s for something to scan... */
 	if( !usb_IsSheetFedDevice(dev))
 		return SANE_TRUE;
 
@@ -317,7 +321,7 @@ usb_Wait4ScanSample( Plustek_Device *dev )
 	do {
 
 		gettimeofday( &t2, NULL );
-		if( t2.tv_sec > start_time.tv_sec + 10 ) {
+		if( t2.tv_sec > start_time.tv_sec + WAIT_TIME_FOR_SCAN_SAMPLE ) {
 			DBG( _DBG_ERROR, "Nothing to scan!!!\n" );
 			return SANE_FALSE;
 		}
@@ -472,6 +476,12 @@ usb_ModuleMove( Plustek_Device *dev, u_char action, u_long dwStep )
 	if( action == MOVE_EjectAllPapers ) {
 
 		double d = hw->dMaxMoveSpeed;
+
+		/* FIXME */
+		if (hw->motorModel == MODEL_QSCAN_A6){
+			DBG( _DBG_INFO2, "Q-SCAN-A6 may not be able to detect ejected papers\n");
+			return SANE_TRUE;
+		}
 
 		hw->dMaxMoveSpeed += 0.8; /* was 0.6 */
 

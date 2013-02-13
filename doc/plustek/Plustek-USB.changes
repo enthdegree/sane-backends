@@ -3,6 +3,14 @@ Plustek.changes - Gerhard Jaeger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.52-11 (2013-02-13)
+---------------------
+Added support for Q-Scan A6 scanner (see report #312073)
+
+V 0.52-10 (2012-03-19)
+---------------------
+Fixed batch scanning
+
 V 0.52-9 (2009-04-27)
 ---------------------
 Tweaked highspeed settings for Epson 1260

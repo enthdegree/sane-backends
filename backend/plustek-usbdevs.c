@@ -7,7 +7,7 @@
  *  @brief Here we have our USB device definitions.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2009 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -69,6 +69,7 @@
  *          Canon has built-in different motortypes
  *        - also fixed Motorsettings for LiDE30
  * - 0.52 - added Q-Scan USB001 settings
+ *        - added Q-Scan USB201 settings (thanks to Hiroshi Miura)
  *        - tweaked motor settings for Bearpaw 1200
  *        - added TravelScan 464 settings
  *        - tweaked highspeed motor settings for Epson 1260
@@ -795,6 +796,25 @@ static DCapsDef Cap0x0A53_0x1000 =
 	kNEC8861,           /* use default settings during calibration */
 	200,                /* threshold for resetting sensor-order    */
 	(_WAF_MISC_IO_LAMPS | _WAF_RESET_SO_TO_RGB | _WAF_ONLY_8BIT),
+	_PS_INP1
+};
+
+/* PandP USB201 Q-Scan A6 Scanner
+ */
+static DCapsDef Cap0x0A53_0x2000 =
+{
+	{{ 0,   0},   0, -1, {1226, 3508}, { 50, 50 }}, 
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{600, 600},      
+	DEVCAPSFLAG_SheetFed,
+	SENSORORDER_rgb,
+	4,
+	0,
+	kNEC8861,
+	0,
+	_WAF_NONE,
 	_PS_INP1
 };
 
@@ -2655,6 +2675,78 @@ static HWDef Hw0x0A53_0x1000 =
 	1.1
 };
 
+/** PandP USB201 Q-Scan A6 Scanner */
+static HWDef Hw0x0A53_0x2000 =
+{
+	0.5,	/* dMaxMotorSpeed                                 */
+	0.2,	/* dMaxMoveSpeed                                  */
+	0.0,	/* dHighSpeed                                     */
+	100,	/* wIntegrationTimeLowLamp                        */
+	100,	/* wIntegrationTimeHighLamp                       */
+	570,	/* wMotorDpi (Full step DPI)                      */
+	512,	/* wRAMSize (KB)                                  */
+	3.75,	/* dMinIntegrationTimeLowres (ms)                 */
+	5.75,	/* dMinIntegrationTimeHighres (ms)                */
+	0x0fff, /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
+	0x0fff, /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
+
+	0x02,	/* bSensorConfiguration (0x0b)                    */
+	0x00,	/* sensor control settings (reg 0x0c)             */
+	0x25,	/* sensor control settings (reg 0x0d)             */
+	0x06,	/* sensor control settings (reg 0x0e)             */
+
+	{0x05, 0x0a, 0x01, 0x02, 0x00, 0x01, 0x00, 0x00, 0x04, 0x07},
+		/* mono (reg 0x0f to 0x18)                        */
+
+	{0x05, 0x0a, 0x01, 0x02, 0x00, 0x01, 0x00, 0x00, 0x04, 0x07},
+		/* color (reg 0x0f to 0x18)                       */
+
+	(_BLUE_CH | _ONE_CH_COLOR),	/* bReg_0x26 color mode   */
+
+	0x00,	/* bReg 0x27 color mode                           */
+	2,	/* bReg 0x29 illumination mode                    */
+
+	{ 3,  0,    0, 10, 450,  0,   0 },
+		/* initial illumination settings - mono           */
+	{ 2, 10, 1000, 10, 880, 10, 630 },
+		/* initial illumination settings - color          */
+
+	0x0101,	/* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
+	0x004d,	/* bOpticBlackStart (reg 0x22 + 0x23)             */
+	0x11,	/* bOpticBlackEnd                                 */
+	0x0011,	/* wActivePixelsStart                             */
+	0x0bb8,	/* wLineEnd (reg 0x20 + 0x21)                     */
+
+	10,	/* red lamp on    (reg 0x2c + 0x2d)               */
+	1000,	/* red lamp off   (reg 0x2e + 0x2f)               */
+	10,	/* green lamp on  (reg 0x30 + 0x31)               */
+	880,	/* green lamp off (reg 0x32 + 0x33)               */
+	10,	/* blue lamp on   (reg 0x34 + 0x35)               */
+	630,	/* blue lamp off  (reg 0x36 + 0x37)               */
+
+	0x13,	/* stepper motor control (reg 0x45)               */
+	0x0000,	/* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
+
+	0,	/* steps to reverse when buffer is full reg 0x50) */
+	0,	/* acceleration profile (reg 0x51)                */
+	0,	/* lines to process (reg 0x54)                    */
+	0x1b,	/* kickstart (reg 0x55)                           */
+	0x08,	/* pwm freq (reg 0x56)                            */
+	0x15,	/* pwm duty cycle (reg 0x57)                      */
+
+	0x00,	/* Paper sense (reg 0x58)                         */
+
+	0x20,	/* misc io12 (reg 0x59)                           */
+	0x02,	/* misc io34 (reg 0x5a)                           */
+	0x90,	/* misc io56 (reg 0x5b)                           */
+	0,	/* test mode ADC Output CODE MSB (reg 0x5c)       */
+	0,	/* test mode ADC Output CODE LSB (reg 0x5d)       */
+	0,	/* test mode (reg 0x5e)                           */
+	_LM9832,
+	MODEL_QSCAN_A6,
+	1.8
+};
+
 /******************** all available combinations *****************************/
 
 /** here we have all supported devices and their settings...
@@ -2735,6 +2827,7 @@ static SetDef Settings[] =
 
 	/* Portable Peripheral Co., Ltd. */
 	{"0x0A53-0x1000",   &Cap0x0A53_0x1000, &Hw0x0A53_0x1000, "Q-Scan USB001" },
+	{"0x0A53-0x2000",   &Cap0x0A53_0x2000, &Hw0x0A53_0x2000, "Q-Scan USB201" },
 
 	/* Please add other devices here...
 	 * The first entry is a string, composed out of the vendor and product id,
@@ -2981,6 +3074,20 @@ static ClkMotorDef Motors[] = {
 		/* Gray mode MCLK settings */
 		{ 6.5, 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
 		{ 6.5, 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
+	},
+
+	{ MODEL_QSCAN_A6, 8, 15, 6, 0, 0,
+	/* Motor settings (PWM and PWM_Duty) */
+		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi */
+		{{ 8, 15, 1}, { 8, 15, 1 }, { 8, 15, 1 }, { 8, 15, 1 }, { 8, 15, 1 },
+		/* <=400dpi     <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
+		{ 8, 15, 1 }, { 8, 15, 1 }, { 8, 15, 1 }, { 8, 15, 1 }, { 8, 15, 1 }},
+		/* Color mode MCLK settings */
+		{ 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5 },
+		{ 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5 },
+		/* Gray mode MCLK settings */
+		{ 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0 },
+		{ 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0 },
 	}
 };
 

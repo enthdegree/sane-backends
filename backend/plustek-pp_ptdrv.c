@@ -3,7 +3,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2006 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:
@@ -52,6 +52,9 @@
  * - 0.43 - added LINUX_26 stuff
  *        - changed include names
  *        - changed version string stuff
+ * - 0.44 - added support for more recent kernels
+ *        - fix format string issues, as Long types default to int32_t
+ *          now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -162,7 +165,7 @@ static Bool deviceScanning = _FALSE;
 static struct timer_list tl[_MAX_PTDEVS];
 
 /* for calculation of the timer expiration */
-extern volatile ULong jiffies;	
+extern volatile unsigned long jiffies;
 
 /* the parameter interface
  */
@@ -188,13 +191,13 @@ MODULE_PARM(forceMode,"1-" __MODULE_STRING(_MAX_PTDEVS) "i");
 
 static int array_len = _MAX_PTDEVS;
 
-module_param_array(port,      int, &array_len, 0);
-module_param_array(lampoff,   int, &array_len, 0);
-module_param_array(warmup,    int, &array_len, 0);
-module_param_array(lOffonEnd, int, &array_len, 0);
-module_param_array(mov,       int, &array_len, 0);
-module_param_array(slowIO,    int, &array_len, 0);
-module_param_array(forceMode, int, &array_len, 0);
+module_param_array(port,      int,    &array_len, 0);
+module_param_array(lampoff,   int,    &array_len, 0);
+module_param_array(warmup,    int,    &array_len, 0);
+module_param_array(lOffonEnd, int,    &array_len, 0);
+module_param_array(mov,       ushort, &array_len, 0);
+module_param_array(slowIO,    int,    &array_len, 0);
+module_param_array(forceMode, ushort, &array_len, 0);
 
 #endif
 
@@ -224,7 +227,6 @@ MODULE_PARM_DESC(forceMode, "0 = use auto detection, "
  */
 static int 		 pt_drv_open ( struct inode *, struct file *);
 static CLOSETYPE pt_drv_close( struct inode *, struct file *);
-static int 		 pt_drv_ioctl( struct inode *, struct file *, UInt, ULong );
 
 #ifdef LINUX_20
   static int pt_drv_read(  struct inode*, struct file*, char*, int );
@@ -236,6 +238,13 @@ static int 		 pt_drv_ioctl( struct inode *, struct file *, UInt, ULong );
 							 const char *buffer, size_t tmp,loff_t *count);
 #endif
 
+#ifdef NOLOCK_IOCTL
+  static long pt_drv_ioctl( struct file *, UInt, unsigned long );
+#else
+  static int pt_drv_ioctl( struct inode *, struct file *, UInt, unsigned long );
+#endif
+  
+  
 /*
  * the driver interface
  */
@@ -266,7 +275,7 @@ static struct file_operations pt_drv_fops = {
 #endif
 	read:		pt_drv_read,
 	write:		pt_drv_write,
-	ioctl:		pt_drv_ioctl,
+	IOCTL:		pt_drv_ioctl,
 	open:		pt_drv_open,
 	release:	pt_drv_close,
 };
@@ -500,7 +509,7 @@ static void ptdrvLampWarmup( pScanData ps )
 /**
  */
 #ifdef __KERNEL__
-static void ptdrvLampTimerIrq( ULong ptr )
+static void ptdrvLampTimerIrq( unsigned long ptr )
 #else
 static void ptdrvLampTimerIrq( int sig_num )
 #endif
@@ -571,7 +580,7 @@ static void ptdrvStartLampTimer( pScanData ps )
 	s.sa_handler = ptdrvLampTimerIrq;
 
 	if(	sigaction( SIGALRM, &s, NULL ) < 0 ) {
-		DBG(DBG_HIGH,"pt_drv%lu: Can't setup timer-irq handler\n",ps->devno);
+		DBG(DBG_HIGH,"pt_drv%u: Can't setup timer-irq handler\n",ps->devno);
 	}
 
 	sigprocmask( SIG_UNBLOCK, &block, &pause_mask );
@@ -595,7 +604,7 @@ static void ptdrvStartLampTimer( pScanData ps )
 
 	/* timeout val in seconds */
 	tl[ps->devno].expires  =  jiffies + ps->lampoff * HZ;
-	tl[ps->devno].data     = (ULong)ps;
+	tl[ps->devno].data     = (unsigned long)ps;
 	tl[ps->devno].function = ptdrvLampTimerIrq;
 
 	if( 0 != ps->lampoff )
@@ -637,7 +646,7 @@ static int ptdrvOpen( pScanData ps, int portBase )
 {
 	int retval;
 
-	DBG( DBG_HIGH, "ptdrvOpen(port=0x%lx)\n", (ULong)portBase );
+	DBG( DBG_HIGH, "ptdrvOpen(port=0x%x)\n", (int32_t)portBase );
 	if( NULL == ps )
 		return _E_NULLPTR;
 
@@ -954,7 +963,6 @@ static int ptdrvShutdown( pScanData ps )
  */
 static int ptdrvIoctl( pScanData ps, UInt cmd, pVoid arg )
 {
-	UChar  val;
 	UShort dir;
 	UShort version;
 	UInt   size;
@@ -1081,7 +1089,7 @@ static int ptdrvIoctl( pScanData ps, UInt cmd, pVoid arg )
 			if (copy_from_user(&adj, (pPPAdjDef)arg, sizeof(PPAdjDef)))
 				return _E_FAULT;
 
-			DBG( DBG_LOW, "Adjusting device %lu\n", ps->devno );
+			DBG( DBG_LOW, "Adjusting device %u\n", ps->devno );
 			DBG( DBG_LOW, "warmup:       %i\n", adj.warmup );
 			DBG( DBG_LOW, "lampOff:      %i\n", adj.lampOff );
 			DBG( DBG_LOW, "lampOffOnEnd: %i\n", adj.lampOffOnEnd );
@@ -1259,7 +1267,7 @@ static int ptdrvIoctl( pScanData ps, UInt cmd, pVoid arg )
 	 */
 	case _PTDRV_ACTION_BUTTON:
 		DBG( DBG_LOW, "ioctl(_PTDRV_ACTION_BUTTON)\n" );
-		val    = IODataRegisterFromScanner( ps, ps->RegStatus );
+		IODataRegisterFromScanner( ps, ps->RegStatus );
       	retval = putUserVal( argVal, arg, size );
 		break;
 
@@ -1306,7 +1314,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 #else
 		DBG( DBG_HIGH,
 #endif
-			"pt_drv%lu: reading 0 bytes makes no sense!\n", ps->devno );
+			"pt_drv%u: reading 0 bytes makes no sense!\n", ps->devno );
 		return _E_INVALID;
 	}
 
@@ -1324,7 +1332,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 #else
 		DBG( DBG_HIGH,
 #endif
-			"pt_drv%lu:  Cannot read, driver not initialized!\n",ps->devno);
+			"pt_drv%u:  Cannot read, driver not initialized!\n",ps->devno);
 		return _E_SEQUENCE;
 	}
 
@@ -1339,7 +1347,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 #else
 		DBG( DBG_HIGH,
 #endif
-			"pt_drv%lu:  Not enough memory available!\n", ps->devno );
+			"pt_drv%u:  Not enough memory available!\n", ps->devno );
     	return _E_ALLOC;
 	}
 
@@ -1354,7 +1362,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 #else
 		DBG( DBG_HIGH,
 #endif
-			"pt_drv%lu:  Not enough memory available!\n", ps->devno );
+			"pt_drv%u:  Not enough memory available!\n", ps->devno );
     		return _E_ALLOC;
 		}
 	} else {
@@ -1362,9 +1370,9 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 	}
 
 	DBG( DBG_LOW, "PtDrvRead(%u bytes)*****************\n", count );
-	DBG( DBG_LOW, "MonoBuf = 0x%08lx[%lu], scaleBuf = 0x%lx\n",
-			(ULong)ps->Scan.bp.pMonoBuf,
-            ps->DataInf.dwAppPhyBytesPerLine, (ULong)scaleBuf );
+	DBG( DBG_LOW, "MonoBuf = 0x%08lx[%u], scaleBuf = 0x%lx\n",
+			(unsigned long)ps->Scan.bp.pMonoBuf,
+            ps->DataInf.dwAppPhyBytesPerLine, (unsigned long)scaleBuf );
 
 	/*	
 	 * in case of a previous problem, move the sensor back home
@@ -1405,7 +1413,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 #else
 		DBG( DBG_HIGH,
 #endif
-			"pt_drv%lu: calibration failed, result = %i\n",
+			"pt_drv%u: calibration failed, result = %i\n",
 														ps->devno, retval );
 		goto ReadFinished;
 	}
@@ -1441,8 +1449,8 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 	/*
 	 * now get the picture data
 	 */
-	DBG( DBG_HIGH, "dwAppLinesPerArea = %ld\n", ps->DataInf.dwAppLinesPerArea);
-	DBG( DBG_HIGH, "dwAppBytesPerLine = %ld\n", ps->DataInf.dwAppBytesPerLine);
+	DBG( DBG_HIGH, "dwAppLinesPerArea = %d\n", ps->DataInf.dwAppLinesPerArea);
+	DBG( DBG_HIGH, "dwAppBytesPerLine = %d\n", ps->DataInf.dwAppBytesPerLine);
 
 /* HEINER: A3I
 	ps->bMoveDataOutFlag = _DataFromStopState;
@@ -1453,7 +1461,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 
     	if( ps->Scan.dwLinesToRead ) {
 
-        	DBG( DBG_HIGH, "dwLinesToRead = %ld\n", ps->Scan.dwLinesToRead );
+        	DBG( DBG_HIGH, "dwLinesToRead = %d\n", ps->Scan.dwLinesToRead );
 
       		if( ps->Scan.dwLinesToRead > ps->DataInf.dwAppLinesPerArea )
         		ps->Scan.dwLinesToRead = ps->DataInf.dwAppLinesPerArea;
@@ -1472,7 +1480,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
         		_ASSERT(ps->ReadOneImageLine);
 		   		if (!ps->ReadOneImageLine(ps)) {
         			ps->fScanningStatus = _FALSE;
-            		DBG( DBG_HIGH, "ReadOneImageLine() failed at line %lu!\n",
+            		DBG( DBG_HIGH, "ReadOneImageLine() failed at line %u!\n",
                                     dwLinesRead );
 					break;
 				}
@@ -1582,6 +1590,9 @@ int init_module( void )
 #if (defined(CONFIG_DEVFS_FS) && !defined(DEVFS_26_STYLE))
     char controlname[24];
 #endif
+# ifdef LINUX_26
+    char devname[20];
+#endif
 
     DBG( DBG_HIGH, "*********************************************\n" );
     DBG( DBG_HIGH, "pt_drv: init_module()\n" );
@@ -1633,9 +1644,10 @@ int init_module( void )
 # endif
 #else
 # ifdef LINUX_26
-				CLASS_DEVICE_CREATE(ptdrv_class,
-				                    MKDEV(_PTDRV_MAJOR, devCount), NULL,
-				                    "pt_drv%d", devCount);
+				sprintf(devname, "pt_drv%d", devCount);
+				CLASS_DEV_CREATE(ptdrv_class,
+				                 MKDEV(_PTDRV_MAJOR, devCount), NULL,
+				                 devname);
 
 # endif /* LINUX_26 */
 #endif /* CONFIG_DEVFS_FS */
@@ -1714,7 +1726,7 @@ void cleanup_module( void )
 # endif
 #else
 # ifdef LINUX_26
-			class_device_destroy(ptdrv_class, MKDEV(_PTDRV_MAJOR, i));
+			CLASS_DEV_DESTROY(ptdrv_class, MKDEV(_PTDRV_MAJOR, i));
 # endif /* LINUX_26 */
 #endif /* CONFIG_DEVFS_FS */
 			ptdrvShutdown( ps );
@@ -1838,7 +1850,7 @@ static ssize_t pt_drv_read( struct file *file,
 	 * possible to scan simultaenously with two or more devices
 	 */
 	if( _TRUE == deviceScanning ) {
-	    printk( KERN_INFO "pt_drv: device %lu busy!!!\n", ps->devno );
+	    printk( KERN_INFO "pt_drv: device %u busy!!!\n", ps->devno );
 		return(-EBUSY);		
 	}
 
@@ -1870,8 +1882,19 @@ static int pt_drv_write(struct inode * inode, struct file * file,
 /*.............................................................................
  * the ioctl interface
  */
+#ifdef NOLOCK_IOCTL
+static long pt_drv_ioctl( struct file *file, UInt cmd, unsigned long arg )
+{
+	pScanData ps;
+
+	if ( !(ps = get_pt_from_inode(file->f_dentry->d_inode)) )
+    	return(-ENXIO);
+
+  	return ptdrvIoctl( ps, cmd, (pVoid)arg);
+}
+#else
 static int pt_drv_ioctl( struct inode *inode, struct file *file,
-                         UInt cmd, ULong arg )
+                         UInt cmd, unsigned long arg )
 {
 	pScanData ps;
 
@@ -1880,6 +1903,7 @@ static int pt_drv_ioctl( struct inode *inode, struct file *file,
 
   	return ptdrvIoctl( ps, cmd, (pVoid)arg);
 }
+#endif
 
 #else	/* the user-mode interface */
 

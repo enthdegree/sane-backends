@@ -4,7 +4,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:
@@ -35,6 +35,8 @@
  * - 0.41 - no changes
  * - 0.42 - changed include names
  * - 0.43 - no changes
+ * - 0.44 - fix format string issues, as Long types default to int32_t
+ *          now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -185,7 +187,7 @@ static int p48xxDoTest( pScanData ps )
 
 		/* check if fail */
    		if (ul != _TEST_SZ / sizeof(ULong)) {
-			DBG( DBG_LOW, "Bank not present, error at pos %lu (%lu)\n", ul,
+			DBG( DBG_LOW, "Bank not present, error at pos %u (%u)\n", ul,
 				 (ULong)(_TEST_SZ / sizeof(ULong)));
        		break;
 		}
@@ -195,7 +197,7 @@ static int p48xxDoTest( pScanData ps )
 
 	_KFREE( buffer );
 
-	DBG( DBG_LOW, "found %ld bytes of memory\n",
+	DBG( DBG_LOW, "found %d bytes of memory\n",
 					_TEST_SZ * (cntr - _BankAndSizeForTest));
 
 	if( cntr == _BankAndSizeForTest ) {
@@ -209,7 +211,7 @@ static int p48xxDoTest( pScanData ps )
 #endif
 
 	tmpByte = IODataRegisterFromScanner( ps, 0x0e );
-	DBG( DBG_LOW, "tmpByte = 0x%02x, cntr = %lu, AsicId = 0x%02x\n",
+	DBG( DBG_LOW, "tmpByte = 0x%02x, cntr = %u, AsicId = 0x%02x\n",
 				   tmpByte, cntr, ps->sCaps.AsicID );
 
 	/* 128k */
@@ -323,7 +325,7 @@ static int p48xxCheck4800Memory( pScanData ps )
 
 	for( ul = 0; ul < 1280; ul++ ) {
 		if( buffer[ul] != buffer[ul+1280] ) {
-			DBG( DBG_HIGH, "Error in memory test at pos %lu (%u != %u)\n",
+			DBG( DBG_HIGH, "Error in memory test at pos %u (%u != %u)\n",
 							 ul, buffer[ul], buffer[ul+1280] );
 			retval = _E_NO_DEV;
 			break;

@@ -2,7 +2,7 @@
  * @brief a trial to centralize changes between the different 
  *        kernel-versions some stuff is maybe not relevant, but anyway...
  *
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * 0.30 - initial version
@@ -14,6 +14,7 @@
  *      - added LINUX_26 for new kernel
  *      - added _MINOR
  * 0.43 - added class functions
+ * 0.44 - added support for kernel >= 2.6.35 and 3.x
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -80,6 +81,15 @@
 #  define LINUX_24
 #  define LINUX_26
 # include <linux/device.h>
+# if LINUX_VERSION_CODE > VERSION_CODE(2,6,35)
+#  define NOLOCK_IOCTL
+#  define IOCTL unlocked_ioctl
+# else
+#  define IOCTL ioctl
+# endif
+# if LINUX_VERSION_CODE > VERSION_CODE(3,0,0)
+#   include <linux/sched.h>
+# endif
 #endif
 
 #include <linux/types.h> /* used later in this header */
@@ -308,18 +318,37 @@
 #if LINUX_VERSION_CODE >= VERSION_CODE(2,6,15)
 
 typedef struct class class_t;
-#define CLASS_DEVICE_CREATE(cls, devt, device, fmt, arg...) class_device_create(cls, NULL, devt, device, fmt, ## arg)
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27)
+#define CLASS_DEV_CREATE(class, devt, device, name) \
+      device_create(class, device, devt, NULL, "%s", name)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+#define CLASS_DEV_CREATE(class, devt, device, name) \
+        device_create(class, device, devt, name)
+#else
+#define CLASS_DEV_CREATE(class, devt, device, name) \
+        class_device_create(class, NULL, devt, device, name)
+#endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+#define CLASS_DEV_DESTROY device_destroy
+#else
+#define CLASS_DEV_DESTROY class_device_destroy
+#endif
 
 #else /* LINUX 2.6.0 - 2.6.14 */
 
 #if LINUX_VERSION_CODE >= VERSION_CODE(2,6,13) /* LINUX 2.6.13 - 2.6.14 */
 typedef struct class class_t;
-#define CLASS_DEVICE_CREATE class_device_create
+#define CLASS_DEVICE_CREATE            class_device_create
+#define CLASS_DEV_DESTROY(class, devt) class_device_destroy(class, devt)
 
 #else /* LINUX 2.6.0 - 2.6.12, class_simple */
 
 typedef struct class_simple class_t;
-#define CLASS_DEVICE_CREATE class_simple_device_add
+#define CLASS_DEVICE_CREATE            class_simple_device_add
+#define CLASS_DEV_DESTROY(class, devt) class_simple_device_remove(class, devt)
+
 #define class_create class_simple_create
 #define class_destroy class_simple_destroy
 #define class_device_destroy(a, b) class_simple_device_remove(b)

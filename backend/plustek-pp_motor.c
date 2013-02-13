@@ -3,7 +3,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:
@@ -36,6 +36,8 @@
  * - 0.41 - no changes
  * - 0.42 - changed include names
  * - 0.43 - no changes
+ * - 0.44 - fix format string issues, as Long types default to int32_t
+ *          now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -424,7 +426,7 @@ static void motorP98FillDataToColorTable( pScanData ps,
 		if (*pw) {				/* valid state */
 
 			if( *pw >= ps->BufferForColorRunTable ) {
-				DBG( DBG_LOW, "*pw = %u > %lu !!\n",
+				DBG( DBG_LOW, "*pw = %u > %u !!\n",
 						*pw, ps->BufferForColorRunTable );
 			} else {
 			    bColor = ps->pColorRunTable[*pw];  		/* get the colors 	 */
@@ -1629,7 +1631,7 @@ static void motorP96FillDataToColorTable( pScanData ps,
 		if (*pw) {				/* valid state */
 
 			if( *pw >= ps->BufferForColorRunTable ) {
-				DBG( DBG_LOW, "*pw = %u > %lu !!\n",
+				DBG( DBG_LOW, "*pw = %u > %u !!\n",
 						*pw, ps->BufferForColorRunTable );
 			} else {
 

@@ -4,7 +4,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.37 - initial version
@@ -20,6 +20,8 @@
  * - 0.41 - no changes
  * - 0.42 - changed include names
  * - 0.43 - no changes
+ * - 0.44 - fix format string issues, as Long types default to int32_t
+ *          now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -575,7 +577,7 @@ static int ioP98ReadWriteTest( pScanData ps )
 
 	for( ul = 0; ul < _MEMTEST_SIZE; ul++ ) {
 		if( buffer[ul] != buffer[ul+_MEMTEST_SIZE] ) {
-			DBG( DBG_HIGH, "Error in memory test at pos %lu (%u != %u)\n",
+			DBG( DBG_HIGH, "Error in memory test at pos %u (%u != %u)\n",
 				 ul, buffer[ul], buffer[ul+_MEMTEST_SIZE] );
 			retval = _E_NO_DEV;
 			break;
@@ -590,7 +592,7 @@ static int ioP98ReadWriteTest( pScanData ps )
  */
 static void ioSPPWrite( pScanData ps, pUChar pBuffer, ULong size )
 {
-	DBG( DBG_IO , "Moving %lu bytes to scanner, IODELAY = %u...\n",
+	DBG( DBG_IO , "Moving %u bytes to scanner, IODELAY = %u...\n",
 					size, ps->IO.delay );
 	switch( ps->IO.delay ) {
 	

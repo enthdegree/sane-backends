@@ -3,7 +3,7 @@
 *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:
@@ -32,6 +32,8 @@
  * - 0.43 - added LINUX_26 stuff
  *        - minor fixes
  *        - removed floating point stuff
+ * - 0.44 - fix format string issues, as Long types default to int32_t
+ *          now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -436,7 +438,7 @@ static Long miscNextLongRand( Long seed )
 
 /** initialize the random number generator
  */
-static void miscSeedLongRand( ULong seed )
+static void miscSeedLongRand( long seed )
 {
 	randomnum = seed ? (seed & _PP_M) : 1;  /* nonzero seed */
 }
@@ -455,7 +457,7 @@ _LOC pScanData MiscAllocAndInitStruct( void )
 		MiscReinitStruct( ps );
 	}
 
-	DBG( DBG_HIGH, "ScanData = 0x%08lx\n", (ULong)ps );
+	DBG( DBG_HIGH, "ScanData = 0x%08lx\n", (unsigned long)ps );
 	return ps;	
 }
 
@@ -477,7 +479,7 @@ _LOC int MiscReinitStruct( pScanData ps )
 	ps->sCaps.wIOBase = _NO_BASE;
 
 	/* use memory address to seed the generator */
-	miscSeedLongRand((Long)ps);
+	miscSeedLongRand((long)ps);
 
 	DBG( DBG_HIGH, "Init settings done\n" );
 	return _OK;
@@ -651,14 +653,14 @@ _LOC int MiscCheckTimer( TimerDef *timer )
 #ifdef DEBUG
 _LOC Bool MiscAllPointersSet( pScanData ps )
 {
-	ULong  i;
-	pULong ptr;
+	int  i;
+	unsigned long *ptr;
 
-	for( ptr = (pULong)&ps->OpenScanPath, i = 1;
-		 ptr <= (pULong)&ps->ReadOneImageLine; ptr++, i++ ) {
+	for( ptr = (unsigned long *)&ps->OpenScanPath, i = 1;
+		 ptr <= (unsigned long *)&ps->ReadOneImageLine; ptr++, i++ ) {
 
 		if( NULL == (pVoid)*ptr ) {
-			DBG( DBG_HIGH, "Function pointer not set (pos = %lu) !\n", i );
+			DBG( DBG_HIGH, "Function pointer not set (pos = %d) !\n", i );
 			return _FALSE;
 		}
 	}
@@ -730,7 +732,7 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 		return _E_REGISTER;
 	}
 
-	DBG( DBG_LOW, "Port for device %lu registered\n", ps->devno );
+	DBG( DBG_LOW, "Port for device %u registered\n", ps->devno );
 #endif
 
 	portIsClaimed[ps->devno] = 0;

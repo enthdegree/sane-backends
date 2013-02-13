@@ -1,7 +1,7 @@
 /* @file plustek-pp_procfs.c
  * @brief this is the interface to the proc filesystem
  *
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.37 - initial version
@@ -12,6 +12,9 @@
  * - 0.42 - changed include names
  * - 0.43 - replace _PTDRV_VERx by _PTDRV_VERSTR
  *        - cleanup
+ * - 0.44 - PROC_FS changes for newer kernel
+ *        - fix format string issues, as Long types default to int32_t
+ *          now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -65,7 +68,9 @@
 
 /** for the proc filesystem
  */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 extern struct proc_dir_entry proc_root;
+#endif
 static struct proc_dir_entry *base  = NULL;
 static struct proc_dir_entry *binfo = NULL;
 static ULong                  devcount;
@@ -173,8 +178,6 @@ static int procfsBInfoReadProc( char *buf, char **start, off_t offset,
 	int len = 0;
 
 	len += sprintf( buf, "Plustek Flatbed Scanner Driver version "_PTDRV_VERSTR"\n" );
-
-	len += sprintf( buf + len, "Devices      : %lu\n", *((pULong)data) );
 	len += sprintf( buf + len, "IOCTL-Version: 0x%08x\n",_PTDRV_IOCTL_VERSION);
 	return len;
 }
@@ -348,7 +351,11 @@ int ProcFsInitialize( void )
 {
 	DBG( DBG_HIGH, "ProcFsInitialize()\n" );
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 	base = new_entry( _DRV_NAME, S_IFDIR, &proc_root );
+#else
+	base = new_entry( _DRV_NAME, S_IFDIR, NULL );
+#endif
 
 	if( NULL != base ) {
 
@@ -375,7 +382,11 @@ void ProcFsShutdown( void )
 		if( NULL != binfo )
 			destroy_proc_entry( base, &binfo );
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 		destroy_proc_entry( &proc_root, &base );
+#else
+		destroy_proc_entry( NULL, &base );
+#endif
 	}
 
 	devcount = 0;
@@ -395,7 +406,7 @@ void ProcFsRegisterDevice( pScanData ps )
 
 	memset( &ps->procDir, 0, sizeof(ProcDirDef));
 
-	sprintf( str, "device%lu", ps->devno );
+	sprintf( str, "device%u", ps->devno );
 	
 	ps->procDir.entry = new_entry( str, S_IFDIR, base );
 	if( NULL == ps->procDir.entry )

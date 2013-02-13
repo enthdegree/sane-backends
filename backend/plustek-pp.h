@@ -6,13 +6,14 @@
  *
  * original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
- * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.01 - initial version
  * - 0.43 - bumped up version to reflect the former module code version
  *        - removed Version from ScannerCaps
  *        - added _E_FAULT
+ * - 0.44 - fix UL issues, as Long types default to int32_t now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -190,8 +191,8 @@ typedef const struct mode_param
 #define _TPAModeSupportDef	COLOR_TRUE24
 #define _TPAMinDpi		    150
 
-#define _NegativePageWidth				460UL	/* 38.9 mm */
-#define _NegativePageHeight	    		350UL	/* 29.6 mm */
+#define _NegativePageWidth				460U	/* 38.9 mm */
+#define _NegativePageHeight	    		350U	/* 29.6 mm */
 
 #define _DEF_DPI		 		 50
 

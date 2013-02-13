@@ -3,7 +3,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2006 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:
@@ -24,6 +24,8 @@
  * - 0.41 - no changes
  * - 0.42 - changed include names
  * - 0.43 - cleanup
+ * - 0.44 - fix format string issues, as Long types default to int32_t
+ *          now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -223,7 +225,7 @@ static int detectSetupBuffers( pScanData ps )
 		/*
 		 * allocate and clear
 		 */
-		DBG(DBG_LOW,"Driverbuf(%lu bytes) needed !\n", ps->TotalBufferRequire);
+		DBG(DBG_LOW,"Driverbuf(%u bytes) needed !\n", ps->TotalBufferRequire);
         ps->driverbuf = (pUChar)_VMALLOC(ps->TotalBufferRequire);
 
         if ( NULL == ps->driverbuf ) {
@@ -233,7 +235,7 @@ static int detectSetupBuffers( pScanData ps )
 #else
 		DBG( DBG_HIGH,
 #endif
-             "pt_drv: Not enough kernel memory %ld\n",
+             "pt_drv: Not enough kernel memory %d\n",
                     ps->TotalBufferRequire);
             return _E_ALLOC;  /* Out of memory */
         }
@@ -252,8 +254,8 @@ static int detectSetupBuffers( pScanData ps )
     ps->pColorRunTable = ps->pScanBuffer1 + ps->BufferForDataRead1;
 
 	DBG( DBG_LOW, "pColorRunTab = 0x%0lx - 0x%0lx\n",
-					(ULong)ps->pColorRunTable,
-					(ULong)((pUChar)ps->driverbuf + ps->TotalBufferRequire));
+			(unsigned long)ps->pColorRunTable,
+			(unsigned long)((pUChar)ps->driverbuf + ps->TotalBufferRequire));
 
     if ( _ASIC_IS_98001 == ps->sCaps.AsicID ) {
 
@@ -264,10 +266,11 @@ static int detectSetupBuffers( pScanData ps )
         ps->pColorRunTable = ps->pScanBuffer1 + _LINE_BUFSIZE * 2UL;
         ps->pProcessingBuf = ps->pColorRunTable + ps->BufferForColorRunTable;
         DBG( DBG_LOW, "sb2 = 0x%lx, sb1 = 0x%lx, Color = 0x%lx\n",
-					(ULong)ps->pScanBuffer2, (ULong)ps->pScanBuffer1,
-					(ULong)ps->pColorRunTable );
-        DBG( DBG_LOW, "Pro = 0x%lx, size = %ld\n",
-					(ULong)ps->pProcessingBuf, ps->TotalBufferRequire );
+					(unsigned long)ps->pScanBuffer2,
+					(unsigned long)ps->pScanBuffer1,
+					(unsigned long)ps->pColorRunTable );
+        DBG( DBG_LOW, "Pro = 0x%lx, size = %d\n",
+					(unsigned long)ps->pProcessingBuf, ps->TotalBufferRequire );
 
         ps->dwShadow = (_DEF_BRIGHTEST_SKIP + _DEF_DARKEST_SKIP) * 5400UL * 2UL * 3UL;
 

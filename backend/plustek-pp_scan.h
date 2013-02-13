@@ -1,7 +1,7 @@
 /* @file plustek-pp_scan.h
  * @brief the global header for the plustek driver
  *
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * 0.30 - initial version
@@ -20,6 +20,7 @@
  * 0.41 - no changes
  * 0.42 - changed include names
  * 0.43 - no changes
+ * 0.44 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

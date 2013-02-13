@@ -4,7 +4,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:
@@ -23,6 +23,8 @@
  * - 0.41 - no changes
  * - 0.42 - changed include names
  * - 0.43 - no changes
+ * - 0.44 - fix format string issues, as Long types default to int32_t
+ *          now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -165,7 +167,7 @@ static void tpaP98GetNegativeTempRamData( pScanData ps )
     ULong		dw, dw1;
 	DataPointer	p;
 	pULong		pdwNegativeSumTemp;
-    pUShort		pNegativeTempRam, pNegativeTempRam2, pNegativeTempRam3;
+    pUShort		pNegativeTempRam, pNegativeTempRam2;
 
 	ps->bFastMoveFlag = _FastMove_Low_C75_G150;
 
@@ -174,7 +176,6 @@ static void tpaP98GetNegativeTempRamData( pScanData ps )
     pNegativeTempRam   = (pUShort)(ps->pScanBuffer1 + 5400 * 6);
     pdwNegativeSumTemp = (pULong)(pNegativeTempRam + 960 * 3 * 2);
     pNegativeTempRam2  = (pUShort)(pdwNegativeSumTemp + 960 * 3 * 4);
-    pNegativeTempRam3  = (pUShort)pNegativeTempRam2 + 240 * 3 * 2;
 
 	/* ClearNegativeSumBuffer() */
 	memset( pdwNegativeSumTemp, 0, (960 * 3 * 4));
@@ -704,8 +705,8 @@ _LOC void TPAP98001AverageShadingData( pScanData ps )
 				if (pw[dwRight] >= 600)
 		    		break;
 
-			DBG( DBG_LOW, "_TPAPageWidth = %u, _NegativePageWidth = %lu\n"
-						  "right = %ld, left = %ld --> right = %ld\n",
+			DBG( DBG_LOW, "_TPAPageWidth = %u, _NegativePageWidth = %u\n"
+						  "right = %d, left = %d --> right = %d\n",
 						  _TPAPageWidth, _NegativePageWidth,
 						  dwRight, dwLeft, (((Long)dwRight-(Long)dwLeft)/2));
 

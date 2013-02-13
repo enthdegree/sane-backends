@@ -4,7 +4,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson <rick@efn.org>
  *.............................................................................
  * History:
@@ -46,6 +46,7 @@
  * 0.42 - no changes
  * 0.43 - changed type of XYRatio from double to long
  *      - cleanup
+ * 0.44 - changes as Long defaults now to int32_t
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -128,7 +129,7 @@ typedef struct {
 
 /* CHANGE added these vars for scaling
  */
-	long    XYRatio;
+	Long    XYRatio;
 	ULong   dwPhysBytesPerLine;
 
 /*

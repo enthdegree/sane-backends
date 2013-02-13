@@ -3,7 +3,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 2000 Plustek Inc.
- * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.38 - initial version
@@ -12,6 +12,8 @@
  * - 0.41 - no changes
  * - 0.42 - removed setting of ps->sCaps.dwFlag in p12InitiateComponentModel()
  * - 0.43 - no changes
+ * - 0.44 - fix format string issues, as Long types default to int32_t
+ *          now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -230,7 +232,7 @@ static void p12SetupScanningCondition( pScanData ps )
     ps->Scan.dwMaxReadFifo += (ps->DataInf.dwAsicBytesPerPlane / 2);
 
 
-	DBG( DBG_LOW, "MinReadFifo=%lu, MaxReadFifo=%lu\n",	
+	DBG( DBG_LOW, "MinReadFifo=%u, MaxReadFifo=%u\n",	
          ps->Scan.dwMinReadFifo, ps->Scan.dwMaxReadFifo );
 
     /* ------- Set the max. read fifo to asic ------- */
@@ -426,8 +428,8 @@ static void p12ProgramCCD( pScanData ps)
     pRegDef rp;
 
     DBG( DBG_IO, "p12ProgramCCD: 0x%08lx[%lu]\n",
-                    (ULong)ps->Device.pCCDRegisters,
-                    ((ULong)ps->Device.wNumCCDRegs * ps->Shade.bIntermediate));
+            (unsigned long)ps->Device.pCCDRegisters,
+            ((unsigned long)ps->Device.wNumCCDRegs * ps->Shade.bIntermediate));
 
     DBG( DBG_IO, " %u regs * %u (intermediate)\n",
                     ps->Device.wNumCCDRegs, ps->Shade.bIntermediate );

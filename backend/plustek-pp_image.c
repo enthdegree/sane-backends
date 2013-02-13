@@ -3,7 +3,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:
@@ -34,6 +34,8 @@
  *        - changed include names
  * - 0.43 - removed floating point stuff
  *        - cleanup
+ * - 0.44 - fix format string issues, as Long types default to int32_t
+ *          now
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -418,11 +420,8 @@ static void fnP98Color48( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
 static int imageP98SetupScanSettings( pScanData ps, pScanInfo pInf )
 {
 	UShort brightness;
-	ULong  xAdjust;
 
 	DBG( DBG_LOW, "imageP98SetupScanSettings()\n" );
-
-	xAdjust = pInf->ImgDef.crArea.x + pInf->ImgDef.crArea.cx;
 
     ps->DataInf.dwScanFlag = pInf->ImgDef.dwFlag;
     ps->DataInf.dwVxdFlag  = 0;
@@ -734,7 +733,7 @@ static void imageP98GetInfo( pScanData ps, pImgDef pImgInf )
 		 pImgInf->crArea.cx, pImgInf->crArea.cy );
 
 	ps->DataInf.XYRatio = 1000 * ps->DataInf.xyPhyDpi.y/ps->DataInf.xyPhyDpi.x;
-	DBG( DBG_LOW, "xyDpi.x = %u, xyDpi.y = %u, XYRatio = %lu\n",
+	DBG( DBG_LOW, "xyDpi.x = %u, xyDpi.y = %u, XYRatio = %u\n",
 	               pImgInf->xyDpi.x, pImgInf->xyDpi.y, ps->DataInf.XYRatio );
 
 	ps->DataInf.dwAppLinesPerArea = (ULong)pImgInf->crArea.cy *
@@ -823,14 +822,14 @@ static void imageP98GetInfo( pScanData ps, pImgDef pImgInf )
 		}
 	}
 
-	DBG( DBG_LOW, "AppLinesPerArea    = %lu\n", ps->DataInf.dwAppLinesPerArea    );
-	DBG( DBG_LOW, "AppPixelsPerLine   = %lu\n", ps->DataInf.dwAppPixelsPerLine   );
-	DBG( DBG_LOW, "AppPhyBytesPerLine = %lu\n", ps->DataInf.dwAppPhyBytesPerLine );
-	DBG( DBG_LOW, "AppBytesPerLine    = %lu\n", ps->DataInf.dwAppBytesPerLine    );
-	DBG( DBG_LOW, "AsicPixelsPerPlane = %lu\n", ps->DataInf.dwAsicPixelsPerPlane );
-	DBG( DBG_LOW, "AsicBytesPerPlane  = %lu\n", ps->DataInf.dwAsicBytesPerPlane  );
-	DBG( DBG_LOW, "AsicBytesPerLine   = %lu\n", ps->DataInf.dwAsicBytesPerLine   );
-	DBG( DBG_LOW, "Physical Bytes     = %lu\n", ps->DataInf.dwPhysBytesPerLine   );
+	DBG( DBG_LOW, "AppLinesPerArea    = %u\n", ps->DataInf.dwAppLinesPerArea    );
+	DBG( DBG_LOW, "AppPixelsPerLine   = %u\n", ps->DataInf.dwAppPixelsPerLine   );
+	DBG( DBG_LOW, "AppPhyBytesPerLine = %u\n", ps->DataInf.dwAppPhyBytesPerLine );
+	DBG( DBG_LOW, "AppBytesPerLine    = %u\n", ps->DataInf.dwAppBytesPerLine    );
+	DBG( DBG_LOW, "AsicPixelsPerPlane = %u\n", ps->DataInf.dwAsicPixelsPerPlane );
+	DBG( DBG_LOW, "AsicBytesPerPlane  = %u\n", ps->DataInf.dwAsicBytesPerPlane  );
+	DBG( DBG_LOW, "AsicBytesPerLine   = %u\n", ps->DataInf.dwAsicBytesPerLine   );
+	DBG( DBG_LOW, "Physical Bytes     = %u\n", ps->DataInf.dwPhysBytesPerLine   );
 }
 
 /**
@@ -852,7 +851,7 @@ static void imageP96GetInfo( pScanData ps, pImgDef pImgInf )
 		 pImgInf->crArea.cx, pImgInf->crArea.cy );
 
 	ps->DataInf.XYRatio = 1000 * ps->DataInf.xyPhyDpi.y/ps->DataInf.xyPhyDpi.x;
-	DBG( DBG_LOW, "xyDpi.x = %u, xyDpi.y = %u, XYRatio = %lu\n",
+	DBG( DBG_LOW, "xyDpi.x = %u, xyDpi.y = %u, XYRatio = %u\n",
 	               pImgInf->xyDpi.x, pImgInf->xyDpi.y, ps->DataInf.XYRatio );
 
 	ps->DataInf.dwAppLinesPerArea = (ULong)pImgInf->crArea.cy *
@@ -925,14 +924,14 @@ static void imageP96GetInfo( pScanData ps, pImgDef pImgInf )
 /* WORK: AsicBytesPerLine only used for ASIC_98001 based scanners - try to remove
 **		 that, also try to remove redundant info
 */
-	DBG( DBG_LOW, "AppLinesPerArea    = %lu\n", ps->DataInf.dwAppLinesPerArea    );
-	DBG( DBG_LOW, "AppPixelsPerLine   = %lu\n", ps->DataInf.dwAppPixelsPerLine   );
-	DBG( DBG_LOW, "AppPhyBytesPerLine = %lu\n", ps->DataInf.dwAppPhyBytesPerLine );
-	DBG( DBG_LOW, "AppBytesPerLine    = %lu\n", ps->DataInf.dwAppBytesPerLine    );
-	DBG( DBG_LOW, "AsicPixelsPerPlane = %lu\n", ps->DataInf.dwAsicPixelsPerPlane );
-	DBG( DBG_LOW, "AsicBytesPerPlane  = %lu\n", ps->DataInf.dwAsicBytesPerPlane  );
-	DBG( DBG_LOW, "AsicBytesPerLine   = %lu\n", ps->DataInf.dwAsicBytesPerLine   );
-	DBG( DBG_LOW, "Physical Bytes     = %lu\n", ps->DataInf.dwPhysBytesPerLine   );
+	DBG( DBG_LOW, "AppLinesPerArea    = %u\n", ps->DataInf.dwAppLinesPerArea    );
+	DBG( DBG_LOW, "AppPixelsPerLine   = %u\n", ps->DataInf.dwAppPixelsPerLine   );
+	DBG( DBG_LOW, "AppPhyBytesPerLine = %u\n", ps->DataInf.dwAppPhyBytesPerLine );
+	DBG( DBG_LOW, "AppBytesPerLine    = %u\n", ps->DataInf.dwAppBytesPerLine    );
+	DBG( DBG_LOW, "AsicPixelsPerPlane = %u\n", ps->DataInf.dwAsicPixelsPerPlane );
+	DBG( DBG_LOW, "AsicBytesPerPlane  = %u\n", ps->DataInf.dwAsicBytesPerPlane  );
+	DBG( DBG_LOW, "AsicBytesPerLine   = %u\n", ps->DataInf.dwAsicBytesPerLine   );
+	DBG( DBG_LOW, "Physical Bytes     = %u\n", ps->DataInf.dwPhysBytesPerLine   );
 }
 
 /** here we wait for one data-line
@@ -1528,7 +1527,7 @@ static int imageP98003SetupScanSettings( pScanData ps, pScanInfo pInf )
 						ps->Scan.gd_gk.wGreenKeep + 2U) *
 			            ps->DataInf.dwAsicBytesPerPlane;
 
-			DBG( DBG_LOW, "48Bit buffer request: len=%lu bytes, available=%lu\n",
+			DBG( DBG_LOW, "48Bit buffer request: len=%u bytes, available=%u\n",
 						  b, ps->TotalBufferRequire );
 
 			if( b > ps->TotalBufferRequire )

@@ -1,7 +1,7 @@
 /* @file plustek-pp_types.h
  * @brief some typedefs and error codes
  *
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * 0.30 - initial version
@@ -24,6 +24,8 @@
  * 0.41 - no changes
  * 0.42 - moved errorcodes to plustek-share.h
  * 0.43 - no changes
+ * 0.44 - define Long and ULong types to use int32_t, so
+ *        the code should still work on 64 bit machines
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -84,9 +86,16 @@ typedef UShort 		   *pUShort;
 typedef unsigned int	UInt;
 typedef UInt		   *pUInt;
 
+/* these definitions will fail for 64 bit machines! */
+#if 0
 typedef long 		  	Long;
 typedef long  		   *pLong;
 typedef unsigned long 	ULong;
+#endif
+
+typedef int32_t		  	Long;
+typedef int32_t 	   *pLong;
+typedef uint32_t	 	ULong;
 typedef ULong 		   *pULong;
 
 typedef void 		   *pVoid;

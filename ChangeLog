@@ -1,3 +1,6 @@
+2013-02-13 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys*.[ch]: cppcheck errors fixes
+
 2013-02-13 Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/plustek_pp.c: Bumped build number
 	* backend/plustek-pp*: Fixed kernel module build for recent kernels

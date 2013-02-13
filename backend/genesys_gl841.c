@@ -5302,17 +5302,17 @@ gl841_init (Genesys_Device * dev)
 
 /*ignore errors. next read will succeed*/
   sanei_genesys_read_data_from_scanner (dev, line, size);
+  free(line);
 
   sanei_usb_set_timeout(30 * 1000);/* 30 seconds*/
 
-  RIEF (gl841_end_scan (dev, dev->calib_reg, SANE_TRUE), line);
+  RIE (gl841_end_scan (dev, dev->calib_reg, SANE_TRUE));
 
-  free(line);
 
   memcpy (dev->calib_reg, dev->reg, (GENESYS_GL841_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
 
   /* Set powersaving (default = 15 minutes) */
-  RIEF (gl841_set_powersaving (dev, 15), line);
+  RIE (gl841_set_powersaving (dev, 15));
   dev->already_initialized = SANE_TRUE;
 
   DBGCOMPLETED;

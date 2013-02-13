@@ -29,7 +29,7 @@
  *        - changed usb_MapDownload prototype
  * - 0.50 - cleanup
  * - 0.51 - added usb_get_res() and usb_GetPhyPixels()
- * - 0.52 - removed stuff, that will most probably nver be used
+ * - 0.52 - removed stuff, that will most probably never be used
  * .
  * <hr>
  * This file is part of the SANE package.

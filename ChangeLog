@@ -1,4 +1,4 @@
-2013-03-13 Gerhard Jaeger <gerhard@gjaeger.de>
+2013-02-13 Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/plustek.c: Bumped build number
 	* backend/plustek-usbscan.c backend/plustek-usbshading.c: Cleanup
 	* backend/plustek-usb.h backend/plustek-usbdevs.c backend/plustek-usbhw.c:

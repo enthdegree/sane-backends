@@ -1,7 +1,7 @@
 #!/bin/bash
 #******************************************************************************
 #
-# Bash-Script to create Plustek-Scannerdriver modules for Kernel 2.4 & 2.6
+# Bash-Script to create Plustek-Scannerdriver modules for Kernel 2.4, 2.6 and 3.x
 # out of the backend sources...
 #
 
@@ -37,7 +37,10 @@ echo -e "\b\b\b - done."
 # Version checks...
 #
 echo -e "\nCheck for kernelversion:"
-if [ "$OSMINOR" == "6" ]; then
+if [ "$OSMAJOR" == "3" ];then
+	echo "Using makefile for kernel 2.6.x - okay for kernel 3 as well..."
+	MAKEFILE=$PWD/Makefile.kernel26
+elif [ "$OSMINOR" == "6" ]; then
 	echo "Using makefile for kernel 2.6.x"
 	MAKEFILE=$PWD/Makefile.kernel26
 elif [ "$OSMINOR" == "4" ]; then
@@ -78,7 +81,7 @@ echo -e "\b\b\b - done."
 # Building the module...
 #
 echo "Making the module..."
-if [ "$OSMINOR" == "4" ]; then
+if [ "$OSMAJOR" == "2" -a "$OSMINOR" == "4" ]; then
 	make all $1
 else
 	make -C /lib/modules/$KERNEL_V/build/ SUBDIRS=$BUILD_DIR modules $1

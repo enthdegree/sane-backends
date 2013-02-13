@@ -1,3 +1,12 @@
+2013-03-13 Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/plustek.c: Bumped build number
+	* backend/plustek-usbscan.c backend/plustek-usbshading.c: Cleanup
+	* backend/plustek-usb.h backend/plustek-usbdevs.c backend/plustek-usbhw.c:
+	  Added support for Q-Scan A6 portable scanner
+	* doc/descriptions/plustek.desc: Added entry for Q-Scan A6
+	  Q-Scan A6 Patch submitted and tested by Hiroshi Miura. Bug #312073.
+	* doc/sane-plustek.man doc/plustek/Plustek-USB.changes: Update
+
 2013-02-11 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_common.c, backend/pixma_imageclass.c,
 	doc/descriptions/pixma.desc: fixed adf paper empty for Canon i-SENSYS

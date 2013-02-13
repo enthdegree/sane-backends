@@ -1,4 +1,11 @@
 2013-02-13 Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/plustek_pp.c: Bumped build number
+	* backend/plustek-pp*: Fixed kernel module build for recent kernels
+	  Defined internal "ULong" types to be in fact 32 bit wide,
+	  this should fix issues on 64 bit machines.
+	* doc/plustek/Plustek-PARPORT.changes: Update
+
+2013-02-13 Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/plustek.c: Bumped build number
 	* backend/plustek-usbscan.c backend/plustek-usbshading.c: Cleanup
 	* backend/plustek-usb.h backend/plustek-usbdevs.c backend/plustek-usbhw.c:

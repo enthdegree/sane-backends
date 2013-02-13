@@ -173,3 +173,8 @@ Version 0.43-12 08/29/2006
 Version 0.43-13 06/18/2007
     1.0 Removed DEVFS stuff for Kernels > 2.6.15
     2.0 Added class stuff
+
+Version 0.44-1 02/13/2013
+    1.0 Fixed issues for Kernels > 2.6.35
+    2.0 Define ULong and friends to uint32_t to make the driver
+        work in a 64 bit environment

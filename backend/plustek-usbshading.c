@@ -7,7 +7,7 @@
  *  @brief Calibration routines.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -33,6 +33,7 @@
  * - 0.51 - added fine calibration cache
  * - 0.52 - added get_ptrs to let various sensororders work
  *          correctly
+ *        - fixed warning condition
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -1859,7 +1860,6 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 	u_long        dw, dwLines, dwRead;
 	u_long        shading_lines;
 	MonoWordDef  *pValue;
-	RGBUShortDef *m_pAvColor;
 	u_short      *m_pAvMono;
 	u_long       *pdw, *m_pSum;
 	u_short       hilight, shadow;
@@ -1872,8 +1872,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 	DBG( _DBG_INFO, "#########################\n" );
 	DBG( _DBG_INFO, "usb_AdjustWhiteShading()\n" );
 	
-	m_pAvColor = (RGBUShortDef*)scan->pScanBuffer;
-	m_pAvMono  = (u_short*)scan->pScanBuffer;
+	m_pAvMono = (u_short*)scan->pScanBuffer;
 
 	if( usb_IsEscPressed())
 		return SANE_FALSE;

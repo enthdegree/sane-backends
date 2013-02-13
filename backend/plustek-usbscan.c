@@ -7,7 +7,7 @@
  *  @brief Scanning...
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2013 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -29,7 +29,7 @@
  *        - changed usb_MapDownload prototype
  * - 0.50 - cleanup
  * - 0.51 - added usb_get_res() and usb_GetPhyPixels()
- * - 0.52 - no changes
+ * - 0.52 - removed stuff, that will most probably nver be used
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -1495,7 +1495,6 @@ usb_IsDataAvailableInDRAM( Plustek_Device *dev )
 static SANE_Bool
 usb_ScanReadImage( Plustek_Device *dev, void *pBuf, u_long dwSize )
 {
-	static u_long dwBytes = 0;
 	u_char       *regs = dev->usbDev.a_bRegs;
 	SANE_Status   res;
 
@@ -1503,7 +1502,6 @@ usb_ScanReadImage( Plustek_Device *dev, void *pBuf, u_long dwSize )
 
 	if( m_fFirst ) {
 
-		dwBytes  = 0;
 		m_fFirst = SANE_FALSE;
 
 		/* Wait for data band ready */
@@ -1515,52 +1513,6 @@ usb_ScanReadImage( Plustek_Device *dev, void *pBuf, u_long dwSize )
 		/* restore the fast forward stepsize...*/
 		sanei_lm983x_write(dev->fd, 0x48, &regs[0x48], 2, SANE_TRUE);
 	}
-/* HEINER: ADF */
-#if 0
-	if(ScanInf.m_fADF == 1 && Scanning.sParam.bCalibration == PARAM_Scan)
-	{
-		if(dwBytes)
-		{
-			DWORD dw;
-			BOOL fRet;
-
-			if(dwSize < dwBytes)
-				dw = dwSize;
-			else
-				dw = dwBytes;
-
-			fRet = ReadData(0x00, (PBYTE)pBuf, dw);
-
-			dwBytes -= dw;
-
-			if(!dwBytes)
-			{
-				WriteRegister(0x07, 0);	/* To stop scanning */ 
-				ScanInf.m_fADF++;
-				if(dwSize > dw)
-					ScanReadImage((PBYTE)pBuf + dw, dwSize - dw);
-			}
-			return fRet;
-		}
-		else if(!Hardware.SensorPaper())
-		{
-			dwBytes = (Scanning.sParam.PhyDpi.y * 18 / 25) * Scanning.sParam.Size.dwPhyBytes;
-			return ScanReadImage(pBuf, dwSize);
-		}
-	}
-	else if(ScanInf.m_fADF > 1)
-	{
-		DWORD dw;
-		if(Scanning.sParam.bBitDepth > 8)
-		{
-			for(dw = 0; dw < dwSize; dw += 2)
-				*((PWORD)pBuf + dw) = 0xfffc;
-		}
-		else
-			FillMemory(pBuf, dwSize, 0xff);
-		return TRUE;
-	}
-#endif
 	res = sanei_lm983x_read(dev->fd, 0x00, (u_char *)pBuf, dwSize, SANE_FALSE);
 
 	/* check for pressed ESC button, as sanei_lm983x_read() may take some time

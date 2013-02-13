@@ -6,11 +6,13 @@
  * Original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
  * Also based on the work done by Rick Bronson<br>
- * Copyright (C) 2000-2006 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de><br>
  *
  * History:
  * - 0.01 - initial version, imported from the kernel-module 0.42-11
  * - 0.43 - bumped up version to reflect the former module code version
+ * - 0.44 - bumped up version to reflect the recent changes
+ *        - minor cleanup
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -74,6 +76,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <math.h>
+#include <stdint.h>
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -83,7 +86,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.43-13"
+#define BACKEND_VERSION "0.44-1"
 #define BACKEND_NAME	plustek_pp
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -527,7 +530,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
  * @param  dev - pointer to the device specific structure
  * @return The function always returns SANE_STATUS_GOOD
  */
-static SANE_Status limitResolution( Plustek_Device *dev )
+static void limitResolution( Plustek_Device *dev )
 {
 	dev->dpi_range.min = _DEF_DPI;
  	if( dev->dpi_range.min < _DEF_DPI )
@@ -552,8 +555,6 @@ static SANE_Status limitResolution( Plustek_Device *dev )
 	dev->y_range.min 	 = 0;
 	dev->y_range.max 	 = SANE_FIX(dev->max_y);
 	dev->y_range.quant 	 = 0;
-	
-	return SANE_STATUS_GOOD;
 }
 
 /** Currently we support only LM9831/2/3 chips and these use the same
@@ -975,7 +976,6 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	int 		    cntr;
 	int			    result;
 	int			    handle;
-	SANE_Status	    status;
 	Plustek_Device *dev;
 
 	DBG( _DBG_SANE_INIT, "attach (%s, %p, %p)\n",
@@ -1092,7 +1092,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 		dev->res_list[dev->res_list_size - 1] = (SANE_Int)cntr;
 	}
 
-	status = limitResolution( dev );
+	limitResolution( dev );
 
 	dev->fd = handle;
 	drvclose( dev );

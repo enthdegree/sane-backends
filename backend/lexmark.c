@@ -2,7 +2,7 @@
 
    (C) 2003-2004 Lexmark International, Inc. (Original Source code)
    (C) 2005 Fred Odendaal
-   (C) 2006-2011 Stéphane Voltz <stef.dev@free.fr>
+   (C) 2006-2013 Stéphane Voltz <stef.dev@free.fr>
    (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
    
    This file is part of the SANE package.
@@ -436,7 +436,7 @@ attachLexmark (SANE_String_Const devname)
 
   num_lexmark_device++;
 
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 SANE_Status

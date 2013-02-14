@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2007-2012 stef.dev@free.fr
+   Copyright (C) 2007-2013 stef.dev@free.fr
    
    This file is part of the SANE package.
    
@@ -152,13 +152,13 @@ rts8891_write_all (SANE_Int devnum, SANE_Byte * regs, SANE_Int count)
 static SANE_Status
 rts8891_commit (SANE_Int devnum, SANE_Byte value)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Status status;
   SANE_Byte reg;
 
   reg = value;
-  status = sanei_rts88xx_write_reg (devnum, 0xd3, &reg);
-  status = sanei_rts88xx_cancel (devnum);
-  status = sanei_rts88xx_write_control (devnum, 0x08);
+  sanei_rts88xx_write_reg (devnum, 0xd3, &reg);
+  sanei_rts88xx_cancel (devnum);
+  sanei_rts88xx_write_control (devnum, 0x08);
   status = sanei_rts88xx_write_control (devnum, 0x08);
   return status;
 }
@@ -185,7 +185,7 @@ rts8891_read_buttons (SANE_Int devnum, SANE_Int * mask)
 
   /* clear register r25 */
   reg = 0x00;
-  status = sanei_rts88xx_write_reg (devnum, 0x25, &reg);
+  sanei_rts88xx_write_reg (devnum, 0x25, &reg);
 
   /* clear register r1a */
   sanei_rts88xx_read_reg (devnum, 0x1a, &reg);

@@ -1,7 +1,7 @@
 /* lexmark-low.c: scanner-interface file for low Lexmark scanners.
 
    (C) 2005 Fred Odendaal
-   (C) 2006-2011 Stéphane Voltz	<stef.dev@free.fr>
+   (C) 2006-2013 Stéphane Voltz	<stef.dev@free.fr>
    (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
    
    This file is part of the SANE package.
@@ -347,10 +347,10 @@ rts88xx_commit (SANE_Int devnum, SANE_Byte depth)
    * X1100/B2 -> 0x0d
    * X1200 -> 0x01 */
   reg = depth;
-  status = rts88xx_write_reg (devnum, 0x2c, &reg);
+  rts88xx_write_reg (devnum, 0x2c, &reg);
 
   /* stop before starting */
-  status = low_stop_mvmt (devnum);
+  low_stop_mvmt (devnum);
 
   /* effective start */
   status = low_start_mvmt (devnum);
@@ -901,7 +901,7 @@ low_start_mvmt (SANE_Int devnum)
   SANE_Byte reg;
 
   reg = 0x68;
-  status = rts88xx_write_reg (devnum, 0xb3, &reg);
+  rts88xx_write_reg (devnum, 0xb3, &reg);
   status = rts88xx_write_reg (devnum, 0xb3, &reg);
   return status;
 }
@@ -914,10 +914,10 @@ low_stop_mvmt (SANE_Int devnum)
 
   /* Stop scanner - clear reg 0xb3: */
   reg = 0x02;
-  status = rts88xx_write_reg (devnum, 0xb3, &reg);
-  status = rts88xx_write_reg (devnum, 0xb3, &reg);
+  rts88xx_write_reg (devnum, 0xb3, &reg);
+  rts88xx_write_reg (devnum, 0xb3, &reg);
   reg = 0x00;
-  status = rts88xx_write_reg (devnum, 0xb3, &reg);
+  rts88xx_write_reg (devnum, 0xb3, &reg);
   status = rts88xx_write_reg (devnum, 0xb3, &reg);
   return status;
 }
@@ -2222,7 +2222,7 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
 	    }
 	}
 
-      size_requested = size_returned;
+      /*size_requested = size_returned;*/
       size_requested = 2500;
       no_of_buffers = size_returned * 3;
       no_of_buffers = no_of_buffers / 2500;
@@ -2407,13 +2407,12 @@ low_set_scan_area (SANE_Int res,
 		   SANE_Byte * regs, Lexmark_Device * dev)
 {
 
-  SANE_Status status;
   SANE_Int vert_start = 0;
   SANE_Int hor_start = 0;
   SANE_Int vert_end;
   SANE_Int hor_end;
 
-  status = low_get_start_loc (res, &vert_start, &hor_start, offset, dev);
+  low_get_start_loc (res, &vert_start, &hor_start, offset, dev);
 
   /* convert pixel height to vertical location coordinates */
   vert_end = vert_start + (bry * res) / 600;
@@ -5600,6 +5599,7 @@ sanei_lexmark_low_offset_calibration (Lexmark_Device * dev)
       write_pnm_file (title, pixels, lines, rts88xx_is_color (regs), data);
 #endif
       average = average_area (regs, data, pixels, lines, &ra, &ga, &ba);
+      free (data);
     }
   if (i == 0)
     {
@@ -5621,7 +5621,7 @@ sanei_lexmark_low_offset_calibration (Lexmark_Device * dev)
 	free (data);
       return status;
     }
-  average = average_area (regs, data, pixels, lines, &ra, &ga, &ba);
+  average_area (regs, data, pixels, lines, &ra, &ga, &ba);
 #ifdef DEEP_DEBUG
   write_pnm_file ("offset-final.pnm", pixels, lines, rts88xx_is_color (regs),
 		  data);
@@ -5669,7 +5669,7 @@ sanei_lexmark_low_gain_calibration (Lexmark_Device * dev)
   int sx, ex;
   int pixels;
   /* averages */
-  int ra, ga, ba, average;
+  int ra, ga, ba;
   SANE_Byte *data = NULL;
   int red, green, blue;
 #ifdef DEEP_DEBUG
@@ -5725,7 +5725,7 @@ sanei_lexmark_low_gain_calibration (Lexmark_Device * dev)
       sprintf (title, "gain%02d.pnm", i);
       write_pnm_file (title, pixels, lines, rts88xx_is_color (regs), data);
 #endif
-      average = average_area (regs, data, pixels, lines, &ra, &ga, &ba);
+      average_area (regs, data, pixels, lines, &ra, &ga, &ba);
       free (data);
       if (ra < dev->sensor->red_gain_target)
 	red++;
@@ -5926,6 +5926,7 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
 	    (rtarget / dev->shading_coeff[i]) * (lines - yoffset);
 	}
     }
+  free(data);
 
   /* do the scan backward to go back to start position */
   regs[0xc6] &= 0xF7;
@@ -5940,6 +5941,8 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
     {
       DBG (1,
 	   "sanei_lexmark_low_shading_calibration: low_simple_scan failed!\n");
+      if(data!=NULL)
+	free(data);
       return status;
     }
 
@@ -6098,6 +6101,6 @@ sanei_lexmark_low_assign_model (Lexmark_Device * dev,
   DBG (3, "sanei_lexmark_low_assign_model: assigned %s\n", dev->model.model);
 
   /* init sensor data */
-  return sanei_lexmark_low_assign_sensor (dev);
   DBG (2, "sanei_lexmark_low_assign_model: end.\n");
+  return sanei_lexmark_low_assign_sensor (dev);
 }

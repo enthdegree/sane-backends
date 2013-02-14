@@ -461,9 +461,9 @@ sanei_rts88xx_write_mem (SANE_Int devnum, SANE_Int length, SANE_Int extra,
   char message[(0xFFC0 + 10) * 3] = "";
 
   buffer = (SANE_Byte *) malloc (length + 10);
-  memset (buffer, 0, length + 10);
   if (buffer == NULL)
     return SANE_STATUS_NO_MEM;
+  memset (buffer, 0, length + 10);
 
   buffer[0] = 0x89;
   buffer[1] = 0x00;
@@ -601,11 +601,13 @@ sanei_rts88xx_get_mem (SANE_Int devnum, SANE_Byte ctrl1,
 SANE_Status
 sanei_rts88xx_nvram_ctrl (SANE_Int devnum, SANE_Int length, SANE_Byte * value)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Int size = 0;
+  SANE_Status status;
   SANE_Int i;
-  SANE_Byte buffer[60];
   char message[60 * 5];
+#ifdef HAZARDOUS_EXPERIMENT
+  SANE_Int size = 0;
+  SANE_Byte buffer[60];
+#endif
 
   if (DBG_LEVEL > DBG_io)
     {
@@ -613,10 +615,11 @@ sanei_rts88xx_nvram_ctrl (SANE_Int devnum, SANE_Int length, SANE_Byte * value)
         {
           sprintf (message + 5 * i, "0x%02x ", value[i]);
         }
-      DBG (DBG_io, "sanei_rts88xx_nvram_ctrl : nvram_ctrl(0x00,%d)=%s\n",
-           length, message);
+      DBG (DBG_io, "sanei_rts88xx_nvram_ctrl : devnum=%d, nvram_ctrl(0x00,%d)=%s\n",
+	   devnum, length, message);
     }
 
+#ifdef HAZARDOUS_EXPERIMENT
   buffer[0] = 0x8a;
   buffer[1] = 0x00;
   buffer[2] = 0x00;
@@ -625,10 +628,8 @@ sanei_rts88xx_nvram_ctrl (SANE_Int devnum, SANE_Int length, SANE_Byte * value)
     buffer[i + 4] = value[i];
   /* the USB block is size + 4 bytes of header long */
   size = length + 4;
-#ifdef HAZARDOUS_EXPERIMENT
   status = sanei_usb_write_bulk (devnum, buffer, &size);
 #else
-  devnum = devnum;
   status = SANE_STATUS_GOOD;
 #endif
   if (status != SANE_STATUS_GOOD)
@@ -780,7 +781,7 @@ sanei_rts88xx_wait_data (SANE_Int devnum, SANE_Bool busy, SANE_Word * count)
         {
           DBG (DBG_io, "sanei_rts88xx_wait_data: %d bytes available\n",
                *count);
-          return SANE_STATUS_GOOD;
+          return status;
         }
 
       /* check that the scanner is busy scanning */

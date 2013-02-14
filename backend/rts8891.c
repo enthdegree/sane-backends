@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2007-2012 stef.dev@free.fr
+   Copyright (C) 2007-2013 stef.dev@free.fr
 
    This file is part of the SANE package.
 
@@ -567,11 +567,12 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fdp)
 {
-  /* make compiler happy ... */
-  handle = handle;
-  fdp = fdp;
 
   DBG (DBG_proc, "sane_get_select_fd: start\n");
+  if(handle==0 || fdp==NULL)
+    {
+      return SANE_STATUS_INVAL;
+    }
   DBG (DBG_warn, "sane_get_select_fd: unsupported ...\n");
   DBG (DBG_proc, "sane_get_select_fd: exit\n");
   return SANE_STATUS_UNSUPPORTED;
@@ -1068,7 +1069,7 @@ SANE_Status
 sane_start (SANE_Handle handle)
 {
   struct Rts8891_Session *session = handle;
-  int ret = SANE_STATUS_GOOD, light, mode;
+  int light, mode;
   struct Rts8891_Device *dev = session->dev;
   SANE_Status status;
   SANE_Bool changed;
@@ -1376,13 +1377,13 @@ sane_start (SANE_Handle handle)
   /* commit the scan */
   /* TODO send_calibration seems to embbed its commit */
   sanei_rts88xx_cancel (dev->devnum);
-  status = sanei_rts88xx_write_control (dev->devnum, 0x08);
+  sanei_rts88xx_write_control (dev->devnum, 0x08);
   status = sanei_rts88xx_write_control (dev->devnum, 0x08);
 
   session->scanning = SANE_TRUE;
 
   DBG (DBG_proc, "sane_start: exit\n");
-  return ret;
+  return status;
 }
 
 /**
@@ -1708,8 +1709,8 @@ SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * buf,
 	   SANE_Int max_len, SANE_Int * len)
 {
-  struct Rts8891_Session *session = (struct Rts8891_Session *) handle;
-  struct Rts8891_Device *dev = session->dev;
+  struct Rts8891_Session *session;
+  struct Rts8891_Device *dev;
   SANE_Status status;
   SANE_Int length;
   SANE_Int data_size;
@@ -1720,11 +1721,19 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
   DBG (DBG_io, "sane_read: up to %d bytes required by frontend\n", max_len);
 
   /* some sanity checks first to protect from would be buggy frontends */
-  if (!session)
+  if (!handle)
     {
       DBG (DBG_error, "sane_read: handle is null!\n");
       return SANE_STATUS_INVAL;
     }
+
+  session = (struct Rts8891_Session *) handle;
+  if (!session)
+    {
+      DBG (DBG_error, "sane_read: session is null!\n");
+      return SANE_STATUS_INVAL;
+    }
+  dev = session->dev;
 
   if (!buf)
     {
@@ -2388,7 +2397,10 @@ config_attach_rts8891 (SANEI_Config * config, const char *devname)
   /* currently, the config is a global variable so config is useless here */
   /* the correct thing would be to have a generic sanei_attach_matching_devices
    * using an attach function with a config parameter */
-  config = config;
+  if(config==NULL)
+    {
+      return SANE_STATUS_INVAL;
+    }
 
   /* the devname has been processed and is ready to be used 
    * directly. Since the backend is an USB only one, we can 
@@ -3142,9 +3154,15 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   /* allocate memory for the data */
   total = width * height;
   data = (unsigned char *) malloc (total);
-  image = (unsigned char *) malloc (total);
-  if (image == NULL || data == NULL)
+  if (data == NULL)
     {
+      DBG (DBG_error, "find_origin: failed to allocate %d bytes\n", total);
+      return SANE_STATUS_NO_MEM;
+    }
+  image = (unsigned char *) malloc (total);
+  if (image == NULL)
+    {
+      free(data);
       DBG (DBG_error, "find_origin: failed to allocate %d bytes\n", total);
       return SANE_STATUS_NO_MEM;
     }
@@ -3173,12 +3191,16 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
 			 total, data);
   if (status != SANE_STATUS_GOOD)
     {
+      free(image);
+      free(data);
       DBG (DBG_error, "find_origin: failed to scan\n");
       return status;
     }
 
   if (status != SANE_STATUS_GOOD)
     {
+      free(image);
+      free(data);
       DBG (DBG_error, "find_origin: failed to wait for data\n");
       return status;
     }
@@ -3450,6 +3472,7 @@ find_margin (struct Rts8891_Device *dev)
 			 total, data);
   if (status != SANE_STATUS_GOOD)
     {
+      free(data);
       DBG (DBG_error, "find_margin: failed to scan\n");
       return status;
     }

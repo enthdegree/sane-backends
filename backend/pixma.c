@@ -352,14 +352,16 @@ clamp_value (pixma_sane_t * ss, SANE_Int n, void *v, SANE_Int * info)
  * tpu = 1: TPU mode
  *          16 bit grayscale and 48 bit color scans */
 static void
-create_mode_list (pixma_sane_t * ss, SANE_Bool tpu)
+create_mode_list (pixma_sane_t * ss)
 {
+  SANE_Bool tpu;
   const pixma_config_t *cfg;
   int i;
 
   cfg = pixma_get_config (ss->s);
+  tpu = (ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_TPU);
 
-  /* setup available mode. */
+  /* setup available mode */
   i = 0;
   ss->mode_list[i] = SANE_VALUE_SCAN_MODE_COLOR;
   ss->mode_map[i] = PIXMA_SCAN_MODE_COLOR;
@@ -406,56 +408,63 @@ create_mode_list (pixma_sane_t * ss, SANE_Bool tpu)
 }
 
 /* create dynamic dpi_list
- * ss:      scanner device
- * ext = 0: min = 75 dpi; max = cfg->xdpi
- * ext = 1: use settings for ADF/TPU
- *          overrides hires
- *          cfg->adftpu_min_dpi and cfg->adftpu_max_dpi not set: min = 75 dpi; max = cfg->xdpi
- *          only cfg->adftpu_min_dpi set: min = cfg->adftpu_min_dpi; max = cfg->xdpi
- *          only cfg->adftpu_max_dpi set: min = 75 dpi; max = cfg->adftpu_max_dpi
- *          both cfg->adftpu_min_dpi and cfg->adftpu_max_dpi set: min = cfg->adftpu_min_dpi; cfg->adftpu_max_dpi
- * hires = 0: normal usage
- * hires = 1: min = 150 dpi; max = use calculation from ext */
+ * ss: scanner device */
 static void
-create_dpi_list (pixma_sane_t * ss, SANE_Bool ext, SANE_Bool hires)
+create_dpi_list (pixma_sane_t * ss)
 {
   const pixma_config_t *cfg;
   int i, j;
-  int min_dpi;
+  int min;
+  unsigned min_dpi;
+  unsigned max_dpi;
 
   cfg = pixma_get_config (ss->s);
+
+  /* get min/max dpi */
+  max_dpi = cfg->xdpi;
+  min_dpi = 75;
+  if (ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_TPU
+      || ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_ADF
+      || ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_ADFDUP)
+  { /* ADF / TPU mode */
+    /*PDBG (pixma_dbg (4, "*create_dpi_list***** ADF/TPU mode\n"));*/
+    min_dpi = (cfg->adftpu_min_dpi) ? cfg->adftpu_min_dpi : 75;
+    max_dpi = (cfg->adftpu_max_dpi) ? cfg->adftpu_max_dpi : cfg->xdpi;
+  }
+  else if (ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_FLATBED
+            && (ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_COLOR_48
+                || ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_GRAY_16))
+  { /* 48 bits flatbed */
+    /*PDBG (pixma_dbg (4, "*create_dpi_list***** 48 bits flatbed mode\n"));*/
+    min_dpi = 150;
+  }
 
   /* set j for min. dpi
    *  75 dpi: j = 0
    * 150 dpi: j = 1 \
-   * 300 dpi: j = 2 |--> from cfg->adftpu_min_dpi for ADF/TPU
-   * ...            /
+   * 300 dpi: j = 2 |--> from cfg->adftpu_min_dpi or cfg->tpuir_min_dpi
+   * 600 dpi: j = 3 /
    * */
-  j = (hires ? 1 : 0);
-  if (ext && cfg->adftpu_min_dpi)
-    {
-      j = -1;
-      min_dpi = cfg->adftpu_min_dpi / 75;
-      do
-        {
-          j++;
-          min_dpi >>= 1;
-        }
-      while (min_dpi > 0);
-    }
+  j = -1;
+  min = min_dpi / 75;
+  do
+  {
+    j++;
+    min >>= 1;
+  }
+  while (min > 0);
 
   /* create dpi_list
-   * use j for min. dpi
-   * max. dpi is cfg->xdpi or cfg->adftpu_max_dpi for ADF/TPU */
+   * use j for min. dpi */
   i = 0;
   do
     {
       i++; j++;
       ss->dpi_list[i] = 75 * (1 << (j - 1));    /* 75 x 2^(j-1) */
     }
-  while ((unsigned) ss->dpi_list[i] != ((ext && cfg->adftpu_max_dpi) ? cfg->adftpu_max_dpi
-                                                                       : cfg->xdpi));
+  while ((unsigned) ss->dpi_list[i] < max_dpi);
   ss->dpi_list[0] = i;
+  /*PDBG (pixma_dbg (4, "*create_dpi_list***** min_dpi = %d, max_dpi = %d\n", min_dpi, max_dpi));*/
 }
 
 static void
@@ -713,18 +722,13 @@ control_option (pixma_sane_t * ss, SANE_Int n,
         }
       break;
     case opt_mode:
-      if ((cfg->cap & (PIXMA_CAP_LINEART))
+      if (cfg->cap & (PIXMA_CAP_48BIT|PIXMA_CAP_LINEART)
           && (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO))
         { /* new mode selected: Color, Gray, ... */
           /* PDBG (pixma_dbg (4, "*control_option***** mode = %u *\n",
                            ss->mode_map[OVAL (opt_mode).w])); */
-          if (ss->source_map[OVAL (opt_source).w] != PIXMA_SOURCE_TPU)
-            { /* ADF or flatbed*/
-              /* recreate dynamic dpi_list */
-              create_dpi_list (ss, SANE_FALSE,
-                               (ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_COLOR_48
-                                || ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_GRAY_16));
-            }
+          /* recreate dynamic lists */
+          create_dpi_list (ss);
           if (ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_LINEART)
             { /* lineart */
               enable_option (ss, opt_threshold, SANE_TRUE);
@@ -742,25 +746,17 @@ control_option (pixma_sane_t * ss, SANE_Int n,
       if ((cfg->cap & (PIXMA_CAP_ADF|PIXMA_CAP_ADFDUP|PIXMA_CAP_TPU))
           && (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO))
         { /* new source selected: flatbed, ADF, TPU, ... */
+          /* to avoid fatal errors,
+           * select first entry of dynamic mode_list
+           * identifiers are unknown here */
+          OVAL (opt_mode).w = ss->mode_map[0];
           /* recreate dynamic lists */
-          if (ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_TPU)
-            { /* TPU mode */
-              create_mode_list (ss, SANE_TRUE);
-              create_dpi_list (ss, SANE_TRUE, SANE_FALSE);
-            }
-          else if (ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_ADF
-                   || ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_ADFDUP)
-            { /* ADF mode */
-              create_mode_list (ss, SANE_FALSE);
-              create_dpi_list (ss, SANE_TRUE, SANE_FALSE);
-            }
-          else
-            { /* flatbed mode */
-              create_mode_list (ss, SANE_FALSE);
-              create_dpi_list (ss, SANE_FALSE,
-                               (ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_COLOR_48
-                                || ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_GRAY_16));
-            }
+          create_mode_list (ss);
+          create_dpi_list (ss);
+          /* to avoid fatal errors,
+           * select first entry of dynamic dpi_list
+           * identifiers are unknown here */
+          OVAL (opt_resolution).w = ss->dpi_list[1];
           if (ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_LINEART)
             { /* lineart */
               enable_option (ss, opt_threshold, SANE_TRUE);
@@ -771,12 +767,6 @@ control_option (pixma_sane_t * ss, SANE_Int n,
               enable_option (ss, opt_threshold, SANE_FALSE);
               enable_option (ss, opt_threshold_curve, SANE_FALSE);
             }
-          /* to avoid fatal errors,
-           * select first entry of dynamic dpi_list
-           * and first entry of dynamic mode_list
-           * identifiers are unknown here */
-          OVAL (opt_resolution).w = ss->dpi_list[1];
-          OVAL (opt_mode).w = ss->mode_map[0];
           *info |= SANE_INFO_RELOAD_OPTIONS;
         }
       break;
@@ -872,14 +862,14 @@ init_option_descriptors (pixma_sane_t * ss)
   ss->yrange.max = SANE_FIX (cfg->height / 75.0 * 25.4);
   ss->yrange.quant = SANE_FIX (0);
 
-  /* setup dpi up to the value supported by the scanner. */
-  create_dpi_list (ss, SANE_FALSE, SANE_FALSE);
-
   /* mode_list and source_list were already NULL-terminated,
    * because the whole pixma_sane_t was cleared during allocation. */
 
   /* setup available mode. */
-  create_mode_list (ss, SANE_FALSE);
+  create_mode_list (ss);
+
+  /* setup dpi up to the value supported by the scanner. */
+  create_dpi_list (ss);
 
   /* setup paper source */
   i = 0;

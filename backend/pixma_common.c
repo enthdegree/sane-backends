@@ -1004,10 +1004,10 @@ pixma_check_scan_param (pixma_t * s, pixma_scan_param_t * sp)
     return PIXMA_EINVAL;
 
   /* flatbed: use s->cfg->xdpi
-   * TPU/ADF: use s->cfg->ext_max_dpi, if configured with dpi value */
+   * TPU/ADF: use s->cfg->adftpu_max_dpi, if configured with dpi value */
   cfg_xdpi = ((sp->source == PIXMA_SOURCE_FLATBED
-               || s->cfg->ext_max_dpi == 0) ? s->cfg->xdpi
-                                            : s->cfg->ext_max_dpi);
+               || s->cfg->adftpu_max_dpi == 0) ? s->cfg->xdpi
+                                               : s->cfg->adftpu_max_dpi);
 
   if (pixma_check_dpi (sp->xdpi, cfg_xdpi) < 0 ||
       pixma_check_dpi (sp->ydpi, s->cfg->ydpi) < 0)

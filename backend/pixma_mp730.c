@@ -793,7 +793,7 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
   mp730_get_status
 };
 
-/* TODO: implement ext_min_dpi & ext_max_dpi for grayscale & lineart */
+/* TODO: implement adftpu_min_dpi & adftpu_max_dpi for grayscale & lineart */
 #define DEVICE(name, model, pid, dpi, w, h, cap) {           \
               name,              /* name */           \
               model,             /* model */		      \
@@ -801,7 +801,7 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
               1,                 /* iface */		      \
               &pixma_mp730_ops,  /* ops */            \
               dpi, dpi,          /* xdpi, ydpi */	    \
-              0, 0,              /* ext_min_dpi & ext_max_dpi not used in this subdriver */ \
+              0, 0,              /* adftpu_min_dpi & adftpu_max_dpi not used in this subdriver */ \
               w, h,              /* width, height */	\
         PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap           \
 }

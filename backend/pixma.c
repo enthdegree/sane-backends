@@ -410,10 +410,10 @@ create_mode_list (pixma_sane_t * ss, SANE_Bool tpu)
  * ext = 0: min = 75 dpi; max = cfg->xdpi
  * ext = 1: use settings for ADF/TPU
  *          overrides hires
- *          cfg->ext_min_dpi and cfg->ext_max_dpi not set: min = 75 dpi; max = cfg->xdpi
- *          only cfg->ext_min_dpi set: min = cfg->ext_min_dpi; max = cfg->xdpi
- *          only cfg->ext_max_dpi set: min = 75 dpi; max = cfg->ext_max_dpi
- *          both cfg->ext_min_dpi and cfg->ext_max_dpi set: min = cfg->ext_min_dpi; cfg->ext_max_dpi
+ *          cfg->adftpu_min_dpi and cfg->adftpu_max_dpi not set: min = 75 dpi; max = cfg->xdpi
+ *          only cfg->adftpu_min_dpi set: min = cfg->adftpu_min_dpi; max = cfg->xdpi
+ *          only cfg->adftpu_max_dpi set: min = 75 dpi; max = cfg->adftpu_max_dpi
+ *          both cfg->adftpu_min_dpi and cfg->adftpu_max_dpi set: min = cfg->adftpu_min_dpi; cfg->adftpu_max_dpi
  * hires = 0: normal usage
  * hires = 1: min = 150 dpi; max = use calculation from ext */
 static void
@@ -428,14 +428,14 @@ create_dpi_list (pixma_sane_t * ss, SANE_Bool ext, SANE_Bool hires)
   /* set j for min. dpi
    *  75 dpi: j = 0
    * 150 dpi: j = 1 \
-   * 300 dpi: j = 2 |--> from cfg->ext_min_dpi for ADF/TPU
+   * 300 dpi: j = 2 |--> from cfg->adftpu_min_dpi for ADF/TPU
    * ...            /
    * */
   j = (hires ? 1 : 0);
-  if (ext && cfg->ext_min_dpi)
+  if (ext && cfg->adftpu_min_dpi)
     {
       j = -1;
-      min_dpi = cfg->ext_min_dpi / 75;
+      min_dpi = cfg->adftpu_min_dpi / 75;
       do
         {
           j++;
@@ -446,15 +446,15 @@ create_dpi_list (pixma_sane_t * ss, SANE_Bool ext, SANE_Bool hires)
 
   /* create dpi_list
    * use j for min. dpi
-   * max. dpi is cfg->xdpi or cfg->ext_max_dpi for ADF/TPU */
+   * max. dpi is cfg->xdpi or cfg->adftpu_max_dpi for ADF/TPU */
   i = 0;
   do
     {
       i++; j++;
       ss->dpi_list[i] = 75 * (1 << (j - 1));    /* 75 x 2^(j-1) */
     }
-  while ((unsigned) ss->dpi_list[i] != ((ext && cfg->ext_max_dpi) ? cfg->ext_max_dpi
-                                                                  : cfg->xdpi));
+  while ((unsigned) ss->dpi_list[i] != ((ext && cfg->adftpu_max_dpi) ? cfg->adftpu_max_dpi
+                                                                       : cfg->xdpi));
   ss->dpi_list[0] = i;
 }
 

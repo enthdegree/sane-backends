@@ -1595,14 +1595,14 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
   mp150_get_status
 };
 
-#define DEVICE(name, model, pid, dpi, ext_min_dpi, ext_max_dpi, w, h, cap) { \
+#define DEVICE(name, model, pid, dpi, adftpu_min_dpi, adftpu_max_dpi, w, h, cap) { \
         name,              /* name */               \
         model,             /* model */              \
         CANON_VID, pid,    /* vid pid */            \
         0,                 /* iface */              \
         &pixma_mp150_ops,  /* ops */                \
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
-        ext_min_dpi, ext_max_dpi,   /* ext_min_dpi, ext_max_dpi */ \
+        adftpu_min_dpi, adftpu_max_dpi,         /* adftpu_min_dpi, adftpu_max_dpi */ \
         w, h,              /* width, height */      \
         PIXMA_CAP_EASY_RGB|                         \
         PIXMA_CAP_GRAY|    /* CIS with native grayscale and CCD with software grayscale */ \

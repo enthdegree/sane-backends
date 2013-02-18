@@ -1603,6 +1603,7 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
         &pixma_mp150_ops,  /* ops */                \
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
         adftpu_min_dpi, adftpu_max_dpi,         /* adftpu_min_dpi, adftpu_max_dpi */ \
+        0, 0,              /* tpuir_min_dpi & tpuir_max_dpi not used in this subdriver */  \
         w, h,              /* width, height */      \
         PIXMA_CAP_EASY_RGB|                         \
         PIXMA_CAP_GRAY|    /* CIS with native grayscale and CCD with software grayscale */ \

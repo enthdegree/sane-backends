@@ -351,6 +351,10 @@ struct pixma_config_t
                                  *  only needed if ADF/TPU has another min. dpi value than 75 dpi */
   unsigned adftpu_max_dpi;    /**< Maximum vertical resolution[DPI] for adf/tpu
                                  *  only needed if ADF/TPU has another max. dpi value than xdpi */
+  unsigned tpuir_min_dpi;       /**< Minimum resolution[DPI] for tpu-ir
+                                   *  only needed if TPU-IR has another min. dpi value than 75 dpi */
+  unsigned tpuir_max_dpi;       /**< Maximum resolution[DPI] for tpu-ir
+                                   *  only needed if TPU-IR has another max. dpi value than xdpi */
   unsigned width;	     /**< Maximum width of scannable area in pixels at 75DPI */
   unsigned height;	   /**< Maximum height of scannable area in pixels at 75DPI */
   unsigned cap;		     /**< Capability bitfield \see PIXMA_CAP_* */

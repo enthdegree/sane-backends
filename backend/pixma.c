@@ -384,6 +384,12 @@ create_mode_list (pixma_sane_t * ss)
           i++;
         }
     }
+  if (tpu && (cfg->cap & PIXMA_CAP_TPUIR))
+    {
+      ss->mode_list[i] = SANE_I18N ("Infrared");
+      ss->mode_map[i] = PIXMA_SCAN_MODE_TPUIR;
+      i++;
+    }
   if (!tpu && (cfg->cap & PIXMA_CAP_48BIT))
     {
       ss->mode_list[i] = SANE_I18N ("48 bits color");
@@ -424,8 +430,15 @@ create_dpi_list (pixma_sane_t * ss)
   max_dpi = cfg->xdpi;
   min_dpi = 75;
   if (ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_TPU
-      || ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_ADF
-      || ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_ADFDUP)
+      && ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_TPUIR)
+  { /* IR mode */
+    /*PDBG (pixma_dbg (4, "*create_dpi_list***** TPUIR mode\n"));*/
+    min_dpi = (cfg->tpuir_min_dpi) ? cfg->tpuir_min_dpi : 75;
+    max_dpi = (cfg->tpuir_max_dpi) ? cfg->tpuir_max_dpi : cfg->xdpi;
+  }
+  else if (ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_TPU
+            || ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_ADF
+            || ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_ADFDUP)
   { /* ADF / TPU mode */
     /*PDBG (pixma_dbg (4, "*create_dpi_list***** ADF/TPU mode\n"));*/
     min_dpi = (cfg->adftpu_min_dpi) ? cfg->adftpu_min_dpi : 75;
@@ -722,7 +735,7 @@ control_option (pixma_sane_t * ss, SANE_Int n,
         }
       break;
     case opt_mode:
-      if (cfg->cap & (PIXMA_CAP_48BIT|PIXMA_CAP_LINEART)
+      if (cfg->cap & (PIXMA_CAP_48BIT|PIXMA_CAP_LINEART|PIXMA_CAP_TPUIR)
           && (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO))
         { /* new mode selected: Color, Gray, ... */
           /* PDBG (pixma_dbg (4, "*control_option***** mode = %u *\n",

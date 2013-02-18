@@ -149,6 +149,7 @@ typedef uint32_t uint32_t;
 #define PIXMA_CAP_CCD          (1 << 8)
 #define PIXMA_CAP_LINEART      (1 << 9)
 #define PIXMA_CAP_NEGATIVE     (1 << 10)
+#define PIXMA_CAP_TPUIR        ((1 << 11) | PIXMA_CAP_TPU)
 #define PIXMA_CAP_EXPERIMENT   (1 << 31)
 /**@}*/
 
@@ -219,7 +220,9 @@ typedef enum pixma_scan_mode_t
   PIXMA_SCAN_MODE_COLOR_48,
   PIXMA_SCAN_MODE_GRAY_16,
   /* 1 bit lineart scan mode */
-  PIXMA_SCAN_MODE_LINEART
+  PIXMA_SCAN_MODE_LINEART,
+  /* TPUIR scan mode */
+  PIXMA_SCAN_MODE_TPUIR
 } pixma_scan_mode_t;
 
 typedef enum pixma_hardware_status_t

@@ -13,7 +13,7 @@
 :backend "pixma"                  ; name of backend
 :version "0.17.1"                 ; version of backend (or "unmaintained")
 :manpage "sane-pixma"             ; name of manpage (if it exists)
-:url "http://home.arcor.de/wittawat/pixma/" ; 0.13.1 backend's web page
+:url "http://home.arcor.de/wittawat/pixma/" ; 0.13.2 backend's web page
 :url "http://mp610.blogspot.com/"            ; the pixma backend blog
 ;:comment "Devices marked as experimantal are disabled by default. See the manual page for how to enable them."
 
@@ -761,4 +761,4 @@
 :interface "USB"
 :usbid "0x04a9" "0x1908"
 :status :complete
-:comment "Full flatbed support up to 4800DPI (Note: flatbed does not have 9600DPI capability). Full TPU support (negatives and slides) up to 9600DPI."
+:comment "Full flatbed support up to 4800DPI (Note: flatbed does not have 9600DPI capability). Full TPU support (negatives, slides and infrared) up to 9600DPI."

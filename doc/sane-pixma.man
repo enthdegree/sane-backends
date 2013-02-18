@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "21 Jan 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "18 Feb 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 .B sane\-pixma 
@@ -112,7 +112,7 @@ The backend supports:
 .br
 * Automatic Document Feeder, Simplex and Duplex.
 .br
-* Transparency Unit, 24 or 48 bits depth.
+* Transparency Unit, 24 or 48 bits depth. Infrared channel on certain models.
 .RE
 .PP
 The device name for USB devices is in the form pixma:xxxxyyyy_zzzzz

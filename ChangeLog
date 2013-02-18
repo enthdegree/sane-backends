@@ -1,3 +1,10 @@
+2013-02-18 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.[ch], backend/pixma_common.[ch], backend/pixma_imageclass.c,
+	backend/pixma_mp150.c, backend/pixma_mp7[35]0.c, backend/pixma_mp810.c,
+	doc/descriptions/pixma.desc, doc/sane-pixma.man, po/de.po:
+	- add infrared scan support for Canon Canoscan 9000F
+	- Pixma backend version 0.17.2
+
 2013-02-13 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys*.[ch]: cppcheck errors fixes
 

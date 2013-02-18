@@ -1837,10 +1837,24 @@ static int mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
   sp->line_size = sp->w * sp->channels * (((sp->software_lineart) ? 8 : sp->depth) / 8); /* bytes per line per color after cropping */
   /* PDBG (pixma_dbg (4, "*mp810_check_param***** (else) Final scan width and line-size: %u, %"PRIu64" *****\n", sp->wx, sp->line_size)); */
 
-  if (sp->source == PIXMA_SOURCE_FLATBED)
+  /* highest res is 600, 2400, 4800 or 9600 dpi */
   {
-    /* flatbed mode: highest res is 4800 dpi */
-    uint8_t k = sp->xdpi / MIN (sp->xdpi, 4800);
+    uint8_t k;
+
+    if ((sp->source == PIXMA_SOURCE_ADF || sp->source == PIXMA_SOURCE_ADFDUP)
+        && mp->generation >= 4)
+      /* ADF/ADF duplex mode: max scan res is 600 dpi, at least for generation 4 */
+      k = sp->xdpi / MIN (sp->xdpi, 600);
+    else if (sp->source == PIXMA_SOURCE_TPU && sp->mode == PIXMA_SCAN_MODE_TPUIR)
+      /* TPUIR mode: max scan res is 2400 dpi */
+      k = sp->xdpi / MIN (sp->xdpi, 2400);
+    else if (sp->source == PIXMA_SOURCE_TPU && s->cfg->pid == CS9000F_PID)
+      /* CS9000F in TPU mode */
+      k = sp->xdpi / MIN (sp->xdpi, 9600);
+    else
+      /* default */
+      k = sp->xdpi / MIN (sp->xdpi, 4800);
+
     sp->x /= k;
     sp->xs /= k;
     sp->y /= k;
@@ -1851,21 +1865,28 @@ static int mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
     sp->ydpi = sp->xdpi;
   }
 
-  /* TPU mode and 16 bit flatbed scans
-   * TODO: either the frontend (xsane) cannot handle 48 bit flatbed scans @ 75 dpi (prescan)
-   *       or there is a bug in this subdriver */
-  if (sp->source == PIXMA_SOURCE_TPU
-      || sp->mode == PIXMA_SCAN_MODE_COLOR_48 || sp->mode == PIXMA_SCAN_MODE_GRAY_16)
+  /* lowest res is 75, 150, 300 or 600 dpi */
   {
     uint8_t k;
 
-    /* lowest res is 150 or 300 dpi */
-    /* MP810, MP960 appear to have a 200dpi mode for low-res scans, not 150 dpi */
-    if (sp->source == PIXMA_SOURCE_TPU
-        && ((mp->generation >= 3) || (s->cfg->pid == MP810_PID) || (s->cfg->pid == MP960_PID)))
+    if (sp->source == PIXMA_SOURCE_TPU && sp->mode == PIXMA_SCAN_MODE_TPUIR)
+      /* TPUIR mode */
+      k = MAX (sp->xdpi, 600) / sp->xdpi;
+    else if (sp->source == PIXMA_SOURCE_TPU
+              && ((mp->generation >= 3) || (s->cfg->pid == MP810_PID) || (s->cfg->pid == MP960_PID)))
+      /* TPU mode for generation 3+ scanners
+       * MP810, MP960 appear to have a 200dpi mode for low-res scans, not 150 dpi */
       k = MAX (sp->xdpi, 300) / sp->xdpi;
-    else
+    else if (sp->source == PIXMA_SOURCE_TPU
+              || sp->mode == PIXMA_SCAN_MODE_COLOR_48 || sp->mode == PIXMA_SCAN_MODE_GRAY_16)
+      /* TPU mode and 16 bit flatbed scans
+       * TODO: either the frontend (xsane) cannot handle 48 bit flatbed scans @ 75 dpi (prescan)
+       *       or there is a bug in this subdriver */
       k = MAX (sp->xdpi, 150) / sp->xdpi;
+    else
+      /* default */
+      k = MAX (sp->xdpi, 75) / sp->xdpi;
+
     sp->x *= k;
     sp->xs *= k;
     sp->y *= k;
@@ -1873,23 +1894,6 @@ static int mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
     sp->wx *= k;
     sp->h *= k;
     sp->xdpi *= k;
-    sp->ydpi = sp->xdpi;
-  }
-
-  if (sp->source == PIXMA_SOURCE_ADF || sp->source == PIXMA_SOURCE_ADFDUP)
-  {
-    uint8_t k = 1;
-
-    /* ADF/ADF duplex mode: max scan res is 600 dpi, at least for generation 4 */
-    if (mp->generation >= 4)
-      k = sp->xdpi / MIN (sp->xdpi, 600);
-    sp->x /= k;
-    sp->xs /= k;
-    sp->y /= k;
-    sp->w /= k;
-    sp->wx /= k;
-    sp->h /= k;
-    sp->xdpi /= k;
     sp->ydpi = sp->xdpi;
   }
 

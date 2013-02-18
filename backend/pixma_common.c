@@ -305,6 +305,32 @@ pixma_get_time (time_t * sec, uint32_t * usec)
     *usec = tv.tv_usec;
 }
 
+/* convert 24/48 bit RGB to 8/16 bit ir
+ *
+ * Formular: g = R
+ *           drop G + B
+ *
+ * sptr: source color scale buffer
+ * gptr: destination gray scale buffer
+ * c == 3: 24 bit RGB -> 8 bit ir
+ * c == 6: 48 bit RGB -> 16 bit ir
+ */
+uint8_t *
+pixma_r_to_ir (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
+{
+  unsigned i, j, g;
+
+  /* PDBG (pixma_dbg (4, "*pixma_rgb_to_ir*****\n")); */
+
+  for (i = 0; i < w; i++)
+    {
+      *gptr++ = *sptr++;
+      if (c == 6) *gptr++ = *sptr++;            /* 48 bit RGB: high byte */
+      sptr += (c == 6) ? 4 : 2;                 /* drop G + B */
+    }
+  return gptr;
+}
+
 /* convert 24/48 bit RGB to 8/16 bit grayscale
  *
  * Formular: g = (R + G + B) / 3

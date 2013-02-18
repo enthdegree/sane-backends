@@ -53,6 +53,8 @@
 /*#define DEBUG_TPU_48*//* uncomment to debug 48 bits TPU on a non TPU device */
 /*#define DEBUG_TPU_24*//* uncomment to debug 24 bits TPU on a non TPU device */
 
+/*#define TPUIR_USE_RGB*/      /* uncomment to use RGB channels and convert them to gray; otherwise use R channel only */
+
 #include "../include/sane/config.h"
 
 #include <stdio.h>
@@ -544,6 +546,11 @@ static int is_lineart (pixma_t * s)
   return (s->param->mode == PIXMA_SCAN_MODE_LINEART);
 }
 
+static int is_tpuir (pixma_t * s)
+{
+  return (s->param->mode == PIXMA_SCAN_MODE_TPUIR);
+}
+
 /* CCD sensors don't have neither a Grayscale mode nor a Lineart mode,
  * but use color mode instead */
 static unsigned get_cis_ccd_line_size (pixma_t * s)
@@ -551,7 +558,7 @@ static unsigned get_cis_ccd_line_size (pixma_t * s)
   return ((
       s->param->wx ? s->param->line_size / s->param->w * s->param->wx
                    : s->param->line_size)
-      * ((is_gray_all (s) || is_lineart (s)) ? 3 : 1));
+      * ((is_tpuir (s) || is_gray_all (s) || is_lineart (s)) ? 3 : 1));
 }
 
 static unsigned calc_shifting (pixma_t * s)
@@ -774,12 +781,83 @@ static int send_scan_param (pixma_t * s)
   }
   else
   {
+    /* scan parameters:
+     * ================
+     *
+     * byte | # of  |  mode   | value / description
+     *      | bytes |         |
+     * -----+-------+---------+---------------------------
+     * 0x00 |   1   | default | 0x01
+     *      |       |   adf   | 0x02
+     *      |       |   tpu   | 0x04
+     *      |       |  tpuir  | cs9000f: 0x03
+     * -----+-------+---------+---------------------------
+     * 0x01 |   1   | default | 0x00
+     *      |       |   tpu   | 0x02
+     * -----+-------+---------+---------------------------
+     * 0x02 |   1   | default | 0x01
+     *      |       | adfdup  | 0x03
+     * -----+-------+---------+---------------------------
+     * 0x03 |   1   | default | 0x00
+     *      |       | adfdup  | 0x03
+     * -----+-------+---------+---------------------------
+     * 0x04 |   1   |   all   | 0x00
+     * -----+-------+---------+---------------------------
+     * 0x05 |   1   |   all   | 0x01: This one also seen at 0. Don't know yet what's used for.
+     * -----+-------+---------+---------------------------
+     *  ... |   1   |   all   | 0x00
+     * -----+-------+---------+---------------------------
+     * 0x08 |   2   |   all   | xdpi | 0x8000
+     * -----+-------+---------+---------------------------
+     * 0x0a |   2   |   all   | ydpi | 0x8000: Must be the same as xdpi.
+     * -----+-------+---------+---------------------------
+     * 0x0c |   4   |   all   | x position of start pixel
+     * -----+-------+---------+---------------------------
+     * 0x10 |   4   |   all   | y position of start pixel
+     * -----+-------+---------+---------------------------
+     * 0x14 |   4   |   all   | # of pixels in 1 line
+     * -----+-------+---------+---------------------------
+     * 0x18 |   4   |   all   | # of scan lines
+     * -----+-------+---------+---------------------------
+     * 0x1c |   1   |   all   | 0x08
+     *      |       |         | 0x04 = relict from cis scanners?
+     * -----+-------+---------+---------------------------
+     * 0x1d |   1   |   all   | # of bits per pixel
+     * -----+-------+---------+---------------------------
+     * 0x1e |   1   | default | 0x00: paper
+     *      |       |   tpu   | 0x01: positives
+     *      |       |   tpu   | 0x02: negatives
+     *      |       |  tpuir  | 0x01: positives
+     * -----+-------+---------+---------------------------
+     * 0x1f |   1   |   all   | 0x01
+     *      |       |         | cs9000f: 0x00: Not sure if that is because of positives.
+     * -----+-------+---------+---------------------------
+     * 0x20 |   1   |   all   | 0xff
+     * -----+-------+---------+---------------------------
+     * 0x21 |   1   |   all   | 0x81
+     * -----+-------+---------+---------------------------
+     * 0x22 |   1   |   all   | 0x00
+     * -----+-------+---------+---------------------------
+     * 0x23 |   1   |   all   | 0x02
+     * -----+-------+---------+---------------------------
+     * 0x24 |   1   |   all   | 0x01
+     * -----+-------+---------+---------------------------
+     * 0x25 |   1   | default | 0x01, cs9000f: 0x00
+     *      |       |   tpu   | 0x00, cs9000f: 0x01
+     *      |       |  tpuir  | cs9000f: 0x00
+     * -----+-------+---------+---------------------------
+     *  ... |   1   |   all   | 0x00
+     * -----+-------+---------+---------------------------
+     * 0x30 |   1   |   all   | 0x01
+     *
+     */
+
     data = pixma_newcmd (&mp->cb, cmd_scan_param_3, 0x38, 0);
-    data[0x00] = (is_scanning_from_adf (s)) ? 0x02 : 0x01;
+    data[0x00] = is_scanning_from_adf (s) ? 0x02 : 0x01;
     data[0x01] = 0x01;
     if (is_scanning_from_tpu (s))
     {
-      data[0x00] = 0x04;
+      data[0x00] = is_tpuir (s) ? 0x03 : 0x04;
       data[0x01] = 0x02;
       data[0x1e] = 0x02; /* NB: CanoScan 8800F: 0x02->negatives, 0x01->positives, paper->0x00 */
     }
@@ -800,14 +878,14 @@ static int send_scan_param (pixma_t * s)
     pixma_set_be32 (s->param->y, data + 0x10);
     pixma_set_be32 (raw_width, data + 0x14);
     pixma_set_be32 (h, data + 0x18);
-    data[0x1c] = ((s->param->channels != 1) || is_gray_all (s) || is_lineart (s)) ? 0x08 : 0x04;
+    data[0x1c] = ((s->param->channels != 1) || is_tpuir (s) || is_gray_all (s) || is_lineart (s)) ? 0x08 : 0x04;
 
 #ifdef DEBUG_TPU_48
     data[0x1d] = 24;
 #else
     data[0x1d] = (is_scanning_from_tpu (s)) ? 48
                                             : (((s->param->software_lineart) ? 8 : s->param->depth)
-                                               * ((is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels)); /* bits per pixel */
+                                               * ((is_tpuir (s) || is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels)); /* bits per pixel */
 #endif
 
     data[0x1f] = 0x01; /* for 9000F this appears to be 0x00, not sure if that is because of positives */
@@ -848,6 +926,8 @@ static int send_scan_param (pixma_t * s)
         /* CS9000F: 0x01 for TPU */
         if (s->cfg->pid == CS9000F_PID)
           data[0x25] = 0x01;
+        if (s->param->mode == PIXMA_SCAN_MODE_TPUIR)
+          data[0x25] = 0x00;
       }
       else
       { /* flatbed and ADF */
@@ -1413,7 +1493,7 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   test = 0;
   jumplines = 0;
 
-  c = ((is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels)
+  c = ((is_tpuir (s) || is_gray_all (s) || is_lineart (s)) ? 3 : s->param->channels)
       * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;
   cw = c * s->param->w;
   cx = c * s->param->xs;
@@ -1592,10 +1672,17 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
       /* Color to Lineart convert for CCD sensor */
       if (is_lineart (s))
-        cptr = gptr = pixma_binarize_line (s->param, gptr, cptr, s->param->w,
-                                           c);
+        cptr = gptr = pixma_binarize_line (s->param, gptr, cptr, s->param->w, c);
+#ifndef TPUIR_USE_RGB
+      /* save IR only for CCD sensor */
+      else if (is_tpuir (s))
+        cptr = gptr = pixma_r_to_ir (gptr, cptr, s->param->w, c);
       /* Color to Grayscale convert for CCD sensor */
       else if (is_gray_all (s))
+#else
+      /* IR *and* Color to Grayscale convert for CCD sensor */
+      else if (is_tpuir (s) || is_gray_all (s))
+#endif
         cptr = gptr = pixma_rgb_to_gray (gptr, cptr, s->param->w, c);
       else
         cptr += cw;
@@ -1698,6 +1785,7 @@ static int mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
      * 16 bit per channel with TPU */
     case PIXMA_SCAN_MODE_GRAY:
     case PIXMA_SCAN_MODE_NEGATIVE_GRAY:
+    case PIXMA_SCAN_MODE_TPUIR:
       sp->channels = 1;
       /* fall through */
     case PIXMA_SCAN_MODE_COLOR:
@@ -2225,7 +2313,7 @@ const pixma_config_t pixma_mp810_devices[] =
   DEVICE ("Canon MP990 series", "MP990", MP990_PID, 4800, 300, 0, 0, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Flatbed scanner (2010) */
-  DEVICE ("Canoscan 9000F", "9000F", CS9000F_PID, 4800, 300, 9600, 600, 2400, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_NEGATIVE | PIXMA_CAP_48BIT),
+  DEVICE ("Canoscan 9000F", "9000F", CS9000F_PID, 4800, 300, 9600, 600, 2400, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPUIR | PIXMA_CAP_NEGATIVE | PIXMA_CAP_48BIT),
 
   /* Latest devices (2010) Generation 4 CCD untested */
   DEVICE ("Canon PIXMA MG8100", "MG8100", MG8100_PID, 4800, 300, 0, 0, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),

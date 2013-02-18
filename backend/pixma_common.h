@@ -189,6 +189,7 @@ uint8_t pixma_sum_bytes (const void *data, unsigned len);
 int pixma_check_dpi (unsigned dpi, unsigned max);
 void pixma_sleep (unsigned long usec);
 void pixma_get_time (time_t * sec, uint32_t * usec);
+uint8_t * pixma_r_to_ir (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c);
 uint8_t * pixma_rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c);
 uint8_t * pixma_binarize_line(pixma_scan_param_t *, uint8_t * dst, uint8_t * src, unsigned width, unsigned c);
 /**@}*/

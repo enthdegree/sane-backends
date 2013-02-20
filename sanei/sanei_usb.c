@@ -2039,6 +2039,10 @@ sanei_usb_close (SANE_Int dn)
     DBG (1, "sanei_usb_close: libusb support missing\n");
 #endif
   devices[dn].open = SANE_FALSE;
+  if (devices[dn].devname) {
+    free(devices[dn].devname);
+    devices[dn].devname = NULL;
+  }
   return;
 }
 

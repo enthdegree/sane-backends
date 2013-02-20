@@ -3,6 +3,7 @@
 	  initialization otherwise a segfault appears in triple -v mode
 	* sanei/sanei_usb.c: Free heap memory, acquired via strdup for
 	  devname, in sanei_usb_close()
+	* po/de.po: Fixed typo
 
 2013-02-18 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_common.[ch], backend/pixma_imageclass.c,

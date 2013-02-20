@@ -2,7 +2,7 @@
    check-usb-chip.c -- Find out what USB scanner chipset is used
    
    Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
-   Copyright (C) 2003 Gerhard J�ger <gerhard@gjaeger.de>
+   Copyright (C) 2003 Gerhard Jaeger <gerhard@gjaeger.de>
                       for LM983x tests
    Copyright (C) 2003 Gerard Klaver <gerard at gkall dot hobby dot nl>
                       for ICM532B tests

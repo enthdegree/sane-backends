@@ -1,6 +1,6 @@
 /* sane-find-scanner.c
 
-   Copyright (C) 1997-2005 Oliver Rauch, Henning Meier-Geinitz, and others.
+   Copyright (C) 1997-2013 Oliver Rauch, Henning Meier-Geinitz, and others.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -1991,9 +1991,6 @@ main (int argc, char **argv)
 	if (verbose > 2)
 	  printf ("trying libusb:\n");
 
-	if (verbose > 3)
-	  libusb_set_debug (sfs_usb_ctx, 3);
-
 	ret = libusb_init (&sfs_usb_ctx);
 	if (ret < 0)
 	  {
@@ -2002,6 +1999,9 @@ main (int argc, char **argv)
 
 	    goto failed_libusb_1_0;
 	  }
+
+	if (verbose > 3)
+	  libusb_set_debug (sfs_usb_ctx, 3);
 
 	devcnt = libusb_get_device_list (sfs_usb_ctx, &devlist);
 	if (devcnt < 0)

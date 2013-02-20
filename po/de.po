@@ -4555,7 +4555,7 @@ msgstr "Lampe aus während Schwarzkalibrierung"
 #: ../backend/plustek.c:927
 #, no-c-format
 msgid "Always switches lamp off when doing dark calibration."
-msgstr "Schaltet die Lampe imerr während der Schwarzkalibrierung aus."
+msgstr "Schaltet die Lampe immer während der Schwarzkalibrierung aus."
 
 #: ../backend/plustek.c:935
 #, no-c-format

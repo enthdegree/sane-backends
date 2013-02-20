@@ -61,7 +61,7 @@
 :model "ScanJet G2410"
 :interface "USB"
 :usbid "0x03f0" "0x0a01"
-:status :untested
+:status :basic
 :comment "clone of the HP 2400C"
 
 :model "ScanJet 3670C"

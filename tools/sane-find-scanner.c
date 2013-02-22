@@ -1046,7 +1046,7 @@ check_libusb_device (libusb_device *dev, SANE_Bool from_file)
 	    break;
 	  case USB_CLASS_PER_INTERFACE:
 	    if ((config0->interface[intf].num_altsetting == 0)
-		|| config0->interface[intf].altsetting)
+		|| !config0->interface[intf].altsetting)
 	      break;
 	    switch (config0->interface[intf].altsetting[0].bInterfaceClass)
 	      {

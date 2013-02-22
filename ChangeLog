@@ -1,3 +1,8 @@
+2013-02-22 Gerhard Jaeger <gerhard@gjaeger.de>
+	* tools/sane-find-scanner.c: Fix another bug in the libusb1
+	  part of function check_libusb_device() that prevents sanner
+	  detection for certain devices.
+
 2013-02-20 Gerhard Jaeger <gerhard@gjaeger.de>
 	* tools/sane-find-scanner.c: Setup libusb1 debugging after
 	  initialization otherwise a segfault appears in triple -v mode

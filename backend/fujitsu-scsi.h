@@ -371,6 +371,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 /* ==================================================================== */
 /* page codes used by mode_sense and mode_select */
+#define MS_pc_unk     0x2c /* Used by iX500 */
 #define MS_pc_patch   0x2e /* Patch code scanning */
 #define MS_pc_counter 0x2f /* Page number and counter reset */
 #define MS_pc_autocolor 0x32 /* Automatic color detection */
@@ -582,8 +583,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define S_datatype_halftone_mask        0x02
 #define S_datatype_gamma_function       0x03*/
 #define S_datatype_lut_data             0x83
-/*#define S_datatype_jpg_q_table          0x88*/
-#define S_datatype_endorser_data       0x90
+#define S_datatype_jpg_q_table          0x88
+#define S_datatype_endorser_data        0x90
 /*#define S_EX_datatype_lut		0x01
 #define S_EX_datatype_shading_data	0xa0
 #define S_user_reg_gamma		0xc0
@@ -607,6 +608,13 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_S_lut_dsize(sb, val)    putnbyte(sb + 6, val, 2)
 #define S_lut_data_min_len          256
 #define S_lut_data_max_len          1024
+
+/*q-table*/
+#define S_q_table_header_len   0x0a
+#define S_q_table_y_len        0x40
+#define set_S_q_table_y_len(sb, val)    putnbyte(sb + 4, val, 2)
+#define S_q_table_uv_len       0x40
+#define set_S_q_table_uv_len(sb, val)   putnbyte(sb + 6, val, 2)
 
 /*endorser*/
 #define S_e_data_min_len	18 /*minimum 18 bytes no string bytes*/

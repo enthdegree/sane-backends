@@ -515,6 +515,14 @@
          - add paper-protect, staple-detect and df-recovery options
       v112 2013-02-22, MAN
          - some scanners (fi-6x70 and later) don't enable IPC by default
+      v113 2013-02-24, MAN
+         - support for ScanSnap iX500
+         - fix bug with jpeg de-interlacing code
+         - allow has_MS_* and has_pixelsize to be set in init_model
+         - fix use of uninitialized buffer in send_lut
+         - add send_q_table()
+         - allow wait_scanner() to be bypassed in object_position
+         - moved send_lut() to after set_window
 
    SANE FLOW DIAGRAM
 
@@ -564,7 +572,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 112
+#define BUILD 113
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1702,159 +1710,183 @@ init_ms(struct fujitsu *s)
   set_SCSI_opcode(cmd, MODE_SENSE_code);
   set_MSEN_xfer_length (cmd, inLen);
 
-  DBG (35, "init_ms: autocolor\n");
-  set_MSEN_pc(cmd, MS_pc_autocolor);
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_autocolor=1;
+  if(s->has_MS_autocolor){
+    DBG (35, "init_ms: autocolor\n");
+    set_MSEN_pc(cmd, MS_pc_autocolor);
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_autocolor=0;
+    }
   }
 
-  DBG (35, "init_ms: prepick\n");
-  set_MSEN_pc(cmd, MS_pc_prepick);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_prepick=1;
+  if(s->has_MS_prepick){
+    DBG (35, "init_ms: prepick\n");
+    set_MSEN_pc(cmd, MS_pc_prepick);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_prepick=0;
+    }
   }
 
-  DBG (35, "init_ms: sleep\n");
-  set_MSEN_pc(cmd, MS_pc_sleep);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_sleep=1;
+  if(s->has_MS_sleep){
+    DBG (35, "init_ms: sleep\n");
+    set_MSEN_pc(cmd, MS_pc_sleep);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_sleep=0;
+    }
   }
 
-  DBG (35, "init_ms: duplex\n");
-  set_MSEN_pc(cmd, MS_pc_duplex);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_duplex=1;
+  if(s->has_MS_duplex){
+    DBG (35, "init_ms: duplex\n");
+    set_MSEN_pc(cmd, MS_pc_duplex);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_duplex=0;
+    }
   }
 
-  DBG (35, "init_ms: rand\n");
-  set_MSEN_pc(cmd, MS_pc_rand);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_rand=1;
+  if(s->has_MS_rand){
+    DBG (35, "init_ms: rand\n");
+    set_MSEN_pc(cmd, MS_pc_rand);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_rand=0;
+    }
   }
 
-  DBG (35, "init_ms: bg\n");
-  set_MSEN_pc(cmd, MS_pc_bg);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_bg=1;
+  if(s->has_MS_bg){
+    DBG (35, "init_ms: bg\n");
+    set_MSEN_pc(cmd, MS_pc_bg);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_bg=0;
+    }
   }
 
-  DBG (35, "init_ms: df\n");
-  set_MSEN_pc(cmd, MS_pc_df);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_df=1;
+  if(s->has_MS_df){
+    DBG (35, "init_ms: df\n");
+    set_MSEN_pc(cmd, MS_pc_df);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_df=0;
+    }
   }
 
-  DBG (35, "init_ms: dropout\n");
-  set_MSEN_pc(cmd, MS_pc_dropout);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_dropout=1;
+  if(s->has_MS_dropout){
+    DBG (35, "init_ms: dropout\n");
+    set_MSEN_pc(cmd, MS_pc_dropout);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_dropout=0;
+    }
   }
 
-  DBG (35, "init_ms: buffer\n");
-  set_MSEN_pc(cmd, MS_pc_buff);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_buff=1;
+  if(s->has_MS_buff){
+    DBG (35, "init_ms: buffer\n");
+    set_MSEN_pc(cmd, MS_pc_buff);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_buff=0;
+    }
   }
 
-  DBG (35, "init_ms: auto\n");
-  set_MSEN_pc(cmd, MS_pc_auto);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_auto=1;
+  if(s->has_MS_auto){
+    DBG (35, "init_ms: auto\n");
+    set_MSEN_pc(cmd, MS_pc_auto);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_auto=0;
+    }
   }
 
-  DBG (35, "init_ms: lamp\n");
-  set_MSEN_pc(cmd, MS_pc_lamp);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_lamp=1;
+  if(s->has_MS_lamp){
+    DBG (35, "init_ms: lamp\n");
+    set_MSEN_pc(cmd, MS_pc_lamp);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_lamp=0;
+    }
   }
 
-  DBG (35, "init_ms: jobsep\n");
-  set_MSEN_pc(cmd, MS_pc_jobsep);
-  inLen = MODE_SENSE_data_len;
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if(ret == SANE_STATUS_GOOD){
-    s->has_MS_jobsep=1;
+  if(s->has_MS_jobsep){
+    DBG (35, "init_ms: jobsep\n");
+    set_MSEN_pc(cmd, MS_pc_jobsep);
+    inLen = MODE_SENSE_data_len;
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    if(ret != SANE_STATUS_GOOD){
+      s->has_MS_jobsep=0;
+    }
   }
 
   IF_DBG (DBG_LEVEL = oldDbg;)
@@ -1963,6 +1995,22 @@ init_model (struct fujitsu *s)
   /* assume these are same as adf, override below */
   s->max_x_fb = s->max_x;
   s->max_y_fb = s->max_y;
+
+  /* assume we can do these. we will disable
+   * them at runtime if they cannot */
+  s->has_pixelsize = 1;
+  s->has_MS_autocolor = 1;
+  s->has_MS_prepick = 1;
+  s->has_MS_sleep = 1;
+  s->has_MS_duplex = 1;
+  s->has_MS_rand = 1;
+  s->has_MS_bg = 1;
+  s->has_MS_df = 1;
+  s->has_MS_dropout = 1;
+  s->has_MS_buff = 1;
+  s->has_MS_auto = 1;
+  s->has_MS_lamp = 1;
+  s->has_MS_jobsep = 1;
 
   /* these two scanners lie about their capabilities,
    * and/or differ significantly from most other models */
@@ -2120,6 +2168,20 @@ init_model (struct fujitsu *s)
     /* missing from vpd */
     s->has_staple_detect=1; /* may not actually work? */
     s->has_df_recovery=1;
+  }
+
+  else if (strstr (s->model_name,"iX500")){
+    /* locks up scanner if we try to auto detect */
+    s->has_MS_lamp = 0;
+
+    /* weirdness */
+    s->need_q_table = 1;
+    s->ppl_mod_by_mode[MODE_GRAYSCALE] = 2;
+    s->ppl_mod_by_mode[MODE_COLOR] = 2;
+    s->no_wait_after_op = 1;
+
+    /* lies */
+    s->adbits = 8;
   }
 
   DBG (10, "init_model: finish\n");
@@ -5718,6 +5780,7 @@ send_lut (struct fujitsu *s)
   set_S_xfer_datatype (cmd, S_datatype_lut_data);
   set_S_xfer_length (cmd, outLen);
 
+  memset(out,0,outLen);
   set_S_lut_order (out, S_lut_order_single);
   set_S_lut_ssize (out, bytes);
   set_S_lut_dsize (out, 256);
@@ -5745,6 +5808,65 @@ send_lut (struct fujitsu *s)
   );
 
   DBG (10, "send_lut: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+send_q_table (struct fujitsu *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[SEND_len];
+  size_t cmdLen = SEND_len;
+
+  unsigned char out[S_q_table_header_len + S_q_table_y_len + S_q_table_uv_len];
+  size_t outLen = S_q_table_header_len + S_q_table_y_len + S_q_table_uv_len;
+  unsigned char * yp = out + S_q_table_header_len;
+  unsigned char * uvp = out + S_q_table_header_len + S_q_table_y_len;
+
+  /* FIXME: generate these instead of hardcode */
+  unsigned char ydata[] = {
+ 0x04, 0x03, 0x03, 0x04, 0x03, 0x03, 0x04, 0x04,
+ 0x03, 0x04, 0x05, 0x05, 0x04, 0x05, 0x07, 0x0c,
+ 0x07, 0x07, 0x06, 0x06, 0x07, 0x0e, 0x0a, 0x0b,
+ 0x08, 0x0c, 0x11, 0x0f, 0x12, 0x12, 0x11, 0x0f,
+ 0x10, 0x10, 0x13, 0x15, 0x1b, 0x17, 0x13, 0x14,
+ 0x1a, 0x14, 0x10, 0x10, 0x18, 0x20, 0x18, 0x1a,
+ 0x1c, 0x1d, 0x1e, 0x1f, 0x1e, 0x12, 0x17, 0x21,
+ 0x24, 0x21, 0x1e, 0x24, 0x1b, 0x1e, 0x1e, 0x1d };
+
+  unsigned char uvdata[] = {
+ 0x05, 0x05, 0x05, 0x07, 0x06, 0x07, 0x0e, 0x07,
+ 0x07, 0x0e, 0x1d, 0x13, 0x10, 0x13, 0x1d, 0x1d,
+ 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d,
+ 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d,
+ 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d,
+ 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d,
+ 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d,
+ 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d };
+
+  DBG (10, "send_q_table: start\n");
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SEND_code);
+  set_S_xfer_datatype (cmd, S_datatype_jpg_q_table);
+  set_S_xfer_length (cmd, outLen);
+
+  memset(out,0,outLen);
+  set_S_q_table_y_len (out, S_q_table_y_len);
+  set_S_q_table_uv_len (out, S_q_table_uv_len);
+  memcpy (yp, ydata, S_q_table_y_len);
+  memcpy (uvp, uvdata, S_q_table_uv_len);
+
+  ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      out, outLen,
+      NULL, NULL
+  );
+
+  DBG (10, "send_q_table: finish\n");
 
   return ret;
 }
@@ -6307,13 +6429,6 @@ sane_start (SANE_Handle handle)
       if (ret != SANE_STATUS_GOOD)
         DBG (5, "sane_start: WARNING: cannot mode_select_df %d\n", ret);
 
-      /* send lut if scanner has no hardware brightness/contrast */
-      if (!s->brightness_steps || !s->contrast_steps){
-        ret = send_lut(s);
-        if (ret != SANE_STATUS_GOOD)
-          DBG (5, "sane_start: WARNING: cannot send_lut %d\n", ret);
-      }
-    
       /* enable background color setting */
       ret = mode_select_bg(s);
       if (ret != SANE_STATUS_GOOD)
@@ -6334,6 +6449,7 @@ sane_start (SANE_Handle handle)
       if (ret != SANE_STATUS_GOOD)
         DBG (5, "sane_start: WARNING: cannot mode_select_prepick %d\n", ret);
 
+      /* send endorser config */
       ret = send_endorser(s);
       if (ret != SANE_STATUS_GOOD)
         DBG (5, "sane_start: WARNING: cannot send_endorser %d\n", ret);
@@ -6345,6 +6461,20 @@ sane_start (SANE_Handle handle)
         return ret;
       }
     
+      /* send lut if scanner has no hardware brightness/contrast */
+      if (!s->brightness_steps || !s->contrast_steps){
+        ret = send_lut(s);
+        if (ret != SANE_STATUS_GOOD)
+          DBG (5, "sane_start: WARNING: cannot send_lut %d\n", ret);
+      }
+    
+      /* some scanners need the q table sent, even when not scanning jpeg */
+      if (s->need_q_table){
+        ret = send_q_table(s);
+        if (ret != SANE_STATUS_GOOD)
+          DBG (5, "sane_start: WARNING: cannot send_q_table %d\n", ret);
+      }
+
       /* try to read scan size from scanner */
       ret = get_pixelsize(s,0);
       if (ret != SANE_STATUS_GOOD) {
@@ -7032,6 +7162,11 @@ get_pixelsize(struct fujitsu *s, int actual)
 
     DBG (10, "get_pixelsize: start %d\n",actual);
 
+    if (!s->has_pixelsize){
+      DBG (10, "get_pixelsize: unsupported\n");
+      return SANE_STATUS_GOOD;
+    }
+
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, READ_code);
     set_R_datatype_code (cmd, R_datatype_pixelsize);
@@ -7099,6 +7234,11 @@ get_pixelsize(struct fujitsu *s, int actual)
       DBG (15, "get_pixelsize: scan_x=%d, Bpl=%d, scan_y=%d\n", 
         s->params.pixels_per_line, s->params.bytes_per_line, s->params.lines );
     }
+    else{
+      DBG (10, "get_pixelsize: got bad status %d, ignoring\n", ret);
+      s->has_pixelsize = 0;
+      ret = SANE_STATUS_GOOD;
+    }
 
     DBG (10, "get_pixelsize: finish\n");
 
@@ -7144,7 +7284,8 @@ object_position (struct fujitsu *s, int i_load)
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
-  wait_scanner (s);
+  if(!s->no_wait_after_op)
+    wait_scanner (s);
 
   DBG (10, "object_position: finish\n");
 
@@ -7484,7 +7625,16 @@ read_from_JPEGduplex(struct fujitsu *s)
                 DBG(15, "read_from_JPEGduplex: stage sos\n");
             }
 
-            /* finished front image block, switch to back */
+            /* found image block. images are not interlaced */
+            /* copy to front, don't change RST */
+            else if(in[i] >= 0xd0 && in[i] <= 0xd7
+              && s->jpeg_interlace == JPEG_INTERLACE_NONE){
+                s->jpeg_stage = JPEG_STAGE_FRONT;
+                DBG(35, "read_from_JPEGduplex: stage front (all)\n");
+            }
+
+            /* found even numbered image block. */
+            /* images are interlaced, so switch to back. */
             /* also change from even RST to proper one */
             else if(in[i] == 0xd0 || in[i] == 0xd2
               || in[i] == 0xd4 || in[i] == 0xd6){
@@ -7504,6 +7654,7 @@ read_from_JPEGduplex(struct fujitsu *s)
             }
 
             /* finished back image block, switch to front */
+            /* also change from odd RST to proper one */
             else if(in[i] == 0xd1 || in[i] == 0xd3
               || in[i] == 0xd5 || in[i] == 0xd7){
                 s->jpeg_stage = JPEG_STAGE_FRONT;
@@ -7512,7 +7663,7 @@ read_from_JPEGduplex(struct fujitsu *s)
                 s->jpeg_front_rst++;
             }
 
-            /* finished image, in both, update totals */
+            /* finished image, update totals */
             else if(in[i]==0xd9){
                 s->jpeg_stage = JPEG_STAGE_EOI;
                 DBG(15, "read_from_JPEGduplex: stage eoi %d %d\n",(int)inLen,i);
@@ -7611,17 +7762,19 @@ read_from_JPEGduplex(struct fujitsu *s)
         /* last byte of file, update totals, bail out */
         if(s->jpeg_stage == JPEG_STAGE_EOI){
             s->eof_rx[SIDE_FRONT] = 1;
-            s->eof_rx[SIDE_BACK] = 1;
+            if(s->jpeg_interlace == JPEG_INTERLACE_ALT)
+              s->eof_rx[SIDE_BACK] = 1;
         }
     }
       
     free(in);
   
-    /* jpeg uses in-band EOI marker, so we should never hit this? */
+    /* jpeg uses in-band EOI marker, so this is ususally redundant */
     if(ret == SANE_STATUS_EOF){
-      DBG(15, "read_from_JPEGduplex: got EOF, finishing both sides\n");
+      DBG(15, "read_from_JPEGduplex: got EOF, finishing\n");
       s->eof_rx[SIDE_FRONT] = 1;
-      s->eof_rx[SIDE_BACK] = 1;
+      if(s->jpeg_interlace == JPEG_INTERLACE_ALT)
+        s->eof_rx[SIDE_BACK] = 1;
       ret = SANE_STATUS_GOOD;
     }
 

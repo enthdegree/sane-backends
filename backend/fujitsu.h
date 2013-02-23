@@ -314,8 +314,11 @@ struct fujitsu
   int ghs_in_rs;
   int window_gamma;
   int endorser_string_len;
+  int has_pixelsize;
 
   int broken_diag_serial;   /* some scanners are just plain borked */
+  int need_q_table;         /* some scanners wont work without this */
+  int no_wait_after_op;     /* some scanners dont like TUR after OP */
 
   int has_vuid_mono;    /* mono set window data */
   int has_vuid_3091;    /* 3091/2 set window data */

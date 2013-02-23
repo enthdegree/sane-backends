@@ -12,7 +12,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "111"                   ; version of backend
+:version "113"                   ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.23, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -143,6 +143,18 @@
 :usbid "0x04c5" "0x1150"
 :comment "small, recent, discontinued"
 
+:model "ScanSnap S1500"
+:interface "USB"
+:status :complete
+:usbid "0x04c5" "0x11a2"
+:comment "small, discontinued"
+
+:model "ScanSnap S1500M"
+:interface "USB"
+:status :complete
+:usbid "0x04c5" "0x11a2"
+:comment "small, discontinued, same as S1500"
+
 ;==================================================
 ; CURRENT MODELS, SMALL
 :model "ScanSnap N1800"
@@ -173,17 +185,11 @@
 :usbid "0x04c5" "0x11f4"
 :comment "small, current"
 
-:model "ScanSnap S1500"
-:interface "USB"
-:status :complete
-:usbid "0x04c5" "0x11a2"
-:comment "small, current"
-
-:model "ScanSnap S1500M"
-:interface "USB"
-:status :complete
-:usbid "0x04c5" "0x11a2"
-:comment "small, current, same as S1500"
+:model "ScanSnap iX500"
+:interface "USB WiFi"
+:status :basic
+:usbid "0x04c5" "0x132b"
+:comment "small, current, WiFi not supported. Only scans in color."
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, MEDIUM
@@ -395,7 +401,7 @@
 
 ;==================================================
 ; CURRENT MODELS, BIG
-:model "fi-5950C"
+:model "fi-5950"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x1213"
 :status :untested

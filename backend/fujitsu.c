@@ -509,10 +509,12 @@
          - add recent model VPD params
          - only set params->lines = -1 when using ald without buffering
          - fix bugs in background color when using software deskew
-      v111 2012-05-10, MAN
+      v111 2012-05-10, MAN (SANE 1.0.23)
          - call send_* and mode_select_* from sane_start
          - split read payloads into new debug level
          - add paper-protect, staple-detect and df-recovery options
+      v112 2013-02-22, MAN
+         - some scanners (fi-6x70 and later) don't enable IPC by default
 
    SANE FLOW DIAGRAM
 
@@ -562,7 +564,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 111
+#define BUILD 112
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1915,6 +1917,14 @@ init_model (struct fujitsu *s)
   if (!s->num_internal_gamma && s->num_download_gamma){
     s->window_gamma = 0x80;
   }
+
+  /* older scanners would enable their highest  */
+  /* IPC mode by default. Newer scanners don't, */
+  /* so we go ahead and turn it on. */
+  if (s->has_sdtc)
+    s->ipc_mode = WD_ipc_SDTC;
+  else if (s->has_dtc)
+    s->ipc_mode = WD_ipc_DTC;
 
   /* endorser type tells string length (among other things) */
   if(s->has_endorser_b){
@@ -7868,7 +7878,7 @@ read_from_scanner(struct fujitsu *s, int side)
         inLen = 0;
     }
   
-    DBG(15, "read_from_scanner: read %d bytes\n",inLen);
+    DBG(15, "read_from_scanner: read %lu bytes\n",inLen);
 
     if(inLen){
         if(s->mode==MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){

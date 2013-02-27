@@ -1,3 +1,6 @@
+2013-02-27 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* README.linux: fix installation path for libsane.la.
+
 2013-02-22 Gerhard Jaeger <gerhard@gjaeger.de>
 	* tools/sane-find-scanner.c: Fix another bug in the libusb1
 	  part of function check_libusb_device() that prevents sanner

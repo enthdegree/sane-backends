@@ -126,7 +126,7 @@ Step by step install on Linux 2.6.* and 3.*, both with udev:
 	$ sudo mv libsane.so.1 libsane.so.1.orig
 	$ sudo mv libsane.la libsane.la.orig
 	$ sudo ln -sf /usr/local/lib/libsane.so.1.0.24 libsane.so.1
-	$ sudo ln -sf /usr/local/lib/sane/libsane.la libsane.la
+	$ sudo ln -sf /usr/local/lib/libsane.la libsane.la
 	$ cd -
 
 	Alternatively you can overwrite standard libsane. But then you must pay

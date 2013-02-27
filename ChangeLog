@@ -1,3 +1,8 @@
+2013-02-27 Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts88xx_lib.c backend/lexmark.c
+	backend/lexmark_low.c backend/rts8891_low.c: cppcheck errors and
+	warnings fixes
+
 2013-02-27 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* README.linux: fix installation path for libsane.la.
 
@@ -12,11 +17,6 @@
 	* sanei/sanei_usb.c: Free heap memory, acquired via strdup for
 	  devname, in sanei_usb_close()
 	* po/de.po: Fixed typo
-
-2013-02-18 Stéphane Voltz <stef.dev@free.fr>
-	* backend/rts8891.c backend/rts88xx_lib.c backend/lexmark.c
-	backend/lexmark_low.c backend/rts8891_low.c: cppcheck errors and
-	warnings fixes
 
 2013-02-18 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_common.[ch], backend/pixma_imageclass.c,

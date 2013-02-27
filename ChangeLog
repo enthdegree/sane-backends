@@ -1,5 +1,5 @@
 2013-02-27 Stéphane Voltz <stef.dev@free.fr>
-	* doc/descriptions/genesys.desc : update G2410 status to basic
+	* doc/descriptions/genesys.desc: update G2410 status to basic
 
 2013-02-27 Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts88xx_lib.c backend/lexmark.c

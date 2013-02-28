@@ -1,3 +1,7 @@
+2013-02-28 Stéphane Voltz <stef.dev@free.fr>
+	* sanei/sanei_usb.c: only free devanme when reusing a device slot in
+	device list
+
 2013-02-28 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* README.linux: ease installation procedure.
 

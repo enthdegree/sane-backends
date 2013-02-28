@@ -56,10 +56,10 @@ Step by step install on Linux 2.6.* and 3.*, both with udev:
 ------------------------------------------------------------
 
 1. Install missing development packages with your prefered package manager:
-	- libusb-dev
+	- libusb-dev or libusb-devel
 
 2. Get the latest SANE backend from git:
-	You can download daily git snapshot from here:
+	You can download "daily git snapshot" from here:
 
 	http://www.sane-project.org/snapshots/
 
@@ -75,120 +75,97 @@ Step by step install on Linux 2.6.* and 3.*, both with udev:
 
 	$ make && sudo make install
 
-3. Search the location where your system installed libsane:
-	Each distribution uses different folders for the libraries.
+3. Configure, make and install latest SANE backend:
+	We install a new SANE dynamically linked shared object library in
+	/usr/local/lib beside your system's SANE library.
 
-	Here are some examples from 64 bit Ubuntu 10.04. For the installation on
-	your system you need to replace /usr/lib with the folder detected below.
-
-	$ sudo find / -name libsane.so.1
-	/usr/lib/libsane.so.1
-
-	/usr/lib is the folder we are looking for.
-
-	Be careful on 64 bit systems, if you already installed 32 bit compatibility
-		libraries, e.g. the package ia32-libs:
-
-		$ sudo find / -name libsane.so.1
-		/usr/lib/libsane.so.1
-		/usr/lib32/libsane.so.1
-
-		This response contains 2 folders:
-		(1) /usr/lib32 is the location of the 32 bit compatibility libraries.
-		(2) /usr/lib is the folder we are looking for.
-
-	Be careful, if you already compiled and installed new SANE backend:
-
-		$ sudo find / -name libsane.so.1
-		/usr/lib/libsane.so.1
-		/usr/local/lib/libsane.so.1
-		/home/user/src/sane-backends/backend/.libs/libsane.so.1
-
-		This response contains 3 folders:
-		(1) /usr/local/lib is the location of installed new SANE backend.
-		(2) /home/user/src/sane-backends/backend/.libs is the location of
-		    compiled new SANE backend in the source tree.
-		(3) /usr/lib is the folder we are looking for.
-
-4. Decide where you want to install new libsane:
-	You don't need to remove your linux distribution's libsane packages, this
-	may break needed depedencies to other useful packages like xsane.
-
-	You should set symbolic links to new libsane. This avoids problems with the
-	package manager of your Linux distribution.
-
-	I assume that new libsane version 1.0.24 will be installed to
-	/usr/local/lib and your system installed libsane.so.1 to /usr/lib.
-
-	You can backup the existing symlinks and files as *.orig.
-
-	$ cd /usr/lib
-	$ sudo mv libsane.so.1 libsane.so.1.orig
-	$ sudo mv libsane.la libsane.la.orig
-	$ sudo ln -sf /usr/local/lib/libsane.so.1.0.24 libsane.so.1
-	$ sudo ln -sf /usr/local/lib/libsane.la libsane.la
-	$ cd -
-
-	Alternatively you can overwrite standard libsane. But then you must pay
-		attention to your system's upgrades of libsane.
-
-		You need to do some extra configuration for latest SANE backend:
-
-		$ ./configure --libdir="/usr/lib"
-
-	You also can replace the binaries, configuration, manuals, translations,
-		etc. of your distribution. For more information please read:
-
-		$ ./configure --help
-
-5. Configure, make and install latest SANE backend:
-
-	$ ./configure [with your options defined above]
+	$ ./configure
 	$ make && sudo make install
 
-6. Use the scanner with normal user rights:
-	Copy udev rules file:
+3.1. SANE library:
+	Register new installed SANE dynamically linked shared object library.
+
+	$ sudo ldconfig -v | grep libsane
+		libsane.so.1 -> libsane.so.1.0.24
+		libsane.so.1 -> libsane.so.1.0.22
+
+	This example shows that the system first find version 1.0.24 and then 1.0.22.
+	This is the correct order.
+
+	If your system first find the old version and then the new installed one,
+	then you must change the order for library paths in /etc/ld.so.conf or you
+	must create the new configuration file /etc/ld.so.conf.d/1-sane.conf.
+
+	$ echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/1-sane.conf
+
+	Then you must repeat this step.
+
+3.2. Localization file:
+
+	$ cd /usr/share/locale/<language>/LC_MESSAGES
+	$ sudo ln -sf /usr/local/share/locale/<language>/LC_MESSAGES/sane-backends.mo .
+	$ cd -
+
+3.3. udev rules file:
 
 	$ sudo cp tools/udev/libsane.rules /etc/udev/rules.d
 
 	Reconnect your scanner to the USB bus to activate the new rules file.
 
-	Your user must be a member of the group scanner:
+3.4. Use the scanner with normal user rights:
 
-	$ sudo adduser [username] scanner
+	Your user must be a member of the group scanner.
+
+	$ cat /etc/group | grep scanner
+	scanner:x:107:<user>
+
+	Create a new group scanner, if it doesn't exist.
+
+	$ sudo addgroup scanner
+
+	Add an existing user to group scanner.
+
+	$ sudo adduser <username> scanner
 
 	After this you must logoff and login again.
 
-7. Test your scanner:
-	First you should check the used libsane version.
+4. Test your scanner:
 
-		$ scanimage -V
-		scanimage (sane-backends) 1.0.24git; backend version 1.0.24
+4.1. Check the used backend version:
 
-		This example shows that backend and scanimage are version 1.0.24.
+	The programs must use the installed SANE backend version, e.g. 1.0.24.
 
-		$ /usr/bin/scanimage -V
-		scanimage (sane-backends) 1.0.20; backend version 1.0.24
+	$ scanimage -V
+	scanimage (sane-backends) 1.0.24git; backend version 1.0.24
 
-		This example shows that an old scanimage (1.0.20) uses the backend 1.0.24.
+	This example shows that backend and scanimage are version 1.0.24.
 
-		If you want to use xsane, start xsane and check the used version with
-		CTRL - i.
+	$ /usr/bin/scanimage -V
+	scanimage (sane-backends) 1.0.20; backend version 1.0.24
 
-	Now you can test if your scanner is recognized with normal user rights.
+	This example shows that an old scanimage (1.0.20) uses the backend 1.0.24.
 
-		$ scanimage -L
+	If you want to use xsane, start xsane and check the used version with
+	CTRL - i.
 
-		If your scanner isn't recognised here, try this:
+4.2. Access scanner with normal user rights:
 
-			$ sudo scanimage -L
+	$ scanimage -L
 
-			If this works, your user doesn't have the rights to access the
-			scanner.
+	If your scanner isn't recognised here, try this:
 
-			However, please check and redo the installation described above.
-			If this doesn't help, you can ask the mailing list
-			<sane-devel@lists.alioth.debian.org> for further support.
+	$ sudo scanimage -L
+
+	If this works, your user doesn't have the rights to access the scanner.
+
+	However, please check and redo the installation described above.
+	If this doesn't help, you can ask the mailing list
+	<sane-devel@lists.alioth.debian.org> for further support.
+
+4.3. Testscan:
+
+	$ cd ~
+	$ scanimage > test.pnm
 
 Information about SCSI scanners:
 ================================

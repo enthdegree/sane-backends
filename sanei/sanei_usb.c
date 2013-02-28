@@ -364,8 +364,15 @@ store_device (device_list_type device)
         pos = i;
     }
 
+  /* reuse slot of a device now missing */
   if(pos > -1){
     DBG (3, "store_device: overwrite dn %d with %s\n", pos, device.devname);
+    /* we reuse the slot used by a now missing device
+     * so we free the allocated memory for the missing one */
+    if (devices[pos].devname) {
+      free(devices[pos].devname);
+      devices[pos].devname = NULL;
+    }
   }
   else{
     if(device_number >= MAX_DEVICES){
@@ -2039,10 +2046,6 @@ sanei_usb_close (SANE_Int dn)
     DBG (1, "sanei_usb_close: libusb support missing\n");
 #endif
   devices[dn].open = SANE_FALSE;
-  if (devices[dn].devname) {
-    free(devices[dn].devname);
-    devices[dn].devname = NULL;
-  }
   return;
 }
 

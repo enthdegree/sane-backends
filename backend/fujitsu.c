@@ -523,6 +523,9 @@
          - add send_q_table()
          - allow wait_scanner() to be bypassed in object_position
          - moved send_lut() to after set_window
+      v114 2013-03-01, MAN
+         - support resolutions > 300 for iX500 using diag_preread()
+         - remove most communication with scanner during sane_control_option()
 
    SANE FLOW DIAGRAM
 
@@ -572,7 +575,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 113
+#define BUILD 114
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2176,6 +2179,7 @@ init_model (struct fujitsu *s)
 
     /* weirdness */
     s->need_q_table = 1;
+    s->need_diag_preread = 1;
     s->ppl_mod_by_mode[MODE_GRAYSCALE] = 2;
     s->ppl_mod_by_mode[MODE_COLOR] = 2;
     s->no_wait_after_op = 1;
@@ -5067,20 +5071,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         /* Enhancement Group */
         case OPT_BRIGHTNESS:
           s->brightness = val_c;
-
-          /* send lut if scanner has no hardware brightness */
-          if(!s->brightness_steps)
-            return send_lut(s);
-
           return SANE_STATUS_GOOD;
 
         case OPT_CONTRAST:
           s->contrast = val_c;
-
-          /* send lut if scanner has no hardware contrast */
-          if(!s->contrast_steps)
-            return send_lut(s);
-
           return SANE_STATUS_GOOD;
 
         case OPT_GAMMA:
@@ -5202,12 +5196,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_AWD:
           s->awd = val_c;
           *info |= SANE_INFO_RELOAD_OPTIONS;
-          return mode_select_auto(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_ALD:
           s->ald = val_c;
           *info |= SANE_INFO_RELOAD_OPTIONS;
-          return mode_select_auto(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_COMPRESS:
           if (!strcmp (val, STRING_JPEG)) {
@@ -5235,19 +5229,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           else if (!strcmp(val, STRING_STOP))
             s->df_action = DF_STOP;
           *info |= SANE_INFO_RELOAD_OPTIONS;
-          return mode_select_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_DF_SKEW:
           s->df_skew = val_c;
-          return mode_select_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_DF_THICKNESS:
           s->df_thickness = val_c;
-          return mode_select_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_DF_LENGTH:
           s->df_length = val_c;
-          return mode_select_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_DF_DIFF:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5258,7 +5252,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->df_diff = MSEL_df_diff_15MM;
           else if (!strcmp(val, STRING_20MM))
             s->df_diff = MSEL_df_diff_20MM;
-          return mode_select_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_DF_RECOVERY:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5267,7 +5261,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->df_recovery = MSEL_ON;
           else if (!strcmp(val, STRING_OFF))
             s->df_recovery = MSEL_OFF;
-          return mode_select_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_PAPER_PROTECT:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5276,7 +5270,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->paper_protect = MSEL_ON;
           else if (!strcmp(val, STRING_OFF))
             s->paper_protect = MSEL_OFF;
-          return mode_select_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_STAPLE_DETECT:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5285,7 +5279,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->staple_detect = MSEL_ON;
           else if (!strcmp(val, STRING_OFF))
             s->staple_detect = MSEL_OFF;
-          return mode_select_df(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_BG_COLOR:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5294,7 +5288,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->bg_color = COLOR_WHITE;
           else if (!strcmp(val, STRING_BLACK))
             s->bg_color = COLOR_BLACK;
-          return mode_select_bg(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_DROPOUT_COLOR:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5305,7 +5299,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->dropout_color = COLOR_GREEN;
           else if (!strcmp(val, STRING_BLUE))
             s->dropout_color = COLOR_BLUE;
-          return mode_select_dropout(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_BUFF_MODE:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5314,7 +5308,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->buff_mode= MSEL_ON;
           else if (!strcmp(val, STRING_OFF))
             s->buff_mode= MSEL_OFF;
-          return mode_select_buff(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_PREPICK:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5323,7 +5317,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->prepick = MSEL_ON;
           else if (!strcmp(val, STRING_OFF))
             s->prepick = MSEL_OFF;
-          return mode_select_prepick(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_OVERSCAN:
           if (!strcmp(val, STRING_DEFAULT))
@@ -5334,7 +5328,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->overscan = MSEL_OFF;
 
           *info |= SANE_INFO_RELOAD_OPTIONS;
-          return mode_select_auto(s);
+          return SANE_STATUS_GOOD;
 
         case OPT_SLEEP_TIME:
           s->sleep_time = val_c;
@@ -5376,11 +5370,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_ENDORSER:
           s->u_endorser = val_c;
           *info |= SANE_INFO_RELOAD_OPTIONS;
-          return send_endorser(s);
+          return SANE_STATUS_GOOD;
           
         case OPT_ENDORSER_BITS:
           s->u_endorser_bits = val_c;
-          return send_endorser(s);
+          return SANE_STATUS_GOOD;
           
 	/*this val not used in send_endorser*/
         case OPT_ENDORSER_VAL:
@@ -5389,11 +5383,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           
         case OPT_ENDORSER_STEP:
           s->u_endorser_step = val_c;
-          return send_endorser(s);
+          return SANE_STATUS_GOOD;
           
         case OPT_ENDORSER_Y:
           s->u_endorser_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
-          return send_endorser(s);
+          return SANE_STATUS_GOOD;
           
         case OPT_ENDORSER_FONT:
 
@@ -5412,7 +5406,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           else if (!strcmp (val, STRING_VERTICALBOLD)){
             s->u_endorser_font = FONT_VB;
           }
-          return send_endorser(s);
+          return SANE_STATUS_GOOD;
           
         case OPT_ENDORSER_DIR:
           if (!strcmp (val, STRING_TOPTOBOTTOM)){
@@ -5421,7 +5415,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           else if (!strcmp (val, STRING_BOTTOMTOTOP)){
             s->u_endorser_dir = DIR_BTT;
           }
-          return send_endorser(s);
+          return SANE_STATUS_GOOD;
           
 	/*this val not used in send_endorser*/
         case OPT_ENDORSER_SIDE:
@@ -5439,7 +5433,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    (SANE_String)val,
 	    s->endorser_string_len+1
 	  );
-          return send_endorser(s);
+          return SANE_STATUS_GOOD;
       }                       /* switch */
   }                           /* else */
 
@@ -5871,6 +5865,101 @@ send_q_table (struct fujitsu *s)
   return ret;
 }
 
+/* only used by iX500? */
+#if 0
+static SANE_Status
+mode_select_unk (struct fujitsu *s, int foo)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[MODE_SELECT_len];
+  size_t cmdLen = MODE_SELECT_len;
+
+  unsigned char out[MSEL_header_len + MSEL_data_min_len];
+  size_t outLen = MSEL_header_len + MSEL_data_min_len;
+  unsigned char * page = out+MSEL_header_len;
+
+  DBG (10, "mode_select_unk: start\n");
+
+  /*if (!s->has_MS_unk){
+    DBG (10, "mode_select_unk: unsupported\n");
+    return SANE_STATUS_GOOD;
+  }*/
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_pf(cmd, 1);
+  set_MSEL_xferlen(cmd, outLen);
+
+  memset(out,0,outLen);
+  set_MSEL_pc(page, MS_pc_unk);
+  set_MSEL_page_len(page, MSEL_data_min_len-2);
+
+  *(page + 0x02) = foo;
+  
+  ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      out, outLen,
+      NULL, NULL
+  );
+
+  DBG (10, "mode_select_unk: finish\n");
+
+  return ret;
+}
+#endif
+
+/* only used by iX500? */
+static SANE_Status
+diag_preread (struct fujitsu *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[SEND_DIAGNOSTIC_len]; /*also big enough for READ_DIAG*/
+  size_t cmdLen = SEND_DIAGNOSTIC_len;
+
+  unsigned char out[SD_preread_len];
+  size_t outLen = SD_preread_len;
+
+  DBG (10, "diag_preread: start\n");
+
+  if (!s->has_cmd_sdiag || !s->has_cmd_rdiag || !s->need_diag_preread){
+    DBG (5, "diag_preread: not supported, returning\n");
+    return ret;
+  }
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SEND_DIAGNOSTIC_code);
+  set_SD_slftst(cmd, 0);
+  set_SD_xferlen(cmd, outLen);
+ 
+  memcpy(out,SD_preread_string,SD_preread_stringlen);
+  set_SD_preread_xres(out,s->resolution_x);
+  set_SD_preread_yres(out,s->resolution_y);
+  /* call helper function, scanner wants lies about paper width */
+  set_SD_preread_paper_width(out, get_page_width(s));
+  /* dont call helper function, scanner wants actual length?  */
+  set_SD_preread_paper_length(out, s->page_height);
+  set_SD_preread_composition(out, s->mode);
+
+  ret = do_cmd (
+    s, 1, 0, 
+    cmd, cmdLen,
+    out, outLen,
+    NULL, NULL
+  );
+
+  if (ret != SANE_STATUS_GOOD){
+    DBG (5, "diag_preread: send diag error: %d\n", ret);
+    return ret;
+  }
+
+  DBG (10, "diag_preread: finish\n");
+
+  return SANE_STATUS_GOOD;
+}
+
 static SANE_Status
 mode_select_df (struct fujitsu *s)
 {
@@ -6064,7 +6153,7 @@ mode_select_buff (struct fujitsu *s)
 
   set_MSEL_buff_mode(page, s->buff_mode);
   set_MSEL_buff_clear(page, 3);
-  
+
   ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
@@ -6418,6 +6507,11 @@ sane_start (SANE_Handle handle)
           DBG (5, "sane_start: ERROR: cannot control adf, ignoring\n");
         }
       }
+
+      /* required for hi res scans on iX500? */
+      ret = diag_preread(s);
+      if (ret != SANE_STATUS_GOOD)
+        DBG (5, "sane_start: WARNING: cannot diag_preread %d\n", ret);
 
       /* enable overscan/auto detection */
       ret = mode_select_auto(s);

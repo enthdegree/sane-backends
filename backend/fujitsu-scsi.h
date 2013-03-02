@@ -538,6 +538,16 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SD_gdi_string                   "GET DEVICE ID   "
 #define SD_gdi_len                      16
 
+#define SD_preread_string               "SET PRE READMODE"
+#define SD_preread_stringlen            16
+#define SD_preread_len                  32
+#define set_SD_preread_xres(in, b)      putnbyte(in + 0x10, b, 2)
+#define set_SD_preread_yres(in, b)      putnbyte(in + 0x12, b, 2)
+#define set_SD_preread_paper_width(sb, val)   putnbyte(sb + 0x14, val, 4)
+#define set_SD_preread_paper_length(sb, val)  putnbyte(sb + 0x18, val, 4)
+#define set_SD_preread_composition(sb, val)   putnbyte(sb + 0x1c, val, 1)
+#define set_SD_preread_escan(sb, val)   putnbyte(sb + 0x1d, val, 1)
+
 /* ==================================================================== */
 /* SET_WINDOW */
 #define SET_WINDOW_code         0x24

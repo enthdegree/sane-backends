@@ -1,40 +1,40 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 1997, 1998, 1999, 2001  Franck Schnefra, Michel Roelofs,
-   Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
-   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson,
-   Oliver Schwartz and Kevin Charter
+   Copyright (C) 1997, 1998, 1999, 2001, 2002, 2013  Franck Schnefra,
+   Michel Roelofs, Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang,
+   Wolfgang Goeller, Petter Reinholdtsen, Gary Plewa, Sebastien Sable,
+   Mikael Magnusson, Andrew Goodbody, Oliver Schwartz and Kevin Charter
 
    This file is part of the SANE package.
- 
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
- 
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
- 
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
- 
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
- 
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
- 
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
- 
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
@@ -60,6 +60,7 @@
 
 #define DEFAULT_DEVICE "/dev/scanner" /* Check this if config is missing */
 #define SNAPSCAN_TYPE      "flatbed scanner"
+#define SNAPSCAN_FS_TYPE   "film scanner"
 #define TMP_FILE_PREFIX "/var/tmp/snapscan"
 #define SNAPSCAN_CONFIG_FILE "snapscan.conf"
 #define FIRMWARE_KW "firmware"
@@ -107,7 +108,8 @@ typedef enum
     PERFECTION2480,     /* Epson Perfection 2480 - 2400 DPI */
     PERFECTION3490,     /* Epson Perfection 3490 - 3200 DPI */
     STYLUS_CX1500,      /* Epson Stylus CX 1500 - 600 DPI */
-    ARCUS1200		/* Agfa Arcus 1200 - 1200 DPI (rebadged Acer?) */
+    ARCUS1200,          /* Agfa Arcus 1200 - 1200 DPI (rebadged Acer?) */
+    SCANWIT2720S        /* BenQ ScanWit 2720S film scanner 2700 DPI */
 } SnapScan_Model;
 
 struct SnapScan_Driver_desc {
@@ -146,7 +148,8 @@ static struct SnapScan_Driver_desc drivers[] =
     {PERFECTION1670, "Perfection 1670"},
     {PERFECTION2480, "Perfection 2480"},
     {PERFECTION3490, "Perfection 3490"},
-    {STYLUS_CX1500,  "Stylus CX 1500"}
+    {STYLUS_CX1500,  "Stylus CX 1500"},
+    {SCANWIT2720S,   "BenQ ScanWit 2720S"}
 };
 
 #define known_drivers ((int) (sizeof(drivers)/sizeof(drivers[0])))
@@ -200,7 +203,8 @@ static struct SnapScan_Model_desc scanners[] =
     {"EPSON Scanner1",      PERFECTION2480}, /* dummy entry to detect scanner */
     {"EPSON Scanner2",      PERFECTION3490}, /* dummy entry to detect scanner */
     {"EPSON MFP00", 		STYLUS_CX1500},
-    {"ARCUS 1200",          ARCUS1200}
+    {"ARCUS 1200",          ARCUS1200},
+    {"FilmScanner____1",    SCANWIT2720S}
 };
 
 #define known_scanners ((int) (sizeof(scanners)/sizeof(scanners[0])))
@@ -271,6 +275,9 @@ typedef enum
     OPT_PREVIEW_MODE,      /* preview mode */
     OPT_HIGHQUALITY,       /* scan quality (fast / high) */
     OPT_SOURCE,            /* scan source (flatbed / TPO) */
+    OPT_FRAME_NO,          /* frame number for film scanner */
+    OPT_FOCUS_MODE,        /* manual or auto focus for film scanner */
+    OPT_FOCUS_POINT,       /* focus point for film scanner */
     OPT_GEOMETRY_GROUP,    /* geometry group */
     OPT_TLX,               /* top left x */
     OPT_TLY,               /* top left y */
@@ -337,6 +344,9 @@ typedef struct snapscan_device
     struct snapscan_device *pnext;
 }
 SnapScan_Device;
+
+#define MD_AUTO     0
+#define MD_MANUAL   1
 
 #define MAX_SCSI_CMD_LEN 256    /* not that large */
 #define DEFAULT_SCANNER_BUF_SZ 1024*63
@@ -418,6 +428,10 @@ struct snapscan_scanner
     SANE_Bool firmware_loaded;   /* true if firmware was downloaded */
     SANE_Word usb_vendor;        /* USB vendor id */
     SANE_Word usb_product;       /* USB product id */
+    SANE_Byte frame_no;          /* frame number for film scanner */
+    SANE_Int focus_mode;         /* focus mode value */
+    SANE_String focus_mode_s;    /* focus mode string */
+    SANE_Word focus;             /* focus point */
 };
 
 #endif

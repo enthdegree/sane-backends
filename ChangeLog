@@ -1,3 +1,9 @@
+2013-03-04 Oliver Schwartz <oliverschwartz@users.sf.net>
+	* backend/snapscan-options.c backend/snapscan-scsi.c backend/snapscan.c
+	  backend/snapscan-sources.c backend/snapscan.h 
+	  doc/descriptions/snapscan.desc: Added support for Acer Scanwit 2720S
+	  implemented by Andrew Goddbody.
+
 2013-02-28 Stéphane Voltz <stef.dev@free.fr>
 	* sanei/sanei_usb.c: only free devanme when reusing a device slot in
 	device list

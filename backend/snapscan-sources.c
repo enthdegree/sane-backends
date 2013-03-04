@@ -1,9 +1,9 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 1997, 1998 Franck Schnefra, Michel Roelofs,
+   Copyright (C) 1997, 1998, 2002, 2013 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
-   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Oliver Schwartz
-   and Kevin Charter
+   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Max Ushakov,
+   Andrew Goodbody, Oliver Schwartz and Kevin Charter
 
    This file is part of the SANE package.
 
@@ -932,6 +932,13 @@ typedef struct
     SANE_Int round_read;
 } RGBRouter;
 
+static void put_int16r (int n, u_char *p)
+{
+	p[0] = (n & 0x00ff);
+	p[1] = (n & 0xff00) >> 8;
+}
+
+
 static SANE_Int RGBRouter_remaining (Source *pself)
 {
     RGBRouter *ps = (RGBRouter *) pself;
@@ -951,7 +958,7 @@ static SANE_Status RGBRouter_get (Source *pself,
     SANE_Status status = SANE_STATUS_GOOD;
     SANE_Int remaining = *plen;
     SANE_Byte *s;
-    SANE_Int i;
+    SANE_Int i, t;
     SANE_Int r, g, b;
     SANE_Int run_req;
     SANE_Int org_len = *plen;
@@ -997,6 +1004,22 @@ static SANE_Status RGBRouter_get (Source *pself,
                     *s++ = ps->cbuf[r++];
                     *s++ = ps->cbuf[g++];
                     *s++ = ps->cbuf[b++];
+                }
+                else if (pself->pss->pdev->model == SCANWIT2720S)
+                {
+                    t = (((ps->cbuf[r+1] << 8) | ps->cbuf[r]) & 0xfff) << 4;
+                    put_int16r (t, s);
+                    s += 2;
+                    r += 2;
+                    t = (((ps->cbuf[g+1] << 8) | ps->cbuf[g]) & 0xfff) << 4;
+                    put_int16r (t, s);
+                    s += 2;
+                    g += 2;
+                    t = (((ps->cbuf[b+1] << 8) | ps->cbuf[b]) & 0xfff) << 4;
+                    put_int16r (t, s);
+                    s += 2;
+                    b += 2;
+                    i++;
                 }
                 else
                 {

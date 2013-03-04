@@ -1,9 +1,9 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 1997, 1998, 2001 Franck Schnefra, Michel Roelofs,
+   Copyright (C) 1997, 1998, 2001, 2002, 2013 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
    Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson,
-   Oliver Schwartz and Kevin Charter
+   Max Ushakov, Andrew Goodbody, Oliver Schwartz and Kevin Charter
 
    This file is part of the SANE package.
 
@@ -21,7 +21,7 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
- 
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
 
@@ -289,6 +289,7 @@ static SANE_Status snapscan_cmd(SnapScan_Bus bus, int fd, const void *src,
 #define RESERVE_UNIT           0x16
 #define RELEASE_UNIT           0x17
 #define SEND_DIAGNOSTIC        0x1D
+#define OBJECT_POSITION        0x31
 #define GET_DATA_BUFFER_STATUS 0x34
 
 #define SCAN_LEN 6
@@ -561,6 +562,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         pss->bpp = 14;
         break;
     case STYLUS_CX1500:
+    case SCANWIT2720S:
         pss->bpp = 12;
         break;
     default:
@@ -674,6 +676,10 @@ static void release_unit (SnapScan_Scanner *pss)
 #define DTCQ_GAMMA_RED14 0x96
 #define DTCQ_GAMMA_GREEN14 0x97
 #define DTCQ_GAMMA_BLUE14 0x98
+#define DTCQ_GAMMA_GRAY12_16BIT 0xa0
+#define DTCQ_GAMMA_RED12_16BIT 0xa1
+#define DTCQ_GAMMA_GREEN12_16BIT 0xa2
+#define DTCQ_GAMMA_BLUE12_16BIT 0xa3
 #define DTCQ_GAMMA_GRAY14_16BIT 0xa5 /* ? */
 #define DTCQ_GAMMA_RED14_16BIT 0xa6
 #define DTCQ_GAMMA_GREEN14_16BIT 0xa7
@@ -733,6 +739,12 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
         case DTCQ_GAMMA_GREEN12:
         case DTCQ_GAMMA_BLUE12:
             tl = 4096;
+            break;
+        case DTCQ_GAMMA_GRAY12_16BIT:    /* 12-bit tables with 16 bit data */
+        case DTCQ_GAMMA_RED12_16BIT:
+        case DTCQ_GAMMA_GREEN12_16BIT:
+        case DTCQ_GAMMA_BLUE12_16BIT:
+            tl = 8192;
             break;
         case DTCQ_GAMMA_GRAY14:    /* 14-bit tables */
         case DTCQ_GAMMA_RED14:
@@ -832,13 +844,10 @@ static SANE_Status send_calibration_5150(SnapScan_Scanner *pss)
 #define SET_WINDOW_P_BLUE_UNDER_COLOR      45
 #define SET_WINDOW_P_GREEN_UNDER_COLOR     44
 
-static SANE_Status set_window (SnapScan_Scanner *pss)
+static SANE_Status prepare_set_window (SnapScan_Scanner *pss)
 {
-    static const char *me = "set_window";
-    SANE_Status status;
-    unsigned char source;
+    static const char *me = "prepare_set_window";
     u_char *pc;
-    int pos_factor;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
     zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
@@ -860,62 +869,11 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     u_short_to_u_charp (pss->res, pc + SET_WINDOW_P_YRES);
     DBG (DL_CALL_TRACE, "%s Resolution: %d\n", me, pss->res);
 
-    switch (pss->pdev->model)
-    {
-        case PRISA5000:
-        case PRISA5000E:
-        case PRISA5150:
-            pos_factor = (pss->res > 600) ?  1200 : 600;
-            break;
-        case PERFECTION1270:
-        case PERFECTION1670:
-            pos_factor = (pss->res > 800) ?  1600 : 800;
-            break;
-        case PERFECTION2480:
-            pos_factor = (pss->res > 1200) ?  2400 : 1200;
-            break;
-        case PERFECTION3490:
-            pos_factor = (pss->res > 1600) ?  3200 : 1600;
-            break;
-        default:
-            pos_factor = pss->actual_res;
-            break;
-    }
-    /* it's an ugly sound if the scanner drives against the rear
-       wall, and with changing max values we better be sure */
-    check_range(&(pss->brx), pss->pdev->x_range);
-    check_range(&(pss->bry), pss->pdev->y_range);
-    {
-        int tlxp =
-            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->tlx));
-        int tlyp =
-            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->tly));
-        int brxp =
-            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->brx));
-        int bryp =
-            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->bry));
-
-        /* Check for brx > tlx and bry > tly */
-        if (brxp <= tlxp) {
-            tlxp = MAX (0, brxp - 75);
-        }
-        if (bryp <= tlyp) {
-            tlyp = MAX (0, bryp - 75);
-        }
-
-        u_int_to_u_char4p (tlxp, pc + SET_WINDOW_P_TLX);
-        u_int_to_u_char4p (tlyp, pc + SET_WINDOW_P_TLY);
-        u_int_to_u_char4p (MAX (((unsigned) (brxp - tlxp)), 75),
-                           pc + SET_WINDOW_P_WIDTH);
-        u_int_to_u_char4p (MAX (((unsigned) (bryp - tlyp)), 75),
-                           pc + SET_WINDOW_P_LENGTH);
-        DBG (DL_INFO, "%s Width:  %d\n", me, brxp-tlxp);
-        DBG (DL_INFO, "%s Length: %d\n", me, bryp-tlyp);
-    }
     pc[SET_WINDOW_P_BRIGHTNESS] = 128;
     pc[SET_WINDOW_P_THRESHOLD] =
         (u_char) (255.0*(pss->threshold / 100.0));
     pc[SET_WINDOW_P_CONTRAST] = 128;
+
     {
         SnapScan_Mode mode = pss->mode;
         pss->bpp_scan = pss->val[OPT_BIT_DEPTH].w;
@@ -923,9 +881,10 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
         if (pss->preview)
         {
             mode = pss->preview_mode;
-            pss->bpp_scan = 8;
+            if (pss->pdev->model != SCANWIT2720S)
+                pss->bpp_scan = 8;
         }
-            
+
         DBG (DL_MINOR_INFO, "%s Mode: %d\n", me, mode);
         switch (mode)
         {
@@ -982,6 +941,87 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
             pc[SET_WINDOW_P_GAMMA_NO] = 0x01;   /* downloaded gamma table */
         }
     }
+
+    pc[SET_WINDOW_P_RED_UNDER_COLOR] = 0xff;    /* defaults */
+    pc[SET_WINDOW_P_BLUE_UNDER_COLOR] = 0xff;
+    pc[SET_WINDOW_P_GREEN_UNDER_COLOR] = 0xff;
+
+    return SANE_STATUS_GOOD;
+}
+
+static SANE_Status set_window (SnapScan_Scanner *pss)
+{
+    static const char *me = "set_window";
+    SANE_Status status;
+    unsigned char source;
+    u_char *pc;
+    int pos_factor;
+
+    DBG (DL_CALL_TRACE, "%s\n", me);
+    status = prepare_set_window(pss);
+    CHECK_STATUS (status, me, "prepare_set_window");
+
+    pc = pss->cmd;
+
+    /* header; we support only one window */
+    pc += SET_WINDOW_LEN;
+
+    /* the sole window descriptor */
+    pc += SET_WINDOW_HEADER_LEN;
+
+    switch (pss->pdev->model)
+    {
+        case PRISA5000:
+        case PRISA5000E:
+        case PRISA5150:
+            pos_factor = (pss->res > 600) ?  1200 : 600;
+            break;
+        case PERFECTION1270:
+        case PERFECTION1670:
+            pos_factor = (pss->res > 800) ?  1600 : 800;
+            break;
+        case PERFECTION2480:
+            pos_factor = (pss->res > 1200) ?  2400 : 1200;
+            break;
+        case PERFECTION3490:
+            pos_factor = (pss->res > 1600) ?  3200 : 1600;
+            break;
+        default:
+            pos_factor = pss->actual_res;
+            break;
+    }
+    /* it's an ugly sound if the scanner drives against the rear
+       wall, and with changing max values we better be sure */
+    check_range(&(pss->brx), pss->pdev->x_range);
+    check_range(&(pss->bry), pss->pdev->y_range);
+    {
+        int tlxp =
+            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->tlx));
+        int tlyp =
+            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->tly));
+        int brxp =
+            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->brx));
+        int bryp =
+            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->bry));
+
+        /* Check for brx > tlx and bry > tly */
+        if (brxp <= tlxp) {
+            tlxp = MAX (0, brxp - 75);
+        }
+        if (bryp <= tlyp) {
+            tlyp = MAX (0, bryp - 75);
+        }
+
+        u_int_to_u_char4p (tlxp, pc + SET_WINDOW_P_TLX);
+        u_int_to_u_char4p (tlyp, pc + SET_WINDOW_P_TLY);
+        u_int_to_u_char4p (MAX (((unsigned) (brxp - tlxp)), 75),
+                           pc + SET_WINDOW_P_WIDTH);
+        u_int_to_u_char4p (MAX (((unsigned) (bryp - tlyp)), 75),
+                           pc + SET_WINDOW_P_LENGTH);
+        DBG (DL_INFO, "%s Width:  %d\n", me, brxp-tlxp);
+        DBG (DL_INFO, "%s Length: %d\n", me, bryp-tlyp);
+    }
+
     source = 0x0;
     if (pss->preview) {
         source |= 0x80; /* no high quality in preview */
@@ -1003,9 +1043,6 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     }
     pc[SET_WINDOW_P_OPERATION_MODE] = source;
     DBG (DL_MINOR_INFO, "%s: operation mode set to 0x%02x\n", me, (int) source);
-    pc[SET_WINDOW_P_RED_UNDER_COLOR] = 0xff;    /* defaults */
-    pc[SET_WINDOW_P_BLUE_UNDER_COLOR] = 0xff;
-    pc[SET_WINDOW_P_GREEN_UNDER_COLOR] = 0xff;
 
     do {
         status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
@@ -1018,6 +1055,90 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
 
     CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
+}
+
+static SANE_Status set_window_autofocus (SnapScan_Scanner *copy)
+{
+    static char me[] = "set_window_autofocus";
+    SANE_Status status;
+
+    DBG (DL_CALL_TRACE, "%s(%p)\n", me, (void*)copy);
+
+    copy->res = copy->actual_res;
+    status = prepare_set_window (copy);
+    CHECK_STATUS (status, me, "prepare_set_window");
+
+    u_int_to_u_char4p (1700, copy->cmd + SET_WINDOW_DESC + SET_WINDOW_P_TLY);
+    /* fill in width & height */
+    u_int_to_u_char4p (2550, copy->cmd + SET_WINDOW_DESC + SET_WINDOW_P_WIDTH);
+    u_int_to_u_char4p (128, copy->cmd + SET_WINDOW_DESC + SET_WINDOW_P_LENGTH);
+
+    copy->cmd[SET_WINDOW_DESC + SET_WINDOW_P_BITS_PER_PIX] = 12;
+    copy->cmd[SET_WINDOW_DESC + SET_WINDOW_P_OPERATION_MODE] = 0x49; /* focusing mode */
+    return snapscan_cmd (copy->pdev->bus, copy->fd, copy->cmd,
+                SET_WINDOW_TOTAL_LEN, NULL, NULL);
+}
+
+#define SET_FRAME_LEN	10
+
+static SANE_Status set_frame (SnapScan_Scanner *pss, SANE_Byte frame_no)
+{
+    static const char *me = "set_frame";
+    SANE_Status status;
+
+    DBG (DL_CALL_TRACE, "%s\n", me);
+    DBG (DL_VERBOSE, "%s setting frame to %d\n", me, frame_no);
+    zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
+    pss->cmd[0] = OBJECT_POSITION;
+    pss->cmd[1] = 2;          /* Absolute position used here to select the frame */
+    pss->cmd[4] = frame_no;
+
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd, SET_FRAME_LEN, NULL, NULL);
+    CHECK_STATUS (status, me, "snapscan_cmd");
+
+    return status;
+}
+
+static SANE_Status set_focus (SnapScan_Scanner *pss, SANE_Int focus)
+{
+    static const char *me = "set_focus";
+    SANE_Status status;
+
+    DBG (DL_CALL_TRACE, "%s(%d)\n", me, focus);
+    zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
+    pss->cmd[0] = OBJECT_POSITION;
+    pss->cmd[1] = 4;          /* Rotate object but here it sets the focus point */
+    pss->cmd[3] = (focus >> 8) & 0xFF;
+    pss->cmd[4] = focus & 0xFF;
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd, SET_FRAME_LEN, NULL, NULL);
+    CHECK_STATUS (status, me, "snapscan_cmd");
+    return status;
+}
+
+static SANE_Int get_8 (u_char *p)
+{
+    SANE_Int b;
+    b = p[0] | (p[1] << 8);
+    return b;
+}
+
+static double get_val (u_char *p, SANE_Int len, SANE_Int x)
+{
+	return get_8 (p + ((x + len) << 1)) / 255.0;
+}
+
+static double sum_pixel_differences (u_char *p, int len)
+{
+	double v, m, s;
+	SANE_Int i;
+
+	s = 0;
+	for (i = 0; i < len-1; i++) {
+		v = get_val (p, len, i);
+		m = get_val (p, len, i+1);
+		s += fabs (v - m);
+	}
+	return s;
 }
 
 static SANE_Status scan (SnapScan_Scanner *pss)
@@ -1061,6 +1182,60 @@ static SANE_Status scsi_read (SnapScan_Scanner *pss, u_char read_type)
     return status;
 }
 
+static SANE_Status get_focus (SnapScan_Scanner *pss)
+{
+    static const char *me = "get_focus";
+    SANE_Int focus_point, max_focus_point;
+    double sum, max;
+    SANE_Status status;
+    SnapScan_Scanner copy;
+
+    copy = *pss;
+
+    DBG (DL_CALL_TRACE, "%s\n", me);
+    reserve_unit(&copy);
+
+    status = set_window_autofocus (&copy);
+    CHECK_STATUS (status, me, "set_window_autofocus");
+
+    status = inquiry (&copy);
+    CHECK_STATUS (status, me, "inquiry");
+
+    status = scan (&copy);
+    CHECK_STATUS (status, me, "scan");
+
+    status = set_frame (&copy, copy.frame_no);
+    CHECK_STATUS (status, me, "set_frame");
+
+    DBG (DL_VERBOSE, "%s: Expected number of bytes for each read %d\n", me, (int)copy.bytes_per_line);
+    DBG (DL_VERBOSE, "%s: Expected number of pixels per line %d\n", me, (int)copy.pixels_per_line);
+    max_focus_point = -1;
+    max = -1;
+    for (focus_point = 0; focus_point <= 0x300; focus_point += 6) {
+        status = set_focus (&copy, focus_point);
+        CHECK_STATUS (status, me, "set_focus");
+
+        copy.expected_read_bytes = copy.bytes_per_line;
+        status = scsi_read (&copy, READ_IMAGE);
+        CHECK_STATUS (status, me, "scsi_read");
+
+        sum = sum_pixel_differences (copy.buf, copy.pixels_per_line);
+
+        if (sum > max) {
+            max = sum;
+            max_focus_point = focus_point;
+        }
+    }
+    pss->focus = max_focus_point;
+    DBG (DL_VERBOSE, "%s: Focus point found to be at 0x%x\n", me, max_focus_point);
+    release_unit (&copy);
+
+    wait_scanner_ready (&copy);
+    CHECK_STATUS (status, me, "wait_scanner_ready");
+
+    return status;
+}
+
 /*
 static SANE_Status request_sense (SnapScan_Scanner *pss)
 {
@@ -1099,6 +1274,8 @@ static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
      pss->pdev->model == PRISA610
         ||
      pss->pdev->model == SNAPSCAN1236
+        ||
+     pss->pdev->model == SCANWIT2720S
         ||
         pss->pdev->model == ARCUS1200)
     {
@@ -1373,12 +1550,14 @@ static SANE_Status calibrate (SnapScan_Scanner *pss)
         (pss->pdev->model == PERFECTION3490)) {
         return calibrate_epson (pss);
     }
-    
+
     if (pss->pdev->model == PRISA5150)
     {
-    	return send_calibration_5150(pss);
+        return send_calibration_5150(pss);
     }
-      
+
+    DBG (DL_CALL_TRACE, "%s\n", me);
+
     if (line_length) {
         int num_lines = pss->phys_buf_sz / line_length;
         if (num_lines > NUM_CALIBRATION_LINES)
@@ -1425,7 +1604,6 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
     SANE_Status status = SANE_STATUS_GOOD;
     char cModelName[8], cModel[255];
     unsigned char bModelNo;
-    int readByte;
 
     bModelNo =*(pss->buf + INQUIRY_HWMI);
     zero_buf((unsigned char *)cModel, 255);
@@ -1512,7 +1690,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
             pCDB = (unsigned char *)malloc(bufLength + cdbLength);
             pFwBuf = pCDB + cdbLength;
             zero_buf (pCDB, cdbLength);
-            readByte = fread(pFwBuf,1,bufLength,fd);
+            (void)fread(pFwBuf,1,bufLength,fd);
 
             *pCDB = SEND;
             *(pCDB + 2) = 0x87;

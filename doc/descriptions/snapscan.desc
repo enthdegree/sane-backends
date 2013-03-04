@@ -146,6 +146,10 @@
 :interface "SCSI"
 :status :good
 
+:model "ScanWit 2720s"
+:interface "SCSI"
+:status :good
+
 :model "310U"
 :interface "USB"
 :usbid "0x04a5" "0x1a20"

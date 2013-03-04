@@ -1,9 +1,9 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 1997, 1998, 2001 Franck Schnefra, Michel Roelofs,
+   Copyright (C) 1997, 1998, 2001, 2013 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
    Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson,
-   Oliver Schwartz and Kevin Charter
+   Andrew Goodbody, Oliver Schwartz and Kevin Charter
 
    This file is part of the SANE package.
 
@@ -67,10 +67,14 @@
 static SANE_Int def_rgb_lpr = 4;
 static SANE_Int def_gs_lpr = 12;
 static SANE_Int def_bpp = 8;
+static SANE_Int def_frame_no = 1;
 
 
 /* predefined preview mode name */
 static char md_auto[] = "Auto";
+
+/* predefined focus mode name */
+static char md_manual[] = "Manual";
 
 /* predefined scan mode names */
 static char md_colour[] = SANE_VALUE_SCAN_MODE_COLOR;
@@ -102,6 +106,15 @@ static char lpr_desc[] = SANE_I18N(
     "low, the scanner will have to stop periodically in the middle of "
     "a scan; if it's set too high, X-based frontends may stop responding "
     "to X events and your system could bog down.");
+
+static char frame_desc[] = SANE_I18N(
+    "Frame number of media holder that should be scanned.");
+
+static char focus_mode_desc[] = SANE_I18N(
+    "Use manual or automatic selection of focus point.");
+
+static char focus_desc[] = SANE_I18N(
+    "Focus point for scanning.");
 
 /* ranges */
 static const SANE_Range x_range_fb =
@@ -174,6 +187,16 @@ static const SANE_Range y_range_tpo_2580 =
     SANE_FIX (0.0), SANE_FIX (80.0), 0
 };        /* mm */
 
+/* TPO range for the Scanwit 2720S */
+static const SANE_Range x_range_tpo_2720s =
+{
+    SANE_FIX (0.0), SANE_FIX (23.6), 0
+};        /* mm */
+static const SANE_Range y_range_tpo_2720s =
+{
+    SANE_FIX (0.0), SANE_FIX (35.7), 0
+};        /* mm */
+
 /* TPO range for the Epson 3490 */
 static const SANE_Range x_range_tpo_3490 =
 {
@@ -197,6 +220,14 @@ static const SANE_Range gamma_vrange =
 static const SANE_Range lpr_range =
 {
     1, 50, 1
+};
+static const SANE_Range frame_range =
+{
+    1, 6, 1
+};
+static const SANE_Range focus_range =
+{
+    0, 0x300, 6
 };
 
 static const SANE_Range brightness_range =
@@ -243,6 +274,8 @@ static void init_options (SnapScan_Scanner * ps)
         {10, 50, 75, 100, 150, 200, 300, 400, 600, 800, 1600};
     static SANE_Word resolutions_2400[] =
         {10, 50, 75, 100, 150, 200, 300, 400, 600, 1200, 2400};
+    static SANE_Word resolutions_2700[] =
+        {4, 337, 675, 1350, 2700};
     static SANE_Word resolutions_3200[] =
         {15, 50, 150, 200, 240, 266, 300, 350, 360, 400, 600, 720, 800, 1200, 1600, 3200};
     static SANE_String_Const names_all[] =
@@ -253,6 +286,8 @@ static void init_options (SnapScan_Scanner * ps)
         {md_auto, md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const preview_names_basic[] =
         {md_auto, md_colour, md_greyscale, md_lineart, NULL};
+    static SANE_String_Const focus_modes[] =
+        {md_auto, md_manual, NULL};
     static SANE_Int bit_depth_list[4];
     int bit_depths;
     SANE_Option_Descriptor *po = ps->options;
@@ -287,6 +322,10 @@ static void init_options (SnapScan_Scanner * ps)
            y_range_tpo = y_range_tpo_2480;
         }
         break;
+    case SCANWIT2720S:
+        x_range_tpo = x_range_tpo_2720s;
+        y_range_tpo = y_range_tpo_2720s;
+        break;
     case PERFECTION3490:
         x_range_tpo = x_range_tpo_3490;
         y_range_tpo = y_range_tpo_3490;
@@ -318,6 +357,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_MODE_GROUP].cap = 0;
     po[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
+    ps->res = DEFAULT_RES;
     po[OPT_SCANRES].name = SANE_NAME_SCAN_RESOLUTION;
     po[OPT_SCANRES].title = SANE_TITLE_SCAN_RESOLUTION;
     po[OPT_SCANRES].desc = SANE_DESC_SCAN_RESOLUTION;
@@ -354,11 +394,17 @@ static void init_options (SnapScan_Scanner * ps)
     case PERFECTION3490:
         po[OPT_SCANRES].constraint.word_list = resolutions_3200;
         break;
+    case SCANWIT2720S:
+        po[OPT_SCANRES].constraint.word_list = resolutions_2700;
+        ps->val[OPT_SCANRES].w = 1350;
+        ps->res = 1350;
+        break;
     default:
         po[OPT_SCANRES].constraint.word_list = resolutions_600;
         break;
     }
-    ps->res = DEFAULT_RES;
+    DBG (DL_OPTION_TRACE,
+        "sane_init_options resolution is %d\n", ps->res);
 
     po[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
     po[OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
@@ -464,7 +510,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_SOURCE].title = SANE_TITLE_SCAN_SOURCE;
     po[OPT_SOURCE].desc  = SANE_DESC_SCAN_SOURCE;
     po[OPT_SOURCE].type  = SANE_TYPE_STRING;
-    po[OPT_SOURCE].cap   = SANE_CAP_SOFT_SELECT 
+    po[OPT_SOURCE].cap   = SANE_CAP_SOFT_SELECT
                            | SANE_CAP_SOFT_DETECT
                            | SANE_CAP_INACTIVE
                            | SANE_CAP_AUTOMATIC;
@@ -483,12 +529,22 @@ static void init_options (SnapScan_Scanner * ps)
         {
             source_list[i++] = src_adf;
             po[OPT_SOURCE].cap &= ~SANE_CAP_INACTIVE;
-        } 
+        }
         source_list[i] = 0;
         po[OPT_SOURCE].size = max_string_size(source_list);
         po[OPT_SOURCE].constraint.string_list = source_list;
-        ps->source = SRC_FLATBED;
-        ps->source_s = (SANE_Char *) strdup(src_flatbed);
+        if (ps->pdev->model == SCANWIT2720S)
+        {
+            ps->source = SRC_TPO;
+            ps->source_s = (SANE_Char *) strdup(src_tpo);
+            ps->pdev->x_range.max = x_range_tpo.max;
+            ps->pdev->y_range.max = y_range_tpo.max;
+        }
+        else
+        {
+            ps->source = SRC_FLATBED;
+            ps->source_s = (SANE_Char *) strdup(src_flatbed);
+        }
     }
 
     po[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
@@ -564,13 +620,13 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_ENHANCEMENT_GROUP].cap = 0;
     po[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-    /* bit depth */     
+    /* bit depth */
     po[OPT_BIT_DEPTH].name  = SANE_NAME_BIT_DEPTH;
     po[OPT_BIT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
     po[OPT_BIT_DEPTH].desc  = SANE_DESC_BIT_DEPTH;
     po[OPT_BIT_DEPTH].type  = SANE_TYPE_INT;
     po[OPT_BIT_DEPTH].unit  = SANE_UNIT_BIT;
-    po[OPT_BIT_DEPTH].size = sizeof (SANE_Word);    
+    po[OPT_BIT_DEPTH].size = sizeof (SANE_Word);
     po[OPT_BIT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
     po[OPT_BIT_DEPTH].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     bit_depths = 0;
@@ -581,13 +637,25 @@ static void init_options (SnapScan_Scanner * ps)
     case PERFECTION3490:
         bit_depth_list[++bit_depths] = 16;
         break;
+    case SCANWIT2720S:
+        bit_depth_list[bit_depths] = 12;
+        break;
     default:
         break;
-    }    
+    }
     bit_depth_list[0] = bit_depths;
     po[OPT_BIT_DEPTH].constraint.word_list = bit_depth_list;
-    ps->val[OPT_BIT_DEPTH].w = def_bpp;
-    
+    if (ps->pdev->model == SCANWIT2720S)
+    {
+        ps->val[OPT_BIT_DEPTH].w = 12;
+        ps->bpp_scan = 12;
+    }
+    else
+    {
+        ps->val[OPT_BIT_DEPTH].w = def_bpp;
+        ps->bpp_scan = def_bpp;
+    }
+
     po[OPT_QUALITY_CAL].name = SANE_NAME_QUALITY_CAL;
     po[OPT_QUALITY_CAL].title = SANE_TITLE_QUALITY_CAL;
     po[OPT_QUALITY_CAL].desc = SANE_DESC_QUALITY_CAL;
@@ -813,6 +881,45 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_THRESHOLD].constraint.range = &positive_percent_range;
     ps->threshold = DEFAULT_THRESHOLD;
 
+    po[OPT_FRAME_NO].name = SANE_I18N("Frame");
+    po[OPT_FRAME_NO].title = SANE_I18N("Frame to be scanned");
+    po[OPT_FRAME_NO].desc = frame_desc;
+    po[OPT_FRAME_NO].type = SANE_TYPE_INT;
+    po[OPT_FRAME_NO].unit = SANE_UNIT_NONE;
+    po[OPT_FRAME_NO].size = sizeof (SANE_Int);
+    po[OPT_FRAME_NO].cap = SANE_CAP_SOFT_SELECT
+                       | SANE_CAP_SOFT_DETECT
+                       | SANE_CAP_INACTIVE;
+    po[OPT_FRAME_NO].constraint_type = SANE_CONSTRAINT_RANGE;
+    po[OPT_FRAME_NO].constraint.range = &frame_range;
+    ps->frame_no = def_frame_no;
+
+    po[OPT_FOCUS_MODE].name = SANE_I18N("Focus-mode");
+    po[OPT_FOCUS_MODE].title = SANE_I18N("Auto or manual focus");
+    po[OPT_FOCUS_MODE].desc = focus_mode_desc;
+    po[OPT_FOCUS_MODE].type = SANE_TYPE_STRING;
+    po[OPT_FOCUS_MODE].unit = SANE_UNIT_NONE;
+    po[OPT_FOCUS_MODE].size = 16;
+    po[OPT_FOCUS_MODE].cap = SANE_CAP_SOFT_SELECT
+                       | SANE_CAP_SOFT_DETECT
+                       | SANE_CAP_INACTIVE;
+    po[OPT_FOCUS_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    po[OPT_FOCUS_MODE].constraint.string_list = focus_modes;
+    ps->focus_mode_s= md_auto;
+    ps->focus_mode = MD_AUTO;
+
+    po[OPT_FOCUS_POINT].name = SANE_I18N("Focus-point");
+    po[OPT_FOCUS_POINT].title = SANE_I18N("Focus point");
+    po[OPT_FOCUS_POINT].desc = focus_desc;
+    po[OPT_FOCUS_POINT].type = SANE_TYPE_INT;
+    po[OPT_FOCUS_POINT].unit = SANE_UNIT_NONE;
+    po[OPT_FOCUS_POINT].size = sizeof (SANE_Int);
+    po[OPT_FOCUS_POINT].cap = SANE_CAP_SOFT_SELECT
+                       | SANE_CAP_SOFT_DETECT
+                       | SANE_CAP_INACTIVE;
+    po[OPT_FOCUS_POINT].constraint_type = SANE_CONSTRAINT_RANGE;
+    po[OPT_FOCUS_POINT].constraint.range = &focus_range;
+
     po[OPT_ADVANCED_GROUP].title = SANE_I18N("Advanced");
     po[OPT_ADVANCED_GROUP].desc = "";
     po[OPT_ADVANCED_GROUP].type = SANE_TYPE_GROUP;
@@ -878,7 +985,7 @@ static void control_options(SnapScan_Scanner *pss)
     pss->options[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
     pss->options[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
     pss->options[OPT_BIT_DEPTH].cap  |= SANE_CAP_INACTIVE;
-    
+
     if ((pss->mode == MD_COLOUR) ||
         ((pss->mode == MD_BILEVELCOLOUR) && (pss->hconfig & HCFG_HT) &&
          pss->halftone))
@@ -942,7 +1049,16 @@ static void control_options(SnapScan_Scanner *pss)
         default:
             break;
         }
-    }        
+    }
+    if (pss->pdev->model == SCANWIT2720S)
+    {
+        pss->options[OPT_FRAME_NO].cap &= ~SANE_CAP_INACTIVE;
+        pss->options[OPT_FOCUS_MODE].cap &= ~SANE_CAP_INACTIVE;
+        if (pss->focus_mode == MD_MANUAL)
+        {
+            pss->options[OPT_FOCUS_POINT].cap &= ~SANE_CAP_INACTIVE;
+        }
+    }
 }
 
 SANE_Status sane_control_option (SANE_Handle h,
@@ -1080,7 +1196,16 @@ SANE_Status sane_control_option (SANE_Handle h,
             break;
         case OPT_BIT_DEPTH:
             *(SANE_Int *) v = pss->val[OPT_BIT_DEPTH].w;
-            break;        
+            break;
+        case OPT_FRAME_NO:
+            *(SANE_Int *) v = pss->frame_no;
+            break;
+        case OPT_FOCUS_MODE:
+            strcpy ((SANE_String) v, pss->focus_mode_s);
+            break;
+        case OPT_FOCUS_POINT:
+            *(SANE_Int *) v = pss->focus;
+            break;
         default:
             DBG (DL_MAJOR_ERROR,
                  "%s: invalid option number %ld\n",
@@ -1495,6 +1620,31 @@ SANE_Status sane_control_option (SANE_Handle h,
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS;
             break;
+        case OPT_FRAME_NO:
+            pss->frame_no = *(SANE_Int *) v;
+            break;
+        case OPT_FOCUS_MODE:
+            {
+                char *s = (SANE_String) v;
+                if (strcmp (s, md_manual) == 0)
+                {
+                    pss->focus_mode_s = md_manual;
+                    pss->focus_mode = MD_MANUAL;
+                    pss->options[OPT_FOCUS_POINT].cap &= ~SANE_CAP_INACTIVE;
+                }
+                else
+                {
+                    pss->focus_mode_s = md_auto;
+                    pss->focus_mode = MD_AUTO;
+                    pss->options[OPT_FOCUS_POINT].cap |= SANE_CAP_INACTIVE;
+                }
+                if (i)
+                    *i = SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+                break;
+            }
+        case OPT_FOCUS_POINT:
+            pss->focus = *(SANE_Int *) v;
+            break;
         default:
             DBG (DL_MAJOR_ERROR,
                  "%s: invalid option number %ld\n",
@@ -1526,7 +1676,14 @@ SANE_Status sane_control_option (SANE_Handle h,
         switch (n)
         {
         case OPT_SCANRES:
-            pss->res = 300;
+            if (pss->pdev->model == SCANWIT2720S)
+            {
+                pss->res = 1350;
+            }
+            else
+            {
+                pss->res = 300;
+            }
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS;
             break;
@@ -1558,13 +1715,26 @@ SANE_Status sane_control_option (SANE_Handle h,
             pss->preview_mode = MD_GREYSCALE;
             break;
         case OPT_SOURCE:
-            pss->source = SRC_FLATBED;
-            pss->pdev->x_range.max = x_range_fb.max;
-            pss->pdev->y_range.max = y_range_fb.max;
-            pss->predef_window = pdw_none;
-            if (pss->source_s)
-                free (pss->source_s);
-            pss->source_s = (SANE_Char *) strdup(src_flatbed);
+            if (pss->pdev->model == SCANWIT2720S)
+            {
+                pss->source = SRC_TPO;
+                pss->pdev->x_range.max = x_range_tpo.max;
+                pss->pdev->y_range.max = y_range_tpo.max;
+                pss->predef_window = pdw_none;
+                if (pss->source_s)
+                    free (pss->source_s);
+                pss->source_s = (SANE_Char *) strdup(src_tpo);
+            }
+            else
+            {
+                pss->source = SRC_FLATBED;
+                pss->pdev->x_range.max = x_range_fb.max;
+                pss->pdev->y_range.max = y_range_fb.max;
+                pss->predef_window = pdw_none;
+                if (pss->source_s)
+                    free (pss->source_s);
+                pss->source_s = (SANE_Char *) strdup(src_flatbed);
+            }
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
             break;
@@ -1598,7 +1768,26 @@ SANE_Status sane_control_option (SANE_Handle h,
             pss->gs_lpr = def_gs_lpr;
             break;
         case OPT_BIT_DEPTH:
-            pss->val[OPT_BIT_DEPTH].w = def_bpp;
+            if (pss->pdev->model == SCANWIT2720S)
+            {
+                pss->val[OPT_BIT_DEPTH].w = 12;
+            }
+            else
+            {
+                pss->val[OPT_BIT_DEPTH].w = def_bpp;
+            }
+            break;
+        case OPT_FRAME_NO:
+            pss->frame_no = def_frame_no;
+            break;
+        case OPT_FOCUS_MODE:
+            pss->focus_mode_s = md_auto;
+            pss->focus_mode = MD_AUTO;
+            if (i)
+                *i = SANE_INFO_RELOAD_OPTIONS;
+            break;
+        case OPT_FOCUS_POINT:
+            pss->focus = 0x13e;
             break;
         default:
             DBG (DL_MAJOR_ERROR,

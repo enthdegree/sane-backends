@@ -6566,6 +6566,8 @@ sane_exit (void)
     free (devlist);
   devlist = 0;
 
+  sanei_usb_exit();
+
   DBGCOMPLETED;
 }
 
@@ -6579,8 +6581,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   DBG (DBG_proc, "sane_get_devices: start: local_only = %s\n",
        local_only == SANE_TRUE ? "true" : "false");
 
-  /* hot-plug case :detection of newly connected scanners */
-  sanei_usb_init ();
+  /* hot-plug case : detection of newly connected scanners */
+  sanei_usb_scan_devices ();
   probe_genesys_devices ();
 
   if (devlist)

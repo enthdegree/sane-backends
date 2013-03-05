@@ -1484,8 +1484,6 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 			endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK;
 
 		      DBG (5, "sanei_usb_open: direction: %d\n", direction);
-		      transfer_type =
-			endpoint->bmAttributes & USB_ENDPOINT_TYPE_MASK;
 
 		      DBG (5,
 			   "sanei_usb_open: address: %d transfertype: %d\n",
@@ -1917,7 +1915,9 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
     }
   else if (devices[devcount].method == sanei_usb_method_scanner_driver)
     {
+#ifdef FD_CLOEXEC
       long int flag;
+#endif
       /* Using kernel scanner driver */
       devices[devcount].fd = -1;
 #ifdef HAVE_RESMGR
@@ -1965,7 +1965,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       ulBufLen = sizeof(ucData);
       memset(&ucData,0,sizeof(ucData));
 
-      int result, num,rc;
+      int result, rc;
       int address, direction, transfer_type;
 
       DBG (5, "devname = %s, devcount = %d\n",devices[devcount].devname,devcount);
@@ -2010,11 +2010,9 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       DBG (1, "sanei_usb_open: UsbDeviceSetConfiguration rc = %d\n",result);
       if (result)
 	{
-	  SANE_Status status = SANE_STATUS_INVAL;
 	  DBG (1, "sanei_usb_open: usbcalls complained on UsbDeviceSetConfiguration, rc= %d\n", result);
-	  status = SANE_STATUS_ACCESS_DENIED;
 	  UsbClose (dh);
-	  return status;
+	  return SANE_STATUS_ACCESS_DENIED;
 	}
       
       /* Now we look for usable endpoints */

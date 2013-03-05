@@ -1128,10 +1128,7 @@ sanei_usb_get_vendor_product_byname (SANE_String_Const devname,
 
   for (i = 0; i < device_number && devices[i].devname; i++)
     {
-      if(devices[i].missing)
-        continue;
-
-      if (strcmp (devices[i].devname, devname) == 0)
+      if (!devices[i].missing && strcmp (devices[i].devname, devname) == 0)
 	{
 	  found = SANE_TRUE;
 	  break;
@@ -1334,10 +1331,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
        devcount < device_number && devices[devcount].devname != 0;
        devcount++)
     {
-      if(devices[devcount].missing)
-        continue;
-
-      if (strcmp (devices[devcount].devname, devname) == 0)
+      if (!devices[devcount].missing && strcmp (devices[devcount].devname, devname) == 0)
 	{
 	  if (devices[devcount].open)
 	    {

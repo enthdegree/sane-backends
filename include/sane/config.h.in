@@ -421,7 +421,7 @@
 #undef HAVE_UNISTD_H
 
 /* Define to 1 if you have usbcall.dll. */
-#undef HAVE_USBCALL
+#undef HAVE_USBCALLS
 
 /* Define to 1 if you have the `usleep' function. */
 #undef HAVE_USLEEP

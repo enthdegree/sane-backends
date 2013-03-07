@@ -1,3 +1,7 @@
+2013-02-28 Stéphane Voltz <stef.dev@free.fr>
+	* configure.in configure: restored HAVE_USBCALLS like initially
+	committed for OS/2 support
+
 2013-03-04 Oliver Schwartz <oliverschwartz@users.sf.net>
 	* backend/snapscan-options.c backend/snapscan-scsi.c backend/snapscan.c
 	  backend/snapscan-sources.c backend/snapscan.h 

@@ -418,7 +418,7 @@ fi
 if test "$HAVE_USB" = "yes"; then
   case ${host_os} in
   os2*)
-  AC_DEFINE(HAVE_USBCALL, 1, [Define to 1 if you have usbcall.dll.])
+  AC_DEFINE(HAVE_USBCALLS, 1, [Define to 1 if you have usbcall.dll.])
   ;;
   *)
   if test "$have_libusb_1_0" = "yes"; then

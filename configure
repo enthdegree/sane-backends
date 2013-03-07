@@ -9851,7 +9851,7 @@ if test "$HAVE_USB" = "yes"; then
   case ${host_os} in
   os2*)
 
-$as_echo "#define HAVE_USBCALL 1" >>confdefs.h
+$as_echo "#define HAVE_USBCALLS 1" >>confdefs.h
 
   ;;
   *)

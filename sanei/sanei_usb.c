@@ -372,6 +372,10 @@ store_device (device_list_type device)
 
           devices[i].missing=0;
 	  DBG (3, "store_device: not storing device %s\n", device.devname);
+
+	  /* since devname has been created by strdup()
+	   * we have to free it to avoid leaking memory */
+	  free(device.devname);
 	  return;
 	}
       if (devices[i].missing >= 2)

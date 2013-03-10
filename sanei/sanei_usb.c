@@ -519,6 +519,53 @@ sanei_usb_init (void)
   sanei_usb_scan_devices();
 }
 
+void
+sanei_usb_exit (void)
+{
+int i;
+
+  /* check we have really some work to do */
+  if(initialized==0)
+    {
+      DBG (1, "%s: sanei_usb in not initialized!\n", __func__);
+      return;
+    }
+
+  /* decrement the use count */
+  initialized--;
+
+  /* if we reach 0, free allocated resources */
+  if(initialized==0)
+    {
+      /* free allocated resources */
+      DBG (4, "%s: freeing resources\n", __func__);
+      for (i = 0; i < device_number; i++)
+        {
+          if (devices[i].devname != NULL)
+            {
+              DBG (5, "%s: freeing device %02d\n", __func__, i);
+              free(devices[i].devname);
+              devices[i].devname=NULL;
+            }
+        }
+#ifdef HAVE_LIBUSB_1_0
+      if (sanei_usb_ctx)
+        {
+          libusb_exit (sanei_usb_ctx);
+	  /* reset libusb-1.0 context */
+	  sanei_usb_ctx=NULL;
+        }
+#endif
+      /* reset device_number */
+      device_number=0;
+    }
+  else
+    {
+      DBG (4, "%s: not freeing resources since use count is %d\n", __func__, initialized);
+    }
+  return;
+}
+
 #ifdef HAVE_USBCALLS
 /** scan for devices through usbcall method
  * Check for devices using OS/2 USBCALLS Interface

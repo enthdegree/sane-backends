@@ -182,6 +182,13 @@ struct sanei_usb_dev_descriptor
  */
 extern void sanei_usb_init (void);
 
+/** End sanei_usb use, freeing resources when needed.
+ *
+ * When the use count of sanei_usb reach 0, free resources and end
+ * sanei_usb use.
+ */
+extern void sanei_usb_exit (void);
+
 /** Search for USB devices.
  *
  * Search USB busses for scanner devices.

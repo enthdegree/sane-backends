@@ -129,7 +129,7 @@ GetNextDescriptor( struct usb_descriptor_header *currHead, UCHAR *lastBytePtr)
 
 typedef enum
 {
-  sanei_usb_method_scanner_driver = 0,	/* kernel scanner driver 
+  sanei_usb_method_scanner_driver = 0,	/* kernel scanner driver
 					   (Linux, BSD) */
   sanei_usb_method_libusb,
 
@@ -166,11 +166,11 @@ typedef struct
 }
 device_list_type;
 
-/** 
+/**
  * total number of devices that can be found at the same time */
 #define MAX_DEVICES 100
 
-/** 
+/**
  * per-device information, using the functions' parameters dn as index */
 static device_list_type devices[MAX_DEVICES];
 
@@ -301,26 +301,26 @@ kernel_get_vendor_product (int fd, const char *name, int *vendorID, int *product
     int ctrl_fd;
     char buf[40];
     int dev;
-    
+
     for (controller = 0; ; controller++ )
       {
 	snprintf (buf, sizeof (buf) - 1, "/dev/usb%d", controller);
 	ctrl_fd = open (buf, O_RDWR);
-	
+
 	/* If we can not open the usb controller device, treat it
 	   as the end of controller devices */
 	if (ctrl_fd < 0)
 	  break;
-	
+
 	/* Search for the scanner device on this bus */
 	for (dev = 1; dev < USB_MAX_DEVICES; dev++)
-	  {  
+	  {
 	    struct usb_device_info devInfo;
 	    devInfo.udi_addr = dev;
-	    
+
 	    if (ioctl (ctrl_fd, USB_DEVICEINFO, &devInfo) == -1)
 	      break; /* Treat this as the end of devices for this controller */
-	    
+
 	    snprintf (buf, sizeof (buf), "/dev/%s", devInfo.udi_devnames[0]);
 	    if (strncmp (buf, name, sizeof (buf)) == 0)
 	      {
@@ -350,7 +350,7 @@ store_device (device_list_type device)
   int i = 0;
   int pos = -1;
 
-  /* if there are already some devices present, check against 
+  /* if there are already some devices present, check against
    * them and leave if an equal one is found */
   for (i = 0; i < device_number; i++)
     {
@@ -359,7 +359,7 @@ store_device (device_list_type device)
        && devices[i].vendor == device.vendor
        && devices[i].product == device.product)
 	{
-          /* 
+          /*
           * Need to update the LibUSB device pointer, since it might
           * have changed after the latest USB scan.
           */
@@ -693,7 +693,7 @@ static void kernel_scan_devices(void)
 	  /* skip standard dir entries */
 	  if (strcmp (dir_entry->d_name, ".") == 0 || strcmp (dir_entry->d_name, "..") == 0)
 	  	continue;
-	  		
+
 	  if (strncmp (base_name, dir_entry->d_name, strlen (base_name)) == 0)
 	    {
 	      if (strlen (dir_name) + strlen (dir_entry->d_name) + 1 >
@@ -785,7 +785,7 @@ static void libusb_scan_devices(void)
 		  found = SANE_TRUE;
 		  break;
 		case USB_CLASS_PER_INTERFACE:
-		  if (dev->config[0].interface[interface].num_altsetting == 0 || 
+		  if (dev->config[0].interface[interface].num_altsetting == 0 ||
 		      !dev->config[0].interface[interface].altsetting)
 		    {
 		      DBG (1, "%s: device 0x%04x/0x%04x doesn't "
@@ -813,7 +813,7 @@ static void libusb_scan_devices(void)
 		     "scanner (%d/%d)\n", __func__, dev->descriptor.idVendor,
 		     dev->descriptor.idProduct, interface,
 		     dev->descriptor.bDeviceClass,
-		     dev->config[0].interface[interface].altsetting != 0 
+		     dev->config[0].interface[interface].altsetting != 0
                        ? dev->config[0].interface[interface].altsetting[0].
 		       bInterfaceClass : -1);
 	    }
@@ -1972,8 +1972,8 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       DBG (5, "USBCalls device number to open = %d\n",devices[devcount].fd);
       DBG (5, "USBCalls Vendor/Product to open = 0x%04x/0x%04x\n",
                devices[devcount].vendor,devices[devcount].product);
-      
-      rc = UsbOpen (&dh, 
+
+      rc = UsbOpen (&dh,
 			devices[devcount].vendor,
 			devices[devcount].product,
 			USB_ANY_PRODUCTVERSION,
@@ -2000,7 +2000,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	{
 	  DBG (3, "sanei_usb_open: more than one "
 	       "configuration (%d), choosing first config (%d)\n",
-	       pDevDesc->bNumConfigurations, 
+	       pDevDesc->bNumConfigurations,
 	       pCfgDesc->bConfigurationValue);
 	}
       DBG (5, "UsbDeviceSetConfiguration parameters: dh = %p, bConfigurationValue = %d\n",
@@ -2014,9 +2014,9 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  UsbClose (dh);
 	  return SANE_STATUS_ACCESS_DENIED;
 	}
-      
+
       /* Now we look for usable endpoints */
-      
+
       for (pDescHead = (struct usb_descriptor_header *) (pCurPtr+pCfgDesc->bLength);
             pDescHead;pDescHead = GetNextDescriptor(pDescHead,pEndPtr) )
 	{
@@ -2252,7 +2252,7 @@ sanei_usb_reset (SANE_Int dn)
     DBG (1, "sanei_usb_reset: ret=%d\n", ret);
     return SANE_STATUS_INVAL;
   }
-  
+
 #else /* not HAVE_LIBUSB && not HAVE_LIBUSB_1_0 */
   DBG (1, "sanei_usb_reset: libusb support missing\n");
 #endif /* HAVE_LIBUSB || HAVE_LIBUSB_1_0 */
@@ -2609,7 +2609,7 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 	}
 	if ((rtype & 0x80) && debug_level > 10)
 		print_buffer (data, len);
-	
+
 	return SANE_STATUS_GOOD;
 #else /* not __linux__ */
       DBG (5, "sanei_usb_control_msg: not supported on this OS\n");
@@ -2663,7 +2663,7 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
       int result;
 
       result = UsbCtrlMessage (dh, rtype, req,
-				value, index, len, (char *) data, 
+				value, index, len, (char *) data,
 				usbcalls_timeout);
       DBG (5, "rc of usb_control_msg = %d\n",result);
       if (result < 0)
@@ -2775,7 +2775,7 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
     {
 #ifdef HAVE_USBCALLS
       int rc;
-      USHORT usNumBytes=*size; 
+      USHORT usNumBytes=*size;
       DBG (5, "Entered usbcalls UsbIrqStart with dn = %d\n",dn);
       DBG (5, "Entered usbcalls UsbIrqStart with dh = %p\n",dh);
       DBG (5, "Entered usbcalls UsbIrqStart with int_in_ep = 0x%02x\n",devices[dn].int_in_ep);

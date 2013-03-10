@@ -42,20 +42,20 @@
 */
 
 /** @file sanei_usb.h
- * This file provides a generic USB interface.  
+ * This file provides a generic USB interface.
  *
  * Currently, two access methods to USB devices are provided:
  * - Access to device
  * files as used by the Linux kernel USB scanner driver is supported. FreeBSD
- * and OpenBSD with their uscanner drivers also work this way. However, 
+ * and OpenBSD with their uscanner drivers also work this way. However,
  * detection and control messages aren't supported on these platforms.
- * - Access using libusb (where available). 
+ * - Access using libusb (where available).
  *
  * A general remark: Do not mix sanei_usb functions with "normal" file-related
  * libc functions like open() or close.  The device numbers used in sanei_usb
  * are not file descriptors.
  *
- * @sa sanei_lm983x.h, sanei_pa4s2.h, sanei_pio.h, sanei_scsi.h, and <a 
+ * @sa sanei_lm983x.h, sanei_pa4s2.h, sanei_pio.h, sanei_scsi.h, and <a
  * href="http://www.sane-project.org/man/sane-usb.5.html">man sane-usb(5)</a>
  * for user-oriented documentation
  */
@@ -197,7 +197,7 @@ extern void sanei_usb_scan_devices (void);
 
 /** Get the vendor and product ids by device name.
  *
- * @param devname 
+ * @param devname
  * @param vendor vendor id
  * @param product product id
  *
@@ -213,15 +213,15 @@ sanei_usb_get_vendor_product_byname (SANE_String_Const devname,
 
 /** Get the vendor and product ids.
  *
- * Currently, only libusb devices and scanners supported by the Linux USB 
+ * Currently, only libusb devices and scanners supported by the Linux USB
  * scanner module can be found.  For the latter method, the Linux version
- * must be 2.4.8 or higher. 
+ * must be 2.4.8 or higher.
  *
  * @param dn device number of an already sanei_usb_opened device
  * @param vendor vendor id
  * @param product product id
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - if the ids could be determined
  * - SANE_STATUS_UNSUPPORTED - if the OS doesn't support detection of ids
  */
@@ -247,7 +247,7 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
 /** Open a USB device.
  *
  * The device is opened by its name devname and the device number is
- * returned in dn on success.  
+ * returned in dn on success.
  *
  * Device names can be either device file names for direct access over
  * kernel drivers (like /dev/usb/scanner) or libusb names. The libusb format
@@ -294,13 +294,13 @@ extern void sanei_usb_set_endpoint (SANE_Int dn, SANE_Int ep_type, SANE_Int ep);
 extern SANE_Int sanei_usb_get_endpoint (SANE_Int dn, SANE_Int ep_type);
 
 /** Close a USB device.
- * 
+ *
  * @param dn device number
  */
 extern void sanei_usb_close (SANE_Int dn);
 
 /** Set the libusb timeout for bulk and interrupt reads.
- * 
+ *
  * @param timeout the new timeout in ms
  */
 extern void sanei_usb_set_timeout (SANE_Int timeout);
@@ -310,7 +310,7 @@ extern void sanei_usb_set_timeout (SANE_Int timeout);
 #define HAVE_SANEI_USB_SET_TIMEOUT
 
 /** Clear halt condition on bulk endpoints
- * 
+ *
  * @param dn device number
  */
 extern SANE_Status sanei_usb_clear_halt (SANE_Int dn);
@@ -320,7 +320,7 @@ extern SANE_Status sanei_usb_clear_halt (SANE_Int dn);
 #define HAVE_SANEI_USB_CLEAR_HALT
 
 /** Reset device
- * 
+ *
  * @param dn device number
  */
 extern SANE_Status sanei_usb_reset (SANE_Int dn);
@@ -334,7 +334,7 @@ extern SANE_Status sanei_usb_reset (SANE_Int dn);
  * @param buffer buffer to store read data in
  * @param size size of the data
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_EOF - if zero bytes have been read
  * - SANE_STATUS_IO_ERROR - if an error occured during the read
@@ -353,7 +353,7 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size);
  * @param buffer buffer to write to device
  * @param size size of the data
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_IO_ERROR - if an error occured during the write
  * - SANE_STATUS_INVAL - on every other error
@@ -368,7 +368,7 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size);
  * For a detailed explanation of the parameters, have a look at the USB
  * specification at the <a href="http://www.usb.org/developers/docs/">
  * www.usb.org developers information page</a>.
- * 
+ *
  * @param dn device number
  * @param rtype specifies the characteristics of the request (e.g. data
  *    direction)
@@ -399,7 +399,7 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
  * @param buffer buffer to store read data in
  * @param size size of the data
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_EOF - if zero bytes have been read
  * - SANE_STATUS_IO_ERROR - if an error occured during the read
@@ -437,7 +437,7 @@ sanei_usb_attach_matching_devices (const char *name,
  * @param dn device number
  * @param configuration, configuration nummber
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_EOF - if zero bytes have been read
  * - SANE_STATUS_IO_ERROR - if an error occured during the read
@@ -455,7 +455,7 @@ sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration);
  * @param dn device number
  * @param interface_number interface number
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_EOF - if zero bytes have been read
  * - SANE_STATUS_IO_ERROR - if an error occured during the read
@@ -473,7 +473,7 @@ sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface_number);
  * @param dn device number
  * @param interface_number interface number
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_EOF - if zero bytes have been read
  * - SANE_STATUS_IO_ERROR - if an error occured during the read
@@ -491,7 +491,7 @@ sanei_usb_release_interface (SANE_Int dn, SANE_Int interface_number);
  * @param dn device number
  * @param alternate, alternate nummber
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_EOF - if zero bytes have been read
  * - SANE_STATUS_IO_ERROR - if an error occured during the read
@@ -510,7 +510,7 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate);
  * @param dn device number
  * @param desc where to put the information to
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_UNSUPPORTED - if the feature is not supported by the OS or
  *   SANE.

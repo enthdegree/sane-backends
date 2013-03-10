@@ -62,6 +62,16 @@
 #include <dirent.h>
 #include <time.h>
 
+/* for debug messages */
+#if __STDC_VERSION__ < 199901L
+# if __GNUC__ >= 2
+#  define __func__ __FUNCTION__
+# else
+#  define __func__ "<unknown>"
+# endif
+#endif
+
+
 #ifdef HAVE_RESMGR
 #include <resmgr.h>
 #endif
@@ -469,7 +479,7 @@ sanei_usb_init (void)
 
   /* initialize USB with old libusb library */
 #ifdef HAVE_LIBUSB
-  DBG (4, "sanei_usb_init: Looking for libusb devices\n");
+  DBG (4, "%s: Looking for libusb devices\n", __func__);
   usb_init ();
 #ifdef DBG_LEVEL
   if (DBG_LEVEL > 4)
@@ -482,12 +492,12 @@ sanei_usb_init (void)
 #ifdef HAVE_LIBUSB_1_0
   if (!sanei_usb_ctx)
     {
-      DBG (4, "sanei_usb_init: initializing libusb-1.0\n");
+      DBG (4, "%s: initializing libusb-1.0\n", __func__);
       ret = libusb_init (&sanei_usb_ctx);
       if (ret < 0)
 	{
 	  DBG (1,
-	       "sanei_usb_init: failed to initialize libusb-1.0, error %d\n",
+	       "%s: failed to initialize libusb-1.0, error %d\n", __func__,
 	       ret);
           return;
 	}
@@ -499,7 +509,7 @@ sanei_usb_init (void)
 #endif /* HAVE_LIBUSB_1_0 */
 
 #if !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0)
-  DBG (4, "sanei_usb_init: SANE is built without support for libusb\n");
+  DBG (4, "%s: SANE is built without support for libusb\n", __func__);
 #endif
 
   /* sanei_usb is now initialized */
@@ -540,13 +550,13 @@ static void usbcall_scan_devices(void)
 	  SANE_Bool found;
 	  if (!pCfgDesc->bConfigurationValue)
 	    {
-	      DBG (1, "sanei_usb_init: device 0x%04x/0x%04x is not configured\n",
+	      DBG (1, "%s: device 0x%04x/0x%04x is not configured\n", __func__,
 		   pDevDesc->idVendor, pDevDesc->idProduct);
 	      continue;
 	    }
 	  if (pDevDesc->idVendor == 0 || pDevDesc->idProduct == 0)
 	    {
-	      DBG (5, "sanei_usb_init: device 0x%04x/0x%04x looks like a root hub\n",
+	      DBG (5, "%s: device 0x%04x/0x%04x looks like a root hub\n", __func__,
 		   pDevDesc->idVendor, pDevDesc->idProduct);
 	      continue;
 	    }
@@ -559,7 +569,7 @@ static void usbcall_scan_devices(void)
 
 	  if (!found)
 	    {
-	      DBG (5, "sanei_usb_init: device 0x%04x/0x%04x: no suitable interfaces\n",
+	      DBG (5, "%s: device 0x%04x/0x%04x: no suitable interfaces\n", __func__,
 		   pDevDesc->idVendor, pDevDesc->idProduct);
 	      continue;
 	    }
@@ -572,7 +582,7 @@ static void usbcall_scan_devices(void)
 	  device.product = pDevDesc->idProduct;
 	  device.method = sanei_usb_method_usbcalls;
 	  device.interface_nr = interface;
-	  DBG (4, "sanei_usb_init: found usbcalls device (0x%04x/0x%04x) as device number %s\n",
+	  DBG (4, "%s: found usbcalls device (0x%04x/0x%04x) as device number %s\n", __func__,
 	       pDevDesc->idVendor, pDevDesc->idProduct,device.devname);
 	  store_device(device);
        }
@@ -602,7 +612,7 @@ static void kernel_scan_devices(void)
   int fd;
   device_list_type device;
 
-  DBG (4, "sanei_usb_init: Looking for kernel scanner devices\n");
+  DBG (4, "%s: Looking for kernel scanner devices\n", __func__);
   /* Check for devices using the kernel scanner driver */
 
   for (prefix = prefixlist; *prefix; prefix += 2)
@@ -615,18 +625,18 @@ static void kernel_scan_devices(void)
 
       if (stat (dir_name, &stat_buf) < 0)
 	{
-	  DBG (5, "sanei_usb_init: can't stat %s: %s\n", dir_name,
+	  DBG (5, "%s: can't stat %s: %s\n", __func__, dir_name,
 	       strerror (errno));
 	  continue;
 	}
       if (!S_ISDIR (stat_buf.st_mode))
 	{
-	  DBG (5, "sanei_usb_init: %s is not a directory\n", dir_name);
+	  DBG (5, "%s: %s is not a directory\n", __func__, dir_name);
 	  continue;
 	}
       if ((dir = opendir (dir_name)) == 0)
 	{
-	  DBG (5, "sanei_usb_init: cannot read directory %s: %s\n", dir_name,
+	  DBG (5, "%s: cannot read directory %s: %s\n", __func__, dir_name,
 	       strerror (errno));
 	  continue;
 	}
@@ -651,7 +661,7 @@ static void kernel_scan_devices(void)
 		fd = open (devname, O_RDWR);
 	      if (fd < 0)
 		{
-		  DBG (5, "sanei_usb_init: couldn't open %s: %s\n", devname,
+		  DBG (5, "%s: couldn't open %s: %s\n", __func__, devname,
 		       strerror (errno));
 		  continue;
 		}
@@ -670,7 +680,7 @@ static void kernel_scan_devices(void)
 	      device.product = product;
 	      device.method = sanei_usb_method_scanner_driver;
 	      DBG (4,
-		   "sanei_usb_init: found kernel scanner device (0x%04x/0x%04x) at %s\n",
+		   "%s: found kernel scanner device (0x%04x/0x%04x) at %s\n", __func__,
 		   vendor, product, devname);
 	      store_device(device);
 	    }
@@ -690,7 +700,7 @@ static void libusb_scan_devices(void)
   SANE_Char devname[1024];
   device_list_type device;
 
-  DBG (4, "sanei_usb_init: Looking for libusb devices\n");
+  DBG (4, "%s: Looking for libusb devices\n", __func__);
 
   usb_find_busses ();
   usb_find_devices ();
@@ -706,14 +716,14 @@ static void libusb_scan_devices(void)
 	  if (!dev->config)
 	    {
 	      DBG (1,
-		   "sanei_usb_init: device 0x%04x/0x%04x is not configured\n",
+		   "%s: device 0x%04x/0x%04x is not configured\n", __func__,
 		   dev->descriptor.idVendor, dev->descriptor.idProduct);
 	      continue;
 	    }
 	  if (dev->descriptor.idVendor == 0 || dev->descriptor.idProduct == 0)
 	    {
 	      DBG (5,
-		 "sanei_usb_init: device 0x%04x/0x%04x looks like a root hub\n",
+		 "%s: device 0x%04x/0x%04x looks like a root hub\n", __func__,
 		 dev->descriptor.idVendor, dev->descriptor.idProduct);
 	      continue;
 	    }
@@ -731,8 +741,8 @@ static void libusb_scan_devices(void)
 		  if (dev->config[0].interface[interface].num_altsetting == 0 || 
 		      !dev->config[0].interface[interface].altsetting)
 		    {
-		      DBG (1, "sanei_usb_init: device 0x%04x/0x%04x doesn't "
-			   "have an altsetting for interface %d\n",
+		      DBG (1, "%s: device 0x%04x/0x%04x doesn't "
+			   "have an altsetting for interface %d\n", __func__,
 			   dev->descriptor.idVendor, dev->descriptor.idProduct,
 			   interface);
 		      continue;
@@ -751,9 +761,9 @@ static void libusb_scan_devices(void)
 		}
 	      if (!found)
 		DBG (5,
-		     "sanei_usb_init: device 0x%04x/0x%04x, interface %d "
+		     "%s: device 0x%04x/0x%04x, interface %d "
                      "doesn't look like a "
-		     "scanner (%d/%d)\n", dev->descriptor.idVendor,
+		     "scanner (%d/%d)\n", __func__, dev->descriptor.idVendor,
 		     dev->descriptor.idProduct, interface,
 		     dev->descriptor.bDeviceClass,
 		     dev->config[0].interface[interface].altsetting != 0 
@@ -764,7 +774,7 @@ static void libusb_scan_devices(void)
 	  if (!found)
 	    {
 	      DBG (5,
-	       "sanei_usb_init: device 0x%04x/0x%04x: no suitable interfaces\n",
+	       "%s: device 0x%04x/0x%04x: no suitable interfaces\n", __func__,
 	        dev->descriptor.idVendor, dev->descriptor.idProduct);
 	      continue;
 	    }
@@ -781,8 +791,8 @@ static void libusb_scan_devices(void)
 	  device.method = sanei_usb_method_libusb;
 	  device.interface_nr = interface;
 	  DBG (4,
-	       "sanei_usb_init: found libusb device (0x%04x/0x%04x) interface "
-               "%d  at %s\n",
+	       "%s: found libusb device (0x%04x/0x%04x) interface "
+               "%d  at %s\n", __func__,
 	       dev->descriptor.idVendor, dev->descriptor.idProduct, interface,
 	       devname);
 	  store_device(device);
@@ -812,13 +822,13 @@ static void libusb_scan_devices(void)
   int ret;
   int i;
 
-  DBG (4, "sanei_usb_init: Looking for libusb-1.0 devices\n");
+  DBG (4, "%s: Looking for libusb-1.0 devices\n", __func__);
 
   ndev = libusb_get_device_list (sanei_usb_ctx, &devlist);
   if (ndev < 0)
     {
       DBG (1,
-	   "sanei_usb_init: failed to get libusb-1.0 device list, error %d\n",
+	   "%s: failed to get libusb-1.0 device list, error %d\n", __func__,
 	   (int) ndev);
       return;
     }
@@ -836,7 +846,7 @@ static void libusb_scan_devices(void)
       if (ret < 0)
 	{
 	  DBG (1,
-	       "sanei_usb_init: could not get device descriptor for device at %03d:%03d (err %d)\n",
+	       "%s: could not get device descriptor for device at %03d:%03d (err %d)\n", __func__,
 	       busno, address, ret);
 	  continue;
 	}
@@ -847,7 +857,7 @@ static void libusb_scan_devices(void)
       if ((vid == 0) || (pid == 0))
 	{
 	  DBG (5,
-	       "sanei_usb_init: device 0x%04x/0x%04x at %03d:%03d looks like a root hub\n",
+	       "%s: device 0x%04x/0x%04x at %03d:%03d looks like a root hub\n", __func__,
 	       vid, pid, busno, address);
 	  continue;
 	}
@@ -856,7 +866,7 @@ static void libusb_scan_devices(void)
       if (ret < 0)
 	{
 	  DBG (1,
-	       "sanei_usb_init: skipping device 0x%04x/0x%04x at %03d:%03d: cannot open: %s\n",
+	       "%s: skipping device 0x%04x/0x%04x at %03d:%03d: cannot open: %s\n", __func__,
 	       vid, pid, busno, address, sanei_libusb_strerror (ret));
 
 	  continue;
@@ -869,7 +879,7 @@ static void libusb_scan_devices(void)
       if (ret < 0)
 	{
 	  DBG (1,
-	       "sanei_usb_init: could not get configuration for device 0x%04x/0x%04x at %03d:%03d (err %d)\n",
+	       "%s: could not get configuration for device 0x%04x/0x%04x at %03d:%03d (err %d)\n", __func__,
 	       vid, pid, busno, address, ret);
 	  continue;
 	}
@@ -877,7 +887,7 @@ static void libusb_scan_devices(void)
       if (config == 0)
 	{
 	  DBG (1,
-	       "sanei_usb_init: device 0x%04x/0x%04x at %03d:%03d is not configured\n",
+	       "%s: device 0x%04x/0x%04x at %03d:%03d is not configured\n", __func__,
 	       vid, pid, busno, address);
 	  continue;
 	}
@@ -886,7 +896,7 @@ static void libusb_scan_devices(void)
       if (ret < 0)
 	{
 	  DBG (1,
-	       "sanei_usb_init: could not get config[0] descriptor for device 0x%04x/0x%04x at %03d:%03d (err %d)\n",
+	       "%s: could not get config[0] descriptor for device 0x%04x/0x%04x at %03d:%03d (err %d)\n", __func__,
 	       vid, pid, busno, address, ret);
 	  continue;
 	}
@@ -903,8 +913,8 @@ static void libusb_scan_devices(void)
 		if ((config0->interface[interface].num_altsetting == 0)
 		    || !config0->interface[interface].altsetting)
 		  {
-		    DBG (1, "sanei_usb_init: device 0x%04x/0x%04x doesn't "
-			 "have an altsetting for interface %d\n",
+		    DBG (1, "%s: device 0x%04x/0x%04x doesn't "
+			 "have an altsetting for interface %d\n", __func__,
 			 vid, pid, interface);
 		    continue;
 		  }
@@ -923,8 +933,8 @@ static void libusb_scan_devices(void)
 
 	  if (!found)
 	    DBG (5,
-		 "sanei_usb_init: device 0x%04x/0x%04x, interface %d "
-		 "doesn't look like a scanner (%d/%d)\n",
+		 "%s: device 0x%04x/0x%04x, interface %d "
+		 "doesn't look like a scanner (%d/%d)\n", __func__,
 		 vid, pid, interface, desc.bDeviceClass,
 		 (config0->interface[interface].altsetting != 0)
 		 ? config0->interface[interface].altsetting[0].bInterfaceClass : -1);
@@ -937,7 +947,7 @@ static void libusb_scan_devices(void)
       if (!found)
 	{
 	  DBG (5,
-	       "sanei_usb_init: device 0x%04x/0x%04x at %03d:%03d: no suitable interfaces\n",
+	       "%s: device 0x%04x/0x%04x at %03d:%03d: no suitable interfaces\n", __func__,
 	       vid, pid, busno, address);
 	  continue;
 	}
@@ -954,8 +964,8 @@ static void libusb_scan_devices(void)
       device.method = sanei_usb_method_libusb;
       device.interface_nr = interface;
       DBG (4,
-	   "sanei_usb_init: found libusb-1.0 device (0x%04x/0x%04x) interface "
-	   "%d at %s\n",
+	   "%s: found libusb-1.0 device (0x%04x/0x%04x) interface "
+	   "%d at %s\n", __func__,
 	   vid, pid, interface, devname);
 
       store_device (device);
@@ -976,14 +986,14 @@ sanei_usb_scan_devices (void)
   /* check USB has been initialized first */
   if(initialized==0)
     {
-      DBG (1, ": sanei_usb is not initialized!\n", __FUNCTION__);
+      DBG (1, "%s: sanei_usb is not initialized!\n", __func__);
       return;
     }
 
   /* we mark all already detected devices as missing */
   /* each scan method will reset this value to 0 (not missing)
    * when storing the device */
-  DBG (4, "%s: marking existing devices\n", __FUNCTION__);
+  DBG (4, "%s: marking existing devices\n", __func__);
   for (i = 0; i < device_number; i++)
     {
       devices[i].missing++;
@@ -1011,10 +1021,10 @@ sanei_usb_scan_devices (void)
           if(!devices[i].missing)
             {
               count++;
-	      DBG (6, "sanei_usb_init: device %02d is %s\n", i, devices[i].devname);
+	      DBG (6, "%s: device %02d is %s\n", __func__, i, devices[i].devname);
             }
         }
-      DBG (5, "sanei_usb_init: found %d devices\n", count);
+      DBG (5, "%s: found %d devices\n", __func__, count);
     }
 }
 

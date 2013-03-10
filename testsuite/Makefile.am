@@ -4,6 +4,8 @@
 ##  This file is part of the "Sane" build infra-structure.  See
 ##  included LICENSE file for license information.
 
+SUBDIRS = sanei
+
 SCANIMAGE = ../frontend/scanimage$(EXEEXT)
 TESTFILE  = $(srcdir)/testfile.pnm
 OUTFILE   = outfile.pnm

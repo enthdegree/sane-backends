@@ -265,6 +265,7 @@ print_buffer (const SANE_Byte * buffer, SANE_Int size)
     }
 }
 
+#if !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0)
 static void
 kernel_get_vendor_product (int fd, const char *name, int *vendorID, int *productID)
 {
@@ -338,6 +339,7 @@ kernel_get_vendor_product (int fd, const char *name, int *vendorID, int *product
 #endif /* defined (__linux__), defined(__BEOS__), ... */
   /* put more os-dependant stuff ... */
 }
+#endif /* !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0) */
 
 /**
  * store the given device in device list if it isn't already
@@ -641,6 +643,7 @@ static void usbcall_scan_devices(void)
 }
 #endif /* HAVE_USBCALLS */
 
+#if !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0)
 /** scan for devices using kernel device.
  * Check for devices using kernel device
  */
@@ -739,6 +742,7 @@ static void kernel_scan_devices(void)
       closedir (dir);
     }
 }
+#endif /* !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0) */
 
 #ifdef HAVE_LIBUSB
 /** scan for devices using old libusb
@@ -1051,7 +1055,9 @@ sanei_usb_scan_devices (void)
     }
 
   /* Check for devices using the kernel scanner driver */
+#if !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0)
   kernel_scan_devices();
+#endif
 
 #if defined(HAVE_LIBUSB) || defined(HAVE_LIBUSB_1_0)
   /* Check for devices using libusb (old or new)*/

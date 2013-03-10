@@ -1168,39 +1168,17 @@ sanei_usb_get_vendor_product (SANE_Int dn, SANE_Word * vendor,
       DBG (1, "sanei_usb_get_vendor_product: dn >= device number || dn < 0\n");
       return SANE_STATUS_INVAL;
     }
-
-  if (devices[dn].method == sanei_usb_method_scanner_driver)
-    kernel_get_vendor_product (devices[dn].fd, devices[dn].devname, &vendorID, &productID);
-  else if (devices[dn].method == sanei_usb_method_libusb)
+  if (devices[dn].missing >= 1)
     {
-#ifdef HAVE_LIBUSB
-      vendorID = usb_device (devices[dn].libusb_handle)->descriptor.idVendor;
-      productID =
-	usb_device (devices[dn].libusb_handle)->descriptor.idProduct;
-#elif defined(HAVE_LIBUSB_1_0)
-      vendorID = devices[dn].vendor;
-      productID = devices[dn].product;
-#else
-      DBG (1, "sanei_usb_get_vendor_product: libusb support missing\n");
-      return SANE_STATUS_UNSUPPORTED;
-#endif /* HAVE_LIBUSB */
-    }
-  else if (devices[dn].method == sanei_usb_method_usbcalls)
-   {
-#ifdef HAVE_USBCALLS
-     vendorID = devices[dn].vendor;
-     productID = devices[dn].product;
-#else
-      DBG (1, "sanei_usb_get_vendor_product: usbcalls support missing\n");
-      return SANE_STATUS_UNSUPPORTED;
-#endif /* HAVE_USBCALLS */
-   }
-  else
-    {
-      DBG (1, "sanei_usb_get_vendor_product: access method %d not "
-	   "implemented\n", devices[dn].method);
+      DBG (1, "sanei_usb_get_vendor_product: dn=%d is missing!\n",dn);
       return SANE_STATUS_INVAL;
     }
+
+  /* kernel, usbcal and libusb methods store these when device scanning
+   * is done, so we can use them directly */
+  vendorID = devices[dn].vendor;
+  productID = devices[dn].product;
+
   if (vendor)
     *vendor = vendorID;
   if (product)

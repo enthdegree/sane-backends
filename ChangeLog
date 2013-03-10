@@ -1,3 +1,13 @@
+2013-03-24 Stéphane Voltz <stef.dev@free.fr>
+	backend/genesys.c: make use of the new sanei_usb_scan_devices function
+	in sane_get_devices.
+
+2013-03-24 Stéphane Voltz <stef.dev@free.fr>
+	* sanei/sanei_usb.c include/sane/sanei_usb.h:
+	separate device search logic from usb init by creating a
+	sanei_usb_scan_devices. Add a sanei_usb_exit function to free
+	allocated resources by sanei_usb_init.
+
 2013-03-21 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	New scanner Canon Pixma MP230 reported by Petar Dodev.

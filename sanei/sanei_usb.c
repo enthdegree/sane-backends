@@ -2899,6 +2899,11 @@ sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface_number)
 	   dn);
       return SANE_STATUS_INVAL;
     }
+  if (devices[dn].missing)
+    {
+      DBG (1, "sanei_usb_claim_interface: device dn=%d is missing\n", dn);
+      return SANE_STATUS_INVAL;
+    }
 
   DBG (5, "sanei_usb_claim_interface: interface_number = %d\n", interface_number);
 
@@ -2962,7 +2967,11 @@ sanei_usb_release_interface (SANE_Int dn, SANE_Int interface_number)
 	   dn);
       return SANE_STATUS_INVAL;
     }
-
+  if (devices[dn].missing)
+    {
+      DBG (1, "sanei_usb_release_interface: device dn=%d is missing\n", dn);
+      return SANE_STATUS_INVAL;
+    }
   DBG (5, "sanei_usb_release_interface: interface_number = %d\n", interface_number);
 
   if (devices[dn].method == sanei_usb_method_scanner_driver)

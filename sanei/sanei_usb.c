@@ -168,6 +168,10 @@ static device_list_type devices[MAX_DEVICES];
  * total number of detected devices in devices array */
 static int device_number=0;
 
+/**
+ * count number of time sanei_usb has been initialized */
+static int initialized=0;
+
 #if defined(HAVE_LIBUSB) || defined(HAVE_LIBUSB_1_0)
 static int libusb_timeout = 30 * 1000;	/* 30 seconds */
 #endif /* HAVE_LIBUSB */
@@ -448,6 +452,139 @@ sanei_libusb_strerror (int errcode)
 void
 sanei_usb_init (void)
 {
+#ifdef HAVE_LIBUSB_1_0
+  int ret;
+#endif /* HAVE_LIBUSB_1_0 */
+
+  DBG_INIT ();
+#ifdef DBG_LEVEL
+  debug_level = DBG_LEVEL;
+#else
+  debug_level = 0;
+#endif
+
+  /* if no device yet, clean up memory */
+  if(device_number==0)
+    memset (devices, 0, sizeof (devices));
+
+  /* initialize USB with old libusb library */
+#ifdef HAVE_LIBUSB
+  DBG (4, "sanei_usb_init: Looking for libusb devices\n");
+  usb_init ();
+#ifdef DBG_LEVEL
+  if (DBG_LEVEL > 4)
+    usb_set_debug (255);
+#endif /* DBG_LEVEL */
+#endif /* HAVE_LIBUSB */
+
+
+  /* initialize USB using libusb-1.0 */
+#ifdef HAVE_LIBUSB_1_0
+  if (!sanei_usb_ctx)
+    {
+      DBG (4, "sanei_usb_init: initializing libusb-1.0\n");
+      ret = libusb_init (&sanei_usb_ctx);
+      if (ret < 0)
+	{
+	  DBG (1,
+	       "sanei_usb_init: failed to initialize libusb-1.0, error %d\n",
+	       ret);
+          return;
+	}
+#ifdef DBG_LEVEL
+      if (DBG_LEVEL > 4)
+	libusb_set_debug (sanei_usb_ctx, 3);
+#endif /* DBG_LEVEL */
+    }
+#endif /* HAVE_LIBUSB_1_0 */
+
+#if !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0)
+  DBG (4, "sanei_usb_init: SANE is built without support for libusb\n");
+#endif
+
+  /* sanei_usb is now initialized */
+  initialized++;
+
+  /* do a first scan of USB busses to fill device list */
+  sanei_usb_scan_devices();
+}
+
+#ifdef HAVE_USBCALLS
+/** scan for devices through usbcall method
+ * Check for devices using OS/2 USBCALLS Interface
+ */
+static void usbcall_scan_devices(void)
+{
+  SANE_Char devname[1024];
+  device_list_type device;
+  CHAR ucData[2048];
+  struct usb_device_descriptor *pDevDesc;
+  struct usb_config_descriptor   *pCfgDesc;
+
+   APIRET rc;
+   ULONG ulNumDev, ulDev, ulBufLen;
+
+   ulBufLen = sizeof(ucData);
+   memset(&ucData,0,sizeof(ucData));
+   rc = UsbQueryNumberDevices( &ulNumDev);
+
+   if(rc==0 && ulNumDev)
+   {
+       for (ulDev=1; ulDev<=ulNumDev; ulDev++)
+       {
+         UsbQueryDeviceReport(ulDev, &ulBufLen, ucData);
+
+         pDevDesc = (struct usb_device_descriptor*) ucData;
+         pCfgDesc = (struct usb_config_descriptor*) (ucData+sizeof(struct usb_device_descriptor));
+	  int interface=0;
+	  SANE_Bool found;
+	  if (!pCfgDesc->bConfigurationValue)
+	    {
+	      DBG (1, "sanei_usb_init: device 0x%04x/0x%04x is not configured\n",
+		   pDevDesc->idVendor, pDevDesc->idProduct);
+	      continue;
+	    }
+	  if (pDevDesc->idVendor == 0 || pDevDesc->idProduct == 0)
+	    {
+	      DBG (5, "sanei_usb_init: device 0x%04x/0x%04x looks like a root hub\n",
+		   pDevDesc->idVendor, pDevDesc->idProduct);
+	      continue;
+	    }
+	  found = SANE_FALSE;
+
+          if (pDevDesc->bDeviceClass == USB_CLASS_VENDOR_SPEC)
+           {
+             found = SANE_TRUE;
+           }
+
+	  if (!found)
+	    {
+	      DBG (5, "sanei_usb_init: device 0x%04x/0x%04x: no suitable interfaces\n",
+		   pDevDesc->idVendor, pDevDesc->idProduct);
+	      continue;
+	    }
+
+	  snprintf (devname, sizeof (devname), "usbcalls:%d", ulDev);
+          memset (&device, 0, sizeof (device));
+	  device.devname = strdup (devname);
+          device.fd = ulDev; /* store usbcalls device number */
+	  device.vendor = pDevDesc->idVendor;
+	  device.product = pDevDesc->idProduct;
+	  device.method = sanei_usb_method_usbcalls;
+	  device.interface_nr = interface;
+	  DBG (4, "sanei_usb_init: found usbcalls device (0x%04x/0x%04x) as device number %s\n",
+	       pDevDesc->idVendor, pDevDesc->idProduct,device.devname);
+	  store_device(device);
+       }
+   }
+}
+#endif /* HAVE_USBCALLS */
+
+/** scan for devices using kernel device.
+ * Check for devices using kernel device
+ */
+static void kernel_scan_devices(void)
+{
   SANE_String *prefix;
   SANE_String prefixlist[] = {
 #if defined(__linux__)
@@ -463,42 +600,7 @@ sanei_usb_init (void)
   SANE_Int vendor, product;
   SANE_Char devname[1024];
   int fd;
-  int i;
   device_list_type device;
-#ifdef HAVE_LIBUSB
-  struct usb_bus *bus;
-  struct usb_device *dev;
-#endif /* HAVE_LIBUSB */
-#ifdef HAVE_LIBUSB_1_0
-  libusb_device **devlist;
-  ssize_t ndev;
-
-  libusb_device *dev;
-  libusb_device_handle *hdl;
-  struct libusb_device_descriptor desc;
-  struct libusb_config_descriptor *config0;
-  unsigned short vid, pid;
-  unsigned char busno, address;
-  int config;
-  int interface;
-  int ret;
-#endif /* HAVE_LIBUSB_1_0 */
-
-  DBG_INIT ();
-#ifdef DBG_LEVEL
-  debug_level = DBG_LEVEL;
-#else
-  debug_level = 0;
-#endif
-
-  /* if no device yet, clean up memory */
-  if(device_number==0)
-    memset (devices, 0, sizeof (devices));
-
-  DBG (4, "sanei_usb_init: marking existing devices\n");
-  for (i = 0; i < device_number; i++) {
-    devices[i].missing++;
-  }
 
   DBG (4, "sanei_usb_init: Looking for kernel scanner devices\n");
   /* Check for devices using the kernel scanner driver */
@@ -575,15 +677,20 @@ sanei_usb_init (void)
 	}
       closedir (dir);
     }
+}
 
-  /* Check for devices using (old) libusb */
 #ifdef HAVE_LIBUSB
+/** scan for devices using old libusb
+ * Check for devices using 0.1.x libusb
+ */
+static void libusb_scan_devices(void)
+{
+  struct usb_bus *bus;
+  struct usb_device *dev;
+  SANE_Char devname[1024];
+  device_list_type device;
+
   DBG (4, "sanei_usb_init: Looking for libusb devices\n");
-  usb_init ();
-#ifdef DBG_LEVEL
-  if (DBG_LEVEL > 4)
-    usb_set_debug (255);
-#endif /* DBG_LEVEL */
 
   usb_find_busses ();
   usb_find_devices ();
@@ -681,28 +788,29 @@ sanei_usb_init (void)
 	  store_device(device);
 	}
     }
+}
 #endif /* HAVE_LIBUSB */
 
-
-  /* Check for devices using libusb-1.0 */
 #ifdef HAVE_LIBUSB_1_0
-  if (!sanei_usb_ctx)
-    {
-      DBG (4, "sanei_usb_init: initializing libusb-1.0\n");
-      ret = libusb_init (&sanei_usb_ctx);
-      if (ret < 0)
-	{
-	  DBG (1,
-	       "sanei_usb_init: failed to initialize libusb-1.0, error %d\n",
-	       ret);
-
-	  goto failed_libusb_1_0;
-	}
-#ifdef DBG_LEVEL
-      if (DBG_LEVEL > 4)
-	libusb_set_debug (sanei_usb_ctx, 3);
-#endif /* DBG_LEVEL */
-    }
+/** scan for devices using libusb
+ * Check for devices using libusb-1.0
+ */
+static void libusb_scan_devices(void)
+{
+  device_list_type device;
+  SANE_Char devname[1024];
+  libusb_device **devlist;
+  ssize_t ndev;
+  libusb_device *dev;
+  libusb_device_handle *hdl;
+  struct libusb_device_descriptor desc;
+  struct libusb_config_descriptor *config0;
+  unsigned short vid, pid;
+  unsigned char busno, address;
+  int config;
+  int interface;
+  int ret;
+  int i;
 
   DBG (4, "sanei_usb_init: Looking for libusb-1.0 devices\n");
 
@@ -712,8 +820,7 @@ sanei_usb_init (void)
       DBG (1,
 	   "sanei_usb_init: failed to get libusb-1.0 device list, error %d\n",
 	   (int) ndev);
-
-      goto failed_libusb_1_0;
+      return;
     }
 
   for (i = 0; i < ndev; i++)
@@ -856,99 +963,61 @@ sanei_usb_init (void)
 
   libusb_free_device_list (devlist, 1);
 
- failed_libusb_1_0:
-  /* libusb 1.0 failed to initialize */
-
+}
 #endif /* HAVE_LIBUSB_1_0 */
 
-#if !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0)
-  DBG (4, "sanei_usb_init: SANE is built without support for libusb\n");
-#endif
 
+void
+sanei_usb_scan_devices (void)
+{
+  int count;
+  int i;
+
+  /* check USB has been initialized first */
+  if(initialized==0)
+    {
+      DBG (1, ": sanei_usb is not initialized!\n", __FUNCTION__);
+      return;
+    }
+
+  /* we mark all already detected devices as missing */
+  /* each scan method will reset this value to 0 (not missing)
+   * when storing the device */
+  DBG (4, "%s: marking existing devices\n", __FUNCTION__);
+  for (i = 0; i < device_number; i++)
+    {
+      devices[i].missing++;
+    }
+
+  /* Check for devices using the kernel scanner driver */
+  kernel_scan_devices();
+
+#if defined(HAVE_LIBUSB) || defined(HAVE_LIBUSB_1_0)
+  /* Check for devices using libusb (old or new)*/
+  libusb_scan_devices();
+#endif
 
 #ifdef HAVE_USBCALLS
   /* Check for devices using OS/2 USBCALLS Interface */
+  usbcall_scan_devices();
+#endif
 
-   CHAR ucData[2048];
-   struct usb_device_descriptor *pDevDesc;
-   struct usb_config_descriptor   *pCfgDesc;
-   struct usb_interface_descriptor *intf;
-   struct usb_endpoint_descriptor  *ep;
-   struct usb_descriptor_header    *pDescHead;
-
-   APIRET rc;
-   ULONG ulNumDev, ulDev, ulBufLen;
-
-   ulBufLen = sizeof(ucData);
-   memset(&ucData,0,sizeof(ucData));
-   rc = UsbQueryNumberDevices( &ulNumDev);
-
-   if(rc==0 && ulNumDev)
-   {
-       for (ulDev=1; ulDev<=ulNumDev; ulDev++)
-       {
-         rc = UsbQueryDeviceReport( ulDev,
-                                  &ulBufLen,
-                                  ucData);
-
-         pDevDesc = (struct usb_device_descriptor*)ucData;
-         pCfgDesc = (struct usb_config_descriptor*) (ucData+sizeof(struct usb_device_descriptor));
-	  int interface=0;
-	  SANE_Bool found;
-	  if (!pCfgDesc->bConfigurationValue)
-	    {
-	      DBG (1, "sanei_usb_init: device 0x%04x/0x%04x is not configured\n",
-		   pDevDesc->idVendor, pDevDesc->idProduct);
-	      continue;
-	    }
-	  if (pDevDesc->idVendor == 0 || pDevDesc->idProduct == 0)
-	    {
-	      DBG (5, "sanei_usb_init: device 0x%04x/0x%04x looks like a root hub\n",
-		   pDevDesc->idVendor, pDevDesc->idProduct);
-	      continue;
-	    }
-	  found = SANE_FALSE;
-          
-          if (pDevDesc->bDeviceClass == USB_CLASS_VENDOR_SPEC)
-           {
-             found = SANE_TRUE;
-           }
-
-	  if (!found)
-	    {
-	      DBG (5, "sanei_usb_init: device 0x%04x/0x%04x: no suitable interfaces\n",
-		   pDevDesc->idVendor, pDevDesc->idProduct);
-	      continue;
-	    }
-
-	  snprintf (devname, sizeof (devname), "usbcalls:%d",
-		    ulDev);
-    	  memset (&device, 0, sizeof (device));
-	  device.devname = strdup (devname);
-          device.fd = ulDev; /* store usbcalls device number */
-	  device.vendor = pDevDesc->idVendor;
-	  device.product = pDevDesc->idProduct;
-	  device.method = sanei_usb_method_usbcalls;
-	  device.interface_nr = interface;
-	  DBG (4, "sanei_usb_init: found usbcalls device (0x%04x/0x%04x) as device number %s\n",
-	       pDevDesc->idVendor, pDevDesc->idProduct,device.devname);
-	  store_device(device);
-       }
-   }
-
-#endif /* HAVE_USBCALLS */
-
-  DBG (5, "sanei_usb_init: found %d devices\n", device_number);
+  /* display found devices */
   if (debug_level > 5)
     {
+      count=0;
       for (i = 0; i < device_number; i++)
         {
-          if(devices[i].missing)
-            continue;
-	  DBG (6, "sanei_usb_init: device %02d is %s\n", i, devices[i].devname);
+          if(!devices[i].missing)
+            {
+              count++;
+	      DBG (6, "sanei_usb_init: device %02d is %s\n", i, devices[i].devname);
+            }
         }
+      DBG (5, "sanei_usb_init: found %d devices\n", count);
     }
 }
+
 
 
 /* This logically belongs to sanei_config.c but not every backend that

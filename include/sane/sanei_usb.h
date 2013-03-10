@@ -182,6 +182,12 @@ struct sanei_usb_dev_descriptor
  */
 extern void sanei_usb_init (void);
 
+/** Search for USB devices.
+ *
+ * Search USB busses for scanner devices.
+ */
+extern void sanei_usb_scan_devices (void);
+
 /** Get the vendor and product ids by device name.
  *
  * @param devname 

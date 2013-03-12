@@ -526,6 +526,10 @@
       v114 2013-03-01, MAN
          - support resolutions > 300 for iX500 using diag_preread()
          - remove most communication with scanner during sane_control_option()
+      v115 2013-03-09, MAN
+         - separate s->mode into s_mode and u_mode
+         - separate s->params into s_params and u_params
+         - generate grayscale and binary in software if required (iX500)
 
    SANE FLOW DIAGRAM
 
@@ -575,7 +579,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 114
+#define BUILD 115
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -636,6 +640,8 @@
 
 #define STRING_FRONT SANE_I18N("Front")
 #define STRING_BACK SANE_I18N("Back")
+
+#define max(a,b) (((a)>(b))?(a):(b))
 
 /* Also set via config file. */
 static int global_buffer_size = 64 * 1024;
@@ -1314,20 +1320,20 @@ init_vpd (struct fujitsu *s)
       s->can_overflow = get_IN_overflow(in);
       DBG (15, "  overflow: %d\n", s->can_overflow);
 
-      s->can_monochrome = get_IN_monochrome (in);
-      DBG (15, "  monochrome: %d\n", s->can_monochrome);
+      s->can_mode[MODE_LINEART] = get_IN_monochrome (in);
+      DBG (15, "  monochrome: %d\n", s->can_mode[MODE_LINEART]);
 
-      s->can_halftone = get_IN_half_tone (in);
-      DBG (15, "  halftone: %d\n", s->can_halftone);
+      s->can_mode[MODE_HALFTONE] = get_IN_half_tone (in);
+      DBG (15, "  halftone: %d\n", s->can_mode[MODE_HALFTONE]);
 
-      s->can_grayscale = get_IN_multilevel (in);
-      DBG (15, "  grayscale: %d\n", s->can_grayscale);
+      s->can_mode[MODE_GRAYSCALE] = get_IN_multilevel (in);
+      DBG (15, "  grayscale: %d\n", s->can_mode[MODE_GRAYSCALE]);
 
       DBG (15, "  color_monochrome: %d\n", get_IN_monochrome_rgb(in));
       DBG (15, "  color_halftone: %d\n", get_IN_half_tone_rgb(in));
 
-      s->can_color_grayscale = get_IN_multilevel_rgb (in);
-      DBG (15, "  color_grayscale: %d\n", s->can_color_grayscale);
+      s->can_mode[MODE_COLOR] = get_IN_multilevel_rgb (in);
+      DBG (15, "  color_grayscale: %d\n", s->can_mode[MODE_COLOR]);
 
       /* now we look at vendor specific data */
       if (get_IN_page_length (in) >= 0x5f) {
@@ -1924,10 +1930,13 @@ init_model (struct fujitsu *s)
   DBG (10, "init_model: start\n");
 
   /* for most scanners these are good defaults */
-  if(s->can_monochrome || s->can_halftone || s->can_grayscale){
+  if(s->can_mode[MODE_LINEART]
+    || s->can_mode[MODE_HALFTONE]
+    || s->can_mode[MODE_GRAYSCALE]
+  ){
     s->has_vuid_mono = 1;
   }
-  if(s->can_color_grayscale){
+  if(s->can_mode[MODE_COLOR]){
     s->has_vuid_color = 1;
   }
 
@@ -2180,15 +2189,38 @@ init_model (struct fujitsu *s)
     /* weirdness */
     s->need_q_table = 1;
     s->need_diag_preread = 1;
-    s->ppl_mod_by_mode[MODE_GRAYSCALE] = 2;
     s->ppl_mod_by_mode[MODE_COLOR] = 2;
     s->no_wait_after_op = 1;
 
     /* lies */
     s->adbits = 8;
+
+    /* we have to simulate these in software*/
+    s->can_mode[MODE_LINEART] = 2;
+    s->can_mode[MODE_GRAYSCALE] = 2;
+
+    /* dont bother with this one */
+    s->can_mode[MODE_HALFTONE] = 0;
   }
 
   DBG (10, "init_model: finish\n");
+
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+set_mode (struct fujitsu *s, int mode)
+{
+  int i;
+  /* give the user what they asked for */
+  s->u_mode = mode;
+
+  /* give the scanner the closest mode */
+  for(i=MODE_COLOR;i>=mode;i--){
+    if(s->can_mode[i] == 1){
+      s->s_mode = i;
+    }
+  }
 
   return SANE_STATUS_GOOD;
 }
@@ -2210,14 +2242,14 @@ init_user (struct fujitsu *s)
     s->source = SOURCE_ADF_FRONT;
 
   /* scan mode */
-  if(s->can_monochrome)
-    s->mode = MODE_LINEART;
-  else if(s->can_halftone)
-    s->mode=MODE_HALFTONE;
-  else if(s->can_grayscale)
-    s->mode=MODE_GRAYSCALE;
-  else if(s->can_color_grayscale)
-    s->mode=MODE_COLOR;
+  if(s->can_mode[MODE_LINEART])
+    set_mode(s,MODE_LINEART);
+  else if(s->can_mode[MODE_HALFTONE])
+    set_mode(s,MODE_HALFTONE);
+  else if(s->can_mode[MODE_GRAYSCALE])
+    set_mode(s,MODE_GRAYSCALE);
+  else if(s->can_mode[MODE_COLOR])
+    set_mode(s,MODE_COLOR);
 
   /*x res*/
   s->resolution_x = s->basic_x_res;
@@ -2309,7 +2341,7 @@ static SANE_Status
 init_interlace (struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
-  int curr_mode = s->mode;
+  int curr_mode = s->u_mode;
   int oldDbg=0;
 
   DBG (10, "init_interlace: start\n");
@@ -2325,7 +2357,7 @@ init_interlace (struct fujitsu *s)
   }
 
   /* set to color mode first */
-  s->mode=MODE_COLOR;
+  s->u_mode=MODE_COLOR;
 
   /* load our own private copy of scan params */
   ret = update_params(s);
@@ -2366,7 +2398,7 @@ init_interlace (struct fujitsu *s)
   DBG (15, "init_interlace: color_interlace: %d\n",s->color_interlace);
 
   /* restore mode */
-  s->mode=curr_mode;
+  s->u_mode=curr_mode;
 
   DBG (10, "init_interlace: finish\n");
 
@@ -2582,16 +2614,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   /* scan mode */
   if(option==OPT_MODE){
     i=0;
-    if(s->can_monochrome){
+    if(s->can_mode[MODE_LINEART]){
       s->mode_list[i++]=STRING_LINEART;
     }
-    if(s->can_halftone){
+    if(s->can_mode[MODE_HALFTONE]){
       s->mode_list[i++]=STRING_HALFTONE;
     }
-    if(s->can_grayscale){
+    if(s->can_mode[MODE_GRAYSCALE]){
       s->mode_list[i++]=STRING_GRAYSCALE;
     }
-    if(s->can_color_grayscale){
+    if(s->can_mode[MODE_COLOR]){
       s->mode_list[i++]=STRING_COLOR;
     }
     s->mode_list[i]=NULL;
@@ -2617,10 +2649,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_DPI;
     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
   
-    if(s->step_x_res[s->mode] && s->step_y_res[s->mode]){
+    if(s->step_x_res[s->s_mode] && s->step_y_res[s->s_mode]){
       s->res_range.min = s->min_x_res;
       s->res_range.max = s->max_x_res;
-      s->res_range.quant = s->step_x_res[s->mode];
+      s->res_range.quant = s->step_x_res[s->s_mode];
       opt->constraint_type = SANE_CONSTRAINT_RANGE;
       opt->constraint.range = &s->res_range;
     }
@@ -2875,7 +2907,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (s->threshold_steps){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->mode != MODE_LINEART){
+      if(s->u_mode != MODE_LINEART){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -2916,7 +2948,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if(s->has_diffusion){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->mode != MODE_HALFTONE){
+      if(s->s_mode != MODE_HALFTONE){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -2939,7 +2971,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (s->num_internal_dither){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->mode != MODE_HALFTONE){
+      if(s->s_mode != MODE_HALFTONE){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3048,7 +3080,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( i > 2 ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->mode != MODE_HALFTONE && s->mode != MODE_LINEART){
+      if(s->s_mode != MODE_HALFTONE && s->s_mode != MODE_LINEART){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3346,7 +3378,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (i > 1){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if (s->mode != MODE_COLOR && s->mode != MODE_GRAYSCALE){
+      if ( must_downsample(s) || s->s_mode < MODE_GRAYSCALE ){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3578,9 +3610,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.string_list = s->do_color_list;
     opt->size = maxStringSize (opt->constraint.string_list);
 
-    if (s->has_MS_dropout || s->has_vuid_3091){
+    if (s->has_MS_dropout || s->has_vuid_3091 || must_downsample(s)){
       opt->cap = SANE_CAP_SOFT_SELECT|SANE_CAP_SOFT_DETECT|SANE_CAP_ADVANCED;
-      if(s->mode == MODE_COLOR)
+      if(s->u_mode == MODE_COLOR)
         opt->cap |= SANE_CAP_INACTIVE;
     }
     else
@@ -4365,16 +4397,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_MODE:
-          if(s->mode == MODE_LINEART){
+          if(s->u_mode == MODE_LINEART){
             strcpy (val, STRING_LINEART);
           }
-          else if(s->mode == MODE_HALFTONE){
+          else if(s->u_mode == MODE_HALFTONE){
             strcpy (val, STRING_HALFTONE);
           }
-          else if(s->mode == MODE_GRAYSCALE){
+          else if(s->u_mode == MODE_GRAYSCALE){
             strcpy (val, STRING_GRAYSCALE);
           }
-          else if(s->mode == MODE_COLOR){
+          else if(s->u_mode == MODE_COLOR){
             strcpy (val, STRING_COLOR);
           }
           return SANE_STATUS_GOOD;
@@ -4997,10 +5029,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             tmp = MODE_COLOR;
           }
 
-          if (tmp == s->mode)
+          if (tmp == s->u_mode)
               return SANE_STATUS_GOOD;
 
-          s->mode = tmp;
+          set_mode(s,tmp);
+
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
@@ -5941,7 +5974,7 @@ diag_preread (struct fujitsu *s)
   set_SD_preread_paper_width(out, get_page_width(s));
   /* dont call helper function, scanner wants actual length?  */
   set_SD_preread_paper_length(out, s->page_height);
-  set_SD_preread_composition(out, s->mode);
+  set_SD_preread_composition(out, s->s_mode);
 
   ret = do_cmd (
     s, 1, 0, 
@@ -6291,12 +6324,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       return ret;
   }
 
-  params->format = s->params.format;
-  params->last_frame = s->params.last_frame;
-  params->lines = s->params.lines;
-  params->depth = s->params.depth;
-  params->pixels_per_line = s->params.pixels_per_line;
-  params->bytes_per_line = s->params.bytes_per_line;
+  params->format = s->u_params.format;
+  params->last_frame = s->u_params.last_frame;
+  params->lines = s->u_params.lines;
+  params->depth = s->u_params.depth;
+  params->pixels_per_line = s->u_params.pixels_per_line;
+  params->bytes_per_line = s->u_params.bytes_per_line;
 
   /* we wont know the end until we get to it */
   if(s->ald && !must_fully_buffer(s)){
@@ -6308,15 +6341,17 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   return ret;
 }
 
-/* get param data from user settings, store in private copy */
+/* set s_param and u_param data based on user settings
+ * and scanner capabilities. */
 SANE_Status
 update_params (struct fujitsu * s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
-  SANE_Parameters * params = &(s->params);
+  SANE_Parameters * params = &(s->s_params);
 
-  DBG (15, "update_params: start\n");
+  DBG (10, "update_params: start\n");
 
+  /* first, we setup s_params to describe the image to the scanner */
   /* this backend only sends single frame images */
   params->last_frame = 1;
 
@@ -6328,7 +6363,7 @@ update_params (struct fujitsu * s)
   params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
   params->lines -= params->lines % 2;
 
-  if (s->mode == MODE_COLOR) {
+  if (s->s_mode == MODE_COLOR) {
     params->depth = 8;
 
 #ifdef SANE_FRAME_JPEG
@@ -6341,15 +6376,15 @@ update_params (struct fujitsu * s)
     else{
 #endif
       params->format = SANE_FRAME_RGB;
-      params->pixels_per_line 
-        -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+      params->pixels_per_line -= params->pixels_per_line
+        % max(s->ppl_mod_by_mode[s->s_mode], s->ppl_mod_by_mode[s->u_mode]);
 #ifdef SANE_FRAME_JPEG
     }
 #endif
 
     params->bytes_per_line = params->pixels_per_line * 3;
   }
-  else if (s->mode == MODE_GRAYSCALE) {
+  else if (s->s_mode == MODE_GRAYSCALE) {
     params->depth = 8;
 
 #ifdef SANE_FRAME_JPEG
@@ -6362,8 +6397,8 @@ update_params (struct fujitsu * s)
     else{
 #endif
       params->format = SANE_FRAME_GRAY;
-      params->pixels_per_line 
-        -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+      params->pixels_per_line -= params->pixels_per_line
+        % max(s->ppl_mod_by_mode[s->s_mode], s->ppl_mod_by_mode[s->u_mode]);
 #ifdef SANE_FRAME_JPEG
     }
 #endif
@@ -6373,8 +6408,8 @@ update_params (struct fujitsu * s)
   else {
     params->depth = 1;
     params->format = SANE_FRAME_GRAY;
-    params->pixels_per_line 
-      -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+    params->pixels_per_line -= params->pixels_per_line
+      % max(s->ppl_mod_by_mode[s->s_mode], s->ppl_mod_by_mode[s->u_mode]);
     params->bytes_per_line = params->pixels_per_line / 8;
   }
 
@@ -6387,13 +6422,65 @@ update_params (struct fujitsu * s)
   DBG(15,"update_params: area: tlx=%d, brx=%d, tly=%d, bry=%d\n",
     s->tl_x, s->br_x, s->tl_y, s->br_y);
 
-  DBG (15, "update_params: params: ppl=%d, Bpl=%d, lines=%d\n", 
+  DBG(15,"update_params: params: ppl=%d, Bpl=%d, lines=%d\n", 
     params->pixels_per_line, params->bytes_per_line, params->lines);
 
-  DBG (15, "update_params: params: format=%d, depth=%d, last=%d\n", 
+  DBG(15,"update_params: params: format=%d, depth=%d, last=%d\n", 
     params->format, params->depth, params->last_frame);
 
+  /* second, we setup u_params to describe the image to the user */
+  /* use a helper function cause it is called elsewhere */
+  ret = update_u_params(s);
+
   DBG (10, "update_params: finish\n");
+  return ret;
+}
+
+/* set u_param data based on user settings, and s_params */
+SANE_Status
+update_u_params (struct fujitsu * s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  SANE_Parameters * params = &(s->u_params);
+
+  DBG (10, "update_u_params: start\n");
+
+  /* for most machines, it is the same, so we just copy */
+  memcpy(&(s->u_params), &(s->s_params), sizeof(SANE_Parameters));
+
+  /* some scanners don't support the user's mode, so params differ */
+  /* but not in jpeg mode. we don't support that. */
+  if(must_downsample(s)){
+
+    /* making gray from a color scan */
+    if (s->u_mode == MODE_GRAYSCALE) {
+      params->format = SANE_FRAME_GRAY;
+      params->bytes_per_line = params->pixels_per_line;
+    }
+    /* making binary from a gray or color scan */
+    else if (s->u_mode == MODE_LINEART) {
+      params->depth = 1;
+      params->format = SANE_FRAME_GRAY;
+      params->bytes_per_line = params->pixels_per_line / 8;
+    }
+  
+    DBG(15,"update_u_params: x: max=%d, page=%d, gpw=%d, res=%d\n",
+      s->max_x, s->page_width, get_page_width(s), s->resolution_x);
+  
+    DBG(15,"update_u_params: y: max=%d, page=%d, gph=%d, res=%d\n",
+      s->max_y, s->page_height, get_page_height(s), s->resolution_y);
+  
+    DBG(15,"update_u_params: area: tlx=%d, brx=%d, tly=%d, bry=%d\n",
+      s->tl_x, s->br_x, s->tl_y, s->br_y);
+  
+    DBG(15,"update_u_params: params: ppl=%d, Bpl=%d, lines=%d\n", 
+      params->pixels_per_line, params->bytes_per_line, params->lines);
+  
+    DBG(15,"update_u_params: params: format=%d, depth=%d, last=%d\n", 
+      params->format, params->depth, params->last_frame);
+  }
+
+  DBG (10, "update_u_params: finish\n");
   return ret;
 }
 
@@ -6402,10 +6489,21 @@ SANE_Status
 backup_params (struct fujitsu * s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
-  SANE_Parameters * params = &(s->params);
-  SANE_Parameters * params_bk = &(s->params_bk);
+  SANE_Parameters * params = &(s->s_params);
+  SANE_Parameters * params_bk = &(s->s_params_bk);
 
-  DBG (15, "backup_params: start\n");
+  DBG (10, "backup_params: start\n");
+
+  params_bk->format = params->format;
+  params_bk->last_frame = params->last_frame;
+  params_bk->bytes_per_line = params->bytes_per_line;
+  params_bk->pixels_per_line = params->pixels_per_line;
+  params_bk->lines = params->lines;
+  params_bk->depth = params->depth;
+
+  /* also have to save the user params */
+  params = &(s->u_params);
+  params_bk = &(s->u_params_bk);
 
   params_bk->format = params->format;
   params_bk->last_frame = params->last_frame;
@@ -6423,10 +6521,21 @@ SANE_Status
 restore_params (struct fujitsu * s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
-  SANE_Parameters * params = &(s->params);
-  SANE_Parameters * params_bk = &(s->params_bk);
+  SANE_Parameters * params = &(s->s_params);
+  SANE_Parameters * params_bk = &(s->s_params_bk);
 
-  DBG (15, "restore_params: start\n");
+  DBG (10, "restore_params: start\n");
+
+  params->format = params_bk->format;
+  params->last_frame = params_bk->last_frame;
+  params->bytes_per_line = params_bk->bytes_per_line;
+  params->pixels_per_line = params_bk->pixels_per_line;
+  params->lines = params_bk->lines;
+  params->depth = params_bk->depth;
+
+  /* also have to restore the user params */
+  params = &(s->u_params);
+  params_bk = &(s->u_params_bk);
 
   params->format = params_bk->format;
   params->last_frame = params_bk->last_frame;
@@ -6643,13 +6752,13 @@ sane_start (SANE_Handle handle)
 
       /* store the number of front bytes */ 
       if ( s->source != SOURCE_ADF_BACK ){
-        s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
+        s->bytes_tot[SIDE_FRONT] = s->s_params.bytes_per_line * s->s_params.lines;
         s->buff_tot[SIDE_FRONT] = s->buffer_size;
 
         /* the front buffer is normally very small, but some scanners or
          * option combinations can't handle it, so we make a big one */
         if(
-          (s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091)
+          (s->s_mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091)
           || must_fully_buffer(s)
         ){
           s->buff_tot[SIDE_FRONT] = s->bytes_tot[SIDE_FRONT];
@@ -6662,7 +6771,7 @@ sane_start (SANE_Handle handle)
 
       /* store the number of back bytes */ 
       if ( s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK ){
-        s->bytes_tot[SIDE_BACK] = s->params.bytes_per_line * s->params.lines;
+        s->bytes_tot[SIDE_BACK] = s->s_params.bytes_per_line * s->s_params.lines;
         s->buff_tot[SIDE_BACK] = s->bytes_tot[SIDE_BACK];
 
         /* the back buffer is normally very large, but some scanners or
@@ -7037,13 +7146,13 @@ set_window (struct fujitsu *s)
   }
 
   set_WD_ULY (desc1, s->tl_y);
-  set_WD_width (desc1, s->params.pixels_per_line * 1200/s->resolution_x);
+  set_WD_width (desc1, s->s_params.pixels_per_line * 1200/s->resolution_x);
 
-  length = s->params.lines * 1200/s->resolution_y;
+  length = s->s_params.lines * 1200/s->resolution_y;
 
   /* stupid trick. 3091/2 require reading extra lines,
    * because they have a gap between R G and B */
-  if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
+  if(s->s_mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
     length += (s->color_raster_offset+s->green_offset) * 1200/300 * 2;
     DBG(5,"set_window: Increasing length to %d\n",length);
   }
@@ -7065,11 +7174,11 @@ set_window (struct fujitsu *s)
     set_WD_contrast (desc1, s->contrast+128);
   }
 
-  set_WD_composition (desc1, s->mode);
+  set_WD_composition (desc1, s->s_mode);
 
-  set_WD_bitsperpixel (desc1, s->params.depth);
+  set_WD_bitsperpixel (desc1, s->s_params.depth);
 
-  if(s->mode == MODE_HALFTONE){
+  if(s->s_mode == MODE_HALFTONE){
     set_WD_ht_type(desc1, s->ht_type);
     set_WD_ht_pattern(desc1, s->ht_pattern);
   }
@@ -7081,7 +7190,7 @@ set_window (struct fujitsu *s)
 
 #ifdef SANE_FRAME_JPEG
   /* some scanners support jpeg image compression, for color/gs only */
-  if(s->params.format == SANE_FRAME_JPEG){
+  if(s->s_params.format == SANE_FRAME_JPEG){
       set_WD_compress_type(desc1, COMP_JPEG);
       set_WD_compress_arg(desc1, s->compress_arg);
   }
@@ -7095,7 +7204,7 @@ set_window (struct fujitsu *s)
     set_WD_vendor_id_code (desc1, WD_VUID_3091);
     set_WD_gamma (desc1, s->window_gamma);
 
-    if (s->mode != MODE_COLOR){
+    if (s->s_mode != MODE_COLOR){
       switch (s->dropout_color) {
         case COLOR_RED:
           set_WD_lamp_color (desc1, WD_LAMP_RED);
@@ -7115,7 +7224,7 @@ set_window (struct fujitsu *s)
   }
 
   /*vuid c1*/
-  else if(s->mode == MODE_COLOR && s->has_vuid_color){
+  else if(s->s_mode == MODE_COLOR && s->has_vuid_color){
     set_WD_vendor_id_code (desc1, WD_VUID_COLOR);
     set_WD_gamma (desc1, s->window_gamma);
 
@@ -7242,7 +7351,8 @@ set_window (struct fujitsu *s)
   return ret;
 }
 
-/* update our private copy of params with actual data size scanner reports */
+/* update s_params with actual data size scanner reports */
+/* then copy as required to the u_params to send to user */
 static SANE_Status
 get_pixelsize(struct fujitsu *s, int actual)
 {
@@ -7283,38 +7393,38 @@ get_pixelsize(struct fujitsu *s, int actual)
       /* when we are called post-scan, the scanner may give
        * more accurate data in other fields */
       if(actual && get_PSIZE_paper_w(in)){
-        s->params.pixels_per_line = get_PSIZE_paper_w(in);
+        s->s_params.pixels_per_line = get_PSIZE_paper_w(in);
         DBG(5,"get_pixelsize: Actual width\n");
       }
       else{
-        s->params.pixels_per_line = get_PSIZE_num_x(in);
+        s->s_params.pixels_per_line = get_PSIZE_num_x(in);
       }
 
       /* stupid trick. 3091/2 require reading extra lines,
        * because they have a gap between R G and B
        * we only want to report the shorter value to the frontend */
-      if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
+      if(s->s_mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
         DBG(5,"get_pixelsize: Ignoring length %d\n",get_PSIZE_num_y(in));
       }
       /* when we are called post-scan, the scanner may give
        * more accurate data in other fields */
       else if(actual && get_PSIZE_paper_l(in)){
-        s->params.lines = get_PSIZE_paper_l(in);
+        s->s_params.lines = get_PSIZE_paper_l(in);
         DBG(5,"get_pixelsize: Actual length\n");
       }
       else{
-        s->params.lines = get_PSIZE_num_y(in);
+        s->s_params.lines = get_PSIZE_num_y(in);
       }
 
       /* bytes per line differs by mode */
-      if (s->mode == MODE_COLOR) {
-        s->params.bytes_per_line = s->params.pixels_per_line * 3;
+      if (s->s_mode == MODE_COLOR) {
+        s->s_params.bytes_per_line = s->s_params.pixels_per_line * 3;
       }
-      else if (s->mode == MODE_GRAYSCALE) {
-        s->params.bytes_per_line = s->params.pixels_per_line;
+      else if (s->s_mode == MODE_GRAYSCALE) {
+        s->s_params.bytes_per_line = s->s_params.pixels_per_line;
       }
       else {
-        s->params.bytes_per_line = s->params.pixels_per_line / 8;
+        s->s_params.bytes_per_line = s->s_params.pixels_per_line / 8;
       }
   
       /* some scanners can request that the driver clean img */
@@ -7326,7 +7436,23 @@ get_pixelsize(struct fujitsu *s, int actual)
       }
 
       DBG (15, "get_pixelsize: scan_x=%d, Bpl=%d, scan_y=%d\n", 
-        s->params.pixels_per_line, s->params.bytes_per_line, s->params.lines );
+        s->s_params.pixels_per_line, s->s_params.bytes_per_line, s->s_params.lines );
+
+      /* the user params are usually the same */
+      s->u_params.pixels_per_line = s->s_params.pixels_per_line;
+      s->u_params.lines = s->s_params.lines;
+
+      /* bytes per line differs by mode */
+      if (s->u_mode == MODE_COLOR) {
+        s->u_params.bytes_per_line = s->u_params.pixels_per_line * 3;
+      }
+      else if (s->u_mode == MODE_GRAYSCALE) {
+        s->u_params.bytes_per_line = s->u_params.pixels_per_line;
+      }
+      else {
+        s->u_params.bytes_per_line = s->u_params.pixels_per_line / 8;
+      }
+  
     }
     else{
       DBG (10, "get_pixelsize: got bad status %d, ignoring\n", ret);
@@ -7532,7 +7658,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 #ifdef SANE_FRAME_JPEG
   /* alternating jpeg duplex interlacing */
   else if(s->source == SOURCE_ADF_DUPLEX
-    && s->params.format == SANE_FRAME_JPEG 
+    && s->s_params.format == SANE_FRAME_JPEG 
     && s->jpeg_interlace == JPEG_INTERLACE_ALT
   ){
     ret = read_from_JPEGduplex(s);
@@ -7545,7 +7671,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* alternating pnm duplex interlacing */
   else if(s->source == SOURCE_ADF_DUPLEX
-    && s->params.format <= SANE_FRAME_RGB
+    && s->s_params.format <= SANE_FRAME_RGB
     && s->duplex_interlace == DUPLEX_INTERLACE_ALT
   ){
 
@@ -7575,8 +7701,24 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     }
   } /*end simplex*/
 
-  /* copy a block from buffer to frontend */
-  ret = read_from_buffer(s,buf,max_len,len,s->side);
+  /* uncommon case, downsample and copy a block from buffer to frontend */
+  if(must_downsample(s)){
+    ret = downsample_from_buffer(s,buf,max_len,len,s->side);
+  }
+
+  /* common case, memcpy a block from buffer to frontend */
+  else{
+    ret = read_from_buffer(s,buf,max_len,len,s->side);
+  }
+
+  /*finished sending small buffer, reset it*/
+  if(s->buff_tx[s->side] == s->buff_rx[s->side]
+    && s->buff_tot[s->side] < s->bytes_tot[s->side]
+  ){
+    DBG (15, "sane_read: reset buffers\n");
+    s->buff_rx[s->side] = 0;
+    s->buff_tx[s->side] = 0;
+  }
 
   /* check if user cancelled during this read */
   ret = check_for_cancel(s);
@@ -7778,10 +7920,10 @@ read_from_JPEGduplex(struct fujitsu *s)
 
 	  /* if image width equals what we asked for, then
 	   * the image is not interlaced, clean up the mess */
-	  if(width == s->params.pixels_per_line){
+	  if(width == s->s_params.pixels_per_line){
 
             DBG(15, "read_from_JPEGduplex: right width, req:%d got:%d\n",
-	      s->params.pixels_per_line,width);
+	      s->s_params.pixels_per_line,width);
 
 	    /* stop copying to the back */
 	    s->jpeg_interlace = JPEG_INTERLACE_NONE;
@@ -7799,7 +7941,7 @@ read_from_JPEGduplex(struct fujitsu *s)
 	  /* image is interlaced afterall, continue */
 	  else{
             DBG(15, "read_from_JPEGduplex: wrong width, req:%d got:%d\n",
-	      s->params.pixels_per_line,width);
+	      s->s_params.pixels_per_line,width);
 
 	    /* put the high-order width byte into front side, shifted down */
             s->buffers[SIDE_FRONT][s->buff_rx[SIDE_FRONT]++] = width >> 9;
@@ -7915,7 +8057,7 @@ read_from_3091duplex(struct fujitsu *s)
   }
   
   /* all requests must end on a line boundary */
-  bytes -= (bytes % s->params.bytes_per_line);
+  bytes -= (bytes % s->s_params.bytes_per_line);
 
   DBG(15, "read_from_3091duplex: front img: to:%d rx:%d tx:%d li:%d\n",
       s->bytes_tot[SIDE_FRONT], s->bytes_rx[SIDE_FRONT],
@@ -7978,7 +8120,7 @@ read_from_3091duplex(struct fujitsu *s)
   }
 
   /* loop thru all lines in read buffer */
-  for(i=0;i<inLen/s->params.bytes_per_line;i++){
+  for(i=0;i<inLen/s->s_params.bytes_per_line;i++){
 
       /* start is front */
       if(s->lines_rx[SIDE_FRONT] < off){
@@ -8000,11 +8142,11 @@ read_from_3091duplex(struct fujitsu *s)
         side=SIDE_FRONT;
       }
 
-      if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
-        copy_3091 (s, in + i*s->params.bytes_per_line, s->params.bytes_per_line, side);
+      if(s->s_mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
+        copy_3091 (s, in + i*s->s_params.bytes_per_line, s->s_params.bytes_per_line, side);
       }
       else{
-        copy_buffer (s, in + i*s->params.bytes_per_line, s->params.bytes_per_line, side);
+        copy_buffer (s, in + i*s->s_params.bytes_per_line, s->s_params.bytes_per_line, side);
       }
   }
 
@@ -8049,13 +8191,13 @@ read_from_scanner(struct fujitsu *s, int side)
       bytes = avail;
   
     /* all requests must end on line boundary */
-    bytes -= (bytes % s->params.bytes_per_line);
+    bytes -= (bytes % s->s_params.bytes_per_line);
 
     /* some larger scanners require even bytes per block */
     /* so we get even lines, but not on the last block */
     /* cause odd number of lines would never finish */
     if(bytes % 2 && bytes < remain){
-       bytes -= s->params.bytes_per_line;
+       bytes -= s->s_params.bytes_per_line;
     }
   
     DBG(15, "read_from_scanner: si:%d re:%d bs:%d by:%d av:%d\n",
@@ -8125,10 +8267,10 @@ read_from_scanner(struct fujitsu *s, int side)
         inLen = 0;
     }
   
-    DBG(15, "read_from_scanner: read %lu bytes\n",inLen);
+    DBG(15, "read_from_scanner: read %lu bytes\n",(unsigned long)inLen);
 
     if(inLen){
-        if(s->mode==MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
+        if(s->s_mode==MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
             copy_3091 (s, in, inLen, side);
         }
         else{
@@ -8189,32 +8331,32 @@ copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side)
   boff = (s->color_raster_offset+s->blue_offset) * s->resolution_y/300;
 
   /* loop thru all lines in read buffer */
-  for(i=0;i<len;i+=s->params.bytes_per_line){
+  for(i=0;i<len;i+=s->s_params.bytes_per_line){
 
       /* red at start of line */
-      dest = s->lines_rx[side] * s->params.bytes_per_line;
+      dest = s->lines_rx[side] * s->s_params.bytes_per_line;
 
       if(dest >= 0 && dest < s->bytes_tot[side]){
-        for (j=0; j<s->params.pixels_per_line; j++){
+        for (j=0; j<s->s_params.pixels_per_line; j++){
           s->buffers[side][dest+j*3] = buf[i+j];
         }
       }
 
       /* green is in middle of line */
-      dest = (s->lines_rx[side] - goff) * s->params.bytes_per_line;
+      dest = (s->lines_rx[side] - goff) * s->s_params.bytes_per_line;
 
       if(dest >= 0 && dest < s->bytes_tot[side]){
-        for (j=0; j<s->params.pixels_per_line; j++){
-          s->buffers[side][dest+j*3+1] = buf[i+s->params.pixels_per_line+j];
+        for (j=0; j<s->s_params.pixels_per_line; j++){
+          s->buffers[side][dest+j*3+1] = buf[i+s->s_params.pixels_per_line+j];
         }
       }
 
       /* blue is at end of line */
-      dest = (s->lines_rx[side] - boff) * s->params.bytes_per_line;
+      dest = (s->lines_rx[side] - boff) * s->s_params.bytes_per_line;
 
       if(dest >= 0 && dest < s->bytes_tot[side]){
-        for (j=0; j<s->params.pixels_per_line; j++){
-          s->buffers[side][dest+j*3+2] = buf[i+2*s->params.pixels_per_line+j];
+        for (j=0; j<s->s_params.pixels_per_line; j++){
+          s->buffers[side][dest+j*3+2] = buf[i+2*s->s_params.pixels_per_line+j];
         }
       }
 
@@ -8223,7 +8365,7 @@ copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side)
 
   /* even if we have read data, we may not have any 
    * full lines loaded yet, so we may have to lie */
-  i = (s->lines_rx[side]-goff) * s->params.bytes_per_line;
+  i = (s->lines_rx[side]-goff) * s->s_params.bytes_per_line;
   if(i < 0){
     i = 0;
   } 
@@ -8248,21 +8390,21 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
   int i, j;
-  int bwidth = s->params.bytes_per_line;
-  int pwidth = s->params.pixels_per_line;
+  int bwidth = s->s_params.bytes_per_line;
+  int pwidth = s->s_params.pixels_per_line;
  
   DBG (10, "copy_buffer: start\n");
 
   /* invert image if scanner needs it for this mode */
   /* jpeg data does not use inverting */
-  if(s->params.format <= SANE_FRAME_RGB && s->reverse_by_mode[s->mode]){
+  if(s->s_params.format <= SANE_FRAME_RGB && s->reverse_by_mode[s->s_mode]){
     for(i=0; i<len; i++){
       buf[i] ^= 0xff;
     }
   }
 
   /* scanners interlace colors in many different ways */
-  if(s->params.format == SANE_FRAME_RGB){
+  if(s->s_params.format == SANE_FRAME_RGB){
   
     switch (s->color_interlace) {
   
@@ -8302,7 +8444,7 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
   }
   
   s->bytes_rx[side] += len;
-  s->lines_rx[side] += len/s->params.bytes_per_line;
+  s->lines_rx[side] += len/s->s_params.bytes_per_line;
 
   if(s->bytes_rx[side] == s->bytes_tot[side]){
     s->eof_rx[side] = 1;
@@ -8349,16 +8491,109 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
     s->buff_tx[side] += bytes;
     s->bytes_tx[side] += bytes;
 
-    /*finished sending small buffer, reset it*/
-    if(s->buff_tx[side] == s->buff_rx[side]
-      && s->buff_tot[side] < s->bytes_tot[side]
-    ){
-      DBG (15, "read_from_buffer: reset\n");
-      s->buff_rx[side] = 0;
-      s->buff_tx[side] = 0;
+    DBG (10, "read_from_buffer: finish\n");
+  
+    return ret;
+}
+
+/* we have bytes of higher mode image data in s->buffers */
+/* user asked for lower mode image. downsample and copy to buf */
+
+static SANE_Status
+downsample_from_buffer(struct fujitsu *s, SANE_Byte * buf,
+  SANE_Int max_len, SANE_Int * len, int side)
+{
+    SANE_Status ret=SANE_STATUS_GOOD;
+
+    DBG (10, "downsample_from_buffer: start\n");
+  
+    if(s->s_mode == MODE_COLOR && s->u_mode == MODE_GRAYSCALE){
+
+      while(*len < max_len && s->buff_rx[side] - s->buff_tx[side] >= 3){
+
+        int gray = 0;
+
+        switch (s->dropout_color) {
+          case COLOR_RED:
+            gray = *(s->buffers[side]+s->buff_tx[side]) * 3;
+            break;
+          case COLOR_GREEN:
+            gray = *(s->buffers[side]+s->buff_tx[side]+1) * 3;
+            break;
+          case COLOR_BLUE:
+            gray = *(s->buffers[side]+s->buff_tx[side]+2) * 3;
+            break;
+          default:
+            gray = *(s->buffers[side]+s->buff_tx[side])
+              + *(s->buffers[side]+s->buff_tx[side]+1)
+              + *(s->buffers[side]+s->buff_tx[side]+2);
+            break;
+        }
+
+        /* bookkeeping for input */
+        s->buff_tx[side] += 3;
+        s->bytes_tx[side] += 3;
+
+        /* add byte to output */
+        *(buf + *len) = gray/3;
+        (*len)++;
+      }
     }
 
-    DBG (10, "read_from_buffer: finish\n");
+    else if(s->s_mode == MODE_COLOR && s->u_mode == MODE_LINEART){
+
+      /* threshold of 0 is actually middle of range */
+      /*FIXME: add dynamic threshold? */
+      unsigned char thresh = (s->threshold ? s->threshold : 127);
+
+      while(*len < max_len && s->buff_rx[side] - s->buff_tx[side] >= 24){
+
+        int i;
+        unsigned char out = 0;
+
+        for(i=0; i<8; i++){
+
+          int gray = 0;
+  
+          switch (s->dropout_color) {
+            case COLOR_RED:
+              gray = *(s->buffers[side]+s->buff_tx[side]) * 3;
+              break;
+            case COLOR_GREEN:
+              gray = *(s->buffers[side]+s->buff_tx[side]+1) * 3;
+              break;
+            case COLOR_BLUE:
+              gray = *(s->buffers[side]+s->buff_tx[side]+2) * 3;
+              break;
+            default:
+              gray = *(s->buffers[side]+s->buff_tx[side])
+                + *(s->buffers[side]+s->buff_tx[side]+1)
+                + *(s->buffers[side]+s->buff_tx[side]+2);
+              break;
+          }
+
+          /* black if input gray is lower than threshold */
+          if(gray/3 < thresh){
+            out |= (0x80 >> i);
+          }
+
+          /* bookkeeping for input */
+          s->buff_tx[side] += 3;
+          s->bytes_tx[side] += 3;
+        }
+
+        /* add byte to output */
+        *(buf + *len) = out;
+        (*len)++;
+      }
+    }
+
+    else{
+      DBG (5, "downsample_from_buffer: invalid mode combination\n");
+      ret = SANE_STATUS_INVAL;
+    }
+
+    DBG (10, "downsample_from_buffer: finish\n");
   
     return ret;
 }
@@ -9106,7 +9341,23 @@ must_fully_buffer(struct fujitsu *s)
   if(
     (s->swdeskew || s->swdespeck || s->swcrop)
 #ifdef SANE_FRAME_JPEG
-    && s->params.format != SANE_FRAME_JPEG
+    && s->s_params.format != SANE_FRAME_JPEG
+#endif
+  ){
+    return 1;
+  }
+
+  return 0;
+}
+
+/* certain scanners require the mode of the 
+ * image to be changed in software. */
+static int
+must_downsample(struct fujitsu *s)
+{
+  if(s->s_mode != s->u_mode
+#ifdef SANE_FRAME_JPEG
+    && s->compress != COMP_JPEG
 #endif
   ){
     return 1;
@@ -9287,7 +9538,7 @@ buffer_deskew(struct fujitsu *s, int side)
   if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK || s->deskew_stat){
 
     s->deskew_stat = sanei_magic_findSkew(
-      &s->params,s->buffers[side],s->resolution_x,s->resolution_y,
+      &s->s_params,s->buffers[side],s->resolution_x,s->resolution_y,
       &s->deskew_vals[0],&s->deskew_vals[1],&s->deskew_slope);
   
     if(s->deskew_stat){
@@ -9298,11 +9549,11 @@ buffer_deskew(struct fujitsu *s, int side)
   /* backside images can use a 'flipped' version of frontside data */
   else{
     s->deskew_slope *= -1;
-    s->deskew_vals[0] = s->params.pixels_per_line - s->deskew_vals[0];
+    s->deskew_vals[0] = s->s_params.pixels_per_line - s->deskew_vals[0];
   }
 
   /* tweak the bg color based on scanner settings */
-  if(s->mode == MODE_HALFTONE || s->mode == MODE_LINEART){
+  if(s->s_mode == MODE_HALFTONE || s->s_mode == MODE_LINEART){
     if(s->bg_color == COLOR_BLACK || s->hwdeskewcrop || s->overscan)
       bg_color = 0xff;
     else
@@ -9311,7 +9562,7 @@ buffer_deskew(struct fujitsu *s, int side)
   else if(s->bg_color == COLOR_BLACK || s->hwdeskewcrop || s->overscan)
     bg_color = 0;
 
-  ret = sanei_magic_rotate(&s->params,s->buffers[side],
+  ret = sanei_magic_rotate(&s->s_params,s->buffers[side],
     s->deskew_vals[0],s->deskew_vals[1],s->deskew_slope,bg_color);
 
   if(ret){
@@ -9339,7 +9590,7 @@ buffer_crop(struct fujitsu *s, int side)
   if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK || s->crop_stat){
 
     s->crop_stat = sanei_magic_findEdges(
-      &s->params,s->buffers[side],s->resolution_x,s->resolution_y,
+      &s->s_params,s->buffers[side],s->resolution_x,s->resolution_y,
       &s->crop_vals[0],&s->crop_vals[1],&s->crop_vals[2],&s->crop_vals[3]);
 
     if(s->crop_stat){
@@ -9358,12 +9609,12 @@ buffer_crop(struct fujitsu *s, int side)
     int left  = s->crop_vals[2];
     int right = s->crop_vals[3];
 
-    s->crop_vals[2] = s->params.pixels_per_line - right;
-    s->crop_vals[3] = s->params.pixels_per_line - left;
+    s->crop_vals[2] = s->s_params.pixels_per_line - right;
+    s->crop_vals[3] = s->s_params.pixels_per_line - left;
   }
 
   /* now crop the image */
-  ret = sanei_magic_crop(&s->params,s->buffers[side],
+  ret = sanei_magic_crop(&s->s_params,s->buffers[side],
       s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
 
   if(ret){
@@ -9372,8 +9623,11 @@ buffer_crop(struct fujitsu *s, int side)
     goto cleanup;
   }
 
+  /* need to update user with new size */
+  update_u_params(s);
+
   /* update image size counter to new, smaller size */
-  s->bytes_rx[side] = s->params.lines * s->params.bytes_per_line;
+  s->bytes_rx[side] = s->s_params.lines * s->s_params.bytes_per_line;
   s->buff_rx[side] = s->bytes_rx[side];
  
   cleanup:
@@ -9391,7 +9645,7 @@ buffer_despeck(struct fujitsu *s, int side)
 
   DBG (10, "buffer_despeck: start\n");
 
-  ret = sanei_magic_despeck(&s->params,s->buffers[side],s->swdespeck);
+  ret = sanei_magic_despeck(&s->s_params,s->buffers[side],s->swdespeck);
   if(ret){
     DBG (5, "buffer_despeck: bad despeck, bailing\n");
     ret = SANE_STATUS_GOOD;

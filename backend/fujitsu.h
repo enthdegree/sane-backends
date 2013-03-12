@@ -171,10 +171,7 @@ struct fujitsu
   int max_y_basic;
 
   int can_overflow;
-  int can_monochrome;
-  int can_halftone;
-  int can_grayscale;
-  int can_color_grayscale;
+  int can_mode[6]; /* mode specific */
 
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during vndr VPD probing of the scanner */
@@ -409,7 +406,7 @@ struct fujitsu
   /* changeable vars to hold user input. modified by SANE_Options above    */
 
   /*mode group*/
-  int mode;           /*color,lineart,etc*/
+  int u_mode;         /*color,lineart,etc*/
   int source;         /*fb,adf front,adf duplex,etc*/
   int resolution_x;   /* X resolution in dpi                       */
   int resolution_y;   /* Y resolution in dpi                       */
@@ -499,6 +496,8 @@ struct fujitsu
   /* values which are derived from setting the options above */
   /* the user never directly modifies these */
 
+  int s_mode; /*color,lineart,etc: sent to scanner*/
+
   /* this is defined in sane spec as a struct containing:
 	SANE_Frame format;
 	SANE_Bool last_frame;
@@ -507,10 +506,12 @@ struct fujitsu
 	SANE_Int pixels_per_line;
 	SANE_Int bytes_per_line;
   */
-  SANE_Parameters params;
+  SANE_Parameters u_params;
+  SANE_Parameters s_params;
 
   /* also keep a backup copy, in case the software enhancement code overwrites*/
-  SANE_Parameters params_bk;
+  SANE_Parameters u_params_bk;
+  SANE_Parameters s_params_bk;
 
   /* --------------------------------------------------------------------- */
   /* values which are set by scanning functions to keep track of pages, etc */
@@ -785,6 +786,7 @@ static SANE_Status mode_select_auto (struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
 
+static int must_downsample (struct fujitsu *s);
 static int must_fully_buffer (struct fujitsu *s);
 static int get_page_width (struct fujitsu *s);
 static int get_page_height (struct fujitsu *s);
@@ -796,6 +798,7 @@ static SANE_Status set_window (struct fujitsu *s);
 static SANE_Status get_pixelsize(struct fujitsu *s, int actual);
 
 static SANE_Status update_params (struct fujitsu *s);
+static SANE_Status update_u_params (struct fujitsu *s);
 static SANE_Status backup_params (struct fujitsu *s);
 static SANE_Status restore_params (struct fujitsu *s);
 static SANE_Status start_scan (struct fujitsu *s);
@@ -812,6 +815,7 @@ static SANE_Status copy_3091(struct fujitsu *s, unsigned char * buf, int len, in
 static SANE_Status copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side);
 
 static SANE_Status read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
+static SANE_Status downsample_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 
 static SANE_Status setup_buffers (struct fujitsu *s);
 

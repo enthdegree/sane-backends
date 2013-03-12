@@ -12,7 +12,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "113"                   ; version of backend
+:version "115"                   ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.23, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -187,9 +187,9 @@
 
 :model "ScanSnap iX500"
 :interface "USB WiFi"
-:status :basic
+:status :good
 :usbid "0x04c5" "0x132b"
-:comment "small, current, WiFi not supported. Only scans in color."
+:comment "small, current, WiFi not supported. Hardware only scans in color. Backend generates binary and grayscale modes."
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, MEDIUM

@@ -1102,7 +1102,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
           /* Color plane and stripes shift needed by e.g. CCD */
           /*PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, w=%i, line_size=%u ***** \n",
 	        c, n, m, s->param->wx, line_size));*/
-          if (s->cfg->pid != MG5300_PID && c >= 3)
+          if (s->cfg->pid != MG5300_PID && s->cfg->pid != MG6300_PID && c >= 3)
             dptr = shift_colors (dptr, sptr, 
                                  s->param->wx, s->param->xdpi, s->cfg->pid, c,
                                  mp->shift, mp->stripe_shift);
@@ -1116,7 +1116,8 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
               && s->cfg->pid != MX890_PID
               && s->cfg->pid != MG3100_PID
               && s->cfg->pid != MG2100_PID
-              && s->cfg->pid != MG5300_PID)
+              && s->cfg->pid != MG5300_PID
+              && s->cfg->pid != MG6300_PID)
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
           
           /* Crop line to selected borders */

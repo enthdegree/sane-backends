@@ -1,3 +1,7 @@
+2013-03-15 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	New scanner Canon Pixma MG6300 reported by Theo van Rijn.
+
 2013-02-28 Stéphane Voltz <stef.dev@free.fr>
 	* configure.in configure: restored HAVE_USBCALLS like initially
 	committed for OS/2 support

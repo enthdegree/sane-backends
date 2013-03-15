@@ -90,6 +90,12 @@
 :status :complete
 :comment "All resolutions supported (up to 4800 DPI)"
 
+:model "PIXMA MG6300 Series"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x1765"
+:status :complete
+:comment "All resolutions supported (up to 2400DPI)."
+
 :model "PIXMA MG8100 Series"
 :interface "USB"
 :usbid "0x04a9" "0x174b"

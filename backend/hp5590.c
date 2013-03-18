@@ -379,14 +379,15 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
 /******************************************************************************/
 void sane_exit (void)
 {
-  struct hp5590_scanner *ptr;
+  struct hp5590_scanner *ptr, *pnext;
 
   DBG (DBG_proc, "%s\n", __FUNCTION__);
 
-  for (ptr = scanners_list; ptr; ptr = ptr->next)
+  for (ptr = scanners_list; ptr; ptr = pnext)
     {
       if (ptr->opts != NULL)
 	free (ptr->opts);
+      pnext = ptr->next;
       free (ptr);
     }
 }

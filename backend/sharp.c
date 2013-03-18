@@ -3368,9 +3368,9 @@ sane_start (SANE_Handle handle)
 
   s->buffer = malloc(s->dev->info.bufsize);
   if (!s->buffer) {
-    free(s);
     sanei_scsi_close(s->fd);
     s->fd = -1;
+    free(s);
     return SANE_STATUS_NO_MEM;
   }
 

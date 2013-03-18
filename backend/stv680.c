@@ -270,8 +270,8 @@ stv680_init (void)
   dev->windowr = malloc (dev->windowr_size);
   if (dev->windowr == NULL)
     {
-      free (dev);
       free (dev->windoww);
+      free (dev);
       return NULL;
     }
 
@@ -302,9 +302,9 @@ stv680_init_2 (Stv680_Vidcam * dev)
 
   if (dev->buffer == NULL)
     {
-      free (dev);
       free (dev->windowr);
       free (dev->windoww);
+      free (dev);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -314,10 +314,10 @@ stv680_init_2 (Stv680_Vidcam * dev)
   dev->output = malloc (dev->output_size);
   if (dev->output == NULL)
     {
-      free (dev);
       free (dev->windowr);
       free (dev->windoww);
       free (dev->buffer);
+      free (dev);
 
       return SANE_STATUS_NO_MEM;
     }
@@ -326,11 +326,11 @@ stv680_init_2 (Stv680_Vidcam * dev)
   dev->image = malloc (dev->image_size);
   if (dev->image == NULL)
     {
-      free (dev);
       free (dev->windowr);
       free (dev->windoww);
       free (dev->buffer);
       free (dev->output);
+      free (dev);
 
       return SANE_STATUS_NO_MEM;
     }

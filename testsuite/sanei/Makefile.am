@@ -8,13 +8,19 @@ MATH_LIB = @MATH_LIB@
 USB_LIBS = @USB_LIBS@
 PTHREAD_LIBS = @PTHREAD_LIBS@
 
-check_PROGRAMS = sanei_usb_test
+check_PROGRAMS = sanei_usb_test test_wire
 TESTS = $(check_PROGRAMS)
 
 AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
 
 sanei_usb_test_SOURCES = sanei_usb_test.c
 sanei_usb_test_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la ../../lib/libfelib.la $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
+ 
+test_wire_SOURCES = test_wire.c
+test_wire_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la
+
+clean-local:
+	rm -f test_wire.out
 
 all:
 	@echo "run 'make check' to run tests"

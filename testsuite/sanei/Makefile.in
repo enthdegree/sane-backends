@@ -33,7 +33,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = sanei_usb_test$(EXEEXT)
+check_PROGRAMS = sanei_usb_test$(EXEEXT) test_wire$(EXEEXT)
 subdir = testsuite/sanei
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -53,6 +53,9 @@ sanei_usb_test_DEPENDENCIES = ../../sanei/libsanei.la \
 	../../lib/liblib.la ../../lib/libfelib.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
+am_test_wire_OBJECTS = test_wire.$(OBJEXT)
+test_wire_OBJECTS = $(am_test_wire_OBJECTS)
+test_wire_DEPENDENCIES = ../../sanei/libsanei.la ../../lib/liblib.la
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include/sane
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -66,8 +69,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(sanei_usb_test_SOURCES)
-DIST_SOURCES = $(sanei_usb_test_SOURCES)
+SOURCES = $(sanei_usb_test_SOURCES) $(test_wire_SOURCES)
+DIST_SOURCES = $(sanei_usb_test_SOURCES) $(test_wire_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 am__tty_colors = \
@@ -247,6 +250,8 @@ TESTS = $(check_PROGRAMS)
 AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
 sanei_usb_test_SOURCES = sanei_usb_test.c
 sanei_usb_test_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la ../../lib/libfelib.la $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
+test_wire_SOURCES = test_wire.c
+test_wire_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la
 all: all-am
 
 .SUFFIXES:
@@ -293,6 +298,9 @@ clean-checkPROGRAMS:
 sanei_usb_test$(EXEEXT): $(sanei_usb_test_OBJECTS) $(sanei_usb_test_DEPENDENCIES) 
 	@rm -f sanei_usb_test$(EXEEXT)
 	$(LINK) $(sanei_usb_test_OBJECTS) $(sanei_usb_test_LDADD) $(LIBS)
+test_wire$(EXEEXT): $(test_wire_OBJECTS) $(test_wire_DEPENDENCIES) 
+	@rm -f test_wire$(EXEEXT)
+	$(LINK) $(test_wire_OBJECTS) $(test_wire_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -301,6 +309,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_usb_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_wire.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -536,7 +545,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-checkPROGRAMS clean-generic clean-libtool \
+clean-am: clean-checkPROGRAMS clean-generic clean-libtool clean-local \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -608,8 +617,8 @@ uninstall-am:
 .MAKE: check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-TESTS check-am clean \
-	clean-checkPROGRAMS clean-generic clean-libtool ctags \
-	distclean distclean-compile distclean-generic \
+	clean-checkPROGRAMS clean-generic clean-libtool clean-local \
+	ctags distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
@@ -621,6 +630,9 @@ uninstall-am:
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am
 
+
+clean-local:
+	rm -f test_wire.out
 
 all:
 	@echo "run 'make check' to run tests"

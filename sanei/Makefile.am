@@ -7,9 +7,6 @@
 AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include \
  -I$(top_srcdir)/include
 
-check_PROGRAMS = test_wire
-TESTS = $(check_PROGRAMS)
-
 noinst_LTLIBRARIES = libsanei.la
 
 libsanei_la_SOURCES = sanei_ab306.c sanei_constrain_value.c \
@@ -22,9 +19,3 @@ if HAVE_JPEG
 libsanei_la_SOURCES += sanei_jpeg.c
 endif
 EXTRA_DIST = linux_sg3_err.h os2_srb.h sanei_DomainOS.c sanei_DomainOS.h
-
-test_wire_SOURCES = test_wire.c
-test_wire_LDADD = libsanei.la ../lib/liblib.la
-
-clean-local:
-	rm -f test_wire.out

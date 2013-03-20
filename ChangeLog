@@ -1,5 +1,10 @@
 2013-03-24 Stéphane Voltz <stef.dev@free.fr>
-	backend/genesys.c: make use of the new sanei_usb_scan_devices function
+	* sanei/test_wire.c, testsuite/sanei/sanei_*test.c: move test program
+	to testsuite/sanei. Add unit test programs for sanei_check_*,
+	sanei_constrain_*, sanei_config_* and sanei_usb_* functions.
+
+2013-03-24 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c: make use of the new sanei_usb_scan_devices function
 	in sane_get_devices.
 
 2013-03-24 Stéphane Voltz <stef.dev@free.fr>

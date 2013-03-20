@@ -33,7 +33,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = sanei_usb_test$(EXEEXT) test_wire$(EXEEXT)
+check_PROGRAMS = sanei_usb_test$(EXEEXT) test_wire$(EXEEXT) \
+	sanei_check_test$(EXEEXT) sanei_config_test$(EXEEXT) \
+	sanei_constrain_test$(EXEEXT)
 subdir = testsuite/sanei
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -46,16 +48,25 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/sane/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+am_sanei_check_test_OBJECTS = sanei_check_test.$(OBJEXT)
+sanei_check_test_OBJECTS = $(am_sanei_check_test_OBJECTS)
+am__DEPENDENCIES_1 =
+am__DEPENDENCIES_2 = ../../sanei/libsanei.la ../../lib/liblib.la \
+	../../lib/libfelib.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+sanei_check_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_sanei_config_test_OBJECTS = sanei_config_test.$(OBJEXT)
+sanei_config_test_OBJECTS = $(am_sanei_config_test_OBJECTS)
+sanei_config_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_sanei_constrain_test_OBJECTS = sanei_constrain_test.$(OBJEXT)
+sanei_constrain_test_OBJECTS = $(am_sanei_constrain_test_OBJECTS)
+sanei_constrain_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
 am_sanei_usb_test_OBJECTS = sanei_usb_test.$(OBJEXT)
 sanei_usb_test_OBJECTS = $(am_sanei_usb_test_OBJECTS)
-am__DEPENDENCIES_1 =
-sanei_usb_test_DEPENDENCIES = ../../sanei/libsanei.la \
-	../../lib/liblib.la ../../lib/libfelib.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+sanei_usb_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
 am_test_wire_OBJECTS = test_wire.$(OBJEXT)
 test_wire_OBJECTS = $(am_test_wire_OBJECTS)
-test_wire_DEPENDENCIES = ../../sanei/libsanei.la ../../lib/liblib.la
+test_wire_DEPENDENCIES = $(am__DEPENDENCIES_2)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include/sane
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -69,8 +80,12 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(sanei_usb_test_SOURCES) $(test_wire_SOURCES)
-DIST_SOURCES = $(sanei_usb_test_SOURCES) $(test_wire_SOURCES)
+SOURCES = $(sanei_check_test_SOURCES) $(sanei_config_test_SOURCES) \
+	$(sanei_constrain_test_SOURCES) $(sanei_usb_test_SOURCES) \
+	$(test_wire_SOURCES)
+DIST_SOURCES = $(sanei_check_test_SOURCES) \
+	$(sanei_config_test_SOURCES) $(sanei_constrain_test_SOURCES) \
+	$(sanei_usb_test_SOURCES) $(test_wire_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 am__tty_colors = \
@@ -246,12 +261,19 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+TEST_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la ../../lib/libfelib.la $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS) 
 TESTS = $(check_PROGRAMS)
 AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
+sanei_constrain_test_SOURCES = sanei_constrain_test.c
+sanei_constrain_test_LDADD = $(TEST_LDADD)
+sanei_config_test_SOURCES = sanei_config_test.c
+sanei_config_test_LDADD = $(TEST_LDADD)
+sanei_check_test_SOURCES = sanei_check_test.c
+sanei_check_test_LDADD = $(TEST_LDADD)
 sanei_usb_test_SOURCES = sanei_usb_test.c
-sanei_usb_test_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la ../../lib/libfelib.la $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
+sanei_usb_test_LDADD = $(TEST_LDADD)
 test_wire_SOURCES = test_wire.c
-test_wire_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la
+test_wire_LDADD = $(TEST_LDADD)
 all: all-am
 
 .SUFFIXES:
@@ -295,6 +317,15 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+sanei_check_test$(EXEEXT): $(sanei_check_test_OBJECTS) $(sanei_check_test_DEPENDENCIES) 
+	@rm -f sanei_check_test$(EXEEXT)
+	$(LINK) $(sanei_check_test_OBJECTS) $(sanei_check_test_LDADD) $(LIBS)
+sanei_config_test$(EXEEXT): $(sanei_config_test_OBJECTS) $(sanei_config_test_DEPENDENCIES) 
+	@rm -f sanei_config_test$(EXEEXT)
+	$(LINK) $(sanei_config_test_OBJECTS) $(sanei_config_test_LDADD) $(LIBS)
+sanei_constrain_test$(EXEEXT): $(sanei_constrain_test_OBJECTS) $(sanei_constrain_test_DEPENDENCIES) 
+	@rm -f sanei_constrain_test$(EXEEXT)
+	$(LINK) $(sanei_constrain_test_OBJECTS) $(sanei_constrain_test_LDADD) $(LIBS)
 sanei_usb_test$(EXEEXT): $(sanei_usb_test_OBJECTS) $(sanei_usb_test_DEPENDENCIES) 
 	@rm -f sanei_usb_test$(EXEEXT)
 	$(LINK) $(sanei_usb_test_OBJECTS) $(sanei_usb_test_LDADD) $(LIBS)
@@ -308,6 +339,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_check_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_config_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_constrain_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_usb_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_wire.Po@am__quote@
 

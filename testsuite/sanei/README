@@ -17,3 +17,24 @@ Function currently tested are:
 	- sanei_usb_close()
 	- sanei_usb_exit()
 	- store_device()
+
+
+sanei_constrain_test
+--------------------
+	Tests for sanei_constrain_* functions
+Function currently tested are:
+	- sanei_constrain_value()
+
+
+sanei_check_test
+----------------
+	Tests for sanei_check_* functions
+Function currently tested are:
+	- sanei_check_value()
+
+
+sanei_config_test
+-----------------
+	Tests for sanei_configure_* functions
+Function currently tested are:
+	- sanei_configure_attach()

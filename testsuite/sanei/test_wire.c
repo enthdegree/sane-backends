@@ -14,16 +14,14 @@
 
 static Wire w;
 
-static SANE_Word dpi_word_list[] =
-  {
-    4,				/* # of elements */
-    3, 30, 300, -600
-  };
+static SANE_Word dpi_word_list[] = {
+  4,				/* # of elements */
+  3, 30, 300, -600
+};
 
-static SANE_String_Const mode_list[] =
-  {
-    "Lineart", "Grayscale", "Color", 0
-  };
+static SANE_String_Const mode_list[] = {
+  "Lineart", "Grayscale", "Color", 0
+};
 
 static char *program_name;
 static char *default_codec = "bin";
@@ -44,8 +42,7 @@ Test the SANE wire manipulation library.\n\
     --readonly           do not create FILE, just read it\n\
     --version            print version information\n\
 \n\
-Valid CODECs are: `ascii' `bin'\n",
-	      program_name, default_codec, default_outfile);
+Valid CODECs are: `ascii' `bin'\n", program_name, default_codec, default_outfile);
     }
   else
     {
@@ -57,7 +54,7 @@ Valid CODECs are: `ascii' `bin'\n",
 
 
 int
-main (int argc, char ** argv)
+main (int argc, char **argv)
 {
   SANE_Option_Descriptor desc[2], *desc_ptr;
   SANE_Word len;
@@ -66,7 +63,7 @@ main (int argc, char ** argv)
   int readonly = 0;
 
   program_name = argv[0];
-  argv ++;
+  argv++;
   while (*argv != 0)
     {
       if (!strcmp (*argv, "--codec"))
@@ -78,7 +75,7 @@ main (int argc, char ** argv)
 	      usage (1);
 	    }
 
-	  argv ++;
+	  argv++;
 	  codec = *argv;
 	}
       else if (!strncmp (*argv, "--codec=", 8))
@@ -98,7 +95,7 @@ main (int argc, char ** argv)
 	      usage (1);
 	    }
 
-	  argv ++;
+	  argv++;
 	  outfile = *argv;
 	}
       else if (!strncmp (*argv, "--output=", 9))
@@ -125,7 +122,7 @@ main (int argc, char ** argv)
 	  fprintf (stderr, "%s: too many arguments\n", program_name);
 	}
 
-      argv ++;
+      argv++;
     }
 
 
@@ -150,7 +147,7 @@ main (int argc, char ** argv)
   desc[0].constraint.word_list = dpi_word_list;
 
   desc[1].name = "mode";
-  desc[1].title ="Scan Mode";
+  desc[1].title = "Scan Mode";
   desc[1].desc = "Determines scan mode.";
   desc[1].type = SANE_TYPE_STRING;
   desc[1].unit = SANE_UNIT_NONE;
@@ -181,7 +178,7 @@ main (int argc, char ** argv)
 	return -1;
       }
   }
-  w.io.read  = read;
+  w.io.read = read;
   w.io.write = readonly ? 0 : write;
 
   if (!readonly)
@@ -189,7 +186,7 @@ main (int argc, char ** argv)
       sanei_w_set_dir (&w, WIRE_ENCODE);
       w.status = 0;
 
-      len = NELEMS(desc);
+      len = NELEMS (desc);
       desc_ptr = desc;
       sanei_w_array (&w, &len, (void **) &desc_ptr,
 		     (WireCodecFunc) sanei_w_option_descriptor,

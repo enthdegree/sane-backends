@@ -187,6 +187,7 @@
 #define MG4200_PID 0x1763
 
 /* 2013 new devices (untested) */
+#define MP230_PID 0x175F
 #define MG6300_PID 0x1765
 
 
@@ -1713,6 +1714,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MG4200", "MG4200", MG4200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2013) Generation 4 CIS */
+  DEVICE ("Canon PIXMA MP230", "MP230", MP230_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG6300", "MG6300", MG6300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST

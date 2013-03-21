@@ -1,3 +1,7 @@
+2013-03-21 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	New scanner Canon Pixma MP230 reported by Petar Dodev.
+
 2013-03-18 Stéphane Voltz <stef.dev@free.fr>
 	* backend/hp5590.c backend/nec.c backend/sharp.c backend/stv680:
 	apply use after free fixes, bugs #314035, #314036, #314037 and

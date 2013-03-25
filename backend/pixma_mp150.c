@@ -919,7 +919,8 @@ handle_interrupt (pixma_t * s, int timeout)
    * oo: original
    * tt: target
    * poll event with 'scanimage -A' */
-  if (s->cfg->pid == MG6200_PID)
+  if (s->cfg->pid == MG6200_PID
+      || s->cfg->pid == MG6300_PID)
   /* button no. in buf[7]
    * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto
    * format in buf[11] 01=JPEG; 02=TIFF; 03=PDF; 04=Kompakt-PDF

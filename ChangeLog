@@ -1,3 +1,6 @@
+2013-03-25 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c: fix button support for Canon Pixma MG6300.
+
 2013-03-24 Stéphane Voltz <stef.dev@free.fr>
 	* sanei/test_wire.c, testsuite/sanei/sanei_*test.c: move test program
 	to testsuite/sanei. Add unit test programs for sanei_check_*,

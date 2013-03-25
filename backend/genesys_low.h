@@ -928,8 +928,7 @@ sanei_genesys_calculate_zmode2 (SANE_Bool two_table,
 				uint32_t * z2);
 
 extern void
-sanei_genesys_calculate_zmode (Genesys_Device * dev,
-			       uint32_t exposure_time,
+sanei_genesys_calculate_zmode (uint32_t exposure_time,
 			       uint32_t steps_sum,
 			       uint16_t last_speed, uint32_t feedl,
 			       uint8_t fastfed, uint8_t scanfed,

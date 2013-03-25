@@ -118,12 +118,6 @@ static SANE_Range time_range = {
   0				/* quantization */
 };
 
-static const SANE_Range u8_range = {
-  0,				/* minimum */
-  255,				/* maximum */
-  0				/* quantization */
-};
-
 static const SANE_Range u12_range = {
   0,				/* minimum */
   4095,				/* maximum */
@@ -557,8 +551,6 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
   int i, divider;
   int same_step;
 
-  dev = dev;
-
   if (dev->model->motor_type == MOTOR_5345
       || dev->model->motor_type == MOTOR_HP2300
       || dev->model->motor_type == MOTOR_HP2400)
@@ -732,6 +724,11 @@ sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
   int i;
   float value;
 
+  if(gamma_table==NULL)
+    {
+      DBG (DBG_proc, "sanei_genesys_create_gamma_table: gamma tbale is NULL\n");
+      return;
+    }
   DBG (DBG_proc,
        "sanei_genesys_create_gamma_table: size = %d, "
        "maximum = %g, gamma_max = %g, gamma = %g\n",
@@ -1275,15 +1272,13 @@ sanei_genesys_calculate_zmode2 (SANE_Bool two_table,
 /* tgtime	is register 6c bit 6+7 >> 6 		*/
 
 void
-sanei_genesys_calculate_zmode (Genesys_Device * dev, uint32_t exposure_time,
+sanei_genesys_calculate_zmode (uint32_t exposure_time,
 			       uint32_t steps_sum, uint16_t last_speed,
 			       uint32_t feedl, uint8_t fastfed,
 			       uint8_t scanfed, uint8_t fwdstep,
 			       uint8_t tgtime, uint32_t * z1, uint32_t * z2)
 {
   uint8_t exposure_factor;
-
-  dev = dev;
 
   exposure_factor = pow (2, tgtime);	/* todo: originally, this is always 2^0 ! */
 
@@ -1307,14 +1302,12 @@ sanei_genesys_calculate_zmode (Genesys_Device * dev, uint32_t exposure_time,
 
 
 static void
-genesys_adjust_gain (Genesys_Device * dev, double *applied_multi,
+genesys_adjust_gain (double *applied_multi,
 		     uint8_t * new_gain, double multi, uint8_t gain)
 {
   double voltage, original_voltage;
 
   DBG (DBG_proc, "genesys_adjust_gain: multi=%f, gain=%d\n", multi, gain);
-
-  dev = dev;
 
   voltage = 0.5 + gain * 0.25;
   original_voltage = voltage;
@@ -1513,15 +1506,15 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	    gain_white_ref = dev->sensor.gain_white_ref * 256;
 	  /* white and black are defined downwards */
 
-	  genesys_adjust_gain (dev, &applied_multi,
+	  genesys_adjust_gain (&applied_multi,
 			       &dev->frontend.gain[0],
 			       gain_white_ref / (white[0] - dark[0]),
 			       dev->frontend.gain[0]);
-	  genesys_adjust_gain (dev, &applied_multi,
+	  genesys_adjust_gain (&applied_multi,
 			       &dev->frontend.gain[1],
 			       gain_white_ref / (white[1] - dark[1]),
 			       dev->frontend.gain[1]);
-	  genesys_adjust_gain (dev, &applied_multi,
+	  genesys_adjust_gain (&applied_multi,
 			       &dev->frontend.gain[2],
 			       gain_white_ref / (white[2] - dark[2]),
 			       dev->frontend.gain[2]);
@@ -2020,8 +2013,8 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   uint8_t channels;
   SANE_Bool motor;
 
-  DBG (DBG_proc, "genesys_white_shading_calibration (lines = %lu)\n",
-       dev->calib_lines);
+  DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
+       (unsigned int)dev->calib_lines);
 
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
@@ -2164,8 +2157,8 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   SANE_Bool motor;
 
 
-  DBG (DBG_proc, "genesys_black_white_shading_calibration (lines = %lu)\n",
-       dev->calib_lines);
+  DBG (DBG_proc, "genesys_black_white_shading_calibration (lines = %d)\n",
+       (unsigned int)dev->calib_lines);
 
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
@@ -2412,7 +2405,7 @@ compute_averaged_planar (Genesys_Device * dev,
 			     unsigned int target_bright,
 			     unsigned int target_dark)
 {
-  unsigned int x, i, j, br, dk, res, avgpixels, val;
+  unsigned int x, i, j, br, dk, res, avgpixels, basepixels, val;
 
   DBG (DBG_info, "%s: pixels=%d, offset=%d\n", __FUNCTION__, pixels_per_line,
        o);
@@ -2452,20 +2445,20 @@ compute_averaged_planar (Genesys_Device * dev,
       dev->settings.xres <= dev->sensor.optical_res / 2)
     res *= 2;			/* scanner is using half-ccd mode */
   /*this should be evenly dividable */
-  avgpixels = dev->sensor.optical_res / res;
+  basepixels = dev->sensor.optical_res / res;
 
 /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
-  if (avgpixels < 1)
+  if (basepixels < 1)
     avgpixels = 1;
-  else if (avgpixels < 6)
-    avgpixels = avgpixels;
-  else if (avgpixels < 8)
+  else if (basepixels < 6)
+    avgpixels = basepixels;
+  else if (basepixels < 8)
     avgpixels = 6;
-  else if (avgpixels < 10)
+  else if (basepixels < 10)
     avgpixels = 8;
-  else if (avgpixels < 12)
+  else if (basepixels < 12)
     avgpixels = 10;
-  else if (avgpixels < 15)
+  else if (basepixels < 15)
     avgpixels = 12;
   else
     avgpixels = 15;
@@ -2744,7 +2737,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
 			      unsigned int target_bright,
 			      unsigned int patch_size)		/* contigous extent */
 {
-  unsigned int x, avgpixels, i, j, val1, val2;
+  unsigned int x, avgpixels, basepixels, i, j, val1, val2;
   unsigned int br_tmp [3], dk_tmp [3];
   uint8_t *ptr = shading_data + offset * 3 * 4;                 /* contain 16bit words in little endian */
   unsigned int patch_cnt = offset * 3;                          /* at start, offset of first patch */
@@ -2753,20 +2746,20 @@ compute_shifted_coefficients (Genesys_Device * dev,
   if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE) &&
       (dev->settings.xres <= dev->sensor.optical_res / 2))
     x *= 2;							/* scanner is using half-ccd mode */
-  avgpixels = dev->sensor.optical_res / x;			/*this should be evenly dividable */
+  basepixels = dev->sensor.optical_res / x;			/*this should be evenly dividable */
 
       /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
-      if (avgpixels < 1)
+      if (basepixels < 1)
         avgpixels = 1;
-      else if (avgpixels < 6)
-        avgpixels = avgpixels;
-      else if (avgpixels < 8)
+      else if (basepixels < 6)
+        avgpixels = basepixels;
+      else if (basepixels < 8)
         avgpixels = 6;
-      else if (avgpixels < 10)
+      else if (basepixels < 10)
         avgpixels = 8;
-      else if (avgpixels < 12)
+      else if (basepixels < 12)
         avgpixels = 10;
-      else if (avgpixels < 15)
+      else if (basepixels < 15)
         avgpixels = 12;
       else
         avgpixels = 15;
@@ -5222,7 +5215,7 @@ calc_parameters (Genesys_Scanner * s)
     ((br_x - tl_x) * resolution) / MM_PER_INCH;
 
   /* we need an even pixels number */
-  if (s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR
+  if ((s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR)
       || s->dev->model->asic_type == GENESYS_GL847  
       || s->dev->model->asic_type == GENESYS_GL124  
       || s->dev->model->asic_type == GENESYS_GL846  
@@ -6136,11 +6129,8 @@ attach_one_device (SANE_String_Const devname)
 
 /* configuration framework functions */
 static SANE_Status
-config_attach_genesys (SANEI_Config * config, const char *devname)
+config_attach_genesys (SANEI_Config __sane_unused__ *config, const char *devname)
 {
-  /* no options yet for this backend */
-  config = config;
-
   /* the devname has been processed and is ready to be used 
    * directly. Since the backend is an USB only one, we can 
    * call sanei_usb_attach_matching_devices straight */
@@ -6818,7 +6808,6 @@ sane_close (SANE_Handle handle)
   Genesys_Scanner *prev, *s;
   Genesys_Calibration_Cache *cache, *next_cache;
   SANE_Status status;
-  SANE_Range *range;
 
   DBGSTART;
 
@@ -6893,14 +6882,12 @@ sane_close (SANE_Handle handle)
   FREE_IFNOT_NULL (s->dev->sensor.gamma_table[2]);
 
   /* for an handful of bytes .. */
-  free ((void *)s->opt[OPT_RESOLUTION].constraint.word_list);
+  free ((void *)(size_t)s->opt[OPT_RESOLUTION].constraint.word_list);
   free (s->val[OPT_SOURCE].s);
   free (s->val[OPT_MODE].s);
   free (s->val[OPT_COLOR_FILTER].s);
-  range=s->opt[OPT_TL_X].constraint.range;
-  FREE_IFNOT_NULL (range);
-  range=s->opt[OPT_TL_Y].constraint.range;
-  FREE_IFNOT_NULL (range);
+  free ((void *)(size_t)s->opt[OPT_TL_X].constraint.range);
+  free ((void *)(size_t)s->opt[OPT_TL_Y].constraint.range);
 
   if (prev)
     prev->next = s->next;
@@ -7168,8 +7155,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
             }
 
           /* assign new values */
-          free((SANE_Range *)s->opt[OPT_TL_X].constraint.range);
-          free((SANE_Range *)s->opt[OPT_TL_Y].constraint.range);
+          free((void *)(size_t)s->opt[OPT_TL_X].constraint.range);
+          free((void *)(size_t)s->opt[OPT_TL_Y].constraint.range);
           s->opt[OPT_TL_X].constraint.range = x_range;
           s->val[OPT_TL_X].w = 0;
           s->opt[OPT_TL_Y].constraint.range = y_range;

@@ -2328,8 +2328,8 @@ gl846_init_regs_for_shading (Genesys_Device * dev)
   if(dev->calib_resolution==4800)
     dev->calib_lines *= 2;
   dev->calib_pixels = (dev->sensor.sensor_pixels*dev->calib_resolution)/dev->sensor.optical_res;
-  DBG (DBG_io, "%s: calib_lines  = %lu\n", __FUNCTION__, dev->calib_lines);
-  DBG (DBG_io, "%s: calib_pixels = %lu\n", __FUNCTION__, dev->calib_pixels);
+  DBG (DBG_io, "%s: calib_lines  = %d\n", __FUNCTION__, (unsigned int)dev->calib_lines);
+  DBG (DBG_io, "%s: calib_pixels = %d\n", __FUNCTION__, (unsigned int)dev->calib_pixels);
 
   /* this is aworkaround insufficent distance for slope 
    * motor acceleration TODO special motor slope for shading  */

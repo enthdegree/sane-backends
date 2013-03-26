@@ -1,3 +1,7 @@
+2013-03-27 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_low.h backend/genesys_gl846.c:
+	warning fixes, SANE option correctness fixes.
+
 2013-03-25 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c: fix button support for Canon Pixma MG6300.
 

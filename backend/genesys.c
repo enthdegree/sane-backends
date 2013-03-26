@@ -5638,7 +5638,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SWDESKEW].title = "Software deskew";
   s->opt[OPT_SWDESKEW].desc = "Request backend to rotate skewed pages digitally";
   s->opt[OPT_SWDESKEW].type = SANE_TYPE_BOOL;
-  s->opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->opt[OPT_SWDESKEW].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   s->val[OPT_SWDESKEW].b = SANE_FALSE;
   
   /* software deskew */
@@ -5646,7 +5646,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SWDESPECK].title = "Software despeck";
   s->opt[OPT_SWDESPECK].desc = "Request backend to remove lone dots digitally";
   s->opt[OPT_SWDESPECK].type = SANE_TYPE_BOOL;
-  s->opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->opt[OPT_SWDESPECK].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   s->val[OPT_SWDESPECK].b = SANE_FALSE;
 
   /* software despeckle radius */
@@ -5798,10 +5798,10 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_LAMP_OFF].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_LAMP_OFF].w = SANE_FALSE;
 
-  s->opt[OPT_SENSOR_GROUP].name = SANE_NAME_SENSORS;
   s->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
   s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
   s->opt[OPT_SENSOR_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_SENSOR_GROUP].size = 0;
   s->opt[OPT_SENSOR_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   s->opt[OPT_SCAN_SW].name = SANE_NAME_SCAN;
@@ -5927,10 +5927,10 @@ init_options (Genesys_Scanner * s)
   s->last_val[OPT_NEED_CALIBRATION_SW].b = 0;
 
   /* button group */
-  s->opt[OPT_BUTTON_GROUP].name = "Buttons";
   s->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
   s->opt[OPT_BUTTON_GROUP].desc = "";
   s->opt[OPT_BUTTON_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_BUTTON_GROUP].size = 0;
   s->opt[OPT_BUTTON_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* calibrate button */

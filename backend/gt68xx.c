@@ -1580,7 +1580,7 @@ sane_close (SANE_Handle handle)
   free (s->val[OPT_GRAY_MODE_COLOR].s);
   free (s->val[OPT_SOURCE].s);
   free (dev->file_name);
-  free (s->opt[OPT_RESOLUTION].constraint.word_list);
+  free ((void *)(size_t)s->opt[OPT_RESOLUTION].constraint.word_list);
 
   gt68xx_scanner_free (s);
   

@@ -1332,6 +1332,7 @@ sane_exit (void)
   GT68xx_Device *dev, *next;
 
   DBG (5, "sane_exit: start\n");
+  sanei_usb_exit();
   for (dev = first_dev; dev; dev = next)
     {
       next = dev->next;

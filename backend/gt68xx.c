@@ -1102,6 +1102,9 @@ static SANE_Status probe_gt68xx_devices(void)
   SANE_Int linenumber;
   FILE *fp;
 
+  new_dev = 0;
+  new_dev_len = 0;
+  new_dev_alloced = 0;
 
   fp = sanei_config_open (GT68XX_CONFIG_FILE);
   if (!fp)
@@ -1367,6 +1370,10 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   DBG (5, "sane_get_devices: start: local_only = %s\n",
        local_only == SANE_TRUE ? "true" : "false");
+
+  /* hot-plug case : detection of newly connected scanners */
+  sanei_usb_scan_devices ();
+  probe_gt68xx_devices ();
 
   if (devlist)
     free (devlist);

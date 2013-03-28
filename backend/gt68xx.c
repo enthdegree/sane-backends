@@ -1090,10 +1090,11 @@ download_firmware_file (GT68xx_Device * dev)
   return status;
 }
 
-/* -------------------------- SANE API functions ------------------------- */
-
-SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+/** probe for gt68xx devices
+ * This function scan usb and try to attached to scanner
+ * configured in gt68xx.conf .
+ */
+static SANE_Status probe_gt68xx_devices(void)
 {
   SANE_Char line[PATH_MAX];
   SANE_Char *word;
@@ -1101,32 +1102,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   SANE_Int linenumber;
   FILE *fp;
 
-  DBG_INIT ();
-  DBG (2, "SANE GT68xx backend version %d.%d build %d from %s\n", SANE_CURRENT_MAJOR,
-       V_MINOR, BUILD, PACKAGE_STRING);
-
-  if (version_code)
-    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
-
-  DBG (5, "sane_init: authorize %s null\n", authorize ? "!=" : "==");
-
-  sanei_usb_init ();
-
-  num_devices = 0;
-  first_dev = 0;
-  first_handle = 0;
-  devlist = 0;
-  new_dev = 0;
-  new_dev_len = 0;
-  new_dev_alloced = 0;
-
-#ifdef DBG_LEVEL
-  if (DBG_LEVEL > 0)
-    {
-      DBG (5, "sane_init: debug options are enabled, handle with care\n");
-      debug_options = SANE_TRUE;
-    }
-#endif
 
   fp = sanei_config_open (GT68XX_CONFIG_FILE);
   if (!fp)
@@ -1321,9 +1296,46 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     }
 
   fclose (fp);
+  return SANE_STATUS_GOOD;
+}
+
+/* -------------------------- SANE API functions ------------------------- */
+
+SANE_Status
+sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+{
+  SANE_Status status;
+
+  DBG_INIT ();
+#ifdef DBG_LEVEL
+  if (DBG_LEVEL > 0)
+    {
+      DBG (5, "sane_init: debug options are enabled, handle with care\n");
+      debug_options = SANE_TRUE;
+    }
+#endif
+  DBG (2, "SANE GT68xx backend version %d.%d build %d from %s\n", SANE_CURRENT_MAJOR,
+       V_MINOR, BUILD, PACKAGE_STRING);
+
+  if (version_code)
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
+
+  DBG (5, "sane_init: authorize %s null\n", authorize ? "!=" : "==");
+
+  sanei_usb_init ();
+
+  num_devices = 0;
+  first_dev = 0;
+  first_handle = 0;
+  devlist = 0;
+  new_dev = 0;
+  new_dev_len = 0;
+  new_dev_alloced = 0;
+
+  status = probe_gt68xx_devices ();
   DBG (5, "sane_init: exit\n");
 
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 void

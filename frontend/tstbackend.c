@@ -3,6 +3,7 @@
 
    Uses the SANE library.
    Copyright (C) 2002 Frank Zago (sane at zago dot net)
+   Copyright (C) 2013 Stéphane Voltz <stef.dev@free.fr> : sane_get_devices test
 
    This file is part of the SANE package.
 
@@ -22,7 +23,7 @@
    MA 02111-1307, USA.
 */
 
-#define BUILD 18				/* 2003-02-22 */
+#define BUILD 19				/* 2013-03-29 */
 
 #include "../include/sane/config.h"
 
@@ -46,6 +47,7 @@ static struct option basic_options[] = {
 	{"device-name", required_argument, NULL, 'd'},
 	{"level", required_argument, NULL, 'l'},
 	{"recursion", required_argument, NULL, 'r'},
+	{"get-devices", required_argument, NULL, 'g'},
 	{"help", 0, NULL, 'h'}
 };
 
@@ -1555,12 +1557,109 @@ static void test_scans(SANE_Device * device)
 	}
 }
 
+/** test sane_get_devices
+ * test sane_get_device function, if time is greter than 0,
+ * loop to let tester plug/unplug device to check for correct
+ * hotplug detection
+ * @param device_list device list to fill
+ * @param time time to loop
+ * @return 0 on success
+ */
+static int test_get_devices(const SANE_Device **device_list, int time)
+{
+int loop=0;
+int i;
+const SANE_Device *dev;
+SANE_Status status;
+
+	status = sane_get_devices (&device_list, SANE_TRUE);
+	check(FATAL, (status == SANE_STATUS_GOOD),
+		  "sane_get_devices() failed (%s)", sane_strstatus (status));
+
+	/* Verify that the SANE doc (or tstbackend) is up to date */
+	for (i=0; device_list[i] != NULL; i++) {
+
+		dev = device_list[i];
+
+		check(FATAL, (dev->name != NULL), "device name is NULL");
+		check(FATAL, (dev->vendor != NULL), "device vendor is NULL");
+		check(FATAL, (dev->type != NULL), "device type is NULL");
+		check(FATAL, (dev->model != NULL), "device model is NULL");
+		
+		check(INF, ((strcmp(dev->type, "flatbed scanner") == 0) ||
+					(strcmp(dev->type, "frame grabber") == 0) ||
+					(strcmp(dev->type, "handheld scanner") == 0) ||
+					(strcmp(dev->type, "still camera") == 0) ||
+					(strcmp(dev->type, "video camera") == 0) ||
+					(strcmp(dev->type, "virtual device") == 0) ||
+					(strcmp(dev->type, "film scanner") == 0) ||
+					(strcmp(dev->type, "multi-function peripheral") == 0) ||
+					(strcmp(dev->type, "sheetfed scanner") == 0)),
+					"unknown device type [%s]. Update SANE doc section \"Type Strings\"", dev->type);
+
+		check(INF, (
+					(strcmp(dev->vendor, "AGFA") == 0) ||
+					(strcmp(dev->vendor, "Abaton") == 0) ||
+					(strcmp(dev->vendor, "Acer") == 0) ||
+					(strcmp(dev->vendor, "Apple") == 0) ||
+					(strcmp(dev->vendor, "Artec") == 0) ||
+					(strcmp(dev->vendor, "Avision") == 0) ||
+					(strcmp(dev->vendor, "CANON") == 0) ||
+					(strcmp(dev->vendor, "Connectix") == 0) ||
+					(strcmp(dev->vendor, "Epson") == 0) ||
+					(strcmp(dev->vendor, "Fujitsu") == 0) ||
+					(strcmp(dev->vendor, "Gphoto2") == 0) ||
+					(strcmp(dev->vendor, "Hewlett-Packard") == 0) ||
+					(strcmp(dev->vendor, "IBM") == 0) ||
+					(strcmp(dev->vendor, "Kodak") == 0) ||
+                                        (strcmp(dev->vendor, "Lexmark") == 0) ||
+					(strcmp(dev->vendor, "Logitech") == 0) ||
+					(strcmp(dev->vendor, "Microtek") == 0) ||
+					(strcmp(dev->vendor, "Minolta") == 0) ||
+					(strcmp(dev->vendor, "Mitsubishi") == 0) ||
+					(strcmp(dev->vendor, "Mustek") == 0) ||
+					(strcmp(dev->vendor, "NEC") == 0) ||
+					(strcmp(dev->vendor, "Nikon") == 0) ||
+					(strcmp(dev->vendor, "Noname") == 0) ||
+					(strcmp(dev->vendor, "Plustek") == 0) ||
+					(strcmp(dev->vendor, "Polaroid") == 0) ||
+					(strcmp(dev->vendor, "Relisys") == 0) ||
+					(strcmp(dev->vendor, "Ricoh") == 0) ||
+					(strcmp(dev->vendor, "Sharp") == 0) ||
+					(strcmp(dev->vendor, "Siemens") == 0) ||
+					(strcmp(dev->vendor, "Tamarack") == 0) ||
+					(strcmp(dev->vendor, "UMAX") == 0)),
+			  "unknown device vendor [%s]. Update SANE doc section \"Vendor Strings\"", dev->vendor);
+	}
+
+	/* loop on detecting device to let time to plug/unplug scanners */
+	while(loop<time) {
+		/* print and free detected device list */
+		check(MSG, 0, "DETECTED DEVICES:");
+		for (i=0; device_list[i] != NULL; i++) {
+			dev = device_list[i];
+			check(MSG, 0, "\t%s:%s %s:%s", dev->vendor, dev->name, dev->type, dev->model);
+		}
+		if(i==0) {
+			check(MSG, 0, "\tnone...");
+		}
+		sleep(1);
+		device_list = NULL;
+		status = sane_get_devices (&device_list, SANE_TRUE);
+		check(FATAL, (status == SANE_STATUS_GOOD),
+		  "sane_get_devices() failed (%s)", sane_strstatus (status));
+		loop++;
+	}
+	return 0;
+}
+
 static void usage(const char *execname)
 {
-	printf("Usage: %s [-d backend_name] [-l test_level] [-r recursion_level]\n", execname);
+	printf("Usage: %s [-d backend_name] [-l test_level] [-r recursion_level] [-g time (s)]\n", execname);
 	printf("\t-d\tbackend name\n");
 	printf("\t-l\tlevel of testing (0=some, 1=0+options, 2=1+scans, 3=longest tests)\n");
 	printf("\t-r\trecursion level for option testing (the higher, the longer)\n");
+	printf("\t-g\ttime to loop on sane_get_devices function to test scannet hotplug detection (time is in seconds).\n");
 }
 
 int
@@ -1574,22 +1673,23 @@ main (int argc, char **argv)
 	int index;
 	int i;
 	const SANE_Device **device_list;
-	const SANE_Device *dev;
 	int rc;
 	int recursion_level;
+	int time;
 
 	printf("tstbackend, Copyright (C) 2002 Frank Zago\n");
 	printf("tstbackend comes with ABSOLUTELY NO WARRANTY\n");
-    printf("This is free software, and you are welcome to redistribute it\n");
-    printf("under certain conditions. See COPYING file for details\n\n");
+	printf("This is free software, and you are welcome to redistribute it\n");
+	printf("under certain conditions. See COPYING file for details\n\n");
 	printf("This is tstbackend build %d\n\n", BUILD);
 
 	/* Read the command line options. */
 	opterr = 0;
 	recursion_level = 5;		/* 5 levels or recursion should be enough */
-	test_level = 0;				/* basic tests only */
+	test_level = 0;			/* basic tests only */
+	time = 0;			/* no get devices loop */
 
-	while ((ch = getopt_long (argc, argv, "-d:l:r:h", basic_options,
+	while ((ch = getopt_long (argc, argv, "-d:l:r:g:h", basic_options,
 							  &index)) != EOF) {
 		switch(ch) {
 		case 'd':
@@ -1606,6 +1706,10 @@ main (int argc, char **argv)
 
 		case 'r':
 			recursion_level = atoi(optarg);
+			break;
+
+		case 'g':
+			time = atoi(optarg);
 			break;
 
 		case 'h':
@@ -1678,69 +1782,8 @@ main (int argc, char **argv)
 		  "sane_init failed with %s", sane_strstatus (status));
   
 	/* Check the device list */
-	status = sane_get_devices (&device_list, SANE_TRUE);
-	check(FATAL, (status == SANE_STATUS_GOOD),
-		  "sane_get_devices() failed (%s)", sane_strstatus (status));
-
-	/* Verify that the SANE doc (or tstbackend) is up to date */
-	for (i=0; device_list[i] != NULL; i++) {
-
-		dev = device_list[i];
-
-		check(FATAL, (dev->name != NULL),
-			  "device name is NULL");
-		check(FATAL, (dev->vendor != NULL),
-			  "device vendor is NULL");
-		check(FATAL, (dev->type != NULL),
-			  "device type is NULL");
-		check(FATAL, (dev->model != NULL),
-			  "device model is NULL");
-		
-		check(INF, ((strcmp(dev->type, "flatbed scanner") == 0) ||
-					(strcmp(dev->type, "frame grabber") == 0) ||
-					(strcmp(dev->type, "handheld scanner") == 0) ||
-					(strcmp(dev->type, "still camera") == 0) ||
-					(strcmp(dev->type, "video camera") == 0) ||
-					(strcmp(dev->type, "virtual device") == 0) ||
-					(strcmp(dev->type, "film scanner") == 0) ||
-					(strcmp(dev->type, "multi-function peripheral") == 0) ||
-					(strcmp(dev->type, "sheetfed scanner") == 0)),
-					"unknown device type [%s]. Update SANE doc section \"Type Strings\"", dev->type);
-
-		check(INF, (
-					(strcmp(dev->vendor, "AGFA") == 0) ||
-					(strcmp(dev->vendor, "Abaton") == 0) ||  
-					(strcmp(dev->vendor, "Acer") == 0) ||
-					(strcmp(dev->vendor, "Apple") == 0) ||
-					(strcmp(dev->vendor, "Artec") == 0) ||
-					(strcmp(dev->vendor, "Avision") == 0) ||
-					(strcmp(dev->vendor, "CANON") == 0) ||
-					(strcmp(dev->vendor, "Connectix") == 0) ||
-					(strcmp(dev->vendor, "Epson") == 0) ||
-					(strcmp(dev->vendor, "Fujitsu") == 0) ||
-					(strcmp(dev->vendor, "Gphoto2") == 0) ||
-					(strcmp(dev->vendor, "Hewlett-Packard") == 0) ||
-					(strcmp(dev->vendor, "IBM") == 0) ||
-					(strcmp(dev->vendor, "Kodak") == 0) ||
-                                        (strcmp(dev->vendor, "Lexmark") == 0) ||
-					(strcmp(dev->vendor, "Logitech") == 0) ||
-					(strcmp(dev->vendor, "Microtek") == 0) ||
-					(strcmp(dev->vendor, "Minolta") == 0) ||
-					(strcmp(dev->vendor, "Mitsubishi") == 0) ||
-					(strcmp(dev->vendor, "Mustek") == 0) ||
-					(strcmp(dev->vendor, "NEC") == 0) ||
-					(strcmp(dev->vendor, "Nikon") == 0) ||
-					(strcmp(dev->vendor, "Noname") == 0) ||
-					(strcmp(dev->vendor, "Plustek") == 0) ||
-					(strcmp(dev->vendor, "Polaroid") == 0) ||
-					(strcmp(dev->vendor, "Relisys") == 0) ||
-					(strcmp(dev->vendor, "Ricoh") == 0) ||
-					(strcmp(dev->vendor, "Sharp") == 0) ||
-					(strcmp(dev->vendor, "Siemens") == 0) ||
-					(strcmp(dev->vendor, "Tamarack") == 0) ||
-					(strcmp(dev->vendor, "UMAX") == 0)),
-			  "unknown device vendor [%s]. Update SANE doc section \"Vendor Strings\"", dev->vendor);
-	}
+	rc = test_get_devices(device_list, time);
+	if (!rc) goto the_exit;
 
 	if (!devname) {
 		/* If no device name was specified explicitly, we look at the

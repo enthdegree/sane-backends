@@ -503,6 +503,10 @@ struct GT68xx_Device
   /** Device activation flag. */
   SANE_Bool active;
 
+  /** Device missing to flag devices that are unplugged
+   * after sane_init and befor sane_exit */
+  SANE_Bool missing;
+
   /** Scanner model data. */
   GT68xx_Model *model;
 

@@ -1,3 +1,9 @@
+2013-03-29 Stéphane Voltz <stef.dev@free.fr>
+	* backend/gt68xx.c backend/gt68xx_low.h: fix device detection to
+	handle hotplugging and unplugging of USB devices.
+	* frontend/tstbackend.c: a test to loop over snae_get_devices to
+	check if a backend handle hotplugging correctly
+
 2013-03-27 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_low.h backend/genesys_gl846.c:
 	warning fixes, SANE option correctness fixes.

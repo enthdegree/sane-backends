@@ -845,6 +845,7 @@ attach (SANE_String_Const devname, GT68xx_Device ** devp, SANE_Bool may_wait)
         {
           if (devp)
             *devp = dev;
+          dev->missing = SANE_FALSE;
           DBG (4, "attach: device `%s' was already in device list\n",
                devname);
           return SANE_STATUS_GOOD;
@@ -888,6 +889,7 @@ attach (SANE_String_Const devname, GT68xx_Device ** devp, SANE_Bool may_wait)
     }
 
   dev->file_name = strdup (devname);
+  dev->missing = SANE_FALSE;
   if (!dev->file_name)
     return SANE_STATUS_NO_MEM;
   DBG (2, "attach: found %s flatbed scanner %s at %s\n", dev->model->vendor,
@@ -1100,11 +1102,22 @@ static SANE_Status probe_gt68xx_devices(void)
   SANE_Char *word;
   SANE_String_Const cp;
   SANE_Int linenumber;
+  GT68xx_Device *dev;
   FILE *fp;
 
+  /* set up for no new devices detected at first */
   new_dev = 0;
   new_dev_len = 0;
   new_dev_alloced = 0;
+
+  /* mark already detected devices as missing, during device probe
+   * detected devices will clear this flag */
+  dev = first_dev;
+  while(dev!=NULL)
+    {
+      dev->missing = SANE_TRUE;
+      dev = dev->next;
+    }
 
   fp = sanei_config_open (GT68XX_CONFIG_FILE);
   if (!fp)
@@ -1383,20 +1396,29 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     return SANE_STATUS_NO_MEM;
 
   dev_num = 0;
-  for (dev = first_dev; dev_num < num_devices; dev = dev->next)
+  dev = first_dev;
+  while(dev!=NULL)
     {
       SANE_Device *sane_device;
 
-      sane_device = malloc (sizeof (*sane_device));
-      if (!sane_device)
-        return SANE_STATUS_NO_MEM;
-      sane_device->name = dev->file_name;
-      sane_device->vendor = dev->model->vendor;
-      sane_device->model = dev->model->model;
-      sane_device->type = strdup ("flatbed scanner");
-      devlist[dev_num++] = sane_device;
+      /* don't return devices that have been unplugged */
+      if(dev->missing==SANE_FALSE)
+        {
+          sane_device = malloc (sizeof (*sane_device));
+          if (!sane_device)
+            return SANE_STATUS_NO_MEM;
+          sane_device->name = dev->file_name;
+          sane_device->vendor = dev->model->vendor;
+          sane_device->model = dev->model->model;
+          sane_device->type = strdup ("flatbed scanner");
+          devlist[dev_num] = sane_device;
+          dev_num++;
+        }
+
+      /* next device */
+      dev = dev->next;
     }
-  devlist[dev_num++] = 0;
+  devlist[dev_num] = 0;
 
   *device_list = devlist;
 

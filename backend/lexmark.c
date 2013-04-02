@@ -352,8 +352,12 @@ attachLexmark (SANE_String_Const devname)
   for (lexmark_device = first_lexmark_device; lexmark_device;
        lexmark_device = lexmark_device->next)
     {
+      /* already attached devices */
       if (strcmp (lexmark_device->sane.name, devname) == 0)
+      {
+        lexmark_device->missing = SANE_FALSE;
 	return SANE_STATUS_GOOD;
+      }
     }
 
   lexmark_device = (Lexmark_Device *) malloc (sizeof (Lexmark_Device));
@@ -410,6 +414,8 @@ attachLexmark (SANE_String_Const devname)
       return SANE_STATUS_UNSUPPORTED;
     }
 
+  /* add new device to device list */
+
   /* there are two variant of the scanner with the same USB id,
    * so we need to read registers from scanner to detect which one
    * is really connected */
@@ -431,6 +437,10 @@ attachLexmark (SANE_String_Const devname)
 
   lexmark_device->shading_coeff = NULL;
 
+  /* mark device as present */
+  lexmark_device->missing = SANE_FALSE;
+
+  /* insert it a the start of the chained list */
   lexmark_device->next = first_lexmark_device;
   first_lexmark_device = lexmark_device;
 
@@ -439,37 +449,34 @@ attachLexmark (SANE_String_Const devname)
   return status;
 }
 
-SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+/** probe for supported lexmark devices
+ * This function scan usb and try to attached to scanner
+ * configured in lexmark.conf .
+ */
+static SANE_Status
+probe_lexmark_devices (void)
 {
   FILE *fp;
   SANE_Char line[PATH_MAX];
   const char *lp;
   SANE_Int vendor, product;
   size_t len;
-  SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Auth_Callback auth_callback;
+  Lexmark_Device *dev;
 
-  DBG_INIT ();
+  /* mark already detected devices as missing, during device probe
+   * detected devices will clear this flag */
+  dev = first_lexmark_device;
+  while (dev != NULL)
+    {
+      dev->missing = SANE_TRUE;
+      dev = dev->next;
+    }
 
-  DBG (1, "SANE Lexmark backend version %d.%d.%d-devel\n", SANE_CURRENT_MAJOR,
-       V_MINOR, BUILD);
-
-  auth_callback = authorize;
-
-  DBG (2, "sane_init: version_code=%p\n", (void *) version_code);
-
-  if (version_code)
-    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
-
-#ifndef FAKE_USB
-  sanei_usb_init ();
-#endif
-
+  /* open config file, parse option and try to open
+   * any device configure in it */
   fp = sanei_config_open (LEXMARK_CONFIG_FILE);
   if (!fp)
     {
-      /* sanei_lexmark_low_destroy (); */
       return SANE_STATUS_ACCESS_DENIED;
     }
 
@@ -509,8 +516,39 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     }
 
   fclose (fp);
+  return SANE_STATUS_GOOD;
+}
 
-  initialized = SANE_TRUE;
+SANE_Status
+sane_init (SANE_Int * version_code,
+	   SANE_Auth_Callback __sane_unused__ authorize)
+{
+  SANE_Status status;
+
+  DBG_INIT ();
+
+  DBG (1, "SANE Lexmark backend version %d.%d.%d-devel\n", SANE_CURRENT_MAJOR,
+       V_MINOR, BUILD);
+
+  DBG (2, "sane_init: version_code=%p\n", (void *) version_code);
+
+  if (version_code)
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
+
+#ifndef FAKE_USB
+  sanei_usb_init ();
+#endif
+
+  status = probe_lexmark_devices ();
+
+  if (status == SANE_STATUS_GOOD)
+    {
+      initialized = SANE_TRUE;
+    }
+  else
+    {
+      initialized = SANE_FALSE;
+    }
 
   return status;
 }
@@ -536,6 +574,7 @@ sane_exit (void)
   if (sane_device_list)
     free (sane_device_list);
 
+  sanei_usb_exit();
   initialized = SANE_FALSE;
 
   return;
@@ -550,8 +589,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   DBG (2, "sane_get_devices: device_list=%p, local_only=%d\n",
        (void *) device_list, local_only);
 
-  if (!initialized)
-    return SANE_STATUS_INVAL;
+  /* hot-plug case : detection of newly connected scanners */
+  sanei_usb_scan_devices ();
+  probe_lexmark_devices ();
 
   if (sane_device_list)
     free (sane_device_list);
@@ -563,16 +603,19 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     return SANE_STATUS_NO_MEM;
 
   index = 0;
-  for (lexmark_device = first_lexmark_device; lexmark_device;
-       lexmark_device = lexmark_device->next)
+  lexmark_device = first_lexmark_device;
+  while (lexmark_device != NULL)
     {
-      sane_device_list[index] = &(lexmark_device->sane);
-      index++;
+      if (lexmark_device->missing == SANE_FALSE)
+	{
+	  sane_device_list[index] = &(lexmark_device->sane);
+	  index++;
+	}
+      lexmark_device = lexmark_device->next;
     }
   sane_device_list[index] = 0;
 
   *device_list = sane_device_list;
-
 
   return SANE_STATUS_GOOD;
 }
@@ -1302,3 +1345,4 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 }
 
 /***************************** END OF SANE API ****************************/
+/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

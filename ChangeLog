@@ -1,3 +1,8 @@
+2013-04-02 Stéphane Voltz <stef.dev@free.fr>
+	* backend/lexmark.c backend/lexmark.h: fix device detection to
+	handle hotplugging and unplugging of USB devices. USe
+	sanei_usb_exit().
+
 2013-03-29 Stéphane Voltz <stef.dev@free.fr>
 	* backend/gt68xx.c backend/gt68xx_low.h: fix device detection to
 	handle hotplugging and unplugging of USB devices.

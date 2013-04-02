@@ -199,6 +199,7 @@ Read_Buffer;
 typedef struct Lexmark_Device
 {
   struct Lexmark_Device *next;
+  SANE_Bool missing;	/**< devices has been unplugged or swtiched off */
 
   SANE_Device sane;
   SANE_Option_Descriptor opt[NUM_OPTIONS];

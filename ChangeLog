@@ -1,3 +1,7 @@
+2012-04-03 Alex Belkin <abc at telekom.ru>
+	* doc/descriptions/xerox_mfp.desc: add Samsung SCX-4835FD networked
+	support, reported by Dave Lewis. USB mode doesn't work.
+
 2013-04-02 Stéphane Voltz <stef.dev@free.fr>
 	* backend/lexmark.c backend/lexmark.h: fix device detection to
 	handle hotplugging and unplugging of USB devices. USe

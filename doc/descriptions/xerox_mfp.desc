@@ -128,6 +128,11 @@
 :usbid "0x04e8" "0x344b"
 :status :good
 
+:model "SCX-4835FD"
+:interface "Ethernet"
+:usbid "0x04e8" "0x344b"
+:status :good
+
 :model "SCX-3405W"
 :interface "Ethernet"
 :status :basic

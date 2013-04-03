@@ -530,6 +530,8 @@
          - separate s->mode into s_mode and u_mode
          - separate s->params into s_params and u_params
          - generate grayscale and binary in software if required (iX500)
+      v116 2013-03-23, MAN
+         - call set_mode() in init_interlace
 
    SANE FLOW DIAGRAM
 
@@ -579,7 +581,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 115
+#define BUILD 116
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2357,7 +2359,7 @@ init_interlace (struct fujitsu *s)
   }
 
   /* set to color mode first */
-  s->u_mode=MODE_COLOR;
+  set_mode(s,MODE_COLOR);
 
   /* load our own private copy of scan params */
   ret = update_params(s);
@@ -2398,7 +2400,7 @@ init_interlace (struct fujitsu *s)
   DBG (15, "init_interlace: color_interlace: %d\n",s->color_interlace);
 
   /* restore mode */
-  s->u_mode=curr_mode;
+  set_mode(s,curr_mode);
 
   DBG (10, "init_interlace: finish\n");
 

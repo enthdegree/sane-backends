@@ -781,6 +781,111 @@ sanei_magic_isBlank (SANE_Parameters * params, SANE_Byte * buffer,
   return ret;
 }
 
+/* Divide the image into 1/2 inch squares, skipping a 1/4 inch
+ * margin on all sides. If all squares are under the user's density,
+ * signal our caller to skip the image entirely, by returning 
+ * SANE_STATUS_NO_DOCS */
+SANE_Status
+sanei_magic_isBlank2 (SANE_Parameters * params, SANE_Byte * buffer,
+  int dpiX, int dpiY, double thresh)
+{
+  int xb,yb,x,y;
+
+  /* .25 inch, rounded down to 8 pixel */
+  int xquarter = dpiX/4/8*8;
+  int yquarter = dpiY/4/8*8;
+  int xhalf    = xquarter*2;
+  int yhalf    = yquarter*2;
+  int blockpix = xhalf*yhalf;
+  int xblocks  = (params->pixels_per_line-xhalf)/xhalf;
+  int yblocks  = (params->lines-yhalf)/yhalf;
+
+  /*convert thresh from percent (0-100) to 0-1 range*/
+  thresh /= 100;
+
+  DBG (10, "sanei_magic_isBlank2: start %d %d %f %d\n",xhalf,yhalf,thresh,blockpix);
+
+  if(params->depth == 8 &&
+    (params->format == SANE_FRAME_RGB || params->format == SANE_FRAME_GRAY)
+  ){
+
+    int Bpp = params->format == SANE_FRAME_RGB ? 3 : 1;
+
+    for(yb=0; yb<yblocks; yb++){
+      for(xb=0; xb<xblocks; xb++){
+  
+        /*count dark pix in this block*/
+        double blocksum = 0;
+  
+        for(y=0; y<yhalf; y++){
+  
+          /* skip the top and left 1/4 inch */
+          int offset = (yquarter + yb*yhalf + y) * params->bytes_per_line
+            + (xquarter + xb*xhalf) * Bpp;
+          SANE_Byte * ptr = buffer + offset;
+
+          /*count darkness of pix in this row*/
+          int rowsum = 0;
+  
+          for(x=0; x<xhalf*Bpp; x++){
+            rowsum += 255 - ptr[x];
+          }
+
+          blocksum += (double)rowsum/(xhalf*Bpp)/255;
+        }
+
+        /* block was darker than thresh, keep image */
+        if(blocksum/yhalf > thresh){
+          DBG (15, "sanei_magic_isBlank2: not blank %f %d %d\n", blocksum/yhalf, yb, xb);
+          return SANE_STATUS_GOOD;
+        }
+        DBG (20, "sanei_magic_isBlank2: block blank %f %d %d\n", blocksum/yhalf, yb, xb);
+      }
+    }
+  }
+  else if(params->format == SANE_FRAME_GRAY && params->depth == 1){
+
+    for(yb=0; yb<yblocks; yb++){
+      for(xb=0; xb<xblocks; xb++){
+  
+        /*count dark pix in this block*/
+        double blocksum = 0;
+  
+        for(y=0; y<yhalf; y++){
+  
+          /* skip the top and left 1/4 inch */
+          int offset = (yquarter + yb*yhalf + y) * params->bytes_per_line
+            + (xquarter + xb*xhalf) / 8;
+          SANE_Byte * ptr = buffer + offset;
+
+          /*count darkness of pix in this row*/
+          int rowsum = 0;
+  
+          for(x=0; x<xhalf; x++){
+            rowsum += ptr[x/8] >> (7-(x%8)) & 1;
+          }
+
+          blocksum += (double)rowsum/xhalf;
+        }
+
+        /* block was darker than thresh, keep image */
+        if(blocksum/yhalf > thresh){
+          DBG (15, "sanei_magic_isBlank2: not blank %f %d %d\n", blocksum/yhalf, yb, xb);
+          return SANE_STATUS_GOOD;
+        }
+        DBG (20, "sanei_magic_isBlank2: block blank %f %d %d\n", blocksum/yhalf, yb, xb);
+      }
+    }
+  }
+  else{
+    DBG (5, "sanei_magic_isBlank2: unsupported format/depth\n");
+    return SANE_STATUS_INVAL;
+  }
+
+  DBG (10, "sanei_magic_isBlank2: returning blank\n");
+  return SANE_STATUS_NO_DOCS;
+}
+
 SANE_Status
 sanei_magic_findTurn(SANE_Parameters * params, SANE_Byte * buffer,
   int dpiX, int dpiY, int * angle)

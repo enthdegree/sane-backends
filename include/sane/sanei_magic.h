@@ -169,6 +169,24 @@ extern SANE_Status
 sanei_magic_isBlank(SANE_Parameters * params, SANE_Byte * buffer,
   double thresh);
 
+/** Determine if image is blank, enhanced version
+ *
+ * @param params describes image
+ * @param buffer contains image data
+ * @param dpiX horizontal resolution
+ * @param dpiY vertical resolution
+ * @param thresh maximum % density for blankness (0-100)
+ *
+ * @return
+ * - SANE_STATUS_GOOD - page is not blank
+ * - SANE_STATUS_NO_DOCS - page is blank
+ * - SANE_STATUS_NO_MEM - not enough memory
+ * - SANE_STATUS_INVAL - invalid image parameters
+ */
+extern SANE_Status
+sanei_magic_isBlank2(SANE_Parameters * params, SANE_Byte * buffer,
+  int dpiX, int dpiY, double thresh);
+
 /** Determine coarse image rotation (90 degree increments)
  *
  * @param params describes image

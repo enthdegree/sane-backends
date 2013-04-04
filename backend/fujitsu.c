@@ -532,6 +532,7 @@
          - generate grayscale and binary in software if required (iX500)
       v116 2013-03-23, MAN
          - call set_mode() in init_interlace
+         - add swskip option
 
    SANE FLOW DIAGRAM
 
@@ -3295,7 +3296,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_VARIANCE){
     opt->name = "variance";
     opt->title = "Variance";
-    opt->desc = "Set SDTC variance rate (sensitivity), 0=127";
+    opt->desc = "Set SDTC variance rate (sensitivity), 0 equals 127";
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
 
@@ -3837,6 +3838,24 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /* Software blank page skip */
+  if(option==OPT_SWSKIP){
+
+    opt->name = "swskip";
+    opt->title = SANE_I18N ("Software blank skip percentage");
+    opt->desc = SANE_I18N("Request driver to discard pages with low percentage of dark pixels");
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_PERCENT;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->swskip_range;
+
+    s->swskip_range.quant=1;
+    s->swskip_range.min=SANE_FIX(0);
+    s->swskip_range.max=SANE_FIX(100);
+
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
   }
 
   /* "Endorser" group ------------------------------------------------------ */
@@ -4786,6 +4805,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->swcrop;
           return SANE_STATUS_GOOD;
 
+        case OPT_SWSKIP:
+          *val_p = SANE_FIX(s->swskip);
+          return SANE_STATUS_GOOD;
+
         /* Endorser Group */
         case OPT_ENDORSER:
           *val_p = s->u_endorser;
@@ -5399,6 +5422,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_SWCROP:
           s->swcrop = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWSKIP:
+          s->swskip = SANE_UNFIX(val_c);
           return SANE_STATUS_GOOD;
 
         /* Endorser Group */
@@ -6854,6 +6881,17 @@ sane_start (SANE_Handle handle)
     }
     if(s->swdespeck){
       buffer_despeck(s,s->side);
+    }
+    if(s->swskip){
+      /* Skipping means throwing out this image.
+       * Pretend the user read the whole thing 
+       * and call sane_start again.
+       * This assumes we are running in batch mode. */
+      if(buffer_isblank(s,s->side)){
+        s->bytes_tx[s->side] = s->bytes_rx[s->side];
+        s->eof_tx[s->side] = 1;
+        return sane_start(handle);
+      }
     }
 
   }
@@ -9341,7 +9379,7 @@ must_fully_buffer(struct fujitsu *s)
   }
 
   if(
-    (s->swdeskew || s->swdespeck || s->swcrop)
+    (s->swdeskew || s->swdespeck || s->swcrop || s->swskip)
 #ifdef SANE_FRAME_JPEG
     && s->s_params.format != SANE_FRAME_JPEG
 #endif
@@ -9657,5 +9695,29 @@ buffer_despeck(struct fujitsu *s, int side)
   cleanup:
   DBG (10, "buffer_despeck: finish\n");
   return ret;
+}
+
+/* Look if image has too few dark pixels.*/
+static int
+buffer_isblank(struct fujitsu *s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int status = 0;
+
+  DBG (10, "buffer_isblank: start\n");
+
+  ret = sanei_magic_isBlank2(&s->s_params, s->buffers[side],
+    s->resolution_x, s->resolution_y, s->swskip);
+
+  if(ret == SANE_STATUS_NO_DOCS){
+    DBG (5, "buffer_isblank: blank!\n");
+    status = 1;
+  }
+  else if(ret){
+    DBG (5, "buffer_isblank: error %d\n",ret);
+  }
+
+  DBG (10, "buffer_isblank: finished\n");
+  return status;
 }
 

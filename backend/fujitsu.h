@@ -88,6 +88,7 @@ enum fujitsu_Option
   OPT_SWDESKEW,
   OPT_SWDESPECK,
   OPT_SWCROP,
+  OPT_SWSKIP,
 
   OPT_ENDORSER_GROUP,
   OPT_ENDORSER,
@@ -392,6 +393,7 @@ struct fujitsu
   SANE_Range green_offset_range;
   SANE_Range blue_offset_range;
   SANE_Range swdespeck_range;
+  SANE_Range swskip_range;
 
   /*endorser group*/
   SANE_Range endorser_bits_range;
@@ -423,7 +425,7 @@ struct fujitsu
   /*enhancement group*/
   int brightness;
   int contrast;
-  int gamma;
+  double gamma;
   int threshold;
 
   /* ipc */
@@ -480,6 +482,7 @@ struct fujitsu
   int swdeskew;
   int swdespeck;
   int swcrop;
+  double swskip;
 
   /*endorser group*/
   int u_endorser;
@@ -824,6 +827,7 @@ static SANE_Status get_hardware_status (struct fujitsu *s, SANE_Int option);
 static SANE_Status buffer_deskew(struct fujitsu *s, int side);
 static SANE_Status buffer_crop(struct fujitsu *s, int side);
 static SANE_Status buffer_despeck(struct fujitsu *s, int side);
+static int buffer_isblank(struct fujitsu *s, int side);
 
 static void hexdump (int level, char *comment, unsigned char *p, int l);
 

@@ -178,8 +178,6 @@ an override is added to the backend.
 .PP
 CCITT Fax compression used by older scanners is not supported.
 .PP
-Hardware automatic paper width detection (aka auto-cropping) is not supported.
-.PP
 JPEG output is supported by the backend, but not by the SANE protocol, so is
 disabled in this release. It can be enabled if you rebuild from source. 
 

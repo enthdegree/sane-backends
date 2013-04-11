@@ -186,9 +186,18 @@
 #define E600_PID 0x175A
 #define MG4200_PID 0x1763
 
-/* 2013 new devices (untested) */
+/* 2013 new devices */
 #define MP230_PID 0x175F
 #define MG6300_PID 0x1765
+
+/* 2013 new devices (untested) */
+#define MG2200_PID 0x1760
+#define MG3200_PID 0x1762
+#define MG5400_PID 0x1764
+#define MX390_PID 0x1766
+#define MX450_PID 0x1768
+#define MX520_PID 0x1769
+#define MX920_PID 0x176b
 
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
@@ -1716,7 +1725,14 @@ const pixma_config_t pixma_mp150_devices[] = {
 
   /* Latest devices (2013) Generation 4 CIS */
   DEVICE ("Canon PIXMA MP230", "MP230", MP230_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6300", "MG6300", MG6300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG2200 Series", "MG2200", MG2200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG3200 Series", "MG3200", MG3200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG5400 Series", "MG5400", MG5400_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6300 Series", "MG6300", MG6300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MX390 Series", "MX390", MX390_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX450 Series", "MX450", MX450_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX520 Series", "MX520", MX520_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX920 Series", "MX920", MX920_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
 
   END_OF_DEVICE_LIST
 };

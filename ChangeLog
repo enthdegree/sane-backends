@@ -1,3 +1,8 @@
+2013-04-11 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	New scanners Canon Pixma MG2200, MG3200, MG5400, MX390, MX450, MX520 and
+	MX920. All scanners need further testing.
+
 2012-04-03 Alex Belkin <abc at telekom.ru>
 	* doc/descriptions/xerox_mfp.desc: add Samsung SCX-4835FD networked
 	support, reported by Dave Lewis. USB mode doesn't work.

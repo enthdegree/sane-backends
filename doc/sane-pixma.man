@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "21 Mar 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "11 Apr 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 .B sane\-pixma 
@@ -79,13 +79,13 @@ Feedback in the sane\-devel mailing list welcome.
 .RS
 PIXMA E500, E600
 .br
-PIXMA MG4100, MG5200
+PIXMA MG2200, MG3200, MG4100, MG5200, MG5400
 .br
 PIXMA MG8100, MG8200
 .br
 PIXMA MP375R, MP493, MP495, MP740
 .br
-PIXMA MX320, MX410, MX430, MX510, MX710
+PIXMA MX320, MX390, MX410, MX430, MX450, MX510, MX520, MX710, MX920
 .br
 ImageCLASS MF5630, MF5650, MF5750, MF8030, MF8170c
 .br

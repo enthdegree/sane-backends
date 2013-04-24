@@ -1,6 +1,7 @@
 2013-04-24 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
-	New scanner Canon Pixma MX720. This scanner needs further testing.
+	New scanners Canon Pixma E510, E610 and MX720. All scanners need further
+	testing.
 
 2013-04-19 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,

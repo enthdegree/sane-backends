@@ -192,9 +192,11 @@
 
 /* 2013 new devices (untested) */
 #define MG2200_PID 0x1760
+#define E510_PID 0x1761
 #define MG3200_PID 0x1762
 #define MG5400_PID 0x1764
 #define MX390_PID 0x1766
+#define E610_PID 0x1767
 #define MX450_PID 0x1768
 #define MX520_PID 0x1769
 #define MX720_PID 0x176a
@@ -1725,6 +1727,8 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MG4200", "MG4200", MG4200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2013) Generation 4 CIS */
+  DEVICE ("Canon PIXMA E510",  "E510",  E510_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E610",  "E610",  E610_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MP230", "MP230", MP230_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG2200 Series", "MG2200", MG2200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG3200 Series", "MG3200", MG3200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),

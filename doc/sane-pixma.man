@@ -79,7 +79,7 @@ in the backend so that they get recognized and activated.
 Feedback in the sane\-devel mailing list welcome.
 .PP
 .RS
-PIXMA E500, E600
+PIXMA E500, E510, E600, E610
 .br
 PIXMA MG2200, MG3200, MG4100, MG5200, MG5400
 .br

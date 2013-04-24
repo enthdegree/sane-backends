@@ -30,9 +30,21 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA E510"
+:interface "USB"
+:usbid "0x04a9" "0x1761"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA E600"
 :interface "USB"
 :usbid "0x04a9" "0x175a"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA E610"
+:interface "USB"
+:usbid "0x04a9" "0x1767"
 :status :untested
 :comment "Testers needed!"
 

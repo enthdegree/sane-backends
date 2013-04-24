@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "19 Apr 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "24 Apr 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 .B sane\-pixma 
@@ -89,7 +89,7 @@ PIXMA MP375R, MP493, MP495, MP740
 .br
 PIXMA MX320, MX390, MX410, MX430, MX450, MX510, MX520
 .br
-PIXMA MX710, MX920
+PIXMA MX710, MX720, MX920
 .br
 ImageCLASS MF5630, MF5650, MF5750, MF8030, MF8170c
 .br

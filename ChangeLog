@@ -1,3 +1,8 @@
+2013-04-26 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.[ch], backend/pixma_common.[ch], backend/pixma_imageclass.c,
+	backend/pixma_io_sanei.c, backend/pixma_mp150.c, backend/pixma_mp7[35]0.c,
+	backend/pixma_mp810.c: update copyright.
+
 2013-04-24 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	New scanners Canon Pixma E510, E610 and MX720. All scanners need further

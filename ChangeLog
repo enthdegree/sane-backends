@@ -1,3 +1,6 @@
+2013-05-11 Jonathan Bravo Lopez <jkdsoft@gmail.com>
+	* backend/hp3900_rts8822.c: fix compilation warnings.
+
 2013-04-26 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_common.[ch], backend/pixma_imageclass.c,
 	backend/pixma_io_sanei.c, backend/pixma_mp150.c, backend/pixma_mp7[35]0.c,

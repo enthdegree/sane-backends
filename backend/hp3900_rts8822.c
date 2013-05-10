@@ -1,6 +1,6 @@
 /* HP Scanjet 3900 series - RTS8822 Core
 
-   Copyright (C) 2005-2008 Jonathan Bravo Lopez <jkdsoft@gmail.com>
+   Copyright (C) 2005-2013 Jonathan Bravo Lopez <jkdsoft@gmail.com>
 
    This file is part of the SANE package.
 
@@ -3012,7 +3012,7 @@ static SANE_Int
 Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 		   SANE_Int mysetting)
 {
-  SANE_Int varx10, cont, last_acc_step, varx20, varx2b, stepbuffer_size,
+  SANE_Int varx10, cont, last_acc_step, varx20, stepbuffer_size,
     mystep, bwriten;
   SANE_Int myvar, var1, myvalor, mybwriten;
   struct st_curve *mycurve;
@@ -3023,7 +3023,6 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
   varx10 = 0;
   cont = 0;
   varx20 = 0;
-  varx2b = 0;
   stepbuffer_size = (v15f8 << 4) & 0xffff;
   steps = NULL;
   bwriten = 0;
@@ -8061,7 +8060,7 @@ Scan_Start (struct st_device *dev)
   if (RTS_Enable_CCD (dev, dev->init_regs, 0x0f) == OK)
     {
       SANE_Byte Regs[RT_BUFFER_LEN], mlock;
-      SANE_Int cl, ypos, xpos, runb1;
+      SANE_Int ypos, xpos, runb1;
       struct st_scanparams scancfg;
       struct st_hwdconfig hwdcfg;
       struct st_calibration myCalib;
@@ -8074,8 +8073,6 @@ Scan_Start (struct st_device *dev)
 
       /* reserva buffer 6 dwords en fa84-fa9f */
       bzero (&hwdcfg, sizeof (struct st_hwdconfig));
-
-      cl = (pixeldarklevel == 0xffff) ? 0 : 1;
 
       /* wait till lamp is at home (should use timeout
          windows driver doesn't use it)
@@ -13140,7 +13137,6 @@ Calib_BlackShading (struct st_device *dev,
    */
   SANE_Byte *myRegs;		/*f1bc */
   struct st_scanparams scancfg;	/*f020 */
-  long ltime;
   double shadingprediff[6];	/*f08c f094 f09c f0a4 f0ac f0b4 */
   double mylong;		/*f018 */
   double maxvalue;		/*eff8 */
@@ -13170,7 +13166,6 @@ Calib_BlackShading (struct st_device *dev,
        gainmode);
 
   rst = OK;
-  ltime = GetTickCount ();
   myRegs = (SANE_Byte *) malloc (RT_BUFFER_LEN * sizeof (SANE_Byte));
   memcpy (myRegs, &calibdata->Regs, RT_BUFFER_LEN * sizeof (SANE_Byte));
   memcpy (&scancfg, &calibdata->scancfg, sizeof (struct st_scanparams));
@@ -13626,8 +13621,6 @@ Calibration (struct st_device *dev, SANE_Byte * Regs,
   SANE_Int a;
   SANE_Byte gainmode;
   SANE_Int lf900;
-  SANE_Int myleftleading;	/* [3ec0] */
-  SANE_Int myler;		/* [3ec4] */
 
   DBG (DBG_FNC, "> Calibration\n");
   dbg_ScanParams (scancfg);
@@ -13673,9 +13666,6 @@ Calibration (struct st_device *dev, SANE_Byte * Regs,
     }
 
   lf900 = OK;
-  /*OK*/ myleftleading = scan.leftleading;
-  myler = scan.ler;
-
   if (calibcfg.CalibPAGOn != 0)
     {
       if (Calib_PAGain (dev, &calibcfg, gainmode) != 0)

@@ -1,3 +1,6 @@
+2013-05-11 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* README.linux: some distros need libusb-1_0-devel.
+
 2013-05-11 Jonathan Bravo Lopez <jkdsoft@gmail.com>
 	* backend/hp3900_rts8822.c: fix compilation warnings.
 

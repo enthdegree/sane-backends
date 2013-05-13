@@ -1729,14 +1729,14 @@ check_gl660_gl646 (struct usb_device *dev)
 
 /* the various incarnations could be distinguished by the 
  * bcdDevice entry:
- *     0x701 --> GL124
- *   > 0x700 --> GL848+?
- *   >= 0x603 --> GL847
- *   >= 0x600 --> GL846 
- *   >= 0x500 --> GL845
- *   >= 0x400 --> GL843 
- *   >= 0x300 --> GL842 (perhaps only >= 0x303 ?)
- *   >= 0x200 --> GL841
+ *    0x701 --> GL124
+ *    0x700 --> ?
+ *    0x605 --> GL845
+ *    0x603 --> GL847
+ *    0x601 --> GL846 
+ *    0x500 --> GL843 
+ *    0x300 --> GL842 (perhaps only >= 0x303 ?)
+ *    0x200 --> GL841
  */
 static char *
 check_gl841 (struct usb_device *dev)
@@ -1914,13 +1914,13 @@ check_gl841 (struct usb_device *dev)
     return "GL124";
   if (dev->descriptor.bcdDevice >= 0x700)
     return "GL848+";
+  if (dev->descriptor.bcdDevice >= 0x605)
+    return "GL845";
   if (dev->descriptor.bcdDevice >= 0x603)
     return "GL847";
   if (dev->descriptor.bcdDevice >= 0x600)
     return "GL846";
   if (dev->descriptor.bcdDevice >= 0x500)
-    return "GL845";
-  if (dev->descriptor.bcdDevice >= 0x400)
     return "GL843";
   if (dev->descriptor.bcdDevice >= 0x300)
     return "GL842";

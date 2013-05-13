@@ -57,6 +57,7 @@ extern char * check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool f
 
 #ifdef HAVE_LIBUSB_1_0
 #include <libusb.h>
+extern char * check_usb_chip (struct libusb_device *dev, int verbosity, SANE_Bool from_file);
 #endif
 
 #include "../include/sane/sanei_usb.h"
@@ -1064,9 +1065,7 @@ check_libusb_device (libusb_device *dev, SANE_Bool from_file)
 
   if (is_scanner > 0)
     {
-#if 0
       char *chipset = check_usb_chip (dev, verbose, from_file);
-#endif
 
       printf ("found USB scanner (vendor=0x%04x", vid);
       if (vendor)
@@ -1074,10 +1073,8 @@ check_libusb_device (libusb_device *dev, SANE_Bool from_file)
       printf (", product=0x%04x", pid);
       if (product)
 	printf (" [%s]", product);
-#if 0
       if (chipset)
 	printf (", chip=%s", chipset);
-#endif
       if (from_file)
 	printf (")\n");
       else

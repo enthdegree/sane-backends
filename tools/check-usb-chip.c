@@ -3510,21 +3510,20 @@ genesys_read_reg (libusb_device_handle * handle, unsigned char reg,
  *
  * @param dev libusb device
  * @param hdl libusb opened handle
+ * @param config0 configuration 0 from get config _descriptor
  * @return a string with ASIC name, or NULL if not recognized
  */
 static char *
-check_genesys (struct libusb_device *dev, libusb_device_handle * handle)
+check_genesys (struct libusb_device *dev, libusb_device_handle * handle, struct libusb_config_descriptor *config0)
 {
   unsigned char val;
   int result;
   struct libusb_device_descriptor descriptor;
-  struct libusb_config_descriptor *config0;
 
   if (verbose > 2)
     printf ("    checking for GLxxx ...\n");
 
   result = libusb_get_device_descriptor (dev, &descriptor);
-  result = libusb_get_config_descriptor (dev, 0, &config0);
 
   /* Check device descriptor */
   if ((descriptor.bDeviceClass != LIBUSB_CLASS_VENDOR_SPEC)
@@ -3538,7 +3537,9 @@ check_genesys (struct libusb_device *dev, libusb_device_handle * handle)
 	   config0->interface[0].altsetting[0].bInterfaceClass);
       return NULL;
     }
-  if (descriptor.bcdUSB != 0x200)
+  /* USB 2.0 for GL84x+, USB 1.1 for GL646 */
+  if (descriptor.bcdUSB != 0x200
+   && descriptor.bcdUSB != 0x110)
     {
       if (verbose > 2)
 	printf ("    this is not a GLxxx (bcdUSB = 0x%x)\n",
@@ -3673,7 +3674,9 @@ check_genesys (struct libusb_device *dev, libusb_device_handle * handle)
     return "GL843";
   if (descriptor.bcdDevice >= 0x300)
     return "GL842";
-  return "GL841";
+  if (descriptor.bcdDevice > 0x101)
+    return "GL841";
+  return "GL646";
 }
 
 char *
@@ -3682,6 +3685,9 @@ check_usb_chip (struct libusb_device *dev, int verbosity, SANE_Bool from_file)
   char *chip_name = NULL;
   int ret;
   libusb_device_handle *hdl;
+      struct libusb_device_descriptor desc;
+  struct libusb_config_descriptor *config0;
+  int config;
 
   verbose = verbosity;
 
@@ -3701,6 +3707,51 @@ check_usb_chip (struct libusb_device *dev, int verbosity, SANE_Bool from_file)
       return NULL;
     }
 
+  ret = libusb_get_configuration (hdl, &config);
+  if (ret < 0)
+    {
+      if (verbose > 2)
+      	printf ("could not get configuration\n");
+      libusb_close (hdl);
+      return NULL;
+    }
+  if(config==0)
+  {
+      if (verbose > 2)
+      	printf ("device not configured ?\n");
+      libusb_close (hdl);
+      return NULL;
+  }
+
+      ret = libusb_get_device_descriptor (dev, &desc);
+      if (ret < 0)
+	{
+      if (verbose > 2)
+      	printf ("could not get device descriptor\n");
+      libusb_close (hdl);
+      return NULL;
+	}
+  
+  /* get configuration 0 */
+  ret = libusb_get_config_descriptor (dev, 0, &config0);
+  if (ret < 0)
+    {
+      if (verbose > 2)
+      	printf ("could not get device configuration descriptor 0\n");
+      libusb_close (hdl);
+      return NULL;
+    }
+
+  /* set configuration */
+  ret = libusb_set_configuration (hdl, config0->bConfigurationValue);
+  if (ret < 0)
+    {
+      if (verbose > 2)
+      	printf ("could not set device configuration\n");
+      libusb_close (hdl);
+      return NULL;
+    }
+
   /* claim the interface (only interface 0 is currently handled */
   ret = libusb_claim_interface (hdl, 0);
   if (ret < 0)
@@ -3711,8 +3762,9 @@ check_usb_chip (struct libusb_device *dev, int verbosity, SANE_Bool from_file)
       return NULL;
     }
 
+  /* now USB is opended and set up, actual chip detection */
   if (!chip_name)
-    chip_name = check_genesys (dev, hdl);
+    chip_name = check_genesys (dev, hdl, config0);
 
   if (verbose > 2)
     {
@@ -3726,6 +3778,8 @@ check_usb_chip (struct libusb_device *dev, int verbosity, SANE_Bool from_file)
     }
 
   /* release and close USB device */
+      libusb_free_config_descriptor (config0);
+	  libusb_free_config_descriptor (config);
   libusb_release_interface (hdl, 0);
   libusb_close (hdl);
   return chip_name;

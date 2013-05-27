@@ -1,3 +1,6 @@
+2013-05-27 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl646.c: #314261 fix
+
 2013-05-11 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* README.linux: some distros need libusb-1_0-devel.
 

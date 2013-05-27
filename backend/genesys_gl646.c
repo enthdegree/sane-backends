@@ -5082,7 +5082,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
       DBG (DBG_error,
 	   "simple_scan: failed to bulk write registers: %s\n",
 	   sane_strstatus (status));
-      free (data);
+      free (*data);
       return status;
     }
 

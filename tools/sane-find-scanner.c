@@ -57,7 +57,10 @@ extern char * check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool f
 
 #ifdef HAVE_LIBUSB_1_0
 #include <libusb.h>
-extern char * check_usb_chip (struct libusb_device *dev, int verbosity, SANE_Bool from_file);
+extern char * check_usb_chip (int verbosity,
+			      struct libusb_device_descriptor desc,
+			      libusb_device_handle *hdl,
+			      struct libusb_config_descriptor *config0);
 #endif
 
 #include "../include/sane/sanei_usb.h"
@@ -1021,7 +1024,6 @@ check_libusb_device (libusb_device *dev, SANE_Bool from_file)
 	}
     }
 
-  libusb_close (hdl);
 
   /* Some heuristics, which device may be a scanner */
   if (desc.idVendor == 0)	/* hub */
@@ -1061,11 +1063,12 @@ check_libusb_device (libusb_device *dev, SANE_Bool from_file)
 	}
     }
 
-  libusb_free_config_descriptor (config0);
-
   if (is_scanner > 0)
     {
-      char *chipset = check_usb_chip (dev, verbose, from_file);
+      char *chipset = NULL;
+      
+      if(!from_file)
+        chipset = check_usb_chip (verbose, desc, hdl, config0);
 
       printf ("found USB scanner (vendor=0x%04x", vid);
       if (vendor)
@@ -1083,8 +1086,11 @@ check_libusb_device (libusb_device *dev, SANE_Bool from_file)
       libusb_device_found = SANE_TRUE;
       device_found = SANE_TRUE;
     }
+  
+  libusb_free_config_descriptor (config0);
 
  out_free:
+  libusb_close (hdl);
   if (vendor)
     free (vendor);
 

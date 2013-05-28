@@ -121,6 +121,7 @@ Cannot up/download halftone patterns, calibration vectors,
 custom Color Correction Tables (CCT) and of course custom gamma tables.
 .TP
 .B Park/UnPark (OneScanner, ColorOneScanner)
+Some capabilities are missing.
 .PP
 The above functionalities are missing because I don't
 have the hardware to experiment on.  Another reason is my lack
@@ -240,8 +241,8 @@ and
 .TP
 .B Scan
 Make scanning possible for all models in all supported modes.
-.TP
-.B Missing Functionality
+.PP
+Add other missing functionality
 
 .SH "SEE ALSO"
 sane(7), sane\-scsi(5)

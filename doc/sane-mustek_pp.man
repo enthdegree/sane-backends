@@ -486,5 +486,3 @@ also a worthy information. Please also include the optical resolution and lamp t
 .I any further comments
 if you have comments about the documentation (what could be done better), or you
 think I should know something, please include it.
-.TP
-.I some nice greetings

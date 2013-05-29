@@ -1,17 +1,13 @@
-.TH "sane\-pixma" "5" "24 Apr 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "29 May 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
-.B sane\-pixma 
-\- SANE backend for Canon PIXMA Multi-Functions Printers
-.br 
-             E, MG, MP, MX, ImageCLASS, imageRunner and i-SENSYS series
-.br
-             and for Canon CanoScan Flatbed/TPU Scanners
+sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
 .SH DESCRIPTION
 The
 .B sane\-pixma
 library implements a SANE (Scanner Access Now Easy) backend that provides
-access to Canon PIXMA multi-function devices (All-in-one printers).
+access to Canon PIXMA / i-SENSYS / imageCLASS / imageRUNNER multi-function
+devices (All-in-one printers) and the Canon CanoScan Flatbed/TPU Scanners.
 The backend implements both USB interface and network interface 
 using Canon's BJNP protocol. The network interface supports scanners over
 IPv4 as well as IPv6.

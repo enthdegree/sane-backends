@@ -7,7 +7,7 @@ The
 .B sane\-pixma
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to Canon PIXMA / i-SENSYS / imageCLASS / imageRUNNER multi-function
-devices (All-in-one printers) and the Canon CanoScan Flatbed/TPU Scanners.
+devices (All-in-one printers) and the Canon CanoScan Flatbed/TPU scanners.
 The backend implements both USB interface and network interface 
 using Canon's BJNP protocol. The network interface supports scanners over
 IPv4 as well as IPv6.
@@ -43,19 +43,19 @@ PIXMA MX420, MX700, MX7600
 .br
 PIXMA MX850, MX860, MX870, MX882, MX885, MX890
 .br
-ImageCLASS MF3110, MF3240, MF4010, MF4018
+imageCLASS MF3110, MF3240, MF4010, MF4018
 .br
-ImageCLASS MF4120, MF4122, MF4140, MF4150
+imageCLASS MF4120, MF4122, MF4140, MF4150
 .br
-ImageCLASS MF4270, MF4350d, MF4370dn, MF4380dn
+imageCLASS MF4270, MF4350d, MF4370dn, MF4380dn
 .br
-ImageCLASS MF4410, MF4430, MF4660, MF4690
+imageCLASS MF4410, MF4430, MF4660, MF4690
 .br
-ImageCLASS MF5730, MF5770, MF6550, D420, D480
+imageCLASS MF5730, MF5770, MF6550, D420, D480
 .br
 i-SENSYS MF3010, MF4320d, MF4330d, MF4550d
 .br
-imageRunner 1020/1024/1025
+imageRUNNER 1020/1024/1025
 .br
 CanoScan 8800F, 9000F
 .RE
@@ -87,7 +87,7 @@ PIXMA MX320, MX390, MX410, MX430, MX450, MX510, MX520
 .br
 PIXMA MX710, MX720, MX920
 .br
-ImageCLASS MF5630, MF5650, MF5750, MF8030, MF8170c
+imageCLASS MF5630, MF5650, MF5750, MF8030, MF8170c
 .br
 i-SENSYS MF5880dn, MF6680dn
 .RE

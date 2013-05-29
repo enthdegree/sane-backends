@@ -1,3 +1,8 @@
+2013-05-29 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/sane-pixma.man:
+	- HTML parseable name section (bug #314283)
+	- typo in device names
+
 2013-05-27 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c: #314261 fix
 

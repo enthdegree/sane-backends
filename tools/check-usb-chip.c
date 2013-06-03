@@ -3625,6 +3625,248 @@ check_gl646 (libusb_device_handle * handle,
   return "GL646";
 }
 
+/** @brief check for gt6801 chip
+ *
+ * @param dev libusb device
+ * @param hdl libusb opened handle
+ * @param config0 configuration 0 from get config _descriptor
+ * @return a string with ASIC name, or NULL if not recognized
+ */
+static char *
+check_gt6801 (libusb_device_handle * handle,
+	       struct libusb_device_descriptor desc,
+	       struct libusb_config_descriptor *config0)
+{
+  unsigned char req[64];
+  int result;
+
+  if (verbose > 2)
+    printf ("    checking for GT-6801 ...\n");
+
+  /* Check device descriptor */
+  if (desc.bDeviceClass != LIBUSB_CLASS_VENDOR_SPEC)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6801 (bDeviceClass = %d)\n",
+		desc.bDeviceClass);
+      return 0;
+    }
+  if (desc.bcdUSB != 0x110)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6801 (bcdUSB = 0x%x)\n", desc.bcdUSB);
+      return 0;
+    }
+  if (desc.bDeviceSubClass != 0xff)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6801 (bDeviceSubClass = 0x%x)\n",
+		desc.bDeviceSubClass);
+      return 0;
+    }
+  if (desc.bDeviceProtocol != 0xff)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6801 (bDeviceProtocol = 0x%x)\n",
+		desc.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (config0->interface[0].altsetting[0].bNumEndpoints != 1)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6801 (bNumEndpoints = %d)\n",
+		config0->interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  if ((config0->interface[0].altsetting[0].endpoint[0].bEndpointAddress != 0x81)
+      || (config0->interface[0].altsetting[0].endpoint[0].bmAttributes != 0x02)
+      || (config0->interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x40)
+      || (config0->interface[0].altsetting[0].endpoint[0].bInterval != 0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GT-6801 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   config0->interface[0].altsetting[0].endpoint[0].bEndpointAddress,
+	   config0->interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   config0->interface[0].altsetting[0].endpoint[0].wMaxPacketSize,
+	   config0->interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+
+  /* Now we send a control message */
+
+  memset (req, 0, 64);
+  req[0] = 0x2e;		/* get identification information */
+  req[1] = 0x01;
+
+  result = libusb_control_transfer (handle, 0x40, 0x01, 0x2010, 0x3f40, req, 64, TIMEOUT);
+  if (result <= 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't send write control message (%s)\n",
+		strerror (errno));
+      return NULL;
+    }
+  result = libusb_control_transfer (handle, 0xc0, 0x01, 0x2011, 0x3f00, req, 64, TIMEOUT);
+  if (result <= 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't send read control message (%s)\n",
+		strerror (errno));
+      return NULL;
+    }
+  if (req[0] != 0 || (req[1] != 0x2e && req[1] != 0))
+    {
+      if (verbose > 2)
+	printf ("    Unexpected result from control message (%0x/%0x)\n",
+		req[0], req[1]);
+      return NULL;
+    }
+  return "GT-6801";
+}
+
+/** @brief check for gt6816 chip
+ *
+ * @param dev libusb device
+ * @param hdl libusb opened handle
+ * @param config0 configuration 0 from get config _descriptor
+ * @return a string with ASIC name, or NULL if not recognized
+ */
+static char *
+check_gt6816 (libusb_device_handle * handle,
+	       struct libusb_device_descriptor desc,
+	       struct libusb_config_descriptor *config0)
+{
+  unsigned char req[64];
+  int result,i;
+
+  if (verbose > 2)
+    printf ("    checking for GT-6816 ...\n");
+
+  /* Check device descriptor */
+  if ((desc.bDeviceClass != LIBUSB_CLASS_PER_INTERFACE)
+      || (config0->interface[0].altsetting[0].bInterfaceClass != LIBUSB_CLASS_VENDOR_SPEC))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GT-6816 (bDeviceClass = %d, bInterfaceClass = %d)\n",
+	   desc.bDeviceClass,
+	   config0->interface[0].altsetting[0].bInterfaceClass);
+      return 0;
+    }
+  if (desc.bcdUSB != 0x110)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6816 (bcdUSB = 0x%x)\n", desc.bcdUSB);
+      return 0;
+    }
+  if (desc.bDeviceSubClass != 0x00)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6816 (bDeviceSubClass = 0x%x)\n",
+		desc.bDeviceSubClass);
+      return 0;
+    }
+  if (desc.bDeviceProtocol != 0x00)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6816 (bDeviceProtocol = 0x%x)\n",
+		desc.bDeviceProtocol);
+      return 0;
+    }
+
+  if (config0->bNumInterfaces != 0x01)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6816 (bNumInterfaces = 0x%x)\n",
+		config0->bNumInterfaces);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (config0->interface[0].altsetting[0].bNumEndpoints != 2)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6816 (bNumEndpoints = %d)\n",
+		config0->interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  if ((config0->interface[0].altsetting[0].endpoint[0].bEndpointAddress != 0x81)
+      || (config0->interface[0].altsetting[0].endpoint[0].bmAttributes != 0x02)
+      || (config0->interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x40)
+      || (config0->interface[0].altsetting[0].endpoint[0].bInterval != 0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GT-6816 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   config0->interface[0].altsetting[0].endpoint[0].bEndpointAddress,
+	   config0->interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   config0->interface[0].altsetting[0].endpoint[0].wMaxPacketSize,
+	   config0->interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+  if ((config0->interface[0].altsetting[0].endpoint[1].bEndpointAddress != 0x02)
+      || (config0->interface[0].altsetting[0].endpoint[1].bmAttributes != 0x02)
+      || (config0->interface[0].altsetting[0].endpoint[1].wMaxPacketSize != 0x40)
+      || (config0->interface[0].altsetting[0].endpoint[1].bInterval != 0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GT-6816 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   config0->interface[0].altsetting[0].endpoint[1].bEndpointAddress,
+	   config0->interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   config0->interface[0].altsetting[0].endpoint[1].wMaxPacketSize,
+	   config0->interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+    }
+
+  /* Now we send a control message */
+
+  memset (req, 0, 64);
+  for (i = 0; i < 8; i++)
+    {
+      req[8 * i + 0] = 0x73;	/* check firmware */
+      req[8 * i + 1] = 0x01;
+    }
+
+  result = libusb_control_transfer (handle, 0x40, 0x04, 0x2012, 0x3f40, req, 64, TIMEOUT);
+  if (result <= 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't send write control message (%s)\n",
+		strerror (errno));
+      return NULL;
+    }
+  result = libusb_control_transfer (handle, 0xc0, 0x01, 0x2013, 0x3f00, req, 64, TIMEOUT);
+  if (result <= 0)
+    {
+      /* Before firmware upload, 64 bytes are returned. Some libusb
+	 implementations/operating systems can't seem to cope with short
+	 packets. */
+      result = libusb_control_transfer (handle, 0xc0, 0x01, 0x2013, 0x3f00, req, 8, TIMEOUT);
+      if (result <= 0)
+        {
+          if (verbose > 2)
+	    printf ("    Couldn't send read control message (%s)\n",
+		    strerror (errno));
+          return NULL;
+        }
+    }
+  if (req[0] != 0)
+    {
+      if (verbose > 2)
+	printf ("    Unexpected result from control message (%0x/%0x)\n",
+		req[0], req[1]);
+      return NULL;
+    }
+  return "GT-6816";
+}
+
 /** @brief check for known genesys chip
  *
  * Try to check if the scanner use a known genesys ASIC.
@@ -3851,7 +4093,14 @@ check_usb_chip (int verbosity,
       return NULL;
     }
 
-  /* now USB is opended and set up, actual chip detection */
+  /* now USB is opened and set up, actual chip detection */
+
+  if (!chip_name)
+  	chip_name = check_gt6801 (hdl, desc, config0);
+
+  if (!chip_name)
+  	chip_name = check_gt6816 (hdl, desc, config0);
+
   if (!chip_name)
     chip_name = check_genesys (hdl, desc, config0);
 

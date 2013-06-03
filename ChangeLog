@@ -1,4 +1,8 @@
 2013-06-03 Stéphane Voltz <stef.dev@free.fr>
+	* tools/sane-find-scanner.c tools/check-usb-chip.c: add genesys usb
+	chip detection when compiled for libusb-1.0 .
+
+2013-06-03 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c: #314293 fix
 
 2013-05-29 Rolf Bensch <rolf at bensch hyphen online dot de>

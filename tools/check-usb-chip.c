@@ -3451,31 +3451,26 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
  * @param from_file SANE_True if data read from file
  * @return a string containing the name of the detected scanner chip
  */
-char * check_usb_chip (int verbosity,
-		       struct libusb_device_descriptor desc,
-		       libusb_device_handle *hdl,
-		       struct libusb_config_descriptor *config0);
+char *check_usb_chip (int verbosity,
+		      struct libusb_device_descriptor desc,
+		      libusb_device_handle * hdl,
+		      struct libusb_config_descriptor *config0);
 
 static int verbose = 0;
 
 static int
-genesys_write_reg (libusb_device_handle *handle, unsigned char reg,
-		 unsigned char val)
+genesys_write_reg (libusb_device_handle * handle, unsigned char reg,
+		   unsigned char val)
 {
   int result;
   unsigned char data[2];
 
-  data[0]=reg;
-  data[1]=val;
+  data[0] = reg;
+  data[1] = val;
 
   result = libusb_control_transfer (handle,
-		                    0x40,
-				    0x04,
-				    0x83,
-				    0x00,
-				    data,
-				    0x02,
-				    TIMEOUT);
+				    0x40,
+				    0x04, 0x83, 0x00, data, 0x02, TIMEOUT);
   if (result < 0)
     return 0;
   return 1;
@@ -3483,29 +3478,19 @@ genesys_write_reg (libusb_device_handle *handle, unsigned char reg,
 
 static int
 genesys_read_reg (libusb_device_handle * handle, unsigned char reg,
-		unsigned char *val)
+		  unsigned char *val)
 {
   int result;
 
   result = libusb_control_transfer (handle,
-		 		    0x40,
-				    0x0c,
-				    0x83,
-				    0x00,
-				    &reg,
-				    0x01,
-				    TIMEOUT);
+				    0x40,
+				    0x0c, 0x83, 0x00, &reg, 0x01, TIMEOUT);
   if (result < 0)
     return 0;
 
   result = libusb_control_transfer (handle,
-		                    0xc0,
-				    0x0c,
-				    0x84,
-				    0x00,
-				    val,
-				    0x01,
-				    TIMEOUT);
+				    0xc0,
+				    0x0c, 0x84, 0x00, val, 0x01, TIMEOUT);
   if (result < 0)
     return 0;
 
@@ -3520,18 +3505,17 @@ genesys_read_reg (libusb_device_handle * handle, unsigned char reg,
  * @return a string with ASIC name, or NULL if not recognized
  */
 static char *
-check_gl646 (libusb_device_handle *handle,
-  	       struct libusb_device_descriptor desc,
-	       struct libusb_config_descriptor *config0)
+check_gl646 (libusb_device_handle * handle,
+	     struct libusb_device_descriptor desc,
+	     struct libusb_config_descriptor *config0)
 {
   unsigned char val;
   int result;
-  
+
   if (desc.bcdUSB != 0x110)
     {
       if (verbose > 2)
-	printf ("    this is not a GL646 (bcdUSB = 0x%x)\n",
-		desc.bcdUSB);
+	printf ("    this is not a GL646 (bcdUSB = 0x%x)\n", desc.bcdUSB);
       return 0;
     }
   if (desc.bDeviceSubClass != 0x00)
@@ -3558,68 +3542,59 @@ check_gl646 (libusb_device_handle *handle,
       return 0;
     }
 
-  if ((config0->interface[0].altsetting[0].endpoint[0].
-       bEndpointAddress != 0x81)
-      || (config0->interface[0].altsetting[0].endpoint[0].
-	  bmAttributes != 0x02)
-      || (config0->interface[0].altsetting[0].endpoint[0].
-	  wMaxPacketSize != 0x40)
-      || (config0->interface[0].altsetting[0].endpoint[0].bInterval !=
-	  0x0))
+  if ((config0->interface[0].altsetting[0].endpoint[0].bEndpointAddress !=
+       0x81)
+      || (config0->interface[0].altsetting[0].endpoint[0].bmAttributes !=
+	  0x02)
+      || (config0->interface[0].altsetting[0].endpoint[0].wMaxPacketSize !=
+	  0x40)
+      || (config0->interface[0].altsetting[0].endpoint[0].bInterval != 0x0))
     {
       if (verbose > 2)
 	printf
 	  ("    this is not a GL646 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
-	   config0->interface[0].altsetting[0].endpoint[0].
-	   bEndpointAddress,
+	   config0->interface[0].altsetting[0].endpoint[0].bEndpointAddress,
 	   config0->interface[0].altsetting[0].endpoint[0].bmAttributes,
-	   config0->interface[0].altsetting[0].endpoint[0].
-	   wMaxPacketSize,
+	   config0->interface[0].altsetting[0].endpoint[0].wMaxPacketSize,
 	   config0->interface[0].altsetting[0].endpoint[0].bInterval);
       return 0;
     }
 
-  if ((config0->interface[0].altsetting[0].endpoint[1].
-       bEndpointAddress != 0x02)
-      || (config0->interface[0].altsetting[0].endpoint[1].
-	  bmAttributes != 0x02)
-      || (config0->interface[0].altsetting[0].endpoint[1].
-	  wMaxPacketSize != 0x40)
-      || (config0->interface[0].altsetting[0].endpoint[1].bInterval !=
-	  0))
+  if ((config0->interface[0].altsetting[0].endpoint[1].bEndpointAddress !=
+       0x02)
+      || (config0->interface[0].altsetting[0].endpoint[1].bmAttributes !=
+	  0x02)
+      || (config0->interface[0].altsetting[0].endpoint[1].wMaxPacketSize !=
+	  0x40)
+      || (config0->interface[0].altsetting[0].endpoint[1].bInterval != 0))
     {
       if (verbose > 2)
 	printf
 	  ("    this is not a GL646 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
-	   config0->interface[0].altsetting[0].endpoint[1].
-	   bEndpointAddress,
+	   config0->interface[0].altsetting[0].endpoint[1].bEndpointAddress,
 	   config0->interface[0].altsetting[0].endpoint[1].bmAttributes,
-	   config0->interface[0].altsetting[0].endpoint[1].
-	   wMaxPacketSize,
+	   config0->interface[0].altsetting[0].endpoint[1].wMaxPacketSize,
 	   config0->interface[0].altsetting[0].endpoint[1].bInterval);
       return 0;
     }
 
-  if ((config0->interface[0].altsetting[0].endpoint[2].
-       bEndpointAddress != 0x83)
-      || (config0->interface[0].altsetting[0].endpoint[2].
-	  bmAttributes != 0x03)
-      || (config0->interface[0].altsetting[0].endpoint[2].
-	  wMaxPacketSize != 0x1)
-      || (config0->interface[0].altsetting[0].endpoint[2].bInterval !=
-	  8))
+  if ((config0->interface[0].altsetting[0].endpoint[2].bEndpointAddress !=
+       0x83)
+      || (config0->interface[0].altsetting[0].endpoint[2].bmAttributes !=
+	  0x03)
+      || (config0->interface[0].altsetting[0].endpoint[2].wMaxPacketSize !=
+	  0x1)
+      || (config0->interface[0].altsetting[0].endpoint[2].bInterval != 8))
     {
       if (verbose > 2)
 	printf
 	  ("    this is not a GL646 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
-	   config0->interface[0].altsetting[0].endpoint[2].
-	   bEndpointAddress,
+	   config0->interface[0].altsetting[0].endpoint[2].bEndpointAddress,
 	   config0->interface[0].altsetting[0].endpoint[2].bmAttributes,
-	   config0->interface[0].altsetting[0].endpoint[2].
-	   wMaxPacketSize,
+	   config0->interface[0].altsetting[0].endpoint[2].wMaxPacketSize,
 	   config0->interface[0].altsetting[0].endpoint[2].bInterval);
       return 0;
     }
@@ -3670,8 +3645,8 @@ check_gl646 (libusb_device_handle *handle,
  * @return a string with ASIC name, or NULL if not recognized
  */
 static char *
-check_genesys (libusb_device_handle *handle,
-  	       struct libusb_device_descriptor desc,
+check_genesys (libusb_device_handle * handle,
+	       struct libusb_device_descriptor desc,
 	       struct libusb_config_descriptor *config0)
 {
   unsigned char val;
@@ -3679,20 +3654,20 @@ check_genesys (libusb_device_handle *handle,
 
   if (verbose > 2)
     printf ("    checking for GLxxx ...\n");
-  
+
   /* Check GL646 device descriptor */
   if ((desc.bDeviceClass == LIBUSB_CLASS_PER_INTERFACE)
       && (config0->interface[0].altsetting[0].bInterfaceClass == 0x10))
     {
-      return check_gl646(handle, desc, config0);
+      return check_gl646 (handle, desc, config0);
     }
-      if (verbose > 2)
-      {
-	printf
-	  ("    this is not a GL646 (bDeviceClass = %d, bInterfaceClass = %d)\n",
-	   desc.bDeviceClass,
-	   config0->interface[0].altsetting[0].bInterfaceClass);
-      }
+  if (verbose > 2)
+    {
+      printf
+	("    this is not a GL646 (bDeviceClass = %d, bInterfaceClass = %d)\n",
+	 desc.bDeviceClass,
+	 config0->interface[0].altsetting[0].bInterfaceClass);
+    }
 
   /* Check device desc */
   if ((desc.bDeviceClass != LIBUSB_CLASS_VENDOR_SPEC)
@@ -3820,7 +3795,7 @@ check_genesys (libusb_device_handle *handle,
       return NULL;
     }
 
-  /* decide revison number based on bcdUsb heuristics */
+  /* decide revision number based on bcdUsb heuristics */
   if (desc.bcdDevice == 0x701)
     return "GL124";
   if (desc.bcdDevice >= 0x700)
@@ -3837,13 +3812,14 @@ check_genesys (libusb_device_handle *handle,
     return "GL842";
   if (desc.bcdDevice > 0x101)
     return "GL841";
-  return "GL646";
+  return "GL646_HP";
 }
 
-char * check_usb_chip (int verbosity,
-		       struct libusb_device_descriptor desc,
-		       libusb_device_handle *hdl,
-		       struct libusb_config_descriptor *config0)
+char *
+check_usb_chip (int verbosity,
+		struct libusb_device_descriptor desc,
+		libusb_device_handle * hdl,
+		struct libusb_config_descriptor *config0)
 {
   char *chip_name = NULL;
   int ret;
@@ -3858,11 +3834,12 @@ char * check_usb_chip (int verbosity,
     {
       ret = libusb_set_configuration (hdl, config0->bConfigurationValue);
       if (ret < 0)
-      {
-      	if (verbose > 2)
-	    printf("couldnt set device to configuration %d\n", config0->bConfigurationValue);
-      	return NULL;
-      }
+	{
+	  if (verbose > 2)
+	    printf ("couldnt set device to configuration %d\n",
+		    config0->bConfigurationValue);
+	  return NULL;
+	}
     }
 
   /* claim the interface (only interface 0 is currently handled */
@@ -3870,7 +3847,7 @@ char * check_usb_chip (int verbosity,
   if (ret < 0)
     {
       if (verbose > 2)
-      	printf ("could not claim USB device interface\n");
+	printf ("could not claim USB device interface\n");
       return NULL;
     }
 

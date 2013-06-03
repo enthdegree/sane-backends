@@ -550,7 +550,7 @@ get_lowest_resolution (int sensor, SANE_Bool color)
   i = 0;
   dpi = 9600;
   nb = sizeof (sensor_master) / sizeof (Sensor_Master);
-  while (sensor_master[i].sensor != -1 && i < nb)
+  while (i < nb)
     {
       /* computes distance and keep mode if it is closer than previous */
       if (sensor == sensor_master[i].sensor
@@ -584,7 +584,7 @@ get_closest_resolution (int sensor, int required, SANE_Bool color)
   dpi = 0;
   dist = 9600;
   nb = sizeof (sensor_master) / sizeof (Sensor_Master);
-  while (sensor_master[i].sensor != -1 && i < nb)
+  while (i < nb)
     {
       /* exit on perfect match */
       if (sensor == sensor_master[i].sensor
@@ -627,7 +627,7 @@ is_half_ccd (int sensor, int required, SANE_Bool color)
 
   i = 0;
   nb = sizeof (sensor_master) / sizeof (Sensor_Master);
-  while (sensor_master[i].sensor != -1 && i < nb)
+  while (i < nb)
     {
       /* exit on perfect match */
       if (sensor == sensor_master[i].sensor
@@ -658,7 +658,7 @@ get_cksel (int sensor, int required, SANE_Bool color)
 
   i = 0;
   nb = sizeof (sensor_master) / sizeof (Sensor_Master);
-  while (sensor_master[i].sensor != -1 && i < nb)
+  while (i < nb)
     {
       /* exit on perfect match */
       if (sensor == sensor_master[i].sensor
@@ -746,7 +746,7 @@ gl646_setup_registers (Genesys_Device * dev,
    * sensor mode setting */
   i = 0;
   nb = sizeof (sensor_master) / sizeof (Sensor_Master);
-  while (sensor_master[i].sensor != -1 && i < nb)
+  while (i < nb)
     {
       if (dev->model->ccd_type == sensor_master[i].sensor
 	  && sensor_master[i].dpi == xresolution
@@ -768,7 +768,7 @@ gl646_setup_registers (Genesys_Device * dev,
    * motor mode setting */
   i = 0;
   nb = sizeof (motor_master) / sizeof (Motor_Master);
-  while (motor_master[i].motor != -1 && i < nb)
+  while (i < nb)
     {
       if (dev->model->motor_type == motor_master[i].motor
 	  && motor_master[i].dpi == resolution
@@ -789,7 +789,7 @@ gl646_setup_registers (Genesys_Device * dev,
   /* now we can search for the specific sensor settings */
   i = 0;
   nb = sizeof (sensor_settings) / sizeof (Sensor_Settings);
-  while (sensor_settings[i].sensor != -1 && i < nb)
+  while (i < nb)
     {
       if (sensor->sensor == sensor_settings[i].sensor
 	  && sensor->cksel == sensor_settings[i].cksel)

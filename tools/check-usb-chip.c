@@ -1865,6 +1865,8 @@ check_gl841 (struct usb_device *dev)
 
   result = prepare_interface (dev, &handle);
   if (!result) {
+    if (dev->descriptor.bcdDevice == 0x702)
+        return "GL124?";
     if (dev->descriptor.bcdDevice == 0x701)
         return "GL124?";
     if (dev->descriptor.bcdDevice >= 0x700)
@@ -1910,6 +1912,8 @@ check_gl841 (struct usb_device *dev)
     }
   finish_interface (handle);
 
+  if (dev->descriptor.bcdDevice == 0x702)
+    return "GL128";
   if (dev->descriptor.bcdDevice == 0x701)
     return "GL124";
   if (dev->descriptor.bcdDevice >= 0x700)
@@ -4038,6 +4042,8 @@ check_genesys (libusb_device_handle * handle,
     }
 
   /* decide revision number based on bcdUsb heuristics */
+  if (desc.bcdDevice == 0x702)
+    return "GL128";
   if (desc.bcdDevice == 0x701)
     return "GL124";
   if (desc.bcdDevice >= 0x700)

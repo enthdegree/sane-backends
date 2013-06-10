@@ -1,3 +1,7 @@
+2013-06-10 Stéphane Voltz <stef.dev@free.fr>
+	* tools/check-usb-chip.c: add genesys GL128, GT-68xx usb chip
+	detection.
+
 2013-06-10 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp810.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	New scanner Canon CanoScan 9000F Mark II.

@@ -1,3 +1,9 @@
+2013-06-10 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp810.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	New scanner Canon CanoScan 9000F Mark II.
+	* backend/pixma_mp810.c: Disable TPU negatives scan for CS8800F and CS9000F.
+	Negatives scan has no benefit for the user and disabling avoids confusion.
+
 2013-06-03 Stéphane Voltz <stef.dev@free.fr>
 	* tools/sane-find-scanner.c tools/check-usb-chip.c: add genesys usb
 	chip detection when compiled for libusb-1.0 .

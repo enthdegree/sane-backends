@@ -122,6 +122,9 @@
 /* 2011 new device (untested) */
 #define MG8200_PID 0x1756 /* CCD */
 
+/* 2013 new device */
+#define CS9000F_MII_PID 0x190d
+
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
 "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\
@@ -584,6 +587,7 @@ static unsigned calc_shifting (pixma_t * s)
       break;
 
     case CS9000F_PID: /* CanoScan 9000F at 4800 dpi */
+    case CS9000F_MII_PID:
       if (s->param->xdpi == 4800)
       {
         if (is_scanning_from_tpu (s))
@@ -671,6 +675,7 @@ static unsigned calc_shifting (pixma_t * s)
         break;
 
       case CS9000F_PID: /* CanoScan 9000F */
+      case CS9000F_MII_PID:
         mp->color_shift = s->param->ydpi / 30;
         mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
         mp->shift[0] = 0;
@@ -709,6 +714,7 @@ static unsigned calc_shifting (pixma_t * s)
       switch (s->cfg->pid)
       {
         case CS9000F_PID:
+        case CS9000F_MII_PID:
           if (is_color_48 (s) || is_gray_16 (s))
           {
             mp->color_shift = 5;
@@ -890,7 +896,7 @@ static int send_scan_param (pixma_t * s)
 
     data[0x1f] = 0x01; /* for 9000F this appears to be 0x00, not sure if that is because of positives */
 
-    if (s->cfg->pid == CS9000F_PID)
+    if (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
     {
       data[0x1f] = 0x00;
     }
@@ -901,7 +907,7 @@ static int send_scan_param (pixma_t * s)
     data[0x24] = 0x01;
 
     /* CS8800F & CS9000F addition */
-    if (s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID)
+    if (s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
     {
       if (is_scanning_from_tpu (s))
       { /* TPU */
@@ -924,7 +930,7 @@ static int send_scan_param (pixma_t * s)
         if (s->cfg->pid == CS8800F_PID)
           data[0x25] = 0x00;
         /* CS9000F: 0x01 for TPU */
-        if (s->cfg->pid == CS9000F_PID)
+        if (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
           data[0x25] = 0x01;
         if (s->param->mode == PIXMA_SCAN_MODE_TPUIR)
           data[0x25] = 0x00;
@@ -937,7 +943,7 @@ static int send_scan_param (pixma_t * s)
         if (s->cfg->pid == CS8800F_PID)
           data[0x25] = 0x01;
         /* CS9000F: 0x00 normally */
-        if (s->cfg->pid == CS9000F_PID)
+        if (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
           data[0x25] = 0x00;
       }
     }
@@ -1097,7 +1103,7 @@ static int handle_interrupt (pixma_t * s, int timeout)
    * tt: target
    * poll event with 'scanimage -A'
    * */
-  if (s->cfg->pid == CS9000F_PID)
+  if (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
   /* button no. in buf[1]
    * target = button no. */
   {
@@ -1508,11 +1514,11 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
   /* Some exceptions to global rules here */
   if (s->cfg->pid == MP970_PID || s->cfg->pid == MP990_PID
-      || s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID)
+      || s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
     n = MIN (n, 4);
 
   /* exception for 9600dpi on Canoscan 9000F */
-  if ((s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600))
+  if ((s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID) && (s->param->xdpi == 9600))
   {
     n = 8;
     if (test > 0)
@@ -1550,7 +1556,7 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
   /* have to test if rounding down is OK or not -- currently 0.5 lines is rounded down */
   /* note stripe shifts doubled already in definitions */
-  if ((s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600) && (test > 0))
+  if ((s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID) && (s->param->xdpi == 9600) && (test > 0))
   {
     /* using test==2 you can check in GIMP the required offset, and
        use the below line (uncommented) and replace XXX with that
@@ -1584,7 +1590,7 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
        c, n, m, s->param->wx, line_size)); */
       if (c >= 3)
       {
-        if (((s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600))
+        if (((s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID) && (s->param->xdpi == 9600))
             || ((s->cfg->pid == MP960_PID) && (s->param->xdpi == 4800))
             || ((s->cfg->pid == MP810_PID) && (s->param->xdpi == 4800)))
         {
@@ -1594,7 +1600,7 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
                                      jumplines * line_size);
         }
 
-        else if ((s->cfg->pid == CS9000F_PID) /* 9000F: 16 bit flatbed scan at 4800dpi */
+        else if ((s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID) /* 9000F: 16 bit flatbed scan at 4800dpi */
                   && ((s->param->mode == PIXMA_SCAN_MODE_COLOR_48)
                       || (s->param->mode == PIXMA_SCAN_MODE_GRAY_16))
                   && (s->param->xdpi == 4800)
@@ -1615,7 +1621,7 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
       /*--comment out all between this line and the one below for 9000F tests at 9600dpi or MP960 at 4800dpi ------*/
       /* if ( 0 ) */
-      if ((((s->cfg->pid != CS9000F_PID) || (s->param->xdpi < 9600))
+      if ((((s->cfg->pid != CS9000F_PID || s->cfg->pid == CS9000F_MII_PID) || (s->param->xdpi < 9600))
           && ((s->cfg->pid != MP960_PID) || (s->param->xdpi < 4800))
           && ((s->cfg->pid != MP810_PID) || (s->param->xdpi < 4800)))
           || (test == 0))
@@ -1624,13 +1630,13 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
         if (!((s->cfg->pid == MP810_PID) && (s->param->xdpi == 4800))
             && !((s->cfg->pid == MP960_PID) && (s->param->xdpi == 4800))
-            && !((s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600)))
+            && !((s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID) && (s->param->xdpi == 9600)))
         { /* for both flatbed & TPU */
           /* PDBG (pixma_dbg (4, "*post_process_image_data***** reordering pixels normal n = %i  *****\n", n)); */
           reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
         }
 
-        if ((s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 9600))
+        if ((s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID) && (s->param->xdpi == 9600))
         {
           /* PDBG (pixma_dbg (4, "*post_process_image_data***** cs900f_initial_reorder_pixels n = %i  *****\n", n)); */
           /* this combines pixels from 8 images 2px at a time from left to right: 1122334455667788... */
@@ -1655,7 +1661,7 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
         /* comment: MP970, CS8800F, CS9000F specific reordering for 4800 dpi */
         if ((s->cfg->pid == MP970_PID || s->cfg->pid == CS8800F_PID
-            || s->cfg->pid == CS9000F_PID) && (s->param->xdpi == 4800))
+            || s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID) && (s->param->xdpi == 4800))
         {
           /*PDBG (pixma_dbg (4, "*post_process_image_data***** mp970_reordering pixels n = %i  *****\n", n)); */
           mp970_reorder_pixels (mp->linebuf, sptr, c, s->param->wx, line_size);
@@ -1736,7 +1742,7 @@ static int mp810_open (pixma_t * s)
   if (s->cfg->pid == CS8800F_PID)
     mp->generation = 3;
 
-  if (s->cfg->pid == CS9000F_PID)
+  if (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
     mp->generation = 4;
 
   /* TPU info data setup */
@@ -1844,6 +1850,7 @@ static int mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
         max_y = MIN (740, s->cfg->height);
         break;
       case CS9000F_PID:
+      case CS9000F_MII_PID:
         fixed_offset_y = 146;
         max_y = MIN (740, s->cfg->height);
         break;
@@ -1936,7 +1943,7 @@ static int mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
     else if (sp->source == PIXMA_SOURCE_TPU && sp->mode == PIXMA_SCAN_MODE_TPUIR)
       /* TPUIR mode: max scan res is 2400 dpi */
       k = sp->xdpi / MIN (sp->xdpi, 2400);
-    else if (sp->source == PIXMA_SOURCE_TPU && s->cfg->pid == CS9000F_PID)
+    else if (sp->source == PIXMA_SOURCE_TPU && (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID))
       /* CS9000F in TPU mode */
       k = sp->xdpi / MIN (sp->xdpi, 9600);
     else
@@ -2320,6 +2327,9 @@ const pixma_config_t pixma_mp810_devices[] =
 
   /* Latest devices (2011) Generation 4 CCD untested */
   DEVICE ("Canon PIXMA MG8200", "MG8200", MG8200_PID, 4800, 300, 0, 0, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+
+  /* Flatbed scanner (2013) */
+  DEVICE ("Canoscan 9000F Mark II", "9000FMarkII", CS9000F_MII_PID, 4800, 300, 9600, 600, 2400, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPUIR | PIXMA_CAP_48BIT),
 
   END_OF_DEVICE_LIST
 };

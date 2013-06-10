@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "29 May 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "10 Jun 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -57,7 +57,7 @@ i-SENSYS MF3010, MF4320d, MF4330d, MF4550d
 .br
 imageRUNNER 1020/1024/1025
 .br
-CanoScan 8800F, 9000F
+CanoScan 8800F, 9000F, 9000F Mark II
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs

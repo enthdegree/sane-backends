@@ -840,3 +840,9 @@
 :usbid "0x04a9" "0x1908"
 :status :complete
 :comment "Full flatbed support up to 4800DPI (Note: flatbed does not have 9600DPI capability). Full TPU support (negatives, slides and infrared) up to 9600DPI."
+
+:model "CanoScan 9000F Mark II"
+:interface "USB"
+:usbid "0x04a9" "0x190d"
+:status :complete
+:comment "Full flatbed support up to 4800DPI (Note: flatbed does not have 9600DPI capability). Full TPU support (negatives, slides and infrared) up to 9600DPI."

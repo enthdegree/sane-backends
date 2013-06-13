@@ -219,7 +219,7 @@
 :usbid      "0x04b8" "0x0136"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "ES-H300"
 :interface  "USB"
@@ -311,7 +311,7 @@
 :usbid      "0x04b8" "0x0133"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-2200"
 :interface  "USB"
@@ -372,14 +372,14 @@
 :usbid      "0x04b8" "0x010f"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-7300U"			; product spec (JP)
 :interface  "USB"
 :usbid      "0x04b8" "0x011d"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-7400U"			; product spec (JP)
 :interface  "USB"
@@ -461,7 +461,7 @@
 :usbid      "0x04b8" "0x0116"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-9500"
 :interface  "SCSI"
@@ -521,98 +521,98 @@
 :usbid      "0x04b8" "0x0133"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-F500"			; product spec (JP)
 :interface  "USB"
 :usbid      "0x04b8" "0x0121"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-F520"
 :interface  "USB"
 :usbid      "0x04b8" "0x0122"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-F550"			; product spec (JP)
 :interface  "USB"
 :usbid      "0x04b8" "0x0121"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-F570"
 :interface  "USB"
 :usbid      "0x04b8" "0x0122"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-F600"			; product spec (JP)
 :interface  "USB"
 :usbid      "0x04b8" "0x0118"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-F650"
 :interface  "USB"
 :usbid      "0x04b8" "0x012d"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-F670"
 :interface  "USB"
 :usbid      "0x04b8" "0x012e"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-F700"
 :interface  "USB"
 :usbid      "0x04b8" "0x012f"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-F720"
 :interface  "USB"
 :usbid      "0x04b8" "0x0131"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-S50"
 :interface  "USB"
 :usbid      "0x04b8" "0x0137"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-S80"
 :interface  "USB"
 :usbid      "0x04b8" "0x0136"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-S600"
 :interface  "USB"
 :usbid      "0x04b8" "0x012d"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-S620"
 :interface  "USB"
 :usbid      "0x04b8" "0x0131"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-X700"			; product spec (JP)
 :interface  "USB"
@@ -625,14 +625,14 @@
 :usbid      "0x04b8" "0x0119"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-X770"
 :interface  "USB"
 :usbid      "0x04b8" "0x0130"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-X800"			; product spec (JP)
 :interface  "USB"
@@ -645,7 +645,7 @@
 :usbid      "0x04b8" "0x013a"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "GT-X900"
 :interface  "USB"
@@ -995,28 +995,28 @@
 :usbid      "0x04b8" "0x010f"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 1250 PHOTO"
 :interface  "USB"
 :usbid      "0x04b8" "0x010f"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 1260"
 :interface  "USB"
 :usbid      "0x04b8" "0x011d"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 1260 PHOTO"
 :interface  "USB"
 :usbid      "0x04b8" "0x011d"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 1270"
 :interface  "USB"
@@ -1088,21 +1088,21 @@
 :usbid      "0x04b8" "0x0121"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 2580 PHOTO"
 :interface  "USB"
 :usbid      "0x04b8" "0x0121"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 3170 PHOTO"
 :interface  "USB"
 :usbid      "0x04b8" "0x0116"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 3200 PHOTO"	; command spec
 :interface  "USB IEEE-1394"
@@ -1116,28 +1116,28 @@
 :usbid      "0x04b8" "0x0122"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 3590 PHOTO"
 :interface  "USB"
 :usbid      "0x04b8" "0x0122"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 4180 PHOTO"
 :interface  "USB"
 :usbid      "0x04b8" "0x0118"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 4490 PHOTO"
 :interface  "USB"
 :usbid      "0x04b8" "0x0119"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection 4870 PHOTO"	; command spec
 :interface  "USB"
@@ -1161,56 +1161,56 @@
 :usbid      "0x04b8" "0x012d"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection V30"
 :interface  "USB"
 :usbid      "0x04b8" "0x0131"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection V100 Photo"
 :interface  "USB"
 :usbid      "0x04b8" "0x012d"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection V200 Photo"
 :interface  "USB"
 :usbid      "0x04b8" "0x012e"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection V300 Photo"
 :interface  "USB"
 :usbid      "0x04b8" "0x0131"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection V350 Photo"
 :interface  "USB"
 :usbid      "0x04b8" "0x012f"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection V500 Photo"
 :interface  "USB"
 :usbid      "0x04b8" "0x0130"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection V600 Photo"
 :interface  "USB"
 :usbid      "0x04b8" "0x013a"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Perfection V700 Photo"
 :interface  "USB"
@@ -1312,14 +1312,14 @@
 :usbid      "0x04b8" "0x083f"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/spc/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Stylus CX4400"
 :interface  "USB"
 :usbid      "0x04b8" "0x083f"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/spc/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Stylus CX4500"
 :interface  "USB"
@@ -1386,14 +1386,14 @@
 :usbid      "0x04b8" "0x083f"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/spc/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Stylus CX5600"
 :interface  "USB"
 :usbid      "0x04b8" "0x083f"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/spc/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Stylus CX5700F"
 :interface  "USB"
@@ -1531,7 +1531,7 @@
 :usbid      "0x04b8" "0x083f"
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
-:url        "http://www.avasys.jp/lx-bin2/linux_e/spc/DL1.do"
+:url        "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 :model      "Stylus DX4800"
 :interface  "USB"

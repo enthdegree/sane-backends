@@ -1,3 +1,6 @@
+2013-06-15 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp810.c: fix test mode
+
 2013-06-10 Stéphane Voltz <stef.dev@free.fr>
 	* tools/check-usb-chip.c: add genesys GL128, GT-68xx usb chip
 	detection.

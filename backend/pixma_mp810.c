@@ -1621,7 +1621,7 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
       /*--comment out all between this line and the one below for 9000F tests at 9600dpi or MP960 at 4800dpi ------*/
       /* if ( 0 ) */
-      if ((((s->cfg->pid != CS9000F_PID || s->cfg->pid == CS9000F_MII_PID) || (s->param->xdpi < 9600))
+      if ((((s->cfg->pid != CS9000F_PID && s->cfg->pid != CS9000F_MII_PID) || (s->param->xdpi < 9600))
           && ((s->cfg->pid != MP960_PID) || (s->param->xdpi < 4800))
           && ((s->cfg->pid != MP810_PID) || (s->param->xdpi < 4800)))
           || (test == 0))

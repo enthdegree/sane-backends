@@ -5801,6 +5801,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
   s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
   s->opt[OPT_SENSOR_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_SENSOR_GROUP].cap = SANE_CAP_ADVANCED;
   s->opt[OPT_SENSOR_GROUP].size = 0;
   s->opt[OPT_SENSOR_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
@@ -5930,6 +5931,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
   s->opt[OPT_BUTTON_GROUP].desc = "";
   s->opt[OPT_BUTTON_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_BUTTON_GROUP].cap = SANE_CAP_ADVANCED;
   s->opt[OPT_BUTTON_GROUP].size = 0;
   s->opt[OPT_BUTTON_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 

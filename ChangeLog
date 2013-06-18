@@ -1,3 +1,7 @@
+2013-06-18 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c: add missing cap to 2 option group tp fix long
+	argument option bug in scanimage.
+
 2013-06-15 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp810.c: fix test mode
 

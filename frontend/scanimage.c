@@ -894,7 +894,8 @@ fetch_options (SANE_Device * device)
 	  exit (1);
 	}
 
-      if (!SANE_OPTION_IS_SETTABLE (opt->cap))
+      /* create command line option only for settable options */
+      if (!SANE_OPTION_IS_SETTABLE (opt->cap) || opt->type == SANE_TYPE_GROUP)
 	continue;
 
       option_number[option_count] = i;

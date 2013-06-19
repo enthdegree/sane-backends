@@ -1,3 +1,9 @@
+2013-06-19 Stéphane Voltz <stef.dev@free.fr>
+	* frontend/scanimage.c: protect for group option with incorrect
+	capabilites.
+	* frontend/tstbackend.c: add test to check is group option are
+	settable. Fix test_getdevices() function.
+
 2013-06-18 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: add missing cap to 2 option group tp fix long
 	argument option bug in scanimage.

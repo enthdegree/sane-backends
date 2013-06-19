@@ -403,6 +403,8 @@ test_options (SANE_Device * device, int can_do_recursive)
 		if (opt->type == SANE_TYPE_GROUP) {
 			check(INF, (opt->name == NULL || *opt->name == 0),
 				  "option [%d, %s] has a name", option_num, opt->name);
+			check(ERR, (!SANE_OPTION_IS_SETTABLE (opt->cap)),
+				  "option [%d, %s], group option is settable", option_num, opt->name);
 		} else {
 			if (option_num == 0) {
 				check(ERR, (opt->name != NULL && *opt->name ==0),
@@ -1565,21 +1567,21 @@ static void test_scans(SANE_Device * device)
  * @param time time to loop
  * @return 0 on success
  */
-static int test_get_devices(const SANE_Device **device_list, int time)
+static int test_get_devices(const SANE_Device ***device_list, int time)
 {
 int loop=0;
 int i;
 const SANE_Device *dev;
 SANE_Status status;
 
-	status = sane_get_devices (&device_list, SANE_TRUE);
+	status = sane_get_devices (device_list, SANE_TRUE);
 	check(FATAL, (status == SANE_STATUS_GOOD),
 		  "sane_get_devices() failed (%s)", sane_strstatus (status));
 
 	/* Verify that the SANE doc (or tstbackend) is up to date */
-	for (i=0; device_list[i] != NULL; i++) {
+	for (i=0; (*device_list)[i] != NULL; i++) {
 
-		dev = device_list[i];
+		dev = (*device_list)[i];
 
 		check(FATAL, (dev->name != NULL), "device name is NULL");
 		check(FATAL, (dev->vendor != NULL), "device vendor is NULL");
@@ -1636,16 +1638,16 @@ SANE_Status status;
 	while(loop<time) {
 		/* print and free detected device list */
 		check(MSG, 0, "DETECTED DEVICES:");
-		for (i=0; device_list[i] != NULL; i++) {
-			dev = device_list[i];
+		for (i=0; (*device_list)[i] != NULL; i++) {
+			dev = (*device_list)[i];
 			check(MSG, 0, "\t%s:%s %s:%s", dev->vendor, dev->name, dev->type, dev->model);
 		}
 		if(i==0) {
 			check(MSG, 0, "\tnone...");
 		}
 		sleep(1);
-		device_list = NULL;
-		status = sane_get_devices (&device_list, SANE_TRUE);
+		(*device_list) = NULL;
+		status = sane_get_devices (device_list, SANE_TRUE);
 		check(FATAL, (status == SANE_STATUS_GOOD),
 		  "sane_get_devices() failed (%s)", sane_strstatus (status));
 		loop++;
@@ -1782,8 +1784,8 @@ main (int argc, char **argv)
 		  "sane_init failed with %s", sane_strstatus (status));
   
 	/* Check the device list */
-	rc = test_get_devices(device_list, time);
-	if (!rc) goto the_exit;
+	rc = test_get_devices(&device_list, time);
+	if (rc) goto the_exit;
 
 	if (!devname) {
 		/* If no device name was specified explicitly, we look at the

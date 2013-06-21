@@ -61,7 +61,7 @@
 :comment "Testers needed!"
 
 :model "PIXMA MG3100 Series"
-:interface "USB"
+:interface "USB WLAN"
 :usbid "0x04a9" "0x1752"
 :status :complete
 :comment "All resolutions supported (up to 1200DPI)."

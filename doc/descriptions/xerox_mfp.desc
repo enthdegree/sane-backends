@@ -342,3 +342,8 @@
 :usbid "0x04e8" "0x3466"
 :status :untested
 
+:model "C460"
+:interface "USB"
+:usbid "0x04e8" "0x3468"
+:status :untested
+

@@ -175,6 +175,9 @@ usb 0x04e8 0x3461
 #Samsung SCX-681x Series
 usb 0x04e8 0x3466
 
+#Samsung C460 Series
+usb 0x04e8 0x3468
+
 ####################
 ### Xerox Models ###
 ####################

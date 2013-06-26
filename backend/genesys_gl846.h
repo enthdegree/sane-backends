@@ -588,6 +588,7 @@ typedef struct
 
 static Gpio_Profile gpios[]={
     { GPO_IMG101, 0x72, 0x1f, 0xa4, 0x13, 0xa7, 0x11, 0xff, 0x19, 0x05},
+    { GPO_PLUSTEK3800, 0x30, 0x01, 0x80, 0x2d, 0x80, 0x0c, 0x8f, 0x08, 0x04},
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
@@ -620,7 +621,27 @@ static Memory_layout layouts[]={
                                     /* BLUE ODD START / BLUE ODD END */
             0x15, 0x90, 0x1a, 0xc7, /* [0x1590,0x1ac7] */
                                     /* BLUE EVEN START / BLUE EVEN END */
-            0x1a, 0xc8, 0x1f, 0xff} /* [0x1ac8,0x1fff] */
+            0x1a, 0xc8, 0x1f, 0xff  /* [0x1ac8,0x1fff] */
+          }
+	},
+        /* OpticBook 3800 */
+	{
+          "plustek-opticbook-3800",
+          0x2a,
+          0x0a, 0x0a, 0x0a,
+          { /* RED ODD START / RED ODD END */
+            0x00, 0x68, 0x03, 0x00,
+            /* RED EVEN START / RED EVEN END */
+            0x03, 0x01, 0x05, 0x99,
+            /* GREEN ODD START / GREEN ODD END */
+            0x05, 0x9a, 0x08, 0x32,
+            /* GREEN EVEN START / GREEN EVEN END */
+            0x08, 0x33, 0x0a, 0xcb,
+            /* BLUE ODD START / BLUE ODD END */
+            0x0a, 0xcc, 0x0d, 0x64,
+            /* BLUE EVEN START / BLUE EVEN END */
+            0x0d, 0x65, 0x0f, 0xfd
+          }
 	},
         /* list terminating entry */
         { NULL, 0, 0, 0, 0, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} }
@@ -658,6 +679,7 @@ static size_t order_01[]={0,1};
  */
 static Sensor_Profile sensors[]={
 	{CCD_IMG101, 1200, 11000,  60, 159, 85, 5136, 255,  0,  0,  0, order_01  , 0x13},
+	{CCD_PLUSTEK3800, 1200, 11000,  60, 159, 85, 5136, 255,  0,  0,  0, order_01  , 0x13},
 };
 /* *INDENT-ON* */
 
@@ -673,6 +695,7 @@ static uint32_t img101_high[] = {22000, 22000, 22000, 18450, 15974, 14284, 13054
 static Motor_Profile gl846_motors[]={
         /* Image Formula 101 */
 	{MOTOR_IMG101,  11000, HALF_STEP , img101_high},
+	{MOTOR_PLUSTEK3800,  11000, HALF_STEP , img101_high},
         
 	/* end of database entry */
 	{0,  0, 0, NULL},

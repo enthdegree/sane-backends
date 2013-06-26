@@ -120,3 +120,6 @@ usb 0x03f0 0x4705
 
 # Canon Image Formula 101
 usb 0x1803 0x162e
+
+# Plustek OpticBook 3800
+usb 0x07b3 0x1300

@@ -65,6 +65,8 @@ sanei_genesys_init_cmd_set (Genesys_Device * dev)
       return sanei_gl841_init_cmd_set (dev);
     case GENESYS_GL843:
       return sanei_gl843_init_cmd_set (dev);
+    case GENESYS_GL845: /* since only a few reg bits differs
+                           we handle both together */
     case GENESYS_GL846:
       return sanei_gl846_init_cmd_set (dev);
     case GENESYS_GL847:
@@ -301,6 +303,7 @@ sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
 
   /* route to gl847 function if needed */
   if(dev->model->asic_type==GENESYS_GL847
+  || dev->model->asic_type==GENESYS_GL845 
   || dev->model->asic_type==GENESYS_GL846 
   || dev->model->asic_type==GENESYS_GL124)
     {
@@ -415,6 +418,7 @@ sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg, uint8_t * val)
 
   /* route to gl847 function if needed */
   if(dev->model->asic_type==GENESYS_GL847
+  || dev->model->asic_type==GENESYS_GL845
   || dev->model->asic_type==GENESYS_GL846
   || dev->model->asic_type==GENESYS_GL124)
     return sanei_genesys_read_gl847_register(dev, reg, val);
@@ -456,6 +460,7 @@ sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
   SANE_Status status;
   
   if(dev->model->asic_type==GENESYS_GL847
+  || dev->model->asic_type==GENESYS_GL845 
   || dev->model->asic_type==GENESYS_GL846 
   || dev->model->asic_type==GENESYS_GL124)
     {
@@ -672,6 +677,7 @@ sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
       *words = *words * 256 + value;
       break;
 
+    case GENESYS_GL845:
     case GENESYS_GL846:
       RIE (sanei_genesys_read_register (dev, 0x42, &value));
       *words = (value & 0x02);

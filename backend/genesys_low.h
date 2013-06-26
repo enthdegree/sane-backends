@@ -317,6 +317,7 @@ Genesys_Color_Order;
 #define GENESYS_GL646	 646
 #define GENESYS_GL841	 841
 #define GENESYS_GL843	 843
+#define GENESYS_GL845	 845
 #define GENESYS_GL846	 846
 #define GENESYS_GL847	 847
 #define GENESYS_GL848	 848
@@ -344,6 +345,7 @@ Genesys_Color_Order;
 #define DAC_CANONLIDE700   16
 #define DAC_CS8400F        17
 #define DAC_IMG101         18
+#define DAC_PLUSTEK3800    19
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -371,6 +373,7 @@ Genesys_Color_Order;
 #define CCD_CS4400F      23
 #define CCD_CS8400F      24
 #define CCD_IMG101       25
+#define CCD_PLUSTEK3800  26
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -395,6 +398,7 @@ Genesys_Color_Order;
 #define GPO_CS4400F      20
 #define GPO_CS8400F      21
 #define GPO_IMG101       22
+#define GPO_PLUSTEK3800  23
 
 #define MOTOR_UMAX          0
 #define MOTOR_5345          1
@@ -417,6 +421,7 @@ Genesys_Color_Order;
 #define MOTOR_CANONLIDE700 19
 #define MOTOR_CS8400F      20
 #define MOTOR_IMG101       21
+#define MOTOR_PLUSTEK3800  22
 
 
 /* Forward typedefs */

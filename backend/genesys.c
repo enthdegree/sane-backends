@@ -5214,10 +5214,12 @@ calc_parameters (Genesys_Scanner * s)
   s->params.pixels_per_line =
     ((br_x - tl_x) * resolution) / MM_PER_INCH;
 
-  /* we need an even pixels number */
+  /* we need an even pixels number
+   * TODO invert test logic or generalize behaviour acroos all ASICs */
   if ((s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR)
       || s->dev->model->asic_type == GENESYS_GL847  
       || s->dev->model->asic_type == GENESYS_GL124  
+      || s->dev->model->asic_type == GENESYS_GL845  
       || s->dev->model->asic_type == GENESYS_GL846  
       || s->dev->model->asic_type == GENESYS_GL843) 
     {

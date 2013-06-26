@@ -1,3 +1,9 @@
+2013-06-26 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys.conf.in backend/genesys_devices.c
+	backend/genesys_gl846.c backend/genesys_gl846.h backend/genesys_low.c
+	backend/genesys_low.h: add experimental description and code for the
+	GL845 based Opticbook 3800.
+
 2013-06-22 Alex Belkin <abc at telekom.ru>
 	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: multiple
 	usb ids	for Samsung models, reported by Mikhail Elhimov.

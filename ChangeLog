@@ -1,3 +1,6 @@
+2013-06-27 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.c: fix mode list for infrared scans
+
 2013-06-27 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu*: backend v117
 	- default buffer-mode to off

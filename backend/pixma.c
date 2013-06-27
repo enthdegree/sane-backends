@@ -384,7 +384,7 @@ create_mode_list (pixma_sane_t * ss)
           i++;
         }
     }
-  if (tpu && (cfg->cap & PIXMA_CAP_TPUIR))
+  if (tpu && (cfg->cap & PIXMA_CAP_TPUIR) == PIXMA_CAP_TPUIR)
     {
       ss->mode_list[i] = SANE_I18N ("Infrared");
       ss->mode_map[i] = PIXMA_SCAN_MODE_TPUIR;

@@ -1,3 +1,11 @@
+2013-06-27 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu*: backend v117
+	- default buffer-mode to off
+	- improved error handling in sane_start
+	- image width must be multiple of 8 when swcrop is used before binarization (iX500)
+	- check hopper sensor before calling object_position(load) on iX500
+	* .gitignore: ignore .deps directories
+
 2013-06-26 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.conf.in backend/genesys_devices.c
 	backend/genesys_gl846.c backend/genesys_gl846.h backend/genesys_low.c

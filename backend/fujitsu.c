@@ -533,6 +533,11 @@
       v116 2013-03-23, MAN
          - call set_mode() in init_interlace
          - add swskip option
+      v117 2013-06-11, MAN
+         - default buffer-mode to off
+         - improved error handling in sane_start
+         - image width must be multiple of 8 when swcrop is used before binarization (iX500)
+         - check hopper sensor before calling object_position(load) on iX500
 
    SANE FLOW DIAGRAM
 
@@ -582,7 +587,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 116
+#define BUILD 117
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2193,6 +2198,7 @@ init_model (struct fujitsu *s)
     s->need_q_table = 1;
     s->need_diag_preread = 1;
     s->ppl_mod_by_mode[MODE_COLOR] = 2;
+    s->hopper_before_op = 1;
     s->no_wait_after_op = 1;
 
     /* lies */
@@ -2298,6 +2304,11 @@ init_user (struct fujitsu *s)
   s->noise_removal = 1;
   s->bp_filter = 1;
   s->smoothing = 1;
+
+  /* more recent machines default to this being 'on',  *
+   * which causes the scanner to ingest multiple pages *
+   * even when the user only wants one */
+  s->buff_mode = MSEL_OFF;
 
   DBG (10, "init_user: finish\n");
 
@@ -5546,7 +5557,8 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
   DBG (10, "get_hardware_status: start\n");
 
   /* only run this if frontend has already read the last time we got it */
-  if (s->hw_read[option-OPT_TOP]) {
+  /* or if we don't care for such bookkeeping (private use) */
+  if (!option || s->hw_read[option-OPT_TOP]) {
 
       DBG (15, "get_hardware_status: running\n");
 
@@ -5648,7 +5660,8 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
       }
   }
 
-  s->hw_read[option-OPT_TOP] = 1;
+  if(option)
+    s->hw_read[option-OPT_TOP] = 1;
 
   DBG (10, "get_hardware_status: finish\n");
 
@@ -6604,7 +6617,8 @@ sane_start (SANE_Handle handle)
   /* not finished with current side, error */
   if (s->started && !s->eof_tx[s->side]) {
       DBG(5,"sane_start: previous transfer not finished?");
-      return SANE_STATUS_INVAL;
+      ret = SANE_STATUS_INVAL;
+      goto errors;
   }
 
   /* low mem mode messes up the side marker, reset it */
@@ -6629,7 +6643,7 @@ sane_start (SANE_Handle handle)
       ret = update_params(s);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot update params\n");
-        return ret;
+        goto errors;
       }
 
       /* switch source */
@@ -6690,7 +6704,7 @@ sane_start (SANE_Handle handle)
       ret = set_window(s);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot set window\n");
-        return ret;
+        goto errors;
       }
     
       /* send lut if scanner has no hardware brightness/contrast */
@@ -6711,27 +6725,27 @@ sane_start (SANE_Handle handle)
       ret = get_pixelsize(s,0);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot get pixelsize\n");
-        return ret;
+        goto errors;
       }
 
       /* make backup copy of params because later functions overwrite */
       ret = backup_params(s);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot backup params\n");
-        return ret;
+        goto errors;
       }
 
       /* start/stop endorser */
       ret = endorser(s);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot start/stop endorser\n");
-        return ret;
+        goto errors;
       }
     
       /* turn lamp on */
       ret = scanner_control(s, SC_function_lamp_on);
       if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot start lamp, ignoring\n");
+        DBG (5, "sane_start: WARNING: cannot start lamp, ignoring\n");
       }
   }
   /* if already running, duplex needs to switch sides */
@@ -6743,7 +6757,7 @@ sane_start (SANE_Handle handle)
   ret = restore_params(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "sane_start: ERROR: cannot restore params\n");
-    return ret;
+    goto errors;
   }
 
   /* set clean defaults with new sheet of paper */
@@ -6821,7 +6835,7 @@ sane_start (SANE_Handle handle)
           ret = setup_buffers(s);
           if (ret != SANE_STATUS_GOOD) {
               DBG (5, "sane_start: ERROR: cannot load buffers\n");
-              return ret;
+              goto errors;
           }
     
           s->started=1;
@@ -6830,15 +6844,13 @@ sane_start (SANE_Handle handle)
       ret = object_position (s, SANE_TRUE);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot load page\n");
-        s->started=0;
-        return ret;
+        goto errors;
       }
 
       ret = start_scan (s);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot start_scan\n");
-        s->started=0;
-        return ret;
+        goto errors;
       }
   }
 
@@ -6869,7 +6881,7 @@ sane_start (SANE_Handle handle)
     ret = get_pixelsize(s,1);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot get final pixelsize\n");
-      return ret;
+      goto errors;
     }
 
     /* finished buffering, adjust image as required */
@@ -6907,6 +6919,15 @@ sane_start (SANE_Handle handle)
 
   errors:
     DBG (10, "sane_start: error %d\n", ret);
+
+    /* if we are started, but something went wrong, 
+     * chances are there is image data inside scanner,
+     * which should be discarded via cancel command */
+    if(s->started){
+      s->cancelled = 1;
+      check_for_cancel(s);
+    }
+
     s->started = 0;
     s->cancelled = 0;
     s->reading = 0;
@@ -7521,6 +7542,13 @@ object_position (struct fujitsu *s, int i_load)
   if (s->source == SOURCE_FLATBED) {
     DBG (10, "object_position: flatbed no-op\n");
     return SANE_STATUS_GOOD;
+  }
+
+  if(s->hopper_before_op && i_load){
+    ret = get_hardware_status(s,0);
+    if(!s->hw_hopper){
+      return SANE_STATUS_NO_DOCS;
+    }
   }
 
   memset(cmd,0,cmdLen);
@@ -8545,7 +8573,7 @@ downsample_from_buffer(struct fujitsu *s, SANE_Byte * buf,
 {
     SANE_Status ret=SANE_STATUS_GOOD;
 
-    DBG (10, "downsample_from_buffer: start\n");
+    DBG (10, "downsample_from_buffer: start %d %d %d %d\n", s->bytes_rx[side], s->bytes_tx[side], s->buff_rx[side], s->buff_tx[side]);
   
     if(s->s_mode == MODE_COLOR && s->u_mode == MODE_GRAYSCALE){
 
@@ -8633,7 +8661,7 @@ downsample_from_buffer(struct fujitsu *s, SANE_Byte * buf,
       ret = SANE_STATUS_INVAL;
     }
 
-    DBG (10, "downsample_from_buffer: finish\n");
+    DBG (10, "downsample_from_buffer: finish %d %d %d %d\n", s->bytes_rx[side], s->bytes_tx[side], s->buff_rx[side], s->buff_tx[side]);
   
     return ret;
 }
@@ -9643,6 +9671,12 @@ buffer_crop(struct fujitsu *s, int side)
 
     /* we dont listen to the 'top' value, since fujitsu does not pad the top */
     s->crop_vals[0] = 0;
+
+    /* if we will later binarize this image, make sure the width
+     * is a multiple of 8 pixels, by adjusting the right side */
+    if ( must_downsample(s) && s->u_mode < MODE_GRAYSCALE ){
+      s->crop_vals[3] -= (s->crop_vals[3]-s->crop_vals[2]) % 8;
+    }
   }
   /* backside images can use a 'flipped' version of frontside data */
   else{

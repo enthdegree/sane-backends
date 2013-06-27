@@ -571,6 +571,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_R_datatype_code(sb, val) sb[0x02] = val
 #define R_datatype_imagedata		0x00
 #define R_datatype_pixelsize		0x80
+#define R_datatype_papersize		0x81
+#define R_datatype_effective_id         0x82
 #define set_R_window_id(sb, val)       sb[0x05] = val
 #define set_R_xfer_length(sb, val)     putnbyte(sb + 0x06, val, 3)
 
@@ -582,6 +584,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_PSIZE_req_driv_crop(in)    getbitfield(in + 0x10, 1, 7)
 #define get_PSIZE_req_driv_lut(in)     getbitfield(in + 0x10, 1, 6)
 #define get_PSIZE_req_driv_valid(in)   getbitfield(in + 0x10, 1, 0)
+
+#define R_PAPER_len                0x08
+#define get_PAPER_job_sep(in)          getnbyte(in + 0x02, 1)
+#define get_PAPER_paper_w(in)          getnbyte(in + 0x03, 1)
 
 /* ==================================================================== */
 /* SEND */

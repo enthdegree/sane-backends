@@ -10,4 +10,4 @@ config.log
 config.status
 config.cache
 libtool
-
+.deps/

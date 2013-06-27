@@ -15,8 +15,8 @@ This document describes backend version 111, which shipped with SANE 1.0.23.
 .SH SUPPORTED HARDWARE
 This version supports every known model which speaks the Fujitsu SCSI and 
 SCSI\-over\-USB protocols. Specifically, the SCSI M309x and M409x series, the 
-SCSI fi\-series, most of the USB fi\-series, and the USB ScanSnap S5xx/S15xx
-scanners are supported. Please see the list at 
+SCSI fi\-series, most of the USB fi\-series, the USB ScanSnap S5xx/S15xx, and
+the USB iX5xx series scanners are supported. Please see the list at 
 http://www.sane\-project.org/sane\-supported\-devices.html for details.
 
 This backend may support other Fujitsu scanners. The best

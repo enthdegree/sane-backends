@@ -927,6 +927,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
    * tested instead of adding all the others */
   /* many scanners send coefficient for lineart/gray like in color mode */
   if (dev->settings.scan_mode < 2
+      && dev->model->ccd_type != CCD_PLUSTEK3800
       && dev->model->ccd_type != CCD_KVSS080
       && dev->model->ccd_type != CCD_G4050
       && dev->model->ccd_type != CCD_CS4400F
@@ -2996,6 +2997,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                             target_code);
       break;
     case CCD_KVSS080:
+    case CCD_PLUSTEK3800:
     case CCD_G4050:
     case CCD_CS4400F:
     case CCD_CS8400F:
@@ -5215,7 +5217,7 @@ calc_parameters (Genesys_Scanner * s)
     ((br_x - tl_x) * resolution) / MM_PER_INCH;
 
   /* we need an even pixels number
-   * TODO invert test logic or generalize behaviour acroos all ASICs */
+   * TODO invert test logic or generalize behaviour across all ASICs */
   if ((s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR)
       || s->dev->model->asic_type == GENESYS_GL847  
       || s->dev->model->asic_type == GENESYS_GL124  
@@ -6904,6 +6906,8 @@ sane_close (SANE_Handle handle)
   /* we need this to avoid ASIC getting stuck
    * in bulk writes */
   if(s->dev->model->asic_type==GENESYS_GL847
+   ||s->dev->model->asic_type==GENESYS_GL845
+   ||s->dev->model->asic_type==GENESYS_GL845
    ||s->dev->model->asic_type==GENESYS_GL843)
     sanei_usb_reset (s->dev->dn);
 

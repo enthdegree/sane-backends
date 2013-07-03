@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "10 Jun 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "03 Jul 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -15,7 +15,7 @@ IPv4 as well as IPv6.
 Currently, the following models work with this backend:
 .PP
 .RS
-PIXMA MG2100, MG3100, MG4200, MG5100, MG5300
+PIXMA MG2100, MG3100, MG4200, MG5100, MG5200, MG5300
 .br
 PIXMA MG6100, MG6200, MG6300
 .br
@@ -77,7 +77,7 @@ Feedback in the sane\-devel mailing list welcome.
 .RS
 PIXMA E500, E510, E600, E610
 .br
-PIXMA MG2200, MG3200, MG4100, MG5200, MG5400
+PIXMA MG2200, MG3200, MG4100, MG5400
 .br
 PIXMA MG8100, MG8200
 .br

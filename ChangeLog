@@ -1,3 +1,7 @@
+2013-07-03 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Canon PIXMA MG5200 Series support reported by Dimitri Fellous.
+
 2013-06-27 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.c: fix mode list for infrared scans
 

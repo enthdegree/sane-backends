@@ -11,3 +11,4 @@ config.status
 config.cache
 libtool
 .deps/
+.*

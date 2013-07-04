@@ -648,6 +648,29 @@ static Genesys_Sensor Sensor[] = {
    {2.1, 2.1, 2.1},
    {NULL, NULL, NULL}}
   ,
+  /* CANON LIDE 210 sensor */
+  {CIS_CANONLIDE210,
+   2400,	/* optical resolution */
+   87,		/* black pixels */
+   16,		/* dummy pixels 16 */
+   303,		/* 303 */
+   5168*4,	/* total pixels */
+   210,
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   /* reg 0x10 - 0x15 : EXPR, EXPG and EXPB */
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+   /* reg 0x16 - 0x1d */
+    0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01 },
+   /* reg 0x52 - 0x5e */
+   {
+    0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04,
+    0x1a, 0x00, 0xc0, 0x00, 0x00
+    }
+   ,
+   {2.1, 2.1, 2.1},
+   {NULL, NULL, NULL}}
+  ,
   {CCD_PLUSTEK_3600,
    1200,
    87,				/*(black) */
@@ -1186,6 +1209,17 @@ static Genesys_Motor Motor[] = {
    },
   },
   {MOTOR_CANONLIDE110,		/* Canon LiDE 110 */
+   4800,
+   9600,
+   1,   /* maximum step type count */
+   1,   /* maximum power modes count */
+   { /* motor slopes */
+	   { /* power mode 0 */
+		   {   3000,   1000, 256, 0.50}, /* full step */
+	   },
+    },
+  },
+  {MOTOR_CANONLIDE210,		/* Canon LiDE 210 */
    4800,
    9600,
    1,   /* maximum step type count */
@@ -1817,10 +1851,10 @@ static Genesys_Model canon_lide_210_model = {
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   SANE_FALSE,			/* Is this a sheetfed scanner? */
-  CIS_CANONLIDE110,
+  CIS_CANONLIDE210,
   DAC_CANONLIDE110,
   GPO_CANONLIDE210,
-  MOTOR_CANONLIDE110,	
+  MOTOR_CANONLIDE210,	
       GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION

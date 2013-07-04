@@ -374,6 +374,7 @@ Genesys_Color_Order;
 #define CCD_CS8400F      24
 #define CCD_IMG101       25
 #define CCD_PLUSTEK3800  26
+#define CIS_CANONLIDE210 27
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -422,6 +423,7 @@ Genesys_Color_Order;
 #define MOTOR_CS8400F      20
 #define MOTOR_IMG101       21
 #define MOTOR_PLUSTEK3800  22
+#define MOTOR_CANONLIDE210 23
 
 
 /* Forward typedefs */

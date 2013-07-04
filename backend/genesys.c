@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL846/GL847/GL124 based scanners
  */
 
-#define BUILD 2408
+#define BUILD 2410
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -2897,7 +2897,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
    * sets REG01_FASTMOD.
    */
 
-  /* at some point me may thought of a setup struct in genesys_devices that
+  /* TODO setup a struct in genesys_devices that
    * will handle these settings instead of having this switch growing up */
   cmat[0] = 0;
   cmat[1] = 1;
@@ -3016,7 +3016,11 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
     case CIS_CANONLIDE110:
-        if(dev->model->ccd_type!=CIS_CANONLIDE110)
+    case CIS_CANONLIDE210:
+        /* TODO store this in a data struct so we avoid
+         * growing this switch */
+        if(dev->model->ccd_type!=CIS_CANONLIDE110
+        && dev->model->ccd_type!=CIS_CANONLIDE210)
           target_code=0xdc00;
         else
           target_code=0xf000;
@@ -6106,6 +6110,8 @@ attach_one_device (SANE_String_Const devname)
     {
       /* Keep track of newly attached devices so we can set options as
          necessary.  */
+      tmp_dev=NULL;
+      /* increase device list capacity if needed */
       if (new_dev_len >= new_dev_alloced)
 	{
 	  new_dev_alloced += 4;
@@ -6120,10 +6126,7 @@ attach_one_device (SANE_String_Const devname)
             }
 	  if (!new_dev)
 	    {
-              if(tmp_dev)
-                {
-                  free(tmp_dev);
-                }
+              FREE_IFNOT_NULL(tmp_dev)
 	      DBG (DBG_error, "attach_one_device: out of memory\n");
 	      return SANE_STATUS_NO_MEM;
 	    }

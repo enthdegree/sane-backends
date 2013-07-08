@@ -3285,6 +3285,15 @@ main (int argc, char *argv[])
 	}
       else if (strncmp (argv[1], "-s", 2) == 0)
 	run_mode = SANED_RUN_DEBUG;
+      else
+        {
+          printf ("Usage: saned [ -a [ username ] | -d [ n ] | -s [ n ] ] | -h\n");
+          if ((strncmp (argv[1], "-h", 2) == 0) ||
+               (strncmp (argv[1], "--help", 6) == 0))
+            exit (EXIT_SUCCESS);
+          else
+            exit (EXIT_FAILURE);
+        }
     }
 
   if (run_mode == SANED_RUN_DEBUG)

@@ -10,6 +10,7 @@ saned \- SANE network daemon
 .I [ n ]
 .B  | \-s
 .I [ n ]
+.B | \-h
 .B ]
 .SH DESCRIPTION
 .B saned
@@ -61,6 +62,10 @@ requests using syslog.
 If 
 .B saned
 is run from inetd, xinetdi or systemd, no option can be given.
+.PP
+The
+.B \-h
+flag displays a short help message.
 .SH CONFIGURATION
 First and foremost: 
 .B saned

@@ -8,7 +8,7 @@ saned \- SANE network daemon
 .I [ username ]
 .B | \-d 
 .I [ n ]
-.B  | \-s
+.B | \-s
 .I [ n ]
 .B | \-h
 .B ]
@@ -61,7 +61,7 @@ requests using syslog.
 .PP
 If 
 .B saned
-is run from inetd, xinetdi or systemd, no option can be given.
+is run from inetd, xinetd or systemd, no option can be given.
 .PP
 The
 .B \-h

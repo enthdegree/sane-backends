@@ -13,7 +13,7 @@ scanimage \- scan an image
 .RB [ \-L | \-\-list\-devices ]
 .RB [ \-f | \-\-formatted\-device\-list 
 .IR format ]
-.RB [ \-\-batch 
+.RB [ \-b | \-\-batch
 .RI [= format ]]
 .RB [ \-\-batch\-start
 .IR start ]

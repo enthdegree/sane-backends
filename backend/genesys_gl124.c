@@ -950,13 +950,14 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 
   if(dev->line_interp>0)
     {
-      lincnt=scan_lines*dev->line_interp;
+      lincnt=scan_lines*(dev->line_interp+1);
     }
   else
     {
       lincnt=scan_lines;
     }
-      
+     
+  /* enforce motor minimal scan speed */ 
   yres=scan_yres;
   if ((scan_mode == SCAN_MODE_COLOR) && (yres<900))
     {
@@ -964,10 +965,10 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
     }
   if ((scan_mode != SCAN_MODE_COLOR) && (yres<300))
     {
-      scan_dummy=dev->line_interp-1;
-      dev->line_interp=0;
       yres=300;
     }
+  scan_dummy=dev->line_interp;
+  dev->line_interp=0;
 
   sanei_genesys_set_triple(reg,REG_LINCNT,lincnt);
   DBG (DBG_io, "%s: lincnt=%d\n", __FUNCTION__, lincnt);
@@ -1390,15 +1391,16 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
        * motor dpi then discard lines to match taget
        * resolution, so lincnt has to be updated
        */
-      dev->line_interp = 300/dpiset;
+      dev->line_interp = 300/dpiset-1;
     }
 
-  DBG (DBG_io2, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
-  DBG (DBG_io2, "%s: pixels     =%d\n", __FUNCTION__, pixels);
-  DBG (DBG_io2, "%s: depth      =%d\n", __FUNCTION__, depth);
-  DBG (DBG_io2, "%s: dev->bpl   =%lu\n", __FUNCTION__, (unsigned long)dev->bpl);
-  DBG (DBG_io2, "%s: dev->len   =%lu\n", __FUNCTION__, (unsigned long)dev->len);
-  DBG (DBG_io2, "%s: dev->dist  =%lu\n", __FUNCTION__, (unsigned long)dev->dist);
+  DBG (DBG_io2, "%s: used_pixels     =%d\n", __FUNCTION__, used_pixels);
+  DBG (DBG_io2, "%s: pixels          =%d\n", __FUNCTION__, pixels);
+  DBG (DBG_io2, "%s: depth           =%d\n", __FUNCTION__, depth);
+  DBG (DBG_io2, "%s: dev->bpl        =%lu\n", __FUNCTION__, (unsigned long)dev->bpl);
+  DBG (DBG_io2, "%s: dev->len        =%lu\n", __FUNCTION__, (unsigned long)dev->len);
+  DBG (DBG_io2, "%s: dev->dist       =%lu\n", __FUNCTION__, (unsigned long)dev->dist);
+  DBG (DBG_io2, "%s: dev->line_interp=%lu\n", __FUNCTION__, (unsigned long)dev->dist);
 
   words_per_line *= channels;
   dev->wpl = words_per_line;

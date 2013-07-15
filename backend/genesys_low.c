@@ -159,7 +159,7 @@ sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
 /* Reads a register from a register set */
 SANE_Byte
 sanei_genesys_read_reg_from_set (Genesys_Register_Set * reg,
-				 SANE_Byte address)
+				 uint16_t address)
 {
   SANE_Int i;
 
@@ -175,7 +175,7 @@ sanei_genesys_read_reg_from_set (Genesys_Register_Set * reg,
 
 /* Reads a register from a register set */
 void
-sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, SANE_Byte address,
+sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, uint16_t address,
 				SANE_Byte value)
 {
   SANE_Int i;
@@ -202,12 +202,12 @@ sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, SANE_Byte address,
  * @param val value to write
  */
 SANE_Status
-sanei_genesys_write_hregister (Genesys_Device * dev, uint8_t reg, uint8_t val)
+sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val)
 {
   SANE_Status status;
   uint8_t buffer[2];
 
-  buffer[0]=reg;
+  buffer[0]=reg & 0xff;
   buffer[1]=val;
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
@@ -232,14 +232,14 @@ sanei_genesys_write_hregister (Genesys_Device * dev, uint8_t reg, uint8_t val)
  * @param val value to write
  */
 SANE_Status
-sanei_genesys_read_hregister (Genesys_Device * dev, uint8_t reg, uint8_t * val)
+sanei_genesys_read_hregister (Genesys_Device * dev, uint16_t reg, uint8_t * val)
 {
   SANE_Status status;
   SANE_Byte value[2];
 
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_BUFFER,
-			   0x100 | VALUE_GET_REGISTER, 0x22+(reg<<8), 2, value);
+			   0x100 | VALUE_GET_REGISTER, 0x22+((reg & 0xff)<<8), 2, value);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -290,9 +290,10 @@ sanei_genesys_write_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t v
  * Write to one ASIC register
  */
 SANE_Status
-sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
+sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
 {
   SANE_Status status;
+  SANE_Byte reg8;
 
 #ifdef UNIT_TESTING
   if(dev->usb_mode<0)
@@ -300,6 +301,12 @@ sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
       return SANE_STATUS_GOOD;
     }
 #endif
+
+  /* 16 bit register address space */
+  if(reg>255)
+    {
+      return sanei_genesys_write_hregister(dev, reg, val);
+    }
 
   /* route to gl847 function if needed */
   if(dev->model->asic_type==GENESYS_GL847
@@ -310,9 +317,10 @@ sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
       return sanei_genesys_write_gl847_register(dev, reg, val);
     }
 
+  reg8=reg & 0xff;
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &reg);
+			   VALUE_SET_REGISTER, INDEX, 1, &reg8);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -375,7 +383,7 @@ sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val)
  * URB   164  control  0xc0 0x04 0x8e 0x4122 len     2 read  0xfc 0x55
  */
 static SANE_Status
-sanei_genesys_read_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t * val)
+sanei_genesys_read_gl847_register (Genesys_Device * dev, uint16_t reg, uint8_t * val)
 {
   SANE_Status status;
   SANE_Byte value[2];
@@ -404,9 +412,10 @@ sanei_genesys_read_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t * 
 
 /* Read from one register */
 SANE_Status
-sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg, uint8_t * val)
+sanei_genesys_read_register (Genesys_Device * dev, uint16_t reg, uint8_t * val)
 {
   SANE_Status status;
+  SANE_Byte reg8;
 
 #ifdef UNIT_TESTING
   if(dev->usb_mode<0)
@@ -416,6 +425,12 @@ sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg, uint8_t * val)
     }
 #endif
 
+  /* 16 bit register address space */
+  if(reg>255)
+    {
+      return sanei_genesys_read_hregister(dev, reg, val);
+    }
+
   /* route to gl847 function if needed */
   if(dev->model->asic_type==GENESYS_GL847
   || dev->model->asic_type==GENESYS_GL845
@@ -423,9 +438,11 @@ sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg, uint8_t * val)
   || dev->model->asic_type==GENESYS_GL124)
     return sanei_genesys_read_gl847_register(dev, reg, val);
 
+  /* 8 bit register address space */
+  reg8=(SANE_Byte)(reg& 0Xff);
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &reg);
+			   VALUE_SET_REGISTER, INDEX, 1, &reg8);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -594,7 +611,7 @@ SANE_Status
 sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status)
 {
   if(dev->model->asic_type==GENESYS_GL124)
-    return sanei_genesys_read_hregister(dev, 0x01, status);
+    return sanei_genesys_read_hregister(dev, 0x101, status);
   return sanei_genesys_read_register (dev, 0x41, status);
 }
 
@@ -667,13 +684,13 @@ sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
   switch (dev->model->asic_type)
     {
     case GENESYS_GL124:
-      RIE (sanei_genesys_read_hregister (dev, 0x02, &value));
+      RIE (sanei_genesys_read_hregister (dev, 0x102, &value));
       *words = (value & 0x03);
-      RIE (sanei_genesys_read_hregister (dev, 0x03, &value));
+      RIE (sanei_genesys_read_hregister (dev, 0x103, &value));
       *words = *words * 256 + value;
-      RIE (sanei_genesys_read_hregister (dev, 0x04, &value));
+      RIE (sanei_genesys_read_hregister (dev, 0x104, &value));
       *words = *words * 256 + value;
-      RIE (sanei_genesys_read_hregister (dev, 0x05, &value));
+      RIE (sanei_genesys_read_hregister (dev, 0x105, &value));
       *words = *words * 256 + value;
       break;
 
@@ -730,11 +747,11 @@ sanei_genesys_read_scancnt (Genesys_Device * dev, unsigned int *words)
 
   if (dev->model->asic_type == GENESYS_GL124)
     {
-      RIE (sanei_genesys_read_hregister (dev, 0x0b, &value));
+      RIE (sanei_genesys_read_hregister (dev, 0x10b, &value));
       *words = (value & 0x0f) << 16;
-      RIE (sanei_genesys_read_hregister (dev, 0x0c, &value));
+      RIE (sanei_genesys_read_hregister (dev, 0x10c, &value));
       *words += (value << 8);
-      RIE (sanei_genesys_read_hregister (dev, 0x0d, &value));
+      RIE (sanei_genesys_read_hregister (dev, 0x10d, &value));
       *words += value;
     }
   else
@@ -762,7 +779,7 @@ sanei_genesys_read_scancnt (Genesys_Device * dev, unsigned int *words)
  * address in ASIC space. Or NULL if not found.
  */
 Genesys_Register_Set *
-sanei_genesys_get_address (Genesys_Register_Set * regs, SANE_Byte addr)
+sanei_genesys_get_address (Genesys_Register_Set * regs, uint16_t addr)
 {
   int i;
   for (i = 0; i < GENESYS_MAX_REGS; i++)
@@ -782,7 +799,7 @@ sanei_genesys_get_address (Genesys_Register_Set * regs, SANE_Byte addr)
  * @return SANE_STATUS_INVAL if the index doesn't exist in register set
  */
 SANE_Status
-sanei_genesys_set_double(Genesys_Register_Set *regs, SANE_Byte addr, uint16_t value)
+sanei_genesys_set_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t value)
 {
   Genesys_Register_Set *r;
 
@@ -813,7 +830,7 @@ sanei_genesys_set_double(Genesys_Register_Set *regs, SANE_Byte addr, uint16_t va
  * @return SANE_STATUS_INVAL if the index doesn't exist in register set
  */
 SANE_Status
-sanei_genesys_set_triple(Genesys_Register_Set *regs, SANE_Byte addr, uint32_t value)
+sanei_genesys_set_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t value)
 {
   Genesys_Register_Set *r;
 
@@ -852,7 +869,7 @@ sanei_genesys_set_triple(Genesys_Register_Set *regs, SANE_Byte addr, uint32_t va
  * @return SANE_STATUS_INVAL if the index doesn't exist in register set
  */
 SANE_Status
-sanei_genesys_get_double(Genesys_Register_Set *regs, SANE_Byte addr, uint16_t *value)
+sanei_genesys_get_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t *value)
 {
   Genesys_Register_Set *r;
   uint16_t result=0;
@@ -885,7 +902,7 @@ sanei_genesys_get_double(Genesys_Register_Set *regs, SANE_Byte addr, uint16_t *v
  * @return SANE_STATUS_INVAL if the index doesn't exist in register set
  */
 SANE_Status
-sanei_genesys_get_triple(Genesys_Register_Set *regs, SANE_Byte addr, uint32_t *value)
+sanei_genesys_get_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t *value)
 {
   Genesys_Register_Set *r;
   uint32_t result=0;
@@ -1012,11 +1029,11 @@ sanei_genesys_read_feed_steps (Genesys_Device * dev, unsigned int *steps)
 
   if (dev->model->asic_type == GENESYS_GL124)
     {
-      RIE (sanei_genesys_read_hregister (dev, 0x08, &value));
+      RIE (sanei_genesys_read_hregister (dev, 0x108, &value));
       *steps = (value & 0x1f) << 16;
-      RIE (sanei_genesys_read_hregister (dev, 0x09, &value));
+      RIE (sanei_genesys_read_hregister (dev, 0x109, &value));
       *steps += (value << 8);
-      RIE (sanei_genesys_read_hregister (dev, 0x0a, &value));
+      RIE (sanei_genesys_read_hregister (dev, 0x10a, &value));
       *steps += value;
     }
   else

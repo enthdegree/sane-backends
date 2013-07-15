@@ -246,7 +246,7 @@
 #define REGB7           0xb7
 #define REGB7_Z2MOD	0xff
 
-#define REG100          0
+#define REG100          0x100
 #define REG100_DOCSNR   0x80
 #define REG100_ADFSNR   0x40
 #define REG100_COVERSNR 0x20

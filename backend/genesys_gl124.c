@@ -1280,8 +1280,8 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
     r->value |= REG03_LAMPPWR;
 
   /* BW threshold */
-  RIE (sanei_genesys_write_hregister (dev, REG114, dev->settings.threshold));
-  RIE (sanei_genesys_write_hregister (dev, REG115, dev->settings.threshold));
+  RIE (sanei_genesys_write_register (dev, REG114, dev->settings.threshold));
+  RIE (sanei_genesys_write_register (dev, REG115, dev->settings.threshold));
 
   /* monochrome / color scan */
   r = sanei_genesys_get_address (reg, REG04);
@@ -1943,7 +1943,7 @@ gl124_stop_action (Genesys_Device * dev)
       sanei_genesys_print_status (val);
     }
 
-  status = sanei_genesys_read_hregister (dev, REG100, &val40);
+  status = sanei_genesys_read_register (dev, REG100, &val40);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -1983,7 +1983,7 @@ gl124_stop_action (Genesys_Device * dev)
 	{
 	  sanei_genesys_print_status (val);
 	}
-      status = sanei_genesys_read_hregister (dev, REG100, &val40);
+      status = sanei_genesys_read_register (dev, REG100, &val40);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -2625,7 +2625,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
      DBGCOMPLETED;
      return status;
    }
-  status = sanei_genesys_read_hregister (dev, REG100, &val40);
+  status = sanei_genesys_read_register (dev, REG100, &val40);
   if (status != SANE_STATUS_GOOD)
    {
      DBG (DBG_error, "%s: failed to read reg100: %s\n", __FUNCTION__, sane_strstatus (status));
@@ -2644,7 +2644,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
              DBGCOMPLETED;
              return status;
            }
-          status = sanei_genesys_read_hregister (dev, REG100, &val40);
+          status = sanei_genesys_read_register (dev, REG100, &val40);
           if (status != SANE_STATUS_GOOD)
            {
              DBG (DBG_error, "%s: failed to read reg100: %s\n", __FUNCTION__, sane_strstatus (status));
@@ -3650,7 +3650,7 @@ gl124_boot (Genesys_Device * dev, SANE_Bool cold)
   RIE (sanei_genesys_write_register (dev, 0x33, val));
 
   /* test CHKVER */
-  RIE (sanei_genesys_read_hregister (dev, REG100, &val));
+  RIE (sanei_genesys_read_register (dev, REG100, &val));
   if (val & REG100_CHKVER)
     {
       RIE (sanei_genesys_read_register (dev, 0x00, &val));

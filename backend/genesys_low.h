@@ -230,10 +230,10 @@
 #define FEBUSY	        0x02
 #define MOTORENB	0x01
 
-typedef struct
+typedef struct Genesys_Register_Set
 {
-  SANE_Byte address;
-  SANE_Byte value;
+  uint16_t address;
+  uint8_t value;
 } Genesys_Register_Set;
 
 /** @brief Data structure to set up analog frontend.
@@ -867,34 +867,27 @@ typedef struct {
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
 
-extern Genesys_Register_Set *sanei_genesys_get_address (Genesys_Register_Set *
-							regs, SANE_Byte addr);
+extern Genesys_Register_Set *sanei_genesys_get_address (Genesys_Register_Set * regs, uint16_t addr);
 
 extern SANE_Byte
-sanei_genesys_read_reg_from_set (Genesys_Register_Set * regs,
-				 SANE_Byte address);
+sanei_genesys_read_reg_from_set (Genesys_Register_Set * regs, uint16_t address);
 
 extern void
-sanei_genesys_set_reg_from_set (Genesys_Register_Set * regs,
-				SANE_Byte address, SANE_Byte value);
+sanei_genesys_set_reg_from_set (Genesys_Register_Set * regs, uint16_t address, SANE_Byte value);
 
 extern SANE_Status sanei_genesys_init_cmd_set (Genesys_Device * dev);
 
 extern SANE_Status
-sanei_genesys_read_register (Genesys_Device * dev, uint8_t reg,
-			     uint8_t * val);
+sanei_genesys_read_register (Genesys_Device * dev, uint16_t reg, uint8_t * val);
 
 extern SANE_Status
-sanei_genesys_write_register (Genesys_Device * dev, uint8_t reg,
-			      uint8_t val);
+sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val);
 
 extern SANE_Status
-sanei_genesys_read_hregister (Genesys_Device * dev, uint8_t reg,
-			     uint8_t * val);
+sanei_genesys_read_hregister (Genesys_Device * dev, uint16_t reg, uint8_t * val);
 
 extern SANE_Status
-sanei_genesys_write_hregister (Genesys_Device * dev, uint8_t reg,
-			      uint8_t val);
+sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val);
 
 extern SANE_Status
 sanei_genesys_bulk_write_register (Genesys_Device * dev,
@@ -1038,16 +1031,16 @@ extern SANE_Status
 sanei_genesys_buffer_consume(Genesys_Buffer * buf, size_t size);
 
 extern SANE_Status
-sanei_genesys_set_double(Genesys_Register_Set *regs, SANE_Byte addr, uint16_t value);
+sanei_genesys_set_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t value);
 
 extern SANE_Status
-sanei_genesys_set_triple(Genesys_Register_Set *regs, SANE_Byte addr, uint32_t value);
+sanei_genesys_set_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t value);
 
 extern SANE_Status
-sanei_genesys_get_double(Genesys_Register_Set *regs, SANE_Byte addr, uint16_t *value);
+sanei_genesys_get_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t *value);
 
 extern SANE_Status
-sanei_genesys_get_triple(Genesys_Register_Set *regs, SANE_Byte addr, uint32_t *value);
+sanei_genesys_get_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t *value);
 
 extern SANE_Status
 sanei_genesys_wait_for_home(Genesys_Device *dev);

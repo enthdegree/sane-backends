@@ -81,6 +81,8 @@ typedef enum output_mode
   output_mode_db,
   output_mode_udev,
   output_mode_udevacl,
+  output_mode_udevhwdb,
+  output_mode_hwdb,
   output_mode_plist,
   output_mode_hal,
   output_mode_halnew
@@ -317,7 +319,7 @@ print_usage (char *program_name)
 	  "(multiple directories can be concatenated by \":\")\n");
   printf ("  -m|--mode mode         "
 	  "Output mode (ascii, html-backends-split, html-mfgs,\n"
-	  "                         xml, statistics, usermap, db, udev, udev+acl, plist, hal, hal-new)\n");
+	  "                         xml, statistics, usermap, db, udev, udev+acl, udev+hwdb, hwdb, plist, hal, hal-new)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -418,6 +420,16 @@ get_options (int argc, char **argv)
 	    {
 	      DBG_INFO ("Output mode: %s\n", optarg);
 	      mode = output_mode_udevacl;
+	    }
+	  else if (strcmp (optarg, "udev+hwdb") == 0)
+	    {
+	      DBG_INFO ("Output mode: %s\n", optarg);
+	      mode = output_mode_udevhwdb;
+	    }
+	  else if (strcmp (optarg, "hwdb") == 0)
+	    {
+	      DBG_INFO ("Output mode: %s\n", optarg);
+	      mode = output_mode_hwdb;
 	    }
 	  else if (strcmp (optarg, "plist") == 0)
 	    {
@@ -3635,6 +3647,198 @@ print_udev (void)
   printf ("\nLABEL=\"libsane_rules_end\"\n");
 }
 
+
+/* print libsane.rules for Linux udev */
+static void
+print_udevhwdb_header (void)
+{
+  time_t current_time = time (0);
+  printf ("# This file was automatically created based on description files (*.desc)\n"
+	  "# by sane-desc %s from %s on %s",
+	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
+
+  printf
+    ("#\n"
+     "# udev rules file for supported USB and SCSI devices\n"
+     "#\n"
+     "# For the list of supported USB devices see /usr/lib/udev/hwdb.d/20-sane.hwdb\n"
+     "# \n"
+     "# The SCSI device support is very basic and includes only\n"
+     "# scanners that mark themselves as type \"scanner\" or\n"
+     "# SCSI-scanners from HP and other vendors that are entitled \"processor\"\n"
+     "# but are treated accordingly.\n"
+     "#\n");
+  printf
+     ("# If your SCSI scanner isn't listed below, you can add it to a new rules\n"
+     "# file under /etc/udev/rules.d/.\n"
+     "#\n"
+     "# If your scanner is supported by some external backend (brother, epkowa,\n"
+     "# hpaio, etc) please ask the author of the backend to provide proper\n"
+     "# device detection support for your OS\n"
+     "#\n"
+     "# If the scanner is supported by sane-backends, please mail the entry to\n"
+     "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
+     "#\n"
+     );
+}
+
+static void
+print_udevhwdb (void)
+{
+  scsiid_type *scsiid = create_scsiids_table ();
+  int i;
+
+  print_udevhwdb_header ();
+  printf("ACTION!=\"add\", GOTO=\"libsane_rules_end\"\n\n");
+
+  printf("# The following rule will disable USB autosuspend for the device\n");
+  printf("ENV{DEVTYPE}==\"usb_device\", ENV{libsane_matched}==\"yes\", TEST==\"power/control\", ATTR{power/control}=\"on\"\n\n");
+
+  printf ("SUBSYSTEMS!=\"scsi\", GOTO=\"libsane_rules_end\"\n");
+  printf ("KERNEL!=\"sg[0-9]*\", GOTO=\"libsane_rules_end\"\n\n");
+
+  printf ("# Generic: SCSI device type 6 indicates a scanner\n");
+  printf ("ATTRS{type}==\"6\", ENV{libsane_matched}=\"yes\"\n\n");
+
+  printf ("# Some scanners advertise themselves as SCSI device type 3\n\n");
+
+  printf ("# Wildcard: for some Epson SCSI scanners\n");
+  printf ("ATTRS{type}==\"3\", ATTRS{vendor}==\"EPSON\", ATTRS{model}==\"SCANNER*\", ENV{libsane_matched}=\"yes\"\n\n");
+
+  while (scsiid)
+    {
+      manufacturer_model_type * name = scsiid->name;
+
+      if (!scsiid->is_processor)
+	{
+	  scsiid = scsiid->next;
+	  continue;
+	}
+
+      /* Wildcard for Epson scanners: vendor = EPSON, product = SCANNER* */
+      if ((strcmp(scsiid->scsi_vendor_id, "EPSON") == 0)
+	  && (strncmp(scsiid->scsi_product_id, "SCANNER", 7) == 0))
+	{
+	  scsiid = scsiid->next;
+	  continue;
+	}
+
+      i = 0;
+      printf ("# ");
+      while (name)
+        {
+          if ((name != scsiid->name) && (i > 0))
+            printf (" | ");
+          printf ("%s", name->name);
+          name = name->next;
+
+	  i++;
+
+	  /*
+	   * Limit the number of model names on the same line to 3,
+	   * as udev cannot handle very long lines and prints a warning
+	   * message while loading the rules files.
+	   */
+	  if ((i == 3) && (name != NULL))
+	    {
+	      printf("\n# ");
+	      i = 0;
+	    }
+        }
+      printf ("\n");
+
+      printf ("ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", ENV{libsane_matched}=\"yes\"\n\n",
+		scsiid->scsi_vendor_id, scsiid->scsi_product_id);
+
+      scsiid = scsiid->next;
+    }
+
+  printf ("\nLABEL=\"libsane_rules_end\"\n");
+}
+
+/* print /usr/lib/udev/hwdb.d/20-sane.conf for Linux hwdb */
+static void
+print_hwdb_header (void)
+{
+  time_t current_time = time (0);
+  printf ("# This file was automatically created based on description files (*.desc)\n"
+	  "# by sane-desc %s from %s on %s",
+	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
+
+  printf
+    ("#\n"
+     "# hwdb file for supported USB devices\n"
+     "#\n");
+  printf
+     ("# If your scanner isn't listed below, you can add it to a new hwdb file\n"
+     "# under /etc/udev/hwdb.d/.\n"
+     "#\n"
+     "# If your scanner is supported by some external backend (brother, epkowa,\n"
+     "# hpaio, etc) please ask the author of the backend to provide proper\n"
+     "# device detection support for your OS\n"
+     "#\n"
+     "# If the scanner is supported by sane-backends, please mail the entry to\n"
+     "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
+     "#\n"
+     );
+}
+
+static void
+print_hwdb (void)
+{
+  usbid_type *usbid = create_usbids_table ();
+  char *vendor_id;
+  char *product_id;
+  int i,j;
+
+  print_hwdb_header ();
+
+  while (usbid)
+    {
+      manufacturer_model_type * name = usbid->name;
+
+      i = 0;
+      printf ("# ");
+      while (name)
+	{
+	  if ((name != usbid->name) && (i > 0))
+	    printf (" | ");
+	  printf ("%s", name->name);
+	  name = name->next;
+
+	  i++;
+
+	  /*
+	   * Limit the number of model names on the same line to 3,
+	   * as udev cannot handle very long lines and prints a warning
+	   * message while loading the rules files.
+	   */
+	  if ((i == 3) && (name != NULL))
+	    {
+	      printf("\n# ");
+	      i = 0;
+	    }
+	}
+      printf ("\n");
+
+      vendor_id = strdup(usbid->usb_vendor_id + 2);
+      product_id = strdup(usbid->usb_product_id + 2);
+
+      for(j = 0; j < 4; j++) {
+        vendor_id[j] = toupper(vendor_id[j]);
+        product_id[j] = toupper(vendor_id[j]);
+      }
+
+      printf ("usb:v%sp%s*\n libsane_matched=yes\n\n",
+		vendor_id, product_id);
+
+      free(vendor_id);
+      free(product_id);
+
+      usbid = usbid->next;
+    }
+}
+
 static void
 print_plist (void)
 {
@@ -3826,6 +4030,12 @@ main (int argc, char **argv)
     case output_mode_udev:
     case output_mode_udevacl:
       print_udev ();
+      break;
+    case output_mode_udevhwdb:
+      print_udevhwdb ();
+      break;
+    case output_mode_hwdb:
+      print_hwdb ();
       break;
     case output_mode_plist:
       print_plist ();

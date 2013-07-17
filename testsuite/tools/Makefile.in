@@ -422,7 +422,7 @@ check: check.local
 
 check.local: 
 	@echo "**** Testing $(SANEDESC) with $(TESTFILE)"
-	@for mode in ascii html-backends-split html-mfgs xml statistics usermap db udev udev+acl plist hal hal-new; \
+	@for mode in ascii html-backends-split html-mfgs xml statistics usermap db udev udev+acl udev+hwdb hwdb plist hal hal-new; \
 	do \
 	echo "PASS: $(SANEDESC) -m $$mode"; \
 	  $(SANEDESC) -m $$mode -s data >$$mode.res ;\

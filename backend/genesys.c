@@ -5762,8 +5762,8 @@ init_options (Genesys_Scanner * s)
     ("When using gray or lineart this option selects the used color.");
   s->opt[OPT_COLOR_FILTER].type = SANE_TYPE_STRING;
   s->opt[OPT_COLOR_FILTER].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  /* true gray not yet supported for GL847 scanners */
-  if(!model->is_cis || model->asic_type==GENESYS_GL847)
+  /* true gray not yet supported for GL847 and GL124 scanners */
+  if(!model->is_cis || model->asic_type==GENESYS_GL847 || model->asic_type==GENESYS_GL124)
     {
       s->opt[OPT_COLOR_FILTER].size = max_string_size (color_filter_list);
       s->opt[OPT_COLOR_FILTER].constraint.string_list = color_filter_list;

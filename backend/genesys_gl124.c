@@ -988,7 +988,13 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   else
     {
       min_speed = 600;
+      if(dev->model->ccd_type==MOTOR_CANONLIDE110)
+        {
+          min_speed = 300;
+        }
     }
+
+  /* compute min_speed and linesel */
   if(scan_yres<min_speed)
     {
       yres=min_speed;
@@ -1251,6 +1257,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   unsigned int bytes;
   Genesys_Register_Set *r;
   SANE_Status status;
+  uint32_t expmax, exp;
 
   DBG (DBG_proc, "%s :  exposure_time=%d, "
        "used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
@@ -1391,6 +1398,42 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   
   r = sanei_genesys_get_address (reg, REG06);
   r->value |= REG06_GAIN4;
+  
+  /* CIS scanners can do true gray by setting LEDADD */
+  /* we set up LEDADD only when asked */
+  if (dev->model->is_cis == SANE_TRUE)
+    {
+      r = sanei_genesys_get_address (reg, REG60);
+      r->value &= ~REG60_LEDADD;
+      if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
+	{
+	  r->value |= REG60_LEDADD;
+          sanei_genesys_get_triple(reg,REG_EXPR,&expmax);
+          sanei_genesys_get_triple(reg,REG_EXPG,&exp);
+          if(exp>expmax)
+            {
+              expmax=exp;
+            }
+          sanei_genesys_get_triple(reg,REG_EXPB,&exp);
+          if(exp>expmax)
+            {
+              expmax=exp;
+            }
+          sanei_genesys_set_triple(dev->reg,REG_EXPR,expmax);
+          sanei_genesys_set_triple(dev->reg,REG_EXPG,expmax);
+          sanei_genesys_set_triple(dev->reg,REG_EXPB,expmax);
+	}
+      /* RGB weighting, REG_TRUER,G and B are to be set  */
+      r = sanei_genesys_get_address (reg, 0x01);
+      r->value &= ~REG01_TRUEGRAY;
+      if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
+	{
+	  r->value |= REG01_TRUEGRAY;
+          sanei_genesys_write_register (dev, REG_TRUER, 0x80);
+          sanei_genesys_write_register (dev, REG_TRUEG, 0x80);
+          sanei_genesys_write_register (dev, REG_TRUEB, 0x80);
+	}
+    }
 
   /* segment number */
   r = sanei_genesys_get_address (reg, 0x98);
@@ -1603,6 +1646,11 @@ gl124_init_scan_regs (Genesys_Device * dev,
     oflags |= OPTICAL_FLAG_DISABLE_LAMP;
   if (flags & SCAN_FLAG_CALIBRATION)
     oflags |= OPTICAL_FLAG_DISABLE_DOUBLE;
+  
+  if (dev->model->is_cis && dev->settings.true_gray)
+    {
+      oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
+    }
 
   /* now _LOGICAL_ optical values used are known, setup registers */
   status = gl124_init_optical_regs_scan (dev,

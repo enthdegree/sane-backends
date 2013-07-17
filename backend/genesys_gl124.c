@@ -251,9 +251,10 @@ gl124_test_motor_flag_bit (SANE_Byte val)
  * profile is at a specific dpihw. Use LiDE 110 table by default.
  * @param sensor_type sensor id
  * @param dpi hardware dpi for the scan
+ * @param half_ccd flag to signal half ccd mode
  * @return a pointer to a Sensor_Profile struct
  */
-static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
+static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi, int half_ccd)
 {
   unsigned int i;
   int idx;
@@ -263,13 +264,16 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
   while(i<sizeof(sensors)/sizeof(Sensor_Profile))
     {
       /* exact match */
-      if(sensors[i].sensor_type==sensor_type && sensors[i].dpi==dpi)
+      if(sensors[i].sensor_type==sensor_type
+         && sensors[i].dpi==dpi
+         && sensors[i].half_ccd==half_ccd)
         {
           return &(sensors[i]);
         }
 
       /* closest match */
-      if(sensors[i].sensor_type==sensor_type)
+      if(sensors[i].sensor_type==sensor_type
+        && sensors[i].half_ccd==half_ccd)
         {
           if(idx<0)
             {
@@ -432,6 +436,23 @@ SANE_Status status=SANE_STATUS_GOOD;
   val &= ~REG32_GPIO10;
   RIE (sanei_genesys_write_register (dev, REG32, val));
   return status;
+}
+
+/**@brief compute half ccd mode
+ * Compute half CCD mode flag. Half CCD is on when dpiset it twice
+ * the actual scanning resolution. Used for fast scans.
+ * @param model pointer to device model
+ * @param xres required horizontal resolution
+ * @return SANE_TRUE if half CCD mode enabled
+ */
+static SANE_Bool compute_half_ccd(Genesys_Model *model, int xres)
+{
+  /* we have 2 domains for ccd: xres below or above half ccd max dpi */
+  if (xres<=300 && (model->flags & GENESYS_FLAG_HALF_CCD_MODE))
+    {
+      return SANE_TRUE;
+    }
+  return SANE_FALSE;
 }
 
 /** @brief set all registers to default values .
@@ -862,6 +883,11 @@ gl124_set_fe (Genesys_Device * dev, uint8_t set)
 
   RIE (sanei_genesys_read_register (dev, REG0A, &val));
 
+  if(dev->usb_mode<0)
+    {
+      val=3<<REG0AS_SIFSEL;
+    }
+
   /* route to correct analog FE */
   switch ((val & REG0A_SIFSEL)>>REG0AS_SIFSEL)
     {
@@ -884,12 +910,15 @@ gl124_set_fe (Genesys_Device * dev, uint8_t set)
 
 /**@brief compute exposure to use
  * compute the sensor exposure based on target resolution
+ * @param dev pointer to  device description
+ * @param xres sensor's required resolution
+ * @param half_ccd flag for half ccd mode
  */
-static int gl124_compute_exposure(Genesys_Device *dev, int xres)
+static int gl124_compute_exposure(Genesys_Device *dev, int xres, int half_ccd)
 {
   Sensor_Profile *sensor;
 
-  sensor=get_sensor_profile(dev->model->ccd_type, xres);
+  sensor=get_sensor_profile(dev->model->ccd_type, xres, half_ccd);
   return sensor->exposure;
 }
 
@@ -934,6 +963,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   Genesys_Register_Set *r;
   uint32_t z1, z2;
   float yres;
+  unsigned int linesel;
 
   DBGSTART;
   DBG (DBG_info, "gl124_init_motor_regs_scan : scan_exposure_time=%d, "
@@ -967,8 +997,9 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
     {
       yres=300;
     }
-  scan_dummy=dev->line_interp;
+  linesel=dev->line_interp;
   dev->line_interp=0;
+  DBG (DBG_io2, "%s: linesel=%d\n", __FUNCTION__, linesel);
 
   sanei_genesys_set_triple(reg,REG_LINCNT,lincnt);
   DBG (DBG_io, "%s: lincnt=%d\n", __FUNCTION__, lincnt);
@@ -1074,7 +1105,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 
   /* LINESEL */
   r = sanei_genesys_get_address (reg, REG1D);
-  r->value = (r->value & ~REG1D_LINESEL) | scan_dummy;
+  r->value = (r->value & ~REG1D_LINESEL) | linesel;
 
   r = sanei_genesys_get_address (reg, REGA0);
   r->value = (scan_step_type << REGA0S_STEPSEL) | (scan_step_type << REGA0S_FSTPSEL);
@@ -1092,9 +1123,10 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
  * @param dev device to set up
  * @param regs register set to modify
  * @param dpi resolution of the sensor during scan
+ * @param half_ccd flag for half ccd mode
  * */
 static void
-gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
+gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, int half_ccd)
 {
   Genesys_Register_Set *r;
   int i;
@@ -1121,7 +1153,7 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 
   /* set EXPDUMMY and CKxMAP */
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
+  sensor=get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
       
   r = sanei_genesys_get_address (regs, 0x18);
   if (r)
@@ -1235,7 +1267,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __FUNCTION__, dpihw, factor);
 
   /* sensor parameters */
-  gl124_setup_sensor (dev, reg, dpihw);
+  gl124_setup_sensor (dev, reg, dpihw, half_ccd);
   dpiset = used_res * cksel;
 
   /* start and end coordinate in optical dpi coordinates */
@@ -1344,8 +1376,16 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   else
     r->value |= REG05_GMMENB;
 
-  sanei_genesys_set_double(reg,REG_DPISET,dpiset);
-  DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset);
+  if(half_ccd)
+    {
+      sanei_genesys_set_double(reg,REG_DPISET,dpiset*2);
+      DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset*2);
+    }
+  else
+    {
+      sanei_genesys_set_double(reg,REG_DPISET,dpiset);
+      DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset);
+    }
   
   r = sanei_genesys_get_address (reg, REG06);
   r->value |= REG06_GAIN4;
@@ -1355,12 +1395,14 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   segnb = r->value & 0x0f;
 
   sanei_genesys_set_triple(reg,REG_STRPIXEL,startx/segnb);
+  DBG (DBG_io2, "%s: strpixel used=%d\n", __FUNCTION__, startx/segnb);
   sanei_genesys_get_triple(reg,REG_SEGCNT,&segcnt);
   if(endx/segnb==segcnt)
     {
       endx=0;
     }
   sanei_genesys_set_triple(reg,REG_ENDPIXEL,endx/segnb);
+  DBG (DBG_io2, "%s: endpixel used=%d\n", __FUNCTION__, endx/segnb);
   
   /* words(16bit) before gamma, conversion to 8 bit or lineart */
   words_per_line = (used_pixels * dpiset) / dpihw;
@@ -1388,7 +1430,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   else
     {
       /* line interpolation, we are scanning at higher
-       * motor dpi then discard lines to match taget
+       * motor dpi then discard lines to match target
        * resolution, so lincnt has to be updated
        */
       dev->line_interp = 300/dpiset-1;
@@ -1400,7 +1442,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: dev->bpl        =%lu\n", __FUNCTION__, (unsigned long)dev->bpl);
   DBG (DBG_io2, "%s: dev->len        =%lu\n", __FUNCTION__, (unsigned long)dev->len);
   DBG (DBG_io2, "%s: dev->dist       =%lu\n", __FUNCTION__, (unsigned long)dev->dist);
-  DBG (DBG_io2, "%s: dev->line_interp=%lu\n", __FUNCTION__, (unsigned long)dev->dist);
+  DBG (DBG_io2, "%s: dev->line_interp=%lu\n", __FUNCTION__, (unsigned long)dev->line_interp);
 
   words_per_line *= channels;
   dev->wpl = words_per_line;
@@ -1475,21 +1517,13 @@ gl124_init_scan_regs (Genesys_Device * dev,
        "Flags         : %x\n\n",
        xres, yres, lines, pixels, startx, starty, depth, channels, flags);
 
-  /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (dev->sensor.optical_res < 2 * xres ||
-      !(dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE))
-    {
-      half_ccd = SANE_FALSE;
-    }
-  else
-    {
-      half_ccd = SANE_TRUE;
-    }
+  half_ccd=compute_half_ccd(dev->model, xres);
 
   /* optical_res */
   optical_res = dev->sensor.optical_res;
   if (half_ccd)
     optical_res /= 2;
+  DBG (DBG_info, "%s: optical_res=%d\n", __FUNCTION__, optical_res);
 
   /* stagger */
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
@@ -1550,7 +1584,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
     }
   else
     {
-      exposure_time = gl124_compute_exposure (dev, used_res);
+      exposure_time = gl124_compute_exposure (dev, used_res, half_ccd);
       scan_step_type = gl124_compute_step_type(dev, exposure_time);
     }
 
@@ -1711,11 +1745,11 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   unsigned int lincnt;
   int exposure_time;
   int stagger;
+  SANE_Bool half_ccd;
 
   int max_shift, dpihw;
   Sensor_Profile *sensor;
 
-  SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
 
   DBG (DBG_info,
@@ -1752,6 +1786,7 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   pixels = dev->settings.pixels;
   lines = dev->settings.lines;
 
+  half_ccd=compute_half_ccd(dev->model, xres);
 
   DBG (DBG_info,
        "gl124_calculate_current_setup settings:\n"
@@ -1759,33 +1794,12 @@ gl124_calculate_current_setup (Genesys_Device * dev)
        "Lines         : %g\n"
        "PPL           : %g\n"
        "Startpos      : %g\n"
+       "Half ccd      : %d\n"
        "Depth/Channels: %u/%u\n\n",
-       xres, yres, lines, pixels, startx, depth, channels);
-
-/* half_ccd */
-  /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if ((dev->sensor.optical_res < 2 * xres) ||
-      !(dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE))
-    {
-      half_ccd = SANE_FALSE;
-    }
-  else
-    {
-      half_ccd = SANE_TRUE;
-    }
-
+       xres, yres, lines, pixels, startx, depth, half_ccd, channels);
 
   /* optical_res */
   optical_res = dev->sensor.optical_res;
-  if (half_ccd)
-    optical_res /= 2;
-
-  /* stagger */
-  if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * yres) / dev->motor.base_ydpi;
-  else
-    stagger = 0;
-  DBG (DBG_info, "%s: stagger=%d lines\n", __FUNCTION__, stagger);
 
   if(xres<=optical_res)
     used_res = xres;
@@ -1801,15 +1815,24 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   DBG (DBG_info, "%s: used_pixels=%d\n", __FUNCTION__, used_pixels);
 
   /* exposure */
-  exposure_time = gl124_compute_exposure (dev, xres);
+  exposure_time = gl124_compute_exposure (dev, xres, half_ccd);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
   /* max_shift */
   max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
-  
+
+  /* compute hw dpi for sensor */
   dpihw=sanei_genesys_compute_dpihw(dev,used_res);
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
+
+  sensor=get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
   dev->segnb=sensor->reg98 & 0x0f;
+
+  /* stagger */
+  if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
+    stagger = (4 * yres) / dev->motor.base_ydpi;
+  else
+    stagger = 0;
+  DBG (DBG_info, "%s: stagger=%d lines\n", __FUNCTION__, stagger);
 
   /* lincnt */
   lincnt = lines + max_shift + stagger;
@@ -2131,6 +2154,12 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   DBG (DBG_proc, "gl124_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
 
+  if(dev->usb_mode<0)
+    {
+      DBGCOMPLETED;
+      return SANE_STATUS_GOOD;
+    }
+
   /* post scan gpio : without that HOMSNR is unreliable */
   gl124_homsnr_gpio(dev);
 
@@ -2177,7 +2206,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   /* TODO add scan_mode to the API */
   scan_mode= dev->settings.scan_mode;
-  dev->settings.scan_mode=SCAN_MODE_LINEART;
+  dev->settings.scan_mode=SCAN_MODE_GRAY;
   gl124_init_scan_regs (dev,
 			local_reg,
 			resolution,
@@ -2538,9 +2567,16 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
     {
       dev->calib_lines *= 2;
     }
-  factor=dev->sensor.optical_res/dpihw;
   resolution=dpihw;
+
+  /* if half CCD mode, use half resolution */
+  if(compute_half_ccd(dev->model, dev->settings.xres)==SANE_TRUE)
+    {
+      resolution /= 2;
+      dev->calib_lines /= 2;
+    }
   dev->calib_resolution = resolution;
+  factor=dev->sensor.optical_res/resolution;
   dev->calib_pixels = dev->sensor.sensor_pixels/factor;
 
   /* distance to move to reach white target at high resolution */
@@ -2691,6 +2727,10 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
   /* start */
   start = SANE_UNFIX (dev->model->x_offset);
   start += dev->settings.tl_x;
+  if(compute_half_ccd(dev->model, dev->settings.xres)==SANE_TRUE)
+    {
+      start /=2;
+    }
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
 
   flags = 0;
@@ -2933,7 +2973,8 @@ gl124_led_calibration (Genesys_Device * dev)
 {
   int num_pixels;
   int total_size;
-  int used_res;
+  int resolution;
+  int dpihw;
   uint8_t *line;
   int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -2945,6 +2986,7 @@ gl124_led_calibration (Genesys_Device * dev)
   uint16_t exp[3],target;
   Sensor_Profile *sensor;
   SANE_Bool acceptable;
+  SANE_Bool half_ccd;
 
   DBGSTART;
 
@@ -2954,9 +2996,18 @@ gl124_led_calibration (Genesys_Device * dev)
   /* offset calibration is always done in 16 bit depth color mode */
   channels = 3;
   depth=16;
-  used_res=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
-  sensor=get_sensor_profile(dev->model->ccd_type, used_res);
-  num_pixels = (dev->sensor.sensor_pixels*used_res)/dev->sensor.optical_res;
+  dpihw=sanei_genesys_compute_dpihw(dev, dev->settings.xres);
+  half_ccd=compute_half_ccd(dev->model, dev->settings.xres);
+  if(half_ccd==SANE_TRUE)
+    {
+      resolution = dpihw/2;
+    }
+  else
+    {
+      resolution = dpihw;
+    }
+  sensor=get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
+  num_pixels = (dev->sensor.sensor_pixels*resolution)/dev->sensor.optical_res;
   
   /* initial calibration reg values */
   memcpy (dev->calib_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
@@ -2964,8 +3015,8 @@ gl124_led_calibration (Genesys_Device * dev)
   /* set up for the calibration scan */
   status = gl124_init_scan_regs (dev,
 				 dev->calib_reg,
-				 used_res,
-				 used_res,
+				 resolution,
+				 resolution,
 				 0,
 				 0,
 				 num_pixels,

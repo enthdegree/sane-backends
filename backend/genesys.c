@@ -3115,8 +3115,7 @@ genesys_restore_calibration (Genesys_Device * dev)
    * matching one */
   for (cache = dev->calibration_cache; cache; cache = cache->next)
     {
-      status = dev->model->cmd_set->is_compatible_calibration (dev, cache,
-							       SANE_FALSE);
+      status = dev->model->cmd_set->is_compatible_calibration (dev, cache, SANE_FALSE);
       /* SANE_STATUS_GOOD, a matching cache has been found 
        * so we use it to populate calibration data
        */
@@ -7053,9 +7052,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       for (cache = s->dev->calibration_cache; cache; cache = cache->next)
 	{
 	  if (s->dev->model->
-	      cmd_set->is_compatible_calibration (s->dev, cache,
-						  SANE_FALSE) ==
-	      SANE_STATUS_GOOD)
+	      cmd_set->is_compatible_calibration (s->dev, cache, SANE_FALSE) == SANE_STATUS_GOOD)
 	    {
 	      *(SANE_Bool *) val = SANE_FALSE;
 	    }

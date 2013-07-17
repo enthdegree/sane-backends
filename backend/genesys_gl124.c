@@ -963,6 +963,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   Genesys_Register_Set *r;
   uint32_t z1, z2;
   float yres;
+  int min_speed;
   unsigned int linesel;
 
   DBGSTART;
@@ -978,29 +979,30 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   use_fast_fed=0;
   factor=1;
 
-  if(dev->line_interp>0)
+  /* enforce motor minimal scan speed 
+   * @TODO extend motor struct for this value */ 
+  if (scan_mode == SCAN_MODE_COLOR)
     {
-      lincnt=scan_lines*(dev->line_interp+1);
+      min_speed = 900;
     }
   else
     {
-      lincnt=scan_lines;
+      min_speed = 600;
     }
-     
-  /* enforce motor minimal scan speed */ 
-  yres=scan_yres;
-  if ((scan_mode == SCAN_MODE_COLOR) && (yres<900))
+  if(scan_yres<min_speed)
     {
-      yres=900;
+      yres=min_speed;
+      linesel=yres/scan_yres-1;
     }
-  if ((scan_mode != SCAN_MODE_COLOR) && (yres<300))
+  else
     {
-      yres=300;
+      yres=scan_yres;
+      linesel=0;
     }
-  linesel=dev->line_interp;
-  dev->line_interp=0;
+  
   DBG (DBG_io2, "%s: linesel=%d\n", __FUNCTION__, linesel);
 
+  lincnt=scan_lines*(linesel+1);
   sanei_genesys_set_triple(reg,REG_LINCNT,lincnt);
   DBG (DBG_io, "%s: lincnt=%d\n", __FUNCTION__, lincnt);
 
@@ -1423,18 +1425,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   dev->dist = dev->bpl/segnb;
   dev->segnb = segnb;
   dev->line_count = 0;
-  if(dpiset>=300)
-    {
-      dev->line_interp = 0;
-    }
-  else
-    {
-      /* line interpolation, we are scanning at higher
-       * motor dpi then discard lines to match target
-       * resolution, so lincnt has to be updated
-       */
-      dev->line_interp = 300/dpiset-1;
-    }
+  dev->line_interp = 0;
 
   DBG (DBG_io2, "%s: used_pixels     =%d\n", __FUNCTION__, used_pixels);
   DBG (DBG_io2, "%s: pixels          =%d\n", __FUNCTION__, pixels);

@@ -169,15 +169,23 @@ was pressed. Some scanners with more than two buttons send the button number
 as target.
 .TP
 .I original
-(read only) returns the value of the type of original to be scanned if the 
-scanner provides that data. Known values: 1 = document, 2 = foto, 5 = film. 
+(read only) Returns the value of the type or size of original to be scanned
+if the scanner provides that data. Known values of type: 1 = document, 2 = foto,
+5 = film. Known values of size: 1 = A4, 2 = Letter, 8 = 10x15, 9 = 13x18, b = auto.
 Not all scanners can provide this data.
 .TP
 .I target
-(read only) returns the value of the target of the scan operation if the scanner
-provides that data. Known values: 1 = save to disk, 2 = save to pdf, 3 = send to
-email, 4 = send to application. For some scanners this value is equivalent to
-the number of the pressed button. Not all scanners can provide this data.
+(read only) Returns the value of the target of the scan operation if the scanner
+provides that data. The values depend on the scanner type. Known values:
+1 = save to disk, 2 = save to pdf, 3 = send to email, 4 = send to application
+or 1 = JPEG, 2 = TIFF, 3 = PDF, 4 = Compact PDF. For some scanners this value
+is equivalent to the number of the pressed button. Not all scanners can provide
+this data.
+.TP
+.I scan-resolution
+(read only) Returns the resolution of the scan operation if the scanner
+provides that data. Known values: 1 = 75 dpi, 2 = 150 dpi, 3 = 300 dpi,
+4 = 600 dpi. Not all scanners can provide this data.
 .SH FILES
 .TP
 .I @LIBDIR@/libsane\-pixma.a

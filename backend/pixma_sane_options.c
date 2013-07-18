@@ -292,6 +292,20 @@ int build_option_descriptors(struct pixma_sane_t *ss)
   opt->def.w = 0;
   opt->val.w = 0;
 
+  opt = &(OPT_IN_CTX[opt_scan_resolution]);
+  sod = &opt->sod;
+  sod->type = SANE_TYPE_INT;
+  sod->title = SANE_I18N("Scan resolution");
+  sod->desc = sod->title;
+  sod->name = "scan-resolution";
+  sod->unit = SANE_UNIT_NONE;
+  sod->size = 1 * sizeof(SANE_Word);
+  sod->cap  = SANE_CAP_SOFT_DETECT|SANE_CAP_ADVANCED;
+  sod->constraint_type = SANE_CONSTRAINT_NONE;
+  OPT_IN_CTX[opt_scan_resolution].info = 0;
+  opt->def.w = 0;
+  opt->val.w = 0;
+
   opt = &(OPT_IN_CTX[opt__group_5]);
   sod = &opt->sod;
   sod->type = SANE_TYPE_GROUP;

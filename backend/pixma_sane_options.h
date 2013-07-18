@@ -31,6 +31,7 @@ typedef enum {
   opt_button_2,
   opt_original,
   opt_target,
+  opt_scan_resolution,
   opt__group_5,
   opt_threshold,
   opt_threshold_curve,

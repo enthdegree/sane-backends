@@ -156,14 +156,16 @@ typedef uint32_t uint32_t;
 /** \name Button events and related information returned by pixma_wait_event() */
 /**@{*/
 #define PIXMA_EV_NONE          0
-#define PIXMA_EV_ACTION_MASK   (0xffff)
-#define PIXMA_EV_BUTTON1       (1 << 16)
-#define PIXMA_EV_BUTTON2       (2 << 16)
+#define PIXMA_EV_ACTION_MASK   (0xffffff)
+#define PIXMA_EV_BUTTON1       (1 << 24)
+#define PIXMA_EV_BUTTON2       (2 << 24)
 #define PIXMA_EV_TARGET_MASK   (0xff)
 #define PIXMA_EV_ORIGINAL_MASK (0xff00)
+#define PIXMA_EV_DPI_MASK      (0xff0000)
 
 #define GET_EV_TARGET(x) (x & PIXMA_EV_TARGET_MASK)
 #define GET_EV_ORIGINAL(x) ( (x & PIXMA_EV_ORIGINAL_MASK) >> 8 )
+#define GET_EV_DPI(x) ( (x & PIXMA_EV_DPI_MASK) >> 16 )
 
 /**@}*/
 /** @} end of API group */

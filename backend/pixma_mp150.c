@@ -926,10 +926,11 @@ handle_interrupt (pixma_t * s, int timeout)
       return PIXMA_EPROTO;
     }
 
-  /* s->event = 0x0boott
+  /* s->event = 0x0brroott
    * b:  button
    * oo: original
    * tt: target
+   * rr: scan resolution
    * poll event with 'scanimage -A' */
   if (s->cfg->pid == MG6200_PID
       || s->cfg->pid == MG6300_PID)
@@ -937,12 +938,12 @@ handle_interrupt (pixma_t * s, int timeout)
    * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto
    * format in buf[11] 01=JPEG; 02=TIFF; 03=PDF; 04=Kompakt-PDF
    * dpi in buf[12] 01=75; 02=150; 03=300; 04=600
-   * target = format; original = size */
+   * target = format; original = size; scan-resolution = dpi */
   {
     if (buf[7] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[11] | buf[10]<<8;    /* color scan */
+      s->events = PIXMA_EV_BUTTON1 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* color scan */
     if (buf[7] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8;    /* b/w scan */
+      s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* b/w scan */
   }
   else
   /* button no. in buf[0]

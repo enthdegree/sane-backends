@@ -1,45 +1,45 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2010-2013 Stéphane Voltz <stef.dev@free.fr>
-   
-    
+
+
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-   
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 #undef BACKEND_NAME
@@ -58,7 +58,7 @@
 
 /** @brief read scanned data
  * Read in 0xeff0 maximum sized blocks. This read is done in 2
- * parts if not multple of 512. First read is rounded to a multiple of 512 bytes, last read fetches the 
+ * parts if not multple of 512. First read is rounded to a multiple of 512 bytes, last read fetches the
  * remainder. Read addr is always 0x10000000 with the memory layout setup.
  * @param dev device to read data from
  * @param addr address within ASIC emory space
@@ -120,7 +120,7 @@ gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
       read = size;
       read /= 512;
       read *= 512;
-    
+
       if(read>0)
         {
           DBG (DBG_io2,
@@ -172,7 +172,7 @@ gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 }
 
 /****************************************************************************
- Mid level functions 
+ Mid level functions
  ****************************************************************************/
 
 static SANE_Bool
@@ -281,7 +281,7 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi, int half_ccd
             }
           else
             {
-              if(sensors[i].dpi>=dpi 
+              if(sensors[i].dpi>=dpi
               && sensors[i].dpi<sensors[idx].dpi)
                 {
                   idx=i;
@@ -333,7 +333,7 @@ static Motor_Profile *get_motor_profile(int motor_type, int exposure)
             }
           else
             {
-              if(motors[i].exposure>=exposure 
+              if(motors[i].exposure>=exposure
               && motors[i].exposure<motors[idx].exposure)
                 {
                   idx=i;
@@ -476,7 +476,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x03,0x50 & ~REG03_AVEENB);
   SETREG (0x04,0x03);
   SETREG (0x05,0x00);
-  SETREG (0x06,0x50 | REG06_GAIN4); 
+  SETREG (0x06,0x50 | REG06_GAIN4);
   SETREG (0x09,0x00);
   SETREG (0x0a,0xc0);
   SETREG (0x0b,0x2a);
@@ -641,7 +641,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0xc3,0x00);
   SETREG (0xc4,0x00);
 
-  /* gamma 
+  /* gamma
   SETREG (0xc5,0x00);
   SETREG (0xc6,0x00);
   SETREG (0xc7,0x00);
@@ -654,7 +654,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0xce,0x00);
   */
 
-  /* memory layout 
+  /* memory layout
   SETREG (0xd0,0x0a);
   SETREG (0xd1,0x1f);
   SETREG (0xd2,0x34); */
@@ -724,7 +724,7 @@ gl124_init_registers (Genesys_Device * dev)
   DBGCOMPLETED;
 }
 
-/**@brief send slope table for motor movement 
+/**@brief send slope table for motor movement
  * Send slope_table in machine byte order
  * @param dev device to send slope table
  * @param table_nr index of the slope table in ASIC memory
@@ -979,8 +979,8 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   use_fast_fed=0;
   factor=1;
 
-  /* enforce motor minimal scan speed 
-   * @TODO extend motor struct for this value */ 
+  /* enforce motor minimal scan speed
+   * @TODO extend motor struct for this value */
   if (scan_mode == SCAN_MODE_COLOR)
     {
       min_speed = 900;
@@ -1005,7 +1005,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
       yres=scan_yres;
       linesel=0;
     }
-  
+
   DBG (DBG_io2, "%s: linesel=%d\n", __FUNCTION__, linesel);
 
   lincnt=scan_lines*(linesel+1);
@@ -1080,7 +1080,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   dist = scan_steps;
   if (flags & MOTOR_FLAG_FEED)
     dist *=2;
-  if (use_fast_fed) 
+  if (use_fast_fed)
     {
         dist += fast_steps*2;
     }
@@ -1117,7 +1117,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 
   r = sanei_genesys_get_address (reg, REGA0);
   r->value = (scan_step_type << REGA0S_STEPSEL) | (scan_step_type << REGA0S_FSTPSEL);
-  
+
   /* FMOVDEC */
   sanei_genesys_set_double(reg,REG_FMOVDEC,fast_steps);
 
@@ -1162,7 +1162,7 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, 
   /* set EXPDUMMY and CKxMAP */
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
   sensor=get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
-      
+
   r = sanei_genesys_get_address (regs, 0x18);
   if (r)
     {
@@ -1232,7 +1232,7 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, 
  * @param pixels logical number of pixels to use
  * @param channels number of color channels (currently 1 or 3)
  * @param depth bit depth of the scan (1, 8 or 16)
- * @param half_ccd SANE_TRUE if sensor's timings are such that x coordinates 
+ * @param half_ccd SANE_TRUE if sensor's timings are such that x coordinates
  *           must be halved
  * @param color_filter color channel to use as gray data
  * @param flags optical flags (@see )
@@ -1264,7 +1264,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
        "half_ccd=%d, flags=%x\n", __FUNCTION__, exposure_time,
        used_res, start, pixels, channels, depth, half_ccd, flags);
 
-  /* resolution is divided according to CKSEL */ 
+  /* resolution is divided according to CKSEL */
   r = sanei_genesys_get_address (reg, REG18);
   cksel= (r->value & REG18_CKSEL)+1;
   DBG (DBG_io2, "%s: cksel=%d\n", __FUNCTION__, cksel);
@@ -1395,10 +1395,10 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
       sanei_genesys_set_double(reg,REG_DPISET,dpiset);
       DBG (DBG_io2, "%s: dpiset used=%d\n", __FUNCTION__, dpiset);
     }
-  
+
   r = sanei_genesys_get_address (reg, REG06);
   r->value |= REG06_GAIN4;
-  
+
   /* CIS scanners can do true gray by setting LEDADD */
   /* we set up LEDADD only when asked */
   if (dev->model->is_cis == SANE_TRUE)
@@ -1448,7 +1448,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
     }
   sanei_genesys_set_triple(reg,REG_ENDPIXEL,endx/segnb);
   DBG (DBG_io2, "%s: endpixel used=%d\n", __FUNCTION__, endx/segnb);
-  
+
   /* words(16bit) before gamma, conversion to 8 bit or lineart */
   words_per_line = (used_pixels * dpiset) / dpihw;
   bytes = depth / 8;
@@ -1634,7 +1634,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
       depth = 8;
     }
 
-  /* we enable true gray for cis scanners only, and just when doing 
+  /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
   oflags = 0;
@@ -1646,7 +1646,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
     oflags |= OPTICAL_FLAG_DISABLE_LAMP;
   if (flags & SCAN_FLAG_CALIBRATION)
     oflags |= OPTICAL_FLAG_DISABLE_DOUBLE;
-  
+
   if (dev->model->is_cis && dev->settings.true_gray)
     {
       oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
@@ -1959,7 +1959,7 @@ gl124_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   Genesys_Register_Set *r;
 
   DBG (DBG_proc, "gl124_set_powersaving (delay = %d)\n", delay);
-  
+
   r = sanei_genesys_get_address (dev->reg, REG03);
   r->value &= ~0xf0;
   if(delay<15)
@@ -2230,7 +2230,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       sanei_genesys_print_status (val);
     }
-  
+
   /* is sensor at home? */
   if (val & HOMESNR)
     {
@@ -2264,13 +2264,13 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
-  
+
   /* set up for reverse and no scan */
   r = sanei_genesys_get_address (local_reg, REG02);
   r->value |= REG02_MTRREV;
 
   RIE (dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL124_MAX_REGS));
-  
+
   RIE(gl124_setup_scan_gpio(dev,resolution));
 
   status = gl124_start_action (dev);
@@ -2373,11 +2373,11 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRMCNT));
-  
+
   /* set up for no scan */
   r = sanei_genesys_get_address (local_reg, REG01);
   r->value &= ~REG01_SCAN;
-  
+
   /* send registers */
   RIE (dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL124_MAX_REGS));
 
@@ -2402,7 +2402,7 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
 
   /* then stop scanning */
   RIE(gl124_stop_action (dev));
-  
+
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
@@ -2436,10 +2436,10 @@ gl124_search_start_position (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
 				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE);
-  if (status!=SANE_STATUS_GOOD) 
+  if (status!=SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "%s: failed to init scan registers: %s\n", __FUNCTION__, 
+	   "%s: failed to init scan registers: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
@@ -2524,7 +2524,7 @@ gl124_search_start_position (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-/* 
+/*
  * sets up register for coarse gain calibration
  * todo: check it for scanners using it */
 static SANE_Status
@@ -2595,7 +2595,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
   int move, resolution, dpihw, factor;
 
   DBGSTART;
-  
+
   /* initial calibration reg values */
   memcpy (dev->calib_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
 
@@ -2646,7 +2646,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__, 
+      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
@@ -2657,7 +2657,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "%s: failed to bulk write registers: %s\n", __FUNCTION__, 
+	   "%s: failed to bulk write registers: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
@@ -2775,7 +2775,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
   flags = 0;
 
   /* enable emulated lineart from gray data */
-  if(dev->settings.scan_mode == SCAN_MODE_LINEART 
+  if(dev->settings.scan_mode == SCAN_MODE_LINEART
      && dev->settings.dynamic_lineart)
     {
       flags |= SCAN_FLAG_DYNAMIC_LINEART;
@@ -2848,7 +2848,7 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
           fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels*dev->segnb,lines/channels,255);
         }
     }
- 
+
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */
   endpixel*=2*2;
@@ -2936,7 +2936,7 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
  * This functions moves scanning head to calibration area
  * by doing a 600 dpi scan
  * @param dev scanner device
- * @return SANE_STATUS_GOOD on success, else the error code 
+ * @return SANE_STATUS_GOOD on success, else the error code
  */
 static SANE_Status
 move_to_calibration_area (Genesys_Device * dev)
@@ -2949,7 +2949,7 @@ move_to_calibration_area (Genesys_Device * dev)
   DBGSTART;
 
   pixels = (dev->sensor.sensor_pixels*600)/dev->sensor.optical_res;
-  
+
   /* initial calibration reg values */
   memcpy (dev->calib_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
 
@@ -2997,7 +2997,7 @@ move_to_calibration_area (Genesys_Device * dev)
 
   /* cleanup before return */
   free (line);
- 
+
   DBGCOMPLETED;
   return status;
 }
@@ -3047,7 +3047,7 @@ gl124_led_calibration (Genesys_Device * dev)
     }
   sensor=get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
   num_pixels = (dev->sensor.sensor_pixels*resolution)/dev->sensor.optical_res;
-  
+
   /* initial calibration reg values */
   memcpy (dev->calib_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
 
@@ -3166,7 +3166,7 @@ gl124_led_calibration (Genesys_Device * dev)
 
   /* cleanup before return */
   free (line);
- 
+
   DBGCOMPLETED;
   return status;
 }
@@ -3299,7 +3299,7 @@ gl124_offset_calibration (Genesys_Device * dev)
       snprintf(title,20,"offset%03d.pnm",bottom);
       sanei_genesys_write_pnm_file (title, first_line, bpp, channels, pixels, lines);
    }
-     
+
   bottomavg = dark_average (first_line, pixels, lines, channels, black_pixels);
   DBG (DBG_io2, "gl124_offset_calibration: bottom avg=%d\n", bottomavg);
 
@@ -3313,7 +3313,7 @@ gl124_offset_calibration (Genesys_Device * dev)
   DBG (DBG_info, "gl124_offset_calibration: starting second line reading\n");
   RIEF2 (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
   RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
-      
+
   topavg = dark_average (second_line, pixels, lines, channels, black_pixels);
   DBG (DBG_io2, "gl124_offset_calibration: top avg=%d\n", topavg);
 
@@ -3367,13 +3367,13 @@ gl124_offset_calibration (Genesys_Device * dev)
 }
 
 
-/* alternative coarse gain calibration 
+/* alternative coarse gain calibration
    this on uses the settings from offset_calibration and
    uses only one scanline
  */
 /*
   with offset and coarse calibration we only want to get our input range into
-  a reasonable shape. the fine calibration of the upper and lower bounds will 
+  a reasonable shape. the fine calibration of the upper and lower bounds will
   be done with shading.
  */
 static SANE_Status
@@ -3544,7 +3544,7 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
   DBGSTART;
   if (dev == NULL || reg == NULL || channels == NULL || total_size == NULL)
     return SANE_STATUS_INVAL;
-  
+
   *channels=3;
 
   memcpy (reg, dev->reg, (GENESYS_GL124_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
@@ -3583,7 +3583,7 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
-/** 
+/**
  * set up GPIO/GPOE for idle state
 WRITE GPIO[17-21]= GPIO19
 WRITE GPOE[17-21]= GPOE21 GPOE20 GPOE19 GPOE18
@@ -3620,7 +3620,7 @@ gl124_init_gpio (Genesys_Device * dev)
   return status;
 }
 
-/** 
+/**
  * set memory layout by filling values in dedicated registers
  */
 static SANE_Status
@@ -3705,7 +3705,7 @@ gl124_init (Genesys_Device * dev)
 
   DBG_INIT ();
   DBGSTART;
-  
+
   status=sanei_genesys_asic_init(dev, GENESYS_GL124_MAX_REGS);
 
   DBGCOMPLETED;
@@ -3792,7 +3792,7 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
 
   /* TODO : for the next scanner special case,
    * add another per scanner button profile struct to avoid growing
-   * hard-coded button mapping here. 
+   * hard-coded button mapping here.
    */
   if(s->dev->model->gpo_type == GPO_CANONLIDE110)
     {

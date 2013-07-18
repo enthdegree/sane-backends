@@ -1,3 +1,13 @@
+2013-07-18 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp810.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Canon PIXMA MG8200 is working now.
+	* backend/pixma.[ch], backend/pixma_mp150.c, backend/pixma_mp810.c,
+	backend/pixma_sane_options.[ch], doc/sane-pixma.man, po/de.po:
+	- New button option --scan-resolution. Scan resolution is provided from
+	  some multi function devices.
+	- Add some detailed button option description to the pixma man page.
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.3
+
 2013-06-26 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.[ch] backend/genesys_devices.c backend/genesys_gl124.[ch]
 	backend/genesys_low.[ch]: improve scanning speed and quality for GL124

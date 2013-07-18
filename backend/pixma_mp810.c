@@ -684,6 +684,7 @@ static unsigned calc_shifting (pixma_t * s)
 
       case MP980_PID:
       case MP990_PID:
+      case MG8200_PID:
         if (s->param->ydpi > 150)
         {
           mp->color_shift = s->param->ydpi / 75;
@@ -848,8 +849,8 @@ static int send_scan_param (pixma_t * s)
      * -----+-------+---------+---------------------------
      * 0x24 |   1   |   all   | 0x01
      * -----+-------+---------+---------------------------
-     * 0x25 |   1   | default | 0x01, cs9000f: 0x00
-     *      |       |   tpu   | 0x00, cs9000f: 0x01
+     * 0x25 |   1   | default | 0x00; cs8800f: 0x01
+     *      |       |   tpu   | 0x00; cs9000f, mg8200: 0x01
      *      |       |  tpuir  | cs9000f: 0x00
      * -----+-------+---------+---------------------------
      *  ... |   1   |   all   | 0x00
@@ -873,7 +874,8 @@ static int send_scan_param (pixma_t * s)
       data[0x02] = 0x03;
       data[0x03] = 0x03;
     }
-    data[0x05] = 0x01; /* This one also seen at 0. Don't know yet what's used for */
+    if (s->cfg->pid != MG8200_PID)
+      data[0x05] = 0x01; /* This one also seen at 0. Don't know yet what's used for */
     /* the scanner controls the scan */
     /* no software control needed */
     pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
@@ -896,7 +898,7 @@ static int send_scan_param (pixma_t * s)
 
     data[0x1f] = 0x01; /* for 9000F this appears to be 0x00, not sure if that is because of positives */
 
-    if (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
+    if (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID || s->cfg->pid == MG8200_PID)
     {
       data[0x1f] = 0x00;
     }
@@ -905,6 +907,15 @@ static int send_scan_param (pixma_t * s)
     data[0x21] = 0x81;
     data[0x23] = 0x02;
     data[0x24] = 0x01;
+
+    /* MG8200 addition */
+    if (s->cfg->pid == MG8200_PID)
+    {
+      if (is_scanning_from_tpu (s))
+      {
+        data[0x25] = 0x01;
+      }
+    }
 
     /* CS8800F & CS9000F addition */
     if (s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
@@ -1091,19 +1102,25 @@ static int handle_interrupt (pixma_t * s, int timeout)
     return PIXMA_EPROTO;
   }
 
-  /* More than one event can be reported at the same time. */
-  if (buf[3] & 1)
-    send_time (s);
-  if (buf[9] & 2)
-    query_status (s);
-
   /* s->event = 0x0boott
    * b:  button
    * oo: original
    * tt: target
    * poll event with 'scanimage -A'
    * */
-  if (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
+  if (s->cfg->pid == MG8200_PID)
+  /* button no. in buf[7]
+   * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto
+   * format in buf[11] 01=JPEG; 02=TIFF; 03=PDF; 04=Kompakt-PDF
+   * dpi in buf[12] 01=75; 02=150; 03=300; 04=600
+   * target = format; original = size */
+  {
+    if (buf[7] & 1)
+      s->events = PIXMA_EV_BUTTON1 | buf[11] | buf[10]<<8;    /* color scan */
+    if (buf[7] & 2)
+      s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8;    /* b/w scan */
+  }
+  else if (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
   /* button no. in buf[1]
    * target = button no. */
   {
@@ -1117,6 +1134,12 @@ static int handle_interrupt (pixma_t * s, int timeout)
    * original in buf[0]
    * target in buf[1] */
   {
+    /* More than one event can be reported at the same time. */
+    if (buf[3] & 1)
+      send_time (s);    /* FIXME: some scanners hang here */
+    if (buf[9] & 2)
+      query_status (s);
+
     if (buf[0] & 2)
       s->events = PIXMA_EV_BUTTON2 | buf[1] | ((buf[0] & 0xf0) << 4); /* b/w scan */
     if (buf[0] & 1)
@@ -1199,6 +1222,9 @@ shift_colors (uint8_t * dptr, uint8_t * sptr, unsigned w, unsigned dpi,
   sr = colshft[0];
   sg = colshft[1];
   sb = colshft[2];
+
+  /* PDBG (pixma_dbg (4, "*shift_colors***** c=%u, w=%i, sr=%u, sg=%u, sb=%u, strshft=%u ***** \n",
+        c, w, sr, sg, sb, strshft)); */
 
   for (i = 0; i < w; i++)
   {
@@ -1513,7 +1539,7 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
     n = s->param->xdpi / 2400;
 
   /* Some exceptions to global rules here */
-  if (s->cfg->pid == MP970_PID || s->cfg->pid == MP990_PID
+  if (s->cfg->pid == MP970_PID || s->cfg->pid == MP990_PID || s->cfg->pid == MG8200_PID
       || s->cfg->pid == CS8800F_PID || s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
     n = MIN (n, 4);
 

@@ -1,3 +1,9 @@
+2013-06-26 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.[ch] backend/genesys_devices.c backend/genesys_gl124.[ch]
+	backend/genesys_low.[ch]: improve scanning speed and quality for GL124
+	based scanner by implementing half ccd mode below 600 dpi,
+	thanks for an hardware donation from Dany Qumsiyeh.
+
 2013-07-03 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	Canon PIXMA MG5200 Series support reported by Dimitri Fellous.

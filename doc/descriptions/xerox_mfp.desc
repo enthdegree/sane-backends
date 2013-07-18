@@ -181,7 +181,7 @@
 :model "SCX-5835_5935"
 :interface "USB"
 :usbid "0x04e8" "0x342f"
-:status :untested
+:status :good
 
 :model "SCX-5635"
 :interface "USB"
@@ -221,7 +221,7 @@
 :model "CLX-6220"
 :interface "USB"
 :usbid "0x04e8" "0x343a"
-:status :untested
+:status :good
 
 :model "CLX-6250"
 :interface "USB"
@@ -271,7 +271,7 @@
 :model "SCX-5835_5935X"
 :interface "USB"
 :usbid "0x04e8" "0x3446"
-:status :untested
+:status :good
 
 :model "SCX-4833FD"
 :interface "USB"
@@ -305,7 +305,7 @@
 :model "CLX-6260"
 :interface "USB"
 :usbid "0x04e8" "0x3455"
-:status :untested
+:status :minimal
 
 :model "CLX-3300 Series"
 :interface "USB"
@@ -320,7 +320,7 @@
 :model "CLX-4190"
 :interface "USB"
 :usbid "0x04e8" "0x345a"
-:status :untested
+:status :minimal
 
 :model "SCX-4650 4x21S Series"
 :interface "USB"

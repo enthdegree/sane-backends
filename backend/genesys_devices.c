@@ -1806,6 +1806,8 @@ static Genesys_Model canon_lide_110_model = {
       GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_HALF_CCD_MODE
+    | GENESYS_FLAG_SHADING_REPARK
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   50,
@@ -1826,9 +1828,9 @@ static Genesys_Model canon_lide_210_model = {
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (2.2),		/* Start of scan area in mm (x) */
-  SANE_FIX (9.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (8.7),		/* Start of scan area in mm (y) */
   SANE_FIX (216.70),		/* Size of scan area in mm (x) */
-  SANE_FIX (300.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (297.5),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
@@ -1858,9 +1860,11 @@ static Genesys_Model canon_lide_210_model = {
       GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_HALF_CCD_MODE
+    | GENESYS_FLAG_SHADING_REPARK
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_EXTRA_SW,
-  50,
+  60,
   400
 };
 

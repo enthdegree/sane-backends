@@ -610,6 +610,14 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
 SANE_Status
 sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status)
 {
+#ifdef UNIT_TESTING
+  if(dev->usb_mode<0)
+    {
+      *status=0;
+      return SANE_STATUS_GOOD;
+    }
+#endif
+
   if(dev->model->asic_type==GENESYS_GL124)
     return sanei_genesys_read_hregister(dev, 0x101, status);
   return sanei_genesys_read_register (dev, 0x41, status);
@@ -1717,6 +1725,13 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
     {
       resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
       compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev,cache->used_setup.xres)));
+    }
+  if (dev->current_setup.half_ccd != cache->used_setup.half_ccd)
+    {
+      DBG (DBG_io,
+	   "sanei_genesys_is_compatible_calibration: half_ccd=%d, used=%d\n",
+	   dev->current_setup.half_ccd, cache->used_setup.half_ccd);
+      compatible = 0;
     }
   if (dev->current_setup.scan_method != cache->used_setup.scan_method)
     {

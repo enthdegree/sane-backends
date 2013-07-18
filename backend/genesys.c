@@ -3115,8 +3115,7 @@ genesys_restore_calibration (Genesys_Device * dev)
    * matching one */
   for (cache = dev->calibration_cache; cache; cache = cache->next)
     {
-      status = dev->model->cmd_set->is_compatible_calibration (dev, cache,
-							       SANE_FALSE);
+      status = dev->model->cmd_set->is_compatible_calibration (dev, cache, SANE_FALSE);
       /* SANE_STATUS_GOOD, a matching cache has been found 
        * so we use it to populate calibration data
        */
@@ -5763,8 +5762,8 @@ init_options (Genesys_Scanner * s)
     ("When using gray or lineart this option selects the used color.");
   s->opt[OPT_COLOR_FILTER].type = SANE_TYPE_STRING;
   s->opt[OPT_COLOR_FILTER].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  /* true gray not yet supported for GL847 scanners */
-  if(!model->is_cis || model->asic_type==GENESYS_GL847)
+  /* true gray not yet supported for GL847 and GL124 scanners */
+  if(!model->is_cis || model->asic_type==GENESYS_GL847 || model->asic_type==GENESYS_GL124)
     {
       s->opt[OPT_COLOR_FILTER].size = max_string_size (color_filter_list);
       s->opt[OPT_COLOR_FILTER].constraint.string_list = color_filter_list;
@@ -7053,9 +7052,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       for (cache = s->dev->calibration_cache; cache; cache = cache->next)
 	{
 	  if (s->dev->model->
-	      cmd_set->is_compatible_calibration (s->dev, cache,
-						  SANE_FALSE) ==
-	      SANE_STATUS_GOOD)
+	      cmd_set->is_compatible_calibration (s->dev, cache, SANE_FALSE) == SANE_STATUS_GOOD)
 	    {
 	      *(SANE_Bool *) val = SANE_FALSE;
 	    }

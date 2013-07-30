@@ -5692,7 +5692,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SWDEROTATE].title = SANE_I18N ("Software derotate");
   s->opt[OPT_SWDEROTATE].desc = SANE_I18N("Request driver to detect and correct 90 degree image rotation");
   s->opt[OPT_SWDEROTATE].type = SANE_TYPE_BOOL;
-  s->opt[OPT_SWCROP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->opt[OPT_SWDEROTATE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   s->opt[OPT_SWDEROTATE].unit = SANE_UNIT_NONE;
   s->val[OPT_SWDEROTATE].b = SANE_FALSE;
 

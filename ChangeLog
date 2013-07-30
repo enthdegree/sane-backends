@@ -1,3 +1,7 @@
+2013-07-30 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c: fixed typo when defining OPT_SWDEROTATE cap
+	(#314339).
+
 2013-07-19 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c: Canon Pixma MX920 has duplex ADF and supports
 	max. 600 dpi @ ADF.

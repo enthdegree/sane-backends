@@ -276,6 +276,10 @@
          - DR-2580C pads the backside of duplex scans
       v40 2012-11-01, MAN
          - initial DR-9050C, DR-7550C, DR-6050C and DR-3010C support
+      v41 2013-07-06, MAN
+         - initial P-208 and P-215 support
+         - bug fix for calibration of scanners with duplex_offset
+         - allow duplex_offset to be controlled from config file
 
    SANE FLOW DIAGRAM
 
@@ -324,7 +328,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 40
+#define BUILD 41
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -362,6 +366,8 @@ static int global_buffer_size;
 static int global_buffer_size_default = 2 * 1024 * 1024;
 static int global_padded_read;
 static int global_padded_read_default = 0;
+static int global_duplex_offset;
+static int global_duplex_offset_default = 0;
 static char global_vendor_name[9];
 static char global_model_name[17];
 static char global_version_name[5];
@@ -528,12 +534,39 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                   if (buf > 1) {
                     DBG (5, "sane_get_devices: config option \"padded-read\" "
                       "(%d) is > 1, ignoring!\n", buf);
+                    continue;
                   }
     
                   DBG (15, "sane_get_devices: setting \"padded-read\" to %d\n",
                     buf);
 
                   global_padded_read = buf;
+              }
+
+              /* DUPLEXOFFSET: < 1200 */
+              else if (!strncmp (lp, "duplex-offset", 13) && isspace (lp[13])) {
+    
+                  int buf;
+                  lp += 13;
+                  lp = sanei_config_skip_whitespace (lp);
+                  buf = atoi (lp);
+    
+                  if (buf > 1200) {
+                    DBG (5, "sane_get_devices: config option \"duplex-offset\" "
+                      "(%d) is > 1200, ignoring!\n", buf);
+                    continue;
+                  }
+    
+                  if (buf < 0) {
+                    DBG (5, "sane_get_devices: config option \"duplex-offset\" "
+                      "(%d) is < 0, ignoring!\n", buf);
+                    continue;
+                  }
+
+                  DBG (15, "sane_get_devices: setting \"duplex-offset\" to %d\n",
+                    buf);
+
+                  global_duplex_offset = buf;
               }
 
               /* VENDOR: we ingest up to 8 bytes */
@@ -700,6 +733,7 @@ attach_one (const char *device_name, int connType)
   /* config file settings */
   s->buffer_size = global_buffer_size;
   s->padded_read = global_padded_read;
+  s->duplex_offset = global_duplex_offset;
 
   /* copy the device name */
   strcpy (s->device_name, device_name);
@@ -929,10 +963,13 @@ init_inquire (struct scanner *s)
   }
 
   /*check for model name*/
-  if (strncmp ("DR", s->model_name, 2) && strncmp ("CR", s->model_name, 2)) {
+  if (strncmp ("DR", s->model_name, 2)
+   && strncmp ("CR", s->model_name, 2)
+   && strncmp ("P-", s->model_name, 2)
+  ) {
     DBG (5, "The device at '%s' is reported to be a '%s'\n",
       s->device_name, s->model_name);
-    DBG (5, "This backend only supports Canon CR & DR-series products.\n");
+    DBG (5, "This backend only supports Canon P-, CR & DR-series products.\n");
     return SANE_STATUS_INVAL;
   }
 
@@ -1204,7 +1241,7 @@ init_model (struct scanner *s)
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
     s->need_ccal = 1;
     s->need_fcal = 1;
-    s->duplex_offset = 432;
+    /*s->duplex_offset = 432; now set in config file*/
     s->duplex_offset_side = SIDE_BACK;
 
     /*lies*/
@@ -1225,7 +1262,7 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_2510;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_2510;
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
-    s->duplex_offset = 400;
+    /*s->duplex_offset = 400; now set in config file*/
     s->need_ccal = 1;
     s->need_fcal = 1;
     s->sw_lut = 1;
@@ -1255,7 +1292,7 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_2510;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_2510;
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
-    s->duplex_offset = 400;
+    /*s->duplex_offset = 400; now set in config file*/
     s->need_ccal = 1;
     s->need_fcal = 1;
     s->sw_lut = 1;
@@ -1284,7 +1321,7 @@ init_model (struct scanner *s)
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
     s->need_fcal_buffer = 1;
     s->bg_color = 0x08;
-    s->duplex_offset = 840;
+    /*s->duplex_offset = 840; now set in config file*/
     s->sw_lut = 1;
 
     /*lies*/
@@ -1315,6 +1352,36 @@ init_model (struct scanner *s)
     s->ppl_mod = 32;
     s->reverse_by_mode[MODE_LINEART] = 0;
     s->reverse_by_mode[MODE_HALFTONE] = 0;
+  }
+
+  else if (strstr (s->model_name, "P-208")) {
+    s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
+    s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+    s->need_ccal = 1;
+    s->invert_tly = 1;
+    s->can_color = 1;
+    s->unknown_byte2 = 0x88;
+    s->rgb_format = 1;
+    s->has_ssm_pay_head_len = 1;
+    s->ppl_mod = 8;
+    s->ccal_version = 3;
+  }
+
+  else if (strstr (s->model_name, "P-215")) {
+    s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_rRgGbB;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
+    s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_gG;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+    s->need_ccal = 1;
+    s->invert_tly = 1;
+    s->can_color = 1;
+    s->unknown_byte2 = 0x88;
+    s->rgb_format = 1;
+    s->has_ssm_pay_head_len = 1;
+    s->ppl_mod = 8;
+    s->ccal_version = 3;
   }
 
   DBG (10, "init_model: finish\n");
@@ -2789,6 +2856,9 @@ ssm_buffer (struct scanner *s)
   set_SSM_pay_len(cmd, outLen);
 
   memset(out,0,outLen);
+  if(s->has_ssm_pay_head_len){
+    set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
+  }
   set_SSM_page_code(out, SM_pc_buffer);
   set_SSM_page_len(out, SSM_PAGE_len);
 
@@ -2844,6 +2914,9 @@ ssm_df (struct scanner *s)
   set_SSM_pay_len(cmd, outLen);
 
   memset(out,0,outLen);
+  if(s->has_ssm_pay_head_len){
+    set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
+  }
   set_SSM_page_code(out, SM_pc_df);
   set_SSM_page_len(out, SSM_PAGE_len);
 
@@ -2903,6 +2976,9 @@ ssm_do (struct scanner *s)
   set_SSM_pay_len(cmd, outLen);
 
   memset(out,0,outLen);
+  if(s->has_ssm_pay_head_len){
+    set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
+  }
   set_SSM_page_code(out, SM_pc_dropout);
   set_SSM_page_len(out, SSM_PAGE_len);
 
@@ -3320,7 +3396,7 @@ update_params(struct scanner *s, int calib)
     }
 
     /* some scanners need longer scans because front/back is offset */
-    if(s->u.source == SOURCE_ADF_DUPLEX && s->duplex_offset)
+    if(s->u.source == SOURCE_ADF_DUPLEX && s->duplex_offset && !calib)
       s->s.height = (s->u.br_y-s->u.tl_y+s->duplex_offset) * s->u.dpi_y / 1200;
 
     /* round lines up to even number */
@@ -5547,35 +5623,76 @@ write_AFE(struct scanner *s)
   unsigned char cmd[COR_CAL_len];
   size_t cmdLen = COR_CAL_len;
 
-  unsigned char pay[CC_pay_len];
-  size_t payLen = CC_pay_len;
+  /*use the longest payload for buffer*/
+  unsigned char pay[CC3_pay_len]; 
+  size_t payLen = CC3_pay_len;
 
   DBG (10, "write_AFE: start\n");
 
-  memset(cmd,0,cmdLen);
-  set_SCSI_opcode(cmd, COR_CAL_code);
-  set_CC_xferlen(cmd,payLen);
+  /* newer scanners use a longer cc payload */
+  if(s->ccal_version == 3){
 
-  memset(pay,0,payLen);
-  set_CC_f_gain(pay,s->c_gain[SIDE_FRONT]);
-  set_CC_unk1(pay,1);
-  set_CC_f_offset(pay,s->c_offset[SIDE_FRONT]);
-  set_CC_unk2(pay,1);
-  set_CC_exp_f_r1(pay,s->c_exposure[SIDE_FRONT][CHAN_RED]);
-  set_CC_exp_f_g1(pay,s->c_exposure[SIDE_FRONT][CHAN_GREEN]);
-  set_CC_exp_f_b1(pay,s->c_exposure[SIDE_FRONT][CHAN_BLUE]);
-  set_CC_exp_f_r2(pay,s->c_exposure[SIDE_FRONT][CHAN_RED]);
-  set_CC_exp_f_g2(pay,s->c_exposure[SIDE_FRONT][CHAN_GREEN]);
-  set_CC_exp_f_b2(pay,s->c_exposure[SIDE_FRONT][CHAN_BLUE]);
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, COR_CAL_code);
+    set_CC_version(cmd,CC3_pay_ver);
+    set_CC_xferlen(cmd,payLen);
+  
+    memset(pay,0,payLen);
 
-  set_CC_b_gain(pay,s->c_gain[SIDE_BACK]);
-  set_CC_b_offset(pay,s->c_offset[SIDE_BACK]);
-  set_CC_exp_b_r1(pay,s->c_exposure[SIDE_BACK][CHAN_RED]);
-  set_CC_exp_b_g1(pay,s->c_exposure[SIDE_BACK][CHAN_GREEN]);
-  set_CC_exp_b_b1(pay,s->c_exposure[SIDE_BACK][CHAN_BLUE]);
-  set_CC_exp_b_r2(pay,s->c_exposure[SIDE_BACK][CHAN_RED]);
-  set_CC_exp_b_g2(pay,s->c_exposure[SIDE_BACK][CHAN_GREEN]);
-  set_CC_exp_b_b2(pay,s->c_exposure[SIDE_BACK][CHAN_BLUE]);
+    set_CC3_gain_f_r(pay,s->c_gain[SIDE_FRONT]);
+    set_CC3_gain_f_g(pay,s->c_gain[SIDE_FRONT]);
+    set_CC3_gain_f_b(pay,s->c_gain[SIDE_FRONT]);
+
+    set_CC3_off_f_r(pay,s->c_offset[SIDE_FRONT]);
+    set_CC3_off_f_g(pay,s->c_offset[SIDE_FRONT]);
+    set_CC3_off_f_b(pay,s->c_offset[SIDE_FRONT]);
+  
+    set_CC3_exp_f_r(pay,s->c_exposure[SIDE_FRONT][CHAN_RED]);
+    set_CC3_exp_f_g(pay,s->c_exposure[SIDE_FRONT][CHAN_GREEN]);
+    set_CC3_exp_f_b(pay,s->c_exposure[SIDE_FRONT][CHAN_BLUE]);
+
+    set_CC3_gain_b_r(pay,s->c_gain[SIDE_BACK]);
+    set_CC3_gain_b_g(pay,s->c_gain[SIDE_BACK]);
+    set_CC3_gain_b_b(pay,s->c_gain[SIDE_BACK]);
+
+    set_CC3_off_b_r(pay,s->c_offset[SIDE_BACK]);
+    set_CC3_off_b_g(pay,s->c_offset[SIDE_BACK]);
+    set_CC3_off_b_b(pay,s->c_offset[SIDE_BACK]);
+
+    set_CC3_exp_b_r(pay,s->c_exposure[SIDE_BACK][CHAN_RED]);
+    set_CC3_exp_b_g(pay,s->c_exposure[SIDE_BACK][CHAN_GREEN]);
+    set_CC3_exp_b_b(pay,s->c_exposure[SIDE_BACK][CHAN_BLUE]);
+  }
+
+  else{
+    payLen = CC_pay_len;
+
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, COR_CAL_code);
+    set_CC_version(cmd,CC_pay_ver);
+    set_CC_xferlen(cmd,payLen);
+  
+    memset(pay,0,payLen);
+    set_CC_f_gain(pay,s->c_gain[SIDE_FRONT]);
+    set_CC_unk1(pay,1);
+    set_CC_f_offset(pay,s->c_offset[SIDE_FRONT]);
+    set_CC_unk2(pay,1);
+    set_CC_exp_f_r1(pay,s->c_exposure[SIDE_FRONT][CHAN_RED]);
+    set_CC_exp_f_g1(pay,s->c_exposure[SIDE_FRONT][CHAN_GREEN]);
+    set_CC_exp_f_b1(pay,s->c_exposure[SIDE_FRONT][CHAN_BLUE]);
+    set_CC_exp_f_r2(pay,s->c_exposure[SIDE_FRONT][CHAN_RED]);
+    set_CC_exp_f_g2(pay,s->c_exposure[SIDE_FRONT][CHAN_GREEN]);
+    set_CC_exp_f_b2(pay,s->c_exposure[SIDE_FRONT][CHAN_BLUE]);
+  
+    set_CC_b_gain(pay,s->c_gain[SIDE_BACK]);
+    set_CC_b_offset(pay,s->c_offset[SIDE_BACK]);
+    set_CC_exp_b_r1(pay,s->c_exposure[SIDE_BACK][CHAN_RED]);
+    set_CC_exp_b_g1(pay,s->c_exposure[SIDE_BACK][CHAN_GREEN]);
+    set_CC_exp_b_b1(pay,s->c_exposure[SIDE_BACK][CHAN_BLUE]);
+    set_CC_exp_b_r2(pay,s->c_exposure[SIDE_BACK][CHAN_RED]);
+    set_CC_exp_b_g2(pay,s->c_exposure[SIDE_BACK][CHAN_GREEN]);
+    set_CC_exp_b_b2(pay,s->c_exposure[SIDE_BACK][CHAN_BLUE]);
+  }
 
   ret = do_cmd (
     s, 1, 0,
@@ -5850,6 +5967,7 @@ default_globals(void)
 {
   global_buffer_size = global_buffer_size_default;
   global_padded_read = global_padded_read_default;
+  global_duplex_offset = global_duplex_offset_default;
   global_vendor_name[0] = 0;
   global_model_name[0] = 0;
   global_version_name[0] = 0;

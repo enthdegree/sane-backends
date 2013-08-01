@@ -46,6 +46,7 @@ scsi CANON DR
 # gmail dot com - with canon_dr in the subject line
 
 # DR-2080C (uses weird protocol)
+option duplex-offset 840
 option vendor-name  CANON
 option model-name   DR-2080C
 option version-name XXXX
@@ -68,12 +69,14 @@ usb 0x04a9 0x1606
 usb 0x04a9 0x1607
 
 # DR-2580C
+option duplex-offset 432
 usb 0x04a9 0x1608
 
 # DR-3080CII
 usb 0x04a9 0x1609
 
 # DR-2050C/SP (uses weird protocol)
+option duplex-offset 840
 option vendor-name  CANON
 option model-name   DR-2050C
 option version-name XXXX
@@ -94,6 +97,7 @@ usb 0x04a9 0x2222
 usb 0x1083 0x1614
 
 # DR-2510C
+option duplex-offset 400
 usb 0x1083 0x1617
 
 # DR-X10C
@@ -103,9 +107,11 @@ usb 0x1083 0x1618
 usb 0x1083 0x161a
 
 # DR-2010C
+option duplex-offset 400
 usb 0x1083 0x161b
 
 # DR-3010C
+option duplex-offset 400
 usb 0x1083 0x161d
 
 # DR-7090C
@@ -131,4 +137,10 @@ usb 0x1083 0x1638
 
 # CR-135i
 usb 0x1083 0x1639
+
+# P-215
+usb 0x1083 0x1646
+
+# P-208
+usb 0x1083 0x164c
 

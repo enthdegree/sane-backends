@@ -166,6 +166,7 @@ struct scanner
   int need_ccal;     /* scanner needs software to help with afe calibration */
   int need_fcal;     /* scanner needs software to help with fine calibration */
   int need_fcal_buffer; /* software to apply calibration stored in scanner*/
+  int ccal_version;  /* 0 in most scanners, 3 in newer ones */
 
   int has_counter;
   int has_rif;
@@ -179,6 +180,7 @@ struct scanner
   int has_btc;
   int has_ssm;           /* older scanners use this set scan mode command */         
   int has_ssm2;          /* newer scanners user this similar command */
+  int has_ssm_pay_head_len; /* newer scanners put the length twice in ssm */
   int can_read_panel;
   int can_write_panel;
   int rgb_format;       /* meaning unknown */

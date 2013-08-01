@@ -315,6 +315,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 /* the payload */
 #define SSM_PAY_len                     0x14
+#define SSM_PAY_HEAD_len                0x13
+#define set_SSM_pay_head_len(sb, val)   sb[0x01] = val
 #define set_SSM_page_code(sb, val)      sb[0x04] = val
 #define SSM_PAGE_len                    0x0e
 #define set_SSM_page_len(sb, val)       sb[0x05] = val
@@ -355,10 +357,12 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define COR_CAL_code                0xe1
 #define COR_CAL_len                 10
 
+#define set_CC_version(sb, val)     sb[5] = val
 #define set_CC_xferlen(sb, len)     putnbyte(sb + 0x06, len, 3)
 
 /* the payload */
 #define CC_pay_len                  0x20
+#define CC_pay_ver                  0x00
 
 #define set_CC_f_gain(sb, val)      sb[0] = val
 #define set_CC_unk1(sb, val)        sb[1] = val
@@ -381,6 +385,34 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_CC_exp_b_r2(sb, val)    putnbyte(sb + 0x1a, val, 2)
 #define set_CC_exp_b_g2(sb, val)    putnbyte(sb + 0x1c, val, 2)
 #define set_CC_exp_b_b2(sb, val)    putnbyte(sb + 0x1e, val, 2)
+
+/* the 'version 3' payload (P-208 and P-215) */
+#define CC3_pay_len                  0x28
+#define CC3_pay_ver                  0x03
+
+#define set_CC3_gain_f_r(sb, val)    sb[0] = val
+#define set_CC3_gain_f_g(sb, val)    sb[1] = val
+#define set_CC3_gain_f_b(sb, val)    sb[2] = val
+
+#define set_CC3_off_f_r(sb, val)     sb[4] = val
+#define set_CC3_off_f_g(sb, val)     sb[5] = val
+#define set_CC3_off_f_b(sb, val)     sb[6] = val
+
+#define set_CC3_exp_f_r(sb, val)     putnbyte(sb + 0x08, val, 2)
+#define set_CC3_exp_f_g(sb, val)     putnbyte(sb + 0x0a, val, 2)
+#define set_CC3_exp_f_b(sb, val)     putnbyte(sb + 0x0c, val, 2)
+
+#define set_CC3_gain_b_r(sb, val)    sb[0x14] = val
+#define set_CC3_gain_b_g(sb, val)    sb[0x15] = val
+#define set_CC3_gain_b_b(sb, val)    sb[0x16] = val
+
+#define set_CC3_off_b_r(sb, val)     sb[0x18] = val
+#define set_CC3_off_b_g(sb, val)     sb[0x19] = val
+#define set_CC3_off_b_b(sb, val)     sb[0x1a] = val
+
+#define set_CC3_exp_b_r(sb, val)     putnbyte(sb + 0x1c, val, 2)
+#define set_CC3_exp_b_g(sb, val)     putnbyte(sb + 0x1e, val, 2)
+#define set_CC3_exp_b_b(sb, val)     putnbyte(sb + 0x20, val, 2)
 
 /* ==================================================================== */
 /* SET SCAN MODE 2 */

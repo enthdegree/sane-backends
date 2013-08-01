@@ -1,3 +1,9 @@
+2013-07-31 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr*: backend version 41
+	- initial P-208 and P-215 support
+	- bug fix for calibration of scanners with duplex_offset
+	- allow duplex_offset to be controlled from config file
+
 2013-07-30 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: fixed typo when defining OPT_SWDEROTATE cap
 	(#314339).

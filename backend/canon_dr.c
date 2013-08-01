@@ -276,7 +276,7 @@
          - DR-2580C pads the backside of duplex scans
       v40 2012-11-01, MAN
          - initial DR-9050C, DR-7550C, DR-6050C and DR-3010C support
-      v41 2013-07-06, MAN
+      v41 2013-07-31, MAN
          - initial P-208 and P-215 support
          - bug fix for calibration of scanners with duplex_offset
          - allow duplex_offset to be controlled from config file

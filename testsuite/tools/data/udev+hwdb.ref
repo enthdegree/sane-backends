@@ -4,7 +4,7 @@
 # udev rules file for supported USB and SCSI devices
 #
 # For the list of supported USB devices see /usr/lib/udev/hwdb.d/20-sane.hwdb
-# 
+#
 # The SCSI device support is very basic and includes only
 # scanners that mark themselves as type "scanner" or
 # SCSI-scanners from HP and other vendors that are entitled "processor"

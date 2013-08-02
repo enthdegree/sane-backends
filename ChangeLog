@@ -1,3 +1,8 @@
+2013-08-02 Stéphane Voltz <stef.dev@free.fr>
+	* configure configure.in testsuite/Makefile.* testsuite/tools/*: add
+	a testsuite for sane-desc, then merge hwdb support for sane-desc by 
+	Tom Gundersen <teg@jklm.no> .
+
 2013-07-31 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr*: backend version 41
 	- initial P-208 and P-215 support

@@ -5,6 +5,7 @@
    Copyright (C) 2004 Jose Gato <jgato@gsyc.escet.urjc.es> (XML output)
    Copyright (C) 2006 Mattias Ellert <mattias.ellert@tsl.uu.se> (plist output)
    Copyright (C) 2009 Dr. Ing. Dieter Jurzitza <dieter.jurzitza@t-online.de>
+   Copyright (C) 2013 Tom Gundersen <teg@jklm.no> (hwdb output)
 
    This file is part of the SANE package.
 
@@ -3662,7 +3663,7 @@ print_udevhwdb_header (void)
      "# udev rules file for supported USB and SCSI devices\n"
      "#\n"
      "# For the list of supported USB devices see /usr/lib/udev/hwdb.d/20-sane.hwdb\n"
-     "# \n"
+     "#\n"
      "# The SCSI device support is very basic and includes only\n"
      "# scanners that mark themselves as type \"scanner\" or\n"
      "# SCSI-scanners from HP and other vendors that are entitled \"processor\"\n"

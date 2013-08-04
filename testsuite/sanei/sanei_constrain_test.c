@@ -38,14 +38,33 @@ static SANE_Option_Descriptor none_bool_opt = {
   {NULL}
 };
 
-/* range for constraint */
+/* range for int constraint */
 static const SANE_Range int_range = {
   3,				/* minimum */
   18,				/* maximum */
   3				/* quantization */
 };
 
+/* range for sane fixed constraint */
+static const SANE_Range fixed_range = {
+  SANE_FIX(1.0),		/* minimum */
+  SANE_FIX(431.8),		/* maximum */
+  SANE_FIX(0.01)				/* quantization */
+};
+
 static SANE_Option_Descriptor int_opt = {
+  SANE_NAME_SCAN_TL_X,
+  SANE_TITLE_SCAN_TL_X,
+  SANE_DESC_SCAN_TL_X,
+  SANE_TYPE_FIXED,
+  SANE_UNIT_MM,
+  sizeof (SANE_Word),
+  0,
+  SANE_CONSTRAINT_RANGE,
+  {NULL}
+};
+
+static SANE_Option_Descriptor fixed_opt = {
   SANE_NAME_SCAN_TL_X,
   SANE_TITLE_SCAN_TL_X,
   SANE_DESC_SCAN_TL_X,
@@ -180,7 +199,7 @@ quant1_int_value (void)
 static void
 quant2_int_value (void)
 {
-  SANE_Int value = int_range.min + +int_range.quant - 1;
+  SANE_Int value = int_range.min + int_range.quant - 1;
   SANE_Word info = 0;
   SANE_Status status;
 
@@ -220,6 +239,116 @@ above_max_int_value (void)
   assert (status == SANE_STATUS_GOOD);
   assert (info == SANE_INFO_INEXACT);
   assert (value == int_range.max);
+}
+
+/*
+ * constrained fixed value
+ */
+static void
+min_fixed_value (void)
+{
+  SANE_Int value = fixed_range.min;
+  SANE_Word info = 0;
+  SANE_Status status;
+
+  status = sanei_constrain_value (&fixed_opt, &value, &info);
+
+  /* check results */
+  assert (status == SANE_STATUS_GOOD);
+  assert (info == 0);
+  assert (value == fixed_range.min);
+}
+
+static void
+max_fixed_value (void)
+{
+  SANE_Int value = fixed_range.max;
+  SANE_Word info = 0;
+  SANE_Status status;
+
+  status = sanei_constrain_value (&fixed_opt, &value, &info);
+
+  /* check results */
+  assert (status == SANE_STATUS_GOOD);
+  assert (info == 0);
+  assert (value == fixed_range.max); 
+}
+
+static void
+below_min_fixed_value (void)
+{
+  SANE_Int value = fixed_range.min - 1;
+  SANE_Word info = 0;
+  SANE_Status status;
+
+  status = sanei_constrain_value (&fixed_opt, &value, &info);
+
+  /* check results */
+  assert (status == SANE_STATUS_GOOD);
+  assert (info == SANE_INFO_INEXACT);
+  assert (value == fixed_range.min);
+}
+
+/* rounded to lower value */
+static void
+quant1_fixed_value (void)
+{
+  SANE_Int value = fixed_range.min + fixed_range.quant/3;
+  SANE_Word info = 0;
+  SANE_Status status;
+
+  status = sanei_constrain_value (&fixed_opt, &value, &info);
+
+  /* check results */
+  assert (status == SANE_STATUS_GOOD);
+  assert (info == SANE_INFO_INEXACT);
+  assert (value == fixed_range.min);
+}
+
+/* rounded to higher value */
+static void
+quant2_fixed_value (void)
+{
+  SANE_Int value = fixed_range.min + fixed_range.quant - fixed_range.quant/3;
+  SANE_Word info = 0;
+  SANE_Status status;
+
+  status = sanei_constrain_value (&fixed_opt, &value, &info);
+
+  /* check results */
+  assert (status == SANE_STATUS_GOOD);
+  assert (info == SANE_INFO_INEXACT);
+  assert (value == fixed_range.min + fixed_range.quant);
+}
+
+static void
+in_range_fixed_value (void)
+{
+  SANE_Int value = fixed_range.min + fixed_range.quant;
+  SANE_Word info = 0;
+  SANE_Status status;
+
+  status = sanei_constrain_value (&fixed_opt, &value, &info);
+
+  /* check results */
+  assert (status == SANE_STATUS_GOOD);
+  assert (info == 0);
+  assert (value == fixed_range.min + fixed_range.quant);
+}
+
+static void
+above_max_fixed_value (void)
+{
+  SANE_Int value = fixed_range.max + 1;
+  SANE_Word info = 0;
+  SANE_Status status;
+
+  status = sanei_constrain_value (&fixed_opt, &value, &info);
+
+  /* check results */
+  assert (status == SANE_STATUS_GOOD);
+  assert (info == SANE_INFO_INEXACT);
+  assert (value == fixed_range.max);
 }
 
 
@@ -599,6 +728,7 @@ sanei_constrain_suite (void)
 {
   /* to be compatible with pre-C99 compilers */
   int_opt.constraint.range = &int_range;
+  fixed_opt.constraint.range = &fixed_range;
   array_opt.constraint.range = &int_range;
   word_array_opt.constraint.word_list = dpi_list;
   string_array_opt.constraint.string_list = string_list;
@@ -611,6 +741,15 @@ sanei_constrain_suite (void)
   quant1_int_value ();
   quant2_int_value ();
   in_range_int_value ();
+
+  /* tests for sane fixed constrained value */
+  min_fixed_value ();
+  max_fixed_value ();
+  below_min_fixed_value ();
+  above_max_fixed_value ();
+  quant1_fixed_value ();
+  quant2_fixed_value ();
+  in_range_fixed_value ();
 
   /* tests for constrained int array */
   min_int_array ();
@@ -635,7 +774,7 @@ sanei_constrain_suite (void)
   string_array_ignorecase ();
   string_array_several ();
 
-  /* constraint non tests  */
+  /* constraint none tests  */
   none_int ();
   none_bool_nok ();
   none_bool_ok ();

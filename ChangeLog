@@ -1,3 +1,10 @@
+2013-08-04 Stéphane Voltz <stef.dev@free.fr>
+	* sanei/sanei_constrain_value.c
+	testsuite/sanei/sanei_constrain_test.c: fixed the case where the
+	rounding in sanei_constrain_value computes a value higher than the
+	range maximum, spotted and proposed by viresh_shirol@yahoo.co.uk .
+	Added testcase for the bug in testsuite.
+
 2013-08-02 Stéphane Voltz <stef.dev@free.fr>
 	* configure configure.in testsuite/Makefile.* testsuite/tools/*: add
 	a testsuite for sane-desc, then merge hwdb support for sane-desc by 

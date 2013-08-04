@@ -219,6 +219,12 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void *value,
 		(unsigned int) (array[i] - range->min +
 				range->quant / 2) / range->quant;
 	      v = v * range->quant + range->min;
+	      /* due to rounding issues with sane 'fixed' values,
+	       * the computed value may exceed max */
+	      if (v > range->max)
+	        {
+		  v = range->max;
+	        }
 	      if (v != array[i])
 		{
 		  array[i] = v;

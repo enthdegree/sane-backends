@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL846/GL847/GL124 based scanners
  */
 
-#define BUILD 2410
+#define BUILD 2411
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -146,6 +146,15 @@ static const SANE_Range threshold_curve_range = {
   0,			/* minimum */
   127,		        /* maximum */
   1			/* quantization */
+};
+
+/**
+ * range for brightness and contrast
+ */
+static const SANE_Range enhance_range = {
+  -100,	/* minimum */
+  100,		/* maximum */
+  1		/* quantization */
 };
 
 void
@@ -3794,12 +3803,12 @@ load_lut (unsigned char * lut,
   DBGSTART;
 
   /* slope is converted to rise per unit run:
-   * first [-127,127] to [-1,1]
-   * then multiply by PI/2 to convert to radians
+   * first [-127,127] to [-.999,.999]
+   * then to [-PI/4,PI/4] then [0,PI/2]
    * then take the tangent (T.O.A)
    * then multiply by the normal linear slope 
    * because the table may not be square, i.e. 1024x256*/
-  rise = tan((double)slope/127 * M_PI/2) * max_out_val / max_in_val;
+  rise = tan((double)slope/128 * M_PI_4 + M_PI_4) * max_out_val / max_in_val;
 
   /* line must stay vertically centered, so figure
    * out vertical offset at central input value */
@@ -5332,6 +5341,8 @@ calc_parameters (Genesys_Scanner * s)
     || s->val[OPT_SWCROP].b 
     || s->val[OPT_SWDESKEW].b
     || s->val[OPT_SWDEROTATE].b
+    || s->val[OPT_BRIGHTNESS].w!=0
+    || s->val[OPT_CONTRAST].w!=0
     ||(SANE_UNFIX(s->val[OPT_SWSKIP].w)>0))
     && (!s->val[OPT_PREVIEW].b)
     && (s->val[OPT_BIT_DEPTH].w <= 8))
@@ -5684,6 +5695,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SWSKIP].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_SWSKIP].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_SWSKIP].constraint.range = &(percentage_range);
+  s->opt[OPT_SWSKIP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   /* disable by default */
   s->val[OPT_SWSKIP].w = 0;
 
@@ -5695,6 +5707,30 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SWDEROTATE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   s->opt[OPT_SWDEROTATE].unit = SANE_UNIT_NONE;
   s->val[OPT_SWDEROTATE].b = SANE_FALSE;
+
+  /* Software brightness */
+  s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
+  s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
+  s->opt[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
+  s->opt[OPT_BRIGHTNESS].type = SANE_TYPE_INT;
+  s->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_NONE;
+  s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_BRIGHTNESS].constraint.range = &(enhance_range);
+  s->opt[OPT_BRIGHTNESS].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  /* disable by default */
+  s->val[OPT_BRIGHTNESS].w = 0;
+
+  /* Sowftware contrast */
+  s->opt[OPT_CONTRAST].name = SANE_NAME_CONTRAST;
+  s->opt[OPT_CONTRAST].title = SANE_TITLE_CONTRAST;
+  s->opt[OPT_CONTRAST].desc = SANE_DESC_CONTRAST;
+  s->opt[OPT_CONTRAST].type = SANE_TYPE_INT;
+  s->opt[OPT_CONTRAST].unit = SANE_UNIT_NONE;
+  s->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_CONTRAST].constraint.range = &(enhance_range);
+  s->opt[OPT_CONTRAST].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  /* disable by default */
+  s->val[OPT_CONTRAST].w = 0;
 
   /* "Extras" group: */
   s->opt[OPT_EXTRAS_GROUP].title = SANE_I18N ("Extras");
@@ -6122,6 +6158,7 @@ attach_one_device (SANE_String_Const devname)
 	  else
             {
 	      new_dev = malloc (new_dev_alloced * sizeof (new_dev[0]));
+              tmp_dev = NULL;
             }
 	  if (!new_dev)
 	    {
@@ -6980,6 +7017,8 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_SWDEROTATE:
     case OPT_SWSKIP:
     case OPT_DESPECK:
+    case OPT_CONTRAST:
+    case OPT_BRIGHTNESS:
       *(SANE_Word *) val = s->val[option].w;
       break;
     case OPT_CUSTOM_GAMMA:
@@ -7098,6 +7137,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_DISABLE_INTERPOLATION:
     case OPT_LAMP_OFF:
     case OPT_PREVIEW:
+    case OPT_BRIGHTNESS:
+    case OPT_CONTRAST:
       s->val[option].w = *(SANE_Word *) val;
       RIE (calc_parameters (s));
       *myinfo |= SANE_INFO_RELOAD_PARAMS;
@@ -7126,6 +7167,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
           DISABLE(OPT_DESPECK);
           DISABLE(OPT_SWDEROTATE);
           DISABLE(OPT_SWSKIP);
+          DISABLE(OPT_CONTRAST);
+          DISABLE(OPT_BRIGHTNESS);
         }
       else
         {
@@ -7135,6 +7178,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
           ENABLE(OPT_DESPECK);
           ENABLE(OPT_SWDEROTATE);
           ENABLE(OPT_SWSKIP);
+          ENABLE(OPT_CONTRAST);
+          ENABLE(OPT_BRIGHTNESS);
         }
       RIE (calc_parameters (s));
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
@@ -7587,6 +7632,12 @@ sane_start (SANE_Handle handle)
       if(s->val[OPT_SWDEROTATE].b == SANE_TRUE) 
         {
           RIE(genesys_derotate(s));
+        }
+
+      /* adjust contrast/brightness if required */
+      if(s->val[OPT_BRIGHTNESS].w!=0 || s->val[OPT_CONTRAST].w!=0)
+        {
+          RIE(genesys_enhance(s));
         }
     }
 

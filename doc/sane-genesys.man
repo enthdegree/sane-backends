@@ -61,10 +61,22 @@ will have to be redone.
         The lamp will be turned off after the given time (in minutes). A value of 0 means that the lamp won't be turned off.
 .RE
 
-.B \-\-threshold  percent
+.B \-\-threshold percent
 .RS
 	0..100% (in steps of 1). Select minimum brightness to get a white point. Pixels
 whith brightness below that value will be scanned as black.
+.RE
+
+.B \-\-brightness value
+.RS
+	-100..100 (in steps of 1). Set the brightness enhancement. 0 for no enhancement, negative
+values to decrease brigthness, and positive values to increase it.
+.RE
+
+.B \-\-contrast value
+.RS
+	-100..100 (in steps of 1). Set the contrast enhancement. 0 for no enhancement, negative
+values to decrease contrast, and positive values to increase it.
 .RE
 
 .B \-\-disable-interpolation yes|no

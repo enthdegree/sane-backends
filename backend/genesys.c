@@ -5792,7 +5792,7 @@ init_options (Genesys_Scanner * s)
 
   /* color filter */
   s->opt[OPT_COLOR_FILTER].name = "color-filter";
-  s->opt[OPT_COLOR_FILTER].title = SANE_I18N ("Color Filter");
+  s->opt[OPT_COLOR_FILTER].title = SANE_I18N ("Color filter");
   s->opt[OPT_COLOR_FILTER].desc =
     SANE_I18N
     ("When using gray or lineart this option selects the used color.");
@@ -5818,6 +5818,24 @@ init_options (Genesys_Scanner * s)
     {
       DISABLE (OPT_COLOR_FILTER);
     }
+
+  /* calibration stor file name */
+  s->opt[OPT_CALIBRATION_FILE].name = "calibration-file";
+  s->opt[OPT_CALIBRATION_FILE].title = SANE_I18N ("Calibration file");
+  s->opt[OPT_CALIBRATION_FILE].desc = SANE_I18N ("Specify the calibration file to use");
+  s->opt[OPT_CALIBRATION_FILE].type = SANE_TYPE_STRING;
+  s->opt[OPT_CALIBRATION_FILE].unit = SANE_UNIT_NONE;
+  s->opt[OPT_CALIBRATION_FILE].size = PATH_MAX;
+  s->opt[OPT_CALIBRATION_FILE].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
+  s->opt[OPT_CALIBRATION_FILE].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_CALIBRATION_FILE].s = NULL;
+  /* disable option if ran as root */
+#ifdef HAVE_GETUID
+  if(geteuid()==0)
+    {
+      DISABLE (OPT_CALIBRATION_FILE);
+    }
+#endif
 
   /* Powersave time (turn lamp off) */
   s->opt[OPT_LAMP_OFF_TIME].name = "lamp-off-time";
@@ -6230,7 +6248,7 @@ probe_genesys_devices (void)
 
 /**
  * reads previously cached calibration data
- * from file
+ * from file define in dev->calib_file
  */
 SANE_Status
 sanei_genesys_read_calibration (Genesys_Device * dev)
@@ -6242,6 +6260,8 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
   SANE_Status status=SANE_STATUS_GOOD;
 
   DBGSTART;
+
+  /* open calibration cache file */
   fp = fopen (dev->calib_file, "rb");
   if (!fp)
     {
@@ -6269,6 +6289,15 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
       return SANE_STATUS_INVAL;
     }
 
+  /* clear device calibration cache */
+  while(dev->calibration_cache!=NULL)
+    {
+      cache=dev->calibration_cache;
+      dev->calibration_cache=dev->calibration_cache->next;
+      free(cache);
+    }
+
+  /* loop on cache records in file */
   while (!feof (fp) && status==SANE_STATUS_GOOD)
     {
       DBG (DBG_info, "sanei_genesys_read_calibration: reading one record\n");
@@ -6835,6 +6864,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       sprintf (tmp_str, "%s/.sane/%s.cal", ptr, s->dev->model->name);
     }
  
+  s->val[OPT_CALIBRATION_FILE].s = strdup (tmp_str);
   s->dev->calib_file = strdup (tmp_str);
   DBG (DBG_info, "Calibration filename set to:\n");
   DBG (DBG_info, ">%s<\n", s->dev->calib_file);
@@ -7024,12 +7054,15 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_CUSTOM_GAMMA:
       *(SANE_Word *) val = s->val[option].w;
       break;
+
       /* string options: */
     case OPT_MODE:
     case OPT_COLOR_FILTER:
+    case OPT_CALIBRATION_FILE:
     case OPT_SOURCE:
       strcpy (val, s->val[option].s);
       break;
+
       /* word array options */
     case OPT_GAMMA_VECTOR:
       table = (SANE_Word *) val;
@@ -7102,6 +7135,47 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 	   option);
     }
   return status;
+}
+
+/** @brief set calibration file value
+ * Set calibration file value. Load new cache values from file if it exists,
+ * else creates the file*/
+static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void *val)
+{
+  SANE_Status status=SANE_STATUS_GOOD;
+  char *tmp;
+  Genesys_Calibration_Cache *cache;
+  Genesys_Device *dev=s->dev;
+
+  /* try to load file */
+  tmp=dev->calib_file;
+  dev->calib_file=val;
+  status=sanei_genesys_read_calibration (dev);
+  
+  /* file exists but is invalid */
+  if (status!=SANE_STATUS_IO_ERROR && status!=SANE_STATUS_GOOD)
+    {
+      dev->calib_file=tmp;
+      return status;
+    }
+
+  /* we can set no file name value */
+  if (s->val[option].s)
+    free (s->val[option].s);
+  s->val[option].s = strdup (val);
+  if (tmp)
+    free (tmp);
+  dev->calib_file = strdup (val);
+
+  /* clear device calibration cache */
+  while(dev->calibration_cache!=NULL)
+    {
+      cache=dev->calibration_cache;
+      dev->calibration_cache=dev->calibration_cache->next;
+      free(cache);
+    }
+
+  return SANE_STATUS_GOOD;
 }
 
 /* sets an option , called by sane_control_option */
@@ -7290,6 +7364,9 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	free (s->val[option].s);
       s->val[option].s = strdup (val);
       RIE (calc_parameters (s));
+      break;
+    case OPT_CALIBRATION_FILE:
+      RIE(set_calibration_value (s, option, val));
       break;
     case OPT_LAMP_OFF_TIME:
       if (*(SANE_Word *) val != s->val[option].w)

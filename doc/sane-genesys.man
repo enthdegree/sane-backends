@@ -103,6 +103,20 @@ selected.
         The lamp will be turned off during the scan. Calibration is still done with lamp on.
 .RE
 
+.B \-\-clear\-calibration
+.RS
+        Clear calibration cache data, triggering a new calibration for the device when the
+next scan will happen.
+.RE
+
+.B \-\-calibration\-file
+.RS
+        Specify the calibration file name to use. At least the directory containing the file
+must exist, since it won't be created. This allow to handle the case of several identical devices
+that would otherwise use the same calibration data. This option is disabled if the backend is ran
+as root.
+.RE
+
 .PP
 Additionally, several 'software' options are exposed by the backend. These
 are reimplementations of features provided natively by larger scanners, but

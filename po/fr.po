@@ -2415,7 +2415,7 @@ msgstr "Démarrer la calibration avec la feuille spéciale"
 #: ../backend/genesys.c:6414 ../backend/gt68xx.c:809
 #, no-c-format
 msgid "Clear calibration"
-msgstr "Annuler la calibration"
+msgstr "Effacer la calibration"
 
 #: ../backend/genesys.c:6415 ../backend/gt68xx.c:810
 #, no-c-format

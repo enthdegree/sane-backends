@@ -73,6 +73,7 @@ long int checks_done = 0;
 #endif
 
 int test_level;
+int verbose_level;
 
 /* Maybe add that to sane.h */
 #define SANE_OPTION_IS_GETTABLE(cap)	(((cap) & (SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE)) == SANE_CAP_SOFT_DETECT)
@@ -398,6 +399,10 @@ test_options (SANE_Device * device, int can_do_recursive)
 		if (!SANE_OPTION_IS_ACTIVE (opt->cap)) {
 			/* Option not active. Skip the remaining tests. */
 			continue;
+		}
+
+		if(verbose_level) {
+			printf("checking option ""%s""\n",opt->title);
 		}
 
 		if (opt->type == SANE_TYPE_GROUP) {
@@ -1658,6 +1663,7 @@ SANE_Status status;
 static void usage(const char *execname)
 {
 	printf("Usage: %s [-d backend_name] [-l test_level] [-r recursion_level] [-g time (s)]\n", execname);
+	printf("\t-v\tverbose level\n");
 	printf("\t-d\tbackend name\n");
 	printf("\t-l\tlevel of testing (0=some, 1=0+options, 2=1+scans, 3=longest tests)\n");
 	printf("\t-r\trecursion level for option testing (the higher, the longer)\n");
@@ -1691,9 +1697,13 @@ main (int argc, char **argv)
 	test_level = 0;			/* basic tests only */
 	time = 0;			/* no get devices loop */
 
-	while ((ch = getopt_long (argc, argv, "-d:l:r:g:h", basic_options,
+	while ((ch = getopt_long (argc, argv, "-v:d:l:r:g:h", basic_options,
 							  &index)) != EOF) {
 		switch(ch) {
+		case 'v':
+			verbose_level = atoi(optarg);
+			break;
+
 		case 'd':
 			devname = strdup(optarg);
 			break;

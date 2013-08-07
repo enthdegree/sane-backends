@@ -1,3 +1,12 @@
+2013-08-07 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.[ch] backend/genesys_conv.c doc/sane-genesys.man
+	po/fr.po: add digital brightness and contrast options.
+	Add an option to set calibration cache file name. 
+
+2013-08-07 Stéphane Voltz <stef.dev@free.fr>
+	* frontend/tstbackend.c: add argument to get verbose messages during
+	checks.
+
 2013-08-04 Stéphane Voltz <stef.dev@free.fr>
 	* sanei/sanei_constrain_value.c
 	testsuite/sanei/sanei_constrain_test.c: fixed the case where the

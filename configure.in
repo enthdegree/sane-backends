@@ -129,9 +129,15 @@ SANE_CHECK_LOCKING
 SANE_CHECK_GPHOTO2
 
 
-PKG_CHECK_MODULES(LIBV4L, libv4l1, have_libv4l1=yes, have_libv4l1=no)
-AC_SUBST(LIBV4L_LIBS)
-AC_SUBST(LIBV4L_CFLAGS)
+AC_ARG_WITH(v4l,
+	    AC_HELP_STRING([--with-v4l],
+			   [include the v4l backend @<:@default=yes@:>@]),
+	    [# If --with-v4l=no or --without-v4l, disable backend
+             # as "$with_v4l" will be set to "no"])
+
+if test "$with_v4l" != "no" ; then
+  PKG_CHECK_MODULES(LIBV4L, libv4l1, have_libv4l1=yes, have_libv4l1=no)
+fi
 
 AC_ARG_ENABLE(avahi,
 	AC_HELP_STRING([--enable-avahi], [enable Avahi support for saned and the net backend]),
@@ -633,6 +639,9 @@ else
 fi
 
 SANE_CHECK_BACKENDS
+
+AC_SUBST(LIBV4L_LIBS)
+AC_SUBST(LIBV4L_CFLAGS)
 
 if test "${sane_cv_use_libjpeg}" = "yes"; then
   SANEI_SANEI_JPEG_LO="../sanei/sanei_jpeg.lo"

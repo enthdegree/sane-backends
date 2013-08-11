@@ -258,7 +258,7 @@ typedef struct
 
 typedef struct
 {
-  uint8_t sensor_id;	      /**< id of the sensor description */
+  uint8_t sensor_id;	       /**< id of the sensor description */
   int optical_res;
   int black_pixels;
   int dummy_pixel;              /* value of dummy register. */
@@ -672,6 +672,12 @@ typedef struct
   /**< true is lineart is generated from gray data by
    * the dynamic rasterization algo */
   int dynamic_lineart;
+
+  /**< value for contrast enhancement in the [-100..100] range */
+  int contrast;
+
+  /**< value for brightness enhancement in the [-100..100] range */
+  int brightness;
 } Genesys_Settings;
 
 typedef struct Genesys_Current_Setup
@@ -1107,6 +1113,23 @@ int sanei_genesys_compute_max_shift(Genesys_Device *dev,
                                     int channels,
                                     int yres,
                                     int flags);
+
+extern SANE_Status
+sanei_genesys_load_lut (unsigned char * lut,
+                        int in_bits,
+                        int out_bits,
+                        int out_min,
+                        int out_max,
+                        int slope,
+                        int offset);
+
+extern SANE_Status
+sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
+                                    int bits,
+                                    int max,
+                                    int size,
+                                    uint8_t *gamma);
+
 #ifdef UNIT_TESTING
 SANE_Status
 genesys_send_offset_and_shading (Genesys_Device * dev,

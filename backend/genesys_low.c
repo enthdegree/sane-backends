@@ -1176,6 +1176,85 @@ sanei_genesys_write_ahb (SANE_Int dn, int usb_mode, uint32_t addr, uint32_t size
   return status;
 }
 
+/** @brief generates gamma buffer to transfer
+ * Generates gamma table buffer to send to ASIC. Applies
+ * contrast and brightness if set.
+ * @param dev device to set up
+ * @param bits number of bits used by gamma
+ * @param max value for gamma
+ * @param size of the gamma table
+ * @param gamma allocated gamma buffer to fill
+ * @returns SANE_STATUS_GOOD or SANE_STATUS_NO_MEM
+ */
+SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
+                                                int bits,
+                                                int max,
+                                                int size,
+                                                uint8_t *gamma)
+{
+  int i;
+  uint16_t value, *lut=NULL;
+
+  if(dev->settings.contrast!=0 || dev->settings.brightness!=0)
+    {
+      lut=(uint16_t *)malloc(65536*2);
+      if(lut==NULL)
+        {
+          free(gamma);
+          return SANE_STATUS_NO_MEM;
+        }
+      sanei_genesys_load_lut((unsigned char *)lut,
+                             bits,
+                             bits,
+                             0,
+                             max,
+                             dev->settings.contrast,
+                             dev->settings.brightness);
+      for (i = 0; i < size-1; i++)
+        {
+          value=dev->sensor.gamma_table[GENESYS_RED][i];
+          value=lut[value];
+          gamma[i * 2 + size * 0 + 0] = value & 0xff;
+          gamma[i * 2 + size * 0 + 1] = (value >> 8) & 0xff;
+
+          value=dev->sensor.gamma_table[GENESYS_GREEN][i];
+          value=lut[value];
+          gamma[i * 2 + size * 2 + 0] = value & 0xff;
+          gamma[i * 2 + size * 2 + 1] = (value >> 8) & 0xff;
+
+          value=dev->sensor.gamma_table[GENESYS_BLUE][i];
+          value=lut[value];
+          gamma[i * 2 + size * 4 + 0] = value & 0xff;
+          gamma[i * 2 + size * 4 + 1] = (value >> 8) & 0xff;
+        }
+    }
+  else
+    {
+      for (i = 0; i < size-1; i++)
+        {
+          value=dev->sensor.gamma_table[GENESYS_RED][i];
+          gamma[i * 2 + size * 0 + 0] = value & 0xff;
+          gamma[i * 2 + size * 0 + 1] = (value >> 8) & 0xff;
+
+          value=dev->sensor.gamma_table[GENESYS_GREEN][i];
+          gamma[i * 2 + size * 2 + 0] = value & 0xff;
+          gamma[i * 2 + size * 2 + 1] = (value >> 8) & 0xff;
+
+          value=dev->sensor.gamma_table[GENESYS_BLUE][i];
+          gamma[i * 2 + size * 4 + 0] = value & 0xff;
+          gamma[i * 2 + size * 4 + 1] = (value >> 8) & 0xff;
+        }
+    }
+
+
+  if(lut!=NULL)
+    {
+      free(lut);
+    }
+
+  return SANE_STATUS_GOOD;
+}
+
 
 /** @brief send gamma table to scanner
  * This function sends generic gamma table (ie ones built with
@@ -1187,12 +1266,11 @@ SANE_Status
 sanei_genesys_send_gamma_table (Genesys_Device * dev)
 {
   int size;
-  int status;
-  uint8_t *gamma, val;
   int i;
+  uint8_t *gamma, val;
+  SANE_Status status;
 
-  DBG (DBG_proc, "gl124_send_gamma_table\n");
-
+  DBGSTART;
 
   size = 256 + 1;
 
@@ -1204,16 +1282,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
     }
   memset(gamma, 255, size*3*2);
 
-  /* copy sensor defined gamma tables */
-  for (i = 0; i < size-1; i++)
-    {
-      gamma[i * 2 + size * 0 + 0] = dev->sensor.gamma_table[GENESYS_RED][i] & 0xff;
-      gamma[i * 2 + size * 0 + 1] = (dev->sensor.gamma_table[GENESYS_RED][i] >> 8) & 0xff;
-      gamma[i * 2 + size * 2 + 0] = dev->sensor.gamma_table[GENESYS_GREEN][i] & 0xff;
-      gamma[i * 2 + size * 2 + 1] = (dev->sensor.gamma_table[GENESYS_GREEN][i] >> 8) & 0xff;
-      gamma[i * 2 + size * 4 + 0] = dev->sensor.gamma_table[GENESYS_BLUE][i] & 0xff;
-      gamma[i * 2 + size * 4 + 1] = (dev->sensor.gamma_table[GENESYS_BLUE][i] >> 8) & 0xff;
-    }
+  RIE(sanei_genesys_generate_gamma_buffer(dev, 16, 65535, size, gamma));
 
   /* loop sending gamma tables NOTE: 0x01000000 not 0x10000000 */
   for (i = 0; i < 3; i++)
@@ -1235,8 +1304,9 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
       status = sanei_genesys_write_ahb (dev->dn, dev->usb_mode, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
 	{
+          free (gamma);
 	  DBG (DBG_error,
-	       "gl124_send_gamma_table: write to AHB failed writing table %d (%s)\n",
+	       "%s: write to AHB failed writing table %d (%s)\n", __FUNCTION__,
 	       i, sane_strstatus (status));
 	}
     }
@@ -1801,6 +1871,111 @@ int sanei_genesys_compute_max_shift(Genesys_Device *dev,
   return max_shift;
 }
 
+/** @brief build lookup table for digital enhancements
+ * Function to build a lookup table (LUT), often
+   used by scanners to implement brightness/contrast/gamma
+   or by backends to speed binarization/thresholding
 
+   offset and slope inputs are -127 to +127
+
+   slope rotates line around central input/output val,
+   0 makes horizontal line
+
+       pos           zero          neg
+       .       x     .             .  x
+       .      x      .             .   x
+   out .     x       .xxxxxxxxxxx  .    x
+       .    x        .             .     x
+       ....x.......  ............  .......x....
+            in            in            in
+
+   offset moves line vertically, and clamps to output range
+   0 keeps the line crossing the center of the table
+
+       high           low
+       .   xxxxxxxx   .
+       . x            .
+   out x              .          x
+       .              .        x
+       ............   xxxxxxxx....
+            in             in
+
+   out_min/max provide bounds on output values,
+   useful when building thresholding lut.
+   0 and 255 are good defaults otherwise.
+  * @param lut pointer where to store the generated lut
+  * @param in_bits number of bits for in values
+  * @param out_bits number of bits of out values
+  * @param out_min minimal out value
+  * @param out_max maximal out value
+  * @param slope slope of the generated data
+  * @param offset offset of the generated data
+  */
+SANE_Status
+sanei_genesys_load_lut (unsigned char * lut,
+                        int in_bits,
+                        int out_bits,
+                        int out_min,
+                        int out_max,
+                        int slope,
+                        int offset)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int i, j;
+  double shift, rise;
+  int max_in_val = (1 << in_bits) - 1;
+  int max_out_val = (1 << out_bits) - 1;
+  uint8_t *lut_p8 = lut;
+  uint16_t *lut_p16 = (uint16_t *) lut;
+
+  DBGSTART;
+
+  /* slope is converted to rise per unit run:
+   * first [-127,127] to [-.999,.999]
+   * then to [-PI/4,PI/4] then [0,PI/2]
+   * then take the tangent (T.O.A)
+   * then multiply by the normal linear slope
+   * because the table may not be square, i.e. 1024x256*/
+  rise = tan ((double) slope / 128 * M_PI_4 + M_PI_4) * max_out_val / max_in_val;
+
+  /* line must stay vertically centered, so figure
+   * out vertical offset at central input value */
+  shift = (double) max_out_val / 2 - (rise * max_in_val / 2);
+
+  /* convert the user offset setting to scale of output
+   * first [-127,127] to [-1,1]
+   * then to [-max_out_val/2,max_out_val/2]*/
+  shift += (double) offset / 127 * max_out_val / 2;
+
+  for (i = 0; i <= max_in_val; i++)
+    {
+      j = rise * i + shift;
+
+      /* cap data to required range */
+      if (j < out_min)
+	{
+	  j = out_min;
+	}
+      else if (j > out_max)
+	{
+	  j = out_max;
+	}
+
+      /* copy result according to bit depth */
+      if (out_bits <= 8)
+	{
+	  *lut_p8 = j;
+	  lut_p8++;
+	}
+      else
+	{
+	  *lut_p16 = j;
+	  lut_p16++;
+	}
+    }
+
+  DBGCOMPLETED;
+  return ret;
+}
 
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

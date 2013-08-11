@@ -4143,9 +4143,8 @@ static SANE_Status
 gl841_send_gamma_table (Genesys_Device * dev)
 {
   int size;
-  int status;
+  SANE_Status status;
   uint8_t *gamma;
-  int i;
 
   DBGSTART;
 
@@ -4153,18 +4152,12 @@ gl841_send_gamma_table (Genesys_Device * dev)
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
   gamma = (uint8_t *) malloc (size * 2 * 3);
-  if (!gamma)
-    return SANE_STATUS_NO_MEM;
-
-  for (i = 0; i < size; i++)
+  if (gamma==NULL)
     {
-      gamma[i*2 + size * 0 + 0] = dev->sensor.gamma_table[GENESYS_RED][i] & 0xff;
-      gamma[i*2 + size * 0 + 1] = (dev->sensor.gamma_table[GENESYS_RED][i] >> 8) & 0xff;
-      gamma[i*2 + size * 2 + 0] = dev->sensor.gamma_table[GENESYS_GREEN][i] & 0xff;
-      gamma[i*2 + size * 2 + 1] = (dev->sensor.gamma_table[GENESYS_GREEN][i] >> 8) & 0xff;
-      gamma[i*2 + size * 4 + 0] = dev->sensor.gamma_table[GENESYS_BLUE][i] & 0xff;
-      gamma[i*2 + size * 4 + 1] = (dev->sensor.gamma_table[GENESYS_BLUE][i] >> 8) & 0xff;
+      return SANE_STATUS_NO_MEM;
     }
+
+  RIE(sanei_genesys_generate_gamma_buffer(dev, 16, 65535, size, gamma));
 
   /* send address */
   status = gl841_set_buffer_address_gamma (dev, 0x00000);

@@ -3755,88 +3755,6 @@ genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
 }
 #endif
 
-/* Function to build a lookup table (LUT), often
-   used by scanners to implement brightness/contrast/gamma
-   or by backends to speed binarization/thresholding
-
-   offset and slope inputs are -127 to +127 
-
-   slope rotates line around central input/output val,
-   0 makes horizontal line
-
-       pos           zero          neg
-       .       x     .             .  x
-       .      x      .             .   x
-   out .     x       .xxxxxxxxxxx  .    x
-       .    x        .             .     x
-       ....x.......  ............  .......x....
-            in            in            in
-
-   offset moves line vertically, and clamps to output range
-   0 keeps the line crossing the center of the table
-
-       high           low 
-       .   xxxxxxxx   .
-       . x            . 
-   out x              .          x
-       .              .        x
-       ............   xxxxxxxx....
-            in             in
-
-   out_min/max provide bounds on output values,
-   useful when building thresholding lut.
-   0 and 255 are good defaults otherwise.
-  */
-static SANE_Status
-load_lut (unsigned char * lut,
-  int in_bits, int out_bits,
-  int out_min, int out_max,
-  int slope, int offset)
-{
-  SANE_Status ret = SANE_STATUS_GOOD;
-  int i, j;
-  double shift, rise;
-  int max_in_val = (1 << in_bits) - 1;
-  int max_out_val = (1 << out_bits) - 1;
-  unsigned char * lut_p = lut;
-
-  DBGSTART;
-
-  /* slope is converted to rise per unit run:
-   * first [-127,127] to [-.999,.999]
-   * then to [-PI/4,PI/4] then [0,PI/2]
-   * then take the tangent (T.O.A)
-   * then multiply by the normal linear slope 
-   * because the table may not be square, i.e. 1024x256*/
-  rise = tan((double)slope/128 * M_PI_4 + M_PI_4) * max_out_val / max_in_val;
-
-  /* line must stay vertically centered, so figure
-   * out vertical offset at central input value */
-  shift = (double)max_out_val/2 - (rise*max_in_val/2);
-
-  /* convert the user offset setting to scale of output
-   * first [-127,127] to [-1,1]
-   * then to [-max_out_val/2,max_out_val/2]*/
-  shift += (double)offset / 127 * max_out_val / 2;
-
-  for(i=0;i<=max_in_val;i++){
-    j = rise*i + shift;
-
-    if(j<out_min){
-      j=out_min;
-    }
-    else if(j>out_max){
-      j=out_max;
-    }
-
-    *lut_p=j;
-    lut_p++;
-  }
-
-  DBGCOMPLETED;
-  return ret;
-}
-
 
 /* ------------------------------------------------------------------------ */
 /*                  High level (exported) functions                         */
@@ -4109,7 +4027,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 	}
     }
 
-  /* send gamma tbales. They have been set ot device or user value
+  /* send gamma tables. They have been set to device or user value
    * when setting option value */
   status = dev->model->cmd_set->send_gamma_table (dev);
   if (status != SANE_STATUS_GOOD)
@@ -4124,7 +4042,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   status = genesys_restore_calibration (dev);
   if (status == SANE_STATUS_UNSUPPORTED)
     {
-      /* calibration : sheetfed scanners can't calibrate before each scan */
+       /* calibration : sheetfed scanners can't calibrate before each scan */
        /* and also those who have the NO_CALIBRATION flag                  */
        if (!(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
            &&dev->model->is_sheetfed == SANE_FALSE)
@@ -4156,7 +4074,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   /* build look up table for dynamic lineart */
   if(dev->settings.dynamic_lineart==SANE_TRUE)
     {
-      status = load_lut(dev->lineart_lut, 8, 8, 50, 205,
+      status = sanei_genesys_load_lut(dev->lineart_lut, 8, 8, 50, 205,
                         dev->settings.threshold_curve,
                         dev->settings.threshold-127);
       if (status != SANE_STATUS_GOOD) 
@@ -5330,7 +5248,6 @@ calc_parameters (Genesys_Scanner * s)
       s->dev->settings.dynamic_lineart = SANE_TRUE;
    }
   
-  
   /* threshold curve for dynamic rasterization */
   s->dev->settings.threshold_curve=s->val[OPT_THRESHOLD_CURVE].w;
 
@@ -5341,8 +5258,6 @@ calc_parameters (Genesys_Scanner * s)
     || s->val[OPT_SWCROP].b 
     || s->val[OPT_SWDESKEW].b
     || s->val[OPT_SWDEROTATE].b
-    || s->val[OPT_BRIGHTNESS].w!=0
-    || s->val[OPT_CONTRAST].w!=0
     ||(SANE_UNFIX(s->val[OPT_SWSKIP].w)>0))
     && (!s->val[OPT_PREVIEW].b)
     && (s->val[OPT_BIT_DEPTH].w <= 8))
@@ -5352,6 +5267,18 @@ calc_parameters (Genesys_Scanner * s)
   else
     {
       s->dev->buffer_image=SANE_FALSE;
+    }
+
+  /* brigthness and contrast only for for 8 bit scans */
+  if(s->val[OPT_BIT_DEPTH].w <= 8)
+    {
+      s->dev->settings.contrast=(s->val[OPT_CONTRAST].w*127)/100;
+      s->dev->settings.brightness=(s->val[OPT_BRIGHTNESS].w*127)/100;
+    }
+  else
+    {
+      s->dev->settings.contrast=0;
+      s->dev->settings.brightness=0;
     }
 
   return status;
@@ -5373,9 +5300,13 @@ create_bpp_list (Genesys_Scanner * s, SANE_Int * bpp)
   return SANE_STATUS_GOOD;
 }
 
-/* this function initialize a gamma vector based on the ASIC:
+/** @brief this function initialize a gamma vector based on the ASIC:
+ * Set up a default gamma table vector based on device description
  * gl646: 12 or 14 bits gamma table depending on GENESYS_FLAG_14BIT_GAMMA
  * gl84x: 16 bits
+ * gl12x: 16 bits
+ * @param scanner pointer to scanner session to get options
+ * @param option option number of the gamma table to set
  */
 static void
 init_gamma_vector_option (Genesys_Scanner * scanner, int option)
@@ -5400,7 +5331,7 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
 	}
     }
   else
-    {				/* GL841 case 16 bits gamma table */
+    {				/* other asics have 16 bits words gamma table */
       scanner->opt[option].size = 256 * sizeof (SANE_Word);
       scanner->opt[option].constraint.range = &u16_range;
     }
@@ -5411,7 +5342,7 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
 /** 
  * allocate a geometry range
  * @param size maximum size of the range
- * @return a poiter to a valid range or NULL
+ * @return a pointer to a valid range or NULL
  */
 static SANE_Range *create_range(SANE_Fixed size)
 {
@@ -7709,12 +7640,6 @@ sane_start (SANE_Handle handle)
       if(s->val[OPT_SWDEROTATE].b == SANE_TRUE) 
         {
           RIE(genesys_derotate(s));
-        }
-
-      /* adjust contrast/brightness if required */
-      if(s->val[OPT_BRIGHTNESS].w!=0 || s->val[OPT_CONTRAST].w!=0)
-        {
-          RIE(genesys_enhance(s));
         }
     }
 

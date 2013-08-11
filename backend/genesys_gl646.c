@@ -3614,33 +3614,32 @@ gl646_send_gamma_table (Genesys_Device * dev)
 {
   int size;
   int address;
-  int status;
+  SANE_Status status;
   uint8_t *gamma;
-  int i;
+  int bits;
 
   DBGSTART;
 
   /* gamma table size */
   if (dev->reg[reg_0x05].value & REG05_GMMTYPE)
-    size = 16384;
+    {
+      size = 16384;
+      bits = 14;
+    }
   else
-    size = 4096;
+    {
+      size = 4096;
+      bits = 12;
+    }
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
   gamma = (uint8_t *) malloc (size * 2 * 3);
-  if (!gamma)
-    return SANE_STATUS_NO_MEM;
-
-  /* copy sensor specific's gamma tables */
-  for (i = 0; i < size; i++)
+  if (gamma==NULL)
     {
-      gamma[i * 2] = dev->sensor.gamma_table[GENESYS_RED][i] & 0xff;
-      gamma[i * 2 + 1] = dev->sensor.gamma_table[GENESYS_RED][i] >> 8;
-      gamma[i * 2 + size * 2] = dev->sensor.gamma_table[GENESYS_GREEN][i] & 0xff;
-      gamma[i * 2 + 1 + size * 2] = dev->sensor.gamma_table[GENESYS_GREEN][i] >> 8;
-      gamma[i * 2 + size * 4] = dev->sensor.gamma_table[GENESYS_BLUE][i] & 0xff;
-      gamma[i * 2 + 1 + size * 4] = dev->sensor.gamma_table[GENESYS_BLUE][i] >> 8;
+      return SANE_STATUS_NO_MEM;
     }
+
+  RIE(sanei_genesys_generate_gamma_buffer(dev, bits, size-1, size, gamma));
 
   /* table address */
   switch (dev->reg[reg_0x05].value >> 6)

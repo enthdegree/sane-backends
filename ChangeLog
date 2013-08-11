@@ -1,3 +1,8 @@
+2013-08-11 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_low.[ch] backend/genesys_conv.c backend/genesys.c
+	 backend/genesys_gl841.c backend/genesys_gl646.c: make use of hardware
+	 gamma tables to implement constrast and brightness correction.
+
 2013-08-07 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.[ch] backend/genesys_conv.c doc/sane-genesys.man
 	po/fr.po: add digital brightness and contrast options.

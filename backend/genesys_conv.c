@@ -475,31 +475,4 @@ genesys_derotate (Genesys_Scanner * s)
   return SANE_STATUS_GOOD;
 }
 
-/** Apply brightness and constrast enhancement
- *
- */
-static SANE_Status
-genesys_enhance (Genesys_Scanner * s)
-{
-  SANE_Status status;
-  unsigned char lut[256];
-  int x;
-
-  DBGSTART;
-
-  /* build lookup table */
-  status = load_lut (lut, 8, 8, 0, 255, (s->val[OPT_CONTRAST].w*127)/100, (s->val[OPT_BRIGHTNESS].w*127)/100);
-  if (status != SANE_STATUS_GOOD) {
-    DBG (5, "%s: ERROR: cannot load lut\n", __FUNCTION__);
-  }
-
-  /* parse binary data changing it through lut */
-  for(x=0;x<s->params.bytes_per_line * s->params.lines;x++)
-    {
-      s->dev->img_buffer[x]=lut[s->dev->img_buffer[x]];
-    }
-
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
-}
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

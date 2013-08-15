@@ -123,7 +123,11 @@ sanei_thread_set_invalid( SANE_Pid *pid )
 {
 
 #ifdef WIN32
+#ifdef WINPTHREAD_API
+	*pid = 0;
+#else
 	pid->p = 0;
+#endif
 #else
 	*pid = -1;
 #endif
@@ -136,7 +140,11 @@ sanei_thread_is_invalid( SANE_Pid pid )
 	SANE_Bool rc = SANE_FALSE;
 
 #ifdef WIN32
+#ifdef WINPTHREAD_API
+	if (pid == 0)
+#else
 	if (pid.p == 0)
+#endif
 	    rc = SANE_TRUE;
 #else
 	if (pid == -1)
@@ -156,7 +164,11 @@ sanei_thread_pid_to_long( SANE_Pid pid )
 	int rc;
 
 #ifdef WIN32
+#ifdef WINPTHREAD_API
+	rc = pid;
+#else
 	rc = pid.p;
+#endif
 #else
 	rc = pid;
 #endif

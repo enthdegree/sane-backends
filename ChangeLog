@@ -1,4 +1,10 @@
 2013-08-15 Chris Bagwell <chris@cnpbagwell.com>
+	* sanei/sanei_thread.c: Add support for winpthreads used by
+	mingw64 in addition to preexisting support for pthread-win32 used
+	by mingw32.  Based on work from Michael Cronenworth for
+	Fedora's mingw64 sane-backends package.
+
+2013-08-15 Chris Bagwell <chris@cnpbagwell.com>
 	* configure.in: Make snmp detection work better when cross conmpiling;
 	such as mingw builds on Fedora host. Most likely, net-snmp-config
 	values are for local host so ignore them if matching library isn't

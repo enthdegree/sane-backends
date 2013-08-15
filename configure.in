@@ -178,7 +178,7 @@ else
 	fi
 fi
 
-if test "$with_snmp" = "yes"; then
+if test "$with_snmp" = "yes" -a "${LIBSNMP_EXISTS}x" = "yesx"; then
 	LIBS="$LIBS $SNMP_LIBS"
 	CFLAGS="$CFLAGS $SNMP_CFLAGS"
 	AC_DEFINE(HAVE_LIBSNMP, 1, [Define to 1 if you have the net-snmp library.])

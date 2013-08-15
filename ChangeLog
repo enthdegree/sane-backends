@@ -1,3 +1,12 @@
+2013-08-15 Chris Bagwell <chris@cnpbagwell.com>
+	* configure.in: Make snmp detection work better when cross conmpiling;
+	such as mingw builds on Fedora host. Most likely, net-snmp-config
+	values are for local host so ignore them if matching library isn't
+	also found. Required updated all autofoo's generated files to newer
+	version by running 'autoreconf -i -f' and repatching ltmain.sh.
+	* test-driver: Added missing test-driver that automake installs.
+	Its expected to exist by the Makefile.in that we also checkin.
+
 2013-08-11 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.[ch] backend/genesys_conv.c backend/genesys.c
 	 backend/genesys_gl841.c backend/genesys_gl646.c: make use of hardware

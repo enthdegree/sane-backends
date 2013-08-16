@@ -6,6 +6,12 @@
 	file.  This allows "make distcheck" to work for this testcase
 	since it uses a different build directory then source directory
 	and also runs it from build directory.
+	* testsuite/sanei/sanei_usb_test.c: add a fake name string
+	when creating MAX_DEVICE fake devices so that strcmp() won't
+	crash.
+	* testsuite/tools/Makefile.am: Add missing data files to distribution.
+	Make use of $srcdir so test case can base when build directory
+	is not same as source directory.
 
 2013-08-15 Chris Bagwell <chris@cnpbagwell.com>
 	* sanei/sanei_thread.c: Add support for winpthreads used by

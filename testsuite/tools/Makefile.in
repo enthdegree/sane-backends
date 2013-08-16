@@ -288,7 +288,12 @@ SANEDESC = ../../tools/sane-desc$(EXEEXT)
 TESTFILE = $(srcdir)/data/testfile.desc
 OUTFILES = *.res
 DEVICE = test
-EXTRA_DIST = data/testfile.desc
+EXTRA_DIST = data/testfile.desc data/ascii.ref data/db.ref data/hal-new.ref \
+	     data/hal.ref data/html-backends-split.ref data/html-mfgs.ref \
+	     data/hwdb.ref data/plist.ref data/statistics.ref \
+	     data/udev+acl.ref data/udev+hwdb.ref data/udev.ref \
+	     data/usermap.ref data/xml.ref
+
 CLEANFILES = $(OUTFILES)
 all: all-am
 
@@ -496,11 +501,11 @@ check.local:
 	@echo "**** Testing $(SANEDESC) with $(TESTFILE)"
 	@for mode in ascii html-backends-split html-mfgs xml statistics usermap db udev udev+acl udev+hwdb hwdb plist hal hal-new; \
 	do \
-	echo "PASS: sane-desc -m $$mode"; \
-	  $(SANEDESC) -m $$mode -s data >$$mode.res ;\
-	  if ! diff --ignore-matching-lines="..:..:.. 20[0-9][0-9]" data/$$mode.ref $$mode.res ; \
+	echo "PASS: sane-desc -m $$mode -s $(srcdir)/data"; \
+	  $(SANEDESC) -m $$mode -s $(srcdir)/data >$$mode.res ;\
+	  if ! diff --ignore-matching-lines="..:..:.. 20[0-9][0-9]" $(srcdir)/data/$$mode.ref $$mode.res ; \
 	  then \
-		echo "**** File generated for $$mode modee is different from reference" ;\
+		echo "**** File generated for $$mode mode is different from reference" ;\
 		exit 1 ;\
 	  fi; \
 	done ;\

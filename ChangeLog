@@ -1,3 +1,12 @@
+2013-08-16 Chris Bagwell <chris@cnpbagwell.com>
+	* testsuite/sanei/Makefile.am: Add missing data files to distribution.
+	Pass in $srcdir to sanei_config_test so it knows were data files are
+	regardless of were ran from.
+	* testsuite/sanei/sanei_config_test.c: Use full path for config
+	file.  This allows "make distcheck" to work for this testcase
+	since it uses a different build directory then source directory
+	and also runs it from build directory.
+
 2013-08-15 Chris Bagwell <chris@cnpbagwell.com>
 	* sanei/sanei_thread.c: Add support for winpthreads used by
 	mingw64 in addition to preexisting support for pthread-win32 used

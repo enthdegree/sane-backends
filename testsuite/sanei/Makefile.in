@@ -107,7 +107,8 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am_sanei_config_test_OBJECTS = sanei_config_test.$(OBJEXT)
+am_sanei_config_test_OBJECTS =  \
+	sanei_config_test-sanei_config_test.$(OBJEXT)
 sanei_config_test_OBJECTS = $(am_sanei_config_test_OBJECTS)
 sanei_config_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
 am_sanei_constrain_test_OBJECTS = sanei_constrain_test.$(OBJEXT)
@@ -559,12 +560,19 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-TEST_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la ../../lib/libfelib.la $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS) 
+EXTRA_DIST = data/boolean.conf data/empty.conf data/fixed.conf data/int.conf \
+	     data/snapscan.conf data/string.conf data/string-list.conf \
+	     data/umax_pp.conf data/word-array.conf data/wrong-boolean.conf \
+	     data/wrong-fixed.conf data/wrong-range.conf \
+	     data/wrong-string-list.conf
+
+TEST_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la ../../lib/libfelib.la $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
 TESTS = $(check_PROGRAMS)
 AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
 sanei_constrain_test_SOURCES = sanei_constrain_test.c
 sanei_constrain_test_LDADD = $(TEST_LDADD)
 sanei_config_test_SOURCES = sanei_config_test.c
+sanei_config_test_CPPFLAGS = $(AM_CPPFLAGS) -DTESTSUITE_SANEI_SRCDIR=$(srcdir)
 sanei_config_test_LDADD = $(TEST_LDADD)
 sanei_check_test_SOURCES = sanei_check_test.c
 sanei_check_test_LDADD = $(TEST_LDADD)
@@ -643,7 +651,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_check_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_config_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_config_test-sanei_config_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_constrain_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sanei_usb_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_wire.Po@am__quote@
@@ -668,6 +676,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+sanei_config_test-sanei_config_test.o: sanei_config_test.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(sanei_config_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT sanei_config_test-sanei_config_test.o -MD -MP -MF $(DEPDIR)/sanei_config_test-sanei_config_test.Tpo -c -o sanei_config_test-sanei_config_test.o `test -f 'sanei_config_test.c' || echo '$(srcdir)/'`sanei_config_test.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/sanei_config_test-sanei_config_test.Tpo $(DEPDIR)/sanei_config_test-sanei_config_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sanei_config_test.c' object='sanei_config_test-sanei_config_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(sanei_config_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o sanei_config_test-sanei_config_test.o `test -f 'sanei_config_test.c' || echo '$(srcdir)/'`sanei_config_test.c
+
+sanei_config_test-sanei_config_test.obj: sanei_config_test.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(sanei_config_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT sanei_config_test-sanei_config_test.obj -MD -MP -MF $(DEPDIR)/sanei_config_test-sanei_config_test.Tpo -c -o sanei_config_test-sanei_config_test.obj `if test -f 'sanei_config_test.c'; then $(CYGPATH_W) 'sanei_config_test.c'; else $(CYGPATH_W) '$(srcdir)/sanei_config_test.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/sanei_config_test-sanei_config_test.Tpo $(DEPDIR)/sanei_config_test-sanei_config_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sanei_config_test.c' object='sanei_config_test-sanei_config_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(sanei_config_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o sanei_config_test-sanei_config_test.obj `if test -f 'sanei_config_test.c'; then $(CYGPATH_W) 'sanei_config_test.c'; else $(CYGPATH_W) '$(srcdir)/sanei_config_test.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

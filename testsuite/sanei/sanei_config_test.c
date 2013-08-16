@@ -14,8 +14,12 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_config.h"
 
+#define XSTR(s) STR(s)
+#define STR(s) #s
+#define CONFIG_PATH XSTR(TESTSUITE_SANEI_SRCDIR)
+
 /*
- * variables and functions used by the tests below 
+ * variables and functions used by the tests below
  */
 
 
@@ -92,7 +96,8 @@ inexistent_config (void)
   config.count = 0;
   config.descriptors = NULL;
   config.values = NULL;
-  status = sanei_configure_attach ("data/inexistent.conf", &config, NULL);
+  status = sanei_configure_attach (CONFIG_PATH
+                                   "/data/inexistent.conf", &config, NULL);
 
   /* check results */
   assert (status != SANE_STATUS_GOOD);
@@ -108,7 +113,8 @@ null_config (void)
   SANE_Status status;
 
   status =
-    sanei_configure_attach ("data/umax_pp.conf", NULL, check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/umax_pp.conf", NULL,
+                            check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);
@@ -123,7 +129,8 @@ null_attach (void)
 {
   SANE_Status status;
 
-  status = sanei_configure_attach ("data/umax_pp.conf", NULL, NULL);
+  status = sanei_configure_attach (CONFIG_PATH
+                                   "/data/umax_pp.conf", NULL, NULL);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);
@@ -143,7 +150,8 @@ empty_config (void)
   config.descriptors = NULL;
   config.values = NULL;
   status =
-    sanei_configure_attach ("data/empty.conf", &config, check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/empty.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);
@@ -197,7 +205,8 @@ string_option (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/string.conf", &config, check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/string.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);
@@ -240,7 +249,8 @@ int_option (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/int.conf", &config, check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/int.conf", &config,
+                            check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);
@@ -282,8 +292,8 @@ wrong_range_int_option (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/wrong-range.conf", &config,
-			    check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/wrong-range.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_INVAL);
@@ -325,8 +335,8 @@ word_array_option (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/word-array.conf", &config,
-			    check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/word-array.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);
@@ -371,8 +381,8 @@ string_list_option (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/string-list.conf", &config,
-			    check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/string-list.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);
@@ -416,7 +426,8 @@ wrong_string_list_option (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/wrong-string-list.conf", &config,
+    sanei_configure_attach (CONFIG_PATH
+                            "/data/wrong-string-list.conf", &config,
 			    check_config_attach);
 
   /* check results */
@@ -551,8 +562,8 @@ umax_pp (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/umax_pp.conf", &config,
-			    check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/umax_pp.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);
@@ -619,8 +630,8 @@ wrong_bool_option (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/wrong-boolean.conf", &config,
-			    check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/wrong-boolean.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_INVAL);
@@ -684,8 +695,8 @@ bool_option (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/boolean.conf", &config,
-			    check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/boolean.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);
@@ -755,7 +766,8 @@ fixed_option (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/fixed.conf", &config, check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/fixed.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);
@@ -801,8 +813,8 @@ wrong_fixed_option (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/wrong-fixed.conf", &config,
-			    check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/wrong-fixed.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_INVAL);
@@ -839,8 +851,8 @@ snapscan (void)
 
   /* configure and attach */
   status =
-    sanei_configure_attach ("data/snapscan.conf", &config,
-			    check_config_attach);
+    sanei_configure_attach (CONFIG_PATH "/data/snapscan.conf",
+                            &config, check_config_attach);
 
   /* check results */
   assert (status == SANE_STATUS_GOOD);

@@ -163,6 +163,10 @@ test_store_device (void)
    * to store device */
   current_number = device_number;
   device_number = MAX_DEVICES;
+  /* give unused devices a name so strcmp() won't crash. */
+  for (i = current_number; i < MAX_DEVICES; i++)
+    devices[i].devname = "";
+
   store_device (mock);
   /* there should be no more devices */
   if (device_number > MAX_DEVICES)
@@ -183,6 +187,9 @@ test_store_device (void)
 
   /* restore device_number */
   device_number = current_number;
+  /* reset unused devnames to NULL */
+  for (i = current_number; i < MAX_DEVICES; i++)
+    devices[i].devname = NULL;
   expected = device_number + 1;
 
   /* store mock device */

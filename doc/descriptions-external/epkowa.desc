@@ -40,7 +40,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "iscan 2.29.1/iscan-data 1.22.0"
+:version "iscan 2.29.1/iscan-data 1.23.0"
 :url     "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 
@@ -3051,17 +3051,47 @@
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
+:model     "XP-211"
+:interface "USB"
+:usbid     "0x04b8" "0x08ae"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "XP-212"
+:interface "USB"
+:usbid     "0x04b8" "0x08ae"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model     "XP-215"
+:interface "USB"
+:usbid     "0x04b8" "0x08ae"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model     "XP-300 Series"
 :interface "USB"
 :usbid     "0x04b8" "0x0898"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-435A"
 
+:model     "XP-310 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x08af"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package"
+
 :model     "XP-400 Series"
 :interface "USB"
 :usbid     "0x04b8" "0x0898"
 :status    :complete
 :comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-435A"
+
+:model     "XP-410 Series"
+:interface "USB"
+:usbid     "0x04b8" "0x08b0"
+:status    :complete
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
 :model     "XP-600 Series"
 :interface "USB"

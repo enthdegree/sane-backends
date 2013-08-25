@@ -146,7 +146,7 @@
 :model "SCX-6x55"
 :interface "USB"
 :usbid "0x04e8" "0x3429"
-:status :untested
+:status :good
 
 :model "CLX-3170fn (CLX-3170 Series)"
 :interface "USB"
@@ -211,7 +211,7 @@
 :model "SCX-6545"
 :interface "USB"
 :usbid "0x04e8" "0x3437"
-:status :untested
+:status :good
 
 :model "CLX-8385"
 :interface "USB"
@@ -256,17 +256,17 @@
 :model "SCX-6545X"
 :interface "USB"
 :usbid "0x04e8" "0x3442"
-:status :untested
+:status :good
 
 :model "SCX-6x55X"
 :interface "USB"
 :usbid "0x04e8" "0x3443"
-:status :untested
+:status :good
 
 :model "CLX-8385X"
 :interface "USB"
 :usbid "0x04e8" "0x3444"
-:status :untested
+:status :good
 
 :model "SCX-5835_5935X"
 :interface "USB"
@@ -290,7 +290,7 @@
 :model "SCX-3400"
 :interface "USB"
 :usbid "0x04e8" "0x344f"
-:status :untested
+:status :good
 
 :model "SF-760"
 :interface "USB"
@@ -330,12 +330,12 @@
 :model "M337x 387x 407x Series"
 :interface "USB"
 :usbid "0x04e8" "0x3460"
-:status :untested
+:status :good
 
 :model "M267x 287x Series"
 :interface "USB"
 :usbid "0x04e8" "0x3461"
-:status :untested
+:status :unsupported
 
 :model "SCX-681x"
 :interface "USB"

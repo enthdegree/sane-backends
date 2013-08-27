@@ -1352,7 +1352,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 
 	  DBG (1, "sanei_usb_open: can't open device `%s': %s\n",
 	       devname, strerror (errno));
-	  if (errno == EPERM)
+	  if (errno == EPERM || errno == EACCES)
 	    {
 	      DBG (1, "Make sure you run as root or set appropriate "
 		   "permissions\n");
@@ -1389,7 +1389,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  SANE_Status status = SANE_STATUS_INVAL;
 
 	  DBG (1, "sanei_usb_open: libusb complained: %s\n", usb_strerror ());
-	  if (errno == EPERM)
+	  if (errno == EPERM || errno == EACCES)
 	    {
 	      DBG (1, "Make sure you run as root or set appropriate "
 		   "permissions\n");
@@ -1416,7 +1416,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  SANE_Status status = SANE_STATUS_INVAL;
 
 	  DBG (1, "sanei_usb_open: libusb complained: %s\n", usb_strerror ());
-	  if (errno == EPERM)
+	  if (errno == EPERM || errno == EACCES)
 	    {
 	      DBG (1, "Make sure you run as root or set appropriate "
 		   "permissions\n");

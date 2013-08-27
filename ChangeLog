@@ -1,3 +1,12 @@
+2013-08-26 Chris Bagwell <chris@cnpbagwell.com>
+	* sanei/sanei_usb.c: Treat errno of EACCES as access denied.
+	This is what libusb is return on my Linux box. This will help
+	give more helpful error messages to user during debugging.
+	* testsuite/sanie/sanie_usb_test.c: Do not treat open failures
+	because of permission errors or already opened by other processes
+	as test failures since this is expected in some cases (such as
+	network devices that use vendor specific class).
+
 2013-08-16 Chris Bagwell <chris@cnpbagwell.com>
 	* testsuite/sanei/Makefile.am: Add missing data files to distribution.
 	Pass in $srcdir to sanei_config_test so it knows were data files are

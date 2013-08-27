@@ -268,13 +268,11 @@ test_store_device (void)
   return 1;
 }
 
-/** count opened devices
- * count all opended devices and check it against expected value
- * @param expected use opened count
- * @return 1 on success, else 0
+/** return count of opened devices
+ * @return count of opened devices
  */
 static int
-count_opened (int expected)
+get_opened (void)
 {
   int num = 0;
   int i;
@@ -287,6 +285,19 @@ count_opened (int expected)
 	  num++;
 	}
     }
+  return num;
+}
+
+/** count opened devices
+ * count all opended devices and check it against expected value
+ * @param expected use opened count
+ * @return 1 on success, else 0
+ */
+static int
+count_opened (int expected)
+{
+  int num = get_opened();
+
   if (num != expected)
     {
       printf ("ERROR: %d opened devices, expected %d!\n", num, expected);
@@ -325,9 +336,17 @@ test_open_all (SANE_Int * dn, int expected)
 	    }
 	  else
 	    {
-	      printf ("ERROR: couldn't open device %s!\n",
-		      devices[i].devname);
-	      return 0;
+              if (status == SANE_STATUS_ACCESS_DENIED ||
+                  status == SANE_STATUS_DEVICE_BUSY)
+                {
+                  expected--;
+                }
+              else
+                {
+	          printf ("ERROR: couldn't open device %s!\n",
+                          devices[i].devname);
+	          return 0;
+                }
 	    }
 	}
     }
@@ -810,7 +829,7 @@ test_attach (void)
 int
 main (int argc, char **argv)
 {
-  int detected, i;
+  int detected, opened, i;
   SANE_Int dn[MAX_DEVICES];
 
 #ifdef HAVE_LIBUSB
@@ -858,8 +877,10 @@ main (int argc, char **argv)
   /* open all available devices */
   assert (test_open_all (dn, detected));
 
+  opened = get_opened();
+
   /* rescan devices : detected and opened count shouldn't change */
-  assert (test_scan_devices (detected, detected));
+  assert (test_scan_devices (detected, opened));
 
   /* try to open an inexisting device */
   assert (test_open_invalid ());
@@ -870,26 +891,26 @@ main (int argc, char **argv)
   /* there should be still as many detected devices */
   assert (count_detected (detected));
 
-  /* there should be still as many opened devices than detected devices */
-  assert (count_opened (detected));
+  /* there should be still as many opened devices */
+  assert (count_opened (opened));
 
   assert (test_exit (1));
 
-  /* there should be still as many opened devices than detected devices */
-  assert (count_opened (detected));
+  /* there should be still as many opened devices */
+  assert (count_opened (opened));
 
   /* count devices again , sanei_usb_exit() shouldn't have
    * change the count */
   assert (count_detected (detected));
 
   /* claim all available devices */
-  assert (test_claim_all (dn, detected));
+  assert (test_claim_all (dn, opened));
 
   /* then release them all */
-  assert (test_release_all (dn, detected));
+  assert (test_release_all (dn, opened));
 
   /* close all opened devices */
-  assert (test_close_all (dn, detected));
+  assert (test_close_all (dn, opened));
 
   /* check there is no opened device */
   assert (count_opened (0));

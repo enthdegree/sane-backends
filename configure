@@ -1503,8 +1503,8 @@ Optional Features:
   --enable-warnings       turn on tons of compiler warnings (GCC only)
   --enable-rpath          use runtime library search path [default=yes]
   --disable-dynamic       Disable dynamic loading of backends
-  --enable-pthread        use pthread instead of fork (default=yes for MacOS
-                          X/MINGW, no for everything else)
+  --enable-pthread        use pthread instead of fork (default=yes for
+                          Linux/MacOS X/MINGW, no for everything else)
   --enable-locking        activate device locking (default=yes, but only used
                           by some backends)
   --enable-avahi          enable Avahi support for saned and the net backend
@@ -7298,7 +7298,7 @@ $as_echo "#define HAVE_LIBIEEE1284 1" >>confdefs.h
 
 
   case "${host_os}" in
-  darwin* | mingw*) # currently only enabled on MacOS X on MINGW
+  linux* | darwin* | mingw*) # enabled by default on Linux, MacOS X and MINGW
     use_pthread=yes
     ;;
   *)

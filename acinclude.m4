@@ -222,7 +222,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
 [
 
   case "${host_os}" in
-  darwin* | mingw*) # currently only enabled on MacOS X on MINGW
+  linux* | darwin* | mingw*) # enabled by default on Linux, MacOS X and MINGW
     use_pthread=yes
     ;;
   *)
@@ -236,7 +236,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
 
   AC_ARG_ENABLE([pthread],
     AC_HELP_STRING([--enable-pthread],
-                   [use pthread instead of fork (default=yes for MacOS X/MINGW, no for everything else)]),
+                   [use pthread instead of fork (default=yes for Linux/MacOS X/MINGW, no for everything else)]),
     [
       if test $enableval = yes ; then
         use_pthread=yes

@@ -1,3 +1,9 @@
+2013-08-27 m. allan noah <kitno455 at gmail dot com>
+	* acinclude.m4, configure: enable pthread on Linux by default
+	* sanei/sanei_init_debug.c: use C locale when building debug
+	env vars, to allow backend debugging in Turkish. Patch from
+	Olaf Meeuwissen.
+
 2013-08-26 Chris Bagwell <chris@cnpbagwell.com>
 	* sanei/sanei_usb.c: Treat errno of EACCES as access denied.
 	This is what libusb is return on my Linux box. This will help

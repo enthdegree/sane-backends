@@ -464,13 +464,25 @@ open_scanner(Epson_Scanner *s)
 
 			/* the scanner sends a kind of welcome msg */
 			read = e2_recv(s, buf, 5, &status);
-			if (read != 5)
+			if (read != 5) {
+				sanei_tcp_close(s->fd);
+				s->fd = -1;
 				return SANE_STATUS_IO_ERROR;
+			}
 
 			DBG(32, "welcome message received, locking the scanner...\n");
 
 			/* lock the scanner for use by sane */
-			sanei_epson_net_lock(s);
+			status = sanei_epson_net_lock(s);
+			if (status != SANE_STATUS_GOOD) {
+				DBG(1, "%s cannot lock scanner: %s\n", s->hw->sane.name,
+					sane_strstatus(status));
+
+				sanei_tcp_close(s->fd);
+				s->fd = -1;
+
+				return status;
+			}
 
 			DBG(32, "scanner locked\n");
 		}

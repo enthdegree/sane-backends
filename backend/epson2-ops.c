@@ -1734,6 +1734,7 @@ e2_copy_image_data(Epson_Scanner * s, SANE_Byte * data, SANE_Int max_length,
 SANE_Status
 e2_ext_read(struct Epson_Scanner *s)
 {
+	struct Epson_Device *dev = s->hw;
 	SANE_Status status = SANE_STATUS_GOOD;
 	ssize_t buf_len = 0, read;
 
@@ -1764,6 +1765,11 @@ e2_ext_read(struct Epson_Scanner *s)
 
 		if (read != buf_len + 1)
 			return SANE_STATUS_IO_ERROR;
+
+		if (e2_dev_model(dev, "GT-8200") || e2_dev_model(dev, "Perfection1650")) {
+			/* See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=597922#127 */
+			s->buf[buf_len] &= 0xc0;
+		}
 
 		if (s->buf[buf_len] & FSG_STATUS_CANCEL_REQ) {
 			DBG(0, "%s: cancel request received\n", __func__);

@@ -1,3 +1,6 @@
+2013-09-08 paul newall
+	* kodakaio.desc: Added hero 4.1 model, marked some scanners as staus basic
+
 2013-08-27 m. allan noah <kitno455 at gmail dot com>
 	* acinclude.m4, configure: enable pthread on Linux by default
 	* sanei/sanei_init_debug.c: use C locale when building debug

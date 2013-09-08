@@ -21,8 +21,8 @@
 :model "ESP 2170"
 :interface "USB"
 :usbid "0x040a" "0x4066"
-:status :untested
-:comment "Please test!"
+:status :basic
+:comment "Tested with network"
 
 :model "ESP 3200"
 :interface "USB"
@@ -138,6 +138,12 @@
 :model "Hero 3.1"
 :interface "USB"
 :usbid "0x040a" "0x406d"
+:status :untested
+:comment "Please test!"
+
+:model "Hero 4.1"
+:interface "USB"
+:usbid "0x040a" "0x4069"
 :status :untested
 :comment "Please test!"
 

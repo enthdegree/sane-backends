@@ -60,6 +60,18 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA MG2400 Series"
+:interface "USB"
+:usbid "0x04a9" "0x176c"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG2500 Series"
+:interface "USB"
+:usbid "0x04a9" "0x176d"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA MG3100 Series"
 :interface "USB WLAN"
 :usbid "0x04a9" "0x1752"
@@ -69,6 +81,12 @@
 :model "PIXMA MG3200 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1762"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG3500 Series"
+:interface "USB"
+:usbid "0x04a9" "0x176e"
 :status :untested
 :comment "Testers needed!"
 
@@ -108,6 +126,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA MG5500 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1771"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA MG6100 Series"
 :interface "USB"
 :usbid "0x04a9" "0x174a"
@@ -125,6 +149,24 @@
 :usbid "0x04a9" "0x1765"
 :status :complete
 :comment "All resolutions supported (up to 2400DPI)."
+
+:model "PIXMA MG6400 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1770"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG6500 Series"
+:interface "USB"
+:usbid "0x04a9" "0x176f"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG7100 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1772"
+:status :untested
+:comment "Testers needed!"
 
 :model "PIXMA MG8100 Series"
 :interface "USB"

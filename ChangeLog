@@ -1,7 +1,10 @@
-2013-03-21 Rolf Bensch <rolf at bensch hyphen online dot de>
+2013-09-13 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	New scanners Canon Pixma MG2400, MG2500, MG3500, MG5500, MG64000, MG6500
 	and MG7100. All scanners need further testing.
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
+	doc/sane-pixma.man: New scanners Canon imageCLASS MF4570dw and
+	imageRUNNER 1133. All scanners need further testing.
 	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.4
 
 2013-09-08 paul newall

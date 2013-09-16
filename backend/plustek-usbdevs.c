@@ -73,6 +73,7 @@
  *        - tweaked motor settings for Bearpaw 1200
  *        - added TravelScan 464 settings
  *        - tweaked highspeed motor settings for Epson 1260
+ *        - tweaked CanoScan N650U motor settings
  *
  * <hr>
  * This file is part of the SANE package.
@@ -2061,7 +2062,7 @@ static HWDef Hw0x1606_0x0160 =
 /** Canon N650U/N656U */
 static HWDef Hw0x04A9_0x2206 =
 {
-	0.86,   /* dMaxMotorSpeed                                */
+	0.76,   /* dMaxMotorSpeed                                */
 	0.243,  /* dMaxMoveSpeed                                 */
 	0.0,    /* dHighSpeed                                    */
 	100,    /* dIntegrationTimeLowLamp                       */

@@ -210,6 +210,7 @@ DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/kodak-twain.desc \
   descriptions-external/lhii.desc \
   descriptions-external/mustek_a3p1.desc \
+  descriptions-external/panamfs.desc \
   descriptions-external/primascan.desc \
   descriptions-external/primax.desc \
   descriptions-external/samsung.desc \

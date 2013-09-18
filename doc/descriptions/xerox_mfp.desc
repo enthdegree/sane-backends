@@ -45,6 +45,11 @@
 :usbid "0x413c" "0x5124"
 :status :good
 
+:model "Dell 1235cn"
+:interface "USB"
+:usbid "0x413c" "0x5310"
+:status :good
+
 :mfg "Samsung"
 :url "http://www.samsung.com"
 

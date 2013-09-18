@@ -1,3 +1,7 @@
+2013-09-18 Alex Belkin <abc at telekom.ru>
+	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
+	for dell 1235cn, reported by Jean-Francois Labrousse.
+
 2013-09-17 m. allan noah <kitno455 at gmail dot com>
 	* sanei/sanei_init_debug.c: do our own upcasing to allow backend
 	debugging in Turkish. Revert prior set_locale() patch.

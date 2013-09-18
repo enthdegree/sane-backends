@@ -207,3 +207,6 @@ usb 0x0924 0x4294
 #Dell MFP Laser Printer 1815dn
 usb 0x413c 0x5124
 
+#Dell 1235cn (clone of Samsung CLX-3175)
+usb 0x413c 0x5310
+

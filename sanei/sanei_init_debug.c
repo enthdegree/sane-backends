@@ -67,6 +67,19 @@
 #define BACKEND_NAME sanei_debug
 #include "../include/sane/sanei_debug.h"
 
+/* If a frontend enables translations, the system toupper()
+ * call will use the LANG env var. We need to use ascii
+ * instead, so the debugging env var name matches the docs.
+ * This is a particular problem in Turkish, where 'i' does
+ * not capitalize to 'I' */
+char
+toupper_ascii (int c)
+{
+  if(c > 0x60 && c < 0x7b)
+    return c - 0x20;
+  return c;
+}
+
 void
 sanei_init_debug (const char * backend, int * var)
 {
@@ -80,7 +93,7 @@ sanei_init_debug (const char * backend, int * var)
     {
       if (i >= sizeof (buf) - 1)
         break;
-      buf[i] = toupper(ch);
+      buf[i] = toupper_ascii(ch);
     }
   buf[i] = '\0';
 

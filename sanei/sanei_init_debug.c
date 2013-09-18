@@ -41,7 +41,6 @@
 #include "../include/sane/config.h"
 
 #include <ctype.h>
-#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -71,14 +70,12 @@
 void
 sanei_init_debug (const char * backend, int * var)
 {
-  char *lc_ctype;
   char ch, buf[256] = "SANE_DEBUG_";
   const char * val;
   unsigned int i;
 
   *var = 0;
 
-  lc_ctype = setlocale (LC_CTYPE, "C");
   for (i = 11; (ch = backend[i - 11]) != 0; ++i)
     {
       if (i >= sizeof (buf) - 1)
@@ -86,7 +83,6 @@ sanei_init_debug (const char * backend, int * var)
       buf[i] = toupper(ch);
     }
   buf[i] = '\0';
-  setlocale (LC_CTYPE, lc_ctype);
 
   val = getenv (buf);
 

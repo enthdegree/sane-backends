@@ -2,6 +2,7 @@
 	* sanei/sanei_init_debug.c: do our own upcasing to allow backend
 	debugging in Turkish. Revert prior set_locale() patch.
 	* po/uk.po: updated by Yuri Chornoivan
+	* backend/microtek.c: add missing break (#314408)
 
 2013-09-16 Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/plustek-usbdevs.c: Tweaked motor settings for CanoScan N650U

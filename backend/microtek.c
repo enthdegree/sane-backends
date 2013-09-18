@@ -3972,6 +3972,7 @@ sane_start_guts (SANE_Handle handle)
       s->header_bpl = 0;
       s->planes = 3;
       s->line_format = MS_LNFMT_SEQ_2R2G2B;
+      break;
     case MI_COLSEQ_RGB:
       s->pixel_bpl = linewidth * 3 * ((s->bits_per_color + 7) / 8);
       s->ppl = linewidth;

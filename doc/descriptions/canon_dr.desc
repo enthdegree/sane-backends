@@ -309,10 +309,12 @@
 :model "P-208"
 :interface "USB"
 :usbid "0x1083" "0x164c"
-:status :untested
+:status :basic
+:comment "All modes and resolutions working, but calibration is poor."
 
 :model "P-215"
 :interface "USB"
 :usbid "0x1083" "0x1646"
-:status :untested
+:status :basic
+:comment "All modes and resolutions working, but calibration is poor. Card reader slot not working."
 

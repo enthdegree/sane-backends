@@ -1,4 +1,4 @@
-.TH sane\-canon_dr 5 "26 Jan 2011" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-canon_dr 5 "16 Sep 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-canon_dr
 
 .SH NAME
@@ -10,7 +10,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to some Canon DR-series scanners.
 
-This document describes backend version 37, which shipped with SANE 1.0.22.
+This document describes backend version 41, which shipped with SANE 1.0.24.
 
 .SH SUPPORTED HARDWARE
 This version has only been tested with a few scanner models. Please see 
@@ -159,6 +159,11 @@ scanner, or to provide the values when the scanner cannot.
 Some scanners prepend all data transmitted to host with 12 bytes. Enable this option if the scanner fails to respond to commands.
 .RE
 .PP
+"option duplex-offset [integer]"
+.RS
+Some scanners pad the upper edge of one side of a duplex scan. There is some variation in the amount of padding. Modify this option if your unit shows an unwanted band of image data on only one side.
+.RE
+.PP
 Note: 'option' lines may appear multiple times in the configuration file.
 They only apply to scanners discovered by the next 'scsi/usb' line.
 .PP
@@ -201,6 +206,8 @@ Canon, USA. www.usa.canon.com loaned equipment
 HPrint hprint.com.br provided funding and testing for DR-2510 support
 .br
 Stone-IT www.stone-it.com provided funding for DR-2010 and DR-2050 support
+.br
+Gerhard Pfeffer provided access and testing for P-208 and P-215
 .br
 Special thanks to: Alejandro Imass, Andre Shimakawa, Martijn van Brummelen, Thanos Diacakis and Junren Shi for testing and feedback.
 

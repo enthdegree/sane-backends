@@ -1,3 +1,8 @@
+2013-09-24 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
+	doc/sane-pixma.man: New scanner Canon imageCLASS MF4770n
+	reported by Ralph Little.
+
 2013-09-18 Alex Belkin <abc at telekom.ru>
 	* backend/xerox_mfp.conf.in doc/descriptions/xerox_mfp.desc: usb id
 	for dell 1235cn, reported by Jean-Francois Labrousse.

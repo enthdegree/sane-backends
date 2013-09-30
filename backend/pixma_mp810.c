@@ -1120,11 +1120,15 @@ static int handle_interrupt (pixma_t * s, int timeout)
     if (buf[7] & 2)
       s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* b/w scan */
   }
-  else if (s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID)
+  else if (s->cfg->pid == CS8800F_PID
+            || s->cfg->pid == CS9000F_PID
+            || s->cfg->pid == CS9000F_MII_PID)
   /* button no. in buf[1]
-   * target = button no. */
+   * target = button no.
+   * "Finish PDF" is Button-2, all others are Button-1 */
   {
-    if (buf[1] == 0x50)
+    if ((s->cfg->pid == CS8800F_PID && buf[1] == 0x70)
+        || (s->cfg->pid != CS8800F_PID && buf[1] == 0x50))
       s->events = PIXMA_EV_BUTTON2 | buf[1] >> 4;  /* button 2 = cancel / end scan */
     else
       s->events = PIXMA_EV_BUTTON1 | buf[1] >> 4;  /* button 1 = start scan */

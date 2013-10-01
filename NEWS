@@ -1,4 +1,16 @@
 -*-Mode: outline-*-
+New with 1.0.24, released 2012-09-30:
+
+* Significant enhancements to pixma, genesys, kodakaio, fujitsu, canon_dr.
+* Minor updates, bugfixes or scanners added in several backends.
+* Added new testsuite
+* 51 new scanner models supported.
+* USB support improvements.
+* Improved build system (mingw64, bug fixes, default pthread on Linux).
+* Documentation updates.
+* Bugfixes.
+
+
 New with 1.0.23, released 2012-08-19:
 
 * New backends: kvs40xx (Panasonic KV-S40xx),

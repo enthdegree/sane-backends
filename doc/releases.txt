@@ -38,14 +38,19 @@ Making the release:
 * unpack tar.gz in temporary directory
 * make diff from last release by unpacking it also in temporary directory
   and running e.g. 
-  diff -uNr sane-backends-1.0.14 sane-backends-1.0.15  > sane-backends-1.0.14-1.0.15.diff
+  diff -uNr sane-backends-1.0.23 sane-backends-1.0.24  > sane-backends-1.0.23-1.0.24.diff
 * check that the diff applies cleanly to the old version
 * gzip the diff
 * install devel headers required to build optional backends (1284,gphoto,etc)
 * check that the new version .tar.gz can be compiled
-* upload these files together with the .diff.gz to the FTP/HTTP servers
+* upload the .tar.gz, tar.gz.md5 and .diff.gz to the FTP/HTTP servers
   (at the moment: alioth.debian.org, ftp files are in
   /srv/alioth.debian.org/chroot/ftproot/pub/sane/ )
+  In the alioth web interface, you should upload the smallest file first,
+  since you don't get error messages until after an upload completes,
+  and you might need to change something.
+  You can add the larger files afterwards. You may have to split larger
+  files.
 
 Announcing the release:
 
@@ -55,15 +60,15 @@ Announcing the release:
 * rebuild sane-backends.html and sane-mfgs.html (make -C doc html-pages)
 * use man2html from http://hydra.nac.uci.edu/indiv/ehood/man2html.html
   to rebuild html man pages (make -C doc html-man) (no other version works)
-* add md5 sum to sane-md5sum.txt
+* add md5 sum to sane-md5sums.txt
 * check and update platforms page (sane-support.html)
 * add announcement to index.html
 * git commit -a && git push
 * check that website was updated automatically. if not, see:
-  /org/alioth.debian.org/chroot/home/groups/sane/bin/update-htdocs.sh
+  /home/groups/sane/bin/update-htdocs.sh
 * rebuild descriptions.db (make -C doc descriptions.db)
 * scp doc/descriptions.db to alioth:
-  /org/alioth.debian.org/chroot/home/groups/sane/search/release
+  /home/groups/sane/search/release
 * write announcements sane-devel, maybe others (e.g. freshmeat),
   include the md5 hash
 

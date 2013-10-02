@@ -86,10 +86,10 @@ Step by step install on Linux 2.6.* and 3.*, both with udev:
 	Register new installed SANE dynamically linked shared object library.
 
 	$ sudo ldconfig -v | grep libsane
-		libsane.so.1 -> libsane.so.1.0.24
-		libsane.so.1 -> libsane.so.1.0.22
+		libsane.so.1 -> libsane.so.1.0.25
+		libsane.so.1 -> libsane.so.1.0.23
 
-	This example shows that the system first find version 1.0.24 and then 1.0.22.
+	This example shows that the system first find version 1.0.25 and then 1.0.23.
 	This is the correct order.
 
 	If your system first find the old version and then the new installed one,
@@ -133,17 +133,17 @@ Step by step install on Linux 2.6.* and 3.*, both with udev:
 
 4.1. Check the used backend version:
 
-	The programs must use the installed SANE backend version, e.g. 1.0.24.
+	The programs must use the installed SANE backend version, e.g. 1.0.25.
 
 	$ scanimage -V
-	scanimage (sane-backends) 1.0.24git; backend version 1.0.24
+	scanimage (sane-backends) 1.0.25git; backend version 1.0.25
 
-	This example shows that backend and scanimage are version 1.0.24.
+	This example shows that backend and scanimage are version 1.0.25.
 
 	$ /usr/bin/scanimage -V
-	scanimage (sane-backends) 1.0.20; backend version 1.0.24
+	scanimage (sane-backends) 1.0.23; backend version 1.0.25
 
-	This example shows that an old scanimage (1.0.20) uses the backend 1.0.24.
+	This example shows that an old scanimage (1.0.23) uses the backend 1.0.25.
 
 	If you want to use xsane, start xsane and check the used version with
 	CTRL - i.

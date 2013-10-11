@@ -3056,6 +3056,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                                      target_code);
       break;
     case CCD_CANONLIDE35:
+    case CIS_CANONLIDE80:
       compute_averaged_planar (dev,
 			       shading_data,
                                pixels_per_line,

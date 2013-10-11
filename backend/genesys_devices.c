@@ -211,7 +211,14 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00, 0x00, 0x00}	/* 0x20, 0x21, 0x22 */
    , {0x00, 0x00, 0x00} /* 0x28, 0x29, 0x2a */
    , {0x00, 0x00, 0x00}
-   }
+   },
+  {DAC_CANONLIDE80,
+     {0x74, 0x80, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x16, 0x16, 0x16}
+   , {0x00, 0x00, 0x00}
+  }
 };
 
 
@@ -745,7 +752,21 @@ static Genesys_Sensor Sensor[] = {
    ,
    {1.7, 1.7, 1.7},
    {NULL, NULL, NULL}
-  }
+  },
+  /* CANOLIDE80 */
+  {CIS_CANONLIDE80, 
+   1200, /* real hardware limit is 2400 */
+   9,
+   9,
+   0,
+   10400, /* up to 20504 */
+   230,
+   230,
+   {0x00, 0x11, 0x00, 0x00},
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04},
+   {0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x29, 0x69, 0x55, 0x00, 0x00, 0x20, 0x41} ,
+   {1.0, 1.0, 1.0},
+   {NULL, NULL, NULL}}
 };
 
 /** for General Purpose Output specific settings:
@@ -909,6 +930,12 @@ static Genesys_Gpo Gpo[] = {
   {GPO_PLUSTEK3800,
    {0x41, 0xa4},
    {0x13, 0xa7}
+  },
+  /* Canon LiDE 80 */
+  {
+    GPO_CANONLIDE80,
+   {0x28, 0x90}, /* 6c, 6d */
+   {0x75, 0x80}, /* 6e, 6f */
   }
 };
 
@@ -1261,6 +1288,17 @@ static Genesys_Motor Motor[] = {
      {
        { 3500, 1300, 60, 0.8 },
        { 3500, 3250, 60, 0.8 },
+     },
+   },},
+  {MOTOR_CANONLIDE80,
+   1200,
+   2400,
+   2,	/* max step type */
+   1,	/* power mode count */
+   {
+     { /* start speed, max end speed, step number */
+       {  9660, 1932, 32, 0.8 }, /* full step */
+       { 18750, 1875, 16, 0.8 }, /* half step */
      },
    },},
 };
@@ -2083,6 +2121,63 @@ static Genesys_Model canon_lide_60_model = {
   300,
   400
 };				/* this is completely untested -- hmg */
+
+static Genesys_Model canon_lide_80_model = {
+  "canon-lide-80",		/* Name */
+  "Canon",			/* Device vendor string */
+  "LiDE 80",			/* Device model name */
+  GENESYS_GL841,
+  NULL,
+
+  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
+  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CIS_CANONLIDE80,
+  DAC_CANONLIDE80,
+  GPO_CANONLIDE80,
+  MOTOR_CANONLIDE80,
+  GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_SKIP_WARMUP | 
+  GENESYS_FLAG_OFFSET_CALIBRATION | 
+  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
+  GENESYS_FLAG_CUSTOM_GAMMA |
+  GENESYS_FLAG_HALF_CCD_MODE,
+  GENESYS_HAS_SCAN_SW |
+  GENESYS_HAS_FILE_SW |
+  GENESYS_HAS_EMAIL_SW |
+  GENESYS_HAS_COPY_SW,
+  280,
+  400
+};
+
 
 static Genesys_Model hp2300c_model = {
   "hewlett-packard-scanjet-2300c",	/* Name */
@@ -3382,6 +3477,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a7, 0x04ac, &xerox_travelscanner_model},
   {0x04a9, 0x2213, &canon_lide_50_model},
   {0x04a9, 0x221c, &canon_lide_60_model},
+  {0x04a9, 0x2214, &canon_lide_80_model},
   {0x07b3, 0x0900, &plustek_3600_model},
   {0x0a17, 0x3210, &pentax_dsmobile_600_model},
   {0x04f9, 0x2038, &pentax_dsmobile_600_model}, /* clone, only usb id is different */

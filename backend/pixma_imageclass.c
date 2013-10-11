@@ -281,16 +281,10 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
   const int hlen = 2 + 6;
 
   memset (mf->cb.buf, 0, 11);
-  pixma_set_be16 (((s->cfg->pid == MF3010_PID ||
-                    s->cfg->pid == MF4410_PID ||
-                    s->cfg->pid == MF4770_PID ||
-                    s->cfg->pid == MF4550_PID) ? cmd_read_image2 : cmd_read_image), mf->cb.buf);
+  pixma_set_be16 (((mf->generation >= 2) ? cmd_read_image2 : cmd_read_image), mf->cb.buf);
   mf->cb.buf[8] = flag;
   mf->cb.buf[10] = 0x06;
-  expected_len = (s->cfg->pid == MF3010_PID ||
-                  s->cfg->pid == MF4410_PID ||
-                  s->cfg->pid == MF4770_PID ||
-                  s->cfg->pid == MF4550_PID ||
+  expected_len = (mf->generation >= 2 ||
                   s->cfg->pid == MF4600_PID ||
                   s->cfg->pid == MF6500_PID ||
                   s->cfg->pid == MF8030_PID) ? 512 : hlen;
@@ -301,10 +295,7 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
       *size = pixma_get_be16 (mf->cb.buf + 6);    /* 16bit size */
       error = 0;
 
-      if (s->cfg->pid == MF3010_PID ||
-          s->cfg->pid == MF4410_PID ||
-          s->cfg->pid == MF4770_PID ||
-          s->cfg->pid == MF4550_PID ||
+      if (mf->generation >= 2 ||
           s->cfg->pid == MF4600_PID ||
           s->cfg->pid == MF6500_PID ||
           s->cfg->pid == MF8030_PID)
@@ -324,13 +315,11 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
 static int
 read_image_block (pixma_t * s, uint8_t * data, unsigned size)
 {
+  iclass_t *mf = (iclass_t *) s->subdriver;
   int error;
   unsigned maxchunksize, chunksize, count = 0;
   
-  maxchunksize = MAX_CHUNK_SIZE * ((s->cfg->pid == MF3010_PID ||
-                                    s->cfg->pid == MF4410_PID ||
-                                    s->cfg->pid == MF4770_PID ||
-                                    s->cfg->pid == MF4550_PID ||
+  maxchunksize = MAX_CHUNK_SIZE * ((mf->generation >= 2 ||
                                     s->cfg->pid == MF4600_PID ||
                                     s->cfg->pid == MF6500_PID ||
                                     s->cfg->pid == MF8030_PID) ? 4 : 1);
@@ -652,10 +641,7 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       if (n != 0)
         {
           if (s->param->channels != 1 &&
-                  s->cfg->pid != MF3010_PID &&
-                  s->cfg->pid != MF4410_PID &&
-                  s->cfg->pid != MF4770_PID &&
-	          s->cfg->pid != MF4550_PID &&
+                  mf->generation == 1 &&
 	          s->cfg->pid != MF4600_PID &&
 	          s->cfg->pid != MF6500_PID &&
 	          s->cfg->pid != MF8030_PID)

@@ -1,3 +1,12 @@
+2013-10-11 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_imageclass.c: Use generation variable instead of single
+	defines of scanner pid's. Now new scanners should work without extensive
+	code editing.
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
+	doc/sane-pixma.man: New scanner Canon i-SENSYS MF4890dw. This scanner needs
+	further testing.
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.5
+
 2013-10-02 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* README.linux: Update Installation description for 1.0.25git.
 

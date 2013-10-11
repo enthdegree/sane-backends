@@ -69,16 +69,18 @@
 #define MIN_CHUNK_SIZE   (0x0200)
 #define CMDBUF_SIZE 512
 
-#define MF4200_PID 0x26b5
 #define MF4100_PID 0x26a3
 #define MF4600_PID 0x26b0
 #define MF4010_PID 0x26b4
+#define MF4200_PID 0x26b5
 #define MF4360_PID 0x26ec
 #define D480_PID   0x26ed
 #define MF4320_PID 0x26ee
 #define D420_PID   0x26ef
 #define MF3200_PID 0x2684
 #define MF6500_PID 0x2686
+/* generation 2 scanners (>=0x2707) */
+#define MF4550_PID 0x2736
 #define MF4410_PID 0x2737
 #define MF3010_PID 0x2759
 #define MF4770_PID 0x2774
@@ -89,9 +91,8 @@
 #define MF5880_PID 0x26f9
 #define MF6680_PID 0x26fa
 #define MF8030_PID 0x2707
-#define MF4550_PID 0x2736
-#define MF4570_PID 0x275a
 #define IR1133_PID 0x2742
+#define MF4570_PID 0x275a
 
 
 enum iclass_state_t

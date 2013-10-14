@@ -1,3 +1,7 @@
+2013-10-14 Paul Newall <quandry@ntlworld.com>
+	* backend/kodakaio.c: fix bug #314301, 
+	Segfault when unexpected data returned by avahi auto discovery.
+
 2013-10-11 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c: Use generation variable instead of single
 	defines of scanner pid's. Now new scanners should work without extensive

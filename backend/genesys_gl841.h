@@ -231,8 +231,8 @@
 #define REG6C_GPIOL	0xff
 
 #define REG6D      	0x6d
-
 #define REG6E      	0x6e
+#define REG6F      	0x6f
 
 #define REG87_LEDADD    0x04
 
@@ -348,8 +348,13 @@ enum
   reg_0x85,
   reg_0x86,
   reg_0x87,
+  reg_0x88,
+  reg_0x89,
   GENESYS_GL841_MAX_REGS
 };
+
+#define INITREG(adr,val) {dev->reg[index].address=adr;dev->reg[index].value=val;index++;}
+
 /**
  * prototypes declaration in case of unit testing
  */

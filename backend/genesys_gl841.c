@@ -515,6 +515,7 @@ sanei_gl841_setup_sensor (Genesys_Device * dev,
 
   DBG (DBG_proc, "gl841_setup_sensor\n");
 
+  /* that one is tricky at least ....*/
   r = sanei_genesys_get_address (regs, 0x70);
   for (i = 0; i < 4; i++, r++)
     r->value = dev->sensor.regs_0x08_0x0b[i];
@@ -777,6 +778,162 @@ gl841_bulk_full_size (void)
 }
 
 /*
+ * Set all registers LiDE 80 to default values
+ * (function called only once at the beginning)
+ * we are doing a special case to ease development
+ */
+static void
+gl841_init_lide80 (Genesys_Device * dev)
+{
+  uint8_t val;
+  int index=0;
+
+  INITREG (0x01, 0x02);
+  INITREG (0x02, 0x10);
+  INITREG (0x03, 0x50);
+  INITREG (0x04, 0x02);
+  INITREG (0x05, 0x8c);
+  INITREG (0x06, 0x38);
+
+  INITREG (0x08, 0x00);
+  INITREG (0x09, 0x11);
+  INITREG (0x0a, 0x00);
+
+  INITREG (0x10, 0x00);
+  INITREG (0x11, 0x00);
+  INITREG (0x12, 0x00);
+  INITREG (0x13, 0x00);
+  INITREG (0x14, 0x00);
+  INITREG (0x15, 0x00);
+
+  INITREG (0x16, 0x00);
+  INITREG (0x17, 0x01);
+  INITREG (0x18, 0x00);
+  INITREG (0x19, 0x06);
+  INITREG (0x1a, 0x00);
+  INITREG (0x1b, 0x00);
+  INITREG (0x1c, 0x00);
+  INITREG (0x1d, 0x04);
+  INITREG (0x1e, 0x10);
+  INITREG (0x1f, 0x04);
+  INITREG (0x20, 0x02);
+  INITREG (0x21, 0x10);
+  INITREG (0x22, 0x20);
+  INITREG (0x23, 0x20);
+  INITREG (0x24, 0x10);
+  INITREG (0x25, 0x00);
+  INITREG (0x26, 0x00);
+  INITREG (0x27, 0x00);
+  INITREG (0x27, 0x00);
+
+  INITREG (0x29, 0xff);
+
+  INITREG (0x2c, 0x09);
+  INITREG (0x2d, 0x60);
+  INITREG (0x2e, 0x80);
+  INITREG (0x2f, 0x80);
+  INITREG (0x30, 0x00);
+  INITREG (0x31, 0x10);
+  INITREG (0x32, 0x15);
+  INITREG (0x33, 0x0e);
+  INITREG (0x34, 0x40);
+  INITREG (0x35, 0x00);
+  INITREG (0x36, 0x2a);
+  INITREG (0x37, 0x30);
+  INITREG (0x38, 0x2a);
+  INITREG (0x39, 0xf8);
+
+  INITREG (0x3d, 0x00);
+  INITREG (0x3e, 0x00);
+  INITREG (0x3f, 0x00);
+
+  INITREG (0x52, 0x03);
+  INITREG (0x53, 0x07);
+  INITREG (0x54, 0x00);
+  INITREG (0x55, 0x00);
+  INITREG (0x56, 0x00);
+  INITREG (0x57, 0x00);
+  INITREG (0x58, 0x29);
+  INITREG (0x59, 0x69);
+  INITREG (0x5a, 0x55);
+  INITREG (0x5d, 0x20);
+  INITREG (0x5e, 0x41);
+  INITREG (0x5f, 0x40);
+  INITREG (0x60, 0x00);
+  INITREG (0x61, 0x00);
+  INITREG (0x62, 0x00);
+  INITREG (0x63, 0x00);
+  INITREG (0x64, 0x00);
+  INITREG (0x65, 0x00);
+  INITREG (0x66, 0x00);
+  INITREG (0x67, 0x40);
+  INITREG (0x68, 0x40);
+  INITREG (0x69, 0x20);
+  INITREG (0x6a, 0x20);
+
+  INITREG (0x70, 0x00);
+  INITREG (0x71, 0x05);
+  INITREG (0x72, 0x07);
+  INITREG (0x73, 0x09);
+  INITREG (0x74, 0x09);
+  INITREG (0x75, 0x01);
+  INITREG (0x76, 0xff);
+  INITREG (0x77, 0xff);
+  INITREG (0x78, 0x0f);
+  INITREG (0x79, 0xf0);
+  INITREG (0x7a, 0xf0);
+  INITREG (0x7b, 0x00);
+  INITREG (0x7c, 0x1e);
+  INITREG (0x7d, 0x11);
+  INITREG (0x7e, 0x00);
+  INITREG (0x7f, 0x50);
+  INITREG (0x80, 0x00);
+  INITREG (0x81, 0x00);
+  INITREG (0x82, 0x0f);
+  INITREG (0x83, 0x00);
+  INITREG (0x84, 0x0e);
+  INITREG (0x85, 0x00);
+  INITREG (0x86, 0x0d);
+  INITREG (0x87, 0x02);
+
+  /* specific scanner settings, clock and gpio first */
+  sanei_genesys_read_register (dev, REG6B, &val);
+  sanei_genesys_write_register (dev, REG6B, 0x0c);
+  sanei_genesys_write_register (dev, 0x06, 0x10);
+  sanei_genesys_write_register (dev, REG6E, 0x6d);
+  sanei_genesys_write_register (dev, REG6F, 0x80);
+  sanei_genesys_write_register (dev, REG6B, 0x0e);
+  sanei_genesys_read_register (dev, REG6C, &val);
+  sanei_genesys_write_register (dev, REG6C, 0x00);
+  sanei_genesys_read_register (dev, REG6D, &val);
+  sanei_genesys_write_register (dev, REG6D, 0x8f);
+  sanei_genesys_read_register (dev, REG6B, &val);
+  sanei_genesys_write_register (dev, REG6B, 0x0e);
+  sanei_genesys_read_register (dev, REG6B, &val);
+  sanei_genesys_write_register (dev, REG6B, 0x0e);
+  sanei_genesys_read_register (dev, REG6B, &val);
+  sanei_genesys_write_register (dev, REG6B, 0x0a);
+  sanei_genesys_read_register (dev, REG6B, &val);
+  sanei_genesys_write_register (dev, REG6B, 0x02);
+  sanei_genesys_read_register (dev, REG6B, &val);
+  sanei_genesys_write_register (dev, REG6B, 0x06);
+
+  sanei_genesys_write_0x8c (dev, 0x10, 0x94);
+  sanei_genesys_write_register (dev, 0x09, 0x10);
+
+  /* set up GPIO : no address, so no bulk write, doesn't written directly either ? */
+  dev->reg[reg_0x6c].value = dev->gpo.value[0];
+  dev->reg[reg_0x6d].value = dev->gpo.value[1];
+  dev->reg[reg_0x6e].value = dev->gpo.enable[0];
+  dev->reg[reg_0x6f].value = dev->gpo.enable[1];
+
+  dev->reg[reg_0x6b].value |= REG6B_GPO18;
+  dev->reg[reg_0x6b].value &= ~REG6B_GPO17;
+
+  sanei_gl841_setup_sensor (dev, dev->reg, 0, 0);
+}
+
+/*
  * Set all registers to default values 
  * (function called only once at the beginning)
  */
@@ -789,6 +946,11 @@ gl841_init_registers (Genesys_Device * dev)
 
   nr = 0;
   memset (dev->reg, 0, GENESYS_MAX_REGS * sizeof (Genesys_Register_Set));
+  if (strcmp (dev->model->name, "canon-lide-80") == 0)
+    {
+      gl841_init_lide80(dev);
+      return ;
+    }
 
   for (addr = 1; addr <= 0x0a; addr++)
     dev->reg[nr++].address = addr;
@@ -913,7 +1075,13 @@ gl841_init_registers (Genesys_Device * dev)
   dev->reg[reg_0x6e].value = dev->gpo.enable[0];
   dev->reg[reg_0x6f].value = dev->gpo.enable[1];
 
+  /* TODO there is a switch calling to be written here */
   if (dev->model->gpo_type == GPO_CANONLIDE35) 
+    {
+      dev->reg[reg_0x6b].value |= REG6B_GPO18;
+      dev->reg[reg_0x6b].value &= ~REG6B_GPO17;
+    }
+  if (dev->model->gpo_type == GPO_CANONLIDE80)
     {
       dev->reg[reg_0x6b].value |= REG6B_GPO18;
       dev->reg[reg_0x6b].value &= ~REG6B_GPO17;
@@ -1973,9 +2141,17 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     else
 	dpiset = used_res;
     
+    /* gpio part.*/
     if (dev->model->gpo_type == GPO_CANONLIDE35) 
       {
-/* gpio part.*/
+	r = sanei_genesys_get_address (reg, REG6C);
+	if (half_ccd)
+	  r->value &= ~0x80;
+	else
+	  r->value |= 0x80;
+      }
+    if (dev->model->gpo_type == GPO_CANONLIDE80)
+      {
 	r = sanei_genesys_get_address (reg, REG6C);
 	if (half_ccd)
 	  r->value &= ~0x80;
@@ -3644,6 +3820,12 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       val = dev->gpo.value[0];
       RIE (sanei_genesys_write_register (dev, REG6C, val));
     }
+  if (dev->model->gpo_type == GPO_CANONLIDE80)
+    {
+      RIE (sanei_genesys_read_register (dev, REG6C, &val));
+      val = dev->gpo.value[0];
+      RIE (sanei_genesys_write_register (dev, REG6C, val));
+    }
   gl841_save_power(dev, SANE_FALSE);
 
   /* first read gives HOME_SENSOR true */
@@ -4217,7 +4399,8 @@ gl841_led_calibration (Genesys_Device * dev)
   DBG (DBG_proc, "gl841_led_calibration\n");
 
 
-  if (dev->model->gpo_type == GPO_CANONLIDE35)
+  if (dev->model->gpo_type == GPO_CANONLIDE35
+   || dev->model->gpo_type == GPO_CANONLIDE80)
     {
       status = gl841_feed(dev, 280);/*feed to white strip. canon lide 35 only.*/
 
@@ -4856,7 +5039,8 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   DBG (DBG_proc, "gl841_coarse_gain_calibration dpi=%d\n", dpi);
 
-  if (dev->model->gpo_type == GPO_CANONLIDE35)
+  if (dev->model->gpo_type == GPO_CANONLIDE35
+   || dev->model->gpo_type == GPO_CANONLIDE80)
     {
       status = gl841_feed(dev, 280);/*feed to white strip. canon lide 35 only.*/
 
@@ -5181,16 +5365,15 @@ gl841_init (Genesys_Device * dev)
 
   dev->settings.color_filter = 0;
 
-  /* Set default values for registers */
-  gl841_init_registers (dev);
-
   /* ASIC reset */
   RIE (sanei_genesys_write_register (dev, 0x0e, 0x01));
   RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
 
+  /* Set default values for registers */
+  gl841_init_registers (dev);
+
   /* Write initial registers */
-  RIE (gl841_bulk_write_register
-       (dev, dev->reg, GENESYS_GL841_MAX_REGS));
+  RIE (gl841_bulk_write_register (dev, dev->reg, GENESYS_GL841_MAX_REGS));
 
   /* Test ASIC and RAM */
   if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
@@ -5321,7 +5504,8 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   
-  if (s->dev->model->gpo_type == GPO_CANONLIDE35) 
+  if (s->dev->model->gpo_type == GPO_CANONLIDE35
+   || s->dev->model->gpo_type == GPO_CANONLIDE80)
     {
       RIE(sanei_genesys_read_register(s->dev, REG6D, &val));
 

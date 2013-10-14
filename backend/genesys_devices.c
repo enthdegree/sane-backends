@@ -762,7 +762,8 @@ static Genesys_Sensor Sensor[] = {
    10400, /* up to 20504 */
    230,
    230,
-   {0x00, 0x11, 0x00, 0x00},
+   {0x00, 0x05, 0x07, 0x09}, /* in fact ,maps to 0x70-0x73 for GL841 */
+   /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d*/
    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04},
    {0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x29, 0x69, 0x55, 0x00, 0x00, 0x20, 0x41} ,
    {1.0, 1.0, 1.0},
@@ -1054,18 +1055,8 @@ static Genesys_Motor Motor[] = {
    2400,
    1,
    1,
-   {{{
-     3500,
-     1300,
-     60,
-     0.8,
-     },
-    {
-     3500,
-     1400,
-     60,
-     0.8,
-    },},},
+   {{{ 3500, 1300, 60, 0.8, },
+    { 3500, 1400, 60, 0.8, },},},
   },
   {MOTOR_XP200,			/* Strobe XP200 */
    600,
@@ -1297,8 +1288,8 @@ static Genesys_Motor Motor[] = {
    1,	/* power mode count */
    {
      { /* start speed, max end speed, step number */
-       {  9660, 1932, 32, 0.8 }, /* full step */
-       { 18750, 1875, 16, 0.8 }, /* half step */
+       {  9660, 1932, 60, 0.8 }, /* full step  9660 1932 32 */
+       { 18750, 1875, 60, 0.8 }, /* half step 18750 1875 16 */
      },
    },},
 };
@@ -2164,6 +2155,7 @@ static Genesys_Model canon_lide_80_model = {
   DAC_CANONLIDE80,
   GPO_CANONLIDE80,
   MOTOR_CANONLIDE80,
+  GENESYS_FLAG_UNTESTED |
   GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
   GENESYS_FLAG_SKIP_WARMUP | 
   GENESYS_FLAG_OFFSET_CALIBRATION | 

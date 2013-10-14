@@ -424,13 +424,6 @@
 :status :unsupported
 :comment "Philips chip. Backend started, see link"
 
-:model "CanoScan LiDE 80"
-:url "/unsupported/canon-lide-80.html"
-:interface "USB"
-:usbid "0x04a9" "0x2214"
-:status :unsupported
-:comment "GL841 based, to be added to genesys backend"
-
 :model "CanoScan LiDE 90"
 :url "/unsupported/canon-lide-90.html"
 :interface "USB"
@@ -787,13 +780,6 @@
 :usbid "0x03f0" "0x5811"
 :status :unsupported
 :comment "Not supported yet by SANE. See link for details."
-
-:model "ScanJet 2400c"
-:url "/unsupported/hp-scanjet-2400c.html"
-:interface "USB"
-:usbid "0x03f0" "0x0a01"
-:status :unsupported
-:comment "GL646 based, to be added to genesys backend"
 
 :model "Photosmart C3180"
 :url "/unsupported/hp-photosmart-3180.html"

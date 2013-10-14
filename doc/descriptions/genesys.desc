@@ -127,6 +127,11 @@
 :usbid "0x04a9" "0x221c"
 :status :good
 
+:model "CanoScan LiDE 80"
+:interface "USB"
+:usbid "0x04a9" "0x2214"
+:status :unsupported
+
 :model "CanoScan LiDE 100"
 :interface "USB"
 :usbid "0x04a9" "0x1904"

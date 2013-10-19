@@ -392,4 +392,35 @@ sanei_gl841_repark_head (Genesys_Device * dev);
 SANE_Status
 gl841_feed (Genesys_Device * dev, int steps);
 
+SANE_Status
+gl841_init_motor_regs_scan(Genesys_Device * dev,
+		      Genesys_Register_Set * reg,
+		      unsigned int scan_exposure_time,/*pixel*/
+		      float scan_yres,/*dpi, motor resolution*/
+		      int scan_step_type,/*0: full, 1: half, 2: quarter*/
+		      unsigned int scan_lines,/*lines, scan resolution*/
+		      unsigned int scan_dummy,
+		      unsigned int feed_steps,
+		      int scan_power_mode,
+		      unsigned int flags) ;
+
+SANE_Status
+gl841_stop_action (Genesys_Device * dev);
+
+SANE_Status
+gl841_start_action (Genesys_Device * dev);
+
+SANE_Status
+gl841_init_motor_regs(Genesys_Device * dev,
+		      Genesys_Register_Set * reg,
+		      unsigned int feed_steps,/*1/base_ydpi*/
+		      unsigned int action,
+		      unsigned int flags);
+
+	SANE_Status
+gl841_send_slope_table (Genesys_Device * dev, int table_nr,
+			      uint16_t * slope_table, int steps);
+SANE_Status
+gl841_bulk_write_data_gamma (Genesys_Device * dev, uint8_t addr,
+			 uint8_t * data, size_t len);
 #endif

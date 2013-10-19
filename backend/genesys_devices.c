@@ -759,7 +759,7 @@ static Genesys_Sensor Sensor[] = {
    9,
    9,
    0,
-   10400, /* up to 20504 */
+   10400, /* up to 5144, 5390, 10264, 20504, 21762 */
    230,
    230,
    {0x00, 0x05, 0x07, 0x09}, /* in fact ,maps to 0x70-0x73 for GL841 */
@@ -1282,14 +1282,17 @@ static Genesys_Motor Motor[] = {
      },
    },},
   {MOTOR_CANONLIDE80,
-   1200,
+   1200, /* 2400 ???? */
    2400,
    2,	/* max step type */
    1,	/* power mode count */
    {
      { /* start speed, max end speed, step number */
-       {  9660, 1932, 60, 0.8 }, /* full step  9660 1932 32 */
-       { 18750, 1875, 60, 0.8 }, /* half step 18750 1875 16 */
+       /* 5144 = max pixels at 600 dpi */
+       /* 1288=(5144+8)*ydpi(=300)/base_dpi(=1200) , where 5152 is exposure */
+       /* 6440=9660/(1932/1288) */
+       {  6440, 1288, 60, 0.8 }, /* full step  9660 1932 32 values from logs */
+       { 18750, 1875, 60, 0.8 }, /* half step 18750 1875 16 values from logs */
      },
    },},
 };

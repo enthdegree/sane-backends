@@ -1,5 +1,12 @@
+2013-10-19 Stéphane Voltz <stef.dev@free.fr>
+	* doc/descriptions/genesys.desc doc/Descriptions/unsupported.desc:
+	update LiDE 80 and HP2400 information
+	* backend/genesys_devices.c backend/genesys.conf.in backend/genesys.c
+	backend/genesys_low.h backend/genesys_gl841.[ch]: add first element of
+	LiDE 80 support.
+
 2013-10-15 Paul Newall <quandry@ntlworld.com>
-	* configue.in: detection of cups was commented out. Avahi is now used
+	* configure.in: detection of cups was commented out. Avahi is now used
 	for autodetection in kodakaio so the detection of cups is no longer required.
 
 2013-10-14 Paul Newall <quandry@ntlworld.com>

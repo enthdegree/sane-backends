@@ -324,7 +324,7 @@ gl841_set_buffer_address_gamma (Genesys_Device * dev, uint32_t addr)
 }
 
 /* Write bulk data (e.g. gamma) */
-static SANE_Status
+GENESYS_STATIC SANE_Status
 gl841_bulk_write_data_gamma (Genesys_Device * dev, uint8_t addr,
 			 uint8_t * data, size_t len)
 {
@@ -792,20 +792,19 @@ gl841_init_lide80 (Genesys_Device * dev)
   INITREG (0x02, 0x10);
   INITREG (0x03, 0x50);
   INITREG (0x04, 0x02);
-  INITREG (0x05, 0x8c);
+  INITREG (0x05, 0x4c);
   INITREG (0x06, 0x38);
-
+  INITREG (0x07, 0x00);
   INITREG (0x08, 0x00);
   INITREG (0x09, 0x11);
   INITREG (0x0a, 0x00);
 
-  INITREG (0x10, 0x00);
+  INITREG (0x10, 0x40);
   INITREG (0x11, 0x00);
-  INITREG (0x12, 0x00);
+  INITREG (0x12, 0x40);
   INITREG (0x13, 0x00);
-  INITREG (0x14, 0x00);
+  INITREG (0x14, 0x40);
   INITREG (0x15, 0x00);
-
   INITREG (0x16, 0x00);
   INITREG (0x17, 0x01);
   INITREG (0x18, 0x00);
@@ -824,12 +823,11 @@ gl841_init_lide80 (Genesys_Device * dev)
   INITREG (0x25, 0x00);
   INITREG (0x26, 0x00);
   INITREG (0x27, 0x00);
-  INITREG (0x27, 0x00);
 
   INITREG (0x29, 0xff);
 
-  INITREG (0x2c, 0x09);
-  INITREG (0x2d, 0x60);
+  INITREG (0x2c, dev->sensor.optical_res>>8);
+  INITREG (0x2d, dev->sensor.optical_res & 0xff);
   INITREG (0x2e, 0x80);
   INITREG (0x2f, 0x80);
   INITREG (0x30, 0x00);
@@ -856,6 +854,7 @@ gl841_init_lide80 (Genesys_Device * dev)
   INITREG (0x58, 0x29);
   INITREG (0x59, 0x69);
   INITREG (0x5a, 0x55);
+
   INITREG (0x5d, 0x20);
   INITREG (0x5e, 0x41);
   INITREG (0x5f, 0x40);
@@ -870,15 +869,18 @@ gl841_init_lide80 (Genesys_Device * dev)
   INITREG (0x68, 0x40);
   INITREG (0x69, 0x20);
   INITREG (0x6a, 0x20);
-
+  INITREG (0x6c, dev->gpo.value[0]);
+  INITREG (0x6d, dev->gpo.value[1]);
+  INITREG (0x6e, dev->gpo.enable[0]);
+  INITREG (0x6f, dev->gpo.enable[1]);
   INITREG (0x70, 0x00);
   INITREG (0x71, 0x05);
   INITREG (0x72, 0x07);
   INITREG (0x73, 0x09);
-  INITREG (0x74, 0x09);
+  INITREG (0x74, 0x00);
   INITREG (0x75, 0x01);
   INITREG (0x76, 0xff);
-  INITREG (0x77, 0xff);
+  INITREG (0x77, 0x00);
   INITREG (0x78, 0x0f);
   INITREG (0x79, 0xf0);
   INITREG (0x7a, 0xf0);
@@ -895,6 +897,8 @@ gl841_init_lide80 (Genesys_Device * dev)
   INITREG (0x85, 0x00);
   INITREG (0x86, 0x0d);
   INITREG (0x87, 0x02);
+  INITREG (0x88, 0x00);
+  INITREG (0x89, 0x00);
 
   /* specific scanner settings, clock and gpio first */
   sanei_genesys_read_register (dev, REG6B, &val);
@@ -918,14 +922,15 @@ gl841_init_lide80 (Genesys_Device * dev)
   sanei_genesys_read_register (dev, REG6B, &val);
   sanei_genesys_write_register (dev, REG6B, 0x06);
 
-  sanei_genesys_write_0x8c (dev, 0x10, 0x94);
+  /* sanei_genesys_write_0x8c (dev, 0x10, 0xA4); */
   sanei_genesys_write_register (dev, 0x09, 0x10);
 
   /* set up GPIO : no address, so no bulk write, doesn't written directly either ? */
+  /*
   dev->reg[reg_0x6c].value = dev->gpo.value[0];
   dev->reg[reg_0x6d].value = dev->gpo.value[1];
   dev->reg[reg_0x6e].value = dev->gpo.enable[0];
-  dev->reg[reg_0x6f].value = dev->gpo.enable[1];
+  dev->reg[reg_0x6f].value = dev->gpo.enable[1]; */
 
   dev->reg[reg_0x6b].value |= REG6B_GPO18;
   dev->reg[reg_0x6b].value &= ~REG6B_GPO17;
@@ -1104,7 +1109,7 @@ gl841_init_registers (Genesys_Device * dev)
 /* Send slope table for motor movement 
    slope_table in machine byte order
  */
-static SANE_Status
+GENESYS_STATIC SANE_Status
 gl841_send_slope_table (Genesys_Device * dev, int table_nr,
 			      uint16_t * slope_table, int steps)
 {
@@ -1112,6 +1117,7 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
   int start_address;
   SANE_Status status;
   uint8_t *table;
+  char msg[4000];
 /*#ifdef WORDS_BIGENDIAN*/
   int i;
 /*#endif*/
@@ -1139,6 +1145,15 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
 /*#else
   table = (uint8_t*)slope_table;
   #endif*/
+  if (DBG_LEVEL >= DBG_io)
+    {
+      sprintf (msg, "write slope %d (%d)=", table_nr, steps);
+      for (i = 0; i < steps; i++)
+	{
+	  sprintf (msg+strlen(msg), ",%d", slope_table[i]);
+	}
+      DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
+    }
 
   status =
     sanei_genesys_set_buffer_address (dev, start_address + table_nr * 0x200);
@@ -1544,7 +1559,46 @@ gl841_init_motor_regs_off(Genesys_Register_Set * reg,
     return SANE_STATUS_GOOD;	
 }
 
-static SANE_Status
+/** @brief write motor table frequency
+ * Write motor frequency data table
+ * @param dev device to set up motor
+ * @param ydpi motor target resolution
+ * @return SANE_STATUS_GOOD on success
+ */
+static SANE_Status gl841_write_freq(Genesys_Device *dev, unsigned int ydpi)
+{
+SANE_Status status;
+/**< fast table */
+uint8_t table300[]= { 0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0x36,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xb6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0xf6,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76,0x18,0x76 };
+uint8_t *table;
+
+  DBGSTART;
+  if(dev->model->motor_type == MOTOR_CANONLIDE80)
+    {
+      switch(ydpi)
+        {
+          case 300:
+            table=table300;
+          break;
+        default:
+          table=table300;
+        }
+      RIE(sanei_genesys_write_register(dev, 0x66, 0x00));
+      RIE(sanei_genesys_write_register(dev, 0x5b, 0x0c));
+      RIE(sanei_genesys_write_register(dev, 0x5c, 0x00));
+      RIE(gl841_bulk_write_data_gamma (dev, 0x28, table, 128));
+      RIE(sanei_genesys_write_register(dev, 0x5b, 0x00));
+      RIE(sanei_genesys_write_register(dev, 0x5c, 0x00));
+    }
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
+
+
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl841_init_motor_regs(Genesys_Device * dev,
 		      Genesys_Register_Set * reg,
 		      unsigned int feed_steps,/*1/base_ydpi*/
@@ -1574,6 +1628,7 @@ gl841_init_motor_regs(Genesys_Device * dev,
     gl841_send_slope_table (dev, 3, fast_slope_table, 256);
     gl841_send_slope_table (dev, 4, fast_slope_table, 256);
 
+    gl841_write_freq(dev, dev->motor.base_ydpi / 4);
 
     if (action == MOTOR_ACTION_FEED || action == MOTOR_ACTION_GO_HOME) {
 /* FEED and GO_HOME can use fastest slopes available */
@@ -1710,7 +1765,10 @@ HOME_FREE: 3
     return SANE_STATUS_GOOD;	
 }
 
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl841_init_motor_regs_scan(Genesys_Device * dev,
 		      Genesys_Register_Set * reg,
 		      unsigned int scan_exposure_time,/*pixel*/
@@ -1774,6 +1832,8 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
     gl841_send_slope_table (dev, 3, slow_slope_table, 256);
     gl841_send_slope_table (dev, 4, slow_slope_table, 256);
 
+    /* motor frequency table */
+    gl841_write_freq(dev, scan_yres);
 
 /*
   we calculate both tables for SCAN. the fast slope step count depends on
@@ -3236,13 +3296,19 @@ gl841_set_powersaving (Genesys_Device * dev,
   return status;
 }
 
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl841_start_action (Genesys_Device * dev)
 {
   return sanei_genesys_write_register (dev, 0x0f, 0x01);
 }
 
-static SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 gl841_stop_action (Genesys_Device * dev)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
@@ -3822,9 +3888,9 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
   if (dev->model->gpo_type == GPO_CANONLIDE80)
     {
-      RIE (sanei_genesys_read_register (dev, REG6C, &val));
-      val = dev->gpo.value[0];
-      RIE (sanei_genesys_write_register (dev, REG6C, val));
+      RIE (sanei_genesys_read_register (dev, REG6B, &val));
+      val = REG6B_GPO18 | REG6B_GPO17;
+      RIE (sanei_genesys_write_register (dev, REG6B, val));
     }
   gl841_save_power(dev, SANE_FALSE);
 

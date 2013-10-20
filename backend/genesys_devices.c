@@ -213,10 +213,14 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00, 0x00, 0x00}
    },
   {DAC_CANONLIDE80,
-     {0x74, 0x80, 0x00, 0x00}
+     /* reg0: control 74 data, 70 no data
+      * reg3: offset
+      * reg6: gain
+      * reg0 , reg3, reg6 */
+     {0x70, 0x16, 0x60, 0x00}
    , {0x00, 0x00, 0x00}
    , {0x00, 0x00, 0x00}
-   , {0x16, 0x16, 0x16}
+   , {0x00, 0x00, 0x00}
    , {0x00, 0x00, 0x00}
   }
 };
@@ -1282,8 +1286,8 @@ static Genesys_Motor Motor[] = {
      },
    },},
   {MOTOR_CANONLIDE80,
-   1200, /* 2400 ???? */
-   2400,
+   2400, /* 2400 ???? */
+   4800,
    2,	/* max step type */
    1,	/* power mode count */
    {

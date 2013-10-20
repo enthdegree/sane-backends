@@ -1188,6 +1188,74 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
   DBG (DBG_proc, "gl841_send_slope_table: completed\n");
   return status;
 }
+
+static SANE_Status
+gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+
+  DBGSTART;
+
+  if (set == AFE_INIT)
+    {
+      DBG (DBG_proc, "%s(): setting DAC %u\n", __FUNCTION__,
+	   dev->model->dac_type);
+
+      /* sets to default values */
+      sanei_genesys_init_fe (dev);
+
+      /* write them to analog frontend */
+      status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "%s: writing reg 0x00 failed: %s\n", __FUNCTION__,
+	       sane_strstatus (status));
+	  return status;
+	}
+      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.reg[1]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "%s: writing reg 0x03 failed: %s\n", __FUNCTION__,
+	       sane_strstatus (status));
+	  return status;
+	}
+      status = sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.reg[2]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "%s: writing reg 0x06 failed: %s\n", __FUNCTION__,
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
+
+  if (set == AFE_SET)
+    {
+      status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "%s: writing reg 0x00 failed: %s\n", __FUNCTION__,
+	       sane_strstatus (status));
+	  return status;
+	}
+      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.offset[0]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "%s: writing offset failed: %s\n", __FUNCTION__,
+	       sane_strstatus (status));
+	  return status;
+	}
+      status = sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.gain[0]);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "%s: writing gain failed: %s\n", __FUNCTION__,
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
+
+  return status;
+  DBGCOMPLETED;
+}
  
 /* Set values of Analog Device type frontend */
 static SANE_Status
@@ -1195,6 +1263,13 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int i;
+
+  /* special case for LiDE 80 analog frontend */
+  if(dev->model->dac_type==DAC_CANONLIDE80)
+    {
+      return gl841_set_lide80_fe(dev, set);
+    }
+
   DBG (DBG_proc, "gl841_set_ad_fe(): start\n");
   if (set == AFE_INIT)
     {

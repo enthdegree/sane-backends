@@ -760,8 +760,8 @@ static Genesys_Sensor Sensor[] = {
   /* CANOLIDE80 */
   {CIS_CANONLIDE80, 
    1200, /* real hardware limit is 2400 */
-   9,
-   9,
+   9*2,
+   9*2,
    0,
    10400, /* up to 5144, 5390, 10264, 20504, 21762 */
    230,
@@ -1287,7 +1287,7 @@ static Genesys_Motor Motor[] = {
    },},
   {MOTOR_CANONLIDE80,
    2400, /* 2400 ???? */
-   4800,
+   7200,
    2,	/* max step type */
    1,	/* power mode count */
    {
@@ -2127,12 +2127,12 @@ static Genesys_Model canon_lide_80_model = {
   GENESYS_GL841,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {      1200, 600, 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 300, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
+  SANE_FIX (6.5),		/* Start of scan area in mm  (x) */
   SANE_FIX (7.9),		/* Start of scan area in mm (y) */
   SANE_FIX (218.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */

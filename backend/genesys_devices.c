@@ -763,7 +763,7 @@ static Genesys_Sensor Sensor[] = {
    9*2,
    9*2,
    0,
-   10400, /* up to 5144, 5390, 10264, 20504, 21762 */
+   10304, /* up to 5144, 5390, 10264, 20504, 21762 : capped by max exposure from logs */
    230,
    230,
    {0x00, 0x05, 0x07, 0x09}, /* in fact ,maps to 0x70-0x73 for GL841 */

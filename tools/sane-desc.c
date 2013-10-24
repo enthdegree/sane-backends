@@ -3827,7 +3827,7 @@ print_hwdb (void)
 
       for(j = 0; j < 4; j++) {
         vendor_id[j] = toupper(vendor_id[j]);
-        product_id[j] = toupper(vendor_id[j]);
+        product_id[j] = toupper(product_id[j]);
       }
 
       printf ("usb:v%sp%s*\n libsane_matched=yes\n\n",

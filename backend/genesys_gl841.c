@@ -1237,14 +1237,14 @@ gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
 	       sane_strstatus (status));
 	  return status;
 	}
-      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.offset[0]);
+      status = sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.offset[0]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "%s: writing offset failed: %s\n", __FUNCTION__,
 	       sane_strstatus (status));
 	  return status;
 	}
-      status = sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.gain[0]);
+      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.gain[0]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error, "%s: writing gain failed: %s\n", __FUNCTION__,
@@ -4551,7 +4551,7 @@ gl841_send_gamma_table (Genesys_Device * dev)
 
 -needs working coarse/gain
 */
-static SANE_Status
+GENESYS_STATIC SANE_Status
 gl841_led_calibration (Genesys_Device * dev)
 {
   int num_pixels;
@@ -4573,18 +4573,18 @@ gl841_led_calibration (Genesys_Device * dev)
   uint16_t min_exposure=500;
   uint16_t max_exposure;
 
-  DBG (DBG_proc, "gl841_led_calibration\n");
+  DBGSTART;
 
-
+  /* feed to white strip. canon lide 35 only. */
   if (dev->model->gpo_type == GPO_CANONLIDE35
    || dev->model->gpo_type == GPO_CANONLIDE80)
     {
-      status = gl841_feed(dev, 280);/*feed to white strip. canon lide 35 only.*/
+      status = gl841_feed(dev, 280);
 
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "gl841_led_calibration: failed to feed: %s\n",
+	       "%s: failed to feed: %s\n", __FUNCTION__,
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -4614,7 +4614,7 @@ gl841_led_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl841_led_calibration: failed to setup scan: %s\n",
+	   "%s: failed to setup scan: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
@@ -4664,8 +4664,7 @@ gl841_led_calibration (Genesys_Device * dev)
       RIE (gl841_bulk_write_register
 	   (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
-      DBG (DBG_info,
-	   "gl841_led_calibration: starting first line reading\n");
+      DBG (DBG_info, "%s: starting line reading\n", __FUNCTION__);
       RIE (gl841_begin_scan (dev, dev->calib_reg, SANE_TRUE));
       RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
       
@@ -4678,8 +4677,7 @@ gl841_led_calibration (Genesys_Device * dev)
 					num_pixels, 1);
       }
       
-      acceptable = SANE_TRUE;
-      
+     /* compute average */
       for (j = 0; j < channels; j++)
       {
 	  avg[j] = 0;
@@ -4699,18 +4697,28 @@ gl841_led_calibration (Genesys_Device * dev)
 	  avg[j] /= num_pixels;
       }
 
-      DBG(DBG_info,"gl841_led_calibration: average: "
-	  "%d,%d,%d\n",
-	  avg[0],avg[1],avg[2]);
+      DBG(DBG_info,"%s: average: %d,%d,%d\n", __FUNCTION__, avg[0], avg[1], avg[2]);
 
       acceptable = SANE_TRUE;
-      
+
+     /* exposure is acceptable if each color is in the %5 range
+      * of other color channels */
       if (avg[0] < avg[1] * 0.95 || avg[1] < avg[0] * 0.95 ||
 	  avg[0] < avg[2] * 0.95 || avg[2] < avg[0] * 0.95 ||
 	  avg[1] < avg[2] * 0.95 || avg[2] < avg[1] * 0.95)
+        {
 	  acceptable = SANE_FALSE;
+        }
+
+      /* led exposure is not acceptable if white level is too low
+       * ~80 hardcoded value for white level */
+      if(avg[0]<20000 || avg[1]<20000 || avg[2]<20000)
+        {
+	  acceptable = SANE_FALSE;
+        }
       
-      if (!acceptable) {
+      if (!acceptable)
+        {
 	  avga = (avg[0]+avg[1]+avg[2])/3;
 	  expr = (expr * avga) / avg[0];
 	  expg = (expg * avga) / avg[1];
@@ -4743,38 +4751,140 @@ gl841_led_calibration (Genesys_Device * dev)
 
   } while (!acceptable && turn < 100);
       
-  DBG(DBG_info,"gl841_led_calibration: acceptable exposure: %d,%d,%d\n",
-      expr,expg,expb);
+  DBG(DBG_info,"%s: acceptable exposure: %d,%d,%d\n", __FUNCTION__, expr,expg,expb);
 
   /* cleanup before return */
   free (line);
 
   gl841_slow_back_home(dev, SANE_TRUE);
 
-  DBG (DBG_proc, "gl841_led_calibration: completed\n");
+  DBGCOMPLETED;
   return status;
 }
 
 /** @brief calibration for AD frontend devices
- * experiments show that modifying offset is of little (if no) influence
- * so we just return
- * CHRIS: This was added from gl646.c as again offset seems to make no
- * difference
- *
- * TODO PLUSTEK_3600 Michael Rickmann:
- * offset calibration makes a lot of a difference but currently
- * makes everything to dark
+ * offset calibration assumes that the scanning head is on a black area
+ * For LiDE80 analog frontend
+ * 0x0003 : is gain and belongs to [0..63]
+ * 0x0006 : is offset
+ * We scan a line with no gain until average offset reaches the target
  */
 static SANE_Status
 ad_fe_offset_calibration (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
+  int num_pixels;
+  int total_size;
+  uint8_t *line;
+  int i;
+  int average;
+  int turn;
+  char fn[20];
+  int top;
+  int bottom;
+  int target;
 
-  DBG (DBG_proc, "ad_fe_offset_calibration: start\n");
-  DBG (DBG_info, "ad_fe_offset_calibration: offset=(%d,%d,%d)\n",
-       dev->frontend.offset[0], dev->frontend.offset[1],
-       dev->frontend.offset[2]);
-  DBG (DBG_proc, "ad_fe_offset_calibration: end\n");
+  DBGSTART;
+
+  /* don't impact 3600 behavior since we can't test it */
+  if (dev->model->ccd_type == CCD_PLUSTEK_3600)
+    {
+      DBGCOMPLETED;
+      return status;
+    }
+
+  status = gl841_init_scan_regs (dev,
+				 dev->calib_reg,
+				 dev->settings.xres,
+				 dev->settings.yres,
+				 0,
+				 0,
+				 (dev->sensor.sensor_pixels*dev->settings.xres) / dev->sensor.optical_res,
+				 1,
+				 8,
+				 3,
+				 dev->settings.color_filter,
+				 SCAN_FLAG_DISABLE_SHADING |
+				 SCAN_FLAG_DISABLE_GAMMA |
+				 SCAN_FLAG_SINGLE_LINE |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
+				 SCAN_FLAG_USE_OPTICAL_RES |
+				 SCAN_FLAG_DISABLE_LAMP
+				 );
+
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_offset_calibration: failed to setup scan: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  num_pixels = dev->current_setup.pixels;
+  total_size = num_pixels * 3 * 2 * 1;
+
+  line = malloc (total_size);
+  if (line==NULL)
+    {
+      DBGCOMPLETED;
+      return SANE_STATUS_NO_MEM;
+    }
+
+  dev->frontend.gain[0] = 0x00;
+  dev->frontend.gain[1] = 0x00;
+  dev->frontend.gain[2] = 0x00;
+
+  /* loop on scan until target offset is reached */
+  turn=0;
+  target=24;
+  bottom=0;
+  top=255;
+  do {
+      /* set up offset mid range */
+      dev->frontend.offset[0] = (top+bottom)/2;
+      dev->frontend.offset[1] = (top+bottom)/2;
+      dev->frontend.offset[2] = (top+bottom)/2;
+
+      /* scan line */
+      DBG (DBG_info, "%s: starting line reading\n",__FUNCTION__);
+      gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS);
+      gl841_set_fe(dev, AFE_SET);
+      gl841_begin_scan (dev, dev->calib_reg, SANE_TRUE);
+      sanei_genesys_read_data_from_scanner (dev, line, total_size);
+      gl841_stop_action (dev);
+      if (DBG_LEVEL >= DBG_data) {
+	  snprintf(fn,20,"offset_%02d.pnm",turn);
+	  sanei_genesys_write_pnm_file (fn, line, 8, 3, num_pixels, 1);
+      }
+
+      /* search for minimal value */
+      average=0;
+      for(i=0;i<total_size;i++)
+        {
+          average+=line[i];
+        }
+      average/=total_size;
+      DBG (DBG_data, "%s: average=%d\n", __FUNCTION__, average);
+
+      /* if min value is above target, the current value becomes the new top
+       * else it is the new bottom */
+      if(average>target)
+        {
+          top=(top+bottom)/2;
+        }
+      else
+        {
+          bottom=(top+bottom)/2;
+        }
+      turn++;
+  } while ((top-bottom)>1 && turn < 100);
+
+  free(line);
+  DBG (DBG_info, "%s: offset=(%d,%d,%d)\n", __FUNCTION__,
+                                            dev->frontend.offset[0],
+                                            dev->frontend.offset[1],
+                                            dev->frontend.offset[2]);
+  DBGCOMPLETED;
   return status;
 }
 
@@ -4785,7 +4895,7 @@ ad_fe_offset_calibration (Genesys_Device * dev)
 
 this function expects the slider to be where?
 */
-static SANE_Status
+GENESYS_STATIC SANE_Status
 gl841_offset_calibration (Genesys_Device * dev)
 {
   int num_pixels;
@@ -4803,13 +4913,13 @@ gl841_offset_calibration (Genesys_Device * dev)
   SANE_Bool acceptable = SANE_FALSE;
   int mintgt = 0x400;
 
+  DBG (DBG_proc, "gl841_offset_calibration\n");
+
   /* Analog Device fronted have a different calibration */
-  if (dev->model->dac_type == DAC_PLUSTEK_3600)
+  if ((dev->reg[reg_0x04].value & REG04_FESET) == 0x02)
     {
       return ad_fe_offset_calibration (dev);
     }
-
-  DBG (DBG_proc, "gl841_offset_calibration\n");
 
   /* offset calibration is always done in color mode */
   channels = 3;
@@ -5037,7 +5147,7 @@ gl841_offset_calibration (Genesys_Device * dev)
       RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
       
       if (DBG_LEVEL >= DBG_data) {
-	  snprintf(fn,20,"offset2_%d.pnm",turn);
+	  snprintf(fn,20,"offset2_%02d.pnm",turn);
 	  sanei_genesys_write_pnm_file (fn,
 					second_line,
 					16,
@@ -5202,7 +5312,7 @@ gl841_offset_calibration (Genesys_Device * dev)
   a reasonable shape. the fine calibration of the upper and lower bounds will 
   be done with shading.
  */
-static SANE_Status
+GENESYS_STATIC SANE_Status
 gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 {
   int num_pixels;
@@ -5213,13 +5323,15 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   int max[3];
   float gain[3];
   int val;
+  int lines=1;
 
   DBG (DBG_proc, "gl841_coarse_gain_calibration dpi=%d\n", dpi);
 
+  /*feed to white strip. canon lide 35 only.*/
   if (dev->model->gpo_type == GPO_CANONLIDE35
    || dev->model->gpo_type == GPO_CANONLIDE80)
     {
-      status = gl841_feed(dev, 280);/*feed to white strip. canon lide 35 only.*/
+      status = gl841_feed(dev, 280);
 
       if (status != SANE_STATUS_GOOD)
 	{
@@ -5240,7 +5352,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 				 0,
 				 0,
 				 (dev->sensor.sensor_pixels*dev->settings.xres) / dev->sensor.optical_res,
-				 1,
+				 lines,
 				 16,
 				 channels,
 				 dev->settings.color_filter,
@@ -5259,12 +5371,11 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       return status;
     }
 
-  RIE (gl841_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
+  RIE (gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
   num_pixels = dev->current_setup.pixels;
 
-  total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
+  total_size = num_pixels * channels * 2 * lines;	/* colors * bytes_per_color * scan lines */
 
   line = malloc (total_size);
   if (!line)
@@ -5274,8 +5385,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("coarse.pnm", line, 16,
-				  channels, num_pixels, 1);
+    sanei_genesys_write_pnm_file ("coarse.pnm", line, 16, channels, num_pixels, lines);
 
   /* average high level for each channel and compute gain
      to reach the target code 
@@ -5302,7 +5412,8 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
       if (dev->model->dac_type == DAC_CANONLIDE35 ||
 	  dev->model->dac_type == DAC_WOLFSON_XP300 ||
-	  dev->model->dac_type == DAC_WOLFSON_DSM600) {
+	  dev->model->dac_type == DAC_WOLFSON_DSM600)
+        {
 	  gain[j] *= 0.69;/*seems we don't get the real maximum. empirically derived*/
 	  if (283 - 208/gain[j] > 255) 
 	      dev->frontend.gain[j] = 255;
@@ -5310,7 +5421,11 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	      dev->frontend.gain[j] = 0;
 	  else
 	      dev->frontend.gain[j] = 283 - 208/gain[j];
-      }
+        }
+      else if (dev->model->dac_type == DAC_CANONLIDE80)
+        {
+	      dev->frontend.gain[j] = gain[j]*8;
+        }
 
       DBG (DBG_proc,
 	   "gl841_coarse_gain_calibration: channel %d, max=%d, gain = %f, setting:%d\n",
@@ -5354,6 +5469,10 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   }
   
   free (line);
+  DBG (DBG_info, "%s: gain=(%d,%d,%d)\n", __FUNCTION__,
+                                            dev->frontend.gain[0],
+                                            dev->frontend.gain[1],
+                                            dev->frontend.gain[2]);
 
   RIE (gl841_stop_action (dev));
 

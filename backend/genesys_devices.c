@@ -767,8 +767,9 @@ static Genesys_Sensor Sensor[] = {
    230,
    230,
    {0x00, 0x05, 0x07, 0x09}, /* in fact ,maps to 0x70-0x73 for GL841 */
+   /* [0x10-0x15] values are initial led exposure values */
    /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d*/
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04},
+   {0x0c, 0x00, 0x08, 0x00, 0x07, 0x00, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04},
    {0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x29, 0x69, 0x55, 0x00, 0x00, 0x20, 0x41} ,
    {1.0, 1.0, 1.0},
    {NULL, NULL, NULL}}
@@ -2162,7 +2163,6 @@ static Genesys_Model canon_lide_80_model = {
   DAC_CANONLIDE80,
   GPO_CANONLIDE80,
   MOTOR_CANONLIDE80,
-  GENESYS_FLAG_UNTESTED |
   GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
   GENESYS_FLAG_SKIP_WARMUP | 
   GENESYS_FLAG_OFFSET_CALIBRATION | 
@@ -2173,7 +2173,7 @@ static Genesys_Model canon_lide_80_model = {
   GENESYS_HAS_FILE_SW |
   GENESYS_HAS_EMAIL_SW |
   GENESYS_HAS_COPY_SW,
-  280,
+  200,
   400
 };
 

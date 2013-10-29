@@ -364,11 +364,13 @@ determine_scanner_serial (const char *hostname, const char * mac_address, char *
       /* if this is a FQDN, not an ip-address, remove domain part of the name */
       if ((dot = strchr (copy, '.')) != NULL)
         {
-	*dot = '\0';
+          *dot = '\0';
         }
       else
-        strcpy(copy, mac_address);
-	break;
+        {
+          strcpy(copy, mac_address);
+          break;
+        }
     }
   strcpy( serial, copy );
   return serial;

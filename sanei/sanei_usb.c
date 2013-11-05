@@ -460,8 +460,6 @@ sanei_libusb_strerror (int errcode)
       default:
 	return "Unknown libusb-1.0 error code";
     }
-
-  return "Unknown libusb-1.0 error code";
 }
 #endif /* HAVE_LIBUSB_1_0 */
 

@@ -3197,14 +3197,6 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
       return status;
     }
 
-  if (status != SANE_STATUS_GOOD)
-    {
-      free(image);
-      free(data);
-      DBG (DBG_error, "find_origin: failed to wait for data\n");
-      return status;
-    }
-
   if (DBG_LEVEL > DBG_io2)
     {
       write_gray_data (data, "find_origin.pnm", width, height);

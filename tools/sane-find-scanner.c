@@ -757,8 +757,6 @@ sfs_libusb_strerror (int errcode)
       default:
 	return "Unknown libusb-1.0 error code";
     }
-
-  return "Unknown libusb-1.0 error code";
 }
 
 static char *

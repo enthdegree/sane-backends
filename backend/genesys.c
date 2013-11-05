@@ -5978,7 +5978,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
   Genesys_Device *dev = 0;
   SANE_Int dn, vendor, product;
   SANE_Status status;
-  int i;
+  unsigned int i;
 
 
   DBG (DBG_proc, "attach: start: devp %s NULL, may_wait = %d\n",

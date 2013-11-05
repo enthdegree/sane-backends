@@ -3504,3 +3504,6 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x04a9, 0x190a, &canon_lide_210_model},
   {0, 0, NULL}
 };
+
+#define MAX_SCANNERS (sizeof(genesys_usb_device_list) / \
+        sizeof(genesys_usb_device_list[0]))

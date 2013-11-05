@@ -316,7 +316,6 @@ typedef enum Genesys_Color_Order
 Genesys_Color_Order;
 
 
-#define MAX_SCANNERS 50
 #define MAX_RESOLUTIONS 13
 #define MAX_DPI 4
 

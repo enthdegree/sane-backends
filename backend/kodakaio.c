@@ -3152,13 +3152,13 @@ sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action action,
 		    void *value, SANE_Int *info)
 {
 	KodakAio_Scanner *s = (KodakAio_Scanner *) handle;
-	DBG(2, "%s: action = %x, option = %d %s\n", __func__, action, option, s->opt[option].name);
-
 	if (option < 0 || option >= NUM_OPTIONS)
 	{
-		DBG(1, "%s: option num = %d (%s) out of range\n", __func__, option, s->opt[option].name);
+		DBG(1, "%s: option num = %d out of range (0..%d)\n", __func__, option, NUM_OPTIONS - 1);
 		return SANE_STATUS_INVAL;
 	}
+
+	DBG(2, "%s: action = %x, option = %d %s\n", __func__, action, option, s->opt[option].name);
 
 	if (info != NULL)
 		*info = 0;

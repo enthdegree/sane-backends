@@ -633,7 +633,7 @@ gl846_set_adi_fe (Genesys_Device * dev, uint8_t set)
 
   /* wait for FE to be ready */
   status = sanei_genesys_get_status (dev, &val8);
-  while (val8 & REG41_FEBUSY);
+  while (val8 & REG41_FEBUSY)
     {
       usleep (10000);
       status = sanei_genesys_get_status (dev, &val8);

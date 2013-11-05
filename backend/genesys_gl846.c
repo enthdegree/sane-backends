@@ -3573,24 +3573,10 @@ gl846_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       max[j] = 0;
       for (i = pixels/4; i < (pixels*3/4); i++)
 	{
-          if(bpp==16)
-            {
-	  if (dev->model->is_cis)
-	    val =
-	      line[i * 2 + j * 2 * pixels + 1] * 256 +
-	      line[i * 2 + j * 2 * pixels];
-	  else
-	    val =
-	      line[i * 2 * channels + 2 * j + 1] * 256 +
-	      line[i * 2 * channels + 2 * j];
-            }
-          else
-            {
 	  if (dev->model->is_cis)
 	    val = line[i + j * pixels];
 	  else
 	    val = line[i * channels + j];
-            }
 
 	    max[j] += val;
 	}
@@ -3618,12 +3604,6 @@ gl846_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       if (dev->frontend.gain[0] > dev->frontend.gain[2])
 	dev->frontend.gain[0] = dev->frontend.gain[2];
       dev->frontend.gain[2] = dev->frontend.gain[1] = dev->frontend.gain[0];
-    }
-
-  if (channels == 1)
-    {
-      dev->frontend.gain[0] = dev->frontend.gain[1];
-      dev->frontend.gain[2] = dev->frontend.gain[1];
     }
 
   free (line);

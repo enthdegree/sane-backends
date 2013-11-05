@@ -130,11 +130,11 @@ static void
 u32tohex (uint32_t x, char *str)
 {
   uint8_t uint8[4];
-   uint8[0]= (uint8_t) x >> 24;
-   uint8[1] = (uint8_t)x >> 16;
-   uint8[2] = (uint8_t)x >> 8;
-   uint8[3] = (uint8_t)x ;
-   u8tohex(str, uint8, 4);
+  uint8[0] = (uint8_t)(x >> 24);
+  uint8[1] = (uint8_t)(x >> 16);
+  uint8[2] = (uint8_t)(x >> 8);
+  uint8[3] = (uint8_t)x ;
+  u8tohex(str, uint8, 4);
 }
 
 static void

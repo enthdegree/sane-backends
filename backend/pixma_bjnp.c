@@ -284,7 +284,8 @@ parse_IEEE1284_to_model (char *scanner_id, char *model)
   char s[BJNP_IEEE1284_MAX];
   char *tok;
 
-  strcpy (s, scanner_id);
+  strncpy (s, scanner_id, BJNP_IEEE1284_MAX);
+  s[BJNP_IEEE1284_MAX - 1] = '\0';
   model[0] = '\0';
 
   tok = strtok (s, ";");
@@ -441,7 +442,8 @@ split_uri (const char *devname, char *method, char *host, char *port,
   char next;
   int i;
 
-  strcpy (copy, devname);
+  strncpy (copy, devname, 1024);
+  copy[1023] = '\0';
   start = copy;
 
 /*

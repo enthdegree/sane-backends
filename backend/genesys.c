@@ -6062,7 +6062,10 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 
   dev->file_name = strdup (devname);
   if (!dev->file_name)
-    return SANE_STATUS_NO_MEM;
+    {
+      free(dev);
+      return SANE_STATUS_NO_MEM;
+    }
 
   dev->model = genesys_usb_device_list[i].model;
   dev->vendorId = genesys_usb_device_list[i].vendor;

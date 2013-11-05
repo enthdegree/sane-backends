@@ -2583,13 +2583,14 @@ gl846_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
           ptr+=4;
         }
 
-      RIE (sanei_genesys_read_register (dev, 0xd0+i, &val));
+      RIEF (sanei_genesys_read_register (dev, 0xd0+i, &val), buffer);
       addr = val * 8192 + 0x10000000;
       status = sanei_genesys_write_ahb (dev->dn, dev->usb_mode, addr, pixels, buffer);
       if (status != SANE_STATUS_GOOD)
         {
           DBG (DBG_error, "gl846_send_shading_data; write to AHB failed (%s)\n",
 	      sane_strstatus (status));
+          free(buffer);
           return status;
         }
     }

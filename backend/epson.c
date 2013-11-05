@@ -818,6 +818,12 @@ typedef struct
 
 } EpsonIdentRec, *EpsonIdent;
 
+typedef union
+{
+  EpsonHdrRec hdr;
+  EpsonIdentRec ident;
+} EpsonHdrUnionRec, *EpsonHdrUnion;
+
 
 typedef struct
 {
@@ -843,7 +849,7 @@ typedef struct
  *
  */
 
-static EpsonHdr command (Epson_Scanner * s, u_char * cmd, size_t cmd_size,
+static EpsonHdrUnion command (Epson_Scanner * s, u_char * cmd, size_t cmd_size,
                          SANE_Status * status);
 static SANE_Status get_identity_information (SANE_Handle handle);
 static SANE_Status get_identity2_information (SANE_Handle handle);
@@ -1844,20 +1850,23 @@ static Epson_Device *first_dev = NULL;  /* first EPSON scanner in list */
 static Epson_Scanner *first_handle = NULL;
 
 
-static EpsonHdr
+static EpsonHdrUnion
 command (Epson_Scanner * s, u_char * cmd, size_t cmd_size,
          SANE_Status * status)
 {
+  EpsonHdrUnion hdrunion;
   EpsonHdr head;
   u_char *buf;
   int count;
 
-  if (NULL == (head = walloc (EpsonHdrRec)))
+  if (NULL == (hdrunion = walloc (EpsonHdrUnionRec)))
   {
     DBG (1, "out of memory (line %d)\n", __LINE__);
     *status = SANE_STATUS_NO_MEM;
-    return (EpsonHdr) 0;
+    return (EpsonHdrUnion) 0;
   }
+
+  head = &(hdrunion->hdr);
 
   send (s, cmd, cmd_size, status);
 
@@ -1869,7 +1878,7 @@ command (Epson_Scanner * s, u_char * cmd, size_t cmd_size,
     *status = SANE_STATUS_GOOD;
     send (s, cmd, cmd_size, status);
     if (SANE_STATUS_GOOD != *status)
-      return (EpsonHdr) 0;
+      return (EpsonHdrUnion) 0;
   }
 
   buf = (u_char *) head;
@@ -1892,7 +1901,7 @@ command (Epson_Scanner * s, u_char * cmd, size_t cmd_size,
   }
 
   if (SANE_STATUS_GOOD != *status)
-    return (EpsonHdr) 0;
+    return (EpsonHdrUnion) 0;
 
   DBG (4, "code   %02x\n", (int) head->code);
 
@@ -1921,25 +1930,28 @@ command (Epson_Scanner * s, u_char * cmd, size_t cmd_size,
     }
 
     if (SANE_STATUS_GOOD != *status)
-      return (EpsonHdr) 0;
+      return (EpsonHdrUnion) 0;
 
     DBG (4, "status %02x\n", (int) head->status);
 
     count = head->count2 * 255 + head->count1;
     DBG (4, "count  %d\n", count);
 
-    if (NULL == (head = realloc (head, sizeof (EpsonHdrRec) + count)))
+    if (NULL == (hdrunion = realloc (hdrunion,
+            sizeof (EpsonHdrUnionRec) + count)))
     {
       DBG (1, "out of memory (line %d)\n", __LINE__);
       *status = SANE_STATUS_NO_MEM;
-      return (EpsonHdr) 0;
+      return (EpsonHdrUnion) 0;
     }
+
+    head = &(hdrunion->hdr);
 
     buf = head->buf;
     receive (s, buf, count, status);
 
     if (SANE_STATUS_GOOD != *status)
-      return (EpsonHdr) 0;
+      return (EpsonHdrUnion) 0;
 
     break;
 
@@ -1953,7 +1965,7 @@ command (Epson_Scanner * s, u_char * cmd, size_t cmd_size,
     break;
   }
 
-  return head;
+  return hdrunion;
 }
 
 

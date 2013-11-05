@@ -6631,7 +6631,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 		  first_dev = dev->next;
 		  num_devices--;
 		  free (dev);
-	          dev = prev->next;
+	          dev = first_dev;
 		}
 	    }
 	  /* case 2 : removed device is not first_dev */

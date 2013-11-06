@@ -1995,7 +1995,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* TODO add scan_mode to the API */
   scan_mode= dev->settings.scan_mode;
   dev->settings.scan_mode=SCAN_MODE_LINEART;
-  gl847_init_scan_regs (dev,
+  status = gl847_init_scan_regs (dev,
 			local_reg,
 			resolution,
 			resolution,
@@ -2009,6 +2009,15 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+           "gl847_slow_back_home: failed to set up registers: %s\n",
+           sane_strstatus (status));
+      DBGCOMPLETED;
+      return status;
+    }
+
   dev->settings.scan_mode=scan_mode;
 
   /* clear scan and feed count */
@@ -2276,7 +2285,7 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
   memcpy (local_reg, dev->reg, GENESYS_GL847_MAX_REGS * sizeof (Genesys_Register_Set));
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
-  gl847_init_scan_regs (dev,
+  status = gl847_init_scan_regs (dev,
 			local_reg,
 			resolution,
 			resolution,
@@ -2291,6 +2300,14 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
 			SCAN_FLAG_DISABLE_GAMMA |
                         SCAN_FLAG_FEEDING |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+           "gl847_feed: failed to set up registers: %s\n",
+           sane_strstatus (status));
+      DBGCOMPLETED;
+      return status;
+    }
 
   /* set exposure to zero */
   sanei_genesys_set_triple(local_reg,REG_EXPR,0);

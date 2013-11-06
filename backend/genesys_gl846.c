@@ -1975,7 +1975,7 @@ gl846_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* TODO add scan_mode to the API */
   scan_mode= dev->settings.scan_mode;
   dev->settings.scan_mode=SCAN_MODE_LINEART;
-  gl846_init_scan_regs (dev,
+  status = gl846_init_scan_regs (dev,
 			local_reg,
 			resolution,
 			resolution,
@@ -1989,6 +1989,14 @@ gl846_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			SCAN_FLAG_DISABLE_SHADING |
 			SCAN_FLAG_DISABLE_GAMMA |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+           "gl846_slow_back_home: failed to set up registers: %s\n",
+           sane_strstatus (status));
+      DBGCOMPLETED;
+      return status;
+    }
   dev->settings.scan_mode=scan_mode;
 
   /* clear scan and feed count */
@@ -2255,7 +2263,7 @@ gl846_feed (Genesys_Device * dev, unsigned int steps)
   memcpy (local_reg, dev->reg, GENESYS_GL846_MAX_REGS * sizeof (Genesys_Register_Set));
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
-  gl846_init_scan_regs (dev,
+  status = gl846_init_scan_regs (dev,
 			local_reg,
 			resolution,
 			resolution,
@@ -2270,6 +2278,14 @@ gl846_feed (Genesys_Device * dev, unsigned int steps)
 			SCAN_FLAG_DISABLE_GAMMA |
                         SCAN_FLAG_FEEDING |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+           "gl846_feed: failed to set up registers: %s\n",
+           sane_strstatus (status));
+      DBGCOMPLETED;
+      return status;
+    }
 
   /* set exposure to zero */
   sanei_genesys_set_triple(local_reg,REG_EXPR,0);
@@ -3014,7 +3030,15 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   DBG (DBG_proc, "gl846_search_strip %s %s\n", black ? "black" : "white",
        forward ? "forward" : "reverse");
 
-  gl846_set_fe (dev, AFE_SET);
+  status = gl846_set_fe (dev, AFE_SET);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+           "gl846_search_strip: gl846_set_fe() failed: %s\n",
+           sane_strstatus(status));
+      return status;
+    }
+
   status = gl846_stop_action (dev);
   if (status != SANE_STATUS_GOOD)
     {

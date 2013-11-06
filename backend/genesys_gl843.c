@@ -2591,7 +2591,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   memcpy (local_reg, dev->reg, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
   resolution=sanei_genesys_get_lowest_ydpi(dev);
 
-  gl843_init_scan_regs (dev,
+  status = gl843_init_scan_regs (dev,
 			local_reg,
 			resolution,
 			resolution,
@@ -2607,6 +2607,14 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 			SCAN_FLAG_DISABLE_GAMMA |
 			SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+           "gl843_slow_back_home: failed to set up registers: %s\n",
+           sane_strstatus (status));
+      DBGCOMPLETED;
+      return status;
+    }
 
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
@@ -2879,7 +2887,7 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
   memcpy (local_reg, dev->reg, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
-  gl843_init_scan_regs (dev,
+  status = gl843_init_scan_regs (dev,
 			local_reg,
 			resolution,
 			resolution,
@@ -2895,6 +2903,14 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
 			SCAN_FLAG_DISABLE_GAMMA |
                         SCAN_FLAG_FEEDING |
 			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+           "gl843_feed: failed to set up registers: %s\n",
+           sane_strstatus (status));
+      DBGCOMPLETED;
+      return status;
+    }
 
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));

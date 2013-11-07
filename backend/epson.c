@@ -1854,7 +1854,7 @@ static EpsonHdrUnion
 command (Epson_Scanner * s, u_char * cmd, size_t cmd_size,
          SANE_Status * status)
 {
-  EpsonHdrUnion hdrunion;
+  EpsonHdrUnion hdrunion, hdrunion_bak;
   EpsonHdr head;
   u_char *buf;
   int count;
@@ -1937,9 +1937,11 @@ command (Epson_Scanner * s, u_char * cmd, size_t cmd_size,
     count = head->count2 * 255 + head->count1;
     DBG (4, "count  %d\n", count);
 
+    hdrunion_bak = hdrunion;
     if (NULL == (hdrunion = realloc (hdrunion,
             sizeof (EpsonHdrUnionRec) + count)))
     {
+      free(hdrunion_bak);
       DBG (1, "out of memory (line %d)\n", __LINE__);
       *status = SANE_STATUS_NO_MEM;
       return (EpsonHdrUnion) 0;

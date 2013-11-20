@@ -3568,7 +3568,8 @@ print_udev (void)
 
   printf ("\nLABEL=\"libsane_usb_rules_end\"\n\n");
 
-  printf ("SUBSYSTEMS!=\"scsi\", GOTO=\"libsane_scsi_rules_end\"\n\n");
+  printf ("SUBSYSTEMS==\"scsi\", GOTO=\"libsane_scsi_rules_begin\"\n");
+  printf ("GOTO=\"libsane_scsi_rules_end\"\n\n");
   printf ("LABEL=\"libsane_scsi_rules_begin\"\n");
   printf ("# Generic: SCSI device type 6 indicates a scanner\n");
 
@@ -3695,7 +3696,9 @@ print_udevhwdb (void)
   printf("# The following rule will disable USB autosuspend for the device\n");
   printf("ENV{DEVTYPE}==\"usb_device\", ENV{libsane_matched}==\"yes\", TEST==\"power/control\", ATTR{power/control}=\"on\"\n\n");
 
-  printf ("SUBSYSTEMS!=\"scsi\", GOTO=\"libsane_rules_end\"\n");
+  printf ("SUBSYSTEMS==\"scsi\", GOTO=\"libsane_scsi_rules_begin\"\n");
+  printf ("GOTO=\"libsane_rules_end\"\n\n");
+  printf ("LABEL=\"libsane_scsi_rules_begin\"\n");
   printf ("KERNEL!=\"sg[0-9]*\", GOTO=\"libsane_rules_end\"\n\n");
 
   printf ("# Generic: SCSI device type 6 indicates a scanner\n");

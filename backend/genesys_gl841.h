@@ -162,6 +162,11 @@
 #define REG1E_LINESEL	0x0f
 #define REG1ES_LINESEL  0
 
+#define REG_LINCNT      0x25
+#define REG_DPISET      0x2c
+#define REG_STRPIXEL    0x30
+#define REG_ENDPIXEL    0x32
+
 #define REG40_HISPDFLG  0x04
 #define REG40_MOTMFLG   0x02
 #define REG40_DATAENB   0x01
@@ -426,4 +431,6 @@ SANE_Status gl841_offset_calibration (Genesys_Device * dev);
 SANE_Status gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi);
 
 SANE_Status gl841_led_calibration (Genesys_Device * dev);
+
+SANE_Status gl841_send_shading_data (Genesys_Device * dev, uint8_t * data, int size);
 #endif

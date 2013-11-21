@@ -919,10 +919,11 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
   int start_address;
   SANE_Status status;
 
-  DBG (DBG_proc, "genesys_send_offset_and_shading (size = %d)\n", size);
+  DBG (DBG_proc, "%s: (size = %d)\n", __FUNCTION__, size);
 
   /* ASIC higher than gl843 doesn't have register 2A/2B, so we route to
-   * a per ASIC shading data loading function if available */
+   * a per ASIC shading data loading function if available.
+   * It is also used for scanners using SHDAREA */
   if(dev->model->cmd_set->send_shading_data!=NULL)
     {
         status=dev->model->cmd_set->send_shading_data(dev, data, size);
@@ -946,6 +947,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
       && dev->model->ccd_type != CCD_XP300
       && dev->model->ccd_type != CCD_DP665
       && dev->model->ccd_type != CCD_DP685
+      && dev->model->ccd_type != CIS_CANONLIDE80
       && dev->model->ccd_type != CCD_ROADWARRIOR
       && dev->model->ccd_type != CCD_HP2300
       && dev->model->ccd_type != CCD_HP2400
@@ -967,17 +969,15 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
   status = sanei_genesys_set_buffer_address (dev, start_address);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "genesys_send_offset_and_shading: failed to set buffer address: %s\n",
-	   sane_strstatus (status));
+      DBG (DBG_error, "%s: failed to set buffer address: %s\n", __FUNCTION__,
+           sane_strstatus (status));
       return status;
     }
   
   status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, data, size);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "genesys_send_offset_and_shading: failed to send shading table: %s\n",
+      DBG (DBG_error, "%s: failed to send shading table: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
@@ -1031,15 +1031,15 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
       *shading_data_ptr++ = 0x40;	/* white hi -> 0x4000 */
     }
 
-  status =
-    genesys_send_offset_and_shading (dev, shading_data,
-				     pixels_per_line * 4 * channels);
-  if (status != SANE_STATUS_GOOD)
-    DBG (DBG_error,
-	 "sanei_genesys_init_shading_data: failed to send shading data: %s\n",
-	 sane_strstatus (status));
-
+  status = genesys_send_offset_and_shading (dev,
+                                            shading_data,
+                                            pixels_per_line * 4 * channels);
   free (shading_data);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to send shading data: %s\n", __FUNCTION__,
+	  sane_strstatus (status));
+    }
 
   DBGCOMPLETED;
   return status;
@@ -2153,7 +2153,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 /* This calibration uses a scan over the calibration target, comprising a 
  * black and a white strip. (So the motor must be on.)
  */
-static SANE_Status
+GENESYS_STATIC SANE_Status
 genesys_dark_white_shading_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -2168,8 +2168,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   SANE_Bool motor;
 
 
-  DBG (DBG_proc, "genesys_black_white_shading_calibration (lines = %d)\n",
-       (unsigned int)dev->calib_lines);
+  DBG (DBG_proc, "%s: (lines = %d)\n", __FUNCTION__, (unsigned int)dev->calib_lines);
 
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
@@ -2182,8 +2181,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   dev->white_average_data = malloc (dev->average_size);
   if (!dev->white_average_data)
     {
-      DBG (DBG_error,
-	   "genesys_dark_white_shading_calibration: failed to allocate average memory\n");
+      DBG (DBG_error, "%s: failed to allocate white average memory\n", __FUNCTION__);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2193,8 +2191,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   dev->dark_average_data = malloc (channels * 2 * pixels_per_line);
   if (!dev->dark_average_data)
     {
-      DBG (DBG_error,
-	   "genesys_dark_white_shading_shading_calibration: failed to allocate average memory\n");
+      DBG (DBG_error, "%s: failed to allocate dark average memory\n", __FUNCTION__);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2203,8 +2200,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   calibration_data = malloc (size);
   if (!calibration_data)
     {
-      DBG (DBG_error,
-	   "genesys_dark_white_shading_calibration: failed to allocate calibration memory\n");
+      DBG (DBG_error, "%s: failed to allocate calibration memory\n", __FUNCTION__);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2225,9 +2221,8 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
-      DBG (DBG_error,
-	   "genesys_dark_white_shading_calibration: failed to bulk write registers: %s\n",
-	   sane_strstatus (status));
+      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __FUNCTION__,
+           sane_strstatus (status));
       return status;
     }
 
@@ -2236,8 +2231,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
-      DBG (DBG_error,
-	   "genesys_dark_white_shading_calibration: Failed to begin scan: %s\n",
+      DBG (DBG_error, "%s: failed to begin scan: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
@@ -2246,8 +2240,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
-      DBG (DBG_error,
-	   "genesys_dark_white_shading_calibration: Failed to read data: %s\n",
+      DBG (DBG_error, "%s: failed to read data: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
@@ -2256,16 +2249,26 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
-      DBG (DBG_error,
-	   "genesys_dark_white_shading_calibration: Failed to end scan: %s\n",
+      DBG (DBG_error, "%s: Failed to end scan: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("black_white_shading.pnm", calibration_data,
-				  16, channels, pixels_per_line,
-				  dev->calib_lines);
+    {
+      if (dev->model->is_cis)
+        {
+          sanei_genesys_write_pnm_file ("black_white_shading.pnm", calibration_data,
+                                        16, 1, pixels_per_line*channels,
+                                        dev->calib_lines);
+        }
+      else
+        {
+          sanei_genesys_write_pnm_file ("black_white_shading.pnm", calibration_data,
+                                        16, channels, pixels_per_line,
+                                        dev->calib_lines);
+        }
+    }
 
 
   average_white = dev->white_average_data;
@@ -2418,8 +2421,8 @@ compute_averaged_planar (Genesys_Device * dev,
 {
   unsigned int x, i, j, br, dk, res, avgpixels, basepixels, val;
 
-  DBG (DBG_info, "%s: pixels=%d, offset=%d\n", __FUNCTION__, pixels_per_line,
-       o);
+  DBG (DBG_info, "%s: pixels=%d, offset=%d\n", __FUNCTION__, pixels_per_line, o);
+
   /* initialize result */
   memset (shading_data, 0xff, words_per_color * 3 * 2);
 
@@ -2455,10 +2458,10 @@ compute_averaged_planar (Genesys_Device * dev,
   if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE) &&
       dev->settings.xres <= dev->sensor.optical_res / 2)
     res *= 2;			/* scanner is using half-ccd mode */
-  /*this should be evenly dividable */
+  /* this should be evenly dividable */
   basepixels = dev->sensor.optical_res / res;
 
-/* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
+  /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
   if (basepixels < 1)
     avgpixels = 1;
   else if (basepixels < 6)
@@ -2478,7 +2481,6 @@ compute_averaged_planar (Genesys_Device * dev,
 
   for (x = 0; x <= pixels_per_line - avgpixels; x += avgpixels)
     {
-
       if ((x + o) * 2 * 2 + 3 > words_per_color * 2)
 	break;
 
@@ -2515,59 +2517,47 @@ compute_averaged_planar (Genesys_Device * dev,
 		   65535 * (target_bright - target_dark))
 	    val = 65535;
 	  else
-	    val =
-	      (dk * target_bright - br * target_dark) / (target_bright -
-							 target_dark);
+            {
+	      val = (dk * target_bright - br * target_dark) / (target_bright - target_dark);
+            }
 
-/*fill all pixels, even if only the last one is relevant*/
+          /*fill all pixels, even if only the last one is relevant*/
 	  for (i = 0; i < avgpixels; i++)
 	    {
-	      shading_data[(x + o + i) * 2 * 2 +
-			   words_per_color * 2 * j] = val & 0xff;
-	      shading_data[(x + o + i) * 2 * 2 +
-			   words_per_color * 2 * j + 1] = val >> 8;
+	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
+	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
 	    }
 
 	  val = br - dk;
 
 	  if (65535 * val > (target_bright - target_dark) * coeff)
-	    val = (coeff * (target_bright - target_dark)) / val;
+            {
+	      val = (coeff * (target_bright - target_dark)) / val;
+            }
 	  else
-	    val = 65535;
+            {
+	      val = 65535;
+            }
 
-/*fill all pixels, even if only the last one is relevant*/
+          /*fill all pixels, even if only the last one is relevant*/
 	  for (i = 0; i < avgpixels; i++)
 	    {
-	      shading_data[(x + o + i) * 2 * 2 +
-			   words_per_color * 2 * j + 2] = val & 0xff;
-	      shading_data[(x + o + i) * 2 * 2 +
-			   words_per_color * 2 * j + 3] = val >> 8;
+	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
+	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
 	    }
 	}
 
-/*fill remaining channels*/
+      /* fill remaining channels */
       for (j = channels; j < 3; j++)
 	{
 	  for (i = 0; i < avgpixels; i++)
 	    {
-	      shading_data[(x + o + i) * 2 * 2 +
-			   words_per_color * 2 * j] =
-		shading_data[(x + o + i) * 2 * 2 + words_per_color * 0];
-	      shading_data[(x + o + i) * 2 * 2 +
-			   words_per_color * 2 * j + 1] =
-		shading_data[(x + o + i) * 2 * 2 +
-			     words_per_color * 2 * 0 + 1];
-	      shading_data[(x + o + i) * 2 * 2 +
-			   words_per_color * 2 * j + 2] =
-		shading_data[(x + o + i) * 2 * 2 +
-			     words_per_color * 2 * 0 + 2];
-	      shading_data[(x + o + i) * 2 * 2 +
-			   words_per_color * 2 * j + 3] =
-		shading_data[(x + o + i) * 2 * 2 +
-			     words_per_color * 2 * 0 + 3];
+	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j    ] = shading_data[(x + o + i) * 2 * 2    ];
+	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 1] = shading_data[(x + o + i) * 2 * 2 + 1];
+	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 2] = shading_data[(x + o + i) * 2 * 2 + 2];
+	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 3] = shading_data[(x + o + i) * 2 * 2 + 3];
 	    }
 	}
-
     }
 }
 
@@ -2870,13 +2860,21 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     }
 
+  /* special case, memory is aligned on 0x5400, this has yet to be explained */
+  /* could be 0xa800 because sensor is truly 2400 dpi, then halved because
+   * we only set 1200 dpi */
+  if(dev->model->ccd_type==CIS_CANONLIDE80)
+    {
+      words_per_color = 0x5400;
+    }
+
   length = words_per_color * 3 * 2;
+
   /* allocate computed size */
   shading_data = malloc (length);
   if (!shading_data)
     {
-      DBG (DBG_error,
-	   "genesys_send_shading_coefficient: failed to allocate memory\n");
+      DBG (DBG_error, "%s: failed to allocate memory\n", __FUNCTION__);
       return SANE_STATUS_NO_MEM;
     }
   memset (shading_data, 0, length);
@@ -3040,8 +3038,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
         shading_data = malloc (length);
         if (!shading_data)
           {
-            DBG (DBG_error,
-                 "genesys_send_shading_coefficient: failed to allocate memory\n");
+            DBG (DBG_error, "%s: failed to allocate memory\n", __FUNCTION__);
             return SANE_STATUS_NO_MEM;
           }
         memset (shading_data, 0, length);
@@ -3057,13 +3054,23 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                                      target_code);
       break;
     case CCD_CANONLIDE35:
-    case CIS_CANONLIDE80:
       compute_averaged_planar (dev,
 			       shading_data,
                                pixels_per_line,
                                words_per_color,
                                channels,
                                4,
+                               coeff,
+                               0xfa00,
+                               0x0a00);
+      break;
+    case CIS_CANONLIDE80:
+      compute_averaged_planar (dev,
+			       shading_data,
+                               pixels_per_line,
+                               words_per_color,
+                               channels,
+                               0,
                                coeff,
                                0xfa00,
                                0x0a00);
@@ -3081,23 +3088,21 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 			            256);        /* patch_size: contigous extent */
       break;
     default:
-      DBG (DBG_error,
-	   "genesys_send_shading_coefficient: sensor %d not supported\n",
-	   dev->model->ccd_type);
+      DBG (DBG_error, "%s: sensor %d not supported\n", __FUNCTION__, dev->model->ccd_type);
       return SANE_STATUS_UNSUPPORTED;
       break;
     }
 
   /* do the actual write of shading calibration data to the scanner */
   status = genesys_send_offset_and_shading (dev, shading_data, length);
-  if (status != SANE_STATUS_GOOD)
-    DBG (DBG_error,
-	 "genesys_send_shading_coefficient: failed to send shading data: %s\n",
-	 sane_strstatus (status));
-
   free (shading_data);
-  DBGCOMPLETED;
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "%s: failed to send shading data: %s\n", __FUNCTION__,
+	  sane_strstatus (status));
+    }
 
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 

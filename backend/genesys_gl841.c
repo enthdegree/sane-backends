@@ -214,8 +214,8 @@ gl841_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 			      uint8_t * data, size_t len)
 {
   SANE_Status status;
-  size_t size;
-  uint8_t outdata[8];
+  size_t size, target;
+  uint8_t outdata[8], *buffer;
 
   DBG (DBG_io, "gl841_bulk_read_data: requesting %lu bytes\n",
        (u_long) len);
@@ -254,12 +254,14 @@ gl841_bulk_read_data (Genesys_Device * dev, uint8_t addr,
       return status;
     }
 
-  while (len)
+  target = len;
+  buffer = data;
+  while (target)
     {
-      if (len > BULKIN_MAXSIZE)
+      if (target > BULKIN_MAXSIZE)
 	size = BULKIN_MAXSIZE;
       else
-	size = len;
+	size = target;
 
       DBG (DBG_io2,
 	   "gl841_bulk_read_data: trying to read %lu bytes of data\n",
@@ -277,14 +279,18 @@ gl841_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 
       DBG (DBG_io2,
 	   "gl841_bulk_read_data read %lu bytes, %lu remaining\n",
-	   (u_long) size, (u_long) (len - size));
+	   (u_long) size, (u_long) (target - size));
 
-      len -= size;
+      target -= size;
       data += size;
     }
 
-  DBG (DBG_io, "gl841_bulk_read_data: completed\n");
 
+  if (DBG_LEVEL >= DBG_data && dev->binary!=NULL)
+    {
+      fwrite(buffer, len, 1, dev->binary);
+    }
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -788,12 +794,12 @@ gl841_init_lide80 (Genesys_Device * dev)
   uint8_t val;
   int index=0;
 
-  INITREG (0x01, 0x02);
+  INITREG (0x01, 0x82); /* 0x02 = SHDAREA  and no CISSET ! */
   INITREG (0x02, 0x10);
   INITREG (0x03, 0x50);
   INITREG (0x04, 0x02);
-  INITREG (0x05, 0x4c);
-  INITREG (0x06, 0x38);
+  INITREG (0x05, 0x4c); /* 1200 DPI */
+  INITREG (0x06, 0x30); /* 0x38 scanmod=1, pwrbit, GAIN4 */
   INITREG (0x07, 0x00);
   INITREG (0x08, 0x00);
   INITREG (0x09, 0x11);
@@ -1975,8 +1981,11 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 	&fast_slope_steps,
 	&fast_exposure,
 	scan_power_mode);
-    
-    if (dev->model->gpo_type == GPO_XP300 || dev->model->gpo_type == GPO_DP685) 
+   
+    /* fast fed special cases handling */ 
+    if (dev->model->gpo_type == GPO_XP300
+     || ((dev->model->motor_type== MOTOR_CANONLIDE80) && (scan_yres>600)) /* no fast fed at high res for this motor */
+     || dev->model->gpo_type == GPO_DP685)
       {
 	/* quirk: looks like at least this scanner is unable to use 
 	   2-feed mode */
@@ -2428,19 +2437,9 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     r = sanei_genesys_get_address (reg, 0x29);
     r->value = 255; /*<<<"magic" number, only suitable for cis*/
     
-    r = sanei_genesys_get_address (reg, 0x2c);
-    r->value = HIBYTE (dpiset);
-    r = sanei_genesys_get_address (reg, 0x2d);
-    r->value = LOBYTE (dpiset);
-    
-    r = sanei_genesys_get_address (reg, 0x30);
-    r->value = HIBYTE (start);
-    r = sanei_genesys_get_address (reg, 0x31);
-    r->value = LOBYTE (start);
-    r = sanei_genesys_get_address (reg, 0x32);
-    r->value = HIBYTE (end);
-    r = sanei_genesys_get_address (reg, 0x33);
-    r->value = LOBYTE (end);
+    sanei_genesys_set_double(reg, REG_DPISET, dpiset);
+    sanei_genesys_set_double(reg, REG_STRPIXEL, start);
+    sanei_genesys_set_double(reg, REG_ENDPIXEL, end);
     
 /* words(16bit) before gamma, conversion to 8 bit or lineart*/
     words_per_line = (pixels * dpiset) / gl841_get_dpihw(dev); 
@@ -2470,7 +2469,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     r = sanei_genesys_get_address (reg, 0x34);
     r->value = dev->sensor.dummy_pixel;
 
-    DBG (DBG_proc, "gl841_init_optical_regs_scan : completed. \n");
+    DBGCOMPLETED;
     return SANE_STATUS_GOOD;	
 }
 
@@ -2704,10 +2703,6 @@ dummy \ scanned lines
       scan_step_type = 1;
   else
       scan_step_type = 2;
-  if (dev->model->motor_type == MOTOR_CANONLIDE80 && yres>=600)
-    {
-      scan_step_type = 1;
-    }
   
 /* exposure_time */
   led_exposure = gl841_get_led_exposure(dev);
@@ -2734,7 +2729,6 @@ dummy \ scanned lines
       scan_power_mode++;
   }
   
-
   DBG (DBG_info, "gl841_init_scan_regs : exposure_time=%d pixels\n",
        exposure_time);
 
@@ -3096,10 +3090,6 @@ dummy \ scanned lines
       scan_step_type = 1;
   else
       scan_step_type = 2;
-  if (dev->model->motor_type == MOTOR_CANONLIDE80 && yres>=600)
-    {
-      scan_step_type = 1;
-    }
   
   led_exposure = gl841_get_led_exposure(dev);
 
@@ -3126,8 +3116,7 @@ dummy \ scanned lines
       scan_power_mode++;
   }
     
-  DBG (DBG_info, "gl841_calculate_current_setup : exposure_time=%d pixels\n",
-       exposure_time);
+  DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
   /* scanned area must be enlarged by max color shift needed */
   max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
@@ -3146,7 +3135,7 @@ dummy \ scanned lines
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
-  DBG (DBG_proc, "gl841_calculate_current_setup: completed\n");
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -4254,8 +4243,7 @@ gl841_init_regs_for_coarse_calibration (Genesys_Device * dev)
   uint8_t channels;
   uint8_t cksel;
 
-  DBG (DBG_proc, "gl841_init_regs_for_coarse_calibration\n");
-
+  DBGSTART;
 
   cksel = (dev->calib_reg[reg_0x18].value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
@@ -4303,13 +4291,11 @@ gl841_init_regs_for_coarse_calibration (Genesys_Device * dev)
       return status;
     }
 
-  DBG (DBG_proc,
-       "gl841_init_register_for_coarse_calibration: completed\n");
 
 /*  if (DBG_LEVEL >= DBG_info)
     sanei_gl841_print_registers (dev->calib_reg);*/
 
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -4320,13 +4306,29 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
   SANE_Int ydpi;
+  float starty;
 
-  DBG (DBG_proc, "gl841_init_regs_for_shading: lines = %d\n", (int)dev->calib_lines);
+  DBGSTART;
+  DBG (DBG_proc, "%s: lines = %d\n", __FUNCTION__, (int)dev->calib_lines);
 
   ydpi = dev->motor.base_ydpi;
-  if (dev->motor.motor_id == MOTOR_PLUSTEK_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
+  starty = 0;
+  if (dev->model->motor_type == MOTOR_PLUSTEK_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
     {
       ydpi = 600;
+    }
+  if (dev->model->motor_type== MOTOR_CANONLIDE80)
+    {
+      /* ydpi = sensor dpi * channels / (1+half_ccd) */
+      if(dev->settings.xres>600)
+        {
+          ydpi = 1200;
+        }
+      else
+        { 
+          ydpi = 600;
+        }
+      starty = (SANE_UNFIX (dev->model->y_offset_calib)*ydpi)/MM_PER_INCH;
     }
 
   dev->calib_channels = 3;
@@ -4336,7 +4338,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 dev->settings.xres,
 				 ydpi,
 				 0,
-				 0,
+				 starty,
 				 (dev->sensor.sensor_pixels * dev->settings.xres) / dev->sensor.optical_res,
 				 dev->calib_lines,
 				 16,
@@ -4344,14 +4346,8 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
-/* we don't handle differing shading areas very well */
-/*				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |*/
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES
-      );
-
-  dev->calib_pixels = dev->current_setup.pixels;
-
+				 SCAN_FLAG_USE_OPTICAL_RES);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -4360,20 +4356,18 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
       return status;
     }
 
+  dev->calib_pixels = dev->current_setup.pixels;
   dev->scanhead_position_in_steps += dev->calib_lines;
 
-  status =
-    gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS);
+  status = gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl841_init_registers_for_shading: failed to bulk write registers: %s\n",
+      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
 
-  DBG (DBG_proc, "gl841_init_regs_for_shading: completed\n");
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -4434,7 +4428,9 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
 
   move = 0;
   if (dev->model->flags & GENESYS_FLAG_SEARCH_START)
-    move += SANE_UNFIX (dev->model->y_offset_calib);
+    {
+      move += SANE_UNFIX (dev->model->y_offset_calib);
+    }
 
   DBG (DBG_info, "gl841_init_regs_for_scan: move=%f steps\n", move);
 
@@ -5424,7 +5420,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
         }
       else if (dev->model->dac_type == DAC_CANONLIDE80)
         {
-	      dev->frontend.gain[j] = gain[j]*8;
+	      dev->frontend.gain[j] = gain[j]*12;
         }
 
       DBG (DBG_proc,
@@ -6145,6 +6141,132 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   return status;
 }
 
+/**
+ * Send shading calibration data. The buffer is considered to always hold values
+ * for all the channels.
+ */
+GENESYS_STATIC
+SANE_Status
+gl841_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  uint32_t length, x, factor, pixels, i;
+  uint32_t lines, channels;
+  uint16_t dpiset, dpihw, strpixel ,endpixel, beginpixel;
+  uint8_t *buffer,*ptr,*src;
+
+  DBGSTART;
+  DBG( DBG_io2, "%s: writing %d bytes of shading data\n",__FUNCTION__,size);
+
+  /* old method if no SHDAREA */
+  if((dev->reg[reg_0x01].value & REG01_SHDAREA) == 0)
+    {
+      /* start address */
+      status = sanei_genesys_set_buffer_address (dev, 0x0000);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error, "%s: failed to set buffer address: %s\n", __FUNCTION__,
+               sane_strstatus (status));
+          return status;
+        }
+     
+      /* shading data whole line */ 
+      status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, data, size);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error, "%s: failed to send shading table: %s\n", __FUNCTION__,
+               sane_strstatus (status));
+          return status;
+        }
+      DBGCOMPLETED;
+      return status;
+    }
+
+  /* data is whole line, we extract only the part for the scanned area */
+  length = (uint32_t) (size / 3);
+  sanei_genesys_get_double(dev->reg,REG_STRPIXEL,&strpixel);
+  sanei_genesys_get_double(dev->reg,REG_ENDPIXEL,&endpixel);
+  DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d\n",__FUNCTION__,strpixel,endpixel,endpixel-strpixel);
+
+  /* compute deletion/average factor */
+  sanei_genesys_get_double(dev->reg,REG_DPISET,&dpiset);
+  dpihw = dev->reg[reg_0x05].value >> 6;
+  if (dpihw == 0)
+    {
+      dpihw=600;
+    }
+  else if (dpihw == 1)
+    {
+      dpihw=1200;
+    }
+  else
+    {
+      dpihw=2400;
+    }
+  factor=dpihw/dpiset;
+  DBG( DBG_io2, "%s: factor=%d\n",__FUNCTION__,factor);
+
+  /* binary data logging */
+  if(DBG_LEVEL>=DBG_data)
+    {
+      dev->binary=fopen("binary.pnm","wb");
+      sanei_genesys_get_triple(dev->reg, REG_LINCNT, &lines);
+      channels=dev->current_setup.channels;
+      if(dev->binary!=NULL)
+        {
+          fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);
+        }
+    }
+
+  /* turn pixel value into bytes 2x16 bits words */
+  strpixel*=2*2; /* 2 words of 2 bytes */
+  endpixel*=2*2;
+  pixels=endpixel-strpixel;
+  /* shading pixel begin is start pixel minus start pixel during shading
+   * calibration */
+  beginpixel = dev->sensor.CCD_start_xoffset / factor + dev->sensor.dummy_pixel + 1;
+  beginpixel = strpixel-beginpixel*2*2;
+  DBG( DBG_io2, "%s: begin pixel %d\n",__FUNCTION__,beginpixel/4);
+
+  DBG( DBG_io2, "%s: using chunks of %d bytes (%d shading data pixels)\n",__FUNCTION__,length, length/4);
+  buffer=(uint8_t *)malloc(pixels);
+  memset(buffer,0,pixels);
+
+  /* write actual shading data contigously 
+   * channel by channel, starting at addr 0x0000
+   * */
+  for(i=0;i<3;i++)
+    {
+      /* copy data to work buffer and process it */
+          /* coefficent destination */
+      ptr=buffer;
+
+      /* iterate on both sensor segment */
+      for(x=0;x<pixels;x+=4*factor)
+        {
+          /* coefficient source */
+          src=data+x+beginpixel+i*length;
+
+          ptr[0]=src[0];
+          ptr[1]=src[1];
+          ptr[2]=src[2];
+          ptr[3]=src[3];
+
+          /* next shading coefficient */
+          ptr+=4;
+        }
+      /* 0x5400 alignment for LIDE80 internal memory */
+      RIEF(sanei_genesys_set_buffer_address (dev, 0x5400*i), buffer);
+      RIEF(dev->model->cmd_set->bulk_write_data (dev, 0x3c, buffer, pixels), buffer);
+    }
+
+  free(buffer);
+  DBGCOMPLETED;
+
+  return status;
+}
+
+
 /** the gl841 command set */
 static Genesys_Command_Set gl841_cmd_set = {
   "gl841-generic",		/* the name of this set */
@@ -6198,7 +6320,7 @@ static Genesys_Command_Set gl841_cmd_set = {
 
   gl841_is_compatible_calibration,
   NULL,
-  NULL,
+  gl841_send_shading_data,
   gl841_calculate_current_setup,
   NULL
 };

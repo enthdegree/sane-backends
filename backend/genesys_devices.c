@@ -305,11 +305,12 @@ static Genesys_Sensor Sensor[] = {
   }
   ,
   /* CANOLIDE35 */
-  {CCD_CANONLIDE35, 1200,
-   87,				/*(black) */
+  {CCD_CANONLIDE35,
+   1200,
+   87,				/* (black) */
    87,				/* (dummy) */
    0,				/* (startxoffset) */
-   10400,			/*sensor_pixels */
+   10400,			/* sensor_pixels */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
@@ -760,10 +761,10 @@ static Genesys_Sensor Sensor[] = {
   /* CANOLIDE80 */
   {CIS_CANONLIDE80, 
    1200, /* real hardware limit is 2400 */
-   9*2,
-   9*2,
-   0,
-   10304, /* up to 5144, 5390, 10264, 20504, 21762 : capped by max exposure from logs */
+   20,   /* black pixels */
+   6,    /* expdummy */
+   31,    /* CCD_start_xoffset 14=>3, 20=>2 */
+   10240, /* 10400, too wide=>10288 in shading data 10240~, 10208 too short for shading, max shading data = 10240 pixels, endpix-startpix=10208 */
    230,
    230,
    {0x00, 0x05, 0x07, 0x09}, /* in fact ,maps to 0x70-0x73 for GL841 */
@@ -1288,16 +1289,16 @@ static Genesys_Motor Motor[] = {
    },},
   {MOTOR_CANONLIDE80,
    2400, /* 2400 ???? */
-   7200,
-   2,	/* max step type */
+   9600, /* 7200 ???? */
+   1,	/* max step type */
    1,	/* power mode count */
    {
      { /* start speed, max end speed, step number */
        /* 5144 = max pixels at 600 dpi */
        /* 1288=(5144+8)*ydpi(=300)/base_dpi(=1200) , where 5152 is exposure */
        /* 6440=9660/(1932/1288) */
-       {  6440, 1288, 60, 0.8 }, /* full step  9660 1932 32 values from logs */
-       { 18750, 1875, 60, 0.8 }, /* half step 18750 1875 16 values from logs */
+       {  6440,  1288, 60, 0.8 }, /* full step  9660 1932 32 values from logs */
+       { 15869, 15869, 16, 0.8 }, /* half step 18750 1875 16 values from logs */
      },
    },},
 };
@@ -1360,8 +1361,8 @@ static Genesys_Model canon_lide_50_model = {
   GENESYS_GL841,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {      1200, 600, 400, 300, 240, 200, 150, 75, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 400, 300, 240, 200, 150, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -2128,14 +2129,14 @@ static Genesys_Model canon_lide_80_model = {
   GENESYS_GL841,
   NULL,
 
-  {      1200, 600, 300, 150, 100, 75, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {      1200, 600, 400, 300, 240, 150, 100, 75, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 400, 300, 240, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (6.5),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
-  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (0.42),		/* Start of scan area in mm  (x)   0.42 */
+  SANE_FIX (7.90),		/* Start of scan area in mm (y)    7.90 */
+  SANE_FIX (216.07),		/* Size of scan area in mm (x)   218.00 */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (3.0),		/* Start of white strip in mm (y) */
@@ -2173,7 +2174,7 @@ static Genesys_Model canon_lide_80_model = {
   GENESYS_HAS_FILE_SW |
   GENESYS_HAS_EMAIL_SW |
   GENESYS_HAS_COPY_SW,
-  200,
+  280,
   400
 };
 

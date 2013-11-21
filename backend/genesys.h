@@ -146,4 +146,7 @@ typedef struct Genesys_Scanner
   SANE_Int bpp_list[5];			   /**< */
 } Genesys_Scanner;
 
+#ifdef UNIT_TESTING
+SANE_Status genesys_dark_white_shading_calibration (Genesys_Device * dev);
+#endif
 #endif /* not GENESYS_H */

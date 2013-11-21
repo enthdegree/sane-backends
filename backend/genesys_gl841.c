@@ -1641,7 +1641,7 @@ gl841_init_motor_regs_off(Genesys_Register_Set * reg,
 }
 
 /** @brief write motor table frequency
- * Write motor frequency data table
+ * Write motor frequency data table.
  * @param dev device to set up motor
  * @param ydpi motor target resolution
  * @return SANE_STATUS_GOOD on success
@@ -1984,7 +1984,7 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
    
     /* fast fed special cases handling */ 
     if (dev->model->gpo_type == GPO_XP300
-     || ((dev->model->motor_type== MOTOR_CANONLIDE80) && (scan_yres>600)) /* no fast fed at high res for this motor */
+     || ((dev->model->motor_type == MOTOR_CANONLIDE80) && (scan_yres > 600)) /* no fast fed at high res for this motor */
      || dev->model->gpo_type == GPO_DP685)
       {
 	/* quirk: looks like at least this scanner is unable to use 
@@ -2473,6 +2473,44 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     return SANE_STATUS_GOOD;	
 }
 
+static int
+/**@brief compute scan_step_type *
+ * Try to do at least 4 steps per line. if that is impossible we will have to
+   live with that.
+ */
+gl841_scan_step_type(Genesys_Device *dev, int yres)
+{
+int scan_step_type=0;
+
+  if (yres*4 < dev->motor.base_ydpi
+      || dev->motor.max_step_type <= 0)
+    {
+      scan_step_type = 0;
+    }
+  else if (yres*4 < dev->motor.base_ydpi*2
+      || dev->motor.max_step_type <= 1)
+    {
+      scan_step_type = 1;
+    }
+  else
+    {
+      scan_step_type = 2;
+    }
+  
+  /* this motor behaves differently */
+  if (dev->model->motor_type== MOTOR_CANONLIDE80)
+    {
+      if(yres<=600)
+        {
+          scan_step_type = 0;
+        }
+      else
+        {
+          scan_step_type = 1;
+        }
+    }
+  return scan_step_type;
+}
 
 static int 
 gl841_get_led_exposure(Genesys_Device * dev) 
@@ -2691,18 +2729,7 @@ dummy \ scanned lines
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-/* scan_step_type */
-/* Try to do at least 4 steps per line. if that is impossible we will have to
-   live with that
- */
-  if (yres*4 < dev->motor.base_ydpi
-      || dev->motor.max_step_type <= 0)
-      scan_step_type = 0;
-  else if (yres*4 < dev->motor.base_ydpi*2
-      || dev->motor.max_step_type <= 1)
-      scan_step_type = 1;
-  else
-      scan_step_type = 2;
+  scan_step_type=gl841_scan_step_type(dev, yres);
   
 /* exposure_time */
   led_exposure = gl841_get_led_exposure(dev);
@@ -3077,20 +3104,8 @@ dummy \ scanned lines
       slope_dpi = yres;
 
   slope_dpi = slope_dpi * (1 + dummy);
-
-/* scan_step_type */
-/* Try to do at least 4 steps per line. if that is impossible we will have to
-   live with that
- */
-  if (yres*4 < dev->motor.base_ydpi
-      || dev->motor.max_step_type <= 0)
-      scan_step_type = 0;
-  else if (yres*4 < dev->motor.base_ydpi*2
-      || dev->motor.max_step_type <= 1)
-      scan_step_type = 1;
-  else
-      scan_step_type = 2;
   
+  scan_step_type = gl841_scan_step_type(dev, yres);
   led_exposure = gl841_get_led_exposure(dev);
 
 /* exposure_time */

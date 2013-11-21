@@ -503,7 +503,7 @@ check.local:
 	do \
 	echo "PASS: sane-desc -m $$mode -s $(srcdir)/data"; \
 	  $(SANEDESC) -m $$mode -s $(srcdir)/data >$$mode.res ;\
-	  if ! diff --ignore-matching-lines="..:..:.. 20[0-9][0-9]" $(srcdir)/data/$$mode.ref $$mode.res ; \
+	  if ! diff --ignore-matching-lines="..:..:.. 20[0-9][0-9]" --ignore-matching-lines="sane-backends 1.0...git" $(srcdir)/data/$$mode.ref $$mode.res ; \
 	  then \
 		echo "**** File generated for $$mode mode is different from reference" ;\
 		exit 1 ;\

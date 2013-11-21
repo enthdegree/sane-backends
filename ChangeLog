@@ -1,3 +1,6 @@
+2013-11-21 Stéphane Voltz <stef.dev@free.fr>
+	* testsuite/tools/Makefile.*: handle sane git version change in tests.
+
 2013-10-19 Stéphane Voltz <stef.dev@free.fr>
 	* doc/descriptions/genesys.desc doc/Descriptions/unsupported.desc:
 	update LiDE 80 and HP2400 information

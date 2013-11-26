@@ -433,4 +433,12 @@ SANE_Status gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi);
 SANE_Status gl841_led_calibration (Genesys_Device * dev);
 
 SANE_Status gl841_send_shading_data (Genesys_Device * dev, uint8_t * data, int size);
+int gl841_exposure_time(Genesys_Device *dev,
+                    float slope_dpi,
+                    int scan_step_type,
+                    int start,
+                    int used_pixels,
+                    int *scan_power_mode);
+
+int gl841_scan_step_type(Genesys_Device *dev, int yres);
 #endif

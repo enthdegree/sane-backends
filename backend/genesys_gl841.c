@@ -2473,11 +2473,74 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     return SANE_STATUS_GOOD;	
 }
 
-static int
+static int 
+gl841_get_led_exposure(Genesys_Device * dev) 
+{
+    int d,r,g,b,m;
+    if (!dev->model->is_cis)
+	return 0;
+    d = dev->reg[reg_0x19].value;
+    r = dev->sensor.regs_0x10_0x1d[1] | (dev->sensor.regs_0x10_0x1d[0] << 8);
+    g = dev->sensor.regs_0x10_0x1d[3] | (dev->sensor.regs_0x10_0x1d[2] << 8);
+    b = dev->sensor.regs_0x10_0x1d[5] | (dev->sensor.regs_0x10_0x1d[4] << 8);
+
+    m = r;
+    if (m < g)
+	m = g;
+    if (m < b)
+	m = b;
+    
+    return m + d;
+}
+
+/** @brief compute exposure time
+ * Compute exposure time for the device and the given scan resolution,
+ * also compute scan_power_mode
+ */
+GENESYS_STATIC int
+gl841_exposure_time(Genesys_Device *dev,
+                    float slope_dpi,
+                    int scan_step_type,
+                    int start,
+                    int used_pixels,
+                    int *scan_power_mode)
+{
+int exposure_time = 0;
+int exposure_time2 = 0;
+int led_exposure;
+
+  *scan_power_mode=0;
+  led_exposure=gl841_get_led_exposure(dev);
+  exposure_time = sanei_genesys_exposure_time2(
+      dev,
+      slope_dpi,
+      scan_step_type,
+      start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
+      led_exposure,
+      *scan_power_mode);
+    
+  while(*scan_power_mode + 1 < dev->motor.power_mode_count) {
+      exposure_time2 = sanei_genesys_exposure_time2(
+	  dev,
+	  slope_dpi,
+	  scan_step_type,
+	  start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
+	  led_exposure,
+	  *scan_power_mode + 1);
+      if (exposure_time < exposure_time2)
+	  break;
+      exposure_time = exposure_time2;
+      (*scan_power_mode)++;
+  }
+
+  return exposure_time;
+}
+
 /**@brief compute scan_step_type *
  * Try to do at least 4 steps per line. if that is impossible we will have to
    live with that.
  */
+GENESYS_STATIC int
 gl841_scan_step_type(Genesys_Device *dev, int yres)
 {
 int scan_step_type=0;
@@ -2508,37 +2571,17 @@ int scan_step_type=0;
         {
           scan_step_type = 1;
         }
+      /* driven by 'frequency' tables ? */
+      scan_step_type = 0;
     }
   return scan_step_type;
-}
-
-static int 
-gl841_get_led_exposure(Genesys_Device * dev) 
-{
-    int d,r,g,b,m;
-    if (!dev->model->is_cis)
-	return 0;
-    d = dev->reg[reg_0x19].value;
-    r = dev->sensor.regs_0x10_0x1d[1] | (dev->sensor.regs_0x10_0x1d[0] << 8);
-    g = dev->sensor.regs_0x10_0x1d[3] | (dev->sensor.regs_0x10_0x1d[2] << 8);
-    b = dev->sensor.regs_0x10_0x1d[5] | (dev->sensor.regs_0x10_0x1d[4] << 8);
-
-    m = r;
-    if (m < g)
-	m = g;
-    if (m < b)
-	m = b;
-    
-    return m + d;
 }
 
 /* set up registers for an actual scan
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-#ifndef UNIT_TESTING
-static
-#endif
+GENESYS_STATIC
 SANE_Status
 gl841_init_scan_regs (Genesys_Device * dev,
 		      Genesys_Register_Set * reg,
@@ -2559,14 +2602,14 @@ gl841_init_scan_regs (Genesys_Device * dev,
   int bytes_per_line;
   int move;
   unsigned int lincnt;
-  int exposure_time, exposure_time2, led_exposure;
+  int exposure_time;
+  int scan_power_mode;
   int i;
   int stagger;
 
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-  int scan_power_mode = 0;
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
 
@@ -2729,35 +2772,14 @@ dummy \ scanned lines
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-  scan_step_type=gl841_scan_step_type(dev, yres);
-  
-/* exposure_time */
-  led_exposure = gl841_get_led_exposure(dev);
-
-  exposure_time = sanei_genesys_exposure_time2(
-      dev,
-      slope_dpi,
-      scan_step_type,
-      start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
-      led_exposure,
-      scan_power_mode);
-    
-  while(scan_power_mode + 1 < dev->motor.power_mode_count) {
-      exposure_time2 = sanei_genesys_exposure_time2(
-	  dev,
-	  slope_dpi,
-	  scan_step_type,
-	  start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
-	  led_exposure,
-	  scan_power_mode + 1);
-      if (exposure_time < exposure_time2)
-	  break;
-      exposure_time = exposure_time2;
-      scan_power_mode++;
-  }
-  
-  DBG (DBG_info, "gl841_init_scan_regs : exposure_time=%d pixels\n",
-       exposure_time);
+  scan_step_type = gl841_scan_step_type(dev, yres);
+  exposure_time = gl841_exposure_time(dev,
+                    slope_dpi,
+                    scan_step_type,
+                    start,
+                    used_pixels,
+                    &scan_power_mode);
+  DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
 /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
@@ -2933,14 +2955,14 @@ gl841_calculate_current_setup (Genesys_Device * dev)
   int used_res;
   int used_pixels;
   unsigned int lincnt;
-  int exposure_time, exposure_time2, led_exposure;
+  int exposure_time;
+  int scan_power_mode;
   int i;
   int stagger;
 
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-  int scan_power_mode = 0;
   int max_shift;
 
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
@@ -3106,31 +3128,12 @@ dummy \ scanned lines
   slope_dpi = slope_dpi * (1 + dummy);
   
   scan_step_type = gl841_scan_step_type(dev, yres);
-  led_exposure = gl841_get_led_exposure(dev);
-
-/* exposure_time */
-  exposure_time = sanei_genesys_exposure_time2(
-      dev,
-      slope_dpi,
-      scan_step_type,
-      start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
-      led_exposure,
-      scan_power_mode);
-    
-  while(scan_power_mode + 1 < dev->motor.power_mode_count) {
-      exposure_time2 = sanei_genesys_exposure_time2(
-	  dev,
-	  slope_dpi,
-	  scan_step_type,
-	  start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
-	  led_exposure,
-	  scan_power_mode + 1);
-      if (exposure_time < exposure_time2)
-	  break;
-      exposure_time = exposure_time2;
-      scan_power_mode++;
-  }
-    
+  exposure_time = gl841_exposure_time(dev,
+                    slope_dpi,
+                    scan_step_type,
+                    start,
+                    used_pixels,
+                    &scan_power_mode);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
   /* scanned area must be enlarged by max color shift needed */

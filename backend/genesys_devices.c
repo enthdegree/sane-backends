@@ -1294,11 +1294,13 @@ static Genesys_Motor Motor[] = {
    1,	/* power mode count */
    {
      { /* start speed, max end speed, step number */
+       /* maximum speed (second field) is used to compute exposure as seen by motor */
+       /* exposure=max speed/ slope dpi * base dpi */
        /* 5144 = max pixels at 600 dpi */
        /* 1288=(5144+8)*ydpi(=300)/base_dpi(=1200) , where 5152 is exposure */
        /* 6440=9660/(1932/1288) */
-       {  6440,  1288, 60, 0.8 }, /* full step  9660 1932 32 values from logs */
-       { 15869, 15869, 16, 0.8 }, /* half step 18750 1875 16 values from logs */
+       {  6440,  1288, 64, 0.8 },
+       { 15569, 15569, 16, 0.8 },
      },
    },},
 };

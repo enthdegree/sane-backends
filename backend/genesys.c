@@ -782,6 +782,7 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
 
   if (exposure < exposure_by_led && dev->model->is_cis)
     exposure = exposure_by_led;
+
   DBG (DBG_info, "%s: ydpi=%d, step=%d, endpixel=%d led=%d, power=%d => exposure=%d\n",
        __FUNCTION__, (int)ydpi, step_type, endpixel, led_exposure, power_mode, exposure);
   return exposure;

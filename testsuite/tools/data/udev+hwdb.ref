@@ -25,7 +25,10 @@ ACTION!="add", GOTO="libsane_rules_end"
 # The following rule will disable USB autosuspend for the device
 ENV{DEVTYPE}=="usb_device", ENV{libsane_matched}=="yes", TEST=="power/control", ATTR{power/control}="on"
 
-SUBSYSTEMS!="scsi", GOTO="libsane_rules_end"
+SUBSYSTEMS=="scsi", GOTO="libsane_scsi_rules_begin"
+GOTO="libsane_rules_end"
+
+LABEL="libsane_scsi_rules_begin"
 KERNEL!="sg[0-9]*", GOTO="libsane_rules_end"
 
 # Generic: SCSI device type 6 indicates a scanner

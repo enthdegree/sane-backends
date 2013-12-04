@@ -1826,23 +1826,16 @@ main (int argc, char **argv)
 	    else
 	      {
 		int i = 0, int_arg = 0;
-		char *percent, *start, *fmt;
+		const char *percent, *start;
 		const char *text_arg = 0;
-		char cc, ftype;
-
-		fmt = malloc (strlen (optarg) + 1);
-		if (fmt == 0)
-		  {
-		    fprintf (stderr, "%s: not enough memory\n", prog_name);
-		    exit (1);
-		  }
+		char ftype;
 
 		for (i = 0; device_list[i]; ++i)
 		  {
-		    strcpy (fmt, optarg);
-		    start = fmt;
+		    start = optarg;
 		    while (*start && (percent = strchr (start, '%')))
 		      {
+			int start_len = percent - start;
 			percent++;
 			if (*percent)
 			  {
@@ -1850,19 +1843,19 @@ main (int argc, char **argv)
 			      {
 			      case 'd':
 				text_arg = device_list[i]->name;
-				ftype = *percent = 's';
+				ftype = 's';
 				break;
 			      case 'v':
 				text_arg = device_list[i]->vendor;
-				ftype = *percent = 's';
+				ftype = 's';
 				break;
 			      case 'm':
 				text_arg = device_list[i]->model;
-				ftype = *percent = 's';
+				ftype = 's';
 				break;
 			      case 't':
 				text_arg = device_list[i]->type;
-				ftype = *percent = 's';
+				ftype = 's';
 				break;
 			      case 'i':
 				int_arg = i;
@@ -1870,45 +1863,40 @@ main (int argc, char **argv)
 				break;
 			      case 'n':
 				text_arg = "\n";
-				ftype = *percent = 's';
+				ftype = 's';
 				break;
 			      case '%':
-				ftype = 0;
+				text_arg = "%";
+				ftype = 's';
 				break;
 			      default:
 				fprintf (stderr,
 					 "%s: unknown format specifier %%%c\n",
 					 prog_name, *percent);
-				*percent = '%';
-				ftype = 0;
+                                text_arg = "%";
+				ftype = 's';
 			      }
-			    percent++;
-			    cc = *percent;
-			    *percent = 0;
+			    printf ("%.*s", start_len, start);
 			    switch (ftype)
 			      {
 			      case 's':
-				printf (start, text_arg);
+				printf ("%s", text_arg);
 				break;
 			      case 'i':
-				printf (start, int_arg);
-				break;
-			      case 0:
-				printf (start);
+				printf ("%i", int_arg);
 				break;
 			      }
-			    *percent = cc;
-			    start = percent;
+			    start = percent + 1;
 			  }
 			else
 			  {
-			    /* last char of the string is a '%', suppress it */
-			    *start = 0;
+			    /* last char of the string is a '%', ignore it */
+			    start++;
 			    break;
 			  }
 		      }
 		    if (*start)
-		      printf (start);
+		      printf ("%s", start);
 		  }
 	      }
 	    if (i == 0 && ch != 'f')

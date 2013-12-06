@@ -1619,10 +1619,10 @@ gl841_init_motor_regs_off(Genesys_Register_Set * reg,
     r = sanei_genesys_get_address (reg, 0x68);
     r->value = 0x3f;
 
-    r = sanei_genesys_get_address (reg, 0x21);
+    r = sanei_genesys_get_address (reg, REG_STEPNO);
     r->value = 0;
     
-    r = sanei_genesys_get_address (reg, 0x24);
+    r = sanei_genesys_get_address (reg, REG_FASTNO);
     r->value = 0;
     
     r = sanei_genesys_get_address (reg, 0x69);
@@ -1635,8 +1635,7 @@ gl841_init_motor_regs_off(Genesys_Register_Set * reg,
     r->value = 0;
 
 
-    DBG (DBG_proc, "gl841_init_motor_regs_off : completed. \n");
-
+    DBGCOMPLETED;
     return SANE_STATUS_GOOD;	
 }
 
@@ -1646,7 +1645,7 @@ gl841_init_motor_regs_off(Genesys_Register_Set * reg,
  * @param ydpi motor target resolution
  * @return SANE_STATUS_GOOD on success
  */
-static SANE_Status gl841_write_freq(Genesys_Device *dev, unsigned int ydpi)
+GENESYS_STATIC SANE_Status gl841_write_freq(Genesys_Device *dev, unsigned int ydpi)
 {
 SANE_Status status;
 /**< fast table */
@@ -1702,6 +1701,7 @@ gl841_init_motor_regs(Genesys_Device * dev,
 {
     SANE_Status status;
     unsigned int fast_exposure;
+    int scan_power_mode;
     int use_fast_fed = 0;
     uint16_t fast_slope_table[256];
     unsigned int fast_slope_steps = 0;
@@ -1724,30 +1724,28 @@ gl841_init_motor_regs(Genesys_Device * dev,
 
     gl841_write_freq(dev, dev->motor.base_ydpi / 4);
 
-    if (action == MOTOR_ACTION_FEED || action == MOTOR_ACTION_GO_HOME) {
-/* FEED and GO_HOME can use fastest slopes available */
-	fast_slope_steps = 256;
-	fast_exposure = sanei_genesys_exposure_time2(
-	    dev,
-	    dev->motor.base_ydpi / 4,
-	    0,/*step_type*/
-	    0,/*last used pixel*/
-	    0,
-	    0);
-	
-	DBG (DBG_info, "gl841_init_motor_regs : fast_exposure=%d pixels\n",
-	     fast_exposure);
-    }
+    fast_slope_steps = 256;
+    if (action == MOTOR_ACTION_FEED || action == MOTOR_ACTION_GO_HOME)
+      {
+        /* FEED and GO_HOME can use fastest slopes available */
+	fast_exposure = gl841_exposure_time(dev,
+                                            dev->motor.base_ydpi / 4,
+                                            0,
+                                            0,
+                                            0,
+                                            &scan_power_mode);
+	DBG (DBG_info, "%s : fast_exposure=%d pixels\n", __FUNCTION__, fast_exposure);
+      }
 
     if (action == MOTOR_ACTION_HOME_FREE) {
 /* HOME_FREE must be able to stop in one step, so do not try to get faster */
-	fast_slope_steps = 256;
 	fast_exposure = dev->motor.slopes[0][0].maximum_start_speed;
     }
 
      sanei_genesys_create_slope_table3 (
 	dev,
-	fast_slope_table, 256,
+	fast_slope_table,
+        256,
 	fast_slope_steps,
 	0, 
 	fast_exposure,
@@ -1838,10 +1836,10 @@ HOME_FREE: 3
     r = sanei_genesys_get_address (reg, 0x68);
     r->value = 0x3f;
 
-    r = sanei_genesys_get_address (reg, 0x21);
+    r = sanei_genesys_get_address (reg, REG_STEPNO);
     r->value = 0;
     
-    r = sanei_genesys_get_address (reg, 0x24);
+    r = sanei_genesys_get_address (reg, REG_FASTNO);
     r->value = 0;
     
     r = sanei_genesys_get_address (reg, 0x69);
@@ -1854,8 +1852,7 @@ HOME_FREE: 3
     r->value = (fast_slope_steps >> 1) + (fast_slope_steps & 1);
 
 
-    DBG (DBG_proc, "gl841_init_motor_regs : completed. \n");
-
+    DBGCOMPLETED;
     return SANE_STATUS_GOOD;	
 }
 
@@ -1879,6 +1876,7 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
     SANE_Status status;
     unsigned int fast_exposure;
     int use_fast_fed = 0;
+    int dummy_power_mode;
     unsigned int fast_time;
     unsigned int slow_time;
     uint16_t slow_slope_table[256];
@@ -1906,17 +1904,14 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 	 scan_power_mode,
 	 flags);
 
-    fast_exposure = sanei_genesys_exposure_time2(
-	dev,
-	dev->motor.base_ydpi / 4,
-	0,/*step_type*/
-	0,/*last used pixel*/
-	0,
-	scan_power_mode);
+    fast_exposure = gl841_exposure_time(dev,
+                                        dev->motor.base_ydpi / 4,
+                                        0,
+                                        0,
+                                        0,
+                                        &dummy_power_mode);
     
-    DBG (DBG_info, "gl841_init_motor_regs_scan : fast_exposure=%d pixels\n",
-	 fast_exposure);
-
+    DBG (DBG_info, "%s : fast_exposure=%d pixels\n", __FUNCTION__, fast_exposure);
 
     memset(slow_slope_table,0xff,512);
     
@@ -2142,10 +2137,10 @@ HOME_FREE: 3
     if (min_restep < back_slope_steps*2+2) 
 	min_restep = back_slope_steps*2+2;
 /* steps of table 0*/
-    r = sanei_genesys_get_address (reg, 0x22);
+    r = sanei_genesys_get_address (reg, REG_FWDSTEP);
     r->value = min_restep - slow_slope_steps*2;
 /* steps of table 1*/
-    r = sanei_genesys_get_address (reg, 0x23);
+    r = sanei_genesys_get_address (reg, REG_BWDSTEP);
     r->value = min_restep - back_slope_steps*2;
     
 /*
@@ -2180,9 +2175,9 @@ HOME_FREE: 3
     r = sanei_genesys_get_address (reg, 0x65);
     r->value = (z2 & 0xff);
     
-    r = sanei_genesys_get_address (reg, 0x1e);
-    r->value &= 0xf0;	/* 0 dummy lines */
-    r->value |= scan_dummy;	/* dummy lines */
+    r = sanei_genesys_get_address (reg, REG1E);
+    r->value &= REG1E_WDTIME;
+    r->value |= scan_dummy;
 
     r = sanei_genesys_get_address (reg, 0x67);	
     r->value = 0x3f | (scan_step_type << 6);
@@ -2190,10 +2185,10 @@ HOME_FREE: 3
     r = sanei_genesys_get_address (reg, 0x68);
     r->value = 0x3f;
 
-    r = sanei_genesys_get_address (reg, 0x21);
+    r = sanei_genesys_get_address (reg, REG_STEPNO);
     r->value = (slow_slope_steps >> 1) + (slow_slope_steps & 1);
     
-    r = sanei_genesys_get_address (reg, 0x24);
+    r = sanei_genesys_get_address (reg, REG_FASTNO);
     r->value = (back_slope_steps >> 1) + (back_slope_steps & 1);
     
     r = sanei_genesys_get_address (reg, 0x69);
@@ -2206,8 +2201,7 @@ HOME_FREE: 3
     r->value = (fast_slope_steps >> 1) + (fast_slope_steps & 1);
 
 
-    DBG (DBG_proc, "gl841_init_motor_regs_scan : completed. \n");
-
+    DBGCOMPLETED;
     return SANE_STATUS_GOOD;	
 }
 
@@ -2538,7 +2532,9 @@ int led_exposure;
 
 /**@brief compute scan_step_type *
  * Try to do at least 4 steps per line. if that is impossible we will have to
-   live with that.
+ * live with that.
+ * @param dev device 
+ * @param yres motor resolution
  */
 GENESYS_STATIC int
 gl841_scan_step_type(Genesys_Device *dev, int yres)
@@ -2561,19 +2557,12 @@ int scan_step_type=0;
     }
   
   /* this motor behaves differently */
-  if (dev->model->motor_type== MOTOR_CANONLIDE80)
+  if (dev->model->motor_type==MOTOR_CANONLIDE80)
     {
-      if(yres<=600)
-        {
-          scan_step_type = 0;
-        }
-      else
-        {
-          scan_step_type = 1;
-        }
       /* driven by 'frequency' tables ? */
       scan_step_type = 0;
     }
+
   return scan_step_type;
 }
 
@@ -4323,37 +4312,28 @@ static SANE_Status
 gl841_init_regs_for_shading (Genesys_Device * dev)
 {
   SANE_Status status;
-  SANE_Int ydpi;
+  SANE_Int ydpi, resolution;
   float starty;
 
   DBGSTART;
   DBG (DBG_proc, "%s: lines = %d\n", __FUNCTION__, (int)dev->calib_lines);
 
+  /* initial calibration reg values */
+  memcpy (dev->calib_reg, dev->reg, GENESYS_GL841_MAX_REGS * sizeof (Genesys_Register_Set));
+
   ydpi = dev->motor.base_ydpi;
+  resolution = dev->settings.xres;
   starty = 0;
   if (dev->model->motor_type == MOTOR_PLUSTEK_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
     {
       ydpi = 600;
-    }
-  if (dev->model->motor_type== MOTOR_CANONLIDE80)
-    {
-      /* ydpi = sensor dpi * channels / (1+half_ccd) */
-      if(dev->settings.xres>600)
-        {
-          ydpi = 1200;
-        }
-      else
-        { 
-          ydpi = 600;
-        }
-      starty = (SANE_UNFIX (dev->model->y_offset_calib)*ydpi)/MM_PER_INCH;
     }
 
   dev->calib_channels = 3;
   dev->calib_lines = dev->model->shading_lines;
   status = gl841_init_scan_regs (dev,
 				 dev->calib_reg,
-				 dev->settings.xres,
+				 resolution,
 				 ydpi,
 				 0,
 				 starty,
@@ -4364,18 +4344,17 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES);
+                                 SCAN_FLAG_USE_OPTICAL_RES |
+				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl841_init_registers_for_shading: failed to setup scan: %s\n",
-	   sane_strstatus (status));
+      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__, sane_strstatus (status));
       return status;
     }
 
   dev->calib_pixels = dev->current_setup.pixels;
-  dev->scanhead_position_in_steps += dev->calib_lines;
+  dev->scanhead_position_in_steps += dev->calib_lines+starty;
 
   status = gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)

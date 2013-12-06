@@ -1289,7 +1289,7 @@ static Genesys_Motor Motor[] = {
    },},
   {MOTOR_CANONLIDE80,
    2400, /* 2400 ???? */
-   9600, /* 7200 ???? */
+   4800, /* 9600 ???? */
    1,	/* max step type */
    1,	/* power mode count */
    {
@@ -1299,8 +1299,7 @@ static Genesys_Motor Motor[] = {
        /* 5144 = max pixels at 600 dpi */
        /* 1288=(5144+8)*ydpi(=300)/base_dpi(=1200) , where 5152 is exposure */
        /* 6440=9660/(1932/1288) */
-       {  6440,  1288, 64, 0.8 },
-       { 15569, 15569, 16, 0.8 },
+       {  9560,  1912, 31, 0.8 },
      },
    },},
 };

@@ -157,11 +157,16 @@
 #define REG1DS_TGSHLD   0
 
 
+#define REG1E       	0x1e
 #define REG1E_WDTIME	0xf0
 #define REG1ES_WDTIME   4
 #define REG1E_LINESEL	0x0f
 #define REG1ES_LINESEL  0
 
+#define REG_STEPNO      0x21
+#define REG_FWDSTEP     0x22
+#define REG_BWDSTEP     0x23
+#define REG_FASTNO      0x24
 #define REG_LINCNT      0x25
 #define REG_DPISET      0x2c
 #define REG_STRPIXEL    0x30
@@ -441,4 +446,5 @@ int gl841_exposure_time(Genesys_Device *dev,
                     int *scan_power_mode);
 
 int gl841_scan_step_type(Genesys_Device *dev, int yres);
+SANE_Status gl841_write_freq(Genesys_Device *dev, unsigned int ydpi);
 #endif

@@ -767,13 +767,12 @@ sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
 SANE_Int
 sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
 			      int step_type, int endpixel,
-			      int led_exposure, int power_mode)
+			      int exposure_by_led, int power_mode)
 {
   int exposure_by_ccd = endpixel + 32;
   int exposure_by_motor =
     (dev->motor.slopes[power_mode][step_type].maximum_speed
      * dev->motor.base_ydpi) / ydpi;
-  int exposure_by_led = led_exposure;
 
   int exposure = exposure_by_ccd;
 
@@ -784,7 +783,7 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
     exposure = exposure_by_led;
 
   DBG (DBG_info, "%s: ydpi=%d, step=%d, endpixel=%d led=%d, power=%d => exposure=%d\n",
-       __FUNCTION__, (int)ydpi, step_type, endpixel, led_exposure, power_mode, exposure);
+       __FUNCTION__, (int)ydpi, step_type, endpixel, exposure_by_led, power_mode, exposure);
   return exposure;
 }
 
@@ -2460,6 +2459,7 @@ compute_averaged_planar (Genesys_Device * dev,
       dev->settings.xres <= dev->sensor.optical_res / 2)
     res *= 2;			/* scanner is using half-ccd mode */
   /* this should be evenly dividable */
+  res = dev->settings.xres;
   basepixels = dev->sensor.optical_res / res;
 
   /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */

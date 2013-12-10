@@ -58,6 +58,8 @@ enum scanner_Option
   OPT_COUNTONLY,
   OPT_BYPASSMODE,
   OPT_COUNTER,
+  OPT_ADF_LOADED,
+  OPT_CARD_LOADED,
 
   /* must come last: */
   NUM_OPTIONS
@@ -174,6 +176,7 @@ struct scanner
   int has_flatbed;
   int has_duplex;
   int has_back;         /* not all duplex scanners can do adf back side only */
+  int has_card;         /* P215 has a card reader instead of fb */
   int has_comp_JPEG;
   int has_buffer;
   int has_df;
@@ -181,6 +184,7 @@ struct scanner
   int has_ssm;           /* older scanners use this set scan mode command */         
   int has_ssm2;          /* newer scanners user this similar command */
   int has_ssm_pay_head_len; /* newer scanners put the length twice in ssm */
+  int can_read_sensors;
   int can_read_panel;
   int can_write_panel;
   int rgb_format;       /* meaning unknown */
@@ -224,7 +228,7 @@ struct scanner
 
   /*mode group*/
   SANE_String_Const mode_list[7];
-  SANE_String_Const source_list[5];
+  SANE_String_Const source_list[8];
 
   SANE_Int res_list[17];
   SANE_Range res_range;
@@ -334,9 +338,12 @@ struct scanner
   int panel_bypass_mode;
   int panel_enable_led;
   int panel_counter;
+  int sensor_adf_loaded;
+  int sensor_card_loaded;
 
   /* values which are used to track the frontend's access to sensors  */
-  char hw_read[NUM_OPTIONS-OPT_START];
+  char panel_read[OPT_COUNTER - OPT_START + 1];
+  char sensors_read[OPT_CARD_LOADED - OPT_ADF_LOADED + 1];
 };
 
 #define CONNECTION_SCSI   0 /* SCSI interface */
@@ -353,6 +360,9 @@ struct scanner
 #define SOURCE_ADF_FRONT 1
 #define SOURCE_ADF_BACK 2
 #define SOURCE_ADF_DUPLEX 3
+#define SOURCE_CARD_FRONT 4
+#define SOURCE_CARD_BACK 5
+#define SOURCE_CARD_DUPLEX 6
 
 static const int dpi_list[] = {
 60,75,100,120,150,160,180,200,
@@ -528,6 +538,7 @@ static SANE_Status update_params (struct scanner *s, int calib);
 static SANE_Status update_i_params (struct scanner *s);
 static SANE_Status clean_params (struct scanner *s);
 
+static SANE_Status read_sensors(struct scanner *s, SANE_Int option);
 static SANE_Status read_panel(struct scanner *s, SANE_Int option);
 static SANE_Status send_panel(struct scanner *s);
 

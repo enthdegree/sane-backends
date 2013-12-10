@@ -13,7 +13,7 @@
 :url "http://www.thebility.com/canon/" 
 :version "41"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
-:comment "Backend updated for SANE release 1.0.24, see sane-canon_dr manpage"
+:comment "Backend updated for SANE release 1.0.25, see sane-canon_dr manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
@@ -278,8 +278,8 @@
 
 :model "DR-G1100"
 :interface "USB"
-;:usbid "0x1083" "0x"
-:status :untested
+:usbid "0x1083" "0x1650"
+:status :good
 
 :model "DR-G1130"
 :interface "USB"
@@ -288,8 +288,9 @@
 
 :model "DR-M140"
 :interface "USB"
-;:usbid "0x1083" "0x"
+:usbid "0x1083" "0x163f"
 :status :untested
+:comment "Similar protocol to other canon_dr machines, but difficult to support."
 
 :model "DR-M160"
 :interface "USB"

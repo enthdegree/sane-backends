@@ -276,10 +276,15 @@
          - DR-2580C pads the backside of duplex scans
       v40 2012-11-01, MAN
          - initial DR-9050C, DR-7550C, DR-6050C and DR-3010C support
-      v41 2013-07-31, MAN
+      v41 2013-07-31, MAN (SANE 1.0.24)
          - initial P-208 and P-215 support
          - bug fix for calibration of scanners with duplex_offset
          - allow duplex_offset to be controlled from config file
+      v42 2013-12-09, MAN
+         - initial DR-G1100 support
+         - add support for paper sensors (P-215 & P-208)
+         - add initial support for card reader (P-215)
+         - removed unused var from do_scsi_cmd()
 
    SANE FLOW DIAGRAM
 
@@ -328,7 +333,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 41
+#define BUILD 42
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -345,6 +350,9 @@
 #define STRING_ADFFRONT SANE_I18N("ADF Front")
 #define STRING_ADFBACK SANE_I18N("ADF Back")
 #define STRING_ADFDUPLEX SANE_I18N("ADF Duplex")
+#define STRING_CARDFRONT SANE_I18N("Card Front")
+#define STRING_CARDBACK SANE_I18N("Card Back")
+#define STRING_CARDDUPLEX SANE_I18N("Card Duplex")
 
 #define STRING_LINEART SANE_VALUE_SCAN_MODE_LINEART
 #define STRING_HALFTONE SANE_VALUE_SCAN_MODE_HALFTONE
@@ -1203,7 +1211,9 @@ init_model (struct scanner *s)
 
   else if (strstr (s->model_name,"DR-9050")
     || strstr (s->model_name,"DR-7550")
-    || strstr (s->model_name,"DR-6050")){
+    || strstr (s->model_name,"DR-6050")
+    || strstr (s->model_name,"DR-G1100")
+  ){
 
     /*missing*/
     s->std_res_x[DPI_100]=1;
@@ -1367,6 +1377,7 @@ init_model (struct scanner *s)
     s->has_ssm_pay_head_len = 1;
     s->ppl_mod = 8;
     s->ccal_version = 3;
+    s->can_read_sensors = 1;
   }
 
   else if (strstr (s->model_name, "P-215")) {
@@ -1382,6 +1393,8 @@ init_model (struct scanner *s)
     s->has_ssm_pay_head_len = 1;
     s->ppl_mod = 8;
     s->ccal_version = 3;
+    s->can_read_sensors = 1;
+    s->has_card = 1;
   }
 
   DBG (10, "init_model: finish\n");
@@ -1435,6 +1448,8 @@ init_user (struct scanner *s)
     s->u.source = SOURCE_FLATBED;
   else if(s->has_adf)
     s->u.source = SOURCE_ADF_FRONT;
+  else if(s->has_card)
+    s->u.source = SOURCE_CARD_FRONT;
 
   /* scan mode */
   if(s->can_monochrome)
@@ -1626,6 +1641,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       }
       if(s->has_duplex){
         s->source_list[i++]=STRING_ADFDUPLEX;
+      }
+    }
+    if(s->has_card){
+      s->source_list[i++]=STRING_CARDFRONT;
+  
+      if(s->has_back){
+        s->source_list[i++]=STRING_CARDBACK;
+      }
+      if(s->has_duplex){
+        s->source_list[i++]=STRING_CARDDUPLEX;
       }
     }
     s->source_list[i]=NULL;
@@ -1841,7 +1866,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range = &s->paper_x_range;
 
-    if(s->has_adf){
+    if(s->has_adf || s->has_card){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
       if(s->u.source == SOURCE_FLATBED){
         opt->cap |= SANE_CAP_INACTIVE;
@@ -1868,7 +1893,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range = &s->paper_y_range;
 
-    if(s->has_adf){
+    if(s->has_adf || s->has_card){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
       if(s->u.source == SOURCE_FLATBED){
         opt->cap |= SANE_CAP_INACTIVE;
@@ -2306,6 +2331,28 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
 
+  if(option==OPT_ADF_LOADED){
+    opt->name = "adf-loaded";
+    opt->title = "ADF Loaded";
+    opt->desc = "Paper available in ADF input hopper";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    if(!s->can_read_sensors)
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_CARD_LOADED){
+    opt->name = "card-loaded";
+    opt->title = "Card Loaded";
+    opt->desc = "Paper available in card reader";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    if(!s->can_read_sensors || !s->has_card)
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
   return opt;
 }
 
@@ -2381,6 +2428,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           }
           else if(s->u.source == SOURCE_ADF_DUPLEX){
             strcpy (val, STRING_ADFDUPLEX);
+          }
+          else if(s->u.source == SOURCE_CARD_FRONT){
+            strcpy (val, STRING_CARDFRONT);
+          }
+          else if(s->u.source == SOURCE_CARD_BACK){
+            strcpy (val, STRING_CARDBACK);
+          }
+          else if(s->u.source == SOURCE_CARD_DUPLEX){
+            strcpy (val, STRING_CARDDUPLEX);
           }
           return SANE_STATUS_GOOD;
 
@@ -2581,6 +2637,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->panel_counter;
           return ret;
 
+        case OPT_ADF_LOADED:
+          ret = read_sensors(s,OPT_ADF_LOADED);
+          *val_p = s->sensor_adf_loaded;
+          return ret;
+
+        case OPT_CARD_LOADED:
+          ret = read_sensors(s,OPT_CARD_LOADED);
+          *val_p = s->sensor_card_loaded;
+          return ret;
       }
   }
   else if (action == SANE_ACTION_SET_VALUE) {
@@ -2628,6 +2693,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           }
           else if (!strcmp (val, STRING_ADFDUPLEX)) {
             tmp = SOURCE_ADF_DUPLEX;
+          }
+          else if (!strcmp (val, STRING_CARDFRONT)) {
+            tmp = SOURCE_CARD_FRONT;
+          }
+          else if (!strcmp (val, STRING_CARDBACK)) {
+            tmp = SOURCE_CARD_BACK;
+          }
+          else if (!strcmp (val, STRING_CARDDUPLEX)) {
+            tmp = SOURCE_CARD_DUPLEX;
           }
           else{
             tmp = SOURCE_FLATBED;
@@ -2862,11 +2936,14 @@ ssm_buffer (struct scanner *s)
   set_SSM_page_code(out, SM_pc_buffer);
   set_SSM_page_len(out, SSM_PAGE_len);
 
-  if(s->s.source == SOURCE_ADF_DUPLEX){
+  if(s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_CARD_DUPLEX){
     set_SSM_BUFF_duplex(out, 1);
   }
-  else if(s->s.source == SOURCE_FLATBED){
+  if(s->s.source == SOURCE_FLATBED){
     set_SSM_BUFF_fb(out, 1);
+  }
+  else if(s->s.source >= SOURCE_CARD_FRONT){
+    set_SSM_BUFF_card(out, 1);
   }
   if(s->buffermode){
     set_SSM_BUFF_async(out, 1);
@@ -3095,6 +3172,61 @@ ssm2 (struct scanner *s)
 }
 
 static SANE_Status
+read_sensors(struct scanner *s,SANE_Int option)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+
+  unsigned char cmd[READ_len];
+  size_t cmdLen = READ_len;
+
+  unsigned char in[R_SENSORS_len];
+  size_t inLen = R_SENSORS_len;
+
+  DBG (10, "read_sensors: start %d\n", option);
+ 
+  if(!s->can_read_sensors){
+    DBG (10, "read_sensors: unsupported, finishing\n");
+    return ret;
+  }
+
+  /* only run this if frontend has already read the last time we got it */
+  /* or if we don't care for such bookkeeping (private use) */
+  if (!option || !s->sensors_read[option-OPT_ADF_LOADED]) {
+
+    DBG (15, "read_sensors: running\n");
+
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, READ_code);
+    set_R_datatype_code (cmd, SR_datatype_sensors);
+    set_R_xfer_length (cmd, inLen);
+    
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      in, &inLen
+    );
+    
+    if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
+      /*set flags indicating there is data to read*/
+      memset(s->sensors_read,1,sizeof(s->sensors_read));
+
+      s->sensor_adf_loaded = get_R_SENSORS_adf(in);
+      s->sensor_card_loaded = get_R_SENSORS_card(in);
+
+      ret = SANE_STATUS_GOOD;
+    }
+  }
+  
+  if(option)
+    s->sensors_read[option-OPT_ADF_LOADED] = 0;
+
+  DBG (10, "read_sensors: finish\n");
+  
+  return ret;
+}
+
+static SANE_Status
 read_panel(struct scanner *s,SANE_Int option)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
@@ -3112,9 +3244,9 @@ read_panel(struct scanner *s,SANE_Int option)
     return ret;
   }
 
-  /* only run this if frontend has read previous value
-   * or if the caller does not want the data stored */
-  if (!option || !s->hw_read[option-OPT_START]) {
+  /* only run this if frontend has already read the last time we got it */
+  /* or if we don't care for such bookkeeping (private use) */
+  if (!option || !s->panel_read[option-OPT_START]) {
 
     DBG (15, "read_panel: running\n");
 
@@ -3132,8 +3264,7 @@ read_panel(struct scanner *s,SANE_Int option)
     
     if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
       /*set flags indicating there is data to read*/
-      if(option)
-        memset(s->hw_read,1,sizeof(s->hw_read));
+      memset(s->panel_read,1,sizeof(s->panel_read));
 
       s->panel_start = get_R_PANEL_start(in);
       s->panel_stop = get_R_PANEL_stop(in);
@@ -3143,12 +3274,13 @@ read_panel(struct scanner *s,SANE_Int option)
       s->panel_bypass_mode = get_R_PANEL_bypass_mode(in);
       s->panel_enable_led = get_R_PANEL_enable_led(in);
       s->panel_counter = get_R_PANEL_counter(in);
+
       ret = SANE_STATUS_GOOD;
     }
   }
   
   if(option)
-    s->hw_read[option-OPT_START] = 0;
+    s->panel_read[option-OPT_START] = 0;
 
   DBG (10, "read_panel: finish %d\n",s->panel_counter);
   
@@ -3396,7 +3528,8 @@ update_params(struct scanner *s, int calib)
     }
 
     /* some scanners need longer scans because front/back is offset */
-    if(s->u.source == SOURCE_ADF_DUPLEX && s->duplex_offset && !calib)
+    if((s->u.source == SOURCE_ADF_DUPLEX || s->u.source == SOURCE_CARD_DUPLEX)
+      && s->duplex_offset && !calib)
       s->s.height = (s->u.br_y-s->u.tl_y+s->duplex_offset) * s->u.dpi_y / 1200;
 
     /* round lines up to even number */
@@ -3421,7 +3554,7 @@ update_params(struct scanner *s, int calib)
     else{
       memcpy(&s->i,&s->u,sizeof(struct img_params));
       /*dumb scanners pad the top of front page in duplex*/
-      if(s->i.source == SOURCE_ADF_DUPLEX)
+      if(s->i.source == SOURCE_ADF_DUPLEX || s->i.source == SOURCE_CARD_DUPLEX)
         s->i.skip_lines[s->duplex_offset_side] = s->duplex_offset * s->i.dpi_y / 1200;
     }
 
@@ -3485,7 +3618,7 @@ sane_start (SANE_Handle handle)
   if(!s->started){
 
     /* load side marker */
-    if(s->u.source == SOURCE_ADF_BACK){
+    if(s->u.source == SOURCE_ADF_BACK || s->u.source == SOURCE_CARD_BACK){
       s->side = SIDE_BACK;
     }
     else{
@@ -3549,7 +3682,7 @@ sane_start (SANE_Handle handle)
       goto errors;
     }
 
-    /* buffer/duplex/ald command */
+    /* buffer/duplex/ald/fb/card command */
     ret = ssm_buffer(s);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot ssm buffer\n");
@@ -3591,18 +3724,21 @@ sane_start (SANE_Handle handle)
       goto errors;
     }
 
-    /* grab next page */
-    ret = object_position (s, SANE_TRUE);
-    if (ret != SANE_STATUS_GOOD) {
-      DBG (5, "sane_start: ERROR: cannot load page\n");
-      goto errors;
-    }
-
-    /* wait for scanner to finish load */
-    ret = wait_scanner (s);
-    if (ret != SANE_STATUS_GOOD) {
-      DBG (5, "sane_start: ERROR: cannot wait scanner\n");
-      goto errors;
+    /* card reader dislikes op? */
+    if(s->s.source < SOURCE_CARD_FRONT){
+      /* grab next page */
+      ret = object_position (s, SANE_TRUE);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot load page\n");
+        goto errors;
+      }
+  
+      /* wait for scanner to finish load */
+      ret = wait_scanner (s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot wait scanner\n");
+        goto errors;
+      }
     }
 
     /* start scanning */
@@ -3619,7 +3755,7 @@ sane_start (SANE_Handle handle)
   else{
 
     /* duplex needs to switch sides */
-    if(s->s.source == SOURCE_ADF_DUPLEX){
+    if(s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_CARD_DUPLEX){
       s->side = !s->side;
     }
 
@@ -3635,7 +3771,7 @@ sane_start (SANE_Handle handle)
     /* otherwise buffered back page will be lost */
     /* ingest paper with adf (no-op for fb) */
     /* dont call object pos or scan on back side of duplex scan */
-    if(s->side == SIDE_FRONT || s->s.source == SOURCE_ADF_BACK){
+    if(s->side == SIDE_FRONT || s->s.source == SOURCE_ADF_BACK || s->s.source == SOURCE_CARD_BACK){
 
       /* clean scan params for new scan */
       ret = clean_params(s);
@@ -3772,23 +3908,26 @@ clean_params (struct scanner *s)
   s->s.bytes_tot[1]=0;
 
   /* store the number of front bytes */ 
-  if ( s->u.source != SOURCE_ADF_BACK )
+  if ( s->u.source != SOURCE_ADF_BACK && s->u.source != SOURCE_CARD_BACK )
     s->u.bytes_tot[SIDE_FRONT] = s->u.Bpl * s->u.height;
 
-  if ( s->i.source != SOURCE_ADF_BACK )
+  if ( s->i.source != SOURCE_ADF_BACK && s->i.source != SOURCE_CARD_BACK )
     s->i.bytes_tot[SIDE_FRONT] = s->i.Bpl * s->i.height;
 
-  if ( s->s.source != SOURCE_ADF_BACK )
+  if ( s->s.source != SOURCE_ADF_BACK && s->s.source != SOURCE_CARD_BACK )
     s->s.bytes_tot[SIDE_FRONT] = s->s.Bpl * s->s.height;
 
   /* store the number of back bytes */ 
-  if ( s->u.source == SOURCE_ADF_DUPLEX || s->u.source == SOURCE_ADF_BACK )
+  if ( s->u.source == SOURCE_ADF_DUPLEX || s->u.source == SOURCE_ADF_BACK 
+    || s->u.source == SOURCE_CARD_DUPLEX || s->u.source == SOURCE_CARD_BACK )
     s->u.bytes_tot[SIDE_BACK] = s->u.Bpl * s->u.height;
 
-  if ( s->i.source == SOURCE_ADF_DUPLEX || s->i.source == SOURCE_ADF_BACK )
+  if ( s->i.source == SOURCE_ADF_DUPLEX || s->i.source == SOURCE_ADF_BACK
+    || s->i.source == SOURCE_CARD_DUPLEX || s->i.source == SOURCE_CARD_BACK )
     s->i.bytes_tot[SIDE_BACK] = s->i.Bpl * s->i.height;
 
-  if ( s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_ADF_BACK )
+  if ( s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_ADF_BACK
+    || s->s.source == SOURCE_CARD_DUPLEX || s->s.source == SOURCE_CARD_BACK )
     s->s.bytes_tot[SIDE_BACK] = s->s.Bpl * s->s.height;
 
   DBG (10, "clean_params: finish\n");
@@ -3863,7 +4002,7 @@ set_window (struct scanner *s)
   set_WPDB_wdblen(header, SW_desc_len);
 
   /* init the window block */
-  if (s->s.source == SOURCE_ADF_BACK) {
+  if (s->s.source == SOURCE_ADF_BACK || s->s.source == SOURCE_CARD_BACK) {
     set_WD_wid (desc1, WD_wid_back);
   }
   else{
@@ -3953,7 +4092,7 @@ set_window (struct scanner *s)
     NULL, NULL
   );
 
-  if (!ret && s->s.source == SOURCE_ADF_DUPLEX) {
+  if (!ret && (s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_CARD_DUPLEX)) {
       set_WD_wid (desc1, WD_wid_back);
       ret = do_cmd (
         s, 1, 0,
@@ -4037,9 +4176,9 @@ start_scan (struct scanner *s, int type)
     out[1] = type;
   }
 
-  if (s->s.source != SOURCE_ADF_DUPLEX) {
+  if (s->s.source != SOURCE_ADF_DUPLEX && s->s.source != SOURCE_CARD_DUPLEX) {
     outLen--;
-    if(s->s.source == SOURCE_ADF_BACK) {
+    if(s->s.source == SOURCE_ADF_BACK || s->s.source == SOURCE_CARD_BACK) {
       out[0] = WD_wid_back;
     }
   }
@@ -4100,7 +4239,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   s->reading = 1;
 
   /* double width pnm interlacing */
-  if(s->s.source == SOURCE_ADF_DUPLEX
+  if((s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_CARD_DUPLEX)
     && s->s.format <= SANE_FRAME_RGB
     && s->duplex_interlace != DUPLEX_INTERLACE_NONE
   ){
@@ -6252,7 +6391,6 @@ do_scsi_cmd(struct scanner *s, int runRS, int shortTime,
 )
 {
   int ret;
-  size_t actLen = 0;
 
   /*shut up compiler*/
   runRS=runRS;
@@ -6270,7 +6408,6 @@ do_scsi_cmd(struct scanner *s, int runRS, int shortTime,
   if (inBuff && inLen){
     DBG(25, "in: reading %d bytes\n", (int)*inLen);
     memset(inBuff,0,*inLen);
-    actLen = *inLen;
   }
 
   ret = sanei_scsi_cmd2(s->fd, cmdBuff, cmdLen, outBuff, outLen, inBuff, inLen);

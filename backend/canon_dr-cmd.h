@@ -204,6 +204,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SR_datatype_image		0x00
 #define SR_datatype_lut                 0x03
 #define SR_datatype_panel  		0x84
+#define SR_datatype_sensors  		0x8b
 #define SR_datatype_counters 		0x8c
 #define SR_datatype_endorser            0x90
 #define SR_datatype_fineoffset          0x90
@@ -233,6 +234,11 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_R_PANEL_bypass_mode(in)	getbitfield(in+1, 1, 2)
 #define get_R_PANEL_enable_led(in)	getbitfield(in+2, 1, 0)
 #define get_R_PANEL_counter(in)         getnbyte(in + 0x04, 4)
+
+/*sensors*/
+#define R_SENSORS_len                   0x01
+#define get_R_SENSORS_card(in)	        getbitfield(in, 1, 3)
+#define get_R_SENSORS_adf(in)	        getbitfield(in, 1, 0)
 
 /*counters*/
 #define R_COUNTERS_len                 0x80
@@ -334,6 +340,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_SSM_BUFF_async(sb, val)     setbitfield(sb+0x0a, 1, 6, val)
 #define set_SSM_BUFF_ald(sb, val)       setbitfield(sb+0x0a, 1, 5, val)
 #define set_SSM_BUFF_fb(sb, val)        setbitfield(sb+0x0a, 1, 4, val)
+#define set_SSM_BUFF_card(sb, val)      setbitfield(sb+0x0a, 1, 3, val)
 
 /* for DO (0x36) page */
 #define SSM_DO_none                     0

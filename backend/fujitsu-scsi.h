@@ -330,6 +330,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 #define get_IN_skew_check(in)         getbitfield(in+0x6d, 1, 7)
 #define get_IN_new_fd_roll(in)        getbitfield(in+0x6d, 1, 6)
+#define get_IN_paper_prot_2(in)       getbitfield(in+0x6d, 1, 1)
 
 #define get_IN_evpd_len(in)           getnbyte(in + 0x6f, 1)
 
@@ -364,7 +365,17 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 /*byte 75 is poorly documented*/
 
+#define get_IN_erp_lot6_supp(in)      getbitfield(in+0x76, 1, 7)
+#define get_IN_mode_change_jpeg(in)   getbitfield(in+0x76, 1, 5)
+#define get_IN_mode_change_irdc(in)   getbitfield(in+0x76, 1, 4)
+#define get_IN_mode_change_iomf(in)   getbitfield(in+0x76, 1, 3)
 #define get_IN_sync_next_feed(in)     getbitfield(in+0x76, 0x07, 0)
+
+#define get_IN_imp_func3(in)          getbitfield(in+0x77, 1, 7)
+
+#define get_IN_reset_ms(in)           getbitfield(in+0x78, 1, 7)
+#define get_IN_read_size(in)          getbitfield(in+0x78, 1, 6)
+#define get_IN_start_end_ms(in)       getbitfield(in+0x78, 1, 5)
 
 /* some scanners need evpd inquiry data manipulated */
 #define set_IN_page_length(in,val)    in[0x04]=val
@@ -429,6 +440,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_MSEL_df_paperprot(sb, val) setbitfield(sb + 3, 3, 6, val)
 #define set_MSEL_df_stapledet(sb, val) setbitfield(sb + 3, 3, 4, val)
 #define set_MSEL_df_recovery(sb, val)  setbitfield(sb + 3, 3, 2, val)
+#define set_MSEL_df_paperprot2(sb, val) setbitfield(sb + 5, 3, 6, val)
 
 #define set_MSEL_dropout_front(sb, val) setbitfield(sb + 0x02, 0x0f, 0, val)
 #define set_MSEL_dropout_back(sb, val) setbitfield(sb + 0x02, 0x0f, 4, val)

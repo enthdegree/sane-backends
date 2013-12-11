@@ -6,7 +6,7 @@
    Copyright (C) 2000 Randolph Bentson
    Copyright (C) 2001 Frederik Ramm
    Copyright (C) 2001-2004 Oliver Schirrmeister
-   Copyright (C) 2003-2011 m. allan noah
+   Copyright (C) 2003-2013 m. allan noah
 
    JPEG output and low memory usage support funded by:
      Archivista GmbH, www.archivista.ch
@@ -533,11 +533,18 @@
       v116 2013-03-23, MAN
          - call set_mode() in init_interlace
          - add swskip option
-      v117 2013-06-11, MAN
+      v117 2013-06-11, MAN (SANE 1.0.24)
          - default buffer-mode to off
          - improved error handling in sane_start
          - image width must be multiple of 8 when swcrop is used before binarization (iX500)
          - check hopper sensor before calling object_position(load) on iX500
+      v118 2013-12-09, MAN
+         - support fi-7160, fi-7260, fi-7180 and fi-7280
+         - remove unused var from do_scsi_cmd()
+         - added more request_sense options
+         - add adv_paper_protect option
+         - enable paper protection by default
+         - increase max_x_fb for fi-6240 and fi-6230
 
    SANE FLOW DIAGRAM
 
@@ -587,7 +594,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 117
+#define BUILD 118
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2172,7 +2179,7 @@ init_model (struct fujitsu *s)
    || strstr (s->model_name,"fi-6240")){
 
     /* missing from vpd */
-    s->max_x_fb = 10488;
+    s->max_x_fb = 10764; /* was previously 10488 */
     s->max_y_fb = 14032; /* some scanners can be slightly more? */
   }
 
@@ -2210,6 +2217,22 @@ init_model (struct fujitsu *s)
 
     /* dont bother with this one */
     s->can_mode[MODE_HALFTONE] = 0;
+  }
+
+  else if (strstr (s->model_name,"fi-7180")
+   || strstr (s->model_name,"fi-7160")){
+    s->has_df_recovery=1;
+    s->has_adv_paper_prot=1;
+  }
+
+  else if (strstr (s->model_name,"fi-7280")
+   || strstr (s->model_name,"fi-7260")){
+    s->has_df_recovery=1;
+    s->has_adv_paper_prot=1;
+
+    /* missing from vpd */
+    s->max_x_fb = 10764;
+    s->max_y_fb = 14032; /* some scanners can be slightly more? */
   }
 
   DBG (10, "init_model: finish\n");
@@ -2309,6 +2332,21 @@ init_user (struct fujitsu *s)
    * which causes the scanner to ingest multiple pages *
    * even when the user only wants one */
   s->buff_mode = MSEL_OFF;
+
+  /* useful features of newer scanners which we turn on,
+   * even though the scanner defaults to off */
+  if(s->has_paper_protect){
+    s->paper_protect = MSEL_ON;
+  }
+  if(s->has_staple_detect){
+    s->staple_detect = MSEL_ON;
+  }
+  if(s->has_df_recovery){
+    s->df_recovery = MSEL_ON;
+  }
+  if(s->has_adv_paper_prot){
+    s->adv_paper_prot = MSEL_ON;
+  }
 
   DBG (10, "init_user: finish\n");
 
@@ -3528,7 +3566,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
      opt->cap = SANE_CAP_INACTIVE;
   }
 
-  /*df recovery*/
+  /*df_recovery*/
   if(option==OPT_DF_RECOVERY){
     s->df_recovery_list[0] = STRING_DEFAULT;
     s->df_recovery_list[1] = STRING_OFF;
@@ -3548,7 +3586,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
 
-  /*paper protection*/
+  /*paper_protect*/
   if(option==OPT_PAPER_PROTECT){
     s->paper_protect_list[0] = STRING_DEFAULT;
     s->paper_protect_list[1] = STRING_OFF;
@@ -3563,6 +3601,26 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.string_list = s->paper_protect_list;
     opt->size = maxStringSize (opt->constraint.string_list);
     if (s->has_MS_df && s->has_paper_protect)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*adv_paper_prot*/
+  if(option==OPT_ADV_PAPER_PROT){
+    s->adv_paper_prot_list[0] = STRING_DEFAULT;
+    s->adv_paper_prot_list[1] = STRING_OFF;
+    s->adv_paper_prot_list[2] = STRING_ON;
+    s->adv_paper_prot_list[3] = NULL;
+  
+    opt->name = "adv-paper-protect";
+    opt->title = "Advanced paper protection";
+    opt->desc = "Request scanner to predict jams in the ADF using improved sensors";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->adv_paper_prot_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+    if (s->has_MS_df && s->has_adv_paper_prot)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
       opt->cap = SANE_CAP_INACTIVE;
@@ -3862,7 +3920,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range = &s->swskip_range;
 
-    s->swskip_range.quant=1;
+    s->swskip_range.quant=SANE_FIX(0.10001);
     s->swskip_range.min=SANE_FIX(0);
     s->swskip_range.max=SANE_FIX(100);
 
@@ -4689,6 +4747,20 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           }
           return SANE_STATUS_GOOD;
 
+        case OPT_ADV_PAPER_PROT:
+          switch (s->adv_paper_prot) {
+            case MSEL_DEFAULT:
+              strcpy (val, STRING_DEFAULT);
+              break;
+            case MSEL_ON:
+              strcpy (val, STRING_ON);
+              break;
+            case MSEL_OFF:
+              strcpy (val, STRING_OFF);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
         case OPT_STAPLE_DETECT:
           switch (s->staple_detect) {
             case MSEL_DEFAULT:
@@ -5339,6 +5411,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->paper_protect = MSEL_ON;
           else if (!strcmp(val, STRING_OFF))
             s->paper_protect = MSEL_OFF;
+          return SANE_STATUS_GOOD;
+
+        case OPT_ADV_PAPER_PROT:
+          if (!strcmp(val, STRING_DEFAULT))
+            s->adv_paper_prot = MSEL_DEFAULT;
+          else if (!strcmp(val, STRING_ON))
+            s->adv_paper_prot = MSEL_ON;
+          else if (!strcmp(val, STRING_OFF))
+            s->adv_paper_prot = MSEL_OFF;
           return SANE_STATUS_GOOD;
 
         case OPT_STAPLE_DETECT:
@@ -6092,6 +6173,7 @@ mode_select_df (struct fujitsu *s)
   set_MSEL_df_paperprot(page,s->paper_protect);
   set_MSEL_df_stapledet(page,s->staple_detect);
   set_MSEL_df_recovery(page,s->df_recovery);
+  set_MSEL_df_paperprot2(page,s->adv_paper_prot);
 
   ret = do_cmd (
       s, 1, 0,
@@ -8895,6 +8977,14 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
         DBG  (5, "Medium error: double feed\n");
         return SANE_STATUS_JAMMED;
       }
+      if (0x08 == ascq) {
+        DBG  (5, "Medium error: ADF setup error\n");
+        return SANE_STATUS_JAMMED;
+      }
+      if (0x09 == ascq) {
+        DBG  (5, "Medium error: Carrier sheet\n");
+        return SANE_STATUS_JAMMED;
+      }
       if (0x10 == ascq) {
         DBG  (5, "Medium error: no ink cartridge\n");
         return SANE_STATUS_IO_ERROR;
@@ -8907,12 +8997,32 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
         DBG  (5, "Medium error: endorser error\n");
         return SANE_STATUS_IO_ERROR;
       }
+      if (0x20 == ascq) {
+        DBG  (5, "Medium error: Stop button\n");
+        return SANE_STATUS_NO_DOCS;
+      }
+      if (0x30 == ascq) {
+        DBG  (5, "Medium error: Not enough paper\n");
+        return SANE_STATUS_NO_DOCS;
+      }
+      if (0x31 == ascq) {
+        DBG  (5, "Medium error: scanning disabled\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if (0x32 == ascq) {
+        DBG  (5, "Medium error: scanning paused\n");
+        return SANE_STATUS_DEVICE_BUSY;
+      }
+      if (0x33 == ascq) {
+        DBG  (5, "Medium error: WiFi control error\n");
+        return SANE_STATUS_IO_ERROR;
+      }
       DBG  (5, "Medium error: unknown ascq\n");
       return SANE_STATUS_IO_ERROR;
       break;
 
     case 0x4:
-      if (0x80 != asc && 0x44 != asc && 0x47 != asc) {
+      if (0x80 != asc && 0x44 != asc) {
         DBG  (5, "Hardware error: unknown asc\n");
         return SANE_STATUS_IO_ERROR;
       }
@@ -8926,6 +9036,10 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
       }
       if ((0x80 == asc) && (0x02 == ascq)) {
         DBG  (5, "Hardware error: heater fuse\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if ((0x80 == asc) && (0x03 == ascq)) {
+        DBG  (5, "Hardware error: lamp fuse\n");
         return SANE_STATUS_IO_ERROR;
       }
       if ((0x80 == asc) && (0x04 == ascq)) {
@@ -8950,6 +9064,22 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
       }
       if ((0x80 == asc) && (0x10 == ascq)) {
         DBG  (5, "Hardware error: endorser error\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if ((0x80 == asc) && (0x11 == ascq)) {
+        DBG  (5, "Hardware error: endorser fuse\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if ((0x80 == asc) && (0x80 == ascq)) {
+        DBG  (5, "Hardware error: interface board timeout\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if ((0x80 == asc) && (0x81 == ascq)) {
+        DBG  (5, "Hardware error: interface board error 1\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if ((0x80 == asc) && (0x82 == ascq)) {
+        DBG  (5, "Hardware error: interface board error 2\n");
         return SANE_STATUS_IO_ERROR;
       }
       DBG  (5, "Hardware error: unknown asc/ascq\n");
@@ -9098,7 +9228,6 @@ do_scsi_cmd(struct fujitsu *s, int runRS, int shortTime,
 )
 {
   int ret;
-  size_t actLen = 0;
 
   /*shut up compiler*/
   runRS=runRS;
@@ -9116,7 +9245,6 @@ do_scsi_cmd(struct fujitsu *s, int runRS, int shortTime,
   if (inBuff && inLen){
     DBG(25, "in: reading %d bytes\n", (int)*inLen);
     memset(inBuff,0,*inLen);
-    actLen = *inLen;
   }
 
   ret = sanei_scsi_cmd2(s->fd, cmdBuff, cmdLen, outBuff, outLen, inBuff, inLen);

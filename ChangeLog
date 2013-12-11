@@ -1,3 +1,19 @@
+2013-12-10 m. allan noah <kitno455 at gmail dot com>
+	* backend/fujitsu*: fujitsu backend v118
+	- support fi-7160, fi-7260, fi-7180 and fi-7280
+	- remove unused var from do_scsi_cmd()
+	- added more request_sense options
+	- add adv_paper_protect option
+	- enable paper protection by default
+	- increase max_x_fb for fi-6240 and fi-6230
+
+2013-12-09 m. allan noah <kitno455 at gmail dot com>
+	* backend/canon_dr*: canon_dr backend v42
+	- initial DR-G1100 support
+	- add support for paper sensors (P-215 & P-208)
+	- add initial support for card reader (P-215)
+	- removed unused var from do_scsi_cmd()
+
 2013-11-21 Stéphane Voltz <stef.dev@free.fr>
 	* testsuite/tools/Makefile.*: handle sane git version change in tests.
 

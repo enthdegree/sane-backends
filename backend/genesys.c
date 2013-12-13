@@ -2410,16 +2410,17 @@ static
 #endif
 void
 compute_averaged_planar (Genesys_Device * dev,
-			     uint8_t * shading_data,
-			     unsigned int pixels_per_line,
-			     unsigned int words_per_color,
-			     unsigned int channels,
-			     unsigned int o,
-			     unsigned int coeff,
-			     unsigned int target_bright,
-			     unsigned int target_dark)
+			 uint8_t * shading_data,
+			 unsigned int pixels_per_line,
+			 unsigned int words_per_color,
+			 unsigned int channels,
+			 unsigned int o,
+			 unsigned int coeff,
+			 unsigned int target_bright,
+			 unsigned int target_dark)
 {
   unsigned int x, i, j, br, dk, res, avgpixels, basepixels, val;
+  unsigned int fill,factor;
 
   DBG (DBG_info, "%s: pixels=%d, offset=%d\n", __FUNCTION__, pixels_per_line, o);
 
@@ -2453,13 +2454,14 @@ compute_averaged_planar (Genesys_Device * dev,
     off = (dark_average*bright_target - bright_average*dark_target)/(bright_target - dark_target)
     gain = (bright_target - dark_target)/(bright_average - dark_average)*coeff
  */
-  /* duplicate half-ccd logic */
   res = dev->settings.xres;
+
+  /* duplicate half-ccd logic */
   if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE) &&
       dev->settings.xres <= dev->sensor.optical_res / 2)
-    res *= 2;			/* scanner is using half-ccd mode */
+    res *= 2;
+
   /* this should be evenly dividable */
-  res = dev->settings.xres;
   basepixels = dev->sensor.optical_res / res;
 
   /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
@@ -2478,7 +2480,21 @@ compute_averaged_planar (Genesys_Device * dev,
   else
     avgpixels = 15;
 
+  /* LiDE80 packs shading data */
+  if(dev->model->ccd_type != CIS_CANONLIDE80)
+    {
+      factor=1;
+      fill=avgpixels;
+    }
+  else
+    {
+      factor=avgpixels;
+      fill=1;
+    }
+
   DBG (DBG_info, "%s: averaging over %d pixels\n", __FUNCTION__, avgpixels);
+  DBG (DBG_info, "%s: packing factor is %d\n", __FUNCTION__, factor);
+  DBG (DBG_info, "%s: fill length is %d\n", __FUNCTION__, fill);
 
   for (x = 0; x <= pixels_per_line - avgpixels; x += avgpixels)
     {
@@ -2523,10 +2539,10 @@ compute_averaged_planar (Genesys_Device * dev,
             }
 
           /*fill all pixels, even if only the last one is relevant*/
-	  for (i = 0; i < avgpixels; i++)
+	  for (i = 0; i < fill; i++)
 	    {
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
+	      shading_data[(x/factor + o + i) * 2 * 2 + words_per_color * 2 * j] = val & 0xff;
+	      shading_data[(x/factor + o + i) * 2 * 2 + words_per_color * 2 * j + 1] = val >> 8;
 	    }
 
 	  val = br - dk;
@@ -2541,22 +2557,22 @@ compute_averaged_planar (Genesys_Device * dev,
             }
 
           /*fill all pixels, even if only the last one is relevant*/
-	  for (i = 0; i < avgpixels; i++)
+	  for (i = 0; i < fill; i++)
 	    {
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
+	      shading_data[(x/factor + o + i) * 2 * 2 + words_per_color * 2 * j + 2] = val & 0xff;
+	      shading_data[(x/factor + o + i) * 2 * 2 + words_per_color * 2 * j + 3] = val >> 8;
 	    }
 	}
 
       /* fill remaining channels */
       for (j = channels; j < 3; j++)
 	{
-	  for (i = 0; i < avgpixels; i++)
+	  for (i = 0; i < fill; i++)
 	    {
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j    ] = shading_data[(x + o + i) * 2 * 2    ];
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 1] = shading_data[(x + o + i) * 2 * 2 + 1];
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 2] = shading_data[(x + o + i) * 2 * 2 + 2];
-	      shading_data[(x + o + i) * 2 * 2 + words_per_color * 2 * j + 3] = shading_data[(x + o + i) * 2 * 2 + 3];
+	      shading_data[(x/factor + o + i) * 2 * 2 + words_per_color * 2 * j    ] = shading_data[(x/factor + o + i) * 2 * 2    ];
+	      shading_data[(x/factor + o + i) * 2 * 2 + words_per_color * 2 * j + 1] = shading_data[(x/factor + o + i) * 2 * 2 + 1];
+	      shading_data[(x/factor + o + i) * 2 * 2 + words_per_color * 2 * j + 2] = shading_data[(x/factor + o + i) * 2 * 2 + 2];
+	      shading_data[(x/factor + o + i) * 2 * 2 + words_per_color * 2 * j + 3] = shading_data[(x/factor + o + i) * 2 * 2 + 3];
 	    }
 	}
     }
@@ -2818,7 +2834,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
   }
 }
 
-static SANE_Status
+GENESYS_STATIC SANE_Status
 genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -3278,7 +3294,7 @@ genesys_save_calibration (Genesys_Device * dev)
  * @param dev device to calibrate
  * @return SANE_STATUS_GOOD if everything when all right, else the error code.
  */
-static SANE_Status
+GENESYS_STATIC SANE_Status
 genesys_flatbed_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -3657,8 +3673,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       dev->model->cmd_set->eject_document (dev);
-      DBG (DBG_error,
-	   "genesys_sheetfed_calibration: failed eject target: %s\n",
+      DBG (DBG_error, "%s: failed eject target: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }

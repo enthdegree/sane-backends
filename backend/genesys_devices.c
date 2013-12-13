@@ -762,8 +762,9 @@ static Genesys_Sensor Sensor[] = {
   {CIS_CANONLIDE80, 
    1200, /* real hardware limit is 2400 */
    20,   /* black pixels */
-   6,    /* expdummy */
-   31,    /* CCD_start_xoffset 14=>3, 20=>2 */
+   6,    /* expdummy 6 */
+   /* tuned to give 3*8 multiple startx coordinate during  shading calibration */
+   34,    /* CCD_start_xoffset 14=>3, 20=>2 */
    10240, /* 10400, too wide=>10288 in shading data 10240~, 10208 too short for shading, max shading data = 10240 pixels, endpix-startpix=10208 */
    230,
    230,
@@ -2134,7 +2135,6 @@ static Genesys_Model canon_lide_80_model = {
   {2400, 1200, 600, 400, 300, 240, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
-
   SANE_FIX (0.42),		/* Start of scan area in mm  (x)   0.42 */
   SANE_FIX (7.90),		/* Start of scan area in mm (y)    7.90 */
   SANE_FIX (216.07),		/* Size of scan area in mm (x)   218.00 */
@@ -2175,7 +2175,7 @@ static Genesys_Model canon_lide_80_model = {
   GENESYS_HAS_FILE_SW |
   GENESYS_HAS_EMAIL_SW |
   GENESYS_HAS_COPY_SW,
-  280,
+  140, /* 280 @2400 */
   400
 };
 

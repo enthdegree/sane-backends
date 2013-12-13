@@ -171,6 +171,7 @@
 #define REG_DPISET      0x2c
 #define REG_STRPIXEL    0x30
 #define REG_ENDPIXEL    0x32
+#define REG_LPERIOD     0x38
 
 #define REG40_HISPDFLG  0x04
 #define REG40_MOTMFLG   0x02

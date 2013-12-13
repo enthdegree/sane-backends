@@ -1199,6 +1199,10 @@ compute_shifted_coefficients (Genesys_Device * dev,
 
 SANE_Status
 probe_genesys_devices (void);
+
+SANE_Status genesys_flatbed_calibration (Genesys_Device *dev);
+
+SANE_Status genesys_send_shading_coefficient (Genesys_Device *dev);
 #endif
 
 

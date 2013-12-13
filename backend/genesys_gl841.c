@@ -4465,7 +4465,8 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
   
   if(dev->model->is_cis && dev->settings.true_gray
     &&dev->settings.scan_mode != SCAN_MODE_COLOR
-    &&dev->model->ccd_type != CCD_CANONLIDE35)
+    &&dev->model->ccd_type != CCD_CANONLIDE35 
+    &&dev->model->ccd_type != CIS_CANONLIDE80)
     {
       flags |= OPTICAL_FLAG_ENABLE_LEDADD;
     }

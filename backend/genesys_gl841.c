@@ -3894,15 +3894,12 @@ gl841_feed (Genesys_Device * dev, int steps)
   uint8_t val;
   int loop;
 
-  DBG (DBG_proc, "gl841_feed (steps = %d)\n",
-       steps);
+  DBG (DBG_proc, "gl841_feed (steps = %d)\n", steps);
 
-  status =
-    gl841_stop_action (dev);
+  status = gl841_stop_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl841_feed: failed to stop action: %s\n",
+      DBG (DBG_error, "gl841_feed: failed to stop action: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -3911,12 +3908,9 @@ gl841_feed (Genesys_Device * dev, int steps)
 
   gl841_init_optical_regs_off(local_reg);
 
-  gl841_init_motor_regs(dev,local_reg,
-			steps,MOTOR_ACTION_FEED,0);
+  gl841_init_motor_regs(dev,local_reg, steps,MOTOR_ACTION_FEED,0);
 
-  status =
-    gl841_bulk_write_register (dev, local_reg,
-			       GENESYS_GL841_MAX_REGS);
+  status = gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3933,8 +3927,7 @@ gl841_feed (Genesys_Device * dev, int steps)
 	   sane_strstatus (status));
       gl841_stop_action (dev);
       /* send original registers */
-      gl841_bulk_write_register (dev, dev->reg,
-				 GENESYS_GL841_MAX_REGS);
+      gl841_bulk_write_register (dev, dev->reg, GENESYS_GL841_MAX_REGS);
       return status;
     }
 
@@ -4570,6 +4563,7 @@ gl841_led_calibration (Genesys_Device * dev)
   char fn[20];
   uint16_t expr, expg, expb;
   Genesys_Register_Set *r;
+  int move;
 
   SANE_Bool acceptable = SANE_FALSE;
 
@@ -4579,20 +4573,20 @@ gl841_led_calibration (Genesys_Device * dev)
 
   DBGSTART;
 
-  /* feed to white strip. canon lide 35 only. */
-  if (dev->model->gpo_type == GPO_CANONLIDE35
-   || dev->model->gpo_type == GPO_CANONLIDE80)
+  /* feed to white strip if needed */
+  if (dev->model->y_offset_calib>0)
     {
-      status = gl841_feed(dev, 280);
-
+      move = SANE_UNFIX (dev->model->y_offset_calib);
+      move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
+      DBG (DBG_io, "%s: move=%d lines\n", __FUNCTION__, move);
+      status = gl841_feed(dev, move);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error,
-	       "%s: failed to feed: %s\n", __FUNCTION__,
-	       sane_strstatus (status));
+	  DBG (DBG_error, "%s: failed to feed: %s\n", __FUNCTION__,
+               sane_strstatus (status));
 	  return status;
 	}
-  }
+    }
 
   /* offset calibration is always done in color mode */
   channels = 3;
@@ -4754,7 +4748,7 @@ gl841_led_calibration (Genesys_Device * dev)
       turn++;
 
   } while (!acceptable && turn < 100);
-      
+  
   DBG(DBG_info,"%s: acceptable exposure: %d,%d,%d\n", __FUNCTION__, expr,expg,expb);
 
   /* cleanup before return */
@@ -5328,20 +5322,21 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   float gain[3];
   int val;
   int lines=1;
+  int move;
 
-  DBG (DBG_proc, "gl841_coarse_gain_calibration dpi=%d\n", dpi);
+  DBG (DBG_proc, "%s: dpi=%d\n", __FUNCTION__, dpi);
 
-  /*feed to white strip. canon lide 35 only.*/
-  if (dev->model->gpo_type == GPO_CANONLIDE35
-   || dev->model->gpo_type == GPO_CANONLIDE80)
+  /* feed to white strip if needed */
+  if (dev->model->y_offset_calib>0)
     {
-      status = gl841_feed(dev, 280);
-
+      move = SANE_UNFIX (dev->model->y_offset_calib);
+      move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
+      DBG (DBG_io, "%s: move=%d lines\n", __FUNCTION__, move);
+      status = gl841_feed(dev, move);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error,
-	       "gl841_coarse_gain_calibration: failed to feed: %s\n",
-	       sane_strstatus (status));
+	  DBG (DBG_error, "%s: failed to feed: %s\n", __FUNCTION__,
+               sane_strstatus (status));
 	  return status;
 	}
     }
@@ -5369,8 +5364,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl841_coarse_calibration: failed to setup scan: %s\n",
+      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
@@ -5431,8 +5425,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	      dev->frontend.gain[j] = gain[j]*12;
         }
 
-      DBG (DBG_proc,
-	   "gl841_coarse_gain_calibration: channel %d, max=%d, gain = %f, setting:%d\n",
+      DBG (DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __FUNCTION__,
 	   j, max[j], gain[j],dev->frontend.gain[j]);
     }
 
@@ -5482,7 +5475,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   gl841_slow_back_home(dev, SANE_TRUE);
 
-  DBG (DBG_proc, "gl841_coarse_gain_calibration: completed\n");
+  DBGCOMPLETED;
   return status;
 }
 

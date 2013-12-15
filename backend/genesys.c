@@ -3089,8 +3089,8 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                                channels,
                                0,
                                coeff,
-                               0xfa00,
-                               0x0a00);
+                               0xf900,
+                               0x0001);
       break;
     case CCD_PLUSTEK_3600:
       compute_shifted_coefficients (dev,

@@ -1373,7 +1373,7 @@ static Genesys_Model canon_lide_50_model = {
   SANE_FIX (218.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (6.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -2087,7 +2087,7 @@ static Genesys_Model canon_lide_60_model = {
   SANE_FIX (218.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (6.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -2140,7 +2140,7 @@ static Genesys_Model canon_lide_80_model = {
   SANE_FIX (216.07),		/* Size of scan area in mm (x)   218.00 */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (4.5),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -2571,7 +2571,7 @@ static Genesys_Model visioneer_xp300_model = {
   SANE_FIX (435.0),		/* Size of scan area in mm (x) */
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -2676,7 +2676,7 @@ static Genesys_Model visioneer_roadwarrior_model = {
   SANE_FIX (220.0),		/* Size of scan area in mm (x) */
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -2728,7 +2728,7 @@ static Genesys_Model syscan_docketport_465_model = {
   SANE_FIX (220.0),		/* Size of scan area in mm (x) */
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -2780,7 +2780,7 @@ static Genesys_Model visioneer_xp100_r3_model = {
   SANE_FIX (220.0),		/* Size of scan area in mm (x) */
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -2832,7 +2832,7 @@ static Genesys_Model pentax_dsmobile_600_model = {
   SANE_FIX (220.0),		/* Size of scan area in mm (x) */
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -2884,7 +2884,7 @@ static Genesys_Model syscan_docketport_467_model = {
   SANE_FIX (220.0),		/* Size of scan area in mm (x) */
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -2936,7 +2936,7 @@ static Genesys_Model syscan_docketport_685_model = {
   SANE_FIX (212.0),		/* Size of scan area in mm (x) */
   SANE_FIX (500),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -2989,7 +2989,7 @@ static Genesys_Model syscan_docketport_485_model = {
   SANE_FIX (435.0),		/* Size of scan area in mm (x) */
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -3042,7 +3042,7 @@ static Genesys_Model dct_docketport_487_model = {
   SANE_FIX (435.0),		/* Size of scan area in mm (x) */
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -3207,7 +3207,7 @@ static Genesys_Model xerox_travelscanner_model = {
   SANE_FIX (220.0),		/* Size of scan area in mm (x) */
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */

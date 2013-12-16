@@ -630,10 +630,14 @@ calc_shifting (pixma_t * s)
 
   /* If stripes shift needed (CCD devices), how many pixels shift */
   mp->stripe_shift = 0;
+  /* If color plane shift (CCD devices), how many pixels shift */
+  mp->color_shift = mp->shift[0] = mp->shift[1] = mp->shift[2] = 0;
+
   switch (s->cfg->pid)
     {
       case MP800_PID:
       case MP800R_PID:
+      case MP830_PID:
         if (s->param->xdpi == 2400)
           {
 	    if (is_scanning_from_tpu(s))
@@ -641,35 +645,15 @@ calc_shifting (pixma_t * s)
 	    else
 	      mp->stripe_shift = 3;
           }
-        break;
-
-      case MP830_PID:
-        if (s->param->xdpi == 2400) 
+        if (s->param->ydpi > 75)
           {
-            if (is_scanning_from_tpu(s))
-              mp->stripe_shift = 6;
-            else
-              mp->stripe_shift = 3;
-          }
-        break;
-
-      default:     /* Default, and all CIS devices */
-        break;
-    }
-  /* If color plane shift (CCD devices), how many pixels shift */
-  mp->color_shift = mp->shift[0] = mp->shift[1] = mp->shift[2] = 0;
-  if (s->param->ydpi > 75)
-    {
-      switch (s->cfg->pid)
-        {
-          case MP800_PID:
-          case MP800R_PID:
-          case MP830_PID:
             mp->color_shift = s->param->ydpi / ((s->param->ydpi < 1200) ? 150 : 75);
 
             if (is_scanning_from_tpu (s)) 
               mp->color_shift = s->param->ydpi / 75;
 
+            /* If you're trying to decipher this color-shifting code,
+               the following line is where the magic is revealed. */
             mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
             if (is_scanning_from_adf (s))
               {  /* ADF */
@@ -681,11 +665,11 @@ calc_shifting (pixma_t * s)
                 mp->shift[0] = 2 * mp->shift[1];
                 mp->shift[2] = 0;
               }
-            break;
+          }
+        break;
 
-          default:
-            break;
-        }
+      default:     /* Default, and all CIS devices */
+        break;
     }
   return (2 * mp->color_shift + mp->stripe_shift);
 }

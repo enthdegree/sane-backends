@@ -93,7 +93,7 @@
 #define MF8030_PID 0x2707
 #define IR1133_PID 0x2742
 #define MF4570_PID 0x275a
-#define MF4890_PID 0x2773
+#define MF4800_PID 0x2773
 
 
 enum iclass_state_t
@@ -783,6 +783,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF6680dn", "MF6680", MF6680_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageCLASS MF4570dw", "MF4570dw", MF4570_PID, 600, 640, 877, 0),
   DEV ("Canon imageRUNNER 1133", "iR1133", IR1133_PID, 600, 637, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon i-SENSYS MF4890dw", "MF4890", MF4890_PID, 600, 640, 877, 0),
+  DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 877, 0),
   DEV (NULL, NULL, 0, 0, 0, 0, 0)
 };

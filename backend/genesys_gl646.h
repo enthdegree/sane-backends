@@ -6,42 +6,42 @@
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 #include "genesys.h"
@@ -267,10 +267,10 @@ SANE_Status gl646_public_set_fe (Genesys_Device * dev, uint8_t set);
  * @param device   device to set up
  * @param settings settings of the scan
  * @param split    true if move before scan has to be done
- * @param xcorrection true if scanner's X geometry must be taken into account to 
- * 		     compute X, ie add left margins 
- * @param ycorrection true if scanner's Y geometry must be taken into account to 
- * 		     compute Y, ie add top margins 
+ * @param xcorrection true if scanner's X geometry must be taken into account to
+ * 		     compute X, ie add left margins
+ * @param ycorrection true if scanner's Y geometry must be taken into account to
+ * 		     compute Y, ie add top margins
  */
 static SANE_Status
 setup_for_scan (Genesys_Device * device, Genesys_Settings settings,
@@ -305,7 +305,7 @@ gl646_setup_registers (Genesys_Device * dev,
 static
 #endif
   SANE_Status
-simple_move (Genesys_Device * dev, SANE_Int distance); 
+simple_move (Genesys_Device * dev, SANE_Int distance);
 
 /**
  * Does a simple scan of the area given by the settings. Scanned data
@@ -320,7 +320,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance);
  * @param data     pointer that will point to the scanned data
  */
 #ifndef UNIT_TESTING
-static 
+static
 #endif
 SANE_Status
 simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
@@ -344,7 +344,7 @@ static SANE_Status write_control (Genesys_Device * dev, int resolution);
 static void gl646_init_regs (Genesys_Device * dev);
 
 #ifndef UNIT_TESTING
-static 
+static
 #endif
 SANE_Status gl646_load_document (Genesys_Device * dev);
 
@@ -576,7 +576,7 @@ static Motor_Master motor_master[] = {
   {MOTOR_HP2300, 300, SANE_FALSE, 300, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,   3,  2175,  1087, 120, 4905,  337, 0.3, 0.4, 16},
   {MOTOR_HP2300, 600, SANE_FALSE, 600, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,   3,  8700,  4350, 120, 4905,  337, 0.3, 0.4, 16},
   {MOTOR_HP2300,1200, SANE_FALSE,1200, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,   3, 17400,  8700, 120, 4905,  337, 0.3, 0.4, 16},
-  /* non half ccd settings for 300 dpi 
+  /* non half ccd settings for 300 dpi
   {MOTOR_HP2300, 300,  SANE_TRUE, 300, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,  44,  5386,  2175, 120, 4905,  337, 0.3, 0.4, 16},
   {MOTOR_HP2300, 300, SANE_FALSE, 300, HALF_STEP, SANE_FALSE, SANE_TRUE , 63,  44,  5386,  2175, 120, 4905,  337, 0.3, 0.4, 16},
   */

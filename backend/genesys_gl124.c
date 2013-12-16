@@ -380,7 +380,7 @@ Motor_Profile *profile;
 
 	/* required speed */
 	target=((exposure * dpi) / base_dpi)>>step_type;
-	
+
 	/* fill result with target speed */
         for(i=0;i<SLOPE_TABLE_SIZE;i++)
           slope[i]=target;

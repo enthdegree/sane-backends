@@ -1,3 +1,8 @@
+2013-12-16 Stéphane Voltz <stef.dev@free.fr>
+	* doc/descriptions/genesys.desc: update LiDE 80
+	* backend/genesys_devices.c backend/genesys.c backend/genesys_low.h
+	backend/genesys_gl841.[ch]: basic support for LiDE 80
+
 2013-12-10 m. allan noah <kitno455 at gmail dot com>
 	* backend/fujitsu*: fujitsu backend v118
 	- support fi-7160, fi-7260, fi-7180 and fi-7280

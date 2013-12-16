@@ -8,44 +8,44 @@
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
    Copyright (C) 2011 Alexey Osipov <simba@lerlan.ru> for HP2400 description
                       and tuning
-   
+
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-   
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 #undef BACKEND_NAME
@@ -682,7 +682,7 @@ get_cksel (int sensor, int required, SANE_Bool color)
  * the device.
  * @param dev          pointer to a struct describing the device
  * @param regs         register set to fill
- * @param scan_settings scan's settings    
+ * @param scan_settings scan's settings
  * @param slope_table1 first motor table to fill
  * @param slope_table2 second motor table to fill
  * @param resolution   dpi of the scan
@@ -1120,7 +1120,7 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* we assume all scans are done with 2 tables */
   /*
-     feedl = feed_steps - fast_slope_steps*2 - 
+     feedl = feed_steps - fast_slope_steps*2 -
      (slow_slope_steps >> scan_step_type); */
   /* but head has moved due to shading calibration => dev->scanhead_position_in_steps */
   if (feedl > 0)
@@ -1299,7 +1299,7 @@ gl646_setup_registers (Genesys_Device * dev,
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
-  /* total_bytes_to_read is the number of byte to send to frontend 
+  /* total_bytes_to_read is the number of byte to send to frontend
    * total_bytes_read is the number of bytes sent to frontend
    * read_bytes_left is the number of bytes to read from the scanner
    */
@@ -1354,7 +1354,7 @@ gl646_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs)
 
 }
 
-/** Test if the ASIC works 
+/** Test if the ASIC works
  */
 static SANE_Status
 gl646_asic_test (Genesys_Device * dev)
@@ -1415,7 +1415,7 @@ gl646_asic_test (Genesys_Device * dev)
   size = 0x40000;
   verify_size = size + 0x80;
   /* todo: looks like the read size must be a multiple of 128?
-     otherwise the read doesn't succeed the second time after the scanner has 
+     otherwise the read doesn't succeed the second time after the scanner has
      been plugged in. Very strange. */
 
   data = (uint8_t *) malloc (size);
@@ -1699,7 +1699,7 @@ gl646_init_regs (Genesys_Device * dev)
 }
 
 
-/* Send slope table for motor movement 
+/* Send slope table for motor movement
    slope_table in machine byte order
 */
 static SANE_Status
@@ -1834,7 +1834,7 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
 	    }
 	}
     }
-  /* 
+  /*
      if (set == AFE_POWER_SAVE)
      {
      status =
@@ -2169,8 +2169,8 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi)
   return SANE_STATUS_GOOD;
 }
 
-/** Set values of analog frontend 
- * this this the public interface, the gl646 as to use one more 
+/** Set values of analog frontend
+ * this this the public interface, the gl646 as to use one more
  * parameter to work effectively, hence the redirection
  * @param dev device to set
  * @param set action to execute
@@ -2229,7 +2229,7 @@ gl646_set_lamp_power (Genesys_Device * dev,
  * limited to AFE for now.
  * @param dev scanner's device
  * @param enable SANE_TRUE to enable power saving, SANE_FALSE to leave it
- * @return allways SANE_STATUS_GOOD 
+ * @return allways SANE_STATUS_GOOD
  */
 #ifndef UNIT_TESTING
 static
@@ -2558,8 +2558,8 @@ gl646_detect_document_end (Genesys_Device * dev)
       DBG (DBG_info, "gl646_detect_document_end: no more document\n");
       dev->document = SANE_FALSE;
 
-      /* adjust number of bytes to read: 
-       * total_bytes_to_read is the number of byte to send to frontend 
+      /* adjust number of bytes to read:
+       * total_bytes_to_read is the number of byte to send to frontend
        * total_bytes_read is the number of bytes sent to frontend
        * read_bytes_left is the number of bytes to read from the scanner
        */
@@ -3072,7 +3072,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "%s: failed to setup for scan: %s\n", __FUNCTION__, 
+	   "%s: failed to setup for scan: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       DBGCOMPLETED;
       return status;
@@ -3088,7 +3088,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "%s: failed to set frontend: %s\n", __FUNCTION__, 
+	   "%s: failed to set frontend: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       DBGCOMPLETED;
       return status;
@@ -3377,7 +3377,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
 
 /**
- * set up registers for the actual scan. The scan's parameters are given 
+ * set up registers for the actual scan. The scan's parameters are given
  * through the device settings. It allocates the scan buffers.
  */
 static SANE_Status
@@ -3403,7 +3403,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
 }
 
 /**
- * set up registers for the actual scan. The scan's parameters are given 
+ * set up registers for the actual scan. The scan's parameters are given
  * through the device settings. It allocates the scan buffers.
  * @param dev scanner's device
  * @param settings settings of scan
@@ -3441,7 +3441,7 @@ setup_for_scan (Genesys_Device * dev, Genesys_Settings settings,
       channels = 1;
       color = SANE_FALSE;
     }
- 
+
   depth=settings.depth;
   if (settings.scan_mode == SCAN_MODE_LINEART)
     {
@@ -4322,7 +4322,7 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 }
 
 /**
- * Alternative coarse gain calibration 
+ * Alternative coarse gain calibration
  * this on uses the settings from offset_calibration. First scan moves so
  * we can go to calibration area for XPA.
  * @param dev device for scan
@@ -4438,7 +4438,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       pass++;
 
       /* average high level for each channel and compute gain
-         to reach the target code 
+         to reach the target code
          we only use the central half of the CCD data         */
       for (k = idx; k < idx + channels; k++)
 	{
@@ -4553,7 +4553,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   dev->reg[reg_0x01].value &= ~REG01_DVDSET;
   /* XXX STEF XXX
      dev->reg[reg_0x05].value &= ~REG05_GMMENB; */
-  
+
   /* copy to local_reg */
   memcpy (local_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
 
@@ -4702,7 +4702,7 @@ gl646_init (Genesys_Device * dev)
 
       switch (dev->model->motor_type)
 	{
-	  /* set to 11111 to spot bugs, sanei_genesys_exposure_time should 
+	  /* set to 11111 to spot bugs, sanei_genesys_exposure_time should
 	     have obsoleted this field  */
 	case MOTOR_5345:
 	  dev->settings.exposure_time = 11111;
@@ -5522,7 +5522,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev,
        dev->current_setup.channels, dev->current_setup.xres,
        cache->used_setup.channels, cache->used_setup.xres);
 
-  /* a calibration cache is compatible if color mode and x dpi match the user 
+  /* a calibration cache is compatible if color mode and x dpi match the user
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
   if (dev->model->is_cis == SANE_FALSE)
     {

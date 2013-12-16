@@ -8,44 +8,44 @@
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Parts of the structs have been taken from the gt68xx backend by
    Sergey Vlasov <vsu@altlinux.ru> et al.
-   
+
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-   
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 #ifndef GENESYS_LOW_H
@@ -67,7 +67,7 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-#ifdef HAVE_MKDIR 
+#ifdef HAVE_MKDIR
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
@@ -146,11 +146,11 @@
 #define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/**< skip genesys_warmup()              */
 /** @brief offset calibration flag
  * signals that the scanner does offset calibration. In this case off_calibration() and
- * coarse_gain_calibration() functions must be implemented 
+ * coarse_gain_calibration() functions must be implemented
  */
 #define GENESYS_FLAG_OFFSET_CALIBRATION   (1 << 5)
 #define GENESYS_FLAG_SEARCH_START (1 << 6)	/**< do start search before scanning    */
-#define GENESYS_FLAG_REPARK       (1 << 7)	/**< repark head (and check for lock) by 
+#define GENESYS_FLAG_REPARK       (1 << 7)	/**< repark head (and check for lock) by
 						   moving without scanning */
 #define GENESYS_FLAG_DARK_CALIBRATION (1 << 8)	/**< do dark calibration */
 #define GENESYS_FLAG_STAGGERED_LINE   (1 << 9)	/**< pixel columns are shifted vertically for hi-res modes */
@@ -292,8 +292,8 @@ typedef struct
   SANE_Int maximum_speed;       /* maximum speed allowed. Unit: pixeltime/step */
   SANE_Int minimum_steps;       /* number of steps used for default curve */
   float g;                      /* power for non-linear acceleration curves. */
-/* vs*(1-i^g)+ve*(i^g) where 
-   vs = start speed, ve = end speed, 
+/* vs*(1-i^g)+ve*(i^g) where
+   vs = start speed, ve = end speed,
    i = 0.0 for first entry and i = 1.0 for last entry in default table*/
 } Genesys_Motor_Slope;
 
@@ -483,8 +483,8 @@ typedef struct Genesys_Command_Set
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
 
   void (*set_motor_power) (Genesys_Register_Set * regs, SANE_Bool set);
-  void (*set_lamp_power) (Genesys_Device * dev, 
-			  Genesys_Register_Set * regs, 
+  void (*set_lamp_power) (Genesys_Device * dev,
+			  Genesys_Register_Set * regs,
 			  SANE_Bool set);
 
     SANE_Status (*begin_scan) (Genesys_Device * dev,
@@ -508,9 +508,9 @@ typedef struct Genesys_Command_Set
 				   SANE_Bool wait_until_home);
 
     SANE_Status (*bulk_write_register) (Genesys_Device * dev,
-					Genesys_Register_Set * reg, 
+					Genesys_Register_Set * reg,
 					size_t elems);
-    SANE_Status (*bulk_write_data) (Genesys_Device * dev, uint8_t addr, 
+    SANE_Status (*bulk_write_data) (Genesys_Device * dev, uint8_t addr,
 				    uint8_t * data, size_t len);
 
     SANE_Status (*bulk_read_data) (Genesys_Device * dev, uint8_t addr,
@@ -520,7 +520,7 @@ typedef struct Genesys_Command_Set
      If possible, just get information for given option.
      The sensor state in Genesys_Scanner.val[] should be merged with the
      new sensor state, using the information that was last read by the frontend
-     in Genesys_Scanner.last_val[], in such a way that a button up/down 
+     in Genesys_Scanner.last_val[], in such a way that a button up/down
      relative to Genesys_Scanner.last_val[] is not lost.
    */
   SANE_Status (*update_hardware_sensors) (struct Genesys_Scanner * s);
@@ -541,7 +541,7 @@ typedef struct Genesys_Command_Set
      */
     SANE_Status (*eject_document) (Genesys_Device * dev);
     /**
-     * search for an black or white area in forward or reverse 
+     * search for an black or white area in forward or reverse
      * direction */
     SANE_Status (*search_strip) (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black);
 
@@ -592,7 +592,7 @@ typedef struct Genesys_Model
   SANE_Int bpp_color_values[MAX_DPI];	/* possible depths in color mode */
 
   SANE_Fixed x_offset;		/* Start of scan area in mm */
-  SANE_Fixed y_offset;		/* Start of scan area in mm (Amount of 
+  SANE_Fixed y_offset;		/* Start of scan area in mm (Amount of
 				   feeding needed to get to the medium) */
   SANE_Fixed x_size;		/* Size of scan area in mm */
   SANE_Fixed y_size;		/* Size of scan area in mm */
@@ -609,7 +609,7 @@ typedef struct Genesys_Model
 
   SANE_Fixed post_scan;		/* Size of scan area after paper sensor stops
 				   sensing document in mm */
-  SANE_Fixed eject_feed;	/* Amount of feeding needed to eject document 
+  SANE_Fixed eject_feed;	/* Amount of feeding needed to eject document
 				   after finishing scanning in mm */
 
   /* Line-distance correction (in pixel at optical_ydpi) for CCD scanners */
@@ -663,7 +663,7 @@ typedef struct
   unsigned int color_filter;
 
   /**< true if scan is true gray, false if monochrome scan */
-  int true_gray;	
+  int true_gray;
 
   /**< lineart threshold */
   int threshold;
@@ -700,7 +700,7 @@ typedef struct Genesys_Current_Setup
     float xres;         /* used xres */
     float yres;         /* used yres*/
     SANE_Bool half_ccd; /* half ccd mode */
-    SANE_Int stagger;		
+    SANE_Int stagger;
     SANE_Int max_shift;	/* max shift of any ccd component, including staggered pixels*/
 } Genesys_Current_Setup;
 
@@ -789,7 +789,7 @@ struct Genesys_Device
   size_t wpl;			/**< asic's word per line */
 
   Genesys_Current_Setup current_setup; /* contains the real used values */
- 
+
   /**< look up table used in dynamic rasterization */
   unsigned char lineart_lut[256];
 
@@ -1004,7 +1004,7 @@ extern void
 sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
 				  float maximum, float gamma_max,
 				  float gamma);
-    
+
 extern SANE_Status sanei_genesys_send_gamma_table (Genesys_Device * dev);
 
 extern SANE_Status sanei_genesys_start_motor (Genesys_Device * dev);
@@ -1063,7 +1063,7 @@ sanei_genesys_wait_for_home(Genesys_Device *dev);
 extern SANE_Status
 sanei_genesys_asic_init(Genesys_Device *dev, SANE_Bool cold);
 
-extern 
+extern
 int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres);
 
 extern
@@ -1182,7 +1182,7 @@ compute_planar_coefficients (Genesys_Device * dev,
 			     unsigned int channels,
 			     unsigned int cmat[3],
 			     unsigned int offset,
-			     unsigned int coeff, 
+			     unsigned int coeff,
 			     unsigned int target);
 
 void

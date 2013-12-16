@@ -1,45 +1,45 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2010-2013 Stéphane Voltz <stef.dev@free.fr>
-   
-    
+
+
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-   
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 #undef BACKEND_NAME
 #define BACKEND_NAME genesys_low
@@ -261,7 +261,7 @@ sanei_genesys_read_hregister (Genesys_Device * dev, uint16_t reg, uint8_t * val)
 
 /**
  * Write to one GL847 ASIC register
-URB    10  control  0x40 0x04 0x83 0x00 len     2 wrote 0xa6 0x04 
+URB    10  control  0x40 0x04 0x83 0x00 len     2 wrote 0xa6 0x04
  */
 static SANE_Status
 sanei_genesys_write_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
@@ -310,8 +310,8 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
 
   /* route to gl847 function if needed */
   if(dev->model->asic_type==GENESYS_GL847
-  || dev->model->asic_type==GENESYS_GL845 
-  || dev->model->asic_type==GENESYS_GL846 
+  || dev->model->asic_type==GENESYS_GL845
+  || dev->model->asic_type==GENESYS_GL846
   || dev->model->asic_type==GENESYS_GL124)
     {
       return sanei_genesys_write_gl847_register(dev, reg, val);
@@ -346,7 +346,7 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
   return status;
 }
 
-/** 
+/**
  * @brief write command to 0x8c endpoint
  * Write a value to 0x8c end point (end access), for USB firmware related operations
  * Known values are 0x0f, 0x11 for USB 2.0 data transfer and 0x0f,0x14 for USB1.1
@@ -475,10 +475,10 @@ SANE_Status
 sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 {
   SANE_Status status;
-  
+
   if(dev->model->asic_type==GENESYS_GL847
-  || dev->model->asic_type==GENESYS_GL845 
-  || dev->model->asic_type==GENESYS_GL846 
+  || dev->model->asic_type==GENESYS_GL845
+  || dev->model->asic_type==GENESYS_GL846
   || dev->model->asic_type==GENESYS_GL124)
     {
       DBG (DBG_warn,
@@ -1258,7 +1258,7 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
 
 /** @brief send gamma table to scanner
  * This function sends generic gamma table (ie ones built with
- * provided gamma) or the user defined one if provided by 
+ * provided gamma) or the user defined one if provided by
  * fontend. Used by gl846+ ASICs
  * @param dev device to write to
  */
@@ -1354,7 +1354,7 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
         }
     }
 
-  /* check if the device has already been initialized and powered up 
+  /* check if the device has already been initialized and powered up
    * we read register 6 and check PWRBIT, if reset scanner has been
    * freshly powered up. This bit will be set to later so that following
    * reads can detect power down/up cycle*/
@@ -1429,7 +1429,7 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
 }
 
 /**
- * Wait for the scanning head to park 
+ * Wait for the scanning head to park
  */
 SANE_Status
 sanei_genesys_wait_for_home (Genesys_Device * dev)
@@ -1639,7 +1639,7 @@ Motor_Profile *profile;
 	/* required speed */
 	target=((exposure * dpi) / base_dpi)>>step_type;
         DBG (DBG_io2, "%s: target=%d\n", __FUNCTION__, target);
-	
+
 	/* fill result with target speed */
         for(i=0;i<SLOPE_TABLE_SIZE;i++)
           slope[i]=target;
@@ -1760,7 +1760,7 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
   SANE_Status status;
 
   DBGSTART;
- 
+
   if(dev->model->cmd_set->calculate_current_setup==NULL)
     {
       DBG (DBG_proc,
@@ -1779,8 +1779,8 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
   dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG (DBG_proc, "sanei_genesys_is_compatible_calibration: checking\n");
-  
-  /* a calibration cache is compatible if color mode and x dpi match the user 
+
+  /* a calibration cache is compatible if color mode and x dpi match the user
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
   if (dev->model->is_cis == SANE_FALSE)
     {

@@ -787,12 +787,6 @@
 :status :good
 :comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
 
-:model "imageCLASS MF4770n"
-:interface "USB Ethernet"
-:usbid "0x04a9" "0x2774"
-:status :good
-:comment "Flatbed scan. All resolutions supported (up to 600DPI). ADF buggy."
-
 :model "imageCLASS MF4570dw"
 :interface "USB"
 :usbid "0x04a9" "0x275a"
@@ -810,6 +804,12 @@
 :usbid "0x04a9" "0x26b0"
 :status :complete
 :comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
+
+:model "i-SENSYS MF4700 Series"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x2774"
+:status :good
+:comment "Flatbed scan. All resolutions supported (up to 600DPI). ADF buggy."
 
 :model "i-SENSYS MF4800 Series"
 :interface "USB Ethernet"

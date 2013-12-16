@@ -83,7 +83,7 @@
 #define MF4550_PID 0x2736
 #define MF4410_PID 0x2737
 #define MF3010_PID 0x2759
-#define MF4770_PID 0x2774
+#define MF4700_PID 0x2774
 /* the following are all untested */
 #define MF5630_PID 0x264e
 #define MF5650_PID 0x264f
@@ -505,7 +505,7 @@ iclass_check_param (pixma_t * s, pixma_scan_param_t * sp)
   /* Some exceptions here for particular devices */
   /* Those devices can scan up to Legal 14" with ADF, but A4 11.7" in flatbed */
   if (sp->source == PIXMA_SOURCE_FLATBED
-      && ( s->cfg->pid == MF4770_PID ))
+      && ( s->cfg->pid == MF4700_PID ))
     sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
 
   return 0;
@@ -773,7 +773,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF4410", "MF4410", MF4410_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon i-SENSYS MF4550d", "MF4550", MF4550_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon i-SENSYS MF3010", "MF3010", MF3010_PID, 600, 640, 877, 0),
-  DEV ("Canon imageCLASS MF4770n", "MF4770", MF4770_PID, 600, 640, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF4700 Series", "MF4700", MF4700_PID, 600, 640, 1050, PIXMA_CAP_ADF),
   /* FIXME: the following capabilities all need updating/verifying */
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),

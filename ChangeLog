@@ -1,3 +1,16 @@
+2013-12-16 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
+	doc/sane-pixma.man:
+	- rename Canon imageCLASS MF4770n to i-SENSYS MF4700 Series
+	- rename Canon i-SENSYS MF4890dw to MF4800 Series
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	- Canon MX920 reported as working; ADF is still buggy
+	- MX920 has 14" ADF paper length
+	- MX920 has button support
+	- fix vertical stripe shifting for MX920
+	- tidy function calc_shifting()
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.6
+
 2013-12-16 Stéphane Voltz <stef.dev@free.fr>
 	* doc/descriptions/genesys.desc: update LiDE 80
 	* backend/genesys_devices.c backend/genesys.c backend/genesys_low.h

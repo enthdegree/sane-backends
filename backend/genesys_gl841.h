@@ -163,6 +163,9 @@
 #define REG1E_LINESEL	0x0f
 #define REG1ES_LINESEL  0
 
+#define REG_EXPR        0x10
+#define REG_EXPG        0x12
+#define REG_EXPB        0x14
 #define REG_STEPNO      0x21
 #define REG_FWDSTEP     0x22
 #define REG_BWDSTEP     0x23

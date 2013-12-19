@@ -2378,6 +2378,8 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 	    break;
     }
 
+    /* AFEMOD should depend on FESET, and we should set these
+     * bits separately */
     r->value &= ~(REG04_FILTER | REG04_AFEMOD);
     if (channels == 1)
       {
@@ -2386,14 +2388,17 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 	    case 0:
 		r->value |= 0x14;	/* red filter */
 		break;
+	    case 1:
+		r->value |= 0x18;	/* green filter */
+		break;
 	    case 2:
 		r->value |= 0x1c;	/* blue filter */
 		break;
 	    default:
-		r->value |= 0x18;	/* green filter */
+		r->value |= 0x10;	/* no filter */
 		break;
 	}
-   }
+    }
    else
      {
         if (dev->model->ccd_type == CCD_PLUSTEK_3600)
@@ -2405,17 +2410,13 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 	    r->value |= 0x10;	/* color pixel by pixel */
           }
     }
-
+   
     /* CIS scanners can do true gray by setting LEDADD */
-    if (dev->model->is_cis == SANE_TRUE)
+    r = sanei_genesys_get_address (reg, 0x87);
+    r->value &= ~REG87_LEDADD;
+    if (flags & OPTICAL_FLAG_ENABLE_LEDADD)
       {
-        r = sanei_genesys_get_address (reg, 0x87);
-	r->value &= ~REG87_LEDADD;
-        /* we set up LEDADD only when asked */
-        if (channels==1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
-          {
-	    r->value |= REG87_LEDADD;
-          }
+        r->value |= REG87_LEDADD;
       }
 
     /* enable gamma tables */
@@ -2604,6 +2605,7 @@ gl841_init_scan_regs (Genesys_Device * dev,
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
   SANE_Status status;
+  unsigned int oflags;          /**> optical flags */
 
   DBG (DBG_info,
        "gl841_init_scan_regs settings:\n"
@@ -2776,15 +2778,31 @@ dummy \ scanned lines
                     &scan_power_mode);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
 
-/*** optical parameters ***/
+  /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
   if(flags & SCAN_FLAG_DYNAMIC_LINEART)
     {
       depth=8;
     }
-  if (depth == 16)
-      flags |= SCAN_FLAG_DISABLE_GAMMA;
+
+  oflags=0;
+  if (flags & SCAN_FLAG_DISABLE_SHADING)
+    {
+      oflags |= OPTICAL_FLAG_DISABLE_SHADING;
+    }
+  if ((flags & SCAN_FLAG_DISABLE_GAMMA) || (depth==16))
+    {
+      oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
+    }
+  if (flags & SCAN_FLAG_DISABLE_LAMP)
+    {
+      oflags |= OPTICAL_FLAG_DISABLE_LAMP;
+    }
+  if (flags & SCAN_FLAG_ENABLE_LEDADD)
+    {
+      oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
+    }
 
   status = gl841_init_optical_regs_scan(dev,
 					reg,
@@ -2796,16 +2814,11 @@ dummy \ scanned lines
 					depth,
 					half_ccd,
 					color_filter,
-					((flags & SCAN_FLAG_DISABLE_SHADING)?
-					 OPTICAL_FLAG_DISABLE_SHADING:0) |
-					((flags & SCAN_FLAG_DISABLE_GAMMA)?
-					 OPTICAL_FLAG_DISABLE_GAMMA:0) |
-					((flags & SCAN_FLAG_DISABLE_LAMP)?
-					 OPTICAL_FLAG_DISABLE_LAMP:0)
-      );
-
+                                        oflags);
   if (status != SANE_STATUS_GOOD)
+    {
       return status;
+    }
 
 /*** motor parameters ***/
 
@@ -4456,13 +4469,13 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
    */
   flags = 0;
 
+  /* true gray (led add for cis scanners) */
   if(dev->model->is_cis && dev->settings.true_gray
-    &&dev->settings.scan_mode != SCAN_MODE_COLOR
-    &&dev->model->ccd_type != CCD_CANONLIDE35
-    &&dev->model->ccd_type != CIS_CANONLIDE80)
+    && dev->settings.scan_mode != SCAN_MODE_COLOR)
     {
-      flags |= OPTICAL_FLAG_ENABLE_LEDADD;
+      flags |= SCAN_FLAG_ENABLE_LEDADD;
     }
+
   /* enable emulated lineart from gray data */
   if(dev->settings.scan_mode == SCAN_MODE_LINEART
      && dev->settings.dynamic_lineart)

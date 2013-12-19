@@ -859,7 +859,7 @@ typedef struct {
 #define SCAN_FLAG_CALIBRATION               0x100
 #define SCAN_FLAG_FEEDING                   0x200
 #define SCAN_FLAG_USE_XPA                   0x400
-
+#define SCAN_FLAG_ENABLE_LEDADD             0x800
 #define MOTOR_FLAG_AUTO_GO_HOME             0x01
 #define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 0x02
 #define MOTOR_FLAG_FEED                     0x04

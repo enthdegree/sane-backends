@@ -1979,7 +1979,6 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 
     /* fast fed special cases handling */
     if (dev->model->gpo_type == GPO_XP300
-     || ((dev->model->motor_type == MOTOR_CANONLIDE80) && (scan_yres > 600)) /* no fast fed at high res for this motor */
      || dev->model->gpo_type == GPO_DP685)
       {
 	/* quirk: looks like at least this scanner is unable to use
@@ -2282,7 +2281,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     used_res = used_res * gl841_get_dpihw(dev) / dev->sensor.optical_res;
 
 /*
-  with half_ccd the optical resolution of the ccd is halfed. We don't apply this
+  with half_ccd the optical resolution of the ccd is halved. We don't apply this
   to dpihw, so we need to double dpiset.
 
   For the scanner only the ratio of dpiset and dpihw is of relevance to scale

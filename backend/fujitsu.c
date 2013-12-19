@@ -545,6 +545,12 @@
          - add adv_paper_protect option
          - enable paper protection by default
          - increase max_x_fb for fi-6240 and fi-6230
+      v119 2013-12-18, MAN
+         - call get_pixelsize after start_scan, not before
+         - extend get_pixelsize to request backside data
+         - stop using backup/restore_params
+         - don't use extended get_pixelsize on M3091 or M3092
+         - call software crop code on backside images too
 
    SANE FLOW DIAGRAM
 
@@ -594,7 +600,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 118
+#define BUILD 119
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2069,6 +2075,7 @@ init_model (struct fujitsu *s)
     s->has_vuid_3091 = 1;
     s->has_vuid_color = 0;
     s->has_vuid_mono = 0;
+    s->has_short_pixelsize = 1;
 
     s->color_interlace = COLOR_INTERLACE_3091;
     s->duplex_interlace = DUPLEX_INTERLACE_3091;
@@ -2221,16 +2228,18 @@ init_model (struct fujitsu *s)
 
   else if (strstr (s->model_name,"fi-7180")
    || strstr (s->model_name,"fi-7160")){
+
+    /* missing from vpd */
     s->has_df_recovery=1;
     s->has_adv_paper_prot=1;
   }
 
   else if (strstr (s->model_name,"fi-7280")
    || strstr (s->model_name,"fi-7260")){
-    s->has_df_recovery=1;
-    s->has_adv_paper_prot=1;
 
     /* missing from vpd */
+    s->has_df_recovery=1;
+    s->has_adv_paper_prot=1;
     s->max_x_fb = 10764;
     s->max_y_fb = 14032; /* some scanners can be slightly more? */
   }
@@ -6608,6 +6617,7 @@ update_u_params (struct fujitsu * s)
   return ret;
 }
 
+#if 0
 /* make backup of param data, in case original is overwritten */
 SANE_Status
 backup_params (struct fujitsu * s)
@@ -6671,6 +6681,7 @@ restore_params (struct fujitsu * s)
   DBG (10, "restore_params: finish\n");
   return ret;
 }
+#endif
 
 /*
  * Called by SANE when a page acquisition operation is to be started.
@@ -6803,20 +6814,6 @@ sane_start (SANE_Handle handle)
           DBG (5, "sane_start: WARNING: cannot send_q_table %d\n", ret);
       }
 
-      /* try to read scan size from scanner */
-      ret = get_pixelsize(s,0);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot get pixelsize\n");
-        goto errors;
-      }
-
-      /* make backup copy of params because later functions overwrite */
-      ret = backup_params(s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot backup params\n");
-        goto errors;
-      }
-
       /* start/stop endorser */
       ret = endorser(s);
       if (ret != SANE_STATUS_GOOD) {
@@ -6833,13 +6830,6 @@ sane_start (SANE_Handle handle)
   /* if already running, duplex needs to switch sides */
   else if(s->source == SOURCE_ADF_DUPLEX){
       s->side = !s->side;
-  }
-
-  /* restore backup copy of params at the start of each image */
-  ret = restore_params(s);
-  if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "sane_start: ERROR: cannot restore params\n");
-    goto errors;
   }
 
   /* set clean defaults with new sheet of paper */
@@ -6874,6 +6864,33 @@ sane_start (SANE_Handle handle)
       s->jpeg_ff_offset = 0;
       s->jpeg_front_rst = 0;
       s->jpeg_back_rst = 0;
+
+      ret = object_position (s, SANE_TRUE);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot load page\n");
+        goto errors;
+      }
+
+      ret = start_scan (s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot start_scan\n");
+        goto errors;
+      }
+
+      /* try to read scan size from scanner */
+      ret = get_pixelsize(s,0);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot get pixelsize\n");
+        goto errors;
+      }
+
+      /* make backup copy of params because later functions overwrite
+      ret = backup_params(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot backup params\n");
+        goto errors;
+      }
+      */
 
       /* store the number of front bytes */ 
       if ( s->source != SOURCE_ADF_BACK ){
@@ -6922,16 +6939,20 @@ sane_start (SANE_Handle handle)
     
           s->started=1;
       }
-
-      ret = object_position (s, SANE_TRUE);
+  }
+  else{
+      /* restore backup copy of params at the start of each backside image
+      ret = restore_params(s);
       if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot load page\n");
+        DBG (5, "sane_start: ERROR: cannot restore params\n");
         goto errors;
       }
+      */
 
-      ret = start_scan (s);
+      /* try to read scan size from scanner */
+      ret = get_pixelsize(s,0);
       if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot start_scan\n");
+        DBG (5, "sane_start: ERROR: cannot get pixelsize\n");
         goto errors;
       }
   }
@@ -7517,7 +7538,8 @@ get_pixelsize(struct fujitsu *s, int actual)
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, READ_code);
     set_R_datatype_code (cmd, R_datatype_pixelsize);
-    if(s->source == SOURCE_ADF_BACK){
+
+    if(s->side == SIDE_BACK){
       set_R_window_id (cmd, WD_wid_back);
     }
     else{
@@ -7535,7 +7557,7 @@ get_pixelsize(struct fujitsu *s, int actual)
 
       /* when we are called post-scan, the scanner may give
        * more accurate data in other fields */
-      if(actual && get_PSIZE_paper_w(in)){
+      if(actual && !s->has_short_pixelsize && get_PSIZE_paper_w(in)){
         s->s_params.pixels_per_line = get_PSIZE_paper_w(in);
         DBG(5,"get_pixelsize: Actual width\n");
       }
@@ -7551,7 +7573,7 @@ get_pixelsize(struct fujitsu *s, int actual)
       }
       /* when we are called post-scan, the scanner may give
        * more accurate data in other fields */
-      else if(actual && get_PSIZE_paper_l(in)){
+      else if(actual && !s->has_short_pixelsize && get_PSIZE_paper_l(in)){
         s->s_params.lines = get_PSIZE_paper_l(in);
         DBG(5,"get_pixelsize: Actual length\n");
       }
@@ -7571,7 +7593,7 @@ get_pixelsize(struct fujitsu *s, int actual)
       }
   
       /* some scanners can request that the driver clean img */
-      if(get_PSIZE_req_driv_valid(in)){
+      if(!s->has_short_pixelsize && get_PSIZE_req_driv_valid(in)){
         s->req_driv_crop = get_PSIZE_req_driv_crop(in);
         s->req_driv_lut = get_PSIZE_req_driv_lut(in);
         DBG(5,"get_pixelsize: scanner requests: crop=%d, lut=%d\n",
@@ -9782,37 +9804,23 @@ buffer_crop(struct fujitsu *s, int side)
 
   DBG (10, "buffer_crop: start\n");
 
-  /*only find edges on first image from a page, or if first image had error */
-  if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK || s->crop_stat){
+  ret = sanei_magic_findEdges(
+    &s->s_params,s->buffers[side],s->resolution_x,s->resolution_y,
+    &s->crop_vals[0],&s->crop_vals[1],&s->crop_vals[2],&s->crop_vals[3]);
 
-    s->crop_stat = sanei_magic_findEdges(
-      &s->s_params,s->buffers[side],s->resolution_x,s->resolution_y,
-      &s->crop_vals[0],&s->crop_vals[1],&s->crop_vals[2],&s->crop_vals[3]);
-
-    if(s->crop_stat){
-      DBG (5, "buffer_crop: bad edges, bailing\n");
-      goto cleanup;
-    }
-  
-    DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",
-      s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
-
-    /* we dont listen to the 'top' value, since fujitsu does not pad the top */
-    s->crop_vals[0] = 0;
-
-    /* if we will later binarize this image, make sure the width
-     * is a multiple of 8 pixels, by adjusting the right side */
-    if ( must_downsample(s) && s->u_mode < MODE_GRAYSCALE ){
-      s->crop_vals[3] -= (s->crop_vals[3]-s->crop_vals[2]) % 8;
-    }
+  if(ret){
+    DBG (5, "buffer_crop: bad edges, bailing\n");
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
   }
-  /* backside images can use a 'flipped' version of frontside data */
-  else{
-    int left  = s->crop_vals[2];
-    int right = s->crop_vals[3];
+  
+  DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",
+    s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
 
-    s->crop_vals[2] = s->s_params.pixels_per_line - right;
-    s->crop_vals[3] = s->s_params.pixels_per_line - left;
+  /* if we will later binarize this image, make sure the width
+   * is a multiple of 8 pixels, by adjusting the right side */
+  if ( must_downsample(s) && s->u_mode < MODE_GRAYSCALE ){
+    s->crop_vals[3] -= (s->crop_vals[3]-s->crop_vals[2]) % 8;
   }
 
   /* now crop the image */

@@ -315,6 +315,7 @@ struct fujitsu
   int window_gamma;
   int endorser_string_len;
   int has_pixelsize;
+  int has_short_pixelsize; /* m3091/2 put weird stuff at end, ignore it */
 
   int broken_diag_serial;   /* some scanners are just plain borked */
   int need_q_table;         /* some scanners wont work without these */
@@ -518,8 +519,10 @@ struct fujitsu
   SANE_Parameters s_params;
 
   /* also keep a backup copy, in case the software enhancement code overwrites*/
+  /*
   SANE_Parameters u_params_bk;
   SANE_Parameters s_params_bk;
+  */
 
   /* --------------------------------------------------------------------- */
   /* values which are set by scanning functions to keep track of pages, etc */
@@ -560,7 +563,6 @@ struct fujitsu
   int deskew_vals[2];
   double deskew_slope;
 
-  SANE_Status crop_stat;
   int crop_vals[4];
 
   /* --------------------------------------------------------------------- */
@@ -807,8 +809,10 @@ static SANE_Status get_pixelsize(struct fujitsu *s, int actual);
 
 static SANE_Status update_params (struct fujitsu *s);
 static SANE_Status update_u_params (struct fujitsu *s);
+/*
 static SANE_Status backup_params (struct fujitsu *s);
 static SANE_Status restore_params (struct fujitsu *s);
+*/
 static SANE_Status start_scan (struct fujitsu *s);
 
 static SANE_Status check_for_cancel(struct fujitsu *s);

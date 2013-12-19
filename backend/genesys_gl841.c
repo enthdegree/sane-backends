@@ -2253,6 +2253,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     unsigned int i;
     Genesys_Register_Set * r;
     SANE_Status status;
+    uint16_t expavg, expr, expb, expg;
 
     DBG (DBG_proc, "gl841_init_optical_regs_scan :  exposure_time=%d, "
 	 "used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
@@ -2417,6 +2418,20 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     if (flags & OPTICAL_FLAG_ENABLE_LEDADD)
       {
         r->value |= REG87_LEDADD;
+          sanei_genesys_get_double(reg,REG_EXPR,&expr);
+          sanei_genesys_get_double(reg,REG_EXPG,&expg);
+          sanei_genesys_get_double(reg,REG_EXPG,&expb);
+
+          /* use minimal expousre for best image quality */
+          expavg=expg;
+          if(expr<expg)
+            expavg=expr;
+          if(expb<expavg)
+            expavg=expb;
+
+          sanei_genesys_set_double(dev->reg,REG_EXPR,expavg);
+          sanei_genesys_set_double(dev->reg,REG_EXPG,expavg);
+          sanei_genesys_set_double(dev->reg,REG_EXPB,expavg);
       }
 
     /* enable gamma tables */

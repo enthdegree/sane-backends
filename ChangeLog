@@ -1,3 +1,8 @@
+2013-12-23 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c backend/genesys.c backend/genesys_low.h
+	backend/genesys_gl841.[ch]: color calibration improvement for LiDE80,
+	working LEDADD for gl841 CIS scanners
+
 2013-12-16 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
 	doc/sane-pixma.man:

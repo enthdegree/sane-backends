@@ -311,8 +311,8 @@ static Genesys_Sensor Sensor[] = {
    87,				/* (dummy) */
    0,				/* (startxoffset) */
    10400,			/* sensor_pixels */
-   210,
-   200,
+   0,
+   0,
    {0x00, 0x00, 0x00, 0x00},
    {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x00, 0x50,
     0x00, 0x00, 0x00, 0x02	/* TODO(these do no harm, but may be neccessery for CCD) */
@@ -766,14 +766,14 @@ static Genesys_Sensor Sensor[] = {
    /* tuned to give 3*8 multiple startx coordinate during  shading calibration */
    34,    /* CCD_start_xoffset 14=>3, 20=>2 */
    10240, /* 10400, too wide=>10288 in shading data 10240~, 10208 too short for shading, max shading data = 10240 pixels, endpix-startpix=10208 */
-   230,
-   230,
+   150,
+   150,
    {0x00, 0x05, 0x07, 0x09}, /* in fact ,maps to 0x70-0x73 for GL841 */
    /* [0x10-0x15] values are initial led exposure values */
    /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d*/
-   {0x0c, 0x00, 0x08, 0x00, 0x07, 0x00, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04},
+   {0x10, 0x00, 0x10, 0x00, 0x05, 0x00, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04},
    {0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x29, 0x69, 0x55, 0x00, 0x00, 0x20, 0x41} ,
-   {0.8, 0.8, 0.8},
+   {1.0, 1.0, 1.0},
    {NULL, NULL, NULL}}
 };
 
@@ -2175,7 +2175,7 @@ static Genesys_Model canon_lide_80_model = {
   GENESYS_HAS_FILE_SW |
   GENESYS_HAS_EMAIL_SW |
   GENESYS_HAS_COPY_SW,
-  240, /* 280 @2400 */
+  160, /* 280 @2400 */
   400
 };
 

@@ -799,7 +799,7 @@ gl841_init_lide80 (Genesys_Device * dev)
   INITREG (0x03, 0x50);
   INITREG (0x04, 0x02);
   INITREG (0x05, 0x4c); /* 1200 DPI */
-  INITREG (0x06, 0x30); /* 0x38 scanmod=1, pwrbit, GAIN4 */
+  INITREG (0x06, 0x38); /* 0x38 scanmod=1, pwrbit, GAIN4 */
   INITREG (0x07, 0x00);
   INITREG (0x08, 0x00);
   INITREG (0x09, 0x11);
@@ -4356,7 +4356,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
     {
       ydpi = gl841_get_dpihw(dev);
       /* get over extra dark area for this model */
-      starty = 100;
+      starty = 140;
     }
 
   dev->calib_channels = 3;
@@ -4588,7 +4588,7 @@ gl841_led_calibration (Genesys_Device * dev)
   int avg[3], avga, avge;
   int turn;
   char fn[20];
-  uint16_t expr, expg, expb;
+  uint16_t exp[3], target;
   Genesys_Register_Set *r;
   int move;
 
@@ -4662,23 +4662,24 @@ gl841_led_calibration (Genesys_Device * dev)
      adjust exposure times
  */
 
-  expr = (dev->sensor.regs_0x10_0x1d[0] << 8) | dev->sensor.regs_0x10_0x1d[1];
-  expg = (dev->sensor.regs_0x10_0x1d[2] << 8) | dev->sensor.regs_0x10_0x1d[3];
-  expb = (dev->sensor.regs_0x10_0x1d[4] << 8) | dev->sensor.regs_0x10_0x1d[5];
+  exp[0] = (dev->sensor.regs_0x10_0x1d[0] << 8) | dev->sensor.regs_0x10_0x1d[1];
+  exp[1] = (dev->sensor.regs_0x10_0x1d[2] << 8) | dev->sensor.regs_0x10_0x1d[3];
+  exp[2] = (dev->sensor.regs_0x10_0x1d[4] << 8) | dev->sensor.regs_0x10_0x1d[5];
 
   turn = 0;
   /* max exposure is set to ~2 time initial average
    * exposure, or 2 time last calibration exposure */
-  max_exposure=((expr+expg+expb)/3)*2;
+  max_exposure=((exp[0]+exp[1]+exp[2])/3)*2;
+  target=dev->sensor.gain_white_ref*256;
 
   do {
 
-      dev->sensor.regs_0x10_0x1d[0] = (expr >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[1] = expr & 0xff;
-      dev->sensor.regs_0x10_0x1d[2] = (expg >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[3] = expg & 0xff;
-      dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
+      dev->sensor.regs_0x10_0x1d[0] = (exp[0] >> 8) & 0xff;
+      dev->sensor.regs_0x10_0x1d[1] = exp[0] & 0xff;
+      dev->sensor.regs_0x10_0x1d[2] = (exp[1] >> 8) & 0xff;
+      dev->sensor.regs_0x10_0x1d[3] = exp[1] & 0xff;
+      dev->sensor.regs_0x10_0x1d[4] = (exp[2] >> 8) & 0xff;
+      dev->sensor.regs_0x10_0x1d[5] = exp[2] & 0xff;
 
       r = &(dev->calib_reg[reg_0x10]);
       for (i = 0; i < 6; i++, r++) {
@@ -4686,8 +4687,7 @@ gl841_led_calibration (Genesys_Device * dev)
 	  RIE (sanei_genesys_write_register (dev, 0x10+i, dev->sensor.regs_0x10_0x1d[i]));
       }
 
-      RIE (gl841_bulk_write_register
-	   (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
+      RIE (gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
       DBG (DBG_info, "%s: starting line reading\n", __FUNCTION__);
       RIE (gl841_begin_scan (dev, dev->calib_reg, SANE_TRUE));
@@ -4741,34 +4741,51 @@ gl841_led_calibration (Genesys_Device * dev)
         {
 	  acceptable = SANE_FALSE;
         }
-
-      if (!acceptable)
+      
+      /* for scanners using target value */
+      if(target>0)
         {
-	  avga = (avg[0]+avg[1]+avg[2])/3;
-	  expr = (expr * avga) / avg[0];
-	  expg = (expg * avga) / avg[1];
-	  expb = (expb * avga) / avg[2];
-/*
-  keep the resulting exposures below this value.
-  too long exposure drives the ccd into saturation.
-  we may fix this by relying on the fact that
-  we get a striped scan without shading, by means of
-  statistical calculation
-*/
-	  avge = (expr + expg + expb) / 3;
+          acceptable = SANE_TRUE;
+          for(i=0;i<3;i++)
+            {
+              /* we accept +- 2% delta from target */
+              if(abs(avg[i]-target)>target/50)
+                {
+                  exp[i]=(exp[i]*target)/avg[i];
+                  acceptable = SANE_FALSE;
+                }
+            }
+        }
+      else
+        {
+          if (!acceptable)
+            {
+              avga = (avg[0]+avg[1]+avg[2])/3;
+              exp[0] = (exp[0] * avga) / avg[0];
+              exp[1] = (exp[1] * avga) / avg[1];
+              exp[2] = (exp[2] * avga) / avg[2];
+              /*
+                keep the resulting exposures below this value.
+                too long exposure drives the ccd into saturation.
+                we may fix this by relying on the fact that
+                we get a striped scan without shading, by means of
+                statistical calculation
+              */
+              avge = (exp[0] + exp[1] + exp[2]) / 3;
 
-	  if (avge > max_exposure) {
-	      expr = (expr * max_exposure) / avge;
-	      expg = (expg * max_exposure) / avge;
-	      expb = (expb * max_exposure) / avge;
-	  }
-	  if (avge < min_exposure) {
-	      expr = (expr * min_exposure) / avge;
-	      expg = (expg * min_exposure) / avge;
-	      expb = (expb * min_exposure) / avge;
-	  }
+              if (avge > max_exposure) {
+                  exp[0] = (exp[0] * max_exposure) / avge;
+                  exp[1] = (exp[1] * max_exposure) / avge;
+                  exp[2] = (exp[2] * max_exposure) / avge;
+              }
+              if (avge < min_exposure) {
+                  exp[0] = (exp[0] * min_exposure) / avge;
+                  exp[1] = (exp[1] * min_exposure) / avge;
+                  exp[2] = (exp[2] * min_exposure) / avge;
+              }
 
-      }
+            }
+        }
 
       RIE (gl841_stop_action (dev));
 
@@ -4776,7 +4793,7 @@ gl841_led_calibration (Genesys_Device * dev)
 
   } while (!acceptable && turn < 100);
 
-  DBG(DBG_info,"%s: acceptable exposure: %d,%d,%d\n", __FUNCTION__, expr,expg,expb);
+  DBG(DBG_info,"%s: acceptable exposure: %d,%d,%d\n", __FUNCTION__, exp[0],exp[1],exp[2]);
 
   /* cleanup before return */
   free (line);
@@ -4833,9 +4850,7 @@ ad_fe_offset_calibration (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES |
-				 SCAN_FLAG_DISABLE_LAMP
-				 );
+				 SCAN_FLAG_USE_OPTICAL_RES);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -4904,6 +4919,9 @@ ad_fe_offset_calibration (Genesys_Device * dev)
       turn++;
   } while ((top-bottom)>1 && turn < 100);
 
+  dev->frontend.offset[0]=0;
+  dev->frontend.offset[1]=0;
+  dev->frontend.offset[2]=0;
   free(line);
   DBG (DBG_info, "%s: offset=(%d,%d,%d)\n", __FUNCTION__,
                                             dev->frontend.offset[0],

@@ -655,7 +655,10 @@ pixma_cmd_transaction (pixma_t * s, const void *cmd, unsigned cmdlen,
     {
       error = pixma_read (s->io, data, expected_len);
       if (error == PIXMA_ETIMEDOUT)
+      {
         PDBG (pixma_dbg (2, "No response yet. Timed out in %d sec.\n", tmo));
+        pixma_sleep (1000000);          /* 1s timeout */
+      }
     }
   while (error == PIXMA_ETIMEDOUT && --tmo != 0);
   if (error < 0)

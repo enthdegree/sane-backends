@@ -83,6 +83,7 @@
 #define MF4550_PID 0x2736
 #define MF4410_PID 0x2737
 #define MF3010_PID 0x2759
+#define MF4800_PID 0x2773
 #define MF4700_PID 0x2774
 /* the following are all untested */
 #define MF5630_PID 0x264e
@@ -93,7 +94,6 @@
 #define MF8030_PID 0x2707
 #define IR1133_PID 0x2742
 #define MF4570_PID 0x275a
-#define MF4800_PID 0x2773
 
 
 enum iclass_state_t
@@ -775,6 +775,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF4550d", "MF4550", MF4550_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon i-SENSYS MF3010", "MF3010", MF3010_PID, 600, 640, 877, 0),
   DEV ("Canon i-SENSYS MF4700 Series", "MF4700", MF4700_PID, 600, 640, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 1050, 0),
   /* FIXME: the following capabilities all need updating/verifying */
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),
@@ -784,6 +785,5 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF6680dn", "MF6680", MF6680_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageCLASS MF4570dw", "MF4570dw", MF4570_PID, 600, 640, 877, 0),
   DEV ("Canon imageRUNNER 1133", "iR1133", IR1133_PID, 600, 637, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 1050, 0),
   DEV (NULL, NULL, 0, 0, 0, 0, 0)
 };

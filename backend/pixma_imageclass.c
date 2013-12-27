@@ -505,7 +505,8 @@ iclass_check_param (pixma_t * s, pixma_scan_param_t * sp)
   /* Some exceptions here for particular devices */
   /* Those devices can scan up to Legal 14" with ADF, but A4 11.7" in flatbed */
   if (sp->source == PIXMA_SOURCE_FLATBED
-      && ( s->cfg->pid == MF4700_PID ))
+      && ( s->cfg->pid == MF4700_PID ||
+           s->cfg->pid == MF4800_PID ))
     sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
 
   return 0;
@@ -783,6 +784,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF6680dn", "MF6680", MF6680_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageCLASS MF4570dw", "MF4570dw", MF4570_PID, 600, 640, 877, 0),
   DEV ("Canon imageRUNNER 1133", "iR1133", IR1133_PID, 600, 637, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 877, 0),
+  DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 1050, 0),
   DEV (NULL, NULL, 0, 0, 0, 0, 0)
 };

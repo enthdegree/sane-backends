@@ -1,7 +1,8 @@
 2013-12-27 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
 	doc/sane-pixma.man:
-	- Canon i-SENSYS MF4800 Series supports 14" legal paper size in ADF mode.
+	- Canon i-SENSYS MF4800 Series has ADF and supports 14" legal paper size
+	  in ADF mode.
 	- Canon i-SENSYS MF4800 Series is working, reported by Yvan L. Gélinas.
 
 2013-12-23 Rolf Bensch <rolf at bensch hyphen online dot de>

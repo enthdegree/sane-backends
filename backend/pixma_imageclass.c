@@ -775,7 +775,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF4550d", "MF4550", MF4550_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon i-SENSYS MF3010", "MF3010", MF3010_PID, 600, 640, 877, 0),
   DEV ("Canon i-SENSYS MF4700 Series", "MF4700", MF4700_PID, 600, 640, 1050, PIXMA_CAP_ADF),
-  DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 1050, 0),
+  DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 1050, PIXMA_CAP_ADF),
   /* FIXME: the following capabilities all need updating/verifying */
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),

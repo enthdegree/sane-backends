@@ -1,3 +1,10 @@
+2014-01-02 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.[ch], backend/pixma_common.[ch], backend/pixma_imageclass.c,
+	backend/pixma_io_sanei.c, backend/pixma_mp150.c, backend/pixma_mp7[35]0.c,
+	backend/pixma_mp810.c: update copyright.
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
+	doc/sane-pixma.man: bug #314411, Canon imageCLASS MF4570dw is working.
+
 2013-12-27 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
 	doc/sane-pixma.man:

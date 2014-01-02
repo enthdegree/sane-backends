@@ -1,7 +1,7 @@
 /* SANE - Scanner Access Now Easy.
 
+   Copyright (C) 2011-2014 Rolf Bensch <rolf at bensch hyphen online dot de>
    Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
-   Copyright (C) 2011-2013 Rolf Bensch <rolf at bensch hyphen online dot de>
 
    This file is part of the SANE package.
 

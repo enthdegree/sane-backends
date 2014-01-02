@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "27 Dec 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "02 Jan 2014" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -49,7 +49,7 @@ imageCLASS MF4120, MF4122, MF4140, MF4150
 .br
 imageCLASS MF4270, MF4350d, MF4370dn, MF4380dn
 .br
-imageCLASS MF4410, MF4430, MF4660, MF4690
+imageCLASS MF4410, MF4430, MF4570dw, MF4660, MF4690
 .br
 imageCLASS MF5730, MF5770, MF6550, D420, D480
 .br
@@ -89,7 +89,7 @@ PIXMA MX320, MX390, MX410, MX430, MX450, MX510, MX520
 .br
 PIXMA MX710, MX720
 .br
-imageCLASS MF4570dw, MF5630, MF5650, MF5750, MF8030, MF8170c
+imageCLASS MF5630, MF5650, MF5750, MF8030, MF8170c
 .br
 imageRUNNER 1133
 .br

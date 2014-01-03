@@ -1,4 +1,8 @@
 2014-01-02 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc: ADF is working for Canon i-SENSYS MF4800
+	Series, reported by Yvan L. Gélinas.
+
+2014-01-02 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_common.[ch], backend/pixma_imageclass.c,
 	backend/pixma_io_sanei.c, backend/pixma_mp150.c, backend/pixma_mp7[35]0.c,
 	backend/pixma_mp810.c: update copyright.

@@ -4063,6 +4063,213 @@ check_genesys (libusb_device_handle * handle,
   return "GL646_HP";
 }
 
+/********** the lm983x section **********/
+
+static int
+lm983x_wb (libusb_device_handle *handle, unsigned char reg, unsigned char val)
+{
+  unsigned char buf[5];
+  int written;
+  int result;
+
+  buf[0] = 0;
+  buf[1] = reg;
+  buf[2] = 0;
+  buf[3] = 1;
+  buf[4] = val;
+
+  result = libusb_bulk_transfer(handle, 0x03, buf, 5, &written, TIMEOUT);
+  if (result < 0)
+    return 0;
+
+  if (written != 5)
+    return 0;
+
+  return 1;
+}
+
+static int
+lm983x_rb (libusb_device_handle *handle, unsigned char reg, unsigned char *val)
+{
+  unsigned char buf[5];
+  int result;
+  int tfx;
+
+  buf[0] = 1;
+  buf[1] = reg;
+  buf[2] = 0;
+  buf[3] = 1;
+
+  result = libusb_bulk_transfer(handle, 0x03, buf, 4, &tfx, TIMEOUT);
+  if (result < 0)
+    return 0;
+
+  if (tfx != 4)
+    return 0;
+
+  result = libusb_bulk_transfer(handle, 0x82, val, 1, &tfx, TIMEOUT);
+  if (result < 0)
+    return 0;
+
+  if (tfx != 1)
+    return 0;
+
+  return 1;
+}
+
+/** @brief check for known LM983x chip (aka Merlin)
+ *
+ * Try to check if the scanner uses a LM983x ASIC.
+ *
+ * @param dev libusb device
+ * @param hdl libusb opened handle
+ * @param config0 configuration 0 from get config _descriptor
+ * @return a string with ASIC name, or NULL if not recognized
+ */
+static char *
+check_merlin(libusb_device_handle * handle,
+	       struct libusb_device_descriptor desc,
+	       struct libusb_config_descriptor *config0)
+{
+  unsigned char val;
+  int result;
+
+  if (verbose > 2)
+    printf ("    checking for LM983[1,2,3] ...\n");
+
+  /* Check device descriptor */
+  if (((desc.bDeviceClass != LIBUSB_CLASS_VENDOR_SPEC)
+       && (desc.bDeviceClass != 0))
+      || (config0->interface[0].altsetting[0].bInterfaceClass !=
+	  LIBUSB_CLASS_VENDOR_SPEC))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a LM983x (bDeviceClass = %d, bInterfaceClass = %d)\n",
+	   desc.bDeviceClass,
+	   config0->interface[0].altsetting[0].bInterfaceClass);
+      return 0;
+    }
+  if ((desc.bcdUSB != 0x110)
+      && (desc.bcdUSB != 0x101)
+      && (desc.bcdUSB != 0x100))
+    {
+      if (verbose > 2)
+	printf ("    this is not a LM983x (bcdUSB = 0x%x)\n", desc.bcdUSB);
+      return 0;
+    }
+  if (desc.bDeviceSubClass != 0x00)
+    {
+      if (verbose > 2)
+	printf ("    this is not a LM983x (bDeviceSubClass = 0x%x)\n",
+		desc.bDeviceSubClass);
+      return 0;
+    }
+  if ((desc.bDeviceProtocol != 0) &&
+      (desc.bDeviceProtocol != 0xff))
+    {
+      if (verbose > 2)
+	printf ("    this is not a LM983x (bDeviceProtocol = 0x%x)\n",
+		desc.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (config0->interface[0].altsetting[0].bNumEndpoints != 3)
+    {
+      if (verbose > 2)
+	printf ("    this is not a LM983x (bNumEndpoints = %d)\n",
+		config0->interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+
+  if ((config0->interface[0].altsetting[0].endpoint[0].bEndpointAddress != 0x81)
+      || (config0->interface[0].altsetting[0].endpoint[0].bmAttributes != 0x03)
+      || (config0->interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x1)
+      || (config0->interface[0].altsetting[0].endpoint[0].bInterval != 0x10))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a LM983x (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   config0->interface[0].altsetting[0].endpoint[0].bEndpointAddress,
+	   config0->interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   config0->interface[0].altsetting[0].endpoint[0].wMaxPacketSize,
+	   config0->interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+
+  if ((config0->interface[0].altsetting[0].endpoint[1].bEndpointAddress != 0x82)
+      || (config0->interface[0].altsetting[0].endpoint[1].bmAttributes != 0x02)
+      || (config0->interface[0].altsetting[0].endpoint[1].wMaxPacketSize != 0x40)
+      /* Currently disabled as we have some problems in detection here ! */
+      /*|| (config0->interface[0].altsetting[0].endpoint[1].bInterval != 0) */
+    )
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a LM983x (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   config0->interface[0].altsetting[0].endpoint[1].bEndpointAddress,
+	   config0->interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   config0->interface[0].altsetting[0].endpoint[1].wMaxPacketSize,
+	   config0->interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+    }
+
+  if ((config0->interface[0].altsetting[0].endpoint[2].bEndpointAddress != 0x03)
+      || (config0->interface[0].altsetting[0].endpoint[2].bmAttributes != 0x02)
+      || (config0->interface[0].altsetting[0].endpoint[2].wMaxPacketSize != 0x40)
+      /* Currently disabled as we have some problems in detection here ! */
+      /* || (config0->interface[0].altsetting[0].endpoint[2].bInterval != 0) */
+    )
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a LM983x (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   config0->interface[0].altsetting[0].endpoint[2].bEndpointAddress,
+	   config0->interface[0].altsetting[0].endpoint[2].bmAttributes,
+	   config0->interface[0].altsetting[0].endpoint[2].wMaxPacketSize,
+	   config0->interface[0].altsetting[0].endpoint[2].bInterval);
+      return 0;
+    }
+
+  result = lm983x_wb (handle, 0x07, 0x00);
+  if (1 == result)
+    result = lm983x_wb (handle, 0x08, 0x02);
+  if (1 == result)
+    result = lm983x_rb (handle, 0x07, &val);
+  if (1 == result)
+    result = lm983x_rb (handle, 0x08, &val);
+  if (1 == result)
+    result = lm983x_rb (handle, 0x69, &val);
+
+  if (0 == result)
+    {
+      if (verbose > 2)
+	printf ("  Couldn't access LM983x registers.\n");
+      return 0;
+    }
+
+  switch (val)
+    {
+    case 4:
+      return "LM9832/3";
+      break;
+    case 3:
+      return "LM9831";
+      break;
+    case 2:
+      return "LM9830";
+      break;
+    default:
+      return "LM983x?";
+      break;
+    }
+}
+
+
 char *
 check_usb_chip (int verbosity,
 		struct libusb_device_descriptor desc,
@@ -4100,6 +4307,9 @@ check_usb_chip (int verbosity,
     }
 
   /* now USB is opened and set up, actual chip detection */
+
+  if (!chip_name)
+    chip_name = check_merlin (hdl, desc, config0);
 
   if (!chip_name)
   	chip_name = check_gt6801 (hdl, desc, config0);

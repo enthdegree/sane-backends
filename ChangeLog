@@ -1,3 +1,7 @@
+2014-01-09 Gerhard Jaeger <gerhard@gjaeger.de>
+	* tools/sane-find-scanner.c tools/check-usb-chip.c: Add LM983x usb
+	chip detection when compiled for libusb-1.0.
+
 2014-01-02 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc: ADF is working for Canon i-SENSYS MF4800
 	Series, reported by Yvan L. Gélinas.
@@ -93,4 +97,3 @@
 	Various updates related to starting 1.0.25git 
 
 Older entries can be found in ChangeLog-1.0.24.
-

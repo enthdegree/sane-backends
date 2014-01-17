@@ -1,3 +1,9 @@
+2014-01-17 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc: Update specification file for
+	Canon i-SENSYS MF4800 Series:
+	- Ethernet is buggy.
+	- ADF is working.
+
 2014-01-09 Gerhard Jaeger <gerhard@gjaeger.de>
 	* tools/sane-find-scanner.c tools/check-usb-chip.c: Add LM983x usb
 	chip detection when compiled for libusb-1.0.

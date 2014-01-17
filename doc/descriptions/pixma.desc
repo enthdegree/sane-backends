@@ -815,7 +815,7 @@
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x2773"
 :status :complete
-:comment "Flatbed scan. All resolutions supported (up to 600DPI)."
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI). Ethernet buggy."
 
 :model "imageCLASS MF5630"
 :interface "USB"

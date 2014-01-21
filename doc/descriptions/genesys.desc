@@ -79,7 +79,7 @@
 :model "ScanJet 4850C"
 :interface "USB"
 :usbid "0x03f0" "0x1b05"
-:status :untested
+:status :good
 :comment "resolution from 100 to 2400 supported, UTA not supported yet"
 
 :model "ScanJet G4010"

@@ -1,3 +1,7 @@
+2014-01-21 Stéphane Voltz <stef.dev@free.fr>
+	* doc/descriptions/unsupported.desc doc/descriptions/genesys.desc:
+	update status of the HP Scanjet 4850C
+
 2014-01-17 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc: Update specification file for
 	Canon i-SENSYS MF4800 Series:

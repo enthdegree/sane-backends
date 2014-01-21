@@ -807,13 +807,6 @@
 :comment "Not supported. See ScanJet 4600 entry."
 :status :unsupported
 
-:model "ScanJet 4850C"
-:url "/unsupported/hp-scanjet-4850.html"
-:interface "USB"
-:usbid "0x03f0" "0x1b05"
-:comment "GL841, maybe can be added to genesys backend "
-:status :unsupported
-
 :model "ScanJet 4890C"
 :url "/unsupported/hp-scanjet-4850.html"
 :interface "USB"

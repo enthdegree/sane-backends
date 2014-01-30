@@ -1,3 +1,6 @@
+2014-01-29 m. allan noah <kitno455 at gmail dot com>
+	* backend/umax-uc630.c: updates from Ondrej Zary
+
 2014-01-21 Stéphane Voltz <stef.dev@free.fr>
 	* doc/descriptions/unsupported.desc doc/descriptions/genesys.desc:
 	update status of the HP Scanjet 4850C

@@ -76,14 +76,14 @@ static unsigned char UC630_INQUIRY[] =
 
 /* 60 -62 scanner capability */
 	0xfd,
-	0x8c, /* 0xbc ? */
+	0x80,
 	0x03, 
 
 /* 63 reserved */
 	0x00,
 
 /* 64 gamma */
-	0xa1,
+	0x00,
 
 /* 65 reserved */
 	0x00,
@@ -113,13 +113,13 @@ static unsigned char UC630_INQUIRY[] =
 	0x00,
 
 /* 73 max optical res in 100 dpi */
-	0x04,
+	0x03,
 
 /* 74 max x_res in 100 dpi */
-	0x04,
+	0x03,
 
 /* 75 max y_res in 100 dpi */
-	0x04,
+	0x06,
 
 /* 76-77 fb max scan width in 0.01 inch */
 	0x03, 0x52,
@@ -167,7 +167,7 @@ static unsigned char UC630_INQUIRY[] =
 	0x00,
 
 /* 92-93 window descriptor block length */
-	0x00, 0x30,
+	0x00, 0x31,
 
 /* 94 optical resolution residue (1dpi) */
 	0x00,

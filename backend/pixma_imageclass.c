@@ -64,7 +64,7 @@
 # define UNUSED(v)
 #endif
 
-#define IMAGE_BLOCK_SIZE (0xffff)
+#define IMAGE_BLOCK_SIZE (0x80000)
 #define MAX_CHUNK_SIZE   (0x1000)
 #define MIN_CHUNK_SIZE   (0x0200)
 #define CMDBUF_SIZE 512

@@ -1279,6 +1279,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
         s->cfg->pid == MX360_PID ||
         s->cfg->pid == MX410_PID ||
         s->cfg->pid == MX420_PID ||
+        s->cfg->pid == MX510_PID ||
         s->cfg->pid == MX920_PID ||
         s->cfg->pid == MX7600_PID )
        &&
@@ -1715,7 +1716,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   /* Latest devices (2012) Generation 4 CIS */
   DEVICE ("Canon PIXMA MX370 Series", "MX370", MX370_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX430 Series", "MX430", MX430_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX510 Series", "MX510", MX510_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX510 Series", "MX510", MX510_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX710 Series", "MX710", MX710_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
   DEVICE ("Canon PIXMA MX890 Series", "MX890", MX890_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
   DEVICE ("Canon PIXMA E600 Series",  "E600",  E600_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),

@@ -96,7 +96,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
  * Where:
  * method = bjnp
  * hostname = resolvable name or IP-address
- * port = 8612 for a scanner
+ * port = 8612 for a bjnp scanner, 8610 for a mfnp device
  * An example could look like this: bjnp://host.domain:8612
  *
  * @param devname name of the device to open

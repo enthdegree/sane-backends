@@ -75,6 +75,7 @@
 #define BJNP_SERIAL_MAX 16		/* maximum length of serial number */
 #define BJNP_NO_DEVICES 16		/* max number of open devices */
 #define BJNP_SCAN_BUF_MAX 65536		/* size of scanner data intermediate buffer */
+#define BJNP_BLOCKSIZE_START 512	/* startsize for last block detection */
 
 /* timers */
 #define BJNP_BROADCAST_INTERVAL 10 	/* ms between broadcasts */
@@ -109,15 +110,34 @@
 /* port numbers */
 typedef enum bjnp_port_e
 {
-  BJNP_PORT_BROADCAST_BASE = 8610,
+  MFNP_PORT_SCAN = 8610,
   BJNP_PORT_PRINT = 8611,
   BJNP_PORT_SCAN = 8612,
   BJNP_PORT_3 = 8613,
   BJNP_PORT_4 = 8614
 } bjnp_port_t;
 
-#define BJNP_METHOD "bjnp"
-#define BJNP_STRING "BJNP"
+typedef enum 
+{
+  PROTOCOL_BJNP = 0,
+  PROTOCOL_MFNP = 1,
+  PROTOCOL_NONE =2
+} bjnp_protocol_t;
+
+typedef struct 
+{
+  bjnp_protocol_t protocol_version;
+  int default_port;
+  char * proto_string;
+  char * method_string;
+} bjnp_protocol_defs_t;
+
+bjnp_protocol_defs_t bjnp_protocol_defs[] = 
+{
+  {PROTOCOL_BJNP, BJNP_PORT_SCAN,"BJNP", "bjnp"},
+  {PROTOCOL_MFNP, MFNP_PORT_SCAN,"MFNP", "mfnp"},
+  {PROTOCOL_NONE, -1, NULL, NULL}
+};
 
 /* commands */
 typedef enum bjnp_cmd_e
@@ -168,7 +188,7 @@ struct  __attribute__ ((__packed__)) DISCOVER_RESPONSE
   struct BJNP_command response;	/* reponse header */
   char unknown1[4];		/* 00 01 08 00 */
   char mac_len;			/* length of mac address */
-  char addr_len;		/* length od address field */
+  char addr_len;		/* length of address field */
   unsigned char mac_addr[6];	/* printers mac address */
   union  {
     struct __attribute__ ((__packed__)) {
@@ -251,8 +271,18 @@ struct  __attribute__ ((__packed__)) POLL_RESPONSE
 struct  __attribute__ ((__packed__)) IDENTITY
 {
   struct BJNP_command cmd;
-  uint16_t id_len;		/* length of identity */
-  char id[BJNP_IEEE1284_MAX];	/* identity */
+  union  __attribute__ ((__packed__)) 
+    {
+      struct __attribute__ ((__packed__)) payload_s
+        {
+          uint16_t id_len;		/* length of identity */
+          char id[BJNP_IEEE1284_MAX];	/* identity */
+        } bjnp;
+      struct __attribute__ ((__packed__)) mfnp
+        {
+          char id[BJNP_IEEE1284_MAX];
+         } mfnp;
+    } payload;
 };
 
 
@@ -314,6 +344,10 @@ typedef enum
 typedef struct device_s
 {
   int open;			/* connection to scanner is opened */
+  
+  /* protocol version */
+  int protocol;
+  char *protocol_string;
 
   /* sockets */
 

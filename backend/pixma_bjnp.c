@@ -2220,7 +2220,7 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 	 (unsigned long) device[dn].scanner_data_left,
 	 (unsigned long) device[dn].scanner_data_left ) );
 
-  do
+  while ( (recvd < requested) && !( device[dn].last_block && (device[dn].scanner_data_left == 0)) )
     {
       PDBG (bjnp_dbg
 	    (LOG_DEBUG,
@@ -2291,7 +2291,6 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       device[dn].scanner_data_left = device[dn].scanner_data_left - read_size;
       recvd = recvd + read_size;
     }
-  while ( (recvd < requested) && !( device[dn].last_block && (device[dn].scanner_data_left == 0)) );
 
   PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_read_bulk: %s: Returning %ld bytes, backend expexts %ld\n", 
         (recvd == *size)? "OK": "NOTICE",recvd, *size ) );
@@ -2370,7 +2369,6 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
   /* we can expect data from the scanner */
 
   device[dn].last_block = 0;
-  device[dn].blocksize = BJNP_BLOCKSIZE_START;	
 
   return SANE_STATUS_GOOD;
 }

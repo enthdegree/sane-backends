@@ -2098,6 +2098,9 @@ extern SANE_Status
 sanei_bjnp_open (SANE_String_Const devname, SANE_Int * dn)
 {
   int result;
+  char hostname[256];
+  char pid_str[64];
+
 
   PDBG (bjnp_dbg (LOG_INFO, "sanei_bjnp_open(%s, %d):\n", devname, *dn));
 
@@ -2105,7 +2108,19 @@ sanei_bjnp_open (SANE_String_Const devname, SANE_Int * dn)
   if ( (result != BJNP_STATUS_GOOD) && (result != BJNP_STATUS_ALREADY_ALLOCATED ) )
     return SANE_STATUS_INVAL; 
 
-  return sanei_bjnp_activate( *dn);;
+  /* return sanei_bjnp_activate( *dn); */
+  gethostname (hostname, 256);
+  hostname[255] = '\0';
+  sprintf (pid_str, "Process ID = %d", getpid ());
+
+  bjnp_send_job_details (*dn, hostname, getusername (), pid_str);
+
+  if (bjnp_open_tcp (*dn) != 0)
+    {
+      return SANE_STATUS_INVAL;
+    }
+
+  return SANE_STATUS_GOOD;
 }
 
 /** Close a BJNP device.
@@ -2117,7 +2132,13 @@ void
 sanei_bjnp_close (SANE_Int dn)
 {
   PDBG (bjnp_dbg (LOG_INFO, "sanei_bjnp_close(%d):\n", dn));
-  sanei_bjnp_deactivate(dn);
+  bjnp_finish_job (dn);
+
+  if ( device[dn].tcp_socket != -1)
+    {
+      close (device[dn].tcp_socket);
+      device[dn].tcp_socket = -1;
+    }
   device[dn].open = 0;
 }
 
@@ -2129,22 +2150,7 @@ sanei_bjnp_close (SANE_Int dn)
 SANE_Status
 sanei_bjnp_activate (SANE_Int dn)
 {
-  char hostname[256];
-  char pid_str[64];
-
   PDBG (bjnp_dbg (LOG_INFO, "sanei_bjnp_activate (%d)\n", dn));
-
-  gethostname (hostname, 256);
-  hostname[255] = '\0';
-  sprintf (pid_str, "Process ID = %d", getpid ());
-
-  bjnp_send_job_details (dn, hostname, getusername (), pid_str);
-
-  if (bjnp_open_tcp (dn) != 0)
-    {
-      return SANE_STATUS_INVAL;
-    }
-
   return SANE_STATUS_GOOD;
 }
 
@@ -2157,14 +2163,6 @@ SANE_Status
 sanei_bjnp_deactivate (SANE_Int dn)
 {
   PDBG (bjnp_dbg (LOG_INFO, "sanei_bjnp_deactivate (%d)\n", dn));
-
-  bjnp_finish_job (dn);
-
-  if ( device[dn].tcp_socket != -1)
-    {
-      close (device[dn].tcp_socket);
-      device[dn].tcp_socket = -1;
-    }
   return SANE_STATUS_GOOD;
 }
 
@@ -2457,8 +2455,11 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
               /* this is a bit of a hack, but the scanner does not like */
               /* us to continue using the existing tcp socket */
 
+              /* No longer required? Does not work anymore now we moved code from sanei_bjnp_activate/sanei_bjnp_deactivate
+                 to the isanei_bjnp_open and sanei_bjnp_close
               sanei_bjnp_deactivate(dn);
               sanei_bjnp_activate(dn);
+              */ 
 
               return SANE_STATUS_GOOD;
             }

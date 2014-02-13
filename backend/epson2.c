@@ -409,8 +409,8 @@ e2_network_discovery(void)
 	FD_SET(fd, &rfds);
 
 	sanei_udp_set_nonblock(fd, SANE_TRUE);
-	if (select(fd + 1, &rfds, NULL, NULL, &to) > 0) {
-		while ((len = sanei_udp_recvfrom(fd, buf, 76, &ip)) == 76) {
+	while (select(fd + 1, &rfds, NULL, NULL, &to) > 0) {
+		if ((len = sanei_udp_recvfrom(fd, buf, 76, &ip)) == 76) {
 			DBG(5, " response from %s\n", ip);
 
 			/* minimal check, protocol unknown */

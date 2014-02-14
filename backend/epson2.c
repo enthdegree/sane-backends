@@ -29,6 +29,7 @@
  *	20	usb cmd counters
  *	18	sane_read
  *	17	setvalue, getvalue, control_option
+ *	16	gamma table
  *	15	e2_send, e2_recv calls
  *	13	e2_cmd_info_block
  *	12	epson_cmd_simple
@@ -1752,8 +1753,9 @@ change_source(Epson_Scanner *s, SANE_Int optindex, char *value)
 			s->val[OPT_ADF_MODE].w = 0;
 		}
 
-		DBG(1, "adf activated (%d %d)\n", s->hw->use_extension,
-		    s->hw->duplex);
+		DBG(1, "adf activated (ext: %d, duplex: %d)\n",
+			s->hw->use_extension,
+			s->hw->duplex);
 
 	} else if (strcmp(TPU_STR, value) == 0 || strcmp(TPU_STR2, value) == 0) {
 	        if (strcmp(TPU_STR, value) == 0) {

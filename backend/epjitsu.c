@@ -641,6 +641,7 @@ load_fw (struct scanner *s)
         return SANE_STATUS_NO_DOCS;
     }
 
+    /* skip first 256 (=0x100) bytes */
     if(lseek(file,0x100,SEEK_SET) != 0x100){
         DBG (5, "load_fw: failed to lseek file %s\n",global_firmware_filename);
 	close(file);
@@ -787,7 +788,7 @@ load_fw (struct scanner *s)
 }
 
 /*
- * try to load fw into scanner
+ * get status from scanner
  */
 static unsigned char
 get_stat(struct scanner *s)
@@ -820,6 +821,10 @@ get_stat(struct scanner *s)
 
     return stat[0];
 }
+
+/*
+ * get scanner identification
+ */
 
 static SANE_Status
 get_ident(struct scanner *s)
@@ -3193,6 +3198,9 @@ finecal(struct scanner *s)
     return ret;
 }
 
+/*
+ * set scanner lamp brightness
+ */
 static SANE_Status
 lamp(struct scanner *s, unsigned char set)
 {

@@ -49,6 +49,16 @@
 
 #include "genesys_low.h"
 
+#ifndef PATH_MAX
+# define PATH_MAX	1024
+#endif
+
+#if defined(_WIN32) || defined(HAVE_OS2_H)
+# define PATH_SEP	'\\'
+#else
+# define PATH_SEP	'/'
+#endif
+
 
 #define ENABLE(OPTION)  s->opt[OPTION].cap &= ~SANE_CAP_INACTIVE
 #define DISABLE(OPTION) s->opt[OPTION].cap |=  SANE_CAP_INACTIVE
@@ -148,5 +158,7 @@ typedef struct Genesys_Scanner
 
 #ifdef UNIT_TESTING
 SANE_Status genesys_dark_white_shading_calibration (Genesys_Device * dev);
+char *calibration_filename(Genesys_Device *currdev);
+void add_device(Genesys_Device *dev);
 #endif
 #endif /* not GENESYS_H */

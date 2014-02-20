@@ -1,3 +1,8 @@
+2014-02-24 Stéphane Voltz <stef.dev@free.fr>
+	* doc/sane-genesys.man backend/genesys.[ch]:
+	avoid calibration file name collision in case of several identical
+	scanners
+
 2014-02-10 Louis Lagendijk <louis.lagendijk at gmail.com>
 	* backend/pixma_bjnp.c backend/pixma_bjnp.h backend/pixma_bjnp_private.h:
 	- Added support for Canon laser multi-functionals using the MFNP protocol over port 8610

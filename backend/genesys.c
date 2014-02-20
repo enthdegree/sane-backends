@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL846/GL847/GL124 based scanners
  */
 
-#define BUILD 2502
+#define BUILD 2503
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -2153,7 +2153,10 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 /* This calibration uses a scan over the calibration target, comprising a
  * black and a white strip. (So the motor must be on.)
  */
-GENESYS_STATIC SANE_Status
+#ifndef UNIT_TESTING
+static
+#endif
+SANE_Status
 genesys_dark_white_shading_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -5381,6 +5384,107 @@ SANE_Range *range=NULL;
   return range;
 }
 
+/** @brief generate calibration cache file nam
+ * Generates the calibration cache file name to use.
+ * Tries to store the chache in $HOME/.sane or
+ * then fallbacks to $TMPDIR or TMP. The filename
+ * uses the model name if only one scanner is plugged
+ * else is uses the device name when several identical
+ * scanners are in use.
+ * @param currdev current scanner device
+ * @return an allocated string containing a file name
+ */
+GENESYS_STATIC char *calibration_filename(Genesys_Device *currdev)
+{
+  char *tmpstr;
+  char *ptr;
+  char filename[80];
+  Genesys_Device *dev;
+  unsigned int count;
+  unsigned int i;
+
+  /* allocate space for result */
+  tmpstr=malloc(PATH_MAX);
+  if(tmpstr==NULL)
+    {
+      return NULL;
+    }
+
+  /* first compute the DIR where we can store cache:
+   * 1 - home dir
+   * 2 - $TMPDIR
+   * 3 - $TMP
+   * 4 - tmp dir
+   * 5 - temp dir
+   * 6 - then resort to current dir
+   */
+  ptr = getenv ("HOME");
+  if(ptr==NULL)
+    {
+      ptr = getenv ("USERPROFILE");
+    }
+  if(ptr==NULL)
+    {
+      ptr = getenv ("TMPDIR");
+    }
+  if(ptr==NULL)
+    {
+      ptr = getenv ("TMP");
+    }
+
+  /* now choose filename:
+   * 1 - if only one scanner, name of the model
+   * 2 - if several scanners of the same model, use device name,
+   *     replacing special chars
+   */
+  count=0;
+  /* count models of the same names if several scanners attached */
+  if(num_devices>1)
+    {
+      for (dev = first_dev; dev; dev = dev->next)
+        {
+          if(strcmp(dev->model->name,currdev->model->name)==0)
+            {
+              count++;
+            }
+        }
+    }
+  if(count>1)
+    {
+      snprintf(filename,sizeof(filename),"%s.cal",currdev->file_name);
+      for(i=0;i<strlen(filename);i++)
+        {
+          if(filename[i]==':'||filename[i]==PATH_SEP)
+            {
+              filename[i]='_';
+            }
+        }
+    }
+  else
+    {
+      snprintf(filename,sizeof(filename),"%s.cal",currdev->model->name);
+    }
+
+  /* build final final name : store dir + filename */
+  if (NULL == ptr)
+    {
+      snprintf (tmpstr, PATH_MAX, "%s", filename);
+    }
+  else
+    {
+#ifdef HAVE_MKDIR
+      /* make sure .sane directory exists in existing store dir */
+      snprintf (tmpstr, PATH_MAX, "%s%c.sane", ptr, PATH_SEP);
+      mkdir(tmpstr,0700);
+#endif
+      snprintf (tmpstr, PATH_MAX, "%s%c.sane%c%s", ptr, PATH_SEP, PATH_SEP, filename);
+    }
+
+  DBG (DBG_info, "%s: calibration filename >%s<\n", __FUNCTION__, tmpstr);
+
+  return tmpstr;
+}
+
 
 static SANE_Status
 init_options (Genesys_Scanner * s)
@@ -5994,6 +6098,17 @@ check_present (SANE_String_Const devname)
   return SANE_STATUS_GOOD;
 }
 
+/** @brief add a scanner device
+ * Insert the given device into the backend list of devices.
+ * @param dev device to add
+ */
+GENESYS_STATIC void add_device(Genesys_Device *dev)
+{
+  ++num_devices;
+  dev->next = first_dev;
+  first_dev = dev;
+}
+
 static SANE_Status
 attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 {
@@ -6096,9 +6211,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 
   DBG (DBG_info, "attach: found %s flatbed scanner %s at %s\n",
        dev->model->vendor, dev->model->model, dev->file_name);
-  ++num_devices;
-  dev->next = first_dev;
-  first_dev = dev;
+  add_device(dev);
 
   if (devp)
     *devp = dev;
@@ -6189,6 +6302,8 @@ probe_genesys_devices (void)
       new_dev_len = new_dev_alloced = 0;
       free (new_dev);
     }
+
+  DBG(DBG_info, "%s: %d devices currently attached\n", __FUNCTION__, num_devices);
 
   DBGCOMPLETED;
 
@@ -6687,8 +6802,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   Genesys_Device *dev;
   SANE_Status status;
   Genesys_Scanner *s;
-  char tmp_str[PATH_MAX];
-  char *ptr;
+  char *tmpstr;
 
   DBG (DBG_proc, "sane_open: start (devicename = `%s')\n", devicename);
 
@@ -6795,36 +6909,12 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   RIE (dev->model->cmd_set->init (dev));
 
   /* here is the place to fetch a stored calibration cache */
-
-  /* create calibration-filename
-     lifted from plustek-usb.c
-   */
-  /* we should add a unique identifying feature to the file name
-     to support multiple scanners of the same model, but to my
-     knowledge, there is no such thing in these scanners.
-     (At least the usb serial is always "0".)
-     TODO add an storedir option to genesys.conf
-   */
-
-  ptr = getenv ("HOME");
-  if (NULL == ptr)
-    {
-      sprintf (tmp_str, "/tmp/%s.cal", s->dev->model->name);
-    }
-  else
-    {
-#ifdef HAVE_MKDIR
-      /* make sure .sane directory exists */
-      sprintf (tmp_str, "%s/.sane", ptr);
-      mkdir(tmp_str,0700);
-#endif
-      sprintf (tmp_str, "%s/.sane/%s.cal", ptr, s->dev->model->name);
-    }
-
-  s->val[OPT_CALIBRATION_FILE].s = strdup (tmp_str);
-  s->dev->calib_file = strdup (tmp_str);
+  tmpstr=calibration_filename(s->dev);
+  s->val[OPT_CALIBRATION_FILE].s = strdup (tmpstr);
+  s->dev->calib_file = strdup (tmpstr);
   DBG (DBG_info, "Calibration filename set to:\n");
   DBG (DBG_info, ">%s<\n", s->dev->calib_file);
+  free(tmpstr);
 
   /* now open file, fetch calibration records */
 

@@ -52,7 +52,13 @@ in the feeder then start calibration either by passing the --calibrate option to
 or by clicking on the available 'calibrate' button in the 'advanced options' in a graphical
 frontend. The result of the calibration is stored in a file in the home directory of the user doing it.
 If you plug the scanner in another machine or use it with another account, calibration
-will have to be redone.
+will have to be redone, unles you use the \-\-calibration\-file option.
+If no home directory is defined,
+USERAPPPROFILE will be used, then TMPDIR or TMP. If none of these directories exist, the backend will try
+to write in the current working directory. Flatbed scanners alos make use of the calibration file as a cache
+to avoid calibration before each scan. Calibration file name is the name of the scanner model if only
+one scanner is detected. In the case of several identical model, the file name will be the name
+of the logical USB device name.
 
 .SH EXTRAS SCAN OPTIONS
 
@@ -112,9 +118,9 @@ next scan will happen.
 .B \-\-calibration\-file
 .RS
         Specify the calibration file name to use. At least the directory containing the file
-must exist, since it won't be created. This allow to handle the case of several identical devices
-that would otherwise use the same calibration data. This option is disabled if the backend is ran
-as root.
+must exist, since it won't be created. This option is disabled if the backend is ran
+as root. It maybe used in case of sheet-fed scanners to share a calibration file for several
+users.
 .RE
 
 .PP

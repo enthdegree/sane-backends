@@ -1,3 +1,8 @@
+2014-02-28 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
+	doc/sane-pixma.man: Rename Canon i-SENSYS MF4550d to Canon i-SENSYS MF4500
+	Series. This fixes ethernet problems. Patch from chrysn.
+
 2014-02-24 Stéphane Voltz <stef.dev@free.fr>
 	* doc/sane-genesys.man backend/genesys.[ch]:
 	avoid calibration file name collision in case of several identical

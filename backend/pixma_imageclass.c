@@ -80,7 +80,7 @@
 #define MF3200_PID 0x2684
 #define MF6500_PID 0x2686
 /* generation 2 scanners (>=0x2707) */
-#define MF4550_PID 0x2736
+#define MF4500_PID 0x2736
 #define MF4410_PID 0x2737
 #define MF3010_PID 0x2759
 #define MF4570_PID 0x275a
@@ -772,7 +772,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF3240", "MF3240", MF3200_PID, 600, 640, 877, 0),
   DEV ("Canon imageClass MF6500", "MF6500", MF6500_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4410", "MF4410", MF4410_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon i-SENSYS MF4550d", "MF4550", MF4550_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF4500 Series", "MF4500", MF4500_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon i-SENSYS MF3010", "MF3010", MF3010_PID, 600, 640, 877, 0),
   DEV ("Canon i-SENSYS MF4700 Series", "MF4700", MF4700_PID, 600, 640, 1050, PIXMA_CAP_ADF),
   DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 1050, PIXMA_CAP_ADF),

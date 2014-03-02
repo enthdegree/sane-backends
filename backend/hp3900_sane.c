@@ -1405,7 +1405,7 @@ options_init (TScanner * scanner)
 	      pDesc->title = SANE_I18N ("Scanner model");
 	      pDesc->desc =
 		SANE_I18N
-		("Allows to test device behaviour with other supported models");
+		("Allows one to test device behaviour with other supported models");
 	      pDesc->type = SANE_TYPE_STRING;
 	      pDesc->size = max_string_size (scanner->list_models);
 	      pDesc->constraint_type = SANE_CONSTRAINT_STRING_LIST;

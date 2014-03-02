@@ -1660,7 +1660,7 @@ ccd300_open (SANE_String port, SANE_Int caps, SANE_Int * fd)
 
   if (caps & ~(CAP_NOTHING | CAP_INVERT | CAP_LAMP_OFF))
     {
-      DBG (1, "ccd300_open: called with unknonw capabilities (%#02x)\n",
+      DBG (1, "ccd300_open: called with unknown capabilities (%#02x)\n",
 	   caps);
       return SANE_STATUS_INVAL;
     }
@@ -1816,7 +1816,7 @@ ccd300_config (SANE_Handle handle, SANE_String_Const optname,
     }
   else
     {
-      DBG (1, "ccd300_config: unkown option ``%s''", optname);
+      DBG (1, "ccd300_config: unknown option ``%s''", optname);
       return SANE_STATUS_INVAL;
     }
 

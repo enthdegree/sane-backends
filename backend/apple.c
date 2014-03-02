@@ -1596,7 +1596,7 @@ init_options (Apple_Scanner * s)
   s->opt[OPT_WAIT].title = "Wait";
   s->opt[OPT_WAIT].desc = "You may issue the scan command but the actual "
   "scan will not start unless you press the button in the front of the "
-  "scanner. It is usefull feature when you want to make a network scan (?) "
+  "scanner. It is a useful feature when you want to make a network scan (?) "
   "In the mean time you may halt your computer waiting for the SCSI bus "
   "to be free. If this happens just press the scanner button.";
   s->opt[OPT_WAIT].type = SANE_TYPE_BOOL;

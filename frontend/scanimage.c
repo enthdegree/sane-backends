@@ -250,7 +250,7 @@ auth_callback (SANE_String_Const resource,
       md5mode = 1;
       len = (strstr (resource, "$MD5$") - resource);
       if (query_user == 1)
-	fprintf (stderr, "Authentification required for resource %*.*s. "
+	fprintf (stderr, "Authentication required for resource %*.*s. "
 		 "Enter username: ", len, len, resource);
     }
   else
@@ -270,7 +270,7 @@ auth_callback (SANE_String_Const resource,
 
       if (query_user == 1)
 	fprintf (stderr,
-		 "Authentification required for resource %s. Enter username: ",
+		 "Authentication required for resource %s. Enter username: ",
 		 resource);
     }
 

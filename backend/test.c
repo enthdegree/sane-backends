@@ -348,7 +348,7 @@ init_options (Test_Device * test_device)
   od->title = SANE_I18N ("Hand-scanner simulation");
   od->desc = SANE_I18N ("Simulate a hand-scanner.  Hand-scanners do not "
 			"know the image height a priori.  Instead, they "
-			"return a height of -1.  Setting this option allows "
+			"return a height of -1.  Setting this option allows one "
 			"to test whether a frontend can handle this "
 			"correctly.  This option also enables a fixed width "
 			"of 11 cm.");

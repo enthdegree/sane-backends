@@ -592,7 +592,7 @@ static void
 set_cmd_from_string (char* protocol_string, struct BJNP_command *cmd, char cmd_code, int payload_len)
 {
   /*
-   * Set command buffer with command code, session_id and lenght of payload
+   * Set command buffer with command code, session_id and length of payload
    * Returns: sequence number of command
    */
 
@@ -611,7 +611,7 @@ static void
 set_cmd_for_dev (int devno, struct BJNP_command *cmd, char cmd_code, int payload_len)
 {
   /*
-   * Set command buffer with command code, session_id and lenght of payload
+   * Set command buffer with command code, session_id and length of payload
    * Returns: sequence number of command
    * If devno < 0, then use devno as negativ index into bjnp_protocol_defs
    */
@@ -790,7 +790,7 @@ get_scanner_id (const int dev_no, char *model)
       strncpy(scanner_id, id->payload.mfnp.id, id_len);
       scanner_id[id_len] = '\0';
     }
-  PDBG (bjnp_dbg (LOG_INFO, "get_scanner_id: Scanner identity string = %s - lenght = %d\n", scanner_id, id_len));
+  PDBG (bjnp_dbg (LOG_INFO, "get_scanner_id: Scanner identity string = %s - length = %d\n", scanner_id, id_len));
 
   /* get make&model from IEEE1284 id  */
 

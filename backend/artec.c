@@ -607,7 +607,7 @@ sense_handler (int fd, u_char * sense, void *arg)
 	  return SANE_STATUS_IO_ERROR;
 	}
     default:
-      DBG (2, "sense: Unkown Error Code Qualifier (%02x)\n", sense[0]);
+      DBG (2, "sense: Unknown Error Code Qualifier (%02x)\n", sense[0]);
       return SANE_STATUS_IO_ERROR;
     }
 

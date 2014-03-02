@@ -1035,7 +1035,7 @@ static SANE_Status sense_handler(int scsi_fd, unsigned char *result, void *arg)	
 
       if (asc == 0x00)
       {
-        DBG(DBG_sense, "-> button protocoll\n");
+        DBG(DBG_sense, "-> button protocol\n");
         if (ascq & 1)
         {
           dev->button0_pressed = 1;

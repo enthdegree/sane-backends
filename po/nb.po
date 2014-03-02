@@ -4534,7 +4534,7 @@ msgstr "Håndskanner simulering"
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners often do not know the image "
 "height a priori.  Instead, they return a height of -1.  Setting this "
-"option allows to test whether a frontend can handle this correctly."
+"option allows one to test whether a frontend can handle this correctly."
 msgstr ""
 
 #: ../backend/pnm.c:283
@@ -4846,7 +4846,7 @@ msgstr ""
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
 "priori.  Instead, they return a height of -1.  Setting this option "
-"allows to test whether a frontend can handle this correctly.  This "
+"allows one to test whether a frontend can handle this correctly.  This "
 "option also enables a fixed width of 11 cm."
 msgstr ""
 

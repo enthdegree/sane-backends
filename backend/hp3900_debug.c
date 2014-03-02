@@ -597,7 +597,7 @@ dbg_tiff_save (char *sFile, SANE_Int width, SANE_Int height, SANE_Int depth,
 	}
       else
 	DBG (DBG_ERR,
-	     "- dbg_tiff_save: Enviroment HOME variable does not exist\n");
+	     "- dbg_tiff_save: Environment HOME variable does not exist\n");
     }
 #else
   /* silent gcc */

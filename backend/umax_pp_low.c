@@ -10898,7 +10898,7 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 
       /* scan time are high enough to forget about usec */
       elapsed = tf.tv_sec - td.tv_sec;
-      DBG (8, "%ld bytes transfered in %f seconds ( %.2f Kb/s)\n", somme,
+      DBG (8, "%ld bytes transferred in %f seconds ( %.2f Kb/s)\n", somme,
 	   elapsed, (somme / elapsed) / 1024.0);
 #endif
 

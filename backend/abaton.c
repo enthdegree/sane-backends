@@ -1455,7 +1455,7 @@ sane_cancel (SANE_Handle handle)
       if (s->AbortedByUser)
 	{
 	  DBG (FLOW_CONTROL, "sane_cancel: Scan has not been initiated yet."
-	       "we probably recieved a signal while writing data.\n");
+	       "we probably received a signal while writing data.\n");
 	  s->AbortedByUser = SANE_FALSE;
 	}
       else

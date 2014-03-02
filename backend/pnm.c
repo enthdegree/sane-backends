@@ -267,7 +267,7 @@ static SANE_Option_Descriptor sod[] = {
    SANE_I18N ("Hand-Scanner Simulation"),
    SANE_I18N ("Simulate a hand-scanner.  Hand-scanners often do not know the "
 	      "image height a priori.  Instead, they return a height of -1.  "
-	      "Setting this option allows to test whether a frontend can "
+	      "Setting this option allows one to test whether a frontend can "
 	      "handle this correctly."),
    SANE_TYPE_BOOL,
    SANE_UNIT_NONE,

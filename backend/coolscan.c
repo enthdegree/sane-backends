@@ -179,7 +179,7 @@ request_sense_parse (unsigned char *sensed_data)
 
     case 0x2:
       if ((0x4 == asc) && (0x1 == ascq)) {
-	DBG (10, "\t%d/%d/%d: Logical unit is in process of becomming ready\n", 
+	DBG (10, "\t%d/%d/%d: Logical unit is in process of becoming ready\n",
 	     sense, asc, ascq);
 	ret = SANE_STATUS_DEVICE_BUSY;
       }

@@ -429,7 +429,7 @@ for details.
 .TP
 .B plustek
 The SANE plustek backend supports USB flatbed scanners that use the National
-Semiconductor LM983[1/2/3]-chipset aka Merlin. Scanners using this LM983x chips
+Semiconductor LM983[1/2/3] chipset aka Merlin. Scanners using this LM983x chips
 include some models from Plustek, KYE/Genius, Hewlett-Packard, Mustek, Umax,
 Epson, and Canon. See
 .BR sane\-plustek (5)

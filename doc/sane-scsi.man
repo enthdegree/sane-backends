@@ -28,7 +28,7 @@ for Epson scanners,
 for HP scanners, etc.).
 .PP
 For some operating systems (e.g. Linux and OS/2), there is an alternate way of
-specifying scanner devices.  This alternate way allows to identify scanners by
+specifying scanner devices.  This alternate way allows one to identify scanners by
 the SCSI vendor and model string and/or by the SCSI device address (consisting
 of bus number, channel number, id, and logical unit number).  The syntax for
 specifying a scanner in this way is:

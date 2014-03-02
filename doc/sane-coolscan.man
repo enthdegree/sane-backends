@@ -39,7 +39,7 @@ permissions of that device, have a look at sane\-scsi.
 
 Some SCSI-adapters and low-level SCSI drivers do not work correctly with this backend and the
 Coolscan scanners. These systems hang when the autofocus command is send to the Scanner.
-To see a list of which card/driver combinations work or dont work have a look at:
+To see a list of which card/driver combinations work or don't work have a look at:
 http://andreas.rick.free.fr/sane/autofocus.html.
 
 

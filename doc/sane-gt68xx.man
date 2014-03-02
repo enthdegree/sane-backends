@@ -117,7 +117,7 @@ can set the "correct" name here.
 .PP
 The
 .B afe
-option allows to set custom offset and gain values for the Analog FrontEnd of
+option allows one to set custom offset and gain values for the Analog FrontEnd of
 the scanner. This option can be either used to select the AFE values if
 automatic coarse calibration is disabled, or to make automatic coarse
 calibration faster. For the latter usage, enable debug level 3 (see below),

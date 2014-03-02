@@ -53,7 +53,7 @@ used by the backend:
 .PP
 "lines_per_block 16" (or other number from 1 to 32)
 .RS
-Controls the number of lines of image data which will be aquired in each pass.
+Controls the number of lines of image data which will be acquired in each pass.
 Older scanners will require this number set lower, often 1.
 .RE
 .PP

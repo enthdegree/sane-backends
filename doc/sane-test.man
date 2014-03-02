@@ -40,7 +40,7 @@ Setting option
 .B hand\-scanner
 results in the test-backend behaving like a hand-scanner.  Hand-scanners do
 not know the image height a priori.  Instead, they return a height of \-1.
-Setting this option allows to test whether a frontend can handle this
+Setting this option allows one to test whether a frontend can handle this
 correctly.  This option also enables a fixed width of 11 cm.
 .PP
 Setting option
@@ -68,7 +68,7 @@ ADF will be "empty".
 .SH SPECIAL OPTIONS
 Option
 .B test\-picture
-allows to set the image that's returned to the frontend.  While "Solid white"
+allows one to set the image that's returned to the frontend.  While "Solid white"
 and "Solid black" are quite obvious, the other options need some more
 explanation.  Color patterns are used to determine if all modes and their
 colors are represented correctly by the frontend.  The grid should look like the
@@ -76,10 +76,10 @@ same in every mode and resolution.  A table of all the test pictures can be
 found at: http://www.meier\-geinitz.de/sane/test\-backend/test\-pictures.html.
 .PP
 If option
-.B invert\-endianess
+.B invert\-endianness
 is set, the upper and lower bytes of image data in 16 bit modes are exchanged.
 This option can be used to test the 16 bit modes of frontends, e.g. if the
-frontend uses the correct endianess.
+frontend uses the correct endianness.
 .PP
 If option
 .B read\-limit

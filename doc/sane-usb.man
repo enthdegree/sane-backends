@@ -90,7 +90,7 @@ can be found on the SANE webpage
 and the individual backend manpages.
 .PP
 Most backends can detect USB scanners automatically using "usb" configuration
-file lines. This method allows to identify scanners by the USB vendor and
+file lines. This method allows one to identify scanners by the USB vendor and
 product numbers.  The syntax for specifying a scanner this way is:
 .PP
 .RS

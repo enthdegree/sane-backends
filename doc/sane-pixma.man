@@ -137,7 +137,7 @@ provides the following
 \#.B experimental
 options for button handling, i.e. the options might change in the future.
 .br
-The button status can be polled i.e. with 'scanimage -A'.
+The button status can be polled i.e. with 'scanimage \-A'.
 .br
 Button scan is disabled on MAC OS X due to darwin libusb not handling
 timeouts in usb interrupt reads, but may work when using the network protocol.

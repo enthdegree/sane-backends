@@ -1,4 +1,4 @@
-.TH sane\-kodakaio 2.4 "17 Jun 2012" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-kodakaio 5 "17 Jun 2012" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-kodakaio
 
 .SH NAME

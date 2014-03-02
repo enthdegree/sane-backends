@@ -58,7 +58,7 @@ needs to run as root. To allow user access to the scanner
 run the backend through the network interface (See saned(8) and sane\-net(5)).
 A more relaxed solution (security wise) is to add suid bit to the frontend
 (See chmod(1)).
-The backend drop root priviledges as soon as it can, right after gaining direct
+The backend drop root privileges as soon as it can, right after gaining direct
 access to IO ports, which lessen risks when being root.
 
 .SH "DEVICE NAMES"
@@ -100,7 +100,7 @@ root (*BSD and linux), or with 'IOPL=yes' on
 OS/2
 .PP 
 .RE
-\fBNOTE:\fR in all cases, you must have sufficient priviledges
+\fBNOTE:\fR in all cases, you must have sufficient privileges
 to get access to the chosen device or address. Depending on the
 security settings, devices may not be available for all users.
 You have to change permissions on the dev/ppi* or /dev/parport* devices. 

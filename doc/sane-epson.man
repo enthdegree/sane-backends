@@ -91,7 +91,7 @@ are "None", "Halftone A (Hard Tone)", "Halftone B (Soft Tone)", "Halftone C
 
 The 
 .I \-\-dropout
-switch selects the so called dropout color. Vald options are None,
+switch selects the so called dropout color. Valid options are None,
 Red, Green and Blue. The default is None. The dropout color is used for
 monochrome scanning and selects the color that is not scanned. This can
 be used to e.g. scan an original with a colored background.
@@ -269,7 +269,7 @@ environment variable controls the SCSI related debug level for this backend.
 Only a value of 2 is supported.
 .TP
 .B SANE_EPSON_CMD_LVL
-This allows to override the function or command level that the backend 
+This allows one to override the function or command level that the backend
 uses to communicate with the scanner. The function level a scanner
 supports is determined during the initialization of the device. If
 the backend does not recognize the function level reported by the 

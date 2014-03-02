@@ -48,7 +48,7 @@ GL841, GL843, GL847 or GL124 chipset, you can try to add it to the backend.
 .SH "CALIBRATION"
 To give correct image quality, sheet fed scanners need to be calibrated using the
 calibration sheet sold with the scanner. To do calibration, you must insert this target
-in the feeder then start calibration either by passing the --calibrate option to scanimage
+in the feeder then start calibration either by passing the \-\-calibrate option to scanimage
 or by clicking on the available 'calibrate' button in the 'advanced options' in a graphical
 frontend. The result of the calibration is stored in a file in the home directory of the user doing it.
 If you plug the scanner in another machine or use it with another account, calibration
@@ -75,13 +75,13 @@ whith brightness below that value will be scanned as black.
 
 .B \-\-brightness value
 .RS
-	-100..100 (in steps of 1). Set the brightness enhancement. 0 for no enhancement, negative
+	\-100..100 (in steps of 1). Set the brightness enhancement. 0 for no enhancement, negative
 values to decrease brigthness, and positive values to increase it.
 .RE
 
 .B \-\-contrast value
 .RS
-	-100..100 (in steps of 1). Set the contrast enhancement. 0 for no enhancement, negative
+	\-100..100 (in steps of 1). Set the contrast enhancement. 0 for no enhancement, negative
 values to decrease contrast, and positive values to increase it.
 .RE
 
@@ -301,7 +301,7 @@ Alexey Osipov <simba@lerlan.ru> for HP2400 final support
 Powersaving isn't implemented for gl646 based scanner. Dynamic (emulated from gray data and with dithering) isn't enabled for gl646 scanners. Hardware lineart is limited up to 600 dpi for gl847 based scanners, due to the way image sensors are built.
 .br
 .TP
-This backend will be much slower if not using libusb-1.0. So be sure that sane-backends is built with the --enable-libusb_1_0 option.
+This backend will be much slower if not using libusb\-1.0. So be sure that sane\-backends is built with the \-\-enable-libusb_1_0 option.
 .br
 
 .SH "BUGS"

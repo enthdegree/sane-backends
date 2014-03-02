@@ -68,3 +68,7 @@ usb 0x04c5 0x1200
 # Fujitsu S1300
 firmware @DATADIR@/sane/epjitsu/1300_0C26.nal
 usb 0x04c5 0x11ed
+
+# Fujitsu S1300i
+firmware @DATADIR@/sane/epjitsu/1300i_0D12.nal
+usb 0x04c5 0x128d

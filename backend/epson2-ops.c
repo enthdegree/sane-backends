@@ -1689,10 +1689,6 @@ e2_scan_finish(Epson_Scanner * s)
 	if (s->hw->ADF && s->hw->use_extension && s->val[OPT_AUTO_EJECT].w)
 		if (e2_check_adf(s) == SANE_STATUS_NO_DOCS)
 			esci_eject(s);
-
-	/* XXX required? */
-	if (s->hw->connection != SANE_EPSON_NET)
-		esci_reset(s);
 }
 
 void

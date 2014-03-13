@@ -177,7 +177,7 @@ e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 SANE_Status
 e2_dev_post_init(struct Epson_Device *dev)
 {
-	int i;
+	int i, last;
 
 	DBG(5, "%s\n", __func__);
 
@@ -231,7 +231,7 @@ e2_dev_post_init(struct Epson_Device *dev)
 
 	/* try to expand the resolution list where appropriate */
 
-	int last = dev->res_list[dev->res_list_size - 1];
+	last = dev->res_list[dev->res_list_size - 1];
 
 	DBG(1, "highest available resolution: %d\n", last);
 
@@ -700,6 +700,11 @@ e2_discover_capabilities(Epson_Scanner *s)
 				*source_list_add++ = ADF_STR;
 				dev->ADF = SANE_TRUE;
 			}
+
+			if (buf[44] & EXT_IDTY_CAP1_ADFS) {
+				dev->duplex = SANE_TRUE;
+			}
+
 		}
 
 		/* TPU */
@@ -901,25 +906,28 @@ e2_set_extended_scanning_parameters(Epson_Scanner * s)
 
 		char extensionCtrl;
 		extensionCtrl = (s->hw->use_extension ? 1 : 0);
-		if (s->hw->use_extension && (s->val[OPT_ADF_MODE].w == 1))
+		if (s->hw->use_extension && (s->val[OPT_ADF_MODE].w == 1)) {
 			extensionCtrl = 2;
+		}
 
 		/* Test for TPU2
 		 * Epson Perfection 4990 Command Specifications
 		 * JZIS-0075 Rev. A, page 31
 		 */
-		if (s->hw->use_extension && s->hw->TPU2)
+		if (s->hw->use_extension && s->hw->TPU2) {
 			extensionCtrl = 5;
+		}
 
-		if (s->val[OPT_MODE].w == MODE_INFRARED)
+		if (s->val[OPT_MODE].w == MODE_INFRARED) {
                         /* only infrared in TPU mode (NOT in TPU2 or flatbeth) 
 	                 * XXX investigate this ... only tested on GT-X800 
                          */
 
                         if (extensionCtrl == 1)   /* test for TPU */
-                           extensionCtrl = 3;
+				extensionCtrl = 3;
                         else
-                           return SANE_STATUS_UNSUPPORTED;
+				return SANE_STATUS_UNSUPPORTED;
+		}
 
 		/* ESC e */
 		buf[26] = extensionCtrl;
@@ -2128,6 +2136,7 @@ e2_block_read(struct Epson_Scanner *s)
 		 * RGB then swap the colors.
 		 */
 
+		/* never used, beta testers required */
 		needStrangeReorder =
 			(strstr(s->hw->model, "GT-2200") ||
 			 ((strstr(s->hw->model, "1640")

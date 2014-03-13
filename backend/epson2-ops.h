@@ -33,6 +33,7 @@ extern SANE_Status e2_add_resolution(Epson_Device *dev, int r);
 extern void e2_set_fbf_area(Epson_Scanner *s, int x, int y, int unit);
 extern void e2_set_adf_area(struct Epson_Scanner *s, int x, int y, int unit);
 extern void e2_set_tpu_area(struct Epson_Scanner *s, int x, int y, int unit);
+extern void e2_set_tpu2_area(struct Epson_Scanner *s, int x, int y, int unit);
 extern void e2_add_depth(Epson_Device *dev, SANE_Word depth);
 extern SANE_Status e2_discover_capabilities(Epson_Scanner *s);
 extern SANE_Status e2_set_extended_scanning_parameters(Epson_Scanner *s);

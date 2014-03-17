@@ -67,6 +67,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 }
 
 /* ==================================================================== */
+/* extended status packet */
+#define get_ES_length(b)             getnbyte(b+0x04, 4)
+
+/* ==================================================================== */
 /* SCSI commands */
 
 #define set_SCSI_opcode(out, val)          out[0]=val

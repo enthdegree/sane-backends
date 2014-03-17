@@ -15,8 +15,9 @@
 
 #######################################################################
 # Set data buffer size, in bytes. The value ranges from 4096 - infinity
-# large values may cause timeouts, small causes slow scans. 4MB default
-#option buffer-size 4194304
+# Large values may cause timeouts, or long pauses at the end of each
+# page. Small values may cause slow scans. 2MB is the default.
+#option buffer-size 2097152
 
 #######################################################################
 # Most scanners dont pad their reads
@@ -139,6 +140,8 @@ usb 0x1083 0x1638
 usb 0x1083 0x1639
 
 # DR-M140
+option extra-status 1
+option duplex-offset 400
 usb 0x1083 0x163f
 
 # P-215

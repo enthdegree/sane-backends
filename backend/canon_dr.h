@@ -194,11 +194,13 @@ struct scanner
   int invert_tly;       /* weird bug in some smaller scanners */
   int unknown_byte2;    /* weird byte, required, meaning unknown */
   int padded_read;      /* some machines need extra 12 bytes on reads */
+  int extra_status;     /* some machines need extra status read after cmd */
   int fixed_width;      /* some machines always scan full width */
   int even_Bpl;         /* some machines require even bytes per line */
 
   int gray_interlace[2];  /* different models interlace heads differently    */
   int color_interlace[2]; /* different models interlace colors differently   */
+  int color_inter_by_res[16]; /* and some even change by resolution */
   int duplex_interlace; /* different models interlace sides differently      */
   int jpeg_interlace;   /* different models interlace jpeg sides differently */
   int duplex_offset;    /* number of lines of padding added to front (1/1200)*/
@@ -416,11 +418,14 @@ enum {
 #define GRAY_INTERLACE_2510 1
 #define GRAY_INTERLACE_gG 2
 
-#define COLOR_INTERLACE_RGB 0
-#define COLOR_INTERLACE_BGR 1
-#define COLOR_INTERLACE_RRGGBB 2
-#define COLOR_INTERLACE_rRgGbB 3
-#define COLOR_INTERLACE_2510 4
+#define COLOR_INTERLACE_UNK 0
+#define COLOR_INTERLACE_RGB 1
+#define COLOR_INTERLACE_BGR 2
+#define COLOR_INTERLACE_BRG 3
+#define COLOR_INTERLACE_GBR 4
+#define COLOR_INTERLACE_RRGGBB 5
+#define COLOR_INTERLACE_rRgGbB 6
+#define COLOR_INTERLACE_2510 7
 
 #define DUPLEX_INTERLACE_NONE 0
 #define DUPLEX_INTERLACE_FFBB 1
@@ -520,6 +525,9 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
  unsigned char * inBuff, size_t * inLen
 );
 
+static SANE_Status
+do_usb_status(struct scanner *s, int runRS, int shortTime, size_t * extraLength);
+
 static SANE_Status do_usb_clear(struct scanner *s, int clear, int runRS);
 
 static SANE_Status wait_scanner (struct scanner *s);
@@ -529,6 +537,8 @@ static SANE_Status object_position (struct scanner *s, int i_load);
 static SANE_Status ssm_buffer (struct scanner *s);
 static SANE_Status ssm_do (struct scanner *s);
 static SANE_Status ssm_df (struct scanner *s);
+
+static int get_color_inter(struct scanner *s, int side, int res);
 
 static int get_page_width (struct scanner *s);
 static int get_page_height (struct scanner *s);

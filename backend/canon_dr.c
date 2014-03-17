@@ -285,6 +285,14 @@
          - add support for paper sensors (P-215 & P-208)
          - add initial support for card reader (P-215)
          - removed unused var from do_scsi_cmd()
+      v43 2014-04-13, MAN
+         - initial DR-M140 support
+         - add extra_status config and code
+         - split status code into do_usb_status
+         - fix copy_line margin offset
+         - add new color interlacing modes and code
+         - comment out ssm2
+         - add timestamp to do_usb_cmd
 
    SANE FLOW DIAGRAM
 
@@ -322,6 +330,7 @@
 #include <ctype.h> /*isspace*/
 #include <math.h> /*tan*/
 #include <unistd.h> /*usleep*/
+#include <sys/time.h> /*gettimeofday*/
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_scsi.h"
@@ -333,7 +342,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 42
+#define BUILD 43
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -374,6 +383,8 @@ static int global_buffer_size;
 static int global_buffer_size_default = 2 * 1024 * 1024;
 static int global_padded_read;
 static int global_padded_read_default = 0;
+static int global_extra_status;
+static int global_extra_status_default = 0;
 static int global_duplex_offset;
 static int global_duplex_offset_default = 0;
 static char global_vendor_name[9];
@@ -549,6 +560,32 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                     buf);
 
                   global_padded_read = buf;
+              }
+
+              /* EXTRA STATUS: we clamp to 0 or 1 */
+              else if (!strncmp (lp, "extra-status", 12) && isspace (lp[12])) {
+    
+                  int buf;
+                  lp += 12;
+                  lp = sanei_config_skip_whitespace (lp);
+                  buf = atoi (lp);
+    
+                  if (buf < 0) {
+                    DBG (5, "sane_get_devices: config option \"extra-status\" "
+                      "(%d) is < 0, ignoring!\n", buf);
+                    continue;
+                  }
+    
+                  if (buf > 1) {
+                    DBG (5, "sane_get_devices: config option \"extra-status\" "
+                      "(%d) is > 1, ignoring!\n", buf);
+                    continue;
+                  }
+    
+                  DBG (15, "sane_get_devices: setting \"extra-status\" to %d\n",
+                    buf);
+
+                  global_extra_status = buf;
               }
 
               /* DUPLEXOFFSET: < 1200 */
@@ -741,6 +778,7 @@ attach_one (const char *device_name, int connType)
   /* config file settings */
   s->buffer_size = global_buffer_size;
   s->padded_read = global_padded_read;
+  s->extra_status = global_extra_status;
   s->duplex_offset = global_duplex_offset;
 
   /* copy the device name */
@@ -1168,6 +1206,9 @@ init_model (struct scanner *s)
   s->reverse_by_mode[MODE_GRAYSCALE] = 0;
   s->reverse_by_mode[MODE_COLOR] = 0;
 
+  s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RGB;
+  s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RGB;
+
   s->always_op = 1;
   s->has_df = 1;
   s->has_btc = 1;
@@ -1395,6 +1436,48 @@ init_model (struct scanner *s)
     s->ccal_version = 3;
     s->can_read_sensors = 1;
     s->has_card = 1;
+  }
+
+  else if (strstr (s->model_name,"DR-M140")
+  ){
+
+    /*missing*/
+    s->std_res_x[DPI_100]=1;
+    s->std_res_y[DPI_100]=1;
+    s->std_res_x[DPI_150]=1;
+    s->std_res_y[DPI_150]=1;
+    s->std_res_x[DPI_200]=1;
+    s->std_res_y[DPI_200]=1;
+    s->std_res_x[DPI_300]=1;
+    s->std_res_y[DPI_300]=1;
+    s->std_res_x[DPI_400]=1;
+    s->std_res_y[DPI_400]=1;
+    s->std_res_x[DPI_600]=1;
+    s->std_res_y[DPI_600]=1;
+    
+#ifdef SANE_FRAME_JPEG
+    s->has_comp_JPEG = 1;
+#endif
+    s->rgb_format = 1;
+    s->can_color = 1;
+
+    s->color_inter_by_res[DPI_100] = COLOR_INTERLACE_GBR;
+    s->color_inter_by_res[DPI_150] = COLOR_INTERLACE_GBR;
+    s->color_inter_by_res[DPI_200] = COLOR_INTERLACE_BRG;
+    s->color_inter_by_res[DPI_400] = COLOR_INTERLACE_GBR;
+
+    /*weirdness*/
+    s->fixed_width = 1;
+    s->invert_tly = 1;
+    s->can_write_panel = 0;
+    s->has_ssm = 0;
+    s->has_ssm2 = 1;
+    s->duplex_interlace = DUPLEX_INTERLACE_FFBB;
+    s->duplex_offset_side = SIDE_BACK;
+
+    /*lies*/
+    s->can_halftone=0;
+    s->can_monochrome=0;
   }
 
   DBG (10, "init_model: finish\n");
@@ -3128,6 +3211,7 @@ ssm_do (struct scanner *s)
 }
 
 /* used by recent scanners. meaning of payloads unknown */
+/*
 static SANE_Status
 ssm2 (struct scanner *s)
 {
@@ -3148,28 +3232,26 @@ ssm2 (struct scanner *s)
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
-  /*FIXME: set this correctly */
   set_SSM2_page_code(cmd, 0);
   set_SSM2_pay_len(cmd, outLen);
 
-  /*FIXME: set these correctly */
   memset(out,0,outLen);
   set_SSM2_unk(out, 0);
   set_SSM2_unk2(out, 0);
   set_SSM2_unk3(out, 0);
 
-  /*
   ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
       out, outLen,
       NULL, NULL
-  );*/
+  );
 
   DBG (10, "ssm2: finish\n");
 
   return ret;
 }
+*/
 
 static SANE_Status
 read_sensors(struct scanner *s,SANE_Int option)
@@ -4661,6 +4743,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
 
   unsigned char * line = NULL;
   int line_next = 0;
+  int inter = get_color_inter(s,side,s->s.dpi_x);
 
   /* jpeg data should not pass thru this function, so copy and bail out */
   if(s->s.format > SANE_FRAME_RGB){
@@ -4731,7 +4814,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
   
     else if (s->s.format == SANE_FRAME_RGB){
   
-      switch (s->color_interlace[side]) {
+      switch (inter) {
     
         /* scanner returns color data as bgrbgr... */
         case COLOR_INTERLACE_BGR:
@@ -4739,6 +4822,26 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
           for (j=0; j<pwidth; j++){
             line[line_next++] = buf[i+j*3+2];
             line[line_next++] = buf[i+j*3+1];
+            line[line_next++] = buf[i+j*3];
+          }
+          break;
+    
+        /* scanner returns color data as gbrgbr... */
+        case COLOR_INTERLACE_GBR:
+          DBG (17, "copy_simplex: color, GBR\n");
+          for (j=0; j<pwidth; j++){
+            line[line_next++] = buf[i+j*3+2];
+            line[line_next++] = buf[i+j*3];
+            line[line_next++] = buf[i+j*3+1];
+          }
+          break;
+    
+        /* scanner returns color data as brgbrg... */
+        case COLOR_INTERLACE_BRG:
+          DBG (17, "copy_simplex: color, BRG\n");
+          for (j=0; j<pwidth; j++){
+            line[line_next++] = buf[i+j*3+1];
+            line[line_next++] = buf[i+j*3+2];
             line[line_next++] = buf[i+j*3];
           }
           break;
@@ -4907,7 +5010,7 @@ copy_duplex(struct scanner *s, unsigned char * buf, int len)
     }
   }
 
-  /* no scanners use this? */
+  /* full line of front, then full line of back */
   else if(s->duplex_interlace == DUPLEX_INTERLACE_FFBB){
     for(i=0; i<len; i+=dbwidth){
       memcpy(front+flen,buf+i,bwidth);
@@ -5016,7 +5119,7 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
   
   /* scan is wider than user wanted, skip some pixels on left side */
   if(s->i.width != s->s.width){
-    offset = ((s->valid_x-s->i.page_x) / 2 + s->i.tl_x) * s->i.dpi_x/1200*3;
+    offset = ((s->valid_x-s->i.page_x) / 2 + s->i.tl_x) * s->i.dpi_x/1200;
   }
 
   /* change mode, store line in buffer */
@@ -5044,7 +5147,7 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
 
         /*loop over output bits*/
         for(j=0;j<8;j++){
-          int source = (offset+i)*24 + j*3;
+          int source = offset*3 + i*24 + j*3;
           if( (line[source] + line[source+1] + line[source+2]) < thresh ){
             curr |= 1 << (7-j); 
           }
@@ -6106,6 +6209,7 @@ default_globals(void)
 {
   global_buffer_size = global_buffer_size_default;
   global_padded_read = global_padded_read_default;
+  global_extra_status = global_extra_status_default;
   global_duplex_offset = global_duplex_offset_default;
   global_vendor_name[0] = 0;
   global_model_name[0] = 0;
@@ -6456,16 +6560,15 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
     unsigned char * inBuffer = NULL;
     int inTimeout = 0;
 
-    size_t statOffset = 0;
-    size_t statLength = 0;
-    size_t statActual = 0;
-    unsigned char * statBuffer = NULL;
-    int statTimeout = 0;
+    size_t extraLength = 0;
 
     int ret = 0;
     int ret2 = 0;
 
-    DBG (10, "do_usb_cmd: start\n");
+    struct timeval timer;
+    gettimeofday(&timer,NULL);
+
+    DBG (10, "do_usb_cmd: start %lu %lu\n", (long unsigned int)timer.tv_sec, (long unsigned int)timer.tv_usec);
 
     /****************************************************************/
     /* the command stage */
@@ -6510,6 +6613,20 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
         return ret;
       }
       free(cmdBuffer);
+    }
+
+    /****************************************************************/
+    /* the extra status stage, used by few scanners                 */
+    /* this is like the regular status block, with an additional    */
+    /* length component at the end */
+    if(s->extra_status){
+      ret2 = do_usb_status(s,runRS,shortTime,&extraLength);
+
+      /* bail out on bad RS status */
+      if(ret2){
+        DBG(5,"extra: bad RS status, %d\n", ret2);
+        return ret2;
+      }
     }
 
     /****************************************************************/
@@ -6569,6 +6686,12 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       inLength = inOffset+*inLen;
       inActual = inLength;
 
+      /* use the extra length to alter the amount of in we request */
+      if(s->extra_status && extraLength && *inLen > extraLength){
+        DBG(5,"in: adjust extra, %d %d\n", (int)*inLen, (int)extraLength);
+        inActual = inOffset+extraLength;
+      }
+
       /*blast caller's copy in case we error out*/
       *inLen = 0;
 
@@ -6580,13 +6703,13 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       sanei_usb_set_timeout(inTimeout);
 
       /* build inBuffer */
-      inBuffer = calloc(inLength,1);
+      inBuffer = calloc(inActual,1);
       if(!inBuffer){
         DBG(5,"in: no mem\n");
         return SANE_STATUS_NO_MEM;
       }
   
-      DBG(25, "in: reading %d bytes, timeout %d\n", (int)inLength, inTimeout);
+      DBG(25, "in: reading %d bytes, timeout %d\n", (int)inActual, inTimeout);
       ret = sanei_usb_read_bulk(s->fd, inBuffer, &inActual);
       DBG(25, "in: read %d bytes, retval %d\n", (int)inActual, ret);
       hexdump(30, "in: <<", inBuffer, inActual);
@@ -6611,49 +6734,8 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
     }
 
     /****************************************************************/
-    /* the status stage */
-    statOffset = 0;
-    if(s->padded_read)
-      statOffset = USB_HEADER_LEN;
-
-    statLength = statOffset+USB_STATUS_LEN;
-    statActual = statLength;
-    statTimeout = USB_STATUS_TIME;
-
-    /* change timeout */
-    if(shortTime)
-      statTimeout/=60;
-    sanei_usb_set_timeout(statTimeout);
-
-    /* build statBuffer */
-    statBuffer = calloc(statLength,1);
-    if(!statBuffer){
-      DBG(5,"stat: no mem\n");
-      if(inBuffer) free(inBuffer);
-      return SANE_STATUS_NO_MEM;
-    }
-  
-    DBG(25, "stat: reading %d bytes, timeout %d\n", (int)statLength, statTimeout);
-    ret2 = sanei_usb_read_bulk(s->fd, statBuffer, &statActual);
-    DBG(25, "stat: read %d bytes, retval %d\n", (int)statActual, ret2);
-    hexdump(30, "stat: <<", statBuffer, statActual);
-  
-    /*weird status*/
-    if(ret2 != SANE_STATUS_GOOD){
-      DBG(5,"stat: clearing error '%s'\n",sane_strstatus(ret2));
-      ret2 = do_usb_clear(s,1,runRS);
-    }
-    /*short read*/
-    else if(statLength != statActual){
-      DBG(5,"stat: clearing short %d/%d\n",(int)statLength,(int)statActual);
-      ret2 = do_usb_clear(s,1,runRS);
-    }
-    /*inspect the last byte of the status response*/
-    else if(statBuffer[statLength-1]){
-      DBG(5,"stat: status %d\n",statBuffer[statLength-1]);
-      ret2 = do_usb_clear(s,0,runRS);
-    }
-    free(statBuffer);
+    /* the normal status stage */
+    ret2 = do_usb_status(s,runRS,shortTime,&extraLength);
 
     /* if status said EOF, adjust input with remainder count */
     if(ret2 == SANE_STATUS_EOF && inBuffer){
@@ -6661,11 +6743,11 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       /* EOF is ok */
       ret2 = SANE_STATUS_GOOD;
 
-      if(inActual <= inLength - s->rs_info){
-        DBG(5,"in: we read <= RS, ignoring RS: %d <= %d (%d-%d)\n",
+      if(inActual < inLength - s->rs_info){
+        DBG(5,"in: we read < RS, ignoring RS: %d < %d (%d-%d)\n",
           (int)inActual,(int)(inLength-s->rs_info),(int)inLength,(int)s->rs_info);
       }
-      else if(s->rs_info){
+      else if(inActual > inLength - s->rs_info){
         DBG(5,"in: we read > RS, using RS: %d to %d (%d-%d)\n",
           (int)inActual,(int)(inLength-s->rs_info),(int)inLength,(int)s->rs_info);
         inActual = inLength - s->rs_info;
@@ -6694,6 +6776,77 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
     }
 
     DBG (10, "do_usb_cmd: finish\n");
+
+    return ret;
+}
+
+static SANE_Status
+do_usb_status(struct scanner *s, int runRS, int shortTime, size_t * extraLength)
+{
+
+#define EXTRA_READ_len 4
+
+    size_t statPadding = 0;
+    size_t statOffset = 0;
+    size_t statLength = 0;
+    size_t statActual = 0;
+    unsigned char * statBuffer = NULL;
+    int statTimeout = 0;
+
+    int ret = 0;
+
+    if(s->padded_read)
+      statPadding = USB_HEADER_LEN;
+
+    statLength = statPadding+USB_STATUS_LEN;
+    statOffset = statLength-1;
+
+    if(s->extra_status)
+      statLength += EXTRA_READ_len;
+
+    statActual = statLength;
+    statTimeout = USB_STATUS_TIME;
+
+    /* change timeout */
+    if(shortTime)
+      statTimeout/=60;
+    sanei_usb_set_timeout(statTimeout);
+
+    /* build statBuffer */
+    statBuffer = calloc(statLength,1);
+    if(!statBuffer){
+      DBG(5,"stat: no mem\n");
+      return SANE_STATUS_NO_MEM;
+    }
+  
+    DBG(25, "stat: reading %d bytes, timeout %d\n", (int)statLength, statTimeout);
+    ret = sanei_usb_read_bulk(s->fd, statBuffer, &statActual);
+    DBG(25, "stat: read %d bytes, retval %d\n", (int)statActual, ret);
+    hexdump(30, "stat: <<", statBuffer, statActual);
+  
+    /*weird status*/
+    if(ret != SANE_STATUS_GOOD){
+      DBG(5,"stat: clearing error '%s'\n",sane_strstatus(ret));
+      ret = do_usb_clear(s,1,runRS);
+    }
+    /*short read*/
+    else if(statLength != statActual){
+      DBG(5,"stat: clearing short %d/%d\n",(int)statLength,(int)statActual);
+      ret = do_usb_clear(s,1,runRS);
+    }
+    /*inspect the status byte of the response*/
+    else if(statBuffer[statOffset]){
+      DBG(5,"stat: status %d\n",statBuffer[statLength-1-4]);
+      ret = do_usb_clear(s,0,runRS);
+    }
+
+    /*extract the extra length byte of the response*/
+    if(s->extra_status){
+      *extraLength = get_ES_length(statBuffer);
+      DBG(15,"stat: extra %d\n",(int)*extraLength);
+    }
+
+    free(statBuffer);
 
     return ret;
 }
@@ -6805,6 +6958,26 @@ wait_scanner(struct scanner *s)
   DBG (10, "wait_scanner: finish\n");
 
   return ret;
+}
+
+/* Some scanners have per-resolution
+ * color interlacing values, but most
+ * don't. This helper can tell the 
+ * difference.
+ */
+static int
+get_color_inter(struct scanner *s, int side, int res) 
+{
+  int i;
+  for(i=0;i<DPI_1200;i++){
+    if(res == dpi_list[i])
+      break;
+  }
+
+  if(s->color_inter_by_res[i])
+    return s->color_inter_by_res[i];
+
+  return s->color_interlace[side];
 }
 
 /* s->u.page_x stores the user setting

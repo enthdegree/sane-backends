@@ -1,3 +1,15 @@
+2014-03-21 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man: Canon Pixma MG3200
+	is working, reported in ubuntuforums.org/showthread.php?t=2072162.
+	* doc/descriptions/pixma.desc: rename WLAN to WiFi
+	* backend/pixma_mp150.c:
+	- Canon Pixma MX520 Series supports 14" legal paper size in ADF mode.
+	- MX520 has button support.
+	* backend/pixma_common.c: Clamp minimum image size to 16 px x 16 px. Some
+	new scanners need minimum 16 px height.
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man: Canon Pixma MX520 Series
+	is working, reported by Trygve Flathen.
+
 2014-02-28 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
 	doc/sane-pixma.man: Rename Canon i-SENSYS MF4550d to Canon i-SENSYS MF4500

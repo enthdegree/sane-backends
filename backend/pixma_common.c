@@ -1051,9 +1051,11 @@ pixma_check_scan_param (pixma_t * s, pixma_scan_param_t * sp)
   if (s->ops->check_param (s, sp) < 0)
     return PIXMA_EINVAL;
 
-  /* FIXME: I assume the same minimum width and height for every model. */
-  CLAMP2 (sp->x, sp->w, 13, s->cfg->width, sp->xdpi);
-  CLAMP2 (sp->y, sp->h, 8, s->cfg->height, sp->ydpi);
+  /* FIXME: I assume the same minimum width and height for every model.
+   * new scanners need minimum 16 px height
+   * minimum image size: 16 px x 16 px */
+  CLAMP2 (sp->x, sp->w, 16, s->cfg->width, sp->xdpi);
+  CLAMP2 (sp->y, sp->h, 16, s->cfg->height, sp->ydpi);
 
   switch (sp->source)
     {

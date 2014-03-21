@@ -590,10 +590,10 @@
 :comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
 
 :model "PIXMA MX520 Series"
-:interface "USB"
+:interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x1769"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
 
 :model "PIXMA MX700"
 :interface "USB Ethernet"

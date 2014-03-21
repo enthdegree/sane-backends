@@ -1280,6 +1280,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
         s->cfg->pid == MX410_PID ||
         s->cfg->pid == MX420_PID ||
         s->cfg->pid == MX510_PID ||
+        s->cfg->pid == MX520_PID ||
         s->cfg->pid == MX920_PID ||
         s->cfg->pid == MX7600_PID )
        &&
@@ -1732,7 +1733,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MG6300 Series", "MG6300", MG6300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MX390 Series", "MX390", MX390_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX450 Series", "MX450", MX450_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX520 Series", "MX520", MX520_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX520 Series", "MX520", MX520_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX720 Series", "MX720", MX720_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX920 Series", "MX920", MX920_PID, 2400, 0, 600, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
   DEVICE ("Canon PIXMA MG2400 Series", "MG2400", MG2400_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),

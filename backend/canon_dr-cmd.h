@@ -426,18 +426,24 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_CC3_exp_b_b(sb, val)     putnbyte(sb + 0x20, val, 2)
 
 /* ==================================================================== */
+/* Page codes used by GET/SET SCAN MODE 2 */
+#define SM2_pc_buffer                   0x02
+
+/* ==================================================================== */
 /* SET SCAN MODE 2 */
 #define SET_SCAN_MODE2_code             0xe5
-#define SET_SCAN_MODE2_len              10
+#define SET_SCAN_MODE2_len              12
 
 #define set_SSM2_page_code(sb, val)     sb[0x02] = val
 #define set_SSM2_pay_len(sb, val)       sb[0x08] = val
 
 /* the payload */
 #define SSM2_PAY_len                     0x10
-#define set_SSM2_unk(sb, val)           sb[0x02] = val
-#define set_SSM2_unk2(sb, val)          sb[0x03] = val
-#define set_SSM2_unk3(sb, val)          sb[0x04] = val
+
+/* for BUFFER (0x02) page */
+#define set_SSM2_BUFF_unk(sb, val)           sb[0x03] = val
+#define set_SSM2_BUFF_unk2(sb, val)          sb[0x06] = val
+#define set_SSM2_BUFF_sync(sb, val)          sb[0x09] = val
 
 /* ==================================================================== */
 /* window descriptor macros for SET_WINDOW and GET_WINDOW */

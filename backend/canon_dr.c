@@ -293,6 +293,9 @@
          - add new color interlacing modes and code
          - comment out ssm2
          - add timestamp to do_usb_cmd
+      v44 2014-04-26, MAN
+         - buffermode support for machines with ssm2 command
+         - DR-M140 needs always_op=0
 
    SANE FLOW DIAGRAM
 
@@ -342,7 +345,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 43
+#define BUILD 44
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1467,6 +1470,7 @@ init_model (struct scanner *s)
     s->color_inter_by_res[DPI_400] = COLOR_INTERLACE_GBR;
 
     /*weirdness*/
+    s->always_op = 0;
     s->fixed_width = 1;
     s->invert_tly = 1;
     s->can_write_panel = 0;
@@ -2994,56 +2998,84 @@ ssm_buffer (struct scanner *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  unsigned char cmd[SET_SCAN_MODE_len];
-  size_t cmdLen = SET_SCAN_MODE_len;
-
-  unsigned char out[SSM_PAY_len];
-  size_t outLen = SSM_PAY_len;
-
   DBG (10, "ssm_buffer: start\n");
 
-  if(!s->has_ssm){
+  if(s->has_ssm){
+  
+    unsigned char cmd[SET_SCAN_MODE_len];
+    size_t cmdLen = SET_SCAN_MODE_len;
+  
+    unsigned char out[SSM_PAY_len];
+    size_t outLen = SSM_PAY_len;
+  
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
+    set_SSM_pf(cmd, 1);
+    set_SSM_pay_len(cmd, outLen);
+  
+    memset(out,0,outLen);
+    if(s->has_ssm_pay_head_len){
+      set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
+    }
+    set_SSM_page_code(out, SM_pc_buffer);
+    set_SSM_page_len(out, SSM_PAGE_len);
+  
+    if(s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_CARD_DUPLEX){
+      set_SSM_BUFF_duplex(out, 1);
+    }
+    if(s->s.source == SOURCE_FLATBED){
+      set_SSM_BUFF_fb(out, 1);
+    }
+    else if(s->s.source >= SOURCE_CARD_FRONT){
+      set_SSM_BUFF_card(out, 1);
+    }
+    if(s->buffermode){
+      set_SSM_BUFF_async(out, 1);
+    }
+    if(0){
+      set_SSM_BUFF_ald(out, 1);
+    }
+    if(0){
+      set_SSM_BUFF_unk(out,1);
+    }
+  
+    ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        out, outLen,
+        NULL, NULL
+    );
+  }
+
+  else if(s->has_ssm2){
+
+    unsigned char cmd[SET_SCAN_MODE2_len];
+    size_t cmdLen = SET_SCAN_MODE2_len;
+  
+    unsigned char out[SSM2_PAY_len];
+    size_t outLen = SSM2_PAY_len;
+  
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
+    set_SSM2_page_code(cmd, SM2_pc_buffer);
+    set_SSM2_pay_len(cmd, outLen);
+  
+    memset(out,0,outLen);
+    set_SSM2_BUFF_unk(out, 1);
+    set_SSM2_BUFF_unk2(out, 0x40);
+    set_SSM2_BUFF_sync(out, !s->buffermode);
+  
+    ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        out, outLen,
+        NULL, NULL
+    );
+  }
+
+  else{
     DBG (10, "ssm_buffer: unsupported\n");
-    return ret;
   }
-
-  memset(cmd,0,cmdLen);
-  set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
-  set_SSM_pf(cmd, 1);
-  set_SSM_pay_len(cmd, outLen);
-
-  memset(out,0,outLen);
-  if(s->has_ssm_pay_head_len){
-    set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
-  }
-  set_SSM_page_code(out, SM_pc_buffer);
-  set_SSM_page_len(out, SSM_PAGE_len);
-
-  if(s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_CARD_DUPLEX){
-    set_SSM_BUFF_duplex(out, 1);
-  }
-  if(s->s.source == SOURCE_FLATBED){
-    set_SSM_BUFF_fb(out, 1);
-  }
-  else if(s->s.source >= SOURCE_CARD_FRONT){
-    set_SSM_BUFF_card(out, 1);
-  }
-  if(s->buffermode){
-    set_SSM_BUFF_async(out, 1);
-  }
-  if(0){
-    set_SSM_BUFF_ald(out, 1);
-  }
-  if(0){
-    set_SSM_BUFF_unk(out,1);
-  }
-
-  ret = do_cmd (
-      s, 1, 0,
-      cmd, cmdLen,
-      out, outLen,
-      NULL, NULL
-  );
 
   DBG (10, "ssm_buffer: finish\n");
 
@@ -3209,49 +3241,6 @@ ssm_do (struct scanner *s)
 
   return ret;
 }
-
-/* used by recent scanners. meaning of payloads unknown */
-/*
-static SANE_Status
-ssm2 (struct scanner *s)
-{
-  SANE_Status ret = SANE_STATUS_GOOD;
-
-  unsigned char cmd[SET_SCAN_MODE2_len];
-  size_t cmdLen = SET_SCAN_MODE2_len;
-
-  unsigned char out[SSM2_PAY_len];
-  size_t outLen = SSM2_PAY_len;
-
-  DBG (10, "ssm2:start\n");
-
-  if(!s->has_ssm2){
-    DBG (10, "ssm2: unsupported, finishing\n");
-    return ret;
-  }
-
-  memset(cmd,0,cmdLen);
-  set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
-  set_SSM2_page_code(cmd, 0);
-  set_SSM2_pay_len(cmd, outLen);
-
-  memset(out,0,outLen);
-  set_SSM2_unk(out, 0);
-  set_SSM2_unk2(out, 0);
-  set_SSM2_unk3(out, 0);
-
-  ret = do_cmd (
-      s, 1, 0,
-      cmd, cmdLen,
-      out, outLen,
-      NULL, NULL
-  );
-
-  DBG (10, "ssm2: finish\n");
-
-  return ret;
-}
-*/
 
 static SANE_Status
 read_sensors(struct scanner *s,SANE_Int option)

@@ -296,6 +296,9 @@
       v44 2014-04-26, MAN
          - buffermode support for machines with ssm2 command
          - DR-M140 needs always_op=0
+      v45 2014-04-29, MAN
+         - dropout support for machines with ssm2 command
+         - doublefeed support for machines with ssm2 command
 
    SANE FLOW DIAGRAM
 
@@ -345,7 +348,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 44
+#define BUILD 45
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1463,6 +1466,7 @@ init_model (struct scanner *s)
 #endif
     s->rgb_format = 1;
     s->can_color = 1;
+    s->has_df_ultra = 1;
 
     s->color_inter_by_res[DPI_100] = COLOR_INTERLACE_GBR;
     s->color_inter_by_res[DPI_150] = COLOR_INTERLACE_GBR;
@@ -3087,57 +3091,118 @@ ssm_df (struct scanner *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  unsigned char cmd[SET_SCAN_MODE_len];
-  size_t cmdLen = SET_SCAN_MODE_len;
-
-  unsigned char out[SSM_PAY_len];
-  size_t outLen = SSM_PAY_len;
-
   DBG (10, "ssm_df: start\n");
-
-  if(!s->has_ssm || !s->has_df){
+  
+  if(!s->has_df){
     DBG (10, "ssm_df: unsupported, finishing\n");
     return ret;
   }
-
-  memset(cmd,0,cmdLen);
-  set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
-  set_SSM_pf(cmd, 1);
-  set_SSM_pay_len(cmd, outLen);
-
-  memset(out,0,outLen);
-  if(s->has_ssm_pay_head_len){
-    set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
-  }
-  set_SSM_page_code(out, SM_pc_df);
-  set_SSM_page_len(out, SSM_PAGE_len);
-
-  /* deskew by roller */
-  if(s->rollerdeskew){
-    set_SSM_DF_deskew_roll(out, 1);
-  }
   
-  /* staple detection */
-  if(s->stapledetect){
-    set_SSM_DF_staple(out, 1);
-  }
+  if(s->has_ssm){
 
-  /* thickness */
-  if(s->df_thickness){
-    set_SSM_DF_thick(out, 1);
-  }
+    unsigned char cmd[SET_SCAN_MODE_len];
+    size_t cmdLen = SET_SCAN_MODE_len;
   
-  /* length */
-  if(s->df_length){
-    set_SSM_DF_len(out, 1);
+    unsigned char out[SSM_PAY_len];
+    size_t outLen = SSM_PAY_len;
+  
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
+    set_SSM_pf(cmd, 1);
+    set_SSM_pay_len(cmd, outLen);
+  
+    memset(out,0,outLen);
+    if(s->has_ssm_pay_head_len){
+      set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
+    }
+    set_SSM_page_code(out, SM_pc_df);
+    set_SSM_page_len(out, SSM_PAGE_len);
+  
+    /* deskew by roller */
+    if(s->rollerdeskew){
+      set_SSM_DF_deskew_roll(out, 1);
+    }
+    
+    /* staple detection */
+    if(s->stapledetect){
+      set_SSM_DF_staple(out, 1);
+    }
+  
+    /* thickness */
+    if(s->df_thickness){
+      set_SSM_DF_thick(out, 1);
+    }
+    
+    /* length */
+    if(s->df_length){
+      set_SSM_DF_len(out, 1);
+    }
+  
+    ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        out, outLen,
+        NULL, NULL
+    );
+
   }
 
-  ret = do_cmd (
-      s, 1, 0,
-      cmd, cmdLen,
-      out, outLen,
-      NULL, NULL
-  );
+  else if(s->has_ssm2){
+
+    unsigned char cmd[SET_SCAN_MODE2_len];
+    size_t cmdLen = SET_SCAN_MODE2_len;
+  
+    unsigned char out[SSM2_PAY_len];
+    size_t outLen = SSM2_PAY_len;
+
+    /* send ultrasonic offsets first */
+    if(s->df_thickness && s->has_df_ultra){
+      memset(cmd,0,cmdLen);
+      set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
+      set_SSM2_page_code(cmd, SM2_pc_ultra);
+      set_SSM2_pay_len(cmd, outLen);
+    
+      memset(out,0,outLen);
+      set_SSM2_ULTRA_top(out, 0);
+      set_SSM2_ULTRA_bot(out, 0);
+  
+      ret = do_cmd (
+          s, 1, 0,
+          cmd, cmdLen,
+          out, outLen,
+          NULL, NULL
+      );
+    }
+
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
+    set_SSM2_page_code(cmd, SM2_pc_df);
+    set_SSM2_pay_len(cmd, outLen);
+  
+    memset(out,0,outLen);
+  
+    /* thickness */
+    if(s->df_thickness){
+      set_SSM2_DF_thick(out, 1);
+    }
+    
+    /* length */
+    if(s->df_length){
+      set_SSM2_DF_len(out, 1);
+    }
+  
+    ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        out, outLen,
+        NULL, NULL
+    );
+
+  }
+
+  else{
+    DBG (10, "ssm_df: unsupported\n");
+  }
 
   DBG (10, "ssm_df: finish\n");
 
@@ -3149,93 +3214,145 @@ ssm_do (struct scanner *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  unsigned char cmd[SET_SCAN_MODE_len];
-  size_t cmdLen = SET_SCAN_MODE_len;
+ DBG (10, "ssm_do: start\n");
 
-  unsigned char out[SSM_PAY_len];
-  size_t outLen = SSM_PAY_len;
+ if(!s->can_color){
+   DBG (10, "ssm_do: unsupported, finishing\n");
+   return ret;
+ }
+  
+ if(s->has_ssm){
 
-  DBG (10, "ssm_do: start\n");
+    unsigned char cmd[SET_SCAN_MODE_len];
+    size_t cmdLen = SET_SCAN_MODE_len;
+  
+    unsigned char out[SSM_PAY_len];
+    size_t outLen = SSM_PAY_len;
+  
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
+    set_SSM_pf(cmd, 1);
+    set_SSM_pay_len(cmd, outLen);
+  
+    memset(out,0,outLen);
+    if(s->has_ssm_pay_head_len){
+      set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
+    }
+    set_SSM_page_code(out, SM_pc_dropout);
+    set_SSM_page_len(out, SSM_PAGE_len);
+  
+    set_SSM_DO_unk1(out, 0x03);
+  
+    switch(s->dropout_color_f){
+      case COLOR_RED:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_f_do(out,SSM_DO_red);
+        break;
+      case COLOR_GREEN:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_f_do(out,SSM_DO_green);
+        break;
+      case COLOR_BLUE:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_f_do(out,SSM_DO_blue);
+        break;
+      case COLOR_EN_RED:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_f_en(out,SSM_DO_red);
+        break;
+      case COLOR_EN_GREEN:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_f_en(out,SSM_DO_green);
+        break;
+      case COLOR_EN_BLUE:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_f_en(out,SSM_DO_blue);
+        break;
+    }
+  
+    switch(s->dropout_color_b){
+      case COLOR_RED:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_b_do(out,SSM_DO_red);
+        break;
+      case COLOR_GREEN:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_b_do(out,SSM_DO_green);
+        break;
+      case COLOR_BLUE:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_b_do(out,SSM_DO_blue);
+        break;
+      case COLOR_EN_RED:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_b_en(out,SSM_DO_red);
+        break;
+      case COLOR_EN_GREEN:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_b_en(out,SSM_DO_green);
+        break;
+      case COLOR_EN_BLUE:
+        set_SSM_DO_unk2(out, 0x05);
+        set_SSM_DO_b_en(out,SSM_DO_blue);
+        break;
+    }
+  
+    ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        out, outLen,
+        NULL, NULL
+    );
 
-  if(!s->has_ssm || !s->can_color){
-    DBG (10, "ssm_do: unsupported, finishing\n");
-    return ret;
   }
 
-  memset(cmd,0,cmdLen);
-  set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
-  set_SSM_pf(cmd, 1);
-  set_SSM_pay_len(cmd, outLen);
+  else if(s->has_ssm2){
 
-  memset(out,0,outLen);
-  if(s->has_ssm_pay_head_len){
-    set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
-  }
-  set_SSM_page_code(out, SM_pc_dropout);
-  set_SSM_page_len(out, SSM_PAGE_len);
+    unsigned char cmd[SET_SCAN_MODE2_len];
+    size_t cmdLen = SET_SCAN_MODE2_len;
+  
+    unsigned char out[SSM2_PAY_len];
+    size_t outLen = SSM2_PAY_len;
+  
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
+    set_SSM2_page_code(cmd, SM2_pc_dropout);
+    set_SSM2_pay_len(cmd, outLen);
+  
+    memset(out,0,outLen);
+  
+    switch(s->dropout_color_f){
+      case COLOR_RED:
+        set_SSM2_DO_do(out,SSM_DO_red);
+        break;
+      case COLOR_GREEN:
+        set_SSM2_DO_do(out,SSM_DO_green);
+        break;
+      case COLOR_BLUE:
+        set_SSM2_DO_do(out,SSM_DO_blue);
+        break;
+      case COLOR_EN_RED:
+        set_SSM2_DO_en(out,SSM_DO_red);
+        break;
+      case COLOR_EN_GREEN:
+        set_SSM2_DO_en(out,SSM_DO_green);
+        break;
+      case COLOR_EN_BLUE:
+        set_SSM2_DO_en(out,SSM_DO_blue);
+        break;
+    }
 
-  set_SSM_DO_unk1(out, 0x03);
-
-  switch(s->dropout_color_f){
-    case COLOR_RED:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_f_do(out,SSM_DO_red);
-      break;
-    case COLOR_GREEN:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_f_do(out,SSM_DO_green);
-      break;
-    case COLOR_BLUE:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_f_do(out,SSM_DO_blue);
-      break;
-    case COLOR_EN_RED:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_f_en(out,SSM_DO_red);
-      break;
-    case COLOR_EN_GREEN:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_f_en(out,SSM_DO_green);
-      break;
-    case COLOR_EN_BLUE:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_f_en(out,SSM_DO_blue);
-      break;
-  }
-
-  switch(s->dropout_color_b){
-    case COLOR_RED:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_b_do(out,SSM_DO_red);
-      break;
-    case COLOR_GREEN:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_b_do(out,SSM_DO_green);
-      break;
-    case COLOR_BLUE:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_b_do(out,SSM_DO_blue);
-      break;
-    case COLOR_EN_RED:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_b_en(out,SSM_DO_red);
-      break;
-    case COLOR_EN_GREEN:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_b_en(out,SSM_DO_green);
-      break;
-    case COLOR_EN_BLUE:
-      set_SSM_DO_unk2(out, 0x05);
-      set_SSM_DO_b_en(out,SSM_DO_blue);
-      break;
+    ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        out, outLen,
+        NULL, NULL
+    );
   }
 
-  ret = do_cmd (
-      s, 1, 0,
-      cmd, cmdLen,
-      out, outLen,
-      NULL, NULL
-  );
+  else{
+    DBG (10, "ssm_do: unsupported\n");
+  }
 
   DBG (10, "ssm_do: finish\n");
 

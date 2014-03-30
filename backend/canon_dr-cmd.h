@@ -427,7 +427,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 /* ==================================================================== */
 /* Page codes used by GET/SET SCAN MODE 2 */
+#define SM2_pc_df                       0x00
+#define SM2_pc_ultra                    0x01
 #define SM2_pc_buffer                   0x02
+#define SM2_pc_dropout                  0x06
 
 /* ==================================================================== */
 /* SET SCAN MODE 2 */
@@ -440,10 +443,22 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 /* the payload */
 #define SSM2_PAY_len                     0x10
 
+/* for DF (0x00) page */
+#define set_SSM2_DF_thick(sb, val)       setbitfield(sb+3, 1, 2, val)
+#define set_SSM2_DF_len(sb, val)         setbitfield(sb+3, 1, 0, val)
+
+/* for ULTRA (0x01) page */
+#define set_SSM2_ULTRA_top(sb, val)      putnbyte(sb + 0x07, val, 2)
+#define set_SSM2_ULTRA_bot(sb, val)      putnbyte(sb + 0x09, val, 2)
+
 /* for BUFFER (0x02) page */
 #define set_SSM2_BUFF_unk(sb, val)           sb[0x03] = val
 #define set_SSM2_BUFF_unk2(sb, val)          sb[0x06] = val
 #define set_SSM2_BUFF_sync(sb, val)          sb[0x09] = val
+
+/* for DROPOUT (0x06) page */
+#define set_SSM2_DO_do(sb, val)              sb[0x09] = val
+#define set_SSM2_DO_en(sb, val)              sb[0x0a] = val
 
 /* ==================================================================== */
 /* window descriptor macros for SET_WINDOW and GET_WINDOW */

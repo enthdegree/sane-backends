@@ -180,6 +180,7 @@ struct scanner
   int has_comp_JPEG;
   int has_buffer;
   int has_df;
+  int has_df_ultra;
   int has_btc;
   int has_ssm;           /* older scanners use this set scan mode command */         
   int has_ssm2;          /* newer scanners user this similar command */

@@ -6,7 +6,7 @@
    Copyright (C) 2000 Randolph Bentson
    Copyright (C) 2001 Frederik Ramm
    Copyright (C) 2001-2004 Oliver Schirrmeister
-   Copyright (C) 2003-2013 m. allan noah
+   Copyright (C) 2003-2014 m. allan noah
 
    JPEG output and low memory usage support funded by:
      Archivista GmbH, www.archivista.ch
@@ -551,6 +551,9 @@
          - stop using backup/restore_params
          - don't use extended get_pixelsize on M3091 or M3092
          - call software crop code on backside images too
+      v120 2014-01-29, MAN
+         - only call hopper_before_op code at batch start
+         - remove unused backup/restore_params
 
    SANE FLOW DIAGRAM
 
@@ -600,7 +603,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 119
+#define BUILD 120
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -6617,72 +6620,6 @@ update_u_params (struct fujitsu * s)
   return ret;
 }
 
-#if 0
-/* make backup of param data, in case original is overwritten */
-SANE_Status
-backup_params (struct fujitsu * s)
-{
-  SANE_Status ret = SANE_STATUS_GOOD;
-  SANE_Parameters * params = &(s->s_params);
-  SANE_Parameters * params_bk = &(s->s_params_bk);
-
-  DBG (10, "backup_params: start\n");
-
-  params_bk->format = params->format;
-  params_bk->last_frame = params->last_frame;
-  params_bk->bytes_per_line = params->bytes_per_line;
-  params_bk->pixels_per_line = params->pixels_per_line;
-  params_bk->lines = params->lines;
-  params_bk->depth = params->depth;
-
-  /* also have to save the user params */
-  params = &(s->u_params);
-  params_bk = &(s->u_params_bk);
-
-  params_bk->format = params->format;
-  params_bk->last_frame = params->last_frame;
-  params_bk->bytes_per_line = params->bytes_per_line;
-  params_bk->pixels_per_line = params->pixels_per_line;
-  params_bk->lines = params->lines;
-  params_bk->depth = params->depth;
-
-  DBG (10, "backup_params: finish\n");
-  return ret;
-}
-
-/* restore backup of param data, in case original was overwritten */
-SANE_Status
-restore_params (struct fujitsu * s)
-{
-  SANE_Status ret = SANE_STATUS_GOOD;
-  SANE_Parameters * params = &(s->s_params);
-  SANE_Parameters * params_bk = &(s->s_params_bk);
-
-  DBG (10, "restore_params: start\n");
-
-  params->format = params_bk->format;
-  params->last_frame = params_bk->last_frame;
-  params->bytes_per_line = params_bk->bytes_per_line;
-  params->pixels_per_line = params_bk->pixels_per_line;
-  params->lines = params_bk->lines;
-  params->depth = params_bk->depth;
-
-  /* also have to restore the user params */
-  params = &(s->u_params);
-  params_bk = &(s->u_params_bk);
-
-  params->format = params_bk->format;
-  params->last_frame = params_bk->last_frame;
-  params->bytes_per_line = params_bk->bytes_per_line;
-  params->pixels_per_line = params_bk->pixels_per_line;
-  params->lines = params_bk->lines;
-  params->depth = params_bk->depth;
-
-  DBG (10, "restore_params: finish\n");
-  return ret;
-}
-#endif
-
 /*
  * Called by SANE when a page acquisition operation is to be started.
  * commands: scanner control (lampon), send (lut), send (dither),
@@ -6826,6 +6763,17 @@ sane_start (SANE_Handle handle)
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: WARNING: cannot start lamp, ignoring\n");
       }
+
+      /* iX500 errors if op is called with no paper
+       * at the beginning of a batch, so we check */
+      if(s->hopper_before_op && s->source != SOURCE_FLATBED){
+        ret = get_hardware_status(s,0);
+        if(!s->hw_hopper){
+          ret = SANE_STATUS_NO_DOCS;
+          DBG (5, "sane_start: ERROR: hopper empty\n");
+          goto errors;
+        }
+      }
   }
   /* if already running, duplex needs to switch sides */
   else if(s->source == SOURCE_ADF_DUPLEX){
@@ -6884,14 +6832,6 @@ sane_start (SANE_Handle handle)
         goto errors;
       }
 
-      /* make backup copy of params because later functions overwrite
-      ret = backup_params(s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot backup params\n");
-        goto errors;
-      }
-      */
-
       /* store the number of front bytes */ 
       if ( s->source != SOURCE_ADF_BACK ){
         s->bytes_tot[SIDE_FRONT] = s->s_params.bytes_per_line * s->s_params.lines;
@@ -6941,14 +6881,6 @@ sane_start (SANE_Handle handle)
       }
   }
   else{
-      /* restore backup copy of params at the start of each backside image
-      ret = restore_params(s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot restore params\n");
-        goto errors;
-      }
-      */
-
       /* try to read scan size from scanner */
       ret = get_pixelsize(s,0);
       if (ret != SANE_STATUS_GOOD) {
@@ -7646,13 +7578,6 @@ object_position (struct fujitsu *s, int i_load)
   if (s->source == SOURCE_FLATBED) {
     DBG (10, "object_position: flatbed no-op\n");
     return SANE_STATUS_GOOD;
-  }
-
-  if(s->hopper_before_op && i_load){
-    ret = get_hardware_status(s,0);
-    if(!s->hw_hopper){
-      return SANE_STATUS_NO_DOCS;
-    }
   }
 
   memset(cmd,0,cmdLen);

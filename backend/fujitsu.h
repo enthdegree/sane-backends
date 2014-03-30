@@ -809,10 +809,7 @@ static SANE_Status get_pixelsize(struct fujitsu *s, int actual);
 
 static SANE_Status update_params (struct fujitsu *s);
 static SANE_Status update_u_params (struct fujitsu *s);
-/*
-static SANE_Status backup_params (struct fujitsu *s);
-static SANE_Status restore_params (struct fujitsu *s);
-*/
+
 static SANE_Status start_scan (struct fujitsu *s);
 
 static SANE_Status check_for_cancel(struct fujitsu *s);

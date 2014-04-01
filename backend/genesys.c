@@ -7019,13 +7019,18 @@ sane_close (SANE_Handle handle)
   /* LAMP OFF : same register across all the ASICs */
   sanei_genesys_write_register (s->dev, 0x03, 0x00);
 
-  /* we need this to avoid ASIC getting stuck
+  /* clear before closing */
+  sanei_usb_clear_halt (s->dev->dn);
+
+  /* we need this to avoid these ASIC getting stuck
    * in bulk writes */
   if(s->dev->model->asic_type==GENESYS_GL847
    ||s->dev->model->asic_type==GENESYS_GL845
-   ||s->dev->model->asic_type==GENESYS_GL845
+   ||s->dev->model->asic_type==GENESYS_GL846
    ||s->dev->model->asic_type==GENESYS_GL843)
-    sanei_usb_reset (s->dev->dn);
+    {
+      sanei_usb_reset (s->dev->dn);
+    }
 
   sanei_usb_close (s->dev->dn);
   free (s);

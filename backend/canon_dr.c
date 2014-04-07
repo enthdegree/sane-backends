@@ -356,7 +356,8 @@
  - function detail 15
  - get/setopt cmds 20
  - scsi/usb trace  25 
- - scsi/usb detail 30
+ - scsi/usb writes 30
+ - scsi/usb reads  31
  - useless noise   35
 */
 
@@ -6632,7 +6633,7 @@ do_scsi_cmd(struct scanner *s, int runRS, int shortTime,
       DBG(25, "in: short read, remainder %lu bytes\n", (u_long)s->rs_info);
       *inLen -= s->rs_info;
     }
-    hexdump(30, "in: <<", inBuff, *inLen);
+    hexdump(31, "in: <<", inBuff, *inLen);
     DBG(25, "in: read %d bytes\n", (int)*inLen);
   }
 
@@ -6818,7 +6819,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       DBG(25, "in: reading %d bytes, timeout %d\n", (int)inActual, inTimeout);
       ret = sanei_usb_read_bulk(s->fd, inBuffer, &inActual);
       DBG(25, "in: read %d bytes, retval %d\n", (int)inActual, ret);
-      hexdump(30, "in: <<", inBuffer, inActual);
+      hexdump(31, "in: <<", inBuffer, inActual);
 
       if(!inActual){
         DBG(5,"in: got no data, clearing\n");

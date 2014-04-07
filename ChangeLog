@@ -1,3 +1,7 @@
+2014-04-07 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man: Canon Pixma MX410
+	is working, reported from Javier Gorostiza.
+
 2014-03-21 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man: Canon Pixma MG3200
 	is working, reported in ubuntuforums.org/showthread.php?t=2072162.

@@ -560,10 +560,10 @@
 :comment "Testers needed!"
 
 :model "PIXMA MX410"
-:interface "USB Ethernet"
+:interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x174e"
-:status :untested
-:comment "Same protocol as Pixma MX420? Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
 
 :model "PIXMA MX420"
 :interface "USB Ethernet"

@@ -554,6 +554,11 @@
       v120 2014-01-29, MAN
          - only call hopper_before_op code at batch start
          - remove unused backup/restore_params
+      v121 2014-04-07, MAN
+         - add JFIF APP0 marker with resolution to jpeg images
+         - improve jpeg duplex parsing code
+         - simplify jpeg ifdefs
+         - add offtimer option for more recent scanners
 
    SANE FLOW DIAGRAM
 
@@ -603,7 +608,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 120
+#define BUILD 121
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -616,6 +621,12 @@
  - useless noise   35
 */
 
+/* ------------------------------------------------------------------------- */
+/* if JPEG support is not enabled in sane.h, we setup our own defines */
+#ifndef SANE_FRAME_JPEG
+#define SANE_FRAME_JPEG 0x0B
+#define SANE_JPEG_DISABLED 1
+#endif
 /* ------------------------------------------------------------------------- */
 #define STRING_FLATBED SANE_I18N("Flatbed")
 #define STRING_ADFFRONT SANE_I18N("ADF Front")
@@ -1593,9 +1604,8 @@ init_vpd (struct fujitsu *s)
 
           s->has_comp_JPG1 = get_IN_compression_JPG_BASE (in);
           DBG (15, "  compression JPG1: %d\n", s->has_comp_JPG1);
-#ifndef SANE_FRAME_JPEG
+#ifdef SANE_JPEG_DISABLED
           DBG (15, "  (Disabled)\n");
-          s->has_comp_JPG1 = 0;
 #endif
 
           s->has_comp_JPG2 = get_IN_compression_JPG_EXT (in);
@@ -1687,6 +1697,8 @@ init_vpd (struct fujitsu *s)
               DBG (15, "  rgb lut: %d\n", get_IN_rgb_lut(in));
               DBG (15, "  num lut dl: %d\n", get_IN_num_lut_dl(in));
 
+              s->has_off_mode = get_IN_erp_lot6_supp(in);
+              DBG (15, "  ErP Lot6 (power off timer): %d\n", s->has_off_mode);
               DBG (15, "  sync next feed: %d\n", get_IN_sync_next_feed(in));
           }
 
@@ -2359,6 +2371,8 @@ init_user (struct fujitsu *s)
   if(s->has_adv_paper_prot){
     s->adv_paper_prot = MSEL_ON;
   }
+
+  s->off_time = 240;
 
   DBG (10, "init_user: finish\n");
 
@@ -3427,7 +3441,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->compress_list[i++]=STRING_NONE;
 
     if(s->has_comp_JPG1){
+#ifndef SANE_JPEG_DISABLED
       s->compress_list[i++]=STRING_JPEG;
+#endif
     }
 
     s->compress_list[i]=NULL;
@@ -3763,7 +3779,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
 
-  /*sleep time*/
+  /*sleep_time*/
   if(option==OPT_SLEEP_TIME){
     s->sleep_time_range.min = 0;
     s->sleep_time_range.max = 60;
@@ -3777,6 +3793,25 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range=&s->sleep_time_range;
     if(s->has_MS_sleep)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*off_time*/
+  if(option==OPT_OFF_TIME){
+    s->off_time_range.min = 0;
+    s->off_time_range.max = 960;
+    s->off_time_range.quant = 15;
+  
+    opt->name = "offtimer";
+    opt->title = "Off timer";
+    opt->desc = "Time in minutes until the internal power supply switches the scanner off, 0 = never."; 
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range=&s->sleep_time_range;
+    if(s->has_off_mode)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
       opt->cap = SANE_CAP_INACTIVE;
@@ -4864,6 +4899,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->sleep_time;
           return SANE_STATUS_GOOD;
 
+        case OPT_OFF_TIME:
+          *val_p = s->off_time;
+          return SANE_STATUS_GOOD;
+
         case OPT_DUPLEX_OFFSET:
           *val_p = s->duplex_offset;
           return SANE_STATUS_GOOD;
@@ -5496,6 +5535,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->sleep_time = val_c;
           return set_sleep_mode(s);
 
+        case OPT_OFF_TIME:
+          s->off_time = val_c;
+          return set_off_mode(s);
+
         case OPT_DUPLEX_OFFSET:
           s->duplex_offset = val_c;
           return SANE_STATUS_GOOD;
@@ -5640,6 +5683,50 @@ set_sleep_mode(struct fujitsu *s)
   DBG (10, "set_sleep_mode: finish\n");
 
   return ret;
+}
+
+static SANE_Status
+set_off_mode(struct fujitsu *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[SEND_DIAGNOSTIC_len]; /*also big enough for READ_DIAG*/
+  size_t cmdLen = SEND_DIAGNOSTIC_len;
+
+  unsigned char out[SD_powoff_len];
+  size_t outLen = SD_powoff_len;
+
+  DBG (10, "set_off_mode: start\n");
+
+  if (!s->has_cmd_sdiag || !s->has_cmd_rdiag || !s->has_off_mode){
+    DBG (5, "set_off_mode: not supported, returning\n");
+    return ret;
+  }
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SEND_DIAGNOSTIC_code);
+  set_SD_slftst(cmd, 0);
+  set_SD_xferlen(cmd, outLen);
+ 
+  memcpy(out,SD_powoff_string,SD_powoff_stringlen);
+  set_SD_powoff_disable(out,!s->off_time);
+  set_SD_powoff_interval(out,s->off_time/15);
+
+  ret = do_cmd (
+    s, 1, 0, 
+    cmd, cmdLen,
+    out, outLen,
+    NULL, NULL
+  );
+
+  if (ret != SANE_STATUS_GOOD){
+    DBG (5, "set_off_mode: send diag error: %d\n", ret);
+    return ret;
+  }
+
+  DBG (10, "set_off_mode: finish\n");
+
+  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -6502,7 +6589,6 @@ update_params (struct fujitsu * s)
   if (s->s_mode == MODE_COLOR) {
     params->depth = 8;
 
-#ifdef SANE_FRAME_JPEG
     /* jpeg requires 8x8 squares */
     if(s->compress == COMP_JPEG){
       params->format = SANE_FRAME_JPEG;
@@ -6510,20 +6596,16 @@ update_params (struct fujitsu * s)
       params->lines -= params->lines % 8;
     }
     else{
-#endif
       params->format = SANE_FRAME_RGB;
       params->pixels_per_line -= params->pixels_per_line
         % max(s->ppl_mod_by_mode[s->s_mode], s->ppl_mod_by_mode[s->u_mode]);
-#ifdef SANE_FRAME_JPEG
     }
-#endif
 
     params->bytes_per_line = params->pixels_per_line * 3;
   }
   else if (s->s_mode == MODE_GRAYSCALE) {
     params->depth = 8;
 
-#ifdef SANE_FRAME_JPEG
     /* jpeg requires 8x8 squares */
     if(s->compress == COMP_JPEG){
       params->format = SANE_FRAME_JPEG;
@@ -6531,13 +6613,10 @@ update_params (struct fujitsu * s)
       params->lines -= params->lines % 8;
     }
     else{
-#endif
       params->format = SANE_FRAME_GRAY;
       params->pixels_per_line -= params->pixels_per_line
         % max(s->ppl_mod_by_mode[s->s_mode], s->ppl_mod_by_mode[s->u_mode]);
-#ifdef SANE_FRAME_JPEG
     }
-#endif
 
     params->bytes_per_line = params->pixels_per_line;
   }
@@ -6808,8 +6887,8 @@ sane_start (SANE_Handle handle)
       s->buff_tx[1]=0;
 
       /* reset jpeg just in case... */
-      s->jpeg_stage = JPEG_STAGE_HEAD;
-      s->jpeg_ff_offset = 0;
+      s->jpeg_stage = JPEG_STAGE_NONE;
+      s->jpeg_ff_offset = -1;
       s->jpeg_front_rst = 0;
       s->jpeg_back_rst = 0;
 
@@ -7284,13 +7363,11 @@ set_window (struct fujitsu *s)
   set_WD_compress_type(desc1, COMP_NONE);
   set_WD_compress_arg(desc1, 0);
 
-#ifdef SANE_FRAME_JPEG
   /* some scanners support jpeg image compression, for color/gs only */
   if(s->s_params.format == SANE_FRAME_JPEG){
       set_WD_compress_type(desc1, COMP_JPEG);
       set_WD_compress_arg(desc1, s->compress_arg);
   }
-#endif
 
   /* the remainder of the block varies based on model and mode,
    * except for gamma and paper size, those are in the same place */
@@ -7752,7 +7829,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     }
   } /* end 3091 */
 
-#ifdef SANE_FRAME_JPEG
   /* alternating jpeg duplex interlacing */
   else if(s->source == SOURCE_ADF_DUPLEX
     && s->s_params.format == SANE_FRAME_JPEG 
@@ -7764,11 +7840,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       return ret;
     }
   } /* end alt jpeg */
-#endif
 
   /* alternating pnm duplex interlacing */
   else if(s->source == SOURCE_ADF_DUPLEX
-    && s->s_params.format <= SANE_FRAME_RGB
+    && s->s_params.format != SANE_FRAME_JPEG
     && s->duplex_interlace == DUPLEX_INTERLACE_ALT
   ){
 
@@ -7837,7 +7912,33 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   return ret;
 }
 
-#ifdef SANE_FRAME_JPEG
+/* bare jpeg images dont contain resolution, but JFIF APP0 does, so we add */
+static SANE_Status
+inject_jfif_header(struct fujitsu *s, int side)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+
+  unsigned char out[] = {
+    0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46,
+    0x00, 0x01, 0x02, 0x01, 0x00, 0x48, 0x00, 0x48,
+    0x00, 0x00
+  };
+  size_t outLen=JFIF_APP0_LENGTH;
+
+  DBG (10, "inject_jfif_header: start %d\n", side);
+
+  putnbyte(out + 12, s->resolution_x, 2);
+  putnbyte(out + 14, s->resolution_y, 2);
+
+  memcpy(s->buffers[side]+s->buff_rx[side], out, outLen);
+  s->buff_rx[side] += outLen;
+  s->bytes_rx[side] += outLen;
+
+  DBG (10, "inject_jfif_header: finish %d\n", ret);
+
+  return ret;
+}
+
 static SANE_Status
 read_from_JPEGduplex(struct fujitsu *s)
 {
@@ -7863,13 +7964,21 @@ read_from_JPEGduplex(struct fujitsu *s)
      * so we only get enough to fill whichever is smaller (and not yet done) */
     if(!s->eof_rx[SIDE_FRONT]){
       int avail = s->buff_tot[SIDE_FRONT] - s->buff_rx[SIDE_FRONT];
-      if(bytes > avail)
+      if(bytes > avail){
         bytes = avail;
+        /* leave space for JFIF header at start of image */
+        if(s->bytes_rx[SIDE_FRONT] < 2)
+          bytes -= JFIF_APP0_LENGTH;
+      }
     }
     if(!s->eof_rx[SIDE_BACK]){
       int avail = s->buff_tot[SIDE_BACK] - s->buff_rx[SIDE_BACK];
-      if(bytes > avail)
+      if(bytes > avail){
         bytes = avail;
+        /* leave space for JFIF header at start of image */
+        if(s->bytes_rx[SIDE_BACK] < 2)
+          bytes -= JFIF_APP0_LENGTH;
+      }
     }
   
     DBG(15, "read_from_JPEGduplex: fto:%d frx:%d bto:%d brx:%d pa:%d\n",
@@ -7930,7 +8039,7 @@ read_from_JPEGduplex(struct fujitsu *s)
     for(i=0;i<(int)inLen;i++){
 
         /* about to change stage */
-        if(in[i] == 0xff){
+        if(in[i] == 0xff && s->jpeg_ff_offset != 0){
             s->jpeg_ff_offset=0;
             continue;
         }
@@ -7938,9 +8047,21 @@ read_from_JPEGduplex(struct fujitsu *s)
         /* last byte was an ff, this byte will change stage */
         if(s->jpeg_ff_offset == 0){
 
-            /* headers (SOI/HuffTab/QTab/DRI), in both sides */
-            if(in[i] == 0xd8 || in[i] == 0xc4
-              || in[i] == 0xdb || in[i] == 0xdd){
+            /* first marker after SOI is not APP0, add one */
+            if(s->jpeg_stage == JPEG_STAGE_SOI && in[i] != 0xe0){
+                inject_jfif_header(s,SIDE_FRONT);
+                inject_jfif_header(s,SIDE_BACK);
+                s->jpeg_stage = JPEG_STAGE_HEAD;
+            }
+
+            /* SOI header, in both sides */
+            if(in[i] == 0xd8){
+                s->jpeg_stage = JPEG_STAGE_SOI;
+                DBG(15, "read_from_JPEGduplex: stage SOI\n");
+            }
+
+            /* headers (HuffTab/QTab/DRI), in both sides */
+            else if(in[i] == 0xc4 || in[i] == 0xdb || in[i] == 0xdd){
                 s->jpeg_stage = JPEG_STAGE_HEAD;
                 DBG(15, "read_from_JPEGduplex: stage head\n");
             }
@@ -8001,6 +8122,11 @@ read_from_JPEGduplex(struct fujitsu *s)
                 s->jpeg_stage = JPEG_STAGE_EOI;
                 DBG(15, "read_from_JPEGduplex: stage eoi %d %d\n",(int)inLen,i);
             }
+
+            /* unknown, warn */
+            else if(in[i] != 0xff){
+                DBG(15, "read_from_JPEGduplex: unknown %02x\n", in[i]);
+            }
         }
         s->jpeg_ff_offset++;
 
@@ -8054,7 +8180,8 @@ read_from_JPEGduplex(struct fujitsu *s)
         }
 
         /* copy these stages to front */
-        if(s->jpeg_stage == JPEG_STAGE_HEAD
+        if(s->jpeg_stage == JPEG_STAGE_SOI
+          || s->jpeg_stage == JPEG_STAGE_HEAD
           || s->jpeg_stage == JPEG_STAGE_SOF
           || s->jpeg_stage == JPEG_STAGE_SOS
           || s->jpeg_stage == JPEG_STAGE_EOI
@@ -8072,7 +8199,8 @@ read_from_JPEGduplex(struct fujitsu *s)
         /* copy these stages to back */
         if( s->jpeg_interlace == JPEG_INTERLACE_ALT
 	  &&
-	  ( s->jpeg_stage == JPEG_STAGE_HEAD
+	  ( s->jpeg_stage == JPEG_STAGE_SOI
+          || s->jpeg_stage == JPEG_STAGE_HEAD
           || s->jpeg_stage == JPEG_STAGE_SOF
           || s->jpeg_stage == JPEG_STAGE_SOS
           || s->jpeg_stage == JPEG_STAGE_EOI
@@ -8115,7 +8243,6 @@ read_from_JPEGduplex(struct fujitsu *s)
   
     return ret;
 }
-#endif
 
 static SANE_Status
 read_from_3091duplex(struct fujitsu *s)
@@ -8296,6 +8423,10 @@ read_from_scanner(struct fujitsu *s, int side)
     if(bytes % 2 && bytes < remain){
        bytes -= s->s_params.bytes_per_line;
     }
+
+    /* jpeg scans leave space for JFIF header at start of image */
+    if(s->s_params.format == SANE_FRAME_JPEG && s->bytes_rx[side] < 2)
+      bytes -= JFIF_APP0_LENGTH;
   
     DBG(15, "read_from_scanner: si:%d re:%d bs:%d by:%d av:%d\n",
       side, remain, s->buffer_size, bytes, avail);
@@ -8369,6 +8500,9 @@ read_from_scanner(struct fujitsu *s, int side)
     if(inLen){
         if(s->s_mode==MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
             copy_3091 (s, in, inLen, side);
+        }
+        else if(s->s_params.format == SANE_FRAME_JPEG){
+            copy_JPEG (s, in, inLen, side);
         }
         else{
             copy_buffer (s, in, inLen, side);
@@ -8483,6 +8617,48 @@ copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side)
 }
 
 static SANE_Status
+copy_JPEG(struct fujitsu *s, unsigned char * buf, int len, int side)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+  int i, seen = 0;
+ 
+  DBG (10, "copy_JPEG: start\n");
+
+  /* A jpeg image starts with the SOI marker, FF D8.
+   * This is optionally followed by the JFIF APP0 
+   * marker, FF E0. If that marker is not present,
+   * we add it, so we can insert the resolution */
+
+  if(!s->bytes_rx[side] && len >= 4
+    && buf[0] == 0xFF && buf[1] == 0xD8
+    && buf[2] == 0xFF && buf[3] != 0xE0
+  ){
+    /* SOI marker */
+    for (i=0; i<2; i++){
+      s->buffers[side][s->buff_rx[side]++] = buf[i];
+      s->bytes_rx[side]++;
+      seen++;
+    }
+
+    /* JFIF header after SOI */
+    inject_jfif_header(s,side);
+  }
+
+  memcpy(s->buffers[side]+s->buff_rx[side],buf+seen,len-seen);
+  s->buff_rx[side] += len-seen;
+  s->bytes_rx[side] += len-seen;
+
+  /* should never happen with jpeg */
+  if(s->bytes_rx[side] == s->bytes_tot[side]){
+    s->eof_rx[side] = 1;
+  }
+
+  DBG (10, "copy_JPEG: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
 copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
@@ -8494,7 +8670,7 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
 
   /* invert image if scanner needs it for this mode */
   /* jpeg data does not use inverting */
-  if(s->s_params.format <= SANE_FRAME_RGB && s->reverse_by_mode[s->s_mode]){
+  if(s->s_params.format != SANE_FRAME_JPEG && s->reverse_by_mode[s->s_mode]){
     for(i=0; i<len; i++){
       buf[i] ^= 0xff;
     }
@@ -9483,9 +9659,7 @@ must_fully_buffer(struct fujitsu *s)
 
   if(
     (s->swdeskew || s->swdespeck || s->swcrop || s->swskip)
-#ifdef SANE_FRAME_JPEG
     && s->s_params.format != SANE_FRAME_JPEG
-#endif
   ){
     return 1;
   }
@@ -9499,9 +9673,7 @@ static int
 must_downsample(struct fujitsu *s)
 {
   if(s->s_mode != s->u_mode
-#ifdef SANE_FRAME_JPEG
     && s->compress != COMP_JPEG
-#endif
   ){
     return 1;
   }

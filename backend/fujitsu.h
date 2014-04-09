@@ -80,6 +80,7 @@ enum fujitsu_Option
   OPT_PREPICK,
   OPT_OVERSCAN,
   OPT_SLEEP_TIME,
+  OPT_OFF_TIME,
   OPT_DUPLEX_OFFSET,
   OPT_GREEN_OFFSET,
   OPT_BLUE_OFFSET,
@@ -259,6 +260,7 @@ struct fujitsu
   int has_ipc3;
   int has_rotation;
   int has_hybrid_crop_deskew;
+  int has_off_mode;
 
   int has_comp_MH;
   int has_comp_MR;
@@ -394,6 +396,7 @@ struct fujitsu
   SANE_String_Const prepick_list[4];
   SANE_String_Const overscan_list[4];
   SANE_Range sleep_time_range;
+  SANE_Range off_time_range;
   SANE_Range duplex_offset_range;
   SANE_Range green_offset_range;
   SANE_Range blue_offset_range;
@@ -480,6 +483,7 @@ struct fujitsu
   int overscan;
   int lamp_color;
   int sleep_time;
+  int off_time;
   int duplex_offset;
   int green_offset;
   int blue_offset;
@@ -628,12 +632,16 @@ struct fujitsu
 #define COMP_NONE WD_cmp_NONE
 #define COMP_JPEG WD_cmp_JPG1
 
-#define JPEG_STAGE_HEAD 0
-#define JPEG_STAGE_SOF 1
-#define JPEG_STAGE_SOS 2
-#define JPEG_STAGE_FRONT 3
-#define JPEG_STAGE_BACK 4
-#define JPEG_STAGE_EOI 5
+#define JPEG_STAGE_NONE 0
+#define JPEG_STAGE_SOI 1
+#define JPEG_STAGE_HEAD 2
+#define JPEG_STAGE_SOF 3
+#define JPEG_STAGE_SOS 4
+#define JPEG_STAGE_FRONT 5
+#define JPEG_STAGE_BACK 6
+#define JPEG_STAGE_EOI 7
+
+#define JFIF_APP0_LENGTH 18
 
 /* these are same as scsi data to make code easier */
 #define MODE_LINEART WD_comp_LA
@@ -795,6 +803,7 @@ static SANE_Status mode_select_prepick (struct fujitsu *s);
 static SANE_Status mode_select_auto (struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
+static SANE_Status set_off_mode(struct fujitsu *s);
 
 static int must_downsample (struct fujitsu *s);
 static int must_fully_buffer (struct fujitsu *s);
@@ -814,13 +823,12 @@ static SANE_Status start_scan (struct fujitsu *s);
 
 static SANE_Status check_for_cancel(struct fujitsu *s);
 
-#ifdef SANE_FRAME_JPEG
 static SANE_Status read_from_JPEGduplex(struct fujitsu *s);
-#endif
 static SANE_Status read_from_3091duplex(struct fujitsu *s);
 static SANE_Status read_from_scanner(struct fujitsu *s, int side);
 
 static SANE_Status copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side);
+static SANE_Status copy_JPEG(struct fujitsu *s, unsigned char * buf, int len, int side);
 static SANE_Status copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side);
 
 static SANE_Status read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);

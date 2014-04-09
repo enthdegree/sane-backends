@@ -560,6 +560,13 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_SD_preread_composition(sb, val)   putnbyte(sb + 0x1c, val, 1)
 #define set_SD_preread_escan(sb, val)   putnbyte(sb + 0x1d, val, 1)
 
+#define SD_powoff_string                "SET POWOFF TIME "
+#define SD_powoff_stringlen             16
+#define SD_powoff_len                   18
+#define set_SD_powoff_disable(in, val)  setbitfield(in + 16, 1, 7, val)
+#define set_SD_powoff_interval(in, val) setbitfield(in + 16, 0x7f, 0, val)
+#define set_SD_powoff_notify(sb, val)   putnbyte(sb + 0x17, val, 1)
+
 /* ==================================================================== */
 /* SET_WINDOW */
 #define SET_WINDOW_code         0x24

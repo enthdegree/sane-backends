@@ -3802,15 +3802,15 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_OFF_TIME){
     s->off_time_range.min = 0;
     s->off_time_range.max = 960;
-    s->off_time_range.quant = 15;
+    s->off_time_range.quant = 1;
   
     opt->name = "offtimer";
     opt->title = "Off timer";
-    opt->desc = "Time in minutes until the internal power supply switches the scanner off, 0 = never."; 
+    opt->desc = "Time in minutes until the internal power supply switches the scanner off. Will be rounded to nearest 15 minutes. Zero means never power off."; 
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
-    opt->constraint.range=&s->sleep_time_range;
+    opt->constraint.range=&s->off_time_range;
     if(s->has_off_mode)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
@@ -5536,7 +5536,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return set_sleep_mode(s);
 
         case OPT_OFF_TIME:
-          s->off_time = val_c;
+          /* do our own constrain, because we want to round up */
+          s->off_time = (val_c + 14)/15*15;
+          if(s->off_time != val_c){
+            *info |= SANE_INFO_INEXACT;
+          }
           return set_off_mode(s);
 
         case OPT_DUPLEX_OFFSET:

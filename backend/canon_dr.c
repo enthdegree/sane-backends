@@ -285,7 +285,7 @@
          - add support for paper sensors (P-215 & P-208)
          - add initial support for card reader (P-215)
          - removed unused var from do_scsi_cmd()
-      v43 2014-04-13, MAN
+      v43 2014-03-13, MAN
          - initial DR-M140 support
          - add extra_status config and code
          - split status code into do_usb_status
@@ -293,12 +293,16 @@
          - add new color interlacing modes and code
          - comment out ssm2
          - add timestamp to do_usb_cmd
-      v44 2014-04-26, MAN
+      v44 2014-03-26, MAN
          - buffermode support for machines with ssm2 command
          - DR-M140 needs always_op=0
-      v45 2014-04-29, MAN
+      v45 2014-03-29, MAN
          - dropout support for machines with ssm2 command
          - doublefeed support for machines with ssm2 command
+      v46 2014-04-09, MAN
+         - split debug level 30 into two levels
+         - simplify jpeg ifdefs
+         - add support for DR-M160
 
    SANE FLOW DIAGRAM
 
@@ -348,7 +352,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 45
+#define BUILD 46
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -361,6 +365,12 @@
  - useless noise   35
 */
 
+/* ------------------------------------------------------------------------- */
+/* if JPEG support is not enabled in sane.h, we setup our own defines */
+#ifndef SANE_FRAME_JPEG
+#define SANE_FRAME_JPEG 0x0B
+#define SANE_JPEG_DISABLED 1
+#endif
 /* ------------------------------------------------------------------------- */
 #define STRING_FLATBED SANE_I18N("Flatbed")
 #define STRING_ADFFRONT SANE_I18N("ADF Front")
@@ -1247,9 +1257,7 @@ init_model (struct scanner *s)
   /* specific settings missing from vpd */
   if (strstr (s->model_name,"DR-9080")
     || strstr (s->model_name,"DR-7580")){
-#ifdef SANE_FRAME_JPEG
     s->has_comp_JPEG = 1;
-#endif
     s->rgb_format = 2;
   }
 
@@ -1445,8 +1453,7 @@ init_model (struct scanner *s)
     s->has_card = 1;
   }
 
-  else if (strstr (s->model_name,"DR-M140")
-  ){
+  else if (strstr (s->model_name,"DR-M160")){
 
     /*missing*/
     s->std_res_x[DPI_100]=1;
@@ -1462,9 +1469,48 @@ init_model (struct scanner *s)
     s->std_res_x[DPI_600]=1;
     s->std_res_y[DPI_600]=1;
     
-#ifdef SANE_FRAME_JPEG
     s->has_comp_JPEG = 1;
-#endif
+    s->rgb_format = 1;
+    s->can_color = 1;
+    s->has_df_ultra = 1;
+
+    s->color_inter_by_res[DPI_100] = COLOR_INTERLACE_GBR;
+    s->color_inter_by_res[DPI_150] = COLOR_INTERLACE_GBR;
+    s->color_inter_by_res[DPI_200] = COLOR_INTERLACE_BRG;
+    s->color_inter_by_res[DPI_400] = COLOR_INTERLACE_GBR;
+
+    /*weirdness*/
+    s->always_op = 0;
+    s->fixed_width = 1;
+    s->invert_tly = 1;
+    s->can_write_panel = 0;
+    s->has_ssm = 0;
+    s->has_ssm2 = 1;
+    s->duplex_interlace = DUPLEX_INTERLACE_FFBB;
+    s->duplex_offset_side = SIDE_FRONT;
+
+    /*lies*/
+    s->can_halftone=0;
+    s->can_monochrome=0;
+  }
+
+  else if (strstr (s->model_name,"DR-M140")){
+
+    /*missing*/
+    s->std_res_x[DPI_100]=1;
+    s->std_res_y[DPI_100]=1;
+    s->std_res_x[DPI_150]=1;
+    s->std_res_y[DPI_150]=1;
+    s->std_res_x[DPI_200]=1;
+    s->std_res_y[DPI_200]=1;
+    s->std_res_x[DPI_300]=1;
+    s->std_res_y[DPI_300]=1;
+    s->std_res_x[DPI_400]=1;
+    s->std_res_y[DPI_400]=1;
+    s->std_res_x[DPI_600]=1;
+    s->std_res_y[DPI_600]=1;
+    
+    s->has_comp_JPEG = 1;
     s->rgb_format = 1;
     s->can_color = 1;
     s->has_df_ultra = 1;
@@ -2102,7 +2148,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->compress_list[i++]=STRING_NONE;
 
     if(s->has_comp_JPEG){
+#ifndef SANE_JPEG_DISABLED
       s->compress_list[i++]=STRING_JPEG;
+#endif
     }
 
     s->compress_list[i]=NULL;
@@ -3615,14 +3663,12 @@ update_params(struct scanner *s, int calib)
     /* round down to pixel boundary for some scanners */
     s->u.width -= s->u.width % s->ppl_mod;
 
-#ifdef SANE_FRAME_JPEG
     /* jpeg requires 8x8 squares */
     if(s->compress == COMP_JPEG && s->u.mode >= MODE_GRAYSCALE){
       s->u.format = SANE_FRAME_JPEG;
       s->u.width -= s->u.width % 8;
       s->u.height -= s->u.height % 8;
     }
-#endif
 
     s->u.Bpl = s->u.width * s->u.bpp / 8;
     s->u.valid_Bpl = s->u.Bpl;
@@ -4019,9 +4065,7 @@ sane_start (SANE_Handle handle)
    * API has no way to inform the frontend of this,
    * so we block and buffer. yuck */
   if( (s->swdeskew || s->swdespeck || s->swcrop)
-#ifdef SANE_FRAME_JPEG
     && s->s.format != SANE_FRAME_JPEG
-#endif
   ){
 
     /* get image */
@@ -4261,13 +4305,11 @@ set_window (struct scanner *s)
   set_WD_compress_type(desc1, COMP_NONE);
   set_WD_compress_arg(desc1, 0);
 
-#ifdef SANE_FRAME_JPEG
   /* some scanners support jpeg image compression, for color/gs only */
   if(s->s.format == SANE_FRAME_JPEG){
     set_WD_compress_type(desc1, COMP_JPEG);
     set_WD_compress_arg(desc1, s->compress_arg);
   }
-#endif
 
   /*build the command*/
   memset(cmd,0,cmdLen);
@@ -4553,7 +4595,6 @@ read_from_scanner(struct scanner *s, int side, int exact)
     inLen = 0;
   }
 
-#ifdef SANE_FRAME_JPEG
   /* this is jpeg data, we need to fix the missing image size */
   if(s->s.format == SANE_FRAME_JPEG){
 
@@ -4603,7 +4644,6 @@ read_from_scanner(struct scanner *s, int side, int exact)
       }
     }
   }
-#endif
 
   /*scanner may have sent more data than we asked for, chop it*/
   if(inLen > remain){
@@ -4629,37 +4669,32 @@ read_from_scanner(struct scanner *s, int side, int exact)
 
   if(ret == SANE_STATUS_EOF){
 
-    switch (s->s.format){
+    /* this is jpeg data, we need to change the total size */
+    if(s->s.format == SANE_FRAME_JPEG){
+      s->s.bytes_tot[side] = s->s.bytes_sent[side];
+      s->i.bytes_tot[side] = s->i.bytes_sent[side];
+      s->u.bytes_tot[side] = s->i.bytes_sent[side];
+    } 
 
-#ifdef SANE_FRAME_JPEG
-      /* this is jpeg data, we need to change the total size */
-      case SANE_FRAME_JPEG:
-        s->s.bytes_tot[side] = s->s.bytes_sent[side];
-        s->i.bytes_tot[side] = s->i.bytes_sent[side];
-        s->u.bytes_tot[side] = s->i.bytes_sent[side];
-        break;
-#endif
+    /* this is non-jpeg data, fill remainder, change rx'd size */
+    else{
 
-      /* this is non-jpeg data, fill remainder, change rx'd size */
-      default:
+      DBG (15, "read_from_scanner: eof: %d %d\n", s->i.bytes_tot[side], s->i.bytes_sent[side]);
 
-        DBG (15, "read_from_scanner: eof: %d %d\n", s->i.bytes_tot[side], s->i.bytes_sent[side]);
+      /* clone the last line repeatedly until the end */
+      while(s->i.bytes_tot[side] > s->i.bytes_sent[side]){
+        memcpy(
+          s->buffers[side]+s->i.bytes_sent[side]-s->i.Bpl,
+          s->buffers[side]+s->i.bytes_sent[side],
+          s->i.Bpl
+        );
+        s->i.bytes_sent[side] += s->i.Bpl;
+      }
 
-        /* clone the last line repeatedly until the end */
-        while(s->i.bytes_tot[side] > s->i.bytes_sent[side]){
-          memcpy(
-            s->buffers[side]+s->i.bytes_sent[side]-s->i.Bpl,
-            s->buffers[side]+s->i.bytes_sent[side],
-            s->i.Bpl
-          );
-          s->i.bytes_sent[side] += s->i.Bpl;
-        }
+      DBG (15, "read_from_scanner: eof2: %d %d\n", s->i.bytes_tot[side], s->i.bytes_sent[side]);
 
-        DBG (15, "read_from_scanner: eof2: %d %d\n", s->i.bytes_tot[side], s->i.bytes_sent[side]);
-
-        /* pretend we got all the data from scanner */
-        s->s.bytes_sent[side] = s->s.bytes_tot[side];
-        break;
+      /* pretend we got all the data from scanner */
+      s->s.bytes_sent[side] = s->s.bytes_tot[side];
     }
 
     s->i.eof[side] = 1;
@@ -4769,57 +4804,52 @@ read_from_scanner_duplex(struct scanner *s,int exact)
 
   if(ret == SANE_STATUS_EOF){
 
-    switch (s->s.format){
+    /* this is jpeg data, we need to change the total size */
+    if(s->s.format == SANE_FRAME_JPEG){
+      s->s.bytes_tot[SIDE_FRONT] = s->s.bytes_sent[SIDE_FRONT];
+      s->s.bytes_tot[SIDE_BACK] = s->s.bytes_sent[SIDE_BACK];
+      s->i.bytes_tot[SIDE_FRONT] = s->i.bytes_sent[SIDE_FRONT];
+      s->i.bytes_tot[SIDE_BACK] = s->i.bytes_sent[SIDE_BACK];
+      s->u.bytes_tot[SIDE_FRONT] = s->i.bytes_sent[SIDE_FRONT];
+      s->u.bytes_tot[SIDE_BACK] = s->i.bytes_sent[SIDE_BACK];
+    }
 
-#ifdef SANE_FRAME_JPEG
-      /* this is jpeg data, we need to change the total size */
-      case SANE_FRAME_JPEG:
-        s->s.bytes_tot[SIDE_FRONT] = s->s.bytes_sent[SIDE_FRONT];
-        s->s.bytes_tot[SIDE_BACK] = s->s.bytes_sent[SIDE_BACK];
-        s->i.bytes_tot[SIDE_FRONT] = s->i.bytes_sent[SIDE_FRONT];
-        s->i.bytes_tot[SIDE_BACK] = s->i.bytes_sent[SIDE_BACK];
-        s->u.bytes_tot[SIDE_FRONT] = s->i.bytes_sent[SIDE_FRONT];
-        s->u.bytes_tot[SIDE_BACK] = s->i.bytes_sent[SIDE_BACK];
-        break;
-#endif
+    /* this is non-jpeg data, fill remainder, change rx'd size */
+    else{
 
-      /* this is non-jpeg data, fill remainder, change rx'd size */
-      default:
+      DBG (15, "read_from_scanner_duplex: eof: %d %d %d %d\n",
+        s->i.bytes_tot[SIDE_FRONT], s->i.bytes_sent[SIDE_FRONT],
+        s->i.bytes_tot[SIDE_BACK], s->i.bytes_sent[SIDE_BACK]
+      );
 
-        DBG (15, "read_from_scanner_duplex: eof: %d %d %d %d\n",
-          s->i.bytes_tot[SIDE_FRONT], s->i.bytes_sent[SIDE_FRONT],
-          s->i.bytes_tot[SIDE_BACK], s->i.bytes_sent[SIDE_BACK]
+      /* clone the last line repeatedly until the end */
+      while(s->i.bytes_tot[SIDE_FRONT] > s->i.bytes_sent[SIDE_FRONT]){
+        memcpy(
+          s->buffers[SIDE_FRONT]+s->i.bytes_sent[SIDE_FRONT]-s->i.Bpl,
+          s->buffers[SIDE_FRONT]+s->i.bytes_sent[SIDE_FRONT],
+          s->i.Bpl
         );
+        s->i.bytes_sent[SIDE_FRONT] += s->i.Bpl;
+      }
 
-        /* clone the last line repeatedly until the end */
-        while(s->i.bytes_tot[SIDE_FRONT] > s->i.bytes_sent[SIDE_FRONT]){
-          memcpy(
-            s->buffers[SIDE_FRONT]+s->i.bytes_sent[SIDE_FRONT]-s->i.Bpl,
-            s->buffers[SIDE_FRONT]+s->i.bytes_sent[SIDE_FRONT],
-            s->i.Bpl
-          );
-          s->i.bytes_sent[SIDE_FRONT] += s->i.Bpl;
-        }
-
-        /* clone the last line repeatedly until the end */
-        while(s->i.bytes_tot[SIDE_BACK] > s->i.bytes_sent[SIDE_BACK]){
-          memcpy(
-            s->buffers[SIDE_BACK]+s->i.bytes_sent[SIDE_BACK]-s->i.Bpl,
-            s->buffers[SIDE_BACK]+s->i.bytes_sent[SIDE_BACK],
-            s->i.Bpl
-          );
-          s->i.bytes_sent[SIDE_BACK] += s->i.Bpl;
-        }
-
-        DBG (15, "read_from_scanner_duplex: eof2: %d %d %d %d\n",
-          s->i.bytes_tot[SIDE_FRONT], s->i.bytes_sent[SIDE_FRONT],
-          s->i.bytes_tot[SIDE_BACK], s->i.bytes_sent[SIDE_BACK]
+      /* clone the last line repeatedly until the end */
+      while(s->i.bytes_tot[SIDE_BACK] > s->i.bytes_sent[SIDE_BACK]){
+        memcpy(
+          s->buffers[SIDE_BACK]+s->i.bytes_sent[SIDE_BACK]-s->i.Bpl,
+          s->buffers[SIDE_BACK]+s->i.bytes_sent[SIDE_BACK],
+          s->i.Bpl
         );
+        s->i.bytes_sent[SIDE_BACK] += s->i.Bpl;
+      }
 
-        /* pretend we got all the data from scanner */
-        s->s.bytes_sent[SIDE_FRONT] = s->s.bytes_tot[SIDE_FRONT];
-        s->s.bytes_sent[SIDE_BACK] = s->s.bytes_tot[SIDE_BACK];
-        break;
+      DBG (15, "read_from_scanner_duplex: eof2: %d %d %d %d\n",
+        s->i.bytes_tot[SIDE_FRONT], s->i.bytes_sent[SIDE_FRONT],
+        s->i.bytes_tot[SIDE_BACK], s->i.bytes_sent[SIDE_BACK]
+      );
+
+      /* pretend we got all the data from scanner */
+      s->s.bytes_sent[SIDE_FRONT] = s->s.bytes_tot[SIDE_FRONT];
+      s->s.bytes_sent[SIDE_BACK] = s->s.bytes_tot[SIDE_BACK];
     }
 
     s->i.eof[SIDE_FRONT] = 1;

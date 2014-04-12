@@ -139,6 +139,11 @@ usb 0x1083 0x1638
 # CR-135i
 usb 0x1083 0x1639
 
+# DR-M160
+option extra-status 1
+option duplex-offset 400
+usb 0x1083 0x163e
+
 # DR-M140
 option extra-status 1
 option duplex-offset 400

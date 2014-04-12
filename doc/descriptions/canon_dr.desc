@@ -289,13 +289,12 @@
 :model "DR-M140"
 :interface "USB"
 :usbid "0x1083" "0x163f"
-:status :untested
-:comment "Similar protocol to other canon_dr machines, but difficult to support."
+:status :good
 
 :model "DR-M160"
 :interface "USB"
-;:usbid "0x1083" "0x"
-:status :untested
+:usbid "0x1083" "0x163e"
+:status :good
 
 :model "P-150"
 :interface "USB"

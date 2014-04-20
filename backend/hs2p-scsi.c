@@ -1283,9 +1283,9 @@ hs2p_send_gamma (HS2P_Scanner * s)
   _lto3b (len, &out.cmd.len[0]);	/* 19 bytes max        */
   out.gamma[0] = 0x08;		/* Gamma ID for Download table      */
   out.gamma[1] = 0x08;		/* The Number of gray scale (M) = 8 */
-  for (i = 2; i < 2 + GAMMA_LENGTH; i++)
+  for (i = 0; i < GAMMA_LENGTH; i++)
     {
-      out.gamma[i] = s->gamma_table[i];
+      out.gamma[i + 2] = s->gamma_table[i];
     }
   status = sanei_scsi_cmd (s->fd, &out, sizeof (out), NULL, NULL);
 

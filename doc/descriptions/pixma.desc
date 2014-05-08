@@ -545,7 +545,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x174d"
 :status :complete
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MX370 Series"
 :interface "USB"
@@ -563,13 +563,13 @@
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x174e"
 :status :complete
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MX420"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x174f"
 :status :complete
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MX430 Series"
 :interface "USB Ethernet"
@@ -587,13 +587,13 @@
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x175c"
 :status :complete
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MX520 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x1769"
 :status :complete
-:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI). ADF empty buggy."
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MX700"
 :interface "USB Ethernet"
@@ -629,37 +629,37 @@
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1743"
 :status :complete
-:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
+:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MX880 Series"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1750"
 :status :complete
-:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
+:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MX882"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1750"
 :status :complete
-:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
+:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MX885"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x1750"
 :status :complete
-:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
+:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MX890 Series"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x175e"
 :status :complete
-:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
+:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MX920 Series"
 :interface "USB"
 :usbid "0x04a9" "0x176b"
 :status :good
-:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported, ADF empty buggy."
+:comment "All resolutions supported (up to 2400DPI). Flatbed, ADF simplex and Duplex supported."
 
 :model "PIXMA MX7600"
 :interface "USB Ethernet"

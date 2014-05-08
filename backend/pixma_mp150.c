@@ -284,6 +284,7 @@ typedef struct mp150_t
   unsigned stripe_shift;
   uint8_t tpu_datalen;
   uint8_t tpu_data[0x40];
+  uint8_t adf_state;            /* handle adf scanning */
 } mp150_t;
 
 /*
@@ -454,6 +455,7 @@ static int
 abort_session (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
+  mp->adf_state = state_idle;           /* reset adf scanning */
   return pixma_exec_short_cmd (s, &mp->cb, cmd_abort_session);
 }
 
@@ -1191,6 +1193,9 @@ mp150_open (pixma_t * s)
   /* TPU info data setup */
   mp->tpu_datalen = 0;
 
+  /* adf scanning */
+  mp->adf_state = state_idle;
+
   if (mp->generation < 4)
     {
       query_status (s);
@@ -1324,7 +1329,8 @@ mp150_scan (pixma_t * s)
     return PIXMA_EBUSY;
 
   /* Generation 4: send XML dialog */
-  if (mp->generation == 4 && s->param->adf_pageid == 0)
+  /* adf: first page or idle */
+  if (mp->generation == 4 && mp->adf_state == state_idle)
     {
       if (!send_xml_dialog (s, XML_START_1))
         return PIXMA_EPROTO;
@@ -1381,8 +1387,10 @@ mp150_scan (pixma_t * s)
     }
 
   tmo = 10;
-  if (s->param->adf_pageid == 0 || mp->generation <= 2)
-    {
+  /* adf: first page or idle */
+  if (mp->generation <= 2 || mp->adf_state == state_idle)
+    { /* single sheet or first sheet from ADF */
+      PDBG (pixma_dbg (4, "*mp150_scan***** start scanning *****\n"));
       error = start_session (s);
       while (error == PIXMA_EBUSY && --tmo >= 0)
         {
@@ -1423,7 +1431,11 @@ mp150_scan (pixma_t * s)
         error = send_set_tpu_info (s);
     }
   else   /* ADF pageid != 0 and gen3 or above */
+  { /* next sheet from ADF */
+    PDBG (pixma_dbg (4, "*mp150_scan***** scan next sheet from ADF  *****\n"));
     pixma_sleep (1000000);
+  }
+
 
   if ((error >= 0) || (mp->generation >= 3))
     mp->state = state_warmup;
@@ -1437,6 +1449,10 @@ mp150_scan (pixma_t * s)
       mp150_finish_scan (s);
       return error;
     }
+
+  /* ADF scanning active */
+  if (is_scanning_from_adf (s))
+    mp->adf_state = state_scanning;
   return 0;
 }
 
@@ -1470,9 +1486,13 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
   do
     {
       if (s->cancel)
+      {
+        PDBG (pixma_dbg (4, "*mp150_fill_buffer***** s->cancel  *****\n"));
         return PIXMA_ECANCELED;
+      }
       if ((mp->last_block & 0x28) == 0x28)
-        {       /* end of image */
+        {  /* end of image */
+           PDBG (pixma_dbg (4, "*mp150_fill_buffer***** end of image  *****\n"));
            mp->state = state_finished;
            return 0;
         }
@@ -1481,6 +1501,8 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       error = read_image_block (s, header, mp->imgbuf + mp->data_left_len);
       if (error < 0)
         {
+          PDBG (pixma_dbg (4, "*mp150_fill_buffer***** scanner error (%d): end scan  *****\n", error));
+          mp->last_block = 0x38;        /* end scan in mp150_finish_scan() */
           if (error == PIXMA_ECANCELED)
             {
                /* NOTE: I see this in traffic logs but I don't know its meaning. */
@@ -1544,6 +1566,7 @@ mp150_finish_scan (pixma_t * s)
        * abort_session and start_session between pages (last_block=0x28) */
       if (mp->generation <= 2 || !is_scanning_from_adf (s) || mp->last_block == 0x38)
         {
+          PDBG (pixma_dbg (4, "*mp150_finish_scan***** abort session  *****\n"));
           error = abort_session (s);  /* FIXME: it probably doesn't work in duplex mode! */
           if (error < 0)
             PDBG (pixma_dbg (1, "WARNING:abort_session() failed %d\n", error));
@@ -1555,6 +1578,9 @@ mp150_finish_scan (pixma_t * s)
                 PDBG (pixma_dbg (1, "WARNING:XML_END dialog failed \n"));
             }
         }
+      else
+        PDBG (pixma_dbg (4, "*mp150_finish_scan***** wait for next page from ADF  *****\n"));
+
         mp->state = state_idle;
       /* fall through */
     case state_idle:

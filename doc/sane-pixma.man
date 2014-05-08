@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "07 Apr 2014" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "08 May 2014" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -67,8 +67,6 @@ and must be switched off and on.
 .PP
 .RS
 PIXMA MP760, MP770, MP780, MP790
-.br
-PIXMA MX360
 .RE
 .PP
 The following models may use the same Pixma protocol as those listed 

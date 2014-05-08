@@ -1,3 +1,13 @@
+2014-05-08 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.7
+	* backend/pixma_mp150.c:
+	  - all Canon Pixma MP150 based ADF scanners support 14" legal paper size
+	  - fix ADF paper empty bug for Canon Pixma MP150 based ADF scanners
+	* doc/descriptions/pixma.desc: remove comments for Canon Pixma MP150 based
+	  ADF scanners: adf empty buggy
+	* doc/sane-pixma.man: Canon Pixma MX360 shouldn't hang anymore (@ ADF paper
+	  empty)
+
 2014-04-07 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man: Canon Pixma MX410
 	is working, reported from Javier Gorostiza.

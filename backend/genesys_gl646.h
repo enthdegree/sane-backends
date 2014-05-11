@@ -261,10 +261,23 @@ static
 #endif
 SANE_Status gl646_public_set_fe (Genesys_Device * dev, uint8_t set);
 
+GENESYS_STATIC
+SANE_Status
+gl646_save_power (Genesys_Device * dev, SANE_Bool enable);
+
+GENESYS_STATIC
+SANE_Status
+gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
+
+GENESYS_STATIC
+SANE_Status
+gl646_move_to_ta (Genesys_Device * dev);
+
 /**
  * sets up the scanner for a scan, registers, gamma tables, shading tables
  * and slope tables, based on the parameter struct.
  * @param device   device to set up
+ * @param regs     registers to set up
  * @param settings settings of the scan
  * @param split    true if move before scan has to be done
  * @param xcorrection true if scanner's X geometry must be taken into account to
@@ -272,9 +285,12 @@ SANE_Status gl646_public_set_fe (Genesys_Device * dev, uint8_t set);
  * @param ycorrection true if scanner's Y geometry must be taken into account to
  * 		     compute Y, ie add top margins
  */
-static SANE_Status
-setup_for_scan (Genesys_Device * device, Genesys_Settings settings,
-		SANE_Bool split, SANE_Bool xcorrection,
+GENESYS_STATIC SANE_Status
+setup_for_scan (Genesys_Device *device,
+		Genesys_Register_Set *regs,
+		Genesys_Settings settings,
+		SANE_Bool split,
+		SANE_Bool xcorrection,
 		SANE_Bool ycorrection);
 
 /**

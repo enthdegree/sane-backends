@@ -1210,7 +1210,7 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
                              max,
                              dev->settings.contrast,
                              dev->settings.brightness);
-      for (i = 0; i < size-1; i++)
+      for (i = 0; i < size; i++)
         {
           value=dev->sensor.gamma_table[GENESYS_RED][i];
           value=lut[value];
@@ -1230,7 +1230,7 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
     }
   else
     {
-      for (i = 0; i < size-1; i++)
+      for (i = 0; i < size; i++)
         {
           value=dev->sensor.gamma_table[GENESYS_RED][i];
           gamma[i * 2 + size * 0 + 0] = value & 0xff;

@@ -1,3 +1,8 @@
+2014-05-13 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl646.[ch] backend/genesys.c backend/genesys_low.c:
+	fix bug #314663. Set gamma for gl646 devices only at scan time. Reset
+	endpoint each time before leaving.
+
 2014-05-08 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.7
 	* backend/pixma_mp150.c:

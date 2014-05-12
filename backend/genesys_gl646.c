@@ -985,10 +985,8 @@ gl646_setup_registers (Genesys_Device * dev,
   /* gamma enable for scans */
   if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
     regs[reg_0x05].value |= REG05_GMM14BIT;
-  if (depth < 16)
-    regs[reg_0x05].value |= REG05_GMMENB;
-  else
-    regs[reg_0x05].value &= ~REG05_GMMENB;
+  
+  regs[reg_0x05].value &= ~REG05_GMMENB;
 
   /* true CIS gray if needed */
   if (dev->model->is_cis == SANE_TRUE && color == SANE_FALSE
@@ -3381,20 +3379,24 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
 {
   SANE_Status status;
 
+  DBGSTART;
+
   /* park head after calibration if needed */
   if (dev->scanhead_position_in_steps > 0
       && dev->settings.scan_method == SCAN_METHOD_FLATBED)
     {
-      status = gl646_slow_back_home (dev, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  return status;
-
-	}
+      RIE(gl646_slow_back_home (dev, SANE_TRUE));
       dev->scanhead_position_in_steps = 0;
     }
 
-  return setup_for_scan (dev, dev->reg, dev->settings, SANE_FALSE, SANE_TRUE, SANE_TRUE);
+  RIE(setup_for_scan (dev, dev->reg, dev->settings, SANE_FALSE, SANE_TRUE, SANE_TRUE));
+
+  /* gamma is only enabled at final scan time */
+  if (dev->settings.depth < 16)
+    dev->reg[reg_0x05].value |= REG05_GMMENB;
+
+  DBGCOMPLETED;
+  return status;
 }
 
 /**

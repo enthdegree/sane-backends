@@ -7026,6 +7026,7 @@ sane_close (SANE_Handle handle)
    * in bulk writes */
   if(s->dev->model->asic_type==GENESYS_GL847
    ||s->dev->model->asic_type==GENESYS_GL845
+   ||s->dev->model->asic_type==GENESYS_GL646
    ||s->dev->model->asic_type==GENESYS_GL846
    ||s->dev->model->asic_type==GENESYS_GL843)
     {

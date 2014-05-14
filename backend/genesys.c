@@ -5539,13 +5539,13 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SOURCE].size = max_string_size (source_list);
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
   s->val[OPT_SOURCE].s = strdup (FLATBED);
-  if (!(model->flags & GENESYS_FLAG_HAS_UTA))
+  if (model->flags & GENESYS_FLAG_HAS_UTA)
     {
-      DISABLE (OPT_SOURCE);
+      ENABLE (OPT_SOURCE);
     }
   else
     {
-      ENABLE (OPT_SOURCE);
+      DISABLE (OPT_SOURCE);
     }
 
   /* preview */
@@ -6907,6 +6907,9 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     }
 
   RIE (dev->model->cmd_set->init (dev));
+
+  /* some hardware capabilities are detected through sensors */
+  RIE (s->dev->model->cmd_set->update_hardware_sensors (s));
 
   /* here is the place to fetch a stored calibration cache */
   tmpstr=calibration_filename(s->dev);

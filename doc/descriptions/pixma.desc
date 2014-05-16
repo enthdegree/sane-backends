@@ -165,8 +165,8 @@
 :model "PIXMA MG7100 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1772"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 2400DPI)."
 
 :model "PIXMA MG8100 Series"
 :interface "USB"

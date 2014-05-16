@@ -702,10 +702,11 @@ static
 #endif
 SANE_Status gl124_feed (Genesys_Device * dev, unsigned int steps);
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+GENESYS_STATIC SANE_Status
 gl124_stop_action (Genesys_Device * dev);
+
+GENESYS_STATIC SANE_Status
+gl124_send_slope_table (Genesys_Device * dev, int table_nr,
+			uint16_t * slope_table, int steps);
 
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

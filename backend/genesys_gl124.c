@@ -301,57 +301,6 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi, int half_ccd
   return &(sensors[idx]);
 }
 
-/** @brief motor profile
- * search for the database of motor profiles and get the best one. Each
- * profile is at full step and at a reference exposure. Use LiDE 110 table
- * by default.
- * @param motor_type motor id
- * @param exposure exposure time
- * @return a pointer to a Motor_Profile struct
- */
-static Motor_Profile *get_motor_profile(int motor_type, int exposure)
-{
-  unsigned int i;
-  int idx;
-
-  i=0;
-  idx=-1;
-  while(i<sizeof(motors)/sizeof(Motor_Profile))
-    {
-      /* exact match */
-      if(motors[i].motor_type==motor_type && motors[i].exposure==exposure)
-        {
-          return &(motors[i]);
-        }
-
-      /* closest match */
-      if(motors[i].motor_type==motor_type)
-        {
-          if(idx<0)
-            {
-              idx=i;
-            }
-          else
-            {
-              if(motors[i].exposure>=exposure
-              && motors[i].exposure<motors[idx].exposure)
-                {
-                  idx=i;
-                }
-            }
-        }
-      i++;
-    }
-
-  /* default fallback */
-  if(idx<0)
-    {
-      DBG (DBG_warn,"%s: using default motor profile\n",__FUNCTION__);
-      idx=0;
-    }
-
-  return &(motors[idx]);
-}
 
 /** @brief generate slope table
  * Generate the slope table to use for the scan using a reference slope
@@ -372,7 +321,8 @@ static int gl124_slope_table(uint16_t *slope,
 			     int       base_dpi,
 			     int       step_type,
 			     int       factor,
-                             int       motor_type)
+                             int       motor_type,
+                             Motor_Profile *motors)
 {
 int sum, i;
 uint16_t target,current;
@@ -380,12 +330,13 @@ Motor_Profile *profile;
 
 	/* required speed */
 	target=((exposure * dpi) / base_dpi)>>step_type;
+        DBG (DBG_io2, "%s: target=%d\n", __FUNCTION__, target);
 
 	/* fill result with target speed */
         for(i=0;i<SLOPE_TABLE_SIZE;i++)
           slope[i]=target;
 
-        profile=get_motor_profile(motor_type,exposure);
+        profile=sanei_genesys_get_motor_profile(motors, motor_type, exposure);
 
 	/* use profile to build table */
         i=0;
@@ -732,7 +683,7 @@ gl124_init_registers (Genesys_Device * dev)
  * @param slope_table pointer to 16 bit values array of the slope table
  * @param steps number of elemnts in the slope table
  */
-static SANE_Status
+GENESYS_STATIC SANE_Status
 gl124_send_slope_table (Genesys_Device * dev, int table_nr,
 			uint16_t * slope_table, int steps)
 {
@@ -922,24 +873,6 @@ static int gl124_compute_exposure(Genesys_Device *dev, int xres, int half_ccd)
   return sensor->exposure;
 }
 
-/**@brief compute motor step type to use
- * compute the step type (full, half, quarter, ...) to use based
- * on target resolution
- * @param dev device description
- * @param exposure sensor exposure
- * @return 0 for full step
- *         1 for half step
- *         2 for quarter step
- *         3 for eighth step
- */
-static int gl124_compute_step_type(Genesys_Device *dev, int exposure)
-{
-Motor_Profile *profile;
-
-    profile=get_motor_profile(dev->model->motor_type,exposure);
-    return profile->step_type;
-}
-
 
 static SANE_Status
 gl124_init_motor_regs_scan (Genesys_Device * dev,
@@ -1040,7 +973,8 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
                     dev->motor.base_ydpi,
                     scan_step_type,
                     factor,
-                    dev->model->motor_type);
+                    dev->model->motor_type,
+                    motors);
   RIE(gl124_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps));
   RIE(gl124_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps));
 
@@ -1060,7 +994,8 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
                     dev->motor.base_ydpi,
                     scan_step_type,
                     factor,
-                    dev->model->motor_type);
+                    dev->model->motor_type,
+                    motors);
   RIE(gl124_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps));
   RIE(gl124_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps));
 
@@ -1619,7 +1554,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
   else
     {
       exposure_time = gl124_compute_exposure (dev, used_res, half_ccd);
-      scan_step_type = gl124_compute_step_type(dev, exposure_time);
+      scan_step_type = sanei_genesys_compute_step_type(motors, dev->model->motor_type, exposure_time);
     }
 
   DBG (DBG_info, "gl124_init_scan_regs : exposure_time=%d pixels\n", exposure_time);
@@ -3895,7 +3830,8 @@ static Genesys_Command_Set gl124_cmd_set = {
   NULL,
   gl124_send_shading_data,
   gl124_calculate_current_setup,
-  gl124_boot
+  gl124_boot,
+  NULL
 };
 
 SANE_Status

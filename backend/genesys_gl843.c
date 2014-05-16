@@ -4462,7 +4462,8 @@ static Genesys_Command_Set gl843_cmd_set = {
   gl843_move_to_ta,
   gl843_send_shading_data,
   gl843_calculate_current_setup,
-  gl843_boot
+  gl843_boot,
+  NULL
 };
 
 SANE_Status

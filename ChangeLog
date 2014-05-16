@@ -1,3 +1,10 @@
+2014-05-08 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c: fix MG7100 image data post processing @ high
+	  resolutions > 600dpi.
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man: Canon Pixma MG7100
+	  Series scanner is working, reported by Gert Cauwenberg.
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.8
+
 2014-05-13 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.[ch] backend/genesys.c backend/genesys_low.c:
 	fix bug #314663. Set gamma for gl646 devices only at scan time. Reset

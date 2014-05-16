@@ -42,9 +42,9 @@
 
 :model "ScanSnap S1100"
 :interface "USB"
-:status :untested
+:status :unsupported
 :usbid "0x04c5" "0x1200"
-:comment "Test needed."
+:comment "Beta version of backend source available, which applies to older git development versions, but breaks support for other epjitsu scanners. See http://ubuntuforums.org/showthread.php?t=1678335"
 
 :model "ScanSnap S1300"
 :interface "USB"
@@ -52,3 +52,8 @@
 :usbid "0x04c5" "0x11ed"
 :comment "Same as S300, with different usb id"
 
+:model "ScanSnap S1300i"
+:interface "USB"
+:status :unsupported
+:usbid "0x04c5" "0x128d"
+:comment "Work in progress."

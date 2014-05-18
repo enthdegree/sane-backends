@@ -302,74 +302,6 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi, int half_ccd
 }
 
 
-/** @brief generate slope table
- * Generate the slope table to use for the scan using a reference slope
- * table.
- * @param slope pointer to the slope table to fill
- * @param steps pointer to return used step number
- * @param dpi   desired motor resolution
- * @param exposure exposure used
- * @param base_dpi base resolution of the motor
- * @param step_type step type used for scan
- * @param factor shrink factor for the slope
- * @param motor_type motor id
- */
-static int gl124_slope_table(uint16_t *slope,
-		             int       *steps,
-			     int       dpi,
-			     int       exposure,
-			     int       base_dpi,
-			     int       step_type,
-			     int       factor,
-                             int       motor_type,
-                             Motor_Profile *motors)
-{
-int sum, i;
-uint16_t target,current;
-Motor_Profile *profile;
-
-	/* required speed */
-	target=((exposure * dpi) / base_dpi)>>step_type;
-        DBG (DBG_io2, "%s: target=%d\n", __FUNCTION__, target);
-
-	/* fill result with target speed */
-        for(i=0;i<SLOPE_TABLE_SIZE;i++)
-          slope[i]=target;
-
-        profile=sanei_genesys_get_motor_profile(motors, motor_type, exposure);
-
-	/* use profile to build table */
-        i=0;
-	sum=0;
-
-        /* first step is used unmodified */
-        current=profile->table[0];
-
-        /* loop on profile copying and apply step type */
-        while(i<SLOPE_TABLE_SIZE && current>=target)
-          {
-            slope[i]=current;
-            sum+=slope[i];
-            i++;
-            current=profile->table[i*factor]>>step_type;
-          }
-        if(i<3 && DBG_LEVEL >= DBG_warn)
-          {
-            DBG (DBG_warn,"%s: short slope table, failed to reach %d\n",__FUNCTION__,target);
-          }
-
-        /* ensure minimal slope size */
-        while(i<8)
-          {
-            sum+=slope[i];
-            i++;
-          }
-
-        /* return used steps and acceleration sum */
-        *steps=i;
-	return sum;
-}
-
 /* returns the max register bulk size */
 static int
 gl124_bulk_full_size (void)
@@ -966,15 +898,15 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   sanei_genesys_set_double(reg,REG_SCANFED,4);
 
   /* scan and backtracking slope table */
-  gl124_slope_table(scan_table,
-                    &scan_steps,
-                    yres,
-                    scan_exposure_time,
-                    dev->motor.base_ydpi,
-                    scan_step_type,
-                    factor,
-                    dev->model->motor_type,
-                    motors);
+  sanei_genesys_slope_table(scan_table,
+                            &scan_steps,
+                            yres,
+                            scan_exposure_time,
+                            dev->motor.base_ydpi,
+                            scan_step_type,
+                            factor,
+                            dev->model->motor_type,
+                            motors);
   RIE(gl124_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps));
   RIE(gl124_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps));
 
@@ -987,15 +919,15 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
     {
       fast_dpi*=3;
     }
-  gl124_slope_table(fast_table,
-                    &fast_steps,
-                    fast_dpi,
-                    scan_exposure_time,
-                    dev->motor.base_ydpi,
-                    scan_step_type,
-                    factor,
-                    dev->model->motor_type,
-                    motors);
+  sanei_genesys_slope_table(fast_table,
+                            &fast_steps,
+                            fast_dpi,
+                            scan_exposure_time,
+                            dev->motor.base_ydpi,
+                            scan_step_type,
+                            factor,
+                            dev->model->motor_type,
+                            motors);
   RIE(gl124_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps));
   RIE(gl124_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps));
 

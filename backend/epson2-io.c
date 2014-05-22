@@ -110,8 +110,8 @@ e2_send(Epson_Scanner * s, void *buf, size_t buf_size, size_t reply_len,
 }
 
 ssize_t
-e2_recv(Epson_Scanner * s, void *buf, ssize_t buf_size,
-	    SANE_Status * status)
+e2_recv(Epson_Scanner *s, void *buf, ssize_t buf_size,
+	    SANE_Status *status)
 {
 	ssize_t n = 0;
 
@@ -142,8 +142,9 @@ e2_recv(Epson_Scanner * s, void *buf, ssize_t buf_size,
 	}
 
 	if (n < buf_size) {
-		DBG(1, "%s: expected = %lu, got = %ld\n", __func__,
-		    (u_long) buf_size, (long) n);
+		DBG(1, "%s: expected = %lu, got = %ld, canceling: %d\n", __func__,
+		    (u_long) buf_size, (long) n, s->canceling);
+
 		*status = SANE_STATUS_IO_ERROR;
 	}
 

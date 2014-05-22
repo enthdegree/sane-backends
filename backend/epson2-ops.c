@@ -1742,6 +1742,8 @@ e2_ext_read(struct Epson_Scanner *s)
 	SANE_Status status = SANE_STATUS_GOOD;
 	ssize_t buf_len = 0, read;
 
+	DBG(18, "%s: begin\n", __func__);
+
 	/* did we passed everything we read to sane? */
 	if (s->ptr == s->end) {
 
@@ -1765,10 +1767,12 @@ e2_ext_read(struct Epson_Scanner *s)
 		/* receive image data + error code */
 		read = e2_recv(s, s->buf, buf_len + 1, &status);
 
-		DBG(18, "%s: read %lu bytes\n", __func__, (unsigned long) read);
+		DBG(18, "%s: read %lu bytes, status: %d\n", __func__, (unsigned long) read, status);
 
-		if (read != buf_len + 1)
-			return SANE_STATUS_IO_ERROR;
+		if (status != SANE_STATUS_GOOD) {
+			e2_cancel(s);
+			return status;
+		}
 
 		if (e2_dev_model(dev, "GT-8200") || e2_dev_model(dev, "Perfection1650")) {
 			/* See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=597922#127 */

@@ -1638,7 +1638,7 @@ Motor_Profile *profile;
 
 	/* required speed */
 	target=((exposure * dpi) / base_dpi)>>step_type;
-        DBG (DBG_io2, "%s: target=%d\n", __FUNCTION__, target);
+        DBG (DBG_io2, "%s: exposure=%d, dpi=%d, target=%d\n", __FUNCTION__, exposure, dpi, target);
 
 	/* fill result with target speed */
         for(i=0;i<SLOPE_TABLE_SIZE;i++)

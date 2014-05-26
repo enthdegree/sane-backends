@@ -915,10 +915,13 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 
   /* fast table */
   fast_dpi=yres;
+
+  /*
   if (scan_mode != SCAN_MODE_COLOR)
     {
       fast_dpi*=3;
     }
+    */
   sanei_genesys_slope_table(fast_table,
                             &fast_steps,
                             fast_dpi,

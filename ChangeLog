@@ -1,3 +1,9 @@
+2014-05-26 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c: fix ADF paper empty @ start scanning for Canon
+	  Pixma MP150 based ADF scanners
+	* backend/pixma_common.c: remove unused variable
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.9
+
 2014-05-08 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c: fix MG7100 image data post processing @ high
 	  resolutions > 600dpi.

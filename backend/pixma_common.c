@@ -318,7 +318,7 @@ pixma_get_time (time_t * sec, uint32_t * usec)
 uint8_t *
 pixma_r_to_ir (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
 {
-  unsigned i, j, g;
+  unsigned i;
 
   /* PDBG (pixma_dbg (4, "*pixma_rgb_to_ir*****\n")); */
 

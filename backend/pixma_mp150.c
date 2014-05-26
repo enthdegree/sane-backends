@@ -1349,15 +1349,38 @@ mp150_scan (pixma_t * s)
     {
       if ((error = query_status (s)) < 0)
         return error;
+
+      /* wait for inserted paper
+       * timeout: 10 sec */
       tmo = 10;
       while (!has_paper (s) && --tmo >= 0)
         {
+          if ((error = query_status (s)) < 0)
+            return error;
           WAIT_INTERRUPT (1000);
           PDBG (pixma_dbg
             (2, "No paper in ADF. Timed out in %d sec.\n", tmo));
         }
+
+      /* no paper inserted
+       * => abort session */
       if (!has_paper (s))
+      {
+        PDBG (pixma_dbg (4, "*mp150_scan***** no paper in ADF *****\n"));
+        error = abort_session (s);
+        if (error < 0)
+          return error;
+
+        /* Generation 4: send XML dialog */
+        /* adf: first page or idle */
+        if (mp->generation == 4 && mp->adf_state == state_idle)
+        {
+          if (!send_xml_dialog (s, XML_END))
+            return PIXMA_EPROTO;
+        }
+
         return PIXMA_ENO_PAPER;
+      }
     }
 
   if (has_ccd_sensor (s) && (mp->generation <= 2))

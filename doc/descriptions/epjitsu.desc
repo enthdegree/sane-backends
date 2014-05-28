@@ -44,7 +44,7 @@
 :interface "USB"
 :status :unsupported
 :usbid "0x04c5" "0x1200"
-:comment "Beta version of backend source available, which applies to older git development versions, but breaks support for other epjitsu scanners. See http://ubuntuforums.org/showthread.php?t=1678335"
+:comment "Beta version of backend source available, which applies to older git development versions, but breaks support for other epjitsu scanners. See http://ubuntuforums.org/showthread.php?t=1678335 Work in progress."
 
 :model "ScanSnap S1300"
 :interface "USB"
@@ -54,6 +54,12 @@
 
 :model "ScanSnap S1300i"
 :interface "USB"
-:status :unsupported
+:status :good
 :usbid "0x04c5" "0x128d"
-:comment "Work in progress."
+:comment "Some calibration artifacts on brighter images."
+
+:model "fi-65F"
+:interface "USB"
+:status :unsupported
+;:usbid "0x04c5" "0x10c7"
+:comment "A6-size flatbed, 300/600 dpi, color/gray/binary. Work in progress."

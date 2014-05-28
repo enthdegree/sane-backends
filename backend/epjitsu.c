@@ -123,9 +123,19 @@
          - dont export private symbols
       v19 2009-08-31, RG
          - rewritten calibration routines
-      v20 2010-02-09, MAN (SANE 1.0.21 & 1.0.22)
+      v20 2010-02-09, MAN (SANE 1.0.21 to 1.0.24)
          - cleanup #include lines & copyright
          - add S1300
+      v21 2011-04-15, MAN
+         - unreleased attempt at S1100 support
+      v22 2014-05-15, MAN/Hiroshi Miura
+         - port some S1100 changes from v21
+         - add paper size support
+      v23 2014-05-20, MAN
+         - add S1300i support
+         - fix buffer overruns in read_from_scanner
+         - set default page width
+         - simplified the 225x200 resolution code
 
    SANE FLOW DIAGRAM
 
@@ -174,7 +184,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 20
+#define BUILD 23
 
 #ifndef MAX3
   #define MAX3(a,b,c) ((a) > (b) ? ((a) > (c) ? a : c) : ((b) > (c) ? b : c))
@@ -460,7 +470,40 @@ attach_one (const char *name)
     DBG (15, "attach_one: Found %s scanner %s at %s\n",
       s->sane.vendor, s->sane.model, s->sane.name);
   
-    if (strstr (s->sane.model, "S300") || strstr (s->sane.model, "S1300")){
+    if (strstr (s->sane.model, "S1300i")){
+        unsigned char stat;
+
+        DBG (15, "attach_one: Found S1300i\n");
+
+        stat = get_stat(s);
+        if(stat & 0x01){
+          DBG (5, "attach_one: on USB power?\n");
+          s->usb_power=1;
+        }
+    
+        s->model = MODEL_S1300i;
+
+        s->has_adf = 1;
+        s->has_adf_duplex = 1;
+        s->x_res_150 = 1;
+        s->x_res_225 = 1;
+        s->x_res_300 = 1;
+        s->x_res_600 = 1;
+        s->y_res_150 = 1;
+        s->y_res_225 = 1;
+        s->y_res_300 = 1;
+        s->y_res_600 = 1;
+
+        s->source = SOURCE_ADF_FRONT;
+        s->mode = MODE_LINEART;
+        s->resolution_x = 300;
+        s->page_height = 11.5 * 1200;
+        s->page_width  = 8.5 * 1200;
+
+        s->threshold = 120;
+        s->threshold_curve = 55;
+    }
+    else if (strstr (s->sane.model, "S300") || strstr (s->sane.model, "S1300")){
         unsigned char stat;
 
         DBG (15, "attach_one: Found S300/S1300\n");
@@ -488,6 +531,7 @@ attach_one (const char *name)
         s->mode = MODE_LINEART;
         s->resolution_x = 300;
         s->page_height = 11.5 * 1200;
+        s->page_width  = 8.5 * 1200;
 
         s->threshold = 120;
         s->threshold_curve = 55;
@@ -512,6 +556,7 @@ attach_one (const char *name)
         s->mode = MODE_LINEART;
         s->resolution_x = 300;
         s->page_height = 11.5 * 1200;
+        s->page_width  = 8.5 * 1200;
 
         s->threshold = 120;
         s->threshold_curve = 55;
@@ -533,6 +578,7 @@ attach_one (const char *name)
         s->mode = MODE_COLOR;
         s->resolution_x = 300;
         s->page_height = 5.83 * 1200;
+        s->page_width  = 4.1 * 1200;
 
         s->threshold = 120;
         s->threshold_curve = 55;
@@ -1783,6 +1829,51 @@ static struct model_res settings[] = {
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
+ /*S1300i AC*/
+/* model          xres yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh  calw  cal_hedw cal_reqw */
+ { MODEL_S1300i,  150, 150, 0, 1296, 32, 2662, 32, 4016, 1360, 1296, 64,  43, 8032, 2592,    2720,
+   setWindowCoarseCal_S1300i_150, setWindowFineCal_S1300i_150,
+   setWindowSendCal_S1300i_150, sendCal1Header_S1300i_150,
+   sendCal2Header_S1300i_150, setWindowScan_S1300i_150 },
+
+ { MODEL_S1300i,  225, 200, 0, 1944, 32, 3993, 32, 6072, 2063, 1944, 119, 28, 8096, 2592,    2752,
+   setWindowCoarseCal_S1300i_225, setWindowFineCal_S1300i_225,
+   setWindowSendCal_S1300i_225, sendCal1Header_S1300i_225,
+   sendCal2Header_S1300i_225, setWindowScan_S1300i_225 },
+
+ { MODEL_S1300i,  300, 300, 0, 2592, 32, 5324, 32, 8096, 2751, 2592, 159, 21, 8096, 2592,    2752,
+   setWindowCoarseCal_S1300i_300, setWindowFineCal_S1300i_300,
+   setWindowSendCal_S1300i_300, sendCal1Header_S1300i_300,
+   sendCal2Header_S1300i_300, setWindowScan_S1300i_300 },
+
+ /*NOTE: S1300i uses S300 data blocks for remainder*/
+ { MODEL_S1300i,  600, 600, 0, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064, 5184, 5440,
+   setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
+   setWindowSendCal_S300_600, sendCal1Header_S300_600,
+   sendCal2Header_S300_600, setWindowScan_S300_600 },
+
+ /*S1300i USB*/
+/* model       xres yres  u  mxx   mnx mxy   mny actw   reqw  hedw  padw  bh   calw  cal_hedw  cal_reqw */
+ { MODEL_S1300i,  150, 150, 1, 1296, 32, 2662, 32, 7216,  2960, 1296, 1664, 24, 14432, 2592,    5920,
+   setWindowCoarseCal_S300_150_U, setWindowFineCal_S300_150_U,
+   setWindowSendCal_S300_150_U, sendCal1Header_S1300i_USB,
+   sendCal2Header_S1300i_USB, setWindowScan_S300_150_U },
+
+ { MODEL_S1300i,  225, 200, 1, 1944, 32, 3993, 32, 10584, 4320, 1944, 2376, 16, 14112, 2592,    5760,
+   setWindowCoarseCal_S300_225_U, setWindowFineCal_S300_225_U,
+   setWindowSendCal_S300_225_U, sendCal1Header_S1300i_USB,
+   sendCal2Header_S1300i_USB, setWindowScan_S300_225_U },
+
+ { MODEL_S1300i,  300, 300, 1, 2592, 32, 5324, 32, 15872, 6640, 2592, 4048, 11, 15872, 2592,    6640,
+   setWindowCoarseCal_S300_300_U, setWindowFineCal_S300_300_U,
+   setWindowSendCal_S300_300_U, sendCal1Header_S1300i_USB,
+   sendCal2Header_S1300i_USB, setWindowScan_S300_300_U },
+
+ { MODEL_S1300i,  600, 600, 1, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064, 5184,    5440,
+   setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
+   setWindowSendCal_S300_600, sendCal1Header_S1300i_USB,
+   sendCal2Header_S1300i_USB, setWindowScan_S300_600 },
+
  /*fi-60F*/
 /* model       xres  yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw  bh  calw  cal_hedw  cal_reqw */
  { MODEL_FI60F, 150, 150, 0,  648, 32,  875, 32, 1480,  632,  216,  416, 41, 1480,    216,  632,
@@ -1873,7 +1964,7 @@ change_params(struct scanner *s)
         return SANE_STATUS_INVAL;
     }
 
-    if (s->model == MODEL_S300)
+    if (s->model == MODEL_S300 || s->model == MODEL_S1300i)
     {
         img_heads = 1; /* image width is the same as the plane width on the S300 */
         img_pages = 2;
@@ -1890,7 +1981,7 @@ change_params(struct scanner *s)
     }
 
     /* height */
-    if (s->model == MODEL_S300)
+    if (s->model == MODEL_S300 || s->model == MODEL_S1300i)
     {
         if (s->tl_y > s->max_y - s->min_y)
            s->tl_y = s->max_y - s->min_y - ADF_HEIGHT_PADDING;
@@ -2326,6 +2417,9 @@ sane_start (SANE_Handle handle)
             s->pages[i].bytes_total = page_img->width_bytes * page_img->height;
             s->pages[i].bytes_scanned = 0;
             s->pages[i].bytes_read = 0;
+            s->pages[i].lines_rx = 0;
+            s->pages[i].lines_pass = 0;
+            s->pages[i].lines_tx = 0;
             s->pages[i].done = 0;
         }
 
@@ -2578,7 +2672,7 @@ coarsecal_dark(struct scanner *s, unsigned char *pay)
         try_count--;
 
         /* update the coarsecal payload to use our new dark offset parameters */
-        if (s->model == MODEL_S300)
+        if (s->model == MODEL_S300 || s->model == MODEL_S1300i)
         {
             pay[5] = param[0];
             pay[7] = param[1];
@@ -2748,7 +2842,7 @@ coarsecal_light(struct scanner *s, unsigned char *pay)
         if (cal_good[0] + cal_good[1] == s->coarsecal.pages) break;
 
         /* update the coarsecal payload to use the new gain parameters */
-        if (s->model == MODEL_S300)
+        if (s->model == MODEL_S300 || s->model == MODEL_S1300i)
         {
             pay[11] = param[0];
             pay[13] = param[1];
@@ -2778,6 +2872,9 @@ coarsecal(struct scanner *s)
 
     if(s->model == MODEL_S300){
         memcpy(pay,coarseCalData_S300,payLen);
+    }
+    else if(s->model == MODEL_S1300i){
+        memcpy(pay,coarseCalData_S1300i,payLen);
     }
     else if(s->model == MODEL_S1100){
         memcpy(pay,coarseCalData_S1100,payLen);
@@ -2822,7 +2919,7 @@ finecal_send_cal(struct scanner *s)
 
     if(s->model == MODEL_FI60F)
       planes = 3;
-    if(s->model == MODEL_S300)
+    if(s->model == MODEL_S300 || s->model == MODEL_S1300i)
       planes = 2;
     if(s->model == MODEL_S1100)
       planes = 1;
@@ -3019,7 +3116,7 @@ finecal(struct scanner *s)
 
     DBG (10, "finecal: start\n");
 
-    if (s->model == MODEL_S300) { /* S300, S1300 */
+    if (s->model == MODEL_S300 || s->model == MODEL_S1300i) { /* S300, S1300 */
         max_pages = 2;
     }
     else /* fi-60f, S1100 */
@@ -3606,7 +3703,7 @@ scan(struct scanner *s)
     
     DBG (10, "scan: start\n");
 
-    if(s->model == MODEL_S300 || s->model == MODEL_S1100){
+    if(s->model == MODEL_S300 || s->model == MODEL_S1100 || s->model == MODEL_S1300i){
         cmd[1] = 0xd6;
     }
 
@@ -3681,7 +3778,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         /* reset flashing button? */
         ret = six5(s);
         if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_read: ERROR: failed to six6\n");
+          DBG (5, "sane_read: ERROR: failed to six5\n");
           return ret;
         }
       }
@@ -3703,7 +3800,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                 s->block_xfr.total_bytes = remainTotal;
             }
             /* send d3 cmd for S300, S1100, S1300 */
-            if(s->model == MODEL_S300 || s->model == MODEL_S1100)
+            if(s->model == MODEL_S300 || s->model == MODEL_S1100 || s->model == MODEL_S1300i)
             {
                 unsigned char cmd[] = {0x1b, 0xd3};
                 size_t cmdLen = 2;
@@ -3746,7 +3843,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
             s->block_xfr.done = 0;
 
             /* get the 0x43 cmd for the S300, S1100, S1300  */
-            if(s->model == MODEL_S300 || s->model == MODEL_S1100){
+            if(s->model == MODEL_S300 || s->model == MODEL_S1100 || s->model == MODEL_S1300i){
 
                 unsigned char cmd[] = {0x1b, 0x43};
                 size_t cmdLen = 2;
@@ -3831,7 +3928,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         page->bytes_read += *len;
     
         /* sent it all, return eof on next read */
-        if(page->bytes_read == page->bytes_scanned){
+        if(page->bytes_read == page->bytes_scanned && s->fullscan.done){
             DBG (10, "sane_read: side done\n");
             page->done = 1;
         }
@@ -3887,7 +3984,7 @@ descramble_raw(struct scanner *s, struct transfer * tp)
     int height = tp->total_bytes / tp->line_stride;
     int i, j, k, l;
 
-    if (s->model == MODEL_S300)
+    if (s->model == MODEL_S300 || s->model == MODEL_S1300i)
     {
         for (i = 0; i < 2; i++)                        /* page, front/back */
             for (j = 0; j < height; j++)               /* row (y)*/
@@ -3935,9 +4032,11 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
     SANE_Status ret=SANE_STATUS_GOOD;
     size_t bytes = MAX_IMG_PASS;
     size_t remainBlock = tp->total_bytes - tp->rx_bytes + 8;
-  
-    /* determine amount to ask for */
-    if(bytes > remainBlock){
+    unsigned char * buf;
+    size_t bufLen;
+
+    /* determine amount to ask for, S1300i wants big requests */
+    if(bytes > remainBlock && s->model != MODEL_S1300i){
         bytes = remainBlock;
     }
 
@@ -3955,17 +4054,29 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
         return SANE_STATUS_INVAL;
     }
 
+    bufLen = bytes;
+    buf = malloc(bufLen);
+    if(!buf){
+        DBG (5, "read_from_scanner: failed to alloc mem\n");
+        return SANE_STATUS_NO_MEM;
+    }
+
     ret = do_cmd(
       s, 0,
       NULL, 0,
       NULL, 0,
-      tp->raw_data + tp->rx_bytes, &bytes
+      buf, &bytes
     );
-  
+
     /* full read or short read */
     if (ret == SANE_STATUS_GOOD || (ret == SANE_STATUS_EOF && bytes) ) {
 
         DBG(15,"read_from_scanner: got GOOD/EOF (%lu)\n",(unsigned long)bytes);
+
+        if(bytes > remainBlock){
+          DBG(15,"read_from_scanner: block too big?\n");
+          bytes = remainBlock;
+        }
 
         if(bytes == remainBlock){
           DBG(15,"read_from_scanner: block done, ignoring trailer\n");
@@ -3973,15 +4084,19 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
           tp->done = 1;
         }
 
-        ret = SANE_STATUS_GOOD;
+        memcpy(tp->raw_data + tp->rx_bytes, buf, bytes);
         tp->rx_bytes += bytes;
+
+        ret = SANE_STATUS_GOOD;
     }
     else {
         DBG(5, "read_from_scanner: error reading status = %d\n", ret);
     }
-  
+ 
+    free(buf);
+
     DBG (10, "read_from_scanner: finish rB:%lu len:%lu\n",
-      (unsigned long)(tp->total_bytes - tp->rx_bytes), (unsigned long)bytes);
+      (unsigned long)(tp->total_bytes - tp->rx_bytes + 8), (unsigned long)bytes);
   
     return ret;
 }
@@ -4001,23 +4116,18 @@ static int get_GCD(int x, int y)
     return x;
 }
 
-/* test it is nessesary to insert row because of non-square pixel */
-static inline int test_nessesary_insert_row(int res_x, int res_y, int offset_y)
+/* test if we need to insert row because of non-square pixels */
+/* generally for 225x200, where we copy 1 row after every 8 */
+static inline int
+need_insert_row(int res_x, int res_y, int offset_y)
 {
     if (res_x > res_y)
     {
         int gcd = get_GCD(res_x, res_y);
         int y_r = res_y / gcd;
-        int x_r = res_x / gcd;
-        return ((offset_y % x_r) == y_r);
+        return ((offset_y % y_r) == (y_r-1));
     }
     return 0;
-}
-
-static inline int test_nessesary_skip_row(int res_x, int res_y, int offset_y)
-{
-    /* Reverse logic */
-    return test_nessesary_insert_row(res_y, res_x, offset_y);
 }
 
 /* copies block buffer into front or back image buffer */
@@ -4029,20 +4139,18 @@ copy_block_to_page(struct scanner *s,int side)
     struct transfer * block = &s->block_xfr;
     struct page * page = &s->pages[side];
     int image_height = block->total_bytes / block->line_stride;
-    /* int image_width = block->image->width_pix; */
     int page_height = SCANNER_UNIT_TO_PIX(s->page_height, s->resolution_x);
     int page_width = page->image->width_pix;
     int block_page_stride = block->image->width_bytes * block->image->height;
-    int page_y_offset = page->bytes_scanned / page->image->width_bytes;
     int line_reverse = (side == SIDE_BACK) || (s->model == MODEL_FI60F);
     int i,j,k=0,l=0;
-    int page_y_skipped = 0;
 
     DBG (10, "copy_block_to_page: start\n");
 
     /* skip padding and tl_y */
     if (s->fullscan.rx_bytes + s->block_xfr.rx_bytes < block->line_stride * page->image->y_skip_offset)
     {
+        DBG (10, "copy_block_to_page: before the start? %d\n", side);
         return ret;
     }
     else if (s->fullscan.rx_bytes < block->line_stride * page->image->y_skip_offset)
@@ -4055,6 +4163,7 @@ copy_block_to_page(struct scanner *s,int side)
     {
         if (s->fullscan.rx_bytes > block->line_stride * page->image->y_skip_offset + page_height * block->line_stride)
         {
+            DBG (10, "copy_block_to_page: off the end? %d\n", side);
             return ret;
         }
         else if (s->fullscan.rx_bytes + s->block_xfr.rx_bytes
@@ -4068,15 +4177,18 @@ copy_block_to_page(struct scanner *s,int side)
     /* loop over all the lines in the block */
     for (i = 0; i < image_height-k-l; i++)
     {
-        unsigned char * p_in = block->image->buffer + (side * block_page_stride) + ((i+k) * block->image->width_bytes) + page->image->x_start_offset * 3;
-        unsigned char * p_out = page->image->buffer + ((i + page_y_offset - page_y_skipped) * page->image->width_bytes);
+        unsigned char * p_in = block->image->buffer + (side * block_page_stride)
+            + ((i+k) * block->image->width_bytes) + page->image->x_start_offset * 3;
+        unsigned char * p_out = page->image->buffer + page->lines_tx * page->image->width_bytes;
         unsigned char * lineStart = p_out;
-        /* skip a periodic row when non-square pixels */
-        if (test_nessesary_skip_row(s->resolution_x, s->resolution_y, i + page_y_offset))
-        {
-            page_y_skipped++;
-            break;
+
+        if(page->bytes_scanned + page->image->width_bytes > page->bytes_total){
+          DBG (10, "copy_block_to_page: out of space? %d\n", side);
+          DBG (10, "copy_block_to_page: rx:%d tx:%d tot:%d line:%d\n",
+            page->bytes_scanned, page->bytes_read, page->bytes_total,page->image->width_bytes);
+          return ret;
         }
+
         /* reverse order for back side or FI-60F scanner */
         if (line_reverse)
             p_in += (page_width - 1) * 3;
@@ -4085,7 +4197,7 @@ copy_block_to_page(struct scanner *s,int side)
         for (j = 0; j < page_width; j++)
         {
             unsigned char r, g, b;
-            if (s->model == MODEL_S300)
+            if (s->model == MODEL_S300 || s->model == MODEL_S1300i)
                 { r = p_in[1]; g = p_in[2]; b = p_in[0]; }
             else /* (s->model == MODEL_FI60F) */
                 { r = p_in[0]; g = p_in[1]; b = p_in[2]; }
@@ -4101,13 +4213,14 @@ copy_block_to_page(struct scanner *s,int side)
             }
             else if (s->mode == MODE_LINEART)
             {
-                s->dt.buffer[j] = (r + g + b) / 3; /* stores dt temp image buffer and binalize afterword */
+                s->dt.buffer[j] = (r + g + b) / 3; /* stores dt temp image buffer and binarize afterword */
             }
             if (line_reverse)
                 p_in -= 3;
             else
                 p_in += 3;
         }
+
 	/* skip non-transfer pixels in block image buffer */
         if (line_reverse)
             p_in -= page->image->x_offset_bytes;
@@ -4119,16 +4232,20 @@ copy_block_to_page(struct scanner *s,int side)
         if (s->mode == MODE_LINEART)
             binarize_line(s, lineStart, page_width);
 
-        if (test_nessesary_insert_row(s->resolution_x, s->resolution_y, i + page_y_offset))
-        {
-            /* add a periodic row when non-square pixels */
-            memcpy(lineStart + page->image->width_bytes, lineStart, page->image->width_bytes);
-            page_y_offset += 1;
-            page->bytes_scanned += page->image->width_bytes;
-        }
-
-        /* update the page counter of bytes scanned */
+        /* update the page counters with this row */
         page->bytes_scanned += page->image->width_bytes;
+        page->lines_rx++;
+        page->lines_pass++;
+        page->lines_tx++;
+
+        /* add a periodic row when scanning non-square pixels, unless you are at the end */
+        if ( page->bytes_scanned + page->image->width_bytes <= page->bytes_total
+          && need_insert_row(s->resolution_x, s->resolution_y, page->lines_pass)
+        ){
+            memcpy(lineStart + page->image->width_bytes, lineStart, page->image->width_bytes);
+            page->bytes_scanned += page->image->width_bytes;
+            page->lines_tx++;
+        }
     }
 
     DBG (10, "copy_block_to_page: finish\n");

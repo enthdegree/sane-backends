@@ -79,6 +79,9 @@ struct page {
   int bytes_total;
   int bytes_scanned;
   int bytes_read;
+  int lines_rx;   /* received from scanner */
+  int lines_pass; /* passed thru from scanner to user (might be smaller than tx for 225dpi) */
+  int lines_tx;   /* transmitted to user */
   int done;
   struct image *image;
 };
@@ -261,6 +264,7 @@ struct scanner
 #define MODEL_S300 1
 #define MODEL_FI60F 2
 #define MODEL_S1100 3
+#define MODEL_S1300i 4
 
 #define USB_COMMAND_TIME   10000
 #define USB_DATA_TIME      10000

@@ -1,3 +1,6 @@
+2014-05-29 Paul Newall <quandry@ntlworld.com>
+	* backend/kodakaio.c: change to comment on ./configure parameters
+
 2014-05-26 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c: fix ADF paper empty @ start scanning for Canon
 	  Pixma MP150 based ADF scanners

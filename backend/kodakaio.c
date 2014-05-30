@@ -23,10 +23,12 @@
 export SANE_DEBUG_KODAKAIO=10
 
 for ubuntu prior to 12.10
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS=kodakaio
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS="kodakaio test"
 
 for ubuntu 12.10
-./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS=kodakaio 
+./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS="kodakaio test"
+
+If you want to use the test backend, for example with sane-troubleshoot, you should enable it in /etc/sane.d/dll.conf
 
 */
 
@@ -127,7 +129,7 @@ for ubuntu 12.10
 
 #define KODAKAIO_VERSION	02
 #define KODAKAIO_REVISION	4
-#define KODAKAIO_BUILD		7
+#define KODAKAIO_BUILD		8
 
 /* for usb (but also used for net though it's not required). */
 #define MAX_BLOCK_SIZE		32768

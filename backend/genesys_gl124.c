@@ -1375,10 +1375,8 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+GENESYS_STATIC
+SANE_Status
 gl124_init_scan_regs (Genesys_Device * dev,
                       Genesys_Register_Set * reg,
                       float xres,	/*dpi */
@@ -1389,6 +1387,8 @@ gl124_init_scan_regs (Genesys_Device * dev,
 		      float lines,
 		      unsigned int depth,
 		      unsigned int channels,
+		      __sane_unused__ int scan_method,
+                      int scan_mode,
 		      int color_filter,
                       unsigned int flags)
 {
@@ -1498,8 +1498,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
   /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
-  if ((flags & SCAN_FLAG_DYNAMIC_LINEART)
-      && (dev->settings.scan_mode == SCAN_MODE_LINEART))
+  if ((flags & SCAN_FLAG_DYNAMIC_LINEART) && (scan_mode == SCAN_MODE_LINEART))
     {
       depth = 8;
     }
@@ -1563,7 +1562,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
 					 dev->model->is_cis ? lincnt * channels : lincnt,
 					 dummy,
 					 move,
-					 dev->settings.scan_mode,
+					 scan_mode,
 					 mflags);
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -2058,7 +2057,6 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   uint8_t val;
   float resolution;
   int loop = 0;
-  int scan_mode;
 
   DBG (DBG_proc, "gl124_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
@@ -2113,23 +2111,22 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   memcpy (local_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
   resolution=sanei_genesys_get_lowest_dpi(dev);
 
-  /* TODO add scan_mode to the API */
-  scan_mode= dev->settings.scan_mode;
-  dev->settings.scan_mode=SCAN_MODE_GRAY;
   status = gl124_init_scan_regs (dev,
-			local_reg,
-			resolution,
-			resolution,
-			100,
-			30000,
-			100,
-			100,
-			8,
-			1,
-			0,
-			SCAN_FLAG_DISABLE_SHADING |
-			SCAN_FLAG_DISABLE_GAMMA |
-			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+                                 local_reg,
+                                 resolution,
+                                 resolution,
+                                 100,
+                                 30000,
+                                 100,
+                                 100,
+                                 8,
+                                 1,
+                                 dev->settings.scan_method,
+                                 SCAN_MODE_GRAY,
+                                 0,
+                                 SCAN_FLAG_DISABLE_SHADING |
+                                 SCAN_FLAG_DISABLE_GAMMA |
+                                 SCAN_FLAG_IGNORE_LINE_DISTANCE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2138,8 +2135,6 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       DBGCOMPLETED;
       return status;
     }
-
-  dev->settings.scan_mode=scan_mode;
 
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
@@ -2228,21 +2223,23 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
   status = gl124_init_scan_regs (dev,
-			local_reg,
-			resolution,
-			resolution,
-			0,
-			steps,
-			100,
-			3,
-			8,
-			3,
-			dev->settings.color_filter,
-			SCAN_FLAG_DISABLE_SHADING |
-			SCAN_FLAG_DISABLE_GAMMA |
-                        SCAN_FLAG_FEEDING |
-			SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
-			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+                                 local_reg,
+                                 resolution,
+                                 resolution,
+                                 0,
+                                 steps,
+                                 100,
+                                 3,
+                                 8,
+                                 3,
+                                 dev->settings.scan_method,
+                                 SCAN_MODE_COLOR,
+                                 dev->settings.color_filter,
+                                 SCAN_FLAG_DISABLE_SHADING |
+                                 SCAN_FLAG_DISABLE_GAMMA |
+                                 SCAN_FLAG_FEEDING |
+                                 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+                                 SCAN_FLAG_IGNORE_LINE_DISTANCE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2309,7 +2306,7 @@ gl124_search_start_position (Genesys_Device * dev)
   int pixels = 600;
   int dpi = 300;
 
-  DBG (DBG_proc, "gl124_search_start_position\n");
+  DBGSTART;
 
   memcpy (local_reg, dev->reg,
 	  GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
@@ -2317,8 +2314,19 @@ gl124_search_start_position (Genesys_Device * dev)
   /* sets for a 200 lines * 600 pixels */
   /* normal scan with no shading */
 
-  status = gl124_init_scan_regs (dev, local_reg, dpi, dpi, 0, 0,	/*we should give a small offset here~60 steps */
-				 600, dev->model->search_lines, 8, 1, 1,	/*green */
+  status = gl124_init_scan_regs (dev,
+                                 local_reg,
+                                 dpi,
+                                 dpi,
+                                 0,
+                                 0,	/*we should give a small offset here~60 steps */
+				 600,
+                                 dev->model->search_lines,
+                                 8,
+                                 1,
+                                 dev->settings.scan_method,
+                                 SCAN_MODE_GRAY,
+                                 1,	/*green */
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
@@ -2408,6 +2416,7 @@ gl124_search_start_position (Genesys_Device * dev)
     }
 
   free (data);
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -2440,6 +2449,8 @@ gl124_init_regs_for_coarse_calibration (Genesys_Device * dev)
 				 20,
 				 16,
 				 channels,
+                                 dev->settings.scan_method,
+                                 dev->settings.scan_mode,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -2524,6 +2535,8 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
 				 dev->calib_lines,
 				 16,
 				 dev->calib_channels,
+                                 dev->settings.scan_method,
+                                 SCAN_MODE_COLOR,
 				 0,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -2678,6 +2691,8 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
 				 dev->settings.lines,
 				 depth,
 				 channels,
+                                 dev->settings.scan_method,
+                                 dev->settings.scan_mode,
                                  dev->settings.color_filter,
                                  flags);
 
@@ -2851,6 +2866,8 @@ move_to_calibration_area (Genesys_Device * dev)
                                  1,
                                  8,
                                  3,
+                                 dev->settings.scan_method,
+                                 SCAN_MODE_COLOR,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -2949,6 +2966,8 @@ gl124_led_calibration (Genesys_Device * dev)
                                  1,
                                  depth,
                                  channels,
+                                 dev->settings.scan_method,
+                                 SCAN_MODE_COLOR,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -3137,6 +3156,8 @@ gl124_offset_calibration (Genesys_Device * dev)
 				 lines,
 				 bpp,
 				 channels,
+                                 dev->settings.scan_method,
+                                 SCAN_MODE_COLOR,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -3316,6 +3337,8 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
                                  lines,
                                  bpp,
                                  channels,
+                                 dev->settings.scan_method,
+                                 SCAN_MODE_COLOR,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -3445,6 +3468,8 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
 				 1,
 				 8,
 				 *channels,
+                                 dev->settings.scan_method,
+                                 SCAN_MODE_COLOR,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -3766,7 +3791,7 @@ static Genesys_Command_Set gl124_cmd_set = {
   gl124_send_shading_data,
   gl124_calculate_current_setup,
   gl124_boot,
-  NULL
+  gl124_init_scan_regs
 };
 
 SANE_Status

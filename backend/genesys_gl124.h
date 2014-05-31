@@ -655,21 +655,21 @@ static Motor_Profile motors[]={
 	{0, 0, 0, NULL},
 };
 /* *INDENT-ON* */
-
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status gl124_init_scan_regs (Genesys_Device * dev,
-                      Genesys_Register_Set * reg,
-                      float xres,	/*dpi */
-		      float yres,	/*dpi */
-		      float startx,	/*optical_res, from dummy_pixel+1 */
-		      float starty,	/*base_ydpi, from home! */
-		      float pixels,
-		      float lines,
-		      unsigned int depth,
-		      unsigned int channels,
-		      int color_filter, unsigned int flags);
+GENESYS_STATIC
+SANE_Status gl124_init_scan_regs (Genesys_Device * dev,
+                                  Genesys_Register_Set * reg,
+                                  float xres,	/*dpi */
+                                  float yres,	/*dpi */
+                                  float startx,	/*optical_res, from dummy_pixel+1 */
+                                  float starty,	/*base_ydpi, from home! */
+                                  float pixels,
+                                  float lines,
+                                  unsigned int depth,
+                                  unsigned int channels,
+                                  int scan_method,
+                                  int scan_mode,
+                                  int color_filter,
+                                  unsigned int flags);
 
 #ifndef UNIT_TESTING
 static

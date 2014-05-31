@@ -1650,7 +1650,7 @@ Motor_Profile *profile;
         i=0;
 	sum=0;
 
-        /* first step is used unmodified */
+        /* first step is always used unmodified */
         current=profile->table[0];
 
         /* loop on profile copying and apply step type */
@@ -1660,6 +1660,14 @@ Motor_Profile *profile;
             sum+=slope[i];
             i++;
             current=profile->table[i]>>step_type;
+          }
+
+        /* ensure last step is required speed in case profile doesn't contain it */
+        if(current!=0 && current<target)
+          {
+            slope[i]=target;
+            sum+=slope[i];
+            i++;
           }
 
         /* range checking */

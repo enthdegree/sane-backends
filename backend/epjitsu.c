@@ -136,6 +136,8 @@
          - fix buffer overruns in read_from_scanner
          - set default page width
          - simplified the 225x200 resolution code
+      v24 2014-06-01, MAN
+         - enable fine calibration for S1300i 225 & 300 dpi, and S300 150 dpi
 
    SANE FLOW DIAGRAM
 
@@ -184,7 +186,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 23
+#define BUILD 24
 
 #ifndef MAX3
   #define MAX3(a,b,c) ((a) > (b) ? ((a) > (c) ? a : c) : ((b) > (c) ? b : c))

@@ -1,3 +1,8 @@
+2014-06-05 Tom Callaway <spot@fedoraproject.org>
+	* lib/snprintf.c: update to newer version from LPRng. The old version is
+	licensed under the Artistic License 1.0 which isn't compatible with the
+	GPL and arguably non-free.
+
 2014-06-02 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_*.[ch]: add internal ini_scan_regs_api. Add proper
 	target speed for LiDE 110/210 grey mode motor tables.

@@ -62,7 +62,7 @@ firmware @DATADIR@/sane/epjitsu/300M_0C00.nal
 usb 0x04c5 0x117f
 
 # Fujitsu S1100
-firmware @DATADIR@/sane/epjitsu/1100_0A00.nal
+firmware @DATADIR@/sane/epjitsu/1100_0B00.nal
 usb 0x04c5 0x1200
 
 # Fujitsu S1300

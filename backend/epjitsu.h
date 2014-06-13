@@ -265,6 +265,7 @@ struct scanner
 #define MODEL_FI60F 2
 #define MODEL_S1100 3
 #define MODEL_S1300i 4
+#define MODEL_FI65F 5
 
 #define USB_COMMAND_TIME   10000
 #define USB_DATA_TIME      10000

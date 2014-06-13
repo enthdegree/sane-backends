@@ -11,9 +11,9 @@
 
 :backend "epjitsu"               ; name of backend
 :url "http://www.thebility.com/epjitsu/" 
-:version "20"                    ; version of backend
+:version "25"                    ; version of backend
 :manpage "sane-epjitsu"          ; name of manpage (if it exists)
-:comment "Backend updated for SANE release 1.0.21, see sane-epjitsu manpage"
+:comment "Backend updated for SANE release 1.0.25, see sane-epjitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
@@ -42,9 +42,9 @@
 
 :model "ScanSnap S1100"
 :interface "USB"
-:status :unsupported
+:status :good
 :usbid "0x04c5" "0x1200"
-:comment "Beta version of backend source available, which applies to older git development versions, but breaks support for other epjitsu scanners. See http://ubuntuforums.org/showthread.php?t=1678335 Work in progress."
+:comment "Hardware only supports 300 and 600 dpi simplex color. Backend manufactures gray and binary modes."
 
 :model "ScanSnap S1300"
 :interface "USB"
@@ -56,10 +56,10 @@
 :interface "USB"
 :status :good
 :usbid "0x04c5" "0x128d"
-:comment "Some calibration artifacts on brighter images."
+:comment "Similar to S1300."
 
 :model "fi-65F"
 :interface "USB"
-:status :unsupported
+:status :basic
 ;:usbid "0x04c5" "0x10c7"
-:comment "A6-size flatbed, 300/600 dpi, color/gray/binary. Work in progress."
+:comment "A6-size flatbed, 300/600 dpi, color/gray/binary."

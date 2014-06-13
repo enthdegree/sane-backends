@@ -138,6 +138,9 @@
          - simplified the 225x200 resolution code
       v24 2014-06-01, MAN
          - enable fine calibration for S1300i 225 & 300 dpi, and S300 150 dpi
+      v25 2014-06-04, MAN
+         - initial support for fi-65F
+         - initial support for S1100
 
    SANE FLOW DIAGRAM
 
@@ -186,7 +189,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 24
+#define BUILD 25
 
 #ifndef MAX3
   #define MAX3(a,b,c) ((a) > (b) ? ((a) > (c) ? a : c) : ((b) > (c) ? b : c))
@@ -586,6 +589,28 @@ attach_one (const char *name)
         s->threshold_curve = 55;
     }
 
+    else if (strstr (s->sane.model, "fi-65F")){
+        DBG (15, "attach_one: Found fi-65F\n");
+
+        s->model = MODEL_FI65F;
+
+        s->has_fb = 1;
+        s->x_res_150 = 0;
+        s->x_res_300 = 1;
+        s->x_res_600 = 1;
+        s->y_res_150 = 0;
+        s->y_res_300 = 1;
+        s->y_res_600 = 1;
+
+        s->source = SOURCE_FLATBED;
+        s->mode = MODE_COLOR;
+        s->resolution_x = 300;
+        s->page_height = 5.83 * 1200;
+        s->page_width  = 4.1 * 1200;
+
+        s->threshold = 120;
+        s->threshold_curve = 55;
+    }
     else{
         DBG (15, "attach_one: Found other\n");
     }
@@ -1764,16 +1789,15 @@ struct model_res {
   int max_y;
   int min_y;
 
-  int act_width;   /* total data width output, in pixels per side (always 3 sides) */
-  int req_width;   /* stride in pixels per side between color planes (always 3 sides) */
-  int head_width;
-  int pad_width;
+  int line_stride;   /* byte width of 1 raw side, with padding */
+  int plane_stride;  /* byte width of 1 raw color plane, with padding */
+  int plane_width;   /* byte width of 1 raw color plane, without padding */
 
   int block_height;
 
-  int cal_width;
-  int cal_headwidth;
-  int cal_reqwidth;
+  int cal_line_stride;
+  int cal_plane_stride;
+  int cal_plane_width;
 
   unsigned char * sw_coarsecal;
   unsigned char * sw_finecal;
@@ -1788,124 +1812,141 @@ struct model_res {
 static struct model_res settings[] = {
 
  /*S300 AC*/
-/* model       xres yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw  bh  calw  cal_hedw  cal_reqw */
- { MODEL_S300,  150, 150, 0, 1296, 32, 2662, 32, 4256, 1480, 1296, 184, 41, 8512, 2592,    2960,
+/* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w  bh     cls     cps   cpw */
+ { MODEL_S300,  150, 150, 0, 1296, 32, 2662, 32, 4256*3, 1480*3, 1296, 41, 8512*3, 2960*3, 2592, 
    setWindowCoarseCal_S300_150, setWindowFineCal_S300_150,
    setWindowSendCal_S300_150, sendCal1Header_S300_150,
    sendCal2Header_S300_150, setWindowScan_S300_150 },
 
- { MODEL_S300,  225, 200, 0, 1944, 32, 3993, 32, 6144, 2100, 1944, 156, 28, 8192, 2592,    2800,
+ { MODEL_S300,  225, 200, 0, 1944, 32, 3993, 32, 6144*3, 2100*3, 1944, 28, 8192*3, 2800*3, 2592,
    setWindowCoarseCal_S300_225, setWindowFineCal_S300_225,
    setWindowSendCal_S300_225, sendCal1Header_S300_225,
    sendCal2Header_S300_225, setWindowScan_S300_225 },
 
- { MODEL_S300,  300, 300, 0, 2592, 32, 5324, 32, 8192, 2800, 2592, 208, 21, 8192, 2592,    2800,
+ { MODEL_S300,  300, 300, 0, 2592, 32, 5324, 32, 8192*3, 2800*3, 2592, 21, 8192*3, 2800*3, 2592,
    setWindowCoarseCal_S300_300, setWindowFineCal_S300_300,
    setWindowSendCal_S300_300, sendCal1Header_S300_300,
    sendCal2Header_S300_300, setWindowScan_S300_300 },
 
- { MODEL_S300,  600, 600, 0, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064, 5184, 5440,
+ { MODEL_S300,  600, 600, 0, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
  /*S300 USB*/
-/* model       xres yres  u  mxx   mnx mxy   mny actw   reqw  hedw  padw  bh   calw  cal_hedw  cal_reqw */
- { MODEL_S300,  150, 150, 1, 1296, 32, 2662, 32, 7216,  2960, 1296, 1664, 24, 14432, 2592,    5920,
+/* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w  bh      cls     cps   cpw */
+ { MODEL_S300,  150, 150, 1, 1296, 32, 2662, 32, 7216*3, 2960*3, 1296, 24, 14432*3, 5920*3, 2592,
    setWindowCoarseCal_S300_150_U, setWindowFineCal_S300_150_U,
    setWindowSendCal_S300_150_U, sendCal1Header_S300_150_U,
    sendCal2Header_S300_150_U, setWindowScan_S300_150_U },
 
- { MODEL_S300,  225, 200, 1, 1944, 32, 3993, 32, 10584, 4320, 1944, 2376, 16, 14112, 2592,    5760,
+ { MODEL_S300,  225, 200, 1, 1944, 32, 3993, 32, 10584*3, 4320*3, 1944, 16, 14112*3, 5760*3, 2592,
    setWindowCoarseCal_S300_225_U, setWindowFineCal_S300_225_U,
    setWindowSendCal_S300_225_U, sendCal1Header_S300_225_U,
    sendCal2Header_S300_225_U, setWindowScan_S300_225_U },
 
- { MODEL_S300,  300, 300, 1, 2592, 32, 5324, 32, 15872, 6640, 2592, 4048, 11, 15872, 2592,    6640,
+ { MODEL_S300,  300, 300, 1, 2592, 32, 5324, 32, 15872*3, 6640*3, 2592, 11, 15872*3, 6640*3, 2592,
    setWindowCoarseCal_S300_300_U, setWindowFineCal_S300_300_U,
    setWindowSendCal_S300_300_U, sendCal1Header_S300_300_U,
    sendCal2Header_S300_300_U, setWindowScan_S300_300_U },
 
- { MODEL_S300,  600, 600, 1, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064, 5184,    5440,
+ { MODEL_S300,  600, 600, 1, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
  /*S1300i AC*/
-/* model          xres yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh  calw  cal_hedw cal_reqw */
- { MODEL_S1300i,  150, 150, 0, 1296, 32, 2662, 32, 4016, 1360, 1296, 64,  43, 8032, 2592,    2720,
+/* model         xres yres  u   mxx mnx   mxy mny lin_s   pln_s   pln_w   bh      cls     cps   cpw */
+ { MODEL_S1300i,  150, 150, 0, 1296, 32, 2662, 32, 4016*3, 1360*3, 1296,  43, 8032*3,  2720*3, 2592,
    setWindowCoarseCal_S1300i_150, setWindowFineCal_S1300i_150,
    setWindowSendCal_S1300i_150, sendCal1Header_S1300i_150,
    sendCal2Header_S1300i_150, setWindowScan_S1300i_150 },
 
- { MODEL_S1300i,  225, 200, 0, 1944, 32, 3993, 32, 6072, 2063, 1944, 119, 28, 8096, 2592,    2752,
+ { MODEL_S1300i,  225, 200, 0, 1944, 32, 3993, 32, 6072*3, 2063*3, 1944,  28, 8096*3,  2752*3, 2592,
    setWindowCoarseCal_S1300i_225, setWindowFineCal_S1300i_225,
    setWindowSendCal_S1300i_225, sendCal1Header_S1300i_225,
    sendCal2Header_S1300i_225, setWindowScan_S1300i_225 },
 
- { MODEL_S1300i,  300, 300, 0, 2592, 32, 5324, 32, 8096, 2751, 2592, 159, 21, 8096, 2592,    2752,
+ { MODEL_S1300i,  300, 300, 0, 2592, 32, 5324, 32, 8096*3, 2751*3, 2592,  21, 8096*3,  2752*3, 2592,
    setWindowCoarseCal_S1300i_300, setWindowFineCal_S1300i_300,
    setWindowSendCal_S1300i_300, sendCal1Header_S1300i_300,
    sendCal2Header_S1300i_300, setWindowScan_S1300i_300 },
 
  /*NOTE: S1300i uses S300 data blocks for remainder*/
- { MODEL_S1300i,  600, 600, 0, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064, 5184, 5440,
+ { MODEL_S1300i,  600, 600, 0, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
  /*S1300i USB*/
-/* model       xres yres  u  mxx   mnx mxy   mny actw   reqw  hedw  padw  bh   calw  cal_hedw  cal_reqw */
- { MODEL_S1300i,  150, 150, 1, 1296, 32, 2662, 32, 7216,  2960, 1296, 1664, 24, 14432, 2592,    5920,
+/* model         xres yres  u   mxx mnx    mxy mny   lin_s    pln_s pln_w  bh      cls     cps   cpw */
+ { MODEL_S1300i,  150, 150, 1, 1296, 32,  2662, 32, 7216*3,  2960*3, 1296, 24, 14432*3, 5920*3, 2592,
    setWindowCoarseCal_S300_150_U, setWindowFineCal_S300_150_U,
    setWindowSendCal_S300_150_U, sendCal1Header_S1300i_USB,
    sendCal2Header_S1300i_USB, setWindowScan_S300_150_U },
 
- { MODEL_S1300i,  225, 200, 1, 1944, 32, 3993, 32, 10584, 4320, 1944, 2376, 16, 14112, 2592,    5760,
+ { MODEL_S1300i,  225, 200, 1, 1944, 32,  3993, 32, 10584*3, 4320*3, 1944, 16, 14112*3, 5760*3, 2592,
    setWindowCoarseCal_S300_225_U, setWindowFineCal_S300_225_U,
    setWindowSendCal_S300_225_U, sendCal1Header_S1300i_USB,
    sendCal2Header_S1300i_USB, setWindowScan_S300_225_U },
 
- { MODEL_S1300i,  300, 300, 1, 2592, 32, 5324, 32, 15872, 6640, 2592, 4048, 11, 15872, 2592,    6640,
+ { MODEL_S1300i,  300, 300, 1, 2592, 32,  5324, 32, 15872*3, 6640*3, 2592, 11, 15872*3, 6640*3, 2592,
    setWindowCoarseCal_S300_300_U, setWindowFineCal_S300_300_U,
    setWindowSendCal_S300_300_U, sendCal1Header_S1300i_USB,
    sendCal2Header_S1300i_USB, setWindowScan_S300_300_U },
 
- { MODEL_S1300i,  600, 600, 1, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064, 5184,    5440,
+ { MODEL_S1300i,  600, 600, 1, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S1300i_USB,
    sendCal2Header_S1300i_USB, setWindowScan_S300_600 },
 
  /*fi-60F*/
-/* model       xres  yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw  bh  calw  cal_hedw  cal_reqw */
- { MODEL_FI60F, 150, 150, 0,  648, 32,  875, 32, 1480,  632,  216,  416, 41, 1480,    216,  632,
+/* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w   bh     cls    cps  cpw */
+ { MODEL_FI60F, 150, 150, 0,  648, 32,  875, 32, 1480*3,  632*3,  216,  41, 1480*3, 632*3, 216,
    setWindowCoarseCal_FI60F_150, setWindowFineCal_FI60F_150,
    setWindowSendCal_FI60F_150, sendCal1Header_FI60F_150,
    sendCal2Header_FI60F_150, setWindowScan_FI60F_150 },
 
- { MODEL_FI60F, 300, 300, 0, 1296, 32, 1749, 32, 2400,  958,  432,  526, 72, 2400,    432,  958,
+ { MODEL_FI60F, 300, 300, 0, 1296, 32, 1749, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
    setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
    setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
    sendCal2Header_FI60F_300, setWindowScan_FI60F_300 },
 
- { MODEL_FI60F, 600, 600, 0, 2592, 32, 3498, 32, 2848,  978,  864,  114, 61, 2848,    864,  978,
+ { MODEL_FI60F, 600, 600, 0, 2592, 32, 3498, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
+   setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
+   setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
+   sendCal2Header_FI60F_600, setWindowScan_FI60F_600 },
+
+ /*fi-65F*/
+/* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w   bh     cls     cps   cpw */
+ { MODEL_FI65F, 150, 150, 0,  648, 32,  875, 32, 1480*3,  632*3,  216,  41, 1480*3,   632*3, 216,
+   setWindowCoarseCal_FI60F_150, setWindowFineCal_FI60F_150,
+   setWindowSendCal_FI60F_150, sendCal1Header_FI60F_150,
+   sendCal2Header_FI60F_150, setWindowScan_FI60F_150 },
+
+ { MODEL_FI65F, 300, 300, 0, 1296, 32, 1749, 32, 2400*3,  958*3,  432,  72, 2400*3,   958*3, 432,
+   setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
+   setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
+   sendCal2Header_FI60F_300, setWindowScan_FI60F_300 },
+
+ { MODEL_FI65F, 600, 600, 0, 2592, 32, 3498, 32, 2848*3,  978*3,  864,  61, 2848*3,   978*3, 864,
    setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
    setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
    sendCal2Header_FI60F_600, setWindowScan_FI60F_600 },
 
  /*S1100 USB*/
-/* model        xres yres  u   mxx mnx   mxy mny   actw  reqw  hedw  padw  bh   calw  cal_hedw  cal_reqw */
- { MODEL_S1100,  300, 300, 1, 2592, 32, 5324, 32, 8912/3, 3160/3, 8912/3-3160/3, 2592, 58, 8912/3, 3160/3, 2592,
+/* model        xres yres  u   mxx mnx    mxy mny  lin_s pln_s pln_w  bh   cls   cps   cpw */
+ { MODEL_S1100,  300, 300, 1, 2592, 32,  5324, 32,  8912, 3160, 2592, 58, 8912, 3160, 2592,
    setWindowCoarseCal_S1100_300_U, setWindowFineCal_S1100_300_U,
    setWindowSendCal_S1100_300_U, sendCal1Header_S1100_300_U,
    sendCal2Header_S1100_300_U, setWindowScan_S1100_300_U },
 
- { MODEL_S1100,  600, 600, 1, 5184, 32, 10648, 32, 15904/3, 5360/3, 15904/3-5360/3, 5184, 32, 15904/3, 5360/3, 5184,
+ { MODEL_S1100,  600, 600, 1, 5184, 32, 10648, 32, 15904, 5360, 5184, 32, 15904, 5360, 5184,
    setWindowCoarseCal_S1100_600_U, setWindowFineCal_S1100_600_U,
    setWindowSendCal_S1100_600_U, sendCal1Header_S1100_600_U,
    sendCal2Header_S1100_600_U, setWindowScan_S1100_600_U },
 
- { MODEL_NONE,    0, 0, 0, 0,  0,    0,  0,    0,    0,    0,    0,  0,    0, 0, 0,
+ { MODEL_NONE,     0,   0, 0,    0,  0,     0,  0,     0,    0,    0,  0,     0,    0,    0,
    NULL, NULL, NULL, NULL, NULL, NULL },
 
 };
@@ -1932,6 +1973,10 @@ change_params(struct scanner *s)
       }
       i++;
     } while (settings[i].model);
+
+    if (!settings[i].model){
+      return SANE_STATUS_INVAL;
+    }
 
     /*pull in closest y resolution*/
     s->resolution_y = settings[i].y_res;
@@ -1961,11 +2006,6 @@ change_params(struct scanner *s)
     s->setWindowScan = settings[i].sw_scan;
     s->setWindowScanLen = SET_WINDOW_LEN;
 
-    if (!settings[i].model)
-    {
-        return SANE_STATUS_INVAL;
-    }
-
     if (s->model == MODEL_S300 || s->model == MODEL_S1300i)
     {
         img_heads = 1; /* image width is the same as the plane width on the S300 */
@@ -1976,7 +2016,7 @@ change_params(struct scanner *s)
         img_heads = 1; /* image width is the same as the plane width on the S1000 */
         img_pages = 1;
     }
-    else /* (s->model == MODEL_FI60F) */
+    else /* MODEL_FI60F or MODEL_FI65F */
     {
         img_heads = 3; /* image width is 3* the plane width on the FI-60F */
         img_pages = 1;
@@ -1994,7 +2034,7 @@ change_params(struct scanner *s)
         if (s->tl_y + s->page_height > s->max_y)
            s->tl_y = s->max_y - ADF_HEIGHT_PADDING - s->page_height ;
     }
-    else /* (s->model == MODEL_FI60F) */
+    else /* MODEL_S1100 or MODEL_FI60F or MODEL_FI65F */
     {
         if (s->tl_y > s->max_y - s->min_y)
            s->tl_y = s->max_y - s->min_y;
@@ -2021,22 +2061,27 @@ change_params(struct scanner *s)
     s->tl_x = (s->max_x - s->page_width)/2;
     s->br_x = (s->max_x + s->page_width)/2;
     
-    /* set up the transfer structs */
-    s->cal_image.plane_width = settings[i].cal_headwidth;
-    s->cal_image.plane_stride = settings[i].cal_reqwidth * 3;
-    s->cal_image.line_stride = settings[i].cal_width * 3;
+    /*=============================================================*/
+    /* set up the calibration structs */
+    /* generally full width, short height, full resolution */
+    s->cal_image.line_stride = settings[i].cal_line_stride;
+    s->cal_image.plane_stride = settings[i].cal_plane_stride;
+    s->cal_image.plane_width = settings[i].cal_plane_width;
     s->cal_image.raw_data = NULL;
     s->cal_image.image = NULL;
 
-    s->cal_data.plane_width = settings[i].cal_headwidth; /* width is the same, but there are 2 bytes per pixel component */
-    s->cal_data.plane_stride = settings[i].cal_reqwidth * 6;
-    s->cal_data.line_stride = settings[i].cal_width * 6;
+    /* width is the same, but there are 2 bytes per pixel component */
+    s->cal_data.line_stride = settings[i].cal_line_stride * 2;
+    s->cal_data.plane_stride = settings[i].cal_plane_stride * 2;
+    s->cal_data.plane_width = settings[i].cal_plane_width;
     s->cal_data.raw_data = NULL;
     s->cal_data.image = &s->sendcal;
 
-    s->block_xfr.plane_width = settings[i].head_width;
-    s->block_xfr.plane_stride = settings[i].req_width * 3;
-    s->block_xfr.line_stride = settings[i].act_width * 3;
+    /*=============================================================*/
+    /* set up the input scan structs */
+    s->block_xfr.line_stride = settings[i].line_stride;
+    s->block_xfr.plane_stride = settings[i].plane_stride;
+    s->block_xfr.plane_width = settings[i].plane_width;
     s->block_xfr.raw_data = NULL;
     s->block_xfr.image = &s->block_img;
 
@@ -2679,7 +2724,7 @@ coarsecal_dark(struct scanner *s, unsigned char *pay)
             pay[5] = param[0];
             pay[7] = param[1];
         }
-        else /* (s->model == MODEL_FI60F) */
+        else /* MODEL_S1100 or MODEL_FI60F or MODEL_FI65F */
         {
             pay[5] = param[0];
             pay[7] = param[0];
@@ -2849,7 +2894,7 @@ coarsecal_light(struct scanner *s, unsigned char *pay)
             pay[11] = param[0];
             pay[13] = param[1];
         }
-        else /* (s->model == MODEL_FI60F) */
+        else /* MODEL_S1100 or MODEL_FI60F or MODEL_FI65F */
         {
             pay[11] = param[0];
             pay[13] = param[0];
@@ -2916,25 +2961,63 @@ finecal_send_cal(struct scanner *s)
     unsigned char stat[2];
 
     int i, j, k;
-    unsigned short *p_out, *p_in = (unsigned short *) s->sendcal.buffer;
+    unsigned char *p_out, *p_in = s->sendcal.buffer;
     int planes;
 
-    if(s->model == MODEL_FI60F)
+    if(s->model == MODEL_FI60F || s->model == MODEL_FI65F)
       planes = 3;
     if(s->model == MODEL_S300 || s->model == MODEL_S1300i)
       planes = 2;
-    if(s->model == MODEL_S1100)
-      planes = 1;
 
     /* scramble the raster buffer data into scanner raw format */
+    /* this is reverse of descramble_raw */
     memset(s->cal_data.raw_data, 0, s->cal_data.line_stride);
-    for (i = 0; i < planes; i++)
+
+    if(s->model == MODEL_S1100){
+      planes = 1;
+
+      for (k = 0; k < s->sendcal.width_pix; k++){  /* column (x) */
+
+        /* input is RrGgBb (capital is offset, small is gain) */
+        /* output is Bb...BbRr...RrGg...Gg*/
+
+        /*red*/
+        p_out = s->cal_data.raw_data + s->cal_data.plane_stride + k*2;
+        *p_out = *p_in;
+        p_out++;
+        p_in++;
+        *p_out = *p_in;
+        p_in++;
+
+        /*green*/
+        p_out = s->cal_data.raw_data + 2*s->cal_data.plane_stride + k*2;
+        *p_out = *p_in;
+        p_out++;
+        p_in++;
+        *p_out = *p_in;
+        p_in++;
+
+        /*blue*/
+        p_out = s->cal_data.raw_data + k*2;
+        *p_out = *p_in;
+        p_out++;
+        p_in++;
+        *p_out = *p_in;
+        p_in++;
+      }
+    }
+
+    else{
+      for (i = 0; i < planes; i++)
         for (j = 0; j < s->cal_data.plane_width; j++)
             for (k = 0; k < 3; k++)
             {
-                p_out = (unsigned short *) (s->cal_data.raw_data + k * s->cal_data.plane_stride + j * 6 + i * 2);
-                *p_out = *p_in++; /* dark offset, gain */
+                p_out = (s->cal_data.raw_data + k * s->cal_data.plane_stride + j * 6 + i * 2);
+                *p_out = *p_in++; /* dark offset */
+                p_out++;
+                *p_out = *p_in++; /* gain */
             }
+    }
 
     ret = set_window(s, WINDOW_SENDCAL);
     if(ret){
@@ -3478,6 +3561,11 @@ send_lut (struct scanner *s)
         width = outLen / 2; /* 1 color, 2 bytes */
         height = width; /* square table */
     }
+    else if (s->model == MODEL_FI65F){
+        outLen = 0x600;
+        width = outLen / 6; /* 3 color, 2 bytes */
+        height = width; /* square table */
+    }
     else {
         outLen = 0x6000;
         width = outLen / 6; /* 3 colors, 2 bytes */
@@ -3523,6 +3611,19 @@ send_lut (struct scanner *s)
             /*only one table, be order*/
             out[i*2] = (j >> 8) & 0xff;
             out[i*2+1] = j & 0xff;
+        }
+        else if (s->model == MODEL_FI65F){
+            /*first table, be order*/
+            out[i*2] = (j >> 8) & 0xff;
+            out[i*2+1] = j & 0xff;
+
+            /*second table, be order*/
+            out[width*2 + i*2] = (j >> 8) & 0xff;
+            out[width*2 + i*2+1] = j & 0xff;
+
+            /*third table, be order*/
+            out[width*4 + i*2] = (j >> 8) & 0xff;
+            out[width*4 + i*2+1] = j & 0xff;
         }
         else {  
             /*first table, le order*/
@@ -3999,7 +4100,7 @@ descramble_raw(struct scanner *s, struct transfer * tp)
     }
     else if (s->model == MODEL_S1100){
         for (j = 0; j < height; j++){                   /* row (y)*/
-           for (k = 0; k <= tp->plane_width; k++){ /* column (x) */
+           for (k = 0; k < tp->plane_width; k++){ /* column (x) */
                /*red is second*/
                 p_in = (unsigned char *) tp->raw_data + (j*tp->line_stride) + (tp->plane_stride) + k;
                 *p_out++ = *p_in;
@@ -4012,7 +4113,7 @@ descramble_raw(struct scanner *s, struct transfer * tp)
             }
         }
     }
-    else /* MODEL_FI60F */
+    else /* MODEL_FI60F or MODEL_FI65F */
     {
         for (i = 0; i < height; i++)                   /* row (y)*/
             for (j = 0; j < 3; j++)                    /* read head */
@@ -4144,7 +4245,7 @@ copy_block_to_page(struct scanner *s,int side)
     int page_height = SCANNER_UNIT_TO_PIX(s->page_height, s->resolution_x);
     int page_width = page->image->width_pix;
     int block_page_stride = block->image->width_bytes * block->image->height;
-    int line_reverse = (side == SIDE_BACK) || (s->model == MODEL_FI60F);
+    int line_reverse = (side == SIDE_BACK) || (s->model == MODEL_FI60F) || (s->model == MODEL_FI65F);
     int i,j,k=0,l=0;
 
     DBG (10, "copy_block_to_page: start\n");
@@ -4201,7 +4302,7 @@ copy_block_to_page(struct scanner *s,int side)
             unsigned char r, g, b;
             if (s->model == MODEL_S300 || s->model == MODEL_S1300i)
                 { r = p_in[1]; g = p_in[2]; b = p_in[0]; }
-            else /* (s->model == MODEL_FI60F) */
+            else /* MODEL_FI60F or MODEL_FI65F */
                 { r = p_in[0]; g = p_in[1]; b = p_in[2]; }
             if (s->mode == MODE_COLOR)
             {

@@ -925,6 +925,7 @@
 :usbid     "0x04b8" "0x012c"
 :status    :good
 :comment   "IEEE1394 untested"
+:scsi      "EPSON" "GT-X900" "processor"
 
 :model     "GT-X970"
 :interface "USB"
@@ -1761,12 +1762,14 @@
 :usbid     "0x04b8" "0x012c"
 :status    :good
 :comment   "IEEE1394 untested<br>overseas version of the GT-X900"
+:scsi      "EPSON" "GT-X900" "processor"
 
 :model     "Perfection V750 Photo"
 :interface "USB"
 :usbid     "0x04b8" "0x012c"
 :status    :good
 :comment   "IEEE1394 untested<br>overseas version of the GT-X900"
+:scsi      "EPSON" "GT-X900" "processor"
 
 :model     "Stylus CX1500"		; Australia
 :interface "USB"

@@ -1862,7 +1862,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set, int dpi)
   SANE_Status status = SANE_STATUS_GOOD;
   int i;
 
-  DBG (DBG_proc, "gl646_wm_hp3670: start \n");
+  DBGSTART;
   switch (set)
     {
     case AFE_INIT:
@@ -1969,7 +1969,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set, int dpi)
 	}
     }
 
-  DBG (DBG_proc, "gl646_wm_hp3670: success \n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -4230,7 +4230,7 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   Genesys_Settings settings;
   char title[32];
 
-  DBG (DBG_proc, "ad_fe_coarse_gain_calibration: start\n");
+  DBGSTART;
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
@@ -4313,7 +4313,7 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   DBG (DBG_info, "ad_fe_coarse_gain_calibration: gains=(%d,%d,%d)\n",
        dev->frontend.gain[0], dev->frontend.gain[1], dev->frontend.gain[2]);
-  DBG (DBG_proc, "ad_fe_coarse_gain_calibration: end\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -4339,7 +4339,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
     {
       return ad_fe_coarse_gain_calibration (dev, dev->sensor.optical_res);
     }
-  DBG (DBG_proc, "gl646_coarse_gain_calibration: start\n");
+  DBGSTART;
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
@@ -4348,9 +4348,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   /* we are searching a sensor resolution */
   if (dpi > dev->sensor.optical_res)
     {
-      resolution =
-	get_closest_resolution (dev->model->ccd_type, dev->sensor.optical_res,
-				SANE_TRUE);
+      resolution = dev->sensor.optical_res;
     }
   else
     {
@@ -4367,14 +4365,12 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   if (settings.scan_method == SCAN_METHOD_FLATBED)
     {
       settings.tl_x = 0;
-      settings.pixels =
-	(dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
+      settings.pixels = (dev->sensor.sensor_pixels * resolution) / dev->sensor.optical_res;
     }
   else
     {
       settings.tl_x = SANE_UNFIX (dev->model->x_offset_ta);
-      settings.pixels =
-	(SANE_UNFIX (dev->model->x_size_ta) * resolution) / MM_PER_INCH;
+      settings.pixels = (SANE_UNFIX (dev->model->x_size_ta) * resolution) / MM_PER_INCH;
     }
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
@@ -4418,8 +4414,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       if (status != SANE_STATUS_GOOD)
 	{
           free(line);
-	  DBG (DBG_error,
-	       "gl646_coarse_gain_calibration: failed to scan first line\n");
+	  DBG (DBG_error, "%s: failed to scan first line\n", __FUNCTION__);
 	  return status;
 	}
 
@@ -4477,7 +4472,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	    dev->frontend.gain[k]++;
 
 	  DBG (DBG_proc,
-	       "gl646_coarse_gain_calibration: channel %d, average = %.2f, gain = %d\n",
+	       "%s: channel %d, average = %.2f, gain = %d\n", __FUNCTION__,
 	       k, average[k], dev->frontend.gain[k]);
 	}
       free (line);
@@ -4489,9 +4484,9 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       dev->frontend.gain[2] = dev->frontend.gain[0];
     }
 
-  DBG (DBG_info, "gl646_coarse_gain_calibration: gains=(%d,%d,%d)\n",
+  DBG (DBG_info, "%s: gains=(%d,%d,%d)\n", __FUNCTION__,
        dev->frontend.gain[0], dev->frontend.gain[1], dev->frontend.gain[2]);
-  DBG (DBG_proc, "gl646_coarse_gain_calibration: end\n");
+  DBGCOMPLETED;
   return status;
 }
 
@@ -4948,10 +4943,7 @@ gl646_move_to_ta (Genesys_Device * dev)
  * @param shading SANE_TRUE to enable shading correction
  * @param data pointer for the data
  */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+GENESYS_STATIC SANE_Status
 simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	     SANE_Bool forward, SANE_Bool shading, unsigned char **data)
 {
@@ -5036,6 +5028,9 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
     {
       dev->reg[reg_0x01].value |= REG01_DVDSET;
     }
+
+  /* enable gamma table for the scan */
+  dev->reg[reg_0x05].value |= REG05_GMMENB;
 
   /* one table movement for simple scan */
   dev->reg[reg_0x02].value &= ~REG02_FASTFED;

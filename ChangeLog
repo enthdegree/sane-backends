@@ -1,3 +1,6 @@
+2014-06-29 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl646.c: fix regression in coarse gain calibration
+
 2014-06-05 Tom Callaway <spot@fedoraproject.org>
 	* lib/snprintf.c: update to newer version from LPRng. The old version is
 	licensed under the Artistic License 1.0 which isn't compatible with the

@@ -1,3 +1,7 @@
+2014-07-01 Stéphane Voltz <stef.dev@free.fr>
+	* testsuite/sanei/sanei_config_test.c: fix #314694 by exporting a
+	specific SANE_CONFIG_DIR env dir for tests
+
 2014-06-29 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c: fix regression in coarse gain calibration
 

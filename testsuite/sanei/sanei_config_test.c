@@ -895,6 +895,9 @@ sanei_config_suite (void)
 int
 main (void)
 {
+  /* set up config dir for local conf files */
+  putenv("SANE_CONFIG_DIR=.:/");
+
   /* run suites */
   sanei_config_suite ();
 

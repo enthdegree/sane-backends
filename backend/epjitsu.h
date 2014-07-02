@@ -18,8 +18,7 @@ enum scanner_Option
   OPT_MODE_GROUP,
   OPT_SOURCE,   /*adffront/adfback/adfduplex/fb*/
   OPT_MODE,     /*mono/gray/color*/
-  OPT_X_RES,
-  OPT_Y_RES,
+  OPT_RES,
 
   OPT_GEOMETRY_GROUP,
   OPT_TL_X,
@@ -56,6 +55,8 @@ struct image {
   int width_bytes;
   int height;
   int pages;
+  int x_res;
+  int y_res;
   int x_start_offset;
   int x_offset_bytes;
   int y_skip_offset;
@@ -70,6 +71,8 @@ struct transfer {
   int total_bytes;
   int rx_bytes;
   int done;
+  int x_res;
+  int y_res;
 
   unsigned char * raw_data;
   struct image * image;
@@ -100,15 +103,12 @@ struct scanner
   int has_fb;
   int has_adf;
   int has_adf_duplex;
-  int x_res_150;
-  int x_res_225;
-  int x_res_300;
-  int x_res_600;
 
-  int y_res_150;
-  int y_res_225;
-  int y_res_300;
-  int y_res_600;
+  int min_res;
+  int max_res;
+
+  float white_factor[3];
+  int adf_height_padding;
 
   /* the scan size in 1/1200th inches, NOT basic_units or sane units */
   int max_x;
@@ -133,8 +133,7 @@ struct scanner
   /*mode group, room for lineart, gray, color, null */
   SANE_String_Const source_list[5];
   SANE_String_Const mode_list[4];
-  SANE_Int x_res_list[4];
-  SANE_Int y_res_list[4];
+  SANE_Range res_range;
 
   /*geometry group*/
   SANE_Range tl_x_range;
@@ -157,9 +156,7 @@ struct scanner
   /*mode group*/
   int source;         /* adf or fb */
   int mode;           /* color,lineart,etc */
-  int res;            /* from a limited list, x and y same */
-  int resolution_x;   /* unused dummy */
-  int resolution_y;   /* unused dummy */
+  int resolution;     /* dpi */
 
   /*geometry group*/
   /* The desired size of the scan, all in 1/1200 inch */
@@ -219,6 +216,8 @@ struct scanner
   /* the scan struct holds these larger numbers, but image buffer is unused */
   struct {
       int done;
+      int x_res;
+      int y_res;
       int height;
       int rx_bytes;
       int width_bytes;

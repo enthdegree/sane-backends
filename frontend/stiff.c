@@ -586,10 +586,10 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
 
 void
 sanei_write_tiff_header (SANE_Frame format, int width, int height, int depth,
-                         int resolution, const char *icc_profile)
+			 int resolution, const char *icc_profile, FILE *ofp)
 {
 #ifdef __EMX__	/* OS2 - write in binary mode. */
-    _fsetmode(stdout, "b");
+    _fsetmode(ofp, "b");
 #endif
     switch (format)
     {
@@ -597,14 +597,14 @@ sanei_write_tiff_header (SANE_Frame format, int width, int height, int depth,
     case SANE_FRAME_GREEN:
     case SANE_FRAME_BLUE:
     case SANE_FRAME_RGB:
-        write_tiff_color_header (stdout, width, height, depth, resolution, icc_profile);
+        write_tiff_color_header (ofp, width, height, depth, resolution, icc_profile);
         break;
 
     default:
         if (depth == 1)
-            write_tiff_bw_header (stdout, width, height, resolution);
+            write_tiff_bw_header (ofp, width, height, resolution);
         else
-            write_tiff_grey_header (stdout, width, height, depth, resolution, icc_profile);
+            write_tiff_grey_header (ofp, width, height, depth, resolution, icc_profile);
         break;
     }
 }

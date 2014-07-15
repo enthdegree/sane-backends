@@ -76,6 +76,7 @@ Image;
 #define OPTION_BATCH_DOUBLE	1005
 #define OPTION_BATCH_INCREMENT	1006
 #define OPTION_BATCH_PROMPT    1007
+#define OPTION_BATCH_PRINT     1008
 
 #define BATCH_COUNT_UNLIMITED -1
 
@@ -95,6 +96,7 @@ static struct option basic_options[] = {
   {"batch-start", required_argument, NULL, OPTION_BATCH_START_AT},
   {"batch-double", no_argument, NULL, OPTION_BATCH_DOUBLE},
   {"batch-increment", required_argument, NULL, OPTION_BATCH_INCREMENT},
+  {"batch-print", no_argument, NULL, OPTION_BATCH_PRINT},
   {"batch-prompt", no_argument, NULL, OPTION_BATCH_PROMPT},
   {"format", required_argument, NULL, OPTION_FORMAT},
   {"accept-md5-only", no_argument, NULL, OPTION_MD5},
@@ -152,6 +154,7 @@ auth_callback (SANE_String_Const resource,
   int md5mode = 0, len, query_user = 1;
   FILE *pass_file;
   struct stat stat_buf;
+  char * uname = NULL;
 
   *tmp = 0;
 
@@ -275,9 +278,9 @@ auth_callback (SANE_String_Const resource,
     }
 
   if (query_user == 1)
-    fgets (username, SANE_MAX_USERNAME_LEN, stdin);
+    uname = fgets (username, SANE_MAX_USERNAME_LEN, stdin);
 
-  if ((strlen (username)) && (username[strlen (username) - 1] == '\n'))
+  if (uname != NULL && (strlen (username)) && (username[strlen (username) - 1] == '\n'))
     username[strlen (username) - 1] = 0;
 
   if (query_user == 1)
@@ -1125,7 +1128,7 @@ process_backend_option (SANE_Handle device, int optnum, const char *optarg)
 }
 
 static void
-write_pnm_header (SANE_Frame format, int width, int height, int depth)
+write_pnm_header (SANE_Frame format, int width, int height, int depth, FILE *ofp)
 {
   /* The netpbm-package does not define raw image data with maxval > 255. */
   /* But writing maxval 65535 for 16bit data gives at least a chance */
@@ -1136,20 +1139,20 @@ write_pnm_header (SANE_Frame format, int width, int height, int depth)
     case SANE_FRAME_GREEN:
     case SANE_FRAME_BLUE:
     case SANE_FRAME_RGB:
-      printf ("P6\n# SANE data follows\n%d %d\n%d\n", width, height,
+      fprintf (ofp, "P6\n# SANE data follows\n%d %d\n%d\n", width, height,
 	      (depth <= 8) ? 255 : 65535);
       break;
 
     default:
       if (depth == 1)
-	printf ("P4\n# SANE data follows\n%d %d\n", width, height);
+       fprintf (ofp, "P4\n# SANE data follows\n%d %d\n", width, height);
       else
-	printf ("P5\n# SANE data follows\n%d %d\n%d\n", width, height,
+       fprintf (ofp, "P5\n# SANE data follows\n%d %d\n%d\n", width, height,
 		(depth <= 8) ? 255 : 65535);
       break;
     }
 #ifdef __EMX__			/* OS2 - write in binary mode. */
-  _fsetmode (stdout, "b");
+  _fsetmode (ofp, "b");
 #endif
 }
 
@@ -1184,7 +1187,7 @@ advance (Image * image)
 }
 
 static SANE_Status
-scan_it (void)
+scan_it (FILE *ofp)
 {
   int i, len, first_frame = 1, offset = 0, must_buffer = 0, hundred_percent;
   SANE_Byte min = 0xff, max = 0;
@@ -1274,10 +1277,10 @@ scan_it (void)
 		    sanei_write_tiff_header (parm.format,
 					     parm.pixels_per_line, parm.lines,
 					     parm.depth, resolution_value,
-					     icc_profile);
+					     icc_profile, ofp);
 		  else
 		    write_pnm_header (parm.format, parm.pixels_per_line,
-				      parm.lines, parm.depth);
+				      parm.lines, parm.depth, ofp);
 		}
 	      break;
 
@@ -1398,7 +1401,7 @@ scan_it (void)
 	  else			/* ! must_buffer */
 	    {
 	      if ((output_format == OUTPUT_TIFF) || (parm.depth != 16))
-		fwrite (buffer, 1, len, stdout);
+		fwrite (buffer, 1, len, ofp);
 	      else
 		{
 #if !defined(WORDS_BIGENDIAN)
@@ -1409,7 +1412,7 @@ scan_it (void)
 		    {
 		      if (len > 0)
 			{
-			  fwrite (buffer, 1, 1, stdout);
+			  fwrite (buffer, 1, 1, ofp);
 			  buffer[0] = (SANE_Byte) hang_over;
 			  hang_over = -1;
 			  start = 1;
@@ -1430,7 +1433,7 @@ scan_it (void)
 		      len--;
 		    }
 #endif
-		  fwrite (buffer, 1, len, stdout);
+		  fwrite (buffer, 1, len, ofp);
 		}
 	    }
 
@@ -1454,10 +1457,10 @@ scan_it (void)
       if (output_format == OUTPUT_TIFF)
 	sanei_write_tiff_header (parm.format, parm.pixels_per_line,
 				 image.height, parm.depth, resolution_value,
-				 icc_profile);
+				 icc_profile, ofp);
       else
 	write_pnm_header (parm.format, parm.pixels_per_line,
-                          image.height, parm.depth);
+                          image.height, parm.depth, ofp);
 
 #if !defined(WORDS_BIGENDIAN)
       /* multibyte pnm file may need byte swap to LE */
@@ -1475,11 +1478,11 @@ scan_it (void)
 	}
 #endif
 
-	fwrite (image.data, 1, image.height * image.width, stdout);
+	fwrite (image.data, 1, image.height * image.width, ofp);
     }
 
   /* flush the output buffer */
-  fflush( stdout );
+  fflush( ofp );
 
 cleanup:
   if (image.data)
@@ -1708,6 +1711,7 @@ main (int argc, char **argv)
   char readbuf[2];
   char *readbuf2;
   int batch = 0;
+  int batch_print = 0;
   int batch_prompt = 0;
   int batch_count = BATCH_COUNT_UNLIMITED;
   int batch_start_at = 1;
@@ -1715,6 +1719,7 @@ main (int argc, char **argv)
   SANE_Status status;
   char *full_optstring;
   SANE_Int version_code;
+  FILE *ofp = NULL;
 
   atexit (scanimage_exit);
 
@@ -1775,6 +1780,9 @@ main (int argc, char **argv)
 	  break;
 	case 'n':
 	  dont_scan = 1;
+	  break;
+	case OPTION_BATCH_PRINT:
+	  batch_print = 1;
 	  break;
 	case OPTION_BATCH_PROMPT:
 	  batch_prompt = 1;
@@ -1949,16 +1957,18 @@ Parameters are separated by a blank from single-character options (e.g.\n\
     --batch-increment=#    increase page number in filename by #\n\
     --batch-double         increment page number by two, same as\n\
                            --batch-increment=2\n\
-    --batch-prompt         ask for pressing a key before scanning a page\n\
-    --accept-md5-only      only accept authorization requests using md5\n");
+    --batch-print          print image filenames to stdout\n\
+    --batch-prompt         ask for pressing a key before scanning a page\n");
       printf ("\
+    --accept-md5-only      only accept authorization requests using md5\n\
 -p, --progress             print progress messages\n\
 -n, --dont-scan            only set options, don't actually scan\n\
 -T, --test                 test backend thoroughly\n\
 -A, --all-options          list all available backend options\n\
 -h, --help                 display this help message and exit\n\
 -v, --verbose              give even more status messages\n\
--B, --buffer-size=#        change input buffer size (in kB, default 32)\n\
+-B, --buffer-size=#        change input buffer size (in kB, default 32)\n");
+      printf ("\
 -V, --version              print version information\n");
     }
 
@@ -2225,12 +2235,15 @@ List of available devices:", prog_name);
 	    format = "out%d.pnm";
 	}
 
+      if (!batch)
+        ofp = stdout;
+
       if (batch)
 	fprintf (stderr,
 		 "Scanning %d pages, incrementing by %d, numbering from %d\n",
 		 batch_count, batch_increment, batch_start_at);
 
-      else if(isatty(fileno(stdout))){
+      else if(isatty(fileno(ofp))){
 	fprintf (stderr,"%s: output is not a file, exiting\n", prog_name);
         exit (1);
       }
@@ -2263,7 +2276,11 @@ List of available devices:", prog_name);
 		    {
 		      fprintf (stderr, "Batch terminated, %d pages scanned\n",
 			       (n - batch_increment));
-		      fclose (stdout);
+		      if (ofp)
+			{
+			  fclose (ofp);
+			  ofp = NULL;
+			}
 		      break;	/* get out of this loop */
 		    }
 		}
@@ -2283,19 +2300,27 @@ List of available devices:", prog_name);
 	    {
 	      fprintf (stderr, "%s: sane_start: %s\n",
 		       prog_name, sane_strstatus (status));
-	      fclose (stdout);
+	      if (ofp)
+		{
+		  fclose (ofp);
+		  ofp = NULL;
+		}
 	      break;
 	    }
 
+
 	  /* write to .part file while scanning is in progress */
-	  if (batch && NULL == freopen (part_path, "w", stdout))
+	  if (batch)
 	    {
-	      fprintf (stderr, "cannot open %s\n", part_path);
-	      sane_cancel (device);
-	      return SANE_STATUS_ACCESS_DENIED;
+	      if (NULL == (ofp = fopen (part_path, "w")))
+		{
+		  fprintf (stderr, "cannot open %s\n", part_path);
+		  sane_cancel (device);
+		  return SANE_STATUS_ACCESS_DENIED;
+		}
 	    }
 
-	  status = scan_it ();
+	  status = scan_it (ofp);
 	  if (batch)
 	    {
 	      fprintf (stderr, "Scanned page %d.", n);
@@ -2308,17 +2333,16 @@ List of available devices:", prog_name);
 	    case SANE_STATUS_EOF:
 	      status = SANE_STATUS_GOOD;
 	      if (batch)
-		{	
-		  /* close output file by redirecting, do not close
-		     stdout here! */
-		  if (NULL == freopen ("/dev/null", "w", stdout))
+		{
+		  if (!ofp || 0 != fclose(ofp))
 		    {
-		      fprintf (stderr, "cannot open /dev/null\n");
+		      fprintf (stderr, "cannot close image file\n");
 		      sane_cancel (device);
 		      return SANE_STATUS_ACCESS_DENIED;
 		    }
 		  else
 		    {
+		      ofp = NULL;
 		      /* let the fully scanned file show up */
 		      if (rename (part_path, path))
 			{
@@ -2327,13 +2351,22 @@ List of available devices:", prog_name);
 			  sane_cancel (device);
 			  return SANE_STATUS_ACCESS_DENIED;
 			}
+		      if (batch_print)
+			{
+			  fprintf (stdout, "%s\n", path);
+			  fflush (stdout);
+			}
 		    }
 		}
 	      break;
 	    default:
 	      if (batch)
 		{
-		  fclose (stdout);
+		  if (ofp)
+		    {
+		      fclose (ofp);
+		      ofp = NULL;
+		    }
 		  unlink (part_path);
 		}
 	      break;

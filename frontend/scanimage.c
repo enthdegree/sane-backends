@@ -2377,6 +2377,12 @@ List of available devices:", prog_name);
 	      && (batch_count == BATCH_COUNT_UNLIMITED || --batch_count))
 	     && SANE_STATUS_GOOD == status);
 
+      if (batch
+	  && SANE_STATUS_NO_DOCS == status
+	  && (batch_count == BATCH_COUNT_UNLIMITED)
+	  && n > batch_start_at)
+	status = SANE_STATUS_GOOD;
+
       sane_cancel (device);
     }
   else

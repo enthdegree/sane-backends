@@ -303,6 +303,8 @@
          - split debug level 30 into two levels
          - simplify jpeg ifdefs
          - add support for DR-M160
+      v47 2014-07-07, MAN
+         - initial DR-G1130 support
 
    SANE FLOW DIAGRAM
 
@@ -352,7 +354,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 46
+#define BUILD 47
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1269,6 +1271,7 @@ init_model (struct scanner *s)
     || strstr (s->model_name,"DR-7550")
     || strstr (s->model_name,"DR-6050")
     || strstr (s->model_name,"DR-G1100")
+    || strstr (s->model_name,"DR-G1130")
   ){
 
     /*missing*/

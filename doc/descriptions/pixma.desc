@@ -24,6 +24,12 @@
 :mfg "Canon"                   ; name a manufacturer
 :url "http://www.canon.com/"
 
+:model "PIXMA E400"
+:interface "USB"
+:usbid "0x04a9" "0x177a"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA E500"
 :interface "USB"
 :usbid "0x04a9" "0x1758"
@@ -33,6 +39,12 @@
 :model "PIXMA E510"
 :interface "USB"
 :usbid "0x04a9" "0x1761"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA E560"
+:interface "USB"
+:usbid "0x04a9" "0x177b"
 :status :untested
 :comment "Testers needed!"
 
@@ -583,6 +595,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA MX470 Series"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x1774"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA MX510 Series"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x175c"
@@ -594,6 +612,12 @@
 :usbid "0x04a9" "0x1769"
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
+
+:model "PIXMA MX530 Series"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x1775"
+:status :untested
+:comment "Testers needed!"
 
 :model "PIXMA MX700"
 :interface "USB Ethernet"

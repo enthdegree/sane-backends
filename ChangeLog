@@ -1,3 +1,8 @@
+2014-07-25 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	New scanners Canon Pixma E400, E560, MX470 and MX530. All scanners need
+	further testing.
+
 2014-07-14 m. allan noah <kitno455 at gmail dot com>
 	* frontend/scanimage.c: batch-print option and exit value changes
 	from Jeff Breidenbach jeff@jab.org

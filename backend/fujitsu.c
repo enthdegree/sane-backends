@@ -559,6 +559,7 @@
          - improve jpeg duplex parsing code
          - simplify jpeg ifdefs
          - add offtimer option for more recent scanners
+         - don't print 0 length line in hexdump
 
    SANE FLOW DIAGRAM
 
@@ -9812,7 +9813,8 @@ hexdump (int level, char *comment, unsigned char *p, int l)
   }
 
   /* print last (partial) line */
-  DBG (level, "%s\n", line);
+  if (i)
+    DBG (level, "%s\n", line);
 }
 
 /**

@@ -305,6 +305,10 @@
          - add support for DR-M160
       v47 2014-07-07, MAN
          - initial DR-G1130 support
+      v48 2014-08-06, MAN
+         - set another unknown byte in buffermode for ssm2
+         - add another gettimeofday call at end of do_usb_cmd
+         - don't print 0 length line in hexdump
 
    SANE FLOW DIAGRAM
 
@@ -354,7 +358,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 47
+#define BUILD 48
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -3117,7 +3121,7 @@ ssm_buffer (struct scanner *s)
     set_SSM2_pay_len(cmd, outLen);
   
     memset(out,0,outLen);
-    set_SSM2_BUFF_unk(out, 1);
+    set_SSM2_BUFF_unk(out, !s->buffermode);
     set_SSM2_BUFF_unk2(out, 0x40);
     set_SSM2_BUFF_sync(out, !s->buffermode);
   
@@ -6915,7 +6919,9 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       free(inBuffer);
     }
 
-    DBG (10, "do_usb_cmd: finish\n");
+    gettimeofday(&timer,NULL);
+
+    DBG (10, "do_usb_cmd: finish %lu %lu\n", (long unsigned int)timer.tv_sec, (long unsigned int)timer.tv_usec);
 
     return ret;
 }
@@ -7239,7 +7245,8 @@ hexdump (int level, char *comment, unsigned char *p, int l)
   }
 
   /* print last (partial) line */
-  DBG (level, "%s\n", line);
+  if (i)
+    DBG (level, "%s\n", line);
 }
 
 /**

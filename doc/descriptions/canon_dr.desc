@@ -226,8 +226,8 @@
 :model "DR-7080C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1604"
-:status :untested
-:comment "Please test!"
+:status :good
+:comment "ADF and flatbed work"
 
 :model "DR-7090C"
 :interface "USB SCSI"

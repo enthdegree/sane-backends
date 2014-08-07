@@ -171,9 +171,11 @@ usb 0x1083 0x164b
 usb 0x1083 0x164c
 
 # DR-G1130
+option buffer-size 8000000
 usb 0x1083 0x164f
 
 # DR-G1100
+option buffer-size 8000000
 usb 0x1083 0x1650
 
 # DR-C120

@@ -207,6 +207,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 /* READ/SEND page codes */
 #define SR_datatype_image		0x00
 #define SR_datatype_lut                 0x03
+#define SR_datatype_pixelsize  		0x80 /*DR-G1130*/
 #define SR_datatype_panel  		0x84
 #define SR_datatype_sensors  		0x8b
 #define SR_datatype_counters 		0x8c

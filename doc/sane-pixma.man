@@ -281,6 +281,8 @@ the verbosity and includes the information printed at the lower levels.
 .br
 3  print debug-level messages
 .br
+4  print verbose debug-level messages
+.br
 11 dump USB traffic
 .br
 21 full dump USB traffic

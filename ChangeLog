@@ -1,3 +1,10 @@
+2014-08-16 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	New scanners Canon i-SENSYS MF8200C Series and MF8500C Series. MF8500C
+	Series need further testing.
+	* doc/sane-pixma.man: add up to now undocumented verbose debug-level
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.10
+
 2014-07-25 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	New scanners Canon Pixma E400, E560, MX470 and MX530. All scanners need

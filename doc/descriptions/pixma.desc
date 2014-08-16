@@ -907,6 +907,18 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "i-SENSYS MF8200C Series"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x2779"
+:status :complete
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)."
+
+:model "i-SENSYS MF8500C Series"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x277a"
+:status :untested
+:comment "Same protocol as MF8200C Series? Testers needed!"
+
 :model "imageRUNNER 1020/1024/1025"
 :interface "USB"
 :usbid "0x04a9" "0x26e6"

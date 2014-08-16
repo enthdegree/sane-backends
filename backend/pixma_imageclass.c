@@ -86,6 +86,7 @@
 #define MF4570_PID 0x275a
 #define MF4800_PID 0x2773
 #define MF4700_PID 0x2774
+#define MF8200_PID 0x2779
 /* the following are all untested */
 #define MF5630_PID 0x264e
 #define MF5650_PID 0x264f
@@ -94,6 +95,7 @@
 #define MF6680_PID 0x26fa
 #define MF8030_PID 0x2707
 #define IR1133_PID 0x2742
+#define MF8500_PID 0x277a
 
 
 enum iclass_state_t
@@ -470,8 +472,11 @@ iclass_open (pixma_t * s)
   mf->cb.cmd_header_len = 10;
   mf->cb.cmd_len_field_ofs = 7;
 
-  /* set generation = 2 for new multifunctionals */
-  mf->generation = (s->cfg->pid >= MF8030_PID) ? 2 : 1;
+  /* set generation = 2 for new multifunctionals
+   * some new scanners use generation 1 protocol */
+  mf->generation = (s->cfg->pid >= MF8030_PID &&
+                    s->cfg->pid != MF8200_PID &&
+                    s->cfg->pid != MF8500_PID) ? 2 : 1;
   PDBG (pixma_dbg (3, "*iclass_open***** This is a generation %d scanner.  *****\n", mf->generation));
 
   PDBG (pixma_dbg (3, "Trying to clear the interrupt buffer...\n"));
@@ -506,7 +511,9 @@ iclass_check_param (pixma_t * s, pixma_scan_param_t * sp)
   /* Those devices can scan up to Legal 14" with ADF, but A4 11.7" in flatbed */
   if (sp->source == PIXMA_SOURCE_FLATBED
       && ( s->cfg->pid == MF4700_PID ||
-           s->cfg->pid == MF4800_PID ))
+           s->cfg->pid == MF4800_PID ||
+           s->cfg->pid == MF8200_PID ||
+           s->cfg->pid == MF8500_PID))
     sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
 
   return 0;
@@ -777,6 +784,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF4700 Series", "MF4700", MF4700_PID, 600, 640, 1050, PIXMA_CAP_ADF),
   DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 1050, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4570dw", "MF4570dw", MF4570_PID, 600, 640, 877, 0),
+  DEV ("Canon i-SENSYS MF8200C Series", "MF8200C", MF8200_PID, 600, 640, 1050, PIXMA_CAP_ADF),
   /* FIXME: the following capabilities all need updating/verifying */
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),
@@ -785,5 +793,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF5880dn", "MF5880", MF5880_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF6680dn", "MF6680", MF6680_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageRUNNER 1133", "iR1133", IR1133_PID, 600, 637, 877, PIXMA_CAP_ADFDUP),
+  DEV ("Canon i-SENSYS MF8500C Series", "MF8500C", MF8500_PID, 600, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV (NULL, NULL, 0, 0, 0, 0, 0)
 };

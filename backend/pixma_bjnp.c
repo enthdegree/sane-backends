@@ -1455,12 +1455,18 @@ bjnp_recv_header (int devno, size_t *payload_size )
 	     0)) != sizeof (struct BJNP_command))
     {
       terrno = errno;
-      PDBG (bjnp_dbg (LOG_CRIT,
-		       "bjnp_recv_header: ERROR - (recv) could not read response header, received %d bytes!\n",
+      if (recv_bytes == 0)
+        {
+          PDBG (bjnp_dbg (LOG_CRIT,
+          		"bjnp_recv_header: ERROR - (recv) Scanner closed the TCP-connection!\n"));
+        } else {
+          PDBG (bjnp_dbg (LOG_CRIT,
+	      	       "bjnp_recv_header: ERROR - (recv) could not read response header, received %d bytes!\n",
 		       recv_bytes));
-      PDBG (bjnp_dbg
-	    (LOG_CRIT, "bjnp_recv_header: ERROR - (recv) error: %s!\n",
-	     strerror (terrno)));
+          PDBG (bjnp_dbg
+	  		(LOG_CRIT, "bjnp_recv_header: ERROR - (recv) error: %s!\n",
+	     		strerror (terrno)));
+        }
       errno = terrno;
       return SANE_STATUS_IO_ERROR;
     }

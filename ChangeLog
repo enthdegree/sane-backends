@@ -1,3 +1,8 @@
+2014-09-07 Paul Newall <p dot newalls at ntlworld dot com>
+	* backend/kodakaio.c:
+	* Fixed error where the colour compensation curves did not have enough
+	elements and this caused speckles in areas of very low or high colour.
+
 2014-08-23 Louis Lagendijk <louis dot lagendijk at gmail dot com>
 	* backend/pixma_bjnp.c:
 	* Keep TCP-connection closed untill we really need it. This avoids

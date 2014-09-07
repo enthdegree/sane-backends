@@ -1,7 +1,7 @@
 /*
  * kodakaio.c - SANE library for Kodak ESP Aio scanners.
  *
- * Copyright (C)   2011-2013 Paul Newall
+ * Copyright (C)   2011-2014 Paul Newall
  *
  * Based on the Magicolor sane backend: 
  * Based on the epson2 sane backend:
@@ -128,8 +128,8 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
 
 
 #define KODAKAIO_VERSION	02
-#define KODAKAIO_REVISION	4
-#define KODAKAIO_BUILD		8
+#define KODAKAIO_REVISION	5
+#define KODAKAIO_BUILD		1
 
 /* for usb (but also used for net though it's not required). */
 #define MAX_BLOCK_SIZE		32768
@@ -1095,11 +1095,12 @@ cmd_set_color_curve(SANE_Handle handle, unsigned char col)
 	unsigned char tx_col[8];
 	unsigned char rx[8];
 	unsigned char tx_curve[256];
-	unsigned char i;
+	int i; /* 7/9/14 was unsigned char and that stopped the loop that made the linear curve from going to 255 */
 	DBG(32, "%s: start\n", __func__);
 	tx_col[0]=0x1b; tx_col[1]='S'; tx_col[2]='K'; tx_col[3]=col; tx_col[4]=0; tx_col[5]=0; tx_col[6]=0; tx_col[7]=0;
 /* linear curve now but could send tailor made curves in future */	
-	for(i=0;i<255;++i) tx_curve[i]=i;
+	for(i=0;i<=255;++i) tx_curve[i]=i; /* 7/9/14 was i<255 the missing elements caused speckles */
+
 	k_send(s, tx_col, 8, &status);
 	if (status != SANE_STATUS_GOOD) {
 		DBG(1, "%s: tx err, %s\n", __func__, "curve command");
@@ -1639,15 +1640,15 @@ uncompressed data is RRRR...GGGG...BBBB  per line */
 				for (i=0; i< s->params.pixels_per_line; ++i) {
 
 					if (s->val[OPT_MODE].w == MODE_COLOR){
-					/*interlace */
+					/*interlace was subtracting from 255 until 6/9/14 */
 					 *data++ = 255-line[0]; /*red */
 					 *data++ = 255-line[s->params.pixels_per_line];  /*green */
 					 *data++ = 255-line[2 * s->params.pixels_per_line];  /*blue */
 
 					}
 
-					else { /* grey */
-					/*Average*/
+					else { /* grey was subtracting from 255 until 6/9/14 */
+					/*Average the 3 colours*/
 					*data++ = (255-line[0]
 						+255-line[s->params.pixels_per_line]
 						+255-line[2 * s->params.pixels_per_line])

@@ -97,8 +97,10 @@ enum {
 	OPT_NUM_OPTS = 0,
 	OPT_MODE_GROUP,
 	OPT_MODE,
+	OPT_THRESHOLD,
 	OPT_BIT_DEPTH,
 	OPT_RESOLUTION,
+	OPT_TRIALOPT, /* for debuggging */
 	OPT_PREVIEW,
 	OPT_SOURCE,
 	OPT_ADF_MODE,
@@ -163,6 +165,7 @@ struct KodakAio_Scanner
 
 	SANE_Int left, top; /* in optres units? */
 	SANE_Int width, height; /* in optres units? */
+	/* SANE_Int threshold;  0..255 for lineart*/
 
 	/* image block data */
 	SANE_Int data_len;
@@ -192,7 +195,7 @@ struct mode_param
 };
 
 enum {
-	MODE_GRAY, MODE_COLOR
+	MODE_LINEART, MODE_GRAY, MODE_COLOR
 };
 
 #endif

@@ -20,7 +20,7 @@
  */
 
 /* convenient lines to paste
-export SANE_DEBUG_KODAKAIO=10
+export SANE_DEBUG_KODAKAIO=20
 
 for ubuntu prior to 12.10
 ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS="kodakaio test"
@@ -128,8 +128,8 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
 
 
 #define KODAKAIO_VERSION	02
-#define KODAKAIO_REVISION	5
-#define KODAKAIO_BUILD		1
+#define KODAKAIO_REVISION	6
+#define KODAKAIO_BUILD		2
 
 /* for usb (but also used for net though it's not required). */
 #define MAX_BLOCK_SIZE		32768
@@ -215,6 +215,8 @@ static AvahiSimplePoll *simple_poll = NULL; /* global because called by several 
 static int K_SNMP_Timeout = 3000; /* used for any auto detection method */
 static int K_Scan_Data_Timeout = 10000;
 static int K_Request_Timeout = 5000;
+
+static int bitposn=0; /* used to pack bits into bytes in lineart mode */
 
 /* This file is used to store directly the raster returned by the scanner for debugging
 If RawScanPath has no length it will not be created */
@@ -568,14 +570,15 @@ commandtype, max depth, pointer to depth list
  * The depth variable gets updated when the bit depth is modified.
  */
 
+/* could be affecting what data sane delivers */
 static struct mode_param mode_params[] = {
-	/* {0x00, 1, 1},  // Lineart, 1 color, 1 bit   */
+	{0x00, 1, 8},  /* Lineart, 1 color, 8 bit (was 1 bit)   */
 	{0x02, 1, 8}, /* Grayscale, 1 color, 8 bit */
 	{0x03, 3, 24}  /* Color, 3 colors, 24 bit */
 };
 
 static SANE_String_Const mode_list[] = {
-	/* SANE_VALUE_SCAN_MODE_LINEART, */
+	SANE_VALUE_SCAN_MODE_LINEART,
 	SANE_VALUE_SCAN_MODE_GRAY,
 	SANE_VALUE_SCAN_MODE_COLOR,
 	NULL
@@ -603,6 +606,9 @@ static SANE_String_Const source_list[] = {
 	NULL,
 	NULL
 };
+
+static const SANE_Range percent_range_fixed = {SANE_FIX(0.0), SANE_FIX(100.0), SANE_FIX(1.0)};
+static const SANE_Range percent_range_int = {0, 100, 1};
 
 /* prototypes */
 static SANE_Status attach_one_usb(SANE_String_Const devname);
@@ -1086,6 +1092,7 @@ Old mc cmd read this stuff from the scanner. I don't think kodak can do that eas
 	return status;
 }
 
+/* Set color curve command, low level, sends commands to the scanner*/
 static SANE_Status
 cmd_set_color_curve(SANE_Handle handle, unsigned char col)
 {
@@ -1116,7 +1123,7 @@ cmd_set_color_curve(SANE_Handle handle, unsigned char col)
 		return status;
 }
 
-/* Set scanning parameters command low level */
+/* Set scanning parameters command, low level, sends commands to the scanner*/
 static SANE_Status
 cmd_set_scanning_parameters(SANE_Handle handle,
 	int resolution,
@@ -1213,8 +1220,6 @@ unsigned int i;
 	return 0;
 }
 
-
-
 static SANE_Status
 cmd_read_data (SANE_Handle handle, unsigned char *buf, size_t *len)
 {
@@ -1290,7 +1295,7 @@ But it seems that the scanner takes care of that, and gives you the ack as a sep
 		return SANE_STATUS_IO_ERROR;
 	}
 	if (*len > s->params.bytes_per_line) {
-		/* store average colour as background. That's not the ideal method but it's easy to implement. */
+		/* store average colour as background. That's not the ideal method but it's easy to implement. What's it used for? */
 		lines = *len / s->params.bytes_per_line;
 		s->background[0] = 0;
 		s->background[1] = 0;
@@ -1548,9 +1553,10 @@ k_set_scanning_parameters(KodakAio_Scanner * s)
 		s->params.bytes_per_line *= 3;
 
 	/* Calculate how many bytes per line will be returned by the scanner.
-	magicolor needed this because it uses padding. Scan bytes per line != image bytes per line
+	magicolor needed this because it uses padding so scan bytes per line != image bytes per line.
 	 * The values needed for this are returned by get_scanning_parameters */
-	s->scan_bytes_per_line = 3 * ceil (scan_pixels_per_line * s->params.depth / 8.0);
+/*	s->scan_bytes_per_line = 3 * ceil (scan_pixels_per_line * s->params.depth / 8.0); */
+	s->scan_bytes_per_line = 3 * ceil (scan_pixels_per_line); /* we always scan in colour 8 bit */
 	s->data_len = s->scan_bytes_per_line * floor (s->height * dpi / optres + 0.5); /* NB this is the length for a full scan */
 	DBG (1, "Check: scan_bytes_per_line = %d  s->params.bytes_per_line = %d \n", s->scan_bytes_per_line, s->params.bytes_per_line);
 
@@ -1607,9 +1613,13 @@ k_copy_image_data(KodakAio_Scanner * s, SANE_Byte * data, SANE_Int max_length,
 uncompressed data is RRRR...GGGG...BBBB  per line */
 {
 		SANE_Int bytes_available;
+		SANE_Int threshold;
 
 		DBG (min(18,DBG_READ), "%s: bytes_read  in line: %d\n", __func__, s->bytes_read_in_line);
 		*length = 0;
+
+		threshold = 255 - (int) (SANE_UNFIX(s->val[OPT_THRESHOLD].w) * 255.0 / 100.0 + 0.5); /* 255 - for the grey scale version */
+		DBG (20, "%s: threshold: %d\n", __func__, threshold);
 
 		while ((max_length >= s->params.bytes_per_line) && (s->ptr < s->end)) {
 			SANE_Int bytes_to_copy = s->scan_bytes_per_line - s->bytes_read_in_line;
@@ -1638,23 +1648,36 @@ uncompressed data is RRRR...GGGG...BBBB  per line */
 				*length += s->params.bytes_per_line;
 
 				for (i=0; i< s->params.pixels_per_line; ++i) {
+				/* different behaviour for each mode */
 
 					if (s->val[OPT_MODE].w == MODE_COLOR){
 					/*interlace was subtracting from 255 until 6/9/14 */
-					 *data++ = 255-line[0]; /*red */
-					 *data++ = 255-line[s->params.pixels_per_line];  /*green */
-					 *data++ = 255-line[2 * s->params.pixels_per_line];  /*blue */
-
+					 	*data++ = 255-line[0]; /*red */
+					 	*data++ = 255-line[s->params.pixels_per_line];  /*green */
+					 	*data++ = 255-line[2 * s->params.pixels_per_line];  /*blue */
 					}
 
-					else { /* grey was subtracting from 255 until 6/9/14 */
-					/*Average the 3 colours*/
-					*data++ = (255-line[0]
+					else if (s->val[OPT_MODE].w == MODE_LINEART) { /* gives 8 bit gray output using threshold added 7/9/14 */
+        					/*output image location*/
+        					int offset = i % 8;
+        					unsigned char mask = 0x80 >> offset;
+						/*set if any colour is over the threshold  */
+						if (line[0] < threshold || line[s->params.pixels_per_line] < threshold || line[2 * s->params.pixels_per_line] < threshold)
+          						*data &= ~mask;     /* white clear the bit in mask */
+        					else
+          						*data |= mask;      /* black set the bit in mask */
+                  
+        					if (offset == 7 || i == s->params.pixels_per_line-1) 
+            						data++; /* move on a byte if the byte is full or the line is complete */
+					}
+
+					else { /* greyscale - Average the 3 colours */
+						*data++ = (255-line[0]
 						+255-line[s->params.pixels_per_line]
 						+255-line[2 * s->params.pixels_per_line])
 						/ 3;
 					}
-					line++;
+						line++;
 				}
 /*debug file The same for color or grey because the scan is colour */
 				if (RawScan != NULL) {
@@ -1724,16 +1747,17 @@ k_init_parametersta(KodakAio_Scanner * s)
 	if (mode_params[s->val[OPT_MODE].w].depth == 1)
 		s->params.depth = 1;
 	else {
-		DBG(20, "%s: setting depth = s->val[OPT_BIT_DEPTH].w = %d\n", __func__,s->val[OPT_BIT_DEPTH].w);
 		s->params.depth = s->val[OPT_BIT_DEPTH].w;
 	}
+	DBG(20, "%s: bit depth = s->params.depth = %d\n", __func__,s->params.depth);
 	s->params.last_frame = SANE_TRUE;
 	s->params.bytes_per_line = 3 * ceil (s->params.depth * s->params.pixels_per_line / 8.0);
 
-/* kodak only scans in color and conversion to grey is done in the driver 
+/* kodak only scans in color and conversion to grey or lineart is done in the driver 
 		s->params.format = SANE_FRAME_RGB; */
-		DBG(20, "%s: s->val[OPT_MODE].w = %d (color is %d)\n", __func__,s->val[OPT_MODE].w, MODE_COLOR);
+	DBG(20, "%s: s->val[OPT_MODE].w = %d (color is %d)\n", __func__,s->val[OPT_MODE].w, MODE_COLOR);
 	if (s->val[OPT_MODE].w == MODE_COLOR) s->params.format = SANE_FRAME_RGB;
+	else if (s->val[OPT_MODE].w == MODE_LINEART) s->params.format = SANE_FRAME_GRAY;
 	else s->params.format = SANE_FRAME_GRAY;
 
 	DBG(20, "%s: format=%d, bytes_per_line=%d, lines=%d\n", __func__, s->params.format, s->params.bytes_per_line, s->params.lines);
@@ -1764,19 +1788,16 @@ you don't know how many blocks there will be in advance because their size may b
 	SANE_Status status = SANE_STATUS_GOOD;
 	size_t buf_len = 0;
 
-	/* did we passed everything we read to sane? */
+	/* have we passed everything we read to sane? */
 	if (s->ptr == s->end) {
-
 		if (s->eof)
 			return SANE_STATUS_EOF;
 
 		s->counter++;
-
 		if (s->bytes_unread >= s->block_len)
 			buf_len = s->block_len;
 		else
 			buf_len = s->bytes_unread;
-
 		DBG(min(20,DBG_READ), "%s: block %d, size %lu\n", __func__,
 			s->counter, (unsigned long) buf_len);
 
@@ -1813,9 +1834,7 @@ you don't know how many blocks there will be in advance because their size may b
 					return SANE_STATUS_IO_ERROR;
 				}
 			}
-
 		}
-
 		s->end = s->buf + buf_len;
 		s->ptr = s->buf;
 	}
@@ -1860,7 +1879,6 @@ get_device_from_identification (const char *ident, const char *vid, const char *
 	}
 	return NULL;
 }
-
 
 /*
  * close_scanner()
@@ -2646,6 +2664,30 @@ init_options(KodakAio_Scanner *s)
 	s->val[OPT_MODE].w = 0;	/* Binary */
 	DBG(20, "%s: mode_list has first entry %s\n", __func__, mode_list[0]);
 
+	/* theshold the sane std says should be SANE_TYPE_FIXED 0..100 but all other backends seem to use INT 0..255 */
+	s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+	s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+	s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+	s->opt[OPT_THRESHOLD].type = SANE_TYPE_FIXED;
+	s->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
+	s->opt[OPT_THRESHOLD].size = sizeof(SANE_Word);
+	s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_THRESHOLD].constraint.range = &percent_range_fixed;
+	s->val[OPT_THRESHOLD].w = SANE_FIX(50.0);
+	DBG(20, "%s: threshold initialised to fixed %f\n", __func__, SANE_UNFIX(s->val[OPT_THRESHOLD].w));
+
+	/* theshold the sane std says should be SANE_TYPE_FIXED 0..100 but all other backends seem to use INT 0..255
+	s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+	s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+	s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+	s->opt[OPT_THRESHOLD].type = SANE_TYPE_INT;
+	s->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
+	s->opt[OPT_THRESHOLD].size = sizeof(SANE_Word);
+	s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_THRESHOLD].constraint.range = &percent_range_int;
+	s->val[OPT_THRESHOLD].w = 51;
+	DBG(20, "%s: threshold initialised to int %d\n", __func__, s->val[OPT_THRESHOLD].w); */
+
 	/* bit depth */
 	s->opt[OPT_BIT_DEPTH].name = SANE_NAME_BIT_DEPTH;
 	s->opt[OPT_BIT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
@@ -2679,6 +2721,17 @@ init_options(KodakAio_Scanner *s)
 	s->opt[OPT_RESOLUTION].constraint.word_list = res_list;
 	s->val[OPT_RESOLUTION].w = s->hw->cap->dpi_range.min;
 
+
+	/* trial option for debugging 
+	s->opt[OPT_TRIALOPT].name = "trialoption";
+	s->opt[OPT_TRIALOPT].title = "trialoption";
+	s->opt[OPT_TRIALOPT].desc = "trialoption";
+	s->opt[OPT_TRIALOPT].type = SANE_TYPE_INT;
+	s->opt[OPT_TRIALOPT].unit = SANE_UNIT_NONE;
+	s->opt[OPT_TRIALOPT].size = sizeof(SANE_Word);
+	s->opt[OPT_TRIALOPT].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_TRIALOPT].constraint.range = &percent_range_int;
+	s->val[OPT_TRIALOPT].w = 1; */
 
 	/* preview */
 	s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
@@ -2891,7 +2944,7 @@ sane_get_option_descriptor(SANE_Handle handle, SANE_Int option)
 /* this may be a sane call, but it happens way too often to have DBG level 2 */
 	KodakAio_Scanner *s = (KodakAio_Scanner *) handle;
 
-	DBG(20, "%s: called for option %d\n", __func__, option);
+	DBG(30, "%s: called for option %d\n", __func__, option);
 
 	if (option < 0 || option >= NUM_OPTIONS)
 		return NULL;
@@ -2946,7 +2999,7 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 
 	case OPT_NUM_OPTS:
 	case OPT_BIT_DEPTH:
-/*	case OPT_BRIGHTNESS: */
+	/* case OPT_TRIALOPT: */
 	case OPT_RESOLUTION:
 	case OPT_PREVIEW:
 	case OPT_TL_X:
@@ -2954,6 +3007,13 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 	case OPT_BR_X:
 	case OPT_BR_Y:
 		*((SANE_Word *) value) = sval->w;
+		DBG(20, "%s: got option %d as %d\n", __func__, option, *((SANE_Word *) value));
+		break;
+
+	case OPT_THRESHOLD:
+		*((SANE_Word *) value) = sval->w;
+		DBG(20, "%s: got option %d as %f\n", __func__, option, SANE_UNFIX(*((SANE_Word *) value)));
+		/*DBG(20, "%s: got option %d as %d\n", __func__, option, *((SANE_Word *) value));*/
 		break;
 
 	case OPT_MODE:
@@ -2966,9 +3026,11 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 		break;
 
 	default:
+		DBG(20, "%s: returning inval\n", __func__);
 		return SANE_STATUS_INVAL;
 	}
 
+	DBG(20, "%s: returning good\n", __func__);
 	return SANE_STATUS_GOOD;
 }
 
@@ -3074,18 +3136,23 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 	case OPT_MODE:
 	{
 		sval->w = optindex;
-		/* if binary, then disable the bit depth selection */
+		/* if binary, then disable the bit depth selection and enable threshold */
 		if (optindex == 0) {
+	DBG(17, "%s: binary mode setting depth to 1\n", __func__);
+			s->val[OPT_BIT_DEPTH].w = 1;
 			s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
+			s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 		} else {
-			if (s->hw->cap->depth_list[0] == 1)
-				s->opt[OPT_BIT_DEPTH].cap |=
-					SANE_CAP_INACTIVE;
-			else {
-				s->opt[OPT_BIT_DEPTH].cap &=
-					~SANE_CAP_INACTIVE;
-				s->val[OPT_BIT_DEPTH].w =
-					mode_params[optindex].depth;
+			if (s->hw->cap->depth_list[0] == 1) { /* only one entry in the list ? */
+	DBG(17, "%s: non-binary mode but only one depth available\n", __func__);
+				s->val[OPT_BIT_DEPTH].w = s->hw->cap->depth_list[1];
+				s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
+				s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+			} else { /* there is a list to choose from ? */
+	DBG(17, "%s: non-binary mode and depth list available\n", __func__);
+				s->opt[OPT_BIT_DEPTH].cap &= ~SANE_CAP_INACTIVE;
+				s->val[OPT_BIT_DEPTH].w = mode_params[optindex].depth;
+				s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE; /* does not work in xsane ? */
 			}
 		}
 		reload = SANE_TRUE;
@@ -3096,6 +3163,13 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 		sval->w = *((SANE_Word *) value);
 		mode_params[s->val[OPT_MODE].w].depth = sval->w;
 		reload = SANE_TRUE;
+		break;
+
+	case OPT_THRESHOLD:
+		sval->w = *((SANE_Word *) value);
+		DBG(17, "setting threshold to %f\n", SANE_UNFIX(sval->w));
+		/*DBG(17, "setting threshold to %d\n", sval->w);*/
+		/*reload = SANE_TRUE; what does this do?*/
 		break;
 
 	case OPT_RESOLUTION:
@@ -3133,7 +3207,7 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 		sval->w = *((SANE_Word *) value);
 		break;
 
-/*	case OPT_BRIGHTNESS: */
+	/* case OPT_TRIALOPT: */
 	case OPT_PREVIEW:	/* needed? */
 		sval->w = *((SANE_Word *) value);
 		break;

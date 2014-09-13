@@ -1,3 +1,7 @@
+2014-09-13 Paul Newall <p dot newalls at ntlworld dot com>
+	* backend/kodakaio.c, backend/kodakaio.h:
+	* Added lineart mode with threshold option.
+
 2014-09-07 Paul Newall <p dot newalls at ntlworld dot com>
 	* backend/kodakaio.c:
 	* Fixed error where the colour compensation curves did not have enough

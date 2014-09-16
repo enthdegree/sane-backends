@@ -614,10 +614,10 @@
 :comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MX530 Series"
-:interface "USB Ethernet"
+:interface "USB WiFi"
 :usbid "0x04a9" "0x1775"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MX700"
 :interface "USB Ethernet"

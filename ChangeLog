@@ -1,3 +1,7 @@
+2014-09-16 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man: Canon Pixma MG2400 Series
+	is working, reported by Marcus Wellnitz.
+
 2014-09-13 Paul Newall <p dot newalls at ntlworld dot com>
 	* backend/kodakaio.c, backend/kodakaio.h:
 	* Added lineart mode with threshold option.
@@ -13,6 +17,7 @@
           the scanner closing the TCP-connection when idle
 	* Add an explicit error message when we detect that the scanner
 	  closed the TCP-connection
+
 2014-08-16 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	New scanners Canon i-SENSYS MF8200C Series and MF8500C Series. MF8500C

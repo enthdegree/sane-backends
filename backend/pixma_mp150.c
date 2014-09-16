@@ -1130,6 +1130,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
               && s->cfg->pid != MP220_PID
               && s->cfg->pid != MX360_PID
               && s->cfg->pid != MX370_PID
+              && s->cfg->pid != MX530_PID
               && s->cfg->pid != MX890_PID
               && s->cfg->pid != MX720_PID
               && s->cfg->pid != MX920_PID

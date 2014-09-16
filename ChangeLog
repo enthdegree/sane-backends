@@ -1,6 +1,9 @@
 2014-09-16 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man: Canon Pixma MG2400 Series
-	is working, reported by Marcus Wellnitz.
+	  is working, reported by Marcus Wellnitz.
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	  Canon Pixma MX530 Series is working, reported by Stephen Weston.
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.11
 
 2014-09-13 Paul Newall <p dot newalls at ntlworld dot com>
 	* backend/kodakaio.c, backend/kodakaio.h:

@@ -1,3 +1,7 @@
+2014-09-18 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	  Canon Pixma MG5500 Series is working, bug #314819.
+
 2014-09-16 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man: Canon Pixma MG2400 Series
 	  is working, reported by Marcus Wellnitz.

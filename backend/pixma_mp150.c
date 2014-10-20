@@ -427,7 +427,7 @@ is_calibrated (pixma_t * s)
   mp150_t *mp = (mp150_t *) s->subdriver;
   if (mp->generation >= 3)
     {
-      return ((mp->current_status[0] & 0x01) == 1);
+      return ((mp->current_status[0] & 0x01) == 1 || (mp->current_status[0] & 0x02) == 2);
     }
   if (mp->generation == 1)
     {

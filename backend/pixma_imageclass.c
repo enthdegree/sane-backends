@@ -95,6 +95,7 @@
 #define MF6680_PID 0x26fa
 #define MF8030_PID 0x2707
 #define IR1133_PID 0x2742
+#define D530_PID   0x2775
 #define MF8500_PID 0x277a
 
 
@@ -307,6 +308,7 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
           *size = (*datalen + hlen == 512) ? pixma_get_be32 (mf->cb.buf + 4) - *datalen : 0;
           memcpy (data, mf->cb.buf + hlen, *datalen);
         }
+     PDBG (pixma_dbg (11, "*request_image_block***** size = %u *****\n", *size));
     }
   else
     {
@@ -785,6 +787,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 1050, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4570dw", "MF4570dw", MF4570_PID, 600, 640, 877, 0),
   DEV ("Canon i-SENSYS MF8200C Series", "MF8200C", MF8200_PID, 600, 640, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS D530", "D530", D530_PID, 600, 640, 877, 0),
   /* FIXME: the following capabilities all need updating/verifying */
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),

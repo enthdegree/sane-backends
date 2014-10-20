@@ -995,7 +995,7 @@ static int
 wait_until_ready (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  int error, tmo = 60;
+  int error, tmo = 120;         /* some scanners need a long timeout */
 
   RET_IF_ERR ((mp->generation >= 3) ? query_status_3 (s)
                                     : query_status (s));
@@ -1201,6 +1201,8 @@ mp150_open (pixma_t * s)
   if (s->cfg->pid == MP140_PID)
     mp->generation = 2;
     
+  PDBG (pixma_dbg (3, "*mp150_open***** This is a generation %d scanner.  *****\n", mp->generation));
+
   /* TPU info data setup */
   mp->tpu_datalen = 0;
 

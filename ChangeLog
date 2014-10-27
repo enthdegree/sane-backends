@@ -1,3 +1,17 @@
+2014-10-27 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c: Canon PIXMA MG3500 Series doesn't need special
+	  image post processing.
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	  Canon PIXMA MG3500 Series is working.
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.12
+
+2014-10-20 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
+	  doc/sane-pixma.man: New Scanner Canon imageCLASS D530.
+	* backend/pixma_mp150.c:
+	  - increase calibration timeout
+	  - calibration can finish with 0x01 or 0x02
+
 2014-09-18 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	  Canon Pixma MG5500 Series is working, bug #314819.

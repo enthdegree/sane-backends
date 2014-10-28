@@ -377,6 +377,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_read_size(in)          getbitfield(in+0x78, 1, 6)
 #define get_IN_start_end_ms(in)       getbitfield(in+0x78, 1, 5)
 
+#define get_IN_op_halt(in)            getbitfield(in+0x7a, 1, 7)
+
 /* some scanners need evpd inquiry data manipulated */
 #define set_IN_page_length(in,val)    in[0x04]=val
 
@@ -694,9 +696,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define OBJECT_POSITION_code    0x31
 #define OBJECT_POSITION_len     10
 
-#define set_OP_autofeed(b,val) setbitfield(b+0x01, 0x07, 0, val)
+#define set_OP_action(b,val)    setbitfield(b+0x01, 0x07, 0, val)
 #define OP_Discharge	0x00
 #define OP_Feed	        0x01
+#define OP_Halt	        0x04
 
 /* ==================================================================== */
 /* SET_SUBWINDOW */

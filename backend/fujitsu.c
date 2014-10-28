@@ -560,6 +560,9 @@
          - simplify jpeg ifdefs
          - add offtimer option for more recent scanners
          - don't print 0 length line in hexdump
+      v122 2014-10-28, MAN
+         - add support for object_position halt
+         - call object_position halt in check_for_cancel when requested
 
    SANE FLOW DIAGRAM
 
@@ -609,7 +612,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 121
+#define BUILD 122
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1701,6 +1704,9 @@ init_vpd (struct fujitsu *s)
               s->has_off_mode = get_IN_erp_lot6_supp(in);
               DBG (15, "  ErP Lot6 (power off timer): %d\n", s->has_off_mode);
               DBG (15, "  sync next feed: %d\n", get_IN_sync_next_feed(in));
+
+              s->has_op_halt = get_IN_op_halt(in);
+              DBG (15, "  object postion halt: %d\n", s->has_op_halt);
           }
 
           ret = SANE_STATUS_GOOD;
@@ -3975,6 +3981,18 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
   }
 
+  /*halt scanner feeder when cancelling*/
+  if(option==OPT_HALT_ON_CANCEL){
+    opt->name = "halt-on-cancel";
+    opt->title = "Halt on Cancel";
+    opt->desc = "Request driver to halt the paper feed instead of eject during a cancel.";
+    opt->type = SANE_TYPE_BOOL;
+    if (s->has_op_halt)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /* "Endorser" group ------------------------------------------------------ */
   if(option==OPT_ENDORSER_GROUP){
     opt->name = "endorser-options";
@@ -4944,6 +4962,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = SANE_FIX(s->swskip);
           return SANE_STATUS_GOOD;
 
+        case OPT_HALT_ON_CANCEL:
+          *val_p = s->halt_on_cancel;
+          return SANE_STATUS_GOOD;
+
         /* Endorser Group */
         case OPT_ENDORSER:
           *val_p = s->u_endorser;
@@ -5578,6 +5600,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_SWSKIP:
           s->swskip = SANE_UNFIX(val_c);
+          return SANE_STATUS_GOOD;
+
+        case OPT_HALT_ON_CANCEL:
+          s->halt_on_cancel = val_c;
           return SANE_STATUS_GOOD;
 
         /* Endorser Group */
@@ -6897,7 +6923,7 @@ sane_start (SANE_Handle handle)
       s->jpeg_front_rst = 0;
       s->jpeg_back_rst = 0;
 
-      ret = object_position (s, SANE_TRUE);
+      ret = object_position (s, OP_Feed);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot load page\n");
         goto errors;
@@ -7648,31 +7674,23 @@ get_pixelsize(struct fujitsu *s, int actual)
  * Issues the SCSI OBJECT POSITION command if an ADF is in use.
  */
 static SANE_Status
-object_position (struct fujitsu *s, int i_load)
+object_position (struct fujitsu *s, int action)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
   unsigned char cmd[OBJECT_POSITION_len];
   size_t cmdLen = OBJECT_POSITION_len;
 
-  DBG (10, "object_position: start\n");
+  DBG (10, "object_position: start %d\n", action);
 
-  if (s->source == SOURCE_FLATBED) {
+  if (s->source == SOURCE_FLATBED && action < OP_Halt) {
     DBG (10, "object_position: flatbed no-op\n");
     return SANE_STATUS_GOOD;
   }
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, OBJECT_POSITION_code);
-
-  if (i_load) {
-    DBG (15, "object_position: load\n");
-    set_OP_autofeed (cmd, OP_Feed);
-  }
-  else {
-    DBG (15, "object_position: eject\n");
-    set_OP_autofeed (cmd, OP_Discharge);
-  }
+  set_OP_action (cmd, action);
 
   ret = do_cmd (
     s, 1, 0,
@@ -7741,22 +7759,30 @@ check_for_cancel(struct fujitsu *s)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
 
-  DBG (10, "check_for_cancel: start\n");
+  DBG (10, "check_for_cancel: start %d %d\n",s->started,s->cancelled);
 
   if(s->started && s->cancelled){
+
+    /* halt scan */
+    if(s->halt_on_cancel){
+      DBG (15, "check_for_cancel: halting\n");
+      ret = object_position (s, OP_Halt);
+    }
+    /* cancel scan */
+    else{
       DBG (15, "check_for_cancel: cancelling\n");
-
-      /* cancel scan */
       ret = scanner_control(s, SC_function_cancel);
-      if (ret == SANE_STATUS_GOOD) {
-        ret = SANE_STATUS_CANCELLED;
-      }
-      else{
-        DBG (5, "check_for_cancel: ERROR: cannot cancel\n");
-      }
+    }
 
-      s->started = 0;
-      s->cancelled = 0;
+    if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_CANCELLED) {
+      ret = SANE_STATUS_CANCELLED;
+    }
+    else{
+      DBG (5, "check_for_cancel: ERROR: cannot cancel\n");
+    }
+
+    s->started = 0;
+    s->cancelled = 0;
   }
   else if(s->cancelled){
     DBG (15, "check_for_cancel: already cancelled\n");
@@ -9128,6 +9154,10 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
       if (0x20 == ascq) {
         DBG  (5, "Medium error: Stop button\n");
         return SANE_STATUS_NO_DOCS;
+      }
+      if (0x22 == ascq) {
+        DBG  (5, "Medium error: scanning halted\n");
+        return SANE_STATUS_CANCELLED;
       }
       if (0x30 == ascq) {
         DBG  (5, "Medium error: Not enough paper\n");

@@ -91,6 +91,7 @@ enum fujitsu_Option
   OPT_SWDESPECK,
   OPT_SWCROP,
   OPT_SWSKIP,
+  OPT_HALT_ON_CANCEL,
 
   OPT_ENDORSER_GROUP,
   OPT_ENDORSER,
@@ -269,6 +270,7 @@ struct fujitsu
   int has_comp_JPG1;
   int has_comp_JPG2;
   int has_comp_JPG3;
+  int has_op_halt;
 
   /*FIXME: more endorser data? */
   int endorser_type_f;
@@ -493,6 +495,7 @@ struct fujitsu
   int swdespeck;
   int swcrop;
   double swskip;
+  int halt_on_cancel;
 
   /*endorser group*/
   int u_endorser;
@@ -785,7 +788,7 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
 
 static SANE_Status wait_scanner (struct fujitsu *s);
 
-static SANE_Status object_position (struct fujitsu *s, int i_load);
+static SANE_Status object_position (struct fujitsu *s, int action);
 
 static SANE_Status scanner_control (struct fujitsu *s, int function);
 static SANE_Status scanner_control_ric (struct fujitsu *s, int bytes, int side);

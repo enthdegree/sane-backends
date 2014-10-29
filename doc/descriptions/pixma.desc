@@ -30,6 +30,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA E460 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1788"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA E500"
 :interface "USB"
 :usbid "0x04a9" "0x1758"
@@ -81,6 +87,12 @@
 :model "PIXMA MG2500 Series"
 :interface "USB"
 :usbid "0x04a9" "0x176d"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA MG2900 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1780"
 :status :untested
 :comment "Testers needed!"
 
@@ -144,6 +156,12 @@
 :status :complete
 :comment "All resolutions supported (up to 1200DPI)."
 
+:model "PIXMA MG5600 Series"
+:interface "USB"
+:usbid "0x04a9" "0x177f"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA MG6100 Series"
 :interface "USB"
 :usbid "0x04a9" "0x174a"
@@ -174,11 +192,23 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA MG6600 Series"
+:interface "USB"
+:usbid "0x04a9" "0x177e"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA MG7100 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1772"
 :status :complete
 :comment "All resolutions supported (up to 2400DPI)."
+
+:model "PIXMA MG7500 Series"
+:interface "USB"
+:usbid "0x04a9" "0x177c"
+:status :untested
+:comment "Testers needed!"
 
 :model "PIXMA MG8100 Series"
 :interface "USB"
@@ -934,6 +964,30 @@
 :model "imageRUNNER 1133"
 :interface "USB"
 :usbid "0x04a9" "0x2742"
+:status :untested
+:comment "Testers needed!"
+
+:model "MAXIFY MB2000 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1778"
+:status :untested
+:comment "Testers needed!"
+
+:model "MAXIFY MB2300 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1779"
+:status :untested
+:comment "Testers needed!"
+
+:model "MAXIFY MB5000 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1776"
+:status :untested
+:comment "Testers needed!"
+
+:model "MAXIFY MB5300 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1777"
 :status :untested
 :comment "Testers needed!"
 

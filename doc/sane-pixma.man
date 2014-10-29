@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "27 Oct 2014" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "29 Oct 2014" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -77,11 +77,11 @@ in the backend so that they get recognized and activated.
 Feedback in the sane\-devel mailing list welcome.
 .PP
 .RS
-PIXMA E400, E500, E510, E560, E600, E610
+PIXMA E400, E460, E500, E510, E560, E600, E610
 .br
-PIXMA MG2200, MG2500, MG4100, MG5400
+PIXMA MG2200, MG2500, MG2900, MG4100, MG5400, MG5600
 .br
-PIXMA MG6400, MG6500, MG8100
+PIXMA MG6400, MG6500, MG6600, MG7500, MG8100
 .br
 PIXMA MP375R, MP493, MP495, MP740
 .br
@@ -92,6 +92,8 @@ imageCLASS MF5630, MF5650, MF5750, MF8030, MF8170c
 imageRUNNER 1133
 .br
 i-SENSYS MF5880dn, MF6680dn, MF8500C Series
+.br
+MAXIFY MB2000, MB2300, MB5000, MB5300
 .RE
 .PP
 \#The following models may use partly the same Pixma protocol as other devices

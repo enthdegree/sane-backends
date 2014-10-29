@@ -1,3 +1,10 @@
+2014-10-29 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	  New Canon scanners MAXIFY MB5000, MB5300, MB2000 and MB2300;
+	  PIXMA MG7500, MG6600, MG5600, MG2900 and E460. All scanners need further
+	  testing.
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.13
+
 2014-10-27 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c: Canon PIXMA MG3500 Series doesn't need special
 	  image post processing.

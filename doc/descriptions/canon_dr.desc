@@ -370,6 +370,12 @@
 :status :basic
 :comment "All modes and resolutions working, but calibration is poor. Card reader slot not working."
 
+:model "P-215"
+:interface "USB"
+:usbid "0x1083" "0x1647"
+:status :basic
+:comment "This is the same device as the 0x1646 P-215, but the mode switch on the scanner is in the wrong position, you must move the switch."
+
 :model "DR-P215II"
 :interface "USB"
 :usbid "0x1083" "0x1659"

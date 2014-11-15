@@ -137,7 +137,7 @@
 #include <math.h>
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 296 /* avision backend BUILD version */
+#define BACKEND_BUILD 297 /* avision backend BUILD version */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -620,7 +620,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "ScanJet 5370C",
       0x03f0, 0x0701,
       "Hewlett-Packard", "ScanJet 5370C",
-      AV_MULTI_CALIB_CMD | AV_INT_STATUS, AV_FIRMWARE },
+      AV_MULTI_CALIB_CMD | AV_INT_STATUS, 0 },
     /* comment="1 pass, 2400 dpi - some FW revisions have x-axis image scaling problems over 1200 dpi" */
     /* status="good" */
     

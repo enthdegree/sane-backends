@@ -1,3 +1,9 @@
+2014-11-15 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/avision.c:
+	  - Remove firmware checking for HP5370c scanners. Launchpad bug #1080787,
+	    reported by Night Train.
+	  - Build version 297.
+
 2014-10-29 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	  New Canon scanners MAXIFY MB5000, MB5300, MB2000 and MB2300;

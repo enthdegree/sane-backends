@@ -704,10 +704,15 @@ iclass_finish_scan (pixma_t * s)
           activate (s, 0);
           query_status (s);
         }
-      /* 0x38 = last block and ADF empty
-       * 0x28 = last block and Paper in ADF */
-      if (mf->last_block==0x38                                  /* ADF empty */
-          || (mf->generation == 1 && mf->last_block == 0x28))   /* generation 1 scanner or Paper in ADF */
+      /* generation = 1:
+       * 0x28 = last block (no multi page scan)
+       * generation >= 2:
+       * 0x38 = last block and ADF empty (generation >= 2)
+       * 0x28 = last block and Paper in ADF (multi page scan)
+       * some generation 2 scanners don't use 0x38 for ADF empty => check status */
+      if (mf->last_block==0x38                                  /* generation 2 scanner ADF empty */
+          || (mf->generation == 1 && mf->last_block == 0x28)    /* generation 1 scanner last block */
+          || (mf->generation >= 2 && !has_paper(s)))            /* check status: no paper in ADF */
 	{
           PDBG (pixma_dbg (3, "*iclass_finish_scan***** abort session  *****\n"));
 	  abort_session (s);

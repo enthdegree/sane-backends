@@ -759,45 +759,46 @@ static const pixma_scan_ops_t pixma_iclass_ops = {
   iclass_get_status
 };
 
-#define DEV(name, model, pid, dpi, w, h, cap) {     \
+#define DEV(name, model, pid, dpi, adftpu_max_dpi, w, h, cap) {     \
             name,                     /* name */		\
             model,                    /* model */		\
             0x04a9, pid,              /* vid pid */	\
             1,                        /* iface */		\
             &pixma_iclass_ops,        /* ops */		\
             dpi, dpi,                 /* xdpi, ydpi */	\
-            0, 0,                     /* adftpu_min_dpi & adftpu_max_dpi not used in this subdriver */ \
+            0,                        /* adftpu_min_dpi not used in this subdriver */ \
+            adftpu_max_dpi,           /* adftpu_max_dpi */ \
             0, 0,                     /* tpuir_min_dpi & tpuir_max_dpi not used in this subdriver */   \
             w, h,                     /* width, height */	\
             PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap             \
 }
 const pixma_config_t pixma_iclass_devices[] = {
-  DEV ("Canon imageCLASS MF4270", "MF4270", MF4200_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF4150", "MF4100", MF4100_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF4690", "MF4690", MF4600_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS D420", "D420", D420_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon imageCLASS D480", "D480", D480_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon imageCLASS MF4360", "MF4360", MF4360_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon imageCLASS MF4320", "MF4320", MF4320_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF4010", "MF4010", MF4010_PID, 600, 640, 877, 0),
-  DEV ("Canon imageCLASS MF3240", "MF3240", MF3200_PID, 600, 640, 877, 0),
-  DEV ("Canon imageClass MF6500", "MF6500", MF6500_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF4410", "MF4410", MF4410_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon i-SENSYS MF4500 Series", "MF4500", MF4500_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon i-SENSYS MF3010", "MF3010", MF3010_PID, 600, 640, 877, 0),
-  DEV ("Canon i-SENSYS MF4700 Series", "MF4700", MF4700_PID, 600, 640, 1050, PIXMA_CAP_ADF),
-  DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 640, 1050, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF4570dw", "MF4570dw", MF4570_PID, 600, 640, 877, 0),
-  DEV ("Canon i-SENSYS MF8200C Series", "MF8200C", MF8200_PID, 600, 640, 1050, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS D530", "D530", D530_PID, 600, 640, 877, 0),
+  DEV ("Canon imageCLASS MF4270", "MF4270", MF4200_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF4150", "MF4100", MF4100_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF4690", "MF4690", MF4600_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS D420", "D420", D420_PID, 600, 0, 640, 877, PIXMA_CAP_ADFDUP),
+  DEV ("Canon imageCLASS D480", "D480", D480_PID, 600, 0, 640, 877, PIXMA_CAP_ADFDUP),
+  DEV ("Canon imageCLASS MF4360", "MF4360", MF4360_PID, 600, 0, 640, 877, PIXMA_CAP_ADFDUP),
+  DEV ("Canon imageCLASS MF4320", "MF4320", MF4320_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF4010", "MF4010", MF4010_PID, 600, 0, 640, 877, 0),
+  DEV ("Canon imageCLASS MF3240", "MF3240", MF3200_PID, 600, 0, 640, 877, 0),
+  DEV ("Canon imageClass MF6500", "MF6500", MF6500_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF4410", "MF4410", MF4410_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF4500 Series", "MF4500", MF4500_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF3010", "MF3010", MF3010_PID, 600, 0, 640, 877, 0),
+  DEV ("Canon i-SENSYS MF4700 Series", "MF4700", MF4700_PID, 600, 0, 640, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 0, 640, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF4570dw", "MF4570dw", MF4570_PID, 600, 0, 640, 877, 0),
+  DEV ("Canon i-SENSYS MF8200C Series", "MF8200C", MF8200_PID, 600, 300, 640, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS D530", "D530", D530_PID, 600, 0, 640, 877, 0),
   /* FIXME: the following capabilities all need updating/verifying */
-  DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageCLASS MF8170c", "MF8170c", MF8100_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEV ("Canon imageClass MF8030", "MF8030", MF8030_PID, 600, 640, 877, PIXMA_CAP_ADF),  
-  DEV ("Canon i-SENSYS MF5880dn", "MF5880", MF5880_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon i-SENSYS MF6680dn", "MF6680", MF6680_PID, 600, 640, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon imageRUNNER 1133", "iR1133", IR1133_PID, 600, 637, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon i-SENSYS MF8500C Series", "MF8500C", MF8500_PID, 600, 640, 1050, PIXMA_CAP_ADFDUP),
-  DEV (NULL, NULL, 0, 0, 0, 0, 0)
+  DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon laserBase MF5650", "MF5650", MF5650_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF8170c", "MF8170c", MF8100_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageClass MF8030", "MF8030", MF8030_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF5880dn", "MF5880", MF5880_PID, 600, 0, 640, 877, PIXMA_CAP_ADFDUP),
+  DEV ("Canon i-SENSYS MF6680dn", "MF6680", MF6680_PID, 600, 0, 640, 877, PIXMA_CAP_ADFDUP),
+  DEV ("Canon imageRUNNER 1133", "iR1133", IR1133_PID, 600, 0, 637, 877, PIXMA_CAP_ADFDUP),
+  DEV ("Canon i-SENSYS MF8500C Series", "MF8500C", MF8500_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
+  DEV (NULL, NULL, 0, 0, 0, 0, 0, 0)
 };

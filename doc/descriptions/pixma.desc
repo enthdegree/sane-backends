@@ -11,7 +11,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "pixma"                  ; name of backend
-:version "0.17.13"                ; version of backend (or "unmaintained")
+:version "0.17.14"                ; version of backend (or "unmaintained")
 :manpage "sane-pixma"             ; name of manpage (if it exists)
 :url "http://home.arcor.de/wittawat/pixma/" ; 0.13.2 backend's web page
 :url "http://mp610.blogspot.com/"            ; the pixma backend blog

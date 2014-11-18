@@ -474,11 +474,8 @@ iclass_open (pixma_t * s)
   mf->cb.cmd_header_len = 10;
   mf->cb.cmd_len_field_ofs = 7;
 
-  /* set generation = 2 for new multifunctionals
-   * some new scanners use generation 1 protocol */
-  mf->generation = (s->cfg->pid >= MF8030_PID &&
-                    s->cfg->pid != MF8200_PID &&
-                    s->cfg->pid != MF8500_PID) ? 2 : 1;
+  /* set generation = 2 for new multifunctionals */
+  mf->generation = (s->cfg->pid >= MF8030_PID) ? 2 : 1;
   PDBG (pixma_dbg (3, "*iclass_open***** This is a generation %d scanner.  *****\n", mf->generation));
 
   PDBG (pixma_dbg (3, "Trying to clear the interrupt buffer...\n"));

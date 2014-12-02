@@ -1673,8 +1673,10 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	       desc.bNumConfigurations,
 	       config0->bConfigurationValue);
 
-	  result = libusb_set_configuration (devices[devcount].lu_handle,
-					     config0->bConfigurationValue);
+	  result = 0;
+	  if (config != config0->bConfigurationValue)
+	    result = libusb_set_configuration (devices[devcount].lu_handle,
+					       config0->bConfigurationValue);
 
 	  if (result < 0)
 	    {

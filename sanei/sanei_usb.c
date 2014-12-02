@@ -1676,8 +1676,6 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  result = libusb_set_configuration (devices[devcount].lu_handle,
 					     config0->bConfigurationValue);
 
-	  libusb_free_config_descriptor (config0);
-
 	  if (result < 0)
 	    {
 	      SANE_Status status = SANE_STATUS_INVAL;
@@ -1700,10 +1698,12 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	      if (status != SANE_STATUS_GOOD)
 		{
 		  libusb_close (devices[devcount].lu_handle);
+		  libusb_free_config_descriptor (config0);
 		  return status;
 		}
 	    }
 	}
+      libusb_free_config_descriptor (config0);
 
       /* Claim the interface */
       result = libusb_claim_interface (devices[devcount].lu_handle,

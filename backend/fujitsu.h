@@ -130,6 +130,13 @@ enum fujitsu_Option
   NUM_OPTIONS
 };
 
+/* used to control the max page-height, which varies by resolution */
+struct y_size
+{
+  int res;
+  int len;
+};
+
 struct fujitsu
 {
   /* --------------------------------------------------------------------- */
@@ -305,6 +312,7 @@ struct fujitsu
   /* the scan size in 1/1200th inches, NOT basic_units or sane units */
   int max_x;
   int max_y;
+  struct y_size max_y_by_res[4];
   int min_x;
   int min_y;
   int max_x_fb;
@@ -812,6 +820,7 @@ static int must_downsample (struct fujitsu *s);
 static int must_fully_buffer (struct fujitsu *s);
 static int get_page_width (struct fujitsu *s);
 static int get_page_height (struct fujitsu *s);
+static int set_max_y (struct fujitsu *s);
 
 static SANE_Status send_lut (struct fujitsu *s);
 static SANE_Status send_endorser (struct fujitsu *s);

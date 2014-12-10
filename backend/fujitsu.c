@@ -14,7 +14,7 @@
      O A S Oilfield Accounting Service Ltd, www.oas.ca
    Automatic length detection support funded by:
      Martin G. Miller, mgmiller at optonline.net
-   Software image enhancement routines funded by:
+   Software image enhancement routines and recent scanner support funded by:
      Fujitsu Computer Products of America, Inc. www.fcpa.com
 
    --------------------------------------------------------------------------
@@ -566,6 +566,9 @@
       v123 2014-11-06, MAN
          - workaround Linux USB3 bugs by adding command counting code and
            sending an even number of reads and writes during disconnect_fd
+      v124 2014-12-09, MAN
+         - support resolution controlled max page-height (fi-6/7xxx scanners)
+         - reorder scanner sections in init_model chronologically
 
    SANE FLOW DIAGRAM
 
@@ -2053,6 +2056,10 @@ init_model (struct fujitsu *s)
   s->max_x = s->max_x_basic * 1200 / s->basic_x_res;
   s->max_y = s->max_y_basic * 1200 / s->basic_y_res;
 
+  /* setup the list with a single choice, in 1200dpi units, at max res */
+  s->max_y_by_res[0].res = s->max_y_res;
+  s->max_y_by_res[0].len = s->max_y;
+
   /* assume these are same as adf, override below */
   s->max_x_fb = s->max_x;
   s->max_y_fb = s->max_y;
@@ -2148,6 +2155,38 @@ init_model (struct fujitsu *s)
     s->max_y_fb = 14032;
   }
 
+  else if (strstr (s->model_name, "fi-4750") ) {
+    /* weirdness */
+    s->broken_diag_serial = 1;
+  }
+
+  /* some firmware versions use capital f? */
+  else if (strstr (s->model_name, "Fi-4860")
+   || strstr (s->model_name, "fi-4860") ) {
+
+    /* weirdness */
+    s->broken_diag_serial = 1;
+
+    s->ppl_mod_by_mode[MODE_LINEART] = 32;
+    s->ppl_mod_by_mode[MODE_HALFTONE] = 32;
+    s->ppl_mod_by_mode[MODE_GRAYSCALE] = 4;
+    s->ppl_mod_by_mode[MODE_COLOR] = 4;
+  }
+
+  /* some firmware versions use capital f? */
+  else if (strstr (s->model_name, "Fi-4990")
+   || strstr (s->model_name, "fi-4990") ) {
+
+    /* weirdness */
+    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->color_interlace = COLOR_INTERLACE_RRGGBB;
+
+    s->ppl_mod_by_mode[MODE_LINEART] = 32;
+    s->ppl_mod_by_mode[MODE_HALFTONE] = 32;
+    s->ppl_mod_by_mode[MODE_GRAYSCALE] = 4;
+    s->ppl_mod_by_mode[MODE_COLOR] = 4;
+  }
+
   else if (strstr (s->model_name,"fi-5110C")){
 
     /* missing from vpd */
@@ -2177,49 +2216,44 @@ init_model (struct fujitsu *s)
       s->adbits = 8;
   }
 
-  /* some firmware versions use capital f? */
-  else if (strstr (s->model_name, "Fi-4990")
-   || strstr (s->model_name, "fi-4990") ) {
+  else if (strstr (s->model_name,"S1500")){
 
-    /* weirdness */
-    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
-    s->color_interlace = COLOR_INTERLACE_RRGGBB;
-
-    s->ppl_mod_by_mode[MODE_LINEART] = 32;
-    s->ppl_mod_by_mode[MODE_HALFTONE] = 32;
-    s->ppl_mod_by_mode[MODE_GRAYSCALE] = 4;
-    s->ppl_mod_by_mode[MODE_COLOR] = 4;
+    /*lies*/
+    s->has_MS_bg=0;
+    s->has_MS_prepick=0;
   }
 
-  else if (strstr (s->model_name, "fi-4750") ) {
-    /* weirdness */
-    s->broken_diag_serial = 1;
-  }
-
-  /* some firmware versions use capital f? */
-  else if (strstr (s->model_name, "Fi-4860")
-   || strstr (s->model_name, "fi-4860") ) {
+  /* also includes the 'Z' models */
+  else if (strstr (s->model_name,"fi-6130")
+   || strstr (s->model_name,"fi-6140")){
 
     /* weirdness */
-    s->broken_diag_serial = 1;
-
-    s->ppl_mod_by_mode[MODE_LINEART] = 32;
-    s->ppl_mod_by_mode[MODE_HALFTONE] = 32;
-    s->ppl_mod_by_mode[MODE_GRAYSCALE] = 4;
-    s->ppl_mod_by_mode[MODE_COLOR] = 4;
+    /* these machines have longer max paper at lower res */
+    s->max_y_by_res[1].res = 200;
+    s->max_y_by_res[1].len = 151512;
   }
 
   /* also includes the 'Z' models */
   else if (strstr (s->model_name,"fi-6230")
    || strstr (s->model_name,"fi-6240")){
 
+    /* weirdness */
+    /* these machines have longer max paper at lower res */
+    s->max_y_by_res[1].res = 200;
+    s->max_y_by_res[1].len = 151512;
+
     /* missing from vpd */
     s->max_x_fb = 10764; /* was previously 10488 */
     s->max_y_fb = 14032; /* some scanners can be slightly more? */
   }
 
-  else if (strstr (s->model_name,"S1500")
-   || strstr (s->model_name,"fi-6110")){
+  else if (strstr (s->model_name,"fi-6110")){
+
+    /* weirdness */
+    /* these machines have longer max paper at lower res */
+    s->max_y_by_res[1].res = 200;
+    s->max_y_by_res[1].len = 151512;
+
     /*lies*/
     s->has_MS_bg=0;
     s->has_MS_prepick=0;
@@ -2257,6 +2291,15 @@ init_model (struct fujitsu *s)
   else if (strstr (s->model_name,"fi-7180")
    || strstr (s->model_name,"fi-7160")){
 
+    /* weirdness */
+    /* these machines have longer max paper at lower res */
+    s->max_y_by_res[1].res = 400;
+    s->max_y_by_res[1].len = 194268;
+    s->max_y_by_res[2].res = 300;
+    s->max_y_by_res[2].len = 260268;
+    s->max_y_by_res[3].res = 200;
+    s->max_y_by_res[3].len = 266268;
+
     /* missing from vpd */
     s->has_df_recovery=1;
     s->has_adv_paper_prot=1;
@@ -2264,6 +2307,15 @@ init_model (struct fujitsu *s)
 
   else if (strstr (s->model_name,"fi-7280")
    || strstr (s->model_name,"fi-7260")){
+
+    /* weirdness */
+    /* these machines have longer max paper at lower res */
+    s->max_y_by_res[1].res = 400;
+    s->max_y_by_res[1].len = 194268;
+    s->max_y_by_res[2].res = 300;
+    s->max_y_by_res[2].len = 260268;
+    s->max_y_by_res[3].res = 200;
+    s->max_y_by_res[3].len = 266268;
 
     /* missing from vpd */
     s->has_df_recovery=1;
@@ -2337,6 +2389,7 @@ init_user (struct fujitsu *s)
 
   /* page height US-Letter */
   s->page_height = 11 * 1200;
+  set_max_y(s);
   if(s->page_height > s->max_y){
     s->page_height = s->max_y;
   }
@@ -5232,6 +5285,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
           s->resolution_x = val_c;
           s->resolution_y = val_c;
+          set_max_y(s);
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
@@ -9795,6 +9849,23 @@ get_page_height(struct fujitsu *s)
   return height;
 }
 
+/* s->max_y gives the maximum height of paper which can be scanned 
+ * this actually varies by resolution, so a helper to change it */
+static int
+set_max_y(struct fujitsu *s) 
+{
+  int i;
+
+  for(i=0;i<4;i++){
+    if(!s->max_y_by_res[i].res)
+      break;
+    if(s->resolution_x <= s->max_y_by_res[i].res){
+      s->max_y = s->max_y_by_res[i].len;
+    }
+  }
+
+  return s->max_y;
+}
 
 /**
  * Convenience method to determine longest string size in a list.

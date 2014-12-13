@@ -699,9 +699,6 @@ static int global_buffer_size = 64 * 1024;
 static const SANE_Device **sane_devArray = NULL;
 static struct fujitsu *fujitsu_devList = NULL;
 
-static int r_cmd_count = 0;
-static int w_cmd_count = 1;
-
 /*
  * @@ Section 2 - SANE & scanner init code
  */
@@ -9046,17 +9043,6 @@ disconnect_fd (struct fujitsu *s)
 
   if(s->fd > -1){
     if (s->connection == CONNECTION_USB) {
-
-      /* if read is odd, make it even */
-      if(r_cmd_count % 2){
-        wait_scanner(s);
-      }
-  
-      /* if write is odd, make it even */
-      if(w_cmd_count % 2){
-        get_hardware_status(s,0);
-      }
-
       DBG (15, "disconnecting usb device\n");
       sanei_usb_close (s->fd);
     }
@@ -9542,7 +9528,6 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
     hexdump(30, "cmd: >>", usb_cmdBuff, USB_COMMAND_LEN);
     ret = sanei_usb_write_bulk(s->fd, usb_cmdBuff, &usb_cmdLen);
     DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)usb_cmdLen, ret);
-    w_cmd_count += (usb_cmdLen+63)/64;
 
     if(ret == SANE_STATUS_EOF){
         DBG(5,"cmd: got EOF, returning IO_ERROR\n");
@@ -9567,7 +9552,6 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
         hexdump(30, "out: >>", outBuff, outLen);
         ret = sanei_usb_write_bulk(s->fd, outBuff, &usb_outLen);
         DBG(25, "out: wrote %d bytes, retVal %d\n", (int)usb_outLen, ret);
-        w_cmd_count += (usb_outLen+63)/64;
 
         if(ret == SANE_STATUS_EOF){
             DBG(5,"out: got EOF, returning IO_ERROR\n");
@@ -9597,7 +9581,6 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
 
         ret = sanei_usb_read_bulk(s->fd, inBuff, inLen);
         DBG(25, "in: retVal %d\n", ret);
-        r_cmd_count += (*inLen+63)/64;
 
         if(ret == SANE_STATUS_EOF){
             DBG(5,"in: got EOF, continuing\n");
@@ -9632,7 +9615,6 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
     ret2 = sanei_usb_read_bulk(s->fd, usb_statBuff, &usb_statLen);
     hexdump(30, "stat: <<", usb_statBuff, usb_statLen);
     DBG(25, "stat: read %d bytes, retVal %d\n", (int)usb_statLen, ret2);
-    r_cmd_count += (usb_statLen+63)/64;
 
     if(ret2 == SANE_STATUS_EOF){
         DBG(5,"stat: got EOF, returning IO_ERROR\n");

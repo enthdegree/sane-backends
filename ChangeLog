@@ -1,3 +1,8 @@
+2014-12-16 m. allan noah <kitno455 at gmail dot com>
+	* sanei/sanei_usb.c: add calls to sanei_usb_set_altinterface in
+	sanei_usb_close and sanei_usb_clear_halt- hopefully work around
+	USB3/xhci problems in Linux.
+
 2014-11-18 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c:
 	  - Canon i-SENSYS MF8200C and MF8500C use generation 2 protocols.

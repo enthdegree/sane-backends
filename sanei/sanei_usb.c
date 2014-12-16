@@ -154,6 +154,7 @@ typedef struct
   SANE_Int control_in_ep;
   SANE_Int control_out_ep;
   SANE_Int interface_nr;
+  SANE_Int alt_setting;
   SANE_Int missing;
 #ifdef HAVE_LIBUSB
   usb_dev_handle *libusb_handle;
@@ -633,6 +634,7 @@ static void usbcall_scan_devices(void)
 	  device.product = pDevDesc->idProduct;
 	  device.method = sanei_usb_method_usbcalls;
 	  device.interface_nr = interface;
+	  device.alt_setting = 0;
 	  DBG (4, "%s: found usbcalls device (0x%04x/0x%04x) as device number %s\n", __func__,
 	       pDevDesc->idVendor, pDevDesc->idProduct,device.devname);
 	  store_device(device);
@@ -819,7 +821,7 @@ static void libusb_scan_devices(void)
 		     "scanner (%d/%d)\n", __func__, dev->descriptor.idVendor,
 		     dev->descriptor.idProduct, interface,
 		     dev->descriptor.bDeviceClass,
-		     dev->config[0].interface[interface].altsetting != 0
+		     dev->config[0].interface[interface].num_altsetting != 0
                        ? dev->config[0].interface[interface].altsetting[0].
 		       bInterfaceClass : -1);
 	    }
@@ -843,6 +845,7 @@ static void libusb_scan_devices(void)
 	  device.product = dev->descriptor.idProduct;
 	  device.method = sanei_usb_method_libusb;
 	  device.interface_nr = interface;
+	  device.alt_setting = 0;
 	  DBG (4,
 	       "%s: found libusb device (0x%04x/0x%04x) interface "
                "%d  at %s\n", __func__,
@@ -989,7 +992,7 @@ static void libusb_scan_devices(void)
 		 "%s: device 0x%04x/0x%04x, interface %d "
 		 "doesn't look like a scanner (%d/%d)\n", __func__,
 		 vid, pid, interface, desc.bDeviceClass,
-		 (config0->interface[interface].altsetting != 0)
+		 (config0->interface[interface].num_altsetting != 0)
 		 ? config0->interface[interface].altsetting[0].bInterfaceClass : -1);
 	}
 
@@ -1016,6 +1019,7 @@ static void libusb_scan_devices(void)
       device.product = pid;
       device.method = sanei_usb_method_libusb;
       device.interface_nr = interface;
+      device.alt_setting = 0;
       DBG (4,
 	   "%s: found libusb-1.0 device (0x%04x/0x%04x) interface "
 	   "%d at %s\n", __func__,
@@ -2131,22 +2135,24 @@ sanei_usb_close (SANE_Int dn)
   else
 #ifdef HAVE_LIBUSB
     {
-#if 0
-      /* Should only be done in case of a stall */
-      usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
-      usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
-      usb_clear_halt (devices[dn].libusb_handle, devices[dn].iso_in_ep);
-      /* be careful, we don't know if we are in DATA0 stage now */
-      usb_resetep (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
-      usb_resetep (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
-      usb_resetep (devices[dn].libusb_handle, devices[dn].iso_in_ep);
-#endif /* 0 */
+      /* This call seems to be required by Linux xhci driver
+       * even though it should be a no-op. Without it, the
+       * host or driver does not reset it's data toggle bit.
+       * We intentionally ignore the return val */
+      sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
+
       usb_release_interface (devices[dn].libusb_handle,
 			     devices[dn].interface_nr);
       usb_close (devices[dn].libusb_handle);
     }
 #elif defined(HAVE_LIBUSB_1_0)
     {
+      /* This call seems to be required by Linux xhci driver
+       * even though it should be a no-op. Without it, the
+       * host or driver does not reset it's data toggle bit.
+       * We intentionally ignore the return val */
+      sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
+
       libusb_release_interface (devices[dn].lu_handle,
 				devices[dn].interface_nr);
       libusb_close (devices[dn].lu_handle);
@@ -2171,7 +2177,6 @@ sanei_usb_set_timeout (SANE_Int timeout)
 SANE_Status
 sanei_usb_clear_halt (SANE_Int dn)
 {
-#ifdef HAVE_LIBUSB
   int ret;
 
   if (dn >= device_number || dn < 0)
@@ -2179,6 +2184,14 @@ sanei_usb_clear_halt (SANE_Int dn)
       DBG (1, "sanei_usb_clear_halt: dn >= device number || dn < 0\n");
       return SANE_STATUS_INVAL;
     }
+
+#ifdef HAVE_LIBUSB
+
+  /* This call seems to be required by Linux xhci driver
+   * even though it should be a no-op. Without it, the
+   * host or driver does not send the clear to the device.
+   * We intentionally ignore the return val */
+  sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
 
   ret = usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
   if (ret){
@@ -2192,18 +2205,13 @@ sanei_usb_clear_halt (SANE_Int dn)
     return SANE_STATUS_INVAL;
   }
 
-  /* be careful, we don't know if we are in DATA0 stage now
-  ret = usb_resetep (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
-  ret = usb_resetep (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
-  */
 #elif defined(HAVE_LIBUSB_1_0)
-  int ret;
 
-  if (dn >= device_number || dn < 0)
-    {
-      DBG (1, "sanei_usb_clear_halt: dn >= device number || dn < 0\n");
-      return SANE_STATUS_INVAL;
-    }
+  /* This call seems to be required by Linux xhci driver
+   * even though it should be a no-op. Without it, the
+   * host or driver does not send the clear to the device.
+   * We intentionally ignore the return val */
+  sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
 
   ret = libusb_clear_halt (devices[dn].lu_handle, devices[dn].bulk_in_ep);
   if (ret){
@@ -3040,6 +3048,8 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate)
     }
 
   DBG (5, "sanei_usb_set_altinterface: alternate = %d\n", alternate);
+
+  devices[dn].alt_setting = alternate;
 
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     {

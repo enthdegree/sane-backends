@@ -569,6 +569,8 @@
       v124 2014-12-09, MAN
          - support resolution controlled max page-height (fi-6/7xxx scanners)
          - reorder scanner sections in init_model chronologically
+      v125 2014-12-16, MAN
+         - remove USB packet counting code from v123, fix sanei_usb instead
 
    SANE FLOW DIAGRAM
 
@@ -618,7 +620,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 123
+#define BUILD 125
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5

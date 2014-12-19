@@ -195,7 +195,7 @@ struct mode_param
 };
 
 enum {
-	MODE_LINEART, MODE_GRAY, MODE_COLOR
+	MODE_COLOR, MODE_GRAY, MODE_LINEART
 };
 
 #endif

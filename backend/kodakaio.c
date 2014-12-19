@@ -14,12 +14,19 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
 
+
  * Using avahi now 25/11/12 for net autodiscovery. Use configure option --enable-avahi
  * 01/01/13 Now with adf, the scan can be padded to make up the full page length, 
  * or the page can terminate at the end of the paper. This is a selectable option.
  */
 
-/* convenient lines to paste
+/* 
+Packages to add to a clean ubuntu install
+libavahi-common-dev
+libusb-dev
+libsnmp-dev
+
+convenient lines to paste
 export SANE_DEBUG_KODAKAIO=20
 
 for ubuntu prior to 12.10
@@ -27,6 +34,9 @@ for ubuntu prior to 12.10
 
 for ubuntu 12.10
 ./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS="kodakaio test"
+
+for ubuntu 14.10
+./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS="kodakaio test"
 
 If you want to use the test backend, for example with sane-troubleshoot, you should enable it in /etc/sane.d/dll.conf
 
@@ -128,8 +138,8 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
 
 
 #define KODAKAIO_VERSION	02
-#define KODAKAIO_REVISION	6
-#define KODAKAIO_BUILD		2
+#define KODAKAIO_REVISION	7
+#define KODAKAIO_BUILD		1
 
 /* for usb (but also used for net though it's not required). */
 #define MAX_BLOCK_SIZE		32768
@@ -572,15 +582,15 @@ commandtype, max depth, pointer to depth list
 
 /* could be affecting what data sane delivers */
 static struct mode_param mode_params[] = {
-	{0x00, 1, 8},  /* Lineart, 1 color, 8 bit (was 1 bit)   */
+	{0x03, 3, 24},  /* Color, 3 colors, 24 bit */
 	{0x02, 1, 8}, /* Grayscale, 1 color, 8 bit */
-	{0x03, 3, 24}  /* Color, 3 colors, 24 bit */
+	{0x00, 1, 1}  /* Lineart, 1 color, 8 bit (was 8 bit)   */
 };
 
 static SANE_String_Const mode_list[] = {
-	SANE_VALUE_SCAN_MODE_LINEART,
-	SANE_VALUE_SCAN_MODE_GRAY,
 	SANE_VALUE_SCAN_MODE_COLOR,
+	SANE_VALUE_SCAN_MODE_GRAY,
+	SANE_VALUE_SCAN_MODE_LINEART,
 	NULL
 };
 
@@ -667,8 +677,6 @@ print_status(KodakAio_Scanner *s,int level)
 /****************************************************************************
  *   Low-level Network communication functions ****************************************************************************/
 
-/* We don't have a packet wrapper, which holds packet size etc., so we
-   don't have to use a *read_raw and a *_read function... */
 static int
 kodakaio_net_read(struct KodakAio_Scanner *s, unsigned char *buf, size_t wanted,
 		       SANE_Status * status)
@@ -714,7 +722,6 @@ kodakaio_net_read(struct KodakAio_Scanner *s, unsigned char *buf, size_t wanted,
 		return read;
 }
 
-/* kodak does not pad commands like magicolor, so there's only a write_raw function */
 static int
 sanei_kodakaio_net_write_raw(struct KodakAio_Scanner *s,
 			      const unsigned char *buf, size_t buf_size,
@@ -1555,7 +1562,6 @@ k_set_scanning_parameters(KodakAio_Scanner * s)
 	/* Calculate how many bytes per line will be returned by the scanner.
 	magicolor needed this because it uses padding so scan bytes per line != image bytes per line.
 	 * The values needed for this are returned by get_scanning_parameters */
-/*	s->scan_bytes_per_line = 3 * ceil (scan_pixels_per_line * s->params.depth / 8.0); */
 	s->scan_bytes_per_line = 3 * ceil (scan_pixels_per_line); /* we always scan in colour 8 bit */
 	s->data_len = s->scan_bytes_per_line * floor (s->height * dpi / optres + 0.5); /* NB this is the length for a full scan */
 	DBG (1, "Check: scan_bytes_per_line = %d  s->params.bytes_per_line = %d \n", s->scan_bytes_per_line, s->params.bytes_per_line);
@@ -1657,7 +1663,7 @@ uncompressed data is RRRR...GGGG...BBBB  per line */
 					 	*data++ = 255-line[2 * s->params.pixels_per_line];  /*blue */
 					}
 
-					else if (s->val[OPT_MODE].w == MODE_LINEART) { /* gives 8 bit gray output using threshold added 7/9/14 */
+					else if (s->val[OPT_MODE].w == MODE_LINEART) { /* gives 1 bit output  */
         					/*output image location*/
         					int offset = i % 8;
         					unsigned char mask = 0x80 >> offset;
@@ -1742,7 +1748,7 @@ k_init_parametersta(KodakAio_Scanner * s)
 	    SANE_UNFIX(s->val[OPT_BR_X].w), SANE_UNFIX(s->val[OPT_BR_Y].w));
 
 	/*
-	 * The default color depth is stored in mode_params.depth:
+	 * The default color depth is stored in mode_params.depth:‭
 	 */
 	if (mode_params[s->val[OPT_MODE].w].depth == 1)
 		s->params.depth = 1;
@@ -2661,8 +2667,8 @@ init_options(KodakAio_Scanner *s)
 	s->opt[OPT_MODE].size = max_string_size(mode_list);
 	s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_MODE].constraint.string_list = mode_list;
-	s->val[OPT_MODE].w = 0;	/* Binary */
-	DBG(20, "%s: mode_list has first entry %s\n", __func__, mode_list[0]);
+	s->val[OPT_MODE].w = MODE_COLOR;	/* default */
+	DBG(20, "%s: mode_list has first entry %s, default mode is %s\n", __func__, mode_list[0],mode_list[s->val[OPT_MODE].w]);
 
 	/* theshold the sane std says should be SANE_TYPE_FIXED 0..100 but all other backends seem to use INT 0..255 */
 	s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
@@ -3137,7 +3143,7 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 	{
 		sval->w = optindex;
 		/* if binary, then disable the bit depth selection and enable threshold */
-		if (optindex == 0) {
+		if (optindex == MODE_LINEART) {
 	DBG(17, "%s: binary mode setting depth to 1\n", __func__);
 			s->val[OPT_BIT_DEPTH].w = 1;
 			s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;

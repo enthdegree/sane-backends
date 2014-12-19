@@ -1,3 +1,8 @@
+2014-12-19 Paul Newall <p dot newalls at ntlworld dot com>
+	* backend/kodakaio.c:
+	param.depth corrected for lineart mode, was 8 now 1
+	sequence of modes changed to make the color mode the default.
+
 2014-12-16 m. allan noah <kitno455 at gmail dot com>
 	* sanei/sanei_usb.c: add calls to sanei_usb_set_altinterface in
 	sanei_usb_close and sanei_usb_clear_halt- hopefully work around

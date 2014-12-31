@@ -1,7 +1,7 @@
 /*
  * kodakaio.c - SANE library for Kodak ESP Aio scanners.
  *
- * Copyright (C)   2011-2014 Paul Newall
+ * Copyright (C)   2011-2015 Paul Newall
  *
  * Based on the Magicolor sane backend: 
  * Based on the epson2 sane backend:
@@ -14,10 +14,11 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
 
-
- * Using avahi now 25/11/12 for net autodiscovery. Use configure option --enable-avahi
+ * Modified 30/12/14 to fix bug where network connection was broken after 30s of idle time.
+ * The connection is now made in sane_start and ended in sane_cancel.
  * 01/01/13 Now with adf, the scan can be padded to make up the full page length, 
  * or the page can terminate at the end of the paper. This is a selectable option.
+ * 25/11/12 Using avahi now for net autodiscovery. Use configure option --enable-avahi
  */
 
 /* 
@@ -62,20 +63,14 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
 */
 /* FUNCTION-TREE
 	sane_init
-	sane_start
-		k_init_parametersta
-		k_lock_scanner
-		k_set_scanning_parameters
-		print_params
-		k_start_scan
-			cmd_start_scan
-				print_status
-				k_send
-				kodakaio_txrxack
 	sane_open
 		device_detect
+			k_dev_init
+			open_scanner
+			close_scanner
 		sane_get_devices
 		init_options
+		(open_scanner - moved to sane_start 27/12/14 )
 	sane_control_option
 		getvalue
 		setvalue
@@ -83,6 +78,18 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
 			change_source
 				activateOption
 				deactivateOption
+	sane_start
+		open_scanner
+		k_init_parametersta
+		k_lock_scanner
+			k_hello
+		k_set_scanning_parameters
+		print_params
+		k_start_scan
+			cmd_start_scan
+				print_status
+				k_send
+				kodakaio_txrxack
 	sane_get_parameters
 		print_params
 	sane_read
@@ -90,6 +97,11 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
 			cmd_read_data (reads one block)
 				k_recv
 			cmp_array
+	sane_cancel
+		cmd_cancel_scan
+		close_scanner
+	sane_close
+		(close_scanner - moved to sane_cancel 27/12/14)
 	sane_exit
 		free_devices
 	k_recv
@@ -101,7 +113,9 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
 	open_scanner
 		sanei_kodakaio_net_open
 	close_scanner
-		sanei_kodakaio_net_close
+		k_scan_finish
+			cmd_cancel_scan
+		sanei_kodakaio_net_close or sanei_usb_close
 	detect_usb
 		kodakaio_getNumberOfUSBProductIds
 	attach_one_config - (Passed to sanei_configure_attach)
@@ -139,7 +153,7 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
 
 #define KODAKAIO_VERSION	02
 #define KODAKAIO_REVISION	7
-#define KODAKAIO_BUILD		1
+#define KODAKAIO_BUILD		2
 
 /* for usb (but also used for net though it's not required). */
 #define MAX_BLOCK_SIZE		32768
@@ -231,7 +245,7 @@ static int bitposn=0; /* used to pack bits into bytes in lineart mode */
 /* This file is used to store directly the raster returned by the scanner for debugging
 If RawScanPath has no length it will not be created */
 FILE *RawScan = NULL;
-/* example: unsigned char RawScanPath[] = "TestRawScan.pgm"; */
+/* example: char RawScanPath[] = "TestRawScan.pgm"; */
 char RawScanPath[] = ""; /* empty path means no raw scan file is made */
 
 /*
@@ -680,6 +694,9 @@ print_status(KodakAio_Scanner *s,int level)
 static int
 kodakaio_net_read(struct KodakAio_Scanner *s, unsigned char *buf, size_t wanted,
 		       SANE_Status * status)
+/* there seems to be a condition where this returns no error and no data without detecting a timeout
+That is probably if the scanner disconnected the network connection
+*/
 {
 	size_t size, read = 0;
 	struct pollfd fds[1];
@@ -692,7 +709,7 @@ kodakaio_net_read(struct KodakAio_Scanner *s, unsigned char *buf, size_t wanted,
 	fds[0].events = POLLIN;
 	fds[0].revents = 0;
 	if ((pollreply = poll (fds, 1, K_Request_Timeout)) <= 0) {
-		if (pollreply ==0)
+		if (pollreply == 0)
 			DBG(1, "net poll timeout\n");
 		else
 			/* pollreply is -ve */
@@ -700,27 +717,29 @@ kodakaio_net_read(struct KodakAio_Scanner *s, unsigned char *buf, size_t wanted,
 		*status = SANE_STATUS_IO_ERROR;
 		return read;
 	}
-	else if(fds[0].revents & POLLIN) {
+	else if((fds[0].revents & POLLIN) && !(fds[0].revents & (POLLERR | POLLHUP | POLLNVAL))) {
 		while (read < wanted) {
+			DBG(50, "reading: read %d, wanted %d\n",read, wanted);
 			size = sanei_tcp_read(s->fd, buf + read, wanted - read);
-
-			if (size == 0)
-			break;
-
+			if (size == 0) {
+				DBG(1, "No data read. Scanner may have disconnected\n");
+				break;
+			}
 			read += size;
 		}
 
-/* this error removed 28/12/12 because adf scans end with less data than wanted
-		if (read < wanted)
+		if (read == 0)
 			*status = SANE_STATUS_IO_ERROR;
- */
+
 		DBG(32, "net read %d bytes:%x,%x,%x,%x,%x,%x,%x,%x\n",read,buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7]);
+
 		return read;
 	}
 	else
 		DBG(1, "Unknown problem with poll\n");
 		return read;
 }
+
 
 static int
 sanei_kodakaio_net_write_raw(struct KodakAio_Scanner *s,
@@ -847,6 +866,7 @@ k_recv(KodakAio_Scanner * s, void *buf, ssize_t buf_size,
 this function called by a number of others 
 
 In USB mode, this function will wait until data is available for a maximum of SCANNER_READ_TIMEOUT seconds.
+In NET mode the timeout is in kodakaio_net_read
 */
 	ssize_t n = 0;
 	char fmt_buf[25];
@@ -862,6 +882,10 @@ In USB mode, this function will wait until data is available for a maximum of SC
 		DBG(min(16,DBG_READ), "[%ld]  %s: net req size = %ld  ", (long) time_start, __func__, (long) buf_size);
  		n = kodakaio_net_read(s, buf, buf_size, status);
 		DBG(min(16,DBG_READ), "returned %d\n", n);
+		if (*status != SANE_STATUS_GOOD) {
+			DBG(1, "%s: err returned from kodakaio_net_read, %s\n", __func__, sane_strstatus(*status));
+		}
+
 
 	} else if (s->hw->connection == SANE_KODAKAIO_USB) {
 		/* Start the clock for USB timeout */
@@ -937,16 +961,29 @@ kodakaio_txrx(KodakAio_Scanner *s, unsigned char *txbuf, unsigned char *rxbuf)
 /* Sends 8 byte data to scanner and returns reply and appropriate status. */
 {
 	SANE_Status status;
+	ssize_t n = 0;
 
 	k_send(s, txbuf, 8, &status);
 	if (status != SANE_STATUS_GOOD) {
 		DBG(1, "%s: tx err, %s\n", __func__, sane_strstatus(status));
 		return status;
 	}
-	k_recv(s, rxbuf, 8, &status);
+	n = k_recv(s, rxbuf, 8, &status);
 	if (status != SANE_STATUS_GOOD) {
 		DBG(1, "%s: %s gave rx err, %s\n", __func__, "txvalue", sane_strstatus(status));
 		return status;
+	}
+	if (n == 0) {
+		DBG(1, "%s: try 1 k_recv returned 0 bytes with status %s\n", __func__, sane_strstatus(status));
+		n = k_recv(s, rxbuf, 8, &status);
+		if (status != SANE_STATUS_GOOD) {
+			DBG(1, "%s: %s gave rx err, %s\n", __func__, "txvalue", sane_strstatus(status));
+			return status;
+		}
+		if (n == 0) {
+			DBG(1, "%s: try 2 k_recv returned 0 bytes with status %s\n", __func__, sane_strstatus(status));
+			return status;
+		}
 	}
 	return status;
 }
@@ -977,7 +1014,8 @@ and returns appropriate status
 			s->adf_loaded = SANE_TRUE;
 			DBG(5, "%s: News - docs in ADF\n", __func__);
 		}
-		else if (rxbuf[4] != 0x01 && s->adf_loaded == SANE_TRUE) {
+		else if (rxbuf[4] != 
+0x01 && s->adf_loaded == SANE_TRUE) {
 			s->adf_loaded = SANE_FALSE;
 			DBG(5, "%s: News - ADF is empty\n", __func__);
 		}
@@ -989,6 +1027,25 @@ and returns appropriate status
 	}
 
 	return status;
+}
+
+static ssize_t 
+kodakaio_rxflush(KodakAio_Scanner *s)
+/*
+Tries to get 64 byte reply
+and returns number of bytes read
+*/
+{
+	SANE_Status status;
+	unsigned char rxbuf[64];
+	ssize_t n = 0;
+
+	n = k_recv(s, rxbuf, 64, &status);
+	if (status != SANE_STATUS_GOOD) {
+		DBG(1, "%s: %s gave rx err, %s\n", __func__, "status", sane_strstatus(status));
+	}
+	DBG(5, "%s: flushed, %d bytes\n", __func__,  (int)n);
+	return n;
 }
 
 /*
@@ -1003,6 +1060,13 @@ k_hello (KodakAio_Scanner * s)
 	char fmt_buf[25];
 
 	DBG(5, "%s\n", __func__);
+
+/* check that there is nothing already in the input buffer before starting 
+kodakaio_rxflush(s);
+*/
+/* preset the reply, so I can see if it gets changed */
+reply[0] = 0; reply[1] = 1; reply[2] = 2; reply[3] = 3; reply[4] = 4; reply[5] = 5; reply[6] = 6; reply[7] = 7;
+
 	if((status = kodakaio_txrx(s, KodakEsp_V, reply))!= SANE_STATUS_GOOD) {
 		DBG(1, "%s: KodakEsp_V failure, %s\n", __func__, sane_strstatus(status));
 		return SANE_STATUS_IO_ERROR;
@@ -1013,6 +1077,8 @@ k_hello (KodakAio_Scanner * s)
 			DBG(1, "%s: KodakEsp_v err, got %s\n", __func__, fmt_buf);
 			return SANE_STATUS_IO_ERROR;
 	}
+
+
 	DBG(5, "%s: OK %s\n", __func__, sane_strstatus(status));
 	return status;
 }
@@ -1060,12 +1126,24 @@ cmd_cancel_scan (SANE_Handle handle)
 	unsigned char reply[8];
 /* adf added 20/2/12 should it be adf? or adf with paper in? */
 	if (strcmp(source_list[s->val[OPT_SOURCE].w], ADF_STR) == 0) { /* adf */
-		if (kodakaio_txrxack(s, KodakEsp_F, reply)!= SANE_STATUS_GOOD) return SANE_STATUS_IO_ERROR;
-		if (kodakaio_txrxack(s, KodakEsp_UnLock, reply)!= SANE_STATUS_GOOD) return SANE_STATUS_IO_ERROR;
+		if (kodakaio_txrxack(s, KodakEsp_F, reply)!= SANE_STATUS_GOOD) 
+		{
+			DBG(1, "%s: KodakEsp_F command failed\n", __func__);
+			return SANE_STATUS_IO_ERROR;
+		}
+		if (kodakaio_txrxack(s, KodakEsp_UnLock, reply)!= SANE_STATUS_GOOD) 
+		{
+			DBG(1, "%s: KodakEsp_UnLock command failed\n", __func__);
+			return SANE_STATUS_IO_ERROR;
+		}
 		DBG(5, "%s unlocked the scanner with adf F U\n", __func__);
 	}
 	else { /* no adf */
-		if (kodakaio_txrxack(s, KodakEsp_UnLock, reply)!= SANE_STATUS_GOOD) return SANE_STATUS_IO_ERROR;
+		if (kodakaio_txrxack(s, KodakEsp_UnLock, reply)!= SANE_STATUS_GOOD)
+		{
+			DBG(1, "%s: KodakEsp_UnLock command failed\n", __func__);
+			return SANE_STATUS_IO_ERROR;
+		}
 		DBG(5, "%s unlocked the scanner U\n", __func__);
 	}
 	s->scanning = SANE_FALSE;
@@ -1298,7 +1376,7 @@ But it seems that the scanner takes care of that, and gives you the ack as a sep
 		}
 	}
 	else {
-		DBG(min(1,DBG_READ), "%s: tiny read, got %d bytes of %d\n", __func__, bytecount, *len);
+		DBG(min(1,DBG_READ), "%s: tiny read, got %d bytes of %d\n", __func__, (int) bytecount, *len);
 		return SANE_STATUS_IO_ERROR;
 	}
 	if (*len > s->params.bytes_per_line) {
@@ -1564,7 +1642,7 @@ k_set_scanning_parameters(KodakAio_Scanner * s)
 	 * The values needed for this are returned by get_scanning_parameters */
 	s->scan_bytes_per_line = 3 * ceil (scan_pixels_per_line); /* we always scan in colour 8 bit */
 	s->data_len = s->scan_bytes_per_line * floor (s->height * dpi / optres + 0.5); /* NB this is the length for a full scan */
-	DBG (1, "Check: scan_bytes_per_line = %d  s->params.bytes_per_line = %d \n", s->scan_bytes_per_line, s->params.bytes_per_line);
+	DBG (5, "Check: scan_bytes_per_line = %d  s->params.bytes_per_line = %d \n", s->scan_bytes_per_line, s->params.bytes_per_line);
 
 /* k_setup_block_mode at the start of each page for adf to work */
 	status = k_setup_block_mode (s);
@@ -2914,12 +2992,13 @@ maybe we should only be rebuilding the source list here? */
 
 	*handle = (SANE_Handle) s;
 
+/* moving the open scanner section below to sane_start 27/12/14 
 	status = open_scanner(s);
 	if (status != SANE_STATUS_GOOD) {
 		free(s);
 		return status;
 	}
-
+*/
 	return status;
 }
 
@@ -2936,8 +3015,11 @@ sane_close(SANE_Handle handle)
 	s = (KodakAio_Scanner *) handle;
 	DBG(2, "%s: called\n", __func__);
 
+/* moving the close scanner section below to sane_cancel 27/12/14 */
 	if (s->fd != -1)
 		close_scanner(s);
+/* end of section */
+
 	if(RawScan != NULL)
 		fclose(RawScan);
 	RawScan = NULL;
@@ -3241,7 +3323,7 @@ sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action action,
 		return SANE_STATUS_INVAL;
 	}
 
-	DBG(2, "%s: action = %x, option = %d %s\n", __func__, action, option, s->opt[option].name);
+	DBG(5, "%s: action = %x, option = %d %s\n", __func__, action, option, s->opt[option].name);
 
 	if (info != NULL)
 		*info = 0;
@@ -3313,6 +3395,16 @@ sane_start(SANE_Handle handle)
 	 * them to s->params 
 Only set scanning params the first time, or after a cancel 
 try change 22/2/12 take lock scanner out of k_set_scanning_parameters */
+
+/* moved open_scanner here 27/12/14 from sane_open */
+	status = open_scanner(s);
+	if (status != SANE_STATUS_GOOD) {
+		free(s);
+		return status;
+	}
+/* end of open scanner section */
+
+
 		status = k_lock_scanner(s);
 		if (status != SANE_STATUS_GOOD) {
 			DBG(1, "could not lock scanner\n");
@@ -3403,24 +3495,24 @@ sane_read(SANE_Handle handle, SANE_Byte *data, SANE_Int max_length,
 	return status;
 }
 
-/*
- * void sane_cancel(SANE_Handle handle)
- *
- * Set the cancel flag to true. The next time the backend requests data
- * from the scanner the CAN message will be sent.
- */
 
 void
 sane_cancel(SANE_Handle handle)
 {
+	SANE_Status status;
 	KodakAio_Scanner *s = (KodakAio_Scanner *) handle;
 	DBG(2, "%s: called\n", __func__);
 
-/* used to set cancelling flag to tell sane_read to cancel
-changed 20/2/12
-	s->canceling = SANE_TRUE;
-*/
-	cmd_cancel_scan(s);
+	status = cmd_cancel_scan(s);
+	if (status != SANE_STATUS_GOOD)
+		DBG(1, "%s: cmd_cancel_scan failed: %s\n", __func__,
+		    sane_strstatus(status));
+
+/* moved from close scanner section 27/12/14 */
+	if (s->fd != -1)
+		close_scanner(s);
+/* end of section */
+
 }
 
 /*

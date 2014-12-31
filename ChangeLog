@@ -1,3 +1,9 @@
+2014-12-31 Paul Newall <p dot newalls at ntlworld dot com>
+	* backend/kodakaio.c:
+	connection to device moved from sane_open to sane_start
+	disconnection move from sane_close to sane_cancel
+	in order to fix bug where scanner disconnected after 30s idle.
+
 2014-12-19 Paul Newall <p dot newalls at ntlworld dot com>
 	* backend/kodakaio.c:
 	param.depth corrected for lineart mode, was 8 now 1

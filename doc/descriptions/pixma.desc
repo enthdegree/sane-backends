@@ -75,8 +75,8 @@
 :model "PIXMA MG2200 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1760"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MG2400 Series"
 :interface "USB"

@@ -1,3 +1,8 @@
+2015-01-20 Ilia Sotnikov <hostcc at gmail dot com>
+	* backend/hp5590.c:
+	Invert pixels in case of TMA Negatives source has been selected.
+	Thanks for Will Kranz who reported this.
+
 2015-01-17 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	  Canon PIXMA MG2200 Series is working (bug #314944).

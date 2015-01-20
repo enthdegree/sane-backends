@@ -1239,6 +1239,14 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
 	      buf[i*6+5] = ptr[2*i+bytes_per_color*2];
 	    }
 	}
+      
+      /* Invert pixels in case of TMA Negatives source has been selected */
+      if (scanner->source == SOURCE_TMA_NEGATIVES)
+        {
+          for (i = 0; i < bytes_per_line; i++)
+            buf[i] ^= 0xff;
+        }
+
       memcpy (ptr, buf, bytes_per_line);
     }
   free (buf);

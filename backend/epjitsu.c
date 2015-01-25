@@ -146,6 +146,9 @@
          - fix 150 dpi settings for fi-60F and fi-65F
          - make adf_height_padding variable
          - make white_factor variable
+      v27 2015-01-24, MAN
+         - don't override br_x and br_y
+         - call change_params after changing page_width
 
    SANE FLOW DIAGRAM
 
@@ -194,7 +197,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 26
+#define BUILD 27
 
 #ifndef MAX3
   #define MAX3(a,b,c) ((a) > (b) ? ((a) > (c) ? a : c) : ((b) > (c) ? b : c))
@@ -1712,8 +1715,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               return SANE_STATUS_GOOD;
 
           s->page_width = FIXED_MM_TO_SCANNER_UNIT(val_c);
-          *info |= SANE_INFO_RELOAD_OPTIONS;
-          return SANE_STATUS_GOOD;
+          *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+          return change_params(s);
 
         case OPT_PAGE_HEIGHT:
           if (s->page_height == FIXED_MM_TO_SCANNER_UNIT(val_c))
@@ -1970,11 +1973,6 @@ change_params(struct scanner *s)
     s->max_y = PIX_TO_SCANNER_UNIT( settings[i].max_y, settings[i].y_res );
     s->min_y = PIX_TO_SCANNER_UNIT( settings[i].min_y, settings[i].y_res );
 
-    /* wrong place for this?*/
-    s->page_width = s->max_x;
-    s->br_x = s->max_x;
-    s->br_y = s->max_y;
-
     /*current dpi*/
     s->setWindowCoarseCal = settings[i].sw_coarsecal;
     s->setWindowCoarseCalLen = SET_WINDOW_LEN;
@@ -2018,13 +2016,14 @@ change_params(struct scanner *s)
     if (s->page_height < s->min_y && s->page_height > 0)
        s->page_height = s->min_y;
     if (s->tl_y + s->page_height > s->max_y)
-       s->tl_y = s->max_y - s->adf_height_padding - s->page_height ;
+       s->tl_y = s->max_y - s->adf_height_padding - s->page_height;
+    if (s->tl_y < 0)
+       s->tl_y = 0;
 
     if (s->page_height > 0) {
         s->br_y = s->tl_y + s->page_height;
     }
-    else
-    {
+    else {
         s->br_y = s->max_y;
     }
 

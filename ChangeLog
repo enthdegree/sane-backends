@@ -1,3 +1,7 @@
+2015-02-06 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	  Canon PIXMA MG2500 Series is working, reported by Brenda Ruch.
+
 2015-01-20 Ilia Sotnikov <hostcc at gmail dot com>
 	* backend/hp5590.c:
 	Invert pixels in case of TMA Negatives source has been selected.

@@ -1,3 +1,7 @@
+2015-02-09 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* doc/descriptions/pixma.desc: Canon PIXMA MX920 Series supports Ethernet
+	  and WiFi interfaces.
+
 2015-02-06 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	  Canon PIXMA MG2500 Series is working, reported by Brenda Ruch.

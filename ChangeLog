@@ -15,6 +15,14 @@
 	fix for memleak in sane_get_devices (bugs #300132 #300131 #300130 #300129
 	#300127 #300126 #300124 #300122 #300121 #300120)
 
+2015-08-10 Klaus Kämpf <kkaempf@suse.com>
+	* backend/pieusb.c, doc/descriptions/pieusb.desc, doc/sane-pieusb.man,
+          backend/pieusb_buffer.c, backend/pieusb_scancmd.c, backend/pieusb_specific.c,
+          backend/pieusb_usb.c:
+	  New scanners PIE PowerSlide 3600,3650,4000,5000 / Reflecta DigitDia 3600,
+          4000, 5000, 6000; ProScan 7200; CrystalScan 7200. These scanners need
+          further testing.
+
 2015-08-08 Stéphane Voltz <stef.dev@free.fr>
 	* backend/test.c: fix memleaks (#313553)
 	* configure.in, configure: don not harcode -I/usr/local/include

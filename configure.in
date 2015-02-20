@@ -614,7 +614,7 @@ ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
         hp5590 hpsj5s hpljm1005 hs2p ibm kodak kodakaio kvs1025 kvs20xx \
         kvs40xx leo lexmark ma1509 magicolor \
         matsushita microtek microtek2 mustek mustek_pp \
-        mustek_usb mustek_usb2 nec net niash pie pint \
+        mustek_usb mustek_usb2 nec net niash pie pieusb pint \
         pixma plustek plustek_pp qcam ricoh rts8891 s9036 \
         sceptre sharp sm3600 sm3840 snapscan sp15c st400 \
         stv680 tamarack teco1 teco2 teco3 test u12 umax 

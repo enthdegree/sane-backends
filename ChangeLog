@@ -1,3 +1,13 @@
+2015-02-21 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c: Canon PIXMA MG6400 Series doesn't need special
+	  image format post processing.
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	  Canon PIXMA MG6400 Series is working, reported by Christian Spielberger.
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	  New scanners Canon PIXMA MX490 Series and E480 Series. All scanners need
+	  further testing.
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.15
+
 2015-02-09 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc: Canon PIXMA MX920 Series supports Ethernet
 	  and WiFi interfaces.

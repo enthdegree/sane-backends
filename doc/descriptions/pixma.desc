@@ -181,10 +181,10 @@
 :comment "All resolutions supported (up to 2400DPI)."
 
 :model "PIXMA MG6400 Series"
-:interface "USB"
+:interface "USB WiFi"
 :usbid "0x04a9" "0x1770"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MG6500 Series"
 :interface "USB"

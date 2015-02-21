@@ -1149,6 +1149,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
               && s->cfg->pid != MG5300_PID
               && s->cfg->pid != MG5500_PID
               && s->cfg->pid != MG6300_PID
+              && s->cfg->pid != MG6400_PID
               && s->cfg->pid != MG7100_PID)
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
           

@@ -3516,7 +3516,7 @@ gl124_init_gpio (Genesys_Device * dev)
       idx = 0;
     }
   else
-    {				/* canon LiDE 210 case */
+    {				/* canon LiDE 210 and 220 case */
       idx = 1;
     }
 
@@ -3549,7 +3549,7 @@ gl124_init_memory_layout (Genesys_Device * dev)
       idx = 0;
     }
   else
-    {				/* canon LiDE 210 case */
+    {				/* canon LiDE 210 and 220 case */
       idx = 1;
     }
 

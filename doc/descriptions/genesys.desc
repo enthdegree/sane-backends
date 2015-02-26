@@ -155,7 +155,13 @@
 :interface "USB"
 :usbid "0x04a9" "0x190a"
 :status :complete
-:comment "GL124 based, resolution from 75 to 2400 dpi"
+:comment "GL124 based, resolution from 75 to 4800 dpi"
+
+:model "CanoScan LiDE 220"
+:interface "USB"
+:usbid "0x04a9" "0x190f"
+:status :complete
+:comment "GL124+ based, resolution from 75 to 4800 dpi"
 
 :model "CanoScan 4400f"
 :interface "USB"

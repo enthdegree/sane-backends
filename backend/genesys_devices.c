@@ -683,6 +683,29 @@ static Genesys_Sensor Sensor[] = {
    {2.1, 2.1, 2.1},
    {NULL, NULL, NULL}}
   ,
+  /* CANON LIDE 220 sensor */
+  {CIS_CANONLIDE220,
+   2400,	/* optical resolution */
+   87,		/* black pixels */
+   16,		/* dummy pixels 16 */
+   303,		/* 303 */
+   5168*4,	/* total pixels */
+   210,
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   /* reg 0x10 - 0x15 : EXPR, EXPG and EXPB */
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+   /* reg 0x16 - 0x1d */
+    0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01 },
+   /* reg 0x52 - 0x5e */
+   {
+    0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04,
+    0x1a, 0x00, 0xc0, 0x00, 0x00
+    }
+   ,
+   {2.1, 2.1, 2.1},
+   {NULL, NULL, NULL}}
+  ,
   {CCD_PLUSTEK_3600,
    1200,
    87,				/*(black) */
@@ -1894,6 +1917,59 @@ static Genesys_Model canon_lide_210_model = {
   SANE_TRUE,			/* Is this a CIS scanner? */
   SANE_FALSE,			/* Is this a sheetfed scanner? */
   CIS_CANONLIDE210,
+  DAC_CANONLIDE110,
+  GPO_CANONLIDE210,
+  MOTOR_CANONLIDE210,
+      GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_CALIBRATION
+    | GENESYS_FLAG_HALF_CCD_MODE
+    | GENESYS_FLAG_SHADING_REPARK
+    | GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_EXTRA_SW,
+  60,
+  400
+};
+
+static Genesys_Model canon_lide_220_model = {
+  "canon-lide-220",		/* Name */
+  "Canon",			/* Device vendor string */
+  "LiDE 220",			/* Device model name */
+  GENESYS_GL124, /* or a compatible one */
+  NULL,
+
+  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (2.2),		/* Start of scan area in mm (x) */
+  SANE_FIX (8.7),		/* Start of scan area in mm (y) */
+  SANE_FIX (216.70),		/* Size of scan area in mm (x) */
+  SANE_FIX (297.5),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document
+				   after finishing scanning in mm */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
+  CIS_CANONLIDE220,
   DAC_CANONLIDE110,
   GPO_CANONLIDE210,
   MOTOR_CANONLIDE210,
@@ -3508,6 +3584,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   /* GL124 devices */
   {0x04a9, 0x1909, &canon_lide_110_model},
   {0x04a9, 0x190a, &canon_lide_210_model},
+  {0x04a9, 0x190f, &canon_lide_220_model},
   {0, 0, NULL}
 };
 

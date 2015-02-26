@@ -382,6 +382,7 @@ Genesys_Color_Order;
 #define CCD_PLUSTEK3800  26
 #define CIS_CANONLIDE210 27
 #define CIS_CANONLIDE80  28
+#define CIS_CANONLIDE220 29
 
 #define GPO_UMAX         0
 #define GPO_ST12         1

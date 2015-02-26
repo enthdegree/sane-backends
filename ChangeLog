@@ -1,3 +1,10 @@
+2015-02-26 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c, backend/genesys.conf.in,
+	backend/genesys_devices.c, backend/genesys_gl124.c,
+	backend/genesys_gl124.h, backend/genesys_low.h,
+	doc/descriptions/genesys.desc, doc/sane-genesys.man: add support for
+	Canon LiDE 220
+
 2015-02-21 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c: Canon PIXMA MG6400 Series doesn't need special
 	  image format post processing.

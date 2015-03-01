@@ -852,7 +852,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
     }
   else
     {
-      min_speed = 600;
+      min_speed = 900;
       if(dev->model->ccd_type==MOTOR_CANONLIDE110)
         {
           min_speed = 300;

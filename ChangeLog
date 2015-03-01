@@ -1,3 +1,7 @@
+2015-03-01 Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_devices.c, backend/genesys_gl124.c:
+	final tuning for Canon LiDE 220
+
 2015-02-26 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c, backend/genesys.conf.in,
 	backend/genesys_devices.c, backend/genesys_gl124.c,

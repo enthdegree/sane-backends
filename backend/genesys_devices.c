@@ -1938,8 +1938,8 @@ static Genesys_Model canon_lide_220_model = {
   GENESYS_GL124, /* or a compatible one */
   NULL,
 
-  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible x-resolutions */
-  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},	/* possible y-resolutions */
+  {4800, 2400, 1200, 600, 300, 150, 100, 75, 0},	/* possible x-resolutions */
+  {4800, 2400, 1200, 600, 300, 150, 100, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 

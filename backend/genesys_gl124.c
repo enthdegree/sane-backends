@@ -2108,6 +2108,17 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_GOOD;
     }
 
+  /* feed a little first */
+  if (strcmp (dev->model->name, "canon-lide-210") == 0)
+    {
+      status = gl124_feed (dev, 20, SANE_TRUE);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (DBG_error, "%s: failed to do initial feed: %s\n", __FUNCTION__, sane_strstatus (status));
+          return status;
+        }
+    }
+
   memcpy (local_reg, dev->reg, GENESYS_GL124_MAX_REGS * sizeof (Genesys_Register_Set));
   resolution=sanei_genesys_get_lowest_dpi(dev);
 

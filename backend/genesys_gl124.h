@@ -710,7 +710,7 @@ SANE_Status gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int s
 #ifndef UNIT_TESTING
 static
 #endif
-SANE_Status gl124_feed (Genesys_Device * dev, unsigned int steps);
+SANE_Status gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse);
 
 GENESYS_STATIC SANE_Status
 gl124_stop_action (Genesys_Device * dev);

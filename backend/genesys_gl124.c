@@ -2202,12 +2202,13 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
  * @param steps number of steps to move
+ * @param reverse true is moving backward
  * */
 #ifndef UNIT_TESTING
 static
 #endif
 SANE_Status
-gl124_feed (Genesys_Device * dev, unsigned int steps)
+gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
 {
   Genesys_Register_Set local_reg[GENESYS_GL124_MAX_REGS];
   SANE_Status status;
@@ -2242,9 +2243,7 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
                                  SCAN_FLAG_IGNORE_LINE_DISTANCE);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-           "gl124_feed: failed to set up registers: %s\n",
-           sane_strstatus (status));
+      DBG (DBG_error, "%s: failed to set up registers: %s\n", __FUNCTION__, sane_strstatus (status));
       DBGCOMPLETED;
       return status;
     }
@@ -2261,6 +2260,13 @@ gl124_feed (Genesys_Device * dev, unsigned int steps)
   /* set up for no scan */
   r = sanei_genesys_get_address (local_reg, REG01);
   r->value &= ~REG01_SCAN;
+
+  /* set up for reverse if needed */
+  if(reverse) 
+    {
+      r = sanei_genesys_get_address (local_reg, REG02);
+      r->value |= REG02_MTRREV;
+    }
 
   /* send registers */
   RIE (dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL124_MAX_REGS));
@@ -2653,7 +2659,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
 
   if(channels*dev->settings.yres>=600 && move>700)
     {
-      status = gl124_feed (dev, move-500);
+      status = gl124_feed (dev, move-500, SANE_FALSE);
       if (status != SANE_STATUS_GOOD)
         {
           DBG (DBG_error, "%s: failed to move to scan area\n",__FUNCTION__);

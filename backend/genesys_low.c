@@ -1437,6 +1437,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
   SANE_Status status;
   uint8_t val;
   int loop;
+  int max=300;
 
   DBGSTART;
 
@@ -1492,7 +1493,14 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
             }
       ++loop;
     }
-  while (loop < 300 && !(val & HOMESNR) && status == SANE_STATUS_GOOD);
+  while (loop < max && !(val & HOMESNR) && status == SANE_STATUS_GOOD);
+
+  /* if after the timeout, head is still not parked, error out */
+  if(loop >= max && !(val & HOMESNR) && status == SANE_STATUS_GOOD) 
+    {
+      DBG (DBG_error, "%s: failed to reach park position %ds\n", __FUNCTION__, max/10);
+      return SANE_STATUS_IO_ERROR;
+    }
 
   DBGCOMPLETED;
   return status;

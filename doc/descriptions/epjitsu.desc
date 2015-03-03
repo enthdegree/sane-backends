@@ -11,9 +11,9 @@
 
 :backend "epjitsu"               ; name of backend
 :url "http://www.thebility.com/epjitsu/" 
-:version "25"                    ; version of backend
+:version "27"                    ; version of backend
 :manpage "sane-epjitsu"          ; name of manpage (if it exists)
-:comment "Backend updated for SANE release 1.0.25, see sane-epjitsu manpage"
+:comment "Backend updated for SANE release 1.0.26, see sane-epjitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api

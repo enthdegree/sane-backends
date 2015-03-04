@@ -1,3 +1,6 @@
+2015-04-04 Stéphane Voltz <stef.dev@free.fr>
+	* doc/descriptions/genesys.desc: mark LiDE 220 as unsupported.
+
 2015-03-02 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.c, backend/genesys_gl124.[ch]:
 	improve parking reliability for LiDE 210

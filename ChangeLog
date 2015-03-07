@@ -1,3 +1,8 @@
+2015-03-13 René Rebe <rene@exactcode.de>
+	* doc/sane-avision.man, backend/avision.h, backend/avision.c:
+	fixed newer avision scanner duplex scanning, and removed unnecessary
+	feature_type2 clutter by using a uint64_t to share all bits
+
 2015-03-12 René Rebe <rene@exactcode.de>
 	* doc/descriptions/avision.desc, backend/avision.c:
 	fixed multiple regressions (range initilaizer, clobbering

@@ -157,9 +157,9 @@ export SANE_DEBUG_AVISION=7
 .SH "SEE ALSO"
 sane(7), sane\-scsi(5), sane\-usb(5)
 .br
-http://skull.piratehaven.org/~mike/sane/avision.html
+http://exactcode.com/site/open_source/saneavision/
 
 .SH MAINTAINER
-Mike Kelly
+Ren\['e] Rebe
 .SH AUTHOR
 Ren\['e] Rebe and Meino Christian Cramer

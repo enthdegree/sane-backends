@@ -4282,7 +4282,9 @@ get_double ( &(result[48] ) ));
   else
     dev->scsi_buffer_size = sanei_scsi_max_request_size;
 
-  if (dev->inquiry_asic_type >= AV_ASIC_C5)
+  if (dev->inquiry_asic_type > AV_ASIC_C7 && dev->inquiry_asic_type < AV_ASIC_OA980)
+    dev->read_stripe_size = 16;
+  else if (dev->inquiry_asic_type >= AV_ASIC_C5)
     dev->read_stripe_size = 32;
   else  /* tested on AV3200 with it's max of 300dpi @color */
     dev->read_stripe_size = 8; /* maybe made dynamic on scan res ... */
@@ -6956,11 +6958,15 @@ reader_process (void *data)
 	  /* only EOF on the second stripe, as otherwise the rear page
 	     is shorter */
 	  if (status == SANE_STATUS_EOF && deinterlace == STRIPE) {
-	    static int already_eof = 0;
-	    if (!already_eof) {
-	      DBG (5, "reader_process: first EOF on stripe interlace: hiding.\n");
-	      status = SANE_STATUS_GOOD;
-	      already_eof = 1;
+	    if (dev->inquiry_asic_type > AV_ASIC_C7 && dev->inquiry_asic_type < AV_ASIC_OA980) {
+	      this_read = 0;
+	    } else {
+	      static int already_eof = 0;
+	      if (!already_eof) {
+		DBG (5, "reader_process: first EOF on stripe interlace: hiding.\n");
+		status = SANE_STATUS_GOOD;
+		already_eof = 1;
+	      }
 	    }
 	  }
 	  

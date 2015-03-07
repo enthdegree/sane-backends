@@ -1,4 +1,10 @@
-2015-04-04 Stéphane Voltz <stef.dev@free.fr>
+2015-03-12 RenÃ© Rebe <rene@exactcode.de>
+	* doc/descriptions/avision.desc, backend/avision.c:
+	fixed multiple regressions (range initilaizer, clobbering
+	paper-length window bits, ...) introduced over the past years, added
+	support for newer ASIC gamma table size, added AV220D2+ ID
+
+2015-03-04 Stéphane Voltz <stef.dev@free.fr>
 	* doc/descriptions/genesys.desc: mark LiDE 220 as unsupported.
 
 2015-03-02 Stéphane Voltz <stef.dev@free.fr>

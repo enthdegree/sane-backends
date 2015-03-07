@@ -19,7 +19,7 @@
 ;:status :stable
 
 ; backend's web page
-:url "http://skull.piratehaven.org/~mike/sane/avision.html"
+:url "http://exactcode.com/site/open_source/saneavision/"
 
 ; name of manpage (if it exists)
 :manpage "sane-avision"
@@ -111,7 +111,13 @@
 :interface "USB"
 :usbid "0x0638" "0x0a2b"
 :comment "duplex! sheetfed scanner"
-:status :complete
+:status :basic
+
+:model "AV220D2"
+:interface "USB"
+:usbid "0x0638" "0x1a31"
+:comment "duplex! sheetfed scanner"
+:status :untested
 
 :model "AV220+"
 :interface "USB"

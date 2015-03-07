@@ -39,24 +39,21 @@
 
    *****************************************************************************
 
-   This backend is based upon the Tamarack backend and adapted to the Avision
-   scanners by René Rebe and Meino Cramer.
-   
    This file implements a SANE backend for the Avision SCSI Scanners (like the
    AV 630 / 620 (CS) ...) and some Avision (OEM) USB scanners (like the HP 53xx,
    74xx, Minolta FS-V1 ...) or Fujitsu ScanPartner with the AVISION SCSI-2/3
-   or USB command set.
+   or USB command set and written by René Rebe and Meino Cramer.
+
    
+   Copyright 2002 - 2015 by
+               	"Ren Rebe" <rene@exactcode.de>
+
    Copyright 1999, 2000, 2001 by
                 "René Rebe" <rene@exactcode.de>
                 "Meino Christian Cramer" <mccramer@s.netic.de>
 
    Copyright 2002 by
-                "René Rebe" <rene@exactcode.de>
                 "Jose Paulo Moitinho de Almeida" <moitinho@civil.ist.utl.pt>
-   
-   Copyright 2003, 2004, 2005, 2006, 2007 by
-                "René Rebe" <rene@exactcode.de>
    
    Copyright 2010, 2011 by
                 "Mike Kelly" <mike@piratehaven.org>
@@ -263,6 +260,13 @@ static Avision_HWEntry Avision_Device_List [] =
       0x0638, 0x0A2B,
       "Avision", "AV220D2",
       AV_INT_BUTTON | AV_CANCEL_BUTTON,0},
+    /* comment="duplex! sheetfed scanner" */
+    /* status="complete" */
+
+    { NULL, NULL,
+      0x0638, 0x1A31,
+      "Avision", "AV220D2+",
+      AV_INT_BUTTON | AV_CANCEL_BUTTON,AV_USE_GRAY_FILTER},
     /* comment="duplex! sheetfed scanner" */
     /* status="complete" */
 
@@ -3765,7 +3769,7 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   if (!found) {
     DBG (0, "attach: \"%s\" - \"%s\" not yet in whitelist!\n", mfg, model);
     DBG (0, "attach: You might want to report this output.\n");
-    DBG (0, "attach: To: mike@piratehaven.org (the Avision backend maintainer)\n");
+    DBG (0, "attach: To: rene@exactcode.de (the Avision backend author)\n");
     
     status = SANE_STATUS_INVAL;
     goto close_scanner_and_return;
@@ -5142,7 +5146,7 @@ send_gamma (Avision_Scanner* s)
   switch (dev->inquiry_asic_type)
     {
     case AV_ASIC_Cx:
-    case AV_ASIC_C1: /* from avision code */
+    case AV_ASIC_C1:
       gamma_table_raw_size = 4096;
       gamma_table_size = 2048;
       break;
@@ -5150,10 +5154,6 @@ send_gamma (Avision_Scanner* s)
       gamma_table_raw_size = 256;
       gamma_table_size = 256;
       break;
-    case AV_ASIC_C6: /* SPEC claims: 256 ... ? */
-    case AV_ASIC_C7:
-      gamma_table_raw_size = 512;
-      gamma_table_size = 512;
       break;
     case AV_ASIC_OA980:
       gamma_table_raw_size = 4096;
@@ -5164,7 +5164,8 @@ send_gamma (Avision_Scanner* s)
       gamma_table_size = 256;
       break;
     default:
-      gamma_table_raw_size = gamma_table_size = 4096;
+      gamma_table_raw_size = 512; /* SPEC claims: 256 ... ? */
+      gamma_table_size = 512;
     }
   
   gamma_values = gamma_table_size / 256;
@@ -5678,8 +5679,9 @@ set_window (Avision_Scanner* s)
     }
   }
   
-  if (s->val[OPT_PAPERLEN].w)
+  if (s->val[OPT_PAPERLEN].w != SANE_FALSE) {
      set_double (cmd.window.descriptor.paper_length, (int)((double)30.0*1200));
+  }
 
   if ( !(dev->hw->feature_type & AV_FUJITSU) )
     { 
@@ -6262,11 +6264,6 @@ init_options (Avision_Scanner* s)
   
   /* Init the SANE option from the scanner inquiry data */
   
-  dev->x_range.max = SANE_FIX ( (int)dev->inquiry_x_ranges[s->source_mode_dim]);
-  dev->x_range.quant = 0;
-  dev->y_range.max = SANE_FIX ( (int)dev->inquiry_y_ranges[s->source_mode_dim]);
-  dev->y_range.quant = 0;
-  
   switch (dev->inquiry_asic_type) {
     case AV_ASIC_C2:
       dev->dpi_range.min = 100;
@@ -6330,6 +6327,11 @@ init_options (Avision_Scanner* s)
   s->val[OPT_SOURCE].s = strdup(dev->source_list[0]);
   s->source_mode = match_source_mode (dev, s->val[OPT_SOURCE].s);
   s->source_mode_dim = match_source_mode_dim (s->source_mode);
+
+  dev->x_range.max = SANE_FIX ( (int)dev->inquiry_x_ranges[s->source_mode_dim]);
+  dev->x_range.quant = 0;
+  dev->y_range.max = SANE_FIX ( (int)dev->inquiry_y_ranges[s->source_mode_dim]);
+  dev->y_range.quant = 0;
 
   /* resolution */
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;

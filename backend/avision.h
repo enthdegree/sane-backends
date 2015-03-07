@@ -94,115 +94,115 @@ typedef struct Avision_HWEntry {
   /* feature overwrites - as embedded CPUs have 16bit enums - this
      would need a change ... */
     /* force no calibration */
-  #define AV_NO_CALIB (1L<<0)
+  #define AV_NO_CALIB ((uint64_t)1<<0)
     
     /* force all in one command calibration */
-  #define AV_ONE_CALIB_CMD (1L<<1)
+  #define AV_ONE_CALIB_CMD ((uint64_t)1<<1)
     
     /* no gamma table */
-  #define AV_NO_GAMMA (1L<<2)
+  #define AV_NO_GAMMA ((uint64_t)1<<2)
     
     /* light check is bogus */
-  #define AV_LIGHT_CHECK_BOGUS (1L<<3)
+  #define AV_LIGHT_CHECK_BOGUS ((uint64_t)1<<3)
     
     /* no button though the device advertise it */
-  #define AV_NO_BUTTON (1L<<4)
+  #define AV_NO_BUTTON ((uint64_t)1<<4)
     
     /* if the scan area needs to be forced to A3 */
-  #define AV_FORCE_A3 (1L<<5)
+  #define AV_FORCE_A3 ((uint64_t)1<<5)
     
     /* if the scan area and resolution needs to be forced for films */
-  #define AV_FORCE_FILM (1L<<6)
+  #define AV_FORCE_FILM ((uint64_t)1<<6)
     
     /* does not suport, or very broken background (added for AV610C2) */
-  #define AV_NO_BACKGROUND (1L<<7)
+  #define AV_NO_BACKGROUND ((uint64_t)1<<7)
     
     /* is film scanner - no detection yet */
-  #define AV_FILMSCANNER (1L<<8)
+  #define AV_FILMSCANNER ((uint64_t)1<<8)
 
     /* fujitsu adaption */
-  #define AV_FUJITSU (1L<<9)
+  #define AV_FUJITSU ((uint64_t)1<<9)
 
     /* gray calibration data has to be uploaded on the blue channel ... ? */
-  #define AV_GRAY_CALIB_BLUE (1L<<10)
+  #define AV_GRAY_CALIB_BLUE ((uint64_t)1<<10)
     
     /* Interrupt endpoint button readout (so far AV220) */
-  #define AV_INT_BUTTON (1L<<11)
+  #define AV_INT_BUTTON ((uint64_t)1<<11)
 
     /* send acceleration table ... */
-  #define AV_ACCEL_TABLE (1L<<12)
+  #define AV_ACCEL_TABLE ((uint64_t)1<<12)
 
     /* non-interlaced scanns up to 300 dpi (AV32xx / AV83xx) */
-  #define AV_NON_INTERLACED_DUPLEX_300 (1L<<13)
+  #define AV_NON_INTERLACED_DUPLEX_300 ((uint64_t)1<<13)
 
     /* do not read multiples of 64 bytes - stalls the USB chip */
-  #define AV_NO_64BYTE_ALIGN (1L<<14)
+  #define AV_NO_64BYTE_ALIGN ((uint64_t)1<<14)
 
     /* force channel-by-channel calibration */
-  #define AV_MULTI_CALIB_CMD (1L<<15)
+  #define AV_MULTI_CALIB_CMD ((uint64_t)1<<15)
 
     /* non color scans are faster with a filter applied (AV32xx) */
-  #define AV_FASTER_WITH_FILTER (1L<<16)
+  #define AV_FASTER_WITH_FILTER ((uint64_t)1<<16)
 
     /* interlaced data with 1 line distance */
-  #define AV_2ND_LINE_INTERLACED (1L<<17)
+  #define AV_2ND_LINE_INTERLACED ((uint64_t)1<<17)
 
     /* does not keep the window though it advertices so */
-  #define AV_DOES_NOT_KEEP_WINDOW (1L<<18)
+  #define AV_DOES_NOT_KEEP_WINDOW ((uint64_t)1<<18)
 
     /* does not keep the gamma though it advertices so */
-  #define AV_DOES_NOT_KEEP_GAMMA (1L<<19)
+  #define AV_DOES_NOT_KEEP_GAMMA ((uint64_t)1<<19)
 
     /* advertises ADF is BGR order, but isn't (or vice versa) */
-  #define AV_ADF_BGR_ORDER_INVERT (1L<<20)
+  #define AV_ADF_BGR_ORDER_INVERT ((uint64_t)1<<20)
 
     /* allows 12bit mode, though not flagged */
-  #define AV_12_BIT_MODE (1L<<21)
+  #define AV_12_BIT_MODE ((uint64_t)1<<21)
 
     /* very broken background raster */
-  #define AV_BACKGROUND_QUIRK (1L<<22)
+  #define AV_BACKGROUND_QUIRK ((uint64_t)1<<22)
 	
     /* though marked as GRAY only the scanner can do GRAY modes */
-  #define AV_GRAY_MODES (1L<<23)
+  #define AV_GRAY_MODES ((uint64_t)1<<23)
 
     /* no seperate, single REAR scan (AV122, DM152, ...) */
-  #define AV_NO_REAR (1L<<24)
+  #define AV_NO_REAR ((uint64_t)1<<24)
     
     /* only scan with some known good hardware resolutions, as the
        scanner fails to properly interpoloate in between (e.g.  AV121,
        DM152 on duplex scans - but also the AV600), software scale and
        interpolate to all the others */
-  #define AV_SOFT_SCALE (1L<<25)
+  #define AV_SOFT_SCALE ((uint64_t)1<<25)
     
     /* does keep window though it does not advertice it - the AV122/DM152
        mess up image data if window is resend between ADF pages */
-  #define AV_DOES_KEEP_WINDOW (1L<<26)
+  #define AV_DOES_KEEP_WINDOW ((uint64_t)1<<26)
     
     /* does keep gamma though it does not advertice it */
-  #define AV_DOES_KEEP_GAMMA (1L<<27)
+  #define AV_DOES_KEEP_GAMMA ((uint64_t)1<<27)
     
     /* does the scanner contain a Cancel button? */
-  #define AV_CANCEL_BUTTON (1L<<28)
+  #define AV_CANCEL_BUTTON ((uint64_t)1<<28)
     
     /* is the rear image offset? */
-  #define AV_REAR_OFFSET (1L<<29)
+  #define AV_REAR_OFFSET ((uint64_t)1<<29)
 
     /* some devices do not need a START_SCAN, even hang with it */
-  #define AV_NO_START_SCAN (1L<<30)
+  #define AV_NO_START_SCAN ((uint64_t)1<<30)
     
-  #define AV_INT_STATUS (1L<<31)
+  #define AV_INT_STATUS ((uint64_t)1<<31)
 
     /* force no calibration */
-  #define AV_NO_TUNE_SCAN_LENGTH (1L<<32)
+  #define AV_NO_TUNE_SCAN_LENGTH ((uint64_t)1<<32)
 
     /* for gray scans, set grey filter */
-  #define AV_USE_GRAY_FILTER (1L<<33)
+  #define AV_USE_GRAY_FILTER ((uint64_t)1<<33)
 
     /* For (HP) scanners with flipping duplexers */
-  #define AV_ADF_FLIPPING_DUPLEX (1L<<34)
+  #define AV_ADF_FLIPPING_DUPLEX ((uint64_t)1<<34)
 
     /* For scanners which need to have their firmware read to properly function. */
-  #define AV_FIRMWARE (1L<<35)
+  #define AV_FIRMWARE ((uint64_t)1<<35)
     
     /* maybe more ...*/
   uint64_t feature_type;

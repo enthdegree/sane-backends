@@ -1,3 +1,8 @@
+2015-03-14 René Rebe <rene@exactcode.de>
+	* backend/avision.h backend/avision.c:
+	fixed 32-bit build regression due new feature_type and
+	reverted 4d38523bdacd18186857ee8a93daaa0f8721c89b
+
 2015-03-13 René Rebe <rene@exactcode.de>
 	* doc/sane-avision.man, backend/avision.h, backend/avision.c:
 	fixed newer avision scanner duplex scanning, and removed unnecessary

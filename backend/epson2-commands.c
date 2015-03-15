@@ -680,8 +680,10 @@ esci_set_scanning_parameter(SANE_Handle handle, unsigned char *buf)
 		return status;
 
 	status = e2_cmd_simple(s, buf, 64);
-	if (status != SANE_STATUS_GOOD)
+	if (status != SANE_STATUS_GOOD) {
+		DBG(1, "%s: invalid scanning parameters\n", __func__);
 		return status;
+	}
 
 	return SANE_STATUS_GOOD;
 }

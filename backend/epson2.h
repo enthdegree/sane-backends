@@ -346,7 +346,7 @@ struct Epson_Device
 	SANE_Bool color_shuffle;	/* does this scanner need color shuffling */
 
 	SANE_Int maxDepth;		/* max. color depth */
-	SANE_Word *depth_list;
+	SANE_Int *depth_list;
 
 	SANE_Int optical_res;		/* optical resolution */
 	SANE_Int max_line_distance;

@@ -977,7 +977,7 @@ init_options(Epson_Scanner *s)
 	s->opt[OPT_MODE].size = max_string_size(mode_list);
 	s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_MODE].constraint.string_list = mode_list;
-	s->val[OPT_MODE].w = 0;	/* Binary */
+	s->val[OPT_MODE].w = 0;	/* Lineart */
 
 	/* disable infrared on unsupported scanners */
 	if (!e2_model(s, "GT-X800") && !e2_model(s, "GT-X700") && !e2_model(s, "GT-X900"))
@@ -988,14 +988,13 @@ init_options(Epson_Scanner *s)
 	s->opt[OPT_BIT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
 	s->opt[OPT_BIT_DEPTH].desc = SANE_DESC_BIT_DEPTH;
 	s->opt[OPT_BIT_DEPTH].type = SANE_TYPE_INT;
-	s->opt[OPT_BIT_DEPTH].unit = SANE_UNIT_NONE;
+	s->opt[OPT_BIT_DEPTH].unit = SANE_UNIT_BIT;
 	s->opt[OPT_BIT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
 	s->opt[OPT_BIT_DEPTH].constraint.word_list = s->hw->depth_list;
-	s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
-	s->val[OPT_BIT_DEPTH].w = s->hw->depth_list[1];	/* the first "real" element is the default */
+	s->val[OPT_BIT_DEPTH].w = 8; /* default to 8 bit */
 
-	if (s->hw->depth_list[0] == 1)	/* only one element in the list -> hide the option */
-		s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
+	/* default is Lineart, disable depth selection */
+	s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
 
 	/* halftone */
 	s->opt[OPT_HALFTONE].name = SANE_NAME_HALFTONE;
@@ -1911,6 +1910,8 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 
 		sval->w = optindex;
 
+		DBG(17, "%s: setting mode to %d\n", __func__, optindex);
+
 		/* halftoning available only on bw scans */
 		if (s->hw->cmd->set_halftoning != 0)
 			setOptionState(s, mode_params[optindex].depth == 1,
@@ -1925,16 +1926,18 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 
 		/* if binary, then disable the bit depth selection */
 		if (optindex == 0) {
+			DBG(17, "%s: disabling bit depth selection\n", __func__);
 			s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
 		} else {
-			if (s->hw->depth_list[0] == 1)
-				s->opt[OPT_BIT_DEPTH].cap |=
-					SANE_CAP_INACTIVE;
-			else {
-				s->opt[OPT_BIT_DEPTH].cap &=
-					~SANE_CAP_INACTIVE;
-				s->val[OPT_BIT_DEPTH].w =
-					mode_params[optindex].depth;
+			if (s->hw->depth_list[0] == 1) {
+				DBG(17, "%s: only one depth is available\n", __func__);
+				s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
+			} else {
+
+				DBG(17, "%s: enabling bit depth selection\n", __func__);
+
+				s->opt[OPT_BIT_DEPTH].cap &= ~SANE_CAP_INACTIVE;
+				s->val[OPT_BIT_DEPTH].w = mode_params[optindex].depth;
 			}
 		}
 

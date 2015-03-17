@@ -3044,12 +3044,14 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CIS_CANONLIDE100:
     case CIS_CANONLIDE200:
     case CIS_CANONLIDE110:
+    case CIS_CANONLIDE120:
     case CIS_CANONLIDE210:
     case CIS_CANONLIDE220:
         /* TODO store this in a data struct so we avoid
          * growing this switch */
         if(dev->model->ccd_type!=CIS_CANONLIDE110
         && dev->model->ccd_type!=CIS_CANONLIDE210
+        && dev->model->ccd_type!=CIS_CANONLIDE120
         && dev->model->ccd_type!=CIS_CANONLIDE220)
           target_code=0xdc00;
         else

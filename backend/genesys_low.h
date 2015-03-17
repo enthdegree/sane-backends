@@ -383,6 +383,7 @@ Genesys_Color_Order;
 #define CIS_CANONLIDE210 27
 #define CIS_CANONLIDE80  28
 #define CIS_CANONLIDE220 29
+#define CIS_CANONLIDE120 30
 
 #define GPO_UMAX         0
 #define GPO_ST12         1

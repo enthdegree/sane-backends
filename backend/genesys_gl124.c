@@ -3528,7 +3528,8 @@ gl124_init_gpio (Genesys_Device * dev)
   DBGSTART;
 
   /* per model GPIO layout */
-  if (strcmp (dev->model->name, "canon-lide-110") == 0)
+  if ((strcmp (dev->model->name, "canon-lide-110") == 0)
+    ||(strcmp (dev->model->name, "canon-lide-120") == 0))
     {
       idx = 0;
     }
@@ -3561,7 +3562,8 @@ gl124_init_memory_layout (Genesys_Device * dev)
   DBGSTART;
 
   /* point to per model memory layout */
-  if (strcmp (dev->model->name, "canon-lide-110") == 0)
+  if ((strcmp (dev->model->name, "canon-lide-110") == 0)
+    ||(strcmp (dev->model->name, "canon-lide-120") == 0))
     {
       idx = 0;
     }

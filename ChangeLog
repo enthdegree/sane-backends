@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 2015-03-14 RenÃ© Rebe <rene@exactcode.de>
 	* backend/avision.h backend/avision.c:
 	fixed 32-bit build regression due new feature_type and
@@ -15,7 +16,7 @@
 	support for newer ASIC gamma table size, added AV220D2+ ID
 
 2015-03-04 Stéphane Voltz <stef.dev@free.fr>
-	* doc/descriptions/genesys.desc: mark LiDE 220 as unsupported.
+	* doc/descriptions/genesys.desc: mark LiDE 120 as unsupported.
 
 2015-03-02 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.c, backend/genesys_gl124.[ch]:

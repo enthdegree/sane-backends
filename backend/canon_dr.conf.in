@@ -150,6 +150,7 @@ option duplex-offset 400
 usb 0x1083 0x163f
 
 # DR-C125
+option duplex-offset 400
 usb 0x1083 0x1640
 
 # DR-P215

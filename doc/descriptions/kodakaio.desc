@@ -1,6 +1,6 @@
 :backend "kodakaio"
 :url "http://sourceforge.net/projects/cupsdriverkodak/" 
-:version "2.4.7"
+:version "2.7.2"
 :manpage "sane-kodakaio"
 :comment "Backend for Kodak AiO ESP and Hero printers. Also possibly Advent AWL10"
 :devicetype :scanner
@@ -57,7 +57,7 @@
 :model "ESP 5200"
 :interface "USB Ethernet"
 :usbid "0x040a" "0x4041"
-:status :basic
+:status :complete
 :comment "USB good, Network good"
 
 :model "ESP 5300"
@@ -156,8 +156,8 @@
 :model "Hero Office 6.1"
 :interface "USB"
 :usbid "0x040a" "0x4062"
-:status :untested
-:comment "Please test!"
+:status :basic
+:comment "Does the adf work?"
 
 :model "Hero 7.1"
 :interface "USB"
@@ -168,7 +168,7 @@
 :model "Hero 9.1"
 :interface "USB Ethernet"
 :usbid "0x040a" "0x4067"
-:status :basic
+:status :complete
 :comment "USB good, Network good"
 
 ;===================================

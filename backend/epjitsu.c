@@ -149,6 +149,8 @@
       v27 2015-01-24, MAN
          - don't override br_x and br_y
          - call change_params after changing page_width
+      v28 2015-03-23, MAN
+         - call get_hardware_status before starting scan
 
    SANE FLOW DIAGRAM
 
@@ -197,7 +199,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 27
+#define BUILD 28
 
 #ifndef MAX3
   #define MAX3(a,b,c) ((a) > (b) ? ((a) > (c) ? a : c) : ((b) > (c) ? b : c))
@@ -2368,6 +2370,9 @@ sane_start (SANE_Handle handle)
     else if(s->source == SOURCE_ADF_DUPLEX){
         s->side = !s->side;
     }
+
+    /* recent scanners need ghs called before scanning */
+    ret = get_hardware_status(s);
 
     /* ingest paper with adf */
     if( s->source == SOURCE_ADF_BACK || s->source == SOURCE_ADF_FRONT

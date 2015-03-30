@@ -83,7 +83,7 @@ BACKEND_CONFS= abaton.conf agfafocus.conf apple.conf artec.conf \
 	       canon_pp.conf cardscan.conf coolscan2.conf coolscan3.conf \
 	       coolscan.conf dc210.conf dc240.conf dc25.conf \
 	       dell1600n_net.conf dmc.conf epjitsu.conf epson2.conf \
-	       epson.conf fujitsu.conf genesys.conf gphoto2.conf \
+	       epson.conf epsonds.conf fujitsu.conf genesys.conf gphoto2.conf \
 	       gt68xx.conf hp3900.conf hp4200.conf hp5400.conf \
 	       hp.conf hpsj5s.conf hs2p.conf ibm.conf kodak.conf kodakaio.conf\
 	       leo.conf lexmark.conf ma1509.conf magicolor.conf \
@@ -171,7 +171,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libcoolscan2.la libcoolscan3.la libdc25.la \
     libdc210.la libdc240.la libdell1600n_net.la \
     libdmc.la libdll.la libdll_preload.la libepjitsu.la libepson.la \
-    libepson2.la libfujitsu.la libgenesys.la \
+    libepson2.la libepsonds.la libfujitsu.la libgenesys.la \
     libgphoto2_i.la libgt68xx.la libhp.la \
     libhp3500.la libhp3900.la libhp4200.la \
     libhp5400.la libhp5590.la libhpljm1005.la \
@@ -204,7 +204,7 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-coolscan2.la libsane-coolscan3.la libsane-dc25.la \
     libsane-dc210.la libsane-dc240.la libsane-dell1600n_net.la \
     libsane-dmc.la libsane-epjitsu.la libsane-epson.la \
-    libsane-epson2.la libsane-fujitsu.la libsane-genesys.la \
+    libsane-epson2.la libsane-epsonds.la libsane-fujitsu.la libsane-genesys.la \
     libsane-gphoto2.la libsane-gt68xx.la libsane-hp.la \
     libsane-hp3500.la libsane-hp3900.la libsane-hp4200.la \
     libsane-hp5400.la libsane-hp5590.la libsane-hpljm1005.la \
@@ -470,6 +470,19 @@ libsane_epson2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epson2
 libsane_epson2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_epson2_la_LIBADD = $(COMMON_LIBS) libepson2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo $(SCSI_LIBS) $(USB_LIBS) $(SOCKET_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
 EXTRA_DIST += epson2.conf.in
+
+libepsonds_la_SOURCES = epsonds.c epsonds.h epsonds-usb.c epsonds-usb.h epsonds-io.c epsonds-io.h \
+		epsonds-cmd.c epsonds-cmd.h epsonds-ops.c epsonds-ops.h epsonds-jpeg.c epsonds-jpeg.h
+libepsonds_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epsonds
+
+nodist_libsane_epsonds_la_SOURCES = epsonds-s.c
+libsane_epsonds_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epsonds
+libsane_epsonds_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_epsonds_la_LIBADD = $(COMMON_LIBS) libepsonds.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
+				../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo \
+				../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
+				@SANEI_SANEI_JPEG_LO@ $(JPEG_LIBS) $(USB_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
+EXTRA_DIST += epsonds.conf.in
 
 libfujitsu_la_SOURCES = fujitsu.c fujitsu.h fujitsu-scsi.h
 libfujitsu_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=fujitsu

@@ -568,44 +568,47 @@ static SANE_Status capa_cb(void *userdata, char *token, int len)
 		debug_token(DBG_LEVEL, __func__, token, len);
 	}
 
-	if (len == 4 && strncmp("ADFDPLX", token, 3 + 4) == 0) {
-		DBG(1, "     ADF: duplex\n");
-		s->hw->adf_is_duplex = 1;
-	}
+	if (len == 4) {
 
-	if (len == 4 && strncmp("ADFSKEW", token, 3 + 4) == 0) {
-		DBG(1, "     ADF: skew correction\n");
-		s->hw->adf_has_skew = 1;
-	}
+		if (strncmp("ADFDPLX", token, 3 + 4) == 0) {
+			DBG(1, "     ADF: duplex\n");
+			s->hw->adf_is_duplex = 1;
+		}
 
-	if (len == 4 && strncmp("ADFOVSN", token, 3 + 4) == 0) {
-		DBG(1, "     ADF: overscan\n");
-	}
+		if (strncmp("ADFSKEW", token, 3 + 4) == 0) {
+			DBG(1, "     ADF: skew correction\n");
+			s->hw->adf_has_skew = 1;
+		}
 
-	if (len == 4 && strncmp("ADFPEDT", token, 3 + 4) == 0) {
-		DBG(1, "     ADF: paper end detection\n");
-	}
+		if (strncmp("ADFOVSN", token, 3 + 4) == 0) {
+			DBG(1, "     ADF: overscan\n");
+		}
 
-	if (len == 4 && strncmp("ADFLOAD", token, 3 + 4) == 0) {
-		DBG(1, "     ADF: paper load\n");
-		s->hw->adf_has_load = 1;
-	}
+		if (strncmp("ADFPEDT", token, 3 + 4) == 0) {
+			DBG(1, "     ADF: paper end detection\n");
+		}
 
-	if (len == 4 && strncmp("ADFEJCT", token, 3 + 4) == 0) {
-		DBG(1, "     ADF: paper eject\n");
-		s->hw->adf_has_eject = 1;
-	}
+		if (strncmp("ADFLOAD", token, 3 + 4) == 0) {
+			DBG(1, "     ADF: paper load\n");
+			s->hw->adf_has_load = 1;
+		}
 
-	if (len == 4 && strncmp("ADFCRP ", token, 3 + 4) == 0) {
-		DBG(1, "     ADF: image cropping\n");
-	}
+		if (strncmp("ADFEJCT", token, 3 + 4) == 0) {
+			DBG(1, "     ADF: paper eject\n");
+			s->hw->adf_has_eject = 1;
+		}
 
-	if (len == 4 && strncmp("ADFFAST", token, 3 + 4) == 0) {
-		DBG(1, "     ADF: fast mode available\n");
-	}
+		if (strncmp("ADFCRP ", token, 3 + 4) == 0) {
+			DBG(1, "     ADF: image cropping\n");
+		}
 
-	if (len == 4 && strncmp("ADFDFL1", token, 3 + 4) == 0) {
-		DBG(1, "     ADF: double feed detection\n");
+		if (strncmp("ADFFAST", token, 3 + 4) == 0) {
+			DBG(1, "     ADF: fast mode available\n");
+		}
+
+		if (strncmp("ADFDFL1", token, 3 + 4) == 0) {
+			DBG(1, "     ADF: double feed detection\n");
+		}
 	}
 
 	if (len == 8 && strncmp("ADFDFL1DFL2", token, 3 + 4) == 0) {
@@ -800,6 +803,8 @@ static SANE_Status img_cb(void *userdata, char *token, int len)
 			s->backside = 1;
 		else
 			s->backside = 0;
+
+		return SANE_STATUS_GOOD;
 	}
 
 	if (strncmp("err", token, 3) == 0) {
@@ -825,7 +830,7 @@ static SANE_Status img_cb(void *userdata, char *token, int len)
 	}
 
 	if (len == 4 && strncmp("atnCAN ", token, 3 + 4) == 0) {
-		DBG(10, "%s: cancel request\n", __func__);
+		DBG(1, "%s: cancel request\n", __func__);
 		s->canceling = 1;
 		s->scanning = 0;
 		return SANE_STATUS_CANCELLED;

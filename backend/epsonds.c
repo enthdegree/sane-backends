@@ -1172,6 +1172,8 @@ sane_start(SANE_Handle handle)
 
 	/* set scanning parameters */
 
+	char cmd[100]; /* take care not to overflow */
+
 	/* document source */
 	if (strcmp(source_list[s->val[OPT_SOURCE].w], ADF_STR) == 0) {
 
@@ -1179,21 +1181,15 @@ sane_start(SANE_Handle handle)
 			s->val[OPT_ADF_MODE].w ? "DPLX" : "",
 			s->val[OPT_ADF_SKEW].w ? "SKEW" : "");
 
-		status = esci2_para(s, buf);
-		if (status != SANE_STATUS_GOOD) {
-			goto end;
-		}
-
 	} else if (strcmp(source_list[s->val[OPT_SOURCE].w], FBF_STR) == 0) {
 
-		status = esci2_para(s, "#FB ");
-		if (status != SANE_STATUS_GOOD) {
-			goto end;
-		}
+		strcpy(buf, "#FB ");
 
 	} else {
 		/* XXX */
 	}
+
+	strcpy(cmd, buf);
 
 	if (s->params.format == SANE_FRAME_GRAY) {
 		sprintf(buf, "#COLM%03d", s->params.depth);
@@ -1201,22 +1197,15 @@ sane_start(SANE_Handle handle)
 		sprintf(buf, "#COLC%03d", s->params.depth * 3);
 	}
 
-	status = esci2_para(s, buf);
-	if (status != SANE_STATUS_GOOD) {
-		goto end;
-	}
+	strcat(cmd, buf);
 
 	/* image transfer format */
 	if (!s->mode_jpeg) {
 		if (s->params.depth > 1 || s->hw->has_raw) {
-			status = esci2_para(s, "#FMTRAW ");
+			strcat(cmd, "#FMTRAW ");
 		}
 	} else {
-		status = esci2_para(s, "#FMTJPG #JPGd090");
-	}
-
-	if (status != SANE_STATUS_GOOD) {
-		goto end;
+		strcat(cmd, "#FMTJPG #JPGd090");
 	}
 
 	/* resolution (RSMi not always supported) */
@@ -1227,15 +1216,15 @@ sane_start(SANE_Handle handle)
 		sprintf(buf, "#RSMd%03d", s->val[OPT_RESOLUTION].w);
 	}
 
-	status = esci2_para(s, buf);
-	if (status != SANE_STATUS_GOOD) {
-		goto end;
-	}
+	strcat(cmd, buf);
 
 	/* scanning area */
 	sprintf(buf, "#ACQi%07di%07di%07di%07d",
 		s->left, s->top, s->params.pixels_per_line, s->params.lines);
-	status = esci2_para(s, buf);
+
+	strcat(cmd, buf);
+
+	status = esci2_para(s, cmd);
 	if (status != SANE_STATUS_GOOD) {
 		goto end;
 	}

@@ -751,6 +751,24 @@
 :status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
+:model "i-SENSYS MF210 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27a9"
+:status :untested
+:comment "Testers needed!"
+
+:model "i-SENSYS MF220 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27a8"
+:status :untested
+:comment "Testers needed!"
+
+:model "i-SENSYS MF810/820"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x27a6"
+:status :untested
+:comment "Testers needed!"
+
 :model "i-SENSYS MF3010"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x2759"
@@ -922,6 +940,18 @@
 :model "i-SENSYS MF5880dn"
 :interface "USB"
 :usbid "0x04a9" "0x26f9"
+:status :untested
+:comment "Testers needed!"
+
+:model "i-SENSYS MF5900 Series"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x2743"
+:status :untested
+:comment "Testers needed!"
+
+:model "i-SENSYS MF6100 Series"
+:interface "USB Ethernet"
+:usbid "0x04a9" "0x278e"
 :status :untested
 :comment "Testers needed!"
 

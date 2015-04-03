@@ -153,8 +153,6 @@ typedef struct ring_buffer
 
 } ring_buffer;
 
-// typedef struct epsonds_scanner epsonds_scanner;
-
 /* an instance of a scanner */
 
 struct epsonds_scanner

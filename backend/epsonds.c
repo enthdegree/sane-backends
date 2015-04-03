@@ -167,9 +167,6 @@ open_scanner(epsonds_scanner *s)
 	if (s->hw->connection == SANE_EPSONDS_USB) {
 
 		status = sanei_usb_open(s->hw->sane.name, &s->fd);
-		if (status == SANE_STATUS_GOOD)
-			sanei_usb_clear_halt(s->fd);
-
 		sanei_usb_set_timeout(USB_TIMEOUT);
 
 	} else {

@@ -226,6 +226,8 @@ static SANE_Status esci2_cmd_simple(epsonds_scanner* s, char *cmd, SANE_Status (
 
 SANE_Status esci2_fin(epsonds_scanner *s)
 {
+	DBG(5, "%s\n", __func__);
+
 	SANE_Status status = esci2_cmd_simple(s, "FIN x0000000", NULL);
 	s->locked = 0;
 	return status;

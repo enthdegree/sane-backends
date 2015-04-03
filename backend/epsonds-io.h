@@ -15,7 +15,7 @@
 #define epsonds_io_h
 
 #define USB_TIMEOUT (6 * 1000)
-#define USB_SHORT_TIMEOUT (1 * 500)
+#define USB_SHORT_TIMEOUT (1 * 800)
 
 size_t eds_send(epsonds_scanner *s, void *buf, size_t length, SANE_Status *status);
 size_t eds_recv(epsonds_scanner *s, void *buf, size_t length, SANE_Status *status);

@@ -157,21 +157,15 @@ SANE_Status eds_fsx(epsonds_scanner *s)
 
 SANE_Status eds_lock(epsonds_scanner *s)
 {
-	int tries = 3;
+	SANE_Status status;
+
+	DBG(5, "%s\n", __func__);
 
 	if (s->hw->connection == SANE_EPSONDS_USB) {
 		sanei_usb_set_timeout(USB_SHORT_TIMEOUT);
 	}
 
-	SANE_Status status = eds_fsx(s);
-	if (status != SANE_STATUS_GOOD) {
-
-		do {
-			sleep(1);
-			status = eds_fsx(s);
-
-		} while (--tries && status != SANE_STATUS_GOOD);
-	}
+	status = eds_fsx(s);
 
 	if (s->hw->connection == SANE_EPSONDS_USB) {
 		sanei_usb_set_timeout(USB_TIMEOUT);

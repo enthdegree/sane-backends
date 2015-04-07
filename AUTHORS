@@ -35,6 +35,7 @@ Backends:
  epjitsu:       m. allan noah (*)
  epson:         Karl Heinz Kremer (*)
  epson2:        Alessandro Zummo (*)
+ epsonds:       Alessandro Zummo (*)
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*), 
                 m. allan noah (*)
  gphoto2:       Peter Fales (*)

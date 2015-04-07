@@ -657,6 +657,23 @@ static unsigned calc_shifting (pixma_t * s)
       }
       break;
 
+    case MP990_PID:
+      if (s->param->xdpi == 4800)
+      {
+        if (is_scanning_from_tpu (s))
+        {
+          mp->stripe_shift = 6;
+          mp->stripe_shift2 = 6;
+        }
+        else
+        {
+          mp->stripe_shift = 3;
+          mp->stripe_shift2 = 3;
+        }
+        mp->jumplines = 34; /* better than 32 or 34 : applies to flatbed & TPU */
+      }
+      break;
+
     default: /* Default, and all CIS devices */
       break;
   }
@@ -850,7 +867,7 @@ static int send_scan_param (pixma_t * s)
      * 0x24 |   1   |   all   | 0x01
      * -----+-------+---------+---------------------------
      * 0x25 |   1   | default | 0x00; cs8800f: 0x01
-     *      |       |   tpu   | 0x00; cs9000f, mg8200: 0x01
+     *      |       |   tpu   | 0x00; cs9000f, mg8200, mp990: 0x01
      *      |       |  tpuir  | cs9000f: 0x00
      * -----+-------+---------+---------------------------
      *  ... |   1   |   all   | 0x00
@@ -908,8 +925,8 @@ static int send_scan_param (pixma_t * s)
     data[0x23] = 0x02;
     data[0x24] = 0x01;
 
-    /* MG8200 addition */
-    if (s->cfg->pid == MG8200_PID)
+    /* MG8200 & MP990 addition */
+    if (s->cfg->pid == MG8200_PID || s->cfg->pid == MP990_PID)
     {
       if (is_scanning_from_tpu (s))
       {

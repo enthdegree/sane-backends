@@ -57,7 +57,8 @@ eds_dev_post_init(struct epsonds_device *dev)
 	if (dev->has_adf)
 		*source_list_add++ = ADF_STR;
 
-	if (source_list[0] == 0 || dev->res_list[0] == 0
+	if (source_list[0] == 0
+		|| (dev->res_list[0] == 0 && dev->dpi_range.min == 0)
 		|| dev->depth_list[0] == 0) {
 
 		DBG(1, "something is wrong in the discovery process, aborting.\n");
@@ -66,10 +67,6 @@ eds_dev_post_init(struct epsonds_device *dev)
 
 		return SANE_STATUS_INVAL;
 	}
-
-	dev->dpi_range.min = dev->res_list[1];
-	dev->dpi_range.max = dev->res_list[dev->res_list[0]];
-	dev->dpi_range.quant = 0;
 
 	return SANE_STATUS_GOOD;
 }
@@ -88,6 +85,18 @@ eds_add_resolution(epsonds_device *dev, int r)
 		return SANE_STATUS_NO_MEM;
 
 	dev->res_list[dev->res_list[0]] = r;
+
+	return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+eds_set_resolution_range(epsonds_device *dev, int min, int max)
+{
+	DBG(10, "%s: set min/max (dpi): %d/%d\n", __func__, min, max);
+
+	dev->dpi_range.min = min;
+	dev->dpi_range.max = max;
+	dev->dpi_range.quant = 1;
 
 	return SANE_STATUS_GOOD;
 }

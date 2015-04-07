@@ -47,7 +47,6 @@ esci2_parse_block(char *buf, int len, void *userdata, SANE_Status (*cb)(void *us
 		if (*start != '#')
 			break;
 
-
 		param[0] = *++start;
 		param[1] = *++start;
 		param[2] = *++start;
@@ -147,7 +146,7 @@ static SANE_Status esci2_cmd(epsonds_scanner* s,
 
 		sprintf(rbuf, "%4.4sx%07x", cmd, (unsigned int)plen);
 
-		DBG(8, " %s\n", rbuf);
+		DBG(8, " %s (%d)\n", rbuf, plen);
 
 		eds_send(s, rbuf, 12, &status);
 
@@ -643,17 +642,7 @@ static SANE_Status capa_cb(void *userdata, char *token, int len)
 			int min = decode_value(p, 8);
 			int max = decode_value(p + 8, 8);
 
-			int val = min;
-
-			if (val < 150) {
-				eds_add_resolution(s->hw, val);
-				val = 150;
-			}
-
-			while (val <= max) {
-				eds_add_resolution(s->hw, val);
-				val *= 2;
-			}
+			eds_set_resolution_range(s->hw, min, max);
 
 			DBG(1, "resolution min/max %d/%d\n", min, max);
 		}

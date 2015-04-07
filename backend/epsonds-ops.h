@@ -17,6 +17,7 @@ extern void eds_dev_init(epsonds_device *dev);
 extern SANE_Status eds_dev_post_init(struct epsonds_device *dev);
 
 extern SANE_Status eds_add_resolution(epsonds_device *dev, int r);
+extern SANE_Status eds_set_resolution_range(epsonds_device *dev, int min, int max);
 extern void eds_set_fbf_area(epsonds_device *dev, int x, int y, int unit);
 extern void eds_set_adf_area(epsonds_device *dev, int x, int y, int unit);
 extern void eds_set_tpu_area(epsonds_device *dev, int x, int y, int unit);

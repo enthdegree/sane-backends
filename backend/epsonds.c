@@ -584,9 +584,17 @@ init_options(epsonds_scanner *s)
 
 	s->opt[OPT_RESOLUTION].type = SANE_TYPE_INT;
 	s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
-	s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-	s->opt[OPT_RESOLUTION].constraint.word_list = s->hw->res_list;
-	s->val[OPT_RESOLUTION].w = s->hw->dpi_range.min;
+
+	/* range */
+	if (s->hw->dpi_range.quant) {
+		s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
+		s->opt[OPT_RESOLUTION].constraint.range = &s->hw->dpi_range;
+		s->val[OPT_RESOLUTION].w = s->hw->dpi_range.min;
+	} else { /* list */
+		s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+		s->opt[OPT_RESOLUTION].constraint.word_list = s->hw->res_list;
+		s->val[OPT_RESOLUTION].w = s->hw->res_list[1];
+	}
 
 	/* "Geometry" group: */
 	s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");

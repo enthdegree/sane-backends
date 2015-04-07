@@ -1,3 +1,9 @@
+2015-04-07 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp810.c: Canon Pixma MP990 TPU scan patch from Guillaume
+	  Courtois.
+	* doc/descriptions/pixma.desc: remove unmaintained websites
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.17
+
 2015-04-03 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
 	  doc/sane-pixma.man: New Canon scanners i-SENSYS MF210 Series, MF220 Series,

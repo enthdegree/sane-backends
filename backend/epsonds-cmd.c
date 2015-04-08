@@ -418,8 +418,6 @@ static SANE_Status info_cb(void *userdata, char *token, int len)
 				int max = decode_value(value + 4 + 8, 8);
 
 				DBG(1, "     ADF: area %dx%d @ 100dpi\n", min, max);
-
-				eds_set_adf_area(s->hw,	min, max, 100);
 			}
 
 			if (strncmp("AMIN", value, 4) == 0) {
@@ -436,6 +434,8 @@ static SANE_Status info_cb(void *userdata, char *token, int len)
 				int max = decode_value(value + 4 + 8, 8);
 
 				DBG(1, "     ADF: max %dx%d @ 100dpi\n", min, max);
+
+				eds_set_adf_area(s->hw,	min, max, 100);
 			}
 		}
 

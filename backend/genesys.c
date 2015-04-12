@@ -157,6 +157,15 @@ static const SANE_Range enhance_range = {
   1		/* quantization */
 };
 
+/**
+ * range for expiration time
+ */
+static const SANE_Range expiration_range = {
+  -1,	        /* minimum */
+  30000,	/* maximum */
+  1		/* quantization */
+};
+
 void
 sanei_genesys_init_structs (Genesys_Device * dev)
 {
@@ -5899,6 +5908,17 @@ init_options (Genesys_Scanner * s)
     }
 #endif
 
+  /* expiration time for calibration cache entries */
+  s->opt[OPT_EXPIRATION_TIME].name = "expiration-time";
+  s->opt[OPT_EXPIRATION_TIME].title = SANE_I18N ("Calibration cache expiration time");
+  s->opt[OPT_EXPIRATION_TIME].desc = SANE_I18N ("Time (in minutes) before a cached calibration expires."
+     "A value of 0 means cache is not used used. A negative value means cache never expires.");
+  s->opt[OPT_EXPIRATION_TIME].type = SANE_TYPE_INT;
+  s->opt[OPT_EXPIRATION_TIME].unit = SANE_UNIT_NONE;
+  s->opt[OPT_EXPIRATION_TIME].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_EXPIRATION_TIME].constraint.range = &expiration_range;
+  s->val[OPT_EXPIRATION_TIME].w = 60;	/* 60 minutes by default */
+
   /* Powersave time (turn lamp off) */
   s->opt[OPT_LAMP_OFF_TIME].name = "lamp-off-time";
   s->opt[OPT_LAMP_OFF_TIME].title = SANE_I18N ("Lamp off time");
@@ -7420,6 +7440,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       RIE(set_calibration_value (s, option, val));
       break;
     case OPT_LAMP_OFF_TIME:
+    case OPT_EXPIRATION_TIME:
       if (*(SANE_Word *) val != s->val[option].w)
 	{
 	  s->val[option].w = *(SANE_Word *) val;

@@ -58,7 +58,7 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL846/GL847/GL124 based scanners
  */
 
-#define BUILD 2504
+#define BUILD 2506
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -6919,8 +6919,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   tmpstr=calibration_filename(s->dev);
   s->val[OPT_CALIBRATION_FILE].s = strdup (tmpstr);
   s->dev->calib_file = strdup (tmpstr);
-  DBG (DBG_info, "Calibration filename set to:\n");
-  DBG (DBG_info, ">%s<\n", s->dev->calib_file);
+  DBG (DBG_info, "%s: Calibration filename set to:\n", __FUNCTION__);
+  DBG (DBG_info, "%s: >%s<\n", __FUNCTION__, s->dev->calib_file);
   free(tmpstr);
 
   /* now open file, fetch calibration records */
@@ -7197,37 +7197,35 @@ static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void 
 {
   SANE_Status status=SANE_STATUS_GOOD;
   char *tmp;
-  Genesys_Calibration_Cache *cache;
   Genesys_Device *dev=s->dev;
+
+  DBGSTART;
 
   /* try to load file */
   tmp=dev->calib_file;
   dev->calib_file=val;
   status=sanei_genesys_read_calibration (dev);
 
-  /* file exists but is invalid */
+  /* file exists but is invalid, so fall back to previous cache file
+   * an re-read it */
   if (status!=SANE_STATUS_IO_ERROR && status!=SANE_STATUS_GOOD)
     {
       dev->calib_file=tmp;
+      status=sanei_genesys_read_calibration (dev);
       return status;
     }
 
-  /* we can set no file name value */
+  /* now we can set file name value */
   if (s->val[option].s)
     free (s->val[option].s);
   s->val[option].s = strdup (val);
   if (tmp)
     free (tmp);
   dev->calib_file = strdup (val);
+  DBG (DBG_info, "%s: Calibration filename set to:\n", __FUNCTION__);
+  DBG (DBG_info, "%s: >%s<\n", __FUNCTION__, s->dev->calib_file);
 
-  /* clear device calibration cache */
-  while(dev->calibration_cache!=NULL)
-    {
-      cache=dev->calibration_cache;
-      dev->calibration_cache=dev->calibration_cache->next;
-      free(cache);
-    }
-
+  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 

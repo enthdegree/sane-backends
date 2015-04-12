@@ -1763,7 +1763,10 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
 /** @brief check is a cache entry may be used
  * Compares current settings with the cache entry and return
  * SANE_TRUE if they are compatible.
- */
+ * A calibration cache is compatible if color mode and x dpi match the user
+ * requested scan. In the case of CIS scanners, dpi isn't a criteria.
+ * flatbed cache entries are considred too old and then expires if they
+ * are older dans 1h, forcing calcibration at least once an hour. */
 SANE_Status
 sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
 				 Genesys_Calibration_Cache * cache,
@@ -1779,22 +1782,20 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
 
   if(dev->model->cmd_set->calculate_current_setup==NULL)
     {
-      DBG (DBG_proc,
-	   "sanei_genesys_is_compatible_calibration: no calculate_setup, non compatible cache\n");
+      DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __FUNCTION__);
       return SANE_STATUS_UNSUPPORTED;
     }
 
   status = dev->model->cmd_set->calculate_current_setup (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "sanei_genesys_is_compatible_calibration: failed to calculate current setup: %s\n",
+      DBG (DBG_error, "%s: failed to calculate current setup: %s\n", __FUNCTION__,
 	   sane_strstatus (status));
       return status;
     }
   dev->current_setup.scan_method = dev->settings.scan_method;
 
-  DBG (DBG_proc, "sanei_genesys_is_compatible_calibration: checking\n");
+  DBG (DBG_proc, "%s: checking\n", __FUNCTION__);
 
   /* a calibration cache is compatible if color mode and x dpi match the user
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
@@ -1812,24 +1813,22 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
       resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
       compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev,cache->used_setup.xres)));
     }
+  DBG (DBG_io, "%s: after resolution check current compatible=%d\n", __FUNCTION__, compatible);
   if (dev->current_setup.half_ccd != cache->used_setup.half_ccd)
     {
-      DBG (DBG_io,
-	   "sanei_genesys_is_compatible_calibration: half_ccd=%d, used=%d\n",
+      DBG (DBG_io, "%s: half_ccd=%d, used=%d\n", __FUNCTION__,
 	   dev->current_setup.half_ccd, cache->used_setup.half_ccd);
       compatible = 0;
     }
   if (dev->current_setup.scan_method != cache->used_setup.scan_method)
     {
-      DBG (DBG_io,
-	   "sanei_genesys_is_compatible_calibration: current method=%d, used=%d\n",
+      DBG (DBG_io, "%s: current method=%d, used=%d\n", __FUNCTION__,
 	   dev->current_setup.scan_method, cache->used_setup.scan_method);
       compatible = 0;
     }
   if (!compatible)
     {
-      DBG (DBG_proc,
-	   "sanei_genesys_is_compatible_calibration: completed, non compatible cache\n");
+      DBG (DBG_proc, "%s: completed, non compatible cache\n", __FUNCTION__);
       return SANE_STATUS_UNSUPPORTED;
     }
 
@@ -1843,8 +1842,7 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
           && (dev->model->is_sheetfed == SANE_FALSE)
           && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
         {
-          DBG (DBG_proc,
-               "sanei_genesys_is_compatible_calibration: expired entry, non compatible cache\n");
+          DBG (DBG_proc, "%s: expired entry, non compatible cache\n", __FUNCTION__);
           return SANE_STATUS_UNSUPPORTED;
         }
     }

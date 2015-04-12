@@ -1766,7 +1766,8 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
  * A calibration cache is compatible if color mode and x dpi match the user
  * requested scan. In the case of CIS scanners, dpi isn't a criteria.
  * flatbed cache entries are considred too old and then expires if they
- * are older dans 1h, forcing calcibration at least once an hour. */
+ * are older than the expiration time option, forcing calibration at least once
+ * then given time. */
 SANE_Status
 sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
 				 Genesys_Calibration_Cache * cache,
@@ -1832,13 +1833,13 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
       return SANE_STATUS_UNSUPPORTED;
     }
 
-  /* a cache entry expires after 60 minutes for non sheetfed scanners */
+  /* a cache entry expires after afetr expiration time for non sheetfed scanners */
   /* this is not taken into account when overwriting cache entries    */
 #ifdef HAVE_SYS_TIME_H
-  if(for_overwrite == SANE_FALSE)
+  if(for_overwrite == SANE_FALSE && dev->settings.expiration_time >=0)
     {
       gettimeofday (&time, NULL);
-      if ((time.tv_sec - cache->last_calibration > 60 * 60)
+      if ((time.tv_sec - cache->last_calibration > dev->settings.expiration_time*60)
           && (dev->model->is_sheetfed == SANE_FALSE)
           && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
         {

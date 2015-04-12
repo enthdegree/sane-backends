@@ -1,3 +1,8 @@
+2015-04-12 Stéphane Voltz <stef.dev@free.fr>
+	* doc/sane-genesys.man backend/genesys.[ch] backend/genesys_low.c:
+	fix calibration cleared when calibration file loaded,
+	add expiration time option for cache.
+
 2015-04-07 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp810.c: Canon Pixma MP990 TPU scan patch from Guillaume
 	  Courtois.

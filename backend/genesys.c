@@ -5320,6 +5320,9 @@ calc_parameters (Genesys_Scanner * s)
       s->dev->settings.brightness=0;
     }
 
+  /* cache expiration time */
+   s->dev->settings.expiration_time=s->val[OPT_EXPIRATION_TIME].w;
+
   return status;
 }
 

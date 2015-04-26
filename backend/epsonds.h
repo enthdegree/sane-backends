@@ -138,6 +138,7 @@ struct epsonds_device
 	SANE_Bool adf_has_load;		/* supports load command */
 	SANE_Bool adf_has_eject;	/* supports eject command */
 	SANE_Byte adf_alignment;	/* left, center, right */
+	SANE_Byte adf_has_dfd;		/* supports double feed detection */
 
 	SANE_Bool has_tpu;		/* tpu */
 	SANE_Range tpu_x_range;	        /* transparency unit x range */

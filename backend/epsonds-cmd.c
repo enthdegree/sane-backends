@@ -607,11 +607,13 @@ static SANE_Status capa_cb(void *userdata, char *token, int len)
 
 		if (strncmp("ADFDFL1", token, 3 + 4) == 0) {
 			DBG(1, "     ADF: double feed detection\n");
+			s->hw->adf_has_dfd = 1;
 		}
 	}
 
 	if (len == 8 && strncmp("ADFDFL1DFL2", token, 3 + 4) == 0) {
 		DBG(1, "     ADF: double feed detection (high sensitivity)\n");
+		s->hw->adf_has_dfd = 2;
 	}
 
 	if (strncmp("FMT", token, 3) == 0) {

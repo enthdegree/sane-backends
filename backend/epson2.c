@@ -616,7 +616,7 @@ detect_usb(struct Epson_Scanner *s)
 	}
 
 	if (is_valid == SANE_FALSE) {
-		DBG(1, "the device at %s is not a supported (product id=0x%x)\n",
+		DBG(1, "the device at %s is not supported (product id=0x%x)\n",
 			s->hw->sane.name, product);
 		return SANE_STATUS_INVAL;
 	}
@@ -814,6 +814,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 	DBG(7, "%s: len = %d, line = %s\n", __func__, len, line);
 	
 	if (sscanf(line, "usb %i %i", &vendor, &product) == 2) {
+
 		/* add the vendor and product IDs to the list of
 		   known devices before we call the attach function */
 

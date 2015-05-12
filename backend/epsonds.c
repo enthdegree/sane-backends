@@ -133,7 +133,7 @@ close_scanner(epsonds_scanner *s)
 	DBG(7, "%s: fd = %d\n", __func__, s->fd);
 
 	if (s->fd == -1)
-		return;
+		goto free;
 
 	if (s->locked) {
 		DBG(7, " unlocking scanner\n");
@@ -143,6 +143,8 @@ close_scanner(epsonds_scanner *s)
 	if (s->hw->connection == SANE_EPSONDS_USB) {
 		sanei_usb_close(s->fd);
 	}
+
+free:
 
 	free(s->front.ring);
 	free(s->back.ring);
@@ -187,57 +189,6 @@ open_scanner(epsonds_scanner *s)
 		DBG(5, " opened correctly\n");
 
 	return status;
-}
-
-static SANE_Status
-validate_usb(struct epsonds_scanner *s)
-{
-	DBG(1, "%s\n", __func__);
-
-	SANE_Status status;
-	int vendor, product;
-	int i = 0, numIds;
-
-	SANE_Bool is_valid = SANE_FALSE;
-
-	/* if the sanei_usb_get_vendor_product call is not supported,
-	 * then we just ignore this and rely on the user to config
-	 * the correct device.
-	 */
-	status = sanei_usb_get_vendor_product(s->fd, &vendor, &product);
-	if (status != SANE_STATUS_GOOD) {
-		DBG(1, "the device cannot be verified - will continue\n");
-	 	return SANE_STATUS_GOOD;
-	}
-
-	/* check the vendor ID to see if we are dealing with an EPSON device */
-	if (vendor != SANE_EPSONDS_VENDOR_ID) {
-		/* this is not a supported vendor ID */
-		DBG(1, "not an Epson device at %s (vendor id=0x%x)\n",
-			s->hw->sane.name, vendor);
-		return SANE_STATUS_INVAL;
-	}
-
-	numIds = epsonds_get_number_of_ids();
-
-	/* check all known product IDs to verify that we know
-	   about the device */
-	while (i != numIds && !is_valid) {
-		if (product == epsonds_usb_product_ids[i])
-			is_valid = SANE_TRUE;
-		i++;
-	}
-
-	if (is_valid == SANE_FALSE) {
-		DBG(1, "the device at %s is not a supported (product id=0x%x)\n",
-			s->hw->sane.name, product);
-		return SANE_STATUS_INVAL;
-	}
-
-	DBG(1, "found valid Epson ESC/I-2 scanner: 0x%x/0x%x at %s\n",
-		vendor, product, s->hw->sane.name);
-
-	return SANE_STATUS_GOOD;
 }
 
 static int num_devices;			/* number of scanners attached to backend */
@@ -310,13 +261,6 @@ device_detect(const char *name, int type, SANE_Status *status)
 		free(s);
 		return NULL;
 	}
-
-	if (dev->connection == SANE_EPSONDS_USB) {
-		*status = validate_usb(s);
-	}
-
-	if (*status != SANE_STATUS_GOOD)
-		goto close;
 
 	eds_dev_init(dev);
 
@@ -415,19 +359,11 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 
 	if (sscanf(line, "usb %i %i", &vendor, &product) == 2) {
 
-		int numIds;
-
-		/* add the vendor and product IDs to the list of
-		   known devices before we call the attach function */
-
 		DBG(7, " user configured device\n");
 
-		numIds = epsonds_get_number_of_ids();
-		if (vendor != 0x4b8)
-			return SANE_STATUS_INVAL; /* this is not an EPSON device */
+		if (vendor != SANE_EPSONDS_VENDOR_ID)
+			return SANE_STATUS_INVAL; /* this is not an Epson device */
 
-		/* add to last slot */
-		epsonds_usb_product_ids[numIds - 1] = product;
 		sanei_usb_attach_matching_devices(line, attach_one_usb);
 
 	} else if (strncmp(line, "usb", 3) == 0 && len == 3) {
@@ -439,9 +375,10 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 		numIds = epsonds_get_number_of_ids();
 
 		for (i = 0; i < numIds; i++) {
-			sanei_usb_find_devices(0x4b8,
+			sanei_usb_find_devices(SANE_EPSONDS_VENDOR_ID,
 					epsonds_usb_product_ids[i], attach_one_usb);
 		}
+
 	} else {
 		DBG(0, "unable to parse config line: %s\n", line);
 	}
@@ -709,12 +646,10 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 	SANE_Status status;
 	epsonds_scanner *s = NULL;
 
-	int l = strlen(name);
-
-	DBG(7, "** %s: name = %s\n", __func__, name);
+	DBG(7, "** %s: name = '%s'\n", __func__, name);
 
 	/* probe if empty device name provided */
-	if (l == 0) {
+	if (name[0] == '\0') {
 
 		probe_devices();
 
@@ -738,20 +673,8 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 			if (s == NULL)
 				return status;
 		} else {
-
-			/* as a last resort, check for a match
-			 * in the device list. This should handle SCSI
-			 * devices and platforms without libusb.
-			 */
-
-			if (first_dev == NULL)
-				probe_devices();
-
-			s = device_detect(name, SANE_EPSONDS_NODEV, &status);
-			if (s == NULL) {
-				DBG(1, "invalid device name: %s\n", name);
-				return SANE_STATUS_INVAL;
-			}
+			DBG(1, "invalid device name: %s\n", name);
+			return SANE_STATUS_INVAL;
 		}
 	}
 

@@ -359,7 +359,7 @@ close_scanner(Epson_Scanner *s)
 	DBG(7, "%s: fd = %d\n", __func__, s->fd);
 
 	if (s->fd == -1)
-		return;
+		goto free;
 
 	/* send a request_status. This toggles w_cmd_count and r_cmd_count */
 	if (r_cmd_count % 2)
@@ -381,6 +381,15 @@ close_scanner(Epson_Scanner *s)
 	}
 
 	s->fd = -1;
+
+free:
+
+	for (i = 0; i < LINES_SHUFFLE_MAX; i++) {
+		if (s->line_buffer[i] != NULL)
+			free(s->line_buffer[i]);
+	}
+
+	free(s);
 }
 
 static void
@@ -749,7 +758,6 @@ device_detect(const char *name, int type, SANE_Status *status)
 
 close:
       	close_scanner(s);
-	free(s);
 	return NULL;
 }
 
@@ -767,7 +775,6 @@ attach(const char *name, int type)
 		return status;
 
       	close_scanner(s);
-	free(s);
 	return status;
 }
 
@@ -1457,6 +1464,8 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 
 	DBG(7, "%s: name = %s\n", __func__, name);
 
+	*handle = NULL;
+
 	/* probe if empty device name provided */
 	if (l == 0) {
 
@@ -1514,8 +1523,6 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 
 	init_options(s);
 
-	*handle = (SANE_Handle) s;
-
 	status = open_scanner(s);
 	if (status != SANE_STATUS_GOOD) {
 		free(s);
@@ -1523,10 +1530,14 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 	}
 
 	status = esci_reset(s);
-	if (status != SANE_STATUS_GOOD)
+	if (status != SANE_STATUS_GOOD) {
 		close_scanner(s);
+		return status;
+	}
+
+	*handle = (SANE_Handle)s;
 	
-	return status;
+	return SANE_STATUS_GOOD;
 }
 
 void
@@ -1544,15 +1555,7 @@ sane_close(SANE_Handle handle)
 
 	s = (Epson_Scanner *) handle;
 
-	if (s->fd != -1)
-		close_scanner(s);
-
-	for (i = 0; i < LINES_SHUFFLE_MAX; i++) {
-		if (s->line_buffer[i] != NULL)
-			free(s->line_buffer[i]);
-	}
-
-	free(s);
+	close_scanner(s);
 }
 
 const SANE_Option_Descriptor *

@@ -80,6 +80,7 @@
 #define MF3200_PID 0x2684
 #define MF6500_PID 0x2686
 /* generation 2 scanners (>=0x2707) */
+#define MF8300_PID 0x2708
 #define MF4500_PID 0x2736
 #define MF4410_PID 0x2737
 #define MF3010_PID 0x2759
@@ -208,6 +209,7 @@ activate (pixma_t * s, uint8_t x)
     case D420_PID:
     case MF4360_PID:
     case MF4100_PID:
+    case MF8300_PID:
       return iclass_exec (s, &mf->cb, 1);
       break;
     default:
@@ -239,6 +241,7 @@ select_source (pixma_t * s)
     case D420_PID:
     case MF4360_PID:
     case MF4100_PID:
+    case MF8300_PID:
       return iclass_exec (s, &mf->cb, 0);
       break;
     default:
@@ -273,6 +276,7 @@ send_scan_param (pixma_t * s)
     case D420_PID:
     case MF4360_PID:
     case MF4100_PID:
+    case MF8300_PID:
       return iclass_exec (s, &mf->cb, 0);
       break;
     default:
@@ -369,6 +373,7 @@ read_error_info (pixma_t * s, void *buf, unsigned size)
     case D420_PID:
     case MF4360_PID:
     case MF4100_PID:
+    case MF8300_PID:
       error = iclass_exec (s, &mf->cb, 0);
       break;
     default:
@@ -795,6 +800,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF4800 Series", "MF4800", MF4800_PID, 600, 0, 640, 1050, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4570dw", "MF4570dw", MF4570_PID, 600, 0, 640, 877, 0),
   DEV ("Canon i-SENSYS MF8200C Series", "MF8200C", MF8200_PID, 600, 300, 640, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF8300 Series", "MF8300", MF8300_PID, 600, 0, 640, 1050, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS D530", "D530", D530_PID, 600, 0, 640, 877, 0),
   /* FIXME: the following capabilities all need updating/verifying */
   DEV ("Canon imageCLASS MF5630", "MF5630", MF5630_PID, 600, 0, 640, 877, PIXMA_CAP_ADF),

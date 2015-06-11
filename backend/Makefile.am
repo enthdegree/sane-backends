@@ -24,7 +24,7 @@ USB_LIBS = @USB_LIBS@
 SCSI_LIBS = @SCSI_LIBS@
 PTHREAD_LIBS = @PTHREAD_LIBS@
 
-AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include -DLIBDIR="$(libdir)/sane"
+AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include -DLIBDIR="\"$(libdir)/sane\""
 
 V_MAJOR = @V_MAJOR@
 V_MINOR = @V_MINOR@

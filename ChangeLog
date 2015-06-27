@@ -1,4 +1,7 @@
-2015-06-11 Louis Lagendijk <louis dot lagendijk at gmail dot com>
+2015-06-27 Louis Lagendijk <louis dot lagendijk at gmail dot com>
+	* backend/pixma_bjnp.c: added missing return in case of no error
+
+2015-06-27 Louis Lagendijk <louis dot lagendijk at gmail dot com>
 	* backend/pixma_bjnp.c Added backend version in bjnp debug output
 
 2015-06-11 Stéphane Voltz <stef.dev@free.fr>

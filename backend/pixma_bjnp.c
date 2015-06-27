@@ -2111,8 +2111,10 @@ sanei_bjnp_open (SANE_String_Const devname, SANE_Int * dn)
   PDBG (bjnp_dbg (LOG_INFO, "sanei_bjnp_open(%s, %d):\n", devname, *dn));
 
   result = bjnp_allocate_device (devname, dn, NULL);
-  if ( (result != BJNP_STATUS_GOOD) && (result != BJNP_STATUS_ALREADY_ALLOCATED ) )
+  if ( (result != BJNP_STATUS_GOOD) && (result != BJNP_STATUS_ALREADY_ALLOCATED ) ) {
     return SANE_STATUS_INVAL; 
+  }
+  return SANE_STATUS_GOOD;
 }
 
 /** Close a BJNP device.

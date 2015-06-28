@@ -262,9 +262,9 @@ level.
 .PP
 The
 .B \-B
-or
-.B \-\-buffer-size
-changes the input buffer size from 32KB to the number kB specified or 1M.
+option without argument changes the input buffer size from the default 32KB to 1MB.  For finer grained control, use 
+.B \-\-buffer-size=
+followed by the number of KB.
 .PP
 The
 .B \-V

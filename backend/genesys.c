@@ -3890,7 +3890,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	{
 	  first_average /= pixel;
 	  second_average /= pixel;
-	  difference = abs (first_average - second_average);
+	  difference = fabs (first_average - second_average);
 	  DBG (DBG_info,
 	       "genesys_warmup_lamp: average = %.2f, diff = %.3f\n",
 	       100 * ((second_average) / (256 * 256)),
@@ -3917,7 +3917,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	    }
 	  DBG (DBG_info, "genesys_warmup_lamp: average 1 = %.2f, average 2 = %.2f\n", first_average, second_average);
           /* if delta below 15/255 ~= 5.8%, lamp is considred warm enough */
-	  if (abs (first_average - second_average) < 15
+	  if (fabs (first_average - second_average) < 15
 	      && second_average > 55)
 	    break;
 	}

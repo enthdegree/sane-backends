@@ -1134,7 +1134,7 @@ static void test_scan(SANE_Handle device)
 	unsigned char *image = NULL;
 	SANE_Parameters params;
 	size_t to_read;
-	SANE_Int len;
+	SANE_Int len=0;
 	int ask_len;
 	int rc;
 	int fd;

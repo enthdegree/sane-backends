@@ -744,7 +744,7 @@ sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
 
   if(gamma_table==NULL)
     {
-      DBG (DBG_proc, "sanei_genesys_create_gamma_table: gamma tbale is NULL\n");
+      DBG (DBG_proc, "sanei_genesys_create_gamma_table: gamma table is NULL\n");
       return;
     }
   DBG (DBG_proc,
@@ -5749,7 +5749,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_DESPECK].unit = SANE_UNIT_NONE;
   s->opt[OPT_DESPECK].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_DESPECK].constraint.range = &swdespeck_range;
-  s->opt[OPT_DESPECK].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->opt[OPT_DESPECK].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
   s->val[OPT_DESPECK].w = 1;
 
   /* crop by software */

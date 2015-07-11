@@ -5914,8 +5914,8 @@ init_options (Genesys_Scanner * s)
   /* expiration time for calibration cache entries */
   s->opt[OPT_EXPIRATION_TIME].name = "expiration-time";
   s->opt[OPT_EXPIRATION_TIME].title = SANE_I18N ("Calibration cache expiration time");
-  s->opt[OPT_EXPIRATION_TIME].desc = SANE_I18N ("Time (in minutes) before a cached calibration expires."
-     "A value of 0 means cache is not used used. A negative value means cache never expires.");
+  s->opt[OPT_EXPIRATION_TIME].desc = SANE_I18N ("Time (in minutes) before a cached calibration expires. "
+     "A value of 0 means cache is not used. A negative value means cache never expires.");
   s->opt[OPT_EXPIRATION_TIME].type = SANE_TYPE_INT;
   s->opt[OPT_EXPIRATION_TIME].unit = SANE_UNIT_NONE;
   s->opt[OPT_EXPIRATION_TIME].constraint_type = SANE_CONSTRAINT_RANGE;

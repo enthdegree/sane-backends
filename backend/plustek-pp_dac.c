@@ -338,7 +338,7 @@ static void dacP98SetInitialGainRegister( pScanData ps )
     dacP98FillGainInitialRestRegister( ps );/* Model Control2, LED, Correct.*/
 }
 
-/** Find the the most ideal intensity for each color (RGB)
+/** Find the most ideal intensity for each color (RGB)
  */
 static void dacP98SetRGBGainRegister( pScanData ps )
 {
@@ -451,7 +451,7 @@ static void dacP98SetInitialGainRAM( pScanData ps )
 	dacP98DownloadMapTable( ps, ps->pScanBuffer1 );
 }
 
-/** Find the the most ideal intensity for each color (RGB)
+/** Find the most ideal intensity for each color (RGB)
  */
 static void dacP98AdjustRGBGain( pScanData ps )
 {

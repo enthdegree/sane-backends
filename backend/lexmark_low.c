@@ -1965,7 +1965,7 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
    available. The number of lines (or number of buffers in our buffer space)
    is calculated from the size of the data available from the scanner. The
    number of buffers is calculated as the space required to hold 1.5 times
-   the the size of the data available from the scanner.
+   the size of the data available from the scanner.
 
    After data is read from the scanner each line is checked if it is on the
    home dot. Lines are continued to be read until we are no longer on the home

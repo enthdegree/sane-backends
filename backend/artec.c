@@ -1305,7 +1305,7 @@ artec_set_scan_window (SANE_Handle handle)
     {
       /* top left X value */
       /* the select area is flipped across the page, so we have to do some */
-      /* calculation here to get the the real starting X value */
+      /* calculation here to get the real starting X value */
       max_x = (int) ((SANE_UNFIX (s->hw->x_range.max) / MM_PER_INCH) *
 	      s->x_resolution);
       reversed_x = max_x - s->tl_x - s->params.pixels_per_line;

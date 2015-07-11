@@ -147,7 +147,7 @@ struct pixma_scan_ops_t
      * -# Fill the buffer pointed by ib->wptr directly and leave
      *    ib->rptr and ib->rend untouched. The length of the buffer is
      *    ib->wend - ib->wptr. It must update ib->wptr accordingly.
-     * -# Update ib->rptr and ib->rend to point to the the beginning and
+     * -# Update ib->rptr and ib->rend to point to the beginning and
      *    the end of the internal buffer resp. The length of the buffer
      *    is ib->rend - ib->rptr. This function is called again if
      *    and only if pixma_read_image() has copied the whole buffer.

@@ -89,7 +89,7 @@ typedef struct {
 static u_short a_wWhiteShading[_SHADING_BUF] = {0};
 static u_short a_wDarkShading[_SHADING_BUF]  = {0};
 
-/* the version the the calibration files */
+/* the version the calibration files */
 #define _PT_CF_VERSION 0x0002
 
 /** function to read a text file and returns the string which starts which

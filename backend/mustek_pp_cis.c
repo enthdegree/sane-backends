@@ -2086,7 +2086,7 @@ cis_calibrate (Mustek_PP_CIS_dev * dev)
     *    It seems that the width of the black border is being measured at 
     *    this stage, possibly multiple times till it stabilizes. 
     *    I assume that the buffer is read 100 times to allow the lamp to
-    *    warm up and that the the width of the black border is then being 
+    *    warm up and that the width of the black border is then being
     *    measured till it stabilizes. That would explain the minimum number
     *    of 102 iterations that I've seen.
     *

@@ -152,7 +152,7 @@
 
 /*
  * WARNING - never use the _SECOND define with the _DODELAY macro !!
- * they are for use the the MiscStartTimer function and the _DO_UDELAY macro
+ * they are for use the MiscStartTimer function and the _DO_UDELAY macro
  */
 #ifndef __KERNEL__
 typedef double TimerDef, *pTimerDef;

@@ -2878,7 +2878,7 @@ static void
 html_print_legend_model (void)
 {
   printf
-    ("  <dt><b>Model:</b></dt>\n" "  <dd>Name of the the device.</dd>\n");
+    ("  <dt><b>Model:</b></dt>\n" "  <dd>Name of the device.</dd>\n");
 }
 
 static void

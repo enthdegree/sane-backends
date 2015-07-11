@@ -140,7 +140,7 @@ static int hang_over;
    client/server have different endianness.  A value of -1 means, that there's
    no left over; otherwise the value has to be casted to SANE_Byte.  left_over
    means, that there is a remaining byte from a previous call to sane_read,
-   which already is in the the correct byte order, but could not be returned,
+   which already is in the correct byte order, but could not be returned,
    e.g.  because the frontend requested only one byte per call.
 */
 static int left_over;

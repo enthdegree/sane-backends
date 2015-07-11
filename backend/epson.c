@@ -2347,7 +2347,7 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
 
 /*
  *  Extended status flag request (ESC f).
- *    this also requests the scanner device name from the the scanner
+ *    this also requests the scanner device name from the scanner
  */
   /*
    * because we are also using the device name from this command, 

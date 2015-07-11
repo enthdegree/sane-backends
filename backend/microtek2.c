@@ -4013,7 +4013,7 @@ get_scan_mode_and_depth(Microtek2_Scanner *ms,
     /* This function translates the strings for the possible modes and */
     /* bitdepth into a more conveniant format as needed for SET WINDOW. */
     /* bits_per_pixel is the number of bits per color one pixel needs */
-    /* when transferred from the the scanner, bits_perpixel_out is the */
+    /* when transferred from the scanner, bits_perpixel_out is the */
     /* number of bits per color one pixel uses when transferred to the */
     /* frontend. These may be different. For example, with a depth of 4 */
     /* two pixels per byte are transferred from the scanner, but only one */

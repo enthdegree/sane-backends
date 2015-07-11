@@ -581,7 +581,7 @@ e2_discover_capabilities(Epson_Scanner *s)
 
 	/*
 	 * Extended status flag request (ESC f).
-	 * this also requests the scanner device name from the the scanner.
+	 * this also requests the scanner device name from the scanner.
 	 * It seems unsupported on the network transport (CX11NF/LP-A500).
 	 */
 

@@ -1,3 +1,12 @@
+2015-07-29 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	  New scanner Canon PIXMA MG3600 Series. This scanner needs further testing.
+	* backend/pixma_mp150.c: Canon PIXMA MG7500 Series doesn't need special
+	  image format post processing.
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	  Canon PIXMA MG7500 Series is working, reported by Jonathan Anderson.
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.19
+
 2015-07-24 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	  Canon PIXMA MX470 Series is working, bug #314894.

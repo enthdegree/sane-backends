@@ -215,10 +215,10 @@
 :comment "All resolutions supported (up to 2400DPI)."
 
 :model "PIXMA MG7500 Series"
-:interface "USB"
+:interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x177c"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 2400DPI)."
 
 :model "PIXMA MG8100 Series"
 :interface "USB"

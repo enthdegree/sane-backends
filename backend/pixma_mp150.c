@@ -227,6 +227,7 @@
 /* 2015 new devices (untested) */
 #define MX490_PID 0x1787
 #define E480_PID 0x1789
+#define MG3600_PID 0x178a
 
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
@@ -1825,6 +1826,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   /* Latest devices (2015) Generation 4 CIS */
   DEVICE ("Canon PIXMA MX490 Series", "MX490", MX490_PID, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA E480 Series",  "E480",  E480_PID,  600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MG3600 Series", "MG3600", MG3600_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

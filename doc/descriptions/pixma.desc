@@ -118,6 +118,12 @@
 :status :complete
 :comment "All resolutions supported (up to 1200DPI)."
 
+:model "PIXMA MG3600 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x178a"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA MG4100 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1753"

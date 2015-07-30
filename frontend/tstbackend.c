@@ -46,6 +46,7 @@
 static struct option basic_options[] = {
 	{"device-name", required_argument, NULL, 'd'},
 	{"level", required_argument, NULL, 'l'},
+	{"scan", NULL, NULL, 's'},
 	{"recursion", required_argument, NULL, 'r'},
 	{"get-devices", required_argument, NULL, 'g'},
 	{"help", 0, NULL, 'h'}
@@ -1660,12 +1661,22 @@ SANE_Status status;
 	return 0;
 }
 
+/** test test_default
+ * test by scanning using default values
+ * @param device device to use for the scan
+ */
+static void test_default(SANE_Device * device)
+{
+	test_scan(device);
+}
+
 static void usage(const char *execname)
 {
-	printf("Usage: %s [-d backend_name] [-l test_level] [-r recursion_level] [-g time (s)]\n", execname);
+	printf("Usage: %s [-d backend_name] [-l test_level] [-s] [-r recursion_level] [-g time (s)]\n", execname);
 	printf("\t-v\tverbose level\n");
 	printf("\t-d\tbackend name\n");
 	printf("\t-l\tlevel of testing (0=some, 1=0+options, 2=1+scans, 3=longest tests)\n");
+	printf("\t-s\tdo a scan during open/close tests\n");
 	printf("\t-r\trecursion level for option testing (the higher, the longer)\n");
 	printf("\t-g\ttime to loop on sane_get_devices function to test scannet hotplug detection (time is in seconds).\n");
 }
@@ -1684,6 +1695,7 @@ main (int argc, char **argv)
 	int rc;
 	int recursion_level;
 	int time;
+	int default_scan;
 
 	printf("tstbackend, Copyright (C) 2002 Frank Zago\n");
 	printf("tstbackend comes with ABSOLUTELY NO WARRANTY\n");
@@ -1696,8 +1708,9 @@ main (int argc, char **argv)
 	recursion_level = 5;		/* 5 levels or recursion should be enough */
 	test_level = 0;			/* basic tests only */
 	time = 0;			/* no get devices loop */
+	default_scan = 0;
 
-	while ((ch = getopt_long (argc, argv, "-v:d:l:r:g:h", basic_options,
+	while ((ch = getopt_long (argc, argv, "-v:d:l:r:g:h:s", basic_options,
 							  &index)) != EOF) {
 		switch(ch) {
 		case 'v':
@@ -1714,6 +1727,10 @@ main (int argc, char **argv)
 				fprintf(stderr, "invalid test_level\n");
 				return(1);
 			}
+			break;
+
+		case 's':
+			default_scan = 1;
 			break;
 
 		case 'r':
@@ -1824,6 +1841,10 @@ main (int argc, char **argv)
 		rc = check(ERR, (status == SANE_STATUS_GOOD),
 				   "sane_open failed with %s for device %s", sane_strstatus (status), devname);
 		if (!rc) goto the_exit;
+
+		if (default_scan) {
+			test_default (device);
+		}
 		sane_close (device);
 	}
 

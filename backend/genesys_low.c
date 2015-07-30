@@ -961,6 +961,10 @@ sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty)
 
   if (dev->model->cmd_set->test_buffer_empty_bit (val))
     {
+      /* fix timing issue on USB3 (or just may be too fast) hardware
+       * spotted by John S. Weber jweber53@gmail.com
+       */
+      usleep(1000);
       DBG (DBG_io2, "sanei_genesys_test_buffer_empty: buffer is empty\n");
       *empty = SANE_TRUE;
       return SANE_STATUS_GOOD;

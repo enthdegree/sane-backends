@@ -962,7 +962,7 @@ sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty)
   if (dev->model->cmd_set->test_buffer_empty_bit (val))
     {
       /* fix timing issue on USB3 (or just may be too fast) hardware
-       * spotted by John S. Weber jweber53@gmail.com
+       * spotted by John S. Weber <jweber53@gmail.com>
        */
       usleep(1000);
       DBG (DBG_io2, "sanei_genesys_test_buffer_empty: buffer is empty\n");
@@ -1321,10 +1321,14 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
 }
 
 /** @brief initialize device
- * initialize backend and ASIC : registers, motor tables, and gamma tables
- * then ensure scanner's head is at home. Designed for gl846+ ASICs
+ * Initialize backend and ASIC : registers, motor tables, and gamma tables
+ * then ensure scanner's head is at home. Designed for gl846+ ASICs.
+ * Detects cold boot (ie first boot since device plugged) in this case 
+ * an extensice setup up is done at hardware level.
+ *
  * @param dev device to initialize
  * @param max_regs umber of maximum used registers
+ * @return SANE_STATUS_GOOD in case of success
  */
 SANE_Status
 sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
@@ -1332,7 +1336,8 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
   SANE_Status status;
   uint8_t val;
   SANE_Bool cold = SANE_TRUE;
-  int size, i;
+  int size;     /**< size of the device's gamma table */
+  int i;
 
   DBGSTART;
 
@@ -1356,6 +1361,25 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
         {
           dev->usb_mode = 2;
         }
+    }
+
+  /* setup gamma tables */
+  size = 256;
+  for(i=0;i<3;i++)
+    {
+      FREE_IFNOT_NULL (dev->sensor.gamma_table[i]);
+      dev->sensor.gamma_table[i] = (uint16_t *) malloc (2 * size);
+      if (dev->sensor.gamma_table[i] == NULL)
+        {
+          DBG (DBG_error, "%s: could not allocate memory for gamma table %d\n",
+               __FUNCTION__, i);
+          return SANE_STATUS_NO_MEM;
+        }
+      sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
+                                        size,
+                                        65535,
+                                        65535,
+                                        dev->sensor.gamma[i]);
     }
 
   /* check if the device has already been initialized and powered up
@@ -1384,9 +1408,6 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
   /* now hardware part is OK, set up device struct */
   FREE_IFNOT_NULL (dev->white_average_data);
   FREE_IFNOT_NULL (dev->dark_average_data);
-  FREE_IFNOT_NULL (dev->sensor.gamma_table[0]);
-  FREE_IFNOT_NULL (dev->sensor.gamma_table[1]);
-  FREE_IFNOT_NULL (dev->sensor.gamma_table[2]);
 
   dev->settings.color_filter = 0;
 
@@ -1395,28 +1416,6 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
 
   /* Set analog frontend */
   RIE (dev->model->cmd_set->set_fe (dev, AFE_INIT));
-
-  /* init gamma tables */
-  size = 256;
-
-  for(i=0;i<3;i++)
-    {
-      if (dev->sensor.gamma_table[i] == NULL)
-        {
-          dev->sensor.gamma_table[i] = (uint16_t *) malloc (2 * size);
-          if (dev->sensor.gamma_table[i] == NULL)
-            {
-              DBG (DBG_error, "%s: could not allocate memory for gamma table %d\n",
-                   __FUNCTION__, i);
-              return SANE_STATUS_NO_MEM;
-            }
-          sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
-                                            size,
-                                            65535,
-                                            65535,
-                                            dev->sensor.gamma[i]);
-        }
-    }
 
   dev->oe_buffer.buffer = NULL;
   dev->already_initialized = SANE_TRUE;

@@ -720,7 +720,7 @@ e2_discover_capabilities(Epson_Scanner *s)
 		}
 
                 /* TPU2 */
-		if (e2_model(s, "GT-X800") || e2_model(s, "GT-X900")) {
+		if (e2_model(s, "GT-X800") || e2_model(s, "GT-X900") || e2_model(s, "GT-X980")) {
 			if (le32atoh(&buf[68]) > 0 ) {
 				e2_set_tpu2_area(s,
 					  	 le32atoh(&buf[68]),
@@ -1272,7 +1272,7 @@ e2_setup_block_mode(Epson_Scanner * s)
 	DBG(1, "max req size: %d, line count: %d\n", maxreq, s->lcount);
 
 	/* XXX investigate this */
-	if (s->lcount < 3 && (e2_model(s, "GT-X800") || e2_model(s, "GT-X900"))) {
+	if (s->lcount < 3 && (e2_model(s, "GT-X800") || e2_model(s, "GT-X900") || e2_model(s, "GT-X980"))) {
 		s->lcount = 21;
 		DBG(17,
 		    "%s: set lcount = %i bigger than sanei_scsi_max_request_size\n",

@@ -2381,10 +2381,14 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     /* AFEMOD should depend on FESET, and we should set these
      * bits separately */
     r->value &= ~(REG04_FILTER | REG04_AFEMOD);
-    if (channels == 1)
+    if (flags & OPTICAL_FLAG_ENABLE_LEDADD)
+      {
+	r->value |= 0x10;	/* no filter */
+      }
+    else if (channels == 1)
       {
 	switch (color_filter)
-          {
+	  {
 	  case 0:
 	    r->value |= 0x14;	/* red filter */
 	    break;
@@ -4487,6 +4491,7 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
   if(dev->model->is_cis && dev->settings.true_gray
     && dev->settings.scan_mode != SCAN_MODE_COLOR)
     {
+      DBG (DBG_io, "%s: activating LEDADD\n", __FUNCTION__);
       flags |= SCAN_FLAG_ENABLE_LEDADD;
     }
 

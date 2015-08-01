@@ -2385,52 +2385,52 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
       {
 	switch (color_filter)
           {
-	    case 0:
-		r->value |= 0x14;	/* red filter */
-		break;
-	    case 1:
-		r->value |= 0x18;	/* green filter */
-		break;
-	    case 2:
-		r->value |= 0x1c;	/* blue filter */
-		break;
-	    default:
-		r->value |= 0x10;	/* no filter */
-		break;
-	}
-    }
-   else
-     {
+	  case 0:
+	    r->value |= 0x14;	/* red filter */
+	    break;
+	  case 1:
+	    r->value |= 0x18;	/* green filter */
+	    break;
+	  case 2:
+	    r->value |= 0x1c;	/* blue filter */
+	    break;
+	  default:
+	    r->value |= 0x10;	/* no filter */
+	    break;
+	  }
+      }
+    else
+      {
         if (dev->model->ccd_type == CCD_PLUSTEK_3600)
           {
             r->value |= 0x22;	/* slow color pixel by pixel */
           }
-    	else
+	else
           {
 	    r->value |= 0x10;	/* color pixel by pixel */
           }
-    }
-   
+      }
+
     /* CIS scanners can do true gray by setting LEDADD */
     r = sanei_genesys_get_address (reg, 0x87);
     r->value &= ~REG87_LEDADD;
     if (flags & OPTICAL_FLAG_ENABLE_LEDADD)
       {
         r->value |= REG87_LEDADD;
-          sanei_genesys_get_double(reg,REG_EXPR,&expr);
-          sanei_genesys_get_double(reg,REG_EXPG,&expg);
-          sanei_genesys_get_double(reg,REG_EXPG,&expb);
+	sanei_genesys_get_double (reg, REG_EXPR, &expr);
+	sanei_genesys_get_double (reg, REG_EXPG, &expg);
+	sanei_genesys_get_double (reg, REG_EXPB, &expb);
 
-          /* use minimal expousre for best image quality */
-          expavg=expg;
-          if(expr<expg)
-            expavg=expr;
-          if(expb<expavg)
-            expavg=expb;
+	/* use minimal exposure for best image quality */
+	expavg = expg;
+	if (expr < expg)
+	  expavg = expr;
+	if (expb < expavg)
+	  expavg = expb;
 
-          sanei_genesys_set_double(dev->reg,REG_EXPR,expavg);
-          sanei_genesys_set_double(dev->reg,REG_EXPG,expavg);
-          sanei_genesys_set_double(dev->reg,REG_EXPB,expavg);
+	sanei_genesys_set_double (dev->reg, REG_EXPR, expavg);
+	sanei_genesys_set_double (dev->reg, REG_EXPG, expavg);
+	sanei_genesys_set_double (dev->reg, REG_EXPB, expavg);
       }
 
     /* enable gamma tables */
@@ -2451,7 +2451,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     sanei_genesys_set_double(reg, REG_ENDPIXEL, end);
     DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d\n",__FUNCTION__,start,end);
 
-/* words(16bit) before gamma, conversion to 8 bit or lineart*/
+    /* words(16bit) before gamma, conversion to 8 bit or lineart*/
     words_per_line = (pixels * dpiset) / gl841_get_dpihw(dev);
 
     words_per_line *= channels;

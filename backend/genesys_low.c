@@ -943,13 +943,18 @@ sanei_genesys_get_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t *va
   return SANE_STATUS_GOOD;
 }
 
-/* Checks if the scan buffer is empty */
+/** @brief Check if the scanner's internal data buffer is empty
+ * @param *dev device to test for data
+ * @param *empty return value
+ * @return empty will be set to SANE_TRUE if there is no scanned data.
+ **/
 SANE_Status
 sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty)
 {
   uint8_t val = 0;
   SANE_Status status;
 
+  usleep(1000);
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
     {

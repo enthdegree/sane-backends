@@ -1,3 +1,8 @@
+2015-08-06 Stéphane Voltz <stef.dev@free.fr>
+	*  backend/genesys_devices.c, backend/genesys_gl841.c, backend/genesys_low.c:
+	fix GPIO setup for LiDE 33/40/50, add more usleep() for GL847
+	scanning issues. Some GL841 LEDADD improvements.
+
 2015-07-31 Stéphane Voltz <stef.dev@free.fr>
 	* frontend/tstbackend.c: add an option to do tests scans during
 	open/close tests.

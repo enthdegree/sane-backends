@@ -575,7 +575,7 @@ pixma_wait_interrupt (pixma_io_t * io, void *buf, unsigned size, int timeout)
 #endif
       error = map_error (sanei_usb_read_int (io->dev, buf, &count));
     }
-  if (error == PIXMA_EIO || error == PIXMA_EOF)
+  if (error == PIXMA_EIO /*|| error == PIXMA_EOF*/)     /* EOF isn't an error! */
     error = PIXMA_ETIMEDOUT;	/* FIXME: SANE doesn't have ETIMEDOUT!! */
   if (error == 0)
     error = count;

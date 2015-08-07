@@ -1,3 +1,10 @@
+2015-08-07 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* README.linux: update development packages list. OpenSuse needs
+	  libusb-compat-devel. Sane doesn't support libusb 1.0.
+	* backend/pixma_io_sanei.c: EOF isn't an usb timeout error; this fixes usb
+	  communication problems, e.g. with OpenSuse.
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.20
+
 2015-08-06 Stéphane Voltz <stef.dev@free.fr>
 	*  backend/genesys_devices.c, backend/genesys_gl841.c, backend/genesys_low.c:
 	fix GPIO setup for LiDE 33/40/50, add more usleep() for GL847

@@ -1,3 +1,9 @@
+2015-08-08 Stéphane Voltz <stef.dev@free.fr>
+	* backend/test.c: fix memleaks (#313553)
+	* configure.in, configure: don not harcode -I/usr/local/include
+	(#315060)
+
+	open/close tests.
 2015-08-07 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* README.linux: update development packages list. OpenSuse needs
 	  libusb-compat-devel. Sane doesn't support libusb 1.0.

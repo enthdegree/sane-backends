@@ -1120,7 +1120,10 @@ read_option (SANE_String line, SANE_String option_string,
     return SANE_STATUS_INVAL;
 
   if (strcmp (word, option_string) != 0)
-    return SANE_STATUS_INVAL;
+    {
+      free(word);
+      return SANE_STATUS_INVAL;
+    }
 
   free (word);
   word = 0;
@@ -1240,7 +1243,6 @@ read_option (SANE_String line, SANE_String option_string,
 
   if (word)
     free (word);
-  word = 0;
   return SANE_STATUS_GOOD;
 }
 
@@ -1453,7 +1455,7 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
 {
   FILE *fp;
   SANE_Int linenumber;
-  SANE_Char line[PATH_MAX], *word;
+  SANE_Char line[PATH_MAX], *word = NULL;
   SANE_String_Const cp;
   SANE_Device *sane_device;
   Test_Device *test_device, *previous_device;
@@ -1481,7 +1483,9 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
       DBG (4, "sane_init: reading config file `%s'\n", TEST_CONFIG_FILE);
       while (sanei_config_read (line, sizeof (line), fp))
 	{
-	  word = 0;
+	  if (word)
+	    free (word);
+	  word = NULL;
 	  linenumber++;
 
 	  cp = sanei_config_get_string (line, &word);
@@ -1490,8 +1494,6 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
 	      DBG (5,
 		   "sane_init: config file line %3d: ignoring empty line\n",
 		   linenumber);
-	      if (word)
-		free (word);
 	      continue;
 	    }
 	  if (word[0] == '#')
@@ -1499,7 +1501,6 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
 	      DBG (5,
 		   "sane_init: config file line %3d: ignoring comment line\n",
 		   linenumber);
-	      free (word);
 	      continue;
 	    }
 
@@ -1599,6 +1600,8 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
 	  DBG (3, "sane-init: I don't know how to handle option `%s'\n",
 	       word);
 	}			/* while */
+      if (word)
+	free (word);
       fclose (fp);
     }				/* if */
   else

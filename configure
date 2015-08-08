@@ -5192,7 +5192,6 @@ else
 fi
 
 
-INCLUDES="${INCLUDES} -I/usr/local/include"
 
 
 if test "${ac_cv_c_compiler_gnu}" = "yes"; then

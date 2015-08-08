@@ -82,7 +82,6 @@ AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 dnl ***********************************************************************
 dnl set compiler/linker flags
 dnl ***********************************************************************
-INCLUDES="${INCLUDES} -I/usr/local/include"
 AC_SUBST(INCLUDES)
 SANE_SET_CFLAGS([$is_release])
 SANE_SET_LDFLAGS

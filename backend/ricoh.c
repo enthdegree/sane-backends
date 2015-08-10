@@ -73,6 +73,7 @@
 
 #define MAX(a,b)	((a) > (b) ? (a) : (b))
 
+static const SANE_Device **devlist = NULL;
 static int num_devices = 0;
 static Ricoh_Device *first_dev = NULL;
 static Ricoh_Scanner *first_handle = NULL;
@@ -535,6 +536,9 @@ sane_exit (void)
       free ((void *) dev->sane.model);
       free (dev);
     }
+  
+  if (devlist)
+    free (devlist);
 
   DBG (11, "<< sane_exit\n");
 }
@@ -542,7 +546,6 @@ sane_exit (void)
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   Ricoh_Device *dev;
   int i;
 

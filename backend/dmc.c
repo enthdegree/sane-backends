@@ -75,6 +75,7 @@
 static DMC_Device *FirstDevice = NULL;
 static DMC_Camera *FirstHandle = NULL;
 static int NumDevices = 0;
+static SANE_Device const **devlist = NULL;
 
 static SANE_String_Const ValidModes[] = { "Full frame", "Viewfinder",
 					  "Raw", "Thumbnail",
@@ -867,6 +868,9 @@ sane_exit(void)
 	free(dev);
 	dev = next;
     }
+  
+    if (devlist)
+      free (devlist);
 }
 
 /**********************************************************************
@@ -882,7 +886,6 @@ sane_exit(void)
 SANE_Status
 sane_get_devices(SANE_Device const ***device_list, SANE_Bool local_only)
 {
-    static SANE_Device const **devlist = 0;
     DMC_Device *dev;
     int i = 0;
 

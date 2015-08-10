@@ -136,6 +136,7 @@
 #include "apple.h"
 
 
+static const SANE_Device **devlist = 0;
 static int num_devices;
 static Apple_Device *first_dev;
 static Apple_Scanner *first_handle;
@@ -1921,12 +1922,13 @@ sane_exit (void)
       free ((void *) dev->sane.model);
       free (dev);
     }
+  if (devlist)
+    free (devlist);
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   Apple_Device *dev;
   int i;
 

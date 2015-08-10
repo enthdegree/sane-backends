@@ -1987,6 +1987,7 @@ static const SANE_Range shift_range =
   0
 };
 
+static const SANE_Device **devlist = 0;
 static int num_devices;
 static Coolscan_t *first_dev;
 
@@ -3287,6 +3288,9 @@ sane_exit (void)
       free (dev->obuffer);
       free (dev);
     }
+  
+  if (devlist)
+    free (devlist);
 }
 
 /* ----------------------------- SANE GET DEVICES -------------------------- */
@@ -3294,8 +3298,6 @@ SANE_Status
 sane_get_devices (const SANE_Device *** device_list,
 		  SANE_Bool local_only)
 {
-
-  static const SANE_Device **devlist = 0;
   Coolscan_t *dev;
   int i;
 

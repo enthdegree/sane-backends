@@ -97,6 +97,7 @@ static const char RCSid_h[] = "$Header$";
  *
  */
 
+static const SANE_Device **devlist = NULL;
 static int num_devices;
 static struct sp15c *first_dev;
 

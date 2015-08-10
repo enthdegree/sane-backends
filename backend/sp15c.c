@@ -311,7 +311,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   struct sp15c *dev;
   int i;
   
@@ -990,6 +989,9 @@ sane_exit (void)
       free (dev->buffer);
       free (dev);
     }
+  
+  if (devlist)
+    free (devlist);
 }                               /* sane_exit */
 
 /* }################ internal (support) routines ################{ */

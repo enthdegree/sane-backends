@@ -45,6 +45,7 @@
 #undef Byte
 #define Byte SANE_Byte
 
+static const SANE_Device **devlist = NULL;
 static int num_devices;
 static S9036_Device *s9036_devices;
 
@@ -870,12 +871,14 @@ sane_exit (void)
 	sane_close (dev->handle);
       free (dev);
     }
+  
+  if (devlist)
+    free (devlist);
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   S9036_Device *dev;
   int i;
   

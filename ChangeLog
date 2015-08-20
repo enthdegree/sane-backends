@@ -1,4 +1,10 @@
-2015-08-07 Rolf Bensch <rolf at bensch hyphen online dot de>
+2015-08-20 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* README.linux: add mandatory and optional development environment to
+	  install description
+	* frontend/scanimage.c: remove atexit() function. In some cases atexit()
+	  doesn't work with libusb-compat.
+
+2015-08-10 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_io_sanei.c: EOF is a bjnp timeout error.
 	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.21
 

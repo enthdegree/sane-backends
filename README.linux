@@ -55,8 +55,12 @@ $ make install
 Step by step install on Linux 2.6.* and 3.*, both with udev:
 ------------------------------------------------------------
 
-1. Install missing development packages with your prefered package manager:
-	- libusb-dev or libusb-devel or libusb-compat-devel
+1. Install with your preferred package manager:
+   (a) the development environment for your Linux distibution
+       - mandaroty: gcc, make, kernel header files
+       - optional:  git
+   (b) missing development packages
+	   - libusb-dev or libusb-devel or libusb-compat-devel
 
 2. Get the latest SANE backend from git:
 	You can download "daily git snapshot" from here:

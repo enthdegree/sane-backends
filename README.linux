@@ -57,7 +57,7 @@ Step by step install on Linux 2.6.* and 3.*, both with udev:
 
 1. Install with your preferred package manager:
    (a) the development environment for your Linux distibution
-       - mandaroty: gcc, make, kernel header files
+       - mandatory: gcc, make, kernel header files
        - optional:  git
    (b) missing development packages
 	   - libusb-dev or libusb-devel or libusb-compat-devel

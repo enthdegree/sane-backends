@@ -1,5 +1,5 @@
 -*-Mode: outline-*-
-New with 1.0.24, released 2012-09-30:
+New with 1.0.24, released 2013-09-30:
 
 * Significant enhancements to pixma, genesys, kodakaio, fujitsu, canon_dr.
 * Minor updates, bugfixes or scanners added in several backends.

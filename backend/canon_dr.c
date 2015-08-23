@@ -311,6 +311,9 @@
          - don't print 0 length line in hexdump
       v49 2015-03-18, MAN
          - initial support for DR-C125
+      v50 2015-08-23, MAN
+         - DR-C125 adds duplex padding on back side
+         - initial support for DR-C225
 
    SANE FLOW DIAGRAM
 
@@ -360,7 +363,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 49
+#define BUILD 50
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1544,9 +1547,7 @@ init_model (struct scanner *s)
     s->can_monochrome=0;
   }
 
-  else if (strstr (s->model_name,"DR-C125")
-   || strstr (s->model_name,"DR-C225")
-  ){
+  else if (strstr (s->model_name,"DR-C125")){
 
     /*confirmed settings*/
     s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_2510;
@@ -1554,6 +1555,36 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_2510;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_2510;
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
+    s->duplex_offset_side = SIDE_BACK;
+    s->unknown_byte2 = 0x88;
+    s->need_ccal = 1;
+    s->ccal_version = 3;
+    s->need_fcal = 1;
+    s->invert_tly = 1;
+    s->can_color = 1;
+    s->rgb_format = 1;
+    /*s->duplex_offset = 400; now set in config file*/
+
+    /*only in Y direction, so we trash them in X*/
+    s->std_res_x[DPI_100]=0;
+    s->std_res_x[DPI_150]=0;
+    s->std_res_x[DPI_200]=0;
+    s->std_res_x[DPI_240]=0;
+    s->std_res_x[DPI_400]=0;
+
+    /*suspected settings*/
+    s->always_op = 0;
+    s->fixed_width = 1;
+    s->valid_x = 8.5 * 1200;
+  }
+
+  else if (strstr (s->model_name,"DR-C225")){
+
+    s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
+    s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+
     s->unknown_byte2 = 0x88;
     s->need_ccal = 1;
     s->ccal_version = 3;

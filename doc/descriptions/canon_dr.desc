@@ -11,7 +11,7 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/" 
-:version "49"                    ; version of backend
+:version "50"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.25, see sane-canon_dr manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -284,7 +284,7 @@
 :interface "USB"
 :usbid "0x1083" "0x1658"
 :status :untested
-:comment "Perhaps similar to DR-C125?"
+:comment ""
 
 :model "DR-F120"
 :interface "USB"

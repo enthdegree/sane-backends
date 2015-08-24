@@ -12,7 +12,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "118"                   ; version of backend
+:version "126"                   ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.25, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -167,9 +167,14 @@
 :usbid "0x04c5" "0x11a2"
 :comment "small, discontinued, same as S1500"
 
+:model "ScanSnap N1800"
+:interface "Ethernet"
+:status :untested
+:comment "small, discontinued, integrated touchscreen and keyboard"
+
 ;==================================================
 ; CURRENT MODELS, SMALL
-:model "ScanSnap N1800"
+:model "ScanSnap N7100"
 :interface "Ethernet"
 :status :untested
 :comment "small, current, integrated touchscreen and keyboard"
@@ -202,6 +207,17 @@
 :status :good
 :usbid "0x04c5" "0x132b"
 :comment "small, current, WiFi not supported. Hardware only scans in color. Backend generates binary and grayscale modes."
+
+:model "ScanSnap iX100"
+:interface "USB WiFi"
+:status :untested
+:usbid "0x04c5" "0x13f4"
+
+:model "ScanSnap SV600"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x128e"
+:comment "Also has a second USB VID 0x13ba."
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, MEDIUM
@@ -302,6 +318,18 @@
 :usbid "0x04c5" "0x114e"
 :comment "medium, recent, discontinued"
 
+:model "fi-6140Z"
+:interface "SCSI USB"
+:status :complete
+:usbid "0x04c5" "0x11f1"
+:comment "medium, recent, discontinued"
+
+:model "fi-6240Z"
+:interface "SCSI USB"
+:status :complete
+:usbid "0x04c5" "0x11f2"
+:comment "medium, recent, discontinued"
+
 ;==================================================
 ; CURRENT MODELS, MEDIUM
 
@@ -309,18 +337,6 @@
 :interface "SCSI USB"
 :status :complete
 :usbid "0x04c5" "0x114a"
-:comment "medium, current"
-
-:model "fi-6140Z"
-:interface "SCSI USB"
-:status :complete
-:usbid "0x04c5" "0x11f1"
-:comment "medium, current"
-
-:model "fi-6240Z"
-:interface "SCSI USB"
-:status :complete
-:usbid "0x04c5" "0x11f2"
 :comment "medium, current"
 
 :model "fi-7180"
@@ -466,3 +482,8 @@
 :status :untested
 :usbid "0x04c5" "0x119e"
 :comment "big, current. VRS CGA board unsupported, Independent ultrasonic control and multistream unsupported"
+
+:model "fi-6400"
+:interface "SCSI USB"
+:status :untested
+;:usbid "0x04c5" "0x"

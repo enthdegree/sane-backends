@@ -332,6 +332,7 @@ struct fujitsu
   int broken_diag_serial;   /* some scanners are just plain borked */
   int need_q_table;         /* some scanners wont work without these */
   int need_diag_preread;    
+  int late_lut;    
   int hopper_before_op;     /* some scanners dont like OP when hopper empty */
   int no_wait_after_op;     /* some scanners dont like TUR after OP */
 

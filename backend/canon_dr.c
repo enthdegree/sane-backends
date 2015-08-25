@@ -314,6 +314,8 @@
       v50 2015-08-23, MAN
          - DR-C125 adds duplex padding on back side
          - initial support for DR-C225
+      v51 2015-08-25, MAN
+         - DR-C125 does not invert_tly, does need sw_lut
 
    SANE FLOW DIAGRAM
 
@@ -363,7 +365,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 50
+#define BUILD 51
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1560,7 +1562,7 @@ init_model (struct scanner *s)
     s->need_ccal = 1;
     s->ccal_version = 3;
     s->need_fcal = 1;
-    s->invert_tly = 1;
+    s->sw_lut = 1;
     s->can_color = 1;
     s->rgb_format = 1;
     /*s->duplex_offset = 400; now set in config file*/

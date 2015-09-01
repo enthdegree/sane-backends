@@ -604,6 +604,13 @@ for be in ${BACKENDS}; do
     fi
     ;;
 
+    epsonds)
+    if test "${sane_cv_use_libjpeg}" != "yes"; then
+      echo "*** $be backend requires JPEG library - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
     gphoto2)
     if test "${HAVE_GPHOTO2}" != "true" \
       -o "${sane_cv_use_libjpeg}" != "yes"; then

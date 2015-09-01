@@ -333,6 +333,11 @@ libp5_la_OBJECTS = $(am_libp5_la_OBJECTS)
 libpie_la_LIBADD =
 am_libpie_la_OBJECTS = libpie_la-pie.lo
 libpie_la_OBJECTS = $(am_libpie_la_OBJECTS)
+libpieusb_la_LIBADD =
+am_libpieusb_la_OBJECTS = libpieusb_la-pieusb_buffer.lo \
+	libpieusb_la-pieusb_scancmd.lo libpieusb_la-pieusb_specific.lo \
+	libpieusb_la-pieusb_usb.lo libpieusb_la-pieusb.lo
+libpieusb_la_OBJECTS = $(am_libpieusb_la_OBJECTS)
 libpint_la_LIBADD =
 am_libpint_la_OBJECTS = libpint_la-pint.lo
 libpint_la_OBJECTS = $(am_libpint_la_OBJECTS)
@@ -1088,6 +1093,20 @@ libsane_pie_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(AM_CFLAGS) $(CFLAGS) $(libsane_pie_la_LDFLAGS) $(LDFLAGS) -o \
 	$@
+libsane_pieusb_la_DEPENDENCIES = $(COMMON_LIBS) libpieusb.la \
+	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
+	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
+	sane_strstatus.lo ../sanei/sanei_scsi.lo \
+	../sanei/sanei_thread.lo ../sanei/sanei_usb.lo \
+	../sanei/sanei_ir.lo ../sanei/sanei_magic.lo \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+nodist_libsane_pieusb_la_OBJECTS = libsane_pieusb_la-pieusb-s.lo
+libsane_pieusb_la_OBJECTS = $(nodist_libsane_pieusb_la_OBJECTS)
+libsane_pieusb_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(libsane_pieusb_la_LDFLAGS) $(LDFLAGS) \
+	-o $@
 libsane_pint_la_DEPENDENCIES = $(COMMON_LIBS) libpint.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo sane_strstatus.lo
@@ -1540,7 +1559,8 @@ SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libmustek_pp_la_SOURCES) $(libmustek_usb_la_SOURCES) \
 	$(libmustek_usb2_la_SOURCES) $(libnec_la_SOURCES) \
 	$(libnet_la_SOURCES) $(libniash_la_SOURCES) \
-	$(libp5_la_SOURCES) $(libpie_la_SOURCES) $(libpint_la_SOURCES) \
+	$(libp5_la_SOURCES) $(libpie_la_SOURCES) \
+	$(libpieusb_la_SOURCES) $(libpint_la_SOURCES) \
 	$(libpixma_la_SOURCES) $(libplustek_la_SOURCES) \
 	$(libplustek_pp_la_SOURCES) $(libpnm_la_SOURCES) \
 	$(libqcam_la_SOURCES) $(libricoh_la_SOURCES) \
@@ -1606,6 +1626,7 @@ SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(nodist_libsane_niash_la_SOURCES) \
 	$(nodist_libsane_p5_la_SOURCES) \
 	$(nodist_libsane_pie_la_SOURCES) \
+	$(nodist_libsane_pieusb_la_SOURCES) \
 	$(nodist_libsane_pint_la_SOURCES) \
 	$(nodist_libsane_pixma_la_SOURCES) \
 	$(nodist_libsane_plustek_la_SOURCES) \
@@ -1674,7 +1695,8 @@ DIST_SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libmustek_pp_la_SOURCES) $(libmustek_usb_la_SOURCES) \
 	$(libmustek_usb2_la_SOURCES) $(libnec_la_SOURCES) \
 	$(libnet_la_SOURCES) $(libniash_la_SOURCES) \
-	$(libp5_la_SOURCES) $(libpie_la_SOURCES) $(libpint_la_SOURCES) \
+	$(libp5_la_SOURCES) $(libpie_la_SOURCES) \
+	$(libpieusb_la_SOURCES) $(libpint_la_SOURCES) \
 	$(libpixma_la_SOURCES) $(libplustek_la_SOURCES) \
 	$(libplustek_pp_la_SOURCES) $(libpnm_la_SOURCES) \
 	$(libqcam_la_SOURCES) $(libricoh_la_SOURCES) \
@@ -1824,6 +1846,7 @@ SOCKET_LIBS = @SOCKET_LIBS@
 STRICT_LDFLAGS = @STRICT_LDFLAGS@
 STRIP = @STRIP@
 SYSLOG_LIBS = @SYSLOG_LIBS@
+SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
 SYSTEMD_LIBS = @SYSTEMD_LIBS@
 TIFF_LIBS = @TIFF_LIBS@ 
 USB_LIBS = @USB_LIBS@ 
@@ -1962,39 +1985,40 @@ EXTRA_DIST = sane_strstatus.c stubs.c saned.conf.in abaton.conf.in \
 	mustek_usb2_asic.c mustek_usb2_asic.h mustek_usb2_high.c \
 	mustek_usb2_high.h mustek_usb2_reflective.c \
 	mustek_usb2_transparent.c nec.conf.in net.conf.in niash_core.c \
-	niash_core.h niash_xfer.c niash_xfer.h pie.conf.in p5.conf.in \
-	p5_device.c pixma.conf.in pixma_sane_options.c \
-	pixma_sane_options.h plustek.conf.in plustek-usb.c \
-	plustek-usb.h plustek-usbcal.c plustek-usbcalfile.c \
-	plustek-usbdevs.c plustek-usbhw.c plustek-usbimg.c \
-	plustek-usbio.c plustek-usbmap.c plustek-usbscan.c \
-	plustek-usbshading.c plustek_pp.conf.in plustek-pp_dac.c \
-	plustek-pp_dbg.h plustek-pp_detect.c plustek-pp_genericio.c \
-	plustek-pp_hwdefs.h plustek-pp_image.c plustek-pp_io.c \
-	plustek-pp_map.c plustek-pp_misc.c plustek-pp_models.c \
-	plustek-pp_motor.c plustek-pp_p12.c plustek-pp_p12ccd.c \
-	plustek-pp_p48xx.c plustek-pp_p9636.c plustek-pp_procfs.c \
-	plustek-pp_procs.h plustek-pp_ptdrv.c plustek-pp_scale.c \
-	plustek-pp_scan.h plustek-pp_scandata.h plustek-pp_sysdep.h \
-	plustek-pp_tpa.c plustek-pp_types.h plustek-pp_wrapper.c \
-	qcam.conf.in ricoh.conf.in ricoh-scsi.c rts8891.conf.in \
-	rts8891_devices.c rts8891_low.c rts8891_low.h s9036.conf.in \
-	sceptre.conf.in sharp.conf.in sm3600-color.c sm3600-gray.c \
-	sm3600-homerun.c sm3600-scanmtek.c sm3600-scantool.h \
-	sm3600-scanusb.c sm3600-scanutil.c sm3840.conf.in sm3840_lib.c \
-	sm3840_lib.h sm3840_scan.c snapscan.conf.in snapscan-data.c \
-	snapscan-mutex.c snapscan-options.c snapscan-scsi.c \
-	snapscan-sources.c snapscan-sources.h snapscan-usb.c \
-	snapscan-usb.h sp15c.conf.in st400.conf.in stv680.conf.in \
-	tamarack.conf.in test.conf.in test-picture.c teco1.conf.in \
-	teco2.conf.in teco3.conf.in u12.conf.in u12-ccd.c u12-hw.c \
-	u12-hwdef.h u12-if.c u12-image.c u12-io.c u12-map.c \
-	u12-motor.c u12-scanner.h u12-shading.c u12-tpa.c umax.conf.in \
-	umax-scanner.c umax-scanner.h umax-scsidef.h umax-uc1200s.c \
-	umax-uc1200se.c umax-uc1260.c umax-uc630.c umax-uc840.c \
-	umax-ug630.c umax-ug80.c umax-usb.c umax1220u.conf.in \
-	umax1220u-common.c umax_pp.conf.in v4l.conf.in \
-	xerox_mfp.conf.in dll.conf.in dll.aliases
+	niash_core.h niash_xfer.c niash_xfer.h pie.conf.in \
+	pieusb.conf.in p5.conf.in p5_device.c pixma.conf.in \
+	pixma_sane_options.c pixma_sane_options.h plustek.conf.in \
+	plustek-usb.c plustek-usb.h plustek-usbcal.c \
+	plustek-usbcalfile.c plustek-usbdevs.c plustek-usbhw.c \
+	plustek-usbimg.c plustek-usbio.c plustek-usbmap.c \
+	plustek-usbscan.c plustek-usbshading.c plustek_pp.conf.in \
+	plustek-pp_dac.c plustek-pp_dbg.h plustek-pp_detect.c \
+	plustek-pp_genericio.c plustek-pp_hwdefs.h plustek-pp_image.c \
+	plustek-pp_io.c plustek-pp_map.c plustek-pp_misc.c \
+	plustek-pp_models.c plustek-pp_motor.c plustek-pp_p12.c \
+	plustek-pp_p12ccd.c plustek-pp_p48xx.c plustek-pp_p9636.c \
+	plustek-pp_procfs.c plustek-pp_procs.h plustek-pp_ptdrv.c \
+	plustek-pp_scale.c plustek-pp_scan.h plustek-pp_scandata.h \
+	plustek-pp_sysdep.h plustek-pp_tpa.c plustek-pp_types.h \
+	plustek-pp_wrapper.c qcam.conf.in ricoh.conf.in ricoh-scsi.c \
+	rts8891.conf.in rts8891_devices.c rts8891_low.c rts8891_low.h \
+	s9036.conf.in sceptre.conf.in sharp.conf.in sm3600-color.c \
+	sm3600-gray.c sm3600-homerun.c sm3600-scanmtek.c \
+	sm3600-scantool.h sm3600-scanusb.c sm3600-scanutil.c \
+	sm3840.conf.in sm3840_lib.c sm3840_lib.h sm3840_scan.c \
+	snapscan.conf.in snapscan-data.c snapscan-mutex.c \
+	snapscan-options.c snapscan-scsi.c snapscan-sources.c \
+	snapscan-sources.h snapscan-usb.c snapscan-usb.h sp15c.conf.in \
+	st400.conf.in stv680.conf.in tamarack.conf.in test.conf.in \
+	test-picture.c teco1.conf.in teco2.conf.in teco3.conf.in \
+	u12.conf.in u12-ccd.c u12-hw.c u12-hwdef.h u12-if.c \
+	u12-image.c u12-io.c u12-map.c u12-motor.c u12-scanner.h \
+	u12-shading.c u12-tpa.c umax.conf.in umax-scanner.c \
+	umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c \
+	umax-uc1260.c umax-uc630.c umax-uc840.c umax-ug630.c \
+	umax-ug80.c umax-usb.c umax1220u.conf.in umax1220u-common.c \
+	umax_pp.conf.in v4l.conf.in xerox_mfp.conf.in dll.conf.in \
+	dll.aliases
 
 # Backends are not required to have a config file. Any backend
 # that wants to install a config file should list it here.
@@ -2011,7 +2035,7 @@ BACKEND_CONFS = abaton.conf agfafocus.conf apple.conf artec.conf \
 	       matsushita.conf microtek2.conf microtek.conf mustek.conf \
 	       mustek_pp.conf mustek_usb.conf nec.conf net.conf \
 	       p5.conf \
-	       pie.conf pixma.conf plustek.conf plustek_pp.conf \
+	       pie.conf pieusb.conf pixma.conf plustek.conf plustek_pp.conf \
 	       qcam.conf ricoh.conf rts8891.conf s9036.conf sceptre.conf \
 	       sharp.conf sm3840.conf snapscan.conf sp15c.conf \
 	       st400.conf stv680.conf tamarack.conf \
@@ -2051,7 +2075,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libmustek.la libmustek_pp.la libmustek_usb.la \
     libmustek_usb2.la libnec.la libnet.la \
     libniash.la libp5.la \
-    libpie.la libpint.la libpixma.la \
+    libpie.la libpieusb.la libpint.la libpixma.la \
     libplustek.la libplustek_pp.la libpnm.la \
     libqcam.la libricoh.la librts8891.la \
     libs9036.la libsceptre.la libsharp.la \
@@ -2086,7 +2110,7 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-mustek.la libsane-mustek_pp.la libsane-mustek_usb.la \
     libsane-mustek_usb2.la libsane-nec.la libsane-net.la \
     libsane-niash.la libsane-p5.la \
-    libsane-pie.la libsane-pint.la libsane-pixma.la \
+    libsane-pie.la libsane-pieusb.la libsane-pint.la libsane-pixma.la \
     libsane-plustek.la libsane-plustek_pp.la libsane-pnm.la \
     libsane-qcam.la libsane-ricoh.la libsane-rts8891.la \
     libsane-s9036.la libsane-sceptre.la libsane-sharp.la \
@@ -2486,6 +2510,12 @@ nodist_libsane_pie_la_SOURCES = pie-s.c
 libsane_pie_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pie
 libsane_pie_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_pie_la_LIBADD = $(COMMON_LIBS) libpie.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo ../sanei/sanei_thread.lo $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
+libpieusb_la_SOURCES = pieusb.h pieusb_buffer.c pieusb_buffer.h pieusb_scancmd.c pieusb_scancmd.h pieusb_specific.c pieusb_specific.h pieusb_usb.c pieusb_usb.h pieusb.c
+libpieusb_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pieusb
+nodist_libsane_pieusb_la_SOURCES = pieusb-s.c
+libsane_pieusb_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pieusb
+libsane_pieusb_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_pieusb_la_LIBADD = $(COMMON_LIBS) libpieusb.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo ../sanei/sanei_thread.lo ../sanei/sanei_usb.lo ../sanei/sanei_ir.lo ../sanei/sanei_magic.lo $(PTHREAD_LIBS) $(RESMGR_LIBS) $(USB_LIBS) $(MATH_LIB)
 libp5_la_SOURCES = p5.c p5.h p5_device.h
 libp5_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=p5
 nodist_libsane_p5_la_SOURCES = p5-s.c
@@ -2988,6 +3018,9 @@ libp5.la: $(libp5_la_OBJECTS) $(libp5_la_DEPENDENCIES) $(EXTRA_libp5_la_DEPENDEN
 libpie.la: $(libpie_la_OBJECTS) $(libpie_la_DEPENDENCIES) $(EXTRA_libpie_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK)  $(libpie_la_OBJECTS) $(libpie_la_LIBADD) $(LIBS)
 
+libpieusb.la: $(libpieusb_la_OBJECTS) $(libpieusb_la_DEPENDENCIES) $(EXTRA_libpieusb_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(LINK)  $(libpieusb_la_OBJECTS) $(libpieusb_la_LIBADD) $(LIBS)
+
 libpint.la: $(libpint_la_OBJECTS) $(libpint_la_DEPENDENCIES) $(EXTRA_libpint_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK)  $(libpint_la_OBJECTS) $(libpint_la_LIBADD) $(LIBS)
 
@@ -3197,6 +3230,9 @@ libsane-p5.la: $(libsane_p5_la_OBJECTS) $(libsane_p5_la_DEPENDENCIES) $(EXTRA_li
 
 libsane-pie.la: $(libsane_pie_la_OBJECTS) $(libsane_pie_la_DEPENDENCIES) $(EXTRA_libsane_pie_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libsane_pie_la_LINK)  $(libsane_pie_la_OBJECTS) $(libsane_pie_la_LIBADD) $(LIBS)
+
+libsane-pieusb.la: $(libsane_pieusb_la_OBJECTS) $(libsane_pieusb_la_DEPENDENCIES) $(EXTRA_libsane_pieusb_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libsane_pieusb_la_LINK)  $(libsane_pieusb_la_OBJECTS) $(libsane_pieusb_la_LIBADD) $(LIBS)
 
 libsane-pint.la: $(libsane_pint_la_OBJECTS) $(libsane_pint_la_DEPENDENCIES) $(EXTRA_libsane_pint_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libsane_pint_la_LINK)  $(libsane_pint_la_OBJECTS) $(libsane_pint_la_LIBADD) $(LIBS)
@@ -3447,6 +3483,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libniash_la-niash.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libp5_la-p5.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpie_la-pie.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpieusb_la-pieusb.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpieusb_la-pieusb_buffer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpieusb_la-pieusb_scancmd.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpieusb_la-pieusb_specific.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpieusb_la-pieusb_usb.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpint_la-pint.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpixma_la-pixma.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpixma_la-pixma_bjnp.Plo@am__quote@
@@ -3527,6 +3568,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_niash_la-niash-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_p5_la-p5-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_pie_la-pie-s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_pieusb_la-pieusb-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_pint_la-pint-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_pixma_la-pixma-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_plustek_la-plustek-s.Plo@am__quote@
@@ -4293,6 +4335,41 @@ libpie_la-pie.lo: pie.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpie_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libpie_la-pie.lo `test -f 'pie.c' || echo '$(srcdir)/'`pie.c
 
+libpieusb_la-pieusb_buffer.lo: pieusb_buffer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libpieusb_la-pieusb_buffer.lo -MD -MP -MF $(DEPDIR)/libpieusb_la-pieusb_buffer.Tpo -c -o libpieusb_la-pieusb_buffer.lo `test -f 'pieusb_buffer.c' || echo '$(srcdir)/'`pieusb_buffer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpieusb_la-pieusb_buffer.Tpo $(DEPDIR)/libpieusb_la-pieusb_buffer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pieusb_buffer.c' object='libpieusb_la-pieusb_buffer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libpieusb_la-pieusb_buffer.lo `test -f 'pieusb_buffer.c' || echo '$(srcdir)/'`pieusb_buffer.c
+
+libpieusb_la-pieusb_scancmd.lo: pieusb_scancmd.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libpieusb_la-pieusb_scancmd.lo -MD -MP -MF $(DEPDIR)/libpieusb_la-pieusb_scancmd.Tpo -c -o libpieusb_la-pieusb_scancmd.lo `test -f 'pieusb_scancmd.c' || echo '$(srcdir)/'`pieusb_scancmd.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpieusb_la-pieusb_scancmd.Tpo $(DEPDIR)/libpieusb_la-pieusb_scancmd.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pieusb_scancmd.c' object='libpieusb_la-pieusb_scancmd.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libpieusb_la-pieusb_scancmd.lo `test -f 'pieusb_scancmd.c' || echo '$(srcdir)/'`pieusb_scancmd.c
+
+libpieusb_la-pieusb_specific.lo: pieusb_specific.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libpieusb_la-pieusb_specific.lo -MD -MP -MF $(DEPDIR)/libpieusb_la-pieusb_specific.Tpo -c -o libpieusb_la-pieusb_specific.lo `test -f 'pieusb_specific.c' || echo '$(srcdir)/'`pieusb_specific.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpieusb_la-pieusb_specific.Tpo $(DEPDIR)/libpieusb_la-pieusb_specific.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pieusb_specific.c' object='libpieusb_la-pieusb_specific.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libpieusb_la-pieusb_specific.lo `test -f 'pieusb_specific.c' || echo '$(srcdir)/'`pieusb_specific.c
+
+libpieusb_la-pieusb_usb.lo: pieusb_usb.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libpieusb_la-pieusb_usb.lo -MD -MP -MF $(DEPDIR)/libpieusb_la-pieusb_usb.Tpo -c -o libpieusb_la-pieusb_usb.lo `test -f 'pieusb_usb.c' || echo '$(srcdir)/'`pieusb_usb.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpieusb_la-pieusb_usb.Tpo $(DEPDIR)/libpieusb_la-pieusb_usb.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pieusb_usb.c' object='libpieusb_la-pieusb_usb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libpieusb_la-pieusb_usb.lo `test -f 'pieusb_usb.c' || echo '$(srcdir)/'`pieusb_usb.c
+
+libpieusb_la-pieusb.lo: pieusb.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libpieusb_la-pieusb.lo -MD -MP -MF $(DEPDIR)/libpieusb_la-pieusb.Tpo -c -o libpieusb_la-pieusb.lo `test -f 'pieusb.c' || echo '$(srcdir)/'`pieusb.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpieusb_la-pieusb.Tpo $(DEPDIR)/libpieusb_la-pieusb.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pieusb.c' object='libpieusb_la-pieusb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libpieusb_la-pieusb.lo `test -f 'pieusb.c' || echo '$(srcdir)/'`pieusb.c
+
 libpint_la-pint.lo: pint.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpint_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libpint_la-pint.lo -MD -MP -MF $(DEPDIR)/libpint_la-pint.Tpo -c -o libpint_la-pint.lo `test -f 'pint.c' || echo '$(srcdir)/'`pint.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpint_la-pint.Tpo $(DEPDIR)/libpint_la-pint.Plo
@@ -4845,6 +4922,13 @@ libsane_pie_la-pie-s.lo: pie-s.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pie-s.c' object='libsane_pie_la-pie-s.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_pie_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsane_pie_la-pie-s.lo `test -f 'pie-s.c' || echo '$(srcdir)/'`pie-s.c
+
+libsane_pieusb_la-pieusb-s.lo: pieusb-s.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_pieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsane_pieusb_la-pieusb-s.lo -MD -MP -MF $(DEPDIR)/libsane_pieusb_la-pieusb-s.Tpo -c -o libsane_pieusb_la-pieusb-s.lo `test -f 'pieusb-s.c' || echo '$(srcdir)/'`pieusb-s.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libsane_pieusb_la-pieusb-s.Tpo $(DEPDIR)/libsane_pieusb_la-pieusb-s.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pieusb-s.c' object='libsane_pieusb_la-pieusb-s.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_pieusb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsane_pieusb_la-pieusb-s.lo `test -f 'pieusb-s.c' || echo '$(srcdir)/'`pieusb-s.c
 
 libsane_pint_la-pint-s.lo: pint-s.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_pint_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsane_pint_la-pint-s.lo -MD -MP -MF $(DEPDIR)/libsane_pint_la-pint-s.Tpo -c -o libsane_pint_la-pint-s.lo `test -f 'pint-s.c' || echo '$(srcdir)/'`pint-s.c

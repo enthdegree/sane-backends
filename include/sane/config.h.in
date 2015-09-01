@@ -61,9 +61,6 @@
 /* Define to 1 if you have the `cfmakeraw' function. */
 #undef HAVE_CFMAKERAW
 
-/* Is /usr/include/cups/cups.h available? */
-#undef HAVE_CUPS
-
 /* Define to 1 if you have the <ddk/ntddscsi.h> header file. */
 #undef HAVE_DDK_NTDDSCSI_H
 
@@ -453,9 +450,6 @@
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #undef LT_OBJDIR
-
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#undef NO_MINUS_C_MINUS_O
 
 /* Define to the name of the distribution. */
 #undef PACKAGE

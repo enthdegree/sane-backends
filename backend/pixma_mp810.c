@@ -1708,7 +1708,8 @@ static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
         /* comment: MP970, CS8800F, CS9000F specific reordering for 4800 dpi */
         if ((s->cfg->pid == MP970_PID || s->cfg->pid == CS8800F_PID
-            || s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID) && (s->param->xdpi == 4800))
+            || s->cfg->pid == CS9000F_PID || s->cfg->pid == CS9000F_MII_PID
+            || s->cfg->pid == MP990_PID) && (s->param->xdpi == 4800))
         {
           /*PDBG (pixma_dbg (4, "*post_process_image_data***** mp970_reordering pixels n = %i  *****\n", n)); */
           mp970_reorder_pixels (mp->linebuf, sptr, c, s->param->wx, line_size);

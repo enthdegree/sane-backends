@@ -1,3 +1,8 @@
+2015-09-03 Rolf Bensch <rolf at bensch hyphen online dot de>
+	* backend/pixma_mp810.c: Canon Pixma MP990 needs specific reordering pixels
+	  for 4800 dpi, patch from Guillaume Courtois.
+	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.22
+
 2015-08-20 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* README.linux: add mandatory and optional development environment to
 	  install description

@@ -103,7 +103,8 @@
  *          |     |     |     |     |     |     |     |     |     |     |     |     |     |     |
 */
 static struct MagicolorCmd magicolor_cmd[] = {
-  {"mc1690mf", CMD, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x12, NET, 0x00, 0x01, 0x02, 0x03}
+  {"mc1690mf", CMD, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x12, NET, 0x00, 0x01, 0x02, 0x03},
+  {"mc4690mf", CMD, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x12, NET, 0x00, 0x01, 0x02, 0x03},
 };
 
 static SANE_Int magicolor_default_resolutions[] = {150, 300, 600};
@@ -121,7 +122,20 @@ static struct MagicolorCap magicolor_cap[] = {
       {0, SANE_FIX(0x13f8 * MM_PER_INCH / 600), 0}, {0, SANE_FIX(0x1b9c * MM_PER_INCH / 600), 0}, /* FBF x/y ranges (TODO!) */
       SANE_TRUE, SANE_FALSE, /* non-duplex ADF, x/y ranges (TODO!) */
       {0, SANE_FIX(0x1390 * MM_PER_INCH / 600), 0}, {0, SANE_FIX(0x20dc * MM_PER_INCH / 600), 0},
-  }
+  },
+
+  /* KONICA MINOLTA magicolor 4690MF, USB ID 0x132b:2079 */
+  {
+      0x2079, "mc4690mf", "KONICA MINOLTA magicolor 4690MF",
+      "FIXME",                                              /* FIXME: fill in the correct OID! */
+      0x03, 0x85,
+      600, {150, 600, 0}, magicolor_default_resolutions, 3,  /* 600 dpi max, 3 resolutions */
+      8, magicolor_default_depths,                          /* color depth 8 default, 1 and 8 possible */
+      {1, 9, 0},                                             /* brightness ranges (TODO!) */
+      {0, SANE_FIX(0x13f8 * MM_PER_INCH / 600), 0}, {0, SANE_FIX(0x1b9c * MM_PER_INCH / 600), 0}, /* FBF x/y ranges (TODO!) */
+      SANE_TRUE, SANE_TRUE, /* duplex ADF, x/y ranges (TODO!) */
+      {0, SANE_FIX(0x1390 * MM_PER_INCH / 600), 0}, {0, SANE_FIX(0x20dc * MM_PER_INCH / 600), 0},
+  },
 
 };
 
@@ -373,6 +387,7 @@ sanei_magicolor_net_close(struct Magicolor_Scanner *s)
 
 SANE_Word sanei_magicolor_usb_product_ids[] = {
   0x2089, /* magicolor 1690MF */
+  0x2079, /* magicolor 4690MF */
   0				/* last entry - this is used for devices that are specified
 				   in the config file as "usb <vendor> <product>" */
 };

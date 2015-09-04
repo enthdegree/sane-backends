@@ -22,6 +22,12 @@
 :comment    "Multi-function color laser printer with fax, scanner and network interface"
 :url        "http://www.konicaminolta.eu/business-solutions/products/laser-printers/all-in-one/magicolor-1690mf/key-features.html"
 
+:model      "magicolor 4690MF"
+:interface  "USB Network"
+:usbid      "0x132b" "0x2079"
+:status     :good
+:comment    "Multi-function color laser printer with fax, scanner and network interface"
+
 :model      "BizHub 162/132"
 :interface  "USB Network"
 :usbid      "ignore"

@@ -1176,7 +1176,12 @@ mc_set_scanning_parameters(Magicolor_Scanner * s)
 	/* ADF used? */
 	if (strcmp(source_list[s->val[OPT_SOURCE].w], ADF_STR) == 0) {
 		/* Use ADF */
-		source = 0x01;
+		if (s->val[OPT_ADF_MODE].w == 0) {
+			source = 0x01;
+		} else {
+			/* Use duplex */
+			source = 0x02;
+		}
 	} else {
 		source = 0x00;
 	}

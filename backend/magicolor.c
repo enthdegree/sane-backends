@@ -1670,6 +1670,7 @@ detect_usb(struct Magicolor_Scanner *s)
 
 	DBG(2, "found valid Magicolor scanner: 0x%x/0x%x (vendorID/productID)\n",
 	    vendor, product);
+	mc_set_device(s, product);
 
 	return SANE_STATUS_GOOD;
 }

@@ -1329,12 +1329,12 @@ scan_it (FILE *ofp)
 		fprintf (stderr, "%s: scanning image of size %dx%d pixels at "
 			 "%d bits/pixel\n",
 			 prog_name, parm.pixels_per_line, parm.lines,
-			 8 * parm.bytes_per_line / parm.pixels_per_line);
+			 parm.depth * (SANE_FRAME_RGB == parm.format ? 3 : 1));
 	      else
 		fprintf (stderr, "%s: scanning image %d pixels wide and "
 			 "variable height at %d bits/pixel\n",
 			 prog_name, parm.pixels_per_line,
-			 8 * parm.bytes_per_line / parm.pixels_per_line);
+			 parm.depth * (SANE_FRAME_RGB == parm.format ? 3 : 1));
 	    }
 
 	  fprintf (stderr, "%s: acquiring %s frame\n", prog_name,
@@ -1769,12 +1769,12 @@ test_it (void)
   if (parm.lines >= 0)
     fprintf (stderr, "%s: scanning image of size %dx%d pixels at "
 	     "%d bits/pixel\n", prog_name, parm.pixels_per_line, parm.lines,
-	     8 * parm.bytes_per_line / parm.pixels_per_line);
+	     parm.depth * (SANE_FRAME_RGB == parm.format ? 3 : 1));
   else
     fprintf (stderr, "%s: scanning image %d pixels wide and "
 	     "variable height at %d bits/pixel\n",
 	     prog_name, parm.pixels_per_line,
-	     8 * parm.bytes_per_line / parm.pixels_per_line);
+	     parm.depth * (SANE_FRAME_RGB == parm.format ? 3 : 1));
   fprintf (stderr, "%s: acquiring %s frame, %d bits/sample\n", prog_name,
 	   parm.format <= SANE_FRAME_BLUE ? format_name[parm.format]:"Unknown",
            parm.depth);

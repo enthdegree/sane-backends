@@ -67,7 +67,7 @@ Updates (C) 2001 by Henning Meier-Geinitz.
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 11
+#define BUILD 12
 
 #include "../include/sane/config.h"
 
@@ -3580,6 +3580,14 @@ load_calibration_data (Artec48U_Scanner * s)
 
   s->calibrated = SANE_FALSE;
   path[0] = 0;
+
+  /* return SANE_STATUS_INVAL if HOME environment variable is not set */
+  if (getenv ("HOME") == NULL)
+  {
+    XDBG ((1, "Environment variable HOME not set\n"));
+    return SANE_STATUS_INVAL;
+  }
+
   if (strlen (getenv ("HOME")) < (PATH_MAX - 1))
     strcat (path, getenv ("HOME"));
   else
@@ -3690,6 +3698,14 @@ save_calibration_data (Artec48U_Scanner * s)
   mode_t mode = S_IRUSR | S_IWUSR;
 
   path[0] = 0;
+
+  /* return SANE_STATUS_INVAL if HOME environment variable is not set */
+  if (getenv ("HOME") == NULL)
+  {
+    XDBG ((1, "Environment variable HOME not set\n"));
+    return SANE_STATUS_INVAL;
+  }
+
   if (strlen (getenv ("HOME")) < (PATH_MAX - 1))
     strcat (path, getenv ("HOME"));
   else

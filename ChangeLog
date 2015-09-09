@@ -1,3 +1,6 @@
+2015-19-08 m. allan noah <kitno455 at gmail dot com>
+	* backend/artec_eplus48u.c: fix HOME env bug #315071 (from Jörg Frings-Fürst)
+
 2015-09-03 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp810.c: Canon Pixma MP990 needs specific reordering pixels
 	  for 4800 dpi, patch from Guillaume Courtois.

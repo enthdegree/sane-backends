@@ -10,7 +10,7 @@ access to USB flatbed scanners based on the Genesys GL646, GL841, GL843, GL847 a
 At present, the following scanners are known to work with this backend:
 .PP 
 .RS
-Canon LiDE 35/40/50/60/100/110/120/200/210/220/700
+Canon LiDE 35/40/50/60/100/110/200/210/220/700
 .br
 Hewlett-Packard HP2300C/HP2400/HP3670/HP3690/G4010/G4050
 .br

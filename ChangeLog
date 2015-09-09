@@ -1,4 +1,8 @@
-2015-19-08 m. allan noah <kitno455 at gmail dot com>
+2015-09-09 Stéphane Voltz <stef.dev@free.fr>
+	* doc/sane-genesys.man, doc/descriptions/genesys.desc: No LiDE 120
+	support.
+
+2015-09-08 m. allan noah <kitno455 at gmail dot com>
 	* backend/artec_eplus48u.c: fix HOME env bug #315071 (from Jörg Frings-Fürst)
 
 2015-09-03 Rolf Bensch <rolf at bensch hyphen online dot de>

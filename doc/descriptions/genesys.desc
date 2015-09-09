@@ -148,7 +148,7 @@
 :model "CanoScan LiDE 120"
 :interface "USB"
 :usbid "0x04a9" "0x190e"
-:status :untested
+:status :unsupported
 :comment "GL124+ based, resolution from 75 to 2400 dpi"
 
 :model "CanoScan LiDE 200"

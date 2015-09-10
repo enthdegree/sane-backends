@@ -30,7 +30,7 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x135, /* GT-X970 */
   0x138, /* ES-H7200, GT-20000 */
   0x14b, /* ES-G11000, Expression 11000XL */
-  0x151, /* GT-X980, Perfection V800 Photo, Perfection V850 Photo */
+  0x151, /* GT-X980, Perfection V800 Photo, Perfection V850 Pro */
   0x801, /* CC-600PX, Stylus CX5100, Stylus CX5200 */
   0x802, /* CC-570L, Stylus CX3100, Stylus CX3200 */
   0x805, /* Stylus CX6300, Stylus CX6400 */
@@ -141,18 +141,36 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x8a6, /* PX-535F, WF-2520 Series, WF-2530 Series, WF-2540 Series */
   0x8a7, /* WP-M4525, WP-M4521, PX-K751F, WP-M4595 */
   0x8a8, /* L355, L358 */
-  0x8a9, /* L550 */
+  0x8a9, /* L550 Series */
   0x8aa, /* M200 Series */
   0x8ab, /* WF-M1560 Series */
+  0x8ac, /* AL-MX300DN Series, AL-MX300DNF Series */
   0x8ad, /* LP-M8040, LP-M8040A, LP-M8040F */
-  0x8ae, /* XP-211, XP-212, XP-215 */
-  0x8af, /* XP-310 Series */
+  0x8ae, /* PX-046A, XP-211, XP-212, XP-215 */
+  0x8af, /* PX-436A, XP-310 Series */
   0x8b0, /* XP-410 Series */
-  0x8b3, /* EP-976A3, XP-950 */
-  0x8b4, /* EP-906F, XP-810 */
-  0x8b5, /* EP-806A, XP-710 */
-  0x8b6, /* EP-776A, XP-610 */
-  0x8b7, /* EP-706A, XP-510 */
+  0x8b3, /* EP-976A3, XP-950 Series */
+  0x8b4, /* EP-906F, XP-810 Series */
+  0x8b5, /* EP-806AB, EP-806AR, EP-806AW, XP-710 Series */
+  0x8b6, /* EP-776AB, EP-776AW, XP-610 Series */
+  0x8b7, /* EP-706A, XP-510 Series */
+  0x8b8, /* PX-M740F, PX-M741F, WF-3620 Series, WF-3640 Series */
+  0x8b9, /* PX-M5040F, PX-M5041F, WF-7610 Series, WF-7620 Series */
+  0x8bd, /* PX-M840F, WF-5620 Series, WF-5690 Series */
+  0x8be, /* WF-4630 Series, WF-4640 Series */
+  0x8bf, /* PX-437A, XP-320 Series */
+  0x8c0, /* PX-047A, XP-225 */
+  0x8c1, /* XP-420 Series */
+  0x8c3, /* PX-M650A, PX-M650F, WF-2650 Series, WF-2660 Series */
+  0x8c4, /* WF-2630 Series */
+  0x8c5, /* EP-977A3 */
+  0x8c6, /* EP-907F, XP-820 Series, XP-860 Series */
+  0x8c7, /* EP-807AB, EP-807AR, EP-807AW, XP-720 Series, XP-760 Series */
+  0x8c8, /* EP-777A, XP-520 Series, XP-620 Series */
+  0x8c9, /* EP-707A */
+  0x8ca, /* L850 Series */
+  0x8cd, /* WF-R4640 Series, WF-R5690 Series */
+  0x8d0, /* PX-M350F, WF-M5690 Series */
   0				/* last entry - this is used for devices that are specified 
 				   in the config file as "usb <vendor> <product>" */
 };

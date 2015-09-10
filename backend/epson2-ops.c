@@ -240,6 +240,21 @@ e2_dev_post_init(struct Epson_Device *dev)
 		e2_add_resolution(dev, dev->optical_res);
 	}
 
+	/* add missing resolutions for known scanners */
+
+	if (e2_dev_model(dev, "GT-X800") || e2_dev_model(dev, "GT-X700")) {
+
+		DBG(1, "known scanner, integrating resolution list\n");
+		e2_add_resolution(dev, 4800);
+		e2_add_resolution(dev, 6400);
+		e2_add_resolution(dev, 9600);
+		e2_add_resolution(dev, 12800);
+
+		last = dev->res_list[dev->res_list_size - 1];
+	}
+
+	/* guess for the others */
+
 	if (dev->dpi_range.max > last && dev->dpi_range.max != dev->optical_res) {
 
 		int val = last + last;

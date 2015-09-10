@@ -94,6 +94,9 @@
 #   define __GNUC__ 2
 #  endif
 #  include <sys/io.h>
+#  ifndef SANE_HAVE_SYS_IO_H_WITH_INB_OUTB
+#   define IO_SUPPORT_MISSING
+#  endif
 #  if defined (__ICC) && __ICC >= 700
 #   undef __GNUC__
 #  elif defined(__ICC) && defined(HAVE_ASM_IO_H)

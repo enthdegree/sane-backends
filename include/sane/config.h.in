@@ -484,6 +484,9 @@
 /* SANE DLL minor number */
 #undef SANE_DLL_V_MINOR
 
+/* Define to 1 if you have the <sys/io.h> providing inb,outb. */
+#undef SANE_HAVE_SYS_IO_H_WITH_INB_OUTB
+
 /* SCSI command buffer size */
 #undef SCSIBUFFERSIZE
 

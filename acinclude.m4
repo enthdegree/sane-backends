@@ -640,9 +640,9 @@ for be in ${BACKENDS}; do
     ;;
 
     qcam)
-    if test "${ac_cv_func_ioperm}" = "no" \
+    if ( test "${ac_cv_func_ioperm}" = "no" || test "${sane_cv_have_sys_io_h_with_inb_outb}" = "no" )\
       && test "${ac_cv_func__portaccess}" = "no"; then
-      echo "*** $be backend requires ioperm and portaccess functions - $DISABLE_MSG"
+      echo "*** $be backend requires (ioperm, inb and outb) or portaccess functions - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;

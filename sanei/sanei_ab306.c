@@ -51,6 +51,9 @@
 
 #ifdef HAVE_SYS_IO_H
 # include <sys/io.h>	/* use where available (glibc 2.x, for example) */
+# ifndef SANE_HAVE_SYS_IO_H_WITH_INB_OUTB
+#  define IO_SUPPORT_MISSING
+# endif
 #elif HAVE_ASM_IO_H
 # include <asm/io.h>	/* ugly, but backwards compatible */
 #elif defined (__i386__)  && defined (__GNUC__)

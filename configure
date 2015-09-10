@@ -2817,8 +2817,8 @@ test "$program_suffix" != NONE &&
 ac_script='s/[\\$]/&&/g;s/;s,x,x,$//'
 program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 
-# expand $ac_aux_dir to an absolute path
-am_aux_dir=`cd $ac_aux_dir && pwd`
+# Expand $ac_aux_dir to an absolute path.
+am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 if test x"${MISSING+set}" != xset; then
   case $am_aux_dir in
@@ -3223,6 +3223,7 @@ END
     as_fn_error $? "Your 'rm' program is bad, sorry." "$LINENO" 5
   fi
 fi
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
 $as_echo_n "checking whether to enable maintainer-specific portions of Makefiles... " >&6; }
@@ -9598,6 +9599,42 @@ esac
 fi
 
 
+
+if test "${ac_cv_header_sys_io_h}" = "yes"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for inb,outb (provided by sys/io.h)" >&5
+$as_echo_n "checking for inb,outb (provided by sys/io.h)... " >&6; }
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <sys/io.h>
+int
+main ()
+{
+inb(0);outb(0,0);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+      sane_cv_have_sys_io_h_with_inb_outb="yes"
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+      sane_cv_have_sys_io_h_with_inb_outb="no"
+      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: sys/io.h does not provide inb,outb (non i386/x32/x86_64 arch?)" >&5
+$as_echo "$as_me: WARNING: sys/io.h does not provide inb,outb (non i386/x32/x86_64 arch?)" >&2;}
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  if test "$sane_cv_have_sys_io_h_with_inb_outb" = "yes"; then
+
+$as_echo "#define SANE_HAVE_SYS_IO_H_WITH_INB_OUTB 1" >>confdefs.h
+
+  fi
+else
+  sane_cv_have_sys_io_h_with_inb_outb="no"
+fi
 
 
 
@@ -18077,9 +18114,9 @@ for be in ${BACKENDS}; do
     ;;
 
     qcam)
-    if test "${ac_cv_func_ioperm}" = "no" \
+    if ( test "${ac_cv_func_ioperm}" = "no" || test "${sane_cv_have_sys_io_h_with_inb_outb}" = "no" )\
       && test "${ac_cv_func__portaccess}" = "no"; then
-      echo "*** $be backend requires ioperm and portaccess functions - $DISABLE_MSG"
+      echo "*** $be backend requires (ioperm, inb and outb) or portaccess functions - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;
@@ -18251,9 +18288,9 @@ for be in ${BACKENDS}; do
     ;;
 
     qcam)
-    if test "${ac_cv_func_ioperm}" = "no" \
+    if ( test "${ac_cv_func_ioperm}" = "no" || test "${sane_cv_have_sys_io_h_with_inb_outb}" = "no" )\
       && test "${ac_cv_func__portaccess}" = "no"; then
-      echo "*** $be backend requires ioperm and portaccess functions - $DISABLE_MSG"
+      echo "*** $be backend requires (ioperm, inb and outb) or portaccess functions - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;

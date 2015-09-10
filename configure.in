@@ -314,6 +314,25 @@ AC_CHECK_FUNCS(atexit ioperm i386_set_ioperm \
 AC_REPLACE_FUNCS(getenv isfdtype sigprocmask snprintf \
     strcasestr strdup strndup strsep usleep sleep syslog vsyslog)
 
+dnl sys/io.h might provide ioperm but not inb,outb (like for
+dnl non i386/x32/x86_64 with musl libc)
+if test "${ac_cv_header_sys_io_h}" = "yes"; then
+  AC_MSG_CHECKING([for inb,outb (provided by sys/io.h)])
+  AC_LINK_IFELSE(
+    [AC_LANG_PROGRAM([[#include <sys/io.h>]],
+      [[inb(0);outb(0,0);]])],
+    [AC_MSG_RESULT([yes])
+      sane_cv_have_sys_io_h_with_inb_outb="yes"],
+    [AC_MSG_RESULT([no])
+      sane_cv_have_sys_io_h_with_inb_outb="no"
+      AC_MSG_WARN([sys/io.h does not provide inb,outb (non i386/x32/x86_64 arch?)])])
+  if test "$sane_cv_have_sys_io_h_with_inb_outb" = "yes"; then
+    AC_DEFINE(SANE_HAVE_SYS_IO_H_WITH_INB_OUTB, 1, [Define to 1 if you have the <sys/io.h> providing inb,outb.])
+  fi
+else
+  sane_cv_have_sys_io_h_with_inb_outb="no"
+fi
+
 SANE_PROTOTYPES
 
 if test "$ac_cv_header_os2_h" = "yes" ; then

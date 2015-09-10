@@ -532,6 +532,7 @@
 
 :model      "Expression 800"		; command spec
 :interface  "SCSI"
+:scsi       "EPSON" "Expression800" "processor"
 :status     :complete
 :comment    "overseas version of the GT-9600"
 
@@ -634,6 +635,7 @@
 
 :model      "GT-5500"
 :interface  "SCSI"
+:scsi       "EPSON" "SCANNER GT-5500" "processor"
 :status     :good
 
 :model      "GT-6000"
@@ -657,6 +659,7 @@
 
 :model      "GT-7000S"
 :interface  "SCSI"
+:scsi       "EPSON" "SCANNER GT-7000" "processor"
 :status     :complete
 
 :model      "GT-7000U"
@@ -767,11 +770,13 @@
 
 :model      "GT-9700F"			; product spec (JP)
 :interface  "USB IEEE1394"
+:scsi       "EPSON" "GT-9700" "processor"
 :usbid      "0x04b8" "0x0112"
 :status     :complete
 
 :model      "GT-9800F"			; product spec (JP)
 :interface  "USB IEEE1394"
+:scsi       "EPSON" "GT-9800" "processor"
 :usbid      "0x04b8" "0x011c"
 :status     :complete
 
@@ -971,6 +976,7 @@
 
 :model      "GT-X900"
 :interface  "USB"
+:scsi       "EPSON" "GT-X900" "processor"
 :usbid      "0x04b8" "0x012c"
 :status     :good
 :comment    "IEEE1394 untested"
@@ -1633,6 +1639,7 @@
 
 :model      "Perfection 636S"
 :interface  "SCSI"
+:scsi       "EPSON" "Perfection636" "processor"
 :status     :complete
 :comment    "overseas version of the GT-7000S"
 
@@ -1656,6 +1663,7 @@
 
 :model      "Perfection 1200S"		; command spec
 :interface  "SCSI"
+:scsi       "EPSON" "Perfection1200" "processor"
 :status     :complete
 :comment    "overseas version of the GT-7600S"
 
@@ -1761,6 +1769,7 @@
 
 :model      "Perfection 2450 PHOTO"	; command spec
 :interface  "USB IEEE1394"
+:scsi       "EPSON" "GT-9700" "processor"
 :usbid      "0x04b8" "0x0112"
 :status     :complete
 :comment    "overseas version of the GT-9700F"
@@ -1785,6 +1794,7 @@
 
 :model      "Perfection 3200 PHOTO"	; command spec
 :interface  "USB IEEE1394"
+:scsi       "EPSON" "GT-9800" "processor"
 :usbid      "0x04b8" "0x011c"
 :status     :complete
 :comment    "overseas version of the GT-9800F"
@@ -1922,12 +1932,14 @@
 
 :model      "Perfection V700 Photo"
 :interface  "USB"
+:scsi       "EPSON" "GT-X900" "processor"
 :usbid      "0x04b8" "0x012c"
 :status     :good
 :comment    "IEEE1394 untested<br>overseas version of the GT-X900"
 
 :model      "Perfection V750 Photo"
 :interface  "USB"
+:scsi       "EPSON" "GT-X900" "processor"
 :usbid      "0x04b8" "0x012c"
 :status     :good
 :comment    "IEEE1394 untested<br>overseas version of the GT-X900"

@@ -6,7 +6,7 @@
 usb
 
 # For libusb support for unknown scanners use the following command
-# usb <product ID> <device ID>
+# usb <vendor ID> <product ID>
 # e.g.:
 # usb 0x4b8 0x14c
 

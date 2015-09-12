@@ -512,11 +512,15 @@ sanei_thread_waitpid( SANE_Pid pid, int *status )
 		DBG(2, "* result = %d (%p)\n", stat, (void*)status );
 		result = pid;
 	}
-	/* call detach in any case to make sure that the thread resources 
-	 * will be freed, when the thread has terminated
-	 */
-	DBG(2, "* detaching thread(%ld)\n", pid );
-	pthread_detach((pthread_t)pid);
+	if ( EDEADLK == rc ) {
+		if ( (pthread_t)pid != pthread_self() ) {
+			/* call detach in any case to make sure that the thread resources 
+			 * will be freed, when the thread has terminated
+			 */
+			DBG(2, "* detaching thread(%ld)\n", pid );
+			pthread_detach((pthread_t)pid);
+		}
+	}
 	if (status)
 		*status = stat;
 

@@ -2017,7 +2017,8 @@
 
 :model      "Stylus CX3810"
 :interface  "USB"
-:status     :untested
+:usbid      "0x04b8" "0x0818"
+:status     :good
 :comment    "all-in-one"
 
 :model      "Stylus CX3900"

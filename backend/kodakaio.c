@@ -240,7 +240,7 @@ static int K_SNMP_Timeout = 3000; /* used for any auto detection method */
 static int K_Scan_Data_Timeout = 10000;
 static int K_Request_Timeout = 5000;
 
-static int bitposn=0; /* used to pack bits into bytes in lineart mode */
+/* static int bitposn=0; was used to pack bits into bytes in lineart mode */
 
 /* This file is used to store directly the raster returned by the scanner for debugging
 If RawScanPath has no length it will not be created */
@@ -1029,12 +1029,13 @@ and returns appropriate status
 	return status;
 }
 
+/* unused function
 static ssize_t 
 kodakaio_rxflush(KodakAio_Scanner *s)
-/*
+
 Tries to get 64 byte reply
 and returns number of bytes read
-*/
+
 {
 	SANE_Status status;
 	unsigned char rxbuf[64];
@@ -1047,6 +1048,7 @@ and returns number of bytes read
 	DBG(5, "%s: flushed, %d bytes\n", __func__,  (int)n);
 	return n;
 }
+*/
 
 /*
  *   high-level communication commands 

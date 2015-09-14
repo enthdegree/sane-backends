@@ -190,9 +190,7 @@
 
 :model "FilmScan 200"
 :interface "SCSI"
-:comment "A better backend for the FilmScan 200 can be found at <A HREF=\"http://www.vjet.demon.co.uk/scanner/\">http://www.vjet.demon.co.uk/scanner/</A>"
 :status :unsupported
-:url "http://www.vjet.demon.co.uk/scanner/"
 
 :model "CX-3200"
 :interface "USB"

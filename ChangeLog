@@ -1,3 +1,6 @@
+2015-09-14 Stéphane Voltz <stef.dev@free.fr>
+	* backend/bh.c: replace mktemp by mkstemp #300134
+
 2015-09-13 Paul Newall <p dot newalls at ntlworld dot com>
 	* backend/kodakaio.c:
 	redundant variable bitposn and redundant function kodakaio_rxflush

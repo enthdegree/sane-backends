@@ -1863,10 +1863,9 @@ start_scan (BH_Scanner *s)
 
 		  strncpy(s->barfname, "/tmp/bhXXXXXX", sizeof(s->barfname));
 		  s->barfname[sizeof(s->barfname)-1] = '\0';
+		  fd = mkstemp(s->barfname);
 
-		  if ((mktemp(s->barfname) == NULL) &&
-		      ((fd = open(s->barfname, O_CREAT | O_EXCL | O_WRONLY, 0600)) != -1) &&
-		      ((fp = fdopen(fd, "w")) != NULL))
+		  if (fd !=-1 && (fp = fdopen(fd, "w")) != NULL)
 		    {
 		      fprintf(fp, "<xml-stream>\n");
 

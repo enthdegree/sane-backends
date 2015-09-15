@@ -18,5 +18,4 @@ libsanei_la_SOURCES = sanei_ab306.c sanei_constrain_value.c \
 if HAVE_JPEG
 libsanei_la_SOURCES += sanei_jpeg.c
 endif
-EXTRA_DIST = linux_sg3_err.h os2_srb.h sanei_DomainOS.c sanei_DomainOS.h \
-  sanei_ir.h
+EXTRA_DIST = linux_sg3_err.h os2_srb.h sanei_DomainOS.c sanei_DomainOS.h

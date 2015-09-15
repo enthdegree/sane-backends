@@ -15,4 +15,4 @@ EXTRA_DIST += sane/config.h.in sane/sanei.h sane/sanei_ab306.h \
   sane/sanei_jpeg.h sane/sanei_lm983x.h sane/sanei_net.h sane/sanei_pa4s2.h \
   sane/sanei_pio.h sane/sanei_pp.h sane/sanei_pv8630.h sane/sanei_scsi.h \
   sane/sanei_tcp.h sane/sanei_thread.h sane/sanei_udp.h sane/sanei_usb.h \
-  sane/sanei_wire.h sane/sanei_magic.h
+  sane/sanei_wire.h sane/sanei_magic.h sane/sanei_ir.h

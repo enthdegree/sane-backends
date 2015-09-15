@@ -69,7 +69,7 @@ clean-local:
 
 $(GETTEXT_PACKAGE).pot: $(SRC_FILES)
 	@echo "creating $@ from $^"
-	@$(XGETTEXT) -d$(GETTEXT_PACKAGE) -kSANE_I18N --flag=SANE_I18N:1:no-c-format -f POTFILES
+	@$(XGETTEXT) -d$(GETTEXT_PACKAGE) -kSANE_I18N --flag=SANE_I18N:1:no-c-format -f $(srcdir)/POTFILES -D$(srcdir)
 	@mv $(GETTEXT_PACKAGE).po $(GETTEXT_PACKAGE).pot
 
 update: $(GETTEXT_PACKAGE).pot

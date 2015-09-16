@@ -58,6 +58,7 @@
  *
  * --------------------------------------------------------------------------*/
 
+#include "../include/sane/config.h"
 /* Standard includes for various utiliy functions */
 #include <stdio.h> /* for FILE */
 #include <string.h> /* for strlen */

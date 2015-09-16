@@ -1,3 +1,6 @@
+2015-09-16 Stéphane Voltz <stef.dev@free.fr>
+	* backend/pieusb.c: include sane/config.h first
+
 2015-09-14 Stéphane Voltz <stef.dev@free.fr>
 	* backend/bh.c: replace mktemp by mkstemp #300134
 

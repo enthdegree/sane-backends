@@ -1,4 +1,8 @@
 2015-09-16 Stéphane Voltz <stef.dev@free.fr>
+	* backend/niash.c: merged pu/protect-niash-option-access-315132 and
+	ifdef'ed unused code
+
+2015-09-16 Stéphane Voltz <stef.dev@free.fr>
 	* backend/pieusb.c: include sane/config.h first
 
 2015-09-14 Stéphane Voltz <stef.dev@free.fr>

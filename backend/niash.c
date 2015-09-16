@@ -81,15 +81,14 @@ typedef enum
   optGroupEnhancement,
   optThreshold,
 
-
-  optLast,
-/* put temporarily disabled options here after optLast */
-
+#ifdef EXPERIMENTAL
   optGroupMisc,
   optLamp,
 
   optCalibrate,
-  optGamma                      /* analog gamma = single number */
+  optGamma,                      /* analog gamma = single number */
+#endif
+  optLast
 } EOptionIndex;
 
 
@@ -685,6 +684,7 @@ _InitOptions (TScanner * s)
           pDesc->size = 0;
           break;
 
+#ifdef EXPERIMENTAL
         case optGamma:
           pDesc->name = SANE_NAME_ANALOG_GAMMA;
           pDesc->title = SANE_TITLE_ANALOG_GAMMA;
@@ -695,6 +695,7 @@ _InitOptions (TScanner * s)
           pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
           pVal->w = startUpGamma;
           break;
+#endif
 
         case optGammaTable:
           pDesc->name = SANE_NAME_GAMMA_VECTOR;
@@ -707,6 +708,7 @@ _InitOptions (TScanner * s)
           pVal->wa = s->aGammaTable;
           break;
 
+#ifdef EXPERIMENTAL
         case optGroupMisc:
           pDesc->title = SANE_I18N ("Miscellaneous");
           pDesc->type = SANE_TYPE_GROUP;
@@ -731,7 +733,7 @@ _InitOptions (TScanner * s)
           pDesc->cap = SANE_CAP_SOFT_SELECT;
           pDesc->size = 0;
           break;
-
+#endif
         case optGroupMode:
           pDesc->title = SANE_I18N ("Scan Mode");
           pDesc->desc = "";
@@ -1020,7 +1022,9 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
           /* Get options of type SANE_Word */
         case optCount:
         case optDPI:
+#ifdef EXPERIMENTAL
         case optGamma:
+#endif
         case optTLX:
         case optTLY:
         case optBRX:
@@ -1044,6 +1048,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
           strcpy ((char *) pVal, modeList[s->aValues[optMode].w]);
           break;
 
+#ifdef EXPERIMENTAL
           /* Get options of type SANE_Bool */
         case optLamp:
           GetLamp (&s->HWParams, &fLampIsOn);
@@ -1054,6 +1059,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
           /*  although this option has nothing to read,
              it's added here to avoid a warning when running scanimage --help */
           break;
+#endif
 
         default:
           DBG (DBG_MSG, "SANE_ACTION_GET_VALUE: Invalid option (%d)\n", n);
@@ -1074,7 +1080,9 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
         case optCount:
           return SANE_STATUS_INVAL;
 
+#ifdef EXPERIMENTAL
         case optGamma:
+#endif
         case optThreshold:
         case optDPI:
 
@@ -1102,6 +1110,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
           DBG (DBG_MSG,
                "sane_control_option: SANE_ACTION_SET_VALUE %d = %d\n", n,
                (int) s->aValues[n].w);
+#ifdef EXPERIMENTAL
           if (n == optGamma)
             {
               if (!fSame && optLast > optGammaTable)
@@ -1110,6 +1119,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
                 }
               _SetScalarGamma (s->aGammaTable, s->aValues[n].w);
             }
+#endif
           break;
 
         case optGammaTable:
@@ -1172,6 +1182,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 
 
 
+#ifdef EXPERIMENTAL
         case optLamp:
           fVal = *(SANE_Bool *) pVal;
           DBG (DBG_MSG, "lamp %s\n", fVal ? "on" : "off");
@@ -1184,6 +1195,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
         case optCalibrate:
 /*       SimpleCalib(&s->HWParams); */
           break;
+#endif
 
         default:
           DBG (DBG_ERR, "SANE_ACTION_SET_VALUE: Invalid option (%d)\n", n);

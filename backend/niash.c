@@ -995,6 +995,19 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 
   DBG (DBG_MSG, "sane_control_option: option %d, action %d\n", n, Action);
 
+  if ((n < optCount) || (n >= optLast))
+    {
+      return SANE_STATUS_UNSUPPORTED;
+    }
+
+  if (Action == SANE_ACTION_GET_VALUE || Action == SANE_ACTION_SET_VALUE)
+    {
+      if (pVal == NULL)
+        {
+          return SANE_STATUS_INVAL;
+        }
+    }
+
   s = (TScanner *) h;
   info = 0;
 

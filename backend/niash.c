@@ -149,10 +149,12 @@ static const SANE_Range rangeGammaTable = { 0, 255, 1 };
 /* available scanner resolutions */
 static const SANE_Int setResolutions[] = { 4, 75, 150, 300, 600 };
 
+#ifdef EXPERIMENTAL
 /* range of an analog gamma */
 static const SANE_Range rangeGamma = { SANE_FIX (0.25), SANE_FIX (4.0),
   SANE_FIX (0.0)
 };
+#endif
 
 /* interpolate a sane gamma table to a hardware appropriate one
    just in case the sane gamma table would be smaller */
@@ -259,18 +261,15 @@ _bytesPerLineColor (int pixelsPerLine)
 
 /* dummy*/
 static void
-_rgb2rgb (unsigned char *buffer, int pixels, int threshold)
+_rgb2rgb (unsigned char __sane_unused__ *buffer, int __sane_unused__ pixels, int __sane_unused__ threshold)
 {
   /* make the compiler content */
-  buffer = buffer;
-  pixels = pixels;
-  threshold = threshold;
 }
 
 
 /* convert 24bit RGB to 8bit GRAY */
 static void
-_rgb2gray (unsigned char *buffer, int pixels, int threshold)
+_rgb2gray (unsigned char *buffer, int pixels, int __sane_unused__ threshold)
 {
 #define WEIGHT_R 27
 #define WEIGHT_G 54
@@ -281,9 +280,6 @@ _rgb2gray (unsigned char *buffer, int pixels, int threshold)
   int nbyte = pixels * BYTES_PER_PIXEL_COLOR;
   int acc = 0;
   int x;
-
-  /* make the compiler content */
-  threshold = threshold;
 
   for (x = 0; x < nbyte; ++x)
     {
@@ -826,11 +822,8 @@ _ReportDevice (TScannerModel * pModel, const char *pszDeviceName)
 /*****************************************************************************/
 
 SANE_Status
-sane_init (SANE_Int * piVersion, SANE_Auth_Callback pfnAuth)
+sane_init (SANE_Int * piVersion, SANE_Auth_Callback __sane_unused__ pfnAuth)
 {
-  /* prevent compiler from complaing about unused parameters */
-  pfnAuth = pfnAuth;
-
   DBG_INIT ();
   DBG (DBG_MSG, "sane_init\n");
 
@@ -871,14 +864,12 @@ sane_exit (void)
 
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool __sane_unused__ local_only)
 {
   TDevListEntry *pDev;
   int i;
 
   DBG (DBG_MSG, "sane_get_devices\n");
-
-  local_only = local_only;
 
   if (_pSaneDevList)
     {
@@ -986,13 +977,15 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
                      void *pVal, SANE_Int * pInfo)
 {
   TScanner *s;
-  SANE_Bool fVal;
   static char szTable[100];
   int *pi;
   int i;
   SANE_Int info;
-  SANE_Bool fLampIsOn;
   SANE_Status status;
+#ifdef EXPERIMENTAL
+  SANE_Bool fLampIsOn;
+  SANE_Bool fVal;
+#endif
   SANE_Bool fSame;
 
   DBG (DBG_MSG, "sane_control_option: option %d, action %d\n", n, Action);
@@ -1483,12 +1476,9 @@ sane_cancel (SANE_Handle h)
 
 
 SANE_Status
-sane_set_io_mode (SANE_Handle h, SANE_Bool m)
+sane_set_io_mode (SANE_Handle __sane_unused__ h, SANE_Bool m)
 {
   DBG (DBG_MSG, "sane_set_io_mode %s\n", m ? "non-blocking" : "blocking");
-
-  /* prevent compiler from complaining about unused parameters */
-  h = h;
 
   if (m)
     {
@@ -1499,13 +1489,8 @@ sane_set_io_mode (SANE_Handle h, SANE_Bool m)
 
 
 SANE_Status
-sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
+sane_get_select_fd (SANE_Handle __sane_unused__ h, SANE_Int * __sane_unused__ fd)
 {
   DBG (DBG_MSG, "sane_select_fd\n");
-
-  /* prevent compiler from complaining about unused parameters */
-  h = h;
-  fd = fd;
-
   return SANE_STATUS_UNSUPPORTED;
 }

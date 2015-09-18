@@ -2015,7 +2015,7 @@ main (int argc, char **argv)
 	      exit(1);
 #endif
 	    }
-	  else if (strcmp (optarg, "jpg") == 0)
+	  else if (strcmp (optarg, "jpeg") == 0)
 	    {
 #ifdef HAVE_LIBJPEG
 	      output_format = OUTPUT_JPEG;
@@ -2162,7 +2162,7 @@ standard output.\n\
 Parameters are separated by a blank from single-character options (e.g.\n\
 -d epson) and by a \"=\" from multi-character options (e.g. --device-name=epson).\n\
 -d, --device-name=DEVICE   use a given scanner device (e.g. hp:/dev/scanner)\n\
-    --format=pnm|tiff|png|jpg  file format of output file\n\
+    --format=pnm|tiff|png|jpeg  file format of output file\n\
 -i, --icc-profile=PROFILE  include this ICC profile into TIFF file\n", prog_name);
       printf ("\
 -L, --list-devices         show available scanner devices\n\

@@ -105,7 +105,7 @@ option selects how image data is written to standard output.
 can be
 .B pnm tiff png
 or
-.BR jpg.
+.BR jpeg.
 If
 .B \-\-format
 is not used, PNM is written.

@@ -518,11 +518,8 @@ iclass_check_param (pixma_t * s, pixma_scan_param_t * sp)
 
   /* Some exceptions here for particular devices */
   /* Those devices can scan up to Legal 14" with ADF, but A4 11.7" in flatbed */
-  if (sp->source == PIXMA_SOURCE_FLATBED
-      && ( s->cfg->pid == MF4700_PID ||
-           s->cfg->pid == MF4800_PID ||
-           s->cfg->pid == MF8200_PID ||
-           s->cfg->pid == MF8500_PID))
+  /* PIXMA_CAP_ADF also works for PIXMA_CAP_ADFDUP */
+  if ((s->cfg->cap & PIXMA_CAP_ADF) && sp->source == PIXMA_SOURCE_FLATBED)
     sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
 
   return 0;

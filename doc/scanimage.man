@@ -103,9 +103,9 @@ The
 option selects how image data is written to standard output.
 .I format
 can be
-.B pnm
+.B pnm tiff
 or
-.BR tiff.
+.BR png.
 If
 .B \-\-format
 is not used, PNM is written.

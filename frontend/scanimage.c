@@ -42,6 +42,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef HAVE_LIBPNG
+#include <png.h>
+#endif
+
 #include "../include/_stdint.h"
 
 #include "../include/sane/sane.h"
@@ -104,6 +108,7 @@ static struct option basic_options[] = {
 
 #define OUTPUT_PNM      0
 #define OUTPUT_TIFF     1
+#define OUTPUT_PNG      2
 
 #define BASE_OPTSTRING	"d:hi:Lf:B::nvVTAbp"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
@@ -1153,6 +1158,47 @@ write_pnm_header (SANE_Frame format, int width, int height, int depth, FILE *ofp
 #endif
 }
 
+#ifdef HAVE_LIBPNG
+static void
+write_png_header (SANE_Frame format, int width, int height, int depth, FILE *ofp, png_structp* png_ptr, png_infop* info_ptr)
+{
+  int color_type;
+
+  *png_ptr = png_create_write_struct
+       (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  if (!*png_ptr) {
+    fprintf(stderr, "png_create_write_struct failed\n");
+    exit(1);
+  }
+  *info_ptr = png_create_info_struct(*png_ptr);
+  if (!*info_ptr) {
+    fprintf(stderr, "png_create_info_struct failed\n");
+    exit(1);
+  }
+  png_init_io(*png_ptr, ofp);
+
+  switch (format)
+    {
+    case SANE_FRAME_RED:
+    case SANE_FRAME_GREEN:
+    case SANE_FRAME_BLUE:
+    case SANE_FRAME_RGB:
+      color_type = PNG_COLOR_TYPE_RGB;
+      break;
+
+    default:
+      color_type = PNG_COLOR_TYPE_GRAY;
+      break;
+    }
+
+  png_set_IHDR(*png_ptr, *info_ptr, width, height,
+    depth, color_type, PNG_INTERLACE_NONE,
+    PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+  png_write_info(*png_ptr, *info_ptr);
+}
+#endif
+
 static void *
 advance (Image * image)
 {
@@ -1196,6 +1242,12 @@ scan_it (FILE *ofp)
   };
   SANE_Word total_bytes = 0, expected_bytes;
   SANE_Int hang_over = -1;
+#ifdef HAVE_LIBPNG
+  int pngrow = 0;
+  png_bytep pngbuf = NULL;
+  png_structp png_ptr;
+  png_infop info_ptr;
+#endif
 
   do
     {
@@ -1269,21 +1321,34 @@ scan_it (FILE *ofp)
 		  offset = 0;
 		}
 	      else
-		{
-		  if (output_format == OUTPUT_TIFF)
+		  switch(output_format)
+		  {
+		  case OUTPUT_TIFF:
 		    sanei_write_tiff_header (parm.format,
 					     parm.pixels_per_line, parm.lines,
 					     parm.depth, resolution_value,
 					     icc_profile, ofp);
-		  else
+		    break;
+		  case OUTPUT_PNM:
 		    write_pnm_header (parm.format, parm.pixels_per_line,
 				      parm.lines, parm.depth, ofp);
-		}
+		    break;
+#ifdef HAVE_LIBPNG
+		  case OUTPUT_PNG:
+		    write_png_header (parm.format, parm.pixels_per_line,
+				      parm.lines, parm.depth, ofp, &png_ptr, &info_ptr);
+		    break;
+#endif
+		  }
 	      break;
 
             default:
 	      break;
 	    }
+#ifdef HAVE_LIBPNG
+	  if(output_format == OUTPUT_PNG)
+	    pngbuf = malloc(parm.bytes_per_line);
+#endif
 
 	  if (must_buffer)
 	    {
@@ -1397,6 +1462,30 @@ scan_it (FILE *ofp)
 	    }
 	  else			/* ! must_buffer */
 	    {
+#ifdef HAVE_LIBPNG
+	      if (output_format == OUTPUT_PNG)
+	        {
+		  int i = 0;
+		  int left = len;
+		  while(pngrow + left >= parm.bytes_per_line)
+		    {
+		      memcpy(pngbuf + pngrow, buffer + i, parm.bytes_per_line - pngrow);
+		      if(parm.depth == 1)
+			{
+			  int j;
+			  for(j = 0; j < parm.bytes_per_line; j++)
+			    pngbuf[j] = ~pngbuf[j];
+			}
+		      png_write_row(png_ptr, pngbuf);
+		      i += parm.bytes_per_line - pngrow;
+		      left -= parm.bytes_per_line - pngrow;
+		      pngrow = 0;
+		    }
+		  memcpy(pngbuf + pngrow, buffer + i, left);
+		  pngrow += left;
+		}
+	      else
+#endif
 	      if ((output_format == OUTPUT_TIFF) || (parm.depth != 16))
 		fwrite (buffer, 1, len, ofp);
 	      else
@@ -1451,13 +1540,23 @@ scan_it (FILE *ofp)
     {
       image.height = image.y;
 
-      if (output_format == OUTPUT_TIFF)
+      switch(output_format) {
+      case OUTPUT_TIFF:
 	sanei_write_tiff_header (parm.format, parm.pixels_per_line,
 				 image.height, parm.depth, resolution_value,
 				 icc_profile, ofp);
-      else
+      break;
+      case OUTPUT_PNM:
 	write_pnm_header (parm.format, parm.pixels_per_line,
                           image.height, parm.depth, ofp);
+      break;
+#ifdef HAVE_LIBPNG
+      case OUTPUT_PNG:
+	write_png_header (parm.format, parm.pixels_per_line,
+                          image.height, parm.depth, ofp, &png_ptr, &info_ptr);
+      break;
+#endif
+      }
 
 #if !defined(WORDS_BIGENDIAN)
       /* multibyte pnm file may need byte swap to LE */
@@ -1477,11 +1576,21 @@ scan_it (FILE *ofp)
 
 	fwrite (image.data, 1, image.height * image.width, ofp);
     }
+#ifdef HAVE_LIBPNG
+    if(output_format == OUTPUT_PNG)
+	png_write_end(png_ptr, info_ptr);
+#endif
 
   /* flush the output buffer */
   fflush( ofp );
 
 cleanup:
+#ifdef HAVE_LIBPNG
+  if(output_format == OUTPUT_PNG) {
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    free(pngbuf);
+  }
+#endif
   if (image.data)
     free (image.data);
 
@@ -1799,6 +1908,15 @@ main (int argc, char **argv)
 	case OPTION_FORMAT:
 	  if (strcmp (optarg, "tiff") == 0)
 	    output_format = OUTPUT_TIFF;
+	  else if (strcmp (optarg, "png") == 0)
+	    {
+#ifdef HAVE_LIBPNG
+	      output_format = OUTPUT_PNG;
+#else
+	      fprintf(stderr, "PNG support not compiled in\n");
+	      exit(1);
+#endif
+	    }
 	  else
 	    output_format = OUTPUT_PNM;
 	  break;
@@ -1937,7 +2055,7 @@ standard output.\n\
 Parameters are separated by a blank from single-character options (e.g.\n\
 -d epson) and by a \"=\" from multi-character options (e.g. --device-name=epson).\n\
 -d, --device-name=DEVICE   use a given scanner device (e.g. hp:/dev/scanner)\n\
-    --format=pnm|tiff      file format of output file\n\
+    --format=pnm|tiff|png  file format of output file\n\
 -i, --icc-profile=PROFILE  include this ICC profile into TIFF file\n", prog_name);
       printf ("\
 -L, --list-devices         show available scanner devices\n\
@@ -1945,8 +2063,8 @@ Parameters are separated by a blank from single-character options (e.g.\n\
                            can be specified: %%d (device name), %%v (vendor),\n\
                            %%m (model), %%t (type), %%i (index number), and\n\
                            %%n (newline)\n\
--b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' or\n\
-                           `out%%d.tif' by default depending on --format\n");
+-b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' `out%%d.tif'  or\n\
+                           `out%%d.png' by default depending on --format\n");
       printf ("\
     --batch-start=#        page number to start naming files with\n\
     --batch-count=#        how many pages to scan in batch mode\n\
@@ -2225,10 +2343,19 @@ List of available devices:", prog_name);
 
       if (batch && NULL == format)
 	{
-	  if (output_format == OUTPUT_TIFF)
+	  switch(output_format) {
+	  case OUTPUT_TIFF:
 	    format = "out%d.tif";
-	  else
+	    break;
+	  case OUTPUT_PNM:
 	    format = "out%d.pnm";
+	    break;
+#ifdef HAVE_LIBPNG
+	  case OUTPUT_PNG:
+	    format = "out%d.png";
+	    break;
+#endif
+	  }
 	}
 
       if (!batch)

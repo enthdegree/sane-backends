@@ -312,6 +312,19 @@ AC_DEFUN([SANE_CHECK_TIFF],
   AC_SUBST(TIFF_LIBS)
 ])
 
+AC_DEFUN([SANE_CHECK_PNG],
+[
+  AC_CHECK_LIB(png,png_init_io,
+  [
+    AC_CHECK_HEADER(png.h,
+    [sane_cv_use_libpng="yes"; PNG_LIBS="-lpng"],)
+  ],)
+  if test "$sane_cv_use_libpng" = "yes" ; then
+    AC_DEFINE(HAVE_LIBPNG,1,[Define to 1 if you have the libpng library.])
+  fi
+  AC_SUBST(PNG_LIBS)
+])
+
 #
 # Checks for pthread support
 AC_DEFUN([SANE_CHECK_LOCKING],

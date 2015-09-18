@@ -42,7 +42,8 @@ command-line options.  After command-line processing,
 normally proceeds to acquire an image.  The image data is written to
 standard output in one of the PNM (portable aNyMaP) formats (PBM for
 black-and-white images, PGM for grayscale images, and PPM for color
-images) or in TIFF (black-and-white, grayscale or color).
+images), TIFF format (black-and-white, grayscale or color), PNG format,
+or JPEG format.
 .B scanimage
 accesses image acquisition devices through the
 .B SANE
@@ -103,9 +104,11 @@ The
 option selects how image data is written to standard output.
 .I format
 can be
-.B pnm tiff png
+.BR pnm ,
+.BR tiff ,
+.BR png ,
 or
-.BR jpeg.
+.BR jpeg .
 If
 .B \-\-format
 is not used, PNM is written.
@@ -164,8 +167,8 @@ feeders.
 is used to specify the format of the filename that each page will be written
 to.  Each page is written out to a single file.  If
 .I format
-is not specified, the default of out%d.pnm (or out%d.tif for \-\-format tiff)
-will be used.  
+is not specified, the default of out%d.pnm (or out%d.tif for \-\-format tiff,
+out%d.png for \-\-format png or out%d.jpg for \-\- format jpeg) will be used.
 .I format
 is given as a printf style string with one integer parameter.
 .B \-\-batch\-start

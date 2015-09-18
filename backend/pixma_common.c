@@ -383,7 +383,7 @@ pixma_binarize_line(pixma_scan_param_t * sp, uint8_t * dst, uint8_t * src, unsig
   unsigned char mask;
   uint8_t min, max;
 
-  /* PDBG (pixma_dbg (4, "*pixma_binarize_line***** src = %u, dst = %u, width = %u, c = %u, threshold = %u, thershold_curve = %u *****\n",
+  /* PDBG (pixma_dbg (4, "*pixma_binarize_line***** src = %u, dst = %u, width = %u, c = %u, threshold = %u, threshold_curve = %u *****\n",
                       src, dst, width, c, sp->threshold, sp->threshold_curve)); */
 
   /* 16 bit grayscale not supported */

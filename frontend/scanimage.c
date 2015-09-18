@@ -46,6 +46,10 @@
 #include <png.h>
 #endif
 
+#ifdef HAVE_LIBJPEG
+#include <jpeglib.h>
+#endif
+
 #include "../include/_stdint.h"
 
 #include "../include/sane/sane.h"
@@ -109,6 +113,7 @@ static struct option basic_options[] = {
 #define OUTPUT_PNM      0
 #define OUTPUT_TIFF     1
 #define OUTPUT_PNG      2
+#define OUTPUT_JPEG     3
 
 #define BASE_OPTSTRING	"d:hi:Lf:B::nvVTAbp"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
@@ -1199,6 +1204,38 @@ write_png_header (SANE_Frame format, int width, int height, int depth, FILE *ofp
 }
 #endif
 
+#ifdef HAVE_LIBJPEG
+static void
+write_jpeg_header (SANE_Frame format, int width, int height, FILE *ofp, struct jpeg_compress_struct *cinfo, struct jpeg_error_mgr *jerr)
+{
+  cinfo->err = jpeg_std_error(jerr);
+  jpeg_create_compress(cinfo);
+  jpeg_stdio_dest(cinfo, ofp);
+
+  cinfo->image_width = width;
+  cinfo->image_height = height;
+  switch (format)
+    {
+    case SANE_FRAME_RED:
+    case SANE_FRAME_GREEN:
+    case SANE_FRAME_BLUE:
+    case SANE_FRAME_RGB:
+      cinfo->in_color_space = JCS_RGB;
+      cinfo->input_components = 3;
+      break;
+
+    default:
+      cinfo->in_color_space = JCS_GRAYSCALE;
+      cinfo->input_components = 1;
+      break;
+    }
+
+  jpeg_set_defaults(cinfo);
+  jpeg_set_quality(cinfo, 75, TRUE);
+  jpeg_start_compress(cinfo, TRUE);
+}
+#endif
+
 static void *
 advance (Image * image)
 {
@@ -1247,6 +1284,12 @@ scan_it (FILE *ofp)
   png_bytep pngbuf = NULL;
   png_structp png_ptr;
   png_infop info_ptr;
+#endif
+#ifdef HAVE_LIBJPEG
+  int jpegrow = 0;
+  JSAMPLE *jpegbuf = NULL;
+  struct jpeg_compress_struct cinfo;
+  struct jpeg_error_mgr jerr;
 #endif
 
   do
@@ -1339,6 +1382,12 @@ scan_it (FILE *ofp)
 				      parm.lines, parm.depth, ofp, &png_ptr, &info_ptr);
 		    break;
 #endif
+#ifdef HAVE_LIBJPEG
+		  case OUTPUT_JPEG:
+		    write_jpeg_header (parm.format, parm.pixels_per_line,
+				      parm.lines, ofp, &cinfo, &jerr);
+		    break;
+#endif
 		  }
 	      break;
 
@@ -1348,6 +1397,10 @@ scan_it (FILE *ofp)
 #ifdef HAVE_LIBPNG
 	  if(output_format == OUTPUT_PNG)
 	    pngbuf = malloc(parm.bytes_per_line);
+#endif
+#ifdef HAVE_LIBJPEG
+	  if(output_format == OUTPUT_JPEG)
+	    jpegbuf = malloc(parm.bytes_per_line);
 #endif
 
 	  if (must_buffer)
@@ -1486,6 +1539,35 @@ scan_it (FILE *ofp)
 		}
 	      else
 #endif
+#ifdef HAVE_LIBJPEG
+	      if (output_format == OUTPUT_JPEG)
+	        {
+		  int i = 0;
+		  int left = len;
+		  while(jpegrow + left >= parm.bytes_per_line)
+		    {
+		      memcpy(jpegbuf + jpegrow, buffer + i, parm.bytes_per_line - jpegrow);
+		      if(parm.depth == 1)
+			{
+			  int col1, col8;
+			  JSAMPLE *buf8 = malloc(parm.bytes_per_line * 8);
+			  for(col1 = 0; col1 < parm.bytes_per_line; col1++)
+			    for(col8 = 0; col8 < 8; col8++)
+			      buf8[col1 * 8 + col8] = jpegbuf[col1] & (1 << (8 - col8 - 1)) ? 0 : 0xff;
+		          jpeg_write_scanlines(&cinfo, &buf8, 1);
+			  free(buf8);
+			} else {
+		          jpeg_write_scanlines(&cinfo, &jpegbuf, 1);
+			}
+		      i += parm.bytes_per_line - jpegrow;
+		      left -= parm.bytes_per_line - jpegrow;
+		      jpegrow = 0;
+		    }
+		  memcpy(jpegbuf + jpegrow, buffer + i, left);
+		  jpegrow += left;
+		}
+	      else
+#endif
 	      if ((output_format == OUTPUT_TIFF) || (parm.depth != 16))
 		fwrite (buffer, 1, len, ofp);
 	      else
@@ -1556,6 +1638,12 @@ scan_it (FILE *ofp)
                           image.height, parm.depth, ofp, &png_ptr, &info_ptr);
       break;
 #endif
+#ifdef HAVE_LIBJPEG
+      case OUTPUT_JPEG:
+	write_jpeg_header (parm.format, parm.pixels_per_line,
+	parm.lines, ofp, &cinfo, &jerr);
+      break;
+#endif
       }
 
 #if !defined(WORDS_BIGENDIAN)
@@ -1580,6 +1668,10 @@ scan_it (FILE *ofp)
     if(output_format == OUTPUT_PNG)
 	png_write_end(png_ptr, info_ptr);
 #endif
+#ifdef HAVE_LIBJPEG
+    if(output_format == OUTPUT_JPEG)
+	jpeg_finish_compress(&cinfo);
+#endif
 
   /* flush the output buffer */
   fflush( ofp );
@@ -1589,6 +1681,12 @@ cleanup:
   if(output_format == OUTPUT_PNG) {
     png_destroy_write_struct(&png_ptr, &info_ptr);
     free(pngbuf);
+  }
+#endif
+#ifdef HAVE_LIBJPEG
+  if(output_format == OUTPUT_JPEG) {
+    jpeg_destroy_compress(&cinfo);
+    free(jpegbuf);
   }
 #endif
   if (image.data)
@@ -1917,6 +2015,15 @@ main (int argc, char **argv)
 	      exit(1);
 #endif
 	    }
+	  else if (strcmp (optarg, "jpg") == 0)
+	    {
+#ifdef HAVE_LIBJPEG
+	      output_format = OUTPUT_JPEG;
+#else
+	      fprintf(stderr, "JPEG support not compiled in\n");
+	      exit(1);
+#endif
+	    }
 	  else
 	    output_format = OUTPUT_PNM;
 	  break;
@@ -2055,7 +2162,7 @@ standard output.\n\
 Parameters are separated by a blank from single-character options (e.g.\n\
 -d epson) and by a \"=\" from multi-character options (e.g. --device-name=epson).\n\
 -d, --device-name=DEVICE   use a given scanner device (e.g. hp:/dev/scanner)\n\
-    --format=pnm|tiff|png  file format of output file\n\
+    --format=pnm|tiff|png|jpg  file format of output file\n\
 -i, --icc-profile=PROFILE  include this ICC profile into TIFF file\n", prog_name);
       printf ("\
 -L, --list-devices         show available scanner devices\n\
@@ -2063,8 +2170,8 @@ Parameters are separated by a blank from single-character options (e.g.\n\
                            can be specified: %%d (device name), %%v (vendor),\n\
                            %%m (model), %%t (type), %%i (index number), and\n\
                            %%n (newline)\n\
--b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' `out%%d.tif'  or\n\
-                           `out%%d.png' by default depending on --format\n");
+-b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' `out%%d.tif'\n\
+                           `out%%d.png' or `out%%d.jpg' by default depending on --format\n");
       printf ("\
     --batch-start=#        page number to start naming files with\n\
     --batch-count=#        how many pages to scan in batch mode\n\
@@ -2353,6 +2460,11 @@ List of available devices:", prog_name);
 #ifdef HAVE_LIBPNG
 	  case OUTPUT_PNG:
 	    format = "out%d.png";
+	    break;
+#endif
+#ifdef HAVE_LIBJPEG
+	  case OUTPUT_JPEG:
+	    format = "out%d.jpg";
 	    break;
 #endif
 	  }

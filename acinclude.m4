@@ -605,14 +605,14 @@ for be in ${BACKENDS}; do
 
     mustek_pp)
     if test "${sane_cv_use_libieee1284}" != "yes" && test "${enable_parport_directio}" != "yes"; then
-      echo "*** $be backend requires libieee1284 and paraport-directio libraries - $DISABLE_MSG"
+      echo "*** $be backend requires libieee1284 or parport-directio libraries - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;
 
     dell1600n_net) 
     if test "${sane_cv_use_libjpeg}" != "yes" || test "${sane_cv_use_libtiff}" != "yes"; then
-      echo "*** $be backend requires JPEG and/or TIFF library - $DISABLE_MSG"
+      echo "*** $be backend requires JPEG and TIFF library - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;

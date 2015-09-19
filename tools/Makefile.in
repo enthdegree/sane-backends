@@ -80,8 +80,15 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = sane-find-scanner$(EXEEXT) gamma4scanimage$(EXEEXT)
-noinst_PROGRAMS = sane-desc$(EXEEXT) umax_pp$(EXEEXT)
+@INSTALL_UMAX_PP_TOOLS_FALSE@bin_PROGRAMS =  \
+@INSTALL_UMAX_PP_TOOLS_FALSE@	sane-find-scanner$(EXEEXT) \
+@INSTALL_UMAX_PP_TOOLS_FALSE@	gamma4scanimage$(EXEEXT)
+@INSTALL_UMAX_PP_TOOLS_TRUE@bin_PROGRAMS = umax_pp$(EXEEXT) \
+@INSTALL_UMAX_PP_TOOLS_TRUE@	sane-find-scanner$(EXEEXT) \
+@INSTALL_UMAX_PP_TOOLS_TRUE@	gamma4scanimage$(EXEEXT)
+@INSTALL_UMAX_PP_TOOLS_FALSE@noinst_PROGRAMS = umax_pp$(EXEEXT) \
+@INSTALL_UMAX_PP_TOOLS_FALSE@	sane-desc$(EXEEXT)
+@INSTALL_UMAX_PP_TOOLS_TRUE@noinst_PROGRAMS = sane-desc$(EXEEXT)
 subdir = tools
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/mkinstalldirs $(srcdir)/sane-config.in \
@@ -303,6 +310,7 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
+PNG_LIBS = @PNG_LIBS@
 PRELOADABLE_BACKENDS = @PRELOADABLE_BACKENDS@
 PRELOADABLE_BACKENDS_ENABLED = @PRELOADABLE_BACKENDS_ENABLED@
 PTHREAD_LIBS = @PTHREAD_LIBS@

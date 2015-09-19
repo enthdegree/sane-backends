@@ -206,7 +206,7 @@ am_libepson_la_OBJECTS = libepson_la-epson.lo \
 libepson_la_OBJECTS = $(am_libepson_la_OBJECTS)
 libepson2_la_LIBADD =
 am_libepson2_la_OBJECTS = libepson2_la-epson2.lo \
-	libepson2_la-epson2_scsi.lo libepson2_la-epson_usb.lo \
+	libepson2_la-epson2_scsi.lo libepson2_la-epson2_usb.lo \
 	libepson2_la-epson2_net.lo libepson2_la-epson2-io.lo \
 	libepson2_la-epson2-commands.lo libepson2_la-epson2-ops.lo \
 	libepson2_la-epson2-cct.lo
@@ -1830,6 +1830,7 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
+PNG_LIBS = @PNG_LIBS@
 PRELOADABLE_BACKENDS = @PRELOADABLE_BACKENDS@
 PRELOADABLE_BACKENDS_ENABLED = @PRELOADABLE_BACKENDS_ENABLED@
 PTHREAD_LIBS = @PTHREAD_LIBS@
@@ -2282,7 +2283,7 @@ nodist_libsane_epson_la_SOURCES = epson-s.c
 libsane_epson_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epson
 libsane_epson_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_epson_la_LIBADD = $(COMMON_LIBS) libepson.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo  ../sanei/sanei_pio.lo $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
-libepson2_la_SOURCES = epson2.c epson2.h epson2_scsi.c epson2_scsi.h epson_usb.c epson2_net.c epson2_net.h epson2-io.c epson2-io.h epson2-commands.c epson2-commands.h epson2-ops.c epson2-ops.h epson2-cct.c
+libepson2_la_SOURCES = epson2.c epson2.h epson2_scsi.c epson2_scsi.h epson2_usb.c epson2_net.c epson2_net.h epson2-io.c epson2-io.h epson2-commands.c epson2-commands.h epson2-ops.c epson2-ops.h epson2-cct.c
 libepson2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epson2
 nodist_libsane_epson2_la_SOURCES = epson2-s.c
 libsane_epson2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epson2
@@ -3417,7 +3418,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepson2_la-epson2.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepson2_la-epson2_net.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepson2_la-epson2_scsi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepson2_la-epson_usb.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepson2_la-epson2_usb.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepson_la-epson.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepson_la-epson_scsi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepson_la-epson_usb.Plo@am__quote@
@@ -3859,12 +3860,12 @@ libepson2_la-epson2_scsi.lo: epson2_scsi.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libepson2_la-epson2_scsi.lo `test -f 'epson2_scsi.c' || echo '$(srcdir)/'`epson2_scsi.c
 
-libepson2_la-epson_usb.lo: epson_usb.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libepson2_la-epson_usb.lo -MD -MP -MF $(DEPDIR)/libepson2_la-epson_usb.Tpo -c -o libepson2_la-epson_usb.lo `test -f 'epson_usb.c' || echo '$(srcdir)/'`epson_usb.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libepson2_la-epson_usb.Tpo $(DEPDIR)/libepson2_la-epson_usb.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='epson_usb.c' object='libepson2_la-epson_usb.lo' libtool=yes @AMDEPBACKSLASH@
+libepson2_la-epson2_usb.lo: epson2_usb.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libepson2_la-epson2_usb.lo -MD -MP -MF $(DEPDIR)/libepson2_la-epson2_usb.Tpo -c -o libepson2_la-epson2_usb.lo `test -f 'epson2_usb.c' || echo '$(srcdir)/'`epson2_usb.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libepson2_la-epson2_usb.Tpo $(DEPDIR)/libepson2_la-epson2_usb.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='epson2_usb.c' object='libepson2_la-epson2_usb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libepson2_la-epson_usb.lo `test -f 'epson_usb.c' || echo '$(srcdir)/'`epson_usb.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libepson2_la-epson2_usb.lo `test -f 'epson2_usb.c' || echo '$(srcdir)/'`epson2_usb.c
 
 libepson2_la-epson2_net.lo: epson2_net.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepson2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libepson2_la-epson2_net.lo -MD -MP -MF $(DEPDIR)/libepson2_la-epson2_net.Tpo -c -o libepson2_la-epson2_net.lo `test -f 'epson2_net.c' || echo '$(srcdir)/'`epson2_net.c

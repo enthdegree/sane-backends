@@ -275,6 +275,7 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
+PNG_LIBS = @PNG_LIBS@
 PRELOADABLE_BACKENDS = @PRELOADABLE_BACKENDS@
 PRELOADABLE_BACKENDS_ENABLED = @PRELOADABLE_BACKENDS_ENABLED@
 PTHREAD_LIBS = @PTHREAD_LIBS@
@@ -358,7 +359,7 @@ top_srcdir = @top_srcdir@
 AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
 scanimage_SOURCES = scanimage.c stiff.c stiff.h
 scanimage_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \
-             ../lib/libfelib.la
+             ../lib/libfelib.la @PNG_LIBS@ @JPEG_LIBS@
 
 saned_SOURCES = saned.c
 saned_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \

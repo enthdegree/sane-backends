@@ -644,6 +644,8 @@ BACKEND_MANS_ENABLED
 BACKEND_CONFS_ENABLED
 PRELOADABLE_BACKENDS_ENABLED
 PRELOADABLE_BACKENDS
+INSTALL_UMAX_PP_TOOLS_FALSE
+INSTALL_UMAX_PP_TOOLS_TRUE
 BACKEND_LIBS_ENABLED
 SANEI_SANEI_JPEG_LO
 HAVE_JPEG_FALSE
@@ -696,6 +698,7 @@ LOCKPATH_GROUP
 INSTALL_LOCKPATH
 PTHREAD_LIBS
 IEEE1284_LIBS
+PNG_LIBS
 TIFF_LIBS
 JPEG_LIBS
 SYSLOG_LIBS
@@ -2817,8 +2820,8 @@ test "$program_suffix" != NONE &&
 ac_script='s/[\\$]/&&/g;s/;s,x,x,$//'
 program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 
-# Expand $ac_aux_dir to an absolute path.
-am_aux_dir=`cd "$ac_aux_dir" && pwd`
+# expand $ac_aux_dir to an absolute path
+am_aux_dir=`cd $ac_aux_dir && pwd`
 
 if test x"${MISSING+set}" != xset; then
   case $am_aux_dir in
@@ -3223,7 +3226,6 @@ END
     as_fn_error $? "Your 'rm' program is bad, sorry." "$LINENO" 5
   fi
 fi
-
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
 $as_echo_n "checking whether to enable maintainer-specific portions of Makefiles... " >&6; }
@@ -7236,6 +7238,61 @@ fi
 
 
 
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for png_init_io in -lpng" >&5
+$as_echo_n "checking for png_init_io in -lpng... " >&6; }
+if ${ac_cv_lib_png_png_init_io+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpng  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char png_init_io ();
+int
+main ()
+{
+return png_init_io ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_png_png_init_io=yes
+else
+  ac_cv_lib_png_png_init_io=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_png_png_init_io" >&5
+$as_echo "$ac_cv_lib_png_png_init_io" >&6; }
+if test "x$ac_cv_lib_png_png_init_io" = xyes; then :
+
+    ac_fn_c_check_header_mongrel "$LINENO" "png.h" "ac_cv_header_png_h" "$ac_includes_default"
+if test "x$ac_cv_header_png_h" = xyes; then :
+  sane_cv_use_libpng="yes"; PNG_LIBS="-lpng"
+fi
+
+
+
+fi
+
+  if test "$sane_cv_use_libpng" = "yes" ; then
+
+$as_echo "#define HAVE_LIBPNG 1" >>confdefs.h
+
+  fi
+
+
+
   ac_fn_c_check_header_mongrel "$LINENO" "ieee1284.h" "ac_cv_header_ieee1284_h" "$ac_includes_default"
 if test "x$ac_cv_header_ieee1284_h" = xyes; then :
 
@@ -9600,6 +9657,10 @@ fi
 
 
 
+
+
+
+
 if test "${ac_cv_header_sys_io_h}" = "yes"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for inb,outb (provided by sys/io.h)" >&5
 $as_echo_n "checking for inb,outb (provided by sys/io.h)... " >&6; }
@@ -9635,7 +9696,6 @@ $as_echo "#define SANE_HAVE_SYS_IO_H_WITH_INB_OUTB 1" >>confdefs.h
 else
   sane_cv_have_sys_io_h_with_inb_outb="no"
 fi
-
 
 
 
@@ -18079,14 +18139,14 @@ for be in ${BACKENDS}; do
 
     mustek_pp)
     if test "${sane_cv_use_libieee1284}" != "yes" && test "${enable_parport_directio}" != "yes"; then
-      echo "*** $be backend requires libieee1284 and paraport-directio libraries - $DISABLE_MSG"
+      echo "*** $be backend requires libieee1284 or parport-directio libraries - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;
 
     dell1600n_net)
     if test "${sane_cv_use_libjpeg}" != "yes" || test "${sane_cv_use_libtiff}" != "yes"; then
-      echo "*** $be backend requires JPEG and/or TIFF library - $DISABLE_MSG"
+      echo "*** $be backend requires JPEG and TIFF library - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;
@@ -18185,7 +18245,18 @@ for backend in ${BACKENDS} ; do
   BACKEND_LIBS_ENABLED="${BACKEND_LIBS_ENABLED} libsane-${backend}.la"
   BACKEND_CONFS_ENABLED="${BACKEND_CONFS_ENABLED} ${backend}.conf"
   BACKEND_MANS_ENABLED="${BACKEND_MANS_ENABLED} sane-${backend}.5"
+  if test x$backend = xumax_pp; then
+    install_umax_pp_tools=yes
+  fi
 done
+
+ if test xyes = x$install_umax_pp_tools; then
+  INSTALL_UMAX_PP_TOOLS_TRUE=
+  INSTALL_UMAX_PP_TOOLS_FALSE='#'
+else
+  INSTALL_UMAX_PP_TOOLS_TRUE='#'
+  INSTALL_UMAX_PP_TOOLS_FALSE=
+fi
 
 
 
@@ -18253,14 +18324,14 @@ for be in ${BACKENDS}; do
 
     mustek_pp)
     if test "${sane_cv_use_libieee1284}" != "yes" && test "${enable_parport_directio}" != "yes"; then
-      echo "*** $be backend requires libieee1284 and paraport-directio libraries - $DISABLE_MSG"
+      echo "*** $be backend requires libieee1284 or parport-directio libraries - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;
 
     dell1600n_net)
     if test "${sane_cv_use_libjpeg}" != "yes" || test "${sane_cv_use_libtiff}" != "yes"; then
-      echo "*** $be backend requires JPEG and/or TIFF library - $DISABLE_MSG"
+      echo "*** $be backend requires JPEG and TIFF library - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;
@@ -18580,6 +18651,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_JPEG_TRUE}" && test -z "${HAVE_JPEG_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_JPEG\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${INSTALL_UMAX_PP_TOOLS_TRUE}" && test -z "${INSTALL_UMAX_PP_TOOLS_FALSE}"; then
+  as_fn_error $? "conditional \"INSTALL_UMAX_PP_TOOLS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${ENABLE_TRANSLATIONS_TRUE}" && test -z "${ENABLE_TRANSLATIONS_FALSE}"; then

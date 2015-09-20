@@ -2923,7 +2923,7 @@ do_bindings (int *nfds, struct pollfd **fds)
 
 
 static void
-run_standalone (int argc, char **argv)
+run_standalone (char *user)
 {
   struct pollfd *fds = NULL;
   struct pollfd *fdp = NULL;
@@ -2944,13 +2944,13 @@ run_standalone (int argc, char **argv)
 
   if (run_mode != SANED_RUN_DEBUG)
     {
-      if (argc > 2)
+      if (user)
 	{
-	  pwent = getpwnam(argv[2]);
+	  pwent = getpwnam(user);
 
 	  if (pwent == NULL)
 	    {
-	      DBG (DBG_ERR, "FATAL ERROR: user %s not found on system\n", argv[2]);
+	      DBG (DBG_ERR, "FATAL ERROR: user %s not found on system\n", user);
 	      bail_out (1);
 	    }
 
@@ -2981,7 +2981,7 @@ run_standalone (int argc, char **argv)
 
               while (grp->gr_mem[i])
 		{
-                  if (strcmp(grp->gr_mem[i], argv[2]) == 0)
+                  if (strcmp(grp->gr_mem[i], user) == 0)
                     {
                       int need_to_add = 1, j;
 
@@ -3264,6 +3264,7 @@ main (int argc, char *argv[])
 {
   char options[64] = "";
   debug = DBG_WARN;
+  char *user = NULL;
 
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
@@ -3277,7 +3278,11 @@ main (int argc, char *argv[])
   if (argc >= 2)
     {
       if (strncmp (argv[1], "-a", 2) == 0)
-	run_mode = SANED_RUN_ALONE;
+	{
+	  run_mode = SANED_RUN_ALONE;
+	  if (argc >= 3)
+	    user = argv[2];
+	}
       else if (strncmp (argv[1], "-d", 2) == 0)
 	{
 	  run_mode = SANED_RUN_DEBUG;
@@ -3342,7 +3347,7 @@ main (int argc, char *argv[])
 
   if ((run_mode == SANED_RUN_ALONE) || (run_mode == SANED_RUN_DEBUG))
     {
-      run_standalone(argc, argv);
+      run_standalone(user);
     }
   else
     {

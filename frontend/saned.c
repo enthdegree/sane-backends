@@ -3253,6 +3253,11 @@ run_inetd (char *sock)
   handle_connection(fd);
 }
 
+static void usage(char *me, int err)
+{
+  fprintf (stderr, "Usage: %s -a [ username ] | -d [ n ] | -s [ n ]| -h\n", me);
+  exit(err);
+}
 
 int
 main (int argc, char *argv[])
@@ -3288,12 +3293,11 @@ main (int argc, char *argv[])
 	run_mode = SANED_RUN_DEBUG;
       else
         {
-          printf ("Usage: saned [ -a [ username ] | -d [ n ] | -s [ n ] ] | -h\n");
           if ((strncmp (argv[1], "-h", 2) == 0) ||
                (strncmp (argv[1], "--help", 6) == 0))
-            exit (EXIT_SUCCESS);
+            usage (argv[0], EXIT_SUCCESS);
           else
-            exit (EXIT_FAILURE);
+            usage (argv[0], EXIT_FAILURE);
         }
     }
 

@@ -3172,7 +3172,7 @@ run_standalone (char *user)
 
 
 static void
-run_inetd (int argc, char **argv)
+run_inetd (char *sock)
 {
   
   int fd = -1;
@@ -3238,18 +3238,13 @@ run_inetd (int argc, char **argv)
 
       close (dave_null);
     }
-#ifndef HAVE_OS2_H
-  /* Unused in this function */
-  argc = argc;
-  argv = argv;
-
-#else
+#ifdef HAVE_OS2_H
   /* under OS/2, the socket handle is passed as argument on the command
      line; the socket handle is relative to IBM TCP/IP, so a call
      to impsockethandle() is required to add it to the EMX runtime */
-  if (argc == 2)
+  if (sock)
     {
-      fd = _impsockhandle (atoi (argv[1]), 0);
+      fd = _impsockhandle (atoi (sock), 0);
       if (fd == -1)
 	perror ("impsockhandle");
     }
@@ -3265,6 +3260,7 @@ main (int argc, char *argv[])
   char options[64] = "";
   debug = DBG_WARN;
   char *user = NULL;
+  char *sock = NULL;
 
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
@@ -3351,7 +3347,11 @@ main (int argc, char *argv[])
     }
   else
     {
-      run_inetd(argc, argv);
+#ifdef HAVE_OS2_H
+      if (argc == 2)
+	sock = argv[1];
+#endif
+      run_inetd(sock);
     }
 
   DBG (DBG_WARN, "saned exiting\n");

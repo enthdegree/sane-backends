@@ -46,7 +46,7 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x814, /* PM-A700 */
   0x815, /* AcuLaser CX11, AcuLaser CX11NF, LP-A500 */
   0x817, /* LP-M5500, LP-M5500F */
-  0x818, /* Stylus CX3700, Stylus CX3800, Stylus DX3800 */
+  0x818, /* Stylus CX3700, Stylus CX3800, Stylus CX3810, Stylus DX3800 */
   0x819, /* PX-A650, Stylus CX4700, Stylus CX4800, Stylus DX4800, Stylus DX4850 */
   0x81a, /* PM-A750, Stylus Photo RX520, Stylus Photo RX530 */
   0x81c, /* PM-A890, Stylus Photo RX640, Stylus Photo RX650 */

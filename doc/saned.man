@@ -214,7 +214,19 @@ service sane\-port
 .ft R
 .RE
 .SH SYSTEMD CONFIGURATION
-for systemd we need to add 2 configuation files in 
+Saned can be compiled with explicit systemd support. This 
+will allow logging debugging information to be forwarded
+to the systemd journal. The systemd support
+requires compilation with the systemd-devel package
+installed on the system. this is the preferred option.
+
+Saned can be used wih systemd without the systemd integration 
+compiled in, but then logging of debug information is not supported. 
+
+The systemd configuration is different for the 2 options, so
+both are described below.
+.SH Systemd configuration for saned with systemd support compiled in
+for the systemd configuration we need to add 2 configuation files in 
 .I /etc/systemd/system.
 .PP
 The first file we need to add here is called 
@@ -257,23 +269,89 @@ Group=saned
 StandardInput=null
 StandardOutput=syslog
 StandardError=syslog
-# Environment=SANE_CONFIG_DIR=@CONFIGDIR@ SANE_DEBUG_DLL=255
+Environment=SANE_CONFIG_DIR=@CONFIGDIR@ 
+# If you need to debug your configuration uncomment the next line and
+# change it as appropriate to set the desired debug options
+# Environment=SANE_DEBUG_DLL=255 SANE_DEBUG_BJNP=5
+
+[Install]
+Also=saned.socket
 .fi
 .ft R
 .RE
 .PP
-Is you need to set an environment variable for saned like
+You need to set an environment variable for 
 .B SANE_CONFIG_DIR
-you will have to remove the # on the last line and set the variable 
-appropriately.  Multiple variables can be set by separating the assignments 
-by spaces as shown in the example above.
+pointing to the directory where saned can find its configuration files.
+you will have to remove the # on the last line and set the variables 
+for the desired debugging information if required.  Multiple variables 
+can be set by separating the assignments by spaces as shown in the 
+example above.
 .PP
 Unlike 
 .I (x)inetd
-systemd allows debugging output from backends set using
-.B SANE_DEBUG_<backend_name> 
-to be captured. With the service unit as described above, the debugging output is 
+, systemd allows debugging output from backends set using
+.B SANE_DEBUG_XXX
+to be captured. See the man-page for your backend to see what options
+are  supported.
+With the service unit as described above, the debugging output is 
 forwarded to the system log.
+
+.SH Systemd configuration when saned is compiled without systemd support
+This configuration will also work when Saned is compiled WITH systemd integration
+support, but it does not allow debugging information to be logged.
+.PP
+for systemd configuration for saned, we need to add 2 configuation files in
+.I /etc/systemd/system.
+.PP
+The first file we need to add here is called
+.I saned.socket. 
+It is identical to the version for systemd with the support compiled in.
+It shall have the following contents:
+.PP
+.RS
+.ft CR
+.nf
+[Unit]
+Description=saned incoming socket
+
+[Socket]
+ListenStream=6566
+Accept=yes
+MaxConnections=1
+
+[Install]
+WantedBy=sockets.target
+.fi
+.ft R
+.RE
+.PP
+The second file to be added is
+.I saned@.service
+This one differes from the sersion with systemd integration compiled in:
+.PP
+.RS
+.ft CR
+.nf
+[Unit]
+Description=Scanner Service
+Requires=saned.socket
+
+[Service]
+ExecStart=/usr/sbin/saned
+User=saned
+Group=saned
+StandardInput=socket
+
+Environment=SANE_CONFIG_DIR=/etc/sane.d
+
+[Install]
+Also=saned.socket
+.fi
+.ft R
+.RE
+.PP
+
 .SH FILES
 .TP
 .I /etc/hosts.equiv

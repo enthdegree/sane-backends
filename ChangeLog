@@ -1,3 +1,8 @@
+2015-06-22 Louis Lagendijk <louis dot lagendijk at gmail dot com>
+	* doc/saned.man: updated to clarify systemd integration and 
+	configuration for thecase where saned is compiled with  systemd
+	glue.
+
 2015-09-16 Stéphane Voltz <stef.dev@free.fr>
 	* backend/niash.c: merged pu/protect-niash-option-access-315132 and
 	ifdef'ed unused code

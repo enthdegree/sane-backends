@@ -146,7 +146,7 @@ static SANE_Status esci2_cmd(epsonds_scanner* s,
 
 		sprintf(rbuf, "%4.4sx%07x", cmd, (unsigned int)plen);
 
-		DBG(8, " %s (%d)\n", rbuf, plen);
+		DBG(8, " %s (%lu)\n", rbuf, plen);
 
 		eds_send(s, rbuf, 12, &status);
 

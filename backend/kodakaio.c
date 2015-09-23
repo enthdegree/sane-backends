@@ -719,7 +719,7 @@ That is probably if the scanner disconnected the network connection
 	}
 	else if((fds[0].revents & POLLIN) && !(fds[0].revents & (POLLERR | POLLHUP | POLLNVAL))) {
 		while (read < wanted) {
-			DBG(50, "reading: read %d, wanted %d\n",read, wanted);
+			DBG(50, "reading: read %lu, wanted %lu\n",read, wanted);
 			size = sanei_tcp_read(s->fd, buf + read, wanted - read);
 			if (size == 0) {
 				DBG(1, "No data read. Scanner may have disconnected\n");

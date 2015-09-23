@@ -985,8 +985,8 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 #ifdef EXPERIMENTAL
   SANE_Bool fLampIsOn;
   SANE_Bool fVal;
-#endif
   SANE_Bool fSame;
+#endif
 
   DBG (DBG_MSG, "sane_control_option: option %d, action %d\n", n, Action);
 
@@ -1095,8 +1095,10 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
               return status;
             }
 
+#ifdef EXPERIMENTAL
           /* check values if they are equal */
           fSame = s->aValues[n].w == *(SANE_Word *) pVal;
+#endif
 
           /* set the values */
           s->aValues[n].w = *(SANE_Word *) pVal;

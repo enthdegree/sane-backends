@@ -632,7 +632,7 @@ static SANE_String_Const source_list[] = {
 };
 
 static const SANE_Range percent_range_fixed = {SANE_FIX(0.0), SANE_FIX(100.0), SANE_FIX(1.0)};
-static const SANE_Range percent_range_int = {0, 100, 1};
+/*static const SANE_Range percent_range_int = {0, 100, 1};*/
 
 /* prototypes */
 static SANE_Status attach_one_usb(SANE_String_Const devname);

@@ -60,8 +60,6 @@ double *
 sanei_ir_create_norm_histo (const SANE_Parameters * params,
                        const SANE_Uint *img_data)
 {
-  uint8_t *img_data8;
-  SANE_Uint *img_data16;
   int is, i;
   int num_pixels;
   int *histo_data;
@@ -417,8 +415,8 @@ SANE_Status
 sanei_ir_RGB_luminance (SANE_Parameters * params, const SANE_Uint **in_img,
                       SANE_Uint **out_img)
 {
-  SANE_Uint *outi, *dest;
-  int itop, is, i;
+  SANE_Uint *outi;
+  int itop, i;
 
   if ((params->depth < 8) || (params->depth > 16) ||
       (params->format != SANE_FRAME_GRAY))
@@ -449,7 +447,7 @@ SANE_Status
 sanei_ir_to_8bit (SANE_Parameters * params, const SANE_Uint *in_img,
                  SANE_Parameters * out_params, SANE_Uint **out_img)
 {
-  SANE_Uint *outi, *src, *dest;
+  SANE_Uint *outi;
   size_t ssize;
   int i, is;
 
@@ -664,7 +662,6 @@ sanei_ir_filter_mean (const SANE_Parameters * params,
   int ndiv, the_sum;
   int nrow, ncol;
   int hwr, hwc;
-  int depth;
   int *sum;
   int i, j;
 
@@ -678,7 +675,6 @@ sanei_ir_filter_mean (const SANE_Parameters * params,
 
   num_cols = params->pixels_per_line;
   num_rows = params->lines;
-  depth = params->depth;
 
   sum = malloc (num_cols * sizeof (int));
   if (!sum)
@@ -1128,7 +1124,7 @@ sanei_ir_dilate_mean (const SANE_Parameters * params,
   SANE_Uint *plane;
   unsigned int *dist_map, *manhattan;
   unsigned int *idx_map, *index;
-  int depth, dist;
+  int dist;
   int rows, cols;
   int k, i, itop;
   SANE_Status ret = SANE_STATUS_NO_MEM;
@@ -1136,7 +1132,6 @@ sanei_ir_dilate_mean (const SANE_Parameters * params,
   DBG (10, "sanei_ir_dilate_mean(): dist max = %d, expand = %d, win size = %d, smooth = %d, inner = %d\n",
     dist_max, expand, win_size, smooth, inner);
 
-  depth = params->depth;
   cols = params->pixels_per_line;
   rows = params->lines;
   itop = rows * cols;

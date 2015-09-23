@@ -48,9 +48,10 @@ eds_dev_init(epsonds_device *dev)
 SANE_Status
 eds_dev_post_init(struct epsonds_device *dev)
 {
+	SANE_String_Const *source_list_add = source_list;
+
 	DBG(10, "%s\n", __func__);
 
-	SANE_String_Const *source_list_add = source_list;
 	if (dev->has_fb)
 		*source_list_add++ = FBF_STR;
 
@@ -337,12 +338,13 @@ eds_copy_image_from_ring(epsonds_scanner *s, SANE_Byte *data, SANE_Int max_lengt
 
 		while (lines--) {
 
+			int i;
+			SANE_Byte *p;
+
 			eds_ring_read(s->current, s->line_buffer, s->params.bytes_per_line);
 			eds_ring_skip(s->current, s->dummy);
 
-			int i;
-
-			SANE_Byte *p = s->line_buffer;
+			p = s->line_buffer;
 
 			for (i = 0; i < s->params.bytes_per_line; i++) {
 				*data++ = ~*p++;
@@ -379,12 +381,14 @@ SANE_Status eds_ring_init(ring_buffer *ring, SANE_Int size)
 
 SANE_Status eds_ring_write(ring_buffer *ring, SANE_Byte *buf, SANE_Int size)
 {
+	SANE_Int tail;
+
 	if (size > (ring->size - ring->fill)) {
 		DBG(1, "ring buffer full, requested: %d, available: %d\n", size, ring->size - ring->fill);
 		return SANE_STATUS_NO_MEM;
 	}
 
-	SANE_Int tail = ring->end - ring->wp;
+	tail = ring->end - ring->wp;
 	if (size < tail) {
 
 		memcpy(ring->wp, buf, size);
@@ -409,6 +413,8 @@ SANE_Status eds_ring_write(ring_buffer *ring, SANE_Byte *buf, SANE_Int size)
 
 SANE_Int eds_ring_read(ring_buffer *ring, SANE_Byte *buf, SANE_Int size)
 {
+	SANE_Int tail;
+
 	DBG(18, "reading from ring, %d bytes available\n", (int)ring->fill);
 
 	/* limit read to available */
@@ -417,7 +423,7 @@ SANE_Int eds_ring_read(ring_buffer *ring, SANE_Byte *buf, SANE_Int size)
 		size = ring->fill;
 	}
 
-	SANE_Int tail = ring->end - ring->rp;
+	tail = ring->end - ring->rp;
 	if (size < tail) {
 
 		memcpy(buf, ring->rp, size);
@@ -444,11 +450,12 @@ SANE_Int eds_ring_read(ring_buffer *ring, SANE_Byte *buf, SANE_Int size)
 
 SANE_Int eds_ring_skip(ring_buffer *ring, SANE_Int size)
 {
+	SANE_Int tail;
 	/* limit skip to available */
 	if (size > ring->fill)
 		size = ring->fill;
 
-	SANE_Int tail = ring->end - ring->rp;
+	tail = ring->end - ring->rp;
 	if (size < tail) {
 		ring->rp += size;
 	} else {

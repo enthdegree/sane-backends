@@ -48,16 +48,17 @@ METHODDEF(boolean)
 jpeg_fill_input_buffer(j_decompress_ptr cinfo)
 {
 	epsonds_src_mgr *src = (epsonds_src_mgr *)cinfo->src;
+	int avail, size;
 
 	/* read from the scanner or the ring buffer */
 
-	int avail = eds_ring_avail(src->s->current);
+	avail = eds_ring_avail(src->s->current);
 	if (avail == 0) {
 		return FALSE;
 	}
 
 	/* read from scanner if no data? */
-	int size = min(1024, avail);
+	size = min(1024, avail);
 
 	eds_ring_read(src->s->current, src->buffer, size);
 
@@ -129,12 +130,14 @@ eds_jpeg_read_header(epsonds_scanner *s)
 
 		if (jpeg_start_decompress(&s->jpeg_cinfo)) {
 
+			int size;
+
 			DBG(3, "%s: w: %d, h: %d, components: %d\n",
 				__func__,
 				s->jpeg_cinfo.output_width, s->jpeg_cinfo.output_height,
 				s->jpeg_cinfo.output_components);
 
-			int size = s->jpeg_cinfo.output_width * s->jpeg_cinfo.output_components * 1;
+			size = s->jpeg_cinfo.output_width * s->jpeg_cinfo.output_components * 1;
 
 			src->linebuffer = (*s->jpeg_cinfo.mem->alloc_large)((j_common_ptr)&s->jpeg_cinfo,
 				JPOOL_PERMANENT, size);
@@ -168,10 +171,12 @@ eds_jpeg_read(SANE_Handle handle, SANE_Byte *data,
 {
 	epsonds_scanner *s = handle;
 
-	*length = 0;
-
 	struct jpeg_decompress_struct cinfo = s->jpeg_cinfo;
 	epsonds_src_mgr *src = (epsonds_src_mgr *)s->jpeg_cinfo.src;
+
+	int l;
+
+	*length = 0;
 
 	/* copy from line buffer if available */
 	if (src->linebuffer_size && src->linebuffer_index < src->linebuffer_size) {
@@ -196,7 +201,7 @@ eds_jpeg_read(SANE_Handle handle, SANE_Byte *data,
 	 * only one line at time is supported
 	 */
 
-	int l = jpeg_read_scanlines(&cinfo, s->jdst->buffer, 1);
+	l = jpeg_read_scanlines(&cinfo, s->jdst->buffer, 1);
 	if (l == 0) {
 		return;
 	}

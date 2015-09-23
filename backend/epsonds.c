@@ -330,10 +330,11 @@ static SANE_Status
 attach(const char *name, int type)
 {
 	SANE_Status status;
+	epsonds_scanner * s;
 
 	DBG(7, "%s: devname = %s, type = %d\n", __func__, name, type);
 
-	epsonds_scanner *s = device_detect(name, type, &status);
+	s = device_detect(name, type, &status);
 	if (s == NULL)
 		return status;
 
@@ -1041,6 +1042,7 @@ sane_start(SANE_Handle handle)
 {
 	epsonds_scanner *s = (epsonds_scanner *)handle;
 	char buf[64];
+	char cmd[100]; /* take care not to overflow */
 	SANE_Status status = 0;
 
 	s->pages++;
@@ -1102,8 +1104,6 @@ sane_start(SANE_Handle handle)
 	print_params(s->params);
 
 	/* set scanning parameters */
-
-	char cmd[100]; /* take care not to overflow */
 
 	/* document source */
 	if (strcmp(source_list[s->val[OPT_SOURCE].w], ADF_STR) == 0) {
@@ -1194,6 +1194,7 @@ sane_read(SANE_Handle handle, SANE_Byte *data, SANE_Int max_length,
 	  SANE_Int *length)
 {
 	SANE_Int read = 0, tries = 3;
+	SANE_Int available;
 	SANE_Status status = 0;
 	epsonds_scanner *s = (epsonds_scanner *)handle;
 
@@ -1208,7 +1209,7 @@ sane_read(SANE_Handle handle, SANE_Byte *data, SANE_Int max_length,
 	}
 
 	/* anything in the buffer? pass it to the frontend */
-	SANE_Int available = eds_ring_avail(s->current);
+	available = eds_ring_avail(s->current);
 	if (available) {
 
 		DBG(18, "reading from ring buffer, %d left\n", available);

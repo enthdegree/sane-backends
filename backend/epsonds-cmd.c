@@ -225,9 +225,11 @@ static SANE_Status esci2_cmd_simple(epsonds_scanner* s, char *cmd, SANE_Status (
 
 SANE_Status esci2_fin(epsonds_scanner *s)
 {
+	SANE_Status status;
+
 	DBG(5, "%s\n", __func__);
 
-	SANE_Status status = esci2_cmd_simple(s, "FIN x0000000", NULL);
+	status = esci2_cmd_simple(s, "FIN x0000000", NULL);
 	s->locked = 0;
 	return status;
 }
@@ -261,6 +263,7 @@ static int decode_value(char *buf, int len)
 static char *decode_binary(char *buf)
 {
 	char tmp[6];
+	int hl;
 
 	memcpy(tmp, buf, 4);
 	tmp[4] = '\0';
@@ -268,7 +271,7 @@ static char *decode_binary(char *buf)
 	if (buf[0] != 'h')
 		return NULL;
 
-	int hl = strtol(tmp + 1, NULL, 16);
+	hl = strtol(tmp + 1, NULL, 16);
 	if (hl) {
 
 		char *v = malloc(hl + 1);
@@ -283,12 +286,12 @@ static char *decode_binary(char *buf)
 
 static char *decode_string(char *buf)
 {
-	char *s = decode_binary(buf);
+	char *p, *s = decode_binary(buf);
 	if (s == NULL)
 		return NULL;
 
 	/* trim white space at the end */
-	char *p = s + strlen(s);
+	p = s + strlen(s);
 	while (*--p == ' ')
 		*p = '\0';
 
@@ -309,13 +312,14 @@ static void debug_token(int level, const char *func, char *token, int len)
 static SANE_Status info_cb(void *userdata, char *token, int len)
 {
 	epsonds_scanner *s = (epsonds_scanner *)userdata;
+	char *value;
 
 	if (DBG_LEVEL >= 11) {
 		debug_token(DBG_LEVEL, __func__, token, len);
 	}
 
 	/* pointer to the token's value */
-	char *value = token + 3;
+	value = token + 3;
 
 	/* nrd / nrdBUSY */
 
@@ -537,10 +541,10 @@ static SANE_Status info_cb(void *userdata, char *token, int len)
 
 SANE_Status esci2_info(epsonds_scanner *s)
 {
-	DBG(1, "= gathering device information\n");
-
 	SANE_Status status;
 	int i = 4;
+
+	DBG(1, "= gathering device information\n");
 
 	do {
 		status = esci2_cmd_simple(s, "INFOx0000000", &info_cb);
@@ -800,10 +804,10 @@ static SANE_Status img_cb(void *userdata, char *token, int len)
 
 	if (strncmp("err", token, 3) == 0) {
 
-		s->scanning = 0;
-
 		char *option = token + 3;	/* ADF, TPU, FB */
 		char *cause = token + 3 + 4;	/* OPN, PJ, PE, ERR, LTF, LOCK, DFED, DTCL, AUT, PERM */
+
+		s->scanning = 0;
 
 		DBG(1, "%s: error on option %3.3s, cause %4.4s\n",
 			__func__, option, cause);
@@ -839,6 +843,9 @@ SANE_Status
 esci2_img(struct epsonds_scanner *s, SANE_Int *length)
 {
 	SANE_Status status = SANE_STATUS_GOOD;
+	SANE_Status parse_status;
+	unsigned int more;
+	ssize_t read;
 
 	*length = 0;
 
@@ -859,13 +866,13 @@ esci2_img(struct epsonds_scanner *s, SANE_Int *length)
 	}
 
 	/* check if we need to read any image data */
-	unsigned int more = 0;
+	more = 0;
 	if (!esci2_check_header("IMG ", (char *)s->buf, &more)) {
 		return SANE_STATUS_IO_ERROR;
 	}
 
 	/* this handles eof and errors */
-	SANE_Status parse_status = esci2_parse_block((char *)s->buf + 12, 64 - 12, s, &img_cb);
+	parse_status = esci2_parse_block((char *)s->buf + 12, 64 - 12, s, &img_cb);
 
 	/* no more data? return using the status of the esci2_parse_block
 	 * call, which might hold other error conditions.
@@ -875,7 +882,7 @@ esci2_img(struct epsonds_scanner *s, SANE_Int *length)
 	}
 
 	/* ALWAYS read image data */
-	ssize_t read = eds_recv(s, s->buf, more, &status);
+	read = eds_recv(s, s->buf, more, &status);
 	if (status != SANE_STATUS_GOOD) {
 		return status;
 	}

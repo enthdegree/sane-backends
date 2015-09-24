@@ -1044,9 +1044,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 	      continue;
 	    }
-
+#ifdef WITH_AVAHI
+	  avahi_threaded_poll_lock (avahi_thread);
+#endif /* WITH_AVAHI */
 	  DBG (2, "sane_init: trying to add %s\n", device_name);
 	  add_device (device_name, 0);
+#ifdef WITH_AVAHI
+	  avahi_threaded_poll_unlock (avahi_thread);
+#endif /* WITH_AVAHI */
 	}
 
       fclose (fp);
@@ -1090,8 +1095,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      if (host[0] == '\0')
 		  continue;
 #endif /* ENABLE_IPV6 */
+#ifdef WITH_AVAHI
+	      avahi_threaded_poll_lock (avahi_thread);
+#endif /* WITH_AVAHI */
 	      DBG (2, "sane_init: trying to add %s\n", host);
 	      add_device (host, 0);
+#ifdef WITH_AVAHI
+	      avahi_threaded_poll_unlock (avahi_thread);
+#endif /* WITH_AVAHI */
 	    }
 	  free (copy);
 	}
@@ -1507,7 +1518,13 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
       DBG (1,
 	   "sane_open: device %s not found, trying to register it anyway\n",
 	   nd_name);
+#ifdef WITH_AVAHI
+      avahi_threaded_poll_lock (avahi_thread);
+#endif /* WITH_AVAHI */
       status = add_device (nd_name, &dev);
+#ifdef WITH_AVAHI
+      avahi_threaded_poll_unlock (avahi_thread);
+#endif /* WITH_AVAHI */
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (1, "sane_open: could not open device\n");

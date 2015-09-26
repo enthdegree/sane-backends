@@ -1,7 +1,14 @@
+2015-09-26 Rolf Bensch <rolf at bensch hyphen online dot de>
+    * backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.23
+
 2015-06-22 Louis Lagendijk <louis dot lagendijk at gmail dot com>
 	* doc/saned.man: updated to clarify systemd integration and 
 	configuration for thecase where saned is compiled with  systemd
 	glue.
+
+2015-09-18 Rolf Bensch <rolf at bensch hyphen online dot de>
+    * backend/pixma_imageclass.c: for all adf scanners restrict maximum page
+      height at flatbed scans
 
 2015-09-16 Stéphane Voltz <stef.dev@free.fr>
 	* backend/niash.c: merged pu/protect-niash-option-access-315132 and

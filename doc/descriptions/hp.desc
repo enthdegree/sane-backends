@@ -10,9 +10,8 @@
 ;
 
 :backend "hp"                     ; name of backend
-:version "1.06"                   ; version of backend
+:version "unmaintained"           ; version of backend
 :manpage "sane-hp"                ; name of manpage (if it exists)
-:url "http://www.kirchgessner.net/" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
@@ -58,27 +57,30 @@
 :interface "SCSI"
 :status :complete
 :scsi "HP" "C1130A" "processor"
+:comment "Buttons may not work on some scanners"
 
 :model "ScanJet 4100C"
 :interface "USB"
 :usbid "0x03f0" "0x0101"
 :status :complete
+:comment "Buttons may not work on some scanners"
 
 :model "ScanJet 5p"
 :interface "SCSI"
 :status :complete
 :scsi "HP" "C5110A" "processor"
+:comment "Buttons may not work on some scanners"
 
 :model "ScanJet 5100C"
 :interface "Parport"
 :status :complete
-:comment "Requires ppscsi driver and epst module"
+:comment "Requires ppscsi driver and epst module. Buttons may not work on some scanners"
 
 :model "ScanJet 5200C"
 :interface "Parport USB"
 :usbid "0x03f0" "0x0401"
 :status :complete
-:comment "Parallel interface requires ppscsi driver and epst module"
+:comment "Parallel interface requires ppscsi driver and epst module. Buttons may not work on some scanners"
 
 :model "ScanJet 6100C"
 :interface "SCSI"
@@ -89,27 +91,32 @@
 :scsi "HP" "C6270A" "processor"
 :usbid "0x03f0" "0x0201"
 :status :complete
+:comment "Buttons may not work on some scanners"
 
 :model "ScanJet 6250C"
 :interface "SCSI USB"
 :usbid "0x03f0" "0x0201"
 :status :complete
+:comment "Buttons may not work on some scanners"
 
 :model "ScanJet 6300C"
 :interface "SCSI USB"
 :scsi "HP" "C7670A" "processor"
 :usbid "0x03f0" "0x0601"
 :status :complete
+:comment "Buttons may not work on some scanners"
 
 :model "ScanJet 6350C"
 :interface "SCSI USB"
 :usbid "0x03f0" "0x0601"
 :status :complete
+:comment "Buttons may not work on some scanners"
 
 :model "ScanJet 6390C"
 :interface "SCSI USB"
 :usbid "0x03f0" "0x0601"
 :status :complete
+:comment "Buttons may not work on some scanners"
 
 :model "PhotoSmart PhotoScanner"
 :interface "SCSI"

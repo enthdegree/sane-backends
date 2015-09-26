@@ -9657,10 +9657,6 @@ fi
 
 
 
-
-
-
-
 if test "${ac_cv_header_sys_io_h}" = "yes"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for inb,outb (provided by sys/io.h)" >&5
 $as_echo_n "checking for inb,outb (provided by sys/io.h)... " >&6; }
@@ -9696,6 +9692,7 @@ $as_echo "#define SANE_HAVE_SYS_IO_H_WITH_INB_OUTB 1" >>confdefs.h
 else
   sane_cv_have_sys_io_h_with_inb_outb="no"
 fi
+
 
 
 

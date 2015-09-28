@@ -478,7 +478,7 @@ sanei_ir_to_8bit (SANE_Parameters * params, const SANE_Uint *in_img,
   memmove (outi, in_img, ssize * sizeof(SANE_Uint));
   is = params->depth - 8;
   for (i = ssize; i > 0; i--) {
-     *outi++ = *outi++ >> is;
+    *outi = *outi >> is, outi += 2;
   }
 
   *out_img = outi;

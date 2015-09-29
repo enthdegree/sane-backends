@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-06 22:10-0400\n"
+"POT-Creation-Date: 2015-09-28 21:21-0400\n"
 "PO-Revision-Date: 2009-06-25 10:22+0100\n"
 "Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
 "Language-Team: GALPon MiniNo <minino@galpon.org>\n"
@@ -30,17 +30,17 @@ msgid "Standard"
 msgstr "Estándar"
 
 #: ../include/sane/saneopts.h:157 ../backend/artec_eplus48u.c:2884
-#: ../backend/epson.c:3284 ../backend/epson2.c:1269
-#: ../backend/genesys.c:6028 ../backend/gt68xx.c:703
+#: ../backend/epson.c:3298 ../backend/epson2.c:1291
+#: ../backend/genesys.c:5615 ../backend/gt68xx.c:703
 #: ../backend/hp3500.c:1003 ../backend/hp-option.c:3297
 #: ../backend/kvs1025_opt.c:640 ../backend/kvs20xx_opt.c:284
 #: ../backend/kvs40xx_opt.c:505 ../backend/leo.c:823
 #: ../backend/lexmark.c:199 ../backend/ma1509.c:551
 #: ../backend/matsushita.c:1135 ../backend/microtek2.h:599
 #: ../backend/mustek.c:4363 ../backend/mustek_usb.c:305
-#: ../backend/mustek_usb2.c:465 ../backend/pixma_sane_options.c:144
-#: ../backend/plustek.c:807 ../backend/plustek_pp.c:746
-#: ../backend/sceptre.c:702 ../backend/snapscan-options.c:494
+#: ../backend/mustek_usb2.c:465 ../backend/pixma_sane_options.c:158
+#: ../backend/plustek.c:808 ../backend/plustek_pp.c:747
+#: ../backend/sceptre.c:702 ../backend/snapscan-options.c:550
 #: ../backend/teco1.c:1095 ../backend/teco2.c:1914 ../backend/teco3.c:920
 #: ../backend/test.c:647 ../backend/u12.c:546 ../backend/umax.c:5176
 #: ../backend/umax_pp.c:580
@@ -49,25 +49,25 @@ msgid "Geometry"
 msgstr "Geometría"
 
 #: ../include/sane/saneopts.h:158 ../backend/artec_eplus48u.c:2805
-#: ../backend/canon.c:1492 ../backend/genesys.c:6088
+#: ../backend/canon.c:1498 ../backend/genesys.c:5675
 #: ../backend/gt68xx.c:672 ../backend/hp-option.c:2953
 #: ../backend/kvs1025_opt.c:704 ../backend/leo.c:871
 #: ../backend/ma1509.c:599 ../backend/matsushita.c:1189
 #: ../backend/microtek2.h:600 ../backend/mustek.c:4411
 #: ../backend/mustek_usb.c:353 ../backend/mustek_usb2.c:431
-#: ../backend/niash.c:756 ../backend/plustek.c:853
-#: ../backend/plustek_pp.c:792 ../backend/sceptre.c:750
-#: ../backend/snapscan-options.c:561 ../backend/stv680.c:1067
+#: ../backend/niash.c:754 ../backend/plustek.c:854
+#: ../backend/plustek_pp.c:793 ../backend/sceptre.c:750
+#: ../backend/snapscan-options.c:617 ../backend/stv680.c:1067
 #: ../backend/teco1.c:1143 ../backend/teco2.c:1962 ../backend/teco3.c:968
 #: ../backend/u12.c:592 ../backend/umax.c:5226 ../backend/umax_pp.c:629
 #, no-c-format
 msgid "Enhancement"
 msgstr "Mejora"
 
-#: ../include/sane/saneopts.h:159 ../backend/epson.c:3183
-#: ../backend/epson2.c:1194 ../backend/kvs20xx_opt.c:365
-#: ../backend/kvs40xx_opt.c:596 ../backend/rts8891.c:2792
-#: ../backend/snapscan-options.c:816 ../backend/umax.c:5565
+#: ../include/sane/saneopts.h:159 ../backend/epson.c:3197
+#: ../backend/epson2.c:1216 ../backend/kvs20xx_opt.c:365
+#: ../backend/kvs40xx_opt.c:596 ../backend/rts8891.c:2831
+#: ../backend/snapscan-options.c:923 ../backend/umax.c:5565
 #, no-c-format
 msgid "Advanced"
 msgstr "Avanzado"
@@ -92,8 +92,8 @@ msgstr "Forzar vista previa monocroma"
 msgid "Bit depth"
 msgstr "Bit de profundidad"
 
-#: ../include/sane/saneopts.h:165 ../backend/canon.c:1143
-#: ../backend/leo.c:781 ../backend/pixma_sane_options.c:40
+#: ../include/sane/saneopts.h:165 ../backend/canon.c:1145
+#: ../backend/leo.c:781 ../backend/pixma_sane_options.c:45
 #, no-c-format
 msgid "Scan mode"
 msgstr "Modo de escaneo"
@@ -133,7 +133,8 @@ msgstr "Abajo-derecha X"
 msgid "Bottom-right y"
 msgstr "Abajo-derecha Y"
 
-#: ../include/sane/saneopts.h:173 ../backend/canon.c:1219
+#: ../include/sane/saneopts.h:173 ../backend/canon.c:1221
+#: ../backend/pixma_sane_options.c:298
 #, no-c-format
 msgid "Scan resolution"
 msgstr "Resolución de escaneo"
@@ -301,7 +302,7 @@ msgstr "Enlazar resoluciones X e Y"
 #: ../include/sane/saneopts.h:206 ../backend/hp3900_sane.c:428
 #: ../backend/hp3900_sane.c:1021 ../backend/hp3900_sane.c:1421
 #: ../backend/hp-option.c:3235 ../backend/mustek_usb2.c:121
-#: ../backend/plustek.c:235 ../backend/plustek_pp.c:202
+#: ../backend/plustek.c:236 ../backend/plustek_pp.c:205
 #: ../backend/u12.c:157
 #, no-c-format
 msgid "Negative"
@@ -987,7 +988,7 @@ msgstr "Predeterminados"
 msgid "Set default values for enhancement controls."
 msgstr "Ajustar valores predeterminados para los controles de mejora."
 
-#: ../backend/artec_eplus48u.c:2932 ../backend/canon.c:1610
+#: ../backend/artec_eplus48u.c:2932 ../backend/canon.c:1616
 #, no-c-format
 msgid "Calibration"
 msgstr "Calibración"
@@ -1029,22 +1030,22 @@ msgstr ""
 msgid "Button state"
 msgstr "Botón de estado"
 
-#: ../backend/avision.h:781
+#: ../backend/avision.h:777
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Número de muestra a escanear"
 
-#: ../backend/avision.h:782
+#: ../backend/avision.h:778
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Selecciona el número de muestra a escanear"
 
-#: ../backend/avision.h:785
+#: ../backend/avision.h:781
 #, no-c-format
 msgid "Duplex scan"
 msgstr "Escaneo a dos caras"
 
-#: ../backend/avision.h:786
+#: ../backend/avision.h:782
 #, no-c-format
 msgid ""
 "Duplex scan provide a scan of the front and back side of the document"
@@ -1052,42 +1053,42 @@ msgstr ""
 "El escaneo a dos caras proporciona un escaneo del anverso y el reverso "
 "del documento"
 
-#: ../backend/canon630u.c:158
+#: ../backend/canon630u.c:159
 #, no-c-format
 msgid "Calibrate Scanner"
 msgstr "Calibrar el escáner"
 
-#: ../backend/canon630u.c:159
+#: ../backend/canon630u.c:160
 #, no-c-format
 msgid "Force scanner calibration before scan"
 msgstr "Fuerza la calibración del escáner antes de realizar el escaneo"
 
-#: ../backend/canon630u.c:258 ../backend/umax1220u.c:208
+#: ../backend/canon630u.c:259 ../backend/umax1220u.c:208
 #, no-c-format
 msgid "Grayscale scan"
 msgstr "Escaneo en escala de grises"
 
-#: ../backend/canon630u.c:259 ../backend/umax1220u.c:209
+#: ../backend/canon630u.c:260 ../backend/umax1220u.c:209
 #, no-c-format
 msgid "Do a grayscale rather than color scan"
 msgstr "Escanea en escala de grises, no en color"
 
-#: ../backend/canon630u.c:305
+#: ../backend/canon630u.c:306
 #, no-c-format
 msgid "Analog Gain"
 msgstr "Ganancia analógica"
 
-#: ../backend/canon630u.c:306
+#: ../backend/canon630u.c:307
 #, no-c-format
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Aumenta o disminuye la ganancia analógica de la gama CCD"
 
-#: ../backend/canon630u.c:346 ../backend/epson.h:68 ../backend/epson2.h:72
+#: ../backend/canon630u.c:347 ../backend/epson.h:68 ../backend/epson2.h:74
 #, no-c-format
 msgid "Gamma Correction"
 msgstr "Corrección gamma"
 
-#: ../backend/canon630u.c:347
+#: ../backend/canon630u.c:348
 #, no-c-format
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Selecciona la curva de transferencia de la corrección gamma"
@@ -1099,8 +1100,8 @@ msgstr "En bruto"
 
 #: ../backend/canon.c:157 ../backend/canon-sane.c:732
 #: ../backend/canon-sane.c:940 ../backend/canon-sane.c:1076
-#: ../backend/canon-sane.c:1318 ../backend/canon-sane.c:1487
-#: ../backend/canon-sane.c:1636
+#: ../backend/canon-sane.c:1318 ../backend/canon-sane.c:1501
+#: ../backend/canon-sane.c:1650
 #, no-c-format
 msgid "Fine color"
 msgstr "Color fino"
@@ -1151,339 +1152,334 @@ msgstr "1/2 de la velocidad normal"
 msgid "1/3 normal speed"
 msgstr "1/3 de la velocidad normal"
 
-#: ../backend/canon.c:372
+#: ../backend/canon.c:365
 #, no-c-format
 msgid "rounded parameter"
 msgstr "parámetro redondeado"
 
-#: ../backend/canon.c:375 ../backend/canon.c:391 ../backend/canon.c:426
-#: ../backend/canon.c:476 ../backend/canon.c:494 ../backend/canon.c:537
+#: ../backend/canon.c:368 ../backend/canon.c:384 ../backend/canon.c:419
+#: ../backend/canon.c:469 ../backend/canon.c:487 ../backend/canon.c:530
 #, no-c-format
 msgid "unknown"
 msgstr "desconocido/a"
 
-#: ../backend/canon.c:385
+#: ../backend/canon.c:378
 #, no-c-format
 msgid "ADF jam"
 msgstr "atasco en el alimentador"
 
-#: ../backend/canon.c:388
+#: ../backend/canon.c:381
 #, no-c-format
 msgid "ADF cover open"
 msgstr "la tapa del alimentador está abierta"
 
-#: ../backend/canon.c:401
+#: ../backend/canon.c:394
 #, no-c-format
 msgid "lamp failure"
 msgstr "fallo de lámpara"
 
-#: ../backend/canon.c:404
+#: ../backend/canon.c:397
 #, no-c-format
 msgid "scan head positioning error"
 msgstr "error en el posicionamiento del cabezal de escaneo"
 
-#: ../backend/canon.c:407
+#: ../backend/canon.c:400
 #, no-c-format
 msgid "CPU check error"
 msgstr "Error de verificación de CPU"
 
-#: ../backend/canon.c:410
+#: ../backend/canon.c:403
 #, no-c-format
 msgid "RAM check error"
 msgstr "Error de verificación de RAM"
 
-#: ../backend/canon.c:413
+#: ../backend/canon.c:406
 #, no-c-format
 msgid "ROM check error"
 msgstr "Error de verificación de ROM"
 
-#: ../backend/canon.c:416
+#: ../backend/canon.c:409
 #, no-c-format
 msgid "hardware check error"
 msgstr "error de verificación de hardware"
 
-#: ../backend/canon.c:419
+#: ../backend/canon.c:412
 #, no-c-format
 msgid "transparency unit lamp failure"
 msgstr "fallo de la lámpara de unidad de transparencias"
 
-#: ../backend/canon.c:422
+#: ../backend/canon.c:415
 #, no-c-format
 msgid "transparency unit scan head positioning failure"
 msgstr ""
 "fallo de posición del cabezal de escaneo de la unidad de transparencias"
 
-#: ../backend/canon.c:436
+#: ../backend/canon.c:429
 #, no-c-format
 msgid "parameter list length error"
 msgstr "error en la longitud de la lista de parámetros"
 
-#: ../backend/canon.c:440
+#: ../backend/canon.c:433
 #, no-c-format
 msgid "invalid command operation code"
 msgstr "código de orden de operación incorrecto"
 
-#: ../backend/canon.c:444
+#: ../backend/canon.c:437
 #, no-c-format
 msgid "invalid field in CDB"
 msgstr "campo incorrecto en CDB"
 
-#: ../backend/canon.c:448
+#: ../backend/canon.c:441
 #, no-c-format
 msgid "unsupported LUN"
 msgstr "LUN no soportado"
 
-#: ../backend/canon.c:452
+#: ../backend/canon.c:445
 #, no-c-format
 msgid "invalid field in parameter list"
 msgstr "campo incorrecto en la lista de parámetros"
 
-#: ../backend/canon.c:456
+#: ../backend/canon.c:449
 #, no-c-format
 msgid "command sequence error"
 msgstr "error en la secuencia de ordenes"
 
-#: ../backend/canon.c:460
+#: ../backend/canon.c:453
 #, no-c-format
 msgid "too many windows specified"
 msgstr "se especificaron demasiadas ventanas"
 
-#: ../backend/canon.c:464
+#: ../backend/canon.c:457
 #, no-c-format
 msgid "medium not present"
 msgstr "no se encuentra el soporte"
 
-#: ../backend/canon.c:468
+#: ../backend/canon.c:461
 #, no-c-format
 msgid "invalid bit IDENTIFY message"
 msgstr "mensaje de bit de IDENTIFICACIÓN incorrecto"
 
-#: ../backend/canon.c:472
+#: ../backend/canon.c:465
 #, no-c-format
 msgid "option not connect"
 msgstr "la opción no conecta"
 
-#: ../backend/canon.c:486
+#: ../backend/canon.c:479
 #, no-c-format
 msgid "power on reset / bus device reset"
 msgstr "reiniciar el encendido / reiniciar el bus del dispositivo"
 
-#: ../backend/canon.c:490
+#: ../backend/canon.c:483
 #, no-c-format
 msgid "parameter changed by another initiator"
 msgstr "parámetro cambiado por otro iniciador"
 
-#: ../backend/canon.c:504
+#: ../backend/canon.c:497
 #, no-c-format
 msgid "no additional sense information"
 msgstr "sin información adicional"
 
-#: ../backend/canon.c:508
+#: ../backend/canon.c:501
 #, no-c-format
 msgid "reselect failure"
 msgstr "fallo al volver a escoger"
 
-#: ../backend/canon.c:512
+#: ../backend/canon.c:505
 #, no-c-format
 msgid "SCSI parity error"
 msgstr "error de paridad SCSI"
 
-#: ../backend/canon.c:516
+#: ../backend/canon.c:509
 #, no-c-format
 msgid "initiator detected error message received"
 msgstr "el iniciador detectó la recepción deun mensaje de error"
 
-#: ../backend/canon.c:521
+#: ../backend/canon.c:514
 #, no-c-format
 msgid "invalid message error"
 msgstr "mensaje de error incorrecto"
 
-#: ../backend/canon.c:525
+#: ../backend/canon.c:518
 #, no-c-format
 msgid "timeout error"
 msgstr "error de límite de tiempo"
 
-#: ../backend/canon.c:529
+#: ../backend/canon.c:522
 #, no-c-format
 msgid "transparency unit shading error"
 msgstr "error de sombreado en la unidad de transparencias"
 
-#: ../backend/canon.c:533
+#: ../backend/canon.c:526
 #, no-c-format
 msgid "lamp not stabilized"
 msgstr "lámpara no estabilizada"
 
-#: ../backend/canon.c:547
-#, no-c-format
-msgid "problem not analyzed (unknown SCSI class)"
-msgstr "problema no analizado (clase de SCSI desconocido)"
-
-#: ../backend/canon.c:865 ../backend/canon.c:880
+#: ../backend/canon.c:852 ../backend/canon.c:867
 #, no-c-format
 msgid "film scanner"
 msgstr "escáner de películas"
 
-#: ../backend/canon.c:895 ../backend/canon.c:910 ../backend/canon.c:925
-#: ../backend/hp3900_sane.c:1683 ../backend/plustek.c:1334
-#: ../backend/plustek_pp.c:1014 ../backend/sceptre.c:593
-#: ../backend/teco2.c:1836 ../backend/u12.c:851
+#: ../backend/canon.c:882 ../backend/canon.c:897 ../backend/canon.c:912
+#: ../backend/canon.c:927 ../backend/hp3900_sane.c:1683
+#: ../backend/plustek.c:1335 ../backend/plustek_pp.c:1014
+#: ../backend/sceptre.c:593 ../backend/teco2.c:1836 ../backend/u12.c:851
 #, no-c-format
 msgid "flatbed scanner"
 msgstr "escáner plano"
 
-#: ../backend/canon.c:1181 ../backend/epson.c:3372
-#: ../backend/epson2.c:1343
+#: ../backend/canon.c:1183 ../backend/epson.c:3386
+#: ../backend/epson2.c:1365
 #, no-c-format
 msgid "Film type"
 msgstr "Tipo de película"
 
-#: ../backend/canon.c:1182
+#: ../backend/canon.c:1184
 #, no-c-format
 msgid "Selects the film type, i.e. negatives or slides"
 msgstr "Seleccionar el tipo de película, p.e. negativo o diapositiva"
 
-#: ../backend/canon.c:1194
+#: ../backend/canon.c:1196
 #, no-c-format
 msgid "Negative film type"
 msgstr "Tipo de película negativo"
 
-#: ../backend/canon.c:1195
+#: ../backend/canon.c:1197
 #, no-c-format
 msgid "Selects the negative film type"
 msgstr "Selecciona el tipo de negativo de película"
 
-#: ../backend/canon.c:1234
+#: ../backend/canon.c:1236
 #, no-c-format
 msgid "Hardware resolution"
 msgstr "Resolución del hardware"
 
-#: ../backend/canon.c:1235
+#: ../backend/canon.c:1237
 #, no-c-format
 msgid "Use only hardware resolutions"
 msgstr "Usar sólo resoluciones de hardware"
 
-#: ../backend/canon.c:1316
+#: ../backend/canon.c:1318
 #, no-c-format
 msgid "Focus"
 msgstr "Enfoque"
 
-#: ../backend/canon.c:1326
+#: ../backend/canon.c:1328
 #, no-c-format
 msgid "Auto focus"
 msgstr "Enfoque automático"
 
-#: ../backend/canon.c:1327
+#: ../backend/canon.c:1329
 #, no-c-format
 msgid "Enable/disable auto focus"
 msgstr "Activar/desactivar enfoque automático"
 
-#: ../backend/canon.c:1334
+#: ../backend/canon.c:1336
 #, no-c-format
 msgid "Auto focus only once"
 msgstr "Enfoque automático solo una vez"
 
-#: ../backend/canon.c:1335
+#: ../backend/canon.c:1337
 #, no-c-format
 msgid "Do auto focus only once between ejects"
 msgstr "Hacer enfoque automático solo una vez entre expulsiones"
 
-#: ../backend/canon.c:1343
+#: ../backend/canon.c:1345
 #, no-c-format
 msgid "Manual focus position"
 msgstr "Posición de foco manual"
 
-#: ../backend/canon.c:1344
+#: ../backend/canon.c:1346
 #, no-c-format
 msgid "Set the optical system's focus position by hand (default: 128)."
 msgstr ""
 "Ajustar el sistema óptico de foco en la posición manual (predeterminado: "
 "128)."
 
-#: ../backend/canon.c:1354
+#: ../backend/canon.c:1356
 #, no-c-format
 msgid "Scan margins"
 msgstr "Márgenes de escaneo"
 
-#: ../backend/canon.c:1401
+#: ../backend/canon.c:1403
 #, no-c-format
 msgid "Extra color adjustments"
 msgstr "Ajustes de color extra"
 
-#: ../backend/canon.c:1532 ../backend/epson.c:3191
-#: ../backend/epson2.c:1233 ../backend/kvs1025.h:55
+#: ../backend/canon.c:1538 ../backend/epson.c:3205
+#: ../backend/epson2.c:1255 ../backend/kvs1025.h:55
 #: ../backend/kvs40xx_opt.c:825
 #, no-c-format
 msgid "Mirror image"
 msgstr "Invertir imagen"
 
-#: ../backend/canon.c:1533
+#: ../backend/canon.c:1539
 #, no-c-format
 msgid "Mirror the image horizontally"
 msgstr "Invierte la imagen horizontalmente"
 
-#: ../backend/canon.c:1602
+#: ../backend/canon.c:1608
 #, no-c-format
 msgid "Auto exposure"
 msgstr "Exposición automática"
 
-#: ../backend/canon.c:1603
+#: ../backend/canon.c:1609
 #, no-c-format
 msgid "Enable/disable the auto exposure feature"
 msgstr "Activar/desactivar la característica de exposición automática"
 
-#: ../backend/canon.c:1619
+#: ../backend/canon.c:1625
 #, no-c-format
 msgid "Calibration now"
 msgstr "Calibrar ahora"
 
-#: ../backend/canon.c:1620
+#: ../backend/canon.c:1626
 #, no-c-format
 msgid "Execute calibration *now*"
 msgstr "Ejecutar calibración *ahora*"
 
-#: ../backend/canon.c:1630
+#: ../backend/canon.c:1636
 #, no-c-format
 msgid "Self diagnosis"
 msgstr "Autodiagnóstico"
 
-#: ../backend/canon.c:1631
+#: ../backend/canon.c:1637
 #, no-c-format
 msgid "Perform scanner self diagnosis"
 msgstr "Realizar autodiagnóstico del escáner"
 
-#: ../backend/canon.c:1642
+#: ../backend/canon.c:1648
 #, no-c-format
 msgid "Reset scanner"
 msgstr "Reiniciar  escáner"
 
-#: ../backend/canon.c:1643
+#: ../backend/canon.c:1649
 #, no-c-format
 msgid "Reset the scanner"
 msgstr "Reiniciar el escáner"
 
-#: ../backend/canon.c:1653
+#: ../backend/canon.c:1659
 #, no-c-format
 msgid "Medium handling"
 msgstr "Manejar el soporte"
 
-#: ../backend/canon.c:1662
+#: ../backend/canon.c:1668
 #, no-c-format
 msgid "Eject film after each scan"
 msgstr "Expulsar la película después de cada escaneo"
 
-#: ../backend/canon.c:1663
+#: ../backend/canon.c:1669
 #, no-c-format
 msgid "Automatically eject the film from the device after each scan"
 msgstr ""
 "Expulsar automáticamente la película del dispositivo después de cada "
 "escaneo"
 
-#: ../backend/canon.c:1672
+#: ../backend/canon.c:1680
 #, no-c-format
 msgid "Eject film before exit"
 msgstr "Expulsar la película antes de salir"
 
-#: ../backend/canon.c:1673
+#: ../backend/canon.c:1681
 #, no-c-format
 msgid ""
 "Automatically eject the film from the device before exiting the program"
@@ -1491,268 +1487,283 @@ msgstr ""
 "Expulsar automáticamente la película del dispositivo antes de salir del "
 "programa"
 
-#: ../backend/canon.c:1682
+#: ../backend/canon.c:1690
 #, no-c-format
 msgid "Eject film now"
 msgstr "Expulsar película ahora"
 
-#: ../backend/canon.c:1683
+#: ../backend/canon.c:1691
 #, no-c-format
 msgid "Eject the film *now*"
 msgstr "Expulsar la película *ahora*"
 
-#: ../backend/canon.c:1692
+#: ../backend/canon.c:1700
 #, no-c-format
 msgid "Document feeder extras"
 msgstr "Alimentador de documentos extras"
 
-#: ../backend/canon.c:1699
+#: ../backend/canon.c:1707
 #, no-c-format
 msgid "Flatbed only"
 msgstr "Sólo plano"
 
-#: ../backend/canon.c:1700
+#: ../backend/canon.c:1708
 #, no-c-format
 msgid "Disable auto document feeder and use flatbed only"
 msgstr ""
 "Desactivar el alimentador automático de documentos y usar sólo el plano"
 
-#: ../backend/canon.c:1710 ../backend/canon.c:1720
+#: ../backend/canon.c:1718 ../backend/canon.c:1728
 #, no-c-format
 msgid "Transparency unit"
 msgstr "Unidad de transparencias"
 
-#: ../backend/canon.c:1721
+#: ../backend/canon.c:1729
 #, no-c-format
 msgid "Switch on/off the transparency unit (FAU, film adapter unit)"
 msgstr ""
 "Activar/desactivar la unidad de transparencias (FAU, unidad adaptadora "
 "de película)"
 
-#: ../backend/canon.c:1731
+#: ../backend/canon.c:1739
 #, no-c-format
 msgid "Negative film"
 msgstr "Película en negativo"
 
-#: ../backend/canon.c:1732
+#: ../backend/canon.c:1740
 #, no-c-format
 msgid "Positive or negative film"
 msgstr "Película en positivo o en negativo"
 
-#: ../backend/canon.c:1741
+#: ../backend/canon.c:1749
 #, no-c-format
 msgid "Density control"
 msgstr "Control de densidad"
 
-#: ../backend/canon.c:1742
+#: ../backend/canon.c:1750
 #, no-c-format
 msgid "Set density control mode"
 msgstr "Ajustar el modo de control de densidad"
 
-#: ../backend/canon.c:1753
+#: ../backend/canon.c:1761
 #, no-c-format
 msgid "Transparency ratio"
 msgstr "Tasa de transparencia"
 
-#: ../backend/canon.c:1767
+#: ../backend/canon.c:1775
 #, no-c-format
 msgid "Select film type"
 msgstr "Seleccionar tipo de película"
 
-#: ../backend/canon.c:1768
+#: ../backend/canon.c:1776
 #, no-c-format
 msgid "Select the film type"
 msgstr "Seleccionar el tipo de película"
 
-#: ../backend/canon_dr.c:330 ../backend/epjitsu.c:203
-#: ../backend/epson.c:501 ../backend/epson2.c:110 ../backend/fujitsu.c:548
+#: ../backend/canon_dr.c:388 ../backend/epjitsu.c:227
+#: ../backend/epson.c:501 ../backend/epson2.c:115 ../backend/fujitsu.c:649
 #: ../backend/gt68xx.c:148 ../backend/hp3900_sane.c:418
 #: ../backend/hp3900_sane.c:427 ../backend/hp3900_sane.c:1017
 #: ../backend/hp5590.c:82 ../backend/ma1509.c:108
-#: ../backend/magicolor.c:163 ../backend/mustek.c:156
-#: ../backend/mustek.c:160 ../backend/mustek.c:164 ../backend/pixma.c:664
-#: ../backend/pixma_sane_options.c:85 ../backend/snapscan-options.c:82
+#: ../backend/magicolor.c:181 ../backend/mustek.c:156
+#: ../backend/mustek.c:160 ../backend/mustek.c:164 ../backend/pixma.c:891
+#: ../backend/pixma_sane_options.c:90 ../backend/snapscan-options.c:86
 #: ../backend/test.c:192 ../backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
 msgstr "Plana"
 
-#: ../backend/canon_dr.c:331 ../backend/epjitsu.c:204
-#: ../backend/fujitsu.c:549 ../backend/kodak.c:135
+#: ../backend/canon_dr.c:389 ../backend/epjitsu.c:228
+#: ../backend/fujitsu.c:650 ../backend/kodak.c:135
 #, fuzzy, no-c-format
 msgid "ADF Front"
 msgstr "la tapa del alimentador está abierta"
 
-#: ../backend/canon_dr.c:332 ../backend/epjitsu.c:205
-#: ../backend/fujitsu.c:550 ../backend/kodak.c:136
+#: ../backend/canon_dr.c:390 ../backend/epjitsu.c:229
+#: ../backend/fujitsu.c:651 ../backend/kodak.c:136
 #, fuzzy, no-c-format
 msgid "ADF Back"
 msgstr "atasco en el alimentador"
 
-#: ../backend/canon_dr.c:333 ../backend/epjitsu.c:206
-#: ../backend/fujitsu.c:551 ../backend/hp5590.c:84 ../backend/kodak.c:137
-#: ../backend/pixma.c:675
+#: ../backend/canon_dr.c:391 ../backend/epjitsu.c:230
+#: ../backend/fujitsu.c:652 ../backend/hp5590.c:84 ../backend/kodak.c:137
+#: ../backend/pixma.c:902
 #, no-c-format
 msgid "ADF Duplex"
 msgstr "Alimentador a dos caras"
 
-#: ../backend/canon_dr.c:340 ../backend/epson.c:599
-#: ../backend/epson.c:3082 ../backend/epson2.c:195
-#: ../backend/fujitsu.c:568 ../backend/genesys.c:110
-#: ../backend/genesys.c:117 ../backend/gt68xx_low.h:136
+#: ../backend/canon_dr.c:392
+#, fuzzy, no-c-format
+msgid "Card Front"
+msgstr "Imprimir"
+
+#: ../backend/canon_dr.c:393
+#, no-c-format
+msgid "Card Back"
+msgstr ""
+
+#: ../backend/canon_dr.c:394
+#, fuzzy, no-c-format
+msgid "Card Duplex"
+msgstr "Dos caras"
+
+#: ../backend/canon_dr.c:401 ../backend/epson.c:599
+#: ../backend/epson.c:3096 ../backend/epson2.c:201
+#: ../backend/fujitsu.c:669 ../backend/genesys.c:89
+#: ../backend/genesys.c:96 ../backend/gt68xx_low.h:136
 #: ../backend/hp-option.c:3093
 #, no-c-format
 msgid "Red"
 msgstr "Rojo"
 
-#: ../backend/canon_dr.c:341 ../backend/epson.c:600
-#: ../backend/epson.c:3078 ../backend/epson2.c:196
-#: ../backend/fujitsu.c:569 ../backend/genesys.c:111
-#: ../backend/genesys.c:118 ../backend/gt68xx_low.h:137
+#: ../backend/canon_dr.c:402 ../backend/epson.c:600
+#: ../backend/epson.c:3092 ../backend/epson2.c:202
+#: ../backend/fujitsu.c:670 ../backend/genesys.c:90
+#: ../backend/genesys.c:97 ../backend/gt68xx_low.h:137
 #: ../backend/hp-option.c:3094
 #, no-c-format
 msgid "Green"
 msgstr "Verde"
 
-#: ../backend/canon_dr.c:342 ../backend/epson.c:601
-#: ../backend/epson.c:3086 ../backend/epson2.c:197
-#: ../backend/fujitsu.c:570 ../backend/genesys.c:112
-#: ../backend/genesys.c:119 ../backend/gt68xx_low.h:138
+#: ../backend/canon_dr.c:403 ../backend/epson.c:601
+#: ../backend/epson.c:3100 ../backend/epson2.c:203
+#: ../backend/fujitsu.c:671 ../backend/genesys.c:91
+#: ../backend/genesys.c:98 ../backend/gt68xx_low.h:138
 #: ../backend/hp-option.c:3095
 #, no-c-format
 msgid "Blue"
 msgstr "Azul"
 
-#: ../backend/canon_dr.c:343
+#: ../backend/canon_dr.c:404
 #, fuzzy, no-c-format
 msgid "Enhance Red"
 msgstr "Mejora"
 
-#: ../backend/canon_dr.c:344
+#: ../backend/canon_dr.c:405
 #, fuzzy, no-c-format
 msgid "Enhance Green"
 msgstr "Mejora"
 
-#: ../backend/canon_dr.c:345
+#: ../backend/canon_dr.c:406
 #, fuzzy, no-c-format
 msgid "Enhance Blue"
 msgstr "Mejora"
 
-#: ../backend/canon_dr.c:347 ../backend/epson.c:556 ../backend/epson.c:564
-#: ../backend/epson.c:576 ../backend/epson.c:598 ../backend/epson2.c:159
-#: ../backend/epson2.c:167 ../backend/epson2.c:179 ../backend/epson2.c:194
-#: ../backend/epson2.c:208 ../backend/fujitsu.c:574
-#: ../backend/genesys.c:120 ../backend/leo.c:109
+#: ../backend/canon_dr.c:408 ../backend/epson.c:556 ../backend/epson.c:564
+#: ../backend/epson.c:576 ../backend/epson.c:598 ../backend/epson2.c:165
+#: ../backend/epson2.c:173 ../backend/epson2.c:185 ../backend/epson2.c:200
+#: ../backend/epson2.c:214 ../backend/fujitsu.c:675
+#: ../backend/genesys.c:99 ../backend/leo.c:109
 #: ../backend/matsushita.c:138 ../backend/matsushita.c:159
 #: ../backend/matsushita.c:191 ../backend/matsushita.c:213
-#: ../backend/snapscan-options.c:87
+#: ../backend/snapscan-options.c:91
 #, no-c-format
 msgid "None"
 msgstr "Ninguno"
 
-#: ../backend/canon_dr.c:348 ../backend/fujitsu.c:575
+#: ../backend/canon_dr.c:409 ../backend/fujitsu.c:676
 #, no-c-format
 msgid "JPEG"
 msgstr ""
 
-#: ../backend/epson.c:491 ../backend/epson2.c:103
-#: ../backend/magicolor.c:156
+#: ../backend/epson.c:491 ../backend/epson2.c:108
+#: ../backend/magicolor.c:174
 #, no-c-format
 msgid "Simplex"
 msgstr "Una cara"
 
-#: ../backend/epson.c:492 ../backend/epson2.c:104 ../backend/kvs1025.h:50
+#: ../backend/epson.c:492 ../backend/epson2.c:109 ../backend/kvs1025.h:50
 #: ../backend/kvs20xx_opt.c:203 ../backend/kvs40xx_opt.c:352
-#: ../backend/magicolor.c:157 ../backend/matsushita.h:218
+#: ../backend/magicolor.c:175 ../backend/matsushita.h:218
 #, no-c-format
 msgid "Duplex"
 msgstr "Dos caras"
 
-#: ../backend/epson.c:502 ../backend/epson2.c:111 ../backend/pixma.c:681
+#: ../backend/epson.c:502 ../backend/epson2.c:116 ../backend/pixma.c:908
 #, no-c-format
 msgid "Transparency Unit"
 msgstr "Unidad de transparencias"
 
-#: ../backend/epson.c:503 ../backend/epson2.c:112
-#: ../backend/magicolor.c:164 ../backend/mustek.c:160
-#: ../backend/pixma.c:669 ../backend/test.c:192 ../backend/umax.c:183
+#: ../backend/epson.c:503 ../backend/epson2.c:118
+#: ../backend/magicolor.c:182 ../backend/mustek.c:160
+#: ../backend/pixma.c:896 ../backend/test.c:192 ../backend/umax.c:183
 #, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Alimentador automático de documentos (ADF)"
 
-#: ../backend/epson.c:523 ../backend/epson2.c:128
+#: ../backend/epson.c:523 ../backend/epson2.c:134
 #, no-c-format
 msgid "Positive Film"
 msgstr "Película en positivo"
 
-#: ../backend/epson.c:524 ../backend/epson2.c:129
+#: ../backend/epson.c:524 ../backend/epson2.c:135
 #, no-c-format
 msgid "Negative Film"
 msgstr "Película en negativo"
 
-#: ../backend/epson.c:529 ../backend/epson2.c:136
+#: ../backend/epson.c:529 ../backend/epson2.c:142
 #, no-c-format
 msgid "Focus on glass"
 msgstr "Enfoque en el cristal"
 
-#: ../backend/epson.c:530 ../backend/epson2.c:137
+#: ../backend/epson.c:530 ../backend/epson2.c:143
 #, no-c-format
 msgid "Focus 2.5mm above glass"
 msgstr "Enfoque a 2.5mm sobre el cristal"
 
 #: ../backend/epson.c:557 ../backend/epson.c:565 ../backend/epson.c:577
-#: ../backend/epson2.c:160 ../backend/epson2.c:168 ../backend/epson2.c:180
+#: ../backend/epson2.c:166 ../backend/epson2.c:174 ../backend/epson2.c:186
 #, no-c-format
 msgid "Halftone A (Hard Tone)"
 msgstr "Medios tonos A (tonos duros)"
 
 #: ../backend/epson.c:558 ../backend/epson.c:566 ../backend/epson.c:578
-#: ../backend/epson2.c:161 ../backend/epson2.c:169 ../backend/epson2.c:181
+#: ../backend/epson2.c:167 ../backend/epson2.c:175 ../backend/epson2.c:187
 #, no-c-format
 msgid "Halftone B (Soft Tone)"
 msgstr "Medios tonos B (tonos suaves)"
 
 #: ../backend/epson.c:559 ../backend/epson.c:567 ../backend/epson.c:579
-#: ../backend/epson2.c:162 ../backend/epson2.c:170 ../backend/epson2.c:182
+#: ../backend/epson2.c:168 ../backend/epson2.c:176 ../backend/epson2.c:188
 #, no-c-format
 msgid "Halftone C (Net Screen)"
 msgstr "Medios tonos C (matizado)"
 
-#: ../backend/epson.c:568 ../backend/epson.c:580 ../backend/epson2.c:171
-#: ../backend/epson2.c:183
+#: ../backend/epson.c:568 ../backend/epson.c:580 ../backend/epson2.c:177
+#: ../backend/epson2.c:189
 #, no-c-format
 msgid "Dither A (4x4 Bayer)"
 msgstr "Trama A (4x4 Bayer)"
 
-#: ../backend/epson.c:569 ../backend/epson.c:581 ../backend/epson2.c:172
-#: ../backend/epson2.c:184
+#: ../backend/epson.c:569 ../backend/epson.c:581 ../backend/epson2.c:178
+#: ../backend/epson2.c:190
 #, no-c-format
 msgid "Dither B (4x4 Spiral)"
 msgstr "Trama B (4x4 espiral)"
 
-#: ../backend/epson.c:570 ../backend/epson.c:582 ../backend/epson2.c:173
-#: ../backend/epson2.c:185
+#: ../backend/epson.c:570 ../backend/epson.c:582 ../backend/epson2.c:179
+#: ../backend/epson2.c:191
 #, no-c-format
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Trama C (4x4 matizado)"
 
-#: ../backend/epson.c:571 ../backend/epson.c:583 ../backend/epson2.c:174
-#: ../backend/epson2.c:186
+#: ../backend/epson.c:571 ../backend/epson.c:583 ../backend/epson2.c:180
+#: ../backend/epson2.c:192
 #, no-c-format
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Trama D (8x4 matizado)"
 
-#: ../backend/epson.c:584 ../backend/epson2.c:187
+#: ../backend/epson.c:584 ../backend/epson2.c:193
 #, no-c-format
 msgid "Text Enhanced Technology"
 msgstr "Tecnología de mejora de texto"
 
-#: ../backend/epson.c:585 ../backend/epson2.c:188
+#: ../backend/epson.c:585 ../backend/epson2.c:194
 #, no-c-format
 msgid "Download pattern A"
 msgstr "Descargar patrón A"
 
-#: ../backend/epson.c:586 ../backend/epson2.c:189
+#: ../backend/epson.c:586 ../backend/epson2.c:195
 #, no-c-format
 msgid "Download pattern B"
 msgstr "Descargar patrón B"
@@ -1762,7 +1773,7 @@ msgstr "Descargar patrón B"
 msgid "No Correction"
 msgstr "Sin corrección"
 
-#: ../backend/epson.c:632 ../backend/epson.c:657 ../backend/epson2.c:249
+#: ../backend/epson.c:632 ../backend/epson.c:657 ../backend/epson2.c:255
 #, no-c-format
 msgid "User defined"
 msgstr "Definida por el usuario"
@@ -1787,33 +1798,33 @@ msgstr "Impresoras de inyección de tinta"
 msgid "CRT monitors"
 msgstr "Monitores CRT"
 
-#: ../backend/epson.c:656 ../backend/epson2.c:248 ../backend/fujitsu.c:558
+#: ../backend/epson.c:656 ../backend/epson2.c:254 ../backend/fujitsu.c:659
 #: ../backend/hp-option.c:3226 ../backend/test.c:143
 #, no-c-format
 msgid "Default"
 msgstr "Predeterminado"
 
-#: ../backend/epson.c:658 ../backend/epson2.c:250
+#: ../backend/epson.c:658 ../backend/epson2.c:256
 #, no-c-format
 msgid "High density printing"
 msgstr "Impresión de alta densidad"
 
-#: ../backend/epson.c:659 ../backend/epson2.c:251
+#: ../backend/epson.c:659 ../backend/epson2.c:257
 #, no-c-format
 msgid "Low density printing"
 msgstr "Impresión de baja densidad"
 
-#: ../backend/epson.c:660 ../backend/epson2.c:252
+#: ../backend/epson.c:660 ../backend/epson2.c:258
 #, no-c-format
 msgid "High contrast printing"
 msgstr "Impresión de alto contraste"
 
-#: ../backend/epson.c:678 ../backend/epson2.c:270
+#: ../backend/epson.c:678 ../backend/epson2.c:276
 #, no-c-format
 msgid "User defined (Gamma=1.0)"
 msgstr "Definido por el usuario (gamma=1.0)"
 
-#: ../backend/epson.c:679 ../backend/epson2.c:271
+#: ../backend/epson.c:679 ../backend/epson2.c:277
 #, no-c-format
 msgid "User defined (Gamma=1.8)"
 msgstr "Definido por el usuario (gamma=1.8)"
@@ -1853,233 +1864,233 @@ msgstr "A4"
 msgid "Max"
 msgstr "Máx"
 
-#: ../backend/epson.c:2799 ../backend/epson2.c:954
-#: ../backend/genesys.c:5959 ../backend/gt68xx.c:458
+#: ../backend/epson.c:2813 ../backend/epson2.c:977
+#: ../backend/genesys.c:5532 ../backend/gt68xx.c:458
 #: ../backend/hp-option.c:2914 ../backend/kvs1025_opt.c:522
 #: ../backend/kvs20xx_opt.c:170 ../backend/kvs40xx_opt.c:319
 #: ../backend/ma1509.c:501 ../backend/matsushita.c:1084
 #: ../backend/microtek2.h:598 ../backend/mustek.c:4205
 #: ../backend/mustek_usb.c:260 ../backend/mustek_usb2.c:344
-#: ../backend/niash.c:736 ../backend/plustek.c:720
-#: ../backend/plustek_pp.c:657 ../backend/sceptre.c:673
-#: ../backend/snapscan-options.c:315 ../backend/stv680.c:1030
+#: ../backend/niash.c:734 ../backend/plustek.c:721
+#: ../backend/plustek_pp.c:658 ../backend/sceptre.c:673
+#: ../backend/snapscan-options.c:354 ../backend/stv680.c:1030
 #: ../backend/teco2.c:1886 ../backend/test.c:306 ../backend/u12.c:473
 #: ../backend/umax.c:5054
 #, no-c-format
 msgid "Scan Mode"
 msgstr "Modo de escaneo"
 
-#: ../backend/epson.c:2831 ../backend/epson2.c:990
+#: ../backend/epson.c:2845 ../backend/epson2.c:1012
 #, no-c-format
 msgid "Selects the halftone."
 msgstr "Selecciona medios tonos"
 
-#: ../backend/epson.c:2853 ../backend/epson2.c:1011
+#: ../backend/epson.c:2867 ../backend/epson2.c:1033
 #, no-c-format
 msgid "Dropout"
 msgstr "Exclusión"
 
-#: ../backend/epson.c:2854 ../backend/epson2.c:1012
+#: ../backend/epson.c:2868 ../backend/epson2.c:1034
 #, no-c-format
 msgid "Selects the dropout."
 msgstr "Seleccionar lo que se va a excluir."
 
-#: ../backend/epson.c:2866 ../backend/epson2.c:1024
+#: ../backend/epson.c:2880 ../backend/epson2.c:1046
 #, no-c-format
 msgid "Selects the brightness."
 msgstr "Selecciona el brillo."
 
-#: ../backend/epson.c:2881 ../backend/epson2.c:1037
+#: ../backend/epson.c:2895 ../backend/epson2.c:1059
 #, no-c-format
 msgid "Sharpness"
 msgstr "Enfoque"
 
-#: ../backend/epson.c:3017 ../backend/epson2.c:1153
-#: ../backend/epson2.c:1200
+#: ../backend/epson.c:3031 ../backend/epson2.c:1175
+#: ../backend/epson2.c:1222
 #, no-c-format
 msgid "Color correction"
 msgstr "Corrección de color"
 
-#: ../backend/epson.c:3020 ../backend/epson2.c:1155
+#: ../backend/epson.c:3034 ../backend/epson2.c:1177
 #, no-c-format
 msgid "Sets the color correction table for the selected output device."
 msgstr ""
 "Ajusta la tabla de corrección del color para el dispositivo de salida "
 "seleccionado."
 
-#: ../backend/epson.c:3061
+#: ../backend/epson.c:3075
 #, no-c-format
 msgid "Color correction coefficients"
 msgstr "Coeficientes de corrección de color"
 
-#: ../backend/epson.c:3062
+#: ../backend/epson.c:3076
 #, no-c-format
 msgid "Matrix multiplication of RGB"
 msgstr "Matriz de multiplicación de RGB"
 
-#: ../backend/epson.c:3079
+#: ../backend/epson.c:3093
 #, no-c-format
 msgid "Shift green to red"
 msgstr "Cambiar de verde a rojo"
 
-#: ../backend/epson.c:3080
+#: ../backend/epson.c:3094
 #, no-c-format
 msgid "Shift green to blue"
 msgstr "Cambiar de verde a azul"
 
-#: ../backend/epson.c:3081
+#: ../backend/epson.c:3095
 #, no-c-format
 msgid "Shift red to green"
 msgstr "Cambiar de rojo a verde"
 
-#: ../backend/epson.c:3083
+#: ../backend/epson.c:3097
 #, no-c-format
 msgid "Shift red to blue"
 msgstr "Cambiar de rojo a azul"
 
-#: ../backend/epson.c:3084
+#: ../backend/epson.c:3098
 #, no-c-format
 msgid "Shift blue to green"
 msgstr "Cambiar de azul a verde"
 
-#: ../backend/epson.c:3085
+#: ../backend/epson.c:3099
 #, no-c-format
 msgid "Shift blue to red"
 msgstr "Cambiar de azul a rojo"
 
-#: ../backend/epson.c:3088
+#: ../backend/epson.c:3102
 #, no-c-format
 msgid "Controls green level"
 msgstr "Controla el nivel de verde"
 
-#: ../backend/epson.c:3089
+#: ../backend/epson.c:3103
 #, no-c-format
 msgid "Adds to red based on green level"
 msgstr "Añade rojo basándose en el nivel de verde"
 
-#: ../backend/epson.c:3090
+#: ../backend/epson.c:3104
 #, no-c-format
 msgid "Adds to blue based on green level"
 msgstr "Añade azul basándose en el nivel de verde"
 
-#: ../backend/epson.c:3091
+#: ../backend/epson.c:3105
 #, no-c-format
 msgid "Adds to green based on red level"
 msgstr "Añade verde basándose en el nivel de rojo"
 
-#: ../backend/epson.c:3092
+#: ../backend/epson.c:3106
 #, no-c-format
 msgid "Controls red level"
 msgstr "Controla el nivel de rojo"
 
-#: ../backend/epson.c:3093
+#: ../backend/epson.c:3107
 #, no-c-format
 msgid "Adds to blue based on red level"
 msgstr "Añade azul basándose en el nivel de rojo"
 
-#: ../backend/epson.c:3094
+#: ../backend/epson.c:3108
 #, no-c-format
 msgid "Adds to green based on blue level"
 msgstr "Añade verde basándose en el nivel de azul"
 
-#: ../backend/epson.c:3095
+#: ../backend/epson.c:3109
 #, no-c-format
 msgid "Adds to red based on blue level"
 msgstr "Añade rojo basándose en el nivel de azul."
 
-#: ../backend/epson.c:3096
+#: ../backend/epson.c:3110
 #, no-c-format
 msgid "Controls blue level"
 msgstr "Controla el nivel de azul"
 
-#: ../backend/epson.c:3192 ../backend/epson2.c:1234
+#: ../backend/epson.c:3206 ../backend/epson2.c:1256
 #, no-c-format
 msgid "Mirror the image."
 msgstr "Invertir la imagen."
 
-#: ../backend/epson.c:3218 ../backend/mustek.c:4334
+#: ../backend/epson.c:3232 ../backend/mustek.c:4334
 #, no-c-format
 msgid "Fast preview"
 msgstr "Vista previa rápida"
 
-#: ../backend/epson.c:3231 ../backend/epson2.c:1244
+#: ../backend/epson.c:3245 ../backend/epson2.c:1266
 #, no-c-format
 msgid "Auto area segmentation"
 msgstr "Segmentación automática de área"
 
-#: ../backend/epson.c:3244
+#: ../backend/epson.c:3258
 #, no-c-format
 msgid "Short resolution list"
 msgstr "Lista corta de resoluciones"
 
-#: ../backend/epson.c:3246
+#: ../backend/epson.c:3260
 #, no-c-format
 msgid "Display short resolution list"
 msgstr "Mostrar lista corta de resoluciones"
 
-#: ../backend/epson.c:3253
+#: ../backend/epson.c:3267
 #, no-c-format
 msgid "Zoom"
 msgstr "Acercamiento"
 
-#: ../backend/epson.c:3255
+#: ../backend/epson.c:3269
 #, no-c-format
 msgid "Defines the zoom factor the scanner will use"
 msgstr "Define el factor de zoom que usará el escáner"
 
-#: ../backend/epson.c:3335
+#: ../backend/epson.c:3349
 #, no-c-format
 msgid "Quick format"
 msgstr "Formato rápido"
 
-#: ../backend/epson.c:3346 ../backend/epson2.c:1319
+#: ../backend/epson.c:3360 ../backend/epson2.c:1341
 #, no-c-format
 msgid "Optional equipment"
 msgstr "Equipamiento opcional"
 
-#: ../backend/epson.c:3417 ../backend/epson2.c:1372
+#: ../backend/epson.c:3431 ../backend/epson2.c:1394
 #, no-c-format
 msgid "Eject"
 msgstr "Expulsar"
 
-#: ../backend/epson.c:3418 ../backend/epson2.c:1373
+#: ../backend/epson.c:3432 ../backend/epson2.c:1395
 #, no-c-format
 msgid "Eject the sheet in the ADF"
 msgstr "Expulsar la hoja del alimentador"
 
-#: ../backend/epson.c:3430 ../backend/epson2.c:1383
+#: ../backend/epson.c:3444 ../backend/epson2.c:1405
 #, no-c-format
 msgid "Auto eject"
 msgstr "Expulsión automática"
 
-#: ../backend/epson.c:3431 ../backend/epson2.c:1385
+#: ../backend/epson.c:3445 ../backend/epson2.c:1407
 #, no-c-format
 msgid "Eject document after scanning"
 msgstr "Expulsar el documento después del escaneo"
 
-#: ../backend/epson.c:3443 ../backend/epson2.c:1395
-#: ../backend/magicolor.c:2345
+#: ../backend/epson.c:3457 ../backend/epson2.c:1417
+#: ../backend/magicolor.c:2420
 #, no-c-format
 msgid "ADF Mode"
 msgstr "Modo alimentador"
 
-#: ../backend/epson.c:3445 ../backend/epson2.c:1397
-#: ../backend/magicolor.c:2347
+#: ../backend/epson.c:3459 ../backend/epson2.c:1419
+#: ../backend/magicolor.c:2422
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr "Seleccionar el modo del alimentador (una cara/dos caras)"
 
-#: ../backend/epson.c:3459 ../backend/epson2.c:1409
+#: ../backend/epson.c:3473 ../backend/epson2.c:1431
 #, no-c-format
 msgid "Bay"
 msgstr "Bahía"
 
-#: ../backend/epson.c:3460 ../backend/epson2.c:1410
+#: ../backend/epson.c:3474 ../backend/epson2.c:1432
 #, no-c-format
 msgid "Select bay to scan"
 msgstr "Seleccione la bahía para escanear"
 
-#: ../backend/epson.h:69 ../backend/epson2.h:73
+#: ../backend/epson.h:69 ../backend/epson2.h:75
 #, no-c-format
 msgid ""
 "Selects the gamma correction value from a list of pre-defined devices or "
@@ -2089,12 +2100,12 @@ msgstr ""
 "predefinidos o de una tabla definida por el usuario, que puede ser "
 "descargada al escáner."
 
-#: ../backend/epson.h:72 ../backend/epson2.h:76
+#: ../backend/epson.h:72 ../backend/epson2.h:78
 #, no-c-format
 msgid "Focus Position"
 msgstr "Posición del foco"
 
-#: ../backend/epson.h:73 ../backend/epson2.h:77
+#: ../backend/epson.h:73 ../backend/epson2.h:79
 #, no-c-format
 msgid ""
 "Sets the focus position to either the glass or 2.5mm above the glass"
@@ -2102,12 +2113,12 @@ msgstr ""
 "Ajusta la posición del foco, ya sea al cristal o a 2.5mm por encima del "
 "cristal"
 
-#: ../backend/epson.h:75 ../backend/epson2.h:79
+#: ../backend/epson.h:75 ../backend/epson2.h:81
 #, no-c-format
 msgid "Wait for Button"
 msgstr "Esperar por el botón"
 
-#: ../backend/epson.h:76 ../backend/epson2.h:80
+#: ../backend/epson.h:76 ../backend/epson2.h:82
 #, no-c-format
 msgid ""
 "After sending the scan command, wait until the button on the scanner is "
@@ -2116,178 +2127,219 @@ msgstr ""
 "Después de enviar la orden de escanear, esperar hasta que se presione el "
 "botón del escáner para empezar realmente el proceso de escaneo."
 
-#: ../backend/epson2.c:97
+#: ../backend/epson2.c:102 ../backend/pixma.c:390
 #, no-c-format
 msgid "Infrared"
 msgstr ""
 
-#: ../backend/epson2.c:130
+#: ../backend/epson2.c:117
+#, no-c-format
+msgid "TPU8x10"
+msgstr ""
+
+#: ../backend/epson2.c:136
 #, no-c-format
 msgid "Positive Slide"
 msgstr "Diapositiva en positivo"
 
-#: ../backend/epson2.c:131
+#: ../backend/epson2.c:137
 #, no-c-format
 msgid "Negative Slide"
 msgstr "Diapositiva en negativo"
 
-#: ../backend/epson2.c:209
+#: ../backend/epson2.c:215
 #, no-c-format
 msgid "Built in CCT profile"
 msgstr ""
 
-#: ../backend/epson2.c:210
+#: ../backend/epson2.c:216
 #, fuzzy, no-c-format
 msgid "User defined CCT profile"
 msgstr "Definida por el usuario"
 
-#: ../backend/fujitsu.c:559 ../backend/hp-option.c:3327
+#: ../backend/fujitsu.c:660 ../backend/hp-option.c:3327
 #: ../backend/hp-option.c:3340
 #, no-c-format
 msgid "On"
 msgstr "Activo"
 
-#: ../backend/fujitsu.c:560 ../backend/hp-option.c:3159
+#: ../backend/fujitsu.c:661 ../backend/hp-option.c:3159
 #: ../backend/hp-option.c:3326 ../backend/hp-option.c:3339
 #, no-c-format
 msgid "Off"
 msgstr "Apagado"
 
-#: ../backend/fujitsu.c:562
+#: ../backend/fujitsu.c:663
 #, no-c-format
 msgid "DTC"
 msgstr ""
 
-#: ../backend/fujitsu.c:563
+#: ../backend/fujitsu.c:664
 #, no-c-format
 msgid "SDTC"
 msgstr ""
 
-#: ../backend/fujitsu.c:565 ../backend/teco1.c:1152
+#: ../backend/fujitsu.c:666 ../backend/teco1.c:1152
 #: ../backend/teco1.c:1153 ../backend/teco2.c:1971 ../backend/teco2.c:1972
 #: ../backend/teco3.c:977 ../backend/teco3.c:978
 #, no-c-format
 msgid "Dither"
 msgstr "Difuminado"
 
-#: ../backend/fujitsu.c:566
+#: ../backend/fujitsu.c:667
 #, fuzzy, no-c-format
 msgid "Diffusion"
 msgstr "Difusión de error"
 
-#: ../backend/fujitsu.c:571
+#: ../backend/fujitsu.c:672
 #, fuzzy, no-c-format
 msgid "White"
 msgstr "Nivel de blanco"
 
-#: ../backend/fujitsu.c:572
+#: ../backend/fujitsu.c:673
 #, fuzzy, no-c-format
 msgid "Black"
 msgstr "Nivel de negro"
 
-#: ../backend/fujitsu.c:577
+#: ../backend/fujitsu.c:678
 #, fuzzy, no-c-format
 msgid "Continue"
 msgstr "Condicional"
 
-#: ../backend/fujitsu.c:578
+#: ../backend/fujitsu.c:679
 #, no-c-format
 msgid "Stop"
 msgstr ""
 
-#: ../backend/fujitsu.c:580
+#: ../backend/fujitsu.c:681
 #, no-c-format
 msgid "10mm"
 msgstr ""
 
-#: ../backend/fujitsu.c:581
+#: ../backend/fujitsu.c:682
 #, no-c-format
 msgid "15mm"
 msgstr ""
 
-#: ../backend/fujitsu.c:582
+#: ../backend/fujitsu.c:683
 #, no-c-format
 msgid "20mm"
 msgstr ""
 
-#: ../backend/fujitsu.c:584 ../backend/hp-option.c:3045
+#: ../backend/fujitsu.c:685 ../backend/hp-option.c:3045
 #, no-c-format
 msgid "Horizontal"
 msgstr "Horizontal"
 
-#: ../backend/fujitsu.c:585
+#: ../backend/fujitsu.c:686
 #, fuzzy, no-c-format
 msgid "Horizontal bold"
 msgstr "Horizontal"
 
-#: ../backend/fujitsu.c:586
+#: ../backend/fujitsu.c:687
 #, fuzzy, no-c-format
 msgid "Horizontal narrow"
 msgstr "Horizontal"
 
-#: ../backend/fujitsu.c:587 ../backend/hp-option.c:3044
+#: ../backend/fujitsu.c:688 ../backend/hp-option.c:3044
 #, no-c-format
 msgid "Vertical"
 msgstr "Vertical"
 
-#: ../backend/fujitsu.c:588
+#: ../backend/fujitsu.c:689
 #, fuzzy, no-c-format
 msgid "Vertical bold"
 msgstr "Vertical"
 
-#: ../backend/fujitsu.c:590
+#: ../backend/fujitsu.c:691
 #, no-c-format
 msgid "Top to bottom"
 msgstr ""
 
-#: ../backend/fujitsu.c:591
+#: ../backend/fujitsu.c:692
 #, no-c-format
 msgid "Bottom to top"
 msgstr ""
 
-#: ../backend/fujitsu.c:593
+#: ../backend/fujitsu.c:694
 #, fuzzy, no-c-format
 msgid "Front"
 msgstr "Imprimir"
 
-#: ../backend/fujitsu.c:594
+#: ../backend/fujitsu.c:695
 #, no-c-format
 msgid "Back"
 msgstr ""
 
-#: ../backend/genesys.c:6177
+#: ../backend/fujitsu.c:4055 ../backend/genesys.c:5766
+#: ../backend/kvs1025_opt.c:911
+#, no-c-format
+msgid "Software blank skip percentage"
+msgstr ""
+
+#: ../backend/fujitsu.c:4056
+#, no-c-format
+msgid "Request driver to discard pages with low percentage of dark pixels"
+msgstr ""
+
+#: ../backend/genesys.c:5757
+#, no-c-format
+msgid "Software crop"
+msgstr ""
+
+#: ../backend/genesys.c:5758
+#, no-c-format
+msgid "Request backend to remove border from pages digitally"
+msgstr ""
+
+#: ../backend/genesys.c:5767 ../backend/kvs1025_opt.c:913
+#, no-c-format
+msgid "Request driver to discard pages with low numbers of dark pixels"
+msgstr ""
+
+#: ../backend/genesys.c:5778 ../backend/kvs1025_opt.c:893
+#, no-c-format
+msgid "Software derotate"
+msgstr ""
+
+#: ../backend/genesys.c:5779 ../backend/kvs1025_opt.c:895
+#, no-c-format
+msgid "Request driver to detect and correct 90 degree image rotation"
+msgstr ""
+
+#: ../backend/genesys.c:5810 ../backend/pixma_sane_options.c:312
 #, no-c-format
 msgid "Extras"
 msgstr "Extras"
 
-#: ../backend/genesys.c:6196
+#: ../backend/genesys.c:5829 ../backend/pixma_sane_options.c:333
 #, fuzzy, no-c-format
 msgid "Threshold curve"
 msgstr "Umbral"
 
-#: ../backend/genesys.c:6197
+#: ../backend/genesys.c:5830 ../backend/pixma_sane_options.c:334
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr ""
 
-#: ../backend/genesys.c:6206
+#: ../backend/genesys.c:5839
 #, no-c-format
 msgid "Disable dynamic lineart"
 msgstr ""
 
-#: ../backend/genesys.c:6208
+#: ../backend/genesys.c:5841
 #, no-c-format
 msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
 "instead on hardware lineart."
 msgstr ""
 
-#: ../backend/genesys.c:6223
+#: ../backend/genesys.c:5857
 #, no-c-format
 msgid "Disable interpolation"
 msgstr "Desactivar interpolación"
 
-#: ../backend/genesys.c:6226
+#: ../backend/genesys.c:5860
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
@@ -2296,23 +2348,45 @@ msgstr ""
 "Cuando se usan altas resoluciones en las que la resolución horizontal es "
 "más pequeña que la vertical, esto desactiva la interpolación horizontal."
 
-#: ../backend/genesys.c:6235
-#, no-c-format
-msgid "Color Filter"
+#: ../backend/genesys.c:5869
+#, fuzzy, no-c-format
+msgid "Color filter"
 msgstr "Filtro de color"
 
-#: ../backend/genesys.c:6238
+#: ../backend/genesys.c:5872
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 "Cuando se usa gris o línea de arte esta opción selecciona el color usado."
 
-#: ../backend/genesys.c:6264
+#: ../backend/genesys.c:5898
+#, fuzzy, no-c-format
+msgid "Calibration file"
+msgstr "Calibración"
+
+#: ../backend/genesys.c:5899
+#, fuzzy, no-c-format
+msgid "Specify the calibration file to use"
+msgstr "Define el modo de calibración"
+
+#: ../backend/genesys.c:5916
+#, fuzzy, no-c-format
+msgid "Calibration cache expiration time"
+msgstr "Caché de datos de calibración"
+
+#: ../backend/genesys.c:5917
+#, no-c-format
+msgid ""
+"Time (in minutes) before a cached calibration expires. A value of 0 "
+"means cache is not used. A negative value means cache never expires."
+msgstr ""
+
+#: ../backend/genesys.c:5927
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Tiempo de espera de la lámpara"
 
-#: ../backend/genesys.c:6267
+#: ../backend/genesys.c:5930
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
@@ -2321,62 +2395,77 @@ msgstr ""
 "La lámpara será apagada después del tiempo dado (en minutos). Un valor "
 "de 0 significa que la lámpara no será apagada"
 
-#: ../backend/genesys.c:6296 ../backend/genesys.c:6297
+#: ../backend/genesys.c:5940
+#, fuzzy, no-c-format
+msgid "Lamp off during scan"
+msgstr "Apagar la lámpara durante la calibración de oscuridad"
+
+#: ../backend/genesys.c:5941
+#, fuzzy, no-c-format
+msgid "The lamp will be turned off during scan. "
+msgstr "Minutos que tardará la lámpara en apagarse tras el escaneo"
+
+#: ../backend/genesys.c:5969 ../backend/genesys.c:5970
 #, no-c-format
 msgid "File button"
 msgstr "Botón de archivo"
 
-#: ../backend/genesys.c:6349 ../backend/genesys.c:6350
+#: ../backend/genesys.c:6022 ../backend/genesys.c:6023
 #, no-c-format
 msgid "OCR button"
 msgstr "Botón de OCR"
 
-#: ../backend/genesys.c:6363 ../backend/genesys.c:6364
+#: ../backend/genesys.c:6036 ../backend/genesys.c:6037
 #, no-c-format
 msgid "Power button"
 msgstr "Botón de energía"
 
-#: ../backend/genesys.c:6377 ../backend/gt68xx.c:762
+#: ../backend/genesys.c:6050 ../backend/genesys.c:6051
+#, fuzzy, no-c-format
+msgid "Extra button"
+msgstr "Botón de correo-e"
+
+#: ../backend/genesys.c:6064 ../backend/gt68xx.c:762
 #, fuzzy, no-c-format
 msgid "Need calibration"
 msgstr "Limpiar la calibración"
 
-#: ../backend/genesys.c:6378 ../backend/gt68xx.c:763
+#: ../backend/genesys.c:6065 ../backend/gt68xx.c:763
 #, fuzzy, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "Fuerza la calibración del escáner antes de realizar el escaneo"
 
-#: ../backend/genesys.c:6391 ../backend/gt68xx.c:787
-#: ../backend/gt68xx.c:788 ../backend/pixma_sane_options.c:210
-#: ../backend/plustek.c:1079
+#: ../backend/genesys.c:6077 ../backend/gt68xx.c:787
+#: ../backend/gt68xx.c:788 ../backend/pixma_sane_options.c:224
+#: ../backend/plustek.c:1080
 #, no-c-format
 msgid "Buttons"
 msgstr "Botones"
 
-#: ../backend/genesys.c:6398 ../backend/gt68xx.c:794
+#: ../backend/genesys.c:6086 ../backend/gt68xx.c:794
 #: ../backend/hp5400_sane.c:392 ../backend/hp-option.h:97
-#: ../backend/niash.c:728 ../backend/plustek.c:940
+#: ../backend/niash.c:726 ../backend/plustek.c:941
 #, no-c-format
 msgid "Calibrate"
 msgstr "Calibrar"
 
-#: ../backend/genesys.c:6400 ../backend/gt68xx.c:796
+#: ../backend/genesys.c:6088 ../backend/gt68xx.c:796
 #, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "Iniciar calibración usando una hoja especial"
 
-#: ../backend/genesys.c:6414 ../backend/gt68xx.c:809
+#: ../backend/genesys.c:6102 ../backend/gt68xx.c:809
 #, no-c-format
 msgid "Clear calibration"
 msgstr "Limpiar la calibración"
 
-#: ../backend/genesys.c:6415 ../backend/gt68xx.c:810
+#: ../backend/genesys.c:6103 ../backend/gt68xx.c:810
 #, no-c-format
 msgid "Clear calibration cache"
 msgstr "Limpiar la caché de datos de calibración"
 
 #: ../backend/gt68xx.c:149 ../backend/ma1509.c:108 ../backend/mustek.c:164
-#: ../backend/snapscan-options.c:83 ../backend/umax.c:182
+#: ../backend/snapscan-options.c:87 ../backend/umax.c:182
 #, no-c-format
 msgid "Transparency Adapter"
 msgstr "Adaptador de transparencias"
@@ -2510,8 +2599,8 @@ msgid "Scanner model"
 msgstr "Modelo de escáner"
 
 #: ../backend/hp3900_sane.c:1408
-#, no-c-format
-msgid "Allows to test device behaviour with other supported models"
+#, fuzzy, no-c-format
+msgid "Allows one to test device behaviour with other supported models"
 msgstr ""
 "Permite comprobar el comportamiento del dispositivo con otros modelos "
 "soportados"
@@ -2662,12 +2751,12 @@ msgstr "Actualiza la información acerca del dispositivo"
 msgid "This option reflects a front panel scanner button"
 msgstr "Esta opción refleja un botón del panel frontal del escáner"
 
-#: ../backend/hp5400_sane.c:313 ../backend/niash.c:683
+#: ../backend/hp5400_sane.c:313 ../backend/niash.c:678
 #, no-c-format
 msgid "Image"
 msgstr "Imagen"
 
-#: ../backend/hp5400_sane.c:352 ../backend/niash.c:711
+#: ../backend/hp5400_sane.c:352 ../backend/niash.c:709
 #, no-c-format
 msgid "Miscellaneous"
 msgstr "Varios"
@@ -2692,17 +2781,17 @@ msgstr "posición Y"
 msgid "Hardware internal Y position of the scanning area."
 msgstr "Posición Y interna en el hardware de la zona de escaneo."
 
-#: ../backend/hp5400_sane.c:381 ../backend/niash.c:718
+#: ../backend/hp5400_sane.c:381 ../backend/niash.c:716
 #, no-c-format
 msgid "Lamp status"
 msgstr "Estado de la lámpara"
 
-#: ../backend/hp5400_sane.c:382 ../backend/niash.c:719
+#: ../backend/hp5400_sane.c:382 ../backend/niash.c:717
 #, no-c-format
 msgid "Switches the lamp on or off."
 msgstr "Enciende o apaga la lámpara"
 
-#: ../backend/hp5400_sane.c:393 ../backend/niash.c:729
+#: ../backend/hp5400_sane.c:393 ../backend/niash.c:727
 #, no-c-format
 msgid "Calibrates for black and white level."
 msgstr "Calibrar el nivel de blanco y negro."
@@ -2811,8 +2900,8 @@ msgstr "Lento"
 
 #: ../backend/hp-option.c:3145 ../backend/hp-option.c:3252
 #: ../backend/kvs40xx_opt.c:229 ../backend/matsushita.c:244
-#: ../backend/mustek.c:149 ../backend/plustek.c:233
-#: ../backend/plustek_pp.c:200 ../backend/u12.c:155
+#: ../backend/mustek.c:149 ../backend/plustek.c:234
+#: ../backend/plustek_pp.c:203 ../backend/u12.c:155
 #, no-c-format
 msgid "Normal"
 msgstr "Normal"
@@ -3151,9 +3240,9 @@ msgstr ""
 msgid "single"
 msgstr ""
 
-#: ../backend/kvs1025_opt.c:73 ../backend/kvs20xx.c:457
-#: ../backend/kvs20xx_opt.c:55 ../backend/kvs40xx.c:703
-#: ../backend/kvs40xx.c:721 ../backend/kvs40xx_opt.c:101
+#: ../backend/kvs1025_opt.c:73 ../backend/kvs20xx.c:455
+#: ../backend/kvs20xx_opt.c:55 ../backend/kvs40xx.c:704
+#: ../backend/kvs40xx.c:722 ../backend/kvs40xx_opt.c:101
 #: ../backend/kvs40xx_opt.c:1086
 #, fuzzy, no-c-format
 msgid "continuous"
@@ -3452,7 +3541,7 @@ msgstr "Ajusta el resalte de la imagen"
 
 #: ../backend/kvs1025_opt.c:808 ../backend/kvs1025_opt.c:809
 #: ../backend/matsushita.c:1300 ../backend/matsushita.c:1301
-#: ../backend/pixma_sane_options.c:107
+#: ../backend/pixma_sane_options.c:110
 #, no-c-format
 msgid "Gamma"
 msgstr "Gamma"
@@ -3519,16 +3608,6 @@ msgstr ""
 msgid "Maximum diameter of lone dots to remove from scan"
 msgstr ""
 
-#: ../backend/kvs1025_opt.c:893
-#, no-c-format
-msgid "Software derotate"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:895
-#, no-c-format
-msgid "Request driver to detect and correct 90 degree image rotation"
-msgstr ""
-
 #: ../backend/kvs1025_opt.c:902
 #, no-c-format
 msgid "Software automatic cropping"
@@ -3537,16 +3616,6 @@ msgstr ""
 #: ../backend/kvs1025_opt.c:904
 #, no-c-format
 msgid "Request driver to remove border from pages digitally"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:911
-#, no-c-format
-msgid "Software blank skip percentage"
-msgstr ""
-
-#: ../backend/kvs1025_opt.c:913
-#, no-c-format
-msgid "Request driver to discard pages with low numbers of dark pixels"
 msgstr ""
 
 #: ../backend/kvs20xx_opt.c:232 ../backend/kvs40xx_opt.c:395
@@ -3617,7 +3686,7 @@ msgstr "Mejora"
 #, no-c-format
 msgid ""
 "Long Paper Mode is a mode that the scanner reads the image after it "
-"divides long paperby the length which is set in Document Size option"
+"divides long paper by the length which is set in Document Size option."
 msgstr ""
 
 #: ../backend/kvs40xx_opt.c:448
@@ -3785,7 +3854,7 @@ msgstr "Ganancia de gris"
 msgid "Sets gray channel gain"
 msgstr "Ajusta la ganancia del canal de gris"
 
-#: ../backend/lexmark.c:297 ../backend/plustek.c:1000
+#: ../backend/lexmark.c:297 ../backend/plustek.c:1001
 #: ../backend/umax_pp.c:735
 #, no-c-format
 msgid "Red gain"
@@ -3796,7 +3865,7 @@ msgstr "Ganancia de rojo"
 msgid "Sets red channel gain"
 msgstr "Ajusta la ganancia del canal de rojo"
 
-#: ../backend/lexmark.c:311 ../backend/plustek.c:1016
+#: ../backend/lexmark.c:311 ../backend/plustek.c:1017
 #: ../backend/umax_pp.c:747
 #, no-c-format
 msgid "Green gain"
@@ -3807,7 +3876,7 @@ msgstr "Ganancia de Verde"
 msgid "Sets green channel gain"
 msgstr "Ajusta la ganancia del canal de verde"
 
-#: ../backend/lexmark.c:325 ../backend/plustek.c:1032
+#: ../backend/lexmark.c:325 ../backend/plustek.c:1033
 #: ../backend/umax_pp.c:759
 #, no-c-format
 msgid "Blue gain"
@@ -3899,7 +3968,7 @@ msgstr "Una página"
 msgid "All pages"
 msgstr "Todas las páginas"
 
-#: ../backend/matsushita.c:1034 ../backend/plustek.c:1332
+#: ../backend/matsushita.c:1034 ../backend/plustek.c:1333
 #, no-c-format
 msgid "sheetfed scanner"
 msgstr "escáner con cargador automático"
@@ -3972,12 +4041,12 @@ msgstr "Usar el adaptador de diapositivas de 35mm"
 msgid "This option turns off the lamp of the flatbed during a scan"
 msgstr "Esta opción apaga la lámpara del plano durante el escaneo"
 
-#: ../backend/microtek2.h:626 ../backend/snapscan-options.c:375
+#: ../backend/microtek2.h:626 ../backend/snapscan-options.c:421
 #, no-c-format
 msgid "Quality scan"
 msgstr "Escaneo de calidad"
 
-#: ../backend/microtek2.h:627 ../backend/snapscan-options.c:376
+#: ../backend/microtek2.h:627 ../backend/snapscan-options.c:422
 #, no-c-format
 msgid "Highest quality but lower speed"
 msgstr "La mejor calidad, pero a velocidad lenta"
@@ -4410,12 +4479,39 @@ msgstr ""
 "Calentar hasta que el brillo de la lámpara sea constante en vez de "
 "esperar por los 40 segundos de calentamiento."
 
-#: ../backend/pixma_sane_options.c:91
+#: ../backend/pixma.c:378
+#, fuzzy, no-c-format
+msgid "Negative color"
+msgstr "Película en negativo"
+
+#: ../backend/pixma.c:383
+#, fuzzy, no-c-format
+msgid "Negative gray"
+msgstr "Negativo"
+
+#: ../backend/pixma.c:396
+#, fuzzy, no-c-format
+msgid "48 bits color"
+msgstr "Color fino"
+
+#: ../backend/pixma.c:401
+#, no-c-format
+msgid "16 bits gray"
+msgstr ""
+
+#: ../backend/pixma_sane_options.c:82
+#, no-c-format
+msgid ""
+"Selects the scan source (such as a document-feeder). Set source before "
+"mode and resolution. Resets mode and resolution to auto values."
+msgstr ""
+
+#: ../backend/pixma_sane_options.c:96
 #, no-c-format
 msgid "Button-controlled scan"
 msgstr "Botón de control de escaneo"
 
-#: ../backend/pixma_sane_options.c:94
+#: ../backend/pixma_sane_options.c:97
 #, no-c-format
 msgid ""
 "When enabled, scan process will not start immediately. To proceed, press "
@@ -4426,198 +4522,218 @@ msgstr ""
 "proceder, haga clic en el botón \"SCAN\" (para MP150) o \"COLOR\" (para "
 "otros modelos). Para cancelar, haga clic en el botón \"GRAY\"."
 
-#: ../backend/pixma_sane_options.c:216
+#: ../backend/pixma_sane_options.c:143
+#, no-c-format
+msgid "Gamma function exponent"
+msgstr ""
+
+#: ../backend/pixma_sane_options.c:144
+#, no-c-format
+msgid "Changes intensity of midtones"
+msgstr ""
+
+#: ../backend/pixma_sane_options.c:230
 #, no-c-format
 msgid "Update button state"
 msgstr "Actualizar estado del botón"
 
-#: ../backend/pixma_sane_options.c:228
+#: ../backend/pixma_sane_options.c:242
 #, no-c-format
 msgid "Button 1"
 msgstr "Botón 1"
 
-#: ../backend/pixma_sane_options.c:242
+#: ../backend/pixma_sane_options.c:256
 #, no-c-format
 msgid "Button 2"
 msgstr "Botón 2"
 
-#: ../backend/plustek.c:234 ../backend/plustek_pp.c:201
+#: ../backend/pixma_sane_options.c:270
+#, no-c-format
+msgid "Type of original to scan"
+msgstr ""
+
+#: ../backend/pixma_sane_options.c:284
+#, no-c-format
+msgid "Target operation type"
+msgstr ""
+
+#: ../backend/plustek.c:235 ../backend/plustek_pp.c:204
 #: ../backend/u12.c:156
 #, no-c-format
 msgid "Transparency"
 msgstr "Transparencia"
 
-#: ../backend/plustek.c:912
+#: ../backend/plustek.c:913
 #, no-c-format
 msgid "Device-Settings"
 msgstr "Ajustes del dispositivo"
 
-#: ../backend/plustek.c:919
+#: ../backend/plustek.c:920
 #, no-c-format
 msgid "Lampswitch"
 msgstr "Interruptor de lámpara"
 
-#: ../backend/plustek.c:920
+#: ../backend/plustek.c:921
 #, no-c-format
 msgid "Manually switching the lamp(s)."
 msgstr "Cambiar la(s) lámpara(s) manualmente."
 
-#: ../backend/plustek.c:925
+#: ../backend/plustek.c:926
 #, no-c-format
 msgid "Lamp off during dark calibration"
 msgstr "Apagar la lámpara durante la calibración de oscuridad"
 
-#: ../backend/plustek.c:926
+#: ../backend/plustek.c:927
 #, no-c-format
 msgid "Always switches lamp off when doing dark calibration."
 msgstr "Apagar siempre la lámpara cuando se calibra la oscuridad."
 
-#: ../backend/plustek.c:934
+#: ../backend/plustek.c:935
 #, no-c-format
 msgid "Calibration data cache"
 msgstr "Caché de datos de calibración"
 
-#: ../backend/plustek.c:935
+#: ../backend/plustek.c:936
 #, no-c-format
 msgid "Enables or disables calibration data cache."
 msgstr "Activa o desactiva la caché de datos de calibración"
 
-#: ../backend/plustek.c:941
+#: ../backend/plustek.c:942
 #, no-c-format
 msgid "Performs calibration"
 msgstr "Calibración de precisión"
 
-#: ../backend/plustek.c:958
+#: ../backend/plustek.c:959
 #, no-c-format
 msgid "Speedup sensor"
 msgstr "Acelerar el sensor"
 
-#: ../backend/plustek.c:959
+#: ../backend/plustek.c:960
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
 msgstr "Activa o desactiva la aceleración de movimiento del sensor."
 
-#: ../backend/plustek.c:973
+#: ../backend/plustek.c:974
 #, no-c-format
 msgid "Warmup-time"
 msgstr "Tiempo de calentamiento"
 
-#: ../backend/plustek.c:974
+#: ../backend/plustek.c:975
 #, no-c-format
 msgid "Warmup-time in seconds."
 msgstr "Tiempo de calentamiento en segundos."
 
-#: ../backend/plustek.c:986
+#: ../backend/plustek.c:987
 #, no-c-format
 msgid "Lampoff-time"
 msgstr "Tiempo de apagado de lámpara"
 
-#: ../backend/plustek.c:987
+#: ../backend/plustek.c:988
 #, no-c-format
 msgid "Lampoff-time in seconds."
 msgstr "Tiempo de apagado de lámpara en segundos."
 
-#: ../backend/plustek.c:994
+#: ../backend/plustek.c:995
 #, no-c-format
 msgid "Analog frontend"
 msgstr "Interfaz analógica (AFE)"
 
-#: ../backend/plustek.c:1001
+#: ../backend/plustek.c:1002
 #, no-c-format
 msgid "Red gain value of the AFE"
 msgstr "Valor de ganancia de rojo en el AFE"
 
-#: ../backend/plustek.c:1008 ../backend/umax_pp.c:792
+#: ../backend/plustek.c:1009 ../backend/umax_pp.c:792
 #, no-c-format
 msgid "Red offset"
 msgstr "Desviación rojo"
 
-#: ../backend/plustek.c:1009
+#: ../backend/plustek.c:1010
 #, no-c-format
 msgid "Red offset value of the AFE"
 msgstr "Valor de la desviación de rojo en el AFE"
 
-#: ../backend/plustek.c:1017
+#: ../backend/plustek.c:1018
 #, no-c-format
 msgid "Green gain value of the AFE"
 msgstr "Valor de ganancia de verde en el AFE"
 
-#: ../backend/plustek.c:1024 ../backend/umax_pp.c:804
+#: ../backend/plustek.c:1025 ../backend/umax_pp.c:804
 #, no-c-format
 msgid "Green offset"
 msgstr "Desviación verde"
 
-#: ../backend/plustek.c:1025
+#: ../backend/plustek.c:1026
 #, no-c-format
 msgid "Green offset value of the AFE"
 msgstr "Valor de la desviación de verde en el AFE"
 
-#: ../backend/plustek.c:1033
+#: ../backend/plustek.c:1034
 #, no-c-format
 msgid "Blue gain value of the AFE"
 msgstr "Valor de ganancia de azul en el AFE"
 
-#: ../backend/plustek.c:1040 ../backend/umax_pp.c:816
+#: ../backend/plustek.c:1041 ../backend/umax_pp.c:816
 #, no-c-format
 msgid "Blue offset"
 msgstr "Desviación azul"
 
-#: ../backend/plustek.c:1041
+#: ../backend/plustek.c:1042
 #, no-c-format
 msgid "Blue offset value of the AFE"
 msgstr "Valor de la desviación de azul en el AFE"
 
-#: ../backend/plustek.c:1048
+#: ../backend/plustek.c:1049
 #, no-c-format
 msgid "Red lamp off"
 msgstr "Apagar lámpara roja"
 
-#: ../backend/plustek.c:1049
+#: ../backend/plustek.c:1050
 #, no-c-format
 msgid "Defines red lamp off parameter"
 msgstr "Define los parámetros de apagado de lámpara roja"
 
-#: ../backend/plustek.c:1056
+#: ../backend/plustek.c:1057
 #, no-c-format
 msgid "Green lamp off"
 msgstr "Apagar lámpara verde"
 
-#: ../backend/plustek.c:1057
+#: ../backend/plustek.c:1058
 #, no-c-format
 msgid "Defines green lamp off parameter"
 msgstr "Define los parámetros de apagado de lámpara verde"
 
-#: ../backend/plustek.c:1064
+#: ../backend/plustek.c:1065
 #, no-c-format
 msgid "Blue lamp off"
 msgstr "Apagar lámpara azul"
 
-#: ../backend/plustek.c:1065
+#: ../backend/plustek.c:1066
 #, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr "Define los parámetros de apagado de lámpara azul"
 
-#: ../backend/plustek.c:1095
+#: ../backend/plustek.c:1096
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
 msgstr "Esta opción refleja el estado de los botones del escáner"
 
-#: ../backend/plustek_pp.c:194
+#: ../backend/plustek_pp.c:197
 #, no-c-format
 msgid "Color36"
 msgstr "Color 36"
 
-#: ../backend/plustek_pp.c:208
+#: ../backend/plustek_pp.c:211
 #, no-c-format
 msgid "Dithermap 1"
 msgstr "Mapa de trama 1"
 
-#: ../backend/plustek_pp.c:209
+#: ../backend/plustek_pp.c:212
 #, no-c-format
 msgid "Dithermap 2"
 msgstr "Mapa de trama 2"
 
-#: ../backend/plustek_pp.c:210
+#: ../backend/plustek_pp.c:213
 #, no-c-format
 msgid "Randomize"
 msgstr "Aleatorio"
@@ -4809,29 +4925,29 @@ msgstr ""
 "Forzar al motor a devolver el código de estado de "
 "SANE_STATUS_ACCESS_DENIED después de haber sido llamado sane_read()."
 
-#: ../backend/rts8891.c:2770
+#: ../backend/rts8891.c:2809
 #, no-c-format
 msgid "This option reflects the status of a scanner button."
 msgstr "Esta opción refleja el estado de los botones del escáner"
 
-#: ../backend/rts8891.c:2801 ../backend/umax.c:5795
+#: ../backend/rts8891.c:2840 ../backend/umax.c:5795
 #: ../backend/umax_pp.c:639
 #, no-c-format
 msgid "Lamp on"
 msgstr "Encender lámpara"
 
-#: ../backend/rts8891.c:2802 ../backend/umax.c:5796
+#: ../backend/rts8891.c:2841 ../backend/umax.c:5796
 #, no-c-format
 msgid "Turn on scanner lamp"
 msgstr "Enciende la lámpara del escáner"
 
-#: ../backend/rts8891.c:2812 ../backend/umax1220u.c:248
+#: ../backend/rts8891.c:2851 ../backend/umax1220u.c:248
 #: ../backend/umax.c:5812
 #, no-c-format
 msgid "Lamp off"
 msgstr "Apagar lámpara"
 
-#: ../backend/rts8891.c:2813 ../backend/umax1220u.c:249
+#: ../backend/rts8891.c:2852 ../backend/umax1220u.c:249
 #: ../backend/umax.c:5813
 #, no-c-format
 msgid "Turn off scanner lamp"
@@ -4852,42 +4968,42 @@ msgstr "Minutos que tardará la lámpara en apagarse tras el escaneo"
 msgid "Threshold value for lineart mode"
 msgstr "Valor de umbral para el modo de línea de arte"
 
-#: ../backend/snapscan-options.c:84
+#: ../backend/snapscan-options.c:88
 #, no-c-format
 msgid "Document Feeder"
 msgstr "Alimentador de documentos"
 
-#: ../backend/snapscan-options.c:88
+#: ../backend/snapscan-options.c:92
 #, no-c-format
 msgid "6x4 (inch)"
 msgstr "6x4 (pulg.)"
 
-#: ../backend/snapscan-options.c:89
+#: ../backend/snapscan-options.c:93
 #, no-c-format
 msgid "8x10 (inch)"
 msgstr "8x10 (pulg.)"
 
-#: ../backend/snapscan-options.c:90
+#: ../backend/snapscan-options.c:94
 #, no-c-format
 msgid "8.5x11 (inch)"
 msgstr "8.5x11 (pulg.)"
 
-#: ../backend/snapscan-options.c:93
+#: ../backend/snapscan-options.c:97
 #, no-c-format
 msgid "Halftoning Unsupported"
 msgstr "Medios tonos no compatibles"
 
-#: ../backend/snapscan-options.c:94
+#: ../backend/snapscan-options.c:98
 #, no-c-format
 msgid "DispersedDot8x8"
 msgstr "Punto disperso 8x8"
 
-#: ../backend/snapscan-options.c:95
+#: ../backend/snapscan-options.c:99
 #, no-c-format
 msgid "DispersedDot16x16"
 msgstr "Punto disperso 16x16"
 
-#: ../backend/snapscan-options.c:99
+#: ../backend/snapscan-options.c:103
 #, no-c-format
 msgid ""
 "Number of scan lines to request in a SCSI read. Changing this parameter "
@@ -4903,12 +5019,27 @@ msgstr ""
 "demasiado alto, basado en interfaces X puede dejar de responder a "
 "eventos de X y su sistema se podría atascar."
 
-#: ../backend/snapscan-options.c:436
+#: ../backend/snapscan-options.c:111
+#, no-c-format
+msgid "Frame number of media holder that should be scanned."
+msgstr ""
+
+#: ../backend/snapscan-options.c:114
+#, no-c-format
+msgid "Use manual or automatic selection of focus point."
+msgstr ""
+
+#: ../backend/snapscan-options.c:117
+#, fuzzy, no-c-format
+msgid "Focus point for scanning."
+msgstr "Expulsar el documento después del escaneo"
+
+#: ../backend/snapscan-options.c:482
 #, no-c-format
 msgid "Preview mode"
 msgstr "Modo de vista previa"
 
-#: ../backend/snapscan-options.c:438
+#: ../backend/snapscan-options.c:484
 #, no-c-format
 msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
@@ -4918,12 +5049,12 @@ msgstr ""
 "grises proporciona en general, la mejor relación entre velocidad y "
 "detalle."
 
-#: ../backend/snapscan-options.c:545
+#: ../backend/snapscan-options.c:601
 #, no-c-format
 msgid "Predefined settings"
 msgstr "Ajustes predefinidos"
 
-#: ../backend/snapscan-options.c:547
+#: ../backend/snapscan-options.c:603
 #, no-c-format
 msgid ""
 "Provides standard scanning areas for photographs, printed pages and the "
@@ -4932,12 +5063,42 @@ msgstr ""
 "Proporciona superficies de escaneo estándar para fotografías, páginas "
 "impresas, etc."
 
-#: ../backend/snapscan-options.c:823
+#: ../backend/snapscan-options.c:884
+#, no-c-format
+msgid "Frame"
+msgstr ""
+
+#: ../backend/snapscan-options.c:885
+#, fuzzy, no-c-format
+msgid "Frame to be scanned"
+msgstr "escáner plano"
+
+#: ../backend/snapscan-options.c:897
+#, fuzzy, no-c-format
+msgid "Focus-mode"
+msgstr "Enfoque"
+
+#: ../backend/snapscan-options.c:898
+#, fuzzy, no-c-format
+msgid "Auto or manual focus"
+msgstr "Enfoque automático"
+
+#: ../backend/snapscan-options.c:911
+#, fuzzy, no-c-format
+msgid "Focus-point"
+msgstr "Posición del foco"
+
+#: ../backend/snapscan-options.c:912
+#, fuzzy, no-c-format
+msgid "Focus point"
+msgstr "Posición del foco"
+
+#: ../backend/snapscan-options.c:930
 #, no-c-format
 msgid "Colour lines per read"
 msgstr "Color, líneas por lectura"
 
-#: ../backend/snapscan-options.c:835
+#: ../backend/snapscan-options.c:942
 #, no-c-format
 msgid "Greyscale lines per read"
 msgstr "Escala de grises, líneas de por lectura"
@@ -5648,6 +5809,9 @@ msgstr "Ajusta el desplazamiento del canal de verde"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Ajusta el desplazamiento del canal de azul"
+
+#~ msgid "problem not analyzed (unknown SCSI class)"
+#~ msgstr "problema no analizado (clase de SCSI desconocido)"
 
 #~ msgid "Grayscale"
 #~ msgstr "Escala de grises"

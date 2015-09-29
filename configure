@@ -685,6 +685,8 @@ ALLOCA
 LIBOBJS
 SOCKET_LIBS
 RESMGR_LIBS
+SNMP_CFLAGS
+SNMP_LIBS
 SNMP_CONFIG_PATH
 AVAHI_LIBS
 AVAHI_CFLAGS
@@ -8029,8 +8031,8 @@ $as_echo "no" >&6; }
 fi
 
 if test "$with_snmp" = "yes" -a "${LIBSNMP_EXISTS}x" = "yesx"; then
-	LIBS="$LIBS $SNMP_LIBS"
-	CFLAGS="$CFLAGS $SNMP_CFLAGS"
+
+
 
 $as_echo "#define HAVE_LIBSNMP 1" >>confdefs.h
 

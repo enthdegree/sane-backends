@@ -7453,7 +7453,7 @@ segreg_proc_data(Microtek2_Scanner *ms)
     save_current_src = ms->buf.current_src;
     if ( ms->buf.free_lines < ms->src_max_lines )
       {
-        ms->buf.current_src = ++ms->buf.current_src % 2;
+        ms->buf.current_src = !ms->buf.current_src;
         ms->buf.src_buf = ms->buf.src_buffer[ms->buf.current_src];
         ms->buf.free_lines = ms->buf.free_max_lines;
       }

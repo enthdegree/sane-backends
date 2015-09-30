@@ -15,6 +15,10 @@
 
 #include "sane/config.h"
 
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
+
 #include "sane/sane.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_tcp.h"

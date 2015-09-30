@@ -167,10 +167,10 @@
 :comment "All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MG5600 Series"
-:interface "USB"
+:interface "USB WiFi"
 :usbid "0x04a9" "0x177f"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 1200DPI)."
 
 :model "PIXMA MG6100 Series"
 :interface "USB"

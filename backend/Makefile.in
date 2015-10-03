@@ -938,7 +938,8 @@ libsane_magicolor_la_DEPENDENCIES = $(COMMON_LIBS) libmagicolor.la \
 	sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
 	../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_magicolor_la_OBJECTS =  \
 	libsane_magicolor_la-magicolor-s.lo
 libsane_magicolor_la_OBJECTS = $(nodist_libsane_magicolor_la_OBJECTS)
@@ -1842,7 +1843,9 @@ SCSI_LIBS = @SCSI_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SNMP_CFLAGS = @SNMP_CFLAGS@
 SNMP_CONFIG_PATH = @SNMP_CONFIG_PATH@
+SNMP_LIBS = @SNMP_LIBS@
 SOCKET_LIBS = @SOCKET_LIBS@ 
 STRICT_LDFLAGS = @STRICT_LDFLAGS@
 STRIP = @STRIP@
@@ -2440,11 +2443,11 @@ libsane_ma1509_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ma1509
 libsane_ma1509_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_ma1509_la_LIBADD = $(COMMON_LIBS) libma1509.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS) $(RESMGR_LIBS)
 libmagicolor_la_SOURCES = magicolor.c magicolor.h
-libmagicolor_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=magicolor
+libmagicolor_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=magicolor $(SNMP_CFLAGS)
 nodist_libsane_magicolor_la_SOURCES = magicolor-s.c
 libsane_magicolor_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=magicolor
 libsane_magicolor_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_magicolor_la_LIBADD = $(COMMON_LIBS) libmagicolor.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo  ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo  $(USB_LIBS) $(SOCKET_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
+libsane_magicolor_la_LIBADD = $(COMMON_LIBS) libmagicolor.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo  ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo  $(USB_LIBS) $(SOCKET_LIBS) $(MATH_LIB) $(RESMGR_LIBS) $(SNMP_LIBS)
 libmatsushita_la_SOURCES = matsushita.c matsushita.h
 libmatsushita_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=matsushita
 nodist_libsane_matsushita_la_SOURCES = matsushita-s.c

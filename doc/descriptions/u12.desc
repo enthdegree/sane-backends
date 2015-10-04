@@ -5,7 +5,6 @@
 :backend "u12"
 :version "0.02"
 :manpage "sane-u12"
-:new :no
 ; backend's web page
 :url "http://www.gjaeger.de/scanner/u12/"
 

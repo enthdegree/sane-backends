@@ -1,4 +1,19 @@
 -*-Mode: outline-*-
+New with 1.0.25, released 2015-10-03:
+
+* New backends: epsonds (Epson DS, PX and WF series),
+  pieusb (PIE and Reflecta film/slide scanners).
+* Support for JPG and PNG output format in scanimage.
+* Significant enhancements to avision, canon_dr, epjitsu, fujitsu, genesys,
+  kodakaio and pixma backends.
+* Minor updates, bugfixes or scanners added in several backends.
+* 300 new scanner models supported.
+* Workaround for USB3 problems in Linux kernel.
+* Added code for IR functionality.
+* Documentation and translation updates.
+* Bugfixes (threading, networking, udev rules).
+
+
 New with 1.0.24, released 2013-09-30:
 
 * Significant enhancements to pixma, genesys, kodakaio, fujitsu, canon_dr.

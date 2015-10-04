@@ -1,3 +1,5 @@
+******  Release of sane-backends 1.0.25. End of code freeze ******
+
 2015-09-30 Rolf Bensch <rolf at bensch hyphen online dot de>
     * doc/descriptions/pixma.desc, doc/sane-pixma.man:
       Canon PIXMA MG5600 Series is working, reported by Gavin Falconer.

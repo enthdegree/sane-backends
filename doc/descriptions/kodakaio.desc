@@ -4,7 +4,6 @@
 :manpage "sane-kodakaio"
 :comment "Backend for Kodak AiO ESP and Hero printers. Also possibly Advent AWL10"
 :devicetype :scanner
-:new :no
 
 :mfg "Kodak"
 :url "http://www.kodak.com/"

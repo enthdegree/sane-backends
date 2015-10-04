@@ -48,6 +48,7 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
       ANSI_FLAG=
       ;;
   esac
+  NORMAL_CFLAGS="${NORMAL_CFLAGS} ${ANSI_FLAG}"
   WARN_CFLAGS="${WARN_CFLAGS} ${ANSI_FLAG}"
 
   AC_ARG_ENABLE(warnings,

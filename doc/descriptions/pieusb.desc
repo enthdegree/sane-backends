@@ -11,7 +11,7 @@
 
 :backend "pieusb"                 ; name of backend
 :version "1.0"                    ; version of backend
-:new :yes
+:new :no
 :manpage "sane-pieusb"            ; name of manpage (if it exists)
 :url "https://github.com/kkaempf/sane-backends"  ; backend's web page
 

@@ -18,6 +18,7 @@ EXTRA_DIST = ChangeLog-1.0.0 ChangeLog-1.0.1  ChangeLog-1.0.2 \
  ChangeLog-1.0.12 ChangeLog-1.0.13 ChangeLog-1.0.14 ChangeLog-1.0.15 \
  ChangeLog-1.0.16 ChangeLog-1.0.17 ChangeLog-1.0.18 ChangeLog-1.0.19 \
  ChangeLog-1.0.20 ChangeLog-1.0.21 ChangeLog-1.0.22 ChangeLog-1.0.23 \
+ ChangeLog-1.0.24 ChangeLog-1.0.25 \
  $(PACKAGE).lsm
 
 #

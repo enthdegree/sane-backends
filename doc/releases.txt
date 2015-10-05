@@ -83,4 +83,4 @@ After the release:
 * configure: regenerate with autoconf
 * remove the ':new' tag from any new backends .desc files
 * git add new files and commit
-* git push --tags
+* git push && git push --tags (one of these might give an error 'remote: fatal: bad object 0000000000000000000000000000000000000000', try the other one)

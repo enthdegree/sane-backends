@@ -1978,16 +1978,16 @@ EXTRA_DIST = sane_strstatus.c stubs.c saned.conf.in abaton.conf.in \
 	hp5590_cmds.c hp5590_cmds.h hp5590_low.c hp5590_low.h \
 	hpsj5s.conf.in hs2p.conf.in hs2p-scsi.c hs2p-scsi.h \
 	ibm.conf.in ibm-scsi.c kodak.conf.in kodakaio.conf.in \
-	leo.conf.in lexmark.conf.in lexmark_models.c lexmark_sensors.c \
-	ma1509.conf.in magicolor.conf.in matsushita.conf.in \
-	microtek.conf.in microtek2.conf.in mustek.conf.in \
-	mustek_scsi_pp.c mustek_scsi_pp.h mustek_pp.conf.in \
-	mustek_pp_ccd300.c mustek_pp_ccd300.h mustek_pp_cis.c \
-	mustek_pp_cis.h mustek_pp_null.c mustek_usb.conf.in \
-	mustek_usb_high.c mustek_usb_high.h mustek_usb_low.c \
-	mustek_usb_low.h mustek_usb_mid.c mustek_usb_mid.h \
-	mustek_usb2_asic.c mustek_usb2_asic.h mustek_usb2_high.c \
-	mustek_usb2_high.h mustek_usb2_reflective.c \
+	kvs1025.conf.in leo.conf.in lexmark.conf.in lexmark_models.c \
+	lexmark_sensors.c ma1509.conf.in magicolor.conf.in \
+	matsushita.conf.in microtek.conf.in microtek2.conf.in \
+	mustek.conf.in mustek_scsi_pp.c mustek_scsi_pp.h \
+	mustek_pp.conf.in mustek_pp_ccd300.c mustek_pp_ccd300.h \
+	mustek_pp_cis.c mustek_pp_cis.h mustek_pp_null.c \
+	mustek_usb.conf.in mustek_usb_high.c mustek_usb_high.h \
+	mustek_usb_low.c mustek_usb_low.h mustek_usb_mid.c \
+	mustek_usb_mid.h mustek_usb2_asic.c mustek_usb2_asic.h \
+	mustek_usb2_high.c mustek_usb2_high.h mustek_usb2_reflective.c \
 	mustek_usb2_transparent.c nec.conf.in net.conf.in niash_core.c \
 	niash_core.h niash_xfer.c niash_xfer.h pie.conf.in \
 	pieusb.conf.in p5.conf.in p5_device.c pixma.conf.in \
@@ -2035,6 +2035,7 @@ BACKEND_CONFS = abaton.conf agfafocus.conf apple.conf artec.conf \
 	       epson.conf epsonds.conf fujitsu.conf genesys.conf gphoto2.conf \
 	       gt68xx.conf hp3900.conf hp4200.conf hp5400.conf \
 	       hp.conf hpsj5s.conf hs2p.conf ibm.conf kodak.conf kodakaio.conf\
+	       kvs1025.conf \
 	       leo.conf lexmark.conf ma1509.conf magicolor.conf \
 	       matsushita.conf microtek2.conf microtek.conf mustek.conf \
 	       mustek_pp.conf mustek_usb.conf nec.conf net.conf \

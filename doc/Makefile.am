@@ -216,6 +216,7 @@ DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/primax.desc \
   descriptions-external/samsung.desc \
   descriptions-external/scanwit.desc \
+  descriptions-external/utsushi.desc \
   descriptions-external/v4l2.desc \
   descriptions-external/viceo.desc
 EXTRA_DIST += $(DESC_EXT_FILES) descriptions-external/template.desc.

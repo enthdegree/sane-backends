@@ -82,6 +82,8 @@
 #include <pwd.h>
 #include <grp.h>
 
+#include <getopt.h>
+
 #if defined(HAVE_SYS_POLL_H) && defined(HAVE_POLL)
 # include <sys/poll.h>
 #else
@@ -3255,9 +3257,30 @@ run_inetd (char *sock)
 
 static void usage(char *me, int err)
 {
-  fprintf (stderr, "Usage: %s -a [ username ] | -d [ n ] | -s [ n ]| -h\n", me);
+  fprintf (stderr,
+       "Usage: %s [OPTIONS]\n\n"
+       " Options:\n\n"
+       "  -a, --alone[=user]	run standalone and fork in background as `user'\n"
+       "  -d, --debug[=level]	run foreground with output to stdout\n"
+       "			and debug level `level' (default is 2)\n"
+       "  -s, --syslog[=level]	run foreground with output to syslog\n"
+       "			and debug level `level' (default is 2)\n"
+       "  -h, --help		this help message\n", me);
+
   exit(err);
 }
+
+static int debug;
+
+static struct option long_options[] =
+{
+/* These options set a flag. */
+  {"help",	no_argument,		0, 'h'},
+  {"alone",	optional_argument,	0, 'a'},
+  {"debug",	optional_argument,	0, 'd'},
+  {"syslog",	optional_argument,	0, 's'},
+  {0}
+};
 
 int
 main (int argc, char *argv[])
@@ -3266,6 +3289,8 @@ main (int argc, char *argv[])
   debug = DBG_WARN;
   char *user = NULL;
   char *sock = NULL;
+  int c;
+  int long_index = 0;
 
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
@@ -3276,37 +3301,27 @@ main (int argc, char *argv[])
   numchildren = 0;
   run_mode = SANED_RUN_INETD;
 
-  if (argc >= 2)
+  while((c = getopt_long(argc, argv,"ha::d::s::", long_options, &long_index )) != -1)
     {
-      if (strncmp (argv[1], "-a", 2) == 0)
-	{
-	  run_mode = SANED_RUN_ALONE;
-	  if (argc >= 3)
-	    user = argv[2];
-	}
-      else if (strncmp (argv[1], "-d", 2) == 0)
-	{
-	  run_mode = SANED_RUN_DEBUG;
-	  log_to_syslog = SANE_FALSE;
-	}
-      else if (strncmp (argv[1], "-s", 2) == 0)
+      switch(c) {
+      case 'a':
+	run_mode = SANED_RUN_ALONE;
+	user = optarg;
+	break;
+      case 'd':
+	log_to_syslog = SANE_FALSE;
+      case 's':
 	run_mode = SANED_RUN_DEBUG;
-      else
-        {
-          if ((strncmp (argv[1], "-h", 2) == 0) ||
-               (strncmp (argv[1], "--help", 6) == 0))
-            usage (argv[0], EXIT_SUCCESS);
-          else
-            usage (argv[0], EXIT_FAILURE);
-        }
-    }
-
-  if (run_mode == SANED_RUN_DEBUG)
-    {
-      if (argv[1][2])
-	debug = atoi (argv[1] + 2);
-
-      DBG (DBG_WARN, "main: starting debug mode (level %d)\n", debug);
+	if(optarg)
+	  debug = atoi(optarg);
+	break;
+      case 'h':
+	usage(argv[0], EXIT_SUCCESS);
+	break;
+      default:
+	usage(argv[0], EXIT_FAILURE);
+	break;
+      }
     }
 
   if (log_to_syslog)

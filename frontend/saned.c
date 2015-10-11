@@ -249,6 +249,7 @@ static int num_handles;
 static int debug;
 static int run_mode;
 static Handle *handle;
+static char *bind_addr;
 static union
 {
   int w;
@@ -2809,13 +2810,13 @@ do_bindings (int *nfds, struct pollfd **fds)
   hints.ai_flags = AI_PASSIVE;
   hints.ai_socktype = SOCK_STREAM;
 
-  err = getaddrinfo (NULL, SANED_SERVICE_NAME, &hints, &res);
+  err = getaddrinfo (bind_addr, SANED_SERVICE_NAME, &hints, &res);
   if (err)
     {
       DBG (DBG_WARN, "do_bindings: \" %s \" service unknown on your host; you should add\n", SANED_SERVICE_NAME);
       DBG (DBG_WARN, "do_bindings:      %s %d/tcp saned # SANE network scanner daemon\n", SANED_SERVICE_NAME, SANED_SERVICE_PORT);
       DBG (DBG_WARN, "do_bindings: to your /etc/services file (or equivalent). Proceeding anyway.\n");
-      err = getaddrinfo (NULL, SANED_SERVICE_PORT_S, &hints, &res);
+      err = getaddrinfo (bind_addr, SANED_SERVICE_PORT_S, &hints, &res);
       if (err)
 	{
 	  DBG (DBG_ERR, "do_bindings: getaddrinfo() failed even with numeric port: %s\n", gai_strerror (err));
@@ -2893,7 +2894,10 @@ do_bindings (int *nfds, struct pollfd **fds)
   memset (&sin, 0, sizeof (sin));
 
   sin.sin_family = AF_INET;
-  sin.sin_addr.s_addr = INADDR_ANY;
+  if(bind_addr)
+    sin.sin_addr.s_addr = inet_addr(bind_addr);
+  else
+    sin.sin_addr.s_addr = INADDR_ANY;
   sin.sin_port = port;
 
   DBG (DBG_DBG, "do_bindings: socket ()\n");
@@ -3265,6 +3269,7 @@ static void usage(char *me, int err)
        "			and debug level `level' (default is 2)\n"
        "  -s, --syslog[=level]	run foreground with output to syslog\n"
        "			and debug level `level' (default is 2)\n"
+       "  -b, --bind=addr	bind address `addr'\n"
        "  -h, --help		this help message\n", me);
 
   exit(err);
@@ -3279,6 +3284,7 @@ static struct option long_options[] =
   {"alone",	optional_argument,	0, 'a'},
   {"debug",	optional_argument,	0, 'd'},
   {"syslog",	optional_argument,	0, 's'},
+  {"bind",	required_argument,	0, 'b'},
   {0}
 };
 
@@ -3301,7 +3307,7 @@ main (int argc, char *argv[])
   numchildren = 0;
   run_mode = SANED_RUN_INETD;
 
-  while((c = getopt_long(argc, argv,"ha::d::s::", long_options, &long_index )) != -1)
+  while((c = getopt_long(argc, argv,"ha::d::s::b:", long_options, &long_index )) != -1)
     {
       switch(c) {
       case 'a':
@@ -3314,6 +3320,9 @@ main (int argc, char *argv[])
 	run_mode = SANED_RUN_DEBUG;
 	if(optarg)
 	  debug = atoi(optarg);
+	break;
+      case 'b':
+	bind_addr = optarg;
 	break;
       case 'h':
 	usage(argv[0], EXIT_SUCCESS);

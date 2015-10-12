@@ -3292,12 +3292,13 @@ int
 main (int argc, char *argv[])
 {
   char options[64] = "";
-  debug = DBG_WARN;
   char *user = NULL;
   char *sock = NULL;
   char *bind_addr = NULL;
   int c;
   int long_index = 0;
+
+  debug = DBG_WARN;
 
   prog_name = strrchr (argv[0], '/');
   if (prog_name)

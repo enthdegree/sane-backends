@@ -82,7 +82,7 @@
 #include <pwd.h>
 #include <grp.h>
 
-#include <getopt.h>
+#include "lgetopt.h"
 
 #if defined(HAVE_SYS_POLL_H) && defined(HAVE_POLL)
 # include <sys/poll.h>

@@ -3295,6 +3295,7 @@ main (int argc, char *argv[])
   debug = DBG_WARN;
   char *user = NULL;
   char *sock = NULL;
+  char *bind_addr = NULL;
   int c;
   int long_index = 0;
 

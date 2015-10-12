@@ -3270,7 +3270,7 @@ static void usage(char *me, int err)
        "  -s, --syslog[=level]	run foreground with output to syslog\n"
        "			and debug level `level' (default is 2)\n"
        "  -b, --bind=addr	bind address `addr'\n"
-       "  -h, --help		this help message\n", me);
+       "  -h, --help		show this help message and exit\n", me);
 
   exit(err);
 }

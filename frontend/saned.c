@@ -3285,7 +3285,7 @@ static struct option long_options[] =
   {"debug",	optional_argument,	0, 'd'},
   {"syslog",	optional_argument,	0, 's'},
   {"bind",	required_argument,	0, 'b'},
-  {0}
+  {0,		0,			0,  0 }
 };
 
 int

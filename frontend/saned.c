@@ -3294,7 +3294,6 @@ main (int argc, char *argv[])
   char options[64] = "";
   char *user = NULL;
   char *sock = NULL;
-  char *bind_addr = NULL;
   int c;
   int long_index = 0;
 

@@ -1,1 +1,9 @@
 Older entries can be found in ChangeLog-1.0.25.
+
+2015-10-14 Rolf Bensch <rolf at bensch hyphen online dot de>
+    * backend/pixma_mp730.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
+      New scanners Canon PIXUS MP5/SmartBase MPC190/imageCLASS MPC190 and
+      Canon MP10/SmartBase MPC200/imageCLASS MPC200,
+      reported by Gernot Hassenpflug. The MP5/... needs futher testing.
+    * backend/pixma.h, doc/descriptions/pixma.desc:
+      Pixma backend version 0.17.24

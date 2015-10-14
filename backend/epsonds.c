@@ -1111,13 +1111,13 @@ sane_start(SANE_Handle handle)
 		sprintf(buf, "#ADF%s%s",
 			s->val[OPT_ADF_MODE].w ? "DPLX" : "",
 			s->val[OPT_ADF_SKEW].w ? "SKEW" : "");
-
+#if 0
 		if (s->hw->adf_has_dfd == 2) {
 			strcat(buf, "DFL2");
 		} else if (s->hw->adf_has_dfd == 1) {
 			strcat(buf, "DFL1");
 		}
-
+#endif
 	} else if (strcmp(source_list[s->val[OPT_SOURCE].w], FBF_STR) == 0) {
 
 		strcpy(buf, "#FB ");

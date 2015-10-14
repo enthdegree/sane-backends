@@ -63,13 +63,17 @@
 #define IMAGE_BLOCK_SIZE (0xc000)
 #define CMDBUF_SIZE 512
 
+#define MP10_PID 0x261f
+
 #define MP730_PID 0x262f
 #define MP700_PID 0x2630
+
+#define MP5_PID 0x2635          /* untested */
 
 #define MP360_PID 0x263c
 #define MP370_PID 0x263d
 #define MP390_PID 0x263e
-#define MP375R_PID 0x263f   /* untested */
+#define MP375R_PID 0x263f       /* untested */
 
 #define MP740_PID 0x264c	/* Untested */
 #define MP710_PID 0x264d
@@ -341,6 +345,8 @@ handle_interrupt (pixma_t * s, int timeout)
 	s->events = PIXMA_EV_BUTTON1;	/* color scan */
       break;
 
+    case MP5_PID:
+    case MP10_PID:
     case MP700_PID:
     case MP730_PID:
     case MP710_PID:
@@ -537,7 +543,9 @@ calc_raw_width (pixma_t * s, const pixma_scan_param_t * sp)
     {
       if (sp->depth == 8)   /* grayscale  */
         {
-          if (s->cfg->pid == MP700_PID ||
+          if (s->cfg->pid == MP5_PID   ||
+              s->cfg->pid == MP10_PID  ||
+              s->cfg->pid == MP700_PID ||
               s->cfg->pid == MP730_PID ||
               s->cfg->pid == MP360_PID ||
               s->cfg->pid == MP370_PID ||
@@ -566,8 +574,10 @@ mp730_check_param (pixma_t * s, pixma_scan_param_t * sp)
     {
       sp->depth=8;
     }
-  /* for MP360/370, MP700/730 in grayscale & lineart modes, max scan res is 600 dpi */
-  if (s->cfg->pid == MP700_PID ||
+  /* for MP5, MP10, MP360/370, MP700/730 in grayscale & lineart modes, max scan res is 600 dpi */
+  if (s->cfg->pid == MP5_PID   ||
+      s->cfg->pid == MP10_PID  ||
+      s->cfg->pid == MP700_PID ||
       s->cfg->pid == MP730_PID ||
       s->cfg->pid == MP360_PID ||
       s->cfg->pid == MP370_PID ||
@@ -808,6 +818,8 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
 }
 const pixma_config_t pixma_mp730_devices[] = {
 /* TODO: check area limits */
+  DEVICE ("PIXUS MP5/SmartBase MPC190/imageCLASS MPC190","MP5", MP5_PID, 600, 636, 868, PIXMA_CAP_LINEART),/* color scan can do 600x1200 */
+  DEVICE ("PIXUS MP10/SmartBase MPC200/imageCLASS MPC200","MP10", MP10_PID, 600, 636, 868, PIXMA_CAP_LINEART),/* color scan can do 600x1200 */
   DEVICE ("PIXMA MP360", "MP360", MP360_PID, 1200, 636, 868, PIXMA_CAP_LINEART),
   DEVICE ("PIXMA MP370", "MP370", MP370_PID, 1200, 636, 868, PIXMA_CAP_LINEART),
   DEVICE ("PIXMA MP375R", "MP375R", MP375R_PID, 1200, 636, 868, PIXMA_CAP_LINEART),

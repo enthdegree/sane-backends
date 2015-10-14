@@ -232,6 +232,18 @@
 :status :complete
 :comment "All resolutions supported (up to 4800DPI)."
 
+:model "PIXUS MP5"
+:interface "USB"
+:usbid "0x04a9" "0x2635"
+:status :untested
+:comment "Testers needed! Identical with imageCLASS MPC190."
+
+:model "PIXUS MP10"
+:interface "USB"
+:usbid "0x04a9" "0x261f"
+:status :complete
+:comment "All resolutions supported (up to 600DPI). Identical with imageCLASS MPC200."
+
 :model "PIXMA MP140"
 :interface "USB"
 :usbid "0x04a9" "0x172b"
@@ -1006,6 +1018,18 @@
 :usbid "0x04a9" "0x277a"
 :status :untested
 :comment "Same protocol as MF8200C Series? Testers needed!"
+
+:model "imageCLASS MPC190"
+:interface "USB"
+:usbid "0x04a9" "0x2635"
+:status :untested
+:comment "Testers needed! Identical with SmartBase MPC190 and PIXUS MP5."
+
+:model "imageCLASS MPC200"
+:interface "USB"
+:usbid "0x04a9" "0x261f"
+:status :complete
+:comment "All resolutions supported (up to 600DPI). Identical with SmartBase MPC200 and PIXUS MP10."
 
 :model "imageRUNNER 1020/1024/1025"
 :interface "USB"

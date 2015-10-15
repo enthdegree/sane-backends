@@ -67,6 +67,9 @@
 #include <stdlib.h>		/* malloc, free */
 #include <string.h>		/* memcpy */
 #include <stdio.h>
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 
 
 #define HP5400_CONFIG_FILE "hp5400.conf"

@@ -48,6 +48,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 
 #include "../include/sane/sane.h"
 #define BACKEND_NAME hp5590

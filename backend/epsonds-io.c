@@ -16,6 +16,9 @@
 #include "sane/config.h"
 #include <ctype.h>
 #include <unistd.h>     /* sleep */
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 
 #include "epsonds.h"
 #include "epsonds-io.h"

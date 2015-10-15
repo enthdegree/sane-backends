@@ -10,6 +10,9 @@
 
 #include "../include/sane/config.h"
 #include <semaphore.h>
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 
 #undef  BACKEND_NAME
 #define BACKEND_NAME kvs40xx

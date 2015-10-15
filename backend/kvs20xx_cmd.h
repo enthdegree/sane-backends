@@ -9,6 +9,10 @@
    Panasonic KV-S20xx USB-SCSI scanners.
 */
 
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
 #define COMMAND_BLOCK	1
 #define DATA_BLOCK	2
 #define RESPONSE_BLOCK	3

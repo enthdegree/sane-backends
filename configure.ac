@@ -12,7 +12,7 @@ dnl ***********************************************************************
 
 m4_ifdef([AC_CONFIG_MACRO_DIR], [AC_CONFIG_MACRO_DIR([m4])])
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([1.9 subdir-objects])
 dnl Turn off feature were automake will automatically run autoreconf.
 dnl This is because we check in generated files into CVS which has
 dnl known timestamp issues.

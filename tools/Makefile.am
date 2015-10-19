@@ -10,9 +10,9 @@ AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include \
 bin_PROGRAMS = sane-find-scanner gamma4scanimage
 noinst_PROGRAMS = sane-desc
 if INSTALL_UMAX_PP_TOOLS
-bin_PROGRAMS = umax_pp
+bin_PROGRAMS += umax_pp
 else
-noinst_PROGRAMS = umax_pp
+noinst_PROGRAMS += umax_pp
 endif
 
 if CROSS_COMPILING

@@ -16,7 +16,7 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 # Backend man pages bypass standard automake man5_MANS because there is not
 # a man page for every supported backend.  We could get rid of
 # custom install/uninstall if we required man pages for every backend.
-BACKEND_MANS_ENABLED = @BACKEND_MANS_ENABLED@
+
 BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-dll.5 sane-dc25.5 sane-dmc.5 sane-epson.5 sane-epson2.5 sane-epsonds.5 \
 	sane-hp.5 sane-gphoto2.5 sane-leo.5 sane-lexmark.5 \
@@ -94,11 +94,9 @@ doc_DATA += $(STANDARD)
 EXTRA_DIST += descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
   sane.png
 
-LATEX	= TEXINPUTS="$(srcdir):$$TEXINPUTS" @LATEX@
-DVIPS   = @DVIPS@
-MAKEINDEX = @MAKEINDEX@
-DLH	= TEXINPUTS="$(srcdir):$$TEXINPUTS" dlh
-MAN2HTML= nroff -c -man |\
+TI_LATEX = TEXINPUTS="$(srcdir):$$TEXINPUTS" @LATEX@
+TI_DLH   = TEXINPUTS="$(srcdir):$$TEXINPUTS" dlh
+MAN2HTML = nroff -c -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
           -cgiurl '$$title.$$section.html'|\
 	  sed 's,<BODY>,<BODY BGCOLOR=\#FFFFFF TEXT=\#000000><H1 ALIGN=CENTER><IMG SRC="/images/sane.png" HEIGHT=117 WIDTH=346></H1>,'
@@ -237,20 +235,20 @@ uninstall-local:
 sane.ind: $(srcdir)/sane.tex
 	@echo Generating index for sane.tex...
 	@touch sane.ind
-	@$(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	@$(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null && \
 	  $(MAKEINDEX) sane.idx 2>/dev/null && \
-	  $(LATEX) $(srcdir)/sane </dev/null >/dev/null
+	  $(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null
 
 sane.dvi: sane.ind
 	@echo Generating sane.dvi from sane.tex...
-	@$(LATEX) $(srcdir)/sane </dev/null >/dev/null
+	@$(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null
 
 sane.ps: sane.dvi
 	@echo Generating sane.ps from sane.dvi...
 	@$(DVIPS) sane.dvi -o sane.ps 2>/dev/null
 
 sane-html: sane.dvi
-	$(DLH) $(srcdir)/sane.tex
+	$(TI_DLH) $(srcdir)/sane.tex
 
 html-man: $(MANPAGES)
 	@for page in $(MANPAGES); do \

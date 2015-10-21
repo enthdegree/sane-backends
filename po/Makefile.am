@@ -6,11 +6,7 @@
 
 # See po/README for documentation.
 
-MSGFMT = @MSGFMT@
-XGETTEXT = @XGETTEXT@
-MSGMERGE = @MSGMERGE@ -w75
-
-GETTEXT_PACKAGE = @PACKAGE@
+GETTEXT_PACKAGE = $(PACKAGE)
 
 TMP_FILE_DIR = .tmp
 
@@ -81,7 +77,7 @@ update: $(GETTEXT_PACKAGE).pot
 	   fi ; \
 	   echo "updating $${pofile}" ; \
 	   cp $${pofile} $${pofile}.old  ; \
-	   $(MSGMERGE) $${pofile}.old $< -o $${pofile} ; \
+	   $(MSGMERGE) -w75 $${pofile}.old $< -o $${pofile} ; \
 	   rm -f $${pofile}.old template.po ; \
 	 done 
 

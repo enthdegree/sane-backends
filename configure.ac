@@ -19,7 +19,7 @@ dnl known timestamp issues.
 AM_MAINTAINER_MODE
 
 AC_CONFIG_HEADERS([include/sane/config.h])
-AC_PREREQ(2.54) dnl Minimum Autoconf version required.
+AC_PREREQ(2.69) dnl Minimum Autoconf version required.
 
 PACKAGE=AC_PACKAGE_NAME
 VERSION=AC_PACKAGE_VERSION
@@ -42,7 +42,7 @@ AC_CANONICAL_HOST
 
 dnl no bloody way to have a decent --docdir...
 AC_ARG_WITH(docdir, 
-  AC_HELP_STRING([--with-docdir=DIR],
+  AS_HELP_STRING([--with-docdir=DIR],
                  [documentation @<:@PREFIX/doc/sane-VERSION@:>@]),
 [
   docdir="${withval}"
@@ -89,11 +89,8 @@ SANE_LINKER_RPATH
 dnl ***********************************************************************
 dnl Checks for unix variants
 dnl ***********************************************************************
-m4_ifdef([AC_USE_SYSTEM_EXTENSIONS], [AC_USE_SYSTEM_EXTENSIONS])
-m4_ifndef([AC_USE_SYSTEM_EXTENSIONS],[AC_GNU_SOURCE])
-m4_ifndef([AC_USE_SYSTEM_EXTENSIONS],[AC_AIX])
-m4_ifndef([AC_USE_SYSTEM_EXTENSIONS],[AC_MINIX])
-AC_ISC_POSIX
+AC_USE_SYSTEM_EXTENSIONS
+AC_SEARCH_LIBS([strerror],[cposix])
 
 AC_NEED_BYTEORDER_H([include/byteorder.h])
 AX_CREATE_STDINT_H([include/_stdint.h])
@@ -102,7 +99,7 @@ dnl ***********************************************************************
 dnl Checks for libraries
 dnl ***********************************************************************
 AC_ARG_ENABLE(dynamic,
-	AC_HELP_STRING([--disable-dynamic],
+	AS_HELP_STRING([--disable-dynamic],
 		       [Disable dynamic loading of backends]),
 	[enable_dynamic=$enableval], [enable_dynamic=auto])
 SANE_CHECK_DLL_LIB
@@ -129,7 +126,7 @@ SANE_CHECK_GPHOTO2
 
 
 AC_ARG_WITH(v4l,
-	    AC_HELP_STRING([--with-v4l],
+	    AS_HELP_STRING([--with-v4l],
 			   [include the v4l backend @<:@default=yes@:>@]),
 	    [# If --with-v4l=no or --without-v4l, disable backend
              # as "$with_v4l" will be set to "no"])
@@ -139,7 +136,7 @@ if test "$with_v4l" != "no" ; then
 fi
 
 AC_ARG_ENABLE(avahi,
-	AC_HELP_STRING([--enable-avahi], [enable Avahi support for saned and the net backend]),
+	AS_HELP_STRING([--enable-avahi], [enable Avahi support for saned and the net backend]),
 	[enable_avahi=$enableval], [enable_avahi=no])
 
 if test "$enable_avahi" = "yes"; then
@@ -156,7 +153,7 @@ dnl SNMP CHECKS
 dnl **************************************************************
 
 AC_ARG_WITH(snmp,
-	AC_HELP_STRING([--with-snmp], [enable SNMP support @<:@default=yes@:>@]))
+	AS_HELP_STRING([--with-snmp], [enable SNMP support @<:@default=yes@:>@]))
 
 if test "$with_snmp" = "no"; then
 	echo "Not including SNMP support"
@@ -225,33 +222,33 @@ AC_SUBST(RESMGR_LIBS)
 dnl ***********************************************************************
 dnl Checks for types and structures
 dnl ***********************************************************************
-AC_TYPE_SIGNAL
+
 AC_TYPE_SIZE_T
 AC_TYPE_PID_T
-AC_CHECK_TYPE(ssize_t, long)
+AC_TYPE_SSIZE_T
 SANE_CHECK_U_TYPES
 
 # from Python, check for "long long" type
 AC_MSG_CHECKING(for long long support)
 have_long_long=no
-AC_TRY_COMPILE([], [long long x; x = (long long)0;], AC_DEFINE(HAVE_LONG_LONG, 1, [Define if the long long type is available.]) have_long_long=yes)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [long long x; x = (long long)0;])],[AC_DEFINE(HAVE_LONG_LONG, 1, Define if the long long type is available.) have_long_long=yes],[])
 AC_MSG_RESULT($have_long_long)
 
 AC_MSG_CHECKING([for socklen_t in <sys/socket.h>])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #include <sys/socket.h>
-],[socklen_t len],AC_MSG_RESULT(yes),
+], [socklen_t len])],AC_MSG_RESULT(yes),
 [AC_MSG_RESULT(no); AC_DEFINE(socklen_t,int,
 [Define socklen_t as \'int\' if necessary.])])
 
 AC_MSG_CHECKING([for union semun in <sys/sem.h>])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
-],[union semun test_semun],[AC_MSG_RESULT(yes);
+], [union semun test_semun])],[AC_MSG_RESULT(yes);
 AC_DEFINE(HAVE_UNION_SEMUN,1,[Define if union semun is available.])],
-AC_MSG_RESULT(no))
+[AC_MSG_RESULT(no)])
 
 AC_MSG_CHECKING([for struct flock in fcntl.h])
 AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
@@ -259,12 +256,12 @@ AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
                 [Define if struct flock is available.])], AC_MSG_RESULT(no))
 
 AC_MSG_CHECKING([for Linux ioctl defines])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #include <sys/ioctl.h>
 #include <asm/types.h>
 ],[
 __u32 houba = _IOR('v',14, unsigned long);
-],[AC_MSG_RESULT(yes);
+])],[AC_MSG_RESULT(yes);
 have_linux_ioctl_defines="yes";],AC_MSG_RESULT(no))
 
 dnl ***********************************************************************
@@ -363,7 +360,7 @@ dnl 	with_cups="no"
 dnl fi
 
 AC_ARG_WITH(systemd,
-	AC_HELP_STRING([--with-systemd], [enable systemd support @<:@default=yes@:>@]))
+	AS_HELP_STRING([--with-systemd], [enable systemd support @<:@default=yes@:>@]))
 if test "x$with_systemd" != xno ; then
   PKG_CHECK_MODULES(SYSTEMD, [libsystemd], have_systemd=yes, have_systemd=no)
   if test "x$have_systemd" = xno; then
@@ -385,14 +382,14 @@ dnl ***********
 
 dnl Enable libusb-1.0, if available
 AC_ARG_ENABLE(libusb_1_0,
-	AC_HELP_STRING([--enable-libusb_1_0], [enable libusb-1.0 support if available]),
+	AS_HELP_STRING([--enable-libusb_1_0], [enable libusb-1.0 support if available]),
 	[enable_libusb_1_0=$enableval], [enable_libusb_1_0=no])
 
 dnl USB support enabled by default (if found).  Note: Overloading libusb
 dnl option right now to disable USB support on any platform; even
 dnl if they use a different library name.
 AC_ARG_ENABLE(libusb, 
-    AC_HELP_STRING([--disable-libusb], [disable support for USB in SANE]),,
+    AS_HELP_STRING([--disable-libusb], [disable support for USB in SANE]),,
     enable_libusb=auto)
 HAVE_USB=no
 if test "$enable_libusb" != "no"; then
@@ -490,14 +487,13 @@ dnl FreeBSD < 3
 if test "$ac_cv_header_sys_scsiio_h" = "yes" \
   -a "$ac_cv_header_scsi_h" = "yes"; then
   AC_MSG_CHECKING([if 'scsireq_t' needs to be defined as 'struct scsireq'])
-  AC_TRY_COMPILE([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #include <sys/scsiio.h>
 #include <scsi.h>
-],[scsireq_t req],,
+], [scsireq_t req])],,
    [AC_MSG_RESULT(yes);
     AC_DEFINE(scsireq_t, struct scsireq_t,
-    	      [Define scsireq_t as \'struct scsireq\' if necessary.])],
-	      AC_MSG_RESULT(no))
+	      [Define scsireq_t as \'struct scsireq\' if necessary.])])
 fi
 AC_CHECK_LIB(scsi, scsireq_enter, SCSI_LIBS="-lscsi") # FreeBSD needs this
 
@@ -508,14 +504,14 @@ AC_CHECK_FUNCS(scsireq_enter)
 
 if test "$ac_cv_header_scsi_sg_h" = "yes"; then
   AC_MSG_CHECKING([for sg_header.target_status in <scsi/sg.h>])
-  AC_TRY_COMPILE([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #include <sys/types.h>
 #include <scsi/sg.h>
 ],[
 struct sg_header hdr;
 hdr.target_status = 1;
 return 0;
-],[AC_MSG_RESULT(yes);
+])],[AC_MSG_RESULT(yes);
    AC_DEFINE(HAVE_SG_TARGET_STATUS,1,
 	     [Define if sg_header.target_status is available.])],
 	     AC_MSG_RESULT(no))
@@ -523,13 +519,13 @@ fi
 
 if test "$ac_cv_header_IOKit_scsi_SCSITaskLib_h" = "yes"; then
   AC_MSG_CHECKING([for SCSITaskSGElement in IOKit/scsi/SCSITaskLib.h])
-  AC_TRY_COMPILE([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #undef VERSION
 #include <IOKit/scsi/SCSITaskLib.h>
 ],[
 SCSITaskSGElement range;
 return 0;
-],[AC_MSG_RESULT(yes);
+])],[AC_MSG_RESULT(yes);
   AC_DEFINE(HAVE_SCSITASKSGELEMENT, 1,
 	    [Define if SCSITaskSGElement is available.])],
   AC_MSG_RESULT(no))
@@ -544,7 +540,7 @@ fi
 AC_SUBST(SCSI_LIBS)
 
 AC_ARG_ENABLE(scsibuffersize, 
-  AC_HELP_STRING([--enable-scsibuffersize=N],
+  AS_HELP_STRING([--enable-scsibuffersize=N],
                  [specify the default size in bytes of the buffer for SCSI
                   commands @<:@default=131072@:>@]),
   [set_scsibuffersize="$enableval"], [set_scsibuffersize=131072])
@@ -556,7 +552,7 @@ dnl only printed when used.
 echo "scsi buffersize: $set_scsibuffersize"
 
 AC_ARG_ENABLE(scsi-directio,
-  AC_HELP_STRING([--enable-scsi-directio],
+  AS_HELP_STRING([--enable-scsi-directio],
                  [enable SCSI direct IO (Linux only, dangerous, see
                   README.linux)]),
   [
@@ -581,13 +577,12 @@ dnl ***********************************************************************
 dnl initialize libtool
 dnl ***********************************************************************
 AC_ARG_ENABLE(preload,
-	AC_HELP_STRING([--disable-preload],
+	AS_HELP_STRING([--disable-preload],
 		       [Disable preloading of backends]),
 	[enable_preload=$enableval], [enable_preload=auto])
 
-AC_LIBTOOL_WIN32_DLL
 AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
+LT_INIT([win32-dll])
 
 dnl Windows (cygwin/mingw), BeOS, and OS/2 need this.
 case $host_os in
@@ -597,7 +592,7 @@ esac
 
 dnl Check for lock dir
 
-AC_ARG_WITH(lockdir, AC_HELP_STRING([--with-lockdir=DIR],
+AC_ARG_WITH(lockdir, AS_HELP_STRING([--with-lockdir=DIR],
                                     [set SANE lockdir @<:@localstatedir/lock/sane@:>@]),
                                     [locksanedir=$withval],[locksanedir=${localstatedir}/lock/sane])
 AC_SUBST(locksanedir)
@@ -626,7 +621,7 @@ AM_CONDITIONAL(COMPILE_SANED, test x$SANED = xsaned)
 dnl These are the backends that are build in any case:
 
 AC_ARG_ENABLE(local-backends,
-  AC_HELP_STRING([--disable-local-backends],
+  AS_HELP_STRING([--disable-local-backends],
                  [turn off compilation of all backends but net]))
 
 ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
@@ -672,7 +667,7 @@ AM_CONDITIONAL(HAVE_JPEG, test x$sane_cv_use_libjpeg = xyes)
 AC_SUBST(SANEI_SANEI_JPEG_LO)
 
 AC_ARG_ENABLE(pnm-backend, 
-  AC_HELP_STRING([--enable-pnm-backend],
+  AS_HELP_STRING([--enable-pnm-backend],
                  [enable the pnm backend for testing frontends (possible security risk, see PROBLEMS file)]),
                  [FILTERED_BACKENDS="${FILTERED_BACKENDS} pnm"],
                  [echo "*** pnm backend not manually selected - disabling"])
@@ -757,7 +752,7 @@ case $host_os in
 esac
 
 AC_ARG_ENABLE(parport-directio,
-  AC_HELP_STRING([--enable-parport-directio],
+  AS_HELP_STRING([--enable-parport-directio],
                  [enable direct hardware access to the parallel port, so 
                   frontends will require special permission level]),
   [
@@ -767,7 +762,7 @@ AC_ARG_ENABLE(parport-directio,
   ])
 
 AC_ARG_ENABLE(translations,
-  AC_HELP_STRING([--disable-translations],
+  AS_HELP_STRING([--disable-translations],
                  [don't install translations of backend options]),,
 		 enable_translations=yes)
 if eval "test x$enable_translations = xyes" ; then
@@ -783,7 +778,7 @@ fi
 AM_CONDITIONAL(ENABLE_TRANSLATIONS, test x$enable_translations = xyes)
 
 AC_ARG_ENABLE(latex,
-	      AC_HELP_STRING([--disable-latex],
+	      AS_HELP_STRING([--disable-latex],
 	      [disable use of latex, et.al., to generate documentation]),,
 	      enable_latex=yes)
 if test "x$enable_latex" = "xyes" ; then

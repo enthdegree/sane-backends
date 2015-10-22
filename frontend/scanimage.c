@@ -322,7 +322,7 @@ auth_callback (SANE_String_Const resource,
     }
 }
 
-static RETSIGTYPE
+static void
 sighandler (int signum)
 {
   static SANE_Bool first_time = SANE_TRUE;

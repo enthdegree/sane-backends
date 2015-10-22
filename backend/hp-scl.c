@@ -1011,7 +1011,7 @@ hp_scsi_read (HpScsi this, void * dest, size_t *len, int isResponse)
 
 static int signal_caught = 0;
 
-static RETSIGTYPE
+static void
 signal_catcher (int sig)
 {
   DBG(1,"signal_catcher(sig=%d): old signal_caught=%d\n",sig,signal_caught);

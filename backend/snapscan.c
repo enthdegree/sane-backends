@@ -1217,13 +1217,13 @@ static void reader (SnapScan_Scanner *pss)
 
 /** signal handler to kill the child process
  */
-static RETSIGTYPE usb_reader_process_sigterm_handler( int signo )
+static void usb_reader_process_sigterm_handler( int signo )
 {
     DBG( DL_INFO, "(SIG) reader_process: terminated by signal %d\n", signo );
     cancelRead = SANE_TRUE;
 }
 
-static RETSIGTYPE sigalarm_handler( int signo UNUSEDARG)
+static void sigalarm_handler( int signo UNUSEDARG)
 {
     DBG( DL_INFO, "ALARM!!!\n" );
 }

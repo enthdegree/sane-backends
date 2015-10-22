@@ -4928,7 +4928,7 @@ static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp, in
 /* ------------------------------------------------------------ READER PROCESS SIGTERM HANDLER  ------------ */
 
 
-static RETSIGTYPE reader_process_sigterm_handler(int signal)
+static void reader_process_sigterm_handler(int signal)
 {
   DBG(DBG_sane_info,"reader_process: terminated by signal %d\n", signal);
 

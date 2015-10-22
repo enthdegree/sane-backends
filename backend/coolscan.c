@@ -2154,7 +2154,7 @@ attach_one (const char *devName)
   return attach_scanner(devName, 0);
 }
 
-static RETSIGTYPE
+static void
 sigterm_handler (int signal)
 {
   signal = signal;

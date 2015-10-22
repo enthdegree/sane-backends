@@ -39,7 +39,7 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
   done
 
   AC_ARG_ENABLE(warnings,
-    AC_HELP_STRING([--enable-warnings],
+    AS_HELP_STRING([--enable-warnings],
                    [turn on tons of compiler warnings (GCC only)]),
     [
       if eval "test x$enable_warnings = xyes"; then 
@@ -181,10 +181,10 @@ AC_DEFUN([SANE_CHECK_IEEE1284],
 [
   AC_CHECK_HEADER(ieee1284.h, [
     AC_CACHE_CHECK([for libieee1284 >= 0.1.5], sane_cv_use_libieee1284, [
-      AC_TRY_COMPILE([#include <ieee1284.h>], [
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <ieee1284.h>], [
 	struct parport p; char *buf; 
 	ieee1284_nibble_read(&p, 0, buf, 1);
- 	], 
+	])],
         [sane_cv_use_libieee1284="yes"; IEEE1284_LIBS="-lieee1284"
       ],[sane_cv_use_libieee1284="no"])
     ],)
@@ -214,7 +214,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
   # the user
 
   AC_ARG_ENABLE([pthread],
-    AC_HELP_STRING([--enable-pthread],
+    AS_HELP_STRING([--enable-pthread],
                    [use pthread instead of fork (default=yes for Linux/MacOS X/MINGW, no for everything else)]),
     [
       if test $enableval = yes ; then
@@ -319,7 +319,7 @@ AC_DEFUN([SANE_CHECK_LOCKING],
   #
   # we check the user
   AC_ARG_ENABLE( [locking],
-    AC_HELP_STRING([--enable-locking],
+    AS_HELP_STRING([--enable-locking],
                    [activate device locking (default=yes, but only used by some backends)]),
     [
       if test $enableval = yes ; then
@@ -330,7 +330,7 @@ AC_DEFUN([SANE_CHECK_LOCKING],
     ])
   if test $use_locking = yes ; then
     AC_ARG_WITH([group],
-      AC_HELP_STRING([--with-group],
+      AS_HELP_STRING([--with-group],
                      [use the specified group for lock dir @<:@default=uucp@:>@]),
         [LOCKPATH_GROUP="$withval"]
     )
@@ -430,7 +430,7 @@ AC_CHECK_TYPES([u_char, u_short, u_int, u_long],,,)
 AC_DEFUN([SANE_CHECK_GPHOTO2],
 [
   AC_ARG_WITH(gphoto2,
-	      AC_HELP_STRING([--with-gphoto2],
+	      AS_HELP_STRING([--with-gphoto2],
 			     [include the gphoto2 backend @<:@default=yes@:>@]),
 	      [# If --with-gphoto2=no or --without-gphoto2, disable backend
                # as "$with_gphoto2" will be set to "no"])
@@ -484,7 +484,7 @@ AC_DEFUN([SANE_CHECK_IPV6],
 [
   AC_MSG_CHECKING([whether to enable IPv6]) 
   AC_ARG_ENABLE(ipv6, 
-    AC_HELP_STRING([--disable-ipv6],[disable IPv6 support]), 
+    AS_HELP_STRING([--disable-ipv6],[disable IPv6 support]),
       [  if test "$enableval" = "no" ; then
          AC_MSG_RESULT([no, manually disabled]) 
          ipv6=no 
@@ -492,7 +492,7 @@ AC_DEFUN([SANE_CHECK_IPV6],
       ])
 
   if test "$ipv6" != "no" ; then
-    AC_TRY_COMPILE([
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 	#define INET6 
 	#include <sys/types.h> 
 	#include <sys/socket.h> ], [
@@ -501,7 +501,7 @@ AC_DEFUN([SANE_CHECK_IPV6],
    	  exit(1); 
  	else 
    	  exit(0); 
-      ],[
+      ])],[
         AC_MSG_RESULT(yes) 
         AC_DEFINE([ENABLE_IPV6], 1, [Define to 1 if the system supports IPv6]) 
         ipv6=yes
@@ -513,7 +513,7 @@ AC_DEFUN([SANE_CHECK_IPV6],
 
   if test "$ipv6" != "no" ; then
     AC_MSG_CHECKING([whether struct sockaddr_storage has an ss_family member])
-    AC_TRY_COMPILE([
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 	#define INET6
 	#include <sys/types.h>
 	#include <sys/socket.h> ], [
@@ -521,11 +521,11 @@ AC_DEFUN([SANE_CHECK_IPV6],
 	struct sockaddr_storage ss;
 	ss.ss_family = AF_INET;
 	exit (0);
-    ], [
+    ])], [
 	AC_MSG_RESULT(yes)
 	AC_DEFINE([HAS_SS_FAMILY], 1, [Define to 1 if struct sockaddr_storage has an ss_family member])
     ], [
-		AC_TRY_COMPILE([
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 		#define INET6
 		#include <sys/types.h>
 		#include <sys/socket.h> ], [
@@ -533,7 +533,7 @@ AC_DEFUN([SANE_CHECK_IPV6],
 		struct sockaddr_storage ss;
 		ss.__ss_family = AF_INET;
 		exit (0);
-	  ], [
+	  ])], [
 		AC_MSG_RESULT([no, but __ss_family exists])
 		AC_DEFINE([HAS___SS_FAMILY], 1, [Define to 1 if struct sockaddr_storage has __ss_family instead of ss_family])
 	  ], [

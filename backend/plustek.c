@@ -416,21 +416,21 @@ sig_chldhandler( int signo )
 
 /** signal handler to kill the child process
  */
-static RETSIGTYPE
+static void
 reader_process_sigterm_handler( int signo )
 {
 	DBG( _DBG_PROC, "(SIG) reader_process: terminated by signal %d\n", signo );
 	_exit( SANE_STATUS_GOOD );
 }
 
-static RETSIGTYPE
+static void
 usb_reader_process_sigterm_handler( int signo )
 {
 	DBG( _DBG_PROC, "(SIG) reader_process: terminated by signal %d\n", signo );
 	cancelRead = SANE_TRUE;
 }
 
-static RETSIGTYPE
+static void
 sigalarm_handler( int signo )
 {
 	_VAR_NOT_USED( signo );

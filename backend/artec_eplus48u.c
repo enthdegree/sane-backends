@@ -1785,14 +1785,14 @@ artec48u_device_read_prepare (Artec48U_Device * dev, size_t expected_count)
   return SANE_STATUS_GOOD;
 }
 
-static RETSIGTYPE
+static void
 reader_process_sigterm_handler (int signal)
 {
   XDBG ((1, "reader_process: terminated by signal %d\n", signal));
   _exit (SANE_STATUS_GOOD);
 }
 
-static RETSIGTYPE
+static void
 usb_reader_process_sigterm_handler (int signal)
 {
   XDBG ((1, "reader_process (usb): terminated by signal %d\n", signal));
@@ -3372,7 +3372,7 @@ close_pipe (Artec48U_Scanner * s)
     }
   return SANE_STATUS_EOF;
 }
-static RETSIGTYPE
+static void
 sigalarm_handler (int __sane_unused__ signal)
 {
   XDBG ((1, "ALARM!!!\n"));

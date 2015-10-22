@@ -4824,7 +4824,7 @@ output_data (Mustek_Scanner * s, FILE * fp,
   DBG (5, "output_data: end\n");
 }
 
-static RETSIGTYPE
+static void
 sigterm_handler (int signal)
 {
   DBG (4,

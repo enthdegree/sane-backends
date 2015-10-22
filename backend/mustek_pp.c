@@ -237,7 +237,7 @@ do_stop(Mustek_pp_Handle *hndl)
  */
 static int fd_to_release = 0;
 /*ARGSUSED*/
-static RETSIGTYPE
+static void
 sigterm_handler (int signal __UNUSED__)
 {
 	sanei_pa4s2_enable(fd_to_release, SANE_FALSE);

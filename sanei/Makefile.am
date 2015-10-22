@@ -4,7 +4,7 @@
 ##  This file is part of the "Sane" build infra-structure.  See
 ##  included LICENSE file for license information.
 
-AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include \
+AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include \
  -I$(top_srcdir)/include
 
 noinst_LTLIBRARIES = libsanei.la

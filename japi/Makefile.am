@@ -13,10 +13,10 @@ CLASSPATH_ENV=.
 JAVAH=javah -jni -cp $(CLASSPATH_ENV)
 
 #	We'll need something in 'configure' for the Java includes.
-AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include \
+AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include \
 	      -I$(top_srcdir)/include -I${JDK_HOME}/include \
 	      -I${JDK_HOME}/include/genunix
-AM_LDFLAGS = $(STRICT_LDFLAGS) -version-number $(V_MAJOR):$(V_MINOR):$(VREV)
+AM_LDFLAGS += $(STRICT_LDFLAGS) -version-number $(V_MAJOR):$(V_MINOR):$(VREV)
 
 JAVA_SRC = SaneDevice.java SaneOption.java SaneRange.java\
 	   Sane.java SaneParameters.java ScanIt.java \

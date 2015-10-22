@@ -82,8 +82,8 @@ AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 dnl ***********************************************************************
 dnl set compiler/linker flags
 dnl ***********************************************************************
-SANE_SET_CFLAGS([$is_release])
-SANE_SET_LDFLAGS
+SANE_SET_AM_CFLAGS([$is_release])
+SANE_SET_AM_LDFLAGS
 SANE_LINKER_RPATH
 
 dnl ***********************************************************************
@@ -414,7 +414,7 @@ if test "$enable_libusb" != "no"; then
   if test "$enable_libusb_1_0" = "yes"; then
     PKG_CHECK_MODULES(LIBUSB_1_0, [ libusb-1.0 >= 1.0.0 ], have_libusb_1_0=yes, have_libusb_1_0=no)
     if test "$have_libusb_1_0" = "yes"; then
-      CFLAGS="$CFLAGS $LIBUSB_1_0_CFLAGS"
+      AM_CFLAGS="$AM_CFLAGS $LIBUSB_1_0_CFLAGS"
       USB_LIBS="$USB_LIBS $LIBUSB_1_0_LIBS"
       HAVE_USB=yes
     fi
@@ -561,7 +561,7 @@ AC_ARG_ENABLE(scsi-directio,
                   README.linux)]),
   [
     if eval "test x$enable_scsi_directio = xyes"; then
-      CFLAGS="$CFLAGS -DENABLE_SCSI_DIRECTIO"
+      AM_CFLAGS="$AM_CFLAGS -DENABLE_SCSI_DIRECTIO"
     fi
   ])
 
@@ -592,7 +592,7 @@ AC_PROG_LIBTOOL
 dnl Windows (cygwin/mingw), BeOS, and OS/2 need this.
 case $host_os in
   cygwin* | mingw* | beos* | os2*)
-  LDFLAGS="$LDFLAGS -no-undefined"
+  AM_LDFLAGS="$AM_LDFLAGS -no-undefined"
 esac
 
 dnl Check for lock dir
@@ -610,7 +610,7 @@ dnl enable/disable backends and features based on previous tests and user's
 dnl choice
 dnl ***********************************************************************
 
-CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
+AM_CPPFLAGS="${AM_CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
 	  -DPATH_SANE_DATA_DIR=\$(datadir) \
 	  -DPATH_SANE_LOCK_DIR=\$(locksanedir) \
 	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
@@ -762,7 +762,7 @@ AC_ARG_ENABLE(parport-directio,
                   frontends will require special permission level]),
   [
     if eval "test x$enable_parport_directio = xyes"; then
-      CFLAGS="$CFLAGS -DENABLE_PARPORT_DIRECTIO"
+      AM_CFLAGS="$AM_CFLAGS -DENABLE_PARPORT_DIRECTIO"
     fi
   ])
 
@@ -802,6 +802,10 @@ dnl ***********************************************************************
 dnl Write output files
 dnl ***********************************************************************
 
+AC_SUBST(AM_CPPFLAGS)
+AC_SUBST(AM_CFLAGS)
+AC_SUBST(AM_LDFLAGS)
+
 DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \"\#\"* \".\\#\"*"
 AC_SUBST(DISTCLEAN_FILES)
 
@@ -818,9 +822,9 @@ dnl print configuration information
 dnl ***********************************************************************
 
 echo "-> Variables used for compilation/linking:"
-echo CPPFLAGS=\"${CPPFLAGS}\"
-echo CFLAGS=\"${CFLAGS}\"
-echo LDFLAGS=\"${LDFLAGS}\"
+echo AM_CPPFLAGS=\"${AM_CPPFLAGS}\"
+echo AM_CFLAGS=\"${AM_CFLAGS}\"
+echo AM_LDFLAGS=\"${AM_LDFLAGS}\"
 echo LIBS=\"${LIBS}\"
 echo "-> Installation directories:"
 echo "Configuration: `eval eval echo ${sysconfdir}`"

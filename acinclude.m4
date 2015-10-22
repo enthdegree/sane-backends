@@ -1,15 +1,15 @@
 dnl
 dnl Contains the following macros
-dnl   SANE_SET_CFLAGS(is_release)
+dnl   SANE_SET_AM_CFLAGS(is_release)
 dnl   SANE_CHECK_MISSING_HEADERS
-dnl   SANE_SET_LDFLAGS
+dnl   SANE_SET_AM_LDFLAGS
 dnl   SANE_CHECK_DLL_LIB
 dnl   SANE_EXTRACT_LDFLAGS(LIBS, LDFLAGS)
 dnl   SANE_CHECK_JPEG
 dnl   SANE_CHECK_IEEE1284
 dnl   SANE_CHECK_PTHREAD
 dnl   SANE_CHECK_LOCKING
-dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
+dnl   JAPHAR_GREP_AM_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_LINKER_RPATH
 dnl   SANE_CHECK_U_TYPES
 dnl   SANE_CHECK_GPHOTO2
@@ -19,12 +19,12 @@ dnl   SANE_PROTOTYPES
 dnl   AC_PROG_LIBTOOL
 dnl
 
-# SANE_SET_CFLAGS(is_release)
-# Set default CFLAGS if gcc is used.  Enable or disable additional
+# SANE_SET_AM_CFLAGS(is_release)
+# Set default AM_CFLAGS if gcc is used.  Enable/disable additional
 # compilation warnings.  The extra warnings are enabled by default
 # during the development cycle but disabled for official releases.
 # The argument is_release is either yes or no.
-AC_DEFUN([SANE_SET_CFLAGS],
+AC_DEFUN([SANE_SET_AM_CFLAGS],
 [
 if test "${ac_cv_c_compiler_gnu}" = "yes"; then
   DEFAULT_CFLAGS="\
@@ -35,7 +35,7 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
       -pedantic"
 
   for flag in $DEFAULT_CFLAGS; do
-    JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+    JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
   done
 
   AC_ARG_ENABLE(warnings,
@@ -44,14 +44,14 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
     [
       if eval "test x$enable_warnings = xyes"; then 
         for flag in $EXTRA_WARNINGS; do
-          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+          JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
         done
       fi
     ],
     [if test x$1 = xno; then
        # Warnings enabled by default (development)
        for flag in $EXTRA_WARNINGS; do
-         JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+         JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
        done
     fi])
 fi # ac_cv_c_compiler_gnu
@@ -84,9 +84,9 @@ AC_DEFUN([SANE_CHECK_MISSING_HEADERS],
   fi
 ])
 
-# SANE_SET_LDFLAGS
-# Add special LDFLAGS
-AC_DEFUN([SANE_SET_LDFLAGS],
+# SANE_SET_AM_LDFLAGS
+# Add special AM_LDFLAGS
+AC_DEFUN([SANE_SET_AM_LDFLAGS],
 [
   # Define stricter linking policy on GNU systems.  This is not
   # added to global LDFLAGS because we may want to create convenience
@@ -101,7 +101,7 @@ AC_DEFUN([SANE_SET_LDFLAGS],
   AC_SUBST(STRICT_LDFLAGS)
   case "${host_os}" in  
     aix*) #enable .so libraries, disable archives
-      LDFLAGS="$LDFLAGS -Wl,-brtl"
+      AM_LDFLAGS="$AM_LDFLAGS -Wl,-brtl"
       ;;
     darwin*) #include frameworks
       LIBS="$LIBS -framework CoreFoundation -framework IOKit"
@@ -245,7 +245,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
     PTHREAD_LIBS=""
   fi
   if test "$have_pthread" = "yes" ; then
-    CPPFLAGS="${CPPFLAGS} -D_REENTRANT"
+    AM_CPPFLAGS="${AM_CPPFLAGS} -D_REENTRANT"
   fi
   AC_SUBST(PTHREAD_LIBS)
   AC_MSG_CHECKING([whether to enable pthread support])
@@ -362,12 +362,12 @@ AC_DEFUN([SANE_CHECK_LOCKING],
 ])
 
 dnl
-dnl JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
+dnl JAPHAR_GREP_AM_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl
 dnl From Japhar.  Report changes to japhar@hungry.com
 dnl
-AC_DEFUN([JAPHAR_GREP_CFLAGS],
-[case "$CFLAGS" in
+AC_DEFUN([JAPHAR_GREP_AM_CFLAGS],
+[case "$AM_CFLAGS" in
 "$1" | "$1 "* | *" $1" | *" $1 "* )
   ifelse($#, 3, [$3], [:])
   ;;

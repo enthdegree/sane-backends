@@ -546,7 +546,7 @@ AC_SUBST(SCSI_LIBS)
 AC_ARG_ENABLE(scsibuffersize, 
   AC_HELP_STRING([--enable-scsibuffersize=N],
                  [specify the default size in bytes of the buffer for SCSI
-                  commands [[default=131072]]]),
+                  commands @<:@default=131072@:>@]),
   [set_scsibuffersize="$enableval"], [set_scsibuffersize=131072])
 AC_DEFINE_UNQUOTED(SCSIBUFFERSIZE, $set_scsibuffersize,
                    [SCSI command buffer size])

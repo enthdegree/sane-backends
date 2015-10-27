@@ -81,7 +81,7 @@ inb (u_long port)
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_ab306.h"
 
-#if (defined(HAVE_IOPERM) || defined(__FreeBSD__)) && !defined(IO_SUPPORT_MISSING)
+#if (defined(HAVE_IOPERM) || defined(__FreeBSD__) || defined(__DragonFly__)) && !defined(IO_SUPPORT_MISSING)
 
 #include <errno.h>
 #include <fcntl.h>
@@ -102,7 +102,7 @@ inb (u_long port)
 #define PORT_DEV	"/dev/port"
 #define AB306_CIO	0x379		/* control i/o port */
 
-#if defined(__FreeBSD__)	
+#if defined(__FreeBSD__) || defined(__DragonFly__)
 static int dev_io_fd = 0;
 #endif
 
@@ -290,7 +290,7 @@ sanei_ab306_open (const char *dev, int *fdp)
 
   status = sanei_ab306_get_io_privilege (i);
 
-#if defined(__FreeBSD__)
+#if defined(__FreeBSD__) || defined(__DragonFly__)
   status = sanei_ab306_get_io_privilege (i);
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -369,7 +369,7 @@ sanei_ab306_get_io_privilege (int fd)
 {
   if (port[fd].port_fd < 0)
     {
-#if defined(__FreeBSD__)
+#if defined(__FreeBSD__) || defined(__DragonFly__)
       if (dev_io_fd == 0)
 	dev_io_fd = open ("/dev/io", O_RDONLY);
       if (dev_io_fd < 0)
@@ -520,7 +520,7 @@ sanei_ab306_exit (void)
 	/* power off the scanner: */
 	ab306_outb (port + i, port[i].base + 1, 0x00);
       }
-#if defined(__FreeBSD)
+#if defined(__FreeBSD) || defined(__DragonFly__)
   if (dev_io_fd >0)
     close (dev_io_fd);
 #endif /* defined(__FreeBSD__) */

@@ -1797,7 +1797,7 @@ main (int argc, char **argv)
 	"/dev/scanner", "/dev/scanner0", "/dev/scanner1",
 	"/dev/pass0", "/dev/pass1", "/dev/pass2", "/dev/pass3",
 	"/dev/pass4", "/dev/pass5", "/dev/pass6", "/dev/pass7",
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) || defined(__DragonFly__)
 	"/dev/uk0", "/dev/uk1", "/dev/uk2", "/dev/uk3", "/dev/uk4",
 	"/dev/uk5", "/dev/uk6",
 #elif defined(__NetBSD__)

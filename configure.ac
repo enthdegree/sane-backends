@@ -231,22 +231,22 @@ SANE_CHECK_U_TYPES
 # from Python, check for "long long" type
 AC_MSG_CHECKING(for long long support)
 have_long_long=no
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [long long x; x = (long long)0;])],[AC_DEFINE(HAVE_LONG_LONG, 1, Define if the long long type is available.) have_long_long=yes],[])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[long long x; x = (long long)0;]])],[AC_DEFINE(HAVE_LONG_LONG, 1, Define if the long long type is available.) have_long_long=yes],[])
 AC_MSG_RESULT($have_long_long)
 
 AC_MSG_CHECKING([for socklen_t in <sys/socket.h>])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/socket.h>
-], [socklen_t len])],AC_MSG_RESULT(yes),
+]], [[socklen_t len]])],AC_MSG_RESULT(yes),
 [AC_MSG_RESULT(no); AC_DEFINE(socklen_t,int,
 [Define socklen_t as \'int\' if necessary.])])
 
 AC_MSG_CHECKING([for union semun in <sys/sem.h>])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
-], [union semun test_semun])],[AC_MSG_RESULT(yes);
+]], [[union semun test_semun]])],[AC_MSG_RESULT(yes);
 AC_DEFINE(HAVE_UNION_SEMUN,1,[Define if union semun is available.])],
 [AC_MSG_RESULT(no)])
 
@@ -256,12 +256,12 @@ AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
                 [Define if struct flock is available.])], AC_MSG_RESULT(no))
 
 AC_MSG_CHECKING([for Linux ioctl defines])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/ioctl.h>
 #include <asm/types.h>
-],[
+]],[[
 __u32 houba = _IOR('v',14, unsigned long);
-])],[AC_MSG_RESULT(yes);
+]])],[AC_MSG_RESULT(yes);
 have_linux_ioctl_defines="yes";],AC_MSG_RESULT(no))
 
 dnl ***********************************************************************
@@ -487,10 +487,10 @@ dnl FreeBSD < 3
 if test "$ac_cv_header_sys_scsiio_h" = "yes" \
   -a "$ac_cv_header_scsi_h" = "yes"; then
   AC_MSG_CHECKING([if 'scsireq_t' needs to be defined as 'struct scsireq'])
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/scsiio.h>
 #include <scsi.h>
-], [scsireq_t req])],,
+]], [[scsireq_t req]])],,
    [AC_MSG_RESULT(yes);
     AC_DEFINE(scsireq_t, struct scsireq_t,
 	      [Define scsireq_t as \'struct scsireq\' if necessary.])])
@@ -504,14 +504,14 @@ AC_CHECK_FUNCS(scsireq_enter)
 
 if test "$ac_cv_header_scsi_sg_h" = "yes"; then
   AC_MSG_CHECKING([for sg_header.target_status in <scsi/sg.h>])
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <scsi/sg.h>
-],[
+]],[[
 struct sg_header hdr;
 hdr.target_status = 1;
 return 0;
-])],[AC_MSG_RESULT(yes);
+]])],[AC_MSG_RESULT(yes);
    AC_DEFINE(HAVE_SG_TARGET_STATUS,1,
 	     [Define if sg_header.target_status is available.])],
 	     AC_MSG_RESULT(no))
@@ -519,13 +519,13 @@ fi
 
 if test "$ac_cv_header_IOKit_scsi_SCSITaskLib_h" = "yes"; then
   AC_MSG_CHECKING([for SCSITaskSGElement in IOKit/scsi/SCSITaskLib.h])
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #undef VERSION
 #include <IOKit/scsi/SCSITaskLib.h>
-],[
+]],[[
 SCSITaskSGElement range;
 return 0;
-])],[AC_MSG_RESULT(yes);
+]])],[AC_MSG_RESULT(yes);
   AC_DEFINE(HAVE_SCSITASKSGELEMENT, 1,
 	    [Define if SCSITaskSGElement is available.])],
   AC_MSG_RESULT(no))

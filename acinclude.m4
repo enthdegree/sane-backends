@@ -181,10 +181,10 @@ AC_DEFUN([SANE_CHECK_IEEE1284],
 [
   AC_CHECK_HEADER(ieee1284.h, [
     AC_CACHE_CHECK([for libieee1284 >= 0.1.5], sane_cv_use_libieee1284, [
-      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <ieee1284.h>], [
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <ieee1284.h>]], [[
 	struct parport p; char *buf; 
 	ieee1284_nibble_read(&p, 0, buf, 1);
-	])],
+	]])],
         [sane_cv_use_libieee1284="yes"; IEEE1284_LIBS="-lieee1284"
       ],[sane_cv_use_libieee1284="no"])
     ],)
@@ -492,16 +492,16 @@ AC_DEFUN([SANE_CHECK_IPV6],
       ])
 
   if test "$ipv6" != "no" ; then
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	#define INET6 
 	#include <sys/types.h> 
-	#include <sys/socket.h> ], [
+	#include <sys/socket.h> ]], [[
 	 /* AF_INET6 available check */  
  	if (socket(AF_INET6, SOCK_STREAM, 0) < 0) 
    	  exit(1); 
  	else 
    	  exit(0); 
-      ])],[
+      ]])],[
         AC_MSG_RESULT(yes) 
         AC_DEFINE([ENABLE_IPV6], 1, [Define to 1 if the system supports IPv6]) 
         ipv6=yes
@@ -513,27 +513,27 @@ AC_DEFUN([SANE_CHECK_IPV6],
 
   if test "$ipv6" != "no" ; then
     AC_MSG_CHECKING([whether struct sockaddr_storage has an ss_family member])
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	#define INET6
 	#include <sys/types.h>
-	#include <sys/socket.h> ], [
+	#include <sys/socket.h> ]], [[
 	/* test if the ss_family member exists in struct sockaddr_storage */
 	struct sockaddr_storage ss;
 	ss.ss_family = AF_INET;
 	exit (0);
-    ])], [
+    ]])], [
 	AC_MSG_RESULT(yes)
 	AC_DEFINE([HAS_SS_FAMILY], 1, [Define to 1 if struct sockaddr_storage has an ss_family member])
     ], [
-		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 		#define INET6
 		#include <sys/types.h>
-		#include <sys/socket.h> ], [
+		#include <sys/socket.h> ]], [[
 		/* test if the __ss_family member exists in struct sockaddr_storage */
 		struct sockaddr_storage ss;
 		ss.__ss_family = AF_INET;
 		exit (0);
-	  ])], [
+	  ]])], [
 		AC_MSG_RESULT([no, but __ss_family exists])
 		AC_DEFINE([HAS___SS_FAMILY], 1, [Define to 1 if struct sockaddr_storage has __ss_family instead of ss_family])
 	  ], [

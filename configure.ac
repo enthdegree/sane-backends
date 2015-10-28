@@ -180,7 +180,7 @@ else
 	fi
 fi
 
-if test "$with_snmp" = "yes" -a "${LIBSNMP_EXISTS}x" = "yesx"; then
+if test "$with_snmp" = "yes" && test "${LIBSNMP_EXISTS}x" = "yesx"; then
 	AC_SUBST(SNMP_LIBS)
 	AC_SUBST(SNMP_CFLAGS)
 	AC_DEFINE(HAVE_LIBSNMP, 1, [Define to 1 if you have the net-snmp library.])

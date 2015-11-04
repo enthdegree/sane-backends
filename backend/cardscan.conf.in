@@ -11,6 +11,9 @@
 # Corex Cardscan 800c
 usb 0x08f0 0x0005
 
+# Sanford Cardscan 800c
+usb 0x0451 0x6250
+
 # Corex Cardscan 600c
 has_cal_buffer 0
 lines_per_block 1

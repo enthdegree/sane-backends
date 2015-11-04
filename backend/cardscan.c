@@ -65,6 +65,8 @@
 	- add has_cal_buffer config option
 	- basic support for 600c
         - clean #include lines
+      v3, 2015-11-04, MAN
+        - add USB IDs for newer model 800c
 
 ##################################################
    DATA FROM TRACE OF WINDOWS DRIVER:
@@ -224,7 +226,7 @@ four times {
 #include "cardscan.h"
 
 #define DEBUG 1
-#define BUILD 2 
+#define BUILD 3 
 
 /* values for SANE_DEBUG_CARDSCAN env var:
  - errors           5
@@ -484,6 +486,16 @@ attach_one (const char *device_name)
         }
         else if(pid == 0x0002){
             s->product_name = "600c";
+        }
+        else{
+            DBG (5, "Unknown product, using default settings\n");
+            s->product_name = "Unknown";
+        }
+    }
+    else if(vid == 0x0451){
+        s->vendor_name = "Sanford";
+        if(pid == 0x6250){
+            s->product_name = "800c";
         }
         else{
             DBG (5, "Unknown product, using default settings\n");

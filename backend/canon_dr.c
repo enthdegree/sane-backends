@@ -316,6 +316,9 @@
          - initial support for DR-C225
       v51 2015-08-25, MAN
          - DR-C125 does not invert_tly, does need sw_lut
+      v52 2015-11-03, MAN
+         - set can_color=1 by default (recent models dont have 'C' in name)
+         - enable jpeg for DR-6080
 
    SANE FLOW DIAGRAM
 
@@ -365,7 +368,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 51
+#define BUILD 52
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1262,16 +1265,19 @@ init_model (struct scanner *s)
   s->max_x_fb = s->max_x;
   s->max_y_fb = s->max_y;
 
-  /* generic settings missing from vpd */
-  if (strstr (s->model_name,"C")){
-    s->can_color = 1;
-  }
+  /* missing from vpd- we will unset this for b&w machines below */
+  s->can_color = 1;
 
   /* specific settings missing from vpd */
-  if (strstr (s->model_name,"DR-9080")
-    || strstr (s->model_name,"DR-7580")){
+  if (strstr (s->model_name,"DR-9080")){
     s->has_comp_JPEG = 1;
     s->rgb_format = 2;
+  }
+
+  else if (strstr (s->model_name,"DR-6080")
+    || strstr (s->model_name,"DR-7580")){
+    s->has_comp_JPEG = 1;
+    s->can_color = 0;
   }
 
   else if (strstr (s->model_name,"DR-7090")){
@@ -1422,6 +1428,7 @@ init_model (struct scanner *s)
     s->ppl_mod = 32;
     s->reverse_by_mode[MODE_LINEART] = 0;
     s->reverse_by_mode[MODE_HALFTONE] = 0;
+    s->can_color = 0;
   }
 
   else if (strstr (s->model_name,"DR-5020")){
@@ -1432,6 +1439,7 @@ init_model (struct scanner *s)
     s->ppl_mod = 32;
     s->reverse_by_mode[MODE_LINEART] = 0;
     s->reverse_by_mode[MODE_HALFTONE] = 0;
+    s->can_color = 0;
   }
 
   else if (strstr (s->model_name, "P-208")) {
@@ -1441,7 +1449,6 @@ init_model (struct scanner *s)
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
     s->need_ccal = 1;
     s->invert_tly = 1;
-    s->can_color = 1;
     s->unknown_byte2 = 0x88;
     s->rgb_format = 1;
     s->has_ssm_pay_head_len = 1;
@@ -1457,7 +1464,6 @@ init_model (struct scanner *s)
     s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
     s->need_ccal = 1;
     s->invert_tly = 1;
-    s->can_color = 1;
     s->unknown_byte2 = 0x88;
     s->rgb_format = 1;
     s->has_ssm_pay_head_len = 1;
@@ -1485,7 +1491,6 @@ init_model (struct scanner *s)
     
     s->has_comp_JPEG = 1;
     s->rgb_format = 1;
-    s->can_color = 1;
     s->has_df_ultra = 1;
 
     s->color_inter_by_res[DPI_100] = COLOR_INTERLACE_GBR;
@@ -1526,7 +1531,6 @@ init_model (struct scanner *s)
     
     s->has_comp_JPEG = 1;
     s->rgb_format = 1;
-    s->can_color = 1;
     s->has_df_ultra = 1;
 
     s->color_inter_by_res[DPI_100] = COLOR_INTERLACE_GBR;
@@ -1563,7 +1567,6 @@ init_model (struct scanner *s)
     s->ccal_version = 3;
     s->need_fcal = 1;
     s->sw_lut = 1;
-    s->can_color = 1;
     s->rgb_format = 1;
     /*s->duplex_offset = 400; now set in config file*/
 
@@ -1592,7 +1595,6 @@ init_model (struct scanner *s)
     s->ccal_version = 3;
     s->need_fcal = 1;
     s->invert_tly = 1;
-    s->can_color = 1;
     s->rgb_format = 1;
     /*s->duplex_offset = 400; now set in config file*/
 

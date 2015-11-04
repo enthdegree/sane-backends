@@ -564,6 +564,9 @@ static SANE_Status copy_simplex(struct scanner *s, unsigned char * buf, int len,
 static SANE_Status copy_duplex(struct scanner *s, unsigned char * buf, int len);
 static SANE_Status copy_line(struct scanner *s, unsigned char * buf, int side);
 
+static int must_downsample (struct scanner *s);
+static int must_fully_buffer (struct scanner *s);
+
 static SANE_Status buffer_despeck(struct scanner *s, int side);
 static SANE_Status buffer_deskew(struct scanner *s, int side);
 static SANE_Status buffer_crop(struct scanner *s, int side);

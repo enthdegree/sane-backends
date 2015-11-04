@@ -319,6 +319,7 @@
       v52 2015-11-03, MAN
          - set can_color=1 by default (recent models dont have 'C' in name)
          - enable jpeg for DR-6080
+         - add must_downsample and must_fully_buffer
 
    SANE FLOW DIAGRAM
 
@@ -2241,7 +2242,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (i > 1){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if (s->u.mode != MODE_COLOR && s->u.mode != MODE_GRAYSCALE){
+      if ( must_downsample(s) || s->s.mode < MODE_GRAYSCALE ){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -4140,9 +4141,7 @@ sane_start (SANE_Handle handle)
    * tell the user the size of the image. the sane 
    * API has no way to inform the frontend of this,
    * so we block and buffer. yuck */
-  if( (s->swdeskew || s->swdespeck || s->swcrop)
-    && s->s.format != SANE_FRAME_JPEG
-  ){
+  if(must_fully_buffer(s)){
 
     /* get image */
     while(!s->s.eof[s->side] && !ret){
@@ -5290,6 +5289,7 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
   switch (s->s.mode) {
 
     case MODE_COLOR:
+      /*FIXME: add dropout color support for downsample*/
       memcpy(line, buff, sbwidth);
       break;
 
@@ -8569,6 +8569,37 @@ rotateOnCenter (struct scanner *s, int side,
   free(outbuf);
 
   DBG(10,"rotateOnCenter: finish\n");
+
+  return 0;
+}
+
+/* certain options require the entire image to 
+ * be collected from the scanner before we can
+ * tell the user the size of the image. */
+static int
+must_fully_buffer(struct scanner *s)
+{
+
+  if(
+    (s->swdeskew || s->swdespeck || s->swcrop)
+    && s->s.format != SANE_FRAME_JPEG
+  ){
+    return 1;
+  }
+
+  return 0;
+}
+
+/* certain scanners require the mode of the 
+ * image to be changed in software. */
+static int
+must_downsample(struct scanner *s)
+{
+  if(s->s.mode != s->i.mode
+    && s->compress != COMP_JPEG
+  ){
+    return 1;
+  }
 
   return 0;
 }

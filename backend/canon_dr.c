@@ -320,6 +320,8 @@
          - set can_color=1 by default (recent models dont have 'C' in name)
          - enable jpeg for DR-6080
          - add must_downsample and must_fully_buffer
+         - improve dropout option handling
+         - add software dropout implementation for downsampled modes
 
    SANE FLOW DIAGRAM
 
@@ -2759,7 +2761,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_DROPOUT_COLOR_F:
-          switch (s->dropout_color_f) {
+          switch (s->dropout_color[SIDE_FRONT]) {
             case COLOR_NONE:
               strcpy (val, STRING_NONE);
               break;
@@ -2785,7 +2787,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_DROPOUT_COLOR_B:
-          switch (s->dropout_color_b) {
+          switch (s->dropout_color[SIDE_BACK]) {
             case COLOR_NONE:
               strcpy (val, STRING_NONE);
               break;
@@ -3081,36 +3083,36 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_DROPOUT_COLOR_F:
           if (!strcmp(val, STRING_NONE))
-            s->dropout_color_f = COLOR_NONE;
+            s->dropout_color[SIDE_FRONT] = COLOR_NONE;
           else if (!strcmp(val, STRING_RED))
-            s->dropout_color_f = COLOR_RED;
+            s->dropout_color[SIDE_FRONT] = COLOR_RED;
           else if (!strcmp(val, STRING_GREEN))
-            s->dropout_color_f = COLOR_GREEN;
+            s->dropout_color[SIDE_FRONT] = COLOR_GREEN;
           else if (!strcmp(val, STRING_BLUE))
-            s->dropout_color_f = COLOR_BLUE;
+            s->dropout_color[SIDE_FRONT] = COLOR_BLUE;
           else if (!strcmp(val, STRING_EN_RED))
-            s->dropout_color_f = COLOR_EN_RED;
+            s->dropout_color[SIDE_FRONT] = COLOR_EN_RED;
           else if (!strcmp(val, STRING_EN_GREEN))
-            s->dropout_color_f = COLOR_EN_GREEN;
+            s->dropout_color[SIDE_FRONT] = COLOR_EN_GREEN;
           else if (!strcmp(val, STRING_EN_BLUE))
-            s->dropout_color_f = COLOR_EN_BLUE;
+            s->dropout_color[SIDE_FRONT] = COLOR_EN_BLUE;
           return SANE_STATUS_GOOD;
 
         case OPT_DROPOUT_COLOR_B:
           if (!strcmp(val, STRING_NONE))
-            s->dropout_color_b = COLOR_NONE;
+            s->dropout_color[SIDE_BACK] = COLOR_NONE;
           else if (!strcmp(val, STRING_RED))
-            s->dropout_color_b = COLOR_RED;
+            s->dropout_color[SIDE_BACK] = COLOR_RED;
           else if (!strcmp(val, STRING_GREEN))
-            s->dropout_color_b = COLOR_GREEN;
+            s->dropout_color[SIDE_BACK] = COLOR_GREEN;
           else if (!strcmp(val, STRING_BLUE))
-            s->dropout_color_b = COLOR_BLUE;
+            s->dropout_color[SIDE_BACK] = COLOR_BLUE;
           else if (!strcmp(val, STRING_EN_RED))
-            s->dropout_color_b = COLOR_EN_RED;
+            s->dropout_color[SIDE_BACK] = COLOR_EN_RED;
           else if (!strcmp(val, STRING_EN_GREEN))
-            s->dropout_color_b = COLOR_EN_GREEN;
+            s->dropout_color[SIDE_BACK] = COLOR_EN_GREEN;
           else if (!strcmp(val, STRING_EN_BLUE))
-            s->dropout_color_b = COLOR_EN_BLUE;
+            s->dropout_color[SIDE_BACK] = COLOR_EN_BLUE;
           return SANE_STATUS_GOOD;
 
         case OPT_BUFFERMODE:
@@ -3347,6 +3349,11 @@ ssm_do (struct scanner *s)
    return ret;
  }
   
+ if(s->s.mode == MODE_COLOR){
+   DBG (10, "ssm_do: unneeded, finishing\n");
+   return ret;
+ }
+
  if(s->has_ssm){
 
     unsigned char cmd[SET_SCAN_MODE_len];
@@ -3369,7 +3376,7 @@ ssm_do (struct scanner *s)
   
     set_SSM_DO_unk1(out, 0x03);
   
-    switch(s->dropout_color_f){
+    switch(s->dropout_color[SIDE_FRONT]){
       case COLOR_RED:
         set_SSM_DO_unk2(out, 0x05);
         set_SSM_DO_f_do(out,SSM_DO_red);
@@ -3396,7 +3403,7 @@ ssm_do (struct scanner *s)
         break;
     }
   
-    switch(s->dropout_color_b){
+    switch(s->dropout_color[SIDE_BACK]){
       case COLOR_RED:
         set_SSM_DO_unk2(out, 0x05);
         set_SSM_DO_b_do(out,SSM_DO_red);
@@ -3447,7 +3454,7 @@ ssm_do (struct scanner *s)
   
     memset(out,0,outLen);
   
-    switch(s->dropout_color_f){
+    switch(s->dropout_color[SIDE_FRONT]){
       case COLOR_RED:
         set_SSM2_DO_do(out,SSM_DO_red);
         break;
@@ -5289,8 +5296,46 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
   switch (s->s.mode) {
 
     case MODE_COLOR:
-      /*FIXME: add dropout color support for downsample*/
-      memcpy(line, buff, sbwidth);
+      if(must_downsample(s) && s->dropout_color[side]){
+        switch(s->dropout_color[side]){
+          case COLOR_RED:
+            for(i=0;i<spwidth;i++)
+              line[i*3] = line[i*3+1] = line[i*3+2] = buff[i*3];
+            break;
+          case COLOR_GREEN:
+            for(i=0;i<spwidth;i++)
+              line[i*3] = line[i*3+1] = line[i*3+2] = buff[i*3+1];
+            break;
+          case COLOR_BLUE:
+            for(i=0;i<spwidth;i++)
+              line[i*3] = line[i*3+1] = line[i*3+2] = buff[i*3+2];
+            break;
+          case COLOR_EN_RED:
+            for(i=0;i<spwidth;i++){
+              line[i*3] = (buff[i*3+1] + buff[i*3+2])/2;
+              line[i*3+1] = buff[i*3+1];
+              line[i*3+2] = buff[i*3+2];
+            }
+            break;
+          case COLOR_EN_GREEN:
+            for(i=0;i<spwidth;i++){
+              line[i*3] = buff[i*3];
+              line[i*3+1] = (buff[i*3] + buff[i*3+2])/2;
+              line[i*3+2] = buff[i*3+2];
+            }
+            break;
+          case COLOR_EN_BLUE:
+            for(i=0;i<spwidth;i++){
+              line[i*3] = buff[i*3];
+              line[i*3+1] = buff[i*3+1];
+              line[i*3+2] = (buff[i*3] + buff[i*3+1])/2;
+            }
+            break;
+        }
+      }
+      else{
+        memcpy(line, buff, sbwidth);
+      }
       break;
 
     case MODE_GRAYSCALE:

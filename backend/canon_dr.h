@@ -276,8 +276,7 @@ struct scanner
   int compress_arg;
   int df_length;
   int df_thickness;
-  int dropout_color_f;
-  int dropout_color_b;
+  int dropout_color[2];
   int buffermode;
   int rollerdeskew;
   int swdeskew;

@@ -43,6 +43,7 @@ enum scanner_Option
   OPT_SWDESKEW,
   OPT_SWDESPECK,
   OPT_SWCROP,
+  OPT_SWSKIP,
   OPT_STAPLEDETECT,
   OPT_DROPOUT_COLOR_F,
   OPT_DROPOUT_COLOR_B,
@@ -253,6 +254,7 @@ struct scanner
   SANE_String_Const compress_list[3];
   SANE_Range compress_arg_range;
   SANE_Range swdespeck_range;
+  SANE_Range swskip_range;
   SANE_String_Const do_color_list[8];
 
   /*sensor group*/
@@ -282,6 +284,7 @@ struct scanner
   int swdeskew;
   int swdespeck;
   int swcrop;
+  int swskip;
   int stapledetect;
 
   /* --------------------------------------------------------------------- */
@@ -587,6 +590,7 @@ static int must_fully_buffer (struct scanner *s);
 static SANE_Status buffer_despeck(struct scanner *s, int side);
 static SANE_Status buffer_deskew(struct scanner *s, int side);
 static SANE_Status buffer_crop(struct scanner *s, int side);
+static int buffer_isblank(struct scanner *s, int side);
 
 static SANE_Status load_lut (unsigned char * lut, int in_bits, int out_bits,
   int out_min, int out_max, int slope, int offset);

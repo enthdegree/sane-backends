@@ -324,6 +324,7 @@
          - add software dropout implementation for downsampled modes
       v53 2015-11-06, MAN
          - replace image processing methods with sanei_magic
+         - add swskip option
 
    SANE FLOW DIAGRAM
 
@@ -2369,6 +2370,24 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
      opt->cap = SANE_CAP_INACTIVE;
   }
 
+  /* Software blank page skip */
+  if(option==OPT_SWSKIP){
+
+    opt->name = "swskip";
+    opt->title = SANE_I18N ("Software blank skip percentage");
+    opt->desc = SANE_I18N("Request driver to discard pages with low percentage of dark pixels");
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_PERCENT;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->swskip_range;
+
+    s->swskip_range.quant=SANE_FIX(0.10001);
+    s->swskip_range.min=SANE_FIX(0);
+    s->swskip_range.max=SANE_FIX(100);
+
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  }
+
   /*staple detection*/
   if(option==OPT_STAPLEDETECT){
     opt->name = "stapledetect";
@@ -2759,6 +2778,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->swcrop;
           return SANE_STATUS_GOOD;
 
+        case OPT_SWSKIP:
+          *val_p = SANE_FIX(s->swskip);
+          return SANE_STATUS_GOOD;
+
         case OPT_STAPLEDETECT:
           *val_p = s->stapledetect;
           return SANE_STATUS_GOOD;
@@ -3078,6 +3101,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_SWCROP:
           s->swcrop = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SWSKIP:
+          s->swskip = SANE_UNFIX(val_c);
           return SANE_STATUS_GOOD;
 
         case OPT_STAPLEDETECT:
@@ -4177,7 +4204,16 @@ sane_start (SANE_Handle handle)
     if(s->swdespeck){
       buffer_despeck(s,s->side);
     }
-
+    if(s->swskip){
+      /* Skipping means throwing out this image.
+       * Pretend the user read the whole thing 
+       * and call sane_start again.
+       * This assumes we are running in batch mode. */
+      if(buffer_isblank(s,s->side)){
+        s->u.eof[s->side] = 1;
+        return sane_start(handle);
+      }
+    }
   }
 
   ret = check_for_cancel(s);
@@ -7520,6 +7556,32 @@ buffer_despeck(struct scanner *s, int side)
   cleanup:
   DBG (10, "buffer_despeck: finish\n");
   return ret;
+}
+
+/* Look if image has too few dark pixels.*/
+static int
+buffer_isblank(struct scanner *s, int side)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int status = 0;
+
+  DBG (10, "buffer_isblank: start\n");
+
+  ret = sane_get_parameters((SANE_Handle) s, &s->s_params);
+
+  ret = sanei_magic_isBlank2(&s->s_params, s->buffers[side],
+    s->u.dpi_x, s->u.dpi_y, s->swskip);
+
+  if(ret == SANE_STATUS_NO_DOCS){
+    DBG (5, "buffer_isblank: blank!\n");
+    status = 1;
+  }
+  else if(ret){
+    DBG (5, "buffer_isblank: error %d\n",ret);
+  }
+
+  DBG (10, "buffer_isblank: finished\n");
+  return status;
 }
 
 /* certain options require the entire image to 

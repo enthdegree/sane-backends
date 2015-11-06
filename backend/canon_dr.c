@@ -322,6 +322,8 @@
          - add must_downsample and must_fully_buffer
          - improve dropout option handling
          - add software dropout implementation for downsampled modes
+      v53 2015-11-06, MAN
+         - replace image processing methods with sanei_magic
 
    SANE FLOW DIAGRAM
 
@@ -366,12 +368,13 @@
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_magic.h"
 
 #include "canon_dr-cmd.h"
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 52
+#define BUILD 53
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -7397,102 +7400,44 @@ buffer_deskew(struct scanner *s, int side)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  int pwidth = s->i.width;
-  int width = s->i.Bpl;
-  int height = s->i.height;
-
-  double TSlope = 0;
-  int TXInter = 0;
-  int TYInter = 0;
-  double TSlopeHalf = 0;
-  int TOffsetHalf = 0;
-
-  double LSlope = 0;
-  int LXInter = 0;
-  int LYInter = 0;
-  double LSlopeHalf = 0;
-  int LOffsetHalf = 0;
-
-  int rotateX = 0;
-  int rotateY = 0;
-
-  int * topBuf = NULL, * botBuf = NULL;
+  int bg_color = s->lut[s->bg_color];
 
   DBG (10, "buffer_deskew: start\n");
 
-  /* get buffers for edge detection */
-  topBuf = getTransitionsY(s,side,1);
-  if(!topBuf){
-    DBG (5, "buffer_deskew: cant gTY\n");
-    ret = SANE_STATUS_NO_MEM;
-    goto cleanup;
-  }
+  /* tweak the bg color based on scanner settings */
+  if(s->u.mode == MODE_HALFTONE || s->u.mode == MODE_LINEART)
+    bg_color = (bg_color<s->threshold)?0xff:0x00;
 
-  if(0){
-    int i;
-    for(i=0;i<width;i++){
-      if(topBuf[i] >=0 && topBuf[i] < height)
-        s->buffers[side][topBuf[i]*width+i] = 0;
+  ret = sane_get_parameters((SANE_Handle) s, &s->s_params);
+
+  /*only find skew on first image from a page, or if first image had error */
+  if(s->side == SIDE_FRONT || s->u.source == SOURCE_ADF_BACK || s->deskew_stat){
+
+    s->deskew_stat = sanei_magic_findSkew(
+      &s->s_params,s->buffers[side],s->u.dpi_x,s->u.dpi_y,
+      &s->deskew_vals[0],&s->deskew_vals[1],&s->deskew_slope);
+
+    if(s->deskew_stat){
+      DBG (5, "buffer_deskew: bad findSkew, bailing\n");
+      goto cleanup;
     }
   }
-
-  botBuf = getTransitionsY(s,side,0);
-  if(!botBuf){
-    DBG (5, "buffer_deskew: cant gTY\n");
-    ret = SANE_STATUS_NO_MEM;
-    goto cleanup;
+  /* backside images can use a 'flipped' version of frontside data */
+  else{
+    s->deskew_slope *= -1;
+    s->deskew_vals[0] = s->s_params.pixels_per_line - s->deskew_vals[0];
   }
 
-  /* find best top line */
-  ret = getEdgeIterate (pwidth, height, s->i.dpi_y, topBuf,
-    &TSlope, &TXInter, &TYInter);
+  ret = sanei_magic_rotate(&s->s_params,s->buffers[side],
+    s->deskew_vals[0],s->deskew_vals[1],s->deskew_slope,bg_color);
+
   if(ret){
-    DBG(5,"buffer_deskew: gEI error: %d",ret);
-    goto cleanup;
-  }
-  DBG(15,"top: %04.04f %d %d\n",TSlope,TXInter,TYInter);
-
-  /* slope is too shallow, don't want to divide by 0 */
-  if(fabs(TSlope) < 0.0001){
-    DBG(15,"buffer_deskew: slope too shallow: %0.08f\n",TSlope);
-    goto cleanup;
-  }
-
-  /* find best left line, perpendicular to top line */
-  LSlope = (double)-1/TSlope;
-  ret = getEdgeSlope (pwidth, height, topBuf, botBuf, LSlope,
-    &LXInter, &LYInter);
-  if(ret){
-    DBG(5,"buffer_deskew: gES error: %d",ret);
-    goto cleanup;
-  }
-  DBG(15,"buffer_deskew: left: %04.04f %d %d\n",LSlope,LXInter,LYInter);
-
-  /* find point about which to rotate */
-  TSlopeHalf = tan(atan(TSlope)/2);
-  TOffsetHalf = LYInter;
-  DBG(15,"buffer_deskew: top half: %04.04f %d\n",TSlopeHalf,TOffsetHalf);
-
-  LSlopeHalf = tan((atan(LSlope) + ((LSlope < 0)?-M_PI_2:M_PI_2))/2);
-  LOffsetHalf = - LSlopeHalf * TXInter;
-  DBG(15,"buffer_deskew: left half: %04.04f %d\n",LSlopeHalf,LOffsetHalf);
-
-  rotateX = (LOffsetHalf-TOffsetHalf) / (TSlopeHalf-LSlopeHalf);
-  rotateY = TSlopeHalf * rotateX + TOffsetHalf;
-  DBG(15,"buffer_deskew: rotate: %d %d\n",rotateX,rotateY);
-
-  ret = rotateOnCenter (s, side, rotateX, rotateY, TSlope);
-  if(ret){
-    DBG(5,"buffer_deskew: gES error: %d",ret);
+    DBG(5,"buffer_deskew: rotate error: %d",ret);
+    ret = SANE_STATUS_GOOD;
     goto cleanup;
   }
 
   cleanup:
-  if(topBuf)
-    free(topBuf);
-  if(botBuf)
-    free(botBuf);
-
   DBG (10, "buffer_deskew: finish\n");
   return ret;
 }
@@ -7505,173 +7450,50 @@ buffer_crop(struct scanner *s, int side)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  int bwidth = s->i.Bpl;
-  int width = s->i.width;
-  int height = s->i.height;
-
-  int top = 0;
-  int bot = 0;
-  int left = width;
-  int right = 0;
-
-  int * topBuf = NULL, * botBuf = NULL;
-  int * leftBuf = NULL, * rightBuf = NULL;
-  int leftCount = 0, rightCount = 0, botCount = 0;
-  int i;
-
   DBG (10, "buffer_crop: start\n");
 
-  /* get buffers to find sides and bottom */
-  topBuf = getTransitionsY(s,side,1);
-  if(!topBuf){
-    DBG (5, "buffer_crop: no topBuf\n");
-    ret = SANE_STATUS_NO_MEM;
+  ret = sane_get_parameters((SANE_Handle) s, &s->s_params);
+
+  ret = sanei_magic_findEdges(
+    &s->s_params,s->buffers[side],s->u.dpi_x,s->u.dpi_y,
+    &s->crop_vals[0],&s->crop_vals[1],&s->crop_vals[2],&s->crop_vals[3]);
+
+  if(ret){
+    DBG (5, "buffer_crop: bad edges, bailing\n");
+    ret = SANE_STATUS_GOOD;
     goto cleanup;
   }
 
-  botBuf = getTransitionsY(s,side,0);
-  if(!botBuf){
-    DBG (5, "buffer_crop: no botBuf\n");
-    ret = SANE_STATUS_NO_MEM;
-    goto cleanup;
+  DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",
+    s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
+
+  /* if we will later binarize this image, make sure the width
+   * is a multiple of 8 pixels, by adjusting the right side */
+  if ( must_downsample(s) && s->u.mode < MODE_GRAYSCALE ){ 
+    s->crop_vals[3] -= (s->crop_vals[3]-s->crop_vals[2]) % 8;
   }
-
-  leftBuf = getTransitionsX(s,side,1);
-  if(!leftBuf){
-    DBG (5, "buffer_crop: no leftBuf\n");
-    ret = SANE_STATUS_NO_MEM;
-    goto cleanup;
-  }
-
-  rightBuf = getTransitionsX(s,side,0);
-  if(!rightBuf){
-    DBG (5, "buffer_crop: no rightBuf\n");
-    ret = SANE_STATUS_NO_MEM;
-    goto cleanup;
-  }
-
-  /* loop thru top and bottom lists, look for l and r extremes */
-  for(i=0; i<width; i++){
-    if(botBuf[i] > topBuf[i]){
-      if(left > i){
-        left = i;
-      }
-
-      leftCount++;
-      if(leftCount > 3){
-        break;
-      }
-    }
-    else{
-      leftCount = 0;
-      left = width;
-    }
-  }
-
-  for(i=width-1; i>=0; i--){
-    if(botBuf[i] > topBuf[i]){
-      if(right < i){
-        right = i;
-      }
-
-      rightCount++;
-      if(rightCount > 3){
-        break;
-      }
-    }
-    else{
-      rightCount = 0;
-      right = -1;
-    }
-  }
-
-  /* loop thru left and right lists, look for bottom extreme */
-  for(i=height-1; i>=0; i--){
-    if(rightBuf[i] > leftBuf[i]){
-      if(bot < i){
-        bot = i;
-      }
-
-      botCount++;
-      if(botCount > 3){
-        break;
-      }
-    }
-    else{
-      botCount = 0;
-      bot = -1;
-    }
-  }
-
-  DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",top,bot,left,right);
 
   /* now crop the image */
-  /*FIXME: crop duplex backside at same time?*/
-  if(left < right && top < bot){
+  ret = sanei_magic_crop(&s->s_params,s->buffers[side],
+      s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
 
-    int pixels = 0;
-    int bytes = 0;
-    unsigned char * line = NULL;
-
-    /*convert left and right to bytes, figure new byte and pixel width */
-    switch (s->i.mode) {
-
-      case MODE_COLOR:
-        pixels = right-left;
-        bytes = pixels * 3;
-        left *= 3;
-        right *= 3;
-        break;
-
-      case MODE_GRAYSCALE:
-        pixels = right-left;
-        bytes = right-left;
-        break;
-
-      case MODE_LINEART:
-      case MODE_HALFTONE:
-        left /= 8;
-        right = (right+7)/8;
-        bytes = right-left;
-        pixels = bytes * 8;
-        break;
-    }
-
-    DBG (15, "buffer_crop: l:%d r:%d p:%d b:%d\n",left,right,pixels,bytes);
-
-    line = malloc(bytes);
-    if(!line){
-      DBG (5, "buffer_crop: no line\n");
-      ret = SANE_STATUS_NO_MEM;
-      goto cleanup;
-    }
-
-    s->i.bytes_sent[side] = 0;
-
-    for(i=top; i<bot; i++){
-      memcpy(line, s->buffers[side] + i*bwidth + left, bytes);
-      memcpy(s->buffers[side] + s->i.bytes_sent[side], line, bytes);
-      s->i.bytes_sent[side] += bytes;
-    }
-
-    s->i.bytes_tot[side] = s->i.bytes_sent[side];
-    s->i.width = pixels;
-    s->i.height = bot-top;
-    s->i.Bpl = bytes;
-
-    free(line);
+  if(ret){
+    DBG (5, "buffer_crop: bad crop, bailing\n");
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
   }
 
-  cleanup:
-  if(topBuf)
-    free(topBuf);
-  if(botBuf)
-    free(botBuf);
-  if(leftBuf)
-    free(leftBuf);
-  if(rightBuf)
-    free(rightBuf);
-
+  /* need to update user with new size */
+  s->i.width = s->s_params.pixels_per_line;
+  s->i.height = s->s_params.lines;
+  s->i.Bpl = s->s_params.bytes_per_line;
+  
+  /* update image size counter to new, smaller size */
+  s->i.bytes_tot[side] = s->s_params.lines * s->s_params.bytes_per_line;
+  s->i.bytes_sent[side] = s->i.bytes_tot[side];
+  s->u.bytes_sent[side] = 0;
+  
+  cleanup: 
   DBG (10, "buffer_crop: finish\n");
   return ret;
 }
@@ -7683,939 +7505,21 @@ static SANE_Status
 buffer_despeck(struct scanner *s, int side)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
-  int i,j,k,l,n;
-  int w = s->i.Bpl;
-  int pw = s->i.width;
-  int h = s->i.height;
-  int t = w*h;
-  int d = s->swdespeck;
 
   DBG (10, "buffer_despeck: start\n");
 
-  switch (s->i.mode){
+  ret = sane_get_parameters((SANE_Handle) s, &s->s_params);
 
-    case MODE_COLOR:
-      for(i=w; i<t-w-(w*d); i+=w){
-        for(j=1; j<pw-1-d; j++){
-
-          int thresh = 255*3;
-          int outer[] = {0,0,0};
-          int hits = 0;
-
-          /*loop over rows and columns in window */
-          for(k=0; k<d; k++){
-            for(l=0; l<d; l++){
-              int tmp = 0;
-
-              for(n=0; n<3; n++){
-                tmp += s->buffers[side][i + j*3 + k*w + l*3 + n];
-              }
-
-              if(tmp < thresh)
-                thresh = tmp;
-            }
-          }
-
-          thresh = (thresh + 255*3 + 255*3)/3;
-    
-          /*loop over rows and columns around window */
-          for(k=-1; k<d+1; k++){
-            for(l=-1; l<d+1; l++){
-
-              int tmp[3];
-  
-              /* dont count pixels in the window */
-              if(k != -1 && k != d && l != -1 && l != d)
-                continue;
-  
-              for(n=0; n<3; n++){
-                tmp[n] = s->buffers[side][i + j*3 + k*w + l*3 + n];
-                outer[n] += tmp[n];
-              }
-              if(tmp[0]+tmp[1]+tmp[2] < thresh){
-                hits++;
-                break;
-              }
-            }
-          }
-
-          for(n=0; n<3; n++){
-            outer[n] /= (4*d + 4);
-          }
-
-          /*no hits, overwrite with avg surrounding color*/
-          if(!hits){
-            for(k=0; k<d; k++){
-              for(l=0; l<d; l++){
-                for(n=0; n<3; n++){
-                  s->buffers[side][i + j*3 + k*w + l*3 + n] = outer[n];
-                }
-              }
-            }
-          }
-
-        }
-      }
-      break;
-
-    case MODE_GRAYSCALE:
-      for(i=w; i<t-w-(w*d); i+=w){
-        for(j=1; j<w-1-d; j++){
-
-          int thresh = 255;
-          int outer = 0;
-          int hits = 0;
-
-          for(k=0; k<d; k++){
-            for(l=0; l<d; l++){
-              if(s->buffers[side][i + j + k*w + l] < thresh)
-                thresh = s->buffers[side][i + j + k*w + l];
-            }
-          }
-
-          thresh = (thresh + 255 + 255)/3;
-    
-          /*loop over rows and columns around window */
-          for(k=-1; k<d+1; k++){
-            for(l=-1; l<d+1; l++){
-
-              int tmp = 0;
-
-              /* dont count pixels in the window */
-              if(k != -1 && k != d && l != -1 && l != d)
-                continue;
-  
-              tmp = s->buffers[side][i + j + k*w + l];
-
-              if(tmp < thresh){
-                hits++;
-                break;
-              }
-
-              outer += tmp;
-            }
-          }
-
-          outer /= (4*d + 4);
-
-          /*no hits, overwrite with avg surrounding color*/
-          if(!hits){
-            for(k=0; k<d; k++){
-              for(l=0; l<d; l++){
-                s->buffers[side][i + j + k*w + l] = outer;
-              }
-            }
-          }
-
-        }
-      }
-      break;
-
-    case MODE_LINEART:
-    case MODE_HALFTONE:
-      for(i=w; i<t-w-(w*d); i+=w){
-        for(j=1; j<pw-1-d; j++){
-          
-          int curr = 0;
-          int hits = 0;
-
-          for(k=0; k<d; k++){
-            for(l=0; l<d; l++){
-              curr += s->buffers[side][i + k*w + (j+l)/8] >> (7-(j+l)%8) & 1;
-            }
-          }
-
-          if(!curr)
-            continue;
-
-          /*loop over rows and columns around window */
-          for(k=-1; k<d+1; k++){
-            for(l=-1; l<d+1; l++){
-
-              /* dont count pixels in the window */
-              if(k != -1 && k != d && l != -1 && l != d)
-                continue;
-  
-              hits += s->buffers[side][i + k*w + (j+l)/8] >> (7-(j+l)%8) & 1;
-
-              if(hits)
-                break;
-            }
-          }
-
-          /*no hits, overwrite with white*/
-          if(!hits){
-            for(k=0; k<d; k++){
-              for(l=0; l<d; l++){
-                s->buffers[side][i + k*w + (j+l)/8] &= ~(1 << (7-(j+l)%8));
-              }
-            }
-          }
-
-        }
-      }
-      break;
-
-    default:
-      break;
+  ret = sanei_magic_despeck(&s->s_params,s->buffers[side],s->swdespeck);
+  if(ret){
+    DBG (5, "buffer_despeck: bad despeck, bailing\n");
+    ret = SANE_STATUS_GOOD;
+    goto cleanup;
   }
 
+  cleanup:
   DBG (10, "buffer_despeck: finish\n");
   return ret;
-}
-
-/* Loop thru the image width and look for first color change in each column.
- * Return a malloc'd array. Caller is responsible for freeing. */
-int * 
-getTransitionsY (struct scanner *s, int side, int top)
-{
-  int * buff;
-
-  int i, j, k;
-  int near, far;
-  int winLen = 9;
-
-  int width = s->i.width;
-  int height = s->i.height;
-  int depth = 1;
-
-  /* defaults for bottom-up */
-  int firstLine = height-1;
-  int lastLine = -1;
-  int direction = -1;
-
-  DBG (10, "getTransitionsY: start\n");
-
-  buff = calloc(width,sizeof(int));
-  if(!buff){
-    DBG (5, "getTransitionsY: no buff\n");
-    return NULL;
-  }
-
-  /* override for top-down */
-  if(top){
-    firstLine = 0;
-    lastLine = height;
-    direction = 1;
-  }
-
-  /* load the buff array with y value for first color change from edge
-   * gray/color uses a different algo from binary/halftone */
-  switch (s->i.mode) {
-
-    case MODE_COLOR:
-      depth = 3;
-
-    case MODE_GRAYSCALE:
-
-      for(i=0; i<width; i++){
-        buff[i] = lastLine;
-  
-        /* load the near and far windows with repeated copy of first pixel */
-        near = 0;
-        for(k=0; k<depth; k++){
-          near += s->buffers[side][(firstLine*width+i) * depth + k];
-        }
-        near *= winLen;
-        far = near;
-  
-        /* move windows, check delta */
-        for(j=firstLine+direction; j!=lastLine; j+=direction){
-  
-          int farLine = j-winLen*2*direction;
-          int nearLine = j-winLen*direction;
-
-          if(farLine < 0 || farLine >= height){
-            farLine = firstLine;
-          }
-          if(nearLine < 0 || nearLine >= height){
-            nearLine = firstLine;
-          }
-
-          for(k=0; k<depth; k++){
-            far -= s->buffers[side][(farLine*width+i)*depth+k];
-            far += s->buffers[side][(nearLine*width+i)*depth+k];
-
-            near -= s->buffers[side][(nearLine*width+i)*depth+k];
-            near += s->buffers[side][(j*width+i)*depth+k];
-          }
-  
-          if(abs(near - far) > winLen*depth*9){
-            buff[i] = j;
-            break;
-          }
-        }
-      }
-      break;
-
-    case MODE_LINEART:
-    case MODE_HALFTONE:
-      for(i=0; i<width; i++){
-        buff[i] = lastLine;
-  
-        /* load the near window with first pixel */
-        near = s->buffers[side][(firstLine*width+i)/8] >> (7-(i%8)) & 1;
-  
-        /* move */
-        for(j=firstLine+direction; j!=lastLine; j+=direction){
-          if((s->buffers[side][(j*width+i)/8] >> (7-(i%8)) & 1) != near){
-            buff[i] = j;
-            break;
-          }
-        }
-      }
-      break;
-
-  }
-
-  /* blast any stragglers with no neighbors within .5 inch */
-  for(i=0;i<width-7;i++){
-    int sum = 0;
-    for(j=1;j<=7;j++){
-      if(abs(buff[i+j] - buff[i]) < s->i.dpi_y/2)
-        sum++;
-    }
-    if(sum < 2)
-      buff[i] = lastLine;
-  }
-
-  DBG (10, "getTransitionsY: finish\n");
-
-  return buff;
-}
-
-/* Loop thru the image height and look for first color change in each row.
- * Return a malloc'd array. Caller is responsible for freeing. */
-int * 
-getTransitionsX (struct scanner *s, int side, int left)
-{
-  int * buff;
-
-  int i, j, k;
-  int near, far;
-  int winLen = 9;
-
-  int bwidth = s->i.Bpl;
-  int width = s->i.width;
-  int height = s->i.height;
-  int depth = 1;
-
-  /* defaults for right-first */
-  int firstCol = width-1;
-  int lastCol = -1;
-  int direction = -1;
-
-  DBG (10, "getTransitionsX: start\n");
-
-  buff = calloc(height,sizeof(int));
-  if(!buff){
-    DBG (5, "getTransitionsY: no buff\n");
-    return NULL;
-  }
-
-  /* override for left-first*/
-  if(left){
-    firstCol = 0;
-    lastCol = width;
-    direction = 1;
-  }
-
-  /* load the buff array with x value for first color change from edge
-   * gray/color uses a different algo from binary/halftone */
-  switch (s->i.mode) {
-
-    case MODE_COLOR:
-      depth = 3;
-
-    case MODE_GRAYSCALE:
-
-      for(i=0; i<height; i++){
-        buff[i] = lastCol;
-  
-        /* load the near and far windows with repeated copy of first pixel */
-        near = 0;
-        for(k=0; k<depth; k++){
-          near += s->buffers[side][i*bwidth + k];
-        }
-        near *= winLen;
-        far = near;
-  
-        /* move windows, check delta */
-        for(j=firstCol+direction; j!=lastCol; j+=direction){
-  
-          int farCol = j-winLen*2*direction;
-          int nearCol = j-winLen*direction;
-
-          if(farCol < 0 || farCol >= width){
-            farCol = firstCol;
-          }
-          if(nearCol < 0 || nearCol >= width){
-            nearCol = firstCol;
-          }
-
-          for(k=0; k<depth; k++){
-            far -= s->buffers[side][i*bwidth + farCol*depth + k];
-            far += s->buffers[side][i*bwidth + nearCol*depth + k];
-
-            near -= s->buffers[side][i*bwidth + nearCol*depth + k];
-            near += s->buffers[side][i*bwidth + j*depth + k];
-          }
-  
-          if(abs(near - far) > winLen*depth*9){
-            buff[i] = j;
-            break;
-          }
-        }
-      }
-      break;
-
-    case MODE_LINEART:
-    case MODE_HALFTONE:
-      for(i=0; i<height; i++){
-        buff[i] = lastCol;
-  
-        /* load the near window with first pixel */
-        near = s->buffers[side][i*bwidth + firstCol/8] >> (7-(firstCol%8)) & 1;
-  
-        /* move */
-        for(j=firstCol+direction; j!=lastCol; j+=direction){
-          if((s->buffers[side][i*bwidth + j/8] >> (7-(j%8)) & 1) != near){
-            buff[i] = j;
-            break;
-          }
-        }
-      }
-      break;
-
-  }
-
-  /* blast any stragglers with no neighbors within .5 inch */
-  for(i=0;i<height-7;i++){
-    int sum = 0;
-    for(j=1;j<=7;j++){
-      if(abs(buff[i+j] - buff[i]) < s->i.dpi_x/2)
-        sum++;
-    }
-    if(sum < 2)
-      buff[i] = lastCol;
-  }
-
-  DBG (10, "getTransitionsX: finish\n");
-
-  return buff;
-}
-
-/* Loop thru a getTransitions array, and use a simplified Hough transform
- * to divide likely edges into a 2-d array of bins. Then weight each
- * bin based on its angle and offset. Return the 'best' bin. */
-static SANE_Status
-getLine (int height, int width, int * buff,
- int slopes, double minSlope, double maxSlope,
- int offsets, int minOffset, int maxOffset,
- double * finSlope, int * finOffset, int * finDensity)
-{
-  SANE_Status ret = 0;
-
-  int ** lines = NULL;
-  int i, j;
-  int rise, run;
-  double slope;
-  int offset;
-  int sIndex, oIndex;
-  int hWidth = width/2;
-
-  double * slopeCenter = NULL;
-  int * slopeScale = NULL;
-  double * offsetCenter = NULL;
-  int * offsetScale = NULL;
-
-  int maxDensity = 1;
-  double absMaxSlope = fabs(maxSlope);
-  double absMinSlope = fabs(minSlope);
-  int absMaxOffset = abs(maxOffset);
-  int absMinOffset = abs(minOffset);
-
-  DBG(10,"getLine: start %+0.4f %+0.4f %d %d\n",
-    minSlope,maxSlope,minOffset,maxOffset);
-
-  /*silence compiler*/
-  height = height;
-
-  if(absMaxSlope < absMinSlope)
-    absMaxSlope = absMinSlope;
-
-  if(absMaxOffset < absMinOffset)
-    absMaxOffset = absMinOffset;
-
-  /* build an array of pretty-print values for slope */
-  slopeCenter = calloc(slopes,sizeof(double));
-  if(!slopeCenter){
-    DBG(5,"getLine: cant load slopeCenter\n");
-    ret = SANE_STATUS_NO_MEM;
-    goto cleanup;
-  }
-
-  /* build an array of scaling factors for slope */
-  slopeScale = calloc(slopes,sizeof(int));
-  if(!slopeScale){
-    DBG(5,"getLine: cant load slopeScale\n");
-    ret = SANE_STATUS_NO_MEM;
-    goto cleanup;
-  }
-
-  for(j=0;j<slopes;j++){
-
-    /* find central value of this 'bucket' */
-    slopeCenter[j] = (
-      (double)j*(maxSlope-minSlope)/slopes+minSlope 
-      + (double)(j+1)*(maxSlope-minSlope)/slopes+minSlope
-    )/2;
-
-    /* scale value from the requested range into an inverted 100-1 range
-     * input close to 0 makes output close to 100 */
-    slopeScale[j] = 101 - fabs(slopeCenter[j])*100/absMaxSlope;
-  }
-
-  /* build an array of pretty-print values for offset */
-  offsetCenter = calloc(offsets,sizeof(double));
-  if(!offsetCenter){
-    DBG(5,"getLine: cant load offsetCenter\n");
-    ret = SANE_STATUS_NO_MEM;
-    goto cleanup;
-  }
-
-  /* build an array of scaling factors for offset */
-  offsetScale = calloc(offsets,sizeof(int));
-  if(!offsetScale){
-    DBG(5,"getLine: cant load offsetScale\n");
-    ret = SANE_STATUS_NO_MEM;
-    goto cleanup;
-  }
-
-  for(j=0;j<offsets;j++){
-
-    /* find central value of this 'bucket'*/
-    offsetCenter[j] = (
-      (double)j/offsets*(maxOffset-minOffset)+minOffset
-      + (double)(j+1)/offsets*(maxOffset-minOffset)+minOffset
-    )/2;
-
-    /* scale value from the requested range into an inverted 100-1 range
-     * input close to 0 makes output close to 100 */
-    offsetScale[j] = 101 - fabs(offsetCenter[j])*100/absMaxOffset;
-  }
-
-  /* build 2-d array of 'density', divided into slope and offset ranges */
-  lines = calloc(slopes, sizeof(int *));
-  if(!lines){
-    DBG(5,"getLine: cant load lines\n");
-    ret = SANE_STATUS_NO_MEM;
-    goto cleanup;
-  }
-
-  for(i=0;i<slopes;i++){
-    if(!(lines[i] = calloc(offsets, sizeof(int)))){
-      DBG(5,"getLine: cant load lines %d\n",i);
-      ret = SANE_STATUS_NO_MEM;
-      goto cleanup;
-    }
-  }
-
-  for(i=0;i<width;i++){
-    for(j=i+1;j<width && j<i+width/3;j++){
-
-      /*FIXME: check for invalid (min/max) values?*/
-      rise = buff[j] - buff[i];
-      run = j-i;
-
-      slope = (double)rise/run;
-      if(slope >= maxSlope || slope < minSlope)
-        continue;
-
-      /* offset in center of width, not y intercept! */
-      offset = slope * hWidth + buff[i] - slope * i;
-      if(offset >= maxOffset || offset < minOffset)
-        continue;
-
-      sIndex = (slope - minSlope) * slopes/(maxSlope-minSlope);
-      if(sIndex >= slopes)
-        continue;
-
-      oIndex = (offset - minOffset) * offsets/(maxOffset-minOffset);
-      if(oIndex >= offsets)
-        continue;
-
-      lines[sIndex][oIndex]++;
-    }
-  }
-
-  /* go thru array, and find most dense line (highest number) */
-  for(i=0;i<slopes;i++){
-    for(j=0;j<offsets;j++){
-      if(lines[i][j] > maxDensity)
-        maxDensity = lines[i][j];
-    }
-  }
-  
-  DBG(15,"getLine: maxDensity %d\n",maxDensity);
-
-  *finSlope = 0;
-  *finOffset = 0;
-  *finDensity = 0;
-
-  /* go thru array, and scale densities to % of maximum, plus adjust for
-   * prefered (smaller absolute value) slope and offset */
-  for(i=0;i<slopes;i++){
-    for(j=0;j<offsets;j++){
-      lines[i][j] = lines[i][j] * slopeScale[i] * offsetScale[j] / maxDensity;
-      if(lines[i][j] > *finDensity){
-        *finDensity = lines[i][j];
-        *finSlope = slopeCenter[i];
-        *finOffset = offsetCenter[j];
-      }
-    }
-  }
-  
-  if(0){
-    DBG(15,"offsetCenter:       ");
-    for(j=0;j<offsets;j++){
-      DBG(15," %+04.0f",offsetCenter[j]);
-    }
-    DBG(15,"\n");
-  
-    DBG(15,"offsetScale:        ");
-    for(j=0;j<offsets;j++){
-      DBG(15," %04d",offsetScale[j]);
-    }
-    DBG(15,"\n");
-  
-    for(i=0;i<slopes;i++){
-      DBG(15,"slope: %02d %+02.2f %03d:",i,slopeCenter[i],slopeScale[i]);
-      for(j=0;j<offsets;j++){
-        DBG(15,"% 5d",lines[i][j]/100);
-      }
-      DBG(15,"\n");
-    }
-  }
-
-  /* dont forget to cleanup */
-  cleanup:
-  for(i=0;i<10;i++){
-    if(lines[i])
-      free(lines[i]);
-  }
-  if(lines)
-    free(lines);
-  if(slopeCenter)
-    free(slopeCenter);
-  if(slopeScale)
-    free(slopeScale);
-  if(offsetCenter)
-    free(offsetCenter);
-  if(offsetScale)
-    free(offsetScale);
-
-  DBG(10,"getLine: finish\n");
-
-  return ret;
-}
-
-/* Repeatedly find the best range of slope and offset via Hough transform.
- * Shift the ranges thru 4 different positions to avoid splitting data
- * across multiple bins (false positive). Home-in on the most likely upper
- * line of the paper inside the image. Return the 'best' line. */
-SANE_Status
-getEdgeIterate (int width, int height, int resolution,
-int * buff, double * finSlope, int * finXInter, int * finYInter)
-{
-  SANE_Status ret = SANE_STATUS_GOOD;
-
-  int slopes = 11;
-  int offsets = 11;
-  double maxSlope = 1;
-  double minSlope = -1;
-  int maxOffset = resolution/6;
-  int minOffset = -resolution/6;
-
-  double topSlope = 0;
-  int topOffset = 0;
-  int topDensity = 0;
-  
-  int i,j;
-  int pass = 0;
-
-  DBG(10,"getEdgeIterate: start\n");
-
-  while(pass++ < 7){
-    double sStep = (maxSlope-minSlope)/slopes;
-    int oStep = (maxOffset-minOffset)/offsets;
-
-    double slope = 0;
-    int offset = 0;
-    int density = 0;
-    int go = 0;
-
-    topSlope = 0;
-    topOffset = 0;
-    topDensity = 0;
-
-    /* find lines 4 times with slightly moved params,
-     * to bypass binning errors, highest density wins */
-    for(i=0;i<2;i++){
-      double sStep2 = sStep*i/2;
-      for(j=0;j<2;j++){
-        int oStep2 = oStep*j/2;
-        ret = getLine(height,width,buff,slopes,minSlope+sStep2,maxSlope+sStep2,offsets,minOffset+oStep2,maxOffset+oStep2,&slope,&offset,&density);
-        if(ret){
-          DBG(5,"getEdgeIterate: getLine error %d\n",ret);
-          return ret;
-        }
-        DBG(15,"getEdgeIterate: %d %d %+0.4f %d %d\n",i,j,slope,offset,density);
-
-        if(density > topDensity){
-          topSlope = slope;
-          topOffset = offset;
-          topDensity = density;
-        }
-      }
-    }
-
-    DBG(15,"getEdgeIterate: ok %+0.4f %d %d\n",topSlope,topOffset,topDensity);
-
-    /* did not find anything promising on first pass,
-     * give up instead of fixating on some small, pointless feature */
-    if(pass == 1 && topDensity < width/5){
-      DBG(5,"getEdgeIterate: density too small %d %d\n",topDensity,width);
-      topOffset = 0;
-      topSlope = 0;
-      break;
-    }
-
-    /* if slope can zoom in some more, do so. */
-    if(sStep >= 0.0001){
-      minSlope = topSlope - sStep;
-      maxSlope = topSlope + sStep;
-      go = 1;
-    }
-
-    /* if offset can zoom in some more, do so. */
-    if(oStep){
-      minOffset = topOffset - oStep;
-      maxOffset = topOffset + oStep;
-      go = 1;
-    }
-
-    /* cannot zoom in more, bail out */
-    if(!go){
-      break;
-    }
-
-    DBG(15,"getEdgeIterate: zoom: %+0.4f %+0.4f %d %d\n",
-      minSlope,maxSlope,minOffset,maxOffset);
-  }
-
-  /* topOffset is in the center of the image,
-   * convert to x and y intercept */
-  if(topSlope != 0){
-    *finYInter = topOffset - topSlope * width/2;
-    *finXInter = *finYInter / -topSlope;
-    *finSlope = topSlope;
-  }
-  else{
-    *finYInter = 0;
-    *finXInter = 0;
-    *finSlope = 0;
-  }
-
-  DBG(10,"getEdgeIterate: finish\n");
-
-  return 0;
-}
-
-/* find the left side of paper by moving a line 
- * perpendicular to top slope across the image
- * the 'left-most' point on the paper is the
- * one with the smallest X intercept
- * return x and y intercepts */
-SANE_Status 
-getEdgeSlope (int width, int height, int * top, int * bot,
- double slope, int * finXInter, int * finYInter)
-{
-
-  int i;
-  int topXInter, topYInter;
-  int botXInter, botYInter;
-  int leftCount;
-
-  DBG(10,"getEdgeSlope: start\n");
-
-  topXInter = width;
-  topYInter = 0;
-  leftCount = 0;
-
-  for(i=0;i<width;i++){
-    
-    if(top[i] < height){
-      int tyi = top[i] - (slope * i);
-      int txi = tyi/-slope;
-
-      if(topXInter > txi){
-        topXInter = txi;
-        topYInter = tyi;
-      }
-
-      leftCount++;
-      if(leftCount > 5){
-        break;
-      }
-    }
-    else{
-      topXInter = width;
-      topYInter = 0;
-      leftCount = 0;
-    }
-  }
-
-  botXInter = width;
-  botYInter = 0;
-  leftCount = 0;
-
-  for(i=0;i<width;i++){
-    
-    if(bot[i] > -1){
-
-      int byi = bot[i] - (slope * i);
-      int bxi = byi/-slope;
-
-      if(botXInter > bxi){
-        botXInter = bxi;
-        botYInter = byi;
-      }
-
-      leftCount++;
-      if(leftCount > 5){
-        break;
-      }
-    }
-    else{
-      botXInter = width;
-      botYInter = 0;
-      leftCount = 0;
-    }
-  }
-
-  if(botXInter < topXInter){
-    *finXInter = botXInter;
-    *finYInter = botYInter;
-  }
-  else{
-    *finXInter = topXInter;
-    *finYInter = topYInter;
-  }
-
-  DBG(10,"getEdgeSlope: finish\n");
-
-  return 0;
-}
-
-/* function to do a simple rotation by a given slope, around
- * a given point. The point can be outside of image to get
- * proper edge alignment. Unused areas filled with bg color
- * FIXME: Do in-place rotation to save memory */
-SANE_Status
-rotateOnCenter (struct scanner *s, int side,
-  int centerX, int centerY, double slope)
-{
-  double slopeRad = -atan(slope);
-  double slopeSin = sin(slopeRad);
-  double slopeCos = cos(slopeRad);
-
-  int bwidth = s->i.Bpl;
-  int pwidth = s->i.width;
-  int height = s->i.height;
-  int depth = 1;
-  int bg_color = s->lut[s->bg_color];
-
-  unsigned char * outbuf;
-  int i, j, k;
-
-  DBG(10,"rotateOnCenter: start: %d %d\n",centerX,centerY);
-
-  outbuf = malloc(s->i.bytes_tot[side]);
-  if(!outbuf){
-    DBG(15,"rotateOnCenter: no outbuf\n");
-    return SANE_STATUS_NO_MEM;
-  }
-
-  switch (s->i.mode){
-
-    case MODE_COLOR:
-      depth = 3;
-
-    case MODE_GRAYSCALE:
-      memset(outbuf,bg_color,s->i.bytes_tot[side]);
-
-      for (i=0; i<height; i++) {
-        int shiftY = centerY - i;
-    
-        for (j=0; j<pwidth; j++) {
-          int shiftX = centerX - j;
-          int sourceX, sourceY;
-    
-          sourceX = centerX - (int)(shiftX * slopeCos + shiftY * slopeSin);
-          if (sourceX < 0 || sourceX >= pwidth)
-            continue;
-    
-          sourceY = centerY + (int)(-shiftY * slopeCos + shiftX * slopeSin);
-          if (sourceY < 0 || sourceY >= height)
-            continue;
-    
-          for (k=0; k<depth; k++) {
-            outbuf[i*bwidth+j*depth+k]
-              = s->buffers[side][sourceY*bwidth+sourceX*depth+k];
-          }
-        }
-      }
-      break;
-
-    case MODE_LINEART:
-    case MODE_HALFTONE:
-      memset(outbuf,(bg_color<s->threshold)?0xff:0x00,s->i.bytes_tot[side]);
-
-      for (i=0; i<height; i++) {
-        int shiftY = centerY - i;
-    
-        for (j=0; j<pwidth; j++) {
-          int shiftX = centerX - j;
-          int sourceX, sourceY;
-    
-          sourceX = centerX - (int)(shiftX * slopeCos + shiftY * slopeSin);
-          if (sourceX < 0 || sourceX >= pwidth)
-            continue;
-    
-          sourceY = centerY + (int)(-shiftY * slopeCos + shiftX * slopeSin);
-          if (sourceY < 0 || sourceY >= height)
-            continue;
-
-          /* wipe out old bit */
-          outbuf[i*bwidth + j/8] &= ~(1 << (7-(j%8)));
-
-          /* fill in new bit */
-          outbuf[i*bwidth + j/8] |= 
-            ((s->buffers[side][sourceY*bwidth + sourceX/8]
-            >> (7-(sourceX%8))) & 1) << (7-(j%8));
-        }
-      }
-      break;
-  }
-
-  memcpy(s->buffers[side],outbuf,s->i.bytes_tot[side]);
-
-  free(outbuf);
-
-  DBG(10,"rotateOnCenter: finish\n");
-
-  return 0;
 }
 
 /* certain options require the entire image to 

@@ -298,6 +298,24 @@ struct scanner
   unsigned char lut[256];
 
   /* --------------------------------------------------------------------- */
+  /* values used by the software enhancment code (deskew, crop, etc)       */
+  SANE_Status deskew_stat;
+  int deskew_vals[2];
+  double deskew_slope;
+
+  int crop_vals[4];
+
+  /* this is defined in sane spec as a struct containing:
+        SANE_Frame format;
+        SANE_Bool last_frame;
+        SANE_Int lines;
+        SANE_Int depth; ( binary=1, gray=8, color=8 (!24) )
+        SANE_Int pixels_per_line;
+        SANE_Int bytes_per_line;
+  */
+  SANE_Parameters s_params;
+
+  /* --------------------------------------------------------------------- */
   /* values which are set by calibration functions                         */
   int c_res;
   int c_mode;
@@ -569,23 +587,6 @@ static int must_fully_buffer (struct scanner *s);
 static SANE_Status buffer_despeck(struct scanner *s, int side);
 static SANE_Status buffer_deskew(struct scanner *s, int side);
 static SANE_Status buffer_crop(struct scanner *s, int side);
-
-int * getTransitionsY (struct scanner *s, int side, int top);
-int * getTransitionsX (struct scanner *s, int side, int top);
-
-SANE_Status getEdgeIterate (int width, int height, int resolution,
-  int * buff, double * finSlope, int * finXInter, int * finYInter);
-
-SANE_Status getEdgeSlope (int width, int height, int * top, int * bot,
-  double slope, int * finXInter, int * finYInter);
-
-SANE_Status rotateOnCenter (struct scanner *s, int side,
-  int centerX, int centerY, double slope);
-
-static SANE_Status getLine (int height, int width, int * buff,
- int slopes, double minSlope, double maxSlope,
- int offsets, int minOffset, int maxOffset,
- double * finSlope, int * finOffset, int * finDensity);
 
 static SANE_Status load_lut (unsigned char * lut, int in_bits, int out_bits,
   int out_min, int out_max, int slope, int offset);

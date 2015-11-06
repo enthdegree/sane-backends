@@ -352,7 +352,7 @@ libcanon_dr_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon_dr
 nodist_libsane_canon_dr_la_SOURCES = canon_dr-s.c 
 libsane_canon_dr_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon_dr
 libsane_canon_dr_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_canon_dr_la_LIBADD = $(COMMON_LIBS) libcanon_dr.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
+libsane_canon_dr_la_LIBADD = $(COMMON_LIBS) libcanon_dr.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += canon_dr.conf.in
 
 libcanon_pp_la_SOURCES = canon_pp.c canon_pp.h canon_pp-io.c canon_pp-io.h canon_pp-dev.c canon_pp-dev.h

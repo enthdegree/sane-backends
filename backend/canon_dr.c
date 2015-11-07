@@ -325,6 +325,8 @@
       v53 2015-11-06, MAN
          - replace image processing methods with sanei_magic
          - add swskip option
+         - reorder geometry group options
+         - use bg_color to fill missing image data
 
    SANE FLOW DIAGRAM
 
@@ -4799,23 +4801,7 @@ read_from_scanner(struct scanner *s, int side, int exact)
 
     /* this is non-jpeg data, fill remainder, change rx'd size */
     else{
-
-      DBG (15, "read_from_scanner: eof: %d %d\n", s->i.bytes_tot[side], s->i.bytes_sent[side]);
-
-      /* clone the last line repeatedly until the end */
-      while(s->i.bytes_tot[side] > s->i.bytes_sent[side]){
-        memcpy(
-          s->buffers[side]+s->i.bytes_sent[side]-s->i.Bpl,
-          s->buffers[side]+s->i.bytes_sent[side],
-          s->i.Bpl
-        );
-        s->i.bytes_sent[side] += s->i.Bpl;
-      }
-
-      DBG (15, "read_from_scanner: eof2: %d %d\n", s->i.bytes_tot[side], s->i.bytes_sent[side]);
-
-      /* pretend we got all the data from scanner */
-      s->s.bytes_sent[side] = s->s.bytes_tot[side];
+      fill_image(s,side);
     }
 
     s->i.eof[side] = 1;
@@ -4937,40 +4923,8 @@ read_from_scanner_duplex(struct scanner *s,int exact)
 
     /* this is non-jpeg data, fill remainder, change rx'd size */
     else{
-
-      DBG (15, "read_from_scanner_duplex: eof: %d %d %d %d\n",
-        s->i.bytes_tot[SIDE_FRONT], s->i.bytes_sent[SIDE_FRONT],
-        s->i.bytes_tot[SIDE_BACK], s->i.bytes_sent[SIDE_BACK]
-      );
-
-      /* clone the last line repeatedly until the end */
-      while(s->i.bytes_tot[SIDE_FRONT] > s->i.bytes_sent[SIDE_FRONT]){
-        memcpy(
-          s->buffers[SIDE_FRONT]+s->i.bytes_sent[SIDE_FRONT]-s->i.Bpl,
-          s->buffers[SIDE_FRONT]+s->i.bytes_sent[SIDE_FRONT],
-          s->i.Bpl
-        );
-        s->i.bytes_sent[SIDE_FRONT] += s->i.Bpl;
-      }
-
-      /* clone the last line repeatedly until the end */
-      while(s->i.bytes_tot[SIDE_BACK] > s->i.bytes_sent[SIDE_BACK]){
-        memcpy(
-          s->buffers[SIDE_BACK]+s->i.bytes_sent[SIDE_BACK]-s->i.Bpl,
-          s->buffers[SIDE_BACK]+s->i.bytes_sent[SIDE_BACK],
-          s->i.Bpl
-        );
-        s->i.bytes_sent[SIDE_BACK] += s->i.Bpl;
-      }
-
-      DBG (15, "read_from_scanner_duplex: eof2: %d %d %d %d\n",
-        s->i.bytes_tot[SIDE_FRONT], s->i.bytes_sent[SIDE_FRONT],
-        s->i.bytes_tot[SIDE_BACK], s->i.bytes_sent[SIDE_BACK]
-      );
-
-      /* pretend we got all the data from scanner */
-      s->s.bytes_sent[SIDE_FRONT] = s->s.bytes_tot[SIDE_FRONT];
-      s->s.bytes_sent[SIDE_BACK] = s->s.bytes_tot[SIDE_BACK];
+      fill_image(s,SIDE_FRONT);
+      fill_image(s,SIDE_BACK);
     }
 
     s->i.eof[SIDE_FRONT] = 1;
@@ -5494,6 +5448,43 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len,
   DBG (10, "read_from_buffer: finished\n");
 
   return ret;
+}
+
+/* fill remainder of buffer with background if scanner stops early */
+static SANE_Status
+fill_image(struct scanner *s,int side)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+
+  unsigned char bg_color = calc_bg_color(s);
+  int fill_bytes = s->i.bytes_tot[side]-s->i.bytes_sent[side];
+
+  if(!fill_bytes){
+    return ret;
+  }
+
+  DBG (15, "fill_image: side:%d bytes:%d bg_color:%02x\n", side, fill_bytes, bg_color);
+
+  /* fill the rest with bg_color */
+  memset(s->buffers[side]+s->i.bytes_sent[side],bg_color,fill_bytes);
+
+  /* pretend we got all the data from scanner */
+  s->i.bytes_sent[side] = s->i.bytes_tot[side];
+  s->s.bytes_sent[side] = s->s.bytes_tot[side];
+
+  return ret;
+}
+
+/* return the bg color based on scanner settings */
+static unsigned char
+calc_bg_color(struct scanner *s)
+{
+  unsigned char bg_color = s->lut[s->bg_color];
+
+  if(s->u.mode <= MODE_HALFTONE)
+    bg_color = (bg_color<s->threshold)?0xff:0x00;
+
+  return bg_color;
 }
 
 /*
@@ -7436,13 +7427,9 @@ buffer_deskew(struct scanner *s, int side)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  int bg_color = s->lut[s->bg_color];
+  unsigned char bg_color = calc_bg_color(s);
 
   DBG (10, "buffer_deskew: start\n");
-
-  /* tweak the bg color based on scanner settings */
-  if(s->u.mode == MODE_HALFTONE || s->u.mode == MODE_LINEART)
-    bg_color = (bg_color<s->threshold)?0xff:0x00;
 
   ret = sane_get_parameters((SANE_Handle) s, &s->s_params);
 

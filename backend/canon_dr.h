@@ -21,12 +21,12 @@ enum scanner_Option
   OPT_RES,    /*a range or a list*/
 
   OPT_GEOMETRY_GROUP,
+  OPT_PAGE_WIDTH,
+  OPT_PAGE_HEIGHT,
   OPT_TL_X,
   OPT_TL_Y,
   OPT_BR_X,
   OPT_BR_Y,
-  OPT_PAGE_WIDTH,
-  OPT_PAGE_HEIGHT,
 
   OPT_ENHANCEMENT_GROUP,
   OPT_BRIGHTNESS,
@@ -583,9 +583,11 @@ static SANE_Status read_from_scanner_duplex(struct scanner *s, int exact);
 static SANE_Status copy_simplex(struct scanner *s, unsigned char * buf, int len, int side);
 static SANE_Status copy_duplex(struct scanner *s, unsigned char * buf, int len);
 static SANE_Status copy_line(struct scanner *s, unsigned char * buf, int side);
+static SANE_Status fill_image(struct scanner *s,int side);
 
 static int must_downsample (struct scanner *s);
 static int must_fully_buffer (struct scanner *s);
+static unsigned char calc_bg_color(struct scanner *s);
 
 static SANE_Status buffer_despeck(struct scanner *s, int side);
 static SANE_Status buffer_deskew(struct scanner *s, int side);

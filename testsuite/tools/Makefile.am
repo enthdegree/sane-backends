@@ -30,11 +30,14 @@ check.local:
 	@echo "**** Testing $(SANEDESC) with $(TESTFILE)"
 	@for mode in ascii html-backends-split html-mfgs xml statistics usermap db udev udev+acl udev+hwdb hwdb plist hal hal-new; \
 	do \
-	echo "PASS: sane-desc -m $$mode -s $(srcdir)/data"; \
 	  $(SANEDESC) -m $$mode -s $(srcdir)/data >$$mode.res ;\
-	  if ! diff --ignore-matching-lines="..:..:.. 20[0-9][0-9]" --ignore-matching-lines="sane-backends 1.0...git" $(srcdir)/data/$$mode.ref $$mode.res ; \
+	  if diff -I "[ 012][0-9]:[0-5][0-9]:[0-6][0-9] 20[0-9][0-9]" \
+	          -I "sane-backends 1\.0\.[0-9]\+\(git\)\?$$" \
+	       $(srcdir)/data/$$mode.ref $$mode.res ; \
 	  then \
-		echo "**** File generated for $$mode mode is different from reference" ;\
+		echo "PASS: sane-desc -m $$mode -s $(srcdir)/data"; \
+	  else \
+		echo "FAIL: sane-desc -m $$mode -s $(srcdir)/data"; \
 		exit 1 ;\
 	  fi; \
 	done ;\

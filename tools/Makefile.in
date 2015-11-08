@@ -80,15 +80,11 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@INSTALL_UMAX_PP_TOOLS_FALSE@bin_PROGRAMS =  \
-@INSTALL_UMAX_PP_TOOLS_FALSE@	sane-find-scanner$(EXEEXT) \
-@INSTALL_UMAX_PP_TOOLS_FALSE@	gamma4scanimage$(EXEEXT)
-@INSTALL_UMAX_PP_TOOLS_TRUE@bin_PROGRAMS = umax_pp$(EXEEXT) \
-@INSTALL_UMAX_PP_TOOLS_TRUE@	sane-find-scanner$(EXEEXT) \
-@INSTALL_UMAX_PP_TOOLS_TRUE@	gamma4scanimage$(EXEEXT)
-@INSTALL_UMAX_PP_TOOLS_FALSE@noinst_PROGRAMS = umax_pp$(EXEEXT) \
-@INSTALL_UMAX_PP_TOOLS_FALSE@	sane-desc$(EXEEXT)
-@INSTALL_UMAX_PP_TOOLS_TRUE@noinst_PROGRAMS = sane-desc$(EXEEXT)
+bin_PROGRAMS = sane-find-scanner$(EXEEXT) gamma4scanimage$(EXEEXT) \
+	$(am__EXEEXT_1)
+noinst_PROGRAMS = sane-desc$(EXEEXT) $(am__EXEEXT_2)
+@INSTALL_UMAX_PP_TOOLS_TRUE@am__append_1 = umax_pp
+@INSTALL_UMAX_PP_TOOLS_FALSE@am__append_2 = umax_pp
 subdir = tools
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/mkinstalldirs $(srcdir)/sane-config.in \
@@ -105,8 +101,10 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/sane/config.h
 CONFIG_CLEAN_FILES = sane-config sane-backends.pc
 CONFIG_CLEAN_VPATH_FILES =
+@INSTALL_UMAX_PP_TOOLS_TRUE@am__EXEEXT_1 = umax_pp$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(pkgconfigdir)"
+@INSTALL_UMAX_PP_TOOLS_FALSE@am__EXEEXT_2 = umax_pp$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
 am_gamma4scanimage_OBJECTS = gamma4scanimage.$(OBJEXT)
 gamma4scanimage_OBJECTS = $(am_gamma4scanimage_OBJECTS)

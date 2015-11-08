@@ -100,15 +100,8 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-#include <endian.h>
 
-/* When creating the release backend, make complains about unresolved external
- * le16toh, although it finds the include <endian.h> */
-#if __BYTE_ORDER == __LITTLE_ENDIAN
- #define le16toh(x) (x)
-#else
- #define le16toh(x) __bswap_16 (x)
-#endif
+#include "byteorder.h"
 
 static void buffer_update_read_index(struct Pieusb_Read_Buffer* buffer, int increment);
 

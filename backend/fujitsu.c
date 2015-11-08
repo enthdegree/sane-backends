@@ -577,6 +577,8 @@
       v127 2015-08-25, MAN
          - separate iX100 from iX500 settings
          - iX100 has gray and lineart
+      v128 2015-11-08, MAN
+         - do not ask fi-4340 for serial number
 
    SANE FLOW DIAGRAM
 
@@ -2160,7 +2162,8 @@ init_model (struct fujitsu *s)
     s->max_y_fb = 14032;
   }
 
-  else if (strstr (s->model_name, "fi-4750") ) {
+  else if (strstr (s->model_name,"fi-4340")
+   || strstr (s->model_name, "fi-4750") ) {
     /* weirdness */
     s->broken_diag_serial = 1;
   }

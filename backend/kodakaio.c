@@ -207,6 +207,7 @@ normal levels. This system is a plan rather than a reality
 #include <math.h>
 #include <poll.h>
 #include <time.h>
+#include <sys/socket.h>
 
 #if WITH_AVAHI
 /* used for auto detecting network printers  */

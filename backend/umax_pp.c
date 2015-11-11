@@ -1001,9 +1001,9 @@ sane_exit (void)
   for (i = 0; i < num_devices; i++)
     {
       free (devlist[i].port);
-      free (devlist[i].sane.name);
-      free (devlist[i].sane.model);
-      free (devlist[i].sane.vendor);
+      free ((void *) devlist[i].sane.name);
+      free ((void *) devlist[i].sane.model);
+      free ((void *) devlist[i].sane.vendor);
     }
 
   if (devlist != NULL)

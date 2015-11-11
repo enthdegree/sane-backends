@@ -2437,7 +2437,7 @@ sane_exit (void)
 	}
       if (device->dev.name)
 	{
-	  free (device->dev.name);
+	  free ((void *) device->dev.name);
 	}
       free (device);
     }

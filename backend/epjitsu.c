@@ -4576,13 +4576,13 @@ destroy(struct scanner *s)
     teardown_buffers(s);
 
     if(s->sane.name){
-      free(s->sane.name);
+      free((void *) s->sane.name);
     }
     if(s->sane.vendor){
-      free(s->sane.vendor);
+      free((void *) s->sane.vendor);
     }
     if(s->sane.model){
-      free(s->sane.model);
+      free((void *) s->sane.model);
     }
   
     free(s);

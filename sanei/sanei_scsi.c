@@ -2719,7 +2719,7 @@ sanei_proc_scsi_find_devices (const char *findvendor, const char *findmodel,
 
     int number, i, j, definedd;
     char line[256], dev_name[128], *c1, *c2, ctmp;
-    const char *string;
+    char *string;
     FILE *proc_fp;
     char *end;
     struct
@@ -2818,7 +2818,7 @@ sanei_proc_scsi_find_devices (const char *findvendor, const char *findmodel,
     while (!feof (proc_fp))
       {
 	fgets (line, sizeof (line), proc_fp);
-	string = sanei_config_skip_whitespace (line);
+	string = (char *) sanei_config_skip_whitespace (line);
 
 	while (*string)
 	  {
@@ -2839,7 +2839,7 @@ sanei_proc_scsi_find_devices (const char *findvendor, const char *findmodel,
 		      }
 		    ctmp = *c2;
 		    *c2 = 0;
-		    string = sanei_config_skip_whitespace (string);
+		    string = (char *) sanei_config_skip_whitespace (string);
 
 		    if (param[i].is_int)
 		      {

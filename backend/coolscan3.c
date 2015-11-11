@@ -290,7 +290,7 @@ static SANE_Status cs3_convert_options(cs3_t * s);
 static SANE_Status cs3_scan(cs3_t * s, cs3_scan_t type);
 static void *cs3_xmalloc(size_t size);
 static void *cs3_xrealloc(void *p, size_t size);
-static void cs3_xfree(const void *p);
+static void cs3_xfree(void *p);
 
 
 /* ========================================================================= */
@@ -332,9 +332,9 @@ sane_exit(void)
 	DBG(10, "%s\n", __func__);
 
 	for (i = 0; i < n_device_list; i++) {
-		cs3_xfree(device_list[i]->name);
-		cs3_xfree(device_list[i]->vendor);
-		cs3_xfree(device_list[i]->model);
+		cs3_xfree((void *)device_list[i]->name);
+		cs3_xfree((void *)device_list[i]->vendor);
+		cs3_xfree((void *)device_list[i]->model);
 		cs3_xfree(device_list[i]);
 	}
 	cs3_xfree(device_list);
@@ -1969,9 +1969,9 @@ cs3_open(const char *device, cs3_interface_t interface, cs3_t ** sp)
 		device_list[n_device_list]->type = "film scanner";
 
 		if (alloc_failed) {
-			cs3_xfree(device_list[n_device_list]->name);
-			cs3_xfree(device_list[n_device_list]->vendor);
-			cs3_xfree(device_list[n_device_list]->model);
+			cs3_xfree((void *)device_list[n_device_list]->name);
+			cs3_xfree((void *)device_list[n_device_list]->vendor);
+			cs3_xfree((void *)device_list[n_device_list]->model);
 			cs3_xfree(device_list[n_device_list]);
 		} else
 			n_device_list++;
@@ -3181,8 +3181,8 @@ cs3_xrealloc(void *p, size_t size)
 }
 
 static void
-cs3_xfree(const void *p)
+cs3_xfree(void *p)
 {
 	if (p)
-		free(p);
+          free(p);
 }

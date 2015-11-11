@@ -22,6 +22,7 @@
 
 #include "../include/sane/sanei_debug.h"
 
+#include <stdlib.h>
 
 static inline unsigned
 mm2scanner_units (unsigned mm)

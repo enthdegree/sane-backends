@@ -1755,7 +1755,8 @@ cs2_open (const char *device, cs2_interface_t interface, cs2_t ** sp)
 {
   SANE_Status status;
   cs2_t *s;
-  char *prefix = NULL, *line, *device2;
+  char *prefix = NULL, *line;
+  const char *device2;
   int i;
   int alloc_failed = 0;
   SANE_Device **device_list_new;

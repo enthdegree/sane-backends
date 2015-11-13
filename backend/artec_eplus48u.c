@@ -3483,7 +3483,7 @@ do_cancel (Artec48U_Scanner * s, SANE_Bool closepipe)
 
   s->scanning = SANE_FALSE;
 
-  if (!sanei_thread_is_invalid (s->reader_pid))
+  if (sanei_thread_is_valid (s->reader_pid))
     {
       /*parent */
       XDBG ((1, "killing reader_process\n"));
@@ -4301,7 +4301,7 @@ sane_start (SANE_Handle handle)
   s->reader_pipe = fds[1];
   s->reader_pid = sanei_thread_begin (reader_process, s);
   cancelRead = SANE_FALSE;
-  if (sanei_thread_is_invalid (s->reader_pid))
+  if (!sanei_thread_is_valid (s->reader_pid))
     {
       s->scanning = SANE_FALSE;
       XDBG ((2, "sane_start: sanei_thread_begin failed (%s)\n", strerror (errno)));

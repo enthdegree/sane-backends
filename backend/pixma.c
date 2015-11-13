@@ -1083,7 +1083,7 @@ terminate_reader_task (pixma_sane_t * ss, int *exit_code)
   int status = 0;
 
   pid = ss->reader_taskid;
-  if (sanei_thread_is_invalid (pid))
+  if (!sanei_thread_is_valid (pid))
     return -1;
   if (sanei_thread_is_forked ())
     {
@@ -1129,7 +1129,7 @@ start_reader_task (pixma_sane_t * ss)
       ss->rpipe = -1;
       ss->wpipe = -1;
     }
-  if (!sanei_thread_is_invalid (ss->reader_taskid))
+  if (sanei_thread_is_valid (ss->reader_taskid))
     {
       PDBG (pixma_dbg
 	    (1, "BUG:reader_taskid(%ld) != -1\n", (long) ss->reader_taskid));
@@ -1159,7 +1159,7 @@ start_reader_task (pixma_sane_t * ss)
     {
       pid = sanei_thread_begin (reader_thread, ss);
     }
-  if (sanei_thread_is_invalid (pid))
+  if (!sanei_thread_is_valid (pid))
     {
       close (ss->wpipe);
       close (ss->rpipe);
@@ -1227,7 +1227,7 @@ read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
 		       ss->image_bytes_read, ss->sp.image_size));
       close (ss->rpipe);
       ss->rpipe = -1;
-      if (!sanei_thread_is_invalid (terminate_reader_task (ss, &status))
+      if (sanei_thread_is_valid (terminate_reader_task (ss, &status))
       	  && status != SANE_STATUS_GOOD)
         {
           return status;

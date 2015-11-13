@@ -135,9 +135,9 @@ sanei_thread_set_invalid( SANE_Pid *pid )
 
 /* Return if PID is a valid PID or not. */
 SANE_Bool
-sanei_thread_is_invalid( SANE_Pid pid )
+sanei_thread_is_valid( SANE_Pid pid )
 {
-	SANE_Bool rc = SANE_FALSE;
+	SANE_Bool rc = SANE_TRUE;
 
 #ifdef WIN32
 #ifdef WINPTHREAD_API
@@ -145,10 +145,10 @@ sanei_thread_is_invalid( SANE_Pid pid )
 #else
 	if (pid.p == 0)
 #endif
-	    rc = SANE_TRUE;
+	    rc = SANE_FALSE;
 #else
 	if (pid == (SANE_Pid) -1)
-	    rc = SANE_TRUE;
+	    rc = SANE_FALSE;
 #endif
 
 	return rc;

@@ -1762,7 +1762,7 @@ do_cancel (struct sp15c *scanner)
 
   do_eof (scanner);             /* close pipe and reposition scanner */
 
-  if (!sanei_thread_is_invalid (scanner->reader_pid))
+  if (sanei_thread_is_valid (scanner->reader_pid))
     {
       int exit_status;
       DBG (10, "do_cancel: kill reader_process\n");

@@ -88,10 +88,10 @@ extern SANE_Bool sanei_thread_is_forked (void);
  * regardless of SANE_Pid's data type.
  *
  * @return
- * - SANE_TRUE - if pid is not a valid process
- * - SANE_FALSE - if pid is a valid process
+ * - SANE_TRUE - if pid is a valid process
+ * - SANE_FALSE - if pid is not a valid process
  */
-extern SANE_Bool sanei_thread_is_invalid (SANE_Pid pid);
+extern SANE_Bool sanei_thread_is_valid (SANE_Pid pid);
 
 /** Spawn a new task.
  *

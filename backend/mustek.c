@@ -2952,7 +2952,7 @@ do_stop (Mustek_Scanner * s)
   s->scanning = SANE_FALSE;
   s->pass = 0;
 
-  if (!sanei_thread_is_invalid (s->reader_pid))
+  if (sanei_thread_is_valid (s->reader_pid))
     {
       SANE_Int exit_status;
       struct timeval now;
@@ -2983,7 +2983,7 @@ do_stop (Mustek_Scanner * s)
       sanei_thread_kill (s->reader_pid);
 
       pid = sanei_thread_waitpid (s->reader_pid, &exit_status);
-      if (sanei_thread_is_invalid (pid))
+      if (!sanei_thread_is_valid (pid))
 	{
 	  DBG (1,
 	       "do_stop: sanei_thread_waitpid failed, already terminated? (%s)\n",
@@ -6565,7 +6565,7 @@ sane_start (SANE_Handle handle)
   /* create reader routine as new process or thread */
   s->reader_pid = sanei_thread_begin (reader_process, (void *) s);
 
-  if (sanei_thread_is_invalid (s->reader_pid))
+  if (!sanei_thread_is_valid (s->reader_pid))
     {
       DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
 	   strerror (errno));

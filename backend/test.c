@@ -1355,7 +1355,7 @@ finish_pass (Test_Device * test_device)
       DBG (2, "finish_pass: pipe closed\n");
       test_device->pipe = -1;
     }
-  if (!sanei_thread_is_invalid (test_device->reader_pid))
+  if (sanei_thread_is_valid (test_device->reader_pid))
     {
       int status;
       SANE_Pid pid;
@@ -1364,7 +1364,7 @@ finish_pass (Test_Device * test_device)
 	   (long) test_device->reader_pid);
       sanei_thread_kill (test_device->reader_pid);
       pid = sanei_thread_waitpid (test_device->reader_pid, &status);
-      if (sanei_thread_is_invalid (pid))
+      if (!sanei_thread_is_valid (pid))
 	{
 	  DBG (1,
 	       "finish_pass: sanei_thread_waitpid failed, already terminated? (%s)\n",
@@ -2568,7 +2568,7 @@ sane_start (SANE_Handle handle)
   test_device->reader_pid =
     sanei_thread_begin (reader_task, (void *) test_device);
 
-  if (sanei_thread_is_invalid (test_device->reader_pid))
+  if (!sanei_thread_is_valid (test_device->reader_pid))
     {
       DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
 	   strerror (errno));

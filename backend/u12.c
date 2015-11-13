@@ -391,7 +391,7 @@ static SANE_Status do_cancel( U12_Scanner *scanner, SANE_Bool closepipe )
 
 	scanner->scanning = SANE_FALSE;
 
-	if( !sanei_thread_is_invalid (scanner->reader_pid) ) {
+	if( sanei_thread_is_valid (scanner->reader_pid) ) {
 
 		DBG( _DBG_PROC, ">>>>>>>> killing reader_process <<<<<<<<\n" );
 
@@ -1731,7 +1731,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	
 	cancelRead = SANE_FALSE;
 	
-	if( sanei_thread_is_invalid (s->reader_pid) ) {
+	if( !sanei_thread_is_valid (s->reader_pid) ) {
 		DBG( _DBG_ERROR, "ERROR: could not start reader task\n" );
 		s->scanning = SANE_FALSE;
 		u12if_close( dev );

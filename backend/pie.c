@@ -2896,7 +2896,7 @@ do_cancel (Pie_Scanner * scanner)
 
   scanner->scanning = SANE_FALSE;
 
-  if (!sanei_thread_is_invalid (scanner->reader_pid))
+  if (sanei_thread_is_valid (scanner->reader_pid))
     {
       DBG (DBG_sane_info, "killing reader_process\n");
       sanei_thread_kill (scanner->reader_pid);
@@ -3703,7 +3703,7 @@ sane_start (SANE_Handle handle)
   scanner->reader_fds = fds[1];
   scanner->reader_pid = sanei_thread_begin( reader_process, (void*)scanner );
 
-  if (sanei_thread_is_invalid (scanner->reader_pid))
+  if (!sanei_thread_is_valid (scanner->reader_pid))
     {
       DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
              strerror (errno));

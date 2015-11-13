@@ -6216,7 +6216,7 @@ do_cancel (Avision_Scanner* s)
   s->duplex_rear_valid = SANE_FALSE;
   s->page = 0;
   
-  if (!sanei_thread_is_invalid (s->reader_pid)) {
+  if (sanei_thread_is_valid (s->reader_pid)) {
     int exit_status;
     
     /* ensure child knows it's time to stop: */

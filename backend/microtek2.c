@@ -909,7 +909,7 @@ cancel_scan(Microtek2_Scanner *ms)
        of material on a feeder, then pid may be already -1 and
        kill(-1, SIGTERM), i.e. killing all our processes, is not
        likely what we really want - --mj, 2001/Nov/19 */
-    if (!sanei_thread_is_invalid (ms->pid))
+    if (sanei_thread_is_valid (ms->pid))
       {
        sanei_thread_kill(ms->pid);
        sanei_thread_waitpid(ms->pid, NULL);
@@ -5503,7 +5503,7 @@ sane_start(SANE_Handle handle)
     /* create reader routine as new thread or process */
     ms->pid = sanei_thread_begin( reader_process,(void*) ms);
 
-    if ( sanei_thread_is_invalid (ms->pid) )
+    if ( !sanei_thread_is_valid (ms->pid) )
       {
         DBG(1, "sane_start: fork failed\n");
         status = SANE_STATUS_IO_ERROR;

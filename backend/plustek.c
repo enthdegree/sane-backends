@@ -572,7 +572,7 @@ do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe )
 	DBG( _DBG_PROC,"do_cancel\n" );
 	scanner->scanning = SANE_FALSE;
 
-	if( !sanei_thread_is_invalid (scanner->reader_pid) ) {
+	if( sanei_thread_is_valid (scanner->reader_pid) ) {
 
 		DBG( _DBG_PROC, ">>>>>>>> killing reader_process <<<<<<<<\n" );
 
@@ -2629,7 +2629,7 @@ sane_start( SANE_Handle handle )
 
 	cancelRead = SANE_FALSE;
 	
-	if( sanei_thread_is_invalid (s->reader_pid) ) {
+	if( !sanei_thread_is_valid (s->reader_pid) ) {
 		DBG( _DBG_ERROR, "ERROR: could not start reader task\n" );
 		s->scanning = SANE_FALSE;
 		usbDev_close( dev );

@@ -316,9 +316,7 @@ libmustek_usb_la_LIBADD =
 am_libmustek_usb_la_OBJECTS = libmustek_usb_la-mustek_usb.lo
 libmustek_usb_la_OBJECTS = $(am_libmustek_usb_la_OBJECTS)
 libmustek_usb2_la_LIBADD =
-am_libmustek_usb2_la_OBJECTS = libmustek_usb2_la-mustek_usb2.lo \
-	libmustek_usb2_la-mustek_usb2_high.lo \
-	libmustek_usb2_la-mustek_usb2_asic.lo
+am_libmustek_usb2_la_OBJECTS = libmustek_usb2_la-mustek_usb2.lo
 libmustek_usb2_la_OBJECTS = $(am_libmustek_usb2_la_OBJECTS)
 libnec_la_LIBADD =
 am_libnec_la_OBJECTS = libnec_la-nec.lo
@@ -1783,7 +1781,6 @@ GPHOTO2_LIBS = @GPHOTO2_LIBS@
 GREP = @GREP@
 HAVE_GPHOTO2 = @HAVE_GPHOTO2@
 IEEE1284_LIBS = @IEEE1284_LIBS@ 
-INCLUDES = @INCLUDES@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_LOCKPATH = @INSTALL_LOCKPATH@
@@ -1955,6 +1952,7 @@ FIRMWARE_DIRS = artec_eplus48u gt68xx snapscan epjitsu
 # TODO: Why are these distributed but not compiled?
 # TODO: Why are these distributed but not compiled?
 # TODO: Why are these distributed but not compiled?
+# TODO: Why are these distributed but not compiled?
 # TODO: Why is this distributed but not installed?
 EXTRA_DIST = sane_strstatus.c stubs.c saned.conf.in abaton.conf.in \
 	agfafocus.conf.in apple.conf.in artec.conf.in \
@@ -1988,7 +1986,9 @@ EXTRA_DIST = sane_strstatus.c stubs.c saned.conf.in abaton.conf.in \
 	mustek_pp_cis.c mustek_pp_cis.h mustek_pp_null.c \
 	mustek_usb.conf.in mustek_usb_high.c mustek_usb_high.h \
 	mustek_usb_low.c mustek_usb_low.h mustek_usb_mid.c \
-	mustek_usb_mid.h nec.conf.in net.conf.in niash_core.c \
+	mustek_usb_mid.h mustek_usb2_asic.c mustek_usb2_asic.h \
+	mustek_usb2_high.c mustek_usb2_high.h mustek_usb2_reflective.c \
+	mustek_usb2_transparent.c nec.conf.in net.conf.in niash_core.c \
 	niash_core.h niash_xfer.c niash_xfer.h pie.conf.in \
 	pieusb.conf.in p5.conf.in p5_device.c pixma.conf.in \
 	pixma_sane_options.c pixma_sane_options.h plustek.conf.in \
@@ -2485,7 +2485,7 @@ nodist_libsane_mustek_usb_la_SOURCES = mustek_usb-s.c
 libsane_mustek_usb_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb
 libsane_mustek_usb_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_mustek_usb_la_LIBADD = $(COMMON_LIBS) libmustek_usb.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS) $(RESMGR_LIBS)
-libmustek_usb2_la_SOURCES = mustek_usb2.c mustek_usb2.h mustek_usb2_high.c mustek_usb2_high.h mustek_usb2_asic.c mustek_usb2_asic.h
+libmustek_usb2_la_SOURCES = mustek_usb2.c mustek_usb2.h
 libmustek_usb2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb2
 nodist_libsane_mustek_usb2_la_SOURCES = mustek_usb2-s.c
 libsane_mustek_usb2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb2
@@ -3482,8 +3482,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmustek_la-mustek.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmustek_pp_la-mustek_pp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmustek_usb2_la-mustek_usb2.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmustek_usb2_la-mustek_usb2_asic.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmustek_usb2_la-mustek_usb2_high.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmustek_usb_la-mustek_usb.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnec_la-nec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnet_la-net.Plo@am__quote@
@@ -4306,20 +4304,6 @@ libmustek_usb2_la-mustek_usb2.lo: mustek_usb2.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mustek_usb2.c' object='libmustek_usb2_la-mustek_usb2.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmustek_usb2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmustek_usb2_la-mustek_usb2.lo `test -f 'mustek_usb2.c' || echo '$(srcdir)/'`mustek_usb2.c
-
-libmustek_usb2_la-mustek_usb2_high.lo: mustek_usb2_high.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmustek_usb2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmustek_usb2_la-mustek_usb2_high.lo -MD -MP -MF $(DEPDIR)/libmustek_usb2_la-mustek_usb2_high.Tpo -c -o libmustek_usb2_la-mustek_usb2_high.lo `test -f 'mustek_usb2_high.c' || echo '$(srcdir)/'`mustek_usb2_high.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmustek_usb2_la-mustek_usb2_high.Tpo $(DEPDIR)/libmustek_usb2_la-mustek_usb2_high.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mustek_usb2_high.c' object='libmustek_usb2_la-mustek_usb2_high.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmustek_usb2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmustek_usb2_la-mustek_usb2_high.lo `test -f 'mustek_usb2_high.c' || echo '$(srcdir)/'`mustek_usb2_high.c
-
-libmustek_usb2_la-mustek_usb2_asic.lo: mustek_usb2_asic.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmustek_usb2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmustek_usb2_la-mustek_usb2_asic.lo -MD -MP -MF $(DEPDIR)/libmustek_usb2_la-mustek_usb2_asic.Tpo -c -o libmustek_usb2_la-mustek_usb2_asic.lo `test -f 'mustek_usb2_asic.c' || echo '$(srcdir)/'`mustek_usb2_asic.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmustek_usb2_la-mustek_usb2_asic.Tpo $(DEPDIR)/libmustek_usb2_la-mustek_usb2_asic.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mustek_usb2_asic.c' object='libmustek_usb2_la-mustek_usb2_asic.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmustek_usb2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmustek_usb2_la-mustek_usb2_asic.lo `test -f 'mustek_usb2_asic.c' || echo '$(srcdir)/'`mustek_usb2_asic.c
 
 libnec_la-nec.lo: nec.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libnec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libnec_la-nec.lo -MD -MP -MF $(DEPDIR)/libnec_la-nec.Tpo -c -o libnec_la-nec.lo `test -f 'nec.c' || echo '$(srcdir)/'`nec.c

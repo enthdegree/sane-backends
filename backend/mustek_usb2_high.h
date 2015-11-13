@@ -48,129 +48,216 @@
 #ifndef MUSTEK_USB2_HIGH_H
 #define MUSTEK_USB2_HIGH_H
 
-#include "mustek_usb2_asic.h"
+/* const use in structures*/
 
+/*scan mode*/
+typedef unsigned short SCANMODE, *LPSCANMODE;
+#define SM_TEXT		0x00
+#define SM_GRAY		0x01
+#define SM_RGB24	0x02
+#define SM_GRAY10	0x03
+#define SM_RGB30	0x04
+#define SM_GRAY12	0x05
+#define SM_RGB36	0x06
+#define SM_GRAY14	0x07
+#define SM_RGB42	0x08
+#define SM_GRAY16	0x09
+#define SM_RGB48	0x0a
 
-typedef enum
+/*pixel flavor*/
+typedef SANE_Byte PIXELFLAVOR, *LPPIXELFLAVOR;
+#define PF_BlackIs0 0x00
+#define PF_WhiteIs0 0x01
+
+/*scan source*/
+typedef SANE_Byte SCANSOURCE, *LPSCANSOURCE;
+#define SS_Reflective	0x00
+#define SS_Positive		0x01
+#define SS_Negative		0x02
+#define SS_ADF			0x03
+
+/*RGB order*/
+typedef unsigned short RGBORDER, *LPRGBORDER;
+#define RO_RGB 0x00
+#define RO_BGR 0x01
+
+/* structures use in parameters of export function*/
+
+typedef struct tagGAMMAINFO
 {
-  CM_RGB48,
-  CM_RGB24,
-  CM_GRAY16,
-  CM_GRAY8,
-  CM_TEXT
-} COLORMODE;
+  SCANMODE smScanMode;
+  unsigned short wInputGammaBits;
+  unsigned short wOutputGammaBits;
+} GAMMAINFO, *LPGAMMAINFO;
 
-
-typedef struct
+typedef struct tagGETPARAMETERS
 {
-  COLORMODE cmColorMode;
+  unsigned short wSourceXDPI;
+  unsigned short wSourceYDPI;
+  unsigned int dwLineByteWidth;
+  unsigned int dwLength;
+} GETPARAMETERS, *LPGETPARAMETERS;
+
+typedef struct tagFRAME
+{
+  unsigned short x1;
+  unsigned short y1;
+  unsigned short x2;
+  unsigned short y2;
+} FRAME, *LPFRAME;
+
+typedef struct tagSETPARAMETERS
+{
+  FRAME fmArea;
+  unsigned short wTargetDPI;
+  SCANMODE smScanMode;
+  unsigned short wLinearThreshold;	/*threshold for Line art mode */
+  PIXELFLAVOR pfPixelFlavor;
   SCANSOURCE ssScanSource;
+  unsigned short * pGammaTable;
+} SETPARAMETERS, *LPSETPARAMETERS;
+
+typedef struct tagIMAGEROWS
+{
+  RGBORDER roRgbOrder;
+  unsigned short wWantedLineNum;
+  unsigned short wXferedLineNum;
+  SANE_Byte * pBuffer;
+} IMAGEROWS, *LPIMAGEROWS;
+
+
+/*Macro define*/
+
+#define R_GAIN							0
+#define G_GAIN                          0
+#define B_GAIN                          0
+#define R_OFFSET                        0
+#define G_OFFSET                        0
+#define B_OFFSET                        0
+#define R_DIRECTION                     0
+#define G_DIRECTION                     0
+#define B_DIRECTION                     0
+
+/* use for adjust AD's offset*/
+
+/* for Reflective*/
+#define REFL_DARK_MAX_LEVEL             20
+#define REFL_DARK_MIN_LEVEL             10
+#define REFL_WHITE_MAX_LEVEL			220
+#define REFL_WHITE_MIN_LEVEL			210
+#define REFL_MAX_LEVEL_RANGE            210
+#define REFL_MIN_LEVEL_RANGE            190
+
+/*for Transparent*/
+#define TRAN_DARK_MAX_LEVEL             20
+#define TRAN_DARK_MIN_LEVEL             10
+#define TRAN_WHITE_MAX_LEVEL            220
+#define TRAN_WHITE_MIN_LEVEL            210
+#define TRAN_MAX_LEVEL_RANGE            210
+#define TRAN_MIN_LEVEL_RANGE            190
+
+
+/* in 600 dpi*/
+#define FIND_LEFT_TOP_WIDTH_IN_DIP          512
+#define FIND_LEFT_TOP_HEIGHT_IN_DIP         180
+#define FIND_LEFT_TOP_CALIBRATE_RESOLUTION  600
+
+#define TA_FIND_LEFT_TOP_WIDTH_IN_DIP       2668
+#define TA_FIND_LEFT_TOP_HEIGHT_IN_DIP      300
+
+#define TA_MOTOR_BACK_STEP_AFTER_FIND_BOUNDARY             150
+#define TA_MOTOR_FORWARD_STEP_AFTER_READ_WHITE_DATA        1100
+
+/*must be 8x*/
+#define LINE_CALIBRATION__16BITS_HEIGHT				40
+
+/* the length from block bar to start Calibration position*/
+#define BEFORE_SCANNING_MOTOR_FORWARD_PIXEL 40
+
+#define PRE_MOVE_MOTOR_LENGTH_IN_DPI    1450
+
+/* if the motor is 1/8 step, setup MOTOR_STEP_MULTI as 8
+ if the motor is 1/4 step, setup MOTOR_STEP_MULTI as 4
+ if the motor is full step, setup MOTOR_STEP_MULTI as 1
+#define MOTOR_EIGHTH_STEP*/
+#ifdef MOTOR_EIGHTH_STEP
+#define MOTOR_STEP_MULTI                8
+#define GPIO_95_Config                  0x68
+#else
+#define MOTOR_STEP_MULTI                4
+
+#define GPIO_95_Config                  0x60
+#endif
+
+#define TRAN_START_POS					4550
+
+/* in 300dpi*/
+#define MAX_SCANNING_WIDTH               2550	/*just for A4 */
+#define MAX_SCANNING_HEIGHT              3540	/*just for A4 */
+
+#define INIFILENAME                         "./msam.ini"
+
+/*enable gamma*/
+#define ENABLE_GAMMA
+
+/*save debug image*/
+/*#define DEBUG_SAVE_IMAGE*/
+
+/*type define*/
+typedef unsigned char SCANTYPE;
+#define ST_Reflective	0x00
+#define ST_Transparent	0x01
+
+typedef enum tagCOLORMODE
+{
+  CM_RGB48 = 0,
+  CM_RGB42 = 1,
+  CM_RGB36 = 2,
+  CM_RGB30 = 3,
+  CM_RGB24 = 4,
+  CM_GRAY16 = 5,
+  CM_GRAY14 = 6,
+  CM_GRAY12 = 7,
+  CM_GRAY10 = 8,
+  CM_GRAY8 = 9,
+  CM_TEXT = 10,
+  CM_RGB48ext = 11,
+  CM_RGB42ext = 12,
+  CM_RGB36ext = 13,
+  CM_RGB30ext = 14,
+  CM_RGB24ext = 15,
+  CM_GRAY16ext = 16,
+  CM_GRAY14ext = 17,
+  CM_GRAY12ext = 18,
+  CM_GRAY10ext = 19,
+  CM_GRAY8ext = 20,
+  CM_TEXText = 21
+} COLORMODE, *PCOLORMODE;
+
+typedef struct tagTARGETIMAGE
+{
+  SANE_Bool isOptimalSpeed;
+  COLORMODE cmColorMode;
+  unsigned short wDpi;
+  unsigned short wX;
+  unsigned short wY;
+  unsigned short wWidth;
+  unsigned short wHeight;
+  SANE_Byte bScanSource;
+} TARGETIMAGE, *PTARGETIMAGE;
+
+typedef struct tagSUGGESTSETTING
+{
+  COLORMODE cmScanMode;
   unsigned short wXDpi;
   unsigned short wYDpi;
   unsigned short wX;
   unsigned short wY;
   unsigned short wWidth;
   unsigned short wHeight;
-  unsigned short wLineartThreshold;
-} TARGETIMAGE;
+  unsigned int dwBytesPerRow;
+} SUGGESTSETTING, *PSUGGESTSETTING;
 
-typedef struct
-{
-  int nSecLength, nDarkSecLength;
-  int nSecNum, nDarkSecNum;
-  int nPowerNum;
-  unsigned short wStartPosition;
-} CALIBRATIONPARAM;
-
-typedef struct
-{
-  const ASIC_ModelParams * asic_params;
-
-  unsigned int calibrationStartPos;
-  unsigned int calibrationTaStartPos;
-} Scanner_ModelParams;
-
-typedef struct
-{
-  SANE_Bool bOpened;
-  SANE_Bool bPrepared;
-  SANE_Bool isCanceled;
-  SANE_Bool bFirstReadImage;
-
-  const Scanner_ModelParams * params;
-
-  SANE_Byte * pReadImageHead;
-  unsigned short * pGammaTable;
-  ASIC chip;
-
-  TARGETIMAGE Target;
-  unsigned int BytesPerRow;
-  unsigned int SWBytesPerRow;
-  unsigned short SWWidth;
-  unsigned short SWHeight;
-
-  unsigned int wtheReadyLines;
-  unsigned int wMaxScanLines;
-  unsigned int dwScannedTotalLines;
-  unsigned int dwTotalTotalXferLines;
-
-  pthread_t threadid_readimage;
-  pthread_mutex_t scannedLinesMutex;
-  pthread_mutex_t readyLinesMutex;
-
-  /* even & odd sensor problem */
-  unsigned short wPixelDistance;
-  unsigned short wLineDistance;
-  unsigned short wScanLinesPerBlock;
-
-  /* for modifying the last point */
-  SANE_Bool bIsFirstReadBefData;
-  SANE_Byte * pBefLineImageData;
-  unsigned int dwAlreadyGetLines;
-} Scanner_State;
-
-
-#define _MAX(a,b) ((a)>(b)?(a):(b))
-#define _MIN(a,b) ((a)<(b)?(a):(b))
-
-/* used for adjusting the AD offset */
-#define WHITE_MAX_LEVEL		220
-#define WHITE_MIN_LEVEL		210
-#define MAX_LEVEL_RANGE		210
-#define MIN_LEVEL_RANGE		190
-
-/* 600 dpi */
-#define FIND_LEFT_TOP_WIDTH_IN_DIP	  	512
-#define FIND_LEFT_TOP_HEIGHT_IN_DIP		180
-#define FIND_LEFT_TOP_CALIBRATE_RESOLUTION	600
-
-#define TA_FIND_LEFT_TOP_WIDTH_IN_DIP		2668
-#define TA_FIND_LEFT_TOP_HEIGHT_IN_DIP		300
-
-#define LINE_CALIBRATION_HEIGHT			40
-
-#define IMAGE_BUFFER_SIZE	(24 * 1024 * 1024)
-#define BLOCK_SIZE		(64 * 1024)
-#define CALIBRATION_BLOCK_SIZE	(64 * 1024)
-
-/*#define DEBUG_SAVE_IMAGE*/
-
-
-extern const Scanner_ModelParams paramsMustekBP2448TAPro;
-extern const Scanner_ModelParams paramsMicrotek4800H48U;
-
-void Scanner_Init (Scanner_State * st, const Scanner_ModelParams * params);
-SANE_Status Scanner_PowerControl (Scanner_State * st, SANE_Bool isLampOn,
-				  SANE_Bool isTALampOn);
-SANE_Status Scanner_BackHome (Scanner_State * st);
-SANE_Status Scanner_IsTAConnected (Scanner_State * st, SANE_Bool * pHasTA);
-SANE_Status Scanner_GetKeyStatus (Scanner_State * st, SANE_Byte * pKey);
-SANE_Status Scanner_GetRows (Scanner_State * st, SANE_Byte * pBlock,
-			     unsigned short * pNumRows,
-			     SANE_Bool isOrderInvert);
-SANE_Status Scanner_StopScan (Scanner_State * st);
-SANE_Status Scanner_Reset (Scanner_State * st);
-SANE_Status Scanner_SetupScan (Scanner_State * st, TARGETIMAGE * pTarget);
 
 
 #endif

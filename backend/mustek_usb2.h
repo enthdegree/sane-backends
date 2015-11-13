@@ -49,16 +49,25 @@
 #ifndef MUSTEK_USB2_H
 #define MUSTEK_USB2_H
 
-#include "mustek_usb2_high.h"
+#ifndef SANE_I18N
+#define SANE_I18N(text) text
+#endif
 
+#define ENABLE(OPTION)  s->opt[OPTION].cap &= ~SANE_CAP_INACTIVE
+#define DISABLE(OPTION) s->opt[OPTION].cap |=  SANE_CAP_INACTIVE
+#define IS_ACTIVE(OPTION) (((s->opt[OPTION].cap) & SANE_CAP_INACTIVE) == 0)
+/* RIE: return if error */
+#define RIE(function) do {status = function; if (status != SANE_STATUS_GOOD) \
+return status;} while (SANE_FALSE)
 
 #define SCAN_BUFFER_SIZE (64 * 1024)
 #define MAX_RESOLUTIONS 12
-#define MAX_BUTTONS 5
 #define DEF_LINEARTTHRESHOLD 128
+#define PER_ADD_START_LINES 0
+#define PRE_ADD_START_X 0
 
 
-enum
+enum Mustek_Usb_Option
 {
   OPT_NUM_OPTS = 0,
   OPT_MODE_GROUP,
@@ -67,89 +76,83 @@ enum
   OPT_RESOLUTION,
   OPT_PREVIEW,
 
+  OPT_DEBUG_GROUP,
+  OPT_AUTO_WARMUP,
+
   OPT_ENHANCEMENT_GROUP,
   OPT_THRESHOLD,
+  OPT_GAMMA_VALUE,
 
   OPT_GEOMETRY_GROUP,
   OPT_TL_X,			/* top-left x */
   OPT_TL_Y,			/* top-left y */
   OPT_BR_X,			/* bottom-right x */
   OPT_BR_Y,			/* bottom-right y */
-
-  OPT_SENSORS_GROUP,
-  OPT_BUTTON_1,
-  OPT_BUTTON_2,
-  OPT_BUTTON_3,
-  OPT_BUTTON_4,
-  OPT_BUTTON_5,  
-
   /* must come last: */
   NUM_OPTIONS
 };
 
 
-typedef struct
+typedef struct Scanner_Model
 {
   /** @name Identification */
   /*@{ */
 
+  /** A single lowercase word to be used in the configuration file. */
+  SANE_String_Const name;
+
   /** Device vendor string. */
-  SANE_String_Const vendor_name;
+  SANE_String_Const vendor;
 
   /** Device model name. */
-  SANE_String_Const model_name;
+  SANE_String_Const model;
 
-  /** USB vendor and product ID */
-  unsigned short vendor_id;
-  unsigned short product_id;
-
-  const Scanner_ModelParams * scanner_params;
+  /** Name of the firmware file. */
+  SANE_String_Const firmware_name;
 
   /** @name Scanner model parameters */
   /*@{ */
-  SANE_Word dpi_values[MAX_RESOLUTIONS];	/* possible resolutions */
-  SANE_Range x_range;		/* size of scan area in mm */
-  SANE_Range y_range;
-  SANE_Range x_range_ta;	/* size of scan area in TA mode in mm */
-  SANE_Range y_range_ta;
 
-  SANE_Bool isRGBInvert;	/* order of the CCD/CIS colors:
-				   RGB if SANE_False, BGR otherwise */
+  SANE_Int dpi_values[MAX_RESOLUTIONS];	/* possible resolutions */
+  SANE_Fixed x_offset;		/* Start of scan area in mm */
+  SANE_Fixed y_offset;		/* Start of scan area in mm */
+  SANE_Fixed x_size;		/* Size of scan area in mm */
+  SANE_Fixed y_size;		/* Size of scan area in mm */
 
-  SANE_Int buttons;	/* number of buttons on the scanner */
-  /* option names, titles, and descriptions for the buttons */
-  SANE_String_Const button_name[MAX_BUTTONS];
-  SANE_String_Const button_title[MAX_BUTTONS];
-  SANE_String_Const button_desc[MAX_BUTTONS];
+  SANE_Fixed x_offset_ta;	/* Start of scan area in TA mode in mm */
+  SANE_Fixed y_offset_ta;	/* Start of scan area in TA mode in mm */
+  SANE_Fixed x_size_ta;		/* Size of scan area in TA mode in mm */
+  SANE_Fixed y_size_ta;		/* Size of scan area in TA mode in mm */
+
+
+  RGBORDER line_mode_color_order;	/* Order of the CCD/CIS colors */
+  SANE_Fixed default_gamma_value;	/* Default gamma value */
+
+  SANE_Bool is_cis;		/* Is this a CIS or CCD scanner? */
+
+  SANE_Word flags;		/* Which hacks are needed for this scanner? */
   /*@} */
 } Scanner_Model;
 
-typedef struct Scanner_Device
+typedef struct Mustek_Scanner
 {
-  struct Scanner_Device * next;
+  /* all the state needed to define a scan request: */
+  struct Mustek_Scanner *next;
 
-  const Scanner_Model * model;
-  SANE_String name;
-  SANE_Bool present;
-} Scanner_Device;
-
-typedef struct Scanner_Handle
-{
-  struct Scanner_Handle * next;
-
-  const Scanner_Model * model;
   SANE_Option_Descriptor opt[NUM_OPTIONS];
   Option_Value val[NUM_OPTIONS];
-  SANE_Parameters params;
-
-  Scanner_State state;
-
+  unsigned short *gamma_table;
+  SANE_Parameters params;   /**< SANE Parameters */
+  Scanner_Model model;
+  SETPARAMETERS setpara;
+  GETPARAMETERS getpara;
   SANE_Bool bIsScanning;
   SANE_Bool bIsReading;
-  SANE_Word read_rows;		/* number of image lines left to read */
-  SANE_Byte * scan_buf;
-  SANE_Byte * scan_buf_start;
-  SANE_Int scan_buf_len;
-} Scanner_Handle;
+  SANE_Word read_rows;		/* transfer image's lines */
+  SANE_Byte *Scan_data_buf;	/*store Scanned data for transfer */
+  SANE_Byte *Scan_data_buf_start;	/*point to data need to transfer */
+  size_t scan_buffer_len;	/* length of data buf */
+}
+Mustek_Scanner;
 
 #endif

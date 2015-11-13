@@ -147,7 +147,7 @@ sanei_thread_is_invalid( SANE_Pid pid )
 #endif
 	    rc = SANE_TRUE;
 #else
-	if (pid == -1)
+	if (pid == (SANE_Pid) -1)
 	    rc = SANE_TRUE;
 #endif
 

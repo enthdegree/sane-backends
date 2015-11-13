@@ -192,7 +192,7 @@ hp_handle_startReader (HpHandle this, HpScsi scsi)
         this->pipe_write_fd = -1;
       }
 
-      if (this->reader_pid == -1)  /* Creating child failed ? Clean up pipe */
+      if (sanei_thread_is_invalid (this->reader_pid))
 	{
           if ( !this->child_forked )
           {

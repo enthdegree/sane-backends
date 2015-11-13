@@ -4670,14 +4670,14 @@ static SANE_Status do_cancel(Umax_Scanner *scanner)
 
   scanner->scanning = SANE_FALSE;
 
-  if (scanner->reader_pid != -1)
+  if (!sanei_thread_is_invalid (scanner->reader_pid))
   {
     DBG(DBG_sane_info,"killing reader_process\n");
 
     sanei_thread_kill(scanner->reader_pid);
     pid = sanei_thread_waitpid(scanner->reader_pid, &status);
 
-    if (pid == -1)
+    if (sanei_thread_is_invalid (pid))
     {
       DBG(DBG_sane_info, "do_cancel: sanei_thread_waitpid failed, already terminated ? (%s)\n", strerror(errno));
     }
@@ -7996,7 +7996,7 @@ SANE_Status sane_start(SANE_Handle handle)
   /* start reader_process, deponds on OS if fork() or threads are used */
   scanner->reader_pid = sanei_thread_begin(reader_process, (void *) scanner);
 
-  if (scanner->reader_pid == -1)
+  if (sanei_thread_is_invalid (scanner->reader_pid))
   {
     DBG(DBG_error, "ERROR: sanei_thread_begin failed (%s)\n", strerror(errno));
     scanner->scanning = SANE_FALSE;

@@ -2029,7 +2029,7 @@ do_cancel (Coolscan_t * scanner)
 
   do_eof (scanner);		/* close pipe and reposition scanner */
 
-  if (scanner->reader_pid != -1)
+  if (!sanei_thread_is_invalid (scanner->reader_pid))
     {
       int exit_status;
 
@@ -4093,7 +4093,7 @@ sane_start (SANE_Handle handle)
   scanner->pipe       = fds[0];
   scanner->reader_fds = fds[1];
   scanner->reader_pid = sanei_thread_begin( reader_process, (void*)scanner );
-  if (scanner->reader_pid == -1)
+  if (sanei_thread_is_invalid (scanner->reader_pid))
     {
       DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
              strerror (errno));
@@ -4153,7 +4153,7 @@ sane_cancel (SANE_Handle handle)
 {
   Coolscan_t *s = handle;
 
-  if (s->reader_pid != -1)
+  if (!sanei_thread_is_invalid (s->reader_pid))
     {
       sanei_thread_kill   ( s->reader_pid );
       sanei_thread_waitpid( s->reader_pid, NULL );

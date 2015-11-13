@@ -703,7 +703,7 @@ sane_start (SANE_Handle handle)
   scanner->reader_pid = sanei_thread_begin (reader_process, scanner);
   time (&scanner->last_scan);
 
-  if (scanner->reader_pid == -1)
+  if (sanei_thread_is_invalid (scanner->reader_pid))
     {
       DBG (MSG_ERR, "cannot fork reader process.\n");
       DBG (MSG_ERR, "%s", strerror (errno));
@@ -1098,7 +1098,7 @@ do_reset (struct hp3500_data *scanner)
 static void
 do_cancel (struct hp3500_data *scanner)
 {
-  if (scanner->reader_pid != -1)
+  if (!sanei_thread_is_invalid (scanner->reader_pid))
     {
 
       if (sanei_thread_kill (scanner->reader_pid) == 0)

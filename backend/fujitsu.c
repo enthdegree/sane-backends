@@ -579,6 +579,8 @@
          - iX100 has gray and lineart
       v128 2015-11-08, MAN
          - do not ask fi-4340 for serial number
+      v129 2015-11-21, MAN
+         - br_x and br_y locked to page_width/height until changed
 
    SANE FLOW DIAGRAM
 
@@ -628,7 +630,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 127
+#define BUILD 129
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -5360,6 +5362,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           if (s->page_width == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
+          /* if full width image, and paper size is changed,
+             change the image size to match new paper */
+          if (s->tl_x == 0 && s->br_x == s->page_width){
+              DBG (20, "sane_control_option: br_x tracking page_width\n");
+              s->br_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
+              *info |= SANE_INFO_RELOAD_PARAMS;
+          }
+
           s->page_width = FIXED_MM_TO_SCANNER_UNIT(val_c);
           *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
@@ -5367,6 +5377,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_PAGE_HEIGHT:
           if (s->page_height == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
+
+          /* if full height image, and paper size is changed,
+             change the image size to match new paper */
+          if (s->tl_y == 0 && s->br_y == s->page_height){
+              DBG (20, "sane_control_option: br_y tracking page_height\n");
+              s->br_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
+              *info |= SANE_INFO_RELOAD_PARAMS;
+          }
 
           s->page_height = FIXED_MM_TO_SCANNER_UNIT(val_c);
           *info |= SANE_INFO_RELOAD_OPTIONS;

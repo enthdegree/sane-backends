@@ -668,6 +668,28 @@
 :comment "Probably unsupported. "
 
 ;********************************************************************************************
+:mfg "Fujitsu"
+:url "http://www.fujitsu.com/"
+
+:model "SP1120"
+:interface "USB"
+:usbid "0x04c5" "0x1473"
+:status :unsupported
+:comment "Genesys GL310 chipset, not supported by sane-genesys backend."
+
+:model "SP1125"
+:interface "USB"
+:usbid "0x04c5" "0x1475"
+:status :unsupported
+:comment "Genesys GL310 chipset, not supported by sane-genesys backend."
+
+:model "SP1130"
+:interface "USB"
+:usbid "0x04c5" "0x1476"
+:status :unsupported
+:comment "Genesys GL310 chipset, not supported by sane-genesys backend."
+
+;********************************************************************************************
 
 :mfg "Genius"
 :url "http://www.geniusnet.com.tw/"

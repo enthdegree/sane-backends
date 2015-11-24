@@ -12,7 +12,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "127"                   ; version of backend
+:version "129"                   ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.25, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -131,6 +131,12 @@
 :usbid "0x04c5" "0x116f"
 :comment "small, recent, discontinued"
 
+:model "fi-6125"
+:interface "USB"
+:status :complete
+:usbid "0x04c5" "0x11ee"
+:comment "small, recent, discontinued"
+
 :model "fi-6130"
 :interface "USB"
 :status :complete
@@ -154,6 +160,42 @@
 :status :complete
 :usbid "0x04c5" "0x11f4"
 :comment "small, recent, discontinued"
+
+:model "fi-6120ZLA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x146d"
+:comment "small, recent, discontinued, expected to work"
+
+:model "fi-6220ZLA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x146e"
+:comment "small, recent, discontinued, expected to work"
+
+:model "fi-6125ZLA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x1463"
+:comment "small, recent, discontinued, expected to work"
+
+:model "fi-6225ZLA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x1464"
+:comment "small, recent, discontinued, expected to work"
+
+:model "fi-6130ZLA"
+:interface "SCSI USB"
+:status :complete
+:usbid "0x04c5" "0x1461"
+:comment "small, recent, discontinued"
+
+:model "fi-6230ZLA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x1462"
+:comment "small, recent, discontinued, expected to work"
 
 :model "ScanSnap S1500"
 :interface "USB"
@@ -330,6 +372,30 @@
 :status :complete
 :usbid "0x04c5" "0x11f2"
 :comment "medium, recent, discontinued"
+
+:model "fi-6135ZLA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x146b"
+:comment "medium, recent, discontinued, expected to work"
+
+:model "fi-6235ZLA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x146c"
+:comment "medium, recent, discontinued, expected to work"
+
+:model "fi-6140ZLA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x145f"
+:comment "medium, recent, discontinued, expected to work"
+
+:model "fi-6240ZLA"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x1460"
+:comment "medium, recent, discontinued, expected to work"
 
 ;==================================================
 ; CURRENT MODELS, MEDIUM

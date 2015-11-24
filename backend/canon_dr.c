@@ -327,6 +327,8 @@
          - add swskip option
          - reorder geometry group options
          - use bg_color to fill missing image data
+      v54 2015-11-21, MAN
+         - br_x and br_y locked to page_width/height until changed
 
    SANE FLOW DIAGRAM
 
@@ -377,7 +379,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 53
+#define BUILD 54
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -3036,6 +3038,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           if (s->u.page_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
 
+          /* if full width image, and paper size is changed,
+             change the image size to match new paper */
+          if (s->u.tl_x == 0 && s->u.br_x == s->u.page_x){
+              DBG (20, "sane_control_option: br_x tracking page_width\n");
+              s->u.br_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
+              *info |= SANE_INFO_RELOAD_PARAMS;
+          }
+
           s->u.page_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
 
           *info |= SANE_INFO_RELOAD_OPTIONS;
@@ -3044,6 +3054,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_PAGE_HEIGHT:
           if (s->u.page_y == FIXED_MM_TO_SCANNER_UNIT(val_c))
               return SANE_STATUS_GOOD;
+
+          /* if full height image, and paper size is changed,
+             change the image size to match new paper */
+          if (s->u.tl_y == 0 && s->u.br_y == s->u.page_y){
+              DBG (20, "sane_control_option: br_y tracking page_height\n");
+              s->u.br_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
+              *info |= SANE_INFO_RELOAD_PARAMS;
+          }
 
           s->u.page_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
 

@@ -348,6 +348,12 @@
 :status :basic
 :comment "All modes and resolutions working, but calibration is poor."
 
+:model "P-208"
+:interface "USB"
+:usbid "0x1083" "0x164e"
+:status :basic
+:comment "This is the same device as the 0x164c P-208, but the mode switch on the scanner is in the wrong position, you must move the switch."
+
 :model "DR-P208II"
 :interface "USB"
 :usbid "0x1083" "0x165d"

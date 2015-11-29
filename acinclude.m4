@@ -20,7 +20,7 @@ dnl   AC_PROG_LIBTOOL
 dnl
 
 # SANE_SET_CFLAGS(is_release)
-# Set CFLAGS. Enable/disable compilation warnings if we gcc is used.
+# Set CFLAGS. Enable/disable compilation warnings if gcc is used.
 # Warnings are enabled by default when in development cycle but disabled
 # when a release is made. The argument is_release is either yes or no.
 AC_DEFUN([SANE_SET_CFLAGS],

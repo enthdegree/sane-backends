@@ -1408,7 +1408,7 @@ check_gl646 (struct usb_device *dev)
   return "GL646";
 }
 
-/* Same as check_gl646, except that sanity check are different. */
+/* Same as check_gl646, except that sanity checks are different. */
 static char *
 check_gl646_hp (struct usb_device *dev)
 {

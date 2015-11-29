@@ -691,7 +691,7 @@ _gamma_vector_unscale (HpAccessorVector UNUSEDARG this, SANE_Fixed fval)
 {
   unsigned short unscaled = fval / SANE_FIX(1.0);
   if (unscaled > 255) unscaled = 255;
-  unscaled = 255 - unscaled;  /* Dont know why. But this is how it works */
+  unscaled = 255 - unscaled;  /* Don't know why. But this is how it works. */
 
   return unscaled;
 }
@@ -700,7 +700,7 @@ static SANE_Fixed
 _gamma_vector_scale (HpAccessorVector UNUSEDARG this, unsigned short val)
 {
   SANE_Fixed scaled;
-  val = 255-val;     /* Dont know why. But this is how it works */
+  val = 255-val;     /* Don't know why. But this is how it works. */
   scaled = val * SANE_FIX(1.0);
 
   return scaled;

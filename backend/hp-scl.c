@@ -905,7 +905,7 @@ hp_scsi_scl(HpScsi this, HpScl scl, int val)
 
   RETURN_IF_FAIL( hp_scsi_need(this, 10) );
 
-  /* Dont try to optimize SCL-commands like using <ESC>*a1b0c5T */
+  /* Don't try to optimize SCL-commands like using <ESC>*a1b0c5T */
   /* Some scanners have problems with it (e.g. HP Photosmart Photoscanner */
   /* with window position/extent, resolution) */
   count = sprintf((char *)this->bufp, "\033*%c%d%c", group, val, param);

@@ -114,7 +114,7 @@ static SANE_Status hp_probe_parameter_support_table (enum hp_device_compat_e
 
 #define HP_EOL -9999
 
-/* Dont need requiries for commands that are probed */
+/* Don't need requiries for commands that are probed */
 #define HP_PROBE_SCL_COMMAND 1
 
 /* Scale factor for vectors (gtk seems not to like vectors/curves

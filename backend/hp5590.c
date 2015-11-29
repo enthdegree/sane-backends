@@ -1285,7 +1285,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
       if (ret != SANE_STATUS_GOOD)
 	return ret;
 
-      /* Dont free bulk read state, some bytes could be left
+      /* Don't free bulk read state, some bytes could be left
        * for the next images from ADF
        */
       return SANE_STATUS_EOF;

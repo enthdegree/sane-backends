@@ -44,13 +44,6 @@
 #include "../include/sane/sanei_debug.h"
 #include "../include/sane/sanei_backend.h"
 
-#ifdef __GNUC__
-#define __func__ __FUNCTION__
-#else
-#define __func__ "(undef)"
-/* I cast my vote for C99... :) */
-#endif
-
 /* Silence the compiler for unused arguments */
 #define NOT_USED(x) ( (void)(x) )
 

@@ -73,9 +73,6 @@
 
 /* return if an error occured while the function was called */
 #ifdef MAX_DEBUG
-#  ifndef __FUNCTION__
-#    define __FUNCTION__ "somewhere"
-#  endif
 
 #  define RIE(function) \
   do \

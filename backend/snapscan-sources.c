@@ -105,10 +105,6 @@ I hope this makes sense to you (and I got the right idea of the original author'
 intention).
 ***********************************************************************************/
 
-#ifndef __FUNCTION__
-#define __FUNCTION__ "(undef)"
-#endif
-
 static SANE_Status Source_init (Source *pself,
                                 SnapScan_Scanner *pss,
                                 SourceRemaining remaining,

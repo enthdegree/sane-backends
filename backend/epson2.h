@@ -45,13 +45,6 @@
 #include "sane/sanei_backend.h"
 #include "sane/sanei_debug.h"
 
-#ifdef __GNUC__
-#define __func__ __FUNCTION__
-#else
-#define __func__ "(undef)"
-/* I cast my vote for C99... :) */
-#endif
-
 #define EPSON2_CONFIG_FILE "epson2.conf"
 
 #ifndef PATH_MAX

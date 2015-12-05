@@ -43,13 +43,6 @@
 #include "sane/sanei_usb.h"
 #include "sane/sanei_jpeg.h"
 
-#ifdef __GNUC__
-#define __func__ __FUNCTION__
-#else
-#define __func__ "(undef)"
-/* I cast my vote for C99... :) */
-#endif
-
 #define EPSONDS_CONFIG_FILE "epsonds.conf"
 
 #ifndef PATH_MAX

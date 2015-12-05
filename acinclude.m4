@@ -27,9 +27,11 @@ AC_DEFUN([SANE_SET_CFLAGS],
 [
 if test "${ac_cv_c_compiler_gnu}" = "yes"; then
   NORMAL_CFLAGS="\
+      -std=c99 \
       -W \
       -Wall"
   WARN_CFLAGS="\
+      -std=c99 \
       -W \
       -Wall \
       -Wcast-align \
@@ -40,16 +42,6 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
       -Wreturn-type \
       -Wstrict-prototypes \
       -pedantic"
-
-  # Some platforms are overly strict with -ansi enabled.  Exclude those.
-  ANSI_FLAG=-ansi
-  case "${host_os}" in  
-    solaris* | hpux* | os2* | darwin* | cygwin* | mingw*)
-      ANSI_FLAG=
-      ;;
-  esac
-  NORMAL_CFLAGS="${NORMAL_CFLAGS} ${ANSI_FLAG}"
-  WARN_CFLAGS="${WARN_CFLAGS} ${ANSI_FLAG}"
 
   AC_ARG_ENABLE(warnings,
     AC_HELP_STRING([--enable-warnings],

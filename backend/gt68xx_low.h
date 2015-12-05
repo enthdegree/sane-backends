@@ -80,7 +80,7 @@
       status = function; \
       if (status != SANE_STATUS_GOOD) \
         { \
-          DBG (7, "%s: %s: %s\n", __FUNCTION__, STRINGIFY(function), \
+          DBG (7, "%s: %s: %s\n", __func__, STRINGIFY(function), \
                sane_strstatus (status)); \
           return status; \
         } \

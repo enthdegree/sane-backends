@@ -194,7 +194,7 @@ enum Umax_PP_Configure_Option
 };
 
 #define DEBUG()		DBG(4, "%s(v%d.%d.%d-%s): line %d: debug exception\n", \
-			  __PRETTY_FUNCTION__, SANE_CURRENT_MAJOR, V_MINOR,	\
+			  __func__, SANE_CURRENT_MAJOR, V_MINOR,	\
 			  UMAX_PP_BUILD, UMAX_PP_STATE, __LINE__)
 
 #endif /* umax_pp_h */

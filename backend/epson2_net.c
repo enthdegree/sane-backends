@@ -104,7 +104,7 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, ssize_t wanted,
 
 	size = be32atoh(&header[6]);
 
-	DBG(23, "%s: wanted = %lu, available = %lu\n", __FUNCTION__,
+	DBG(23, "%s: wanted = %lu, available = %lu\n", __func__,
 		(u_long) wanted, (u_long) size);
 
 	*status = SANE_STATUS_GOOD;
@@ -170,7 +170,7 @@ sanei_epson_net_write(Epson_Scanner *s, unsigned int cmd, const unsigned char *b
 	}
 
 	DBG(24, "%s: cmd = %04x, buf = %p, buf_size = %lu, reply_len = %lu\n",
-		__FUNCTION__, cmd, buf, (u_long) buf_size, (u_long) reply_len);
+		__func__, cmd, buf, (u_long) buf_size, (u_long) reply_len);
 
 	memset(h1, 0x00, 12);
 	memset(h2, 0x00, 8);

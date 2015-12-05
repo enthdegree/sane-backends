@@ -171,7 +171,7 @@ calc_image_params (struct hp5590_scanner *scanner,
   unsigned int	_image_size;
   float		var;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   if (!scanner)
     return SANE_STATUS_INVAL;
@@ -199,7 +199,7 @@ calc_image_params (struct hp5590_scanner *scanner,
 
   DBG (DBG_verbose, "%s: pixel_bits: %u, pixels_per_line: %u, "
        "bytes_per_line: %u, lines: %u, image_size: %u\n",
-       __FUNCTION__,
+       __func__,
        _pixel_bits, _pixels_per_line, _bytes_per_line, _lines, _image_size);
 
   if (pixel_bits)
@@ -232,10 +232,10 @@ attach_usb_device (SANE_String_Const devname,
   SANE_Status			ret;
   const struct hp5590_model	*hp5590_model;
 
-  DBG (DBG_proc, "%s: Opening USB device\n", __FUNCTION__);
+  DBG (DBG_proc, "%s: Opening USB device\n", __func__);
   if (sanei_usb_open (devname, &dn) != SANE_STATUS_GOOD)
     return SANE_STATUS_IO_ERROR;
-  DBG (DBG_proc, "%s: USB device opened\n", __FUNCTION__);
+  DBG (DBG_proc, "%s: USB device opened\n", __func__);
 
   ret = hp5590_model_def (hp_scanner_type, &hp5590_model);
   if (ret != SANE_STATUS_GOOD)
@@ -246,19 +246,19 @@ attach_usb_device (SANE_String_Const devname,
     return SANE_STATUS_IO_ERROR;
 
   DBG (1, "%s: found HP%s scanner at '%s'\n",
-       __FUNCTION__, info->model, devname);
+       __func__, info->model, devname);
 
-  DBG (DBG_verbose, "%s: Reading max scan count\n", __FUNCTION__);
+  DBG (DBG_verbose, "%s: Reading max scan count\n", __func__);
   if (hp5590_read_max_scan_count (dn, hp5590_model->proto_flags,
     				  &max_count) != 0)
     return SANE_STATUS_IO_ERROR;
-  DBG (DBG_verbose, "%s: Max Scanning count %u\n", __FUNCTION__, max_count);
+  DBG (DBG_verbose, "%s: Max Scanning count %u\n", __func__, max_count);
 
-  DBG (DBG_verbose, "%s: Reading scan count\n", __FUNCTION__);
+  DBG (DBG_verbose, "%s: Reading scan count\n", __func__);
   if (hp5590_read_scan_count (dn, hp5590_model->proto_flags,
     			      &count) != 0)
     return SANE_STATUS_IO_ERROR;
-  DBG (DBG_verbose, "%s: Scanning count %u\n", __FUNCTION__, count);
+  DBG (DBG_verbose, "%s: Scanning count %u\n", __func__, count);
 
   ret = hp5590_read_part_number (dn, hp5590_model->proto_flags);
   if (ret != SANE_STATUS_GOOD)
@@ -384,7 +384,7 @@ void sane_exit (void)
 {
   struct hp5590_scanner *ptr, *pnext;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   for (ptr = scanners_list; ptr; ptr = pnext)
     {
@@ -402,7 +402,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   struct hp5590_scanner *ptr;
   unsigned int found, i;
 
-  DBG (DBG_proc, "%s, local only: %u\n", __FUNCTION__, local_only);
+  DBG (DBG_proc, "%s, local only: %u\n", __func__, local_only);
 
   if (!device_list)
     return SANE_STATUS_INVAL;
@@ -434,7 +434,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   SANE_String_Const 		*sources_list;
   unsigned int 			source_idx;
 
-  DBG (DBG_proc, "%s: device name: %s\n", __FUNCTION__, devicename);
+  DBG (DBG_proc, "%s: device name: %s\n", __func__, devicename);
 
   if (!handle)
     return SANE_STATUS_INVAL;
@@ -626,7 +626,7 @@ sane_close (SANE_Handle handle)
 {
   struct hp5590_scanner *scanner = handle;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   sanei_usb_close (scanner->dn);
   scanner->dn = -1;
@@ -638,7 +638,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
   struct hp5590_scanner *scanner = handle;
 
-  DBG (DBG_proc, "%s, option: %u\n", __FUNCTION__, option);
+  DBG (DBG_proc, "%s, option: %u\n", __func__, option);
 
   if (option >= HP5590_OPT_LAST)
     return NULL;
@@ -667,7 +667,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     {
       if (option == HP5590_OPT_NUM)
 	{
-	  DBG(3, "%s: get total number of options - %u\n", __FUNCTION__, HP5590_OPT_LAST);
+	  DBG(3, "%s: get total number of options - %u\n", __func__, HP5590_OPT_LAST);
 	  *((SANE_Int *) value) = HP5590_OPT_LAST;
 	  return SANE_STATUS_GOOD;
 	}
@@ -675,7 +675,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       if (!scanner->opts)
 	return SANE_STATUS_INVAL;
       
-      DBG (DBG_proc, "%s: get option '%s' value\n", __FUNCTION__, scanner->opts[option].name);
+      DBG (DBG_proc, "%s: get option '%s' value\n", __func__, scanner->opts[option].name);
 
       if (option == HP5590_OPT_BR_X)
 	{
@@ -926,7 +926,7 @@ SANE_Status sane_get_parameters (SANE_Handle handle,
   SANE_Status		ret;
   unsigned int		pixel_bits;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   if (!params)
     return SANE_STATUS_INVAL;
@@ -964,7 +964,7 @@ SANE_Status sane_get_parameters (SANE_Handle handle,
       params->format = SANE_FRAME_RGB;
       break;
     default:
-      DBG(0, "%s: Unknown depth\n", __FUNCTION__);
+      DBG(0, "%s: Unknown depth\n", __func__);
       return SANE_STATUS_INVAL;
   }
 
@@ -986,7 +986,7 @@ sane_start (SANE_Handle handle)
   SANE_Status		ret;
   unsigned int		bytes_per_line;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   if (!scanner)
     return SANE_STATUS_INVAL;
@@ -996,11 +996,11 @@ sane_start (SANE_Handle handle)
 	 || scanner->source == SOURCE_ADF_DUPLEX))
     {
       DBG (DBG_verbose, "%s: Scanner is scanning, check if more data is available\n",
-	   __FUNCTION__);
+	   __func__);
       ret = hp5590_is_data_available (scanner->dn, scanner->proto_flags);
       if (ret == SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_verbose, "%s: More data is available\n", __FUNCTION__);
+	  DBG (DBG_verbose, "%s: More data is available\n", __func__);
 	  scanner->transferred_image_size = scanner->image_size;
 	  return SANE_STATUS_GOOD;
 	}
@@ -1150,7 +1150,7 @@ convert_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
 {
   SANE_Int i;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_assert (scanner != NULL);
   hp5590_assert (data != NULL);
@@ -1185,7 +1185,7 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
       || scanner->depth == DEPTH_GRAY)
     return SANE_STATUS_GOOD;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
 #ifndef HAS_WORKING_COLOR_48
   if (scanner->depth == DEPTH_COLOR_48)
@@ -1266,7 +1266,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   SANE_Status 		ret;
 
   DBG (DBG_proc, "%s, length %u, left %u\n",
-       __FUNCTION__,
+       __func__,
        max_length,
        scanner->transferred_image_size);
 
@@ -1353,7 +1353,7 @@ sane_cancel (SANE_Handle handle)
   struct hp5590_scanner	*scanner = handle;
   SANE_Status		ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   scanner->scanning = SANE_FALSE;
 
@@ -1373,7 +1373,7 @@ SANE_Status
 sane_set_io_mode (SANE_Handle __sane_unused__ handle,
 		  SANE_Bool __sane_unused__ non_blocking)
 {
-  DBG (DBG_proc, "%s\n", __FUNCTION__);  
+  DBG (DBG_proc, "%s\n", __func__);
 
   return SANE_STATUS_UNSUPPORTED;
 }
@@ -1383,7 +1383,7 @@ SANE_Status
 sane_get_select_fd (SANE_Handle __sane_unused__ handle,
 		    SANE_Int __sane_unused__ * fd)
 {
-  DBG (DBG_proc, "%s\n", __FUNCTION__);  
+  DBG (DBG_proc, "%s\n", __func__);
 
   return SANE_STATUS_UNSUPPORTED;
 }

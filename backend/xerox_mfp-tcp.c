@@ -61,14 +61,14 @@ int	tcp_dev_request (struct device *dev,
 	len = (size_t)sanei_tcp_write(dev->dn, cmd, cmdlen);
 	if (len != cmdlen) {
 	    DBG (1, "%s: sent only %lu bytes of %lu\n",
-		__FUNCTION__, (u_long)len, (u_long)cmdlen);
+		__func__, (u_long)len, (u_long)cmdlen);
     	    return SANE_STATUS_IO_ERROR;
 	}
     }
 
     /* Receive response, if expected */
     if (resp && resplen) {
-	DBG (3, "%s: wait for %i bytes\n", __FUNCTION__, (int)*resplen);
+	DBG (3, "%s: wait for %i bytes\n", __func__, (int)*resplen);
 
 	while (bytes_recv < *resplen && rc > 0) {
 	    rc = recv(dev->dn, resp+bytes_recv, *resplen-bytes_recv, 0);
@@ -76,7 +76,7 @@ int	tcp_dev_request (struct device *dev,
 	    if (rc > 0)	bytes_recv += rc;
 	    else {
 		DBG(1, "%s: error %s, bytes requested: %i, bytes read: %i\n",
-		    __FUNCTION__, strerror(errno), (int)*resplen, (int)bytes_recv);
+		    __func__, strerror(errno), (int)*resplen, (int)bytes_recv);
 		*resplen = bytes_recv;
 /*
     TODO:
@@ -105,7 +105,7 @@ SANE_Status	tcp_dev_open (struct device *dev)
 
 
     devname = dev->sane.name;
-    DBG (3, "%s: open %s\n", __FUNCTION__, devname);
+    DBG (3, "%s: open %s\n", __func__, devname);
 
     if (strncmp (devname, "tcp", 3) != 0)	return SANE_STATUS_INVAL;
     devname += 3;
@@ -127,7 +127,7 @@ SANE_Status	tcp_dev_open (struct device *dev)
 	if ((sp = getservbyname(strport, "tcp"))) {
 	    port = ntohs(sp->s_port);
 	} else {
-	    DBG (1, "%s: unknown TCP service %s\n", __FUNCTION__, strport);
+	    DBG (1, "%s: unknown TCP service %s\n", __func__, strport);
 	    return SANE_STATUS_IO_ERROR;
 	}
     }
@@ -137,7 +137,7 @@ SANE_Status	tcp_dev_open (struct device *dev)
 	tv.tv_sec  = RECV_TIMEOUT;
 	tv.tv_usec = 0;
 	if (setsockopt (dev->dn, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof tv) < 0) {
-	    DBG(1, "%s: setsockopts %s", __FUNCTION__, strerror(errno));
+	    DBG(1, "%s: setsockopts %s", __func__, strerror(errno));
 	}
     }
 
@@ -149,7 +149,7 @@ tcp_dev_close (struct device *dev)
 {
     if (!dev)	return;
 
-    DBG (3, "%s: closing dev %p\n", __FUNCTION__, (void *)dev);
+    DBG (3, "%s: closing dev %p\n", __func__, (void *)dev);
 
     /* finish all operations */
     if (dev->scanning) {

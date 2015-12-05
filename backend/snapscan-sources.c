@@ -262,13 +262,13 @@ static SANE_Status FDSource_get (Source *pself, SANE_Byte *pbuf, SANE_Int *plen)
             }
             /* It's an IO error */
             DBG (DL_MAJOR_ERROR, "%s: read failed: %s\n",
-                     __FUNCTION__, strerror(errno));
+                     __func__, strerror(errno));
             status = SANE_STATUS_IO_ERROR;
         }
         else if (bytes_read == 0)
         {
             /* EOF of current reading */
-            DBG(DL_DATA_TRACE, "%s: EOF\n",__FUNCTION__);
+            DBG(DL_DATA_TRACE, "%s: EOF\n",__func__);
             break;
         }
         ps->bytes_remaining -= bytes_read;
@@ -619,7 +619,7 @@ static SANE_Status Expander_init (Expander *pself,
         {
             DBG (DL_MAJOR_ERROR,
                  "%s: couldn't allocate channel buffer.\n",
-                 __FUNCTION__);
+                 __func__);
             status = SANE_STATUS_NO_MEM;
         }
         else
@@ -650,7 +650,7 @@ static SANE_Status create_Expander (SnapScan_Scanner *pss,
     {
         DBG (DL_MAJOR_ERROR,
              "%s: failed to allocate Expander.\n",
-             __FUNCTION__);
+             __func__);
         status = SANE_STATUS_NO_MEM;
     }
     else
@@ -867,7 +867,7 @@ static SANE_Status Deinterlacer_init (Deinterlacer *pself,
         {
             DBG (DL_MAJOR_ERROR,
                  "%s: couldn't allocate channel buffer.\n",
-                 __FUNCTION__);
+                 __func__);
             status = SANE_STATUS_NO_MEM;
         }
         else
@@ -897,7 +897,7 @@ static SANE_Status create_Deinterlacer (SnapScan_Scanner *pss,
     {
         DBG (DL_MAJOR_ERROR,
              "%s: failed to allocate Deinterlacer.\n",
-             __FUNCTION__);
+             __func__);
         status = SANE_STATUS_NO_MEM;
     }
     else
@@ -1102,7 +1102,7 @@ static SANE_Status RGBRouter_init (RGBRouter *pself,
         {
             DBG (DL_MAJOR_ERROR,
                  "%s: failed to allocate circular buffer.\n",
-                 __FUNCTION__);
+                 __func__);
             status = SANE_STATUS_NO_MEM;
         }
         else
@@ -1137,7 +1137,7 @@ static SANE_Status create_RGBRouter (SnapScan_Scanner *pss,
     if (*pps == NULL)
     {
         DBG (DL_MAJOR_ERROR, "%s: failed to allocate RGBRouter.\n",
-             __FUNCTION__);
+             __func__);
         status = SANE_STATUS_NO_MEM;
     }
     else
@@ -1189,7 +1189,7 @@ static SANE_Status create_Inverter (SnapScan_Scanner *pss,
     if (*pps == NULL)
     {
         DBG (DL_MAJOR_ERROR, "%s: failed to allocate Inverter.\n",
-                 __FUNCTION__);
+                 __func__);
         status = SANE_STATUS_NO_MEM;
     }
     else
@@ -1252,7 +1252,7 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
             break;
         default:
             DBG (DL_MAJOR_ERROR, "%s: bad mode value %d (internal error)\n",
-                 __FUNCTION__, mode);
+                 __func__, mode);
             status = SANE_STATUS_INVAL;
             break;
         }

@@ -32,14 +32,14 @@ usb_dev_request (struct device *dev,
   if (cmd && cmdlen) {
     status = sanei_usb_write_bulk (dev->dn, cmd, &cmdlen);
     if (status != SANE_STATUS_GOOD) {
-      DBG (1, "%s: sanei_usb_write_bulk: %s\n", __FUNCTION__,
+      DBG (1, "%s: sanei_usb_write_bulk: %s\n", __func__,
 	   sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
 
     if (cmdlen != len) {
       DBG (1, "%s: sanei_usb_write_bulk: wanted %lu bytes, wrote %lu bytes\n",
-	   __FUNCTION__, (size_t)len, (size_t)cmdlen);
+	   __func__, (size_t)len, (size_t)cmdlen);
       return SANE_STATUS_IO_ERROR;
     }
   }
@@ -47,7 +47,7 @@ usb_dev_request (struct device *dev,
   if (resp && resplen) {
     status = sanei_usb_read_bulk (dev->dn, resp, resplen);
     if (status != SANE_STATUS_GOOD) {
-      DBG (1, "%s: sanei_usb_read_bulk: %s\n", __FUNCTION__,
+      DBG (1, "%s: sanei_usb_read_bulk: %s\n", __func__,
 	   sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
@@ -62,10 +62,10 @@ usb_dev_open (struct device *dev)
 {
   SANE_Status status;
 
-  DBG (3, "%s: open %p\n", __FUNCTION__, (void *)dev);
+  DBG (3, "%s: open %p\n", __func__, (void *)dev);
   status = sanei_usb_open (dev->sane.name, &dev->dn);
   if (status != SANE_STATUS_GOOD) {
-      DBG (1, "%s: sanei_usb_open(%s): %s\n", __FUNCTION__,
+      DBG (1, "%s: sanei_usb_open(%s): %s\n", __func__,
 	   dev->sane.name, sane_strstatus (status));
       dev->dn = -1;
       return status;
@@ -79,7 +79,7 @@ usb_dev_close (struct device *dev)
 {
   if (!dev)
     return;
-  DBG (3, "%s: closing dev %p\n", __FUNCTION__, (void *)dev);
+  DBG (3, "%s: closing dev %p\n", __func__, (void *)dev);
 
   /* finish all operations */
   if (dev->scanning) {

@@ -134,7 +134,7 @@ static int dev_command (struct device *dev, SANE_Byte * cmd, size_t reqlen)
        (u_long)reqlen);
   status = dev->io->dev_request(dev, cmd, sendlen, res, &dev->reslen);
   if (status != SANE_STATUS_GOOD) {
-    DBG (1, "%s: dev_request: %s\n", __FUNCTION__, sane_strstatus (status));
+    DBG (1, "%s: dev_request: %s\n", __func__, sane_strstatus (status));
     dev->state = SANE_STATUS_IO_ERROR;
     return 0;
   }
@@ -147,7 +147,7 @@ static int dev_command (struct device *dev, SANE_Byte * cmd, size_t reqlen)
   /* normal command reply, some sanity checking */
   if (dev->reslen < reqlen) {
     DBG (1, "%s: illegal response len %lu, need %lu\n",
-	 __FUNCTION__, (u_long)dev->reslen, (u_long)reqlen);
+	 __func__, (u_long)dev->reslen, (u_long)reqlen);
     dev->state = SANE_STATUS_IO_ERROR;
     return 0;
   } else {
@@ -157,20 +157,20 @@ static int dev_command (struct device *dev, SANE_Byte * cmd, size_t reqlen)
       dbg_dump(dev);
 
     if (dev->res[0] != RES_CODE) {
-      DBG (2, "%s: illegal data header %02x\n", __FUNCTION__, dev->res[0]);
+      DBG (2, "%s: illegal data header %02x\n", __func__, dev->res[0]);
       dev->state = SANE_STATUS_IO_ERROR;
       return 0;
     }
     pktlen = dev->res[2] + 3;
     if (dev->reslen != pktlen) {
       DBG (2, "%s: illegal response len %lu, should be %lu\n",
-	   __FUNCTION__, (u_long)pktlen, (u_long)dev->reslen);
+	   __func__, (u_long)pktlen, (u_long)dev->reslen);
       dev->state = SANE_STATUS_IO_ERROR;
       return 0;
     }
     if (dev->reslen > reqlen)
       DBG (2, "%s: too big packet len %lu, need %lu\n",
-	   __FUNCTION__, (u_long)dev->reslen, (u_long)reqlen);
+	   __func__, (u_long)dev->reslen, (u_long)reqlen);
   }
 
   dev->state = 0;
@@ -189,7 +189,7 @@ static int dev_command (struct device *dev, SANE_Byte * cmd, size_t reqlen)
 
     if (dev->state)
       DBG (3, "%s(%s[%#x]): => %d: %s\n",
-	   __FUNCTION__, str_cmd(cmd[2]), cmd[2],
+	   __func__, str_cmd(cmd[2]), cmd[2],
 	   dev->state, sane_strstatus(dev->state));
   }
 
@@ -209,7 +209,7 @@ static SANE_Status dev_stop(struct device *dev)
 {
   int state = dev->state;
 
-  DBG (3, "%s: %p, scanning %d, reserved %d\n", __FUNCTION__,
+  DBG (3, "%s: %p, scanning %d, reserved %d\n", __func__,
        (void *)dev, dev->scanning, dev->reserved);
   dev->scanning = 0;
 
@@ -530,7 +530,7 @@ static void set_parameters(struct device *dev)
   } else {
     /* this will never happen */
     DBG (1, "%s: impossible image composition %d\n",
-	 __FUNCTION__, dev->composition);
+	 __func__, dev->composition);
     dev->para.format = SANE_FRAME_GRAY;
     dev->para.depth = 8;
   }
@@ -658,7 +658,7 @@ dev_inquiry (struct device *dev)
     return SANE_STATUS_IO_ERROR;
   ptr = dev->res;
   if (ptr[3] != MSG_PRODUCT_INFO) {
-    DBG (1, "%s: illegal INQUIRY response %02x\n", __FUNCTION__, ptr[3]);
+    DBG (1, "%s: illegal INQUIRY response %02x\n", __func__, ptr[3]);
     return SANE_STATUS_IO_ERROR;
   }
 
@@ -681,7 +681,7 @@ dev_inquiry (struct device *dev)
   *optr++ = 0;
   *xptr = 0;
 
-  DBG (1, "%s: found %s/%s\n", __FUNCTION__, dev->sane.vendor, dev->sane.model);
+  DBG (1, "%s: found %s/%s\n", __func__, dev->sane.vendor, dev->sane.model);
   dev->sane.type = strdup ("multi-function peripheral");
 
   dev->resolutions = dev->res[0x37] << 16 |
@@ -722,7 +722,7 @@ sane_get_option_descriptor (SANE_Handle h, SANE_Int opt)
 {
   struct device *dev = h;
 
-  DBG (3, "%s: %p, %d\n", __FUNCTION__, h, opt);
+  DBG (3, "%s: %p, %d\n", __func__, h, opt);
   if (opt >= NUM_OPTIONS || opt < 0)
     return NULL;
   return &dev->opt[opt];
@@ -734,7 +734,7 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 {
   struct device *dev = h;
 
-  DBG (3, "%s: %p, %d, <%d>, %p, %p\n", __FUNCTION__, h, opt, act, val, (void *)info);
+  DBG (3, "%s: %p, %d, <%d>, %p, %p\n", __func__, h, opt, act, val, (void *)info);
   if (!dev || opt >= NUM_OPTIONS || opt < 0)
     return SANE_STATUS_INVAL;
 
@@ -782,7 +782,7 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
     }
   }
 
-  DBG (4, "%s: %d, <%d> => %08x, %x\n", __FUNCTION__, opt, act,
+  DBG (4, "%s: %d, <%d> => %08x, %x\n", __func__, opt, act,
        val? *(SANE_Word *)val : 0, info? *info : 0);
   return SANE_STATUS_GOOD;
 }
@@ -839,7 +839,7 @@ list_one_device (SANE_String_Const devname)
   SANE_Status status;
   transport *tr;
 
-  DBG (4, "%s: %s\n", __FUNCTION__, devname);
+  DBG (4, "%s: %s\n", __func__, devname);
 
   for (dev = devices_head; dev; dev = dev->next) {
     if (strcmp (dev->sane.name, devname) == 0)
@@ -864,7 +864,7 @@ list_one_device (SANE_String_Const devname)
   status = dev_inquiry (dev);
   tr->dev_close (dev);
   if (status != SANE_STATUS_GOOD) {
-    DBG (1, "%s: dev_inquiry(%s): %s\n", __FUNCTION__,
+    DBG (1, "%s: dev_inquiry(%s): %s\n", __func__,
 	 dev->sane.name, sane_strstatus (status));
     dev_free (dev);
     return status;
@@ -917,7 +917,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local)
   int dev_count;
   int i;
 
-  DBG (3, "%s: %p, %d\n", __FUNCTION__, (const void *)device_list, local);
+  DBG (3, "%s: %p, %d\n", __func__, (const void *)device_list, local);
 
   if (devlist) {
     if (device_list)
@@ -938,7 +938,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local)
   devlist = malloc ((dev_count + 1) * sizeof (*devlist));
   if (!devlist)
     {
-      DBG (1, "%s: malloc: no memory\n", __FUNCTION__);
+      DBG (1, "%s: malloc: no memory\n", __func__);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -959,7 +959,7 @@ sane_close (SANE_Handle h)
   if (!dev)
     return;
 
-  DBG (3, "%s: %p (%s)\n", __FUNCTION__, (void *)dev, dev->sane.name);
+  DBG (3, "%s: %p (%s)\n", __func__, (void *)dev, dev->sane.name);
   dev->io->dev_close(dev);
 }
 
@@ -968,7 +968,7 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
 {
   struct device *dev;
 
-  DBG (3, "%s: '%s'\n", __FUNCTION__, name);
+  DBG (3, "%s: '%s'\n", __func__, name);
 
   if (!devlist)
     sane_get_devices (NULL, SANE_TRUE);
@@ -998,7 +998,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * para)
 {
   struct device *dev = h;
 
-  DBG (3, "%s: %p, %p\n", __FUNCTION__, h, (void *)para);
+  DBG (3, "%s: %p, %p\n", __func__, h, (void *)para);
   if (!para)
     return SANE_STATUS_INVAL;
 
@@ -1037,7 +1037,7 @@ static int dev_acquire(struct device *dev)
 
   if (dev->bytes_per_line > DATASIZE) {
     DBG (1, "%s: unsupported line size: %d bytes > %d\n",
-	 __FUNCTION__, dev->bytes_per_line, DATASIZE);
+	 __func__, dev->bytes_per_line, DATASIZE);
     return ret_cancel(dev, SANE_STATUS_NO_MEM);
   }
 
@@ -1128,7 +1128,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * lenp)
   SANE_Status status;
   struct device *dev = h;
 
-  DBG (3, "%s: %p, %p, %d, %p\n", __FUNCTION__, h, buf, maxlen, (void *)lenp);
+  DBG (3, "%s: %p, %p, %d, %p\n", __func__, h, buf, maxlen, (void *)lenp);
 
   if (lenp)
     *lenp = 0;
@@ -1250,7 +1250,7 @@ sane_start (SANE_Handle h)
 {
   struct device *dev = h;
 
-  DBG (3, "%s: %p\n", __FUNCTION__, h);
+  DBG (3, "%s: %p\n", __func__, h);
 
   dev->cancel = 0;
   dev->scanning = 0;
@@ -1316,7 +1316,7 @@ SANE_Status sane_set_io_mode (SANE_Handle h, SANE_Bool non_blocking)
 {
   struct device *dev = h;
 
-  DBG (3, "%s: %p, %d\n", __FUNCTION__, h, non_blocking);
+  DBG (3, "%s: %p, %d\n", __func__, h, non_blocking);
 
   if (non_blocking)
     return SANE_STATUS_UNSUPPORTED;
@@ -1327,7 +1327,7 @@ SANE_Status sane_set_io_mode (SANE_Handle h, SANE_Bool non_blocking)
 
 SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fdp)
 {
-  DBG (3, "%s: %p, %p\n", __FUNCTION__, h, (void *)fdp);
+  DBG (3, "%s: %p, %p\n", __func__, h, (void *)fdp);
   /* supporting of this will require thread creation */
   return SANE_STATUS_UNSUPPORTED;
 }
@@ -1336,7 +1336,7 @@ void sane_cancel (SANE_Handle h)
 {
   struct device *dev = h;
 
-  DBG (3, "%s: %p\n", __FUNCTION__, h);
+  DBG (3, "%s: %p\n", __func__, h);
   dev->cancel = 1;
 }
 

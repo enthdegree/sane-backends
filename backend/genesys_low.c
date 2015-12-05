@@ -737,7 +737,7 @@ sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
 	*words += ((value & 0x0f) * 256 * 256);
     }
 
-  DBG (DBG_proc, "%s: %d words\n", __FUNCTION__, *words);
+  DBG (DBG_proc, "%s: %d words\n", __func__, *words);
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
@@ -1098,7 +1098,7 @@ sanei_genesys_bulk_write_register (Genesys_Device * dev,
 	}
     }
 
-  DBG (DBG_io, "%s: wrote %lu registers\n", __FUNCTION__, (u_long) elems);
+  DBG (DBG_io, "%s: wrote %lu registers\n", __func__, (u_long) elems);
   return status;
 }
 
@@ -1136,8 +1136,8 @@ sanei_genesys_write_ahb (SANE_Int dn, int usb_mode, uint32_t addr, uint32_t size
 	{
           sprintf (msg+strlen(msg), " 0x%02x", outdata[i]);
 	}
-      DBG (DBG_io, "%s: write(0x%08x,0x%08x)\n", __FUNCTION__, addr,size);
-      DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
+      DBG (DBG_io, "%s: write(0x%08x,0x%08x)\n", __func__, addr,size);
+      DBG (DBG_io, "%s: %s\n", __func__, msg);
     }
 
   /* no effective write if fake USB */
@@ -1315,7 +1315,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
 	{
           free (gamma);
 	  DBG (DBG_error,
-	       "%s: write to AHB failed writing table %d (%s)\n", __FUNCTION__,
+	       "%s: write to AHB failed writing table %d (%s)\n", __func__,
 	       i, sane_strstatus (status));
 	}
     }
@@ -1352,12 +1352,12 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
       status = sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_GET_REGISTER, 0x00, 1, &val);
       if (status != SANE_STATUS_GOOD)
         {
-          DBG (DBG_error, "%s: request register failed %s\n", __FUNCTION__,
+          DBG (DBG_error, "%s: request register failed %s\n", __func__,
                sane_strstatus (status));
           return status;
         }
-      DBG (DBG_io2, "%s: value=0x%02x\n", __FUNCTION__, val);
-      DBG (DBG_info, "%s: device is %s\n", __FUNCTION__, (val & 0x08) ? "USB 1.0" : "USB2.0");
+      DBG (DBG_io2, "%s: value=0x%02x\n", __func__, val);
+      DBG (DBG_info, "%s: device is %s\n", __func__, (val & 0x08) ? "USB 1.0" : "USB2.0");
       if (val & 0x08)
         {
           dev->usb_mode = 1;
@@ -1377,7 +1377,7 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
       if (dev->sensor.gamma_table[i] == NULL)
         {
           DBG (DBG_error, "%s: could not allocate memory for gamma table %d\n",
-               __FUNCTION__, i);
+               __func__, i);
           return SANE_STATUS_NO_MEM;
         }
       sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
@@ -1397,13 +1397,13 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
     {
       cold = SANE_FALSE;
     }
-  DBG (DBG_info, "%s: device is %s\n", __FUNCTION__, cold ? "cold" : "warm");
+  DBG (DBG_info, "%s: device is %s\n", __func__, cold ? "cold" : "warm");
 
   /* don't do anything if backend is initialized and hardware hasn't been
    * replug */
   if (dev->already_initialized && !cold)
     {
-      DBG (DBG_info, "%s: already initialized, nothing to do\n", __FUNCTION__);
+      DBG (DBG_info, "%s: already initialized, nothing to do\n", __func__);
       return SANE_STATUS_GOOD;
     }
 
@@ -1459,7 +1459,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "%s: failed to read home sensor: %s\n", __FUNCTION__,
+	   "%s: failed to read home sensor: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -1468,7 +1468,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "%s: failed to read home sensor: %s\n", __FUNCTION__,
+	   "%s: failed to read home sensor: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -1477,7 +1477,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
   if(val & HOMESNR)
     {
 	  DBG (DBG_info,
-	       "%s: already at home\n", __FUNCTION__);
+	       "%s: already at home\n", __func__);
 	  return status;
     }
 
@@ -1491,7 +1491,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "%s: failed to read home sensor: %s\n", __FUNCTION__,
+	       "%s: failed to read home sensor: %s\n", __func__,
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -1506,7 +1506,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
   /* if after the timeout, head is still not parked, error out */
   if(loop >= max && !(val & HOMESNR) && status == SANE_STATUS_GOOD) 
     {
-      DBG (DBG_error, "%s: failed to reach park position %ds\n", __FUNCTION__, max/10);
+      DBG (DBG_error, "%s: failed to reach park position %ds\n", __func__, max/10);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -1597,7 +1597,7 @@ Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_
   /* default fallback */
   if(idx<0)
     {
-      DBG (DBG_warn,"%s: using default motor profile\n",__FUNCTION__);
+      DBG (DBG_warn,"%s: using default motor profile\n",__func__);
       idx=0;
     }
 
@@ -1654,7 +1654,7 @@ Motor_Profile *profile;
 
 	/* required speed */
 	target=((exposure * dpi) / base_dpi)>>step_type;
-        DBG (DBG_io2, "%s: exposure=%d, dpi=%d, target=%d\n", __FUNCTION__, exposure, dpi, target);
+        DBG (DBG_io2, "%s: exposure=%d, dpi=%d, target=%d\n", __func__, exposure, dpi, target);
 
 	/* fill result with target speed */
         for(i=0;i<SLOPE_TABLE_SIZE;i++)
@@ -1689,11 +1689,11 @@ Motor_Profile *profile;
         /* range checking */
         if(profile->table[i]==0 && DBG_LEVEL >= DBG_warn && current>target)
           {
-            DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too low ?\n",__FUNCTION__,target);
+            DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too low ?\n",__func__,target);
           }
         if(i<3 && DBG_LEVEL >= DBG_warn)
           {
-            DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too high ?\n",__FUNCTION__,target);
+            DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too high ?\n",__func__,target);
           }
 
         /* align on factor */
@@ -1791,20 +1791,20 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
 
   if(dev->model->cmd_set->calculate_current_setup==NULL)
     {
-      DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __FUNCTION__);
+      DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
       return SANE_STATUS_UNSUPPORTED;
     }
 
   status = dev->model->cmd_set->calculate_current_setup (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to calculate current setup: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to calculate current setup: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
   dev->current_setup.scan_method = dev->settings.scan_method;
 
-  DBG (DBG_proc, "%s: checking\n", __FUNCTION__);
+  DBG (DBG_proc, "%s: checking\n", __func__);
 
   /* a calibration cache is compatible if color mode and x dpi match the user
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
@@ -1822,22 +1822,22 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
       resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
       compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev,cache->used_setup.xres)));
     }
-  DBG (DBG_io, "%s: after resolution check current compatible=%d\n", __FUNCTION__, compatible);
+  DBG (DBG_io, "%s: after resolution check current compatible=%d\n", __func__, compatible);
   if (dev->current_setup.half_ccd != cache->used_setup.half_ccd)
     {
-      DBG (DBG_io, "%s: half_ccd=%d, used=%d\n", __FUNCTION__,
+      DBG (DBG_io, "%s: half_ccd=%d, used=%d\n", __func__,
 	   dev->current_setup.half_ccd, cache->used_setup.half_ccd);
       compatible = 0;
     }
   if (dev->current_setup.scan_method != cache->used_setup.scan_method)
     {
-      DBG (DBG_io, "%s: current method=%d, used=%d\n", __FUNCTION__,
+      DBG (DBG_io, "%s: current method=%d, used=%d\n", __func__,
 	   dev->current_setup.scan_method, cache->used_setup.scan_method);
       compatible = 0;
     }
   if (!compatible)
     {
-      DBG (DBG_proc, "%s: completed, non compatible cache\n", __FUNCTION__);
+      DBG (DBG_proc, "%s: completed, non compatible cache\n", __func__);
       return SANE_STATUS_UNSUPPORTED;
     }
 
@@ -1851,7 +1851,7 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
           && (dev->model->is_sheetfed == SANE_FALSE)
           && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
         {
-          DBG (DBG_proc, "%s: expired entry, non compatible cache\n", __FUNCTION__);
+          DBG (DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
           return SANE_STATUS_UNSUPPORTED;
         }
     }

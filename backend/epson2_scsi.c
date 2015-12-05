@@ -32,7 +32,7 @@ sanei_epson2_scsi_sense_handler(int scsi_fd,
 
 	if (result[0] && result[0] != 0x70) {
 		DBG(2, "%s: sense code = 0x%02x\n",
-			__FUNCTION__, result[0]);
+			__func__, result[0]);
 		return SANE_STATUS_IO_ERROR;
 	} else {
 		return SANE_STATUS_GOOD;

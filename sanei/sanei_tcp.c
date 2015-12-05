@@ -70,7 +70,7 @@ sanei_tcp_open(const char *host, int port, int *fdp)
 #endif
 
 	DBG_INIT();
-	DBG(1, "%s: host = %s, port = %d\n", __FUNCTION__, host, port);
+	DBG(1, "%s: host = %s, port = %d\n", __func__, host, port);
 
 #ifdef HAVE_WINSOCK2_H
 	err = WSAStartup(MAKEWORD(2, 2), &wsaData);

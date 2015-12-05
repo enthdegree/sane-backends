@@ -387,7 +387,7 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 
   DBG (DBG_proc,
        "%s: step_type = %d, "
-       "exposure_time = %d, yres = %g, power_mode = %d\n", __FUNCTION__, step_type,
+       "exposure_time = %d, yres = %g, power_mode = %d\n", __func__, step_type,
        exposure_time, yres, power_mode);
 
   /* final speed */
@@ -792,7 +792,7 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
     exposure = exposure_by_led;
 
   DBG (DBG_info, "%s: ydpi=%d, step=%d, endpixel=%d led=%d, power=%d => exposure=%d\n",
-       __FUNCTION__, (int)ydpi, step_type, endpixel, exposure_by_led, power_mode, exposure);
+       __func__, (int)ydpi, step_type, endpixel, exposure_by_led, power_mode, exposure);
   return exposure;
 }
 
@@ -928,7 +928,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
   int start_address;
   SANE_Status status;
 
-  DBG (DBG_proc, "%s: (size = %d)\n", __FUNCTION__, size);
+  DBG (DBG_proc, "%s: (size = %d)\n", __func__, size);
 
   /* ASIC higher than gl843 doesn't have register 2A/2B, so we route to
    * a per ASIC shading data loading function if available.
@@ -978,7 +978,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
   status = sanei_genesys_set_buffer_address (dev, start_address);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to set buffer address: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to set buffer address: %s\n", __func__,
            sane_strstatus (status));
       return status;
     }
@@ -986,7 +986,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
   status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, data, size);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to send shading table: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to send shading table: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -1046,7 +1046,7 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
   free (shading_data);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to send shading data: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to send shading data: %s\n", __func__,
 	  sane_strstatus (status));
     }
 
@@ -1489,7 +1489,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->set_fe (dev, AFE_INIT);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to set frontend: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to set frontend: %s\n", __func__,
 	   sane_strstatus (status));
       free(all_data);
       free(calibration_data);
@@ -2180,7 +2180,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   SANE_Bool motor;
 
 
-  DBG (DBG_proc, "%s: (lines = %d)\n", __FUNCTION__, (unsigned int)dev->calib_lines);
+  DBG (DBG_proc, "%s: (lines = %d)\n", __func__, (unsigned int)dev->calib_lines);
 
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
@@ -2193,7 +2193,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   dev->white_average_data = malloc (dev->average_size);
   if (!dev->white_average_data)
     {
-      DBG (DBG_error, "%s: failed to allocate white average memory\n", __FUNCTION__);
+      DBG (DBG_error, "%s: failed to allocate white average memory\n", __func__);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2203,7 +2203,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   dev->dark_average_data = malloc (channels * 2 * pixels_per_line);
   if (!dev->dark_average_data)
     {
-      DBG (DBG_error, "%s: failed to allocate dark average memory\n", __FUNCTION__);
+      DBG (DBG_error, "%s: failed to allocate dark average memory\n", __func__);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2212,7 +2212,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   calibration_data = malloc (size);
   if (!calibration_data)
     {
-      DBG (DBG_error, "%s: failed to allocate calibration memory\n", __FUNCTION__);
+      DBG (DBG_error, "%s: failed to allocate calibration memory\n", __func__);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2233,7 +2233,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
-      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __func__,
            sane_strstatus (status));
       return status;
     }
@@ -2243,7 +2243,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
-      DBG (DBG_error, "%s: failed to begin scan: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to begin scan: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -2252,7 +2252,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
-      DBG (DBG_error, "%s: failed to read data: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to read data: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -2261,7 +2261,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
-      DBG (DBG_error, "%s: Failed to end scan: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: Failed to end scan: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -2434,7 +2434,7 @@ compute_averaged_planar (Genesys_Device * dev,
   unsigned int x, i, j, br, dk, res, avgpixels, basepixels, val;
   unsigned int fill,factor;
 
-  DBG (DBG_info, "%s: pixels=%d, offset=%d\n", __FUNCTION__, pixels_per_line, o);
+  DBG (DBG_info, "%s: pixels=%d, offset=%d\n", __func__, pixels_per_line, o);
 
   /* initialize result */
   memset (shading_data, 0xff, words_per_color * 3 * 2);
@@ -2504,9 +2504,9 @@ compute_averaged_planar (Genesys_Device * dev,
       fill=1;
     }
 
-  DBG (DBG_info, "%s: averaging over %d pixels\n", __FUNCTION__, avgpixels);
-  DBG (DBG_info, "%s: packing factor is %d\n", __FUNCTION__, factor);
-  DBG (DBG_info, "%s: fill length is %d\n", __FUNCTION__, fill);
+  DBG (DBG_info, "%s: averaging over %d pixels\n", __func__, avgpixels);
+  DBG (DBG_info, "%s: packing factor is %d\n", __func__, factor);
+  DBG (DBG_info, "%s: fill length is %d\n", __func__, fill);
 
   for (x = 0; x <= pixels_per_line - avgpixels; x += avgpixels)
     {
@@ -2903,7 +2903,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   shading_data = malloc (length);
   if (!shading_data)
     {
-      DBG (DBG_error, "%s: failed to allocate memory\n", __FUNCTION__);
+      DBG (DBG_error, "%s: failed to allocate memory\n", __func__);
       return SANE_STATUS_NO_MEM;
     }
   memset (shading_data, 0, length);
@@ -3071,7 +3071,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
         shading_data = malloc (length);
         if (!shading_data)
           {
-            DBG (DBG_error, "%s: failed to allocate memory\n", __FUNCTION__);
+            DBG (DBG_error, "%s: failed to allocate memory\n", __func__);
             return SANE_STATUS_NO_MEM;
           }
         memset (shading_data, 0, length);
@@ -3121,7 +3121,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 			            256);        /* patch_size: contigous extent */
       break;
     default:
-      DBG (DBG_error, "%s: sensor %d not supported\n", __FUNCTION__, dev->model->ccd_type);
+      DBG (DBG_error, "%s: sensor %d not supported\n", __func__, dev->model->ccd_type);
       return SANE_STATUS_UNSUPPORTED;
       break;
     }
@@ -3131,7 +3131,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   free (shading_data);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to send shading data: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to send shading data: %s\n", __func__,
 	  sane_strstatus (status));
     }
 
@@ -3689,7 +3689,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       dev->model->cmd_set->eject_document (dev);
-      DBG (DBG_error, "%s: failed eject target: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed eject target: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -3821,7 +3821,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
   /* check if the current chipset implements warmup */
   if(dev->model->cmd_set->init_regs_for_warmup==NULL)
     {
-      DBG (DBG_error, "%s: init_regs_for_warmup not implemented\n", __FUNCTION__);
+      DBG (DBG_error, "%s: init_regs_for_warmup not implemented\n", __func__);
       return status;
     }
 
@@ -4346,7 +4346,7 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
-		   "%s: failed to read %lu bytes (%s)\n", __FUNCTION__,
+		   "%s: failed to read %lu bytes (%s)\n", __func__,
 		   (u_long) dev->oe_buffer.size, sane_strstatus (status));
 	      return SANE_STATUS_IO_ERROR;
 	    }
@@ -4383,7 +4383,7 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
               if (status != SANE_STATUS_GOOD)
                 {
                   DBG (DBG_error,
-                       "%s: failed to read %lu bytes (%s)\n", __FUNCTION__,
+                       "%s: failed to read %lu bytes (%s)\n", __func__,
                        (u_long) dev->oe_buffer.size, sane_strstatus (status));
                   return SANE_STATUS_IO_ERROR;
                 }
@@ -4417,7 +4417,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG (DBG_error,
-		   "%s: failed to read %lu bytes (%s)\n", __FUNCTION__,
+		   "%s: failed to read %lu bytes (%s)\n", __func__,
 		   (u_long) dev->oe_buffer.size, sane_strstatus (status));
 	      return SANE_STATUS_IO_ERROR;
 	    }
@@ -4508,7 +4508,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
               if (status != SANE_STATUS_GOOD)
                 {
                   DBG (DBG_error,
-                       "%s: failed to read %lu bytes (%s)\n", __FUNCTION__,
+                       "%s: failed to read %lu bytes (%s)\n", __func__,
                        (u_long) dev->oe_buffer.size, sane_strstatus (status));
                   return SANE_STATUS_IO_ERROR;
                 }
@@ -5496,7 +5496,7 @@ GENESYS_STATIC char *calibration_filename(Genesys_Device *currdev)
       snprintf (tmpstr, PATH_MAX, "%s%c.sane%c%s", ptr, PATH_SEP, PATH_SEP, filename);
     }
 
-  DBG (DBG_info, "%s: calibration filename >%s<\n", __FUNCTION__, tmpstr);
+  DBG (DBG_info, "%s: calibration filename >%s<\n", __func__, tmpstr);
 
   return tmpstr;
 }
@@ -6330,7 +6330,7 @@ probe_genesys_devices (void)
       free (new_dev);
     }
 
-  DBG(DBG_info, "%s: %d devices currently attached\n", __FUNCTION__, num_devices);
+  DBG(DBG_info, "%s: %d devices currently attached\n", __func__, num_devices);
 
   DBGCOMPLETED;
 
@@ -6545,7 +6545,7 @@ genesys_buffer_image(Genesys_Scanner *s)
       lines =
 	(SANE_UNFIX (dev->model->y_size) * dev->settings.yres) / MM_PER_INCH;
     }
-  DBG (DBG_info, "%s: buffering %d lines of %d bytes\n", __FUNCTION__, lines,
+  DBG (DBG_info, "%s: buffering %d lines of %d bytes\n", __func__, lines,
        s->params.bytes_per_line);
 
   /* maximum bytes to read */
@@ -6568,7 +6568,7 @@ genesys_buffer_image(Genesys_Scanner *s)
     {
       DBG (DBG_error,
 	   "%s: digital processing requires too much memory.\nConsider disabling it\n",
-	   __FUNCTION__);
+	   __func__);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -6585,7 +6585,7 @@ genesys_buffer_image(Genesys_Scanner *s)
       if (status != SANE_STATUS_EOF && status != SANE_STATUS_GOOD)
 	{
 	  free (s->dev->img_buffer);
-	  DBG (DBG_error, "%s: %s buffering failed\n", __FUNCTION__,
+	  DBG (DBG_error, "%s: %s buffering failed\n", __func__,
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -6600,7 +6600,7 @@ genesys_buffer_image(Genesys_Scanner *s)
 	    {
 	      DBG (DBG_error0,
 		   "%s: digital processing requires too much memory.\nConsider disabling it\n",
-		   __FUNCTION__);
+		   __func__);
 	      return SANE_STATUS_NO_MEM;
 	    }
 	}
@@ -6627,7 +6627,7 @@ genesys_buffer_image(Genesys_Scanner *s)
         {
           DBG (DBG_error0,
                "%s: digital processing requires too much memory.\nConsider disabling it\n",
-               __FUNCTION__);
+               __func__);
           return SANE_STATUS_NO_MEM;
         }
       genesys_gray_lineart (dev,
@@ -6942,8 +6942,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   tmpstr=calibration_filename(s->dev);
   s->val[OPT_CALIBRATION_FILE].s = strdup (tmpstr);
   s->dev->calib_file = strdup (tmpstr);
-  DBG (DBG_info, "%s: Calibration filename set to:\n", __FUNCTION__);
-  DBG (DBG_info, "%s: >%s<\n", __FUNCTION__, s->dev->calib_file);
+  DBG (DBG_info, "%s: Calibration filename set to:\n", __func__);
+  DBG (DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file);
   free(tmpstr);
 
   /* now open file, fetch calibration records */
@@ -7245,8 +7245,8 @@ static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void 
   if (tmp)
     free (tmp);
   dev->calib_file = strdup (val);
-  DBG (DBG_info, "%s: Calibration filename set to:\n", __FUNCTION__);
-  DBG (DBG_info, "%s: >%s<\n", __FUNCTION__, s->dev->calib_file);
+  DBG (DBG_info, "%s: Calibration filename set to:\n", __func__);
+  DBG (DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file);
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -7536,7 +7536,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	{
 	  DBG (DBG_error,
 	       "%s: failed to disable power saving mode: %s\n",
-	       __FUNCTION__, sane_strstatus (status));
+	       __func__, sane_strstatus (status));
 	}
       else
 	status = genesys_scanner_calibration (s->dev);

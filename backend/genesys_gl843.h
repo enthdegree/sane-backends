@@ -73,8 +73,8 @@ SANE_Status gl843_xpa_motor_off (Genesys_Device * dev);
 SANE_Status gl843_move_to_ta (Genesys_Device * dev);
 #endif
 
-#define DBGSTART DBG (DBG_proc, "%s start\n", __FUNCTION__);
-#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __FUNCTION__);
+#define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
+#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
 
 #define REG01           0x01
 #define REG01_CISSET	0x80

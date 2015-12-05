@@ -48,7 +48,7 @@ static int
 test_init (int expected)
 {
   /* initialize USB */
-  printf ("%s starting ...\n", __FUNCTION__);
+  printf ("%s starting ...\n", __func__);
   sanei_usb_init ();
   if (initialized == 0)
     {
@@ -63,7 +63,7 @@ test_init (int expected)
     }
 
   printf ("sanei_usb initialized, use count is %d ...\n", initialized);
-  printf ("%s success\n\n", __FUNCTION__);
+  printf ("%s success\n\n", __func__);
   return 1;
 }
 
@@ -75,7 +75,7 @@ test_init (int expected)
 static int
 test_exit (int expected)
 {
-  printf ("%s starting ...\n", __FUNCTION__);
+  printf ("%s starting ...\n", __func__);
 
   /* end of USB use test */
   sanei_usb_exit ();
@@ -86,7 +86,7 @@ test_exit (int expected)
       return 0;
     }
 
-  printf ("%s success\n\n", __FUNCTION__);
+  printf ("%s success\n\n", __func__);
   return 1;
 }
 

@@ -295,7 +295,7 @@ genesys_shrink_lines_1 (
 	  else
 	    {
 	      /* TODO: since depth is 1, we must interpolate bit within bytes */
-	      DBG (DBG_warn, "%s: inaccurate bit expansion!\n", __FUNCTION__);
+	      DBG (DBG_warn, "%s: inaccurate bit expansion!\n", __func__);
 	      cnt = dst_pixels / 2;
 	      dst_x = 0;
 	      for (src_x = 0; src_x < src_pixels; src_x++)
@@ -332,7 +332,7 @@ genesys_crop(Genesys_Scanner *s)
   int left = 0;
   int right = 0;
 
-  DBG (DBG_proc, "%s: start\n", __FUNCTION__);
+  DBG (DBG_proc, "%s: start\n", __func__);
 
   /* first find edges if any */
   status = sanei_magic_findEdges (&s->params,
@@ -345,10 +345,10 @@ genesys_crop(Genesys_Scanner *s)
                                   &right);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_info, "%s: bad or no edges, bailing\n", __FUNCTION__);
+      DBG (DBG_info, "%s: bad or no edges, bailing\n", __func__);
       goto cleanup;
     }
-  DBG (DBG_io, "%s: t:%d b:%d l:%d r:%d\n", __FUNCTION__, top, bottom, left,
+  DBG (DBG_io, "%s: t:%d b:%d l:%d r:%d\n", __func__, top, bottom, left,
        right);
 
   /* now crop the image */
@@ -356,7 +356,7 @@ genesys_crop(Genesys_Scanner *s)
     sanei_magic_crop (&(s->params), dev->img_buffer, top, bottom, left, right);
   if (status)
     {
-      DBG (DBG_warn, "%s: failed to crop\n", __FUNCTION__);
+      DBG (DBG_warn, "%s: failed to crop\n", __func__);
       goto cleanup;
     }
 
@@ -364,7 +364,7 @@ genesys_crop(Genesys_Scanner *s)
   dev->total_bytes_to_read = s->params.bytes_per_line * s->params.lines;
 
 cleanup:
-  DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+  DBG (DBG_proc, "%s: completed\n", __func__);
   return SANE_STATUS_GOOD;
 }
 
@@ -382,7 +382,7 @@ genesys_deskew(Genesys_Scanner *s)
   int x = 0, y = 0, bg;
   double slope = 0;
 
-  DBG (DBG_proc, "%s: start\n", __FUNCTION__);
+  DBG (DBG_proc, "%s: start\n", __func__);
 
   bg=0;
   if(s->params.format==SANE_FRAME_GRAY && s->params.depth == 1)
@@ -398,10 +398,10 @@ genesys_deskew(Genesys_Scanner *s)
                                  &slope);
   if (status!=SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: bad findSkew, bailing\n", __FUNCTION__);
+      DBG (DBG_error, "%s: bad findSkew, bailing\n", __func__);
       return SANE_STATUS_GOOD;
     }
-  DBG(DBG_info, "%s: slope=%f => %f\n",__FUNCTION__,slope, (slope/M_PI_2)*90);
+  DBG(DBG_info, "%s: slope=%f => %f\n",__func__,slope, (slope/M_PI_2)*90);
   /* rotate image slope is in [-PI/2,PI/2]
    * positive values rotate trigonometric direction wise */
   status = sanei_magic_rotate (&s->params,
@@ -412,10 +412,10 @@ genesys_deskew(Genesys_Scanner *s)
                                bg);
   if (status!=SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: rotate error: %s", __FUNCTION__, sane_strstatus(status));
+      DBG (DBG_error, "%s: rotate error: %s", __func__, sane_strstatus(status));
     }
 
-  DBG (DBG_proc, "%s: completed\n", __FUNCTION__);
+  DBG (DBG_proc, "%s: completed\n", __func__);
   return SANE_STATUS_GOOD;
 }
 
@@ -430,7 +430,7 @@ genesys_despeck(Genesys_Scanner *s)
                          s->dev->img_buffer,
                          s->val[OPT_DESPECK].w)!=SANE_STATUS_GOOD)
   {
-    DBG (DBG_error, "%s: bad despeck, bailing\n",__FUNCTION__);
+    DBG (DBG_error, "%s: bad despeck, bailing\n",__func__);
   }
 
   return SANE_STATUS_GOOD;
@@ -454,7 +454,7 @@ genesys_derotate (Genesys_Scanner * s)
 
   if (status)
     {
-      DBG (DBG_warn, "%s: failed : %d\n", __FUNCTION__, status);
+      DBG (DBG_warn, "%s: failed : %d\n", __func__, status);
       DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
@@ -463,7 +463,7 @@ genesys_derotate (Genesys_Scanner * s)
   status = sanei_magic_turn (&s->params, s->dev->img_buffer, angle);
   if (status)
     {
-      DBG (DBG_warn, "%s: failed : %d\n", __FUNCTION__, status);
+      DBG (DBG_warn, "%s: failed : %d\n", __func__, status);
       DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }

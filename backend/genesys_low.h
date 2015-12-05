@@ -104,7 +104,7 @@
   do { status = function;                               \
     if (status != SANE_STATUS_GOOD) \
       { \
-        DBG(DBG_error, "%s: %s\n", __FUNCTION__, sane_strstatus (status)); \
+        DBG(DBG_error, "%s: %s\n", __func__, sane_strstatus (status)); \
 	return status; \
       }	\
   } while (SANE_FALSE)
@@ -114,7 +114,7 @@
     if (status != SANE_STATUS_GOOD) \
       { \
 	 free(mem); \
-	 DBG(DBG_error, "%s: %s\n", __FUNCTION__, sane_strstatus (status)); \
+	 DBG(DBG_error, "%s: %s\n", __func__, sane_strstatus (status)); \
 	 return status;      \
       } \
   } while (SANE_FALSE)
@@ -129,8 +129,8 @@
 	  } \
   } while (SANE_FALSE)
 
-#define DBGSTART DBG (DBG_proc, "%s start\n", __FUNCTION__);
-#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __FUNCTION__);
+#define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
+#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
 
 #define FREE_IFNOT_NULL(x)		if(x!=NULL) { free(x); x=NULL;}
 

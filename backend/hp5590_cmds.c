@@ -483,7 +483,7 @@ hp5590_init_scanner (SANE_Int dn,
    * 09 60 4F B0 6D E0 00 00 00 00 00 00 00 00 00 64  ..O.m..........d
    * 03 E8                                            ..
    */
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (sizeof (init_resp) == 50);
 
@@ -512,7 +512,7 @@ hp5590_init_scanner (SANE_Int dn,
 		{
 		  DBG (DBG_err, "%s: Vendor id mismatch for scanner HP%s - "
 		       "required  '%s', got '%s'\n",
-		       __FUNCTION__,
+		       __func__,
 		       hp5590_models[i].model,
 		       hp5590_models[i].vendor_id, id_buf);
 		  return SANE_STATUS_INVAL;
@@ -593,10 +593,10 @@ hp5590_init_scanner (SANE_Int dn,
   if (ret != SANE_STATUS_GOOD)
     {
       DBG (DBG_err, "%s: scanner reports non-zero status: %s\n",
-	   __FUNCTION__, sane_strstatus (ret));
+	   __func__, sane_strstatus (ret));
       return ret;
     }
-  DBG (DBG_cmds, "%s: scanner status OK\n", __FUNCTION__);
+  DBG (DBG_cmds, "%s: scanner status OK\n", __func__);
 
   return SANE_STATUS_GOOD;
 }
@@ -614,7 +614,7 @@ hp5590_read_eeprom (SANE_Int dn,
   hp5590_cmds_assert (data != NULL);
   hp5590_cmds_assert (sizeof (eeprom_addr) == 1);
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
   DBG (DBG_proc, "Reading EEPROM: addr %04x, size %u\n", addr, size);
 
   ret = hp5590_cmd (dn,
@@ -649,7 +649,7 @@ hp5590_write_eeprom (SANE_Int dn,
   hp5590_cmds_assert (data != NULL);
   hp5590_cmds_assert (sizeof (eeprom_addr) == 1);
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
   DBG (DBG_proc, "Writing EEPROM: addr %04x, size: %u\n", addr, size);
 
   ret = hp5590_cmd (dn,
@@ -683,7 +683,7 @@ hp5590_read_scan_count (SANE_Int dn,
   hp5590_cmds_assert (count != NULL);
   hp5590_cmds_assert (sizeof (scan_count) == 4);
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
   DBG (DBG_proc, "Reading scan count\n");
 
   ret = hp5590_read_eeprom (dn,
@@ -713,7 +713,7 @@ hp5590_inc_scan_count (SANE_Int dn,
   unsigned int new_count;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
   hp5590_cmds_assert (sizeof (scan_count) == 4);
 
   ret = hp5590_read_scan_count (dn, proto_flags, &count);
@@ -756,7 +756,7 @@ hp5590_read_max_scan_count (SANE_Int dn,
   hp5590_cmds_assert (max_count != NULL);
   hp5590_cmds_assert (sizeof (max_scan_count) == 3);
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
   DBG (DBG_proc, "Reading max scan count\n");
 
   ret = hp5590_read_eeprom (dn,
@@ -811,7 +811,7 @@ hp5590_read_eeprom_all_cmd (SANE_Int dn,
   uint8_t eeprom[255];
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   ret = hp5590_read_eeprom (dn,
   			    proto_flags,
@@ -835,7 +835,7 @@ hp5590_read_part_number (SANE_Int dn,
   unsigned char part_number[PART_NUMBER_LEN + 1];
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   memset (part_number, 0, sizeof (part_number));
   ret = hp5590_read_eeprom (dn,
@@ -859,7 +859,7 @@ hp5590_is_data_available (SANE_Int dn,
   SANE_Status ret;
   SANE_Bool data_available;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (sizeof (data_status) == 1);
   data_available = SANE_FALSE;
@@ -873,13 +873,13 @@ hp5590_is_data_available (SANE_Int dn,
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
-  DBG (DBG_cmds, "%s: Data status: %02x\n", __FUNCTION__, data_status);
+  DBG (DBG_cmds, "%s: Data status: %02x\n", __func__, data_status);
 
   if (data_status == 0x40)
     data_available = SANE_TRUE;
 
   DBG (DBG_cmds, "%s: Data is %s\n",
-       __FUNCTION__,
+       __func__,
        data_available == SANE_TRUE ? "available" : "not available");
 
   return data_available == SANE_TRUE ? SANE_STATUS_GOOD : SANE_STATUS_NO_DOCS;
@@ -893,7 +893,7 @@ hp5590_stop_scan (SANE_Int dn,
   uint8_t reg_011b = 0x40;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (sizeof (reg_011b) == 1);
 
@@ -920,7 +920,7 @@ hp5590_turnon_lamp (SANE_Int dn,
   struct lamp_state lamp_state;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (sizeof (lamp_state) == 4);
 
@@ -930,7 +930,7 @@ hp5590_turnon_lamp (SANE_Int dn,
       lamp_state.unk1 = 0x02;
       lamp_state.flag = 0x01;
       lamp_state.turnoff_time = htons (0x0a0a);
-      DBG (DBG_cmds, "%s: turning lamp on\n", __FUNCTION__);
+      DBG (DBG_cmds, "%s: turning lamp on\n", __func__);
     }
 
   if (state == LAMP_STATE_TURNOFF)
@@ -939,7 +939,7 @@ hp5590_turnon_lamp (SANE_Int dn,
       lamp_state.unk1 = 0x02;
       lamp_state.flag = 0x02;
       lamp_state.turnoff_time = htons (0x0a0a);
-      DBG (DBG_cmds, "%s: turning lamp off\n", __FUNCTION__);
+      DBG (DBG_cmds, "%s: turning lamp off\n", __func__);
     }
 
   if (state == LAMP_STATE_SET_TURNOFF_TIME)
@@ -948,7 +948,7 @@ hp5590_turnon_lamp (SANE_Int dn,
       lamp_state.unk1 = 0x02;
       lamp_state.flag = 0x03;
       lamp_state.turnoff_time = htons (0x0336);
-      DBG (DBG_cmds, "%s: setting turnoff time\n", __FUNCTION__);
+      DBG (DBG_cmds, "%s: setting turnoff time\n", __func__);
     }
 
   if (state == LAMP_STATE_SET_TURNOFF_TIME_LONG)
@@ -957,7 +957,7 @@ hp5590_turnon_lamp (SANE_Int dn,
       lamp_state.unk1 = 0x02;
       lamp_state.flag = 0x03;
       lamp_state.turnoff_time = htons (0x0f36);
-      DBG (DBG_cmds, "%s: setting long turnoff time\n", __FUNCTION__);
+      DBG (DBG_cmds, "%s: setting long turnoff time\n", __func__);
     }
 
   ret = hp5590_cmd (dn,
@@ -987,7 +987,7 @@ hp5590_power_status (SANE_Int dn,
   struct power_resp power_resp;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (sizeof (power_resp) == 3);
 
@@ -1023,7 +1023,7 @@ hp5590_read_error_code (SANE_Int dn,
   struct reg_03 reg_03;
   SANE_Status 	ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
   
   hp5590_cmds_assert (sizeof (reg_03) == 3);
   hp5590_cmds_assert (adf_flags != NULL);
@@ -1040,9 +1040,9 @@ hp5590_read_error_code (SANE_Int dn,
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
-  DBG (DBG_cmds, "%s: adf_flags: %04x\n", __FUNCTION__, reg_03.adf_flags);
-  DBG (DBG_cmds, "%s: unk1     : %04x\n", __FUNCTION__, reg_03.unk1);
-  DBG (DBG_cmds, "%s: unk2     : %04x\n", __FUNCTION__, reg_03.unk2);
+  DBG (DBG_cmds, "%s: adf_flags: %04x\n", __func__, reg_03.adf_flags);
+  DBG (DBG_cmds, "%s: unk1     : %04x\n", __func__, reg_03.unk1);
+  DBG (DBG_cmds, "%s: unk2     : %04x\n", __func__, reg_03.unk2);
 
   *adf_flags = reg_03.adf_flags;
 
@@ -1056,7 +1056,7 @@ hp5590_reset_scan_head (SANE_Int dn,
 {
   SANE_Status	ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
   
   ret = hp5590_turnon_lamp (dn, proto_flags, LAMP_STATE_TURNOFF);
   if (ret != SANE_STATUS_GOOD)
@@ -1082,7 +1082,7 @@ hp5590_select_source_and_wakeup (SANE_Int dn,
   SANE_Status 	ret;
   unsigned int	adf_flags;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (sizeof (reg_d6) == 1);
 
@@ -1161,7 +1161,7 @@ hp5590_lock_unlock_scanner (SANE_Int dn,
   unsigned int	adf_flags;
   unsigned int	waiting;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
   hp5590_cmds_assert (sizeof (reg_00) == 1);
 
   for (waiting = 0; waiting < WAKEUP_TIMEOUT; waiting++, sleep (1))
@@ -1206,7 +1206,7 @@ hp5590_set_base_dpi (SANE_Int dn,
   uint16_t _base_dpi;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (scanner_info != NULL);
   hp5590_cmds_assert (base_dpi != 0);
@@ -1246,7 +1246,7 @@ hp5590_set_color_map (SANE_Int dn,
   struct color_map color_map;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (sizeof (color_map) == 18);
   hp5590_cmds_assert (base_dpi != 0);
@@ -1301,7 +1301,7 @@ static SANE_Status
 calc_base_dpi (unsigned int dpi, unsigned int *base_dpi)
 {
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (base_dpi != NULL);
   hp5590_cmds_assert (dpi != 0);
@@ -1346,7 +1346,7 @@ calc_base_dpi (unsigned int dpi, unsigned int *base_dpi)
 static SANE_Status
 calc_scanner_dpi (unsigned int dpi, unsigned int *scanner_dpi)
 {
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (scanner_dpi != NULL);
   hp5590_cmds_assert (dpi != 0);
@@ -1399,7 +1399,7 @@ hp5590_calc_pixel_bits (unsigned int dpi, enum color_depths color_depth,
   unsigned int scanner_dpi;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (pixel_bits != NULL);
   hp5590_cmds_assert (dpi != 0);
@@ -1465,7 +1465,7 @@ hp5590_set_scan_area (SANE_Int dn,
   unsigned int 		pixels_y;
   SANE_Status 		ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (sizeof (scan_params) == 37);
   hp5590_cmds_assert (dpi != 0);
@@ -1628,7 +1628,7 @@ hp5590_read_image_params (SANE_Int dn,
   struct image_params image_params;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (sizeof (image_params) == 16);
 
@@ -1676,7 +1676,7 @@ hp5590_set_scan_params (SANE_Int dn,
   unsigned int base_dpi;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (scanner_info != NULL);
   hp5590_cmds_assert (dpi != 0);
@@ -1754,7 +1754,7 @@ hp5590_send_reverse_calibration_map (SANE_Int dn,
   unsigned int len;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
   DBG (DBG_proc, "Preparing reverse calibration map\n");
   val = 0xffff;
   len = reverse_map_size / 4;
@@ -1805,7 +1805,7 @@ hp5590_send_forward_calibration_maps (SANE_Int dn,
   unsigned int i;
   uint16_t val;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
   DBG (DBG_proc, "Preparing forward calibration map\n");
   val = 0x0000;
   for (i = 0; i < forward_map_size; i++)
@@ -1852,7 +1852,7 @@ hp5590_read (SANE_Int dn,
 {
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (bytes != NULL);
   hp5590_cmds_assert (state != NULL);
@@ -1872,7 +1872,7 @@ hp5590_start_scan (SANE_Int dn,
   uint8_t reg_051b = 0x40;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (sizeof (reg_051b) == 1);
 
@@ -1897,7 +1897,7 @@ hp5590_read_buttons (SANE_Int dn,
   uint16_t button_status;
   SANE_Status ret;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   hp5590_cmds_assert (status != NULL);
   hp5590_cmds_assert (sizeof (button_status) == 2);

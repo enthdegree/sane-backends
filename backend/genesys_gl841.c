@@ -1158,7 +1158,7 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
 	{
 	  sprintf (msg+strlen(msg), ",%d", slope_table[i]);
 	}
-      DBG (DBG_io, "%s: %s\n", __FUNCTION__, msg);
+      DBG (DBG_io, "%s: %s\n", __func__, msg);
     }
 
   status =
@@ -1204,7 +1204,7 @@ gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
 
   if (set == AFE_INIT)
     {
-      DBG (DBG_proc, "%s(): setting DAC %u\n", __FUNCTION__,
+      DBG (DBG_proc, "%s(): setting DAC %u\n", __func__,
 	   dev->model->dac_type);
 
       /* sets to default values */
@@ -1214,21 +1214,21 @@ gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
       status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "%s: writing reg 0x00 failed: %s\n", __FUNCTION__,
+	  DBG (DBG_error, "%s: writing reg 0x00 failed: %s\n", __func__,
 	       sane_strstatus (status));
 	  return status;
 	}
       status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.reg[1]);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "%s: writing reg 0x03 failed: %s\n", __FUNCTION__,
+	  DBG (DBG_error, "%s: writing reg 0x03 failed: %s\n", __func__,
 	       sane_strstatus (status));
 	  return status;
 	}
       status = sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.reg[2]);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "%s: writing reg 0x06 failed: %s\n", __FUNCTION__,
+	  DBG (DBG_error, "%s: writing reg 0x06 failed: %s\n", __func__,
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -1239,21 +1239,21 @@ gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
       status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "%s: writing reg 0x00 failed: %s\n", __FUNCTION__,
+	  DBG (DBG_error, "%s: writing reg 0x00 failed: %s\n", __func__,
 	       sane_strstatus (status));
 	  return status;
 	}
       status = sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.offset[0]);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "%s: writing offset failed: %s\n", __FUNCTION__,
+	  DBG (DBG_error, "%s: writing offset failed: %s\n", __func__,
 	       sane_strstatus (status));
 	  return status;
 	}
       status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.gain[0]);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "%s: writing gain failed: %s\n", __FUNCTION__,
+	  DBG (DBG_error, "%s: writing gain failed: %s\n", __func__,
 	       sane_strstatus (status));
 	  return status;
 	}
@@ -1734,7 +1734,7 @@ gl841_init_motor_regs(Genesys_Device * dev,
                                             0,
                                             0,
                                             &scan_power_mode);
-	DBG (DBG_info, "%s : fast_exposure=%d pixels\n", __FUNCTION__, fast_exposure);
+	DBG (DBG_info, "%s : fast_exposure=%d pixels\n", __func__, fast_exposure);
       }
 
     if (action == MOTOR_ACTION_HOME_FREE) {
@@ -1911,7 +1911,7 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
                                         0,
                                         &dummy_power_mode);
 
-    DBG (DBG_info, "%s : fast_exposure=%d pixels\n", __FUNCTION__, fast_exposure);
+    DBG (DBG_info, "%s : fast_exposure=%d pixels\n", __func__, fast_exposure);
 
     memset(slow_slope_table,0xff,512);
 
@@ -2453,7 +2453,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     sanei_genesys_set_double(reg, REG_DPISET, dpiset);
     sanei_genesys_set_double(reg, REG_STRPIXEL, start);
     sanei_genesys_set_double(reg, REG_ENDPIXEL, end);
-    DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d\n",__FUNCTION__,start,end);
+    DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d\n",__func__,start,end);
 
     /* words(16bit) before gamma, conversion to 8 bit or lineart*/
     words_per_line = (pixels * dpiset) / gl841_get_dpihw(dev);
@@ -2794,7 +2794,7 @@ dummy \ scanned lines
                     start,
                     used_pixels,
                     &scan_power_mode);
-  DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
+  DBG (DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
   /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
@@ -3160,7 +3160,7 @@ dummy \ scanned lines
                     start,
                     used_pixels,
                     &scan_power_mode);
-  DBG (DBG_info, "%s : exposure_time=%d pixels\n", __FUNCTION__, exposure_time);
+  DBG (DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
   /* scanned area must be enlarged by max color shift needed */
   max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
@@ -3451,7 +3451,7 @@ gl841_stop_action (Genesys_Device * dev)
   uint8_t val40, val;
   unsigned int loop;
 
-  DBG (DBG_proc, "%s\n", __FUNCTION__);
+  DBG (DBG_proc, "%s\n", __func__);
 
   status = sanei_genesys_get_status (dev, &val);
   if (DBG_LEVEL >= DBG_io)
@@ -3463,7 +3463,7 @@ gl841_stop_action (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "%s: failed to read home sensor: %s\n",__FUNCTION__,
+	   "%s: failed to read home sensor: %s\n",__func__,
 	   sane_strstatus (status));
       DBGCOMPLETED;
       return status;
@@ -3472,7 +3472,7 @@ gl841_stop_action (Genesys_Device * dev)
   /* only stop action if needed */
   if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
     {
-      DBG (DBG_info, "%s: already stopped\n", __FUNCTION__);
+      DBG (DBG_info, "%s: already stopped\n", __func__);
       DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
@@ -3485,7 +3485,7 @@ gl841_stop_action (Genesys_Device * dev)
   status = gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -3505,7 +3505,7 @@ gl841_stop_action (Genesys_Device * dev)
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "%s: failed to read home sensor: %s\n",__FUNCTION__,
+	       "%s: failed to read home sensor: %s\n",__func__,
 	       sane_strstatus (status));
 	  DBGCOMPLETED;
 	  return status;
@@ -3762,14 +3762,14 @@ gl841_detect_document_end (Genesys_Device * dev)
   uint8_t val;
   size_t total_bytes_to_read;
 
-  DBG (DBG_proc, "%s: begin\n", __FUNCTION__);
+  DBG (DBG_proc, "%s: begin\n", __func__);
 
   RIE (gl841_get_paper_sensor (dev, &paper_loaded));
 
   /* sheetfed scanner uses home sensor as paper present */
   if ((dev->document == SANE_TRUE) && !paper_loaded)
     {
-      DBG (DBG_info, "%s: no more document\n", __FUNCTION__);
+      DBG (DBG_info, "%s: no more document\n", __func__);
       dev->document = SANE_FALSE;
 
       /* we can't rely on total_bytes_to_read since the frontend
@@ -3781,14 +3781,14 @@ gl841_detect_document_end (Genesys_Device * dev)
         {
           dev->total_bytes_to_read = dev->total_bytes_read;
           dev->read_bytes_left = 0;
-          DBG (DBG_proc, "%s: finished\n", __FUNCTION__);
+          DBG (DBG_proc, "%s: finished\n", __func__);
           return SANE_STATUS_GOOD;
         }
       if (dev->settings.scan_mode == SCAN_MODE_COLOR && dev->model->is_cis)
         {
           scancnt/=3;
         }
-      DBG (DBG_io, "%s: scancnt=%u lines\n",__FUNCTION__, scancnt);
+      DBG (DBG_io, "%s: scancnt=%u lines\n",__func__, scancnt);
 
       RIE(sanei_genesys_read_register(dev, 0x25, &val));
       lincnt=65536*val;
@@ -3796,26 +3796,26 @@ gl841_detect_document_end (Genesys_Device * dev)
       lincnt+=256*val;
       RIE(sanei_genesys_read_register(dev, 0x27, &val));
       lincnt+=val;
-      DBG (DBG_io, "%s: lincnt=%u lines\n",__FUNCTION__, lincnt);
+      DBG (DBG_io, "%s: lincnt=%u lines\n",__func__, lincnt);
       postcnt=(SANE_UNFIX(dev->model->post_scan)/MM_PER_INCH)*dev->settings.yres;
-      DBG (DBG_io, "%s: postcnt=%u lines\n",__FUNCTION__, postcnt);
+      DBG (DBG_io, "%s: postcnt=%u lines\n",__func__, postcnt);
 
       /* the current scancnt is also the final one, so we use it to
        * compute total bytes to read. We also add the line count to eject document */
       total_bytes_to_read=(scancnt+postcnt)*dev->wpl;
 
-      DBG (DBG_io, "%s: old total_bytes_to_read=%u\n",__FUNCTION__,(unsigned int)dev->total_bytes_to_read);
-      DBG (DBG_io, "%s: new total_bytes_to_read=%u\n",__FUNCTION__,(unsigned int)total_bytes_to_read);
+      DBG (DBG_io, "%s: old total_bytes_to_read=%u\n",__func__,(unsigned int)dev->total_bytes_to_read);
+      DBG (DBG_io, "%s: new total_bytes_to_read=%u\n",__func__,(unsigned int)total_bytes_to_read);
 
       /* assign new end value */
       if(dev->total_bytes_to_read>total_bytes_to_read)
         {
-          DBG (DBG_io, "%s: scan shorten\n",__FUNCTION__);
+          DBG (DBG_io, "%s: scan shorten\n",__func__);
           dev->total_bytes_to_read=total_bytes_to_read;
         }
     }
 
-  DBG (DBG_proc, "%s: finished\n", __FUNCTION__);
+  DBG (DBG_proc, "%s: finished\n", __func__);
   return SANE_STATUS_GOOD;
 }
 
@@ -4184,7 +4184,7 @@ gl841_search_start_position (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE);
   if(status!=SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to init scan registers: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to init scan registers: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -4194,7 +4194,7 @@ gl841_search_start_position (Genesys_Device * dev)
     gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -4346,7 +4346,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
   float starty=0;
 
   DBGSTART;
-  DBG (DBG_proc, "%s: lines = %d\n", __FUNCTION__, (int)(dev->calib_lines));
+  DBG (DBG_proc, "%s: lines = %d\n", __func__, (int)(dev->calib_lines));
 
   /* initial calibration reg values */
   memcpy (dev->calib_reg, dev->reg, GENESYS_GL841_MAX_REGS * sizeof (Genesys_Register_Set));
@@ -4383,7 +4383,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__, sane_strstatus (status));
+      DBG (DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus (status));
       return status;
     }
 
@@ -4393,7 +4393,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
   status = gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to bulk write registers: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -4491,7 +4491,7 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
   if(dev->model->is_cis && dev->settings.true_gray
     && dev->settings.scan_mode != SCAN_MODE_COLOR)
     {
-      DBG (DBG_io, "%s: activating LEDADD\n", __FUNCTION__);
+      DBG (DBG_io, "%s: activating LEDADD\n", __func__);
       flags |= SCAN_FLAG_ENABLE_LEDADD;
     }
 
@@ -4610,11 +4610,11 @@ gl841_led_calibration (Genesys_Device * dev)
     {
       move = SANE_UNFIX (dev->model->y_offset_calib);
       move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
-      DBG (DBG_io, "%s: move=%d lines\n", __FUNCTION__, move);
+      DBG (DBG_io, "%s: move=%d lines\n", __func__, move);
       status = gl841_feed(dev, move);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "%s: failed to feed: %s\n", __FUNCTION__,
+	  DBG (DBG_error, "%s: failed to feed: %s\n", __func__,
                sane_strstatus (status));
 	  return status;
 	}
@@ -4644,7 +4644,7 @@ gl841_led_calibration (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "%s: failed to setup scan: %s\n", __FUNCTION__,
+	   "%s: failed to setup scan: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -4694,7 +4694,7 @@ gl841_led_calibration (Genesys_Device * dev)
 
       RIE (gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
-      DBG (DBG_info, "%s: starting line reading\n", __FUNCTION__);
+      DBG (DBG_info, "%s: starting line reading\n", __func__);
       RIE (gl841_begin_scan (dev, dev->calib_reg, SANE_TRUE));
       RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
 
@@ -4727,7 +4727,7 @@ gl841_led_calibration (Genesys_Device * dev)
 	  avg[j] /= num_pixels;
       }
 
-      DBG(DBG_info,"%s: average: %d,%d,%d\n", __FUNCTION__, avg[0], avg[1], avg[2]);
+      DBG(DBG_info,"%s: average: %d,%d,%d\n", __func__, avg[0], avg[1], avg[2]);
 
       acceptable = SANE_TRUE;
 
@@ -4798,7 +4798,7 @@ gl841_led_calibration (Genesys_Device * dev)
 
   } while (!acceptable && turn < 100);
 
-  DBG(DBG_info,"%s: acceptable exposure: %d,%d,%d\n", __FUNCTION__, exp[0],exp[1],exp[2]);
+  DBG(DBG_info,"%s: acceptable exposure: %d,%d,%d\n", __func__, exp[0],exp[1],exp[2]);
 
   /* cleanup before return */
   free (line);
@@ -4891,7 +4891,7 @@ ad_fe_offset_calibration (Genesys_Device * dev)
       dev->frontend.offset[2] = (top+bottom)/2;
 
       /* scan line */
-      DBG (DBG_info, "%s: starting line reading\n",__FUNCTION__);
+      DBG (DBG_info, "%s: starting line reading\n",__func__);
       gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS);
       gl841_set_fe(dev, AFE_SET);
       gl841_begin_scan (dev, dev->calib_reg, SANE_TRUE);
@@ -4909,7 +4909,7 @@ ad_fe_offset_calibration (Genesys_Device * dev)
           average+=line[i];
         }
       average/=total_size;
-      DBG (DBG_data, "%s: average=%d\n", __FUNCTION__, average);
+      DBG (DBG_data, "%s: average=%d\n", __func__, average);
 
       /* if min value is above target, the current value becomes the new top
        * else it is the new bottom */
@@ -4928,7 +4928,7 @@ ad_fe_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[1]=0;
   dev->frontend.offset[2]=0;
   free(line);
-  DBG (DBG_info, "%s: offset=(%d,%d,%d)\n", __FUNCTION__,
+  DBG (DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
                                             dev->frontend.offset[0],
                                             dev->frontend.offset[1],
                                             dev->frontend.offset[2]);
@@ -5374,18 +5374,18 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   int lines=1;
   int move;
 
-  DBG (DBG_proc, "%s: dpi=%d\n", __FUNCTION__, dpi);
+  DBG (DBG_proc, "%s: dpi=%d\n", __func__, dpi);
 
   /* feed to white strip if needed */
   if (dev->model->y_offset_calib>0)
     {
       move = SANE_UNFIX (dev->model->y_offset_calib);
       move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
-      DBG (DBG_io, "%s: move=%d lines\n", __FUNCTION__, move);
+      DBG (DBG_io, "%s: move=%d lines\n", __func__, move);
       status = gl841_feed(dev, move);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "%s: failed to feed: %s\n", __FUNCTION__,
+	  DBG (DBG_error, "%s: failed to feed: %s\n", __func__,
                sane_strstatus (status));
 	  return status;
 	}
@@ -5414,7 +5414,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "%s: failed to setup scan: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to setup scan: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -5475,7 +5475,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	      dev->frontend.gain[j] = gain[j]*12;
         }
 
-      DBG (DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __FUNCTION__,
+      DBG (DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__,
 	   j, max[j], gain[j],dev->frontend.gain[j]);
     }
 
@@ -5516,7 +5516,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   }
 
   free (line);
-  DBG (DBG_info, "%s: gain=(%d,%d,%d)\n", __FUNCTION__,
+  DBG (DBG_info, "%s: gain=(%d,%d,%d)\n", __func__,
                                             dev->frontend.gain[0],
                                             dev->frontend.gain[1],
                                             dev->frontend.gain[2]);
@@ -5663,7 +5663,7 @@ gl841_is_compatible_calibration (Genesys_Device * dev,
       if ((time.tv_sec - cache->last_calibration > 30 * 60)
           && (dev->model->is_sheetfed == SANE_FALSE))
         {
-          DBG (DBG_proc, "%s: expired entry, non compatible cache\n",__FUNCTION__);
+          DBG (DBG_proc, "%s: expired entry, non compatible cache\n",__func__);
           return SANE_STATUS_UNSUPPORTED;
         }
     }
@@ -5969,7 +5969,7 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   if (status != SANE_STATUS_GOOD)
     {
       free(data);
-      DBG (DBG_error, "%s: failed to setup for scan: %s\n", __FUNCTION__,
+      DBG (DBG_error, "%s: failed to setup for scan: %s\n", __func__,
 	   sane_strstatus (status));
       return status;
     }
@@ -6208,7 +6208,7 @@ gl841_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   uint8_t *buffer,*ptr,*src;
 
   DBGSTART;
-  DBG( DBG_io2, "%s: writing %d bytes of shading data\n",__FUNCTION__,size);
+  DBG( DBG_io2, "%s: writing %d bytes of shading data\n",__func__,size);
 
   /* old method if no SHDAREA */
   if((dev->reg[reg_0x01].value & REG01_SHDAREA) == 0)
@@ -6217,7 +6217,7 @@ gl841_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
       status = sanei_genesys_set_buffer_address (dev, 0x0000);
       if (status != SANE_STATUS_GOOD)
         {
-          DBG (DBG_error, "%s: failed to set buffer address: %s\n", __FUNCTION__,
+          DBG (DBG_error, "%s: failed to set buffer address: %s\n", __func__,
                sane_strstatus (status));
           return status;
         }
@@ -6226,7 +6226,7 @@ gl841_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
       status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, data, size);
       if (status != SANE_STATUS_GOOD)
         {
-          DBG (DBG_error, "%s: failed to send shading table: %s\n", __FUNCTION__,
+          DBG (DBG_error, "%s: failed to send shading table: %s\n", __func__,
                sane_strstatus (status));
           return status;
         }
@@ -6238,14 +6238,14 @@ gl841_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   length = (uint32_t) (size / 3);
   sanei_genesys_get_double(dev->reg,REG_STRPIXEL,&strpixel);
   sanei_genesys_get_double(dev->reg,REG_ENDPIXEL,&endpixel);
-  DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d\n",__FUNCTION__,strpixel,endpixel,endpixel-strpixel);
+  DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d\n",__func__,strpixel,endpixel,endpixel-strpixel);
 
   /* compute deletion/average factor */
   sanei_genesys_get_double(dev->reg,REG_DPISET,&dpiset);
   dpihw = gl841_get_dpihw(dev);
   half=dev->current_setup.half_ccd+1;
   factor=dpihw/dpiset;
-  DBG( DBG_io2, "%s: dpihw=%d, dpiset=%d, half_ccd=%d, factor=%d\n",__FUNCTION__,dpihw,dpiset,half-1,factor);
+  DBG( DBG_io2, "%s: dpihw=%d, dpiset=%d, half_ccd=%d, factor=%d\n",__func__,dpihw,dpiset,half-1,factor);
 
   /* binary data logging */
   if(DBG_LEVEL>=DBG_data)
@@ -6269,11 +6269,11 @@ gl841_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
    */
   beginpixel = dev->sensor.CCD_start_xoffset / half;
   beginpixel += dev->sensor.dummy_pixel + 1;
-  DBG(DBG_io2, "%s: ORIGIN PIXEL=%d\n", __FUNCTION__, beginpixel);
+  DBG(DBG_io2, "%s: ORIGIN PIXEL=%d\n", __func__, beginpixel);
   beginpixel = (strpixel-beginpixel*2*2)/factor;
-  DBG(DBG_io2, "%s: BEGIN PIXEL=%d\n",__FUNCTION__,beginpixel/4);
+  DBG(DBG_io2, "%s: BEGIN PIXEL=%d\n",__func__,beginpixel/4);
 
-  DBG(DBG_io2, "%s: using chunks of %d bytes (%d shading data pixels)\n",__FUNCTION__,length, length/4);
+  DBG(DBG_io2, "%s: using chunks of %d bytes (%d shading data pixels)\n",__func__,length, length/4);
   buffer=(uint8_t *)malloc(pixels);
   memset(buffer,0,pixels);
 

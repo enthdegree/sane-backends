@@ -4232,7 +4232,7 @@ SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Epson_Scanner *s = (Epson_Scanner *) handle;
-  int ndpi, max_x, max_y;
+  int ndpi;
   int bytes_per_pixel;
 
   DBG (5, "sane_get_parameters()\n");
@@ -4269,8 +4269,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   memset (&s->params, 0, sizeof (SANE_Parameters));
 
   ndpi = s->val[OPT_RESOLUTION].w;
-
-  max_x = max_y = 0;
 
   s->params.pixels_per_line =
     SANE_UNFIX (s->val[OPT_BR_X].w - s->val[OPT_TL_X].w) / 25.4 * ndpi + 0.5;

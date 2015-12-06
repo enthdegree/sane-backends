@@ -461,7 +461,6 @@ sanei_ab306_rdata (int fd, int planes, SANE_Byte * buf, int lines, int bpl)
 {
   Port *p = port + fd;
   int lcnt, pcnt, bcnt, xmax;
-  SANE_Byte *lsave_bp;
   int nstat;
 
   DBG(2, "sanei_ab306_rdata: start\n");
@@ -471,7 +470,6 @@ sanei_ab306_rdata (int fd, int planes, SANE_Byte * buf, int lines, int bpl)
   /* the lines-loop: */
   for (lcnt = 0; lcnt < lines; ++lcnt)
     {
-      lsave_bp = buf;
       /* the planes-loop: */
       for (pcnt = 0; pcnt < planes; ++pcnt)
 	{

@@ -249,7 +249,6 @@ sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
   };
   int		i;
   char		buf[8];
-  size_t	len;
   SANE_Status	status;
   static char	*last_device = NULL;
   static enum hp_device_compat_e last_compat;
@@ -279,7 +278,6 @@ sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
     {
       DBG(1,"probing %s\n",probes[i].model);
 
-      len = sizeof(buf);
       if (!FAILED( status = sanei_hp_scl_upload(scsi, probes[i].cmd,
 					  buf, sizeof(buf)) ))
 	{

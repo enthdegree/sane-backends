@@ -3109,7 +3109,6 @@ rts8801_scan (unsigned x,
   unsigned aiBestOffset[3];
   int i;
   unsigned j;
-  int anychanged;
   int calibration_size;
   unsigned char *pDetailedCalib;
   int red_calibration_offset;
@@ -3166,7 +3165,6 @@ rts8801_scan (unsigned x,
   do
     {
       DBG (30, "Initial calibration pass commences\n");
-      anychanged = 0;
 
       for (i = 0; i < 3; ++i)
 	{

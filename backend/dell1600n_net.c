@@ -1340,7 +1340,7 @@ ProcessUdpResponse (unsigned char *pData, size_t size,
 {
 
   unsigned short messageSize, nameSize, valueSize;
-  unsigned char *pItem, *pEnd, *pValue;
+  unsigned char *pItem, *pEnd;
   char sockBuf[SOCK_BUF_SIZE], *pName;
   struct ComBuf tcpBuf;
   int nread;
@@ -1380,8 +1380,6 @@ ProcessUdpResponse (unsigned char *pData, size_t size,
       pItem++;
       valueSize = (((unsigned short) pItem[0]) << 8) | pItem[1];
       pItem += 2;
-
-      pValue = pItem;
 
       pItem += valueSize;
 

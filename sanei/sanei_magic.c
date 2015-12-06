@@ -710,7 +710,7 @@ sanei_magic_rotate (SANE_Parameters * params, SANE_Byte * buffer,
 
   DBG(10,"sanei_magic_rotate: finish\n");
 
-  return 0;
+  return ret;
 }
 
 SANE_Status

@@ -82,6 +82,12 @@ void
 md5_process_block (const void *buffer, size_t len, struct md5_ctx *ctx);
 
 
+static void
+md5_set_uint32 (char *buffer, md5_uint32 n)
+{
+  memcpy (buffer, &n, sizeof (md5_uint32));
+}
+
 /* Initialize structure containing state of computation.
    (RFC 1321, 3.3: Step 3)  */
 void
@@ -104,10 +110,10 @@ md5_init_ctx (struct md5_ctx *ctx)
 void *
 md5_read_ctx (const struct md5_ctx *ctx, void *resbuf)
 {
-  ((md5_uint32 *) resbuf)[0] = SWAP (ctx->A);
-  ((md5_uint32 *) resbuf)[1] = SWAP (ctx->B);
-  ((md5_uint32 *) resbuf)[2] = SWAP (ctx->C);
-  ((md5_uint32 *) resbuf)[3] = SWAP (ctx->D);
+  md5_set_uint32 (resbuf, SWAP (ctx->A));
+  md5_set_uint32 ((char *) resbuf + sizeof (md5_uint32), SWAP (ctx->B));
+  md5_set_uint32 ((char *) resbuf + 2 * sizeof (md5_uint32), SWAP (ctx->C));
+  md5_set_uint32 ((char *) resbuf + 3 * sizeof (md5_uint32), SWAP (ctx->D));
 
   return resbuf;
 }
@@ -133,9 +139,9 @@ md5_finish_ctx (struct md5_ctx *ctx, void *resbuf)
   memcpy (&ctx->buffer[bytes], fillbuf, pad);
 
   /* Put the 64-bit file length in *bits* at the end of the buffer.  */
-  *(md5_uint32 *) &ctx->buffer[bytes + pad] = SWAP (ctx->total[0] << 3);
-  *(md5_uint32 *) &ctx->buffer[bytes + pad + 4] = SWAP ((ctx->total[1] << 3) |
-							(ctx->total[0] >> 29));
+  md5_set_uint32(ctx->buffer + (bytes + pad), SWAP (ctx->total[0] << 3));
+  md5_set_uint32(ctx->buffer + (bytes + pad + 4), SWAP ((ctx->total[1] << 3) |
+							(ctx->total[0] >> 29)));
 
   /* Process last bytes.  */
   md5_process_block (ctx->buffer, bytes + pad + 8, ctx);

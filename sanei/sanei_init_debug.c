@@ -72,7 +72,7 @@
  * instead, so the debugging env var name matches the docs.
  * This is a particular problem in Turkish, where 'i' does
  * not capitalize to 'I' */
-char
+static char
 toupper_ascii (int c)
 {
   if(c > 0x60 && c < 0x7b)

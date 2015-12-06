@@ -295,7 +295,7 @@ write_word (int fd, unsigned int addr, unsigned int data)
 
 /* write multiple bytes, one at a time (non-bulk) */
 static SANE_Status
-write_many (int fd, unsigned int addr, void *src, size_t count)
+write_many (int fd, unsigned int addr, const byte *src, size_t count)
 {
   SANE_Status status;
   size_t i;
@@ -303,8 +303,8 @@ write_many (int fd, unsigned int addr, void *src, size_t count)
   DBG (14, "multi write %lu\n", (u_long) count);
   for (i = 0; i < count; i++)
     {
-      DBG (15, " %04lx:%02x", (u_long) (addr + i), ((byte *) src)[i]);
-      status = write_byte (fd, addr + i, ((byte *) src)[i]);
+      DBG (15, " %04lx:%02x", (u_long) (addr + i), src[i]);
+      status = write_byte (fd, addr + i, src[i]);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (15, "\n");
@@ -741,9 +741,9 @@ plugin_cal (CANON_Handle * s)
   /* parallel port setting */
   write_byte (fd, PARALLEL_PORT, 0x06);
 
-  write_many (fd, 0x08, (byte *) seq002, sizeof (seq002));
+  write_many (fd, 0x08, seq002, sizeof (seq002));
   /* addr 0x28 isn't written */
-  write_many (fd, 0x29, (byte *) seq003, sizeof (seq003));
+  write_many (fd, 0x29, seq003, sizeof (seq003));
   /* Verification */
   buf = malloc (0x400);
   read_many (fd, 0x08, buf, sizeof (seq002));

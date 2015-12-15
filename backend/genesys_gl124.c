@@ -864,6 +864,12 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
     {
       yres=min_speed;
       linesel=yres/scan_yres-1;
+      /* limit case, we need a linesel > 0 */
+      if(linesel==0)
+        {
+          linesel=1;
+          yres=scan_yres*2;
+        }
     }
   else
     {

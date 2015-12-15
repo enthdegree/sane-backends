@@ -26,7 +26,8 @@ Before the release:
 * configure: recreate by running autoconf
 * NEWS: update and enter date of release
 * sane-backends.lsm: update
-* ChangeLog: set release marker
+* ChangeLog: generate from git log
+#### consider removing old changelogs from release package
 * git commit -a
 * tag git with release tag; e.g.: 'git tag -a RELEASE_1_0_15'
 * probably DONT want to git push here, cause alioth will rebuild it's local
@@ -74,6 +75,7 @@ Announcing the release:
 
 After the release:
 
+#### consider not adding old changelogs to release package
 * move ChangeLog to ChangeLog-"version"
 * start a new ChangeLog
 * add ChangeLog-"version" to EXTRA_DIST in Makefile.in and Makefile.am

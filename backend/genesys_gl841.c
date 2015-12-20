@@ -3557,7 +3557,7 @@ gl841_eject_document (Genesys_Device * dev)
 
   DBG (DBG_proc, "gl841_eject_document\n");
 
-  if (!dev->model->is_sheetfed == SANE_TRUE)
+  if (dev->model->is_sheetfed == SANE_FALSE)
     {
       DBG (DBG_proc, "gl841_eject_document: there is no \"eject sheet\"-concept for non sheet fed\n");
       DBG (DBG_proc, "gl841_eject_document: finished\n");

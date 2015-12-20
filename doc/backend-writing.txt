@@ -80,11 +80,12 @@ sane-backends/
     configure.in depcomp install-sh ltmain.sh Makefile.am Makefile.in missing 
     mkinstalldirs: Part of the build system as explained above.
   * ChangeLog:
-    The ChangeLog contains all the changes made since the last stable release. 
-    If anything is changed in git, it must be also mentioned in ChangeLog. 
-    It's not enough to write just a git commit message, as users won't have 
-    access to these messages. For more details on the format, see the SANE 
-    git page on the website.
+    The ChangeLog contains all the changes made since the last stable release.
+    If anything is changed in git, write a decent commit message documenting
+    your work.  This commit message will be included as is in the ChangeLog
+    file for the next stable release.  Users of development code should refer
+    to the `git log` output or the on-line log.
+    For more details on the format, see the SANE git page on the website.
   * ChangeLog-1.0.0, ChangeLog-1.0.1 (...):
     These files contain the ChangeLogs of older releases. Once a new release has
     been made, the current ChangeLog renamed to ChangeLog-1.something.something

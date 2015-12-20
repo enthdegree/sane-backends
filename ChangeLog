@@ -1,5 +1,15 @@
 Older entries can be found in ChangeLog-1.0.25.
 
+For the latest changes please refer to the output of `git log` or the
+on-line log at:
+
+      https://alioth.debian.org/plugins/scmgit/cgi-bin/gitweb.cgi?p=sane/sane-backends.git;a=log
+
+Note to developers:
+      For 1.0.26 and beyond we will generate the ChangeLog from the git
+      commit messages at release time.  Instead of documenting your work
+      here, just document it in your commit messages.
+
 2015-10-14 Rolf Bensch <rolf at bensch hyphen online dot de>
     * backend/pixma_mp730.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
       New scanners Canon PIXUS MP5/SmartBase MPC190/imageCLASS MPC190 and

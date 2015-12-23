@@ -443,11 +443,14 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int *fd)
 /*---------- sane_init() -----------------------------------------------------*/
 
 SANE_Status
+#ifdef HAVE_AUTHORIZATION
 sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
+#else
+sane_init(SANE_Int *version_code, SANE_Auth_Callback __sane_unused__ authorize)
+#endif
 {
     Microtek2_Device *md;
     FILE *fp;
-    SANE_Auth_Callback trash;
 
 
     DBG_INIT();
@@ -459,8 +462,6 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 
 #ifdef HAVE_AUTHORIZATION
     auth_callback = authorize;
-#else
-    trash = authorize;     /* prevents compiler warning "unused variable" */
 #endif
 
     sanei_thread_init();

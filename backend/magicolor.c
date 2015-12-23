@@ -1385,7 +1385,6 @@ static SANE_Status
 mc_init_parameters(Magicolor_Scanner * s)
 {
 	int dpi, optres;
-	struct mode_param *mparam;
 
 	DBG(5, "%s\n", __func__);
 
@@ -1393,8 +1392,6 @@ mc_init_parameters(Magicolor_Scanner * s)
 
 	dpi = s->val[OPT_RESOLUTION].w;
 	optres = s->hw->cap->optical_res;
-
-	mparam = &mode_params[s->val[OPT_MODE].w];
 
 	if (SANE_UNFIX(s->val[OPT_BR_Y].w) == 0 ||
 		SANE_UNFIX(s->val[OPT_BR_X].w) == 0)

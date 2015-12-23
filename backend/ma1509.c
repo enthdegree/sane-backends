@@ -1738,7 +1738,6 @@ sane_start (SANE_Handle handle)
 {
   Ma1509_Scanner *s = handle;
   SANE_Status status;
-  SANE_String_Const mode;
   struct timeval start;
 
   if (!s)
@@ -1778,8 +1777,6 @@ sane_start (SANE_Handle handle)
   /* save start time */
   gettimeofday (&start, 0);
   s->start_time = start.tv_sec;
-  /* translate options into s->mode for convenient access: */
-  mode = s->val[OPT_MODE].s;
 
   status = set_window (s);
   if (status != SANE_STATUS_GOOD)

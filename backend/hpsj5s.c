@@ -161,7 +161,6 @@ SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   char line[PATH_MAX];		/*Line from config file */
-  int len;			/*Length of string from config file */
   FILE *config_file;		/*Handle to config file of this backend */
 
   DBG_INIT ();
@@ -189,7 +188,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     {
       if ((line[0] == '#') || (line[0] == '\0'))	/*comment line or empty line */
 	continue;
-      len = strlen (line);	/*sanei_config_read guaranty, it's not more then PATH_MAX-1 */
       strcpy (scanner_path, line);	/*so, we choose last in file (uncommented) */
     }
 

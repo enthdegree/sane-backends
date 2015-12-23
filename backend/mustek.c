@@ -2335,16 +2335,14 @@ send_calibration_lines_se (Mustek_Scanner * s, SANE_Word color)
   SANE_Byte *cmd;
   size_t buf_size;
   SANE_Word column;
-  SANE_Word lines, bytes_per_color;
+  SANE_Word bytes_per_color;
 
   if (s->mode == MUSTEK_MODE_COLOR)
     {
-      lines = s->hw->cal.lines * 3;
       bytes_per_color = s->hw->cal.bytes / 3;
     }
   else
     {
-      lines = s->hw->cal.lines;
       bytes_per_color = s->hw->cal.bytes;
     }
 
@@ -6593,7 +6591,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 {
   Mustek_Scanner *s = handle;
   SANE_Status status;
-  ssize_t ntotal;
   ssize_t nread;
 
 
@@ -6617,7 +6614,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
   DBG (5, "sane_read\n");
   *len = 0;
-  ntotal = 0;
 
   if (s->cancelled)
     {

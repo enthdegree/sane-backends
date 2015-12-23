@@ -1232,7 +1232,6 @@ sane_start (SANE_Handle handle)
       my_src_ptr src;
 
       struct jpeg_error_mgr jerr;
-      int row_stride;
 
       pic_pck[3] = (unsigned char) Camera.current_picture_number - 1;
 
@@ -1263,8 +1262,6 @@ sane_start (SANE_Handle handle)
       (void) jpeg_read_header (&cinfo, TRUE);
       dest_mgr = sanei_jpeg_jinit_write_ppm (&cinfo);
       (void) jpeg_start_decompress (&cinfo);
-      row_stride = cinfo.output_width * cinfo.output_components;
-
     }
 
   Camera.scanning = SANE_TRUE;	/* don't overlap scan requests */

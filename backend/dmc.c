@@ -1030,7 +1030,6 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
 {
     DMC_Camera *c;
     SANE_Word cap;
-    SANE_Status status;
     int i;
 
     if (info) *info = 0;
@@ -1069,7 +1068,7 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
     case OPT_IMAGE_MODE:
 	for (i=0; i<NUM_IMAGE_MODES; i++) {
 	    if (!strcmp(val, ValidModes[i])) {
-		status = DMCSetMode(c, i);
+		DMCSetMode(c, i);
 		c->val[OPT_IMAGE_MODE].s = (SANE_String) ValidModes[i];
 		if (info) *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 		return SANE_STATUS_GOOD;

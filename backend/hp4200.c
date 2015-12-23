@@ -698,7 +698,6 @@ compute_first_gain_offset (int target, int max, int min, int *gain,
 static int
 write_gamma (HP4200_Scanner * s)
 {
-  SANE_Status status;
   int color;
   int i;
   unsigned char gamma[1024];
@@ -728,7 +727,7 @@ write_gamma (HP4200_Scanner * s)
       sanei_pv8630_write_byte (s->fd, PV8630_REPPADDRESS, 0x06);
       sanei_pv8630_prep_bulkread (s->fd, sizeof (read_gamma));
       to_read = sizeof (read_gamma);
-      status = sanei_usb_read_bulk (s->fd, read_gamma, &to_read);
+      sanei_usb_read_bulk (s->fd, read_gamma, &to_read);
       retval = memcmp (read_gamma, gamma, sizeof (read_gamma));
       if (retval != 0)
 	{
@@ -1047,7 +1046,6 @@ do_coarse_calibration (HP4200_Scanner * s, struct coarse_t *coarse)
   int step_size;
   int ff_step_size;
   char steps_to_reverse;
-  char hdpi_div;
   char line_rate_color;
   int vdpi;			/* vertical dots per inch */
   int hdpi_code;
@@ -1085,7 +1083,6 @@ do_coarse_calibration (HP4200_Scanner * s, struct coarse_t *coarse)
 
   vdpi = 150;
   hdpi_code = 0;
-  hdpi_div = hdpi_mapping[hdpi_code];
   active_pixels_start = 0x40;
   line_end = 0x2ee0;
   s->mclk_div = 2;
@@ -1395,7 +1392,6 @@ do_fine_calibration (HP4200_Scanner * s, struct coarse_t *coarse)
   int vdpi;			/* vertical dots per inch */
   int hdpi_code;
   int calibrated;
-  int first_time;
   int lines_to_process;
 
   static char me[] = "do_fine_calibration";
@@ -1495,7 +1491,6 @@ do_fine_calibration (HP4200_Scanner * s, struct coarse_t *coarse)
   cache_write (s);
 
   calibrated = 0;
-  first_time = 1;
   cal_line = malloc (cal_line_size + 1024);
   average = malloc (sizeof (int) * line_length * 3);
   memset (average, 0, sizeof (int) * line_length * 3);

@@ -1417,7 +1417,7 @@ sane_start (SANE_Handle handle)
     my_src_ptr src;
 
     struct jpeg_error_mgr jerr;
-    SANE_Int row_stride, n;
+    SANE_Int n;
     SANE_Char f[] = "sane_start";
     SANE_Char path[256];
     struct cam_dirlist *e;
@@ -1476,7 +1476,6 @@ sane_start (SANE_Handle handle)
     (void) jpeg_read_header (&cinfo, TRUE);
     dest_mgr = sanei_jpeg_jinit_write_ppm (&cinfo);
     (void) jpeg_start_decompress (&cinfo);
-    row_stride = cinfo.output_width * cinfo.output_components;
 
     linebuffer_size = 0;
     linebuffer_index = 0;

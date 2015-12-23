@@ -1308,7 +1308,7 @@ convert_pic (char *base_name, int format)
 {
   FILE *ifp;
   unsigned char pic[MAX_IMAGE_SIZE];
-  int res, image_size, image_width, net_width, camera_header, components;
+  int res, image_width, net_width, components;
   struct pixmap *pp2;
 
   DBG (127, "convert_pic() called\n");
@@ -1374,10 +1374,8 @@ convert_pic (char *base_name, int format)
    *      Setup image size with resolution
    */
 
-  image_size = IMAGE_SIZE (res);
   image_width = WIDTH (res);
   net_width = image_width - LEFT_MARGIN - RIGHT_MARGIN (res);
-  camera_header = CAMERA_HEADER (res);
   components = (format & SAVE_24BITS) ? 3 : 1;
 
   /*

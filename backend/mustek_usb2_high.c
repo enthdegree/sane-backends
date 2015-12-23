@@ -1696,7 +1696,6 @@ static SANE_Bool
 MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
 				    unsigned short * wLinesCount)
 {
-  SANE_Byte *lpTemp;
   unsigned short wWantedTotalLines;
   unsigned short TotalXferLines;
   unsigned short wRLinePosOdd = 0;
@@ -1717,7 +1716,6 @@ MustScanner_GetRgb24BitLine1200DPI (SANE_Byte * lpLine, SANE_Bool isOrderInvert,
   g_isScanning = TRUE;
   TotalXferLines = 0;
   wWantedTotalLines = *wLinesCount;
-  lpTemp = lpLine;
 
   if (g_bFirstReadImage)
     {

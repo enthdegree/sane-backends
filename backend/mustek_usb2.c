@@ -1270,14 +1270,12 @@ AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
   unsigned short R, G, B, max_R, max_G, max_B, min_R, min_G, min_B;
   float fmax_R, fmax_G, fmax_B;
   unsigned int sum_R = 0, sum_G = 0, sum_B = 0;
-  float mean_R, mean_G, mean_B;
   unsigned int hisgram_R[256], hisgram_G[256], hisgram_B[256];
 
   unsigned int iWidth = BytesPerLine / 3;
   unsigned int iHeight = ScanLines;
   SANE_Byte *pbmpdata = (SANE_Byte *) lpSource;
 
-  unsigned int tmp = 0;
   unsigned short imin_threshold[3];
   unsigned short imax_threshold[3];
 
@@ -1350,10 +1348,6 @@ AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
 
   DBG (DBG_INFO, "AutoLevel: Find min , max is over!\n");
 
-  mean_R = (float) (sum_R / TotalImgSize);
-  mean_G = (float) (sum_G / TotalImgSize);
-  mean_B = (float) (sum_B / TotalImgSize);
-
 
   imin_threshold[0] = 0;
   imin_threshold[1] = 0;
@@ -1372,7 +1366,6 @@ AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
 	  }
     }
 
-  tmp = 0;
   for (ii = 255; ii >= 0; ii--)
     {
       if (hisgram_R[ii] > 0)
@@ -1383,7 +1376,6 @@ AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
 	  }
     }
 
-  tmp = 0;
   for (ii = 0; ii < 256; ii++)
     {
       if (hisgram_G[ii] > 0)
@@ -1394,7 +1386,6 @@ AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
 	  }
     }
 
-  tmp = 0;
   for (ii = 255; ii >= 0; ii--)
     {
       if (hisgram_G[ii] > 0)
@@ -1405,7 +1396,6 @@ AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
 	  }
     }
 
-  tmp = 0;
   for (ii = 0; ii < 256; ii++)
     {
       if (hisgram_B[ii] > 0)
@@ -1416,7 +1406,6 @@ AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
 	  }
     }
 
-  tmp = 0;
   for (ii = 255; ii >= 0; ii--)
     {
       if (hisgram_B[ii] > 0)

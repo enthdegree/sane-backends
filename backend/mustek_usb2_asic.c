@@ -1607,7 +1607,6 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
   STATUS status = STATUS_GOOD;
   unsigned int motor_steps;
   SANE_Byte temp_motor_action;
-  SANE_Byte temp_status;
 
   DBG (DBG_ASIC, "LLFMotorMove:Enter\n");
 
@@ -1727,7 +1726,6 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
 		   SCAN_BACK_TRACKING_DISABLE | temp_motor_action);
   Mustek_SendData (chip, ES01_F4_ActiveTriger, ACTION_TRIGER_ENABLE);
 
-  temp_status = 0;
   if (LLF_MotorMove->WaitOrNoWait == 1)
     {
       if (LLF_MotorMove->ActionType == ACTION_TYPE_BACKTOHOME)
@@ -3020,10 +3018,8 @@ SetPackAddress (PAsic chip, unsigned short wXResolution, unsigned short wWidth, 
 {
   STATUS status = STATUS_GOOD;
 
-  unsigned short LineTotalOverlapPixel;
   SANE_Byte OverLapPixel;
   SANE_Byte TotalLineShift;
-  SANE_Byte InvalidPixelNumberBackup;
   unsigned short SegmentTotalPixel;
   unsigned int dwLineTotalPixel;
   unsigned short ValidPixelNumber = *PValidPixelNumber;
@@ -3038,7 +3034,6 @@ SetPackAddress (PAsic chip, unsigned short wXResolution, unsigned short wWidth, 
 
   DBG (DBG_ASIC, "SetPackAddress:Enter\n");
 
-  LineTotalOverlapPixel = 0;
   OverLapPixel = 0;
   TotalLineShift = 1;
   PackAreaUseLine = TotalLineShift + 1;
@@ -3067,7 +3062,6 @@ SetPackAddress (PAsic chip, unsigned short wXResolution, unsigned short wWidth, 
       Mustek_SendData (chip, ES01_2C0_VALID_PIXEL_PARAMETER_OF_SEGMENT1 + i,
 		       0);
     }
-  LineTotalOverlapPixel = OverLapPixel * 16;
 
   FinalLinePixelPerSegment = ValidPixelNumber + OverLapPixel * 2;
 
@@ -3079,8 +3073,6 @@ SetPackAddress (PAsic chip, unsigned short wXResolution, unsigned short wWidth, 
     {
       InValidPixelNumber = 0;
     }
-
-  InvalidPixelNumberBackup = InValidPixelNumber;
 
   Mustek_SendData (chip, ES01_1B0_SEGMENT_PIXEL_NUMBER_LB,
 		   LOBYTE (ValidPixelNumber));
@@ -3823,9 +3815,7 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 
   unsigned short ValidPixelNumber;
 
-  unsigned short wPerLineNeedBufferSize = 0;
   unsigned short BytePerPixel = 0;
-  unsigned int dwTotal_PerLineNeedBufferSize = 0;
   unsigned int dwTotalLineTheBufferNeed = 0;
   unsigned short dwTotal_CCDResolution = 1200;
   unsigned short wThinkCCDResolution = 0;
@@ -3890,31 +3880,26 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
   /* calculate byte per line */
   if (bScanBits > 24)
     {
-      wPerLineNeedBufferSize = wWidth * 6;
       BytePerPixel = 6;
       chip->dwBytesCountPerRow = (unsigned int) (wWidth) * 6;
     }
   else if (bScanBits == 24)
     {
-      wPerLineNeedBufferSize = wWidth * 3;
       BytePerPixel = 3;
       chip->dwBytesCountPerRow = (unsigned int) (wWidth) * 3;
     }
   else if ((bScanBits > 8) && (bScanBits <= 16))
     {
-      wPerLineNeedBufferSize = wWidth * 2;
       BytePerPixel = 2;
       chip->dwBytesCountPerRow = (unsigned int) (wWidth) * 2;
     }
   else if ((bScanBits == 8))
     {
-      wPerLineNeedBufferSize = wWidth;
       BytePerPixel = 1;
       chip->dwBytesCountPerRow = (unsigned int) (wWidth);
     }
   else if ((bScanBits < 8))
     {
-      wPerLineNeedBufferSize = wWidth >> 3;
       BytePerPixel = 1;
       chip->dwBytesCountPerRow = (unsigned int) (wWidth);
     }
@@ -3983,7 +3968,6 @@ Asic_SetWindow (PAsic chip, SANE_Byte bScanBits,
 	}
     }
 
-  dwTotal_PerLineNeedBufferSize = wPerLineNeedBufferSize;
   dwTotalLineTheBufferNeed = wLength;
 
   chip->Scan.Dpi = wXResolution;
@@ -4848,7 +4832,6 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
 
   unsigned short wPerLineNeedBufferSize = 0;
   unsigned short BytePerPixel = 0;
-  unsigned int dwTotal_PerLineNeedBufferSize = 0;
   unsigned int dwTotalLineTheBufferNeed = 0;
   unsigned short dwTotal_CCDResolution = 0;
   unsigned short wThinkCCDResolution = 0;
@@ -4952,7 +4935,6 @@ Asic_SetCalibrate (PAsic chip, SANE_Byte bScanBits, unsigned short wXResolution,
        wPerLineNeedBufferSize, BytePerPixel, chip->dwBytesCountPerRow);
 
 
-  dwTotal_PerLineNeedBufferSize = wPerLineNeedBufferSize;
   dwTotalLineTheBufferNeed = wLength;
   DBG (DBG_ASIC, "wPerLineNeedBufferSize=%d,wLength=%d\n",
        wPerLineNeedBufferSize, wLength);

@@ -5269,7 +5269,6 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
   int index = 0;
   SANE_Bool reorder = SANE_FALSE;
   SANE_Bool needStrangeReorder = SANE_FALSE;
-  int bytes_to_process = 0;
 
 START_READ:
   DBG (5, "sane_read: begin\n");
@@ -5445,9 +5444,7 @@ START_READ:
         reorder = SANE_TRUE;
       }
 
-      bytes_to_process = receive (s, s->buf, buf_len, &status);
-
-      /* bytes_to_process = buf_len; */
+      receive (s, s->buf, buf_len, &status);
 
       if (SANE_STATUS_GOOD != status)
       {

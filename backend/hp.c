@@ -468,13 +468,11 @@ static void
 hp_device_info_remove (void)
 {
  HpDeviceInfoList  next, infolistelement = global.infolist;
- HpDeviceInfo *info;
 
  if (!global.is_up) return;
 
  while (infolistelement)
  {
-   info = &(infolistelement->info);
    next = infolistelement->next;
    sanei_hp_free (infolistelement);
    infolistelement = next;

@@ -1338,13 +1338,11 @@ static SANE_Status
 process_data (PROCDATA_HANDLE *ph, unsigned char *read_ptr, int nread)
 
 {int bytes_left;
- HpProcessData *procdata;
 
  if (nread <= 0) return SANE_STATUS_GOOD;
 
  if (ph == NULL) return SANE_STATUS_INVAL;
 
- procdata = &(ph->procdata);
  if ( ph->tmp_buf_len > 0 )  /* Something left ? */
  {
    bytes_left = ph->tmp_buf_size - ph->tmp_buf_len;

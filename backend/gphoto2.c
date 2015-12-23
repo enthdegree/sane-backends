@@ -1943,7 +1943,6 @@ converter_scan_complete (void)
 static SANE_Status
 converter_init (SANE_Handle handle)
 {
-  SANE_Int row_stride;
   struct jpeg_error_mgr jerr;
   my_src_ptr src;
 
@@ -1981,8 +1980,6 @@ exit(1);
   (void) jpeg_read_header (&cinfo, TRUE);
   dest_mgr = sanei_jpeg_jinit_write_ppm (&cinfo);
   (void) jpeg_start_decompress (&cinfo);
-
-  row_stride = cinfo.output_width * cinfo.output_components;
 
   parms.bytes_per_line = cinfo.output_width * 3;	/* 3 colors */
   parms.pixels_per_line = cinfo.output_width;

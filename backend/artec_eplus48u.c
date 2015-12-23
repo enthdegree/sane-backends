@@ -3373,11 +3373,9 @@ close_pipe (Artec48U_Scanner * s)
   return SANE_STATUS_EOF;
 }
 static RETSIGTYPE
-sigalarm_handler (int signal)
+sigalarm_handler (int __sane_unused__ signal)
 {
-  int dummy;			/*Henning doesn't like warnings :-) */
   XDBG ((1, "ALARM!!!\n"));
-  dummy = signal;
   cancelRead = SANE_TRUE;
 }
 

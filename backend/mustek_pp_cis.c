@@ -1526,7 +1526,7 @@ static void
 cis_get_next_line (Mustek_PP_CIS_dev * dev, SANE_Byte * buf)
 {
    SANE_Byte *dest, *tmpbuf = dev->tmpbuf;
-   int ctr, channel, first, last, stride, ignore, step = dev->CIS.line_step;
+   int ctr, channel, first, last, stride, step = dev->CIS.line_step;
    SANE_Byte gotline;
    
    if (dev->desc->mode == MODE_COLOR)
@@ -1534,14 +1534,12 @@ cis_get_next_line (Mustek_PP_CIS_dev * dev, SANE_Byte * buf)
       first = MUSTEK_PP_CIS_CHANNEL_RED;
       last = MUSTEK_PP_CIS_CHANNEL_BLUE;
       stride = 3;
-      ignore = 1; /* 1 * 3 channels */
    }
    else
    {
       first = MUSTEK_PP_CIS_CHANNEL_GRAY;
       last = MUSTEK_PP_CIS_CHANNEL_GRAY;
       stride = 1;
-      ignore = 3; /* 3 * 1 channel */
    }
    
    gotline = SANE_FALSE;

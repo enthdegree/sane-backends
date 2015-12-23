@@ -4641,7 +4641,6 @@ set_calib_data (Avision_Scanner* s, struct calibration_format* format,
   struct command_send scmd;
   
   int i;
-  size_t out_size;
   
   DBG (3, "set_calib_data:\n");
   
@@ -4678,8 +4677,6 @@ set_calib_data (Avision_Scanner* s, struct calibration_format* format,
       set_double_le ((white_data + i*2), value_new);
     }
   }
-  
-  out_size = format->pixel_per_line * 2;
   
   /* send data in one command? */
   /* FR: HP5370 reports one-pass, but needs multi (or other format in single) */

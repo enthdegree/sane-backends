@@ -874,7 +874,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   }
   else if (action == SANE_ACTION_SET_VALUE) {
       int tmp;
-      SANE_Word val_c;
       SANE_Status status;
 
       DBG (20, "sane_control_option: set value for '%s' (%d)\n", s->opt[option].name,option);
@@ -894,9 +893,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         DBG (5, "sane_control_option: bad value\n");
         return status;
       }
-
-      /* may have been changed by constrain, so dont copy until now */
-      val_c = *(SANE_Word *)val;
 
       /*
        * Note - for those options which can assume one of a list of

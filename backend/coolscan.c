@@ -1465,21 +1465,20 @@ static int
 get_inquiery_part_LS30 (Coolscan_t * s, unsigned char part)
 { 
   int size;
-  int ret;
 
   /* Get length of reponse */
   inquiry.cmd[1]=0x01;
   inquiry.cmd[2]=part;
   size=4;
   set_inquiry_return_size (inquiry.cmd, size);
-  ret = do_scsi_cmd (s->sfd, inquiry.cmd, inquiry.size,
-		     s->buffer, size);
+  do_scsi_cmd (s->sfd, inquiry.cmd, inquiry.size,
+               s->buffer, size);
   size=get_inquiry_length(s->buffer); 
   size+=4;
   /* then get inquiry with actual size */
   set_inquiry_return_size (inquiry.cmd, size);
-  ret = do_scsi_cmd (s->sfd, inquiry.cmd, inquiry.size,
-		     s->buffer, size);
+  do_scsi_cmd (s->sfd, inquiry.cmd, inquiry.size,
+               s->buffer, size);
   return size;
 }
 
@@ -1511,18 +1510,17 @@ get_inquiery_LS30 (Coolscan_t * s)
 { 
   unsigned char part;
   unsigned char parts[5];
-  int size;
   int i;
 
   /* Get vector of inquiery parts */
-  size=get_inquiery_part_LS30(s, (unsigned char) 0);
+  get_inquiery_part_LS30(s, (unsigned char) 0);
   /* Get the parts of inquiery */  
   for(i=0;i<5;i++)
   { parts[i]=((unsigned char *)s->buffer)[4+11+i];
   }
   for(i=0;i<5;i++)
   { part=parts[i];
-    size=get_inquiery_part_LS30 (s, part);
+    get_inquiery_part_LS30 (s, part);
     switch(part)
     {  case 0x0c1:/* max size and resolution */                   
                     s->adbits = 8;

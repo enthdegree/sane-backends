@@ -2749,7 +2749,6 @@ do_cmd(struct scanner *s, int runRS, int shortTime,
 )
 {
   SANE_Status ret = SANE_STATUS_GOOD;
-  size_t actLen = 0;
 
   /*shut up compiler*/
   runRS=runRS;
@@ -2766,7 +2765,6 @@ do_cmd(struct scanner *s, int runRS, int shortTime,
   }
   if (inBuff && inLen){
     DBG(25, "in: reading %d bytes\n", (int)*inLen);
-    actLen = *inLen;
   }
 
   ret = sanei_scsi_cmd2(s->fd, cmdBuff, cmdLen, outBuff, outLen, inBuff, inLen);

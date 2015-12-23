@@ -3904,17 +3904,15 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 void
 sane_close (SANE_Handle handle)
 {
-  Artec48U_Scanner *prev, *s;
+  Artec48U_Scanner *s;
 
   XDBG ((5, "sane_close: start\n"));
 
   /* remove handle from list of open handles: */
-  prev = 0;
   for (s = first_handle; s; s = s->next)
     {
       if (s == handle)
 	break;
-      prev = s;
     }
   if (!s)
     {

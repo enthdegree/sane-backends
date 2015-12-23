@@ -2616,7 +2616,6 @@ rts8801_doscan (unsigned width,
   unsigned output_rowbytes = 0;
   unsigned channels = 0;
   unsigned total_rows = 0;
-  unsigned bytesperchannel;
   unsigned char *row_buffer;
   unsigned char *output_buffer;
   unsigned buffered_rows;
@@ -2638,7 +2637,6 @@ rts8801_doscan (unsigned width,
 
   channels = 3;
   rowbytes = width * 3;
-  bytesperchannel = width;
   switch (colour)
     {
     case HP3500_GRAY_SCAN:

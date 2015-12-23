@@ -1711,7 +1711,6 @@ static SANE_Status
 artec_get_cap_data (ARTEC_Device * dev, int fd)
 {
   int cap_model, loop;
-  SANE_Status status;
   u_char cap_buf[256];		/* buffer for cap data */
 
   DBG (7, "artec_get_cap_data()\n");
@@ -1746,11 +1745,11 @@ artec_get_cap_data (ARTEC_Device * dev, int fd)
 
   dev->height = cap_data[cap_model].height;
 
-  status = artec_str_list_to_word_list (&dev->horz_resolution_list,
-				   cap_data[cap_model].horz_resolution_str);
+  artec_str_list_to_word_list (&dev->horz_resolution_list,
+                               cap_data[cap_model].horz_resolution_str);
 
-  status = artec_str_list_to_word_list (&dev->vert_resolution_list,
-				   cap_data[cap_model].vert_resolution_str);
+  artec_str_list_to_word_list (&dev->vert_resolution_list,
+                               cap_data[cap_model].vert_resolution_str);
 
   dev->contrast_range.min = 0;
   dev->contrast_range.max = 255;

@@ -688,7 +688,7 @@ static SANE_Status
 set_parameters_fs2710 (SANE_Handle handle)
 {
   CANON_Scanner *s = handle;
-  int i, j, invert, shadow[4], hilite[4];
+  int i, j, shadow[4], hilite[4];
   double x, b, c;
 
   shadow[1] = s->ShadowR << 4;
@@ -699,8 +699,6 @@ set_parameters_fs2710 (SANE_Handle handle)
   hilite[3] = s->HiliteB << 4;
   c = ((double) s->contrast) / 128.0;
   b = ((double) (s->brightness - 128)) / 128.0;
-
-  invert = strcmp (filmtype_list[1], s->val[OPT_NEGATIVE].s);
 
   for (i = 1; i < 4; i++)
     {

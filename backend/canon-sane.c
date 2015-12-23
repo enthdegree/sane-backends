@@ -1104,7 +1104,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 SANE_Status
 sane_start (SANE_Handle handle)
 {
-  int mode;
   char *mode_str;
   CANON_Scanner *s = handle;
   SANE_Status status;
@@ -1301,33 +1300,27 @@ sane_start (SANE_Handle handle)
 
   if (!strcmp (mode_str, SANE_VALUE_SCAN_MODE_LINEART))
     {
-      mode = 4;
       s->image_composition = 0;
     }
   else if (!strcmp (mode_str, SANE_VALUE_SCAN_MODE_HALFTONE))
     {
-      mode = 4;
       s->image_composition = 1;
     }
   else if (!strcmp (mode_str, SANE_VALUE_SCAN_MODE_GRAY))
     {
-      mode = 5;
       s->image_composition = 2;
     }
   else if (!strcmp (mode_str, SANE_VALUE_SCAN_MODE_COLOR)
   || !strcmp (mode_str, SANE_I18N("Fine color")))
     {
-      mode = 6;
       s->image_composition = 5;
     }
   else if (!strcmp (mode_str, SANE_I18N("Raw")))
     {
-      mode = 6;
       s->image_composition = 5;
     }
   else
     {
-      mode = 6;
       s->image_composition = 5;
     }
 

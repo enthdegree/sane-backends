@@ -645,9 +645,6 @@ InitScan (TScanParams * pParams, THWParams * pHWParams)
   int iHeight;
   int iExpTime;
   TScanParams Params;
-  int iHandle;
-
-  iHandle = pHWParams->iXferHandle;
 
   /* check validity of scanparameters */
   switch (pParams->iDpi)

@@ -2823,7 +2823,7 @@ send_threshold_data(NEC_Scanner *s)
 SANE_Status
 sane_start (SANE_Handle handle)
 {
-  char *mode, *halftone, *paper, *gamma, *edge, *lightcolor, *adf_fsu;
+  char *mode, *halftone, *gamma, *edge, *lightcolor, *adf_fsu;
   NEC_Scanner *s = handle;
   SANE_Status status;
   size_t buf_size;
@@ -2953,7 +2953,6 @@ sane_start (SANE_Handle handle)
 
   mode = s->val[OPT_MODE].s;
   halftone = s->val[OPT_HALFTONE].s;
-  paper = s->val[OPT_PAPER].s;
   gamma = s->val[OPT_GAMMA].s;
   edge = s->val[OPT_EDGE_EMPHASIS].s;
   lightcolor = s->val[OPT_LIGHTCOLOR].s;

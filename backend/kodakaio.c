@@ -640,8 +640,10 @@ static SANE_Status attach_one_usb(SANE_String_Const devname);
 static SANE_Status attach_one_net(SANE_String_Const devname, unsigned int device);
 void kodakaio_com_str(unsigned char *buf, char *fmt_buf);
 int cmparray (unsigned char *array1, unsigned char *array2, size_t len);
+#if WITH_AVAHI
 static struct KodakaioCap *get_device_from_identification (const char *ident, const char *vid, const char *pid);
 void ProcessAvahiDevice(const char *device_id, const char *vid, const char *pid, const char *ip_addr);
+#endif
 
 
 /* Some utility functions */
@@ -1935,6 +1937,7 @@ you don't know how many blocks there will be in advance because their size may b
  *   SANE API implementation (high-level functions) 
 */
 
+#if WITH_AVAHI
 static struct KodakaioCap *
 get_device_from_identification (const char *ident, const char *vid, const char *pid)
 {
@@ -1966,6 +1969,7 @@ get_device_from_identification (const char *ident, const char *vid, const char *
 	}
 	return NULL;
 }
+#endif /* WITH_AVAHI */
 
 /*
  * close_scanner()

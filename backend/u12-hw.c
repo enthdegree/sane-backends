@@ -338,7 +338,6 @@ static void u12hw_SetGeneralRegister( U12_Device *dev )
 static void u12hw_SetupPreviewCondition( U12_Device *dev )
 {
 	int       i, c;
-	u_long    channel;
 	SANE_Byte rb[100];
 
 	DBG( _DBG_INFO, "u12_SetupPreviewCondition()\n" );
@@ -389,7 +388,6 @@ static void u12hw_SetupPreviewCondition( U12_Device *dev )
 	else
 		dev->scan.bFifoSelect = REG_GFIFOOFFSET;
 
-	channel = _BLUE_FULLSIZE << 16;
 	dev->regs.RD_BufFullSize = _SIZE_BLUEFIFO;
 
 	dev->regs.RD_LineControl    = _LOBYTE(dev->shade.wExposure);

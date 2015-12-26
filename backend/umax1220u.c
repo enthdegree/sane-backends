@@ -742,7 +742,6 @@ void
 sane_close (SANE_Handle handle)
 {
   Umax_Scanner *prev, *scanner;
-  SANE_Status res;
 
   DBG (3, "sane_close\n");
 
@@ -775,7 +774,7 @@ sane_close (SANE_Handle handle)
   else
     first_handle = scanner->next;
 
-  res = UMAX_close_device (&scanner->scan);
+  UMAX_close_device (&scanner->scan);
 
   free (scanner);
 }

@@ -2369,6 +2369,9 @@ low_get_start_loc (SANE_Int resolution, SANE_Int * vert_start,
 	  return SANE_STATUS_INVAL;
 	}
       break;
+    default:
+      /* If we're here we have an unknown dev->model.sensor_type */
+      return SANE_STATUS_INVAL;
     }
   /* Calculate vertical start distance at 600dpi */
   switch (resolution)

@@ -491,7 +491,7 @@ sanei_thread_waitpid( SANE_Pid pid, int *status )
 #else
 	int ls;
 #endif
-	SANE_Pid result;
+	SANE_Pid result = pid;
 	int stat;
 
 	stat = 0;

@@ -810,7 +810,6 @@ dev_free (struct device *dev)
 static void
 free_devices (void)
 {
-  int i;
   struct device *next;
   struct device *dev;
 
@@ -818,7 +817,7 @@ free_devices (void)
     free (devlist);
     devlist = NULL;
   }
-  for (i = 0, dev = devices_head; dev; dev = next) {
+  for (dev = devices_head; dev; dev = next) {
     next = dev->next;
     dev_free (dev);
   }

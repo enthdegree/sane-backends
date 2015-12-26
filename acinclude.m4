@@ -20,51 +20,37 @@ dnl   AC_PROG_LIBTOOL
 dnl
 
 # SANE_SET_CFLAGS(is_release)
-# Set CFLAGS. Enable/disable compilation warnings if gcc is used.
-# Warnings are enabled by default when in development cycle but disabled
-# when a release is made. The argument is_release is either yes or no.
+# Set default CFLAGS if gcc is used.  Enable or disable additional
+# compilation warnings.  The extra warnings are enabled by default
+# during the development cycle but disabled for official releases.
+# The argument is_release is either yes or no.
 AC_DEFUN([SANE_SET_CFLAGS],
 [
 if test "${ac_cv_c_compiler_gnu}" = "yes"; then
-  NORMAL_CFLAGS="\
+  DEFAULT_CFLAGS="\
       -std=c99 \
-      -W \
       -Wall"
-  WARN_CFLAGS="\
-      -std=c99 \
-      -W \
-      -Wall \
-      -Wcast-align \
-      -Wcast-qual \
-      -Wmissing-declarations \
-      -Wmissing-prototypes \
-      -Wpointer-arith \
-      -Wreturn-type \
-      -Wstrict-prototypes \
+  EXTRA_WARNINGS="\
+      -Wextra \
       -pedantic"
+
+  for flag in $DEFAULT_CFLAGS; do
+    JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+  done
 
   AC_ARG_ENABLE(warnings,
     AC_HELP_STRING([--enable-warnings],
                    [turn on tons of compiler warnings (GCC only)]),
     [
       if eval "test x$enable_warnings = xyes"; then 
-        for flag in $WARN_CFLAGS; do
-          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
-        done
-      else
-        for flag in $NORMAL_CFLAGS; do
+        for flag in $EXTRA_WARNINGS; do
           JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
         done
       fi
     ],
     [if test x$1 = xno; then
        # Warnings enabled by default (development)
-       for flag in $WARN_CFLAGS; do
-         JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
-       done
-    else
-       # Warnings disabled by default (release)
-       for flag in $NORMAL_CFLAGS; do
+       for flag in $EXTRA_WARNINGS; do
          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
        done
     fi])

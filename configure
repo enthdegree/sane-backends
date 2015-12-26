@@ -5182,31 +5182,16 @@ fi
 
 
 
-
 if test "${ac_cv_c_compiler_gnu}" = "yes"; then
-  NORMAL_CFLAGS="\
+  DEFAULT_CFLAGS="\
       -std=c99 \
-      -W \
       -Wall"
-  WARN_CFLAGS="\
-      -std=c99 \
-      -W \
-      -Wall \
-      -Wcast-align \
-      -Wcast-qual \
-      -Wmissing-declarations \
-      -Wmissing-prototypes \
-      -Wpointer-arith \
-      -Wreturn-type \
-      -Wstrict-prototypes \
+  EXTRA_WARNINGS="\
+      -Wextra \
       -pedantic"
 
-  # Check whether --enable-warnings was given.
-if test "${enable_warnings+set}" = set; then :
-  enableval=$enable_warnings;
-      if eval "test x$enable_warnings = xyes"; then
-        for flag in $WARN_CFLAGS; do
-          case "$CFLAGS" in
+  for flag in $DEFAULT_CFLAGS; do
+    case "$CFLAGS" in
 "$flag" | "$flag "* | *" $flag" | *" $flag "* )
   :
   ;;
@@ -5215,9 +5200,13 @@ if test "${enable_warnings+set}" = set; then :
   ;;
 esac
 
-        done
-      else
-        for flag in $NORMAL_CFLAGS; do
+  done
+
+  # Check whether --enable-warnings was given.
+if test "${enable_warnings+set}" = set; then :
+  enableval=$enable_warnings;
+      if eval "test x$enable_warnings = xyes"; then
+        for flag in $EXTRA_WARNINGS; do
           case "$CFLAGS" in
 "$flag" | "$flag "* | *" $flag" | *" $flag "* )
   :
@@ -5233,20 +5222,7 @@ esac
 else
   if test x$is_release = xno; then
        # Warnings enabled by default (development)
-       for flag in $WARN_CFLAGS; do
-         case "$CFLAGS" in
-"$flag" | "$flag "* | *" $flag" | *" $flag "* )
-  :
-  ;;
-*)
-   CFLAGS="$CFLAGS $flag"
-  ;;
-esac
-
-       done
-    else
-       # Warnings disabled by default (release)
-       for flag in $NORMAL_CFLAGS; do
+       for flag in $EXTRA_WARNINGS; do
          case "$CFLAGS" in
 "$flag" | "$flag "* | *" $flag" | *" $flag "* )
   :

@@ -214,19 +214,19 @@ read_data (int fd, uint8_t * data, int length)
 static void
 index_write_data (int fd, uint8_t index, uint8_t * data, int length)
 {
-  int mode, rc;
+  int mode;
   unsigned char bval;
 
   bval = index;
   mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
-  rc = ioctl (fd, PPSETMODE, &mode);
-  rc = write (fd, &bval, 1);
+  ioctl (fd, PPSETMODE, &mode);
+  write (fd, &bval, 1);
 
   mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
-  rc = ioctl (fd, PPSETMODE, &mode);
+  ioctl (fd, PPSETMODE, &mode);
   mode = 0;			/* data forward */
-  rc = ioctl (fd, PPDATADIR, &mode);
-  rc = write (fd, data, length);
+  ioctl (fd, PPDATADIR, &mode);
+  write (fd, data, length);
   return;
 }
 
@@ -469,7 +469,7 @@ setadresses (int fd, uint16_t start, uint16_t end)
 static int
 open_pp (const char *devicename)
 {
-  int fd, rc, mode = 0;
+  int fd, mode = 0;
   char *name;
 
   DBG (DBG_proc, "open_pp: start, devicename=%s\n", devicename);
@@ -512,8 +512,8 @@ open_pp (const char *devicename)
   free(name);
 
   /* claim device and set it to EPP */
-  rc = ioctl (fd, PPCLAIM);
-  rc = ioctl (fd, PPGETMODES, &mode);
+  ioctl (fd, PPCLAIM);
+  ioctl (fd, PPGETMODES, &mode);
   if (mode & PARPORT_MODE_PCSPP)
     DBG (DBG_io, "PARPORT_MODE_PCSPP\n");
   if (mode & PARPORT_MODE_TRISTATE)
@@ -546,12 +546,12 @@ open_pp (const char *devicename)
   if (mode == -1)
     {
       DBG (DBG_error, "open_pp: no EPP mode, giving up ...\n");
-      rc = ioctl (fd, PPRELEASE);
+      ioctl (fd, PPRELEASE);
       close (fd);
       return -1;
     }
-  rc = ioctl (fd, PPNEGOT, &mode);
-  rc = ioctl (fd, PPSETMODE, &mode);
+  ioctl (fd, PPNEGOT, &mode);
+  ioctl (fd, PPSETMODE, &mode);
   DBG (DBG_proc, "open_pp: exit\n");
   return fd;
 }

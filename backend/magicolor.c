@@ -1518,6 +1518,7 @@ mc_read(struct Magicolor_Scanner *s)
  ****************************************************************************/
 
 
+#if HAVE_LIBSNMP
 static struct MagicolorCap *
 mc_get_device_from_identification (const char*ident)
 {
@@ -1528,6 +1529,7 @@ mc_get_device_from_identification (const char*ident)
 	}
 	return NULL;
 }
+#endif
 
 
 /*

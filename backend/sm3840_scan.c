@@ -158,7 +158,6 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
   int scanlines = p->scanlines;
   int leftpix = p->leftpix;
   int scanpix = p->scanpix;
-  int len;
   unsigned char hello[2] = { 0x55, 0xaa };
   unsigned char howdy[3];
   unsigned short *whitebalance;
@@ -182,11 +181,11 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
   char fname[64];
   char head[128];
 
-  len = usb_set_configuration (udev, 1);
-  len = usb_claim_interface (udev, 0);
-  len = usb_clear_halt (udev, 1);
-  len = usb_clear_halt (udev, 2);
-  len = usb_clear_halt (udev, 3);
+  usb_set_configuration (udev, 1);
+  usb_claim_interface (udev, 0);
+  usb_clear_halt (udev, 1);
+  usb_clear_halt (udev, 2);
+  usb_clear_halt (udev, 3);
 #endif
   DBG (2, "params.gray = %d;\n", p->gray);
   DBG (2, "params.dpi = %d\n", p->dpi);
@@ -255,12 +254,12 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
   write_regs (udev, 1, 0xb1, 0x00);
   write_regs (udev, 1, 0xb2, 0x00);
   write_vctl (udev, 0x0c, 0x0002, 0x0002, 0x00);
-  len = usb_bulk_write (udev, 2, hello, 2, wr_timeout);
+  usb_bulk_write (udev, 2, hello, 2, wr_timeout);
   write_regs (udev, 1, 0xb0, 0x00);
   write_regs (udev, 1, 0xb1, 0x00);
   write_regs (udev, 1, 0xb2, 0x00);
   write_vctl (udev, 0x0c, 0x0003, 0x0003, 0x00);
-  len = usb_bulk_read (udev, 1, howdy, 3, rd_timeout);
+  usb_bulk_read (udev, 1, howdy, 3, rd_timeout);
   write_regs (udev, 4, 0x83, 0x00, 0xa3, 0x00, 0xa4, 0x00, 0x97, 0x0a);
   write_vctl (udev, 0x0c, 0x0004, 0x008b, 0x00);
   read_vctl (udev, 0x0c, 0x0007, 0x0000, &rd_byte);
@@ -318,9 +317,8 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
     write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x40, 0xb2, 0x07, 0xb3, 0xff, 0xb4,
 		0x7f, 0xb5, 0x07);
   write_vctl (udev, 0x0c, 0x0002, whitemapsize, 0x00);
-  len =
-    usb_bulk_write (udev, 2, (unsigned char *) whitemap, whitemapsize,
-		    wr_timeout);
+  usb_bulk_write (udev, 2, (unsigned char *) whitemap, whitemapsize,
+                  wr_timeout);
 
   set_lightmap_white (whitemap, dpi, 1);
   if (dpi == 1200)
@@ -330,9 +328,8 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
     write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x80, 0xb2, 0x07, 0xb3, 0xff, 0xb4,
 		0xbf, 0xb5, 0x07);
   write_vctl (udev, 0x0c, 0x0002, whitemapsize, 0x00);
-  len =
-    usb_bulk_write (udev, 2, (unsigned char *) whitemap, whitemapsize,
-		    wr_timeout);
+  usb_bulk_write (udev, 2, (unsigned char *) whitemap, whitemapsize,
+                  wr_timeout);
 
   set_lightmap_white (whitemap, dpi, 2);
   if (dpi == 1200)
@@ -342,9 +339,8 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
     write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0xc0, 0xb2, 0x07, 0xb3, 0xff, 0xb4,
 		0xff, 0xb5, 0x07);
   write_vctl (udev, 0x0c, 0x0002, whitemapsize, 0x00);
-  len =
-    usb_bulk_write (udev, 2, (unsigned char *) whitemap, whitemapsize,
-		    wr_timeout);
+  usb_bulk_write (udev, 2, (unsigned char *) whitemap, whitemapsize,
+                  wr_timeout);
 
   free (whitemap);
 
@@ -391,11 +387,10 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
   write_regs (udev, 1, 0xbe, 0x0d);
   write_vctl (udev, 0x0c, 0x0003, 0x0001, 0x00);
   whitebalance = (unsigned short *) malloc (whitebalancesize);
-  len = usb_bulk_read (udev, 1, &rd_byte, 1, rd_timeout);
+  usb_bulk_read (udev, 1, &rd_byte, 1, rd_timeout);
   write_vctl (udev, 0x0c, 0x0001, 0x0000, 0x00);
-  len =
-    usb_bulk_read (udev, 1, (unsigned char *) whitebalance, whitebalancesize,
-		   rd_timeout);
+  usb_bulk_read (udev, 1, (unsigned char *) whitebalance, whitebalancesize,
+                 rd_timeout);
   write_regs (udev, 2, 0xbe, 0x00, 0x84, 0x00);
   write_vctl (udev, 0x0c, 0x00c0, 0x8406, 0x00);
   write_vctl (udev, 0x0c, 0x00c0, 0x0406, 0x00);
@@ -419,11 +414,10 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
 		  0xbf, 0x00, 0x90, 0x40, 0x91, 0x00, 0x83, 0x82);
       write_regs (udev, 1, 0xbe, 0x0d);
       write_vctl (udev, 0x0c, 0x0003, 0x0001, 0x00);
-      len = usb_bulk_read (udev, 1, &rd_byte, 1, rd_timeout);
+      usb_bulk_read (udev, 1, &rd_byte, 1, rd_timeout);
       write_vctl (udev, 0x0c, 0x0001, 0x0000, 0x00);
-      len =
-	usb_bulk_read (udev, 1, (unsigned char *) whitebalance,
-		       whitebalancesize, rd_timeout);
+      usb_bulk_read (udev, 1, (unsigned char *) whitebalance,
+                     whitebalancesize, rd_timeout);
       fix_endian_short (whitebalance, whitebalancesize/2);
       if (!donered)
 	{
@@ -485,11 +479,10 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
 		  0xbf, 0x00, 0x90, 0x40, 0x91, 0x00, 0x83, 0x82);
       write_regs (udev, 1, 0xbe, 0x0d);
       write_vctl (udev, 0x0c, 0x0003, 0x0001, 0x00);
-      len = usb_bulk_read (udev, 1, &rd_byte, 1, rd_timeout);
+      usb_bulk_read (udev, 1, &rd_byte, 1, rd_timeout);
       write_vctl (udev, 0x0c, 0x0001, 0x0000, 0x00);
-      len =
-	usb_bulk_read (udev, 1, (unsigned char *) whitebalance,
-		       whitebalancesize, rd_timeout);
+      usb_bulk_read (udev, 1, (unsigned char *) whitebalance,
+                     whitebalancesize, rd_timeout);
       fix_endian_short (whitebalance, whitebalancesize/2);
       if (!donered)
 	{
@@ -601,7 +594,7 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
 	      0x00, 0x90, 0x40, 0x91, 0x00, 0x83, 0x82);
   write_regs (udev, 1, 0xbe, 0x1d);
   write_vctl (udev, 0x0c, 0x0003, 0x0001, 0x00);
-  len = usb_bulk_read (udev, 1, &rd_byte, 1, rd_timeout);
+  usb_bulk_read (udev, 1, &rd_byte, 1, rd_timeout);
   write_vctl (udev, 0x0c, 0x0001, 0x0000, 0x00);
   record_mem (udev, (unsigned char **) (void *)&whitescan,
 	      (5632 * 2 * 3 * (dpi == 1200 ? 2 : 1)) * 4);
@@ -756,9 +749,8 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
     write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x40, 0xb2, 0x07, 0xb3, 0xff, 0xb4,
 		0x7f, 0xb5, 0x07);
   write_vctl (udev, 0x0c, 0x0002, whitemapsize, 0x00);
-  len =
-    usb_bulk_write (udev, 2, (unsigned char *) lightmap, whitemapsize,
-		    wr_timeout);
+  usb_bulk_write (udev, 2, (unsigned char *) lightmap, whitemapsize,
+                  wr_timeout);
 
   calc_lightmap (whitescan, lightmap, 1, dpi, gain, offset);
   if (dpi == 1200)
@@ -772,9 +764,8 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
   if (gray)
     for (i = 0; i < whitemapsize / 2; i++)
       lightmap[i] |= GRAYMASK;
-  len =
-    usb_bulk_write (udev, 2, (unsigned char *) lightmap, whitemapsize,
-		    wr_timeout);
+  usb_bulk_write (udev, 2, (unsigned char *) lightmap, whitemapsize,
+                  wr_timeout);
 
   calc_lightmap (whitescan, lightmap, 2, dpi, gain, offset);
   if (dpi == 1200)
@@ -784,9 +775,8 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
     write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0xc0, 0xb2, 0x07, 0xb3, 0xff, 0xb4,
 		0xff, 0xb5, 0x07);
   write_vctl (udev, 0x0c, 0x0002, whitemapsize, 0x00);
-  len =
-    usb_bulk_write (udev, 2, (unsigned char *) lightmap, whitemapsize,
-		    wr_timeout);
+  usb_bulk_write (udev, 2, (unsigned char *) lightmap, whitemapsize,
+                  wr_timeout);
 
   free (whitescan);
   free (lightmap);
@@ -922,7 +912,7 @@ setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
   else
     write_regs (udev, 1, 0xbe, 0x0d);
   write_vctl (udev, 0x0c, 0x0003, 0x0001, 0x00);
-  len = usb_bulk_read (udev, 1, &rd_byte, 1, rd_timeout);
+  usb_bulk_read (udev, 1, &rd_byte, 1, rd_timeout);
   write_vctl (udev, 0x0c, 0x0001, 0x0000, 0x00);
 
 #ifndef BACKENDNAME

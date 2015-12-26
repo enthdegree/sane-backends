@@ -191,12 +191,12 @@ find_device (unsigned int idVendor, unsigned int idProduct)
 static void
 idle_ab (p_usb_dev_handle udev)
 {
-  int len, i;
+  int i;
   unsigned char buff[8] = { 0x64, 0x65, 0x16, 0x17, 0x64, 0x65, 0x44, 0x45 };
   for (i = 0; i < 8; i++)
     {
-      len = usb_control_msg (udev, 0x40, 0x0c, 0x0090, 0x0000, buff + i,
-			     0x0001, wr_timeout);
+      usb_control_msg (udev, 0x40, 0x0c, 0x0090, 0x0000, buff + i,
+                       0x0001, wr_timeout);
     }
 }
 
@@ -208,7 +208,7 @@ write_regs (p_usb_dev_handle udev, int regs, unsigned char reg1,
 {
   unsigned char buff[512];
   va_list marker;
-  int len, i;
+  int i;
 
   va_start (marker, val1);
   buff[0] = reg1;
@@ -220,8 +220,8 @@ write_regs (p_usb_dev_handle udev, int regs, unsigned char reg1,
     }
   va_end (marker);
 
-  len = usb_control_msg (udev, 0x40, 0x04, 0x00b0, 0x0000, buff,
-			 regs * 2, wr_timeout);
+  usb_control_msg (udev, 0x40, 0x04, 0x00b0, 0x0000, buff,
+                   regs * 2, wr_timeout);
 }
 
 static int
@@ -297,7 +297,6 @@ record_line (int reset,
 	     unsigned char **save_dpi1200_remap,
 	     unsigned char **save_color_remap)
 {
-  int len;
   unsigned char *scan_line, *dpi1200_remap;
   unsigned char *color_remap;
   int i;
@@ -374,7 +373,7 @@ record_line (int reset,
 
   while (1)
     {				/* We'll exit inside the loop... */
-      len = usb_bulk_read (udev, 1, scan_line, linelen, rd_timeout);
+      usb_bulk_read (udev, 1, scan_line, linelen, rd_timeout);
       if (dpi == 1200)
 	{
 	  ptrcur = dpi1200_remap + (linelen * (i % DPI1200SHUFFLE));
@@ -886,7 +885,6 @@ download_lut8 (p_usb_dev_handle udev, int dpi, int incolor)
     4.40306800664567E-31
   };
   unsigned char *lut;
-  int len;
 
   DBG (2, "+download_lut8\n");
   switch (dpi)
@@ -904,7 +902,7 @@ download_lut8 (p_usb_dev_handle udev, int dpi, int incolor)
 	  write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x20, 0xb2, 0x07, 0xb3, 0xff,
 		      0xb4, 0x2f, 0xb5, 0x07);
 	  write_vctl (udev, 0x0c, 0x0002, 0x1000, 0x00);
-	  len = usb_bulk_write (udev, 2, lut, 4096, wr_timeout);
+	  usb_bulk_write (udev, 2, lut, 4096, wr_timeout);
 	}
       else
 	{
@@ -912,15 +910,15 @@ download_lut8 (p_usb_dev_handle udev, int dpi, int incolor)
 	  write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x10, 0xb2, 0x07, 0xb3, 0xff,
 		      0xb4, 0x1f, 0xb5, 0x07);
 	  write_vctl (udev, 0x0c, 0x0002, 0x1000, 0x00);
-	  len = usb_bulk_write (udev, 2, lut, 4096, wr_timeout);
+	  usb_bulk_write (udev, 2, lut, 4096, wr_timeout);
 	  write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x20, 0xb2, 0x07, 0xb3, 0xff,
 		      0xb4, 0x2f, 0xb5, 0x07);
 	  write_vctl (udev, 0x0c, 0x0002, 0x1000, 0x00);
-	  len = usb_bulk_write (udev, 2, lut, 4096, wr_timeout);
+	  usb_bulk_write (udev, 2, lut, 4096, wr_timeout);
 	  write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x30, 0xb2, 0x07, 0xb3, 0xff,
 		      0xb4, 0x3f, 0xb5, 0x07);
 	  write_vctl (udev, 0x0c, 0x0002, 0x1000, 0x00);
-	  len = usb_bulk_write (udev, 2, lut, 4096, wr_timeout);
+	  usb_bulk_write (udev, 2, lut, 4096, wr_timeout);
 	}
       break;
 
@@ -936,7 +934,7 @@ download_lut8 (p_usb_dev_handle udev, int dpi, int incolor)
 	  write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x40, 0xb2, 0x06, 0xb3, 0xff,
 		      0xb4, 0x5f, 0xb5, 0x06);
 	  write_vctl (udev, 0x0c, 0x0002, 0x2000, 0x00);
-	  len = usb_bulk_write (udev, 2, lut, 8192, wr_timeout);
+	  usb_bulk_write (udev, 2, lut, 8192, wr_timeout);
 	}
       else
 	{
@@ -944,15 +942,15 @@ download_lut8 (p_usb_dev_handle udev, int dpi, int incolor)
 	  write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x20, 0xb2, 0x06, 0xb3, 0xff,
 		      0xb4, 0x3f, 0xb5, 0x06);
 	  write_vctl (udev, 0x0c, 0x0002, 0x2000, 0x00);
-	  len = usb_bulk_write (udev, 2, lut, 8192, wr_timeout);
+	  usb_bulk_write (udev, 2, lut, 8192, wr_timeout);
 	  write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x40, 0xb2, 0x06, 0xb3, 0xff,
 		      0xb4, 0x5f, 0xb5, 0x06);
 	  write_vctl (udev, 0x0c, 0x0002, 0x2000, 0x00);
-	  len = usb_bulk_write (udev, 2, lut, 8192, wr_timeout);
+	  usb_bulk_write (udev, 2, lut, 8192, wr_timeout);
 	  write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x60, 0xb2, 0x06, 0xb3, 0xff,
 		      0xb4, 0x7f, 0xb5, 0x06);
 	  write_vctl (udev, 0x0c, 0x0002, 0x2000, 0x00);
-	  len = usb_bulk_write (udev, 2, lut, 8192, wr_timeout);
+	  usb_bulk_write (udev, 2, lut, 8192, wr_timeout);
 	}
       break;
     }

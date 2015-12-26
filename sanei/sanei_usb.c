@@ -1299,7 +1299,6 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 {
   int devcount;
   SANE_Bool found = SANE_FALSE;
-  int c, i, a;
 
   DBG (5, "sanei_usb_open: trying to open device `%s'\n", devname);
   if (!dn)
@@ -1336,6 +1335,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       struct usb_device *dev;
       struct usb_interface_descriptor *interface;
       int result, num;
+      int c, i, a;
 
       devices[devcount].libusb_handle =
 	usb_open (devices[devcount].libusb_device);
@@ -1598,6 +1598,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       struct libusb_device_descriptor desc;
       struct libusb_config_descriptor *config0;
       int result, num;
+      int c, i, a;
 
       dev = devices[devcount].lu_device;
 
@@ -2168,8 +2169,6 @@ sanei_usb_set_timeout (SANE_Int timeout)
 SANE_Status
 sanei_usb_clear_halt (SANE_Int dn)
 {
-  int ret;
-
   if (dn >= device_number || dn < 0)
     {
       DBG (1, "sanei_usb_clear_halt: dn >= device number || dn < 0\n");
@@ -2177,6 +2176,7 @@ sanei_usb_clear_halt (SANE_Int dn)
     }
 
 #ifdef HAVE_LIBUSB
+  int ret;
 
   /* This call seems to be required by Linux xhci driver
    * even though it should be a no-op. Without it, the
@@ -2197,6 +2197,7 @@ sanei_usb_clear_halt (SANE_Int dn)
   }
 
 #elif defined(HAVE_LIBUSB_1_0)
+  int ret;
 
   /* This call seems to be required by Linux xhci driver
    * even though it should be a no-op. Without it, the

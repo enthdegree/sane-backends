@@ -734,7 +734,7 @@ That is probably if the scanner disconnected the network connection
 		if (read == 0)
 			*status = SANE_STATUS_IO_ERROR;
 
-		DBG(32, "net read %d bytes:%x,%x,%x,%x,%x,%x,%x,%x\n",read,buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7]);
+		DBG(32, "net read %lu bytes:%x,%x,%x,%x,%x,%x,%x,%x\n",(unsigned long)read,buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7]);
 
 		return read;
 	}
@@ -884,7 +884,7 @@ In NET mode the timeout is in kodakaio_net_read
 		time(&time_start);
 		DBG(min(16,DBG_READ), "[%ld]  %s: net req size = %ld  ", (long) time_start, __func__, (long) buf_size);
  		n = kodakaio_net_read(s, buf, buf_size, status);
-		DBG(min(16,DBG_READ), "returned %d\n", n);
+		DBG(min(16,DBG_READ), "returned %lu\n", (unsigned long)n);
 		if (*status != SANE_STATUS_GOOD) {
 			DBG(1, "%s: err returned from kodakaio_net_read, %s\n", __func__, sane_strstatus(*status));
 		}
@@ -1112,7 +1112,7 @@ cmd_start_scan (SANE_Handle handle, size_t expect_total)
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	DBG(20, "starting the scan, expected total bytes %d\n",expect_total);
+	DBG(20, "starting the scan, expected total bytes %lu\n",(unsigned long)expect_total);
 	k_send(s, KodakEsp_Go, 8, &status);
 
 	if (status != SANE_STATUS_GOOD)
@@ -1368,20 +1368,20 @@ But it seems that the scanner takes care of that, and gives you the ack as a sep
 		/* only compare 4 bytes because we sometimes get escSS02.. or escSS00.. 
 		is 4 the right number ? */
 		if (cmparray(Last8,KodakEsp_Ack,4) == 0) {
-			DBG(min(10,DBG_READ), "%s: found KodakEsp_Ack at %d bytes of %d\n", __func__, bytecount, *len);
+			DBG(min(10,DBG_READ), "%s: found KodakEsp_Ack at %lu bytes of %lu\n", __func__, (unsigned long) bytecount, (unsigned long) *len);
 			s->ack = SANE_TRUE;
 			*len = bytecount - 8; /* discard the Ack response */
 			s->bytes_unread -= *len; /* return a short block */
 		}
 		else {
 		/* a not full buffer is returned usb does this */
-		DBG(min(10,DBG_READ), "%s: buffer not full, got %d bytes of %d\n", __func__, bytecount, *len);
+		DBG(min(10,DBG_READ), "%s: buffer not full, got %lu bytes of %lu\n", __func__, (unsigned long) bytecount, (unsigned long) *len);
 		*len = bytecount;
 		s->bytes_unread -= bytecount;
 		}
 	}
 	else {
-		DBG(min(1,DBG_READ), "%s: tiny read, got %d bytes of %d\n", __func__, (int) bytecount, *len);
+		DBG(min(1,DBG_READ), "%s: tiny read, got %lu bytes of %lu\n", __func__, (unsigned long) bytecount, (unsigned long) *len);
 		return SANE_STATUS_IO_ERROR;
 	}
 	if (*len > s->params.bytes_per_line) {

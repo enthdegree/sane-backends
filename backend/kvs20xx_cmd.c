@@ -187,7 +187,7 @@ kvs20xx_set_timeout (struct scanner * s, int timeout)
   };
   c.cmd[0] = SET_TIMEOUT;
   c.cmd[2] = 0x8d;
-  *((u16 *) (c.cmd + 7)) = cpu2be16 (sizeof (t));
+  copy16 (c.cmd + 7, cpu2be16 (sizeof (t)));
 
   c.data = &t;
   c.data_size = sizeof (t);
@@ -210,7 +210,7 @@ kvs20xx_set_window (struct scanner * s, int wnd_id)
     CMD_OUT
   };
   c.cmd[0] = SET_WINDOW;
-  *((u16 *) (c.cmd + 7)) = cpu2be16 (sizeof (wnd));
+  copy16 (c.cmd + 7, cpu2be16 (sizeof (wnd)));
 
   c.data = &wnd;
   c.data_size = sizeof (wnd);

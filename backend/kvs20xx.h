@@ -168,6 +168,12 @@ swap_bytes32 (u32 x)
     (x & (u32) 0x0000ff00UL) << 8 | (x & (u32) 0x00ff0000UL) >> 8;
 }
 
+static inline void
+copy16 (u8 * p, u16 x)
+{
+  memcpy (p, (u8 *) &x, sizeof (x));
+}
+
 #if __BYTE_ORDER == __BIG_ENDIAN
 static inline void
 set24 (u8 * p, u32 x)

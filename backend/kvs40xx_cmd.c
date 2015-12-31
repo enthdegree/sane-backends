@@ -360,7 +360,7 @@ kvs40xx_set_timeout (struct scanner * s, int timeout)
   c.data_size = sizeof (t);
   c.cmd[0] = SET_TIMEOUT;
   c.cmd[2] = 0x8d;
-  *((u16 *) (c.cmd + 7)) = cpu2be16 (sizeof (t));
+  copy16 (c.cmd + 7, cpu2be16 (sizeof (t)));
   if (s->bus == USB)
     sanei_usb_set_timeout (timeout * 1000);
 
@@ -379,7 +379,7 @@ kvs40xx_set_window (struct scanner * s, int wnd_id)
   c.data = &wnd;
   c.data_size = sizeof (wnd);
   c.cmd[0] = SET_WINDOW;
-  *((u16 *) (c.cmd + 7)) = cpu2be16 (sizeof (wnd));
+  copy16 (c.cmd + 7, cpu2be16 (sizeof (wnd)));
   kvs40xx_init_window (s, &wnd, wnd_id);
 
   return send_command (s, &c);

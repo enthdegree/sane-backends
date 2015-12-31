@@ -1272,41 +1272,45 @@ kvs40xx_init_window (struct scanner *s, struct window *wnd, int wnd_id)
 {
   int paper = str_index (paper_list, s->val[PAPER_SIZE].s), i;
   memset (wnd, 0, sizeof (struct window));
-  *(u16 *) wnd->window_descriptor_block_length = cpu2be16 (66);
+  copy16 (wnd->window_descriptor_block_length, cpu2be16 (66));
 
   wnd->window_identifier = wnd_id;
-  *(u16 *) wnd->x_resolution = cpu2be16 (s->val[RESOLUTION].w);
-  *(u16 *) wnd->y_resolution = cpu2be16 (s->val[RESOLUTION].w);
+  copy16 (wnd->x_resolution, cpu2be16 (s->val[RESOLUTION].w));
+  copy16 (wnd->y_resolution, cpu2be16 (s->val[RESOLUTION].w));
   if (!paper)
     {
-      *(u32 *) wnd->upper_left_x =
-	cpu2be32 (mm2scanner_units (s->val[TL_X].w));
-      *(u32 *) wnd->upper_left_y =
-	cpu2be32 (mm2scanner_units (s->val[TL_Y].w));
-      *(u32 *) wnd->document_width =
-	cpu2be32 (mm2scanner_units (s->val[BR_X].w));
-      *(u32 *) wnd->width =
-	cpu2be32 (mm2scanner_units (s->val[BR_X].w - s->val[TL_X].w));
-      *(u32 *) wnd->document_length = cpu2be32 (mm2scanner_units
-						(s->val[BR_Y].w));
-      *(u32 *) wnd->length =
-	cpu2be32 (mm2scanner_units (s->val[BR_Y].w - s->val[TL_Y].w));
+      copy32 (wnd->upper_left_x,
+              cpu2be32 (mm2scanner_units (s->val[TL_X].w)));
+      copy32 (wnd->upper_left_y,
+              cpu2be32 (mm2scanner_units (s->val[TL_Y].w)));
+      copy32 (wnd->document_width,
+              cpu2be32 (mm2scanner_units (s->val[BR_X].w)));
+      copy32 (wnd->width,
+              cpu2be32 (mm2scanner_units (s->val[BR_X].w - s->val[TL_X].w)));
+      copy32 (wnd->document_length, cpu2be32 (mm2scanner_units
+                                              (s->val[BR_Y].w)));
+      copy32 (wnd->length,
+              cpu2be32 (mm2scanner_units (s->val[BR_Y].w - s->val[TL_Y].w)));
     }
   else
     {
       u32 w = cpu2be32 (mm2scanner_units (paper_sizes[paper].width));
       u32 h = cpu2be32 (mm2scanner_units (paper_sizes[paper].height));
-      *(u32 *) wnd->upper_left_x = cpu2be32 (mm2scanner_units (0));
-      *(u32 *) wnd->upper_left_y = cpu2be32 (mm2scanner_units (0));
+      copy32 (wnd->upper_left_x, cpu2be32 (mm2scanner_units (0)));
+      copy32 (wnd->upper_left_y, cpu2be32 (mm2scanner_units (0)));
       if (!s->val[LANDSCAPE].b)
 	{
-	  *(u32 *) wnd->document_width = *(u32 *) wnd->width = w;
-	  *(u32 *) wnd->document_length = *(u32 *) wnd->length = h;
+	  copy32 (wnd->width, w);
+	  copy32 (wnd->length, h);
+	  copy32 (wnd->document_width, w);
+	  copy32 (wnd->document_length, h);
 	}
       else
 	{
-	  *(u32 *) wnd->document_width = *(u32 *) wnd->width = h;
-	  *(u32 *) wnd->document_length = *(u32 *) wnd->length = w;
+	  copy32 (wnd->width, h);
+	  copy32 (wnd->length, w);
+	  copy32 (wnd->document_width, h);
+	  copy32 (wnd->document_length, w);
 	}
     }
   wnd->brightness = s->val[BRIGHTNESS].w;
@@ -1315,11 +1319,11 @@ kvs40xx_init_window (struct scanner *s, struct window *wnd, int wnd_id)
   wnd->image_composition = mode_val[str_index (mode_list, s->val[MODE].s)];
   wnd->bit_per_pixel = bps_val[str_index (mode_list, s->val[MODE].s)];
 
-  *(u16 *) wnd->halftone_pattern =
-    cpu2be16 (str_index (halftone_pattern, s->val[HALFTONE_PATTERN].s));
+  copy16 (wnd->halftone_pattern,
+          cpu2be16 (str_index (halftone_pattern, s->val[HALFTONE_PATTERN].s)));
 
   wnd->rif_padding = s->val[INVERSE].b << 7;
-  *(u16 *) wnd->bit_ordering = cpu2be16 (BIT_ORDERING);
+  copy16 (wnd->bit_ordering, cpu2be16 (BIT_ORDERING));
   wnd->compression_type = s->val[COMPRESSION].b ? 0x81 : 0;
   wnd->compression_argument = s->val[COMPRESSION_PAR].w;
 

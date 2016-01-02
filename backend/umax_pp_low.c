@@ -950,7 +950,7 @@ int
 sanei_umax_pp_initPort (int port, char *name)
 {
   int fd, ectr;
-  int found = 0, ecp = 1;
+  int found = 0;
 #if ((defined HAVE_IOPERM)||(defined HAVE_MACHINE_CPUFUNC_H)||(defined HAVE_LINUX_PPDEV_H))
   int mode, modes, rc;
 #endif
@@ -1234,7 +1234,6 @@ sanei_umax_pp_initPort (int port, char *name)
     {
       DBG (1, "iopl could not raise IO permission to level 3\n");
       DBG (1, "*NO* ECP support\n");
-      ecp = 0;
 
     }
   else
@@ -1247,8 +1246,6 @@ sanei_umax_pp_initPort (int port, char *name)
 
 	}
     }
-#else
-  ecp = 0;
 #endif
 
 
@@ -2126,8 +2123,6 @@ sendCommand (int cmd)
   int tmp;
   int val;
   int i;
-  int gbufferRead[256];		/* read buffer for command 0x10 */
-
 
   if (g674 != 0)
     {
@@ -2216,7 +2211,7 @@ sendCommand (int cmd)
 	      tmp = (tmp & 0x1E) | 0x1;
 	      Outb (CONTROL, tmp);
 	      Outb (CONTROL, tmp);
-	      gbufferRead[i] = Inb (STATUS);
+	      Inb (STATUS);
 	      tmp = tmp & 0x1E;
 	      Outb (CONTROL, tmp);
 	      Outb (CONTROL, tmp);
@@ -2721,7 +2716,7 @@ init002 (int arg)
 static int
 ECPconnect (void)
 {
-  int ret, control, data;
+  int ret, control;
 
   /* these 3 lines set to 'inital mode' */
   byteMode ();			/*Outb (ECR, 0x20); */
@@ -2735,7 +2730,7 @@ ECPconnect (void)
   gData = Inb (DATA);
   gControl = Inb (CONTROL);
 
-  data = Inb (DATA);
+  Inb (DATA);
   control = Inb (CONTROL);
   Outb (CONTROL, control & 0x1F);
   control = Inb (CONTROL);
@@ -3224,7 +3219,6 @@ static void
 ECPSetBuffer (int size)
 {
   static int last = 0;
-  unsigned char breg;
 
   /* routine XX */
   compatMode ();
@@ -3244,7 +3238,7 @@ ECPSetBuffer (int size)
 	   __FILE__, __LINE__);
       return;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
 
   Outb (DATA, 0x0E);
   if (waitFifoEmpty () == 0)
@@ -3253,7 +3247,7 @@ ECPSetBuffer (int size)
 	   __FILE__, __LINE__);
       return;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
 
   Outb (ECPDATA, 0x0B);		/* R0E=0x0B */
   if (waitFifoEmpty () == 0)
@@ -3262,7 +3256,7 @@ ECPSetBuffer (int size)
 	   __FILE__, __LINE__);
       return;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
 
   Outb (DATA, 0x0F);		/* R0F=size MSB */
   if (waitFifoEmpty () == 0)
@@ -3271,7 +3265,7 @@ ECPSetBuffer (int size)
 	   __FILE__, __LINE__);
       return;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
 
   Outb (ECPDATA, size / 256);
   if (waitFifoEmpty () == 0)
@@ -3280,7 +3274,7 @@ ECPSetBuffer (int size)
 	   __FILE__, __LINE__);
       return;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
 
   Outb (DATA, 0x0B);		/* R0B=size LSB */
   if (waitFifoEmpty () == 0)
@@ -3289,7 +3283,7 @@ ECPSetBuffer (int size)
 	   __FILE__, __LINE__);
       return;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
 
   Outb (ECPDATA, size % 256);
   if (waitFifoEmpty () == 0)
@@ -3298,7 +3292,7 @@ ECPSetBuffer (int size)
 	   __FILE__, __LINE__);
       return;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
   DBG (16, "ECPSetBuffer(%d) passed ...\n", size);
 }
 
@@ -3307,14 +3301,14 @@ ECPSetBuffer (int size)
 static int
 ECPbufferRead (int size, unsigned char *dest)
 {
-  int breg, n, idx, remain;
+  int n, idx, remain;
 
   idx = 0;
   n = size / 16;
   remain = size - 16 * n;
 
   /* block transfer */
-  breg = Inb (ECR);		/* 0x15,0x75 expected: fifo empty */
+  Inb (ECR);			/* 0x15,0x75 expected: fifo empty */
 
   byteMode ();			/*Outb (ECR, 0x20);            byte mode */
   Outb (CONTROL, 0x04);
@@ -3326,7 +3320,7 @@ ECPbufferRead (int size, unsigned char *dest)
 	   __FILE__, __LINE__);
       return idx;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
 
   Outb (DATA, 0x80);
   if (waitFifoEmpty () == 0)
@@ -3335,7 +3329,7 @@ ECPbufferRead (int size, unsigned char *dest)
 	   __FILE__, __LINE__);
       return idx;
     }
-  breg = Inb (ECR);		/* 0x75 expected */
+  Inb (ECR);			/* 0x75 expected */
 
   byteMode ();			/*Outb (ECR, 0x20);            byte mode */
   Outb (CONTROL, 0x20);		/* data reverse */
@@ -4066,13 +4060,12 @@ static int
 EPPconnect (void)
 {
   int control;
-  int data;
 
   /* initial values, don't hardcode */
   Outb (DATA, 0x04);
   Outb (CONTROL, 0x0C);
 
-  data = Inb (DATA);
+  Inb (DATA);
   control = Inb (CONTROL);
   Outb (CONTROL, control & 0x1F);
   control = Inb (CONTROL);
@@ -8968,7 +8961,7 @@ cmdGetBuffer610p (int cmd, int len, unsigned char *buffer)
 static int
 cmdGetBuffer (int cmd, int len, unsigned char *buffer)
 {
-  int reg, tmp, i;
+  int reg, tmp;
   int word[5], read;
   int needed;
 
@@ -8995,7 +8988,6 @@ cmdGetBuffer (int cmd, int len, unsigned char *buffer)
   REGISTERWRITE (0x0E, 0x0D);
   REGISTERWRITE (0x0F, 0x00);
 
-  i = 0;
   reg = registerRead (0x19) & 0xF8;
 
   /* wait if busy */
@@ -9108,7 +9100,7 @@ cmdGetBuffer (int cmd, int len, unsigned char *buffer)
 static int
 cmdGetBuffer32 (int cmd, int len, unsigned char *buffer)
 {
-  int reg, tmp, i;
+  int reg, tmp;
   int word[5], read;
 
   /* compute word */
@@ -9138,7 +9130,6 @@ cmdGetBuffer32 (int cmd, int len, unsigned char *buffer)
   REGISTERWRITE (0x0E, 0x0D);
   REGISTERWRITE (0x0F, 0x00);
 
-  i = 0;
   reg = registerRead (0x19) & 0xF8;
 
   /* wait if busy */
@@ -9255,7 +9246,7 @@ cmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
   struct timeval td, tf;
   float elapsed;
 #endif
-  int reg, i;
+  int reg;
   int word[5], read;
 
   /* compute word */
@@ -9291,8 +9282,6 @@ cmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 
   REGISTERWRITE (0x0E, 0x0D);
   REGISTERWRITE (0x0F, 0x00);
-
-  i = 0;
 
   /* init counter */
   read = 0;

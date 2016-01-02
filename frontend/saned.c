@@ -198,16 +198,19 @@ static AvahiEntryGroup *avahi_group = NULL;
 #endif
 
 #ifdef ENABLE_IPV6
-# define SANE_IN6_IS_ADDR_LOOPBACK(a) \
+# ifndef IN6_IS_ADDR_LOOPBACK
+# define IN6_IS_ADDR_LOOPBACK(a) \
         (((const uint32_t *) (a))[0] == 0                                   \
          && ((const uint32_t *) (a))[1] == 0                                \
          && ((const uint32_t *) (a))[2] == 0                                \
          && ((const uint32_t *) (a))[3] == htonl (1)) 
-
-#define SANE_IN6_IS_ADDR_V4MAPPED(a) \
+# endif
+# ifndef IN6_IS_ADDR_V4MAPPED
+# define IN6_IS_ADDR_V4MAPPED(a) \
 ((((const uint32_t *) (a))[0] == 0)                                 \
  && (((const uint32_t *) (a))[1] == 0)                              \
  && (((const uint32_t *) (a))[2] == htonl (0xffff))) 
+# endif
 #endif /* ENABLE_IPV6 */
 
 #ifndef MAXHOSTNAMELEN
@@ -789,7 +792,7 @@ check_host (int fd)
 #ifdef ENABLE_IPV6
   sin6 = &remote_address.sin6;
 
-  if (SANE_IN6_IS_ADDR_V4MAPPED (sin6->sin6_addr.s6_addr))
+  if (IN6_IS_ADDR_V4MAPPED (sin6->sin6_addr.s6_addr))
     {
       DBG (DBG_DBG, "check_host: detected an IPv4-mapped address\n");
       remote_ipv4 = remote_ip + 7;
@@ -846,7 +849,7 @@ check_host (int fd)
 	break;
 #ifdef ENABLE_IPV6
       case AF_INET6:
-	if (SANE_IN6_IS_ADDR_LOOPBACK (sin6->sin6_addr.s6_addr))
+	if (IN6_IS_ADDR_LOOPBACK (sin6->sin6_addr.s6_addr))
 	  {
 	    DBG (DBG_MSG,
 		 "check_host: remote host is IN6_LOOPBACK: access granted\n");

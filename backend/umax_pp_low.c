@@ -10964,7 +10964,6 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
 			 int *rtw, int *rth)
 {
   unsigned char *buffer;
-  int *dest = NULL;
   int rc = 0;
   int calibration[3 * 5100 + 768 + 2 + 1];
   int xdpi, ydpi, h;
@@ -11095,8 +11094,6 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
       return 0;
     }
   DBG (16, "inquire() passed ... (%s:%d)\n", __FILE__, __LINE__);
-
-  dest = (int *) malloc (65536 * sizeof (int));
 
   rc = loadDefaultTables ();
   if (rc == 0)

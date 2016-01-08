@@ -828,6 +828,7 @@ query_status (pixma_t * s)
   return error;
 }
 
+#if 0
 static int
 send_time (pixma_t * s)
 {
@@ -847,6 +848,7 @@ send_time (pixma_t * s)
   PDBG (pixma_dbg (3, "Sending time: '%s'\n", (char *) data));
   return pixma_exec (s, &mp->cb);
 }
+#endif
 
 /* TODO: Simplify this function. Read the whole data packet in one shot. */
 static int
@@ -972,7 +974,10 @@ handle_interrupt (pixma_t * s, int timeout)
   {
     /* More than one event can be reported at the same time. */
     if (buf[3] & 1)
+      /* FIXME: This function makes trouble with a lot of scanners
       send_time (s);
+       */
+      PDBG (pixma_dbg (1, "WARNING:send_time() disabled!\n"));
     if (buf[9] & 2)
       query_status (s);
     if (buf[0] & 2)

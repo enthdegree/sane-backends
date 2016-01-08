@@ -228,6 +228,10 @@
 #define MX490_PID 0x1787
 #define E480_PID 0x1789
 #define MG3600_PID 0x178a
+#define MG7700_PID 0x178b
+#define MG6900_PID 0x178c
+#define MG6800_PID 0x178d
+#define MG5700_PID 0x178e
 
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
@@ -1828,6 +1832,10 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MX490 Series", "MX490", MX490_PID, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA E480 Series",  "E480",  E480_PID,  600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MG3600 Series", "MG3600", MG3600_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG7700 Series", "MG7700", MG7700_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6900 Series", "MG6900", MG6900_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6800 Series", "MG6800", MG6800_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG5700 Series", "MG5700", MG5700_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

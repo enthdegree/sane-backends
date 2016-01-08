@@ -83,7 +83,7 @@ md5_process_block (const void *buffer, size_t len, struct md5_ctx *ctx);
 
 
 static void
-md5_set_uint32 (char *buffer, md5_uint32 n)
+md5_set_uint32 (void *buffer, md5_uint32 n)
 {
   memcpy (buffer, &n, sizeof (md5_uint32));
 }
@@ -110,10 +110,10 @@ md5_init_ctx (struct md5_ctx *ctx)
 void *
 md5_read_ctx (const struct md5_ctx *ctx, void *resbuf)
 {
-  md5_set_uint32 (resbuf, SWAP (ctx->A));
-  md5_set_uint32 ((char *) resbuf + sizeof (md5_uint32), SWAP (ctx->B));
-  md5_set_uint32 ((char *) resbuf + 2 * sizeof (md5_uint32), SWAP (ctx->C));
-  md5_set_uint32 ((char *) resbuf + 3 * sizeof (md5_uint32), SWAP (ctx->D));
+  md5_set_uint32 (resbuf + 0 * sizeof (md5_uint32), SWAP (ctx->A));
+  md5_set_uint32 (resbuf + 1 * sizeof (md5_uint32), SWAP (ctx->B));
+  md5_set_uint32 (resbuf + 2 * sizeof (md5_uint32), SWAP (ctx->C));
+  md5_set_uint32 (resbuf + 3 * sizeof (md5_uint32), SWAP (ctx->D));
 
   return resbuf;
 }

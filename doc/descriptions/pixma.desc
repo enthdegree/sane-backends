@@ -175,8 +175,8 @@
 :model "PIXMA MG5700 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x178e"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 1200 DPI)."
 
 :model "PIXMA MG6100 Series"
 :interface "USB"

@@ -550,8 +550,7 @@ AC_ARG_ENABLE(preload,
 		       [Disable preloading of backends]),
 	[enable_preload=$enableval], [enable_preload=auto])
 
-AC_DISABLE_STATIC
-LT_INIT([win32-dll])
+LT_INIT([disable-static win32-dll])
 
 dnl Windows (cygwin/mingw), BeOS, and OS/2 need this.
 case $host_os in

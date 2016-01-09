@@ -1,13 +1,9 @@
 dnl Process this file with autoconf to produce a configure script. -*-m4-*-
 
 dnl ***********************************************************************
-dnl When preparing a release, increase the numeric and string version numbers,
-dnl remove the "cvs" suffix, and set is_release=yes
+dnl  When preparing a release, modify the numeric version components and
+dnl  remove the git suffix.
 AC_INIT([sane-backends],[1.0.26git],[sane-devel@lists.alioth.debian.org])
-V_MAJOR=1
-V_MINOR=0
-V_REV=26
-is_release=no
 dnl ***********************************************************************
 
 m4_ifdef([AC_CONFIG_MACRO_DIR], [AC_CONFIG_MACRO_DIR([m4])])
@@ -21,6 +17,17 @@ AM_MAINTAINER_MODE
 
 AC_CONFIG_HEADERS([include/sane/config.h])
 AC_PREREQ(2.69) dnl Minimum Autoconf version required.
+
+dnl ******************************************************************
+dnl  Determine SANE version components and release status
+dnl ******************************************************************
+AS_IF([test x = "x$AWK"],[AC_PROG_AWK])
+AS_IF([test x = "x`echo $VERSION | sed 's/[[.0-9]]//g'`"],
+            [is_release=yes],
+            [is_release=no])
+V_MAJOR=`echo $VERSION | $AWK -F. '{print $1}'`
+V_MINOR=`echo $VERSION | $AWK -F. '{print $2}'`
+V_REV=`echo $VERSION | $AWK -F. '{print $3}' | sed 's/[[^0-9]]//g'`;
 
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MAJOR, $V_MAJOR, [SANE DLL major number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MINOR, $V_MINOR, [SANE DLL minor number])

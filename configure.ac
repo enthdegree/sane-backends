@@ -36,17 +36,6 @@ AC_SUBST(V_MAJOR)
 AC_SUBST(V_MINOR)
 AC_SUBST(V_REV)
 
-dnl no bloody way to have a decent --docdir...
-AC_ARG_WITH(docdir, 
-  AS_HELP_STRING([--with-docdir=DIR],
-                 [documentation @<:@PREFIX/doc/sane-VERSION@:>@]),
-[
-  docdir="${withval}"
-  AC_SUBST([docdir])dnl
-], [
-  AC_SUBST([docdir],         ['${prefix}/doc/sane-${VERSION}'])dnl
-])
-
 dnl ***********************************************************************
 dnl Checks for programs.
 dnl ***********************************************************************

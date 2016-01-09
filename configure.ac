@@ -22,14 +22,12 @@ AM_MAINTAINER_MODE
 AC_CONFIG_HEADERS([include/sane/config.h])
 AC_PREREQ(2.69) dnl Minimum Autoconf version required.
 
-NUMBER_VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MAJOR, $V_MAJOR, [SANE DLL major number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MINOR, $V_MINOR, [SANE DLL minor number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_BUILD, $V_REV, [SANE DLL revision number])
 AC_SUBST(V_MAJOR)
 AC_SUBST(V_MINOR)
 AC_SUBST(V_REV)
-AC_SUBST(NUMBER_VERSION)
 
 dnl no bloody way to have a decent --docdir...
 AC_ARG_WITH(docdir, 

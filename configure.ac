@@ -22,24 +22,14 @@ AM_MAINTAINER_MODE
 AC_CONFIG_HEADERS([include/sane/config.h])
 AC_PREREQ(2.69) dnl Minimum Autoconf version required.
 
-PACKAGE=AC_PACKAGE_NAME
-VERSION=AC_PACKAGE_VERSION
 NUMBER_VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}
-AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE",
-                   [Define to the name of the distribution.])
-AC_DEFINE_UNQUOTED(VERSION, "$VERSION",
-                   [Define to the version of the distribution.])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MAJOR, $V_MAJOR, [SANE DLL major number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MINOR, $V_MINOR, [SANE DLL minor number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_BUILD, $V_REV, [SANE DLL revision number])
 AC_SUBST(V_MAJOR)
 AC_SUBST(V_MINOR)
 AC_SUBST(V_REV)
-AC_SUBST(PACKAGE)
-AC_SUBST(VERSION)
 AC_SUBST(NUMBER_VERSION)
-AC_CANONICAL_BUILD
-AC_CANONICAL_HOST 
 
 dnl no bloody way to have a decent --docdir...
 AC_ARG_WITH(docdir, 
@@ -57,9 +47,6 @@ dnl Checks for programs.
 dnl ***********************************************************************
 AC_PROG_CC
 AM_PROG_CC_C_O
-AC_PROG_INSTALL
-AC_PROG_MAKE_SET
-AC_PROG_CPP
 AC_PROG_GCC_TRADITIONAL
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
 AC_PATH_PROG(MSGFMT, msgfmt$EXEEXT, no)
@@ -68,12 +55,6 @@ AC_PATH_PROG(MSGMERGE, msgmerge$EXEEXT, no)
 AC_PATH_PROG(LATEX, latex$EXEEXT, no)
 AC_PATH_PROG(DVIPS, dvips$EXEEXT, no)
 AC_PATH_PROG(MAKEINDEX, makeindex$EXEEXT, no)
-AC_SUBST(MSGFMT)
-AC_SUBST(XGETTEXT)
-AC_SUBST(MSGMERGE)
-AC_SUBST(LATEX)
-AC_SUBST(DVIPS)
-AC_SUBST(MAKEINDEX)
 
 dnl Call explicitely before using PKG_*
 PKG_PROG_PKG_CONFIG
@@ -369,7 +350,6 @@ if test "x$with_systemd" != xno ; then
   fi
   if test "x$have_systemd" = xyes; then
     AC_DEFINE(HAVE_SYSTEMD, 1, [Is /usr/include/systemd/sd-daemon.h available?])
-    AC_SUBST(SYSTEMD_LIBS)
   else
     if test "x$with_systemd" = xyes; then
       AC_MSG_ERROR([Systemd support was requested but systemd was not found])
@@ -657,9 +637,6 @@ else
 fi
 
 SANE_CHECK_BACKENDS
-
-AC_SUBST(LIBV4L_LIBS)
-AC_SUBST(LIBV4L_CFLAGS)
 
 if test "${sane_cv_use_libjpeg}" = "yes"; then
   SANEI_SANEI_JPEG_LO="../sanei/sanei_jpeg.lo"

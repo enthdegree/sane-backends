@@ -296,7 +296,7 @@ descriptions-external.db: $(DESC_FILES) ../tools/sane-desc
 	  > descriptions-external.db
 
 html-pages: $(HTML_PAGES)
-html: html-pages html-man sane-html
+html-local: html-pages html-man sane-html
 
 clean-local:
 	rm -f *.toc *.aux *.log *.cp *.fn *.tp *.vr *.pg *.ky *.blg *.idx *.cb

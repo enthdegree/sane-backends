@@ -9,8 +9,8 @@
 #
 
 JAVAROOT=.
-CLASSPATH_ENV=.
-JAVAH=javah -jni -cp $(CLASSPATH_ENV)
+MY_CLASSPATH=.
+JAVAH=javah -jni -cp $(MY_CLASSPATH)
 
 #	We'll need something in 'configure' for the Java includes.
 AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include \

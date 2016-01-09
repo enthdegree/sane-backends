@@ -1,12 +1,15 @@
-dnl Process this file with autoconf to produce a configure script. -*-m4-*-
+dnl Process this file with autoconf to produce a configure script.
 
-dnl ***********************************************************************
-dnl  When preparing a release, modify the numeric version components and
-dnl  remove the git suffix.
-AC_INIT([sane-backends],[1.0.26git],[sane-devel@lists.alioth.debian.org])
-dnl ***********************************************************************
-
-m4_ifdef([AC_CONFIG_MACRO_DIR], [AC_CONFIG_MACRO_DIR([m4])])
+dnl ******************************************************************
+dnl  Set up autoconf and automake
+dnl  When preparing a release, modify the numeric version components
+dnl  and remove the git suffix.
+dnl ******************************************************************
+AC_INIT([sane-backends],[1.0.26git],
+        [sane-devel@lists.alioth.debian.org])
+AC_PREREQ(2.69)                 dnl minimum autoconf version required
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_HEADERS([include/sane/config.h])
 
 AM_INIT_AUTOMAKE([1.11.6 subdir-objects -Wall])
 AM_SILENT_RULES
@@ -14,9 +17,6 @@ dnl Turn off feature were automake will automatically run autoreconf.
 dnl This is because we check in generated files into CVS which has
 dnl known timestamp issues.
 AM_MAINTAINER_MODE
-
-AC_CONFIG_HEADERS([include/sane/config.h])
-AC_PREREQ(2.69) dnl Minimum Autoconf version required.
 
 dnl ******************************************************************
 dnl  Determine SANE version components and release status

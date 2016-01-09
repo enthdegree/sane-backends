@@ -329,18 +329,6 @@ if test -c /dev/urandom ; then
     AC_DEFINE(HAVE_DEV_URANDOM, 1, [Is /dev/urandom available?])
 fi
 
-dnl added by PN 3/2/12 to detect cups commented out 15/10/13 since avahi is now used instead
-dnl $as_echo "checking for cups"
-dnl if test -e /usr/include/cups/cups.h ; then
-dnl     AC_DEFINE(HAVE_CUPS, 1, [Is /usr/include/cups/cups.h available?])
-dnl 	with_cups="yes"
-dnl 	LIBS="-lcups  $LIBS"
-dnl else
-dnl 	$as_echo "cups.h not found, you may want to install a cups development package"
-dnl 	$as_echo "in order to autodetect network scanners in kodakaio."
-dnl 	with_cups="no"
-dnl fi
-
 AC_ARG_WITH(systemd,
 	AS_HELP_STRING([--with-systemd], [enable systemd support @<:@default=yes@:>@]))
 if test "x$with_systemd" != xno ; then

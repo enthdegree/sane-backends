@@ -28,7 +28,6 @@ AC_DEFUN([SANE_SET_AM_CFLAGS],
 [
 if test "${ac_cv_c_compiler_gnu}" = "yes"; then
   DEFAULT_CFLAGS="\
-      -std=c99 \
       -Wall"
   EXTRA_WARNINGS="\
       -Wextra \

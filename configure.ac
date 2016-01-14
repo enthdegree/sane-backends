@@ -41,6 +41,18 @@ dnl Checks for programs.
 dnl ***********************************************************************
 AC_PROG_CC
 AM_PROG_CC_C_O
+sane_save_CC=$CC
+AC_PROG_CC_C99                  dnl enables extensions to ISO C99 :-(
+AS_IF([test xno != "x$ac_cv_prog_cc_c99"],
+      [AC_MSG_CHECKING([for $sane_save_CC option for ISO C99 w/o extensions])
+       AS_CASE([$ac_cv_prog_cc_c99],
+               [-std=gnu99],      [sane_prog_cc_c99="-std=c99"],
+               [-qlanglvl=extc99],[sane_prog_cc_c99="-qlanglvl=stdc99"])
+       AS_IF([test "x$ac_cv_prog_cc_c99" = "x$sane_prog_cc_c99"],
+             [AC_MSG_RESULT([$ac_cv_prog_cc_99])],
+             [AC_MSG_RESULT([$sane_prog_cc_c99])
+              CC="$sane_save_CC $sane_prog_cc_c99"])
+      ])
 AC_PROG_GCC_TRADITIONAL
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
 AC_PATH_PROG(MSGFMT, msgfmt$EXEEXT, no)

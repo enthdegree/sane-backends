@@ -72,7 +72,6 @@ dnl set compiler/linker flags
 dnl ***********************************************************************
 SANE_SET_AM_CFLAGS([$is_release])
 SANE_SET_AM_LDFLAGS
-SANE_LINKER_RPATH
 
 dnl ***********************************************************************
 dnl Checks for unix variants

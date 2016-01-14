@@ -36,9 +36,9 @@ AC_SUBST(V_MAJOR)
 AC_SUBST(V_MINOR)
 AC_SUBST(V_REV)
 
-dnl ***********************************************************************
-dnl Checks for programs.
-dnl ***********************************************************************
+dnl ******************************************************************
+dnl  Set up the compiler and linker
+dnl ******************************************************************
 AC_PROG_CC
 AM_PROG_CC_C_O
 sane_save_CC=$CC
@@ -54,6 +54,14 @@ AS_IF([test xno != "x$ac_cv_prog_cc_c99"],
               CC="$sane_save_CC $sane_prog_cc_c99"])
       ])
 AC_PROG_GCC_TRADITIONAL
+AC_USE_SYSTEM_EXTENSIONS        dnl call before running the C compiler
+
+LT_INIT([disable-static win32-dll])
+LT_PREREQ([2.4.2])
+
+dnl ***********************************************************************
+dnl Checks for programs.
+dnl ***********************************************************************
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
 AC_PATH_PROG(MSGFMT, msgfmt$EXEEXT, no)
 AC_PATH_PROG(XGETTEXT, xgettext$EXEEXT, no)
@@ -76,7 +84,6 @@ SANE_SET_AM_LDFLAGS
 dnl ***********************************************************************
 dnl Checks for unix variants
 dnl ***********************************************************************
-AC_USE_SYSTEM_EXTENSIONS
 AC_SEARCH_LIBS([strerror],[cposix])
 
 AC_NEED_BYTEORDER_H([include/byteorder.h])
@@ -554,8 +561,6 @@ AC_ARG_ENABLE(preload,
 	AS_HELP_STRING([--disable-preload],
 		       [Disable preloading of backends]),
 	[enable_preload=$enableval], [enable_preload=auto])
-
-LT_INIT([disable-static win32-dll])
 
 dnl Windows (cygwin/mingw), BeOS, and OS/2 need this.
 case $host_os in

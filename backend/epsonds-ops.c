@@ -221,9 +221,8 @@ eds_init_parameters(epsonds_scanner *s)
 	else
 		s->params.depth = s->val[OPT_DEPTH].w;
 
-	/* we have stripes on scanned pages in duplex @ 1bpp/300dpi */
-	if (s->hw->has_stripes_bug && s->val[OPT_RESOLUTION].w == 300
-		&& s->params.depth == 1) {
+	/* we have stripes on scanned pages in duplex @ 300dpi */
+	if (s->hw->has_stripes_bug && s->val[OPT_RESOLUTION].w == 300) {
 
 		DBG(0, "%s: artifacts will be produced at 300 dpi, lowering to 299.\n", __func__);
 

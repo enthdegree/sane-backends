@@ -13,7 +13,7 @@
 
 #define EPSONDS_VERSION		1
 #define EPSONDS_REVISION	0
-#define EPSONDS_BUILD		35
+#define EPSONDS_BUILD		36
 
 /* debugging levels:
  *
@@ -1121,6 +1121,7 @@ sane_start(SANE_Handle handle)
 		 */
 
 		if (s->val[OPT_ADF_MODE].w) {
+
 			if (s->hw->adf_has_dfd == 2) {
 				strcat(buf, "DFL2");
 			} else if (s->hw->adf_has_dfd == 1) {

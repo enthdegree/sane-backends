@@ -11,10 +11,10 @@
  * published by the Free Software Foundation, version 2.
  */
 
-#define e2_model(s,m) e2_dev_model((s)->hw,(m))
-
 extern void eds_dev_init(epsonds_device *dev);
 extern SANE_Status eds_dev_post_init(struct epsonds_device *dev);
+
+extern SANE_Bool eds_is_model(epsonds_device *dev, const char *model);
 
 extern SANE_Status eds_add_resolution(epsonds_device *dev, int r);
 extern SANE_Status eds_set_resolution_range(epsonds_device *dev, int min, int max);

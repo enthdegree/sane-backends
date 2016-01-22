@@ -69,7 +69,23 @@ eds_dev_post_init(struct epsonds_device *dev)
 		return SANE_STATUS_INVAL;
 	}
 
+	if (eds_is_model(dev, "DS-60000")) {
+		dev->has_stripes_bug = 1;
+	}
+
 	return SANE_STATUS_GOOD;
+}
+
+SANE_Bool
+eds_is_model(epsonds_device *dev, const char *model)
+{
+        if (dev->model == NULL)
+                return SANE_FALSE;
+
+        if (strncmp(dev->model, model, strlen(model)) == 0)
+                return SANE_TRUE;
+
+        return SANE_FALSE;
 }
 
 SANE_Status
@@ -199,6 +215,22 @@ eds_init_parameters(epsonds_scanner *s)
 
 	s->dummy = 0;
 
+	/* setup depth according to our mode table */
+	if (mode_params[s->val[OPT_MODE].w].depth == 1)
+		s->params.depth = 1;
+	else
+		s->params.depth = s->val[OPT_DEPTH].w;
+
+	/* we have stripes on scanned pages in duplex @ 1bpp/300dpi */
+	if (s->hw->has_stripes_bug && s->val[OPT_RESOLUTION].w == 300
+		&& s->params.depth == 1) {
+
+		DBG(0, "%s: artifacts will be produced at 300 dpi, lowering to 299.\n", __func__);
+
+		s->val[OPT_RESOLUTION].w = 299; // speed at 301 is too slow
+	}
+
+
 	dpi = s->val[OPT_RESOLUTION].w;
 
 	if (SANE_UNFIX(s->val[OPT_BR_Y].w) == 0 ||
@@ -245,11 +277,6 @@ eds_init_parameters(epsonds_scanner *s)
 	 *
 	 * The default color depth is stored in mode_params.depth:
 	 */
-
-	if (mode_params[s->val[OPT_MODE].w].depth == 1)
-		s->params.depth = 1;
-	else
-		s->params.depth = s->val[OPT_DEPTH].w;
 
 	/* this works because it can only be set to 1, 8 or 16 */
 	bytes_per_pixel = s->params.depth / 8;

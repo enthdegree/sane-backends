@@ -1223,13 +1223,13 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
       switch (color_filter)
 	{
 	case 0:
-	  r->value |= 0x10;	/* red filter */
+	  r->value |= 0x10;        /* red filter */
 	  break;
 	case 2:
-	  r->value |= 0x30;	/* blue filter */
+	  r->value |= 0x30;        /* blue filter */
 	  break;
 	default:
-	  r->value |= 0x20;	/* green filter */
+	  r->value |= 0x20;        /* green filter */
 	  break;
 	}
     }
@@ -1377,7 +1377,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
-/* set up registers for an actual scan
+/** set up registers for an actual scan
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
@@ -1385,10 +1385,10 @@ GENESYS_STATIC
 SANE_Status
 gl124_init_scan_regs (Genesys_Device * dev,
                       Genesys_Register_Set * reg,
-                      float xres,	/*dpi */
-		      float yres,	/*dpi */
-		      float startx,	/*optical_res, from dummy_pixel+1 */
-		      float starty,	/*base_ydpi, from home! */
+		      float xres,        /*dpi */
+		      float yres,        /*dpi */
+		      float startx,        /*optical_res, from dummy_pixel+1 */
+		      float starty,        /*base_ydpi, from home! */
 		      float pixels,
 		      float lines,
 		      unsigned int depth,
@@ -1413,7 +1413,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
 
-  SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
+  SANE_Bool half_ccd;                /* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
   SANE_Status status;
 
@@ -1648,9 +1648,9 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   int depth;
   int start;
 
-  float xres;			/*dpi */
-  float yres;			/*dpi */
-  float startx;			/*optical_res, from dummy_pixel+1 */
+  float xres;                        /*dpi */
+  float yres;                        /*dpi */
+  float startx;                        /*optical_res, from dummy_pixel+1 */
   float pixels;
   float lines;
 
@@ -1678,7 +1678,7 @@ gl124_calculate_current_setup (Genesys_Device * dev)
        dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
 
   /* channels */
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == 4)        /* single pass color */
     channels = 3;
   else
     channels = 1;
@@ -2032,7 +2032,7 @@ gl124_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     {
       status = SANE_STATUS_GOOD;
     }
-  else				/* flat bed scanners */
+  else                                /* flat bed scanners */
     {
       status = gl124_stop_action (dev);
       if (status != SANE_STATUS_GOOD)
@@ -2089,7 +2089,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       sanei_genesys_print_status (val);
     }
-  usleep (100000);		/* sleep 100 ms */
+  usleep (100000);                /* sleep 100 ms */
 
   /* second is reliable */
   status = sanei_genesys_get_status (dev, &val);
@@ -2182,7 +2182,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   if (wait_until_home)
     {
 
-      while (loop < 300)	/* do not wait longer then 30 seconds */
+      while (loop < 300)        /* do not wait longer then 30 seconds */
 	{
 	  status = sanei_genesys_get_status (dev, &val);
 	  if (status != SANE_STATUS_GOOD)
@@ -2193,14 +2193,14 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      return status;
 	    }
 
-	  if (val & HOMESNR)	/* home sensor */
+	  if (val & HOMESNR)        /* home sensor */
 	    {
 	      DBG (DBG_info, "gl124_slow_back_home: reached home position\n");
 	      DBGCOMPLETED;
               dev->scanhead_position_in_steps = 0;
 	      return SANE_STATUS_GOOD;
 	    }
-	  usleep (100000);	/* sleep 100 ms */
+	  usleep (100000);        /* sleep 100 ms */
 	  ++loop;
 	}
 
@@ -2279,7 +2279,7 @@ gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
   r->value &= ~REG01_SCAN;
 
   /* set up for reverse if needed */
-  if(reverse) 
+  if(reverse)
     {
       r = sanei_genesys_get_address (local_reg, REG02);
       r->value |= REG02_MTRREV;
@@ -2342,14 +2342,14 @@ gl124_search_start_position (Genesys_Device * dev)
                                  dpi,
                                  dpi,
                                  0,
-                                 0,	/*we should give a small offset here~60 steps */
+				 0,        /*we should give a small offset here~60 steps */
 				 600,
                                  dev->model->search_lines,
                                  8,
                                  1,
                                  dev->settings.scan_method,
                                  SCAN_MODE_GRAY,
-                                 1,	/*green */
+				 1,        /*green */
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
@@ -2454,10 +2454,10 @@ gl124_init_regs_for_coarse_calibration (Genesys_Device * dev)
   uint8_t cksel;
 
   DBGSTART;
-  cksel = (dev->calib_reg[reg_0x18].value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
+  cksel = (dev->calib_reg[reg_0x18].value & REG18_CKSEL) + 1;        /* clock speed = 1..4 clocks */
 
   /* set line size */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (dev->settings.scan_mode == SCAN_MODE_COLOR)        /* single pass color */
     channels = 3;
   else
     channels = 1;
@@ -3002,7 +3002,7 @@ gl124_led_calibration (Genesys_Device * dev)
       return status;
     }
 
-  total_size = num_pixels * channels * (depth/8) * 1;	/* colors * bytes_per_color * scan lines */
+  total_size = num_pixels * channels * (depth/8) * 1;        /* colors * bytes_per_color * scan lines */
   line = malloc (total_size);
   if (!line)
     return SANE_STATUS_NO_MEM;
@@ -3196,7 +3196,7 @@ gl124_offset_calibration (Genesys_Device * dev)
   gl124_set_motor_power (dev->calib_reg, SANE_FALSE);
 
   /* allocate memory for scans */
-  total_size = pixels * channels * lines * (bpp/8);	/* colors * bytes_per_color * scan lines */
+  total_size = pixels * channels * lines * (bpp/8);        /* colors * bytes_per_color * scan lines */
 
   first_line = malloc (total_size);
   if (!first_line)
@@ -3509,7 +3509,7 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
 
   num_pixels = dev->current_setup.pixels;
 
-  *total_size = num_pixels * 3 * 1;	/* colors * bytes_per_color * scan lines */
+  *total_size = num_pixels * 3 * 1;        /* colors * bytes_per_color * scan lines */
 
   gl124_set_motor_power (reg, SANE_FALSE);
   RIE (dev->model->cmd_set->bulk_write_register (dev, reg, GENESYS_GL124_MAX_REGS));
@@ -3540,7 +3540,7 @@ gl124_init_gpio (Genesys_Device * dev)
       idx = 0;
     }
   else
-    {				/* canon LiDE 210 and 220 case */
+    {                                /* canon LiDE 210 and 220 case */
       idx = 1;
     }
 
@@ -3574,7 +3574,7 @@ gl124_init_memory_layout (Genesys_Device * dev)
       idx = 0;
     }
   else
-    {				/* canon LiDE 210 and 220 case */
+    {                                /* canon LiDE 210 and 220 case */
       idx = 1;
     }
 
@@ -3593,18 +3593,18 @@ gl124_init_memory_layout (Genesys_Device * dev)
   /* size for each buffer is 0x16d*1k word */
   sanei_genesys_write_register (dev, 0xe0, layouts[idx].re0);
   sanei_genesys_write_register (dev, 0xe1, layouts[idx].re1);
-/* R-Channel ODD image buffer end-address 0x0291->0x148800 => size=0xB6800*/
+  /* R-Channel ODD image buffer end-address 0x0291->0x148800 => size=0xB6800*/
   sanei_genesys_write_register (dev, 0xe2, layouts[idx].re2);
   sanei_genesys_write_register (dev, 0xe3, layouts[idx].re3);
 
   /* R-Channel EVEN image buffer 0x0292 */
   sanei_genesys_write_register (dev, 0xe4, layouts[idx].re4);
   sanei_genesys_write_register (dev, 0xe5, layouts[idx].re5);
-/* R-Channel EVEN image buffer end-address 0x03ff*/
+  /* R-Channel EVEN image buffer end-address 0x03ff*/
   sanei_genesys_write_register (dev, 0xe6, layouts[idx].re6);
   sanei_genesys_write_register (dev, 0xe7, layouts[idx].re7);
 
-/* same for green, since CIS, same addresses */
+  /* same for green, since CIS, same addresses */
   sanei_genesys_write_register (dev, 0xe8, layouts[idx].re0);
   sanei_genesys_write_register (dev, 0xe9, layouts[idx].re1);
   sanei_genesys_write_register (dev, 0xea, layouts[idx].re2);
@@ -3761,7 +3761,7 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
 
 /** the gl124 command set */
 static Genesys_Command_Set gl124_cmd_set = {
-  "gl124-generic",		/* the name of this set */
+  "gl124-generic",                /* the name of this set */
 
   gl124_init,
   gl124_init_regs_for_warmup,

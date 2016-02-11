@@ -27,7 +27,7 @@ dist_noinst_JAVA = $(JAVA_SRC)
 
 LIBSANE = ../backend/libsane.la
 
-EXTRA_DIST = Makefile.in README.JAVA 
+EXTRA_DIST = README.JAVA
 
 lib_LTLIBRARIES = libsanej.la
 

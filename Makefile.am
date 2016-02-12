@@ -93,3 +93,5 @@ clean-local:
 distclean-local:
 	rm -f include/_stdint.h
 	rm -f include/byteorder.h
+
+ACLOCAL_AMFLAGS = -I m4

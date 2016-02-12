@@ -56,6 +56,7 @@ AS_IF([test xno != "x$ac_cv_prog_cc_c99"],
 AC_PROG_GCC_TRADITIONAL
 AC_USE_SYSTEM_EXTENSIONS        dnl call before running the C compiler
 
+AM_PROG_AR
 LT_INIT([disable-static win32-dll])
 LT_PREREQ([2.4.2])
 

@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004-2013 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004-2013 StÃ©phane Voltz <stef.dev@free.fr>
    Copyright (C) 2005 Philipp Schmid <philipp8288@web.de>
    Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
@@ -204,7 +204,7 @@ printtime(char *p) {
     gettimeofday(&t,NULL);
     dif = t.tv_sec - start_time.tv_sec;
     dif = dif*1000000 + t.tv_usec - start_time.tv_usec;
-    fprintf(stderr,"%s %lluµs\n",p,dif);
+    fprintf(stderr,"%s %lluÂµs\n",p,dif);
 }
 */
 

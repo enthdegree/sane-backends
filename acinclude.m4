@@ -234,7 +234,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
        AC_CHECK_FUNCS([pthread_create pthread_kill pthread_join pthread_detach pthread_cancel pthread_testcancel],
 	,[ have_pthread=no; use_pthread=no ])
        LIBS="$save_LIBS"
-    ],)
+    ],[ have_pthread=no; use_pthread=no ])
   fi
  
   if test $use_pthread = yes ; then

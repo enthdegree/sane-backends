@@ -71,9 +71,6 @@
 #if !defined USE_PTHREAD && !defined HAVE_OS2_H && !defined __BEOS__
 # include <sys/wait.h>
 #endif
-#if defined USE_PTHREAD
-# include <pthread.h>
-#endif
 
 #define BACKEND_NAME sanei_thread      /**< name of this module for debugging */
 

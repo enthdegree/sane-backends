@@ -61,6 +61,7 @@
 #include "../include/sane/config.h"
 
 #ifdef USE_PTHREAD
+#include <pthread.h>
 typedef pthread_t SANE_Pid;
 #else
 typedef int SANE_Pid;

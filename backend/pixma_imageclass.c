@@ -729,6 +729,13 @@ iclass_finish_scan (pixma_t * s)
           || (mf->generation == 1 && mf->last_block == 0x28)    /* generation 1 scanner last block */
           || (mf->generation >= 2 && !has_paper(s)))            /* check status: no paper in ADF */
 	{
+          /* ADFDUP scan: wait for 8sec to throw last page out of ADF feeder */
+          if (s->param->source == PIXMA_SOURCE_ADFDUP)
+          {
+            PDBG (pixma_dbg (4, "*iclass_finish_scan***** sleep for 8s  *****\n"));
+            pixma_sleep(8000000);       /* sleep for 8s */
+            query_status (s);
+          }
           PDBG (pixma_dbg (3, "*iclass_finish_scan***** abort session  *****\n"));
 	  abort_session (s);
 	}

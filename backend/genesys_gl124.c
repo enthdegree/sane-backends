@@ -1947,6 +1947,13 @@ gl124_stop_action (Genesys_Device * dev)
 }
 
 
+/** @brief setup GPIOs for scan
+ * Setup GPIO values to drive motor (or light) needed for the
+ * target resolution
+ * @param *dev device to set up
+ * @param resolution dpi of the target scan
+ * @return SANE_STATUS_GOOD unless REG32 cannot be read
+ */
 static SANE_Status
 gl124_setup_scan_gpio(Genesys_Device *dev, int resolution)
 {
@@ -3518,12 +3525,10 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
-/**
+/** @brief default GPIO values
  * set up GPIO/GPOE for idle state
-WRITE GPIO[17-21]= GPIO19
-WRITE GPOE[17-21]= GPOE21 GPOE20 GPOE19 GPOE18
-genesys_write_register(0xa8,0x3e)
-GPIO(0xa8)=0x3e
+ * @param dev device to set up
+ * @return SANE_STATUS_GOOD unless a GPIO register cannot be written
  */
 static SANE_Status
 gl124_init_gpio (Genesys_Device * dev)
@@ -3534,10 +3539,13 @@ gl124_init_gpio (Genesys_Device * dev)
   DBGSTART;
 
   /* per model GPIO layout */
-  if ((strcmp (dev->model->name, "canon-lide-110") == 0)
-    ||(strcmp (dev->model->name, "canon-lide-120") == 0))
+  if (strcmp (dev->model->name, "canon-lide-110") == 0)
     {
       idx = 0;
+    }
+  else if (strcmp (dev->model->name, "canon-lide-110") == 0)
+    {
+      idx = 2;
     }
   else
     {                                /* canon LiDE 210 and 220 case */
@@ -3731,7 +3739,8 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
    * add another per scanner button profile struct to avoid growing
    * hard-coded button mapping here.
    */
-  if(s->dev->model->gpo_type == GPO_CANONLIDE110)
+  if((s->dev->model->gpo_type == GPO_CANONLIDE110)
+    ||(s->dev->model->gpo_type == GPO_CANONLIDE120))
     {
       if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
         s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;

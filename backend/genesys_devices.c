@@ -181,6 +181,14 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00, 0x00, 0x00}
    }
   ,
+  {DAC_CANONLIDE120,
+     {0x80, 0x8a, 0x23, 0x4c}
+   , {0x00, 0xca, 0x94}
+   , {0x00, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   }
+  ,
   {DAC_PLUSTEK_3600,
      {0x70, 0x80, 0x00, 0x00}
    , {0x00, 0x00, 0x00}
@@ -951,6 +959,12 @@ static Genesys_Gpo Gpo[] = {
    {0xff, 0x00},
   }
   ,
+  /* CANONLIDE120 */
+  {GPO_CANONLIDE120,
+   {0xfb, 0x20},
+   {0xff, 0x00},
+  }
+  ,
   /* CANONLIDE210 */
   {GPO_CANONLIDE210,
    {0xfb, 0x20},
@@ -1281,6 +1295,17 @@ static Genesys_Motor Motor[] = {
    },
   },
   {MOTOR_CANONLIDE110,                /* Canon LiDE 110 */
+   4800,
+   9600,
+   1,   /* maximum step type count */
+   1,   /* maximum power modes count */
+   { /* motor slopes */
+	   { /* power mode 0 */
+		   {   3000,   1000, 256, 0.50}, /* full step */
+	   },
+    },
+  },
+  {MOTOR_CANONLIDE120,                /* Canon LiDE 120 */
    4800,
    9600,
    1,   /* maximum step type count */
@@ -1940,10 +1965,11 @@ static Genesys_Model canon_lide_120_model = {
   SANE_TRUE,                     /* Is this a CIS scanner? */
   SANE_FALSE,                    /* Is this a sheetfed scanner? */
   CIS_CANONLIDE120,
-  DAC_CANONLIDE110,
-  GPO_CANONLIDE110,
-  MOTOR_CANONLIDE110,
+  DAC_CANONLIDE120,
+  GPO_CANONLIDE120,
+  MOTOR_CANONLIDE120,
       GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_NO_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_HALF_CCD_MODE

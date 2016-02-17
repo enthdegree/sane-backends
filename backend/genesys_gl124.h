@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2010-2013 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2010-2016 Stéphane Voltz <stef.dev@free.fr>
 
    This file is part of the SANE package.
 
@@ -660,6 +660,10 @@ static Motor_Profile motors[]={
 	{MOTOR_CANONLIDE110,  5360, 0, lide110_ok},
 	{MOTOR_CANONLIDE110, 10528, 1, lide110_slow},
 	{MOTOR_CANONLIDE110, 20864, 2, lide110_max},
+	{MOTOR_CANONLIDE120,  2768, 0, lide210_fast},
+	{MOTOR_CANONLIDE120,  5360, 0, lide110_ok},
+	{MOTOR_CANONLIDE120, 10528, 1, lide110_slow},
+	{MOTOR_CANONLIDE120, 20864, 2, lide110_max},
 	{MOTOR_CANONLIDE210,  2768, 0, lide210_fast},
 	{MOTOR_CANONLIDE210,  5360, 0, lide110_ok},
 	{MOTOR_CANONLIDE210, 10528, 1, lide110_slow},

@@ -352,6 +352,7 @@ Genesys_Color_Order;
 #define DAC_IMG101         18
 #define DAC_PLUSTEK3800    19
 #define DAC_CANONLIDE80    20
+#define DAC_CANONLIDE120   21
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -410,6 +411,7 @@ Genesys_Color_Order;
 #define GPO_IMG101       22
 #define GPO_PLUSTEK3800  23
 #define GPO_CANONLIDE80  24
+#define GPO_CANONLIDE120 25
 
 #define MOTOR_UMAX          0
 #define MOTOR_5345          1
@@ -435,6 +437,7 @@ Genesys_Color_Order;
 #define MOTOR_PLUSTEK3800  22
 #define MOTOR_CANONLIDE210 23
 #define MOTOR_CANONLIDE80  24
+#define MOTOR_CANONLIDE120 25
 
 
 /* Forward typedefs */

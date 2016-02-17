@@ -231,7 +231,8 @@ select_source (pixma_t * s)
   uint8_t *data = pixma_newcmd (&mf->cb, cmd_select_source, 10, 0);
   data[0] = (s->param->source == PIXMA_SOURCE_ADF ||
              s->param->source == PIXMA_SOURCE_ADFDUP) ? 2 : 1;
-  data[5] = (s->param->source == PIXMA_SOURCE_ADFDUP) ? 3 : 0;
+  /* special settings for MF6100 */
+  data[5] = (s->param->source == PIXMA_SOURCE_ADFDUP) ? 3 : ((s->cfg->pid == MF6100_PID && s->param->source == PIXMA_SOURCE_ADF) ? 1 : 0);
   switch (s->cfg->pid)
     {
     case MF4200_PID:
@@ -294,7 +295,10 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
   const int hlen = 2 + 6;
 
   memset (mf->cb.buf, 0, 11);
-  pixma_set_be16 (((mf->generation >= 2) ? cmd_read_image2 : cmd_read_image), mf->cb.buf);
+  /* generation 2 scanners use cmd_read_image2.
+   * MF6100, ... are exceptions */
+  pixma_set_be16 (((mf->generation >= 2
+                    && s->cfg->pid != MF6100_PID) ? cmd_read_image2 : cmd_read_image), mf->cb.buf);
   mf->cb.buf[8] = flag;
   mf->cb.buf[10] = 0x06;
   expected_len = (mf->generation >= 2 ||

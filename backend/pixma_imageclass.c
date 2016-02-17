@@ -427,6 +427,11 @@ step1 (pixma_t * s)
 
   error = query_status (s);
   if (error < 0)
+  {
+    PDBG (pixma_dbg (1, "WARNING: Resend first USB command after timeout!\n"));
+    error = query_status (s);
+  }
+  if (error < 0)
     return error;
   if (s->param->source == PIXMA_SOURCE_ADF && !has_paper (s))
     return PIXMA_ENO_PAPER;

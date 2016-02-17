@@ -57,6 +57,8 @@
 #include "pixma_common.h"
 #include "pixma_io.h"
 
+#include "../include/sane/sanei_usb.h"
+
 
 #ifdef __GNUC__
 # define UNUSED(v) (void) v
@@ -657,7 +659,13 @@ pixma_cmd_transaction (pixma_t * s, const void *cmd, unsigned cmdlen,
       if (error == PIXMA_ETIMEDOUT)
       {
         PDBG (pixma_dbg (2, "No response yet. Timed out in %d sec.\n", tmo));
-        pixma_sleep (1000000);          /* 1s timeout */
+
+#ifndef HAVE_SANEI_USB_SET_TIMEOUT
+        /* 1s timeout
+           Only needed, if sanei_usb_set_timeout() isn't available.
+           pixma_read() has an internal timeout of 1 sec. */
+        pixma_sleep (1000000);
+#endif
       }
     }
   while (error == PIXMA_ETIMEDOUT && --tmo != 0);

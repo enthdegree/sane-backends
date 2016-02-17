@@ -433,7 +433,9 @@ step1 (pixma_t * s)
   }
   if (error < 0)
     return error;
-  if (s->param->source == PIXMA_SOURCE_ADF && !has_paper (s))
+  if ((s->param->source == PIXMA_SOURCE_ADF
+       || s->param->source == PIXMA_SOURCE_ADFDUP)
+      && !has_paper (s))
     return PIXMA_ENO_PAPER;
   /* activate only seen for generation 1 scanners */
   if (mf->generation == 1)

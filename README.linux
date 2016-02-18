@@ -86,6 +86,20 @@ Step by step install on Linux 2.6.* and 3.*, both with udev:
 	$ ./configure
 	$ make && sudo make install
 
+	If you want to change some settings for your SANE installation, please read
+	the documentation on the website, the man pages and:
+
+	$ ./configure --help
+
+	Maybe you don't want to compile all scanners on your system, then you can
+	select the backends you need, e.g. epson2 and fujitsu:
+
+	$ ./configure BACKENDS="epson2 fujitsu"
+
+	You can search for your scanners backend names here:
+
+	http://sane-project.org/lists/sane-backends-cvs.html
+
 3.1. SANE library:
 	Register new installed SANE dynamically linked shared object library.
 

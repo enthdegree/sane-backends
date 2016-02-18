@@ -1962,17 +1962,30 @@ uint8_t val;
 
   DBGSTART;
   RIE (sanei_genesys_read_register (dev, REG32, &val));
-  if(resolution>=dev->motor.base_ydpi/2)
+
+  /* LiDE 110, 210 and 220 cases */
+  if(dev->model->gpo_type != GPO_CANONLIDE120)
     {
-      val &= 0xf7;
+      if(resolution>=dev->motor.base_ydpi/2)
+	{
+	  val &= 0xf7;
+	}
+      else if(resolution>=dev->motor.base_ydpi/4)
+	{
+	  val &= 0xef;
+	}
+      else
+	{
+	  val |= 0x10;
+	}
     }
-  else if(resolution>=dev->motor.base_ydpi/4)
-    {
-      val &= 0xef;
-    }
+  /* 120 : <=300 => 0x53 */
   else
-    {
-      val |= 0x10;
+    { /* base_ydpi is 4800 */
+      if(resolution<=dev->motor.base_ydpi/4)
+	{
+	  val &= 0xf7;
+	}
     }
   val |= 0x02;
   RIE (sanei_genesys_write_register (dev, REG32, val));

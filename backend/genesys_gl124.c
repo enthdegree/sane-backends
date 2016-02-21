@@ -356,10 +356,18 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x01,0xa2); /* + REG01_SHDAREA */
   SETREG (0x02,0x90);
   SETREG (0x03,0x50);
-  SETREG (0x03,0x50 & ~REG03_AVEENB);
   SETREG (0x04,0x03);
   SETREG (0x05,0x00);
-  SETREG (0x06,0x50 | REG06_GAIN4);
+  if(dev->model->ccd_type==CIS_CANONLIDE120)
+    {
+      SETREG (0x06,0x50);
+      SETREG (0x07,0x00);
+    }
+  else
+    {
+      SETREG (0x03,0x50 & ~REG03_AVEENB);
+      SETREG (0x06,0x50 | REG06_GAIN4);
+    }
   SETREG (0x09,0x00);
   SETREG (0x0a,0xc0);
   SETREG (0x0b,0x2a);
@@ -381,7 +389,14 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x1f,0x00);
   SETREG (0x20,0x15);
   SETREG (0x21,0x00);
-  SETREG (0x22,0x02);
+  if(dev->model->ccd_type!=CIS_CANONLIDE120)
+    {
+      SETREG (0x22,0x02);
+    }
+  else
+    {
+      SETREG (0x22,0x14);
+    }
   SETREG (0x23,0x00);
   SETREG (0x24,0x00);
   SETREG (0x25,0x00);
@@ -536,6 +551,15 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0xcd,0x00);
   SETREG (0xce,0x00);
   */
+  if(dev->model->ccd_type==CIS_CANONLIDE120)
+    {
+      SETREG (0xc5,0x20);
+      SETREG (0xc6,0xeb);
+      SETREG (0xc7,0x20);
+      SETREG (0xc8,0xeb);
+      SETREG (0xc9,0x20);
+      SETREG (0xca,0xeb);
+    }
 
   /* memory layout
   SETREG (0xd0,0x0a);
@@ -1003,7 +1027,12 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 
 
 /** @brief copy sensor specific settings
- * Set up register set for the given sensor resolution.
+ * Set up register set for the given sensor resolution. Values are from the device table
+ * in genesys_devices.c for registers:
+ *       [0x16 ... 0x1d]
+ *       [0x52 ... 0x5e]
+ * Other come from the specific device sensor table in genesys_gl124.h:
+ *      0x18, 0x20, 0x61, 0x98 and
  * @param dev device to set up
  * @param regs register set to modify
  * @param dpi resolution of the sensor during scan

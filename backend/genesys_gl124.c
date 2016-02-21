@@ -449,11 +449,20 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x6a,0x00);
   SETREG (0x6b,0x00);
   SETREG (0x6c,0x00);
-  SETREG (0x6d,0xd0);
   SETREG (0x6e,0x00);
   SETREG (0x6f,0x00);
-  SETREG (0x70,0x06);
-  SETREG (0x71,0x08);
+  if(dev->model->ccd_type!=CIS_CANONLIDE120)
+    {
+      SETREG (0x6d,0xd0);
+      SETREG (0x70,0x06);
+      SETREG (0x71,0x08);
+    }
+  else
+    {
+      SETREG (0x6d,0x00);
+      SETREG (0x70,0x00);
+      SETREG (0x71,0x1f);
+    }
   SETREG (0x72,0x08);
   SETREG (0x73,0x0a);
 
@@ -690,8 +699,11 @@ gl124_send_slope_table (Genesys_Device * dev, int table_nr,
   return status;
 }
 
-/**
- * Set register values of 'special' type frontend
+/** @brief * Set register values of 'special' ti type frontend
+ * Registers value are taken from the frontend register data
+ * set.
+ * @param dev device owning the AFE
+ * @param set flag AFE_INIT to specify the AFE must be reset before writing data
  * */
 static SANE_Status
 gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
@@ -703,8 +715,7 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
   DBGSTART;
   if (set == AFE_INIT)
     {
-      DBG (DBG_proc, "%s: setting DAC %u\n", __func__,
-	   dev->model->dac_type);
+      DBG (DBG_proc, "%s: setting DAC %u\n", __func__, dev->model->dac_type);
 
       /* sets to default values */
       sanei_genesys_init_fe (dev);
@@ -741,7 +752,7 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
       return status;
     }
 
-  /* these are not really sign */
+  /* these are not really sign for this AFE */
   for (i = 0; i < 3; i++)
     {
       val = dev->frontend.sign[i];
@@ -756,7 +767,14 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
     }
 
   /* close writing to DAC */
-  status = sanei_genesys_fe_write_data (dev, 0x00, 0x11);
+  if(dev->model->dac_type == DAC_CANONLIDE120)
+    {
+      status = sanei_genesys_fe_write_data (dev, 0x00, 0x01);
+    }
+  else
+    {
+      status = sanei_genesys_fe_write_data (dev, 0x00, 0x11);
+    }
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "%s: failed to write reg0: %s\n", __func__,
@@ -1054,14 +1072,20 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, 
     {
       r = sanei_genesys_get_address (regs, 0x10 + i);
       if (r)
-	r->value = dev->sensor.regs_0x10_0x1d[i];
+	{
+	  r->value = dev->sensor.regs_0x10_0x1d[i];
+	}
     }
 
+  /* skip writing 5d,51 which is AFE address because
+   * they are not deifned in register set */
   for (i = 0; i < 11; i++)
     {
       r = sanei_genesys_get_address (regs, 0x52 + i);
       if (r)
-	r->value = dev->sensor.regs_0x52_0x5e[i];
+	{
+	  r->value = dev->sensor.regs_0x52_0x5e[i];
+	}
     }
 
   /* set EXPDUMMY and CKxMAP */

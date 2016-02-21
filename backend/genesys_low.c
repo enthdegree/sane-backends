@@ -516,7 +516,7 @@ sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
   return status;
 }
 
-/** read data for analog frontend
+/**@brief read data from analog frontend (AFE)
  * @param dev device owning the AFE
  * @param addr register address to read
  * @param data placeholder for the result
@@ -558,7 +558,13 @@ sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
   return status;
 }
 
-/* Write data for analog frontend */
+/*@brief write data to analog frontend
+ * writes data to analog frontend to set it up accordingly
+ * to the sensor settings (exposure, timings, color, bit depth, ...)
+ * @param dev devie owning the AFE to write to
+ * @param addr AFE rister address
+ * @param data value to write to AFE register
+ **/
 SANE_Status
 sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
 			     uint16_t data)

@@ -480,8 +480,16 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x7d,0x00);
   SETREG (0x7e,0x08);
   SETREG (0x7f,0x58);
-  SETREG (0x80,0x00);
-  SETREG (0x81,0x14);
+  if(dev->model->ccd_type!=CIS_CANONLIDE120)
+    {
+      SETREG (0x80,0x00);
+      SETREG (0x81,0x14);
+    }
+  else
+    {
+      SETREG (0x80,0x00);
+      SETREG (0x81,0x06);
+    }
 
   /* STRPIXEL */
   SETREG (0x82,0x00);

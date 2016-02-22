@@ -1948,9 +1948,9 @@ static Genesys_Model canon_lide_120_model = {
   {16, 8, 0},                    /* possible depths in gray mode */
   {16, 8, 0},                    /* possible depths in color mode */
 
-  SANE_FIX (2.2),                /* Start of scan area in mm (x) */
-  SANE_FIX (9.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (216.70),             /* Size of scan area in mm (x) */
+  SANE_FIX (0.0),               /* Start of scan area in mm (x) */
+  SANE_FIX (8.0),                /* Start of scan area in mm (y) */
+  SANE_FIX (216.0),             /* Size of scan area in mm (x) */
   SANE_FIX (300.0),              /* Size of scan area in mm (y) */
 
   SANE_FIX (1.0),                /* Start of white strip in mm (y) */

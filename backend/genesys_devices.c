@@ -683,7 +683,8 @@ static Genesys_Sensor Sensor[] = {
    87,          /* black pixels */
    16,          /* dummy pixels 16 */
    303,
-   5168*4,      /* total pixels */
+   /* SEGCNT at 600 DPI by number of segments */
+   5104*4,      /* total pixels */
    210,
    200,
    {0x00, 0x00, 0x00, 0x00},
@@ -1979,7 +1980,6 @@ static Genesys_Model canon_lide_120_model = {
   GPO_CANONLIDE120,
   MOTOR_CANONLIDE120,
       GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_NO_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_HALF_CCD_MODE

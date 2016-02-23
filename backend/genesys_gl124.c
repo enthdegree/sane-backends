@@ -488,7 +488,7 @@ gl124_init_registers (Genesys_Device * dev)
   else
     {
       SETREG (0x80,0x00);
-      SETREG (0x81,0x06);
+      SETREG (0x81,0x10);
     }
 
   /* STRPIXEL */

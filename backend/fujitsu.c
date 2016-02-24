@@ -574,13 +574,16 @@
       v126 2015-08-23, MAN
          - initial support for iX100
          - add late_lut support for iX500/iX100
-      v127 2015-08-25, MAN
+      v127 2015-08-25, MAN (SANE 1.0.25)
          - separate iX100 from iX500 settings
          - iX100 has gray and lineart
       v128 2015-11-08, MAN
          - do not ask fi-4340 for serial number
       v129 2015-11-21, MAN
          - br_x and br_y locked to page_width/height until changed
+      v130 2016-02-23, MAN
+         - run init_model before init_ms so some scanners can override
+         - set all M309x and M409x scanners s->broken_diag_serial = 1
 
    SANE FLOW DIAGRAM
 
@@ -630,7 +633,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 129
+#define BUILD 130
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -994,15 +997,6 @@ attach_one (const char *device_name, int connType)
     return ret;
   }
 
-  /* see what mode pages device supports */
-  ret = init_ms (s);
-  if (ret != SANE_STATUS_GOOD) {
-    disconnect_fd(s);
-    free (s);
-    DBG (5, "attach_one: ms failed\n");
-    return ret;
-  }
-
   /* clean up the scanner struct based on model */
   /* this is the only piece of model specific code */
   ret = init_model (s);
@@ -1010,6 +1004,15 @@ attach_one (const char *device_name, int connType)
     disconnect_fd(s);
     free (s);
     DBG (5, "attach_one: model failed\n");
+    return ret;
+  }
+
+  /* see what mode pages device supports */
+  ret = init_ms (s);
+  if (ret != SANE_STATUS_GOOD) {
+    disconnect_fd(s);
+    free (s);
+    DBG (5, "attach_one: ms failed\n");
     return ret;
   }
 
@@ -2144,6 +2147,9 @@ init_model (struct fujitsu *s)
 
   else if ( strstr (s->model_name, "M309")
    || strstr (s->model_name, "M409")){
+
+    /* weirdness */
+    s->broken_diag_serial = 1;
 
     /* lies */
     s->adbits = 8;

@@ -609,6 +609,8 @@ typedef struct {
   uint8_t reg20;        /**> register 0x20 value */
   uint8_t reg61;        /**> register 0x61 value */
   uint8_t reg98;        /**> register 0x98 value */
+  uint8_t reg16;        /**> register 0x16 value */
+  uint8_t reg70;        /**> register 0x70 value */
 } Sensor_Profile;
 
 static size_t order_01[]={0,1};
@@ -622,28 +624,28 @@ static size_t order_0213[]={0,2,1,3};
  */
 static Sensor_Profile sensors[]={
         /* LiDE 110 */
-	{CIS_CANONLIDE110,  600, 1,  2768, 0x1e, 0x9f, 0x55, 2584, 154,  101,  388,  574,  393, NULL      , 0x00, 0x0c, 0x20, 0x21},
-	{CIS_CANONLIDE110,  600, 0,  5360, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, NULL      , 0x00, 0x0a, 0x20, 0x21},
-	{CIS_CANONLIDE110, 1200, 0, 10528, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, order_01  , 0x00, 0x08, 0x20, 0x22},
-	{CIS_CANONLIDE110, 2400, 0, 20864, 0x1e, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, order_0213, 0x00, 0x06, 0x20, 0x24},
+	{CIS_CANONLIDE110,  600, 1,  2768, 0x1e, 0x9f, 0x55, 2584, 154,  101,  388,  574,  393, NULL      , 0x00, 0x0c, 0x20, 0x21, 0x00, 0x00},
+	{CIS_CANONLIDE110,  600, 0,  5360, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, NULL      , 0x00, 0x0a, 0x20, 0x21, 0x00, 0x00},
+	{CIS_CANONLIDE110, 1200, 0, 10528, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, order_01  , 0x00, 0x08, 0x20, 0x22, 0x00, 0x00},
+	{CIS_CANONLIDE110, 2400, 0, 20864, 0x1e, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, order_0213, 0x00, 0x06, 0x20, 0x24, 0x00, 0x00},
 
 	/* LiDE 120 */
-	{CIS_CANONLIDE120,  600, 1,  4608, 0x0f, 0x00, 0x55, 2552, 112,   94,  894, 1044,  994, NULL      , 0x00, 0x02, 0x20, 0x21},
-	{CIS_CANONLIDE120,  600, 0,  5360, 0x0f, 0x00, 0x55, 5104, 139,   94, 1644, 1994, 1844, NULL      , 0x00, 0x02, 0x20, 0x21},
-	{CIS_CANONLIDE120, 1200, 0, 10528, 0x0f, 0x9f, 0x55, 5104, 163,   94, 1644, 1994, 1844, order_01  , 0x00, 0x08, 0x20, 0x22},
-	{CIS_CANONLIDE120, 2400, 0, 20864, 0x0f, 0x9f, 0x55, 5104, 163, 4679, 6839, 8401, 6859, order_0213, 0x00, 0x06, 0x20, 0x24},
+	{CIS_CANONLIDE120,  600, 1,  4608, 0x0f, 0x00, 0x55, 2552, 112,   94,  894, 1044,  994, NULL      , 0x00, 0x02, 0x20, 0x21, 0x15, 0x06},
+	{CIS_CANONLIDE120,  600, 0,  5360, 0x0f, 0x00, 0x55, 5104, 139,   94, 1644, 1994, 1844, NULL      , 0x00, 0x02, 0x20, 0x21, 0x11, 0x1f},
+	{CIS_CANONLIDE120, 1200, 0, 10528, 0x0f, 0x9f, 0x55, 5104, 163,   94, 1644, 1994, 1844, order_01  , 0x00, 0x08, 0x20, 0x22, 0x00, 0x00},
+	{CIS_CANONLIDE120, 2400, 0, 20864, 0x0f, 0x9f, 0x55, 5104, 163, 4679, 6839, 8401, 6859, order_0213, 0x00, 0x06, 0x20, 0x24, 0x00, 0x00},
 
         /* LiDE 210 */
-	{CIS_CANONLIDE210,  600, 1,  2768, 0x1e, 0x9f, 0x55, 2584, 154,  101,  388,  574,  393, NULL      , 0x00, 0x0c, 0x20, 0x21},
-	{CIS_CANONLIDE210,  600, 0,  5360, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, NULL      , 0x00, 0x0a, 0x20, 0x21},
-	{CIS_CANONLIDE210, 1200, 0, 10528, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, order_01  , 0x00, 0x08, 0x20, 0x22},
-	{CIS_CANONLIDE210, 2400, 0, 20864, 0x1e, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, order_0213, 0x00, 0x06, 0x20, 0x24},
+	{CIS_CANONLIDE210,  600, 1,  2768, 0x1e, 0x9f, 0x55, 2584, 154,  101,  388,  574,  393, NULL      , 0x00, 0x0c, 0x20, 0x21, 0x00, 0x00},
+	{CIS_CANONLIDE210,  600, 0,  5360, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, NULL      , 0x00, 0x0a, 0x20, 0x21, 0x00, 0x00},
+	{CIS_CANONLIDE210, 1200, 0, 10528, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, order_01  , 0x00, 0x08, 0x20, 0x22, 0x00, 0x00},
+	{CIS_CANONLIDE210, 2400, 0, 20864, 0x1e, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, order_0213, 0x00, 0x06, 0x20, 0x24, 0x00, 0x00},
 
         /* LiDE 220 */
-	{CIS_CANONLIDE220,  600, 1,  2768, 0x0f, 0x9f, 0x55, 2584, 154,  101,  388,  574,  393, NULL      , 0x00, 0x0c, 0x20, 0x21},
-	{CIS_CANONLIDE220,  600, 0,  5360, 0x0f, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, NULL      , 0x00, 0x0a, 0x20, 0x21},
-	{CIS_CANONLIDE220, 1200, 0, 10528, 0x0f, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, order_01  , 0x00, 0x08, 0x20, 0x22},
-	{CIS_CANONLIDE220, 2400, 0, 20864, 0x0f, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, order_0213, 0x00, 0x06, 0x20, 0x24},
+	{CIS_CANONLIDE220,  600, 1,  2768, 0x0f, 0x9f, 0x55, 2584, 154,  101,  388,  574,  393, NULL      , 0x00, 0x0c, 0x20, 0x21, 0x00, 0x00},
+	{CIS_CANONLIDE220,  600, 0,  5360, 0x0f, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, NULL      , 0x00, 0x0a, 0x20, 0x21, 0x00, 0x00},
+	{CIS_CANONLIDE220, 1200, 0, 10528, 0x0f, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, order_01  , 0x00, 0x08, 0x20, 0x22, 0x00, 0x00},
+	{CIS_CANONLIDE220, 2400, 0, 20864, 0x0f, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, order_0213, 0x00, 0x06, 0x20, 0x24, 0x00, 0x00},
 };
 
 
@@ -671,7 +673,7 @@ static Motor_Profile motors[]={
 	{MOTOR_CANONLIDE110, 10528, 1, lide110_slow},
 	{MOTOR_CANONLIDE110, 20864, 2, lide110_max},
 	{MOTOR_CANONLIDE120,  4608, 0, lide120_fast},
-	{MOTOR_CANONLIDE120,  5360, 0, lide120_ok},
+	{MOTOR_CANONLIDE120,  5360, 1, lide120_ok},
 	{MOTOR_CANONLIDE120, 10528, 1, lide110_slow},
 	{MOTOR_CANONLIDE120, 20864, 2, lide110_max},
 	{MOTOR_CANONLIDE210,  2768, 0, lide210_fast},

@@ -454,15 +454,14 @@ gl124_init_registers (Genesys_Device * dev)
   if(dev->model->ccd_type!=CIS_CANONLIDE120)
     {
       SETREG (0x6d,0xd0);
-      SETREG (0x70,0x06);
       SETREG (0x71,0x08);
     }
   else
     {
       SETREG (0x6d,0x00);
-      SETREG (0x70,0x00);
       SETREG (0x71,0x1f);
     }
+  SETREG (0x70,0x00);
   SETREG (0x72,0x08);
   SETREG (0x73,0x0a);
 
@@ -1119,6 +1118,23 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, 
   if (r)
     {
       r->value = sensor->reg98;
+    }
+
+  if(sensor->reg16!=0)
+    {
+      r = sanei_genesys_get_address (regs, 0x16);
+      if (r)
+	{
+	  r->value = sensor->reg16;
+	}
+    }
+  if(sensor->reg70!=0)
+    {
+      r = sanei_genesys_get_address (regs, 0x70);
+      if (r)
+	{
+	  r->value = sensor->reg70;
+	}
     }
 
   sanei_genesys_set_triple(regs,REG_SEGCNT,sensor->segcnt);
@@ -2046,6 +2062,10 @@ uint8_t val;
       if(resolution<=dev->motor.base_ydpi/4)
 	{
 	  val &= 0xf7;
+	}
+      if(resolution<=dev->motor.base_ydpi/4)
+	{
+	  val |= 0x08;
 	}
     }
   val |= 0x02;

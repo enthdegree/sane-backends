@@ -3,7 +3,9 @@
    This file is part of the SANE package, and implements a SANE backend
    for various Corex Cardscan scanners.
 
-   Copyright (C) 2007-2010 m. allan noah
+   Copyright (C) 2007-2015 m. allan noah
+
+   --------------------------------------------------------------------------
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -42,8 +44,6 @@
    If you do not wish that, delete this exception notice.
 
    --------------------------------------------------------------------------
-
-   This file implements a SANE backend for the Corex Cardscan 800C
 
    The source code is divided in sections which you can easily find by
    searching for the tag "@@".

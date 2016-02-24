@@ -1,6 +1,14 @@
 /* sane - Scanner Access Now Easy.
 
-   This file is part of the SANE package.
+   This file implements a SANE backend for the Fujitsu fi-60F, the
+   ScanSnap S300/S1300, and (hopefully) other Epson-based scanners. 
+
+   Copyright 2007-2015 by m. allan noah <kitno455 at gmail dot com>
+   Copyright 2009 by Richard Goedeken <richard at fascinationsoftware dot com>
+
+   Development funded by Microdea, Inc., TrueCheck, Inc. and Archivista, GmbH
+
+   --------------------------------------------------------------------------
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -37,16 +45,6 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
-
-   --------------------------------------------------------------------------
-
-   This file implements a SANE backend for the Fujitsu fi-60F, the
-   ScanSnap S300/S1300, and (hopefully) other Epson-based scanners. 
-
-   Copyright 2007-2010 by m. allan noah <kitno455 at gmail dot com>
-   Copyright 2009 by Richard Goedeken <richard at fascinationsoftware dot com>
-
-   Development funded by Microdea, Inc., TrueCheck, Inc. and Archivista, GmbH
 
    --------------------------------------------------------------------------
 

@@ -74,6 +74,7 @@ option duplex-offset 432
 usb 0x04a9 0x1608
 
 # DR-3080CII
+option padded-read  1
 usb 0x04a9 0x1609
 
 # DR-2050C/SP (uses weird protocol)

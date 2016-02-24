@@ -1084,7 +1084,7 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, 
 	}
     }
 
-  /* skip writing 5d,51 which is AFE address because
+  /* skip writing 5d,5e which is AFE address because
    * they are not deifned in register set */
   for (i = 0; i < 11; i++)
     {
@@ -2059,11 +2059,11 @@ uint8_t val;
   /* 120 : <=300 => 0x53 */
   else
     { /* base_ydpi is 4800 */
-      if(resolution<=dev->motor.base_ydpi/4)
+      if((resolution<=dev->motor.base_ydpi/4)||(resolution>=dev->motor.base_ydpi/2))
 	{
 	  val &= 0xf7;
 	}
-      if(resolution<=dev->motor.base_ydpi/4)
+      else if(resolution<=dev->motor.base_ydpi/2)
 	{
 	  val |= 0x08;
 	}

@@ -2100,6 +2100,17 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 void
 sanei_usb_close (SANE_Int dn)
 {
+  char *env;
+  int workaround = 0;
+
+  DBG (5, "sanei_usb_close: evaluating environment variable SANE_USB_WORKAROUND\n");
+  env = getenv ("SANE_USB_WORKAROUND");
+  if (env)
+    {
+      workaround = atoi(env);
+      DBG (5, "sanei_usb_close: workaround: %d\n", workaround);
+    }
+
   DBG (5, "sanei_usb_close: closing device %d\n", dn);
   if (dn >= device_number || dn < 0)
     {
@@ -2131,7 +2142,10 @@ sanei_usb_close (SANE_Int dn)
        * even though it should be a no-op. Without it, the
        * host or driver does not reset it's data toggle bit.
        * We intentionally ignore the return val */
-      sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
+      if (workaround)
+        {
+          sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
+        }
 
       usb_release_interface (devices[dn].libusb_handle,
 			     devices[dn].interface_nr);
@@ -2143,7 +2157,10 @@ sanei_usb_close (SANE_Int dn)
        * even though it should be a no-op. Without it, the
        * host or driver does not reset it's data toggle bit.
        * We intentionally ignore the return val */
-      sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
+      if (workaround)
+        {
+          sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
+        }
 
       libusb_release_interface (devices[dn].lu_handle,
 				devices[dn].interface_nr);
@@ -2169,6 +2186,18 @@ sanei_usb_set_timeout (SANE_Int timeout)
 SANE_Status
 sanei_usb_clear_halt (SANE_Int dn)
 {
+  int ret;
+  char *env;
+  int workaround = 0;
+
+  DBG (5, "sanei_usb_clear_halt: evaluating environment variable SANE_USB_WORKAROUND\n");
+  env = getenv ("SANE_USB_WORKAROUND");
+  if (env)
+    {
+      workaround = atoi(env);
+      DBG (5, "sanei_usb_clear_halt: workaround: %d\n", workaround);
+    }
+
   if (dn >= device_number || dn < 0)
     {
       DBG (1, "sanei_usb_clear_halt: dn >= device number || dn < 0\n");
@@ -2176,13 +2205,15 @@ sanei_usb_clear_halt (SANE_Int dn)
     }
 
 #ifdef HAVE_LIBUSB
-  int ret;
 
   /* This call seems to be required by Linux xhci driver
    * even though it should be a no-op. Without it, the
    * host or driver does not send the clear to the device.
    * We intentionally ignore the return val */
-  sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
+  if (workaround)
+    {
+      sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
+    }
 
   ret = usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
   if (ret){
@@ -2197,13 +2228,15 @@ sanei_usb_clear_halt (SANE_Int dn)
   }
 
 #elif defined(HAVE_LIBUSB_1_0)
-  int ret;
 
   /* This call seems to be required by Linux xhci driver
    * even though it should be a no-op. Without it, the
    * host or driver does not send the clear to the device.
    * We intentionally ignore the return val */
-  sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
+  if (workaround)
+    {
+      sanei_usb_set_altinterface (dn, devices[dn].alt_setting);
+    }
 
   ret = libusb_clear_halt (devices[dn].lu_handle, devices[dn].bulk_in_ep);
   if (ret){

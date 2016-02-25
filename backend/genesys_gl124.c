@@ -1266,7 +1266,14 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   r->value &= ~REG01_SCAN;
 
   r = sanei_genesys_get_address (reg, REG03);
-  r->value &= ~REG03_AVEENB;
+  if(dev->model->ccd_type!=CIS_CANONLIDE120)
+    {
+      r->value &= ~REG03_AVEENB;
+    }
+  else
+    {
+      r->value |= ~REG03_AVEENB;
+    }
 
   if (flags & OPTICAL_FLAG_DISABLE_LAMP)
     r->value &= ~REG03_LAMPPWR;
@@ -2059,13 +2066,22 @@ uint8_t val;
   /* 120 : <=300 => 0x53 */
   else
     { /* base_ydpi is 4800 */
-      if((resolution<=dev->motor.base_ydpi/4)||(resolution>=dev->motor.base_ydpi/2))
+      if(resolution<=300)
 	{
 	  val &= 0xf7;
 	}
-      else if(resolution<=dev->motor.base_ydpi/2)
+      else if(resolution<=600)
 	{
 	  val |= 0x08;
+	}
+      else if(resolution<=1200)
+	{
+	  val &= 0xef;
+	  val |= 0x08;
+	}
+      else
+	{
+	  val &= 0xf7;
 	}
     }
   val |= 0x02;

@@ -5893,7 +5893,7 @@ init_options (Genesys_Scanner * s)
       DISABLE (OPT_COLOR_FILTER);
     }
 
-  /* calibration stor file name */
+  /* calibration store file name */
   s->opt[OPT_CALIBRATION_FILE].name = "calibration-file";
   s->opt[OPT_CALIBRATION_FILE].title = SANE_I18N ("Calibration file");
   s->opt[OPT_CALIBRATION_FILE].desc = SANE_I18N ("Specify the calibration file to use");
@@ -7125,6 +7125,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_DESPECK:
     case OPT_CONTRAST:
     case OPT_BRIGHTNESS:
+    case OPT_EXPIRATION_TIME:
       *(SANE_Word *) val = s->val[option].w;
       break;
     case OPT_CUSTOM_GAMMA:

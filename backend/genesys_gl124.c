@@ -1273,13 +1273,15 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   r->value &= ~REG01_SCAN;
 
   r = sanei_genesys_get_address (reg, REG03);
-  if(dev->model->ccd_type!=CIS_CANONLIDE120)
+  if((dev->model->ccd_type!=CIS_CANONLIDE120)&&(used_res>=600))
     {
       r->value &= ~REG03_AVEENB;
+      DBG (DBG_io, "%s: disabling AVEENB\n", __func__);
     }
   else
     {
       r->value |= ~REG03_AVEENB;
+      DBG (DBG_io, "%s: enabling AVEENB\n", __func__);
     }
 
   if (flags & OPTICAL_FLAG_DISABLE_LAMP)

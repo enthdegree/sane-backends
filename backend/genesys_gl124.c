@@ -901,10 +901,17 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
     }
   else
     {
-      min_speed = 900;
-      if(dev->model->ccd_type==MOTOR_CANONLIDE110)
+      switch(dev->model->motor_type)
         {
-          min_speed = 300;
+          case MOTOR_CANONLIDE110:
+            min_speed = 300;
+            break;
+          case MOTOR_CANONLIDE120:
+            min_speed = 900;
+            break;
+          default:
+            min_speed = 900;
+            break;
         }
     }
 
@@ -926,7 +933,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
       linesel=0;
     }
 
-  DBG (DBG_io2, "%s: linesel=%d\n", __func__, linesel);
+  DBG (DBG_io2, "%s: final yres=%f, linesel=%d\n", __func__, yres, linesel);
 
   lincnt=scan_lines*(linesel+1);
   sanei_genesys_set_triple(reg,REG_LINCNT,lincnt);

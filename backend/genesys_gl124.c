@@ -904,7 +904,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
       switch(dev->model->motor_type)
         {
           case MOTOR_CANONLIDE110:
-            min_speed = 300;
+	    min_speed = 600;
             break;
           case MOTOR_CANONLIDE120:
             min_speed = 900;

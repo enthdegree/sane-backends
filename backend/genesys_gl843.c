@@ -4446,6 +4446,7 @@ static Genesys_Command_Set gl843_cmd_set = {
   gl843_led_calibration,
 
   gl843_slow_back_home,
+  NULL,
 
   sanei_genesys_bulk_write_register,
   gl843_bulk_write_data,

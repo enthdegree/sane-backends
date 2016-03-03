@@ -509,8 +509,8 @@ typedef struct Genesys_Command_Set
     SANE_Status (*coarse_gain_calibration) (Genesys_Device * dev, int dpi);
     SANE_Status (*led_calibration) (Genesys_Device * dev);
 
-    SANE_Status (*slow_back_home) (Genesys_Device * dev,
-				   SANE_Bool wait_until_home);
+    SANE_Status (*slow_back_home) (Genesys_Device * dev, SANE_Bool wait_until_home);
+    SANE_Status (*rewind) (Genesys_Device * dev);
 
     SANE_Status (*bulk_write_register) (Genesys_Device * dev,
 					Genesys_Register_Set * reg,

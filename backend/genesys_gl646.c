@@ -5767,6 +5767,7 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_led_calibration,
 
   gl646_slow_back_home,
+  NULL,
 
   gl646_bulk_write_register,
   gl646_bulk_write_data,

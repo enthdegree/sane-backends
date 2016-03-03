@@ -3926,6 +3926,7 @@ static Genesys_Command_Set gl124_cmd_set = {
   gl124_led_calibration,
 
   gl124_slow_back_home,
+  NULL,
 
   sanei_genesys_bulk_write_register,
   NULL,

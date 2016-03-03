@@ -6352,6 +6352,7 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_led_calibration,
 
   gl841_slow_back_home,
+  NULL,
 
   gl841_bulk_write_register,
   gl841_bulk_write_data,

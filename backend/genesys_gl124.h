@@ -679,7 +679,7 @@ static Motor_Profile motors[]={
 	{MOTOR_CANONLIDE120, 10528, 2, lide120_slow},
 	{MOTOR_CANONLIDE120, 20864, 2, lide120_max},
 	{MOTOR_CANONLIDE210,  2768, 0, lide210_fast},
-	{MOTOR_CANONLIDE210,  5360, 0, lide110_ok},
+	{MOTOR_CANONLIDE210,  5360, 1, lide110_ok},
 	{MOTOR_CANONLIDE210, 10528, 1, lide110_slow},
 	{MOTOR_CANONLIDE210, 20864, 2, lide210_max},
 	{0, 0, 0, NULL},

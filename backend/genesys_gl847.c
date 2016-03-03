@@ -1929,10 +1929,50 @@ gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   return status;
 }
 
-/* Moves the slider to the home (top) postion slowly */
-#ifndef UNIT_TESTING
-static
-#endif
+/** rewind scan
+ * Move back by the same amount of distance than previous scan.
+ * @param dev device to rewind
+ * @returns SANE_STATUS_GOOD on success
+ */
+GENESYS_STATIC
+SANE_Status gl847_rewind(Genesys_Device * dev)
+{
+  SANE_Status status;
+  uint8_t byte;
+
+  DBGSTART;
+
+  /* set motor reverse */
+  RIE (sanei_genesys_read_register (dev, 0x02, &byte));
+  byte |= 0x04;
+  RIE (sanei_genesys_write_register(dev, 0x02, byte));
+
+  /* and start scan, then wait completion */
+  RIE (gl847_begin_scan (dev, dev->reg, SANE_TRUE));
+  do
+    {
+      usleep(100*1000);
+      RIE (sanei_genesys_read_register (dev, REG40, &byte));
+    }
+  while(byte & REG40_MOTMFLG);
+  RIE (gl847_end_scan (dev, dev->reg, SANE_TRUE));
+
+  /* restore direction */
+  RIE (sanei_genesys_read_register (dev, 0x02, &byte));
+  byte &= 0xfb;
+  RIE (sanei_genesys_write_register(dev, 0x02, byte));
+
+  DBGCOMPLETED;
+  return SANE_STATUS_GOOD;
+}
+
+/** Park head
+ * Moves the slider to the home (top) position slowly
+ * @param dev device to park
+ * @param wait_until_home true to make the function waiting for head
+ * to be home before returning, if fals returne immediately
+ * @returns SANE_STATUS_GOO on success */
+GENESYS_STATIC
 SANE_Status
 gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
@@ -3753,7 +3793,7 @@ static Genesys_Command_Set gl847_cmd_set = {
   gl847_led_calibration,
 
   gl847_slow_back_home,
-  NULL,
+  gl847_rewind,
 
   sanei_genesys_bulk_write_register,
   NULL,

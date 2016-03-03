@@ -423,9 +423,14 @@ static int
 step1 (pixma_t * s)
 {
   int error;
+  int rec_tmo;
   iclass_t *mf = (iclass_t *) s->subdriver;
 
+  /* don't wait full timeout for 1st command */
+  rec_tmo = s->rec_tmo;         /* save globel timeout */
+  s->rec_tmo = 2;               /* set timeout to 2 seconds */
   error = query_status (s);
+  s->rec_tmo = rec_tmo;         /* restore global timeout */
   if (error < 0)
   {
     PDBG (pixma_dbg (1, "WARNING: Resend first USB command after timeout!\n"));

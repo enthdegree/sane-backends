@@ -118,6 +118,7 @@ struct pixma_t
   int cancel;			/* NOTE: It can be set in a signal handler. */
   uint32_t events;
   void *subdriver;		/* can be used by model driver. */
+  int rec_tmo;                  /* receive timeout [s] */
 
   /* private */
   uint64_t cur_image_size;

@@ -671,7 +671,7 @@ static uint32_t lide210_max[]  = { 62496, 31296, 20864, 10432, 0};
  */
 static Motor_Profile motors[]={
 	{MOTOR_CANONLIDE110,  2768, 0, lide210_fast},
-	{MOTOR_CANONLIDE110,  5360, 0, lide110_ok},
+	{MOTOR_CANONLIDE110,  5360, 1, lide110_ok},
 	{MOTOR_CANONLIDE110, 10528, 1, lide110_slow},
 	{MOTOR_CANONLIDE110, 20864, 2, lide110_max},
 	{MOTOR_CANONLIDE120,  4608, 0, lide120_fast},

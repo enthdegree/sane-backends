@@ -993,7 +993,7 @@
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x278e"
 :status :complete
-:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)."
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI). Note: document feeder does not have 600DPI capability."
 
 :model "imageCLASS MF6500 Series"
 :interface "USB"

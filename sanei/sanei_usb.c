@@ -2336,10 +2336,10 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
     {
       if (devices[dn].bulk_in_ep)
 	{
-	  int ret;
+	  int ret, rsize;
 	  ret = libusb_bulk_transfer (devices[dn].lu_handle,
 				      devices[dn].bulk_in_ep, buffer,
-				      (int) *size, (int *) &read_size,
+				      (int) *size, &rsize,
 				      libusb_timeout);
 
 	  if (ret < 0)
@@ -2348,6 +2348,10 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 		   sanei_libusb_strerror (ret));
 
 	      read_size = -1;
+	    }
+	  else
+	    {
+	      read_size = rsize;
 	    }
 	}
       else

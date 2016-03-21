@@ -69,10 +69,6 @@ eds_dev_post_init(struct epsonds_device *dev)
 		return SANE_STATUS_INVAL;
 	}
 
-	if (eds_is_model(dev, "DS-60000")) {
-		dev->has_stripes_bug = 1;
-	}
-
 	return SANE_STATUS_GOOD;
 }
 
@@ -220,15 +216,6 @@ eds_init_parameters(epsonds_scanner *s)
 		s->params.depth = 1;
 	else
 		s->params.depth = s->val[OPT_DEPTH].w;
-
-	/* we have stripes on scanned pages in duplex @ 300dpi */
-	if (s->hw->has_stripes_bug && s->val[OPT_RESOLUTION].w == 300) {
-
-		DBG(0, "%s: artifacts will be produced at 300 dpi, lowering to 299.\n", __func__);
-
-		s->val[OPT_RESOLUTION].w = 299; // speed at 301 is too slow
-	}
-
 
 	dpi = s->val[OPT_RESOLUTION].w;
 

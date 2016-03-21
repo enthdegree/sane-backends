@@ -136,8 +136,6 @@ struct epsonds_device
 	SANE_Bool has_tpu;		/* tpu */
 	SANE_Range tpu_x_range;	        /* transparency unit x range */
 	SANE_Range tpu_y_range;	        /* transparency unit y range */
-
-	SANE_Bool has_stripes_bug;	/* artifacts at 300 dpi */
 };
 
 typedef struct epsonds_device epsonds_device;

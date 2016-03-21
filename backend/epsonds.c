@@ -12,8 +12,8 @@
  */
 
 #define EPSONDS_VERSION		1
-#define EPSONDS_REVISION	0
-#define EPSONDS_BUILD		36
+#define EPSONDS_REVISION	1
+#define EPSONDS_BUILD		0
 
 /* debugging levels:
  *
@@ -1159,9 +1159,9 @@ sane_start(SANE_Handle handle)
 	/* resolution (RSMi not always supported) */
 
 	if (s->val[OPT_RESOLUTION].w > 999) {
-		sprintf(buf, "#RSMi%07d", s->val[OPT_RESOLUTION].w);
+		sprintf(buf, "#RSMi%07d#RSSi%07d", s->val[OPT_RESOLUTION].w, s->val[OPT_RESOLUTION].w);
 	} else {
-		sprintf(buf, "#RSMd%03d", s->val[OPT_RESOLUTION].w);
+		sprintf(buf, "#RSMd%03d#RSSd%03d", s->val[OPT_RESOLUTION].w, s->val[OPT_RESOLUTION].w);
 	}
 
 	strcat(cmd, buf);

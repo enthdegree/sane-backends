@@ -449,9 +449,10 @@ enum {
 #define COLOR_INTERLACE_2510 7
 
 #define DUPLEX_INTERLACE_NONE 0
-#define DUPLEX_INTERLACE_FFBB 1
-#define DUPLEX_INTERLACE_FBFB 2
+#define DUPLEX_INTERLACE_FfBb 1
+#define DUPLEX_INTERLACE_FBfb 2
 #define DUPLEX_INTERLACE_2510 3
+#define DUPLEX_INTERLACE_fFBb 4
 
 #define JPEG_INTERLACE_ALT 0 
 #define JPEG_INTERLACE_NONE 1 
@@ -614,5 +615,7 @@ static void hexdump (int level, char *comment, unsigned char *p, int l);
 static void default_globals (void);
 
 static size_t maxStringSize (const SANE_String_Const strings[]);
+
+static void rmemcpy(void* dest, const void* src, size_t count, size_t stride);
 
 #endif /* CANON_DR_H */

@@ -289,7 +289,8 @@
 :model "DR-F120"
 :interface "USB"
 :usbid "0x1083" "0x1654"
-:status :untested
+:status :basic
+:comment "Flatbed not working. ADF working. Simplex+duplex, all resolutions <= 600, gray/color, calibration poor."
 
 :model "DR-G1100"
 :interface "USB"

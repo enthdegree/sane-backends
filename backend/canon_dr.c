@@ -314,7 +314,7 @@
       v50 2015-08-23, MAN
          - DR-C125 adds duplex padding on back side
          - initial support for DR-C225
-      v51 2015-08-25, MAN
+      v51 2015-08-25, MAN (SANE 1.0.25)
          - DR-C125 does not invert_tly, does need sw_lut
       v52 2015-11-03, MAN
          - set can_color=1 by default (recent models dont have 'C' in name)
@@ -329,6 +329,10 @@
          - use bg_color to fill missing image data
       v54 2015-11-21, MAN
          - br_x and br_y locked to page_width/height until changed
+      v55 2016-03-19, MAN
+         - fixed-width scanners were calculating left-side offset incorrectly in color
+         - initial support for DR-F120
+         - rename all DUPLEX_INTERLACE_* to indicate start and end of line
 
    SANE FLOW DIAGRAM
 
@@ -379,7 +383,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 54
+#define BUILD 55
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -632,7 +636,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                   global_extra_status = buf;
               }
 
-              /* DUPLEXOFFSET: < 1200 */
+              /* DUPLEXOFFSET: < 2400 */
               else if (!strncmp (lp, "duplex-offset", 13) && isspace (lp[13])) {
     
                   int buf;
@@ -640,9 +644,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                   lp = sanei_config_skip_whitespace (lp);
                   buf = atoi (lp);
     
-                  if (buf > 1200) {
+                  if (buf > 2400) {
                     DBG (5, "sane_get_devices: config option \"duplex-offset\" "
-                      "(%d) is > 1200, ignoring!\n", buf);
+                      "(%d) is > 2400, ignoring!\n", buf);
                     continue;
                   }
     
@@ -1335,7 +1339,7 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
-    s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBfb;
     s->need_ccal = 1;
     s->need_fcal = 1;
     /*s->duplex_offset = 432; now set in config file*/
@@ -1415,7 +1419,7 @@ init_model (struct scanner *s)
     s->even_Bpl = 1;
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
-    s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBfb;
     s->need_fcal_buffer = 1;
     s->bg_color = 0x08;
     /*s->duplex_offset = 840; now set in config file*/
@@ -1457,7 +1461,7 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
-    s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBfb;
     s->need_ccal = 1;
     s->invert_tly = 1;
     s->unknown_byte2 = 0x88;
@@ -1472,7 +1476,7 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_rRgGbB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
     s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_gG;
-    s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBfb;
     s->need_ccal = 1;
     s->invert_tly = 1;
     s->unknown_byte2 = 0x88;
@@ -1516,7 +1520,7 @@ init_model (struct scanner *s)
     s->can_write_panel = 0;
     s->has_ssm = 0;
     s->has_ssm2 = 1;
-    s->duplex_interlace = DUPLEX_INTERLACE_FFBB;
+    s->duplex_interlace = DUPLEX_INTERLACE_FfBb;
     s->duplex_offset_side = SIDE_FRONT;
 
     /*lies*/
@@ -1556,7 +1560,7 @@ init_model (struct scanner *s)
     s->can_write_panel = 0;
     s->has_ssm = 0;
     s->has_ssm2 = 1;
-    s->duplex_interlace = DUPLEX_INTERLACE_FFBB;
+    s->duplex_interlace = DUPLEX_INTERLACE_FfBb;
     s->duplex_offset_side = SIDE_BACK;
 
     /*lies*/
@@ -1599,7 +1603,7 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
-    s->duplex_interlace = DUPLEX_INTERLACE_FBFB;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBfb;
 
     s->unknown_byte2 = 0x88;
     s->need_ccal = 1;
@@ -1620,6 +1624,51 @@ init_model (struct scanner *s)
     s->always_op = 0;
     s->fixed_width = 1;
     s->valid_x = 8.5 * 1200;
+  }
+
+  else if (strstr (s->model_name,"DR-F120")){
+    /* TODO items:
+     * * has_rif = 0 ? is this correct
+     * * has_comp_JPEG = 0 ? is this correct
+     * * need_ccal = need_fcal = need_fcal_buffer = ccal_version = 0 ? is this correct
+     */
+
+    /* Required for USB coms */
+    s->has_ssm = 0;
+    s->has_ssm2 = 1;
+
+    /*missing*/
+    s->std_res_x[DPI_100] = 1;
+    s->std_res_y[DPI_100] = 1;
+    // DPI_150 not supported
+    s->std_res_x[DPI_200] = 1;
+    s->std_res_y[DPI_200] = 1;
+    s->std_res_x[DPI_300] = 1;
+    s->std_res_y[DPI_300] = 1;
+    // DPI_400 not supported
+    s->std_res_x[DPI_600]= 1;
+    s->std_res_y[DPI_600] = 1;
+    // DPI_1200 not supported
+    // NOTE: This scanner supports higher resolutions
+    // in the Y direction, but 600 is maximum in X
+
+    // This is true however only the ADF is ever selected in hardware
+    // FIXME: What extra option is needed to select this in the USB comms
+    s->has_flatbed = 1;
+
+    /* duplex */
+    s->duplex_interlace = DUPLEX_INTERLACE_fFBb;
+    s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_GBR;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_GBR;
+    s->color_inter_by_res[DPI_100] = COLOR_INTERLACE_RGB;
+    s->color_inter_by_res[DPI_600] = COLOR_INTERLACE_RGB;
+    s->duplex_offset_side = SIDE_BACK;
+
+    /* weirdness */
+    s->fixed_width = 1;
+
+    /* lies */
+    s->can_halftone = 0;
   }
 
   DBG (10, "init_model: finish\n");
@@ -5241,16 +5290,20 @@ copy_duplex(struct scanner *s, unsigned char * buf, int len)
   }
 
   /* full line of front, then full line of back */
-  else if(s->duplex_interlace == DUPLEX_INTERLACE_FFBB){
+  else if(s->duplex_interlace == DUPLEX_INTERLACE_FfBb || s->duplex_interlace == DUPLEX_INTERLACE_fFBb){
     for(i=0; i<len; i+=dbwidth){
-      memcpy(front+flen,buf+i,bwidth);
+      if(s->duplex_interlace == DUPLEX_INTERLACE_FfBb){
+        memcpy(front+flen,buf+i,bwidth);
+      }else{
+        rmemcpy(front+flen,buf+i,bwidth,3); // only 24bit color is supported
+      }
       flen+=bwidth;
       memcpy(back+blen,buf+i+bwidth,bwidth);
       blen+=bwidth;
     }
   }
 
-  /*just alternating bytes, FBFBFB*/
+  /*just alternating bytes, FBfb*/
   else {
     for(i=0; i<len; i+=2){
       front[flen++] = buf[i];
@@ -5267,6 +5320,22 @@ copy_duplex(struct scanner *s, unsigned char * buf, int len)
   DBG (10, "copy_duplex: finished\n");
 
   return ret;
+}
+
+/*
+ * Reverse memcpy designed to mirror a line of data.
+ * Use stride size to account for the number of bytes per pixel
+ */
+static void rmemcpy(void* dest, const void* src, size_t count, size_t stride) {
+  char* dstptr = (char*)dest;
+  char* srcptr = (char*)src;
+  srcptr += count;
+  while (count) {
+    srcptr -= stride;
+    memcpy(dstptr, srcptr, stride);
+    dstptr += stride;
+    count -= stride;
+  }
 }
 
 /* downsample a single line from scanner's size to user's size */
@@ -5395,7 +5464,7 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
   switch (s->i.mode) {
   
     case MODE_COLOR:
-      memcpy(s->buffers[side]+s->i.bytes_sent[side], line+offset, ibwidth);
+      memcpy(s->buffers[side]+s->i.bytes_sent[side], line+(offset*3), ibwidth);
       s->i.bytes_sent[side] += ibwidth;
       break;
   
@@ -7239,18 +7308,20 @@ wait_scanner(struct scanner *s)
     NULL, 0,
     NULL, NULL
   );
-  
+
+  // some scanners (such as DR-F120) are OK but will not respond to commands
+  // when in sleep mode. By checking the sense it wakes them up.
   if (ret != SANE_STATUS_GOOD) {
-    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick\n");
+    DBG(5,"WARNING: Brain-dead scanner. Hitting with request sense.\n");
     ret = do_cmd (
-      s, 0, 1,
+      s, 1, 1,
       cmd, cmdLen,
       NULL, 0,
       NULL, NULL
     );
   }
   if (ret != SANE_STATUS_GOOD) {
-    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick again\n");
+    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick instead.\n");
     ret = do_cmd (
       s, 0, 1,
       cmd, cmdLen,
@@ -7263,7 +7334,7 @@ wait_scanner(struct scanner *s)
     DBG (5, "wait_scanner: error '%s'\n", sane_strstatus (ret));
   }
 
-  DBG (10, "wait_scanner: finish\n");
+  DBG (10, "wait_scanner: finish (status=%d)\n", ret);
 
   return ret;
 }

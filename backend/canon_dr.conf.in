@@ -187,6 +187,7 @@ usb 0x1083 0x1651
 usb 0x1083 0x1652
 
 # DR-F120
+option duplex-offset 1640
 usb 0x1083 0x1654
 
 # DR-M1060

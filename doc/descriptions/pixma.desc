@@ -241,8 +241,8 @@
 :model "PIXMA MG7700 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x178b"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 2400DPI)."
 
 :model "PIXMA MG8100 Series"
 :interface "USB"

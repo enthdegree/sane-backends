@@ -2460,16 +2460,6 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
           if ( resp_len > 0 )
             {
               device[dn].polling_status = BJNP_POLL_STATUS_RECEIVED;
-
-              /* this is a bit of a hack, but the scanner does not like */
-              /* us to continue using the existing tcp socket */
-
-              /* No longer required? Does not work anymore now we moved code from sanei_bjnp_activate/sanei_bjnp_deactivate
-                 to the isanei_bjnp_open and sanei_bjnp_close
-              sanei_bjnp_deactivate(dn);
-              sanei_bjnp_activate(dn);
-              */ 
-
               return SANE_STATUS_GOOD;
             }
           seconds = timeout > 2 ? 2 : timeout;

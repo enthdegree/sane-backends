@@ -2182,8 +2182,15 @@ sanei_bjnp_deactivate (SANE_Int dn)
 extern void
 sanei_bjnp_set_timeout (SANE_Int devno, SANE_Int timeout)
 {
-  PDBG (bjnp_dbg (LOG_INFO, "bjnp_set_timeout to %d\n",
+  if (timeout < BJNP_TIMEOUT_MIN) 
+    {
+      PDBG (bjnp_dbg (LOG_INFO, "bjnp_set_timeout to %d, but using minimum value %d\n",
+		   timeout, BJNP_TIMEOUT_MIN));
+      timeout = BJNP_TIMEOUT_MIN;
+    } else {
+      PDBG (bjnp_dbg (LOG_INFO, "bjnp_set_timeout to %d\n",
 		   timeout));
+    }
 
   device[devno].bjnp_timeout = timeout;
 }

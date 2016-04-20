@@ -706,8 +706,8 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
 	  FD_ZERO (&fdset);
 	  FD_SET (sockfd, &fdset);
 
-	  timeout.tv_sec = BJNP_TIMEOUT_UDP;
-	  timeout.tv_usec = 0; 
+	  timeout.tv_sec = device[dev_no].bjnp_timeout /1000;
+	  timeout.tv_usec = device[dev_no].bjnp_timeout %1000;
 	}
       while (((result =
 	       select (sockfd + 1, &fdset, NULL, NULL, &timeout)) <= 0)
@@ -737,7 +737,7 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
 
   close(sockfd);
   PDBG (bjnp_dbg
-        (LOG_CRIT, "udp_command: ERROR - no data received\n" ) );
+        (LOG_CRIT, "udp_command: ERROR - no data received (timeout = %d)\n", device[dev_no].bjnp_timeout ) );
   return -1;
 }
 
@@ -1423,8 +1423,8 @@ bjnp_recv_header (int devno, size_t *payload_size )
       FD_ZERO (&input);
       FD_SET (fd, &input);
 
-      timeout.tv_sec = BJNP_TIMEOUT_TCP;
-      timeout.tv_usec = 0;
+      timeout.tv_sec = device[devno].bjnp_timeout /1000;
+      timeout.tv_usec = device[devno].bjnp_timeout %1000;
     }
   while ( ( (result = select (fd + 1, &input, NULL, NULL, &timeout)) <= 0) &&
 	 (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS));
@@ -1524,7 +1524,7 @@ bjnp_init_device_structure(int dn, bjnp_sockaddr_t *sa, bjnp_protocol_defs_t *pr
   device[dn].address_level = get_scanner_name(sa, name);
   device[dn].session_id = 0;
   device[dn].serial = -1;
-  device[dn].bjnp_timeout = 0;
+  device[dn].bjnp_timeout = 1000;
   device[dn].scanner_data_left = 0;
   device[dn].last_cmd = 0;
   device[dn].blocksize = BJNP_BLOCKSIZE_START;	
@@ -1597,8 +1597,8 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t start_pos, size_t * len)
       /* wait for data to be received, retry on a signal being received */
       FD_ZERO (&input);
       FD_SET (fd, &input);
-      timeout.tv_sec = BJNP_TIMEOUT_TCP;
-      timeout.tv_usec = 0;
+      timeout.tv_sec = device[devno].bjnp_timeout /1000;
+      timeout.tv_usec = device[devno].bjnp_timeout %1000;
     }
   while (((result = select (fd + 1, &input, NULL, NULL, &timeout)) <= 0) &&
 	 (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS));

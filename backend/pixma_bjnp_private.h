@@ -80,8 +80,6 @@
 /* timers */
 #define BJNP_BROADCAST_INTERVAL 10 	/* ms between broadcasts */
 #define BJNP_BC_RESPONSE_TIMEOUT 500  	/* waiting time for broadc. responses */
-#define BJNP_TIMEOUT_UDP 4 		/* standard UDP timeout in seconds */
-#define BJNP_TIMEOUT_TCP 4		/* standard TCP timeout in seconds */
 #define BJNP_USLEEP_MS 1000          	/* sleep for 1 msec */
 
 /* retries */

@@ -66,6 +66,8 @@ i-SENSYS MF6100, MF8200C, MF8300
 imageRUNNER 1020/1024/1025
 .br
 CanoScan 8800F, 9000F, 9000F Mark II
+.br
+MAXIFY MB5000 (ADF is not working)
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs
@@ -101,7 +103,7 @@ imageRUNNER 1133
 .br
 i-SENSYS MF210, MF220, MF5880dn, MF5900, MF6680dn, MF8500C
 .br
-MAXIFY MB2000, MB2300, MB5000, MB5300
+MAXIFY MB2000, MB2300, MB5300
 .RE
 .PP
 \#The following models may use partly the same Pixma protocol as other devices

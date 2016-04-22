@@ -1082,8 +1082,8 @@
 :model "MAXIFY MB5000 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1776"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed works, All resolutions supported (up to 1200DPI), ADF does not work"
 
 :model "MAXIFY MB5300 Series"
 :interface "USB"

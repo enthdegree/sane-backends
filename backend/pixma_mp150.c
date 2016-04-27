@@ -954,41 +954,47 @@ handle_interrupt (pixma_t * s, int timeout)
    * tt: target
    * rr: scan resolution
    * poll event with 'scanimage -A' */
-  if (s->cfg->pid == MG6200_PID
-      || s->cfg->pid == MG6300_PID
-      || s->cfg->pid == MX520_PID
-      || s->cfg->pid == MX720_PID
-      || s->cfg->pid == MX920_PID
-      || s->cfg->pid == MB5000_PID)
-  /* button no. in buf[7]
-   * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto
-   * format in buf[11] 01=JPEG; 02=TIFF; 03=PDF; 04=Kompakt-PDF
-   * dpi in buf[12] 01=75; 02=150; 03=300; 04=600
-   * target = format; original = size; scan-resolution = dpi */
-  {
-    if (buf[7] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* color scan */
-    if (buf[7] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* b/w scan */
-  }
-  else
-  /* button no. in buf[0]
-   * original in buf[0]
-   * target in buf[1] */
-  {
-    /* More than one event can be reported at the same time. */
-    if (buf[3] & 1)
-      /* FIXME: This function makes trouble with a lot of scanners
-      send_time (s);
-       */
-      PDBG (pixma_dbg (1, "WARNING:send_time() disabled!\n"));
-    if (buf[9] & 2)
-      query_status (s);
-    if (buf[0] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[1] | ((buf[0] & 0xf0) << 4);	/* b/w scan */
-    if (buf[0] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[1] | ((buf[0] & 0xf0) << 4);	/* color scan */
-  }
+  switch (s->cfg->pid)
+    {
+      case MG6200_PID:
+      case MG6300_PID:
+      case MX520_PID:
+      case MX720_PID:
+      case MX920_PID:
+      case MB5000_PID:
+
+        /* button no. in buf[7]
+         * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto
+         * format in buf[11] 01=JPEG; 02=TIFF; 03=PDF; 04=Kompakt-PDF
+         * dpi in buf[12] 01=75; 02=150; 03=300; 04=600
+         * target = format; original = size; scan-resolution = dpi */
+        
+          if (buf[7] & 1)
+            s->events = PIXMA_EV_BUTTON1 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* color scan */
+          if (buf[7] & 2)
+            s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* b/w scan */
+          break;
+
+      default:
+
+        /* button no. in buf[0]
+         * original in buf[0]
+         * target in buf[1] */
+  
+          /* More than one event can be reported at the same time. */
+          if (buf[3] & 1)
+            /* FIXME: This function makes trouble with a lot of scanners
+            send_time (s);
+             */
+            PDBG (pixma_dbg (1, "WARNING:send_time() disabled!\n"));
+          if (buf[9] & 2)
+            query_status (s);
+          if (buf[0] & 2)
+            s->events = PIXMA_EV_BUTTON2 | buf[1] | ((buf[0] & 0xf0) << 4);	/* b/w scan */
+          if (buf[0] & 1)
+            s->events = PIXMA_EV_BUTTON1 | buf[1] | ((buf[0] & 0xf0) << 4);	/* color scan */
+          break;
+      }
   return 1;
 }
 

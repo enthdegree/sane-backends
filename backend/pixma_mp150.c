@@ -58,6 +58,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <time.h>		/* localtime(C90) */
 
 #include "pixma_rename.h"
@@ -705,6 +706,8 @@ send_scan_param (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
+  struct timeval tv;
+  struct tm *ptm;
   unsigned raw_width = calc_raw_width (mp, s->param);
   unsigned h = MIN (s->param->h + calc_shifting (s), 
                     s->cfg->height * s->param->ydpi / 75);
@@ -782,11 +785,11 @@ send_scan_param (pixma_t * s)
       switch (s->cfg->pid)
         {
 	case MG5300_PID:
-	  /* unknown values (perhaps counter) for MG5300 series---values must be 0x30-0x39: decimal 0-9 */
-	  data[0x26] = 0x32; /* using example values from a real scan here */
-	  data[0x27] = 0x31;
-	  data[0x28] = 0x34;
-	  data[0x29] = 0x35;
+	case MB5000_PID:
+	  /* localtime (HHMM) */
+          gettimeofday(&tv, NULL);
+          ptm = localtime(&tv.tv_sec);
+          strftime( (char *)(data +0x26), 5, "%H%M", ptm);
 	  break;
 
 	default:

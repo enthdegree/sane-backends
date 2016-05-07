@@ -71,6 +71,10 @@ struct device {
 #define DATATAIL(dev) ((dev->dataoff + dev->datalen) & DATAMASK)
 #define DATAROOM(dev) dataroom(dev)
 
+#define POST_DATASIZE 0xFFFFFF
+  SANE_Byte *decData;
+  int decDataSize;
+  int currentDecDataIndex;
   /* data from CMD_INQUIRY: */
   int resolutions;		/* supported resolution bitmask */
   int compositions;		/* supported image compositions bitmask */
@@ -95,6 +99,7 @@ struct device {
   int composition;		/* MODE_ */
   int doc_source;		/* document source */
   int threshold;		/* brightness */
+  int compressionTypes;
 
   /* CMD_READ data. It is per block only, image could be in many blocks */
   int blocklen;			/* image data block len (padding incl.) */

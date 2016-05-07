@@ -53,6 +53,36 @@
 :mfg "Samsung"
 :url "http://www.samsung.com"
 
+:model "X4300 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3324"
+:status :untested
+
+:model "K4350 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3325"
+:status :untested
+
+:model "X7600 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3326"
+:status :untested
+
+:model "K7600 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3327"
+:status :untested
+
+:model "K703 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3331"
+:status :untested
+
+:model "X703 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3332"
+:status :untested
+
 :model "SCX-4x16"
 :interface "USB"
 :usbid "0x04e8" "0x3409"
@@ -290,7 +320,7 @@
 
 :model "SCX-3405W"
 :interface "Ethernet"
-:status :basic
+:status :good
 
 :model "SCX-3400"
 :interface "USB"
@@ -305,17 +335,17 @@
 :model "SCX-4729FD"
 :interface "USB"
 :usbid "0x04e8" "0x3453"
-:status :basic
+:status :good
 
 :model "CLX-6260"
 :interface "USB"
 :usbid "0x04e8" "0x3455"
-:status :minimal
+:status :good
 
 :model "CLX-3300 Series"
 :interface "USB"
 :usbid "0x04e8" "0x3456"
-:status :basic
+:status :good
 
 :model "SCX-470x"
 :interface "USB"
@@ -325,7 +355,7 @@
 :model "CLX-4190"
 :interface "USB"
 :usbid "0x04e8" "0x345a"
-:status :minimal
+:status :good
 
 :model "SCX-4650 4x21S Series"
 :interface "USB"
@@ -350,5 +380,35 @@
 :model "C460"
 :interface "USB"
 :usbid "0x04e8" "0x3468"
+:status :untested
+
+:model "M458x Series"
+:interface "USB"
+:usbid "0x04e8" "0x346f"
+:status :untested
+
+:model "M4370 5370 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3471"
+:status :untested
+
+:model "X401 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3477"
+:status :untested
+
+:model "K401 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3478"
+:status :untested
+
+:model "K3250 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3481"
+:status :untested
+
+:model "X3220 Series"
+:interface "USB"
+:usbid "0x04e8" "0x3482"
 :status :untested
 

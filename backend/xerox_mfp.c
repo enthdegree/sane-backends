@@ -30,6 +30,7 @@
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_backend.h"
+#include <jpeglib.h>
 #include "xerox_mfp.h"
 
 #define BACKEND_BUILD 13
@@ -87,6 +88,119 @@ static char *str_cmd(int cmd)
 }
 
 #define MAX_DUMP 70
+const char *encTmpFileName = "/tmp/stmp_enc.tmp";
+
+static int decompress(struct device *dev, const char *infilename)
+{
+	int rc;
+	int row_stride, width, height, pixel_size;
+	struct jpeg_decompress_struct cinfo;
+	struct jpeg_error_mgr jerr;
+	unsigned long bmp_size = 0;
+	FILE *pInfile = NULL;
+	JSAMPARRAY buffer;
+
+	if ((pInfile = fopen(infilename, "rb")) == NULL) {
+	    fprintf(stderr, "can't open %s\n", infilename);
+	    return -1;
+	}
+
+	cinfo.err = jpeg_std_error(&jerr);
+
+	jpeg_create_decompress(&cinfo);
+
+	jpeg_stdio_src(&cinfo, pInfile);
+
+	rc = jpeg_read_header(&cinfo, TRUE);
+	if (rc != 1) {
+		jpeg_destroy_decompress(&cinfo);
+		fclose(pInfile);
+		return -1;
+	}
+
+	jpeg_start_decompress(&cinfo);
+
+	width = cinfo.output_width;
+	height = cinfo.output_height;
+	pixel_size = cinfo.output_components;
+	bmp_size = width * height * pixel_size;
+	dev->decDataSize = bmp_size;
+
+	row_stride = width * pixel_size;
+
+	buffer = (*cinfo.mem->alloc_sarray)
+		((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
+
+	while (cinfo.output_scanline < cinfo.output_height) {
+		buffer[0] = dev->decData + \
+				   (cinfo.output_scanline) * row_stride;
+		jpeg_read_scanlines(&cinfo, buffer, 1);
+	}
+	jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+	fclose(pInfile);
+	return 0;
+}
+
+static int copy_decompress_data(struct device *dev, unsigned char *pDest, int maxlen, int *destLen)
+{
+	int data_size = 0;
+	size_t result = 0, retVal = 0;
+
+
+	if ( 0 == dev->decDataSize ) {
+		*destLen = 0;
+		return retVal;
+	}
+	data_size = dev->decDataSize - dev->currentDecDataIndex;
+	if ( data_size > maxlen ) {
+		data_size = maxlen;
+	}
+	memcpy(pDest, dev->decData+dev->currentDecDataIndex, data_size);
+	result = data_size;
+	*destLen = result;
+	dev->currentDecDataIndex += result;
+	retVal = result;
+
+	if ( dev->decDataSize == dev->currentDecDataIndex ) {
+		dev->currentDecDataIndex = 0;
+		dev->decDataSize = 0;
+	}
+
+	return retVal;
+}
+
+static int decompress_tempfile(struct device *dev)
+{
+    decompress(dev, encTmpFileName);
+	remove(encTmpFileName);
+	return 0;
+}
+
+static int dump_to_tmp_file(struct device *dev)
+{
+	unsigned char * pSrc = dev->data;
+	int srcLen = dev->datalen;
+	FILE * pInfile;
+	if ((pInfile = fopen(encTmpFileName, "a")) == NULL) {
+		fprintf(stderr, "can't open %s\n", encTmpFileName);
+		return 0;
+	}
+
+	fwrite(pSrc, 1, srcLen, pInfile);
+	fclose(pInfile);
+	return srcLen;
+}
+
+static int isSupportedDevice(struct device *dev)
+{
+	/* Checking device which supports JPEG Lossy compression for color scanning*/
+	if ( dev->compressionTypes & (1 << 6) )
+		return 1;
+	else
+		return 0;
+}
+
 static void dbg_dump(struct device *dev)
 {
   int i;
@@ -510,9 +624,12 @@ static void set_parameters(struct device *dev)
 #endif
   dev->para.pixels_per_line = dev->win_width / px_to_len;
   dev->para.bytes_per_line = dev->para.pixels_per_line;
+
+  if ( !isSupportedDevice(dev) ) {
 #if BETTER_BASEDPI
   px_to_len = 1213.9 / dev->val[OPT_RESOLUTION].w;
 #endif
+  }
   dev->para.lines = dev->win_len / px_to_len;
   if (dev->composition == MODE_LINEART ||
       dev->composition == MODE_HALFTONE) {
@@ -634,6 +751,13 @@ static int dev_set_window (struct device *dev)
   cmd[0x11] = (SANE_Byte)floor(dev->win_off_y);
   cmd[0x12] = (SANE_Byte)((dev->win_off_y - floor(dev->win_off_y)) * 100);
   cmd[0x13] = dev->composition;
+  /* Set to JPEG Lossy Compression, if mode is color (only for supported model)...
+   * else go with Uncompressed (For backard compatibility with old models )*/
+  if (dev->composition == MODE_RGB24) {
+	if ( isSupportedDevice(dev) ) {
+		cmd[0x14] = 0x6;
+	}
+  }
   cmd[0x16] = dev->threshold;
   cmd[0x17] = dev->doc_source;
 
@@ -705,6 +829,7 @@ dev_inquiry (struct device *dev)
     dev->res[0x3e] << 8 |
     dev->res[0x3f];
   dev->line_order = dev->res[0x31];
+  dev->compressionTypes = dev->res[0x32];
   dev->doc_loaded = (dev->res[0x35] == 0x02) &&
     (dev->res[0x26] & 0x03);
 
@@ -803,6 +928,10 @@ dev_free (struct device *dev)
     free (UNCONST(dev->sane.type));
   if (dev->data)
     free(dev->data);
+  if (dev->decData) {
+    free(dev->decData);
+    dev->decData = NULL;
+  }
   memset (dev, 0, sizeof (*dev));
   free (dev);
 }
@@ -1140,6 +1269,19 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * lenp)
   /* if there is no data to read or output from buffer */
   if (!dev->blocklen && dev->datalen <= PADDING_SIZE) {
 
+    /* copying uncompressed data */
+    if ( dev->composition == MODE_RGB24 &&
+	isSupportedDevice(dev) &&
+        dev->decDataSize > 0) {
+	int diff = dev->total_img_size - dev->total_out_size;
+	int bufLen = (diff < maxlen) ? diff : maxlen;
+        if ( 0 < diff &&
+	    0 < copy_decompress_data(dev, buf, bufLen, lenp) ) {
+            dev->total_out_size += *lenp;
+            return SANE_STATUS_GOOD;
+        }
+    }
+
     /* and we don't need to acquire next block */
     if (dev->final_block) {
       int slack = dev->total_img_size - dev->total_out_size;
@@ -1155,7 +1297,10 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * lenp)
 	/* this will never happen */
 	DBG(1, "image overflow %d bytes\n", dev->total_img_size - dev->total_out_size);
       }
-
+      if ( isSupportedDevice(dev) &&
+          dev->composition == MODE_RGB24 ) {
+		remove(encTmpFileName);
+      }
       /* that's all */
       dev_stop(dev);
       return SANE_STATUS_EOF;
@@ -1206,10 +1351,19 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * lenp)
 
     if (buf && lenp) { /* read mode */
       /* copy will do minimal of valid data */
-      if (dev->para.format == SANE_FRAME_RGB && dev->line_order)
-	clrlen = copy_mix_bands_trim(dev, buf, maxlen, &olen);
-      else
-	clrlen = copy_plain_trim(dev, buf, maxlen, &olen);
+      if (dev->para.format == SANE_FRAME_RGB && dev->line_order) {
+	if (isSupportedDevice(dev)) {
+		clrlen = dump_to_tmp_file(dev);
+		/* decompress after reading entire block data*/
+		if ( 0 == dev->blocklen ) {
+			decompress_tempfile(dev);
+		}
+		copy_decompress_data(dev, buf, maxlen, &olen);
+	} else {
+	    clrlen = copy_mix_bands_trim(dev, buf, maxlen, &olen);
+	}
+      } else
+	  clrlen = copy_plain_trim(dev, buf, maxlen, &olen);
 
       dev->datalen -= clrlen;
       dev->dataoff = (dev->dataoff + clrlen) & DATAMASK;
@@ -1287,6 +1441,9 @@ sane_start (SANE_Handle h)
   if (!dev->data && !(dev->data = malloc(DATASIZE)))
     return ret_cancel(dev, SANE_STATUS_NO_MEM);
 
+  if (!dev->decData && !(dev->decData = malloc(POST_DATASIZE)))
+    return ret_cancel(dev, SANE_STATUS_NO_MEM);
+
   if (!dev_acquire(dev))
     return dev->state;
 
@@ -1307,6 +1464,12 @@ sane_start (SANE_Handle h)
   }
 
   dev->total_img_size = dev->para.bytes_per_line * dev->para.lines;
+
+  if ( isSupportedDevice(dev) &&
+		dev->composition == MODE_RGB24 ) {
+	remove(encTmpFileName);
+  }
+  dev->currentDecDataIndex = 0;
 
   return SANE_STATUS_GOOD;
 }

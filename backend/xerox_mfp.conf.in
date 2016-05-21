@@ -5,6 +5,24 @@
 ### Samsung Models ###
 ######################
 
+#Samsung X4300 Series
+usb 0x04e8 0x3324
+
+#Samsung K4350 Series
+usb 0x04e8 0x3325
+
+#Samsung X7600 Series
+usb 0x04e8 0x3326
+
+#Samsung K7600 Series
+usb 0x04e8 0x3327
+
+#Samsung K703 Series
+usb 0x04e8 0x3331
+
+#Samsung X703 Series
+usb 0x04e8 0x3332
+
 #Samsung SCX-4x16 Series
 usb 0x04e8 0x3409
 
@@ -177,6 +195,24 @@ usb 0x04e8 0x3466
 
 #Samsung C460 Series
 usb 0x04e8 0x3468
+
+#Samsung M458x Series
+usb 0x04e8 0x346f
+
+#Samsung M4370 5370 Series
+usb 0x04e8 0x3471
+
+#Samsung X401 Series
+usb 0x04e8 0x3477
+
+#Samsung K401 Series
+usb 0x04e8 0x3478
+
+#Samsung K3250 Series
+usb 0x04e8 0x3481
+
+#Samsung X3220 Series
+usb 0x04e8 0x3482
 
 ####################
 ### Xerox Models ###

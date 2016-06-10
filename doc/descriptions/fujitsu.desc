@@ -361,7 +361,7 @@
 :usbid "0x04c5" "0x114e"
 :comment "medium, recent, discontinued"
 
-:model "fi-6140Z"
+:model "fi-6140Z/fi-6140ZLA"
 :interface "SCSI USB"
 :status :complete
 :usbid "0x04c5" "0x11f1"
@@ -552,5 +552,116 @@
 
 :model "fi-6400"
 :interface "SCSI USB"
+:status :good
+:usbid "0x04c5" "0x14ac"
+
+;==================================================
+; 2015/2016 NEW MODELS, UNORDERED
+
+:model "fi-6420"
+:interface "SCSI USB"
 :status :untested
-;:usbid "0x04c5" "0x"
+:usbid "0x04c5" "0x14bd"
+
+:model "fi-6225"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x11ef"
+
+:model "ScanSnap iX500EE"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x13f3"
+
+:model "ScanPartner SP25"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x1409"
+:comment "Possibly does not use a Fujitsu protocol?"
+
+:model "ScanPartner SP30"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x140a"
+:comment "Possibly does not use a Fujitsu protocol?"
+
+:model "ScanPartner SP30F"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x140c"
+:comment "Possibly does not use a Fujitsu protocol?"
+
+:model "N7100"
+:interface "USB Ethernet"
+:status :untested
+:usbid "0x04c5" "0x146f"
+
+:model "fi-7480"
+:interface "USB"
+:status :good
+:usbid "0x04c5" "0x14b8"
+
+:model "fi-7460"
+:interface "USB"
+:status :good
+:usbid "0x04c5" "0x14be"
+
+:model "fi-7140"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x14df"
+
+:model "fi-7240"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x14e0"
+
+:model "fi-7135"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x14e1"
+
+:model "fi-7235"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x14e2"
+
+:model "fi-7130"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x14e3"
+
+:model "fi-7230"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x14e4"
+
+:model "fi-7125"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x14e5"
+
+:model "fi-7225"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x14e6"
+
+:model "fi-7120"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x14e7"
+
+:model "fi-7220"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x14e8"
+
+:model "fi-400F"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x151e"
+
+:model "fi-7030"
+:interface "USB"
+:status :untested
+:usbid "0x04c5" "0x151f"

@@ -1,0 +1,20 @@
+# .gitlab-ci.yml -- to test some source code build scenarios
+# Copyright (C) 2016  Olaf Meeuwissen
+#
+# License: GPL-3.0+
+
+variables:
+  REGISTRY_HUB: "registry.gitlab.com/sane-project/ci-envs"
+
+.build_template: &build_definition
+  script:
+  - ./configure
+  - make -j2
+
+build:debian-8-full:
+  image: $REGISTRY_HUB:debian-8-full
+  <<: *build_definition
+
+build:debian-8-mini:
+  image: $REGISTRY_HUB:debian-8-mini
+  <<: *build_definition

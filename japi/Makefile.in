@@ -178,6 +178,7 @@ am__can_run_installinfo = \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
 JAVAC = javac
+CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT)$${CLASSPATH:+":$$CLASSPATH"}
 am__java_sources = $(dist_noinst_JAVA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -210,7 +211,7 @@ AM_CPPFLAGS = @AM_CPPFLAGS@ -I. -I$(srcdir) -I$(top_builddir)/include \
 	-I${JDK_HOME}/include/genunix
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AM_LDFLAGS = @AM_LDFLAGS@ $(STRICT_LDFLAGS) -version-number \
-	$(V_MAJOR):$(V_MINOR):$(VREV)
+	$(V_MAJOR):$(V_MINOR):$(V_REV)
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -267,7 +268,6 @@ LIBUSB_1_0_CFLAGS = @LIBUSB_1_0_CFLAGS@
 LIBUSB_1_0_LIBS = @LIBUSB_1_0_LIBS@
 LIBV4L_CFLAGS = @LIBV4L_CFLAGS@
 LIBV4L_LIBS = @LIBV4L_LIBS@
-LINKER_RPATH = @LINKER_RPATH@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCKPATH_GROUP = @LOCKPATH_GROUP@
@@ -282,7 +282,6 @@ MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
 NM = @NM@
 NMEDIT = @NMEDIT@
-NUMBER_VERSION = @NUMBER_VERSION@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OTOOL = @OTOOL@
@@ -382,8 +381,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 JAVAROOT = .
-CLASSPATH_ENV = .
-JAVAH = javah -jni -cp $(CLASSPATH_ENV)
+MY_CLASSPATH = .
+JAVAH = javah -jni -cp $(MY_CLASSPATH)
 JAVA_SRC = SaneDevice.java SaneOption.java SaneRange.java\
 	   Sane.java SaneParameters.java ScanIt.java \
 	   ImageCanvas.java ImageCanvasClient.java \
@@ -391,7 +390,7 @@ JAVA_SRC = SaneDevice.java SaneOption.java SaneRange.java\
 
 dist_noinst_JAVA = $(JAVA_SRC)
 LIBSANE = ../backend/libsane.la
-EXTRA_DIST = Makefile.in README.JAVA 
+EXTRA_DIST = README.JAVA
 lib_LTLIBRARIES = libsanej.la
 BUILT_SOURCES = Sane.h
 CLEANFILES = Sane.h

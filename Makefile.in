@@ -83,8 +83,8 @@ DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
 	$(top_srcdir)/include/sane/config.h.in mkinstalldirs \
-	$(dist_doc_DATA) COPYING compile config.guess config.sub \
-	depcomp install-sh missing ltmain.sh
+	$(dist_doc_DATA) COPYING ar-lib compile config.guess \
+	config.sub depcomp install-sh missing ltmain.sh
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
@@ -288,7 +288,6 @@ LIBUSB_1_0_CFLAGS = @LIBUSB_1_0_CFLAGS@
 LIBUSB_1_0_LIBS = @LIBUSB_1_0_LIBS@
 LIBV4L_CFLAGS = @LIBV4L_CFLAGS@
 LIBV4L_LIBS = @LIBV4L_LIBS@
-LINKER_RPATH = @LINKER_RPATH@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCKPATH_GROUP = @LOCKPATH_GROUP@
@@ -303,7 +302,6 @@ MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
 NM = @NM@
 NMEDIT = @NMEDIT@
-NUMBER_VERSION = @NUMBER_VERSION@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OTOOL = @OTOOL@
@@ -424,6 +422,7 @@ EXTRA_DIST = ChangeLog-1.0.0 ChangeLog-1.0.1  ChangeLog-1.0.2 \
 # Keep the .cvsignore files sorted, and use this target to do it.
 #
 PERL = perl
+ACLOCAL_AMFLAGS = -I m4
 all: all-recursive
 
 .SUFFIXES:

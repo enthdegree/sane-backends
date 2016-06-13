@@ -215,7 +215,6 @@ LIBUSB_1_0_CFLAGS = @LIBUSB_1_0_CFLAGS@
 LIBUSB_1_0_LIBS = @LIBUSB_1_0_LIBS@
 LIBV4L_CFLAGS = @LIBV4L_CFLAGS@
 LIBV4L_LIBS = @LIBV4L_LIBS@
-LINKER_RPATH = @LINKER_RPATH@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCKPATH_GROUP = @LOCKPATH_GROUP@
@@ -230,7 +229,6 @@ MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
 NM = @NM@
 NMEDIT = @NMEDIT@
-NUMBER_VERSION = @NUMBER_VERSION@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OTOOL = @OTOOL@
@@ -827,7 +825,9 @@ dvi: dvi-am
 
 dvi-am:
 
-html-am:
+html: html-am
+
+html-am: html-local
 
 info: info-am
 
@@ -888,14 +888,15 @@ uninstall-man: uninstall-man1 uninstall-man7 uninstall-man8
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	clean-local cscopelist-am ctags-am distclean distclean-generic \
 	distclean-libtool distclean-local distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-data-local install-dist_docDATA \
-	install-docDATA install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-man1 install-man7 \
-	install-man8 install-nobase_dist_docDATA install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	html-am html-local info info-am install install-am \
+	install-data install-data-am install-data-local \
+	install-dist_docDATA install-docDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-man1 install-man7 install-man8 \
+	install-nobase_dist_docDATA install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am tags-am uninstall \
 	uninstall-am uninstall-dist_docDATA uninstall-docDATA \
@@ -994,7 +995,7 @@ descriptions-external.db: $(DESC_FILES) ../tools/sane-desc
 	  > descriptions-external.db
 
 html-pages: $(HTML_PAGES)
-html: html-pages html-man sane-html
+html-local: html-pages html-man sane-html
 
 clean-local:
 	rm -f *.toc *.aux *.log *.cp *.fn *.tp *.vr *.pg *.ky *.blg *.idx *.cb

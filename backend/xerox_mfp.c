@@ -30,7 +30,9 @@
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_backend.h"
+#ifdef HAVE_LIBJPEG
 #include <jpeglib.h>
+#endif
 #include "xerox_mfp.h"
 
 #define BACKEND_BUILD 13
@@ -92,6 +94,7 @@ const char *encTmpFileName = "/tmp/stmp_enc.tmp";
 
 static int decompress(struct device *dev, const char *infilename)
 {
+#ifdef HAVE_LIBJPEG
 	int rc;
 	int row_stride, width, height, pixel_size;
 	struct jpeg_decompress_struct cinfo;
@@ -140,6 +143,9 @@ static int decompress(struct device *dev, const char *infilename)
 	jpeg_destroy_decompress(&cinfo);
 	fclose(pInfile);
 	return 0;
+#else
+	return -1;
+#endif
 }
 
 static int copy_decompress_data(struct device *dev, unsigned char *pDest, int maxlen, int *destLen)
@@ -194,11 +200,15 @@ static int dump_to_tmp_file(struct device *dev)
 
 static int isSupportedDevice(struct device *dev)
 {
+#ifdef HAVE_LIBJPEG
 	/* Checking device which supports JPEG Lossy compression for color scanning*/
 	if ( dev->compressionTypes & (1 << 6) )
 		return 1;
 	else
 		return 0;
+#else
+	return 0;
+#endif
 }
 
 static void dbg_dump(struct device *dev)

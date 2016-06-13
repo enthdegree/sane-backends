@@ -1,4 +1,4 @@
-/* include/sane/config.h.in.  Generated from configure.in by autoheader.  */
+/* include/sane/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
@@ -475,9 +475,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define as the return type of signal handlers (`int' or `void'). */
-#undef RETSIGTYPE
-
 /* SANE DLL revision number */
 #undef SANE_DLL_V_BUILD
 
@@ -593,7 +590,7 @@
 /* Define socklen_t as \'int\' if necessary. */
 #undef socklen_t
 
-/* Define to `long' if <sys/types.h> does not define. */
+/* Define to `int' if <sys/types.h> does not define. */
 #undef ssize_t
 
 /* Define for OS/2 only */

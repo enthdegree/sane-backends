@@ -88,7 +88,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
 	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/byteorder.m4 \
-	$(top_srcdir)/m4/stdint.m4 $(top_srcdir)/configure.in
+	$(top_srcdir)/m4/stdint.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -119,7 +119,10 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
+AM_CFLAGS = @AM_CFLAGS@
+AM_CPPFLAGS = @AM_CPPFLAGS@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
+AM_LDFLAGS = @AM_LDFLAGS@
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -159,7 +162,6 @@ GPHOTO2_LIBS = @GPHOTO2_LIBS@
 GREP = @GREP@
 HAVE_GPHOTO2 = @HAVE_GPHOTO2@
 IEEE1284_LIBS = @IEEE1284_LIBS@
-INCLUDES = @INCLUDES@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_LOCKPATH = @INSTALL_LOCKPATH@
@@ -189,7 +191,7 @@ MANIFEST_TOOL = @MANIFEST_TOOL@
 MATH_LIB = @MATH_LIB@
 MKDIR_P = @MKDIR_P@
 MSGFMT = @MSGFMT@
-MSGMERGE = @MSGMERGE@ -w75
+MSGMERGE = @MSGMERGE@
 NM = @NM@
 NMEDIT = @NMEDIT@
 NUMBER_VERSION = @NUMBER_VERSION@
@@ -291,7 +293,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-GETTEXT_PACKAGE = @PACKAGE@
+GETTEXT_PACKAGE = $(PACKAGE)
 TMP_FILE_DIR = .tmp
 PO_LINGUAS = $(shell if test -r $(srcdir)/LINGUAS; then grep -v "^\#" $(srcdir)/LINGUAS; else echo ""; fi)
 SRC_FILES = $(shell if test -r $(srcdir)/POTFILES; then grep -v "^\#" $(srcdir)/POTFILES; else echo ""; fi)
@@ -543,7 +545,7 @@ update: $(GETTEXT_PACKAGE).pot
 	   fi ; \
 	   echo "updating $${pofile}" ; \
 	   cp $${pofile} $${pofile}.old  ; \
-	   $(MSGMERGE) $${pofile}.old $< -o $${pofile} ; \
+	   $(MSGMERGE) -w75 $${pofile}.old $< -o $${pofile} ; \
 	   rm -f $${pofile}.old template.po ; \
 	 done 
 

@@ -88,7 +88,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
 	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/byteorder.m4 \
-	$(top_srcdir)/m4/stdint.m4 $(top_srcdir)/configure.in
+	$(top_srcdir)/m4/stdint.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -155,7 +155,10 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
+AM_CFLAGS = @AM_CFLAGS@
+AM_CPPFLAGS = @AM_CPPFLAGS@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
+AM_LDFLAGS = @AM_LDFLAGS@
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -167,15 +170,6 @@ AWK = @AWK@
 BACKENDS = @BACKENDS@
 BACKEND_CONFS_ENABLED = @BACKEND_CONFS_ENABLED@
 BACKEND_LIBS_ENABLED = @BACKEND_LIBS_ENABLED@
-
-# Create a list of man pages for only backends that are compiled in so
-# that is all that gets installed.  Also, build a complete list of all
-# backend man pages.  This allows a user to optionally generate all
-# man pages in HTML form for things like posting to a web site.
-#
-# Backend man pages bypass standard automake man5_MANS because there is not
-# a man page for every supported backend.  We could get rid of
-# custom install/uninstall if we required man pages for every backend.
 BACKEND_MANS_ENABLED = @BACKEND_MANS_ENABLED@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
@@ -204,7 +198,6 @@ GPHOTO2_LIBS = @GPHOTO2_LIBS@
 GREP = @GREP@
 HAVE_GPHOTO2 = @HAVE_GPHOTO2@
 IEEE1284_LIBS = @IEEE1284_LIBS@
-INCLUDES = @INCLUDES@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_LOCKPATH = @INSTALL_LOCKPATH@
@@ -212,7 +205,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JPEG_LIBS = @JPEG_LIBS@
-LATEX = TEXINPUTS="$(srcdir):$$TEXINPUTS" @LATEX@
+LATEX = @LATEX@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
@@ -376,6 +369,15 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 	icons/next_gr.gif icons/previous.gif icons/previous_gr.gif \
 	icons/references.gif icons/references_gr.gif icons/up.gif \
 	icons/up_gr.gif
+
+# Create a list of man pages for only backends that are compiled in so
+# that is all that gets installed.  Also, build a complete list of all
+# backend man pages.  This allows a user to optionally generate all
+# man pages in HTML form for things like posting to a web site.
+#
+# Backend man pages bypass standard automake man5_MANS because there is not
+# a man page for every supported backend.  We could get rid of
+# custom install/uninstall if we required man pages for every backend.
 BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-dll.5 sane-dc25.5 sane-dmc.5 sane-epson.5 sane-epson2.5 sane-epsonds.5 \
 	sane-hp.5 sane-gphoto2.5 sane-leo.5 sane-lexmark.5 \
@@ -410,7 +412,8 @@ doc_DATA = $(HTML_PAGES) $(STANDARD)
 @USE_LATEX_TRUE@STANDARD = sane.ps
 dist_doc_DATA = backend-writing.txt
 nobase_dist_doc_DATA = $(BEDOCS)
-DLH = TEXINPUTS="$(srcdir):$$TEXINPUTS" dlh
+TI_LATEX = TEXINPUTS="$(srcdir):$$TEXINPUTS" @LATEX@
+TI_DLH = TEXINPUTS="$(srcdir):$$TEXINPUTS" dlh
 MAN2HTML = nroff -c -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
           -cgiurl '$$title.$$section.html'|\
@@ -930,20 +933,20 @@ uninstall-local:
 sane.ind: $(srcdir)/sane.tex
 	@echo Generating index for sane.tex...
 	@touch sane.ind
-	@$(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	@$(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null && \
 	  $(MAKEINDEX) sane.idx 2>/dev/null && \
-	  $(LATEX) $(srcdir)/sane </dev/null >/dev/null
+	  $(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null
 
 sane.dvi: sane.ind
 	@echo Generating sane.dvi from sane.tex...
-	@$(LATEX) $(srcdir)/sane </dev/null >/dev/null
+	@$(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null
 
 sane.ps: sane.dvi
 	@echo Generating sane.ps from sane.dvi...
 	@$(DVIPS) sane.dvi -o sane.ps 2>/dev/null
 
 sane-html: sane.dvi
-	$(DLH) $(srcdir)/sane.tex
+	$(TI_DLH) $(srcdir)/sane.tex
 
 html-man: $(MANPAGES)
 	@for page in $(MANPAGES); do \

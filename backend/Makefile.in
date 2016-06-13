@@ -86,7 +86,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
 	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/byteorder.m4 \
-	$(top_srcdir)/m4/stdint.m4 $(top_srcdir)/configure.in
+	$(top_srcdir)/m4/stdint.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -568,7 +568,7 @@ libsane_coolscan3_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 libsane_dc210_la_DEPENDENCIES = $(COMMON_LIBS) libdc210.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo sane_strstatus.lo \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_dc210_la_OBJECTS = libsane_dc210_la-dc210-s.lo
 libsane_dc210_la_OBJECTS = $(nodist_libsane_dc210_la_OBJECTS)
 libsane_dc210_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -578,7 +578,7 @@ libsane_dc210_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 libsane_dc240_la_DEPENDENCIES = $(COMMON_LIBS) libdc240.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo sane_strstatus.lo \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_dc240_la_OBJECTS = libsane_dc240_la-dc240-s.lo
 libsane_dc240_la_OBJECTS = $(nodist_libsane_dc240_la_OBJECTS)
 libsane_dc240_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -671,7 +671,8 @@ libsane_epsonds_la_DEPENDENCIES = $(COMMON_LIBS) libepsonds.la \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_epsonds_la_OBJECTS = libsane_epsonds_la-epsonds-s.lo
 libsane_epsonds_la_OBJECTS = $(nodist_libsane_epsonds_la_OBJECTS)
 libsane_epsonds_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -705,7 +706,8 @@ libsane_genesys_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 libsane_gphoto2_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(COMMON_LIBS) \
 	libgphoto2_i.la ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo \
-	sane_strstatus.lo $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	sane_strstatus.lo $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 nodist_libsane_gphoto2_la_OBJECTS = libsane_gphoto2_la-gphoto2-s.lo
 libsane_gphoto2_la_OBJECTS = $(nodist_libsane_gphoto2_la_OBJECTS)
 libsane_gphoto2_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -1742,7 +1744,11 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
+AM_CFLAGS = @AM_CFLAGS@
+AM_CPPFLAGS = @AM_CPPFLAGS@ -I. -I$(srcdir) -I$(top_builddir)/include \
+	-I$(top_srcdir)/include -DLIBDIR="\"$(libdir)/sane\""
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
+AM_LDFLAGS = @AM_LDFLAGS@ $(STRICT_LDFLAGS)
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -1765,7 +1771,7 @@ DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 DLLTOOL = @DLLTOOL@
-DL_LIBS = @DL_LIBS@ 
+DL_LIBS = @DL_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 DVIPS = @DVIPS@
@@ -1781,14 +1787,14 @@ GPHOTO2_LDFLAGS = @GPHOTO2_LDFLAGS@
 GPHOTO2_LIBS = @GPHOTO2_LIBS@
 GREP = @GREP@
 HAVE_GPHOTO2 = @HAVE_GPHOTO2@
-IEEE1284_LIBS = @IEEE1284_LIBS@ 
+IEEE1284_LIBS = @IEEE1284_LIBS@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_LOCKPATH = @INSTALL_LOCKPATH@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-JPEG_LIBS = @JPEG_LIBS@ 
+JPEG_LIBS = @JPEG_LIBS@
 LATEX = @LATEX@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -1800,7 +1806,7 @@ LIBTOOL = @LIBTOOL@ --silent
 LIBUSB_1_0_CFLAGS = @LIBUSB_1_0_CFLAGS@
 LIBUSB_1_0_LIBS = @LIBUSB_1_0_LIBS@
 LIBV4L_CFLAGS = @LIBV4L_CFLAGS@
-LIBV4L_LIBS = @LIBV4L_LIBS@ 
+LIBV4L_LIBS = @LIBV4L_LIBS@
 LINKER_RPATH = @LINKER_RPATH@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -1810,7 +1816,7 @@ MAINT = @MAINT@
 MAKEINDEX = @MAKEINDEX@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
-MATH_LIB = @MATH_LIB@ 
+MATH_LIB = @MATH_LIB@
 MKDIR_P = @MKDIR_P@
 MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
@@ -1847,14 +1853,14 @@ SHELL = @SHELL@
 SNMP_CFLAGS = @SNMP_CFLAGS@
 SNMP_CONFIG_PATH = @SNMP_CONFIG_PATH@
 SNMP_LIBS = @SNMP_LIBS@
-SOCKET_LIBS = @SOCKET_LIBS@ 
+SOCKET_LIBS = @SOCKET_LIBS@
 STRICT_LDFLAGS = @STRICT_LDFLAGS@
 STRIP = @STRIP@
 SYSLOG_LIBS = @SYSLOG_LIBS@
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
 SYSTEMD_LIBS = @SYSTEMD_LIBS@
-TIFF_LIBS = @TIFF_LIBS@ 
-USB_LIBS = @USB_LIBS@ 
+TIFF_LIBS = @TIFF_LIBS@
+USB_LIBS = @USB_LIBS@
 VERSION = @VERSION@
 V_MAJOR = @V_MAJOR@
 V_MINOR = @V_MINOR@
@@ -1915,8 +1921,6 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include -DLIBDIR="\"$(libdir)/sane\""
-AM_LDFLAGS = @STRICT_LDFLAGS@
 # The -rpath option is added because we are creating _LTLIBRARIES based
 # on configure substitution.  This causes automake to not know the
 # correct $libdir and must be added here.
@@ -2257,13 +2261,13 @@ libdc210_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dc210
 nodist_libsane_dc210_la_SOURCES = dc210-s.c
 libsane_dc210_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dc210
 libsane_dc210_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_dc210_la_LIBADD = $(COMMON_LIBS) libdc210.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @SANEI_SANEI_JPEG_LO@ $(JPEG_LIBS)
+libsane_dc210_la_LIBADD = $(COMMON_LIBS) libdc210.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo $(SANEI_SANEI_JPEG_LO) $(JPEG_LIBS)
 libdc240_la_SOURCES = dc240.c dc240.h
 libdc240_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dc240
 nodist_libsane_dc240_la_SOURCES = dc240-s.c
 libsane_dc240_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dc240
 libsane_dc240_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_dc240_la_LIBADD = $(COMMON_LIBS) libdc240.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @SANEI_SANEI_JPEG_LO@ $(JPEG_LIBS)
+libsane_dc240_la_LIBADD = $(COMMON_LIBS) libdc240.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo $(SANEI_SANEI_JPEG_LO) $(JPEG_LIBS)
 libdell1600n_net_la_SOURCES = dell1600n_net.c
 libdell1600n_net_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dell1600n_net
 nodist_libsane_dell1600n_net_la_SOURCES = dell1600n_net-s.c
@@ -2304,7 +2308,7 @@ libsane_epsonds_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_epsonds_la_LIBADD = $(COMMON_LIBS) libepsonds.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 				../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo \
 				../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
-				@SANEI_SANEI_JPEG_LO@ $(JPEG_LIBS) $(USB_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
+				$(SANEI_SANEI_JPEG_LO) $(JPEG_LIBS) $(USB_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
 
 libfujitsu_la_SOURCES = fujitsu.c fujitsu.h fujitsu-scsi.h
 libfujitsu_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=fujitsu
@@ -2319,11 +2323,11 @@ libsane_genesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 libsane_genesys_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la  ../sanei/sanei_magic.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 libgphoto2_i_la_SOURCES = gphoto2.c gphoto2.h
-libgphoto2_i_la_CPPFLAGS = $(AM_CPPFLAGS) @GPHOTO2_CPPFLAGS@ -DBACKEND_NAME=gphoto2
+libgphoto2_i_la_CPPFLAGS = $(AM_CPPFLAGS) $(GPHOTO2_CPPFLAGS) -DBACKEND_NAME=gphoto2
 nodist_libsane_gphoto2_la_SOURCES = gphoto2-s.c 
 libsane_gphoto2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=gphoto2
 libsane_gphoto2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_gphoto2_la_LIBADD = $(GPHOTO2_LDFLAGS) $(COMMON_LIBS) libgphoto2_i.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @SANEI_SANEI_JPEG_LO@ $(GPHOTO2_LIBS) $(JPEG_LIBS)
+libsane_gphoto2_la_LIBADD = $(GPHOTO2_LDFLAGS) $(COMMON_LIBS) libgphoto2_i.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo $(SANEI_SANEI_JPEG_LO) $(GPHOTO2_LIBS) $(JPEG_LIBS)
 libgt68xx_la_SOURCES = gt68xx.c gt68xx.h
 libgt68xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=gt68xx
 nodist_libsane_gt68xx_la_SOURCES = gt68xx-s.c 
@@ -2499,9 +2503,9 @@ libsane_nec_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=nec
 libsane_nec_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_nec_la_LIBADD = $(COMMON_LIBS) libnec.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(RESMGR_LIBS)
 libnet_la_SOURCES = net.c net.h
-libnet_la_CPPFLAGS = $(AM_CPPFLAGS) @AVAHI_CFLAGS@ -DBACKEND_NAME=net
+libnet_la_CPPFLAGS = $(AM_CPPFLAGS) $(AVAHI_CFLAGS) -DBACKEND_NAME=net
 nodist_libsane_net_la_SOURCES = net-s.c
-libsane_net_la_CPPFLAGS = $(AM_CPPFLAGS) @AVAHI_CFLAGS@ -DBACKEND_NAME=net
+libsane_net_la_CPPFLAGS = $(AM_CPPFLAGS) $(AVAHI_CFLAGS) -DBACKEND_NAME=net
 libsane_net_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_net_la_LIBADD = $(COMMON_LIBS) libnet.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo $(AVAHI_LIBS) $(SOCKET_LIBS)
 libniash_la_SOURCES = niash.c
@@ -2685,7 +2689,7 @@ libsane_umax_pp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax_pp
 libsane_umax_pp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_umax_pp_la_LIBADD = $(COMMON_LIBS) libumax_pp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo $(MATH_LIB)
 libv4l_la_SOURCES = v4l.c v4l.h v4l-frequencies.h
-libv4l_la_CPPFLAGS = $(AM_CPPFLAGS) @LIBV4L_CFLAGS@ -DBACKEND_NAME=v4l
+libv4l_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBV4L_CFLAGS) -DBACKEND_NAME=v4l
 nodist_libsane_v4l_la_SOURCES = v4l-s.c
 libsane_v4l_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=v4l
 libsane_v4l_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
@@ -2728,10 +2732,10 @@ libsane_dll_la_LIBADD = $(COMMON_LIBS) libdll.la ../sanei/sanei_init_debug.lo ..
 nodist_libsane_la_SOURCES = dll-s.c
 libsane_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_la_LDFLAGS = $(DIST_LIBS_LDFLAGS)
-libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(DL_LIBS) $(LIBV4L_LIBS) $(MATH_LIB) $(IEEE1284_LIBS) $(TIFF_LIBS) $(JPEG_LIBS) $(GPHOTO2_LIBS) $(SOCKET_LIBS) $(USB_LIBS) $(AVAHI_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
+libsane_la_LIBADD = $(COMMON_LIBS) $(PRELOADABLE_BACKENDS_ENABLED) libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(DL_LIBS) $(LIBV4L_LIBS) $(MATH_LIB) $(IEEE1284_LIBS) $(TIFF_LIBS) $(JPEG_LIBS) $(GPHOTO2_LIBS) $(SOCKET_LIBS) $(USB_LIBS) $(AVAHI_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
 
 # WARNING: Automake is getting this wrong so have to do it ourselves.
-libsane_la_DEPENDENCIES = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo @SANEI_SANEI_JPEG_LO@
+libsane_la_DEPENDENCIES = $(COMMON_LIBS) $(PRELOADABLE_BACKENDS_ENABLED) libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(SANEI_SANEI_JPEG_LO)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -3628,22 +3632,25 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libxerox_mfp_la-xerox_mfp.Plo@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<

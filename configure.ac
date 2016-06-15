@@ -180,7 +180,7 @@ if test "$with_snmp" = "yes" && test "${LIBSNMP_EXISTS}x" = "yesx"; then
 	AC_SUBST(SNMP_CFLAGS)
 	AC_DEFINE(HAVE_LIBSNMP, 1, [Define to 1 if you have the net-snmp library.])
 else
-	AC_MSG_WARN([*** Warning: net-snmp library disabled, autodetecting network scanners will not be supported.])
+	AC_MSG_WARN([net-snmp library disabled, autodetecting network scanners will not be supported.])
 fi
 
 

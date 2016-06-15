@@ -15761,8 +15761,8 @@ if test "$with_snmp" = "yes" && test "${LIBSNMP_EXISTS}x" = "yesx"; then
 $as_echo "#define HAVE_LIBSNMP 1" >>confdefs.h
 
 else
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: *** Warning: net-snmp library disabled, autodetecting network scanners will not be supported." >&5
-$as_echo "$as_me: WARNING: *** Warning: net-snmp library disabled, autodetecting network scanners will not be supported." >&2;}
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: net-snmp library disabled, autodetecting network scanners will not be supported." >&5
+$as_echo "$as_me: WARNING: net-snmp library disabled, autodetecting network scanners will not be supported." >&2;}
 fi
 
 

@@ -43,8 +43,8 @@ CONFIGURATION AND BUILD SYSTEM
 ------------------------------
 
 Sane-backends uses the autoconf and automake tools. The configure script is
-generated from configure.in and aclocal.m4 by running "autoreconf". 
-Simple checks (e.g. for headers) should be placed into configure.in while 
+generated from configure.ac and aclocal.m4 by running "autoreconf".
+Simple checks (e.g. for headers) should be placed into configure.ac while
 for more complex stuff acinclude.m4 is the right file. After changes in one 
 of these files, "autoreconf" should be called.  This will then call a
 chain of autotools, such as autoconf to generate configure, autoheader
@@ -77,7 +77,7 @@ sane-backends distribution.
 
 sane-backends/
   * acinclude.m4 aclocal.m4 compile config.guess config.sub configure 
-    configure.in depcomp install-sh ltmain.sh Makefile.am Makefile.in missing 
+    configure.ac depcomp install-sh ltmain.sh Makefile.am Makefile.in missing
     mkinstalldirs: Part of the build system as explained above.
   * ChangeLog:
     The ChangeLog contains all the changes made since the last stable release.
@@ -154,7 +154,7 @@ sane-backends/doc/
      Contains additional information about newbackend, e.g. READMEs or TODO
      files. 
    General files:
-   * Makefile.in:
+   * Makefile.am:
      "sane-newbackend.5" must be added to variable BACKEND_5MANS and
       "sane-newbackend.man" to EXTRA_DIST. A backend documentation directory 
       (if used) must be added to the BEDOCS variable.
@@ -229,7 +229,7 @@ PROGRAMMING
 
 * To add the backend to the existing SANE code, the following must be done at
   least:
-    - add the backend name to ALL_BACKENDS in configure.in (and run autoreconf)
+    - add the backend name to ALL_BACKENDS in configure.ac (and run autoreconf)
     - Add new backend to BACKEND_CONFS, be_convenience_libs, be_dlopen_libs,
       and define _lib${backend}_la_SOURCES and 
       nodist_libsane_${backend}_la_SOURCES; using an existing backend as
@@ -255,19 +255,17 @@ PROGRAMMING
 
 * Please be courteous to programmer's with terminals that are 80
   characters wide.  It's not difficult to avoid long lines, so please
-  do so.  Note that in ANSI C you can split long strings into pieces
+  do so.  Note that in standard C you can split long strings into pieces
   separated by white space.  For example,
   "this is an awfully long string" can be written as "this is an "
   "awfully long string".
 
-* Use only ANSI C for your backend. C99 is not supported by the compilers of
-  some older platforms so please avoid using its features.
+* Use only standard C for your backend.  ISO C99 support will be enabled
+  if supported by the compiler detected by configure.
 
 * Please do not depend on compiler specific features or, if you do, make
   the dependency conditional so other compilers will still be able to
   compile the files.  In particular:
-
-    - do not use C++ style comments (//-line comments)
 
     - do not declare dynamically sized automatic arrays; instead,
       use alloca() after including "../include/lalloca.h".  For example:
@@ -296,7 +294,7 @@ PROGRAMMING
       compiler-dependent.
 
 * If you use headers or libraries that may not be available on all systems,
-  write a check for configure.in and include it conditionally. If your backend
+  write a check for configure.ac and include it conditionally. If your backend
   depends on these libraries or headers, compile the backend only if they are 
   available (see pint for an example).
 
@@ -477,7 +475,7 @@ In sane-backends/backend/
 
 In sane-backends/doc/
 * Add an entry for the man page in sane.man
-* Add the man page file in doc/Makefile.in
+* Add the man page file in doc/Makefile.am
 * Move the description file from descriptions-external/ to doc/descriptions/
 * Check that the description file is correct: "cd doc; make html-pages" and
   check the html pages result with a browser.

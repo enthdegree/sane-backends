@@ -17,13 +17,9 @@ Before the release:
 * set :new :yes on any new backend .desc files
 * Make sure that config.guess and config.sub are up-to-date (get them from
   savannah.gnu.org/projects/config)
-* configure.in: increase version number
-* configure.in: remove 'git' from textual version number
-* configure.in: set is_release=yes
-* OPTIONAL: aclocal.m4: recreate by running aclocal
-* OPTIONAL: include/sane/config.h.in: recreate (autoheader in root of checkout)
-* DONT run autoreconf, it will overwrite our custom ltmain.sh
-* configure: recreate by running autoconf
+* configure.ac: remove 'git' from textual version number
+* run autoreconf --force but do *NOT* use the --install option as it will
+  overwrite our custom ltmain.sh
 * NEWS: update and enter date of release
 * sane-backends.lsm: update
 * ChangeLog: generate from git log
@@ -79,9 +75,7 @@ After the release:
 * move ChangeLog to ChangeLog-"version"
 * start a new ChangeLog
 * add ChangeLog-"version" to EXTRA_DIST in Makefile.in and Makefile.am
-* configure.in: bump textual version & add 'git' suffix
-* configure.in: bump V_REV
-* configure.in: set is_release=no
+* configure.ac: bump textual version & add 'git' suffix
 * configure: regenerate with autoconf
 * remove the ':new' tag from any new backends .desc files
 * git add new files and commit

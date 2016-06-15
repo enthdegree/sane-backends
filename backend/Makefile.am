@@ -26,15 +26,15 @@ EXTRA_DIST += stubs.c
 # FIXME: % is a GNU extension... This is only thing left requiring
 # use to use GNU make.
 %-s.c: $(srcdir)/stubs.c
-	rm -f $@
-	$(LN_S) $(srcdir)/stubs.c $@
+	$(AM_V_at)rm -f $@
+	$(AM_V_at)$(LN_S) $(srcdir)/stubs.c $@
 
 dll-preload.h:
-	rm -f $@
-	list="$(PRELOADABLE_BACKENDS)"; for be in $$list; do \
+	$(AM_V_at)rm -f $@
+	$(AM_V_at)list="$(PRELOADABLE_BACKENDS)"; for be in $$list; do \
 	  echo "PRELOAD_DECL($$be)" >> $@; \
-	done
-	echo "static struct backend preloaded_backends[] = {" >> $@
+	done; \
+	echo "static struct backend preloaded_backends[] = {" >> $@; \
 	sep=""; \
 	list="$(PRELOADABLE_BACKENDS)"; \
 	if test -z "$${list}"; then \
@@ -44,7 +44,7 @@ dll-preload.h:
 	    echo "$${sep}PRELOAD_DEFN($$be)" >> $@; \
 	    sep=","; \
 	  done; \
-	fi
+	fi; \
 	echo "};" >> $@
 
 # TODO: This really belongs together with the saned sources and

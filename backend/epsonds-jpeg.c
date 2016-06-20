@@ -13,6 +13,8 @@
 
 #define DEBUG_DECLARE_ONLY
 
+#include "sane/config.h"
+
 #include <math.h>
 
 #include "epsonds.h"

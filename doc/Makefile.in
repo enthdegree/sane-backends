@@ -387,7 +387,7 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-mustek_pp.5 sane-dc210.5 sane-v4l.5 sane-snapscan.5 \
 	sane-canon.5 sane-coolscan.5 sane-bh.5 sane-dc240.5 \
 	sane-umax_pp.5 sane-umax1220u.5 sane-sm3600.5 sane-usb.5 \
-     	sane-mustek_usb.5 sane-sceptre.5 sane-canon_pp.5 sane-canon630u.5 \
+	sane-mustek_usb.5 sane-sceptre.5 sane-canon_pp.5 sane-canon630u.5 \
         sane-teco1.5 sane-teco2.5 sane-teco3.5 sane-test.5 sane-sp15c.5 \
 	sane-coolscan2.5 sane-hpsj5s.5 sane-gt68xx.5 sane-artec_eplus48u.5 \
 	sane-ma1509.5 sane-ibm.5 sane-hp5400.5 sane-plustek_pp.5 sane-u12.5 \
@@ -410,7 +410,7 @@ doc_DATA = $(HTML_PAGES) $(STANDARD)
 @USE_LATEX_TRUE@STANDARD = sane.ps
 dist_doc_DATA = backend-writing.txt
 nobase_dist_doc_DATA = $(BEDOCS)
-TI_LATEX = TEXINPUTS="$(srcdir):$$TEXINPUTS" @LATEX@
+TI_LATEX = TEXINPUTS="$(srcdir):$$TEXINPUTS" $(LATEX)
 TI_DLH = TEXINPUTS="$(srcdir):$$TEXINPUTS" dlh
 MAN2HTML = nroff -c -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
@@ -990,7 +990,7 @@ descriptions.db: $(DESC_FILES) ../tools/sane-desc
 	@../tools/sane-desc -m ascii -s ${srcdir}/descriptions \
 	  > descriptions.db
 
-descriptions-external.db: $(DESC_FILES) ../tools/sane-desc
+descriptions-external.db: $(DESC_EXT_FILES) ../tools/sane-desc
 	@../tools/sane-desc -m ascii -s ${srcdir}/descriptions-external \
 	  > descriptions-external.db
 

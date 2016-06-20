@@ -215,7 +215,7 @@ libepsonds_la_LIBADD =
 am_libepsonds_la_OBJECTS = libepsonds_la-epsonds.lo \
 	libepsonds_la-epsonds-usb.lo libepsonds_la-epsonds-io.lo \
 	libepsonds_la-epsonds-cmd.lo libepsonds_la-epsonds-ops.lo \
-	libepsonds_la-epsonds-jpeg.lo
+	libepsonds_la-epsonds-jpeg.lo libepsonds_la-epsonds-net.lo
 libepsonds_la_OBJECTS = $(am_libepsonds_la_OBJECTS)
 libfujitsu_la_LIBADD =
 am_libfujitsu_la_OBJECTS = libfujitsu_la-fujitsu.lo
@@ -670,9 +670,10 @@ libsane_epsonds_la_DEPENDENCIES = $(COMMON_LIBS) libepsonds.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
+	../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_epsonds_la_OBJECTS = libsane_epsonds_la-epsonds-s.lo
 libsane_epsonds_la_OBJECTS = $(nodist_libsane_epsonds_la_OBJECTS)
 libsane_epsonds_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -1911,6 +1912,7 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -2297,7 +2299,8 @@ libsane_epson2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epson2
 libsane_epson2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_epson2_la_LIBADD = $(COMMON_LIBS) libepson2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo $(SCSI_LIBS) $(USB_LIBS) $(SOCKET_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
 libepsonds_la_SOURCES = epsonds.c epsonds.h epsonds-usb.c epsonds-usb.h epsonds-io.c epsonds-io.h \
-		epsonds-cmd.c epsonds-cmd.h epsonds-ops.c epsonds-ops.h epsonds-jpeg.c epsonds-jpeg.h
+		epsonds-cmd.c epsonds-cmd.h epsonds-ops.c epsonds-ops.h epsonds-jpeg.c epsonds-jpeg.h \
+		epsonds-net.c epsonds-net.h
 
 libepsonds_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epsonds
 nodist_libsane_epsonds_la_SOURCES = epsonds-s.c
@@ -2306,7 +2309,8 @@ libsane_epsonds_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_epsonds_la_LIBADD = $(COMMON_LIBS) libepsonds.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 				../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo \
 				../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
-				$(SANEI_SANEI_JPEG_LO) $(JPEG_LIBS) $(USB_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
+				../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo \
+				$(SANEI_SANEI_JPEG_LO) $(JPEG_LIBS) $(USB_LIBS) $(MATH_LIB) $(RESMGR_LIBS) $(SOCKET_LIBS)
 
 libfujitsu_la_SOURCES = fujitsu.c fujitsu.h fujitsu-scsi.h
 libfujitsu_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=fujitsu
@@ -3432,6 +3436,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepsonds_la-epsonds-cmd.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepsonds_la-epsonds-io.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepsonds_la-epsonds-jpeg.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepsonds_la-epsonds-net.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepsonds_la-epsonds-ops.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepsonds_la-epsonds-usb.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepsonds_la-epsonds.Plo@am__quote@
@@ -3953,6 +3958,13 @@ libepsonds_la-epsonds-jpeg.lo: epsonds-jpeg.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='epsonds-jpeg.c' object='libepsonds_la-epsonds-jpeg.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepsonds_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libepsonds_la-epsonds-jpeg.lo `test -f 'epsonds-jpeg.c' || echo '$(srcdir)/'`epsonds-jpeg.c
+
+libepsonds_la-epsonds-net.lo: epsonds-net.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepsonds_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libepsonds_la-epsonds-net.lo -MD -MP -MF $(DEPDIR)/libepsonds_la-epsonds-net.Tpo -c -o libepsonds_la-epsonds-net.lo `test -f 'epsonds-net.c' || echo '$(srcdir)/'`epsonds-net.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libepsonds_la-epsonds-net.Tpo $(DEPDIR)/libepsonds_la-epsonds-net.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='epsonds-net.c' object='libepsonds_la-epsonds-net.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepsonds_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libepsonds_la-epsonds-net.lo `test -f 'epsonds-net.c' || echo '$(srcdir)/'`epsonds-net.c
 
 libfujitsu_la-fujitsu.lo: fujitsu.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libfujitsu_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libfujitsu_la-fujitsu.lo -MD -MP -MF $(DEPDIR)/libfujitsu_la-fujitsu.Tpo -c -o libfujitsu_la-fujitsu.lo `test -f 'fujitsu.c' || echo '$(srcdir)/'`fujitsu.c

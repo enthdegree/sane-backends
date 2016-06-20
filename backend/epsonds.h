@@ -87,7 +87,7 @@ typedef enum
 {	/* hardware connection to the scanner */
 	SANE_EPSONDS_NODEV,	/* default, no HW specified yet */
 	SANE_EPSONDS_USB,	/* USB interface */
-	SANE_EPSONDS_NET	/* network interface (unsupported)*/
+	SANE_EPSONDS_NET	/* network interface */
 } epsonds_conn_type;
 
 /* hardware description */
@@ -173,6 +173,10 @@ struct epsonds_scanner
 	struct jpeg_decompress_struct jpeg_cinfo;
 	struct jpeg_error_mgr jpeg_err;
 	SANE_Bool jpeg_header_seen;
+
+	/* network buffers */
+	unsigned char *netbuf, *netptr;
+	size_t netlen;
 };
 
 typedef struct epsonds_scanner epsonds_scanner;

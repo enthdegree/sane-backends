@@ -22,12 +22,13 @@
 
 #include "epsonds.h"
 #include "epsonds-io.h"
+#include "epsonds-net.h"
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 
-size_t eds_send(epsonds_scanner *s, void *buf, size_t length, SANE_Status *status)
+size_t eds_send(epsonds_scanner *s, void *buf, size_t length, SANE_Status *status, size_t reply_len)
 {
 	DBG(32, "%s: size = %lu\n", __func__, (u_long) length);
 
@@ -43,7 +44,9 @@ size_t eds_send(epsonds_scanner *s, void *buf, size_t length, SANE_Status *statu
 	}
 
 	if (s->hw->connection == SANE_EPSONDS_NET) {
-		/* XXX */
+
+		return epsonds_net_write(s, 0x2000, buf, length, reply_len, status);
+
 	} else if (s->hw->connection == SANE_EPSONDS_USB) {
 
 		size_t n = length;
@@ -67,7 +70,7 @@ size_t eds_recv(epsonds_scanner *s, void *buf, size_t length, SANE_Status *statu
 	DBG(30, "%s: size = %ld, buf = %p\n", __func__, (long) length, buf);
 
 	if (s->hw->connection == SANE_EPSONDS_NET) {
-		/* XXX */
+		n = epsonds_net_read(s, buf, length, status);
 	} else if (s->hw->connection == SANE_EPSONDS_USB) {
 
 		/* !!! only report an error if we don't read anything */
@@ -97,7 +100,7 @@ SANE_Status eds_txrx(epsonds_scanner* s, char *txbuf, size_t txlen,
 	SANE_Status status;
 	size_t done;
 
-	done = eds_send(s, txbuf, txlen, &status);
+	done = eds_send(s, txbuf, txlen, &status, rxlen);
 	if (status != SANE_STATUS_GOOD) {
 		DBG(1, "%s: tx err, %s\n", __func__, sane_strstatus(status));
 		return status;
@@ -106,6 +109,10 @@ SANE_Status eds_txrx(epsonds_scanner* s, char *txbuf, size_t txlen,
 	if (done != txlen) {
 		DBG(1, "%s: tx err, short write\n", __func__);
 		return SANE_STATUS_IO_ERROR;
+	}
+
+	if (rxlen == 0) {
+		return status;
 	}
 
 	done = eds_recv(s, rxbuf, rxlen, &status);
@@ -154,6 +161,7 @@ SANE_Status eds_fsy(epsonds_scanner *s)
 
 SANE_Status eds_fsx(epsonds_scanner *s)
 {
+//	SANE_Status status = eds_control(s, "\x1CZ", 2);
 	SANE_Status status = eds_control(s, "\x1CX", 2);
 	if (status == SANE_STATUS_GOOD) {
 		s->locked = 1;

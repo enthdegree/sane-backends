@@ -449,7 +449,8 @@ libsane_epson2_la_LIBADD = $(COMMON_LIBS) libepson2.la ../sanei/sanei_init_debug
 EXTRA_DIST += epson2.conf.in
 
 libepsonds_la_SOURCES = epsonds.c epsonds.h epsonds-usb.c epsonds-usb.h epsonds-io.c epsonds-io.h \
-		epsonds-cmd.c epsonds-cmd.h epsonds-ops.c epsonds-ops.h epsonds-jpeg.c epsonds-jpeg.h
+		epsonds-cmd.c epsonds-cmd.h epsonds-ops.c epsonds-ops.h epsonds-jpeg.c epsonds-jpeg.h \
+		epsonds-net.c epsonds-net.h
 libepsonds_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epsonds
 
 nodist_libsane_epsonds_la_SOURCES = epsonds-s.c
@@ -458,7 +459,8 @@ libsane_epsonds_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_epsonds_la_LIBADD = $(COMMON_LIBS) libepsonds.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
 				../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo \
 				../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo \
-				$(SANEI_SANEI_JPEG_LO) $(JPEG_LIBS) $(USB_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
+				../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo \
+				$(SANEI_SANEI_JPEG_LO) $(JPEG_LIBS) $(USB_LIBS) $(MATH_LIB) $(RESMGR_LIBS) $(SOCKET_LIBS)
 EXTRA_DIST += epsonds.conf.in
 
 libfujitsu_la_SOURCES = fujitsu.c fujitsu.h fujitsu-scsi.h

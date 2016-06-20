@@ -179,7 +179,7 @@ int
 epsonds_net_write(epsonds_scanner *s, unsigned int cmd, const unsigned char *buf,
 			size_t buf_size, size_t reply_len, SANE_Status *status)
 {
-	unsigned char *h1, *h2, *payload;
+	unsigned char *h1, *h2;
 	unsigned char *packet = malloc(12 + 8);
 
 	/* XXX check allocation failure */

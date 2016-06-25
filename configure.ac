@@ -740,22 +740,6 @@ AC_ARG_ENABLE(parport-directio,
     fi
   ])
 
-AC_ARG_ENABLE(translations,
-  AS_HELP_STRING([--disable-translations],
-                 [don't install translations of backend options]),,
-		 enable_translations=yes)
-if eval "test x$enable_translations = xyes" ; then
-  if test x$MSGFMT = xno || test x$XGETTEXT = xno || test $MSGMERGE = no ; then
-    enable_translations=no
-    echo "disabling translations (missing msgfmt, xgettext or msgmerge)"
-  else
-    echo "enabling translations"
-  fi
-else
-  echo "disabling translations"
-fi  
-AM_CONDITIONAL(ENABLE_TRANSLATIONS, test x$enable_translations = xyes)
-
 AC_ARG_ENABLE(latex,
 	      AS_HELP_STRING([--disable-latex],
 	      [disable use of latex, et.al., to generate documentation]),,

@@ -1,3 +1,11 @@
+*.gmo
 *.mo
 .tmp
+Makefile.in
+Makevars.template
+POTFILES
+en@*quot.insert-header
+en@*quot.po
+remove-potcdate.sed
 sane-backends.pot
+stamp-po

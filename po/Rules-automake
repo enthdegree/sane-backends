@@ -1,0 +1,18 @@
+#  Rules-automake -- wants but Makefile.in.in does not provide
+#  Copyright (C) 2016  Olaf Meeuwissen and the SANE developers
+#
+#  This file is part of the SANE build infra-structure.  See the
+#  included LICENSE file for license information.
+
+#  Automake assumes a number of "standard" targets are available when
+#  it runs a recursive make.  We provide empty stubs for those rules
+#  that gettext's Makefile.in.in does not provide yet (last checked
+#  against gettext-0.18.1).
+
+EMPTY_AUTOMAKE_TARGETS  = install-dvi
+EMPTY_AUTOMAKE_TARGETS += install-html
+EMPTY_AUTOMAKE_TARGETS += install-info
+EMPTY_AUTOMAKE_TARGETS += install-ps
+EMPTY_AUTOMAKE_TARGETS += install-pdf
+.PHONY: $(EMPTY_AUTOMAKE_TARGETS)
+$(EMPTY_AUTOMAKE_TARGETS):

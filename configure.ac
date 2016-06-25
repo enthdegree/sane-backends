@@ -60,13 +60,16 @@ AM_PROG_AR
 LT_INIT([disable-static win32-dll])
 LT_PREREQ([2.4.2])
 
+dnl *****************************************************************
+dnl  Set up I18N/L10N support
+dnl *****************************************************************
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.18.1])
+
 dnl ***********************************************************************
 dnl Checks for programs.
 dnl ***********************************************************************
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
-AC_PATH_PROG(MSGFMT, msgfmt$EXEEXT, no)
-AC_PATH_PROG(XGETTEXT, xgettext$EXEEXT, no)
-AC_PATH_PROG(MSGMERGE, msgmerge$EXEEXT, no)
 AC_PATH_PROG(LATEX, latex$EXEEXT, no)
 AC_PATH_PROG(DVIPS, dvips$EXEEXT, no)
 AC_PATH_PROG(MAKEINDEX, makeindex$EXEEXT, no)
@@ -782,7 +785,7 @@ AC_SUBST(DISTCLEAN_FILES)
 
 AC_CONFIG_FILES([Makefile lib/Makefile sanei/Makefile frontend/Makefile \
   japi/Makefile backend/Makefile include/Makefile doc/Makefile \
-  po/Makefile testsuite/Makefile testsuite/sanei/Makefile testsuite/tools/Makefile \
+  po/Makefile.in testsuite/Makefile testsuite/sanei/Makefile testsuite/tools/Makefile \
   tools/Makefile doc/doxygen-sanei.conf doc/doxygen-genesys.conf])
 AC_CONFIG_FILES([tools/sane-config], [chmod a+x tools/sane-config])
 AC_CONFIG_FILES([tools/sane-backends.pc])

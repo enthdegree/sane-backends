@@ -536,7 +536,7 @@ $(GETTEXT_PACKAGE).pot: $(SRC_FILES)
 
 update: $(GETTEXT_PACKAGE).pot
 	@for lang in $(PO_LINGUAS) ; do \
-	   pofile=$${lang}.po ; \
+	   pofile=$(srcdir)/$${lang}.po ; \
 	   if test ! -f $${pofile} ; then \
 	     echo "creating $${pofile}" ; \
 	     cp template.po $${pofile} ; \

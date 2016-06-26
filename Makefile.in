@@ -438,7 +438,10 @@ EXTRA_DIST = ChangeLog-1.0.0 ChangeLog-1.0.1  ChangeLog-1.0.2 \
 
 
 #
-# Keep the .cvsignore files sorted, and use this target to do it.
+# Keep the .gitignore files sorted, and use this target to do it.
+# Note that git's negated ignore patterns introduce order dependency
+# and should therefor be sorted with much more care than we do here.
+# Until that has been taken care of, such files are best left alone.
 #
 PERL = perl
 ACLOCAL_AMFLAGS = -I m4
@@ -947,8 +950,11 @@ uninstall-am: uninstall-dist_docDATA
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-am uninstall uninstall-am uninstall-dist_docDATA
 
-sort-cvsignore:
-	for f in `find . -name .cvsignore`; do \
+sort-gitignore:
+	for f in `find . -name .gitignore`; do \
+	  if test -n "`sed -n '/^\!/p' $$f`"; then \
+	    echo "$$f: skipping file with negated pattern" >&2; \
+	  fi; \
 	  $(PERL) -e 'print sort <>;' < $$f > $$f.tmptmp; \
 	  mv $$f.tmptmp $$f; \
 	done

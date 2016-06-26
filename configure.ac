@@ -764,9 +764,6 @@ AC_SUBST(AM_CPPFLAGS)
 AC_SUBST(AM_CFLAGS)
 AC_SUBST(AM_LDFLAGS)
 
-DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \"\#\"* \".\\#\"*"
-AC_SUBST(DISTCLEAN_FILES)
-
 AC_CONFIG_FILES([Makefile lib/Makefile sanei/Makefile frontend/Makefile \
   japi/Makefile backend/Makefile include/Makefile doc/Makefile \
   po/Makefile.in testsuite/Makefile testsuite/sanei/Makefile testsuite/tools/Makefile \

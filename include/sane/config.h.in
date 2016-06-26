@@ -20,6 +20,10 @@
 /* Define to 1 if device locking should be enabled. */
 #undef ENABLE_LOCKING
 
+/* Define to 1 if translation of program messages to the user's native
+   language is requested. */
+#undef ENABLE_NLS
+
 /* Define to 1 if struct sockaddr_storage has an ss_family member */
 #undef HAS_SS_FAMILY
 
@@ -58,8 +62,20 @@
 /* Define to 1 if you have the <camlib.h> header file. */
 #undef HAVE_CAMLIB_H
 
+/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
+   CoreFoundation framework. */
+#undef HAVE_CFLOCALECOPYCURRENT
+
 /* Define to 1 if you have the `cfmakeraw' function. */
 #undef HAVE_CFMAKERAW
+
+/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
+   the CoreFoundation framework. */
+#undef HAVE_CFPREFERENCESCOPYAPPVALUE
+
+/* Define if the GNU dcgettext() function is already present or preinstalled.
+   */
+#undef HAVE_DCGETTEXT
 
 /* Define to 1 if you have the <ddk/ntddscsi.h> header file. */
 #undef HAVE_DDK_NTDDSCSI_H
@@ -103,6 +119,9 @@
 /* Define to 1 if you have the `getpass' function. */
 #undef HAVE_GETPASS
 
+/* Define if the GNU gettext() function is already present or preinstalled. */
+#undef HAVE_GETTEXT
+
 /* Define to 1 if you have the `getuid' function. */
 #undef HAVE_GETUID
 
@@ -114,6 +133,9 @@
 
 /* Define to 1 if you have the `i386_set_ioperm' function. */
 #undef HAVE_I386_SET_IOPERM
+
+/* Define if you have the iconv() function and it works. */
+#undef HAVE_ICONV
 
 /* Define to 1 if you have the <ifaddrs.h> header file. */
 #undef HAVE_IFADDRS_H

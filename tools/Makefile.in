@@ -122,18 +122,16 @@ am__v_lt_1 =
 am_sane_desc_OBJECTS = sane-desc.$(OBJEXT)
 sane_desc_OBJECTS = $(am_sane_desc_OBJECTS)
 sane_desc_DEPENDENCIES = ../sanei/libsanei.la ../lib/liblib.la
-am__dirstamp = $(am__leading_dot)dirstamp
 am_sane_find_scanner_OBJECTS = sane-find-scanner.$(OBJEXT) \
-	check-usb-chip.$(OBJEXT) ../backend/sane_strstatus.$(OBJEXT)
+	check-usb-chip.$(OBJEXT)
 sane_find_scanner_OBJECTS = $(am_sane_find_scanner_OBJECTS)
 sane_find_scanner_DEPENDENCIES = ../sanei/libsanei.la ../lib/liblib.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
-am_umax_pp_OBJECTS = umax_pp-umax_pp.$(OBJEXT) \
-	../backend/umax_pp-umax_pp_low.$(OBJEXT)
+	$(am__DEPENDENCIES_1) ../backend/sane_strstatus.lo
+am_umax_pp_OBJECTS = umax_pp.$(OBJEXT)
 umax_pp_OBJECTS = $(am_umax_pp_OBJECTS)
 umax_pp_DEPENDENCIES = ../sanei/libsanei.la ../lib/liblib.la \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) ../backend/umax_pp_low.lo
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -431,17 +429,17 @@ EXTRA_DIST = check-po.awk libtool-get-dll-ext mustek600iin-off.c \
 	RenSaneDlls.cmd README xerox hotplug/README \
 	hotplug/libusbscanner hotplug-ng/README \
 	hotplug-ng/libsane.hotplug openbsd/attach openbsd/detach
-sane_find_scanner_SOURCES = sane-find-scanner.c check-usb-chip.c \
-			    ../backend/sane_strstatus.c
-
+sane_find_scanner_SOURCES = sane-find-scanner.c check-usb-chip.c
 sane_find_scanner_LDADD = ../sanei/libsanei.la ../lib/liblib.la \
-			  $(USB_LIBS) $(IEEE1284_LIBS) $(SCSI_LIBS)
+			  $(USB_LIBS) $(IEEE1284_LIBS) $(SCSI_LIBS) \
+			  ../backend/sane_strstatus.lo
 
 gamma4scanimage_SOURCES = gamma4scanimage.c
 gamma4scanimage_LDADD = $(MATH_LIB)
-umax_pp_SOURCES = umax_pp.c ../backend/umax_pp_low.c
-umax_pp_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax_pp_low
-umax_pp_LDADD = ../sanei/libsanei.la ../lib/liblib.la $(MATH_LIB)
+umax_pp_SOURCES = umax_pp.c
+umax_pp_LDADD = ../sanei/libsanei.la ../lib/liblib.la $(MATH_LIB) \
+	        ../backend/umax_pp_low.lo
+
 sane_desc_SOURCES = sane-desc.c
 sane_desc_LDADD = ../sanei/libsanei.la ../lib/liblib.la
 pkgconfigdir = @libdir@/pkgconfig
@@ -552,20 +550,10 @@ gamma4scanimage$(EXEEXT): $(gamma4scanimage_OBJECTS) $(gamma4scanimage_DEPENDENC
 sane-desc$(EXEEXT): $(sane_desc_OBJECTS) $(sane_desc_DEPENDENCIES) $(EXTRA_sane_desc_DEPENDENCIES) 
 	@rm -f sane-desc$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(sane_desc_OBJECTS) $(sane_desc_LDADD) $(LIBS)
-../backend/$(am__dirstamp):
-	@$(MKDIR_P) ../backend
-	@: > ../backend/$(am__dirstamp)
-../backend/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ../backend/$(DEPDIR)
-	@: > ../backend/$(DEPDIR)/$(am__dirstamp)
-../backend/sane_strstatus.$(OBJEXT): ../backend/$(am__dirstamp) \
-	../backend/$(DEPDIR)/$(am__dirstamp)
 
 sane-find-scanner$(EXEEXT): $(sane_find_scanner_OBJECTS) $(sane_find_scanner_DEPENDENCIES) $(EXTRA_sane_find_scanner_DEPENDENCIES) 
 	@rm -f sane-find-scanner$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(sane_find_scanner_OBJECTS) $(sane_find_scanner_LDADD) $(LIBS)
-../backend/umax_pp-umax_pp_low.$(OBJEXT): ../backend/$(am__dirstamp) \
-	../backend/$(DEPDIR)/$(am__dirstamp)
 
 umax_pp$(EXEEXT): $(umax_pp_OBJECTS) $(umax_pp_DEPENDENCIES) $(EXTRA_umax_pp_DEPENDENCIES) 
 	@rm -f umax_pp$(EXEEXT)
@@ -608,18 +596,15 @@ uninstall-binSCRIPTS:
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ../backend/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@../backend/$(DEPDIR)/sane_strstatus.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@../backend/$(DEPDIR)/umax_pp-umax_pp_low.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check-usb-chip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gamma4scanimage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sane-desc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sane-find-scanner.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umax_pp-umax_pp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umax_pp.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -644,34 +629,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
-
-umax_pp-umax_pp.o: umax_pp.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(umax_pp_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT umax_pp-umax_pp.o -MD -MP -MF $(DEPDIR)/umax_pp-umax_pp.Tpo -c -o umax_pp-umax_pp.o `test -f 'umax_pp.c' || echo '$(srcdir)/'`umax_pp.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/umax_pp-umax_pp.Tpo $(DEPDIR)/umax_pp-umax_pp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='umax_pp.c' object='umax_pp-umax_pp.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(umax_pp_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o umax_pp-umax_pp.o `test -f 'umax_pp.c' || echo '$(srcdir)/'`umax_pp.c
-
-umax_pp-umax_pp.obj: umax_pp.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(umax_pp_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT umax_pp-umax_pp.obj -MD -MP -MF $(DEPDIR)/umax_pp-umax_pp.Tpo -c -o umax_pp-umax_pp.obj `if test -f 'umax_pp.c'; then $(CYGPATH_W) 'umax_pp.c'; else $(CYGPATH_W) '$(srcdir)/umax_pp.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/umax_pp-umax_pp.Tpo $(DEPDIR)/umax_pp-umax_pp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='umax_pp.c' object='umax_pp-umax_pp.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(umax_pp_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o umax_pp-umax_pp.obj `if test -f 'umax_pp.c'; then $(CYGPATH_W) 'umax_pp.c'; else $(CYGPATH_W) '$(srcdir)/umax_pp.c'; fi`
-
-../backend/umax_pp-umax_pp_low.o: ../backend/umax_pp_low.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(umax_pp_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT ../backend/umax_pp-umax_pp_low.o -MD -MP -MF ../backend/$(DEPDIR)/umax_pp-umax_pp_low.Tpo -c -o ../backend/umax_pp-umax_pp_low.o `test -f '../backend/umax_pp_low.c' || echo '$(srcdir)/'`../backend/umax_pp_low.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ../backend/$(DEPDIR)/umax_pp-umax_pp_low.Tpo ../backend/$(DEPDIR)/umax_pp-umax_pp_low.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='../backend/umax_pp_low.c' object='../backend/umax_pp-umax_pp_low.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(umax_pp_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o ../backend/umax_pp-umax_pp_low.o `test -f '../backend/umax_pp_low.c' || echo '$(srcdir)/'`../backend/umax_pp_low.c
-
-../backend/umax_pp-umax_pp_low.obj: ../backend/umax_pp_low.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(umax_pp_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT ../backend/umax_pp-umax_pp_low.obj -MD -MP -MF ../backend/$(DEPDIR)/umax_pp-umax_pp_low.Tpo -c -o ../backend/umax_pp-umax_pp_low.obj `if test -f '../backend/umax_pp_low.c'; then $(CYGPATH_W) '../backend/umax_pp_low.c'; else $(CYGPATH_W) '$(srcdir)/../backend/umax_pp_low.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ../backend/$(DEPDIR)/umax_pp-umax_pp_low.Tpo ../backend/$(DEPDIR)/umax_pp-umax_pp_low.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='../backend/umax_pp_low.c' object='../backend/umax_pp-umax_pp_low.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(umax_pp_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o ../backend/umax_pp-umax_pp_low.obj `if test -f '../backend/umax_pp_low.c'; then $(CYGPATH_W) '../backend/umax_pp_low.c'; else $(CYGPATH_W) '$(srcdir)/../backend/umax_pp_low.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -818,8 +775,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ../backend/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ../backend/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -831,7 +786,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libtool clean-local \
 	clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ../backend/$(DEPDIR) ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -877,7 +832,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ../backend/$(DEPDIR) ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -34,17 +34,17 @@ CLEANFILES = $(bin_SCRIPTS) $(dist_noinst_SCRIPTS)
 EXTRA_DIST = check-po.awk libtool-get-dll-ext mustek600iin-off.c \
 	     RenSaneDlls.cmd README xerox
 
-sane_find_scanner_SOURCES = sane-find-scanner.c check-usb-chip.c \
-			    ../backend/sane_strstatus.c
+sane_find_scanner_SOURCES = sane-find-scanner.c check-usb-chip.c
 sane_find_scanner_LDADD = ../sanei/libsanei.la ../lib/liblib.la \
-			  $(USB_LIBS) $(IEEE1284_LIBS) $(SCSI_LIBS)
+			  $(USB_LIBS) $(IEEE1284_LIBS) $(SCSI_LIBS) \
+			  ../backend/sane_strstatus.lo
 
 gamma4scanimage_SOURCES = gamma4scanimage.c
 gamma4scanimage_LDADD = $(MATH_LIB)
 
-umax_pp_SOURCES = umax_pp.c ../backend/umax_pp_low.c
-umax_pp_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax_pp_low
-umax_pp_LDADD = ../sanei/libsanei.la ../lib/liblib.la $(MATH_LIB)
+umax_pp_SOURCES = umax_pp.c
+umax_pp_LDADD = ../sanei/libsanei.la ../lib/liblib.la $(MATH_LIB) \
+	        ../backend/umax_pp_low.lo
 
 sane_desc_SOURCES = sane-desc.c
 sane_desc_LDADD = ../sanei/libsanei.la ../lib/liblib.la

@@ -1,5 +1,4 @@
 *-s.c
 *.conf
-.deps
 dll-preload.c
 dll-preload.h

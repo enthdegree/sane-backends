@@ -10,7 +10,7 @@ You always find the most recent version of SANE on:
 
   http://www.sane-project.org/
 
-At the same location there are also links to snapshots of the CVS server and
+At the same location there are also links to snapshots of the Git server and
 sometimes beta releases of sane-backends. These are unstable development
 versions, so be careful when using them. Please report any problems to us. See
 contact section for details.

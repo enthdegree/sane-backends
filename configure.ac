@@ -273,6 +273,16 @@ dnl ***********************************************************************
 dnl Checks for library functions
 dnl ***********************************************************************
 
+dnl Functions for which we provide an implementation if missing
+AC_CONFIG_LIBOBJ_DIR([lib])
+AC_FUNC_ALLOCA
+AC_REPLACE_FUNCS([getenv inet_ntop inet_pton isfdtype sigprocmask \
+    sleep snprintf strcasestr strdup strndup strsep syslog usleep \
+    vsyslog])
+AS_IF([x != x$ALLOCA],
+      [LTALLOCA=`echo "$ALLOCA" | sed 's/\.o$//; s/\.obj$//'`.lo])
+AC_SUBST(LTALLOCA)
+
 dnl Define SOCKET_LIB, NSL_LIB, BIND_LIB, and RESOLV_LIB  when required 
 dnl for functions we use.
 AC_CHECK_FUNC(gethostbyaddr,, [AC_CHECK_LIB(bind, gethostbyaddr, BIND_LIB="-lbind")])
@@ -290,7 +300,6 @@ dnl SOCKET_LIBS so set LIBS temporarily.
 save_LIBS="$LIBS"
 LIBS="$LIBS $SOCKET_LIBS"
 AC_CHECK_FUNCS(inet_addr inet_aton inet_ntoa)
-AC_REPLACE_FUNCS(inet_ntop inet_pton)
 LIBS="$save_LIBS"
 
 if test "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
@@ -299,14 +308,11 @@ if test "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
     ac_cv_func_getnameinfo=no
 fi
 
-AC_FUNC_ALLOCA
 AC_FUNC_MMAP
 AC_CHECK_FUNCS(atexit ioperm i386_set_ioperm \
     mkdir strftime strstr strtod  \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess \
     getaddrinfo getnameinfo poll setitimer iopl getuid getpass)
-AC_REPLACE_FUNCS(getenv isfdtype sigprocmask snprintf \
-    strcasestr strdup strndup strsep usleep sleep syslog vsyslog)
 
 dnl sys/io.h might provide ioperm but not inb,outb (like for
 dnl non i386/x32/x86_64 with musl libc)

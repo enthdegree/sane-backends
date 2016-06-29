@@ -632,6 +632,7 @@ ac_includes_default="\
 #endif"
 
 gt_needs=
+ac_config_libobj_dir=lib
 ac_header_list=
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
@@ -662,9 +663,10 @@ LIBUSB_1_0_LIBS
 LIBUSB_1_0_CFLAGS
 SYSTEMD_LIBS
 SYSTEMD_CFLAGS
-ALLOCA
-LIBOBJS
 SOCKET_LIBS
+LTALLOCA
+LIBOBJS
+ALLOCA
 RESMGR_LIBS
 SNMP_CFLAGS
 SNMP_LIBS
@@ -18482,6 +18484,381 @@ esac
 
 
 
+
+# The Ultrix 4.2 mips builtin alloca declared by alloca.h only works
+# for constant arguments.  Useless!
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for working alloca.h" >&5
+$as_echo_n "checking for working alloca.h... " >&6; }
+if ${ac_cv_working_alloca_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <alloca.h>
+int
+main ()
+{
+char *p = (char *) alloca (2 * sizeof (int));
+			  if (p) return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_working_alloca_h=yes
+else
+  ac_cv_working_alloca_h=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_working_alloca_h" >&5
+$as_echo "$ac_cv_working_alloca_h" >&6; }
+if test $ac_cv_working_alloca_h = yes; then
+
+$as_echo "#define HAVE_ALLOCA_H 1" >>confdefs.h
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for alloca" >&5
+$as_echo_n "checking for alloca... " >&6; }
+if ${ac_cv_func_alloca_works+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#ifdef __GNUC__
+# define alloca __builtin_alloca
+#else
+# ifdef _MSC_VER
+#  include <malloc.h>
+#  define alloca _alloca
+# else
+#  ifdef HAVE_ALLOCA_H
+#   include <alloca.h>
+#  else
+#   ifdef _AIX
+ #pragma alloca
+#   else
+#    ifndef alloca /* predefined by HP cc +Olibcalls */
+void *alloca (size_t);
+#    endif
+#   endif
+#  endif
+# endif
+#endif
+
+int
+main ()
+{
+char *p = (char *) alloca (1);
+				    if (p) return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_func_alloca_works=yes
+else
+  ac_cv_func_alloca_works=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_func_alloca_works" >&5
+$as_echo "$ac_cv_func_alloca_works" >&6; }
+
+if test $ac_cv_func_alloca_works = yes; then
+
+$as_echo "#define HAVE_ALLOCA 1" >>confdefs.h
+
+else
+  # The SVR3 libPW and SVR4 libucb both contain incompatible functions
+# that cause trouble.  Some versions do not even contain alloca or
+# contain a buggy version.  If you still want to use their alloca,
+# use ar to extract alloca.o from them instead of compiling alloca.c.
+
+ALLOCA=\${LIBOBJDIR}alloca.$ac_objext
+
+$as_echo "#define C_ALLOCA 1" >>confdefs.h
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether \`alloca.c' needs Cray hooks" >&5
+$as_echo_n "checking whether \`alloca.c' needs Cray hooks... " >&6; }
+if ${ac_cv_os_cray+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined CRAY && ! defined CRAY2
+webecray
+#else
+wenotbecray
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "webecray" >/dev/null 2>&1; then :
+  ac_cv_os_cray=yes
+else
+  ac_cv_os_cray=no
+fi
+rm -f conftest*
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_os_cray" >&5
+$as_echo "$ac_cv_os_cray" >&6; }
+if test $ac_cv_os_cray = yes; then
+  for ac_func in _getb67 GETB67 getb67; do
+    as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+
+cat >>confdefs.h <<_ACEOF
+#define CRAY_STACKSEG_END $ac_func
+_ACEOF
+
+    break
+fi
+
+  done
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking stack direction for C alloca" >&5
+$as_echo_n "checking stack direction for C alloca... " >&6; }
+if ${ac_cv_c_stack_direction+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test "$cross_compiling" = yes; then :
+  ac_cv_c_stack_direction=0
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$ac_includes_default
+int
+find_stack_direction (int *addr, int depth)
+{
+  int dir, dummy = 0;
+  if (! addr)
+    addr = &dummy;
+  *addr = addr < &dummy ? 1 : addr == &dummy ? 0 : -1;
+  dir = depth ? find_stack_direction (addr, depth - 1) : 0;
+  return dir + dummy;
+}
+
+int
+main (int argc, char **argv)
+{
+  return find_stack_direction (0, argc + !argv + 20) < 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  ac_cv_c_stack_direction=1
+else
+  ac_cv_c_stack_direction=-1
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_stack_direction" >&5
+$as_echo "$ac_cv_c_stack_direction" >&6; }
+cat >>confdefs.h <<_ACEOF
+#define STACK_DIRECTION $ac_cv_c_stack_direction
+_ACEOF
+
+
+fi
+
+ac_fn_c_check_func "$LINENO" "getenv" "ac_cv_func_getenv"
+if test "x$ac_cv_func_getenv" = xyes; then :
+  $as_echo "#define HAVE_GETENV 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" getenv.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS getenv.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "inet_ntop" "ac_cv_func_inet_ntop"
+if test "x$ac_cv_func_inet_ntop" = xyes; then :
+  $as_echo "#define HAVE_INET_NTOP 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" inet_ntop.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS inet_ntop.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "inet_pton" "ac_cv_func_inet_pton"
+if test "x$ac_cv_func_inet_pton" = xyes; then :
+  $as_echo "#define HAVE_INET_PTON 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" inet_pton.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS inet_pton.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "isfdtype" "ac_cv_func_isfdtype"
+if test "x$ac_cv_func_isfdtype" = xyes; then :
+  $as_echo "#define HAVE_ISFDTYPE 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" isfdtype.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS isfdtype.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "sigprocmask" "ac_cv_func_sigprocmask"
+if test "x$ac_cv_func_sigprocmask" = xyes; then :
+  $as_echo "#define HAVE_SIGPROCMASK 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" sigprocmask.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS sigprocmask.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "sleep" "ac_cv_func_sleep"
+if test "x$ac_cv_func_sleep" = xyes; then :
+  $as_echo "#define HAVE_SLEEP 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" sleep.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS sleep.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "snprintf" "ac_cv_func_snprintf"
+if test "x$ac_cv_func_snprintf" = xyes; then :
+  $as_echo "#define HAVE_SNPRINTF 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" snprintf.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS snprintf.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "strcasestr" "ac_cv_func_strcasestr"
+if test "x$ac_cv_func_strcasestr" = xyes; then :
+  $as_echo "#define HAVE_STRCASESTR 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" strcasestr.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS strcasestr.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "strdup" "ac_cv_func_strdup"
+if test "x$ac_cv_func_strdup" = xyes; then :
+  $as_echo "#define HAVE_STRDUP 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" strdup.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS strdup.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "strndup" "ac_cv_func_strndup"
+if test "x$ac_cv_func_strndup" = xyes; then :
+  $as_echo "#define HAVE_STRNDUP 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" strndup.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS strndup.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "strsep" "ac_cv_func_strsep"
+if test "x$ac_cv_func_strsep" = xyes; then :
+  $as_echo "#define HAVE_STRSEP 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" strsep.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS strsep.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "syslog" "ac_cv_func_syslog"
+if test "x$ac_cv_func_syslog" = xyes; then :
+  $as_echo "#define HAVE_SYSLOG 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" syslog.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS syslog.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "usleep" "ac_cv_func_usleep"
+if test "x$ac_cv_func_usleep" = xyes; then :
+  $as_echo "#define HAVE_USLEEP 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" usleep.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS usleep.$ac_objext"
+ ;;
+esac
+
+fi
+
+ac_fn_c_check_func "$LINENO" "vsyslog" "ac_cv_func_vsyslog"
+if test "x$ac_cv_func_vsyslog" = xyes; then :
+  $as_echo "#define HAVE_VSYSLOG 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" vsyslog.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS vsyslog.$ac_objext"
+ ;;
+esac
+
+fi
+
+
+if x != x$ALLOCA; then :
+  LTALLOCA=`echo "$ALLOCA" | sed 's/\.o$//; s/\.obj$//'`.lo
+fi
+
+
 ac_fn_c_check_func "$LINENO" "gethostbyaddr" "ac_cv_func_gethostbyaddr"
 if test "x$ac_cv_func_gethostbyaddr" = xyes; then :
 
@@ -18684,224 +19061,11 @@ _ACEOF
 fi
 done
 
-ac_fn_c_check_func "$LINENO" "inet_ntop" "ac_cv_func_inet_ntop"
-if test "x$ac_cv_func_inet_ntop" = xyes; then :
-  $as_echo "#define HAVE_INET_NTOP 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" inet_ntop.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS inet_ntop.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "inet_pton" "ac_cv_func_inet_pton"
-if test "x$ac_cv_func_inet_pton" = xyes; then :
-  $as_echo "#define HAVE_INET_PTON 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" inet_pton.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS inet_pton.$ac_objext"
- ;;
-esac
-
-fi
-
-
 LIBS="$save_LIBS"
 
 if test "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
         ac_cv_func_getaddrinfo=no
     ac_cv_func_getnameinfo=no
-fi
-
-# The Ultrix 4.2 mips builtin alloca declared by alloca.h only works
-# for constant arguments.  Useless!
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for working alloca.h" >&5
-$as_echo_n "checking for working alloca.h... " >&6; }
-if ${ac_cv_working_alloca_h+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <alloca.h>
-int
-main ()
-{
-char *p = (char *) alloca (2 * sizeof (int));
-			  if (p) return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_working_alloca_h=yes
-else
-  ac_cv_working_alloca_h=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_working_alloca_h" >&5
-$as_echo "$ac_cv_working_alloca_h" >&6; }
-if test $ac_cv_working_alloca_h = yes; then
-
-$as_echo "#define HAVE_ALLOCA_H 1" >>confdefs.h
-
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for alloca" >&5
-$as_echo_n "checking for alloca... " >&6; }
-if ${ac_cv_func_alloca_works+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#ifdef __GNUC__
-# define alloca __builtin_alloca
-#else
-# ifdef _MSC_VER
-#  include <malloc.h>
-#  define alloca _alloca
-# else
-#  ifdef HAVE_ALLOCA_H
-#   include <alloca.h>
-#  else
-#   ifdef _AIX
- #pragma alloca
-#   else
-#    ifndef alloca /* predefined by HP cc +Olibcalls */
-void *alloca (size_t);
-#    endif
-#   endif
-#  endif
-# endif
-#endif
-
-int
-main ()
-{
-char *p = (char *) alloca (1);
-				    if (p) return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_func_alloca_works=yes
-else
-  ac_cv_func_alloca_works=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_func_alloca_works" >&5
-$as_echo "$ac_cv_func_alloca_works" >&6; }
-
-if test $ac_cv_func_alloca_works = yes; then
-
-$as_echo "#define HAVE_ALLOCA 1" >>confdefs.h
-
-else
-  # The SVR3 libPW and SVR4 libucb both contain incompatible functions
-# that cause trouble.  Some versions do not even contain alloca or
-# contain a buggy version.  If you still want to use their alloca,
-# use ar to extract alloca.o from them instead of compiling alloca.c.
-
-ALLOCA=\${LIBOBJDIR}alloca.$ac_objext
-
-$as_echo "#define C_ALLOCA 1" >>confdefs.h
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether \`alloca.c' needs Cray hooks" >&5
-$as_echo_n "checking whether \`alloca.c' needs Cray hooks... " >&6; }
-if ${ac_cv_os_cray+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#if defined CRAY && ! defined CRAY2
-webecray
-#else
-wenotbecray
-#endif
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "webecray" >/dev/null 2>&1; then :
-  ac_cv_os_cray=yes
-else
-  ac_cv_os_cray=no
-fi
-rm -f conftest*
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_os_cray" >&5
-$as_echo "$ac_cv_os_cray" >&6; }
-if test $ac_cv_os_cray = yes; then
-  for ac_func in _getb67 GETB67 getb67; do
-    as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-
-cat >>confdefs.h <<_ACEOF
-#define CRAY_STACKSEG_END $ac_func
-_ACEOF
-
-    break
-fi
-
-  done
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking stack direction for C alloca" >&5
-$as_echo_n "checking stack direction for C alloca... " >&6; }
-if ${ac_cv_c_stack_direction+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test "$cross_compiling" = yes; then :
-  ac_cv_c_stack_direction=0
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$ac_includes_default
-int
-find_stack_direction (int *addr, int depth)
-{
-  int dir, dummy = 0;
-  if (! addr)
-    addr = &dummy;
-  *addr = addr < &dummy ? 1 : addr == &dummy ? 0 : -1;
-  dir = depth ? find_stack_direction (addr, depth - 1) : 0;
-  return dir + dummy;
-}
-
-int
-main (int argc, char **argv)
-{
-  return find_stack_direction (0, argc + !argv + 20) < 0;
-}
-_ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
-  ac_cv_c_stack_direction=1
-else
-  ac_cv_c_stack_direction=-1
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_stack_direction" >&5
-$as_echo "$ac_cv_c_stack_direction" >&6; }
-cat >>confdefs.h <<_ACEOF
-#define STACK_DIRECTION $ac_cv_c_stack_direction
-_ACEOF
-
-
 fi
 
 
@@ -19119,163 +19283,6 @@ _ACEOF
 
 fi
 done
-
-ac_fn_c_check_func "$LINENO" "getenv" "ac_cv_func_getenv"
-if test "x$ac_cv_func_getenv" = xyes; then :
-  $as_echo "#define HAVE_GETENV 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" getenv.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS getenv.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "isfdtype" "ac_cv_func_isfdtype"
-if test "x$ac_cv_func_isfdtype" = xyes; then :
-  $as_echo "#define HAVE_ISFDTYPE 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" isfdtype.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS isfdtype.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "sigprocmask" "ac_cv_func_sigprocmask"
-if test "x$ac_cv_func_sigprocmask" = xyes; then :
-  $as_echo "#define HAVE_SIGPROCMASK 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" sigprocmask.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS sigprocmask.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "snprintf" "ac_cv_func_snprintf"
-if test "x$ac_cv_func_snprintf" = xyes; then :
-  $as_echo "#define HAVE_SNPRINTF 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" snprintf.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS snprintf.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "strcasestr" "ac_cv_func_strcasestr"
-if test "x$ac_cv_func_strcasestr" = xyes; then :
-  $as_echo "#define HAVE_STRCASESTR 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" strcasestr.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS strcasestr.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "strdup" "ac_cv_func_strdup"
-if test "x$ac_cv_func_strdup" = xyes; then :
-  $as_echo "#define HAVE_STRDUP 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" strdup.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS strdup.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "strndup" "ac_cv_func_strndup"
-if test "x$ac_cv_func_strndup" = xyes; then :
-  $as_echo "#define HAVE_STRNDUP 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" strndup.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS strndup.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "strsep" "ac_cv_func_strsep"
-if test "x$ac_cv_func_strsep" = xyes; then :
-  $as_echo "#define HAVE_STRSEP 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" strsep.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS strsep.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "usleep" "ac_cv_func_usleep"
-if test "x$ac_cv_func_usleep" = xyes; then :
-  $as_echo "#define HAVE_USLEEP 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" usleep.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS usleep.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "sleep" "ac_cv_func_sleep"
-if test "x$ac_cv_func_sleep" = xyes; then :
-  $as_echo "#define HAVE_SLEEP 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" sleep.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS sleep.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "syslog" "ac_cv_func_syslog"
-if test "x$ac_cv_func_syslog" = xyes; then :
-  $as_echo "#define HAVE_SYSLOG 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" syslog.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS syslog.$ac_objext"
- ;;
-esac
-
-fi
-
-ac_fn_c_check_func "$LINENO" "vsyslog" "ac_cv_func_vsyslog"
-if test "x$ac_cv_func_vsyslog" = xyes; then :
-  $as_echo "#define HAVE_VSYSLOG 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" vsyslog.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS vsyslog.$ac_objext"
- ;;
-esac
-
-fi
-
 
 
 if test "${ac_cv_header_sys_io_h}" = "yes"; then

@@ -18854,7 +18854,7 @@ esac
 fi
 
 
-if x != x$ALLOCA; then :
+if test x != x$ALLOCA; then :
   LTALLOCA=`echo "$ALLOCA" | sed 's/\.o$//; s/\.obj$//'`.lo
 fi
 

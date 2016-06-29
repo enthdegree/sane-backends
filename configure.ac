@@ -279,7 +279,7 @@ AC_FUNC_ALLOCA
 AC_REPLACE_FUNCS([getenv inet_ntop inet_pton isfdtype sigprocmask \
     sleep snprintf strcasestr strdup strndup strsep syslog usleep \
     vsyslog])
-AS_IF([x != x$ALLOCA],
+AS_IF([test x != x$ALLOCA],
       [LTALLOCA=`echo "$ALLOCA" | sed 's/\.o$//; s/\.obj$//'`.lo])
 AC_SUBST(LTALLOCA)
 

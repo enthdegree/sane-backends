@@ -344,6 +344,12 @@ if test "$ac_cv_header_getopt_h" = "yes" ; then
   AC_CHECK_FUNCS(getopt_long)
 fi
 
+# Slightly abuse the AC_LIBOBJ macro to mark files as replacement code
+AS_IF([test x$ac_cv_header_getopt_h != xyes \
+       && test x$ac_cv_func_getopt_long != xyes],
+      [AC_LIBOBJ(getopt)
+       AC_LIBOBJ(getopt1)])
+
 dnl ***********************************************************************
 dnl checks for system services
 dnl ***********************************************************************

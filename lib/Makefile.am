@@ -5,9 +5,7 @@
 ##  included LICENSE file for license information.
 AM_CPPFLAGS += -I. -I$(top_builddir)/include -I$(top_srcdir)/include
 
-noinst_LTLIBRARIES = liblib.la libfelib.la
+noinst_LTLIBRARIES = liblib.la
 
-libfelib_la_SOURCES = getopt.c getopt1.c md5.c
-
-liblib_la_SOURCES =
+liblib_la_SOURCES = md5.c
 liblib_la_LIBADD = $(LTALLOCA) $(LTLIBOBJS)

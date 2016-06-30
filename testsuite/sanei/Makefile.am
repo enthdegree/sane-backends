@@ -10,7 +10,7 @@ EXTRA_DIST = data/boolean.conf data/empty.conf data/fixed.conf data/int.conf \
 	     data/wrong-fixed.conf data/wrong-range.conf \
 	     data/wrong-string-list.conf
 
-TEST_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la ../../lib/libfelib.la $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
+TEST_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
 
 check_PROGRAMS = sanei_usb_test test_wire sanei_check_test sanei_config_test sanei_constrain_test
 TESTS = $(check_PROGRAMS)

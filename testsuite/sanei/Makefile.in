@@ -105,8 +105,8 @@ am_sanei_check_test_OBJECTS = sanei_check_test.$(OBJEXT)
 sanei_check_test_OBJECTS = $(am_sanei_check_test_OBJECTS)
 am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = ../../sanei/libsanei.la ../../lib/liblib.la \
-	../../lib/libfelib.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 sanei_check_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -590,7 +590,7 @@ EXTRA_DIST = data/boolean.conf data/empty.conf data/fixed.conf data/int.conf \
 	     data/wrong-fixed.conf data/wrong-range.conf \
 	     data/wrong-string-list.conf
 
-TEST_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la ../../lib/libfelib.la $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
+TEST_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
 TESTS = $(check_PROGRAMS)
 sanei_constrain_test_SOURCES = sanei_constrain_test.c
 sanei_constrain_test_LDADD = $(TEST_LDADD)

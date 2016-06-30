@@ -109,8 +109,7 @@ am_saned_OBJECTS = saned.$(OBJEXT)
 saned_OBJECTS = $(am_saned_OBJECTS)
 am__DEPENDENCIES_1 =
 saned_DEPENDENCIES = ../backend/libsane.la ../sanei/libsanei.la \
-	../lib/liblib.la ../lib/libfelib.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	../lib/liblib.la $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -118,16 +117,13 @@ am__v_lt_1 =
 am_scanimage_OBJECTS = scanimage.$(OBJEXT) stiff.$(OBJEXT)
 scanimage_OBJECTS = $(am_scanimage_OBJECTS)
 scanimage_DEPENDENCIES = ../backend/libsane.la ../sanei/libsanei.la \
-	../lib/liblib.la ../lib/libfelib.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	../lib/liblib.la $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_test_OBJECTS = test.$(OBJEXT)
 test_OBJECTS = $(am_test_OBJECTS)
-test_DEPENDENCIES = ../lib/liblib.la ../lib/libfelib.la \
-	../backend/libsane.la
+test_DEPENDENCIES = ../lib/liblib.la ../backend/libsane.la
 am_tstbackend_OBJECTS = tstbackend.$(OBJEXT)
 tstbackend_OBJECTS = $(am_tstbackend_OBJECTS)
-tstbackend_DEPENDENCIES = ../lib/liblib.la ../lib/libfelib.la \
-	../backend/libsane.la
+tstbackend_DEPENDENCIES = ../lib/liblib.la ../backend/libsane.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -383,16 +379,16 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 scanimage_SOURCES = scanimage.c stiff.c stiff.h
 scanimage_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \
-             ../lib/libfelib.la $(PNG_LIBS) $(JPEG_LIBS)
+                  $(PNG_LIBS) $(JPEG_LIBS)
 
 saned_SOURCES = saned.c
 saned_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \
-             ../lib/libfelib.la $(SYSLOG_LIBS) $(SYSTEMD_LIBS)
+              $(SYSLOG_LIBS) $(SYSTEMD_LIBS)
 
 test_SOURCES = test.c
-test_LDADD = ../lib/liblib.la ../lib/libfelib.la ../backend/libsane.la
+test_LDADD = ../lib/liblib.la ../backend/libsane.la
 tstbackend_SOURCES = tstbackend.c
-tstbackend_LDADD = ../lib/liblib.la ../lib/libfelib.la ../backend/libsane.la
+tstbackend_LDADD = ../lib/liblib.la ../backend/libsane.la
 all: all-am
 
 .SUFFIXES:

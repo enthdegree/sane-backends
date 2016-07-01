@@ -73,7 +73,7 @@ Start: 2.4.2001
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_usb.h"
 
-#undef HAVE_LIBUSB
+#undef HAVE_LIBUSB_LEGACY
 
 /* prevent inclusion of scantool.h */
 #define SCANTOOL_H

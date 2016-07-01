@@ -373,85 +373,63 @@ if test "x$with_systemd" != xno ; then
   fi
 fi
 
-dnl ***********
-dnl USB Support
-dnl ***********
+dnl ******************************************************************
+dnl Check for USB support
+dnl ******************************************************************
 
-dnl Enable libusb-1.0, if available
-AC_ARG_ENABLE(libusb_1_0,
-	AS_HELP_STRING([--enable-libusb_1_0], [enable libusb-1.0 support if available]),
-	[enable_libusb_1_0=$enableval], [enable_libusb_1_0=no])
-
-dnl USB support enabled by default (if found).  Note: Overloading libusb
-dnl option right now to disable USB support on any platform; even
-dnl if they use a different library name.
-AC_ARG_ENABLE(libusb, 
-    AS_HELP_STRING([--disable-libusb], [disable support for USB in SANE]),,
-    enable_libusb=auto)
-HAVE_USB=no
-if test "$enable_libusb" != "no"; then
-  case ${host_os} in
-  beos*)
-  AC_CHECK_HEADERS(be/drivers/USB_scanner.h, HAVE_USB=yes, AC_MSG_ERROR([USB_scanner.h is required on BeOS]))
-  ;;
-  os2*)
-  AC_CHECK_HEADER(usbcalls.h,
-		  AC_CHECK_LIB(usbcall, UsbQueryNumberDevices, 
-       			       [USB_LIBS="$USB_LIBS -lusbcall"
-				HAVE_USB=yes]),,[#include <usb.h> 
-#include <os2.h>
-])
-  ;;
-  *)
-  dnl If libusb-1.0 is enabled and available, prefer that to the old libusb
-  have_libusb_1_0=no
-  if test "$enable_libusb_1_0" = "yes"; then
-    PKG_CHECK_MODULES(LIBUSB_1_0, [ libusb-1.0 >= 1.0.0 ], have_libusb_1_0=yes, have_libusb_1_0=no)
-    if test "$have_libusb_1_0" = "yes"; then
-      AM_CFLAGS="$AM_CFLAGS $LIBUSB_1_0_CFLAGS"
-      USB_LIBS="$USB_LIBS $LIBUSB_1_0_LIBS"
-      HAVE_USB=yes
-    fi
-  fi
-
-  if test "$have_libusb_1_0" = "no"; then
-    dnl Fallback to the old libusb
-    dnl libusb >= 0.1.8 is required, as we need usb_interrupt_read()
-    AC_CHECK_HEADER(usb.h,
-                    AC_CHECK_LIB(usb, usb_interrupt_read,
-                                 [USB_LIBS="$USB_LIBS -lusb"
-                                  HAVE_USB=yes]))
-    AC_CHECK_HEADERS(lusb0_usb.h,
-		     AC_CHECK_LIB(usb, usb_interrupt_read,
-				  [USB_LIBS="$USB_LIBS -lusb"
-				   HAVE_USB=yes]))
-  fi
-  ;;
-  esac
-fi
-dnl The following logic is useful for distributions.  If they force
-dnl USB support with --enable-libusb=yes then configure will fail
-dnl when its detected that it can not be supported.  Default is
-dnl "auto" which means only enable if libraries are found and do
-dnl not error out.
-if test "$enable_libusb" = "yes" && test "$HAVE_USB" = "no"; then
-  AC_MSG_ERROR([USB support requested but required libraries not found.])
-fi
-if test "$HAVE_USB" = "yes"; then
-  case ${host_os} in
-  os2*)
-  AC_DEFINE(HAVE_USBCALLS, 1, [Define to 1 if you have usbcall.dll.])
-  ;;
-  *)
-  if test "$have_libusb_1_0" = "yes"; then
-    AC_DEFINE(HAVE_LIBUSB_1_0, 1, [Define to 1 if you have libusb-1.0.])
-  else
-    AC_DEFINE(HAVE_LIBUSB, 1, [Define to 1 if you have libusb.])
-  fi
-  ;;
-  esac
-fi
-AC_SUBST(USB_LIBS)
+AC_ARG_WITH(usb,
+  AS_HELP_STRING([--with-usb], [enable USB support @<:@default=check@:>@]),
+  [],
+  [with_usb=check])
+AS_IF([test xno != "x$with_usb"],
+  [have_usb=no
+   AS_CASE(x$host_os,           dnl odd-ball operating systems first
+    [beos*],
+      [AC_CHECK_HEADER(be/drivers/USB_scanner.h, [have_usb=yes])],
+    [os2*],
+      [AC_CHECK_HEADER(usbcalls.h,
+        [AC_CHECK_LIB(usbcall, UsbQueryNumberDevices,
+          [USB_LIBS="-lusbcall"
+           have_usb=yes
+           AC_DEFINE(HAVE_USBCALLS, [1],
+             [Define to 1 if you have usbcall.dll.])
+          ])
+        ],
+        [],
+        [#include <usb.h>
+         #include <os2.h>
+        ])
+      ],
+    [dnl default to libusb-1.x, fall back to libusb-0.x if missing
+     PKG_CHECK_MODULES([USB], [libusb-1.0],
+      [AC_DEFINE([HAVE_LIBUSB], [1],
+        [Define to 1 if you have libusb-1.0])
+       have_usb=yes
+      ],
+      [PKG_CHECK_MODULES([USB], [libusb >= 0.1.8],
+        [AC_DEFINE([HAVE_LIBUSB_LEGACY], [1],
+          [Define to 1 if you have libusb-0.1])
+         have_usb=yes
+        ],
+        [dnl 10+ years old libusb or Windows version
+         AC_CHECK_HEADER(usb.h,
+          AC_CHECK_LIB(usb, usb_interrupt_read,
+            [USB_LIBS="-lusb"
+             have_usb=yes
+            ]))
+         AC_CHECK_HEADERS(lusb0_usb.h,
+           AC_CHECK_LIB(usb, usb_interrupt_read,
+             [USB_LIBS="-lusb"
+              have_usb=yes
+             ]))
+        ])
+      ])
+    ])
+  ])
+AS_IF([test xyes = "x$with_usb" && test xyes != have_usb],
+  [AC_MSG_ERROR([USB support requested but required libraries not found.])
+  ])
+dnl AM_CONDITIONAL([have_usb], [test x != "x$USB_LIBS])
 
 dnl ************
 dnl SCSI Support
@@ -851,10 +829,10 @@ if test "$SELECTED_BACKENDS" != "" ; then
   echo "*** connected to your local computer won't be supported.  Only a network"
   echo "*** connection to a remote host is possible."
 fi
-if test "$enable_libusb" != "no" && test "$HAVE_USB" != "yes" ; then
-  echo "*** Warning: sane-backends will be built without libusb support.  There may"
+if test "$with_usb" != "no" && test "$have_usb" != "yes" ; then
+  echo "*** Warning: sane-backends will be built without USB support.  There may"
   echo "*** be valid reasons to do so, e.g. if you don't use USB scanners or on"
-  echo "*** platforms without libusb support but generally this means that you"
+  echo "*** platforms without USB support but generally this means that you"
   echo "*** can't use USB devices with SANE. The most probable cause is that"
   if test "${ac_cv_header_usb_h}" != "yes"; then
     echo "*** the libusb header file usb.h is not installed. If you use Linux"

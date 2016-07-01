@@ -15,7 +15,7 @@ TEST_LDADD = ../../sanei/libsanei.la ../../lib/liblib.la $(MATH_LIB) $(USB_LIBS)
 check_PROGRAMS = sanei_usb_test test_wire sanei_check_test sanei_config_test sanei_constrain_test
 TESTS = $(check_PROGRAMS)
 
-AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
+AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include $(USB_CFLAGS)
 
 sanei_constrain_test_SOURCES = sanei_constrain_test.c
 sanei_constrain_test_LDADD = $(TEST_LDADD)

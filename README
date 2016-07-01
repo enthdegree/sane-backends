@@ -47,7 +47,7 @@ configure. On some Linux distributions the header files are part of separate
 packages (e.g. usb.h in libusb-devel or libusb-dev). These must also be
 installed.
 
-        - libusb (>=0.1.8): Strongly recommended if you use a USB scanner.
+        - libusb: Strongly recommended if you use a USB scanner.
           Some backends won't work without libusb at all.
 
         - libjpeg (>=6B): For the dc210, dc240, and gphoto2 backends.

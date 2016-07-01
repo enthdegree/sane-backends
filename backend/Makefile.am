@@ -4,7 +4,7 @@
 ##  This file is part of the "Sane" build infra-structure.  See
 ##  included LICENSE file for license information.
 
-AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include -DLIBDIR="\"$(libdir)/sane\""
+AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include $(USB_CFLAGS) -DLIBDIR="\"$(libdir)/sane\""
 
 AM_LDFLAGS += $(STRICT_LDFLAGS)
 # The -rpath option is added because we are creating _LTLIBRARIES based

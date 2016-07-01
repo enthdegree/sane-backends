@@ -5,7 +5,7 @@
 ##  included LICENSE file for license information.
 
 AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include \
- -I$(top_srcdir)/include
+ -I$(top_srcdir)/include $(USB_CFLAGS)
 
 bin_PROGRAMS = sane-find-scanner gamma4scanimage
 noinst_PROGRAMS = sane-desc

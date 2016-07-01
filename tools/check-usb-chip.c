@@ -28,7 +28,7 @@
 
 #include "../include/sane/config.h"
 
-#ifdef HAVE_LIBUSB
+#ifdef HAVE_LIBUSB_LEGACY
 
 #include "../include/sane/sane.h"
 #include <stdio.h>
@@ -3430,9 +3430,9 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
   return chip_name;
 }
 
-#endif /* HAVE_LIBUSB */
+#endif /* HAVE_LIBUSB_LEGACY */
 
-#ifdef HAVE_LIBUSB_1_0
+#ifdef HAVE_LIBUSB
 
 #include <libusb.h>
 
@@ -4335,4 +4335,4 @@ check_usb_chip (int verbosity,
   libusb_release_interface (hdl, 0);
   return chip_name;
 }
-#endif /* HAVE_LIBUSB_1_0 */
+#endif /* HAVE_LIBUSB */

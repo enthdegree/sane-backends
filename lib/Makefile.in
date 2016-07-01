@@ -80,10 +80,10 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = lib
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/mkinstalldirs alloca.c getenv.c strndup.c \
-	strdup.c isfdtype.c usleep.c inet_pton.c inet_ntop.c \
-	snprintf.c vsyslog.c syslog.c getopt1.c strsep.c getopt.c \
-	sleep.c sigprocmask.c strcasestr.c $(top_srcdir)/depcomp
+	$(top_srcdir)/mkinstalldirs alloca.c sigprocmask.c inet_pton.c \
+	usleep.c isfdtype.c snprintf.c vsyslog.c getopt1.c strsep.c \
+	strndup.c strcasestr.c getopt.c syslog.c sleep.c getenv.c \
+	inet_ntop.c strdup.c $(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intlmacosx.m4 \
@@ -236,8 +236,6 @@ LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
-LIBUSB_1_0_CFLAGS = @LIBUSB_1_0_CFLAGS@
-LIBUSB_1_0_LIBS = @LIBUSB_1_0_LIBS@
 LIBV4L_CFLAGS = @LIBV4L_CFLAGS@
 LIBV4L_LIBS = @LIBV4L_LIBS@
 LIPO = @LIPO@
@@ -296,6 +294,7 @@ SYSLOG_LIBS = @SYSLOG_LIBS@
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
 SYSTEMD_LIBS = @SYSTEMD_LIBS@
 TIFF_LIBS = @TIFF_LIBS@
+USB_CFLAGS = @USB_CFLAGS@
 USB_LIBS = @USB_LIBS@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@

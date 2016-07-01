@@ -50,9 +50,6 @@
 /* Define to 1 if you have the `atexit' function. */
 #undef HAVE_ATEXIT
 
-/* Define to 1 if you have the <be/drivers/USB_scanner.h> header file. */
-#undef HAVE_BE_DRIVERS_USB_SCANNER_H
-
 /* Define to 1 if you have the <be/kernel/OS.h> header file. */
 #undef HAVE_BE_KERNEL_OS_H
 
@@ -199,11 +196,11 @@
 /* Define to 1 if you have the net-snmp library. */
 #undef HAVE_LIBSNMP
 
-/* Define to 1 if you have libusb. */
+/* Define to 1 if you have libusb-1.0 */
 #undef HAVE_LIBUSB
 
-/* Define to 1 if you have libusb-1.0. */
-#undef HAVE_LIBUSB_1_0
+/* Define to 1 if you have libusb-0.1 */
+#undef HAVE_LIBUSB_LEGACY
 
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H

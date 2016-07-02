@@ -15,7 +15,7 @@ variables:
 build:debian-8-full:
   image: $REGISTRY_HUB:debian-8-full
   variables:
-    CONFIGURE_OPTS: "--enable-pnm-backend --enable-avahi --enable-libusb_1_0"
+    CONFIGURE_OPTS: "--enable-pnm-backend --enable-avahi --with-usb"
   <<: *build_definition
 
 build:debian-8-mini:

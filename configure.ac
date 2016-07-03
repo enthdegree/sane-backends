@@ -426,7 +426,7 @@ AS_IF([test xno != "x$with_usb"],
       ])
     ])
   ])
-AS_IF([test xyes = "x$with_usb" && test xyes != have_usb],
+AS_IF([test xyes = "x$with_usb" && test xyes != "x$have_usb"],
   [AC_MSG_ERROR([USB support requested but required libraries not found.])
   ])
 dnl AM_CONDITIONAL([have_usb], [test x != "x$USB_LIBS])

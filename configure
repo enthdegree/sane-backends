@@ -20233,7 +20233,7 @@ fi
 esac
 
 fi
-if test xyes = "x$with_usb" && test xyes != have_usb; then :
+if test xyes = "x$with_usb" && test xyes != "x$have_usb"; then :
   as_fn_error $? "USB support requested but required libraries not found." "$LINENO" 5
 
 fi

@@ -5,19 +5,29 @@
 
 variables:
   REGISTRY_HUB: "registry.gitlab.com/sane-project/ci-envs"
+  CONFIGURE_MINI: "--enable-silent-rules"
+  CONFIGURE_FULL: "--with-usb --enable-avahi --enable-pnm-backend"
 
 .build_template: &build_definition
   stage: build
   script:
-  - ./configure --enable-silent-rules $CONFIGURE_OPTS
+  - ./configure $CONFIGURE_OPTS
   - make -j2 -k
+
+build:debian-8-mini:
+  image: $REGISTRY_HUB:debian-8-mini
+  variables:
+    CONFIGURE_OPTS: "$CONFIGURE_MINI"
+  <<: *build_definition
 
 build:debian-8-full:
   image: $REGISTRY_HUB:debian-8-full
   variables:
-    CONFIGURE_OPTS: "--enable-pnm-backend --enable-avahi --with-usb"
+    CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *build_definition
 
-build:debian-8-mini:
-  image: $REGISTRY_HUB:debian-8-mini
+build:alpine-3.4-musl:
+  image: $REGISTRY_HUB:alpine-3.4-musl
+  variables:
+    CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *build_definition

@@ -237,7 +237,7 @@ sane.ind: $(srcdir)/sane.tex
 	@echo Generating index for sane.tex...
 	@touch sane.ind
 	@$(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null && \
-	  $(MAKEINDEX) sane.idx 2>/dev/null && \
+	  $(MAKEINDEX) -q sane.idx && \
 	  $(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null
 
 sane.dvi: sane.ind
@@ -246,7 +246,7 @@ sane.dvi: sane.ind
 
 sane.ps: sane.dvi
 	@echo Generating sane.ps from sane.dvi...
-	@$(TI_DVIPS) sane.dvi -o sane.ps 2>/dev/null
+	@$(TI_DVIPS) -q sane.dvi -o sane.ps
 
 sane-html: sane.dvi
 	$(TI_DLH) $(srcdir)/sane.tex

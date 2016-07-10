@@ -94,8 +94,9 @@ doc_DATA += $(STANDARD)
 EXTRA_DIST += descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
   sane.png
 
-TI_LATEX = TEXINPUTS="$(srcdir):$$TEXINPUTS" $(LATEX)
-TI_DLH   = TEXINPUTS="$(srcdir):$$TEXINPUTS" dlh
+TI_LATEX = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" $(LATEX)
+TI_DVIPS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" $(DVIPS)
+TI_DLH   = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" dlh
 MAN2HTML = nroff -c -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
           -cgiurl '$$title.$$section.html'|\
@@ -245,7 +246,7 @@ sane.dvi: sane.ind
 
 sane.ps: sane.dvi
 	@echo Generating sane.ps from sane.dvi...
-	@$(DVIPS) sane.dvi -o sane.ps 2>/dev/null
+	@$(TI_DVIPS) sane.dvi -o sane.ps 2>/dev/null
 
 sane-html: sane.dvi
 	$(TI_DLH) $(srcdir)/sane.tex

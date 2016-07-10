@@ -76,6 +76,7 @@ AC_PATH_PROG(GS, gs$EXEEXT, no)
 AC_PATH_PROG(LATEX, latex$EXEEXT, no)
 AC_PATH_PROG(DVIPS, dvips$EXEEXT, no)
 AC_PATH_PROG(MAKEINDEX, makeindex$EXEEXT, no)
+AC_PATH_PROG(DLH, dlh$EXEEXT, no)
 
 dnl Call explicitely before using PKG_*
 PKG_PROG_PKG_CONFIG

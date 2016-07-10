@@ -258,7 +258,7 @@ sane.pdf: $(srcdir)/sane.tex sane.ind
 endif
 
 sane-html: sane.dvi
-	$(am_TEXINPUTS) dlh $(srcdir)/sane.tex
+	$(am_TEXINPUTS) $(DLH) $(srcdir)/sane.tex
 
 html-man: $(MANPAGES)
 	@for page in $(MANPAGES); do \

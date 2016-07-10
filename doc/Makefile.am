@@ -94,6 +94,7 @@ doc_DATA += $(STANDARD)
 EXTRA_DIST += descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
   sane.png
 
+TI_PDFLATEX = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" $(PDFLATEX)
 TI_LATEX = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" $(LATEX)
 TI_DVIPS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" $(DVIPS)
 TI_DLH   = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" dlh
@@ -248,6 +249,16 @@ sane.ps: sane.dvi
 	@echo Generating sane.ps from sane.dvi...
 	@$(TI_DVIPS) -q sane.dvi -o sane.ps
 
+if HAVE_PDFLATEX
+sane.pdf: $(srcdir)/sane.tex sane.ind
+	@echo Generating $@ from $<...
+	@if test $(srcdir) != $(builddir); then \
+	    test -d $(builddir)/figs || mkdir -p $(builddir)/figs; \
+	    cp $(srcdir)/figs/*.eps $(builddir)/figs; \
+	fi
+	@$(TI_PDFLATEX) $< >/dev/null
+endif
+
 sane-html: sane.dvi
 	$(TI_DLH) $(srcdir)/sane.tex
 
@@ -304,6 +315,7 @@ clean-local:
 	rm -f *.ilg
 
 distclean-local:
+	test $(srcdir) = $(builddir) || rm -fr $(builddir)/figs
 	rm -f $(MANPAGES)
 	rm -f *.lot *.lof *.ind
 	rm -f sane.dvi sane.ps sane-backends.html sane-backends-external.html

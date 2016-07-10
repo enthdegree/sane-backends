@@ -70,6 +70,9 @@ dnl ***********************************************************************
 dnl Checks for programs.
 dnl ***********************************************************************
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
+AC_PATH_PROG(PDFLATEX, pdflatex$EXEEXT, no)
+AC_PATH_PROG(EPSTOPDF, epstopdf$EXEEXT, no)
+AC_PATH_PROG(GS, gs$EXEEXT, no)
 AC_PATH_PROG(LATEX, latex$EXEEXT, no)
 AC_PATH_PROG(DVIPS, dvips$EXEEXT, no)
 AC_PATH_PROG(MAKEINDEX, makeindex$EXEEXT, no)
@@ -745,6 +748,11 @@ else
   echo "disabling latex"
 fi  
 AM_CONDITIONAL(USE_LATEX, test x$enable_latex = xyes)
+AM_CONDITIONAL(HAVE_PDFLATEX,
+  [test "x$PDFLATEX" != xno \
+   && test "x$EPSTOPDF" != xno \
+   && test "x$GS" != xno \
+   && test "x$MAKEINDEX" != xno])
 
 dnl ***********************************************************************
 dnl Write output files

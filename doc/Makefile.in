@@ -78,6 +78,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@WITH_API_PS_TRUE@am__append_1 = sane.ps
+@WITH_API_PDF_TRUE@am__append_2 = sane.pdf
+@WITH_API_HTML_TRUE@am__append_3 = sane-html
 subdir = doc
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/mkinstalldirs $(srcdir)/doxygen-sanei.conf.in \
@@ -184,6 +187,7 @@ CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLH = @DLH@
 DLLTOOL = @DLLTOOL@
 DL_LIBS = @DL_LIBS@
 DSYMUTIL = @DSYMUTIL@
@@ -194,6 +198,7 @@ ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
+EPSTOPDF = @EPSTOPDF@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
 GETTEXT_MACRO_VERSION = @GETTEXT_MACRO_VERSION@
@@ -203,6 +208,7 @@ GPHOTO2_CPPFLAGS = @GPHOTO2_CPPFLAGS@
 GPHOTO2_LDFLAGS = @GPHOTO2_LDFLAGS@
 GPHOTO2_LIBS = @GPHOTO2_LIBS@
 GREP = @GREP@
+GS = @GS@
 HAVE_GPHOTO2 = @HAVE_GPHOTO2@
 IEEE1284_LIBS = @IEEE1284_LIBS@
 INSTALL = @INSTALL@
@@ -254,11 +260,13 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PDFLATEX = @PDFLATEX@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 PNG_LIBS = @PNG_LIBS@
 POSUB = @POSUB@
+PPMTOGIF = @PPMTOGIF@
 PRELOADABLE_BACKENDS = @PRELOADABLE_BACKENDS@
 PRELOADABLE_BACKENDS_ENABLED = @PRELOADABLE_BACKENDS_ENABLED@
 PTHREAD_LIBS = @PTHREAD_LIBS@
@@ -375,16 +383,11 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 	sane-rts8891.man sane-coolscan3.man sane-kvs1025.man \
 	sane-kvs20xx.man sane-kvs40xx.man sane-p5.man \
 	sane-magicolor.man sane.man saned.man descriptions.txt \
-	releases.txt sane-logo2.jpg sane-logo.png sane.png sane.tex \
-	net.tex html.sty $(DESC_FILES) descriptions/template.desc. \
-	$(DESC_EXT_FILES) descriptions-external/template.desc. \
-	figs/area.eps figs/area.fig figs/flow.eps figs/flow.fig \
-	figs/hierarchy.eps figs/hierarchy.fig figs/image-data.eps \
-	figs/image-data.fig figs/xfer.eps figs/xfer.fig \
-	icons/contents.gif icons/index.gif icons/next.gif \
-	icons/next_gr.gif icons/previous.gif icons/previous_gr.gif \
-	icons/references.gif icons/references_gr.gif icons/up.gif \
-	icons/up_gr.gif
+	releases.txt sane-logo2.jpg sane-logo.png sane.png \
+	$(DESC_FILES) descriptions/template.desc. $(DESC_EXT_FILES) \
+	descriptions-external/template.desc. $(API_SPEC_INPUTS) \
+	$(API_SPEC_TEX_FIGS) $(API_SPEC_HTML_ICONS) \
+	$(API_SPEC_HTML_STYLE)
 
 # Create a list of man pages for only backends that are compiled in so
 # that is all that gets installed.  Also, build a complete list of all
@@ -423,14 +426,9 @@ MANPAGES = $(man1_MANS) $(BACKEND_5MANS) $(man7_MANS) $(man8_MANS)
 @CROSS_COMPILING_FALSE@	     sane-mfgs.html sane-mfgs-external.html
 
 @CROSS_COMPILING_TRUE@HTML_PAGES = 
-doc_DATA = $(HTML_PAGES) $(STANDARD)
-@USE_LATEX_FALSE@STANDARD = 
-@USE_LATEX_TRUE@STANDARD = sane.ps
+doc_DATA = $(HTML_PAGES) $(API_SPECS)
 dist_doc_DATA = backend-writing.txt
 nobase_dist_doc_DATA = $(BEDOCS)
-TI_LATEX = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" $(LATEX)
-TI_DVIPS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" $(DVIPS)
-TI_DLH = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" dlh
 MAN2HTML = nroff -c -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
           -cgiurl '$$title.$$section.html'|\
@@ -526,6 +524,18 @@ DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/v4l2.desc \
   descriptions-external/viceo.desc
 
+API_SPECS = $(am__append_1) $(am__append_2) $(am__append_3)
+API_SPEC_INPUTS = $(srcdir)/sane.tex $(srcdir)/net.tex
+API_SPEC_TEX_FIGS = figs/area.fig figs/area.eps figs/flow.fig \
+	figs/flow.eps figs/hierarchy.fig figs/hierarchy.eps \
+	figs/image-data.fig figs/image-data.eps figs/xfer.fig \
+	figs/xfer.eps
+API_SPEC_HTML_ICONS = icons/contents.gif icons/index.gif \
+	icons/next.gif icons/next_gr.gif icons/previous.gif \
+	icons/previous_gr.gif icons/references.gif \
+	icons/references_gr.gif icons/up.gif icons/up_gr.gif
+API_SPEC_HTML_STYLE = html.sty
+am_TEXINPUTS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS"
 all: all-am
 
 .SUFFIXES:
@@ -923,7 +933,7 @@ uninstall-man: uninstall-man1 uninstall-man7 uninstall-man8
 	uninstall-man8 uninstall-nobase_dist_docDATA
 
 
-all: bemans $(STANDARD) html-pages
+all: bemans $(API_SPECS) html-pages
 
 %.1 %.5 %.7 %.8: %.man
 	@echo "Generating manpage $@...";
@@ -950,23 +960,31 @@ install-data-local: install-beman5
 uninstall-local:
 	rm -rf $(DESTDIR)$(beman5dir)/sane-*.5
 
-sane.ind: $(srcdir)/sane.tex
-	@echo Generating index for sane.tex...
+sane.ind: $(API_SPEC_INPUTS)
+	@echo Generating index for $<...
 	@touch sane.ind
-	@$(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	@$(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null && \
 	  $(MAKEINDEX) -q sane.idx && \
-	  $(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null
+	  $(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
 
-sane.dvi: sane.ind
-	@echo Generating sane.dvi from sane.tex...
-	@$(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null
+sane.dvi: $(API_SPEC_INPUTS) sane.ind
+	@echo Generating $@ from $<...
+	@$(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
 
 sane.ps: sane.dvi
-	@echo Generating sane.ps from sane.dvi...
-	@$(TI_DVIPS) -q sane.dvi -o sane.ps
+	@echo Generating $@ from $<...
+	@$(am_TEXINPUTS) $(DVIPS) -q $< -o $@
+
+sane.pdf: $(API_SPEC_INPUTS) sane.ind
+	@echo Generating $@ from $<...
+	@if test $(srcdir) != $(builddir); then \
+	    test -d $(builddir)/figs || mkdir -p $(builddir)/figs; \
+	    cp $(srcdir)/figs/*.eps $(builddir)/figs; \
+	fi
+	@$(am_TEXINPUTS) $(PDFLATEX) $< >/dev/null
 
 sane-html: sane.dvi
-	$(TI_DLH) $(srcdir)/sane.tex
+	$(am_TEXINPUTS) $(DLH) $(srcdir)/sane.tex
 
 html-man: $(MANPAGES)
 	@for page in $(MANPAGES); do \
@@ -1021,6 +1039,7 @@ clean-local:
 	rm -f *.ilg
 
 distclean-local:
+	test $(srcdir) = $(builddir) || rm -fr $(builddir)/figs
 	rm -f $(MANPAGES)
 	rm -f *.lot *.lof *.ind
 	rm -f sane.dvi sane.ps sane-backends.html sane-backends-external.html

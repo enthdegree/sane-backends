@@ -94,10 +94,6 @@ doc_DATA += $(STANDARD)
 EXTRA_DIST += descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
   sane.png
 
-TI_PDFLATEX = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" $(PDFLATEX)
-TI_LATEX = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" $(LATEX)
-TI_DVIPS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" $(DVIPS)
-TI_DLH   = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS" dlh
 MAN2HTML = nroff -c -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
           -cgiurl '$$title.$$section.html'|\
@@ -234,20 +230,22 @@ install-data-local: install-beman5
 uninstall-local:
 	rm -rf $(DESTDIR)$(beman5dir)/sane-*.5
 
+am_TEXINPUTS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS"
+
 sane.ind: $(srcdir)/sane.tex
 	@echo Generating index for sane.tex...
 	@touch sane.ind
-	@$(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	@$(am_TEXINPUTS) $(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
 	  $(MAKEINDEX) -q sane.idx && \
-	  $(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null
+	  $(am_TEXINPUTS) $(LATEX) $(srcdir)/sane </dev/null >/dev/null
 
 sane.dvi: sane.ind
 	@echo Generating sane.dvi from sane.tex...
-	@$(TI_LATEX) $(srcdir)/sane </dev/null >/dev/null
+	@$(am_TEXINPUTS) $(LATEX) $(srcdir)/sane </dev/null >/dev/null
 
 sane.ps: sane.dvi
 	@echo Generating sane.ps from sane.dvi...
-	@$(TI_DVIPS) -q sane.dvi -o sane.ps
+	@$(am_TEXINPUTS) $(DVIPS) -q sane.dvi -o sane.ps
 
 if HAVE_PDFLATEX
 sane.pdf: $(srcdir)/sane.tex sane.ind
@@ -256,11 +254,11 @@ sane.pdf: $(srcdir)/sane.tex sane.ind
 	    test -d $(builddir)/figs || mkdir -p $(builddir)/figs; \
 	    cp $(srcdir)/figs/*.eps $(builddir)/figs; \
 	fi
-	@$(TI_PDFLATEX) $< >/dev/null
+	@$(am_TEXINPUTS) $(PDFLATEX) $< >/dev/null
 endif
 
 sane-html: sane.dvi
-	$(TI_DLH) $(srcdir)/sane.tex
+	$(am_TEXINPUTS) dlh $(srcdir)/sane.tex
 
 html-man: $(MANPAGES)
 	@for page in $(MANPAGES); do \

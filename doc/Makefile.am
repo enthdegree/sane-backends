@@ -80,17 +80,11 @@ HTML_PAGES = sane-backends.html sane-backends-external.html \
 endif
 doc_DATA = $(HTML_PAGES)
 
-if USE_LATEX
-STANDARD = sane.ps
-else
-STANDARD =
-endif
-
-all: bemans $(STANDARD) html-pages
+all: bemans $(API_SPECS) html-pages
 
 dist_doc_DATA = backend-writing.txt
 nobase_dist_doc_DATA = $(BEDOCS)
-doc_DATA += $(STANDARD)
+doc_DATA += $(API_SPECS)
 EXTRA_DIST += descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
   sane.png
 
@@ -151,8 +145,6 @@ BEDOCS += umax/negative-types.txt umax/sane-logo.jpg \
   umax/sane-umax-uc-doc.html umax/sane-umax-vista-doc.html \
   umax/sane-umax.jpg umax/umax.BUGS umax/umax.CHANGES umax/umax.FAQ \
   umax/umax.TODO
-
-EXTRA_DIST += sane.tex net.tex html.sty
 
 DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/apple.desc descriptions/artec.desc \
@@ -217,48 +209,81 @@ DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/viceo.desc
 EXTRA_DIST += $(DESC_EXT_FILES) descriptions-external/template.desc.
 
-EXTRA_DIST += figs/area.eps figs/area.fig figs/flow.eps figs/flow.fig \
-  figs/hierarchy.eps figs/hierarchy.fig figs/image-data.eps \
-  figs/image-data.fig figs/xfer.eps figs/xfer.fig
-
-EXTRA_DIST += icons/contents.gif icons/index.gif icons/next.gif \
-  icons/next_gr.gif icons/previous.gif icons/previous_gr.gif \
-  icons/references.gif icons/references_gr.gif icons/up.gif icons/up_gr.gif
-
 install-data-local: install-beman5
 
 uninstall-local:
 	rm -rf $(DESTDIR)$(beman5dir)/sane-*.5
 
+##  SANE API specification format conversion support
+
+API_SPECS  =
+if WITH_API_PS
+API_SPECS += sane.ps
+endif
+if WITH_API_PDF
+API_SPECS += sane.pdf
+endif
+if WITH_API_HTML
+API_SPECS += sane-html
+endif
+
+API_SPEC_INPUTS  = $(srcdir)/sane.tex
+API_SPEC_INPUTS += $(srcdir)/net.tex
+EXTRA_DIST += $(API_SPEC_INPUTS)
+
+##  The *.eps files are included in the $(API_SPEC_INPUTS).  They are
+##  generated from the corresponding *.fig files.
+API_SPEC_TEX_FIGS  =
+API_SPEC_TEX_FIGS += figs/area.fig       figs/area.eps
+API_SPEC_TEX_FIGS += figs/flow.fig       figs/flow.eps
+API_SPEC_TEX_FIGS += figs/hierarchy.fig  figs/hierarchy.eps
+API_SPEC_TEX_FIGS += figs/image-data.fig figs/image-data.eps
+API_SPEC_TEX_FIGS += figs/xfer.fig       figs/xfer.eps
+EXTRA_DIST += $(API_SPEC_TEX_FIGS)
+
+##  These icons are referred to in the generated HTML output.
+API_SPEC_HTML_ICONS  =
+API_SPEC_HTML_ICONS += icons/contents.gif
+API_SPEC_HTML_ICONS += icons/index.gif
+API_SPEC_HTML_ICONS += icons/next.gif       icons/next_gr.gif
+API_SPEC_HTML_ICONS += icons/previous.gif   icons/previous_gr.gif
+API_SPEC_HTML_ICONS += icons/references.gif icons/references_gr.gif
+API_SPEC_HTML_ICONS += icons/up.gif         icons/up_gr.gif
+EXTRA_DIST += $(API_SPEC_HTML_ICONS)
+
+##  This is probably(!) used in the HTML conversion.
+API_SPEC_HTML_STYLE = html.sty
+EXTRA_DIST += $(API_SPEC_HTML_STYLE)
+
 am_TEXINPUTS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS"
 
-sane.ind: $(srcdir)/sane.tex
-	@echo Generating index for sane.tex...
+sane.ind: $(API_SPEC_INPUTS)
+	@echo Generating index for $<...
 	@touch sane.ind
-	@$(am_TEXINPUTS) $(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	@$(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null && \
 	  $(MAKEINDEX) -q sane.idx && \
-	  $(am_TEXINPUTS) $(LATEX) $(srcdir)/sane </dev/null >/dev/null
+	  $(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
 
-sane.dvi: sane.ind
-	@echo Generating sane.dvi from sane.tex...
-	@$(am_TEXINPUTS) $(LATEX) $(srcdir)/sane </dev/null >/dev/null
+sane.dvi: $(API_SPEC_INPUTS) sane.ind
+	@echo Generating $@ from $<...
+	@$(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
 
 sane.ps: sane.dvi
-	@echo Generating sane.ps from sane.dvi...
-	@$(am_TEXINPUTS) $(DVIPS) -q sane.dvi -o sane.ps
+	@echo Generating $@ from $<...
+	@$(am_TEXINPUTS) $(DVIPS) -q $< -o $@
 
-if HAVE_PDFLATEX
-sane.pdf: $(srcdir)/sane.tex sane.ind
+sane.pdf: $(API_SPEC_INPUTS) sane.ind
 	@echo Generating $@ from $<...
 	@if test $(srcdir) != $(builddir); then \
 	    test -d $(builddir)/figs || mkdir -p $(builddir)/figs; \
 	    cp $(srcdir)/figs/*.eps $(builddir)/figs; \
 	fi
 	@$(am_TEXINPUTS) $(PDFLATEX) $< >/dev/null
-endif
 
 sane-html: sane.dvi
 	$(am_TEXINPUTS) $(DLH) $(srcdir)/sane.tex
+
+##  ^^
 
 html-man: $(MANPAGES)
 	@for page in $(MANPAGES); do \

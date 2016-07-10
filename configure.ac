@@ -70,13 +70,6 @@ dnl ***********************************************************************
 dnl Checks for programs.
 dnl ***********************************************************************
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
-AC_PATH_PROG(PDFLATEX, pdflatex$EXEEXT, no)
-AC_PATH_PROG(EPSTOPDF, epstopdf$EXEEXT, no)
-AC_PATH_PROG(GS, gs$EXEEXT, no)
-AC_PATH_PROG(LATEX, latex$EXEEXT, no)
-AC_PATH_PROG(DVIPS, dvips$EXEEXT, no)
-AC_PATH_PROG(MAKEINDEX, makeindex$EXEEXT, no)
-AC_PATH_PROG(DLH, dlh$EXEEXT, no)
 
 dnl Call explicitely before using PKG_*
 PKG_PROG_PKG_CONFIG
@@ -734,26 +727,51 @@ AC_ARG_ENABLE(parport-directio,
     fi
   ])
 
-AC_ARG_ENABLE(latex,
-	      AS_HELP_STRING([--disable-latex],
-	      [disable use of latex, et.al., to generate documentation]),,
-	      enable_latex=yes)
-if test "x$enable_latex" = "xyes" ; then
-  if test "x$LATEX" = "xno" || test "x$DVIPS" = "xno" || test "x$MAKEINDEX" = "xno" ; then
-    enable_latex=no
-    echo "disabling latex (missing latex, dvips or makeindex)"
-  else
-    echo "enabling latex"
-  fi
-else
-  echo "disabling latex"
-fi  
-AM_CONDITIONAL(USE_LATEX, test x$enable_latex = xyes)
-AM_CONDITIONAL(HAVE_PDFLATEX,
-  [test "x$PDFLATEX" != xno \
-   && test "x$EPSTOPDF" != xno \
-   && test "x$GS" != xno \
-   && test "x$MAKEINDEX" != xno])
+dnl ******************************************************************
+dnl  SANE API specification format conversion support
+dnl ******************************************************************
+AC_ARG_WITH(api-spec,
+  AS_HELP_STRING([--with-api-spec],
+    [convert API spec to supported output formats @<:@default=check@:>@]),
+    [],
+    [with_api_spec=check])
+dnl  Test for all tools that may be involved.  These tests are fast and
+dnl  running them allows for the Makefile targets to be formulated such
+dnl  that you non-requested formats can be made using a one-off without
+dnl  the need to reconfigure.
+AC_PATH_PROG(MAKEINDEX, makeindex, no)
+AC_PATH_PROG(DVIPS, dvips, no)
+AC_PATH_PROG(LATEX, latex, no)
+AC_PATH_PROG(PDFLATEX, pdflatex, no)
+AC_PATH_PROG(EPSTOPDF, epstopdf, no)
+AC_PATH_PROG(GS, gs, no)
+AC_PATH_PROG(DLH, dlh, no)
+AC_PATH_PROG(PPMTOGIF, ppmtogif, no)
+AS_IF([test xno != "x$with_api_spec"],
+  [dnl  Flag formats for which all required tools have been found
+   AS_IF([   test xno != "x$MAKEINDEX" \
+          && test xno != "x$DVIPS" \
+          && test xno != "x$LATEX"],       [with_api_ps=yes])
+   AS_IF([   test xno != "x$MAKEINDEX" \
+          && test xno != "x$PDFLATEX" \
+          && test xno != "x$EPSTOPDF" \
+          && test xno != "x$GS"],          [with_api_pdf=yes])
+   AS_IF([   test xno != "x$MAKEINDEX" \
+          && test xno != "x$DVIPS" \
+          && test xno != "x$DHL" \
+          && test xno != "x$GS" \
+          && test xno != "x$PPMTOFIG" ],   [with_api_html=yes])
+
+   AS_IF([test xyes = "x$with_api_spec" \
+          && test xno = "x$with_api_ps" \
+          && test xno = "x$with_api_pdf" \
+          && test xno = "x$with_api_html"],
+     [AC_MSG_ERROR([tools to convert the API spec are missing])
+     ])
+  ])
+AM_CONDITIONAL(WITH_API_PS, [test x$with_api_ps = xyes])
+AM_CONDITIONAL(WITH_API_PDF, [test x$with_api_pdf = xyes])
+AM_CONDITIONAL(WITH_API_HTML, [test x$with_api_html = xyes])
 
 dnl ***********************************************************************
 dnl Write output files

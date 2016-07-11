@@ -229,6 +229,7 @@ endif
 
 API_SPEC_INPUTS  = $(srcdir)/sane.tex
 API_SPEC_INPUTS += $(srcdir)/net.tex
+API_SPEC_INPUTS += $(srcdir)/html.sty
 EXTRA_DIST += $(API_SPEC_INPUTS)
 
 ##  The *.eps files are included in the $(API_SPEC_INPUTS).  They are
@@ -250,10 +251,6 @@ API_SPEC_HTML_ICONS += icons/previous.gif   icons/previous_gr.gif
 API_SPEC_HTML_ICONS += icons/references.gif icons/references_gr.gif
 API_SPEC_HTML_ICONS += icons/up.gif         icons/up_gr.gif
 EXTRA_DIST += $(API_SPEC_HTML_ICONS)
-
-##  This is probably(!) used in the HTML conversion.
-API_SPEC_HTML_STYLE = html.sty
-EXTRA_DIST += $(API_SPEC_HTML_STYLE)
 
 am_TEXINPUTS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS"
 

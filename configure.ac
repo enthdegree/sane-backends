@@ -743,7 +743,7 @@ AC_PATH_PROG(MAKEINDEX, makeindex, no)
 AC_PATH_PROG(DVIPS, dvips, no)
 AC_PATH_PROG(LATEX, latex, no)
 AC_PATH_PROG(PDFLATEX, pdflatex, no)
-AC_PATH_PROG(EPSTOPDF, epstopdf, no)
+AC_PATH_PROG(FIG2DEV, fig2dev, no)
 AC_PATH_PROG(GS, gs, no)
 AC_PATH_PROG(DLH, dlh, no)
 AC_PATH_PROG(PPMTOGIF, ppmtogif, no)
@@ -754,7 +754,7 @@ AS_IF([test xno != "x$with_api_spec"],
           && test xno != "x$LATEX"],       [with_api_ps=yes])
    AS_IF([   test xno != "x$MAKEINDEX" \
           && test xno != "x$PDFLATEX" \
-          && test xno != "x$EPSTOPDF" \
+          && test xno != "x$FIG2DEV" \
           && test xno != "x$GS"],          [with_api_pdf=yes])
    AS_IF([   test xno != "x$MAKEINDEX" \
           && test xno != "x$DVIPS" \

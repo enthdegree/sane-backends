@@ -242,6 +242,13 @@ API_SPEC_TEX_FIGS += figs/image-data.fig figs/image-data.eps
 API_SPEC_TEX_FIGS += figs/xfer.fig       figs/xfer.eps
 EXTRA_DIST += $(API_SPEC_TEX_FIGS)
 
+API_SPEC_PDF_FIGS  =
+API_SPEC_PDF_FIGS += figs/area.pdf
+API_SPEC_PDF_FIGS += figs/flow.pdf
+API_SPEC_PDF_FIGS += figs/hierarchy.pdf
+API_SPEC_PDF_FIGS += figs/image-data.pdf
+API_SPEC_PDF_FIGS += figs/xfer.pdf
+
 ##  These icons are referred to in the generated HTML output.
 API_SPEC_HTML_ICONS  =
 API_SPEC_HTML_ICONS += icons/contents.gif
@@ -269,12 +276,12 @@ sane.ps: sane.dvi
 	@echo Generating $@ from $<...
 	@$(am_TEXINPUTS) $(DVIPS) -q $< -o $@
 
-sane.pdf: $(API_SPEC_INPUTS) sane.ind
+.fig.pdf:
+	@test -d $(@D) || $(MKDIR_P) $(@D)
+	$(FIG2DEV) -L pdf $< $@
+
+sane.pdf: $(API_SPEC_INPUTS) $(API_SPEC_PDF_FIGS) sane.ind
 	@echo Generating $@ from $<...
-	@if test $(srcdir) != $(builddir); then \
-	    test -d $(builddir)/figs || mkdir -p $(builddir)/figs; \
-	    cp $(srcdir)/figs/*.eps $(builddir)/figs; \
-	fi
 	@$(am_TEXINPUTS) $(PDFLATEX) $< >/dev/null
 
 sane-html: sane.dvi
@@ -333,9 +340,10 @@ html-local: html-pages html-man sane-html
 clean-local:
 	rm -f *.toc *.aux *.log *.cp *.fn *.tp *.vr *.pg *.ky *.blg *.idx *.cb
 	rm -f *.ilg
+	rm -f $(API_SPEC_PDF_FIGS)
+	-rmdir figs
 
 distclean-local:
-	test $(srcdir) = $(builddir) || rm -fr $(builddir)/figs
 	rm -f $(MANPAGES)
 	rm -f *.lot *.lof *.ind
 	rm -f sane.dvi sane.ps sane-backends.html sane-backends-external.html

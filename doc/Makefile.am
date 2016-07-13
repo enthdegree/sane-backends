@@ -232,15 +232,20 @@ API_SPEC_INPUTS += $(srcdir)/net.tex
 API_SPEC_INPUTS += $(srcdir)/html.sty
 EXTRA_DIST += $(API_SPEC_INPUTS)
 
-##  The *.eps files are included in the $(API_SPEC_INPUTS).  They are
-##  generated from the corresponding *.fig files.
 API_SPEC_TEX_FIGS  =
-API_SPEC_TEX_FIGS += figs/area.fig       figs/area.eps
-API_SPEC_TEX_FIGS += figs/flow.fig       figs/flow.eps
-API_SPEC_TEX_FIGS += figs/hierarchy.fig  figs/hierarchy.eps
-API_SPEC_TEX_FIGS += figs/image-data.fig figs/image-data.eps
-API_SPEC_TEX_FIGS += figs/xfer.fig       figs/xfer.eps
+API_SPEC_TEX_FIGS += figs/area.fig
+API_SPEC_TEX_FIGS += figs/flow.fig
+API_SPEC_TEX_FIGS += figs/hierarchy.fig
+API_SPEC_TEX_FIGS += figs/image-data.fig
+API_SPEC_TEX_FIGS += figs/xfer.fig
 EXTRA_DIST += $(API_SPEC_TEX_FIGS)
+
+API_SPEC_EPS_FIGS  =
+API_SPEC_EPS_FIGS += figs/area.eps
+API_SPEC_EPS_FIGS += figs/flow.eps
+API_SPEC_EPS_FIGS += figs/hierarchy.eps
+API_SPEC_EPS_FIGS += figs/image-data.eps
+API_SPEC_EPS_FIGS += figs/xfer.eps
 
 API_SPEC_PDF_FIGS  =
 API_SPEC_PDF_FIGS += figs/area.pdf
@@ -268,7 +273,11 @@ sane.ind: $(API_SPEC_INPUTS)
 	  $(MAKEINDEX) -q sane.idx && \
 	  $(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
 
-sane.dvi: $(API_SPEC_INPUTS) sane.ind
+.fig.eps:
+	@test -d $(@D) || $(MKDIR_P) $(@D)
+	$(FIG2DEV) -L eps $< $@
+
+sane.dvi: $(API_SPEC_INPUTS) $(API_SPEC_EPS_FIGS) sane.ind
 	@echo Generating $@ from $<...
 	@$(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
 
@@ -340,7 +349,7 @@ html-local: html-pages html-man sane-html
 clean-local:
 	rm -f *.toc *.aux *.log *.cp *.fn *.tp *.vr *.pg *.ky *.blg *.idx *.cb
 	rm -f *.ilg
-	rm -f $(API_SPEC_PDF_FIGS)
+	rm -f $(API_SPEC_EPS_FIGS) $(API_SPEC_PDF_FIGS)
 	-rmdir figs
 
 distclean-local:

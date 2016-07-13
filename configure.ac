@@ -751,6 +751,7 @@ AS_IF([test xno != "x$with_api_spec"],
   [dnl  Flag formats for which all required tools have been found
    AS_IF([   test xno != "x$MAKEINDEX" \
           && test xno != "x$DVIPS" \
+          && test xno != "x$FIG2DEV" \
           && test xno != "x$LATEX"],       [with_api_ps=yes])
    AS_IF([   test xno != "x$MAKEINDEX" \
           && test xno != "x$PDFLATEX" \

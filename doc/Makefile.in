@@ -198,9 +198,9 @@ ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
-EPSTOPDF = @EPSTOPDF@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FIG2DEV = @FIG2DEV@
 GETTEXT_MACRO_VERSION = @GETTEXT_MACRO_VERSION@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
@@ -526,10 +526,12 @@ DESC_EXT_FILES = descriptions-external/brother2.desc \
 API_SPECS = $(am__append_1) $(am__append_2) $(am__append_3)
 API_SPEC_INPUTS = $(srcdir)/sane.tex $(srcdir)/net.tex \
 	$(srcdir)/html.sty
-API_SPEC_TEX_FIGS = figs/area.fig figs/area.eps figs/flow.fig \
-	figs/flow.eps figs/hierarchy.fig figs/hierarchy.eps \
-	figs/image-data.fig figs/image-data.eps figs/xfer.fig \
-	figs/xfer.eps
+API_SPEC_TEX_FIGS = figs/area.fig figs/flow.fig figs/hierarchy.fig \
+	figs/image-data.fig figs/xfer.fig
+API_SPEC_EPS_FIGS = figs/area.eps figs/flow.eps figs/hierarchy.eps \
+	figs/image-data.eps figs/xfer.eps
+API_SPEC_PDF_FIGS = figs/area.pdf figs/flow.pdf figs/hierarchy.pdf \
+	figs/image-data.pdf figs/xfer.pdf
 API_SPEC_HTML_ICONS = icons/contents.gif icons/index.gif \
 	icons/next.gif icons/next_gr.gif icons/previous.gif \
 	icons/previous_gr.gif icons/references.gif \
@@ -538,6 +540,7 @@ am_TEXINPUTS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS"
 all: all-am
 
 .SUFFIXES:
+.SUFFIXES: .eps .fig .pdf
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -966,7 +969,11 @@ sane.ind: $(API_SPEC_INPUTS)
 	  $(MAKEINDEX) -q sane.idx && \
 	  $(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
 
-sane.dvi: $(API_SPEC_INPUTS) sane.ind
+.fig.eps:
+	@test -d $(@D) || $(MKDIR_P) $(@D)
+	$(FIG2DEV) -L eps $< $@
+
+sane.dvi: $(API_SPEC_INPUTS) $(API_SPEC_EPS_FIGS) sane.ind
 	@echo Generating $@ from $<...
 	@$(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
 
@@ -974,12 +981,12 @@ sane.ps: sane.dvi
 	@echo Generating $@ from $<...
 	@$(am_TEXINPUTS) $(DVIPS) -q $< -o $@
 
-sane.pdf: $(API_SPEC_INPUTS) sane.ind
+.fig.pdf:
+	@test -d $(@D) || $(MKDIR_P) $(@D)
+	$(FIG2DEV) -L pdf $< $@
+
+sane.pdf: $(API_SPEC_INPUTS) $(API_SPEC_PDF_FIGS) sane.ind
 	@echo Generating $@ from $<...
-	@if test $(srcdir) != $(builddir); then \
-	    test -d $(builddir)/figs || mkdir -p $(builddir)/figs; \
-	    cp $(srcdir)/figs/*.eps $(builddir)/figs; \
-	fi
 	@$(am_TEXINPUTS) $(PDFLATEX) $< >/dev/null
 
 sane-html: sane.dvi
@@ -1036,9 +1043,10 @@ html-local: html-pages html-man sane-html
 clean-local:
 	rm -f *.toc *.aux *.log *.cp *.fn *.tp *.vr *.pg *.ky *.blg *.idx *.cb
 	rm -f *.ilg
+	rm -f $(API_SPEC_EPS_FIGS) $(API_SPEC_PDF_FIGS)
+	-rmdir figs
 
 distclean-local:
-	test $(srcdir) = $(builddir) || rm -fr $(builddir)/figs
 	rm -f $(MANPAGES)
 	rm -f *.lot *.lof *.ind
 	rm -f sane.dvi sane.ps sane-backends.html sane-backends-external.html

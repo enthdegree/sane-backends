@@ -229,7 +229,6 @@ endif
 
 API_SPEC_INPUTS  = $(srcdir)/sane.tex
 API_SPEC_INPUTS += $(srcdir)/net.tex
-API_SPEC_INPUTS += $(srcdir)/html.sty
 EXTRA_DIST += $(API_SPEC_INPUTS)
 
 API_SPEC_TEX_FIGS  =

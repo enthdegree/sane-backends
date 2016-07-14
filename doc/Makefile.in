@@ -524,8 +524,7 @@ DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/viceo.desc
 
 API_SPECS = $(am__append_1) $(am__append_2) $(am__append_3)
-API_SPEC_INPUTS = $(srcdir)/sane.tex $(srcdir)/net.tex \
-	$(srcdir)/html.sty
+API_SPEC_INPUTS = $(srcdir)/sane.tex $(srcdir)/net.tex
 API_SPEC_TEX_FIGS = figs/area.fig figs/flow.fig figs/hierarchy.fig \
 	figs/image-data.fig figs/xfer.fig
 API_SPEC_EPS_FIGS = figs/area.eps figs/flow.eps figs/hierarchy.eps \

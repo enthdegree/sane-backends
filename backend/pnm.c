@@ -649,7 +649,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   v = 75;
 
   DBG (2, "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
-       handle, option, action, value, info);
+       handle, option, action, value, (void *) info);
 
   if (handle != MAGIC || !is_open)
     {

@@ -82,12 +82,6 @@
 #define BUILD               53
 #define BACKEND_NAME snapscan
 
-#ifdef __GNUC__
-#define UNUSEDARG __attribute__ ((unused))
-#else
-#define UNUSEDARG
-#endif
-
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/saneopts.h"
 
@@ -1223,7 +1217,7 @@ static void usb_reader_process_sigterm_handler( int signo )
     cancelRead = SANE_TRUE;
 }
 
-static void sigalarm_handler( int signo UNUSEDARG)
+static void sigalarm_handler( int signo __sane_unused__)
 {
     DBG( DL_INFO, "ALARM!!!\n" );
 }

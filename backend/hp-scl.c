@@ -339,7 +339,7 @@ hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
 
 static SANE_Status
 hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect,
-  int UNUSEDARG isResponse)
+  int __sane_unused__ isResponse)
 
 {int n = -1;
  static int retries = -1;

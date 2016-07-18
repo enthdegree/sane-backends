@@ -44,7 +44,7 @@
 #include <OS.h>
 #define snapscan_mutex_t sem_id
 
-static int snapscani_mutex_open(snapscan_mutex_t* a_sem, const char* dev UNUSEDARG)
+static int snapscani_mutex_open(snapscan_mutex_t* a_sem, const char* dev __sane_unused__)
 {
     *a_sem = create_sem(1, "snapscan_mutex");
     return 1;
@@ -72,7 +72,7 @@ static void snapscani_mutex_unlock(snapscan_mutex_t* a_sem)
 #include <pthread.h>
 #define snapscan_mutex_t pthread_mutex_t
 
-static int snapscani_mutex_open(snapscan_mutex_t* sem_id, const char* dev UNUSEDARG)
+static int snapscani_mutex_open(snapscan_mutex_t* sem_id, const char* dev __sane_unused__)
 {
     pthread_mutex_init(sem_id, NULL);
     return 1;

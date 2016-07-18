@@ -809,7 +809,7 @@ hp_update_devlist (void)
  */
 
 SANE_Status
-sane_init (SANE_Int *version_code, SANE_Auth_Callback UNUSEDARG authorize)
+sane_init (SANE_Int *version_code, SANE_Auth_Callback __sane_unused__ authorize)
 {SANE_Status status;
 
   DBG_INIT();
@@ -837,7 +837,7 @@ sane_exit (void)
 
 SANE_Status
 sane_get_devices (const SANE_Device ***device_list,
-                  SANE_Bool UNUSEDARG local_only)
+                  SANE_Bool __sane_unused__ local_only)
 {
   DBG(3, "sane_get_devices called\n");
 

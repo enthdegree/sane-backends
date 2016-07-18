@@ -11,8 +11,6 @@
  * published by the Free Software Foundation, version 2.
  */
 
-#define UNUSEDARG __attribute__ ((unused))
-
 SANE_Status eds_jpeg_start(epsonds_scanner *s);
 void eds_jpeg_finish(epsonds_scanner *s);
 SANE_Status eds_jpeg_read_header(epsonds_scanner *s);

@@ -211,12 +211,6 @@ struct pixmap {
 	unsigned char	*planes;
 };
 
-#ifdef __GNUC__
-#define UNUSEDARG __attribute__ ((unused))
-#else
-#define UNUSEDARG
-#endif
-
 /*
  *	Rotations
  */

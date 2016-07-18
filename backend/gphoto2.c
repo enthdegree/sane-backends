@@ -354,7 +354,7 @@ static const SANE_Device *devlist[] = {
  */
 static void
 debug_func (GPLogLevel level, const char *domain, const char *format,
-	    va_list args, void UNUSEDARG * data)
+	    va_list args, void __sane_unused__ * data)
 {
   if (level == GP_LOG_ERROR)
     DBG (0, "%s(ERROR): ", domain);
@@ -650,7 +650,7 @@ change_res (SANE_Byte res)
  *	is present, and initialize gphoto2
  */
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize)
 {
   SANE_Int n, entries;
   SANE_Char f[] = "sane_init";
@@ -940,7 +940,7 @@ sane_exit (void)
  */
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool
-		  UNUSEDARG local_only)
+		  __sane_unused__ local_only)
 {
   DBG (127, "sane_get_devices called\n");
 
@@ -1314,7 +1314,7 @@ my_source_mgr;
 typedef my_source_mgr *my_src_ptr;
 
 METHODDEF (void)
-jpeg_init_source (j_decompress_ptr UNUSEDARG cinfo)
+jpeg_init_source (j_decompress_ptr __sane_unused__ cinfo)
 {
   /* nothing to do */
 }
@@ -1361,7 +1361,7 @@ METHODDEF (void) jpeg_skip_input_data (j_decompress_ptr cinfo, long num_bytes)
 }
 
 METHODDEF (void)
-jpeg_term_source (j_decompress_ptr UNUSEDARG cinfo)
+jpeg_term_source (j_decompress_ptr __sane_unused__ cinfo)
 {
   /* no work necessary here */
 }
@@ -1476,7 +1476,7 @@ sane_start (SANE_Handle handle)
  * sane_read() - From SANE API
  */
 SANE_Status
-sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
+sane_read (SANE_Handle __sane_unused__ handle, SANE_Byte * data,
 	   SANE_Int max_length, SANE_Int * length)
 {
   if (Cam_data.scanning == SANE_FALSE)
@@ -1530,7 +1530,7 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
  * sane_cancel() - From SANE API
  */
 void
-sane_cancel (SANE_Handle UNUSEDARG handle)
+sane_cancel (SANE_Handle __sane_unused__ handle)
 {
   if (Cam_data.scanning)
     {
@@ -1544,8 +1544,8 @@ sane_cancel (SANE_Handle UNUSEDARG handle)
  * sane_set_io_mode() - From SANE API
  */
 SANE_Status
-sane_set_io_mode (SANE_Handle UNUSEDARG handle, SANE_Bool
-		  UNUSEDARG non_blocking)
+sane_set_io_mode (SANE_Handle __sane_unused__ handle, SANE_Bool
+		  __sane_unused__ non_blocking)
 {
   /* sane_set_io_mode() is only valid during a scan */
   if (Cam_data.scanning)
@@ -1570,7 +1570,7 @@ sane_set_io_mode (SANE_Handle UNUSEDARG handle, SANE_Bool
  * sane_get_select_fd() - From SANE API
  */
 SANE_Status
-sane_get_select_fd (SANE_Handle UNUSEDARG handle, SANE_Int UNUSEDARG *  fd)
+sane_get_select_fd (SANE_Handle __sane_unused__ handle, SANE_Int __sane_unused__ *  fd)
 {
   return SANE_STATUS_UNSUPPORTED;
 }
@@ -1783,7 +1783,7 @@ read_info (SANE_String_Const fname)
  *  set_res - set picture size depending on resolution settings 
  */
 static void
-set_res (SANE_Int UNUSEDARG lowres)
+set_res (SANE_Int __sane_unused__ lowres)
 {
   if (gphoto2_opt_thumbnails)
     {

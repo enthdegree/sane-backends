@@ -46,12 +46,6 @@
 #ifndef canon_h
 #define canon_h 1
 
-#ifdef __GNUC__
-#define UNUSEDARG __attribute__ ((unused))
-#else
-#define UNUSEDARG
-#endif
-
 /* all the different possible model names. */
 #define FB1200S "IX-12015E      "
 #define FB620S  "IX-06035E      "

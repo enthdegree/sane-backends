@@ -495,13 +495,12 @@ sane_exit (void)
 }
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool __sane_unused__ local_only)
 {
   V4L_Device *dev;
   int i;
 
   DBG (5, "sane_get_devices\n");
-  local_only = SANE_TRUE;	/* Avoid compile warning */
 
   if (devlist)
     free (devlist);
@@ -1130,22 +1129,15 @@ sane_cancel (SANE_Handle handle)
 
 
 SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+sane_set_io_mode (SANE_Handle __sane_unused__ handle, SANE_Bool non_blocking)
 {
-  /* Avoid compile warning */
-  handle = 0;
-
   if (non_blocking == SANE_FALSE)
     return SANE_STATUS_GOOD;
   return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+sane_get_select_fd (SANE_Handle __sane_unused__ handle, SANE_Int __sane_unused__ * fd)
 {
-  /* Avoid compile warning */
-  handle = 0;
-  fd = 0;
-
   return SANE_STATUS_UNSUPPORTED;
 }

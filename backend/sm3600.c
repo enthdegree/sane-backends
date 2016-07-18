@@ -431,12 +431,10 @@ sane_exit (void)
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list,
-		  SANE_Bool local_only)
+		  SANE_Bool __sane_unused__ local_only)
 {
   TDevice *dev;
   int i;
-
-  local_only = TRUE; /* Avoid compile warning */
 
   if (devlist) free (devlist);
 

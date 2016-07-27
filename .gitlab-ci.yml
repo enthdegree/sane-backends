@@ -31,3 +31,9 @@ build:alpine-3.4-musl:
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *build_definition
+
+build:fedora-24-clang:
+  image: $REGISTRY_HUB:fedora-24-clang
+  variables:
+    CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
+  <<: *build_definition

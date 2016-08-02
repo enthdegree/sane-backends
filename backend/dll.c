@@ -430,7 +430,7 @@ load (struct backend *be)
 
   if (path)
     {
-      src_len = strlen (path) + strlen (LIBDIR) + 1 + 1;
+      src_len = strlen (path) + strlen (DIR_SEP) + strlen(LIBDIR) + 1;
       src = malloc (src_len);
       if (!src)
 	{
@@ -438,7 +438,7 @@ load (struct backend *be)
 	  return SANE_STATUS_NO_MEM;
 	}
       orig_src = src;
-      snprintf (src, src_len, "%s:%s", path, LIBDIR);
+      snprintf (src, src_len, "%s%s%s", path, DIR_SEP, LIBDIR);
     }
   else
     {

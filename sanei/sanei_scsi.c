@@ -96,7 +96,7 @@
 #elif defined (HAVE__USR_SRC_LINUX_INCLUDE_SCSI_SG_H)
 # define USE LINUX_INTERFACE
 # include "/usr/src/linux/include/scsi/sg.h"
-#elif defined (HAVE_SYS_SCSICMD)
+#elif defined (HAVE_SYS_SCSICMD_H)
 # define USE SCSO_OS5_INTERFACE
 # include <sys/scsi.h>
 # include <sys/scsicmd.h>

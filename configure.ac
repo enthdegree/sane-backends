@@ -503,11 +503,6 @@ return 0;
   AC_MSG_RESULT(no))
 fi
 
-dnl disable Linux SCSI generic version 3 to avoid 32/64 bit problems
-if sparc64 -q > /dev/null 2>&1 ; then
-  AC_DEFINE(DISABLE_LINUX_SG_IO, 1, [Should we disable SCSI generic v3?])
-fi
-
 # Multiple platforms can set SCSI_LIBS so do substitution at end.
 AC_SUBST(SCSI_LIBS)
 

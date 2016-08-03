@@ -85,7 +85,7 @@
 #ifdef HAVE_IFADDRS_H
 #include <ifaddrs.h>
 #endif
-#ifdef HAVE_SYS_SELSECT_H
+#ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 #ifdef HAVE_PWD_H

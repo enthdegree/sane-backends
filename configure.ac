@@ -444,7 +444,7 @@ AC_CHECK_HEADERS(IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
   IOKit/scsi/SCSICommandOperationCodes.h \
   IOKit/scsi-commands/SCSICommandOperationCodes.h scsi.h sys/scsi.h \
   sys/scsicmd.h sys/scsiio.h bsd/dev/scsireg.h scsi/sg.h \
-  camlib.h scdds.h sys/scsi/scsi.h sys/scsi/sgdefs.h \
+  camlib.h gscdds.h sys/scsi/scsi.h sys/scsi/sgdefs.h \
   sys/scsi/targets/scgio.h apollo/scsi.h sys/sdi_comm.h \
   sys/passthrudef.h)
 

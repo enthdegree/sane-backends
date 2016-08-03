@@ -17694,7 +17694,7 @@ fi
 for ac_header in fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/time.h sys/shm.h sys/ipc.h sys/signal.h sys/scanio.h os2.h \
     sys/socket.h sys/io.h sys/hw.h sys/types.h linux/ppdev.h \
-    dev/ppbus/ppi.h machine/cpufunc.h sys/bitypes.h sys/sem.h sys/poll.h \
+    dev/ppbus/ppi.h machine/cpufunc.h sys/sem.h sys/poll.h \
     windows.h be/kernel/OS.h limits.h sys/ioctl.h asm/types.h\
     netinet/in.h tiffio.h ifaddrs.h pwd.h getopt.h
 do :
@@ -20134,7 +20134,7 @@ for ac_header in IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
   IOKit/scsi/SCSICommandOperationCodes.h \
   IOKit/scsi-commands/SCSICommandOperationCodes.h scsi.h sys/scsi.h \
   sys/scsicmd.h sys/scsiio.h bsd/dev/scsireg.h scsi/sg.h \
-  camlib.h scdds.h sys/scsi/scsi.h sys/scsi/sgdefs.h \
+  camlib.h gscdds.h sys/scsi/scsi.h sys/scsi/sgdefs.h \
   sys/scsi/targets/scgio.h apollo/scsi.h sys/sdi_comm.h \
   sys/passthrudef.h
 do :
@@ -20370,12 +20370,6 @@ else
 $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-
-if sparc64 -q > /dev/null 2>&1 ; then
-
-$as_echo "#define DISABLE_LINUX_SG_IO 1" >>confdefs.h
-
 fi
 
 # Multiple platforms can set SCSI_LIBS so do substitution at end.

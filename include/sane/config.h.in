@@ -11,9 +11,6 @@
 /* Define to 1 if using `alloca.c'. */
 #undef C_ALLOCA
 
-/* Should we disable SCSI generic v3? */
-#undef DISABLE_LINUX_SG_IO
-
 /* Define to 1 if the system supports IPv6 */
 #undef ENABLE_IPV6
 
@@ -127,6 +124,9 @@
 
 /* Define to 1 if you have the `gp_port_info_get_path' function. */
 #undef HAVE_GP_PORT_INFO_GET_PATH
+
+/* Define to 1 if you have the <gscdds.h> header file. */
+#undef HAVE_GSCDDS_H
 
 /* Define to 1 if you have the `i386_set_ioperm' function. */
 #undef HAVE_I386_SET_IOPERM
@@ -271,9 +271,6 @@
 /* define if you have the resmgr library */
 #undef HAVE_RESMGR
 
-/* Define to 1 if you have the <scdds.h> header file. */
-#undef HAVE_SCDDS_H
-
 /* Define to 1 if you have the `scsireq_enter' function. */
 #undef HAVE_SCSIREQ_ENTER
 
@@ -351,9 +348,6 @@
 
 /* Is /usr/include/systemd/sd-daemon.h available? */
 #undef HAVE_SYSTEMD
-
-/* Define to 1 if you have the <sys/bitypes.h> header file. */
-#undef HAVE_SYS_BITYPES_H
 
 /* Define to 1 if you have the <sys/dsreq.h> header file. */
 #undef HAVE_SYS_DSREQ_H

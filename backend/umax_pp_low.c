@@ -65,6 +65,7 @@
 #include <fcntl.h>
 #endif
 #include "../include/sane/sanei_debug.h"
+#include "../include/sane/sanei_backend.h"
 #include <errno.h>
 
 #ifdef HAVE_DEV_PPBUS_PPI_H
@@ -406,75 +407,51 @@ sanei_outsl (unsigned int port, const void *addr, unsigned long count)
 #ifndef ENABLE_PARPORT_DIRECTIO
 #define SANE_INB 0
 static int
-sanei_ioperm (int start, int length, int enable)
+sanei_ioperm (__sane_unused__ int start, __sane_unused__ int length,
+              __sane_unused__ int enable)
 {
-  /* make compilers happy */
-  enable = start + length;
-
   /* returns failure */
   return -1;
 }
 
 static unsigned char
-sanei_inb (unsigned int port)
+sanei_inb (__sane_unused__ unsigned int port)
 {
-  /* makes compilers happy */
-  port = 0;
   return 255;
 }
 
 static void
-sanei_outb (unsigned int port, unsigned char value)
+sanei_outb (__sane_unused__ unsigned int port,
+            __sane_unused__ unsigned char value)
 {
-  /* makes compilers happy */
-  port = 0;
-  value = 0;
 }
 
 static void
-sanei_insb (unsigned int port, unsigned char *addr, unsigned long count)
+sanei_insb (__sane_unused__ unsigned int port,
+            __sane_unused__ unsigned char *addr,
+            __sane_unused__ unsigned long count)
 {
-  /* makes compilers happy */
-  if (addr)
-    {
-      port = 0;
-      count = 0;
-    }
 }
 
 static void
-sanei_insl (unsigned int port, unsigned char *addr, unsigned long count)
+sanei_insl (__sane_unused__ unsigned int port,
+            __sane_unused__ unsigned char *addr,
+            __sane_unused__ unsigned long count)
 {
-  /* makes compilers happy */
-  if (addr)
-    {
-      port = 0;
-      count = 0;
-    }
 }
 
 static void
-sanei_outsb (unsigned int port, const unsigned char *addr,
-	     unsigned long count)
+sanei_outsb (__sane_unused__ unsigned int port,
+             __sane_unused__ const unsigned char *addr,
+	     __sane_unused__ unsigned long count)
 {
-  /* makes compilers happy */
-  if (addr)
-    {
-      port = 0;
-      count = 0;
-    }
 }
 
 static void
-sanei_outsl (unsigned int port, const unsigned char *addr,
-	     unsigned long count)
+sanei_outsl (__sane_unused__ unsigned int port,
+             __sane_unused__ const unsigned char *addr,
+	     __sane_unused__ unsigned long count)
 {
-  /* makes compilers happy */
-  if (addr)
-    {
-      port = 0;
-      count = 0;
-    }
 }
 #endif /* ENABLE_PARPORT_DIRECTIO is not defined */
 

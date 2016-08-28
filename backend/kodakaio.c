@@ -1384,9 +1384,9 @@ But it seems that the scanner takes care of that, and gives you the ack as a sep
 		DBG(min(1,DBG_READ), "%s: tiny read, got %lu bytes of %lu\n", __func__, (unsigned long) bytecount, (unsigned long) *len);
 		return SANE_STATUS_IO_ERROR;
 	}
-	if (*len > s->params.bytes_per_line) {
+	lines = *len / s->params.bytes_per_line;
+	if (lines > 1) {
 		/* store average colour as background. That's not the ideal method but it's easy to implement. What's it used for? */
-		lines = *len / s->params.bytes_per_line;
 		s->background[0] = 0;
 		s->background[1] = 0;
 		s->background[2] = 0;

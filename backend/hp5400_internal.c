@@ -282,7 +282,9 @@ SetCalibration (int iHandle, int numPixels, unsigned int *low_vals[3],
   cmd[3] = 0x00;
   cmd[4] = 0x54;
   cmd[5] = 0x02;
-  cmd[6] = 0x80;
+  cmd[6] = -128;                // 0x80; fixes compiler warning (for
+                                // signed char implementations), see
+                                // also comment above
   cmd[7] = 0x00;
 
   hp5400_bulk_command_write (iHandle, 0xE603, cmd, 8, calSize, calSize,

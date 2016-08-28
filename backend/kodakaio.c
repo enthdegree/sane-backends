@@ -1944,11 +1944,11 @@ get_device_from_identification (const char *ident, const char *vid, const char *
 	int n;
 	SANE_Word pidnum, vidnum;
 
-	if(sscanf(vid, "%x", &vidnum) == EOF) {
+	if(sscanf(vid, "%x", (unsigned int *)&vidnum) == EOF) {
     		DBG(5, "could not convert hex vid <%s>\n", vid);
     		return NULL;
 	}
-	if(sscanf(pid, "%x", &pidnum) == EOF) {
+	if(sscanf(pid, "%x", (unsigned int *)&pidnum) == EOF) {
     		DBG(5, "could not convert hex pid <%s>\n", pid);
     		return NULL;
 	}

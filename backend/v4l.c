@@ -961,7 +961,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 SANE_Status
 sane_start (SANE_Handle handle)
 {
-  int len, loop;
+  int len;
   V4L_Scanner *s;
   char data;
 
@@ -997,6 +997,7 @@ sane_start (SANE_Handle handle)
     }
   else
     {
+      int loop;
       s->is_mmap = SANE_TRUE;
       DBG (3,
 	   "sane_start: mmap frame, buffersize: %d bytes, buffers: %d, offset 0 %d\n",
@@ -1045,6 +1046,7 @@ sane_start (SANE_Handle handle)
   /* v4l1 actually returns BGR when we ask for RGB, so convert it */
   if (s->pict.palette == VIDEO_PALETTE_RGB24)
     {
+      __u32 loop;
       DBG (3, "sane_start: converting from BGR to RGB\n");
       for (loop = 0; loop < (s->window.width * s->window.height * 3); loop += 3)
         {

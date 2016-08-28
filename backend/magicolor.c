@@ -1972,7 +1972,7 @@ mc_network_discovery(const char*host)
 	session.community = (u_char *) "public";
 	session.community_len = strlen ((char *)session.community);
 	if (host) {
-		session.peername = host;
+		session.peername = (char *) host;
 	} else {
 		/* Do a network discovery via a broadcast */
 		session.peername = "255.255.255.255";

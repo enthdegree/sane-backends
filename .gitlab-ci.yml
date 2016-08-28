@@ -29,7 +29,7 @@ build:debian-8-full:
   <<: *build_definition
 
 build:alpine-3.4-musl:
-  environment: alpine-3.4-musl
+  environment: alpine-3_4-musl
   image: $REGISTRY_HUB:alpine-3.4-musl
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"

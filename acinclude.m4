@@ -431,6 +431,10 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
         GPHOTO2_LIBS="" 
       else
         SANE_EXTRACT_LDFLAGS(GPHOTO2_LIBS, GPHOTO2_LDFLAGS)
+        if pkg-config --atleast-version=2.5.0 libgphoto2; then
+          AC_DEFINE([GPLOGFUNC_NO_VARGS], [1],
+                    [Define if GPLogFunc does not take a va_list.])
+        fi
       fi
     fi
   fi

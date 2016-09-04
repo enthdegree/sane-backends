@@ -21,6 +21,9 @@
    language is requested. */
 #undef ENABLE_NLS
 
+/* Define if GPLogFunc does not take a va_list. */
+#undef GPLOGFUNC_NO_VARGS
+
 /* Define to 1 if struct sockaddr_storage has an ss_family member */
 #undef HAS_SS_FAMILY
 

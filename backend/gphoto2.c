@@ -353,14 +353,23 @@ static const SANE_Device *devlist[] = {
  * debug_func - called for gphoto2 debugging output (if enabled)
  */
 static void
+#ifdef GPLOGFUNC_NO_VARGS
+debug_func (GPLogLevel level, const char *domain, const char *message,
+            void __sane_unused__ * data)
+#else
 debug_func (GPLogLevel level, const char *domain, const char *format,
 	    va_list args, void __sane_unused__ * data)
+#endif
 {
   if (level == GP_LOG_ERROR)
     DBG (0, "%s(ERROR): ", domain);
   else
     DBG (0, "%s(%i): ", domain, level);
+#ifdef GPLOGFUNC_NO_VARGS
+  DBG (0, "%s", message);
+#else
   sanei_debug_msg (0, DBG_LEVEL, STRINGIFY (BACKEND_NAME), format, args);
+#endif
   DBG (0, "\n");
 }
 

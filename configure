@@ -17230,6 +17230,11 @@ done
      unset tmp_LIBS
      unset param
 
+        if pkg-config --atleast-version=2.5.0 libgphoto2; then
+
+$as_echo "#define GPLOGFUNC_NO_VARGS 1" >>confdefs.h
+
+        fi
       fi
     fi
   fi

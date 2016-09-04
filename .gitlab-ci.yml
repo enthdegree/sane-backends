@@ -15,28 +15,24 @@ variables:
   - make -j2 -k
 
 build:debian-8-mini:
-  environment: debian-8-mini
   image: $REGISTRY_HUB:debian-8-mini
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI"
   <<: *build_definition
 
 build:debian-8-full:
-  environment: debian-8-full
   image: $REGISTRY_HUB:debian-8-full
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *build_definition
 
 build:alpine-3.4-musl:
-  environment: alpine-3_4-musl
   image: $REGISTRY_HUB:alpine-3.4-musl
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *build_definition
 
 build:fedora-24-clang:
-  environment: fedora-24-clang
   image: $REGISTRY_HUB:fedora-24-clang
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"

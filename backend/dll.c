@@ -69,6 +69,26 @@
 #if defined(HAVE_DLOPEN) && defined(HAVE_DLFCN_H)
 # include <dlfcn.h>
 
+  /* This works around a pedantic GCC compiler warning.  The ISO C
+     standard says that the behaviour of converting an object pointer
+     like the void * returned by dlsym() to a function pointer like
+     void *(*)() is implementation defined.  POSIX though guarantees
+     that this works fine.
+
+     Workaround based on http://stackoverflow.com/a/36385690.  Turns
+     off pedantic warnings for the duration of the definition only.
+   */
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wpedantic"
+typedef void *(*func_ptr)(void);
+
+func_ptr
+posix_dlsym (void *handle, const char *func)
+{
+  return dlsym (handle, func);
+}
+# pragma GCC diagnostic pop
+
   /* Older versions of dlopen() don't define RTLD_NOW and RTLD_LAZY.
      They all seem to use a mode of 1 to indicate RTLD_NOW and some do
      not support RTLD_LAZY at all.  Hence, unless defined, we define
@@ -536,7 +556,7 @@ load (struct backend *be)
 
       /* First try looking up the symbol without a leading underscore. */
 #ifdef HAVE_DLOPEN
-      op = (void *(*)(void)) dlsym (be->handle, funcname + 1);
+      op = posix_dlsym (be->handle, funcname + 1);
 #elif defined(HAVE_SHL_LOAD)
       shl_findsym ((shl_t *) & (be->handle), funcname + 1, TYPE_UNDEFINED,
 		   &op);
@@ -561,7 +581,7 @@ load (struct backend *be)
 	{
 	  /* Try again, with an underscore prepended. */
 #ifdef HAVE_DLOPEN
-	  op = (void *(*)(void)) dlsym (be->handle, funcname);
+	  op = posix_dlsym (be->handle, funcname);
 #elif defined(HAVE_SHL_LOAD)
 	  shl_findsym (be->handle, funcname, TYPE_UNDEFINED, &op);
 #elif defined(HAVE_NSLINKMODULE)

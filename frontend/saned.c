@@ -3181,7 +3181,7 @@ run_standalone (char *user)
 
 
 static void
-run_inetd (char *sock)
+run_inetd (char __sane_unused__ *sock)
 {
   
   int fd = -1;

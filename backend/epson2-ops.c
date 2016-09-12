@@ -2087,7 +2087,6 @@ e2_block_read(struct Epson_Scanner *s)
 {
 	SANE_Status status;
 	SANE_Bool reorder = SANE_FALSE;
-	SANE_Bool needStrangeReorder = SANE_FALSE;
 
       START_READ:
 	DBG(18, "%s: begin\n", __func__);
@@ -2148,22 +2147,6 @@ e2_block_read(struct Epson_Scanner *s)
 		 * if we have to re-order the color components (GRB->RGB) we
 		 * are doing this here:
 		 */
-
-		/*
-		 * Some scanners (e.g. the Perfection 1640 and GT-2200) seem
-		 * to have the R and G channels swapped.
-		 * The GT-8700 is the Asian version of the Perfection 1640.
-		 * If the scanner name is one of these and the scan mode is
-		 * RGB then swap the colors.
-		 */
-
-		/* never used, beta testers required */
-		needStrangeReorder =
-			(strstr(s->hw->model, "GT-2200") ||
-			 ((strstr(s->hw->model, "1640")
-			   && strstr(s->hw->model, "Perfection"))
-			  || strstr(s->hw->model, "GT-8700")))
-			&& s->params.format == SANE_FRAME_RGB;
 
 		/*
 		 * Certain Perfection 1650 also need this re-ordering of the two

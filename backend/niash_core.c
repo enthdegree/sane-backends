@@ -1225,7 +1225,7 @@ SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
   SANE_Bool iReversedHead;
   int startWhiteY, endWhiteY;
   int startBlackY, endBlackY;
-  int startBlackX, endBlackX;
+  int endBlackX;
 
   iHandle = pHWPar->iXferHandle;
   iReversedHead = pHWPar->iReversedHead;
@@ -1262,7 +1262,6 @@ SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
       endWhiteY = 15;
       startBlackY = 16;
       endBlackY = 135;
-      startBlackX = 0;
       endBlackX = HW_PIXELS;
     }
   else
@@ -1271,7 +1270,6 @@ SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
       endWhiteY = 70;
       startBlackY = 86;
       endBlackY = 135;
-      startBlackX = 1666;
       endBlackX = 3374;
     }
 

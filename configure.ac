@@ -732,7 +732,7 @@ AC_ARG_WITH(api-spec,
     [with_api_spec=check])
 dnl  Test for all tools that may be involved.  These tests are fast and
 dnl  running them allows for the Makefile targets to be formulated such
-dnl  that you non-requested formats can be made using a one-off without
+dnl  that any non-requested formats can be made using a one-off without
 dnl  the need to reconfigure.
 AC_PATH_PROG(MAKEINDEX, makeindex, no)
 AC_PATH_PROG(DVIPS, dvips, no)

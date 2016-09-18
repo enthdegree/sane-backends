@@ -754,6 +754,7 @@ AS_IF([test xno != "x$with_api_spec"],
           && test xno != "x$GS"],          [with_api_pdf=yes])
    AS_IF([   test xno != "x$MAKEINDEX" \
           && test xno != "x$DVIPS" \
+          && test xno != "x$FIG2DEV" \
           && test xno != "x$DLH" \
           && test xno != "x$GS" \
           && test xno != "x$PPMTOFIG" ],   [with_api_html=yes])

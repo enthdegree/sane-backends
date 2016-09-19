@@ -295,57 +295,6 @@ sanei_pieusb_cmd_get_sense(SANE_Int device_number, struct Pieusb_Sense* sense, s
 }
 
 /**
- * Read the halftone pattern with the specified index. This requires two
- * commands, one to ask the device to prepare the pattern, and one to read it.
- *
- * @param device_number Device number
- * @param index index of halftone pattern
- * @param pattern Halftone pattern (not implemented)
- * @return Pieusb_Command_Status
- * @see Pieusb_Halftone_Pattern
- */
-void
-sanei_pieusb_cmd_get_halftone_pattern(SANE_Int device_number, SANE_Int index, struct Pieusb_Halftone_Pattern* pattern, struct Pieusb_Command_Status *status)
-{
-    SANE_Byte command[SCSI_COMMAND_LEN];
-#define PATTERN_SIZE 256 /* Assumed maximum pattern size */
-    SANE_Int size = PATTERN_SIZE;
-    SANE_Byte data[PATTERN_SIZE];
-    int psize;
-    SANE_Char* desc;
-    PIEUSB_Status st;
-
-    DBG (DBG_info_scan, "sanei_pieusb_cmd_get_halftone_pattern()\n");
-
-    /* Ask scanner to prepare the pattern with the given index. Only SCSI_COMMAND_LEN bytes of data. */
-    _prep_scsi_cmd(command, SCSI_WRITE, SCSI_COMMAND_LEN);
-    memset(data, '\0', SCSI_COMMAND_LEN);
-    data[0] = SCSI_HALFTONE_PATTERN | 0x80; /* set bit 7 means prepare read */
-    data[4] = index;
-
-    st = sanei_pieusb_command(device_number, command, data, SCSI_COMMAND_LEN);
-    if (st != PIEUSB_STATUS_GOOD) {
-      status->pieusb_status = st;
-      /* FIXME */
-        return;
-    }
-
-    /* Read pattern */
-    _prep_scsi_cmd(command, SCSI_READ, size);
-
-    memset(data, '\0', size);
-    status->pieusb_status = sanei_pieusb_command (device_number, command, data, size);
-
-    /*FIXME: analyse */
-    fprintf(stderr, "Halftone pattern %d:\n", index);
-    psize = (data[3]<<8) + data[2];
-    desc = (SANE_Char*)(data + 4 + psize);
-    data[4 + psize + 16] = '\0';
-    fprintf(stderr,"Descr. offset from byte 4 = %d, %16s, index = %d, size = %dx%d\n", psize, desc, data[4]&0x7F, data[6], data[7]);
-#undef PATTERN_SIZE
-}
-
-/**
  * Read the scan frame with the specified index. This requires two
  * commands, one to ask the device to prepare the pattern, and one to read it.
  *
@@ -423,38 +372,6 @@ sanei_pieusb_cmd_17(SANE_Int device_number, SANE_Int value, struct Pieusb_Comman
       DBG (DBG_info_scan, "sanei_pieusb_cmd_17 failed: 0x%02x\n", status->pieusb_status);
       return;
     }
-}
-
-/**
- * Read the relative exposure time for the specified colorbits. This requires two
- * commands, one to ask the device to prepare the value, and one to read it.
- *
- * @param device_number Device number
- * @param time Relative exposure time(s)
- * @return Pieusb_Command_Status
- * @see Pieusb_Exposure_Time
- */
-void
-sanei_pieusb_cmd_get_exposure_time(SANE_Int device_number, SANE_Int colorbits, struct Pieusb_Exposure_Time* time, struct Pieusb_Command_Status *status)
-{
-    DBG (DBG_info_scan, "sanei_pieusb_cmd_get_exposure_time(): not implemented\n");
-    status->pieusb_status = PIEUSB_STATUS_INVAL;
-}
-
-/**
- * Read the highlight and shadow levels with the specified colorbits. This requires two
- * commands, one to ask the device to prepare the value, and one to read it.
- *
- * @param device_number Device number
- * @param hgltshdw Highlight and shadow level(s)
- * @return Pieusb_Command_Status
- * @see Pieusb_Highlight_Shadow
- */
-void
-sanei_pieusb_cmd_get_highlight_shadow(SANE_Int device_number, SANE_Int colorbits, struct Pieusb_Highlight_Shadow* hgltshdw, struct Pieusb_Command_Status *status)
-{
-    DBG (DBG_info_scan, "sanei_pieusb_cmd_get_highlight_shadow(): not implemented\n");
-    status->pieusb_status = PIEUSB_STATUS_INVAL;
 }
 
 /**
@@ -549,23 +466,6 @@ sanei_pieusb_cmd_get_scanned_lines(SANE_Int device_number, SANE_Byte* data, SANE
     memset (data, '\0', size);
 
     status->pieusb_status = sanei_pieusb_command (device_number, command, data, size);
-}
-
-/**
- * Set the halftone pattern with the given index to the specified pattern. The
- * command is a SCSI WRITE command (code 0x0A, write code 0x11).
- *
- * @param device_number Device number
- * @param index Pattern index (0-7)
- * @param pattern Halftone pattern (not implemented)
- * @return Pieusb_Command_Status
- * @see Pieusb_Halftone_Pattern
- */
-void
-sanei_pieusb_cmd_set_halftone_pattern(SANE_Int device_number, SANE_Int index, struct Pieusb_Halftone_Pattern* pattern, struct Pieusb_Command_Status *status)
-{
-    DBG (DBG_info_scan, "sanei_pieusb_cmd_set_halftone_pattern(): not implemented\n");
-    status->pieusb_status = PIEUSB_STATUS_INVAL;
 }
 
 /**
@@ -680,24 +580,6 @@ sanei_pieusb_cmd_set_highlight_shadow(SANE_Int device_number, struct Pieusb_High
     }
 
 #undef HIGHLIGHT_SHADOW_SIZE
-}
-
-/**
- * Set the CCD-mask for the colors set in the given color bit mask. The mask
- * array must contain mask_size. The command is a SCSI WRITE command
- * (code 0x0A, write code 0x16).
- * (The command is able to handle more masks at once, but that is not implemented.)
- *
- * @param device_number Device number
- * @param colorbits 0000RGB0 color bit mask; at least one color bit must be set
- * @param mask CCD mask to use
- * @return Pieusb_Command_Status
- */
-void
-sanei_pieusb_cmd_set_ccd_mask(SANE_Int device_number, SANE_Byte colorbits, SANE_Byte* mask, SANE_Int mask_size, struct Pieusb_Command_Status *status)
-{
-    DBG (DBG_info_scan, "sanei_pieusb_cmd_set_ccd_mask(): not implemented\n");
-    status->pieusb_status = PIEUSB_STATUS_INVAL;
 }
 
 /* SCSI PARAM, code 0x0F */

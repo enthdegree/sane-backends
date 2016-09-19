@@ -37,6 +37,7 @@
 
 :model "ScanJet 5490c"		; name models for above-specified mfg.
 :interface "USB"		; interface type of the device:
+:usbid "0x03f0" "0x1105"
 :status :basic
 
 

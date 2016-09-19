@@ -324,7 +324,7 @@
 
 :model "P-150"
 :interface "USB"
-;:usbid "0x1083" "0x"
+;:usbid "0x1083" "0x162c"
 :status :untested
 :comment "Same as P-150M?"
 

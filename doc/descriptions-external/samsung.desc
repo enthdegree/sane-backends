@@ -22,7 +22,7 @@
 
 :mfg "Samsung"                     ; name a manufacturer
 :url "http://www.samsung.com/"
-:comment "Multi Function Peripheral. External backend made by Samsung."
+:comment "Multi Function Peripheral. External backend made by Samsung.  Please check the Samsung website and/or contact us if you have a Samsung device not mentioned here."
 
 ; name models for above-specified mfg.
 :model "SCX-4016"
@@ -78,11 +78,3 @@
 :interface "Parport USB"
 :status :untested
 :comment "Please contact us if you use this device."
-
-:model "For models not mentioned here, check Samsung website"
-:interface "USB"
-:status :untested
-:comment "Please contact us if you have a Samsung device not mentioned here.""
-
-; :comment and :url specifiers are optional after :mfg, :model, :desc,
-;  and at the top-level.

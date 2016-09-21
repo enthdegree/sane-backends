@@ -12,7 +12,7 @@ variables:
   stage: build
   script:
   - ./configure $CONFIGURE_OPTS
-  - make -j2 -k
+  - make -j2 -k $MAKE_FLAGS
 
 build:debian-8-mini:
   image: $REGISTRY_HUB:debian-8-mini
@@ -24,6 +24,7 @@ build:debian-8-full:
   image: $REGISTRY_HUB:debian-8-full
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
+    MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *build_definition
 
 build:alpine-3.4-musl:

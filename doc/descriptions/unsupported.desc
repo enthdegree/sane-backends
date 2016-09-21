@@ -1961,6 +1961,7 @@
 
 :model "DocuPen RC800"
 :interface "USB"
+:usbid "0x18dd" "0x1000"
 :status :unsupported
 :comment "Probably not supported. No details known."
 
@@ -2433,6 +2434,7 @@
 
 :model "Astra 6700"
 :interface "USB"
+:usbid "0x0638" "0x0a30"
 :status :unsupported
 :comment "Not supported. No chipset information available. Same as Avision iVina FB2400."
 

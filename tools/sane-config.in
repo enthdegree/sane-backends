@@ -37,7 +37,7 @@ fi
 if test $# -gt 0; then
   case $1 in
     --version)
-      echo @NUMBER_VERSION@
+      echo @V_MAJOR@.@V_MINOR@.@V_REV@
       ;;
     --help)
       if test $# -eq 1; then

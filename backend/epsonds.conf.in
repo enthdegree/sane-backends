@@ -10,3 +10,7 @@ usb
 # e.g.:
 # usb 0x4b8 0x14c
 
+# Network
+#
+# net 192.168.1.123
+net autodiscovery

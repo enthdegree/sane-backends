@@ -1,5 +1,5 @@
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize)
 {
   char devnam[PATH_MAX] = "/dev/scanner";
   FILE *fp;
@@ -107,7 +107,7 @@ sane_exit (void)
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list,
-SANE_Bool UNUSEDARG local_only)
+SANE_Bool __sane_unused__ local_only)
 {
   static const SANE_Device **devlist = 0;
   CANON_Device *dev;
@@ -2199,8 +2199,8 @@ sane_cancel (SANE_Handle handle)
 /**************************************************************************/
 
 SANE_Status
-sane_set_io_mode (SANE_Handle UNUSEDARG handle,
-SANE_Bool UNUSEDARG non_blocking)
+sane_set_io_mode (SANE_Handle __sane_unused__ handle,
+SANE_Bool __sane_unused__ non_blocking)
 {
   DBG (1, ">> sane_set_io_mode\n");
   DBG (1, "<< sane_set_io_mode\n");
@@ -2210,8 +2210,8 @@ SANE_Bool UNUSEDARG non_blocking)
 /**************************************************************************/
 
 SANE_Status
-sane_get_select_fd (SANE_Handle UNUSEDARG handle,
-SANE_Int UNUSEDARG * fd)
+sane_get_select_fd (SANE_Handle __sane_unused__ handle,
+SANE_Int __sane_unused__ * fd)
 {
   DBG (1, ">> sane_get_select_fd\n");
   DBG (1, "<< sane_get_select_fd\n");

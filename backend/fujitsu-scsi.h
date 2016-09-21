@@ -616,12 +616,13 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SEND_len                10
 
 #define set_S_xfer_datatype(sb, val) sb[0x02] = (unsigned char)val
-/*#define S_datatype_imagedatai		0x00
 #define S_datatype_halftone_mask        0x02
-#define S_datatype_gamma_function       0x03*/
+#define S_datatype_gamma_function       0x03
 #define S_datatype_lut_data             0x83
+#define S_datatype_lut_dropout          0x84
 #define S_datatype_jpg_q_table          0x88
 #define S_datatype_endorser_data        0x90
+#define S_datatype_sendto_name          0xa0
 /*#define S_EX_datatype_lut		0x01
 #define S_EX_datatype_shading_data	0xa0
 #define S_user_reg_gamma		0xc0
@@ -747,6 +748,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define GHS_data_len            12
 
 #define get_GHS_top(in)             getbitfield(in+0x02, 1, 7)
+#define get_GHS_fedalm(in)          getbitfield(in+0x02, 1, 5)
+#define get_GHS_adjalm(in)          getbitfield(in+0x02, 1, 4)
 #define get_GHS_A3(in)              getbitfield(in+0x02, 1, 3)
 #define get_GHS_B4(in)              getbitfield(in+0x02, 1, 2)
 #define get_GHS_A4(in)              getbitfield(in+0x02, 1, 1)
@@ -762,12 +765,14 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 #define get_GHS_sleep(in)           getbitfield(in+0x04, 1, 7)
 #define get_GHS_clean(in)           getbitfield(in+0x04, 1, 6)
+#define get_GHS_scan_sw_long(in)    getbitfield(in+0x04, 1, 5)
+#define get_GHS_hpos(in)            getbitfield(in+0x04, 1, 4)
 #define get_GHS_send_sw(in)         getbitfield(in+0x04, 1, 2)
 #define get_GHS_manual_feed(in)     getbitfield(in+0x04, 1, 1)
 #define get_GHS_scan_sw(in)         getbitfield(in+0x04, 1, 0)
 
 #define get_GHS_picalm(in)          getbitfield(in+0x05, 1, 7)
-#define get_GHS_fadalm(in)          getbitfield(in+0x05, 1, 6)
+#define get_GHS_padalm(in)          getbitfield(in+0x05, 1, 6)
 #define get_GHS_brkalm(in)          getbitfield(in+0x05, 1, 5)
 #define get_GHS_sepalm(in)          getbitfield(in+0x05, 1, 4)
 #define get_GHS_function(in)        getbitfield(in+0x05, 0x0f, 0)
@@ -783,9 +788,33 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 #define get_GHS_error_code(in)      in[0x07]
 
-#define get_GHS_skew_angle(in)      getnbyte(in+0x08, 2)
+#define get_GHS_skew_angle(in)      in[0x09]
 
 #define get_GHS_ink_remain(in)      in[0x0a]
+
+#define get_GHS_lang_code(in)      getnbyte(in+0x0c, 2)
+
+#define get_GHS_adjalm_fed(in)     getbitfield(in+0x0e, 1, 7)
+#define get_GHS_non_sep(in)        getbitfield(in+0x0e, 1, 4)
+#define get_GHS_ext_sendto(in)     getbitfield(in+0x0e, 1, 2)
+#define get_GHS_rq_hldimg(in)      getbitfield(in+0x0e, 1, 1)
+#define get_GHS_pacnt(in)          getbitfield(in+0x0e, 1, 0)
+
+#define get_GHS_wifi_sw(in)      getbitfield(in+0x10, 1, 7)
+#define get_GHS_w_use(in)        getbitfield(in+0x10, 1, 6)
+#define get_GHS_w_use2(in)       getbitfield(in+0x10, 1, 5)
+#define get_GHS_w_use3(in)       getbitfield(in+0x10, 1, 4)
+#define get_GHS_w_use4(in)       getbitfield(in+0x10, 1, 3)
+
+#define get_GHS_battery(in)         getbitfield(in+0x11, 1, 7)
+#define get_GHS_btr_charge(in)      getbitfield(in+0x11, 1, 6)
+#define get_GHS_btr_chg_tmp_stp(in) getbitfield(in+0x11, 1, 5)
+#define get_GHS_ibtr_ene_sav(in)    getbitfield(in+0x11, 1, 4)
+#define get_GHS_fngr_caut(in)       getbitfield(in+0x11, 1, 2)
+#define get_GHS_trnpg_l(in)         getbitfield(in+0x11, 1, 1)
+#define get_GHS_trnpg_r(in)         getbitfield(in+0x11, 1, 0)
+
+#define get_GHS_btr_power(in)       in[0x12]
 
 /* ==================================================================== */
 /* SCANNER_CONTROL */
@@ -806,6 +835,12 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SC_function_scan_complete              0x09
 #define SC_function_eject_complete             0x0a
 #define SC_function_manual_feed                0x0c
+
+/* used with SC_function_panel */
+#define set_SC_led_eb(icb, val)                setbitfield(icb + 5, 1, 7, val)
+#define set_SC_led(icb, val)                   setbitfield(icb + 5, 1, 6, val)
+#define set_SC_fcno_eb(icb, val)               setbitfield(icb + 5, 1, 4, val)
+#define set_SC_fcno(icb, val)                  setbitfield(icb + 5, 0xf, 0, val)
 
 #define set_SC_ric_dtq(sb, val) sb[2] = val
 #define set_SC_ric_len(sb, val) putnbyte(sb + 0x06, val, 3)

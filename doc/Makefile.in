@@ -78,17 +78,25 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@WITH_API_PS_TRUE@am__append_1 = sane.ps
+@WITH_API_PDF_TRUE@am__append_2 = sane.pdf
+@WITH_API_HTML_TRUE@am__append_3 = sane-html
 subdir = doc
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/mkinstalldirs $(srcdir)/doxygen-sanei.conf.in \
 	$(srcdir)/doxygen-genesys.conf.in $(dist_doc_DATA) \
 	$(nobase_dist_doc_DATA)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/ltoptions.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intlmacosx.m4 \
+	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
+	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/byteorder.m4 \
-	$(top_srcdir)/m4/stdint.m4 $(top_srcdir)/configure.in
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
+	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/acinclude.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/byteorder.m4 $(top_srcdir)/m4/stdint.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -155,7 +163,10 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
+AM_CFLAGS = @AM_CFLAGS@
+AM_CPPFLAGS = @AM_CPPFLAGS@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
+AM_LDFLAGS = @AM_LDFLAGS@
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -167,15 +178,6 @@ AWK = @AWK@
 BACKENDS = @BACKENDS@
 BACKEND_CONFS_ENABLED = @BACKEND_CONFS_ENABLED@
 BACKEND_LIBS_ENABLED = @BACKEND_LIBS_ENABLED@
-
-# Create a list of man pages for only backends that are compiled in so
-# that is all that gets installed.  Also, build a complete list of all
-# backend man pages.  This allows a user to optionally generate all
-# man pages in HTML form for things like posting to a web site.
-#
-# Backend man pages bypass standard automake man5_MANS because there is not
-# a man page for every supported backend.  We could get rid of
-# custom install/uninstall if we required man pages for every backend.
 BACKEND_MANS_ENABLED = @BACKEND_MANS_ENABLED@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
@@ -185,7 +187,7 @@ CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DISTCLEAN_FILES = @DISTCLEAN_FILES@
+DLH = @DLH@
 DLLTOOL = @DLLTOOL@
 DL_LIBS = @DL_LIBS@
 DSYMUTIL = @DSYMUTIL@
@@ -198,34 +200,42 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FIG2DEV = @FIG2DEV@
+GETTEXT_MACRO_VERSION = @GETTEXT_MACRO_VERSION@
+GMSGFMT = @GMSGFMT@
+GMSGFMT_015 = @GMSGFMT_015@
 GPHOTO2_CPPFLAGS = @GPHOTO2_CPPFLAGS@
 GPHOTO2_LDFLAGS = @GPHOTO2_LDFLAGS@
 GPHOTO2_LIBS = @GPHOTO2_LIBS@
 GREP = @GREP@
+GS = @GS@
 HAVE_GPHOTO2 = @HAVE_GPHOTO2@
 IEEE1284_LIBS = @IEEE1284_LIBS@
-INCLUDES = @INCLUDES@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_LOCKPATH = @INSTALL_LOCKPATH@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+INTLLIBS = @INTLLIBS@
+INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 JPEG_LIBS = @JPEG_LIBS@
-LATEX = TEXINPUTS="$(srcdir):$$TEXINPUTS" @LATEX@
+LATEX = @LATEX@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
+LIBICONV = @LIBICONV@
+LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
-LIBUSB_1_0_CFLAGS = @LIBUSB_1_0_CFLAGS@
-LIBUSB_1_0_LIBS = @LIBUSB_1_0_LIBS@
 LIBV4L_CFLAGS = @LIBV4L_CFLAGS@
 LIBV4L_LIBS = @LIBV4L_LIBS@
-LINKER_RPATH = @LINKER_RPATH@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCKPATH_GROUP = @LOCKPATH_GROUP@
+LTALLOCA = @LTALLOCA@
+LTLIBICONV = @LTLIBICONV@
+LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINDEX = @MAKEINDEX@
@@ -234,10 +244,10 @@ MANIFEST_TOOL = @MANIFEST_TOOL@
 MATH_LIB = @MATH_LIB@
 MKDIR_P = @MKDIR_P@
 MSGFMT = @MSGFMT@
+MSGFMT_015 = @MSGFMT_015@
 MSGMERGE = @MSGMERGE@
 NM = @NM@
 NMEDIT = @NMEDIT@
-NUMBER_VERSION = @NUMBER_VERSION@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OTOOL = @OTOOL@
@@ -250,10 +260,13 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PDFLATEX = @PDFLATEX@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 PNG_LIBS = @PNG_LIBS@
+POSUB = @POSUB@
+PPMTOGIF = @PPMTOGIF@
 PRELOADABLE_BACKENDS = @PRELOADABLE_BACKENDS@
 PRELOADABLE_BACKENDS_ENABLED = @PRELOADABLE_BACKENDS_ENABLED@
 PTHREAD_LIBS = @PTHREAD_LIBS@
@@ -275,12 +288,16 @@ SYSLOG_LIBS = @SYSLOG_LIBS@
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
 SYSTEMD_LIBS = @SYSTEMD_LIBS@
 TIFF_LIBS = @TIFF_LIBS@
+USB_CFLAGS = @USB_CFLAGS@
 USB_LIBS = @USB_LIBS@
+USE_NLS = @USE_NLS@
 VERSION = @VERSION@
 V_MAJOR = @V_MAJOR@
 V_MINOR = @V_MINOR@
 V_REV = @V_REV@
 XGETTEXT = @XGETTEXT@
+XGETTEXT_015 = @XGETTEXT_015@
+XGETTEXT_EXTRA_OPTIONS = @XGETTEXT_EXTRA_OPTIONS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -366,16 +383,19 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 	sane-rts8891.man sane-coolscan3.man sane-kvs1025.man \
 	sane-kvs20xx.man sane-kvs40xx.man sane-p5.man \
 	sane-magicolor.man sane.man saned.man descriptions.txt \
-	releases.txt sane-logo2.jpg sane-logo.png sane.png sane.tex \
-	net.tex html.sty $(DESC_FILES) descriptions/template.desc. \
-	$(DESC_EXT_FILES) descriptions-external/template.desc. \
-	figs/area.eps figs/area.fig figs/flow.eps figs/flow.fig \
-	figs/hierarchy.eps figs/hierarchy.fig figs/image-data.eps \
-	figs/image-data.fig figs/xfer.eps figs/xfer.fig \
-	icons/contents.gif icons/index.gif icons/next.gif \
-	icons/next_gr.gif icons/previous.gif icons/previous_gr.gif \
-	icons/references.gif icons/references_gr.gif icons/up.gif \
-	icons/up_gr.gif
+	releases.txt sane-logo2.jpg sane-logo.png sane.png \
+	$(DESC_FILES) descriptions/template.desc. $(DESC_EXT_FILES) \
+	descriptions-external/template.desc. $(API_SPEC_INPUTS) \
+	$(API_SPEC_TEX_FIGS) $(API_SPEC_HTML_ICONS)
+
+# Create a list of man pages for only backends that are compiled in so
+# that is all that gets installed.  Also, build a complete list of all
+# backend man pages.  This allows a user to optionally generate all
+# man pages in HTML form for things like posting to a web site.
+#
+# Backend man pages bypass standard automake man5_MANS because there is not
+# a man page for every supported backend.  We could get rid of
+# custom install/uninstall if we required man pages for every backend.
 BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-dll.5 sane-dc25.5 sane-dmc.5 sane-epson.5 sane-epson2.5 sane-epsonds.5 \
 	sane-hp.5 sane-gphoto2.5 sane-leo.5 sane-lexmark.5 \
@@ -387,7 +407,7 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-mustek_pp.5 sane-dc210.5 sane-v4l.5 sane-snapscan.5 \
 	sane-canon.5 sane-coolscan.5 sane-bh.5 sane-dc240.5 \
 	sane-umax_pp.5 sane-umax1220u.5 sane-sm3600.5 sane-usb.5 \
-     	sane-mustek_usb.5 sane-sceptre.5 sane-canon_pp.5 sane-canon630u.5 \
+	sane-mustek_usb.5 sane-sceptre.5 sane-canon_pp.5 sane-canon630u.5 \
         sane-teco1.5 sane-teco2.5 sane-teco3.5 sane-test.5 sane-sp15c.5 \
 	sane-coolscan2.5 sane-hpsj5s.5 sane-gt68xx.5 sane-artec_eplus48u.5 \
 	sane-ma1509.5 sane-ibm.5 sane-hp5400.5 sane-plustek_pp.5 sane-u12.5 \
@@ -405,12 +425,9 @@ MANPAGES = $(man1_MANS) $(BACKEND_5MANS) $(man7_MANS) $(man8_MANS)
 @CROSS_COMPILING_FALSE@	     sane-mfgs.html sane-mfgs-external.html
 
 @CROSS_COMPILING_TRUE@HTML_PAGES = 
-doc_DATA = $(HTML_PAGES) $(STANDARD)
-@USE_LATEX_FALSE@STANDARD = 
-@USE_LATEX_TRUE@STANDARD = sane.ps
+doc_DATA = $(HTML_PAGES) $(API_SPECS)
 dist_doc_DATA = backend-writing.txt
 nobase_dist_doc_DATA = $(BEDOCS)
-DLH = TEXINPUTS="$(srcdir):$$TEXINPUTS" dlh
 MAN2HTML = nroff -c -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
           -cgiurl '$$title.$$section.html'|\
@@ -506,9 +523,23 @@ DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/v4l2.desc \
   descriptions-external/viceo.desc
 
+API_SPECS = $(am__append_1) $(am__append_2) $(am__append_3)
+API_SPEC_INPUTS = $(srcdir)/sane.tex $(srcdir)/net.tex
+API_SPEC_TEX_FIGS = figs/area.fig figs/flow.fig figs/hierarchy.fig \
+	figs/image-data.fig figs/xfer.fig
+API_SPEC_EPS_FIGS = figs/area.eps figs/flow.eps figs/hierarchy.eps \
+	figs/image-data.eps figs/xfer.eps
+API_SPEC_PDF_FIGS = figs/area.pdf figs/flow.pdf figs/hierarchy.pdf \
+	figs/image-data.pdf figs/xfer.pdf
+API_SPEC_HTML_ICONS = icons/contents.gif icons/index.gif \
+	icons/next.gif icons/next_gr.gif icons/previous.gif \
+	icons/previous_gr.gif icons/references.gif \
+	icons/references_gr.gif icons/up.gif icons/up_gr.gif
+am_TEXINPUTS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS"
 all: all-am
 
 .SUFFIXES:
+.SUFFIXES: .eps .fig .pdf
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -824,7 +855,9 @@ dvi: dvi-am
 
 dvi-am:
 
-html-am:
+html: html-am
+
+html-am: html-local
 
 info: info-am
 
@@ -885,14 +918,15 @@ uninstall-man: uninstall-man1 uninstall-man7 uninstall-man8
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	clean-local cscopelist-am ctags-am distclean distclean-generic \
 	distclean-libtool distclean-local distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-data-local install-dist_docDATA \
-	install-docDATA install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-man1 install-man7 \
-	install-man8 install-nobase_dist_docDATA install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	html-am html-local info info-am install install-am \
+	install-data install-data-am install-data-local \
+	install-dist_docDATA install-docDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-man1 install-man7 install-man8 \
+	install-nobase_dist_docDATA install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am tags-am uninstall \
 	uninstall-am uninstall-dist_docDATA uninstall-docDATA \
@@ -900,7 +934,7 @@ uninstall-man: uninstall-man1 uninstall-man7 uninstall-man8
 	uninstall-man8 uninstall-nobase_dist_docDATA
 
 
-all: bemans $(STANDARD) html-pages
+all: bemans $(API_SPECS) html-pages
 
 %.1 %.5 %.7 %.8: %.man
 	@echo "Generating manpage $@...";
@@ -927,23 +961,35 @@ install-data-local: install-beman5
 uninstall-local:
 	rm -rf $(DESTDIR)$(beman5dir)/sane-*.5
 
-sane.ind: $(srcdir)/sane.tex
-	@echo Generating index for sane.tex...
+sane.ind: $(API_SPEC_INPUTS)
+	@echo Generating index for $<...
 	@touch sane.ind
-	@$(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
-	  $(MAKEINDEX) sane.idx 2>/dev/null && \
-	  $(LATEX) $(srcdir)/sane </dev/null >/dev/null
+	@$(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null && \
+	  $(MAKEINDEX) -q sane.idx && \
+	  $(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
 
-sane.dvi: sane.ind
-	@echo Generating sane.dvi from sane.tex...
-	@$(LATEX) $(srcdir)/sane </dev/null >/dev/null
+.fig.eps:
+	@test -d $(@D) || $(MKDIR_P) $(@D)
+	$(FIG2DEV) -L eps $< $@
+
+sane.dvi: $(API_SPEC_INPUTS) $(API_SPEC_EPS_FIGS) sane.ind
+	@echo Generating $@ from $<...
+	@$(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
 
 sane.ps: sane.dvi
-	@echo Generating sane.ps from sane.dvi...
-	@$(DVIPS) sane.dvi -o sane.ps 2>/dev/null
+	@echo Generating $@ from $<...
+	@$(am_TEXINPUTS) $(DVIPS) -q $< -o $@
+
+.fig.pdf:
+	@test -d $(@D) || $(MKDIR_P) $(@D)
+	$(FIG2DEV) -L pdf $< $@
+
+sane.pdf: $(API_SPEC_INPUTS) $(API_SPEC_PDF_FIGS) sane.ind
+	@echo Generating $@ from $<...
+	@$(am_TEXINPUTS) $(PDFLATEX) $< >/dev/null
 
 sane-html: sane.dvi
-	$(DLH) $(srcdir)/sane.tex
+	$(am_TEXINPUTS) $(DLH) $(srcdir)/sane.tex
 
 html-man: $(MANPAGES)
 	@for page in $(MANPAGES); do \
@@ -986,16 +1032,18 @@ descriptions.db: $(DESC_FILES) ../tools/sane-desc
 	@../tools/sane-desc -m ascii -s ${srcdir}/descriptions \
 	  > descriptions.db
 
-descriptions-external.db: $(DESC_FILES) ../tools/sane-desc
+descriptions-external.db: $(DESC_EXT_FILES) ../tools/sane-desc
 	@../tools/sane-desc -m ascii -s ${srcdir}/descriptions-external \
 	  > descriptions-external.db
 
 html-pages: $(HTML_PAGES)
-html: html-pages html-man sane-html
+html-local: html-pages html-man sane-html
 
 clean-local:
 	rm -f *.toc *.aux *.log *.cp *.fn *.tp *.vr *.pg *.ky *.blg *.idx *.cb
 	rm -f *.ilg
+	rm -f $(API_SPEC_EPS_FIGS) $(API_SPEC_PDF_FIGS)
+	-rmdir figs
 
 distclean-local:
 	rm -f $(MANPAGES)

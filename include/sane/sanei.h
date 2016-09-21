@@ -92,6 +92,9 @@
 /** @name Public macros and functions
  * @{
  */
+/** @def __sane_unused__
+ * Mark parameters as potentially unused.
+ */
 /** @def STRINGIFY(x)
  * Turn parameter into string.
  */
@@ -137,6 +140,14 @@
 /* @} */
 
 /* A few convenience macros:  */
+
+/** @hideinitializer */
+#ifdef __GNUC__
+#define __sane_unused__ __attribute__((unused))
+#else
+#define __sane_unused__
+#endif
+
 /** @hideinitializer */
 #define NELEMS(a)	((int)(sizeof (a) / sizeof (a[0])))
 

@@ -792,7 +792,7 @@ check_host (int fd)
 #ifdef ENABLE_IPV6
   sin6 = &remote_address.sin6;
 
-  if (IN6_IS_ADDR_V4MAPPED (sin6->sin6_addr.s6_addr))
+  if (IN6_IS_ADDR_V4MAPPED ((struct in6_addr *)sin6->sin6_addr.s6_addr))
     {
       DBG (DBG_DBG, "check_host: detected an IPv4-mapped address\n");
       remote_ipv4 = remote_ip + 7;
@@ -849,7 +849,7 @@ check_host (int fd)
 	break;
 #ifdef ENABLE_IPV6
       case AF_INET6:
-	if (IN6_IS_ADDR_LOOPBACK (sin6->sin6_addr.s6_addr))
+	if (IN6_IS_ADDR_LOOPBACK ((struct in6_addr *)sin6->sin6_addr.s6_addr))
 	  {
 	    DBG (DBG_MSG,
 		 "check_host: remote host is IN6_LOOPBACK: access granted\n");
@@ -3181,7 +3181,7 @@ run_standalone (char *user)
 
 
 static void
-run_inetd (char *sock)
+run_inetd (char __sane_unused__ *sock)
 {
   
   int fd = -1;

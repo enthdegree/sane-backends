@@ -13,6 +13,8 @@
 
 #define DEBUG_DECLARE_ONLY
 
+#include "sane/config.h"
+
 #include <math.h>
 
 #include "epsonds.h"
@@ -35,12 +37,12 @@ typedef struct
 epsonds_src_mgr;
 
 METHODDEF(void)
-jpeg_init_source(j_decompress_ptr UNUSEDARG cinfo)
+jpeg_init_source(j_decompress_ptr __sane_unused__ cinfo)
 {
 }
 
 METHODDEF(void)
-jpeg_term_source(j_decompress_ptr UNUSEDARG cinfo)
+jpeg_term_source(j_decompress_ptr __sane_unused__ cinfo)
 {
 }
 

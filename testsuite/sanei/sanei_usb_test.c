@@ -130,13 +130,13 @@ create_mock_device (char *devname, device_list_type * device)
   device->devname = strdup (devname);
   device->vendor = 0xdead;
   device->product = 0xbeef;
-#if defined(HAVE_LIBUSB) || defined(HAVE_LIBUSB_1_0)
+#if defined(HAVE_LIBUSB_LEGACY) || defined(HAVE_LIBUSB)
   device->method = sanei_usb_method_libusb;
 #endif
 #ifdef HAVE_USBCALLS
   device->method = sanei_usb_method_usbcalls;
 #endif
-#if !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0) && !defined(HAVE_USBCALLS)
+#if !defined(HAVE_LIBUSB_LEGACY) && !defined(HAVE_LIBUSB) && !defined(HAVE_USBCALLS)
   device->method == sanei_usb_method_scanner_driver;
 #endif
 }
@@ -689,7 +689,7 @@ test_vendor_by_id (void)
 static int
 test_timeout (void)
 {
-#if defined(HAVE_LIBUSB) || defined(HAVE_LIBUSB_1_0)
+#if defined(HAVE_LIBUSB_LEGACY) || defined(HAVE_LIBUSB)
   int timeout = libusb_timeout;
 
   sanei_usb_set_timeout (5000);
@@ -832,16 +832,16 @@ main (int argc, char **argv)
   int detected, opened, i;
   SANE_Int dn[MAX_DEVICES];
 
-#ifdef HAVE_LIBUSB
+#ifdef HAVE_LIBUSB_LEGACY
   printf ("\n%s built with old libusb\n\n", argv[0]);
 #endif
-#ifdef HAVE_LIBUSB_1_0
+#ifdef HAVE_LIBUSB
   printf ("\n%s built with libusb-1.0\n\n", argv[0]);
 #endif
 #ifdef HAVE_USBCALLS
   printf ("\n%s built with usbcalls\n\n", argv[0]);
 #endif
-#if !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0) && !defined(HAVE_USBCALLS)
+#if !defined(HAVE_LIBUSB_LEGACY) && !defined(HAVE_LIBUSB) && !defined(HAVE_USBCALLS)
   printf ("\n%s relying on deprecated scanner kernel module\n", argv[0]);
 #endif
 

@@ -928,7 +928,7 @@ init_option_descriptors (pixma_sane_t * ss)
 /* Writing to reader_ss outside reader_process() is a BUG! */
 static pixma_sane_t *reader_ss = NULL;
 
-static RETSIGTYPE
+static void
 reader_signal_handler (int sig)
 {
   if (reader_ss)

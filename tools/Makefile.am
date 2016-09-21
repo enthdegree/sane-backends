@@ -4,8 +4,8 @@
 ##  This file is part of the "Sane" build infra-structure.  See
 ##  included LICENSE file for license information.
 
-AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include \
- -I$(top_srcdir)/include
+AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include \
+ -I$(top_srcdir)/include $(USB_CFLAGS)
 
 bin_PROGRAMS = sane-find-scanner gamma4scanimage
 noinst_PROGRAMS = sane-desc
@@ -34,17 +34,17 @@ CLEANFILES = $(bin_SCRIPTS) $(dist_noinst_SCRIPTS)
 EXTRA_DIST = check-po.awk libtool-get-dll-ext mustek600iin-off.c \
 	     RenSaneDlls.cmd README xerox
 
-sane_find_scanner_SOURCES = sane-find-scanner.c check-usb-chip.c \
-			    ../backend/sane_strstatus.c
+sane_find_scanner_SOURCES = sane-find-scanner.c check-usb-chip.c
 sane_find_scanner_LDADD = ../sanei/libsanei.la ../lib/liblib.la \
-			  @USB_LIBS@ @IEEE1284_LIBS@ @SCSI_LIBS@
+			  $(USB_LIBS) $(IEEE1284_LIBS) $(SCSI_LIBS) \
+			  ../backend/sane_strstatus.lo
 
 gamma4scanimage_SOURCES = gamma4scanimage.c
-gamma4scanimage_LDADD = @MATH_LIB@
+gamma4scanimage_LDADD = $(MATH_LIB)
 
-umax_pp_SOURCES = umax_pp.c ../backend/umax_pp_low.c
-umax_pp_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax_pp_low
-umax_pp_LDADD = ../sanei/libsanei.la ../lib/liblib.la @MATH_LIB@
+umax_pp_SOURCES = umax_pp.c
+umax_pp_LDADD = ../sanei/libsanei.la ../lib/liblib.la $(MATH_LIB) \
+	        ../backend/umax_pp_low.lo
 
 sane_desc_SOURCES = sane-desc.c
 sane_desc_LDADD = ../sanei/libsanei.la ../lib/liblib.la
@@ -64,19 +64,21 @@ dirs:
 	  $(MKDIR_P) $$subdir || exit 1; \
 	  done
 
-hotplug/libsane.usermap: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) $(wildcard ${top_srcdir}/doc/descriptions-external/*.desc) sane-desc
+descriptions = ${top_srcdir}/doc/descriptions/*.desc ${top_srcdir}/doc/descriptions-external/*.desc
+
+hotplug/libsane.usermap: sane-desc $(descriptions)
 	@./sane-desc -m usermap -s ${top_srcdir}/doc/descriptions:${top_srcdir}/doc/descriptions-external \
 	   -d 1 > $@
 
-hotplug-ng/libsane.db: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) $(wildcard ${top_srcdir}/doc/descriptions-external/*.desc) sane-desc
+hotplug-ng/libsane.db: sane-desc $(descriptions)
 	@./sane-desc -m db -s ${top_srcdir}/doc/descriptions:${top_srcdir}/doc/descriptions-external \
 	   -d 0 > $@
 
-udev/libsane.rules: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) $(wildcard ${top_srcdir}/doc/descriptions-external/*.desc) sane-desc
+udev/libsane.rules: sane-desc $(descriptions)
 	@./sane-desc -m udev -s ${top_srcdir}/doc/descriptions:${top_srcdir}/doc/descriptions-external \
 	   -d 0 > $@
 
-hal/libsane.fdi: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) $(wildcard ${top_srcdir}/doc/descriptions-external/*.desc) sane-desc
+hal/libsane.fdi: sane-desc $(descriptions)
 	@./sane-desc -m hal -s ${top_srcdir}/doc/descriptions:${top_srcdir}/doc/descriptions-external \
 	   -d 0 > $@
 

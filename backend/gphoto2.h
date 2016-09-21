@@ -155,12 +155,6 @@ struct cam_dirent
   long size;
 };
 
-#ifdef __GNUC__
-#define UNUSEDARG __attribute__ ((unused))
-#else
-#define UNUSEDARG
-#endif
-
 struct cam_dirlist
 {
   SANE_Char name[48];

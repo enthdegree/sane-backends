@@ -1491,7 +1491,7 @@ sane_set_io_mode (SANE_Handle __sane_unused__ h, SANE_Bool m)
 
 
 SANE_Status
-sane_get_select_fd (SANE_Handle __sane_unused__ h, SANE_Int * __sane_unused__ fd)
+sane_get_select_fd (SANE_Handle __sane_unused__ h, SANE_Int __sane_unused__ * fd)
 {
   DBG (DBG_MSG, "sane_select_fd\n");
   return SANE_STATUS_UNSUPPORTED;

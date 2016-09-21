@@ -22,11 +22,17 @@ EXTRA_DIST = ChangeLog-1.0.0 ChangeLog-1.0.1  ChangeLog-1.0.2 \
  $(PACKAGE).lsm
 
 #
-# Keep the .cvsignore files sorted, and use this target to do it.
+# Keep the .gitignore files sorted, and use this target to do it.
+# Note that git's negated ignore patterns introduce order dependency
+# and should therefor be sorted with much more care than we do here.
+# Until that has been taken care of, such files are best left alone.
 #
 PERL=perl
-sort-cvsignore:
-	for f in `find . -name .cvsignore`; do \
+sort-gitignore:
+	for f in `find . -name .gitignore`; do \
+	  if test -n "`sed -n '/^\!/p' $$f`"; then \
+	    echo "$$f: skipping file with negated pattern" >&2; \
+	  fi; \
 	  $(PERL) -e 'print sort <>;' < $$f > $$f.tmptmp; \
 	  mv $$f.tmptmp $$f; \
 	done
@@ -93,3 +99,5 @@ clean-local:
 distclean-local:
 	rm -f include/_stdint.h
 	rm -f include/byteorder.h
+
+ACLOCAL_AMFLAGS = -I m4

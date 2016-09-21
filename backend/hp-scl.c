@@ -339,7 +339,7 @@ hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
 
 static SANE_Status
 hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect,
-  int UNUSEDARG isResponse)
+  int __sane_unused__ isResponse)
 
 {int n = -1;
  static int retries = -1;
@@ -1011,7 +1011,7 @@ hp_scsi_read (HpScsi this, void * dest, size_t *len, int isResponse)
 
 static int signal_caught = 0;
 
-static RETSIGTYPE
+static void
 signal_catcher (int sig)
 {
   DBG(1,"signal_catcher(sig=%d): old signal_caught=%d\n",sig,signal_caught);

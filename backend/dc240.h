@@ -203,12 +203,6 @@ struct cam_dirent
   long size;
 };
 
-#ifdef __GNUC__
-#define UNUSEDARG __attribute__ ((unused))
-#else
-#define UNUSEDARG
-#endif
-
 #ifdef OLD
 
 /* This is the layout of the directory in the camera - Unfortunately,

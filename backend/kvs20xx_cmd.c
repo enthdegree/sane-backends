@@ -301,29 +301,6 @@ kvs20xx_read_picture_element (struct scanner * s, unsigned side,
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-get_buffer_status (struct scanner * s, unsigned *data_avalible)
-{
-  SANE_Status status;
-  struct cmd c = {
-    {0},
-    10,
-    0,
-    12,
-    CMD_IN
-  };
-  u32 *data;
-  c.cmd[0] = GET_BUFFER_STATUS;
-  c.cmd[7] = 12;
-
-  status = send_command (s, &c);
-  if (status)
-    return status;
-  data = (u32 *) c.data;
-  *data_avalible = be2cpu32 (data[3]);
-  return SANE_STATUS_GOOD;
-}
-
 SANE_Status
 kvs20xx_read_image_data (struct scanner * s, unsigned page, unsigned side,
 			 void *buf, unsigned max_size, unsigned *size)

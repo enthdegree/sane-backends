@@ -73,7 +73,7 @@ Start: 2.4.2001
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_usb.h"
 
-#undef HAVE_LIBUSB
+#undef HAVE_LIBUSB_LEGACY
 
 /* prevent inclusion of scantool.h */
 #define SCANTOOL_H
@@ -431,12 +431,10 @@ sane_exit (void)
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list,
-		  SANE_Bool local_only)
+		  SANE_Bool __sane_unused__ local_only)
 {
   TDevice *dev;
   int i;
-
-  local_only = TRUE; /* Avoid compile warning */
 
   if (devlist) free (devlist);
 

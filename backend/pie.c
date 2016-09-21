@@ -2781,7 +2781,7 @@ pie_reader_process (Pie_Scanner * scanner, FILE * fp)
 /* --------------------------------- READER PROCESS SIGTERM HANDLER  ------------ */
 
 
-static RETSIGTYPE
+static void
 reader_process_sigterm_handler (int signal)
 {
   DBG (DBG_sane_info, "reader_process: terminated by signal %d\n", signal);

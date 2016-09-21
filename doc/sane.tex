@@ -1,6 +1,6 @@
-\documentclass[11pt,DVIps]{report}
+\documentclass[11pt]{report}
 
-\usepackage{times,epsfig,html}
+\usepackage{times,graphicx,url}
 % Not Currently using changebar package so comment out to reduce
 % external dependencies.
 %\usepackage{changebar}
@@ -15,9 +15,9 @@
 \setlength{\marginparsep}{0pt}
 \addtolength{\topmargin}{-0.75in}
 
-\title{\huge SANE Standard Version 1.05}
+\title{\huge SANE Standard Version 1.06}
 \author{}
-\date{2006-04-02} 
+\date{2008-05-03}
 
 \makeindex
 
@@ -196,7 +196,7 @@ platform dependent.  Several possibilities exist:
 \begin{figure}[htbp]
   \begin{center}
     \leavevmode
-    \psfig{file=figs/hierarchy.eps,angle=270,width=\textwidth}
+    \includegraphics[width=\textwidth]{figs/hierarchy}
     \caption{Example SANE Hiearchy}
     \label{fig:hierarchy}
   \end{center}
@@ -280,7 +280,7 @@ significant bit, and the rightmost pixel in the least significant bit.
 \begin{figure}[htbp]
   \begin{center}
     \leavevmode
-    \psfig{file=figs/xfer.eps,width=0.5\textwidth}
+    \includegraphics[width=0.5\textwidth]{figs/xfer}
     \caption{Transfer order of image data bytes}
     \label{fig:xfer}
   \end{center}
@@ -304,7 +304,7 @@ fashion.
 \begin{figure}[htbp]
   \begin{center}
     \leavevmode
-    \psfig{file=figs/image-data.eps,width=0.8\textwidth}
+    \includegraphics[width=0.8\textwidth]{figs/image-data}
     \caption{Bit and byte order or image data}
     \label{fig:pixels}
   \end{center}
@@ -1683,7 +1683,7 @@ exiting the backend.
 \begin{figure}[htb]
   \begin{center}
     \leavevmode
-    \psfig{file=figs/flow.eps,height=0.5\textheight}
+    \includegraphics[height=0.5\textheight]{figs/flow}
     \caption{Code flow}
     \label{fig:flow}
   \end{center}
@@ -1826,7 +1826,7 @@ conversions.
 \begin{figure}[tbp]
   \begin{center}
     \leavevmode
-    \psfig{file=figs/area.eps,height=0.3\textheight}
+    \includegraphics[height=0.3\textheight]{figs/area}
     \caption{Scan area options}
     \label{fig:area}
   \end{center}
@@ -1873,9 +1873,7 @@ The SANE standard is discussed and evolved via a mailing list.
 Anybody with email access to the Internet can automatically join and
 leave the discussion group by sending mail to the following address.
 \begin{quote}\index{mailing list}
-\begin{verbatim}
-sane-devel-request@lists.alioth.debian.org
-\end{verbatim}
+\url{sane-devel-request@lists.alioth.debian.org}
 \end{quote}
 To subscribe, send a mail with the body ``\verb|subscribe sane-devel|'' to the
 above address.

@@ -1307,7 +1307,7 @@ set_option_dependencies(Microtek2_Scanner *,
 static SANE_Status
 shading_function(Microtek2_Scanner *, uint8_t *);
 
-static RETSIGTYPE
+static void
 signal_handler (int);
 
 static SANE_Status

@@ -687,7 +687,7 @@ sanei_hp_accessor_vector_new (HpData data, unsigned length, unsigned depth)
 }
 
 static unsigned short
-_gamma_vector_unscale (HpAccessorVector UNUSEDARG this, SANE_Fixed fval)
+_gamma_vector_unscale (HpAccessorVector __sane_unused__ this, SANE_Fixed fval)
 {
   unsigned short unscaled = fval / SANE_FIX(1.0);
   if (unscaled > 255) unscaled = 255;
@@ -697,7 +697,7 @@ _gamma_vector_unscale (HpAccessorVector UNUSEDARG this, SANE_Fixed fval)
 }
 
 static SANE_Fixed
-_gamma_vector_scale (HpAccessorVector UNUSEDARG this, unsigned short val)
+_gamma_vector_scale (HpAccessorVector __sane_unused__ this, unsigned short val)
 {
   SANE_Fixed scaled;
   val = 255-val;     /* Don't know why. But this is how it works. */

@@ -534,28 +534,6 @@ kvs40xx_read_image_data (struct scanner * s, unsigned page, unsigned side,
   return status;
 }
 
-static SANE_Status
-get_adjust_data (struct scanner * s, unsigned *dummy_length)
-{
-  SANE_Status status;
-  struct cmd c = {
-    {0}, 10,
-    NULL, 40,
-    CMD_IN
-  };
-  u16 *data;
-
-  c.cmd[0] = GET_ADJUST_DATA;
-  c.cmd[2] = 0x9b;
-  c.cmd[8] = 40;
-  status = send_command (s, &c);
-  if (status)
-    return status;
-  data = (u16 *) c.data;
-  *dummy_length = be2cpu16 (data[0]);
-  return SANE_STATUS_GOOD;
-}
-
 SANE_Status
 read_support_info (struct scanner * s, struct support_info * inf)
 {

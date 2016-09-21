@@ -68,7 +68,9 @@ Maybe useful for SANE developers:
  check-po.awk:
         Print untranslated and fuzzy messages and their line numbers in the
         source code and po file. Example:
-           cd po/ ; ../tools/check-po.awk sane-backends.de.po
-        You may need to adjust the path of awk in the first line of the
-        script. More documentation is in the script itself.
+           tools/check-po.awk po/de.po
+        You may need to adjust the path of gawk in the first line of the
+        script. Alternatively, run it via gawk's -f option, like so:
+           gawk -f tools/check-po.awk po/de.po
+        More documentation is in the script itself.
 

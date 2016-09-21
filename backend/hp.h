@@ -53,12 +53,6 @@
 #define DEBUG_NOT_STATIC
 #include "../include/sane/sanei_debug.h"
 
-#ifdef __GNUC__
-#define UNUSEDARG __attribute__ ((unused))
-#else
-#define UNUSEDARG
-#endif
-
 /* FIXME: these should be options? */
 #undef ENABLE_7x12_TONEMAPS
 #define ENABLE_16x16_DITHERS

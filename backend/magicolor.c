@@ -1969,10 +1969,10 @@ mc_network_discovery(const char*host)
 	init_snmp("sane-magicolor-backend");
 	snmp_sess_init (&session);
 	session.version = SNMP_VERSION_2c;
-	session.community = "public";
-	session.community_len = strlen (session.community);
+	session.community = (u_char *) "public";
+	session.community_len = strlen ((char *)session.community);
 	if (host) {
-		session.peername = host;
+		session.peername = (char *) host;
 	} else {
 		/* Do a network discovery via a broadcast */
 		session.peername = "255.255.255.255";

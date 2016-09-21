@@ -31,13 +31,13 @@ convenient lines to paste
 export SANE_DEBUG_KODAKAIO=20
 
 for ubuntu prior to 12.10
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS="kodakaio test"
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-avahi --without-api-spec BACKENDS="kodakaio test"
 
 for ubuntu 12.10
-./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS="kodakaio test"
+./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --without-api-spec BACKENDS="kodakaio test"
 
 for ubuntu 14.10
-./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --disable-latex BACKENDS="kodakaio test"
+./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --without-api-spec BACKENDS="kodakaio test"
 
 If you want to use the test backend, for example with sane-troubleshoot, you should enable it in /etc/sane.d/dll.conf
 
@@ -1384,9 +1384,9 @@ But it seems that the scanner takes care of that, and gives you the ack as a sep
 		DBG(min(1,DBG_READ), "%s: tiny read, got %lu bytes of %lu\n", __func__, (unsigned long) bytecount, (unsigned long) *len);
 		return SANE_STATUS_IO_ERROR;
 	}
-	if (*len > s->params.bytes_per_line) {
+	lines = *len / s->params.bytes_per_line;
+	if (lines > 1) {
 		/* store average colour as background. That's not the ideal method but it's easy to implement. What's it used for? */
-		lines = *len / s->params.bytes_per_line;
 		s->background[0] = 0;
 		s->background[1] = 0;
 		s->background[2] = 0;
@@ -1944,11 +1944,11 @@ get_device_from_identification (const char *ident, const char *vid, const char *
 	int n;
 	SANE_Word pidnum, vidnum;
 
-	if(sscanf(vid, "%x", &vidnum) == EOF) {
+	if(sscanf(vid, "%x", (unsigned int *)&vidnum) == EOF) {
     		DBG(5, "could not convert hex vid <%s>\n", vid);
     		return NULL;
 	}
-	if(sscanf(pid, "%x", &pidnum) == EOF) {
+	if(sscanf(pid, "%x", (unsigned int *)&pidnum) == EOF) {
     		DBG(5, "could not convert hex pid <%s>\n", pid);
     		return NULL;
 	}

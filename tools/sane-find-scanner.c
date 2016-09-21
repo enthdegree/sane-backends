@@ -46,7 +46,7 @@
 #include "../include/sane/sanei_pa4s2.h"
 #include "../include/sane/sanei_config.h"
 
-#ifdef HAVE_LIBUSB
+#ifdef HAVE_LIBUSB_LEGACY
 #ifdef HAVE_LUSB0_USB_H
 #include <lusb0_usb.h>
 #else
@@ -55,7 +55,7 @@
 extern char * check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file);
 #endif
 
-#ifdef HAVE_LIBUSB_1_0
+#ifdef HAVE_LIBUSB
 #include <libusb.h>
 extern char * check_usb_chip (int verbosity,
 			      struct libusb_device_descriptor desc,
@@ -76,7 +76,7 @@ static SANE_Bool device_found = SANE_FALSE;
 static SANE_Bool libusb_device_found = SANE_FALSE;
 static SANE_Bool unknown_found = SANE_FALSE;
 
-#ifdef HAVE_LIBUSB_1_0
+#ifdef HAVE_LIBUSB
 libusb_context *sfs_usb_ctx;
 #endif
 
@@ -115,7 +115,7 @@ usage (char *msg)
   fprintf (stderr, "\t-f: force opening devname as SCSI even if it looks "
 	   "like USB\n");
   fprintf (stderr, "\t-p: enable scanning for parallel port devices\n");
-#ifdef HAVE_LIBUSB
+#ifdef HAVE_LIBUSB_LEGACY
   fprintf (stderr, "\t-F file: try to detect chipset from given "
 	   "/proc/bus/usb/devices file\n");
 #endif
@@ -403,7 +403,7 @@ check_usb_file (char *file_name)
     }
 }
 
-#ifdef HAVE_LIBUSB
+#ifdef HAVE_LIBUSB_LEGACY
 
 static char *
 get_libusb_string_descriptor (struct usb_device *dev, int index)
@@ -701,10 +701,10 @@ check_libusb_device (struct usb_device *dev, SANE_Bool from_file)
   if (product)
     free (product);
 }
-#endif /* HAVE_LIBUSB */
+#endif /* HAVE_LIBUSB_LEGACY */
 
 
-#ifdef HAVE_LIBUSB_1_0
+#ifdef HAVE_LIBUSB
 static char *
 sfs_libusb_strerror (int errcode)
 {
@@ -1095,7 +1095,7 @@ check_libusb_device (libusb_device *dev, SANE_Bool from_file)
   if (product)
     free (product);
 }
-#endif /* HAVE_LIBUSB_1_0 */
+#endif /* HAVE_LIBUSB */
 
 
 static DIR *
@@ -1355,7 +1355,7 @@ check_mustek_pp_device (void)
   return (found > 0 || scsi > 0);
 }
 
-#ifdef HAVE_LIBUSB
+#ifdef HAVE_LIBUSB_LEGACY
 static SANE_Bool
 parse_num (char* search, const char* line, int base, long int * number)
 {
@@ -1596,9 +1596,9 @@ main (int argc, char **argv)
 	  break;
 
 	case 'F':
-#ifdef HAVE_LIBUSB
+#ifdef HAVE_LIBUSB_LEGACY
 	  parse_file ((char *) (*(++ap)));
-#elif defined(HAVE_LIBUSB_1_0)
+#elif defined(HAVE_LIBUSB)
 	  printf ("option -F not implemented with libusb-1.0\n");
 #else
 	  printf ("libusb not available: option -F can't be used\n");
@@ -1948,7 +1948,7 @@ main (int argc, char **argv)
 	  check_usb_file (dev_name);
 	}
     }
-#ifdef HAVE_LIBUSB
+#ifdef HAVE_LIBUSB_LEGACY
   /* Now the libusb devices */
   {
     struct usb_bus *bus;
@@ -1973,7 +1973,7 @@ main (int argc, char **argv)
 	  }			/* for (bus) */
       }
   }
-#elif defined(HAVE_LIBUSB_1_0)
+#elif defined(HAVE_LIBUSB)
   /* Now the libusb-1.0 devices */
   {
     if (ap < argv + argc)
@@ -2026,10 +2026,10 @@ main (int argc, char **argv)
 	; /* init failed, jumping here */
       }
   }
-#else /* not HAVE_LIBUSB && not HAVE_LIBUSB_1_0 */
+#else /* not HAVE_LIBUSB_LEGACY && not HAVE_LIBUSB */
   if (verbose > 1)
     printf ("libusb not available\n");
-#endif /* not HAVE_LIBUSB && not HAVE_LIBUSB_1_0 */
+#endif /* not HAVE_LIBUSB_LEGACY && not HAVE_LIBUSB */
 
   if (device_found)
     {
@@ -2062,7 +2062,7 @@ main (int argc, char **argv)
 	   "make sure that\n  # you have loaded a kernel driver for your USB host "
 	   "controller and have setup\n  # the USB system correctly. "
 	   "See man sane-usb for details.\n");
-#if !defined(HAVE_LIBUSB) && !defined(HAVE_LIBUSB_1_0)
+#if !defined(HAVE_LIBUSB_LEGACY) && !defined(HAVE_LIBUSB)
       if (verbose > 0)
 	printf ("  # SANE has been built without libusb support. This may be a "
 		"reason\n  # for not detecting USB scanners. Read README for "

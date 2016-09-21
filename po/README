@@ -17,7 +17,7 @@ Example for German: export LANG=de_DE ; xsane
 Translators: I want to update existing translations
 ---------------------------------------------------
 
-* cd po ; make update
+* cd po ; make update-po
 * Edit lang.po, add/change translations. (with lang = your
   language, e.g. "de"). You need an editor that is capable of using the
   encoding UTF8 (unicode).
@@ -28,8 +28,8 @@ Translators: I want to update existing translations
 Translators: I want to add a new language
 -----------------------------------------
 
-* Edit po/LINGUAS, add your language to ALL_LINGUAS.
-* Run automake -OR- update po/Makefile.in accordingly by hand.
+* Add the language code to po/LINGUAS
+* automake (if you have not enabled maintainer mode)
 * ./configure
 * Go ahead with "I want to update existing translations".
 
@@ -45,7 +45,7 @@ Backend developers: I want to add internationalization support for my backend
   already done in saneopts.h.
   Examples: s->opt[5].title = SANE_I18N("Enhancement");
             #define STANDARD_FORMAT SANE_I18N("a4 Paper")
-* Edit po/POTFILES. Add all source code files that contain strings marked
+* Edit po/POTFILES.in. Add all source code files that contain strings marked
   by SANE_I18N() to that file.
 * If you want to also add a new language, see above.
 * ./configure
@@ -63,8 +63,3 @@ Frontend developers: I want to add internationalization support for my frontend
   backward compatibility, frontends may want to check for these files, also.
 * As mentioned above, GNU gettext is used. 
 * With other NLS implementations, converting the mo files may work.
-
-
-
-Bugs:
-- Using sed to include macros into *.pot isn't nice.

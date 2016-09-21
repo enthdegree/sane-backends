@@ -21,6 +21,7 @@
 #include "epsonds-io.h"
 #include "epsonds-cmd.h"
 #include "epsonds-ops.h"
+#include "epsonds-net.h"
 
 static SANE_Status
 esci2_parse_block(char *buf, int len, void *userdata, SANE_Status (*cb)(void *userdata, char *token, int len))
@@ -132,47 +133,37 @@ static SANE_Status esci2_cmd(epsonds_scanner* s,
 {
 	SANE_Status status;
 	unsigned int more;
-	char rbuf[64];
+	char header[12], rbuf[64];
 
 	DBG(8, "%s: %4s len %lu, payload len: %lu\n", __func__, cmd, len, plen);
 
-	if (len < 12) {
-		DBG(1, "%s: command is too short (%lu)\n", __func__, len);
+	memset(header, 0x00, sizeof(header));
+	memset(rbuf, 0x00, sizeof(rbuf));
+
+	// extra safety check, will not happen
+	if (len != 12) {
+		DBG(1, "%s: command has wrong size (%lu != 12)\n", __func__, len);
 		return SANE_STATUS_INVAL;
 	}
 
-	/* merge the payload size and send the RequestBlock */
-	if (payload && plen) {
+	// merge ParameterBlock size
+	sprintf(header, "%4.4sx%07x", cmd, (unsigned int)plen);
 
-		sprintf(rbuf, "%4.4sx%07x", cmd, (unsigned int)plen);
-
-		DBG(8, " %s (%lu)\n", rbuf, plen);
-
-		eds_send(s, rbuf, 12, &status);
-
-	} else {
-		eds_send(s, cmd, len, &status);
-	}
-
+	// send RequestBlock, request immediate response if there's no payload
+	status = eds_txrx(s, header, len, rbuf, (plen > 0) ? 0 : 64);
 	if (status != SANE_STATUS_GOOD) {
 		return status;
 	}
 
-	/* send ParameterBlock */
-	if (payload && plen) {
+	/* send ParameterBlock, request response */
+	if (plen) {
 
-		eds_send(s, payload, plen, &status);
+		DBG(8, " %12.12s (%lu)\n", header, plen);
+
+		status = eds_txrx(s, payload, plen, rbuf, 64);
 		if (status != SANE_STATUS_GOOD) {
 			return status;
 		}
-	}
-
-	/* receive DataHeaderBlock */
-	memset(rbuf, 0x00, sizeof(rbuf));
-
-	eds_recv(s, rbuf, 64, &status);
-	if (status != SANE_STATUS_GOOD) {
-		return status;
 	}
 
 	/* rxbuf holds the DataHeaderBlock, which should be
@@ -195,6 +186,10 @@ static SANE_Status esci2_cmd(epsonds_scanner* s,
 
 		char *pbuf = malloc(more);
 		if (pbuf) {
+
+			if (s->hw->connection == SANE_EPSONDS_NET) {
+				epsonds_net_request_read(s, more);
+			}
 
 			ssize_t read = eds_recv(s, pbuf, more, &status);
 			if (read != more) {
@@ -853,7 +848,7 @@ esci2_img(struct epsonds_scanner *s, SANE_Int *length)
 		return SANE_STATUS_CANCELLED;
 
 	/* request image data */
-	eds_send(s, "IMG x0000000", 12, &status);
+	eds_send(s, "IMG x0000000", 12, &status, 64);
 	if (status != SANE_STATUS_GOOD) {
 		return status;
 	}
@@ -882,6 +877,10 @@ esci2_img(struct epsonds_scanner *s, SANE_Int *length)
 	}
 
 	/* ALWAYS read image data */
+	if (s->hw->connection == SANE_EPSONDS_NET) {
+		epsonds_net_request_read(s, more);
+	}
+
 	read = eds_recv(s, s->buf, more, &status);
 	if (status != SANE_STATUS_GOOD) {
 		return status;

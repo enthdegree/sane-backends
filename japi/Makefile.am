@@ -8,19 +8,15 @@
 #	Makefile for a Java project with native methods.
 #
 
-V_MAJOR = @V_MAJOR@
-V_MINOR = @V_MINOR@
-V_REV = @V_REV@
-
 JAVAROOT=.
-CLASSPATH_ENV=.
-JAVAH=javah -jni -cp $(CLASSPATH_ENV)
+MY_CLASSPATH=.
+JAVAH=javah -jni -cp $(MY_CLASSPATH)
 
 #	We'll need something in 'configure' for the Java includes.
-AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include \
+AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include \
 	      -I$(top_srcdir)/include -I${JDK_HOME}/include \
 	      -I${JDK_HOME}/include/genunix
-AM_LDFLAGS = @STRICT_LDFLAGS@ -version-number $(V_MAJOR):$(V_MINOR):$(VREV)
+AM_LDFLAGS += $(STRICT_LDFLAGS) -version-number $(V_MAJOR):$(V_MINOR):$(V_REV)
 
 JAVA_SRC = SaneDevice.java SaneOption.java SaneRange.java\
 	   Sane.java SaneParameters.java ScanIt.java \
@@ -31,7 +27,7 @@ dist_noinst_JAVA = $(JAVA_SRC)
 
 LIBSANE = ../backend/libsane.la
 
-EXTRA_DIST = Makefile.in README.JAVA 
+EXTRA_DIST = README.JAVA
 
 lib_LTLIBRARIES = libsanej.la
 

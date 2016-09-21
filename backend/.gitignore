@@ -2,4 +2,3 @@
 *.conf
 dll-preload.c
 dll-preload.h
-.deps

@@ -1,16 +1,15 @@
 dnl
 dnl Contains the following macros
-dnl   SANE_SET_CFLAGS(is_release)
+dnl   SANE_SET_AM_CFLAGS(is_release)
 dnl   SANE_CHECK_MISSING_HEADERS
-dnl   SANE_SET_LDFLAGS
+dnl   SANE_SET_AM_LDFLAGS
 dnl   SANE_CHECK_DLL_LIB
 dnl   SANE_EXTRACT_LDFLAGS(LIBS, LDFLAGS)
 dnl   SANE_CHECK_JPEG
 dnl   SANE_CHECK_IEEE1284
 dnl   SANE_CHECK_PTHREAD
 dnl   SANE_CHECK_LOCKING
-dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
-dnl   SANE_LINKER_RPATH
+dnl   JAPHAR_GREP_AM_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_CHECK_U_TYPES
 dnl   SANE_CHECK_GPHOTO2
 dnl   SANE_CHECK_IPV6
@@ -19,39 +18,38 @@ dnl   SANE_PROTOTYPES
 dnl   AC_PROG_LIBTOOL
 dnl
 
-# SANE_SET_CFLAGS(is_release)
-# Set default CFLAGS if gcc is used.  Enable or disable additional
+# SANE_SET_AM_CFLAGS(is_release)
+# Set default AM_CFLAGS if gcc is used.  Enable/disable additional
 # compilation warnings.  The extra warnings are enabled by default
 # during the development cycle but disabled for official releases.
 # The argument is_release is either yes or no.
-AC_DEFUN([SANE_SET_CFLAGS],
+AC_DEFUN([SANE_SET_AM_CFLAGS],
 [
 if test "${ac_cv_c_compiler_gnu}" = "yes"; then
   DEFAULT_CFLAGS="\
-      -std=c99 \
       -Wall"
   EXTRA_WARNINGS="\
       -Wextra \
       -pedantic"
 
   for flag in $DEFAULT_CFLAGS; do
-    JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+    JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
   done
 
   AC_ARG_ENABLE(warnings,
-    AC_HELP_STRING([--enable-warnings],
+    AS_HELP_STRING([--enable-warnings],
                    [turn on tons of compiler warnings (GCC only)]),
     [
       if eval "test x$enable_warnings = xyes"; then 
         for flag in $EXTRA_WARNINGS; do
-          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+          JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
         done
       fi
     ],
     [if test x$1 = xno; then
        # Warnings enabled by default (development)
        for flag in $EXTRA_WARNINGS; do
-         JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+         JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
        done
     fi])
 fi # ac_cv_c_compiler_gnu
@@ -84,9 +82,9 @@ AC_DEFUN([SANE_CHECK_MISSING_HEADERS],
   fi
 ])
 
-# SANE_SET_LDFLAGS
-# Add special LDFLAGS
-AC_DEFUN([SANE_SET_LDFLAGS],
+# SANE_SET_AM_LDFLAGS
+# Add special AM_LDFLAGS
+AC_DEFUN([SANE_SET_AM_LDFLAGS],
 [
   # Define stricter linking policy on GNU systems.  This is not
   # added to global LDFLAGS because we may want to create convenience
@@ -101,7 +99,7 @@ AC_DEFUN([SANE_SET_LDFLAGS],
   AC_SUBST(STRICT_LDFLAGS)
   case "${host_os}" in  
     aix*) #enable .so libraries, disable archives
-      LDFLAGS="$LDFLAGS -Wl,-brtl"
+      AM_LDFLAGS="$AM_LDFLAGS -Wl,-brtl"
       ;;
     darwin*) #include frameworks
       LIBS="$LIBS -framework CoreFoundation -framework IOKit"
@@ -181,10 +179,10 @@ AC_DEFUN([SANE_CHECK_IEEE1284],
 [
   AC_CHECK_HEADER(ieee1284.h, [
     AC_CACHE_CHECK([for libieee1284 >= 0.1.5], sane_cv_use_libieee1284, [
-      AC_TRY_COMPILE([#include <ieee1284.h>], [
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <ieee1284.h>]], [[
 	struct parport p; char *buf; 
 	ieee1284_nibble_read(&p, 0, buf, 1);
- 	], 
+	]])],
         [sane_cv_use_libieee1284="yes"; IEEE1284_LIBS="-lieee1284"
       ],[sane_cv_use_libieee1284="no"])
     ],)
@@ -214,7 +212,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
   # the user
 
   AC_ARG_ENABLE([pthread],
-    AC_HELP_STRING([--enable-pthread],
+    AS_HELP_STRING([--enable-pthread],
                    [use pthread instead of fork (default=yes for Linux/MacOS X/MINGW, no for everything else)]),
     [
       if test $enableval = yes ; then
@@ -245,7 +243,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
     PTHREAD_LIBS=""
   fi
   if test "$have_pthread" = "yes" ; then
-    CPPFLAGS="${CPPFLAGS} -D_REENTRANT"
+    AM_CPPFLAGS="${AM_CPPFLAGS} -D_REENTRANT"
   fi
   AC_SUBST(PTHREAD_LIBS)
   AC_MSG_CHECKING([whether to enable pthread support])
@@ -319,7 +317,7 @@ AC_DEFUN([SANE_CHECK_LOCKING],
   #
   # we check the user
   AC_ARG_ENABLE( [locking],
-    AC_HELP_STRING([--enable-locking],
+    AS_HELP_STRING([--enable-locking],
                    [activate device locking (default=yes, but only used by some backends)]),
     [
       if test $enableval = yes ; then
@@ -330,7 +328,7 @@ AC_DEFUN([SANE_CHECK_LOCKING],
     ])
   if test $use_locking = yes ; then
     AC_ARG_WITH([group],
-      AC_HELP_STRING([--with-group],
+      AS_HELP_STRING([--with-group],
                      [use the specified group for lock dir @<:@default=uucp@:>@]),
         [LOCKPATH_GROUP="$withval"]
     )
@@ -362,12 +360,12 @@ AC_DEFUN([SANE_CHECK_LOCKING],
 ])
 
 dnl
-dnl JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
+dnl JAPHAR_GREP_AM_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl
 dnl From Japhar.  Report changes to japhar@hungry.com
 dnl
-AC_DEFUN([JAPHAR_GREP_CFLAGS],
-[case "$CFLAGS" in
+AC_DEFUN([JAPHAR_GREP_AM_CFLAGS],
+[case "$AM_CFLAGS" in
 "$1" | "$1 "* | *" $1" | *" $1 "* )
   ifelse($#, 3, [$3], [:])
   ;;
@@ -375,42 +373,6 @@ AC_DEFUN([JAPHAR_GREP_CFLAGS],
   $2
   ;;
 esac
-])
-
-dnl
-dnl SANE_LINKER_RPATH
-dnl
-dnl Detect how to set runtime link path (rpath).  Set variable
-dnl LINKER_RPATH.  Typical content will be '-Wl,-rpath,' or '-R '.  If
-dnl set, add '${LINKER_RPATH}${libdir}' to $LDFLAGS
-dnl
-
-AC_DEFUN([SANE_LINKER_RPATH],
-[dnl AC_REQUIRE([AC_SUBST])dnl This line resulted in an empty AC_SUBST() !!
-  AC_MSG_CHECKING([whether runtime link path should be used])
-  AC_ARG_ENABLE([rpath],
-    [AS_HELP_STRING([--enable-rpath],
-      [use runtime library search path @<:@default=yes@:>@])])
-
-  LINKER_RPATH=
-  AS_IF([test "x$enable_rpath" != xno],
-  AC_MSG_RESULT([yes])
-    [AC_CACHE_CHECK([linker parameter to set runtime link path], my_cv_LINKER_RPATH,
-      [my_cv_LINKER_RPATH=
-      case "$host_os" in
-      linux* | freebsd* | netbsd* | openbsd* | irix*)
-        # I believe this only works with GNU ld [pere 2001-04-16]
-        my_cv_LINKER_RPATH="-Wl,-rpath,"
-        ;;
-      solaris*)
-        my_cv_LINKER_RPATH="-R "
-        ;;
-      esac
-      ])
-      LINKER_RPATH="$my_cv_LINKER_RPATH"],
-    [AC_MSG_RESULT([no])
-      LINKER_RPATH=])
-  AC_SUBST(LINKER_RPATH)dnl
 ])
 
 dnl
@@ -430,7 +392,7 @@ AC_CHECK_TYPES([u_char, u_short, u_int, u_long],,,)
 AC_DEFUN([SANE_CHECK_GPHOTO2],
 [
   AC_ARG_WITH(gphoto2,
-	      AC_HELP_STRING([--with-gphoto2],
+	      AS_HELP_STRING([--with-gphoto2],
 			     [include the gphoto2 backend @<:@default=yes@:>@]),
 	      [# If --with-gphoto2=no or --without-gphoto2, disable backend
                # as "$with_gphoto2" will be set to "no"])
@@ -469,6 +431,10 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
         GPHOTO2_LIBS="" 
       else
         SANE_EXTRACT_LDFLAGS(GPHOTO2_LIBS, GPHOTO2_LDFLAGS)
+        if pkg-config --atleast-version=2.5.0 libgphoto2; then
+          AC_DEFINE([GPLOGFUNC_NO_VARGS], [1],
+                    [Define if GPLogFunc does not take a va_list.])
+        fi
       fi
     fi
   fi
@@ -484,7 +450,7 @@ AC_DEFUN([SANE_CHECK_IPV6],
 [
   AC_MSG_CHECKING([whether to enable IPv6]) 
   AC_ARG_ENABLE(ipv6, 
-    AC_HELP_STRING([--disable-ipv6],[disable IPv6 support]), 
+    AS_HELP_STRING([--disable-ipv6],[disable IPv6 support]),
       [  if test "$enableval" = "no" ; then
          AC_MSG_RESULT([no, manually disabled]) 
          ipv6=no 
@@ -492,16 +458,16 @@ AC_DEFUN([SANE_CHECK_IPV6],
       ])
 
   if test "$ipv6" != "no" ; then
-    AC_TRY_COMPILE([
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	#define INET6 
 	#include <sys/types.h> 
-	#include <sys/socket.h> ], [
+	#include <sys/socket.h> ]], [[
 	 /* AF_INET6 available check */  
  	if (socket(AF_INET6, SOCK_STREAM, 0) < 0) 
    	  exit(1); 
  	else 
    	  exit(0); 
-      ],[
+      ]])],[
         AC_MSG_RESULT(yes) 
         AC_DEFINE([ENABLE_IPV6], 1, [Define to 1 if the system supports IPv6]) 
         ipv6=yes
@@ -513,27 +479,27 @@ AC_DEFUN([SANE_CHECK_IPV6],
 
   if test "$ipv6" != "no" ; then
     AC_MSG_CHECKING([whether struct sockaddr_storage has an ss_family member])
-    AC_TRY_COMPILE([
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	#define INET6
 	#include <sys/types.h>
-	#include <sys/socket.h> ], [
+	#include <sys/socket.h> ]], [[
 	/* test if the ss_family member exists in struct sockaddr_storage */
 	struct sockaddr_storage ss;
 	ss.ss_family = AF_INET;
 	exit (0);
-    ], [
+    ]])], [
 	AC_MSG_RESULT(yes)
 	AC_DEFINE([HAS_SS_FAMILY], 1, [Define to 1 if struct sockaddr_storage has an ss_family member])
     ], [
-		AC_TRY_COMPILE([
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 		#define INET6
 		#include <sys/types.h>
-		#include <sys/socket.h> ], [
+		#include <sys/socket.h> ]], [[
 		/* test if the __ss_family member exists in struct sockaddr_storage */
 		struct sockaddr_storage ss;
 		ss.__ss_family = AF_INET;
 		exit (0);
-	  ], [
+	  ]])], [
 		AC_MSG_RESULT([no, but __ss_family exists])
 		AC_DEFINE([HAS___SS_FAMILY], 1, [Define to 1 if struct sockaddr_storage has __ss_family instead of ss_family])
 	  ], [
@@ -605,7 +571,7 @@ for be in ${BACKENDS}; do
 
     gphoto2)
     if test "${HAVE_GPHOTO2}" != "true" \
-      -o "${sane_cv_use_libjpeg}" != "yes"; then
+      || test "${sane_cv_use_libjpeg}" != "yes"; then
       echo "*** $be backend requires gphoto2 and JPEG libraries - $DISABLE_MSG"
       backend_supported="no"
     fi

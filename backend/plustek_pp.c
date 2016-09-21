@@ -348,13 +348,13 @@ static void sig_chldhandler( int signo )
 
 /** signal handler to kill the child process
  */
-static RETSIGTYPE reader_process_sigterm_handler( int signo )
+static void reader_process_sigterm_handler( int signo )
 {
 	DBG( _DBG_PROC, "reader_process: terminated by signal %d\n", signo );
 	_exit( SANE_STATUS_GOOD );
 }
 
-static RETSIGTYPE sigalarm_handler( int signo )
+static void sigalarm_handler( int signo )
 {
 	_VAR_NOT_USED( signo );
 	DBG( _DBG_PROC, "ALARM!!!\n" );
@@ -471,7 +471,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 
 	scanner->scanning = SANE_FALSE;
 
-	if( scanner->reader_pid != -1 ) {
+	if( sanei_thread_is_valid( scanner->reader_pid )) {
 
 		DBG( _DBG_PROC, ">>>>>>>> killing reader_process <<<<<<<<\n" );
 
@@ -2014,7 +2014,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	s->w_pipe     = fds[1];
 	s->reader_pid = sanei_thread_begin( reader_process, s );
 
-	if( s->reader_pid == -1 ) {
+	if(!sanei_thread_is_valid( s->reader_pid )) {
 		DBG( _DBG_ERROR, "ERROR: could not create child process\n" );
 		s->scanning = SANE_FALSE;
 		s->hw->close( s->hw );

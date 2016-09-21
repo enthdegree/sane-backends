@@ -1,4 +1,4 @@
-/* include/sane/config.h.in.  Generated from configure.in by autoheader.  */
+/* include/sane/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
@@ -11,14 +11,18 @@
 /* Define to 1 if using `alloca.c'. */
 #undef C_ALLOCA
 
-/* Should we disable SCSI generic v3? */
-#undef DISABLE_LINUX_SG_IO
-
 /* Define to 1 if the system supports IPv6 */
 #undef ENABLE_IPV6
 
 /* Define to 1 if device locking should be enabled. */
 #undef ENABLE_LOCKING
+
+/* Define to 1 if translation of program messages to the user's native
+   language is requested. */
+#undef ENABLE_NLS
+
+/* Define if GPLogFunc does not take a va_list. */
+#undef GPLOGFUNC_NO_VARGS
 
 /* Define to 1 if struct sockaddr_storage has an ss_family member */
 #undef HAS_SS_FAMILY
@@ -46,9 +50,6 @@
 /* Define to 1 if you have the `atexit' function. */
 #undef HAVE_ATEXIT
 
-/* Define to 1 if you have the <be/drivers/USB_scanner.h> header file. */
-#undef HAVE_BE_DRIVERS_USB_SCANNER_H
-
 /* Define to 1 if you have the <be/kernel/OS.h> header file. */
 #undef HAVE_BE_KERNEL_OS_H
 
@@ -58,8 +59,20 @@
 /* Define to 1 if you have the <camlib.h> header file. */
 #undef HAVE_CAMLIB_H
 
+/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
+   CoreFoundation framework. */
+#undef HAVE_CFLOCALECOPYCURRENT
+
 /* Define to 1 if you have the `cfmakeraw' function. */
 #undef HAVE_CFMAKERAW
+
+/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
+   the CoreFoundation framework. */
+#undef HAVE_CFPREFERENCESCOPYAPPVALUE
+
+/* Define if the GNU dcgettext() function is already present or preinstalled.
+   */
+#undef HAVE_DCGETTEXT
 
 /* Define to 1 if you have the <ddk/ntddscsi.h> header file. */
 #undef HAVE_DDK_NTDDSCSI_H
@@ -103,6 +116,9 @@
 /* Define to 1 if you have the `getpass' function. */
 #undef HAVE_GETPASS
 
+/* Define if the GNU gettext() function is already present or preinstalled. */
+#undef HAVE_GETTEXT
+
 /* Define to 1 if you have the `getuid' function. */
 #undef HAVE_GETUID
 
@@ -112,8 +128,14 @@
 /* Define to 1 if you have the `gp_port_info_get_path' function. */
 #undef HAVE_GP_PORT_INFO_GET_PATH
 
+/* Define to 1 if you have the <gscdds.h> header file. */
+#undef HAVE_GSCDDS_H
+
 /* Define to 1 if you have the `i386_set_ioperm' function. */
 #undef HAVE_I386_SET_IOPERM
+
+/* Define if you have the iconv() function and it works. */
+#undef HAVE_ICONV
 
 /* Define to 1 if you have the <ifaddrs.h> header file. */
 #undef HAVE_IFADDRS_H
@@ -177,11 +199,11 @@
 /* Define to 1 if you have the net-snmp library. */
 #undef HAVE_LIBSNMP
 
-/* Define to 1 if you have libusb. */
+/* Define to 1 if you have libusb-1.0 */
 #undef HAVE_LIBUSB
 
-/* Define to 1 if you have libusb-1.0. */
-#undef HAVE_LIBUSB_1_0
+/* Define to 1 if you have libusb-0.1 */
+#undef HAVE_LIBUSB_LEGACY
 
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
@@ -251,9 +273,6 @@
 
 /* define if you have the resmgr library */
 #undef HAVE_RESMGR
-
-/* Define to 1 if you have the <scdds.h> header file. */
-#undef HAVE_SCDDS_H
 
 /* Define to 1 if you have the `scsireq_enter' function. */
 #undef HAVE_SCSIREQ_ENTER
@@ -332,9 +351,6 @@
 
 /* Is /usr/include/systemd/sd-daemon.h available? */
 #undef HAVE_SYSTEMD
-
-/* Define to 1 if you have the <sys/bitypes.h> header file. */
-#undef HAVE_SYS_BITYPES_H
 
 /* Define to 1 if you have the <sys/dsreq.h> header file. */
 #undef HAVE_SYS_DSREQ_H
@@ -454,7 +470,7 @@
    */
 #undef LT_OBJDIR
 
-/* Define to the name of the distribution. */
+/* Name of package */
 #undef PACKAGE
 
 /* Define to the address where bug reports for this package should be sent. */
@@ -474,9 +490,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* Define as the return type of signal handlers (`int' or `void'). */
-#undef RETSIGTYPE
 
 /* SANE DLL revision number */
 #undef SANE_DLL_V_BUILD
@@ -544,7 +557,7 @@
 #endif
 
 
-/* Define to the version of the distribution. */
+/* Version number of package */
 #undef VERSION
 
 /* define if Avahi support is enabled for saned and the net backend */
@@ -593,7 +606,7 @@
 /* Define socklen_t as \'int\' if necessary. */
 #undef socklen_t
 
-/* Define to `long' if <sys/types.h> does not define. */
+/* Define to `int' if <sys/types.h> does not define. */
 #undef ssize_t
 
 /* Define for OS/2 only */

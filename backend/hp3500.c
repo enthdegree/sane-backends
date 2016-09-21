@@ -233,6 +233,7 @@ static int reader_process (void *);
 static void calculateDerivedValues (struct hp3500_data *scanner);
 static void do_reset (struct hp3500_data *scanner);
 static void do_cancel (struct hp3500_data *scanner);
+static size_t max_string_size(char const **);
 
 /*
  * used by sane_get_devices
@@ -1064,8 +1065,9 @@ init_options (struct hp3500_data *scanner)
   opt->title = SANE_TITLE_SCAN_MODE;
   opt->desc = SANE_DESC_SCAN_MODE;
   opt->type = SANE_TYPE_STRING;
+  opt->size = max_string_size(scan_mode_list);
   opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  opt->constraint.string_list = scan_mode_list;
+  opt->constraint.string_list = (SANE_String_Const *) scan_mode_list;
   opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
   opt = scanner->opt + OPT_BRIGHTNESS;
@@ -3500,3 +3502,20 @@ reader_process (void *pv)
   close (scanner->pipe_w);
   return status;
 }
+
+static size_t
+max_string_size (char const **strings)
+{
+  size_t size, max_size = 0;
+  SANE_Int i;
+
+  for (i = 0; strings[i]; ++i)
+    {
+      size = strlen (strings[i]) + 1;
+      if (size > max_size)
+	max_size = size;
+    }
+  return max_size;
+}
+
+

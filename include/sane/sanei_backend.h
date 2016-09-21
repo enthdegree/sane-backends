@@ -9,20 +9,6 @@
  */
 
 
-/*
- * Compiler related options
- */
-
-/** Mark unused variables/parameters
- *
- * Tells the compiler a variable is unused, so the compiler doesn't spit a warning. 
- */
-#ifdef __GNUC__
-#define __sane_unused__ __attribute__((unused))
-#else
-#define __sane_unused__
-#endif
-
 /** @name Compatibility macros
  * @{
  */

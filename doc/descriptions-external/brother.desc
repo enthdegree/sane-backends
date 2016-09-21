@@ -202,12 +202,6 @@
 :usbid "0x04f9" "0x0157"
 :comment "No report yet."
 
-:model "MFC-3820CN"
-:status :untested
-:interface "USB network"
-:usbid "0x04f9" "0x014b"
-:comment "No report yet."
-
 :model "MFC-3820J"
 :status :untested
 :interface "USB"
@@ -217,7 +211,7 @@
 :model "MFC-3820CN"
 :status :good
 :interface "USB network"
-;:usbid "0x04f9" "0x014b"
+:usbid "0x04f9" "0x014b"
 :comment "Network connection is reported to work."
 
 :model "MFC-4420C"

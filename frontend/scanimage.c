@@ -322,7 +322,7 @@ auth_callback (SANE_String_Const resource,
     }
 }
 
-static RETSIGTYPE
+static void
 sighandler (int signum)
 {
   static SANE_Bool first_time = SANE_TRUE;
@@ -2474,9 +2474,16 @@ List of available devices:", prog_name);
         ofp = stdout;
 
       if (batch)
-	fprintf (stderr,
-		 "Scanning %d pages, incrementing by %d, numbering from %d\n",
-		 batch_count, batch_increment, batch_start_at);
+	{
+	  fputs("Scanning ", stderr);
+	  if (batch_count == BATCH_COUNT_UNLIMITED)
+	    fputs("infinity", stderr);
+	  else
+	    fprintf(stderr, "%d", batch_count);
+	  fprintf (stderr,
+		   " page%s, incrementing by %d, numbering from %d\n",
+		   batch_count == 1 ? "" : "s", batch_increment, batch_start_at);
+	}
 
       else if(isatty(fileno(ofp))){
 	fprintf (stderr,"%s: output is not a file, exiting\n", prog_name);
@@ -2509,8 +2516,6 @@ List of available devices:", prog_name);
 
 		  if (readbuf2 == NULL)
 		    {
-		      fprintf (stderr, "Batch terminated, %d pages scanned\n",
-			       (n - batch_increment));
 		      if (ofp)
 			{
 			  fclose (ofp);
@@ -2611,6 +2616,13 @@ List of available devices:", prog_name);
       while ((batch
 	      && (batch_count == BATCH_COUNT_UNLIMITED || --batch_count))
 	     && SANE_STATUS_GOOD == status);
+
+      if (batch)
+	{
+	  int num_pgs = (n - batch_start_at) / batch_increment;
+	  fprintf (stderr, "Batch terminated, %d page%s scanned\n",
+		   num_pgs, num_pgs == 1 ? "" : "s");
+	}
 
       if (batch
 	  && SANE_STATUS_NO_DOCS == status

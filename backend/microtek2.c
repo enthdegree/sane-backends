@@ -1985,7 +1985,7 @@ parse_config_file(FILE *fp, Config_Temp **ct)
 
 /*---------- signal_handler() ------------------------------------------------*/
 
-static RETSIGTYPE
+static void
 signal_handler (int signal)
 {
   if ( signal == SIGTERM )

@@ -1,78 +1,75 @@
-dnl Process this file with autoconf to produce a configure script. -*-m4-*-
+dnl Process this file with autoconf to produce a configure script.
 
-dnl ***********************************************************************
-dnl When preparing a release, increase the numeric and string version numbers,
-dnl remove the "cvs" suffix, and set is_release=yes
-AC_INIT([sane-backends],[1.0.26git],[sane-devel@lists.alioth.debian.org])
-V_MAJOR=1
-V_MINOR=0
-V_REV=26
-is_release=no
-dnl ***********************************************************************
+dnl ******************************************************************
+dnl  Set up autoconf and automake
+dnl  When preparing a release, modify the numeric version components
+dnl  and remove the git suffix.
+dnl ******************************************************************
+AC_INIT([sane-backends],[1.0.26git],
+        [sane-devel@lists.alioth.debian.org])
+AC_PREREQ(2.69)                 dnl minimum autoconf version required
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_HEADERS([include/sane/config.h])
 
-m4_ifdef([AC_CONFIG_MACRO_DIR], [AC_CONFIG_MACRO_DIR([m4])])
-
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([1.11.6 subdir-objects -Wall])
+AM_SILENT_RULES
 dnl Turn off feature were automake will automatically run autoreconf.
-dnl This is because we check in generated files into CVS which has
-dnl known timestamp issues.
+dnl This is because we used to check in generated files into CVS which
+dnl has known timestamp issues.
 AM_MAINTAINER_MODE
 
-AC_CONFIG_HEADERS([include/sane/config.h])
-AC_PREREQ(2.54) dnl Minimum Autoconf version required.
+dnl ******************************************************************
+dnl  Determine SANE version components and release status
+dnl ******************************************************************
+AS_IF([test x = "x$AWK"],[AC_PROG_AWK])
+AS_IF([test x = "x`echo $VERSION | sed 's/[[.0-9]]//g'`"],
+            [is_release=yes],
+            [is_release=no])
+V_MAJOR=`echo $VERSION | $AWK -F. '{print $1}'`
+V_MINOR=`echo $VERSION | $AWK -F. '{print $2}'`
+V_REV=`echo $VERSION | $AWK -F. '{print $3}' | sed 's/[[^0-9]]//g'`;
 
-PACKAGE=AC_PACKAGE_NAME
-VERSION=AC_PACKAGE_VERSION
-NUMBER_VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}
-AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE",
-                   [Define to the name of the distribution.])
-AC_DEFINE_UNQUOTED(VERSION, "$VERSION",
-                   [Define to the version of the distribution.])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MAJOR, $V_MAJOR, [SANE DLL major number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MINOR, $V_MINOR, [SANE DLL minor number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_BUILD, $V_REV, [SANE DLL revision number])
 AC_SUBST(V_MAJOR)
 AC_SUBST(V_MINOR)
 AC_SUBST(V_REV)
-AC_SUBST(PACKAGE)
-AC_SUBST(VERSION)
-AC_SUBST(NUMBER_VERSION)
-AC_CANONICAL_BUILD
-AC_CANONICAL_HOST 
 
-dnl no bloody way to have a decent --docdir...
-AC_ARG_WITH(docdir, 
-  AC_HELP_STRING([--with-docdir=DIR],
-                 [documentation @<:@PREFIX/doc/sane-VERSION@:>@]),
-[
-  docdir="${withval}"
-  AC_SUBST([docdir])dnl
-], [
-  AC_SUBST([docdir],         ['${prefix}/doc/sane-${VERSION}'])dnl
-])
+dnl ******************************************************************
+dnl  Set up the compiler and linker
+dnl ******************************************************************
+AC_PROG_CC
+AM_PROG_CC_C_O
+sane_save_CC=$CC
+AC_PROG_CC_C99                  dnl enables extensions to ISO C99 :-(
+AS_IF([test xno != "x$ac_cv_prog_cc_c99"],
+      [AC_MSG_CHECKING([for $sane_save_CC option for ISO C99 w/o extensions])
+       AS_CASE([$ac_cv_prog_cc_c99],
+               [-std=gnu99],      [sane_prog_cc_c99="-std=c99"],
+               [-qlanglvl=extc99],[sane_prog_cc_c99="-qlanglvl=stdc99"])
+       AS_IF([test "x$ac_cv_prog_cc_c99" = "x$sane_prog_cc_c99"],
+             [AC_MSG_RESULT([$ac_cv_prog_cc_99])],
+             [AC_MSG_RESULT([$sane_prog_cc_c99])
+              CC="$sane_save_CC $sane_prog_cc_c99"])
+      ])
+AC_PROG_GCC_TRADITIONAL
+AC_USE_SYSTEM_EXTENSIONS        dnl call before running the C compiler
+
+AM_PROG_AR
+LT_INIT([disable-static win32-dll])
+LT_PREREQ([2.4.2])
+
+dnl *****************************************************************
+dnl  Set up I18N/L10N support
+dnl *****************************************************************
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.18.1])
 
 dnl ***********************************************************************
 dnl Checks for programs.
 dnl ***********************************************************************
-AC_PROG_CC
-AM_PROG_CC_C_O
-AC_PROG_INSTALL
-AC_PROG_MAKE_SET
-AC_PROG_CPP
-AC_PROG_GCC_TRADITIONAL
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
-AC_PATH_PROG(MSGFMT, msgfmt$EXEEXT, no)
-AC_PATH_PROG(XGETTEXT, xgettext$EXEEXT, no)
-AC_PATH_PROG(MSGMERGE, msgmerge$EXEEXT, no)
-AC_PATH_PROG(LATEX, latex$EXEEXT, no)
-AC_PATH_PROG(DVIPS, dvips$EXEEXT, no)
-AC_PATH_PROG(MAKEINDEX, makeindex$EXEEXT, no)
-AC_SUBST(MSGFMT)
-AC_SUBST(XGETTEXT)
-AC_SUBST(MSGMERGE)
-AC_SUBST(LATEX)
-AC_SUBST(DVIPS)
-AC_SUBST(MAKEINDEX)
 
 dnl Call explicitely before using PKG_*
 PKG_PROG_PKG_CONFIG
@@ -82,18 +79,13 @@ AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 dnl ***********************************************************************
 dnl set compiler/linker flags
 dnl ***********************************************************************
-SANE_SET_CFLAGS([$is_release])
-SANE_SET_LDFLAGS
-SANE_LINKER_RPATH
+SANE_SET_AM_CFLAGS([$is_release])
+SANE_SET_AM_LDFLAGS
 
 dnl ***********************************************************************
 dnl Checks for unix variants
 dnl ***********************************************************************
-m4_ifdef([AC_USE_SYSTEM_EXTENSIONS], [AC_USE_SYSTEM_EXTENSIONS])
-m4_ifndef([AC_USE_SYSTEM_EXTENSIONS],[AC_GNU_SOURCE])
-m4_ifndef([AC_USE_SYSTEM_EXTENSIONS],[AC_AIX])
-m4_ifndef([AC_USE_SYSTEM_EXTENSIONS],[AC_MINIX])
-AC_ISC_POSIX
+AC_SEARCH_LIBS([strerror],[cposix])
 
 AC_NEED_BYTEORDER_H([include/byteorder.h])
 AX_CREATE_STDINT_H([include/_stdint.h])
@@ -102,7 +94,7 @@ dnl ***********************************************************************
 dnl Checks for libraries
 dnl ***********************************************************************
 AC_ARG_ENABLE(dynamic,
-	AC_HELP_STRING([--disable-dynamic],
+	AS_HELP_STRING([--disable-dynamic],
 		       [Disable dynamic loading of backends]),
 	[enable_dynamic=$enableval], [enable_dynamic=auto])
 SANE_CHECK_DLL_LIB
@@ -129,7 +121,7 @@ SANE_CHECK_GPHOTO2
 
 
 AC_ARG_WITH(v4l,
-	    AC_HELP_STRING([--with-v4l],
+	    AS_HELP_STRING([--with-v4l],
 			   [include the v4l backend @<:@default=yes@:>@]),
 	    [# If --with-v4l=no or --without-v4l, disable backend
              # as "$with_v4l" will be set to "no"])
@@ -139,7 +131,7 @@ if test "$with_v4l" != "no" ; then
 fi
 
 AC_ARG_ENABLE(avahi,
-	AC_HELP_STRING([--enable-avahi], [enable Avahi support for saned and the net backend]),
+	AS_HELP_STRING([--enable-avahi], [enable Avahi support for saned and the net backend]),
 	[enable_avahi=$enableval], [enable_avahi=no])
 
 if test "$enable_avahi" = "yes"; then
@@ -156,7 +148,7 @@ dnl SNMP CHECKS
 dnl **************************************************************
 
 AC_ARG_WITH(snmp,
-	AC_HELP_STRING([--with-snmp], [enable SNMP support @<:@default=yes@:>@]))
+	AS_HELP_STRING([--with-snmp], [enable SNMP support @<:@default=yes@:>@]))
 
 if test "$with_snmp" = "no"; then
 	echo "Not including SNMP support"
@@ -183,12 +175,12 @@ else
 	fi
 fi
 
-if test "$with_snmp" = "yes" -a "${LIBSNMP_EXISTS}x" = "yesx"; then
+if test "$with_snmp" = "yes" && test "${LIBSNMP_EXISTS}x" = "yesx"; then
 	AC_SUBST(SNMP_LIBS)
 	AC_SUBST(SNMP_CFLAGS)
 	AC_DEFINE(HAVE_LIBSNMP, 1, [Define to 1 if you have the net-snmp library.])
 else
-	AC_MSG_WARN([*** Warning: net-snmp library disabled, autodetecting network scanners will not be supported.])
+	AC_MSG_WARN([net-snmp library disabled, autodetecting network scanners will not be supported.])
 fi
 
 
@@ -202,7 +194,7 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/time.h sys/shm.h sys/ipc.h sys/signal.h sys/scanio.h os2.h \
     sys/socket.h sys/io.h sys/hw.h sys/types.h linux/ppdev.h \
-    dev/ppbus/ppi.h machine/cpufunc.h sys/bitypes.h sys/sem.h sys/poll.h \
+    dev/ppbus/ppi.h machine/cpufunc.h sys/sem.h sys/poll.h \
     windows.h be/kernel/OS.h limits.h sys/ioctl.h asm/types.h\
     netinet/in.h tiffio.h ifaddrs.h pwd.h getopt.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
@@ -225,33 +217,33 @@ AC_SUBST(RESMGR_LIBS)
 dnl ***********************************************************************
 dnl Checks for types and structures
 dnl ***********************************************************************
-AC_TYPE_SIGNAL
+
 AC_TYPE_SIZE_T
 AC_TYPE_PID_T
-AC_CHECK_TYPE(ssize_t, long)
+AC_TYPE_SSIZE_T
 SANE_CHECK_U_TYPES
 
 # from Python, check for "long long" type
 AC_MSG_CHECKING(for long long support)
 have_long_long=no
-AC_TRY_COMPILE([], [long long x; x = (long long)0;], AC_DEFINE(HAVE_LONG_LONG, 1, [Define if the long long type is available.]) have_long_long=yes)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[long long x; x = (long long)0;]])],[AC_DEFINE(HAVE_LONG_LONG, 1, Define if the long long type is available.) have_long_long=yes],[])
 AC_MSG_RESULT($have_long_long)
 
 AC_MSG_CHECKING([for socklen_t in <sys/socket.h>])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/socket.h>
-],[socklen_t len],AC_MSG_RESULT(yes),
+]], [[socklen_t len]])],AC_MSG_RESULT(yes),
 [AC_MSG_RESULT(no); AC_DEFINE(socklen_t,int,
 [Define socklen_t as \'int\' if necessary.])])
 
 AC_MSG_CHECKING([for union semun in <sys/sem.h>])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
-],[union semun test_semun],[AC_MSG_RESULT(yes);
+]], [[union semun test_semun]])],[AC_MSG_RESULT(yes);
 AC_DEFINE(HAVE_UNION_SEMUN,1,[Define if union semun is available.])],
-AC_MSG_RESULT(no))
+[AC_MSG_RESULT(no)])
 
 AC_MSG_CHECKING([for struct flock in fcntl.h])
 AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
@@ -259,12 +251,12 @@ AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
                 [Define if struct flock is available.])], AC_MSG_RESULT(no))
 
 AC_MSG_CHECKING([for Linux ioctl defines])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/ioctl.h>
 #include <asm/types.h>
-],[
+]],[[
 __u32 houba = _IOR('v',14, unsigned long);
-],[AC_MSG_RESULT(yes);
+]])],[AC_MSG_RESULT(yes);
 have_linux_ioctl_defines="yes";],AC_MSG_RESULT(no))
 
 dnl ***********************************************************************
@@ -277,6 +269,16 @@ AC_C_INLINE
 dnl ***********************************************************************
 dnl Checks for library functions
 dnl ***********************************************************************
+
+dnl Functions for which we provide an implementation if missing
+AC_CONFIG_LIBOBJ_DIR([lib])
+AC_FUNC_ALLOCA
+AC_REPLACE_FUNCS([getenv inet_ntop inet_pton isfdtype sigprocmask \
+    sleep snprintf strcasestr strdup strndup strsep syslog usleep \
+    vsyslog])
+AS_IF([test x != x$ALLOCA],
+      [LTALLOCA=`echo "$ALLOCA" | sed 's/\.o$//; s/\.obj$//'`.lo])
+AC_SUBST(LTALLOCA)
 
 dnl Define SOCKET_LIB, NSL_LIB, BIND_LIB, and RESOLV_LIB  when required 
 dnl for functions we use.
@@ -295,7 +297,6 @@ dnl SOCKET_LIBS so set LIBS temporarily.
 save_LIBS="$LIBS"
 LIBS="$LIBS $SOCKET_LIBS"
 AC_CHECK_FUNCS(inet_addr inet_aton inet_ntoa)
-AC_REPLACE_FUNCS(inet_ntop inet_pton)
 LIBS="$save_LIBS"
 
 if test "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
@@ -304,14 +305,11 @@ if test "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
     ac_cv_func_getnameinfo=no
 fi
 
-AC_FUNC_ALLOCA
 AC_FUNC_MMAP
 AC_CHECK_FUNCS(atexit ioperm i386_set_ioperm \
     mkdir strftime strstr strtod  \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess \
     getaddrinfo getnameinfo poll setitimer iopl getuid getpass)
-AC_REPLACE_FUNCS(getenv isfdtype sigprocmask snprintf \
-    strcasestr strdup strndup strsep usleep sleep syslog vsyslog)
 
 dnl sys/io.h might provide ioperm but not inb,outb (like for
 dnl non i386/x32/x86_64 with musl libc)
@@ -343,6 +341,12 @@ if test "$ac_cv_header_getopt_h" = "yes" ; then
   AC_CHECK_FUNCS(getopt_long)
 fi
 
+# Slightly abuse the AC_LIBOBJ macro to mark files as replacement code
+AS_IF([test x$ac_cv_header_getopt_h != xyes \
+       && test x$ac_cv_func_getopt_long != xyes],
+      [AC_LIBOBJ(getopt)
+       AC_LIBOBJ(getopt1)])
+
 dnl ***********************************************************************
 dnl checks for system services
 dnl ***********************************************************************
@@ -350,20 +354,8 @@ if test -c /dev/urandom ; then
     AC_DEFINE(HAVE_DEV_URANDOM, 1, [Is /dev/urandom available?])
 fi
 
-dnl added by PN 3/2/12 to detect cups commented out 15/10/13 since avahi is now used instead
-dnl $as_echo "checking for cups"
-dnl if test -e /usr/include/cups/cups.h ; then
-dnl     AC_DEFINE(HAVE_CUPS, 1, [Is /usr/include/cups/cups.h available?])
-dnl 	with_cups="yes"
-dnl 	LIBS="-lcups  $LIBS"
-dnl else
-dnl 	$as_echo "cups.h not found, you may want to install a cups development package"
-dnl 	$as_echo "in order to autodetect network scanners in kodakaio."
-dnl 	with_cups="no"
-dnl fi
-
 AC_ARG_WITH(systemd,
-	AC_HELP_STRING([--with-systemd], [enable systemd support @<:@default=yes@:>@]))
+	AS_HELP_STRING([--with-systemd], [enable systemd support @<:@default=yes@:>@]))
 if test "x$with_systemd" != xno ; then
   PKG_CHECK_MODULES(SYSTEMD, [libsystemd], have_systemd=yes, have_systemd=no)
   if test "x$have_systemd" = xno; then
@@ -371,7 +363,6 @@ if test "x$with_systemd" != xno ; then
   fi
   if test "x$have_systemd" = xyes; then
     AC_DEFINE(HAVE_SYSTEMD, 1, [Is /usr/include/systemd/sd-daemon.h available?])
-    AC_SUBST(SYSTEMD_LIBS)
   else
     if test "x$with_systemd" = xyes; then
       AC_MSG_ERROR([Systemd support was requested but systemd was not found])
@@ -379,85 +370,63 @@ if test "x$with_systemd" != xno ; then
   fi
 fi
 
-dnl ***********
-dnl USB Support
-dnl ***********
+dnl ******************************************************************
+dnl Check for USB support
+dnl ******************************************************************
 
-dnl Enable libusb-1.0, if available
-AC_ARG_ENABLE(libusb_1_0,
-	AC_HELP_STRING([--enable-libusb_1_0], [enable libusb-1.0 support if available]),
-	[enable_libusb_1_0=$enableval], [enable_libusb_1_0=no])
-
-dnl USB support enabled by default (if found).  Note: Overloading libusb
-dnl option right now to disable USB support on any platform; even
-dnl if they use a different library name.
-AC_ARG_ENABLE(libusb, 
-    AC_HELP_STRING([--disable-libusb], [disable support for USB in SANE]),,
-    enable_libusb=auto)
-HAVE_USB=no
-if test "$enable_libusb" != "no"; then
-  case ${host_os} in
-  beos*)
-  AC_CHECK_HEADERS(be/drivers/USB_scanner.h, HAVE_USB=yes, AC_MSG_ERROR([USB_scanner.h is required on BeOS]))
-  ;;
-  os2*)
-  AC_CHECK_HEADER(usbcalls.h,
-		  AC_CHECK_LIB(usbcall, UsbQueryNumberDevices, 
-       			       [USB_LIBS="$USB_LIBS -lusbcall"
-				HAVE_USB=yes]),,[#include <usb.h> 
-#include <os2.h>
-])
-  ;;
-  *)
-  dnl If libusb-1.0 is enabled and available, prefer that to the old libusb
-  have_libusb_1_0=no
-  if test "$enable_libusb_1_0" = "yes"; then
-    PKG_CHECK_MODULES(LIBUSB_1_0, [ libusb-1.0 >= 1.0.0 ], have_libusb_1_0=yes, have_libusb_1_0=no)
-    if test "$have_libusb_1_0" = "yes"; then
-      CFLAGS="$CFLAGS $LIBUSB_1_0_CFLAGS"
-      USB_LIBS="$USB_LIBS $LIBUSB_1_0_LIBS"
-      HAVE_USB=yes
-    fi
-  fi
-
-  if test "$have_libusb_1_0" = "no"; then
-    dnl Fallback to the old libusb
-    dnl libusb >= 0.1.8 is required, as we need usb_interrupt_read()
-    AC_CHECK_HEADER(usb.h,
-                    AC_CHECK_LIB(usb, usb_interrupt_read,
-                                 [USB_LIBS="$USB_LIBS -lusb"
-                                  HAVE_USB=yes]))
-    AC_CHECK_HEADERS(lusb0_usb.h,
-		     AC_CHECK_LIB(usb, usb_interrupt_read,
-				  [USB_LIBS="$USB_LIBS -lusb"
-				   HAVE_USB=yes]))
-  fi
-  ;;
-  esac
-fi
-dnl The following logic is useful for distributions.  If they force
-dnl USB support with --enable-libusb=yes then configure will fail
-dnl when its detected that it can not be supported.  Default is
-dnl "auto" which means only enable if libraries are found and do
-dnl not error out.
-if test "$enable_libusb" = "yes" && test "$HAVE_USB" = "no"; then
-  AC_MSG_ERROR([USB support requested but required libraries not found.])
-fi
-if test "$HAVE_USB" = "yes"; then
-  case ${host_os} in
-  os2*)
-  AC_DEFINE(HAVE_USBCALLS, 1, [Define to 1 if you have usbcall.dll.])
-  ;;
-  *)
-  if test "$have_libusb_1_0" = "yes"; then
-    AC_DEFINE(HAVE_LIBUSB_1_0, 1, [Define to 1 if you have libusb-1.0.])
-  else
-    AC_DEFINE(HAVE_LIBUSB, 1, [Define to 1 if you have libusb.])
-  fi
-  ;;
-  esac
-fi
-AC_SUBST(USB_LIBS)
+AC_ARG_WITH(usb,
+  AS_HELP_STRING([--with-usb], [enable USB support @<:@default=check@:>@]),
+  [],
+  [with_usb=check])
+AS_IF([test xno != "x$with_usb"],
+  [have_usb=no
+   AS_CASE(x$host_os,           dnl odd-ball operating systems first
+    [beos*],
+      [AC_CHECK_HEADER(be/drivers/USB_scanner.h, [have_usb=yes])],
+    [os2*],
+      [AC_CHECK_HEADER(usbcalls.h,
+        [AC_CHECK_LIB(usbcall, UsbQueryNumberDevices,
+          [USB_LIBS="-lusbcall"
+           have_usb=yes
+           AC_DEFINE(HAVE_USBCALLS, [1],
+             [Define to 1 if you have usbcall.dll.])
+          ])
+        ],
+        [],
+        [#include <usb.h>
+         #include <os2.h>
+        ])
+      ],
+    [dnl default to libusb-1.x, fall back to libusb-0.x if missing
+     PKG_CHECK_MODULES([USB], [libusb-1.0],
+      [AC_DEFINE([HAVE_LIBUSB], [1],
+        [Define to 1 if you have libusb-1.0])
+       have_usb=yes
+      ],
+      [PKG_CHECK_MODULES([USB], [libusb >= 0.1.8],
+        [AC_DEFINE([HAVE_LIBUSB_LEGACY], [1],
+          [Define to 1 if you have libusb-0.1])
+         have_usb=yes
+        ],
+        [dnl 10+ years old libusb or Windows version
+         AC_CHECK_HEADER(usb.h,
+          AC_CHECK_LIB(usb, usb_interrupt_read,
+            [USB_LIBS="-lusb"
+             have_usb=yes
+            ]))
+         AC_CHECK_HEADERS(lusb0_usb.h,
+           AC_CHECK_LIB(usb, usb_interrupt_read,
+             [USB_LIBS="-lusb"
+              have_usb=yes
+             ]))
+        ])
+      ])
+    ])
+  ])
+AS_IF([test xyes = "x$with_usb" && test xyes != "x$have_usb"],
+  [AC_MSG_ERROR([USB support requested but required libraries not found.])
+  ])
+dnl AM_CONDITIONAL([have_usb], [test x != "x$USB_LIBS])
 
 dnl ************
 dnl SCSI Support
@@ -475,7 +444,7 @@ AC_CHECK_HEADERS(IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
   IOKit/scsi/SCSICommandOperationCodes.h \
   IOKit/scsi-commands/SCSICommandOperationCodes.h scsi.h sys/scsi.h \
   sys/scsicmd.h sys/scsiio.h bsd/dev/scsireg.h scsi/sg.h \
-  camlib.h scdds.h sys/scsi/scsi.h sys/scsi/sgdefs.h \
+  camlib.h gscdds.h sys/scsi/scsi.h sys/scsi/sgdefs.h \
   sys/scsi/targets/scgio.h apollo/scsi.h sys/sdi_comm.h \
   sys/passthrudef.h)
 
@@ -488,16 +457,15 @@ AC_CHECK_HEADERS([ntddscsi.h ddk/ntddscsi.h],,,[#include <windows.h>])
 
 dnl FreeBSD < 3
 if test "$ac_cv_header_sys_scsiio_h" = "yes" \
-  -a "$ac_cv_header_scsi_h" = "yes"; then
+  && "$ac_cv_header_scsi_h" = "yes"; then
   AC_MSG_CHECKING([if 'scsireq_t' needs to be defined as 'struct scsireq'])
-  AC_TRY_COMPILE([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/scsiio.h>
 #include <scsi.h>
-],[scsireq_t req],,
+]], [[scsireq_t req]])],,
    [AC_MSG_RESULT(yes);
     AC_DEFINE(scsireq_t, struct scsireq_t,
-    	      [Define scsireq_t as \'struct scsireq\' if necessary.])],
-	      AC_MSG_RESULT(no))
+	      [Define scsireq_t as \'struct scsireq\' if necessary.])])
 fi
 AC_CHECK_LIB(scsi, scsireq_enter, SCSI_LIBS="-lscsi") # FreeBSD needs this
 
@@ -508,14 +476,14 @@ AC_CHECK_FUNCS(scsireq_enter)
 
 if test "$ac_cv_header_scsi_sg_h" = "yes"; then
   AC_MSG_CHECKING([for sg_header.target_status in <scsi/sg.h>])
-  AC_TRY_COMPILE([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <scsi/sg.h>
-],[
+]],[[
 struct sg_header hdr;
 hdr.target_status = 1;
 return 0;
-],[AC_MSG_RESULT(yes);
+]])],[AC_MSG_RESULT(yes);
    AC_DEFINE(HAVE_SG_TARGET_STATUS,1,
 	     [Define if sg_header.target_status is available.])],
 	     AC_MSG_RESULT(no))
@@ -523,28 +491,23 @@ fi
 
 if test "$ac_cv_header_IOKit_scsi_SCSITaskLib_h" = "yes"; then
   AC_MSG_CHECKING([for SCSITaskSGElement in IOKit/scsi/SCSITaskLib.h])
-  AC_TRY_COMPILE([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #undef VERSION
 #include <IOKit/scsi/SCSITaskLib.h>
-],[
+]],[[
 SCSITaskSGElement range;
 return 0;
-],[AC_MSG_RESULT(yes);
+]])],[AC_MSG_RESULT(yes);
   AC_DEFINE(HAVE_SCSITASKSGELEMENT, 1,
 	    [Define if SCSITaskSGElement is available.])],
   AC_MSG_RESULT(no))
-fi
-
-dnl disable Linux SCSI generic version 3 to avoid 32/64 bit problems
-if sparc64 -q > /dev/null 2>&1 ; then
-  AC_DEFINE(DISABLE_LINUX_SG_IO, 1, [Should we disable SCSI generic v3?])
 fi
 
 # Multiple platforms can set SCSI_LIBS so do substitution at end.
 AC_SUBST(SCSI_LIBS)
 
 AC_ARG_ENABLE(scsibuffersize, 
-  AC_HELP_STRING([--enable-scsibuffersize=N],
+  AS_HELP_STRING([--enable-scsibuffersize=N],
                  [specify the default size in bytes of the buffer for SCSI
                   commands @<:@default=131072@:>@]),
   [set_scsibuffersize="$enableval"], [set_scsibuffersize=131072])
@@ -556,12 +519,12 @@ dnl only printed when used.
 echo "scsi buffersize: $set_scsibuffersize"
 
 AC_ARG_ENABLE(scsi-directio,
-  AC_HELP_STRING([--enable-scsi-directio],
+  AS_HELP_STRING([--enable-scsi-directio],
                  [enable SCSI direct IO (Linux only, dangerous, see
                   README.linux)]),
   [
     if eval "test x$enable_scsi_directio = xyes"; then
-      CFLAGS="$CFLAGS -DENABLE_SCSI_DIRECTIO"
+      AM_CFLAGS="$AM_CFLAGS -DENABLE_SCSI_DIRECTIO"
     fi
   ])
 
@@ -581,23 +544,19 @@ dnl ***********************************************************************
 dnl initialize libtool
 dnl ***********************************************************************
 AC_ARG_ENABLE(preload,
-	AC_HELP_STRING([--disable-preload],
+	AS_HELP_STRING([--disable-preload],
 		       [Disable preloading of backends]),
 	[enable_preload=$enableval], [enable_preload=auto])
-
-AC_LIBTOOL_WIN32_DLL
-AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
 
 dnl Windows (cygwin/mingw), BeOS, and OS/2 need this.
 case $host_os in
   cygwin* | mingw* | beos* | os2*)
-  LDFLAGS="$LDFLAGS -no-undefined"
+  AM_LDFLAGS="$AM_LDFLAGS -no-undefined"
 esac
 
 dnl Check for lock dir
 
-AC_ARG_WITH(lockdir, AC_HELP_STRING([--with-lockdir=DIR],
+AC_ARG_WITH(lockdir, AS_HELP_STRING([--with-lockdir=DIR],
                                     [set SANE lockdir @<:@localstatedir/lock/sane@:>@]),
                                     [locksanedir=$withval],[locksanedir=${localstatedir}/lock/sane])
 AC_SUBST(locksanedir)
@@ -610,7 +569,7 @@ dnl enable/disable backends and features based on previous tests and user's
 dnl choice
 dnl ***********************************************************************
 
-CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
+AM_CPPFLAGS="${AM_CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
 	  -DPATH_SANE_DATA_DIR=\$(datadir) \
 	  -DPATH_SANE_LOCK_DIR=\$(locksanedir) \
 	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
@@ -626,7 +585,7 @@ AM_CONDITIONAL(COMPILE_SANED, test x$SANED = xsaned)
 dnl These are the backends that are build in any case:
 
 AC_ARG_ENABLE(local-backends,
-  AC_HELP_STRING([--disable-local-backends],
+  AS_HELP_STRING([--disable-local-backends],
                  [turn off compilation of all backends but net]))
 
 ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
@@ -662,9 +621,6 @@ fi
 
 SANE_CHECK_BACKENDS
 
-AC_SUBST(LIBV4L_LIBS)
-AC_SUBST(LIBV4L_CFLAGS)
-
 if test "${sane_cv_use_libjpeg}" = "yes"; then
   SANEI_SANEI_JPEG_LO="../sanei/sanei_jpeg.lo"
 fi
@@ -672,7 +628,7 @@ AM_CONDITIONAL(HAVE_JPEG, test x$sane_cv_use_libjpeg = xyes)
 AC_SUBST(SANEI_SANEI_JPEG_LO)
 
 AC_ARG_ENABLE(pnm-backend, 
-  AC_HELP_STRING([--enable-pnm-backend],
+  AS_HELP_STRING([--enable-pnm-backend],
                  [enable the pnm backend for testing frontends (possible security risk, see PROBLEMS file)]),
                  [FILTERED_BACKENDS="${FILTERED_BACKENDS} pnm"],
                  [echo "*** pnm backend not manually selected - disabling"])
@@ -757,57 +713,74 @@ case $host_os in
 esac
 
 AC_ARG_ENABLE(parport-directio,
-  AC_HELP_STRING([--enable-parport-directio],
+  AS_HELP_STRING([--enable-parport-directio],
                  [enable direct hardware access to the parallel port, so 
                   frontends will require special permission level]),
   [
     if eval "test x$enable_parport_directio = xyes"; then
-      CFLAGS="$CFLAGS -DENABLE_PARPORT_DIRECTIO"
+      AM_CFLAGS="$AM_CFLAGS -DENABLE_PARPORT_DIRECTIO"
     fi
   ])
 
-AC_ARG_ENABLE(translations,
-  AC_HELP_STRING([--disable-translations],
-                 [don't install translations of backend options]),,
-		 enable_translations=yes)
-if eval "test x$enable_translations = xyes" ; then
-  if test x$MSGFMT = xno || test x$XGETTEXT = xno || test $MSGMERGE = no ; then
-    enable_translations=no
-    echo "disabling translations (missing msgfmt, xgettext or msgmerge)"
-  else
-    echo "enabling translations"
-  fi
-else
-  echo "disabling translations"
-fi  
-AM_CONDITIONAL(ENABLE_TRANSLATIONS, test x$enable_translations = xyes)
+dnl ******************************************************************
+dnl  SANE API specification format conversion support
+dnl ******************************************************************
+AC_ARG_WITH(api-spec,
+  AS_HELP_STRING([--with-api-spec],
+    [convert API spec to supported output formats @<:@default=check@:>@]),
+    [],
+    [with_api_spec=check])
+dnl  Test for all tools that may be involved.  These tests are fast and
+dnl  running them allows for the Makefile targets to be formulated such
+dnl  that you non-requested formats can be made using a one-off without
+dnl  the need to reconfigure.
+AC_PATH_PROG(MAKEINDEX, makeindex, no)
+AC_PATH_PROG(DVIPS, dvips, no)
+AC_PATH_PROG(LATEX, latex, no)
+AC_PATH_PROG(PDFLATEX, pdflatex, no)
+AC_PATH_PROG(FIG2DEV, fig2dev, no)
+AC_PATH_PROG(GS, gs, no)
+AC_PATH_PROG(DLH, dlh, no)
+AC_PATH_PROG(PPMTOGIF, ppmtogif, no)
+AS_IF([test xno != "x$with_api_spec"],
+  [dnl  Flag formats for which all required tools have been found
+   AS_IF([   test xno != "x$MAKEINDEX" \
+          && test xno != "x$DVIPS" \
+          && test xno != "x$FIG2DEV" \
+          && test xno != "x$LATEX"],       [with_api_ps=yes])
+   AS_IF([   test xno != "x$MAKEINDEX" \
+          && test xno != "x$PDFLATEX" \
+          && test xno != "x$FIG2DEV" \
+          && test xno != "x$GS"],          [with_api_pdf=yes])
+   AS_IF([   test xno != "x$MAKEINDEX" \
+          && test xno != "x$DVIPS" \
+          && test xno != "x$FIG2DEV" \
+          && test xno != "x$DLH" \
+          && test xno != "x$GS" \
+          && test xno != "x$PPMTOFIG" ],   [with_api_html=yes])
 
-AC_ARG_ENABLE(latex,
-	      AC_HELP_STRING([--disable-latex],
-	      [disable use of latex, et.al., to generate documentation]),,
-	      enable_latex=yes)
-if test "x$enable_latex" = "xyes" ; then
-  if test "x$LATEX" = "xno" || test "x$DVIPS" = "xno" || test "x$MAKEINDEX" = "xno" ; then
-    enable_latex=no
-    echo "disabling latex (missing latex, dvips or makeindex)"
-  else
-    echo "enabling latex"
-  fi
-else
-  echo "disabling latex"
-fi  
-AM_CONDITIONAL(USE_LATEX, test x$enable_latex = xyes)
+   AS_IF([test xyes = "x$with_api_spec" \
+          && test xno = "x$with_api_ps" \
+          && test xno = "x$with_api_pdf" \
+          && test xno = "x$with_api_html"],
+     [AC_MSG_ERROR([tools to convert the API spec are missing])
+     ])
+  ])
+AM_CONDITIONAL(WITH_API_PS, [test x$with_api_ps = xyes])
+AM_CONDITIONAL(WITH_API_PDF, [test x$with_api_pdf = xyes])
+AM_CONDITIONAL(WITH_API_HTML, [test x$with_api_html = xyes])
 
 dnl ***********************************************************************
 dnl Write output files
 dnl ***********************************************************************
 
-DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \"\#\"* \".\\#\"*"
-AC_SUBST(DISTCLEAN_FILES)
+AC_SUBST(AM_CPPFLAGS)
+AC_SUBST(AM_CFLAGS)
+AC_SUBST(AM_LDFLAGS)
 
 AC_CONFIG_FILES([Makefile lib/Makefile sanei/Makefile frontend/Makefile \
   japi/Makefile backend/Makefile include/Makefile doc/Makefile \
-  po/Makefile testsuite/Makefile testsuite/sanei/Makefile testsuite/tools/Makefile \
+  po/Makefile.in testsuite/Makefile testsuite/sanei/Makefile testsuite/tools/Makefile \
   tools/Makefile doc/doxygen-sanei.conf doc/doxygen-genesys.conf])
 AC_CONFIG_FILES([tools/sane-config], [chmod a+x tools/sane-config])
 AC_CONFIG_FILES([tools/sane-backends.pc])
@@ -818,9 +791,9 @@ dnl print configuration information
 dnl ***********************************************************************
 
 echo "-> Variables used for compilation/linking:"
-echo CPPFLAGS=\"${CPPFLAGS}\"
-echo CFLAGS=\"${CFLAGS}\"
-echo LDFLAGS=\"${LDFLAGS}\"
+echo AM_CPPFLAGS=\"${AM_CPPFLAGS}\"
+echo AM_CFLAGS=\"${AM_CFLAGS}\"
+echo AM_LDFLAGS=\"${AM_LDFLAGS}\"
 echo LIBS=\"${LIBS}\"
 echo "-> Installation directories:"
 echo "Configuration: `eval eval echo ${sysconfdir}`"
@@ -880,10 +853,10 @@ if test "$SELECTED_BACKENDS" != "" ; then
   echo "*** connected to your local computer won't be supported.  Only a network"
   echo "*** connection to a remote host is possible."
 fi
-if test "$enable_libusb" != "no" && test "$HAVE_USB" != "yes" ; then
-  echo "*** Warning: sane-backends will be built without libusb support.  There may"
+if test "$with_usb" != "no" && test "$have_usb" != "yes" ; then
+  echo "*** Warning: sane-backends will be built without USB support.  There may"
   echo "*** be valid reasons to do so, e.g. if you don't use USB scanners or on"
-  echo "*** platforms without libusb support but generally this means that you"
+  echo "*** platforms without USB support but generally this means that you"
   echo "*** can't use USB devices with SANE. The most probable cause is that"
   if test "${ac_cv_header_usb_h}" != "yes"; then
     echo "*** the libusb header file usb.h is not installed. If you use Linux"

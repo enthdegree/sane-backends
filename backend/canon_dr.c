@@ -333,6 +333,8 @@
          - fixed-width scanners were calculating left-side offset incorrectly in color
          - initial support for DR-F120
          - rename all DUPLEX_INTERLACE_* to indicate start and end of line
+      v56 2016-08-23, MAN
+         - initial support for P-150
 
    SANE FLOW DIAGRAM
 
@@ -383,7 +385,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 55
+#define BUILD 56
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1455,6 +1457,23 @@ init_model (struct scanner *s)
     s->reverse_by_mode[MODE_LINEART] = 0;
     s->reverse_by_mode[MODE_HALFTONE] = 0;
     s->can_color = 0;
+  }
+
+  /* all copied from P-215 */
+  else if (strstr (s->model_name, "P-150")) {
+    s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_rRgGbB;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
+    s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_gG;
+    s->duplex_interlace = DUPLEX_INTERLACE_FBfb;
+    s->need_ccal = 1;
+    s->invert_tly = 1;
+    s->unknown_byte2 = 0x88;
+    s->rgb_format = 1;
+    s->has_ssm_pay_head_len = 1;
+    s->ppl_mod = 8;
+    s->ccal_version = 3;
+    s->can_read_sensors = 1;
+    s->has_card = 1;
   }
 
   else if (strstr (s->model_name, "P-208")) {

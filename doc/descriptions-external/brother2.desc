@@ -65,7 +65,7 @@
 :model "DCP-315CN"
 :status :untested
 :interface "USB network"
-:usbid "0x04f9" "0191"
+:usbid "0x04f9" "0x0191"
 :comment "No report yet."
 
 :model "DCP-330C"

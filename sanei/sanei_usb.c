@@ -2174,7 +2174,7 @@ sanei_usb_close (SANE_Int dn)
 }
 
 void
-sanei_usb_set_timeout (SANE_Int timeout)
+sanei_usb_set_timeout (SANE_Int __sane_unused__ timeout)
 {
 #if defined(HAVE_LIBUSB_LEGACY) || defined(HAVE_LIBUSB)
   libusb_timeout = timeout;
@@ -2186,7 +2186,6 @@ sanei_usb_set_timeout (SANE_Int timeout)
 SANE_Status
 sanei_usb_clear_halt (SANE_Int dn)
 {
-  int ret;
   char *env;
   int workaround = 0;
 
@@ -2205,6 +2204,7 @@ sanei_usb_clear_halt (SANE_Int dn)
     }
 
 #ifdef HAVE_LIBUSB_LEGACY
+  int ret;
 
   /* This call seems to be required by Linux xhci driver
    * even though it should be a no-op. Without it, the
@@ -2228,6 +2228,7 @@ sanei_usb_clear_halt (SANE_Int dn)
   }
 
 #elif defined(HAVE_LIBUSB)
+  int ret;
 
   /* This call seems to be required by Linux xhci driver
    * even though it should be a no-op. Without it, the
@@ -2257,7 +2258,7 @@ sanei_usb_clear_halt (SANE_Int dn)
 }
 
 SANE_Status
-sanei_usb_reset (SANE_Int dn)
+sanei_usb_reset (SANE_Int __sane_unused__ dn)
 {
 #ifdef HAVE_LIBUSB_LEGACY
   int ret;
@@ -3129,7 +3130,9 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate)
 }
 
 extern SANE_Status
-sanei_usb_get_descriptor( SANE_Int dn, struct sanei_usb_dev_descriptor *desc )
+sanei_usb_get_descriptor( SANE_Int dn,
+                          struct sanei_usb_dev_descriptor __sane_unused__
+                          *desc )
 {
   if (dn >= device_number || dn < 0)
     {

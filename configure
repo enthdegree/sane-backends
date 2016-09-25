@@ -670,6 +670,8 @@ COMPILE_SANED_TRUE
 configdir
 locksanedir
 SCSI_LIBS
+have_usblib_FALSE
+have_usblib_TRUE
 USB_LIBS
 USB_CFLAGS
 SYSTEMD_LIBS
@@ -20128,6 +20130,14 @@ if test xyes = "x$with_usb" && test xyes != "x$have_usb"; then :
   as_fn_error $? "USB support requested but required libraries not found." "$LINENO" 5
 
 fi
+ if test x != "x$USB_LIBS"; then
+  have_usblib_TRUE=
+  have_usblib_FALSE='#'
+else
+  have_usblib_TRUE='#'
+  have_usblib_FALSE=
+fi
+
 
 
 
@@ -21504,6 +21514,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
 
+if test -z "${have_usblib_TRUE}" && test -z "${have_usblib_FALSE}"; then
+  as_fn_error $? "conditional \"have_usblib\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${COMPILE_SANED_TRUE}" && test -z "${COMPILE_SANED_FALSE}"; then
   as_fn_error $? "conditional \"COMPILE_SANED\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5

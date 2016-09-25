@@ -34,7 +34,10 @@ CLEANFILES = $(bin_SCRIPTS) $(dist_noinst_SCRIPTS)
 EXTRA_DIST = check-po.awk libtool-get-dll-ext mustek600iin-off.c \
 	     RenSaneDlls.cmd README xerox
 
-sane_find_scanner_SOURCES = sane-find-scanner.c check-usb-chip.c
+sane_find_scanner_SOURCES = sane-find-scanner.c
+if have_usblib
+sane_find_scanner_SOURCES += check-usb-chip.c
+endif
 sane_find_scanner_LDADD = ../sanei/libsanei.la ../lib/liblib.la \
 			  $(USB_LIBS) $(IEEE1284_LIBS) $(SCSI_LIBS) \
 			  ../backend/sane_strstatus.lo

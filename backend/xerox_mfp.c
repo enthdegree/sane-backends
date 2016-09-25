@@ -92,7 +92,8 @@ static char *str_cmd(int cmd)
 #define MAX_DUMP 70
 const char *encTmpFileName = "/tmp/stmp_enc.tmp";
 
-static int decompress(struct device *dev, const char *infilename)
+static int decompress(struct device __sane_unused__ *dev,
+                      const char __sane_unused__ *infilename)
 {
 #ifdef HAVE_LIBJPEG
 	int rc;
@@ -198,7 +199,7 @@ static int dump_to_tmp_file(struct device *dev)
 	return srcLen;
 }
 
-static int isSupportedDevice(struct device *dev)
+static int isSupportedDevice(struct device __sane_unused__ *dev)
 {
 #ifdef HAVE_LIBJPEG
 	/* Checking device which supports JPEG Lossy compression for color scanning*/

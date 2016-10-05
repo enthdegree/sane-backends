@@ -459,6 +459,10 @@ step1 (pixma_t * s)
           default:
             break;
         }
+
+      // ignore result from calibrate()
+      // don't interrupt @ PIXMA_STATUS_BUSY
+      error = 0;
     }
   if (error >= 0)
     error = activate (s, 0);
@@ -747,19 +751,23 @@ mp730_finish_scan (pixma_t * s)
       query_status (s);
       activate (s, 0);
 
-      if (! aborted && s->cfg->pid == IR1020_PID)
-	{
-	  error = abort_session (s);
-	  if (error < 0)
-	    {
-	      PDBG (pixma_dbg
-		    (1, "WARNING:abort_session() failed %s\n",
-		     pixma_strerror (error)));
-	      query_status (s);
-	      query_status (s);
-	      activate (s, 0);
-	    }
-	}
+      // MF57x0 devices don't require abort_session() after the last page
+      if (!aborted &&
+          (s->param->source == PIXMA_SOURCE_ADF ||
+           s->param->source == PIXMA_SOURCE_ADFDUP) &&
+           has_paper (s) &&
+           (s->cfg->pid == MF5730_PID ||
+            s->cfg->pid == MF5750_PID ||
+            s->cfg->pid == MF5770_PID ||
+            s->cfg->pid == IR1020_PID))
+      {
+        error = abort_session (s);
+        if (error < 0)
+          PDBG (pixma_dbg
+                (1, "WARNING:abort_session() failed %s\n",
+                 pixma_strerror (error)));
+      }
+
       mp->buf = mp->lbuf = mp->imgbuf = NULL;
       mp->state = state_idle;
       /* fall through */

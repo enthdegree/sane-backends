@@ -110,11 +110,14 @@ typedef uint32_t uint32_t;
 
 /** \addtogroup API
  *  @{ */
+/** Don't forget to update the backend version in the SANE Backend specification
+ *  file: doc/descriptions/pixma.desc !!!
+ */
 /** \name Version of the driver */
 /**@{*/
 #define PIXMA_VERSION_MAJOR 0
 #define PIXMA_VERSION_MINOR 17
-#define PIXMA_VERSION_BUILD 32
+#define PIXMA_VERSION_BUILD 33
 /**@}*/
 
 /** \name Error codes */

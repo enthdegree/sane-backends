@@ -233,6 +233,8 @@
 #define MG6800_PID 0x178d
 #define MG5700_PID 0x178e
 
+/* 2016 new devices (untested) */
+#define MG3000_PID 0x180b
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
@@ -1845,6 +1847,9 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MG6900 Series", "MG6900", MG6900_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG6800 Series", "MG6800", MG6800_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG5700 Series", "MG5700", MG5700_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+
+  /* Latest devices (2016) Generation 4 CIS */
+  DEVICE ("Canon PIXMA MG3000 Series", "MG3000", MG3000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

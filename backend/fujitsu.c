@@ -591,6 +591,11 @@
          - add initial support for fi-7030
          - set has_MS_lamp=0 for fi-71x0
          - add I18N macros to all option titles and descriptions
+      v132 2016-10-07, MAN
+         - remove ipc_mode option and variables
+         - set ipc mode based on other options
+         - cleanup inverted logic DTC options
+         - fixes threshold option reported in #315069
 
    SANE FLOW DIAGRAM
 
@@ -640,7 +645,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 131
+#define BUILD 132
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2033,14 +2038,6 @@ init_model (struct fujitsu *s)
     s->window_gamma = 0x80;
   }
 
-  /* older scanners would enable their highest  */
-  /* IPC mode by default. Newer scanners don't, */
-  /* so we go ahead and turn it on. */
-  if (s->has_sdtc)
-    s->ipc_mode = WD_ipc_SDTC;
-  else if (s->has_dtc)
-    s->ipc_mode = WD_ipc_DTC;
-
   /* endorser type tells string length (among other things) */
   if(s->has_endorser_b){
     /*old-style is 40 bytes*/
@@ -2488,11 +2485,6 @@ init_user (struct fujitsu *s)
   }
   s->u_endorser_dir=DIR_TTB;
   strcpy((char *)s->u_endorser_string,"%05ud");
-
-  /* inverted logic ipc settings */
-  s->noise_removal = 1;
-  s->bp_filter = 1;
-  s->smoothing = 1;
 
   /* more recent machines default to this being 'on',  *
    * which causes the scanner to ingest multiple pages *
@@ -3277,37 +3269,6 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
 
-  if(option==OPT_IPC_MODE){
-    i=0;
-    s->ipc_mode_list[i++]=STRING_DEFAULT;
-    if(s->has_dtc){
-      s->ipc_mode_list[i++]=STRING_DTC;
-    }
-    if(s->has_sdtc){
-      s->ipc_mode_list[i++]=STRING_SDTC;
-    }
-    s->ipc_mode_list[i]=NULL;
-  
-    opt->name = "ipc-mode";
-    opt->title = SANE_I18N ("IPC mode");
-    opt->desc = SANE_I18N ("Image processing mode, enables additional options");
-    opt->type = SANE_TYPE_STRING;
-    opt->unit = SANE_UNIT_NONE;
-
-    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
-    opt->constraint.string_list = s->ipc_mode_list;
-    opt->size = maxStringSize (opt->constraint.string_list);
-
-    if ( i > 2 ){
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->s_mode != MODE_HALFTONE && s->s_mode != MODE_LINEART){
-        opt->cap |= SANE_CAP_INACTIVE;
-      }
-    }
-    else
-      opt->cap = SANE_CAP_INACTIVE;
-  }
-
   /* =============== DTC params ================================ */
   /* enabled when in dtc mode (manually or by default) */
   if(option==OPT_BP_FILTER){
@@ -3319,8 +3280,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->ipc_mode == WD_ipc_SDTC 
-       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+      if(get_ipc_mode(s) == WD_ipc_SDTC){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3337,8 +3297,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->ipc_mode == WD_ipc_SDTC 
-       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+      if(get_ipc_mode(s) == WD_ipc_SDTC){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3361,8 +3320,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->ipc_mode == WD_ipc_SDTC 
-       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+      if(get_ipc_mode(s) == WD_ipc_SDTC){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3385,8 +3343,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->ipc_mode == WD_ipc_SDTC 
-       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+      if(get_ipc_mode(s) == WD_ipc_SDTC){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3403,8 +3360,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->ipc_mode == WD_ipc_SDTC 
-       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+      if(get_ipc_mode(s) == WD_ipc_SDTC){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3421,8 +3377,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if(s->ipc_mode == WD_ipc_SDTC 
-       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+      if(get_ipc_mode(s) == WD_ipc_SDTC){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3439,9 +3394,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if( !s->noise_removal
-       || s->ipc_mode == WD_ipc_SDTC 
-       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+      if(!s->noise_removal){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3458,9 +3411,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if( !s->noise_removal
-       || s->ipc_mode == WD_ipc_SDTC 
-       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+      if(!s->noise_removal){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3477,9 +3428,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if( !s->noise_removal
-       || s->ipc_mode == WD_ipc_SDTC 
-       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+      if(!s->noise_removal){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3496,9 +3445,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if( !s->noise_removal
-       || s->ipc_mode == WD_ipc_SDTC 
-       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+      if(!s->noise_removal){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -3524,7 +3471,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if ( s->has_sdtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      if (s->ipc_mode == WD_ipc_DTC){
+      if(get_ipc_mode(s) == WD_ipc_DTC){
         opt->cap |= SANE_CAP_INACTIVE;
       }
     }
@@ -4800,18 +4747,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           }
           return SANE_STATUS_GOOD;
 
-        case OPT_IPC_MODE:
-          if(s->ipc_mode == WD_ipc_DEFAULT){
-            strcpy (val, STRING_DEFAULT);
-          }
-          else if(s->ipc_mode == WD_ipc_DTC){
-            strcpy (val, STRING_DTC);
-          }
-          else if(s->ipc_mode == WD_ipc_SDTC){
-            strcpy (val, STRING_SDTC);
-          }
-          return SANE_STATUS_GOOD;
-
+        /* DTC params*/
         case OPT_BP_FILTER:
           *val_p = s->bp_filter;
           return SANE_STATUS_GOOD;
@@ -4852,6 +4788,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->matrix_2;
           return SANE_STATUS_GOOD;
 
+        /* SDTC params*/
         case OPT_VARIANCE:
           *val_p = s->variance;
           return SANE_STATUS_GOOD;
@@ -5496,48 +5433,35 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->wl_follow = WD_wl_follow_OFF;
           return SANE_STATUS_GOOD;
 
-        case OPT_IPC_MODE:
-          if (!strcmp (val, STRING_DEFAULT)) {
-            tmp = WD_ipc_DEFAULT;
-          }
-          else if (!strcmp (val, STRING_DTC)) {
-            tmp = WD_ipc_DTC;
-          }
-          else {
-            tmp = WD_ipc_SDTC;
-          }
-
-          if (tmp != s->ipc_mode)
-            *info |= SANE_INFO_RELOAD_OPTIONS;
-
-          s->ipc_mode = tmp;
-          return SANE_STATUS_GOOD;
-
+        /* DTC params*/
         case OPT_BP_FILTER:
           s->bp_filter = val_c;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_SMOOTHING:
           s->smoothing = val_c;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_GAMMA_CURVE:
           s->gamma_curve = val_c;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_THRESHOLD_CURVE:
           s->threshold_curve = val_c;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_THRESHOLD_WHITE:
           s->threshold_white = val_c;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_NOISE_REMOVAL:
-          if (val_c != s->noise_removal)
-            *info |= SANE_INFO_RELOAD_OPTIONS;
-
           s->noise_removal = val_c;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_MATRIX_5:
@@ -5556,8 +5480,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->matrix_2 = val_c;
           return SANE_STATUS_GOOD;
 
+        /* SDTC params*/
         case OPT_VARIANCE:
           s->variance = val_c;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
@@ -7640,15 +7566,15 @@ set_window (struct fujitsu *s)
     set_WD_separation(desc1,s->separation);
     set_WD_mirroring(desc1,s->mirroring);
 
-    if (s->has_sdtc && s->ipc_mode != WD_ipc_DTC)
+    if (get_ipc_mode(s) == WD_ipc_SDTC)
       set_WD_variance(desc1,s->variance);
 
-    if ((s->has_dtc && !s->has_sdtc) || s->ipc_mode == WD_ipc_DTC){
-      set_WD_filtering(desc1,!s->bp_filter);
-      set_WD_smoothing(desc1,!s->smoothing);
+    else if (get_ipc_mode(s) == WD_ipc_DTC){
+      set_WD_filtering(desc1,s->bp_filter);
+      set_WD_smoothing(desc1,s->smoothing);
       set_WD_gamma_curve(desc1,s->gamma_curve);
       set_WD_threshold_curve(desc1,s->threshold_curve);
-      set_WD_noise_removal(desc1,!s->noise_removal);
+      set_WD_noise_removal(desc1,s->noise_removal);
       if(s->noise_removal){
         set_WD_matrix5x5(desc1,s->matrix_5);
         set_WD_matrix4x4(desc1,s->matrix_4);
@@ -7660,7 +7586,7 @@ set_window (struct fujitsu *s)
 
     set_WD_wl_follow(desc1,s->wl_follow);
     set_WD_subwindow_list(desc1,0);
-    set_WD_ipc_mode(desc1,s->ipc_mode);
+    set_WD_ipc_mode(desc1,get_ipc_mode(s));
   }
 
   else{
@@ -9932,6 +9858,43 @@ get_page_height(struct fujitsu *s)
 
   /* overscan adds a margin to both sides */
   return height;
+}
+
+/* scanners have two different possible IPC
+ * modes, which enable a different series of
+ * subordinate options. Rather than provide
+ * the user with an option to pick the IPC
+ * mode, we show them the subordinate ones,
+ * and pick the right mode to match.
+ */
+static int
+get_ipc_mode(struct fujitsu *s) 
+{
+  if ( s->bp_filter
+    || s->smoothing
+    || s->gamma_curve
+    || s->threshold_curve
+    || s->threshold_white
+    || s->noise_removal
+    || s->matrix_5
+    || s->matrix_4
+    || s->matrix_3
+    || s->matrix_2
+  )
+    return WD_ipc_DTC;
+
+  if(s->variance)
+    return WD_ipc_SDTC;
+
+  /* special case: 0 threshold should activate IPC */
+  if(!s->threshold){
+    if(s->has_sdtc)
+      return WD_ipc_SDTC;
+    if(s->has_dtc)
+      return WD_ipc_DTC;
+  }
+
+  return WD_ipc_DEFAULT;
 }
 
 /* s->max_y gives the maximum height of paper which can be scanned 

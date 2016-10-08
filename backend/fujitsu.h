@@ -43,7 +43,6 @@ enum fujitsu_Option
   OPT_SEPARATION,
   OPT_MIRRORING,
   OPT_WL_FOLLOW,
-  OPT_IPC_MODE,
 
   /*IPC/DTC*/
   OPT_BP_FILTER,
@@ -386,7 +385,6 @@ struct fujitsu
   SANE_Range ht_pattern_range;
   SANE_Range emphasis_range;
   SANE_String_Const wl_follow_list[4];
-  SANE_String_Const ipc_mode_list[4];
   SANE_Range gamma_curve_range;
   SANE_Range threshold_curve_range;
   SANE_Range variance_range;
@@ -456,7 +454,6 @@ struct fujitsu
   int separation;
   int mirroring;
   int wl_follow;
-  int ipc_mode;
 
   /* ipc_mode=DTC */
   int bp_filter;
@@ -533,12 +530,6 @@ struct fujitsu
   */
   SANE_Parameters u_params;
   SANE_Parameters s_params;
-
-  /* also keep a backup copy, in case the software enhancement code overwrites*/
-  /*
-  SANE_Parameters u_params_bk;
-  SANE_Parameters s_params_bk;
-  */
 
   /* --------------------------------------------------------------------- */
   /* values which are set by scanning functions to keep track of pages, etc */
@@ -821,6 +812,7 @@ static int must_downsample (struct fujitsu *s);
 static int must_fully_buffer (struct fujitsu *s);
 static int get_page_width (struct fujitsu *s);
 static int get_page_height (struct fujitsu *s);
+static int get_ipc_mode (struct fujitsu *s);
 static int set_max_y (struct fujitsu *s);
 
 static SANE_Status send_lut (struct fujitsu *s);

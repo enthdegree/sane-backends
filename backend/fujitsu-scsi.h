@@ -1059,12 +1059,12 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 /* DTC also called Auto-I mode?*/
 /*warning: filtering uses inverse logic*/
-#define set_WD_filtering(sb, val) setbitfield(sb + 0x2f, 1, 7, val)
-#define get_WD_filtering(sb) getbitfield(sb + 0x2f, 1, 7)
+#define set_WD_filtering(sb, val) setbitfield(sb + 0x2f, 1, 7, !val)
+#define get_WD_filtering(sb) !getbitfield(sb + 0x2f, 1, 7)
 
 /*warning: smoothing uses inverse logic*/
-#define set_WD_smoothing(sb, val) setbitfield(sb + 0x2f, 3, 5, val)
-#define get_WD_smoothing(sb) getbitfield(sb + 0x2f, 3, 5)
+#define set_WD_smoothing(sb, val) setbitfield(sb + 0x2f, 3, 5, !val)
+#define get_WD_smoothing(sb) !getbitfield(sb + 0x2f, 3, 5)
 
 #define set_WD_gamma_curve(sb, val) setbitfield(sb + 0x2f, 3, 3, val)
 #define get_WD_gamma_curve(sb) getbitfield(sb + 0x2f, 3, 3)

@@ -29,135 +29,136 @@
 #define SWAP_Word(x, y) { SANE_Word z = x; x = y; y = z; }
 
 enum options {
-  OPT_NUMOPTIONS,
-  OPT_GROUP_STD,
-  OPT_RESOLUTION,	/* dpi*/
-  OPT_MODE,		/* color */
-  OPT_THRESHOLD,	/* brightness */
-  OPT_SOURCE,		/* affects max window size */
-  OPT_GROUP_GEO,
-  OPT_SCAN_TL_X,	/* for (OPT_SCAN_TL_X to OPT_SCAN_BR_Y) */
-  OPT_SCAN_TL_Y,
-  OPT_SCAN_BR_X,
-  OPT_SCAN_BR_Y,
-  NUM_OPTIONS
+    OPT_NUMOPTIONS,
+    OPT_GROUP_STD,
+    OPT_RESOLUTION,	/* dpi*/
+    OPT_MODE,		/* color */
+    OPT_THRESHOLD,	/* brightness */
+    OPT_SOURCE,		/* affects max window size */
+    OPT_GROUP_GEO,
+    OPT_SCAN_TL_X,	/* for (OPT_SCAN_TL_X to OPT_SCAN_BR_Y) */
+    OPT_SCAN_TL_Y,
+    OPT_SCAN_BR_X,
+    OPT_SCAN_BR_Y,
+    NUM_OPTIONS
 };
 
 typedef struct transport transport;
 
 struct device {
-  struct device *next;
-  SANE_Device sane;
-  int dn;			/* usb file descriptor */
-  SANE_Byte res[1024];		/* buffer for responses */
-  size_t reslen;		/* response len */
-  SANE_Option_Descriptor opt[NUM_OPTIONS];
-  Option_Value val[NUM_OPTIONS];
-  SANE_Parameters para;
-  SANE_Bool non_blocking;
-  int scanning;			/* scanning is started */
-  int cancel;			/* cancel flag */
-  int state;			/* current state */
-  int reserved;			/* CMD_RESERVE_UNIT */
-  int reading;			/* READ_IMAGE is sent */
+    struct device *next;
+    SANE_Device sane;
+    int dn;			/* usb file descriptor */
+    SANE_Byte res[1024];		/* buffer for responses */
+    size_t reslen;		/* response len */
+    SANE_Option_Descriptor opt[NUM_OPTIONS];
+    Option_Value val[NUM_OPTIONS];
+    SANE_Parameters para;
+    SANE_Bool non_blocking;
+    int scanning;			/* scanning is started */
+    int cancel;			/* cancel flag */
+    int state;			/* current state */
+    int reserved;			/* CMD_RESERVE_UNIT */
+    int reading;			/* READ_IMAGE is sent */
 
-  SANE_Byte *data;		/* postprocessing cyclic buffer 64k */
-  int datalen;			/* how data in buffer */
-  int dataoff;			/* offset of data */
-  int dataindex;		/* sequental number */
+    SANE_Byte *data;		/* postprocessing cyclic buffer 64k */
+    int datalen;			/* how data in buffer */
+    int dataoff;			/* offset of data */
+    int dataindex;		/* sequental number */
 #define DATAMASK 0xffff		/* mask of data buffer */
 #define DATASIZE (DATAMASK + 1)	/* size of data buffer */
-  /* 64K will be enough to hold whole line of 2400 dpi of 23cm */
+    /* 64K will be enough to hold whole line of 2400 dpi of 23cm */
 #define DATATAIL(dev) ((dev->dataoff + dev->datalen) & DATAMASK)
 #define DATAROOM(dev) dataroom(dev)
 
 #define POST_DATASIZE 0xFFFFFF
-  SANE_Byte *decData;
-  int decDataSize;
-  int currentDecDataIndex;
-  /* data from CMD_INQUIRY: */
-  int resolutions;		/* supported resolution bitmask */
-  int compositions;		/* supported image compositions bitmask */
-  int max_len;			/* effective max len for current doc source */
-  int max_win_width;
-  int max_win_len;
-  int max_len_adf;
-  int max_len_fb;
-  int line_order;		/* if need post processing */
-  SANE_Word dpi_list[30];	/* allowed resolutions */
-  int doc_loaded;
+    SANE_Byte *decData;
+    int decDataSize;
+    int currentDecDataIndex;
+    /* data from CMD_INQUIRY: */
+    int resolutions;		/* supported resolution bitmask */
+    int compositions;		/* supported image compositions bitmask */
+    int max_len;			/* effective max len for current doc source */
+    int max_win_width;
+    int max_win_len;
+    int max_len_adf;
+    int max_len_fb;
+    int line_order;		/* if need post processing */
+    SANE_Word dpi_list[30];	/* allowed resolutions */
+    int doc_loaded;
 
-  SANE_Range win_x_range;
-  SANE_Range win_y_range;
+    SANE_Range win_x_range;
+    SANE_Range win_y_range;
 
-  /* CMD_SET_WINDOW parameters we set: */
-  int win_width;		/* in 1200dpi points */
-  int win_len;
-  double win_off_x;		/* in inches (byte.byte) */
-  double win_off_y;
-  int resolution;		/* dpi indexed values */
-  int composition;		/* MODE_ */
-  int doc_source;		/* document source */
-  int threshold;		/* brightness */
-  int compressionTypes;
+    /* CMD_SET_WINDOW parameters we set: */
+    int win_width;		/* in 1200dpi points */
+    int win_len;
+    double win_off_x;		/* in inches (byte.byte) */
+    double win_off_y;
+    int resolution;		/* dpi indexed values */
+    int composition;		/* MODE_ */
+    int doc_source;		/* document source */
+    int threshold;		/* brightness */
+    int compressionTypes;
 
-  /* CMD_READ data. It is per block only, image could be in many blocks */
-  int blocklen;			/* image data block len (padding incl.) */
-  int vertical;			/* lines in block (padded) */
-  int horizontal;		/* b/w: bytes, gray/color: pixels (padded) */
-  int final_block;
-  int pixels_per_line;
-  int bytes_per_line;
-  int ulines;			/* up to this block including */
-  int y_off;			/* up to this block excluding*/
-  int blocks;
+    /* CMD_READ data. It is per block only, image could be in many blocks */
+    int blocklen;			/* image data block len (padding incl.) */
+    int vertical;			/* lines in block (padded) */
+    int horizontal;		/* b/w: bytes, gray/color: pixels (padded) */
+    int final_block;
+    int pixels_per_line;
+    int bytes_per_line;
+    int ulines;			/* up to this block including */
+    int y_off;			/* up to this block excluding*/
+    int blocks;
 
-  /* stat */
-  int total_img_size;		/* predicted image size */
-  int total_out_size;		/* total we sent to user */
-  int total_data_size;		/* total of what scanner sent us */
+    /* stat */
+    int total_img_size;		/* predicted image size */
+    int total_out_size;		/* total we sent to user */
+    int total_data_size;		/* total of what scanner sent us */
 
-  /* transport to use */
-  transport *io;
+    /* transport to use */
+    transport *io;
 };
 
 
 /*	Transport abstract layer	*/
 struct transport {
-    char* ttype;
+    char *ttype;
 
-    int (*dev_request) (struct device *dev,
-		SANE_Byte *cmd, size_t cmdlen,
-		SANE_Byte *resp, size_t *resplen);
-    SANE_Status (*dev_open) (struct device *dev);
-    void (*dev_close) (struct device *dev);
-    SANE_Status (*configure_device) (const char *devname, SANE_Status (*cb)(SANE_String_Const devname));
+    int (*dev_request)(struct device *dev,
+                       SANE_Byte *cmd, size_t cmdlen,
+                       SANE_Byte *resp, size_t *resplen);
+    SANE_Status(*dev_open)(struct device *dev);
+    void (*dev_close)(struct device *dev);
+    SANE_Status(*configure_device)(const char *devname, SANE_Status(*cb)(SANE_String_Const devname));
 };
 
 /*	USB transport	*/
-int		usb_dev_request	(struct device *dev, SANE_Byte *cmd, size_t cmdlen, SANE_Byte *resp, size_t *resplen);
-SANE_Status	usb_dev_open	(struct device *dev);
-void		usb_dev_close	(struct device *dev);
-SANE_Status	usb_configure_device (const char *devname, SANE_Status (*cb)(SANE_String_Const devname));
+int		usb_dev_request(struct device *dev, SANE_Byte *cmd, size_t cmdlen, SANE_Byte *resp, size_t *resplen);
+SANE_Status	usb_dev_open(struct device *dev);
+void		usb_dev_close(struct device *dev);
+SANE_Status	usb_configure_device(const char *devname, SANE_Status(*cb)(SANE_String_Const devname));
 
 /*	TCP unicast	*/
-int		tcp_dev_request	(struct device *dev, SANE_Byte *cmd, size_t cmdlen, SANE_Byte *resp, size_t *resplen);
-SANE_Status	tcp_dev_open	(struct device *dev);
-void		tcp_dev_close	(struct device *dev);
-SANE_Status	tcp_configure_device (const char *devname, SANE_Status (*cb)(SANE_String_Const devname));
+int		tcp_dev_request(struct device *dev, SANE_Byte *cmd, size_t cmdlen, SANE_Byte *resp, size_t *resplen);
+SANE_Status	tcp_dev_open(struct device *dev);
+void		tcp_dev_close(struct device *dev);
+SANE_Status	tcp_configure_device(const char *devname, SANE_Status(*cb)(SANE_String_Const devname));
 
 /* device wants transfer buffer to be multiple of 512 */
 #define USB_BLOCK_SIZE 512
 #define USB_BLOCK_MASK ~(USB_BLOCK_SIZE - 1)
 
-static inline int dataroom(struct device *dev) {
-  int tail = DATATAIL(dev);
-  if (tail < dev->dataoff)
-    return dev->dataoff - tail;
-  else if (dev->datalen == DATASIZE) {
-    return 0;
-  } else
-    return DATASIZE - tail;
+static inline int dataroom(struct device *dev)
+{
+    int tail = DATATAIL(dev);
+    if (tail < dev->dataoff)
+        return dev->dataoff - tail;
+    else if (dev->datalen == DATASIZE) {
+        return 0;
+    } else
+        return DATASIZE - tail;
 }
 
 /*	Functions from original xerox_mfp.c, used in -usb.c and -tcp.c	*/

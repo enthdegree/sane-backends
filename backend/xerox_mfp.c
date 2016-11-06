@@ -1,9 +1,12 @@
 /*
- * SANE backend for Xerox Phaser 3200MFP
- * Copyright 2008 ABC <abc@telekom.ru>
+ * SANE backend for Xerox Phaser 3200MFP et al.
+ * Copyright 2008-2016 ABC <abc@telekom.ru>
  *
- *	Network Scanners Support
- *	Copyright 2010 Alexander Kuznetsov <acca(at)cpan.org>
+ * Network Scanners Support
+ * Copyright 2010 Alexander Kuznetsov <acca(at)cpan.org>
+ *
+ * Color scanning on Samsung M2870 model and Xerox Cognac 3215 & 3225
+ * models by Laxmeesh Onkar Markod <m.laxmeesh@samsung.com>
  *
  * This program is licensed under GPL + SANE exception.
  * More info at http://www.sane-project.org/license.html

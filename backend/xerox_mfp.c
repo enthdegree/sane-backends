@@ -1481,7 +1481,17 @@ sane_start(SANE_Handle h)
 
     if (isSupportedDevice(dev) &&
         dev->composition == MODE_RGB24) {
+	int fd;
         remove(encTmpFileName);
+
+	/* Precreate temporary file in exclusive mode. */
+	fd = open(encTmpFileName, O_CREAT|O_EXCL, 0600);
+	if (fd == -1) {
+	    DBG(3, "%s: %p, can't create temporary file %s: %s\n", __func__,
+		(void *)dev, encTmpFileName, strerror(errno));
+	    return ret_cancel(dev, SANE_STATUS_ACCESS_DENIED);
+	}
+	close(fd);
     }
     dev->currentDecDataIndex = 0;
 

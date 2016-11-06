@@ -923,7 +923,7 @@ for details).
 .BR sane\-umax (5),
 .BR sane\-umax_pp (5),
 .BR sane\-usb (5),
-.BR sane\-v4l (5)
+.BR sane\-v4l (5),
 .BR sane\-xerox_mfp (5)
 
 .SH AUTHOR
